@@ -268,7 +268,7 @@ for (a in hr_analyses) {
 
 # --- SECTION 1c: REML Validation (all outcomes) ------------------------------
 cat("=======================================================================\n")
-cat("SECTION 1c: REML vs DL — Full Validation (all 8 analyses)\n")
+cat("SECTION 1c: REML vs DL — Full Validation (all 12 analyses)\n")
 cat("=======================================================================\n\n")
 
 cat(sprintf("%-32s %10s %10s %12s %12s %10s\n",
@@ -377,33 +377,34 @@ concordance <- data.frame(
     0.92, 0.88, 0.90
   ),
   App_Measure = c(
-    "OR", "RR", "RR", "RR", "RR",
-    "OR", "RR", "RR", "RR",
-    "OR", "RR", "OR",
-    "OR", "OR", "OR"
+    "HR", "RR", "RR", "RR", "RR",
+    "HR", "RR", "RR", "RR",
+    "HR", "RR", "OR",
+    "HR", "HR", "HR"
   ),
   App_Est = c(
-    round(results[["MACE (OR)"]]$pooled, 2),
+    round(hr_results[["MACE (HR)"]]$pooled, 2),
     round(results[["MACE (RR)"]]$pooled, 2),
     round(results[["MACE (RR)"]]$pooled, 2),
     round(results[["MACE (RR)"]]$pooled, 2),
     round(results[["MACE (RR)"]]$pooled, 2),
-    round(results[["All-Cause Mortality (OR)"]]$pooled, 2),
+    round(hr_results[["All-Cause Mortality (HR)"]]$pooled, 2),
     round(results[["All-Cause Mortality (RR)"]]$pooled, 2),
     round(results[["All-Cause Mortality (RR)"]]$pooled, 2),
     round(results[["All-Cause Mortality (RR)"]]$pooled, 2),
-    round(results[["HF Hospitalization (OR)"]]$pooled, 2),
+    round(hr_results[["HF Hospitalization (HR)"]]$pooled, 2),
     round(results[["HF Hospitalization (RR)"]]$pooled, 2),
     round(results[["HF Hospitalization (OR)"]]$pooled, 2),
-    round(results[["Renal Composite (OR)"]]$pooled, 2),
-    round(results[["Renal Composite (OR)"]]$pooled, 2),
-    round(results[["Renal Composite (OR)"]]$pooled, 2)
+    round(hr_results[["Renal Composite (HR)"]]$pooled, 2),
+    round(hr_results[["Renal Composite (HR)"]]$pooled, 2),
+    round(hr_results[["Renal Composite (HR)"]]$pooled, 2)
   ),
   stringsAsFactors = FALSE
 )
 
 concordance$Delta <- abs(concordance$Pub_Est - concordance$App_Est)
-concordance$Match <- ifelse(concordance$Delta <= 0.03, "CONCORDANT", "DIVERGENT")
+# Use round() to avoid IEEE 754 floating-point artefacts (e.g. 0.92-0.89 = 0.03000...03)
+concordance$Match <- ifelse(round(concordance$Delta, 4) <= 0.03, "CONCORDANT", "DIVERGENT")
 
 cat(sprintf("%-12s %-50s %5s %4s (%4s-%4s)   %3s %4s  delta  match\n",
             "Outcome", "Published Source", "Meas", "Est", "LCI", "UCI", "App", "Est"))
@@ -537,7 +538,8 @@ for (i in seq_len(nrow(published))) {
 cat("\n=======================================================================\n")
 cat("VALIDATION SUMMARY\n")
 cat("=======================================================================\n")
-cat(sprintf("Analyses computed: %d (OR and RR for each outcome)\n", length(results)))
+cat(sprintf("Analyses computed: %d OR/RR + %d HR = %d total\n",
+            length(results), length(hr_results), length(results) + length(hr_results)))
 cat(sprintf("Concordance with published metas: %d/%d (%.0f%%) within 0.03\n",
             n_concordant, nrow(concordance), 100 * n_concordant / nrow(concordance)))
 cat("All estimates computed using metafor::rma() with DerSimonian-Laird.\n")

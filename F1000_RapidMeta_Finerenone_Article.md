@@ -158,23 +158,23 @@ Table 3 compares the application's pooled estimates against 15 published fineren
 
 | Outcome | Published source | PMID | Pub measure | Pub estimate (95% CI) | App measure | App estimate | Delta |
 |---------|-----------------|------|-------------|----------------------|-------------|-------------|-------|
-| MACE | FIDELITY IPD (Agarwal 2022) | 35023547 | HR | 0.86 (0.78-0.95) | OR | 0.86 | 0.00 |
+| MACE | FIDELITY IPD (Agarwal 2022) | 35023547 | HR | 0.86 (0.78-0.95) | HR | 0.87 | 0.01 |
 | MACE | Yang 2023 | 36027585 | RR | 0.88 (0.80-0.96) | RR | 0.88 | 0.00 |
 | MACE | Zhang MZ 2022 | 35197856 | RR | 0.88 (0.80-0.95) | RR | 0.88 | 0.00 |
 | MACE | Bao 2022 | 36273065 | RR | 0.88 (0.80-0.96) | RR | 0.88 | 0.00 |
 | MACE | Jyotsna 2023 | 37575756 | RR | 0.86 (0.80-0.93) | RR | 0.88 | 0.02 |
-| ACM | FINE-HEART IPD (Vaduganathan 2024) | 39218030 | HR | 0.91 (0.84-0.99) | OR | 0.90 | 0.01 |
+| ACM | FINE-HEART IPD (Vaduganathan 2024) | 39218030 | HR | 0.91 (0.84-0.99) | HR | 0.91 | 0.00 |
 | ACM | Ahmed 2025 | 39911073 | RR | 0.92 (0.85-0.99) | RR | 0.92 | 0.00 |
-| ACM | Yang 2023 | 36027585 | RR | 0.89 (0.80-0.99) | RR | 0.92 | 0.03* |
+| ACM | Yang 2023 | 36027585 | RR | 0.89 (0.80-0.99) | RR | 0.92 | 0.03 |
 | ACM | Bao 2022 | 36273065 | RR | 0.90 (0.80-1.00) | RR | 0.92 | 0.02 |
-| HF hosp | FIDELITY IPD (Agarwal 2022) | 35023547 | HR | 0.78 (0.66-0.92) | OR | 0.78 | 0.00 |
+| HF hosp | FIDELITY IPD (Agarwal 2022) | 35023547 | HR | 0.78 (0.66-0.92) | HR | 0.78 | 0.00 |
 | HF hosp | Ahmed 2025 | 39911073 | RR | 0.82 (0.76-0.87) | RR | 0.79 | 0.03 |
 | HF hosp | Yasmin 2023 | 37811017 | OR | 0.79 (0.68-0.92) | OR | 0.78 | 0.01 |
-| Renal | Ghosal 2023 | 36742404 | HR | 0.84 (0.77-0.92) | OR | 0.83 | 0.01 |
-| Renal | FIDELITY IPD (Agarwal 2022) | 35023547 | HR | 0.77 (0.67-0.88) | OR | 0.83 | 0.06* |
-| Renal | FINE-HEART IPD (Vaduganathan 2024) | 39218030 | HR | 0.80 (0.72-0.90) | OR | 0.83 | 0.03 |
+| Renal | Ghosal 2023 | 36742404 | HR | 0.84 (0.77-0.92) | HR | 0.84 | 0.00 |
+| Renal | FIDELITY IPD (Agarwal 2022) | 35023547 | HR | 0.77 (0.67-0.88) | HR | 0.84 | 0.07* |
+| Renal | FINE-HEART IPD (Vaduganathan 2024) | 39218030 | HR | 0.80 (0.72-0.90) | HR | 0.84 | 0.04* |
 
-*Yang 2023 ACM: Included 4 trials (pre-FINEARTS-HF); app pools 3 Phase III trials including FINEARTS-HF, which dilutes the mortality signal. *FIDELITY renal: IPD analysis used the stricter "kidney failure" definition; app uses the broader ">=40% eGFR decline" composite with more events across both trials.
+Where the published source reported a hazard ratio, the app's pooled HR (via generic inverse-variance of published per-trial HRs) is used for comparison; otherwise, the matching effect measure (OR or RR) is compared. *FIDELITY renal (delta 0.07): IPD analysis used the stricter "kidney failure" definition (>=57% eGFR decline or renal death); the app uses the broader ">=40% eGFR decline" composite, which yields more events and a smaller effect size. *FINE-HEART renal (delta 0.04): IPD pooled 3 trials including FINEARTS-HF (where renal events favoured placebo); the app pools only FIDELIO-DKD and FIGARO-DKD for this endpoint.
 
 ### Feature overview
 
