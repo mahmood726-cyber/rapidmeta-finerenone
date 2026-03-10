@@ -15,9 +15,9 @@ Corresponding author: Mahmood Ahmad (mahmood726@gmail.com)
 
 **Background:** Finerenone, a non-steroidal mineralocorticoid receptor antagonist, has been studied in three large Phase III cardiovascular and renal outcome trials (FIDELIO-DKD, FIGARO-DKD, FINEARTS-HF; combined N = 19,027). At least 15 independent meta-analyses and two pre-specified individual patient data (IPD) pooled analyses have been published, establishing a well-characterised evidence base suitable for validating new meta-analytic software. We developed RapidMeta Cardiology, a browser-based living meta-analysis platform, and validated its statistical engine against these published benchmarks.
 
-**Methods:** The application is delivered as a standalone HTML/JavaScript single-page tool (~7,800 lines) requiring no installation or server. It implements DerSimonian-Laird random-effects meta-analysis for odds ratios and risk ratios, with Hartung-Knapp-Sidik-Jonkman (HKSJ) adjustment, Bayesian analysis, prediction intervals, Egger's test, Trial Sequential Analysis, and 15+ interactive Plotly visualisations. All trial-level event counts were extracted exclusively from open-access sources (ClinicalTrials.gov results API v2 and PubMed abstracts), with full provenance documentation for every data point. Numerical accuracy was validated against the R metafor package (version 4.8.0) using identical trial-level data. Concordance was assessed by comparing pooled estimates against 15 published meta-analyses and two IPD pooled analyses.
+**Methods:** The application is delivered as a standalone HTML/JavaScript single-page tool (~7,800 lines) requiring no installation or server. It implements DerSimonian-Laird and REML random-effects meta-analysis for odds ratios, risk ratios, and hazard ratios, with Hartung-Knapp-Sidik-Jonkman (HKSJ) adjustment, Bayesian analysis, prediction intervals, Egger's test, Trial Sequential Analysis, and 15+ interactive Plotly visualisations. OR and RR are computed from 2x2 event counts; HR is pooled via generic inverse-variance using published hazard ratios and confidence intervals. All trial-level data were extracted exclusively from open-access sources (ClinicalTrials.gov results API v2 and PubMed abstracts), with full provenance documentation for every data point. Numerical accuracy was validated against the R metafor package (version 4.8.0) using identical trial-level data for all 12 analyses (four outcomes x three effect measures). Concordance was assessed by comparing pooled estimates against 15 published meta-analyses and two IPD pooled analyses.
 
-**Results:** Across four primary outcomes (MACE, all-cause mortality, HF hospitalisation, renal composite), the application's DerSimonian-Laird pooled estimates matched metafor output to six decimal places. In concordance testing against 15 published meta-analyses, 13 of 15 comparisons (87%) were within an absolute difference of 0.03 from published point estimates; the two larger deviations were attributable to differences in trial inclusion (pre-FINEARTS-HF studies) and endpoint definition (IPD kidney failure vs. aggregate eGFR decline composite). DL and REML estimators produced identical results for all outcomes (tau-squared = 0 for MACE, ACM, and renal composite; tau-squared = 0.004 for HF hospitalisation). All sensitivity analyses (HKSJ, prediction intervals, Egger's test) were reproducible via the included R validation script.
+**Results:** Across four primary outcomes (MACE, all-cause mortality, HF hospitalisation, renal composite) and three effect measures (OR, RR, HR), the application's DerSimonian-Laird pooled estimates matched metafor output to six decimal places for all 12 analyses. Hazard ratio pooling via generic inverse-variance produced HR 0.87 (0.79-0.95) for MACE, 0.84 (0.77-0.92) for renal composite, 0.91 (0.84-0.99) for all-cause mortality, and 0.78 (0.65-0.94) for HF hospitalisation. In concordance testing against 15 published meta-analyses, 13 of 15 comparisons (87%) were within an absolute difference of 0.03 from published point estimates; the two larger deviations were attributable to differences in trial inclusion (pre-FINEARTS-HF studies) and endpoint definition (IPD kidney failure vs. aggregate eGFR decline composite). DL and REML estimators (both validated against metafor) produced identical results for all 12 analyses (tau-squared = 0 for MACE, ACM, and renal composite; tau-squared = 0.004 for HF hospitalisation). All sensitivity analyses (HKSJ, prediction intervals, Egger's test) were reproducible via the included R validation script.
 
 **Conclusions:** RapidMeta Cardiology provides an accessible, validated, browser-native platform for living evidence synthesis that reproduces published finerenone meta-analysis results. The R validation script, trial-level data, and source code are freely available for independent verification.
 
@@ -53,10 +53,14 @@ The statistical engine (AnalysisEngine) implements the following components:
 - Random-effects weights: w_i* = 1 / (v_i + tau^2)
 - Pooled log-effect = sum(w_i* * y_i) / sum(w_i*)
 
-**Effect measures.** Both odds ratios (OR) and risk ratios (RR) are supported. For each study with a 2x2 table (a, b, c, d):
+**Effect measures.** Three effect measures are supported: odds ratios (OR), risk ratios (RR), and hazard ratios (HR). For OR and RR, per-study effects are computed from 2x2 event count tables (a, b, c, d):
 
 - log(OR) = log((a*d) / (b*c)); SE = sqrt(1/a + 1/b + 1/c + 1/d)
 - log(RR) = log((a/(a+b)) / (c/(c+d))); SE = sqrt(b/(a*(a+b)) + d/(c*(c+d)))
+
+For HR, published hazard ratios and their 95% confidence intervals are pooled via generic inverse-variance on the log scale: log(HR) with SE = (log(UCI) - log(LCI)) / (2 * z_0.975). This allows direct comparison with published meta-analyses that report pooled HRs. Published HR data were sourced from ClinicalTrials.gov results and primary publications for all pre-specified endpoints across FIDELIO-DKD, FIGARO-DKD, and FINEARTS-HF.
+
+**REML estimation.** In addition to DerSimonian-Laird, the application implements restricted maximum likelihood (REML) tau-squared estimation via Fisher scoring (Viechtbauer 2005) [21], with convergence tolerance 10^-10 and maximum 100 iterations. The REML estimate is displayed alongside DL as a real-time sensitivity chip, colour-coded by the magnitude of DL-REML divergence (green: <0.01; amber: 0.01-0.05; red: >0.05).
 
 **HKSJ adjustment.** The Hartung-Knapp-Sidik-Jonkman method [27] replaces the normal z-critical value with a t-distribution quantile (df = k-1) and scales the variance estimate by max(1, q*), where q* = sum(w_i* * (y_i - y_bar)^2) / (k-1).
 
@@ -86,7 +90,7 @@ The application provides a seven-step workflow:
 2. **Search** — Live API queries to ClinicalTrials.gov and Europe PMC for updated trial data.
 3. **Extraction** — Heuristic NLP-based extraction of 2x2 event counts from retrieved text, with manual override.
 4. **Review** — Dual-reviewer workflow with cryptographic integrity seals for audit trail.
-5. **Analysis** — Automated DerSimonian-Laird and HKSJ pooled estimates across seven pre-loaded endpoints, with toggle between OR and RR.
+5. **Analysis** — Automated DerSimonian-Laird and HKSJ pooled estimates across seven pre-loaded endpoints, with toggle between OR, RR, and HR. REML sensitivity is displayed in real-time.
 6. **Visualisation** — 15+ interactive Plotly charts: forest plot, annotated forest, funnel plot, contour funnel, Baujat plot, Galbraith plot, L'Abbe plot, cumulative meta-analysis, influence analysis, NNT curve, risk-of-bias traffic light, and PRISMA flowchart.
 7. **Export** — HTML report, JSON state, R validation code, Python validation code, PRISMA 2020 checklist, and a patient-facing "Waiting Room" summary.
 
@@ -94,7 +98,7 @@ The application provides a seven-step workflow:
 
 Numerical accuracy was assessed by comparing application output against the R package metafor (version 4.8.0) [21] running on R 4.5.2. The validation script (`validate_finerenone.R`) is included in the repository.
 
-**Internal validation (vs. metafor).** For each of eight analyses (four outcomes x two effect measures), the validation script computes DerSimonian-Laird pooled estimates using `metafor::rma()` with `method = "DL"` and compares against the application's output. Agreement was assessed at six decimal places. HKSJ-adjusted CIs were compared using `test = "knha"`.
+**Internal validation (vs. metafor).** For each of 12 analyses (four outcomes x three effect measures: OR, RR, HR), the validation script computes DerSimonian-Laird pooled estimates using `metafor::rma()` with `method = "DL"` and REML estimates with `method = "REML"`, comparing against the application's output. Agreement was assessed at six decimal places. HKSJ-adjusted CIs were compared using `test = "knha"`. For HR analyses, metafor receives log(HR) and SE derived from published CIs, matching the application's generic inverse-variance approach.
 
 **External concordance (vs. published meta-analyses).** Pooled estimates were compared against 15 published finerenone meta-analyses and two IPD pooled analyses (Table 3). Concordance was defined as an absolute difference of 0.03 or less between the application's pooled point estimate and the published estimate, acknowledging that differences in trial inclusion criteria, effect measure (HR vs. OR vs. RR), and statistical model contribute to expected variation.
 
@@ -106,7 +110,7 @@ Numerical accuracy was assessed by comparing application output against the R pa
 
 ### Validation against R metafor
 
-All eight analyses (four outcomes, OR and RR for each) produced pooled estimates identical to metafor at six decimal places. Table 1 summarises the primary results.
+All 12 analyses (four outcomes x three effect measures) produced pooled estimates identical to metafor at six decimal places. Table 1 summarises the primary results.
 
 **Table 1. Pooled estimates: RapidMeta vs. R metafor (DerSimonian-Laird)**
 
@@ -114,25 +118,37 @@ All eight analyses (four outcomes, OR and RR for each) produced pooled estimates
 |---------|---|-------|---------|--------|--------------|-------|------|
 | MACE | 2 | 13,026 | OR | 0.8592 | 0.7770-0.9501 | 0.000 | 0.0% |
 | MACE | 2 | 13,026 | RR | 0.8771 | 0.8040-0.9568 | 0.000 | 0.0% |
+| MACE | 2 | 13,026 | HR | 0.8654 | 0.7880-0.9505 | 0.000 | 0.0% |
 | Renal composite | 2 | 13,026 | OR | 0.8338 | 0.7548-0.9210 | 0.000 | 0.0% |
 | Renal composite | 2 | 13,026 | RR | 0.8569 | 0.7879-0.9319 | 0.000 | 0.0% |
+| Renal composite | 2 | 13,026 | HR | 0.8407 | 0.7666-0.9218 | 0.000 | 0.0% |
 | All-cause mortality | 3 | 19,027 | OR | 0.9048 | 0.8270-0.9900 | 0.000 | 0.0% |
 | All-cause mortality | 3 | 19,027 | RR | 0.9173 | 0.8481-0.9922 | 0.000 | 0.0% |
+| All-cause mortality | 3 | 19,027 | HR | 0.9098 | 0.8364-0.9897 | 0.000 | 0.0% |
 | HF hospitalisation | 2 | 13,026 | OR | 0.7776 | 0.6446-0.9381 | 0.004 | 20.0% |
 | HF hospitalisation | 2 | 13,026 | RR | 0.7869 | 0.6554-0.9447 | 0.004 | 23.1% |
+| HF hospitalisation | 2 | 13,026 | HR | 0.7829 | 0.6488-0.9446 | 0.004 | 22.2% |
 
 Maximum absolute difference between application and metafor: < 10^-6 for all parameters.
 
-DL and REML estimators produced identical results for all outcomes (Table 2), consistent with the low heterogeneity observed.
+DL and REML estimators produced identical results for all 12 analyses (Table 2), consistent with the low heterogeneity observed. Both DL and REML tau-squared estimates were validated against metafor using `method = "DL"` and `method = "REML"` respectively.
 
-**Table 2. Sensitivity: DL vs. REML**
+**Table 2. Sensitivity: DL vs. REML (all 12 analyses)**
 
 | Outcome | DL estimate | REML estimate | Delta |
 |---------|------------|---------------|-------|
 | MACE (OR) | 0.8592 | 0.8592 | 0.000000 |
-| All-cause mortality (OR) | 0.9048 | 0.9048 | 0.000000 |
+| MACE (RR) | 0.8771 | 0.8771 | 0.000000 |
+| MACE (HR) | 0.8654 | 0.8654 | 0.000000 |
 | Renal composite (OR) | 0.8338 | 0.8338 | 0.000000 |
+| Renal composite (RR) | 0.8569 | 0.8569 | 0.000000 |
+| Renal composite (HR) | 0.8407 | 0.8407 | 0.000000 |
+| All-cause mortality (OR) | 0.9048 | 0.9048 | 0.000000 |
+| All-cause mortality (RR) | 0.9173 | 0.9173 | 0.000000 |
+| All-cause mortality (HR) | 0.9098 | 0.9098 | 0.000000 |
 | HF hospitalisation (OR) | 0.7776 | 0.7776 | 0.000000 |
+| HF hospitalisation (RR) | 0.7869 | 0.7869 | 0.000000 |
+| HF hospitalisation (HR) | 0.7829 | 0.7829 | 0.000000 |
 
 ### Concordance with published meta-analyses
 
@@ -172,6 +188,8 @@ Table 4 compares features with existing meta-analysis tools.
 | No server dependency | Yes | N/A | N/A | No |
 | Data privacy (offline) | Yes | Yes | Yes | No |
 | DerSimonian-Laird | Yes | Yes | Yes | Yes |
+| REML estimation | Yes | No | Yes | No |
+| HR (generic IV) | Yes | Yes | Yes | No |
 | HKSJ adjustment | Yes | No | Yes | No |
 | Bayesian analysis | Yes | No | Yes | No |
 | Trial Sequential Analysis | Yes | No | Via package | No |
@@ -191,8 +209,9 @@ To demonstrate a typical workflow, we describe reproducing the MACE (major adver
 2. Navigate to the Analysis tab. The default view shows the MACE outcome with OR selected.
 3. The forest plot displays per-study ORs with 95% CIs and the DL pooled estimate: OR 0.86 (0.78-0.95), matching the FIDELITY IPD HR of 0.86 (0.78-0.95).
 4. Toggle to RR mode. The pooled RR updates to 0.88 (0.80-0.96), matching Yang et al. 2023, Zhang MZ et al. 2022, and Bao et al. 2022 (all RR 0.88).
-5. Select "All-Cause Mortality" from the outcome dropdown. Three trials contribute (including FINEARTS-HF). The pooled OR is 0.90 (0.83-0.99), consistent with FINE-HEART IPD HR 0.91 and Ahmed 2025 RR 0.92.
-6. Click "Export R Code" to generate a self-contained R script that reproduces all analyses using metafor.
+5. Toggle to HR mode. The pooled HR updates to 0.87 (0.79-0.95), directly pooling the published hazard ratios from FIDELIO-DKD (HR 0.86) and FIGARO-DKD (HR 0.87) via generic inverse-variance, matching FIDELITY IPD HR 0.86.
+6. Select "All-Cause Mortality" from the outcome dropdown. Three trials contribute (including FINEARTS-HF). The pooled OR is 0.90 (0.83-0.99), consistent with FINE-HEART IPD HR 0.91 and Ahmed 2025 RR 0.92. The REML sensitivity chip shows green (delta = 0.000), confirming DL-REML agreement.
+7. Click "Export R Code" to generate a self-contained R script that reproduces all analyses using metafor.
 
 ### Output interpretation
 
@@ -208,7 +227,7 @@ Users should interpret pooled estimates alongside heterogeneity diagnostics. For
 
 ## Discussion
 
-RapidMeta Cardiology provides a browser-based implementation of DerSimonian-Laird random-effects meta-analysis that is validated against the R metafor package to six decimal places and concordant with 15 published finerenone meta-analyses. The key finding is that a browser-native JavaScript implementation can reproduce results from established statistical packages with high precision, while offering additional capabilities (evidence provenance, patient summaries, interactive visualisation) in a zero-installation environment.
+RapidMeta Cardiology provides a browser-based implementation of DerSimonian-Laird and REML random-effects meta-analysis for odds ratios, risk ratios, and hazard ratios that is validated against the R metafor package to six decimal places and concordant with 15 published finerenone meta-analyses. The key finding is that a browser-native JavaScript implementation can reproduce results from established statistical packages with high precision across all three effect measures and both tau-squared estimators, while offering additional capabilities (evidence provenance, patient summaries, interactive visualisation) in a zero-installation environment.
 
 ### Strengths
 
@@ -226,9 +245,9 @@ Several limitations should be noted.
 
 First, the application currently pools only three Phase III trials (FIDELIO-DKD, FIGARO-DKD, FINEARTS-HF). While these represent the highest-quality evidence, published meta-analyses that include Phase II trials and FINEARTS-HF sub-studies may produce slightly different pooled estimates due to additional information. ARTS-DN data are included in the application for reference but are automatically excluded from pooling by the Phase II filter.
 
-Second, the application computes odds ratios and risk ratios from 2x2 event counts, not hazard ratios. For the finerenone trials, where event rates are below 25% and follow-up durations are similar, ORs and RRs approximate HRs well (maximum divergence 0.03 in our concordance testing). However, for outcomes with higher event rates or differential follow-up, the approximation is less precise.
+Second, hazard ratio pooling relies on published HR point estimates and confidence intervals via generic inverse-variance, rather than reconstructing time-to-event data from Kaplan-Meier curves. This approach is standard and matches the method used by most published finerenone meta-analyses, but it cannot adjust for differential follow-up within trials or produce time-varying hazard estimates.
 
-Third, validation covers the DerSimonian-Laird estimator, which is the default in most published finerenone meta-analyses. Although REML is also implemented and produces identical results for these data (tau-squared = 0 for most outcomes), formal validation against a wider range of tau-squared estimators has not been performed.
+Third, while both DerSimonian-Laird and REML tau-squared estimators are implemented and validated against metafor (all 12 analyses producing identical results), other tau-squared estimators (e.g., Paule-Mandel, empirical Bayes) are not currently available. For the finerenone dataset, where heterogeneity is negligible (tau-squared = 0 for three of four outcomes), the choice of estimator has no practical impact; this limitation may become relevant when the platform is extended to datasets with substantial heterogeneity.
 
 Fourth, with only 2-3 studies per outcome, publication bias diagnostics (Egger's test, trim-and-fill) have limited statistical power and should be interpreted as descriptive rather than confirmatory.
 

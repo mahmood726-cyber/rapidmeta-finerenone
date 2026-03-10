@@ -338,6 +338,7 @@
             <div class="flex items-center gap-1 bg-slate-900 rounded-xl p-1 border border-slate-800" role="radiogroup" aria-label="Effect measure">
                 <button onclick="RapidMeta.setEffectMeasure('OR')" class="conf-btn active" data-em="OR" role="radio" aria-checked="true">OR</button>
                 <button onclick="RapidMeta.setEffectMeasure('RR')" class="conf-btn" data-em="RR" role="radio" aria-checked="false">RR</button>
+                <button onclick="RapidMeta.setEffectMeasure('HR')" class="conf-btn" data-em="HR" role="radio" aria-checked="false" title="Pool published hazard ratios via generic inverse-variance">HR</button>
             </div>
             <div class="h-6 w-px bg-slate-800"></div>
             <select id="outcome-selector" onchange="RapidMeta.setOutcome(this.value)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-[10px] font-bold text-slate-300 outline-none uppercase tracking-wider" aria-label="Outcome to pool" title="Select outcome for pooling">
@@ -794,6 +795,7 @@
                     <div class="stat-chip stat-chip-blue" id="chip-copas"><i class="fa-solid fa-lock" style="font-size:10px"></i> Copas: --</div>
                     <div class="stat-chip stat-chip-blue" id="chip-ris"><i class="fa-solid fa-bolt" style="font-size:10px"></i> RIS: --</div>
                     <div class="stat-chip stat-chip-blue" id="chip-hr-sensitivity"><i class="fa-solid fa-clock-rotate-left" style="font-size:10px"></i> HR Sensitivity: --</div>
+                    <div class="stat-chip stat-chip-blue" id="chip-reml"><i class="fa-solid fa-rotate" style="font-size:10px"></i> REML: --</div>
                 </div>
 
                 <div class="glass p-8 rounded-[40px] border border-slate-800 shadow-xl">
@@ -1359,10 +1361,10 @@
                 'NCT02540993': {
                     name: 'FIDELIO-DKD', phase: 'III', year: 2020, tE: 367, tN: 2833, cE: 420, cN: 2841, group: 'CKD', publishedHR: 0.86, hrLCI: 0.75, hrUCI: 0.99,
                     allOutcomes: [
-                        { shortLabel: 'MACE', title: 'CV Death, Nonfatal MI, Nonfatal Stroke, or HF Hospitalization', tE: 367, cE: 420, type: 'SECONDARY' },
-                        { shortLabel: 'Renal40', title: 'Kidney Failure, ≥40% eGFR Decline, or Renal Death', tE: 504, cE: 600, type: 'PRIMARY' },
-                        { shortLabel: 'ACM', title: 'All-Cause Mortality', tE: 219, cE: 244, type: 'SECONDARY' },
-                        { shortLabel: 'ACH', title: 'Hospitalization for Heart Failure', tE: 139, cE: 162, type: 'SECONDARY' }
+                        { shortLabel: 'MACE', title: 'CV Death, Nonfatal MI, Nonfatal Stroke, or HF Hospitalization', tE: 367, cE: 420, type: 'SECONDARY', pubHR: 0.86, pubHR_LCI: 0.75, pubHR_UCI: 0.99 },
+                        { shortLabel: 'Renal40', title: 'Kidney Failure, ≥40% eGFR Decline, or Renal Death', tE: 504, cE: 600, type: 'PRIMARY', pubHR: 0.82, pubHR_LCI: 0.73, pubHR_UCI: 0.93 },
+                        { shortLabel: 'ACM', title: 'All-Cause Mortality', tE: 219, cE: 244, type: 'SECONDARY', pubHR: 0.895, pubHR_LCI: 0.746, pubHR_UCI: 1.075 },
+                        { shortLabel: 'ACH', title: 'Hospitalization for Heart Failure', tE: 139, cE: 162, type: 'SECONDARY', pubHR: 0.86, pubHR_LCI: 0.68, pubHR_UCI: 1.08 }
                     ],
                     rob: ['low', 'low', 'low', 'low', 'low'],
                     snippet: 'Source: NEJM 383:2219-2239.',
@@ -1396,10 +1398,10 @@
                 'NCT02545049': {
                     name: 'FIGARO-DKD', phase: 'III', year: 2021, tE: 458, tN: 3686, cE: 519, cN: 3666, group: 'CKD', publishedHR: 0.87, hrLCI: 0.76, hrUCI: 0.98,
                     allOutcomes: [
-                        { shortLabel: 'MACE', title: 'CV Death, Nonfatal MI, Nonfatal Stroke, or HF Hospitalization', tE: 458, cE: 519, type: 'PRIMARY' },
-                        { shortLabel: 'Renal40', title: 'Kidney Failure, ≥40% eGFR Decline, or Renal Death', tE: 350, cE: 395, type: 'SECONDARY' },
-                        { shortLabel: 'ACM', title: 'All-Cause Mortality', tE: 333, cE: 370, type: 'SECONDARY' },
-                        { shortLabel: 'ACH', title: 'Hospitalization for Heart Failure', tE: 117, cE: 163, type: 'SECONDARY' }
+                        { shortLabel: 'MACE', title: 'CV Death, Nonfatal MI, Nonfatal Stroke, or HF Hospitalization', tE: 458, cE: 519, type: 'PRIMARY', pubHR: 0.87, pubHR_LCI: 0.76, pubHR_UCI: 0.98 },
+                        { shortLabel: 'Renal40', title: 'Kidney Failure, ≥40% eGFR Decline, or Renal Death', tE: 350, cE: 395, type: 'SECONDARY', pubHR: 0.87, pubHR_LCI: 0.76, pubHR_UCI: 1.01 },
+                        { shortLabel: 'ACM', title: 'All-Cause Mortality', tE: 333, cE: 370, type: 'SECONDARY', pubHR: 0.89, pubHR_LCI: 0.77, pubHR_UCI: 1.04 },
+                        { shortLabel: 'ACH', title: 'Hospitalization for Heart Failure', tE: 117, cE: 163, type: 'SECONDARY', pubHR: 0.71, pubHR_LCI: 0.56, pubHR_UCI: 0.90 }
                     ],
                     rob: ['low', 'low', 'low', 'low', 'low'],
                     snippet: 'Source: NEJM 385:2252-2263.',
@@ -1433,9 +1435,9 @@
                 'NCT04435626': {
                     name: 'FINEARTS-HF', phase: 'III', year: 2024, tE: 624, tN: 3003, cE: 719, cN: 2998, group: 'Heart Failure', publishedHR: 0.84, hrLCI: 0.74, hrUCI: 0.95, estimandType: 'RR',
                     allOutcomes: [
-                        { shortLabel: 'HF_CV_First', title: 'First Worsening HF Event or CV Death', tE: 624, cE: 719, type: 'PRIMARY' },
-                        { shortLabel: 'KidneyComp', title: 'Kidney Composite Outcome', tE: 75, cE: 55, type: 'SECONDARY' },
-                        { shortLabel: 'ACM', title: 'All-Cause Mortality', tE: 491, cE: 522, type: 'SECONDARY' }
+                        { shortLabel: 'HF_CV_First', title: 'First Worsening HF Event or CV Death', tE: 624, cE: 719, type: 'PRIMARY', pubHR: 0.84, pubHR_LCI: 0.74, pubHR_UCI: 0.95, estimandType: 'RR' },
+                        { shortLabel: 'KidneyComp', title: 'Kidney Composite Outcome', tE: 75, cE: 55, type: 'SECONDARY', pubHR: 1.33, pubHR_LCI: 0.94, pubHR_UCI: 1.89 },
+                        { shortLabel: 'ACM', title: 'All-Cause Mortality', tE: 491, cE: 522, type: 'SECONDARY', pubHR: 0.93, pubHR_LCI: 0.83, pubHR_UCI: 1.06 }
                     ],
                     rob: ['low', 'low', 'low', 'low', 'low'],
                     snippet: 'Source: NEJM 2024.',
@@ -2109,11 +2111,13 @@
                 this.updateEMLabels(em);
                 this.save();
                 if (this.state.activeTab === 'analysis') AnalysisEngine.run();
-                showToast(`Effect measure: ${em === 'OR' ? 'Odds Ratio' : 'Risk Ratio'}`);
+                showToast(`Effect measure: ${{OR: 'Odds Ratio', RR: 'Risk Ratio', HR: 'Hazard Ratio (published)'}[em] ?? em}`);
             },
             emLabel(format) {
                 const em = this.state.effectMeasure ?? 'OR';
-                const map = { short: em, long: em === 'OR' ? 'Odds Ratio' : 'Risk Ratio', pooled: em === 'OR' ? 'Pooled Odds Ratio (Random-Effects)' : 'Pooled Risk Ratio (Random-Effects)', log: em === 'OR' ? 'Log Odds Ratio' : 'Log Risk Ratio', pLt1: `P(${em} < 1)`, pLt1Html: `P(${em} &lt; 1)` };
+                const _emNames = { OR: 'Odds Ratio', RR: 'Risk Ratio', HR: 'Hazard Ratio' };
+                const long = _emNames[em] ?? em;
+                const map = { short: em, long, pooled: `Pooled ${long} (Random-Effects)`, log: `Log ${long}`, pLt1: `P(${em} < 1)`, pLt1Html: `P(${em} &lt; 1)` };
                 return map[format] ?? em;
             },
             outcomeLabel(key) {
@@ -2141,8 +2145,8 @@
                 });
             },
             updateEMLabels(em) {
-                const long = em === 'OR' ? 'Odds Ratio' : 'Risk Ratio';
-                const pooled = em === 'OR' ? 'Pooled Odds Ratio (Random-Effects)' : 'Pooled Risk Ratio (Random-Effects)';
+                const long = {OR: 'Odds Ratio', RR: 'Risk Ratio', HR: 'Hazard Ratio'}[em] ?? em;
+                const pooled = `Pooled ${long} (Random-Effects)`;
                 // Primary stat card
                 const resOrCard = document.getElementById('label-pooled-em');
                 if (resOrCard) resOrCard.textContent = pooled;
@@ -2184,6 +2188,9 @@
                         if (def) {
                             t.data.tE = def.tE;
                             t.data.cE = def.cE;
+                            t.data.pubHR = def.pubHR ?? null;
+                            t.data.pubHR_LCI = def.pubHR_LCI ?? null;
+                            t.data.pubHR_UCI = def.pubHR_UCI ?? null;
                             selectedOutcome = def;
                             t.data._outcomeExcluded = false;
                         } else {
@@ -2194,6 +2201,9 @@
                         if (oc) {
                             t.data.tE = oc.tE;
                             t.data.cE = oc.cE;
+                            t.data.pubHR = oc.pubHR ?? null;
+                            t.data.pubHR_LCI = oc.pubHR_LCI ?? null;
+                            t.data.pubHR_UCI = oc.pubHR_UCI ?? null;
                             selectedOutcome = oc;
                             t.data._outcomeExcluded = false;
                         } else {
@@ -2463,7 +2473,7 @@
                 // Report — Waiting Room
                 'Waiting Room Summary': 'ملخص غرفة الانتظار',
                 'NNT Pictogram': 'رسم NNT', 'Risk Change': 'تغير المخاطر',
-                'Odds Ratio': 'نسبة الأرجحية', 'Risk Ratio': 'نسبة الخطر',
+                'Odds Ratio': 'نسبة الأرجحية', 'Risk Ratio': 'نسبة الخطر', 'Hazard Ratio': 'نسبة الخطر الزمني',
                 'For general understanding only. Discuss treatment decisions with your healthcare provider.': 'للفهم العام فقط. ناقش قرارات العلاج مع مقدم الرعاية الصحية.',
                 // Report — PRISMA
                 'PRISMA 2020 Flow Diagram': 'مخطط تدفق PRISMA 2020',
@@ -2850,7 +2860,7 @@
                 'Waiting Room Summary': 'ملخص غرفة الانتظار',
                 'NNT Pictogram': 'رسم NNT',
                 'Risk Change': 'تغير المخاطر',
-                'Odds Ratio': 'نسبة الأرجحية', 'Risk Ratio': 'نسبة الخطر',
+                'Odds Ratio': 'نسبة الأرجحية', 'Risk Ratio': 'نسبة الخطر', 'Hazard Ratio': 'نسبة الخطر الزمني',
                 'For general understanding only. Discuss treatment decisions with your healthcare provider.': 'للفهم العام فقط. ناقش قرارات العلاج مع مقدم الرعاية الصحية.',
                 'What does this mean for you?': 'ماذا يعني هذا لك؟',
                 'Significant Benefit': 'فائدة ذات دلالة',
@@ -3212,7 +3222,7 @@
                 'Next Study N (total)': 'العدد الإجمالي للدراسة التالية',
                 'Power (%)': 'القوة (%)',
                 'Density': 'الكثافة',
-                'Odds Ratio': 'نسبة الأرجحية', 'Risk Ratio': 'نسبة الخطر',
+                'Odds Ratio': 'نسبة الأرجحية', 'Risk Ratio': 'نسبة الخطر', 'Hazard Ratio': 'نسبة الخطر الزمني',
                 'Standardized Effect (z)': 'التأثير المعياري (z)',
 
                 // Waiting room / patient summary
@@ -6438,33 +6448,54 @@
             _reviewToastSig: '',
             // === v11.1: Decomposed analysis pipeline ===
             computeCore(trials) {
-                const useRR = (RapidMeta.state.effectMeasure === 'RR');
-                const _excluded00 = trials.filter(t => (t.data.tE === 0 && t.data.cE === 0) || (t.data.tE === t.data.tN && t.data.cE === t.data.cN));
-                if (_excluded00.length > 0 && _excluded00.length < trials.length) {
-                    showToast(`${_excluded00.length} study(ies) excluded: double-zero or double-complete events (${_excluded00.map(t => t.data?.name ?? t.id).join(', ')})`);
-                }
-                const plotData = trials.filter(t => {
-                    if (t.data.tE === 0 && t.data.cE === 0) return false;
-                    if (t.data.tE === t.data.tN && t.data.cE === t.data.cN) return false;
-                    return true;
-                }).map(t => {
-                    const hasZero = (t.data.tE === 0 || t.data.cE === 0 || t.data.tE === t.data.tN || t.data.cE === t.data.cN);
-                    const adj = hasZero ? 0.5 : 0;
-                    const a = t.data.tE + adj, b = t.data.tN - t.data.tE + adj, c = t.data.cE + adj, d = t.data.cN - t.data.cE + adj;
-                    let logEff, vi;
-                    if (useRR) {
-                        /* log(RR) = log(a/(a+b)) - log(c/(c+d)); Var = b/(a*(a+b)) + d/(c*(c+d)) */
-                        logEff = Math.log((a / (a + b)) / (c / (c + d)));
-                        vi = b / (a * (a + b)) + d / (c * (c + d));
-                    } else {
-                        /* log(OR) = log((a*d)/(b*c)); Var = 1/a + 1/b + 1/c + 1/d */
-                        logEff = Math.log((a / b) / (c / d));
-                        vi = (1 / a + 1 / b + 1 / c + 1 / d);
+                const emMode = RapidMeta.state.effectMeasure ?? 'OR';
+                const useRR = (emMode === 'RR');
+                const useHR = (emMode === 'HR');
+                const confLevel = RapidMeta.state.confLevel ?? 0.95;
+                const zCritHR = normalQuantile(1 - (1 - confLevel) / 2);
+
+                let plotData;
+                if (useHR) {
+                    /* HR mode: generic inverse-variance pooling of published hazard ratios.
+                       Each trial must have pubHR / pubHR_LCI / pubHR_UCI on its outcome data. */
+                    const _noPub = trials.filter(t => !(t.data?.pubHR > 0 && t.data?.pubHR_LCI > 0 && t.data?.pubHR_UCI > 0));
+                    if (_noPub.length > 0 && _noPub.length < trials.length) {
+                        showToast(`${_noPub.length} study(ies) excluded: no published HR (${_noPub.map(t => t.data?.name ?? t.id).join(', ')})`);
                     }
-                    const se = Math.sqrt(vi);
-                    const w_fixed = 1 / vi;
-                    return { logOR: logEff, vi, se, w_fixed, id: RapidMeta.nctAcronyms[t.id] ?? t.data?.name ?? t.id, group: t.data?.group || 'Other', year: t.data.year ?? 2020, cer: t.data.cE / t.data.cN, ter: t.data.tE / t.data.tN, rob: safeRob(t.data.rob), tN: t.data.tN, cN: t.data.cN, tE: t.data.tE, cE: t.data.cE, phase: t.data?.phase ?? '' };
-                });
+                    plotData = trials.filter(t => t.data?.pubHR > 0 && t.data?.pubHR_LCI > 0 && t.data?.pubHR_UCI > 0).map(t => {
+                        const logEff = Math.log(t.data.pubHR);
+                        const se = (Math.log(t.data.pubHR_UCI) - Math.log(t.data.pubHR_LCI)) / (2 * zCritHR);
+                        const vi = se * se;
+                        const w_fixed = 1 / vi;
+                        return { logOR: logEff, vi, se, w_fixed, id: RapidMeta.nctAcronyms[t.id] ?? t.data?.name ?? t.id, group: t.data?.group || 'Other', year: t.data.year ?? 2020, cer: t.data.cE / t.data.cN, ter: t.data.tE / t.data.tN, rob: safeRob(t.data.rob), tN: t.data.tN, cN: t.data.cN, tE: t.data.tE, cE: t.data.cE, phase: t.data?.phase ?? '' };
+                    });
+                } else {
+                    /* OR / RR mode: compute from 2x2 event counts */
+                    const _excluded00 = trials.filter(t => (t.data.tE === 0 && t.data.cE === 0) || (t.data.tE === t.data.tN && t.data.cE === t.data.cN));
+                    if (_excluded00.length > 0 && _excluded00.length < trials.length) {
+                        showToast(`${_excluded00.length} study(ies) excluded: double-zero or double-complete events (${_excluded00.map(t => t.data?.name ?? t.id).join(', ')})`);
+                    }
+                    plotData = trials.filter(t => {
+                        if (t.data.tE === 0 && t.data.cE === 0) return false;
+                        if (t.data.tE === t.data.tN && t.data.cE === t.data.cN) return false;
+                        return true;
+                    }).map(t => {
+                        const hasZero = (t.data.tE === 0 || t.data.cE === 0 || t.data.tE === t.data.tN || t.data.cE === t.data.cN);
+                        const adj = hasZero ? 0.5 : 0;
+                        const a = t.data.tE + adj, b = t.data.tN - t.data.tE + adj, c = t.data.cE + adj, d = t.data.cN - t.data.cE + adj;
+                        let logEff, vi;
+                        if (useRR) {
+                            logEff = Math.log((a / (a + b)) / (c / (c + d)));
+                            vi = b / (a * (a + b)) + d / (c * (c + d));
+                        } else {
+                            logEff = Math.log((a / b) / (c / d));
+                            vi = (1 / a + 1 / b + 1 / c + 1 / d);
+                        }
+                        const se = Math.sqrt(vi);
+                        const w_fixed = 1 / vi;
+                        return { logOR: logEff, vi, se, w_fixed, id: RapidMeta.nctAcronyms[t.id] ?? t.data?.name ?? t.id, group: t.data?.group || 'Other', year: t.data.year ?? 2020, cer: t.data.cE / t.data.cN, ter: t.data.tE / t.data.tN, rob: safeRob(t.data.rob), tN: t.data.tN, cN: t.data.cN, tE: t.data.tE, cE: t.data.cE, phase: t.data?.phase ?? '' };
+                    });
+                }
                 let sW = 0, sWY = 0, sW_y2 = 0, sW2 = 0;
                 plotData.forEach(d => { sW += d.w_fixed; sWY += d.w_fixed * d.logOR; sW_y2 += d.w_fixed * d.logOR * d.logOR; sW2 += Math.pow(d.w_fixed, 2); });
                 const Q = Math.max(0, sW_y2 - (Math.pow(sWY, 2) / sW));
@@ -6472,12 +6503,32 @@
                 const df = k - 1;
                 const I2 = (Q > df) ? ((Q - df) / Q) * 100 : 0;
                 const tau2 = (Q > df) ? (Q - df) / (sW - (sW2 / sW)) : 0;
+                /* REML tau-squared via Fisher scoring (Viechtbauer 2005) */
+                let tau2_reml = tau2; /* start from DL estimate */
+                if (k >= 2) {
+                    const _yi = plotData.map(d => d.logOR);
+                    const _vi = plotData.map(d => d.vi);
+                    for (let _it = 0; _it < 100; _it++) {
+                        const _w = _vi.map(v => 1 / (v + tau2_reml));
+                        const _sW = _w.reduce((a, b) => a + b, 0);
+                        const _mu = _w.reduce((a, wi, i) => a + wi * _yi[i], 0) / _sW;
+                        const _sW2 = _w.reduce((a, wi) => a + wi * wi, 0);
+                        const _sW3 = _w.reduce((a, wi) => a + wi * wi * wi, 0);
+                        const _trP = _sW - _sW2 / _sW;
+                        const _yP2y = _w.reduce((a, wi, i) => a + wi * wi * Math.pow(_yi[i] - _mu, 2), 0);
+                        const _trP2 = _sW2 - 2 * _sW3 / _sW + _sW2 * _sW2 / (_sW * _sW);
+                        if (_trP2 < 1e-15) break; /* avoid division by near-zero */
+                        const _delta = (_yP2y - _trP) / _trP2;
+                        const _new = Math.max(0, tau2_reml + _delta);
+                        if (Math.abs(_new - tau2_reml) < 1e-10) { tau2_reml = _new; break; }
+                        tau2_reml = _new;
+                    }
+                }
                 let sWR = 0, sWRY = 0;
                 plotData.forEach(d => { const wr = 1 / (d.vi + tau2); d.w_random = wr; sWR += wr; sWRY += wr * d.logOR; });
                 const pLogOR = sWRY / sWR;
                 const pSE = Math.sqrt(1/sWR);
-                const confLevel = RapidMeta.state.confLevel ?? 0.95;
-                const zCrit = normalQuantile(1 - (1 - confLevel) / 2);
+                const zCrit = zCritHR; /* already computed from confLevel */
                 const pOR = Math.exp(pLogOR);
                 const lci = Math.exp(pLogOR - zCrit * pSE);
                 const uci = Math.exp(pLogOR + zCrit * pSE);
@@ -6552,7 +6603,7 @@
                 }
                 const fragTotalN = plotData.reduce((a, d) => a + d.tN + d.cN, 0);
                 const fragQuot = fragTotalN > 0 ? (fragIdx / fragTotalN * 100).toFixed(1) : '--';
-                return { plotData, Q, k, df, I2, tau2, sWR, pLogOR, pSE, confLevel, zCrit, pOR, lci, uci, hksjLCI, hksjUCI, piLCI, piUCI, qPvalue, eggerResult, fragIdx, fragQuot };
+                return { plotData, Q, k, df, I2, tau2, tau2_reml, sWR, pLogOR, pSE, confLevel, zCrit, pOR, lci, uci, hksjLCI, hksjUCI, piLCI, piUCI, qPvalue, eggerResult, fragIdx, fragQuot };
             },
 
             updateStatCards(c) {
@@ -6669,6 +6720,23 @@
                         ? '<i class="fa-solid fa-clock-rotate-left" style="font-size:10px"></i> HR Sensitivity: N/A (need \u22652 published HRs)'
                         : '<i class="fa-solid fa-clock-rotate-left" style="font-size:10px"></i> HR Sensitivity: N/A for this outcome scope';
                 }
+                // REML sensitivity chip
+                const remlChip = document.getElementById('chip-reml');
+                if (remlChip && k >= 2) {
+                    /* Re-pool using REML tau2 */
+                    let _sWR_reml = 0, _sWRY_reml = 0;
+                    plotData.forEach(d => { const wr = 1 / (d.vi + tau2_reml); _sWR_reml += wr; _sWRY_reml += wr * d.logOR; });
+                    const _pLog_reml = _sWRY_reml / _sWR_reml;
+                    const _pSE_reml = Math.sqrt(1 / _sWR_reml);
+                    const _or_reml = Math.exp(_pLog_reml);
+                    const _lo_reml = Math.exp(_pLog_reml - zCrit * _pSE_reml);
+                    const _hi_reml = Math.exp(_pLog_reml + zCrit * _pSE_reml);
+                    const _emS = RapidMeta.emLabel('short');
+                    const _delta = Math.abs(_or_reml - pOR);
+                    const _rColor = _delta < 0.005 ? 'stat-chip-green' : _delta < 0.05 ? 'stat-chip-amber' : 'stat-chip-red';
+                    remlChip.className = `stat-chip ${_rColor}`;
+                    remlChip.innerHTML = `<i class="fa-solid fa-rotate" style="font-size:10px"></i> REML: ${_emS} ${_or_reml.toFixed(2)} (${_lo_reml.toFixed(2)}\u2013${_hi_reml.toFixed(2)}) \u03C4\u00B2=${tau2_reml.toFixed(4)}`;
+                }
                 // Meta-Regression
                 const metaregResult = MetaRegEngine.run(plotData, tau2);
                 return { bayesResult, tfResult, copasResult, powerResult, metaregResult };
@@ -6739,8 +6807,8 @@
                 const pct = ((1 - pOR) * 100).toFixed(0);
                 const totalN = trials.reduce((a, b) => a + (b.data?.tN ?? 0) + (b.data?.cN ?? 0), 0);
                 const avgCER = trials.length > 0 ? trials.reduce((a, t) => a + (t.data?.cE ?? 0) / (t.data?.cN ?? 1), 0) / trials.length : 0;
-                const _isRR = RapidMeta.emLabel('short') === 'RR';
-                const ter = avgCER > 0 ? (_isRR ? pOR * avgCER : (pOR * avgCER) / (1 - avgCER + pOR * avgCER)) : 0;
+                const _isRRlike = (RapidMeta.emLabel('short') === 'RR' || RapidMeta.emLabel('short') === 'HR');
+                const ter = avgCER > 0 ? (_isRRlike ? pOR * avgCER : (pOR * avgCER) / (1 - avgCER + pOR * avgCER)) : 0;
                 const ard = avgCER - ter;
                 const nnt = (avgCER > 0 && Math.abs(ard) > 1e-9) ? (ard > 0 ? Math.ceil(1 / ard) : 'NNH ' + Math.ceil(1 / Math.abs(ard))) : '--';
                 const sig = uci < 1;
@@ -6898,7 +6966,7 @@
                 Plotly.newPlot('plot-galbraith', [tr7, { x: [0, 10], y: [0, pLogOR*10], mode: 'lines', line: { color: '#fbbf24' } }], layout('Precision (1/SE)', 'Standardized Effect (Z)'), PLOTLY_OPTS);
 
                 // 8. NNT
-                const _nntRR = (RapidMeta.state.effectMeasure === 'RR');
+                const _nntRR = (RapidMeta.state.effectMeasure === 'RR' || RapidMeta.state.effectMeasure === 'HR');
                 const nX = [], nY = []; for(let r=0.05; r<=0.3; r+=0.01) { const ter = _nntRR ? pOR * r : (pOR*r)/(1-r+pOR*r); nX.push(r); nY.push(1/(r-ter)); }
                 Plotly.newPlot('plot-nnt', [{ x: nX, y: nY, mode: 'lines', line: { width: 3, color: '#06b6d4' } }], layout('Baseline Risk (CER)', 'NNT'), PLOTLY_OPTS);
 
@@ -7343,8 +7411,8 @@ print(res_sub)`;
                 const avgCER = included.length > 0 ? (included.reduce((a, t) => a + t.data.cE / t.data.cN, 0) / included.length * 100).toFixed(1) : '--';
                 const _cer2 = avgCER !== '--' ? parseFloat(avgCER) / 100 : 0;
                 const _or2 = parseFloat(r.or);
-                const _isRR = RapidMeta.emLabel('short') === 'RR';
-                const _ter2 = _cer2 > 0 ? (_isRR ? _or2 * _cer2 : (_or2 * _cer2) / (1 - _cer2 + _or2 * _cer2)) : 0;
+                const _isRRlike2 = (RapidMeta.emLabel('short') === 'RR' || RapidMeta.emLabel('short') === 'HR');
+                const _ter2 = _cer2 > 0 ? (_isRRlike2 ? _or2 * _cer2 : (_or2 * _cer2) / (1 - _cer2 + _or2 * _cer2)) : 0;
                 const _ard2 = _cer2 - _ter2;
                 const nnt = (avgCER !== '--' && Math.abs(_ard2) > 1e-9) ? (_ard2 > 0 ? Math.ceil(1 / _ard2).toString() : 'NNH ' + Math.ceil(1 / Math.abs(_ard2))) : '--';
                 const ciPct = r.confLevel ?? '95';
@@ -7407,19 +7475,29 @@ print(res_sub)`;
                 const zCrit = normalQuantile(1 - (1 - confLevel) / 2);
                 const ciPct = (confLevel * 100).toFixed(0);
 
-                const useRR = (RapidMeta.state.effectMeasure === 'RR');
-                const studies = included.map(t => {
+                const _emMode = RapidMeta.state.effectMeasure ?? 'OR';
+                const useRR = (_emMode === 'RR');
+                const useHR = (_emMode === 'HR');
+                const studies = included.filter(t => {
+                    if (useHR) return t.data?.pubHR > 0 && t.data?.pubHR_LCI > 0 && t.data?.pubHR_UCI > 0;
+                    return true;
+                }).map(t => {
                     const d = t.data;
-                    const hasZero = (d.tE === 0 || d.cE === 0 || d.tE === d.tN || d.cE === d.cN);
-                    const adj = hasZero ? 0.5 : 0;
-                    const a = d.tE + adj, b = d.tN - d.tE + adj, c = d.cE + adj, dd = d.cN - d.cE + adj;
                     let logOR, se;
-                    if (useRR) {
-                        logOR = Math.log((a / (a + b)) / (c / (c + dd)));
-                        se = Math.sqrt(b / (a * (a + b)) + dd / (c * (c + dd)));
+                    if (useHR) {
+                        logOR = Math.log(d.pubHR);
+                        se = (Math.log(d.pubHR_UCI) - Math.log(d.pubHR_LCI)) / (2 * zCrit);
                     } else {
-                        logOR = Math.log((a / b) / (c / dd));
-                        se = Math.sqrt(1/a + 1/b + 1/c + 1/dd);
+                        const hasZero = (d.tE === 0 || d.cE === 0 || d.tE === d.tN || d.cE === d.cN);
+                        const adj = hasZero ? 0.5 : 0;
+                        const a = d.tE + adj, b = d.tN - d.tE + adj, c = d.cE + adj, dd = d.cN - d.cE + adj;
+                        if (useRR) {
+                            logOR = Math.log((a / (a + b)) / (c / (c + dd)));
+                            se = Math.sqrt(b / (a * (a + b)) + dd / (c * (c + dd)));
+                        } else {
+                            logOR = Math.log((a / b) / (c / dd));
+                            se = Math.sqrt(1/a + 1/b + 1/c + 1/dd);
+                        }
                     }
                     const or = Math.exp(logOR);
                     const lo = Math.exp(logOR - zCrit * se);

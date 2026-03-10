@@ -80,11 +80,15 @@ trials <- data.frame(
     "34449181","34449181","34449181","34775784",
     "39225278","39490700","39225278"
   ),
+  # Published hazard ratios (or rate ratios for FINEARTS primary)
+  pubHR     = c(0.86,  0.82,  0.895, 0.86,   0.87,  0.87,  0.89,  0.71,   0.84,  1.33,  0.93),
+  pubHR_LCI = c(0.75,  0.73,  0.746, 0.68,   0.76,  0.76,  0.77,  0.56,   0.74,  0.94,  0.83),
+  pubHR_UCI = c(0.99,  0.93,  1.075, 1.08,   0.98,  1.01,  1.04,  0.90,   0.95,  1.89,  1.06),
   stringsAsFactors = FALSE
 )
 
 cat("--- Trial-Level Data ---\n")
-print(trials[, c("trial","outcome","tE","tN","cE","cN","pmid")], row.names = FALSE)
+print(trials[, c("trial","outcome","tE","tN","cE","cN","pubHR","pubHR_LCI","pubHR_UCI","pmid")], row.names = FALSE)
 cat("\n")
 
 # --- Define Pooling Groups ---------------------------------------------------
@@ -207,6 +211,104 @@ for (a in analyses) {
   }
   cat("\n")
 }
+
+# --- SECTION 1b: Hazard Ratio Pooling (Generic Inverse-Variance) -------------
+cat("=======================================================================\n")
+cat("SECTION 1b: Hazard Ratio Pooling (published HRs, inverse-variance)\n")
+cat("=======================================================================\n\n")
+
+hr_analyses <- list(
+  list(name = "MACE (HR)", outcome = "MACE",
+       trials = c("FIDELIO-DKD", "FIGARO-DKD")),
+  list(name = "Renal Composite (HR)", outcome = "Renal40",
+       trials = c("FIDELIO-DKD", "FIGARO-DKD")),
+  list(name = "All-Cause Mortality (HR)", outcome = "ACM",
+       trials = c("FIDELIO-DKD", "FIGARO-DKD", "FINEARTS-HF")),
+  list(name = "HF Hospitalization (HR)", outcome = "ACH",
+       trials = c("FIDELIO-DKD", "FIGARO-DKD"))
+)
+
+hr_results <- list()
+for (a in hr_analyses) {
+  d <- trials[trials$outcome == a$outcome & trials$trial %in% a$trials, ]
+  d <- d[!is.na(d$pubHR) & d$pubHR > 0, ]
+  k <- nrow(d)
+
+  # Generic inverse-variance: log(HR) and SE from CI
+  z_crit <- qnorm(0.975)
+  yi <- log(d$pubHR)
+  sei <- (log(d$pubHR_UCI) - log(d$pubHR_LCI)) / (2 * z_crit)
+  vi <- sei^2
+
+  fit <- rma(yi = yi, vi = vi, method = "DL")
+  pooled <- exp(fit$beta[1])
+  lci <- exp(fit$ci.lb)
+  uci <- exp(fit$ci.ub)
+
+  if (k >= 2) {
+    fit_hksj <- rma(yi = yi, vi = vi, method = "DL", test = "knha")
+    hksj_lci <- exp(fit_hksj$ci.lb)
+    hksj_uci <- exp(fit_hksj$ci.ub)
+  } else {
+    hksj_lci <- NA; hksj_uci <- NA
+  }
+
+  hr_results[[a$name]] <- list(
+    name = a$name, k = k, pooled = pooled, lci = lci, uci = uci,
+    tau2 = fit$tau2, I2 = fit$I2, hksj_lci = hksj_lci, hksj_uci = hksj_uci
+  )
+
+  cat(sprintf("%-32s  k=%d  HR=%.4f (%.4f-%.4f)  tau2=%.6f  I2=%.1f%%\n",
+              a$name, k, pooled, lci, uci, fit$tau2, fit$I2))
+  if (!is.na(hksj_lci)) {
+    cat(sprintf("  HKSJ CI: %.4f - %.4f\n", hksj_lci, hksj_uci))
+  }
+  cat("\n")
+}
+
+# --- SECTION 1c: REML Validation (all outcomes) ------------------------------
+cat("=======================================================================\n")
+cat("SECTION 1c: REML vs DL — Full Validation (all 8 analyses)\n")
+cat("=======================================================================\n\n")
+
+cat(sprintf("%-32s %10s %10s %12s %12s %10s\n",
+            "Analysis", "DL est", "REML est", "DL tau2", "REML tau2", "Delta"))
+cat(strrep("-", 92), "\n")
+
+for (a in analyses) {
+  d <- trials[trials$outcome == a$outcome & trials$trial %in% a$trials, ]
+  es <- escalc(measure = a$measure, ai = d$tE, n1i = d$tN, ci = d$cE, n2i = d$cN, data = d)
+
+  fit_dl   <- rma(yi, vi, data = es, method = "DL")
+  fit_reml <- rma(yi, vi, data = es, method = "REML")
+
+  cat(sprintf("%-32s %10.4f %10.4f %12.6f %12.6f %10.6f\n",
+              a$name,
+              exp(fit_dl$beta), exp(fit_reml$beta),
+              fit_dl$tau2, fit_reml$tau2,
+              abs(exp(fit_dl$beta) - exp(fit_reml$beta))))
+}
+
+# Also validate HR pooling with REML
+cat("\n")
+for (a in hr_analyses) {
+  d <- trials[trials$outcome == a$outcome & trials$trial %in% a$trials, ]
+  d <- d[!is.na(d$pubHR) & d$pubHR > 0, ]
+  z_crit <- qnorm(0.975)
+  yi <- log(d$pubHR)
+  vi <- ((log(d$pubHR_UCI) - log(d$pubHR_LCI)) / (2 * z_crit))^2
+
+  fit_dl   <- rma(yi = yi, vi = vi, method = "DL")
+  fit_reml <- rma(yi = yi, vi = vi, method = "REML")
+
+  cat(sprintf("%-32s %10.4f %10.4f %12.6f %12.6f %10.6f\n",
+              a$name,
+              exp(fit_dl$beta), exp(fit_reml$beta),
+              fit_dl$tau2, fit_reml$tau2,
+              abs(exp(fit_dl$beta) - exp(fit_reml$beta))))
+}
+
+cat("\nAll DL vs REML comparisons complete.\n\n")
 
 # --- SECTION 2: Concordance with Published Meta-Analyses ---------------------
 cat("=======================================================================\n")

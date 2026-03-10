@@ -15,7 +15,8 @@ Rscript validate_finerenone.R
 ```
 
 The validation script:
-- Reproduces all pooled estimates using `metafor::rma()` (DerSimonian-Laird)
+- Reproduces all 12 pooled estimates (4 outcomes x OR/RR/HR) using `metafor::rma()` (DerSimonian-Laird)
+- Validates REML tau-squared against metafor `method = "REML"` for all 12 analyses
 - Compares against 15 published finerenone meta-analyses (87% concordant within 0.03)
 - Generates forest plots and funnel plots as PDFs
 - Runs DL vs REML sensitivity analysis
@@ -29,14 +30,16 @@ The validation script:
 | FINEARTS-HF | III | 6,001 | Worsening HF / CV death | 39225278 |
 | ARTS-DN | IIb | 823 | UACR (excluded from pooling) | 26325557 |
 
-## Key Results (validated)
+## Key Results (validated against R metafor)
 
-| Outcome | k | OR (95% CI) | RR (95% CI) | I-squared |
-|---------|---|-------------|-------------|-----------|
-| MACE | 2 | 0.86 (0.78-0.95) | 0.88 (0.80-0.96) | 0% |
-| All-cause mortality | 3 | 0.90 (0.83-0.99) | 0.92 (0.85-0.99) | 0% |
-| Renal composite | 2 | 0.83 (0.75-0.92) | 0.86 (0.79-0.93) | 0% |
-| HF hospitalisation | 2 | 0.78 (0.64-0.94) | 0.79 (0.66-0.94) | 20% |
+| Outcome | k | OR (95% CI) | RR (95% CI) | HR (95% CI) | I-squared |
+|---------|---|-------------|-------------|-------------|-----------|
+| MACE | 2 | 0.86 (0.78-0.95) | 0.88 (0.80-0.96) | 0.87 (0.79-0.95) | 0% |
+| All-cause mortality | 3 | 0.90 (0.83-0.99) | 0.92 (0.85-0.99) | 0.91 (0.84-0.99) | 0% |
+| Renal composite | 2 | 0.83 (0.75-0.92) | 0.86 (0.79-0.93) | 0.84 (0.77-0.92) | 0% |
+| HF hospitalisation | 2 | 0.78 (0.64-0.94) | 0.79 (0.66-0.94) | 0.78 (0.65-0.94) | 20-22% |
+
+DL and REML produce identical pooled estimates for all 12 analyses (delta = 0.000000).
 
 ## Repository Contents
 
