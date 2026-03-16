@@ -1,6 +1,6 @@
 # RapidMeta Cardiology — Finerenone Living Meta-Analysis
 
-A browser-based living meta-analysis platform for finerenone cardiovascular and renal outcome trials, validated against the R metafor package and 15 published meta-analyses.
+A browser-based living meta-analysis platform for finerenone cardiovascular and renal outcome trials, validated against the R metafor package and 17 published meta-analyses.
 
 ## Quick Start
 
@@ -15,9 +15,9 @@ Rscript validate_finerenone.R
 ```
 
 The validation script:
-- Reproduces all 12 pooled estimates (4 outcomes x OR/RR/HR) using `metafor::rma()` (DerSimonian-Laird)
-- Validates REML tau-squared against metafor `method = "REML"` for all 12 analyses
-- Compares against 15 published finerenone meta-analyses (87% concordant within 0.03)
+- Reproduces all 14 pooled estimates (5 outcomes x OR/RR/HR) using `metafor::rma()` (DerSimonian-Laird)
+- Validates REML tau-squared against metafor `method = "REML"` for all 14 analyses
+- Compares against 17 published finerenone meta-analyses (88% concordant within 0.03)
 - Generates forest plots and funnel plots as PDFs
 - Runs DL vs REML sensitivity analysis
 
@@ -38,8 +38,11 @@ The validation script:
 | All-cause mortality | 3 | 0.90 (0.83-0.99) | 0.92 (0.85-0.99) | 0.91 (0.84-0.99) | 0% |
 | Renal composite | 2 | 0.83 (0.75-0.92) | 0.86 (0.79-0.93) | 0.84 (0.77-0.92) | 0% |
 | HF hospitalisation | 2 | 0.78 (0.64-0.94) | 0.79 (0.66-0.94) | 0.78 (0.65-0.94) | 20-22% |
+| Hyperkalemia* | 3 | 2.25 (2.03-2.50) | 2.09 (1.90-2.29) | N/A | 0% |
 
-DL and REML produce identical pooled estimates for all 12 analyses (delta = 0.000000).
+*Safety outcome; uses safety analysis set denominators (not FAS).
+
+DL and REML produce identical pooled estimates for all 14 analyses (delta = 0.000000).
 
 ## Repository Contents
 
@@ -47,7 +50,7 @@ DL and REML produce identical pooled estimates for all 12 analyses (delta = 0.00
 - `validate_finerenone.R` — R validation script (metafor-based)
 - `FINERENONE_R_validation.R` — Base-R validation script (no dependencies)
 - `F1000_RapidMeta_Finerenone_Article.md` — F1000Research manuscript
-- `finerenone_meta_analyses_database.md` — Database of 15 published meta-analyses
+- `finerenone_meta_analyses_database.md` — Database of 17 published meta-analyses
 - `Figure *.png` — Screenshots for manuscript
 
 ## License

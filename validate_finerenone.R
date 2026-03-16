@@ -46,44 +46,49 @@ cat("=======================================================================\n\n
 trials <- data.frame(
   trial = c(
     # FIDELIO-DKD (NCT02540993) — Bakris et al. NEJM 2020; PMID:33264825
-    "FIDELIO-DKD", "FIDELIO-DKD", "FIDELIO-DKD", "FIDELIO-DKD",
+    "FIDELIO-DKD", "FIDELIO-DKD", "FIDELIO-DKD", "FIDELIO-DKD", "FIDELIO-DKD",
     # FIGARO-DKD (NCT02545049) — Pitt et al. NEJM 2021; PMID:34449181
-    "FIGARO-DKD", "FIGARO-DKD", "FIGARO-DKD", "FIGARO-DKD",
+    "FIGARO-DKD", "FIGARO-DKD", "FIGARO-DKD", "FIGARO-DKD", "FIGARO-DKD",
     # FINEARTS-HF (NCT04435626) — Solomon et al. NEJM 2024; PMID:39225278
-    "FINEARTS-HF", "FINEARTS-HF", "FINEARTS-HF"
+    "FINEARTS-HF", "FINEARTS-HF", "FINEARTS-HF", "FINEARTS-HF"
   ),
   outcome = c(
-    "MACE", "Renal40", "ACM", "ACH",
-    "MACE", "Renal40", "ACM", "ACH",
-    "HF_CV_First", "KidneyComp", "ACM"
+    "MACE", "Renal40", "ACM", "ACH", "Hyperkalemia",
+    "MACE", "Renal40", "ACM", "ACH", "Hyperkalemia",
+    "HF_CV_First", "KidneyComp", "ACM", "Hyperkalemia"
   ),
   outcome_full = c(
     "CV Death, Nonfatal MI, Nonfatal Stroke, or HF Hospitalization",
     "Kidney Failure, >=40% eGFR Decline, or Renal Death",
     "All-Cause Mortality",
     "Hospitalization for Heart Failure",
+    "Serum Potassium >=5.5 mmol/L (MedDRA PT)",
     "CV Death, Nonfatal MI, Nonfatal Stroke, or HF Hospitalization",
     "Kidney Failure, >=40% eGFR Decline, or Renal Death",
     "All-Cause Mortality",
     "Hospitalization for Heart Failure",
+    "Serum Potassium >=5.5 mmol/L (MedDRA PT)",
     "First Worsening HF Event or CV Death",
     "Kidney Composite Outcome",
-    "All-Cause Mortality"
+    "All-Cause Mortality",
+    "Serum Potassium >=5.5 mmol/L"
   ),
-  tE = c(367, 504, 219, 139,   458, 350, 333, 117,   624, 75, 491),
-  tN = c(2833, 2833, 2833, 2833,  3686, 3686, 3686, 3686,  3003, 3003, 3003),
-  cE = c(420, 600, 244, 162,   519, 395, 370, 163,   719, 55, 522),
-  cN = c(2841, 2841, 2841, 2841,  3666, 3666, 3666, 3666,  2998, 2998, 2998),
-  phase = c("III","III","III","III", "III","III","III","III", "III","III","III"),
+  # Note: Hyperkalemia uses safety analysis set denominators (not FAS)
+  tE = c(367, 504, 219, 139, 395,   458, 350, 333, 117, 517,   624, 75, 491, 290),
+  tN = c(2833, 2833, 2833, 2833, 2827,  3686, 3686, 3686, 3686, 3683,  3003, 3003, 3003, 2993),
+  cE = c(420, 600, 244, 162, 194,   519, 395, 370, 163, 254,   719, 55, 522, 126),
+  cN = c(2841, 2841, 2841, 2841, 2831,  3666, 3666, 3666, 3666, 3658,  2998, 2998, 2998, 2996),
+  phase = c("III","III","III","III","III", "III","III","III","III","III", "III","III","III","III"),
   pmid = c(
-    "33264825","33264825","33264825","33198491",
-    "34449181","34449181","34449181","34775784",
-    "39225278","39490700","39225278"
+    "33264825","33264825","33264825","33198491","35589390",
+    "34449181","34449181","34449181","34775784","FDA_NDA215341",
+    "39225278","39490700","39225278","FDA_label"
   ),
   # Published hazard ratios (or rate ratios for FINEARTS primary)
-  pubHR     = c(0.86,  0.82,  0.895, 0.86,   0.87,  0.87,  0.89,  0.71,   0.84,  1.33,  0.93),
-  pubHR_LCI = c(0.75,  0.73,  0.746, 0.68,   0.76,  0.76,  0.77,  0.56,   0.74,  0.94,  0.83),
-  pubHR_UCI = c(0.99,  0.93,  1.075, 1.08,   0.98,  1.01,  1.04,  0.90,   0.95,  1.89,  1.06),
+  # NA for hyperkalemia (no published HR — safety outcome reported as RR/OR)
+  pubHR     = c(0.86,  0.82,  0.895, 0.86, NA,   0.87,  0.87,  0.89,  0.71, NA,   0.84,  1.33,  0.93, NA),
+  pubHR_LCI = c(0.75,  0.73,  0.746, 0.68, NA,   0.76,  0.76,  0.77,  0.56, NA,   0.74,  0.94,  0.83, NA),
+  pubHR_UCI = c(0.99,  0.93,  1.075, 1.08, NA,   0.98,  1.01,  1.04,  0.90, NA,   0.95,  1.89,  1.06, NA),
   stringsAsFactors = FALSE
 )
 
@@ -143,6 +148,18 @@ analyses <- list(
     outcome  = "ACH",
     measure  = "RR",
     trials   = c("FIDELIO-DKD", "FIGARO-DKD")
+  ),
+  list(
+    name     = "Hyperkalemia (OR)",
+    outcome  = "Hyperkalemia",
+    measure  = "OR",
+    trials   = c("FIDELIO-DKD", "FIGARO-DKD", "FINEARTS-HF")
+  ),
+  list(
+    name     = "Hyperkalemia (RR)",
+    outcome  = "Hyperkalemia",
+    measure  = "RR",
+    trials   = c("FIDELIO-DKD", "FIGARO-DKD", "FINEARTS-HF")
   )
 )
 
@@ -268,7 +285,7 @@ for (a in hr_analyses) {
 
 # --- SECTION 1c: REML Validation (all outcomes) ------------------------------
 cat("=======================================================================\n")
-cat("SECTION 1c: REML vs DL — Full Validation (all 12 analyses)\n")
+cat("SECTION 1c: REML vs DL — Full Validation (all 14 analyses)\n")
 cat("=======================================================================\n\n")
 
 cat(sprintf("%-32s %10s %10s %12s %12s %10s\n",
@@ -315,7 +332,7 @@ cat("=======================================================================\n")
 cat("SECTION 2: Concordance with Published Meta-Analyses\n")
 cat("=======================================================================\n")
 cat("Comparison of RapidMeta (R-validated) pooled estimates against\n")
-cat("15 published finerenone meta-analyses and pooled IPD analyses.\n\n")
+cat("17 published finerenone meta-analyses and pooled IPD analyses.\n\n")
 
 concordance <- data.frame(
   Outcome = c(
@@ -333,7 +350,9 @@ concordance <- data.frame(
     "HF Hosp",
     "Renal",
     "Renal",
-    "Renal"
+    "Renal",
+    "Hyperkal",
+    "Hyperkal"
   ),
   Published_Source = c(
     "FIDELITY IPD (Agarwal 2022, PMID:35023547)",
@@ -350,37 +369,44 @@ concordance <- data.frame(
     "Yasmin 2023 (PMID:37811017)",
     "Ghosal 2023 (PMID:36742404)",
     "FIDELITY IPD (Agarwal 2022, PMID:35023547)",
-    "FINE-HEART IPD (Vaduganathan 2024, PMID:39218030)"
+    "FINE-HEART IPD (Vaduganathan 2024, PMID:39218030)",
+    "Ahmed 2025 (PMID:39911073)",
+    "Yasmin 2023 (PMID:37811017)"
   ),
   Pub_Measure = c(
     "HR", "RR", "RR", "RR", "RR",
     "HR", "RR", "RR", "RR",
     "HR", "RR", "OR",
-    "HR", "HR", "HR"
+    "HR", "HR", "HR",
+    "RR", "OR"
   ),
   Pub_Est = c(
     0.86, 0.88, 0.88, 0.88, 0.86,
     0.91, 0.92, 0.89, 0.90,
     0.78, 0.82, 0.79,
-    0.84, 0.77, 0.80
+    0.84, 0.77, 0.80,
+    2.07, 2.25
   ),
   Pub_LCI = c(
     0.78, 0.80, 0.80, 0.80, 0.80,
     0.84, 0.85, 0.80, 0.80,
     0.66, 0.76, 0.68,
-    0.77, 0.67, 0.72
+    0.77, 0.67, 0.72,
+    1.88, 1.78
   ),
   Pub_UCI = c(
     0.95, 0.96, 0.95, 0.96, 0.93,
     0.99, 0.99, 0.99, 1.00,
     0.92, 0.87, 0.92,
-    0.92, 0.88, 0.90
+    0.92, 0.88, 0.90,
+    2.27, 2.84
   ),
   App_Measure = c(
     "HR", "RR", "RR", "RR", "RR",
     "HR", "RR", "RR", "RR",
     "HR", "RR", "OR",
-    "HR", "HR", "HR"
+    "HR", "HR", "HR",
+    "RR", "OR"
   ),
   App_Est = c(
     round(hr_results[["MACE (HR)"]]$pooled, 2),
@@ -397,7 +423,9 @@ concordance <- data.frame(
     round(results[["HF Hospitalization (OR)"]]$pooled, 2),
     round(hr_results[["Renal Composite (HR)"]]$pooled, 2),
     round(hr_results[["Renal Composite (HR)"]]$pooled, 2),
-    round(hr_results[["Renal Composite (HR)"]]$pooled, 2)
+    round(hr_results[["Renal Composite (HR)"]]$pooled, 2),
+    round(results[["Hyperkalemia (RR)"]]$pooled, 2),
+    round(results[["Hyperkalemia (OR)"]]$pooled, 2)
   ),
   stringsAsFactors = FALSE
 )
@@ -476,6 +504,18 @@ tryCatch({
   dev.off()
   cat("  Saved: forest_HF_Hosp_OR.pdf\n")
 
+  # Hyperkalemia forest plot (k=3, safety outcome)
+  d_hk <- trials[trials$outcome == "Hyperkalemia", ]
+  es_hk <- escalc(measure = "RR", ai = d_hk$tE, n1i = d_hk$tN,
+                   ci = d_hk$cE, n2i = d_hk$cN, data = d_hk)
+  fit_hk <- rma(yi, vi, data = es_hk, method = "DL", slab = d_hk$trial)
+
+  pdf("forest_Hyperkalemia_RR.pdf", width = 10, height = 5)
+  forest(fit_hk, atransf = exp, xlab = "Risk Ratio",
+         header = "Hyperkalemia >=5.5 mmol/L (RR, k=3, Safety Analysis Set)")
+  dev.off()
+  cat("  Saved: forest_Hyperkalemia_RR.pdf\n")
+
   # Funnel plot for ACM (k=3, the only outcome with enough studies)
   pdf("funnel_ACM.pdf", width = 8, height = 6)
   funnel(fit_acm, main = "Funnel Plot: All-Cause Mortality (k=3)")
@@ -538,7 +578,7 @@ for (i in seq_len(nrow(published))) {
 cat("\n=======================================================================\n")
 cat("VALIDATION SUMMARY\n")
 cat("=======================================================================\n")
-cat(sprintf("Analyses computed: %d OR/RR + %d HR = %d total\n",
+cat(sprintf("Analyses computed: %d OR/RR + %d HR = %d total (incl. hyperkalemia)\n",
             length(results), length(hr_results), length(results) + length(hr_results)))
 cat(sprintf("Concordance with published metas: %d/%d (%.0f%%) within 0.03\n",
             n_concordant, nrow(concordance), 100 * n_concordant / nrow(concordance)))
@@ -547,5 +587,5 @@ cat("HKSJ-adjusted CIs computed using test='knha'.\n")
 cat("Forest and funnel plots saved as PDFs for reviewer inspection.\n")
 cat("\nThis script validates that the browser application's statistical\n")
 cat("engine produces results identical to the R metafor package and\n")
-cat("concordant with 15 published finerenone meta-analyses.\n")
+cat("concordant with 17 published finerenone meta-analyses.\n")
 cat("=======================================================================\n")

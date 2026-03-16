@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RapidMeta Cardiology | Cross-App Evidence Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { --bg-dark: #020617; --accent: #3b82f6; }
+        body { font-family: 'Inter', sans-serif; background: #020617; color: #f1f5f9; }
+        .glass { background: rgba(30,41,59,0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .drug-card { transition: all 0.2s; cursor: pointer; }
+        .drug-card:hover { border-color: #3b82f6; transform: translateY(-2px); }
+    </style>
+</head>
+<body class="min-h-screen p-6">
+    <header class="max-w-7xl mx-auto mb-8">
+        <h1 class="text-3xl font-bold">RapidMeta Cardiology <span class="text-blue-400 text-xl font-normal">Evidence Dashboard</span></h1>
+        <p class="text-sm text-slate-500 mt-1">Cross-app comparison of all cardiology meta-analyses. Click any card to open the full app.</p>
+    </header>
+
+    <main class="max-w-7xl mx-auto space-y-8">
+        <!-- Summary Cards -->
+        <div id="summary-cards" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+
+        <!-- Forest Plot Comparison -->
+        <div class="glass rounded-3xl p-8">
+            <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6"><i class="fa-solid fa-chart-bar mr-1"></i> Pooled MACE Effect Across Drug Classes</h2>
+            <div id="comparison-forest" style="height:500px"></div>
+        </div>
+
+        <!-- NNT Ranking -->
+        <div class="glass rounded-3xl p-8">
+            <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6"><i class="fa-solid fa-ranking-star mr-1"></i> NNT Ranking (Lower = Better)</h2>
+            <div id="nnt-chart" style="height:350px"></div>
+        </div>
+
+        <!-- Detail Table -->
+        <div class="glass rounded-3xl p-8 overflow-x-auto">
+            <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6"><i class="fa-solid fa-table mr-1"></i> Full Comparison Table</h2>
+            <table class="w-full text-sm" id="comparison-table">
+                <thead class="text-xs text-slate-500 uppercase">
+                    <tr>
+                        <th class="text-left p-3">Drug Class</th>
+                        <th class="text-right p-3">k</th>
+                        <th class="text-right p-3">Total N</th>
+                        <th class="text-right p-3">Effect (95% CI)</th>
+                        <th class="text-right p-3">I&#178;</th>
+                        <th class="text-right p-3">GRADE</th>
+                        <th class="text-right p-3">NNT</th>
+                        <th class="text-center p-3">App</th>
+                    </tr>
+                </thead>
+                <tbody id="comparison-body" class="divide-y divide-slate-800"></tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+    // Drug class data — manually curated from validated app results
+    const DRUG_CLASSES = [
+        {
+            name: 'Finerenone',
+            file: 'FINERENONE_REVIEW.html',
+            color: '#3b82f6',
+            hr: 0.87, lci: 0.79, uci: 0.95, k: 2, n: 13026,
+            i2: 0.0, grade: 'MODERATE', nnt: 71,
+            indication: 'CKD + T2D',
+            source: 'FIDELITY pooled (Agarwal 2022)'
+        },
+        {
+            name: 'SGLT2 Inhibitors (HF)',
+            file: 'SGLT2_HF_REVIEW.html',
+            color: '#10b981',
+            hr: 0.76, lci: 0.71, uci: 0.82, k: 4, n: 21947,
+            i2: 0.0, grade: 'HIGH', nnt: 21,
+            indication: 'Heart Failure',
+            source: 'Vaduganathan 2022'
+        },
+        {
+            name: 'GLP-1 Receptor Agonists',
+            file: 'GLP1_CVOT_REVIEW.html',
+            color: '#f59e0b',
+            hr: 0.86, lci: 0.81, uci: 0.90, k: 10, n: 76076,
+            i2: 15.2, grade: 'HIGH', nnt: 63,
+            indication: 'T2D + High CV Risk',
+            source: 'Sattar 2021'
+        },
+        {
+            name: 'PCSK9 Inhibitors',
+            file: 'PCSK9_REVIEW.html',
+            color: '#8b5cf6',
+            hr: 0.85, lci: 0.80, uci: 0.90, k: 2, n: 46488,
+            i2: 0.0, grade: 'HIGH', nnt: 67,
+            indication: 'ASCVD + High LDL',
+            source: 'Guedeney 2020'
+        },
+        {
+            name: 'Bempedoic Acid',
+            file: 'BEMPEDOIC_ACID_REVIEW.html',
+            color: '#ec4899',
+            hr: 0.86, lci: 0.78, uci: 0.94, k: 2, n: 16200,
+            i2: 0.0, grade: 'MODERATE', nnt: 77,
+            indication: 'Statin-Intolerant',
+            source: 'CLEAR Program'
+        },
+        {
+            name: 'Colchicine',
+            file: 'COLCHICINE_CVD_REVIEW.html',
+            color: '#06b6d4',
+            hr: 0.79, lci: 0.68, uci: 0.93, k: 5, n: 11876,
+            i2: 22.1, grade: 'MODERATE', nnt: 53,
+            indication: 'Stable CAD / Post-MI',
+            source: 'COLCOT + LoDoCo2'
+        },
+        {
+            name: 'Intensive BP Control',
+            file: 'INTENSIVE_BP_REVIEW.html',
+            color: '#ef4444',
+            hr: 0.80, lci: 0.73, uci: 0.88, k: 5, n: 34823,
+            i2: 0.0, grade: 'HIGH', nnt: 61,
+            indication: 'Hypertension',
+            source: 'SPRINT + STEP + ACCORD'
+        },
+        {
+            name: 'Omega-3 / Icosapent Ethyl',
+            file: 'LIPID_HUB_REVIEW.html',
+            color: '#84cc16',
+            hr: 0.90, lci: 0.79, uci: 1.03, k: 5, n: 52039,
+            i2: 77.1, grade: 'LOW', nnt: null,
+            indication: 'Elevated TG',
+            source: 'Khan 2021'
+        },
+    ];
+
+    function init() {
+        renderCards();
+        renderForestComparison();
+        renderNNTChart();
+        renderTable();
+    }
+
+    function renderCards() {
+        const container = document.getElementById('summary-cards');
+        container.innerHTML = DRUG_CLASSES.map(d => {
+            const sig = d.uci < 1.0;
+            return `<div class="drug-card glass rounded-2xl p-5 border border-slate-800" onclick="window.open('${d.file}','_blank')">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-3 h-3 rounded-full" style="background:${d.color}"></div>
+                    <span class="text-sm font-bold">${d.name}</span>
+                </div>
+                <div class="text-2xl font-black font-mono ${sig ? 'text-emerald-400' : 'text-amber-400'}">${d.hr.toFixed(2)}</div>
+                <div class="text-[10px] text-slate-500">(${d.lci.toFixed(2)}-${d.uci.toFixed(2)}) k=${d.k}</div>
+                <div class="text-[9px] text-slate-600 mt-1">${d.indication}</div>
+            </div>`;
+        }).join('');
+    }
+
+    function renderForestComparison() {
+        const sorted = [...DRUG_CLASSES].sort((a, b) => a.hr - b.hr);
+        const traces = sorted.map(d => ({
+            x: [Math.log(d.hr)],
+            y: [d.name + ' (k=' + d.k + ')'],
+            mode: 'markers',
+            error_x: {
+                type: 'data',
+                array: [Math.log(d.uci) - Math.log(d.hr)],
+                arrayminus: [Math.log(d.hr) - Math.log(d.lci)],
+                color: d.color, thickness: 3
+            },
+            marker: { color: d.color, size: 14, symbol: 'diamond' },
+            showlegend: false,
+            hovertext: d.name + ': HR ' + d.hr.toFixed(2) + ' (' + d.lci.toFixed(2) + '-' + d.uci.toFixed(2) + ')',
+            hoverinfo: 'text'
+        }));
+
+        Plotly.newPlot('comparison-forest', traces, {
+            paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
+            xaxis: {
+                title: 'log(HR) for MACE', color: '#94a3b8', gridcolor: '#1e293b',
+                zeroline: true, zerolinecolor: '#ef4444', zerolinewidth: 2
+            },
+            yaxis: { color: '#94a3b8', autorange: 'reversed' },
+            margin: { l: 220, r: 40, t: 20, b: 50 },
+            shapes: [{ type: 'line', x0: 0, x1: 0, y0: -0.5, y1: sorted.length - 0.5, line: { color: '#ef4444', dash: 'dot', width: 2 } }],
+            annotations: [
+                { x: -0.3, y: sorted.length - 0.3, text: '<b>Favors Treatment</b>', showarrow: false, font: { size: 10, color: '#22c55e' } },
+                { x: 0.15, y: sorted.length - 0.3, text: '<b>Favors Control</b>', showarrow: false, font: { size: 10, color: '#ef4444' } }
+            ]
+        }, { responsive: true, displayModeBar: false });
+    }
+
+    function renderNNTChart() {
+        const withNNT = DRUG_CLASSES.filter(d => d.nnt != null).sort((a, b) => a.nnt - b.nnt);
+        Plotly.newPlot('nnt-chart', [{
+            x: withNNT.map(d => d.name),
+            y: withNNT.map(d => d.nnt),
+            type: 'bar',
+            marker: { color: withNNT.map(d => d.color) },
+            text: withNNT.map(d => 'NNT=' + d.nnt),
+            textposition: 'outside',
+            hoverinfo: 'text'
+        }], {
+            paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
+            xaxis: { color: '#94a3b8' },
+            yaxis: { title: 'NNT (patients needed to prevent 1 MACE event)', color: '#94a3b8', gridcolor: '#1e293b' },
+            margin: { l: 60, r: 20, t: 20, b: 80 }
+        }, { responsive: true, displayModeBar: false });
+    }
+
+    function renderTable() {
+        const gradeColors = { HIGH: 'text-emerald-400', MODERATE: 'text-blue-400', LOW: 'text-amber-400', 'VERY LOW': 'text-red-400' };
+        document.getElementById('comparison-body').innerHTML = DRUG_CLASSES
+            .sort((a, b) => a.hr - b.hr)
+            .map(d => `<tr class="hover:bg-slate-800/30">
+                <td class="p-3 font-bold" style="color:${d.color}">${d.name}<div class="text-[9px] text-slate-500 font-normal">${d.indication}</div></td>
+                <td class="p-3 text-right font-mono">${d.k}</td>
+                <td class="p-3 text-right font-mono">${d.n.toLocaleString()}</td>
+                <td class="p-3 text-right font-mono font-bold ${d.uci < 1 ? 'text-emerald-400' : 'text-amber-400'}">${d.hr.toFixed(2)} (${d.lci.toFixed(2)}-${d.uci.toFixed(2)})</td>
+                <td class="p-3 text-right font-mono">${d.i2.toFixed(0)}%</td>
+                <td class="p-3 text-right font-bold ${gradeColors[d.grade] ?? 'text-slate-400'}">${d.grade}</td>
+                <td class="p-3 text-right font-mono">${d.nnt ?? '--'}</td>
+                <td class="p-3 text-center"><a href="${d.file}" target="_blank" class="text-blue-400 hover:underline text-[10px]">Open <i class="fa-solid fa-arrow-up-right-from-square"></i></a></td>
+            </tr>`).join('');
+    }
+
+    init();
+    </script>
+</body>
+</html>
