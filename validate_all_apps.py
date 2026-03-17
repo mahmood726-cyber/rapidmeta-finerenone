@@ -56,7 +56,7 @@ GOLD_STANDARDS = {
         'MACE': { 'hr': 0.55, 'lo': 0.30, 'hi': 1.00, 'source': 'DL pooled HOKUSAI+SELECT-D+ADAM+CARAVAGGIO', 'k': 4 },
     },
     'MAVACAMTEN_HCM_REVIEW.html': {
-        'MACE': { 'hr': 4.50, 'lo': 2.00, 'hi': 10.00, 'source': 'DL pooled EXPLORER+VALOR+Chinese (OR scale)', 'k': 3 },
+        'MACE': { 'hr': 6.67, 'lo': 2.09, 'hi': 21.30, 'source': 'DL pooled EXPLORER+VALOR+Chinese (published adjusted OR)', 'k': 3 },
     },
     'RIVAROXABAN_VASC_REVIEW.html': {
         'MACE': { 'hr': 0.85, 'lo': 0.77, 'hi': 0.94, 'source': 'DL pooled COMPASS+VOYAGER+COMMANDER+ATLAS', 'k': 4 },
@@ -117,10 +117,12 @@ def extract_v12_results(driver):
             var pooled = parseFloat(r.or || r.pOR || r.pooledOR || 0);
             var lci = parseFloat(r.lci || 0);
             var uci = parseFloat(r.uci || 0);
+            var isCont = r.isContinuous === true;
             return {
-                pooledOR: pooled > 0 ? pooled : null,
-                lci: lci > 0 ? lci : null,
-                uci: uci > 0 ? uci : null,
+                pooledOR: (isCont || pooled !== 0) ? pooled : null,
+                lci: (isCont || lci !== 0) ? lci : null,
+                uci: (isCont || uci !== 0) ? uci : null,
+                isContinuous: isCont,
                 I2: r.i2 != null ? parseFloat(r.i2) : null,
                 k: r.k != null ? parseInt(r.k) : null,
                 hksjLCI: r.hksjLCI != null ? parseFloat(r.hksjLCI) : null,
