@@ -8785,8 +8785,10 @@
             const reasons = [];
             const piCrossesNull = Number.isFinite(piLCI) && Number.isFinite(piUCI) && piLCI < 1 && piUCI > 1;
             const inconsistencyDown = (I2 >= 50 || piCrossesNull) ? 1 : 0;
+                
             if (robDowngrades > 0) reasons.push(`risk of bias: ${robReasons.join('; ')} (-${robDowngrades})`);
             if (inconsistencyDown > 0) reasons.push('inconsistency: ' + (I2 >= 50 ? 'I² ≥ 50%' : 'prediction interval crosses null') + ' (-1)');
+                if (k < 5 && inconsistencyDown === 0) reasons.push('inconsistency: I² imprecise with k=' + k + ' (no downgrade)');
             if (indirectnessDown > 0) reasons.push('indirectness: early-phase trials included (-1)');
 
             let imprecisionDown = 0;
@@ -8795,7 +8797,7 @@
             const crossesHarm = Number.isFinite(_gUCI) && _gUCI > 1.25;
             if (crossesNull && (crossesBenefit || crossesHarm)) {
                 imprecisionDown = 1;
-                reasons.push('imprecision: CI crosses null and clinical decision threshold (OR 0.80/1.25) (-1)');
+                reasons.push('imprecision: CI crosses null and clinical decision threshold (' + RapidMeta.emLabel('short') + ' 0.80/1.25) (-1)');
             } else if (ciWidth > 1.0) {
                 imprecisionDown = 1;
                 reasons.push('imprecision: very wide CI on log scale (-1)');
@@ -8920,14 +8922,17 @@
                 const _drug = RapidMeta.state.protocol?.int ?? 'The intervention';
                 const hedge = certainty === 'HIGH' ? '' : certainty === 'MODERATE' ? 'probably ' : certainty === 'LOW' ? 'may ' : 'The evidence is very uncertain whether it ';
                 if (certainty === 'VERY LOW') return `The evidence is very uncertain about the effect of ${_drug} on ${ocLow}.`;
+                const vReduce = certainty === 'HIGH' ? 'reduces' : 'reduce';
+                const vIncrease = certainty === 'HIGH' ? 'increases' : 'increase';
+                const vResult = certainty === 'HIGH' ? 'results in' : 'result in';
                 if (lci < 1 && uci < 1) {
                     const pct = Math.round((1 - or) * 100);
-                    return `${_drug} ${hedge}reduces ${ocLow} by about ${pct}%.`;
+                    return `${_drug} ${hedge}${vReduce} ${ocLow} by about ${pct}%.`;
                 } else if (lci > 1 && uci > 1) {
                     const pct = Math.round((or - 1) * 100);
-                    return `${_drug} ${hedge}increases ${ocLow} by about ${pct}%.`;
+                    return `${_drug} ${hedge}${vIncrease} ${ocLow} by about ${pct}%.`;
                 }
-                return `${_drug} ${hedge}results in little to no difference in ${ocLow}.`;
+                return `${_drug} ${hedge}${vResult} little to no difference in ${ocLow}.`;
             },
             renderTable(containerId) {
                 const rows = this.generateAll();
@@ -8970,7 +8975,7 @@
                 const confLevel = Math.round((RapidMeta.state.confLevel ?? 0.95) * 100);
                 const title = document.title.replace('RapidMeta Cardiology | ', '');
                 const _e = escapeHtml;
-                const html = '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+                const html = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">' +
                     '<title>GRADE Summary of Findings - ' + _e(title) + '<\/title>' +
                     '<style>' +
                     'body { font-family: Arial, sans-serif; font-size: 11pt; margin: 2cm; }' +
@@ -10077,6 +10082,7 @@
                 const reasons = [];
                 const piCrossesNull = isFinite(piLCI) && isFinite(piUCI) && piLCI < 1 && piUCI > 1;
                 const inconsistencyDown = (I2 >= 50 || piCrossesNull) ? 1 : 0;
+                const inconsistencyNote = (k < 5 && inconsistencyDown === 0) ? ' (I² imprecise with k=' + k + ')' : '';
                 if (robDowngrades > 0) reasons.push(`risk of bias: ${robReasons.join('; ')} (-${robDowngrades})`);
                 if (inconsistencyDown > 0) reasons.push('inconsistency: ' + (I2 >= 50 ? 'I\u00B2 \u2265 50%' : 'prediction interval crosses null') + ' (-1)');
                 if (indirectnessDown > 0) reasons.push('indirectness: heterogeneous populations/phases (-1)');
@@ -10088,7 +10094,7 @@
                 const crossesNull = _impLCI < 1 && _impUCI > 1;
                 const crossesBenefit = _impLCI < 0.80;
                 const crossesHarm = _impUCI > 1.25;
-                if (crossesNull && (crossesBenefit || crossesHarm)) { imprecisionDown = 1; reasons.push('imprecision: CI crosses null and clinical decision threshold (OR 0.80/1.25) (-1)'); }
+                if (crossesNull && (crossesBenefit || crossesHarm)) { imprecisionDown = 1; reasons.push('imprecision: CI crosses null and clinical decision threshold (' + RapidMeta.emLabel('short') + ' 0.80/1.25) (-1)'); }
                 else if (ciWidth > 1.0) { imprecisionDown = 1; reasons.push('imprecision: very wide CI on log scale (-1)'); }
                 // v11.0: Publication bias domain (5th GRADE domain)
                 // Only use Egger when k>=10 (Sterne 2011); Copas heuristic is exploratory and excluded
@@ -10097,7 +10103,7 @@
                 const trimEl = document.getElementById('stat-trimfill');
                 const eggerPval = (eggerEl && k >= 10) ? parseFloat(eggerEl.dataset.pvalue) : 1;
                 const trimK0 = trimEl ? parseInt(trimEl.dataset.k0) : 0;
-                if (eggerPval < 0.10 || trimK0 > 0) { pubBiasDown = 1; reasons.push('publication bias: ' + (eggerPval < 0.10 ? 'Egger p < 0.10' : 'Trim-Fill k\u2080 > 0') + ' (-1)'); }
+                if (eggerPval < 0.10 || (trimK0 > 0 && k >= 10)) { pubBiasDown = 1; reasons.push('publication bias: ' + (eggerPval < 0.10 ? 'Egger p < 0.10' : 'Trim-Fill k\u2080 > 0') + ' (-1)'); }
                 const totalDown = robDowngrades + inconsistencyDown + indirectnessDown + imprecisionDown + pubBiasDown;
 
                 // v12.0: GRADE upgrades (only applicable when starting certainty is not HIGH)
@@ -10106,7 +10112,7 @@
                 let upgradeLevel = 0;
                 const upgradeReasons = [];
                 if (startingLevel !== 'HIGH') {
-                    const _wSum = data.reduce((a, d) => a + d.w_random, 0);
+                    const _wSum = data.reduce((a, d) => a + (d.w_random ?? 0), 0);
                     const mainOR = Math.exp(data.reduce((a, d) => a + d.logOR * d.w_random, 0) / _wSum);
                     if (mainOR < 0.20 || mainOR > 5.0) {
                         upgradeLevel = 2; upgradeReasons.push('very large effect (' + RapidMeta.emLabel('short') + ' ' + mainOR.toFixed(2) + ')');
@@ -10118,7 +10124,8 @@
                         }
                     }
                 }
-                const netLevel = Math.max(0, Math.min(3, startOffset + totalDown - upgradeLevel));
+                const maxUpgrade = Math.min(upgradeLevel, startOffset + totalDown);
+                const netLevel = Math.max(0, Math.min(3, startOffset + totalDown - maxUpgrade));
 
                 const certaintyMap = ['HIGH', 'MODERATE', 'LOW', 'VERY LOW'];
                 const badgeMap = ['grade-high', 'grade-mod', 'grade-low', 'grade-vlow'];
@@ -12732,13 +12739,13 @@ Snapshot Date: ${new Date().toISOString()}
             const phases = [...new Set(included.map(t => t.data?.phase).filter(Boolean))];
 
             // GRADE
-            const grade = r.gradeCertainty ?? '--';
+            const grade = r.gradeCertainty ?? 'NOT ASSESSED';
 
             // Methods paragraph
             const methods = 'We conducted a systematic review and meta-analysis following PRISMA 2020 guidelines. ' +
                 'We searched ClinicalTrials.gov, PubMed, and OpenAlex for randomized controlled trials of ' +
                 drugName + ' versus ' + comparator + ' in ' + population + '. ' +
-                'Eligible studies were Phase ' + (phases.join('/') || 'III') + ' RCTs reporting the primary cardiovascular composite endpoint. ' +
+                'Eligible studies were Phase ' + (phases.join('/') || 'II/III') + ' RCTs reporting the primary cardiovascular composite endpoint. ' +
                 'We pooled ' + emLong.toLowerCase() + 's using the DerSimonian-Laird random-effects model with ' + confLevel + '% confidence intervals. ' +
                 'Heterogeneity was assessed using I\u00B2 and Cochran Q statistics. ' +
                 'Publication bias was evaluated using Egger regression, funnel plot asymmetry, trim-and-fill, and the Copas selection model. ' +
@@ -12750,6 +12757,8 @@ Snapshot Date: ${new Date().toISOString()}
             const nullVal = (emShort === 'MD' || emShort === 'SMD') ? 0 : 1.0;
             const sigText = (grade === 'VERY LOW')
                 ? 'very uncertain evidence regarding'
+                : grade === 'NOT ASSESSED'
+                    ? 'associated with'
                 : parseFloat(uci) < nullVal
                     ? gradeHedge + 'associated with a reduction in'
                     : parseFloat(lci) > nullVal

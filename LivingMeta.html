@@ -1119,6 +1119,27 @@
   <div id="dataQualityArea" class="stub-area">
     Select a config to see data quality scoring and completeness analysis.
   </div>
+
+  <div class="section-header" style="margin-top:24px;">Add / Edit Trial</div>
+  <div id="trialEditorArea" class="card" style="padding:16px;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:12px;">
+      <div><label style="font-size:0.75rem;font-weight:600;">Trial ID</label><input type="text" id="te-id" class="form-select" placeholder="e.g. EXAMPLE-2024" style="width:100%;"></div>
+      <div><label style="font-size:0.75rem;font-weight:600;">NCT ID</label><input type="text" id="te-nct" class="form-select" placeholder="NCT00000000" style="width:100%;"></div>
+      <div><label style="font-size:0.75rem;font-weight:600;">Year</label><input type="number" id="te-year" class="form-select" placeholder="2024" style="width:100%;"></div>
+      <div><label style="font-size:0.75rem;font-weight:600;">N Treatment</label><input type="number" id="te-nt" class="form-select" placeholder="500" style="width:100%;"></div>
+      <div><label style="font-size:0.75rem;font-weight:600;">N Control</label><input type="number" id="te-nc" class="form-select" placeholder="500" style="width:100%;"></div>
+      <div><label style="font-size:0.75rem;font-weight:600;">Events Tx</label><input type="number" id="te-te" class="form-select" placeholder="50" style="width:100%;"></div>
+      <div><label style="font-size:0.75rem;font-weight:600;">Events Ctrl</label><input type="number" id="te-ce" class="form-select" placeholder="70" style="width:100%;"></div>
+      <div><label style="font-size:0.75rem;font-weight:600;">HR</label><input type="number" id="te-hr" class="form-select" step="0.01" placeholder="0.80" style="width:100%;"></div>
+      <div><label style="font-size:0.75rem;font-weight:600;">HR LCI</label><input type="number" id="te-hrlo" class="form-select" step="0.01" placeholder="0.65" style="width:100%;"></div>
+      <div><label style="font-size:0.75rem;font-weight:600;">HR UCI</label><input type="number" id="te-hrhi" class="form-select" step="0.01" placeholder="0.98" style="width:100%;"></div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-primary" onclick="addUserTrial()">Add Trial</button>
+      <button class="btn btn-outline" onclick="removeLastUserTrial()">Remove Last Added</button>
+      <span id="te-status" style="font-size:0.8rem;opacity:0.6;align-self:center;"></span>
+    </div>
+  </div>
 </div>
 
 <!-- ─────────────────── SEARCH TAB ─────────────────── -->
@@ -1345,6 +1366,20 @@
 
   <div class="section-header" style="margin-top:24px;">Sensitivity Forest (Multi-Method Comparison)</div>
   <div id="sensitivityForestPlot" style="min-height:300px;"></div>
+
+  <div class="section-header" style="margin-top:24px;">Study Weights Visualization</div>
+  <div id="studyWeightsPlot" style="min-height:350px;"></div>
+
+  <div class="section-header" style="margin-top:24px;">What-If Scenario (Add Hypothetical Trial)</div>
+  <div id="whatIfArea" class="card" style="padding:12px;">
+    <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:8px;">
+      <div><label style="font-size:0.72rem;font-weight:600;">Effect (OR/HR)</label><input type="number" id="wi-effect" class="form-select" step="0.01" value="0.80" style="width:90px;"></div>
+      <div><label style="font-size:0.72rem;font-weight:600;">SE (log scale)</label><input type="number" id="wi-se" class="form-select" step="0.01" value="0.10" style="width:90px;"></div>
+      <div><label style="font-size:0.72rem;font-weight:600;">N (total)</label><input type="number" id="wi-n" class="form-select" value="2000" style="width:90px;"></div>
+      <button class="btn btn-primary" onclick="runWhatIf()" style="font-size:0.8rem;">Run What-If</button>
+    </div>
+    <div id="whatIfResults" class="stub-area" style="border:none;font-size:0.82rem;">Enter hypothetical trial parameters and click Run to preview impact on pooled estimate.</div>
+  </div>
 
   <div class="section-header">Method Comparison &amp; Published Benchmarks</div>
   <div id="methodComparisonArea" class="stub-area">
@@ -1660,6 +1695,9 @@
     <button class="btn btn-outline" onclick="exportGradeCSV()" style="font-size:0.8rem;">Export GRADE SoF (CSV)</button>
   </div>
   <div id="multiOutcomeHeatmap" class="stub-area">Click "Generate Heatmap" to run synthesis across all outcomes and display a cross-outcome comparison.</div>
+
+  <div class="section-header" style="margin-top:24px;">Power &amp; Sample Size Calculator</div>
+  <div id="powerCalcArea" class="stub-area">Run synthesis first to see how many more patients/trials are needed for a definitive answer.</div>
 
   <div class="section-header" style="margin-top:24px;">Decision Regret Analysis</div>
   <div id="decisionRegretArea" class="stub-area">Run synthesis first. Quantifies expected regret of acting vs waiting based on current evidence strength.</div>
@@ -4725,7 +4763,7 @@ function handleConfigChange(configId) {
   ['forestPlotContainer','funnelPlotContainer','galbraithPlot','baujatPlot','labbePlot',
    'goshPlot','doiPlot','tsaPlotContainer','predDistPlot','seqBayesPlot','cdCurvePlot',
    'subgroupForestPlot','bayesPosteriorPlot','nntCurvePlot','metaRegPlot',
-   'nmaNetworkPlot','evidenceTimelinePlot','evidenceVelocityPlot','cooksDistancePlot','sensitivityForestPlot'
+   'nmaNetworkPlot','evidenceTimelinePlot','evidenceVelocityPlot','cooksDistancePlot','sensitivityForestPlot','studyWeightsPlot'
   ].forEach(function(id) { var el = document.getElementById(id); if (el) { try { Plotly.purge(el); } catch(e) {} } });
   /* Clear stale result panels */
   ['synthesisResultsArea','trackAResults','trackBResults','gradeSofTable',
@@ -6084,6 +6122,7 @@ const TextExtractor = (() => {
 
     /* P-for-interaction */
     let mi;
+    P_INTERACT_RX.lastIndex = 0;
     while ((mi = P_INTERACT_RX.exec(text)) !== null) {
       const raw = mi[1].trim();
       const pInteract = parseFloat(raw.replace(/[<>=\s]/g, ''));
@@ -8018,6 +8057,11 @@ function runSynthesis() {
   // Store round 2+3 results
   Object.assign(AppState.results, { threeLevelMA: threeLevelResult, evidenceVelocity: evVelocity,
     decisionRegret: drResult, cooksDistance: cdResult, classifierMetrics: cmResult });
+  // Study weights bubble chart
+  renderStudyWeights(evTrack);
+  // Power calculator
+  const pcResult = computePowerCalc(evTrack);
+  renderPowerCalc(pcResult);
   // Sensitivity forest (multi-method comparison)
   renderSensitivityForest(AppState.results);
   // RoB traffic light
@@ -8878,20 +8922,58 @@ function exportSoFHTML() {
   const track = r.trackB ?? r.trackA;
   const config = getConfig();
   const exp = Math.exp;
+  const clPct = Math.round((AppState.settings?.confLevel ?? 0.95) * 100);
 
-  const certaintySymbols = { HIGH: '\u2b24\u2b24\u2b24\u2b24', MODERATE: '\u2b24\u2b24\u2b24\u25ef', LOW: '\u2b24\u2b24\u25ef\u25ef', 'VERY LOW': '\u2b24\u25ef\u25ef\u25ef' };
+  const certaintySymbols = { HIGH: '\u2295\u2295\u2295\u2295', MODERATE: '\u2295\u2295\u2295\u2296', LOW: '\u2295\u2295\u2296\u2296', 'VERY LOW': '\u2295\u2296\u2296\u2296' };
   const domainLabels = { rob: 'Risk of Bias', inconsistency: 'Inconsistency', indirectness: 'Indirectness', imprecision: 'Imprecision', publicationBias: 'Publication Bias' };
 
   let html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><style>';
   html += 'table{border-collapse:collapse;width:100%;font-family:Arial,sans-serif;font-size:10pt}';
   html += 'th,td{border:1px solid #000;padding:6px 8px;text-align:left}';
   html += 'th{background:#4472c4;color:#fff;font-weight:bold}';
-  html += '.high{color:#16a34a;font-weight:bold}.mod{color:#d97706;font-weight:bold}.low{color:#dc2626;font-weight:bold}';
+  html += '.high{color:#16a34a;font-weight:bold}.mod{color:#d97706;font-weight:bold}.low{color:#dc2626;font-weight:bold}.vlow{color:#991b1b;font-weight:bold}';
+  html += 'caption{font-size:12pt;font-weight:bold;margin-bottom:8px;text-align:left}';
   html += '</style></head><body>';
 
-  html += '<h2>Summary of Findings Table</h2>';
-  html += '<p><strong>Outcome:</strong> ' + escapeHtml(r.outcomeKey ?? 'Primary') + ' | <strong>Trials:</strong> ' + (track?.k ?? '?') + '</p>';
+  /* === Part 1: Cochrane-style SoF table === */
+  html += '<table>';
+  html += '<caption>Summary of Findings: ' + escapeHtml(config.name ?? 'Living Meta-Analysis') + '</caption>';
+  html += '<thead><tr><th>Outcome</th><th>No. of participants (studies)</th>';
+  html += '<th>Relative effect (' + clPct + '% CI)</th>';
+  html += '<th>Anticipated absolute effects per 1,000</th>';
+  html += '<th>Certainty (GRADE)</th><th>Comments</th></tr></thead><tbody>';
 
+  if (track) {
+    const est = exp(track.primary.estimate);
+    const ciLo = exp(track.primary.ci[0]);
+    const ciHi = exp(track.primary.ci[1]);
+    /* Compute total N from contributing trials */
+    var contributing = config.trials.filter(function(t) { return getTrialOutcome(t, r.outcomeKey ?? 'mace') != null; });
+    var totalN = contributing.reduce(function(s, t) { var o = getTrialOutcome(t, r.outcomeKey ?? 'mace'); return s + (o?.tN ?? 0) + (o?.cN ?? 0); }, 0);
+    /* CER from median control event rate */
+    var cerArr = contributing.map(function(t) { var o = getTrialOutcome(t, r.outcomeKey ?? 'mace'); return (o && o.cN > 0) ? o.cE / o.cN : null; }).filter(function(v) { return v != null; });
+    cerArr.sort(function(a, b) { return a - b; });
+    var cer = cerArr.length > 0 ? cerArr[Math.floor(cerArr.length / 2)] : 0.1;
+    var cer1000 = Math.round(cer * 1000);
+    /* IER */
+    var ier = (track.measure === 'HR') ? (1 - Math.pow(1 - cer, est)) : (cer * est) / (1 - cer + cer * est);
+    var ier1000 = Math.round(ier * 1000);
+    var ard = ier1000 - cer1000;
+    var certClass = grade.finalCertainty === 'HIGH' ? 'high' : grade.finalCertainty === 'MODERATE' ? 'mod' : grade.finalCertainty === 'VERY LOW' ? 'vlow' : 'low';
+
+    html += '<tr>';
+    html += '<td><b>' + escapeHtml(r.outcomeKey ?? 'Primary endpoint') + '</b></td>';
+    html += '<td style="text-align:center;">' + totalN.toLocaleString() + ' (' + track.k + ' RCTs)</td>';
+    html += '<td style="text-align:center;">' + escapeHtml(track.measure) + ' ' + est.toFixed(2) + ' (' + ciLo.toFixed(2) + ' \u2013 ' + ciHi.toFixed(2) + ')</td>';
+    html += '<td>With comparator: ' + cer1000 + ' per 1,000<br>With intervention: ' + ier1000 + ' per 1,000<br><b>Difference: ' + ard + ' per 1,000</b></td>';
+    html += '<td style="text-align:center;" class="' + certClass + '">' + grade.finalCertainty + '<br>' + (certaintySymbols[grade.finalCertainty] ?? '') + '</td>';
+    html += '<td>' + (track.primary.I2 > 50 ? 'Substantial heterogeneity (I\u00B2=' + track.primary.I2.toFixed(0) + '%). ' : '') + '</td>';
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+
+  /* === Part 2: GRADE domain assessment === */
+  html += '<h3 style="margin-top:18px;">GRADE Evidence Profile</h3>';
   html += '<table><thead><tr><th>Domain</th><th>Assessment</th><th>Downgrade</th><th>Reason</th></tr></thead><tbody>';
   for (const [key, info] of Object.entries(grade.domains)) {
     const dg = info.downgrade ?? 0;
@@ -8902,17 +8984,11 @@ function exportSoFHTML() {
   }
   html += '</tbody></table>';
 
-  if (track) {
-    const est = exp(track.primary.estimate);
-    const ciLo = exp(track.primary.ci[0]);
-    const ciHi = exp(track.primary.ci[1]);
-    const certClass = grade.finalCertainty === 'HIGH' ? 'high' : grade.finalCertainty === 'MODERATE' ? 'mod' : 'low';
-    const clPct = Math.round((AppState.settings?.confLevel ?? 0.95) * 100);
-    html += '<p style="margin-top:12px;"><strong>Pooled estimate:</strong> ' + escapeHtml(track.measure) + ' = ' + est.toFixed(2);
-    html += ' (' + clPct + '% CI: ' + ciLo.toFixed(2) + ' \u2013 ' + ciHi.toFixed(2) + ')';
-    html += ' | I\u00B2 = ' + track.primary.I2.toFixed(1) + '%';
-    html += ' | <span class="' + certClass + '">Certainty: ' + grade.finalCertainty + ' ' + (certaintySymbols[grade.finalCertainty] ?? '') + '</span></p>';
-  }
+  /* === Footnotes === */
+  html += '<p style="font-size:9pt;color:#666;margin-top:12px;">';
+  html += 'GRADE certainty: HIGH = very confident the true effect lies close to the estimate; ';
+  html += 'MODERATE = moderately confident; LOW = limited confidence; VERY LOW = very little confidence. ';
+  html += 'Absolute effects computed from median control event rate across contributing trials.</p>';
 
   html += '</body></html>';
 
@@ -13936,6 +14012,234 @@ function renderMetaRegression(reg) {
   }
 }
 
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE Z1: INTERACTIVE TRIAL EDITOR
+   ═══════════════════════════════════════════════════════════════════ */
+
+function addUserTrial() {
+  const id = document.getElementById('te-id')?.value?.trim();
+  if (!id) { showToast('Trial ID is required.'); return; }
+  const nct = document.getElementById('te-nct')?.value?.trim() || null;
+  const year = parseInt(document.getElementById('te-year')?.value) || new Date().getFullYear();
+  const nT = parseInt(document.getElementById('te-nt')?.value) || 0;
+  const nC = parseInt(document.getElementById('te-nc')?.value) || 0;
+  const tE = parseInt(document.getElementById('te-te')?.value) ?? null;
+  const cE = parseInt(document.getElementById('te-ce')?.value) ?? null;
+  const hr = parseFloat(document.getElementById('te-hr')?.value) || null;
+  const hrLo = parseFloat(document.getElementById('te-hrlo')?.value) || null;
+  const hrHi = parseFloat(document.getElementById('te-hrhi')?.value) || null;
+
+  const config = getConfig();
+  if (!config) { showToast('No config loaded.'); return; }
+
+  /* Check for duplicate ID */
+  if (config.trials.some(t => t.id === id)) { showToast('Trial "' + id + '" already exists.'); return; }
+
+  const outcomeKey = AppState.results?.outcomeKey ?? 'mace';
+  const trial = {
+    id, nctId: nct, year, phase: 'PHASE3', nTreatment: nT, nControl: nC, nTotal: nT + nC,
+    status: 'User-added', reference: 'User-entered data',
+    outcomes: {}, rob: { domains: ['low','low','low','low','low'], overall: 'low' },
+    _userAdded: true
+  };
+  trial.outcomes[outcomeKey] = {};
+  if (tE != null && !isNaN(tE)) trial.outcomes[outcomeKey].tE = tE;
+  if (cE != null && !isNaN(cE)) trial.outcomes[outcomeKey].cE = cE;
+  if (nT > 0) trial.outcomes[outcomeKey].tN = nT;
+  if (nC > 0) trial.outcomes[outcomeKey].cN = nC;
+  if (hr) { trial.outcomes[outcomeKey].hr = hr; trial.outcomes[outcomeKey].hrLo = hrLo; trial.outcomes[outcomeKey].hrHi = hrHi; }
+
+  config.trials.push(trial);
+  if (!AppState._userTrials) AppState._userTrials = [];
+  AppState._userTrials.push(id);
+  saveState();
+
+  document.getElementById('te-status').textContent = '\u2714 Added "' + id + '" (' + (AppState._userTrials.length) + ' user trials)';
+  showToast('Trial "' + id + '" added. Run synthesis to include it.');
+  logAudit('add_user_trial', { id, nT, nC, tE, cE, hr });
+  renderProtocolTab();
+  const dqOnAdd = computeDataQuality(config);
+  renderDataQuality(dqOnAdd);
+}
+
+function removeLastUserTrial() {
+  const config = getConfig();
+  if (!AppState._userTrials || AppState._userTrials.length === 0) { showToast('No user-added trials to remove.'); return; }
+  const lastId = AppState._userTrials.pop();
+  const idx = config.trials.findIndex(t => t.id === lastId);
+  if (idx >= 0) config.trials.splice(idx, 1);
+  saveState();
+  document.getElementById('te-status').textContent = 'Removed "' + lastId + '"';
+  showToast('Trial "' + lastId + '" removed.');
+  logAudit('remove_user_trial', { id: lastId });
+  renderProtocolTab();
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE Z2: WHAT-IF SCENARIO TOOL
+   ═══════════════════════════════════════════════════════════════════ */
+
+function runWhatIf() {
+  const r = AppState.results;
+  const track = r?.trackB ?? r?.trackA;
+  if (!track || !track.yi) { showToast('Run synthesis first.'); return; }
+
+  const effectInput = parseFloat(document.getElementById('wi-effect')?.value);
+  const seInput = parseFloat(document.getElementById('wi-se')?.value);
+  const nInput = parseInt(document.getElementById('wi-n')?.value) || 0;
+  if (!effectInput || !seInput || seInput <= 0) { showToast('Enter valid effect and SE.'); return; }
+
+  const yiNew = [...track.yi, Math.log(effectInput)];
+  const viNew = [...track.vi, seInput * seInput];
+  const method = AppState.settings?.tau2Method ?? 'DL';
+  const tau2New = Tau2Estimators[method] ? Tau2Estimators[method](yiNew, viNew).tau2 : 0;
+  const peNew = PooledEstimate(yiNew, viNew, tau2New, { hksj: AppState.settings?.useHKSJ ?? false, confLevel: AppState.settings?.confLevel ?? 0.95 });
+
+  const orOld = Math.exp(track.primary.estimate);
+  const orNew = Math.exp(peNew.estimate);
+  const ciLoNew = Math.exp(peNew.ci[0]);
+  const ciHiNew = Math.exp(peNew.ci[1]);
+  const sigOld = Math.exp(track.primary.ci[1]) < 1 || Math.exp(track.primary.ci[0]) > 1;
+  const sigNew = ciHiNew < 1 || ciLoNew > 1;
+
+  const area = document.getElementById('whatIfResults');
+  if (!area) return;
+  let html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">';
+  html += '<div style="background:var(--bg-card);padding:12px;border-radius:6px;"><div style="font-size:0.75rem;opacity:0.6;margin-bottom:4px;">Current (k=' + track.k + ')</div>';
+  html += '<div style="font-size:1.1rem;font-weight:700;">' + orOld.toFixed(3) + '</div>';
+  html += '<div style="font-size:0.8rem;">' + Math.exp(track.primary.ci[0]).toFixed(3) + ' \u2013 ' + Math.exp(track.primary.ci[1]).toFixed(3) + '</div>';
+  html += '<div style="font-size:0.8rem;">I\u00B2 = ' + track.primary.I2.toFixed(0) + '% | ' + (sigOld ? '\u2714 Significant' : '\u2718 Not sig') + '</div></div>';
+  html += '<div style="background:var(--bg-card);padding:12px;border-radius:6px;border-left:3px solid #3b82f6;"><div style="font-size:0.75rem;opacity:0.6;margin-bottom:4px;">With hypothetical (k=' + (track.k + 1) + ', N=' + nInput + ')</div>';
+  html += '<div style="font-size:1.1rem;font-weight:700;color:#3b82f6;">' + orNew.toFixed(3) + '</div>';
+  html += '<div style="font-size:0.8rem;">' + ciLoNew.toFixed(3) + ' \u2013 ' + ciHiNew.toFixed(3) + '</div>';
+  html += '<div style="font-size:0.8rem;">I\u00B2 = ' + peNew.I2.toFixed(0) + '% | ' + (sigNew ? '\u2714 Significant' : '\u2718 Not sig') + '</div></div>';
+  html += '</div>';
+  const delta = orNew - orOld;
+  html += '<div style="margin-top:8px;font-size:0.82rem;">Effect shift: ' + (delta > 0 ? '+' : '') + delta.toFixed(4) + ' | CI width: ' + (ciHiNew - ciLoNew).toFixed(3) + ' (was ' + (Math.exp(track.primary.ci[1]) - Math.exp(track.primary.ci[0])).toFixed(3) + ')</div>';
+  if (!sigOld && sigNew) html += '<div style="color:#16a34a;font-weight:600;margin-top:4px;">\u2714 Adding this trial would make the result statistically significant!</div>';
+  else if (sigOld && !sigNew) html += '<div style="color:#dc2626;font-weight:600;margin-top:4px;">\u26A0 Adding this trial would make the result lose significance.</div>';
+  area.innerHTML = html;
+  logAudit('what_if', { effect: effectInput, se: seInput, n: nInput, orOld, orNew, sigChange: sigOld !== sigNew });
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE Z3: STUDY WEIGHTS BUBBLE CHART
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderStudyWeights(trackResult) {
+  const plotDiv = document.getElementById('studyWeightsPlot');
+  if (!plotDiv) return;
+  if (!trackResult || !trackResult.primary || !trackResult.primary.weights) {
+    plotDiv.innerHTML = '<div class="stub-area" style="border:none;">Run synthesis first</div>';
+    return;
+  }
+  const isDark = document.body.classList.contains('dark-mode');
+  const weights = trackResult.primary.weights;
+  const trials = trackResult.trials ?? [];
+  const measure = trackResult.measure ?? 'OR';
+  const names = trials.map(t => t.name ?? 'Study');
+  const effects = trackResult.yi.map(y => Math.exp(y));
+  const wPct = weights.map(w => (w * 100));
+  const maxW = Math.max(...wPct);
+
+  Plotly.purge(plotDiv);
+  Plotly.newPlot(plotDiv, [{
+    x: effects, y: names, mode: 'markers', type: 'scatter',
+    marker: { size: wPct.map(w => Math.max(8, w / maxW * 40)), color: '#3b82f6', opacity: 0.7,
+      line: { width: 1, color: isDark ? '#1e293b' : 'white' } },
+    text: names.map((n, i) => n + ': ' + measure + '=' + effects[i].toFixed(3) + ' (weight=' + wPct[i].toFixed(1) + '%)'),
+    hoverinfo: 'text', showlegend: false
+  }, {
+    x: [1, 1], y: [names[0], names[names.length - 1]], mode: 'lines',
+    line: { color: isDark ? '#475569' : '#cbd5e1', dash: 'dash', width: 1.5 }, showlegend: false
+  }], {
+    title: { text: 'Study Weights (Random-Effects)', font: { size: 14 } },
+    xaxis: { title: measure, type: 'log', gridcolor: isDark ? '#334155' : '#e2e8f0' },
+    yaxis: { automargin: true },
+    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { color: isDark ? '#e2e8f0' : '#1e293b' },
+    margin: { t: 40, b: 50, l: 120, r: 20 }
+  }, { responsive: true });
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE Z4: POWER & SAMPLE SIZE CALCULATOR
+   ═══════════════════════════════════════════════════════════════════ */
+
+function computePowerCalc(trackResult) {
+  if (!trackResult || !trackResult.primary) return null;
+  const est = trackResult.primary.estimate;
+  const se = trackResult.primary.se;
+  const tau2 = trackResult.primary.tau2 ?? 0;
+  const k = trackResult.k;
+  if (Math.abs(est) < 1e-10) return null; /* no effect to detect */
+
+  const totalN = (trackResult.trials ?? []).reduce((s, t) => s + (t.tN ?? 0) + (t.cN ?? 0), 0);
+  const avgN = k > 0 ? Math.round(totalN / k) : 500;
+
+  /* Required information size for given effect at alpha=0.05 */
+  const z_alpha = normalQuantile(0.975);
+  const results = [];
+  for (const power of [0.80, 0.90, 0.95]) {
+    const z_beta = normalQuantile(power);
+    /* For log-scale effect: n = 4*(z_a + z_b)^2 / delta^2 per arm (simple formula) */
+    const nPerArm = Math.ceil(4 * Math.pow(z_alpha + z_beta, 2) / (est * est));
+    const nTotal = nPerArm * 2;
+    /* Approximate number of additional trials needed (assuming avg trial size) */
+    const currentInfo = 1 / (se * se);
+    const requiredInfo = Math.pow((z_alpha + z_beta) / est, 2);
+    const additionalInfo = Math.max(0, requiredInfo - currentInfo);
+    /* Average within-study variance */
+    const avgVi = trackResult.vi.reduce((s, v) => s + v, 0) / k;
+    const additionalK = avgVi > 0 ? Math.ceil(additionalInfo * (avgVi + tau2)) : 0;
+    const additionalN = additionalK * avgN;
+    const infoFraction = requiredInfo > 0 ? Math.min(1, currentInfo / requiredInfo) : 1;
+
+    results.push({ power, nPerArm, nTotal, additionalK: Math.max(0, additionalK), additionalN: Math.max(0, additionalN), infoFraction });
+  }
+
+  /* Current power (post-hoc) */
+  const currentZ = Math.abs(est) / se;
+  const currentPower = normalCDF(currentZ - z_alpha); /* one-sided then doubled isn't right; use: P(reject) */
+
+  return { results, currentPower, k, totalN, avgN, effect: Math.exp(est), logEffect: est, tau2 };
+}
+
+function renderPowerCalc(pc) {
+  const area = document.getElementById('powerCalcArea');
+  if (!area) return;
+  if (!pc) { area.innerHTML = '<span style="opacity:0.6;">Run synthesis first (need non-zero effect)</span>'; return; }
+
+  let html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:12px;">';
+  const pwColor = pc.currentPower >= 0.80 ? '#16a34a' : pc.currentPower >= 0.50 ? '#d97706' : '#dc2626';
+  html += '<div style="background:var(--bg-card);padding:10px;border-radius:6px;text-align:center;">';
+  html += '<div style="font-size:1.2rem;font-weight:700;color:' + pwColor + ';">' + (pc.currentPower * 100).toFixed(0) + '%</div>';
+  html += '<div style="font-size:0.7rem;opacity:0.6;">Current Power</div></div>';
+  html += '<div style="background:var(--bg-card);padding:10px;border-radius:6px;text-align:center;">';
+  html += '<div style="font-size:1.1rem;font-weight:700;">' + pc.effect.toFixed(3) + '</div>';
+  html += '<div style="font-size:0.7rem;opacity:0.6;">Detected Effect</div></div>';
+  html += '<div style="background:var(--bg-card);padding:10px;border-radius:6px;text-align:center;">';
+  html += '<div style="font-size:1.1rem;font-weight:700;">' + pc.k + '</div>';
+  html += '<div style="font-size:0.7rem;opacity:0.6;">Current k</div></div>';
+  html += '<div style="background:var(--bg-card);padding:10px;border-radius:6px;text-align:center;">';
+  html += '<div style="font-size:1.1rem;font-weight:700;">' + pc.totalN.toLocaleString() + '</div>';
+  html += '<div style="font-size:0.7rem;opacity:0.6;">Current N</div></div>';
+  html += '</div>';
+
+  html += '<table style="width:100%;font-size:0.78rem;border-collapse:collapse;">';
+  html += '<thead><tr><th style="padding:6px;text-align:left;">Target Power</th><th>Info Fraction</th><th>Additional k Needed</th><th>Additional N Needed</th><th>Total N Required</th></tr></thead><tbody>';
+  for (const r of pc.results) {
+    const ifColor = r.infoFraction >= 1 ? '#16a34a' : r.infoFraction >= 0.5 ? '#d97706' : '#dc2626';
+    html += '<tr><td style="padding:6px;font-weight:600;">' + (r.power * 100) + '%</td>';
+    html += '<td style="text-align:center;"><div style="display:flex;align-items:center;gap:4px;justify-content:center;"><div style="width:50px;height:6px;background:var(--border-color);border-radius:3px;overflow:hidden;"><div style="width:' + (r.infoFraction * 100) + '%;height:100%;background:' + ifColor + ';border-radius:3px;"></div></div><span style="color:' + ifColor + ';font-weight:600;">' + (r.infoFraction * 100).toFixed(0) + '%</span></div></td>';
+    html += '<td style="text-align:center;">' + (r.additionalK === 0 ? '<span style="color:#16a34a;">\u2714 Sufficient</span>' : '+' + r.additionalK) + '</td>';
+    html += '<td style="text-align:center;">' + (r.additionalN === 0 ? '\u2014' : '+' + r.additionalN.toLocaleString()) + '</td>';
+    html += '<td style="text-align:center;">' + r.nTotal.toLocaleString() + '</td></tr>';
+  }
+  html += '</tbody></table>';
+  area.innerHTML = html;
+}
 
 /* ═══════════════════════════════════════════════════════════════════
    FEATURE U: FOREST PLOT DOWNLOAD (SVG/PNG)

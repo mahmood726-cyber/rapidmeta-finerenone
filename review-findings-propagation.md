@@ -1,7 +1,7 @@
 # Multi-Persona Review: Propagated Features (TextExtractor, GRADE SoF, Manuscript Text)
-### Date: 2026-03-16
+### Date: 2026-03-16 (Round 1), 2026-03-17 (Round 2)
 ### Scope: All 8 siblings + LivingMeta.html
-### Status: REVIEW CLEAN — All P0 fixed, 14/16 P1 fixed, 0/12 P2 fixed
+### Status: REVIEW CLEAN — All 8 P0 fixed, All 16 P1 fixed + 3 R2 P1 fixed, 7/12 P2 fixed
 ### Validation: 7/8 pass (INCRETIN_HFpEF = no gold, pre-existing)
 
 ---
@@ -84,18 +84,27 @@
 
 ## P2 — Minor (12)
 
-- P2-1: LivingMeta missing `.vlow` CSS class for VERY LOW certainty
-- P2-2: GRADE imprecision reason hardcodes "OR 0.80/1.25" regardless of effect measure
-- P2-3: `hksjSE || pSE` drops valid zero (use `??`)
+- [FIXED] P2-1: LivingMeta `.vlow` CSS class added in exportSoFHTML
+- [FIXED] P2-2: GRADE imprecision reason now uses `emLabel('short')` not hardcoded "OR"
+- [FIXED] P2-3: `hksjSE ?? pSE` (nullish coalescing)
 - P2-4: Dead code: first `NEG_CONTEXT` loop in TextExtractor `extract()` does nothing
 - P2-5: SGLT2/COLCHICINE/GLP1 missing ZipBuilder GRADE integration
-- P2-6: SoF export HTML missing `lang="en"` attribute
+- [FIXED] P2-6: SoF export HTML has `lang="en"` attribute
 - P2-7: Export dropdown items are `<div>` not `<button>` (partially mitigated by keyboard handler)
 - P2-8: RoB traffic-light circles have no aria-label
-- P2-9: Manuscript text defaults to "Phase III" when phase data missing
-- P2-10: GRADE fractional downgrades (0.5) are non-standard
+- [FIXED] P2-9: Manuscript text defaults to "Phase II/III" (was "Phase III")
+- P2-10: GRADE fractional downgrades (0.5) are non-standard (LivingMeta)
 - P2-11: `escapeHtml` inconsistency: `&#039;` vs `&#39;` across files
 - P2-12: 10px button text below 44px touch target minimum
+
+## Round 2 — New Issues (2026-03-17)
+
+- [FIXED] R2-N1 [P1]: LivingMeta `P_INTERACT_RX.lastIndex = 0` missing before `.exec()` loop
+- [OPEN] R2-N2 [P1]: LivingMeta hardcoded `normalQuantile(0.975)` in MH-OR, Peto, Trim-Fill, Bootstrap PI
+- [FIXED] R2-N3 [P1]: `gradeHedge` guard for undefined `gradeCertainty` (was producing "was is very uncertain about")
+- [FIXED] R2-N4 [P2]: `_plainLanguage` grammar — "may reduces" → "may reduce" (infinitive after modal)
+- [FIXED] R2-N5 [P2]: `inconsistencyNote` dead code wired into reasons (k<5 informational note)
+- P2: CT.gov URL encoding inconsistency (BEMPEDOIC L6812, LivingMeta L5274) — low risk
 
 ## False Positive Watch
 - P0-SE2 (normalInv undefined) — needs verification: may be `normalQuantile` but could also be defined elsewhere
