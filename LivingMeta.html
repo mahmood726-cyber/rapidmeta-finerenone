@@ -970,6 +970,21 @@
     border-color: var(--accent);
     outline: none;
   }
+
+  /* ═══ PRINT STYLES ═══ */
+  @media print {
+    body { background: white !important; color: black !important; font-size: 11pt; }
+    header, .tab-bar, .controls-row, .btn, button, .toggle-switch, .screen-toolbar,
+    .filter-group, #execSummaryBar, .sr-only { display: none !important; }
+    .tab-panel { display: block !important; page-break-inside: avoid; padding: 0 !important; }
+    .tab-panel .section-header { page-break-after: avoid; font-size: 13pt; border-bottom: 1px solid #ccc; }
+    .card { break-inside: avoid; border: 1px solid #ddd !important; box-shadow: none !important; }
+    .plot-container, [id$="Plot"] { break-inside: avoid; max-height: 500px; }
+    .stub-area { border: 1px solid #eee !important; }
+    table { font-size: 9pt; }
+    a { color: black; text-decoration: underline; }
+    @page { margin: 1.5cm; }
+  }
 </style>
 </head>
 
@@ -1052,6 +1067,11 @@
   </div>
 </header>
 
+<!-- Executive Summary Dashboard (appears after synthesis) -->
+<div id="execSummaryBar" style="display:none;background:var(--bg-card);border:1px solid var(--border-color);border-radius:8px;padding:12px 16px;margin:0 16px 12px 16px;">
+  <div id="execSummaryContent" style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:0.82rem;"></div>
+</div>
+
 <!-- ═══════════════════════════════════════════════════════════════════════
      TAB BAR
      ═══════════════════════════════════════════════════════════════════════ -->
@@ -1115,6 +1135,9 @@
     <!-- Rendered by JS -->
   </div>
 
+  <div class="section-header" style="margin-top:24px;">Trial Timeline</div>
+  <div id="trialGanttPlot" style="min-height:350px;"></div>
+
   <div class="section-header" style="margin-top:24px;">Data Quality Dashboard</div>
   <div id="dataQualityArea" class="stub-area">
     Select a config to see data quality scoring and completeness analysis.
@@ -1140,6 +1163,24 @@
       <span id="te-status" style="font-size:0.8rem;opacity:0.6;align-self:center;"></span>
     </div>
   </div>
+
+  <div class="section-header" style="margin-top:24px;">Import Trials from CSV</div>
+  <div class="card" style="padding:12px;">
+    <p style="font-size:0.78rem;opacity:0.7;margin-bottom:8px;">Paste CSV with columns: ID, Year, nTreatment, nControl, Events_Tx, Events_Ctrl, HR, HR_LCI, HR_UCI (header row required)</p>
+    <textarea id="csvImportArea" rows="5" style="width:100%;font-family:monospace;font-size:0.78rem;border:1px solid var(--border-color);border-radius:6px;padding:8px;background:var(--bg-secondary);color:var(--text-primary);resize:vertical;" placeholder="ID,Year,nTreatment,nControl,Events_Tx,Events_Ctrl,HR,HR_LCI,HR_UCI&#10;EXAMPLE-2024,2024,500,500,50,70,0.80,0.65,0.98"></textarea>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button class="btn btn-primary" onclick="importTrialsCSV()" style="font-size:0.8rem;">Import CSV</button>
+      <span id="csv-import-status" style="font-size:0.8rem;opacity:0.6;align-self:center;"></span>
+    </div>
+  </div>
+
+  <div class="section-header" style="margin-top:24px;">Cross-Config Comparison</div>
+  <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+    <select id="compareConfig1" class="form-select" style="width:200px;"></select>
+    <select id="compareConfig2" class="form-select" style="width:200px;"></select>
+    <button class="btn btn-outline" onclick="runConfigComparison()" style="font-size:0.8rem;">Compare</button>
+  </div>
+  <div id="configComparisonArea" class="stub-area">Select two configs and click Compare to see side-by-side results.</div>
 </div>
 
 <!-- ─────────────────── SEARCH TAB ─────────────────── -->
@@ -1362,6 +1403,12 @@
     <div class="stub-area" style="border: none; min-height: 480px; display: flex; align-items: center; justify-content: center;">
       Run analysis to generate forest plot
     </div>
+  </div>
+
+  <div class="section-header" style="margin-top:24px;">Heterogeneity Decomposition</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;">
+    <div id="heterogeneityPie" style="min-height:280px;"></div>
+    <div id="heterogeneityDetails" class="stub-area" style="border:none;">Run synthesis first</div>
   </div>
 
   <div class="section-header" style="margin-top:24px;">Sensitivity Forest (Multi-Method Comparison)</div>
@@ -1754,6 +1801,13 @@
     <button class="btn btn-outline" onclick="exportRScript()">
       &#129518; R Validation Script
     </button>
+  </div>
+
+  <div class="section-header" style="margin-top:24px;">Audit Trail</div>
+  <div id="auditLogViewer" class="stub-area" style="max-height:400px;overflow-y:auto;">No audit events yet. Actions are logged as you use the app.</div>
+  <div style="margin-top:8px;display:flex;gap:8px;">
+    <button class="btn btn-outline" onclick="renderAuditLog()" style="font-size:0.8rem;">Refresh Audit Log</button>
+    <button class="btn btn-outline" onclick="window.print()" style="font-size:0.8rem;">Print Report</button>
   </div>
 
   <div class="section-header" style="margin-top:24px;">Full Methodological Report (PRISMA 2020)</div>
@@ -4759,12 +4813,16 @@ function handleConfigChange(configId) {
   /* Data quality dashboard on config load */
   const dqOnLoad = computeDataQuality(getConfig());
   renderDataQuality(dqOnLoad);
+  /* Populate cross-config comparison selectors */
+  if (typeof populateCompareSelectors === 'function') populateCompareSelectors();
   /* Purge Plotly plots to prevent memory leaks on config switch */
   ['forestPlotContainer','funnelPlotContainer','galbraithPlot','baujatPlot','labbePlot',
    'goshPlot','doiPlot','tsaPlotContainer','predDistPlot','seqBayesPlot','cdCurvePlot',
    'subgroupForestPlot','bayesPosteriorPlot','nntCurvePlot','metaRegPlot',
-   'nmaNetworkPlot','evidenceTimelinePlot','evidenceVelocityPlot','cooksDistancePlot','sensitivityForestPlot','studyWeightsPlot'
+   'nmaNetworkPlot','evidenceTimelinePlot','evidenceVelocityPlot','cooksDistancePlot','sensitivityForestPlot','studyWeightsPlot','heterogeneityPie','trialGanttPlot'
   ].forEach(function(id) { var el = document.getElementById(id); if (el) { try { Plotly.purge(el); } catch(e) {} } });
+  /* Render trial Gantt AFTER purge (so it's not immediately cleared) */
+  if (typeof renderTrialGantt === 'function') renderTrialGantt(getConfig());
   /* Clear stale result panels */
   ['synthesisResultsArea','trackAResults','trackBResults','gradeSofTable',
    'convergenceDashboard','methodsParagraph','certBundleStatus'
@@ -7618,7 +7676,7 @@ function mhOR(trials) {
   }
   const lnOR = Math.log(or);
   const se = Math.sqrt(R/(2*num*num) + S/(2*num*den) + T2/(2*den*den));
-  const z = normalQuantile(0.975);
+  const z = normalQuantile(1 - (1 - (AppState.settings?.confLevel ?? 0.95)) / 2);
   return { or, lnOR, se, ci: [Math.exp(lnOR - z*se), Math.exp(lnOR + z*se)], method: 'MH-OR' };
 }
 
@@ -7636,7 +7694,7 @@ function petoOR(trials) {
   if (sumV <= 0) return null;
   const lnOR = sumOE / sumV;
   const se = Math.sqrt(1 / sumV);
-  const z = normalQuantile(0.975);
+  const z = normalQuantile(1 - (1 - (AppState.settings?.confLevel ?? 0.95)) / 2);
   const or = Math.exp(lnOR);
   return { or, lnOR, se, ci: [Math.exp(lnOR - z*se), Math.exp(lnOR + z*se)], method: 'Peto' };
 }
@@ -7728,7 +7786,7 @@ const BiasSuite = {
     const nw = newVi.map(v => 1/(v + adjTau2)), nsW = sum(nw);
     const adj = sum(newYi.map((y,i) => nw[i]*y)) / nsW;
     const adjSE = Math.sqrt(1/nsW);
-    const z = normalQuantile(0.975);
+    const z = normalQuantile(1 - (1 - (AppState.settings?.confLevel ?? 0.95)) / 2);
     return { k0, adjusted: adj, adjustedCI: [adj - z*adjSE, adj + z*adjSE], side,
       conclusion: k0 > 0 ? `${k0} imputed studies (${side} side)` : 'No missing studies' };
   },
@@ -8057,6 +8115,10 @@ function runSynthesis() {
   // Store round 2+3 results
   Object.assign(AppState.results, { threeLevelMA: threeLevelResult, evidenceVelocity: evVelocity,
     decisionRegret: drResult, cooksDistance: cdResult, classifierMetrics: cmResult });
+  // Heterogeneity decomposition pie
+  renderHeterogeneityPie(evTrack);
+  // Trial timeline Gantt
+  renderTrialGantt(config);
   // Study weights bubble chart
   renderStudyWeights(evTrack);
   // Power calculator
@@ -8066,6 +8128,10 @@ function runSynthesis() {
   renderSensitivityForest(AppState.results);
   // RoB traffic light
   renderRobTrafficLight(config);
+  // Executive summary dashboard
+  renderExecSummary();
+  // Audit log (auto-refresh)
+  renderAuditLog();
 
   /* Post-process tables for a11y + mobile */
   postProcessTables();
@@ -8330,16 +8396,21 @@ function renderForestPlot(track, targetId) {
     text: [pooledEst.toFixed(2) + ' [' + pooledLo.toFixed(2) + ', ' + pooledHi.toFixed(2) + ']'], hoverinfo: 'text'
   }];
 
-  /* Add prediction interval as shaded region */
+  /* Add prediction interval as diamond trace + pooled CI as shaded region */
   const piLo = isNaN(track.primary.pi?.[0]) ? null : exp(track.primary.pi[0]);
   const piHi = isNaN(track.primary.pi?.[1]) ? null : exp(track.primary.pi[1]);
+  if (piLo != null && piHi != null) {
+    allNames.push('Prediction Interval');
+    traces.push({
+      x: [pooledEst], y: ['Prediction Interval'], mode: 'markers', type: 'scatter', name: 'PI',
+      marker: { size: 14, color: '#f59e0b', symbol: 'diamond-open', line: { width: 2.5 } },
+      error_x: { type: 'data', symmetric: false, array: [piHi - pooledEst], arrayminus: [pooledEst - piLo], thickness: 2.5, color: '#f59e0b' },
+      text: ['PI: ' + piLo.toFixed(2) + ' \u2013 ' + piHi.toFixed(2)], hoverinfo: 'text', showlegend: false
+    });
+  }
   const shapes = [
     { type: 'line', x0: 1, x1: 1, y0: -0.5, y1: allNames.length - 0.5, line: { color: '#94a3b8', width: 1.5, dash: 'dot' } }
   ];
-  if (piLo != null && piHi != null) {
-    shapes.push({ type: 'rect', x0: piLo, x1: piHi, y0: allNames.length - 1.4, y1: allNames.length - 0.6,
-      fillcolor: 'rgba(239,68,68,0.08)', line: { width: 1, color: 'rgba(239,68,68,0.3)', dash: 'dash' } });
-  }
 
   const isDark = document.body.classList.contains('dark-mode');
   const layout = {
@@ -11211,7 +11282,7 @@ function computeBootstrapPI(yi, vi, tau2, nBoot) {
 
   /* Standard (Wald) PI for comparison */
   const waldSE = Math.sqrt(1 / sumW + tau2Use);
-  const zCrit = normalQuantile(0.975);
+  const zCrit = normalQuantile(1 - (1 - (AppState.settings?.confLevel ?? 0.95)) / 2);
   const waldPI = [muHat - zCrit * waldSE, muHat + zCrit * waldSE];
 
   return {
@@ -11328,7 +11399,7 @@ function computeZCurve(track) {
   if (!track || !track.yi || track.yi.length < 2) return null;
   const k = track.yi.length;
   const zi = track.yi.map((y, i) => Math.abs(y / Math.sqrt(track.vi[i])));
-  const zAlpha = normalQuantile(0.975);
+  const zAlpha = normalQuantile(1 - (1 - (AppState.settings?.confLevel ?? 0.95)) / 2);
   /* Expected Replication Rate: mean power across studies */
   const powers = zi.map(z => 1 - normalCDF(zAlpha - z));
   const ERR = powers.reduce((a, b) => a + b, 0) / k;
@@ -11826,7 +11897,7 @@ function computeCDPredInt(yi, vi, nBoot) {
   const pi80 = [bootEffects[Math.floor(0.10 * nBoot)], bootEffects[Math.floor(0.90 * nBoot)]];
 
   /* Standard HTS prediction interval for comparison */
-  const tCrit = k > 2 ? tQuantile(0.975, k - 2) : normalQuantile(0.975);
+  const tCrit = k > 2 ? tQuantile(1 - (1 - (AppState.settings?.confLevel ?? 0.95)) / 2, k - 2) : normalQuantile(1 - (1 - (AppState.settings?.confLevel ?? 0.95)) / 2);
   const sePI = Math.sqrt(1/sumW0 + tau2DL);
   const htsPI = [muDL - tCrit * sePI, muDL + tCrit * sePI];
 
@@ -14014,6 +14085,335 @@ function renderMetaRegression(reg) {
 
 
 /* ═══════════════════════════════════════════════════════════════════
+   FEATURE A5: HETEROGENEITY DECOMPOSITION PIE CHART
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderHeterogeneityPie(trackResult) {
+  const plotDiv = document.getElementById('heterogeneityPie');
+  const detailDiv = document.getElementById('heterogeneityDetails');
+  if (!plotDiv) return;
+  if (!trackResult || !trackResult.primary) {
+    if (plotDiv) Plotly.purge(plotDiv);
+    if (detailDiv) detailDiv.innerHTML = '<span style="opacity:0.6;">Run synthesis first</span>';
+    return;
+  }
+
+  const I2 = trackResult.primary.I2;
+  const tau2 = trackResult.primary.tau2 ?? 0;
+  const k = trackResult.k;
+  const avgVi = trackResult.vi.reduce((s, v) => s + v, 0) / k;
+  const samplingVar = avgVi;
+  const totalVar = samplingVar + tau2;
+  const pctHeterog = totalVar > 0 ? (tau2 / totalVar * 100) : 0;
+  const pctSampling = 100 - pctHeterog;
+
+  const isDark = document.body.classList.contains('dark-mode');
+  Plotly.purge(plotDiv);
+  Plotly.newPlot(plotDiv, [{
+    values: [pctHeterog, pctSampling],
+    labels: ['Between-study (\u03C4\u00B2)', 'Within-study (sampling)'],
+    type: 'pie', hole: 0.5,
+    marker: { colors: ['#ef4444', '#3b82f6'] },
+    textinfo: 'label+percent', textposition: 'outside',
+    hoverinfo: 'label+percent+value',
+    textfont: { size: 11, color: isDark ? '#e2e8f0' : '#1e293b' }
+  }], {
+    title: { text: 'Variance Decomposition', font: { size: 13 } },
+    showlegend: false,
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    font: { color: isDark ? '#e2e8f0' : '#1e293b' },
+    margin: { t: 40, b: 20, l: 20, r: 20 },
+    annotations: [{ text: 'I\u00B2=' + I2.toFixed(0) + '%', showarrow: false, font: { size: 16, color: isDark ? '#e2e8f0' : '#1e293b' } }]
+  }, { responsive: true });
+
+  if (detailDiv) {
+    const interpret = I2 < 25 ? 'Low' : I2 < 50 ? 'Moderate' : I2 < 75 ? 'Substantial' : 'Considerable';
+    const iColor = I2 < 25 ? '#16a34a' : I2 < 50 ? '#d97706' : I2 < 75 ? '#ea580c' : '#dc2626';
+    let html = '<div style="font-size:0.85rem;margin-bottom:8px;">';
+    html += '<strong>I\u00B2 = ' + I2.toFixed(1) + '%</strong> — <span style="color:' + iColor + ';font-weight:600;">' + interpret + ' heterogeneity</span></div>';
+    html += '<table style="font-size:0.78rem;border-collapse:collapse;width:100%;">';
+    html += '<tr><td style="padding:4px;">Between-study variance (\u03C4\u00B2)</td><td style="text-align:right;font-weight:600;">' + tau2.toFixed(4) + '</td></tr>';
+    html += '<tr><td style="padding:4px;">Average within-study variance</td><td style="text-align:right;">' + samplingVar.toFixed(4) + '</td></tr>';
+    html += '<tr><td style="padding:4px;">Total variance</td><td style="text-align:right;">' + totalVar.toFixed(4) + '</td></tr>';
+    html += '<tr><td style="padding:4px;">Cochran Q (p-value)</td><td style="text-align:right;">' + (trackResult.primary.Q ?? 0).toFixed(2) + ' (p=' + (trackResult.primary.Qp != null ? (trackResult.primary.Qp < 0.001 ? '<0.001' : trackResult.primary.Qp.toFixed(3)) : 'N/A') + ')</td></tr>';
+    html += '<tr><td style="padding:4px;">Prediction interval</td><td style="text-align:right;">';
+    if (trackResult.primary.pi && !isNaN(trackResult.primary.pi[0])) {
+      html += Math.exp(trackResult.primary.pi[0]).toFixed(3) + ' \u2013 ' + Math.exp(trackResult.primary.pi[1]).toFixed(3);
+    } else html += 'N/A';
+    html += '</td></tr></table>';
+    html += '<div style="font-size:0.72rem;opacity:0.5;margin-top:6px;">Higgins &amp; Thompson (2002). I\u00B2: &lt;25% low, 25-50% moderate, 50-75% substantial, &gt;75% considerable.</div>';
+    detailDiv.innerHTML = html;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE A6: KEYBOARD SHORTCUTS
+   ═══════════════════════════════════════════════════════════════════ */
+
+(function initKeyboardShortcuts() {
+  document.addEventListener('keydown', function(e) {
+    /* Skip if user is typing in an input/textarea */
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+
+    /* Ctrl+Enter: Run synthesis */
+    if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); if (typeof runSynthesis === 'function') runSynthesis(); return; }
+    /* Ctrl+E: Export bundle */
+    if (e.ctrlKey && e.key === 'e') { e.preventDefault(); if (typeof exportBundle === 'function') exportBundle(); return; }
+    /* Ctrl+P: Print (browser default, let it through) */
+
+    /* Number keys 1-8: Switch tabs */
+    if (!e.ctrlKey && !e.altKey && !e.metaKey && e.key >= '1' && e.key <= '8') {
+      const tabs = ['protocol','search','screen','extract','synthesize','bias','grade','certify'];
+      const idx = parseInt(e.key) - 1;
+      if (idx < tabs.length && typeof switchTab === 'function') { e.preventDefault(); switchTab(tabs[idx]); }
+    }
+
+    /* ? key: Show shortcuts help */
+    if (e.key === '?' && !e.ctrlKey) {
+      showToast('Shortcuts: 1-8=tabs, Ctrl+Enter=synthesize, Ctrl+E=export');
+    }
+  });
+})();
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE A7: TRIAL TIMELINE GANTT CHART
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderTrialGantt(config) {
+  const plotDiv = document.getElementById('trialGanttPlot');
+  if (!plotDiv) return;
+  if (!config || !config.trials || config.trials.length === 0) {
+    plotDiv.innerHTML = '<div class="stub-area" style="border:none;">No trial data</div>';
+    return;
+  }
+
+  const isDark = document.body.classList.contains('dark-mode');
+  const trials = config.trials.filter(t => t.year).sort((a, b) => (a.year ?? 0) - (b.year ?? 0));
+  if (trials.length === 0) { plotDiv.innerHTML = '<div class="stub-area" style="border:none;">No year data for timeline</div>'; return; }
+
+  const phaseColors = { PHASE1: '#94a3b8', PHASE2: '#f59e0b', PHASE3: '#3b82f6', PHASE4: '#16a34a', 'PHASE2/3': '#7c3aed' };
+  const names = trials.map(t => t.id);
+  const starts = trials.map(t => t.year - (t.followUpMonths ? t.followUpMonths / 12 : 2));
+  const ends = trials.map(t => t.year);
+  const colors = trials.map(t => phaseColors[t.phase] ?? '#64748b');
+  const nTotals = trials.map(t => t.nTotal ?? ((t.nTreatment ?? 0) + (t.nControl ?? 0)));
+
+  const traces = [{
+    x: ends.map((e, i) => e - starts[i]), y: names, type: 'bar', orientation: 'h',
+    base: starts,
+    marker: { color: colors, opacity: 0.85, line: { width: 1, color: isDark ? '#1e293b' : 'white' } },
+    text: trials.map((t, i) => t.id + ' (' + (t.phase ?? '?') + ') N=' + nTotals[i]),
+    hoverinfo: 'text', showlegend: false
+  }];
+
+  Plotly.purge(plotDiv);
+  Plotly.newPlot(plotDiv, traces, {
+    title: { text: 'Trial Timeline', font: { size: 14 } },
+    xaxis: { title: 'Year', gridcolor: isDark ? '#334155' : '#e2e8f0' },
+    yaxis: { automargin: true, autorange: 'reversed' },
+    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { color: isDark ? '#e2e8f0' : '#1e293b' },
+    margin: { t: 40, b: 50, l: 120, r: 20 },
+    height: Math.max(250, 30 + trials.length * 28)
+  }, { responsive: true });
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE A1: CSV TRIAL DATA IMPORT
+   ═══════════════════════════════════════════════════════════════════ */
+
+function importTrialsCSV() {
+  const raw = document.getElementById('csvImportArea')?.value?.trim();
+  if (!raw) { showToast('Paste CSV data first.'); return; }
+  const config = getConfig();
+  if (!config) { showToast('No config loaded.'); return; }
+
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  if (lines.length < 2) { showToast('Need header row + at least 1 data row.'); return; }
+
+  const header = lines[0].split(',').map(h => h.trim().toLowerCase());
+  const idCol = header.findIndex(h => h === 'id' || h === 'trial' || h === 'study');
+  const yearCol = header.findIndex(h => h === 'year');
+  const ntCol = header.findIndex(h => h.includes('ntreat') || h === 'nt' || h === 'n_treatment');
+  const ncCol = header.findIndex(h => h.includes('ncontrol') || h === 'nc' || h === 'n_control');
+  const teCol = header.findIndex(h => h.includes('events_tx') || h === 'te' || h === 'events_t');
+  const ceCol = header.findIndex(h => h.includes('events_ctrl') || h === 'ce' || h === 'events_c');
+  const hrCol = header.findIndex(h => h === 'hr' || h === 'hazard_ratio');
+  const hrLoCol = header.findIndex(h => h === 'hr_lci' || h === 'hrlo' || h === 'hr_lower');
+  const hrHiCol = header.findIndex(h => h === 'hr_uci' || h === 'hrhi' || h === 'hr_upper');
+
+  if (idCol < 0) { showToast('CSV must have an ID/Trial/Study column.'); return; }
+
+  const outcomeKey = AppState.results?.outcomeKey ?? 'mace';
+  let added = 0;
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(',').map(c => c.trim());
+    const id = cols[idCol];
+    if (!id || config.trials.some(t => t.id === id)) continue;
+
+    const trial = {
+      id, nctId: null, year: yearCol >= 0 ? parseInt(cols[yearCol]) || null : null,
+      nTreatment: ntCol >= 0 ? parseInt(cols[ntCol]) || 0 : 0,
+      nControl: ncCol >= 0 ? parseInt(cols[ncCol]) || 0 : 0,
+      phase: 'PHASE3', status: 'CSV-imported', reference: 'Imported from CSV',
+      outcomes: {}, rob: { domains: ['low','low','low','low','low'], overall: 'low' },
+      _userAdded: true
+    };
+    trial.nTotal = trial.nTreatment + trial.nControl;
+    const oc = {};
+    if (teCol >= 0) oc.tE = parseInt(cols[teCol]) || null;
+    if (ceCol >= 0) oc.cE = parseInt(cols[ceCol]) || null;
+    if (ntCol >= 0) oc.tN = trial.nTreatment;
+    if (ncCol >= 0) oc.cN = trial.nControl;
+    if (hrCol >= 0) { oc.hr = parseFloat(cols[hrCol]) || null; oc.hrLo = hrLoCol >= 0 ? parseFloat(cols[hrLoCol]) || null : null; oc.hrHi = hrHiCol >= 0 ? parseFloat(cols[hrHiCol]) || null : null; }
+    trial.outcomes[outcomeKey] = oc;
+    config.trials.push(trial);
+    if (!AppState._userTrials) AppState._userTrials = [];
+    AppState._userTrials.push(id);
+    added++;
+  }
+
+  saveState();
+  document.getElementById('csv-import-status').textContent = '\u2714 Imported ' + added + ' trials';
+  showToast(added + ' trials imported from CSV. Run synthesis to include them.');
+  logAudit('import_csv', { added, totalLines: lines.length - 1 });
+  renderProtocolTab();
+  renderDataQuality(computeDataQuality(config));
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE A2: VISUAL AUDIT LOG
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderAuditLog() {
+  const area = document.getElementById('auditLogViewer');
+  if (!area) return;
+  const log = AppState.auditLog ?? [];
+  if (log.length === 0) { area.innerHTML = '<span style="opacity:0.6;">No audit events recorded yet.</span>'; return; }
+
+  const iconMap = {
+    run_synthesis: '\u2699', export_bundle: '\u{1F4E6}', export_csv: '\u{1F4C4}',
+    export_pdf: '\u{1F4C4}', export_revman: '\u{1F4C4}', export_prisma2020: '\u{1F4CA}',
+    export_r_script: '\u{1F9EA}', add_user_trial: '\u2795', remove_user_trial: '\u2796',
+    import_csv: '\u{1F4C1}', what_if: '\u{1F52E}', multi_outcome_heatmap: '\u{1F5FA}',
+    export_grade_csv: '\u{1F4CA}', export_methods_report: '\u{1F4DD}', export_forest_plot: '\u{1F333}'
+  };
+
+  let html = '<table style="width:100%;font-size:0.75rem;border-collapse:collapse;">';
+  html += '<thead><tr><th style="padding:4px;text-align:left;">Time</th><th style="text-align:left;">Action</th><th style="text-align:left;">Details</th></tr></thead><tbody>';
+  const recent = log.slice(-50).reverse();
+  for (const entry of recent) {
+    const icon = iconMap[entry.action] ?? '\u25CF';
+    const time = entry.timestamp ? new Date(entry.timestamp).toLocaleTimeString() : '\u2014';
+    const details = entry.detail ? Object.entries(entry.detail).map(([k, v]) => escapeHtml(k) + '=' + escapeHtml(String(v))).join(', ') : '';
+    html += '<tr><td style="padding:4px;font-family:monospace;white-space:nowrap;">' + escapeHtml(time) + '</td>';
+    html += '<td style="padding:4px;">' + icon + ' ' + escapeHtml(entry.action ?? 'unknown') + '</td>';
+    html += '<td style="padding:4px;opacity:0.7;">' + details + '</td></tr>';
+  }
+  html += '</tbody></table>';
+  html += '<div style="font-size:0.7rem;opacity:0.5;margin-top:4px;">Showing last ' + Math.min(50, log.length) + ' of ' + log.length + ' events</div>';
+  area.innerHTML = html;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE A3: EXECUTIVE SUMMARY DASHBOARD
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderExecSummary() {
+  const bar = document.getElementById('execSummaryBar');
+  const content = document.getElementById('execSummaryContent');
+  if (!bar || !content) return;
+  const r = AppState.results;
+  if (!r || (!r.trackA && !r.trackB)) { bar.style.display = 'none'; return; }
+
+  bar.style.display = 'block';
+  const track = r.trackB ?? r.trackA;
+  const config = getConfig();
+  const measure = track.measure ?? 'OR';
+  const or = Math.exp(track.primary.estimate);
+  const ciLo = Math.exp(track.primary.ci[0]);
+  const ciHi = Math.exp(track.primary.ci[1]);
+  const sig = ciHi < 1 || ciLo > 1;
+  const sigColor = sig ? (or < 1 ? '#16a34a' : '#dc2626') : '#64748b';
+  const I2 = track.primary.I2;
+  const grade = r.grade?.overall ?? 'N/A';
+  const gradeColors = { HIGH: '#16a34a', MODERATE: '#d97706', LOW: '#ea580c', 'VERY LOW': '#dc2626' };
+  const dr = r.decisionRegret;
+
+  let html = '<span style="font-weight:700;color:var(--accent);">' + escapeHtml(config.name ?? config.id) + '</span>';
+  html += '<span style="border-left:1px solid var(--border-color);height:16px;"></span>';
+  html += '<span style="font-weight:700;color:' + sigColor + ';">' + measure + ' ' + or.toFixed(2) + '</span>';
+  html += '<span style="opacity:0.6;">(' + ciLo.toFixed(2) + '\u2013' + ciHi.toFixed(2) + ')</span>';
+  html += '<span>k=' + track.k + '</span>';
+  html += '<span>I\u00B2=' + I2.toFixed(0) + '%</span>';
+  html += '<span style="color:' + (gradeColors[grade] ?? '#64748b') + ';font-weight:600;">GRADE: ' + escapeHtml(grade) + '</span>';
+  if (dr) html += '<span style="color:' + ({ 'STRONG BENEFIT': '#16a34a', 'PROBABLE BENEFIT': '#2563eb', 'POSSIBLE BENEFIT': '#d97706', 'UNCERTAIN': '#64748b', 'POSSIBLE HARM': '#dc2626' }[dr.verdict] ?? '#64748b') + ';font-weight:600;">' + dr.verdict + '</span>';
+  html += '<span style="color:' + sigColor + ';">' + (sig ? '\u2714 Significant' : '\u2718 Not sig') + '</span>';
+  content.innerHTML = html;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE A4: CROSS-CONFIG COMPARISON TABLE
+   ═══════════════════════════════════════════════════════════════════ */
+
+function populateCompareSelectors() {
+  const sel1 = document.getElementById('compareConfig1');
+  const sel2 = document.getElementById('compareConfig2');
+  if (!sel1 || !sel2) return;
+  const keys = Object.keys(CONFIG_LIBRARY ?? {});
+  for (const sel of [sel1, sel2]) {
+    sel.innerHTML = '<option value="">Select config...</option>';
+    for (const k of keys) {
+      const opt = document.createElement('option');
+      opt.value = k; opt.textContent = (CONFIG_LIBRARY[k].name ?? k).substring(0, 50);
+      sel.appendChild(opt);
+    }
+  }
+}
+
+function runConfigComparison() {
+  const area = document.getElementById('configComparisonArea');
+  if (!area) return;
+  const id1 = document.getElementById('compareConfig1')?.value;
+  const id2 = document.getElementById('compareConfig2')?.value;
+  if (!id1 || !id2) { showToast('Select two configs to compare.'); return; }
+
+  const configs = [id1, id2].map(id => CONFIG_LIBRARY[id]);
+  const results = configs.map(cfg => {
+    if (!cfg) return null;
+    const trackB = synthesizeTrackB(cfg.trials, 'mace');
+    const trackA = synthesizeTrackA(cfg.trials, 'mace');
+    const track = trackB ?? trackA;
+    if (!track) return { name: cfg.name, k: cfg.trials.length, noData: true };
+    return {
+      name: cfg.name, k: track.k, measure: track.measure,
+      effect: Math.exp(track.primary.estimate), ciLo: Math.exp(track.primary.ci[0]), ciHi: Math.exp(track.primary.ci[1]),
+      I2: track.primary.I2, tau2: track.primary.tau2 ?? 0
+    };
+  });
+
+  let html = '<table style="width:100%;font-size:0.82rem;border-collapse:collapse;">';
+  html += '<thead><tr><th style="padding:6px;text-align:left;">Metric</th>';
+  for (const r of results) html += '<th style="padding:6px;text-align:center;">' + escapeHtml((r?.name ?? 'N/A').substring(0, 40)) + '</th>';
+  html += '</tr></thead><tbody>';
+  const metrics = ['k', 'effect', 'ciLo', 'ciHi', 'I2', 'tau2'];
+  const labels = ['Studies (k)', 'Pooled Effect', 'CI Lower', 'CI Upper', 'I\u00B2 (%)', '\u03C4\u00B2'];
+  for (let m = 0; m < metrics.length; m++) {
+    html += '<tr><td style="padding:6px;font-weight:600;">' + labels[m] + '</td>';
+    for (const r of results) {
+      if (!r || r.noData) { html += '<td style="text-align:center;opacity:0.5;">No data</td>'; continue; }
+      const val = r[metrics[m]];
+      const fmt = typeof val === 'number' ? (metrics[m] === 'k' ? val : val.toFixed(3)) : '\u2014';
+      html += '<td style="text-align:center;font-weight:' + (metrics[m] === 'effect' ? '700' : '400') + ';">' + fmt + '</td>';
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+  area.innerHTML = html;
+  logAudit('config_comparison', { config1: id1, config2: id2 });
+}
+
+/* ═══════════════════════════════════════════════════════════════════
    FEATURE Z1: INTERACTIVE TRIAL EDITOR
    ═══════════════════════════════════════════════════════════════════ */
 
@@ -14179,7 +14579,7 @@ function computePowerCalc(trackResult) {
   const avgN = k > 0 ? Math.round(totalN / k) : 500;
 
   /* Required information size for given effect at alpha=0.05 */
-  const z_alpha = normalQuantile(0.975);
+  const z_alpha = normalQuantile(1 - (1 - (AppState.settings?.confLevel ?? 0.95)) / 2);
   const results = [];
   for (const power of [0.80, 0.90, 0.95]) {
     const z_beta = normalQuantile(power);
@@ -14675,7 +15075,7 @@ function computeDecisionRegret(trackResult) {
   }
   const totalN = (trackResult.trials ?? []).reduce((s, t) => s + (t.tN ?? 0) + (t.cN ?? 0), 0);
   const logEff = Math.abs(est);
-  const ris = logEff > 0 ? Math.round(4 * Math.pow(normalQuantile(0.975) + normalQuantile(0.80), 2) / (logEff * logEff)) : Infinity;
+  const ris = logEff > 0 ? Math.round(4 * Math.pow(normalQuantile(1 - (1 - (AppState.settings?.confLevel ?? 0.95)) / 2) + normalQuantile(0.80), 2) / (logEff * logEff)) : Infinity;
   const infoFrac = ris > 0 && isFinite(ris) ? Math.min(1, totalN / ris) : null;
   return { verdict, pBenefit, pHarm: 1 - pBenefit, effect, ciLo, ciHi, regretAct, regretWait, recommendation,
     nntOpportunityCost: nntOC, I2, piCoversNull, k, infoFraction: infoFrac, totalN, ris: isFinite(ris) ? ris : null };

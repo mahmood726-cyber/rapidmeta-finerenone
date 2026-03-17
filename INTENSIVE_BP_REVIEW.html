@@ -302,7 +302,7 @@
         .export-dropdown { position: relative; display: inline-block; }
         .export-dropdown-content { display: none; position: absolute; right: 0; top: 100%; margin-top: 0.5rem; min-width: 220px; background: #1e293b; border: 1px solid #334155; border-radius: 1rem; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.5); z-index: 100; }
         .export-dropdown.open .export-dropdown-content { display: block; }
-        .export-dropdown-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.25rem; font-size: 11px; font-weight: 600; color: #cbd5e1; cursor: pointer; transition: background 0.15s; }
+        .export-dropdown-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.25rem; font-size: 11px; font-weight: 600; color: #cbd5e1; cursor: pointer; transition: background 0.15s; background: none; border: none; width: 100%; text-align: left; }
         .export-dropdown-item:hover { background: rgba(59,130,246,0.1); color: #60a5fa; }
         .export-dropdown-item i { width: 16px; text-align: center; font-size: 12px; }
         .light-mode .export-dropdown-content { background: #fff; border-color: #e2e8f0; }
@@ -1137,15 +1137,15 @@
                             <div class="export-dropdown" id="export-dropdown">
                                 <button onclick="toggleExportMenu()" aria-haspopup="true" aria-expanded="false" id="export-btn" class="text-[10px] font-bold text-purple-400 uppercase bg-purple-400/10 px-6 py-2 rounded-full border border-purple-400/20 transition-all hover:bg-purple-400/20"><i class="fa-solid fa-download mr-1"></i> Export <i class="fa-solid fa-chevron-down ml-1" style="font-size:8px"></i></button>
                                 <div class="export-dropdown-content" role="menu" aria-label="Export options">
-                                    <div class="export-dropdown-item" role="menuitem" tabindex="-1" onclick="ReportEngine.exportCSV()" onkeydown="exportMenuKey(event,this)"><i class="fa-solid fa-file-csv text-emerald-400"></i> CSV Data</div>
-                                    <div class="export-dropdown-item" role="menuitem" tabindex="-1" onclick="ReportEngine.exportJSON()" onkeydown="exportMenuKey(event,this)"><i class="fa-solid fa-code text-blue-400"></i> JSON Bundle</div>
-                                    <div class="export-dropdown-item" role="menuitem" tabindex="-1" onclick="ReportEngine.exportHTML()" onkeydown="exportMenuKey(event,this)"><i class="fa-solid fa-file-code text-purple-400"></i> HTML Report</div>
-                                    <div class="export-dropdown-item" role="menuitem" tabindex="-1" onclick="ReportEngine.exportPython()" onkeydown="exportMenuKey(event,this)"><i class="fa-brands fa-python text-yellow-400"></i> Python Script</div>
-                                    <div class="export-dropdown-item" role="menuitem" tabindex="-1" onclick="ReportEngine.exportPRISMA()" onkeydown="exportMenuKey(event,this)"><i class="fa-solid fa-list-check text-cyan-400"></i> PRISMA Checklist</div>
-                                    <div class="export-dropdown-item" role="menuitem" tabindex="-1" onclick="ReportEngine.exportTrialsCSV()" onkeydown="exportMenuKey(event,this)"><i class="fa-solid fa-table text-rose-400"></i> Trial Data (2x2)</div>
-                                    <div class="export-dropdown-item" role="menuitem" tabindex="-1" onclick="ReportEngine.exportRunArtifact()" onkeydown="exportMenuKey(event,this)"><i class="fa-solid fa-box-archive text-orange-400"></i> Run Artifact</div>
-                                    <div class="export-dropdown-item" role="menuitem" tabindex="-1" onclick="AnalysisEngine.copyRCode()" onkeydown="exportMenuKey(event,this)"><i class="fa-solid fa-terminal text-green-400"></i> Copy R Script</div>
-                                    <div class="export-dropdown-item" role="menuitem" tabindex="-1" onclick="CapsuleEngine.download()" onkeydown="exportMenuKey(event,this)"><i class="fa-solid fa-file-zipper text-emerald-400"></i> Reproducibility Capsule (ZIP)</div>
+                                    <button type="button" class="export-dropdown-item" role="menuitem" tabindex="-1" onclick="ReportEngine.exportCSV()" onkeydown="exportMenuKey(event,this)"><i class="fa-solid fa-file-csv text-emerald-400"></i> CSV Data</button>
+                                    <button type="button" class="export-dropdown-item" role="menuitem" tabindex="-1" onclick="ReportEngine.exportJSON()" onkeydown="exportMenuKey(event,this)"><i class="fa-solid fa-code text-blue-400"></i> JSON Bundle</button>
+                                    <button type="button" class="export-dropdown-item" role="menuitem" tabindex="-1" onclick="ReportEngine.exportHTML()" onkeydown="exportMenuKey(event,this)"><i class="fa-solid fa-file-code text-purple-400"></i> HTML Report</button>
+                                    <button type="button" class="export-dropdown-item" role="menuitem" tabindex="-1" onclick="ReportEngine.exportPython()" onkeydown="exportMenuKey(event,this)"><i class="fa-brands fa-python text-yellow-400"></i> Python Script</button>
+                                    <button type="button" class="export-dropdown-item" role="menuitem" tabindex="-1" onclick="ReportEngine.exportPRISMA()" onkeydown="exportMenuKey(event,this)"><i class="fa-solid fa-list-check text-cyan-400"></i> PRISMA Checklist</button>
+                                    <button type="button" class="export-dropdown-item" role="menuitem" tabindex="-1" onclick="ReportEngine.exportTrialsCSV()" onkeydown="exportMenuKey(event,this)"><i class="fa-solid fa-table text-rose-400"></i> Trial Data (2x2)</button>
+                                    <button type="button" class="export-dropdown-item" role="menuitem" tabindex="-1" onclick="ReportEngine.exportRunArtifact()" onkeydown="exportMenuKey(event,this)"><i class="fa-solid fa-box-archive text-orange-400"></i> Run Artifact</button>
+                                    <button type="button" class="export-dropdown-item" role="menuitem" tabindex="-1" onclick="AnalysisEngine.copyRCode()" onkeydown="exportMenuKey(event,this)"><i class="fa-solid fa-terminal text-green-400"></i> Copy R Script</button>
+                                    <button type="button" class="export-dropdown-item" role="menuitem" tabindex="-1" onclick="CapsuleEngine.download()" onkeydown="exportMenuKey(event,this)"><i class="fa-solid fa-file-zipper text-emerald-400"></i> Reproducibility Capsule (ZIP)</button>
                                 </div>
                             </div>
                         </div>
@@ -5599,7 +5599,7 @@
             if (!rawText || rawText.length < 5) return [];
             const text = normalize(rawText.substring(0, 10000));
             /* Check negative context */
-            for (const nc of NEG_CONTEXT) { if (nc.test(text)) { /* don't reject -- just lower confidence */ } }
+            /* NEG_CONTEXT checked in second pass below */
             const results = [];
             const seen = new Set();
 
@@ -7679,7 +7679,7 @@
                     return `<div class="extract-card">
                         <div class="extract-card-header">
                             <div class="flex items-center gap-4">
-                                <div class="rob-circle rob-${overallRob}" style="width:20px;height:20px;"></div>
+                                <div class="rob-circle rob-${overallRob}" role="img" aria-label="${overallRob === "high" ? "High risk" : overallRob === "some" ? "Some concerns" : "Low risk"}" style="width:20px;height:20px;"></div>
                                 <div>
                                     <div class="text-sm font-bold text-white">${escapeHtml(d?.name || t.id)}</div>
                                     <div class="text-[10px] font-mono text-slate-500">${escapeHtml(t.id)}</div>
@@ -7696,7 +7696,7 @@
                                     return `<div class="rob-domain-row" tabindex="0" role="button" onclick="ExtractEngine.cycleRob('${trialIdArg}', ${di})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();ExtractEngine.cycleRob('${trialIdArg}', ${di})}" title="Click to cycle: Low -> Some -> High" aria-label="${this.robDomainLabels[di]}: ${lvl}">
                                         <div class="flex-1">
                                             <div class="flex items-center gap-3">
-                                                <div class="rob-circle rob-${lvl}"></div>
+                                                <div class="rob-circle rob-${lvl}" role="img" aria-label="${lvl === "high" ? "High risk" : lvl === "some" ? "Some concerns" : "Low risk"}"></div>
                                                 <span class="text-xs font-medium text-slate-300">${this.robDomainLabels[di]}</span>
                                             </div>
                                             ${noteText ? `<div class="text-[9px] text-slate-500 ml-5 mt-0.5 italic">${noteText} ${sourceLink ? '<span class="not-italic">' + sourceLink + '</span>' : ''}</div>` : ''}
@@ -9982,7 +9982,7 @@
                 const robC = document.getElementById('rob-traffic-lights');
                 robC.innerHTML = data.map(d => `<div class="flex justify-between items-center bg-slate-950/50 p-3 rounded-xl border border-slate-800 mb-2">
                     <span class="text-[10px] font-bold text-slate-400">${d.id}</span>
-                    <div class="flex gap-1">${d.rob.map(lvl => `<div class="rob-circle rob-${lvl}"></div>`).join('')}</div>
+                    <div class="flex gap-1">${d.rob.map(lvl => `<div class="rob-circle rob-${lvl}" role="img" aria-label="${lvl === "high" ? "High risk" : lvl === "some" ? "Some concerns" : "Low risk"}"></div>`).join('')}</div>
                 </div>`).join('');
 
                 // === Chart Descriptions (dynamic interpretation text) ===

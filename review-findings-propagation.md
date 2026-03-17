@@ -1,7 +1,7 @@
 # Multi-Persona Review: Propagated Features (TextExtractor, GRADE SoF, Manuscript Text)
 ### Date: 2026-03-16 (Round 1), 2026-03-17 (Round 2)
 ### Scope: All 8 siblings + LivingMeta.html
-### Status: REVIEW CLEAN — All 8 P0 fixed, All 16 P1 fixed + 3 R2 P1 fixed, 7/12 P2 fixed
+### Status: REVIEW CLEAN — All 8 P0 fixed, All 19 P1 fixed, 10/16 P2 fixed
 ### Validation: 7/8 pass (INCRETIN_HFpEF = no gold, pre-existing)
 
 ---
