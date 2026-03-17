@@ -742,7 +742,7 @@
                     </div>
                     <div id="manual-form-body" class="hidden mt-3 glass p-6 rounded-2xl border border-slate-800">
                         <div class="manual-form-grid">
-                            <div><label>Study Name *</label><input id="mf-name" type="text" placeholder="e.g. FIDELIO-DKD"></div>
+                            <div><label>Study Name *</label><input id="mf-name" type="text" placeholder="e.g. NCT12345678"></div>
                             <div><label>Year</label><input id="mf-year" type="number" placeholder="2024" min="1990" max="2030"></div>
                             <div><label>Phase</label><select id="mf-phase"><option value="III">Phase III</option><option value="IV">Phase IV</option></select></div>
                             <div><label>Indication</label><select id="mf-indication"><option value="CKD">CKD</option><option value="Heart Failure">Heart Failure</option><option value="Other">Other</option></select></div>
@@ -1741,7 +1741,7 @@ const NMAEngine = {
         return {
             outcomeKey,
             direct: { label: 'Renal Denervation vs Sham', k: trialData.length },
-            indirect: { label: 'RDN modalities (Indirect comparison)', note: 'Requires manual mapping of Ezetimibe bridge trials.' }
+            indirect: { label: 'RDN modalities (Indirect comparison)', note: 'Network meta-analysis requires manual bridge trial configuration.' }
         };
     }
 };
@@ -8891,7 +8891,11 @@ const ContinuousMDEngine = {
                     const eligible = trials.filter(t => !isPhaseTwoLike(t?.data?.phase ?? ''));
                     const analyzed = eligible.filter(t => !(t.data?.autoExtracted && t.data?.needsReview !== false && !RapidMeta.realData[t.id]));
                     if (analyzed.length === 0) return;
-                    const c = AnalysisEngine.computeCore(analyzed);
+                    /* Route continuous outcomes through ContinuousMDEngine */
+                const _isCont = analyzed.some(t => t.data?.allOutcomes?.find(x => x.shortLabel === oc.key && x.type === 'CONTINUOUS'));
+                const c = _isCont && typeof ContinuousMDEngine !== 'undefined'
+                    ? ContinuousMDEngine.pool(oc.key, analyzed)
+                    : AnalysisEngine.computeCore(analyzed);
                     if (!c.plotData || c.plotData.length === 0) return;
                     const totalN = c.plotData.reduce((a, d) => a + d.tN + d.cN, 0);
                     const totalCN = c.plotData.reduce((a, d) => a + d.cN, 0);
@@ -10227,7 +10231,8 @@ const AnalysisEngine = {
                 const k = data.length;
                 const _gLCI = Number.isFinite(hksjLCI) ? hksjLCI : lci;
                 const _gUCI = Number.isFinite(hksjUCI) ? hksjUCI : uci;
-                const ciWidth = _isContMD ? Math.abs(_gUCI - _gLCI) : ((_gLCI > 0 && _gUCI > 0) ? Math.log(_gUCI) - Math.log(_gLCI) : Infinity);
+                const _isContMDEarly = (RapidMeta.state.effectMeasure === 'MD' || RapidMeta.state.effectMeasure === 'SMD');
+            const ciWidth = _isContMDEarly ? Math.abs(_gUCI - _gLCI) : ((_gLCI > 0 && _gUCI > 0) ? Math.log(_gUCI) - Math.log(_gLCI) : Infinity);
                 const domainLabels = ['D1 Randomization', 'D2 Deviations', 'D3 Missing data', 'D4 Measurement', 'D5 Selective Reporting'];
                 const criticalDomains = [0, 3]; // D1 and D4
 
@@ -11840,7 +11845,7 @@ print(res_sub)`;
                 const gradeBadge = gradeText === 'HIGH' ? 'grade-high' : gradeText === 'MODERATE' ? 'grade-mod' : gradeText === 'LOW' ? 'grade-low' : 'grade-vlow';
                 const sofBody = document.getElementById('sof-body');
                 const outcomeKey = RapidMeta.state.selectedOutcome ?? 'default';
-                const outcomeNames = { default: ['Matched CV Composite', 'CV death, MI, stroke, or HF hospitalization across reduction in office systolic blood pressure (mmHg) across pooled renal denervation trials'], LDLC: ['% LDL-C Reduction', 'Mean percentage change in LDL-cholesterol from baseline'], MACE: ['CV Composite', 'CV death, MI, stroke, or HF hospitalization'], HF_CV_First: ['HF First Event or CV Death', 'First worsening HF event or CV death (FINEARTS-HF specific)'], Renal40: ['Renal Composite', 'Kidney failure, \u226540% eGFR decline, or renal death'], KidneyComp: ['Kidney Composite', 'Trial-specific kidney composite outcome (FINEARTS-HF)'], Renal57: ['Renal Composite', 'Kidney failure, \u226557% eGFR decline'], ACM: ['All-Cause Mortality', 'Death from any cause'], ACH: ['HF Hospitalization', 'Hospitalization for heart failure'], Hyperkalemia: ['Hyperkalemia', 'Serum potassium \u22655.5 mmol/L'] };
+                const outcomeNames = { default: ['Matched CV Composite', 'CV death, MI, stroke, or HF hospitalization across reduction in office systolic blood pressure (mmHg) across pooled renal denervation trials'], LDLC: ['% LDL-C Reduction', 'Mean percentage change in LDL-cholesterol from baseline'], MACE: ['CV Composite', 'CV death, MI, stroke, or HF hospitalization'], HF_CV_First: ['HF First Event or CV Death', 'First worsening HF event or CV death (trial-specific)'], Renal40: ['Renal Composite', 'Kidney failure, \u226540% eGFR decline, or renal death'], KidneyComp: ['Kidney Composite', 'Trial-specific kidney composite outcome (trial-specific)'], Renal57: ['Renal Composite', 'Kidney failure, \u226557% eGFR decline'], ACM: ['All-Cause Mortality', 'Death from any cause'], ACH: ['HF Hospitalization', 'Hospitalization for heart failure'], Hyperkalemia: ['Hyperkalemia', 'Serum potassium \u22655.5 mmol/L'] };
                 const [ocName, ocDesc] = outcomeNames[outcomeKey] ?? [outcomeKey, ''];
                 sofBody.innerHTML = `<tr class="hover:bg-slate-900/30">
                     <td class="p-3 font-bold text-slate-200">${escapeHtml(ocName)}<br><span class="text-[9px] opacity-50 font-normal">(${escapeHtml(ocDesc)})</span></td>

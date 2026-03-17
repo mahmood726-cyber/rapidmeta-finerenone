@@ -742,7 +742,7 @@
                     </div>
                     <div id="manual-form-body" class="hidden mt-3 glass p-6 rounded-2xl border border-slate-800">
                         <div class="manual-form-grid">
-                            <div><label>Study Name *</label><input id="mf-name" type="text" placeholder="e.g. FIDELIO-DKD"></div>
+                            <div><label>Study Name *</label><input id="mf-name" type="text" placeholder="e.g. NCT12345678"></div>
                             <div><label>Year</label><input id="mf-year" type="number" placeholder="2024" min="1990" max="2030"></div>
                             <div><label>Phase</label><select id="mf-phase"><option value="III">Phase III</option><option value="IV">Phase IV</option></select></div>
                             <div><label>Indication</label><select id="mf-indication"><option value="CKD">CKD</option><option value="Heart Failure">Heart Failure</option><option value="Other">Other</option></select></div>
@@ -1744,7 +1744,7 @@ const NMAEngine = {
         return {
             outcomeKey,
             direct: { label: 'SGLT2 Inhibitors vs Placebo', k: trialData.length },
-            indirect: { label: 'SGLT2i vs GLP-1 RA (Indirect)', note: 'Requires manual mapping of Ezetimibe bridge trials.' }
+            indirect: { label: 'SGLT2i vs GLP-1 RA (Indirect)', note: 'Network meta-analysis requires manual bridge trial configuration.' }
         };
     }
 };
@@ -11818,7 +11818,7 @@ print(res_sub)`;
                 const gradeBadge = gradeText === 'HIGH' ? 'grade-high' : gradeText === 'MODERATE' ? 'grade-mod' : gradeText === 'LOW' ? 'grade-low' : 'grade-vlow';
                 const sofBody = document.getElementById('sof-body');
                 const outcomeKey = RapidMeta.state.selectedOutcome ?? 'default';
-                const outcomeNames = { default: ['Matched CV Composite', 'CV death, MI, stroke, or HF hospitalization across kidney disease progression or cardiovascular death across pooled CKD trials'], LDLC: ['% LDL-C Reduction', 'Mean percentage change in LDL-cholesterol from baseline'], MACE: ['CV Composite', 'CV death, MI, stroke, or HF hospitalization'], HF_CV_First: ['HF First Event or CV Death', 'First worsening HF event or CV death (FINEARTS-HF specific)'], Renal40: ['Renal Composite', 'Kidney failure, \u226540% eGFR decline, or renal death'], KidneyComp: ['Kidney Composite', 'Trial-specific kidney composite outcome (FINEARTS-HF)'], Renal57: ['Renal Composite', 'Kidney failure, \u226557% eGFR decline'], ACM: ['All-Cause Mortality', 'Death from any cause'], ACH: ['HF Hospitalization', 'Hospitalization for heart failure'], Hyperkalemia: ['Hyperkalemia', 'Serum potassium \u22655.5 mmol/L'] };
+                const outcomeNames = { default: ['Matched CV Composite', 'CV death, MI, stroke, or HF hospitalization across kidney disease progression or cardiovascular death across pooled CKD trials'], LDLC: ['% LDL-C Reduction', 'Mean percentage change in LDL-cholesterol from baseline'], MACE: ['CV Composite', 'CV death, MI, stroke, or HF hospitalization'], HF_CV_First: ['HF First Event or CV Death', 'First worsening HF event or CV death (trial-specific)'], Renal40: ['Renal Composite', 'Kidney failure, \u226540% eGFR decline, or renal death'], KidneyComp: ['Kidney Composite', 'Trial-specific kidney composite outcome (trial-specific)'], Renal57: ['Renal Composite', 'Kidney failure, \u226557% eGFR decline'], ACM: ['All-Cause Mortality', 'Death from any cause'], ACH: ['HF Hospitalization', 'Hospitalization for heart failure'], Hyperkalemia: ['Hyperkalemia', 'Serum potassium \u22655.5 mmol/L'] };
                 const [ocName, ocDesc] = outcomeNames[outcomeKey] ?? [outcomeKey, ''];
                 sofBody.innerHTML = `<tr class="hover:bg-slate-900/30">
                     <td class="p-3 font-bold text-slate-200">${escapeHtml(ocName)}<br><span class="text-[9px] opacity-50 font-normal">(${escapeHtml(ocDesc)})</span></td>

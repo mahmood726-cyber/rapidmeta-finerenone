@@ -1,7 +1,7 @@
 # Multi-Persona Review: 8 New RapidMeta Apps
 ### Date: 2026-03-17
 ### Scope: SGLT2_CKD, ARNI_HF, ABLATION_AF, IV_IRON_HF, RENAL_DENERV, DOAC_CANCER_VTE, MAVACAMTEN_HCM, RIVAROXABAN_VASC
-### Status: REVIEW CLEAN — 5/5 P0 fixed, 5/6 P1 fixed
+### Status: REVIEW CLEAN — 7/7 P0 fixed, 8/9 P1 fixed (R4 verified)
 ### Validation: 14/16 pass (INCRETIN=pre-existing, RENAL_DENERV=MD needs custom validator)
 
 ## P0 — Critical (5) — ALL FIXED

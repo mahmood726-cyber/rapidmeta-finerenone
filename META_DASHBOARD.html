@@ -283,7 +283,7 @@
                 <td class="p-3 font-bold" style="color:${d.color}">${d.name}<div class="text-[9px] text-slate-500 font-normal">${d.indication}</div></td>
                 <td class="p-3 text-right font-mono">${d.k}</td>
                 <td class="p-3 text-right font-mono">${d.n.toLocaleString()}</td>
-                <td class="p-3 text-right font-mono font-bold ${d.uci < 1 ? 'text-emerald-400' : 'text-amber-400'}">${d.hr.toFixed(2)} (${d.lci.toFixed(2)}-${d.uci.toFixed(2)})</td>
+                <td class="p-3 text-right font-mono font-bold ${(d.isOR ? d.lci > 1 : d.uci < 1) ? 'text-emerald-400' : 'text-amber-400'}">${d.hr.toFixed(2)} (${d.lci.toFixed(2)}-${d.uci.toFixed(2)})</td>
                 <td class="p-3 text-right font-mono">${d.i2.toFixed(0)}%</td>
                 <td class="p-3 text-right font-bold ${gradeColors[d.grade] ?? 'text-slate-400'}">${d.grade}</td>
                 <td class="p-3 text-right font-mono">${d.nnt ?? '--'}</td>
