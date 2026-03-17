@@ -1711,12 +1711,7 @@
             Hyperkalemia: 'Hyperkalemia'
         };
 
-        const BENCHMARK_OUTCOME_NOTES = {
-            HF_CV_First: 'No direct published meta-analysis uses the exact FINEARTS-HF primary estimand of first worsening HF event or cardiovascular death, so only internal validation is available for this outcome.',
-            KidneyComp: 'No direct published meta-analysis uses the exact FINEARTS-HF kidney composite definition. Published kidney benchmarks remain directionally informative but are not endpoint-matched.',
-            Renal57: 'Published mavacamten meta-analyses usually report kidney failure / >=40% eGFR decline composites, not the >=57% eGFR threshold.',
-            default: ''
-        };
+        const BENCHMARK_OUTCOME_NOTES = { default: '' };
 
         const CTGOV_EVIDENCE_REGISTRY = {};
 
@@ -1737,7 +1732,7 @@ const NMAEngine = {
         const zAlpha2 = normalInv(1 - alpha / 2);
 
         const trialIds = ["NCT03470545", "NCT04349072", "NCT05174416"].filter(id => !RapidMeta.state.excludedTrials?.[id]);
-        const ezetimibeIds = ['NCT00075335'].filter(id => !RapidMeta.state.excludedTrials?.[id]); // IMPROVE-IT placeholder
+        /* NMA bridge trials: none configured */ // IMPROVE-IT placeholder
 
         const trialData = trialIds.map(id => RapidMeta.realData[id]?.allOutcomes?.find(o => o.shortLabel === outcomeKey)).filter(Boolean);
         if (trialData.length === 0) return null;
@@ -2175,7 +2170,7 @@ const ContinuousMDEngine = {
                     baseline: {"n": 112, "age": 60.0, "female": 50.0, "nyha_iii": 65.0, "lvot_gradient": 83.0},
         name: 'VALOR-HCM', phase: 'III', year: 2022, tE: 48, tN: 56, cE: 10, cN: 56, group: 'Pre-SRT', publishedHR: null,
         allOutcomes: [
-            { shortLabel: 'SRT_Avoid', title: 'Remaining eligible for or proceeding to SRT', tE: 48, cE: 10, type: 'PRIMARY', pubHR: 17.9, pubHR_LCI: 6.5, pubHR_UCI: 49.0 }
+            { shortLabel: 'MACE', title: 'Remaining eligible for or proceeding to SRT', tE: 48, cE: 10, type: 'PRIMARY', pubHR: 17.9, pubHR_LCI: 6.5, pubHR_UCI: 49.0 }
         ],
         rob: ["low", "low", "low", "low", "low"],
         snippet: 'Lancet 2022; 400(10358):1109-1119',
@@ -2443,7 +2438,7 @@ const ContinuousMDEngine = {
                             .map(ev => `${ev?.source ?? ''} ${ev?.text ?? ''}`)
                             .join(' ')
                             .toLowerCase();
-                        const knownCrossLink = String(t?.id ?? '').toUpperCase() === 'NCT05901831'
+                        const knownCrossLink = false /* FINEARTS cross-link removed */
                             && /pmid:\s*40211489|pmc12370580|finearts-hf/.test(evHay);
                         if (!severeMismatch && !knownCrossLink) return;
                         d.needsReview = true;
@@ -9807,8 +9802,8 @@ const AnalysisEngine = {
                     tlEl.setAttribute('aria-label', benefitLabel);
                     document.getElementById('patient-headline').textContent = `This treatment reduced the risk of ${outcomeText} by about ${effect.pct}%.`;
                     document.getElementById('patient-plain-text').textContent = nntValue
-                        ? `Across ${k} large clinical trials involving ${totalN.toLocaleString()} patients, finerenone showed a meaningful benefit. For every ${nntValue} patients treated, approximately 1 additional patient was prevented from having ${outcomeText}.`
-                        : `Across ${k} large clinical trials involving ${totalN.toLocaleString()} patients, finerenone showed a meaningful benefit.`;
+                        ? `Across ${k} large clinical trials involving ${totalN.toLocaleString()} patients, ' + (RapidMeta.state.protocol?.int || 'the intervention') + ' showed a meaningful benefit. For every ${nntValue} patients treated, approximately 1 additional patient was prevented from having ${outcomeText}.`
+                        : `Across ${k} large clinical trials involving ${totalN.toLocaleString()} patients, ' + (RapidMeta.state.protocol?.int || 'the intervention') + ' showed a meaningful benefit.`;
                     document.getElementById('patient-nnt-visual').textContent = nntValue ? `Approximately ${nntValue} patients need treatment to prevent 1 event` : '';
                 } else if (effect.direction === 'harm') {
                     tlEl.className = 'patient-traffic-light patient-tl-red';
@@ -9816,8 +9811,8 @@ const AnalysisEngine = {
                     tlEl.setAttribute('aria-label', 'Significant Harm');
                     document.getElementById('patient-headline').textContent = `This treatment increased the risk of ${outcomeText} by about ${effect.pct}%.`;
                     document.getElementById('patient-plain-text').textContent = nnhValue
-                        ? `Across ${k} large clinical trials involving ${totalN.toLocaleString()} patients, finerenone was associated with more ${outcomeText}. For about every ${nnhValue} patients treated, 1 additional event occurred.`
-                        : `Across ${k} large clinical trials involving ${totalN.toLocaleString()} patients, finerenone was associated with more ${outcomeText}.`;
+                        ? `Across ${k} large clinical trials involving ${totalN.toLocaleString()} patients, ' + (RapidMeta.state.protocol?.int ?? 'The intervention') + ' was associated with more ${outcomeText}. For about every ${nnhValue} patients treated, 1 additional event occurred.`
+                        : `Across ${k} large clinical trials involving ${totalN.toLocaleString()} patients, ' + (RapidMeta.state.protocol?.int ?? 'The intervention') + ' was associated with more ${outcomeText}.`;
                     document.getElementById('patient-nnt-visual').textContent = nnhValue ? `Approximately 1 extra event occurred for every ${nnhValue} patients treated` : '';
                 } else {
                     tlEl.className = 'patient-traffic-light patient-tl-amber';
@@ -10153,7 +10148,7 @@ const AnalysisEngine = {
 
                 const emS = RapidMeta.emLabel('short');
                 const effNoun = emS === 'HR' ? 'hazard' : (emS === 'RR' ? 'risk' : 'odds');
-                setDesc('desc-forest', 'Pooled ' + emS + ' = ' + pOR.toFixed(2) + ' (' + clPct + '% CI: ' + Math.exp(pLogOR - zCrit * pSE).toFixed(2) + '\u2013' + Math.exp(pLogOR + zCrit * pSE).toFixed(2) + ') across ' + data.length + ' trials (N = ' + totalN.toLocaleString() + '). ' + (sig ? 'The result is statistically significant, suggesting a ' + pctRed + '% ' + dirWord + ' ' + effNoun + ' with finerenone.' : 'The confidence interval crosses 1.0, indicating no statistically significant difference.') + (emS === 'OR' ? ' Note: OR from 2\u00d72 counts approximates HR at low event rates; see HR sensitivity chip for comparison with published hazard ratios (Cochrane Ch 10.4.1).' : ''));
+                setDesc('desc-forest', 'Pooled ' + emS + ' = ' + pOR.toFixed(2) + ' (' + clPct + '% CI: ' + Math.exp(pLogOR - zCrit * pSE).toFixed(2) + '\u2013' + Math.exp(pLogOR + zCrit * pSE).toFixed(2) + ') across ' + data.length + ' trials (N = ' + totalN.toLocaleString() + '). ' + (sig ? 'The result is statistically significant, suggesting a ' + pctRed + '% ' + dirWord + ' ' + effNoun + ' with ' + (RapidMeta.state.protocol?.int ?? 'the intervention') + '.' : 'The confidence interval crosses 1.0, indicating no statistically significant difference.') + (emS === 'OR' ? ' Note: OR from 2\u00d72 counts approximates HR at low event rates; see HR sensitivity chip for comparison with published hazard ratios (Cochrane Ch 10.4.1).' : ''));
 
                 const subDescs = groups.map((g, i) => g + ': ' + emS + ' = ' + Math.exp(tr2X[i]).toFixed(2)).join('; ');
                 setDesc('desc-subgroup', 'Subgroup analysis by ' + groups.length + ' categories. ' + subDescs + '. Test for subgroup differences: Q_between = ' + qBetween.toFixed(2) + ', df = ' + dfBetween + ', p = ' + (qBetweenP < 0.001 ? '<0.001' : qBetweenP.toFixed(3)) + '. ' + (qBetweenP < 0.10 ? 'Significant interaction detected.' : 'No significant interaction.'));
@@ -10170,7 +10165,7 @@ const AnalysisEngine = {
                 const looStable = (Math.exp(looRange[1]) - Math.exp(looRange[0])) < 0.1;
                 setDesc('desc-loo', 'Omitting each study in turn, pooled log' + emS + ' ranges from ' + looRange[0].toFixed(3) + ' to ' + looRange[1].toFixed(3) + ' (' + emS + ' ' + Math.exp(looRange[0]).toFixed(2) + '\u2013' + Math.exp(looRange[1]).toFixed(2) + '). ' + (looStable ? 'Results are robust \u2014 no single study materially changes the conclusion.' : 'Results are somewhat sensitive to individual study removal.'));
 
-                setDesc('desc-labbe', 'Each point represents one trial. Points below the diagonal line of equality indicate lower event rates in the finerenone arm compared to control. Clustering below the line supports the pooled estimate of benefit.');
+                setDesc('desc-labbe', 'Each point represents one trial. Points below the diagonal line of equality indicate lower event rates in the ' + (RapidMeta.state.protocol?.int ?? 'intervention') + ' arm compared to control. Clustering below the line supports the pooled estimate of benefit.');
 
                 setDesc('desc-galbraith', 'Studies plotted as standardized effect (z = log' + emS + '/SE) against precision (1/SE). Points within \u00b12 units of the regression line are consistent with the pooled estimate. Outliers contribute disproportionately to heterogeneity.');
 

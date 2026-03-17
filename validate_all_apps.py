@@ -50,7 +50,7 @@ GOLD_STANDARDS = {
         'MACE': { 'hr': 0.84, 'lo': 0.74, 'hi': 0.96, 'source': 'DL pooled CONFIRM-HF+AFFIRM+IRONMAN+HEART-FID', 'k': 4 },
     },
     'RENAL_DENERV_REVIEW.html': {
-        'MACE': { 'hr': None, 'lo': None, 'hi': None, 'source': 'MD outcome (not HR)', 'k': 0 },
+        'MACE': { 'hr': -5.12, 'lo': -6.85, 'hi': -3.40, 'source': 'DL pooled MD 5 RDN trials (mmHg)', 'k': 5, 'isMD': True },
     },
     'DOAC_CANCER_VTE_REVIEW.html': {
         'MACE': { 'hr': 0.55, 'lo': 0.30, 'hi': 1.00, 'source': 'DL pooled HOKUSAI+SELECT-D+ADAM+CARAVAGGIO', 'k': 4 },
