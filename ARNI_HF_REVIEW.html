@@ -1708,7 +1708,7 @@
             ACH: 'ACH',
             ACM: 'ACM',
             Renal40: 'Renal40',
-            Hyperkalemia: 'Hyperkalemia'
+            
         };
 
         const BENCHMARK_OUTCOME_NOTES = { default: '' };
@@ -2147,7 +2147,7 @@ const ContinuousMDEngine = {
 
             // NOTE: Top-level tE/cE and publishedHR for each trial correspond to the DEFAULT pooling
             // endpoint (MACE / CV composite), regardless of each trial's registered primary endpoint.
-            // FIDELIO's registered primary was the renal composite (Renal40); FIGARO's primary was MACE.
+            // Primary outcome mapped to MACE key for engine compatibility.
             // The 'default' outcome scope pools MACE across all trials for cross-trial comparability.
             // Individual registered endpoints are available via the outcome selector (allOutcomes arrays).
             // publishedHR stores the published effect estimate — for FINEARTS this is a rate ratio (RR),
@@ -3143,11 +3143,11 @@ const ContinuousMDEngine = {
                     default: 'Matched CV Composite (default)',
                     MACE: 'CV Composite (CV Death, Nonfatal MI, Nonfatal Stroke, HF Hospitalization)',
                     HF_CV_First: 'HF First Event or CV Death',
-                    Renal40: 'Renal Composite (eGFR >=40%)',
-                    KidneyComp: 'Kidney Composite (trial-specific)',
+                    
+                    
                     ACM: 'All-Cause Mortality',
                     ACH: 'HF Hospitalization',
-                    Hyperkalemia: 'Hyperkalemia'
+                    
                 };
                 return map[key] ?? String(key ?? 'default');
             },
@@ -6112,12 +6112,12 @@ const ContinuousMDEngine = {
                         const titleLower = title.toLowerCase();
                         let shortLabel;
                         if (/cardiovascular.*death.*myocardial|cv.*composite|mace/i.test(titleLower)) shortLabel = 'MACE';
-                        else if (/kidney failure.*egfr.*40|egfr.*40.*kidney|primary.*renal.*composite/i.test(titleLower)) shortLabel = 'Renal40';
+                        /* renal composite detection removed (not applicable) */
                         else if (/egfr.*57|secondary.*renal/i.test(titleLower)) shortLabel = 'Renal57';
                         else if (/all.cause.*mortality|death.*any.*cause/i.test(titleLower)) shortLabel = 'ACM';
                         else if (/all.cause.*hospitali/i.test(titleLower)) shortLabel = 'ACH';
                         else if (/uacr|albumin.*creatinine/i.test(titleLower)) shortLabel = 'UACR';
-                        else if (/hyperkalemia/i.test(titleLower)) shortLabel = 'Hyperkalemia';
+                        /* topic-specific outcomes handled by generic extraction */
                         else shortLabel = title.substring(0, 30);
                         const type = om.type ?? '';
                         const matchScore = this._scoreOutcomeAgainstProtocol(shortLabel, title, type);
@@ -7019,7 +7019,7 @@ const ContinuousMDEngine = {
                 };
                 pushOpt(meta?.endpointLabel);
                 for (const c of (meta?.candidates ?? []).slice(0, 6)) pushOpt(c?.label);
-                ['MACE','Renal40','HF_CV_First','KidneyComp','ACM','ACH','Safety','Other'].forEach(pushOpt);
+                ['MACE','ACM','CVD','Safety','Other'].forEach(pushOpt);
                 const selected = String(t?.data?.reviewerEndpoint ?? '');
                 return {
                     selected,
@@ -11828,7 +11828,7 @@ print(res_sub)`;
                 const gradeBadge = gradeText === 'HIGH' ? 'grade-high' : gradeText === 'MODERATE' ? 'grade-mod' : gradeText === 'LOW' ? 'grade-low' : 'grade-vlow';
                 const sofBody = document.getElementById('sof-body');
                 const outcomeKey = RapidMeta.state.selectedOutcome ?? 'default';
-                const outcomeNames = { default: ['Matched CV Composite', 'CV death, MI, stroke, or HF hospitalization across definition-matched CKD trials'], LDLC: ['% LDL-C Reduction', 'Mean percentage change in LDL-cholesterol from baseline'], MACE: ['CV Composite', 'CV death, MI, stroke, or HF hospitalization'], HF_CV_First: ['HF First Event or CV Death', 'First worsening HF event or CV death (FINEARTS-HF specific)'], Renal40: ['Renal Composite', 'Kidney failure, \u226540% eGFR decline, or renal death'], KidneyComp: ['Kidney Composite', 'Trial-specific kidney composite outcome (FINEARTS-HF)'], Renal57: ['Renal Composite', 'Kidney failure, \u226557% eGFR decline'], ACM: ['All-Cause Mortality', 'Death from any cause'], ACH: ['HF Hospitalization', 'Hospitalization for heart failure'], Hyperkalemia: ['Hyperkalemia', 'Serum potassium \u22655.5 mmol/L'] };
+                const outcomeNames = { default: ['Matched CV Composite', 'CV death, MI, stroke, or HF hospitalization across cardiovascular death or heart failure hospitalization across pooled HF trials'], LDLC: ['% LDL-C Reduction', 'Mean percentage change in LDL-cholesterol from baseline'], MACE: ['CV Composite', 'CV death, MI, stroke, or HF hospitalization'], HF_CV_First: ['HF First Event or CV Death', 'First worsening HF event or CV death (FINEARTS-HF specific)'], Renal40: ['Renal Composite', 'Kidney failure, \u226540% eGFR decline, or renal death'], KidneyComp: ['Kidney Composite', 'Trial-specific kidney composite outcome (FINEARTS-HF)'], Renal57: ['Renal Composite', 'Kidney failure, \u226557% eGFR decline'], ACM: ['All-Cause Mortality', 'Death from any cause'], ACH: ['HF Hospitalization', 'Hospitalization for heart failure'], Hyperkalemia: ['Hyperkalemia', 'Serum potassium \u22655.5 mmol/L'] };
                 const [ocName, ocDesc] = outcomeNames[outcomeKey] ?? [outcomeKey, ''];
                 sofBody.innerHTML = `<tr class="hover:bg-slate-900/30">
                     <td class="p-3 font-bold text-slate-200">${escapeHtml(ocName)}<br><span class="text-[9px] opacity-50 font-normal">(${escapeHtml(ocDesc)})</span></td>

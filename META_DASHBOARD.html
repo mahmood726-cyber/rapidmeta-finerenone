@@ -133,6 +133,71 @@
             indication: 'Elevated TG',
             source: 'Khan 2021'
         },
+        // === NEW 8 APPS ===
+        {
+            name: 'SGLT2i (CKD)',
+            file: 'SGLT2_CKD_REVIEW.html',
+            color: '#14b8a6',
+            hr: 0.68, lci: 0.62, uci: 0.75, k: 3, n: 15314,
+            i2: 17.5, grade: 'HIGH', nnt: 18,
+            indication: 'CKD (eGFR 20-75)',
+            source: 'CREDENCE + DAPA-CKD + EMPA-KIDNEY'
+        },
+        {
+            name: 'Sacubitril/Valsartan',
+            file: 'ARNI_HF_REVIEW.html',
+            color: '#a855f7',
+            hr: 0.84, lci: 0.78, uci: 0.90, k: 3, n: 18933,
+            i2: 35.0, grade: 'MODERATE', nnt: 45,
+            indication: 'Heart Failure',
+            source: 'PARADIGM-HF + PARAGON-HF + PARADISE-MI'
+        },
+        {
+            name: 'Catheter Ablation (AF)',
+            file: 'ABLATION_AF_REVIEW.html',
+            color: '#f97316',
+            hr: 0.77, lci: 0.68, uci: 0.87, k: 4, n: 5767,
+            i2: 8.0, grade: 'MODERATE', nnt: 28,
+            indication: 'Atrial Fibrillation',
+            source: 'CASTLE-AF + CABANA + EAST + RAFT'
+        },
+        {
+            name: 'IV Iron (HF)',
+            file: 'IV_IRON_HF_REVIEW.html',
+            color: '#b45309',
+            hr: 0.80, lci: 0.68, uci: 0.93, k: 3, n: 5334,
+            i2: 0.0, grade: 'MODERATE', nnt: 33,
+            indication: 'HF + Iron Deficiency',
+            source: 'AFFIRM-AHF + IRONMAN + HEART-FID'
+        },
+        {
+            name: 'DOACs (Cancer VTE)',
+            file: 'DOAC_CANCER_VTE_REVIEW.html',
+            color: '#dc2626',
+            hr: 0.60, lci: 0.36, uci: 1.00, k: 4, n: 2704,
+            i2: 47.0, grade: 'LOW', nnt: null,
+            indication: 'Cancer-Associated VTE',
+            source: 'HOKUSAI + SELECT-D + ADAM + CARAVAGGIO'
+        },
+        {
+            name: 'Mavacamten (oHCM)',
+            file: 'MAVACAMTEN_HCM_REVIEW.html',
+            color: '#e11d48',
+            hr: 7.40, lci: 1.82, uci: 30.01, k: 3, n: 444,
+            i2: 28.0, grade: 'MODERATE', nnt: 3,
+            indication: 'Obstructive HCM',
+            source: 'EXPLORER + VALOR + Chinese Ph3',
+            isOR: true
+        },
+        {
+            name: 'Rivaroxaban Vascular',
+            file: 'RIVAROXABAN_VASC_REVIEW.html',
+            color: '#0ea5e9',
+            hr: 0.85, lci: 0.78, uci: 0.93, k: 4, n: 52507,
+            i2: 50.0, grade: 'MODERATE', nnt: 56,
+            indication: 'Stable Atherosclerotic Disease',
+            source: 'COMPASS + VOYAGER + COMMANDER + ATLAS'
+        },
     ];
 
     function init() {
@@ -145,7 +210,7 @@
     function renderCards() {
         const container = document.getElementById('summary-cards');
         container.innerHTML = DRUG_CLASSES.map(d => {
-            const sig = d.uci < 1.0;
+            const sig = d.isOR ? d.lci > 1.0 : d.uci < 1.0;
             return `<div class="drug-card glass rounded-2xl p-5 border border-slate-800" onclick="window.open('${d.file}','_blank')">
                 <div class="flex items-center gap-3 mb-3">
                     <div class="w-3 h-3 rounded-full" style="background:${d.color}"></div>
@@ -159,7 +224,7 @@
     }
 
     function renderForestComparison() {
-        const sorted = [...DRUG_CLASSES].sort((a, b) => a.hr - b.hr);
+        const sorted = [...DRUG_CLASSES].filter(d => !d.isOR).sort((a, b) => a.hr - b.hr);
         const traces = sorted.map(d => ({
             x: [Math.log(d.hr)],
             y: [d.name + ' (k=' + d.k + ')'],
