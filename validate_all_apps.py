@@ -36,6 +36,31 @@ GOLD_STANDARDS = {
     'INCRETIN_HFpEF_REVIEW.html': {
         'MACE': { 'hr': None, 'lo': None, 'hi': None, 'source': 'No published pooled HR (novel topic)', 'k': 0 },
     },
+    # === NEW 8 APPS ===
+    'SGLT2_CKD_REVIEW.html': {
+        'MACE': { 'hr': 0.68, 'lo': 0.60, 'hi': 0.77, 'source': 'DL pooled CREDENCE+DAPA-CKD+EMPA-KIDNEY', 'k': 3 },
+    },
+    'ARNI_HF_REVIEW.html': {
+        'MACE': { 'hr': 0.84, 'lo': 0.77, 'hi': 0.91, 'source': 'DL pooled PARADIGM-HF+PARAGON-HF+PARADISE-MI', 'k': 3 },
+    },
+    'ABLATION_AF_REVIEW.html': {
+        'MACE': { 'hr': 0.77, 'lo': 0.64, 'hi': 0.93, 'source': 'DL pooled CASTLE-AF+CABANA+EAST+RAFT', 'k': 4 },
+    },
+    'IV_IRON_HF_REVIEW.html': {
+        'MACE': { 'hr': 0.84, 'lo': 0.74, 'hi': 0.96, 'source': 'DL pooled CONFIRM-HF+AFFIRM+IRONMAN+HEART-FID', 'k': 4 },
+    },
+    'RENAL_DENERV_REVIEW.html': {
+        'MACE': { 'hr': None, 'lo': None, 'hi': None, 'source': 'MD outcome (not HR)', 'k': 0 },
+    },
+    'DOAC_CANCER_VTE_REVIEW.html': {
+        'MACE': { 'hr': 0.55, 'lo': 0.30, 'hi': 1.00, 'source': 'DL pooled HOKUSAI+SELECT-D+ADAM+CARAVAGGIO', 'k': 4 },
+    },
+    'MAVACAMTEN_HCM_REVIEW.html': {
+        'MACE': { 'hr': 4.50, 'lo': 2.00, 'hi': 10.00, 'source': 'DL pooled EXPLORER+VALOR+Chinese (OR scale)', 'k': 3 },
+    },
+    'RIVAROXABAN_VASC_REVIEW.html': {
+        'MACE': { 'hr': 0.85, 'lo': 0.77, 'hi': 0.94, 'source': 'DL pooled COMPASS+VOYAGER+COMMANDER+ATLAS', 'k': 4 },
+    },
 }
 
 
@@ -53,6 +78,16 @@ def get_driver():
 
 def extract_v12_results(driver):
     """Extract results from v12 template apps (FINERENONE, BEMPEDOIC, PCSK9, INTENSIVE_BP, LIPID_HUB)."""
+    # Apply outcome scope to ensure pubHR is mapped from allOutcomes
+    driver.execute_script("""
+        try {
+            if (typeof RapidMeta !== 'undefined' && RapidMeta.applyOutcomeScope) {
+                RapidMeta.applyOutcomeScope('default');
+            }
+        } catch(e) { console.log('applyOutcomeScope error:', e); }
+    """)
+    time.sleep(1)
+
     # Switch to analysis tab which triggers AnalysisEngine.run()
     driver.execute_script("""
         try {
