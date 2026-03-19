@@ -5225,7 +5225,7 @@ const ContinuousMDEngine = {
                 RapidMeta.save();
                 addAuditEntry(`Screening proposed: ${t.id} => ${status.toUpperCase()} by ${actor} [seal ${sig1}]`);
                 showToast(`Proposed ${status.toUpperCase()}. Awaiting second reviewer.`);
-                if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
+                this.render();
                 this.updateMetrics();
             },
             confirmCurrentDecision() {
@@ -5248,7 +5248,7 @@ const ContinuousMDEngine = {
                 RapidMeta.save();
                 addAuditEntry(`Screening confirmed: ${t.id} => ${String(sr.decision).toUpperCase()} by ${sr.reviewer1} + ${actor} [seal ${sr.sig2}]`);
                 showToast(`Decision confirmed (${String(sr.decision).toUpperCase()}) by two reviewers.`);
-                if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
+                this.render();
                 this.updateMetrics();
             },
             clearCurrentDecision() {
@@ -5261,7 +5261,7 @@ const ContinuousMDEngine = {
                 RapidMeta.save();
                 addAuditEntry(`Screening proposal cleared: ${t.id} by ${actor}`);
                 showToast('Screening proposal cleared.');
-                if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
+                this.render();
                 this.updateMetrics();
             },
             _inferBulkDecision(t) {
@@ -5321,7 +5321,7 @@ const ContinuousMDEngine = {
                 }
                 RapidMeta.save();
                 RapidMeta.populateOutcomeSelector();
-                if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
+                this.render();
                 this.updateMetrics();
                 addAuditEntry(`Bulk screening batch ${batchId}: include=${includeCount}, exclude=${excludeCount}, reviewers=${pair.reviewer1}+${pair.reviewer2}`);
                 showToast(`Bulk screening complete: ${includeCount} include, ${excludeCount} exclude.`);
@@ -6616,7 +6616,7 @@ const ContinuousMDEngine = {
                 included.forEach(t => { if(RapidMeta.realData[t.id]) { t.data = { ...RapidMeta.realData[t.id], rob: [...RapidMeta.realData[t.id].rob] }; t.verified = true; } });
                 /* Build provenance for landmark trials */
                 included.forEach(t => { if(t.data) this._buildProvenance(t); });
-                RapidMeta.save(); if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
+                RapidMeta.save(); this.render();
 
                 /* Phase 2: Auto-extract for non-landmark trials with NCT IDs */
                 const toExtract = included.filter(t => {
@@ -6631,7 +6631,7 @@ const ContinuousMDEngine = {
 
                 for (const t of toExtract) {
                     t.extracting = true;
-                    if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
+                    this.render();
                     try {
                         const result = await AutoExtractEngine.extract(t.id, t.title);
                         t.extracting = false;
@@ -6677,7 +6677,7 @@ const ContinuousMDEngine = {
                         console.error('Auto-extract error:', e);
                         showToast(`\u26A0 ${t.id}: extraction error`);
                     }
-                    RapidMeta.save(); if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
+                    RapidMeta.save(); this.render();
                 }
                 RapidMeta.populateOutcomeSelector();
             },
@@ -7080,7 +7080,7 @@ const ContinuousMDEngine = {
                 if (!actor) return;
                 t.data.sourceTableViewed = true;
                 RapidMeta.save();
-                if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
+                this.render();
             },
             setReviewerEndpoint(trialId, value) {
                 const t = RapidMeta.state.trials.find(x => x.id === trialId);
@@ -7089,7 +7089,7 @@ const ContinuousMDEngine = {
                 if (!actor) return;
                 t.data.reviewerEndpoint = String(value ?? '').trim();
                 RapidMeta.save();
-                if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
+                this.render();
             },
             setReviewerSourceChecked(trialId, checked) {
                 const t = RapidMeta.state.trials.find(x => x.id === trialId);
@@ -7098,7 +7098,7 @@ const ContinuousMDEngine = {
                 if (!actor) return;
                 t.data.reviewerSourceChecked = Boolean(checked);
                 RapidMeta.save();
-                if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
+                this.render();
             },
             setReconcileConfirmed(trialId, checked) {
                 const t = RapidMeta.state.trials.find(x => x.id === trialId);
@@ -7107,7 +7107,7 @@ const ContinuousMDEngine = {
                 if (!actor) return;
                 t.data.reconcileConfirmed = Boolean(checked);
                 RapidMeta.save();
-                if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
+                this.render();
             },
             setReconcileNotes(trialId, notes) {
                 const t = RapidMeta.state.trials.find(x => x.id === trialId);
@@ -7134,7 +7134,7 @@ const ContinuousMDEngine = {
                 t.data.needsReview = true;
                 t.verified = false;
                 RapidMeta.save();
-                if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
+                this.render();
                 addAuditEntry(`Extraction sign-off cleared: ${t.data?.name ?? trialId} by ${actor}`);
                 showToast('Extraction sign-off reset.');
             },
@@ -7297,7 +7297,7 @@ const ContinuousMDEngine = {
                         [sig1]
                     );
                     RapidMeta.save();
-                    if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
+                    this.render();
                     addAuditEntry(`Extraction sign-off 1/2: ${t.data?.name ?? trialId} by ${actor} [seal ${sig1}]`);
                     showToast('First reviewer sign-off saved. A second reviewer must confirm.');
                     return;
@@ -7331,7 +7331,7 @@ const ContinuousMDEngine = {
                 t.data.needsReview = false;
                 t.verified = true;
                 RapidMeta.save();
-                if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
+                this.render();
                 if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
                 addAuditEntry(`Extraction confirmed (2 reviewers): ${t.data?.name ?? trialId} [seal ${d.extractionSignoff?.sig2 ?? '--'}]`);
                 showToast('Auto-extracted trial dual-confirmed for analysis.');
@@ -7436,7 +7436,7 @@ const ContinuousMDEngine = {
                     addAuditEntry(`Bulk extraction confirmed: ${t.data?.name ?? t.id} by ${pair.reviewer1} + ${pair.reviewer2} [seal ${sig2}]`);
                 }
                 RapidMeta.save();
-                if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
+                this.render();
                 if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
                 addAuditEntry(`Bulk extraction batch ${batchId}: approved=${approved}, skipped=${skipped}, reviewers=${pair.reviewer1}+${pair.reviewer2}`);
                 if (skipped > 0) {
@@ -7455,7 +7455,7 @@ const ContinuousMDEngine = {
                 t.data.extractionSignoff = null;
                 t.verified = false;
                 RapidMeta.save();
-                if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
+                this.render();
                 if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
                 addAuditEntry(`Extraction review reopened: ${t.data?.name ?? trialId} by ${actor}`);
                 showToast('Trial marked as review-required.');
@@ -7801,7 +7801,7 @@ const ContinuousMDEngine = {
                 t.data.rob = [...t.data.rob];
                 const oldVal = t.data.rob[domainIdx];
                 t.data.rob[domainIdx] = cycle[t.data.rob[domainIdx]] ?? 'low';
-                RapidMeta.save(); if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
+                RapidMeta.save(); this.render();
                 addAuditEntry(`RoB: ${t.data?.name ?? t.id} ${this.robDomainLabels[domainIdx]} changed ${oldVal} \u2192 ${t.data.rob[domainIdx]}`);
             },
             upd(id, key, v) {
@@ -7844,7 +7844,7 @@ const ContinuousMDEngine = {
                     data: { name, year, phase, group: indication, tE, tN, cE, cN, rob: ['low','low','low','low','low'], snippet: source || 'Manual entry' }
                 };
                 RapidMeta.state.trials.push(trial);
-                RapidMeta.save(); if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
+                RapidMeta.save(); this.render();
                 addAuditEntry(`Study added: ${name} (${id}), ${tE}/${tN} vs ${cE}/${cN}; screening proposed INCLUDE by ${actor} [seal ${sig1}]`);
                 showToast(`Study "${name}" added. Awaiting second screening reviewer.`);
                 // Clear form
