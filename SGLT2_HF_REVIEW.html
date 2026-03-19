@@ -801,17 +801,17 @@
         <section id="tab-analysis" class="tab-content h-full p-10 overflow-y-auto hidden" role="tabpanel" aria-labelledby="btn-tab-analysis">
             <div class="max-w-[1600px] mx-auto space-y-10 pb-20">
                 <div class="grid grid-cols-3 gap-8">
-                    <div class="glass p-8 rounded-[40px] border-l-[8px] border-blue-500 bg-blue-500/5 text-center"><div id="label-pooled-em" class="text-[10px] opacity-50 uppercase font-bold mb-3 tracking-[0.2em]">Pooled Odds Ratio (Random-Effects)</div><div id="res-or" class="text-6xl font-bold font-mono tracking-tighter">--</div></div>
+                    <div class="glass p-8 rounded-[40px] border-l-[8px] border-blue-500 bg-blue-500/5 text-center"><div id="label-pooled-em" class="text-[10px] opacity-50 uppercase font-bold mb-3 tracking-[0.2em]">Pooled Odds Ratio (Random-Effects)</div><div id="res-or" aria-label="Pooled effect estimate" class="text-6xl font-bold font-mono tracking-tighter">--</div></div>
                     <!-- label updated dynamically by setEffectMeasure/updateEMLabels -->
-                    <div class="glass p-8 rounded-[40px] border-l-[8px] border-emerald-500 bg-emerald-500/5 text-center"><div id="res-ci-label" class="text-[10px] opacity-50 uppercase font-bold mb-3 tracking-[0.2em]">Precision (95% CI)</div><div id="res-ci" class="text-2xl font-bold font-mono mt-4 tracking-tight leading-none">--</div></div>
-                    <div class="glass p-8 rounded-[40px] border-l-[8px] border-amber-500 bg-amber-500/5 text-center"><div class="text-[10px] opacity-50 uppercase font-bold mb-3 tracking-[0.2em]">Heterogeneity (I²)</div><div id="res-i2" class="text-6xl font-bold font-mono tracking-tighter">--</div></div>
+                    <div class="glass p-8 rounded-[40px] border-l-[8px] border-emerald-500 bg-emerald-500/5 text-center"><div id="res-ci-label" class="text-[10px] opacity-50 uppercase font-bold mb-3 tracking-[0.2em]">Precision (95% CI)</div><div id="res-ci" aria-label="Confidence interval" class="text-2xl font-bold font-mono mt-4 tracking-tight leading-none">--</div></div>
+                    <div class="glass p-8 rounded-[40px] border-l-[8px] border-amber-500 bg-amber-500/5 text-center"><div class="text-[10px] opacity-50 uppercase font-bold mb-3 tracking-[0.2em]">Heterogeneity (I²)</div><div id="res-i2" aria-label="Heterogeneity I-squared" class="text-6xl font-bold font-mono tracking-tighter">--</div></div>
                 </div>
 
                 <!-- v10.0: Secondary stat cards -->
                 <div class="grid grid-cols-3 gap-8">
-                    <div class="glass p-6 rounded-[30px] border border-slate-800 text-center"><div class="text-[10px] opacity-50 uppercase font-bold mb-2 tracking-[0.2em]">HKSJ-Adjusted CI</div><div id="res-hksj" class="text-lg font-bold font-mono tracking-tight text-cyan-400">--</div></div>
-                    <div class="glass p-6 rounded-[30px] border border-slate-800 text-center"><div class="text-[10px] opacity-50 uppercase font-bold mb-2 tracking-[0.2em]">Prediction Interval</div><div id="res-pi" class="text-lg font-bold font-mono tracking-tight text-purple-400">--</div></div>
-                    <div class="glass p-6 rounded-[30px] border border-slate-800 text-center"><div class="text-[10px] opacity-50 uppercase font-bold mb-2 tracking-[0.2em]">Q-test (Cochran)</div><div id="res-qtest" class="text-lg font-bold font-mono tracking-tight text-amber-400">--</div></div>
+                    <div class="glass p-6 rounded-[30px] border border-slate-800 text-center" title="Hartung-Knapp-Sidik-Jonkman adjustment uses t-distribution with k-1 df, accounting for uncertainty in tau-squared estimation. More reliable than Wald for small k."><div class="text-[10px] opacity-50 uppercase font-bold mb-2 tracking-[0.2em]">HKSJ-Adjusted CI</div><div id="res-hksj" aria-label="HKSJ-adjusted confidence interval" class="text-lg font-bold font-mono tracking-tight text-cyan-400">--</div></div>
+                    <div class="glass p-6 rounded-[30px] border border-slate-800 text-center"><div class="text-[10px] opacity-50 uppercase font-bold mb-2 tracking-[0.2em]">Prediction Interval</div><div id="res-pi" aria-label="Prediction interval" class="text-lg font-bold font-mono tracking-tight text-purple-400">--</div></div>
+                    <div class="glass p-6 rounded-[30px] border border-slate-800 text-center"><div class="text-[10px] opacity-50 uppercase font-bold mb-2 tracking-[0.2em]">Q-test (Cochran)</div><div id="res-qtest" aria-label="Cochran Q test for heterogeneity" class="text-lg font-bold font-mono tracking-tight text-amber-400">--</div></div>
                 </div>
 
                 <!-- v11.0: Bayesian + Power stat cards -->
@@ -866,6 +866,7 @@
                     <div class="stat-chip stat-chip-blue" id="chip-fragility"><i class="fa-solid fa-shield-halved" style="font-size:10px"></i> Fragility: --</div>
                     <div class="stat-chip stat-chip-blue" id="chip-trimfill"><i class="fa-solid fa-fill-drip" style="font-size:10px"></i> Trim-Fill: --</div>
                     <div class="stat-chip stat-chip-blue" id="chip-copas"><i class="fa-solid fa-lock" style="font-size:10px"></i> Selection Sensitivity: --</div>
+                        <div id="sensitivity-concordance" aria-live="polite" aria-label="Sensitivity analysis concordance summary" class="mt-2 px-4 py-2 rounded-2xl bg-slate-900/50 border border-slate-800 text-center"></div>
                     <div class="stat-chip stat-chip-blue" id="chip-ris"><i class="fa-solid fa-bolt" style="font-size:10px"></i> RIS: --</div>
                     <div class="stat-chip stat-chip-blue" id="chip-hr-sensitivity"><i class="fa-solid fa-clock-rotate-left" style="font-size:10px"></i> HR Sensitivity: --</div>
                     <div class="stat-chip stat-chip-blue" id="chip-method-sensitivity"><i class="fa-solid fa-scale-balanced" style="font-size:10px"></i> Method Sensitivity: --</div>
@@ -7990,7 +7991,10 @@
                     : `${c.I2.toFixed(1)}%`;
                 if (Number.isFinite(c.hksjLCI) && Number.isFinite(c.hksjUCI)) {
                     const hksjEl = document.getElementById('res-hksj');
-                    hksjEl.innerText = `${c.hksjLCI.toFixed(2)} \u2014 ${c.hksjUCI.toFixed(2)}`;
+                    const _hkLo = Math.max(0.001, c.hksjLCI);
+                    const _hkHi = Math.min(999, c.hksjUCI);
+                    const _hkCapped = c.hksjLCI < 0.001 || c.hksjUCI > 999;
+                    hksjEl.innerText = `${_hkLo.toFixed(2)} \u2014 ${_hkHi > 10 ? '>10' : _hkHi.toFixed(2)}${_hkCapped ? ' *' : ''}`;
                     const waldSig = (c.lci > 1) || (c.uci < 1);
                     const hksjSig = (c.hksjLCI > 1) || (c.hksjUCI < 1);
                     const hksjCard = hksjEl.closest('.glass') || hksjEl.parentElement;
