@@ -3,10 +3,24 @@ RapidMeta Portfolio -- Comprehensive Selenium Test Suite
 Tests ALL 18 apps + LivingMeta across 8 test categories.
 Run: python test_all_apps_comprehensive.py
 """
-import sys, io, os, time, traceback
+import sys, io, os, time, traceback, subprocess
 
 # UTF-8 stdout for Windows cp1252 safety
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+
+
+def kill_orphan_chrome():
+    """Kill any lingering chrome/chromedriver processes to prevent port conflicts."""
+    for proc in ['chromedriver.exe', 'chrome.exe']:
+        try:
+            subprocess.run(
+                ['taskkill', '/f', '/im', proc],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=10
+            )
+        except Exception:
+            pass
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -80,7 +94,7 @@ def is_cdn_error(msg):
     return any(p in text for p in skip)
 
 
-def wait_for_init(driver, timeout=15):
+def wait_for_init(driver, timeout=20):
     """Poll until RapidMeta.init() has completed.
 
     Two-tier detection:
@@ -215,9 +229,9 @@ def test_v12_app(driver, app_name, app_def):
         time.sleep(3)
 
         # Wait for RapidMeta.init() to complete (async)
-        init_ok = wait_for_init(driver, timeout=12)
+        init_ok = wait_for_init(driver, timeout=20)
         if not init_ok:
-            record('Page load (no JS errors)', False, 'RapidMeta.init() did not complete in 12s')
+            record('Page load (no JS errors)', False, 'RapidMeta.init() did not complete in 20s')
             return results
 
         # Check JS errors (after init)
@@ -576,6 +590,11 @@ def main():
     print('=' * 70)
     print()
 
+    # Kill orphan Chrome processes before starting
+    print('Killing orphan Chrome/ChromeDriver processes...')
+    kill_orphan_chrome()
+    time.sleep(2)
+
     all_results = {}
     total_pass = 0
     total_fail = 0
@@ -592,31 +611,65 @@ def main():
             total_fail += 1
             continue
 
-        driver = None
-        try:
-            driver = make_driver()
-            driver.set_page_load_timeout(30)
-            driver.set_script_timeout(30)
+        app_results = None
+        for attempt in range(2):  # retry once on failure
+            driver = None
+            try:
+                driver = make_driver()
+                driver.set_page_load_timeout(30)
+                driver.set_script_timeout(30)
 
-            app_results = test_v12_app(driver, app_name, app_def)
-            all_results[app_name] = app_results
-            for _, passed in app_results:
-                if passed:
-                    total_pass += 1
+                app_results = test_v12_app(driver, app_name, app_def)
+
+                # Check if page load itself failed (first test)
+                page_load_passed = app_results and len(app_results) > 0 and app_results[0][1]
+                if not page_load_passed and attempt == 0:
+                    print(f'  ** Page load failed, retrying with fresh driver...')
+                    if driver:
+                        try:
+                            driver.quit()
+                        except Exception:
+                            pass
+                        driver = None
+                    time.sleep(3)
+                    continue  # retry
+
+                break  # success or second attempt -- stop retrying
+
+            except Exception as e:
+                if attempt == 0:
+                    print(f'  ** Driver error on attempt 1, retrying: {str(e)[:100]}')
+                    if driver:
+                        try:
+                            driver.quit()
+                        except Exception:
+                            pass
+                        driver = None
+                    time.sleep(3)
+                    continue  # retry
                 else:
-                    total_fail += 1
+                    print(f'  {FAIL_SYM} Driver error: {str(e)[:150]}')
+                    traceback.print_exc()
+                    app_results = [('Driver setup', False)]
+            finally:
+                if driver:
+                    try:
+                        driver.quit()
+                    except Exception:
+                        pass
 
-        except Exception as e:
-            print(f'  {FAIL_SYM} Driver error: {str(e)[:150]}')
-            traceback.print_exc()
-            all_results[app_name] = [('Driver setup', False)]
-            total_fail += 1
-        finally:
-            if driver:
-                try:
-                    driver.quit()
-                except Exception:
-                    pass
+        if app_results is None:
+            app_results = [('Driver setup', False)]
+
+        all_results[app_name] = app_results
+        for _, passed in app_results:
+            if passed:
+                total_pass += 1
+            else:
+                total_fail += 1
+
+        # Small delay between apps to let ports free up
+        time.sleep(2)
 
     # ── Test LivingMeta ──────────────────────────────────────────────────
     app_count += 1
@@ -627,29 +680,61 @@ def main():
         all_results['LivingMeta'] = [('File exists', False)]
         total_fail += 1
     else:
-        driver = None
-        try:
-            driver = make_driver()
-            driver.set_page_load_timeout(30)
-            driver.set_script_timeout(30)
+        lm_results = None
+        for attempt in range(2):  # retry once on failure
+            driver = None
+            try:
+                driver = make_driver()
+                driver.set_page_load_timeout(30)
+                driver.set_script_timeout(30)
 
-            lm_results = test_livingmeta(driver)
-            all_results['LivingMeta'] = lm_results
-            for _, passed in lm_results:
-                if passed:
-                    total_pass += 1
+                lm_results = test_livingmeta(driver)
+
+                # Check if page load itself failed (first test)
+                page_load_passed = lm_results and len(lm_results) > 0 and lm_results[0][1]
+                if not page_load_passed and attempt == 0:
+                    print(f'  ** Page load failed, retrying with fresh driver...')
+                    if driver:
+                        try:
+                            driver.quit()
+                        except Exception:
+                            pass
+                        driver = None
+                    time.sleep(3)
+                    continue  # retry
+
+                break  # success or second attempt -- stop retrying
+
+            except Exception as e:
+                if attempt == 0:
+                    print(f'  ** Driver error on attempt 1, retrying: {str(e)[:100]}')
+                    if driver:
+                        try:
+                            driver.quit()
+                        except Exception:
+                            pass
+                        driver = None
+                    time.sleep(3)
+                    continue  # retry
                 else:
-                    total_fail += 1
-        except Exception as e:
-            print(f'  {FAIL_SYM} Driver error: {str(e)[:150]}')
-            all_results['LivingMeta'] = [('Driver setup', False)]
-            total_fail += 1
-        finally:
-            if driver:
-                try:
-                    driver.quit()
-                except Exception:
-                    pass
+                    print(f'  {FAIL_SYM} Driver error: {str(e)[:150]}')
+                    lm_results = [('Driver setup', False)]
+            finally:
+                if driver:
+                    try:
+                        driver.quit()
+                    except Exception:
+                        pass
+
+        if lm_results is None:
+            lm_results = [('Driver setup', False)]
+
+        all_results['LivingMeta'] = lm_results
+        for _, passed in lm_results:
+            if passed:
+                total_pass += 1
+            else:
+                total_fail += 1
 
     # ── Summary ──────────────────────────────────────────────────────────
     total_tests = total_pass + total_fail

@@ -1,8 +1,8 @@
 # Multi-Persona Review: Propagated Features (TextExtractor, GRADE SoF, Manuscript Text)
-### Date: 2026-03-16 (Round 1), 2026-03-17 (Round 2)
-### Scope: All 8 siblings + LivingMeta.html
-### Status: REVIEW CLEAN — All 8 P0 fixed, All 19 P1 fixed, 10/16 P2 fixed
-### Validation: 7/8 pass (INCRETIN_HFpEF = no gold, pre-existing)
+### Date: 2026-03-16 (Round 1), 2026-03-17 (Round 2), 2026-03-18 (Round 3)
+### Scope: All 18 REVIEW siblings + LivingMeta.html
+### Status: REVIEW CLEAN — All 8 P0 fixed, All 21 P1 fixed, 10/16 P2 fixed
+### Validation: 148/148 tests pass across 19 apps
 
 ---
 
@@ -23,8 +23,9 @@
 - [FIXED] **P0-5** [SE]: `P_INTERACT_RX` global regex retains `lastIndex` between `extract()` calls — skips matches on alternate calls. All 8 siblings, L5658/5836.
   - Fix: Reset `P_INTERACT_RX.lastIndex = 0` before `while (.exec())` loop.
 
-- [PARTIAL] **P0-6** [SE/Domain]: `renderGRADE` and `computeGradeAssessment` produce different GRADE ratings — 5 logic divergences: indirectness check, pub bias k>=10 gate, upgrade cap, data source (DOM vs object), weight null safety. All 8 siblings.
+- [FIXED] **P0-6** [SE/Domain]: `renderGRADE` and `computeGradeAssessment` produce different GRADE ratings — 5 logic divergences: indirectness check, pub bias k>=10 gate, upgrade cap, data source (DOM vs object), weight null safety. All 8 siblings.
   - Fix: Refactor `renderGRADE` to call `computeGradeAssessment` (single source of truth).
+  - **R3 verification**: Old `renderGRADE` fully removed from all 18 files. All use identical `computeGradeAssessment` (6959 chars, byte-exact match confirmed).
 
 - [FIXED] **P0-7** [Stats/Domain]: Manuscript significance test uses null=1 for all effect measures — for continuous outcomes (MD), null is 0, not 1. `parseFloat(uci) < 1.0` misclassifies MD results. All 8 siblings, line ~12966-12970.
   - Fix: Check `isContinuous`; use `uci < 0` for MD significant reduction.
@@ -37,8 +38,7 @@
 - [FIXED] **P1-1** [Stats/SE]: `computeInterventionEventRate` returns null → NaN in ARD display. ARD shows "NaN (NaN to NaN)" when CER≥1 or effect≤0. All 8 siblings, lines ~9036-9041.
   - Fix: Guard `ierPt != null ? Math.round((ierPt - cer) * 1000) : '--'`
 
-- [OPEN] **P1-2** [Domain]: LivingMeta SoF export is GRADE evidence profile, not Cochrane SoF table — missing Outcome, Participants, Relative Effect, Absolute Effects columns. LivingMeta exportSoFHTML.
-  - Fix: Restructure to match Cochrane format (like BEMPEDOIC's exportSoFHTML).
+- [FALSE POSITIVE] **P1-2** [Domain]: LivingMeta SoF export — R3 re-review found all Cochrane SoF columns present: Outcome, No. of participants (studies), Relative effect (% CI), Anticipated absolute effects per 1,000, Certainty (GRADE), Comments. Separate GRADE Evidence Profile section also included. Lines 9124-9159.
 
 - [FIXED] **P1-3** [Domain/Stats]: LivingMeta hardcodes "95% CI" in SoF export. LivingMeta L8857.
   - Fix: Read from `AppState.settings?.confLevel`.
@@ -76,11 +76,10 @@
 - [FIXED] **P1-14** [Domain]: SoF table missing "No. of participants" column (required by Cochrane SoF). All 8 siblings, L9089.
   - Fix: Add `<th>Participants</th>` column displaying `r.totalN.toLocaleString()`.
 
-- [OPEN] **P1-15** [Domain]: Inconsistency domain ignores k-sensitivity — I²<50% with k=2-3 is uninformative, not reassuring. All 8 siblings, L8939.
-  - Fix: Add informational note when k<5 and I²<50%.
+- [FIXED] **P1-15** [Domain]: Inconsistency domain k-sensitivity note improved. All 18 siblings + FINERENONE.
+  - Fix: Changed from "I² imprecise with k=N (no downgrade)" to "I² unreliable with only k=N studies — low power to detect heterogeneity (no downgrade, but interpret with caution)". Verified in computeGradeAssessment L8383.
 
-- [OPEN] **P1-16** [Stats]: Hardcoded 0.95 in CI compare plot. 3+ siblings, L10340.
-  - Fix: Use `RapidMeta.state.confLevel ?? 0.95`.
+- [FALSE POSITIVE] **P1-16** [Stats]: R3 re-review found `r.confLevel` is already stored as a percentage string (e.g. '95') via `(c.confLevel * 100).toFixed(0)` at L9795-9796. The `?? '95'` fallback is correct type and value for old localStorage compat.
 
 ## P2 — Minor (12)
 
@@ -100,13 +99,38 @@
 ## Round 2 — New Issues (2026-03-17)
 
 - [FIXED] R2-N1 [P1]: LivingMeta `P_INTERACT_RX.lastIndex = 0` missing before `.exec()` loop
-- [OPEN] R2-N2 [P1]: LivingMeta hardcoded `normalQuantile(0.975)` in MH-OR, Peto, Trim-Fill, Bootstrap PI
+- [FIXED] R2-N2 [P1]: LivingMeta hardcoded bootstrap quantiles. R3 found MH-OR, Peto, Trim-Fill already correct (use `AppState.settings?.confLevel`). Fixed `computeBootstrapPI` (L11391-11392) and `computeCDPredInt` (L12013) to derive from confLevel via `alphaHalf = (1-cl)/2`.
 - [FIXED] R2-N3 [P1]: `gradeHedge` guard for undefined `gradeCertainty` (was producing "was is very uncertain about")
 - [FIXED] R2-N4 [P2]: `_plainLanguage` grammar — "may reduces" → "may reduce" (infinitive after modal)
 - [FIXED] R2-N5 [P2]: `inconsistencyNote` dead code wired into reasons (k<5 informational note)
 - P2: CT.gov URL encoding inconsistency (BEMPEDOIC L6812, LivingMeta L5274) — low risk
 
+## Round 3 — Manual Review (2026-03-18)
+
+### Fixes applied this round:
+- [FIXED] R3-F1: P0-6 verified resolved — `renderGRADE` fully removed, all 18 files use identical `computeGradeAssessment`
+- [FIXED] R3-F2: P1-15 improved k-sensitivity note in `computeGradeAssessment` (all 18 siblings)
+- [FIXED] R3-F3: R2-N2 LivingMeta bootstrap quantiles now confLevel-aware (2 functions)
+- [FIXED] R3-F4: `_plainLanguage` MODERATE verb conjugation — "probably reduce" → "probably reduces" (all 18 siblings)
+  - Verb conjugation: HIGH/MODERATE use "reduces/increases/results in" (adverb, same form); LOW uses "reduce/increase/result in" (modal "may" takes infinitive)
+
+### New findings:
+- R3-N1 [P2]: `generateManuscriptText` says "1 randomized controlled trials" for k=1 (plural mismatch). L12771.
+- R3-N2 [P2]: `generateManuscriptText` "Phase II/III RCTs" default when phases empty — fine for multi-trial but imprecise for single-trial.
+- R3-N3 [P2]: `exportCSV` `_esc` helper wraps in double-quotes but doesn't prepend `'` for formula injection prevention. Low risk since fields are medical outcome names.
+- R3-N4 [P2]: LivingMeta `exportSoFHTML` only renders single outcome row (by design — LivingMeta synthesizes one outcome at a time).
+
+### Verification:
+- **148/148 Selenium tests pass** across 19 apps (18 REVIEW + LivingMeta)
+- All 18 REVIEW files have identical `computeGradeAssessment` (6959 chars, byte-exact)
+- Div balance: +1 in all files is false positive from `<div class="footnotes">` in JS string export (escaped `<\/div>` not counted by naive checker)
+- All `innerHTML` assignments in 3 features use `escapeHtml()` for string content
+- No ReDoS risk in TextExtractor patterns (all bounded quantifiers)
+- European decimal regex has lookbehind protection against CI pair corruption
+
 ## False Positive Watch
 - P0-SE2 (normalInv undefined) — needs verification: may be `normalQuantile` but could also be defined elsewhere
 - Agent P0-SE4 overlaps with P0-6 (deduplicated)
 - Agent P0-DE-4 overlaps with P0-6 (deduplicated into renderGRADE divergence)
+- P1-2 was false positive (LivingMeta SoF already has all Cochrane columns)
+- P1-16 was false positive (r.confLevel is already a percentage string)

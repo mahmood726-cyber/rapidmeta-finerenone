@@ -1102,6 +1102,17 @@
   </button>
 </nav>
 
+<!-- PRISMA Workflow Progress Tracker -->
+<div id="prismaProgressBar" style="padding:4px 16px;display:flex;gap:6px;flex-wrap:wrap;font-size:0.7rem;">
+  <span id="pp-search" class="badge" style="background:var(--bg-secondary);padding:2px 8px;border-radius:10px;">1. Search</span>
+  <span id="pp-screen" class="badge" style="background:var(--bg-secondary);padding:2px 8px;border-radius:10px;">2. Screen</span>
+  <span id="pp-extract" class="badge" style="background:var(--bg-secondary);padding:2px 8px;border-radius:10px;">3. Extract</span>
+  <span id="pp-synthesize" class="badge" style="background:var(--bg-secondary);padding:2px 8px;border-radius:10px;">4. Synthesize</span>
+  <span id="pp-bias" class="badge" style="background:var(--bg-secondary);padding:2px 8px;border-radius:10px;">5. Bias</span>
+  <span id="pp-grade" class="badge" style="background:var(--bg-secondary);padding:2px 8px;border-radius:10px;">6. GRADE</span>
+  <span id="pp-certify" class="badge" style="background:var(--bg-secondary);padding:2px 8px;border-radius:10px;">7. Certify</span>
+</div>
+
 <!-- ═══════════════════════════════════════════════════════════════════════
      TAB PANELS
      ═══════════════════════════════════════════════════════════════════════ -->
@@ -1167,7 +1178,12 @@
   <div class="section-header" style="margin-top:24px;">Import Trials from CSV</div>
   <div class="card" style="padding:12px;">
     <p style="font-size:0.78rem;opacity:0.7;margin-bottom:8px;">Paste CSV with columns: ID, Year, nTreatment, nControl, Events_Tx, Events_Ctrl, HR, HR_LCI, HR_UCI (header row required)</p>
-    <textarea id="csvImportArea" rows="5" style="width:100%;font-family:monospace;font-size:0.78rem;border:1px solid var(--border-color);border-radius:6px;padding:8px;background:var(--bg-secondary);color:var(--text-primary);resize:vertical;" placeholder="ID,Year,nTreatment,nControl,Events_Tx,Events_Ctrl,HR,HR_LCI,HR_UCI&#10;EXAMPLE-2024,2024,500,500,50,70,0.80,0.65,0.98"></textarea>
+    <div id="csvDropZone" style="border:2px dashed var(--border-color);border-radius:8px;padding:4px;transition:border-color 0.2s;"
+      ondragover="event.preventDefault();this.style.borderColor='var(--accent)';"
+      ondragleave="this.style.borderColor='var(--border-color)';"
+      ondrop="event.preventDefault();this.style.borderColor='var(--border-color)';handleCSVDrop(event);">
+      <textarea id="csvImportArea" rows="5" style="width:100%;font-family:monospace;font-size:0.78rem;border:none;padding:8px;background:transparent;color:var(--text-primary);resize:vertical;" placeholder="Drag &amp; drop a .csv file here, or paste data:&#10;ID,Year,nTreatment,nControl,Events_Tx,Events_Ctrl,HR,HR_LCI,HR_UCI&#10;EXAMPLE-2024,2024,500,500,50,70,0.80,0.65,0.98"></textarea>
+    </div>
     <div style="display:flex;gap:8px;margin-top:8px;">
       <button class="btn btn-primary" onclick="importTrialsCSV()" style="font-size:0.8rem;">Import CSV</button>
       <span id="csv-import-status" style="font-size:0.8rem;opacity:0.6;align-self:center;"></span>
@@ -1260,6 +1276,7 @@
     </button>
     <span id="harvestStatus" style="margin-left:12px;font-size:0.82rem;color:var(--text-secondary);"></span>
   </div>
+  <div id="searchMetricsSummary" style="display:none;margin-bottom:12px;"></div>
   <div id="harvestDashboard" class="stub-area">
     Click "Harvest" to fetch detailed trial records from ClinicalTrials.gov API v2. Extracts: results posting status, primary outcomes, protocol dates, endpoint definitions, completion dates, and record history signals. No API key required.
   </div>
@@ -1317,6 +1334,19 @@
 
   <div id="extractCardsArea">
     <!-- Rendered by JS -->
+  </div>
+
+  <div class="section-header" style="margin-top:24px;">Effect Size Converter</div>
+  <div class="card" style="padding:12px;">
+    <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:8px;">
+      <div><label style="font-size:0.72rem;font-weight:600;">Input Type</label>
+        <select id="esc-type" class="form-select" style="width:100px;" onchange="convertEffectSize()">
+          <option value="or">OR</option><option value="rr">RR</option><option value="hr">HR</option><option value="nnt">NNT</option>
+        </select></div>
+      <div><label style="font-size:0.72rem;font-weight:600;">Value</label><input type="number" id="esc-value" class="form-select" step="0.01" value="0.75" style="width:90px;" oninput="convertEffectSize()"></div>
+      <div><label style="font-size:0.72rem;font-weight:600;">Baseline Risk (%)</label><input type="number" id="esc-cer" class="form-select" value="10" min="0.1" max="99" style="width:80px;" oninput="convertEffectSize()"></div>
+    </div>
+    <div id="escResults" style="font-size:0.82rem;"></div>
   </div>
 
   <div class="section-header" style="margin-top:24px;">Outcome Harmonization Check</div>
@@ -1395,9 +1425,12 @@
   </div>
 
   <div class="section-header" style="margin-top: 24px;">Forest Plot</div>
-  <div style="display:flex;gap:8px;margin-bottom:8px;">
+  <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
     <button class="btn btn-outline" onclick="downloadForestPlot('svg')" style="font-size:0.75rem;">Download SVG</button>
     <button class="btn btn-outline" onclick="downloadForestPlot('png')" style="font-size:0.75rem;">Download PNG</button>
+    <span style="border-left:1px solid var(--border-color);height:20px;align-self:center;"></span>
+    <label style="font-size:0.72rem;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" id="forest-show-pi" checked onchange="toggleForestAnnotation()"> PI Diamond</label>
+    <label style="font-size:0.72rem;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" id="forest-show-weights" checked onchange="toggleForestAnnotation()"> Weights</label>
   </div>
   <div class="plot-container" id="forestPlotContainer">
     <div class="stub-area" style="border: none; min-height: 480px; display: flex; align-items: center; justify-content: center;">
@@ -1413,6 +1446,24 @@
 
   <div class="section-header" style="margin-top:24px;">Sensitivity Forest (Multi-Method Comparison)</div>
   <div id="sensitivityForestPlot" style="min-height:300px;"></div>
+
+  <div class="section-header" style="margin-top:24px;">Drapery Plot (P-value Function)</div>
+  <div id="draperyPlot" style="min-height:350px;"></div>
+
+  <div class="section-header" style="margin-top:24px;">MCID Threshold Analysis</div>
+  <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:8px;">
+    <div><label style="font-size:0.72rem;font-weight:600;">MCID (OR/HR scale)</label><input type="number" id="mcid-value" class="form-select" step="0.05" value="0.90" style="width:80px;" oninput="renderMCIDAnalysis()"></div>
+  </div>
+  <div id="mcidAnalysisArea" class="stub-area">Run synthesis and set MCID to see how many studies show clinically meaningful effects.</div>
+
+  <div class="section-header" style="margin-top:24px;">Exclusion Sensitivity Matrix</div>
+  <div id="exclusionMatrixArea" class="stub-area">Run synthesis first. Shows how excluding each study changes key metrics.</div>
+
+  <div class="section-header" style="margin-top:24px;">Study Contribution Waterfall</div>
+  <div id="waterfallPlot" style="min-height:350px;"></div>
+
+  <div class="section-header" style="margin-top:24px;">Confidence Interval Method Comparison</div>
+  <div id="ciComparisonArea" class="stub-area">Run synthesis first to compare CI methods (Wald, HKSJ, Wald+t-critical, Profile Likelihood).</div>
 
   <div class="section-header" style="margin-top:24px;">Study Weights Visualization</div>
   <div id="studyWeightsPlot" style="min-height:350px;"></div>
@@ -1696,6 +1747,12 @@
   <div class="section-header" style="margin-top:24px;">Influence Diagnostics Suite (Viechtbauer &amp; Cheung 2010)</div>
   <div id="influenceSuiteArea" class="stub-area">Run synthesis first</div>
 
+  <div class="section-header" style="margin-top:24px;">Trial Registration Quality</div>
+  <div id="registrationScoreArea" class="stub-area">Run synthesis first. Scores each trial's CT.gov registration completeness.</div>
+
+  <div class="section-header" style="margin-top:24px;">Outlier Detection</div>
+  <div id="outlierDetectionArea" class="stub-area">Run synthesis first. Flags studies with extreme residuals, leverage, or effect sizes.</div>
+
   <div class="section-header" style="margin-top:24px;">Cook's Distance &amp; DFBETAS</div>
   <div id="cooksDistanceArea" class="stub-area">Run synthesis first for detailed influence diagnostics.</div>
   <div id="cooksDistancePlot" style="min-height:350px;"></div>
@@ -1735,6 +1792,23 @@
       Run synthesis first to generate methods text.
     </div>
   </div>
+
+  <div class="section-header" style="margin-top:24px;">Patient Risk Calculator</div>
+  <div class="card" style="padding:12px;">
+    <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:8px;">
+      <div><label style="font-size:0.72rem;font-weight:600;">Baseline Risk (%)</label>
+        <input type="range" id="risk-cer" min="1" max="50" value="10" aria-label="Baseline event risk percentage" aria-valuemin="1" aria-valuemax="50" aria-valuenow="10" oninput="this.setAttribute('aria-valuenow',this.value);computePatientRisk()" style="width:120px;">
+        <span id="risk-cer-val" style="font-size:0.8rem;font-weight:600;">10%</span></div>
+    </div>
+    <div id="patientRiskResults" class="stub-area" style="border:none;font-size:0.82rem;">Run synthesis first, then adjust baseline risk slider.</div>
+  </div>
+
+  <div class="section-header" style="margin-top:24px;">Summary Statistics (All Methods)</div>
+  <div style="margin-bottom:8px;">
+    <button class="btn btn-outline" onclick="renderSummaryStats()" style="font-size:0.8rem;">Generate Summary Table</button>
+    <button class="btn btn-outline" onclick="exportSummaryStatsCSV()" style="font-size:0.8rem;">Export CSV</button>
+  </div>
+  <div id="summaryStatsArea" class="stub-area">Run synthesis first, then click Generate to see all computed statistics in one table.</div>
 
   <div class="section-header" style="margin-top:24px;">Multi-Outcome Heatmap</div>
   <div style="margin-bottom:8px;">
@@ -1808,6 +1882,19 @@
   <div style="margin-top:8px;display:flex;gap:8px;">
     <button class="btn btn-outline" onclick="renderAuditLog()" style="font-size:0.8rem;">Refresh Audit Log</button>
     <button class="btn btn-outline" onclick="window.print()" style="font-size:0.8rem;">Print Report</button>
+  </div>
+
+  <div class="section-header" style="margin-top:24px;">Share Analysis (URL)</div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+    <button class="btn btn-outline" onclick="copyShareURL()" style="font-size:0.8rem;">Copy Shareable Link</button>
+    <span id="shareURLStatus" style="font-size:0.78rem;opacity:0.6;"></span>
+  </div>
+
+  <div class="section-header" style="margin-top:24px;">Auto-Save Snapshots</div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
+    <select id="snapshotSelector" class="form-select" style="width:280px;"></select>
+    <button class="btn btn-outline" onclick="restoreSnapshot()" style="font-size:0.8rem;">Restore</button>
+    <span id="snapshotStatus" style="font-size:0.78rem;opacity:0.6;"></span>
   </div>
 
   <div class="section-header" style="margin-top:24px;">Full Methodological Report (PRISMA 2020)</div>
@@ -4758,6 +4845,8 @@ document.addEventListener('DOMContentLoaded', function() {
       switchTab(tabs[next].dataset.tab);
     }
   });
+  /* Apply URL params if present */
+  if (typeof applyURLParams === 'function') setTimeout(applyURLParams, 200);
 });
 
 
@@ -4815,11 +4904,12 @@ function handleConfigChange(configId) {
   renderDataQuality(dqOnLoad);
   /* Populate cross-config comparison selectors */
   if (typeof populateCompareSelectors === 'function') populateCompareSelectors();
+  if (typeof populateSnapshotSelector === 'function') populateSnapshotSelector();
   /* Purge Plotly plots to prevent memory leaks on config switch */
   ['forestPlotContainer','funnelPlotContainer','galbraithPlot','baujatPlot','labbePlot',
    'goshPlot','doiPlot','tsaPlotContainer','predDistPlot','seqBayesPlot','cdCurvePlot',
    'subgroupForestPlot','bayesPosteriorPlot','nntCurvePlot','metaRegPlot',
-   'nmaNetworkPlot','evidenceTimelinePlot','evidenceVelocityPlot','cooksDistancePlot','sensitivityForestPlot','studyWeightsPlot','heterogeneityPie','trialGanttPlot'
+   'nmaNetworkPlot','evidenceTimelinePlot','evidenceVelocityPlot','cooksDistancePlot','sensitivityForestPlot','studyWeightsPlot','heterogeneityPie','trialGanttPlot','waterfallPlot','draperyPlot'
   ].forEach(function(id) { var el = document.getElementById(id); if (el) { try { Plotly.purge(el); } catch(e) {} } });
   /* Render trial Gantt AFTER purge (so it's not immediately cleared) */
   if (typeof renderTrialGantt === 'function') renderTrialGantt(getConfig());
@@ -4948,12 +5038,12 @@ function renderBaselineTrials(config) {
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Outcome</th>
-                  <th style="text-align: right;">tE</th>
-                  <th style="text-align: right;">tN</th>
-                  <th style="text-align: right;">cE</th>
-                  <th style="text-align: right;">cN</th>
-                  <th>HR (95% CI)</th>
+                  <th scope="col">Outcome</th>
+                  <th scope="col" style="text-align: right;">tE</th>
+                  <th scope="col" style="text-align: right;">tN</th>
+                  <th scope="col" style="text-align: right;">cE</th>
+                  <th scope="col" style="text-align: right;">cN</th>
+                  <th scope="col">HR (95% CI)</th>
                 </tr>
               </thead>
               <tbody>
@@ -4972,7 +5062,7 @@ function renderBenchmarks(config) {
   const benchmarks = config.publishedBenchmarks;
 
   let html = '<div class="table-wrapper"><table class="data-table"><thead><tr>';
-  html += '<th>Source</th><th>Year</th><th>Journal</th><th>k</th>';
+  html += '<th scope="col">Source</th><th scope="col">Year</th><th scope="col">Journal</th><th scope="col">k</th>';
 
   // Collect all unique outcome keys
   const outcomeKeys = [];
@@ -4988,7 +5078,7 @@ function renderBenchmarks(config) {
   }
 
   for (const k of outcomeKeys) {
-    html += `<th>${escapeHtml(outcomeLabels[k])}</th>`;
+    html += `<th scope="col">${escapeHtml(outcomeLabels[k])}</th>`;
   }
   html += '</tr></thead><tbody>';
 
@@ -5413,7 +5503,7 @@ const ScreenEngine = {
         var exts = TextExtractor.extract(extractText);
         if (exts.length === 0) return '';
         var extHtml = '<div class="detail-section"><div class="detail-section-title">Auto-Extracted Effect Estimates <span style="font-size:0.7rem;font-weight:400;color:var(--text-muted);">(from abstract text)</span></div>';
-        extHtml += '<table style="width:100%;font-size:0.78rem;border-collapse:collapse;"><thead><tr><th style="text-align:left;padding:4px;">Type</th><th>Value</th><th>95% CI</th><th>Confidence</th><th style="text-align:left;">Source Text</th></tr></thead><tbody>';
+        extHtml += '<table style="width:100%;font-size:0.78rem;border-collapse:collapse;"><thead><tr><th scope="col" style="text-align:left;padding:4px;">Type</th><th scope="col">Value</th><th scope="col">95% CI</th><th scope="col">Confidence</th><th scope="col" style="text-align:left;">Source Text</th></tr></thead><tbody>';
         exts.slice(0, 8).forEach(function(e) {
           var badge = e.tier === 'AUTO_VERIFIED' ? 'badge-verified' : e.tier === 'SPOT_CHECK' ? 'badge-warning' : 'badge-error';
           extHtml += '<tr><td style="padding:4px;font-weight:600;">' + escapeHtml(e.effectType) + '</td>';
@@ -5732,13 +5822,13 @@ function renderExtractTab() {
           <table class="data-table">
             <thead>
               <tr>
-                <th>Field</th>
-                <th>Value</th>
-                <th>Source Text</th>
-                <th>Source</th>
-                <th>X-Val</th>
-                <th>Override</th>
-                <th>&#10004;</th>
+                <th scope="col">Field</th>
+                <th scope="col">Value</th>
+                <th scope="col">Source Text</th>
+                <th scope="col">Source</th>
+                <th scope="col">X-Val</th>
+                <th scope="col">Override</th>
+                <th scope="col">&#10004;</th>
               </tr>
             </thead>
             <tbody>${fieldRows}</tbody>
@@ -6771,7 +6861,7 @@ function renderTrialResultsPanel(results, containerId) {
   /* Outcome analyses */
   if (results.outcomes?.length > 0) {
     html += '<div class="detail-section"><div class="detail-section-title">CT.gov Outcome Analyses <span style="font-size:0.7rem;font-weight:400;color:var(--text-muted);">(from results section)</span></div>';
-    html += '<table style="width:100%;font-size:0.75rem;border-collapse:collapse;"><thead><tr><th style="text-align:left;padding:4px;">Outcome</th><th>Type</th><th>Effect</th><th>Value</th><th>95% CI</th><th>p</th></tr></thead><tbody>';
+    html += '<table style="width:100%;font-size:0.75rem;border-collapse:collapse;"><thead><tr><th scope="col" style="text-align:left;padding:4px;">Outcome</th><th scope="col">Type</th><th scope="col">Effect</th><th scope="col">Value</th><th scope="col">95% CI</th><th scope="col">p</th></tr></thead><tbody>';
     for (var oc of results.outcomes) {
       if (oc.analyses.length === 0) {
         html += '<tr><td style="padding:3px;" colspan="6">' + escapeHtml(oc.title.substring(0, 60)) + ' <span class="badge badge-source">' + escapeHtml(oc.type) + '</span> — no statistical analysis posted</td></tr>';
@@ -7130,7 +7220,7 @@ function renderHarvestDashboard(harvest, allStudies) {
   if (baselineTrials.length > 0) {
     html += '<div style="font-weight:600;margin:12px 0 6px;">Baseline Trial Registry Audit (Live)</div>';
     html += '<table style="width:100%;font-size:0.75rem;border-collapse:collapse;">';
-    html += '<thead><tr><th style="text-align:left;padding:3px;">Trial</th><th>CT.gov Results</th><th>Completion</th><th>Results Posted</th><th>Lag</th><th>Primary Outcomes</th><th>Flags</th></tr></thead><tbody>';
+    html += '<thead><tr><th scope="col" style="text-align:left;padding:3px;">Trial</th><th scope="col">CT.gov Results</th><th scope="col">Completion</th><th scope="col">Results Posted</th><th scope="col">Lag</th><th scope="col">Primary Outcomes</th><th scope="col">Flags</th></tr></thead><tbody>';
     for (const t of baselineTrials) {
       const rowBg = t.flags.length > 0 ? 'background:rgba(245,158,11,0.04);' : '';
       html += '<tr style="' + rowBg + '">';
@@ -7150,7 +7240,7 @@ function renderHarvestDashboard(harvest, allStudies) {
   if (ghosts.length > 0) {
     html += '<div style="font-weight:600;margin:16px 0 6px;color:#ef4444;">Ghost Protocols (' + ghosts.length + ' trials — completed, no results)</div>';
     html += '<table style="width:100%;font-size:0.75rem;border-collapse:collapse;">';
-    html += '<thead><tr><th style="text-align:left;padding:3px;">NCT ID</th><th>Name</th><th>N</th><th>Status</th><th>Completed</th><th>Primary Outcomes</th><th>Source</th></tr></thead><tbody>';
+    html += '<thead><tr><th scope="col" style="text-align:left;padding:3px;">NCT ID</th><th scope="col">Name</th><th scope="col">N</th><th scope="col">Status</th><th scope="col">Completed</th><th scope="col">Primary Outcomes</th><th scope="col">Source</th></tr></thead><tbody>';
     for (const g of ghosts) {
       const isNew = g.classification === 'ghost_protocol_new';
       html += '<tr style="background:rgba(239,68,68,' + (isNew ? '0.08' : '0.03') + ');">';
@@ -7170,14 +7260,14 @@ function renderHarvestDashboard(harvest, allStudies) {
   if (ghostRes.length > 0) {
     html += '<div style="font-weight:600;margin:16px 0 6px;color:#f59e0b;">Ghost Results (' + ghostRes.length + ' — publication exists, no CT.gov results)</div>';
     html += '<table style="width:100%;font-size:0.75rem;border-collapse:collapse;">';
-    html += '<thead><tr><th style="text-align:left;padding:3px;">NCT ID</th><th>Name</th><th>N</th><th>Status</th><th>CT.gov Results</th><th>Flags</th></tr></thead><tbody>';
+    html += '<thead><tr><th scope="col" style="text-align:left;padding:3px;">NCT ID</th><th scope="col">Name</th><th scope="col">N</th><th scope="col">Status</th><th scope="col">CT.gov Results</th><th scope="col">Flags</th></tr></thead><tbody>';
     for (const g of ghostRes) {
       html += '<tr style="background:rgba(245,158,11,0.06);">';
       html += '<td style="padding:3px;"><a href="https://clinicaltrials.gov/study/' + encodeURIComponent(g.nctId) + '" target="_blank" rel="noopener">' + escapeHtml(g.nctId) + '</a></td>';
       html += '<td>' + escapeHtml(g.acronym || g.title.substring(0, 40)) + '</td>';
       html += '<td>' + g.enrollment + '</td>';
       html += '<td>' + escapeHtml(g.status) + '</td>';
-      html += '<td style="color:#ef4444;">' + (g.hasResults ? '\u2714' : '\u2718 Not posted') + '</td>';
+      html += '<td style="color:#ef4444;">' + (g.hasResults ? '<span aria-label="Yes">\u2714</span>' : '\u2718 Not posted') + '</td>';
       html += '<td style="font-size:0.7rem;">' + escapeHtml(g.flags.join('; ')) + '</td></tr>';
     }
     html += '</tbody></table>';
@@ -7190,7 +7280,7 @@ function renderHarvestDashboard(harvest, allStudies) {
     ongoing.sort((a, b) => b.enrollment - a.enrollment);
     html += '<div style="font-weight:600;margin:16px 0 6px;color:#3b82f6;">Major Ongoing Trials (' + ongoing.length + ')</div>';
     html += '<table style="width:100%;font-size:0.75rem;border-collapse:collapse;">';
-    html += '<thead><tr><th style="text-align:left;padding:3px;">NCT ID</th><th>Name</th><th>N</th><th>Phase</th><th>Status</th><th>Expected Completion</th><th>Primary Outcomes</th></tr></thead><tbody>';
+    html += '<thead><tr><th scope="col" style="text-align:left;padding:3px;">NCT ID</th><th scope="col">Name</th><th scope="col">N</th><th scope="col">Phase</th><th scope="col">Status</th><th scope="col">Expected Completion</th><th scope="col">Primary Outcomes</th></tr></thead><tbody>';
     for (const t of ongoing.slice(0, 15)) {
       html += '<tr>';
       html += '<td style="padding:3px;"><a href="https://clinicaltrials.gov/study/' + encodeURIComponent(t.nctId) + '" target="_blank" rel="noopener">' + escapeHtml(t.nctId) + '</a></td>';
@@ -8132,6 +8222,31 @@ function runSynthesis() {
   renderExecSummary();
   // Audit log (auto-refresh)
   renderAuditLog();
+  // Drapery plot
+  renderDraperyPlot(evTrack);
+  // MCID analysis
+  renderMCIDAnalysis();
+  // Exclusion sensitivity matrix
+  renderExclusionMatrix(evTrack);
+  // Registration quality
+  renderRegistrationScore(config);
+  // Outlier detection
+  const outlierResult = computeOutlierDetection(evTrack.yi, evTrack.vi, evTrack.primary?.tau2 ?? 0, (evTrack.trials ?? []).map(t => t.name));
+  renderOutlierDetection(outlierResult);
+  // Waterfall chart
+  renderWaterfallChart(evTrack);
+  // Search metrics
+  renderSearchMetrics();
+  // Session stats
+  renderSessionStats();
+  // CI method comparison
+  renderCIComparison(evTrack);
+  // Patient risk calculator (initial render)
+  computePatientRisk();
+  // PRISMA progress tracker
+  if (typeof updatePrismaProgress === 'function') updatePrismaProgress();
+  // Auto-save snapshot
+  if (typeof autoSaveSnapshot === 'function') autoSaveSnapshot();
 
   /* Post-process tables for a11y + mobile */
   postProcessTables();
@@ -8269,7 +8384,7 @@ function renderSynthResults() {
     const tau2Method = AppState.synthesisSettings?.tau2Method ?? 'DL';
     const hksjLabel = (AppState.synthesisSettings?.hksj) ? ' + HKSJ' : '';
 
-    let html = '<table class="data-table" style="margin-bottom:8px;" aria-label="Meta-analysis synthesis results"><thead><tr><th>Model</th><th>' + track.measure + '</th><th>95% CI</th><th>p</th><th>I\u00B2</th><th>\u03C4\u00B2</th></tr></thead><tbody>';
+    let html = '<table class="data-table" style="margin-bottom:8px;" aria-label="Meta-analysis synthesis results"><thead><tr><th scope="col">Model</th><th scope="col">' + track.measure + '</th><th scope="col">95% CI</th><th scope="col">p</th><th scope="col">I\u00B2</th><th scope="col">\u03C4\u00B2</th></tr></thead><tbody>';
     html += '<tr style="font-weight:bold;background:var(--accent-light);"><td>' + escapeHtml(tau2Method + hksjLabel) + '</td><td>' + est.toFixed(2) + '</td><td>' + ciLo.toFixed(2) + ' \u2013 ' + ciHi.toFixed(2) + '</td><td>' + (track.primary.pval < 0.001 ? '&lt;0.001' : track.primary.pval.toFixed(3)) + '</td><td>' + track.primary.I2.toFixed(1) + '%</td><td>' + (track.tau2All?.[tau2Method]?.tau2?.toFixed(4) ?? '-') + '</td></tr>';
     html += '<tr><td>Fixed-effect (IV)</td><td>' + fxEst.toFixed(2) + '</td><td>' + fxLo.toFixed(2) + ' \u2013 ' + fxHi.toFixed(2) + '</td><td>' + (track.fixed.pval < 0.001 ? '&lt;0.001' : track.fixed.pval.toFixed(3)) + '</td><td colspan="2">\u2014</td></tr>';
 
@@ -8289,7 +8404,7 @@ function renderSynthResults() {
 
     /* Tau2 comparison collapsible */
     html += '<details style="margin-top:4px;"><summary style="cursor:pointer;color:var(--accent);font-size:0.85rem;">All \u03C4\u00B2 estimators (' + Object.keys(track.tau2All).length + ')</summary>';
-    html += '<table class="data-table" style="margin-top:4px;"><thead><tr><th>Method</th><th>\u03C4\u00B2</th><th>Q</th><th>Q p</th></tr></thead><tbody>';
+    html += '<table class="data-table" style="margin-top:4px;"><thead><tr><th scope="col">Method</th><th scope="col">\u03C4\u00B2</th><th scope="col">Q</th><th scope="col">Q p</th></tr></thead><tbody>';
     for (const [name, res] of Object.entries(track.tau2All)) {
       const isCurrent = name === tau2Method;
       html += '<tr' + (isCurrent ? ' style="font-weight:600;background:var(--accent-light);"' : '') + '><td>' + name + '</td><td>' + (res.tau2?.toFixed(4) ?? '-') + '</td><td>' + (res.Q?.toFixed(2) ?? '-') + '</td><td>' + (res.pQ?.toFixed(4) ?? '-') + '</td></tr>';
@@ -8330,7 +8445,7 @@ function renderSynthResults() {
     const measure = trackForBayes?.measure ?? 'HR';
     let bayesHtml = '<div style="margin-top:8px;padding:12px;background:var(--bg-secondary);border-radius:8px;border-left:4px solid var(--accent);">';
     bayesHtml += '<h4 style="color:var(--accent);margin-bottom:6px;">Bayesian Posterior Summary</h4>';
-    bayesHtml += '<table class="data-table"><thead><tr><th>Parameter</th><th>Value</th></tr></thead><tbody>';
+    bayesHtml += '<table class="data-table"><thead><tr><th scope="col">Parameter</th><th scope="col">Value</th></tr></thead><tbody>';
     bayesHtml += '<tr><td>Posterior median ' + measure + '</td><td style="font-weight:700;">' + bEst.toFixed(3) + '</td></tr>';
     bayesHtml += '<tr><td>95% CrI</td><td>' + bLo.toFixed(3) + ' \u2013 ' + bHi.toFixed(3) + '</td></tr>';
     bayesHtml += '<tr><td>P(' + measure + ' &lt; 1) = P(benefit)</td><td style="font-weight:700;color:' + (pBenefit > 0.95 ? 'var(--success)' : pBenefit > 0.8 ? 'var(--warning)' : 'var(--danger)') + ';">' + (pBenefit * 100).toFixed(1) + '%</td></tr>';
@@ -8522,7 +8637,7 @@ function renderSubgroupResults(sg) {
   html += '<h4 style="color:var(--accent);margin-bottom:8px;">' + escapeHtml(sg.definition.label) + '</h4>';
   html += '<p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px;font-style:italic;">' + escapeHtml(sg.definition.question) + '</p>';
 
-  html += '<table class="data-table"><thead><tr><th>Subgroup</th><th>k</th><th>HR</th><th>95% CI</th><th>p</th><th>I\u00B2</th><th>\u03C4\u00B2</th></tr></thead><tbody>';
+  html += '<table class="data-table"><thead><tr><th scope="col">Subgroup</th><th scope="col">k</th><th scope="col">HR</th><th scope="col">95% CI</th><th scope="col">p</th><th scope="col">I\u00B2</th><th scope="col">\u03C4\u00B2</th></tr></thead><tbody>';
 
   for (const [key, g] of Object.entries(sg.results)) {
     if (!g) continue;
@@ -8864,7 +8979,7 @@ function renderBiasResults(track) {
   const b = track.bias;
 
   let html = '<div class="table-wrapper"><table class="data-table"><thead><tr>';
-  html += '<th>Test</th><th>Statistic</th><th>p-value</th><th>Interpretation</th><th>Signal</th>';
+  html += '<th scope="col">Test</th><th scope="col">Statistic</th><th scope="col">p-value</th><th scope="col">Interpretation</th><th scope="col">Signal</th>';
   html += '</tr></thead><tbody>';
 
   /* Egger */
@@ -9009,10 +9124,10 @@ function exportSoFHTML() {
   /* === Part 1: Cochrane-style SoF table === */
   html += '<table>';
   html += '<caption>Summary of Findings: ' + escapeHtml(config.name ?? 'Living Meta-Analysis') + '</caption>';
-  html += '<thead><tr><th>Outcome</th><th>No. of participants (studies)</th>';
-  html += '<th>Relative effect (' + clPct + '% CI)</th>';
-  html += '<th>Anticipated absolute effects per 1,000</th>';
-  html += '<th>Certainty (GRADE)</th><th>Comments</th></tr></thead><tbody>';
+  html += '<thead><tr><th scope="col">Outcome</th><th scope="col">No. of participants (studies)</th>';
+  html += '<th scope="col">Relative effect (' + clPct + '% CI)</th>';
+  html += '<th scope="col">Anticipated absolute effects per 1,000</th>';
+  html += '<th scope="col">Certainty (GRADE)</th><th scope="col">Comments</th></tr></thead><tbody>';
 
   if (track) {
     const est = exp(track.primary.estimate);
@@ -9045,7 +9160,7 @@ function exportSoFHTML() {
 
   /* === Part 2: GRADE domain assessment === */
   html += '<h3 style="margin-top:18px;">GRADE Evidence Profile</h3>';
-  html += '<table><thead><tr><th>Domain</th><th>Assessment</th><th>Downgrade</th><th>Reason</th></tr></thead><tbody>';
+  html += '<table><thead><tr><th scope="col">Domain</th><th scope="col">Assessment</th><th scope="col">Downgrade</th><th scope="col">Reason</th></tr></thead><tbody>';
   for (const [key, info] of Object.entries(grade.domains)) {
     const dg = info.downgrade ?? 0;
     const dgText = dg === 0 ? 'None' : dg === 0.5 ? 'Partial (-0.5)' : dg === 1 ? 'Serious (-1)' : 'Very serious (-' + dg + ')';
@@ -9089,7 +9204,7 @@ function renderMethodComparison() {
   const config = getConfig();
 
   let html = '<div class="table-wrapper"><table class="data-table"><thead><tr>';
-  html += '<th>Method</th><th>\u03C4\u00B2 Estimator</th><th>' + track.measure + '</th><th>95% CI</th><th>I\u00B2</th><th>\u03C4\u00B2</th>';
+  html += '<th scope="col">Method</th><th scope="col">\u03C4\u00B2 Estimator</th><th scope="col">' + track.measure + '</th><th scope="col">95% CI</th><th scope="col">I\u00B2</th><th scope="col">\u03C4\u00B2</th>';
   html += '</tr></thead><tbody>';
 
   /* All tau2 estimators with random-effects */
@@ -9136,7 +9251,7 @@ function renderMethodComparison() {
   if (benchmarks?.length) {
     const outcomeKey = r.outcomeKey ?? 'mace';
     html += '<div style="margin-top:16px;"><h4 style="color:var(--accent);margin-bottom:8px;">Published Meta-Analysis Comparison</h4>';
-    html += '<table class="data-table"><thead><tr><th>Source</th><th>Year</th><th>k</th><th>N</th><th>Measure</th><th>Estimate</th><th>95% CI</th><th>vs. LivingMeta</th></tr></thead><tbody>';
+    html += '<table class="data-table"><thead><tr><th scope="col">Source</th><th scope="col">Year</th><th scope="col">k</th><th scope="col">N</th><th scope="col">Measure</th><th scope="col">Estimate</th><th scope="col">95% CI</th><th scope="col">vs. LivingMeta</th></tr></thead><tbody>';
 
     const ourEst = exp(track.primary.estimate);
     const ourCiLo = exp(track.primary.ci[0]);
@@ -9208,7 +9323,7 @@ function renderSearchResults() {
   if (discovered.length > 0) {
     html += '<h4 style="color:var(--accent);margin-bottom:8px;">ClinicalTrials.gov Results</h4>';
     html += '<div class="table-wrapper"><table class="data-table"><thead><tr>';
-    html += '<th>NCT ID</th><th>Title</th><th>Phase</th><th>N</th><th>Status</th><th>Screening</th><th>Auto-Extract</th>';
+    html += '<th scope="col">NCT ID</th><th scope="col">Title</th><th scope="col">Phase</th><th scope="col">N</th><th scope="col">Status</th><th scope="col">Screening</th><th scope="col">Auto-Extract</th>';
     html += '</tr></thead><tbody>';
     for (const d of discovered.slice(0, 50)) {
       const screen = autoScreen(d);
@@ -9246,7 +9361,7 @@ function renderSearchResults() {
   if (pubmed.length > 0) {
     html += '<h4 style="color:var(--accent);margin:16px 0 8px;">Europe PMC / PubMed Results</h4>';
     html += '<div class="table-wrapper"><table class="data-table"><thead><tr>';
-    html += '<th>PMID</th><th>Title</th><th>Journal</th><th>Year</th><th>OA</th><th>Link</th><th>Auto-Extract</th>';
+    html += '<th scope="col">PMID</th><th scope="col">Title</th><th scope="col">Journal</th><th scope="col">Year</th><th scope="col">OA</th><th scope="col">Link</th><th scope="col">Auto-Extract</th>';
     html += '</tr></thead><tbody>';
     for (const p of pubmed.slice(0, 30)) {
       const isLinked = p._linked ?? false;
@@ -9289,7 +9404,7 @@ function renderLOOResults() {
   if (!track?.loo) { container.innerHTML = '<div style="color:var(--text-muted);">No data</div>'; return; }
 
   const exp = Math.exp;
-  let html = '<table class="data-table" style="font-size:0.82rem;"><thead><tr><th>Omitted</th><th>' + track.measure + '</th><th>95% CI</th><th>I\u00B2</th><th>\u03C4\u00B2</th></tr></thead><tbody>';
+  let html = '<table class="data-table" style="font-size:0.82rem;"><thead><tr><th scope="col">Omitted</th><th scope="col">' + track.measure + '</th><th scope="col">95% CI</th><th scope="col">I\u00B2</th><th scope="col">\u03C4\u00B2</th></tr></thead><tbody>';
   for (const item of track.loo) {
     if (!item) continue;
     const est = exp(item.estimate);
@@ -9321,7 +9436,7 @@ function renderCumulativeResults() {
   if (!track?.cumulative) { container.innerHTML = '<div style="color:var(--text-muted);">No data</div>'; return; }
 
   const exp = Math.exp;
-  let html = '<table class="data-table" style="font-size:0.82rem;"><thead><tr><th>Year</th><th>k</th><th>' + track.measure + '</th><th>95% CI</th><th>I\u00B2</th></tr></thead><tbody>';
+  let html = '<table class="data-table" style="font-size:0.82rem;"><thead><tr><th scope="col">Year</th><th scope="col">k</th><th scope="col">' + track.measure + '</th><th scope="col">95% CI</th><th scope="col">I\u00B2</th></tr></thead><tbody>';
   for (const item of track.cumulative) {
     const est = exp(item.estimate);
     const lo = exp(item.ci[0]);
@@ -9606,7 +9721,7 @@ function renderFragilityResults(frag) {
   if (!area) return;
   if (!frag) { area.innerHTML = '<span style="opacity:0.6;">Insufficient data</span>'; return; }
   let html = '<table style="width:100%;font-size:0.85rem;border-collapse:collapse;">';
-  html += '<thead><tr><th style="text-align:left;padding:4px;">Trial</th><th>FI</th><th>p-value</th><th>Status</th></tr></thead><tbody>';
+  html += '<thead><tr><th scope="col" style="text-align:left;padding:4px;">Trial</th><th scope="col">FI</th><th scope="col">p-value</th><th scope="col">Status</th></tr></thead><tbody>';
   for (const r of frag.perStudy) {
     const badge = r.significant ? '<span class="badge" style="background:#ef4444;color:white;">Sig</span>' : '<span class="badge">NS</span>';
     html += '<tr><td style="padding:4px;">' + escapeHtml(r.name) + '</td><td style="text-align:center;">' + r.fi + '</td><td style="text-align:center;">' + r.origP + '</td><td style="text-align:center;">' + badge + '</td></tr>';
@@ -10105,7 +10220,7 @@ function renderRoBMAResults(robma) {
   html += '<div style="font-size:0.8rem;">(' + bfLabel + ' evidence for effect)</div>';
   html += '</div>';
   html += '<table style="width:100%;font-size:0.8rem;border-collapse:collapse;">';
-  html += '<thead><tr><th style="text-align:left;padding:3px;">Model</th><th>P(Model)</th></tr></thead><tbody>';
+  html += '<thead><tr><th scope="col" style="text-align:left;padding:3px;">Model</th><th scope="col">P(Model)</th></tr></thead><tbody>';
   for (const m of r.models) {
     const bar = '<div style="background:#3b82f6;height:6px;width:' + (m.posterior * 100).toFixed(0) + '%;border-radius:3px;"></div>';
     html += '<tr><td style="padding:3px;">' + m.name + '</td><td style="text-align:right;padding:3px;">' + (m.posterior * 100).toFixed(1) + '%</td></tr>';
@@ -10257,7 +10372,7 @@ function renderCCSensResults(ccRes) {
   if (!area) return;
   if (!ccRes || ccRes.length === 0) { area.innerHTML = '<span style="opacity:0.6;">Insufficient data</span>'; return; }
   let html = '<table style="width:100%;font-size:0.85rem;border-collapse:collapse;">';
-  html += '<thead><tr><th style="text-align:left;padding:4px;">Correction</th><th>k</th><th>OR</th><th>95% CI</th><th>p</th><th>I\u00B2</th></tr></thead><tbody>';
+  html += '<thead><tr><th scope="col" style="text-align:left;padding:4px;">Correction</th><th scope="col">k</th><th scope="col">OR</th><th scope="col">95% CI</th><th scope="col">p</th><th scope="col">I\u00B2</th></tr></thead><tbody>';
   const baseOR = ccRes[0]?.or;
   for (const r of ccRes) {
     const match = baseOR === r.or;
@@ -10290,8 +10405,8 @@ function renderConvergenceDashboard(allResults) {
   const settings = AppState.settings;
 
   let html = '<table style="width:100%;font-size:0.75rem;border-collapse:collapse;text-align:center;">';
-  html += '<thead><tr><th style="text-align:left;padding:4px;">Method</th>';
-  for (const oc of outcomes) html += '<th style="padding:4px;">' + oc.toUpperCase() + '</th>';
+  html += '<thead><tr><th scope="col" style="text-align:left;padding:4px;">Method</th>';
+  for (const oc of outcomes) html += '<th scope="col" style="padding:4px;">' + oc.toUpperCase() + '</th>';
   html += '</tr></thead><tbody>';
 
   /* For each outcome, run all analyses */
@@ -10798,7 +10913,7 @@ function renderPriorSensResults(ps) {
   if (!area) return;
   if (!ps) { area.innerHTML = '<span style="opacity:0.6;">Insufficient data</span>'; return; }
   let html = '<table style="width:100%;font-size:0.85rem;border-collapse:collapse;">';
-  html += '<thead><tr><th style="text-align:left;padding:4px;">Prior</th><th>Description</th><th>Posterior OR</th><th>95% CrI</th><th>P(benefit)</th></tr></thead><tbody>';
+  html += '<thead><tr><th scope="col" style="text-align:left;padding:4px;">Prior</th><th scope="col">Description</th><th scope="col">Posterior OR</th><th scope="col">95% CrI</th><th scope="col">P(benefit)</th></tr></thead><tbody>';
   for (const r of ps) {
     const color = r.pBenefit > 0.95 ? '#22c55e' : r.pBenefit > 0.80 ? '#f59e0b' : '#94a3b8';
     html += '<tr><td style="padding:4px;font-weight:600;">' + r.name + '</td>';
@@ -10930,7 +11045,7 @@ function renderInfluenceSuiteResults(infl) {
   if (!area) return;
   if (!infl) { area.innerHTML = '<span style="opacity:0.6;">Need k \u2265 3</span>'; return; }
   let html = '<table style="width:100%;font-size:0.78rem;border-collapse:collapse;text-align:center;">';
-  html += '<thead><tr><th style="text-align:left;padding:3px;">Trial</th><th>Hat (h<sub>i</sub>)</th><th>r<sub>std</sub></th><th>Cook\'s D</th><th>DFFITS</th><th>CovRatio</th><th>\u0394\u03C4\u00B2</th></tr></thead><tbody>';
+  html += '<thead><tr><th scope="col" style="text-align:left;padding:3px;">Trial</th><th scope="col">Hat (h<sub>i</sub>)</th><th scope="col">r<sub>std</sub></th><th scope="col">Cook\'s D</th><th scope="col">DFFITS</th><th scope="col">CovRatio</th><th scope="col">\u0394\u03C4\u00B2</th></tr></thead><tbody>';
   const maxCook = Math.max(...infl.map(r => r.cookD));
   for (const r of infl) {
     const flagCook = r.cookD > 0.5 || r.cookD === maxCook;
@@ -10996,7 +11111,7 @@ function renderRegistryAudit(audit) {
   html += 'Ghost protocols: ' + audit.ghostCount + ' (N=' + audit.ghostEnrollment.toLocaleString() + ') | ';
   html += 'Ongoing: ' + (audit.ongoing?.length ?? 0) + '</div></div>';
   html += '<table style="width:100%;font-size:0.78rem;border-collapse:collapse;">';
-  html += '<thead><tr><th style="text-align:left;padding:3px;">NCT ID</th><th>Name</th><th>N</th><th>Year</th><th>Status</th><th>Population</th><th>Country</th></tr></thead><tbody>';
+  html += '<thead><tr><th scope="col" style="text-align:left;padding:3px;">NCT ID</th><th scope="col">Name</th><th scope="col">N</th><th scope="col">Year</th><th scope="col">Status</th><th scope="col">Population</th><th scope="col">Country</th></tr></thead><tbody>';
   for (const g of audit.ghosts) {
     html += '<tr><td style="padding:3px;"><a href="https://clinicaltrials.gov/study/' + encodeURIComponent(g.nctId) + '" target="_blank" rel="noopener">' + escapeHtml(g.nctId) + '</a></td>';
     html += '<td>' + escapeHtml(g.name) + '</td><td>' + g.n + '</td><td>' + g.year + '</td>';
@@ -11063,7 +11178,7 @@ function renderEnrollWeightResults(ew) {
   const fmt = (x) => x.toFixed(3);
   let html = '<div style="font-size:0.85rem;margin-bottom:8px;">Sensitivity: what if ' + ew.ghostCount + ' ghost protocols (N=' + ew.ghostN.toLocaleString() + ') had been published?</div>';
   html += '<table style="width:100%;font-size:0.82rem;border-collapse:collapse;text-align:center;">';
-  html += '<thead><tr><th style="text-align:left;padding:4px;">Scenario</th><th>Assumed Ghost Effect</th><th>Pooled OR</th><th>k</th><th>p-value</th><th>Verdict</th></tr></thead><tbody>';
+  html += '<thead><tr><th scope="col" style="text-align:left;padding:4px;">Scenario</th><th scope="col">Assumed Ghost Effect</th><th scope="col">Pooled OR</th><th scope="col">k</th><th scope="col">p-value</th><th scope="col">Verdict</th></tr></thead><tbody>';
   /* Observed */
   html += '<tr style="background:rgba(59,130,246,0.06);"><td style="text-align:left;padding:4px;font-weight:600;">Observed (published only)</td>';
   html += '<td>\u2014</td><td>' + fmt(ew.observed.or) + '</td><td>' + ew.observed.k + '</td><td>\u2014</td><td>\u2014</td></tr>';
@@ -11130,7 +11245,7 @@ function renderCopasResults(copas) {
   if (!copas) { area.innerHTML = '<span style="opacity:0.6;">Need k \u2265 3</span>'; return; }
   let html = '<div style="font-size:0.82rem;margin-bottom:8px;">Sensitivity to selection on precision (\u03B3<sub>0</sub> controls selection severity)</div>';
   html += '<table style="width:100%;font-size:0.78rem;border-collapse:collapse;text-align:center;">';
-  html += '<thead><tr><th>\u03B3<sub>0</sub></th><th>Avg P(select)</th><th>Adjusted OR</th><th>95% CI</th><th>Shift from unadj.</th></tr></thead><tbody>';
+  html += '<thead><tr><th scope="col">\u03B3<sub>0</sub></th><th scope="col">Avg P(select)</th><th scope="col">Adjusted OR</th><th scope="col">95% CI</th><th scope="col">Shift from unadj.</th></tr></thead><tbody>';
   for (const sc of copas.scenarios) {
     const shift = ((sc.or - copas.unadjusted.or) / copas.unadjusted.or * 100).toFixed(1);
     const shiftColor = Math.abs(parseFloat(shift)) > 5 ? '#f59e0b' : 'inherit';
@@ -11210,7 +11325,7 @@ function renderConditionalPowerResults(cp) {
   if (cp.ongoing.length > 0) {
     html += '<div style="font-weight:600;margin-bottom:4px;">Named Ongoing Trials</div>';
     html += '<table style="width:100%;font-size:0.78rem;border-collapse:collapse;text-align:center;">';
-    html += '<thead><tr><th style="text-align:left;padding:3px;">Trial</th><th>N</th><th>Expected</th><th>Cond. Power</th><th>Predictive P</th></tr></thead><tbody>';
+    html += '<thead><tr><th scope="col" style="text-align:left;padding:3px;">Trial</th><th scope="col">N</th><th scope="col">Expected</th><th scope="col">Cond. Power</th><th scope="col">Predictive P</th></tr></thead><tbody>';
     for (const t of cp.ongoing) {
       const cpColor = t.condPower > 0.80 ? '#22c55e' : t.condPower > 0.50 ? '#f59e0b' : '#ef4444';
       html += '<tr><td style="text-align:left;padding:3px;">' + escapeHtml(t.name) + '</td>';
@@ -11224,7 +11339,7 @@ function renderConditionalPowerResults(cp) {
 
   html += '<div style="font-weight:600;margin:8px 0 4px;">Hypothetical Next Trial Size</div>';
   html += '<table style="width:100%;font-size:0.78rem;border-collapse:collapse;text-align:center;">';
-  html += '<thead><tr><th>N</th><th>Conditional Power</th><th>Projected SE</th></tr></thead><tbody>';
+  html += '<thead><tr><th scope="col">N</th><th scope="col">Conditional Power</th><th scope="col">Projected SE</th></tr></thead><tbody>';
   for (const h of cp.hypothetical) {
     const cpColor = h.condPower > 0.80 ? '#22c55e' : h.condPower > 0.50 ? '#f59e0b' : '#ef4444';
     html += '<tr><td style="padding:3px;">' + h.n.toLocaleString() + '</td>';
@@ -11273,8 +11388,10 @@ function computeBootstrapPI(yi, vi, tau2, nBoot) {
   }
 
   bootEffects.sort((a, b) => a - b);
-  const lo025 = bootEffects[Math.floor(0.025 * nBoot)];
-  const hi975 = bootEffects[Math.floor(0.975 * nBoot)];
+  const cl = AppState.settings?.confLevel ?? 0.95;
+  const alphaHalf = (1 - cl) / 2;
+  const loPrimary = bootEffects[Math.floor(alphaHalf * nBoot)];
+  const hiPrimary = bootEffects[Math.floor((1 - alphaHalf) * nBoot)];
   const lo05 = bootEffects[Math.floor(0.05 * nBoot)];
   const hi95 = bootEffects[Math.floor(0.95 * nBoot)];
   const lo10 = bootEffects[Math.floor(0.10 * nBoot)];
@@ -11282,12 +11399,12 @@ function computeBootstrapPI(yi, vi, tau2, nBoot) {
 
   /* Standard (Wald) PI for comparison */
   const waldSE = Math.sqrt(1 / sumW + tau2Use);
-  const zCrit = normalQuantile(1 - (1 - (AppState.settings?.confLevel ?? 0.95)) / 2);
+  const zCrit = normalQuantile(1 - alphaHalf);
   const waldPI = [muHat - zCrit * waldSE, muHat + zCrit * waldSE];
 
   return {
     nBoot,
-    pi95: [lo025, hi975],
+    pi95: [loPrimary, hiPrimary],
     pi90: [lo05, hi95],
     pi80: [lo10, hi90],
     waldPI,
@@ -11305,7 +11422,7 @@ function renderBootstrapPIResults(bpi) {
   const fmt = (x) => Math.exp(x).toFixed(3);
   let html = '<div style="font-size:0.82rem;margin-bottom:8px;">Parametric bootstrap with B = ' + bpi.nBoot.toLocaleString() + ' replications (seeded PRNG)</div>';
   html += '<table style="width:100%;font-size:0.82rem;border-collapse:collapse;text-align:center;">';
-  html += '<thead><tr><th style="text-align:left;padding:4px;">Interval</th><th>Bootstrap (OR scale)</th><th>Wald (OR scale)</th></tr></thead><tbody>';
+  html += '<thead><tr><th scope="col" style="text-align:left;padding:4px;">Interval</th><th scope="col">Bootstrap (OR scale)</th><th scope="col">Wald (OR scale)</th></tr></thead><tbody>';
   html += '<tr><td style="text-align:left;padding:4px;font-weight:600;">95% PI</td>';
   html += '<td>' + fmt(bpi.pi95[0]) + ' \u2013 ' + fmt(bpi.pi95[1]) + '</td>';
   html += '<td>' + fmt(bpi.waldPI[0]) + ' \u2013 ' + fmt(bpi.waldPI[1]) + '</td></tr>';
@@ -11459,7 +11576,7 @@ function renderPropMeaningfulResults(pm) {
   if (!pm) { area.innerHTML = '<span style="opacity:0.6;">Need k \u2265 2 with heterogeneity</span>'; return; }
   let html = '<div style="font-size:0.82rem;margin-bottom:8px;">Given pooled \u03BC = ' + pm.mu.toFixed(3) + ' (OR = ' + Math.exp(pm.mu).toFixed(3) + ') and \u03C4 = ' + pm.tau.toFixed(3) + '</div>';
   html += '<table style="width:100%;font-size:0.82rem;border-collapse:collapse;">';
-  html += '<thead><tr><th style="text-align:left;padding:4px;">Threshold</th><th>Proportion of True Effects</th><th>Bar</th></tr></thead><tbody>';
+  html += '<thead><tr><th scope="col" style="text-align:left;padding:4px;">Threshold</th><th scope="col">Proportion of True Effects</th><th scope="col">Bar</th></tr></thead><tbody>';
   for (const r of pm.results) {
     const pct = (r.proportion * 100).toFixed(1);
     const barW = Math.round(r.proportion * 100);
@@ -11621,7 +11738,7 @@ function renderBayesAssuranceResults(ba) {
   if (!ba) { area.innerHTML = '<span style="opacity:0.6;">Need k \u2265 2</span>'; return; }
   let html = '<div style="font-size:0.82rem;margin-bottom:8px;">Posterior SD = ' + ba.posteriorSD.toFixed(4) + ' (integrates estimation + heterogeneity uncertainty)</div>';
   html += '<table style="width:100%;font-size:0.78rem;border-collapse:collapse;text-align:center;">';
-  html += '<thead><tr><th style="text-align:left;padding:4px;">Trial / Scenario</th><th>N</th><th>Assurance</th><th>Cond. Power</th><th>Gap</th></tr></thead><tbody>';
+  html += '<thead><tr><th scope="col" style="text-align:left;padding:4px;">Trial / Scenario</th><th scope="col">N</th><th scope="col">Assurance</th><th scope="col">Cond. Power</th><th scope="col">Gap</th></tr></thead><tbody>';
   for (const r of ba.results) {
     const aColor = r.assurance > 0.80 ? '#22c55e' : r.assurance > 0.50 ? '#f59e0b' : '#ef4444';
     const gapFlag = r.gap > 0.10 ? ' \u26A0' : '';
@@ -11763,7 +11880,7 @@ function renderNonCollapsResults(nc) {
   if (!nc) { area.innerHTML = '<span style="opacity:0.6;">Need trial-level event data</span>'; return; }
   let html = '<div style="font-size:0.82rem;margin-bottom:8px;">Baseline rates: ' + (nc.minRate*100).toFixed(1) + '% to ' + (nc.maxRate*100).toFixed(1) + '% (avg ' + (nc.avgRate*100).toFixed(1) + '%)</div>';
   html += '<table style="width:100%;font-size:0.78rem;border-collapse:collapse;text-align:center;">';
-  html += '<thead><tr><th style="text-align:left;padding:3px;">Trial</th><th>Baseline Rate</th><th>Cond. OR</th><th>Approx. Marginal OR</th><th>Non-collapsibility bias</th></tr></thead><tbody>';
+  html += '<thead><tr><th scope="col" style="text-align:left;padding:3px;">Trial</th><th scope="col">Baseline Rate</th><th scope="col">Cond. OR</th><th scope="col">Approx. Marginal OR</th><th scope="col">Non-collapsibility bias</th></tr></thead><tbody>';
   for (const b of nc.biasPerTrial) {
     const flagColor = b.biasPct > 2 ? '#f59e0b' : 'inherit';
     html += '<tr><td style="text-align:left;padding:3px;">' + escapeHtml(b.name) + '</td>';
@@ -11833,7 +11950,7 @@ function renderFirthResults(firth) {
     html += '<div style="font-size:0.82rem;padding:8px;background:rgba(34,197,94,0.08);border-radius:6px;margin-bottom:8px;">No zero cells detected \u2014 Firth correction has minimal impact</div>';
   }
   html += '<table style="width:100%;font-size:0.78rem;border-collapse:collapse;text-align:center;">';
-  html += '<thead><tr><th style="text-align:left;padding:3px;">Trial</th><th>Std OR</th><th>Firth OR</th><th>Firth 95% CI</th></tr></thead><tbody>';
+  html += '<thead><tr><th scope="col" style="text-align:left;padding:3px;">Trial</th><th scope="col">Std OR</th><th scope="col">Firth OR</th><th scope="col">Firth 95% CI</th></tr></thead><tbody>';
   for (const r of firth.perTrial) {
     html += '<tr><td style="text-align:left;padding:3px;">' + escapeHtml(r.name) + '</td>';
     html += '<td>' + r.stdOR.toFixed(3) + '</td><td>' + r.firthOR.toFixed(3) + '</td>';
@@ -11893,11 +12010,13 @@ function computeCDPredInt(yi, vi, nBoot) {
     bootEffects.push(thetaNew);
   }
   bootEffects.sort((a, b) => a - b);
-  const pi95 = [bootEffects[Math.floor(0.025 * nBoot)], bootEffects[Math.floor(0.975 * nBoot)]];
+  const clCD = AppState.settings?.confLevel ?? 0.95;
+  const ahCD = (1 - clCD) / 2;
+  const pi95 = [bootEffects[Math.floor(ahCD * nBoot)], bootEffects[Math.floor((1 - ahCD) * nBoot)]];
   const pi80 = [bootEffects[Math.floor(0.10 * nBoot)], bootEffects[Math.floor(0.90 * nBoot)]];
 
   /* Standard HTS prediction interval for comparison */
-  const tCrit = k > 2 ? tQuantile(1 - (1 - (AppState.settings?.confLevel ?? 0.95)) / 2, k - 2) : normalQuantile(1 - (1 - (AppState.settings?.confLevel ?? 0.95)) / 2);
+  const tCrit = k > 2 ? tQuantile(1 - ahCD, k - 2) : normalQuantile(1 - ahCD);
   const sePI = Math.sqrt(1/sumW0 + tau2DL);
   const htsPI = [muDL - tCrit * sePI, muDL + tCrit * sePI];
 
@@ -11920,11 +12039,11 @@ function renderCDPredIntResults(cdpi) {
   if (!cdpi) { area.innerHTML = '<span style="opacity:0.6;">Need k \u2265 2</span>'; return; }
   const fmt = x => Math.exp(x).toFixed(3);
   let html = '<table style="width:100%;font-size:0.82rem;border-collapse:collapse;text-align:center;">';
-  html += '<thead><tr><th style="text-align:left;padding:4px;">Method</th><th>95% PI (OR scale)</th><th>Width</th></tr></thead><tbody>';
+  html += '<thead><tr><th scope="col" style="text-align:left;padding:4px;">Method</th><th scope="col">95% PI (OR scale)</th><th scope="col">Width</th></tr></thead><tbody>';
   html += '<tr><td style="text-align:left;padding:4px;font-weight:600;">CD Bootstrap (Nagashima-Noma)</td>';
   html += '<td>' + fmt(cdpi.cdPI95[0]) + ' \u2013 ' + fmt(cdpi.cdPI95[1]) + '</td>';
   html += '<td>' + (Math.exp(cdpi.cdPI95[1]) - Math.exp(cdpi.cdPI95[0])).toFixed(3) + '</td></tr>';
-  html += '<tr><td style="text-align:left;padding:4px;">Standard HTS (t-distribution)</td>';
+  html += '<tr><td style="text-align:left;padding:4px;">Standard HTS (Wald + t-critical)</td>';
   html += '<td>' + fmt(cdpi.htsPI[0]) + ' \u2013 ' + fmt(cdpi.htsPI[1]) + '</td>';
   html += '<td>' + (Math.exp(cdpi.htsPI[1]) - Math.exp(cdpi.htsPI[0])).toFixed(3) + '</td></tr>';
   html += '<tr><td style="text-align:left;padding:4px;">80% CD PI</td>';
@@ -12013,17 +12132,17 @@ function renderEvidenceDelta(ed) {
 
   /* Per-trial audit table */
   html += '<table style="width:100%;font-size:0.75rem;border-collapse:collapse;">';
-  html += '<thead><tr><th style="text-align:left;padding:3px;">Trial</th><th>CT.gov Results</th><th>SAP</th><th>Pub Year</th><th>Results Posted</th><th>Lag</th><th>Outcome Match</th><th>Flags</th></tr></thead><tbody>';
+  html += '<thead><tr><th scope="col" style="text-align:left;padding:3px;">Trial</th><th scope="col">CT.gov Results</th><th scope="col">SAP</th><th scope="col">Pub Year</th><th scope="col">Results Posted</th><th scope="col">Lag</th><th scope="col">Outcome Match</th><th scope="col">Flags</th></tr></thead><tbody>';
   for (const t of ed.trials) {
     const rowBg = t.score >= 3 ? 'rgba(239,68,68,0.06)' : t.score >= 1 ? 'rgba(245,158,11,0.04)' : '';
     html += '<tr style="background:' + rowBg + ';">';
     html += '<td style="padding:3px;font-weight:600;">' + escapeHtml(t.trialId) + '</td>';
-    html += '<td style="color:' + (t.hasCtgovResults ? '#22c55e' : '#ef4444') + ';">' + (t.hasCtgovResults ? '\u2714' : '\u2718') + '</td>';
-    html += '<td style="color:' + (t.hasSAP ? '#22c55e' : '#f59e0b') + ';">' + (t.hasSAP ? '\u2714' : '\u2014') + '</td>';
+    html += '<td style="color:' + (t.hasCtgovResults ? '#22c55e' : '#ef4444') + ';">' + (t.hasCtgovResults ? '<span aria-label="Yes">\u2714</span>' : '<span aria-label="No">\u2718</span>') + '</td>';
+    html += '<td style="color:' + (t.hasSAP ? '#22c55e' : '#f59e0b') + ';">' + (t.hasSAP ? '<span aria-label="Yes">\u2714</span>' : '<span aria-label="N/A">\u2014</span>') + '</td>';
     html += '<td>' + (t.pubYear ?? '\u2014') + '</td>';
     html += '<td>' + (t.resultsPostedYear ?? '<span style="color:#ef4444;">Not posted</span>') + '</td>';
     html += '<td>' + (t.reportingLagMonths != null ? t.reportingLagMonths + 'mo' : '\u2014') + '</td>';
-    html += '<td style="color:' + (t.primaryOutcomeMatch ? '#22c55e' : '#ef4444') + ';">' + (t.primaryOutcomeMatch ? '\u2714' : '\u2718') + '</td>';
+    html += '<td style="color:' + (t.primaryOutcomeMatch ? '#22c55e' : '#ef4444') + ';">' + (t.primaryOutcomeMatch ? '<span aria-label="Match">\u2714</span>' : '<span aria-label="Mismatch">\u2718</span>') + '</td>';
     html += '<td style="font-size:0.7rem;">' + (t.flags.length > 0 ? t.flags.join('; ') : '<span style="color:#22c55e;">Clean</span>') + '</td></tr>';
   }
   html += '</tbody></table>';
@@ -12032,7 +12151,7 @@ function renderEvidenceDelta(ed) {
   if (ed.ghostResults.length > 0) {
     html += '<div style="margin-top:12px;font-weight:600;font-size:0.85rem;">Ghost Result Signals (Publication exists, no CT.gov results)</div>';
     html += '<table style="width:100%;font-size:0.75rem;border-collapse:collapse;margin-top:4px;">';
-    html += '<thead><tr><th style="text-align:left;padding:3px;">NCT ID</th><th>Name</th><th>N</th><th>Population</th><th>Flag</th></tr></thead><tbody>';
+    html += '<thead><tr><th scope="col" style="text-align:left;padding:3px;">NCT ID</th><th scope="col">Name</th><th scope="col">N</th><th scope="col">Population</th><th scope="col">Flag</th></tr></thead><tbody>';
     for (const g of ed.ghostResults) {
       html += '<tr style="background:rgba(239,68,68,0.06);">';
       html += '<td style="padding:3px;"><a href="https://clinicaltrials.gov/study/' + encodeURIComponent(g.nctId) + '" target="_blank" rel="noopener">' + escapeHtml(g.nctId) + '</a></td>';
@@ -13428,11 +13547,11 @@ async function runWebRValidation() {
     const rMethodCol = usedMetafor ? 'R metafor' : 'R (Base)';
     html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:0.85rem;" aria-label="WebR vs LivingMeta comparison">';
     html += '<thead><tr style="border-bottom:2px solid var(--border-strong);">';
-    html += '<th style="text-align:left;padding:8px;">Metric</th>';
-    html += '<th style="text-align:right;padding:8px;">LivingMeta (JS)</th>';
-    html += '<th style="text-align:right;padding:8px;">' + escapeHtml(rMethodCol) + '</th>';
-    html += '<th style="text-align:right;padding:8px;">|Diff|</th>';
-    html += '<th style="text-align:center;padding:8px;">Status</th>';
+    html += '<th scope="col" style="text-align:left;padding:8px;">Metric</th>';
+    html += '<th scope="col" style="text-align:right;padding:8px;">LivingMeta (JS)</th>';
+    html += '<th scope="col" style="text-align:right;padding:8px;">' + escapeHtml(rMethodCol) + '</th>';
+    html += '<th scope="col" style="text-align:right;padding:8px;">|Diff|</th>';
+    html += '<th scope="col" style="text-align:center;padding:8px;">Status</th>';
     html += '</tr></thead><tbody>';
 
     function addRow(name, jsVal, rVal, tol, isOR) {
@@ -13901,7 +14020,7 @@ function renderBayesPosteriorDensity(bp) {
   const plotDiv = document.getElementById('bayesPosteriorPlot');
   if (!area || !plotDiv) return;
   if (!bp) { area.innerHTML = '<span style="opacity:0.6;">Need k >= 2</span>'; return; }
-  let html = '<table style="width:100%;font-size:0.78rem;border-collapse:collapse;"><thead><tr><th style="text-align:left;padding:4px;">Prior</th><th>Posterior OR</th><th>95% CrI</th><th>P(OR&lt;1)</th></tr></thead><tbody>';
+  let html = '<table style="width:100%;font-size:0.78rem;border-collapse:collapse;"><thead><tr><th scope="col" style="text-align:left;padding:4px;">Prior</th><th scope="col">Posterior OR</th><th scope="col">95% CrI</th><th scope="col">P(OR&lt;1)</th></tr></thead><tbody>';
   for (const r of bp.results) {
     html += '<tr><td style="padding:4px;"><span style="color:' + r.color + ';">\u25CF</span> ' + escapeHtml(r.name) + '</td>';
     html += '<td style="text-align:center;font-weight:600;">' + r.or.toFixed(3) + '</td>';
@@ -14048,7 +14167,7 @@ function renderMetaRegression(reg) {
   for (const [key, sg] of Object.entries(reg)) {
     if (key === '_year') continue;
     html += '<div style="margin-bottom:12px;"><strong>' + escapeHtml(sg.label) + '</strong> (Q<sub>between</sub> = ' + sg.qBetween.toFixed(2) + ', df = ' + sg.dfBetween + ', p = ' + (sg.pInteraction < 0.001 ? '<0.001' : sg.pInteraction.toFixed(3)) + ')</div>';
-    html += '<table style="width:100%;font-size:0.78rem;border-collapse:collapse;"><thead><tr><th style="text-align:left;padding:4px;">Subgroup</th><th>k</th><th>OR</th><th>95% CI</th></tr></thead><tbody>';
+    html += '<table style="width:100%;font-size:0.78rem;border-collapse:collapse;"><thead><tr><th scope="col" style="text-align:left;padding:4px;">Subgroup</th><th scope="col">k</th><th scope="col">OR</th><th scope="col">95% CI</th></tr></thead><tbody>';
     for (const g of Object.values(sg.groups)) {
       html += '<tr><td style="padding:4px;"><span style="color:' + (g.color ?? '#3b82f6') + ';">\u25CF</span> ' + escapeHtml(g.label) + '</td>';
       html += '<td style="text-align:center;">' + g.k + '</td>';
@@ -14083,6 +14202,757 @@ function renderMetaRegression(reg) {
   }
 }
 
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE E1: DRAPERY PLOT (Rücker & Schwarzer 2020)
+   P-value function across all possible null hypotheses.
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderDraperyPlot(trackResult) {
+  const plotDiv = document.getElementById('draperyPlot');
+  if (!plotDiv) return;
+  if (!trackResult || !trackResult.primary) {
+    plotDiv.innerHTML = '<div class="stub-area" style="border:none;">Run synthesis first</div>';
+    return;
+  }
+  const isDark = document.body.classList.contains('dark-mode');
+  const est = trackResult.primary.estimate;
+  const se = trackResult.primary.se;
+  const measure = trackResult.measure ?? 'OR';
+
+  /* Compute p-value for each possible null hypothesis mu0 */
+  const nPoints = 200;
+  const range = 3 * se;
+  const mu0s = Array.from({ length: nPoints }, (_, i) => est - range + (2 * range * i / (nPoints - 1)));
+  const pvals = mu0s.map(mu0 => 2 * (1 - normalCDF(Math.abs((est - mu0) / se))));
+  const effects = mu0s.map(m => Math.exp(m));
+
+  const traces = [
+    { x: effects, y: pvals, mode: 'lines', name: 'P-value function', line: { color: '#3b82f6', width: 2.5 } },
+    /* Significance bands */
+    { x: [effects[0], effects[effects.length - 1]], y: [0.05, 0.05], mode: 'lines', name: 'p=0.05', line: { color: '#dc2626', dash: 'dash', width: 1 } },
+    { x: [effects[0], effects[effects.length - 1]], y: [0.10, 0.10], mode: 'lines', name: 'p=0.10', line: { color: '#d97706', dash: 'dot', width: 1 } },
+    /* Vertical line at pooled estimate */
+    { x: [Math.exp(est), Math.exp(est)], y: [0, 1], mode: 'lines', name: 'Pooled', line: { color: '#16a34a', width: 1.5, dash: 'dashdot' } },
+    /* Vertical line at null */
+    { x: [1, 1], y: [0, 1], mode: 'lines', name: 'Null', line: { color: isDark ? '#475569' : '#94a3b8', width: 1, dash: 'dot' }, showlegend: false }
+  ];
+
+  Plotly.purge(plotDiv);
+  Plotly.newPlot(plotDiv, traces, {
+    title: { text: 'Drapery Plot \u2014 P-value Function (R\u00FCcker & Schwarzer 2020)', font: { size: 14 } },
+    xaxis: { title: 'Hypothesized ' + measure, type: 'log', gridcolor: isDark ? '#334155' : '#e2e8f0' },
+    yaxis: { title: 'P-value', range: [0, 1], gridcolor: isDark ? '#334155' : '#e2e8f0' },
+    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { color: isDark ? '#e2e8f0' : '#1e293b' },
+    legend: { x: 0.01, y: 0.99 }, margin: { t: 40, b: 50, l: 50, r: 20 }
+  }, { responsive: true });
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE E2: MCID THRESHOLD ANALYSIS
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderMCIDAnalysis() {
+  const area = document.getElementById('mcidAnalysisArea');
+  if (!area) return;
+  const r = AppState.results;
+  const track = r?.trackB ?? r?.trackA;
+  if (!track || !track.yi) { area.innerHTML = '<span style="opacity:0.6;">Run synthesis first</span>'; return; }
+
+  const mcid = parseFloat(document.getElementById('mcid-value')?.value);
+  if (!isFinite(mcid) || mcid <= 0) { area.innerHTML = '<span style="opacity:0.6;">Enter valid MCID</span>'; return; }
+
+  const logMCID = Math.log(mcid);
+  const measure = track.measure ?? 'OR';
+  const trials = track.trials ?? [];
+  /* Direction: HR/OR < 1 = benefit (lower better); RR same. MD/SMD may differ but these configs use ratios. */
+  const lowerIsBetter = ['HR', 'OR', 'RR'].includes(measure);
+  const dirLabel = lowerIsBetter ? 'lower = benefit' : 'higher = benefit';
+  let nExceed = 0, nMeaningful = 0;
+
+  for (let i = 0; i < track.yi.length; i++) {
+    if (lowerIsBetter ? track.yi[i] < logMCID : track.yi[i] > logMCID) nExceed++;
+  }
+  /* Pooled: does the pooled estimate exceed MCID? */
+  const pooledExceeds = lowerIsBetter ? track.primary.estimate < logMCID : track.primary.estimate > logMCID;
+  /* CI: does the entire CI fall beyond MCID? */
+  const ciExceeds = lowerIsBetter ? track.primary.ci[1] < logMCID : track.primary.ci[0] > logMCID;
+  /* Proportion using predictive distribution */
+  const tau2 = track.primary.tau2 ?? 0;
+  const predSE = Math.sqrt(track.primary.se * track.primary.se + tau2);
+  /* Use normal approximation (conservative for small k; t-dist would give wider tails) */
+  const pExceed = lowerIsBetter
+    ? normalCDF((logMCID - track.primary.estimate) / predSE)
+    : 1 - normalCDF((logMCID - track.primary.estimate) / predSE);
+
+  let html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:8px;">';
+  html += '<div style="background:var(--bg-card);padding:10px;border-radius:6px;text-align:center;">';
+  html += '<div style="font-size:1.1rem;font-weight:700;">' + mcid.toFixed(2) + '</div>';
+  html += '<div style="font-size:0.7rem;opacity:0.6;">MCID (' + measure + ')</div></div>';
+  html += '<div style="background:var(--bg-card);padding:10px;border-radius:6px;text-align:center;">';
+  html += '<div style="font-size:1.1rem;font-weight:700;">' + nExceed + '/' + track.yi.length + '</div>';
+  html += '<div style="font-size:0.7rem;opacity:0.6;">Studies exceeding MCID</div></div>';
+  html += '<div style="background:var(--bg-card);padding:10px;border-radius:6px;text-align:center;">';
+  const poolColor = pooledExceeds ? '#16a34a' : '#dc2626';
+  html += '<div style="font-size:1.1rem;font-weight:700;color:' + poolColor + ';">' + (pooledExceeds ? '\u2714 Yes' : '\u2718 No') + '</div>';
+  html += '<div style="font-size:0.7rem;opacity:0.6;">Pooled exceeds MCID</div></div>';
+  html += '<div style="background:var(--bg-card);padding:10px;border-radius:6px;text-align:center;">';
+  const ciColor = ciExceeds ? '#16a34a' : '#d97706';
+  html += '<div style="font-size:1.1rem;font-weight:700;color:' + ciColor + ';">' + (ciExceeds ? '\u2714 CI beyond' : '\u2718 CI crosses') + '</div>';
+  html += '<div style="font-size:0.7rem;opacity:0.6;">Entire CI beyond MCID</div></div>';
+  html += '<div style="background:var(--bg-card);padding:10px;border-radius:6px;text-align:center;">';
+  html += '<div style="font-size:1.1rem;font-weight:700;">' + (pExceed * 100).toFixed(1) + '%</div>';
+  html += '<div style="font-size:0.7rem;opacity:0.6;">P(future study exceeds MCID)</div></div>';
+  html += '</div>';
+  html += '<div style="font-size:0.72rem;opacity:0.55;margin-top:4px;">Direction: ' + escapeHtml(dirLabel) + ' (' + escapeHtml(measure) + '). "Exceeds MCID" means effect is clinically meaningful in the beneficial direction.</div>';
+  area.innerHTML = html;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE E3: EXCLUSION SENSITIVITY MATRIX
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderExclusionMatrix(trackResult) {
+  const area = document.getElementById('exclusionMatrixArea');
+  if (!area) return;
+  if (!trackResult || !trackResult.yi || trackResult.yi.length < 3) { area.innerHTML = '<span style="opacity:0.6;">Need k \u2265 3</span>'; return; }
+
+  const k = trackResult.k;
+  const method = AppState.settings?.tau2Method ?? 'DL';
+  const confLevel = AppState.settings?.confLevel ?? 0.95;
+  const trials = trackResult.trials ?? [];
+  const fullEst = Math.exp(trackResult.primary.estimate);
+  const fullI2 = trackResult.primary.I2;
+  const fullSig = Math.exp(trackResult.primary.ci[1]) < 1 || Math.exp(trackResult.primary.ci[0]) > 1;
+  const rows = [];
+
+  for (let i = 0; i < k; i++) {
+    const yiLoo = trackResult.yi.filter((_, j) => j !== i);
+    const viLoo = trackResult.vi.filter((_, j) => j !== i);
+    const tau2Fn = Tau2Estimators[method] ?? Tau2Estimators.DL;
+    const tau2Loo = tau2Fn(yiLoo, viLoo).tau2;
+    const peLoo = PooledEstimate(yiLoo, viLoo, tau2Loo, { hksj: AppState.settings?.useHKSJ ?? false, confLevel });
+    const estLoo = Math.exp(peLoo.estimate);
+    const sigLoo = Math.exp(peLoo.ci[1]) < 1 || Math.exp(peLoo.ci[0]) > 1;
+    const sigChanged = sigLoo !== fullSig;
+    rows.push({ name: trials[i]?.name ?? ('Study ' + (i + 1)), est: estLoo, I2: peLoo.I2, sig: sigLoo, sigChanged,
+      deltaEst: estLoo - fullEst, deltaI2: peLoo.I2 - fullI2 });
+  }
+
+  let html = '<table style="width:100%;font-size:0.75rem;border-collapse:collapse;">';
+  html += '<thead><tr><th scope="col" style="text-align:left;padding:4px;">Excluded Study</th><th scope="col">Effect</th><th scope="col">\u0394 Effect</th><th scope="col">I\u00B2 (%)</th><th scope="col">\u0394 I\u00B2</th><th scope="col">Sig?</th><th scope="col">Conclusion Change</th></tr></thead><tbody>';
+  for (const r of rows) {
+    const changeBg = r.sigChanged ? 'rgba(220,38,38,0.06)' : '';
+    html += '<tr style="background:' + changeBg + ';"><td style="padding:4px;font-weight:600;">' + escapeHtml(r.name) + '</td>';
+    html += '<td style="text-align:center;">' + r.est.toFixed(3) + '</td>';
+    html += '<td style="text-align:center;color:' + (Math.abs(r.deltaEst) > 0.02 ? '#dc2626' : 'inherit') + ';">' + (r.deltaEst > 0 ? '+' : '') + r.deltaEst.toFixed(3) + '</td>';
+    html += '<td style="text-align:center;">' + r.I2.toFixed(0) + '</td>';
+    html += '<td style="text-align:center;color:' + (Math.abs(r.deltaI2) > 10 ? '#d97706' : 'inherit') + ';">' + (r.deltaI2 > 0 ? '+' : '') + r.deltaI2.toFixed(0) + '</td>';
+    html += '<td style="text-align:center;">' + (r.sig ? '<span aria-label="Significant">\u2714</span>' : '<span aria-label="Not significant">\u2718</span>') + '</td>';
+    html += '<td style="text-align:center;font-weight:' + (r.sigChanged ? '700;color:#dc2626' : '400') + ';">' + (r.sigChanged ? '\u26A0 CHANGED' : 'Stable') + '</td></tr>';
+  }
+  html += '</tbody></table>';
+  const nChanged = rows.filter(r => r.sigChanged).length;
+  html += '<div style="font-size:0.78rem;margin-top:8px;"><strong>Robustness:</strong> ' + (nChanged === 0 ? '<span style="color:#16a34a;">Conclusion stable regardless of which study is excluded</span>' : '<span style="color:#dc2626;">' + nChanged + '/' + k + ' exclusions change the conclusion</span>') + '</div>';
+  area.innerHTML = html;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE E4: TRIAL REGISTRATION QUALITY SCORE
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderRegistrationScore(config) {
+  const area = document.getElementById('registrationScoreArea');
+  if (!area) return;
+  if (!config || !config.trials) { area.innerHTML = '<span style="opacity:0.6;">No trial data</span>'; return; }
+
+  const trials = config.trials;
+  let html = '<table style="width:100%;font-size:0.75rem;border-collapse:collapse;">';
+  html += '<thead><tr><th scope="col" style="text-align:left;padding:4px;">Trial</th><th scope="col">NCT ID</th><th scope="col">Reference</th><th scope="col">Phase</th><th scope="col">Blinding</th><th scope="col">Results</th><th scope="col">Score</th></tr></thead><tbody>';
+  for (const t of trials) {
+    let score = 0;
+    const hasNCT = t.nctId && /^NCT\d{8}$/.test(t.nctId);
+    if (hasNCT) score += 25;
+    const hasPhase = t.phase && t.phase.includes('3');
+    if (hasPhase) score += 20;
+    const isBlinded = (t.evidenceText ?? '').toLowerCase().includes('double-blind') || (t.evidenceText ?? '').toLowerCase().includes('double blind');
+    if (isBlinded) score += 20;
+    const hasRef = !!t.reference;
+    if (hasRef) score += 15; /* has published reference */
+    const hasResults = t.outcomes && Object.keys(t.outcomes).length > 0;
+    if (hasResults) score += 20;
+    const sColor = score >= 80 ? '#16a34a' : score >= 60 ? '#d97706' : '#dc2626';
+    html += '<tr><td style="padding:4px;font-weight:600;">' + escapeHtml(t.id) + '</td>';
+    html += '<td style="text-align:center;font-family:monospace;font-size:0.7rem;">' + (hasNCT ? escapeHtml(t.nctId) : '<span style="color:#dc2626;" aria-label="Missing">\u2718</span>') + '</td>';
+    html += '<td style="text-align:center;">' + (hasRef ? '<span aria-label="Yes">\u2714</span>' : '<span aria-label="No">\u2718</span>') + '</td>';
+    html += '<td style="text-align:center;">' + escapeHtml(t.phase ?? '?') + '</td>';
+    html += '<td style="text-align:center;">' + (isBlinded ? '<span aria-label="Blinded">\u2714</span>' : '<span aria-label="Unknown">?</span>') + '</td>';
+    html += '<td style="text-align:center;">' + (hasResults ? '<span aria-label="Has results">\u2714</span>' : '<span aria-label="No results">\u2718</span>') + '</td>';
+    html += '<td style="text-align:center;font-weight:700;color:' + sColor + ';">' + score + '%</td></tr>';
+  }
+  html += '</tbody></table>';
+  area.innerHTML = html;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE D1: OUTLIER DETECTION DASHBOARD
+   ═══════════════════════════════════════════════════════════════════ */
+
+function computeOutlierDetection(yi, vi, tau2, trialNames) {
+  if (!yi || yi.length < 3) return null;
+  const k = yi.length;
+  const wi = vi.map(v => 1 / (v + tau2));
+  const sumW = sum(wi);
+  const thetaHat = sum(yi.map((y, i) => wi[i] * y)) / sumW;
+  const results = [];
+  let nOutliers = 0;
+  for (let i = 0; i < k; i++) {
+    const hi = wi[i] / sumW;
+    /* Standardized residual with (1-hi) correction (Viechtbauer & Cheung 2010) */
+    const ri = (yi[i] - thetaHat) / Math.sqrt((vi[i] + tau2) * Math.max(1 - hi, 1e-10));
+    const rstud = ri; /* already externally standardized */
+    const isOutlier2 = Math.abs(ri) > 2;
+    const isOutlier3 = Math.abs(ri) > 3;
+    if (isOutlier2) nOutliers++;
+    results.push({ name: trialNames[i] ?? ('Study ' + (i + 1)), yi: yi[i], effect: Math.exp(yi[i]),
+      residual: ri, rstudentized: rstud, leverage: hi, isOutlier2, isOutlier3 });
+  }
+  return { results, nOutliers, k, threshold2: 2, threshold3: 3 };
+}
+
+function renderOutlierDetection(od) {
+  const area = document.getElementById('outlierDetectionArea');
+  if (!area) return;
+  if (!od) { area.innerHTML = '<span style="opacity:0.6;">Need k \u2265 3</span>'; return; }
+  let html = '<div style="font-size:0.85rem;margin-bottom:8px;">';
+  if (od.nOutliers === 0) html += '<span style="color:#16a34a;font-weight:600;">\u2714 No outliers detected</span> (|z| > 2 threshold)';
+  else html += '<span style="color:#dc2626;font-weight:600;">\u26A0 ' + od.nOutliers + ' potential outlier(s)</span> with |standardized residual| > 2';
+  html += '</div>';
+  html += '<table style="width:100%;font-size:0.75rem;border-collapse:collapse;"><thead><tr><th scope="col" style="text-align:left;padding:4px;">Study</th><th scope="col">Effect</th><th scope="col">Std Residual</th><th scope="col">Studentized</th><th scope="col">Leverage</th><th scope="col">Flag</th></tr></thead><tbody>';
+  for (const r of od.results) {
+    const bg = r.isOutlier3 ? 'rgba(220,38,38,0.08)' : r.isOutlier2 ? 'rgba(245,158,11,0.06)' : '';
+    html += '<tr style="background:' + bg + ';"><td style="padding:4px;font-weight:600;">' + escapeHtml(r.name) + '</td>';
+    html += '<td style="text-align:center;">' + r.effect.toFixed(3) + '</td>';
+    html += '<td style="text-align:center;' + (r.isOutlier2 ? 'color:#dc2626;font-weight:700;' : '') + '">' + r.residual.toFixed(3) + '</td>';
+    html += '<td style="text-align:center;">' + r.rstudentized.toFixed(3) + '</td>';
+    html += '<td style="text-align:center;">' + r.leverage.toFixed(3) + '</td>';
+    html += '<td style="text-align:center;">' + (r.isOutlier3 ? '<span aria-label="Strong outlier">\u26A0\u26A0</span>' : r.isOutlier2 ? '<span aria-label="Mild outlier">\u26A0</span>' : '<span aria-label="Normal">\u2714</span>') + '</td></tr>';
+  }
+  html += '</tbody></table>';
+  area.innerHTML = html;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE D2: STUDY CONTRIBUTION WATERFALL CHART
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderWaterfallChart(trackResult) {
+  const plotDiv = document.getElementById('waterfallPlot');
+  if (!plotDiv) return;
+  if (!trackResult || !trackResult.cumulative || trackResult.cumulative.length < 2) {
+    plotDiv.innerHTML = '<div class="stub-area" style="border:none;">Run synthesis first</div>';
+    return;
+  }
+  const isDark = document.body.classList.contains('dark-mode');
+  const cum = trackResult.cumulative;
+  const measure = trackResult.measure ?? 'OR';
+  const sortedTrials = (trackResult.trials ?? []).slice().sort((a, b) => (a.year ?? 0) - (b.year ?? 0));
+  const names = sortedTrials.map(t => t.name);
+  /* Use log-scale contributions (additive on log scale, unlike exponentiated differences) */
+  const logEstimates = cum.map(c => c.estimate);
+  const contributions = [logEstimates[0]]; /* first study: log(OR) relative to log(1)=0 */
+  for (let i = 1; i < logEstimates.length; i++) contributions.push(logEstimates[i] - logEstimates[i - 1]);
+  const colors = contributions.map(c => c < 0 ? '#16a34a' : '#dc2626'); /* green=toward benefit, red=toward harm */
+
+  Plotly.purge(plotDiv);
+  Plotly.newPlot(plotDiv, [{
+    x: names, y: contributions, type: 'waterfall', name: 'Contribution',
+    increasing: { marker: { color: '#dc2626' } },
+    decreasing: { marker: { color: '#16a34a' } },
+    connector: { line: { color: isDark ? '#475569' : '#cbd5e1', width: 1 } },
+    text: contributions.map(function(c, i) { return (c > 0 ? '+' : '') + c.toFixed(3) + ' (' + measure + '=' + Math.exp(logEstimates[i]).toFixed(2) + ')'; }),
+    textposition: 'outside', textfont: { size: 9 }
+  }], {
+    title: { text: 'Cumulative Contribution to Pooled ' + measure + ' (log scale)', font: { size: 14 } },
+    xaxis: { gridcolor: isDark ? '#334155' : '#e2e8f0' },
+    yaxis: { title: '\u0394 log(' + measure + ')', gridcolor: isDark ? '#334155' : '#e2e8f0' },
+    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { color: isDark ? '#e2e8f0' : '#1e293b' },
+    margin: { t: 40, b: 80, l: 60, r: 20 },
+    height: Math.max(300, 30 + names.length * 25)
+  }, { responsive: true });
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE D3: SEARCH METRICS SUMMARY
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderSearchMetrics() {
+  const area = document.getElementById('searchMetricsSummary');
+  if (!area) return;
+  const log = AppState.auditLog ?? [];
+  const searches = log.filter(e => e.action === 'search_ctgov' || e.action === 'search_pubmed' || e.action === 'search_openalex');
+  if (searches.length === 0) { area.style.display = 'none'; return; }
+  area.style.display = 'block';
+  const ctgovHits = searches.filter(e => e.action === 'search_ctgov').reduce((s, e) => s + (e.detail?.hits ?? 0), 0);
+  const pubmedHits = searches.filter(e => e.action === 'search_pubmed').reduce((s, e) => s + (e.detail?.hits ?? 0), 0);
+  const totalSearches = searches.length;
+  const screenLog = AppState.screenLog ?? {};
+  const included = Object.values(screenLog).filter(d => d.decision === 'include' || d.status === 'include').length;
+  const excluded = Object.values(screenLog).filter(d => d.decision === 'exclude' || d.status === 'exclude').length;
+  const totalScreened = included + excluded;
+  const yieldRate = totalScreened > 0 ? (included / totalScreened * 100).toFixed(1) : 'N/A';
+
+  let html = '<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:0.78rem;">';
+  html += '<span>Searches: <strong>' + totalSearches + '</strong></span>';
+  if (ctgovHits > 0) html += '<span>CT.gov: <strong>' + ctgovHits + '</strong> hits</span>';
+  if (pubmedHits > 0) html += '<span>PubMed: <strong>' + pubmedHits + '</strong> hits</span>';
+  if (totalScreened > 0) html += '<span>Screened: <strong>' + totalScreened + '</strong> (' + included + ' in / ' + excluded + ' out)</span>';
+  html += '<span>Yield: <strong>' + yieldRate + '%</strong></span>';
+  html += '</div>';
+  area.innerHTML = html;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE D4: MINI FOREST SPARKLINES (inline SVG)
+   ═══════════════════════════════════════════════════════════════════ */
+
+function forestSparkline(effect, ciLo, ciHi, opts) {
+  const w = opts?.width ?? 80, h = opts?.height ?? 16;
+  const minX = opts?.minX ?? 0.3, maxX = opts?.maxX ?? 3;
+  const toX = function(v) { return ((Math.log(v) - Math.log(minX)) / (Math.log(maxX) - Math.log(minX))) * w; };
+  const nullX = toX(1);
+  const estX = toX(Math.max(minX, Math.min(maxX, effect)));
+  const loX = toX(Math.max(minX, ciLo));
+  const hiX = toX(Math.min(maxX, ciHi));
+  const mid = h / 2;
+  const ariaLabel = 'Forest sparkline: effect ' + effect.toFixed(2) + ' (CI ' + ciLo.toFixed(2) + '\u2013' + ciHi.toFixed(2) + ')';
+  let svg = '<svg width="' + w + '" height="' + h + '" role="img" aria-label="' + ariaLabel + '" style="vertical-align:middle;">';
+  svg += '<line x1="' + nullX + '" y1="0" x2="' + nullX + '" y2="' + h + '" stroke="#94a3b8" stroke-width="1" stroke-dasharray="2,2"/>';
+  svg += '<line x1="' + loX + '" y1="' + mid + '" x2="' + hiX + '" y2="' + mid + '" stroke="#3b82f6" stroke-width="2"/>';
+  svg += '<polygon points="' + (estX-4) + ',' + mid + ' ' + estX + ',' + (mid-5) + ' ' + (estX+4) + ',' + mid + ' ' + estX + ',' + (mid+5) + '" fill="#3b82f6"/>';
+  svg += '</svg>';
+  return svg;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE D5: SESSION TIMER & PRODUCTIVITY STATS
+   ═══════════════════════════════════════════════════════════════════ */
+
+const _sessionStart = Date.now();
+
+function renderSessionStats() {
+  const footer = document.getElementById('sessionStatsFooter');
+  if (!footer) return;
+  const elapsed = Math.round((Date.now() - _sessionStart) / 1000);
+  const mins = Math.floor(elapsed / 60);
+  const secs = elapsed % 60;
+  const log = AppState.auditLog ?? [];
+  const synthCount = log.filter(e => e.action === 'run_synthesis').length;
+  const exportCount = log.filter(e => (e.action ?? '').startsWith('export_')).length;
+  const config = getConfig();
+  footer.textContent = 'Session: ' + mins + 'm ' + secs + 's | Syntheses: ' + synthCount + ' | Exports: ' + exportCount + ' | Config: ' + (config?.id ?? 'none') + ' | k=' + (config?.trials?.length ?? 0) + ' trials';
+}
+
+setInterval(renderSessionStats, 10000);
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE C1: PRISMA WORKFLOW PROGRESS TRACKER
+   ═══════════════════════════════════════════════════════════════════ */
+
+function updatePrismaProgress() {
+  const steps = [
+    { id: 'pp-search', done: (AppState.auditLog ?? []).some(e => e.action === 'search_ctgov' || e.action === 'search_pubmed') },
+    { id: 'pp-screen', done: Object.keys(AppState.screenLog ?? {}).length >= 1 },
+    { id: 'pp-extract', done: Object.keys(AppState.extractVerified ?? {}).length >= 1 || (AppState.results?.trackA || AppState.results?.trackB) },
+    { id: 'pp-synthesize', done: !!(AppState.results?.trackA || AppState.results?.trackB) },
+    { id: 'pp-bias', done: !!(AppState.results?.trackB?.bias || AppState.results?.trackA?.bias) },
+    { id: 'pp-grade', done: !!AppState.results?.grade },
+    { id: 'pp-certify', done: !!AppState.certBundle }
+  ];
+  for (const s of steps) {
+    const el = document.getElementById(s.id);
+    if (el) {
+      el.style.background = s.done ? '#16a34a' : 'var(--bg-secondary)';
+      el.style.color = s.done ? 'white' : 'var(--text-primary)';
+      el.setAttribute('aria-label', el.textContent.trim() + (s.done ? ' (complete)' : ' (pending)'));
+      if (s.done && !el.textContent.includes('\u2714')) el.textContent = '\u2714 ' + el.textContent.trim();
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE C2: CI METHOD COMPARISON TABLE
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderCIComparison(trackResult) {
+  const area = document.getElementById('ciComparisonArea');
+  if (!area) return;
+  if (!trackResult || !trackResult.primary) { area.innerHTML = '<span style="opacity:0.6;">Run synthesis first</span>'; return; }
+
+  const confLevel = AppState.settings?.confLevel ?? 0.95;
+  const confPct = (confLevel * 100).toFixed(0);
+  const est = trackResult.primary.estimate;
+  const methods = [];
+
+  /* Wald (normal, no HKSJ) */
+  const tau2 = trackResult.primary.tau2 ?? 0;
+  const peWald = PooledEstimate(trackResult.yi, trackResult.vi, tau2, { hksj: false, confLevel });
+  methods.push({ name: 'Wald (z-based)', lo: Math.exp(peWald.ci[0]), hi: Math.exp(peWald.ci[1]), width: Math.exp(peWald.ci[1]) - Math.exp(peWald.ci[0]) });
+
+  /* HKSJ */
+  const peHKSJ = PooledEstimate(trackResult.yi, trackResult.vi, tau2, { hksj: true, confLevel });
+  methods.push({ name: 'HKSJ (t-based)', lo: Math.exp(peHKSJ.ci[0]), hi: Math.exp(peHKSJ.ci[1]), width: Math.exp(peHKSJ.ci[1]) - Math.exp(peHKSJ.ci[0]) });
+
+  /* t-distribution (df = k-1) */
+  const k = trackResult.k;
+  const se = trackResult.primary.se;
+  const tCrit = k > 2 ? tQuantile(1 - (1 - confLevel) / 2, k - 1) : normalQuantile(1 - (1 - confLevel) / 2);
+  methods.push({ name: 'Wald + t-critical (df=' + (k-1) + ')', lo: Math.exp(est - tCrit * se), hi: Math.exp(est + tCrit * se), width: Math.exp(est + tCrit * se) - Math.exp(est - tCrit * se) });
+
+  /* Profile Likelihood (if available) */
+  const profLik = trackResult.primary.profLikCI ?? null;
+  if (profLik) {
+    methods.push({ name: 'Profile Likelihood', lo: Math.exp(profLik[0]), hi: Math.exp(profLik[1]), width: Math.exp(profLik[1]) - Math.exp(profLik[0]) });
+  }
+
+  const widths = methods.map(m => m.width);
+  const minW = Math.min(...widths), maxW = Math.max(...widths);
+
+  let html = '<table style="width:100%;font-size:0.82rem;border-collapse:collapse;">';
+  html += '<thead><tr><th scope="col" style="text-align:left;padding:6px;">CI Method</th><th scope="col">' + confPct + '% CI Lower</th><th scope="col">' + confPct + '% CI Upper</th><th scope="col">Width</th><th scope="col">Relative</th></tr></thead><tbody>';
+  for (const m of methods) {
+    const isWidest = m.width === maxW;
+    const isNarrowest = m.width === minW;
+    const badge = isWidest ? ' <span style="color:#dc2626;font-size:0.7rem;">(widest)</span>' : isNarrowest ? ' <span style="color:#16a34a;font-size:0.7rem;">(narrowest)</span>' : '';
+    html += '<tr><td style="padding:6px;font-weight:600;">' + escapeHtml(m.name) + badge + '</td>';
+    html += '<td style="text-align:center;">' + m.lo.toFixed(4) + '</td>';
+    html += '<td style="text-align:center;">' + m.hi.toFixed(4) + '</td>';
+    html += '<td style="text-align:center;">' + m.width.toFixed(4) + '</td>';
+    const barPct = maxW > 0 ? Math.round(m.width / maxW * 100) : 0;
+    html += '<td style="text-align:center;"><div style="width:80px;height:6px;background:var(--border-color);border-radius:3px;display:inline-block;overflow:hidden;vertical-align:middle;"><div style="width:' + barPct + '%;height:100%;background:#3b82f6;border-radius:3px;"></div></div></td></tr>';
+  }
+  html += '</tbody></table>';
+  html += '<div style="font-size:0.72rem;opacity:0.5;margin-top:4px;">HKSJ typically produces wider CIs than Wald, especially for small k. The IQWiG modification prevents paradoxical narrowing when Q/(k-1) &lt; 1.</div>';
+  area.innerHTML = html;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE C3: PATIENT RISK CALCULATOR
+   ═══════════════════════════════════════════════════════════════════ */
+
+function computePatientRisk() {
+  const area = document.getElementById('patientRiskResults');
+  const slider = document.getElementById('risk-cer');
+  const valLabel = document.getElementById('risk-cer-val');
+  if (!area || !slider) return;
+  const cer = parseInt(slider.value) / 100;
+  if (valLabel) valLabel.textContent = (cer * 100).toFixed(0) + '%';
+
+  const r = AppState.results;
+  const track = r?.trackB ?? r?.trackA;
+  if (!track || !track.primary) { area.innerHTML = '<span style="opacity:0.6;">Run synthesis first</span>'; return; }
+
+  const or = Math.exp(track.primary.estimate);
+  const orLo = Math.exp(track.primary.ci[0]);
+  const orHi = Math.exp(track.primary.ci[1]);
+  const measure = track.measure ?? 'OR';
+
+  /* EER from OR: EER = OR * CER / (1 - CER + OR * CER) */
+  const eer = or * cer / (1 - cer + or * cer);
+  const eerLo = orLo * cer / (1 - cer + orLo * cer);
+  const eerHi = orHi * cer / (1 - cer + orHi * cer);
+  const ard = cer - eer;
+  const nnt = ard > 0 ? Math.ceil(1 / ard) : (ard < 0 ? Math.ceil(1 / Math.abs(ard)) : null);
+  const nntLabel = ard > 0 ? 'NNT' : (ard < 0 ? 'NNH' : null);
+
+  let html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;">';
+  html += '<div style="background:var(--bg-card);padding:10px;border-radius:6px;text-align:center;">';
+  html += '<div style="font-size:1.2rem;font-weight:700;">' + (cer * 100).toFixed(1) + '%</div>';
+  html += '<div style="font-size:0.7rem;opacity:0.6;">Baseline Risk (CER)</div></div>';
+
+  html += '<div style="background:var(--bg-card);padding:10px;border-radius:6px;text-align:center;border-left:3px solid #3b82f6;">';
+  html += '<div style="font-size:1.2rem;font-weight:700;color:#3b82f6;">' + (eer * 100).toFixed(1) + '%</div>';
+  html += '<div style="font-size:0.7rem;opacity:0.6;">Risk with Treatment (EER)</div>';
+  html += '<div style="font-size:0.68rem;opacity:0.5;">' + (eerLo * 100).toFixed(1) + '\u2013' + (eerHi * 100).toFixed(1) + '%</div></div>';
+
+  const ardColor = ard > 0 ? '#16a34a' : ard < 0 ? '#dc2626' : '#64748b';
+  html += '<div style="background:var(--bg-card);padding:10px;border-radius:6px;text-align:center;border-left:3px solid ' + ardColor + ';">';
+  html += '<div style="font-size:1.2rem;font-weight:700;color:' + ardColor + ';">' + (ard > 0 ? '-' : '+') + (Math.abs(ard) * 100).toFixed(1) + '%</div>';
+  html += '<div style="font-size:0.7rem;opacity:0.6;">Absolute Risk ' + (ard > 0 ? 'Reduction' : 'Increase') + '</div></div>';
+
+  if (nnt != null) {
+    html += '<div style="background:var(--bg-card);padding:10px;border-radius:6px;text-align:center;">';
+    html += '<div style="font-size:1.2rem;font-weight:700;">' + nnt + '</div>';
+    html += '<div style="font-size:0.7rem;opacity:0.6;">' + nntLabel + '</div></div>';
+  }
+
+  html += '<div style="background:var(--bg-card);padding:10px;border-radius:6px;text-align:center;">';
+  html += '<div style="font-size:1.2rem;font-weight:700;">' + Math.round(Math.abs(ard) * 1000) + '</div>';
+  html += '<div style="font-size:0.7rem;opacity:0.6;">' + (ard > 0 ? 'Fewer' : 'More') + ' events per 1,000</div></div>';
+  html += '</div>';
+  area.innerHTML = html;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE C4: FOREST PLOT ANNOTATION TOGGLE
+   ═══════════════════════════════════════════════════════════════════ */
+
+function toggleForestAnnotation() {
+  /* Re-render forest plot with current toggle state */
+  const r = AppState.results;
+  const track = r?.trackB ?? r?.trackA;
+  if (!track) return;
+  const showPI = document.getElementById('forest-show-pi')?.checked ?? true;
+  const showWeights = document.getElementById('forest-show-weights')?.checked ?? true;
+  /* Store prefs in AppState for render function to read */
+  AppState._forestPrefs = { showPI, showWeights };
+  renderForestPlot(track);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE C5: DRAG-AND-DROP CSV FILE UPLOAD
+   ═══════════════════════════════════════════════════════════════════ */
+
+function handleCSVDrop(event) {
+  const files = event.dataTransfer?.files;
+  if (!files || files.length === 0) return;
+  const file = files[0];
+  if (!file.name.endsWith('.csv') && !file.name.endsWith('.txt')) {
+    showToast('Please drop a .csv or .txt file.');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const textarea = document.getElementById('csvImportArea');
+    if (textarea) {
+      textarea.value = e.target.result;
+      showToast('File "' + file.name + '" loaded. Click Import CSV to process.');
+    }
+  };
+  reader.readAsText(file);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE B1: EFFECT SIZE CONVERTER
+   ═══════════════════════════════════════════════════════════════════ */
+
+function convertEffectSize() {
+  const area = document.getElementById('escResults');
+  if (!area) return;
+  const type = document.getElementById('esc-type')?.value ?? 'or';
+  const val = parseFloat(document.getElementById('esc-value')?.value);
+  const cer = parseFloat(document.getElementById('esc-cer')?.value) / 100;
+  if (!isFinite(val) || val <= 0 || !isFinite(cer) || cer <= 0 || cer >= 1) {
+    area.innerHTML = '<span style="opacity:0.6;">Enter valid positive value and baseline risk (0.1-99%)</span>';
+    return;
+  }
+
+  let or, rr, hr, logOR;
+  if (type === 'or') { or = val; logOR = Math.log(or); rr = or / (1 - cer + cer * or); hr = null; }
+  else if (type === 'rr') { rr = val; or = rr * (1 - cer) / (1 - rr * cer); logOR = Math.log(or); hr = null; }
+  else if (type === 'hr') { hr = val; /* Convert HR→OR via survival: OR = (1-(1-CER)^HR) / (CER*(1-CER)^(HR-1)) */ const survC = Math.pow(1 - cer, hr); or = cer > 0 ? (1 - survC) / (cer * Math.pow(1 - cer, hr - 1)) : hr; rr = or / (1 - cer + cer * or); logOR = Math.log(or); }
+  else if (type === 'nnt') { const ard = 1 / val; const eer = cer - ard; rr = eer > 0 ? eer / cer : 0.01; or = rr * (1 - cer) / (1 - rr * cer); logOR = Math.log(or); hr = null; }
+
+  const eer = type === 'nnt' ? (cer - 1 / val) : (or * cer / (1 - cer + or * cer));
+  const ard = cer - eer;
+  const nnt = ard > 0 ? Math.ceil(1 / ard) : null;
+
+  let html = '<table style="font-size:0.82rem;border-collapse:collapse;width:100%;">';
+  html += '<tr><td style="padding:4px;font-weight:600;">OR</td><td>' + (or ?? 'N/A').toFixed?.(3) + '</td>';
+  html += '<td style="padding:4px;font-weight:600;">RR</td><td>' + (rr ?? 'N/A').toFixed?.(3) + '</td></tr>';
+  html += '<tr><td style="padding:4px;font-weight:600;">log(OR)</td><td>' + (logOR ?? 'N/A').toFixed?.(4) + '</td>';
+  html += '<td style="padding:4px;font-weight:600;">ARD</td><td>' + (ard * 100).toFixed(2) + '%</td></tr>';
+  html += '<tr><td style="padding:4px;font-weight:600;">NNT</td><td>' + (nnt ?? 'N/A') + '</td>';
+  html += '<td style="padding:4px;font-weight:600;">EER</td><td>' + (eer * 100).toFixed(2) + '%</td></tr>';
+  html += '<tr><td style="padding:4px;font-weight:600;">CER</td><td>' + (cer * 100).toFixed(1) + '%</td>';
+  html += '<td style="padding:4px;font-weight:600;">Events/1000</td><td>' + Math.round(Math.abs(ard) * 1000) + (ard >= 0 ? ' fewer' : ' more') + '</td></tr>';
+  html += '</table>';
+  area.innerHTML = html;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE B2: URL STATE SHARING
+   ═══════════════════════════════════════════════════════════════════ */
+
+function copyShareURL() {
+  const config = getConfig();
+  if (!config) { showToast('No config loaded.'); return; }
+  const params = new URLSearchParams();
+  params.set('config', AppState.configId ?? config.id ?? '');
+  params.set('outcome', AppState.results?.outcomeKey ?? 'mace');
+  params.set('tau2', AppState.settings?.tau2Method ?? 'DL');
+  if (AppState.settings?.useHKSJ) params.set('hksj', '1');
+  if (AppState.settings?.confLevel && AppState.settings.confLevel !== 0.95) params.set('cl', AppState.settings.confLevel);
+  const url = location.origin + location.pathname + '?' + params.toString();
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(function() {
+      document.getElementById('shareURLStatus').textContent = '\u2714 Link copied!';
+      showToast('Shareable URL copied to clipboard.');
+    }).catch(function() { showToast('Copy failed.'); });
+  }
+  logAudit('copy_share_url', { configId: config.id });
+}
+
+/* Parse URL params on load */
+function applyURLParams() {
+  const params = new URLSearchParams(location.search);
+  const cfgId = params.get('config');
+  if (cfgId && CONFIG_LIBRARY[cfgId]) {
+    const sel = document.getElementById('configSelector');
+    if (sel) { sel.value = cfgId; handleConfigChange(cfgId); }
+    const outcome = params.get('outcome');
+    if (outcome) {
+      const oSel = document.getElementById('synthOutcome');
+      if (oSel) setTimeout(function() { oSel.value = outcome; }, 500);
+    }
+    const tau2 = params.get('tau2');
+    if (tau2) {
+      const tSel = document.getElementById('synthTau2Method');
+      if (tSel) setTimeout(function() { tSel.value = tau2; }, 500);
+    }
+    if (params.get('hksj') === '1') {
+      const hChk = document.getElementById('synthHKSJ');
+      if (hChk) setTimeout(function() { hChk.checked = true; }, 500);
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE B3: AUTO-SAVE WITH VERSION SNAPSHOTS
+   ═══════════════════════════════════════════════════════════════════ */
+
+function autoSaveSnapshot() {
+  if (!AppState.configId) return;
+  const key = 'livingmeta_snapshots_' + AppState.configId;
+  let snapshots = [];
+  try { snapshots = JSON.parse(localStorage.getItem(key) ?? '[]'); } catch(e) {}
+  const snap = { timestamp: new Date().toISOString(), configId: AppState.configId, outcomeKey: AppState.results?.outcomeKey ?? 'mace', settings: AppState.settings };
+  snapshots.push(snap);
+  if (snapshots.length > 5) snapshots = snapshots.slice(-5);
+  try { localStorage.setItem(key, JSON.stringify(snapshots)); } catch(e) {}
+  populateSnapshotSelector();
+}
+
+function populateSnapshotSelector() {
+  const sel = document.getElementById('snapshotSelector');
+  if (!sel || !AppState.configId) return;
+  const key = 'livingmeta_snapshots_' + AppState.configId;
+  let snapshots = [];
+  try { snapshots = JSON.parse(localStorage.getItem(key) ?? '[]'); } catch(e) {}
+  sel.innerHTML = '<option value="">Select snapshot...</option>';
+  for (let i = snapshots.length - 1; i >= 0; i--) {
+    const s = snapshots[i];
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = new Date(s.timestamp).toLocaleString() + ' (' + (s.outcomeKey ?? 'mace') + ')';
+    sel.appendChild(opt);
+  }
+}
+
+function restoreSnapshot() {
+  const sel = document.getElementById('snapshotSelector');
+  if (!sel || !sel.value) { showToast('Select a snapshot first.'); return; }
+  const key = 'livingmeta_snapshots_' + AppState.configId;
+  let snapshots = [];
+  try { snapshots = JSON.parse(localStorage.getItem(key) ?? '[]'); } catch(e) {}
+  const snap = snapshots[parseInt(sel.value)];
+  if (!snap) { showToast('Snapshot not found.'); return; }
+  if (snap.settings) AppState.settings = snap.settings;
+  saveState();
+  document.getElementById('snapshotStatus').textContent = '\u2714 Restored from ' + new Date(snap.timestamp).toLocaleTimeString();
+  showToast('Snapshot restored. Run synthesis to apply.');
+  logAudit('restore_snapshot', { timestamp: snap.timestamp });
+}
+
+/* Auto-save every 60 seconds */
+setInterval(autoSaveSnapshot, 60000);
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE B4: SUMMARY STATISTICS TABLE
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderSummaryStats() {
+  const area = document.getElementById('summaryStatsArea');
+  if (!area) return;
+  const r = AppState.results;
+  if (!r) { area.innerHTML = '<span style="opacity:0.6;">Run synthesis first</span>'; return; }
+  const track = r.trackB ?? r.trackA;
+  if (!track) { area.innerHTML = '<span style="opacity:0.6;">No synthesis results</span>'; return; }
+
+  AppState._summaryStatsData = [];
+  const addRow = function(cat, metric, value, note) {
+    AppState._summaryStatsData.push({ category: cat, metric: metric, value: value, note: note ?? '' });
+  };
+
+  /* Pooled estimates */
+  addRow('Pooled', track.measure + ' (RE)', Math.exp(track.primary.estimate).toFixed(4));
+  addRow('Pooled', 'CI Lower', Math.exp(track.primary.ci[0]).toFixed(4));
+  addRow('Pooled', 'CI Upper', Math.exp(track.primary.ci[1]).toFixed(4));
+  addRow('Pooled', 'p-value', track.primary.pval != null ? track.primary.pval.toFixed(6) : 'N/A');
+  addRow('Pooled', 'k', track.k);
+  if (track.fixed) addRow('Pooled', track.measure + ' (FE)', Math.exp(track.fixed.estimate).toFixed(4));
+
+  /* Heterogeneity */
+  addRow('Heterogeneity', 'I\u00B2 (%)', track.primary.I2.toFixed(2));
+  addRow('Heterogeneity', 'Cochran Q', (track.primary.Q ?? 0).toFixed(2));
+  addRow('Heterogeneity', 'Q p-value', track.primary.Qp != null ? track.primary.Qp.toFixed(6) : 'N/A');
+  for (const [name, t2] of Object.entries(track.tau2All ?? {})) {
+    addRow('Heterogeneity', '\u03C4\u00B2 (' + name + ')', t2.tau2.toFixed(6));
+  }
+  if (track.primary.pi && !isNaN(track.primary.pi[0])) {
+    addRow('Heterogeneity', 'PI Lower', Math.exp(track.primary.pi[0]).toFixed(4));
+    addRow('Heterogeneity', 'PI Upper', Math.exp(track.primary.pi[1]).toFixed(4));
+  }
+
+  /* Bias tests */
+  if (r.harbord) addRow('Bias', 'Harbord p', r.harbord.pVal?.toFixed(4) ?? 'N/A');
+  if (track.bias?.egger) addRow('Bias', 'Egger p', track.bias.egger.pval?.toFixed(4) ?? 'N/A');
+  if (track.bias?.begg) addRow('Bias', 'Begg p', track.bias.begg.pval?.toFixed(4) ?? 'N/A');
+  if (track.bias?.trimFill) addRow('Bias', 'Trim-fill k0', track.bias.trimFill.k0 ?? 0);
+  if (r.copas) addRow('Bias', 'Copas adjusted', r.copas.adjustedEst != null ? Math.exp(r.copas.adjustedEst).toFixed(4) : 'N/A');
+
+  /* Sensitivity */
+  if (r.fragility) addRow('Sensitivity', 'Fragility Index', r.fragility.pooledFI ?? 'N/A');
+  if (r.nnt) addRow('Sensitivity', 'NNT', r.nnt.nnt ?? 'N/A');
+  if (r.evalue) { addRow('Sensitivity', 'E-value (point)', r.evalue.ePoint?.toFixed(2) ?? 'N/A'); addRow('Sensitivity', 'E-value (CI)', r.evalue.eCI?.toFixed(2) ?? 'N/A'); }
+  if (r.failsafeN) { addRow('Sensitivity', 'Fail-safe N (Rosenthal)', r.failsafeN.rosenthal ?? 'N/A'); addRow('Sensitivity', 'Fail-safe N (Orwin)', r.failsafeN.orwin ?? 'N/A'); }
+  if (r.robma) addRow('Sensitivity', 'RoBMA BF10', r.robma.bf10?.toFixed(2) ?? 'N/A');
+  if (r.zCurve) addRow('Sensitivity', 'Z-curve ERR', r.zCurve.err?.toFixed(3) ?? 'N/A');
+  if (r.decisionRegret) { addRow('Decision', 'P(Benefit)', (r.decisionRegret.pBenefit * 100).toFixed(1) + '%'); addRow('Decision', 'Verdict', r.decisionRegret.verdict); }
+  if (r.grade) addRow('GRADE', 'Certainty', r.grade.overall ?? 'N/A');
+
+  /* Render table */
+  let html = '<table style="width:100%;font-size:0.78rem;border-collapse:collapse;">';
+  html += '<thead><tr><th scope="col" style="text-align:left;padding:4px;">Category</th><th scope="col" style="text-align:left;padding:4px;">Metric</th><th scope="col" style="text-align:right;padding:4px;">Value</th></tr></thead><tbody>';
+  let lastCat = '';
+  for (const row of AppState._summaryStatsData) {
+    const catDisplay = row.category !== lastCat ? '<strong>' + escapeHtml(row.category) + '</strong>' : '';
+    lastCat = row.category;
+    html += '<tr><td style="padding:4px;">' + catDisplay + '</td><td style="padding:4px;">' + escapeHtml(row.metric) + '</td><td style="text-align:right;padding:4px;font-family:monospace;">' + escapeHtml(String(row.value)) + '</td></tr>';
+  }
+  html += '</tbody></table>';
+  html += '<div style="font-size:0.72rem;opacity:0.6;margin-top:4px;">' + AppState._summaryStatsData.length + ' statistics computed</div>';
+  area.innerHTML = html;
+  showToast('Summary: ' + AppState._summaryStatsData.length + ' statistics.');
+}
+
+function exportSummaryStatsCSV() {
+  const data = AppState._summaryStatsData;
+  if (!data || data.length === 0) { showToast('Generate summary table first.'); return; }
+  const safeCSV = function(v) { let s = String(v); if (/^[=+@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
+  let csv = 'Category,Metric,Value\n';
+  for (const row of data) csv += [safeCSV(row.category), safeCSV(row.metric), safeCSV(row.value)].join(',') + '\n';
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'LivingMeta_SummaryStats_' + (getConfig()?.id ?? 'export') + '.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Summary statistics CSV exported.');
+  logAudit('export_summary_stats', { k: data.length });
+}
 
 /* ═══════════════════════════════════════════════════════════════════
    FEATURE A5: HETEROGENEITY DECOMPOSITION PIE CHART
@@ -14256,16 +15126,16 @@ function importTrialsCSV() {
       nTreatment: ntCol >= 0 ? parseInt(cols[ntCol]) || 0 : 0,
       nControl: ncCol >= 0 ? parseInt(cols[ncCol]) || 0 : 0,
       phase: 'PHASE3', status: 'CSV-imported', reference: 'Imported from CSV',
-      outcomes: {}, rob: { domains: ['low','low','low','low','low'], overall: 'low' },
+      outcomes: {}, rob: { domains: ['unclear','unclear','unclear','unclear','unclear'], overall: 'unclear' },
       _userAdded: true
     };
     trial.nTotal = trial.nTreatment + trial.nControl;
     const oc = {};
-    if (teCol >= 0) oc.tE = parseInt(cols[teCol]) || null;
-    if (ceCol >= 0) oc.cE = parseInt(cols[ceCol]) || null;
+    if (teCol >= 0) { const v = parseInt(cols[teCol]); oc.tE = isNaN(v) ? null : v; }
+    if (ceCol >= 0) { const v = parseInt(cols[ceCol]); oc.cE = isNaN(v) ? null : v; }
     if (ntCol >= 0) oc.tN = trial.nTreatment;
     if (ncCol >= 0) oc.cN = trial.nControl;
-    if (hrCol >= 0) { oc.hr = parseFloat(cols[hrCol]) || null; oc.hrLo = hrLoCol >= 0 ? parseFloat(cols[hrLoCol]) || null : null; oc.hrHi = hrHiCol >= 0 ? parseFloat(cols[hrHiCol]) || null : null; }
+    if (hrCol >= 0) { const h = parseFloat(cols[hrCol]); oc.hr = isFinite(h) ? h : null; oc.hrLo = hrLoCol >= 0 ? (isFinite(parseFloat(cols[hrLoCol])) ? parseFloat(cols[hrLoCol]) : null) : null; oc.hrHi = hrHiCol >= 0 ? (isFinite(parseFloat(cols[hrHiCol])) ? parseFloat(cols[hrHiCol]) : null) : null; }
     trial.outcomes[outcomeKey] = oc;
     config.trials.push(trial);
     if (!AppState._userTrials) AppState._userTrials = [];
@@ -14300,7 +15170,7 @@ function renderAuditLog() {
   };
 
   let html = '<table style="width:100%;font-size:0.75rem;border-collapse:collapse;">';
-  html += '<thead><tr><th style="padding:4px;text-align:left;">Time</th><th style="text-align:left;">Action</th><th style="text-align:left;">Details</th></tr></thead><tbody>';
+  html += '<thead><tr><th scope="col" style="padding:4px;text-align:left;">Time</th><th scope="col" style="text-align:left;">Action</th><th scope="col" style="text-align:left;">Details</th></tr></thead><tbody>';
   const recent = log.slice(-50).reverse();
   for (const entry of recent) {
     const icon = iconMap[entry.action] ?? '\u25CF';
@@ -14347,7 +15217,7 @@ function renderExecSummary() {
   html += '<span>k=' + track.k + '</span>';
   html += '<span>I\u00B2=' + I2.toFixed(0) + '%</span>';
   html += '<span style="color:' + (gradeColors[grade] ?? '#64748b') + ';font-weight:600;">GRADE: ' + escapeHtml(grade) + '</span>';
-  if (dr) html += '<span style="color:' + ({ 'STRONG BENEFIT': '#16a34a', 'PROBABLE BENEFIT': '#2563eb', 'POSSIBLE BENEFIT': '#d97706', 'UNCERTAIN': '#64748b', 'POSSIBLE HARM': '#dc2626' }[dr.verdict] ?? '#64748b') + ';font-weight:600;">' + dr.verdict + '</span>';
+  if (dr) html += '<span style="color:' + ({ 'STRONG BENEFIT': '#16a34a', 'PROBABLE BENEFIT': '#2563eb', 'POSSIBLE BENEFIT': '#d97706', 'UNCERTAIN': '#64748b', 'POSSIBLE HARM': '#dc2626' }[dr.verdict] ?? '#64748b') + ';font-weight:600;">' + escapeHtml(dr.verdict) + '</span>';
   html += '<span style="color:' + sigColor + ';">' + (sig ? '\u2714 Significant' : '\u2718 Not sig') + '</span>';
   content.innerHTML = html;
 }
@@ -14393,8 +15263,8 @@ function runConfigComparison() {
   });
 
   let html = '<table style="width:100%;font-size:0.82rem;border-collapse:collapse;">';
-  html += '<thead><tr><th style="padding:6px;text-align:left;">Metric</th>';
-  for (const r of results) html += '<th style="padding:6px;text-align:center;">' + escapeHtml((r?.name ?? 'N/A').substring(0, 40)) + '</th>';
+  html += '<thead><tr><th scope="col" style="padding:6px;text-align:left;">Metric</th>';
+  for (const r of results) html += '<th scope="col" style="padding:6px;text-align:center;">' + escapeHtml((r?.name ?? 'N/A').substring(0, 40)) + '</th>';
   html += '</tr></thead><tbody>';
   const metrics = ['k', 'effect', 'ciLo', 'ciHi', 'I2', 'tau2'];
   const labels = ['Studies (k)', 'Pooled Effect', 'CI Lower', 'CI Upper', 'I\u00B2 (%)', '\u03C4\u00B2'];
@@ -14424,11 +15294,11 @@ function addUserTrial() {
   const year = parseInt(document.getElementById('te-year')?.value) || new Date().getFullYear();
   const nT = parseInt(document.getElementById('te-nt')?.value) || 0;
   const nC = parseInt(document.getElementById('te-nc')?.value) || 0;
-  const tE = parseInt(document.getElementById('te-te')?.value) ?? null;
-  const cE = parseInt(document.getElementById('te-ce')?.value) ?? null;
-  const hr = parseFloat(document.getElementById('te-hr')?.value) || null;
-  const hrLo = parseFloat(document.getElementById('te-hrlo')?.value) || null;
-  const hrHi = parseFloat(document.getElementById('te-hrhi')?.value) || null;
+  const _tE = parseInt(document.getElementById('te-te')?.value); const tE = isNaN(_tE) ? null : _tE;
+  const _cE = parseInt(document.getElementById('te-ce')?.value); const cE = isNaN(_cE) ? null : _cE;
+  const _hr = parseFloat(document.getElementById('te-hr')?.value); const hr = isFinite(_hr) ? _hr : null;
+  const _hrLo = parseFloat(document.getElementById('te-hrlo')?.value); const hrLo = isFinite(_hrLo) ? _hrLo : null;
+  const _hrHi = parseFloat(document.getElementById('te-hrhi')?.value); const hrHi = isFinite(_hrHi) ? _hrHi : null;
 
   const config = getConfig();
   if (!config) { showToast('No config loaded.'); return; }
@@ -14440,7 +15310,7 @@ function addUserTrial() {
   const trial = {
     id, nctId: nct, year, phase: 'PHASE3', nTreatment: nT, nControl: nC, nTotal: nT + nC,
     status: 'User-added', reference: 'User-entered data',
-    outcomes: {}, rob: { domains: ['low','low','low','low','low'], overall: 'low' },
+    outcomes: {}, rob: { domains: ['unclear','unclear','unclear','unclear','unclear'], overall: 'unclear' },
     _userAdded: true
   };
   trial.outcomes[outcomeKey] = {};
@@ -14488,7 +15358,7 @@ function runWhatIf() {
   const effectInput = parseFloat(document.getElementById('wi-effect')?.value);
   const seInput = parseFloat(document.getElementById('wi-se')?.value);
   const nInput = parseInt(document.getElementById('wi-n')?.value) || 0;
-  if (!effectInput || !seInput || seInput <= 0) { showToast('Enter valid effect and SE.'); return; }
+  if (!isFinite(effectInput) || effectInput <= 0 || !isFinite(seInput) || seInput <= 0) { showToast('Enter valid positive effect and SE.'); return; }
 
   const yiNew = [...track.yi, Math.log(effectInput)];
   const viNew = [...track.vi, seInput * seInput];
@@ -14615,7 +15485,7 @@ function renderPowerCalc(pc) {
   const pwColor = pc.currentPower >= 0.80 ? '#16a34a' : pc.currentPower >= 0.50 ? '#d97706' : '#dc2626';
   html += '<div style="background:var(--bg-card);padding:10px;border-radius:6px;text-align:center;">';
   html += '<div style="font-size:1.2rem;font-weight:700;color:' + pwColor + ';">' + (pc.currentPower * 100).toFixed(0) + '%</div>';
-  html += '<div style="font-size:0.7rem;opacity:0.6;">Current Power</div></div>';
+  html += '<div style="font-size:0.7rem;opacity:0.6;">Post-hoc Power*</div></div>';
   html += '<div style="background:var(--bg-card);padding:10px;border-radius:6px;text-align:center;">';
   html += '<div style="font-size:1.1rem;font-weight:700;">' + pc.effect.toFixed(3) + '</div>';
   html += '<div style="font-size:0.7rem;opacity:0.6;">Detected Effect</div></div>';
@@ -14628,7 +15498,7 @@ function renderPowerCalc(pc) {
   html += '</div>';
 
   html += '<table style="width:100%;font-size:0.78rem;border-collapse:collapse;">';
-  html += '<thead><tr><th style="padding:6px;text-align:left;">Target Power</th><th>Info Fraction</th><th>Additional k Needed</th><th>Additional N Needed</th><th>Total N Required</th></tr></thead><tbody>';
+  html += '<thead><tr><th scope="col" style="padding:6px;text-align:left;">Target Power</th><th scope="col">Info Fraction</th><th scope="col">Additional k Needed</th><th scope="col">Additional N Needed</th><th scope="col">Total N Required</th></tr></thead><tbody>';
   for (const r of pc.results) {
     const ifColor = r.infoFraction >= 1 ? '#16a34a' : r.infoFraction >= 0.5 ? '#d97706' : '#dc2626';
     html += '<tr><td style="padding:6px;font-weight:600;">' + (r.power * 100) + '%</td>';
@@ -14638,6 +15508,7 @@ function renderPowerCalc(pc) {
     html += '<td style="text-align:center;">' + r.nTotal.toLocaleString() + '</td></tr>';
   }
   html += '</tbody></table>';
+  html += '<div style="font-size:0.7rem;opacity:0.5;margin-top:6px;">*Post-hoc power is a monotonic function of the p-value and does not represent a priori detection probability (Hoenig &amp; Heisey 2001). Interpret with caution.</div>';
   area.innerHTML = html;
 }
 
@@ -14684,14 +15555,14 @@ function renderSensitivityForest(results) {
   for (const [name, tau2Res] of Object.entries(track.tau2All)) {
     if (tau2Res == null || tau2Res.tau2 == null) continue;
     try {
-      const pe = PooledEstimate(track.yi, track.vi, tau2Res.tau2, { hksj: false, confLevel: 0.95, method: name });
+      const pe = PooledEstimate(track.yi, track.vi, tau2Res.tau2, { hksj: false, confLevel: AppState.settings?.confLevel ?? 0.95, method: name });
       if (pe && isFinite(pe.estimate)) methods.push({ name: name + ' (RE)', est: Math.exp(pe.estimate), ciLo: Math.exp(pe.ci[0]), ciHi: Math.exp(pe.ci[1]), color: '#3b82f6' });
     } catch(e) { /* skip failed estimator */ }
   }
   /* HKSJ */
   try {
     const hksjTau2 = (track.tau2All?.REML ?? track.tau2All?.DL)?.tau2 ?? 0;
-    const peHKSJ = PooledEstimate(track.yi, track.vi, hksjTau2, { hksj: true, confLevel: 0.95, method: 'HKSJ' });
+    const peHKSJ = PooledEstimate(track.yi, track.vi, hksjTau2, { hksj: true, confLevel: AppState.settings?.confLevel ?? 0.95, method: 'HKSJ' });
     if (peHKSJ && isFinite(peHKSJ.estimate)) methods.push({ name: 'REML+HKSJ', est: Math.exp(peHKSJ.estimate), ciLo: Math.exp(peHKSJ.ci[0]), ciHi: Math.exp(peHKSJ.ci[1]), color: '#7c3aed' });
   } catch(e) {}
   /* Fixed-effect */
@@ -14741,11 +15612,11 @@ function renderRobTrafficLight(config) {
   const symbolMap = { low: '+', some: '?', high: '\u2212', unclear: '?' };
 
   let html = '<table style="width:100%;font-size:0.78rem;border-collapse:collapse;">';
-  html += '<thead><tr><th style="text-align:left;padding:6px;">Study</th>';
+  html += '<thead><tr><th scope="col" style="text-align:left;padding:6px;">Study</th>';
   for (let d = 0; d < 5; d++) {
-    html += '<th style="text-align:center;padding:6px;font-size:0.7rem;" title="' + domainLabels[d] + '">' + domainShort[d] + '</th>';
+    html += '<th scope="col" style="text-align:center;padding:6px;font-size:0.7rem;" title="' + domainLabels[d] + '">' + domainShort[d] + '</th>';
   }
-  html += '<th style="text-align:center;padding:6px;">Overall</th></tr></thead><tbody>';
+  html += '<th scope="col" style="text-align:center;padding:6px;">Overall</th></tr></thead><tbody>';
 
   for (const trial of config.trials) {
     const rob = trial.rob;
@@ -14819,7 +15690,7 @@ function renderMultiOutcomeHeatmap() {
 
   /* Render heatmap table */
   let html = '<table style="width:100%;font-size:0.78rem;border-collapse:collapse;">';
-  html += '<thead><tr><th style="text-align:left;padding:6px;">Outcome</th><th>k</th><th>Effect</th><th>' + (AppState.settings?.confLevel ?? 0.95) * 100 + '% CI</th><th>I\u00B2</th><th>\u03C4\u00B2</th><th>p</th><th>GRADE</th><th>Sig</th></tr></thead><tbody>';
+  html += '<thead><tr><th scope="col" style="text-align:left;padding:6px;">Outcome</th><th scope="col">k</th><th scope="col">Effect</th><th scope="col">' + (AppState.settings?.confLevel ?? 0.95) * 100 + '% CI</th><th scope="col">I\u00B2</th><th scope="col">\u03C4\u00B2</th><th scope="col">p</th><th scope="col">GRADE</th><th scope="col">Sig</th></tr></thead><tbody>';
 
   for (const o of outcomes) {
     const effColor = o.sig ? (o.effect < 1 ? '#16a34a' : '#dc2626') : 'inherit';
@@ -14855,11 +15726,12 @@ function exportGradeCSV() {
     return;
   }
   const config = getConfig();
+  const safeCSV = function(v) { let s = String(v); if (/^[=+@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
   let csv = 'Outcome,k,Measure,Effect,CI_Lower,CI_Upper,I2_pct,Tau2,P_value,GRADE,Significant\n';
   for (const o of outcomes) {
-    csv += [o.key, o.k, o.measure, o.effect.toFixed(4), o.ciLo.toFixed(4), o.ciHi.toFixed(4),
+    csv += [safeCSV(o.key), o.k, safeCSV(o.measure), o.effect.toFixed(4), o.ciLo.toFixed(4), o.ciHi.toFixed(4),
       o.I2.toFixed(1), o.tau2.toFixed(4), o.pval != null ? o.pval.toFixed(4) : 'NA',
-      o.grade, o.sig ? 'Yes' : 'No'].join(',') + '\n';
+      safeCSV(o.grade), o.sig ? 'Yes' : 'No'].join(',') + '\n';
   }
   const blob = new Blob([csv], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
@@ -14905,16 +15777,17 @@ function computeThreeLevelMA(yi, vi, trialIds) {
     const QB = sum(clusterEst.map((c, i) => wcB[i] * Math.pow(c.theta - thetaG, 2)));
     const CB = sumWB - sum(wcB.map(w => w * w)) / sumWB;
     tau2B = Math.max(0, (QB - (nClusters - 1)) / Math.max(CB, 1e-15));
-    let QW = 0, dfW = 0;
+    let QW = 0, dfW = 0, CW_denom = 0;
     for (const c of clusterEst) {
       if (c.k < 2) continue;
       const wiW = c.idx.map(j => 1 / (vi[j] + tau2W));
       const sumWW = sum(wiW);
       const muC = sum(c.idx.map((j, ii) => wiW[ii] * yi[j])) / sumWW;
       QW += sum(c.idx.map((j, ii) => wiW[ii] * Math.pow(yi[j] - muC, 2)));
+      CW_denom += sumWW - sum(wiW.map(w => w * w)) / sumWW;
       dfW += c.k - 1;
     }
-    if (dfW > 0) { const CW = QW / dfW; tau2W = Math.max(0, CW > 1 ? tau2W * CW : tau2W * 0.5); }
+    if (dfW > 0) { tau2W = Math.max(0, (QW - dfW) / Math.max(CW_denom, 1e-15)); }
     if (Math.abs(tau2W - prevW) + Math.abs(tau2B - prevB) < 1e-6) { converged = true; break; }
   }
   const tau2T = tau2W + tau2B;
@@ -14952,7 +15825,7 @@ function renderThreeLevelMA(result) {
     if (c.sub) html += '<div style="font-size:0.68rem;opacity:0.5;margin-top:2px;">' + c.sub + '</div>';
     html += '</div>';
   }
-  html += '</div><div style="font-size:0.72rem;opacity:0.5;">' + escapeHtml(result.reference) + '. Uses t-distribution (df=' + result.df + ').</div>';
+  html += '</div><div style="font-size:0.72rem;opacity:0.5;">' + escapeHtml(result.reference) + '. Uses t-critical values (df=' + result.df + ').</div>';
   area.innerHTML = html;
 }
 
@@ -14964,7 +15837,6 @@ function computeEvidenceVelocity(trackResult, config) {
   if (!trackResult || !trackResult.cumulative || trackResult.cumulative.length < 3) return null;
   const cum = trackResult.cumulative, k = cum.length;
   const measure = trackResult.measure ?? 'OR';
-  const isRatio = ['HR','OR','RR','IRR'].includes(measure);
   const ciWidths = cum.map(c => c.ci[1] - c.ci[0]);
   let narrowingSteps = 0;
   for (let i = 1; i < ciWidths.length; i++) if (ciWidths[i] < ciWidths[i - 1]) narrowingSteps++;
@@ -15045,7 +15917,8 @@ function computeDecisionRegret(trackResult) {
   if (!trackResult || !trackResult.primary) return null;
   const est = trackResult.primary.estimate, se = trackResult.primary.se;
   const tau2 = trackResult.primary.tau2 ?? 0, k = trackResult.k;
-  const pBenefit = normalCDF(-est / Math.sqrt(se * se + tau2));
+  /* P(pooled effect < 0) using pooled SE only (not predictive distribution) */
+  const pBenefit = normalCDF(-est / se);
   const effect = Math.exp(est);
   const ciLo = Math.exp(trackResult.primary.ci[0]), ciHi = Math.exp(trackResult.primary.ci[1]);
   const I2 = trackResult.primary.I2 ?? 0;
@@ -15087,7 +15960,7 @@ function renderDecisionRegret(dr) {
   if (!dr) { area.innerHTML = '<span style="opacity:0.6;">Run synthesis first</span>'; return; }
   const vc = { 'STRONG BENEFIT': '#16a34a', 'PROBABLE BENEFIT': '#2563eb', 'POSSIBLE BENEFIT': '#d97706', 'UNCERTAIN': '#64748b', 'POSSIBLE HARM': '#dc2626' }[dr.verdict] ?? '#64748b';
   let html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:12px;">';
-  html += '<div style="background:var(--bg-card);padding:14px;border-radius:8px;text-align:center;border-left:4px solid ' + vc + ';"><div style="font-size:1.1rem;font-weight:800;color:' + vc + ';">' + dr.verdict + '</div><div style="font-size:0.7rem;opacity:0.6;">Decision Verdict</div></div>';
+  html += '<div style="background:var(--bg-card);padding:14px;border-radius:8px;text-align:center;border-left:4px solid ' + vc + ';"><div style="font-size:1.1rem;font-weight:800;color:' + vc + ';">' + escapeHtml(dr.verdict) + '</div><div style="font-size:0.7rem;opacity:0.6;">Decision Verdict</div></div>';
   html += '<div style="background:var(--bg-card);padding:14px;border-radius:8px;text-align:center;"><div style="font-size:1.1rem;font-weight:700;">' + (dr.pBenefit * 100).toFixed(1) + '%</div><div style="font-size:0.7rem;opacity:0.6;">P(Benefit)</div></div>';
   html += '<div style="background:var(--bg-card);padding:14px;border-radius:8px;text-align:center;"><div style="font-size:1.1rem;font-weight:700;color:#dc2626;">' + (dr.regretAct * 100).toFixed(0) + '%</div><div style="font-size:0.7rem;opacity:0.6;">Regret (Act)</div></div>';
   html += '<div style="background:var(--bg-card);padding:14px;border-radius:8px;text-align:center;"><div style="font-size:1.1rem;font-weight:700;color:#d97706;">' + (dr.regretWait * 100).toFixed(0) + '%</div><div style="font-size:0.7rem;opacity:0.6;">Regret (Wait)</div></div>';
@@ -15126,7 +15999,7 @@ function computeCooksDistance(yi, vi, tau2, trialNames) {
     const leverage = wiF[i] / sumWF;
     const residual = (yi[i] - thetaFull) / Math.sqrt(vi[i] + tau2);
     const dffits = leverage > 0.999 ? 0 : residual * Math.sqrt(leverage / (1 - leverage));
-    const covRatio = k > 2 ? (1 - leverage) * (k - 1) / (k - 2) : 1;
+    const covRatio = sumWLoo > 0 ? sumWF / sumWLoo : 1; /* Var(theta)/Var(theta_{-i}) */
     if (cookD > maxCookD) { maxCookD = cookD; maxStudy = trialNames[i] ?? ('Study ' + (i + 1)); }
     results.push({ name: trialNames[i] ?? ('Study ' + (i + 1)), cookD, dfbetas, dffits, leverage, residual, covRatio, thetaLoo: Math.exp(thetaLoo), influential: cookD > threshold });
   }
@@ -15142,7 +16015,7 @@ function renderCooksDistance(cd) {
   if (cd.influentialCount === 0) html += '<span style="color:#16a34a;font-weight:600;">\u2714 No influential studies</span> (threshold: 4/k=' + cd.threshold.toFixed(3) + ')';
   else html += '<span style="color:#dc2626;font-weight:600;">\u26A0 ' + cd.influentialCount + ' influential</span> exceeding 4/k=' + cd.threshold.toFixed(3) + ' \u2014 most: <strong>' + escapeHtml(cd.maxStudy) + '</strong> (D=' + cd.maxCookD.toFixed(3) + ')';
   html += '</div>';
-  html += '<table style="width:100%;font-size:0.75rem;border-collapse:collapse;"><thead><tr><th style="text-align:left;padding:4px;">Study</th><th>Cook\'s D</th><th>DFBETAS</th><th>DFFITS</th><th>Leverage</th><th>Residual</th><th>CovRatio</th><th>Flag</th></tr></thead><tbody>';
+  html += '<table style="width:100%;font-size:0.75rem;border-collapse:collapse;"><thead><tr><th scope="col" style="text-align:left;padding:4px;">Study</th><th scope="col">Cook\'s D</th><th scope="col">DFBETAS</th><th scope="col">DFFITS</th><th scope="col">Leverage</th><th scope="col">Residual</th><th scope="col">CovRatio</th><th scope="col">Flag</th></tr></thead><tbody>';
   for (const r of cd.results) {
     html += '<tr style="background:' + (r.influential ? 'rgba(220,38,38,0.06)' : '') + ';"><td style="padding:4px;font-weight:600;">' + escapeHtml(r.name) + '</td>';
     html += '<td style="text-align:center;' + (r.influential ? 'font-weight:700;color:#dc2626;' : '') + '">' + r.cookD.toFixed(3) + '</td>';
@@ -15330,7 +16203,7 @@ function renderNMA(nma) {
 
   /* Ranking table with P-scores */
   html += '<table style="width:100%;font-size:0.82rem;border-collapse:collapse;margin-bottom:12px;">';
-  html += '<thead><tr><th style="padding:6px;text-align:left;">Rank</th><th style="text-align:left;">Treatment Class</th><th>P-score</th><th>k</th><th>vs Control</th></tr></thead><tbody>';
+  html += '<thead><tr><th scope="col" style="padding:6px;text-align:left;">Rank</th><th scope="col" style="text-align:left;">Treatment Class</th><th scope="col">P-score</th><th scope="col">k</th><th scope="col">vs Control</th></tr></thead><tbody>';
   for (const r of nma.ranking) {
     const est = nma.classEstimates[r.key];
     const or = est ? Math.exp(est.pooled.estimate).toFixed(3) : 'N/A';
@@ -15363,11 +16236,11 @@ function renderNMA(nma) {
     const keys = nma.ranking.map(r => r.key);
     let lt = '<div style="font-size:0.82rem;font-weight:600;margin-bottom:8px;">League Table (indirect comparisons)</div>';
     lt += '<table style="font-size:0.75rem;border-collapse:collapse;width:100%;">';
-    lt += '<thead><tr><th style="padding:4px;"></th>';
-    for (const k of keys) lt += '<th style="padding:4px;text-align:center;font-size:0.7rem;">' + escapeHtml(nma.classEstimates[k].label) + '</th>';
+    lt += '<thead><tr><th scope="col" style="padding:4px;"></th>';
+    for (const k of keys) lt += '<th scope="col" style="padding:4px;text-align:center;font-size:0.7rem;">' + escapeHtml(nma.classEstimates[k].label) + '</th>';
     lt += '</tr></thead><tbody>';
     for (let i = 0; i < keys.length; i++) {
-      lt += '<tr><th style="padding:4px;text-align:left;font-size:0.7rem;">' + escapeHtml(nma.classEstimates[keys[i]].label) + '</th>';
+      lt += '<tr><th scope="col" style="padding:4px;text-align:left;font-size:0.7rem;">' + escapeHtml(nma.classEstimates[keys[i]].label) + '</th>';
       for (let j = 0; j < keys.length; j++) {
         if (i === j) { lt += '<td style="padding:4px;text-align:center;background:var(--accent-light);font-weight:600;">Ref</td>'; continue; }
         const comp = nma.comparisons.find(c => (c.a === keys[i] && c.b === keys[j]) || (c.a === keys[j] && c.b === keys[i]));
@@ -15584,7 +16457,7 @@ function renderOutcomeHarmonization(harm) {
 
   /* Definition table */
   html += '<table style="width:100%;font-size:0.78rem;border-collapse:collapse;margin-top:12px;">';
-  html += '<thead><tr><th style="text-align:left;padding:4px;">Trial</th><th>Year</th><th>Composite Type</th><th>Estimand</th><th>N</th></tr></thead><tbody>';
+  html += '<thead><tr><th scope="col" style="text-align:left;padding:4px;">Trial</th><th scope="col">Year</th><th scope="col">Composite Type</th><th scope="col">Estimand</th><th scope="col">N</th></tr></thead><tbody>';
   for (const t of harm.trialDefs) {
     const isAssumed = t.compositeType.includes('assumed');
     html += '<tr><td style="padding:4px;font-weight:600;">' + escapeHtml(t.trialId) + '</td>';
@@ -15697,7 +16570,7 @@ function renderDataQuality(dq) {
 
   /* Per-trial table */
   html += '<table style="width:100%;font-size:0.78rem;border-collapse:collapse;">';
-  html += '<thead><tr><th style="text-align:left;padding:4px;">Trial</th><th>Year</th><th>NCT ID</th><th>Quality</th><th>Flags</th></tr></thead><tbody>';
+  html += '<thead><tr><th scope="col" style="text-align:left;padding:4px;">Trial</th><th scope="col">Year</th><th scope="col">NCT ID</th><th scope="col">Quality</th><th scope="col">Flags</th></tr></thead><tbody>';
   for (const t of dq.trialScores) {
     const barColor = t.pct >= 80 ? '#16a34a' : t.pct >= 60 ? '#d97706' : '#dc2626';
     html += '<tr><td style="padding:4px;font-weight:600;">' + escapeHtml(t.trialId) + '</td>';
@@ -15851,6 +16724,12 @@ function generateFullMethodsReport() {
     report += '  - Meta-regression (subgroup + year)\n';
     if (config.subgroups?.drugClass) report += '  - Network meta-analysis (Bucher indirect comparisons, P-scores)\n';
   }
+  report += '  - Three-level meta-analysis for clustered studies (Konstantopoulos 2011)\n';
+  report += '  - Evidence velocity and maturity scoring\n';
+  report += '  - Decision regret analysis (act vs wait framework)\n';
+  report += '  - Cook\'s distance, DFBETAS, DFFITS influence diagnostics (Viechtbauer & Cheung 2010)\n';
+  report += '  - Power and sample size calculator (prospective)\n';
+  report += '  - Multi-outcome heatmap with cross-outcome GRADE comparison\n';
   report += '\n';
 
   /* 11. CERTAINTY OF EVIDENCE */
@@ -16003,5 +16882,6 @@ function renderPatientSummary() {
 setTimeout(init, 0);
 </script>
 </main>
+<footer id="sessionStatsFooter" style="padding:8px 16px;font-size:0.7rem;opacity:0.5;text-align:center;border-top:1px solid var(--border-color);margin-top:16px;"></footer>
 </body>
 </html>
