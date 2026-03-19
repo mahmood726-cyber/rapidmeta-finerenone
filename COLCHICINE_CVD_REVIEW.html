@@ -7710,7 +7710,23 @@
                 }
                 const fragTotalN = plotData.reduce((a, d) => a + d.tN + d.cN, 0);
                 const fragQuot = fragTotalN > 0 ? (fragIdx / fragTotalN * 100).toFixed(1) : '--';
-                return { plotData, Q, k, df, I2, tau2, sWR, pLogOR, pSE, confLevel, zCrit, pOR, lci, uci, hksjLCI, hksjUCI, piLCI, piUCI, qPvalue, eggerResult, fragIdx, fragQuot };
+                
+                // I-squared CI (Higgins & Thompson 2002, test-based)
+                let I2_lo = 0, I2_hi = 0;
+                if (k >= 2 && Q > 0) {
+                    if (Q > df) {
+                        const seLogH2 = (Q > 1) ? 0.5 * Math.log(Q / df) / (Math.sqrt(2 * Q) - Math.sqrt(2 * df - 1)) : 0;
+                        const H2 = Q / df;
+                        const H2_lo = Math.exp(Math.log(H2) - zCrit * seLogH2);
+                        const H2_hi = Math.exp(Math.log(H2) + zCrit * seLogH2);
+                        I2_lo = Math.max(0, (1 - 1 / H2_lo) * 100);
+                        I2_hi = Math.min(100, (1 - 1 / H2_hi) * 100);
+                    } else {
+                        I2_lo = 0;
+                        I2_hi = Math.max(0, (1 - 1 / (Q / Math.max(1, df))) * 100);
+                    }
+                }
+                return { plotData, Q, k, df, I2, tau2, sWR, pLogOR, pSE, confLevel, zCrit, pOR, lci, uci, hksjLCI, hksjUCI, piLCI, piUCI, qPvalue, eggerResult, fragIdx, fragQuot, I2_lo, I2_hi };
             },
 
             computePublishedRatioCore(trials) {
@@ -8055,8 +8071,22 @@
                 document.getElementById('res-or').innerText = c.pOR.toFixed(2);
                 document.getElementById('res-ci').innerText = `${c.lci.toFixed(2)} \u2014 ${c.uci.toFixed(2)}`;
                 document.getElementById('res-ci-label').innerText = `Precision (${ciPct}% CI)`;
-                document.getElementById('res-i2').innerText = `${c.I2.toFixed(1)}%`;
-                document.getElementById('res-hksj').innerText = `${c.hksjLCI.toFixed(2)} \u2014 ${c.hksjUCI.toFixed(2)}`;
+                document.getElementById('res-i2').innerText = c.I2_hi > 0 && c.k >= 2
+                    ? `${c.I2.toFixed(0)}% (${c.I2_lo.toFixed(0)}-${c.I2_hi.toFixed(0)}%)`
+                    : `${c.I2.toFixed(1)}%`;
+                if (Number.isFinite(c.hksjLCI) && Number.isFinite(c.hksjUCI)) {
+                    const hksjEl = document.getElementById('res-hksj');
+                    hksjEl.innerText = `${c.hksjLCI.toFixed(2)} \u2014 ${c.hksjUCI.toFixed(2)}`;
+                    const waldSig = (c.lci > 1) || (c.uci < 1);
+                    const hksjSig = (c.hksjLCI > 1) || (c.hksjUCI < 1);
+                    const hksjCard = hksjEl.closest('.glass') || hksjEl.parentElement;
+                    if (waldSig && !hksjSig) {
+                        hksjCard.style.borderColor = '#f59e0b';
+                        hksjCard.title = 'Discordance: Wald CI significant but HKSJ crosses null. HKSJ uses t(k-1) and is more reliable for small k.';
+                    } else { hksjCard.style.borderColor = ''; hksjCard.title = ''; }
+                } else {
+                    document.getElementById('res-hksj').innerText = 'N/A';
+                }
                 document.getElementById('res-pi').innerText = (c.k >= 3) ? `${c.piLCI.toFixed(2)} \u2014 ${c.piUCI.toFixed(2)}` : 'N/A (k < 3)';
                 document.getElementById('res-qtest').innerText = `Q(${c.df}) = ${c.Q.toFixed(1)}, p = ${c.qPvalue < 0.001 ? '<0.001' : c.qPvalue.toFixed(3)}`;
                 // Egger chip
@@ -8071,6 +8101,16 @@
                     eggerChip.className = 'stat-chip stat-chip-blue'; eggerChip.dataset.pvalue = '1'; eggerChip.id = 'stat-egger';
                     eggerChip.innerHTML = '<i class="fa-solid fa-chart-line" style="font-size:10px"></i> Egger\u2019s: N/A (k < 3)';
                 }
+                // Sensitivity concordance summary
+                const sensEl = document.getElementById('sensitivity-concordance');
+                if (sensEl) {
+                    const waldSig = (c.lci > 1) || (c.uci < 1);
+                    const hksjSig = c.k >= 2 && Number.isFinite(c.hksjLCI) && ((c.hksjLCI > 1) || (c.hksjUCI < 1));
+                    const piSig = c.k >= 3 && Number.isFinite(c.piLCI) && ((c.piLCI > 1) || (c.piUCI < 1));
+                    const mk = (sig, label) => `<span class="inline-block px-2 py-0.5 rounded-full text-[9px] font-bold mr-1 ${sig ? 'bg-emerald-500/20 text-emerald-300' : 'bg-red-500/20 text-red-300'}">${label}: ${sig ? 'SIG' : 'NS'}</span>`;
+                    sensEl.innerHTML = mk(waldSig, 'Wald') + mk(hksjSig, 'HKSJ') + mk(piSig, 'PI') + (waldSig && !hksjSig ? '<span class="text-[9px] text-amber-300 ml-1">Discordant: consider HKSJ more reliable for small k</span>' : '');
+                }
+                
                 // Fragility chip
                 const fragChip = document.getElementById('chip-fragility');
                 if (c.fragilityNA) {
