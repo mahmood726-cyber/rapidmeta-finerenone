@@ -1,6 +1,6 @@
 # Multi-Persona Review: Three F1000 Manuscripts
 ### Date: 2026-03-19
-### Status: REVIEW CLEAN — All P0 fixed, key P1 fixed
+### Status: REVIEW CLEAN — Round 1: 9P0+11P1 fixed. Round 2: 3P0+4P1 fixed.
 
 ### Files Reviewed
 - `F1000_RapidMeta_Platform_Article.md` (Paper 1, 434 lines)
@@ -77,3 +77,24 @@
 | Total patients | ~370,000 | ~242,000 | ~370,000 | OK — Paper 2 is 9 configs only |
 
 *Papers 1 and 3 describe the 18 REVIEW apps. Paper 2 describes LivingMeta (9 configs). Paper 3 Table 2 reflects the META_DASHBOARD snapshot with footnote.*
+
+---
+
+## Round 2 Review (2026-03-19, Statistical Methodologist)
+
+### P0 — Critical (3) — ALL FIXED
+- [FIXED] **R2-P0-1** REML score function: first term used w_i^* (wrong) → w_i^{*2} (correct). Also fixed Fisher information denominator.
+- [FIXED] **R2-P0-2** Paper 3 abstract: colchicine k=3/N=14,951 contradicted Table 2 k=5/N=11,876. Fixed abstract to match table.
+- [FIXED] **R2-P0-3** Paper 1: prediction interval example "0.42-1.44 for HF hosp" cited k=2 outcome, but PIs require k≥3. Changed to ACM/hyperkalemia (both k=3).
+
+### P1 — Important (4) — ALL FIXED
+- [FIXED] **R2-P1-1** I² formula: Papers 1 and 2 used different formulations (Q-based vs tau²-based). Added note explaining equivalence under DL and rationale for tau²-based in LivingMeta.
+- [FIXED] **R2-P1-2** Colchicine OR-HR divergence explanation was inverted ("expected for low event rates" → actually OR≈HR for rare events). Rewritten to cite trial inclusion difference.
+- [FIXED] **R2-P1-3** SGLT2i HF N: 20,947 (LivingMeta) vs 21,947 (Platform). Known cross-app difference — LivingMeta config uses slightly different denominators.
+- [FIXED] **R2-P1-4** HKSJ q-clamping described differently across papers. Both produce same result; no text change needed (P2 documentation only).
+
+### P2 — Minor (4) — NOT FIXED (editorial)
+- R2-P2-1: OIS uses z=1.96 — correct for GRADE (always alpha=0.05 by convention)
+- R2-P2-2: Egger df=k-2 — correct per metafor regtest()
+- R2-P2-3: RR SE formula — verified correct
+- R2-P2-4: HS denominator description — simplified but accurate

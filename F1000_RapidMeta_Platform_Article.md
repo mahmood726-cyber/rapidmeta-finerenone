@@ -78,7 +78,7 @@ Studies with double-zero events (both arms zero) or double-complete events are e
 
 **HKSJ adjustment.** The Hartung-Knapp-Sidik-Jonkman method [12] replaces the normal z-critical value with a t-distribution quantile (df = k-1) and scales the variance estimate by max(1, q*), where q* = sum(w_i* * (y_i - y_bar*)^2) / (k-1). The IQWiG modification is applied: the final CI is the wider of the HKSJ and standard Wald CIs, preventing paradoxical narrowing.
 
-**Heterogeneity.** I-squared [13] = max(0, (Q - (k-1)) / Q) * 100. Prediction intervals (available for k >= 3) use the t-distribution with df = k-2 and incorporate tau-squared [14]. H-squared = Q / (k-1).
+**Heterogeneity.** I-squared [13] = max(0, (Q - (k-1)) / Q) * 100, where Q is Cochran's heterogeneity statistic. This Q-based formulation is equivalent to tau^2 / (tau^2 + v_typical) under the DL estimator; the companion LivingMeta tool uses the tau-squared-based formulation to support non-DL estimators [2]. Prediction intervals (available for k >= 3) use the t-distribution with df = k-2 and incorporate tau-squared [14]. H-squared = Q / (k-1).
 
 **Publication bias.** Egger's regression test [15] (available for k >= 3), contour-enhanced funnel plots [16], Begg's rank correlation test, trim-and-fill (L0 estimator per Duval & Tweedie [17]), PET-PEESE conditional estimation, and Rosenthal/Orwin fail-safe N.
 
@@ -208,9 +208,9 @@ Table 3 compares application output against 14 published benchmarks. All estimat
 | IV Iron HF | AFFIRM-AHF, Ponikowski 2020 | 33197395 | HR | 0.79 (0.62-1.01) | 0.79 | 0.00 | Recurrent events |
 | Intensive BP | SPRINT, Wright 2015 | 26551272 | HR | 0.75 (0.64-0.89) | 0.75 | 0.00 | Landmark trial |
 
-*Colchicine comparison uses OR (app) vs HR (published); expected divergence for low event rates.
+*Colchicine: app pools OR from 3 trials while the published benchmark pools HR from 2 trials (COLCOT + LoDoCo2 only); the delta reflects both the different effect measure and the different trial inclusion.
 
-Twelve of 14 comparisons (86%) fell within an absolute difference of 0.03. The two larger deviations were attributable to differences in effect measure (OR vs. HR for colchicine) and endpoint definition (IPD kidney failure vs. aggregate eGFR composite for finerenone renal, delta = 0.07 in separate validation; see finerenone-specific article [21]).
+Twelve of 14 comparisons (86%) fell within an absolute difference of 0.03. The two larger deviations were attributable to differences in trial inclusion and effect measure (OR from 3 trials vs. HR from 2 trials for colchicine) and endpoint definition (IPD kidney failure vs. aggregate eGFR composite for finerenone renal, delta = 0.07 in separate validation; see finerenone-specific article [21]).
 
 ### Cross-validation against ClinicalTrials.gov
 
@@ -295,7 +295,7 @@ Users should interpret pooled estimates alongside the following diagnostics:
 
 - **Egger's test** has limited statistical power with k < 10 studies [15]. The application displays a warning when k < 10, noting that asymmetry tests should be interpreted as descriptive rather than confirmatory.
 
-- **Prediction intervals** indicate the range of true effects expected in a future similar study. They are wider than confidence intervals because they incorporate both sampling error and between-study variance. Prediction intervals crossing the null (e.g., 0.42-1.44 for HF hospitalisation) indicate that while the average effect is beneficial, a new study in a somewhat different population might not show benefit.
+- **Prediction intervals** (available for k >= 3) indicate the range of true effects expected in a future similar study. They are wider than confidence intervals because they incorporate both sampling error and between-study variance. For all-cause mortality (k = 3) and hyperkalemia (k = 3), prediction intervals crossing the null indicate that while the average effect is present, a new study in a somewhat different population might not replicate the finding.
 
 - **Bayesian posterior** under vague priors converges toward the frequentist estimate. The three-prior sensitivity analysis (vague, moderate informative, sceptical) reveals how robust the conclusion is to prior specification.
 
