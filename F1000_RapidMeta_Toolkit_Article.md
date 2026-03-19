@@ -15,7 +15,7 @@ Mahmood Ahmad [1,2]
 
 **Results:** We validated the toolkit using a worked example spanning the colchicine cardiovascular evidence base (five RCTs, N = 11,876). MetaExtract correctly identified the hazard ratio, confidence interval, and p-value from the COLCOT abstract with AUTO_VERIFIED confidence (0.90). AutoGRADE produced a MODERATE certainty rating consistent with published GRADE assessments. AutoManuscript generated a 1,200-word Methods and Results draft in under two seconds. Across all 18 drug classes in the dashboard, five achieved HIGH certainty and 16 of 18 demonstrated statistically significant primary endpoints, pooling 65 RCTs enrolling approximately 370,000 participants.
 
-**Conclusions:** The RapidMeta Toolkit eliminates the need for multiple disconnected applications in cardiovascular evidence synthesis. All five tools are freely available under the MIT License at https://github.com/mahmood726-cyber/rapidmeta-cardiology.
+**Conclusions:** The RapidMeta Toolkit eliminates the need for multiple disconnected applications in cardiovascular evidence synthesis. All five tools are freely available under the MIT License at https://github.com/mahmood726-cyber/rapidmeta-finerenone.
 
 **Keywords:** meta-analysis, GRADE, evidence synthesis, clinical trials, cardiovascular, software tool, browser-based
 
@@ -266,7 +266,7 @@ Planned enhancements include: integration of large language model-assisted extra
 
 All five tools in the RapidMeta Toolkit are available as single HTML files under the MIT License:
 
-- **Repository:** https://github.com/mahmood726-cyber/rapidmeta-cardiology
+- **Repository:** https://github.com/mahmood726-cyber/rapidmeta-finerenone
 - **Language:** HTML5, CSS3, JavaScript (ES2020+)
 - **External dependencies:** Plotly.js 2.27.0 (META_DASHBOARD only), Tailwind CSS (AutoManuscript CDN, optional), Font Awesome 6.4.0 (AutoManuscript and META_DASHBOARD, optional for icons)
 - **Runtime requirements:** Any modern web browser (Chrome 90+, Firefox 88+, Edge 90+, Safari 15+)
