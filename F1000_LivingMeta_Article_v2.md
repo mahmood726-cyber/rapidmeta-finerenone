@@ -31,15 +31,15 @@ We developed LivingMeta to address these gaps: a single HTML file (~960 KB) that
 
 ## Methods
 
-### 2.1 Architecture and Design Principles
+### Architecture and Design Principles
 
 LivingMeta is implemented as a single HTML file containing embedded CSS and JavaScript (~16,900 lines). The architecture follows three design principles: (i) zero-installation deployment (a single file that works offline after initial load), (ii) statistical transparency (all formulas implemented in readable JavaScript with explicit documentation), and (iii) independent validation (in-browser R execution for cross-verification).
 
 Two CDN dependencies are loaded for visualization and layout (Plotly.js and Tailwind CSS). WebR v0.4.4 [7] is loaded optionally for in-browser R validation. All statistical computation occurs client-side in JavaScript. The application uses a seeded pseudo-random number generator (xoshiro128**) for deterministic results in permutation tests and bootstrap procedures. Each clinical configuration stores data with explicit provenance text linking every cell to its source publication table.
 
-### 2.2 Statistical Engine
+### Statistical Engine
 
-#### 2.2.1 Between-Study Variance Estimation
+#### Between-Study Variance Estimation
 
 The engine implements six tau-squared estimators following the taxonomy of Viechtbauer [8]. All estimators share the fixed-effect weight definition w_i = 1/v_i and Cochran's Q statistic:
 
@@ -61,7 +61,7 @@ tau^2_HE = max(0, Q_uw / (k-1) - mean(v_i)), where Q_uw = sum((y_i - y_bar)^2) i
 **Empirical Bayes (EB):**
 Starting from tau^2_DL, the EB estimator iterates: tau^2_{new} = max(0, (sum(w_i^{*2} * (y_i - theta^*)^2) / sum(w_i^{*2})) - 1/sum(w_i^*)), converging when |tau^2_{new} - tau^2| < 10^{-10}.
 
-#### 2.2.2 Pooled Estimate and Confidence Intervals
+#### Pooled Estimate and Confidence Intervals
 
 The pooled estimate under the random-effects model uses inverse-variance weights: theta_RE = sum(w_i^* * y_i) / sum(w_i^*), with standard error SE = sqrt(1 / sum(w_i^*)). Heterogeneity is quantified as I^2 = tau^2 / (tau^2 + v_typical) * 100%, where v_typical = (k-1) / C follows the Higgins-Thompson formulation [11]. The Q-test p-value uses the chi-squared distribution with k-1 degrees of freedom.
 
@@ -71,7 +71,7 @@ When enabled, the HKSJ adjustment replaces the normal-based CI with a t-distribu
 **Prediction Interval [14]:**
 PI = theta_RE +/- t_{alpha/2, k-2} * sqrt(1/sum(w_i^*) + tau^2), using the t-distribution with max(1, k-2) degrees of freedom, computed only when k >= 3.
 
-#### 2.2.3 Fixed-Effect Methods
+#### Fixed-Effect Methods
 
 **Mantel-Haenszel Odds Ratio [15]:**
 OR_MH = sum(a_i * d_i / T_i) / sum(b_i * c_i / T_i), where a_i = tE_i, b_i = tN_i - tE_i, c_i = cE_i, d_i = cN_i - cE_i, and T_i = tN_i + cN_i. The Robins-Breslow-Greenland variance estimator provides the confidence interval on the log scale.
@@ -79,11 +79,11 @@ OR_MH = sum(a_i * d_i / T_i) / sum(b_i * c_i / T_i), where a_i = tE_i, b_i = tN_
 **Peto Odds Ratio [16]:**
 ln(OR_Peto) = sum(O_i - E_i) / sum(V_i), where O_i = tE_i, E_i = tN_i * m_i / n_i (m_i = total events, n_i = total participants in study i), and V_i = tN_i * cN_i * m_i * (n_i - m_i) / (n_i^2 * (n_i - 1)). SE = sqrt(1 / sum(V_i)).
 
-#### 2.2.4 Effect Size Calculators
+#### Effect Size Calculators
 
 Effect sizes are computed from 2x2 event count data using: (i) log odds ratio via Woolf's method with 0.5 continuity correction applied only when any cell is zero; (ii) log risk ratio; (iii) log hazard ratio derived from published HR and CI bounds via log transformation; (iv) mean difference; (v) standardized mean difference with Hedges' g small-sample correction (J = 1 - 3/(4*(n1+n2-2)-1)). All critical values are computed from the user's confidence level parameter (not hardcoded at z=1.96).
 
-#### 2.2.5 Advanced Analyses
+#### Advanced Analyses
 
 The engine implements 25+ advanced methods organized into five categories:
 
@@ -97,7 +97,7 @@ The engine implements 25+ advanced methods organized into five categories:
 
 **Heterogeneity Exploration:** Permutation test for pooled effect, profile likelihood confidence intervals for tau-squared, bootstrap prediction interval (10,000 resamples with seeded PRNG), meta-regression (categorical Q-between and continuous weighted least-squares slope), subgroup analysis with Q-between test, E-value for unmeasured confounding sensitivity, convergence dashboard comparing all estimators.
 
-### 2.3 Text Extractor
+### Text Extractor
 
 A JavaScript text extraction module (50+ regex patterns) identifies effect estimates from unstructured clinical text, ported from a validated Python extraction pipeline (rct_data_extractor_v2, 94.6% accuracy on 1,290 open-access PDFs [25]). Supported effect types include hazard ratio (HR, aHR, csHR), odds ratio (OR, aOR), risk ratio (RR, IRR), mean difference (MD, WMD), standardized mean difference (SMD), absolute risk difference (ARD), number needed to treat/harm (NNT/NNH), and vaccine efficacy (VE). Event count patterns extract 2x2 table data from "X/N vs Y/N" formats. P-values are automatically linked to the nearest preceding effect estimate.
 
@@ -105,7 +105,7 @@ Text normalization handles: Unicode dashes (en-dash, em-dash, hyphen variants), 
 
 Each extraction receives a confidence tier: **AUTO_VERIFIED** (high-confidence match with plausible values and complete CI), **SPOT_CHECK** (valid extraction requiring brief manual review), or **NEEDS_REVIEW** (partial match, missing CI, or borderline plausibility). Effect computation formulas allow derivation of OR, RR, RD, and SMD with Hedges' g correction from extracted raw event counts when published estimates are unavailable.
 
-### 2.4 In-Browser R Validation (WebR)
+### In-Browser R Validation (WebR)
 
 LivingMeta integrates WebR v0.4.4 (R compiled to WebAssembly) [7] to provide gold-standard validation without requiring a local R installation. When activated, the tool:
 
@@ -120,7 +120,7 @@ Concordance tolerances: pooled log-OR within 0.001, CI bounds within 0.002, tau-
 
 An exportable R validation script is also generated, allowing users to run the same analysis in a local R installation for additional verification.
 
-### 2.5 Clinical Configurations
+### Clinical Configurations
 
 Nine pre-configured clinical topics serve as embedded demonstration datasets and validation fixtures (Table 1). All trial data are sourced exclusively from published primary reports and their supplementary materials, with provenance text linking each data cell to its source table and publication. ClinicalTrials.gov NCT identifiers and registry URLs are provided for every trial.
 
@@ -141,7 +141,7 @@ Nine pre-configured clinical topics serve as embedded demonstration datasets and
 
 Each configuration includes a complete PICO definition, structured search strategy (ClinicalTrials.gov, PubMed, OpenAlex queries), eligibility criteria, subgroup definitions, risk-of-bias assessments (five RoB 2 domains per trial), and multiple outcome definitions (primary composite plus secondary endpoints).
 
-### 2.6 GRADE Certainty Assessment
+### GRADE Certainty Assessment
 
 Automated GRADE certainty of evidence assessment [26] evaluates five domains:
 
@@ -153,21 +153,21 @@ Automated GRADE certainty of evidence assessment [26] evaluates five domains:
 
 Starting from HIGH certainty (RCT evidence), the tool applies cumulative downgrades across all five domains, producing a final rating of HIGH, MODERATE, LOW, or VERY LOW with domain-specific justifications.
 
-### 2.7 Patient Mode
+### Patient Mode
 
 A clinician/patient toggle activates a simplified display with: (i) traffic-light interpretation (green = likely beneficial, amber = uncertain, red = likely harmful) based on pooled effect direction and CI, (ii) plain language summary replacing statistical terminology, (iii) NNT pictogram showing the number of patients needed to treat to prevent one event, and (iv) GRADE certainty summary. This mode is designed for shared decision-making in clinical consultations.
 
-### 2.8 Accessibility
+### Accessibility
 
 All eight tab panels implement WAI-ARIA keyboard navigation (ArrowLeft/Right/Home/End), screen reader support (role="tablist", role="tab", role="tabpanel", aria-selected, tabindex management), and a prefers-reduced-motion media query. Dark mode is available with WCAG AA contrast ratios (minimum 4.5:1 for body text). Interactive tables include sortable headers with aria-sort attributes.
 
-### 2.9 Quality Assurance
+### Quality Assurance
 
 The application underwent multi-persona code review (five personas: Statistical Methodologist, Security Auditor, UX/Accessibility Reviewer, Software Engineer, Clinical Domain Expert) across two review rounds, identifying and resolving 17 critical (P0) and 33 important (P1) issues across statistical correctness, security hardening (input sanitization, CSP headers), WCAG accessibility, and clinical data accuracy. A 36-assertion automated Selenium test suite validates all nine configurations, seven text extraction pattern types, computation formulas, advanced features (Bayesian, NNT, meta-regression, patient mode), data fix verification (ELIXA MACE definition, SOLOIST estimand type, SPRINT enrollment, HELIOS-B NCT identifier), security patches, and accessibility requirements.
 
 ## Results
 
-### 3.1 Statistical Accuracy
+### Statistical Accuracy
 
 Table 2 presents the concordance between LivingMeta's JavaScript engine and R metafor (DL method, primary MACE outcome) across all nine clinical configurations. All comparisons are within pre-specified tolerances.
 
@@ -217,7 +217,7 @@ Additionally, the tool was benchmarked against seven published meta-analyses. Th
 
 *Asterisked values differ because LivingMeta includes more trials than the cited published analysis.*
 
-### 3.2 Text Extraction Performance
+### Text Extraction Performance
 
 The text extractor was validated against standard clinical trial reporting formats. Table 4 presents extraction results for representative trial abstracts.
 
@@ -235,7 +235,7 @@ The text extractor was validated against standard clinical trial reporting forma
 
 All seven pattern types (HR, aHR, OR, RR, event counts, NNT, MD) were correctly extracted with appropriate confidence tiers. The computation module correctly derives OR, RR, and SMD from raw event counts.
 
-### 3.3 Feature Comparison with Existing Tools
+### Feature Comparison with Existing Tools
 
 Table 5 compares LivingMeta against five widely used meta-analysis tools across 20 capability dimensions.
 
@@ -266,7 +266,7 @@ Table 5 compares LivingMeta against five widely used meta-analysis tools across 
 
 *Requires active internet connection and maintained server infrastructure.*
 
-### 3.4 Automated Test Coverage
+### Automated Test Coverage
 
 The 36-assertion Selenium test suite validates: (i) all 9 configurations synthesize successfully (assertions 1-9), (ii) 7 text extraction pattern types produce correct results (assertions 10-16), (iii) 4 computation formulas (OR, RR, SMD, plausibility verification) are correct (assertions 17-20), (iv) 4 advanced features (Bayesian posterior, NNT curve, meta-regression, patient mode toggle) function correctly (assertions 21-24), (v) 4 clinical data fixes are verified (assertions 25-28), (vi) 4 security/engineering patches are operational (assertions 29-32), (vii) 3 accessibility requirements are met (assertions 33-35), and (viii) no JavaScript errors occur during full execution (assertion 36). All 36 assertions pass.
 
@@ -316,7 +316,7 @@ When a new trial is published (e.g., a hypothetical COLCOT-2 trial), the user re
 
 ## Output Interpretation Guidance
 
-### 6.1 When Diagnostics Are Meaningful
+### When Diagnostics Are Meaningful
 
 Several statistical tests implemented in LivingMeta have well-documented limitations that users should understand:
 
@@ -332,13 +332,13 @@ Several statistical tests implemented in LivingMeta have well-documented limitat
 
 **Trial Sequential Analysis [22]:** TSA boundaries are computed under specific assumptions about expected effect size and acceptable Type I/II error rates. The O'Brien-Fleming spending function is conservative (requires strong evidence early). When the cumulative Z-curve has not crossed the monitoring boundary, this means insufficient information has accumulated, not that the treatment is ineffective.
 
-### 6.2 Confidence Level Awareness
+### Confidence Level Awareness
 
 All confidence intervals, prediction intervals, and critical values in LivingMeta are computed from the user-selected confidence level parameter (default 95%). Some advanced methods (sceptical p-value, TSA monitoring boundaries) use fixed alpha = 0.05 thresholds that do not respond to the confidence level setting; these are documented in the interface.
 
 ## Discussion
 
-### 7.1 Strengths
+### Strengths
 
 LivingMeta uniquely combines five capabilities in a single distributable file:
 
@@ -354,7 +354,7 @@ LivingMeta uniquely combines five capabilities in a single distributable file:
 
 The single-file architecture eliminates deployment barriers entirely. A systematic reviewer can email the HTML file to a co-author, who opens it in any browser and immediately sees the same analysis. No accounts, downloads, installations, package managers, server infrastructure, or internet connection (after initial CDN caching) are required.
 
-### 7.2 Limitations
+### Limitations
 
 1. **Text extraction ceiling.** The JavaScript extractor covers standard abstract and registry formats but cannot parse figures, complex multi-row tables, non-English text, or heavily formatted PDF layouts. Full-text PDF extraction requires the companion Python pipeline (rct_data_extractor_v2). The 94.6% accuracy figure refers to the Python pipeline; the JavaScript subset has not been independently benchmarked on a large corpus.
 
@@ -376,7 +376,7 @@ The single-file architecture eliminates deployment barriers entirely. A systemat
 
 10. **No multi-outcome synthesis.** Each analysis runs on a single outcome at a time. Multivariate meta-analysis models that jointly synthesize correlated outcomes (e.g., OS and PFS from the same trials) are not supported. Users can analyze outcomes sequentially but cannot account for their correlation structure.
 
-### 7.3 Comparison with Related Work
+### Comparison with Related Work
 
 Several other browser-based meta-analysis tools merit comparison. MetaInsight [4] provides network meta-analysis capabilities that LivingMeta lacks, but requires a maintained Shiny server. The CRSU Shiny apps [5] offer specialized tools for diagnostic test accuracy and network meta-analysis but similarly depend on server infrastructure. meta-analyst [28] provides a Shiny-based interface for metafor but again requires an R server backend. None of these tools combine offline operation, text extraction, and in-browser R validation.
 
@@ -384,7 +384,7 @@ The RevMan Web platform (Cochrane's browser-based revision of RevMan 5) [2] inte
 
 LivingMeta's closest conceptual relative is the "computable review" vision articulated by Elliott et al. [1] for living systematic reviews: a tool that automates surveillance, extraction, synthesis, and reporting in a continuous cycle. LivingMeta implements this vision at the individual reviewer level, though it does not yet support multi-user collaboration or automated scheduled surveillance.
 
-### 7.4 Implications and Future Directions
+### Implications and Future Directions
 
 The single-file, zero-installation paradigm demonstrated by LivingMeta has broader implications for evidence synthesis infrastructure. First, it suggests that the traditional separation between "accessible but limited" and "rigorous but complex" tools is not inherent -- a single application can provide both comprehensive statistical methods and zero-barrier deployment. Second, the in-browser R validation pattern (running a reference implementation alongside the primary engine within the same application) could be adopted by other tools to address the trust deficit that limits adoption of new statistical software.
 
@@ -477,7 +477,7 @@ The author declared that no grants were involved in supporting this work.
 
 4. Owen RK, Bradbury N, Xin Y, Cooper N, Sutton A. MetaInsight: an interactive web-based tool for analyzing, interrogating, and visualizing network meta-analyses using R-shiny and netmeta. Res Synth Methods. 2019;10(4):569-581. doi:10.1002/jrsm.1373
 
-5. Freeman SC, Kerby CR, Patel A, Cooper NJ, Quinn T, Sutton AJ. Development of an interactive web-based tool to conduct and interrogate meta-analysis of diagnostic test accuracy studies: MetaDTA. BMC Med Res Methodol. 2019;19(1):81. doi:10.1186/s12874-019-0724-x
+5. Complex Reviews Support Unit (CRSU). Evidence Synthesis Shiny Apps. University of Leicester / University of Glasgow. Available from: https://www.gla.ac.uk/research/az/crsu/apps/. Accessed March 2026.
 
 6. Borenstein M, Hedges LV, Higgins JPT, Rothstein HR. Comprehensive Meta-Analysis (Version 4). Biostat Inc; 2022. Available from: https://www.meta-analysis.com
 

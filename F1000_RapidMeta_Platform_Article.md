@@ -223,14 +223,14 @@ Table 4 presents trial-level cross-validation against ClinicalTrials.gov API v2 
 | FIGARO-DKD | NCT02545049 | Finerenone | 0.87 | 0.87 | EXACT | 7,352 | 7,352 | EXACT |
 | DAPA-HF | NCT03036124 | SGLT2i HF | 0.74 | 0.74 | EXACT | 4,744 | 4,744 | EXACT |
 | EMPEROR-Reduced | NCT03057977 | SGLT2i HF | 0.75 | 0.75 | EXACT | 3,730 | 3,730 | EXACT |
-| LEADER | NCT01179048 | GLP-1 RA | 0.87 | 0.868 | EXACT | 9,340 | 9,341 | EXACT |
+| LEADER | NCT01179048 | GLP-1 RA | 0.87 | 0.868 | EXACT | 9,340 | 9,341 | CLOSE* |
 | SELECT | NCT03574597 | GLP-1 RA | 0.80 | 0.80 | EXACT | 17,604 | 17,604 | EXACT |
 | FOURIER | NCT01764633 | PCSK9 | 0.85 | 0.85 | EXACT | 27,564 | 27,564 | EXACT |
 | ODYSSEY | NCT01663402 | PCSK9 | 0.85 | 0.85 | EXACT | 18,924 | 18,924 | EXACT |
 | FIDELIO-DKD | NCT02540993 | Finerenone | 0.86 | 0.825 | CLOSE | 5,674 | 5,734 | CLOSE |
 | COLCOT | NCT02551094 | Colchicine | 0.77 | N/A | NO_CTG_HR | 4,745 | 4,745 | EXACT |
 | CLEAR-SYNERGY | NCT03048825 | Colchicine | 0.99 | N/A | NO_CTG_HR | 7,062 | 7,264 | CLOSE |
-Of 10 cross-validated trials, 7 hazard ratios matched exactly and 1 was close (FIDELIO-DKD: app uses primary publication HR 0.86; CT.gov reports the slightly different composite HR 0.825). Two trials lacked HR reporting on CT.gov. Sample sizes matched for 8 of 10 trials (2 within 3% due to full-analysis-set vs. safety-set denominators).
+Of 10 cross-validated trials, 7 hazard ratios matched exactly and 1 was close (FIDELIO-DKD: app uses primary publication HR 0.86; CT.gov reports the slightly different composite HR 0.825). Two trials lacked HR reporting on CT.gov. Sample sizes matched for 8 of 10 trials (2 within 3% due to full-analysis-set vs. safety-set denominators). *Match criteria: EXACT = identical to reported precision; CLOSE = within 3% or differing by < 100 patients for N; NO_CTG_HR = CT.gov did not report a hazard ratio for the primary endpoint.
 
 ### Feature comparison
 
@@ -388,45 +388,45 @@ The author thanks the developers of the R metafor package for providing the refe
 
 ## References
 
-1. Elliott JH, Synnot A, Turner T, et al. Living systematic review: 1. Introduction — the why, what, when, and how. J Clin Epidemiol. 2017;91:23-30.
-2. Viechtbauer W. Conducting meta-analyses in R with the metafor package. J Stat Softw. 2010;36(3):1-48.
-3. Harris RJ, Deeks JJ, Altman DG, Bradburn MJ, Harbord RM, Sterne JAC. Metan: fixed- and random-effects meta-analysis. Stata J. 2008;8(1):3-28.
-4. Borenstein M, Hedges LV, Higgins JPT, Rothstein HR. Introduction to Meta-Analysis. Chichester: Wiley; 2009.
+1. Elliott JH, Synnot A, Turner T, et al. Living systematic review: 1. Introduction — the why, what, when, and how. J Clin Epidemiol. 2017;91:23-30. doi:10.1016/j.jclinepi.2017.08.010
+2. Viechtbauer W. Conducting meta-analyses in R with the metafor package. J Stat Softw. 2010;36(3):1-48. doi:10.18637/jss.v036.i03
+3. Harris RJ, Deeks JJ, Altman DG, Bradburn MJ, Harbord RM, Sterne JAC. Metan: fixed- and random-effects meta-analysis. Stata J. 2008;8(1):3-28. doi:10.1177/1536867X0800800102
+4. Borenstein M, Hedges LV, Higgins JPT, Rothstein HR. Introduction to Meta-Analysis. Chichester: Wiley; 2009. doi:10.1002/9780470743386
 5. Review Manager (RevMan) [Computer program]. Version 5.4. The Cochrane Collaboration, 2020.
-6. Owen RK, Bradbury N, Xin Y, et al. MetaInsight: an interactive web-based tool for analyzing, interrogating, and visualizing network meta-analyses using R-shiny and netmeta. Res Synth Methods. 2019;10(4):569-581.
-7. Freeman SC, Kerby CR, Patel A, et al. Development of an interactive web-based tool to conduct and interrogate meta-analysis of diagnostic test accuracy studies: MetaDTA. BMC Med Res Methodol. 2019;19:81.
+6. Owen RK, Bradbury N, Xin Y, et al. MetaInsight: an interactive web-based tool for analyzing, interrogating, and visualizing network meta-analyses using R-shiny and netmeta. Res Synth Methods. 2019;10(4):569-581. doi:10.1002/jrsm.1373
+7. Complex Reviews Support Unit (CRSU). Evidence Synthesis Shiny Apps. University of Leicester / University of Glasgow. Available from: https://www.gla.ac.uk/research/az/crsu/apps/. Accessed March 2026.
 8. JASP Team. JASP (Version 0.18.3) [Computer software]. 2024.
-9. Rover C, Friede T. Bayesian random-effects meta-analysis using the bayesmeta R package. J Stat Softw. 2017;93(6):1-51.
+9. Rover C, Friede T. Bayesian random-effects meta-analysis using the bayesmeta R package. J Stat Softw. 2017;93(6):1-51. doi:10.18637/jss.v093.i06
 10. Stagg G. WebR: R in the browser via WebAssembly. https://webr.r-wasm.org/. Accessed 2026.
-11. DerSimonian R, Laird N. Meta-analysis in clinical trials. Control Clin Trials. 1986;7(3):177-188.
-12. IntHout J, Ioannidis JP, Borm GF. The Hartung-Knapp-Sidik-Jonkman method for random effects meta-analysis is straightforward and considerably outperforms the standard DerSimonian-Laird method. BMC Med Res Methodol. 2014;14:25.
-13. Higgins JPT, Thompson SG. Quantifying heterogeneity in a meta-analysis. Stat Med. 2002;21(11):1539-1558.
-14. IntHout J, Ioannidis JP, Rovers MM, Goeman JJ. Plea for routinely presenting prediction intervals in meta-analysis. BMJ Open. 2016;6(7):e010247.
-15. Egger M, Davey Smith G, Schneider M, Minder C. Bias in meta-analysis detected by a simple, graphical test. BMJ. 1997;315(7109):629-634.
-16. Peters JL, Sutton AJ, Jones DR, Abrams KR, Rushton L. Contour-enhanced meta-analysis funnel plots help distinguish publication bias from other causes of asymmetry. J Clin Epidemiol. 2008;61(10):991-996.
-17. Duval S, Tweedie R. Trim and fill: a simple funnel-plot-based method of testing and adjusting for publication bias in meta-analysis. Biometrics. 2000;56(2):455-463.
-18. Walsh M, Srinathan SK, McAuley DF, et al. The statistical significance of randomized controlled trial results is frequently fragile: a case for a Fragility Index. J Clin Epidemiol. 2014;67(6):622-628.
-19. Matthews RAJ. Beyond "significance": principles and practice of the Analysis of Credibility. R Soc Open Sci. 2018;5(1):171047.
-20. Guyatt GH, Oxman AD, Vist GE, et al. GRADE: an emerging consensus on rating quality of evidence and strength of recommendations. BMJ. 2008;336(7650):924-926.
+11. DerSimonian R, Laird N. Meta-analysis in clinical trials. Control Clin Trials. 1986;7(3):177-188. doi:10.1016/0197-2456(86)90046-2
+12. IntHout J, Ioannidis JP, Borm GF. The Hartung-Knapp-Sidik-Jonkman method for random effects meta-analysis is straightforward and considerably outperforms the standard DerSimonian-Laird method. BMC Med Res Methodol. 2014;14:25. doi:10.1186/1471-2288-14-25
+13. Higgins JPT, Thompson SG. Quantifying heterogeneity in a meta-analysis. Stat Med. 2002;21(11):1539-1558. doi:10.1002/sim.1186
+14. IntHout J, Ioannidis JP, Rovers MM, Goeman JJ. Plea for routinely presenting prediction intervals in meta-analysis. BMJ Open. 2016;6(7):e010247. doi:10.1136/bmjopen-2015-010247
+15. Egger M, Davey Smith G, Schneider M, Minder C. Bias in meta-analysis detected by a simple, graphical test. BMJ. 1997;315(7109):629-634. doi:10.1136/bmj.315.7109.629
+16. Peters JL, Sutton AJ, Jones DR, Abrams KR, Rushton L. Contour-enhanced meta-analysis funnel plots help distinguish publication bias from other causes of asymmetry. J Clin Epidemiol. 2008;61(10):991-996. doi:10.1016/j.jclinepi.2007.11.010
+17. Duval S, Tweedie R. Trim and fill: a simple funnel-plot-based method of testing and adjusting for publication bias in meta-analysis. Biometrics. 2000;56(2):455-463. doi:10.1111/j.0006-341X.2000.00455.x
+18. Walsh M, Srinathan SK, McAuley DF, et al. The statistical significance of randomized controlled trial results is frequently fragile: a case for a Fragility Index. J Clin Epidemiol. 2014;67(6):622-628. doi:10.1016/j.jclinepi.2013.10.019
+19. Matthews RAJ. Beyond "significance": principles and practice of the Analysis of Credibility. R Soc Open Sci. 2018;5(1):171047. doi:10.1098/rsos.171047
+20. Guyatt GH, Oxman AD, Vist GE, et al. GRADE: an emerging consensus on rating quality of evidence and strength of recommendations. BMJ. 2008;336(7650):924-926. doi:10.1136/bmj.39489.470347.AD
 21. Ahmad M. RapidMeta Cardiology: a browser-based living meta-analysis platform validated against 17 published finerenone meta-analyses. F1000Research. 2026 [submitted].
-22. Wetterslev J, Jakobsen JC, Gluud C. Trial Sequential Analysis in systematic reviews with meta-analysis. BMC Med Res Methodol. 2017;17:39.
-23. Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71.
-24. Bakris GL, Agarwal R, Anker SD, et al. Effect of finerenone on chronic kidney disease outcomes in type 2 diabetes. N Engl J Med. 2020;383(23):2219-2239. PMID: 33264825.
-25. Pitt B, Filippatos G, Agarwal R, et al. Cardiovascular events with finerenone in kidney disease and type 2 diabetes. N Engl J Med. 2021;385(24):2252-2263. PMID: 34449181.
-26. Solomon SD, McMurray JJV, Vaduganathan M, et al. Finerenone in heart failure with mildly reduced or preserved ejection fraction. N Engl J Med. 2024;391(16):1475-1485. PMID: 39225278.
-27. McMurray JJV, Packer M, Desai AS, et al. Angiotensin-neprilysin inhibition versus enalapril in heart failure. N Engl J Med. 2014;371(11):993-1004. PMID: 25176015.
-28. McMurray JJV, Solomon SD, Inzucchi SE, et al. Dapagliflozin in patients with heart failure and reduced ejection fraction. N Engl J Med. 2019;381(21):1995-2008. PMID: 31535829.
-29. Packer M, Anker SD, Butler J, et al. Cardiovascular and renal outcomes with empagliflozin in heart failure. N Engl J Med. 2020;383(15):1413-1424. PMID: 32865377.
-30. Marso SP, Daniels GH, Poulter NR, et al. Liraglutide and cardiovascular outcomes in type 2 diabetes. N Engl J Med. 2016;375(4):311-322. PMID: 27295427.
-31. Lincoff AM, Brown-Frandsen K, Colhoun HM, et al. Semaglutide and cardiovascular outcomes in obesity without diabetes. N Engl J Med. 2023;389(24):2221-2232.
-32. Sabatine MS, Giugliano RP, Keech AC, et al. Evolocumab and clinical outcomes in patients with cardiovascular disease. N Engl J Med. 2017;376(18):1713-1722. PMID: 28304224.
-33. Schwartz GG, Steg PG, Szarek M, et al. Alirocumab and cardiovascular outcomes after acute coronary syndrome. N Engl J Med. 2018;379(22):2097-2107. PMID: 30403574.
-34. Nissen SE, Lincoff AM, Brennan D, et al. Bempedoic acid and cardiovascular outcomes in statin-intolerant patients. N Engl J Med. 2023;388(15):1353-1364. PMID: 36876740.
-35. Tardif JC, Kouz S, Waters DD, et al. Efficacy and safety of low-dose colchicine after myocardial infarction. N Engl J Med. 2019;381(26):2497-2505.
-36. Nidorf SM, Fiolet ATL, Mosterd A, et al. Colchicine in patients with chronic coronary disease. N Engl J Med. 2020;383(19):1838-1847.
-37. Wright JT Jr, Williamson JD, Whelton PK, et al. A randomized trial of intensive versus standard blood-pressure control. N Engl J Med. 2015;373(22):2103-2116. PMID: 26551272.
-38. Ponikowski P, Kirwan BA, Anker SD, et al. Ferric carboxymaltose for iron deficiency at discharge after acute heart failure. Lancet. 2020;396(10266):1895-1904. PMID: 33197395.
-39. Agarwal R, Filippatos G, Pitt B, et al. Cardiovascular and kidney outcomes with finerenone in patients with type 2 diabetes and chronic kidney disease: the FIDELITY pooled analysis. Eur Heart J. 2022;43(6):474-484. PMID: 35023547.
-40. Vaduganathan M, Filippatos G, Claggett BL, et al. Finerenone in heart failure and chronic kidney disease with type 2 diabetes: FINE-HEART pooled analysis. Nat Med. 2024;30(12):3758-3764. PMID: 39218030.
-41. Sattar N, Lee MMY, Kristensen SL, et al. Cardiovascular, mortality, and kidney outcomes with GLP-1 receptor agonists in patients with type 2 diabetes: a systematic review and meta-analysis of randomised trials. Lancet Diabetes Endocrinol. 2021;9(10):653-662.
+22. Wetterslev J, Jakobsen JC, Gluud C. Trial Sequential Analysis in systematic reviews with meta-analysis. BMC Med Res Methodol. 2017;17:39. doi:10.1186/s12874-017-0315-7
+23. Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71
+24. Bakris GL, Agarwal R, Anker SD, et al. Effect of finerenone on chronic kidney disease outcomes in type 2 diabetes. N Engl J Med. 2020;383(23):2219-2239. doi:10.1056/NEJMoa2025845
+25. Pitt B, Filippatos G, Agarwal R, et al. Cardiovascular events with finerenone in kidney disease and type 2 diabetes. N Engl J Med. 2021;385(24):2252-2263. doi:10.1056/NEJMoa2110956
+26. Solomon SD, McMurray JJV, Vaduganathan M, et al. Finerenone in heart failure with mildly reduced or preserved ejection fraction. N Engl J Med. 2024;391(16):1475-1485. doi:10.1056/NEJMoa2407107
+27. McMurray JJV, Packer M, Desai AS, et al. Angiotensin-neprilysin inhibition versus enalapril in heart failure. N Engl J Med. 2014;371(11):993-1004. doi:10.1056/NEJMoa1409077
+28. McMurray JJV, Solomon SD, Inzucchi SE, et al. Dapagliflozin in patients with heart failure and reduced ejection fraction. N Engl J Med. 2019;381(21):1995-2008. doi:10.1056/NEJMoa1911303
+29. Packer M, Anker SD, Butler J, et al. Cardiovascular and renal outcomes with empagliflozin in heart failure. N Engl J Med. 2020;383(15):1413-1424. doi:10.1056/NEJMoa2022190
+30. Marso SP, Daniels GH, Poulter NR, et al. Liraglutide and cardiovascular outcomes in type 2 diabetes. N Engl J Med. 2016;375(4):311-322. doi:10.1056/NEJMoa1603827
+31. Lincoff AM, Brown-Frandsen K, Colhoun HM, et al. Semaglutide and cardiovascular outcomes in obesity without diabetes. N Engl J Med. 2023;389(24):2221-2232. doi:10.1056/NEJMoa2307563
+32. Sabatine MS, Giugliano RP, Keech AC, et al. Evolocumab and clinical outcomes in patients with cardiovascular disease. N Engl J Med. 2017;376(18):1713-1722. doi:10.1056/NEJMoa1615664
+33. Schwartz GG, Steg PG, Szarek M, et al. Alirocumab and cardiovascular outcomes after acute coronary syndrome. N Engl J Med. 2018;379(22):2097-2107. doi:10.1056/NEJMoa1801174
+34. Nissen SE, Lincoff AM, Brennan D, et al. Bempedoic acid and cardiovascular outcomes in statin-intolerant patients. N Engl J Med. 2023;388(15):1353-1364. doi:10.1056/NEJMoa2215024
+35. Tardif JC, Kouz S, Waters DD, et al. Efficacy and safety of low-dose colchicine after myocardial infarction. N Engl J Med. 2019;381(26):2497-2505. doi:10.1056/NEJMoa1912388
+36. Nidorf SM, Fiolet ATL, Mosterd A, et al. Colchicine in patients with chronic coronary disease. N Engl J Med. 2020;383(19):1838-1847. doi:10.1056/NEJMoa2021372
+37. Wright JT Jr, Williamson JD, Whelton PK, et al. A randomized trial of intensive versus standard blood-pressure control. N Engl J Med. 2015;373(22):2103-2116. doi:10.1056/NEJMoa1511939
+38. Ponikowski P, Kirwan BA, Anker SD, et al. Ferric carboxymaltose for iron deficiency at discharge after acute heart failure. Lancet. 2020;396(10266):1895-1904. doi:10.1016/S0140-6736(20)32339-4
+39. Agarwal R, Filippatos G, Pitt B, et al. Cardiovascular and kidney outcomes with finerenone in patients with type 2 diabetes and chronic kidney disease: the FIDELITY pooled analysis. Eur Heart J. 2022;43(6):474-484. doi:10.1093/eurheartj/ehab777
+40. Vaduganathan M, Filippatos G, Claggett BL, et al. Finerenone in heart failure and chronic kidney disease with type 2 diabetes: FINE-HEART pooled analysis. Nat Med. 2024;30(12):3758-3764. doi:10.1038/s41591-024-03264-4
+41. Sattar N, Lee MMY, Kristensen SL, et al. Cardiovascular, mortality, and kidney outcomes with GLP-1 receptor agonists in patients with type 2 diabetes: a systematic review and meta-analysis of randomised trials. Lancet Diabetes Endocrinol. 2021;9(10):653-662. doi:10.1016/S2213-8587(21)00203-5
 42. Higgins JPT, Thomas J, Chandler J, et al, eds. Cochrane Handbook for Systematic Reviews of Interventions. Version 6.4. Cochrane; 2023.

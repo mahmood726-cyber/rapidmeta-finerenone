@@ -192,6 +192,8 @@ Across the full 18-drug-class dashboard (Table 2), the toolkit manages a portfol
 | Mavacamten (oHCM) | Obstructive HCM | 3 | 444 | OR | 6.67 (2.09-21.30) | 28.0 | MODERATE | 3 |
 | Renal Denervation | Resistant Hypertension | 5 | 1,013 | MD | -5.12 (-6.85 to -3.40) mmHg | 0.0 | MODERATE | -- |
 
+*Note: k and N values reflect the META_DASHBOARD's embedded portfolio configuration, which aggregates primary landmark trials for each drug class. Individual REVIEW applications may include additional trials; see the companion Platform Article for current per-app trial counts.*
+
 ### Comparison with Existing Tools
 
 Table 3 compares the RapidMeta Toolkit against established evidence synthesis platforms across eight capability dimensions.
