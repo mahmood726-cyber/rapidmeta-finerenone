@@ -28,7 +28,7 @@
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         .r-badge { font-size: 9px; padding: 1px 4px; border-radius: 3px; font-weight: bold; text-transform: uppercase; }
-        .badge-search { background: #334155; color: #94a3b8; }
+        .badge-search { background: #334155; color: #cbd5e1; }
         .badge-include { background: #065f46; color: #6ee7b7; }
         .badge-exclude { background: #7f1d1d; color: #fca5a5; }
         .badge-landmark { background: #1e3a5f; color: #93c5fd; border: 1px solid #3b82f6; }
@@ -63,15 +63,22 @@
         .light-mode .chart-container { background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.05); }
         .chart-desc { font-size: 9px; color: #cbd5e1; margin-top: 4px; padding: 4px 8px; line-height: 1.4; max-height: 3.2em; overflow: hidden; text-overflow: ellipsis; position: relative; z-index: 1; }
         .light-mode .chart-desc { color: #374151; }
+        .light-mode .chart-dl-btn { color: #475569; }
+        .light-mode .chart-dl-btn:hover { color: #2563eb; }
+        .light-mode .extract-view-btn { color: #475569; }
+        .light-mode .extract-view-btn.active { color: #2563eb; }
+        .light-mode .evidence-source { color: #475569; }
+        .light-mode .extract-action-btn { color: #475569; }
+        .light-mode .evidence-action-btn { color: #475569; }
         .chart-header { display: flex; align-items: center; justify-content: space-between; }
-        .chart-dl-btn { background: none; border: none; color: #64748b; cursor: pointer; font-size: 10px; padding: 2px 8px; border-radius: 4px; transition: all 0.2s; }
+        .chart-dl-btn { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 10px; padding: 2px 8px; border-radius: 4px; transition: all 0.2s; }
         .chart-dl-btn:hover { color: #38bdf8; background: rgba(56,189,248,0.1); }
 
         .prisma-node { border: 2px solid #334155; padding: 10px; border-radius: 8px; font-size: 10px; background: #0f172a; width: 140px; text-align: center; }
         .light-mode .prisma-node { background: #fff; border-color: #cbd5e1; }
 
         /* Extract View Toggle */
-        .extract-view-btn { background: transparent; color: #64748b; border-color: #334155; cursor: pointer; }
+        .extract-view-btn { background: transparent; color: #94a3b8; border-color: #334155; cursor: pointer; }
         .extract-view-btn.active { background: rgba(59,130,246,0.15); color: #60a5fa; border-color: #3b82f6; }
         .extract-card { background: rgba(15, 23, 42, 0.6); border: 1px solid #1e293b; border-radius: 1.5rem; overflow: hidden; transition: border-color 0.2s; }
         .extract-card:hover { border-color: #334155; }
@@ -85,7 +92,7 @@
         .evidence-panel { background: rgba(2, 6, 23, 0.5); border: 1px solid #1e293b; border-radius: 1rem; padding: 1rem 1.25rem; margin-top: 0.5rem; }
         .evidence-panel:hover { border-color: #334155; }
         .evidence-label { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em; color: #fbbf24; margin-bottom: 0.25rem; }
-        .evidence-source { font-size: 0.6rem; color: #64748b; font-style: italic; margin-bottom: 0.5rem; font-family: 'JetBrains Mono', monospace; }
+        .evidence-source { font-size: 0.6rem; color: #94a3b8; font-style: italic; margin-bottom: 0.5rem; font-family: 'JetBrains Mono', monospace; }
         .evidence-text { font-size: 0.75rem; color: #cbd5e1; line-height: 1.6; }
         .evidence-panel-summary { border-color: rgba(59,130,246,0.35); background: rgba(30,58,138,0.12); }
         .evidence-panel-locator { border-color: rgba(148,163,184,0.35); background: rgba(15,23,42,0.85); }
@@ -278,7 +285,7 @@
                     <div class="glass p-8 rounded-[30px] border border-indigo-500/20 bg-indigo-500/5">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-xs font-bold opacity-60 uppercase tracking-[0.3em]"><i class="fa-solid fa-pen-nib mr-1"></i> Auto-Generated Manuscript Text</h3>
-                            <button onclick="copyManuscriptText()" class="text-[10px] font-bold text-indigo-400 uppercase bg-indigo-400/10 px-4 py-1.5 rounded-full border border-indigo-400/20 hover:bg-indigo-400/20 transition-all"><i class="fa-solid fa-copy mr-1"></i> Copy All</button>
+                            <button onclick="copyManuscriptText()" class="text-[11px] font-bold text-indigo-400 uppercase bg-indigo-400/10 px-4 py-1.5 rounded-full border border-indigo-400/20 hover:bg-indigo-400/20 transition-all"><i class="fa-solid fa-copy mr-1"></i> Copy All</button>
                         </div>
                         <div id="manuscript-text" class="space-y-6 text-sm text-slate-300 leading-relaxed" style="font-family: Georgia, serif;" aria-live="polite">
                             <p class="text-slate-500 italic">Click "Generate Output" to create manuscript text.</p>
@@ -784,9 +791,9 @@
 
                 <div class="flex items-center gap-6 mt-4 px-4 text-[10px] font-bold uppercase tracking-widest opacity-50">
                     <span>RoB Legend (click to cycle):</span>
-                    <span class="flex items-center gap-1"><div class="rob-circle rob-low"></div> Low</span>
-                    <span class="flex items-center gap-1"><div class="rob-circle rob-some"></div> Some concerns</span>
-                    <span class="flex items-center gap-1"><div class="rob-circle rob-high"></div> High</span>
+                    <span class="flex items-center gap-1"><div class="rob-circle rob-low" role="img" aria-label="Low risk"></div> Low</span>
+                    <span class="flex items-center gap-1"><div class="rob-circle rob-some" role="img" aria-label="Some concerns"></div> Some concerns</span>
+                    <span class="flex items-center gap-1"><div class="rob-circle rob-high" role="img" aria-label="High risk"></div> High</span>
                 </div>
             </div>
         </section>
@@ -1107,7 +1114,7 @@
                         <div class="flex justify-between items-center mb-8">
                             <h3 class="text-sm font-bold opacity-60 uppercase tracking-[0.3em]">Summary of Findings</h3>
                             <div class="export-dropdown" id="export-dropdown">
-                                <button onclick="toggleExportMenu()" aria-haspopup="true" aria-expanded="false" id="export-btn" class="text-[10px] font-bold text-purple-400 uppercase bg-purple-400/10 px-6 py-2 rounded-full border border-purple-400/20 transition-all hover:bg-purple-400/20"><i class="fa-solid fa-download mr-1"></i> Export <i class="fa-solid fa-chevron-down ml-1" style="font-size:8px"></i></button>
+                                <button onclick="toggleExportMenu()" aria-haspopup="true" aria-expanded="false" id="export-btn" class="text-[11px] font-bold text-purple-400 uppercase bg-purple-400/10 px-6 py-2 rounded-full border border-purple-400/20 transition-all hover:bg-purple-400/20"><i class="fa-solid fa-download mr-1"></i> Export <i class="fa-solid fa-chevron-down ml-1" style="font-size:8px"></i></button>
                                 <div class="export-dropdown-content" role="menu" aria-label="Export options">
                                     <button type="button" class="export-dropdown-item" role="menuitem" tabindex="-1" onclick="ReportEngine.exportCSV()" onkeydown="exportMenuKey(event,this)"><i class="fa-solid fa-file-csv text-emerald-400"></i> CSV Data</button>
                                     <button type="button" class="export-dropdown-item" role="menuitem" tabindex="-1" onclick="ReportEngine.exportJSON()" onkeydown="exportMenuKey(event,this)"><i class="fa-solid fa-code text-blue-400"></i> JSON Bundle</button>
@@ -1342,8 +1349,8 @@
                         <h3 class="text-sm font-bold opacity-60 uppercase tracking-[0.3em] mb-3">PRISMA 2020 Flow Diagram (SVG)</h3>
                         <div id="prisma-flow-container" class="bg-slate-950/50 rounded-xl p-4 border border-slate-800"></div>
                         <div class="flex gap-2 mt-2">
-                            <button onclick="PrismaEngine.exportSVG()" class="text-[10px] px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">Download SVG</button>
-                            <button onclick="PrismaEngine.exportPNG()" class="text-[10px] px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">Download PNG (300 DPI)</button>
+                            <button onclick="PrismaEngine.exportSVG()" class="text-[11px] px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">Download SVG</button>
+                            <button onclick="PrismaEngine.exportPNG()" class="text-[11px] px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">Download PNG (300 DPI)</button>
                         </div>
                     </div>
 
@@ -1352,9 +1359,9 @@
                         <h3 class="text-sm font-bold opacity-60 uppercase tracking-[0.3em] mb-3">GRADE Evidence Profile (Summary of Findings)</h3>
                         <div id="grade-profile-container" class="overflow-x-auto" aria-live="polite"></div>
                         <div class="flex gap-2 mt-2">
-                            <button onclick="GradeProfileEngine.renderTable('grade-profile-container')" class="text-[10px] px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">Generate</button>
-                            <button onclick="GradeProfileEngine.exportCSV()" class="text-[10px] px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">Export CSV</button>
-                            <button onclick="GradeProfileEngine.exportSoFHTML()" class="text-[10px] font-bold text-emerald-400 uppercase bg-emerald-400/10 px-6 py-2 rounded-full border border-emerald-400/20 transition-all hover:bg-emerald-400/20">
+                            <button onclick="GradeProfileEngine.renderTable('grade-profile-container')" class="text-[11px] px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">Generate</button>
+                            <button onclick="GradeProfileEngine.exportCSV()" class="text-[11px] px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">Export CSV</button>
+                            <button onclick="GradeProfileEngine.exportSoFHTML()" class="text-[11px] font-bold text-emerald-400 uppercase bg-emerald-400/10 px-6 py-2 rounded-full border border-emerald-400/20 transition-all hover:bg-emerald-400/20">
                                 <i class="fa-solid fa-file-word mr-1"></i> Download SoF Table (Word-compatible)
                             </button>
                         </div>
@@ -1526,6 +1533,17 @@
             if (AUTO_INCLUDE_TRIAL_IDS.has(id)) return true;
             if (referenceData && referenceData[id] && !isPhaseTwoLike(referenceData[id]?.phase)) return true;
             return isFutureCriteriaMatchedRCT(trial);
+        };
+        const isIncludeLikeForAnalysis = (trial, referenceData = null) => {
+            const status = String(trial?.status ?? '').toLowerCase().trim();
+            const decision = String(trial?.screenReview?.decision ?? '').toLowerCase().trim();
+            const hasDecision = /^(include|exclude)$/.test(decision);
+            const confirmed = Boolean(trial?.screenReview?.confirmed && hasDecision);
+            if (confirmed) return decision === 'include';
+            if (hasDecision) return decision === 'include';
+            if (status === 'include') return true;
+            if (status === 'exclude') return false;
+            return isValidScreenIncludeCandidate(trial, referenceData);
         };
 
         const showToast = (msg) => {
@@ -3215,7 +3233,7 @@ const ContinuousMDEngine = {
                 const requireData = opts.requireData !== false;
                 const requirePositiveN = Boolean(opts.requirePositiveN);
                 return (this.state.trials ?? []).filter(t => {
-                    if (this.normalizeTrialStatus(t.status) !== 'include') return false;
+                    if (!isIncludeLikeForAnalysis(t, this.realData)) return false;
                     if (requireData && !t.data) return false;
                     if (t.data?._outcomeExcluded) return false;
                     if (requirePositiveN && (!(t.data?.tN > 0) || !(t.data?.cN > 0))) return false;
@@ -4605,7 +4623,7 @@ const ContinuousMDEngine = {
                 let result = html;
                 hits.forEach(h => {
                     try {
-                        const rx = new RegExp('(' + h.pattern.replace(/\\/g, '\\') + ')', 'gi');
+                        const rx = new RegExp('(' + h.pattern + ')', 'gi');
                         const cls = h.type === 'pos'
                             ? 'background:rgba(34,197,94,0.25);color:#86efac;border-radius:3px;padding:0 2px;border-bottom:2px solid #22c55e'
                             : 'background:rgba(239,68,68,0.25);color:#fca5a5;border-radius:3px;padding:0 2px;border-bottom:2px solid #ef4444';
@@ -4969,7 +4987,7 @@ const ContinuousMDEngine = {
                 let result = html;
                 hits.forEach(h => {
                     try {
-                        const rx = new RegExp('(' + h.pattern.replace(/\\/g, '\\') + ')', 'gi');
+                        const rx = new RegExp('(' + h.pattern + ')', 'gi');
                         const cls = h.type === 'pos'
                             ? 'background:rgba(34,197,94,0.25);color:#86efac;border-radius:3px;padding:0 2px;border-bottom:2px solid #22c55e'
                             : 'background:rgba(239,68,68,0.25);color:#fca5a5;border-radius:3px;padding:0 2px;border-bottom:2px solid #ef4444';
@@ -5062,7 +5080,7 @@ const ContinuousMDEngine = {
                 RapidMeta.state.showExcluded = (RapidMeta.state.screenFilter === 'exclude');
                 this.activeIdx = 0;
                 RapidMeta.save();
-                AnalysisEngine.render();
+                this.render();
             },
             _currentTrial() {
                 const queue = this.getQueue();
@@ -5139,7 +5157,7 @@ const ContinuousMDEngine = {
                 const hasFullAbstract = (t.abstract ?? '').length > 200;
                 const abstractPreview = hasFullAbstract ? escapeHtml(t.abstract.slice(0, 200)) + '...' : escapeHtml(absText);
                 const fullAbstractToggle = hasFullAbstract
-                    ? '<button type="button" class="text-[10px] text-slate-500 hover:text-slate-300 mt-2 underline" aria-expanded="false" onclick="const el=this.nextElementSibling;el.classList.toggle(\'hidden\');const exp=!el.classList.contains(\'hidden\');this.setAttribute(\'aria-expanded\',exp);this.textContent=exp?\'Collapse Abstract\':\'Show Full Abstract\'">Show Full Abstract</button><div class="hidden text-[13px] text-slate-400 mt-2 leading-[1.7] max-h-64 overflow-y-auto pr-2" style="font-family: Georgia, serif;">' + ScreenEngine._highlightScreening(escapeHtml(t.abstract), screenHits) + '</div>'
+                    ? '<button type="button" class="text-[10px] text-slate-500 hover:text-slate-300 mt-2 underline" aria-expanded="false" onclick="const el=this.nextElementSibling;el.classList.toggle(\'hidden\');const exp=!el.classList.contains(\'hidden\');this.setAttribute(\'aria-expanded\',exp);this.textContent=exp?\'Collapse Abstract\':\'Show Full Abstract\'">Show Full Abstract</button><div class="hidden text-[13px] text-slate-400 mt-2 leading-[1.7] max-h-64 overflow-y-auto pr-2" style="font-family: Georgia, serif;">' + SearchEngine._highlightScreening(escapeHtml(t.abstract), screenHits) + '</div>'
                     : '';
                 document.getElementById('screen-detail').innerHTML = `<div class="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-700">
                     <div class="space-y-4">
@@ -5160,7 +5178,7 @@ const ContinuousMDEngine = {
                     ${reviewSection}
                     <div class="bg-slate-950 p-8 rounded-[30px] border border-slate-800 shadow-2xl">
                         <h3 class="text-[10px] opacity-50 font-bold uppercase tracking-[0.3em] mb-5 flex items-center gap-2"><i class="fa-solid fa-file-lines" style="font-size:11px"></i> Abstract <span class="text-[9px] text-slate-600 ml-2">(screening keywords highlighted)</span></h3>
-                        <p class="text-[15px] text-slate-300 leading-[1.8] font-medium" style="font-family: Georgia, serif;">${ScreenEngine._highlightScreening(abstractPreview, screenHits)}</p>
+                        <p class="text-[15px] text-slate-300 leading-[1.8] font-medium" style="font-family: Georgia, serif;">${SearchEngine._highlightScreening(abstractPreview, screenHits)}</p>
                         ${fullAbstractToggle}
                     </div>
                 </div>`;
@@ -5188,7 +5206,7 @@ const ContinuousMDEngine = {
                 RapidMeta.save();
                 addAuditEntry(`Screening proposed: ${t.id} => ${status.toUpperCase()} by ${actor} [seal ${sig1}]`);
                 showToast(`Proposed ${status.toUpperCase()}. Awaiting second reviewer.`);
-                AnalysisEngine.render();
+                if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
                 this.updateMetrics();
             },
             confirmCurrentDecision() {
@@ -5211,7 +5229,7 @@ const ContinuousMDEngine = {
                 RapidMeta.save();
                 addAuditEntry(`Screening confirmed: ${t.id} => ${String(sr.decision).toUpperCase()} by ${sr.reviewer1} + ${actor} [seal ${sr.sig2}]`);
                 showToast(`Decision confirmed (${String(sr.decision).toUpperCase()}) by two reviewers.`);
-                AnalysisEngine.render();
+                if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
                 this.updateMetrics();
             },
             clearCurrentDecision() {
@@ -5224,7 +5242,7 @@ const ContinuousMDEngine = {
                 RapidMeta.save();
                 addAuditEntry(`Screening proposal cleared: ${t.id} by ${actor}`);
                 showToast('Screening proposal cleared.');
-                AnalysisEngine.render();
+                if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
                 this.updateMetrics();
             },
             _inferBulkDecision(t) {
@@ -5284,7 +5302,7 @@ const ContinuousMDEngine = {
                 }
                 RapidMeta.save();
                 RapidMeta.populateOutcomeSelector();
-                AnalysisEngine.render();
+                if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
                 this.updateMetrics();
                 addAuditEntry(`Bulk screening batch ${batchId}: include=${includeCount}, exclude=${excludeCount}, reviewers=${pair.reviewer1}+${pair.reviewer2}`);
                 showToast(`Bulk screening complete: ${includeCount} include, ${excludeCount} exclude.`);
@@ -5619,8 +5637,7 @@ const ContinuousMDEngine = {
           function extract(rawText) {
             if (!rawText || rawText.length < 5) return [];
             const text = normalize(rawText.substring(0, 10000));
-            /* Check negative context */
-            /* NEG_CONTEXT checked in second pass below */
+            /* NEG_CONTEXT applied per-match in confidence scoring below */
             const results = [];
             const seen = new Set();
 
@@ -6553,13 +6570,34 @@ const ContinuousMDEngine = {
 
         const ExtractEngine = {
             currentView: 'data',
+            _isExtractionEligible(t) {
+                const id = String(t?.id ?? '').toUpperCase();
+                const status = String(t?.status ?? '').toLowerCase().trim();
+                const decision = String(t?.screenReview?.decision ?? '').toLowerCase().trim();
+                const hasScreenDecision = /^(include|exclude)$/.test(decision);
+                const confirmed = Boolean(t?.screenReview?.confirmed && hasScreenDecision);
+
+                if (confirmed && decision === 'exclude') return false;
+                if (status === 'include') return true;
+                if (hasScreenDecision && decision === 'include') return true;
+                if (status === 'exclude') return false;
+
+                // Safety fallback: keep canonical landmark trials visible in extraction
+                // even if screening state was reset to "search" by migration/hotfix paths.
+                if (AUTO_INCLUDE_TRIAL_IDS.has(id) || RapidMeta.realData[id]) return true;
+                return false;
+            },
+            getExtractionPool() {
+                return (RapidMeta.state.trials ?? []).filter(t => this._isExtractionEligible(t));
+            },
+
             async runPrecision() {
                 const included = RapidMeta.state.trials.filter(t => t.status === 'include');
                 /* Phase 1: Populate hardcoded landmark data instantly */
                 included.forEach(t => { if(RapidMeta.realData[t.id]) { t.data = { ...RapidMeta.realData[t.id], rob: [...RapidMeta.realData[t.id].rob] }; t.verified = true; } });
                 /* Build provenance for landmark trials */
                 included.forEach(t => { if(t.data) this._buildProvenance(t); });
-                RapidMeta.save(); AnalysisEngine.render();
+                RapidMeta.save(); if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
 
                 /* Phase 2: Auto-extract for non-landmark trials with NCT IDs */
                 const toExtract = included.filter(t => {
@@ -6574,7 +6612,7 @@ const ContinuousMDEngine = {
 
                 for (const t of toExtract) {
                     t.extracting = true;
-                    AnalysisEngine.render();
+                    if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
                     try {
                         const result = await AutoExtractEngine.extract(t.id, t.title);
                         t.extracting = false;
@@ -6620,7 +6658,7 @@ const ContinuousMDEngine = {
                         console.error('Auto-extract error:', e);
                         showToast(`\u26A0 ${t.id}: extraction error`);
                     }
-                    RapidMeta.save(); AnalysisEngine.render();
+                    RapidMeta.save(); if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
                 }
                 RapidMeta.populateOutcomeSelector();
             },
@@ -7023,7 +7061,7 @@ const ContinuousMDEngine = {
                 if (!actor) return;
                 t.data.sourceTableViewed = true;
                 RapidMeta.save();
-                AnalysisEngine.render();
+                if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
             },
             setReviewerEndpoint(trialId, value) {
                 const t = RapidMeta.state.trials.find(x => x.id === trialId);
@@ -7032,7 +7070,7 @@ const ContinuousMDEngine = {
                 if (!actor) return;
                 t.data.reviewerEndpoint = String(value ?? '').trim();
                 RapidMeta.save();
-                AnalysisEngine.render();
+                if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
             },
             setReviewerSourceChecked(trialId, checked) {
                 const t = RapidMeta.state.trials.find(x => x.id === trialId);
@@ -7041,7 +7079,7 @@ const ContinuousMDEngine = {
                 if (!actor) return;
                 t.data.reviewerSourceChecked = Boolean(checked);
                 RapidMeta.save();
-                AnalysisEngine.render();
+                if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
             },
             setReconcileConfirmed(trialId, checked) {
                 const t = RapidMeta.state.trials.find(x => x.id === trialId);
@@ -7050,7 +7088,7 @@ const ContinuousMDEngine = {
                 if (!actor) return;
                 t.data.reconcileConfirmed = Boolean(checked);
                 RapidMeta.save();
-                AnalysisEngine.render();
+                if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
             },
             setReconcileNotes(trialId, notes) {
                 const t = RapidMeta.state.trials.find(x => x.id === trialId);
@@ -7077,7 +7115,7 @@ const ContinuousMDEngine = {
                 t.data.needsReview = true;
                 t.verified = false;
                 RapidMeta.save();
-                AnalysisEngine.render();
+                if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
                 addAuditEntry(`Extraction sign-off cleared: ${t.data?.name ?? trialId} by ${actor}`);
                 showToast('Extraction sign-off reset.');
             },
@@ -7240,7 +7278,7 @@ const ContinuousMDEngine = {
                         [sig1]
                     );
                     RapidMeta.save();
-                    AnalysisEngine.render();
+                    if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
                     addAuditEntry(`Extraction sign-off 1/2: ${t.data?.name ?? trialId} by ${actor} [seal ${sig1}]`);
                     showToast('First reviewer sign-off saved. A second reviewer must confirm.');
                     return;
@@ -7274,7 +7312,7 @@ const ContinuousMDEngine = {
                 t.data.needsReview = false;
                 t.verified = true;
                 RapidMeta.save();
-                AnalysisEngine.render();
+                if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
                 if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
                 addAuditEntry(`Extraction confirmed (2 reviewers): ${t.data?.name ?? trialId} [seal ${d.extractionSignoff?.sig2 ?? '--'}]`);
                 showToast('Auto-extracted trial dual-confirmed for analysis.');
@@ -7379,7 +7417,7 @@ const ContinuousMDEngine = {
                     addAuditEntry(`Bulk extraction confirmed: ${t.data?.name ?? t.id} by ${pair.reviewer1} + ${pair.reviewer2} [seal ${sig2}]`);
                 }
                 RapidMeta.save();
-                AnalysisEngine.render();
+                if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
                 if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
                 addAuditEntry(`Bulk extraction batch ${batchId}: approved=${approved}, skipped=${skipped}, reviewers=${pair.reviewer1}+${pair.reviewer2}`);
                 if (skipped > 0) {
@@ -7398,7 +7436,7 @@ const ContinuousMDEngine = {
                 t.data.extractionSignoff = null;
                 t.verified = false;
                 RapidMeta.save();
-                AnalysisEngine.render();
+                if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
                 if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
                 addAuditEntry(`Extraction review reopened: ${t.data?.name ?? trialId} by ${actor}`);
                 showToast('Trial marked as review-required.');
@@ -7412,7 +7450,7 @@ const ContinuousMDEngine = {
                 document.querySelectorAll('.extract-view-btn').forEach(btn => {
                     if (btn.dataset.view === view) btn.classList.add('active'); else btn.classList.remove('active');
                 });
-                AnalysisEngine.render();
+                this.render();
             },
             _outcomeScopeLabel(key) {
                 return RapidMeta.outcomeLabel(key);
@@ -7431,7 +7469,7 @@ const ContinuousMDEngine = {
             },
             render() {
                 const selectedOutcome = String(RapidMeta.state.selectedOutcome ?? 'default');
-                const includedAll = RapidMeta.state.trials.filter(t => t.status === 'include');
+                const includedAll = this.getExtractionPool();
                 const includedScoped = includedAll.filter(t => {
                     if (!t?.data) return selectedOutcome === 'default';
                     if (selectedOutcome === 'default') return true;
@@ -7744,7 +7782,7 @@ const ContinuousMDEngine = {
                 t.data.rob = [...t.data.rob];
                 const oldVal = t.data.rob[domainIdx];
                 t.data.rob[domainIdx] = cycle[t.data.rob[domainIdx]] ?? 'low';
-                RapidMeta.save(); AnalysisEngine.render();
+                RapidMeta.save(); if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
                 addAuditEntry(`RoB: ${t.data?.name ?? t.id} ${this.robDomainLabels[domainIdx]} changed ${oldVal} \u2192 ${t.data.rob[domainIdx]}`);
             },
             upd(id, key, v) {
@@ -7787,7 +7825,7 @@ const ContinuousMDEngine = {
                     data: { name, year, phase, group: indication, tE, tN, cE, cN, rob: ['low','low','low','low','low'], snippet: source || 'Manual entry' }
                 };
                 RapidMeta.state.trials.push(trial);
-                RapidMeta.save(); AnalysisEngine.render();
+                RapidMeta.save(); if (RapidMeta.state.activeTab === 'analysis') AnalysisEngine.run();
                 addAuditEntry(`Study added: ${name} (${id}), ${tE}/${tN} vs ${cE}/${cN}; screening proposed INCLUDE by ${actor} [seal ${sig1}]`);
                 showToast(`Study "${name}" added. Awaiting second screening reviewer.`);
                 // Clear form
@@ -8786,7 +8824,7 @@ const ContinuousMDEngine = {
                 
             if (robDowngrades > 0) reasons.push(`risk of bias: ${robReasons.join('; ')} (-${robDowngrades})`);
             if (inconsistencyDown > 0) reasons.push('inconsistency: ' + (I2 >= 50 ? 'I² ≥ 50%' : 'prediction interval crosses null') + ' (-1)');
-                if (k < 5 && inconsistencyDown === 0) reasons.push('inconsistency: I² imprecise with k=' + k + ' (no downgrade)');
+                if (k < 5 && inconsistencyDown === 0) reasons.push('inconsistency: I² unreliable with only k=' + k + ' studies — low power to detect heterogeneity (no downgrade, but interpret with caution)');
             if (indirectnessDown > 0) reasons.push('indirectness: early-phase trials included (-1)');
 
             let imprecisionDown = 0;
@@ -8920,9 +8958,10 @@ const ContinuousMDEngine = {
                 const _drug = RapidMeta.state.protocol?.int ?? 'The intervention';
                 const hedge = certainty === 'HIGH' ? '' : certainty === 'MODERATE' ? 'probably ' : certainty === 'LOW' ? 'may ' : 'The evidence is very uncertain whether it ';
                 if (certainty === 'VERY LOW') return `The evidence is very uncertain about the effect of ${_drug} on ${ocLow}.`;
-                const vReduce = certainty === 'HIGH' ? 'reduces' : 'reduce';
-                const vIncrease = certainty === 'HIGH' ? 'increases' : 'increase';
-                const vResult = certainty === 'HIGH' ? 'results in' : 'result in';
+                const conjugated = certainty === 'HIGH' || certainty === 'MODERATE';
+                const vReduce = conjugated ? 'reduces' : 'reduce';
+                const vIncrease = conjugated ? 'increases' : 'increase';
+                const vResult = conjugated ? 'results in' : 'result in';
                 if (lci < 1 && uci < 1) {
                     const pct = Math.round((1 - or) * 100);
                     return `${_drug} ${hedge}${vReduce} ${ocLow} by about ${pct}%.`;
@@ -9695,7 +9734,7 @@ const AnalysisEngine = {
                      const contResult = ContinuousMDEngine.pool(outcomeKey, trials);
                      if (contResult) {
                          RapidMeta.state.results = contResult;
-                         AnalysisEngine.render();
+                         this.render();
                          return;
                      }
                 }
@@ -12802,7 +12841,7 @@ except ImportError:
             const methods = 'We conducted a systematic review and meta-analysis following PRISMA 2020 guidelines. ' +
                 'We searched ClinicalTrials.gov, PubMed, and OpenAlex for randomized controlled trials of ' +
                 drugName + ' versus ' + comparator + ' in ' + population + '. ' +
-                'Eligible studies were Phase ' + (phases.join('/') || 'II/III') + ' RCTs reporting the primary cardiovascular composite endpoint. ' +
+                'Eligible studies were ' + (phases.length > 0 ? 'Phase ' + phases.join('/') + ' ' : '') + 'RCT' + (k !== 1 ? 's' : '') + ' reporting the primary cardiovascular composite endpoint. ' +
                 'We pooled ' + emLong.toLowerCase() + 's using the DerSimonian-Laird random-effects model with ' + confLevel + '% confidence intervals. ' +
                 'Heterogeneity was assessed using I\u00B2 and Cochran Q statistics. ' +
                 'Publication bias was evaluated using Egger regression, funnel plot asymmetry, trim-and-fill, and the Copas selection model. ' +
@@ -12822,7 +12861,7 @@ except ImportError:
                         ? gradeHedge + 'associated with an increase in'
                         : gradeHedge + 'associated with little to no difference in';
 
-            const results = 'We included ' + k + ' randomized controlled trials (' + trialNames.join(', ') +
+            const results = 'We included ' + k + ' randomized controlled trial' + (k !== 1 ? 's' : '') + ' (' + trialNames.join(', ') +
                 ') enrolling ' + totalN.toLocaleString() + ' patients. ' +
                 drugName + ' was ' + sigText + ' the primary endpoint ' +
                 '(' + emShort + ' ' + or + ', ' + confLevel + '% CI ' + lci + ' to ' + uci + '; ' +
