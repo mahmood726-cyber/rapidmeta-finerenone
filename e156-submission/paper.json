@@ -1,0 +1,96 @@
+{
+  "title": "Browser-Based Finerenone Meta-Analysis Validated Against R metafor",
+  "slug": "rapidmeta-finerenone",
+  "author": "Mahmood Ahmad",
+  "date": "2026-03-26",
+  "body": "Can a standalone browser application reproduce R metafor results for finerenone cardiovascular and renal trials across multiple effect measures? We implemented RapidMeta as a single 7,800-line HTML file executing DerSimonian-Laird and REML random-effects meta-analysis entirely client-side, covering odds ratios, risk ratios, and hazard ratios with HKSJ adjustment, Bayesian analysis, and Trial Sequential Analysis. All data were extracted from open-access sources including ClinicalTrials.gov, PubMed abstracts, and FDA documents for three Phase III trials enrolling 19,112 patients across FIDELIO-DKD, FIGARO-DKD, and FINEARTS-HF. Across 14 analyses spanning five outcomes, the application matched metafor to six decimal places for all estimates including MACE HR 0.87 (95% CI 0.79-0.95) and all-cause mortality HR 0.91 (95% CI 0.84-0.99). Concordance testing against 17 published meta-analyses showed 88 percent within 0.03 absolute difference. Browser-native JavaScript achieves reference-grade numerical accuracy for clinical meta-analysis without server infrastructure. The limitation of three-trial pooling means heterogeneity assessment has low power and results may shift as additional trials report.",
+  "word_count": 156,
+  "sentence_count": 7,
+  "sentences": [
+    {
+      "role": "Question",
+      "text": "Can a standalone browser application reproduce R metafor results for finerenone cardiovascular and renal trials across multiple effect measures?"
+    },
+    {
+      "role": "Dataset",
+      "text": "We implemented RapidMeta as a single 7,800-line HTML file executing DerSimonian-Laird and REML random-effects meta-analysis entirely client-side, covering odds ratios, risk ratios, and hazard ratios with HKSJ adjustment, Bayesian analysis, and Trial Sequential Analysis."
+    },
+    {
+      "role": "Method",
+      "text": "All data were extracted from open-access sources including ClinicalTrials.gov, PubMed abstracts, and FDA documents for three Phase III trials enrolling 19,112 patients across FIDELIO-DKD, FIGARO-DKD, and FINEARTS-HF."
+    },
+    {
+      "role": "Primary result",
+      "text": "Across 14 analyses spanning five outcomes, the application matched metafor to six decimal places for all estimates including MACE HR 0.87 (95% CI 0.79-0.95) and all-cause mortality HR 0.91 (95% CI 0.84-0.99)."
+    },
+    {
+      "role": "Robustness",
+      "text": "Concordance testing against 17 published meta-analyses showed 88 percent within 0.03 absolute difference."
+    },
+    {
+      "role": "Interpretation",
+      "text": "Browser-native JavaScript achieves reference-grade numerical accuracy for clinical meta-analysis without server infrastructure."
+    },
+    {
+      "role": "Boundary",
+      "text": "The limitation of three-trial pooling means heterogeneity assessment has low power and results may shift as additional trials report."
+    }
+  ],
+  "notes": {
+    "app": "RapidMeta Cardiology v1.0",
+    "data": "FIDELIO-DKD, FIGARO-DKD, FINEARTS-HF (N=19,112), OA sources only",
+    "code": "https://github.com/mahmood726-cyber/rapidmeta-finerenone",
+    "doi": "",
+    "version": "1.0",
+    "date": "2026-03-26",
+    "validation": "DRAFT"
+  },
+  "type": "pairwise",
+  "primary_estimand": "HR",
+  "validation": {
+    "status": "pass",
+    "checks": [
+      {
+        "name": "single paragraph",
+        "ok": true,
+        "detail": "Body must not contain blank-line paragraph breaks."
+      },
+      {
+        "name": "sentence count",
+        "ok": true,
+        "detail": "Found 7 sentences."
+      },
+      {
+        "name": "word count",
+        "ok": true,
+        "detail": "Found 156 words."
+      },
+      {
+        "name": "no headings",
+        "ok": true,
+        "detail": "No markdown headings allowed in body."
+      },
+      {
+        "name": "no links",
+        "ok": true,
+        "detail": "No links or DOI links allowed in body."
+      },
+      {
+        "name": "result sentence has interval",
+        "ok": true,
+        "detail": "Sentence 4 should include a confidence interval."
+      },
+      {
+        "name": "result sentence has estimand",
+        "ok": true,
+        "detail": "Sentence 4 should name an effect measure or test metric."
+      },
+      {
+        "name": "boundary sentence present",
+        "ok": true,
+        "detail": "Sentence 7 should express a limitation, harm, or scope boundary."
+      }
+    ]
+  },
+  "schema": "e156-v0.2"
+}
