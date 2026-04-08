@@ -3228,6 +3228,3318 @@ APPS.append({
 })
 
 
+# ─── Task: Trastuzumab Deruxtecan (T-DXd) in Breast Cancer ────
+APPS.append({
+    "filename": "TDXd_BREAST_REVIEW.html",
+    "output_dir": r"C:\Projects\TDXd_Breast_LivingMeta",
+    "title_short": "T-DXd in Breast Cancer",
+    "title_long": "Trastuzumab Deruxtecan for Breast Cancer: A Living Systematic Review and Meta-Analysis",
+    "drug_name_lower": "trastuzumab deruxtecan",
+    "va_heading": "Trastuzumab Deruxtecan in Breast Cancer",
+    "storage_key": "tdxd_breast",
+    "protocol": {
+        "pop": "Adults with HER2-positive or HER2-low metastatic breast cancer",
+        "int": "Trastuzumab Deruxtecan (T-DXd, Enhertu)",
+        "comp": "Standard of care (T-DM1, physician choice, chemotherapy)",
+        "out": "Progression-free survival; overall survival; objective response rate",
+        "subgroup": "HER2 status (positive vs low vs ultralow), line of therapy, HR status",
+    },
+    "search_term_ctgov": "trastuzumab+deruxtecan+AND+breast+cancer",
+    "search_term_pubmed": "trastuzumab deruxtecan[tiab] AND breast[tiab]",
+    "effect_measure": "HR",
+    "nct_acronyms": {
+        "NCT03529110": "DESTINY-Breast03",
+        "NCT03734029": "DESTINY-Breast04",
+        "NCT03523585": "DESTINY-Breast02",
+        "NCT04494425": "DESTINY-Breast06",
+    },
+    "auto_include_ids": ["NCT03529110", "NCT03734029", "NCT03523585", "NCT04494425"],
+    "trials": {
+        # ── DESTINY-Breast03: Phase 3, T-DXd vs T-DM1, HER2+ 2nd line (NEJM 2022) ──
+        "NCT03529110": {
+            "name": "DESTINY-Breast03", "phase": "III", "year": 2022,
+            # Cortés J et al. N Engl J Med 2022;386:1143-1154. PMID:35320644
+            # 524 pts, HER2+ mBC previously treated with trastuzumab+taxane
+            # T-DXd (n=261) vs T-DM1 (n=263)
+            # PFS by BICR: HR 0.28 (0.22-0.37), P<0.0001
+            # OS (updated Hurvitz 2023 Lancet): HR 0.64 (0.47-0.87), P=0.0037
+            # ORR: T-DXd 79.7% vs T-DM1 34.2%
+            "tE": 0, "tN": 261, "cE": 0, "cN": 263,
+            "group": "HER2+ 2nd line",
+            "publishedHR": 0.28, "hrLCI": 0.22, "hrUCI": 0.37,
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT03529110 (DESTINY-Breast03). Enrollment: 524. Status: ACTIVE_NOT_RECRUITING. Results posted. Phase 3 RCT: T-DXd vs T-DM1 in HER2+ mBC. Cortés et al. NEJM 2022;386:1143-1154.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "PFS (BICR)",
+                    "title": "Progression-free survival by blinded independent central review",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                    "pubHR": 0.28, "pubHR_LCI": 0.22, "pubHR_UCI": 0.37,
+                },
+                {
+                    "shortLabel": "OS",
+                    "title": "Overall survival",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                    "pubHR": 0.64, "pubHR_LCI": 0.47, "pubHR_UCI": 0.87,
+                },
+                {
+                    "shortLabel": "ORR",
+                    "title": "Objective response rate (CR+PR)",
+                    "tE": 208, "cE": 90,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "ILD/Pneumonitis",
+                    "title": "Treatment-related interstitial lung disease / pneumonitis (any grade)",
+                    "tE": 39, "cE": 8,
+                    "type": "SAFETY",
+                },
+                {
+                    "shortLabel": "Grade >=3 AEs",
+                    "title": "Grade 3 or higher treatment-emergent adverse events",
+                    "tE": 135, "cE": 133,
+                    "type": "SAFETY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "Cortés J et al. N Engl J Med 2022;386:1143-1154 (PMID:35320644)",
+                    "text": "524 patients with HER2-positive metastatic breast cancer previously treated with trastuzumab and taxane, randomized 1:1 to T-DXd 5.4 mg/kg Q3W (n=261) or T-DM1 3.6 mg/kg Q3W (n=263). Global trial (168 sites, 15 countries). PFS by BICR was primary endpoint.",
+                    "highlights": ["524", "1:1", "HER2-positive", "168 sites"],
+                },
+                {
+                    "label": "PFS (Primary Endpoint)",
+                    "source": "Cortés J et al. N Engl J Med 2022;386:1143-1154",
+                    "text": "Median PFS by BICR: T-DXd not reached (25.1 mo at updated analysis) vs T-DM1 6.8 months. HR 0.28 (95% CI 0.22-0.37, P<0.0001). 12-month PFS rate: T-DXd 75.8% vs T-DM1 34.1%. Unprecedented magnitude of benefit in HER2+ mBC.",
+                    "highlights": ["HR 0.28", "P<0.0001", "25.1 mo", "6.8 mo"],
+                },
+                {
+                    "label": "OS (Updated)",
+                    "source": "Hurvitz SA et al. Lancet 2023;401:105-117",
+                    "text": "Updated OS analysis at median 28.4 months follow-up: HR 0.64 (95% CI 0.47-0.87, P=0.0037). OS rate at 24 months: T-DXd 77.4% vs T-DM1 69.9%. First survival benefit demonstrated for T-DXd over T-DM1.",
+                    "highlights": ["HR 0.64", "P=0.0037", "77.4%", "69.9%"],
+                },
+                {
+                    "label": "Safety: ILD",
+                    "source": "Cortés J et al. N Engl J Med 2022;386:1143-1154",
+                    "text": "Treatment-related ILD/pneumonitis: T-DXd 15.0% (any grade) vs T-DM1 3.1%. Grade >= 3 ILD in T-DXd arm: 0.8%. Most ILD events Grade 1-2 and manageable with dose interruption/steroids. No Grade 5 ILD events. Key safety signal requiring monitoring.",
+                    "highlights": ["15.0%", "3.1%", "0.8%", "no Grade 5"],
+                },
+            ],
+        },
+        # ── DESTINY-Breast04: Phase 3, T-DXd vs TPC, HER2-low (NEJM 2022) ──────
+        "NCT03734029": {
+            "name": "DESTINY-Breast04", "phase": "III", "year": 2022,
+            # Modi S et al. N Engl J Med 2022;387:9-20. PMID:35665104
+            # 557 pts, HER2-low (IHC 1+ or 2+/ISH-) mBC, 1-2 prior chemo lines
+            # T-DXd (n=373) vs TPC (n=184), 2:1 randomization
+            # PFS in HR+ cohort: HR 0.51 (0.40-0.64), P<0.001
+            # PFS all patients: HR 0.50 (0.40-0.63), P<0.001
+            # OS all patients: HR 0.64 (0.49-0.84), P=0.001
+            "tE": 0, "tN": 373, "cE": 0, "cN": 184,
+            "group": "HER2-low",
+            "publishedHR": 0.50, "hrLCI": 0.40, "hrUCI": 0.63,
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT03734029 (DESTINY-Breast04). Enrollment: 557. Status: ACTIVE_NOT_RECRUITING. Results posted. Phase 3 RCT: T-DXd vs TPC in HER2-low mBC. Modi et al. NEJM 2022;387:9-20.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "PFS (HR+ cohort)",
+                    "title": "PFS by BICR in hormone receptor-positive cohort",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                    "pubHR": 0.51, "pubHR_LCI": 0.40, "pubHR_UCI": 0.64,
+                },
+                {
+                    "shortLabel": "PFS (all patients)",
+                    "title": "PFS by BICR in all patients regardless of HR status",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                    "pubHR": 0.50, "pubHR_LCI": 0.40, "pubHR_UCI": 0.63,
+                },
+                {
+                    "shortLabel": "OS (all patients)",
+                    "title": "Overall survival in all patients",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                    "pubHR": 0.64, "pubHR_LCI": 0.49, "pubHR_UCI": 0.84,
+                },
+                {
+                    "shortLabel": "ORR (all patients)",
+                    "title": "Objective response rate in all patients",
+                    "tE": 193, "cE": 31,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "ILD/Pneumonitis",
+                    "title": "Treatment-related ILD/pneumonitis (any grade)",
+                    "tE": 45, "cE": 0,
+                    "type": "SAFETY",
+                },
+                {
+                    "shortLabel": "Grade >=3 AEs",
+                    "title": "Grade 3 or higher treatment-emergent adverse events",
+                    "tE": 186, "cE": 73,
+                    "type": "SAFETY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "Modi S et al. N Engl J Med 2022;387:9-20 (PMID:35665104)",
+                    "text": "557 patients with HER2-low (IHC 1+ or IHC 2+/ISH-) unresectable/metastatic breast cancer, 1-2 prior chemo lines, randomized 2:1 to T-DXd 5.4 mg/kg (n=373) or physician's choice chemo (n=184). HR+ cohort (n=494) was primary analysis population. Landmark trial establishing HER2-low as a targetable category.",
+                    "highlights": ["557", "2:1", "HER2-low", "landmark"],
+                },
+                {
+                    "label": "PFS (Primary Endpoint)",
+                    "source": "Modi S et al. N Engl J Med 2022;387:9-20",
+                    "text": "HR+ cohort: median PFS T-DXd 10.1 mo vs TPC 5.4 mo, HR 0.51 (0.40-0.64, P<0.001). All patients: median PFS T-DXd 9.9 mo vs TPC 5.1 mo, HR 0.50 (0.40-0.63, P<0.001). Defined a new treatment paradigm for HER2-low breast cancer.",
+                    "highlights": ["HR 0.51", "HR 0.50", "10.1 mo", "5.4 mo"],
+                },
+                {
+                    "label": "OS",
+                    "source": "Modi S et al. N Engl J Med 2022;387:9-20",
+                    "text": "OS all patients: median T-DXd 23.4 mo vs TPC 16.8 mo, HR 0.64 (0.49-0.84, P=0.001). HR+ cohort OS: HR 0.64 (0.48-0.86, P=0.003). First OS benefit shown for any agent targeting HER2-low breast cancer.",
+                    "highlights": ["HR 0.64", "P=0.001", "23.4 mo", "16.8 mo"],
+                },
+                {
+                    "label": "Safety: ILD",
+                    "source": "Modi S et al. N Engl J Med 2022;387:9-20",
+                    "text": "ILD/pneumonitis any grade: T-DXd 12.1% vs TPC 0.5%. Grade >= 3: 0.8%. Grade 5 (fatal): 0.3% (1 patient). Most events Grade 1-2, resolved with steroids and dose modification. Vigilance and early detection essential.",
+                    "highlights": ["12.1%", "0.5%", "0.8%", "0.3% fatal"],
+                },
+            ],
+        },
+        # ── DESTINY-Breast02: Phase 3, T-DXd vs TPC, HER2+ 3rd+ line (Lancet 2023) ──
+        "NCT03523585": {
+            "name": "DESTINY-Breast02", "phase": "III", "year": 2023,
+            # André F et al. Lancet 2023;401:1773-1785. PMID:37086745
+            # 608 pts, HER2+ mBC previously treated with T-DM1
+            # T-DXd (n=406) vs TPC (n=202), 2:1 randomization
+            # PFS: HR 0.36 (0.28-0.45), P<0.0001
+            # OS: HR 0.66 (0.50-0.86), P=0.0021
+            "tE": 0, "tN": 406, "cE": 0, "cN": 202,
+            "group": "HER2+ 3rd+ line",
+            "publishedHR": 0.36, "hrLCI": 0.28, "hrUCI": 0.45,
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT03523585 (DESTINY-Breast02). Enrollment: 608. Status: COMPLETED. Results posted. Phase 3 RCT: T-DXd vs TPC in HER2+ mBC post T-DM1. André et al. Lancet 2023;401:1773-1785.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "PFS (BICR)",
+                    "title": "Progression-free survival by blinded independent central review",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                    "pubHR": 0.36, "pubHR_LCI": 0.28, "pubHR_UCI": 0.45,
+                },
+                {
+                    "shortLabel": "OS",
+                    "title": "Overall survival",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                    "pubHR": 0.66, "pubHR_LCI": 0.50, "pubHR_UCI": 0.86,
+                },
+                {
+                    "shortLabel": "ORR (BICR)",
+                    "title": "Objective response rate by BICR",
+                    "tE": 278, "cE": 35,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "ILD/Pneumonitis",
+                    "title": "Treatment-related ILD/pneumonitis (any grade)",
+                    "tE": 42, "cE": 0,
+                    "type": "SAFETY",
+                },
+                {
+                    "shortLabel": "Grade >=3 AEs",
+                    "title": "Grade 3 or higher treatment-emergent adverse events",
+                    "tE": 218, "cE": 91,
+                    "type": "SAFETY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "André F et al. Lancet 2023;401:1773-1785 (PMID:37086745)",
+                    "text": "608 patients with HER2-positive unresectable/metastatic breast cancer previously treated with T-DM1, randomized 2:1 to T-DXd 5.4 mg/kg (n=406) or physician's choice (trastuzumab+capecitabine or lapatinib+capecitabine, n=202). 227 sites across 25 countries.",
+                    "highlights": ["608", "2:1", "post T-DM1", "227 sites"],
+                },
+                {
+                    "label": "PFS (Primary Endpoint)",
+                    "source": "André F et al. Lancet 2023;401:1773-1785",
+                    "text": "Median PFS by BICR: T-DXd 17.8 mo vs TPC 6.9 mo. HR 0.36 (95% CI 0.28-0.45, P<0.0001). 12-month PFS: T-DXd 61.3% vs TPC 20.3%. Confirmed T-DXd superiority in heavily pretreated HER2+ disease.",
+                    "highlights": ["HR 0.36", "P<0.0001", "17.8 mo", "6.9 mo"],
+                },
+                {
+                    "label": "OS",
+                    "source": "André F et al. Lancet 2023;401:1773-1785",
+                    "text": "Median OS: T-DXd 39.2 mo vs TPC 26.5 mo. HR 0.66 (0.50-0.86, P=0.0021). Clinically meaningful 12.7-month OS improvement. ORR: T-DXd 69.7% vs TPC 29.2%.",
+                    "highlights": ["HR 0.66", "P=0.0021", "39.2 mo", "26.5 mo"],
+                },
+                {
+                    "label": "Safety: ILD",
+                    "source": "André F et al. Lancet 2023;401:1773-1785",
+                    "text": "ILD/pneumonitis any grade: T-DXd 10.4% vs TPC 0%. Grade >=3 ILD: 1.2%. Grade 5 (fatal): 0.5% (2 patients). Consistent ILD signal across DESTINY program. Proactive monitoring protocol implemented.",
+                    "highlights": ["10.4%", "0%", "1.2%", "0.5% fatal"],
+                },
+            ],
+        },
+        # ── DESTINY-Breast06: Phase 3, T-DXd vs TPC, HER2-low/ultralow (NEJM 2024) ──
+        "NCT04494425": {
+            "name": "DESTINY-Breast06", "phase": "III", "year": 2024,
+            # Curigliano G et al. N Engl J Med 2024;391:2110-2122
+            # 866 pts, HR+/HER2-low or HER2-ultralow (IHC >0 <1+)
+            # T-DXd (n=436) vs TPC (n=430)
+            # PFS in HER2-low: HR 0.62 (0.51-0.74), P<0.001
+            # PFS in ITT (including ultralow): HR 0.63 (0.53-0.75), P<0.001
+            "tE": 0, "tN": 436, "cE": 0, "cN": 430,
+            "group": "HER2-low/ultralow",
+            "publishedHR": 0.63, "hrLCI": 0.53, "hrUCI": 0.75,
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT04494425 (DESTINY-Breast06). Enrollment: 866. Status: ACTIVE_NOT_RECRUITING. Phase 3 RCT: T-DXd vs TPC in HER2-low/ultralow HR+ mBC. Curigliano et al. NEJM 2024;391:2110-2122.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "PFS (HER2-low)",
+                    "title": "PFS by BICR in HER2-low population",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                    "pubHR": 0.62, "pubHR_LCI": 0.51, "pubHR_UCI": 0.74,
+                },
+                {
+                    "shortLabel": "PFS (ITT, inc. ultralow)",
+                    "title": "PFS by BICR in ITT including HER2-ultralow",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                    "pubHR": 0.63, "pubHR_LCI": 0.53, "pubHR_UCI": 0.75,
+                },
+                {
+                    "shortLabel": "ORR",
+                    "title": "Objective response rate",
+                    "tE": 227, "cE": 99,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "ILD/Pneumonitis",
+                    "title": "Treatment-related ILD/pneumonitis (any grade)",
+                    "tE": 49, "cE": 1,
+                    "type": "SAFETY",
+                },
+                {
+                    "shortLabel": "Grade >=3 AEs",
+                    "title": "Grade 3 or higher treatment-emergent adverse events",
+                    "tE": 195, "cE": 141,
+                    "type": "SAFETY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "Curigliano G et al. N Engl J Med 2024;391:2110-2122",
+                    "text": "866 patients with HR-positive, HER2-low (IHC 1+ or 2+/ISH-) or HER2-ultralow (IHC >0 <1+) mBC after progression on endocrine therapy, randomized 1:1 to T-DXd 5.4 mg/kg (n=436) or physician's choice chemo (n=430). First trial to include HER2-ultralow as a distinct population.",
+                    "highlights": ["866", "1:1", "HER2-ultralow", "first trial"],
+                },
+                {
+                    "label": "PFS (Primary Endpoint)",
+                    "source": "Curigliano G et al. N Engl J Med 2024;391:2110-2122",
+                    "text": "HER2-low cohort: median PFS T-DXd 13.2 mo vs TPC 8.1 mo, HR 0.62 (0.51-0.74, P<0.001). ITT (including ultralow): HR 0.63 (0.53-0.75, P<0.001). Extended T-DXd benefit to HER2-ultralow population, further broadening the treatable population.",
+                    "highlights": ["HR 0.62", "HR 0.63", "13.2 mo", "8.1 mo"],
+                },
+                {
+                    "label": "HER2-Ultralow Subgroup",
+                    "source": "Curigliano G et al. N Engl J Med 2024;391:2110-2122",
+                    "text": "In the HER2-ultralow subset (IHC >0 <1+), T-DXd showed consistent PFS benefit (HR 0.78, 0.50-1.21). Though the CI crosses unity, the point estimate favors T-DXd. This extends the actionable target to IHC >0, covering ~60% of HR+ mBC previously classified as HER2-negative.",
+                    "highlights": ["ultralow", "HR 0.78", "60%", "IHC >0"],
+                },
+                {
+                    "label": "Safety: ILD",
+                    "source": "Curigliano G et al. N Engl J Med 2024;391:2110-2122",
+                    "text": "ILD/pneumonitis any grade: T-DXd 11.3% vs TPC 0.2%. Grade >=3: 2.3%. Grade 5 (fatal): 0 events in DB-06. Improved ILD management protocols likely contributed to reduced fatal ILD compared to earlier DESTINY trials.",
+                    "highlights": ["11.3%", "0.2%", "2.3%", "0 fatal"],
+                },
+            ],
+        },
+    },
+})
+
+# ─── Task: Osimertinib in EGFR+ NSCLC ─────────────────────────
+APPS.append({
+    "filename": "OSIMERTINIB_NSCLC_REVIEW.html",
+    "output_dir": r"C:\Projects\Osimertinib_NSCLC_LivingMeta",
+    "title_short": "Osimertinib in EGFR+ NSCLC",
+    "title_long": "Osimertinib for EGFR-Mutant Non-Small Cell Lung Cancer: A Living Systematic Review and Meta-Analysis",
+    "drug_name_lower": "osimertinib",
+    "va_heading": "Osimertinib in EGFR-Mutant Lung Cancer",
+    "storage_key": "osimertinib_nsclc",
+    "protocol": {
+        "pop": "Adults with EGFR-mutant (ex19del or L858R) NSCLC",
+        "int": "Osimertinib (3rd-generation EGFR TKI)",
+        "comp": "Standard EGFR TKI (erlotinib/gefitinib), chemotherapy, or placebo",
+        "out": "Progression-free survival; overall survival; CNS response",
+        "subgroup": "Line of therapy (1st vs 2nd vs adjuvant), mutation type (ex19del vs L858R), CNS metastases",
+    },
+    "search_term_ctgov": "osimertinib+AND+non+small+cell+lung+cancer",
+    "search_term_pubmed": "osimertinib[tiab] AND (FLAURA[tiab] OR ADAURA[tiab] OR AURA[tiab])",
+    "effect_measure": "HR",
+    "nct_acronyms": {
+        "NCT02296125": "FLAURA",
+        "NCT04035486": "FLAURA2",
+        "NCT02511106": "ADAURA",
+        "NCT02151981": "AURA3",
+    },
+    "auto_include_ids": ["NCT02296125", "NCT04035486", "NCT02511106", "NCT02151981"],
+    "trials": {
+        # ── FLAURA: Phase 3, osimertinib vs erlotinib/gefitinib, 1st line (NEJM 2018) ──
+        "NCT02296125": {
+            "name": "FLAURA", "phase": "III", "year": 2018,
+            # Soria JC et al. N Engl J Med 2018;378:113-125. PMID:29151359
+            # Ramalingam SS et al. N Engl J Med 2020;382:41-50 (OS update). PMID:31751012
+            # 556 pts randomized (674 enrolled), EGFRm+ advanced NSCLC
+            # Osimertinib 80mg (n=279) vs SoC EGFR-TKI erlotinib/gefitinib (n=277)
+            # PFS: HR 0.46 (0.37-0.57), P<0.001
+            # OS: HR 0.80 (0.64-1.00), P=0.046
+            "tE": 0, "tN": 279, "cE": 0, "cN": 277,
+            "group": "1st line advanced",
+            "publishedHR": 0.46, "hrLCI": 0.37, "hrUCI": 0.57,
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT02296125 (FLAURA). Enrollment: 674. Status: COMPLETED. Results posted. Phase 3 RCT: osimertinib vs SoC EGFR-TKI in 1st-line EGFRm+ NSCLC. Soria et al. NEJM 2018;378:113-125.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "PFS",
+                    "title": "Progression-free survival by investigator assessment",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                    "pubHR": 0.46, "pubHR_LCI": 0.37, "pubHR_UCI": 0.57,
+                },
+                {
+                    "shortLabel": "OS",
+                    "title": "Overall survival",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                    "pubHR": 0.80, "pubHR_LCI": 0.64, "pubHR_UCI": 1.00,
+                },
+                {
+                    "shortLabel": "ORR",
+                    "title": "Objective response rate",
+                    "tE": 218, "cE": 211,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "CNS ORR",
+                    "title": "CNS objective response rate (in patients with CNS metastases)",
+                    "tE": 21, "cE": 11,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "ILD/Pneumonitis",
+                    "title": "Treatment-related ILD/pneumonitis (any grade)",
+                    "tE": 11, "cE": 5,
+                    "type": "SAFETY",
+                },
+                {
+                    "shortLabel": "QTc Prolongation",
+                    "title": "QTc prolongation adverse events",
+                    "tE": 13, "cE": 4,
+                    "type": "SAFETY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "Soria JC et al. N Engl J Med 2018;378:113-125 (PMID:29151359)",
+                    "text": "556 treatment-naive patients with EGFR-mutant (ex19del or L858R) locally advanced/metastatic NSCLC randomized 1:1 to osimertinib 80mg QD (n=279) or SoC EGFR-TKI (gefitinib 250mg or erlotinib 150mg QD, n=277). Double-blind, global trial across 29 countries.",
+                    "highlights": ["556", "1:1", "double-blind", "29 countries"],
+                },
+                {
+                    "label": "PFS (Primary Endpoint)",
+                    "source": "Soria JC et al. N Engl J Med 2018;378:113-125",
+                    "text": "Median PFS: osimertinib 18.9 mo vs SoC EGFR-TKI 10.2 mo. HR 0.46 (95% CI 0.37-0.57, P<0.001). PFS benefit consistent across all subgroups including CNS metastases (HR 0.47) and mutation type. Established osimertinib as preferred 1st-line EGFR-TKI.",
+                    "highlights": ["HR 0.46", "P<0.001", "18.9 mo", "10.2 mo"],
+                },
+                {
+                    "label": "OS (Updated)",
+                    "source": "Ramalingam SS et al. N Engl J Med 2020;382:41-50 (PMID:31751012)",
+                    "text": "OS at final analysis (median 35.8 mo follow-up): osimertinib median 38.6 mo vs SoC EGFR-TKI 31.8 mo. HR 0.80 (0.64-1.00, P=0.046). 3-year OS: osimertinib 54% vs SoC 44%. Despite 47% crossover in control arm, OS trend favored osimertinib.",
+                    "highlights": ["HR 0.80", "38.6 mo", "31.8 mo", "47% crossover"],
+                },
+                {
+                    "label": "CNS Activity",
+                    "source": "Soria JC et al. N Engl J Med 2018;378:113-125",
+                    "text": "CNS ORR (in patients with measurable CNS lesions): osimertinib 66% vs SoC 43%. CNS PFS HR 0.48 (0.26-0.86). Osimertinib crosses blood-brain barrier effectively, critical for EGFR-mutant NSCLC where CNS metastases occur in ~25-40% of patients.",
+                    "highlights": ["66%", "43%", "HR 0.48", "blood-brain barrier"],
+                },
+            ],
+        },
+        # ── FLAURA2: Phase 3, osimertinib+chemo vs osimertinib alone, 1st line (NEJM 2024) ──
+        "NCT04035486": {
+            "name": "FLAURA2", "phase": "III", "year": 2024,
+            # Planchard D et al. N Engl J Med 2024;391:1124-1137
+            # 587 pts, EGFRm+ advanced NSCLC, treatment-naive
+            # Osimertinib+platinum/pemetrexed (n=295) vs osimertinib alone (n=292)
+            # PFS (investigator): HR 0.62 (0.49-0.79), P<0.001
+            # Median PFS: 25.5 mo vs 16.7 mo
+            "tE": 0, "tN": 295, "cE": 0, "cN": 292,
+            "group": "1st line combination",
+            "publishedHR": 0.62, "hrLCI": 0.49, "hrUCI": 0.79,
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT04035486 (FLAURA2). Enrollment: 587. Status: ACTIVE_NOT_RECRUITING. Phase 3 RCT: osimertinib+chemo vs osimertinib alone in 1st-line EGFRm+ NSCLC. Planchard et al. NEJM 2024;391:1124-1137.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "PFS (investigator)",
+                    "title": "PFS by investigator assessment",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                    "pubHR": 0.62, "pubHR_LCI": 0.49, "pubHR_UCI": 0.79,
+                },
+                {
+                    "shortLabel": "ORR",
+                    "title": "Objective response rate",
+                    "tE": 234, "cE": 226,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "ILD/Pneumonitis",
+                    "title": "Treatment-related ILD/pneumonitis (any grade)",
+                    "tE": 14, "cE": 8,
+                    "type": "SAFETY",
+                },
+                {
+                    "shortLabel": "Grade >=3 AEs",
+                    "title": "Grade 3 or higher treatment-emergent adverse events",
+                    "tE": 169, "cE": 97,
+                    "type": "SAFETY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "Planchard D et al. N Engl J Med 2024;391:1124-1137",
+                    "text": "587 treatment-naive patients with EGFRm+ (ex19del/L858R) advanced NSCLC randomized 1:1 to osimertinib 80mg + platinum/pemetrexed (n=295) or osimertinib 80mg monotherapy (n=292). Open-label design. 175 sites in 26 countries.",
+                    "highlights": ["587", "1:1", "open-label", "175 sites"],
+                },
+                {
+                    "label": "PFS (Primary Endpoint)",
+                    "source": "Planchard D et al. N Engl J Med 2024;391:1124-1137",
+                    "text": "Median PFS by investigator: osimertinib+chemo 25.5 mo vs osimertinib alone 16.7 mo. HR 0.62 (95% CI 0.49-0.79, P<0.001). PFS benefit seen across subgroups including CNS metastases. First trial to show benefit of adding chemo to osimertinib in EGFRm+ NSCLC.",
+                    "highlights": ["HR 0.62", "P<0.001", "25.5 mo", "16.7 mo"],
+                },
+                {
+                    "label": "Safety",
+                    "source": "Planchard D et al. N Engl J Med 2024;391:1124-1137",
+                    "text": "Grade >=3 AEs: osimertinib+chemo 64% vs osimertinib alone 27%. Most common additional toxicities: neutropenia, anemia, nausea (chemo-related). ILD: osimertinib+chemo 5% vs osimertinib alone 3%. Combination was tolerable but had more myelosuppression.",
+                    "highlights": ["64%", "27%", "5%", "3%"],
+                },
+                {
+                    "label": "OS (Immature)",
+                    "source": "Planchard D et al. N Engl J Med 2024;391:1124-1137",
+                    "text": "OS data immature at primary analysis (19% maturity). Interim HR 0.75 (95% CI 0.54-1.04). Final OS analysis expected 2026. Key question: does PFS benefit translate to OS given high crossover potential.",
+                    "highlights": ["HR 0.75", "19% maturity", "expected 2026"],
+                },
+            ],
+        },
+        # ── ADAURA: Phase 3, adjuvant osimertinib vs placebo (NEJM 2020/2023) ──
+        "NCT02511106": {
+            "name": "ADAURA", "phase": "III", "year": 2020,
+            # Wu YL et al. N Engl J Med 2020;383:1711-1723. PMID:32955177
+            # Herbst RS et al. N Engl J Med 2023;389:137-147 (OS update). PMID:37272535
+            # 682 pts, stage IB-IIIA EGFRm+ NSCLC, post complete resection +/- adj chemo
+            # Osimertinib 80mg x3yr (n=339) vs placebo (n=343)
+            # DFS stage II-IIIA: HR 0.17 (0.12-0.23), P<0.0001
+            # DFS overall (IB-IIIA): HR 0.20 (0.15-0.27), P<0.0001
+            # OS (Herbst 2023): HR 0.49 (0.33-0.73), P<0.001
+            "tE": 0, "tN": 339, "cE": 0, "cN": 343,
+            "group": "Adjuvant",
+            "publishedHR": 0.20, "hrLCI": 0.15, "hrUCI": 0.27,
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT02511106 (ADAURA). Enrollment: 682. Status: ACTIVE_NOT_RECRUITING. Results posted. Phase 3 RCT: adjuvant osimertinib vs placebo in resected EGFRm+ NSCLC. Wu et al. NEJM 2020;383:1711-1723.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "DFS (Stage II-IIIA)",
+                    "title": "Disease-free survival in stage II-IIIA patients",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                    "pubHR": 0.17, "pubHR_LCI": 0.12, "pubHR_UCI": 0.23,
+                },
+                {
+                    "shortLabel": "DFS (Overall IB-IIIA)",
+                    "title": "Disease-free survival in all patients (IB-IIIA)",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                    "pubHR": 0.20, "pubHR_LCI": 0.15, "pubHR_UCI": 0.27,
+                },
+                {
+                    "shortLabel": "OS",
+                    "title": "Overall survival",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                    "pubHR": 0.49, "pubHR_LCI": 0.33, "pubHR_UCI": 0.73,
+                },
+                {
+                    "shortLabel": "CNS DFS",
+                    "title": "CNS disease-free survival (freedom from CNS recurrence)",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                    "pubHR": 0.18, "pubHR_LCI": 0.10, "pubHR_UCI": 0.33,
+                },
+                {
+                    "shortLabel": "ILD/Pneumonitis",
+                    "title": "Treatment-related ILD/pneumonitis (any grade)",
+                    "tE": 10, "cE": 2,
+                    "type": "SAFETY",
+                },
+                {
+                    "shortLabel": "QTc Prolongation",
+                    "title": "QTc prolongation",
+                    "tE": 8, "cE": 1,
+                    "type": "SAFETY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "Wu YL et al. N Engl J Med 2020;383:1711-1723 (PMID:32955177)",
+                    "text": "682 patients with completely resected stage IB-IIIA EGFR-mutant NSCLC (ex19del or L858R), +/- adjuvant chemotherapy, randomized 1:1 to osimertinib 80mg QD x3 years (n=339) or placebo (n=343). Double-blind. Unblinded early by IDMC for overwhelming DFS benefit.",
+                    "highlights": ["682", "1:1", "double-blind", "unblinded early"],
+                },
+                {
+                    "label": "DFS (Primary Endpoint)",
+                    "source": "Wu YL et al. N Engl J Med 2020;383:1711-1723",
+                    "text": "Stage II-IIIA (primary): 2-year DFS osimertinib 90% vs placebo 44%. HR 0.17 (0.12-0.23, P<0.0001). Overall population (IB-IIIA): HR 0.20 (0.15-0.27). Most significant DFS benefit ever demonstrated with adjuvant targeted therapy in NSCLC.",
+                    "highlights": ["HR 0.17", "P<0.0001", "90%", "44%"],
+                },
+                {
+                    "label": "OS (Updated)",
+                    "source": "Herbst RS et al. N Engl J Med 2023;389:137-147 (PMID:37272535)",
+                    "text": "5-year OS: osimertinib 88% vs placebo 78%. HR 0.49 (0.33-0.73, P<0.001). First adjuvant EGFR-TKI to demonstrate overall survival benefit. 5-year DFS: osimertinib 78% vs placebo 35% (stage II-IIIA). Practice-changing for curative-intent EGFRm+ NSCLC.",
+                    "highlights": ["HR 0.49", "P<0.001", "88%", "78%"],
+                },
+                {
+                    "label": "CNS Protection",
+                    "source": "Wu YL et al. N Engl J Med 2020;383:1711-1723",
+                    "text": "CNS DFS: HR 0.18 (0.10-0.33). CNS recurrence as first event: osimertinib 1% vs placebo 10%. Osimertinib provides remarkable CNS protection in the adjuvant setting, preventing brain metastases that would otherwise require aggressive local therapy.",
+                    "highlights": ["HR 0.18", "1%", "10%", "CNS protection"],
+                },
+            ],
+        },
+        # ── AURA3: Phase 3, osimertinib vs chemo, T790M+ 2nd line (NEJM 2017) ──
+        "NCT02151981": {
+            "name": "AURA3", "phase": "III", "year": 2017,
+            # Mok TS et al. N Engl J Med 2017;376:629-640. PMID:27959700
+            # 419 pts, T790M+ NSCLC after 1st-line EGFR-TKI
+            # Osimertinib 80mg (n=279) vs platinum-pemetrexed (n=140), 2:1
+            # PFS: HR 0.30 (0.23-0.41), P<0.001
+            # OS: HR 1.00 (crossover confounded, 60% crossed)
+            "tE": 0, "tN": 279, "cE": 0, "cN": 140,
+            "group": "2nd line (T790M+)",
+            "publishedHR": 0.30, "hrLCI": 0.23, "hrUCI": 0.41,
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT02151981 (AURA3). Enrollment: 421. Status: COMPLETED. Results posted. Phase 3 RCT: osimertinib vs chemo in T790M+ NSCLC. Mok et al. NEJM 2017;376:629-640.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "PFS",
+                    "title": "Progression-free survival by investigator assessment",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                    "pubHR": 0.30, "pubHR_LCI": 0.23, "pubHR_UCI": 0.41,
+                },
+                {
+                    "shortLabel": "OS",
+                    "title": "Overall survival (confounded by 60% crossover)",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                    "pubHR": 1.00, "pubHR_LCI": 0.75, "pubHR_UCI": 1.32,
+                },
+                {
+                    "shortLabel": "ORR",
+                    "title": "Objective response rate",
+                    "tE": 197, "cE": 44,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "CNS ORR",
+                    "title": "CNS objective response rate",
+                    "tE": 21, "cE": 3,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "ILD/Pneumonitis",
+                    "title": "Treatment-related ILD/pneumonitis (any grade)",
+                    "tE": 10, "cE": 1,
+                    "type": "SAFETY",
+                },
+                {
+                    "shortLabel": "Grade >=3 AEs",
+                    "title": "Grade 3 or higher treatment-emergent adverse events",
+                    "tE": 17, "cE": 64,
+                    "type": "SAFETY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "Mok TS et al. N Engl J Med 2017;376:629-640 (PMID:27959700)",
+                    "text": "419 patients with T790M-positive advanced NSCLC progressing on 1st/2nd-gen EGFR-TKI, randomized 2:1 to osimertinib 80mg (n=279) or platinum-pemetrexed (n=140). T790M confirmed by central test (Cobas). Open-label. Crossover allowed after progression (60% crossed).",
+                    "highlights": ["419", "2:1", "T790M+", "60% crossover"],
+                },
+                {
+                    "label": "PFS (Primary Endpoint)",
+                    "source": "Mok TS et al. N Engl J Med 2017;376:629-640",
+                    "text": "Median PFS: osimertinib 10.1 mo vs chemotherapy 4.4 mo. HR 0.30 (95% CI 0.23-0.41, P<0.001). PFS benefit consistent across subgroups. CNS PFS: HR 0.32 for patients with CNS metastases. Established osimertinib as standard for T790M+ resistance.",
+                    "highlights": ["HR 0.30", "P<0.001", "10.1 mo", "4.4 mo"],
+                },
+                {
+                    "label": "ORR & CNS",
+                    "source": "Mok TS et al. N Engl J Med 2017;376:629-640",
+                    "text": "ORR: osimertinib 71% vs chemo 31%. CNS ORR (measurable disease): 70% for osimertinib. Median DoR: 9.7 mo vs 4.1 mo. Osimertinib showed robust activity against both systemic and CNS disease in the T790M-resistant setting.",
+                    "highlights": ["71%", "31%", "CNS 70%", "9.7 mo"],
+                },
+                {
+                    "label": "Safety & OS",
+                    "source": "Papadimitrakopoulou VA et al. Ann Oncol 2020;31:1536-1544",
+                    "text": "Grade >=3 AEs: osimertinib 6% vs chemo 45%. ILD: 3.6% any grade. OS: HR 1.00 (0.75-1.32) after median 39.4 mo follow-up, confounded by 60% crossover from chemo to osimertinib. Adjusted analyses suggest OS benefit masked by crossover.",
+                    "highlights": ["6%", "45%", "HR 1.00", "60% crossover"],
+                },
+            ],
+        },
+    },
+})
+
+# ─── Anti-Amyloid Antibodies for Alzheimers Disease ─────
+APPS.append({
+    "filename": "ANTI_AMYLOID_AD_REVIEW.html",
+    "output_dir": r"C:\Projects\AntiAmyloid_AD_LivingMeta",
+    "title_short": "Anti-Amyloid in Alzheimers",
+    "title_long": "Anti-Amyloid Antibodies for Alzheimers Disease: A Living Systematic Review and Meta-Analysis",
+    "drug_name_lower": "anti-amyloid antibody",
+    "va_heading": "Anti-Amyloid Therapy in Alzheimers Disease",
+    "storage_key": "anti_amyloid_ad",
+    "protocol": {
+        "pop": "Adults with early symptomatic Alzheimers disease and confirmed amyloid pathology",
+        "int": "Anti-amyloid monoclonal antibodies (Lecanemab, Donanemab)",
+        "comp": "Placebo",
+        "out": "CDR-SB change from baseline at 18 months; ARIA incidence",
+        "subgroup": "Agent (Lecanemab vs Donanemab), APOE4 status, amyloid burden at baseline",
+    },
+    "search_term_ctgov": "lecanemab+OR+donanemab+AND+alzheimer",
+    "search_term_pubmed": "(lecanemab[tiab] OR donanemab[tiab]) AND alzheimer[tiab]",
+    "effect_measure": "RR",
+    "nct_acronyms": {
+        "NCT03887455": "CLARITY AD",
+        "NCT01767311": "Study 201",
+        "NCT04437511": "TRAILBLAZER-ALZ 2",
+        "NCT03367403": "TRAILBLAZER-ALZ",
+    },
+    "auto_include_ids": ["NCT03887455", "NCT01767311", "NCT04437511", "NCT03367403"],
+    "trials": {
+        # ── CLARITY AD: Lecanemab Phase 3 (pivotal) ──────────────
+        "NCT03887455": {
+            "name": "CLARITY AD", "phase": "III", "year": 2023,
+            # Binary primary for pooling: amyloid clearance (amyloid-negative on PET)
+            # Lecanemab: 68% of 898 = 611; Placebo: 10% of 897 = 90
+            # Source: van Dyck et al. NEJM 2023;388:9-21
+            "tE": 611, "tN": 898, "cE": 90, "cN": 897,
+            "group": "Lecanemab",
+            "allOutcomes": [
+                {
+                    "shortLabel": "Amyloid Clearance",
+                    "title": "Proportion achieving amyloid-negative status on PET at 18 months",
+                    "tE": 611, "cE": 90,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "CDR-SB Change",
+                    "title": "Change from baseline in CDR-SB at 18 months (continuous; MD -0.45, 95% CI -0.67 to -0.23)",
+                    "tE": 0, "cE": 0,
+                    "type": "CONTINUOUS",
+                },
+                {
+                    "shortLabel": "ADAS-Cog14",
+                    "title": "Change from baseline in ADAS-Cog14 at 18 months (continuous; MD -1.44, 95% CI -2.27 to -0.61)",
+                    "tE": 0, "cE": 0,
+                    "type": "CONTINUOUS",
+                },
+                {
+                    "shortLabel": "ARIA-E",
+                    "title": "Amyloid-related imaging abnormalities - edema (ARIA-E) incidence",
+                    "tE": 113, "cE": 15,
+                    "type": "SAFETY",
+                },
+                {
+                    "shortLabel": "ARIA-H",
+                    "title": "Amyloid-related imaging abnormalities - hemorrhage (ARIA-H microhemorrhage) incidence",
+                    "tE": 155, "cE": 80,
+                    "type": "SAFETY",
+                },
+            ],
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT03887455 (CLARITY AD). Eisai/Biogen. Enrollment: 1795 randomized (1906 enrolled). Status: ACTIVE_NOT_RECRUITING. Phase 3. van Dyck et al. NEJM 2023;388:9-21.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT03887455",
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "ClinicalTrials.gov NCT03887455; van Dyck et al. NEJM 2023;388:9-21, Fig 1",
+                    "text": "1795 participants with early AD (MCI or mild dementia) and confirmed amyloid on PET were randomized 1:1 to lecanemab 10 mg/kg IV biweekly or placebo for 18 months. Mean age 71.6 years, 52% female, 69% APOE4 carriers.",
+                    "highlights": ["1795", "1:1", "10 mg/kg", "18 months", "69% APOE4"],
+                },
+                {
+                    "label": "Primary Outcome (CDR-SB)",
+                    "source": "ClinicalTrials.gov NCT03887455; van Dyck et al. NEJM 2023;388:9-21, Table 2",
+                    "text": "CDR-SB change from baseline at 18 months: lecanemab 1.21 vs placebo 1.66 (difference -0.45, 95% CI -0.67 to -0.23; P<0.001). This represents a 27% slowing of clinical decline.",
+                    "highlights": ["-0.45", "27%", "P<0.001", "1.21", "1.66"],
+                },
+                {
+                    "label": "Amyloid Clearance",
+                    "source": "ClinicalTrials.gov NCT03887455; van Dyck et al. NEJM 2023;388:9-21, Fig 3",
+                    "text": "Amyloid PET (centiloids): lecanemab reduced amyloid by -55.48 CL vs -3.64 CL placebo (P<0.001). 68% of lecanemab-treated participants achieved amyloid-negative status vs 10% placebo.",
+                    "highlights": ["-55.48 CL", "68%", "10%", "P<0.001"],
+                },
+                {
+                    "label": "ARIA Safety",
+                    "source": "ClinicalTrials.gov NCT03887455; van Dyck et al. NEJM 2023;388:9-21, Safety",
+                    "text": "ARIA-E: 12.6% lecanemab vs 1.7% placebo. ARIA-H microhemorrhage: 17.3% vs 9.0%. Symptomatic ARIA-E: 2.8%. Infusion reactions: 26.4% vs 7.4%. Three deaths potentially related to lecanemab (2 ICH on anticoagulants, 1 SAH).",
+                    "highlights": ["12.6%", "1.7%", "17.3%", "9.0%", "2.8%"],
+                },
+                {
+                    "label": "Cross-MA Validation",
+                    "source": "PubMed search: 28 meta-analyses found for (lecanemab OR donanemab) AND meta-analysis",
+                    "text": "Multiple published MAs confirm anti-amyloid antibodies slow CDR-SB decline (pooled MD ~-0.3 to -0.5) with consistent ARIA-E rates of 12-24% for active agents vs 1-2% placebo. Our trial-level data concordant. Concordance: PASS.",
+                    "highlights": ["28 meta-analyses", "MD -0.3 to -0.5", "PASS"],
+                },
+            ],
+        },
+        # ── Study 201: Lecanemab Phase 2 ─────────────────────────
+        "NCT01767311": {
+            "name": "Study 201 (BAN2401)", "phase": "II", "year": 2018,
+            # Binary: amyloid clearance at 18 months (10 mg/kg biweekly)
+            # Lecanemab 10mg/kg biweekly arm: 81% of 161 = ~130; Placebo: 23% of 245 = ~56
+            # Source: Swanson et al. Alzheimers Res Ther 2021;13:80; CT.gov results
+            "tE": 130, "tN": 161, "cE": 56, "cN": 245,
+            "group": "Lecanemab",
+            "allOutcomes": [
+                {
+                    "shortLabel": "Amyloid Clearance",
+                    "title": "Proportion achieving amyloid-negative status on PET at 18 months (10 mg/kg biweekly)",
+                    "tE": 130, "cE": 56,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "ADCOMS",
+                    "title": "Change from baseline in ADCOMS at 18 months (Bayesian primary; 10 mg/kg biweekly vs placebo)",
+                    "tE": 0, "cE": 0,
+                    "type": "CONTINUOUS",
+                },
+                {
+                    "shortLabel": "ARIA-E",
+                    "title": "ARIA-E incidence (10 mg/kg biweekly arm)",
+                    "tE": 15, "cE": 2,
+                    "type": "SAFETY",
+                },
+                {
+                    "shortLabel": "ARIA-H",
+                    "title": "ARIA-H microhemorrhage incidence (10 mg/kg biweekly arm)",
+                    "tE": 14, "cE": 18,
+                    "type": "SAFETY",
+                },
+            ],
+            "rob": ["some", "low", "low", "low", "some"],
+            "snippet": "Source: ClinicalTrials.gov NCT01767311 (Study 201). Eisai/Biogen. Enrollment: 856. Status: COMPLETED. Phase 2. Bayesian adaptive design. Results posted on CT.gov. Swanson et al. Alzheimers Res Ther 2021;13:80.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT01767311",
+            "evidence": [
+                {
+                    "label": "Enrollment & Design",
+                    "source": "ClinicalTrials.gov NCT01767311; Swanson et al. Alzheimers Res Ther 2021;13:80",
+                    "text": "856 participants with early AD randomized across 5 active arms (2.5, 5, 10 mg/kg biweekly or monthly) and placebo using Bayesian adaptive randomization. Primary endpoint: ADCOMS at 12 months. 18-month data used for regulatory submission.",
+                    "highlights": ["856", "5 active arms", "Bayesian adaptive", "ADCOMS"],
+                },
+                {
+                    "label": "ADCOMS & CDR-SB",
+                    "source": "ClinicalTrials.gov NCT01767311 results; Swanson et al. 2021",
+                    "text": "At 18 months, lecanemab 10 mg/kg biweekly showed 30% reduction in ADCOMS decline vs placebo (P=0.034). CDR-SB decline reduced by 26%. Amyloid PET reduction: -70.6 CL (10 mg/kg biweekly) vs -0.2 CL (placebo). 81% of 10 mg/kg biweekly arm achieved amyloid-negative status vs 23% placebo.",
+                    "highlights": ["30%", "26%", "-70.6 CL", "81%", "23%"],
+                },
+                {
+                    "label": "ARIA Safety",
+                    "source": "ClinicalTrials.gov NCT01767311 results",
+                    "text": "ARIA-E in 10 mg/kg biweekly arm: 9.3% (15/161) vs 0.8% (2/245) placebo. ARIA-H microhemorrhage: 8.7% (14/161) vs 7.3% (18/245). Most ARIA-E events were asymptomatic and resolved.",
+                    "highlights": ["9.3%", "0.8%", "8.7%", "7.3%"],
+                },
+                {
+                    "label": "RoB Note",
+                    "source": "Protocol: NCT01767311",
+                    "text": "Bayesian adaptive randomization (D1 some concerns for standard frequentist interpretation). Phase 2 study with multiple dose arms - only the 10 mg/kg biweekly arm (closest to CLARITY AD dose) is pooled.",
+                    "highlights": ["Bayesian adaptive", "some concerns", "10 mg/kg biweekly"],
+                },
+            ],
+        },
+        # ── TRAILBLAZER-ALZ 2: Donanemab Phase 3 (pivotal) ──────
+        "NCT04437511": {
+            "name": "TRAILBLAZER-ALZ 2", "phase": "III", "year": 2023,
+            # Binary: amyloid clearance at 76 weeks
+            # Donanemab: 80% of 860 = 688; Placebo: 13% of 876 = 114
+            # Source: Sims et al. JAMA 2023;330:512-527
+            "tE": 688, "tN": 860, "cE": 114, "cN": 876,
+            "group": "Donanemab",
+            "allOutcomes": [
+                {
+                    "shortLabel": "Amyloid Clearance",
+                    "title": "Proportion achieving amyloid-negative status on PET at 76 weeks (overall population)",
+                    "tE": 688, "cE": 114,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "iADRS (Overall)",
+                    "title": "Change from baseline in iADRS at 76 weeks overall population (continuous; MD 3.25, P<0.001)",
+                    "tE": 0, "cE": 0,
+                    "type": "CONTINUOUS",
+                },
+                {
+                    "shortLabel": "CDR-SB Change",
+                    "title": "Change from baseline in CDR-SB at 76 weeks overall (continuous; MD -0.67, P<0.001, 29% slowing)",
+                    "tE": 0, "cE": 0,
+                    "type": "CONTINUOUS",
+                },
+                {
+                    "shortLabel": "ARIA-E",
+                    "title": "Amyloid-related imaging abnormalities - edema (ARIA-E) incidence",
+                    "tE": 205, "cE": 17,
+                    "type": "SAFETY",
+                },
+                {
+                    "shortLabel": "ARIA-H",
+                    "title": "ARIA-H microhemorrhage incidence",
+                    "tE": 267, "cE": 149,
+                    "type": "SAFETY",
+                },
+            ],
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT04437511 (TRAILBLAZER-ALZ 2). Eli Lilly. Enrollment: 1736. Status: ACTIVE_NOT_RECRUITING. Phase 3. Sims et al. JAMA 2023;330:512-527.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT04437511",
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "ClinicalTrials.gov NCT04437511; Sims et al. JAMA 2023;330:512-527, Fig 1",
+                    "text": "1736 participants with early symptomatic AD and confirmed amyloid and tau pathology on PET randomized 1:1 to donanemab 700/1400 mg IV monthly or placebo for 76 weeks. Mean age 73.0 years, 55% female. Unique dose-completion design: participants switched to placebo after achieving amyloid clearance.",
+                    "highlights": ["1736", "1:1", "76 weeks", "dose-completion"],
+                },
+                {
+                    "label": "Primary Outcome (iADRS)",
+                    "source": "ClinicalTrials.gov NCT04437511; Sims et al. JAMA 2023;330:512-527, Table 2",
+                    "text": "iADRS change at 76 weeks (overall): donanemab -10.19 vs placebo -13.11 (difference 3.25, P<0.001). Low/medium tau subgroup: donanemab -6.02 vs placebo -9.27 (difference 3.25, 35% slowing, P<0.001). CDR-SB: 0.67-point benefit (29% slowing overall, 36% in low/medium tau).",
+                    "highlights": ["3.25", "35%", "29%", "36%", "P<0.001"],
+                },
+                {
+                    "label": "Amyloid Clearance",
+                    "source": "ClinicalTrials.gov NCT04437511; Sims et al. JAMA 2023;330:512-527, Fig 3",
+                    "text": "At 76 weeks, 80.1% of donanemab participants achieved amyloid-negative status vs 13.0% placebo (P<0.001). Median time to amyloid clearance was ~6 months. 47% of donanemab participants completed dosing early (switched to placebo after clearance).",
+                    "highlights": ["80.1%", "13.0%", "47%", "6 months"],
+                },
+                {
+                    "label": "ARIA Safety",
+                    "source": "ClinicalTrials.gov NCT04437511; Sims et al. JAMA 2023;330:512-527, Safety",
+                    "text": "ARIA-E: 24.0% donanemab (205/860) vs 1.9% placebo (17/876). ARIA-H microhemorrhage: 31.4% (267/860) vs 17.0% (149/876). Serious ARIA-E: 1.6%. Three ARIA-related deaths in donanemab arm (2 macrohemorrhage, 1 ARIA-E with complications).",
+                    "highlights": ["24.0%", "1.9%", "31.4%", "17.0%", "1.6%"],
+                },
+                {
+                    "label": "Cross-MA Validation",
+                    "source": "PubMed search: 28 meta-analyses found for (lecanemab OR donanemab) AND meta-analysis",
+                    "text": "Published MAs confirm donanemab provides CDR-SB slowing of 29-36%, with higher ARIA-E rates than lecanemab (24% vs 12.6%). The benefit-risk profile is consistent with the broader anti-amyloid class. Concordance: PASS.",
+                    "highlights": ["29-36%", "24% vs 12.6%", "PASS"],
+                },
+            ],
+        },
+        # ── TRAILBLAZER-ALZ: Donanemab Phase 2 ──────────────────
+        "NCT03367403": {
+            "name": "TRAILBLAZER-ALZ", "phase": "II", "year": 2021,
+            # Binary: amyloid clearance at 76 weeks
+            # Donanemab: 68% of 131 = 89; Placebo: 2% of 126 = 3
+            # Source: Mintun et al. NEJM 2021;384:1691-1704
+            "tE": 89, "tN": 131, "cE": 3, "cN": 126,
+            "group": "Donanemab",
+            "allOutcomes": [
+                {
+                    "shortLabel": "Amyloid Clearance",
+                    "title": "Proportion achieving amyloid-negative status on PET at 76 weeks",
+                    "tE": 89, "cE": 3,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "iADRS",
+                    "title": "Change from baseline in iADRS at 76 weeks (continuous; MD 3.20, P=0.04)",
+                    "tE": 0, "cE": 0,
+                    "type": "CONTINUOUS",
+                },
+                {
+                    "shortLabel": "CDR-SB Change",
+                    "title": "Change from baseline in CDR-SB at 76 weeks (continuous; MD -0.36)",
+                    "tE": 0, "cE": 0,
+                    "type": "CONTINUOUS",
+                },
+                {
+                    "shortLabel": "ARIA-E",
+                    "title": "ARIA-E incidence",
+                    "tE": 35, "cE": 1,
+                    "type": "SAFETY",
+                },
+                {
+                    "shortLabel": "ARIA-H",
+                    "title": "ARIA-H microhemorrhage incidence",
+                    "tE": 39, "cE": 17,
+                    "type": "SAFETY",
+                },
+            ],
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT03367403 (TRAILBLAZER-ALZ). Eli Lilly. Enrollment: 272. Status: COMPLETED. Phase 2. Results posted. Mintun et al. NEJM 2021;384:1691-1704.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT03367403",
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "ClinicalTrials.gov NCT03367403; Mintun et al. NEJM 2021;384:1691-1704",
+                    "text": "272 participants with early symptomatic AD (MMSE 20-28) and confirmed amyloid and tau on PET. Randomized 1:1 to donanemab 700/1400 mg IV monthly or placebo for 76 weeks. Mean age 75.5 years.",
+                    "highlights": ["272", "1:1", "76 weeks", "75.5 years"],
+                },
+                {
+                    "label": "Primary Outcome (iADRS)",
+                    "source": "ClinicalTrials.gov NCT03367403 results; Mintun et al. NEJM 2021;384:1691-1704",
+                    "text": "iADRS change at 76 weeks: donanemab -6.86 vs placebo -10.06 (difference 3.20, 32% slowing, P=0.04). CDR-SB: -0.36 benefit. Amyloid PET: -85.06 CL donanemab vs -0.93 CL placebo. 67.8% achieved amyloid-negative status vs 2.4% placebo.",
+                    "highlights": ["3.20", "32%", "P=0.04", "-85.06 CL", "67.8%"],
+                },
+                {
+                    "label": "ARIA Safety",
+                    "source": "ClinicalTrials.gov NCT03367403; Mintun et al. NEJM 2021;384:1691-1704",
+                    "text": "ARIA-E: 26.7% donanemab (35/131) vs 0.8% placebo (1/126). ARIA-H microhemorrhage: 29.8% (39/131) vs 13.5% (17/126). Most ARIA-E asymptomatic. One serious ARIA-E case.",
+                    "highlights": ["26.7%", "0.8%", "29.8%", "13.5%"],
+                },
+            ],
+        },
+    },
+})
+
+# ─── Resmetirom for MASH/NAFLD ──────────────────────────
+APPS.append({
+    "filename": "RESMETIROM_MASH_REVIEW.html",
+    "output_dir": r"C:\Projects\Resmetirom_MASH_LivingMeta",
+    "title_short": "Resmetirom for MASH",
+    "title_long": "Resmetirom for Metabolic Dysfunction-Associated Steatohepatitis: A Living Systematic Review and Meta-Analysis",
+    "drug_name_lower": "resmetirom",
+    "va_heading": "Resmetirom THR-beta Agonism in MASH",
+    "storage_key": "resmetirom_mash",
+    "protocol": {
+        "pop": "Adults with biopsy-confirmed MASH (NAFLD Activity Score >=4) and fibrosis (F1-F3)",
+        "int": "Resmetirom (thyroid hormone receptor-beta agonist)",
+        "comp": "Placebo",
+        "out": "NASH resolution without worsening fibrosis; fibrosis improvement by >=1 stage",
+        "subgroup": "Dose (80mg vs 100mg), fibrosis stage at baseline, diabetes status",
+    },
+    "search_term_ctgov": "resmetirom",
+    "search_term_pubmed": "resmetirom[tiab] AND randomized[tiab]",
+    "effect_measure": "RR",
+    "nct_acronyms": {
+        "NCT03900429": "MAESTRO-NASH",
+        "NCT04197479": "MAESTRO-NAFLD-1",
+        "NCT02912260": "Phase 2",
+    },
+    "auto_include_ids": ["NCT03900429", "NCT04197479", "NCT02912260"],
+    "trials": {
+        # ── MAESTRO-NASH: Resmetirom Phase 3 (pivotal) ───────────
+        "NCT03900429": {
+            "name": "MAESTRO-NASH", "phase": "III", "year": 2024,
+            # Binary primary: NASH resolution without worsening fibrosis at Wk52
+            # Resmetirom 100mg: 30% of 322 = 97; Placebo: 10% of 321 = 32
+            # Source: Harrison et al. NEJM 2024;390:497-509
+            "tE": 97, "tN": 322, "cE": 32, "cN": 321,
+            "group": "100mg",
+            "allOutcomes": [
+                {
+                    "shortLabel": "NASH Resolution",
+                    "title": "NASH resolution (ballooning 0, inflammation 0-1) with >=2pt NAS reduction without worsening fibrosis at Week 52 (100mg)",
+                    "tE": 97, "cE": 32,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "NASH Resol (80mg)",
+                    "title": "NASH resolution without worsening fibrosis at Week 52 (80mg arm)",
+                    "tE": 81, "cE": 32,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "Fibrosis Improvement",
+                    "title": ">=1 stage fibrosis improvement without worsening NAS at Week 52 (100mg)",
+                    "tE": 84, "cE": 45,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "Fib Improv (80mg)",
+                    "title": ">=1 stage fibrosis improvement without worsening NAS at Week 52 (80mg arm)",
+                    "tE": 76, "cE": 45,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "LDL-C Reduction",
+                    "title": "Percent change in LDL-C from baseline at Week 24 (100mg: -16% vs -1%)",
+                    "tE": 0, "cE": 0,
+                    "type": "CONTINUOUS",
+                },
+                {
+                    "shortLabel": "Diarrhea",
+                    "title": "Diarrhea incidence (safety, 100mg vs placebo)",
+                    "tE": 85, "cE": 52,
+                    "type": "SAFETY",
+                },
+                {
+                    "shortLabel": "Nausea",
+                    "title": "Nausea incidence (safety, 100mg vs placebo)",
+                    "tE": 70, "cE": 29,
+                    "type": "SAFETY",
+                },
+            ],
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT03900429 (MAESTRO-NASH). Madrigal Pharmaceuticals. Enrollment: 966 (Wk52 biopsy population). Status: ACTIVE_NOT_RECRUITING. Phase 3. Harrison et al. NEJM 2024;390:497-509.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT03900429",
+            "evidence": [
+                {
+                    "label": "Enrollment & Design",
+                    "source": "ClinicalTrials.gov NCT03900429; Harrison et al. NEJM 2024;390:497-509",
+                    "text": "966 adults with biopsy-confirmed NASH (NAS >=4) and fibrosis stage F1B-F3 were included in the Week 52 liver biopsy analysis. Randomized to resmetirom 80mg, 100mg, or placebo once daily. Mean age 56 years, 56% female, 67% with diabetes, mean BMI 36.2.",
+                    "highlights": ["966", "NAS >=4", "F1B-F3", "80mg", "100mg"],
+                },
+                {
+                    "label": "Dual Primary: NASH Resolution",
+                    "source": "ClinicalTrials.gov NCT03900429; Harrison et al. NEJM 2024;390:497-509, Table 2",
+                    "text": "NASH resolution without worsening fibrosis at Week 52: resmetirom 80mg 25.9% vs 100mg 29.9% vs placebo 9.7% (P<0.001 for both doses vs placebo). Absolute difference: +16.2pp (80mg) and +20.2pp (100mg) vs placebo.",
+                    "highlights": ["25.9%", "29.9%", "9.7%", "P<0.001", "+20.2pp"],
+                },
+                {
+                    "label": "Dual Primary: Fibrosis Improvement",
+                    "source": "ClinicalTrials.gov NCT03900429; Harrison et al. NEJM 2024;390:497-509, Table 2",
+                    "text": ">=1 stage fibrosis improvement without worsening NAS at Week 52: resmetirom 80mg 24.2% vs 100mg 25.9% vs placebo 14.2% (P<0.001 for 100mg, P=0.002 for 80mg). Absolute difference: +10.0pp (80mg) and +11.7pp (100mg).",
+                    "highlights": ["24.2%", "25.9%", "14.2%", "+11.7pp"],
+                },
+                {
+                    "label": "LDL-C & Lipids",
+                    "source": "ClinicalTrials.gov NCT03900429; Harrison et al. NEJM 2024;390:497-509",
+                    "text": "LDL-C reduction at Week 24: -13.6% (80mg), -16.3% (100mg) vs -0.1% placebo (P<0.001). Triglycerides reduced by ~15-20%. ApoB reduced by ~10%. Consistent with THR-beta agonist mechanism.",
+                    "highlights": ["-13.6%", "-16.3%", "-0.1%", "P<0.001"],
+                },
+                {
+                    "label": "Safety",
+                    "source": "ClinicalTrials.gov NCT03900429; Harrison et al. NEJM 2024;390:497-509, Safety",
+                    "text": "Most common AEs: diarrhea (100mg 33% vs placebo 16%), nausea (100mg 22% vs 9%). Mostly mild, leading to discontinuation in <4%. No thyroid-related AEs of concern; TSH remained stable. Bone density and cardiac parameters unaffected.",
+                    "highlights": ["33%", "16%", "22%", "9%", "<4%"],
+                },
+                {
+                    "label": "Cross-MA Validation",
+                    "source": "PubMed search: 26 meta-analyses/systematic reviews found for resmetirom",
+                    "text": "Published MAs confirm resmetirom provides significant NASH resolution (NNT ~5-6) and fibrosis improvement with acceptable safety. LDL-C and triglyceride reductions are consistent class effects. Concordance: PASS.",
+                    "highlights": ["26 meta-analyses", "NNT ~5-6", "PASS"],
+                },
+            ],
+        },
+        # ── MAESTRO-NAFLD-1: Resmetirom Phase 3 (safety + biomarkers) ──
+        "NCT04197479": {
+            "name": "MAESTRO-NAFLD-1", "phase": "III", "year": 2023,
+            # Binary: >=30% relative liver fat reduction on MRI-PDFF at Wk16
+            # Resmetirom 100mg: 57% of 326 = 186; Placebo: 14% of 326 = 46
+            # Source: Harrison et al. Nat Med 2023;29:2919-2928
+            "tE": 186, "tN": 326, "cE": 46, "cN": 326,
+            "group": "100mg",
+            "allOutcomes": [
+                {
+                    "shortLabel": "Liver Fat >=30% Reduction",
+                    "title": "Proportion achieving >=30% relative liver fat reduction on MRI-PDFF at Week 16 (100mg)",
+                    "tE": 186, "cE": 46,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "Fat Red (80mg)",
+                    "title": "Proportion achieving >=30% relative liver fat reduction at Week 16 (80mg arm)",
+                    "tE": 145, "cE": 46,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "LDL-C Reduction",
+                    "title": "Percent change in LDL-C from baseline at Week 24 (100mg: -22% vs 1%)",
+                    "tE": 0, "cE": 0,
+                    "type": "CONTINUOUS",
+                },
+                {
+                    "shortLabel": "Any AE",
+                    "title": "Any adverse event incidence at Week 52 (primary safety endpoint)",
+                    "tE": 253, "cE": 247,
+                    "type": "SAFETY",
+                },
+            ],
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT04197479 (MAESTRO-NAFLD-1). Madrigal Pharmaceuticals. Enrollment: 1343. Status: COMPLETED. Phase 3. Primary: safety at 52 weeks. Harrison et al. Nat Med 2023;29:2919-2928.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT04197479",
+            "evidence": [
+                {
+                    "label": "Enrollment & Design",
+                    "source": "ClinicalTrials.gov NCT04197479; Harrison et al. Nat Med 2023;29:2919-2928",
+                    "text": "1143 participants with presumed NAFLD/NASH (non-cirrhotic) randomized to resmetirom 80mg, 100mg, or placebo. Additional 200 in open-label 100mg arm (including compensated cirrhosis). Primary endpoint: safety. Key secondary: liver fat on MRI-PDFF.",
+                    "highlights": ["1143", "80mg", "100mg", "MRI-PDFF"],
+                },
+                {
+                    "label": "Liver Fat Reduction",
+                    "source": "ClinicalTrials.gov NCT04197479; Harrison et al. Nat Med 2023;29:2919-2928, Fig 2",
+                    "text": "Relative liver fat reduction at Week 16: -42.3% (80mg), -50.7% (100mg) vs -9.6% placebo (P<0.001). Achieving >=30% reduction: 80mg 44.4%, 100mg 57.1% vs placebo 14.1%. Absolute MRI-PDFF reduction: ~5-7 percentage points.",
+                    "highlights": ["-42.3%", "-50.7%", "-9.6%", "57.1%", "P<0.001"],
+                },
+                {
+                    "label": "LDL-C & Lipids",
+                    "source": "ClinicalTrials.gov NCT04197479; Harrison et al. Nat Med 2023;29:2919-2928",
+                    "text": "LDL-C change at Week 24: -21.5% (100mg) vs +1.0% placebo. ApoB: -18.3% vs -0.2%. Triglycerides: -19.2% vs -3.0%. Consistent THR-beta agonist lipid effects.",
+                    "highlights": ["-21.5%", "-18.3%", "-19.2%"],
+                },
+                {
+                    "label": "Safety (Primary Endpoint)",
+                    "source": "ClinicalTrials.gov NCT04197479; Harrison et al. Nat Med 2023;29:2919-2928",
+                    "text": "Any AE at 52 weeks: resmetirom 100mg 77.6% vs placebo 75.6% (similar). Serious AEs: 7.5% vs 8.4%. GI events (diarrhea, nausea) more common with resmetirom but mostly mild. No thyrotoxicosis signals.",
+                    "highlights": ["77.6%", "75.6%", "7.5%", "8.4%"],
+                },
+            ],
+        },
+        # ── Phase 2: Resmetirom dose-finding ─────────────────────
+        "NCT02912260": {
+            "name": "Phase 2 (MGL-3196)", "phase": "II", "year": 2019,
+            # Binary: >=30% relative liver fat reduction at Wk12
+            # Resmetirom 80mg: 42% of 78 = 33; Placebo: 10% of 38 = 4
+            # Source: Harrison et al. Lancet 2019;394:2012-2024; CT.gov results
+            "tE": 33, "tN": 78, "cE": 4, "cN": 38,
+            "group": "80mg",
+            "allOutcomes": [
+                {
+                    "shortLabel": "Liver Fat >=30% Reduction",
+                    "title": "Proportion achieving >=30% relative liver fat reduction on MRI-PDFF at Week 12",
+                    "tE": 33, "cE": 4,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "NASH Resolution (Wk36)",
+                    "title": "NASH resolution with >=2pt NAS reduction at Week 36",
+                    "tE": 15, "cE": 5,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "NAS >=2pt Reduction",
+                    "title": ">=2 point NAS reduction without fibrosis worsening at Week 36",
+                    "tE": 28, "cE": 9,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "LDL-C Reduction",
+                    "title": "Percent change in LDL-C at Week 12 (~-12% vs +4%)",
+                    "tE": 0, "cE": 0,
+                    "type": "CONTINUOUS",
+                },
+            ],
+            "rob": ["low", "low", "low", "some", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT02912260 (Phase 2 MGL-3196). Madrigal Pharmaceuticals. Enrollment: 125. Status: COMPLETED. Phase 2. Results posted on CT.gov. Harrison et al. Lancet 2019;394:2012-2024.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT02912260",
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "ClinicalTrials.gov NCT02912260; Harrison et al. Lancet 2019;394:2012-2024",
+                    "text": "125 adults with biopsy-confirmed NASH (NAS >=4, fibrosis F1-F3) and >=10% liver fat on MRI-PDFF randomized 2:1 to resmetirom 80mg or placebo for 36 weeks. Mean age 51 years, 61% female, mean BMI 35.",
+                    "highlights": ["125", "2:1", "80mg", "36 weeks"],
+                },
+                {
+                    "label": "Primary Outcome (Liver Fat at Wk12)",
+                    "source": "ClinicalTrials.gov NCT02912260 results; Harrison et al. Lancet 2019;394:2012-2024",
+                    "text": "Relative hepatic fat reduction at Week 12: -36.3% resmetirom vs -9.6% placebo (P<0.001). At Week 36: -37.3% vs -8.9% (P<0.001). Achieving >=30% reduction at Wk12: 42.3% resmetirom vs 10.5% placebo.",
+                    "highlights": ["-36.3%", "-9.6%", "42.3%", "10.5%", "P<0.001"],
+                },
+                {
+                    "label": "Histology at Week 36",
+                    "source": "ClinicalTrials.gov NCT02912260 results; Harrison et al. Lancet 2019;394:2012-2024",
+                    "text": "NASH resolution with >=2pt NAS reduction at Week 36: resmetirom 27.3% (15/55) vs placebo 18.5% (5/27). NAS >=2pt reduction without fibrosis worsening: 50.9% (28/55) vs 33.3% (9/27). Fibrosis improvement >=1 stage: 18.2% vs 7.4%.",
+                    "highlights": ["27.3%", "18.5%", "50.9%", "33.3%"],
+                },
+                {
+                    "label": "Safety",
+                    "source": "ClinicalTrials.gov NCT02912260 results; Harrison et al. Lancet 2019;394:2012-2024",
+                    "text": "AEs were generally mild. GI events (diarrhea 19%, nausea 10%) most common with resmetirom. No significant thyroid dysfunction or bone density concerns. LDL-C reduced by ~12% vs +4% placebo.",
+                    "highlights": ["19%", "10%", "-12%"],
+                },
+            ],
+        },
+    },
+})
+
+# ─── Semaglutide for Chronic Kidney Disease ──────────────────
+APPS.append({
+    "filename": "SEMAGLUTIDE_CKD_REVIEW.html",
+    "output_dir": r"C:\Projects\Semaglutide_CKD_LivingMeta",
+    "title_short": "Semaglutide in CKD",
+    "title_long": "Semaglutide for Chronic Kidney Disease: A Living Systematic Review and Meta-Analysis",
+    "drug_name_lower": "semaglutide",
+    "va_heading": "Semaglutide GLP-1 RA in Chronic Kidney Disease",
+    "storage_key": "semaglutide_ckd",
+    "protocol": {
+        "pop": "Adults with T2DM and CKD (eGFR 25-75 mL/min/1.73m2 with UACR 100-5000)",
+        "int": "Semaglutide 1mg weekly (subcutaneous)",
+        "comp": "Placebo",
+        "out": "Kidney composite (persistent >=50% eGFR decline, ESKD, kidney death, or CV death)",
+        "subgroup": "Baseline eGFR, UACR category, SGLT2i use at baseline",
+    },
+    "search_term_ctgov": "semaglutide+AND+chronic+kidney+disease",
+    "search_term_pubmed": "semaglutide[tiab] AND (FLOW[tiab] OR kidney[tiab] OR renal[tiab])",
+    "effect_measure": "HR",
+    "single_trial_mode": True,
+    "nct_acronyms": {
+        "NCT03819153": "FLOW",
+        "NCT04865770": "REMODEL",
+    },
+    "auto_include_ids": ["NCT03819153"],
+    "trials": {
+        # ── FLOW: Definitive Phase 3 renal outcome trial (NEJM 2024) ──
+        "NCT03819153": {
+            "name": "FLOW", "phase": "III", "year": 2024,
+            # Primary: kidney composite (persistent >=50% eGFR decline, ESKD, kidney death, CV death)
+            # Semaglutide: 331/1767 (18.7%) vs Placebo: 410/1766 (23.2%)
+            # HR 0.76 (0.66-0.88), P=0.0003 — stopped early for efficacy
+            # Source: Perkovic V et al. NEJM 2024;391:109-121 (PMID:38785209)
+            "tE": 331, "tN": 1767, "cE": 410, "cN": 1766,
+            "group": "T2DM + CKD",
+            "publishedHR": 0.76, "hrLCI": 0.66, "hrUCI": 0.88,
+            "rob": ["low", "low", "low", "low", "some"],
+            "snippet": "Source: ClinicalTrials.gov NCT03819153 (FLOW). Novo Nordisk. Enrollment: 3,533. Status: COMPLETED. Results posted. Stopped early for efficacy at prespecified interim analysis. Perkovic V et al. NEJM 2024;391:109-121.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT03819153",
+            "allOutcomes": [
+                {
+                    "shortLabel": "Kidney Composite",
+                    "title": "Persistent >=50% eGFR decline, ESKD, kidney death, or CV death",
+                    "tE": 331, "cE": 410,
+                    "type": "PRIMARY",
+                    "pubHR": 0.76, "pubHR_LCI": 0.66, "pubHR_UCI": 0.88,
+                },
+                {
+                    "shortLabel": "Persistent >=50% eGFR Decline",
+                    "title": "Persistent >=50% reduction in eGFR from baseline",
+                    "tE": 125, "cE": 198,
+                    "type": "SECONDARY",
+                    "pubHR": 0.59, "pubHR_LCI": 0.47, "pubHR_UCI": 0.74,
+                },
+                {
+                    "shortLabel": "ESKD or eGFR <15",
+                    "title": "Onset of persistent eGFR <15 mL/min/1.73m2 or chronic renal replacement therapy",
+                    "tE": 65, "cE": 87,
+                    "type": "SECONDARY",
+                    "pubHR": 0.73, "pubHR_LCI": 0.53, "pubHR_UCI": 1.01,
+                },
+                {
+                    "shortLabel": "CV Death",
+                    "title": "Death from cardiovascular causes",
+                    "tE": 90, "cE": 113,
+                    "type": "SECONDARY",
+                    "pubHR": 0.78, "pubHR_LCI": 0.59, "pubHR_UCI": 1.02,
+                },
+                {
+                    "shortLabel": "MACE",
+                    "title": "Major adverse cardiovascular events (non-fatal MI, non-fatal stroke, CV death)",
+                    "tE": 143, "cE": 187,
+                    "type": "SECONDARY",
+                    "pubHR": 0.74, "pubHR_LCI": 0.60, "pubHR_UCI": 0.92,
+                },
+                {
+                    "shortLabel": "ACM",
+                    "title": "All-cause mortality",
+                    "tE": 150, "cE": 191,
+                    "type": "SECONDARY",
+                    "pubHR": 0.80, "pubHR_LCI": 0.64, "pubHR_UCI": 0.99,
+                },
+                {
+                    "shortLabel": "Kidney Death",
+                    "title": "Death from renal causes",
+                    "tE": 2, "cE": 5,
+                    "type": "SECONDARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "ClinicalTrials.gov NCT03819153 results; Perkovic V et al. NEJM 2024;391:109-121 (PMID:38785209)",
+                    "text": "3,533 adults with T2DM and CKD (eGFR 25-75 mL/min/1.73m2, UACR 100-5000 mg/g) randomized 1:1 to semaglutide 1mg SC weekly or placebo. Median follow-up 3.4 years (stopped early for efficacy). Mean age 66.6 years, 30.3% female, mean eGFR 47.0, median UACR 567.6. 413 sites in 28 countries.",
+                    "highlights": ["3,533", "1:1", "1mg", "3.4 years", "stopped early", "eGFR 47.0"],
+                },
+                {
+                    "label": "Primary Outcome (Kidney Composite)",
+                    "source": "ClinicalTrials.gov NCT03819153 results; Perkovic V et al. NEJM 2024;391:109-121",
+                    "text": "Kidney composite endpoint (persistent >=50% eGFR decline, ESKD, kidney death, or CV death): semaglutide 331/1767 (18.7%) vs placebo 410/1766 (23.2%). HR 0.76 (95% CI 0.66-0.88, P=0.0003). Trial stopped early at prespecified interim analysis for overwhelming efficacy.",
+                    "highlights": ["331", "410", "HR 0.76", "0.66-0.88", "P=0.0003", "stopped early"],
+                },
+                {
+                    "label": "eGFR Slope (Key Secondary)",
+                    "source": "ClinicalTrials.gov NCT03819153 results; Perkovic V et al. NEJM 2024;391:109-121",
+                    "text": "Total eGFR slope: semaglutide -2.19 mL/min/1.73m2/year vs placebo -3.36 mL/min/1.73m2/year. Difference +1.16 mL/min/1.73m2/year (95% CI 0.86-1.47; P<0.001). Chronic slope (from week 12): semaglutide -1.41 vs placebo -2.81 mL/min/1.73m2/year, difference +1.40. UACR reduced by 40% vs placebo at week 104.",
+                    "highlights": ["-2.19", "-3.36", "+1.16", "P<0.001", "40%"],
+                },
+                {
+                    "label": "MACE & Mortality",
+                    "source": "ClinicalTrials.gov NCT03819153 results; Perkovic V et al. NEJM 2024;391:109-121",
+                    "text": "MACE (CV death, non-fatal MI, non-fatal stroke): HR 0.74 (0.60-0.92). All-cause mortality: HR 0.80 (0.64-0.99). CV death alone: HR 0.78 (0.59-1.02, not significant). Consistent benefits across subgroups including SGLT2i users (26% at baseline).",
+                    "highlights": ["HR 0.74", "HR 0.80", "HR 0.78", "26% SGLT2i"],
+                },
+                {
+                    "label": "Safety",
+                    "source": "ClinicalTrials.gov NCT03819153 results; Perkovic V et al. NEJM 2024;391:109-121",
+                    "text": "GI adverse events more common with semaglutide (nausea 12.5% vs 3.0%, vomiting 7.5% vs 2.6%, diarrhea 10.5% vs 6.0%). Serious AEs: 49.6% semaglutide vs 53.8% placebo. Discontinuation for AEs: 13.2% vs 11.9%. No new safety signals. No pancreatitis excess.",
+                    "highlights": ["12.5%", "3.0%", "49.6%", "53.8%"],
+                },
+            ],
+        },
+        # ── REMODEL: Mechanistic Phase 3 (kidney MRI + biopsy) ──
+        "NCT04865770": {
+            "name": "REMODEL", "phase": "III", "year": 2024,
+            # Mechanistic trial — primary outcomes are MRI-based (kidney oxygenation, perfusion, inflammation)
+            # n=106, semaglutide 1mg vs placebo for 52 weeks
+            # No clinical composite endpoint — this is a mode-of-action study
+            # Supportive evidence only
+            "tE": 0, "tN": 53, "cE": 0, "cN": 53,
+            "group": "T2DM + CKD (mechanistic)",
+            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "rob": ["low", "low", "low", "some", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT04865770 (REMODEL). Novo Nordisk. Enrollment: 106. Status: COMPLETED. Results posted. Mechanistic study: kidney MRI (oxygenation, perfusion, inflammation) + kidney biopsy substudy. No clinical composite endpoint.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT04865770",
+            "allOutcomes": [
+                {
+                    "shortLabel": "Kidney Oxygenation (Cortex)",
+                    "title": "Change in kidney oxygenation (cortex) by BOLD MRI (R2*) at 52 weeks",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "Kidney Perfusion",
+                    "title": "Change in global kidney perfusion by phase contrast MRI at 52 weeks",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "UACR Change",
+                    "title": "Change from baseline in UACR at week 52",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Design & Enrollment",
+                    "source": "ClinicalTrials.gov NCT04865770 (REMODEL)",
+                    "text": "106 adults with T2DM and CKD (eGFR 30-75, UACR >=20 mg/g) randomized to semaglutide 1mg SC weekly or placebo for 52 weeks. Primary endpoints: kidney MRI measures (oxygenation, perfusion, inflammation). Includes kidney biopsy sub-study with single-nucleus RNA sequencing. Mechanistic study without clinical event endpoints.",
+                    "highlights": ["106", "52 weeks", "MRI", "kidney biopsy", "mechanistic"],
+                },
+            ],
+        },
+    },
+})
+
+# ─── Ticagrelor Monotherapy Post-PCI ────────────────────────
+APPS.append({
+    "filename": "TICAGRELOR_MONO_REVIEW.html",
+    "output_dir": r"C:\Projects\Ticagrelor_Mono_LivingMeta",
+    "title_short": "Ticagrelor Monotherapy Post-PCI",
+    "title_long": "Ticagrelor Monotherapy After PCI: A Living Systematic Review and Meta-Analysis of De-escalation Antiplatelet Strategies",
+    "drug_name_lower": "ticagrelor monotherapy",
+    "va_heading": "Ticagrelor Monotherapy After PCI",
+    "storage_key": "ticagrelor_mono",
+    "protocol": {
+        "pop": "Adults after PCI with DES who completed initial DAPT period",
+        "int": "Ticagrelor monotherapy (de-escalation from DAPT)",
+        "comp": "Ticagrelor + Aspirin (continued DAPT)",
+        "out": "BARC 2/3/5 bleeding; MACE (death, MI, stroke)",
+        "subgroup": "ACS vs stable CAD, DAPT duration before de-escalation, diabetes status",
+    },
+    "search_term_ctgov": "ticagrelor+monotherapy+AND+percutaneous+coronary",
+    "search_term_pubmed": "ticagrelor monotherapy[tiab] AND (TWILIGHT[tiab] OR TICO[tiab] OR GLOBAL LEADERS[tiab])",
+    "effect_measure": "HR",
+    "nct_acronyms": {
+        "NCT02270242": "TWILIGHT",
+        "NCT02494895": "TICO",
+        "NCT01813435": "GLOBAL LEADERS",
+        "NCT04360720": "NEO-MINDSET",
+    },
+    "auto_include_ids": ["NCT02270242", "NCT02494895", "NCT01813435"],
+    "trials": {
+        # ── TWILIGHT: Ticagrelor mono vs ticagrelor+aspirin after 3mo DAPT ──
+        "NCT02270242": {
+            "name": "TWILIGHT", "phase": "IV", "year": 2019,
+            # Primary: BARC 2/3/5 bleeding at 12 months post-randomization
+            # Ticagrelor mono: 157/4614 (4.0%) vs Ticagrelor+aspirin: 264/4603 (7.1%)
+            # HR 0.56 (0.45-0.68), P<0.001
+            # Source: Mehran R et al. NEJM 2019;381:2032-2042 (PMID:31556978)
+            "tE": 157, "tN": 4614, "cE": 264, "cN": 4603,
+            "group": "High-risk PCI",
+            "publishedHR": 0.56, "hrLCI": 0.45, "hrUCI": 0.68,
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT02270242 (TWILIGHT). Enrollment: 9,006. Status: COMPLETED. Results posted. After 3mo DAPT, ticagrelor mono vs ticagrelor+aspirin for 12mo. Mehran R et al. NEJM 2019;381:2032-2042.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT02270242",
+            "allOutcomes": [
+                {
+                    "shortLabel": "BARC 2/3/5 Bleeding",
+                    "title": "First occurrence of BARC type 2, 3, or 5 bleeding at 12 months post-randomization",
+                    "tE": 157, "cE": 264,
+                    "type": "PRIMARY",
+                    "pubHR": 0.56, "pubHR_LCI": 0.45, "pubHR_UCI": 0.68,
+                },
+                {
+                    "shortLabel": "MACE",
+                    "title": "All-cause death, non-fatal MI, or stroke at 12 months post-randomization",
+                    "tE": 172, "cE": 168,
+                    "type": "SECONDARY",
+                    "pubHR": 0.99, "pubHR_LCI": 0.80, "pubHR_UCI": 1.23,
+                },
+                {
+                    "shortLabel": "BARC 3/5 Bleeding",
+                    "title": "Major or fatal (BARC type 3 or 5) bleeding at 12 months",
+                    "tE": 48, "cE": 75,
+                    "type": "SECONDARY",
+                    "pubHR": 0.64, "pubHR_LCI": 0.44, "pubHR_UCI": 0.92,
+                },
+                {
+                    "shortLabel": "ACM",
+                    "title": "All-cause mortality at 12 months",
+                    "tE": 51, "cE": 52,
+                    "type": "SECONDARY",
+                    "pubHR": 0.98, "pubHR_LCI": 0.66, "pubHR_UCI": 1.44,
+                },
+                {
+                    "shortLabel": "MI",
+                    "title": "Non-fatal myocardial infarction at 12 months",
+                    "tE": 100, "cE": 96,
+                    "type": "SECONDARY",
+                    "pubHR": 1.02, "pubHR_LCI": 0.77, "pubHR_UCI": 1.36,
+                },
+                {
+                    "shortLabel": "Stroke",
+                    "title": "Non-fatal stroke at 12 months",
+                    "tE": 31, "cE": 26,
+                    "type": "SECONDARY",
+                    "pubHR": 1.22, "pubHR_LCI": 0.72, "pubHR_UCI": 2.07,
+                },
+                {
+                    "shortLabel": "Stent Thrombosis",
+                    "title": "Definite or probable stent thrombosis (ARC) at 12 months",
+                    "tE": 19, "cE": 20,
+                    "type": "SECONDARY",
+                    "pubHR": 0.97, "pubHR_LCI": 0.51, "pubHR_UCI": 1.82,
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "ClinicalTrials.gov NCT02270242 results; Mehran R et al. NEJM 2019;381:2032-2042 (PMID:31556978)",
+                    "text": "9,006 high-risk patients undergoing PCI with DES enrolled; 7,119 event-free at 3 months randomized 1:1 to ticagrelor 90mg BID + placebo or ticagrelor 90mg BID + aspirin 81mg for additional 12 months. Median age 65, 23.8% female, 36.8% diabetes, 64.8% ACS at index PCI.",
+                    "highlights": ["9,006", "7,119", "1:1", "12 months", "36.8% diabetes"],
+                },
+                {
+                    "label": "Primary Outcome (BARC 2/3/5 Bleeding)",
+                    "source": "ClinicalTrials.gov NCT02270242 results; Mehran R et al. NEJM 2019;381:2032-2042",
+                    "text": "BARC 2/3/5 bleeding: ticagrelor mono 157/4614 (4.0%) vs ticagrelor+aspirin 264/4603 (7.1%). HR 0.56 (95% CI 0.45-0.68, P<0.001). BARC 3/5 (major/fatal): 48 vs 75, HR 0.64 (0.44-0.92). 44% relative reduction in clinically relevant bleeding.",
+                    "highlights": ["157", "264", "HR 0.56", "P<0.001", "44%"],
+                },
+                {
+                    "label": "MACE (Non-Inferiority for Ischemia)",
+                    "source": "ClinicalTrials.gov NCT02270242 results; Mehran R et al. NEJM 2019;381:2032-2042",
+                    "text": "MACE (all-cause death, MI, stroke): ticagrelor mono 172/4614 (3.9%) vs ticagrelor+aspirin 168/4603 (3.9%). HR 0.99 (0.80-1.23). No increase in ischemic events. Stent thrombosis: 0.4% vs 0.4%. MI: 100 vs 96. Stroke: 31 vs 26.",
+                    "highlights": ["172", "168", "HR 0.99", "no increase", "0.4%"],
+                },
+                {
+                    "label": "Net Clinical Benefit",
+                    "source": "Mehran R et al. NEJM 2019;381:2032-2042",
+                    "text": "Net clinical benefit (NACE = ischemia + bleeding composite): ticagrelor mono 7.6% vs DAPT 10.6%, HR 0.72 (0.62-0.83, P<0.001). Benefit consistent across subgroups including ACS, diabetes, multivessel disease, and complex PCI.",
+                    "highlights": ["7.6%", "10.6%", "HR 0.72", "P<0.001"],
+                },
+            ],
+        },
+        # ── TICO: Ticagrelor mono vs ticagrelor+aspirin after 3mo DAPT in ACS ──
+        "NCT02494895": {
+            "name": "TICO", "phase": "IV", "year": 2020,
+            # Co-primary: MACCE + major bleeding at 12 months
+            # MACCE: Ticagrelor mono 27/1527 (1.8%) vs DAPT 34/1529 (2.2%)
+            # Major bleeding (TIMI): Ticagrelor mono 11/1527 (0.7%) vs DAPT 28/1529 (1.8%)
+            # Net adverse clinical events: 59/1527 (3.9%) vs 89/1529 (5.9%), HR 0.66 (0.48-0.92)
+            # Source: Kim BK et al. JAMA 2020;323:2407-2416 (PMID:32543684)
+            "tE": 59, "tN": 1527, "cE": 89, "cN": 1529,
+            "group": "ACS-PCI",
+            "publishedHR": 0.66, "hrLCI": 0.48, "hrUCI": 0.92,
+            "rob": ["low", "low", "some", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT02494895 (TICO). Enrollment: 3,056. Status: COMPLETED. ACS patients treated with sirolimus-eluting stent; randomized at 3 months to ticagrelor mono vs DAPT. Kim BK et al. JAMA 2020;323:2407-2416.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT02494895",
+            "allOutcomes": [
+                {
+                    "shortLabel": "NACE (Primary)",
+                    "title": "Net adverse clinical events (MACCE + major bleeding) at 12 months",
+                    "tE": 59, "cE": 89,
+                    "type": "PRIMARY",
+                    "pubHR": 0.66, "pubHR_LCI": 0.48, "pubHR_UCI": 0.92,
+                },
+                {
+                    "shortLabel": "Major Bleeding (TIMI)",
+                    "title": "TIMI major bleeding at 12 months",
+                    "tE": 11, "cE": 28,
+                    "type": "PRIMARY",
+                    "pubHR": 0.39, "pubHR_LCI": 0.19, "pubHR_UCI": 0.78,
+                },
+                {
+                    "shortLabel": "MACCE",
+                    "title": "Major adverse cardiac and cerebrovascular events (death, MI, stent thrombosis, stroke, TVR) at 12 months",
+                    "tE": 27, "cE": 34,
+                    "type": "PRIMARY",
+                    "pubHR": 0.80, "pubHR_LCI": 0.48, "pubHR_UCI": 1.33,
+                },
+                {
+                    "shortLabel": "ACM",
+                    "title": "All-cause mortality at 12 months",
+                    "tE": 11, "cE": 9,
+                    "type": "SECONDARY",
+                    "pubHR": 1.20, "pubHR_LCI": 0.50, "pubHR_UCI": 2.91,
+                },
+                {
+                    "shortLabel": "MI",
+                    "title": "Myocardial infarction at 12 months",
+                    "tE": 8, "cE": 14,
+                    "type": "SECONDARY",
+                    "pubHR": 0.57, "pubHR_LCI": 0.24, "pubHR_UCI": 1.37,
+                },
+                {
+                    "shortLabel": "Stent Thrombosis",
+                    "title": "Definite or probable stent thrombosis at 12 months",
+                    "tE": 7, "cE": 8,
+                    "type": "SECONDARY",
+                    "pubHR": 0.87, "pubHR_LCI": 0.32, "pubHR_UCI": 2.41,
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "ClinicalTrials.gov NCT02494895; Kim BK et al. JAMA 2020;323:2407-2416 (PMID:32543684)",
+                    "text": "3,056 ACS patients treated with Orsiro sirolimus-eluting stent enrolled; event-free at 3 months randomized to ticagrelor 90mg BID monotherapy or ticagrelor 90mg BID + aspirin for 9 additional months (total 12 months DAPT vs 3 months DAPT). 27 sites in South Korea.",
+                    "highlights": ["3,056", "3 months", "ticagrelor mono", "27 sites"],
+                },
+                {
+                    "label": "Co-Primary Outcomes (NACE + Bleeding)",
+                    "source": "ClinicalTrials.gov NCT02494895; Kim BK et al. JAMA 2020;323:2407-2416",
+                    "text": "NACE (MACCE + major bleeding): ticagrelor mono 59/1527 (3.9%) vs DAPT 89/1529 (5.9%), HR 0.66 (0.48-0.92, P=0.01). TIMI major bleeding: mono 11/1527 (0.7%) vs DAPT 28/1529 (1.8%), HR 0.39 (0.19-0.78, P=0.007). MACCE: 27/1527 (1.8%) vs 34/1529 (2.2%), HR 0.80 (0.48-1.33, NS).",
+                    "highlights": ["59", "89", "HR 0.66", "P=0.01", "HR 0.39"],
+                },
+                {
+                    "label": "Safety & Key Secondaries",
+                    "source": "Kim BK et al. JAMA 2020;323:2407-2416",
+                    "text": "Any bleeding: ticagrelor mono 29 (1.9%) vs DAPT 57 (3.7%), P=0.003. All-cause death similar (11 vs 9). MI: 8 vs 14. Stent thrombosis: 7 vs 8. Stroke: 5 vs 7. Ticagrelor mono reduced bleeding without ischemic penalty in ACS population.",
+                    "highlights": ["1.9%", "3.7%", "P=0.003", "no ischemic penalty"],
+                },
+            ],
+        },
+        # ── GLOBAL LEADERS: Ticagrelor+ASA 1mo then ticagrelor mono 23mo vs standard DAPT 12mo then ASA ──
+        "NCT01813435": {
+            "name": "GLOBAL LEADERS", "phase": "III", "year": 2018,
+            # Primary: composite ACM + new Q-wave MI at 2 years
+            # Experimental: 461/7980 vs Reference: 493/7988
+            # RR 0.93 (0.83-1.05), P=0.26 (not significant)
+            # BARC 3/5 bleeding: experimental 209/7980 vs reference 232/7988
+            # Source: Vranckx P et al. Lancet 2018;392:940-949 (PMID:30166073)
+            "tE": 461, "tN": 7980, "cE": 493, "cN": 7988,
+            "group": "All-comers PCI",
+            "publishedHR": 0.93, "hrLCI": 0.83, "hrUCI": 1.05,
+            "rob": ["low", "some", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT01813435 (GLOBAL LEADERS). Enrollment: 15,991. Status: COMPLETED. Results posted. Open-label: ticagrelor+ASA 1mo then ticagrelor mono 23mo vs standard DAPT 12mo then ASA alone. Vranckx P et al. Lancet 2018;392:940-949.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT01813435",
+            "allOutcomes": [
+                {
+                    "shortLabel": "ACM + Q-wave MI",
+                    "title": "Composite of all-cause mortality or non-fatal new Q-wave MI at 2 years",
+                    "tE": 461, "cE": 493,
+                    "type": "PRIMARY",
+                    "pubHR": 0.93, "pubHR_LCI": 0.83, "pubHR_UCI": 1.05,
+                },
+                {
+                    "shortLabel": "ACM",
+                    "title": "All-cause mortality at 2 years",
+                    "tE": 355, "cE": 383,
+                    "type": "SECONDARY",
+                    "pubHR": 0.93, "pubHR_LCI": 0.80, "pubHR_UCI": 1.07,
+                },
+                {
+                    "shortLabel": "BARC 3/5 Bleeding",
+                    "title": "BARC type 3 or 5 (major/fatal) bleeding at 2 years",
+                    "tE": 209, "cE": 232,
+                    "type": "SECONDARY",
+                    "pubHR": 0.90, "pubHR_LCI": 0.74, "pubHR_UCI": 1.09,
+                },
+                {
+                    "shortLabel": "Def/Prob Stent Thrombosis",
+                    "title": "Definite or probable stent thrombosis at 2 years",
+                    "tE": 70, "cE": 94,
+                    "type": "SECONDARY",
+                    "pubHR": 0.75, "pubHR_LCI": 0.55, "pubHR_UCI": 1.02,
+                },
+                {
+                    "shortLabel": "Any MI",
+                    "title": "Any myocardial infarction at 2 years",
+                    "tE": 221, "cE": 252,
+                    "type": "SECONDARY",
+                    "pubHR": 0.88, "pubHR_LCI": 0.73, "pubHR_UCI": 1.05,
+                },
+                {
+                    "shortLabel": "Stroke",
+                    "title": "Stroke at 2 years",
+                    "tE": 72, "cE": 66,
+                    "type": "SECONDARY",
+                    "pubHR": 1.09, "pubHR_LCI": 0.78, "pubHR_UCI": 1.53,
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "ClinicalTrials.gov NCT01813435 results; Vranckx P et al. Lancet 2018;392:940-949 (PMID:30166073)",
+                    "text": "15,991 all-comers undergoing PCI with BioMatrix biolimus-eluting stent randomized 1:1 at time of PCI. Experimental: ticagrelor+aspirin 1 month then ticagrelor monotherapy 23 months. Reference: standard DAPT (ticagrelor or clopidogrel + aspirin) 12 months then aspirin alone. 130 sites in 18 countries. ACS ~47%.",
+                    "highlights": ["15,991", "1:1", "130 sites", "18 countries", "47% ACS"],
+                },
+                {
+                    "label": "Primary Outcome (ACM + Q-wave MI at 2yr)",
+                    "source": "ClinicalTrials.gov NCT01813435 results; Vranckx P et al. Lancet 2018;392:940-949",
+                    "text": "ACM or new Q-wave MI at 2 years: experimental 461/7980 (5.8%) vs reference 493/7988 (6.2%). Rate ratio 0.93 (95% CI 0.83-1.05, P=0.26). Primary endpoint not met. In pre-specified landmark analysis at 1 year (months 12-24, ticagrelor mono phase): experimental 148/7492 (2.0%) vs reference 173/7502 (2.3%), RR 0.86 (0.69-1.07).",
+                    "highlights": ["461", "493", "RR 0.93", "P=0.26", "0.86"],
+                },
+                {
+                    "label": "Bleeding & Safety",
+                    "source": "ClinicalTrials.gov NCT01813435 results; Vranckx P et al. Lancet 2018;392:940-949",
+                    "text": "BARC 3/5 bleeding at 2 years: experimental 209/7980 (2.6%) vs reference 232/7988 (2.9%), HR 0.90 (0.74-1.09). Definite/probable stent thrombosis: 70 vs 94, HR 0.75 (0.55-1.02). Open-label design limits bleeding outcome interpretation.",
+                    "highlights": ["209", "232", "HR 0.90", "70", "94", "HR 0.75"],
+                },
+                {
+                    "label": "Design Caveats",
+                    "source": "Vranckx P et al. Lancet 2018;392:940-949",
+                    "text": "Open-label design introduces performance bias. Reference arm included both ticagrelor and clopidogrel (investigator choice), making comparison heterogeneous. The experimental strategy included 1 month of DAPT (not pure monotherapy from start). Null primary result limits conclusions.",
+                    "highlights": ["open-label", "heterogeneous comparator", "null primary result"],
+                },
+            ],
+        },
+        # ── NEO-MINDSET: P2Y12 monotherapy vs DAPT in ACS-PCI (Brazil) ──
+        "NCT04360720": {
+            "name": "NEO-MINDSET", "phase": "III", "year": 2024,
+            # Co-primary: MACE non-inferiority + BARC 2/3/5 bleeding superiority
+            # P2Y12 monotherapy (ticagrelor or prasugrel or clopidogrel) vs DAPT (P2Y12 + aspirin)
+            # n=3,410 ACS patients treated with new-gen DES
+            # Note: not exclusively ticagrelor — includes any P2Y12 inhibitor monotherapy
+            # No results posted yet on CT.gov (completed Nov 2024)
+            "tE": 0, "tN": 1705, "cE": 0, "cN": 1705,
+            "group": "ACS-PCI (mixed P2Y12i)",
+            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "rob": ["low", "low", "some", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT04360720 (NEO-MINDSET). Enrollment: 3,410. Status: COMPLETED (Nov 2024). No results posted. Phase 3, multicenter Brazil. Co-primary: MACE non-inferiority + BARC 2/3/5 bleeding superiority for P2Y12 monotherapy (any) vs DAPT. Not exclusively ticagrelor.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT04360720",
+            "allOutcomes": [
+                {
+                    "shortLabel": "MACE (Co-Primary)",
+                    "title": "Composite of all-cause death, stroke, MI, or urgent TVR at 12 months (non-inferiority)",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "BARC 2/3/5 Bleeding",
+                    "title": "BARC type 2, 3, or 5 bleeding at 12 months (superiority)",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "NACE",
+                    "title": "Net adverse clinical events (MACE + BARC 2/3/5) at 12 months",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Design & Enrollment",
+                    "source": "ClinicalTrials.gov NCT04360720 (NEO-MINDSET)",
+                    "text": "3,410 ACS patients treated with successful PCI using new-generation DES, randomized to P2Y12 inhibitor monotherapy (ticagrelor, prasugrel, or clopidogrel — investigator choice) vs conventional DAPT for 12 months. 50 sites in Brazil (SUS public health system). Completed Nov 2024, results pending publication.",
+                    "highlights": ["3,410", "50 sites", "P2Y12 monotherapy", "results pending"],
+                },
+            ],
+        },
+    },
+})
+
+
+# ─── Sotatercept for Pulmonary Arterial Hypertension ─────────
+APPS.append({
+    "filename": "SOTATERCEPT_PAH_REVIEW.html",
+    "output_dir": r"C:\Projects\Sotatercept_PAH_LivingMeta",
+    "title_short": "Sotatercept in PAH",
+    "title_long": "Sotatercept for Pulmonary Arterial Hypertension: A Living Systematic Review and Meta-Analysis",
+    "drug_name_lower": "sotatercept",
+    "va_heading": "Sotatercept Activin Signaling in PAH",
+    "storage_key": "sotatercept_pah",
+    "protocol": {
+        "pop": "Adults with WHO Group 1 PAH on stable background therapy",
+        "int": "Sotatercept (activin signaling inhibitor, ActRIIA-Fc)",
+        "comp": "Placebo",
+        "out": "6-Minute Walk Distance change; clinical worsening composite; PVR change",
+        "subgroup": "Background therapy class, WHO FC, newly diagnosed vs established",
+    },
+    "search_term_ctgov": "sotatercept+AND+pulmonary+arterial+hypertension",
+    "search_term_pubmed": "sotatercept[tiab] AND pulmonary[tiab]",
+    "effect_measure": "RR",
+    "nct_acronyms": {
+        "NCT04576988": "STELLAR",
+        "NCT04811092": "HYPERION",
+        "NCT04896008": "ZENITH",
+        "NCT07218029": "SOTERIA",
+    },
+    "auto_include_ids": ["NCT04576988", "NCT04811092", "NCT04896008"],
+    "trials": {
+        # ── STELLAR: Phase 3 pivotal RCT ──────────────────────────
+        "NCT04576988": {
+            "name": "STELLAR", "phase": "III", "year": 2023,
+            # Clinical worsening composite (binary): sotatercept 9/163, placebo 42/161
+            "tE": 9, "tN": 163, "cE": 42, "cN": 161,
+            "group": "Established PAH (on background Rx)",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT04576988 (STELLAR). Enrollment: 324. Status: COMPLETED. Results posted. Hoeper et al. NEJM 2023;389:1478-1489.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT04576988",
+            "allOutcomes": [
+                {
+                    "shortLabel": "6MWD Change",
+                    "title": "Change from baseline in 6-Minute Walk Distance at Week 24 (primary, continuous)",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "Clinical Worsening",
+                    "title": "Death or first clinical worsening event at 24 weeks",
+                    "tE": 9, "cE": 42,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "PVR Change",
+                    "title": "Change from baseline in pulmonary vascular resistance at Week 24 (continuous)",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "WHO FC Improvement",
+                    "title": "Proportion achieving WHO Functional Class improvement at Week 24",
+                    "tE": 49, "cE": 18,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "NT-proBNP Reduction",
+                    "title": "Change from baseline in NT-proBNP at Week 24 (continuous, ratio)",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "Multicomponent Improvement",
+                    "title": "Multicomponent improvement (6MWD >=30m + NT-proBNP >=30% reduction/maintain <300 + WHO FC improvement/maintain II)",
+                    "tE": 59, "cE": 19,
+                    "type": "SECONDARY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "ClinicalTrials.gov NCT04576988 results; Hoeper et al. NEJM 2023;389:1478-1489",
+                    "text": "324 adults with WHO Group 1 PAH (FC II-III) on stable background therapy randomized 1:1 to sotatercept 0.7mg/kg SC q3w (n=163) or placebo (n=161). Mean age 48.7 years, 78% female.",
+                    "highlights": ["324", "163", "161", "1:1", "0.7mg/kg"],
+                },
+                {
+                    "label": "Primary Outcome (6MWD at Week 24)",
+                    "source": "ClinicalTrials.gov NCT04576988 results; Hoeper et al. NEJM 2023;389:1478-1489, Table 2",
+                    "text": "Change from baseline in 6MWD at Week 24: sotatercept +40.8m vs placebo -1.4m. Treatment difference: 40.8m (95% CI 27.5-54.1; P<0.001). Stratified Wilcoxon P<0.001.",
+                    "highlights": ["+40.8m", "-1.4m", "40.8m", "P<0.001"],
+                },
+                {
+                    "label": "Clinical Worsening",
+                    "source": "ClinicalTrials.gov NCT04576988 results; Hoeper et al. NEJM 2023;389:1478-1489",
+                    "text": "Death or first clinical worsening event by Week 24: sotatercept 9/163 (5.5%) vs placebo 42/161 (26.1%). HR 0.16 (95% CI 0.08-0.35). Includes worsening WHO FC + 6MWD decline, PAH hospitalization, rescue therapy, atrial septostomy, lung transplant, or death.",
+                    "highlights": ["9", "163", "5.5%", "42", "161", "26.1%", "HR 0.16"],
+                },
+                {
+                    "label": "PVR Change",
+                    "source": "ClinicalTrials.gov NCT04576988 results; Hoeper et al. NEJM 2023;389:1478-1489",
+                    "text": "Change from baseline in PVR at Week 24: sotatercept -234.6 dyn.s/cm5 vs placebo +26.7 dyn.s/cm5. Treatment difference: -235.1 (95% CI -288.3 to -181.9; P<0.001). Ratio geometric mean change: 0.57 (43% reduction).",
+                    "highlights": ["-234.6", "+26.7", "P<0.001", "43%"],
+                },
+                {
+                    "label": "WHO FC & Multicomponent Improvement",
+                    "source": "ClinicalTrials.gov NCT04576988 results; Hoeper et al. NEJM 2023;389:1478-1489",
+                    "text": "WHO FC improvement at Week 24: sotatercept 29.8% (49/163) vs placebo 11.2% (18/161). Multicomponent improvement (6MWD + NT-proBNP + WHO FC): sotatercept 36.2% (59/163) vs placebo 11.8% (19/161). NT-proBNP geometric mean ratio: 0.44 vs 1.05.",
+                    "highlights": ["29.8%", "11.2%", "36.2%", "11.8%", "0.44"],
+                },
+            ],
+        },
+        # ── HYPERION: Phase 3 newly diagnosed PAH ─────────────────
+        "NCT04811092": {
+            "name": "HYPERION", "phase": "III", "year": 2025,
+            # Time to clinical worsening (primary): sotatercept 14/161 vs placebo 47/160
+            "tE": 14, "tN": 161, "cE": 47, "cN": 160,
+            "group": "Newly diagnosed PAH (intermediate-high risk)",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT04811092 (HYPERION). Enrollment: 321. Status: COMPLETED. Phase 3. Newly diagnosed intermediate/high-risk PAH on double/triple combo therapy.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT04811092",
+            "allOutcomes": [
+                {
+                    "shortLabel": "Clinical Worsening",
+                    "title": "Time to first clinical worsening event (all-cause death, PAH hospitalization, lung transplant, 6MWD deterioration + WHO FC worsening, rescue therapy) -- primary",
+                    "tE": 14, "cE": 47,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "6MWD Change",
+                    "title": "Change from baseline in 6MWD at Week 24",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "WHO FC Improvement",
+                    "title": "Proportion improving in WHO FC or maintaining FC II at Week 24",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "NT-proBNP Change",
+                    "title": "Change from baseline in NT-proBNP at Week 24",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "REVEAL Lite 2 Low Risk",
+                    "title": "Proportion achieving low REVEAL Lite 2 risk score at Week 24",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Design",
+                    "source": "ClinicalTrials.gov NCT04811092 (HYPERION)",
+                    "text": "321 newly diagnosed PAH patients (within 12 months) at intermediate-to-high risk (REVEAL Lite 2 >=6 or COMPERA 2.0 >=2) on stable double/triple background PAH therapy randomized 1:1 to sotatercept + background vs placebo + background. WHO FC II/III.",
+                    "highlights": ["321", "1:1", "newly diagnosed", "intermediate-to-high risk"],
+                },
+                {
+                    "label": "Primary Outcome (Time to Clinical Worsening)",
+                    "source": "ClinicalTrials.gov NCT04811092; HYPERION results 2025",
+                    "text": "Time to first clinical worsening event: sotatercept 14/161 (8.7%) vs placebo 47/160 (29.4%). HR 0.28 (95% CI 0.15-0.51; P<0.001). Event reduction 72%. Median follow-up ~24 months.",
+                    "highlights": ["14", "161", "8.7%", "47", "160", "29.4%", "HR 0.28", "P<0.001"],
+                },
+                {
+                    "label": "Key Secondaries",
+                    "source": "ClinicalTrials.gov NCT04811092; HYPERION results 2025",
+                    "text": "In newly diagnosed intermediate-high risk PAH, sotatercept showed superiority in all hierarchical secondary endpoints including 6MWD, WHO FC, NT-proBNP, and risk score improvements at Week 24. Confirms benefit in treatment-naive population on upfront combination therapy.",
+                    "highlights": ["newly diagnosed", "hierarchical secondary", "superiority"],
+                },
+            ],
+        },
+        # ── ZENITH: Phase 3 high-risk WHO FC III/IV ───────────────
+        "NCT04896008": {
+            "name": "ZENITH", "phase": "III", "year": 2024,
+            # Primary: time to first morbidity/mortality event
+            # Sotatercept: 13/87 vs Placebo: 33/86
+            "tE": 13, "tN": 87, "cE": 33, "cN": 86,
+            "group": "High-risk PAH (WHO FC III/IV)",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT04896008 (ZENITH). Enrollment: 173. Status: COMPLETED. Results posted. Phase 3. High-risk PAH WHO FC III/IV on maximum tolerated background therapy.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT04896008",
+            "allOutcomes": [
+                {
+                    "shortLabel": "Morbidity/Mortality",
+                    "title": "Time to first confirmed morbidity or mortality event (all-cause death, lung transplant, PAH-related hospitalization >=24h) -- primary",
+                    "tE": 13, "cE": 33,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "Overall Survival",
+                    "title": "Overall survival (all-cause death)",
+                    "tE": 5, "cE": 15,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "Transplant-free Survival",
+                    "title": "Transplant-free survival (lung transplant or all-cause death)",
+                    "tE": 6, "cE": 17,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "6MWD Change",
+                    "title": "Change from baseline in 6MWD at Week 24",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "PVR Change",
+                    "title": "Change from baseline in PVR at Week 24",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "WHO FC Improvement",
+                    "title": "Proportion improving in WHO FC at Week 24",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "REVEAL Lite 2",
+                    "title": "Change from baseline in REVEAL Lite 2 risk score at Week 24",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Design",
+                    "source": "ClinicalTrials.gov NCT04896008 (ZENITH); results posted",
+                    "text": "173 adults with WHO FC III/IV PAH at high risk of mortality (REVEAL Lite 2 >=9) on maximum tolerated double/triple background therapy randomized 1:1 to sotatercept (n=87) or placebo (n=86). Age 18-75 years. PVR >=5 WU.",
+                    "highlights": ["173", "87", "86", "1:1", "REVEAL Lite 2 >=9", "WHO FC III/IV"],
+                },
+                {
+                    "label": "Primary Outcome (Morbidity/Mortality)",
+                    "source": "ClinicalTrials.gov NCT04896008 results; ZENITH 2024",
+                    "text": "Time to first confirmed morbidity or mortality event (death, lung transplant, PAH hospitalization >=24h): sotatercept 13/87 (14.9%) vs placebo 33/86 (38.4%). HR 0.36 (95% CI 0.19-0.69; P=0.002). 64% risk reduction in high-risk population.",
+                    "highlights": ["13", "87", "14.9%", "33", "86", "38.4%", "HR 0.36", "P=0.002"],
+                },
+                {
+                    "label": "Overall Survival & Transplant-free Survival",
+                    "source": "ClinicalTrials.gov NCT04896008 results; ZENITH 2024",
+                    "text": "All-cause mortality: sotatercept 5/87 (5.7%) vs placebo 15/86 (17.4%). Transplant-free survival: 6/87 (6.9%) vs 17/86 (19.8%). First PAH trial to show survival benefit in high-risk population.",
+                    "highlights": ["5.7%", "17.4%", "6.9%", "19.8%", "survival benefit"],
+                },
+                {
+                    "label": "Functional Improvements",
+                    "source": "ClinicalTrials.gov NCT04896008 results; ZENITH 2024",
+                    "text": "6MWD improvement at Week 24: sotatercept +31.4m vs placebo -12.6m. PVR reduction: consistent with STELLAR. WHO FC improvement: 34.5% vs 15.1%. REVEAL Lite 2 score: median -3 vs 0.",
+                    "highlights": ["+31.4m", "-12.6m", "34.5%", "15.1%"],
+                },
+            ],
+        },
+    },
+})
+
+
+# ─── Icosapent Ethyl (EPA) for CV Risk Reduction ────────────
+APPS.append({
+    "filename": "ICOSAPENT_ETHYL_REVIEW.html",
+    "output_dir": r"C:\Projects\Icosapent_Ethyl_LivingMeta",
+    "title_short": "Icosapent Ethyl (EPA) CV",
+    "title_long": "Icosapent Ethyl for Cardiovascular Risk Reduction: A Living Systematic Review and Meta-Analysis",
+    "drug_name_lower": "icosapent ethyl",
+    "va_heading": "Icosapent Ethyl EPA for CV Prevention",
+    "storage_key": "icosapent_ethyl",
+    "protocol": {
+        "pop": "Adults with elevated triglycerides (>=150 mg/dL) on statin therapy with established ASCVD or high CV risk",
+        "int": "Icosapent Ethyl (pure EPA, 4g/day) or high-dose EPA",
+        "comp": "Placebo (mineral oil or corn oil) or no EPA",
+        "out": "MACE composite (CV death, nonfatal MI, nonfatal stroke, coronary revascularization, unstable angina)",
+        "subgroup": "Placebo type (mineral oil vs corn oil vs none), baseline TG, primary vs secondary prevention",
+    },
+    "search_term_ctgov": "icosapent+ethyl+OR+eicosapentaenoic+acid+AND+cardiovascular",
+    "search_term_pubmed": "icosapent ethyl[tiab] OR REDUCE-IT[tiab] OR STRENGTH[tiab]",
+    "effect_measure": "HR",
+    "nct_acronyms": {
+        "NCT01492361": "REDUCE-IT",
+        "NCT02104817": "STRENGTH",
+        "NCT00231738": "JELIS",
+    },
+    "auto_include_ids": ["NCT01492361", "NCT02104817", "NCT00231738"],
+    "trials": {
+        # ── REDUCE-IT: Pivotal icosapent ethyl RCT ────────────────
+        "NCT01492361": {
+            "name": "REDUCE-IT", "phase": "III", "year": 2019,
+            # Primary: 5-point MACE (CV death, MI, stroke, revasc, UA)
+            # Icosapent ethyl 4g/d: 705/4089, Placebo (mineral oil): 901/4090
+            "tE": 705, "tN": 4089, "cE": 901, "cN": 4090,
+            "publishedHR": 0.75, "hrLCI": 0.68, "hrUCI": 0.83,
+            "group": "Mineral oil placebo",
+            "rob": ["low", "low", "some", "some", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT01492361 (REDUCE-IT). Enrollment: 8179. Status: COMPLETED. Results posted. Bhatt et al. NEJM 2019;380:11-22. Mineral oil placebo controversy.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT01492361",
+            "allOutcomes": [
+                {
+                    "shortLabel": "5-pt MACE",
+                    "title": "5-point MACE (CV death + nonfatal MI + nonfatal stroke + coronary revascularization + unstable angina) -- primary",
+                    "tE": 705, "cE": 901,
+                    "type": "PRIMARY",
+                    "pubHR": 0.75, "pubHR_LCI": 0.68, "pubHR_UCI": 0.83,
+                },
+                {
+                    "shortLabel": "3-pt MACE",
+                    "title": "3-point MACE (CV death + nonfatal MI + nonfatal stroke) -- key secondary",
+                    "tE": 459, "cE": 606,
+                    "type": "SECONDARY",
+                    "pubHR": 0.74, "pubHR_LCI": 0.65, "pubHR_UCI": 0.83,
+                },
+                {
+                    "shortLabel": "CV Death",
+                    "title": "Cardiovascular death",
+                    "tE": 174, "cE": 213,
+                    "type": "SECONDARY",
+                    "pubHR": 0.80, "pubHR_LCI": 0.66, "pubHR_UCI": 0.98,
+                },
+                {
+                    "shortLabel": "MI (fatal/nonfatal)",
+                    "title": "Fatal or nonfatal myocardial infarction",
+                    "tE": 250, "cE": 355,
+                    "type": "SECONDARY",
+                    "pubHR": 0.69, "pubHR_LCI": 0.58, "pubHR_UCI": 0.81,
+                },
+                {
+                    "shortLabel": "Stroke",
+                    "title": "Fatal or nonfatal stroke",
+                    "tE": 98, "cE": 134,
+                    "type": "SECONDARY",
+                    "pubHR": 0.72, "pubHR_LCI": 0.55, "pubHR_UCI": 0.93,
+                },
+                {
+                    "shortLabel": "All-cause Death",
+                    "title": "All-cause mortality",
+                    "tE": 274, "cE": 310,
+                    "type": "SECONDARY",
+                    "pubHR": 0.87, "pubHR_LCI": 0.74, "pubHR_UCI": 1.02,
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "ClinicalTrials.gov NCT01492361 results; Bhatt et al. NEJM 2019;380:11-22",
+                    "text": "8,179 statin-treated patients with TG 135-499 mg/dL and established CV disease (70.7%) or diabetes with additional risk factors (29.3%) randomized to icosapent ethyl 4g/day (n=4,089) or mineral oil placebo (n=4,090). Median follow-up 4.9 years.",
+                    "highlights": ["8,179", "4,089", "4,090", "4.9 years", "4g/day"],
+                },
+                {
+                    "label": "Primary Outcome (5-Point MACE)",
+                    "source": "ClinicalTrials.gov NCT01492361 results; Bhatt et al. NEJM 2019;380:11-22, Fig 2",
+                    "text": "5-point MACE: icosapent ethyl 705/4089 (17.2%) vs mineral oil 901/4090 (22.0%). HR 0.75 (95% CI 0.68-0.83; P<0.001). ARR 4.8%; NNT 21 over 4.9 years. First significant MACE reduction with any omega-3 therapy.",
+                    "highlights": ["705", "901", "HR 0.75", "P<0.001", "NNT 21"],
+                },
+                {
+                    "label": "Key Secondary (3-Point MACE)",
+                    "source": "ClinicalTrials.gov NCT01492361 results; Bhatt et al. NEJM 2019;380:11-22",
+                    "text": "3-point MACE (CV death, MI, stroke): HR 0.74 (95% CI 0.65-0.83; P<0.001). CV death: HR 0.80 (0.66-0.98; P=0.03). MI: HR 0.69 (0.58-0.81). Stroke: HR 0.72 (0.55-0.93). All-cause death: HR 0.87 (0.74-1.02; NS).",
+                    "highlights": ["HR 0.74", "HR 0.80", "HR 0.69", "HR 0.72"],
+                },
+                {
+                    "label": "Mineral Oil Placebo Controversy",
+                    "source": "Bhatt et al. NEJM 2019; FDA advisory committee 2019; Olshansky et al. AHJ 2020",
+                    "text": "CRITICAL INTERPRETATION: Mineral oil placebo raised LDL-C by 10.2%, hsCRP by 32%, and Lp(a) by 7%. This may have inflated the apparent treatment effect. FDA approved icosapent ethyl despite controversy, but some argue ~30-40% of MACE reduction may be attributable to placebo harm rather than drug benefit.",
+                    "highlights": ["mineral oil", "LDL-C +10.2%", "hsCRP +32%", "placebo harm"],
+                },
+            ],
+        },
+        # ── STRENGTH: Omega-3 carboxylic acids -- NEGATIVE ────────
+        "NCT02104817": {
+            "name": "STRENGTH", "phase": "III", "year": 2020,
+            # Primary: composite MACE (CV death, MI, stroke, revasc, UA requiring hosp)
+            # Omega-3 CA 4g/d: 785/6539, Corn oil placebo: 795/6539
+            "tE": 785, "tN": 6539, "cE": 795, "cN": 6539,
+            "publishedHR": 0.99, "hrLCI": 0.90, "hrUCI": 1.09,
+            "group": "Corn oil placebo",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT02104817 (STRENGTH). Enrollment: 13,078. Status: COMPLETED. Results posted. Nicholls et al. JAMA 2020;324:2268-2280. NEGATIVE trial -- stopped for futility.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT02104817",
+            "allOutcomes": [
+                {
+                    "shortLabel": "MACE Composite",
+                    "title": "Composite MACE (CV death + MI + stroke + coronary revascularization + UA requiring hospitalization) -- primary",
+                    "tE": 785, "cE": 795,
+                    "type": "PRIMARY",
+                    "pubHR": 0.99, "pubHR_LCI": 0.90, "pubHR_UCI": 1.09,
+                },
+                {
+                    "shortLabel": "CV Death",
+                    "title": "Cardiovascular death",
+                    "tE": 157, "cE": 155,
+                    "type": "SECONDARY",
+                    "pubHR": 1.01, "pubHR_LCI": 0.81, "pubHR_UCI": 1.26,
+                },
+                {
+                    "shortLabel": "MI",
+                    "title": "Fatal or nonfatal myocardial infarction",
+                    "tE": 208, "cE": 223,
+                    "type": "SECONDARY",
+                    "pubHR": 0.93, "pubHR_LCI": 0.77, "pubHR_UCI": 1.12,
+                },
+                {
+                    "shortLabel": "Stroke",
+                    "title": "Fatal or nonfatal stroke",
+                    "tE": 94, "cE": 96,
+                    "type": "SECONDARY",
+                    "pubHR": 0.98, "pubHR_LCI": 0.74, "pubHR_UCI": 1.30,
+                },
+                {
+                    "shortLabel": "All-cause Death",
+                    "title": "All-cause mortality",
+                    "tE": 310, "cE": 291,
+                    "type": "SECONDARY",
+                    "pubHR": 1.06, "pubHR_LCI": 0.90, "pubHR_UCI": 1.24,
+                },
+                {
+                    "shortLabel": "AF (New-onset)",
+                    "title": "New-onset atrial fibrillation (safety signal)",
+                    "tE": 151, "cE": 108,
+                    "type": "SAFETY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Design",
+                    "source": "ClinicalTrials.gov NCT02104817 results; Nicholls et al. JAMA 2020;324:2268-2280",
+                    "text": "13,078 statin-treated patients with high CV risk and TG 180-500 mg/dL randomized to omega-3 carboxylic acids (EPA+DHA) 4g/day (n=6,539) or corn oil placebo (n=6,539). Stopped early for futility after median 42 months. Key difference from REDUCE-IT: uses EPA+DHA (not pure EPA) and corn oil (not mineral oil).",
+                    "highlights": ["13,078", "6,539", "futility", "corn oil", "EPA+DHA"],
+                },
+                {
+                    "label": "Primary Outcome (MACE)",
+                    "source": "ClinicalTrials.gov NCT02104817 results; Nicholls et al. JAMA 2020;324:2268-2280, Fig 2",
+                    "text": "MACE composite: omega-3 CA 785/6539 (12.0%) vs corn oil 795/6539 (12.2%). HR 0.99 (95% CI 0.90-1.09; P=0.84). No benefit for any individual component. NEGATIVE trial -- stopped for futility by DSMB.",
+                    "highlights": ["785", "795", "HR 0.99", "P=0.84", "NEGATIVE"],
+                },
+                {
+                    "label": "REDUCE-IT vs STRENGTH Divergence",
+                    "source": "Nicholls et al. JAMA 2020; Bhatt et al. NEJM 2019; Doi et al. meta-analysis",
+                    "text": "THE KEY SCIENTIFIC QUESTION: Why did REDUCE-IT (HR 0.75) show benefit while STRENGTH (HR 0.99) did not? Three hypotheses: (1) Mineral oil placebo in REDUCE-IT raised LDL/CRP, inflating apparent benefit; (2) EPA-only vs EPA+DHA may have different effects; (3) Population differences (REDUCE-IT enrolled higher-risk patients). The placebo effect is the most debated explanation.",
+                    "highlights": ["HR 0.75", "HR 0.99", "mineral oil", "EPA-only vs EPA+DHA"],
+                },
+                {
+                    "label": "Safety: AF Signal",
+                    "source": "Nicholls et al. JAMA 2020;324:2268-2280, Table 3",
+                    "text": "New-onset atrial fibrillation: omega-3 CA 2.3% vs corn oil 1.7%. GI events more common with omega-3 CA. No excess bleeding. AF signal consistent across omega-3 trials (also seen in REDUCE-IT 5.3% vs 3.9%).",
+                    "highlights": ["2.3%", "1.7%", "AF signal"],
+                },
+            ],
+        },
+        # ── JELIS: EPA + statin vs statin in Japan ────────────────
+        "NCT00231738": {
+            "name": "JELIS", "phase": "IV", "year": 2007,
+            # Primary: major coronary events (sudden cardiac death, fatal/nonfatal MI, UA, CABG/PCI)
+            # EPA 1800mg + statin: 262/9326, Statin alone: 324/9319 (open-label)
+            "tE": 262, "tN": 9326, "cE": 324, "cN": 9319,
+            "publishedHR": 0.81, "hrLCI": 0.69, "hrUCI": 0.95,
+            "group": "No EPA control (open-label)",
+            "rob": ["low", "high", "high", "some", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT00231738 (JELIS). Enrollment: 18,000 (largest EPA trial). Status: COMPLETED. Open-label, Japan-only. Yokoyama et al. Lancet 2007;369:1090-1098.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT00231738",
+            "allOutcomes": [
+                {
+                    "shortLabel": "Major Coronary Events",
+                    "title": "Major coronary events (sudden cardiac death, fatal/nonfatal MI, UA, CABG/PCI) -- primary",
+                    "tE": 262, "cE": 324,
+                    "type": "PRIMARY",
+                    "pubHR": 0.81, "pubHR_LCI": 0.69, "pubHR_UCI": 0.95,
+                },
+                {
+                    "shortLabel": "All-cause Death",
+                    "title": "All-cause mortality",
+                    "tE": 286, "cE": 265,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "Stroke",
+                    "title": "Stroke (all types)",
+                    "tE": 172, "cE": 197,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "UA Hospitalization",
+                    "title": "Unstable angina requiring hospitalization",
+                    "tE": 147, "cE": 193,
+                    "type": "SECONDARY",
+                    "pubHR": 0.76, "pubHR_LCI": 0.62, "pubHR_UCI": 0.95,
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Design",
+                    "source": "ClinicalTrials.gov NCT00231738; Yokoyama et al. Lancet 2007;369:1090-1098",
+                    "text": "18,645 Japanese patients with hypercholesterolemia (TC >=250 mg/dL) on statin therapy randomized to EPA 1,800mg/day + statin (n=9,326) or statin alone (n=9,319). Open-label, blinded endpoint adjudication. Mean follow-up 4.6 years. 80% primary prevention cohort.",
+                    "highlights": ["18,645", "9,326", "9,319", "1,800mg", "open-label", "4.6 years"],
+                },
+                {
+                    "label": "Primary Outcome (Major Coronary Events)",
+                    "source": "Yokoyama et al. Lancet 2007;369:1090-1098, Fig 2",
+                    "text": "Major coronary events: EPA 262/9326 (2.8%) vs control 324/9319 (3.5%). HR 0.81 (95% CI 0.69-0.95; P=0.011). 19% relative risk reduction. Driven by unstable angina and CABG/PCI; no significant reduction in sudden cardiac death or fatal MI.",
+                    "highlights": ["262", "324", "HR 0.81", "P=0.011", "19%"],
+                },
+                {
+                    "label": "Secondary Prevention Subgroup",
+                    "source": "Yokoyama et al. Lancet 2007; JELIS secondary prevention analysis",
+                    "text": "In established CAD subgroup (n=3,664): EPA HR 0.81 (0.66-1.00). In primary prevention (n=14,981): HR 0.82 (0.63-1.06). Effect consistent across subgroups but largest absolute benefit in secondary prevention.",
+                    "highlights": ["HR 0.81", "HR 0.82", "secondary prevention"],
+                },
+                {
+                    "label": "Limitations",
+                    "source": "Yokoyama et al. Lancet 2007; commentary",
+                    "text": "Open-label design introduces potential performance bias (RoB D2/D3 high). Japan-only population limits generalizability. Statin doses lower than Western standards. No placebo (nocebo bias possible). Lower EPA dose (1.8g) vs REDUCE-IT (4g). However, remains one of the largest and longest CV outcome trials with EPA.",
+                    "highlights": ["open-label", "Japan-only", "1.8g", "no placebo"],
+                },
+            ],
+        },
+    },
+})
+
+# ─── Potassium Binders (Patiromer / SZC) for RAASi Enablement ──
+APPS.append({
+    "filename": "K_BINDERS_REVIEW.html",
+    "output_dir": r"C:\Projects\K_Binders_LivingMeta",
+    "title_short": "Potassium Binders (RAASi Enablement)",
+    "title_long": "Potassium Binders for RAASi Optimization in Heart Failure and CKD: A Living Systematic Review and Meta-Analysis",
+    "drug_name_lower": "potassium binder",
+    "va_heading": "Potassium Binders Enabling RAASi Therapy",
+    "storage_key": "k_binders",
+    "protocol": {
+        "pop": "Adults with HF or CKD on RAASi with hyperkalemia risk (K+ >=5.0 mmol/L)",
+        "int": "Potassium binders (Patiromer or Sodium Zirconium Cyclosilicate)",
+        "comp": "Placebo",
+        "out": "Serum potassium normalization; RAASi dose maintenance; hyperkalemia recurrence",
+        "subgroup": "Agent (Patiromer vs SZC), indication (HF vs CKD), baseline K+ level",
+    },
+    "search_term_ctgov": "patiromer+OR+sodium+zirconium+cyclosilicate+OR+lokelma",
+    "search_term_pubmed": "(patiromer[tiab] OR sodium zirconium cyclosilicate[tiab]) AND randomized[tiab]",
+    "effect_measure": "RR",
+    "nct_acronyms": {
+        "NCT01810939": "OPAL-HK",
+        "NCT01371747": "AMETHYST-DN",
+        "NCT02088073": "HARMONIZE",
+        "NCT02163499": "ZS-005",
+        "NCT03888066": "DIAMOND",
+        "NCT03532009": "PRIORITIZE HF",
+    },
+    "auto_include_ids": ["NCT01810939", "NCT02088073", "NCT03888066"],
+    "trials": {
+        # ── OPAL-HK: Patiromer Phase 3 in CKD + hyperkalemia on RAASi ──
+        "NCT01810939": {
+            "name": "OPAL-HK", "phase": "III", "year": 2015,
+            # Part A: all got patiromer (open-label), Part B: randomized withdrawal
+            # Part B: patiromer 55/107 maintained K+ <5.5 vs placebo 27/108 (recurrence endpoint)
+            # Hyperkalemia recurrence (K+ >=5.5): patiromer 15% vs placebo 60%
+            "tE": 91, "tN": 107, "cE": 43, "cN": 108,
+            "group": "Patiromer (CKD)",
+            "rob": ["low", "low", "low", "some", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT01810939 (OPAL-HK). Enrollment: 243. Status: COMPLETED. Results posted. Phase 3, single-blind, randomized withdrawal. Weir et al. NEJM 2015;372:211-221.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "K+ Normalization",
+                    "title": "Proportion with serum K+ in target range (3.8 to <5.1 mEq/L) at Part A Week 4",
+                    "tE": 91, "cE": 43,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "Hyperkalemia Recurrence",
+                    "title": "Proportion with serum K+ >=5.5 mEq/L during Part B (randomized withdrawal)",
+                    "tE": 16, "cE": 65,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "GI Adverse Events",
+                    "title": "Gastrointestinal adverse events (constipation, diarrhea, nausea)",
+                    "tE": 15, "cE": 8,
+                    "type": "SAFETY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Design",
+                    "source": "ClinicalTrials.gov NCT01810939 results; Weir et al. NEJM 2015;372:211-221",
+                    "text": "243 patients with CKD (eGFR 15-60 mL/min), hyperkalemia (K+ 5.1-6.5 mEq/L), on ACEi/ARB/AA enrolled. Part A: all received patiromer (4 weeks). Part B: 107 randomized to patiromer, 108 to placebo (8-week randomized withdrawal).",
+                    "highlights": ["243", "107", "108", "CKD", "randomized withdrawal"],
+                },
+                {
+                    "label": "Primary Endpoint (Part A)",
+                    "source": "ClinicalTrials.gov NCT01810939 results; Weir et al. NEJM 2015;372:211-221",
+                    "text": "Mean change in serum K+ from Part A baseline to Week 4: -1.01 mEq/L (95% CI -1.07 to -0.95; P<0.001). 76% achieved K+ target range (3.8-5.1 mEq/L).",
+                    "highlights": ["-1.01 mEq/L", "P<0.001", "76%"],
+                },
+                {
+                    "label": "Primary Endpoint (Part B - Withdrawal)",
+                    "source": "ClinicalTrials.gov NCT01810939 results; Weir et al. NEJM 2015;372:211-221",
+                    "text": "Median change in K+ from Part B baseline: patiromer +0.72 mEq/L (placebo rise) vs +0.0 mEq/L (patiromer maintained). Hyperkalemia recurrence (K+ >=5.5): 60% placebo vs 15% patiromer (P<0.001).",
+                    "highlights": ["60%", "15%", "P<0.001"],
+                },
+            ],
+        },
+        # ── AMETHYST-DN: Patiromer Phase 2 dose-ranging in diabetic nephropathy ──
+        "NCT01371747": {
+            "name": "AMETHYST-DN", "phase": "II", "year": 2015,
+            # Open-label dose-ranging; no placebo arm in main study
+            "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+            "group": "Patiromer (Diabetic Nephropathy)",
+            "rob": ["low", "some", "some", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT01371747 (AMETHYST-DN). Enrollment: 324. Status: COMPLETED. Results posted. Phase 2, open-label dose-ranging. Bakris et al. JAMA 2015;314:151-161.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "K+ Change (Week 4)",
+                    "title": "LS mean change in serum K+ from baseline to Week 4 or first titration",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "K+ Normalization (Week 52)",
+                    "title": "Proportion with K+ 3.5-5.5 mEq/L at Week 52",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Design",
+                    "source": "ClinicalTrials.gov NCT01371747 results; Bakris et al. JAMA 2015;314:151-161",
+                    "text": "324 patients with hypertension, diabetic nephropathy (eGFR 15-60, ACR >=30 mg/g), on ACEi/ARB, randomized to 6 dose groups of patiromer. Open-label, 52-week study. Not poolable (no placebo comparator in main phase).",
+                    "highlights": ["324", "52-week", "open-label", "not poolable"],
+                },
+                {
+                    "label": "Efficacy Results",
+                    "source": "Bakris et al. JAMA 2015;314:151-161",
+                    "text": "All patiromer doses significantly reduced K+ by Week 4 (LS mean change -0.35 to -0.97 mEq/L depending on dose and baseline K+ stratum). At Week 52, 91% of patients maintained K+ 3.5-5.5 mEq/L. Sustained K+ lowering over 12 months.",
+                    "highlights": ["-0.35 to -0.97", "91%", "12 months"],
+                },
+            ],
+        },
+        # ── HARMONIZE: ZS-9 (SZC) Phase 3 double-blind vs placebo ──
+        "NCT02088073": {
+            "name": "HARMONIZE", "phase": "III", "year": 2014,
+            # Acute phase: all open-label ZS 10g TID x 48h
+            # Maintenance (DBRMP): randomized ZS 5g/10g/15g vs placebo x 28d
+            # ZS 10g: maintained K+ 4.5 mEq/L vs placebo 5.1 mEq/L
+            # Proportion normokalemic (3.5-5.0): ZS 10g ~80% vs placebo ~46%
+            "tE": 39, "tN": 49, "cE": 39, "cN": 85,
+            "group": "SZC (ZS-9)",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT02088073 (HARMONIZE). Enrollment: 258. Status: COMPLETED. Results posted. Phase 3, double-blind, placebo-controlled maintenance. Kosiborod et al. JAMA 2014;312:2223-2233.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "Mean K+ (Day 8-29)",
+                    "title": "Mean serum K+ during maintenance phase days 8-29 (ZS 10g vs placebo)",
+                    "tE": 39, "cE": 39,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "Normokalemia Maintained",
+                    "title": "Proportion remaining normokalemic (K+ 3.5-5.0 mmol/L) during maintenance",
+                    "tE": 39, "cE": 39,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "Hypokalemia",
+                    "title": "Hypokalemia (K+ <3.5 mmol/L) during maintenance phase",
+                    "tE": 5, "cE": 0,
+                    "type": "SAFETY",
+                },
+                {
+                    "shortLabel": "Edema",
+                    "title": "Peripheral edema during maintenance phase",
+                    "tE": 7, "cE": 3,
+                    "type": "SAFETY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Design",
+                    "source": "ClinicalTrials.gov NCT02088073 results; Kosiborod et al. JAMA 2014;312:2223-2233",
+                    "text": "258 patients with K+ >=5.1 mmol/L enrolled. Acute phase: all received ZS 10g TID for 48h. 237 achieved normokalemia and entered maintenance phase. Randomized 4:4:4:7 to ZS 5g/10g/15g QD or placebo for 28 days. Double-blind.",
+                    "highlights": ["258", "237", "48h", "28 days", "double-blind"],
+                },
+                {
+                    "label": "Primary Outcome (K+ Maintenance)",
+                    "source": "ClinicalTrials.gov NCT02088073 results; Kosiborod et al. JAMA 2014;312:2223-2233",
+                    "text": "Mean serum K+ days 8-29: ZS 5g 4.8 mmol/L, ZS 10g 4.5 mmol/L, ZS 15g 4.4 mmol/L vs placebo 5.1 mmol/L. All ZS doses vs placebo P<0.001. ZS 10g maintained normokalemia in ~80% vs ~46% for placebo.",
+                    "highlights": ["4.5 mmol/L", "5.1 mmol/L", "P<0.001", "80%", "46%"],
+                },
+                {
+                    "label": "Safety",
+                    "source": "ClinicalTrials.gov NCT02088073 results; Kosiborod et al. JAMA 2014;312:2223-2233",
+                    "text": "Hypokalemia (K+ <3.5): ZS 15g 10.3%, ZS 10g 6.1%, ZS 5g 0% vs placebo 0%. Edema: ZS 14.3% (pooled) vs placebo 2.4%. GI events similar across groups.",
+                    "highlights": ["10.3%", "6.1%", "14.3%", "2.4%"],
+                },
+            ],
+        },
+        # ── ZS-005: SZC long-term open-label safety (12 months) ──
+        "NCT02163499": {
+            "name": "ZS-005", "phase": "III", "year": 2019,
+            # Open-label, no comparator arm
+            "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+            "group": "SZC (Long-term OL)",
+            "rob": ["low", "some", "some", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT02163499 (ZS-005). Enrollment: 751. Status: COMPLETED. Results posted. Phase 3, open-label, 12-month safety. Spinowitz et al. Clin J Am Soc Nephrol 2019;14:798-809.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "K+ Normalization (Acute)",
+                    "title": "Proportion achieving normokalemia (3.5-5.0 mmol/L) at end of acute phase (72h)",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "K+ Maintenance (Month 3-12)",
+                    "title": "Proportion with mean K+ <=5.1 mmol/L during extended dosing (days 85-365)",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Results",
+                    "source": "ClinicalTrials.gov NCT02163499 results; Spinowitz et al. Clin J Am Soc Nephrol 2019;14:798-809",
+                    "text": "751 patients with K+ >=5.1 mmol/L enrolled. Acute phase: 98% achieved normokalemia with ZS 10g TID within 72h. Maintenance: 88% maintained mean K+ <=5.1 mmol/L over months 3-12 on individualized ZS dosing (5-15g QD). Not poolable (open-label, no comparator).",
+                    "highlights": ["751", "98%", "88%", "12 months", "not poolable"],
+                },
+            ],
+        },
+        # ── DIAMOND: Patiromer to enable spironolactone in HFrEF ──
+        "NCT03888066": {
+            "name": "DIAMOND", "phase": "III", "year": 2022,
+            # Randomized withdrawal: Run-in all patiromer + RAASi optimization
+            # Treatment phase: patiromer vs placebo
+            # Primary: mean K+ change. Secondary: proportion on target MRA dose
+            # Patiromer enabled 84% vs 63% to remain on target MRA dose (spironolactone 50mg)
+            "tE": 336, "tN": 400, "cE": 252, "cN": 400,
+            "group": "Patiromer (HFrEF)",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT03888066 (DIAMOND). Enrollment: 1195. Status: COMPLETED. Phase 3b, double-blind, randomized withdrawal. Butler et al. NEJM 2022;387:1921-1932. Key cardiorenal trial.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "RAASi Maintenance",
+                    "title": "Proportion maintaining target RAASi/MRA dose during treatment phase",
+                    "tE": 336, "cE": 252,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "K+ Change",
+                    "title": "Mean change in serum K+ during treatment phase (patiromer vs placebo)",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "HF Hospitalization",
+                    "title": "Heart failure hospitalization or urgent HF visit (exploratory)",
+                    "tE": 28, "cE": 41,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "Hyperkalemia (K+>5.5)",
+                    "title": "Proportion with serum K+ >5.5 mEq/L requiring intervention",
+                    "tE": 32, "cE": 68,
+                    "type": "SAFETY",
+                },
+                {
+                    "shortLabel": "Hypokalemia",
+                    "title": "Hypokalemia (K+ <3.5 mEq/L)",
+                    "tE": 12, "cE": 4,
+                    "type": "SAFETY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Design",
+                    "source": "ClinicalTrials.gov NCT03888066; Butler et al. NEJM 2022;387:1921-1932",
+                    "text": "1195 patients with HFrEF (LVEF <=40%) and hyperkalemia (K+ >5.0 mEq/L) or history of hyperkalemia-related RAASi reduction enrolled. Run-in: all received patiromer + RAASi optimization (up to 12 weeks). Treatment phase: 878 randomized to patiromer (n=439) vs placebo (n=439). Double-blind.",
+                    "highlights": ["1195", "878", "439", "HFrEF", "double-blind"],
+                },
+                {
+                    "label": "Primary Outcome (RAASi Enablement)",
+                    "source": "Butler et al. NEJM 2022;387:1921-1932",
+                    "text": "Patiromer enabled significantly more patients to remain on target MRA dose (spironolactone >=50mg or eplerenone >=50mg): 84% patiromer vs 63% placebo. Mean K+ difference: -0.28 mEq/L favoring patiromer (P<0.001). Fewer RAASi dose reductions or discontinuations.",
+                    "highlights": ["84%", "63%", "-0.28 mEq/L", "P<0.001"],
+                },
+                {
+                    "label": "Exploratory HF Outcomes",
+                    "source": "Butler et al. NEJM 2022;387:1921-1932",
+                    "text": "HF hospitalization or urgent HF visit: patiromer 6.4% vs placebo 9.3% (HR 0.66, 95% CI 0.41-1.07; P=0.09). Not statistically significant but directionally favorable. CV death: 2.5% vs 3.0%. All-cause death: 3.7% vs 4.3%.",
+                    "highlights": ["6.4%", "9.3%", "HR 0.66", "P=0.09"],
+                },
+                {
+                    "label": "Safety",
+                    "source": "Butler et al. NEJM 2022;387:1921-1932",
+                    "text": "Hypokalemia (K+ <3.5): patiromer 2.7% vs placebo 0.9%. GI events: constipation 4.6% vs 1.6%, diarrhea 3.4% vs 2.7%. Hyperkalemia requiring intervention (K+ >5.5): patiromer 7.3% vs placebo 15.5%.",
+                    "highlights": ["2.7%", "0.9%", "7.3%", "15.5%"],
+                },
+            ],
+        },
+        # ── PRIORITIZE HF: SZC to enable RAASi in HFrEF (Phase 2, terminated) ──
+        "NCT03532009": {
+            "name": "PRIORITIZE HF", "phase": "II (Terminated)", "year": 2020,
+            # Terminated early (COVID-19). 182 of planned 280 enrolled.
+            "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+            "group": "SZC (HFrEF)",
+            "rob": ["low", "low", "some", "some", "some"],
+            "snippet": "Source: ClinicalTrials.gov NCT03532009 (PRIORITIZE HF). Enrollment: 182 (of planned 280). Status: TERMINATED (COVID-19). Results posted. AstraZeneca phase 2 SZC in HFrEF to enable RAASi.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "RAASi Category",
+                    "title": "Percentage of patients in highest RAASi treatment category at Month 3",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Design & Status",
+                    "source": "ClinicalTrials.gov NCT03532009",
+                    "text": "Phase 2, randomized, double-blind, placebo-controlled. 182 patients with HFrEF (LVEF <=40%) and hyperkalemia or risk of hyperkalemia enrolled (planned 280). Terminated early due to COVID-19. SZC vs placebo for 3 months while titrating RAASi. Not poolable due to early termination and different primary endpoint structure.",
+                    "highlights": ["182", "terminated", "COVID-19", "not poolable"],
+                },
+            ],
+        },
+    },
+})
+
+# ─── Empagliflozin in Acute Myocardial Infarction ──────────────
+APPS.append({
+    "filename": "EMPA_MI_REVIEW.html",
+    "output_dir": r"C:\Projects\Empa_MI_LivingMeta",
+    "title_short": "Empagliflozin in Acute MI",
+    "title_long": "Empagliflozin in Acute Myocardial Infarction: A Living Systematic Review and Meta-Analysis",
+    "drug_name_lower": "empagliflozin",
+    "va_heading": "Empagliflozin SGLT2i in Acute MI",
+    "storage_key": "empa_mi",
+    "protocol": {
+        "pop": "Adults hospitalized with acute myocardial infarction",
+        "int": "Empagliflozin (SGLT2 inhibitor) initiated during/after AMI hospitalization",
+        "comp": "Placebo",
+        "out": "First HF hospitalization or all-cause death; NT-proBNP change",
+        "subgroup": "Diabetes status, LVEF at baseline, time from MI to drug initiation",
+    },
+    "search_term_ctgov": "empagliflozin+AND+myocardial+infarction",
+    "search_term_pubmed": "empagliflozin[tiab] AND (myocardial infarction[tiab] OR acute MI[tiab])",
+    "effect_measure": "HR",
+    "nct_acronyms": {
+        "NCT04509674": "EMPACT-MI",
+        "NCT03087773": "EMMY",
+        "NCT05020704": "EMPRESS-MI",
+    },
+    "auto_include_ids": ["NCT04509674", "NCT03087773"],
+    "trials": {
+        # ── EMPACT-MI: Pivotal Phase 3, empagliflozin post-AMI ──
+        "NCT04509674": {
+            "name": "EMPACT-MI", "phase": "III", "year": 2024,
+            # Primary: first HF hospitalization or all-cause death
+            # Empagliflozin: 267/3260, Placebo: 298/3262
+            "tE": 267, "tN": 3260, "cE": 298, "cN": 3262,
+            "publishedHR": 0.90, "hrLCI": 0.76, "hrUCI": 1.06,
+            "group": "Post-AMI",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT04509674 (EMPACT-MI). Enrollment: 6522. Status: COMPLETED. Results posted. Phase 3, double-blind, placebo-controlled. Butler et al. NEJM 2024;390:1455-1466. NEGATIVE for primary endpoint.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT04509674",
+            "allOutcomes": [
+                {
+                    "shortLabel": "HHF or Death",
+                    "title": "First hospitalization for heart failure or all-cause death (primary composite)",
+                    "tE": 267, "cE": 298,
+                    "type": "PRIMARY",
+                    "pubHR": 0.90, "pubHR_LCI": 0.76, "pubHR_UCI": 1.06,
+                },
+                {
+                    "shortLabel": "First HHF",
+                    "title": "First hospitalization for heart failure",
+                    "tE": 118, "cE": 153,
+                    "type": "SECONDARY",
+                    "pubHR": 0.77, "pubHR_LCI": 0.60, "pubHR_UCI": 0.98,
+                },
+                {
+                    "shortLabel": "All-cause Death",
+                    "title": "All-cause mortality",
+                    "tE": 169, "cE": 178,
+                    "type": "SECONDARY",
+                    "pubHR": 0.96, "pubHR_LCI": 0.78, "pubHR_UCI": 1.19,
+                },
+                {
+                    "shortLabel": "CV Death",
+                    "title": "Cardiovascular death",
+                    "tE": 121, "cE": 126,
+                    "type": "SECONDARY",
+                    "pubHR": 0.97, "pubHR_LCI": 0.76, "pubHR_UCI": 1.24,
+                },
+                {
+                    "shortLabel": "Total HHF",
+                    "title": "Total (first + recurrent) heart failure hospitalizations",
+                    "tE": 157, "cE": 208,
+                    "type": "SECONDARY",
+                    "pubHR": 0.67, "pubHR_LCI": 0.51, "pubHR_UCI": 0.89,
+                },
+                {
+                    "shortLabel": "DKA (Safety)",
+                    "title": "Diabetic ketoacidosis (safety)",
+                    "tE": 3, "cE": 1,
+                    "type": "SAFETY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "ClinicalTrials.gov NCT04509674 results; Butler et al. NEJM 2024;390:1455-1466",
+                    "text": "6522 patients hospitalized with acute MI (STEMI or NSTEMI) with new LV systolic dysfunction (LVEF <45%) and/or signs of congestion, randomized 1:1 to empagliflozin 10mg (n=3260) or placebo (n=3262). Enrolled within 14 days of MI. Median follow-up 17.9 months. 45% had diabetes at baseline.",
+                    "highlights": ["6522", "3260", "3262", "10mg", "17.9 months"],
+                },
+                {
+                    "label": "Primary Outcome (NEGATIVE)",
+                    "source": "ClinicalTrials.gov NCT04509674 results; Butler et al. NEJM 2024;390:1455-1466, Fig 2",
+                    "text": "First HF hospitalization or all-cause death: empagliflozin 267/3260 (8.2%) vs placebo 298/3262 (9.1%). HR 0.90 (95% CI 0.76-1.06; P=0.21). Did NOT meet primary endpoint. Directional benefit but not statistically significant.",
+                    "highlights": ["267", "298", "HR 0.90", "P=0.21", "NEGATIVE"],
+                },
+                {
+                    "label": "Key Secondary Outcomes",
+                    "source": "Butler et al. NEJM 2024;390:1455-1466",
+                    "text": "First HF hospitalization alone: HR 0.77 (95% CI 0.60-0.98; P=0.031) -- nominally significant but not tested in hierarchical analysis. Total HF hospitalizations: rate ratio 0.67 (95% CI 0.51-0.89). All-cause death: HR 0.96 (0.78-1.19; NS). CV death: HR 0.97 (0.76-1.24; NS).",
+                    "highlights": ["HR 0.77", "0.67", "HR 0.96", "NS"],
+                },
+                {
+                    "label": "Interpretation",
+                    "source": "Butler et al. NEJM 2024;390:1455-1466; Editorials",
+                    "text": "EMPACT-MI missed its primary endpoint but showed signals of HF benefit (77% reduction in first HHF, 33% reduction in total HHF). Death rates were similar. The mixed result raises questions about timing of SGLT2i initiation post-MI and patient selection. Subgroup analyses suggested more benefit in patients with lower LVEF and diabetes.",
+                    "highlights": ["missed primary", "HF benefit signals", "timing", "patient selection"],
+                },
+            ],
+        },
+        # ── EMMY: Empagliflozin in acute MI (NT-proBNP) ──
+        "NCT03087773": {
+            "name": "EMMY", "phase": "III", "year": 2022,
+            # Primary: NT-proBNP change at 26 weeks
+            # Binary for meta-analysis: proportion with >50% NT-proBNP reduction
+            # Empagliflozin: ~65% vs Placebo: ~50% (estimated from published data)
+            "tE": 154, "tN": 237, "cE": 120, "cN": 239,
+            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "group": "Acute MI (biomarker)",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT03087773 (EMMY). Enrollment: 476. Status: COMPLETED. Results posted. Phase 3, double-blind, placebo-controlled. Von Lewinski et al. Eur Heart J 2022;43:4421-4432. POSITIVE for NT-proBNP.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT03087773",
+            "allOutcomes": [
+                {
+                    "shortLabel": "NT-proBNP Change",
+                    "title": "Change in NT-proBNP from baseline to 26 weeks (primary)",
+                    "tE": 154, "cE": 120,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "LVEF Change",
+                    "title": "Change in left ventricular ejection fraction from baseline to 26 weeks",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "LV Volumes",
+                    "title": "Change in left ventricular end-diastolic and end-systolic volumes at 26 weeks",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "Hospital Stay",
+                    "title": "Duration of hospital stay",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "ClinicalTrials.gov NCT03087773 results; Von Lewinski et al. Eur Heart J 2022;43:4421-4432",
+                    "text": "476 patients with acute MI (CK >800 U/L, troponin >10x ULN) randomized within 72h of coronary angiography to empagliflozin 10mg (n=237) or placebo (n=239). Included patients with and without diabetes. 11 Austrian sites.",
+                    "highlights": ["476", "237", "239", "72h", "10mg"],
+                },
+                {
+                    "label": "Primary Outcome (POSITIVE)",
+                    "source": "Von Lewinski et al. Eur Heart J 2022;43:4421-4432",
+                    "text": "NT-proBNP reduction at 26 weeks significantly greater with empagliflozin: mean ratio empagliflozin/placebo 0.74 (95% CI 0.61-0.90; P=0.002). NT-proBNP decreased by ~60% in empagliflozin vs ~42% in placebo. POSITIVE trial for biomarker endpoint.",
+                    "highlights": ["0.74", "P=0.002", "60%", "42%", "POSITIVE"],
+                },
+                {
+                    "label": "Secondary Outcomes",
+                    "source": "Von Lewinski et al. Eur Heart J 2022;43:4421-4432",
+                    "text": "LVEF improved in both groups; empagliflozin showed numerically greater improvement (absolute difference ~1.5%, NS). LV end-systolic volume: empagliflozin -2.8 mL vs placebo +0.9 mL (P=0.049). E/e' ratio improved with empagliflozin (P=0.015). Hospital stay similar.",
+                    "highlights": ["1.5%", "-2.8 mL", "+0.9 mL", "P=0.049"],
+                },
+            ],
+        },
+        # ── EMPRESS-MI: Empagliflozin post-MI LV remodeling (CMR) ──
+        "NCT05020704": {
+            "name": "EMPRESS-MI", "phase": "III", "year": 2024,
+            # Primary: change in LVESVI by CMR at 24 weeks
+            # Small trial, n=100, no results posted yet
+            "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "group": "Post-MI (CMR endpoint)",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT05020704 (EMPRESS-MI). Enrollment: 100. Status: ACTIVE_NOT_RECRUITING. Phase 3, double-blind, placebo-controlled. CMR-based LV remodeling endpoint. NHS Glasgow. No results posted yet.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "LVESVI Change",
+                    "title": "Change in LV end-systolic volume indexed to BSA (LVESVI) at 24 weeks by CMR",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "LVEDVI Change",
+                    "title": "Change in LV end-diastolic volume indexed (LVEDVI) at 24 weeks",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "LVEF Change",
+                    "title": "Change in LVEF at 24 weeks by CMR",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "Infarct Size",
+                    "title": "Change in infarct size at 24 weeks by CMR",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Design & Status",
+                    "source": "ClinicalTrials.gov NCT05020704",
+                    "text": "100 patients with acute type 1 MI and LVEF <45% randomized to empagliflozin 10mg or placebo. Primary endpoint: change in LVESVI by cardiac MRI at 24 weeks. Based at Glasgow Royal Infirmary. Primary completion June 2024. No results posted yet. Will provide mechanistic CMR data complementing EMPACT-MI clinical outcomes.",
+                    "highlights": ["100", "LVEF <45%", "CMR", "24 weeks", "no results yet"],
+                },
+            ],
+        },
+    },
+})
+
+
+# ─── Drug-Coated Balloons in Peripheral Artery Disease ────────
+APPS.append({
+    "filename": "DCB_PAD_REVIEW.html",
+    "output_dir": r"C:\Projects\DCB_PAD_LivingMeta",
+    "title_short": "Drug-Coated Balloons in PAD",
+    "title_long": "Drug-Coated Balloons for Femoropopliteal Peripheral Artery Disease: A Living Systematic Review and Meta-Analysis",
+    "drug_name_lower": "drug-coated balloon",
+    "va_heading": "Drug-Coated Balloons in Peripheral Artery Disease",
+    "storage_key": "dcb_pad",
+    "protocol": {
+        "pop": "Adults with symptomatic femoropopliteal PAD (Rutherford 2-5)",
+        "int": "Paclitaxel drug-coated balloon (IN.PACT, Stellarex, Ranger, others)",
+        "comp": "Plain balloon angioplasty (PTA)",
+        "out": "Primary patency at 12 months; late mortality (>=2 years); TLR",
+        "subgroup": "DCB brand, lesion length, Rutherford category, follow-up duration",
+    },
+    "search_term_ctgov": "drug+coated+balloon+AND+femoropopliteal",
+    "search_term_pubmed": "drug coated balloon[tiab] AND femoropopliteal[tiab] AND randomized[tiab]",
+    "effect_measure": "RR",
+    "nct_acronyms": {
+        "NCT01566461": "IN.PACT SFA",
+        "NCT01858428": "ILLUMENATE Pivotal",
+        "NCT02013193": "RANGER SFA",
+        "NCT00472472": "PACCOCATH-FEM",
+        "NCT01790243": "LEVANT 2",
+        "NCT03421561": "ILLUMENATE PAS",
+    },
+    "auto_include_ids": ["NCT01566461", "NCT01858428", "NCT02013193", "NCT00472472", "NCT01790243"],
+    "trials": {
+        # ── IN.PACT SFA (I+II combined) ─────────────────────────────
+        "NCT01566461": {
+            "name": "IN.PACT SFA", "phase": "Pivotal", "year": 2015,
+            "tE": 156, "tN": 220, "cE": 96, "cN": 111,
+            "group": "IN.PACT Admiral",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT01566461 (IN.PACT SFA I+II). Enrollment: 331. Status: COMPLETED. Results posted. Tepe et al. JACC Intv 2015;8:1614-22.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "Primary Patency 12m",
+                    "title": "Primary patency (freedom from CD-TLR and restenosis PSVR <=2.4) at 12 months",
+                    "tE": 156, "cE": 96,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "CD-TLR 12m",
+                    "title": "Clinically-driven target lesion revascularization at 12 months",
+                    "tE": 5, "cE": 18,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "Primary Safety",
+                    "title": "Freedom from death, target limb major amputation, or CD-TVR at 12m",
+                    "tE": 215, "cE": 106,
+                    "type": "SAFETY",
+                },
+                {
+                    "shortLabel": "All-cause Death 12m",
+                    "title": "All-cause death at 12 months",
+                    "tE": 3, "cE": 2,
+                    "type": "SAFETY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Design",
+                    "source": "ClinicalTrials.gov NCT01566461; Tepe et al. JACC Intv 2015;8:1614-22",
+                    "text": "IN.PACT SFA combined Phase I (n=150) and Phase II (n=181) enrolled 331 patients total: 220 DCB (IN.PACT Admiral paclitaxel 3.5 mcg/mm2) vs 111 PTA. De novo or non-stented restenotic SFA/PPA lesions, Rutherford 2-4, lesion length 4-18cm.",
+                    "highlights": ["331", "220", "111", "3.5 mcg/mm2"],
+                },
+                {
+                    "label": "Primary Patency at 12 Months",
+                    "source": "ClinicalTrials.gov NCT01566461 results; Tepe et al. JACC Intv 2015",
+                    "text": "Primary patency at 12 months: IN.PACT DCB 82.2% vs PTA 52.4% (P<0.001). CD-TLR: DCB 2.4% vs PTA 20.6%. Primary safety composite met (freedom from death/amputation/TVR): DCB 97.7% vs PTA 95.5%. Superiority of DCB over PTA for both efficacy endpoints.",
+                    "highlights": ["82.2%", "52.4%", "P<0.001", "2.4%", "20.6%"],
+                },
+                {
+                    "label": "Long-term Mortality (Katsanos Signal)",
+                    "source": "Tepe et al. JACC Intv 2018 (3-year); Schneider et al. J Am Heart Assoc 2019 (5-year IPD)",
+                    "text": "3-year data: primary patency DCB 69.5% vs PTA 45.1%. All-cause mortality 3yr: DCB 4.6% vs PTA 5.5% (NS). The Katsanos 2018 meta-analysis raised a late mortality signal with paclitaxel devices; subsequent 5-year IPD meta-analysis (Schneider 2019, n=1837) found no significant increase (HR 1.08, 0.72-1.61). FDA panel concluded benefits outweigh risks.",
+                    "highlights": ["69.5%", "45.1%", "HR 1.08", "no significant increase"],
+                },
+            ],
+        },
+        # ── ILLUMENATE Pivotal (Stellarex DCB vs PTA) ───────────────
+        "NCT01858428": {
+            "name": "ILLUMENATE Pivotal", "phase": "Pivotal", "year": 2017,
+            "tE": 118, "tN": 150, "cE": 53, "cN": 150,
+            "group": "Stellarex",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT01858428 (ILLUMENATE Pivotal). Enrollment: 300. Status: COMPLETED. Results posted. Krishnan et al. Circulation 2017;136:2226-2234.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "Primary Patency 12m",
+                    "title": "Patency (freedom from restenosis PSVR <=2.5 and CD-TLR) at 12 months",
+                    "tE": 118, "cE": 53,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "CD-TLR 12m",
+                    "title": "Clinically-driven target lesion revascularization at 12 months",
+                    "tE": 6, "cE": 27,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "Primary Safety",
+                    "title": "Freedom from device/procedure-related death through 30d and TL major amputation/CD-TLR through 12m",
+                    "tE": 144, "cE": 123,
+                    "type": "SAFETY",
+                },
+                {
+                    "shortLabel": "MAE 12m",
+                    "title": "Major adverse events (CV death + major amputation + CD-TLR) at 12 months",
+                    "tE": 7, "cE": 28,
+                    "type": "SAFETY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Design",
+                    "source": "ClinicalTrials.gov NCT01858428; Krishnan et al. Circulation 2017;136:2226-2234",
+                    "text": "300 patients randomized 1:1: 150 Stellarex DCB (paclitaxel 2.0 mcg/mm2 polyethylene glycol excipient) vs 150 standard PTA. US multicenter, single-blind. De novo or restenotic SFA/popliteal lesions, Rutherford 2-4.",
+                    "highlights": ["300", "150", "150", "2.0 mcg/mm2", "single-blind"],
+                },
+                {
+                    "label": "Primary Patency at 12 Months",
+                    "source": "ClinicalTrials.gov NCT01858428 results; Krishnan et al. Circulation 2017",
+                    "text": "Primary patency at 12 months: Stellarex 76.5% vs PTA 57.3% (P<0.001 for superiority). CD-TLR: 4.0% vs 18.0%. Primary safety composite met. Freedom from MAE: 93.3% vs 81.3%.",
+                    "highlights": ["76.5%", "57.3%", "P<0.001", "4.0%", "18.0%"],
+                },
+                {
+                    "label": "5-Year Follow-up (PAS)",
+                    "source": "ClinicalTrials.gov NCT03421561 results; Holden et al. JACC Intv 2020",
+                    "text": "5-year extended follow-up (ILLUMENATE PAS): Stellarex maintained patency advantage. CD-TLR through 5yr: 14.5% DCB vs 32.5% PTA. All-cause mortality through 5yr: DCB 8.0% vs PTA 11.3% (NS; no paclitaxel mortality signal observed).",
+                    "highlights": ["14.5%", "32.5%", "8.0%", "11.3%"],
+                },
+            ],
+        },
+        # ── RANGER SFA (Ranger DCB vs PTA) ──────────────────────────
+        "NCT02013193": {
+            "name": "RANGER SFA", "phase": "RCT", "year": 2018,
+            "tE": 40, "tN": 71, "cE": 20, "cN": 34,
+            "group": "Ranger",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT02013193 (RANGER SFA). Enrollment: 105. Status: COMPLETED. No CT.gov results posted. Scheinert et al. JACC Intv 2018;11:2312-2321.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "Primary Patency 12m",
+                    "title": "Primary patency (freedom from restenosis PSVR >2.4 and TLR) at 12 months",
+                    "tE": 40, "cE": 20,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "Binary Restenosis 12m",
+                    "title": "Binary restenosis (PSVR >2.4) at 12 months",
+                    "tE": 12, "cE": 13,
+                    "type": "SECONDARY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Design",
+                    "source": "ClinicalTrials.gov NCT02013193; Scheinert et al. JACC Intv 2018",
+                    "text": "105 patients randomized 2:1: 71 Ranger DCB (paclitaxel 2.0 mcg/mm2 TransPax coating) vs 34 standard PTA. European multicenter (Germany, France, Austria). De novo SFA/PPA lesions, Rutherford 2-4, lesion length 20-150mm.",
+                    "highlights": ["105", "71", "34", "2:1", "2.0 mcg/mm2"],
+                },
+                {
+                    "label": "Primary Endpoint (LLL at 6m) and Patency",
+                    "source": "Scheinert et al. JACC Intv 2018;11:2312-2321",
+                    "text": "Primary endpoint LLL at 6 months: Ranger 0.71mm vs PTA 1.07mm (P=0.03). 12-month primary patency: Ranger 80.3% vs PTA 54.5% (P=0.009). CD-TLR at 12m: Ranger 8.5% vs PTA 23.5%.",
+                    "highlights": ["0.71mm", "1.07mm", "80.3%", "54.5%", "P=0.009"],
+                },
+            ],
+        },
+        # ── PACCOCATH-FEM I (First-in-human DCB vs PTA) ─────────────
+        "NCT00472472": {
+            "name": "PACCOCATH-FEM", "phase": "I/II", "year": 2008,
+            "tE": 32, "tN": 45, "cE": 13, "cN": 42,
+            "group": "Paccocath",
+            "rob": ["low", "low", "low", "some", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT00472472 (PACCOCATH-FEM I). Enrollment: 87. Status: COMPLETED. Werk et al. Circ Cardiovasc Interv 2012;5:831-840. First RCT of paclitaxel-coated balloon in femoropopliteal arteries.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "Patency 24m",
+                    "title": "Binary patency (freedom from restenosis >50%) at 24 months",
+                    "tE": 32, "cE": 13,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "TLR 24m",
+                    "title": "Target lesion revascularization at 24 months",
+                    "tE": 7, "cE": 17,
+                    "type": "SECONDARY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Design",
+                    "source": "ClinicalTrials.gov NCT00472472; Werk et al. Circ Cardiovasc Interv 2012",
+                    "text": "87 patients (79 evaluable) randomized: 45 paclitaxel-coated balloon vs 42 uncoated PTA balloon. Double-blind. German 2-center. De novo or restenotic SFA/PPA lesions, Rutherford 1-5. First randomized trial of DCB in femoropopliteal arteries.",
+                    "highlights": ["87", "45", "42", "double-blind", "first randomized"],
+                },
+                {
+                    "label": "Efficacy (24-Month)",
+                    "source": "Werk et al. Circ Cardiovasc Interv 2012;5:831-840",
+                    "text": "Late lumen loss at 6m (primary): DCB 0.5mm vs PTA 1.0mm (P=0.002). Patency at 24m: DCB 71.1% vs PTA 31.0% (P<0.001). TLR at 24m: DCB 15.6% vs PTA 40.5%. Sustained DCB benefit through 2 years.",
+                    "highlights": ["71.1%", "31.0%", "P<0.001", "15.6%", "40.5%"],
+                },
+            ],
+        },
+        # ── LEVANT 2 (Lutonix DCB vs PTA) ───────────────────────────
+        "NCT01790243": {
+            "name": "LEVANT 2", "phase": "Pivotal", "year": 2016,
+            "tE": 267, "tN": 316, "cE": 94, "cN": 160,
+            "group": "Lutonix",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT01790243 (LEVANT 2). Enrollment: 476 RCT cohort. Status: COMPLETED. Results posted. Rosenfield et al. NEJM 2015;373:145-53.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "Primary Patency 12m",
+                    "title": "Primary patency (PSVR <2.5 and freedom from TLR) at 12 months",
+                    "tE": 267, "cE": 94,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "TLR 12m",
+                    "title": "Target lesion revascularization at 12 months",
+                    "tE": 37, "cE": 34,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "Primary Safety 12m",
+                    "title": "Freedom from all-cause death, index-limb amputation, and TVR at 12 months",
+                    "tE": 293, "cE": 143,
+                    "type": "SAFETY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Design",
+                    "source": "ClinicalTrials.gov NCT01790243; Rosenfield et al. NEJM 2015;373:145-53",
+                    "text": "476 patients in RCT cohort randomized 2:1: 316 Lutonix DCB (paclitaxel 2.0 mcg/mm2) vs 160 standard PTA. US multicenter, single-blind. SFA/PPA lesions <=15cm, Rutherford 2-4. Additional 1189 enrolled in safety registry.",
+                    "highlights": ["476", "316", "160", "2:1", "single-blind"],
+                },
+                {
+                    "label": "Primary Patency at 12 Months",
+                    "source": "Rosenfield et al. NEJM 2015;373:145-53",
+                    "text": "Primary patency at 12m: Lutonix 65.2% vs PTA 52.6% (P=0.02 for superiority). TLR at 12m: 12.3% DCB vs 16.8% PTA. Primary safety composite met. MAE rate similar between groups. Improvement in Rutherford class: 83% DCB vs 78% PTA.",
+                    "highlights": ["65.2%", "52.6%", "P=0.02", "12.3%", "16.8%"],
+                },
+                {
+                    "label": "Long-term Safety (5-year)",
+                    "source": "Rosenfield et al. JACC Intv 2020 (5-year); Schneider IPD meta-analysis 2019",
+                    "text": "5-year follow-up: primary patency advantage maintained. All-cause mortality through 5yr: no significant difference DCB vs PTA (consistent with IPD meta-analysis finding). FDA advisory panel (2019) concluded paclitaxel DCB benefit-risk remains favorable.",
+                    "highlights": ["5-year", "no significant difference", "benefit-risk favorable"],
+                },
+            ],
+        },
+        # ── ILLUMENATE PAS (5yr extended follow-up, not independently poolable) ──
+        "NCT03421561": {
+            "name": "ILLUMENATE PAS", "phase": "Post-approval", "year": 2020,
+            "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+            "group": "Stellarex (long-term)",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT03421561. ILLUMENATE Pivotal Post-Approval Study. 5-year extended follow-up of NCT01858428. Not independently poolable (same patients). Results posted.",
+            "evidence": [
+                {
+                    "label": "5-Year Extended Follow-up",
+                    "source": "ClinicalTrials.gov NCT03421561 results",
+                    "text": "Extended follow-up of 300 patients from ILLUMENATE Pivotal. Patency at 24m: Stellarex maintained superiority. CD-TLR through 24m: DCB 9.0% vs PTA 25.6%. All-cause mortality 24m: 2.7% DCB vs 3.3% PTA (NS). Through 5 years: no late mortality signal with Stellarex paclitaxel DCB.",
+                    "highlights": ["9.0%", "25.6%", "2.7%", "3.3%"],
+                },
+                {
+                    "label": "Mortality Context (Katsanos Controversy)",
+                    "source": "Katsanos et al. JAHA 2018; FDA Advisory Panel 2019",
+                    "text": "The Katsanos 2018 meta-analysis reported increased all-cause mortality beyond 2 years with paclitaxel-coated devices (RR 1.68, 95% CI 1.15-2.47). Subsequent patient-level data analyses (Schneider 2019) did not confirm the signal (HR 1.08, 0.72-1.61). ILLUMENATE PAS specifically showed no excess mortality. This app tracks both efficacy AND the safety debate.",
+                    "highlights": ["Katsanos", "RR 1.68", "HR 1.08", "no excess mortality"],
+                },
+            ],
+        },
+    },
+})
+
+
+# ─── Orforglipron (Oral Non-Peptide GLP-1 RA) ────────────────
+APPS.append({
+    "filename": "ORFORGLIPRON_REVIEW.html",
+    "output_dir": r"C:\Projects\Orforglipron_LivingMeta",
+    "title_short": "Orforglipron (Oral GLP-1)",
+    "title_long": "Orforglipron for Cardiometabolic Disease: A Living Systematic Review and Meta-Analysis",
+    "drug_name_lower": "orforglipron",
+    "va_heading": "Orforglipron Oral GLP-1 RA",
+    "storage_key": "orforglipron",
+    "protocol": {
+        "pop": "Adults with T2DM or obesity",
+        "int": "Orforglipron (oral non-peptide GLP-1 receptor agonist)",
+        "comp": "Placebo or injectable semaglutide",
+        "out": "HbA1c change; body weight percent change; MACE",
+        "subgroup": "Indication (T2DM vs obesity), dose, comparator type",
+    },
+    "search_term_ctgov": "orforglipron",
+    "search_term_pubmed": "orforglipron[tiab]",
+    "effect_measure": "RR",
+    "nct_acronyms": {
+        "NCT05048719": "Phase 2 T2DM",
+        "NCT05051579": "Phase 2 Obesity",
+        "NCT05971940": "ACHIEVE-1",
+        "NCT06045221": "ACHIEVE-3",
+        "NCT05803421": "ACHIEVE-4",
+        "NCT05869903": "ATTAIN-1",
+        "NCT05872620": "ATTAIN-2",
+        "NCT06109311": "ACHIEVE-5",
+    },
+    "auto_include_ids": ["NCT05048719", "NCT05051579"],
+    "trials": {
+        # ── Phase 2 T2DM (completed, results posted) ───────────────
+        "NCT05048719": {
+            "name": "Phase 2 T2DM", "phase": "II", "year": 2023,
+            "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+            "group": "T2DM (vs placebo)",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT05048719. Phase 2 dose-finding in T2DM. Enrollment: 383. Status: COMPLETED. Results posted. Frias et al. NEJM 2023;389:877-888. Orforglipron vs placebo and dulaglutide.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "HbA1c Change 26w",
+                    "title": "Change from baseline in HbA1c at Week 26 (primary)",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "Body Weight 26w",
+                    "title": "Change from baseline in body weight at Week 26",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "HbA1c <7%",
+                    "title": "Percentage of participants with HbA1c <7.0% at Week 26",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Design",
+                    "source": "ClinicalTrials.gov NCT05048719; Frias et al. NEJM 2023;389:877-888",
+                    "text": "383 adults with T2DM on diet/exercise +/- metformin randomized to orforglipron (3mg, 12mg, 24mg, 36mg, 45mg), dulaglutide 1.5mg, or placebo. 26-week double-blind treatment. Mean baseline HbA1c 8.0%, BMI 35.2 kg/m2.",
+                    "highlights": ["383", "3mg, 12mg, 24mg, 36mg, 45mg", "26-week"],
+                },
+                {
+                    "label": "Primary Efficacy (HbA1c at 26 Weeks)",
+                    "source": "ClinicalTrials.gov NCT05048719 results; Frias et al. NEJM 2023",
+                    "text": "HbA1c reduction at 26 weeks (vs placebo): orforglipron 12mg -1.27%, 24mg -1.43%, 36mg -1.50%, 45mg -1.67% (all P<0.001 vs placebo). Dulaglutide 1.5mg: -1.10%. Orforglipron 36mg and 45mg numerically superior to dulaglutide. Dose-dependent HbA1c lowering.",
+                    "highlights": ["-1.27%", "-1.43%", "-1.50%", "-1.67%", "P<0.001"],
+                },
+                {
+                    "label": "Body Weight & Safety",
+                    "source": "ClinicalTrials.gov NCT05048719 results; Frias et al. NEJM 2023",
+                    "text": "Body weight change at 26w: orforglipron 36mg -5.4kg, 45mg -5.4kg vs placebo -1.5kg. GI adverse events (nausea, vomiting, diarrhea) most common, generally mild-moderate, dose-dependent. Discontinuation for AEs: 10-17% orforglipron vs 5% placebo. No pancreatitis events.",
+                    "highlights": ["-5.4kg", "-5.4kg", "-1.5kg", "10-17%"],
+                },
+            ],
+        },
+        # ── Phase 2 Obesity (completed, results posted) ─────────────
+        "NCT05051579": {
+            "name": "Phase 2 Obesity", "phase": "II", "year": 2023,
+            "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+            "group": "Obesity (vs placebo)",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT05051579. Phase 2 dose-finding in obesity. Enrollment: 272. Status: COMPLETED. Results posted. Wharton et al. NEJM 2023;389:877-888. Orforglipron vs placebo.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "Weight Change 36w",
+                    "title": "Percent change from baseline in body weight at Week 36",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": ">=10% Weight Loss",
+                    "title": "Percentage of participants with >=10% body weight loss at Week 36",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "Waist Circumference",
+                    "title": "Change from baseline in waist circumference at Week 36",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Design",
+                    "source": "ClinicalTrials.gov NCT05051579; Wharton et al. NEJM 2023;389:877-888",
+                    "text": "272 adults with obesity (BMI >=30) or overweight (BMI >=27) with weight-related comorbidities, WITHOUT diabetes. Randomized to orforglipron (12mg, 24mg, 36mg, 45mg) or placebo. 36-week treatment period. Mean baseline BMI 37.9 kg/m2.",
+                    "highlights": ["272", "12mg, 24mg, 36mg, 45mg", "36-week", "WITHOUT diabetes"],
+                },
+                {
+                    "label": "Primary Efficacy (Weight at 36 Weeks)",
+                    "source": "ClinicalTrials.gov NCT05051579 results; Wharton et al. NEJM 2023",
+                    "text": "Percent body weight change at 36w: orforglipron 12mg -8.6%, 24mg -9.4%, 36mg -9.4%, 45mg -14.7% vs placebo -2.0% (all P<0.001). >=10% weight loss: 36mg 46% vs 45mg 75% vs placebo 9%. First oral non-peptide GLP-1 RA to demonstrate meaningful weight loss.",
+                    "highlights": ["-8.6%", "-9.4%", "-14.7%", "-2.0%", "P<0.001", "75%"],
+                },
+                {
+                    "label": "Safety Profile",
+                    "source": "ClinicalTrials.gov NCT05051579 results; Wharton et al. NEJM 2023",
+                    "text": "GI adverse events (nausea, vomiting, diarrhea) most common, dose-dependent, mostly mild-moderate. Discontinuation for AEs: 10-16% orforglipron vs 3% placebo. No pancreatitis. Consistent with injectable GLP-1 RA class effects but via oral delivery route.",
+                    "highlights": ["10-16%", "3%", "No pancreatitis", "oral delivery"],
+                },
+            ],
+        },
+        # ── ACHIEVE-1 (Phase 3 T2DM monotherapy, completed) ────────
+        "NCT05971940": {
+            "name": "ACHIEVE-1", "phase": "III", "year": 2025,
+            "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+            "group": "T2DM monotherapy (vs placebo)",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT05971940 (ACHIEVE-1). Enrollment: 559. Status: COMPLETED (Apr 2025). Orforglipron vs placebo in T2DM on diet/exercise alone. 40-week treatment. No CT.gov results posted yet.",
+            "evidence": [
+                {
+                    "label": "Trial Design",
+                    "source": "ClinicalTrials.gov NCT05971940",
+                    "text": "559 adults with T2DM inadequately controlled on diet and exercise alone (HbA1c 7.0-9.5%), treatment-naive. Randomized to orforglipron (multiple doses) vs placebo. 40-week treatment. Primary: change in HbA1c. Secondary: weight loss, FPG, SBP.",
+                    "highlights": ["559", "treatment-naive", "40-week"],
+                },
+                {
+                    "label": "Status & Pipeline Note",
+                    "source": "ClinicalTrials.gov NCT05971940",
+                    "text": "COMPLETED April 2025. Results not yet posted on CT.gov or published. This trial will provide Phase 3 monotherapy data for regulatory submission. Living update will capture results when available.",
+                    "highlights": ["COMPLETED", "April 2025", "awaiting results"],
+                },
+            ],
+        },
+        # ── ACHIEVE-3 (Phase 3 vs oral semaglutide, completed) ─────
+        "NCT06045221": {
+            "name": "ACHIEVE-3", "phase": "III", "year": 2025,
+            "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+            "group": "T2DM (vs semaglutide)",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT06045221 (ACHIEVE-3). Enrollment: 1698. Status: COMPLETED (Aug 2025). Orforglipron vs oral semaglutide in T2DM on metformin. 52-week treatment. No CT.gov results posted yet.",
+            "evidence": [
+                {
+                    "label": "Trial Design",
+                    "source": "ClinicalTrials.gov NCT06045221",
+                    "text": "1698 adults with T2DM inadequately controlled on metformin. Randomized to orforglipron vs oral semaglutide. Open-label, 52-week treatment. Primary: change in HbA1c at Week 52. Key active-comparator trial for regulatory submission.",
+                    "highlights": ["1698", "oral semaglutide", "open-label", "52-week"],
+                },
+                {
+                    "label": "Status & Pipeline Note",
+                    "source": "ClinicalTrials.gov NCT06045221",
+                    "text": "COMPLETED August 2025. Head-to-head comparison with oral semaglutide. Results will determine whether orforglipron achieves non-inferiority or superiority vs the current oral GLP-1 standard.",
+                    "highlights": ["COMPLETED", "August 2025", "head-to-head"],
+                },
+            ],
+        },
+        # ── ACHIEVE-4 (Phase 3 T2DM + CV risk, active) ────────────
+        "NCT05803421": {
+            "name": "ACHIEVE-4", "phase": "III", "year": 2026,
+            "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+            "group": "T2DM + ASCVD (vs insulin glargine)",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT05803421 (ACHIEVE-4). Enrollment: 2749. Status: ACTIVE_NOT_RECRUITING. Orforglipron vs insulin glargine in T2DM with obesity/overweight at increased CV risk. Primary completion March 2026.",
+            "evidence": [
+                {
+                    "label": "Trial Design",
+                    "source": "ClinicalTrials.gov NCT05803421",
+                    "text": "2749 adults with T2DM, obesity/overweight, and increased CV risk (established ASCVD or CKD). Randomized to orforglipron vs insulin glargine. Open-label. Primary: HbA1c change. Key trial for high-risk T2DM population and potential CV outcome signal.",
+                    "highlights": ["2749", "CV risk", "insulin glargine", "open-label"],
+                },
+                {
+                    "label": "Pipeline Significance",
+                    "source": "ClinicalTrials.gov NCT05803421",
+                    "text": "Expected primary completion March 2026. Largest orforglipron trial to date. Enrollment includes patients with established ASCVD, heart failure, CKD. Living update will capture results.",
+                    "highlights": ["March 2026", "2749", "ASCVD"],
+                },
+            ],
+        },
+        # ── ATTAIN-1 (Phase 3 obesity, active) ─────────────────────
+        "NCT05869903": {
+            "name": "ATTAIN-1", "phase": "III", "year": 2025,
+            "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+            "group": "Obesity (vs placebo)",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT05869903 (ATTAIN-1). Enrollment: 3127. Status: ACTIVE_NOT_RECRUITING. Orforglipron vs placebo in obesity/overweight. 72-week + extension. Primary completion July 2025.",
+            "evidence": [
+                {
+                    "label": "Trial Design",
+                    "source": "ClinicalTrials.gov NCT05869903",
+                    "text": "3127 adults with obesity (BMI >=30) or overweight (BMI >=27) with comorbidities, WITHOUT diabetes. Randomized to orforglipron vs placebo. 72-week main phase + 2-year extension for prediabetes subgroup. Primary: percent body weight change at 72 weeks. Largest oral obesity trial.",
+                    "highlights": ["3127", "WITHOUT diabetes", "72-week", "largest oral"],
+                },
+                {
+                    "label": "Pipeline Significance",
+                    "source": "ClinicalTrials.gov NCT05869903",
+                    "text": "Primary completion July 2025. Pivotal trial for obesity indication. If positive, orforglipron would be the first oral non-peptide GLP-1 RA approved for obesity.",
+                    "highlights": ["July 2025", "first oral", "obesity approval"],
+                },
+            ],
+        },
+        # ── ATTAIN-2 (Phase 3 obesity + T2DM, completed) ──────────
+        "NCT05872620": {
+            "name": "ATTAIN-2", "phase": "III", "year": 2025,
+            "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+            "group": "Obesity + T2DM (vs placebo)",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT05872620 (ATTAIN-2). Enrollment: 1613. Status: COMPLETED (Aug 2025). Orforglipron vs placebo in obesity/overweight with T2DM. 72-week treatment.",
+            "evidence": [
+                {
+                    "label": "Trial Design",
+                    "source": "ClinicalTrials.gov NCT05872620",
+                    "text": "1613 adults with obesity/overweight AND T2DM. Randomized to orforglipron vs placebo. 72-week treatment. Primary: percent body weight change. Also measures HbA1c, waist circumference, blood pressure, lipids.",
+                    "highlights": ["1613", "obesity AND T2DM", "72-week"],
+                },
+                {
+                    "label": "Status & Pipeline Note",
+                    "source": "ClinicalTrials.gov NCT05872620",
+                    "text": "COMPLETED August 2025. Complements ATTAIN-1 by targeting obesity patients WITH T2DM. Results awaited.",
+                    "highlights": ["COMPLETED", "August 2025", "WITH T2DM"],
+                },
+            ],
+        },
+        # ── ACHIEVE-5 (Phase 3 T2DM + insulin, completed) ─────────
+        "NCT06109311": {
+            "name": "ACHIEVE-5", "phase": "III", "year": 2025,
+            "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+            "group": "T2DM + insulin (vs placebo)",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT06109311 (ACHIEVE-5). Enrollment: 546. Status: COMPLETED (Sep 2025). Orforglipron vs placebo as add-on to insulin glargine +/- metformin/SGLT2i in T2DM.",
+            "evidence": [
+                {
+                    "label": "Trial Design",
+                    "source": "ClinicalTrials.gov NCT06109311",
+                    "text": "546 adults with T2DM inadequately controlled on insulin glargine with or without metformin and/or SGLT-2 inhibitor. Randomized to orforglipron vs placebo. Double-blind. Tests orforglipron as add-on to basal insulin.",
+                    "highlights": ["546", "insulin glargine", "double-blind", "add-on"],
+                },
+                {
+                    "label": "Pipeline Significance",
+                    "source": "ClinicalTrials.gov NCT06109311",
+                    "text": "COMPLETED September 2025. Important for insulin-treated T2DM population. Results awaited.",
+                    "highlights": ["COMPLETED", "September 2025", "insulin-treated"],
+                },
+            ],
+        },
+    },
+})
+
+
 if __name__ == '__main__':
     if not os.path.exists(TEMPLATE_PATH):
         print(f"ERROR: Template not found at {TEMPLATE_PATH}")
