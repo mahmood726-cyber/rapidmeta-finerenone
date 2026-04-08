@@ -6894,7 +6894,7 @@
                 const src = String(sourceText ?? '');
                 const links = [];
                 const nct = src.match(/\bNCT\d{8}\b/i);
-                if (nct) links.push({ label: 'CT.gov', url: `https://clinicaltrials.gov/study/${String(nct[0]).toUpperCase()}` });
+                if (nct) links.push({ label: 'CT.gov Results', url: `https://clinicaltrials.gov/study/${String(nct[0]).toUpperCase()}?tab=results` });
                 const pmid = src.match(/\bPMID:\s*(\d+)\b/i);
                 if (pmid) links.push({ label: 'PubMed', url: `https://pubmed.ncbi.nlm.nih.gov/${pmid[1]}/` });
                 const pmc = src.match(/\bPMC(\d+)\b/i);
@@ -6905,6 +6905,8 @@
                 }
                 const fda = src.match(/\bNDA\s*(\d{6})\b/i) || src.match(/\bFDA\b/i);
                 if (fda && !links.some(l => l.label === 'FDA')) links.push({ label: 'FDA', url: 'https://www.accessdata.fda.gov/scripts/cder/daf/' });
+                const doi = src.match(/(?:doi[:\s]*|https?:\/\/doi\.org\/)(10\.\d{4,}\/[^\s;,)]+)/i);
+                if (doi) links.push({ label: 'DOI', url: `https://doi.org/${doi[1]}` });
                 return links;
             },
             _buildProvenance(trial) {
@@ -12764,7 +12766,10 @@ except ImportError:
             const sourceHtml = prov?.source ? '<div class="prov-source">' + escapeHtml(prov.source) + '</div>' : '';
             const confHtml = prov?.confidence ? '<div class="text-[9px] text-slate-400 mt-1">Confidence: <span class="font-mono font-bold">' + escapeHtml(String(prov.confidence)) + '%</span></div>' : '';
             const verifiedHtml = prov?.verifiedBy ? '<div class="text-[9px] text-emerald-400 mt-1"><i class="fa-solid fa-circle-check mr-1"></i>Verified by ' + escapeHtml(prov.verifiedBy) + '</div>' : '';
-            const linkBtn = prov?.sourceUrl ? '<a href="' + escapeHtml(prov.sourceUrl) + '" target="_blank" rel="noopener" class="evidence-action-btn">View Source</a>' : '';
+            const allLinks = prov?.source ? ExtractEngine._allSourceLinks(prov.source) : [];
+            if (prov?.sourceUrl && !allLinks.some(l => l.url === prov.sourceUrl)) allLinks.unshift({ label: 'View Source', url: prov.sourceUrl });
+            const linkBtns = allLinks.map(l => '<a href="' + escapeHtml(l.url) + '" target="_blank" rel="noopener" class="evidence-action-btn"><i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>' + escapeHtml(l.label) + '</a>').join('');
+            const linkBtn = linkBtns || '';
             pop.innerHTML = '<div class="text-[10px] font-bold uppercase tracking-widest text-blue-400 mb-1">' + escapeHtml(field) + ' Provenance</div>' + snippetHtml + sourceHtml + confHtml + verifiedHtml + '<div class="prov-actions">' + linkBtn + '<button type="button" class="evidence-action-btn" aria-label="Close provenance popover" onclick="document.getElementById(\'prov-popover-active\')?.remove()">Close</button></div>';
             pop.addEventListener('keydown', function(e) { if (e.key === 'Escape') { pop.remove(); dot.focus(); } });
             document.body.appendChild(pop);
