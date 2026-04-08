@@ -3761,6 +3761,7 @@
                 if (id === 'screen') ScreenEngine.render();
                 if (id === 'extract') { ExtractEngine.render(); RapidMeta.retranslate(document.getElementById('tab-extract')); }
                 if (id === 'analysis') AnalysisEngine.run();
+                if (id === 'report') { this.renderVersionDiff(); }
             },
             async checkAACT() {
                 const dot = document.getElementById('aact-dot');
@@ -5236,6 +5237,8 @@
                     RapidMeta.state.trials = trials;
                     RapidMeta.state.results = null;
                     RapidMeta.save();
+                    // v13.0: Auto-snapshot if included set changed
+                    setTimeout(() => { if (RapidMeta.state.results) RapidMeta.snapshotVersion('search'); }, 500);
                     this.render(trials);
                     if (canonicalSeed.changed) {
                         showToast(`Loaded ${canonicalSeed.seeded.length} curated landmark trial${canonicalSeed.seeded.length === 1 ? '' : 's'} for immediate analysis.`);
@@ -10203,6 +10206,8 @@
                 const ciPct = (c.confLevel * 100).toFixed(0);
                 RapidMeta.state.results = { or: c.pOR.toFixed(2), lci: c.lci.toFixed(2), uci: c.uci.toFixed(2), i2: c.I2.toFixed(1), k: c.k, n: trials.reduce((a,b)=>(a+b.data.tN+b.data.cN),0).toLocaleString(), confLevel: ciPct, hksjLCI: (c.k >= 2 && Number.isFinite(c.hksjLCI)) ? c.hksjLCI.toFixed(2) : '--', hksjUCI: (c.k >= 2 && Number.isFinite(c.hksjUCI)) ? c.hksjUCI.toFixed(2) : '--', piLCI: (c.k>=3)?c.piLCI.toFixed(2):'--', piUCI: (c.k>=3)?c.piUCI.toFixed(2):'--', qPvalue: c.qPvalue.toFixed(4), eggerP: c.eggerResult.sufficient ? c.eggerResult.pValue.toFixed(4) : '--', fragIdx: c.fragIdx, fragQuot: c.fragQuot, bayesCriLo: sub.bayesResult?.criLo?.toFixed(2) ?? '--', bayesCriHi: sub.bayesResult?.criHi?.toFixed(2) ?? '--', pORlt1: sub.bayesResult ? (sub.bayesResult.pORlt1 * 100).toFixed(1) : '--', trimK0: sub.tfResult.available ? sub.tfResult.k0 : null, trimAdjOR: sub.tfResult.available ? sub.tfResult.adjustedOR?.toFixed(2) ?? '--' : '--', copasRobust: sub.copasResult.available ? sub.copasResult.robust : null, infoFrac: sub.powerResult.available ? sub.powerResult.infoFrac.toFixed(0) : '--', gradeCertainty: gradeAssessment.certainty, plotData: c.plotData, tau2: c.tau2, pLogOR: c.pLogOR };
                 RapidMeta.save();
+                // v13.0: Auto-snapshot after analysis
+                RapidMeta.snapshotVersion('analysis');
 
                 this.renderDemographics(trials);
                 this.renderPlots(c.plotData, c.pLogOR, c.pSE, c.pOR, c.zCrit, c.tau2, c.eggerResult, sub.tfResult, sub.powerResult);
