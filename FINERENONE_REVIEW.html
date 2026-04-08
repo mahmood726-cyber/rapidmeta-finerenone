@@ -2792,6 +2792,8 @@
                 if ((this.state.searchLog?.length ?? 0) === 0) {
                     SearchEngine.executePrecision();
                 }
+                // v13.0: Render stored version diff on load
+                this.renderVersionDiff();
             },
 
             snapshotVersion(trigger = 'manual') {
