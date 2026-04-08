@@ -1396,11 +1396,17 @@
                         </div>
                     </div>
 
-                    <!-- v11.0: Version Timeline -->
+                    <!-- v13.0: Living Update Diff -->
                     <div class="glass p-10 rounded-[40px] border border-slate-800">
-                        <h3 class="text-sm font-bold opacity-60 uppercase tracking-[0.3em] mb-6">Version Timeline</h3>
-                        <div id="version-timeline" class="version-timeline">
-                            <div class="text-xs text-slate-500 italic">Generate a report to create the first snapshot.</div>
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-sm font-bold opacity-60 uppercase tracking-[0.3em]">Living Update Log</h3>
+                            <div class="flex gap-2">
+                                <button onclick="RapidMeta.snapshotVersion('manual'); RapidMeta.renderVersionDiff();" class="text-[11px] px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700"><i class="fa-solid fa-camera mr-1"></i>Snapshot Version</button>
+                                <button onclick="RapidMeta.exportVersionLog()" class="text-[11px] px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700"><i class="fa-solid fa-download mr-1"></i>Export CSV</button>
+                            </div>
+                        </div>
+                        <div id="version-diff-container">
+                            <div class="text-xs text-slate-500 italic">Run analysis and click "Snapshot Version" to create the first entry.</div>
                         </div>
                     </div>
 
@@ -2786,6 +2792,110 @@
                 if ((this.state.searchLog?.length ?? 0) === 0) {
                     SearchEngine.executePrecision();
                 }
+            },
+
+            snapshotVersion(trigger = 'manual') {
+                const included = (this.state.trials ?? []).filter(t => {
+                    const status = String(t?.status ?? '').toLowerCase();
+                    return status === 'include' && t?.data && (t.data.tN > 0 || t.data.cN > 0);
+                });
+                const trialIds = included.map(t => t.id).sort();
+                const r = this.state.results;
+                const prev = (this.state.versionSnapshots ?? []);
+                const lastVersion = prev.length > 0 ? prev[prev.length - 1] : null;
+                const lastTrialIds = lastVersion?.trialIds ?? [];
+                if (lastVersion && JSON.stringify(trialIds) === JSON.stringify(lastTrialIds)
+                    && r?.pooledEffect === lastVersion.pooledEffect) return false;
+                const newTrials = trialIds.filter(id => !lastTrialIds.includes(id));
+                const removedTrials = lastTrialIds.filter(id => !trialIds.includes(id));
+                const snapshot = {
+                    version: prev.length + 1,
+                    date: new Date().toISOString(),
+                    trigger,
+                    trialIds,
+                    trialCount: trialIds.length,
+                    newTrials,
+                    removedTrials,
+                    pooledEffect: r?.pooledEffect ?? null,
+                    ci: r?.ci ? [r.ci[0], r.ci[1]] : null,
+                    i2: r?.i2 ?? null,
+                    tau2: r?.tau2 ?? null,
+                    grade: r?.grade ?? null,
+                    ris: r?.ris ?? null,
+                    effectMeasure: this.state.effectMeasure ?? 'AUTO',
+                    confLevel: this.state.confLevel ?? 0.95
+                };
+                if (!this.state.versionSnapshots) this.state.versionSnapshots = [];
+                this.state.versionSnapshots.push(snapshot);
+                this.save();
+                addAuditEntry(`Version ${snapshot.version} snapshot: ${snapshot.trialCount} trials, ${this.emLabel('short')} ${snapshot.pooledEffect?.toFixed(2) ?? '--'}`);
+                return true;
+            },
+
+            renderVersionDiff() {
+                const container = document.getElementById('version-diff-container');
+                if (!container) return;
+                const snapshots = (this.state.versionSnapshots ?? []).slice().reverse();
+                if (snapshots.length === 0) {
+                    container.innerHTML = '<div class="text-xs text-slate-500 italic">No snapshots yet. Run analysis and click "Snapshot Version".</div>';
+                    return;
+                }
+                const emShort = this.emLabel('short') ?? 'Effect';
+                container.innerHTML = snapshots.map((s, idx) => {
+                    const isBaseline = s.version === 1;
+                    const prev = idx < snapshots.length - 1 ? snapshots[idx + 1] : null;
+                    const deltaEffect = (prev && s.pooledEffect != null && prev.pooledEffect != null)
+                        ? s.pooledEffect - prev.pooledEffect : null;
+                    const deltaI2 = (prev && s.i2 != null && prev.i2 != null)
+                        ? s.i2 - prev.i2 : null;
+                    const isMaterial = Math.abs(deltaEffect ?? 0) >= 0.02 || (s.grade !== prev?.grade);
+                    const cardClass = isBaseline ? 'baseline' : isMaterial ? 'material' : '';
+                    const dateStr = new Date(s.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+                    const newTrialNames = (s.newTrials ?? []).map(id => this.nctAcronyms[id] ?? id).join(', ');
+                    const removedTrialNames = (s.removedTrials ?? []).map(id => this.nctAcronyms[id] ?? id).join(', ');
+                    const fmtDelta = (d) => {
+                        if (d == null) return '';
+                        const sign = d > 0 ? '+' : '';
+                        const cls = d > 0 ? 'positive' : d < 0 ? 'negative' : 'neutral';
+                        return `<span class="diff-delta ${cls}">(${sign}${d.toFixed(2)})</span>`;
+                    };
+                    return `<div class="diff-snapshot-card ${cardClass}">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-blue-400">v${s.version}</span>
+                            <span class="text-[10px] font-mono text-slate-500">${escapeHtml(dateStr)} &middot; ${escapeHtml(s.trigger ?? '--')}</span>
+                        </div>
+                        ${s.newTrials?.length ? `<div class="text-[11px] mb-1"><span class="diff-added"><i class="fa-solid fa-plus mr-1"></i>${s.newTrials.length} trial(s) added:</span> <span class="text-slate-300">${escapeHtml(newTrialNames)}</span></div>` : ''}
+                        ${s.removedTrials?.length ? `<div class="text-[11px] mb-1"><span class="diff-removed"><i class="fa-solid fa-minus mr-1"></i>${s.removedTrials.length} trial(s) removed:</span> <span class="text-slate-300">${escapeHtml(removedTrialNames)}</span></div>` : ''}
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2 text-[11px]">
+                            <div><span class="text-slate-500">Trials:</span> <span class="font-mono font-bold text-white">${s.trialCount}</span></div>
+                            <div><span class="text-slate-500">${escapeHtml(emShort)}:</span> <span class="font-mono font-bold text-white">${s.pooledEffect?.toFixed(2) ?? '--'}</span> ${fmtDelta(deltaEffect)}</div>
+                            <div><span class="text-slate-500">I\u00b2:</span> <span class="font-mono font-bold text-white">${s.i2 != null ? s.i2.toFixed(0) + '%' : '--'}</span> ${deltaI2 != null ? fmtDelta(deltaI2) : ''}</div>
+                            <div><span class="text-slate-500">GRADE:</span> <span class="font-mono font-bold ${s.grade !== prev?.grade && prev ? 'text-amber-300' : 'text-white'}">${escapeHtml(s.grade ?? '--')}</span></div>
+                        </div>
+                        ${s.ci ? `<div class="text-[10px] text-slate-500 mt-1 font-mono">95% CI: ${s.ci[0]?.toFixed(2)} \u2013 ${s.ci[1]?.toFixed(2)} &middot; \u03c4\u00b2: ${s.tau2?.toFixed(4) ?? '--'} &middot; RIS: ${s.ris != null ? (s.ris * 100).toFixed(0) + '%' : '--'}</div>` : ''}
+                        ${isBaseline ? '<div class="text-[10px] text-slate-500 mt-1 italic">Baseline version</div>' : ''}
+                    </div>`;
+                }).join('');
+            },
+
+            exportVersionLog() {
+                const snapshots = this.state.versionSnapshots ?? [];
+                if (snapshots.length === 0) { showToast('No version snapshots to export.'); return; }
+                const header = 'version,date,trigger,n_trials,new_trials,removed_trials,pooled_effect,ci_lower,ci_upper,i2,tau2,grade,ris,effect_measure,conf_level';
+                const rows = snapshots.map(s => [
+                    s.version, s.date, s.trigger ?? '',
+                    s.trialCount, (s.newTrials ?? []).join(';'), (s.removedTrials ?? []).join(';'),
+                    s.pooledEffect ?? '', s.ci?.[0] ?? '', s.ci?.[1] ?? '',
+                    s.i2 ?? '', s.tau2 ?? '', s.grade ?? '', s.ris ?? '',
+                    s.effectMeasure ?? '', s.confLevel ?? ''
+                ].join(','));
+                const csv = [header, ...rows].join('\n');
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = 'version_log.csv'; document.body.appendChild(a); a.click();
+                document.body.removeChild(a); URL.revokeObjectURL(url);
+                showToast('Version log exported.');
             },
 
             save() { try { localStorage.setItem('rapid_meta_finerenone_v12_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
