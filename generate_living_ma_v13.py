@@ -116,6 +116,16 @@ def transform_template(template_html, cfg):
     storage = cfg["storage_key"]
     proto = cfg["protocol"]
 
+    # 0. Inline Tailwind CSS (single-file requirement)
+    css_path = os.path.join(os.path.dirname(TEMPLATE_PATH), 'FINERENONE_REVIEW.tailwind.css')
+    if os.path.exists(css_path):
+        css_content = open(css_path, 'r', encoding='utf-8').read()
+        html = re.sub(
+            r'<link rel="stylesheet" href="[^"]*\.tailwind\.css">',
+            f'<style>/* Tailwind v3.4.17 (inlined for single-file) */\n{css_content}\n    </style>',
+            html
+        )
+
     # 1. Title
     html = re.sub(
         r'<title>.*?</title>',
@@ -330,20 +340,7 @@ def generate_app(cfg, output_dir=None):
     out_path = os.path.join(out_dir, cfg['filename'])
     with open(out_path, 'w', encoding='utf-8') as f:
         f.write(html)
-    print(f"  Written: {out_path} ({len(html.splitlines())} lines)")
-
-    # Copy Tailwind CSS file with renamed filename
-    css_src = os.path.join(os.path.dirname(TEMPLATE_PATH), 'FINERENONE_REVIEW.tailwind.css')
-    if os.path.exists(css_src):
-        css_match = re.search(r'href="([^"]*\.tailwind\.css)"', html)
-        if css_match:
-            css_dst = os.path.join(out_dir, css_match.group(1))
-            shutil.copy2(css_src, css_dst)
-            print(f"  CSS copied: {css_dst}")
-        else:
-            print(f"  WARNING: Could not find tailwind.css href in generated HTML")
-    else:
-        print(f"  WARNING: CSS source not found: {css_src}")
+    print(f"  Written: {out_path} ({len(html.splitlines())} lines, {len(html)//1024}KB)")
 
     return errors
 
