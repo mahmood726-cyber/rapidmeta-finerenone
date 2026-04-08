@@ -245,6 +245,49 @@ def transform_template(template_html, cfg):
             count=1
         )
 
+    # 14. Handle single-trial mode
+    if cfg.get("single_trial_mode"):
+        single_trial_banner = '''<div class="glass p-6 rounded-2xl border border-amber-500/30 mb-6">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div>
+                    <div class="text-sm font-bold text-amber-300">Single-Trial Evidence Base</div>
+                    <div class="text-xs text-slate-400">This topic currently has only one randomized controlled trial with comparative data. Meta-analytic pooling requires &ge;2 trials. The analysis shows descriptive statistics for the single available RCT. As new trials publish, the living update system will detect them and enable pooling.</div>
+                </div>
+            </div>
+        </div>'''
+        # Add banner at start of analysis tab content
+        html = re.sub(
+            r'(<section id="tab-analysis"[^>]*>)\s*(<div)',
+            r'\1\n' + single_trial_banner + r'\n\2',
+            html,
+            count=1
+        )
+
+    # 15. Handle evidence-map mode
+    if cfg.get("evidence_map_mode"):
+        emap_banner = '''<div class="glass p-6 rounded-2xl border border-cyan-500/30 mb-6">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center"><i class="fa-solid fa-map"></i></div>
+                <div>
+                    <div class="text-sm font-bold text-cyan-300">Evidence Map Mode</div>
+                    <div class="text-xs text-slate-400">No randomized comparative trials are available for this topic yet. All current evidence comes from single-arm studies. This app operates as an evidence map &mdash; tracking the landscape of available studies, their designs, and results. Meta-analytic pooling will activate automatically when the first RCT with a comparator arm publishes results.</div>
+                </div>
+            </div>
+        </div>'''
+        html = re.sub(
+            r'(<section id="tab-analysis"[^>]*>)\s*(<div)',
+            r'\1\n' + emap_banner + r'\n\2',
+            html,
+            count=1
+        )
+        html = re.sub(
+            r'(<section id="tab-report"[^>]*>)\s*(<div)',
+            r'\1\n' + emap_banner + r'\n\2',
+            html,
+            count=1
+        )
+
     return html
 
 
@@ -786,6 +829,7 @@ APPS = [
         "search_term_ctgov": "triclip+OR+PASCAL+AND+tricuspid+regurgitation",
         "search_term_pubmed": "(triclip[tiab] OR PASCAL tricuspid[tiab]) AND repair[tiab]",
         "effect_measure": "RR",
+        "single_trial_mode": True,
         "nct_acronyms": {"NCT04221490": "TRILUMINATE", "NCT04097145": "CLASP TR"},
         "auto_include_ids": ["NCT04221490"],
         "trials": {
@@ -2159,6 +2203,7 @@ APPS.append({
     "search_term_ctgov": "intravascular+lithotripsy+OR+shockwave+coronary",
     "search_term_pubmed": "(intravascular lithotripsy[tiab] OR shockwave[tiab]) AND coronary[tiab]",
     "effect_measure": "RR",
+    "evidence_map_mode": True,
     "nct_acronyms": {
         "NCT03595176": "Disrupt CAD III",
         "NCT04151628": "Disrupt CAD IV",
