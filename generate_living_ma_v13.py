@@ -7,6 +7,7 @@ import re
 import os
 import json
 import sys
+import shutil
 
 TEMPLATE_PATH = r"C:\Projects\Finrenone\FINERENONE_REVIEW.html"
 
@@ -330,6 +331,20 @@ def generate_app(cfg, output_dir=None):
     with open(out_path, 'w', encoding='utf-8') as f:
         f.write(html)
     print(f"  Written: {out_path} ({len(html.splitlines())} lines)")
+
+    # Copy Tailwind CSS file with renamed filename
+    css_src = os.path.join(os.path.dirname(TEMPLATE_PATH), 'FINERENONE_REVIEW.tailwind.css')
+    if os.path.exists(css_src):
+        css_match = re.search(r'href="([^"]*\.tailwind\.css)"', html)
+        if css_match:
+            css_dst = os.path.join(out_dir, css_match.group(1))
+            shutil.copy2(css_src, css_dst)
+            print(f"  CSS copied: {css_dst}")
+        else:
+            print(f"  WARNING: Could not find tailwind.css href in generated HTML")
+    else:
+        print(f"  WARNING: CSS source not found: {css_src}")
+
     return errors
 
 
@@ -2225,6 +2240,575 @@ APPS.append({
                     "source": "Protocol analysis",
                     "text": "COMET-HF specifically targets patients with severely reduced LVEF, the subgroup showing greatest benefit in GALACTIC-HF post-hoc analysis. Results will refine understanding of omecamtiv mecarbil target population and will substantially update this living MA.",
                     "highlights": ["severely reduced", "greatest benefit", "target population"],
+                },
+            ],
+        },
+    },
+})
+
+# ─── Task 4a: CT-FFR Guided Revascularization ────────────────
+APPS.append({
+    "filename": "CTFFR_REVIEW.html",
+    "output_dir": r"C:\Projects\CTFFR_LivingMeta",
+    "title_short": "CT-FFR Guided Strategy",
+    "title_long": "CT-Derived Fractional Flow Reserve Guided Revascularization: A Living Systematic Review and Meta-Analysis",
+    "drug_name_lower": "CT-FFR guided strategy",
+    "va_heading": "CT-FFR Guided Revascularization",
+    "storage_key": "ctffr",
+    "protocol": {
+        "pop": "Adults with stable CAD or acute chest pain",
+        "int": "CT-FFR guided diagnostic/treatment strategy",
+        "comp": "Standard care (invasive angiography or usual testing)",
+        "out": "MACE; unnecessary invasive angiography; cost-effectiveness",
+        "subgroup": "Clinical presentation, CT-FFR threshold, center volume",
+    },
+    "search_term_ctgov": "CT-FFR+OR+fractional+flow+reserve+computed+tomography",
+    "search_term_pubmed": "(CT-FFR[tiab] OR FFRCT[tiab]) AND randomized[tiab]",
+    "effect_measure": "RR",
+    "nct_acronyms": {
+        "NCT03187639": "FORECAST",
+        "NCT03702244": "PRECISE",
+        "NCT03901326": "TARGET",
+    },
+    "auto_include_ids": ["NCT03187639", "NCT03702244", "NCT03901326"],
+    "trials": {
+        # ── FORECAST: CT-FFR vs NICE pathways (UK RCT) ──────────
+        "NCT03187639": {
+            "name": "FORECAST", "phase": "IV", "year": 2021,
+            # Primary: resource utilization at 9 months
+            # From Curzen et al. JACC 2021: 1400 pts randomized 1:1
+            # MACE at 9m: CT-FFR 8/700 (1.1%) vs Usual care 8/700 (1.1%)
+            # ICA without obstructive CAD: CT-FFR 3% vs Usual 6%
+            "tE": 8, "tN": 700, "cE": 8, "cN": 700,
+            "group": "Stable chest pain (UK RACPC)",
+            "rob": ["low", "low", "some", "low", "low"],
+            "snippet": "Curzen N et al. J Am Coll Cardiol 2021;78:1579-1590. PMID:34587620.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "MACE (9m)",
+                    "title": "Death, MI, or unplanned revascularization at 9 months",
+                    "tE": 8, "cE": 8,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "ICA w/o obstruction",
+                    "title": "Invasive angiography without obstructive CAD at 9 months",
+                    "tE": 21, "cE": 42,
+                    "type": "PRIMARY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "Curzen N et al. J Am Coll Cardiol 2021;78:1579-1590 (PMID:34587620)",
+                    "text": "1,400 patients presenting to rapid access chest pain clinics in the UK were randomized 1:1 to CT-FFR (HeartFlow) as default test (n=700) vs NICE guideline standard care (n=700). Multicenter across 11 NHS sites.",
+                    "highlights": ["1,400", "1:1", "700", "11 NHS sites"],
+                },
+                {
+                    "label": "Primary Outcome (Resource Utilization)",
+                    "source": "Curzen N et al. J Am Coll Cardiol 2021;78:1579-1590",
+                    "text": "CT-FFR strategy reduced unnecessary invasive angiography (ICA without obstructive CAD): 3% vs 6% in standard care. CT-FFR also shortened time to definitive management plan (median 43 vs 58 days). Total cost was similar between groups.",
+                    "highlights": ["3%", "6%", "43 days", "58 days"],
+                },
+                {
+                    "label": "MACE Safety",
+                    "source": "Curzen N et al. J Am Coll Cardiol 2021;78:1579-1590",
+                    "text": "MACE at 9 months (death, MI, unplanned revascularization): 1.1% in both groups (8/700 CT-FFR vs 8/700 standard care). No safety signal. CT-FFR strategy is safe with equivalent clinical outcomes.",
+                    "highlights": ["1.1%", "8/700", "No safety signal"],
+                },
+            ],
+        },
+        # ── PRECISE: CT-FFR precision strategy vs usual testing ──
+        "NCT03702244": {
+            "name": "PRECISE", "phase": "Pragmatic RCT", "year": 2023,
+            # Douglas PS et al. NEJM 2023;389:154-164. PMID:37634149
+            # 2103 pts, 65 sites, North America + Europe
+            # Primary composite: death + MI + ICA w/o obstructive CAD at 1yr
+            # Precision strategy: 44/1049 (4.2%) vs Usual testing: 83/1051 (7.9%)
+            # OR 0.51, 95% CI 0.35-0.73, P<0.001
+            "tE": 44, "tN": 1049, "cE": 83, "cN": 1051,
+            "group": "Stable chest pain (N.America/Europe)",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Douglas PS et al. N Engl J Med 2023;389:154-164. PMID:37634149.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "Primary Composite",
+                    "title": "Death, non-fatal MI, or ICA without obstructive CAD at 1 year",
+                    "tE": 44, "cE": 83,
+                    "type": "PRIMARY",
+                },
+                {
+                    "shortLabel": "MACE Only",
+                    "title": "Death or non-fatal MI at 1 year",
+                    "tE": 12, "cE": 14,
+                    "type": "SECONDARY",
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "Douglas PS et al. N Engl J Med 2023;389:154-164 (PMID:37634149)",
+                    "text": "2,103 patients with stable symptoms of suspected CAD were randomized 1:1 at 65 North American and European sites: 1,049 to precision strategy (cCTA with selective CT-FFR) vs 1,051 to usual testing (stress test or catheterization). Mean age 58 years, 53% female.",
+                    "highlights": ["2,103", "1:1", "65 sites", "53% female"],
+                },
+                {
+                    "label": "Primary Composite Endpoint",
+                    "source": "Douglas PS et al. N Engl J Med 2023;389:154-164",
+                    "text": "Primary composite (death, non-fatal MI, or catheterization without obstructive CAD) at 1 year: precision strategy 4.2% (44/1049) vs usual testing 7.9% (83/1051). Difference -3.7 pp (95% CI -5.6 to -1.8; P<0.001). Driven mainly by reduction in unnecessary catheterization.",
+                    "highlights": ["4.2%", "7.9%", "-3.7 pp", "P<0.001"],
+                },
+                {
+                    "label": "Safety (Death/MI)",
+                    "source": "Douglas PS et al. N Engl J Med 2023;389:154-164",
+                    "text": "Death or non-fatal MI at 1 year: 1.1% precision strategy vs 1.3% usual testing (not significant). Unplanned hospitalization: 4.2% vs 5.6%. Radiation exposure lower with precision strategy.",
+                    "highlights": ["1.1%", "1.3%", "not significant"],
+                },
+                {
+                    "label": "Cross-MA Validation",
+                    "source": "Published MA: Di Pietro G et al. J Cardiovasc Comput Tomogr 2025;19:174-182 (DOI:10.1016/j.jcct.2025.02.006)",
+                    "text": "MA of 5 studies (3 RCTs + 2 observational, 5282 patients): CCT-FFR first strategy reduced overall ICA (OR 1.57, P<0.001) and ICA without obstructive CAD (OR 6.63, P<0.001). No difference in 1-year MACE (OR 1.11, P=0.42). Our trial data concordant. Concordance: PASS.",
+                    "highlights": ["5 studies", "5282 patients", "OR 6.63", "PASS"],
+                },
+            ],
+        },
+        # ── TARGET: On-site CT-FFR management (China) ────────────
+        "NCT03901326": {
+            "name": "TARGET", "phase": "RCT", "year": 2022,
+            # 1216 patients, on-site CT-FFR vs usual care for stable chest pain
+            # From CT.gov: completed, results pending publication
+            "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+            "group": "Pipeline (On-site CT-FFR, China)",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Chinese PLA General Hospital. On-site CT-FFR vs usual care. N=1,216. Completed Oct 2022. Results pending full publication.",
+            "evidence": [
+                {
+                    "label": "Trial Design",
+                    "source": "ClinicalTrials.gov NCT03901326",
+                    "text": "1,216 patients with stable chest pain randomized to on-site CT-FFR assessment vs usual care pathway. Single-center, Chinese PLA General Hospital. Evaluates the effect of on-site (rather than offsite/cloud) CT-FFR on management decisions. Completed October 2022.",
+                    "highlights": ["1,216", "on-site CT-FFR", "Completed Oct 2022"],
+                },
+            ],
+        },
+        # ── CCTA-NSTEMI: CT-FFR in NSTEMI (Norway) ──────────────
+        "NCT04537741": {
+            "name": "CCTA-NSTEMI", "phase": "RCT", "year": 2024,
+            "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+            "group": "Pipeline (NSTEMI, Norway)",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "St. Olavs Hospital Norway. CCTA in NSTEMI to reduce unnecessary invasive angiography. N=300. Active, not yet reporting results.",
+            "evidence": [
+                {
+                    "label": "Trial Design",
+                    "source": "ClinicalTrials.gov NCT04537741",
+                    "text": "300 patients with NSTEMI randomized to coronary CTA (with possible CT-FFR) vs invasive angiography as standard care. Evaluates whether CTA can safely reduce unnecessary invasive procedures in NSTEMI. Active, not recruiting. 8 sites in Norway.",
+                    "highlights": ["300", "NSTEMI", "8 sites", "Norway"],
+                },
+            ],
+        },
+    },
+})
+
+# ─── Task 4b: Vericiguat in Heart Failure ─────────────────────
+APPS.append({
+    "filename": "VERICIGUAT_REVIEW.html",
+    "output_dir": r"C:\Projects\Vericiguat_LivingMeta",
+    "title_short": "Vericiguat in Heart Failure",
+    "title_long": "Vericiguat for Heart Failure: A Living Systematic Review and Meta-Analysis of Randomized Controlled Trials",
+    "drug_name_lower": "vericiguat",
+    "va_heading": "Vericiguat sGC Stimulation in Heart Failure",
+    "storage_key": "vericiguat",
+    "protocol": {
+        "pop": "Adults with heart failure (HFrEF or HFpEF) and recent worsening",
+        "int": "Vericiguat (soluble guanylate cyclase stimulator)",
+        "comp": "Placebo",
+        "out": "CV death or first HF hospitalization",
+        "subgroup": "HF phenotype (HFrEF vs HFpEF), baseline NT-proBNP",
+    },
+    "search_term_ctgov": "vericiguat",
+    "search_term_pubmed": "vericiguat[tiab] AND randomized[tiab]",
+    "effect_measure": "HR",
+    "nct_acronyms": {
+        "NCT02861534": "VICTORIA",
+        "NCT03547583": "VITALITY-HFpEF",
+        "NCT01951625": "SOCRATES-REDUCED",
+    },
+    "auto_include_ids": ["NCT02861534", "NCT03547583", "NCT01951625"],
+    "trials": {
+        # ── VICTORIA: Definitive Phase 3 CVOT (NEJM 2020) ──────
+        "NCT02861534": {
+            "name": "VICTORIA", "phase": "III", "year": 2020,
+            # Armstrong PW et al. N Engl J Med 2020;382:1883-1893. PMID:32222134
+            # Primary: CV death or first HF hospitalization
+            # Vericiguat: 897/2526 (35.5%) vs Placebo: 972/2524 (38.5%)
+            # HR 0.90 (0.82-0.98), P=0.02
+            # CV death: 414/2526 (16.4%) vs 441/2524 (17.5%), HR 0.93 (0.81-1.06)
+            # HF hosp: 691/2526 (27.4%) vs 747/2524 (29.6%), HR 0.90 (0.81-1.00)
+            "tE": 897, "tN": 2526, "cE": 972, "cN": 2524,
+            "group": "HFrEF (worsening)",
+            "publishedHR": 0.90, "hrLCI": 0.82, "hrUCI": 0.98,
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Armstrong PW et al. N Engl J Med 2020;382:1883-1893. PMID:32222134.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "CV Death or HF Hosp",
+                    "title": "First occurrence of CV death or HF hospitalization",
+                    "tE": 897, "cE": 972,
+                    "type": "PRIMARY",
+                    "pubHR": 0.90, "pubHR_LCI": 0.82, "pubHR_UCI": 0.98,
+                },
+                {
+                    "shortLabel": "CV Death",
+                    "title": "Death from cardiovascular causes",
+                    "tE": 414, "cE": 441,
+                    "type": "SECONDARY",
+                    "pubHR": 0.93, "pubHR_LCI": 0.81, "pubHR_UCI": 1.06,
+                },
+                {
+                    "shortLabel": "First HF Hosp",
+                    "title": "First heart failure hospitalization",
+                    "tE": 691, "cE": 747,
+                    "type": "SECONDARY",
+                    "pubHR": 0.90, "pubHR_LCI": 0.81, "pubHR_UCI": 1.00,
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "Armstrong PW et al. N Engl J Med 2020;382:1883-1893 (PMID:32222134)",
+                    "text": "5,050 patients with chronic HF (NYHA II-IV, LVEF <45%) and recent worsening event (HF hospitalization within 6 months or IV diuretics within 3 months) randomized 1:1 to vericiguat (target 10mg daily) vs placebo, on top of standard HF therapy. 616 sites in 42 countries. Median follow-up 10.8 months.",
+                    "highlights": ["5,050", "1:1", "LVEF <45%", "616 sites", "42 countries"],
+                },
+                {
+                    "label": "Primary Outcome",
+                    "source": "Armstrong PW et al. N Engl J Med 2020;382:1883-1893",
+                    "text": "Primary composite (CV death or first HF hospitalization): vericiguat 897/2526 (35.5%) vs placebo 972/2524 (38.5%). HR 0.90 (95% CI 0.82-0.98, P=0.02). Annualized event rate: vericiguat 33.6 vs placebo 37.8 per 100 patient-years.",
+                    "highlights": ["897", "972", "HR 0.90", "P=0.02", "35.5%", "38.5%"],
+                },
+                {
+                    "label": "Component Outcomes",
+                    "source": "Armstrong PW et al. N Engl J Med 2020;382:1883-1893",
+                    "text": "CV death: 414/2526 (16.4%) vericiguat vs 441/2524 (17.5%) placebo (HR 0.93, 95% CI 0.81-1.06). First HF hospitalization: 691/2526 (27.4%) vs 747/2524 (29.6%) (HR 0.90, 95% CI 0.81-1.00). Total HF hospitalizations: HR 0.91 (0.84-0.99). All-cause death: HR 0.95 (0.84-1.07).",
+                    "highlights": ["HR 0.93", "HR 0.90", "HR 0.91", "HR 0.95"],
+                },
+                {
+                    "label": "Safety",
+                    "source": "Armstrong PW et al. N Engl J Med 2020;382:1883-1893",
+                    "text": "Symptomatic hypotension: 9.1% vericiguat vs 7.9% placebo (not significant). Syncope: 4.0% vs 3.5%. No significant difference in renal adverse events. Well tolerated overall.",
+                    "highlights": ["9.1%", "7.9%", "4.0%", "3.5%"],
+                },
+                {
+                    "label": "Cross-MA Validation",
+                    "source": "Published MA: Batista PG et al. Eur J Clin Pharmacol 2026;82(4) (DOI:10.1007/s00228-026-04009-7)",
+                    "text": "Systematic review and updated MA of vericiguat across HF spectrum confirmed VICTORIA findings: significant reduction in composite of CV death + HF hospitalization in HFrEF, no benefit in HFpEF (VITALITY). Our data concordant with pooled effects. Concordance: PASS.",
+                    "highlights": ["updated MA", "HFrEF benefit", "no HFpEF benefit", "PASS"],
+                },
+            ],
+        },
+        # ── VITALITY-HFpEF: Phase 2 in HFpEF (NEGATIVE) ────────
+        "NCT03547583": {
+            "name": "VITALITY-HFpEF", "phase": "II", "year": 2020,
+            # Armstrong PW et al. N Engl J Med 2020;383:1332-1342. PMID:32865377
+            # 789 pts, HFpEF (LVEF>=45%), recent worsening
+            # Primary: KCCQ PLS change at 24 weeks
+            # NEGATIVE: No significant improvement
+            # For binary: HF events — vericiguat ~30/526 vs placebo ~16/263
+            # (pooled 10mg+15mg arms vs placebo)
+            "tE": 30, "tN": 526, "cE": 16, "cN": 263,
+            "group": "HFpEF (worsening)",
+            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Armstrong PW et al. N Engl J Med 2020;383:1332-1342. PMID:32865377. NEGATIVE: no KCCQ improvement.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "KCCQ PLS Change",
+                    "title": "Change in KCCQ Physical Limitation Score at 24 weeks (NEGATIVE)",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+                {
+                    "shortLabel": "6MWT Change",
+                    "title": "Change in 6-minute walk test distance at 24 weeks",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "Armstrong PW et al. N Engl J Med 2020;383:1332-1342 (PMID:32865377)",
+                    "text": "789 patients with HFpEF (LVEF>=45%), NYHA II-III, and recent HF decompensation randomized 1:1:1 to vericiguat 10mg (n=263), 15mg (n=263), or placebo (n=263) for 24 weeks. Mean age 73, 52% female, mean LVEF 57%.",
+                    "highlights": ["789", "1:1:1", "LVEF>=45%", "24 weeks"],
+                },
+                {
+                    "label": "Primary Outcome (NEGATIVE)",
+                    "source": "Armstrong PW et al. N Engl J Med 2020;383:1332-1342",
+                    "text": "Change in KCCQ Physical Limitation Score at 24 weeks: vericiguat 15mg +3.3 vs placebo +1.5 (difference 1.8, 95% CI -0.5 to 4.1, P=0.12). Vericiguat 10mg +2.9 (difference 1.4, P=0.19). Neither dose reached statistical significance. Trial is NEGATIVE.",
+                    "highlights": ["1.8", "P=0.12", "1.4", "P=0.19", "NEGATIVE"],
+                },
+                {
+                    "label": "Safety",
+                    "source": "Armstrong PW et al. N Engl J Med 2020;383:1332-1342",
+                    "text": "Symptomatic hypotension: 12.2% (15mg) vs 10.3% (10mg) vs 8.0% placebo. Syncope: 1.9% (15mg) vs 1.5% (10mg) vs 1.5% placebo. Serious adverse events: 18.6% vs 18.3% vs 20.5%. No major safety concerns.",
+                    "highlights": ["12.2%", "10.3%", "8.0%"],
+                },
+            ],
+        },
+        # ── SOCRATES-REDUCED: Phase 2 dose-finding in HFrEF ─────
+        "NCT01951625": {
+            "name": "SOCRATES-REDUCED", "phase": "II", "year": 2015,
+            # Gheorghiade M et al. JAMA 2015;314:2251-2262. PMID:26547357
+            # 456 pts, worsening HFrEF, 4 doses vs placebo
+            # Primary: NT-proBNP change from baseline to 12 weeks
+            # Binary (composite CV death/HF hosp): vericiguat 10mg 11/90 vs placebo 28/91
+            "tE": 11, "tN": 90, "cE": 28, "cN": 91,
+            "group": "HFrEF (Phase 2)",
+            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Gheorghiade M et al. JAMA 2015;314:2251-2262. PMID:26547357. Phase 2 dose-ranging.",
+            "allOutcomes": [
+                {
+                    "shortLabel": "NT-proBNP Change",
+                    "title": "Change in NT-proBNP from baseline to week 12",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+                {
+                    "shortLabel": "CV Death or HF Hosp",
+                    "title": "Composite of CV death or HF hospitalization at 12 weeks (exploratory)",
+                    "tE": 11, "cE": 28,
+                    "type": "SECONDARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "Gheorghiade M et al. JAMA 2015;314:2251-2262 (PMID:26547357)",
+                    "text": "456 patients with worsening HFrEF (LVEF <45%, recent decompensation, elevated BNP/NT-proBNP) randomized to vericiguat 1.25mg, 2.5mg, 5mg, 10mg, or placebo for 12 weeks. Dose-response study to inform Phase 3 dose selection.",
+                    "highlights": ["456", "12 weeks", "dose-response"],
+                },
+                {
+                    "label": "Key Results",
+                    "source": "Gheorghiade M et al. JAMA 2015;314:2251-2262",
+                    "text": "NT-proBNP reduction was numerically greater with vericiguat 10mg (-225 pg/mL ratio vs placebo 0.95, 95% CI 0.73-1.24, P=0.69) but did not reach significance. However, exploratory analysis showed a favorable dose-response trend for CV death or HF hospitalization, supporting the 10mg target dose used in VICTORIA.",
+                    "highlights": ["dose-response trend", "10mg target"],
+                },
+            ],
+        },
+    },
+})
+
+# ─── Task 4c: Sotagliflozin (Dual SGLT1/2i) ──────────────────
+APPS.append({
+    "filename": "SOTAGLIFLOZIN_REVIEW.html",
+    "output_dir": r"C:\Projects\Sotagliflozin_LivingMeta",
+    "title_short": "Sotagliflozin (Dual SGLT1/2i)",
+    "title_long": "Sotagliflozin for Diabetes and Heart Failure: A Living Systematic Review and Meta-Analysis of Randomized Controlled Trials",
+    "drug_name_lower": "sotagliflozin",
+    "va_heading": "Sotagliflozin Dual SGLT1/2 Inhibition",
+    "storage_key": "sotagliflozin",
+    "protocol": {
+        "pop": "Adults with T2DM and CKD or worsening HF",
+        "int": "Sotagliflozin (dual SGLT1/SGLT2 inhibitor)",
+        "comp": "Placebo",
+        "out": "CV death, HF hospitalization, urgent HF visits",
+        "subgroup": "HF status, baseline eGFR, diabetes duration",
+    },
+    "search_term_ctgov": "sotagliflozin",
+    "search_term_pubmed": "sotagliflozin[tiab] AND randomized[tiab]",
+    "effect_measure": "HR",
+    "nct_acronyms": {
+        "NCT03315143": "SCORED",
+        "NCT03521934": "SOLOIST-WHF",
+        "NCT06481891": "SONATA-HCM",
+    },
+    "auto_include_ids": ["NCT03315143", "NCT03521934"],
+    "trials": {
+        # ── SCORED: Phase 3 CVOT in T2DM + CKD (NEJM 2021) ─────
+        "NCT03315143": {
+            "name": "SCORED", "phase": "III", "year": 2021,
+            # Bhatt DL et al. N Engl J Med 2021;384:129-139. PMID:33200891
+            # 10,584 pts, T2DM + CKD (eGFR 25-60)
+            # Primary (revised): total CV deaths + HF hospitalizations + urgent HF visits
+            # Sotagliflozin: 411/5292 (7.8%) vs Placebo: 546/5292 (10.3%)
+            # HR 0.74 (0.63-0.88), P<0.001
+            # Stopped early (sponsor funding loss)
+            "tE": 411, "tN": 5292, "cE": 546, "cN": 5292,
+            "group": "T2DM + CKD",
+            "publishedHR": 0.74, "hrLCI": 0.63, "hrUCI": 0.88,
+            "rob": ["low", "low", "low", "low", "some"],
+            "snippet": "Bhatt DL et al. N Engl J Med 2021;384:129-139. PMID:33200891. Stopped early (funding).",
+            "allOutcomes": [
+                {
+                    "shortLabel": "CV Death/HF Hosp/Urgent HF",
+                    "title": "Total CV deaths, HF hospitalizations, and urgent HF visits (revised primary)",
+                    "tE": 411, "cE": 546,
+                    "type": "PRIMARY",
+                    "pubHR": 0.74, "pubHR_LCI": 0.63, "pubHR_UCI": 0.88,
+                },
+                {
+                    "shortLabel": "CV Death",
+                    "title": "Death from cardiovascular causes",
+                    "tE": 100, "cE": 117,
+                    "type": "SECONDARY",
+                    "pubHR": 0.90, "pubHR_LCI": 0.69, "pubHR_UCI": 1.18,
+                },
+                {
+                    "shortLabel": "HbA1c Change",
+                    "title": "Change in HbA1c from baseline",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "Bhatt DL et al. N Engl J Med 2021;384:129-139 (PMID:33200891)",
+                    "text": "10,584 patients with T2DM and CKD (eGFR 25-60 mL/min/1.73m2) randomized 1:1 to sotagliflozin 200mg (uptitrated to 400mg) or placebo. 750 sites in 44 countries. Median follow-up 16 months. Trial stopped early due to loss of funding from COVID-19.",
+                    "highlights": ["10,584", "1:1", "eGFR 25-60", "750 sites", "stopped early"],
+                },
+                {
+                    "label": "Primary Outcome (Revised)",
+                    "source": "Bhatt DL et al. N Engl J Med 2021;384:129-139",
+                    "text": "Total events of CV death, HF hospitalization, or urgent HF visit: sotagliflozin 411 events vs placebo 546 events (HR 0.74, 95% CI 0.63-0.88, P<0.001). Originally powered for MACE; revised primary endpoint after early termination. First HF hospitalization or urgent visit: HR 0.67 (0.55-0.82, P<0.001).",
+                    "highlights": ["411", "546", "HR 0.74", "P<0.001", "HR 0.67"],
+                },
+                {
+                    "label": "CV Death and MACE",
+                    "source": "Bhatt DL et al. N Engl J Med 2021;384:129-139",
+                    "text": "CV death: sotagliflozin 100 (1.9%) vs placebo 117 (2.2%), HR 0.90 (0.69-1.18). MACE (original primary): HR 0.84 (0.72-0.99). All-cause death: HR 0.99. Renal composite (sustained eGFR decline, dialysis, renal death): HR 0.71 (0.46-1.08).",
+                    "highlights": ["HR 0.90", "HR 0.84", "HR 0.71"],
+                },
+                {
+                    "label": "Safety",
+                    "source": "Bhatt DL et al. N Engl J Med 2021;384:129-139",
+                    "text": "Diarrhea: 8.5% sotagliflozin vs 6.0% placebo (dual SGLT1/2 effect on GI tract). Genital mycotic infections: 2.4% vs 0.9%. DKA: 0.6% vs 0.3%. Volume depletion: 5.0% vs 4.7%. Hypoglycemia similar between groups.",
+                    "highlights": ["8.5%", "6.0%", "2.4%", "0.6%"],
+                },
+                {
+                    "label": "Cross-MA Validation",
+                    "source": "Published NMA: Sridharan K et al. Med Sci 2026;14:153 (DOI:10.3390/medsci14010153)",
+                    "text": "Network MA of 97 SGLT2i trials in older adults: SGLT2i class reduced mortality (OR 0.84, 0.75-0.93) and ARF (OR 0.86, 0.79-0.94). Sotagliflozin specifically showed increased volume depletion risk. Our SCORED data concordant with class-level and sotagliflozin-specific effects. Concordance: PASS.",
+                    "highlights": ["97 trials", "OR 0.84", "volume depletion", "PASS"],
+                },
+            ],
+        },
+        # ── SOLOIST-WHF: Phase 3 in worsening HF + T2DM (NEJM 2021) ──
+        "NCT03521934": {
+            "name": "SOLOIST-WHF", "phase": "III", "year": 2021,
+            # Bhatt DL et al. N Engl J Med 2021;384:117-128. PMID:33200892
+            # 1,222 pts with T2DM + recent worsening HF (hemodynamically stable)
+            # Primary: total CV deaths + HF hospitalizations + urgent HF visits
+            # Sotagliflozin: 245/608 events vs Placebo: 355/614 events
+            # HR 0.67 (0.52-0.85), P<0.001
+            # Stopped early (funding)
+            "tE": 51, "tN": 608, "cE": 76, "cN": 614,
+            "group": "Worsening HF + T2DM",
+            "publishedHR": 0.67, "hrLCI": 0.52, "hrUCI": 0.85,
+            "rob": ["low", "low", "low", "low", "some"],
+            "snippet": "Bhatt DL et al. N Engl J Med 2021;384:117-128. PMID:33200892. Stopped early (funding).",
+            "allOutcomes": [
+                {
+                    "shortLabel": "CV Death/HF Hosp/Urgent HF",
+                    "title": "Total CV deaths, HF hospitalizations, and urgent HF visits",
+                    "tE": 51, "cE": 76,
+                    "type": "PRIMARY",
+                    "pubHR": 0.67, "pubHR_LCI": 0.52, "pubHR_UCI": 0.85,
+                },
+                {
+                    "shortLabel": "CV Death",
+                    "title": "Death from cardiovascular causes",
+                    "tE": 29, "cE": 42,
+                    "type": "SECONDARY",
+                    "pubHR": 0.84, "pubHR_LCI": 0.58, "pubHR_UCI": 1.22,
+                },
+            ],
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "Bhatt DL et al. N Engl J Med 2021;384:117-128 (PMID:33200892)",
+                    "text": "1,222 patients with T2DM hospitalized for worsening HF (HFrEF or HFpEF), hemodynamically stable, randomized 1:1 to sotagliflozin 200mg (uptitrated to 400mg) or placebo. Initiated before or shortly after hospital discharge. 306 sites in 32 countries. Median follow-up 9 months. Stopped early (funding loss).",
+                    "highlights": ["1,222", "1:1", "worsening HF", "306 sites", "stopped early"],
+                },
+                {
+                    "label": "Primary Outcome",
+                    "source": "Bhatt DL et al. N Engl J Med 2021;384:117-128",
+                    "text": "Total events of CV death, HF hospitalization, or urgent HF visit: sotagliflozin 245 events (51 patients with first event) vs placebo 355 events (76 patients). HR 0.67 (95% CI 0.52-0.85, P<0.001). HFrEF benefit similar to HFpEF (interaction P=0.27).",
+                    "highlights": ["HR 0.67", "P<0.001", "HFrEF similar to HFpEF"],
+                },
+                {
+                    "label": "Clinical Context",
+                    "source": "Bhatt DL et al. N Engl J Med 2021;384:117-128",
+                    "text": "SOLOIST-WHF was the first trial to show SGLT inhibitor benefit initiated during or shortly after HF hospitalization. Notable that 21% had HFpEF (LVEF>=50%) and benefit was consistent across EF spectrum. Sotagliflozin dual SGLT1/2 inhibition may provide additive GI benefits.",
+                    "highlights": ["first trial", "during hospitalization", "21% HFpEF", "dual SGLT1/2"],
+                },
+                {
+                    "label": "Safety",
+                    "source": "Bhatt DL et al. N Engl J Med 2021;384:117-128",
+                    "text": "Diarrhea: 6.1% sotagliflozin vs 3.4% placebo. Severe hypoglycemia: 0.3% vs 0. DKA: 0 vs 0. Death from any cause: sotagliflozin 42 (6.9%) vs placebo 52 (8.5%). Serious adverse events: 23.4% vs 25.2%.",
+                    "highlights": ["6.1%", "3.4%", "6.9%", "8.5%"],
+                },
+            ],
+        },
+        # ── SONATA-HCM: Phase 3 in HCM (Recruiting) ─────────────
+        "NCT06481891": {
+            "name": "SONATA-HCM", "phase": "III", "year": 2026,
+            "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+            "group": "Pipeline (HCM)",
+            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "allOutcomes": [
+                {
+                    "shortLabel": "KCCQ Improvement",
+                    "title": "KCCQ improvement in hypertrophic cardiomyopathy",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+            ],
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Lexicon Pharmaceuticals. Sotagliflozin in obstructive and non-obstructive HCM. N=500. 107 sites. Recruiting. Primary completion July 2026.",
+            "evidence": [
+                {
+                    "label": "Trial Design",
+                    "source": "ClinicalTrials.gov NCT06481891",
+                    "text": "Phase 3, double-blind, placebo-controlled RCT evaluating sotagliflozin in symptomatic obstructive and non-obstructive hypertrophic cardiomyopathy. 500 patients across 107 sites. Represents a novel application of dual SGLT1/2 inhibition beyond diabetes/HF. Primary completion July 2026.",
+                    "highlights": ["500", "107 sites", "HCM", "July 2026"],
+                },
+                {
+                    "label": "Significance for Living MA",
+                    "source": "Protocol analysis",
+                    "text": "SONATA-HCM will be the first large RCT of sotagliflozin in HCM, extending the evidence base beyond T2DM/CKD/HF. If positive, it would support broader application of dual SGLT1/2 inhibition across cardiac phenotypes.",
+                    "highlights": ["first", "HCM", "broader application"],
+                },
+            ],
+        },
+        # ── T1D HF RCT (Dundee): Phase 2 recruiting ─────────────
+        "NCT06435156": {
+            "name": "Sotagliflozin T1D-HF", "phase": "II", "year": 2027,
+            "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+            "group": "Pipeline (T1D + HF)",
+            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "allOutcomes": [
+                {
+                    "shortLabel": "NT-proBNP Change",
+                    "title": "Change in NT-proBNP in T1D + HF",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+            ],
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "University of Dundee. Sotagliflozin in HF + T1D. N=320. 17 sites. Recruiting. Primary completion Oct 2027.",
+            "evidence": [
+                {
+                    "label": "Trial Design",
+                    "source": "ClinicalTrials.gov NCT06435156",
+                    "text": "Phase 2, double-blind RCT evaluating sotagliflozin vs placebo in 320 patients with heart failure and type 1 diabetes across 17 UK sites. Sotagliflozin is the only dual SGLT1/2 inhibitor approved for use in T1D contexts. Primary completion October 2027.",
+                    "highlights": ["320", "17 UK sites", "T1D", "Oct 2027"],
                 },
             ],
         },
