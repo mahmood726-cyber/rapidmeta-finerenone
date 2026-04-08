@@ -653,6 +653,143 @@ APPS = [
             },
         },
     },
+    # ─── Task 4: Tricuspid TEER ─────────────────────────────────
+    {
+        "filename": "TRICUSPID_TEER_REVIEW.html",
+        "output_dir": r"C:\Projects\Tricuspid_TEER_LivingMeta",
+        "title_short": "Tricuspid TEER",
+        "title_long": "Transcatheter Edge-to-Edge Repair for Tricuspid Regurgitation: A Living Systematic Review and Meta-Analysis",
+        "drug_name_lower": "transcatheter tricuspid repair",
+        "va_heading": "Tricuspid TEER for Severe TR",
+        "storage_key": "tricuspid_teer",
+        "protocol": {
+            "pop": "Adults with severe tricuspid regurgitation",
+            "int": "Transcatheter Edge-to-Edge Repair (TriClip or PASCAL)",
+            "comp": "Medical Therapy",
+            "out": "TR reduction to moderate or less at 12 months",
+            "subgroup": "Device (TriClip vs PASCAL), TR severity at baseline",
+        },
+        "search_term_ctgov": "triclip+OR+PASCAL+AND+tricuspid+regurgitation",
+        "search_term_pubmed": "(triclip[tiab] OR PASCAL tricuspid[tiab]) AND repair[tiab]",
+        "effect_measure": "RR",
+        "nct_acronyms": {"NCT04221490": "TRILUMINATE", "NCT04097145": "CLASP TR"},
+        "auto_include_ids": ["NCT04221490"],
+        "trials": {
+            # ── RCT (poolable) ─────────────────────────────────────────
+            "NCT04221490": {
+                "name": "TRILUMINATE Pivotal", "phase": "III", "year": 2023,
+                # Sorajja P et al. NEJM 2023;389:1938-1950
+                # TEER arm: 152/175 achieved TR ≤2+; Control arm: ~8/175 (4.8%)
+                "tE": 152, "tN": 175, "cE": 8, "cN": 175,
+                "group": "TriClip vs Medical Therapy",
+                "rob": ["low", "low", "some", "low", "low"],
+                "snippet": "Sorajja P et al. NEJM 2023;389:1938-1950. RCT (n=350). TEER 87.0% vs Control 4.8% TR reduction at 12m.",
+                "sourceUrl": "https://www.nejm.org/doi/10.1056/NEJMoa2300525",
+                "evidence": [
+                    {
+                        "label": "Enrollment & Randomization",
+                        "source": "Sorajja P et al. NEJM 2023;389:1938-1950, Fig 1 (CONSORT)",
+                        "text": "A total of 350 patients were enrolled; 175 were randomized to transcatheter tricuspid-valve repair with the TriClip device and 175 to medical therapy alone.",
+                        "highlights": ["350", "175", "175", "TriClip"],
+                    },
+                    {
+                        "label": "Primary Outcome (TR Reduction)",
+                        "source": "Sorajja P et al. NEJM 2023;389:1938-1950, Table 2",
+                        "text": "At 1 year, 87.0% of patients in the TriClip group had TR of moderate or less (TR \u2264 2+), compared with 4.8% in the control group. Events: 152 of 175 in the device arm achieved TR reduction.",
+                        "highlights": ["87.0%", "152", "175", "4.8%"],
+                    },
+                    {
+                        "label": "RoB Assessment",
+                        "source": "NCT04221490 (ClinicalTrials.gov)",
+                        "text": "Randomized, controlled, multicenter trial. Open-label design (D2: some concerns due to knowledge of assigned intervention). Central adjudication of echocardiographic endpoints.",
+                        "highlights": ["Randomized", "Open-label", "some concerns"],
+                    },
+                ],
+            },
+            # ── Single-arm studies (not poolable — tE/tN/cE/cN = 0) ──
+            "NCT04097145": {
+                "name": "CLASP TR", "phase": "Single-arm", "year": 2021,
+                "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+                "group": "PASCAL (single-arm)",
+                "rob": ["low", "low", "some", "low", "low"],
+                "snippet": "Kodali S et al. JACC 2021. Single-arm PASCAL study (n=65). 70.8% TR reduction at 12m. Not poolable (no comparator arm).",
+                "evidence": [
+                    {
+                        "label": "Enrollment",
+                        "source": "Kodali S et al. JACC 2021",
+                        "text": "A total of 65 patients with severe or greater tricuspid regurgitation were enrolled in the single-arm CLASP TR study using the PASCAL transcatheter valve repair system.",
+                        "highlights": ["65", "PASCAL"],
+                    },
+                    {
+                        "label": "Primary Outcome",
+                        "source": "Kodali S et al. JACC 2021",
+                        "text": "At 12 months, 70.8% of patients achieved TR reduction to moderate or less (TR \u2264 2+). Events: 46 of 65 patients achieved the primary endpoint.",
+                        "highlights": ["70.8%", "46", "65"],
+                    },
+                    {
+                        "label": "RoB Assessment",
+                        "source": "NCT04097145",
+                        "text": "Single-arm prospective study. D3 rated some concerns due to absence of control arm and potential for attrition bias in single-arm design.",
+                        "highlights": ["Single-arm", "some concerns"],
+                    },
+                ],
+            },
+            "BRIGHT_REGISTRY": {
+                "name": "bRIGHT", "phase": "Registry", "year": 2021,
+                "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+                "group": "TriClip (registry)",
+                "rob": ["low", "low", "some", "low", "low"],
+                "snippet": "Nickenig G et al. EuroIntervention 2021. Multicenter registry (n=200). 75.0% TR reduction at 6m. Not poolable (no comparator, 6m follow-up only).",
+                "evidence": [
+                    {
+                        "label": "Enrollment",
+                        "source": "Nickenig G et al. EuroIntervention 2021",
+                        "text": "The bRIGHT registry enrolled 200 consecutive patients undergoing transcatheter tricuspid-valve repair with the TriClip device across 15 European centers.",
+                        "highlights": ["200", "TriClip", "15 European centers"],
+                    },
+                    {
+                        "label": "Primary Outcome",
+                        "source": "Nickenig G et al. EuroIntervention 2021",
+                        "text": "At 6-month follow-up, 75.0% of patients achieved TR reduction to moderate or less. Events: 150 of 200 patients.",
+                        "highlights": ["75.0%", "150", "200"],
+                    },
+                    {
+                        "label": "RoB Assessment",
+                        "source": "bRIGHT Registry",
+                        "text": "Prospective multicenter registry. Some concerns for D3 (missing data) due to 6-month follow-up only and registry-based enrollment.",
+                        "highlights": ["registry", "Some concerns"],
+                    },
+                ],
+            },
+            "TRILUMINATE_EU": {
+                "name": "TRILUMINATE EU", "phase": "Registry", "year": 2023,
+                "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+                "group": "TriClip G4 (registry)",
+                "rob": ["low", "low", "some", "low", "low"],
+                "snippet": "Lurz P et al. JACC Cardiovasc Interv 2023. European registry (n=120). 81.7% TR reduction at 12m. Not poolable (no comparator arm).",
+                "evidence": [
+                    {
+                        "label": "Enrollment",
+                        "source": "Lurz P et al. JACC Cardiovasc Interv 2023",
+                        "text": "TRILUMINATE EU enrolled 120 patients with severe tricuspid regurgitation treated with the TriClip G4 device at 20 European sites.",
+                        "highlights": ["120", "TriClip G4", "20 European sites"],
+                    },
+                    {
+                        "label": "Primary Outcome",
+                        "source": "Lurz P et al. JACC Cardiovasc Interv 2023",
+                        "text": "At 12 months, 81.7% of patients achieved TR reduction to moderate or less (TR \u2264 2+). Events: 98 of 120 patients.",
+                        "highlights": ["81.7%", "98", "120"],
+                    },
+                    {
+                        "label": "RoB Assessment",
+                        "source": "TRILUMINATE EU Registry",
+                        "text": "Prospective European registry. D3 some concerns: registry design without randomization or blinding, though core lab adjudication of echocardiographic endpoints was performed.",
+                        "highlights": ["registry", "some concerns", "core lab adjudication"],
+                    },
+                ],
+            },
+        },
+    },
 ]  # Will be extended by subsequent tasks
 
 
