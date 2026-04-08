@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>RapidMeta Cardiology | Finerenone Ultra-Precision v12.0</title>
+    <title>RapidMeta Cardiology | Finerenone Ultra-Precision v13.0</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.plot.ly https://webr.r-wasm.org; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src https://cdnjs.cloudflare.com https://fonts.gstatic.com; connect-src 'self' https://clinicaltrials.gov https://www.ebi.ac.uk https://api.openalex.org https://webr.r-wasm.org https://repo.r-wasm.org http://localhost:* http://127.0.0.1:*; worker-src 'self' blob:; img-src 'self' data: blob:;">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23020617'/%3E%3Cpath d='M18 18h12c8 0 14 6 14 14s-6 14-14 14H18V18zm10 22c5 0 8-3 8-8s-3-8-8-8h-2v16h2z' fill='%233b82f6'/%3E%3Cpath d='M40 18h6v28h-6z' fill='%23f8fafc'/%3E%3C/svg%3E">
@@ -398,7 +398,7 @@
     <header class="h-14 border-b border-slate-800 bg-slate-950 flex items-center justify-between px-6 shrink-0">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/20">R</div>
-            <h1 class="font-bold text-lg tracking-tight text-white">RapidMeta <span class="text-blue-400 font-normal text-sm ml-1">Precision v12.0</span></h1>
+            <h1 class="font-bold text-lg tracking-tight text-white">RapidMeta <span class="text-blue-400 font-normal text-sm ml-1">Precision v13.0</span></h1>
         </div>
         <div class="flex items-center gap-4">
             <div class="flex items-center gap-1 bg-slate-900 rounded-xl p-1 border border-slate-800" role="radiogroup" aria-label="Confidence level">
@@ -2439,19 +2439,23 @@
             },
 
             async init() {
-                // v12.0 migration: read from old keys if new key is empty
-                let saved = localStorage.getItem('rapid_meta_finerenone_v12_0');
+                // v13.0 migration: read from old keys if new key is empty
+                let saved = localStorage.getItem('rapid_meta_finerenone_v13_0');
+                if (!saved) {
+                    const old12 = localStorage.getItem('rapid_meta_finerenone_v12_0');
+                    if (old12) { saved = old12; localStorage.setItem('rapid_meta_finerenone_v13_0', old12); }
+                }
                 if (!saved) {
                     const old11 = localStorage.getItem('rapid_meta_finerenone_v11_0');
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_finerenone_v12_0', old11); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_finerenone_v13_0', old11); }
                 }
                 if (!saved) {
                     const old10 = localStorage.getItem('rapid_meta_finerenone_v10_0');
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_finerenone_v12_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_finerenone_v13_0', old10); }
                 }
                 if (!saved) {
                     const old93 = localStorage.getItem('rapid_meta_finerenone_v9_3');
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_finerenone_v12_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_finerenone_v13_0', old93); }
                 }
                 if (saved) {
                     try {
@@ -2467,7 +2471,7 @@
                         if (sanitizedLoadedState) this.save();
                     } catch (e) {
                         console.error('Corrupted localStorage, resetting:', e);
-                        localStorage.removeItem('rapid_meta_finerenone_v12_0');
+                        localStorage.removeItem('rapid_meta_finerenone_v13_0');
                         showToast('State was corrupted and has been reset.');
                     }
                 }
@@ -2900,7 +2904,7 @@
                 showToast('Version log exported.');
             },
 
-            save() { try { localStorage.setItem('rapid_meta_finerenone_v12_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_finerenone_v13_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
             getReviewerId() {
                 const id = String(this.state.reviewerId ?? '').trim();
                 if (id) return id;
@@ -3801,7 +3805,7 @@
                     }
                 }
             },
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_finerenone_v12_0'); localStorage.removeItem('rapid_meta_finerenone_v11_0'); localStorage.removeItem('rapid_meta_finerenone_v10_0'); localStorage.removeItem('rapid_meta_finerenone_v9_3'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_finerenone_v13_0'); localStorage.removeItem('rapid_meta_finerenone_v12_0'); localStorage.removeItem('rapid_meta_finerenone_v11_0'); localStorage.removeItem('rapid_meta_finerenone_v10_0'); localStorage.removeItem('rapid_meta_finerenone_v9_3'); location.reload(); } },
             setBayesPrior(prior) {
                 this.state.bayesPrior = prior;
                 document.querySelectorAll('.prior-btn').forEach(btn => {
