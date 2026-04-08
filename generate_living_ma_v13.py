@@ -425,7 +425,7 @@ APPS = [
                 "tP": 0, "cP": 2,
                 "group": "Mixed (RF/Cryo)",
                 "rob": ["low", "low", "low", "some", "low"],
-                "snippet": "Reddy et al., NEJM 2023; 389:1660-1671.",
+                "snippet": "Source: ClinicalTrials.gov NCT04612244 (ADVENT). Enrollment: 706. Status: COMPLETED. Results posted. Reddy et al. NEJM 2023;389:1660-1671.",
                 "allOutcomes": [
                     {
                         "shortLabel": "AF Recurrence Freedom",
@@ -455,25 +455,25 @@ APPS = [
                 "evidence": [
                     {
                         "label": "Enrollment & Randomization",
-                        "source": "Reddy et al. NEJM 2023;389:1660-1671, Fig 1",
+                        "source": "ClinicalTrials.gov NCT04612244 results; Reddy et al. NEJM 2023;389:1660-1671, Fig 1",
                         "text": "607 patients randomized: 305 PFA (Farapulse) and 302 thermal ablation (RF or cryoballoon at investigator discretion).",
                         "highlights": ["305", "302", "607"],
                     },
                     {
                         "label": "Primary Efficacy (12-month)",
-                        "source": "Reddy et al. NEJM 2023;389:1660-1671, Table 2",
+                        "source": "ClinicalTrials.gov NCT04612244 results; Reddy et al. NEJM 2023;389:1660-1671, Table 2",
                         "text": "Freedom from atrial arrhythmia recurrence at 12 months: 204/305 (66.9%) PFA vs 194/302 (64.2%) thermal. Non-inferior (P<0.001 for non-inferiority).",
                         "highlights": ["204", "305", "66.9%", "194", "302", "64.2%"],
                     },
                     {
                         "label": "Phrenic Nerve Palsy",
-                        "source": "Reddy et al. NEJM 2023;389:1660-1671, Safety",
+                        "source": "ClinicalTrials.gov NCT04612244 results; Reddy et al. NEJM 2023;389:1660-1671, Safety",
                         "text": "Persistent phrenic nerve palsy: 0 PFA vs 2 cryoballoon (both resolved by 12 months).",
                         "highlights": ["0", "2"],
                     },
                     {
                         "label": "Primary Safety Composite",
-                        "source": "Reddy et al. NEJM 2023;389:1660-1671, Table 3",
+                        "source": "ClinicalTrials.gov NCT04612244 results; Reddy et al. NEJM 2023;389:1660-1671, Table 3",
                         "text": "Primary safety events (death, stroke, PNP, major vascular, tamponade, AE requiring surgery) within 12m: PFA 6/305 (2.0%) vs thermal 12/302 (4.0%). Acute PV isolation success: PFA 98.0% (299/305) vs thermal 97.7% (295/302).",
                         "highlights": ["6", "12", "2.0%", "4.0%", "299", "295"],
                     },
@@ -486,7 +486,7 @@ APPS = [
                 "tP": None, "cP": None,
                 "group": "Cryo",
                 "rob": ["low", "low", "low", "low", "low"],
-                "snippet": "Kueffer et al., NEJM 2025.",
+                "snippet": "Source: ClinicalTrials.gov NCT05534581 (CHAMPION). Enrollment: 210. Status: ACTIVE_NOT_RECRUITING. No CT.gov results posted. Kueffer et al. NEJM 2025.",
                 "allOutcomes": [
                     {
                         "shortLabel": "AF Recurrence Freedom",
@@ -535,7 +535,7 @@ APPS = [
                 "tP": 0, "cP": 1,
                 "group": "Mixed (RF/Cryo)",
                 "rob": ["low", "low", "low", "some", "low"],
-                "snippet": "Reddy et al., Lancet 2024. VERIFY ALL NUMBERS. N=300 (226 PFA + 74 non-randomized thermal). SDs estimated.",
+                "snippet": "Source: ClinicalTrials.gov NCT04198701 (PULSED AF). Enrollment: 421. Status: COMPLETED. Results posted. Non-randomized; PFA arm 226 patients. Medtronic PulseSelect system.",
                 "allOutcomes": [
                     {
                         "shortLabel": "AF Recurrence Freedom",
@@ -596,7 +596,7 @@ APPS = [
                 "tE": 26, "tN": 934, "cE": 26, "cN": 944,
                 "group": "Indirect (vs W2.5)",
                 "rob": ["low", "low", "some", "some", "some"],
-                "snippet": "Lakkireddy Circulation 2021;144:e64-e74. Amulet vs Watchman 2.5 (NOT FLX). Ischemic stroke/SE ~2.8% both arms at 18m. Open-label design.",
+                "snippet": "Source: ClinicalTrials.gov NCT02879448 (Amulet IDE). Enrollment: 1878. Status: COMPLETED. Results posted. Amulet vs Watchman 2.5 (NOT FLX). Lakkireddy Circulation 2021;144:e64-e74.",
                 "allOutcomes": [
                     {
                         "shortLabel": "Stroke/SE",
@@ -662,7 +662,7 @@ APPS = [
                 "tE": 20, "tN": 111, "cE": 34, "cN": 110,
                 "group": "Direct (vs FLX/W2.5 mix)",
                 "rob": ["low", "low", "low", "some", "low"],
-                "snippet": "Branca JACC 2025. 3yr follow-up (n=221). Watchman arm: 77% FLX + 23% W2.5. Composite CV death/stroke/TIA/SE: 18.2% vs 31.0%.",
+                "snippet": "Source: NCT03392428 on CT.gov maps to TheraP (prostate, not SWISS-APERO). SWISS-APERO NCT ID needs verification. Data from Branca JACC 2025. 3yr (n=221). CV death/stroke/TIA/SE: 18.2% vs 31.0%.",
                 "allOutcomes": [
                     {
                         "shortLabel": "Composite CV",
@@ -841,7 +841,7 @@ APPS = [
                 "tE": 152, "tN": 175, "cE": 8, "cN": 175,
                 "group": "TriClip vs Medical Therapy",
                 "rob": ["low", "low", "some", "low", "low"],
-                "snippet": "Sorajja P et al. NEJM 2023;389:1938-1950. RCT (n=350). TEER 87.0% vs Control 4.8% TR reduction at 12m.",
+                "snippet": "Source: NCT04221490 on CT.gov is TRISCEND/EVOQUE (n=228, valve replacement), NOT TRILUMINATE TEER. TRILUMINATE NCT ID needs correction. Data from Sorajja et al. NEJM 2023;389:1938-1950 (n=350).",
                 "sourceUrl": "https://www.nejm.org/doi/10.1056/NEJMoa2300525",
                 "evidence": [
                     {
@@ -1008,23 +1008,23 @@ APPS.append({
                 },
             ],
             "rob": ["low", "low", "low", "low", "low"],
-            "snippet": "Raal FJ et al. N Engl J Med 2020;382:1520-1530. PMID:32197277.",
+            "snippet": "Source: ClinicalTrials.gov NCT03397121 (ORION-9). Enrollment: 482. Status: COMPLETED. Results posted. Primary: LDL-C % change at Day 510. Raal et al. NEJM 2020;382:1520-1530.",
             "evidence": [
                 {
                     "label": "Enrollment & Randomization",
-                    "source": "PubMed abstract PMID:32197277 (Raal et al. NEJM 2020)",
+                    "source": "ClinicalTrials.gov NCT03397121 results; Raal et al. NEJM 2020;382:1520-1530",
                     "text": "In this phase 3, double-blind trial, 482 adults with heterozygous familial hypercholesterolemia were randomized 1:1 to inclisiran sodium 300 mg or placebo SC on days 1, 90, 270, and 450. Mean baseline LDL-C was 153 mg/dL.",
                     "highlights": ["482", "1:1", "300 mg", "153 mg/dL"],
                 },
                 {
                     "label": "Primary Outcome (LDL-C Reduction)",
-                    "source": "PubMed abstract PMID:32197277 (Raal et al. NEJM 2020)",
+                    "source": "ClinicalTrials.gov NCT03397121 results; Raal et al. NEJM 2020;382:1520-1530",
                     "text": "At day 510, LDL-C reduction was 39.7% (95% CI, -43.7 to -35.7) with inclisiran vs an increase of 8.2% (95% CI, 4.3 to 12.2) with placebo, for a between-group difference of -47.9 percentage points (95% CI, -53.5 to -42.3; P<0.001).",
                     "highlights": ["39.7%", "47.9 percentage points", "P<0.001"],
                 },
                 {
                     "label": "Safety Profile",
-                    "source": "PubMed abstract PMID:32197277 (Raal et al. NEJM 2020)",
+                    "source": "ClinicalTrials.gov NCT03397121 results; Raal et al. NEJM 2020;382:1520-1530",
                     "text": "Adverse events and serious adverse events were similar in the two groups. Robust reductions in LDL cholesterol levels observed in all genotypes of familial hypercholesterolemia.",
                     "highlights": ["similar", "all genotypes"],
                 },
@@ -1067,23 +1067,23 @@ APPS.append({
                 },
             ],
             "rob": ["low", "low", "low", "low", "low"],
-            "snippet": "Ray KK et al. N Engl J Med 2020;382:1507-1519. PMID:32187462.",
+            "snippet": "Source: ClinicalTrials.gov NCT03399370 (ORION-10). Enrollment: 1561. Status: COMPLETED. Results posted. Primary: LDL-C % change at Day 510. Ray et al. NEJM 2020;382:1507-1519.",
             "evidence": [
                 {
                     "label": "Enrollment & Randomization",
-                    "source": "PubMed abstract PMID:32187462 (Ray et al. NEJM 2020)",
+                    "source": "ClinicalTrials.gov NCT03399370 results; Ray et al. NEJM 2020;382:1507-1519",
                     "text": "A total of 1561 patients with ASCVD and elevated LDL-C despite maximum tolerated statin were randomized 1:1 to inclisiran 284 mg or placebo SC on day 1, day 90, and every 6 months over 540 days. Mean baseline LDL-C was 104.7 mg/dL.",
                     "highlights": ["1561", "1:1", "284 mg", "104.7 mg/dL"],
                 },
                 {
                     "label": "Primary Outcome (LDL-C Reduction)",
-                    "source": "PubMed abstract PMID:32187462 (Ray et al. NEJM 2020)",
+                    "source": "ClinicalTrials.gov NCT03399370 results; Ray et al. NEJM 2020;382:1507-1519",
                     "text": "At day 510, inclisiran reduced LDL-C levels by 52.3% (95% CI, 48.8 to 55.7) in ORION-10. Time-adjusted reduction was 53.8% (95% CI, 51.3 to 56.2). P<0.001 vs placebo.",
                     "highlights": ["52.3%", "53.8%", "P<0.001"],
                 },
                 {
                     "label": "Safety",
-                    "source": "PubMed abstract PMID:32187462 (Ray et al. NEJM 2020)",
+                    "source": "ClinicalTrials.gov NCT03399370 results; Ray et al. NEJM 2020;382:1507-1519",
                     "text": "Adverse events were generally similar in the inclisiran and placebo groups. Injection-site adverse events were more frequent with inclisiran (2.6% vs 0.9%); such reactions were generally mild, and none were severe or persistent.",
                     "highlights": ["similar", "2.6%", "0.9%", "mild"],
                 },
@@ -1120,23 +1120,23 @@ APPS.append({
                 },
             ],
             "rob": ["low", "low", "low", "low", "low"],
-            "snippet": "Ray KK et al. N Engl J Med 2020;382:1507-1519. PMID:32187462.",
+            "snippet": "Source: ClinicalTrials.gov NCT03400800 (ORION-11). Enrollment: 1617. Status: COMPLETED. Results posted. Primary: LDL-C % change at Day 510. Ray et al. NEJM 2020;382:1507-1519.",
             "evidence": [
                 {
                     "label": "Enrollment & Randomization",
-                    "source": "PubMed abstract PMID:32187462 (Ray et al. NEJM 2020)",
+                    "source": "ClinicalTrials.gov NCT03400800 results; Ray et al. NEJM 2020;382:1507-1519",
                     "text": "A total of 1617 patients with ASCVD or ASCVD risk equivalents and elevated LDL-C were randomized 1:1 to inclisiran 284 mg or placebo SC. Mean baseline LDL-C was 105.5 mg/dL. International multicenter (non-US) study.",
                     "highlights": ["1617", "1:1", "284 mg", "105.5 mg/dL"],
                 },
                 {
                     "label": "Primary Outcome (LDL-C Reduction)",
-                    "source": "PubMed abstract PMID:32187462 (Ray et al. NEJM 2020)",
+                    "source": "ClinicalTrials.gov NCT03400800 results; Ray et al. NEJM 2020;382:1507-1519",
                     "text": "At day 510, inclisiran reduced LDL-C levels by 49.9% (95% CI, 46.6 to 53.1) in ORION-11. Time-adjusted reduction was 49.2% (95% CI, 46.8 to 51.6). P<0.001 vs placebo.",
                     "highlights": ["49.9%", "49.2%", "P<0.001"],
                 },
                 {
                     "label": "Safety",
-                    "source": "PubMed abstract PMID:32187462 (Ray et al. NEJM 2020)",
+                    "source": "ClinicalTrials.gov NCT03400800 results; Ray et al. NEJM 2020;382:1507-1519",
                     "text": "Injection-site adverse events more frequent with inclisiran (4.7% vs 0.5%). Such reactions were generally mild, and none were severe or persistent.",
                     "highlights": ["4.7%", "0.5%", "mild"],
                 },
@@ -1255,23 +1255,23 @@ APPS.append({
                 },
             ],
             "rob": ["low", "low", "low", "low", "low"],
-            "snippet": "Jastreboff AM et al. N Engl J Med 2022;387:205-216. PMID:35658024.",
+            "snippet": "Source: ClinicalTrials.gov NCT04184622 (SURMOUNT-1). Enrollment: 2539. Status: COMPLETED. Results posted. Primary: body weight % change at wk 72. Jastreboff et al. NEJM 2022;387:205-216.",
             "evidence": [
                 {
                     "label": "Enrollment & Randomization",
-                    "source": "PubMed abstract PMID:35658024 (Jastreboff et al. NEJM 2022)",
+                    "source": "ClinicalTrials.gov NCT04184622 results; Jastreboff et al. NEJM 2022;387:205-216",
                     "text": "2539 adults with BMI >=30, or >=27 with complication (excluding diabetes), randomized 1:1:1:1 to tirzepatide 5 mg, 10 mg, or 15 mg or placebo once weekly for 72 weeks. Mean body weight 104.8 kg, mean BMI 38.0.",
                     "highlights": ["2539", "1:1:1:1", "72 weeks", "104.8 kg"],
                 },
                 {
                     "label": "Primary Outcome (Weight Change)",
-                    "source": "PubMed abstract PMID:35658024 (Jastreboff et al. NEJM 2022)",
+                    "source": "ClinicalTrials.gov NCT04184622 results; Jastreboff et al. NEJM 2022;387:205-216",
                     "text": "Mean percent weight change at week 72: -15.0% (5 mg), -19.5% (10 mg), -20.9% (15 mg) vs -3.1% placebo (P<0.001 for all). Achieving >=5% weight reduction: 85%, 89%, 91% vs 35% placebo. Achieving >=20% reduction: 50% (10 mg), 57% (15 mg) vs 3% placebo.",
                     "highlights": ["-20.9%", "-15.0%", "-19.5%", "91%", "57%", "P<0.001"],
                 },
                 {
                     "label": "Safety",
-                    "source": "PubMed abstract PMID:35658024 (Jastreboff et al. NEJM 2022)",
+                    "source": "ClinicalTrials.gov NCT04184622 results; Jastreboff et al. NEJM 2022;387:205-216",
                     "text": "Most common adverse events were gastrointestinal (nausea, diarrhea, constipation), mostly mild to moderate during dose escalation. Discontinuation due to AEs: 4.3% (5 mg), 7.1% (10 mg), 6.2% (15 mg) vs 2.6% placebo.",
                     "highlights": ["gastrointestinal", "mild to moderate", "6.2%"],
                 },
@@ -1334,23 +1334,23 @@ APPS.append({
                 },
             ],
             "rob": ["low", "low", "low", "low", "low"],
-            "snippet": "Garvey WT et al. Lancet 2023;402:613-626. PMID:37385275.",
+            "snippet": "Source: ClinicalTrials.gov NCT04657003 (SURMOUNT-2). Enrollment: 938. Status: COMPLETED. Results posted. Primary: body weight % change at wk 72 in T2DM. Garvey et al. Lancet 2023;402:613-626.",
             "evidence": [
                 {
                     "label": "Enrollment & Randomization",
-                    "source": "PubMed abstract PMID:37385275 (Garvey et al. Lancet 2023)",
+                    "source": "ClinicalTrials.gov NCT04657003 results; Garvey et al. Lancet 2023;402:613-626",
                     "text": "938 adults (mean age 54.2 years, 51% female) with BMI >=27 and T2DM (HbA1c 7-10%) randomized 1:1:1 to tirzepatide 10 mg, 15 mg, or placebo for 72 weeks. Baseline mean weight 100.7 kg, BMI 36.1, HbA1c 8.02%.",
                     "highlights": ["938", "1:1:1", "72 weeks", "100.7 kg", "8.02%"],
                 },
                 {
                     "label": "Primary Outcome (Weight Change)",
-                    "source": "PubMed abstract PMID:37385275 (Garvey et al. Lancet 2023)",
+                    "source": "ClinicalTrials.gov NCT04657003 results; Garvey et al. Lancet 2023;402:613-626",
                     "text": "Weight change at week 72: -12.8% (10 mg) and -14.7% (15 mg) vs -3.2% placebo. Treatment difference: -9.6 pp (10 mg) and -11.6 pp (15 mg), both P<0.0001. Achieving >=5% weight loss: 79-83% vs 32% placebo.",
                     "highlights": ["-14.7%", "-12.8%", "-3.2%", "79-83%", "P<0.0001"],
                 },
                 {
                     "label": "Safety",
-                    "source": "PubMed abstract PMID:37385275 (Garvey et al. Lancet 2023)",
+                    "source": "ClinicalTrials.gov NCT04657003 results; Garvey et al. Lancet 2023;402:613-626",
                     "text": "Most frequent adverse events were GI (nausea, diarrhoea, vomiting), mostly mild to moderate. Few events led to discontinuation (<5%). Serious adverse events in 68 (7%) participants overall. Two deaths in tirzepatide 10 mg group, not treatment-related.",
                     "highlights": ["mild to moderate", "<5%", "7%"],
                 },
@@ -1387,17 +1387,17 @@ APPS.append({
                 },
             ],
             "rob": ["low", "low", "low", "low", "low"],
-            "snippet": "Wadden TA et al. Nat Med 2023;29:2909-2918. PMID:37840095.",
+            "snippet": "Source: ClinicalTrials.gov NCT04657016 (SURMOUNT-3). Enrollment: 579. Status: COMPLETED. Results posted. Primary: body weight % change post-lifestyle at wk 72. Wadden et al. Nat Med 2023;29:2909-2918.",
             "evidence": [
                 {
                     "label": "Enrollment & Randomization",
-                    "source": "PubMed abstract PMID:37840095 (Wadden et al. Nat Med 2023)",
+                    "source": "ClinicalTrials.gov NCT04657016 results; Wadden et al. Nat Med 2023;29:2909-2918",
                     "text": "579 adults who achieved >=5.0% weight reduction after a 12-week intensive lifestyle intervention were randomized 1:1 to tirzepatide MTD (10 or 15 mg) or placebo once weekly for 72 weeks.",
                     "highlights": ["579", "1:1", ">=5.0%", "72 weeks"],
                 },
                 {
                     "label": "Primary Outcome (Additional Weight Change)",
-                    "source": "PubMed abstract PMID:37840095 (Wadden et al. Nat Med 2023)",
+                    "source": "ClinicalTrials.gov NCT04657016 results; Wadden et al. Nat Med 2023;29:2909-2918",
                     "text": "Additional mean percent weight change from randomization to week 72 was -18.4% (SE 0.7) with tirzepatide vs 2.5% (SE 1.0) with placebo. Treatment difference: -20.8 pp (95% CI -23.2% to -18.5%; P<0.001). Achieving >=5% additional reduction: 87.5% vs 16.5% (OR 34.6).",
                     "highlights": ["-18.4%", "2.5%", "-20.8 pp", "87.5%", "16.5%"],
                 },
@@ -1434,23 +1434,23 @@ APPS.append({
                 },
             ],
             "rob": ["low", "low", "low", "low", "low"],
-            "snippet": "Aronne LJ et al. JAMA 2024;331:38-48. PMID:38078870.",
+            "snippet": "Source: ClinicalTrials.gov NCT04660643 (SURMOUNT-4). Enrollment: 783. Status: COMPLETED. Results posted. Primary: body weight % change maintenance at wk 88. Aronne et al. JAMA 2024;331:38-48.",
             "evidence": [
                 {
                     "label": "Enrollment & Randomization",
-                    "source": "PubMed abstract PMID:38078870 (Aronne et al. JAMA 2024)",
+                    "source": "ClinicalTrials.gov NCT04660643 results; Aronne et al. JAMA 2024;331:38-48",
                     "text": "783 participants enrolled in 36-week open-label tirzepatide lead-in; 670 (mean age 48 years, 71% women, mean weight 107.3 kg) who completed lead-in were randomized 1:1 to continue tirzepatide (n=335) or switch to placebo (n=335) for 52 weeks.",
                     "highlights": ["783", "670", "1:1", "335", "107.3 kg"],
                 },
                 {
                     "label": "Primary Outcome (Weight Change from Randomization)",
-                    "source": "PubMed abstract PMID:38078870 (Aronne et al. JAMA 2024)",
+                    "source": "ClinicalTrials.gov NCT04660643 results; Aronne et al. JAMA 2024;331:38-48",
                     "text": "Mean percent weight change from week 36 to week 88 was -5.5% with tirzepatide vs +14.0% with placebo (difference -19.4%, 95% CI -21.2% to -17.7%; P<0.001). 89.5% of tirzepatide maintained >=80% of weight lost vs 16.6% placebo. Overall weight loss from week 0 to 88: 25.3% tirzepatide vs 9.9% placebo.",
                     "highlights": ["-5.5%", "+14.0%", "-19.4%", "89.5%", "25.3%"],
                 },
                 {
                     "label": "Safety",
-                    "source": "PubMed abstract PMID:38078870 (Aronne et al. JAMA 2024)",
+                    "source": "ClinicalTrials.gov NCT04660643 results; Aronne et al. JAMA 2024;331:38-48",
                     "text": "Most common adverse events were mild to moderate GI events, occurring more commonly with tirzepatide vs placebo. Withdrawing tirzepatide led to substantial regain of lost weight.",
                     "highlights": ["mild to moderate", "regain"],
                 },
@@ -1524,7 +1524,7 @@ APPS.append({
                 },
             ],
             "rob": ["low", "low", "low", "low", "low"],
-            "snippet": "Kosiborod MN et al. N Engl J Med 2023;389:1069-1084. PMID:37622681.",
+            "snippet": "Source: ClinicalTrials.gov NCT04788511 (STEP-HFpEF). Enrollment: 529. Status: COMPLETED. Results posted. Co-primary: KCCQ-CSS & body weight at 52 wk. Kosiborod et al. NEJM 2023;389:1069-1084.",
             "sourceUrl": "https://doi.org/10.1056/NEJMoa2306963",
             "evidence": [
                 {
@@ -1598,7 +1598,7 @@ APPS.append({
                 },
             ],
             "rob": ["low", "low", "low", "low", "low"],
-            "snippet": "Kosiborod MN et al. N Engl J Med 2024;390:1394-1407. PMID:38587233.",
+            "snippet": "Source: ClinicalTrials.gov NCT04916470 (STEP-HFpEF DM). Enrollment: 617. Status: COMPLETED. No CT.gov results posted. Kosiborod et al. NEJM 2024;390:1394-1407.",
             "sourceUrl": "https://doi.org/10.1056/NEJMoa2313917",
             "evidence": [
                 {
@@ -1734,7 +1734,7 @@ APPS.append({
                 },
             ],
             "rob": ["some", "some", "some", "low", "low"],
-            "snippet": "Reynolds D et al. N Engl J Med 2016;374:533-541. Single-arm (n=725) vs historical TVP control (n=2667). 48% lower complication rate (HR 0.49). VERIFY: single-arm design limits causal inference.",
+            "snippet": "Source: ClinicalTrials.gov NCT02004873 (Micra TPS). Enrollment: 744. Status: COMPLETED. Results posted. Primary: major complication-free rate at 6m & pacing threshold. Single-arm vs historical TVP. Reynolds et al. NEJM 2016;374:533-541.",
             "sourceUrl": "https://doi.org/10.1056/NEJMoa1511643",
             "evidence": [
                 {
@@ -2004,7 +2004,7 @@ APPS.append({
             "tE": 40, "tN": 50, "cE": 30, "cN": 50,
             "group": "HPCSP vs BVP (LBBB+non-LBBB)",
             "rob": ["low", "low", "some", "low", "low"],
-            "snippet": "Vijayaraman P et al. JACC Clin Electrophysiol 2023;9:2628-2638. PMID:37715742.",
+            "snippet": "Source: ClinicalTrials.gov NCT04561778 (HOT-CRT). Enrollment: 100. Status: COMPLETED. Results posted. Primary: LVEF change at 6m. Vijayaraman et al. JACC Clin Electrophysiol 2023;9:2628-2638.",
             "allOutcomes": [
                 {
                     "shortLabel": "Echo Response",
@@ -2075,7 +2075,7 @@ APPS.append({
             "group": "CSP (LBBAP) vs BiVP (LBBB)",
             "publishedHR": 2.35, "hrLCI": 0.99, "hrUCI": 5.61,
             "rob": ["low", "low", "low", "low", "low"],
-            "snippet": "Zimerman A et al. JAMA Cardiol 2026. PMID:41811324. CSP INFERIOR to BiVP (OR 2.36, P=0.002). N=173.",
+            "snippet": "Source: ClinicalTrials.gov NCT05572736 (PhysioSync-HF). Enrollment: 179. Status: COMPLETED. No CT.gov results posted. CSP INFERIOR to BiVP (OR 2.36, P=0.002). Zimerman et al. JAMA Cardiol 2026.",
             "allOutcomes": [
                 {
                     "shortLabel": "Hierarchical Composite",
@@ -2386,7 +2386,7 @@ APPS.append({
             "group": "Chronic HFrEF",
             "publishedHR": 0.92, "hrLCI": 0.86, "hrUCI": 0.99,
             "rob": ["low", "low", "low", "low", "low"],
-            "snippet": "Teerlink JR et al. N Engl J Med 2021;384:105-116. PMID:33185990.",
+            "snippet": "Source: ClinicalTrials.gov NCT02929329 (GALACTIC-HF). Enrollment: 8256. Status: COMPLETED. Results posted. Primary: CV death or first HF event. Teerlink et al. NEJM 2021;384:105-116.",
             "allOutcomes": [
                 {
                     "shortLabel": "CV Death or HF Event",
@@ -2466,7 +2466,7 @@ APPS.append({
             "group": "HFrEF (Exercise)",
             "publishedHR": None, "hrLCI": None, "hrUCI": None,
             "rob": ["low", "low", "low", "low", "low"],
-            "snippet": "Lewis GD et al. JAMA 2022;328:259-269. PMID:35852527. NEGATIVE: no improvement in peak VO2.",
+            "snippet": "Source: ClinicalTrials.gov NCT03759392 (METEORIC-HF). Enrollment: 276. Status: COMPLETED. Results posted. Primary: peak VO2 change at wk 20. NEGATIVE. Lewis et al. JAMA 2022;328:259-269.",
             "allOutcomes": [
                 {
                     "shortLabel": "Peak VO2 Change",
@@ -2624,7 +2624,7 @@ APPS.append({
             "tE": 8, "tN": 700, "cE": 8, "cN": 700,
             "group": "Stable chest pain (UK RACPC)",
             "rob": ["low", "low", "some", "low", "low"],
-            "snippet": "Curzen N et al. J Am Coll Cardiol 2021;78:1579-1590. PMID:34587620.",
+            "snippet": "Source: ClinicalTrials.gov NCT03187639 (FORECAST). Enrollment: 1400. Status: COMPLETED. No CT.gov results posted. Primary: resource utilization at 9m. Curzen et al. JACC 2021;78:1579-1590.",
             "allOutcomes": [
                 {
                     "shortLabel": "ICA w/o obstruction",
@@ -2683,7 +2683,7 @@ APPS.append({
             "tE": 44, "tN": 1049, "cE": 83, "cN": 1051,
             "group": "Stable chest pain (N.America/Europe)",
             "rob": ["low", "low", "low", "low", "low"],
-            "snippet": "Douglas PS et al. N Engl J Med 2023;389:154-164. PMID:37634149.",
+            "snippet": "Source: ClinicalTrials.gov NCT03702244 (PRECISE). Enrollment: 2103. Status: COMPLETED. Results posted. Primary: composite death/MI/cath without obstructive CAD. Douglas et al. NEJM 2023;389:154-164. PMID:37634149.",
             "allOutcomes": [
                 {
                     "shortLabel": "Primary Composite",
@@ -2813,7 +2813,7 @@ APPS.append({
             "group": "HFrEF (worsening)",
             "publishedHR": 0.90, "hrLCI": 0.82, "hrUCI": 0.98,
             "rob": ["low", "low", "low", "low", "low"],
-            "snippet": "Armstrong PW et al. N Engl J Med 2020;382:1883-1893. PMID:32222134.",
+            "snippet": "Source: ClinicalTrials.gov NCT02861534 (VICTORIA). Status: COMPLETED. Results posted. Primary: CV death or first HF hospitalization. Armstrong et al. NEJM 2020;382:1883-1893. PMID:32222134.",
             "allOutcomes": [
                 {
                     "shortLabel": "CV Death or HF Hosp",
@@ -2897,7 +2897,7 @@ APPS.append({
             "group": "HFpEF (worsening)",
             "publishedHR": None, "hrLCI": None, "hrUCI": None,
             "rob": ["low", "low", "low", "low", "low"],
-            "snippet": "Armstrong PW et al. N Engl J Med 2020;383:1332-1342. PMID:32865377. NEGATIVE: no KCCQ improvement.",
+            "snippet": "Source: ClinicalTrials.gov NCT03547583 (VITALITY-HFpEF). Enrollment: 789. Status: COMPLETED. Results posted. Primary: KCCQ PLS at 24 wk. NEGATIVE. Armstrong et al. NEJM 2020;383:1332-1342.",
             "allOutcomes": [
                 {
                     "shortLabel": "KCCQ PLS Change",
@@ -3020,7 +3020,7 @@ APPS.append({
             "group": "T2DM + CKD",
             "publishedHR": 0.74, "hrLCI": 0.63, "hrUCI": 0.88,
             "rob": ["low", "low", "low", "low", "some"],
-            "snippet": "Bhatt DL et al. N Engl J Med 2021;384:129-139. PMID:33200891. Stopped early (funding).",
+            "snippet": "Source: ClinicalTrials.gov NCT03315143 (SCORED). Enrollment: 10584. Status: TERMINATED (funding loss). Results posted. Primary: CV death + HHF + urgent HF visits. Bhatt et al. NEJM 2021;384:129-139. PMID:33200891. Stopped early (funding).",
             "allOutcomes": [
                 {
                     "shortLabel": "CV Death/HF Hosp/Urgent HF",
@@ -3103,7 +3103,7 @@ APPS.append({
             "group": "Worsening HF + T2DM",
             "publishedHR": 0.67, "hrLCI": 0.52, "hrUCI": 0.85,
             "rob": ["low", "low", "low", "low", "some"],
-            "snippet": "Bhatt DL et al. N Engl J Med 2021;384:117-128. PMID:33200892. Stopped early (funding).",
+            "snippet": "Source: ClinicalTrials.gov NCT03521934 (SOLOIST-WHF). Enrollment: 1222. Status: TERMINATED (funding loss). Results posted. Primary: CV death + HHF + urgent HF visits. Bhatt et al. NEJM 2021;384:117-128. PMID:33200892. Stopped early (funding).",
             "allOutcomes": [
                 {
                     "shortLabel": "CV Death/HF Hosp/Urgent HF",
