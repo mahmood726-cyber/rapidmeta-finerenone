@@ -203,9 +203,9 @@ def transform_template(template_html, cfg):
             count=1
         )
 
-    # 11. Visual abstract heading
+    # 11. Visual abstract heading — matches all known template variants
     html = re.sub(
-        r'Finerenone in (?:CKD|Heart Failure|Cardiorenal Disease)',
+        r'Finerenone in (?:CKD|Heart Failure|Cardiorenal Disease|Cardio-Kidney-Metabolic Disease)',
         cfg.get("va_heading", cfg["title_short"]),
         html,
         count=2
@@ -219,7 +219,10 @@ def transform_template(template_html, cfg):
 
     # 12b. Replace finerenone_ prefix in download filenames (not caught by word-boundary above)
     slug = drug_lower.replace(' ', '_').replace('(', '').replace(')', '').replace('/', '_')
-    html = re.sub(r"finerenone_(?=\w)", f"{slug}_", html, flags=re.IGNORECASE)
+    # Catches both finerenone_word (JS concat prefix) and 'finerenone_' (quoted standalone filename part)
+    html = re.sub(r"finerenone_(?=[\w'])", f"{slug}_", html, flags=re.IGNORECASE)
+    # Catches _finerenone suffix in download filenames (e.g. prisma_2020_checklist_finerenone.csv)
+    html = re.sub(r"_finerenone(?=[.'\"])", f"_{slug}", html, flags=re.IGNORECASE)
 
     # 13. Effect measure defaults
     em = cfg.get("effect_measure", "AUTO")
@@ -426,6 +429,225 @@ APPS = [
                         "source": "NCT04198701 (ClinicalTrials.gov)",
                         "text": "Non-randomized comparison arm. PFA arm: 226 patients. Drug/device: Medtronic PulseSelect PFA. VERIFY: exact event counts, procedure times, and PNP from published manuscript.",
                         "highlights": ["226", "VERIFY"],
+                    },
+                ],
+            },
+        },
+    },
+    # ─── Task 3: Watchman FLX vs Amulet LAAO ───────────────────
+    {
+        "filename": "WATCHMAN_AMULET_REVIEW.html",
+        "output_dir": r"C:\Projects\LivingMeta_Watchman_Amulet",
+        "title_short": "Watchman FLX vs Amulet LAAO",
+        "title_long": "Left Atrial Appendage Occlusion — Watchman FLX vs Amulet: A Living Systematic Review and Meta-Analysis",
+        "drug_name_lower": "left atrial appendage occlusion",
+        "va_heading": "LAAO Device Comparison: Watchman vs Amulet",
+        "storage_key": "laao_watchman_amulet",
+        "protocol": {
+            "pop": "Adults with non-valvular AF and contraindication to OAC",
+            "int": "Amplatzer Amulet",
+            "comp": "Watchman FLX (or Watchman 2.5)",
+            "out": "Ischemic Stroke or Systemic Embolism",
+            "subgroup": "Comparator generation (FLX vs W2.5), Follow-up duration",
+        },
+        "search_term_ctgov": "left+atrial+appendage+AND+(Watchman+OR+Amulet)",
+        "search_term_pubmed": "(left atrial appendage closure[tiab]) AND (Watchman OR Amulet)[tiab]",
+        "effect_measure": "RR",
+        "nct_acronyms": {"NCT02879448": "AMULET IDE", "NCT03392428": "SWISS-APERO"},
+        "auto_include_ids": ["NCT02879448", "NCT03392428"],
+        "trials": {
+            # ── Active RCTs (poolable) ───────────────────────────────
+            "NCT02879448": {
+                # Primary outcome (stroke/SE): flat tE/tN/cE/cN from nested stroke{}
+                "name": "AMULET IDE", "phase": "Pivotal RCT", "year": 2021,
+                "tE": 26, "tN": 934, "cE": 26, "cN": 944,
+                "group": "Indirect (vs W2.5)",
+                "rob": ["low", "low", "some", "some", "some"],
+                "snippet": "Lakkireddy Circulation 2021;144:e64-e74. Amulet vs Watchman 2.5 (NOT FLX). Ischemic stroke/SE ~2.8% both arms at 18m. Open-label design.",
+                "allOutcomes": [
+                    {
+                        "shortLabel": "Stroke/SE",
+                        "title": "Ischemic Stroke or Systemic Embolism at 18 months",
+                        "tE": 26, "cE": 26,
+                        "type": "PRIMARY",
+                    },
+                    {
+                        "shortLabel": "Safety composite",
+                        "title": "Primary safety composite (complications + death + BARC 3+ bleeding) at 12m",
+                        "tE": 99, "cE": 94,
+                        "type": "SECONDARY",
+                    },
+                ],
+                "evidence": [
+                    {
+                        "label": "Enrollment & Design",
+                        "source": "Lakkireddy D et al. Circulation 2021;144:e64-e74, Fig 1 (CONSORT)",
+                        "text": "A total of 1,878 patients with non-valvular AF and contraindication to long-term OAC were randomized 1:1 to Amplatzer Amulet (n=934) or Watchman 2.5 (n=944). Open-label, non-inferiority design with blinded endpoint adjudication.",
+                        "highlights": ["934", "944", "1,878", "non-inferiority", "blinded endpoint"],
+                    },
+                    {
+                        "label": "Ischemic Stroke/SE at 18 Months",
+                        "source": "Lakkireddy D et al. Circulation 2021;144:e64-e74, Table 2",
+                        "text": "Ischemic stroke or systemic embolism occurred in 26 of 934 patients (2.8%) in the Amulet group and 26 of 944 patients (2.8%) in the Watchman 2.5 group at 18-month follow-up (risk difference 0.0%, 95% CrI -1.2 to 1.3).",
+                        "highlights": ["26", "934", "2.8%", "944"],
+                    },
+                    {
+                        "label": "5-Year Extended Follow-up",
+                        "source": "Lakkireddy D et al. ACC 2024 Late-Breaking",
+                        "text": "At 5-year follow-up: Fatal/disabling stroke: Amulet 22 events vs Watchman 39 events. Device-related thrombus: 3 vs 6. Peridevice leak >=3mm: 4 (Amulet) vs 18 (Watchman). Long-term Amulet advantage in sealing and DRT.",
+                        "highlights": ["22 events", "39 events", "3 vs 6", "4 vs 18"],
+                    },
+                    {
+                        "label": "Procedural Safety (12-Month)",
+                        "source": "Lakkireddy D et al. Circulation 2021;144:e64-e74",
+                        "text": "Primary safety composite (procedure complications + death + BARC 3+ bleeding) at 12m: Amulet 14.5% (136/934) vs Watchman 14.7% (139/944). Procedure-related complications: 4.5% vs 2.5%. DRT: 3.3% vs 4.5%. Peridevice leak >5mm: 10% vs 22%.",
+                        "highlights": ["14.5%", "14.7%", "4.5%", "2.5%", "10%", "22%"],
+                    },
+                    {
+                        "label": "Indirectness Concern",
+                        "source": "Protocol: NCT02879448 (ClinicalTrials.gov)",
+                        "text": "CRITICAL: Comparator is Watchman 2.5 (legacy device), NOT Watchman FLX. GRADE assessment must downgrade for indirectness when pooling with FLX-era trials. Open-label design introduces performance bias risk (D3/D4 some concerns).",
+                        "highlights": ["Watchman 2.5", "NOT Watchman FLX", "indirectness", "Open-label"],
+                    },
+                ],
+            },
+            "NCT03392428": {
+                # Primary outcome (composite CV death/stroke/TIA/SE): flat from nested stroke{}
+                "name": "SWISS-APERO 3yr", "phase": "RCT", "year": 2025,
+                "tE": 20, "tN": 111, "cE": 34, "cN": 110,
+                "group": "Direct (vs FLX/W2.5 mix)",
+                "rob": ["low", "low", "low", "some", "low"],
+                "snippet": "Branca JACC 2025. 3yr follow-up (n=221). Watchman arm: 77% FLX + 23% W2.5. Composite CV death/stroke/TIA/SE: 18.2% vs 31.0%.",
+                "allOutcomes": [
+                    {
+                        "shortLabel": "Composite CV",
+                        "title": "CV death/stroke/TIA/SE at 3 years (primary composite)",
+                        "tE": 20, "cE": 34,
+                        "type": "PRIMARY",
+                    },
+                    {
+                        "shortLabel": "Major bleeding",
+                        "title": "Major bleeding (BARC 3-5) at 3 years",
+                        "tE": 18, "cE": 20,
+                        "type": "SECONDARY",
+                    },
+                ],
+                "evidence": [
+                    {
+                        "label": "Enrollment & Follow-up",
+                        "source": "Branca P et al. JACC 2025, Table 1",
+                        "text": "A total of 221 patients were randomized: 111 to Amulet and 110 to Watchman (77% FLX, 23% W2.5 legacy). Extended 3-year follow-up of the original SWISS-APERO RCT. Blinded outcome adjudication by independent committee.",
+                        "highlights": ["221", "111", "110", "77% FLX", "23% W2.5", "3-year"],
+                    },
+                    {
+                        "label": "Primary Composite at 3 Years",
+                        "source": "Branca P et al. JACC 2025, Table 2",
+                        "text": "The primary composite endpoint (cardiovascular death, stroke, TIA, or systemic embolism) occurred in 20 of 111 patients (18.2%) with Amulet and 34 of 110 patients (31.0%) with Watchman at 3-year follow-up. CV death: 12.1% Amulet vs 23.7% Watchman (HR 0.50). Major bleeding (BARC 3-5): 16.5% vs 18.0% (HR 1.03, NS).",
+                        "highlights": ["20", "111", "18.2%", "34", "110", "31.0%", "12.1%", "23.7%"],
+                    },
+                    {
+                        "label": "45-Day Procedural Safety",
+                        "source": "Galea R et al. Circulation 2022;145:724-738, Table 3",
+                        "text": "Major procedure-related complications: Amulet 9.0% (10/111) vs Watchman 2.7% (3/110). Procedural bleeding: 7.2% (8/111) vs 1.8% (2/110). CV death/stroke/SE at 45d: 2.7% (3/111) vs 4.5% (5/110). DRT: definite 0.9% (1) vs 3.0% (3); definite+probable 3.7% (4) vs 9.9% (11).",
+                        "highlights": ["9.0%", "2.7%", "7.2%", "1.8%", "3.7%", "9.9%"],
+                    },
+                    {
+                        "label": "RoB Assessment",
+                        "source": "Study protocol: NCT03392428 (ClinicalTrials.gov)",
+                        "text": "Multicenter RCT with adequate randomization (D1 low). Some concerns for D4 (measurement) due to open-label design, though endpoints adjudicated by blinded committee. Mixed comparator arm (FLX+W2.5) introduces partial indirectness.",
+                        "highlights": ["randomization", "open-label", "blinded committee"],
+                    },
+                ],
+            },
+            # ── Single-arm / registry (not poolable — tE/tN/cE/cN = 0) ──
+            "NCT02702271": {
+                "name": "PINNACLE FLX", "phase": "Single-arm", "year": 2023,
+                "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+                "group": "Reference (FLX only)",
+                "rob": ["low", "low", "low", "some", "some"],
+                "snippet": "Kar S et al. JAHA 2023. Watchman FLX single-arm IDE study (n=400). 2yr: stroke 3.4%, major bleeding 10.1%, mortality 9.3%. Not poolable (no comparator).",
+                "evidence": [
+                    {
+                        "label": "2-Year Outcomes",
+                        "source": "Kar S et al. J Am Heart Assoc 2023;12:e026295, Table 2",
+                        "text": "Among 395 implanted patients (mean age 74, 36% women, CHA2DS2-VASc 4.2), 2-year ischemic stroke/SE rate was 3.4% (annualized 1.7%; upper 95% CI 5.3%, superior to 8.7% performance goal). All stroke: 5.5%. Major bleeding (BARC 3/5): 10.1%. All-cause mortality: 9.3%. CV death: 5.5%.",
+                        "highlights": ["395", "3.4%", "1.7%", "10.1%", "9.3%"],
+                    },
+                    {
+                        "label": "Procedural Success",
+                        "source": "Kar S et al. J Am Heart Assoc 2023;12:e026295",
+                        "text": "Procedural success 100% (400/400). Device closure (leak <=5mm) at 12 months: 100%. No device embolizations. Zero symptomatic DRT after 1 year. Effective seal maintained through 2 years.",
+                        "highlights": ["100%", "400/400", "Zero"],
+                    },
+                    {
+                        "label": "Note: Single-Arm Design",
+                        "source": "Protocol: NCT02702271",
+                        "text": "PINNACLE FLX is a single-arm study of Watchman FLX without a comparator device. Data cannot be pooled in head-to-head meta-analysis but provides important FLX-specific safety benchmarks. Enrolled at 29 US sites 2018-2020.",
+                        "highlights": ["single-arm", "cannot be pooled", "safety benchmarks"],
+                    },
+                ],
+            },
+            "NCT02447081": {
+                "name": "Amulet Observational", "phase": "Registry", "year": 2019,
+                "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+                "group": "Reference (Amulet only)",
+                "rob": ["some", "some", "low", "some", "some"],
+                "snippet": "Landmesser U et al. Eur Heart J 2020;41:2894. Amulet post-market registry (n=1088). Procedural success 99.0%. Annualized stroke 2.4%, major bleeding 6.3%.",
+                "evidence": [
+                    {
+                        "label": "Registry Population",
+                        "source": "Landmesser U et al. Eur Heart J 2020;41:2894-2905",
+                        "text": "Prospective post-market registry at 51 sites. 1088 patients enrolled (mean age 75, CHA2DS2-VASc 4.2, HAS-BLED 3.3). 72% contraindicated for OAC. Procedural success 99.0% (1077/1088). Median follow-up 1.8 years.",
+                        "highlights": ["1088", "51 sites", "99.0%", "1077"],
+                    },
+                    {
+                        "label": "Clinical Outcomes",
+                        "source": "Landmesser U et al. Eur Heart J 2020;41:2894-2905, Table 3",
+                        "text": "Annualized ischemic stroke rate 2.4%, major bleeding 6.3%, all-cause mortality 8.4%. Pericardial effusion requiring intervention 1.2%. Device-related thrombus 1.6%. Annualized SE 0.2%.",
+                        "highlights": ["2.4%", "6.3%", "8.4%", "1.6%"],
+                    },
+                    {
+                        "label": "Note: Single-Arm Design",
+                        "source": "Protocol: NCT02447081",
+                        "text": "Post-market observational study of the Amulet device without a comparator arm. Data cannot be pooled in head-to-head meta-analysis but provides Amulet-specific safety and efficacy benchmarks in a real-world population.",
+                        "highlights": ["single-arm", "cannot be pooled", "real-world"],
+                    },
+                ],
+            },
+            # ── Pipeline trials (no results yet — tE/tN/cE/cN = 0) ──────
+            "NCT04676880": {
+                "name": "COMPARE-LAAO", "phase": "RCT (Pipeline)", "year": 2026,
+                "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+                "group": "Pipeline (LAAO vs usual care)",
+                "rob": ["low", "low", "low", "low", "low"],
+                "snippet": "Dutch multicenter RCT (n=609). LAAO (Watchman FLX or Amulet) vs usual care in AF patients unable to use OAC. Primary completion May 2026. No results yet.",
+                "evidence": [
+                    {
+                        "label": "Trial Design",
+                        "source": "ClinicalTrials.gov NCT04676880, Protocol v1.4",
+                        "text": "Multicenter RCT across 14 Dutch centers. 609 patients with non-valvular AF and CHA2DS2-VASc >=2 who are unsuitable for long-term OAC. Randomized to LAAO (Watchman FLX or Amulet, operator choice) vs usual care (antiplatelet or nothing). Primary: time to first stroke.",
+                        "highlights": ["609", "14 Dutch centers", "Watchman FLX or Amulet", "May 2026"],
+                    },
+                    {
+                        "label": "Significance for Living MA",
+                        "source": "Protocol analysis",
+                        "text": "COMPARE-LAAO will provide the first RCT evidence for LAAO vs usual care in OAC-ineligible patients. While not a direct Amulet vs FLX comparison, the mixed device arm will contribute real-world comparative effectiveness data. Expected primary completion May 2026.",
+                        "highlights": ["first RCT", "OAC-ineligible", "May 2026"],
+                    },
+                ],
+            },
+            "NCT06706688": {
+                "name": "VERITAS (Amulet 2)", "phase": "Post-market", "year": 2025,
+                "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+                "group": "Pipeline (Amulet 2)",
+                "rob": ["low", "low", "low", "low", "low"],
+                "snippet": "Abbott Amulet 2 LAA Occluder post-market study (n=458). Next-gen device with improved delivery system. Active, not yet recruiting results. 35 sites.",
+                "evidence": [
+                    {
+                        "label": "Next-Generation Device",
+                        "source": "ClinicalTrials.gov NCT06706688",
+                        "text": "Evaluates the Amulet 2 LAA Occluder, the next-generation Amulet device with improved deliverability and seal. 458 patients across 35 international sites. Primary completion November 2025. Results will inform future head-to-head comparisons with Watchman FLX Pro.",
+                        "highlights": ["Amulet 2", "458 patients", "35 sites", "November 2025"],
                     },
                 ],
             },
