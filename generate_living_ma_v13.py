@@ -586,8 +586,8 @@ APPS = [
         "search_term_ctgov": "left+atrial+appendage+AND+(Watchman+OR+Amulet)",
         "search_term_pubmed": "(left atrial appendage closure[tiab]) AND (Watchman OR Amulet)[tiab]",
         "effect_measure": "RR",
-        "nct_acronyms": {"NCT02879448": "AMULET IDE", "NCT03392428": "SWISS-APERO"},
-        "auto_include_ids": ["NCT02879448", "NCT03392428"],
+        "nct_acronyms": {"NCT02879448": "AMULET IDE", "NCT03399851": "SWISS-APERO"},
+        "auto_include_ids": ["NCT02879448", "NCT03399851"],
         "trials": {
             # ── Active RCTs (poolable) ───────────────────────────────
             "NCT02879448": {
@@ -656,13 +656,13 @@ APPS = [
                     },
                 ],
             },
-            "NCT03392428": {
+            "NCT03399851": {
                 # Primary outcome (composite CV death/stroke/TIA/SE): flat from nested stroke{}
                 "name": "SWISS-APERO 3yr", "phase": "RCT", "year": 2025,
                 "tE": 20, "tN": 111, "cE": 34, "cN": 110,
                 "group": "Direct (vs FLX/W2.5 mix)",
                 "rob": ["low", "low", "low", "some", "low"],
-                "snippet": "Source: NCT03392428 on CT.gov maps to TheraP (prostate, not SWISS-APERO). SWISS-APERO NCT ID needs verification. Data from Branca JACC 2025. 3yr (n=221). CV death/stroke/TIA/SE: 18.2% vs 31.0%.",
+                "snippet": "Source: NCT03399851 (ClinicalTrials.gov). Bern University Hospital RCT comparing Amulet vs Watchman/FLX. Data from Branca JACC 2025. 3yr (n=221). CV death/stroke/TIA/SE: 18.2% vs 31.0%.",
                 "allOutcomes": [
                     {
                         "shortLabel": "Composite CV",
@@ -710,7 +710,7 @@ APPS = [
                     },
                     {
                         "label": "RoB Assessment",
-                        "source": "Study protocol: NCT03392428 (ClinicalTrials.gov)",
+                        "source": "Study protocol: NCT03399851 (ClinicalTrials.gov)",
                         "text": "Multicenter RCT with adequate randomization (D1 low). Some concerns for D4 (measurement) due to open-label design, though endpoints adjudicated by blinded committee. Mixed comparator arm (FLX+W2.5) introduces partial indirectness.",
                         "highlights": ["randomization", "open-label", "blinded committee"],
                     },
@@ -830,18 +830,18 @@ APPS = [
         "search_term_pubmed": "(triclip[tiab] OR PASCAL tricuspid[tiab]) AND repair[tiab]",
         "effect_measure": "RR",
         "single_trial_mode": True,
-        "nct_acronyms": {"NCT04221490": "TRILUMINATE", "NCT04097145": "CLASP TR"},
-        "auto_include_ids": ["NCT04221490"],
+        "nct_acronyms": {"NCT03904147": "TRILUMINATE", "NCT04097145": "CLASP TR"},
+        "auto_include_ids": ["NCT03904147"],
         "trials": {
             # ── RCT (poolable) ─────────────────────────────────────────
-            "NCT04221490": {
+            "NCT03904147": {
                 "name": "TRILUMINATE Pivotal", "phase": "III", "year": 2023,
                 # Sorajja P et al. NEJM 2023;389:1938-1950
                 # TEER arm: 152/175 achieved TR ≤2+; Control arm: ~8/175 (4.8%)
                 "tE": 152, "tN": 175, "cE": 8, "cN": 175,
                 "group": "TriClip vs Medical Therapy",
                 "rob": ["low", "low", "some", "low", "low"],
-                "snippet": "Source: NCT04221490 on CT.gov is TRISCEND/EVOQUE (n=228, valve replacement), NOT TRILUMINATE TEER. TRILUMINATE NCT ID needs correction. Data from Sorajja et al. NEJM 2023;389:1938-1950 (n=350).",
+                "snippet": "Source: NCT03904147 (ClinicalTrials.gov). Abbott Medical Devices TRILUMINATE Pivotal RCT (n=572 enrolled, 350 randomized). Data from Sorajja et al. NEJM 2023;389:1938-1950.",
                 "sourceUrl": "https://www.nejm.org/doi/10.1056/NEJMoa2300525",
                 "evidence": [
                     {
@@ -858,7 +858,7 @@ APPS = [
                     },
                     {
                         "label": "RoB Assessment",
-                        "source": "NCT04221490 (ClinicalTrials.gov)",
+                        "source": "NCT03904147 (ClinicalTrials.gov)",
                         "text": "Randomized, controlled, multicenter trial. Open-label design (D2: some concerns due to knowledge of assigned intervention). Central adjudication of echocardiographic endpoints.",
                         "highlights": ["Randomized", "Open-label", "some concerns"],
                     },
