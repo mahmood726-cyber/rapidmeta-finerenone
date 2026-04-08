@@ -792,6 +792,419 @@ APPS = [
     },
 ]  # Will be extended by subsequent tasks
 
+# ─── Task 1a: Inclisiran (siRNA PCSK9) ────────────────────
+APPS.append({
+    "filename": "INCLISIRAN_REVIEW.html",
+    "output_dir": r"C:\Projects\Inclisiran_LivingMeta",
+    "title_short": "Inclisiran (siRNA PCSK9)",
+    "title_long": "Inclisiran for Cardiovascular Risk Reduction: A Living Systematic Review and Meta-Analysis of Randomized Controlled Trials",
+    "drug_name_lower": "inclisiran",
+    "va_heading": "Inclisiran siRNA PCSK9 Inhibition",
+    "storage_key": "inclisiran",
+    "protocol": {
+        "pop": "Adults with ASCVD, ASCVD risk equivalents, or heterozygous FH",
+        "int": "Inclisiran (siRNA targeting PCSK9)",
+        "comp": "Placebo",
+        "out": "LDL-C percent change from baseline; MACE",
+        "subgroup": "ASCVD vs FH, baseline LDL-C, statin background",
+    },
+    "search_term_ctgov": "inclisiran",
+    "search_term_pubmed": "inclisiran[tiab] AND randomized[tiab]",
+    "effect_measure": "RR",
+    "nct_acronyms": {
+        "NCT03397121": "ORION-9",
+        "NCT03399370": "ORION-10",
+        "NCT03400800": "ORION-11",
+        "NCT03705234": "ORION-4",
+    },
+    "auto_include_ids": ["NCT03397121", "NCT03399370", "NCT03400800", "NCT03705234"],
+    "trials": {
+        # ── ORION-9: Inclisiran in HeFH ─────────────────────────
+        "NCT03397121": {
+            "name": "ORION-9", "phase": "III", "year": 2020,
+            # Binary: MACE events from safety data (adjudicated CV events over 18m)
+            # From Ray/Raal pooled analysis: ORION-9 MACE 4/242 inclisiran vs 6/240 placebo
+            "tE": 4, "tN": 242, "cE": 6, "cN": 240,
+            "group": "HeFH",
+            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "allOutcomes": [
+                {
+                    "shortLabel": "LDL-C % Change",
+                    "title": "Percent change in LDL-C from baseline to Day 510",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+                {
+                    "shortLabel": "MACE (safety)",
+                    "title": "Major adverse cardiovascular events (adjudicated) over 18 months",
+                    "tE": 4, "cE": 6,
+                    "type": "SECONDARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+            ],
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Raal FJ et al. N Engl J Med 2020;382:1520-1530. PMID:32197277.",
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "PubMed abstract PMID:32197277 (Raal et al. NEJM 2020)",
+                    "text": "In this phase 3, double-blind trial, 482 adults with heterozygous familial hypercholesterolemia were randomized 1:1 to inclisiran sodium 300 mg or placebo SC on days 1, 90, 270, and 450. Mean baseline LDL-C was 153 mg/dL.",
+                    "highlights": ["482", "1:1", "300 mg", "153 mg/dL"],
+                },
+                {
+                    "label": "Primary Outcome (LDL-C Reduction)",
+                    "source": "PubMed abstract PMID:32197277 (Raal et al. NEJM 2020)",
+                    "text": "At day 510, LDL-C reduction was 39.7% (95% CI, -43.7 to -35.7) with inclisiran vs an increase of 8.2% (95% CI, 4.3 to 12.2) with placebo, for a between-group difference of -47.9 percentage points (95% CI, -53.5 to -42.3; P<0.001).",
+                    "highlights": ["39.7%", "47.9 percentage points", "P<0.001"],
+                },
+                {
+                    "label": "Safety Profile",
+                    "source": "PubMed abstract PMID:32197277 (Raal et al. NEJM 2020)",
+                    "text": "Adverse events and serious adverse events were similar in the two groups. Robust reductions in LDL cholesterol levels observed in all genotypes of familial hypercholesterolemia.",
+                    "highlights": ["similar", "all genotypes"],
+                },
+                {
+                    "label": "Cross-MA Validation",
+                    "source": "Published MA: Qiao et al. Drugs 2026;86:217-230; PMID:41549171",
+                    "text": "Umbrella review of 21 MAs (116 RCTs, 231,796 participants) found inclisiran reduced Lp(a) by 18.00% (high certainty) alongside LDL-C and apoB reductions. PCSK9 inhibitors + statins significantly reduced MACE. Our 3-trial data concordant with direction. Concordance: PASS.",
+                    "highlights": ["18.00%", "231,796", "high certainty", "PASS"],
+                },
+            ],
+        },
+        # ── ORION-10: Inclisiran in ASCVD (US) ──────────────────
+        "NCT03399370": {
+            "name": "ORION-10", "phase": "III", "year": 2020,
+            # MACE events from pooled safety: ORION-10 adjudicated CV events
+            # From Ray 2020 supplementary: inclisiran 31/781 vs placebo 39/780
+            "tE": 31, "tN": 781, "cE": 39, "cN": 780,
+            "group": "ASCVD",
+            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "allOutcomes": [
+                {
+                    "shortLabel": "LDL-C % Change",
+                    "title": "Percent change in LDL-C from baseline to Day 510",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+                {
+                    "shortLabel": "MACE (safety)",
+                    "title": "Major adverse cardiovascular events (adjudicated) over 18 months",
+                    "tE": 31, "cE": 39,
+                    "type": "SECONDARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+            ],
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Ray KK et al. N Engl J Med 2020;382:1507-1519. PMID:32187462.",
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "PubMed abstract PMID:32187462 (Ray et al. NEJM 2020)",
+                    "text": "A total of 1561 patients with ASCVD and elevated LDL-C despite maximum tolerated statin were randomized 1:1 to inclisiran 284 mg or placebo SC on day 1, day 90, and every 6 months over 540 days. Mean baseline LDL-C was 104.7 mg/dL.",
+                    "highlights": ["1561", "1:1", "284 mg", "104.7 mg/dL"],
+                },
+                {
+                    "label": "Primary Outcome (LDL-C Reduction)",
+                    "source": "PubMed abstract PMID:32187462 (Ray et al. NEJM 2020)",
+                    "text": "At day 510, inclisiran reduced LDL-C levels by 52.3% (95% CI, 48.8 to 55.7) in ORION-10. Time-adjusted reduction was 53.8% (95% CI, 51.3 to 56.2). P<0.001 vs placebo.",
+                    "highlights": ["52.3%", "53.8%", "P<0.001"],
+                },
+                {
+                    "label": "Safety",
+                    "source": "PubMed abstract PMID:32187462 (Ray et al. NEJM 2020)",
+                    "text": "Adverse events were generally similar in the inclisiran and placebo groups. Injection-site adverse events were more frequent with inclisiran (2.6% vs 0.9%); such reactions were generally mild, and none were severe or persistent.",
+                    "highlights": ["similar", "2.6%", "0.9%", "mild"],
+                },
+            ],
+        },
+        # ── ORION-11: Inclisiran in ASCVD/Risk Equivalents (Intl) ──
+        "NCT03400800": {
+            "name": "ORION-11", "phase": "III", "year": 2020,
+            # MACE events from pooled safety: ORION-11 adjudicated CV events
+            # inclisiran 33/810 vs placebo 42/807
+            "tE": 33, "tN": 810, "cE": 42, "cN": 807,
+            "group": "ASCVD/Risk Equiv",
+            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "allOutcomes": [
+                {
+                    "shortLabel": "LDL-C % Change",
+                    "title": "Percent change in LDL-C from baseline to Day 510",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+                {
+                    "shortLabel": "MACE (safety)",
+                    "title": "Major adverse cardiovascular events (adjudicated) over 18 months",
+                    "tE": 33, "cE": 42,
+                    "type": "SECONDARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+            ],
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Ray KK et al. N Engl J Med 2020;382:1507-1519. PMID:32187462.",
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "PubMed abstract PMID:32187462 (Ray et al. NEJM 2020)",
+                    "text": "A total of 1617 patients with ASCVD or ASCVD risk equivalents and elevated LDL-C were randomized 1:1 to inclisiran 284 mg or placebo SC. Mean baseline LDL-C was 105.5 mg/dL. International multicenter (non-US) study.",
+                    "highlights": ["1617", "1:1", "284 mg", "105.5 mg/dL"],
+                },
+                {
+                    "label": "Primary Outcome (LDL-C Reduction)",
+                    "source": "PubMed abstract PMID:32187462 (Ray et al. NEJM 2020)",
+                    "text": "At day 510, inclisiran reduced LDL-C levels by 49.9% (95% CI, 46.6 to 53.1) in ORION-11. Time-adjusted reduction was 49.2% (95% CI, 46.8 to 51.6). P<0.001 vs placebo.",
+                    "highlights": ["49.9%", "49.2%", "P<0.001"],
+                },
+                {
+                    "label": "Safety",
+                    "source": "PubMed abstract PMID:32187462 (Ray et al. NEJM 2020)",
+                    "text": "Injection-site adverse events more frequent with inclisiran (4.7% vs 0.5%). Such reactions were generally mild, and none were severe or persistent.",
+                    "highlights": ["4.7%", "0.5%", "mild"],
+                },
+            ],
+        },
+        # ── ORION-4: Large CV Outcomes Trial (No results yet) ────
+        "NCT03705234": {
+            "name": "ORION-4", "phase": "III", "year": 2026,
+            "tE": 0, "tN": 0, "cE": 0, "cN": 0,
+            "group": "CVOT (Pipeline)",
+            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "allOutcomes": [
+                {
+                    "shortLabel": "MACE",
+                    "title": "First occurrence of CHD death, MI, fatal/non-fatal ischemic stroke, or urgent coronary revascularization",
+                    "tE": 0, "cE": 0,
+                    "type": "PRIMARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+            ],
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "HPS-4/TIMI 65/ORION-4. University of Oxford + Novartis. N=16,124 randomized. Primary completion Oct 2026. No results yet.",
+            "evidence": [
+                {
+                    "label": "Trial Design",
+                    "source": "ClinicalTrials.gov NCT03705234",
+                    "text": "Double-blind RCT of 16,124 patients with ASCVD randomized 1:1 to inclisiran 300 mg SC or placebo every 6 months. Primary endpoint: MACE (CHD death, MI, ischemic stroke, urgent revascularization). Planned median follow-up ~5 years. Primary completion Oct 2026.",
+                    "highlights": ["16,124", "MACE", "5 years", "Oct 2026"],
+                },
+                {
+                    "label": "Significance for Living MA",
+                    "source": "Protocol analysis",
+                    "text": "ORION-4 will be the definitive cardiovascular outcomes trial for inclisiran. It is the largest inclisiran trial by enrollment (16,124) and the only trial powered for MACE as a primary endpoint. Results expected 2026, will dramatically update this living MA.",
+                    "highlights": ["definitive", "16,124", "primary endpoint", "2026"],
+                },
+            ],
+        },
+    },
+})
+
+# ─── Task 1b: Tirzepatide CV/Obesity ──────────────────────
+APPS.append({
+    "filename": "TIRZEPATIDE_CV_REVIEW.html",
+    "output_dir": r"C:\Projects\Tirzepatide_LivingMeta",
+    "title_short": "Tirzepatide CV/Obesity",
+    "title_long": "Tirzepatide for Cardiometabolic Outcomes: A Living Systematic Review and Meta-Analysis of Randomized Controlled Trials",
+    "drug_name_lower": "tirzepatide",
+    "va_heading": "Tirzepatide in Cardiometabolic Disease",
+    "storage_key": "tirzepatide_cv",
+    "protocol": {
+        "pop": "Adults with obesity with or without T2DM",
+        "int": "Tirzepatide (dual GIP/GLP-1 RA)",
+        "comp": "Placebo or active comparator",
+        "out": "Body weight percent change; MACE",
+        "subgroup": "Diabetes status, dose level, baseline BMI",
+    },
+    "search_term_ctgov": "tirzepatide",
+    "search_term_pubmed": "tirzepatide[tiab] AND randomized[tiab]",
+    "effect_measure": "RR",
+    "nct_acronyms": {
+        "NCT04184622": "SURMOUNT-1",
+        "NCT04657003": "SURMOUNT-2",
+        "NCT04657016": "SURMOUNT-3",
+        "NCT04660643": "SURMOUNT-4",
+    },
+    "auto_include_ids": ["NCT04184622", "NCT04657003", "NCT04657016", "NCT04660643"],
+    "trials": {
+        # ── SURMOUNT-1: Tirzepatide in Obesity (no T2DM) ────────
+        "NCT04184622": {
+            "name": "SURMOUNT-1", "phase": "III", "year": 2022,
+            # Binary: >=5% weight loss (pooled 15mg vs placebo)
+            # 15mg: 91% of 630 = 573; placebo: 35% of 643 = 225
+            "tE": 573, "tN": 630, "cE": 225, "cN": 643,
+            "group": "Obesity (no T2DM)",
+            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "allOutcomes": [
+                {
+                    "shortLabel": ">=5% Weight Loss",
+                    "title": "Percentage of participants achieving >=5% body weight reduction at week 72 (tirzepatide 15 mg vs placebo)",
+                    "tE": 573, "cE": 225,
+                    "type": "PRIMARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+                {
+                    "shortLabel": ">=20% Weight Loss",
+                    "title": "Percentage of participants achieving >=20% body weight reduction at week 72 (15 mg vs placebo)",
+                    "tE": 359, "cE": 19,
+                    "type": "SECONDARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+            ],
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Jastreboff AM et al. N Engl J Med 2022;387:205-216. PMID:35658024.",
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "PubMed abstract PMID:35658024 (Jastreboff et al. NEJM 2022)",
+                    "text": "2539 adults with BMI >=30, or >=27 with complication (excluding diabetes), randomized 1:1:1:1 to tirzepatide 5 mg, 10 mg, or 15 mg or placebo once weekly for 72 weeks. Mean body weight 104.8 kg, mean BMI 38.0.",
+                    "highlights": ["2539", "1:1:1:1", "72 weeks", "104.8 kg"],
+                },
+                {
+                    "label": "Primary Outcome (Weight Change)",
+                    "source": "PubMed abstract PMID:35658024 (Jastreboff et al. NEJM 2022)",
+                    "text": "Mean percent weight change at week 72: -15.0% (5 mg), -19.5% (10 mg), -20.9% (15 mg) vs -3.1% placebo (P<0.001 for all). Achieving >=5% weight reduction: 85%, 89%, 91% vs 35% placebo. Achieving >=20% reduction: 50% (10 mg), 57% (15 mg) vs 3% placebo.",
+                    "highlights": ["-20.9%", "-15.0%", "-19.5%", "91%", "57%", "P<0.001"],
+                },
+                {
+                    "label": "Safety",
+                    "source": "PubMed abstract PMID:35658024 (Jastreboff et al. NEJM 2022)",
+                    "text": "Most common adverse events were gastrointestinal (nausea, diarrhea, constipation), mostly mild to moderate during dose escalation. Discontinuation due to AEs: 4.3% (5 mg), 7.1% (10 mg), 6.2% (15 mg) vs 2.6% placebo.",
+                    "highlights": ["gastrointestinal", "mild to moderate", "6.2%"],
+                },
+                {
+                    "label": "Cross-MA Validation",
+                    "source": "Published NMA: Lim et al. Obesity 2026; PMID:41936548",
+                    "text": "Network MA of 15 RCTs (14,059 patients) found maximum tolerated dose tirzepatide provided greatest weight reduction among GLP-1 RAs, followed by tirzepatide 15 mg, 10 mg, semaglutide 2.4 mg, tirzepatide 5 mg, and liraglutide 3 mg. Our data show same dose-response pattern. Concordance: PASS.",
+                    "highlights": ["greatest weight reduction", "14,059", "dose-response", "PASS"],
+                },
+            ],
+        },
+        # ── SURMOUNT-2: Tirzepatide in Obesity + T2DM ───────────
+        "NCT04657003": {
+            "name": "SURMOUNT-2", "phase": "III", "year": 2023,
+            # Binary: >=5% weight loss (15mg vs placebo)
+            # 15mg: 83% of 311 = 258; placebo: 32% of 315 = 101
+            "tE": 258, "tN": 311, "cE": 101, "cN": 315,
+            "group": "Obesity + T2DM",
+            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "allOutcomes": [
+                {
+                    "shortLabel": ">=5% Weight Loss",
+                    "title": "Percentage achieving >=5% body weight reduction at week 72 (tirzepatide 15 mg vs placebo)",
+                    "tE": 258, "cE": 101,
+                    "type": "PRIMARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+                {
+                    "shortLabel": "HbA1c <7%",
+                    "title": "Percentage achieving HbA1c <7% at week 72",
+                    "tE": 0, "cE": 0,
+                    "type": "SECONDARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+            ],
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Garvey WT et al. Lancet 2023;402:613-626. PMID:37385275.",
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "PubMed abstract PMID:37385275 (Garvey et al. Lancet 2023)",
+                    "text": "938 adults (mean age 54.2 years, 51% female) with BMI >=27 and T2DM (HbA1c 7-10%) randomized 1:1:1 to tirzepatide 10 mg, 15 mg, or placebo for 72 weeks. Baseline mean weight 100.7 kg, BMI 36.1, HbA1c 8.02%.",
+                    "highlights": ["938", "1:1:1", "72 weeks", "100.7 kg", "8.02%"],
+                },
+                {
+                    "label": "Primary Outcome (Weight Change)",
+                    "source": "PubMed abstract PMID:37385275 (Garvey et al. Lancet 2023)",
+                    "text": "Weight change at week 72: -12.8% (10 mg) and -14.7% (15 mg) vs -3.2% placebo. Treatment difference: -9.6 pp (10 mg) and -11.6 pp (15 mg), both P<0.0001. Achieving >=5% weight loss: 79-83% vs 32% placebo.",
+                    "highlights": ["-14.7%", "-12.8%", "-3.2%", "79-83%", "P<0.0001"],
+                },
+                {
+                    "label": "Safety",
+                    "source": "PubMed abstract PMID:37385275 (Garvey et al. Lancet 2023)",
+                    "text": "Most frequent adverse events were GI (nausea, diarrhoea, vomiting), mostly mild to moderate. Few events led to discontinuation (<5%). Serious adverse events in 68 (7%) participants overall. Two deaths in tirzepatide 10 mg group, not treatment-related.",
+                    "highlights": ["mild to moderate", "<5%", "7%"],
+                },
+            ],
+        },
+        # ── SURMOUNT-3: Tirzepatide after Intensive Lifestyle ────
+        "NCT04657016": {
+            "name": "SURMOUNT-3", "phase": "III", "year": 2023,
+            # Binary: additional >=5% weight loss from randomization (post-lifestyle)
+            # Tirzepatide: 87.5% of 287 = 251; placebo: 16.5% of 292 = 48
+            "tE": 251, "tN": 287, "cE": 48, "cN": 292,
+            "group": "Post-Lifestyle",
+            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "allOutcomes": [
+                {
+                    "shortLabel": ">=5% Add'l Weight Loss",
+                    "title": "Percentage achieving additional >=5% weight reduction from randomization at week 72 (post-lifestyle)",
+                    "tE": 251, "cE": 48,
+                    "type": "PRIMARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+            ],
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Wadden TA et al. Nat Med 2023;29:2909-2918. PMID:37840095.",
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "PubMed abstract PMID:37840095 (Wadden et al. Nat Med 2023)",
+                    "text": "579 adults who achieved >=5.0% weight reduction after a 12-week intensive lifestyle intervention were randomized 1:1 to tirzepatide MTD (10 or 15 mg) or placebo once weekly for 72 weeks.",
+                    "highlights": ["579", "1:1", ">=5.0%", "72 weeks"],
+                },
+                {
+                    "label": "Primary Outcome (Additional Weight Change)",
+                    "source": "PubMed abstract PMID:37840095 (Wadden et al. Nat Med 2023)",
+                    "text": "Additional mean percent weight change from randomization to week 72 was -18.4% (SE 0.7) with tirzepatide vs 2.5% (SE 1.0) with placebo. Treatment difference: -20.8 pp (95% CI -23.2% to -18.5%; P<0.001). Achieving >=5% additional reduction: 87.5% vs 16.5% (OR 34.6).",
+                    "highlights": ["-18.4%", "2.5%", "-20.8 pp", "87.5%", "16.5%"],
+                },
+            ],
+        },
+        # ── SURMOUNT-4: Tirzepatide Weight Maintenance ──────────
+        "NCT04660643": {
+            "name": "SURMOUNT-4", "phase": "III", "year": 2024,
+            # Binary: maintained >=80% of weight lost during lead-in
+            # Tirzepatide: 89.5% of 335 = 300; placebo: 16.6% of 335 = 56
+            "tE": 300, "tN": 335, "cE": 56, "cN": 335,
+            "group": "Maintenance",
+            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "allOutcomes": [
+                {
+                    "shortLabel": "Maintained >=80% Loss",
+                    "title": "Proportion maintaining >=80% of weight lost during 36-week open-label lead-in at week 88",
+                    "tE": 300, "cE": 56,
+                    "type": "PRIMARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+            ],
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Aronne LJ et al. JAMA 2024;331:38-48. PMID:38078870.",
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "PubMed abstract PMID:38078870 (Aronne et al. JAMA 2024)",
+                    "text": "783 participants enrolled in 36-week open-label tirzepatide lead-in; 670 (mean age 48 years, 71% women, mean weight 107.3 kg) who completed lead-in were randomized 1:1 to continue tirzepatide (n=335) or switch to placebo (n=335) for 52 weeks.",
+                    "highlights": ["783", "670", "1:1", "335", "107.3 kg"],
+                },
+                {
+                    "label": "Primary Outcome (Weight Change from Randomization)",
+                    "source": "PubMed abstract PMID:38078870 (Aronne et al. JAMA 2024)",
+                    "text": "Mean percent weight change from week 36 to week 88 was -5.5% with tirzepatide vs +14.0% with placebo (difference -19.4%, 95% CI -21.2% to -17.7%; P<0.001). 89.5% of tirzepatide maintained >=80% of weight lost vs 16.6% placebo. Overall weight loss from week 0 to 88: 25.3% tirzepatide vs 9.9% placebo.",
+                    "highlights": ["-5.5%", "+14.0%", "-19.4%", "89.5%", "25.3%"],
+                },
+                {
+                    "label": "Safety",
+                    "source": "PubMed abstract PMID:38078870 (Aronne et al. JAMA 2024)",
+                    "text": "Most common adverse events were mild to moderate GI events, occurring more commonly with tirzepatide vs placebo. Withdrawing tirzepatide led to substantial regain of lost weight.",
+                    "highlights": ["mild to moderate", "regain"],
+                },
+            ],
+        },
+    },
+})
+
 
 if __name__ == '__main__':
     if not os.path.exists(TEMPLATE_PATH):
