@@ -8034,6 +8034,177 @@
             }
         };
 
+        // ═══════════════════════════════════════════════════════════
+        // v13.0: Cross-Validation Engine
+        // Three-source concordance checking: CT.gov API vs PubMed abstract vs extracted value
+        // ═══════════════════════════════════════════════════════════
+        const CrossValidationEngine = {
+            _tolerance: { integer: 0, decimal: 0.005, ci: 0.01 },
+
+            checkConcordance(field, values) {
+                const defined = values.filter(v => v.value != null && Number.isFinite(v.value));
+                if (defined.length < 2) return { status: 'na', label: 'Insufficient sources' };
+                const isInteger = /^(tE|tN|cE|cN)$/.test(field);
+                const tol = isInteger ? this._tolerance.integer : this._tolerance.decimal;
+                const vals = defined.map(v => v.value);
+                const maxDiff = Math.max(...vals) - Math.min(...vals);
+                if (maxDiff <= tol) return { status: 'concordant', label: 'All concordant' };
+                if (!isInteger && maxDiff <= this._tolerance.ci) return { status: 'rounding', label: 'Rounding only' };
+                return { status: 'discrepant', label: `Discrepancy: ${maxDiff.toFixed(4)}` };
+            },
+
+            _extractCtgovValues(trialId) {
+                const trial = RapidMeta.state.trials?.find(t => t.id === trialId);
+                const evData = ExtractEngine._getEvidenceDataForTrial(trial ?? {});
+                const ctgovEv = evData.filter(ev => /CT\.gov|ClinicalTrials\.gov|results API/i.test(String(ev?.source ?? '')));
+                const result = { tE: null, tN: null, cE: null, cN: null, effect: null, lci: null, uci: null };
+                const allText = ctgovEv.map(ev => String(ev?.text ?? '')).join(' ');
+                const txMatch = allText.match(/(\d[\d,]*)\s*(?:of|\/)\s*(\d[\d,]*)\s*(?:patients?\s*)?(?:\([^)]*\)\s*)?in\s*the\s*(?:finerenone|treatment|experimental|intervention|drug)/i)
+                    || allText.match(/(?:finerenone|treatment|experimental|intervention)\s*(?:group)?[:\s]*(\d[\d,]*)\s*(?:of|\/)\s*(\d[\d,]*)/i);
+                if (txMatch) {
+                    result.tE = parseInt(txMatch[1].replace(/,/g, ''), 10);
+                    result.tN = parseInt(txMatch[2].replace(/,/g, ''), 10);
+                }
+                const ctrlMatch = allText.match(/(\d[\d,]*)\s*(?:of|\/)\s*(\d[\d,]*)\s*(?:patients?\s*)?(?:\([^)]*\)\s*)?in\s*the\s*(?:placebo|control|comparator)/i)
+                    || allText.match(/(?:placebo|control|comparator)\s*(?:group)?[:\s]*(\d[\d,]*)\s*(?:of|\/)\s*(\d[\d,]*)/i);
+                if (ctrlMatch) {
+                    result.cE = parseInt(ctrlMatch[1].replace(/,/g, ''), 10);
+                    result.cN = parseInt(ctrlMatch[2].replace(/,/g, ''), 10);
+                }
+                const hrMatch = allText.match(/(?:hazard ratio|HR|risk ratio|RR|odds ratio|OR)[,:\s]*(\d+\.\d+)\s*[;,]?\s*(?:95%?\s*CI[,:\s]*)?(\d+\.\d+)\s*(?:to|-|,)\s*(\d+\.\d+)/i);
+                if (hrMatch) {
+                    result.effect = parseFloat(hrMatch[1]);
+                    result.lci = parseFloat(hrMatch[2]);
+                    result.uci = parseFloat(hrMatch[3]);
+                }
+                return result;
+            },
+
+            _extractPubmedValues(trialId) {
+                const trial = RapidMeta.state.trials?.find(t => t.id === trialId);
+                const evData = ExtractEngine._getEvidenceDataForTrial(trial ?? {});
+                const pmEv = evData.filter(ev => /PubMed|PMID|NEJM|Lancet|JAMA|Circulation|BMJ/i.test(String(ev?.source ?? ''))
+                    && !/CT\.gov|ClinicalTrials\.gov/i.test(String(ev?.source ?? '')));
+                const result = { tE: null, tN: null, cE: null, cN: null, effect: null, lci: null, uci: null };
+                const allText = pmEv.map(ev => String(ev?.text ?? '')).join(' ');
+                const txMatch = allText.match(/(\d[\d,]*)\s*(?:of|\/)\s*(\d[\d,]*)\s*(?:patients?\s*)?(?:\([^)]*\)\s*)?in\s*the\s*(?:finerenone|treatment|experimental|intervention|drug)/i);
+                if (txMatch) {
+                    result.tE = parseInt(txMatch[1].replace(/,/g, ''), 10);
+                    result.tN = parseInt(txMatch[2].replace(/,/g, ''), 10);
+                }
+                const ctrlMatch = allText.match(/(\d[\d,]*)\s*(?:of|\/)\s*(\d[\d,]*)\s*(?:patients?\s*)?(?:\([^)]*\)\s*)?in\s*the\s*(?:placebo|control|comparator)/i);
+                if (ctrlMatch) {
+                    result.cE = parseInt(ctrlMatch[1].replace(/,/g, ''), 10);
+                    result.cN = parseInt(ctrlMatch[2].replace(/,/g, ''), 10);
+                }
+                const hrMatch = allText.match(/(?:hazard ratio|HR|risk ratio|RR|odds ratio|OR)[,:\s]*(\d+\.\d+)\s*[;,]?\s*(?:95%?\s*CI[,:\s]*)?(\d+\.\d+)\s*(?:to|-|,)\s*(\d+\.\d+)/i);
+                if (hrMatch) {
+                    result.effect = parseFloat(hrMatch[1]);
+                    result.lci = parseFloat(hrMatch[2]);
+                    result.uci = parseFloat(hrMatch[3]);
+                }
+                return result;
+            },
+
+            _getExtractedValues(trialId) {
+                const trial = RapidMeta.state.trials?.find(t => t.id === trialId);
+                const d = trial?.data;
+                const rd = RapidMeta.realData[trialId];
+                const src = rd ?? d ?? {};
+                return {
+                    tE: src.tE ?? null, tN: src.tN ?? null,
+                    cE: src.cE ?? null, cN: src.cN ?? null,
+                    effect: src.publishedHR ?? null,
+                    lci: src.hrLCI ?? null, uci: src.hrUCI ?? null
+                };
+            },
+
+            renderSummaryBadge(trialId) {
+                const fields = ['tE', 'tN', 'cE', 'cN', 'effect', 'lci', 'uci'];
+                const ctgov = this._extractCtgovValues(trialId);
+                const pubmed = this._extractPubmedValues(trialId);
+                const extracted = this._getExtractedValues(trialId);
+                let worst = 'concordant';
+                let checkedFields = 0;
+                for (const f of fields) {
+                    const vals = [
+                        { source: 'ctgov', value: ctgov[f] },
+                        { source: 'pubmed', value: pubmed[f] },
+                        { source: 'extracted', value: extracted[f] }
+                    ];
+                    const result = this.checkConcordance(f, vals);
+                    if (result.status === 'na') continue;
+                    checkedFields++;
+                    if (result.status === 'discrepant') worst = 'discrepant';
+                    else if (result.status === 'rounding' && worst !== 'discrepant') worst = 'rounding';
+                }
+                if (checkedFields === 0) return '';
+                const badgeClass = worst === 'concordant' ? 'xval-concordant' : worst === 'rounding' ? 'xval-rounding' : 'xval-discrepant';
+                const icon = worst === 'concordant' ? 'fa-circle-check' : worst === 'rounding' ? 'fa-circle-exclamation' : 'fa-triangle-exclamation';
+                const label = worst === 'concordant' ? 'Concordant' : worst === 'rounding' ? 'Rounding' : 'Discrepant';
+                return `<span class="xval-badge ${badgeClass}"><i class="fa-solid ${icon} mr-1"></i>${label} (${checkedFields})</span>`;
+            },
+
+            render(trialId) {
+                const fields = [
+                    { key: 'tE', label: 'Events (Tx)' },
+                    { key: 'tN', label: 'N (Tx)' },
+                    { key: 'cE', label: 'Events (Ctrl)' },
+                    { key: 'cN', label: 'N (Ctrl)' },
+                    { key: 'effect', label: RapidMeta.emLabel('short') ?? 'Effect' },
+                    { key: 'lci', label: 'CI Lower' },
+                    { key: 'uci', label: 'CI Upper' }
+                ];
+                const ctgov = this._extractCtgovValues(trialId);
+                const pubmed = this._extractPubmedValues(trialId);
+                const extracted = this._getExtractedValues(trialId);
+                const rows = fields.map(f => {
+                    const vals = [
+                        { source: 'ctgov', value: ctgov[f.key] },
+                        { source: 'pubmed', value: pubmed[f.key] },
+                        { source: 'extracted', value: extracted[f.key] }
+                    ];
+                    const concordance = this.checkConcordance(f.key, vals);
+                    const fmt = v => v == null ? '<span class="xval-na">--</span>' : String(v);
+                    const statusClass = concordance.status === 'concordant' ? 'xval-match' : concordance.status === 'rounding' ? 'xval-warn' : concordance.status === 'discrepant' ? 'xval-mismatch' : 'xval-na';
+                    const statusIcon = concordance.status === 'concordant' ? '<i class="fa-solid fa-check"></i>' : concordance.status === 'rounding' ? '<i class="fa-solid fa-minus"></i>' : concordance.status === 'discrepant' ? '<i class="fa-solid fa-xmark"></i>' : '';
+                    return `<tr>
+                        <td class="font-bold text-slate-400">${escapeHtml(f.label)}</td>
+                        <td>${fmt(ctgov[f.key])}</td>
+                        <td>${fmt(pubmed[f.key])}</td>
+                        <td>${fmt(extracted[f.key])}</td>
+                        <td class="${statusClass}">${statusIcon}</td>
+                    </tr>`;
+                }).join('');
+
+                const overall = this.renderSummaryBadge(trialId);
+                const nctUrl = `https://clinicaltrials.gov/study/${trialId}?tab=results`;
+
+                return `<div class="xval-panel" id="xval-${escapeHtml(trialId)}">
+                    <div class="xval-header" onclick="this.parentElement.classList.toggle('open')">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-cyan-400"><i class="fa-solid fa-code-compare mr-1"></i>Cross-Validation</span>
+                            ${overall}
+                        </div>
+                        <i class="fa-solid fa-chevron-down xval-chevron"></i>
+                    </div>
+                    <div class="xval-body">
+                        <table class="xval-table">
+                            <thead><tr>
+                                <th>Field</th>
+                                <th><a href="${escapeHtml(nctUrl)}" target="_blank" rel="noopener" class="text-cyan-400 hover:underline">CT.gov API</a></th>
+                                <th>PubMed Abstract</th>
+                                <th>Extracted</th>
+                                <th>Status</th>
+                            </tr></thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                        <div class="text-[9px] text-slate-500 mt-2">Tolerance: integers exact, decimals &le;0.005, CI &le;0.01. Sources parsed from evidence panels.</div>
+                    </div>
+                </div>`;
+            }
+        };
+
         // ===== v11.0: BAYESIAN RANDOM-EFFECTS ENGINE =====
         const BayesianEngine = {
             run(plotData, pLogOR, pSE, tau2) {
