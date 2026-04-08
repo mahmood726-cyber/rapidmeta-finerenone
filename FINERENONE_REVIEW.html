@@ -7788,6 +7788,7 @@
                                 <div>
                                     <div class="text-sm font-bold text-white">${escapeHtml(name)}${/phase\s*[12]\b/i.test(d?.phase ?? '') ? ' <span class="text-[9px] font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full ml-2"><i class="fa-solid fa-triangle-exclamation mr-1"></i>' + escapeHtml(d.phase) + '</span>' : ''}</div>
                                     <div class="text-[10px] font-mono text-slate-500">${escapeHtml(t.id)} &middot; ${d?.year ?? '--'} &middot; ${escapeHtml(d?.group || '--')}</div>
+                                    <div class="mt-1">${CrossValidationEngine.renderSummaryBadge(t.id)}</div>
                                 </div>
                             </div>
                             <div class="flex items-center gap-3">${statusBadge}</div>
@@ -7838,6 +7839,7 @@
                             ${dualSignoffStrip}
                             ${reviewNotice}
                             ${extractionHelp}
+                            ${CrossValidationEngine.render(t.id)}
                             <div class="mt-6 pt-5 border-t border-slate-800/50">
                                 <div class="text-[10px] font-bold uppercase tracking-widest text-amber-400/70 mb-3 flex items-center gap-2">
                                     <i class="fa-solid fa-scroll"></i> Source Evidence Extracts
