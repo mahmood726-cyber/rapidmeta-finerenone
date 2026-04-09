@@ -8684,6 +8684,85 @@
                 showToast('League table exported.');
             },
 
+            renderOutput() {
+                const cfg = this._getConfig();
+                if (!cfg) return;
+                const pairwise = this._getAllPairwise();
+                const scores = this.computePScores();
+                const consistency = this.testConsistency();
+
+                // Forest plot of all comparisons
+                const forestContainer = document.getElementById('nma-forest-container');
+                if (forestContainer) {
+                    const comparisons = Object.entries(pairwise).filter(([k, p]) => p.combined).map(([key, p]) => {
+                        const est = Math.exp(p.combined.logEffect);
+                        const lo = Math.exp(p.combined.logEffect - 1.96 * p.combined.se);
+                        const hi = Math.exp(p.combined.logEffect + 1.96 * p.combined.se);
+                        const [t1, t2] = key.split('|');
+                        return { label: `${t1} vs ${t2}`, est, lo, hi, indirect: Boolean(p.combined.indirect) };
+                    });
+                    if (comparisons.length > 0 && typeof Plotly !== 'undefined') {
+                        const trace = {
+                            type: 'scatter', mode: 'markers',
+                            x: comparisons.map(c => c.est),
+                            y: comparisons.map((c, i) => i),
+                            error_x: { type: 'data', symmetric: false, array: comparisons.map(c => c.hi - c.est), arrayminus: comparisons.map(c => c.est - c.lo) },
+                            marker: { size: 10, color: comparisons.map(c => c.indirect ? '#f59e0b' : '#3b82f6') },
+                            hovertext: comparisons.map(c => `${c.label}: ${c.est.toFixed(2)} (${c.lo.toFixed(2)}-${c.hi.toFixed(2)})${c.indirect ? ' [indirect]' : ''}`),
+                            hoverinfo: 'text', showlegend: false
+                        };
+                        const refLine = { type: 'scatter', mode: 'lines', x: [1, 1], y: [-0.5, comparisons.length - 0.5], line: { dash: 'dash', color: '#475569', width: 1 }, showlegend: false, hoverinfo: 'none' };
+                        const layout = {
+                            paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+                            xaxis: { title: { text: cfg.outcome_label ?? 'Risk Ratio', font: { color: '#94a3b8', size: 11 } }, type: 'log', gridcolor: '#1e293b', color: '#94a3b8' },
+                            yaxis: { tickvals: comparisons.map((c, i) => i), ticktext: comparisons.map(c => c.label), color: '#94a3b8', autorange: 'reversed' },
+                            margin: { l: 200, r: 30, t: 20, b: 50 }, height: Math.max(200, comparisons.length * 40 + 80)
+                        };
+                        Plotly.newPlot(forestContainer, [refLine, trace], layout, { responsive: true, displayModeBar: false });
+                    }
+                }
+
+                // Summary stats
+                const summaryContainer = document.getElementById('nma-summary-container');
+                if (summaryContainer && scores.length > 0) {
+                    const best = scores[0];
+                    const nConsistent = consistency.filter(c => !c.inconsistent).length;
+                    const nTotal = consistency.length;
+                    summaryContainer.innerHTML = `
+                        <div class="grid grid-cols-3 gap-6 mb-6">
+                            <div class="text-center p-4 rounded-2xl bg-slate-900/50 border border-slate-800">
+                                <div class="text-2xl font-bold text-emerald-400">${escapeHtml(best.treatment)}</div>
+                                <div class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Highest Ranked (P-score ${(best.pscore * 100).toFixed(0)}%)</div>
+                            </div>
+                            <div class="text-center p-4 rounded-2xl bg-slate-900/50 border border-slate-800">
+                                <div class="text-2xl font-bold text-blue-400">${cfg.treatments.length}</div>
+                                <div class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Treatments Compared</div>
+                            </div>
+                            <div class="text-center p-4 rounded-2xl bg-slate-900/50 border border-slate-800">
+                                <div class="text-2xl font-bold ${nConsistent === nTotal ? 'text-emerald-400' : 'text-amber-400'}">${nTotal > 0 ? nConsistent + '/' + nTotal : 'N/A'}</div>
+                                <div class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Consistent Comparisons</div>
+                            </div>
+                        </div>`;
+                }
+
+                // Update consistency summary in PRISMA section
+                const consSummary = document.getElementById('nma-consistency-summary');
+                if (consSummary && consistency.length > 0) {
+                    const allConsistent = consistency.every(c => !c.inconsistent);
+                    consSummary.innerHTML = allConsistent
+                        ? '<i class="fa-solid fa-check text-emerald-400 mr-2"></i><strong>Consistency:</strong> No significant inconsistency detected (all P > 0.10)'
+                        : '<i class="fa-solid fa-triangle-exclamation text-amber-400 mr-2"></i><strong>Consistency:</strong> Inconsistency detected in ' + consistency.filter(c => c.inconsistent).length + ' comparison(s)';
+                }
+
+                // Update geometry text
+                const geoText = document.getElementById('nma-geometry-text');
+                if (geoText && cfg) {
+                    const directCount = (cfg.comparisons ?? []).filter(c => c.trials?.length > 0).length;
+                    const totalPairs = cfg.treatments.length * (cfg.treatments.length - 1) / 2;
+                    geoText.textContent = `${cfg.treatments.length} treatments, ${directCount} direct comparisons, ${totalPairs - directCount} indirect. ${directCount === totalPairs ? 'Fully connected network.' : 'Star topology via common comparator.'}`;
+                }
+            },
+
             render() {
                 const cfg = this._getConfig();
                 if (!cfg) { showToast('No NMA network configured for this topic.'); return; }
@@ -8691,6 +8770,7 @@
                 this.renderLeagueTable();
                 this.renderRankings();
                 this.renderConsistency();
+                this.renderOutput();
                 showToast('NMA complete: ' + cfg.treatments.length + ' treatments, ' + (cfg.comparisons ?? []).length + ' comparisons.');
                 addAuditEntry('NMA rendered: ' + cfg.treatments.length + ' treatments');
             }
