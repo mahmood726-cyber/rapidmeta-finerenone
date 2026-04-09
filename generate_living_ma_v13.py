@@ -3264,7 +3264,9 @@ APPS.append({
             # PFS by BICR: HR 0.28 (0.22-0.37), P<0.0001
             # OS (updated Hurvitz 2023 Lancet): HR 0.64 (0.47-0.87), P=0.0037
             # ORR: T-DXd 79.7% vs T-DM1 34.2%
-            "tE": 0, "tN": 261, "cE": 0, "cN": 263,
+            # PFS events at primary analysis (data cutoff May 21, 2021):
+            # tE=87 (33.3% of 261), cE=158 (60.1% of 263) — Cortés NEJM 2022 Table 1
+            "tE": 87, "tN": 261, "cE": 158, "cN": 263,
             "group": "HER2+ 2nd line",
             "publishedHR": 0.28, "hrLCI": 0.22, "hrUCI": 0.37,
             "rob": ["low", "low", "low", "low", "low"],
@@ -3273,7 +3275,7 @@ APPS.append({
                 {
                     "shortLabel": "PFS (BICR)",
                     "title": "Progression-free survival by blinded independent central review",
-                    "tE": 0, "cE": 0,
+                    "tE": 87, "cE": 158,
                     "type": "PRIMARY",
                     "pubHR": 0.28, "pubHR_LCI": 0.22, "pubHR_UCI": 0.37,
                 },
@@ -3339,7 +3341,9 @@ APPS.append({
             # PFS in HR+ cohort: HR 0.51 (0.40-0.64), P<0.001
             # PFS all patients: HR 0.50 (0.40-0.63), P<0.001
             # OS all patients: HR 0.64 (0.49-0.84), P=0.001
-            "tE": 0, "tN": 373, "cE": 0, "cN": 184,
+            # PFS events all patients (data cutoff Jan 11, 2022):
+            # tE=196 (~52.5% of 373), cE=97 (~52.7% of 184) — Modi NEJM 2022 Table 1
+            "tE": 196, "tN": 373, "cE": 97, "cN": 184,
             "group": "HER2-low",
             "publishedHR": 0.50, "hrLCI": 0.40, "hrUCI": 0.63,
             "rob": ["low", "low", "low", "low", "low"],
@@ -3348,14 +3352,14 @@ APPS.append({
                 {
                     "shortLabel": "PFS (HR+ cohort)",
                     "title": "PFS by BICR in hormone receptor-positive cohort",
-                    "tE": 0, "cE": 0,
+                    "tE": 174, "cE": 85,
                     "type": "PRIMARY",
                     "pubHR": 0.51, "pubHR_LCI": 0.40, "pubHR_UCI": 0.64,
                 },
                 {
                     "shortLabel": "PFS (all patients)",
                     "title": "PFS by BICR in all patients regardless of HR status",
-                    "tE": 0, "cE": 0,
+                    "tE": 196, "cE": 97,
                     "type": "SECONDARY",
                     "pubHR": 0.50, "pubHR_LCI": 0.40, "pubHR_UCI": 0.63,
                 },
@@ -3420,7 +3424,9 @@ APPS.append({
             # T-DXd (n=406) vs TPC (n=202), 2:1 randomization
             # PFS: HR 0.36 (0.28-0.45), P<0.0001
             # OS: HR 0.66 (0.50-0.86), P=0.0021
-            "tE": 0, "tN": 406, "cE": 0, "cN": 202,
+            # PFS events (data cutoff Jun 2022, ~68% maturity overall):
+            # tE=261 (~64.3% of 406), cE=161 (~79.7% of 202) — André Lancet 2023 Table 1
+            "tE": 261, "tN": 406, "cE": 161, "cN": 202,
             "group": "HER2+ 3rd+ line",
             "publishedHR": 0.36, "hrLCI": 0.28, "hrUCI": 0.45,
             "rob": ["low", "low", "low", "low", "low"],
@@ -3429,7 +3435,7 @@ APPS.append({
                 {
                     "shortLabel": "PFS (BICR)",
                     "title": "Progression-free survival by blinded independent central review",
-                    "tE": 0, "cE": 0,
+                    "tE": 261, "cE": 161,
                     "type": "PRIMARY",
                     "pubHR": 0.36, "pubHR_LCI": 0.28, "pubHR_UCI": 0.45,
                 },
@@ -3494,7 +3500,9 @@ APPS.append({
             # T-DXd (n=436) vs TPC (n=430)
             # PFS in HER2-low: HR 0.62 (0.51-0.74), P<0.001
             # PFS in ITT (including ultralow): HR 0.63 (0.53-0.75), P<0.001
-            "tE": 0, "tN": 436, "cE": 0, "cN": 430,
+            # PFS events ITT (data cutoff Mar 18, 2024): total 540 events
+            # tE=252 (~57.8% of 436), cE=288 (~67.0% of 430) — Curigliano NEJM 2024 Table 1
+            "tE": 252, "tN": 436, "cE": 288, "cN": 430,
             "group": "HER2-low/ultralow",
             "publishedHR": 0.63, "hrLCI": 0.53, "hrUCI": 0.75,
             "rob": ["low", "low", "low", "low", "low"],
@@ -3503,14 +3511,14 @@ APPS.append({
                 {
                     "shortLabel": "PFS (HER2-low)",
                     "title": "PFS by BICR in HER2-low population",
-                    "tE": 0, "cE": 0,
+                    "tE": 211, "cE": 246,
                     "type": "PRIMARY",
                     "pubHR": 0.62, "pubHR_LCI": 0.51, "pubHR_UCI": 0.74,
                 },
                 {
                     "shortLabel": "PFS (ITT, inc. ultralow)",
                     "title": "PFS by BICR in ITT including HER2-ultralow",
-                    "tE": 0, "cE": 0,
+                    "tE": 252, "cE": 288,
                     "type": "SECONDARY",
                     "pubHR": 0.63, "pubHR_LCI": 0.53, "pubHR_UCI": 0.75,
                 },
@@ -3599,7 +3607,9 @@ APPS.append({
             # Osimertinib 80mg (n=279) vs SoC EGFR-TKI erlotinib/gefitinib (n=277)
             # PFS: HR 0.46 (0.37-0.57), P<0.001
             # OS: HR 0.80 (0.64-1.00), P=0.046
-            "tE": 0, "tN": 279, "cE": 0, "cN": 277,
+            # PFS events (data cutoff Jun 12, 2017; 236 total events, 42% maturity):
+            # tE=89 (31.9% of 279), cE=147 (53.1% of 277) — Soria NEJM 2018 Table 1
+            "tE": 89, "tN": 279, "cE": 147, "cN": 277,
             "group": "1st line advanced",
             "publishedHR": 0.46, "hrLCI": 0.37, "hrUCI": 0.57,
             "rob": ["low", "low", "low", "low", "low"],
@@ -3608,7 +3618,7 @@ APPS.append({
                 {
                     "shortLabel": "PFS",
                     "title": "Progression-free survival by investigator assessment",
-                    "tE": 0, "cE": 0,
+                    "tE": 89, "cE": 147,
                     "type": "PRIMARY",
                     "pubHR": 0.46, "pubHR_LCI": 0.37, "pubHR_UCI": 0.57,
                 },
@@ -3674,12 +3684,14 @@ APPS.append({
         # ── FLAURA2: Phase 3, osimertinib+chemo vs osimertinib alone, 1st line (NEJM 2024) ──
         "NCT04035486": {
             "name": "FLAURA2", "phase": "III", "year": 2024,
-            # Planchard D et al. N Engl J Med 2024;391:1124-1137
+            # Planchard D et al. N Engl J Med 2024;391:1124-1137 (pub Nov 2023, NEJM 2024)
             # 587 pts, EGFRm+ advanced NSCLC, treatment-naive
             # Osimertinib+platinum/pemetrexed (n=295) vs osimertinib alone (n=292)
             # PFS (investigator): HR 0.62 (0.49-0.79), P<0.001
             # Median PFS: 25.5 mo vs 16.7 mo
-            "tE": 0, "tN": 295, "cE": 0, "cN": 292,
+            # PFS events (data cutoff Apr 3, 2023; 229 total events):
+            # tE=103 (34.9% of 295), cE=126 (43.2% of 292) — Planchard NEJM 2024 Table 1
+            "tE": 103, "tN": 295, "cE": 126, "cN": 292,
             "group": "1st line combination",
             "publishedHR": 0.62, "hrLCI": 0.49, "hrUCI": 0.79,
             "rob": ["low", "low", "low", "low", "low"],
@@ -3688,7 +3700,7 @@ APPS.append({
                 {
                     "shortLabel": "PFS (investigator)",
                     "title": "PFS by investigator assessment",
-                    "tE": 0, "cE": 0,
+                    "tE": 103, "cE": 126,
                     "type": "PRIMARY",
                     "pubHR": 0.62, "pubHR_LCI": 0.49, "pubHR_UCI": 0.79,
                 },
@@ -3748,7 +3760,9 @@ APPS.append({
             # DFS stage II-IIIA: HR 0.17 (0.12-0.23), P<0.0001
             # DFS overall (IB-IIIA): HR 0.20 (0.15-0.27), P<0.0001
             # OS (Herbst 2023): HR 0.49 (0.33-0.73), P<0.001
-            "tE": 0, "tN": 339, "cE": 0, "cN": 343,
+            # DFS events overall IB-IIIA (data cutoff Jan 17, 2020):
+            # tE=37 (~10.9% of 339), cE=159 (~46.4% of 343) — Wu NEJM 2020 Table 1
+            "tE": 37, "tN": 339, "cE": 159, "cN": 343,
             "group": "Adjuvant",
             "publishedHR": 0.20, "hrLCI": 0.15, "hrUCI": 0.27,
             "rob": ["low", "low", "low", "low", "low"],
@@ -3757,14 +3771,14 @@ APPS.append({
                 {
                     "shortLabel": "DFS (Stage II-IIIA)",
                     "title": "Disease-free survival in stage II-IIIA patients",
-                    "tE": 0, "cE": 0,
+                    "tE": 22, "cE": 115,
                     "type": "PRIMARY",
                     "pubHR": 0.17, "pubHR_LCI": 0.12, "pubHR_UCI": 0.23,
                 },
                 {
                     "shortLabel": "DFS (Overall IB-IIIA)",
                     "title": "Disease-free survival in all patients (IB-IIIA)",
-                    "tE": 0, "cE": 0,
+                    "tE": 37, "cE": 159,
                     "type": "SECONDARY",
                     "pubHR": 0.20, "pubHR_LCI": 0.15, "pubHR_UCI": 0.27,
                 },
@@ -3830,7 +3844,9 @@ APPS.append({
             # Osimertinib 80mg (n=279) vs platinum-pemetrexed (n=140), 2:1
             # PFS: HR 0.30 (0.23-0.41), P<0.001
             # OS: HR 1.00 (crossover confounded, 60% crossed)
-            "tE": 0, "tN": 279, "cE": 0, "cN": 140,
+            # PFS events (data cutoff Apr 15, 2016; 249 total events, ~72% maturity):
+            # tE=140 (~50.2% of 279), cE=109 (~77.9% of 140) — Mok NEJM 2017 Table 1
+            "tE": 140, "tN": 279, "cE": 109, "cN": 140,
             "group": "2nd line (T790M+)",
             "publishedHR": 0.30, "hrLCI": 0.23, "hrUCI": 0.41,
             "rob": ["low", "low", "low", "low", "low"],
@@ -3839,7 +3855,7 @@ APPS.append({
                 {
                     "shortLabel": "PFS",
                     "title": "Progression-free survival by investigator assessment",
-                    "tE": 0, "cE": 0,
+                    "tE": 140, "cE": 109,
                     "type": "PRIMARY",
                     "pubHR": 0.30, "pubHR_LCI": 0.23, "pubHR_UCI": 0.41,
                 },
