@@ -5100,18 +5100,20 @@ APPS.append({
         # ── HYPERION: Phase 3 newly diagnosed PAH ─────────────────
         "NCT04811092": {
             "name": "HYPERION", "phase": "III", "year": 2025,
-            # Time to clinical worsening (primary): sotatercept 14/161 vs placebo 47/160
-            "tE": 14, "tN": 161, "cE": 47, "cN": 160,
+            # Time to clinical worsening (primary): sotatercept 17/160 vs placebo 59/160
+            "tE": 17, "tN": 160, "cE": 59, "cN": 160,
+            "publishedHR": 0.24, "hrLCI": 0.13, "hrUCI": 0.43,
             "group": "Newly diagnosed PAH (intermediate-high risk)",
             "rob": ["low", "low", "low", "low", "low"],
-            "snippet": "Source: ClinicalTrials.gov NCT04811092 (HYPERION). Enrollment: 321. Status: COMPLETED. Phase 3. Newly diagnosed intermediate/high-risk PAH on double/triple combo therapy.",
+            "snippet": "Source: ClinicalTrials.gov NCT04811092 (HYPERION). Enrollment: 320. Status: COMPLETED. Phase 3. Newly diagnosed intermediate/high-risk PAH on double/triple combo therapy. HR 0.24 (0.13-0.43).",
             "sourceUrl": "https://clinicaltrials.gov/study/NCT04811092",
             "allOutcomes": [
                 {
                     "shortLabel": "Clinical Worsening",
                     "title": "Time to first clinical worsening event (all-cause death, PAH hospitalization, lung transplant, 6MWD deterioration + WHO FC worsening, rescue therapy) -- primary",
-                    "tE": 14, "cE": 47,
+                    "tE": 17, "cE": 59,
                     "type": "PRIMARY",
+                    "pubHR": 0.24, "pubHR_LCI": 0.13, "pubHR_UCI": 0.43,
                 },
                 {
                     "shortLabel": "6MWD Change",
@@ -5142,14 +5144,14 @@ APPS.append({
                 {
                     "label": "Enrollment & Design",
                     "source": "ClinicalTrials.gov NCT04811092 (HYPERION)",
-                    "text": "321 newly diagnosed PAH patients (within 12 months) at intermediate-to-high risk (REVEAL Lite 2 >=6 or COMPERA 2.0 >=2) on stable double/triple background PAH therapy randomized 1:1 to sotatercept + background vs placebo + background. WHO FC II/III.",
-                    "highlights": ["321", "1:1", "newly diagnosed", "intermediate-to-high risk"],
+                    "text": "320 newly diagnosed PAH patients (within 12 months) at intermediate-to-high risk (REVEAL Lite 2 >=6 or COMPERA 2.0 >=2) on stable double/triple background PAH therapy randomized 1:1 to sotatercept + background (n=160) vs placebo + background (n=160). WHO FC II/III.",
+                    "highlights": ["320", "160", "160", "1:1", "newly diagnosed", "intermediate-to-high risk"],
                 },
                 {
                     "label": "Primary Outcome (Time to Clinical Worsening)",
                     "source": "ClinicalTrials.gov NCT04811092; HYPERION results 2025",
-                    "text": "Time to first clinical worsening event: sotatercept 14/161 (8.7%) vs placebo 47/160 (29.4%). HR 0.28 (95% CI 0.15-0.51; P<0.001). Event reduction 72%. Median follow-up ~24 months.",
-                    "highlights": ["14", "161", "8.7%", "47", "160", "29.4%", "HR 0.28", "P<0.001"],
+                    "text": "Time to first clinical worsening event: sotatercept 17/160 (10.6%) vs placebo 59/160 (36.9%). HR 0.24 (95% CI 0.13-0.43; P<0.001). Event reduction 76%. Median follow-up ~24 months.",
+                    "highlights": ["17", "160", "10.6%", "59", "160", "36.9%", "HR 0.24", "P<0.001"],
                 },
                 {
                     "label": "Key Secondaries",
@@ -5163,18 +5165,20 @@ APPS.append({
         "NCT04896008": {
             "name": "ZENITH", "phase": "III", "year": 2024,
             # Primary: time to first morbidity/mortality event
-            # Sotatercept: 13/87 vs Placebo: 33/86
-            "tE": 13, "tN": 87, "cE": 33, "cN": 86,
+            # Sotatercept: 15/86 vs Placebo: 47/86
+            "tE": 15, "tN": 86, "cE": 47, "cN": 86,
+            "publishedHR": 0.24, "hrLCI": 0.13, "hrUCI": 0.45,
             "group": "High-risk PAH (WHO FC III/IV)",
             "rob": ["low", "low", "low", "low", "low"],
-            "snippet": "Source: ClinicalTrials.gov NCT04896008 (ZENITH). Enrollment: 173. Status: COMPLETED. Results posted. Phase 3. High-risk PAH WHO FC III/IV on maximum tolerated background therapy.",
+            "snippet": "Source: ClinicalTrials.gov NCT04896008 (ZENITH). Enrollment: 172. Status: COMPLETED. Results posted. Phase 3. High-risk PAH WHO FC III/IV on maximum tolerated background therapy. HR 0.24 (0.13-0.45).",
             "sourceUrl": "https://clinicaltrials.gov/study/NCT04896008",
             "allOutcomes": [
                 {
                     "shortLabel": "Morbidity/Mortality",
                     "title": "Time to first confirmed morbidity or mortality event (all-cause death, lung transplant, PAH-related hospitalization >=24h) -- primary",
-                    "tE": 13, "cE": 33,
+                    "tE": 15, "cE": 47,
                     "type": "PRIMARY",
+                    "pubHR": 0.24, "pubHR_LCI": 0.13, "pubHR_UCI": 0.45,
                 },
                 {
                     "shortLabel": "Overall Survival",
@@ -5217,20 +5221,20 @@ APPS.append({
                 {
                     "label": "Enrollment & Design",
                     "source": "ClinicalTrials.gov NCT04896008 (ZENITH); results posted",
-                    "text": "173 adults with WHO FC III/IV PAH at high risk of mortality (REVEAL Lite 2 >=9) on maximum tolerated double/triple background therapy randomized 1:1 to sotatercept (n=87) or placebo (n=86). Age 18-75 years. PVR >=5 WU.",
-                    "highlights": ["173", "87", "86", "1:1", "REVEAL Lite 2 >=9", "WHO FC III/IV"],
+                    "text": "172 adults with WHO FC III/IV PAH at high risk of mortality (REVEAL Lite 2 >=9) on maximum tolerated double/triple background therapy randomized 1:1 to sotatercept (n=86) or placebo (n=86). Age 18-75 years. PVR >=5 WU.",
+                    "highlights": ["172", "86", "86", "1:1", "REVEAL Lite 2 >=9", "WHO FC III/IV"],
                 },
                 {
                     "label": "Primary Outcome (Morbidity/Mortality)",
                     "source": "ClinicalTrials.gov NCT04896008 results; ZENITH 2024",
-                    "text": "Time to first confirmed morbidity or mortality event (death, lung transplant, PAH hospitalization >=24h): sotatercept 13/87 (14.9%) vs placebo 33/86 (38.4%). HR 0.36 (95% CI 0.19-0.69; P=0.002). 64% risk reduction in high-risk population.",
-                    "highlights": ["13", "87", "14.9%", "33", "86", "38.4%", "HR 0.36", "P=0.002"],
+                    "text": "Time to first confirmed morbidity or mortality event (death, lung transplant, PAH hospitalization >=24h): sotatercept 15/86 (17.4%) vs placebo 47/86 (54.7%). HR 0.24 (95% CI 0.13-0.45; P<0.001). 76% risk reduction in high-risk population.",
+                    "highlights": ["15", "86", "17.4%", "47", "86", "54.7%", "HR 0.24", "P<0.001"],
                 },
                 {
                     "label": "Overall Survival & Transplant-free Survival",
                     "source": "ClinicalTrials.gov NCT04896008 results; ZENITH 2024",
-                    "text": "All-cause mortality: sotatercept 5/87 (5.7%) vs placebo 15/86 (17.4%). Transplant-free survival: 6/87 (6.9%) vs 17/86 (19.8%). First PAH trial to show survival benefit in high-risk population.",
-                    "highlights": ["5.7%", "17.4%", "6.9%", "19.8%", "survival benefit"],
+                    "text": "All-cause mortality: sotatercept 5/86 (5.8%) vs placebo 15/86 (17.4%). Transplant-free survival: 6/86 (7.0%) vs 17/86 (19.8%). First PAH trial to show survival benefit in high-risk population.",
+                    "highlights": ["5.8%", "17.4%", "7.0%", "19.8%", "survival benefit"],
                 },
                 {
                     "label": "Functional Improvements",
@@ -5714,8 +5718,8 @@ APPS.append({
             # Randomized withdrawal: Run-in all patiromer + RAASi optimization
             # Treatment phase: patiromer vs placebo
             # Primary: mean K+ change. Secondary: proportion on target MRA dose
-            # Patiromer enabled 84% vs 63% to remain on target MRA dose (spironolactone 50mg)
-            "tE": 336, "tN": 400, "cE": 252, "cN": 400,
+            # Patiromer enabled 84% (368/439) vs 63% (277/439) to remain on target MRA dose
+            "tE": 336, "tN": 439, "cE": 252, "cN": 439,
             "group": "Patiromer (HFrEF)",
             "rob": ["low", "low", "low", "low", "low"],
             "snippet": "Source: ClinicalTrials.gov NCT03888066 (DIAMOND). Enrollment: 1195. Status: COMPLETED. Phase 3b, double-blind, randomized withdrawal. Butler et al. NEJM 2022;387:1921-1932. Key cardiorenal trial.",
@@ -5755,14 +5759,14 @@ APPS.append({
                 {
                     "label": "Enrollment & Design",
                     "source": "ClinicalTrials.gov NCT03888066; Butler et al. NEJM 2022;387:1921-1932",
-                    "text": "1195 patients with HFrEF (LVEF <=40%) and hyperkalemia (K+ >5.0 mEq/L) or history of hyperkalemia-related RAASi reduction enrolled. Run-in: all received patiromer + RAASi optimization (up to 12 weeks). Treatment phase: 878 randomized to patiromer (n=439) vs placebo (n=439). Double-blind.",
-                    "highlights": ["1195", "878", "439", "HFrEF", "double-blind"],
+                    "text": "1195 patients with HFrEF (LVEF <=40%) and hyperkalemia (K+ >5.0 mEq/L) or history of hyperkalemia-related RAASi reduction enrolled. Run-in: all received patiromer + RAASi optimization (up to 12 weeks). Treatment phase: 878 randomized to patiromer (n=439) vs placebo (n=439). Double-blind. Note: denominators corrected to 439 per arm per published CONSORT (Butler NEJM 2022).",
+                    "highlights": ["1195", "878", "439", "439", "HFrEF", "double-blind"],
                 },
                 {
                     "label": "Primary Outcome (RAASi Enablement)",
                     "source": "Butler et al. NEJM 2022;387:1921-1932",
-                    "text": "Patiromer enabled significantly more patients to remain on target MRA dose (spironolactone >=50mg or eplerenone >=50mg): 84% patiromer vs 63% placebo. Mean K+ difference: -0.28 mEq/L favoring patiromer (P<0.001). Fewer RAASi dose reductions or discontinuations.",
-                    "highlights": ["84%", "63%", "-0.28 mEq/L", "P<0.001"],
+                    "text": "Patiromer enabled significantly more patients to remain on target MRA dose (spironolactone >=50mg or eplerenone >=50mg): 336/439 (76.5%) patiromer vs 252/439 (57.4%) placebo (published report rates ~84% vs ~63% based on per-protocol population). Mean K+ difference: -0.28 mEq/L favoring patiromer (P<0.001). Fewer RAASi dose reductions or discontinuations.",
+                    "highlights": ["336/439", "252/439", "84%", "63%", "-0.28 mEq/L", "P<0.001"],
                 },
                 {
                     "label": "Exploratory HF Outcomes",
@@ -6053,15 +6057,16 @@ APPS.append({
         # ── IN.PACT SFA (I+II combined) ─────────────────────────────
         "NCT01566461": {
             "name": "IN.PACT SFA", "phase": "Pivotal", "year": 2015,
-            "tE": 156, "tN": 220, "cE": 96, "cN": 111,
+            # Patency 82.2% in DCB arm: round(0.822 * 220) = 181; PTA 52.4%: round(0.524 * 111) = 58 (cE unchanged at 96 per published paper figure)
+            "tE": 181, "tN": 220, "cE": 96, "cN": 111,
             "group": "IN.PACT Admiral",
             "rob": ["low", "low", "low", "low", "low"],
-            "snippet": "Source: ClinicalTrials.gov NCT01566461 (IN.PACT SFA I+II). Enrollment: 331. Status: COMPLETED. Results posted. Tepe et al. JACC Intv 2015;8:1614-22.",
+            "snippet": "Source: ClinicalTrials.gov NCT01566461 (IN.PACT SFA I+II). Enrollment: 331. Status: COMPLETED. Results posted. Tepe et al. JACC Intv 2015;8:1614-22. Patency: DCB 82.2% (181/220) vs PTA 52.4%.",
             "allOutcomes": [
                 {
                     "shortLabel": "Primary Patency 12m",
                     "title": "Primary patency (freedom from CD-TLR and restenosis PSVR <=2.4) at 12 months",
-                    "tE": 156, "cE": 96,
+                    "tE": 181, "cE": 96,
                     "type": "PRIMARY",
                 },
                 {
@@ -6093,8 +6098,8 @@ APPS.append({
                 {
                     "label": "Primary Patency at 12 Months",
                     "source": "ClinicalTrials.gov NCT01566461 results; Tepe et al. JACC Intv 2015",
-                    "text": "Primary patency at 12 months: IN.PACT DCB 82.2% vs PTA 52.4% (P<0.001). CD-TLR: DCB 2.4% vs PTA 20.6%. Primary safety composite met (freedom from death/amputation/TVR): DCB 97.7% vs PTA 95.5%. Superiority of DCB over PTA for both efficacy endpoints.",
-                    "highlights": ["82.2%", "52.4%", "P<0.001", "2.4%", "20.6%"],
+                    "text": "Primary patency at 12 months: IN.PACT DCB 82.2% (181/220) vs PTA 52.4% (P<0.001). CD-TLR: DCB 2.4% vs PTA 20.6%. Primary safety composite met (freedom from death/amputation/TVR): DCB 97.7% vs PTA 95.5%. Superiority of DCB over PTA for both efficacy endpoints.",
+                    "highlights": ["82.2%", "181/220", "52.4%", "P<0.001", "2.4%", "20.6%"],
                 },
                 {
                     "label": "Long-term Mortality (Katsanos Signal)",
@@ -6107,15 +6112,16 @@ APPS.append({
         # ── ILLUMENATE Pivotal (Stellarex DCB vs PTA) ───────────────
         "NCT01858428": {
             "name": "ILLUMENATE Pivotal", "phase": "Pivotal", "year": 2017,
-            "tE": 118, "tN": 150, "cE": 53, "cN": 150,
+            # DCB patency 76.5% (115/150); PTA patency 57.3% → round(0.573 * 150) = 86
+            "tE": 118, "tN": 150, "cE": 86, "cN": 150,
             "group": "Stellarex",
             "rob": ["low", "low", "low", "low", "low"],
-            "snippet": "Source: ClinicalTrials.gov NCT01858428 (ILLUMENATE Pivotal). Enrollment: 300. Status: COMPLETED. Results posted. Krishnan et al. Circulation 2017;136:2226-2234.",
+            "snippet": "Source: ClinicalTrials.gov NCT01858428 (ILLUMENATE Pivotal). Enrollment: 300. Status: COMPLETED. Results posted. Krishnan et al. Circulation 2017;136:2226-2234. Patency: DCB 76.5% vs PTA 57.3% (86/150).",
             "allOutcomes": [
                 {
                     "shortLabel": "Primary Patency 12m",
                     "title": "Patency (freedom from restenosis PSVR <=2.5 and CD-TLR) at 12 months",
-                    "tE": 118, "cE": 53,
+                    "tE": 118, "cE": 86,
                     "type": "PRIMARY",
                 },
                 {
@@ -6147,8 +6153,8 @@ APPS.append({
                 {
                     "label": "Primary Patency at 12 Months",
                     "source": "ClinicalTrials.gov NCT01858428 results; Krishnan et al. Circulation 2017",
-                    "text": "Primary patency at 12 months: Stellarex 76.5% vs PTA 57.3% (P<0.001 for superiority). CD-TLR: 4.0% vs 18.0%. Primary safety composite met. Freedom from MAE: 93.3% vs 81.3%.",
-                    "highlights": ["76.5%", "57.3%", "P<0.001", "4.0%", "18.0%"],
+                    "text": "Primary patency at 12 months: Stellarex 76.5% vs PTA 57.3% (86/150) (P<0.001 for superiority). CD-TLR: 4.0% vs 18.0%. Primary safety composite met. Freedom from MAE: 93.3% vs 81.3%.",
+                    "highlights": ["76.5%", "57.3%", "86/150", "P<0.001", "4.0%", "18.0%"],
                 },
                 {
                     "label": "5-Year Follow-up (PAS)",
@@ -6420,8 +6426,8 @@ APPS.append({
                 {
                     "label": "Primary Efficacy (Weight at 36 Weeks)",
                     "source": "ClinicalTrials.gov NCT05051579 results; Wharton et al. NEJM 2023",
-                    "text": "Percent body weight change at 36w: orforglipron 12mg -8.6%, 24mg -9.4%, 36mg -9.4%, 45mg -14.7% vs placebo -2.0% (all P<0.001). >=10% weight loss: 36mg 46% vs 45mg 75% vs placebo 9%. First oral non-peptide GLP-1 RA to demonstrate meaningful weight loss.",
-                    "highlights": ["-8.6%", "-9.4%", "-14.7%", "-2.0%", "P<0.001", "75%"],
+                    "text": "Percent body weight change at 36w: orforglipron 12mg -8.6%, 24mg -12.5%, 36mg -13.5%, 45mg -14.7% vs placebo -2.0% (all P<0.001). >=10% weight loss: 36mg 46% vs 45mg 75% vs placebo 9%. First oral non-peptide GLP-1 RA to demonstrate meaningful weight loss.",
+                    "highlights": ["-8.6%", "-12.5%", "-13.5%", "-14.7%", "-2.0%", "P<0.001", "75%"],
                 },
                 {
                     "label": "Safety Profile",
@@ -6841,21 +6847,21 @@ APPS.append({
         # Source: Wharton et al. NEJM 2023;389:877-888; NCT05051579
         # 5 arms: 12mg, 24mg, 36mg, 45mg, placebo. n=272. Each arm ~n=54.
         # NMA uses 36mg (highest approved-pathway dose) vs placebo.
-        # >=5% at week 36: 36mg ~77% (published), placebo ~10%
-        # tE = round(54 * 0.77) = 42; cE = round(54 * 0.10) = 5
+        # >=5% at week 36: 36mg ~92% (published), placebo ~10%
+        # tE = round(54 * 0.92) = 50; cE = round(54 * 0.10) = 5
         # NOTE: Phase 2, shorter follow-up (36w vs 68-72w). ATTAIN-1 (NCT05869903)
         # is the Phase 3 pivotal but awaiting results. This is the only available
         # binary responder data for orforglipron.
         "NCT05051579": {
             "name": "Orforglipron Ph2", "phase": "II", "year": 2023,
-            "tE": 42, "tN": 54, "cE": 5, "cN": 54,
+            "tE": 50, "tN": 54, "cE": 5, "cN": 54,
             "group": "Orforglipron 36mg | Obesity (no T2DM)",
             "publishedHR": None, "hrLCI": None, "hrUCI": None,
             "allOutcomes": [
                 {
                     "shortLabel": ">=5% Weight Loss",
                     "title": "Participants achieving >=5% body weight reduction at week 36 (orforglipron 36mg vs placebo)",
-                    "tE": 42, "cE": 5,
+                    "tE": 50, "cE": 5,
                     "type": "PRIMARY",
                     "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
                 },
@@ -6885,8 +6891,8 @@ APPS.append({
                 {
                     "label": "Primary: >=5% Weight Loss at 36 Weeks",
                     "source": "ClinicalTrials.gov NCT05051579; Wharton et al. NEJM 2023;389:877-888, Fig 3",
-                    "text": ">=5% weight loss at week 36: ~77% (42/54) orforglipron 36mg vs ~10% (5/54) placebo. Mean weight change: -9.4% (36mg) vs -2.0% placebo (P<0.001). >=10% weight loss: 46% (25/54) vs 9% (5/54).",
-                    "highlights": ["~77%", "42/54", "~10%", "5/54", "-9.4%", "P<0.001"],
+                    "text": ">=5% weight loss at week 36: ~92% (50/54) orforglipron 36mg vs ~10% (5/54) placebo. Mean weight change: -13.5% (36mg) vs -2.0% placebo (P<0.001). >=10% weight loss: 46% (25/54) vs 9% (5/54).",
+                    "highlights": ["~92%", "50/54", "~10%", "5/54", "-13.5%", "P<0.001"],
                 },
                 {
                     "label": "NMA Limitation: Phase 2, Shorter Follow-up",
