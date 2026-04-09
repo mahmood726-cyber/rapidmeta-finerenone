@@ -985,6 +985,30 @@
     a { color: black; text-decoration: underline; }
     @page { margin: 1.5cm; }
   }
+        /* v13.0: Cross-Validation Panel */
+        .xval-panel { border: 1px solid #1e293b; border-radius: 1rem; overflow: hidden; margin-top: 0.75rem; }
+        .xval-header { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 1rem; background: rgba(2,6,23,0.4); cursor: pointer; transition: background 0.15s; }
+        .xval-header:hover { background: rgba(30,41,59,0.5); }
+        .xval-badge { font-size: 9px; padding: 2px 8px; border-radius: 12px; font-weight: bold; text-transform: uppercase; }
+        .xval-concordant { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+        .xval-discrepant { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+        .xval-rounding { background: rgba(234,179,8,0.15); color: #facc15; border: 1px solid rgba(234,179,8,0.3); }
+        .xval-table { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
+        .xval-table th { padding: 0.5rem 0.75rem; text-align: left; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; border-bottom: 1px solid #1e293b; }
+        .xval-table td { padding: 0.5rem 0.75rem; border-bottom: 1px solid rgba(30,41,59,0.5); color: #cbd5e1; font-family: 'JetBrains Mono', monospace; }
+        .xval-table tr:last-child td { border-bottom: none; }
+        .xval-match { color: #4ade80; }
+        .xval-warn { color: #facc15; }
+        .xval-mismatch { color: #f87171; font-weight: 700; }
+        .xval-na { color: #475569; font-style: italic; }
+        .xval-body { padding: 0.75rem 1rem; display: none; }
+        .xval-panel.open .xval-body { display: block; }
+        .xval-chevron { transition: transform 0.2s; font-size: 10px; color: #64748b; }
+        .xval-panel.open .xval-chevron { transform: rotate(180deg); }
+        .light-mode .xval-panel { border-color: #e2e8f0; }
+        .light-mode .xval-header { background: rgba(241,245,249,0.6); }
+        .light-mode .xval-table th { color: #475569; border-color: #e2e8f0; }
+        .light-mode .xval-table td { color: #334155; border-color: #f1f5f9; }
 </style>
 </head>
 

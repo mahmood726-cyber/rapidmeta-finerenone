@@ -348,6 +348,30 @@
         /* P2-7: Ensure WCAG AA contrast for muted text in light mode (slate-500 → slate-600) */
         .light-mode .text-slate-500 { color: #475569 !important; }
         .light-mode .text-slate-400 { color: #64748b !important; }
+        /* v13.0: Cross-Validation Panel */
+        .xval-panel { border: 1px solid #1e293b; border-radius: 1rem; overflow: hidden; margin-top: 0.75rem; }
+        .xval-header { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 1rem; background: rgba(2,6,23,0.4); cursor: pointer; transition: background 0.15s; }
+        .xval-header:hover { background: rgba(30,41,59,0.5); }
+        .xval-badge { font-size: 9px; padding: 2px 8px; border-radius: 12px; font-weight: bold; text-transform: uppercase; }
+        .xval-concordant { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+        .xval-discrepant { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+        .xval-rounding { background: rgba(234,179,8,0.15); color: #facc15; border: 1px solid rgba(234,179,8,0.3); }
+        .xval-table { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
+        .xval-table th { padding: 0.5rem 0.75rem; text-align: left; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; border-bottom: 1px solid #1e293b; }
+        .xval-table td { padding: 0.5rem 0.75rem; border-bottom: 1px solid rgba(30,41,59,0.5); color: #cbd5e1; font-family: 'JetBrains Mono', monospace; }
+        .xval-table tr:last-child td { border-bottom: none; }
+        .xval-match { color: #4ade80; }
+        .xval-warn { color: #facc15; }
+        .xval-mismatch { color: #f87171; font-weight: 700; }
+        .xval-na { color: #475569; font-style: italic; }
+        .xval-body { padding: 0.75rem 1rem; display: none; }
+        .xval-panel.open .xval-body { display: block; }
+        .xval-chevron { transition: transform 0.2s; font-size: 10px; color: #64748b; }
+        .xval-panel.open .xval-chevron { transform: rotate(180deg); }
+        .light-mode .xval-panel { border-color: #e2e8f0; }
+        .light-mode .xval-header { background: rgba(241,245,249,0.6); }
+        .light-mode .xval-table th { color: #475569; border-color: #e2e8f0; }
+        .light-mode .xval-table td { color: #334155; border-color: #f1f5f9; }
     </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
@@ -1367,6 +1391,30 @@
                             </button>
                         </div>
                     </div>
+
+                    <!-- v15.0: Cumulative Meta-Analysis -->
+                    <div class="glass p-10 rounded-[40px] border border-slate-800">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-sm font-bold opacity-60 uppercase tracking-[0.3em]">Cumulative Meta-Analysis</h3>
+                            <button type="button" onclick="CumulativeEngine.render()" class="text-[11px] font-bold text-teal-400 uppercase bg-teal-400/10 px-6 py-2 rounded-full border border-teal-400/20 transition-all hover:bg-teal-400/20"><i class="fa-solid fa-layer-group mr-1"></i>Run Cumulative</button>
+                        </div>
+                        <div id="cumulative-container">
+                            <div class="text-xs text-slate-500 italic">Click "Run Cumulative" to generate a cumulative meta-analysis ordered by publication year.</div>
+                        </div>
+
+                    <!-- v15.0: QA Checks -->
+                    <div class="glass p-10 rounded-[40px] border border-slate-800">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-sm font-bold opacity-60 uppercase tracking-[0.3em]">Quality Assurance (18 Checks)</h3>
+                            <button type="button" onclick="QAEngine.render()" class="text-[11px] font-bold text-amber-400 uppercase bg-amber-400/10 px-6 py-2 rounded-full border border-amber-400/20 transition-all hover:bg-amber-400/20"><i class="fa-solid fa-clipboard-check mr-1"></i>Run QA</button>
+                        </div>
+                        <div id="qa-container">
+                            <div class="text-xs text-slate-500 italic">Click "Run QA" to execute 18 automated quality checks on the current analysis.</div>
+                        </div>
+                    </div>
+
+                    </div>
+
 
                     <!-- v11.0: Version Timeline -->
                     <div class="glass p-10 rounded-[40px] border border-slate-800">
@@ -8289,6 +8337,473 @@ const ContinuousMDEngine = {
         };
 
         // ===== v12.0: SENSITIVITY ANALYSIS PANEL (Chart #17) =====
+
+        // ═══════════════════════════════════════════════════════════
+        // v15.0: Cumulative Meta-Analysis Engine
+        // DL pooling ordered by year, conditional 0.5 correction, t-distribution CIs
+        // ═══════════════════════════════════════════════════════════
+
+        // ═══════════════════════════════════════════════════════════
+        // v13.0: Cross-Validation Engine
+        // Three-source concordance checking: CT.gov API vs PubMed abstract vs extracted value
+        // ═══════════════════════════════════════════════════════════
+        const CrossValidationEngine = {
+            _tolerance: { integer: 0, decimal: 0.005, ci: 0.01 },
+
+            checkConcordance(field, values) {
+                const defined = values.filter(v => v.value != null && Number.isFinite(v.value));
+                if (defined.length < 2) return { status: 'na', label: 'Insufficient sources' };
+                const isInteger = /^(tE|tN|cE|cN)$/.test(field);
+                const tol = isInteger ? this._tolerance.integer : this._tolerance.decimal;
+                const vals = defined.map(v => v.value);
+                const maxDiff = Math.max(...vals) - Math.min(...vals);
+                if (maxDiff <= tol) return { status: 'concordant', label: 'All concordant' };
+                if (!isInteger && maxDiff <= this._tolerance.ci) return { status: 'rounding', label: 'Rounding only' };
+                return { status: 'discrepant', label: `Discrepancy: ${maxDiff.toFixed(4)}` };
+            },
+
+            _extractCtgovValues(trialId) {
+                const trial = RapidMeta.state.trials?.find(t => t.id === trialId);
+                const evData = ExtractEngine._getEvidenceDataForTrial(trial ?? {});
+                const ctgovEv = evData.filter(ev => /CT\.gov|ClinicalTrials\.gov|results API/i.test(String(ev?.source ?? '')));
+                const result = { tE: null, tN: null, cE: null, cN: null, effect: null, lci: null, uci: null };
+                const allText = ctgovEv.map(ev => String(ev?.text ?? '')).join(' ');
+                const txMatch = allText.match(/(\d[\d,]*)\s*(?:of|\/)\s*(\d[\d,]*)\s*(?:patients?\s*)?(?:\([^)]*\)\s*)?in\s*the\s*(?:finerenone|treatment|experimental|intervention|drug)/i)
+                    || allText.match(/(?:finerenone|treatment|experimental|intervention)\s*(?:group)?[:\s]*(\d[\d,]*)\s*(?:of|\/)\s*(\d[\d,]*)/i);
+                if (txMatch) {
+                    result.tE = parseInt(txMatch[1].replace(/,/g, ''), 10);
+                    result.tN = parseInt(txMatch[2].replace(/,/g, ''), 10);
+                }
+                const ctrlMatch = allText.match(/(\d[\d,]*)\s*(?:of|\/)\s*(\d[\d,]*)\s*(?:patients?\s*)?(?:\([^)]*\)\s*)?in\s*the\s*(?:placebo|control|comparator)/i)
+                    || allText.match(/(?:placebo|control|comparator)\s*(?:group)?[:\s]*(\d[\d,]*)\s*(?:of|\/)\s*(\d[\d,]*)/i);
+                if (ctrlMatch) {
+                    result.cE = parseInt(ctrlMatch[1].replace(/,/g, ''), 10);
+                    result.cN = parseInt(ctrlMatch[2].replace(/,/g, ''), 10);
+                }
+                const hrMatch = allText.match(/(?:hazard ratio|HR|risk ratio|RR|odds ratio|OR)[,:\s]*(\d+\.\d+)\s*[;,]?\s*(?:95%?\s*CI[,:\s]*)?(\d+\.\d+)\s*(?:to|-|,)\s*(\d+\.\d+)/i);
+                if (hrMatch) {
+                    result.effect = parseFloat(hrMatch[1]);
+                    result.lci = parseFloat(hrMatch[2]);
+                    result.uci = parseFloat(hrMatch[3]);
+                }
+                return result;
+            },
+
+            _extractPubmedValues(trialId) {
+                const trial = RapidMeta.state.trials?.find(t => t.id === trialId);
+                const evData = ExtractEngine._getEvidenceDataForTrial(trial ?? {});
+                const pmEv = evData.filter(ev => /PubMed|PMID|NEJM|Lancet|JAMA|Circulation|BMJ/i.test(String(ev?.source ?? ''))
+                    && !/CT\.gov|ClinicalTrials\.gov/i.test(String(ev?.source ?? '')));
+                const result = { tE: null, tN: null, cE: null, cN: null, effect: null, lci: null, uci: null };
+                const allText = pmEv.map(ev => String(ev?.text ?? '')).join(' ');
+                const txMatch = allText.match(/(\d[\d,]*)\s*(?:of|\/)\s*(\d[\d,]*)\s*(?:patients?\s*)?(?:\([^)]*\)\s*)?in\s*the\s*(?:finerenone|treatment|experimental|intervention|drug)/i);
+                if (txMatch) {
+                    result.tE = parseInt(txMatch[1].replace(/,/g, ''), 10);
+                    result.tN = parseInt(txMatch[2].replace(/,/g, ''), 10);
+                }
+                const ctrlMatch = allText.match(/(\d[\d,]*)\s*(?:of|\/)\s*(\d[\d,]*)\s*(?:patients?\s*)?(?:\([^)]*\)\s*)?in\s*the\s*(?:placebo|control|comparator)/i);
+                if (ctrlMatch) {
+                    result.cE = parseInt(ctrlMatch[1].replace(/,/g, ''), 10);
+                    result.cN = parseInt(ctrlMatch[2].replace(/,/g, ''), 10);
+                }
+                const hrMatch = allText.match(/(?:hazard ratio|HR|risk ratio|RR|odds ratio|OR)[,:\s]*(\d+\.\d+)\s*[;,]?\s*(?:95%?\s*CI[,:\s]*)?(\d+\.\d+)\s*(?:to|-|,)\s*(\d+\.\d+)/i);
+                if (hrMatch) {
+                    result.effect = parseFloat(hrMatch[1]);
+                    result.lci = parseFloat(hrMatch[2]);
+                    result.uci = parseFloat(hrMatch[3]);
+                }
+                return result;
+            },
+
+            _getExtractedValues(trialId) {
+                const trial = RapidMeta.state.trials?.find(t => t.id === trialId);
+                const d = trial?.data;
+                const rd = RapidMeta.realData[trialId];
+                const src = rd ?? d ?? {};
+                return {
+                    tE: src.tE ?? null, tN: src.tN ?? null,
+                    cE: src.cE ?? null, cN: src.cN ?? null,
+                    effect: src.publishedHR ?? null,
+                    lci: src.hrLCI ?? null, uci: src.hrUCI ?? null
+                };
+            },
+
+            renderSummaryBadge(trialId) {
+                const fields = ['tE', 'tN', 'cE', 'cN', 'effect', 'lci', 'uci'];
+                const ctgov = this._extractCtgovValues(trialId);
+                const pubmed = this._extractPubmedValues(trialId);
+                const extracted = this._getExtractedValues(trialId);
+                let worst = 'concordant';
+                let checkedFields = 0;
+                for (const f of fields) {
+                    const vals = [
+                        { source: 'ctgov', value: ctgov[f] },
+                        { source: 'pubmed', value: pubmed[f] },
+                        { source: 'extracted', value: extracted[f] }
+                    ];
+                    const result = this.checkConcordance(f, vals);
+                    if (result.status === 'na') continue;
+                    checkedFields++;
+                    if (result.status === 'discrepant') worst = 'discrepant';
+                    else if (result.status === 'rounding' && worst !== 'discrepant') worst = 'rounding';
+                }
+                if (checkedFields === 0) return '';
+                const badgeClass = worst === 'concordant' ? 'xval-concordant' : worst === 'rounding' ? 'xval-rounding' : 'xval-discrepant';
+                const icon = worst === 'concordant' ? 'fa-circle-check' : worst === 'rounding' ? 'fa-circle-exclamation' : 'fa-triangle-exclamation';
+                const label = worst === 'concordant' ? 'Concordant' : worst === 'rounding' ? 'Rounding' : 'Discrepant';
+                return `<span class="xval-badge ${badgeClass}"><i class="fa-solid ${icon} mr-1"></i>${label} (${checkedFields})</span>`;
+            },
+
+            render(trialId) {
+                const fields = [
+                    { key: 'tE', label: 'Events (Tx)' },
+                    { key: 'tN', label: 'N (Tx)' },
+                    { key: 'cE', label: 'Events (Ctrl)' },
+                    { key: 'cN', label: 'N (Ctrl)' },
+                    { key: 'effect', label: RapidMeta.emLabel('short') ?? 'Effect' },
+                    { key: 'lci', label: 'CI Lower' },
+                    { key: 'uci', label: 'CI Upper' }
+                ];
+                const ctgov = this._extractCtgovValues(trialId);
+                const pubmed = this._extractPubmedValues(trialId);
+                const extracted = this._getExtractedValues(trialId);
+                const rows = fields.map(f => {
+                    const vals = [
+                        { source: 'ctgov', value: ctgov[f.key] },
+                        { source: 'pubmed', value: pubmed[f.key] },
+                        { source: 'extracted', value: extracted[f.key] }
+                    ];
+                    const concordance = this.checkConcordance(f.key, vals);
+                    const fmt = v => v == null ? '<span class="xval-na">--</span>' : escapeHtml(String(v));
+                    const statusClass = concordance.status === 'concordant' ? 'xval-match' : concordance.status === 'rounding' ? 'xval-warn' : concordance.status === 'discrepant' ? 'xval-mismatch' : 'xval-na';
+                    const statusIcon = concordance.status === 'concordant' ? '<i class="fa-solid fa-check"></i>' : concordance.status === 'rounding' ? '<i class="fa-solid fa-minus"></i>' : concordance.status === 'discrepant' ? '<i class="fa-solid fa-xmark"></i>' : '';
+                    return `<tr>
+                        <td class="font-bold text-slate-400">${escapeHtml(f.label)}</td>
+                        <td>${fmt(ctgov[f.key])}</td>
+                        <td>${fmt(pubmed[f.key])}</td>
+                        <td>${fmt(extracted[f.key])}</td>
+                        <td class="${statusClass}">${statusIcon}</td>
+                    </tr>`;
+                }).join('');
+
+                const overall = this.renderSummaryBadge(trialId);
+                const nctUrl = `https://clinicaltrials.gov/study/${trialId}?tab=results`;
+
+                return `<div class="xval-panel" id="xval-${escapeHtml(trialId)}">
+                    <div class="xval-header" tabindex="0" role="button" aria-expanded="false" onclick="this.parentElement.classList.toggle('open'); this.setAttribute('aria-expanded', this.parentElement.classList.contains('open'))" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-cyan-400"><i class="fa-solid fa-code-compare mr-1" aria-hidden="true"></i>Cross-Validation</span>
+                            ${overall}
+                        </div>
+                        <i class="fa-solid fa-chevron-down xval-chevron" aria-hidden="true"></i>
+                    </div>
+                    <div class="xval-body">
+                        <table class="xval-table">
+                            <thead><tr>
+                                <th>Field</th>
+                                <th><a href="${escapeHtml(nctUrl)}" target="_blank" rel="noopener" class="text-cyan-400 hover:underline">CT.gov API</a></th>
+                                <th>PubMed Abstract</th>
+                                <th>Extracted</th>
+                                <th>Status</th>
+                            </tr></thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                        <div class="text-[9px] text-slate-500 mt-2">Tolerance: integers exact, decimals &le;0.005, CI &le;0.01. Sources parsed from evidence panels.</div>
+                    </div>
+                </div>`;
+            }
+        };
+
+        const CumulativeEngine = {
+            render() {
+                const container = document.getElementById('cumulative-container');
+                if (!container) return;
+                const scope = RapidMeta.getAnalysisScopeDetails();
+                const trials = scope.analyzed;
+                if (!trials || trials.length < 2) {
+                    container.innerHTML = '<div class="text-xs text-slate-500 italic">Need at least 2 included trials for cumulative meta-analysis.</div>';
+                    return;
+                }
+                const emMode = RapidMeta.resolveEffectMeasure({ trials }).effective;
+                const useHR = (emMode === 'HR');
+                const confLevel = RapidMeta.state.confLevel ?? 0.95;
+                // Sort by year
+                const sorted = [...trials].sort((a, b) => (a.data.year ?? 2020) - (b.data.year ?? 2020));
+                const steps = [];
+                for (let n = 1; n <= sorted.length; n++) {
+                    const subset = sorted.slice(0, n);
+                    const plotData = subset.map(t => {
+                        if (useHR && t.data.pubHR && t.data.pubHR_LCI && t.data.pubHR_UCI) {
+                            const logEff = Math.log(t.data.pubHR);
+                            const zC = normalQuantile(1 - (1 - confLevel) / 2);
+                            const se = (Math.log(t.data.pubHR_UCI) - Math.log(t.data.pubHR_LCI)) / (2 * zC);
+                            return { logOR: logEff, vi: se * se, se, id: RapidMeta.nctAcronyms[t.id] ?? t.data?.name ?? t.id, year: t.data.year ?? 2020 };
+                        }
+                        const hasZero = (t.data.tE === 0 || t.data.cE === 0 || t.data.tE === t.data.tN || t.data.cE === t.data.cN);
+                        const adj = hasZero ? 0.5 : 0;
+                        const a = t.data.tE + adj, b = t.data.tN - t.data.tE + adj, c = t.data.cE + adj, dd = t.data.cN - t.data.cE + adj;
+                        const logEff = Math.log((a / b) / (c / dd));
+                        const vi = 1 / a + 1 / b + 1 / c + 1 / dd;
+                        return { logOR: logEff, vi, se: Math.sqrt(vi), id: RapidMeta.nctAcronyms[t.id] ?? t.data?.name ?? t.id, year: t.data.year ?? 2020 };
+                    }).filter(d => Number.isFinite(d.logOR) && Number.isFinite(d.vi) && d.vi > 0);
+                    if (plotData.length === 0) continue;
+                    // DL pooling
+                    let sW = 0, sWY = 0, sWY2 = 0, sW2 = 0;
+                    plotData.forEach(d => { const w = 1 / d.vi; sW += w; sWY += w * d.logOR; sWY2 += w * d.logOR * d.logOR; sW2 += w * w; });
+                    const Q = Math.max(0, sWY2 - sWY * sWY / sW);
+                    const k = plotData.length;
+                    const df = k - 1;
+                    const tau2 = df > 0 && Q > df ? (Q - df) / (sW - sW2 / sW) : 0;
+                    let sWR = 0, sWRY = 0;
+                    plotData.forEach(d => { const wr = 1 / (d.vi + tau2); sWR += wr; sWRY += wr * d.logOR; });
+                    const pLogOR = sWR > 0 ? sWRY / sWR : 0;
+                    const pSE = sWR > 0 ? Math.sqrt(1 / sWR) : 1;
+                    // t-distribution CI for small k
+                    const tCrit = k >= 2 ? tQuantile(1 - (1 - confLevel) / 2, df) : normalQuantile(1 - (1 - confLevel) / 2);
+                    const est = Math.exp(pLogOR);
+                    const lo = Math.exp(pLogOR - tCrit * pSE);
+                    const hi = Math.exp(pLogOR + tCrit * pSE);
+                    const I2 = Q > df ? ((Q - df) / Q) * 100 : 0;
+                    const lastTrial = plotData[plotData.length - 1];
+                    steps.push({ n: k, year: lastTrial.year, label: lastTrial.id, est, lo, hi, I2, tau2, pLogOR, pSE });
+                }
+                if (steps.length === 0) { container.innerHTML = '<div class="text-xs text-slate-500 italic">No valid data for cumulative analysis.</div>'; return; }
+                // Table
+                const emLabel = RapidMeta.emLabel('short');
+                let html = '<table class="w-full text-[11px] font-mono border-collapse mb-6"><thead><tr class="text-[9px] uppercase tracking-widest text-slate-500">';
+                html += '<th class="p-2 text-left">k</th><th class="p-2 text-left">Year</th><th class="p-2 text-left">Added</th>';
+                html += '<th class="p-2 text-right">' + escapeHtml(emLabel) + '</th><th class="p-2 text-right">CI</th><th class="p-2 text-right">I\u00B2</th></tr></thead><tbody>';
+                steps.forEach(s => {
+                    const sig = s.lo > 1 || s.hi < 1;
+                    const cls = sig ? 'text-emerald-400' : 'text-slate-300';
+                    html += '<tr class="border-b border-slate-800/50"><td class="p-2 text-slate-500">' + s.n + '</td>';
+                    html += '<td class="p-2 text-slate-400">' + s.year + '</td>';
+                    html += '<td class="p-2 text-slate-300">' + escapeHtml(s.label) + '</td>';
+                    html += '<td class="p-2 text-right font-bold ' + cls + '">' + s.est.toFixed(2) + '</td>';
+                    html += '<td class="p-2 text-right text-slate-400">' + s.lo.toFixed(2) + '\u2014' + s.hi.toFixed(2) + '</td>';
+                    html += '<td class="p-2 text-right text-slate-500">' + s.I2.toFixed(0) + '%</td></tr>';
+                });
+                html += '</tbody></table>';
+                // Plotly chart
+                html += '<div id="cumulative-plot" style="height:300px"></div>';
+                container.innerHTML = html;
+                if (typeof Plotly !== 'undefined') {
+                    const trace = {
+                        type: 'scatter', mode: 'markers+lines',
+                        x: steps.map(s => s.n),
+                        y: steps.map(s => s.est),
+                        error_y: { type: 'data', symmetric: false, array: steps.map(s => s.hi - s.est), arrayminus: steps.map(s => s.est - s.lo) },
+                        marker: { size: 8, color: '#3b82f6' },
+                        line: { color: '#3b82f6', width: 2 },
+                        hovertext: steps.map(s => 'k=' + s.n + ' (' + s.year + '): ' + s.est.toFixed(2) + ' (' + s.lo.toFixed(2) + '-' + s.hi.toFixed(2) + ')'),
+                        hoverinfo: 'text', showlegend: false
+                    };
+                    const refLine = { type: 'scatter', mode: 'lines', x: [1, steps.length], y: [1, 1], line: { dash: 'dash', color: '#475569', width: 1 }, showlegend: false, hoverinfo: 'none' };
+                    const layout = {
+                        paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+                        xaxis: { title: { text: 'Number of studies (k)', font: { color: '#94a3b8', size: 11 } }, gridcolor: '#1e293b', color: '#94a3b8', dtick: 1 },
+                        yaxis: { title: { text: emLabel, font: { color: '#94a3b8', size: 11 } }, gridcolor: '#1e293b', color: '#94a3b8' },
+                        margin: { l: 60, r: 30, t: 20, b: 50 }, height: 300
+                    };
+                    Plotly.newPlot('cumulative-plot', [refLine, trace], layout, { responsive: true, displayModeBar: false });
+                }
+                addAuditEntry('Cumulative MA rendered: ' + steps.length + ' steps');
+                showToast('Cumulative meta-analysis: ' + steps.length + ' steps');
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════
+        // v15.0: Provenance Chain Engine
+        // SHA-256 hash chain with djb2 fallback for file:// protocol
+        // ═══════════════════════════════════════════════════════════
+        const ProvenanceChainEngine = {
+            _chain: [],
+            _initDone: false,
+
+            async _hash(input) {
+                const text = String(input ?? '');
+                try {
+                    const encoder = new TextEncoder();
+                    const data = encoder.encode(text);
+                    const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
+                    return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+                } catch (e) {
+                    // djb2 fallback for file:// protocol
+                    let h = 5381;
+                    for (let i = 0; i < text.length; i++) h = ((h << 5) + h + text.charCodeAt(i)) >>> 0;
+                    return 'djb2-' + h.toString(16).padStart(8, '0');
+                }
+            },
+
+            initFromState() {
+                const saved = RapidMeta.state.provenanceChain;
+                if (Array.isArray(saved) && saved.length > 0) {
+                    this._chain = saved;
+                }
+                this._initDone = true;
+            },
+
+            async addEntry(action, data) {
+                if (!this._initDone) this.initFromState();
+                const prevHash = this._chain.length > 0 ? this._chain[this._chain.length - 1].hash : '0000000000000000';
+                const ts = new Date().toISOString();
+                const payload = prevHash + '|' + action + '|' + JSON.stringify(data) + '|' + ts;
+                const hash = await this._hash(payload);
+                const entry = { seq: this._chain.length, action, ts, hash, prevHash };
+                this._chain.push(entry);
+                RapidMeta.state.provenanceChain = this._chain;
+                RapidMeta.save();
+                return entry;
+            },
+
+            getChain() {
+                if (!this._initDone) this.initFromState();
+                return [...this._chain];
+            },
+
+            async verify() {
+                if (this._chain.length === 0) return { valid: true, length: 0 };
+                for (let i = 0; i < this._chain.length; i++) {
+                    const entry = this._chain[i];
+                    if (i > 0 && entry.prevHash !== this._chain[i - 1].hash) {
+                        return { valid: false, brokenAt: i, length: this._chain.length };
+                    }
+                }
+                return { valid: true, length: this._chain.length };
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════
+        // v15.0: QA Engine — 18 automated checks
+        // ═══════════════════════════════════════════════════════════
+        const QAEngine = {
+            render() {
+                const container = document.getElementById('qa-container');
+                if (!container) return;
+                const r = RapidMeta.state.results;
+                const scope = RapidMeta.getAnalysisScopeDetails();
+                const trials = scope.analyzed;
+                const checks = [];
+
+                // QA1: Has analysis been run?
+                checks.push({ id: 'QA1', name: 'Analysis Executed', status: r ? 'pass' : 'fail', detail: r ? 'Pooled result available' : 'No analysis results found' });
+
+                // QA2: >= 2 trials included
+                const k = trials?.length ?? 0;
+                checks.push({ id: 'QA2', name: 'Sufficient Studies', status: k >= 2 ? 'pass' : 'fail', detail: k + ' studies included' + (k < 2 ? ' (need >= 2)' : '') });
+
+                // QA3: All trials have events data
+                const missingData = (trials ?? []).filter(t => t.data?.tN == null || t.data?.cN == null);
+                checks.push({ id: 'QA3', name: 'Complete Data', status: missingData.length === 0 ? 'pass' : 'fail', detail: missingData.length === 0 ? 'All trials have event counts' : missingData.length + ' trial(s) missing data' });
+
+                // QA4: HKSJ concordance
+                const waldSig = r && ((parseFloat(r.lci) > 1) || (parseFloat(r.uci) < 1));
+                const hksjSig = r && r.hksjLCI !== '--' && ((parseFloat(r.hksjLCI) > 1) || (parseFloat(r.hksjUCI) < 1));
+                checks.push({ id: 'QA4', name: 'HKSJ Concordance', status: !r ? 'warn' : (waldSig === hksjSig ? 'pass' : 'warn'), detail: !r ? 'Not computed' : (waldSig === hksjSig ? 'Wald and HKSJ agree on significance' : 'Discordant: Wald ' + (waldSig ? 'sig' : 'NS') + ' but HKSJ ' + (hksjSig ? 'sig' : 'NS')) });
+
+                // QA5: Heterogeneity
+                const i2 = r ? parseFloat(r.i2) : 0;
+                checks.push({ id: 'QA5', name: 'Heterogeneity', status: i2 < 50 ? 'pass' : i2 < 75 ? 'warn' : 'fail', detail: 'I\u00B2 = ' + (r ? r.i2 : '--') + '%' });
+
+                // QA6: Egger test
+                const eggerP = r ? parseFloat(r.eggerP) : NaN;
+                checks.push({ id: 'QA6', name: 'Publication Bias (Egger)', status: isNaN(eggerP) ? 'warn' : (eggerP >= 0.10 ? 'pass' : 'warn'), detail: isNaN(eggerP) ? 'Not computed (k < 3 or HR mode)' : 'p = ' + (eggerP < 0.001 ? '<0.001' : eggerP.toFixed(3)) });
+
+                // QA7: Prediction interval
+                checks.push({ id: 'QA7', name: 'Prediction Interval', status: r && r.piLCI !== '--' ? 'pass' : 'warn', detail: r && r.piLCI !== '--' ? 'PI: ' + r.piLCI + '\u2014' + r.piUCI : 'Not available (k < 3)' });
+
+                // QA8: Fragility index
+                const fi = r?.fragIdx ?? 0;
+                checks.push({ id: 'QA8', name: 'Fragility Index', status: fi >= 8 ? 'pass' : fi >= 3 ? 'warn' : (fi > 0 ? 'fail' : 'warn'), detail: fi > 0 ? 'FI = ' + fi : 'N/A (HR mode or NS result)' });
+
+                // QA9: Bayesian analysis
+                checks.push({ id: 'QA9', name: 'Bayesian Posterior', status: r && r.bayesCriLo !== '--' ? 'pass' : 'warn', detail: r && r.bayesCriLo !== '--' ? 'CrI: ' + r.bayesCriLo + '\u2014' + r.bayesCriHi : 'Not computed' });
+
+                // QA10: Trim-and-fill
+                checks.push({ id: 'QA10', name: 'Trim-and-Fill', status: r?.trimK0 != null ? (r.trimK0 === 0 ? 'pass' : 'warn') : 'warn', detail: r?.trimK0 != null ? r.trimK0 + ' studies imputed' : 'Not computed' });
+
+                // QA11: Data seal
+                const sealEl = document.getElementById('data-seal-hash');
+                const hasSeal = sealEl && sealEl.textContent !== '--';
+                checks.push({ id: 'QA11', name: 'Data Seal', status: hasSeal ? 'pass' : 'warn', detail: hasSeal ? 'SHA-256 seal active' : 'No data seal generated' });
+
+                // QA12: GRADE assessment
+                checks.push({ id: 'QA12', name: 'GRADE Certainty', status: r?.gradeCertainty ? 'pass' : 'warn', detail: r?.gradeCertainty ? 'Certainty: ' + r.gradeCertainty : 'Not assessed' });
+
+                // QA13: Protocol locked
+                const pLocked = document.getElementById('p-pop')?.disabled;
+                checks.push({ id: 'QA13', name: 'Protocol Locked', status: pLocked ? 'pass' : 'warn', detail: pLocked ? 'Protocol configuration is locked' : 'Protocol not yet locked' });
+
+                // QA14: Version snapshots
+                const snapCount = (RapidMeta.state.versionSnapshots ?? []).length;
+                checks.push({ id: 'QA14', name: 'Version Snapshots', status: snapCount > 0 ? 'pass' : 'warn', detail: snapCount + ' snapshot(s) recorded' });
+
+                // QA15: Cross-validation concordance (uses CrossValidationEngine directly)
+                let xvalStatus = 'warn', xvalDetail = 'Not assessed';
+                if (typeof CrossValidationEngine !== 'undefined' && trials && trials.length > 0) {
+                    let concordant = 0, discrepant = 0, total = 0;
+                    trials.forEach(t => {
+                        const fields = CrossValidationEngine._getFieldDefs ? CrossValidationEngine._getFieldDefs() : [];
+                        fields.forEach(f => {
+                            const ctgov = CrossValidationEngine._extractCtgovValues ? CrossValidationEngine._extractCtgovValues(t.id) : {};
+                            const pubmed = CrossValidationEngine._extractPubmedValues ? CrossValidationEngine._extractPubmedValues(t.id) : {};
+                            const extracted = CrossValidationEngine._getExtractedValues ? CrossValidationEngine._getExtractedValues(t.id) : {};
+                            const vals = [{ source: 'ctgov', value: ctgov[f.key] }, { source: 'pubmed', value: pubmed[f.key] }, { source: 'extracted', value: extracted[f.key] }];
+                            if (vals.some(v => v.value != null)) {
+                                total++;
+                                const result = CrossValidationEngine.checkConcordance(f.key, vals);
+                                if (result.status === 'concordant') concordant++;
+                                else if (result.status === 'discrepant') discrepant++;
+                            }
+                        });
+                    });
+                    if (total > 0) {
+                        xvalStatus = discrepant === 0 ? 'pass' : discrepant <= 2 ? 'warn' : 'fail';
+                        xvalDetail = concordant + '/' + total + ' concordant, ' + discrepant + ' discrepant';
+                    }
+                }
+                checks.push({ id: 'QA15', name: 'Cross-Validation', status: xvalStatus, detail: xvalDetail });
+
+                // QA16: Evidence extraction completeness
+                const unextracted = (trials ?? []).filter(t => !(t.data?.evidence?.length > 0));
+                checks.push({ id: 'QA16', name: 'Evidence Extraction', status: unextracted.length === 0 ? 'pass' : 'warn', detail: unextracted.length === 0 ? 'All trials have extracted evidence' : unextracted.length + ' trial(s) without evidence' });
+
+                // QA17: Provenance chain
+                const chainLen = ProvenanceChainEngine.getChain().length;
+                checks.push({ id: 'QA17', name: 'Provenance Chain', status: chainLen > 0 ? 'pass' : 'warn', detail: chainLen + ' chain entries' });
+
+                // QA18: Copas sensitivity
+                checks.push({ id: 'QA18', name: 'Copas Selection Model', status: r?.copasRobust != null ? (r.copasRobust ? 'pass' : 'warn') : 'warn', detail: r?.copasRobust != null ? (r.copasRobust ? 'Robust to selection bias' : 'Sensitive to selection') : 'Not computed' });
+
+                // Render
+                const passCount = checks.filter(c => c.status === 'pass').length;
+                const warnCount = checks.filter(c => c.status === 'warn').length;
+                const failCount = checks.filter(c => c.status === 'fail').length;
+                const overallColor = failCount > 0 ? 'text-red-400' : warnCount > 4 ? 'text-amber-400' : 'text-emerald-400';
+                const overallLabel = failCount > 0 ? 'ISSUES FOUND' : warnCount > 4 ? 'CAUTION' : 'ALL CLEAR';
+
+                container.innerHTML = '<div class="flex items-center justify-between mb-4">' +
+                    '<span class="text-sm font-bold ' + overallColor + '">' + escapeHtml(overallLabel) + ' (' + passCount + '/' + checks.length + ' pass)</span></div>' +
+                    '<div class="grid grid-cols-2 lg:grid-cols-3 gap-3">' +
+                    checks.map(function(c) {
+                        var color = c.status === 'pass' ? 'emerald' : c.status === 'warn' ? 'amber' : 'red';
+                        var icon = c.status === 'pass' ? 'fa-circle-check' : c.status === 'warn' ? 'fa-triangle-exclamation' : 'fa-circle-xmark';
+                        return '<div class="bg-slate-950/50 rounded-xl p-3 border border-' + color + '-500/20">' +
+                            '<div class="flex items-center gap-2 mb-1">' +
+                            '<i class="fa-solid ' + icon + ' text-' + color + '-400" aria-hidden="true"></i>' +
+                            '<span class="sr-only">' + c.status + '</span>' +
+                            '<span class="text-[9px] font-bold uppercase tracking-widest text-' + color + '-400">' + escapeHtml(c.id + ': ' + c.name) + '</span></div>' +
+                            '<div class="text-[10px] text-slate-400">' + escapeHtml(c.detail) + '</div></div>';
+                    }).join('') +
+                    '</div>';
+
+                addAuditEntry('QA check: ' + passCount + '/' + checks.length + ' pass (' + overallLabel + ')');
+                showToast('QA: ' + passCount + '/' + checks.length + ' pass');
+            }
+        };
+
+
+
         const SensitivityEngine = {
             // pOR here means pooled exponentiated effect (exp(logOR) in OR mode, exp(logHR) in HR mode)
             run(plotData, pLogOR, pSE, tau2, zCrit, confLevel, pOR, lci, uci) {
