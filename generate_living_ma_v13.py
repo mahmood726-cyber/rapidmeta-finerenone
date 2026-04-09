@@ -129,7 +129,7 @@ def transform_template(template_html, cfg):
     # 1. Title
     html = re.sub(
         r'<title>.*?</title>',
-        f'<title>RapidMeta Cardiology | {cfg["title_short"]} v14.0</title>',
+        f'<title>RapidMeta Cardiology | {cfg["title_short"]} v16.0</title>',
         html
     )
 
@@ -167,7 +167,7 @@ def transform_template(template_html, cfg):
         html = re.sub(pattern, replacement, html, count=1)
 
     # 6. localStorage keys — replace finerenone-specific keys
-    for ver in ['v14_0', 'v13_0', 'v12_0', 'v11_0', 'v10_0', 'v9_3']:
+    for ver in ['v16_0', 'v15_0', 'v14_0', 'v13_0', 'v12_0', 'v11_0', 'v10_0', 'v9_3']:
         html = html.replace(f"rapid_meta_finerenone_{ver}", f"rapid_meta_{storage}_{ver}")
     html = html.replace("rapid_meta_finerenone_theme", f"rapid_meta_{storage}_theme")
 
@@ -346,6 +346,19 @@ def transform_template(template_html, cfg):
             nma_output_html + '                        <div class="flex gap-3 justify-center">\n                            <button type="button" onclick="NMAEngine.render()"'
         )
 
+    # 17. Dose-response config
+    if cfg.get("dose_response"):
+        dr_js = json.dumps(cfg["dose_response"], indent=8)
+        html = html.replace(
+            'const DR_CONFIG = null;',
+            f'const DR_CONFIG = {dr_js};'
+        )
+        # Show the dose-response tab button (remove display:none)
+        html = html.replace(
+            'id="btn-tab-doseresponse" style="display:none"',
+            'id="btn-tab-doseresponse"'
+        )
+
     return html
 
 
@@ -391,6 +404,8 @@ def validate_html(html, filename, cfg):
                        and 'v12.0:' not in line
                        and 'v13.0:' not in line
                        and 'v14.0:' not in line
+                       and 'v15.0:' not in line
+                       and 'v16.0:' not in line
                        and 'localStorage' not in line
                        and '_migrated' not in line]
     if finerenone_refs and cfg["storage_key"] != "finerenone":
@@ -409,10 +424,11 @@ def validate_html(html, filename, cfg):
             errors.append(f"{len(code_refs)} potential dangling 'finerenone' refs in non-evidence code")
 
     # localStorage key present
-    # Accept v14_0 (new) or v13_0 (legacy template not yet upgraded)
-    if (f"rapid_meta_{cfg['storage_key']}_v14_0" not in html and
+    # Accept v16_0 (new) or v14_0/v13_0 (legacy template not yet upgraded)
+    if (f"rapid_meta_{cfg['storage_key']}_v16_0" not in html and
+            f"rapid_meta_{cfg['storage_key']}_v14_0" not in html and
             f"rapid_meta_{cfg['storage_key']}_v13_0" not in html):
-        errors.append(f"localStorage key rapid_meta_{cfg['storage_key']}_v14_0/v13_0 not found")
+        errors.append(f"localStorage key rapid_meta_{cfg['storage_key']}_v16_0/v14_0/v13_0 not found")
 
     return errors
 
