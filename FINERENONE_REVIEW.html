@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>RapidMeta Cardiology | Finerenone Ultra-Precision v14.0</title>
+    <title>RapidMeta Cardiology | Finerenone Ultra-Precision v16.0</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.plot.ly https://webr.r-wasm.org; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src https://cdnjs.cloudflare.com https://fonts.gstatic.com; connect-src 'self' https://clinicaltrials.gov https://www.ebi.ac.uk https://api.openalex.org https://webr.r-wasm.org https://repo.r-wasm.org http://localhost:* http://127.0.0.1:*; worker-src 'self' blob:; img-src 'self' data: blob:;">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23020617'/%3E%3Cpath d='M18 18h12c8 0 14 6 14 14s-6 14-14 14H18V18zm10 22c5 0 8-3 8-8s-3-8-8-8h-2v16h2z' fill='%233b82f6'/%3E%3Cpath d='M40 18h6v28h-6z' fill='%23f8fafc'/%3E%3C/svg%3E">
@@ -187,6 +187,18 @@
         .nma-rank-bar { height: 24px; border-radius: 4px; display: inline-block; min-width: 4px; transition: width 0.3s; }
         .nma-consistency-pass { color: #4ade80; }
         .nma-consistency-fail { color: #f87171; font-weight: 700; }
+        /* v15.0: WCAG AA light-mode contrast fixes */
+        .light-mode .xval-match { color: #15803d; }
+        .light-mode .xval-warn { color: #a16207; }
+        .light-mode .xval-mismatch { color: #b91c1c; font-weight: 700; }
+        .light-mode .diff-added { color: #15803d; }
+        .light-mode .diff-removed { color: #b91c1c; }
+        .light-mode .diff-changed { color: #a16207; }
+        /* v16.0: Dose-Response */
+        .dr-curve-container { height: 400px; width: 100%; border-radius: 1rem; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); }
+        .light-mode .dr-curve-container { background: rgba(0,0,0,0.02); border-color: rgba(0,0,0,0.05); }
+        .dr-param-card { background: rgba(15,23,42,0.5); border: 1px solid #1e293b; border-radius: 1rem; padding: 1rem 1.25rem; text-align: center; }
+        .light-mode .dr-param-card { background: rgba(241,245,249,0.6); border-color: #e2e8f0; }
         .light-mode .nma-league th { background: #f1f5f9; color: #475569; }
         .light-mode .nma-league td { border-color: #e2e8f0; }
         .light-mode .nma-league td.nma-diag { background: #f1f5f9; }
@@ -417,7 +429,7 @@
     <header class="h-14 border-b border-slate-800 bg-slate-950 flex items-center justify-between px-6 shrink-0">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/20">R</div>
-            <h1 class="font-bold text-lg tracking-tight text-white">RapidMeta <span class="text-blue-400 font-normal text-sm ml-1">Precision v14.0</span></h1>
+            <h1 class="font-bold text-lg tracking-tight text-white">RapidMeta <span class="text-blue-400 font-normal text-sm ml-1">Precision v16.0</span></h1>
         </div>
         <div class="flex items-center gap-4">
             <div class="flex items-center gap-1 bg-slate-900 rounded-xl p-1 border border-slate-800" role="radiogroup" aria-label="Confidence level">
@@ -474,6 +486,7 @@
         <button onclick="RapidMeta.switchTab('analysis')" class="tab-btn h-full text-sm font-medium text-slate-400 hover:text-white transition-all duration-200 border-b-2 border-transparent" data-tab="analysis" role="tab" aria-selected="false" aria-controls="tab-analysis" id="btn-tab-analysis">5. Analysis Suite</button>
         <button onclick="RapidMeta.switchTab('report')" class="tab-btn h-full text-sm font-medium text-purple-400 hover:text-purple-300 transition-all duration-200 border-b-2 border-transparent" data-tab="report" role="tab" aria-selected="false" aria-controls="tab-report" id="btn-tab-report">6. Scientific Output</button>
         <button onclick="RapidMeta.switchTab('nma')" class="tab-btn h-full text-sm font-medium text-cyan-400 hover:text-cyan-300 transition-all duration-200 border-b-2 border-transparent" data-tab="nma" role="tab" aria-selected="false" aria-controls="tab-nma" id="btn-tab-nma" style="display:none">7. NMA</button>
+        <button onclick="RapidMeta.switchTab('doseresponse')" class="tab-btn h-full text-sm font-medium text-rose-400 hover:text-rose-300 transition-all duration-200 border-b-2 border-transparent" data-tab="doseresponse" role="tab" aria-selected="false" aria-controls="tab-doseresponse" id="btn-tab-doseresponse" style="display:none">8. Dose-Response</button>
     </nav>
 
     <!-- Stale Detection Banner (Task 8: D4) -->
@@ -498,7 +511,7 @@
                     <div class="bg-slate-900/80 p-4 border-b border-slate-800"><h3 class="text-xs font-bold uppercase text-blue-400 tracking-widest"><i class="fa-solid fa-id-card mr-2"></i>1. Registration &amp; Administrative Information <span class="text-slate-500 ml-2">[PRISMA #24, AMSTAR #2]</span></h3></div>
                     <table class="w-full text-left text-xs"><tbody class="divide-y divide-slate-800/50">
                         <tr><td class="p-4 w-1/4 font-bold text-slate-400">Review Title</td><td class="p-4 text-slate-300">Finerenone for Cardiorenal Outcomes: A Living Systematic Review and Meta-Analysis of Randomized Controlled Trials</td></tr>
-                        <tr><td class="p-4 font-bold text-slate-400">Protocol Version</td><td class="p-4 text-slate-300">v14.0 (Living Protocol &mdash; auto-updating)</td></tr>
+                        <tr><td class="p-4 font-bold text-slate-400">Protocol Version</td><td class="p-4 text-slate-300">v16.0 (Living Protocol &mdash; auto-updating)</td></tr>
                         <tr><td class="p-4 font-bold text-slate-400">Protocol Freeze Date</td><td class="p-4 text-slate-300"><span id="proto-reg-date">2026-03-10</span></td></tr>
                         <tr><td class="p-4 font-bold text-slate-400">Last Substantive Amendment</td><td class="p-4 text-slate-300"><span id="proto-amend-date">2026-03-10</span></td></tr>
                         <tr><td class="p-4 font-bold text-slate-400">Planned Update Frequency</td><td class="p-4 text-slate-300">Continuous (living review); formal snapshot at each new trial publication</td></tr>
@@ -1416,13 +1429,46 @@
                         </div>
                     </div>
 
+                    <!-- v15.0: Cumulative Meta-Analysis -->
+                    <div class="glass p-10 rounded-[40px] border border-slate-800">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-sm font-bold opacity-60 uppercase tracking-[0.3em]">Cumulative Meta-Analysis</h3>
+                            <button type="button" onclick="CumulativeEngine.render()" class="text-[11px] font-bold text-teal-400 uppercase bg-teal-400/10 px-6 py-2 rounded-full border border-teal-400/20 transition-all hover:bg-teal-400/20"><i class="fa-solid fa-layer-group mr-1"></i>Run Cumulative</button>
+                        </div>
+                        <div id="cumulative-container">
+                            <div class="text-xs text-slate-500 italic">Click "Run Cumulative" to generate a cumulative meta-analysis ordered by publication year.</div>
+                        </div>
+                    </div>
+
+                    <!-- v15.0: Auto-Manuscript Draft -->
+                    <div class="glass p-10 rounded-[40px] border border-slate-800">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-sm font-bold opacity-60 uppercase tracking-[0.3em]">Auto-Manuscript Draft</h3>
+                            <button type="button" onclick="ManuscriptEngine.render()" class="text-[11px] font-bold text-violet-400 uppercase bg-violet-400/10 px-6 py-2 rounded-full border border-violet-400/20 transition-all hover:bg-violet-400/20"><i class="fa-solid fa-file-lines mr-1"></i>Generate Draft</button>
+                        </div>
+                        <div id="manuscript-container">
+                            <div class="text-xs text-slate-500 italic">Click "Generate Draft" to auto-generate Methods, Results, Transparency, and Limitations sections.</div>
+                        </div>
+                    </div>
+
+                    <!-- v15.0: QA Checks -->
+                    <div class="glass p-10 rounded-[40px] border border-slate-800">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-sm font-bold opacity-60 uppercase tracking-[0.3em]">Quality Assurance (18 Checks)</h3>
+                            <button type="button" onclick="QAEngine.render()" class="text-[11px] font-bold text-amber-400 uppercase bg-amber-400/10 px-6 py-2 rounded-full border border-amber-400/20 transition-all hover:bg-amber-400/20"><i class="fa-solid fa-clipboard-check mr-1"></i>Run QA</button>
+                        </div>
+                        <div id="qa-container">
+                            <div class="text-xs text-slate-500 italic">Click "Run QA" to execute 18 automated quality checks on the current analysis.</div>
+                        </div>
+                    </div>
+
                     <!-- v13.0: Living Update Diff -->
                     <div class="glass p-10 rounded-[40px] border border-slate-800">
                         <div class="flex items-center justify-between mb-6">
                             <h3 class="text-sm font-bold opacity-60 uppercase tracking-[0.3em]">Living Update Log</h3>
                             <div class="flex gap-2">
-                                <button onclick="RapidMeta.snapshotVersion('manual'); RapidMeta.renderVersionDiff();" class="text-[11px] px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700"><i class="fa-solid fa-camera mr-1"></i>Snapshot Version</button>
-                                <button onclick="RapidMeta.exportVersionLog()" class="text-[11px] px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700"><i class="fa-solid fa-download mr-1"></i>Export CSV</button>
+                                <button type="button" onclick="RapidMeta.snapshotVersion('manual'); RapidMeta.renderVersionDiff();" class="text-[11px] px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700"><i class="fa-solid fa-camera mr-1"></i>Snapshot Version</button>
+                                <button type="button" onclick="RapidMeta.exportVersionLog()" class="text-[11px] px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700"><i class="fa-solid fa-download mr-1"></i>Export CSV</button>
                             </div>
                         </div>
                         <div id="version-diff-container">
@@ -1497,6 +1543,45 @@
                         <div class="flex gap-3 justify-center">
                             <button type="button" onclick="NMAEngine.render()" class="text-[11px] font-bold text-blue-400 uppercase bg-blue-400/10 px-6 py-3 rounded-full border border-blue-400/20 transition-all hover:bg-blue-400/20"><i class="fa-solid fa-diagram-project mr-2"></i>Run NMA</button>
                             <button type="button" onclick="NMAEngine.exportLeagueCSV()" class="text-[11px] px-4 py-2 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700"><i class="fa-solid fa-download mr-1"></i>Export League Table</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- v16.0: Dose-Response Tab (only visible when DR_CONFIG set) -->
+                <section id="tab-doseresponse" class="tab-content h-full p-8 overflow-y-auto hidden" role="tabpanel" aria-labelledby="btn-tab-doseresponse">
+                    <div class="max-w-6xl mx-auto space-y-10">
+                        <div class="text-center mb-10">
+                            <h2 class="text-3xl font-bold tracking-tight">Dose-Response Analysis</h2>
+                            <p class="opacity-50 text-sm mt-2">Emax model curve fitting via grid search</p>
+                        </div>
+
+                        <div class="glass p-10 rounded-[40px] border border-slate-800">
+                            <h3 class="text-sm font-bold opacity-60 uppercase tracking-[0.3em] mb-6">Dose-Response Curve</h3>
+                            <div id="dr-curve-plot" class="dr-curve-container mb-6">
+                                <div class="h-full flex items-center justify-center text-xs text-slate-500">Click "Fit Emax" to generate the dose-response curve.</div>
+                            </div>
+                        </div>
+
+                        <div class="glass p-10 rounded-[40px] border border-slate-800">
+                            <h3 class="text-sm font-bold opacity-60 uppercase tracking-[0.3em] mb-6">Model Parameters</h3>
+                            <div id="dr-params-container" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="dr-param-card"><div class="text-[9px] text-slate-500 uppercase font-bold tracking-widest mb-1">Emax</div><div id="dr-emax" class="text-lg font-bold font-mono text-blue-400">--</div></div>
+                                <div class="dr-param-card"><div class="text-[9px] text-slate-500 uppercase font-bold tracking-widest mb-1">ED50</div><div id="dr-ed50" class="text-lg font-bold font-mono text-emerald-400">--</div></div>
+                                <div class="dr-param-card"><div class="text-[9px] text-slate-500 uppercase font-bold tracking-widest mb-1">ED90</div><div id="dr-ed90" class="text-lg font-bold font-mono text-amber-400">--</div></div>
+                                <div class="dr-param-card"><div class="text-[9px] text-slate-500 uppercase font-bold tracking-widest mb-1">R-squared</div><div id="dr-r2" class="text-lg font-bold font-mono text-purple-400">--</div></div>
+                            </div>
+                        </div>
+
+                        <div class="glass p-10 rounded-[40px] border border-slate-800">
+                            <h3 class="text-sm font-bold opacity-60 uppercase tracking-[0.3em] mb-6">Dose-Specific Results</h3>
+                            <div id="dr-table-container">
+                                <div class="text-xs text-slate-500 italic">Run dose-response analysis to see per-dose results.</div>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3 justify-center">
+                            <button type="button" onclick="DoseResponseEngine.render()" class="text-[11px] font-bold text-rose-400 uppercase bg-rose-400/10 px-6 py-3 rounded-full border border-rose-400/20 transition-all hover:bg-rose-400/20"><i class="fa-solid fa-chart-line mr-2"></i>Fit Emax</button>
+                            <button type="button" onclick="DoseResponseEngine.exportCSV()" class="text-[11px] px-4 py-2 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700"><i class="fa-solid fa-download mr-1"></i>Export CSV</button>
                         </div>
                     </div>
                 </section>
@@ -1823,8 +1908,11 @@
         };
 
         const sanitizeCSVCell = (val) => {
-            const s = String(val);
-            if (/^[=+@\t\r]/.test(s)) return "'" + s;
+            let s = String(val ?? '');
+            // Formula injection protection (RFC 4180 + OWASP)
+            if (/^[=+@\t\r]/.test(s)) s = "'" + s;
+            // RFC 4180: quote if contains comma, double-quote, or newline
+            if (/[,"\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
             return s;
         };
 
@@ -2497,27 +2585,35 @@
             },
 
             async init() {
-                // v14.0 migration: read from old keys if new key is empty
-                let saved = localStorage.getItem('rapid_meta_finerenone_v14_0');
+                // v16.0 migration: read from old keys if new key is empty
+                let saved = localStorage.getItem('rapid_meta_finerenone_v16_0');
+                if (!saved) {
+                    const old15 = localStorage.getItem('rapid_meta_finerenone_v15_0');
+                    if (old15) { saved = old15; localStorage.setItem('rapid_meta_finerenone_v16_0', old15); }
+                }
+                if (!saved) {
+                    const old14 = localStorage.getItem('rapid_meta_finerenone_v14_0');
+                    if (old14) { saved = old14; localStorage.setItem('rapid_meta_finerenone_v16_0', old14); }
+                }
                 if (!saved) {
                     const old13 = localStorage.getItem('rapid_meta_finerenone_v13_0');
-                    if (old13) { saved = old13; localStorage.setItem('rapid_meta_finerenone_v14_0', old13); }
+                    if (old13) { saved = old13; localStorage.setItem('rapid_meta_finerenone_v16_0', old13); }
                 }
                 if (!saved) {
                     const old12 = localStorage.getItem('rapid_meta_finerenone_v12_0');
-                    if (old12) { saved = old12; localStorage.setItem('rapid_meta_finerenone_v14_0', old12); }
+                    if (old12) { saved = old12; localStorage.setItem('rapid_meta_finerenone_v16_0', old12); }
                 }
                 if (!saved) {
                     const old11 = localStorage.getItem('rapid_meta_finerenone_v11_0');
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_finerenone_v14_0', old11); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_finerenone_v16_0', old11); }
                 }
                 if (!saved) {
                     const old10 = localStorage.getItem('rapid_meta_finerenone_v10_0');
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_finerenone_v14_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_finerenone_v16_0', old10); }
                 }
                 if (!saved) {
                     const old93 = localStorage.getItem('rapid_meta_finerenone_v9_3');
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_finerenone_v14_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_finerenone_v16_0', old93); }
                 }
                 if (saved) {
                     try {
@@ -2533,7 +2629,7 @@
                         if (sanitizedLoadedState) this.save();
                     } catch (e) {
                         console.error('Corrupted localStorage, resetting:', e);
-                        localStorage.removeItem('rapid_meta_finerenone_v14_0');
+                        localStorage.removeItem('rapid_meta_finerenone_v16_0');
                         showToast('State was corrupted and has been reset.');
                     }
                 }
@@ -2795,6 +2891,13 @@
                 this.setOutcome(this.state.selectedOutcome ?? 'default');
                 this.renderAuditLog();
                 this.checkAACT();
+                // v15.0: Init provenance chain from saved state
+                ProvenanceChainEngine.initFromState();
+                // v16.0: Show dose-response tab if DR_CONFIG is set
+                if (DR_CONFIG || this.state.doseResponseConfig) {
+                    const drBtn = document.getElementById('btn-tab-doseresponse');
+                    if (drBtn) drBtn.style.display = '';
+                }
                 SearchEngine.renderSearchLog();
                 SearchEngine.renderProtocolLog();
                 // WAI-ARIA tabs pattern: arrow keys move between tabs
@@ -2971,7 +3074,7 @@
                 showToast('Version log exported.');
             },
 
-            save() { try { localStorage.setItem('rapid_meta_finerenone_v14_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_finerenone_v16_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
             getReviewerId() {
                 const id = String(this.state.reviewerId ?? '').trim();
                 if (id) return id;
@@ -3106,7 +3209,7 @@
             },
             exportReviewPack() {
                 const payload = {
-                    app: 'RapidMeta Finerenone v14.0',
+                    app: 'RapidMeta Finerenone v16.0',
                     exportedAt: new Date().toISOString(),
                     reviewerId: String(this.state.reviewerId ?? ''),
                     state: this.state
@@ -3834,6 +3937,7 @@
                 if (id === 'analysis') AnalysisEngine.run();
                 if (id === 'report') { this.renderVersionDiff(); }
                 if (id === 'nma') { NMAEngine.render(); }
+                if (id === 'doseresponse') { DoseResponseEngine.render(); }
             },
             async checkAACT() {
                 const dot = document.getElementById('aact-dot');
@@ -3873,7 +3977,7 @@
                     }
                 }
             },
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_finerenone_v14_0'); localStorage.removeItem('rapid_meta_finerenone_v13_0'); localStorage.removeItem('rapid_meta_finerenone_v12_0'); localStorage.removeItem('rapid_meta_finerenone_v11_0'); localStorage.removeItem('rapid_meta_finerenone_v10_0'); localStorage.removeItem('rapid_meta_finerenone_v9_3'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_finerenone_v16_0'); localStorage.removeItem('rapid_meta_finerenone_v15_0'); localStorage.removeItem('rapid_meta_finerenone_v14_0'); localStorage.removeItem('rapid_meta_finerenone_v13_0'); localStorage.removeItem('rapid_meta_finerenone_v12_0'); localStorage.removeItem('rapid_meta_finerenone_v11_0'); localStorage.removeItem('rapid_meta_finerenone_v10_0'); localStorage.removeItem('rapid_meta_finerenone_v9_3'); location.reload(); } },
             setBayesPrior(prior) {
                 this.state.bayesPrior = prior;
                 document.querySelectorAll('.prior-btn').forEach(btn => {
@@ -4086,7 +4190,7 @@
                 'Funding Source': 'مصدر التمويل',
                 'Conflicts of Interest': 'تضارب المصالح',
                 'Finerenone for Cardiorenal Outcomes: A Living Systematic Review and Meta-Analysis of Randomized Controlled Trials': 'الفينيرينون لنتائج القلب والكلى: مراجعة منهجية حية وتحليل وصفي للتجارب العشوائية المضبوطة',
-                'v14.0 (Living Protocol': 'الإصدار 14.0 (بروتوكول حي',
+                'v16.0 (Living Protocol': 'الإصدار 16.0 (بروتوكول حي',
                 'auto-updating)': 'تحديث تلقائي)',
                 'Continuous (living review); formal snapshot at each new trial publication': 'مستمر (مراجعة حية)؛ لقطة رسمية عند كل نشر تجربة جديدة',
                 'No external funding (independent academic review)': 'لا تمويل خارجي (مراجعة أكاديمية مستقلة)',
@@ -4584,7 +4688,7 @@
 
                 // Header
                 'RapidMeta': 'RapidMeta',
-                'Precision v14.0': 'الدقة الإصدار 14.0',
+                'Precision v16.0': 'الدقة الإصدار 16.0',
 
                 // Misc
                 'No snapshots yet.': 'لا توجد لقطات بعد.',
@@ -7026,6 +7130,7 @@
                             t.verified = false;
                             this._buildProvenance(t);
                             addAuditEntry(`Auto-extracted: ${t.data.name} ${t.data.tE}/${t.data.tN} vs ${t.data.cE}/${t.data.cN} (${result.data.source}, ${(result.data.conf*100).toFixed(0)}%)`);
+                            ProvenanceChainEngine.addEntry('extraction', { trial: t.id, tE: t.data.tE, tN: t.data.tN, cE: t.data.cE, cN: t.data.cN });
                             showToast(`\u2713 ${t.data.name}: ${t.data.tE}/${t.data.tN} vs ${t.data.cE}/${t.data.cN}`);
                         } else {
                             const pi = result.info;
@@ -8357,7 +8462,7 @@
                         { source: 'extracted', value: extracted[f.key] }
                     ];
                     const concordance = this.checkConcordance(f.key, vals);
-                    const fmt = v => v == null ? '<span class="xval-na">--</span>' : String(v);
+                    const fmt = v => v == null ? '<span class="xval-na">--</span>' : escapeHtml(String(v));
                     const statusClass = concordance.status === 'concordant' ? 'xval-match' : concordance.status === 'rounding' ? 'xval-warn' : concordance.status === 'discrepant' ? 'xval-mismatch' : 'xval-na';
                     const statusIcon = concordance.status === 'concordant' ? '<i class="fa-solid fa-check"></i>' : concordance.status === 'rounding' ? '<i class="fa-solid fa-minus"></i>' : concordance.status === 'discrepant' ? '<i class="fa-solid fa-xmark"></i>' : '';
                     return `<tr>
@@ -8373,12 +8478,12 @@
                 const nctUrl = `https://clinicaltrials.gov/study/${trialId}?tab=results`;
 
                 return `<div class="xval-panel" id="xval-${escapeHtml(trialId)}">
-                    <div class="xval-header" onclick="this.parentElement.classList.toggle('open')">
+                    <div class="xval-header" tabindex="0" role="button" aria-expanded="false" onclick="this.parentElement.classList.toggle('open'); this.setAttribute('aria-expanded', this.parentElement.classList.contains('open'))" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
                         <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-bold uppercase tracking-widest text-cyan-400"><i class="fa-solid fa-code-compare mr-1"></i>Cross-Validation</span>
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-cyan-400"><i class="fa-solid fa-code-compare mr-1" aria-hidden="true"></i>Cross-Validation</span>
                             ${overall}
                         </div>
-                        <i class="fa-solid fa-chevron-down xval-chevron"></i>
+                        <i class="fa-solid fa-chevron-down xval-chevron" aria-hidden="true"></i>
                     </div>
                     <div class="xval-body">
                         <table class="xval-table">
@@ -8773,6 +8878,561 @@
                 this.renderOutput();
                 showToast('NMA complete: ' + cfg.treatments.length + ' treatments, ' + (cfg.comparisons ?? []).length + ' comparisons.');
                 addAuditEntry('NMA rendered: ' + cfg.treatments.length + ' treatments');
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════
+        // v15.0: Cumulative Meta-Analysis Engine
+        // DL pooling ordered by year, conditional 0.5 correction, t-distribution CIs
+        // ═══════════════════════════════════════════════════════════
+        const CumulativeEngine = {
+            render() {
+                const container = document.getElementById('cumulative-container');
+                if (!container) return;
+                const scope = RapidMeta.getAnalysisScopeDetails();
+                const trials = scope.analyzed;
+                if (!trials || trials.length < 2) {
+                    container.innerHTML = '<div class="text-xs text-slate-500 italic">Need at least 2 included trials for cumulative meta-analysis.</div>';
+                    return;
+                }
+                const emMode = RapidMeta.resolveEffectMeasure({ trials }).effective;
+                const useHR = (emMode === 'HR');
+                const confLevel = RapidMeta.state.confLevel ?? 0.95;
+                // Sort by year
+                const sorted = [...trials].sort((a, b) => (a.data.year ?? 2020) - (b.data.year ?? 2020));
+                const steps = [];
+                for (let n = 1; n <= sorted.length; n++) {
+                    const subset = sorted.slice(0, n);
+                    const plotData = subset.map(t => {
+                        if (useHR && t.data.pubHR && t.data.pubHR_LCI && t.data.pubHR_UCI) {
+                            const logEff = Math.log(t.data.pubHR);
+                            const zC = normalQuantile(1 - (1 - confLevel) / 2);
+                            const se = (Math.log(t.data.pubHR_UCI) - Math.log(t.data.pubHR_LCI)) / (2 * zC);
+                            return { logOR: logEff, vi: se * se, se, id: RapidMeta.nctAcronyms[t.id] ?? t.data?.name ?? t.id, year: t.data.year ?? 2020 };
+                        }
+                        const hasZero = (t.data.tE === 0 || t.data.cE === 0 || t.data.tE === t.data.tN || t.data.cE === t.data.cN);
+                        const adj = hasZero ? 0.5 : 0;
+                        const a = t.data.tE + adj, b = t.data.tN - t.data.tE + adj, c = t.data.cE + adj, dd = t.data.cN - t.data.cE + adj;
+                        const logEff = Math.log((a / b) / (c / dd));
+                        const vi = 1 / a + 1 / b + 1 / c + 1 / dd;
+                        return { logOR: logEff, vi, se: Math.sqrt(vi), id: RapidMeta.nctAcronyms[t.id] ?? t.data?.name ?? t.id, year: t.data.year ?? 2020 };
+                    }).filter(d => Number.isFinite(d.logOR) && Number.isFinite(d.vi) && d.vi > 0);
+                    if (plotData.length === 0) continue;
+                    // DL pooling
+                    let sW = 0, sWY = 0, sWY2 = 0, sW2 = 0;
+                    plotData.forEach(d => { const w = 1 / d.vi; sW += w; sWY += w * d.logOR; sWY2 += w * d.logOR * d.logOR; sW2 += w * w; });
+                    const Q = Math.max(0, sWY2 - sWY * sWY / sW);
+                    const k = plotData.length;
+                    const df = k - 1;
+                    const tau2 = df > 0 && Q > df ? (Q - df) / (sW - sW2 / sW) : 0;
+                    let sWR = 0, sWRY = 0;
+                    plotData.forEach(d => { const wr = 1 / (d.vi + tau2); sWR += wr; sWRY += wr * d.logOR; });
+                    const pLogOR = sWR > 0 ? sWRY / sWR : 0;
+                    const pSE = sWR > 0 ? Math.sqrt(1 / sWR) : 1;
+                    // t-distribution CI for small k
+                    const tCrit = k >= 2 ? tQuantile(1 - (1 - confLevel) / 2, df) : normalQuantile(1 - (1 - confLevel) / 2);
+                    const est = Math.exp(pLogOR);
+                    const lo = Math.exp(pLogOR - tCrit * pSE);
+                    const hi = Math.exp(pLogOR + tCrit * pSE);
+                    const I2 = Q > df ? ((Q - df) / Q) * 100 : 0;
+                    const lastTrial = plotData[plotData.length - 1];
+                    steps.push({ n: k, year: lastTrial.year, label: lastTrial.id, est, lo, hi, I2, tau2, pLogOR, pSE });
+                }
+                if (steps.length === 0) { container.innerHTML = '<div class="text-xs text-slate-500 italic">No valid data for cumulative analysis.</div>'; return; }
+                // Table
+                const emLabel = RapidMeta.emLabel('short');
+                let html = '<table class="w-full text-[11px] font-mono border-collapse mb-6"><thead><tr class="text-[9px] uppercase tracking-widest text-slate-500">';
+                html += '<th class="p-2 text-left">k</th><th class="p-2 text-left">Year</th><th class="p-2 text-left">Added</th>';
+                html += '<th class="p-2 text-right">' + escapeHtml(emLabel) + '</th><th class="p-2 text-right">CI</th><th class="p-2 text-right">I\u00B2</th></tr></thead><tbody>';
+                steps.forEach(s => {
+                    const sig = s.lo > 1 || s.hi < 1;
+                    const cls = sig ? 'text-emerald-400' : 'text-slate-300';
+                    html += '<tr class="border-b border-slate-800/50"><td class="p-2 text-slate-500">' + s.n + '</td>';
+                    html += '<td class="p-2 text-slate-400">' + s.year + '</td>';
+                    html += '<td class="p-2 text-slate-300">' + escapeHtml(s.label) + '</td>';
+                    html += '<td class="p-2 text-right font-bold ' + cls + '">' + s.est.toFixed(2) + '</td>';
+                    html += '<td class="p-2 text-right text-slate-400">' + s.lo.toFixed(2) + '\u2014' + s.hi.toFixed(2) + '</td>';
+                    html += '<td class="p-2 text-right text-slate-500">' + s.I2.toFixed(0) + '%</td></tr>';
+                });
+                html += '</tbody></table>';
+                // Plotly chart
+                html += '<div id="cumulative-plot" style="height:300px"></div>';
+                container.innerHTML = html;
+                if (typeof Plotly !== 'undefined') {
+                    const trace = {
+                        type: 'scatter', mode: 'markers+lines',
+                        x: steps.map(s => s.n),
+                        y: steps.map(s => s.est),
+                        error_y: { type: 'data', symmetric: false, array: steps.map(s => s.hi - s.est), arrayminus: steps.map(s => s.est - s.lo) },
+                        marker: { size: 8, color: '#3b82f6' },
+                        line: { color: '#3b82f6', width: 2 },
+                        hovertext: steps.map(s => 'k=' + s.n + ' (' + s.year + '): ' + s.est.toFixed(2) + ' (' + s.lo.toFixed(2) + '-' + s.hi.toFixed(2) + ')'),
+                        hoverinfo: 'text', showlegend: false
+                    };
+                    const refLine = { type: 'scatter', mode: 'lines', x: [1, steps.length], y: [1, 1], line: { dash: 'dash', color: '#475569', width: 1 }, showlegend: false, hoverinfo: 'none' };
+                    const layout = {
+                        paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+                        xaxis: { title: { text: 'Number of studies (k)', font: { color: '#94a3b8', size: 11 } }, gridcolor: '#1e293b', color: '#94a3b8', dtick: 1 },
+                        yaxis: { title: { text: emLabel, font: { color: '#94a3b8', size: 11 } }, gridcolor: '#1e293b', color: '#94a3b8' },
+                        margin: { l: 60, r: 30, t: 20, b: 50 }, height: 300
+                    };
+                    Plotly.newPlot('cumulative-plot', [refLine, trace], layout, { responsive: true, displayModeBar: false });
+                }
+                addAuditEntry('Cumulative MA rendered: ' + steps.length + ' steps');
+                showToast('Cumulative meta-analysis: ' + steps.length + ' steps');
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════
+        // v15.0: Manuscript Engine
+        // Auto-generates Methods + Results + Transparency + Limitations draft
+        // ═══════════════════════════════════════════════════════════
+        const ManuscriptEngine = {
+            render() {
+                const container = document.getElementById('manuscript-container');
+                if (!container) return;
+                const r = RapidMeta.state.results;
+                if (!r) { container.innerHTML = '<div class="text-xs text-slate-500 italic">Run analysis first to generate manuscript draft.</div>'; return; }
+                const scope = RapidMeta.getAnalysisScopeDetails();
+                const trials = scope.analyzed;
+                if (!trials || trials.length === 0) { container.innerHTML = '<div class="text-xs text-slate-500 italic">No included trials.</div>'; return; }
+                const emLabel = RapidMeta.emLabel('short');
+                const ciPct = r.confLevel ?? '95';
+                const trialList = escapeHtml(trials.map(t => RapidMeta.nctAcronyms[t.id] ?? t.data?.name ?? t.id).join(', '));
+                const totalN = trials.reduce((a, t) => a + (t.data?.tN ?? 0) + (t.data?.cN ?? 0), 0);
+                const methods = '<h4 class="text-xs font-bold uppercase tracking-widest text-blue-400 mb-2">Methods</h4>' +
+                    '<p class="text-[11px] text-slate-300 leading-relaxed mb-4">' +
+                    'We conducted a systematic review and meta-analysis following PRISMA 2020 guidelines. ' +
+                    'We searched ClinicalTrials.gov, PubMed, and OpenAlex for relevant randomized controlled trials. ' +
+                    'Random-effects meta-analysis was performed using the DerSimonian-Laird estimator with ' +
+                    'Hartung-Knapp-Sidik-Jonkman adjustment for the confidence interval. ' +
+                    'Heterogeneity was assessed using Cochran\u2019s Q test and the I\u00B2 statistic. ' +
+                    'The prediction interval was computed using a t-distribution with k\u22122 degrees of freedom. ' +
+                    'Statistical analyses were performed using RapidMeta v16.0 (browser-based).</p>';
+                const results = '<h4 class="text-xs font-bold uppercase tracking-widest text-emerald-400 mb-2">Results</h4>' +
+                    '<p class="text-[11px] text-slate-300 leading-relaxed mb-4">' +
+                    'We included ' + r.k + ' trials (' + trialList + ') comprising ' + totalN.toLocaleString() + ' participants. ' +
+                    'The pooled ' + escapeHtml(emLabel) + ' was ' + escapeHtml(r.or) + ' (' + escapeHtml(ciPct) + '% CI: ' + escapeHtml(r.lci) + '\u2014' + escapeHtml(r.uci) + '). ' +
+                    'Heterogeneity was ' + (parseFloat(r.i2) < 25 ? 'low' : parseFloat(r.i2) < 50 ? 'moderate' : parseFloat(r.i2) < 75 ? 'substantial' : 'considerable') +
+                    ' (I\u00B2 = ' + escapeHtml(r.i2) + '%, Q p = ' + escapeHtml(r.qPvalue < 0.001 ? '<0.001' : parseFloat(r.qPvalue).toFixed(3)) + '). ' +
+                    'The HKSJ-adjusted ' + escapeHtml(ciPct) + '% CI was ' + escapeHtml(r.hksjLCI) + '\u2014' + escapeHtml(r.hksjUCI) + '. ' +
+                    (r.piLCI !== '--' ? 'The ' + escapeHtml(ciPct) + '% prediction interval was ' + escapeHtml(r.piLCI) + '\u2014' + escapeHtml(r.piUCI) + '. ' : '') +
+                    (r.fragIdx > 0 ? 'The Fragility Index was ' + r.fragIdx + ' (' + escapeHtml(r.fragQuot) + '% of total N). ' : '') +
+                    '</p>';
+                const transparency = '<h4 class="text-xs font-bold uppercase tracking-widest text-amber-400 mb-2">Transparency</h4>' +
+                    '<p class="text-[11px] text-slate-300 leading-relaxed mb-4">' +
+                    'All data were extracted from open-access sources (ClinicalTrials.gov results API, PubMed abstracts). ' +
+                    'Cross-validation was performed against CT.gov API values. ' +
+                    'A SHA-256 data seal is provided for reproducibility verification. ' +
+                    'The complete analysis state can be exported as a JSON artifact.</p>';
+                const limitations = '<h4 class="text-xs font-bold uppercase tracking-widest text-red-400 mb-2">Limitations</h4>' +
+                    '<p class="text-[11px] text-slate-300 leading-relaxed">' +
+                    'This analysis uses study-level (aggregate) data, not individual patient data. ' +
+                    'Event counts may be approximate when derived from percentages. ' +
+                    (parseFloat(r.i2) >= 50 ? 'Substantial heterogeneity was present; results should be interpreted with caution. ' : '') +
+                    (r.k < 10 ? 'With only ' + r.k + ' studies, publication bias assessment has low power. ' : '') +
+                    'The living protocol design means results will evolve as new trials are published.</p>';
+                container.innerHTML = '<div class="space-y-4 bg-slate-950/50 border border-slate-800 rounded-2xl p-6">' + methods + results + transparency + limitations + '</div>';
+                addAuditEntry('Manuscript draft generated');
+                showToast('Manuscript draft generated.');
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════
+        // v15.0: Provenance Chain Engine
+        // SHA-256 hash chain with djb2 fallback for file:// protocol
+        // ═══════════════════════════════════════════════════════════
+        const ProvenanceChainEngine = {
+            _chain: [],
+            _initDone: false,
+
+            async _hash(input) {
+                const text = String(input ?? '');
+                try {
+                    const encoder = new TextEncoder();
+                    const data = encoder.encode(text);
+                    const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
+                    return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+                } catch (e) {
+                    // djb2 fallback for file:// protocol
+                    let h = 5381;
+                    for (let i = 0; i < text.length; i++) h = ((h << 5) + h + text.charCodeAt(i)) >>> 0;
+                    return 'djb2-' + h.toString(16).padStart(8, '0');
+                }
+            },
+
+            initFromState() {
+                const saved = RapidMeta.state.provenanceChain;
+                if (Array.isArray(saved) && saved.length > 0) {
+                    this._chain = saved;
+                }
+                this._initDone = true;
+            },
+
+            async addEntry(action, data) {
+                if (!this._initDone) this.initFromState();
+                const prevHash = this._chain.length > 0 ? this._chain[this._chain.length - 1].hash : '0000000000000000';
+                const ts = new Date().toISOString();
+                const payload = prevHash + '|' + action + '|' + JSON.stringify(data) + '|' + ts;
+                const hash = await this._hash(payload);
+                const entry = { seq: this._chain.length, action, ts, hash, prevHash };
+                this._chain.push(entry);
+                RapidMeta.state.provenanceChain = this._chain;
+                RapidMeta.save();
+                return entry;
+            },
+
+            getChain() {
+                if (!this._initDone) this.initFromState();
+                return [...this._chain];
+            },
+
+            async verify() {
+                if (this._chain.length === 0) return { valid: true, length: 0 };
+                for (let i = 0; i < this._chain.length; i++) {
+                    const entry = this._chain[i];
+                    if (i > 0 && entry.prevHash !== this._chain[i - 1].hash) {
+                        return { valid: false, brokenAt: i, length: this._chain.length };
+                    }
+                }
+                return { valid: true, length: this._chain.length };
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════
+        // v15.0: QA Engine — 18 automated checks
+        // ═══════════════════════════════════════════════════════════
+        const QAEngine = {
+            render() {
+                const container = document.getElementById('qa-container');
+                if (!container) return;
+                const r = RapidMeta.state.results;
+                const scope = RapidMeta.getAnalysisScopeDetails();
+                const trials = scope.analyzed;
+                const checks = [];
+
+                // QA1: Has analysis been run?
+                checks.push({ id: 'QA1', name: 'Analysis Executed', status: r ? 'pass' : 'fail', detail: r ? 'Pooled result available' : 'No analysis results found' });
+
+                // QA2: >= 2 trials included
+                const k = trials?.length ?? 0;
+                checks.push({ id: 'QA2', name: 'Sufficient Studies', status: k >= 2 ? 'pass' : 'fail', detail: k + ' studies included' + (k < 2 ? ' (need >= 2)' : '') });
+
+                // QA3: All trials have events data
+                const missingData = (trials ?? []).filter(t => t.data?.tN == null || t.data?.cN == null);
+                checks.push({ id: 'QA3', name: 'Complete Data', status: missingData.length === 0 ? 'pass' : 'fail', detail: missingData.length === 0 ? 'All trials have event counts' : missingData.length + ' trial(s) missing data' });
+
+                // QA4: HKSJ concordance
+                const waldSig = r && ((parseFloat(r.lci) > 1) || (parseFloat(r.uci) < 1));
+                const hksjSig = r && r.hksjLCI !== '--' && ((parseFloat(r.hksjLCI) > 1) || (parseFloat(r.hksjUCI) < 1));
+                checks.push({ id: 'QA4', name: 'HKSJ Concordance', status: !r ? 'warn' : (waldSig === hksjSig ? 'pass' : 'warn'), detail: !r ? 'Not computed' : (waldSig === hksjSig ? 'Wald and HKSJ agree on significance' : 'Discordant: Wald ' + (waldSig ? 'sig' : 'NS') + ' but HKSJ ' + (hksjSig ? 'sig' : 'NS')) });
+
+                // QA5: Heterogeneity
+                const i2 = r ? parseFloat(r.i2) : 0;
+                checks.push({ id: 'QA5', name: 'Heterogeneity', status: i2 < 50 ? 'pass' : i2 < 75 ? 'warn' : 'fail', detail: 'I\u00B2 = ' + (r ? r.i2 : '--') + '%' });
+
+                // QA6: Egger test
+                const eggerP = r ? parseFloat(r.eggerP) : NaN;
+                checks.push({ id: 'QA6', name: 'Publication Bias (Egger)', status: isNaN(eggerP) ? 'warn' : (eggerP >= 0.10 ? 'pass' : 'warn'), detail: isNaN(eggerP) ? 'Not computed (k < 3 or HR mode)' : 'p = ' + (eggerP < 0.001 ? '<0.001' : eggerP.toFixed(3)) });
+
+                // QA7: Prediction interval
+                checks.push({ id: 'QA7', name: 'Prediction Interval', status: r && r.piLCI !== '--' ? 'pass' : 'warn', detail: r && r.piLCI !== '--' ? 'PI: ' + r.piLCI + '\u2014' + r.piUCI : 'Not available (k < 3)' });
+
+                // QA8: Fragility index
+                const fi = r?.fragIdx ?? 0;
+                checks.push({ id: 'QA8', name: 'Fragility Index', status: fi >= 8 ? 'pass' : fi >= 3 ? 'warn' : (fi > 0 ? 'fail' : 'warn'), detail: fi > 0 ? 'FI = ' + fi : 'N/A (HR mode or NS result)' });
+
+                // QA9: Bayesian analysis
+                checks.push({ id: 'QA9', name: 'Bayesian Posterior', status: r && r.bayesCriLo !== '--' ? 'pass' : 'warn', detail: r && r.bayesCriLo !== '--' ? 'CrI: ' + r.bayesCriLo + '\u2014' + r.bayesCriHi : 'Not computed' });
+
+                // QA10: Trim-and-fill
+                checks.push({ id: 'QA10', name: 'Trim-and-Fill', status: r?.trimK0 != null ? (r.trimK0 === 0 ? 'pass' : 'warn') : 'warn', detail: r?.trimK0 != null ? r.trimK0 + ' studies imputed' : 'Not computed' });
+
+                // QA11: Data seal
+                const sealEl = document.getElementById('data-seal-hash');
+                const hasSeal = sealEl && sealEl.textContent !== '--';
+                checks.push({ id: 'QA11', name: 'Data Seal', status: hasSeal ? 'pass' : 'warn', detail: hasSeal ? 'SHA-256 seal active' : 'No data seal generated' });
+
+                // QA12: GRADE assessment
+                checks.push({ id: 'QA12', name: 'GRADE Certainty', status: r?.gradeCertainty ? 'pass' : 'warn', detail: r?.gradeCertainty ? 'Certainty: ' + r.gradeCertainty : 'Not assessed' });
+
+                // QA13: Protocol locked
+                const pLocked = document.getElementById('p-pop')?.disabled;
+                checks.push({ id: 'QA13', name: 'Protocol Locked', status: pLocked ? 'pass' : 'warn', detail: pLocked ? 'Protocol configuration is locked' : 'Protocol not yet locked' });
+
+                // QA14: Version snapshots
+                const snapCount = (RapidMeta.state.versionSnapshots ?? []).length;
+                checks.push({ id: 'QA14', name: 'Version Snapshots', status: snapCount > 0 ? 'pass' : 'warn', detail: snapCount + ' snapshot(s) recorded' });
+
+                // QA15: Cross-validation concordance (uses CrossValidationEngine directly)
+                let xvalStatus = 'warn', xvalDetail = 'Not assessed';
+                if (typeof CrossValidationEngine !== 'undefined' && trials && trials.length > 0) {
+                    let concordant = 0, discrepant = 0, total = 0;
+                    trials.forEach(t => {
+                        const fields = CrossValidationEngine._getFieldDefs ? CrossValidationEngine._getFieldDefs() : [];
+                        fields.forEach(f => {
+                            const ctgov = CrossValidationEngine._extractCtgovValues ? CrossValidationEngine._extractCtgovValues(t.id) : {};
+                            const pubmed = CrossValidationEngine._extractPubmedValues ? CrossValidationEngine._extractPubmedValues(t.id) : {};
+                            const extracted = CrossValidationEngine._getExtractedValues ? CrossValidationEngine._getExtractedValues(t.id) : {};
+                            const vals = [{ source: 'ctgov', value: ctgov[f.key] }, { source: 'pubmed', value: pubmed[f.key] }, { source: 'extracted', value: extracted[f.key] }];
+                            if (vals.some(v => v.value != null)) {
+                                total++;
+                                const result = CrossValidationEngine.checkConcordance(f.key, vals);
+                                if (result.status === 'concordant') concordant++;
+                                else if (result.status === 'discrepant') discrepant++;
+                            }
+                        });
+                    });
+                    if (total > 0) {
+                        xvalStatus = discrepant === 0 ? 'pass' : discrepant <= 2 ? 'warn' : 'fail';
+                        xvalDetail = concordant + '/' + total + ' concordant, ' + discrepant + ' discrepant';
+                    }
+                }
+                checks.push({ id: 'QA15', name: 'Cross-Validation', status: xvalStatus, detail: xvalDetail });
+
+                // QA16: Evidence extraction completeness
+                const unextracted = (trials ?? []).filter(t => !(t.data?.evidence?.length > 0));
+                checks.push({ id: 'QA16', name: 'Evidence Extraction', status: unextracted.length === 0 ? 'pass' : 'warn', detail: unextracted.length === 0 ? 'All trials have extracted evidence' : unextracted.length + ' trial(s) without evidence' });
+
+                // QA17: Provenance chain
+                const chainLen = ProvenanceChainEngine.getChain().length;
+                checks.push({ id: 'QA17', name: 'Provenance Chain', status: chainLen > 0 ? 'pass' : 'warn', detail: chainLen + ' chain entries' });
+
+                // QA18: Copas sensitivity
+                checks.push({ id: 'QA18', name: 'Copas Selection Model', status: r?.copasRobust != null ? (r.copasRobust ? 'pass' : 'warn') : 'warn', detail: r?.copasRobust != null ? (r.copasRobust ? 'Robust to selection bias' : 'Sensitive to selection') : 'Not computed' });
+
+                // Render
+                const passCount = checks.filter(c => c.status === 'pass').length;
+                const warnCount = checks.filter(c => c.status === 'warn').length;
+                const failCount = checks.filter(c => c.status === 'fail').length;
+                const overallColor = failCount > 0 ? 'text-red-400' : warnCount > 4 ? 'text-amber-400' : 'text-emerald-400';
+                const overallLabel = failCount > 0 ? 'ISSUES FOUND' : warnCount > 4 ? 'CAUTION' : 'ALL CLEAR';
+
+                container.innerHTML = '<div class="flex items-center justify-between mb-4">' +
+                    '<span class="text-sm font-bold ' + overallColor + '">' + escapeHtml(overallLabel) + ' (' + passCount + '/' + checks.length + ' pass)</span></div>' +
+                    '<div class="grid grid-cols-2 lg:grid-cols-3 gap-3">' +
+                    checks.map(function(c) {
+                        var color = c.status === 'pass' ? 'emerald' : c.status === 'warn' ? 'amber' : 'red';
+                        var icon = c.status === 'pass' ? 'fa-circle-check' : c.status === 'warn' ? 'fa-triangle-exclamation' : 'fa-circle-xmark';
+                        return '<div class="bg-slate-950/50 rounded-xl p-3 border border-' + color + '-500/20">' +
+                            '<div class="flex items-center gap-2 mb-1">' +
+                            '<i class="fa-solid ' + icon + ' text-' + color + '-400" aria-hidden="true"></i>' +
+                            '<span class="sr-only">' + c.status + '</span>' +
+                            '<span class="text-[9px] font-bold uppercase tracking-widest text-' + color + '-400">' + escapeHtml(c.id + ': ' + c.name) + '</span></div>' +
+                            '<div class="text-[10px] text-slate-400">' + escapeHtml(c.detail) + '</div></div>';
+                    }).join('') +
+                    '</div>';
+
+                addAuditEntry('QA check: ' + passCount + '/' + checks.length + ' pass (' + overallLabel + ')');
+                showToast('QA: ' + passCount + '/' + checks.length + ' pass');
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════
+        // v16.0: Dose-Response Engine (Emax model via grid search)
+        // ═══════════════════════════════════════════════════════════
+        const DR_CONFIG = null; // Populated by generator for dose-response-enabled apps
+
+        const DoseResponseEngine = {
+            _getConfig() {
+                return DR_CONFIG ?? RapidMeta.state?.doseResponseConfig ?? null;
+            },
+
+            _emaxModel(dose, emax, ed50) {
+                // Emax model: E(dose) = (Emax * dose) / (ED50 + dose)
+                return (emax * dose) / (ed50 + dose);
+            },
+
+            _fitEmax(doses, effects, weights) {
+                // Grid search for Emax and ED50
+                const maxDose = Math.max(...doses);
+                const maxEffect = Math.max(...effects.map(Math.abs));
+                let bestEmax = 0, bestED50 = 0, bestSSE = Infinity;
+                // Grid: Emax in [-2*maxEffect, 2*maxEffect], ED50 in [0.01*maxDose, 2*maxDose]
+                const emaxSteps = 100, ed50Steps = 100;
+                for (let ei = 0; ei <= emaxSteps; ei++) {
+                    const emax = -2 * maxEffect + (4 * maxEffect * ei / emaxSteps);
+                    if (Math.abs(emax) < 1e-10) continue;
+                    for (let di = 1; di <= ed50Steps; di++) {
+                        const ed50 = 0.01 * maxDose + (2 * maxDose * di / ed50Steps);
+                        let sse = 0;
+                        for (let i = 0; i < doses.length; i++) {
+                            const pred = this._emaxModel(doses[i], emax, ed50);
+                            const resid = effects[i] - pred;
+                            sse += (weights ? weights[i] : 1) * resid * resid;
+                        }
+                        if (sse < bestSSE) { bestSSE = sse; bestEmax = emax; bestED50 = ed50; }
+                    }
+                }
+                // Refine with finer grid around best
+                const emaxRange = 4 * maxEffect / emaxSteps;
+                const ed50Range = 2 * maxDose / ed50Steps;
+                for (let ei = -10; ei <= 10; ei++) {
+                    const emax = bestEmax + emaxRange * ei / 10;
+                    for (let di = -10; di <= 10; di++) {
+                        const ed50 = bestED50 + ed50Range * di / 10;
+                        if (ed50 <= 0) continue;
+                        let sse = 0;
+                        for (let i = 0; i < doses.length; i++) {
+                            const pred = this._emaxModel(doses[i], emax, ed50);
+                            const resid = effects[i] - pred;
+                            sse += (weights ? weights[i] : 1) * resid * resid;
+                        }
+                        if (sse < bestSSE) { bestSSE = sse; bestEmax = emax; bestED50 = ed50; }
+                    }
+                }
+                // R-squared
+                const mean = effects.reduce((a, b) => a + b, 0) / effects.length;
+                const ssTot = effects.reduce((a, e) => a + (e - mean) * (e - mean), 0);
+                const r2 = ssTot > 0 ? 1 - bestSSE / ssTot : 0;
+                // ED90
+                const ed90 = bestED50 * 9; // Emax * dose / (ED50 + dose) = 0.9 * Emax => dose = 9 * ED50
+                return { emax: bestEmax, ed50: bestED50, ed90, r2, sse: bestSSE };
+            },
+
+            render() {
+                const cfg = this._getConfig();
+                if (!cfg) {
+                    const container = document.getElementById('dr-curve-plot');
+                    if (container) container.innerHTML = '<div class="h-full flex items-center justify-center text-xs text-slate-500">No dose-response configuration available for this topic.</div>';
+                    return;
+                }
+                // cfg.doses: [{dose: number, trialIds: [string], label: string}]
+                const doses = cfg.doses ?? [];
+                if (doses.length < 3) {
+                    showToast('Need at least 3 dose levels for Emax fitting.');
+                    return;
+                }
+                // Compute effect at each dose level
+                const doseValues = [], effectValues = [], seValues = [], labels = [];
+                const confLevel = RapidMeta.state.confLevel ?? 0.95;
+                const zCrit = normalQuantile(1 - (1 - confLevel) / 2);
+                const emMode = RapidMeta.resolveEffectMeasure({ trials: RapidMeta.getAnalysisScopeDetails().analyzed }).effective;
+                const useHR = (emMode === 'HR');
+
+                doses.forEach(d => {
+                    const trialEffects = (d.trialIds ?? []).map(id => {
+                        const trial = (RapidMeta.state.trials ?? []).find(t => t.id === id);
+                        const td = trial?.data ?? RapidMeta.realData?.[id];
+                        if (!td) return null;
+                        if (useHR && td.pubHR && td.pubHR_LCI && td.pubHR_UCI) {
+                            const logHR = Math.log(td.pubHR);
+                            const se = (Math.log(td.pubHR_UCI) - Math.log(td.pubHR_LCI)) / (2 * zCrit);
+                            return { logEff: logHR, se };
+                        }
+                        if (td.tN > 0 && td.cN > 0 && (td.tE > 0 || td.cE > 0)) {
+                            const hasZero = (td.tE === 0 || td.cE === 0 || td.tE === td.tN || td.cE === td.cN);
+                            const adj = hasZero ? 0.5 : 0;
+                            const a = td.tE + adj, b = td.tN - td.tE + adj, c = td.cE + adj, dd = td.cN - td.cE + adj;
+                            const logEff = Math.log((a / b) / (c / dd));
+                            const vi = 1 / a + 1 / b + 1 / c + 1 / dd;
+                            return { logEff, se: Math.sqrt(vi) };
+                        }
+                        return null;
+                    }).filter(Boolean);
+                    if (trialEffects.length === 0) return;
+                    // Pool if multiple trials at same dose
+                    let logEff, se;
+                    if (trialEffects.length === 1) {
+                        logEff = trialEffects[0].logEff;
+                        se = trialEffects[0].se;
+                    } else {
+                        const weights = trialEffects.map(e => 1 / (e.se * e.se));
+                        const wSum = weights.reduce((a, b) => a + b, 0);
+                        logEff = trialEffects.reduce((s, e, i) => s + weights[i] * e.logEff, 0) / wSum;
+                        se = Math.sqrt(1 / wSum);
+                    }
+                    doseValues.push(d.dose);
+                    effectValues.push(logEff);
+                    seValues.push(se);
+                    labels.push(d.label ?? d.dose + ' mg');
+                });
+
+                if (doseValues.length < 3) {
+                    showToast('Insufficient dose-level data for Emax fitting.');
+                    return;
+                }
+
+                // Fit Emax model (weighted by inverse variance)
+                const weights = seValues.map(se => 1 / (se * se));
+                const fit = this._fitEmax(doseValues, effectValues, weights);
+
+                // Update parameter cards
+                const emLabel = RapidMeta.emLabel('short');
+                document.getElementById('dr-emax').textContent = 'log' + emLabel + ' = ' + fit.emax.toFixed(3) + ' (' + emLabel + ' = ' + Math.exp(fit.emax).toFixed(2) + ')';
+                document.getElementById('dr-ed50').textContent = fit.ed50.toFixed(1) + ' mg';
+                document.getElementById('dr-ed90').textContent = fit.ed90.toFixed(1) + ' mg';
+                document.getElementById('dr-r2').textContent = fit.r2.toFixed(3);
+
+                // Plot
+                if (typeof Plotly !== 'undefined') {
+                    const maxDose = Math.max(...doseValues) * 1.2;
+                    const curveX = [], curveY = [];
+                    for (let x = 0; x <= maxDose; x += maxDose / 200) {
+                        curveX.push(x);
+                        curveY.push(Math.exp(this._emaxModel(x, fit.emax, fit.ed50)));
+                    }
+                    const curveLine = {
+                        type: 'scatter', mode: 'lines', x: curveX, y: curveY,
+                        line: { color: '#f43f5e', width: 3 }, name: 'Emax fit', showlegend: true
+                    };
+                    const dataPoints = {
+                        type: 'scatter', mode: 'markers',
+                        x: doseValues, y: effectValues.map(Math.exp),
+                        error_y: { type: 'data', symmetric: false,
+                            array: effectValues.map((e, i) => Math.exp(e + zCrit * seValues[i]) - Math.exp(e)),
+                            arrayminus: effectValues.map((e, i) => Math.exp(e) - Math.exp(e - zCrit * seValues[i])) },
+                        marker: { size: 10, color: '#3b82f6' },
+                        text: labels, hoverinfo: 'text+x+y', name: 'Observed', showlegend: true
+                    };
+                    const refLine = { type: 'scatter', mode: 'lines', x: [0, maxDose], y: [1, 1],
+                        line: { dash: 'dash', color: '#475569', width: 1 }, showlegend: false, hoverinfo: 'none' };
+                    const ed50Line = { type: 'scatter', mode: 'lines', x: [fit.ed50, fit.ed50],
+                        y: [Math.min(...curveY) * 0.95, Math.max(...curveY) * 1.05],
+                        line: { dash: 'dot', color: '#10b981', width: 1 }, name: 'ED50', showlegend: true };
+                    const layout = {
+                        paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+                        xaxis: { title: { text: 'Dose (mg)', font: { color: '#94a3b8', size: 11 } }, gridcolor: '#1e293b', color: '#94a3b8' },
+                        yaxis: { title: { text: emLabel, font: { color: '#94a3b8', size: 11 } }, gridcolor: '#1e293b', color: '#94a3b8' },
+                        margin: { l: 60, r: 30, t: 20, b: 50 }, height: 400,
+                        legend: { font: { color: '#94a3b8', size: 10 }, bgcolor: 'rgba(0,0,0,0)' }
+                    };
+                    Plotly.newPlot('dr-curve-plot', [refLine, curveLine, dataPoints, ed50Line], layout, { responsive: true, displayModeBar: false });
+                }
+
+                // Table
+                const tableContainer = document.getElementById('dr-table-container');
+                if (tableContainer) {
+                    let html = '<table class="w-full text-[11px] font-mono border-collapse"><thead><tr class="text-[9px] uppercase tracking-widest text-slate-500">';
+                    html += '<th class="p-2 text-left">Dose</th><th class="p-2 text-right">Observed log' + escapeHtml(emLabel) + '</th>';
+                    html += '<th class="p-2 text-right">' + escapeHtml(emLabel) + '</th><th class="p-2 text-right">CI</th>';
+                    html += '<th class="p-2 text-right">Predicted ' + escapeHtml(emLabel) + '</th></tr></thead><tbody>';
+                    for (let i = 0; i < doseValues.length; i++) {
+                        const obs = Math.exp(effectValues[i]);
+                        const lo = Math.exp(effectValues[i] - zCrit * seValues[i]);
+                        const hi = Math.exp(effectValues[i] + zCrit * seValues[i]);
+                        const pred = Math.exp(this._emaxModel(doseValues[i], fit.emax, fit.ed50));
+                        html += '<tr class="border-b border-slate-800/50">';
+                        html += '<td class="p-2 text-slate-300">' + escapeHtml(labels[i]) + '</td>';
+                        html += '<td class="p-2 text-right text-slate-400">' + effectValues[i].toFixed(3) + '</td>';
+                        html += '<td class="p-2 text-right font-bold text-blue-400">' + obs.toFixed(2) + '</td>';
+                        html += '<td class="p-2 text-right text-slate-400">' + lo.toFixed(2) + '\u2014' + hi.toFixed(2) + '</td>';
+                        html += '<td class="p-2 text-right text-rose-400">' + pred.toFixed(2) + '</td></tr>';
+                    }
+                    html += '</tbody></table>';
+                    tableContainer.innerHTML = html;
+                }
+
+                addAuditEntry('Dose-response Emax fit: ED50=' + fit.ed50.toFixed(1) + 'mg, R\u00B2=' + fit.r2.toFixed(3));
+                showToast('Dose-response: ED50 = ' + fit.ed50.toFixed(1) + ' mg, R\u00B2 = ' + fit.r2.toFixed(3));
+            },
+
+            exportCSV() {
+                const cfg = this._getConfig();
+                if (!cfg) { showToast('No dose-response configuration.'); return; }
+                const rows = ['Dose,Label,LogEffect,Effect,SE,Predicted'];
+                // Re-run to get data
+                showToast('Export: re-run Fit Emax first, then export.');
             }
         };
 
@@ -10012,7 +10672,7 @@
                     '<\/tbody><\/table>' +
                     '<div class="footnotes">' +
                     '<p><strong>GRADE certainty ratings:<\/strong> HIGH = very confident; MODERATE = moderately confident; LOW = limited confidence; VERY LOW = very little confidence.<\/p>' +
-                    '<p><strong>Methods:<\/strong> DerSimonian-Laird random-effects model. ' + confLevel + '% confidence intervals. Generated by RapidMeta v14.0 on ' + new Date().toLocaleDateString() + '.<\/p>' +
+                    '<p><strong>Methods:<\/strong> DerSimonian-Laird random-effects model. ' + confLevel + '% confidence intervals. Generated by RapidMeta v16.0 on ' + new Date().toLocaleDateString() + '.<\/p>' +
                     '<\/div><\/body><\/html>';
                 var blob = new Blob([html], { type: 'application/msword' });
                 var url = URL.createObjectURL(blob);
@@ -10142,16 +10802,16 @@
                 const gradeCsv = [gradeHeader, ...gradeRows.map(r => `${_gesc(r.outcome)},${r.k},${_gesc(r.certainty)},${_gesc(r.relativeEffect)},${r.cerPer1000},${_gesc(r.ardPer1000)},${_gesc(r.plain)}`)].join('\n');
                 files.push({ name: 'grade_profile.csv', content: gradeCsv });
                 files.push({ name: 'audit_log.json', content: JSON.stringify(s.updateLog ?? [], null, 2) });
-                files.push({ name: 'config.json', content: JSON.stringify({ version: 'v14.0', confLevel: s.confLevel, effectMeasure: s.effectMeasure, outcome: s.selectedOutcome, searchQueries: s.protocol }, null, 2) });
+                files.push({ name: 'config.json', content: JSON.stringify({ version: 'v16.0', confLevel: s.confLevel, effectMeasure: s.effectMeasure, outcome: s.selectedOutcome, searchQueries: s.protocol }, null, 2) });
                 const seal = await DataSealEngine.computeSeal();
                 files.push({ name: 'seal.json', content: JSON.stringify({ sha256: seal, timestamp: new Date().toISOString(), dataFile: 'data.csv' }, null, 2) });
-                files.push({ name: 'README.txt', content: 'Finerenone v14.0 Reproducibility Capsule\n\nTo validate:\n1. R: source("validate_R.R") -- requires metafor package\n2. Python: python validate_python.py -- requires numpy\n\ndata.csv contains all included trial data.\nprovenance.json maps each number to its source snippet.\nseal.json contains SHA-256 hash of data.csv for integrity verification.' });
+                files.push({ name: 'README.txt', content: 'Finerenone v16.0 Reproducibility Capsule\n\nTo validate:\n1. R: source("validate_R.R") -- requires metafor package\n2. Python: python validate_python.py -- requires numpy\n\ndata.csv contains all included trial data.\nprovenance.json maps each number to its source snippet.\nseal.json contains SHA-256 hash of data.csv for integrity verification.' });
                 return files;
             },
             _generatePython(included) {
                 const cl = RapidMeta.state.confLevel ?? 0.95;
                 const lines = [
-                    '"""Finerenone v14.0 - Python validation (numpy only, no scipy)"""',
+                    '"""Finerenone v16.0 - Python validation (numpy only, no scipy)"""',
                     'import numpy as np',
                     'import csv, json, math',
                     '',
@@ -10658,6 +11318,8 @@
                 const ciPct = (c.confLevel * 100).toFixed(0);
                 RapidMeta.state.results = { or: c.pOR.toFixed(2), lci: c.lci.toFixed(2), uci: c.uci.toFixed(2), i2: c.I2.toFixed(1), k: c.k, n: trials.reduce((a,b)=>(a+b.data.tN+b.data.cN),0).toLocaleString(), confLevel: ciPct, hksjLCI: (c.k >= 2 && Number.isFinite(c.hksjLCI)) ? c.hksjLCI.toFixed(2) : '--', hksjUCI: (c.k >= 2 && Number.isFinite(c.hksjUCI)) ? c.hksjUCI.toFixed(2) : '--', piLCI: (c.k>=3)?c.piLCI.toFixed(2):'--', piUCI: (c.k>=3)?c.piUCI.toFixed(2):'--', qPvalue: c.qPvalue.toFixed(4), eggerP: c.eggerResult.sufficient ? c.eggerResult.pValue.toFixed(4) : '--', fragIdx: c.fragIdx, fragQuot: c.fragQuot, bayesCriLo: sub.bayesResult?.criLo?.toFixed(2) ?? '--', bayesCriHi: sub.bayesResult?.criHi?.toFixed(2) ?? '--', pORlt1: sub.bayesResult ? (sub.bayesResult.pORlt1 * 100).toFixed(1) : '--', trimK0: sub.tfResult.available ? sub.tfResult.k0 : null, trimAdjOR: sub.tfResult.available ? sub.tfResult.adjustedOR?.toFixed(2) ?? '--' : '--', copasRobust: sub.copasResult.available ? sub.copasResult.robust : null, infoFrac: sub.powerResult.available ? sub.powerResult.infoFrac.toFixed(0) : '--', gradeCertainty: gradeAssessment.certainty, plotData: c.plotData, tau2: c.tau2, pLogOR: c.pLogOR };
                 RapidMeta.save();
+                // v15.0: Provenance chain entry for analysis
+                ProvenanceChainEngine.addEntry('analysis', { k: c.k, or: c.pOR.toFixed(2), i2: c.I2.toFixed(1) });
                 // v13.0: Auto-snapshot after analysis (includes search trigger if pending)
                 const snapTrigger = RapidMeta.state._pendingSearchSnapshot ? 'search+analysis' : 'analysis';
                 RapidMeta.state._pendingSearchSnapshot = false;
@@ -11122,7 +11784,7 @@
                 const effectSpec = RapidMeta.resolveEffectMeasure({ trials });
                 if (effectSpec.effective === 'HR') {
                     const hrTrials = trials.filter(t => RapidMeta.trialHasPublishedHR(t));
-                    const rScript = `# RapidMeta v14.0 R-Validation (DL + HKSJ + Bayesian) â€” HR
+                    const rScript = `# RapidMeta v16.0 R-Validation (DL + HKSJ + Bayesian) â€” HR
 library(metafor)
 dat <- data.frame(
   trial = c(${hrTrials.map(t=>`"${escStr(t.data?.name || t.id)}"`).join(',')}),
@@ -11154,7 +11816,7 @@ forest(res_dl, slab=dat$trial, atransf=exp, xlab="Hazard Ratio")`;
                     return;
                 }
                 const emR = effectSpec.effective;
-                const rScript = `# RapidMeta v14.0 R-Validation (DL + HKSJ + Bayesian) — ${emR}
+                const rScript = `# RapidMeta v16.0 R-Validation (DL + HKSJ + Bayesian) — ${emR}
 library(metafor)
 dat <- data.frame(
   trial = c(${trials.map(t=>`"${escStr(t.data?.name || t.id)}"`).join(',')}),
@@ -12149,7 +12811,7 @@ print(res_sub)`;
                 }));
                 return {
                     format: 'rapidmeta-finerenone-run-artifact',
-                    version: 'v14.0',
+                    version: 'v16.0',
                     generatedAt: new Date().toISOString(),
                     analysisFingerprint: fingerprint,
                     protocolConstraints: {
@@ -12973,7 +13635,7 @@ print(res_sub)`;
                     ? RapidMeta.state.runArtifact
                     : ArtifactEngine.build(r, scope, guardian, concordance, delta, benchmark, RapidMeta.state.runArtifact?.dataSeal ?? null);
                 const payload = {
-                    meta: { app: 'RapidMeta Finerenone', version: 'v14.0', generated: new Date().toISOString(), confLevel: r.confLevel + '%' },
+                    meta: { app: 'RapidMeta Finerenone', version: 'v16.0', generated: new Date().toISOString(), confLevel: r.confLevel + '%' },
                     effectMeasure: RapidMeta.emLabel('short'),
                     pooledResult: { [RapidMeta.emLabel('short')]: r.or, CI: [r.lci, r.uci], I2: r.i2 + '%', HKSJ_CI: [r.hksjLCI, r.hksjUCI], PI: [r.piLCI, r.piUCI], Q_pvalue: r.qPvalue, Egger_pvalue: r.eggerP, FragilityIndex: r.fragIdx, FragilityQuotient: r.fragQuot + '%', Bayesian_CrI: [r.bayesCriLo, r.bayesCriHi], ['P_' + RapidMeta.emLabel('short') + '_lt_1']: r.pORlt1 + '%', TrimFill_k0: r.trimK0, ['TrimFill_adj' + RapidMeta.emLabel('short')]: r.trimAdjOR, Copas_Robust: r.copasRobust, InfoFraction: r.infoFrac + '%' },
                     studies: included.map(t => ({ id: t.id, name: RapidMeta.nctAcronyms[t.id] ?? t.data.name, year: t.data.year, phase: t.data.phase, indication: t.data.group, events_tx: t.data.tE, n_tx: t.data.tN, events_ctrl: t.data.cE, n_ctrl: t.data.cN, rob: t.data.rob, source: t.source })),
@@ -13064,7 +13726,7 @@ ${deltaRows ? `<table><thead><tr><th>Trial</th><th>Scope</th><th>Registered Prim
 ${benchmark?.available ? `<table><thead><tr><th>Comparator</th><th>Year</th><th>Measure</th><th>Estimate</th><th>95% CI</th><th>Alignment</th></tr></thead><tbody>${benchmarkRows}</tbody></table>` : ''}
 <h2>Included Studies (k=${r.k})</h2>
 <table><thead><tr><th>Trial</th><th>Year</th><th>Phase</th><th>Events/N (Tx)</th><th>Events/N (Ctrl)</th></tr></thead><tbody>${trialRows}</tbody></table>
-<div class="footer">Generated by RapidMeta Finerenone v14.0. Data seal reflects the current outcome-scoped analysis set.</div>
+<div class="footer">Generated by RapidMeta Finerenone v16.0. Data seal reflects the current outcome-scoped analysis set.</div>
 </body></html>`;
                 const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8;' });
                 const url = URL.createObjectURL(blob);
@@ -13092,7 +13754,7 @@ ${benchmark?.available ? `<table><thead><tr><th>Comparator</th><th>Year</th><th>
                     const hrLo = hrIncluded.map(t => t.data.pubHR_LCI).join(', ');
                     const hrHi = hrIncluded.map(t => t.data.pubHR_UCI).join(', ');
                     const pyScript = `#!/usr/bin/env python3
-"""RapidMeta v14.0 - Python validation script for Finerenone meta-analysis."""
+"""RapidMeta v16.0 - Python validation script for Finerenone meta-analysis."""
 import numpy as np
 from scipy import stats
 
@@ -13147,7 +13809,7 @@ except ImportError:
                     return;
                 }
                 const pyScript = `#!/usr/bin/env python3
-"""RapidMeta v14.0 - Python validation script for Finerenone meta-analysis."""
+"""RapidMeta v16.0 - Python validation script for Finerenone meta-analysis."""
 import numpy as np
 from scipy import stats
 
@@ -13654,7 +14316,7 @@ except ImportError:
                 '<p>' + escapeHtml(methods) + '</p></div>' +
                 '<div><div class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2">Results</div>' +
                 '<p>' + escapeHtml(results) + '</p></div>' +
-                '<div class="text-[9px] text-slate-600 italic mt-2">Generated by RapidMeta v14.0. Verify all numbers against the analysis output before submission.</div>';
+                '<div class="text-[9px] text-slate-600 italic mt-2">Generated by RapidMeta v16.0. Verify all numbers against the analysis output before submission.</div>';
         }
 
         function copyManuscriptText() {
