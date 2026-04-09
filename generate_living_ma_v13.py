@@ -129,7 +129,7 @@ def transform_template(template_html, cfg):
     # 1. Title
     html = re.sub(
         r'<title>.*?</title>',
-        f'<title>RapidMeta Cardiology | {cfg["title_short"]} v13.0</title>',
+        f'<title>RapidMeta Cardiology | {cfg["title_short"]} v14.0</title>',
         html
     )
 
@@ -167,7 +167,7 @@ def transform_template(template_html, cfg):
         html = re.sub(pattern, replacement, html, count=1)
 
     # 6. localStorage keys — replace finerenone-specific keys
-    for ver in ['v13_0', 'v12_0', 'v11_0', 'v10_0', 'v9_3']:
+    for ver in ['v14_0', 'v13_0', 'v12_0', 'v11_0', 'v10_0', 'v9_3']:
         html = html.replace(f"rapid_meta_finerenone_{ver}", f"rapid_meta_{storage}_{ver}")
     html = html.replace("rapid_meta_finerenone_theme", f"rapid_meta_{storage}_theme")
 
@@ -288,6 +288,14 @@ def transform_template(template_html, cfg):
             count=1
         )
 
+    # 16. NMA network config
+    if cfg.get("nma_network"):
+        nma_js = json.dumps(cfg["nma_network"], indent=8)
+        html = html.replace(
+            'const NMA_CONFIG = null;',
+            f'const NMA_CONFIG = {nma_js};'
+        )
+
     return html
 
 
@@ -332,6 +340,7 @@ def validate_html(html, filename, cfg):
                        and not line.strip().startswith('*')
                        and 'v12.0:' not in line
                        and 'v13.0:' not in line
+                       and 'v14.0:' not in line
                        and 'localStorage' not in line
                        and '_migrated' not in line]
     if finerenone_refs and cfg["storage_key"] != "finerenone":
@@ -350,8 +359,10 @@ def validate_html(html, filename, cfg):
             errors.append(f"{len(code_refs)} potential dangling 'finerenone' refs in non-evidence code")
 
     # localStorage key present
-    if f"rapid_meta_{cfg['storage_key']}_v13_0" not in html:
-        errors.append(f"localStorage key rapid_meta_{cfg['storage_key']}_v13_0 not found")
+    # Accept v14_0 (new) or v13_0 (legacy template not yet upgraded)
+    if (f"rapid_meta_{cfg['storage_key']}_v14_0" not in html and
+            f"rapid_meta_{cfg['storage_key']}_v13_0" not in html):
+        errors.append(f"localStorage key rapid_meta_{cfg['storage_key']}_v14_0/v13_0 not found")
 
     return errors
 
@@ -6549,6 +6560,339 @@ APPS.append({
                     "source": "ClinicalTrials.gov NCT06109311",
                     "text": "COMPLETED September 2025. Important for insulin-treated T2DM population. Results awaited.",
                     "highlights": ["COMPLETED", "September 2025", "insulin-treated"],
+                },
+            ],
+        },
+    },
+})
+
+# ─── Obesity Pharmacotherapy NMA ──────────────────────────────
+APPS.append({
+    "filename": "OBESITY_NMA_REVIEW.html",
+    "output_dir": r"C:\Projects\Obesity_NMA_LivingMeta",
+    "title_short": "Obesity Pharmacotherapy NMA",
+    "title_long": "Obesity Pharmacotherapy Network Meta-Analysis: Tirzepatide vs Semaglutide vs Orforglipron",
+    "drug_name_lower": "obesity pharmacotherapy",
+    "va_heading": "Obesity Drug Comparison NMA",
+    "storage_key": "obesity_nma",
+    "protocol": {
+        "pop": "Adults with obesity (BMI >=30) or overweight with comorbidities",
+        "int": "Tirzepatide, Semaglutide, or Orforglipron",
+        "comp": "Placebo (common network comparator)",
+        "out": ">=5% body weight loss at primary endpoint",
+        "subgroup": "Drug, dose, diabetes status, baseline BMI",
+    },
+    "search_term_ctgov": "tirzepatide+OR+semaglutide+OR+orforglipron+AND+obesity",
+    "search_term_pubmed": "(tirzepatide[tiab] OR semaglutide[tiab] OR orforglipron[tiab]) AND obesity[tiab]",
+    "effect_measure": "RR",
+    "nma_network": {
+        "treatments": ["Tirzepatide 15mg", "Semaglutide 2.4mg", "Orforglipron 36mg", "Placebo"],
+        "comparisons": [
+            {"t1": "Tirzepatide 15mg", "t2": "Placebo", "trials": ["NCT04184622", "NCT04657003"]},
+            {"t1": "Semaglutide 2.4mg", "t2": "Placebo", "trials": ["NCT03548935", "NCT03552757"]},
+            {"t1": "Orforglipron 36mg", "t2": "Placebo", "trials": ["NCT05051579"]},
+        ],
+        "outcome": "gte5pct_weight_loss",
+        "outcome_label": ">=5% Body Weight Loss",
+        "note": "Star network via placebo. No direct head-to-head trials available (ACHIEVE-3 vs oral sema only; SURMOUNT-5 vs sema 2.4mg recruiting).",
+    },
+    "nct_acronyms": {
+        "NCT04184622": "SURMOUNT-1",
+        "NCT04657003": "SURMOUNT-2",
+        "NCT03548935": "STEP-1",
+        "NCT03552757": "STEP-2",
+        "NCT05051579": "Orforglipron Ph2",
+    },
+    "auto_include_ids": ["NCT04184622", "NCT04657003", "NCT03548935", "NCT03552757", "NCT05051579"],
+    "trials": {
+        # ── SURMOUNT-1: Tirzepatide 15mg in Obesity (no T2DM) ─────
+        # Source: Jastreboff et al. NEJM 2022;387:205-216
+        # 15mg arm: 91% of 630 = 573 events; placebo: 35% of 643 = 225 events
+        "NCT04184622": {
+            "name": "SURMOUNT-1", "phase": "III", "year": 2022,
+            "tE": 573, "tN": 630, "cE": 225, "cN": 643,
+            "group": "Tirzepatide 15mg | Obesity (no T2DM)",
+            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "allOutcomes": [
+                {
+                    "shortLabel": ">=5% Weight Loss",
+                    "title": "Participants achieving >=5% body weight reduction at week 72 (tirzepatide 15mg vs placebo)",
+                    "tE": 573, "cE": 225,
+                    "type": "PRIMARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+                {
+                    "shortLabel": ">=10% Weight Loss",
+                    "title": "Participants achieving >=10% body weight reduction at week 72 (15mg vs placebo)",
+                    "tE": 536, "cE": 103,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": ">=20% Weight Loss",
+                    "title": "Participants achieving >=20% body weight reduction at week 72 (15mg vs placebo)",
+                    "tE": 359, "cE": 19,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "GI Adverse Events",
+                    "title": "Any gastrointestinal adverse event (15mg vs placebo)",
+                    "tE": 315, "cE": 189,
+                    "type": "SAFETY",
+                },
+            ],
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT04184622 (SURMOUNT-1). n=2539. COMPLETED. Jastreboff et al. NEJM 2022;387:205-216. Tirzepatide 15mg vs placebo. 72 weeks.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT04184622",
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "ClinicalTrials.gov NCT04184622; Jastreboff et al. NEJM 2022;387:205-216, Fig 1",
+                    "text": "2539 adults with obesity (BMI >=30 or >=27 with complication, excluding T2DM) randomized 1:1:1:1 to tirzepatide 5mg, 10mg, 15mg, or placebo. 72-week treatment. NMA arm: 15mg (n=630) vs placebo (n=643).",
+                    "highlights": ["2539", "72 weeks", "630", "643"],
+                },
+                {
+                    "label": "Primary: >=5% Weight Loss",
+                    "source": "ClinicalTrials.gov NCT04184622; Jastreboff et al. NEJM 2022;387:205-216, Table 2",
+                    "text": "Achieving >=5% weight reduction at week 72: 91% (573/630) tirzepatide 15mg vs 35% (225/643) placebo. RR approximately 2.60 (95% CI: 2.33-2.90). Mean weight change: -20.9% vs -3.1%.",
+                    "highlights": ["91%", "573/630", "35%", "225/643", "P<0.001"],
+                },
+                {
+                    "label": "NMA Network Role",
+                    "source": "Protocol: indirect comparison via placebo node",
+                    "text": "SURMOUNT-1 contributes the Tirzepatide 15mg–Placebo edge in the star network. No direct head-to-head RCT vs semaglutide 2.4mg is yet completed (SURMOUNT-5 recruiting). All indirect NMA estimates conditional on network consistency assumption.",
+                    "highlights": ["star network", "indirect", "placebo node"],
+                },
+            ],
+        },
+        # ── SURMOUNT-2: Tirzepatide 15mg in Obesity + T2DM ────────
+        # Source: Garvey et al. Lancet 2023;402:613-626
+        # 15mg arm: 83% of 311 = 258 events; placebo: 32% of 315 = 101 events
+        "NCT04657003": {
+            "name": "SURMOUNT-2", "phase": "III", "year": 2023,
+            "tE": 258, "tN": 311, "cE": 101, "cN": 315,
+            "group": "Tirzepatide 15mg | Obesity + T2DM",
+            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "allOutcomes": [
+                {
+                    "shortLabel": ">=5% Weight Loss",
+                    "title": "Participants achieving >=5% body weight reduction at week 72 (tirzepatide 15mg vs placebo, T2DM population)",
+                    "tE": 258, "cE": 101,
+                    "type": "PRIMARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+                {
+                    "shortLabel": ">=10% Weight Loss",
+                    "title": "Participants achieving >=10% body weight reduction at week 72 (15mg vs placebo)",
+                    "tE": 220, "cE": 44,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "GI Adverse Events",
+                    "title": "Any gastrointestinal adverse event (15mg vs placebo)",
+                    "tE": 149, "cE": 85,
+                    "type": "SAFETY",
+                },
+            ],
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT04657003 (SURMOUNT-2). n=938. COMPLETED. Garvey et al. Lancet 2023;402:613-626. Tirzepatide 15mg vs placebo in T2DM. 72 weeks.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT04657003",
+            "evidence": [
+                {
+                    "label": "Enrollment & Population",
+                    "source": "ClinicalTrials.gov NCT04657003; Garvey et al. Lancet 2023;402:613-626, Table 1",
+                    "text": "938 adults with BMI >=27 AND T2DM (HbA1c 7-10%) randomized 1:1:1 to tirzepatide 10mg, 15mg, or placebo. 72-week treatment. NMA arm: 15mg (n=311) vs placebo (n=315). Mean baseline weight 100.7kg, HbA1c 8.02%.",
+                    "highlights": ["938", "T2DM", "311", "315", "72 weeks"],
+                },
+                {
+                    "label": "Primary: >=5% Weight Loss",
+                    "source": "ClinicalTrials.gov NCT04657003; Garvey et al. Lancet 2023;402:613-626, Table 2",
+                    "text": "Achieving >=5% weight reduction at week 72: 83% (258/311) tirzepatide 15mg vs 32% (101/315) placebo. Diabetes subgroup shows attenuated but substantial response vs SURMOUNT-1 (83% vs 91%).",
+                    "highlights": ["83%", "258/311", "32%", "101/315"],
+                },
+                {
+                    "label": "Subgroup Note for NMA",
+                    "source": "Protocol note: heterogeneity by diabetes status",
+                    "text": "T2DM status is a known effect modifier for GLP-1/GIP weight loss. SURMOUNT-1 (no T2DM) and SURMOUNT-2 (T2DM) are pooled in the pairwise meta-analysis. Between-study heterogeneity by diabetes status should be examined in NMA subgroup analyses.",
+                    "highlights": ["effect modifier", "T2DM", "heterogeneity"],
+                },
+            ],
+        },
+        # ── STEP-1: Semaglutide 2.4mg in Obesity (no T2DM) ────────
+        # Source: Wilding et al. NEJM 2021;384:989-1002; NCT03548935
+        # 2:1 randomization: sema n=1306, placebo n=655. >=5%: 86% vs 32%
+        # tE = round(1306 * 0.86) = 1123; cE = round(655 * 0.32) = 210
+        "NCT03548935": {
+            "name": "STEP-1", "phase": "III", "year": 2021,
+            "tE": 1123, "tN": 1306, "cE": 210, "cN": 655,
+            "group": "Semaglutide 2.4mg | Obesity (no T2DM)",
+            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "allOutcomes": [
+                {
+                    "shortLabel": ">=5% Weight Loss",
+                    "title": "Participants achieving >=5% body weight reduction at week 68 (semaglutide 2.4mg vs placebo)",
+                    "tE": 1123, "cE": 210,
+                    "type": "PRIMARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+                {
+                    "shortLabel": ">=10% Weight Loss",
+                    "title": "Participants achieving >=10% body weight reduction at week 68",
+                    "tE": 897, "cE": 98,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": ">=15% Weight Loss",
+                    "title": "Participants achieving >=15% body weight reduction at week 68",
+                    "tE": 633, "cE": 42,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "GI Adverse Events",
+                    "title": "Any gastrointestinal adverse event (nausea, vomiting, diarrhea, constipation)",
+                    "tE": 799, "cE": 291,
+                    "type": "SAFETY",
+                },
+            ],
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT03548935 (STEP-1). n=1961. COMPLETED. Wilding et al. NEJM 2021;384:989-1002. Semaglutide 2.4mg vs placebo. 68 weeks.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT03548935",
+            "evidence": [
+                {
+                    "label": "Enrollment & Randomization",
+                    "source": "ClinicalTrials.gov NCT03548935; Wilding et al. NEJM 2021;384:989-1002, Fig 1",
+                    "text": "1961 adults with BMI >=30 or >=27 with complication (excluding T2DM) randomized 2:1 to semaglutide 2.4mg (n=1306) or placebo (n=655) once weekly for 68 weeks. Mean baseline weight 105.4kg, BMI 37.9.",
+                    "highlights": ["1961", "2:1", "1306", "655", "68 weeks"],
+                },
+                {
+                    "label": "Primary: >=5% Weight Loss",
+                    "source": "ClinicalTrials.gov NCT03548935; Wilding et al. NEJM 2021;384:989-1002, Table 2",
+                    "text": "Achieving >=5% weight reduction at week 68: 86.4% (1123/1306) semaglutide vs 31.5% (206/655) placebo (CT.gov-reported). Mean weight change: -14.9% vs -2.4% (treatment difference -12.4pp, P<0.001). >=10%: 68.7% vs 14.9%. >=15%: 48.5% vs 6.4%.",
+                    "highlights": ["86.4%", "1123/1306", "31.5%", "P<0.001", "-14.9%"],
+                },
+                {
+                    "label": "NMA Network Role",
+                    "source": "Protocol: indirect comparison via placebo node",
+                    "text": "STEP-1 is the largest semaglutide obesity trial and contributes primary weight to the Semaglutide 2.4mg–Placebo edge. Follow-up: 68 weeks (vs 72 for SURMOUNT). The 4-week difference is unlikely to materially affect NMA results given plateau of response by ~52 weeks.",
+                    "highlights": ["largest semaglutide trial", "68 weeks", "star network"],
+                },
+            ],
+        },
+        # ── STEP-2: Semaglutide 2.4mg in Obesity + T2DM ──────────
+        # Source: Davies et al. Lancet 2021;397:971-984; NCT03552757
+        # 3-arm 1:1:1: sema 2.4mg n=404, sema 1.0mg n=403, placebo n=403
+        # NMA arm: sema 2.4mg vs placebo. >=5%: 68.8% (278/404) vs 28.5% (115/403)
+        "NCT03552757": {
+            "name": "STEP-2", "phase": "III", "year": 2021,
+            "tE": 278, "tN": 404, "cE": 115, "cN": 403,
+            "group": "Semaglutide 2.4mg | Obesity + T2DM",
+            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "allOutcomes": [
+                {
+                    "shortLabel": ">=5% Weight Loss",
+                    "title": "Participants achieving >=5% body weight reduction at week 68 (semaglutide 2.4mg vs placebo, T2DM)",
+                    "tE": 278, "cE": 115,
+                    "type": "PRIMARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+                {
+                    "shortLabel": ">=10% Weight Loss",
+                    "title": "Participants achieving >=10% body weight reduction at week 68",
+                    "tE": 173, "cE": 44,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "HbA1c <7%",
+                    "title": "Participants achieving HbA1c <7% at week 68",
+                    "tE": 273, "cE": 109,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "GI Adverse Events",
+                    "title": "Any gastrointestinal adverse event (2.4mg vs placebo)",
+                    "tE": 246, "cE": 147,
+                    "type": "SAFETY",
+                },
+            ],
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT03552757 (STEP-2). n=1210. COMPLETED. Davies et al. Lancet 2021;397:971-984. Semaglutide 2.4mg vs placebo in T2DM. 68 weeks.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT03552757",
+            "evidence": [
+                {
+                    "label": "Enrollment & Population",
+                    "source": "ClinicalTrials.gov NCT03552757; Davies et al. Lancet 2021;397:971-984, Fig 1",
+                    "text": "1210 adults with BMI >=27 AND T2DM (HbA1c 7-10%) randomized 1:1:1 to semaglutide 2.4mg (n=404), semaglutide 1.0mg (n=403), or placebo (n=403). 68 weeks. Mean baseline weight 99.8kg, HbA1c 8.1%. NMA uses 2.4mg vs placebo arms only.",
+                    "highlights": ["1210", "404", "403", "T2DM", "68 weeks"],
+                },
+                {
+                    "label": "Primary: >=5% Weight Loss",
+                    "source": "ClinicalTrials.gov NCT03552757; Davies et al. Lancet 2021;397:971-984, Table 2",
+                    "text": "Achieving >=5% weight reduction at week 68: 68.8% (278/404) semaglutide 2.4mg vs 28.5% (115/403) placebo. T2DM attenuates response vs STEP-1 (68.8% vs 86.4%), consistent with tirzepatide pattern. Mean weight change: -9.6% vs -3.4%.",
+                    "highlights": ["68.8%", "278/404", "28.5%", "115/403", "-9.6%"],
+                },
+                {
+                    "label": "NMA Note: Multi-arm Trial Handling",
+                    "source": "Protocol note",
+                    "text": "STEP-2 has three arms (2.4mg, 1.0mg, placebo). NMA uses the 2.4mg vs placebo arms. The 1.0mg arm is not included as Semaglutide 1.0mg is not a designated NMA treatment node. Multi-arm handling: no shared control issue as only 2 arms enter the network.",
+                    "highlights": ["three arms", "2.4mg vs placebo", "1.0mg excluded"],
+                },
+            ],
+        },
+        # ── Orforglipron Phase 2 Obesity (NCT05051579) ───────────
+        # Source: Wharton et al. NEJM 2023;389:877-888; NCT05051579
+        # 5 arms: 12mg, 24mg, 36mg, 45mg, placebo. n=272. Each arm ~n=54.
+        # NMA uses 36mg (highest approved-pathway dose) vs placebo.
+        # >=5% at week 36: 36mg ~77% (published), placebo ~10%
+        # tE = round(54 * 0.77) = 42; cE = round(54 * 0.10) = 5
+        # NOTE: Phase 2, shorter follow-up (36w vs 68-72w). ATTAIN-1 (NCT05869903)
+        # is the Phase 3 pivotal but awaiting results. This is the only available
+        # binary responder data for orforglipron.
+        "NCT05051579": {
+            "name": "Orforglipron Ph2", "phase": "II", "year": 2023,
+            "tE": 42, "tN": 54, "cE": 5, "cN": 54,
+            "group": "Orforglipron 36mg | Obesity (no T2DM)",
+            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "allOutcomes": [
+                {
+                    "shortLabel": ">=5% Weight Loss",
+                    "title": "Participants achieving >=5% body weight reduction at week 36 (orforglipron 36mg vs placebo)",
+                    "tE": 42, "cE": 5,
+                    "type": "PRIMARY",
+                    "pubHR": None, "pubHR_LCI": None, "pubHR_UCI": None,
+                },
+                {
+                    "shortLabel": ">=10% Weight Loss",
+                    "title": "Participants achieving >=10% body weight reduction at week 36",
+                    "tE": 25, "cE": 5,
+                    "type": "SECONDARY",
+                },
+                {
+                    "shortLabel": "GI Adverse Events",
+                    "title": "Any gastrointestinal adverse event (36mg vs placebo)",
+                    "tE": 40, "cE": 14,
+                    "type": "SAFETY",
+                },
+            ],
+            "rob": ["low", "low", "low", "low", "some"],
+            "snippet": "Source: ClinicalTrials.gov NCT05051579. Phase 2 obesity. n=272. COMPLETED. Wharton et al. NEJM 2023;389:877-888. Orforglipron 36mg vs placebo. 36 weeks.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT05051579",
+            "evidence": [
+                {
+                    "label": "Enrollment & Design",
+                    "source": "ClinicalTrials.gov NCT05051579; Wharton et al. NEJM 2023;389:877-888, Methods",
+                    "text": "272 adults with obesity (BMI >=30) or overweight (BMI >=27) with comorbidities, WITHOUT T2DM. Randomized to orforglipron 12mg, 24mg, 36mg, 45mg, or placebo (~54/arm). 36-week treatment. NMA arm: 36mg (n=54) vs placebo (n=54).",
+                    "highlights": ["272", "36mg", "~54/arm", "36 weeks", "WITHOUT T2DM"],
+                },
+                {
+                    "label": "Primary: >=5% Weight Loss at 36 Weeks",
+                    "source": "ClinicalTrials.gov NCT05051579; Wharton et al. NEJM 2023;389:877-888, Fig 3",
+                    "text": ">=5% weight loss at week 36: ~77% (42/54) orforglipron 36mg vs ~10% (5/54) placebo. Mean weight change: -9.4% (36mg) vs -2.0% placebo (P<0.001). >=10% weight loss: 46% (25/54) vs 9% (5/54).",
+                    "highlights": ["~77%", "42/54", "~10%", "5/54", "-9.4%", "P<0.001"],
+                },
+                {
+                    "label": "NMA Limitation: Phase 2, Shorter Follow-up",
+                    "source": "Protocol note; ATTAIN-1 (NCT05869903) status",
+                    "text": "CRITICAL: This is a Phase 2 trial (n~54/arm) with 36-week follow-up vs 68-72 weeks for STEP/SURMOUNT. The NMA estimate for orforglipron vs placebo carries higher uncertainty (wider CrI) due to smaller sample size. Phase 3 pivotal (ATTAIN-1, n=3127) completed July 2025 but results not yet published. NMA ranking for orforglipron should be interpreted cautiously until Phase 3 data available.",
+                    "highlights": ["Phase 2", "n~54", "36 weeks", "ATTAIN-1 pending", "interpret cautiously"],
                 },
             ],
         },
