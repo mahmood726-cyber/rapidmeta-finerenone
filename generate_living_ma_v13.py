@@ -296,6 +296,56 @@ def transform_template(template_html, cfg):
             f'const NMA_CONFIG = {nma_js};'
         )
 
+        # Hide pairwise Analysis Suite tab for NMA apps
+        html = html.replace(
+            'data-tab="analysis" role="tab"',
+            'data-tab="analysis" role="tab" style="display:none"'
+        )
+
+        # Hide pairwise Scientific Output tab for NMA apps
+        html = html.replace(
+            'data-tab="report" role="tab"',
+            'data-tab="report" role="tab" style="display:none"'
+        )
+
+        # Show and renumber NMA tab (remove display:none, rename to "5. Network Meta-Analysis")
+        html = html.replace(
+            '>7. NMA</button>',
+            '>5. Network Meta-Analysis</button>'
+        )
+        # Remove the display:none that is baked into the template NMA tab button
+        html = html.replace(
+            'id="btn-tab-nma" style="display:none">5. Network Meta-Analysis</button>',
+            'id="btn-tab-nma">5. Network Meta-Analysis</button>'
+        )
+
+        # Insert NMA Scientific Output panel before the Run NMA button row
+        nma_output_html = '''
+                        <div class="glass p-10 rounded-[40px] border border-slate-800" id="nma-output-section">
+                            <h3 class="text-sm font-bold opacity-60 uppercase tracking-[0.3em] mb-6">NMA Scientific Output</h3>
+
+                            <div id="nma-forest-container" class="mb-8">
+                                <div class="text-xs text-slate-500 italic">Click &ldquo;Run NMA&rdquo; to generate the forest plot of all pairwise comparisons.</div>
+                            </div>
+
+                            <div id="nma-summary-container" class="mb-8"></div>
+
+                            <div id="nma-prisma-nma" class="mb-8">
+                                <h4 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">PRISMA-NMA Checklist Items</h4>
+                                <div class="text-[11px] text-slate-400 space-y-2">
+                                    <div><i class="fa-solid fa-check text-emerald-400 mr-2"></i><strong>Network geometry:</strong> <span id="nma-geometry-text">Star topology &mdash; all treatments connected via common comparator</span></div>
+                                    <div><i class="fa-solid fa-check text-emerald-400 mr-2"></i><strong>Transitivity assumption:</strong> Similar patient populations across trials (all obesity/overweight adults)</div>
+                                    <div id="nma-consistency-summary"><i class="fa-solid fa-check text-emerald-400 mr-2"></i><strong>Consistency:</strong> Run NMA to assess</div>
+                                    <div><i class="fa-solid fa-check text-emerald-400 mr-2"></i><strong>Ranking:</strong> P-scores with uncertainty (SUCRA interpretation caveat displayed)</div>
+                                </div>
+                            </div>
+                        </div>
+'''
+        html = html.replace(
+            '                        <div class="flex gap-3 justify-center">\n                            <button type="button" onclick="NMAEngine.render()"',
+            nma_output_html + '                        <div class="flex gap-3 justify-center">\n                            <button type="button" onclick="NMAEngine.render()"'
+        )
+
     return html
 
 
