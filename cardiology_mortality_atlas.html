@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Cardiology Mortality Atlas — cross-class umbrella meta-analysis of all-cause mortality across 28 living MA apps">
+<title>Cardiology Mortality Atlas — Living Evidence Portfolio</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#020617;color:#f1f5f9;font-family:system-ui,-apple-system,sans-serif;min-height:100vh;padding:32px 20px;line-height:1.5}
+.container{max-width:1100px;margin:0 auto}
+h1{font-size:30px;font-weight:800;background:linear-gradient(135deg,#3b82f6,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.subtitle{font-size:13px;color:#94a3b8;margin-bottom:6px}
+.tagline{font-size:11px;color:#64748b;margin-bottom:24px;font-style:italic}
+.notice{background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.25);border-radius:10px;padding:14px 18px;margin-bottom:24px;font-size:11px;color:#94a3b8;line-height:1.6}
+.notice strong{color:#60a5fa}
+.stats{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.stat{background:#0f172a;border:1px solid #1e293b;border-radius:10px;padding:14px 22px;text-align:center;min-width:130px}
+.stat-num{font-size:26px;font-weight:800;color:#3b82f6}
+.stat-label{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:0.1em;margin-top:4px}
+h2{font-size:18px;font-weight:700;color:#f1f5f9;margin:32px 0 12px;border-bottom:1px solid #1e293b;padding-bottom:8px}
+.forest-container{background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:20px;overflow-x:auto;margin-bottom:24px}
+table{width:100%;border-collapse:collapse;background:#0f172a;border-radius:10px;overflow:hidden;border:1px solid #1e293b;font-size:12px}
+th{background:#1e293b;text-align:left;padding:9px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8}
+td{padding:9px 12px;border-bottom:1px solid #1e293b;color:#cbd5e1}
+tr:last-child td{border-bottom:none}
+.summary-box{background:#0f172a;border:1px solid #1e293b;border-left:3px solid #3b82f6;border-radius:8px;padding:18px 24px;margin:20px 0}
+.summary-box h3{font-size:13px;color:#60a5fa;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.08em}
+.summary-box .est{font-size:28px;font-weight:800;color:#f1f5f9;font-family:monospace}
+.summary-box .small{font-size:11px;color:#94a3b8;margin-top:4px}
+.method-text{font-size:12px;color:#94a3b8;line-height:1.7;background:#0f172a;border:1px solid #1e293b;border-radius:10px;padding:18px 22px}
+footer{margin-top:32px;padding-top:20px;border-top:1px solid #1e293b;text-align:center;font-size:10px;color:#475569}
+.live-badge{display:inline-block;padding:3px 10px;background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.3);border-radius:12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Cardiology Mortality Atlas <span class="live-badge">LIVING</span></h1>
+  <p class="subtitle">Cross-class umbrella meta-analysis of all-cause mortality across 22 cardiovascular drug classes</p>
+  <p class="tagline">Mahmood Ahmad &middot; RapidMeta Living Evidence Portfolio &middot; Generated 2026-04-10 05:52</p>
+
+  <div class="notice">
+    <strong>Methodology.</strong> Each drug class is sourced from an independent living meta-analysis app
+    in the RapidMeta portfolio. Trial-level all-cause mortality (ACM) hazard ratios were extracted from
+    each app's <code>realData</code> structure and pooled within drug class using DerSimonian-Laird
+    random-effects on the log scale. The atlas updates whenever upstream apps are regenerated. Each
+    estimate traces to a published or CT.gov-verified source.
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-num">22</div><div class="stat-label">Drug classes</div></div>
+    <div class="stat"><div class="stat-num">60</div><div class="stat-label">Trials with ACM</div></div>
+    <div class="stat"><div class="stat-num">22</div><div class="stat-label">Pool size</div></div>
+    <div class="stat"><div class="stat-num">0.88</div><div class="stat-label">Overall HR</div></div>
+  </div>
+
+  <div class="summary-box">
+    <h3>Portfolio-wide ACM pooled estimate</h3>
+    <div class="est">0.88 (0.84-0.92)</div>
+    <div class="small">DL random-effects across 22 drug classes &middot; tau-squared = 0.0073 &middot; I-squared = 69.0% &middot; Q = 67.80 on 21 df</div>
+    <div class="small" style="margin-top:6px">This represents the average mortality reduction across all major cardiovascular drug classes. It is a methodological summary, not a clinical recommendation.</div>
+  </div>
+
+  <h2>Forest plot — drug class effects on all-cause mortality</h2>
+  <div class="forest-container">
+<svg width="900" height="874" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">
+<style>.bg{fill:#0f172a}.row-bg:nth-child(even){fill:#1a2236}.label{fill:#f1f5f9;font-size:12px;font-weight:600}.sublabel{fill:#94a3b8;font-size:10px}.k-text{fill:#cbd5e1;font-size:11px;text-anchor:end}.ci{stroke:#64748b;stroke-width:1.5}.point{fill:#3b82f6;stroke:#3b82f6}.point-favors{fill:#10b981;stroke:#10b981}.point-null{fill:#fbbf24;stroke:#fbbf24}.point-harm{fill:#ef4444;stroke:#ef4444}.ref-line{stroke:#475569;stroke-width:1;stroke-dasharray:3,3}.axis{stroke:#475569;stroke-width:1}.axis-label{fill:#94a3b8;font-size:10px;text-anchor:middle}.title-text{fill:#f1f5f9;font-size:13px;font-weight:700}.value{fill:#f1f5f9;font-size:11px;font-family:monospace;text-anchor:start}</style>
+<rect class="bg" width="900" height="874"/>
+<text class="title-text" x="20" y="22">Drug class</text>
+<text class="title-text" x="280" y="22" text-anchor="end">k</text>
+<text class="title-text" x="490.0" y="22" text-anchor="middle">All-cause mortality (HR, 95% CI)</text>
+<text class="title-text" x="700" y="22">HR (95% CI)</text>
+<line class="ref-line" x1="584.266738163215" y1="45" x2="584.266738163215" y2="839"/>
+<line class="axis" x1="300.0" y1="834" x2="300.0" y2="839"/>
+<text class="axis-label" x="300.0" y="852">0.3</text>
+<line class="axis" x1="420.6096460953256" y1="834" x2="420.6096460953256" y2="839"/>
+<text class="axis-label" x="420.6096460953256" y="852">0.5</text>
+<line class="axis" x1="500.05318904174925" y1="834" x2="500.05318904174925" y2="839"/>
+<text class="axis-label" x="500.05318904174925" y="852">0.7</text>
+<line class="axis" x1="584.266738163215" y1="834" x2="584.266738163215" y2="839"/>
+<text class="axis-label" x="584.266738163215" y="852">1.0</text>
+<line class="axis" x1="646.2128497388169" y1="834" x2="646.2128497388169" y2="839"/>
+<text class="axis-label" x="646.2128497388169" y="852">1.3</text>
+<line class="axis" x1="680.0" y1="834" x2="680.0" y2="839"/>
+<text class="axis-label" x="680.0" y="852">1.5</text>
+<line class="axis" x1="300" y1="834" x2="680" y2="834"/>
+<rect class="row-bg" x="0" y="50" width="900" height="28" fill="#1a2236"/>
+<text class="label" x="20" y="62.0">Sotatercept</text>
+<text class="sublabel" x="20" y="74.0">PAH</text>
+<text class="k-text" x="280" y="68.0">2</text>
+<line class="ci" x1="300" y1="64.0" x2="349.0174984404098" y2="64.0"/>
+<rect class="point-favors" x="243.31418413577873" y="60.0" width="8" height="8"/>
+<text class="value" x="700" y="68.0">0.24 (0.16-0.37)</text>
+<text class="label" x="20" y="90.0">Intensive BP</text>
+<text class="sublabel" x="20" y="102.0">High-risk HTN</text>
+<text class="k-text" x="280" y="96.0">1</text>
+<line class="ci" x1="416.6312408136785" y1="92.0" x2="562.7909015107462" y2="92.0"/>
+<rect class="point-favors" x="486.21107116221236" y="88.5" width="7" height="7"/>
+<text class="value" x="700" y="96.0">0.67 (0.49-0.91)</text>
+<rect class="row-bg" x="0" y="106" width="900" height="28" fill="#1a2236"/>
+<text class="label" x="20" y="118.0">Tafamidis/Vutrisiran</text>
+<text class="sublabel" x="20" y="130.0">ATTR-CM</text>
+<text class="k-text" x="280" y="124.0">3</text>
+<line class="ci" x1="453.0346075113724" y1="120.0" x2="544.9386624235333" y2="120.0"/>
+<rect class="point-favors" x="494.4866349674529" y="115.5" width="9" height="9"/>
+<text class="value" x="700" y="124.0">0.70 (0.57-0.85)</text>
+<text class="label" x="20" y="146.0">Catheter ablation</text>
+<text class="sublabel" x="20" y="158.0">AF</text>
+<text class="k-text" x="280" y="152.0">4</text>
+<line class="ci" x1="486.3184412540202" y1="148.0" x2="559.4584575454119" y2="148.0"/>
+<rect class="point-favors" x="517.888449399716" y="143.0" width="10" height="10"/>
+<text class="value" x="700" y="152.0">0.77 (0.66-0.90)</text>
+<rect class="row-bg" x="0" y="162" width="900" height="28" fill="#1a2236"/>
+<text class="label" x="20" y="174.0">SGLT2 in CKD</text>
+<text class="sublabel" x="20" y="186.0">CKD</text>
+<text class="k-text" x="280" y="180.0">3</text>
+<line class="ci" x1="507.71813141643554" y1="176.0" x2="565.3749664671379" y2="176.0"/>
+<rect class="point-favors" x="532.0465489417868" y="171.5" width="9" height="9"/>
+<text class="value" x="700" y="180.0">0.82 (0.72-0.92)</text>
+<text class="label" x="20" y="202.0">Sotagliflozin</text>
+<text class="sublabel" x="20" y="214.0">HF/T2DM</text>
+<text class="k-text" x="280" y="208.0">1</text>
+<line class="ci" x1="459.65370027062215" y1="204.0" x2="615.1683552766028" y2="204.0"/>
+<rect class="point-null" x="533.9110277736125" y="200.5" width="7" height="7"/>
+<text class="value" x="700" y="208.0">0.82 (0.59-1.14)</text>
+<rect class="row-bg" x="0" y="218" width="900" height="28" fill="#1a2236"/>
+<text class="label" x="20" y="230.0">HFrEF NMA</text>
+<text class="sublabel" x="20" y="242.0">HFrEF</text>
+<text class="k-text" x="280" y="236.0">2</text>
+<line class="ci" x1="522.2574534312093" y1="232.0" x2="562.2752274008794" y2="232.0"/>
+<rect class="point-favors" x="538.2663404160444" y="228.0" width="8" height="8"/>
+<text class="value" x="700" y="236.0">0.84 (0.77-0.91)</text>
+<text class="label" x="20" y="258.0">Rivaroxaban (low)</text>
+<text class="sublabel" x="20" y="270.0">Vascular</text>
+<text class="k-text" x="280" y="264.0">4</text>
+<line class="ci" x1="519.7051928802666" y1="260.0" x2="576.8959565035204" y2="260.0"/>
+<rect class="point-favors" x="543.3005746918935" y="255.0" width="10" height="10"/>
+<text class="value" x="700" y="264.0">0.86 (0.76-0.97)</text>
+<rect class="row-bg" x="0" y="274" width="900" height="28" fill="#1a2236"/>
+<text class="label" x="20" y="286.0">ARNI</text>
+<text class="sublabel" x="20" y="298.0">HFrEF/HFpEF</text>
+<text class="k-text" x="280" y="292.0">3</text>
+<line class="ci" x1="534.2054251686671" y1="288.0" x2="575.9419180707855" y2="288.0"/>
+<rect class="point-favors" x="550.5736716197264" y="283.5" width="9" height="9"/>
+<text class="value" x="700" y="292.0">0.88 (0.81-0.97)</text>
+<text class="label" x="20" y="314.0">GLP-1 CVOT</text>
+<text class="sublabel" x="20" y="326.0">T2DM/CV</text>
+<text class="k-text" x="280" y="320.0">10</text>
+<line class="ci" x1="545.2718490760313" y1="316.0" x2="568.8268725310411" y2="316.0"/>
+<rect class="point-favors" x="550.0493608035363" y="309.0" width="14" height="14"/>
+<text class="value" x="700" y="320.0">0.89 (0.85-0.94)</text>
+<rect class="row-bg" x="0" y="330" width="900" height="28" fill="#1a2236"/>
+<text class="label" x="20" y="342.0">Empagliflozin (post-MI)</text>
+<text class="sublabel" x="20" y="354.0">Post-MI</text>
+<text class="k-text" x="280" y="348.0">1</text>
+<line class="ci" x1="520.1132294262995" y1="344.0" x2="598.6674783830492" y2="344.0"/>
+<rect class="point-null" x="555.8903539046744" y="340.5" width="7" height="7"/>
+<text class="value" x="700" y="348.0">0.90 (0.76-1.06)</text>
+<text class="label" x="20" y="370.0">P2Y12 mono</text>
+<text class="sublabel" x="20" y="382.0">Post-PCI</text>
+<text class="k-text" x="280" y="376.0">2</text>
+<line class="ci" x1="530.3619410365598" y1="372.0" x2="589.7898336951247" y2="372.0"/>
+<rect class="point-null" x="556.0758873658422" y="368.0" width="8" height="8"/>
+<text class="value" x="700" y="376.0">0.90 (0.80-1.02)</text>
+<rect class="row-bg" x="0" y="386" width="900" height="28" fill="#1a2236"/>
+<text class="label" x="20" y="398.0">Finerenone</text>
+<text class="sublabel" x="20" y="410.0">CKD/HF</text>
+<text class="k-text" x="280" y="404.0">3</text>
+<line class="ci" x1="542.0746723700333" y1="400.0" x2="581.8287557330835" y2="400.0"/>
+<rect class="point-favors" x="557.4517140515584" y="395.5" width="9" height="9"/>
+<text class="value" x="700" y="404.0">0.91 (0.84-0.99)</text>
+<text class="label" x="20" y="426.0">SGLT2 in HF</text>
+<text class="sublabel" x="20" y="438.0">HFrEF/HFpEF</text>
+<text class="k-text" x="280" y="432.0">5</text>
+<line class="ci" x1="548.0731480973916" y1="428.0" x2="581.8779138940633" y2="428.0"/>
+<rect class="point-favors" x="559.4755309957275" y="422.5" width="11" height="11"/>
+<text class="value" x="700" y="432.0">0.92 (0.86-0.99)</text>
+<rect class="row-bg" x="0" y="442" width="900" height="28" fill="#1a2236"/>
+<text class="label" x="20" y="454.0">IV iron</text>
+<text class="sublabel" x="20" y="466.0">HFrEF + iron def</text>
+<text class="k-text" x="280" y="460.0">3</text>
+<line class="ci" x1="535.7398319920591" y1="456.0" x2="596.5125185264858" y2="456.0"/>
+<rect class="point-null" x="561.6261752592725" y="451.5" width="9" height="9"/>
+<text class="value" x="700" y="460.0">0.93 (0.81-1.05)</text>
+<text class="label" x="20" y="482.0">Colchicine</text>
+<text class="sublabel" x="20" y="494.0">CAD/post-MI</text>
+<text class="k-text" x="280" y="488.0">3</text>
+<line class="ci" x1="530.6642320068556" y1="484.0" x2="609.4474311480042" y2="484.0"/>
+<rect class="point-null" x="565.5558315774299" y="479.5" width="9" height="9"/>
+<text class="value" x="700" y="488.0">0.94 (0.80-1.11)</text>
+<rect class="row-bg" x="0" y="498" width="900" height="28" fill="#1a2236"/>
+<text class="label" x="20" y="510.0">PCSK9</text>
+<text class="sublabel" x="20" y="522.0">ASCVD</text>
+<text class="k-text" x="280" y="516.0">2</text>
+<line class="ci" x1="523.6068448641665" y1="512.0" x2="616.9399137693072" y2="512.0"/>
+<rect class="point-null" x="566.2733793167369" y="508.0" width="8" height="8"/>
+<text class="value" x="700" y="516.0">0.94 (0.77-1.15)</text>
+<text class="label" x="20" y="538.0">Ticagrelor mono</text>
+<text class="sublabel" x="20" y="550.0">Post-PCI</text>
+<text class="k-text" x="280" y="544.0">3</text>
+<line class="ci" x1="547.1060481781141" y1="540.0" x2="595.4870414876225" y2="540.0"/>
+<rect class="point-null" x="566.7965448328683" y="535.5" width="9" height="9"/>
+<text class="value" x="700" y="544.0">0.95 (0.85-1.05)</text>
+<rect class="row-bg" x="0" y="554" width="900" height="28" fill="#1a2236"/>
+<text class="label" x="20" y="566.0">Vericiguat</text>
+<text class="sublabel" x="20" y="578.0">HFrEF</text>
+<text class="k-text" x="280" y="572.0">1</text>
+<line class="ci" x1="543.5856170531873" y1="568.0" x2="600.7264193323997" y2="568.0"/>
+<rect class="point-null" x="568.6560181927935" y="564.5" width="7" height="7"/>
+<text class="value" x="700" y="572.0">0.95 (0.84-1.07)</text>
+<text class="label" x="20" y="594.0">Icosapent ethyl</text>
+<text class="sublabel" x="20" y="606.0">Hypertriglyceridemia</text>
+<text class="k-text" x="280" y="600.0">2</text>
+<line class="ci" x1="529.0103474473299" y1="596.0" x2="620.4217982373128" y2="596.0"/>
+<rect class="point-null" x="570.7160728423214" y="592.0" width="8" height="8"/>
+<text class="value" x="700" y="600.0">0.96 (0.79-1.17)</text>
+<rect class="row-bg" x="0" y="610" width="900" height="28" fill="#1a2236"/>
+<text class="label" x="20" y="622.0">Bempedoic acid</text>
+<text class="sublabel" x="20" y="634.0">ASCVD</text>
+<text class="k-text" x="280" y="628.0">1</text>
+<line class="ci" x1="551.3269388487649" y1="624.0" x2="617.2065374776649" y2="624.0"/>
+<rect class="point-null" x="580.766738163215" y="620.5" width="7" height="7"/>
+<text class="value" x="700" y="628.0">1.00 (0.87-1.15)</text>
+<text class="label" x="20" y="650.0">Omecamtiv</text>
+<text class="sublabel" x="20" y="662.0">HFrEF</text>
+<text class="k-text" x="280" y="656.0">1</text>
+<line class="ci" x1="564.2496454034849" y1="652.0" x2="604.283830922945" y2="652.0"/>
+<rect class="point-null" x="580.766738163215" y="648.5" width="7" height="7"/>
+<text class="value" x="700" y="656.0">1.00 (0.92-1.09)</text>
+<rect class="row-bg" x="0" y="666" width="900" height="28" fill="#1a2236"/>
+<text class="label" x="20" y="678.0">Mavacamten</text>
+<text class="sublabel" x="20" y="690.0">HCM</text>
+<text class="k-text" x="280" y="684.0">0</text>
+<text class="sublabel" x="490.0" y="684.0" text-anchor="middle">no ACM data</text>
+<text class="label" x="20" y="706.0">Combined lipid</text>
+<text class="sublabel" x="20" y="718.0">ASCVD</text>
+<text class="k-text" x="280" y="712.0">0</text>
+<text class="sublabel" x="490.0" y="712.0" text-anchor="middle">no ACM data</text>
+<rect class="row-bg" x="0" y="722" width="900" height="28" fill="#1a2236"/>
+<text class="label" x="20" y="734.0">Incretin (HFpEF)</text>
+<text class="sublabel" x="20" y="746.0">HFpEF</text>
+<text class="k-text" x="280" y="740.0">0</text>
+<text class="sublabel" x="490.0" y="740.0" text-anchor="middle">no ACM data</text>
+<text class="label" x="20" y="762.0">Inclisiran</text>
+<text class="sublabel" x="20" y="774.0">ASCVD/HeFH</text>
+<text class="k-text" x="280" y="768.0">0</text>
+<text class="sublabel" x="490.0" y="768.0" text-anchor="middle">no ACM data</text>
+<rect class="row-bg" x="0" y="778" width="900" height="28" fill="#1a2236"/>
+<text class="label" x="20" y="790.0">Dapagliflozin (acute HF)</text>
+<text class="sublabel" x="20" y="802.0">Acute HF</text>
+<text class="k-text" x="280" y="796.0">0</text>
+<text class="sublabel" x="490.0" y="796.0" text-anchor="middle">no ACM data</text>
+<text class="label" x="20" y="818.0">DOAC (cancer VTE)</text>
+<text class="sublabel" x="20" y="830.0">Cancer VTE</text>
+<text class="k-text" x="280" y="824.0">0</text>
+<text class="sublabel" x="490.0" y="824.0" text-anchor="middle">no ACM data</text>
+</svg>
+  </div>
+
+  <h2>Per-class details</h2>
+  <table>
+    <thead><tr><th>App</th><th>Drug class</th><th>Population</th><th>k</th><th>Pooled ACM HR (95% CI)</th><th>I&sup2;</th></tr></thead>
+    <tbody>
+<tr><td>Finerenone</td><td>MRA (non-steroidal)</td><td>CKD/HF</td><td>3</td><td>0.91 (0.84-0.99)</td><td>0%</td></tr>
+<tr><td>Bempedoic acid</td><td>ATP-citrate lyase inhibitor</td><td>ASCVD</td><td>1</td><td>1.00 (0.87-1.15)</td><td>0%</td></tr>
+<tr><td>GLP-1 CVOT</td><td>GLP-1 receptor agonist</td><td>T2DM/CV</td><td>10</td><td>0.89 (0.85-0.94)</td><td>0%</td></tr>
+<tr><td>SGLT2 in HF</td><td>SGLT2 inhibitor</td><td>HFrEF/HFpEF</td><td>5</td><td>0.92 (0.86-0.99)</td><td>0%</td></tr>
+<tr><td>SGLT2 in CKD</td><td>SGLT2 inhibitor</td><td>CKD</td><td>3</td><td>0.82 (0.72-0.92)</td><td>15%</td></tr>
+<tr><td>PCSK9</td><td>PCSK9 mAb</td><td>ASCVD</td><td>2</td><td>0.94 (0.77-1.15)</td><td>75%</td></tr>
+<tr><td>ARNI</td><td>ARNI</td><td>HFrEF/HFpEF</td><td>3</td><td>0.88 (0.81-0.97)</td><td>11%</td></tr>
+<tr><td>Catheter ablation</td><td>Catheter ablation</td><td>AF</td><td>4</td><td>0.77 (0.66-0.90)</td><td>0%</td></tr>
+<tr><td>IV iron</td><td>IV iron</td><td>HFrEF + iron def</td><td>3</td><td>0.93 (0.81-1.05)</td><td>0%</td></tr>
+<tr><td>Colchicine</td><td>Anti-inflammatory</td><td>CAD/post-MI</td><td>3</td><td>0.94 (0.80-1.11)</td><td>0%</td></tr>
+<tr><td>Rivaroxaban (low)</td><td>Low-dose Xa inhibitor</td><td>Vascular</td><td>4</td><td>0.86 (0.76-0.97)</td><td>55%</td></tr>
+<tr><td>Intensive BP</td><td>BP control</td><td>High-risk HTN</td><td>1</td><td>0.67 (0.49-0.91)</td><td>0%</td></tr>
+<tr><td>Tafamidis/Vutrisiran</td><td>TTR stabilizer/silencer</td><td>ATTR-CM</td><td>3</td><td>0.70 (0.57-0.85)</td><td>0%</td></tr>
+<tr><td>Mavacamten</td><td>Cardiac myosin inhibitor</td><td>HCM</td><td>0</td><td colspan="2" style="color:#64748b;font-style:italic">no ACM data</td></tr>
+<tr><td>Combined lipid</td><td>Lipid combo</td><td>ASCVD</td><td>0</td><td colspan="2" style="color:#64748b;font-style:italic">no ACM data</td></tr>
+<tr><td>Incretin (HFpEF)</td><td>Incretin</td><td>HFpEF</td><td>0</td><td colspan="2" style="color:#64748b;font-style:italic">no ACM data</td></tr>
+<tr><td>Vericiguat</td><td>sGC stimulator</td><td>HFrEF</td><td>1</td><td>0.95 (0.84-1.07)</td><td>0%</td></tr>
+<tr><td>Omecamtiv</td><td>Cardiac myosin activator</td><td>HFrEF</td><td>1</td><td>1.00 (0.92-1.09)</td><td>0%</td></tr>
+<tr><td>Sotagliflozin</td><td>Dual SGLT1/2</td><td>HF/T2DM</td><td>1</td><td>0.82 (0.59-1.14)</td><td>0%</td></tr>
+<tr><td>Inclisiran</td><td>siRNA PCSK9</td><td>ASCVD/HeFH</td><td>0</td><td colspan="2" style="color:#64748b;font-style:italic">no ACM data</td></tr>
+<tr><td>P2Y12 mono</td><td>Antiplatelet</td><td>Post-PCI</td><td>2</td><td>0.90 (0.80-1.02)</td><td>0%</td></tr>
+<tr><td>Dapagliflozin (acute HF)</td><td>SGLT2 inhibitor</td><td>Acute HF</td><td>0</td><td colspan="2" style="color:#64748b;font-style:italic">no ACM data</td></tr>
+<tr><td>HFrEF NMA</td><td>GDMT (mixed)</td><td>HFrEF</td><td>2</td><td>0.84 (0.77-0.91)</td><td>0%</td></tr>
+<tr><td>Empagliflozin (post-MI)</td><td>SGLT2 inhibitor</td><td>Post-MI</td><td>1</td><td>0.90 (0.76-1.06)</td><td>0%</td></tr>
+<tr><td>Ticagrelor mono</td><td>Antiplatelet</td><td>Post-PCI</td><td>3</td><td>0.95 (0.85-1.05)</td><td>0%</td></tr>
+<tr><td>Icosapent ethyl</td><td>Omega-3</td><td>Hypertriglyceridemia</td><td>2</td><td>0.96 (0.79-1.17)</td><td>66%</td></tr>
+<tr><td>Sotatercept</td><td>Activin signaling</td><td>PAH</td><td>2</td><td>0.24 (0.16-0.37)</td><td>0%</td></tr>
+<tr><td>DOAC (cancer VTE)</td><td>DOAC</td><td>Cancer VTE</td><td>0</td><td colspan="2" style="color:#64748b;font-style:italic">no ACM data</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Methods</h2>
+  <div class="method-text">
+    <p><strong>Inclusion.</strong> All cardiology and cardiology-adjacent apps in the RapidMeta portfolio
+    that report a trial-level all-cause mortality (ACM) outcome. Apps without ACM data (e.g., dose-finding
+    studies, mechanistic biomarker trials) are listed but excluded from pooling.</p>
+    <p><strong>Outcome.</strong> All-cause mortality only. Trial-level effect sizes are taken from
+    published HRs where available; if a trial reports event counts only, the OR computed from event
+    counts is used (with continuity correction for zero cells).</p>
+    <p><strong>Pooling.</strong> Within each drug class, DerSimonian-Laird random-effects pooling
+    on the log scale with HKSJ standard error adjustment. The portfolio-wide pool combines per-class
+    estimates as a meta of metas — methodologically meaningful as a measure of consistency, not as
+    a treatment recommendation.</p>
+    <p><strong>Validation.</strong> Each input estimate is independently validated against published
+    meta-analyses through <code>validate_living_ma_portfolio.py</code>. Current portfolio validation
+    rate: 23/23 = 100% within 10% of published benchmarks.</p>
+    <p><strong>Reproducibility.</strong> The atlas is regenerated by running
+    <code>python cardiology_mortality_atlas.py</code> from the Finrenone repository. Each pooled
+    estimate carries a provenance trail back to the trial-level data in
+    <code>generate_living_ma_v13.py</code> or the source HTML files.</p>
+  </div>
+
+  <footer>
+    Cardiology Mortality Atlas v1.0 &middot; Living Evidence Portfolio &middot;
+    <a href="https://github.com/mahmood726-cyber/rapidmeta-finerenone" style="color:#3b82f6">GitHub</a>
+    &middot; Generated by cardiology_mortality_atlas.py
+  </footer>
+</div>
+</body>
+</html>
