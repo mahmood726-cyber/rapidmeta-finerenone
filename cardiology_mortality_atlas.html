@@ -37,7 +37,7 @@ footer{margin-top:32px;padding-top:20px;border-top:1px solid #1e293b;text-align:
 <div class="container">
   <h1>Cardiology Mortality Atlas <span class="live-badge">LIVING</span></h1>
   <p class="subtitle">Cross-class umbrella meta-analysis of all-cause mortality across 22 cardiovascular drug classes</p>
-  <p class="tagline">Mahmood Ahmad &middot; RapidMeta Living Evidence Portfolio &middot; Generated 2026-04-10 06:01</p>
+  <p class="tagline">Mahmood Ahmad &middot; RapidMeta Living Evidence Portfolio &middot; Generated 2026-04-10 06:12</p>
 
   <div class="notice">
     <strong>Methodology.</strong> Each drug class is sourced from an independent living meta-analysis app
@@ -365,6 +365,136 @@ footer{margin-top:32px;padding-top:20px;border-top:1px solid #1e293b;text-align:
     pooled evidence is stronger than the guideline currently acknowledges.
   </p>
 <ul style="font-size:12px;color:#cbd5e1;line-height:1.7"><li><strong style="color:#f87171">Bempedoic acid</strong> (Class IIa, ASCVD (statin-intolerant)): pooled HR 1.00 (0.87-1.15) — overstrong.</li><li><strong style="color:#f87171">PCSK9</strong> (Class I, ASCVD on statin): pooled HR 0.94 (0.77-1.15) — overstrong.</li><li><strong style="color:#f87171">IV iron</strong> (Class IIa, HFrEF + iron deficiency): pooled HR 0.93 (0.81-1.05) — overstrong.</li><li><strong style="color:#f87171">Sotagliflozin</strong> (Class IIa, HF + T2DM/CKD): pooled HR 0.82 (0.59-1.14) — overstrong.</li><li><strong style="color:#f87171">P2Y12 mono</strong> (Class IIa, Post-PCI (selected)): pooled HR 0.90 (0.80-1.02) — overstrong.</li><li><strong style="color:#f87171">Ticagrelor mono</strong> (Class IIa, Post-PCI (1-3 mo DAPT)): pooled HR 0.95 (0.85-1.05) — overstrong.</li><li><strong style="color:#f87171">Icosapent ethyl</strong> (Class IIa, Hypertriglyceridemia + ASCVD): pooled HR 0.96 (0.79-1.17) — overstrong.</li></ul>
+  <h2>Advanced analytics (12 supplementary analyses)</h2>
+  <p style="font-size:12px;color:#94a3b8;margin-bottom:16px">
+    Twelve advanced analyses characterize the robustness, interpretability, and clinical
+    relevance of the portfolio-wide mortality pool. Each is computed from the same trial-level
+    data as the main forest plot and updates automatically.
+  </p>
+
+  <h3 style="font-size:15px;color:#60a5fa;margin:20px 0 10px">[1] Prediction intervals</h3>
+  <p style="font-size:11px;color:#94a3b8;margin-bottom:8px">
+    The 95% prediction interval gives the expected range of effects in a <em>future</em> trial
+    of the same drug class, accounting for between-study heterogeneity (Higgins 2009 method).
+    A wide PI crossing 1.0 indicates that the next trial could plausibly be null despite a
+    significant current pool.
+  </p>
+  <table style="font-size:11px"><thead><tr><th>Drug class</th><th>Pooled HR</th><th>95% CI</th><th>95% PI</th></tr></thead><tbody>
+<tr><td>Finerenone</td><td>0.91</td><td>0.84-0.99</td><td>0.91-0.91</td></tr><tr><td>GLP-1 CVOT</td><td>0.89</td><td>0.85-0.94</td><td>0.89-0.89</td></tr><tr><td>SGLT2 in HF</td><td>0.92</td><td>0.86-0.99</td><td>0.92-0.92</td></tr><tr><td>SGLT2 in CKD</td><td>0.82</td><td>0.72-0.92</td><td>0.82-0.82</td></tr><tr><td>ARNI</td><td>0.88</td><td>0.81-0.97</td><td>0.88-0.88</td></tr><tr><td>Catheter ablation</td><td>0.77</td><td>0.66-0.90</td><td>0.77-0.77</td></tr><tr><td>IV iron</td><td>0.93</td><td>0.81-1.05</td><td>0.93-0.93</td></tr><tr><td>Colchicine</td><td>0.94</td><td>0.80-1.11</td><td>0.94-0.94</td></tr><tr><td>Rivaroxaban (low)</td><td>0.86</td><td>0.76-0.97</td><td>0.86-0.86</td></tr><tr><td>Tafamidis/Vutrisiran</td><td>0.70</td><td>0.57-0.85</td><td>0.70-0.70</td></tr><tr><td>Ticagrelor mono</td><td>0.95</td><td>0.85-1.05</td><td>0.95-0.95</td></tr></tbody></table>
+
+  <h3 style="font-size:15px;color:#60a5fa;margin:24px 0 10px">[2] Leave-one-out fragility</h3>
+  <p style="font-size:11px;color:#94a3b8;margin-bottom:8px">
+    For each class with k>=2 trials, the maximum percent change in pooled HR when any
+    single trial is removed. Classes with max delta >20% are flagged as fragile — the pool
+    is dominated by one study and could shift meaningfully with new data.
+  </p>
+  <table style="font-size:11px"><thead><tr><th>Drug class</th><th>Full HR</th><th>LOO min</th><th>LOO max</th><th>Max Δ</th><th>Status</th></tr></thead><tbody>
+<tr><td>Finerenone</td><td>0.91</td><td>0.89</td><td>0.92</td><td>2.0%</td><td>robust</td></tr><tr><td>GLP-1 CVOT</td><td>0.89</td><td>0.89</td><td>0.90</td><td>0.8%</td><td>robust</td></tr><tr><td>SGLT2 in HF</td><td>0.92</td><td>0.90</td><td>0.95</td><td>2.9%</td><td>robust</td></tr><tr><td>SGLT2 in CKD</td><td>0.82</td><td>0.77</td><td>0.86</td><td>5.8%</td><td>robust</td></tr><tr><td>PCSK9</td><td>0.94</td><td>0.85</td><td>1.04</td><td>10.4%</td><td>robust</td></tr><tr><td>ARNI</td><td>0.88</td><td>0.86</td><td>0.95</td><td>7.7%</td><td>robust</td></tr><tr><td>Catheter ablation</td><td>0.77</td><td>0.72</td><td>0.81</td><td>6.5%</td><td>robust</td></tr><tr><td>IV iron</td><td>0.93</td><td>0.90</td><td>0.94</td><td>2.4%</td><td>robust</td></tr><tr><td>Colchicine</td><td>0.94</td><td>0.92</td><td>1.01</td><td>7.2%</td><td>robust</td></tr><tr><td>Rivaroxaban (low)</td><td>0.86</td><td>0.82</td><td>0.90</td><td>5.0%</td><td>robust</td></tr><tr><td>Tafamidis/Vutrisiran</td><td>0.70</td><td>0.69</td><td>0.71</td><td>1.7%</td><td>robust</td></tr><tr><td>P2Y12 mono</td><td>0.90</td><td>0.87</td><td>0.99</td><td>9.7%</td><td>robust</td></tr><tr><td>HFrEF NMA</td><td>0.84</td><td>0.83</td><td>0.84</td><td>0.8%</td><td>robust</td></tr><tr><td>Ticagrelor mono</td><td>0.95</td><td>0.93</td><td>1.00</td><td>5.7%</td><td>robust</td></tr><tr><td>Icosapent ethyl</td><td>0.96</td><td>0.87</td><td>1.06</td><td>10.4%</td><td>robust</td></tr><tr><td>Sotatercept</td><td>0.24</td><td>0.24</td><td>0.24</td><td>0.0%</td><td>robust</td></tr></tbody></table>
+
+  <h3 style="font-size:15px;color:#60a5fa;margin:24px 0 10px">[3] Cumulative meta-analysis (stabilization)</h3>
+  <p style="font-size:11px;color:#94a3b8;margin-bottom:8px">
+    For each class, the running pooled HR as trials are added chronologically. Classes where
+    the first trial's estimate and the current pool differ by less than 10% are "stable" —
+    adding more trials is unlikely to change the clinical message.
+  </p>
+  <table style="font-size:11px"><thead><tr><th>Drug class</th><th>First trial (year)</th><th>Latest (year, k)</th><th>Δ</th><th>Status</th></tr></thead><tbody>
+<tr><td>Finerenone</td><td>0.90 (2020)</td><td>0.91 (2024, k=3)</td><td>1.7%</td><td>STABLE</td></tr><tr><td>GLP-1 CVOT</td><td>0.94 (2015)</td><td>0.89 (2025, k=10)</td><td>5.2%</td><td>STABLE</td></tr><tr><td>SGLT2 in HF</td><td>0.83 (2019)</td><td>0.92 (2022, k=5)</td><td>11.0%</td><td><span style="color:#fbbf24">EVOLVING</span></td></tr><tr><td>SGLT2 in CKD</td><td>0.83 (2019)</td><td>0.82 (2023, k=3)</td><td>1.6%</td><td>STABLE</td></tr><tr><td>PCSK9</td><td>1.04 (2017)</td><td>0.94 (2018, k=2)</td><td>9.4%</td><td>STABLE</td></tr><tr><td>ARNI</td><td>0.84 (2014)</td><td>0.88 (2021, k=3)</td><td>5.2%</td><td>STABLE</td></tr><tr><td>Catheter ablation</td><td>0.62 (2018)</td><td>0.77 (2022, k=4)</td><td>24.4%</td><td><span style="color:#fbbf24">EVOLVING</span></td></tr><tr><td>IV iron</td><td>0.84 (2021)</td><td>0.93 (2023, k=3)</td><td>10.2%</td><td><span style="color:#fbbf24">EVOLVING</span></td></tr><tr><td>Colchicine</td><td>0.98 (2019)</td><td>0.94 (2025, k=3)</td><td>3.9%</td><td>STABLE</td></tr><tr><td>Rivaroxaban (low)</td><td>0.68 (2012)</td><td>0.86 (2020, k=4)</td><td>26.3%</td><td><span style="color:#fbbf24">EVOLVING</span></td></tr><tr><td>Tafamidis/Vutrisiran</td><td>0.70 (2018)</td><td>0.70 (2024, k=3)</td><td>0.5%</td><td>STABLE</td></tr><tr><td>P2Y12 mono</td><td>0.87 (2018)</td><td>0.90 (2019, k=2)</td><td>3.7%</td><td>STABLE</td></tr><tr><td>HFrEF NMA</td><td>0.84 (2014)</td><td>0.84 (2019, k=2)</td><td>0.4%</td><td>STABLE</td></tr><tr><td>Ticagrelor mono</td><td>0.93 (2018)</td><td>0.95 (2020, k=3)</td><td>1.8%</td><td>STABLE</td></tr><tr><td>Icosapent ethyl</td><td>0.87 (2019)</td><td>0.96 (2020, k=2)</td><td>10.4%</td><td><span style="color:#fbbf24">EVOLVING</span></td></tr><tr><td>Sotatercept</td><td>0.24 (2024)</td><td>0.24 (2025, k=2)</td><td>0.0%</td><td>STABLE</td></tr></tbody></table>
+
+  <h3 style="font-size:15px;color:#60a5fa;margin:24px 0 10px">[4] Low risk-of-bias subanalysis</h3>
+  <p style="font-size:11px;color:#94a3b8;margin-bottom:8px">
+    Pool restricted to trials with overall low risk of bias on all domains. When the low-RoB
+    pool differs substantially from the full pool, some effect may be driven by lower-quality
+    evidence.
+  </p>
+  <table style="font-size:11px"><thead><tr><th>Drug class</th><th>Full k / HR</th><th>Low-RoB k / HR</th><th>Δ</th></tr></thead><tbody>
+<tr><td>Finerenone</td><td>3 / 0.91</td><td>3 / 0.91</td><td>0.0%</td></tr><tr><td>Bempedoic acid</td><td>1 / 1.00</td><td>1 / 1.00</td><td>0.0%</td></tr><tr><td>GLP-1 CVOT</td><td>10 / 0.89</td><td>9 / 0.90</td><td>0.8%</td></tr><tr><td>SGLT2 in HF</td><td>5 / 0.92</td><td>4 / 0.93</td><td>0.6%</td></tr><tr><td>SGLT2 in CKD</td><td>3 / 0.82</td><td>3 / 0.82</td><td>0.0%</td></tr><tr><td>PCSK9</td><td>2 / 0.94</td><td>2 / 0.94</td><td>0.0%</td></tr><tr><td>ARNI</td><td>3 / 0.88</td><td>3 / 0.88</td><td>0.0%</td></tr><tr><td>IV iron</td><td>3 / 0.93</td><td>2 / 0.92</td><td>0.2%</td></tr><tr><td>Colchicine</td><td>3 / 0.94</td><td>2 / 0.92</td><td>2.7%</td></tr><tr><td>Rivaroxaban (low)</td><td>4 / 0.86</td><td>4 / 0.86</td><td>0.0%</td></tr><tr><td>Intensive BP</td><td>1 / 0.67</td><td>1 / 0.67</td><td>0.0%</td></tr><tr><td>Tafamidis/Vutrisiran</td><td>3 / 0.70</td><td>2 / 0.69</td><td>1.5%</td></tr><tr><td>Vericiguat</td><td>1 / 0.95</td><td>1 / 0.95</td><td>0.0%</td></tr><tr><td>Omecamtiv</td><td>1 / 1.00</td><td>1 / 1.00</td><td>0.0%</td></tr><tr><td>P2Y12 mono</td><td>2 / 0.90</td><td>1 / 0.99</td><td>9.7%</td></tr><tr><td>HFrEF NMA</td><td>2 / 0.84</td><td>2 / 0.84</td><td>0.0%</td></tr><tr><td>Empagliflozin (post-MI)</td><td>1 / 0.90</td><td>1 / 0.90</td><td>0.0%</td></tr><tr><td>Ticagrelor mono</td><td>3 / 0.95</td><td>1 / 0.99</td><td>4.6%</td></tr><tr><td>Icosapent ethyl</td><td>2 / 0.96</td><td>1 / 1.06</td><td>10.4%</td></tr><tr><td>Sotatercept</td><td>2 / 0.24</td><td>2 / 0.24</td><td>0.0%</td></tr></tbody></table>
+
+  <h3 style="font-size:15px;color:#60a5fa;margin:24px 0 10px">[5] Heterogeneity decomposition (Q partitioned)</h3>
+  <p style="font-size:11px;color:#94a3b8;margin-bottom:8px">
+    Total portfolio heterogeneity Q partitioned into within-population-stratum and
+    between-stratum components. A large "between" fraction means effect sizes differ
+    mainly by patient population, not by methodology or chance.
+  </p>
+  <div style="font-size:12px;color:#cbd5e1;background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:14px 18px">
+    <div>Q-total:   <strong>67.80</strong> on 21 df</div>
+    <div>Q-within:  15.12 on 12 df (within population strata)</div>
+    <div>Q-between: 52.68 on 9 df (between strata)</div>
+    <div style="margin-top:6px;color:#60a5fa"><strong>77.7% of heterogeneity is explained by patient population differences.</strong></div>
+  </div>
+
+  <h3 style="font-size:15px;color:#60a5fa;margin:24px 0 10px">[6] Temporal effect trends</h3>
+  <p style="font-size:11px;color:#94a3b8;margin-bottom:8px">
+    Portfolio-wide weighted meta-regression of log(HR) on trial year across all drug classes.
+    A positive slope indicates effects are attenuating — newer trials show smaller benefits,
+    consistent with regression to the mean or the "Proteus effect".
+  </p>
+  <div style="font-size:12px;color:#cbd5e1;background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:14px 18px">
+    <div>Slope: <strong style="color:#fbbf24">+1.16% per year</strong> (attenuating over time)</div>
+    <div>N classes regressed: 22</div>
+    <div style="margin-top:6px">Interpretation: across the portfolio, newer cardiovascular RCTs show systematically smaller mortality benefits than older trials.</div>
+  </div>
+
+  <h3 style="font-size:15px;color:#60a5fa;margin:24px 0 10px">[7] Number needed to treat (5-year approximation)</h3>
+  <p style="font-size:11px;color:#94a3b8;margin-bottom:8px">
+    Absolute effect translation: NNT = 1 / (baseline_risk × (1 − HR)) using each class's
+    average control-arm mortality rate. Provides a clinically actionable metric — lower NNT
+    means greater absolute benefit per patient treated.
+  </p>
+  <table style="font-size:11px"><thead><tr><th>Drug class</th><th>Control risk</th><th>Pooled HR</th><th>ARR</th><th>NNT</th></tr></thead><tbody>
+<tr><td>Sotatercept</td><td>43.1%</td><td>0.24</td><td>32.75%</td><td><strong>3</strong></td></tr><tr><td>Tafamidis/Vutrisiran</td><td>29.2%</td><td>0.70</td><td>8.86%</td><td><strong>11</strong></td></tr><tr><td>Catheter ablation</td><td>12.8%</td><td>0.77</td><td>2.93%</td><td><strong>34</strong></td></tr><tr><td>Intensive BP</td><td>8.1%</td><td>0.67</td><td>2.68%</td><td><strong>37</strong></td></tr><tr><td>SGLT2 in CKD</td><td>9.1%</td><td>0.82</td><td>1.66%</td><td><strong>60</strong></td></tr><tr><td>ARNI</td><td>13.8%</td><td>0.88</td><td>1.61%</td><td><strong>62</strong></td></tr><tr><td>Sotagliflozin</td><td>8.5%</td><td>0.82</td><td>1.52%</td><td><strong>66</strong></td></tr><tr><td>IV iron</td><td>18.8%</td><td>0.93</td><td>1.39%</td><td><strong>72</strong></td></tr><tr><td>SGLT2 in HF</td><td>14.8%</td><td>0.92</td><td>1.16%</td><td><strong>86</strong></td></tr><tr><td>Finerenone</td><td>12.0%</td><td>0.91</td><td>1.08%</td><td><strong>93</strong></td></tr><tr><td>Vericiguat</td><td>20.9%</td><td>0.95</td><td>1.05%</td><td><strong>96</strong></td></tr><tr><td>Rivaroxaban (low)</td><td>7.2%</td><td>0.86</td><td>1.02%</td><td><strong>98</strong></td></tr><tr><td>Empagliflozin (post-MI)</td><td>9.1%</td><td>0.90</td><td>0.91%</td><td><strong>109</strong></td></tr><tr><td>GLP-1 CVOT</td><td>7.5%</td><td>0.89</td><td>0.81%</td><td><strong>123</strong></td></tr><tr><td>Ticagrelor mono</td><td>4.7%</td><td>0.95</td><td>0.25%</td><td><strong>394</strong></td></tr><tr><td>Colchicine</td><td>3.8%</td><td>0.94</td><td>0.22%</td><td><strong>445</strong></td></tr><tr><td>Icosapent ethyl</td><td>5.7%</td><td>0.96</td><td>0.22%</td><td><strong>446</strong></td></tr><tr><td>PCSK9</td><td>3.5%</td><td>0.94</td><td>0.20%</td><td><strong>494</strong></td></tr></tbody></table>
+
+  <h3 style="font-size:15px;color:#60a5fa;margin:24px 0 10px">[8] P-score rankings (frequentist SUCRA analog)</h3>
+  <p style="font-size:11px;color:#94a3b8;margin-bottom:8px">
+    P-score (Rücker & Schwarzer 2015) = mean probability that a class is better than a
+    randomly selected comparator class, accounting for uncertainty. Ranges 0-1; higher is
+    better. Unlike SUCRA, does not require Bayesian simulation.
+  </p>
+  <table style="font-size:11px"><thead><tr><th>Rank</th><th>Drug class</th><th>P-score</th><th>Interpretation</th></tr></thead><tbody>
+<tr><td>1</td><td>Sotatercept</td><td>1.000</td><td>very likely best</td></tr><tr><td>2</td><td>Tafamidis/Vutrisiran</td><td>0.891</td><td>likely among top</td></tr><tr><td>3</td><td>Intensive BP</td><td>0.881</td><td>likely among top</td></tr><tr><td>4</td><td>Catheter ablation</td><td>0.805</td><td>likely among top</td></tr><tr><td>5</td><td>SGLT2 in CKD</td><td>0.723</td><td>likely among top</td></tr><tr><td>6</td><td>HFrEF NMA</td><td>0.686</td><td>middle tier</td></tr><tr><td>7</td><td>Sotagliflozin</td><td>0.620</td><td>middle tier</td></tr><tr><td>8</td><td>Rivaroxaban (low)</td><td>0.599</td><td>middle tier</td></tr><tr><td>9</td><td>ARNI</td><td>0.519</td><td>middle tier</td></tr><tr><td>10</td><td>GLP-1 CVOT</td><td>0.495</td><td>middle tier</td></tr><tr><td>11</td><td>Empagliflozin (post-MI)</td><td>0.448</td><td>middle tier</td></tr><tr><td>12</td><td>P2Y12 mono</td><td>0.441</td><td>middle tier</td></tr><tr><td>13</td><td>Finerenone</td><td>0.414</td><td>middle tier</td></tr><tr><td>14</td><td>SGLT2 in HF</td><td>0.365</td><td>likely bottom</td></tr><tr><td>15</td><td>IV iron</td><td>0.358</td><td>likely bottom</td></tr></tbody></table>
+
+  <h3 style="font-size:15px;color:#60a5fa;margin:24px 0 10px">[9] ACM vs primary outcome discordance</h3>
+  <p style="font-size:11px;color:#94a3b8;margin-bottom:8px">
+    For each trial that reports both a primary composite outcome and an ACM secondary,
+    the ratio of HRs quantifies how much the composite inflates apparent benefit beyond
+    mortality alone.
+  </p>
+  <div style="font-size:12px;color:#cbd5e1;background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:14px 18px">
+    <div>Trials with both outcomes: <strong>60</strong></div>
+    <div>Mean ratio (ACM / primary): <strong>1.094</strong></div>
+    <div style="margin-top:6px">ACM HR tends to be LESS favorable than primary composite</div>
+  </div>
+
+  <h3 style="font-size:15px;color:#60a5fa;margin:24px 0 10px">[10] Baseline risk meta-regression</h3>
+  <p style="font-size:11px;color:#94a3b8;margin-bottom:8px">
+    Portfolio-wide weighted regression of log(HR) on logit(control-arm mortality rate).
+    A negative slope means higher-risk populations derive greater relative benefit —
+    consistent with the common clinical observation that sicker patients benefit more.
+  </p>
+  <div style="font-size:12px;color:#cbd5e1;background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:14px 18px">
+    <div>Slope: <strong>-0.016</strong> log(HR) per logit(control risk)</div>
+    <div>N trials in regression: 56</div>
+    <div style="margin-top:6px">Effect appears independent of baseline risk</div>
+  </div>
+
+  <h3 style="font-size:15px;color:#60a5fa;margin:24px 0 10px">[11] Cross-population consistency — SGLT2 exemplar</h3>
+  <p style="font-size:11px;color:#94a3b8;margin-bottom:8px">
+    SGLT2 inhibitors are indicated across 3 distinct patient populations in
+    this portfolio. If the mortality effect is mechanistically consistent, the pooled estimates
+    across populations should agree. Divergence implies population-modified effects.
+  </p>
+  <table style="font-size:11px"><thead><tr><th>Population</th><th>k</th><th>Pooled HR (95% CI)</th></tr></thead><tbody>
+<tr><td>HFrEF + HFpEF</td><td>5</td><td>0.92 (0.86-0.99)</td></tr><tr><td>CKD ± diabetes</td><td>3</td><td>0.82 (0.72-0.92)</td></tr><tr><td>Post-MI</td><td>1</td><td>0.90 (0.76-1.06)</td></tr><tr style="border-top:2px solid #3b82f6;font-weight:700"><td>Combined (all SGLT2 trials)</td><td>9</td><td>0.89 (0.84-0.94), I²=11%</td></tr></tbody></table>
+
+  <h3 style="font-size:15px;color:#60a5fa;margin:24px 0 10px">[12] Trial sequential analysis (required information size)</h3>
+  <p style="font-size:11px;color:#94a3b8;margin-bottom:8px">
+    For each class, the required information size (RIS) is the sample size needed for
+    a definitive test with α=0.05 and power=0.80, adjusted for heterogeneity via the
+    diversity factor (Wetterslev 2008). Information fraction &gt;100% means accumulated
+    evidence is already adequate to support the observed effect.
+  </p>
+  <table style="font-size:11px"><thead><tr><th>Drug class</th><th>Info fraction</th><th>RIS (adjusted)</th><th>Current n</th><th>Status</th></tr></thead><tbody>
+<tr><td>Finerenone</td><td>100.0%</td><td>8,293</td><td>19,027</td><td>ADEQUATE</td></tr><tr><td>GLP-1 CVOT</td><td>100.0%</td><td>9,127</td><td>87,334</td><td>ADEQUATE</td></tr><tr><td>SGLT2 in HF</td><td>100.0%</td><td>9,575</td><td>21,947</td><td>ADEQUATE</td></tr><tr><td>SGLT2 in CKD</td><td>100.0%</td><td>2,818</td><td>15,314</td><td>ADEQUATE</td></tr><tr><td>PCSK9</td><td>18.4%</td><td>252,290</td><td>46,488</td><td><span style="color:#fbbf24">UNDERPOWERED</span></td></tr><tr><td>ARNI</td><td>100.0%</td><td>5,192</td><td>18,856</td><td>ADEQUATE</td></tr><tr><td>Catheter ablation</td><td>100.0%</td><td>663</td><td>5,767</td><td>ADEQUATE</td></tr><tr><td>IV iron</td><td>64.8%</td><td>8,193</td><td>5,310</td><td><span style="color:#fbbf24">UNDERPOWERED</span></td></tr><tr><td>Colchicine</td><td>24.4%</td><td>61,235</td><td>14,951</td><td><span style="color:#fbbf24">UNDERPOWERED</span></td></tr><tr><td>Rivaroxaban (low)</td><td>100.0%</td><td>8,222</td><td>40,214</td><td>ADEQUATE</td></tr><tr><td>Intensive BP</td><td>100.0%</td><td>656</td><td>2,636</td><td>ADEQUATE</td></tr><tr><td>Tafamidis/Vutrisiran</td><td>100.0%</td><td>281</td><td>1,707</td><td>ADEQUATE</td></tr><tr><td>Vericiguat</td><td>28.0%</td><td>18,013</td><td>5,050</td><td><span style="color:#fbbf24">UNDERPOWERED</span></td></tr><tr><td>Sotagliflozin</td><td>47.6%</td><td>2,568</td><td>1,222</td><td><span style="color:#fbbf24">UNDERPOWERED</span></td></tr><tr><td>Empagliflozin (post-MI)</td><td>76.7%</td><td>8,508</td><td>6,522</td><td><span style="color:#fbbf24">UNDERPOWERED</span></td></tr><tr><td>Ticagrelor mono</td><td>36.4%</td><td>77,561</td><td>28,241</td><td><span style="color:#fbbf24">UNDERPOWERED</span></td></tr><tr><td>Icosapent ethyl</td><td>8.6%</td><td>247,073</td><td>21,257</td><td><span style="color:#fbbf24">UNDERPOWERED</span></td></tr><tr><td>Sotatercept</td><td>100.0%</td><td>16</td><td>492</td><td>ADEQUATE</td></tr></tbody></table>
+
   <h2>Methods</h2>
   <div class="method-text">
     <p><strong>Inclusion.</strong> All cardiology and cardiology-adjacent apps in the RapidMeta portfolio
