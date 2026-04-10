@@ -1,8 +1,8 @@
 # CV-Death Sub-Atlas
 **Method:** Paule-Mandel tau2 + HKSJ SE (Q/(k-1) floor) + t_{k-1} CI
 **Inclusion:** drug classes with k>=3 trials reporting CV death
-**Pools generated:** 1
-**Excluded (k<3):** 10 classes
+**Pools generated:** 2
+**Excluded (k<3):** 9 classes
 **Unmapped CV-death trials:** 1
 
 ## Pooled estimates
@@ -11,7 +11,9 @@
 - **Pooled HR:** 0.894 (95% CI 0.776-1.030)
 - **tau²:** 0.0000 | **I²:** 0.0% | **Q (FE):** 0.80 on 3 df
 - _HKSJ Q/(k-1) floor applied (Q < df, prevents narrow-CI artifact)_
-- **95% prediction interval:** 0.740-1.082
+- **95% prediction interval:** 0.739-1.083
+- **Source mix:** 2 CT.gov analyses + 2 Peto-derived
+- _Leave-Peto-out sensitivity not computable (analyses-only k<3)_
 
 | NCT | Trial | HR | 95% CI | Source |
 |---|---|---|---|---|
@@ -19,6 +21,18 @@
 | NCT02465515 | HARMONY Outcomes | 0.930 | 0.73-1.19 | analyses |
 | NCT03574597 | SELECT | 0.847 | 0.71-1.01 | peto_logrank |
 | NCT03914326 | SOUL | 0.937 | 0.80-1.10 | peto_logrank |
+
+### SGLT2 inhibitor  (k=3)
+- **Pooled HR:** 0.890 (95% CI 0.685-1.157)
+- **tau²:** 0.0000 | **I²:** 0.0% | **Q (FE):** 0.30 on 2 df
+- _HKSJ Q/(k-1) floor applied (Q < df, prevents narrow-CI artifact)_
+- **95% prediction interval:** 0.410-1.931
+
+| NCT | Trial | HR | 95% CI | Source |
+|---|---|---|---|---|
+| NCT01986881 | VERTIS-CV | 0.920 | 0.77-1.11 | analyses |
+| NCT03594110 | EMPA-KIDNEY | 0.830 | 0.59-1.17 | analyses |
+| NCT03619213 | DELIVER | 0.880 | 0.74-1.05 | analyses |
 
 ## Excluded (k<3)
 
@@ -30,7 +44,6 @@
 - **IV iron (FCM/derisomaltose)** — k=1
 - **Omega-3 (EPA)** — k=2
 - **PCSK9 mAb** — k=2
-- **SGLT2 inhibitor** — k=2
 - **sGC stimulator** — k=1
 
 ## CV-death trials unmapped to atlas classes

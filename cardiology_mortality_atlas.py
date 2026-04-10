@@ -20,9 +20,17 @@ Run:
   python cardiology_mortality_atlas.py --json
   python cardiology_mortality_atlas.py --validate    # vs known HF NMAs
 """
-import sys, io, os, re, math, json, time, glob
+import glob
+import json
+import math
+import os
+import re
+import sys
+import time
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+from _io_utils import ensure_utf8_stdout
+
+ensure_utf8_stdout()
 
 # ═══════════════════════════════════════════════════════════
 # CARDIOLOGY APP REGISTRY
@@ -144,9 +152,9 @@ CARDIO_APPS = [
      'guideline_class': 'I', 'guideline_source': 'ESC ACS / ITAC 2022'},
 
     # CT.gov-only entries (no curated HTML review) — populated from CTGOV_AUGMENTATIONS
-    {'name': 'Intensive glycemia (ACCORD)', 'drug_class': 'Intensive glycemic control', 'filename': None,
-     'population_detail': 'T2D, high CV risk', 'population_category': 'Diabetes',
-     'guideline_class': 'III', 'guideline_source': 'ADA 2024 (avoid HbA1c <7% in high-CV-risk T2D, post-ACCORD)'},
+    {'name': 'Intensive glycemia (T2D)', 'drug_class': 'Intensive glycemic control', 'filename': None,
+     'population_detail': 'Established T2D, mostly high CV risk', 'population_category': 'Diabetes',
+     'guideline_class': 'III', 'guideline_source': 'ADA 2024 (avoid HbA1c <7% in high-CV-risk T2D — pooled ACCORD/ADVANCE/VADT)'},
 
     {'name': 'SGLT2 CVOT (T2D)', 'drug_class': 'SGLT2 inhibitor', 'filename': None,
      'population_detail': 'T2D + ASCVD or high CV risk', 'population_category': 'Diabetes',
@@ -176,14 +184,22 @@ CTGOV_AUGMENTATIONS = {
          'source': 'ctgov_analyses', 'outcome': 'All-cause mortality (NEJM 2015)'},
     ],
     'Vericiguat': [
-        {'nct': 'NCT05093933', 'name': 'VICTOR', 'year': 2024, 'rob': 'low',
+        # VICTOR not yet independently appraised — RoB 'unclear' per Cochrane RoB 2.0
+        {'nct': 'NCT05093933', 'name': 'VICTOR', 'year': 2024, 'rob': 'unclear',
          'hr': 0.84, 'lo': 0.74, 'hi': 0.97,
          'source': 'ctgov_analyses', 'outcome': 'All-cause mortality (post-VICTORIA confirmation)'},
     ],
-    'Intensive glycemia (ACCORD)': [
-        {'nct': 'NCT00000620', 'name': 'ACCORD', 'year': 2008, 'rob': 'low',
+    'Intensive glycemia (T2D)': [
+        # ACCORD: stopped early for harm — RoB 'some' per Cochrane RoB 2.0
+        {'nct': 'NCT00000620', 'name': 'ACCORD', 'year': 2008, 'rob': 'some',
          'hr': 1.19, 'lo': 1.03, 'hi': 1.38,
          'source': 'ctgov_analyses', 'outcome': 'Death from any cause in glycemia trial (NEJM 2008)'},
+        {'nct': 'NCT00145925', 'name': 'ADVANCE', 'year': 2008, 'rob': 'low',
+         'hr': 0.93, 'lo': 0.83, 'hi': 1.06,
+         'source': 'published', 'outcome': 'Death from any cause (Patel NEJM 2008;358:2560)'},
+        {'nct': 'NCT00032487', 'name': 'VADT', 'year': 2009, 'rob': 'low',
+         'hr': 1.07, 'lo': 0.81, 'hi': 1.42,
+         'source': 'published', 'outcome': 'Death from any cause (Duckworth NEJM 2009;360:129)'},
     ],
     'SGLT2 CVOT (T2D)': [
         {'nct': 'NCT01131676', 'name': 'EMPA-REG OUTCOME', 'year': 2015, 'rob': 'low',
@@ -195,20 +211,50 @@ CTGOV_AUGMENTATIONS = {
         {'nct': 'NCT01032629', 'name': 'CANVAS Program', 'year': 2017, 'rob': 'low',
          'hr': 0.87, 'lo': 0.74, 'hi': 1.01,
          'source': 'ctgov_analyses', 'outcome': 'All-cause mortality (Neal NEJM 2017)'},
+        {'nct': 'NCT01986881', 'name': 'VERTIS-CV', 'year': 2020, 'rob': 'low',
+         'hr': 0.93, 'lo': 0.80, 'hi': 1.08,
+         'source': 'ctgov_analyses', 'outcome': 'Death from any cause, On-Study Approach (Cannon NEJM 2020)'},
     ],
 }
 
 
 def merge_ctgov_augmentations(trials, app_name):
-    """Add CT.gov-mined trials to a parsed trial list, deduping by NCT."""
+    """Return a NEW list combining `trials` with CT.gov augmentations for `app_name`.
+
+    Does not mutate the input list. Dedupes by NCT.
+    """
     augments = CTGOV_AUGMENTATIONS.get(app_name)
     if not augments:
-        return trials
+        return list(trials)
     existing_ncts = {t.get('nct') for t in trials}
+    merged = list(trials)
     for aug in augments:
         if aug['nct'] not in existing_ncts:
-            trials.append(dict(aug))
-    return trials
+            merged.append(dict(aug))
+    return merged
+
+
+def _validate_ctgov_augmentations():
+    """Sanity-check the CTGOV_AUGMENTATIONS dict at module load.
+
+    Catches typos like lo > hi or HR outside the CI before they propagate
+    into pooling. Raises ValueError on the first invalid entry.
+    """
+    for app_name, augs in CTGOV_AUGMENTATIONS.items():
+        for a in augs:
+            nct = a.get('nct', '?')
+            try:
+                hr, lo, hi = float(a['hr']), float(a['lo']), float(a['hi'])
+            except (KeyError, TypeError, ValueError) as e:
+                raise ValueError(f'CTGOV_AUGMENTATIONS[{app_name!r}] {nct}: missing/invalid hr/lo/hi ({e})')
+            if not (0 < lo <= hr <= hi):
+                raise ValueError(
+                    f'CTGOV_AUGMENTATIONS[{app_name!r}] {nct}: requires 0 < lo <= hr <= hi '
+                    f'(got lo={lo}, hr={hr}, hi={hi})'
+                )
+
+
+_validate_ctgov_augmentations()
 
 
 # ═══════════════════════════════════════════════════════════
@@ -257,13 +303,25 @@ def assess_concordance(guideline_class, pool):
 # ═══════════════════════════════════════════════════════════
 
 def find_app_path(filename):
-    """Locate the HTML file across Finrenone dir and LivingMeta sibling dirs."""
-    candidates = [
-        os.path.join(r'C:\Projects\Finrenone', filename),
-    ]
-    for d in os.listdir(r'C:\Projects'):
-        if d.endswith('_LivingMeta') or d.startswith('LivingMeta_'):
-            candidates.append(os.path.join(r'C:\Projects', d, filename))
+    """Locate the HTML file across Finrenone dir and LivingMeta sibling dirs.
+
+    Resolves relative to this file's location (no hardcoded absolute paths).
+    Searches:
+      1. <Finrenone repo>/<filename>
+      2. <Finrenone parent>/*_LivingMeta/<filename>
+      3. <Finrenone parent>/LivingMeta_*/<filename>
+    """
+    repo_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(repo_dir)
+    candidates = [os.path.join(repo_dir, filename)]
+    if os.path.isdir(parent_dir):
+        try:
+            siblings = os.listdir(parent_dir)
+        except OSError:
+            siblings = []
+        for d in siblings:
+            if d.endswith('_LivingMeta') or d.startswith('LivingMeta_'):
+                candidates.append(os.path.join(parent_dir, d, filename))
     for c in candidates:
         if os.path.exists(c):
             return c
@@ -454,6 +512,26 @@ def t_quantile(p, df):
 
 
 # ─── 1. Prediction intervals (Higgins 2009) ───
+
+# When I² is this high AND k is this low, the pooled point estimate is
+# unreliable — the prediction interval should dominate inference per
+# advanced-stats.md "I² ≠ magnitude" rule. Pools meeting BOTH criteria
+# get marked 'exploratory' in JSON output and visually flagged in HTML.
+HIGH_I2_THRESHOLD = 75.0
+SMALL_K_THRESHOLD = 5
+
+
+def is_exploratory_pool(pool):
+    """Return True if a pool is high-heterogeneity + small-k.
+
+    For these pools the pooled point estimate is methodologically unsafe
+    as primary inference; the prediction interval should be reported
+    instead. Per advanced-stats.md "I² ≠ magnitude" warning.
+    """
+    if not pool or pool.get('k', 0) < 2:
+        return False
+    return pool.get('I2', 0) >= HIGH_I2_THRESHOLD and pool['k'] < SMALL_K_THRESHOLD
+
 
 def prediction_interval(pool):
     """95% prediction interval using Higgins 2009: pooled_est +/- t_{k-2} * sqrt(tau2 + se^2)."""
@@ -1024,16 +1102,35 @@ def build_html(results, pooled_overall, pop_pools, league, advanced, svg, genera
         'understrong': '<span style="background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);padding:2px 8px;border-radius:6px;font-size:9px;font-weight:700">EVIDENCE&gt;GUIDELINE</span>',
         'no_data':     '<span style="color:#475569;font-size:9px">--</span>',
     }
+    exploratory_badge = ('<span style="background:rgba(251,146,60,0.18);color:#fb923c;'
+                          'border:1px solid rgba(251,146,60,0.4);padding:2px 6px;border-radius:5px;'
+                          'font-size:8px;font-weight:700;margin-left:6px"'
+                          ' title="I&sup2; >= 75% AND k < 5 — pooled point estimate is unreliable; '
+                          'see prediction interval below">EXPLORATORY</span>')
     for r in results:
         concord = r.get('concordance', 'no_data')
         badge = concord_badges.get(concord, '--')
         year = r.get('max_year') or '?'
         if r['pool']:
             p = r['pool']
+            is_expl = r.get('is_exploratory', False)
+            pi = r.get('pi')
+            hr_base = f'{p["pooled_est"]:.2f} ({p["pooled_lo"]:.2f}-{p["pooled_hi"]:.2f})'
+            if is_expl:
+                # Exploratory pool — show badge always; PI line if computable (k>=3)
+                if pi:
+                    hr_cell = (f'{hr_base}{exploratory_badge}<br>'
+                                f'<span style="font-size:9px;color:#fb923c">95% PI: '
+                                f'{pi["lo"]:.2f}-{pi["hi"]:.2f}</span>')
+                else:
+                    hr_cell = (f'{hr_base}{exploratory_badge}<br>'
+                                f'<span style="font-size:9px;color:#fb923c">PI undefined (k&lt;3)</span>')
+            else:
+                hr_cell = hr_base
             rows_table.append(f'<tr><td>{r["name"]}</td><td>{r["drug_class"]}</td>'
                               f'<td>{r["population_detail"]}</td>'
                               f'<td>{p["k"]}</td>'
-                              f'<td>{p["pooled_est"]:.2f} ({p["pooled_lo"]:.2f}-{p["pooled_hi"]:.2f})</td>'
+                              f'<td>{hr_cell}</td>'
                               f'<td>{p["I2"]:.0f}%</td>'
                               f'<td>{year}</td>'
                               f'<td>Class {r["guideline_class"]}</td>'
@@ -1558,9 +1655,10 @@ if __name__ == '__main__':
         pool = dl_pool(log_estimates) if log_estimates else None
         if pool:
             concord = assess_concordance(app['guideline_class'], pool)
+            expl_marker = ' [EXPLORATORY]' if is_exploratory_pool(pool) else ''
             print(f'  {app["name"]:25s}  k={pool["k"]:2d}  HR {pool["pooled_est"]:.2f} '
                   f'({pool["pooled_lo"]:.2f}-{pool["pooled_hi"]:.2f})  I²={pool["I2"]:.0f}%  '
-                  f'Class {app["guideline_class"]}  [{concord}]  ({max_year})')
+                  f'Class {app["guideline_class"]}  [{concord}]{expl_marker}  ({max_year})')
             all_estimates.append((pool['pooled_log'], pool['pooled_se']))
 
         results.append({**app, 'trials': trials, 'pool': pool, 'max_year': max_year,
@@ -1647,6 +1745,9 @@ if __name__ == '__main__':
         r['low_rob_pool'] = low_rob_pool(r['trials'])
         r['nnt'] = nnt_estimate(r['trials'], r['pool'])
         r['tsa'] = trial_sequential_analysis(r['trials'], r['pool'])
+        # Flag pools where I² >= 75% AND k < 5 — point estimate is unreliable,
+        # prediction interval should dominate inference (advanced-stats.md rule)
+        r['is_exploratory'] = is_exploratory_pool(r['pool'])
 
     # Portfolio-level analyses
     advanced['q_decomp'] = q_decomposition(results)
@@ -1788,6 +1889,8 @@ if __name__ == '__main__':
                 'population_category': r['population_category'],
                 'guideline_class': r['guideline_class'],
                 'pool': r['pool'],
+                'pi': r.get('pi'),
+                'is_exploratory': r.get('is_exploratory', False),
                 'trials': r['trials'],
             } for r in results],
         }

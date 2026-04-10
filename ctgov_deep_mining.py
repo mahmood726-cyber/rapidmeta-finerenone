@@ -20,14 +20,42 @@ Output:
 
 Run: python ctgov_deep_mining.py [--only APP] [--resume]
 """
-import sys, io, os, json, re, time
+import datetime
+import json
+import math
+import os
+import re
+import subprocess
+import sys
+import time
 from urllib.request import urlopen, Request
 from urllib.error import URLError, HTTPError
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+from _io_utils import BASE_DIR, ensure_utf8_stdout, is_valid_nct, md_cell
 
+ensure_utf8_stdout()
+
+# ─── Constants (extracted from magic numbers per code review) ───
 CT_GOV_API = 'https://clinicaltrials.gov/api/v2/studies/'
 USER_AGENT = 'RapidMeta-MortalityMining/1.0'
+
+# Network / rate-limiting
+REQUEST_TIMEOUT_S = 30
+REQUEST_DELAY_S = 0.3        # base delay between CT.gov calls
+MAX_RETRIES = 2              # network retries per study
+RETRY_BASE_DELAY_S = 1.0     # exponential backoff base
+CHECKPOINT_EVERY = 10        # save partial results every N studies
+
+# Statistical guards
+MIN_ARM_SIZE = 5              # below this, Peto variance is unreliable
+MAX_MORTALITY_RATE = 0.5      # event rate >50% means it's NOT a mortality outcome
+DISCREPANCY_PCT_THRESHOLD = 5.0  # atlas vs CT.gov diff threshold
+
+# Resolved file paths (cwd-independent)
+RESULTS_PATH = BASE_DIR / 'ctgov_mining_results.json'
+INVENTORY_PATH = BASE_DIR / 'ctgov_mining_inventory.json'
+GAPS_REPORT_PATH = BASE_DIR / 'ctgov_mining_gaps.md'
+ATLAS_JSON_PATH = BASE_DIR / 'cardiology_mortality_atlas.json'
 
 # Outcome title patterns — normalized lowercase matching
 OUTCOME_PATTERNS = {
@@ -35,6 +63,10 @@ OUTCOME_PATTERNS = {
         'all-cause mortality', 'all cause mortality', 'all-cause death',
         'death from any cause', 'total mortality', 'overall mortality',
         'all-cause survival',
+        # Pre-2010 CT.gov shorthand titles. NOTE: bare 'death'/'deaths' would
+        # match "Cardiovascular Death" too — handled by ordered classification
+        # below (CV_death is checked first) and word-boundary matching.
+        'number of deaths', 'deaths (all causes)', 'all deaths',
     ],
     'CV_death': [
         'cardiovascular death', 'cardiovascular mortality', 'cv death',
@@ -158,8 +190,11 @@ def extract_arm_counts(outcome_measure):
                     val = float(m.get('value'))
                 except (TypeError, ValueError):
                     continue
+                # Reject NaN/inf — would propagate into Peto computation
+                if not math.isfinite(val):
+                    continue
                 n_arm = denom_map.get(gid)
-                if not n_arm or n_arm <= 0:
+                if n_arm is None or n_arm <= 0:
                     continue
                 if is_percent:
                     events = round(val / 100.0 * n_arm)
@@ -182,10 +217,13 @@ def select_2arm_pair(arms):
 
     Strategy:
       1. Find control arm by title keyword match.
-      2. For experimental: prefer a 'pooled/all' arm if present, else
-         the single non-control arm. If multiple non-control non-pooled
-         arms exist, sum them (pooled experimental for k=1 estimate).
-    Returns (control_dict, experimental_dict) or None.
+      2. For experimental: prefer a sponsor-supplied 'pooled/all' collapsed
+         arm if present, else the single non-control arm.
+
+    REFUSES (returns None) when there are multiple non-control non-pooled
+    dose arms with no sponsor-supplied collapsed group. Ad-hoc summing of
+    independent dose arms breaks randomization preservation and biases
+    the marginal HR — caller should fall back to a different outcome.
     """
     if len(arms) < 2:
         return None
@@ -203,20 +241,17 @@ def select_2arm_pair(arms):
     # Use the largest control (in case of multiple)
     control = max(controls, key=lambda a: a['n'])
 
-    # Look for pooled/collapsed experimental
+    # Look for sponsor-supplied pooled/collapsed experimental
     pooled = [a for a in others if any(m in (a.get('title') or '').lower() for m in POOLED_MARKERS)]
     if pooled:
         experimental = max(pooled, key=lambda a: a['n'])
     elif len(others) == 1:
         experimental = others[0]
     else:
-        # Sum dose arms into a single experimental group
-        experimental = {
-            'id': 'POOLED',
-            'title': '+'.join(a.get('title', '') for a in others)[:60],
-            'events': sum(a['events'] for a in others),
-            'n': sum(a['n'] for a in others),
-        }
+        # Multi-dose trial without a sponsor-supplied collapsed arm.
+        # Refuse rather than fabricate one (would break randomization
+        # preservation and shared-control variance accounting).
+        return None
     return control, experimental
 
 
@@ -231,6 +266,20 @@ EFFECT_MAP = {
 }
 
 
+# "X or Y" composite detector — only flags as composite when "or" is followed
+# by a clinical endpoint, not stylistic uses like "deaths or censoring".
+_COMPOSITE_OR_RE = re.compile(
+    r'\bor\s+(hosp|mi|myocardial|stroke|rehosp|hf|heart failure|revasc|'
+    r'amputation|worsening|nonfatal|non-fatal|cardiovascular|death|mortality)',
+    re.IGNORECASE,
+)
+
+# Standalone "death" or "deaths" — used as ACM fallback for pre-2010 trials
+# where the outcome is just titled "Death". Does NOT match phrases like
+# "cardiovascular death" (which is checked first in the ordered classifier).
+_BARE_DEATH_RE = re.compile(r'^\s*deaths?\s*$', re.IGNORECASE)
+
+
 def classify_outcome(title):
     """Return tag (ACM, CV_death, HF_hosp, CV_composite, primary, other).
 
@@ -242,11 +291,13 @@ def classify_outcome(title):
         return None
     t = title.lower().strip()
 
-    # Composite markers — if present, this is not a pure single outcome
+    # Composite markers — if present, this is not a pure single outcome.
+    # NOTE: ' or ' substring is too greedy (catches "deaths or censoring");
+    # use _COMPOSITE_OR_RE below to require a clinical second endpoint.
     composite_markers = [
         'composite', 'first occurrence', 'time to first',
         'mace', 'non-fatal', 'nonfatal',
-        'stroke', 'myocardial infarction', ' or ',
+        'stroke', 'myocardial infarction',
         '3-point', '4-point', 'three-point', 'four-point',
         '3p-mace', '4p-mace',
         # Hierarchical / win-ratio composites (Finkelstein-Schoenfeld, Pocock)
@@ -258,24 +309,27 @@ def classify_outcome(title):
         'number of events', 'total events',
     ]
 
-    is_composite = any(m in t for m in composite_markers)
+    is_composite = any(m in t for m in composite_markers) or bool(_COMPOSITE_OR_RE.search(t))
 
     # CV composite is allowed to contain "or"
     if any(p in t for p in OUTCOME_PATTERNS['CV_composite']):
         return 'CV_composite'
 
-    # For ACM: strict match to pure all-cause mortality / death from any cause
-    if not is_composite:
-        if any(p in t for p in OUTCOME_PATTERNS['ACM']):
-            return 'ACM'
+    if is_composite:
+        return None
 
-    # For CV death: strict (not composite)
-    if not is_composite and any(p in t for p in OUTCOME_PATTERNS['CV_death']):
+    # ORDER MATTERS: check more specific tags before ACM. "Cardiovascular Death"
+    # should match CV_death, not ACM via the bare-'death' fallback patterns.
+    if any(p in t for p in OUTCOME_PATTERNS['CV_death']):
         return 'CV_death'
-
-    # For HF hosp: strict (not composite)
-    if not is_composite and any(p in t for p in OUTCOME_PATTERNS['HF_hosp']):
+    if any(p in t for p in OUTCOME_PATTERNS['HF_hosp']):
         return 'HF_hosp'
+    # ACM patterns last — includes generic 'death' / 'deaths' fallback
+    if any(p in t for p in OUTCOME_PATTERNS['ACM']):
+        return 'ACM'
+    # Fallback word-boundary match for older CT.gov titles like just "Death"
+    if _BARE_DEATH_RE.search(t):
+        return 'ACM'
 
     return None
 
@@ -286,16 +340,34 @@ def normalize_param(s):
     return EFFECT_MAP.get(s.lower().strip())
 
 
-def fetch_study(nct_id, retries=2):
+def fetch_study(nct_id, retries=MAX_RETRIES):
+    """Fetch a CT.gov v2 study record. Validates NCT format, honors HTTP 429."""
+    if not is_valid_nct(nct_id):
+        return {'error': f'invalid_nct: {nct_id!r}'}
     url = f'{CT_GOV_API}{nct_id}?format=json'
     req = Request(url, headers={'User-Agent': USER_AGENT, 'Accept': 'application/json'})
     for attempt in range(retries + 1):
         try:
-            with urlopen(req, timeout=30) as resp:
+            with urlopen(req, timeout=REQUEST_TIMEOUT_S) as resp:
                 return json.loads(resp.read().decode('utf-8'))
-        except (HTTPError, URLError, Exception) as e:
+        except HTTPError as e:
+            # Honor Retry-After on 429 / 503
+            if e.code in (429, 503):
+                retry_after = e.headers.get('Retry-After') if e.headers else None
+                try:
+                    delay = float(retry_after) if retry_after else RETRY_BASE_DELAY_S * (2 ** attempt)
+                except (TypeError, ValueError):
+                    delay = RETRY_BASE_DELAY_S * (2 ** attempt)
+                if attempt < retries:
+                    time.sleep(min(delay, 60))
+                    continue
+            elif attempt < retries and e.code >= 500:
+                time.sleep(RETRY_BASE_DELAY_S * (2 ** attempt))
+                continue
+            return {'error': f'HTTP {e.code}: {e.reason}'}
+        except (URLError, TimeoutError, OSError, json.JSONDecodeError) as e:
             if attempt < retries:
-                time.sleep(1 + attempt)
+                time.sleep(RETRY_BASE_DELAY_S * (2 ** attempt))
                 continue
             return {'error': str(e)}
     return {'error': 'retry_exhausted'}
@@ -323,6 +395,7 @@ def extract_all_mortality_outcomes(study):
     proto = study.get('protocolSection', {})
     ident = proto.get('identificationModule', {})
     nct = ident.get('nctId')
+    status_module = proto.get('statusModule', {})
     out = {
         'nct': nct,
         'title': ident.get('briefTitle', ''),
@@ -330,8 +403,12 @@ def extract_all_mortality_outcomes(study):
         'phase': ', '.join(proto.get('designModule', {}).get('phases', [])),
         'enrollment': proto.get('designModule', {}).get('enrollmentInfo', {}).get('count'),
         'sponsor': proto.get('sponsorCollaboratorsModule', {}).get('leadSponsor', {}).get('name', ''),
-        'status': proto.get('statusModule', {}).get('overallStatus', ''),
-        'completion_date': proto.get('statusModule', {}).get('primaryCompletionDateStruct', {}).get('date', ''),
+        'status': status_module.get('overallStatus', ''),
+        'completion_date': status_module.get('primaryCompletionDateStruct', {}).get('date', ''),
+        # CT.gov last update timestamp — drives change detection on re-runs
+        'last_update_post': status_module.get('lastUpdatePostDateStruct', {}).get('date', ''),
+        # ISO-8601 retrieval timestamp — required for PRISMA 2020 item 7
+        'retrieved_at': datetime.datetime.utcnow().isoformat() + 'Z',
         'has_results': bool(study.get('hasResults')),
         'outcomes': {},
     }
@@ -385,13 +462,13 @@ def extract_all_mortality_outcomes(study):
             pair = select_2arm_pair(arms)
             if pair:
                 control, experimental = pair
-                # Sanity check: ACM/CV-death event rate >50% means this isn't
-                # really a mortality outcome (cardiology trials typically <30%
-                # even at long follow-up). Reject — usually a mis-tagged
-                # composite/hierarchical endpoint.
+                # Sanity check: ACM/CV-death event rate >MAX_MORTALITY_RATE
+                # means this isn't really a mortality outcome (cardiology
+                # trials typically <30% even at long follow-up). Reject — usually
+                # a mis-tagged composite/hierarchical endpoint.
                 rate_e = experimental['events'] / max(1, experimental['n'])
                 rate_c = control['events'] / max(1, control['n'])
-                if rate_e > 0.5 or rate_c > 0.5:
+                if rate_e > MAX_MORTALITY_RATE or rate_c > MAX_MORTALITY_RATE:
                     pair = None
             if pair:
                 control, experimental = pair
@@ -437,38 +514,40 @@ def extract_all_mortality_outcomes(study):
                 score -= 5
             candidates_by_tag.setdefault(tag, []).append((score, extracted))
 
-    # Pick the highest-scoring match per tag
+    # Pick the highest-scoring match per tag (deterministic tie-break by outcome_id)
     for tag, candidates in candidates_by_tag.items():
-        best = max(candidates, key=lambda x: x[0])
+        best = max(candidates, key=lambda x: (x[0], x[1].get('outcome_id') or ''))
         out['outcomes'][tag] = best[1]
 
-    # Also get group sizes
-    denoms = []
-    for om in om_list[:1]:
-        denoms = om.get('denoms', [])
-    if denoms:
-        out['groups'] = [{'id': c.get('groupId'), 'n': int(c.get('value', 0))}
-                         for c in denoms[0].get('counts', [])]
+    # Also get group sizes from the first outcome's denoms
+    if om_list:
+        denoms = om_list[0].get('denoms', [])
+        if denoms:
+            out['groups'] = [{'id': c.get('groupId'), 'n': int(c.get('value', 0))}
+                             for c in denoms[0].get('counts', [])]
 
     return out
 
 
 def load_inventory():
-    with open('ctgov_mining_inventory.json', 'r', encoding='utf-8') as f:
+    with open(INVENTORY_PATH, 'r', encoding='utf-8') as f:
         return json.load(f)
 
 
 def compare_with_atlas(mining_results):
     """Compare mined data against current atlas values; flag discrepancies and gaps."""
-    # Load atlas JSON if available
-    if not os.path.exists('cardiology_mortality_atlas.json'):
-        os.system('python cardiology_mortality_atlas.py --json > NUL 2>&1')
-
-    atlas_path = 'cardiology_mortality_atlas.json'
-    if not os.path.exists(atlas_path):
+    # Load atlas JSON; rebuild it via subprocess (no shell) if missing
+    if not ATLAS_JSON_PATH.exists():
+        subprocess.run(
+            [sys.executable, str(BASE_DIR / 'cardiology_mortality_atlas.py'), '--json'],
+            cwd=str(BASE_DIR),
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            check=False,
+        )
+    if not ATLAS_JSON_PATH.exists():
         return None
 
-    with open(atlas_path, 'r', encoding='utf-8') as f:
+    with open(ATLAS_JSON_PATH, 'r', encoding='utf-8') as f:
         atlas = json.load(f)
 
     gaps = []
@@ -484,18 +563,19 @@ def compare_with_atlas(mining_results):
             if not mined or not mined.get('has_results'):
                 continue
             mined_acm = mined['outcomes'].get('ACM')
-            if mined_acm and trial.get('hr'):
-                # Compare
-                pct_diff = abs(mined_acm['est'] - trial['hr']) / trial['hr'] * 100
-                if pct_diff > 5:
+            atlas_hr = trial.get('hr')
+            # Use `is not None` so HR == 0.0 (impossible but principled) isn't dropped
+            if mined_acm is not None and atlas_hr is not None and atlas_hr > 0:
+                pct_diff = abs(mined_acm['est'] - atlas_hr) / atlas_hr * 100
+                if pct_diff > DISCREPANCY_PCT_THRESHOLD:
                     verifications.append({
                         'app': app_name, 'nct': nct,
-                        'atlas_hr': trial['hr'],
+                        'atlas_hr': atlas_hr,
                         'ctgov_hr': mined_acm['est'],
                         'pct_diff': pct_diff,
                     })
             # Check for NEW ACM data where atlas has none
-            if not trial.get('hr') and mined_acm:
+            if atlas_hr is None and mined_acm is not None:
                 gaps.append({
                     'app': app_name, 'nct': nct, 'trial': trial.get('name', nct),
                     'new_acm_hr': mined_acm['est'],
@@ -519,22 +599,30 @@ if __name__ == '__main__':
 
     inventory = load_inventory()
 
-    # Flatten to NCT -> [apps that include it]
+    # Flatten to NCT -> [apps that include it], skipping invalid NCT IDs
     nct_to_apps = {}
+    skipped_invalid = []
     for app, ncts in inventory.items():
         if target_app and target_app.upper() not in app.upper():
             continue
         for nct in ncts:
+            if not is_valid_nct(nct):
+                skipped_invalid.append((app, nct))
+                continue
             nct_to_apps.setdefault(nct, []).append(app)
+
+    if skipped_invalid:
+        print(f'Skipped {len(skipped_invalid)} invalid NCT IDs:')
+        for app, nct in skipped_invalid:
+            print(f'  {app}: {nct!r}')
 
     print(f'Mining {len(nct_to_apps)} unique NCT IDs across {len(inventory)} cardiology apps')
     print()
 
     # Resume support
-    results_path = 'ctgov_mining_results.json'
     mining_results = {}
-    if resume and os.path.exists(results_path):
-        with open(results_path, 'r', encoding='utf-8') as f:
+    if resume and RESULTS_PATH.exists():
+        with open(RESULTS_PATH, 'r', encoding='utf-8') as f:
             mining_results = json.load(f)
         print(f'Resumed with {len(mining_results)} previously mined NCTs')
 
@@ -580,15 +668,15 @@ if __name__ == '__main__':
                 primary_found += 1
             print(f'[{", ".join(tags)}]')
 
-        # Save incrementally every 10
-        if (i + 1) % 10 == 0:
-            with open(results_path, 'w', encoding='utf-8') as f:
+        # Save incrementally every CHECKPOINT_EVERY studies
+        if (i + 1) % CHECKPOINT_EVERY == 0:
+            with open(RESULTS_PATH, 'w', encoding='utf-8') as f:
                 json.dump(mining_results, f, indent=2, default=str)
 
-        time.sleep(0.3)
+        time.sleep(REQUEST_DELAY_S)
 
     # Final save
-    with open(results_path, 'w', encoding='utf-8') as f:
+    with open(RESULTS_PATH, 'w', encoding='utf-8') as f:
         json.dump(mining_results, f, indent=2, default=str)
 
     print()
@@ -605,12 +693,56 @@ if __name__ == '__main__':
     print(f'  Errors:            {errors}')
     print()
 
+    # PRISMA exclusion log: NCTs with results posted but no extractable
+    # mortality outcome (per PRISMA 2020 item 16b — exclusion reasons).
+    prisma_exclusions = []
+    for nct, info in mining_results.items():
+        if info.get('error'):
+            prisma_exclusions.append({
+                'nct': nct, 'reason': 'fetch_error',
+                'detail': info.get('error', ''),
+            })
+            continue
+        if not info.get('has_results'):
+            prisma_exclusions.append({
+                'nct': nct, 'reason': 'no_results_posted',
+                'detail': f'status={info.get("status","?")}',
+            })
+            continue
+        outs = info.get('outcomes') or {}
+        if not any(t in outs for t in ('ACM', 'CV_death', 'HF_hosp')):
+            prisma_exclusions.append({
+                'nct': nct, 'reason': 'no_mortality_outcome',
+                'detail': f'has primary={"primary" in outs}, has CV_composite={"CV_composite" in outs}',
+            })
+
+    prisma_path = BASE_DIR / 'ctgov_prisma_exclusions.md'
+    with open(prisma_path, 'w', encoding='utf-8') as f:
+        f.write('# CT.gov Mining — PRISMA Exclusion Log\n\n')
+        f.write(f'Generated: {time.strftime("%Y-%m-%d %H:%M:%S UTC")}\n\n')
+        f.write(f'**Records identified:** {len(mining_results)}\n')
+        f.write(f'**Records included (with extractable mortality outcome):** '
+                f'{len(mining_results) - len(prisma_exclusions)}\n')
+        f.write(f'**Records excluded:** {len(prisma_exclusions)}\n\n')
+        f.write('## Exclusion reasons\n\n')
+        from collections import Counter
+        reason_counts = Counter(e['reason'] for e in prisma_exclusions)
+        for reason, n in reason_counts.most_common():
+            f.write(f'- **{reason}**: {n}\n')
+        f.write('\n## Excluded NCTs\n\n| NCT | Reason | Detail |\n|---|---|---|\n')
+        for e in prisma_exclusions:
+            f.write(f'| {md_cell(e["nct"])} | {md_cell(e["reason"])} | {md_cell(e["detail"])} |\n')
+    print(f'Wrote PRISMA exclusion log: {prisma_path} ({len(prisma_exclusions)} exclusions)')
+    print()
+
     # Compare with atlas
     print('Comparing with current atlas...')
     comparison = compare_with_atlas(mining_results)
     if comparison:
-        print(f'  Verification discrepancies (>5%): {len(comparison["verifications"])}')
-        print(f'  New ACM data for previously-missing trials: {len(comparison["gaps"])}')
+        n_disc = len(comparison['verifications'])
+        n_gaps = len(comparison['gaps'])
+        print(f'  Verification discrepancies (>{DISCREPANCY_PCT_THRESHOLD:.0f}%): {n_disc}')
+        print(f'  New ACM data for previously-missing trials: {n_gaps}')
 
         if comparison['verifications']:
             print()
@@ -624,30 +756,32 @@ if __name__ == '__main__':
             for g in comparison['gaps'][:20]:
                 print(f'  {g["app"]:20s}  {g["nct"]} ({g["trial"][:20]})  HR {g["new_acm_hr"]} ({g["new_acm_ci"]})')
 
-        # Write gap report
-        with open('ctgov_mining_gaps.md', 'w', encoding='utf-8') as f:
+        # Write gap report — escape user-controlled fields via md_cell()
+        with open(GAPS_REPORT_PATH, 'w', encoding='utf-8') as f:
             f.write('# CT.gov Mining Gap Report\n\n')
             f.write(f'Generated: {time.strftime("%Y-%m-%d %H:%M")}\n\n')
-            f.write(f'## Summary\n\n')
-            f.write(f'- Mined {len(mining_results)} NCTs from 28 cardiology apps\n')
+            f.write('## Summary\n\n')
+            f.write(f'- Mined {len(mining_results)} NCTs from {len(inventory)} cardiology apps\n')
             f.write(f'- {acm_found} trials with ACM outcomes extracted\n')
-            f.write(f'- {len(comparison["verifications"])} verification discrepancies\n')
-            f.write(f'- {len(comparison["gaps"])} new ACM values for previously-missing trials\n\n')
+            f.write(f'- {n_disc} verification discrepancies (atlas vs CT.gov >{DISCREPANCY_PCT_THRESHOLD:.0f}%)\n')
+            f.write(f'- {n_gaps} new ACM values for previously-missing trials\n\n')
 
-            f.write('## Verification discrepancies (atlas vs CT.gov >5%)\n\n')
+            f.write(f'## Verification discrepancies (atlas vs CT.gov >{DISCREPANCY_PCT_THRESHOLD:.0f}%)\n\n')
             if comparison['verifications']:
                 f.write('| App | NCT | Atlas HR | CT.gov HR | Diff |\n|---|---|---|---|---|\n')
                 for v in comparison['verifications']:
-                    f.write(f'| {v["app"]} | {v["nct"]} | {v["atlas_hr"]} | {v["ctgov_hr"]} | {v["pct_diff"]:.1f}% |\n')
+                    f.write(f'| {md_cell(v["app"])} | {md_cell(v["nct"])} | '
+                            f'{v["atlas_hr"]} | {v["ctgov_hr"]} | {v["pct_diff"]:.1f}% |\n')
             else:
-                f.write('_None — all existing atlas values match CT.gov within 5%._\n')
+                f.write('_None — all existing atlas values match CT.gov within tolerance._\n')
 
             f.write('\n## New ACM data for trials currently missing it\n\n')
             if comparison['gaps']:
                 f.write('| App | NCT | Trial | ACM HR | 95% CI | Source |\n|---|---|---|---|---|---|\n')
                 for g in comparison['gaps']:
-                    f.write(f'| {g["app"]} | {g["nct"]} | {g["trial"]} | {g["new_acm_hr"]} | {g["new_acm_ci"]} | {g["source"]} |\n')
+                    f.write(f'| {md_cell(g["app"])} | {md_cell(g["nct"])} | {md_cell(g["trial"])} | '
+                            f'{g["new_acm_hr"]} | {md_cell(g["new_acm_ci"])} | {md_cell(g.get("source",""))} |\n')
             else:
                 f.write('_None — no new ACM data found beyond what is already in the atlas._\n')
 
-        print(f'\nWrote ctgov_mining_gaps.md')
+        print(f'\nWrote {GAPS_REPORT_PATH}')

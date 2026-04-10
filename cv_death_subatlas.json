@@ -7,20 +7,27 @@
       "pool": {
         "k": 4,
         "pooled_est": 0.8943646053826035,
-        "pooled_lci": 0.7763969744013339,
-        "pooled_uci": 1.0302565230602037,
+        "pooled_lci": 0.7762662829803326,
+        "pooled_uci": 1.0304299760259534,
         "tau2": 0.0,
         "I2": 0.0,
+        "I2_lo": null,
+        "I2_hi": null,
         "Q_fe": 0.7984635103926423,
         "Q_re": 0.7984635103926423,
         "df": 3,
         "q_floor_applied": true,
         "hksj_se": 0.04450035147611049,
-        "t_crit": 3.1786169998396856,
-        "pi_lo": 0.7395726297100801,
-        "pi_hi": 1.0815544210644252,
+        "t_crit": 3.1824,
+        "pi_lo": 0.7385153341972579,
+        "pi_hi": 1.0831028285020412,
         "method": "PM tau2 + HKSJ SE (Q/(k-1) floor) + t_{k-1} CI"
       },
+      "source_mix": {
+        "analyses": 2,
+        "peto_logrank": 2
+      },
+      "sensitivity_analyses_only": null,
       "trials": [
         {
           "nct": "NCT01144338",
@@ -57,6 +64,62 @@
           "uci": 1.1021,
           "source": "peto_logrank",
           "outcome_title": "Number of Participants From Randomization to Time of Occurre"
+        }
+      ]
+    },
+    {
+      "drug_class": "SGLT2 inhibitor",
+      "pool": {
+        "k": 3,
+        "pooled_est": 0.8898955366627846,
+        "pooled_lci": 0.6845997900853057,
+        "pooled_uci": 1.1567547604326138,
+        "tau2": 0.0,
+        "I2": 0.0,
+        "I2_lo": null,
+        "I2_hi": null,
+        "Q_fe": 0.29755186102719844,
+        "Q_re": 0.29755186102719844,
+        "df": 2,
+        "q_floor_applied": true,
+        "hksj_se": 0.06095467074833947,
+        "t_crit": 4.3027,
+        "pi_lo": 0.4101823610409895,
+        "pi_hi": 1.9306390069104158,
+        "method": "PM tau2 + HKSJ SE (Q/(k-1) floor) + t_{k-1} CI"
+      },
+      "source_mix": {
+        "analyses": 3,
+        "peto_logrank": 0
+      },
+      "sensitivity_analyses_only": null,
+      "trials": [
+        {
+          "nct": "NCT01986881",
+          "name": "VERTIS-CV",
+          "hr": 0.92,
+          "lci": 0.767,
+          "uci": 1.113,
+          "source": "analyses",
+          "outcome_title": "Time to Occurrence of Cardiovascular Death (On-study Approac"
+        },
+        {
+          "nct": "NCT03594110",
+          "name": "EMPA-KIDNEY",
+          "hr": 0.83,
+          "lci": 0.59,
+          "uci": 1.17,
+          "source": "analyses",
+          "outcome_title": "Interventional Part: Time to Cardiovascular Death ('as Adjud"
+        },
+        {
+          "nct": "NCT03619213",
+          "name": "DELIVER",
+          "hr": 0.88,
+          "lci": 0.74,
+          "uci": 1.05,
+          "source": "analyses",
+          "outcome_title": "Subjects Included in the Endpoint of Cardiovascular Death"
         }
       ]
     }
@@ -197,30 +260,6 @@
           "uci": 1.25,
           "source": "analyses",
           "outcome_title": "Time to Cardiovascular Death"
-        }
-      ]
-    },
-    {
-      "class": "SGLT2 inhibitor",
-      "k": 2,
-      "trials": [
-        {
-          "nct": "NCT03594110",
-          "name": "EMPA-KIDNEY",
-          "hr": 0.83,
-          "lci": 0.59,
-          "uci": 1.17,
-          "source": "analyses",
-          "outcome_title": "Interventional Part: Time to Cardiovascular Death ('as Adjud"
-        },
-        {
-          "nct": "NCT03619213",
-          "name": "DELIVER",
-          "hr": 0.88,
-          "lci": 0.74,
-          "uci": 1.05,
-          "source": "analyses",
-          "outcome_title": "Subjects Included in the Endpoint of Cardiovascular Death"
         }
       ]
     },

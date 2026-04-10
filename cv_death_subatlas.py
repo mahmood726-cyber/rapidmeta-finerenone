@@ -17,11 +17,25 @@ Output:
   cv_death_subatlas.json
   cv_death_subatlas.md  (human-readable report)
 """
-import sys, io, os, json, math
+import json
+import math
+import sys
 from collections import defaultdict
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+
+from _io_utils import BASE_DIR, ensure_utf8_stdout, md_cell
+
+ensure_utf8_stdout()
 
 MIN_K_PER_CLASS = 3
+SE_FLOOR = 1e-8                # below this, treat as zero-variance and reject
+PM_BISECTION_CAP = 1e6         # hard cap on tau2 search range
+PM_MAX_ITER = 80               # bisection converges in <60 steps
+SUBATLAS_PATHS = {
+    'json': BASE_DIR / 'cv_death_subatlas.json',
+    'md': BASE_DIR / 'cv_death_subatlas.md',
+}
+MINING_RESULTS_PATH = BASE_DIR / 'ctgov_mining_results.json'
+ATLAS_JSON_PATH = BASE_DIR / 'cardiology_mortality_atlas.json'
 
 
 # ────────────────────────────────────────────────────────────
@@ -29,21 +43,30 @@ MIN_K_PER_CLASS = 3
 # ────────────────────────────────────────────────────────────
 
 def log_se_from_ci(est, lo, hi):
-    """Convert HR + 95% CI to (logHR, SE) on log scale."""
+    """Convert HR + 95% CI to (logHR, SE) on log scale.
+
+    Raises ValueError if est/lo/hi are not finite positives or hi <= lo.
+    """
+    if not all(math.isfinite(x) and x > 0 for x in (est, lo, hi)):
+        raise ValueError(f'log_se_from_ci requires finite positives: {est=} {lo=} {hi=}')
+    if hi <= lo:
+        raise ValueError(f'log_se_from_ci requires hi > lo (got {lo=} {hi=})')
     return math.log(est), (math.log(hi) - math.log(lo)) / (2 * 1.96)
 
 
-def paule_mandel_tau2(estimates, max_iter=200, tol=1e-8):
+def paule_mandel_tau2(estimates, max_iter=PM_MAX_ITER, tol=1e-8):
     """Paule-Mandel iterative tau2.
 
     Solves sum(w_i(tau2) * (y_i - mean)^2) = k - 1
-    where w_i(tau2) = 1 / (v_i + tau2). Bisection over [0, 10].
+    where w_i(tau2) = 1 / (v_i + tau2). Bisection over [0, PM_BISECTION_CAP].
+    Sets `converged` flag if the bracket cap is hit (degenerate input).
     """
     k = len(estimates)
     if k < 2:
         return 0.0
     ys = [y for y, _ in estimates]
-    vs = [se ** 2 for _, se in estimates]
+    # SE_FLOOR clamp protects against zero-variance studies (CI rounded to point)
+    vs = [max(se, SE_FLOOR) ** 2 for _, se in estimates]
 
     def Q_at(tau2):
         ws = [1.0 / (v + tau2) for v in vs]
@@ -51,14 +74,19 @@ def paule_mandel_tau2(estimates, max_iter=200, tol=1e-8):
         mean = sum(w * y for w, y in zip(ws, ys)) / sw
         return sum(w * (y - mean) ** 2 for w, y in zip(ws, ys))
 
-    # Q at tau2=0
-    q0 = Q_at(0.0)
-    if q0 <= k - 1:
+    # Q at tau2=0 — homogeneous case
+    if Q_at(0.0) <= k - 1:
         return 0.0
-    # Bisection on [0, hi]
+
+    # Expand upper bracket until Q drops below (k-1) or cap is hit
     lo, hi = 0.0, 10.0
-    while Q_at(hi) > k - 1 and hi < 1e6:
+    while Q_at(hi) > k - 1 and hi < PM_BISECTION_CAP:
         hi *= 2
+    # Degenerate case (identical SEs, all studies disagree on point estimate):
+    # bracket never closes — return cap and let downstream flag it
+    if Q_at(hi) > k - 1:
+        return hi
+
     for _ in range(max_iter):
         mid = (lo + hi) / 2
         q = Q_at(mid)
@@ -71,16 +99,24 @@ def paule_mandel_tau2(estimates, max_iter=200, tol=1e-8):
     return (lo + hi) / 2
 
 
+# Exact t-distribution quantiles for df=1..5 (R: qt(0.975, df))
+# Cornish-Fisher Hill approximation is unsafe below df=6 (off by 0.8% at df=2,
+# off by 30% at df=1). For our PI calc at k=3 → df=k-2=1 this matters.
+_T_TABLE_975 = {1: 12.7062, 2: 4.3027, 3: 3.1824, 4: 2.7764, 5: 2.5706}
+
+
 # Approximation of t-distribution quantile (Student's t inverse CDF)
 def qt(p, df):
-    """Approximate t-distribution quantile using Hill's approximation.
-    Sufficient accuracy for meta-analytic CIs (df 2-30, p 0.025/0.975).
+    """Student's t inverse CDF at probability p, df degrees of freedom.
+
+    Uses an exact lookup table for df ∈ {1..5} and Cornish-Fisher expansion
+    for df ≥ 6 (accurate to ~3 decimals). Returns NaN for df ≤ 0.
     """
     if df <= 0:
         return float('nan')
-    # Use Cornish-Fisher expansion for moderate df
-    # For df>=2 and p in [0.001, 0.999] this is accurate to ~3 decimals
-    # which is plenty for forest-plot CIs
+    # Exact lookup at p=0.975 for small df where Cornish-Fisher fails
+    if abs(p - 0.975) < 1e-9 and df in _T_TABLE_975:
+        return _T_TABLE_975[df]
     z = qnorm(p)
     g1 = (z ** 3 + z) / 4
     g2 = (5 * z ** 5 + 16 * z ** 3 + 3 * z) / 96
@@ -115,11 +151,48 @@ def qnorm(p):
             ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1)
 
 
+def chi2_quantile(p, df):
+    """Approximate chi-squared inverse CDF (Wilson-Hilferty cube-root transform).
+
+    Accurate to ~2 decimals for df ≥ 2 and 0.001 < p < 0.999. Used only
+    for I² CI bounds (precision sufficient for forest-plot reporting).
+    """
+    if df <= 0:
+        return float('nan')
+    z = qnorm(p)
+    h = 2.0 / (9.0 * df)
+    return df * (1.0 - h + z * math.sqrt(h)) ** 3
+
+
+def i2_confidence_interval(Q, df):
+    """Q-profile I² confidence interval (Viechtbauer 2007).
+
+    Returns (I²_lo, I²_hi) as percentages, or (None, None) if Q ≤ df.
+    """
+    if df < 1 or Q <= df:
+        return (None, None)
+    chi2_lo = chi2_quantile(0.025, df)
+    chi2_hi = chi2_quantile(0.975, df)
+    if chi2_lo <= 0 or chi2_hi <= 0:
+        return (None, None)
+    # I² = (Q - df)/Q × 100; bounds use χ² quantile inversion
+    i2_lo = max(0.0, (Q - chi2_hi) / Q * 100) if Q > chi2_hi else 0.0
+    i2_hi = max(0.0, (Q - chi2_lo) / Q * 100) if Q > chi2_lo else 0.0
+    return (i2_lo, min(100.0, i2_hi))
+
+
 def pm_hksj_pool(estimates):
     """Paule-Mandel tau2 + HKSJ SE with floor + t-distribution CI.
 
-    Returns dict with k, tau2, I2, Q, pooled_est/lci/uci, pi_lo/pi_hi (k>=3).
+    Returns dict with k, tau2, I2, Q_fe, Q_re, pooled_est/lci/uci,
+    pi_lo/pi_hi (k>=3). Refuses to pool at k=2 — HKSJ at df=1 produces
+    catastrophically over-narrow CIs (qt(0.975, 1) ≈ 12.7).
+
+    Filters out zero-SE studies (degenerate CI from rounded HRs).
     """
+    # Drop degenerate studies whose CI rounded to a point estimate
+    estimates = [(y, se) for y, se in estimates if se > SE_FLOOR and math.isfinite(y) and math.isfinite(se)]
+
     k = len(estimates)
     if k == 0:
         return None
@@ -129,9 +202,29 @@ def pm_hksj_pool(estimates):
             'k': 1,
             'pooled_est': math.exp(y), 'pooled_lci': math.exp(y - 1.96 * se),
             'pooled_uci': math.exp(y + 1.96 * se),
-            'tau2': 0.0, 'I2': 0.0, 'Q': 0.0, 'df': 0,
+            'tau2': 0.0, 'I2': 0.0, 'Q_fe': 0.0, 'Q_re': 0.0, 'df': 0,
+            'q_floor_applied': False,
             'pi_lo': None, 'pi_hi': None,
             'method': 'single-study (no pooling)',
+        }
+    if k == 2:
+        # HKSJ + t_{k-1} at df=1 → qt(0.975,1)=12.7 → catastrophic CI under-coverage
+        # Refuse rather than report a misleading interval
+        y1, se1 = estimates[0]
+        y2, se2 = estimates[1]
+        # Report fixed-effect estimate as a fallback (no inference)
+        w1, w2 = 1 / se1**2, 1 / se2**2
+        fe = (w1 * y1 + w2 * y2) / (w1 + w2)
+        return {
+            'k': 2,
+            'pooled_est': math.exp(fe),
+            'pooled_lci': None, 'pooled_uci': None,
+            'tau2': None, 'I2': None,
+            'Q_fe': None, 'Q_re': None, 'df': 1,
+            'q_floor_applied': False,
+            'pi_lo': None, 'pi_hi': None,
+            'method': 'k=2 — REFUSED to pool (HKSJ at df=1 unsafe); FE point estimate only',
+            'refused': True,
         }
 
     ys = [y for y, _ in estimates]
@@ -146,6 +239,8 @@ def pm_hksj_pool(estimates):
     Q_fe = sum(w * (y - fe_mean) ** 2 for w, y in zip(fe_weights, ys))
     df = k - 1
     I2 = max(0.0, (Q_fe - df) / Q_fe * 100) if Q_fe > 0 else 0.0
+    # Q-profile I² CI (Viechtbauer 2007) — chi-squared bounds inverted to I² scale
+    I2_lo, I2_hi = i2_confidence_interval(Q_fe, df)
 
     # RE-weighted pooled estimate (PM tau2 weights)
     weights = [1.0 / (v + tau2) for v in vs]
@@ -182,6 +277,8 @@ def pm_hksj_pool(estimates):
         'pooled_uci': pooled_uci,
         'tau2': tau2,
         'I2': I2,
+        'I2_lo': I2_lo,
+        'I2_hi': I2_hi,
         'Q_fe': Q_fe,
         'Q_re': Q_re,
         'df': df,
@@ -199,14 +296,14 @@ def pm_hksj_pool(estimates):
 # ────────────────────────────────────────────────────────────
 
 def build_subatlas():
-    if not os.path.exists('ctgov_mining_results.json'):
-        sys.exit('ERROR: ctgov_mining_results.json missing — run ctgov_deep_mining.py first')
-    if not os.path.exists('cardiology_mortality_atlas.json'):
-        sys.exit('ERROR: cardiology_mortality_atlas.json missing — run cardiology_mortality_atlas.py --json')
+    if not MINING_RESULTS_PATH.exists():
+        sys.exit(f'ERROR: {MINING_RESULTS_PATH} missing — run ctgov_deep_mining.py first')
+    if not ATLAS_JSON_PATH.exists():
+        sys.exit(f'ERROR: {ATLAS_JSON_PATH} missing — run cardiology_mortality_atlas.py --json')
 
-    with open('ctgov_mining_results.json', 'r', encoding='utf-8') as f:
+    with open(MINING_RESULTS_PATH, 'r', encoding='utf-8') as f:
         mined = json.load(f)
-    with open('cardiology_mortality_atlas.json', 'r', encoding='utf-8') as f:
+    with open(ATLAS_JSON_PATH, 'r', encoding='utf-8') as f:
         atlas = json.load(f)
 
     # Build NCT -> drug_class
@@ -240,6 +337,15 @@ def build_subatlas():
         else:
             unmapped_cvd.append(record)
 
+    def _trial_to_estimate(t):
+        try:
+            y, se = log_se_from_ci(t['hr'], t['lci'], t['uci'])
+            if math.isfinite(y) and math.isfinite(se) and se > SE_FLOOR:
+                return (y, se)
+        except (ValueError, ZeroDivisionError):
+            pass
+        return None
+
     # Build per-class pools (k>=3 only)
     pools = []
     excluded = []
@@ -248,21 +354,41 @@ def build_subatlas():
         if k < MIN_K_PER_CLASS:
             excluded.append({'class': cls, 'k': k, 'trials': trials})
             continue
-        estimates = []
+
+        # Collect (estimate, trial-record) pairs so we can run leave-out sensitivity
+        paired = []
         for t in trials:
-            try:
-                y, se = log_se_from_ci(t['hr'], t['lci'], t['uci'])
-                if math.isfinite(y) and math.isfinite(se) and se > 0:
-                    estimates.append((y, se))
-            except (ValueError, ZeroDivisionError):
-                continue
-        if len(estimates) < MIN_K_PER_CLASS:
-            excluded.append({'class': cls, 'k': len(estimates), 'reason': 'invalid CIs', 'trials': trials})
+            est = _trial_to_estimate(t)
+            if est is not None:
+                paired.append((est, t))
+
+        if len(paired) < MIN_K_PER_CLASS:
+            excluded.append({'class': cls, 'k': len(paired), 'reason': 'invalid CIs', 'trials': trials})
             continue
-        pool = pm_hksj_pool(estimates)
+
+        pool = pm_hksj_pool([est for est, _ in paired])
+
+        # P1-2: source mix per pool + leave-Peto-out sensitivity
+        peto_paired = [(e, t) for e, t in paired if t.get('source') == 'peto_logrank']
+        analyses_paired = [(e, t) for e, t in paired if t.get('source') != 'peto_logrank']
+        peto_n = len(peto_paired)
+        analyses_n = len(analyses_paired)
+
+        sensitivity = None
+        if peto_n > 0 and analyses_n >= MIN_K_PER_CLASS:
+            # Re-pool excluding Peto contributions; report only if k_remaining ≥ 3
+            sensitivity_pool = pm_hksj_pool([e for e, _ in analyses_paired])
+            if sensitivity_pool and not sensitivity_pool.get('refused'):
+                sensitivity = {
+                    'pool': sensitivity_pool,
+                    'description': f'leave-Peto-out (analyses-only, k={analyses_n})',
+                }
+
         pools.append({
             'drug_class': cls,
             'pool': pool,
+            'source_mix': {'analyses': analyses_n, 'peto_logrank': peto_n},
+            'sensitivity_analyses_only': sensitivity,
             'trials': trials,
         })
 
@@ -290,36 +416,52 @@ def write_report(subatlas):
     for p in out['pools']:
         cls = p['drug_class']
         pool = p['pool']
-        lines.append(f'\n### {cls}  (k={pool["k"]})\n')
+        lines.append(f'\n### {md_cell(cls)}  (k={pool["k"]})\n')
         lines.append(f'- **Pooled HR:** {pool["pooled_est"]:.3f} (95% CI {pool["pooled_lci"]:.3f}-{pool["pooled_uci"]:.3f})\n')
-        lines.append(f'- **tau²:** {pool["tau2"]:.4f} | **I²:** {pool["I2"]:.1f}% | **Q (FE):** {pool["Q_fe"]:.2f} on {pool["df"]} df\n')
+        i2_extra = ''
+        if pool.get('I2_lo') is not None and pool.get('I2_hi') is not None:
+            i2_extra = f' (95% CI {pool["I2_lo"]:.0f}-{pool["I2_hi"]:.0f}%)'
+        lines.append(f'- **tau²:** {pool["tau2"]:.4f} | **I²:** {pool["I2"]:.1f}%{i2_extra} | **Q (FE):** {pool["Q_fe"]:.2f} on {pool["df"]} df\n')
         if pool.get('q_floor_applied'):
-            lines.append(f'- _HKSJ Q/(k-1) floor applied (Q < df, prevents narrow-CI artifact)_\n')
+            lines.append('- _HKSJ Q/(k-1) floor applied (Q < df, prevents narrow-CI artifact)_\n')
         if pool.get('pi_lo'):
             lines.append(f'- **95% prediction interval:** {pool["pi_lo"]:.3f}-{pool["pi_hi"]:.3f}\n')
+        # Source mix and leave-Peto-out sensitivity (P1-2)
+        mix = p.get('source_mix') or {}
+        if mix.get('peto_logrank'):
+            lines.append(f'- **Source mix:** {mix.get("analyses",0)} CT.gov analyses + {mix["peto_logrank"]} Peto-derived\n')
+            sens = p.get('sensitivity_analyses_only')
+            if sens:
+                sp = sens['pool']
+                if sp.get('pooled_lci') is not None:
+                    lines.append(f'- **Sensitivity ({sens["description"]}):** HR {sp["pooled_est"]:.3f} ({sp["pooled_lci"]:.3f}-{sp["pooled_uci"]:.3f})\n')
+                else:
+                    lines.append(f'- **Sensitivity ({sens["description"]}):** HR {sp["pooled_est"]:.3f} (CI not computed; {sp.get("method","")})\n')
+            else:
+                lines.append('- _Leave-Peto-out sensitivity not computable (analyses-only k<3)_\n')
         lines.append('\n| NCT | Trial | HR | 95% CI | Source |\n')
         lines.append('|---|---|---|---|---|\n')
         for t in p['trials']:
-            lines.append(f'| {t["nct"]} | {t["name"][:30]} | {t["hr"]:.3f} | {t["lci"]:.2f}-{t["uci"]:.2f} | {t["source"]} |\n')
+            lines.append(f'| {md_cell(t["nct"])} | {md_cell(t["name"][:30])} | {t["hr"]:.3f} | {t["lci"]:.2f}-{t["uci"]:.2f} | {md_cell(t["source"])} |\n')
     if out['excluded_classes']:
         lines.append('\n## Excluded (k<3)\n\n')
         for ex in out['excluded_classes']:
-            lines.append(f'- **{ex["class"]}** — k={ex["k"]}\n')
+            lines.append(f'- **{md_cell(ex["class"])}** — k={ex["k"]}\n')
     if out['unmapped_trials']:
         lines.append('\n## CV-death trials unmapped to atlas classes\n\n')
         for t in out['unmapped_trials']:
-            lines.append(f'- {t["nct"]} ({t["name"][:35]}) — HR {t["hr"]:.3f} ({t["lci"]:.2f}-{t["uci"]:.2f}) [{t["source"]}]\n')
+            lines.append(f'- {md_cell(t["nct"])} ({md_cell(t["name"][:35])}) — HR {t["hr"]:.3f} ({t["lci"]:.2f}-{t["uci"]:.2f}) [{md_cell(t["source"])}]\n')
     return ''.join(lines)
 
 
 if __name__ == '__main__':
     subatlas = build_subatlas()
-    with open('cv_death_subatlas.json', 'w', encoding='utf-8') as f:
+    with open(SUBATLAS_PATHS['json'], 'w', encoding='utf-8') as f:
         json.dump(subatlas, f, indent=2, default=str)
     report = write_report(subatlas)
-    with open('cv_death_subatlas.md', 'w', encoding='utf-8') as f:
+    with open(SUBATLAS_PATHS['md'], 'w', encoding='utf-8') as f:
         f.write(report)
-    print(f'Wrote cv_death_subatlas.json + cv_death_subatlas.md')
+    print(f'Wrote {SUBATLAS_PATHS["json"]} + {SUBATLAS_PATHS["md"]}')
     print(f'Pools generated: {len(subatlas["pools"])}')
     print(f'Excluded classes: {len(subatlas["excluded_classes"])}')
     print(f'Unmapped CV-death trials: {len(subatlas["unmapped_trials"])}')
