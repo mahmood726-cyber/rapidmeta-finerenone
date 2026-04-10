@@ -1,6 +1,10 @@
 
 // ═══════════════════════════════════════════════════════════
-// AUTO-GENERATED CONFIGS — paste into CONFIG_LIBRARY
+// DEPRECATED — 2026-04-10
+// These configs were for embedding into HTML apps as CONFIG_LIBRARY entries.
+// They are SUPERSEDED by the 26 APPS definitions in generate_living_ma_v13.py,
+// which is now the single source of truth for all living MA app generation.
+// This file is retained for reference only. Do not use for new apps.
 // Generated: 2026-03-14 21:13
 // ═══════════════════════════════════════════════════════════
 

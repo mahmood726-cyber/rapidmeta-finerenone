@@ -3033,8 +3033,9 @@ APPS.append({
             # Gheorghiade M et al. JAMA 2015;314:2251-2262. PMID:26547357
             # 456 pts, worsening HFrEF, 4 doses vs placebo
             # Primary: NT-proBNP change from baseline to 12 weeks
-            # Binary (composite CV death/HF hosp): vericiguat 10mg 11/90 vs placebo 28/91
-            "tE": 11, "tN": 90, "cE": 28, "cN": 91,
+            # Phase 2 dose-finding, primary=NT-proBNP. CV death/HF hosp was exploratory.
+            # Not poolable with VICTORIA Phase 3 primary composite.
+            "tE": 0, "tN": 90, "cE": 0, "cN": 91,
             "group": "HFrEF (Phase 2)",
             "publishedHR": None, "hrLCI": None, "hrUCI": None,
             "rob": ["low", "low", "low", "low", "low"],
