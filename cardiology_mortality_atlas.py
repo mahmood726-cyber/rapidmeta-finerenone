@@ -142,7 +142,73 @@ CARDIO_APPS = [
     {'name': 'DOAC (cancer VTE)', 'drug_class': 'DOAC', 'filename': 'DOAC_CANCER_VTE_REVIEW.html',
      'population_detail': 'Cancer-associated VTE', 'population_category': 'Anticoagulation',
      'guideline_class': 'I', 'guideline_source': 'ESC ACS / ITAC 2022'},
+
+    # CT.gov-only entries (no curated HTML review) — populated from CTGOV_AUGMENTATIONS
+    {'name': 'Intensive glycemia (ACCORD)', 'drug_class': 'Intensive glycemic control', 'filename': None,
+     'population_detail': 'T2D, high CV risk', 'population_category': 'Diabetes',
+     'guideline_class': 'III', 'guideline_source': 'ADA 2024 (avoid HbA1c <7% in high-CV-risk T2D, post-ACCORD)'},
+
+    {'name': 'SGLT2 CVOT (T2D)', 'drug_class': 'SGLT2 inhibitor', 'filename': None,
+     'population_detail': 'T2D + ASCVD or high CV risk', 'population_category': 'Diabetes',
+     'guideline_class': 'I', 'guideline_source': 'ESC/EASD 2023, ADA 2024 (post EMPA-REG/CANVAS/DECLARE)'},
 ]
+
+
+# ═══════════════════════════════════════════════════════════
+# CT.GOV AUGMENTATIONS
+# ═══════════════════════════════════════════════════════════
+# Per-APP trial additions sourced from ctgov_deep_mining.py.
+# Keyed by app['name'] (NOT drug_class) so trials are isolated to one pool —
+# this prevents diabetes CVOTs from being duplicated into HF/CKD SGLT2 pools.
+#
+# Each entry: same shape as parse_acm_outcomes() output
+#   {nct, name, hr, lo, hi, year, rob, source, outcome}
+#
+# To add a trial here you should have:
+#   - Verified the CT.gov outcome is pure ACM (not composite/hierarchical)
+#   - Either the CT.gov 'analyses' HR or a Peto-derived HR with arm counts
+#   - Confirmed the trial fits the app's specific population
+
+CTGOV_AUGMENTATIONS = {
+    'Intensive BP': [
+        {'nct': 'NCT01206062', 'name': 'SPRINT', 'year': 2015, 'rob': 'low',
+         'hr': 0.73, 'lo': 0.60, 'hi': 0.90,
+         'source': 'ctgov_analyses', 'outcome': 'All-cause mortality (NEJM 2015)'},
+    ],
+    'Vericiguat': [
+        {'nct': 'NCT05093933', 'name': 'VICTOR', 'year': 2024, 'rob': 'low',
+         'hr': 0.84, 'lo': 0.74, 'hi': 0.97,
+         'source': 'ctgov_analyses', 'outcome': 'All-cause mortality (post-VICTORIA confirmation)'},
+    ],
+    'Intensive glycemia (ACCORD)': [
+        {'nct': 'NCT00000620', 'name': 'ACCORD', 'year': 2008, 'rob': 'low',
+         'hr': 1.19, 'lo': 1.03, 'hi': 1.38,
+         'source': 'ctgov_analyses', 'outcome': 'Death from any cause in glycemia trial (NEJM 2008)'},
+    ],
+    'SGLT2 CVOT (T2D)': [
+        {'nct': 'NCT01131676', 'name': 'EMPA-REG OUTCOME', 'year': 2015, 'rob': 'low',
+         'hr': 0.68, 'lo': 0.57, 'hi': 0.82,
+         'source': 'ctgov_analyses', 'outcome': 'All-cause mortality (Zinman NEJM 2015)'},
+        {'nct': 'NCT01730534', 'name': 'DECLARE-TIMI 58', 'year': 2019, 'rob': 'low',
+         'hr': 0.93, 'lo': 0.82, 'hi': 1.04,
+         'source': 'ctgov_analyses', 'outcome': 'All-cause mortality (Wiviott NEJM 2019)'},
+        {'nct': 'NCT01032629', 'name': 'CANVAS Program', 'year': 2017, 'rob': 'low',
+         'hr': 0.87, 'lo': 0.74, 'hi': 1.01,
+         'source': 'ctgov_analyses', 'outcome': 'All-cause mortality (Neal NEJM 2017)'},
+    ],
+}
+
+
+def merge_ctgov_augmentations(trials, app_name):
+    """Add CT.gov-mined trials to a parsed trial list, deduping by NCT."""
+    augments = CTGOV_AUGMENTATIONS.get(app_name)
+    if not augments:
+        return trials
+    existing_ncts = {t.get('nct') for t in trials}
+    for aug in augments:
+        if aug['nct'] not in existing_ncts:
+            trials.append(dict(aug))
+    return trials
 
 
 # ═══════════════════════════════════════════════════════════
@@ -1457,15 +1523,27 @@ if __name__ == '__main__':
     all_estimates = []  # for portfolio-wide pool
 
     for app in CARDIO_APPS:
-        path = find_app_path(app['filename'])
-        if not path:
-            print(f'  SKIP {app["name"]}: file not found')
-            results.append({**app, 'trials': [], 'pool': None, 'max_year': None})
-            continue
+        # CT.gov-only class — no curated HTML, all trials come from augmentations
+        if app['filename'] is None:
+            trials = merge_ctgov_augmentations([], app['name'])
+            if not trials:
+                print(f'  SKIP {app["name"]}: no CT.gov augmentations defined')
+                results.append({**app, 'trials': [], 'pool': None, 'max_year': None})
+                continue
+            max_year = max((t.get('year') or 0) for t in trials) or None
+            html_content = ''
+        else:
+            path = find_app_path(app['filename'])
+            if not path:
+                print(f'  SKIP {app["name"]}: file not found')
+                results.append({**app, 'trials': [], 'pool': None, 'max_year': None})
+                continue
 
-        html_content = open(path, encoding='utf-8').read()
-        trials = parse_acm_outcomes(html_content, app['name'])
-        max_year = extract_app_max_year(html_content)
+            html_content = open(path, encoding='utf-8').read()
+            trials = parse_acm_outcomes(html_content, app['name'])
+            # Merge any CT.gov augmentations for this app
+            trials = merge_ctgov_augmentations(trials, app['name'])
+            max_year = extract_app_max_year(html_content)
 
         if not trials:
             print(f'  {app["name"]:25s}  no ACM data found  (max trial year: {max_year})')
@@ -1706,7 +1784,9 @@ if __name__ == '__main__':
             'classes': [{
                 'name': r['name'],
                 'drug_class': r['drug_class'],
-                'population': r['population'],
+                'population': r['population_detail'],
+                'population_category': r['population_category'],
+                'guideline_class': r['guideline_class'],
                 'pool': r['pool'],
                 'trials': r['trials'],
             } for r in results],
