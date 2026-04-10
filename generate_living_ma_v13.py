@@ -2983,9 +2983,9 @@ APPS.append({
             # 789 pts, HFpEF (LVEF>=45%), recent worsening
             # Primary: KCCQ PLS change at 24 weeks
             # NEGATIVE: No significant improvement
-            # For binary: HF events — vericiguat ~30/526 vs placebo ~16/263
-            # (pooled 10mg+15mg arms vs placebo)
-            "tE": 30, "tN": 526, "cE": 16, "cN": 263,
+            # HFpEF population — different from VICTORIA (HFrEF). NEGATIVE trial.
+            # Primary: KCCQ PLS (continuous, not CV events). Not poolable with VICTORIA.
+            "tE": 0, "tN": 526, "cE": 0, "cN": 263,
             "group": "HFpEF (worsening)",
             "publishedHR": None, "hrLCI": None, "hrUCI": None,
             "rob": ["low", "low", "low", "low", "low"],
@@ -5089,7 +5089,7 @@ APPS.append({
     },
     "search_term_ctgov": "sotatercept+AND+pulmonary+arterial+hypertension",
     "search_term_pubmed": "sotatercept[tiab] AND pulmonary[tiab]",
-    "effect_measure": "RR",
+    "effect_measure": "HR",
     "nct_acronyms": {
         "NCT04576988": "STELLAR",
         "NCT04811092": "HYPERION",
@@ -5101,9 +5101,11 @@ APPS.append({
         # ── STELLAR: Phase 3 pivotal RCT ──────────────────────────
         "NCT04576988": {
             "name": "STELLAR", "phase": "III", "year": 2023,
-            # Clinical worsening composite (binary): sotatercept 9/163, placebo 42/161
+            # Clinical worsening composite: sotatercept 9/163, placebo 42/161
+            # HR 0.16 (0.08-0.35) — Hoeper et al. NEJM 2023;389:1478-1489
             "tE": 9, "tN": 163, "cE": 42, "cN": 161,
             "group": "Established PAH (on background Rx)",
+            "publishedHR": 0.16, "hrLCI": 0.08, "hrUCI": 0.35,
             "rob": ["low", "low", "low", "low", "low"],
             "snippet": "Source: ClinicalTrials.gov NCT04576988 (STELLAR). Enrollment: 324. Status: COMPLETED. Results posted. Hoeper et al. NEJM 2023;389:1478-1489.",
             "sourceUrl": "https://clinicaltrials.gov/study/NCT04576988",
