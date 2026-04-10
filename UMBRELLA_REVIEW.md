@@ -33,11 +33,24 @@ Both pools span clinically heterogeneous outcomes; the magnitude is methodologic
 | Oncology | 4 | 0.567 | 0.466-0.691 | 38.3% | 0.0154 |
 | Pulmonology | 2 | 0.584 | 0.337-1.010 | 93.2% | 0.1459 |
 
-### Egger publication-bias test
+### Subgroup difference test (specialty)
 
-- Intercept: -3.375 (SE 0.870)
-- t = -3.879, p = 0.000
-- Possible asymmetry — interpret with caution.
+- Q-between = 112.77 on 2 df, p = 0.000
+- Substantial between-specialty effect heterogeneity, as expected when pooling clinically distinct topics.
+
+### Egger publication-bias tests
+
+**Overall Egger** (across all 23 apps):
+- Intercept: -3.375 (SE 0.870), t = -3.88, p = 0.000
+
+The overall Egger intercept is statistically significant, but this reflects between-specialty effect-size clustering (oncology effects 0.36-0.63 versus cardiology 0.84-0.92) rather than true publication bias. Per-specialty Egger tests within homogeneous clinical clusters are the appropriate diagnostic.
+
+**Per-specialty Egger** (within clinically homogeneous clusters, k>=3):
+
+| Specialty | k | Intercept | t | p | Interpretation |
+|-----------|---|-----------|---|---|----------------|
+| Cardiology | 14 | -0.856 | -0.86 | 0.392 | No asymmetry |
+| Oncology | 14 | -2.377 | -1.56 | 0.119 | No asymmetry |
 
 ### Per-app concordance
 

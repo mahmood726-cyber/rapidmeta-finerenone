@@ -34,74 +34,76 @@ USER_AGENT = 'RapidMeta-LivingUpdateScanner/1.0 (mahmood726@example.com)'
 # ═══════════════════════════════════════════════════════════
 
 APP_REGISTRY = [
-    # name, search_term, current_NCTs, min_phase, status_filter
-    ('FINERENONE', 'finerenone',
-     ['NCT02540993', 'NCT02545049', 'NCT04435626', 'NCT01874431'],
-     'PHASE3', 'COMPLETED'),
-    ('GLP1_CVOT', 'liraglutide OR semaglutide OR dulaglutide OR exenatide OR lixisenatide OR albiglutide OR efpeglenatide',
+    # name, intervention_query, condition_query, current_NCTs, min_enrollment
+    # condition_query narrows results to relevant population (huge noise reduction)
+    # min_enrollment filters out small Phase 2 stragglers misclassified as Phase 3
+    ('FINERENONE', 'finerenone', 'kidney disease OR heart failure OR diabetes',
+     ['NCT02540993', 'NCT02545049', 'NCT04435626', 'NCT01874431'], 200),
+
+    ('GLP1_CVOT', 'liraglutide OR semaglutide OR dulaglutide OR efpeglenatide',
+     'cardiovascular outcomes OR MACE OR cardiovascular events',
      ['NCT01179048', 'NCT01720446', 'NCT03574597', 'NCT01394952', 'NCT02465515',
-      'NCT01147250', 'NCT01144338', 'NCT01107886', 'NCT03496298', 'NCT01755364'],
-     'PHASE3', 'COMPLETED'),
-    ('SGLT2_HF', 'dapagliflozin OR empagliflozin OR canagliflozin OR ertugliflozin AND heart failure',
-     ['NCT03036124', 'NCT03057977', 'NCT03057951', 'NCT03619213', 'NCT03521934'],
-     'PHASE3', 'COMPLETED'),
-    ('SGLT2_CKD', 'dapagliflozin OR empagliflozin OR canagliflozin AND chronic kidney disease',
-     ['NCT03036150', 'NCT02065791', 'NCT03594110'],
-     'PHASE3', 'COMPLETED'),
-    ('ARNI_HF', 'sacubitril valsartan',
-     ['NCT01035255', 'NCT01920711', 'NCT02924727'],
-     'PHASE3', 'COMPLETED'),
-    ('ABLATION_AF', 'catheter ablation atrial fibrillation',
-     ['NCT00643188', 'NCT00911508', 'NCT01288352', 'NCT01420393'],
-     'PHASE3', 'COMPLETED'),
-    ('IV_IRON_HF', 'ferric carboxymaltose OR ferric derisomaltose AND heart failure',
-     ['NCT01453608', 'NCT02937454', 'NCT02642562', 'NCT03037931'],
-     'PHASE3', 'COMPLETED'),
-    ('COLCHICINE_CVD', 'colchicine cardiovascular',
-     ['NCT02551094', 'ACTRN-LODOCO2', 'ACTRN-COPS', 'NCT03048825', 'NCT02898610'],
-     'PHASE3', 'COMPLETED'),
-    ('RIVAROXABAN_VASC', 'rivaroxaban',
-     ['NCT01776424', 'NCT02504216', 'NCT01877915', 'NCT00809965'],
-     'PHASE3', 'COMPLETED'),
-    ('BEMPEDOIC_ACID', 'bempedoic acid',
-     ['NCT02993406'],
-     'PHASE3', 'COMPLETED'),
-    ('PCSK9', 'evolocumab OR alirocumab',
-     ['NCT01764633', 'NCT01663402'],
-     'PHASE3', 'COMPLETED'),
-    ('OMECAMTIV', 'omecamtiv mecarbil',
-     ['NCT02929329', 'NCT01300013', 'NCT01300013'],
-     'PHASE3', 'COMPLETED'),
-    ('VERICIGUAT', 'vericiguat',
-     ['NCT02861534', 'NCT03547583', 'NCT01951625'],
-     'PHASE3', 'COMPLETED'),
-    ('SOTAGLIFLOZIN', 'sotagliflozin',
-     ['NCT03521934', 'NCT03315143'],
-     'PHASE3', 'COMPLETED'),
-    ('INCLISIRAN', 'inclisiran',
-     ['NCT03397121', 'NCT03399370', 'NCT03400800'],
-     'PHASE3', 'COMPLETED'),
-    ('OSIMERTINIB_NSCLC', 'osimertinib',
-     ['NCT02296125', 'NCT02511106', 'NCT04035486', 'NCT03521154'],
-     'PHASE3', 'COMPLETED'),
-    ('ENFORTUMAB_UC', 'enfortumab vedotin',
-     ['NCT03474107', 'NCT04223856'],
-     'PHASE3', 'COMPLETED'),
-    ('KRAS_G12C_NSCLC', 'sotorasib OR adagrasib AND lung',
-     ['NCT04303780', 'NCT04685135'],
-     'PHASE3', 'COMPLETED'),
-    ('PEMBRO_ADJ_MEL', 'pembrolizumab adjuvant melanoma',
-     ['NCT02362594', 'NCT03553836'],
-     'PHASE3', 'COMPLETED'),
-    ('TEZEPELUMAB_ASTHMA', 'tezepelumab',
-     ['NCT03347279', 'NCT02054130', 'NCT03406078'],
-     'PHASE3', 'COMPLETED'),
-    ('DUPILUMAB_COPD', 'dupilumab COPD',
-     ['NCT03930732', 'NCT04456673'],
-     'PHASE3', 'COMPLETED'),
-    ('SOTATERCEPT_PAH', 'sotatercept pulmonary',
-     ['NCT04576988', 'NCT04811092', 'NCT04896008'],
-     'PHASE3', 'COMPLETED'),
+      'NCT01147250', 'NCT01144338', 'NCT01107886', 'NCT03496298', 'NCT01755364'], 1000),
+
+    ('SGLT2_HF', 'dapagliflozin OR empagliflozin OR canagliflozin', 'heart failure',
+     ['NCT03036124', 'NCT03057977', 'NCT03057951', 'NCT03619213', 'NCT03521934'], 500),
+
+    ('SGLT2_CKD', 'dapagliflozin OR empagliflozin OR canagliflozin', 'chronic kidney disease',
+     ['NCT03036150', 'NCT02065791', 'NCT03594110'], 1000),
+
+    ('ARNI_HF', 'sacubitril valsartan', 'heart failure',
+     ['NCT01035255', 'NCT01920711', 'NCT02924727'], 500),
+
+    ('ABLATION_AF', 'catheter ablation', 'atrial fibrillation AND mortality',
+     ['NCT00643188', 'NCT00911508', 'NCT01288352', 'NCT01420393'], 300),
+
+    ('IV_IRON_HF', 'ferric carboxymaltose OR ferric derisomaltose', 'heart failure',
+     ['NCT01453608', 'NCT02937454', 'NCT02642562', 'NCT03037931'], 200),
+
+    ('COLCHICINE_CVD', 'colchicine', 'coronary OR myocardial infarction OR stroke',
+     ['NCT02551094', 'ACTRN-LODOCO2', 'ACTRN-COPS', 'NCT03048825', 'NCT02898610'], 500),
+
+    ('RIVAROXABAN_VASC', 'rivaroxaban', 'coronary OR peripheral artery disease OR MACE',
+     ['NCT01776424', 'NCT02504216', 'NCT01877915', 'NCT00809965'], 1000),
+
+    ('BEMPEDOIC_ACID', 'bempedoic acid', 'cardiovascular OR cholesterol',
+     ['NCT02993406'], 100),
+
+    ('PCSK9', 'evolocumab OR alirocumab', 'cardiovascular outcomes OR MACE',
+     ['NCT01764633', 'NCT01663402'], 1000),
+
+    ('OMECAMTIV', 'omecamtiv mecarbil', 'heart failure',
+     ['NCT02929329', 'NCT01300013'], 100),
+
+    ('VERICIGUAT', 'vericiguat', 'heart failure',
+     ['NCT02861534', 'NCT03547583', 'NCT01951625'], 100),
+
+    ('SOTAGLIFLOZIN', 'sotagliflozin', 'heart failure OR diabetes',
+     ['NCT03521934', 'NCT03315143'], 500),
+
+    ('INCLISIRAN', 'inclisiran', 'cholesterol OR cardiovascular',
+     ['NCT03397121', 'NCT03399370', 'NCT03400800'], 200),
+
+    ('OSIMERTINIB_NSCLC', 'osimertinib', 'lung cancer OR NSCLC',
+     ['NCT02296125', 'NCT02511106', 'NCT04035486', 'NCT03521154'], 200),
+
+    ('ENFORTUMAB_UC', 'enfortumab vedotin', 'urothelial OR bladder',
+     ['NCT03474107', 'NCT04223856'], 100),
+
+    ('KRAS_G12C_NSCLC', 'sotorasib OR adagrasib OR divarasib', 'lung cancer OR NSCLC',
+     ['NCT04303780', 'NCT04685135'], 100),
+
+    ('PEMBRO_ADJ_MEL', 'pembrolizumab', 'adjuvant melanoma',
+     ['NCT02362594', 'NCT03553836'], 500),
+
+    ('TEZEPELUMAB_ASTHMA', 'tezepelumab', 'asthma',
+     ['NCT03347279', 'NCT02054130', 'NCT03406078'], 100),
+
+    ('DUPILUMAB_COPD', 'dupilumab', 'COPD OR chronic obstructive pulmonary',
+     ['NCT03930732', 'NCT04456673'], 200),
+
+    ('SOTATERCEPT_PAH', 'sotatercept', 'pulmonary arterial hypertension',
+     ['NCT04576988', 'NCT04811092', 'NCT04896008'], 50),
 ]
 
 
@@ -109,13 +111,15 @@ APP_REGISTRY = [
 # CT.gov API client
 # ═══════════════════════════════════════════════════════════
 
-def fetch_ctgov(search_term, status='COMPLETED', phase='PHASE3', max_results=50):
-    """Query CT.gov API v2 and return list of study dicts."""
+def fetch_ctgov(intervention, condition=None, status='COMPLETED', phase='PHASE3', max_results=50):
+    """Query CT.gov API v2 with intervention + condition narrowing."""
     params = {
-        'query.intr': search_term,
+        'query.intr': intervention,
         'pageSize': str(max_results),
         'format': 'json',
     }
+    if condition:
+        params['query.cond'] = condition
     if status:
         params['filter.overallStatus'] = status
     if phase:
@@ -160,30 +164,61 @@ def parse_study(study):
 # SCANNER
 # ═══════════════════════════════════════════════════════════
 
-def scan_app(app_entry):
-    """Scan one app for new candidate trials."""
-    name, search, current_ncts, phase, status = app_entry
+def scan_app(app_entry, min_year=2022):
+    """Scan one app for new candidate trials.
+
+    Filters applied:
+    - Phase 3 only
+    - Status: COMPLETED
+    - Intervention + condition both must match
+    - Minimum enrollment per app
+    - Primary completion year >= min_year (default 2022)
+    """
+    name, intervention, condition, current_ncts, min_n = app_entry
     current_set = set(current_ncts)
 
-    print(f'  Querying CT.gov for: {name}', end='', flush=True)
-    studies = fetch_ctgov(search, status=status, phase=phase, max_results=100)
+    print(f'  Querying CT.gov for: {name:25s}', end='', flush=True)
+    studies = fetch_ctgov(intervention, condition=condition, max_results=100)
     if isinstance(studies, dict) and 'error' in studies:
         print(f'  ERROR: {studies["error"]}')
         return {'name': name, 'error': studies['error'], 'new_trials': []}
 
     parsed = [parse_study(s) for s in studies]
-    new_trials = [t for t in parsed if t['nctId'] and t['nctId'] not in current_set]
+
+    # Apply filters
+    new_trials = []
+    for t in parsed:
+        if not t['nctId'] or t['nctId'] in current_set:
+            continue
+        # Enrollment filter
+        n = t.get('enrollment')
+        if n is not None and n < min_n:
+            continue
+        # Date filter
+        comp = t.get('primaryCompletionDate', '')
+        if comp:
+            try:
+                year = int(comp[:4])
+                if year < min_year:
+                    continue
+            except (ValueError, TypeError):
+                pass
+        new_trials.append(t)
+
     # Sort by completion date descending (newest first)
     new_trials.sort(key=lambda t: t.get('primaryCompletionDate') or '', reverse=True)
 
-    print(f'  ({len(parsed)} found, {len(new_trials)} new)')
+    print(f'  ({len(parsed)} returned, {len(new_trials)} actionable)')
     return {
         'name': name,
-        'search_term': search,
+        'intervention': intervention,
+        'condition': condition,
+        'min_enrollment': min_n,
+        'min_year': min_year,
         'current_trial_count': len(current_set),
         'ctgov_total': len(parsed),
         'new_count': len(new_trials),
-        'new_trials': new_trials[:10],  # top 10 newest
+        'new_trials': new_trials[:10],
     }
 
 
@@ -244,8 +279,9 @@ def write_markdown_report(results):
             md.append(f'**Error:** {r["error"]}')
             md.append('')
             continue
-        md.append(f'Search term: `{r["search_term"]}`')
-        md.append(f'Current trials: {r["current_trial_count"]}  |  CT.gov returned: {r["ctgov_total"]}  |  New candidates: {r["new_count"]}')
+        md.append(f'Intervention: `{r["intervention"]}`  |  Condition: `{r["condition"]}`')
+        md.append(f'Filters: Phase 3, COMPLETED, n>={r["min_enrollment"]}, completed>={r["min_year"]}')
+        md.append(f'Current trials: {r["current_trial_count"]}  |  CT.gov returned: {r["ctgov_total"]}  |  Actionable candidates: {r["new_count"]}')
         md.append('')
         if r['new_trials']:
             md.append('| NCT | Acronym | Title | Sponsor | n | Completion | Results |')
