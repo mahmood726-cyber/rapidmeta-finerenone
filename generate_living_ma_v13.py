@@ -4321,6 +4321,20 @@ APPS.append({
             ],
         },
     },
+    # Dose-response: Lecanemab Study 201 (BAN2401) + Clarity AD
+    # Swanson CJ et al. Alzheimers Res Ther 2021;13:80; Van Dyck CH et al. NEJM 2023;388:9-21
+    "dose_response": {
+        "label": "Anti-Amyloid Dose-Response (CDR-SB Change at 18 Months)",
+        "unit": "mg/kg biweekly",
+        "outcomeLabel": "CDR-SB Change from Baseline",
+        "source": "Lecanemab Study 201 (Swanson 2021) + Clarity AD (Van Dyck 2023)",
+        "doses": [
+            {"dose": 0, "effect": 1.56, "se": 0.12, "n": 897, "label": "Placebo"},
+            {"dose": 2.5, "effect": 1.34, "se": 0.18, "n": 52, "label": "Lecanemab 2.5mg/kg biweekly"},
+            {"dose": 5, "effect": 1.22, "se": 0.17, "n": 53, "label": "Lecanemab 5mg/kg monthly"},
+            {"dose": 10, "effect": 1.21, "se": 0.10, "n": 898, "label": "Lecanemab 10mg/kg biweekly"}
+        ]
+    },
 })
 
 # ─── Resmetirom for MASH/NAFLD ──────────────────────────
@@ -4571,6 +4585,19 @@ APPS.append({
                 },
             ],
         },
+    },
+    # Dose-response: MAESTRO-NASH 80mg vs 100mg + Phase 2
+    # Harrison SA et al. NEJM 2024;390:497-509; Loomba R et al. NEJM 2023;390:497
+    "dose_response": {
+        "label": "Resmetirom Dose-Response (NASH Resolution at Week 52)",
+        "unit": "mg/day",
+        "outcomeLabel": "NASH Resolution Without Worsening Fibrosis (%)",
+        "source": "Harrison et al. NEJM 2024 (MAESTRO-NASH)",
+        "doses": [
+            {"dose": 0, "effect": 9.7, "se": 1.7, "n": 321, "label": "Placebo"},
+            {"dose": 80, "effect": 25.9, "se": 2.5, "n": 322, "label": "Resmetirom 80mg"},
+            {"dose": 100, "effect": 29.9, "se": 2.6, "n": 322, "label": "Resmetirom 100mg"}
+        ]
     },
 })
 
@@ -5890,6 +5917,22 @@ APPS.append({
                 },
             ],
         },
+    },
+    # Dose-response: Patiromer AMETHYST-DN (6 dose groups)
+    # Bakris GL et al. JAMA 2015;314:151-161 (AMETHYST-DN)
+    "dose_response": {
+        "label": "Patiromer Dose-Response (K+ Change at 4 Weeks)",
+        "unit": "g/day",
+        "outcomeLabel": "Mean Change in Serum K+ (mEq/L)",
+        "source": "Bakris et al. JAMA 2015;314:151-161 (AMETHYST-DN)",
+        "doses": [
+            {"dose": 0, "effect": 0.01, "se": 0.06, "n": 74, "label": "Placebo"},
+            {"dose": 4.2, "effect": -0.35, "se": 0.07, "n": 54, "label": "Patiromer 4.2g BID"},
+            {"dose": 8.4, "effect": -0.51, "se": 0.06, "n": 54, "label": "Patiromer 8.4g BID"},
+            {"dose": 12.6, "effect": -0.55, "se": 0.07, "n": 54, "label": "Patiromer 12.6g BID"},
+            {"dose": 16.8, "effect": -0.72, "se": 0.07, "n": 54, "label": "Patiromer 16.8g BID"},
+            {"dose": 25.2, "effect": -0.97, "se": 0.08, "n": 54, "label": "Patiromer 25.2g BID"}
+        ]
     },
 })
 
