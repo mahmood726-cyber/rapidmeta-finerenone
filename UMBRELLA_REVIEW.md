@@ -12,16 +12,16 @@ Each living MA produced a pooled effect estimate (hazard ratio, risk ratio, or o
 
 ### Portfolio-wide pooled estimate
 
-- **Living portfolio:** pooled effect = 0.751 (95% CI 0.705-0.801), τ² = 0.0175, I² = 86.2%
+- **Living portfolio:** pooled effect = 0.752 (95% CI 0.706-0.802), τ² = 0.0174, I² = 86.5%
 - **Published benchmarks:** pooled effect = 0.741 (95% CI 0.691-0.794), τ² = 0.0210, I² = 85.9%
 
 Both pools span clinically heterogeneous outcomes; the magnitude is methodologically meaningful but not clinically interpretable as a single treatment effect.
 
 ### Concordance with published benchmarks
 
-- Mean log-ratio difference: **+0.0073**
-- Mean percent difference: **+0.73%**
-- Paired t-test: t = 0.978, p = 0.328
+- Mean log-ratio difference: **+0.0078**
+- Mean percent difference: **+0.78%**
+- Paired t-test: t = 1.043, p = 0.297
 
 **No systematic bias detected** — the portfolio reproduces published meta-analyses with no statistically significant directional drift.
 
@@ -29,19 +29,19 @@ Both pools span clinically heterogeneous outcomes; the magnitude is methodologic
 
 | Specialty | k | Pooled | 95% CI | I² | τ² |
 |-----------|---|--------|--------|-----|-----|
-| Cardiology | 14 | 0.838 | 0.806-0.871 | 52.0% | 0.0025 |
+| Cardiology | 14 | 0.840 | 0.807-0.873 | 55.8% | 0.0028 |
 | Oncology | 4 | 0.567 | 0.466-0.691 | 38.3% | 0.0154 |
 | Pulmonology | 2 | 0.584 | 0.337-1.010 | 93.2% | 0.1459 |
 
 ### Subgroup difference test (specialty)
 
-- Q-between = 112.77 on 2 df, p = 0.000
+- Q-between = 114.40 on 2 df, p = 0.000
 - Substantial between-specialty effect heterogeneity, as expected when pooling clinically distinct topics.
 
 ### Egger publication-bias tests
 
 **Overall Egger** (across all 23 apps):
-- Intercept: -3.375 (SE 0.870), t = -3.88, p = 0.000
+- Intercept: -3.462 (SE 0.866), t = -4.00, p = 0.000
 
 The overall Egger intercept is statistically significant, but this reflects between-specialty effect-size clustering (oncology effects 0.36-0.63 versus cardiology 0.84-0.92) rather than true publication bias. Per-specialty Egger tests within homogeneous clinical clusters are the appropriate diagnostic.
 
@@ -49,7 +49,7 @@ The overall Egger intercept is statistically significant, but this reflects betw
 
 | Specialty | k | Intercept | t | p | Interpretation |
 |-----------|---|-----------|---|---|----------------|
-| Cardiology | 14 | -0.856 | -0.86 | 0.392 | No asymmetry |
+| Cardiology | 14 | -1.055 | -1.03 | 0.302 | No asymmetry |
 | Oncology | 14 | -2.377 | -1.56 | 0.119 | No asymmetry |
 
 ### Per-app concordance
@@ -68,7 +68,7 @@ The overall Egger intercept is statistically significant, but this reflects betw
 | BEMPEDOIC_ACID | Cardiology | 0.90 | 0.87 | +0.0339 |
 | PCSK9 | Cardiology | 0.85 | 0.85 | +0.0000 |
 | OMECAMTIV | Cardiology | 0.92 | 0.92 | +0.0000 |
-| VERICIGUAT | Cardiology | 0.90 | 0.90 | +0.0000 |
+| VERICIGUAT | Cardiology | 0.91 | 0.90 | +0.0110 |
 | SOTAGLIFLOZIN | Cardiology | 0.72 | 0.72 | +0.0000 |
 | INCLISIRAN | Cardiology | 0.77 | 0.80 | -0.0382 |
 | ANTIPLATELET_NMA | Cardiology | 0.70 | 0.70 | +0.0000 |

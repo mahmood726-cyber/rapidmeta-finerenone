@@ -39,7 +39,7 @@ APPS = [
     ('BEMPEDOIC_ACID',   'Cardiology',      4, 0.90, 0.72, 1.12, 0.87, 0.79, 0.96, 'HR'),
     ('PCSK9',            'Cardiology',      2, 0.85, 0.80, 0.90, 0.85, 0.79, 0.92, 'HR'),
     ('OMECAMTIV',        'Cardiology',      3, 0.92, 0.86, 0.99, 0.92, 0.86, 0.99, 'HR'),
-    ('VERICIGUAT',       'Cardiology',      1, 0.90, 0.82, 0.98, 0.90, 0.82, 0.98, 'HR'),
+    ('VERICIGUAT',       'Cardiology',      2, 0.91, 0.85, 0.98, 0.90, 0.82, 0.98, 'HR'),  # k=2 after VICTOR added 2026-04-10
     ('SOTAGLIFLOZIN',    'Cardiology',      2, 0.72, 0.62, 0.82, 0.72, 0.62, 0.83, 'HR'),
     ('INCLISIRAN',       'Cardiology',      3, 0.77, 0.56, 1.07, 0.80, 0.50, 1.27, 'HR'),
     ('ANTIPLATELET_NMA', 'Cardiology',      4, 0.70, 0.57, 0.87, 0.70, 0.57, 0.85, 'HR'),

@@ -3123,7 +3123,7 @@ APPS.append({
             # n=6,106, Merck-sponsored, chronic HFrEF
             # VERIFY: extract HR for primary CV death/HF hosp from CT.gov results section
             "tE": 0, "tN": 6106, "cE": 0, "cN": 0,
-            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "publishedHR": 0.93, "hrLCI": 0.83, "hrUCI": 1.04,
             "group": "Chronic HFrEF (added 2026-04-10)",
             "rob": ["low", "low", "low", "low", "low"],
             "snippet": "Source: ClinicalTrials.gov NCT05093933 (VICTOR). Status: COMPLETED 2024-11. Results posted. Sponsor: Merck Sharp & Dohme. Detected via living_update_scanner. PENDING: manual HR extraction from CT.gov results.",
