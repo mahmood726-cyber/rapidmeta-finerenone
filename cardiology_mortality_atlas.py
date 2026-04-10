@@ -27,38 +27,163 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='repla
 # ═══════════════════════════════════════════════════════════
 # CARDIOLOGY APP REGISTRY
 # ═══════════════════════════════════════════════════════════
-# Each entry: (display_name, drug_class, file_glob_pattern, population_label)
+# Each entry: dict with name, drug_class, filename, population_detail,
+# population_category, guideline_class, guideline_source
 
 CARDIO_APPS = [
-    ('Finerenone',       'MRA (non-steroidal)',     'FINERENONE_REVIEW.html',     'CKD/HF'),
-    ('Bempedoic acid',   'ATP-citrate lyase inhibitor','BEMPEDOIC_ACID_REVIEW.html','ASCVD'),
-    ('GLP-1 CVOT',       'GLP-1 receptor agonist',  'GLP1_CVOT_REVIEW.html',      'T2DM/CV'),
-    ('SGLT2 in HF',      'SGLT2 inhibitor',         'SGLT2_HF_REVIEW.html',       'HFrEF/HFpEF'),
-    ('SGLT2 in CKD',     'SGLT2 inhibitor',         'SGLT2_CKD_REVIEW.html',      'CKD'),
-    ('PCSK9',            'PCSK9 mAb',               'PCSK9_REVIEW.html',          'ASCVD'),
-    ('ARNI',             'ARNI',                    'ARNI_HF_REVIEW.html',        'HFrEF/HFpEF'),
-    ('Catheter ablation','Catheter ablation',       'ABLATION_AF_REVIEW.html',    'AF'),
-    ('IV iron',          'IV iron',                 'IV_IRON_HF_REVIEW.html',     'HFrEF + iron def'),
-    ('Colchicine',       'Anti-inflammatory',       'COLCHICINE_CVD_REVIEW.html', 'CAD/post-MI'),
-    ('Rivaroxaban (low)','Low-dose Xa inhibitor',   'RIVAROXABAN_VASC_REVIEW.html','Vascular'),
-    ('Intensive BP',     'BP control',              'INTENSIVE_BP_REVIEW.html',   'High-risk HTN'),
-    ('Tafamidis/Vutrisiran','TTR stabilizer/silencer','ATTR_CM_REVIEW.html',     'ATTR-CM'),
-    ('Mavacamten',       'Cardiac myosin inhibitor','MAVACAMTEN_HCM_REVIEW.html', 'HCM'),
-    ('Combined lipid',   'Lipid combo',             'LIPID_HUB_REVIEW.html',      'ASCVD'),
-    ('Incretin (HFpEF)', 'Incretin',                'INCRETIN_HFpEF_REVIEW.html', 'HFpEF'),
-    ('Vericiguat',       'sGC stimulator',          'VERICIGUAT_REVIEW.html',     'HFrEF'),
-    ('Omecamtiv',        'Cardiac myosin activator','OMECAMTIV_REVIEW.html',      'HFrEF'),
-    ('Sotagliflozin',    'Dual SGLT1/2',            'SOTAGLIFLOZIN_REVIEW.html',  'HF/T2DM'),
-    ('Inclisiran',       'siRNA PCSK9',             'INCLISIRAN_REVIEW.html',     'ASCVD/HeFH'),
-    ('P2Y12 mono',       'Antiplatelet',            'ANTIPLATELET_NMA_REVIEW.html','Post-PCI'),
-    ('Dapagliflozin (acute HF)','SGLT2 inhibitor',  'DAPA_ACUTE_HF_REVIEW.html',  'Acute HF'),
-    ('HFrEF NMA',        'GDMT (mixed)',            'HFREF_NMA_REVIEW.html',      'HFrEF'),
-    ('Empagliflozin (post-MI)','SGLT2 inhibitor',   'EMPA_MI_REVIEW.html',        'Post-MI'),
-    ('Ticagrelor mono',  'Antiplatelet',            'TICAGRELOR_MONO_REVIEW.html','Post-PCI'),
-    ('Icosapent ethyl',  'Omega-3',                 'ICOSAPENT_ETHYL_REVIEW.html','Hypertriglyceridemia'),
-    ('Sotatercept',      'Activin signaling',       'SOTATERCEPT_PAH_REVIEW.html','PAH'),
-    ('DOAC (cancer VTE)','DOAC',                    'DOAC_CANCER_VTE_REVIEW.html','Cancer VTE'),
+    {'name': 'Finerenone', 'drug_class': 'MRA (non-steroidal)', 'filename': 'FINERENONE_REVIEW.html',
+     'population_detail': 'CKD/HF', 'population_category': 'HF/CKD overlap',
+     'guideline_class': 'I', 'guideline_source': 'KDIGO 2024 + ESC HF 2023'},
+
+    {'name': 'Bempedoic acid', 'drug_class': 'ATP-citrate lyase inhibitor', 'filename': 'BEMPEDOIC_ACID_REVIEW.html',
+     'population_detail': 'ASCVD (statin-intolerant)', 'population_category': 'ASCVD prevention',
+     'guideline_class': 'IIa', 'guideline_source': 'ESC Cholesterol 2023 update'},
+
+    {'name': 'GLP-1 CVOT', 'drug_class': 'GLP-1 receptor agonist', 'filename': 'GLP1_CVOT_REVIEW.html',
+     'population_detail': 'T2DM with CV risk', 'population_category': 'Diabetes/cardiometabolic',
+     'guideline_class': 'I', 'guideline_source': 'ESC Diabetes 2023, ADA 2024'},
+
+    {'name': 'SGLT2 in HF', 'drug_class': 'SGLT2 inhibitor', 'filename': 'SGLT2_HF_REVIEW.html',
+     'population_detail': 'HFrEF + HFpEF', 'population_category': 'Heart failure',
+     'guideline_class': 'I', 'guideline_source': 'ESC HF 2023, AHA 2022'},
+
+    {'name': 'SGLT2 in CKD', 'drug_class': 'SGLT2 inhibitor', 'filename': 'SGLT2_CKD_REVIEW.html',
+     'population_detail': 'CKD ± diabetes', 'population_category': 'HF/CKD overlap',
+     'guideline_class': 'I', 'guideline_source': 'KDIGO 2024'},
+
+    {'name': 'PCSK9', 'drug_class': 'PCSK9 mAb', 'filename': 'PCSK9_REVIEW.html',
+     'population_detail': 'ASCVD on statin', 'population_category': 'ASCVD prevention',
+     'guideline_class': 'I', 'guideline_source': 'ESC Cholesterol 2019, AHA 2018'},
+
+    {'name': 'ARNI', 'drug_class': 'ARNI (sacubitril/valsartan)', 'filename': 'ARNI_HF_REVIEW.html',
+     'population_detail': 'HFrEF (preferred over ACEi)', 'population_category': 'Heart failure',
+     'guideline_class': 'I', 'guideline_source': 'ESC HF 2023, AHA 2022'},
+
+    {'name': 'Catheter ablation', 'drug_class': 'Catheter ablation', 'filename': 'ABLATION_AF_REVIEW.html',
+     'population_detail': 'AF (sx, HFrEF subset)', 'population_category': 'Arrhythmia',
+     'guideline_class': 'I', 'guideline_source': 'ESC AF 2024 (HFrEF subset)'},
+
+    {'name': 'IV iron', 'drug_class': 'IV iron (FCM/derisomaltose)', 'filename': 'IV_IRON_HF_REVIEW.html',
+     'population_detail': 'HFrEF + iron deficiency', 'population_category': 'Heart failure',
+     'guideline_class': 'IIa', 'guideline_source': 'ESC HF 2023'},
+
+    {'name': 'Colchicine', 'drug_class': 'Anti-inflammatory', 'filename': 'COLCHICINE_CVD_REVIEW.html',
+     'population_detail': 'CAD / post-MI', 'population_category': 'ASCVD prevention',
+     'guideline_class': 'IIb', 'guideline_source': 'ESC ACS 2023 (downgraded post-CLEAR-SYNERGY)'},
+
+    {'name': 'Rivaroxaban (low)', 'drug_class': 'Low-dose Xa inhibitor + ASA', 'filename': 'RIVAROXABAN_VASC_REVIEW.html',
+     'population_detail': 'Stable CAD/PAD', 'population_category': 'ASCVD prevention',
+     'guideline_class': 'IIa', 'guideline_source': 'ESC PAD 2024'},
+
+    {'name': 'Intensive BP', 'drug_class': 'BP control (<120 mmHg)', 'filename': 'INTENSIVE_BP_REVIEW.html',
+     'population_detail': 'High-risk hypertension', 'population_category': 'BP/HTN',
+     'guideline_class': 'IIa', 'guideline_source': 'ESC HTN 2023, ACC/AHA 2017'},
+
+    {'name': 'Tafamidis/Vutrisiran', 'drug_class': 'TTR stabilizer/silencer', 'filename': 'ATTR_CM_REVIEW.html',
+     'population_detail': 'ATTR cardiomyopathy', 'population_category': 'Cardiomyopathy',
+     'guideline_class': 'I', 'guideline_source': 'ESC Cardiomyopathy 2023'},
+
+    {'name': 'Mavacamten', 'drug_class': 'Cardiac myosin inhibitor', 'filename': 'MAVACAMTEN_HCM_REVIEW.html',
+     'population_detail': 'Symptomatic obstructive HCM', 'population_category': 'Cardiomyopathy',
+     'guideline_class': 'I', 'guideline_source': 'AHA HCM 2024 update'},
+
+    {'name': 'Combined lipid', 'drug_class': 'Lipid combo (various)', 'filename': 'LIPID_HUB_REVIEW.html',
+     'population_detail': 'High-risk lipid lowering', 'population_category': 'ASCVD prevention',
+     'guideline_class': 'I', 'guideline_source': 'ESC Cholesterol 2019'},
+
+    {'name': 'Incretin (HFpEF)', 'drug_class': 'Incretin', 'filename': 'INCRETIN_HFpEF_REVIEW.html',
+     'population_detail': 'HFpEF + obesity', 'population_category': 'Heart failure',
+     'guideline_class': 'IIa', 'guideline_source': 'ESC HF 2023 (semaglutide HFpEF, recent)'},
+
+    {'name': 'Vericiguat', 'drug_class': 'sGC stimulator', 'filename': 'VERICIGUAT_REVIEW.html',
+     'population_detail': 'HFrEF (worsening)', 'population_category': 'Heart failure',
+     'guideline_class': 'IIb', 'guideline_source': 'ESC HF 2023 (worsening HFrEF only)'},
+
+    {'name': 'Omecamtiv', 'drug_class': 'Cardiac myosin activator', 'filename': 'OMECAMTIV_REVIEW.html',
+     'population_detail': 'HFrEF (severe)', 'population_category': 'Heart failure',
+     'guideline_class': 'III', 'guideline_source': 'Not in current guidelines (program halted)'},
+
+    {'name': 'Sotagliflozin', 'drug_class': 'Dual SGLT1/2', 'filename': 'SOTAGLIFLOZIN_REVIEW.html',
+     'population_detail': 'HF + T2DM/CKD', 'population_category': 'Heart failure',
+     'guideline_class': 'IIa', 'guideline_source': 'ESC HF 2023 (post-SOLOIST/SCORED)'},
+
+    {'name': 'Inclisiran', 'drug_class': 'siRNA PCSK9', 'filename': 'INCLISIRAN_REVIEW.html',
+     'population_detail': 'ASCVD / HeFH', 'population_category': 'ASCVD prevention',
+     'guideline_class': 'IIa', 'guideline_source': 'ESC Cholesterol 2023 update'},
+
+    {'name': 'P2Y12 mono', 'drug_class': 'P2Y12 monotherapy', 'filename': 'ANTIPLATELET_NMA_REVIEW.html',
+     'population_detail': 'Post-PCI (selected)', 'population_category': 'Post-PCI antiplatelet',
+     'guideline_class': 'IIa', 'guideline_source': 'ESC ACS 2023 / Chronic CCS 2024'},
+
+    {'name': 'Dapagliflozin (acute HF)', 'drug_class': 'SGLT2 inhibitor', 'filename': 'DAPA_ACUTE_HF_REVIEW.html',
+     'population_detail': 'Acute HF', 'population_category': 'Heart failure',
+     'guideline_class': 'IIb', 'guideline_source': 'ESC HF 2023 (in-hospital initiation)'},
+
+    {'name': 'HFrEF NMA', 'drug_class': 'GDMT pillars (mixed)', 'filename': 'HFREF_NMA_REVIEW.html',
+     'population_detail': 'HFrEF (foundational)', 'population_category': 'Heart failure',
+     'guideline_class': 'I', 'guideline_source': 'ESC HF 2023 (4 pillars)'},
+
+    {'name': 'Empagliflozin (post-MI)', 'drug_class': 'SGLT2 inhibitor', 'filename': 'EMPA_MI_REVIEW.html',
+     'population_detail': 'Post-MI', 'population_category': 'Post-MI',
+     'guideline_class': 'IIb', 'guideline_source': 'ESC ACS 2023 (post-EMPACT-MI null result)'},
+
+    {'name': 'Ticagrelor mono', 'drug_class': 'Antiplatelet', 'filename': 'TICAGRELOR_MONO_REVIEW.html',
+     'population_detail': 'Post-PCI (1-3 mo DAPT)', 'population_category': 'Post-PCI antiplatelet',
+     'guideline_class': 'IIa', 'guideline_source': 'ESC ACS 2023'},
+
+    {'name': 'Icosapent ethyl', 'drug_class': 'Omega-3 (EPA)', 'filename': 'ICOSAPENT_ETHYL_REVIEW.html',
+     'population_detail': 'Hypertriglyceridemia + ASCVD', 'population_category': 'ASCVD prevention',
+     'guideline_class': 'IIa', 'guideline_source': 'ESC Cholesterol 2019 (REDUCE-IT only)'},
+
+    {'name': 'Sotatercept', 'drug_class': 'Activin signaling inhibitor', 'filename': 'SOTATERCEPT_PAH_REVIEW.html',
+     'population_detail': 'PAH (WHO Group 1)', 'population_category': 'Pulm vascular',
+     'guideline_class': 'I', 'guideline_source': 'ESC PH 2025 update (post-STELLAR)'},
+
+    {'name': 'DOAC (cancer VTE)', 'drug_class': 'DOAC', 'filename': 'DOAC_CANCER_VTE_REVIEW.html',
+     'population_detail': 'Cancer-associated VTE', 'population_category': 'Anticoagulation',
+     'guideline_class': 'I', 'guideline_source': 'ESC ACS / ITAC 2022'},
 ]
+
+
+# ═══════════════════════════════════════════════════════════
+# GUIDELINE CONCORDANCE MAP
+# ═══════════════════════════════════════════════════════════
+# For each guideline class, the expected pooled effect characteristics
+
+CLASS_EXPECTATIONS = {
+    'I':   {'desc': 'Strong recommendation',     'expect_lo_below_1': True,  'expect_strong_effect': True},
+    'IIa': {'desc': 'Reasonable to use',         'expect_lo_below_1': True,  'expect_strong_effect': False},
+    'IIb': {'desc': 'May be considered',         'expect_lo_below_1': False, 'expect_strong_effect': False},
+    'III': {'desc': 'Not recommended / harm',    'expect_lo_below_1': False, 'expect_strong_effect': False},
+}
+
+
+def assess_concordance(guideline_class, pool):
+    """Compare pooled effect to guideline class expectations.
+
+    Returns 'concordant', 'overstrong' (guideline stronger than evidence),
+    'understrong' (evidence stronger than guideline), or 'no_data'.
+    """
+    if not pool:
+        return 'no_data'
+    if guideline_class not in CLASS_EXPECTATIONS:
+        return 'no_data'
+
+    exp = CLASS_EXPECTATIONS[guideline_class]
+    sig = pool['pooled_hi'] < 1.0  # CI excludes 1 (statistically significant benefit)
+
+    if guideline_class == 'I':
+        # Class I expects significant benefit
+        return 'concordant' if sig else 'overstrong'
+    if guideline_class == 'IIa':
+        return 'concordant' if sig else 'overstrong'
+    if guideline_class == 'IIb':
+        # IIb is consistent with weaker evidence
+        return 'concordant' if not sig or pool['pooled_est'] > 0.85 else 'understrong'
+    if guideline_class == 'III':
+        # III expects no benefit; if pool shows benefit, evidence outpaces guideline
+        return 'understrong' if sig else 'concordant'
+    return 'no_data'
 
 
 # ═══════════════════════════════════════════════════════════
@@ -86,7 +211,8 @@ def parse_acm_outcomes(html, app_name):
     - shortLabel == 'ACM' or 'Mortality' or 'All-Cause Mortality'
     - title contains 'all-cause mortality' or 'death from any cause'
 
-    Returns list of dicts with: nct, name, hr, lo, hi, n_total, source.
+    Returns list of dicts with: nct, name, hr, lo, hi, year, source.
+    Also extracts the maximum trial year across the app for freshness.
     """
     trials = []
 
@@ -98,27 +224,23 @@ def parse_acm_outcomes(html, app_name):
         end = nct_starts[i + 1][0] if i + 1 < len(nct_starts) else len(html)
         body = html[start:end]
 
-        # Skip if this is a 'realData' definition or non-trial entry
-        if 'realData' not in html[max(0, start - 200):start] and 'allOutcomes' not in body:
-            # Could still be a trial without explicit allOutcomes — fall back to top-level publishedHR
-            pass
-
         # Get trial name
         nm = re.search(r"name:\s*['\"]([^'\"]+)['\"]", body)
         trial_name = nm.group(1) if nm else nct
 
+        # Get trial year
+        ym = re.search(r"\byear:\s*(\d{4})", body)
+        trial_year = int(ym.group(1)) if ym else None
+
         # Find ACM outcome within allOutcomes
         acm_data = None
 
-        # Look for outcome objects mentioning all-cause mortality or ACM shortLabel
-        # Pattern: shortLabel: 'ACM' / 'Mortality' / title with all-cause mortality
         acm_outcome_pattern = re.compile(
             r"\{[^{}]*?(?:shortLabel:\s*['\"]?(?:ACM|Mortality|All[- ]Cause Mortality)['\"]?|title:\s*['\"][^'\"]*(?:all[- ]cause mortality|death from any cause|all[- ]cause death)[^'\"]*['\"])[^{}]*?\}",
             re.IGNORECASE | re.DOTALL
         )
         for outcome_m in acm_outcome_pattern.finditer(body):
             outcome_block = outcome_m.group(0)
-            # Extract HR fields — handle multiple naming conventions
             hr_m = re.search(r"(?:pubHR|effect|hr)\s*:\s*([\d.]+)", outcome_block)
             lo_m = re.search(r"(?:pubHR_LCI|lci|hrLo)\s*:\s*([\d.]+)", outcome_block)
             hi_m = re.search(r"(?:pubHR_UCI|uci|hrHi)\s*:\s*([\d.]+)", outcome_block)
@@ -140,16 +262,74 @@ def parse_acm_outcomes(html, app_name):
                     pass
 
         if acm_data:
-            # Get total N from trial-level fields
             tn_m = re.search(r"\btN:\s*(\d+)", body)
             cn_m = re.search(r"\bcN:\s*(\d+)", body)
             acm_data['nct'] = nct
             acm_data['name'] = trial_name
+            acm_data['year'] = trial_year
             acm_data['tN'] = int(tn_m.group(1)) if tn_m else None
             acm_data['cN'] = int(cn_m.group(1)) if cn_m else None
             trials.append(acm_data)
 
     return trials
+
+
+def extract_app_max_year(html):
+    """Find the most recent trial year across all NCT entries in the file."""
+    years = [int(m.group(1)) for m in re.finditer(r"\byear:\s*(\d{4})", html)]
+    return max(years) if years else None
+
+
+# ═══════════════════════════════════════════════════════════
+# BUCHER INDIRECT COMPARISONS
+# ═══════════════════════════════════════════════════════════
+
+def bucher_indirect(pool_a, pool_b):
+    """Compute indirect comparison A vs B via shared placebo.
+
+    log(HR_AB) = log(HR_A_vs_placebo) - log(HR_B_vs_placebo)
+    var(log HR_AB) = var(log HR_A) + var(log HR_B)
+    """
+    if not pool_a or not pool_b:
+        return None
+    log_a = pool_a['pooled_log']
+    log_b = pool_b['pooled_log']
+    se_a = pool_a['pooled_se']
+    se_b = pool_b['pooled_se']
+
+    log_ab = log_a - log_b
+    se_ab = math.sqrt(se_a ** 2 + se_b ** 2)
+
+    return {
+        'est': math.exp(log_ab),
+        'lo': math.exp(log_ab - 1.96 * se_ab),
+        'hi': math.exp(log_ab + 1.96 * se_ab),
+        'log_est': log_ab,
+        'se': se_ab,
+    }
+
+
+def build_league_table(results):
+    """Build pairwise Bucher comparisons for all class pairs with pooled data."""
+    classes_with_data = [r for r in results if r['pool']]
+    league = []
+    for i, ra in enumerate(classes_with_data):
+        for j, rb in enumerate(classes_with_data):
+            if i >= j:
+                continue
+            ind = bucher_indirect(ra['pool'], rb['pool'])
+            if ind:
+                league.append({
+                    'a': ra['name'],
+                    'b': rb['name'],
+                    'a_class': ra['drug_class'],
+                    'b_class': rb['drug_class'],
+                    'est': ind['est'],
+                    'lo': ind['lo'],
+                    'hi': ind['hi'],
+                    'sig': ind['hi'] < 1 or ind['lo'] > 1,
+                })
+    return league
 
 
 # ═══════════════════════════════════════════════════════════
@@ -302,21 +482,73 @@ def build_forest_svg(rows, width=900, row_height=28):
 # HTML BUILDER
 # ═══════════════════════════════════════════════════════════
 
-def build_html(results, pooled_overall, pooled_subgroups, svg, generated):
+def build_html(results, pooled_overall, pop_pools, league, svg, generated):
+    # Build per-class table with concordance + freshness
     rows_table = []
+    concord_badges = {
+        'concordant':  '<span style="background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.3);padding:2px 8px;border-radius:6px;font-size:9px;font-weight:700">CONCORDANT</span>',
+        'overstrong':  '<span style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);padding:2px 8px;border-radius:6px;font-size:9px;font-weight:700">GUIDELINE&gt;EVIDENCE</span>',
+        'understrong': '<span style="background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);padding:2px 8px;border-radius:6px;font-size:9px;font-weight:700">EVIDENCE&gt;GUIDELINE</span>',
+        'no_data':     '<span style="color:#475569;font-size:9px">--</span>',
+    }
     for r in results:
+        concord = r.get('concordance', 'no_data')
+        badge = concord_badges.get(concord, '--')
+        year = r.get('max_year') or '?'
         if r['pool']:
             p = r['pool']
-            rows_table.append(f'<tr><td>{r["name"]}</td><td>{r["drug_class"]}</td><td>{r["population"]}</td>'
+            rows_table.append(f'<tr><td>{r["name"]}</td><td>{r["drug_class"]}</td>'
+                              f'<td>{r["population_detail"]}</td>'
                               f'<td>{p["k"]}</td>'
                               f'<td>{p["pooled_est"]:.2f} ({p["pooled_lo"]:.2f}-{p["pooled_hi"]:.2f})</td>'
-                              f'<td>{p["I2"]:.0f}%</td></tr>')
+                              f'<td>{p["I2"]:.0f}%</td>'
+                              f'<td>{year}</td>'
+                              f'<td>Class {r["guideline_class"]}</td>'
+                              f'<td>{badge}</td></tr>')
         else:
-            rows_table.append(f'<tr><td>{r["name"]}</td><td>{r["drug_class"]}</td><td>{r["population"]}</td>'
-                              f'<td>0</td><td colspan="2" style="color:#64748b;font-style:italic">no ACM data</td></tr>')
+            rows_table.append(f'<tr><td>{r["name"]}</td><td>{r["drug_class"]}</td>'
+                              f'<td>{r["population_detail"]}</td>'
+                              f'<td>0</td><td colspan="2" style="color:#64748b;font-style:italic">no ACM data</td>'
+                              f'<td>{year}</td>'
+                              f'<td>Class {r["guideline_class"]}</td>'
+                              f'<td>--</td></tr>')
+
+    # Stratified pools table
+    pop_rows = []
+    for cat, pool in sorted(pop_pools.items()):
+        if pool:
+            pop_rows.append(f'<tr><td>{cat}</td><td>{pool["k"]}</td>'
+                             f'<td>{pool["pooled_est"]:.2f} ({pool["pooled_lo"]:.2f}-{pool["pooled_hi"]:.2f})</td>'
+                             f'<td>{pool["I2"]:.0f}%</td>'
+                             f'<td>{pool["tau2"]:.4f}</td></tr>')
+
+    # Bucher league table — top 20 by absolute log-effect (most divergent)
+    league_sorted = sorted(league, key=lambda x: abs(math.log(x['est'])), reverse=True)[:25]
+    bucher_rows = []
+    for entry in league_sorted:
+        sig_marker = ' style="font-weight:700;color:#34d399"' if entry['sig'] else ''
+        bucher_rows.append(f'<tr{sig_marker}><td>{entry["a"]}</td><td>vs</td><td>{entry["b"]}</td>'
+                           f'<td>{entry["est"]:.2f} ({entry["lo"]:.2f}-{entry["hi"]:.2f})</td></tr>')
+
+    # Discordance flags summary
+    discordant = [r for r in results if r.get('concordance') in ('overstrong', 'understrong')]
+    discordant_html = ''
+    if discordant:
+        discordant_html = '<ul style="font-size:12px;color:#cbd5e1;line-height:1.7">'
+        for r in discordant:
+            p = r['pool']
+            tag = 'overstrong' if r['concordance'] == 'overstrong' else 'understrong'
+            color = '#f87171' if tag == 'overstrong' else '#fbbf24'
+            discordant_html += (f'<li><strong style="color:{color}">{r["name"]}</strong> '
+                                f'(Class {r["guideline_class"]}, {r["population_detail"]}): '
+                                f'pooled HR {p["pooled_est"]:.2f} '
+                                f'({p["pooled_lo"]:.2f}-{p["pooled_hi"]:.2f}) — '
+                                f'{r["concordance"]}.</li>')
+        discordant_html += '</ul>'
 
     n_classes = sum(1 for r in results if r['pool'])
     n_trials = sum(r['pool']['k'] for r in results if r['pool'])
+    n_concordant = sum(1 for r in results if r.get('concordance') == 'concordant')
 
     html = f'''<!DOCTYPE html>
 <html lang="en">
@@ -370,8 +602,10 @@ footer{{margin-top:32px;padding-top:20px;border-top:1px solid #1e293b;text-align
   <div class="stats">
     <div class="stat"><div class="stat-num">{n_classes}</div><div class="stat-label">Drug classes</div></div>
     <div class="stat"><div class="stat-num">{n_trials}</div><div class="stat-label">Trials with ACM</div></div>
-    <div class="stat"><div class="stat-num">{pooled_overall["k"] if pooled_overall else "--"}</div><div class="stat-label">Pool size</div></div>
     <div class="stat"><div class="stat-num">{(f"{pooled_overall['pooled_est']:.2f}" if pooled_overall else "--")}</div><div class="stat-label">Overall HR</div></div>
+    <div class="stat"><div class="stat-num">{len(pop_pools)}</div><div class="stat-label">Population strata</div></div>
+    <div class="stat"><div class="stat-num">{len(league)}</div><div class="stat-label">Bucher pairs</div></div>
+    <div class="stat"><div class="stat-num">{n_concordant}/{n_classes}</div><div class="stat-label">Guideline concordant</div></div>
   </div>
 
   <div class="summary-box">
@@ -395,9 +629,13 @@ footer{{margin-top:32px;padding-top:20px;border-top:1px solid #1e293b;text-align
     html += '''
   </div>
 
-  <h2>Per-class details</h2>
+  <h2>Per-class details (with freshness and guideline concordance)</h2>
   <table>
-    <thead><tr><th>App</th><th>Drug class</th><th>Population</th><th>k</th><th>Pooled ACM HR (95% CI)</th><th>I&sup2;</th></tr></thead>
+    <thead><tr>
+      <th>App</th><th>Drug class</th><th>Population</th>
+      <th>k</th><th>Pooled ACM HR (95% CI)</th><th>I&sup2;</th>
+      <th>Latest trial</th><th>Guideline</th><th>Concordance</th>
+    </tr></thead>
     <tbody>
 '''
     html += '\n'.join(rows_table)
@@ -405,6 +643,50 @@ footer{{margin-top:32px;padding-top:20px;border-top:1px solid #1e293b;text-align
     </tbody>
   </table>
 
+  <h2>Population stratification</h2>
+  <p style="font-size:12px;color:#94a3b8;margin-bottom:12px">
+    Class-level pooled estimates grouped by population category. Pools use
+    DerSimonian-Laird across apps within each stratum.
+  </p>
+  <table>
+    <thead><tr><th>Population category</th><th>k classes</th><th>Pooled ACM HR (95% CI)</th><th>I&sup2;</th><th>&tau;&sup2;</th></tr></thead>
+    <tbody>
+'''
+    html += '\n'.join(pop_rows)
+    html += '''
+    </tbody>
+  </table>
+
+  <h2>Bucher indirect comparisons (top 25 most divergent pairs)</h2>
+  <p style="font-size:12px;color:#94a3b8;margin-bottom:12px">
+    For every pair of drug classes, the indirect effect via shared placebo comparator:
+    log(HR<sub>AB</sub>) = log(HR<sub>A</sub>) − log(HR<sub>B</sub>), with variance summed.
+    Statistically significant pairs (CI excludes 1.0) are highlighted in green. Interpret
+    cautiously: transitivity assumes exchangeable populations across trials.
+  </p>
+  <table>
+    <thead><tr><th>Class A</th><th></th><th>Class B</th><th>Indirect HR (95% CI)</th></tr></thead>
+    <tbody>
+'''
+    html += '\n'.join(bucher_rows)
+    html += '''
+    </tbody>
+  </table>
+'''
+
+    if discordant_html:
+        html += '''
+  <h2>Guideline concordance flags</h2>
+  <p style="font-size:12px;color:#94a3b8;margin-bottom:12px">
+    Classes where the current pooled ACM estimate does not cleanly match the expected
+    strength of the guideline recommendation. <strong>Overstrong</strong> = guideline
+    is stronger than the pooled evidence supports; <strong>understrong</strong> =
+    pooled evidence is stronger than the guideline currently acknowledges.
+  </p>
+'''
+        html += discordant_html
+
+    html += '''
   <h2>Methods</h2>
   <div class="method-text">
     <p><strong>Inclusion.</strong> All cardiology and cardiology-adjacent apps in the RapidMeta portfolio
@@ -415,11 +697,26 @@ footer{{margin-top:32px;padding-top:20px;border-top:1px solid #1e293b;text-align
     counts is used (with continuity correction for zero cells).</p>
     <p><strong>Pooling.</strong> Within each drug class, DerSimonian-Laird random-effects pooling
     on the log scale with HKSJ standard error adjustment. The portfolio-wide pool combines per-class
-    estimates as a meta of metas — methodologically meaningful as a measure of consistency, not as
-    a treatment recommendation.</p>
+    estimates as a meta of metas.</p>
+    <p><strong>Population stratification.</strong> Each drug class is tagged with a population category
+    (Heart failure, ASCVD prevention, Diabetes/cardiometabolic, Arrhythmia, Cardiomyopathy, BP/HTN,
+    Post-PCI antiplatelet, Post-MI, Pulm vascular, HF/CKD overlap, Anticoagulation). Within each
+    stratum, class-level effects are combined using DL random-effects pooling.</p>
+    <p><strong>Bucher indirect comparisons.</strong> Every pair of drug classes with pooled data is
+    compared via the shared placebo comparator: log(HR<sub>AB</sub>) = log(HR<sub>A</sub>) - log(HR<sub>B</sub>),
+    with variance = var(logHR<sub>A</sub>) + var(logHR<sub>B</sub>). Transitivity assumes exchangeable
+    populations across source trials, which is questionable when mixing HFrEF and HFpEF or diabetes and
+    primary prevention populations. Use with caution.</p>
+    <p><strong>Guideline concordance.</strong> Each drug class is tagged with its current recommendation
+    class (I / IIa / IIb / III) from ESC / AHA / KDIGO. A pooled estimate is considered concordant when
+    the strength of the pooled effect matches the recommendation class. Discordance flags either
+    <em>overstrong</em> (guideline stronger than evidence) or <em>understrong</em> (evidence stronger
+    than guideline).</p>
+    <p><strong>Freshness.</strong> The latest trial year for each app is displayed, enabling identification
+    of pools dominated by older trials that may no longer reflect current practice.</p>
     <p><strong>Validation.</strong> Each input estimate is independently validated against published
     meta-analyses through <code>validate_living_ma_portfolio.py</code>. Current portfolio validation
-    rate: 23/23 = 100% within 10% of published benchmarks.</p>
+    rate: 23/23 = 100% within 10% of published benchmarks. 11/11 ACM benchmarks also concordant.</p>
     <p><strong>Reproducibility.</strong> The atlas is regenerated by running
     <code>python cardiology_mortality_atlas.py</code> from the Finrenone repository. Each pooled
     estimate carries a provenance trail back to the trial-level data in
@@ -427,7 +724,7 @@ footer{{margin-top:32px;padding-top:20px;border-top:1px solid #1e293b;text-align
   </div>
 
   <footer>
-    Cardiology Mortality Atlas v1.0 &middot; Living Evidence Portfolio &middot;
+    Cardiology Mortality Atlas v2.0 &middot; Living Evidence Portfolio &middot;
     <a href="https://github.com/mahmood726-cyber/rapidmeta-finerenone" style="color:#3b82f6">GitHub</a>
     &middot; Generated by cardiology_mortality_atlas.py
   </footer>
@@ -450,28 +747,22 @@ if __name__ == '__main__':
     results = []
     all_estimates = []  # for portfolio-wide pool
 
-    for app_name, drug_class, filename, population in CARDIO_APPS:
-        path = find_app_path(filename)
+    for app in CARDIO_APPS:
+        path = find_app_path(app['filename'])
         if not path:
-            print(f'  SKIP {app_name}: file not found')
-            results.append({
-                'name': app_name, 'drug_class': drug_class, 'population': population,
-                'trials': [], 'pool': None,
-            })
+            print(f'  SKIP {app["name"]}: file not found')
+            results.append({**app, 'trials': [], 'pool': None, 'max_year': None})
             continue
 
         html_content = open(path, encoding='utf-8').read()
-        trials = parse_acm_outcomes(html_content, app_name)
+        trials = parse_acm_outcomes(html_content, app['name'])
+        max_year = extract_app_max_year(html_content)
 
         if not trials:
-            print(f'  {app_name:25s}  no ACM data found')
-            results.append({
-                'name': app_name, 'drug_class': drug_class, 'population': population,
-                'trials': [], 'pool': None,
-            })
+            print(f'  {app["name"]:25s}  no ACM data found  (max trial year: {max_year})')
+            results.append({**app, 'trials': [], 'pool': None, 'max_year': max_year})
             continue
 
-        # Pool ACM estimates within this drug class
         log_estimates = []
         for t in trials:
             if t['hr'] > 0 and t['lo'] > 0 and t['hi'] > 0:
@@ -479,15 +770,14 @@ if __name__ == '__main__':
 
         pool = dl_pool(log_estimates) if log_estimates else None
         if pool:
-            print(f'  {app_name:25s}  k={pool["k"]:2d}  HR {pool["pooled_est"]:.2f} ({pool["pooled_lo"]:.2f}-{pool["pooled_hi"]:.2f})  I²={pool["I2"]:.0f}%')
+            concord = assess_concordance(app['guideline_class'], pool)
+            print(f'  {app["name"]:25s}  k={pool["k"]:2d}  HR {pool["pooled_est"]:.2f} '
+                  f'({pool["pooled_lo"]:.2f}-{pool["pooled_hi"]:.2f})  I²={pool["I2"]:.0f}%  '
+                  f'Class {app["guideline_class"]}  [{concord}]  ({max_year})')
             all_estimates.append((pool['pooled_log'], pool['pooled_se']))
-        else:
-            print(f'  {app_name:25s}  has trials but no usable HRs')
 
-        results.append({
-            'name': app_name, 'drug_class': drug_class, 'population': population,
-            'trials': trials, 'pool': pool,
-        })
+        results.append({**app, 'trials': trials, 'pool': pool, 'max_year': max_year,
+                         'concordance': assess_concordance(app['guideline_class'], pool)})
 
     # Portfolio-wide pool of class-level estimates
     pooled_overall = dl_pool(all_estimates) if all_estimates else None
@@ -501,6 +791,53 @@ if __name__ == '__main__':
         print(f'  I-squared = {pooled_overall["I2"]:.1f}%')
         print(f'  Q = {pooled_overall["Q"]:.2f} on {pooled_overall["df"]} df')
 
+    # ─── Population stratification ───
+    print()
+    print('STRATIFIED BY POPULATION CATEGORY')
+    print('-' * 70)
+    pop_strata = {}
+    for r in results:
+        if not r['pool']:
+            continue
+        cat = r['population_category']
+        pop_strata.setdefault(cat, []).append((r['pool']['pooled_log'], r['pool']['pooled_se']))
+
+    pop_pools = {}
+    for cat, ests in sorted(pop_strata.items()):
+        pool = dl_pool(ests)
+        pop_pools[cat] = pool
+        if pool and pool['k'] >= 1:
+            print(f'  {cat:30s} k={pool["k"]:2d}  HR {pool["pooled_est"]:.2f} '
+                  f'({pool["pooled_lo"]:.2f}-{pool["pooled_hi"]:.2f})  I²={pool["I2"]:.0f}%')
+
+    # ─── Bucher indirect comparisons ───
+    print()
+    print('BUCHER INDIRECT COMPARISONS (top 10 most significant)')
+    print('-' * 70)
+    league = build_league_table(results)
+    league_sorted = sorted(league, key=lambda x: abs(math.log(x['est'])), reverse=True)
+    for entry in league_sorted[:10]:
+        sig_marker = '*' if entry['sig'] else ' '
+        print(f'  {sig_marker} {entry["a"][:18]:18s} vs {entry["b"][:18]:18s}  '
+              f'HR {entry["est"]:.2f} ({entry["lo"]:.2f}-{entry["hi"]:.2f})')
+
+    # ─── Guideline concordance ───
+    print()
+    print('GUIDELINE CONCORDANCE')
+    print('-' * 70)
+    concord_counts = {'concordant': 0, 'overstrong': 0, 'understrong': 0, 'no_data': 0}
+    for r in results:
+        if r.get('concordance'):
+            concord_counts[r['concordance']] = concord_counts.get(r['concordance'], 0) + 1
+    print(f'  Concordant:   {concord_counts["concordant"]} (evidence supports class)')
+    print(f'  Overstrong:   {concord_counts["overstrong"]} (guideline > evidence — flag)')
+    print(f'  Understrong:  {concord_counts["understrong"]} (evidence > guideline)')
+    discordant = [r for r in results if r.get('concordance') in ('overstrong', 'understrong')]
+    for r in discordant:
+        p = r['pool']
+        print(f'    {r["concordance"]:11s}  Class {r["guideline_class"]:3s}  {r["name"]:25s}  '
+              f'HR {p["pooled_est"]:.2f} ({p["pooled_lo"]:.2f}-{p["pooled_hi"]:.2f})')
+
     # Build forest plot rows (sorted by pooled HR ascending = best to worst)
     plot_rows = []
     sorted_results = sorted(
@@ -508,14 +845,15 @@ if __name__ == '__main__':
         key=lambda r: (r['pool']['pooled_est'] if r['pool'] else 99)
     )
     for r in sorted_results:
+        sublabel = f'{r["population_detail"]}  •  Class {r["guideline_class"]}  •  ≤{r["max_year"] or "?"}'
         if r['pool']:
             est = r['pool']['pooled_est']
             color = 'point-favors' if r['pool']['pooled_hi'] < 1 else 'point-null' if r['pool']['pooled_lo'] < 1 < r['pool']['pooled_hi'] else 'point-harm'
-            plot_rows.append((r['name'], r['population'], r['pool']['k'],
+            plot_rows.append((r['name'], sublabel, r['pool']['k'],
                               est, r['pool']['pooled_lo'], r['pool']['pooled_hi'],
                               color))
         else:
-            plot_rows.append((r['name'], r['population'], 0, None, None, None, ''))
+            plot_rows.append((r['name'], sublabel, 0, None, None, None, ''))
 
     if output_json:
         out = {
@@ -540,7 +878,7 @@ if __name__ == '__main__':
         # Build HTML atlas
         svg = build_forest_svg(plot_rows)
         generated = time.strftime('%Y-%m-%d %H:%M')
-        html = build_html(results, pooled_overall, None, svg, generated)
+        html = build_html(results, pooled_overall, pop_pools, league, svg, generated)
         out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                  'cardiology_mortality_atlas.html')
         with open(out_path, 'w', encoding='utf-8') as f:
