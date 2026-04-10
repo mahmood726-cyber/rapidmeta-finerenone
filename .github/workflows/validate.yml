@@ -1,0 +1,57 @@
+name: Validate Living MA Portfolio
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '*_REVIEW.html'
+      - 'LivingMeta.html'
+      - 'validate_living_ma_portfolio.py'
+      - 'generate_living_ma_v13.py'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run portfolio validation (local mode, strict)
+        run: |
+          python validate_living_ma_portfolio.py --local --strict
+
+      - name: Validate generator script (no errors)
+        run: |
+          python -c "
+          import ast
+          with open('generate_living_ma_v13.py') as f:
+              ast.parse(f.read())
+          print('generate_living_ma_v13.py: syntax OK')
+          "
+
+      - name: Check div balance on all apps
+        run: |
+          python -c "
+          import re, os, sys
+          fail = 0
+          for f in sorted(os.listdir('.')):
+              if not (f.endswith('_REVIEW.html') or f == 'LivingMeta.html'):
+                  continue
+              c = open(f, encoding='utf-8').read()
+              o = len(re.findall(r'<div[\s>]', c))
+              cl = c.count('</div>')
+              if abs(o - cl) > 2:
+                  print(f'FAIL {f}: {o}/{cl}')
+                  fail += 1
+              else:
+                  print(f'OK   {f}: {o}/{cl}')
+          if fail:
+              sys.exit(1)
+          "

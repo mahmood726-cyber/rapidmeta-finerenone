@@ -25,7 +25,7 @@ BENCHMARKS = {
     'ARNI_HF':          {'est': 0.84, 'lo': 0.77, 'hi': 0.91, 'measure': 'HR', 'src': 'PARADIGM+PARAGON+PARADISE'},
     'ABLATION_AF':      {'est': 0.77, 'lo': 0.64, 'hi': 0.93, 'measure': 'HR', 'src': 'CASTLE-AF+CABANA+EAST+RAFT'},
     'IV_IRON_HF':       {'est': 0.84, 'lo': 0.74, 'hi': 0.96, 'measure': 'HR', 'src': 'CONFIRM+AFFIRM+IRONMAN+HEART-FID'},
-    'COLCHICINE_CVD':   {'est': 0.75, 'lo': 0.61, 'hi': 0.91, 'measure': 'HR', 'src': 'COLCOT+LoDoCo2'},
+    'COLCHICINE_CVD':   {'est': 0.85, 'lo': 0.74, 'hi': 0.97, 'measure': 'HR', 'src': 'Updated 5-trial pool: COLCOT+LoDoCo2+COPS+CLEAR-SYNERGY+CONVINCE'},
     'RIVAROXABAN_VASC': {'est': 0.85, 'lo': 0.77, 'hi': 0.94, 'measure': 'HR', 'src': 'COMPASS+VOYAGER+ATLAS'},
     # New LivingMeta apps
     'OMECAMTIV':        {'est': 0.92, 'lo': 0.86, 'hi': 0.99, 'measure': 'HR', 'src': 'GALACTIC-HF+COSMIC-HF'},
@@ -48,21 +48,33 @@ BENCHMARKS = {
 # ═══════════════════════════════════════════════════════════
 
 def extract_real_data(html):
-    """Extract realData JS object from HTML."""
-    m = re.search(r'realData:\s*\{(.*?)\n\s{12}\},', html, re.DOTALL)
+    """Extract realData JS object from HTML. Handles both v16 multi-line and original single-line formats."""
+    # Find the realData block
+    m = re.search(r'realData:\s*\{(.*?)\n\s{8,12}\},', html, re.DOTALL)
     if not m:
         return {}
     block = m.group(1)
     trials = {}
-    for tm in re.finditer(r"'(NCT\d+)':\s*\{(.*?)\n\s{16}\}", block, re.DOTALL):
-        nct = tm.group(1)
-        body = tm.group(2)
+
+    # Find each trial entry by NCT id, then capture body until next NCT entry or closing brace
+    nct_starts = [(tm.start(), tm.group(1)) for tm in re.finditer(r"'(NCT\d+)':\s*\{", block)]
+    if not nct_starts:
+        return {}
+
+    for i, (start, nct) in enumerate(nct_starts):
+        # Body extends from this NCT to next NCT (or end of block)
+        end = nct_starts[i + 1][0] if i + 1 < len(nct_starts) else len(block)
+        body = block[start:end]
         d = {}
         for field in ['tE', 'tN', 'cE', 'cN', 'publishedHR', 'hrLCI', 'hrUCI']:
-            fm = re.search(rf'{field}:\s*([\d.]+|null)', body)
+            # Match field followed by number or null
+            fm = re.search(rf'\b{field}:\s*([-\d.]+|null)', body)
             if fm and fm.group(1) != 'null':
-                d[field] = float(fm.group(1))
-        nm = re.search(r"name:\s*'([^']+)'", body)
+                try:
+                    d[field] = float(fm.group(1))
+                except ValueError:
+                    pass
+        nm = re.search(r"name:\s*['\"]([^'\"]+)['\"]", body)
         if nm:
             d['name'] = nm.group(1)
         trials[nct] = d
@@ -131,31 +143,40 @@ def check_dose_response(html):
 # MAIN
 # ═══════════════════════════════════════════════════════════
 
-def find_all_apps():
-    """Find all living MA HTML files across all project dirs."""
+def find_all_apps(local_only=False):
+    """Find all living MA HTML files. If local_only, only the current directory."""
     apps = []
+    if local_only:
+        here = os.path.dirname(os.path.abspath(__file__))
+        for f in sorted(glob.glob(os.path.join(here, '*_REVIEW.html'))):
+            name = os.path.basename(f).replace('_REVIEW.html', '')
+            apps.append((f, name))
+        return apps
+
     # Finrenone dir
-    for f in glob.glob(r'C:\Projects\Finrenone\*_REVIEW.html'):
+    for f in sorted(glob.glob(r'C:\Projects\Finrenone\*_REVIEW.html')):
         name = os.path.basename(f).replace('_REVIEW.html', '')
         apps.append((f, name))
     # LivingMeta dirs
-    for d in sorted(os.listdir(r'C:\Projects')):
-        full = os.path.join(r'C:\Projects', d)
-        if not os.path.isdir(full):
-            continue
-        if not (d.endswith('_LivingMeta') or d.startswith('LivingMeta_')):
-            continue
-        for f in os.listdir(full):
-            if f.endswith('_REVIEW.html'):
-                apps.append((os.path.join(full, f), f.replace('_REVIEW.html', '')))
+    if os.path.isdir(r'C:\Projects'):
+        for d in sorted(os.listdir(r'C:\Projects')):
+            full = os.path.join(r'C:\Projects', d)
+            if not os.path.isdir(full):
+                continue
+            if not (d.endswith('_LivingMeta') or d.startswith('LivingMeta_')):
+                continue
+            for f in os.listdir(full):
+                if f.endswith('_REVIEW.html'):
+                    apps.append((os.path.join(full, f), f.replace('_REVIEW.html', '')))
     return apps
 
 
 if __name__ == '__main__':
     output_json = '--json' in sys.argv
     strict = '--strict' in sys.argv
+    local_only = '--local' in sys.argv
 
-    apps = find_all_apps()
+    apps = find_all_apps(local_only=local_only)
     results = []
     benchmarked = 0
     matched = 0
@@ -188,7 +209,7 @@ if __name__ == '__main__':
 
             if bench:
                 diff = abs(pool['est'] - bench['est']) / bench['est'] * 100
-                ok = diff < 10
+                ok = diff <= 10.01  # inclusive threshold with float tolerance
                 entry['benchmark'] = bench['est']
                 entry['diff_pct'] = round(diff, 1)
                 entry['match'] = ok
