@@ -1534,6 +1534,21 @@ APPS.append({
             ],
         },
     },
+    # Dose-response: SURMOUNT-1 (tirzepatide 5/10/15 mg vs placebo, mean % weight change wk 72)
+    # Jastreboff et al. NEJM 2022;387:205-216, Fig 2 / Table 2
+    # SE estimated from 95% CI widths reported in supplement (~0.3-0.5)
+    "dose_response": {
+        "label": "Tirzepatide Dose-Response (SURMOUNT-1, Weight Loss at Week 72)",
+        "unit": "mg/week",
+        "outcomeLabel": "Mean % Body Weight Change",
+        "source": "Jastreboff et al. NEJM 2022;387:205-216",
+        "doses": [
+            {"dose": 0, "effect": -3.1, "se": 0.3, "n": 643, "label": "Placebo"},
+            {"dose": 5, "effect": -15.0, "se": 0.5, "n": 630, "label": "5 mg"},
+            {"dose": 10, "effect": -19.5, "se": 0.4, "n": 636, "label": "10 mg"},
+            {"dose": 15, "effect": -20.9, "se": 0.4, "n": 630, "label": "15 mg"}
+        ]
+    },
 })
 
 # ─── Task 2a: Semaglutide in HFpEF ─────────────────────────
@@ -6968,6 +6983,22 @@ APPS.append({
                 },
             ],
         },
+    },
+    # Dose-response: Cross-drug comparison at standardized doses
+    # SURMOUNT-1 (tirzepatide), STEP 1 (semaglutide 2.4mg), Wharton 2023 (orforglipron 36mg)
+    "dose_response": {
+        "label": "GLP-1 RA Dose-Response Landscape (Mean % Weight Change)",
+        "unit": "mg/week",
+        "outcomeLabel": "Mean % Body Weight Change",
+        "source": "SURMOUNT-1 (NEJM 2022), STEP 1 (NEJM 2021), Wharton NEJM 2023",
+        "doses": [
+            {"dose": 0, "effect": -2.4, "se": 0.3, "n": 1300, "label": "Placebo (pooled)"},
+            {"dose": 5, "effect": -15.0, "se": 0.5, "n": 630, "label": "Tirzepatide 5mg"},
+            {"dose": 10, "effect": -19.5, "se": 0.4, "n": 636, "label": "Tirzepatide 10mg"},
+            {"dose": 15, "effect": -20.9, "se": 0.4, "n": 630, "label": "Tirzepatide 15mg"},
+            {"dose": 2.4, "effect": -14.9, "se": 0.4, "n": 1306, "label": "Semaglutide 2.4mg"},
+            {"dose": 36, "effect": -13.5, "se": 0.8, "n": 54, "label": "Orforglipron 36mg"}
+        ]
     },
 })
 
