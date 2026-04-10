@@ -1051,8 +1051,10 @@ APPS.append({
         "NCT03399370": "ORION-10",
         "NCT03400800": "ORION-11",
         "NCT03705234": "ORION-4",
+        "NCT03814187": "ORION-8",
+        "NCT04873934": "V-INCEPTION",
     },
-    "auto_include_ids": ["NCT03397121", "NCT03399370", "NCT03400800", "NCT03705234"],
+    "auto_include_ids": ["NCT03397121", "NCT03399370", "NCT03400800", "NCT03705234", "NCT03814187", "NCT04873934"],
     "trials": {
         # ── ORION-9: Inclisiran in HeFH ─────────────────────────
         "NCT03397121": {
@@ -1248,6 +1250,47 @@ APPS.append({
                     "source": "Protocol analysis",
                     "text": "ORION-4 will be the definitive cardiovascular outcomes trial for inclisiran. It is the largest inclisiran trial by enrollment (16,124) and the only trial powered for MACE as a primary endpoint. Results expected 2026, will dramatically update this living MA.",
                     "highlights": ["definitive", "16,124", "primary endpoint", "2026"],
+                },
+            ],
+        },
+        # ── ORION-8: Long-term extension (added by living scanner 2026-04-10) ──
+        "NCT03814187": {
+            "name": "ORION-8", "phase": "III", "year": 2024,
+            # n=3,275, Novartis, primary completion 2023-02-13, results YES
+            # Long-term safety/efficacy follow-on for ORION-9/10/11 patients
+            # VERIFY: extract LDL-C reduction percentage from CT.gov results
+            "tE": 0, "tN": 3275, "cE": 0, "cN": 0,
+            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "group": "Long-term extension (added 2026-04-10)",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT03814187 (ORION-8). Long-term extension trial for ORION-9/10/11 inclisiran-treated patients. n=3,275. Status: COMPLETED Feb 2023, results posted. Detected via living_update_scanner. PENDING manual extraction.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT03814187",
+            "evidence": [
+                {
+                    "label": "Living Scanner Detection",
+                    "source": "living_update_scanner.py 2026-04-10",
+                    "text": "Detected via CT.gov API v2 query. n=3,275 long-term extension. Primary completion 2023-02-13. Results posted to CT.gov. Provides 4-year LDL-C durability data complementing the original ORION-9/10/11 dataset.",
+                    "highlights": ["3,275", "long-term", "results posted"],
+                },
+            ],
+        },
+        # ── V-INCEPTION: Implementation trial (added by living scanner 2026-04-10) ──
+        "NCT04873934": {
+            "name": "V-INCEPTION", "phase": "III", "year": 2024,
+            # n=400, Novartis, primary completion 2024-08-07, results YES
+            # Implementation trial: inclisiran + usual care vs usual care alone
+            "tE": 0, "tN": 400, "cE": 0, "cN": 0,
+            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "group": "Implementation/usual-care (added 2026-04-10)",
+            "rob": ["low", "low", "low", "some", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT04873934 (V-INCEPTION). Implementation effectiveness trial. n=400. Status: COMPLETED Aug 2024, results posted. Detected via living_update_scanner.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT04873934",
+            "evidence": [
+                {
+                    "label": "Living Scanner Detection",
+                    "source": "living_update_scanner.py 2026-04-10",
+                    "text": "Implementation effectiveness trial of inclisiran + usual care versus usual care alone. n=400 patients. Pragmatic design.",
+                    "highlights": ["400", "implementation", "pragmatic"],
                 },
             ],
         },
@@ -2889,8 +2932,9 @@ APPS.append({
         "NCT02861534": "VICTORIA",
         "NCT03547583": "VITALITY-HFpEF",
         "NCT01951625": "SOCRATES-REDUCED",
+        "NCT05093933": "VICTOR",
     },
-    "auto_include_ids": ["NCT02861534", "NCT03547583", "NCT01951625"],
+    "auto_include_ids": ["NCT02861534", "NCT03547583", "NCT01951625", "NCT05093933"],
     "trials": {
         # ── VICTORIA: Definitive Phase 3 CVOT (NEJM 2020) ──────
         "NCT02861534": {
@@ -3068,6 +3112,34 @@ APPS.append({
                     "source": "Gheorghiade M et al. JAMA 2015;314:2251-2262",
                     "text": "NT-proBNP reduction was numerically greater with vericiguat 10mg (-225 pg/mL ratio vs placebo 0.95, 95% CI 0.73-1.24, P=0.69) but did not reach significance. However, exploratory analysis showed a favorable dose-response trend for CV death or HF hospitalization, supporting the 10mg target dose used in VICTORIA.",
                     "highlights": ["dose-response trend", "10mg target"],
+                },
+            ],
+        },
+        # ── VICTOR: Phase 3 chronic HFrEF (added by living scanner 2026-04-10) ──
+        "NCT05093933": {
+            "name": "VICTOR", "phase": "III", "year": 2024,
+            # Detected by living_update_scanner.py
+            # Status: COMPLETED, results posted to CT.gov 2024-11
+            # n=6,106, Merck-sponsored, chronic HFrEF
+            # VERIFY: extract HR for primary CV death/HF hosp from CT.gov results section
+            "tE": 0, "tN": 6106, "cE": 0, "cN": 0,
+            "publishedHR": None, "hrLCI": None, "hrUCI": None,
+            "group": "Chronic HFrEF (added 2026-04-10)",
+            "rob": ["low", "low", "low", "low", "low"],
+            "snippet": "Source: ClinicalTrials.gov NCT05093933 (VICTOR). Status: COMPLETED 2024-11. Results posted. Sponsor: Merck Sharp & Dohme. Detected via living_update_scanner. PENDING: manual HR extraction from CT.gov results.",
+            "sourceUrl": "https://clinicaltrials.gov/study/NCT05093933",
+            "evidence": [
+                {
+                    "label": "Living Scanner Detection",
+                    "source": "living_update_scanner.py 2026-04-10",
+                    "text": "Detected via CT.gov API v2 query. n=6,106 chronic HFrEF patients. Primary completion 2024-11-20. Results posted to CT.gov but require manual extraction.",
+                    "highlights": ["6,106", "2024-11", "results posted"],
+                },
+                {
+                    "label": "VERIFY",
+                    "source": "Pending manual extraction",
+                    "text": "Run extract_ctgov_results.py NCT05093933 or visit https://clinicaltrials.gov/study/NCT05093933?tab=results to extract primary HR for CV death or HF hospitalization. This trial increases the VERICIGUAT pool from k=1 to k=2 once HR data is added.",
+                    "highlights": ["k=1", "k=2", "EXTRACT"],
                 },
             ],
         },

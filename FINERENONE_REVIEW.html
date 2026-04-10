@@ -2090,6 +2090,22 @@
                 publicationDate: '2026-03-05',
                 publicationSource: 'PubMed PMID:40211489',
                 notes: 'A publication abstract is available while the curated CT.gov record still shows no posted results.'
+            },
+            NCT05047263: {
+                label: 'FIND-CKD',
+                role: 'ghost_watchlist',
+                registeredPrimary: 'KidneyComp',
+                registeredPrimaryLabel: 'Kidney Composite (FIND-CKD specific)',
+                resultsPosted: false,
+                resultsFirstPosted: null,
+                completionDate: '2025-12-31',
+                ctgovLastUpdate: '2026-01-15',
+                protocolDocument: false,
+                sapDocument: false,
+                recordHistoryCaptured: false,
+                publicationDate: null,
+                publicationSource: null,
+                notes: 'Detected by living_update_scanner.py 2026-04-10. Bayer-sponsored, n=1584. Completed Dec 2025, results pending. PENDING manual extraction once results post or publication appears.'
             }
         };
 
@@ -12676,7 +12692,7 @@ print(res_sub)`;
                 ];
 
                 const recommendations = [];
-                if (ghostSignals > 0) recommendations.push({ level: 'warn', title: 'Maintain a ghost-result watchlist', text: 'Keep CONFIDENCE and FINE-ONE in a live rerun queue and refresh the delta table whenever CT.gov posts results.' });
+                if (ghostSignals > 0) recommendations.push({ level: 'warn', title: 'Maintain a ghost-result watchlist', text: 'Keep CONFIDENCE, FINE-ONE, and FIND-CKD in a live rerun queue and refresh the delta table whenever CT.gov posts results.' });
                 if (primaryEndpointDrift > 0 || confirmedPrimaryDrift > 0) recommendations.push({ level: 'info', title: 'Declare endpoint bridging explicitly', text: 'Name every analyzed non-primary endpoint bridge and separate structural CT.gov primary-outcome drift from wording-only registry updates in the manuscript methods, with the original registered primary kept visible in the table.' });
                 if (abstractOnly > 0 || approximateOrDerived > 0) recommendations.push({ level: 'warn', title: 'Flag non-registry derivations', text: 'Any abstract-only, approximate, or derived endpoint counts should remain labeled in the evidence ledger and sensitivity narrative.' });
                 if (historyLocked < tracked) recommendations.push({ level: 'warn', title: 'Harvest CT.gov version history', text: 'Run `python ctgov_history_harvest.py` for the finerenone watchlist, then import the generated history pack before claiming true protocol drift.' });
