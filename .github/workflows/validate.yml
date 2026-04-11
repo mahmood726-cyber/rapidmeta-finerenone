@@ -6,7 +6,10 @@ on:
     paths:
       - '*_REVIEW.html'
       - 'LivingMeta.html'
+      - 'index.html'
+      - 'e156-submission/**'
       - 'validate_living_ma_portfolio.py'
+      - 'validate_pages_links.py'
       - 'generate_living_ma_v13.py'
   pull_request:
     branches: [main]
@@ -35,6 +38,10 @@ jobs:
               ast.parse(f.read())
           print('generate_living_ma_v13.py: syntax OK')
           "
+
+      - name: Validate published Pages links
+        run: |
+          python validate_pages_links.py
 
       - name: Check div balance on all apps
         run: |

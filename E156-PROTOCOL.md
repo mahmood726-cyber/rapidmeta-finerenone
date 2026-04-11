@@ -10,7 +10,7 @@
 **Date Last Updated**: 2026-04-07
 **Status**: DRAFT
 
-**Dashboard**: [https://mahmood726-cyber.github.io/finrenone/](https://mahmood726-cyber.github.io/finrenone/)
+**Dashboard**: [https://mahmood726-cyber.github.io/rapidmeta-finerenone/](https://mahmood726-cyber.github.io/rapidmeta-finerenone/)
 
 ## E156 Abstract (CURRENT BODY)
 
