@@ -5555,7 +5555,7 @@ const ScreenEngine = {
     const sr = sd.screenReview;
     if (!sr?.decision) { showToast('Set a proposed include/exclude decision first.'); return; }
     if (!String(sr.note ?? '').trim()) { showToast('Add a screening rationale note before second confirmation.'); return; }
-    if (String(sr.reviewer1 ?? '').trim().toLowerCase() === actor.toLowerCase()) {
+    if (String(sr.reviewer1 ?? '').trim().toLowerCase() === String(actor ?? "").toLowerCase()) {
       showToast('Second reviewer must be different from first reviewer.');
       return;
     }
@@ -5953,7 +5953,7 @@ const TextExtractor = (() => {
     /* Comma before CI label → semicolon */
     t = t.replace(/(\d),\s*(95%?\s*CI)/gi, '$1; $2');
     /* Run-together fixes */
-    const tl = t.toLowerCase();
+    const tl = String(t ?? "").toLowerCase();
     for (const [from, to] of RUN_TOGETHER) {
       if (tl.includes(from)) t = t.replace(new RegExp(from, 'gi'), to);
     }
@@ -6651,7 +6651,7 @@ function classifyTrialScore(trial) {
   }
 
   /* Allocation check */
-  if (trial.allocation && !trial.allocation.toLowerCase().includes('random')) {
+  if (trial.allocation && !trial.String(allocation ?? "").toLowerCase().includes('random')) {
     score -= 15; rationale.push('-Not randomized (' + trial.allocation + ')');
   }
 
@@ -6847,7 +6847,7 @@ function renderTrialResultsPanel(results, containerId) {
     html += '<div class="detail-section"><div class="detail-section-title">CT.gov Baseline Demographics <span style="font-size:0.7rem;font-weight:400;color:var(--text-muted);">(from results section — independently verifiable)</span></div>';
     html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px;font-size:0.78rem;">';
     const keyDemos = results.demographics.filter(function(d) {
-      var l = d.label.toLowerCase();
+      var l = d.String(label ?? "").toLowerCase();
       return l.includes('age') || l.includes('sex') || l.includes('female') || l.includes('male') || l.includes('race') || l.includes('ethnicity') || l.includes('bmi') || l.includes('weight') || l.includes('egfr') || l.includes('hba1c') || l.includes('ldl') || l.includes('blood pressure') || l.includes('ejection');
     }).slice(0, 12);
     (keyDemos.length > 0 ? keyDemos : results.demographics.slice(0, 8)).forEach(function(d) {
@@ -7963,7 +7963,7 @@ function influenceDiag(yi, vi, tau2) {
    SECTION 10: DUAL-TRACK SYNTHESIS ENGINE
    ======================================================================= */
 function getTrialOutcome(trial, outcomeKey) {
-  const key = (outcomeKey === 'default') ? 'mace' : outcomeKey.toLowerCase();
+  const key = (outcomeKey === 'default') ? 'mace' : String(outcomeKey ?? "").toLowerCase();
   const oc = trial.outcomes?.[key];
   if (!oc) return null;
   /* Apply user overrides from Extract tab if any exist */
@@ -13867,7 +13867,7 @@ function init() {
   document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
     if (AppState.activeTab !== 'screen') return;
-    const key = e.key.toLowerCase();
+    const key = e.String(key ?? "").toLowerCase();
     if (key === 'i') { ScreenEngine.resolve('include'); e.preventDefault(); }
     if (key === 'e') { ScreenEngine.resolve('exclude'); e.preventDefault(); }
     if (key === 'c') { ScreenEngine.confirmCurrentDecision(); e.preventDefault(); }

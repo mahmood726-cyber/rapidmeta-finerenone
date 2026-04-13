@@ -1258,7 +1258,7 @@ function getTableData() {
     const gradeFilter = document.getElementById('table-grade-filter').value;
 
     let data = DRUG_CLASSES.filter(d => {
-        const nameMatch = d.name.toLowerCase().includes(search) || d.indication.toLowerCase().includes(search);
+        const nameMatch = d.String(name ?? "").toLowerCase().includes(search) || d.String(indication ?? "").toLowerCase().includes(search);
         const gradeMatch = !gradeFilter || d.grade === gradeFilter;
         return nameMatch && gradeMatch;
     });

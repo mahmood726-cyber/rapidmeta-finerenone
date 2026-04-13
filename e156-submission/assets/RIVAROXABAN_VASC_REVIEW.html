@@ -1426,7 +1426,7 @@
                 if (/^[A-Za-z]{1,2}$/.test(term)) continue;
                 if (/^[A-Za-z]+$/.test(term) && /^(and|or|vs|to|of|in|on|at|by|for|the|a|an)$/i.test(term)) continue;
                 if (/^[^\w\d]+$/.test(term)) continue;
-                const key = term.toLowerCase();
+                const key = String(term ?? "").toLowerCase();
                 if (seen.has(key)) continue;
                 seen.add(key);
                 out.push(term);
@@ -1996,7 +1996,7 @@ const ContinuousMDEngine = {
                 const ts2 = this.sanitizeIsoTime(raw.ts2);
                 const sig1 = this.sanitizeText(raw.sig1, 64);
                 const sig2 = this.sanitizeText(raw.sig2, 64);
-                const confirmed = Boolean(raw.confirmed) && decision && reviewer1 && reviewer2 && reviewer1.toLowerCase() !== reviewer2.toLowerCase();
+                const confirmed = Boolean(raw.confirmed) && decision && reviewer1 && reviewer2 && String(reviewer1 ?? "").toLowerCase() !== String(reviewer2 ?? "").toLowerCase();
                 if (!decision && !reviewer1 && !note) return null;
                 return {
                     decision,
@@ -2022,7 +2022,7 @@ const ContinuousMDEngine = {
                 const sig1 = this.sanitizeText(raw.sig1, 64);
                 const sig2 = this.sanitizeText(raw.sig2, 64);
                 const allowConfirmed = Boolean(opts.allowConfirmed);
-                const confirmed = Boolean(raw.confirmed) && allowConfirmed && reviewer1 && reviewer2 && reviewer1.toLowerCase() !== reviewer2.toLowerCase();
+                const confirmed = Boolean(raw.confirmed) && allowConfirmed && reviewer1 && reviewer2 && String(reviewer1 ?? "").toLowerCase() !== String(reviewer2 ?? "").toLowerCase();
                 if (!reviewer1 && !note && !confirmed) return null;
                 return {
                     reviewer1,
@@ -2551,11 +2551,11 @@ const ContinuousMDEngine = {
                         }
                         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
                         if (this.state.activeTab === 'screen') {
-                            if (e.key.toLowerCase() === 'i') ScreenEngine.resolve('include');
-                            if (e.key.toLowerCase() === 'e') ScreenEngine.resolve('exclude');
-                            if (e.key.toLowerCase() === 'c') ScreenEngine.confirmCurrentDecision();
-                            if (e.key.toLowerCase() === 'n') { ScreenEngine.activeIdx = Math.min(ScreenEngine.activeIdx + 1, ScreenEngine.getQueue().length - 1); ScreenEngine.select(ScreenEngine.activeIdx); }
-                            if (e.key.toLowerCase() === 'p') { ScreenEngine.activeIdx = Math.max(ScreenEngine.activeIdx - 1, 0); ScreenEngine.select(ScreenEngine.activeIdx); }
+                            if (e.String(key ?? "").toLowerCase() === 'i') ScreenEngine.resolve('include');
+                            if (e.String(key ?? "").toLowerCase() === 'e') ScreenEngine.resolve('exclude');
+                            if (e.String(key ?? "").toLowerCase() === 'c') ScreenEngine.confirmCurrentDecision();
+                            if (e.String(key ?? "").toLowerCase() === 'n') { ScreenEngine.activeIdx = Math.min(ScreenEngine.activeIdx + 1, ScreenEngine.getQueue().length - 1); ScreenEngine.select(ScreenEngine.activeIdx); }
+                            if (e.String(key ?? "").toLowerCase() === 'p') { ScreenEngine.activeIdx = Math.max(ScreenEngine.activeIdx - 1, 0); ScreenEngine.select(ScreenEngine.activeIdx); }
                         }
                     });
                 }
@@ -2620,7 +2620,7 @@ const ContinuousMDEngine = {
                 const owner = String(lock.owner ?? '--');
                 el.textContent = `Locked: ${owner}${conflictCount ? ` | Conflicts:${conflictCount}` : ''}`;
                 const actor = String(this.state.reviewerId ?? '').trim().toLowerCase();
-                el.className = actor && actor === owner.toLowerCase()
+                el.className = actor && actor === String(owner ?? "").toLowerCase()
                     ? 'text-[9px] text-emerald-400 uppercase tracking-widest font-bold'
                     : 'text-[9px] text-amber-400 uppercase tracking-widest font-bold';
             },
@@ -2637,7 +2637,7 @@ const ContinuousMDEngine = {
                 }
                 const reviewer1 = tokens[0];
                 const reviewer2 = tokens[1];
-                if (reviewer1.toLowerCase() === reviewer2.toLowerCase()) {
+                if (String(reviewer1 ?? "").toLowerCase() === String(reviewer2 ?? "").toLowerCase()) {
                     showToast('Reviewer names must be different for dual sign-off.');
                     return null;
                 }
@@ -2656,8 +2656,8 @@ const ContinuousMDEngine = {
                 const lock = this.state.reviewLock ?? { owner: '', ts: '' };
                 const active = this._isReviewLockActive(lock);
                 const owner = String(lock.owner ?? '').trim();
-                const allowedOwners = [r1.toLowerCase(), r2.toLowerCase()];
-                if (active && owner && !allowedOwners.includes(owner.toLowerCase())) {
+                const allowedOwners = [String(r1 ?? "").toLowerCase(), String(r2 ?? "").toLowerCase()];
+                if (active && owner && !allowedOwners.includes(String(owner ?? "").toLowerCase())) {
                     showToast(`Review lock held by ${owner}. Use one of these reviewer IDs or take over lock first.`);
                     this.refreshReviewLockStatus();
                     return false;
@@ -2673,13 +2673,13 @@ const ContinuousMDEngine = {
                 if (!actor) return '';
                 const lock = this.state.reviewLock ?? { owner: '', ts: '' };
                 const active = this._isReviewLockActive(lock);
-                if (active && String(lock.owner ?? '').trim().toLowerCase() !== actor.toLowerCase()) {
+                if (active && String(lock.owner ?? '').trim().toLowerCase() !== String(actor ?? "").toLowerCase()) {
                     showToast(`Review lock held by ${lock.owner}. Import handoff or take lock to continue.`);
                     this.refreshReviewLockStatus();
                     return '';
                 }
                 const lastTs = Date.parse(lock.ts ?? 0) || 0;
-                if (!active || String(lock.owner ?? '').trim().toLowerCase() !== actor.toLowerCase() || (Date.now() - lastTs) > 30000) {
+                if (!active || String(lock.owner ?? '').trim().toLowerCase() !== String(actor ?? "").toLowerCase() || (Date.now() - lastTs) > 30000) {
                     this.state.reviewLock = { owner: actor, ts: new Date().toISOString() };
                     this.save();
                     this.refreshReviewLockStatus();
@@ -2699,7 +2699,7 @@ const ContinuousMDEngine = {
                     return;
                 }
                 const owner = String(lock.owner ?? '').trim();
-                if (owner.toLowerCase() === actor.toLowerCase()) {
+                if (String(owner ?? "").toLowerCase() === String(actor ?? "").toLowerCase()) {
                     this.state.reviewLock = { owner: '', ts: '' };
                     this.save();
                     this.refreshReviewLockStatus();
@@ -3277,7 +3277,7 @@ const ContinuousMDEngine = {
                 if (nytLabel) nytLabel.textContent = `Pooled ${short}`;
                 // CI comparison description
                 const ciDesc = document.getElementById('ci-compare-desc');
-                if (ciDesc) ciDesc.textContent = `Visual comparison of estimation methods on the ${long.toLowerCase()} scale. The pooled point estimate is identical; interval widths differ by method.`;
+                if (ciDesc) ciDesc.textContent = `Visual comparison of estimation methods on the ${String(long ?? "").toLowerCase()} scale. The pooled point estimate is identical; interval widths differ by method.`;
                 // Protocol table effect measure description
                 const protDesc = document.getElementById('protocol-em-desc');
                 if (protDesc) {
@@ -4795,7 +4795,7 @@ const ContinuousMDEngine = {
                     // === Process SOURCE 3: OpenAlex ===
                     let oaCount = 0;
                     if (oaResult.status === 'fulfilled') {
-                        const seenTitles = new Set(trials.map(t => t.title.toLowerCase().replace(/[^a-z0-9]/g, '')));
+                        const seenTitles = new Set(trials.map(t => t.String(title ?? "").toLowerCase().replace(/[^a-z0-9]/g, '')));
                         (oaResult.value.results ?? []).forEach(work => {
                             const doi = work.doi?.replace('https://doi.org/', '') ?? '';
                             const oaId = work.ids?.pmid?.replace('https://pubmed.ncbi.nlm.nih.gov/', '') ?? '';
@@ -4803,7 +4803,7 @@ const ContinuousMDEngine = {
                             if (pmidKey && seenIds.has(pmidKey)) return;
                             if (doi && seenIds.has(doi)) return;
                             const title = work.title ?? '';
-                            const titleLow = title.toLowerCase().replace(/[^a-z0-9]/g, '');
+                            const titleLow = String(title ?? "").toLowerCase().replace(/[^a-z0-9]/g, '');
                             if (titleLow.length > 10 && seenTitles.has(titleLow)) return;
                             let abstractText = '';
                             if (work.abstract_inverted_index) {
@@ -5229,7 +5229,7 @@ const ContinuousMDEngine = {
                 const sr = t.screenReview;
                 if (!sr?.decision) { showToast('Set a proposed include/exclude decision first.'); return; }
                 if (!String(sr.note ?? '').trim()) { showToast('Add a screening rationale note before second confirmation.'); return; }
-                if (String(sr.reviewer1 ?? '').trim().toLowerCase() === actor.toLowerCase()) {
+                if (String(sr.reviewer1 ?? '').trim().toLowerCase() === String(actor ?? "").toLowerCase()) {
                     showToast('Second reviewer must be different from first reviewer.');
                     return;
                 }
@@ -5390,7 +5390,7 @@ const ContinuousMDEngine = {
             /* Comma before CI label -> semicolon */
             t = t.replace(/(\d),\s*(95%?\s*CI)/gi, '$1; $2');
             /* Run-together fixes */
-            const tl = t.toLowerCase();
+            const tl = String(t ?? "").toLowerCase();
             for (const [from, to] of RUN_TOGETHER) {
               if (tl.includes(from)) t = t.replace(new RegExp(from, 'gi'), to);
             }
@@ -6128,7 +6128,7 @@ const ContinuousMDEngine = {
                         }
                         /* Classify outcome into short labels */
                         const title = om.title ?? '';
-                        const titleLower = title.toLowerCase();
+                        const titleLower = String(title ?? "").toLowerCase();
                         let shortLabel;
                         if (/cardiovascular.*death.*myocardial|cv.*composite|mace/i.test(titleLower)) shortLabel = 'MACE';
                         /* renal composite detection removed (not applicable) */
@@ -6279,7 +6279,7 @@ const ContinuousMDEngine = {
                     if (e1 <= n1 && e2 <= n2 && n1 >= 5 && n2 >= 5 && n1 <= 50000) {
                         /* Determine arm order from context ±200 chars */
                         const rawCtx = text.substring(Math.max(0,m.index-200), m.index+m[0].length+200);
-                        const ctxLower = rawCtx.toLowerCase();
+                        const ctxLower = String(rawCtx ?? "").toLowerCase();
                         const finPos = Math.min(...['rivaroxaban', 'bay 94', 'treatment', 'active'].map(k => {
                             const idx = ctxLower.indexOf(k);
                             return idx === -1 ? Number.POSITIVE_INFINITY : idx;
@@ -7296,7 +7296,7 @@ const ContinuousMDEngine = {
                     return;
                 }
                 if (!sign?.reviewer2) {
-                    if (String(sign.reviewer1).trim().toLowerCase() === actor.toLowerCase()) {
+                    if (String(sign.reviewer1).trim().toLowerCase() === String(actor ?? "").toLowerCase()) {
                         showToast('Second reviewer must be different from first reviewer.');
                         return;
                     }
@@ -8966,7 +8966,7 @@ const ContinuousMDEngine = {
                 return computeGradeAssessment(c, RapidMeta.getScopedIncludedTrials({ requireData: true })).certainty;
             },
             _plainLanguage(or, lci, uci, outcome, certainty = 'MODERATE') {
-                const ocLow = outcome.toLowerCase();
+                const ocLow = String(outcome ?? "").toLowerCase();
                 const _drug = RapidMeta.state.protocol?.int ?? 'The intervention';
                 const hedge = certainty === 'HIGH' ? '' : certainty === 'MODERATE' ? 'probably ' : certainty === 'LOW' ? 'may ' : 'The evidence is very uncertain whether it ';
                 if (certainty === 'VERY LOW') return `The evidence is very uncertain about the effect of ${_drug} on ${ocLow}.`;
@@ -12900,7 +12900,7 @@ except ImportError:
                 'We searched ClinicalTrials.gov, PubMed, and OpenAlex for randomized controlled trials of ' +
                 drugName + ' versus ' + comparator + ' in ' + population + '. ' +
                 'Eligible studies were ' + (phases.length > 0 ? 'Phase ' + phases.join('/') + ' ' : '') + 'RCT' + (k !== 1 ? 's' : '') + ' reporting the primary cardiovascular composite endpoint. ' +
-                'We pooled ' + emLong.toLowerCase() + 's using the DerSimonian-Laird random-effects model with ' + confLevel + '% confidence intervals. ' +
+                'We pooled ' + String(emLong ?? "").toLowerCase() + 's using the DerSimonian-Laird random-effects model with ' + confLevel + '% confidence intervals. ' +
                 'Heterogeneity was assessed using I\u00B2 and Cochran Q statistics. ' +
                 'Publication bias was evaluated using Egger regression, funnel plot asymmetry, trim-and-fill, and the Copas selection model. ' +
                 'Certainty of evidence was assessed using the GRADE framework. ' +

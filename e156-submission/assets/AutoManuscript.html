@@ -742,7 +742,7 @@ function buildDetailedPara(d) {
         p += 'The primary endpoint did not reach statistical significance (CI crosses the null). ';
     }
 
-    p += 'The certainty of evidence was rated <strong class="grade-' + d.grade.toLowerCase().replace(' ', '') + '">' + d.grade + '</strong> by GRADE assessment';
+    p += 'The certainty of evidence was rated <strong class="grade-' + d.String(grade ?? "").toLowerCase().replace(' ', '') + '">' + d.grade + '</strong> by GRADE assessment';
 
     if (d.grade === 'LOW') {
         p += ', primarily due to substantial heterogeneity and/or imprecision';
@@ -772,7 +772,7 @@ function buildBriefPara(d) {
            'Pooled ' + estimandLabel + ' <span class="' + sigClass + '">' + fmtEffect(d) +
            ' (95% CI ' + d.lci.toFixed(2) + '&ndash;' + d.uci.toFixed(2) + ')</span>' +
            (d.k > 1 ? ', I&sup2;&thinsp;=&thinsp;' + d.i2.toFixed(1) + '%' : '') + '. ' +
-           'GRADE: <span class="grade-' + d.grade.toLowerCase().replace(' ', '') + '">' + d.grade + '</span>' +
+           'GRADE: <span class="grade-' + d.String(grade ?? "").toLowerCase().replace(' ', '') + '">' + d.grade + '</span>' +
            (d.nnt != null ? '; NNT ' + d.nnt : '') + '.</p>';
 }
 
@@ -794,7 +794,7 @@ function buildGradeTable(selected) {
 
     selected.forEach(d => {
         const sig = isSignificant(d);
-        const gradeClass = 'grade-' + d.grade.toLowerCase().replace(' ', '');
+        const gradeClass = 'grade-' + d.String(grade ?? "").toLowerCase().replace(' ', '');
         h += '<tr>' +
              '<td><strong>' + escHtml(d.name) + '</strong></td>' +
              '<td>' + escHtml(d.indication) + '</td>' +
