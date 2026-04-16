@@ -49,6 +49,10 @@ BENCHMARKS = {
     'VERICIGUAT':       {'est': 0.90, 'lo': 0.82, 'hi': 0.98, 'measure': 'HR', 'src': 'VICTORIA'},
 }
 
+# QUALITY_GATE v1.0 — apps using continuous-MD outcome handled by HTML JS engine.
+# Python validator skips MD pooling so its k=0 finding is expected; gate uses MD k_min.
+MD_OUTCOME_APPS = {'RENAL_DENERV'}
+
 
 # ═══════════════════════════════════════════════════════════
 # PARSING & POOLING
@@ -75,17 +79,35 @@ def extract_real_data(html):
         end = nct_starts[i + 1][0] if i + 1 < len(nct_starts) else len(block)
         body = block[start:end]
         d = {}
-        for field in ['tE', 'tN', 'cE', 'cN', 'publishedHR', 'hrLCI', 'hrUCI']:
-            # Match field followed by number or null
-            fm = re.search(rf'\b{field}:\s*([-\d.]+|null)', body)
-            if fm and fm.group(1) != 'null':
-                try:
-                    d[field] = float(fm.group(1))
-                except ValueError:
-                    pass
+        # Field aliases: some apps (e.g. LIPID_HUB) use publishedHRLCI/UCI
+        # instead of hrLCI/UCI. Parser tries the canonical name first, then
+        # the alias, and stores under the canonical key.
+        field_aliases = {
+            'tE': ['tE'],
+            'tN': ['tN'],
+            'cE': ['cE'],
+            'cN': ['cN'],
+            'publishedHR': ['publishedHR'],
+            'hrLCI': ['hrLCI', 'publishedHRLCI'],
+            'hrUCI': ['hrUCI', 'publishedHRUCI'],
+        }
+        for canonical, names in field_aliases.items():
+            for name_alias in names:
+                fm = re.search(rf'\b{name_alias}:\s*([-\d.]+|null)', body)
+                if fm and fm.group(1) != 'null':
+                    try:
+                        d[canonical] = float(fm.group(1))
+                        break
+                    except ValueError:
+                        pass
         nm = re.search(r"name:\s*['\"]([^'\"]+)['\"]", body)
         if nm:
             d['name'] = nm.group(1)
+        # hrSource flag for QUALITY_GATE Gate 4 (provenance). Allowed values:
+        # cox_published, peto_from_counts, ipd_pool. Absent => implicit cox_published.
+        hsm = re.search(r"hrSource:\s*['\"]([a-z_]+)['\"]", body)
+        if hsm:
+            d['hrSource'] = hsm.group(1)
         trials[nct] = d
     return trials
 
@@ -155,8 +177,8 @@ def check_dose_response(html):
 def find_all_apps(local_only=False):
     """Find all living MA HTML files. If local_only, only the current directory."""
     apps = []
+    here = os.path.dirname(os.path.abspath(__file__))
     if local_only:
-        here = os.path.dirname(os.path.abspath(__file__))
         for f in sorted(glob.glob(os.path.join(here, '*_REVIEW.html'))):
             name = os.path.basename(f).replace('_REVIEW.html', '')
             apps.append((f, name))
@@ -186,6 +208,8 @@ if __name__ == '__main__':
     output_json = '--json' in sys.argv
     strict = '--strict' in sys.argv
     local_only = '--local' in sys.argv
+    gate = '--gate' in sys.argv or '--gate-strict' in sys.argv
+    gate_strict = '--gate-strict' in sys.argv
 
     apps = find_all_apps(local_only=local_only)
     results = []
@@ -245,6 +269,30 @@ if __name__ == '__main__':
                 dr_str = 'DR' if has_dr else ''
                 print(f"{name:30s}   0  {'--':>7s} {f'{poolable}/{len(trials)} poolable':>16s} {'--':>5s}  {'--':>7s} {'--':>6s}  {'--':>6s}  {dr_str}")
 
+        # Gate-relevant per-app facts
+        if gate:
+            is_md = name in MD_OUTCOME_APPS
+            entry['is_md'] = is_md
+            k_min = 2 if is_md else 3
+            entry['gate1_kmin_required'] = k_min
+            actual_k = pool['k'] if pool else 0
+            # MD apps' k_min is checked against count of trials with MD data, not Python pool.
+            if is_md:
+                actual_k = sum(1 for t in trials.values() if t.get('tN'))
+            entry['gate1_kmin_actual'] = actual_k
+            entry['gate1_pass'] = actual_k >= k_min
+            entry['gate2_pass'] = (bench is None) or (pool is not None and entry.get('match', False))
+            # Gate 4 provenance: every trial with publishedHR must have hrSource OR
+            # default to implicit cox_published when full Cox CI is present.
+            no_provenance = []
+            for tnct, t in trials.items():
+                if t.get('publishedHR') and not t.get('hrSource'):
+                    has_full_ci = t.get('hrLCI') and t.get('hrUCI')
+                    if not has_full_ci:
+                        no_provenance.append(tnct)
+            entry['gate4_pass'] = len(no_provenance) == 0
+            entry['gate4_violations'] = no_provenance
+
         results.append(entry)
 
     if output_json:
@@ -260,5 +308,28 @@ if __name__ == '__main__':
         print(f"  Dose-response:       {sum(1 for r in results if r.get('dose_response'))}")
         print(f"  Benchmarked:         {benchmarked}")
         print(f"  Within 10%:          {matched}/{benchmarked}")
+
+        if gate:
+            print(f"\n{'=' * 60}")
+            print(f"QUALITY_GATE v1.0 ENFORCEMENT")
+            print(f"{'=' * 60}")
+            g1_fails = [r for r in results if r.get('gate1_pass') is False]
+            g2_fails = [r for r in results if r.get('gate2_pass') is False]
+            g4_fails = [r for r in results if r.get('gate4_pass') is False]
+            n = len(results)
+            print(f"  Gate 1 (k_min):      {n - len(g1_fails)}/{n} pass")
+            for r in g1_fails:
+                print(f"    FAIL  {r['name']:30s}  k={r.get('gate1_kmin_actual', 0)} < required {r.get('gate1_kmin_required', 3)}")
+            print(f"  Gate 2 (benchmark):  {n - len(g2_fails)}/{n} pass")
+            for r in g2_fails:
+                print(f"    FAIL  {r['name']:30s}  diff={r.get('diff_pct', '?')}% > 10%")
+            print(f"  Gate 4 (provenance): {n - len(g4_fails)}/{n} pass")
+            for r in g4_fails:
+                print(f"    FAIL  {r['name']:30s}  {len(r['gate4_violations'])} trial(s) lack hrSource and full CI")
+            total_fails = len(g1_fails) + len(g2_fails) + len(g4_fails)
+            print(f"\n  Total gate violations: {total_fails}")
+            if gate_strict and total_fails > 0:
+                sys.exit(1)
+
         if strict and matched < benchmarked:
             sys.exit(1)
