@@ -2,14 +2,31 @@
 """
 Generate Living Meta-Analysis apps from the v13 master template.
 Reads FINERENONE_REVIEW.html and replaces topic-specific sections.
+
+Path config:
+  TEMPLATE_PATH defaults to FINERENONE_REVIEW.html beside this script.
+  OUTPUT_BASE defaults to the parent directory of this script's directory
+  (so a sibling C:\\Projects\\X_LivingMeta layout works out of the box).
+  Override via env vars:
+    LIVINGMA_TEMPLATE_PATH=...   path to source HTML
+    LIVINGMA_OUTPUT_BASE=...     parent dir for *_LivingMeta output dirs
 """
 import re
 import os
 import json
 import sys
 import shutil
+from pathlib import Path
 
-TEMPLATE_PATH = r"C:\Projects\Finrenone\FINERENONE_REVIEW.html"
+_SCRIPT_DIR = Path(__file__).resolve().parent
+TEMPLATE_PATH = os.environ.get(
+    "LIVINGMA_TEMPLATE_PATH",
+    str(_SCRIPT_DIR / "FINERENONE_REVIEW.html"),
+)
+OUTPUT_BASE = os.environ.get(
+    "LIVINGMA_OUTPUT_BASE",
+    str(_SCRIPT_DIR.parent),
+)
 
 # ═══════════════════════════════════════════════════════════
 # JS CODE BUILDERS
@@ -472,7 +489,7 @@ def generate_app(cfg, output_dir=None):
 APPS = [
     {
         "filename": "PFA_AF_REVIEW.html",
-        "output_dir": r"C:\Projects\PFA_AF_LivingMeta",
+        "output_dir": os.path.join(OUTPUT_BASE, "PFA_AF_LivingMeta"),
         "title_short": "PFA in Atrial Fibrillation",
         "title_long": "Pulsed Field Ablation for Atrial Fibrillation: A Living Systematic Review and Meta-Analysis of Randomized Controlled Trials",
         "drug_name_lower": "pulsed field ablation",
@@ -647,7 +664,7 @@ APPS = [
     # ─── Task 3: Watchman FLX vs Amulet LAAO ───────────────────
     {
         "filename": "WATCHMAN_AMULET_REVIEW.html",
-        "output_dir": r"C:\Projects\LivingMeta_Watchman_Amulet",
+        "output_dir": os.path.join(OUTPUT_BASE, "LivingMeta_Watchman_Amulet"),
         "title_short": "Watchman FLX vs Amulet LAAO",
         "title_long": "Left Atrial Appendage Occlusion — Watchman FLX vs Amulet: A Living Systematic Review and Meta-Analysis",
         "drug_name_lower": "left atrial appendage occlusion",
@@ -890,7 +907,7 @@ APPS = [
     # ─── Task 4: Tricuspid TEER ─────────────────────────────────
     {
         "filename": "TRICUSPID_TEER_REVIEW.html",
-        "output_dir": r"C:\Projects\Tricuspid_TEER_LivingMeta",
+        "output_dir": os.path.join(OUTPUT_BASE, "Tricuspid_TEER_LivingMeta"),
         "title_short": "Tricuspid TEER",
         "title_long": "Transcatheter Edge-to-Edge Repair for Tricuspid Regurgitation: A Living Systematic Review and Meta-Analysis",
         "drug_name_lower": "transcatheter tricuspid repair",
@@ -1030,7 +1047,7 @@ APPS = [
 # ─── Task 1a: Inclisiran (siRNA PCSK9) ────────────────────
 APPS.append({
     "filename": "INCLISIRAN_REVIEW.html",
-    "output_dir": r"C:\Projects\Inclisiran_LivingMeta",
+    "output_dir": os.path.join(OUTPUT_BASE, "Inclisiran_LivingMeta"),
     "title_short": "Inclisiran (siRNA PCSK9)",
     "title_long": "Inclisiran for Cardiovascular Risk Reduction: A Living Systematic Review and Meta-Analysis of Randomized Controlled Trials",
     "drug_name_lower": "inclisiran",
@@ -1300,7 +1317,7 @@ APPS.append({
 # ─── Task 1b: Tirzepatide CV/Obesity ──────────────────────
 APPS.append({
     "filename": "TIRZEPATIDE_CV_REVIEW.html",
-    "output_dir": r"C:\Projects\Tirzepatide_LivingMeta",
+    "output_dir": os.path.join(OUTPUT_BASE, "Tirzepatide_LivingMeta"),
     "title_short": "Tirzepatide CV/Obesity",
     "title_long": "Tirzepatide for Cardiometabolic Outcomes: A Living Systematic Review and Meta-Analysis of Randomized Controlled Trials",
     "drug_name_lower": "tirzepatide",
@@ -1597,7 +1614,7 @@ APPS.append({
 # ─── Task 2a: Semaglutide in HFpEF ─────────────────────────
 APPS.append({
     "filename": "SEMAGLUTIDE_HFPEF_REVIEW.html",
-    "output_dir": r"C:\Projects\Semaglutide_HFpEF_LivingMeta",
+    "output_dir": os.path.join(OUTPUT_BASE, "Semaglutide_HFpEF_LivingMeta"),
     "title_short": "Semaglutide in HFpEF",
     "title_long": "Semaglutide for Heart Failure with Preserved Ejection Fraction: A Living Systematic Review and Meta-Analysis",
     "drug_name_lower": "semaglutide",
@@ -1806,7 +1823,7 @@ APPS.append({
 # ─── Task 2b: Leadless Cardiac Pacing ──────────────────────
 APPS.append({
     "filename": "LEADLESS_PACING_REVIEW.html",
-    "output_dir": r"C:\Projects\Leadless_Pacing_LivingMeta",
+    "output_dir": os.path.join(OUTPUT_BASE, "Leadless_Pacing_LivingMeta"),
     "title_short": "Leadless Pacing",
     "title_long": "Leadless Cardiac Pacing: A Living Systematic Review and Meta-Analysis of Clinical Trials",
     "drug_name_lower": "leadless pacemaker",
@@ -2105,7 +2122,7 @@ APPS.append({
 # ─── Task 3a: Conduction System Pacing vs BiV-CRT ──────────
 APPS.append({
     "filename": "CSP_REVIEW.html",
-    "output_dir": r"C:\Projects\CSP_LivingMeta",
+    "output_dir": os.path.join(OUTPUT_BASE, "CSP_LivingMeta"),
     "title_short": "Conduction System Pacing",
     "title_long": "Conduction System Pacing vs Biventricular CRT: A Living Systematic Review and Meta-Analysis",
     "drug_name_lower": "conduction system pacing",
@@ -2322,7 +2339,7 @@ APPS.append({
 # ─── Task 3b: Coronary Intravascular Lithotripsy (IVL) ─────
 APPS.append({
     "filename": "CORONARY_IVL_REVIEW.html",
-    "output_dir": r"C:\Projects\Coronary_IVL_LivingMeta",
+    "output_dir": os.path.join(OUTPUT_BASE, "Coronary_IVL_LivingMeta"),
     "title_short": "Coronary IVL (Shockwave)",
     "title_long": "Coronary Intravascular Lithotripsy for Calcified Lesions: A Living Systematic Review and Meta-Analysis",
     "drug_name_lower": "intravascular lithotripsy",
@@ -2486,7 +2503,7 @@ APPS.append({
 # ─── Task 3c: Omecamtiv Mecarbil in HFrEF ──────────────────
 APPS.append({
     "filename": "OMECAMTIV_REVIEW.html",
-    "output_dir": r"C:\Projects\Omecamtiv_LivingMeta",
+    "output_dir": os.path.join(OUTPUT_BASE, "Omecamtiv_LivingMeta"),
     "title_short": "Omecamtiv Mecarbil",
     "title_long": "Omecamtiv Mecarbil for Heart Failure with Reduced Ejection Fraction: A Living Systematic Review and Meta-Analysis",
     "drug_name_lower": "omecamtiv mecarbil",
@@ -2726,7 +2743,7 @@ APPS.append({
 # ─── Task 4a: CT-FFR Guided Revascularization ────────────────
 APPS.append({
     "filename": "CTFFR_REVIEW.html",
-    "output_dir": r"C:\Projects\CTFFR_LivingMeta",
+    "output_dir": os.path.join(OUTPUT_BASE, "CTFFR_LivingMeta"),
     "title_short": "CT-FFR Guided Strategy",
     "title_long": "CT-Derived Fractional Flow Reserve Guided Revascularization: A Living Systematic Review and Meta-Analysis",
     "drug_name_lower": "CT-FFR guided strategy",
@@ -2912,7 +2929,7 @@ APPS.append({
 # ─── Task 4b: Vericiguat in Heart Failure ─────────────────────
 APPS.append({
     "filename": "VERICIGUAT_REVIEW.html",
-    "output_dir": r"C:\Projects\Vericiguat_LivingMeta",
+    "output_dir": os.path.join(OUTPUT_BASE, "Vericiguat_LivingMeta"),
     "title_short": "Vericiguat in Heart Failure",
     "title_long": "Vericiguat for Heart Failure: A Living Systematic Review and Meta-Analysis of Randomized Controlled Trials",
     "drug_name_lower": "vericiguat",
@@ -3149,7 +3166,7 @@ APPS.append({
 # ─── Task 4c: Sotagliflozin (Dual SGLT1/2i) ──────────────────
 APPS.append({
     "filename": "SOTAGLIFLOZIN_REVIEW.html",
-    "output_dir": r"C:\Projects\Sotagliflozin_LivingMeta",
+    "output_dir": os.path.join(OUTPUT_BASE, "Sotagliflozin_LivingMeta"),
     "title_short": "Sotagliflozin (Dual SGLT1/2i)",
     "title_long": "Sotagliflozin for Diabetes and Heart Failure: A Living Systematic Review and Meta-Analysis of Randomized Controlled Trials",
     "drug_name_lower": "sotagliflozin",
@@ -3396,7 +3413,7 @@ APPS.append({
 # ─── Task: Trastuzumab Deruxtecan (T-DXd) in Breast Cancer ────
 APPS.append({
     "filename": "TDXd_BREAST_REVIEW.html",
-    "output_dir": r"C:\Projects\TDXd_Breast_LivingMeta",
+    "output_dir": os.path.join(OUTPUT_BASE, "TDXd_Breast_LivingMeta"),
     "title_short": "T-DXd in Breast Cancer",
     "title_long": "Trastuzumab Deruxtecan for Breast Cancer: A Living Systematic Review and Meta-Analysis",
     "drug_name_lower": "trastuzumab deruxtecan",
@@ -3739,7 +3756,7 @@ APPS.append({
 # ─── Task: Osimertinib in EGFR+ NSCLC ─────────────────────────
 APPS.append({
     "filename": "OSIMERTINIB_NSCLC_REVIEW.html",
-    "output_dir": r"C:\Projects\Osimertinib_NSCLC_LivingMeta",
+    "output_dir": os.path.join(OUTPUT_BASE, "Osimertinib_NSCLC_LivingMeta"),
     "title_short": "Osimertinib in EGFR+ NSCLC",
     "title_long": "Osimertinib for EGFR-Mutant Non-Small Cell Lung Cancer: A Living Systematic Review and Meta-Analysis",
     "drug_name_lower": "osimertinib",
@@ -4089,7 +4106,7 @@ APPS.append({
 # ─── Anti-Amyloid Antibodies for Alzheimers Disease ─────
 APPS.append({
     "filename": "ANTI_AMYLOID_AD_REVIEW.html",
-    "output_dir": r"C:\Projects\AntiAmyloid_AD_LivingMeta",
+    "output_dir": os.path.join(OUTPUT_BASE, "AntiAmyloid_AD_LivingMeta"),
     "title_short": "Anti-Amyloid in Alzheimers",
     "title_long": "Anti-Amyloid Antibodies for Alzheimers Disease: A Living Systematic Review and Meta-Analysis",
     "drug_name_lower": "anti-amyloid antibody",
@@ -4413,7 +4430,7 @@ APPS.append({
 # ─── Resmetirom for MASH/NAFLD ──────────────────────────
 APPS.append({
     "filename": "RESMETIROM_MASH_REVIEW.html",
-    "output_dir": r"C:\Projects\Resmetirom_MASH_LivingMeta",
+    "output_dir": os.path.join(OUTPUT_BASE, "Resmetirom_MASH_LivingMeta"),
     "title_short": "Resmetirom for MASH",
     "title_long": "Resmetirom for Metabolic Dysfunction-Associated Steatohepatitis: A Living Systematic Review and Meta-Analysis",
     "drug_name_lower": "resmetirom",
@@ -4677,7 +4694,7 @@ APPS.append({
 # ─── Semaglutide for Chronic Kidney Disease ──────────────────
 APPS.append({
     "filename": "SEMAGLUTIDE_CKD_REVIEW.html",
-    "output_dir": r"C:\Projects\Semaglutide_CKD_LivingMeta",
+    "output_dir": os.path.join(OUTPUT_BASE, "Semaglutide_CKD_LivingMeta"),
     "title_short": "Semaglutide in CKD",
     "title_long": "Semaglutide for Chronic Kidney Disease: A Living Systematic Review and Meta-Analysis",
     "drug_name_lower": "semaglutide",
@@ -4845,7 +4862,7 @@ APPS.append({
 # ─── Ticagrelor Monotherapy Post-PCI ────────────────────────
 APPS.append({
     "filename": "TICAGRELOR_MONO_REVIEW.html",
-    "output_dir": r"C:\Projects\Ticagrelor_Mono_LivingMeta",
+    "output_dir": os.path.join(OUTPUT_BASE, "Ticagrelor_Mono_LivingMeta"),
     "title_short": "Ticagrelor Monotherapy Post-PCI",
     "title_long": "Ticagrelor Monotherapy After PCI: A Living Systematic Review and Meta-Analysis of De-escalation Antiplatelet Strategies",
     "drug_name_lower": "ticagrelor monotherapy",
@@ -5174,7 +5191,7 @@ APPS.append({
 # ─── Sotatercept for Pulmonary Arterial Hypertension ─────────
 APPS.append({
     "filename": "SOTATERCEPT_PAH_REVIEW.html",
-    "output_dir": r"C:\Projects\Sotatercept_PAH_LivingMeta",
+    "output_dir": os.path.join(OUTPUT_BASE, "Sotatercept_PAH_LivingMeta"),
     "title_short": "Sotatercept in PAH",
     "title_long": "Sotatercept for Pulmonary Arterial Hypertension: A Living Systematic Review and Meta-Analysis",
     "drug_name_lower": "sotatercept",
@@ -5434,7 +5451,7 @@ APPS.append({
 # ─── Icosapent Ethyl (EPA) for CV Risk Reduction ────────────
 APPS.append({
     "filename": "ICOSAPENT_ETHYL_REVIEW.html",
-    "output_dir": r"C:\Projects\Icosapent_Ethyl_LivingMeta",
+    "output_dir": os.path.join(OUTPUT_BASE, "Icosapent_Ethyl_LivingMeta"),
     "title_short": "Icosapent Ethyl (EPA) CV",
     "title_long": "Icosapent Ethyl for Cardiovascular Risk Reduction: A Living Systematic Review and Meta-Analysis",
     "drug_name_lower": "icosapent ethyl",
@@ -5692,7 +5709,7 @@ APPS.append({
 # ─── Potassium Binders (Patiromer / SZC) for RAASi Enablement ──
 APPS.append({
     "filename": "K_BINDERS_REVIEW.html",
-    "output_dir": r"C:\Projects\K_Binders_LivingMeta",
+    "output_dir": os.path.join(OUTPUT_BASE, "K_Binders_LivingMeta"),
     "title_short": "Potassium Binders (RAASi Enablement)",
     "title_long": "Potassium Binders for RAASi Optimization in Heart Failure and CKD: A Living Systematic Review and Meta-Analysis",
     "drug_name_lower": "potassium binder",
@@ -6012,7 +6029,7 @@ APPS.append({
 # ─── Empagliflozin in Acute Myocardial Infarction ──────────────
 APPS.append({
     "filename": "EMPA_MI_REVIEW.html",
-    "output_dir": r"C:\Projects\Empa_MI_LivingMeta",
+    "output_dir": os.path.join(OUTPUT_BASE, "Empa_MI_LivingMeta"),
     "title_short": "Empagliflozin in Acute MI",
     "title_long": "Empagliflozin in Acute Myocardial Infarction: A Living Systematic Review and Meta-Analysis",
     "drug_name_lower": "empagliflozin",
@@ -6227,7 +6244,7 @@ APPS.append({
 # ─── Drug-Coated Balloons in Peripheral Artery Disease ────────
 APPS.append({
     "filename": "DCB_PAD_REVIEW.html",
-    "output_dir": r"C:\Projects\DCB_PAD_LivingMeta",
+    "output_dir": os.path.join(OUTPUT_BASE, "DCB_PAD_LivingMeta"),
     "title_short": "Drug-Coated Balloons in PAD",
     "title_long": "Drug-Coated Balloons for Femoropopliteal Peripheral Artery Disease: A Living Systematic Review and Meta-Analysis",
     "drug_name_lower": "drug-coated balloon",
@@ -6512,7 +6529,7 @@ APPS.append({
 # ─── Orforglipron (Oral Non-Peptide GLP-1 RA) ────────────────
 APPS.append({
     "filename": "ORFORGLIPRON_REVIEW.html",
-    "output_dir": r"C:\Projects\Orforglipron_LivingMeta",
+    "output_dir": os.path.join(OUTPUT_BASE, "Orforglipron_LivingMeta"),
     "title_short": "Orforglipron (Oral GLP-1)",
     "title_long": "Orforglipron for Cardiometabolic Disease: A Living Systematic Review and Meta-Analysis",
     "drug_name_lower": "orforglipron",
@@ -6774,7 +6791,7 @@ APPS.append({
 # ─── Obesity Pharmacotherapy NMA ──────────────────────────────
 APPS.append({
     "filename": "OBESITY_NMA_REVIEW.html",
-    "output_dir": r"C:\Projects\Obesity_NMA_LivingMeta",
+    "output_dir": os.path.join(OUTPUT_BASE, "Obesity_NMA_LivingMeta"),
     "title_short": "Obesity Pharmacotherapy NMA",
     "title_long": "Obesity Pharmacotherapy Network Meta-Analysis: Tirzepatide vs Semaglutide vs Orforglipron",
     "drug_name_lower": "obesity pharmacotherapy",
