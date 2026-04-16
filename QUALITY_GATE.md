@@ -19,6 +19,23 @@ A "meta-analysis" of one trial is not a meta-analysis. Continuous-MD apps and HR
 - **REMOVAL POLICY (v1.1, 2026-04-16):** Apps below `k_min` that cannot be expanded to >=2 published RCTs (in same disease and outcome) are *removed from portfolio scope*, not relabeled. Local HTML and sibling repo retained for archival; validator's `EXCLUDED_APPS` set excludes them from scans. Re-admission requires a 2nd RCT.
 - **Edge case:** Single-trial reviews are allowed in the portfolio if and only if the app header is renamed from "Meta-Analysis" to "Single-Trial Evidence Review" and the portfolio page tags them distinctly.
 
+## Gate 1b — Outcome-class homogeneity
+
+All trials contributing to a single pool must measure the same primary **outcome class**. Pooling different classes produces a meaningless aggregate even when k≥2.
+
+- **Why this matters:** EMPA_MI was the canonical case (2026-04-16): 3 trials in scope, 1 clinical (EMPACT-MI HF/CV-death composite), 1 biomarker (EMMY NT-proBNP), 1 imaging (EMPRESS-MI LV volumes by CMR). Raw k=2 in scan, but the pooled HR mixes outcome classes and means nothing. Gate 1 alone (k_min) doesn't catch this — Gate 1b does.
+- **Three accepted outcome classes:**
+  - `clinical_event`: death, MI, stroke, HF hospitalisation, kidney failure event, cancer recurrence, etc. (counted as binary events with HR/OR)
+  - `surrogate_biomarker`: NT-proBNP, HbA1c, LDL-C, troponin, eGFR slope, KCCQ, etc. (continuous MD)
+  - `imaging_endpoint`: LV volumes by CMR, echo parameters, plaque clearance, coronary calcium score, etc. (continuous MD on imaging)
+- **Trade-off:** Strict homogeneity blocks creative cross-class pools that occasionally produce useful insight (e.g. KCCQ as surrogate for HF events). The rule favours interpretability over inclusivity.
+- **THRESHOLD:** `mixed_outcome_blocks = true` — any app pooling >1 outcome class fails Gate 1b. Recorded in `MIXED_OUTCOME_APPS` set in `validate_living_ma_portfolio.py` with rationale.
+- **Resolution paths when violated:**
+  1. **Restrict** — drop trials that don't match the app's declared outcome class. After restriction, re-check Gate 1 (k≥2). If restriction takes the app below k_min, fall through to removal.
+  2. **Split** — create sibling apps per outcome class (e.g. `EMPA_MI_CLINICAL`, `EMPA_MI_BIOMARKER`, `EMPA_MI_IMAGING`). Each sibling re-checks Gate 1. EMPA_MI itself doesn't benefit from splitting because every cohort has k=1.
+  3. **Remove** — if neither restriction nor splitting yields a viable k≥2 cohort, the topic is added to `EXCLUDED_APPS` until a 2nd same-class trial publishes.
+- **How the validator reports:** `--gate` prints `Gate 1b mixed-outcome (N): <app list>` with per-app rationale. Apps are also in `EXCLUDED_APPS` for portfolio-scope removal.
+
 ## Gate 2 — Benchmark agreement tolerance
 
 `|live_pool − benchmark| / benchmark ≤ X%`
@@ -120,3 +137,4 @@ Once you fill the `<TODO>` values, increment a version + date here so we can aud
 | 0.1 | 2026-04-16 | Initial stub by Claude. Awaiting threshold fills. |
 | 1.0 | 2026-04-16 | First locked threshold set. User delegated decision; values are conservative defaults from fix-all session reasoning. Loosen any gate by editing the THRESHOLD line and bumping version. |
 | 1.1 | 2026-04-16 | Gate 1 `k_min_hr` lowered 3 -> 2 (no meta without >=2 RCTs). Sub-threshold apps with no expansion path are *removed from portfolio scope*, not relabeled. First removal batch (7 apps): CORONARY_IVL, ORFORGLIPRON, IPTACOPAN, LEADLESS_PACING, SEMAGLUTIDE_CKD, SPARSENTAN_IGAN, TRICUSPID_TEER. |
+| 1.2 | 2026-04-16 | Gate 1b added: outcome-class homogeneity. EMPA_MI moved from raw-k<2 exclusion (it scans k=2) to outcome-heterogeneity exclusion (3 outcome classes pooled into one HR). New `MIXED_OUTCOME_APPS` set in validator with per-app rationale; resolution paths documented (restrict, split, remove). |

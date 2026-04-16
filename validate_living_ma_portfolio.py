@@ -93,6 +93,25 @@ EXCLUDED_APPS = {
     'TRICUSPID_TEER',   # k=1 — TRILUMINATE Pivotal only RCT; CLASP-TR/bRIGHT are single-arm/registry
 }
 
+# QUALITY_GATE v1.2 (2026-04-16) — Gate 1b: outcome-class homogeneity.
+# Subset of EXCLUDED_APPS whose exclusion reason is outcome-class
+# heterogeneity (mixing clinical event + surrogate biomarker + imaging
+# endpoint into a single pool produces a meaningless aggregate). This
+# is a *structural* defect that cannot be fixed by waiting for more
+# trials — it requires either restricting the trial set or splitting
+# the app into separate cohorts per outcome class.
+#
+# Allowed outcome classes (not enforced programmatically; documentary):
+#   clinical_event:      death, MI, stroke, HHF, KFE, cancer recurrence, etc.
+#   surrogate_biomarker: NT-proBNP, HbA1c, LDL-C, troponin, eGFR change, etc.
+#   imaging_endpoint:    LV volumes by CMR, echo parameters, plaque clearance
+#
+# Apps in this set fail Gate 1b. To re-admit, either restrict to one
+# class (and re-check Gate 1 k_min) OR split into multiple sibling apps.
+MIXED_OUTCOME_APPS = {
+    'EMPA_MI': 'EMPACT-MI=clinical (HF/CV-death composite); EMMY=biomarker (NT-proBNP); EMPRESS-MI=imaging (LV volumes by CMR). Three outcome classes, cannot pool.',
+}
+
 # QUALITY_GATE v1.0 — apps using continuous-MD outcome handled by HTML JS engine.
 # Python validator skips MD pooling so its k=0 finding is expected; gate uses MD k_min.
 MD_OUTCOME_APPS = {'RENAL_DENERV'}
@@ -366,15 +385,15 @@ if __name__ == '__main__':
 
         if gate:
             print(f"\n{'=' * 60}")
-            print(f"QUALITY_GATE v1.1 ENFORCEMENT")
+            print(f"QUALITY_GATE v1.2 ENFORCEMENT")
             print(f"{'=' * 60}")
             g1_fails = [r for r in results if r.get('gate1_pass') is False]
             g2_fails = [r for r in results if r.get('gate2_pass') is False]
             g4_fails = [r for r in results if r.get('gate4_pass') is False]
             n = len(results)
-            print(f"  Gate 1 (k_min):      {n - len(g1_fails)}/{n} pass")
+            print(f"  Gate 1 (k_min):      {n - len(g1_fails)}/{n} pass (in-portfolio)")
             for r in g1_fails:
-                print(f"    FAIL  {r['name']:30s}  k={r.get('gate1_kmin_actual', 0)} < required {r.get('gate1_kmin_required', 3)}")
+                print(f"    FAIL  {r['name']:30s}  k={r.get('gate1_kmin_actual', 0)} < required {r.get('gate1_kmin_required', 2)}")
             print(f"  Gate 2 (benchmark):  {n - len(g2_fails)}/{n} pass")
             for r in g2_fails:
                 print(f"    FAIL  {r['name']:30s}  diff={r.get('diff_pct', '?')}% > 10%")
@@ -382,6 +401,16 @@ if __name__ == '__main__':
             for r in g4_fails:
                 print(f"    FAIL  {r['name']:30s}  {len(r['gate4_violations'])} trial(s) lack hrSource and full CI")
             total_fails = len(g1_fails) + len(g2_fails) + len(g4_fails)
+
+            # Gate 1b reporting (operates on EXCLUDED_APPS, not in-portfolio)
+            print(f"\n  Removed from portfolio (EXCLUDED_APPS): {len(EXCLUDED_APPS)}")
+            raw_kmin = sorted(EXCLUDED_APPS - set(MIXED_OUTCOME_APPS))
+            mixed = sorted(MIXED_OUTCOME_APPS.keys())
+            print(f"    Gate 1 raw k<2 ({len(raw_kmin)}):    {', '.join(raw_kmin) if raw_kmin else '(none)'}")
+            print(f"    Gate 1b mixed-outcome ({len(mixed)}): {', '.join(mixed) if mixed else '(none)'}")
+            for app in mixed:
+                print(f"      {app}: {MIXED_OUTCOME_APPS[app]}")
+
             print(f"\n  Total gate violations: {total_fails}")
             if gate_strict and total_fails > 0:
                 sys.exit(1)
