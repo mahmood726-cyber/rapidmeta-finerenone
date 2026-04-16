@@ -8,7 +8,12 @@ Run: python validate_living_ma_portfolio.py [--json] [--strict]
 """
 import sys, io, os, re, math, json, glob
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+# Guard the stdout UTF-8 wrap so it only runs on direct CLI use.
+# Reassigning sys.stdout at module import-time breaks pytest's capture
+# (see ~/.claude/rules/lessons.md — "Module-level sys.stdout
+# reassignment kills pytest capture").
+if __name__ == '__main__' and 'pytest' not in sys.modules:
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
 # ═══════════════════════════════════════════════════════════
 # PUBLISHED BENCHMARKS
@@ -35,10 +40,14 @@ BENCHMARKS = {
     'MAVACAMTEN_HCM':   {'est': 6.67, 'lo': 2.09, 'hi': 21.30, 'measure': 'OR', 'src': 'EXPLORER+VALOR+China-Phase3 (NYHA improvement)'},
     # RENAL_DENERV: continuous-MD outcome, not poolable by this Python validator (handled in HTML JS engine).
     # New LivingMeta apps
-    'OMECAMTIV':        {'est': 0.92, 'lo': 0.86, 'hi': 0.99, 'measure': 'HR', 'src': 'GALACTIC-HF+COSMIC-HF'},
+    # OMECAMTIV removed 2026-04-16 — excluded per Gate 1b (mixed outcome classes).
+    # See MIXED_OUTCOME_APPS for rationale. Re-admit by restricting to clinical-only
+    # trials with publishedHR (currently GALACTIC-HF alone, k=1).
     'SOTAGLIFLOZIN':    {'est': 0.72, 'lo': 0.62, 'hi': 0.83, 'measure': 'HR', 'src': 'SOLOIST+SCORED'},
     'TEZEPELUMAB_ASTHMA': {'est': 0.44, 'lo': 0.36, 'hi': 0.54, 'measure': 'RR', 'src': 'NAVIGATOR+PATHWAY+SOURCE'},
-    'SOTATERCEPT_PAH':  {'est': 0.20, 'lo': 0.13, 'hi': 0.31, 'measure': 'HR', 'src': 'STELLAR+HYPERION+ZENITH'},
+    # SOTATERCEPT_PAH removed 2026-04-16 — excluded per Gate 1b (mixed outcome classes).
+    # See MIXED_OUTCOME_APPS for rationale. Re-admit as SOTATERCEPT_PAH_CLINICAL
+    # (HYPERION+ZENITH, k=2 clinical) after splitting.
     'DUPILUMAB_COPD':   {'est': 0.70, 'lo': 0.58, 'hi': 0.86, 'measure': 'RR', 'src': 'BOREAS+NOTUS'},
     'PEMBRO_ADJ_MEL':   {'est': 0.64, 'lo': 0.50, 'hi': 0.84, 'measure': 'HR', 'src': 'KEYNOTE-054+716'},
     'OSIMERTINIB_NSCLC': {'est': 0.38, 'lo': 0.26, 'hi': 0.56, 'measure': 'HR', 'src': 'FLAURA+ADAURA+FLAURA-2'},
@@ -48,7 +57,8 @@ BENCHMARKS = {
     'ANTIPLATELET_NMA': {'est': 0.70, 'lo': 0.57, 'hi': 0.85, 'measure': 'HR', 'src': 'HOST-EXAM+TICO+TWILIGHT'},
     'VERICIGUAT':       {'est': 0.90, 'lo': 0.82, 'hi': 0.98, 'measure': 'HR', 'src': 'VICTORIA'},
     # Backfill batch 2026-04-16 — high-confidence external benchmarks
-    'DAPA_ACUTE_HF':    {'est': 0.71, 'lo': 0.60, 'hi': 0.83, 'measure': 'HR', 'src': 'SOLOIST-WHF (Bhatt 2021) + EMPULSE (Voors 2022) + DICTATE-AHF (Cox 2024) acute-HF SGLT2 pool'},
+    # DAPA_ACUTE_HF removed 2026-04-16 — excluded per Gate 1b (mixed outcome classes).
+    # See MIXED_OUTCOME_APPS for rationale.
     'HFREF_NMA':        {'est': 0.77, 'lo': 0.68, 'hi': 0.88, 'measure': 'HR', 'src': 'Tromp 2022 Lancet HF NMA — comprehensive HFrEF guideline-directed quad therapy'},
     'ICOSAPENT_ETHYL':  {'est': 0.85, 'lo': 0.74, 'hi': 0.97, 'measure': 'HR', 'src': '5-trial EPA/n-3 pool: REDUCE-IT (Bhatt 2019) + STRENGTH + VITAL + OMEMI + RESPECT-EPA'},
     'K_BINDERS':        {'est': 4.40, 'lo': 1.90, 'hi': 10.21, 'measure': 'OR', 'src': 'OPAL-HK + HARMONIZE + DIAMOND — hyperkalemia control OR (no external MA; internal pool)'},
@@ -66,10 +76,12 @@ BENCHMARKS = {
     # Backfill batch 2026-04-16 — internal-pool only (no published external MA available)
     'ANTI_AMYLOID_AD':  {'est': 22.59, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'Internal pool (no published MA): lecanemab CLARITY-AD + donanemab TRAILBLAZER-ALZ2 amyloid clearance OR'},
     'BIMEKIZUMAB_PSO':  {'est': 25.69, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'Internal pool: BE-RADIANT + BE-VIVID + BE-SURE + BE-READY — bimekizumab PASI100 OR'},
-    'CSP':              {'est': 2.50, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'Internal pool (no published MA): conduction system pacing echo/symptom OR'},
+    # CSP removed 2026-04-16 — excluded per Gate 1b (mixed outcome classes).
+    # See MIXED_OUTCOME_APPS for rationale.
     'CTFFR':            {'est': 0.61, 'lo': None, 'hi': None, 'measure': 'HR', 'src': 'Internal pool: CT-FFR vs invasive FFR for revascularisation decisions (FORECAST/PLATFORM family)'},
     'OBESITY_NMA':      {'est': 13.64, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'Internal NMA: STEP-1/2 + SURMOUNT-1 + ATTAIN-1 — incretin-class weight-loss OR'},
-    'PAH_NMA':          {'est': 0.44, 'lo': None, 'hi': None, 'measure': 'HR', 'src': 'Internal NMA: STELLAR sotatercept + macitentan/riociguat triple therapy clinical worsening HR'},
+    # PAH_NMA removed 2026-04-16 — excluded per Gate 1b (mixed outcome classes).
+    # See MIXED_OUTCOME_APPS for split-into-sibling-apps recommendation.
     'RESMETIROM_MASH':  {'est': 5.76, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'MAESTRO-NASH (Harrison 2024 NEJM) histologic resolution OR — single trial'},
     'SEMAGLUTIDE_HFPEF':{'est': 1.98, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'STEP-HFpEF + STEP-HFpEF-DM KCCQ-CSS improvement OR (no external MA yet)'},
     'TIRZEPATIDE_CV':   {'est': 22.94, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'Internal pool: SURMOUNT-1/2/3/4 — tirzepatide >=15% body weight reduction OR'},
