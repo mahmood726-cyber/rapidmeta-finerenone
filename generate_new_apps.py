@@ -2,13 +2,21 @@
 """
 Generate 8 new RapidMeta cardiology HTML apps by cloning BEMPEDOIC_ACID_REVIEW.html
 and replacing trial data, metadata, and drug-specific references.
+
+Path config defaults to this script's directory; override via env vars
+LIVINGMA_TEMPLATE_PATH and LIVINGMA_OUTPUT_DIR.
 """
 
 import re
 import os
+from pathlib import Path
 
-TEMPLATE_PATH = r"C:\Users\user\Downloads\Finrenone\BEMPEDOIC_ACID_REVIEW.html"
-OUTPUT_DIR = r"C:\Users\user\Downloads\Finrenone"
+_SCRIPT_DIR = Path(__file__).resolve().parent
+TEMPLATE_PATH = os.environ.get(
+    "LIVINGMA_TEMPLATE_PATH",
+    str(_SCRIPT_DIR / "BEMPEDOIC_ACID_REVIEW.html"),
+)
+OUTPUT_DIR = os.environ.get("LIVINGMA_OUTPUT_DIR", str(_SCRIPT_DIR))
 
 
 # ═══════════════════════════════════════════════════════════════

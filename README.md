@@ -103,7 +103,7 @@ GitHub Actions runs `validate_living_ma_portfolio.py --local --strict` on every 
 
 ### Local validation
 ```bash
-python validate_living_ma_portfolio.py            # all 57 apps (requires C:\Projects\*_LivingMeta dirs)
+python validate_living_ma_portfolio.py            # all 57 apps (requires sibling *_LivingMeta dirs; override roots via LIVINGMA_PORTFOLIO_ROOT env var)
 python validate_living_ma_portfolio.py --local    # only this repo's 18 apps
 python validate_living_ma_portfolio.py --json     # machine-readable output
 python validate_living_ma_portfolio.py --strict   # exit non-zero if any benchmark fails

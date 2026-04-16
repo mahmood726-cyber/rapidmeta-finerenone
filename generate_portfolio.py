@@ -1,10 +1,21 @@
 #!/usr/bin/env python
-"""Generate the portfolio index.html from app_inventory.json."""
+"""Generate the portfolio index.html from app_inventory.json.
+
+Path config (override via env var):
+  LIVINGMA_PORTFOLIO_DIR   directory containing app_inventory.json and where
+                           the rendered index.html is written. Defaults to the
+                           sibling 'LivingMA_Portfolio' beside this repo.
+"""
 import json, os, sys, io
+from pathlib import Path
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
-inventory = json.load(open('C:/Projects/LivingMA_Portfolio/app_inventory.json'))
+_PORTFOLIO_DIR = os.environ.get(
+    'LIVINGMA_PORTFOLIO_DIR',
+    str(Path(__file__).resolve().parent.parent / 'LivingMA_Portfolio'),
+)
+inventory = json.load(open(os.path.join(_PORTFOLIO_DIR, 'app_inventory.json')))
 
 specialty_map = {
     'FINERENONE': 'Cardiology', 'ABLATION_AF': 'Cardiology', 'ARNI_HF': 'Cardiology',
@@ -140,6 +151,6 @@ function filterCards(btn) {{
 </body>
 </html>'''
 
-with open('C:/Projects/LivingMA_Portfolio/index.html', 'w', encoding='utf-8') as f:
+with open(os.path.join(_PORTFOLIO_DIR, 'index.html'), 'w', encoding='utf-8') as f:
     f.write(html)
 print(f'Portfolio: {len(inventory)} apps, {len(specialties_found)} specialties, {total_trials} trials, {dr_count} DR, {nma_count} NMA')

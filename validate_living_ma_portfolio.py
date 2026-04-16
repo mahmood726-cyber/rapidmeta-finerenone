@@ -162,14 +162,16 @@ def find_all_apps(local_only=False):
             apps.append((f, name))
         return apps
 
-    # Finrenone dir
-    for f in sorted(glob.glob(r'C:\Projects\Finrenone\*_REVIEW.html')):
+    # Finrenone dir + sibling LivingMeta dirs (override roots via env vars)
+    finrenone_dir = os.environ.get('LIVINGMA_FINRENONE_DIR', here)
+    portfolio_root = os.environ.get('LIVINGMA_PORTFOLIO_ROOT', os.path.dirname(finrenone_dir))
+    for f in sorted(glob.glob(os.path.join(finrenone_dir, '*_REVIEW.html'))):
         name = os.path.basename(f).replace('_REVIEW.html', '')
         apps.append((f, name))
     # LivingMeta dirs
-    if os.path.isdir(r'C:\Projects'):
-        for d in sorted(os.listdir(r'C:\Projects')):
-            full = os.path.join(r'C:\Projects', d)
+    if os.path.isdir(portfolio_root):
+        for d in sorted(os.listdir(portfolio_root)):
+            full = os.path.join(portfolio_root, d)
             if not os.path.isdir(full):
                 continue
             if not (d.endswith('_LivingMeta') or d.startswith('LivingMeta_')):

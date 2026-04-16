@@ -9,12 +9,18 @@ import os
 import json
 import shutil
 import sys
+from pathlib import Path
+
+_SCRIPT_DIR = Path(__file__).resolve().parent
 
 # Import the transform function and helpers from the original generator
-sys.path.insert(0, r"C:\Users\user\Downloads\Finrenone")
+sys.path.insert(0, str(_SCRIPT_DIR))
 
-TEMPLATE_PATH = r"C:\Users\user\Downloads\Finrenone\BEMPEDOIC_ACID_REVIEW.html"
-OUTPUT_DIR = r"C:\Users\user\Downloads\Finrenone"
+TEMPLATE_PATH = os.environ.get(
+    "LIVINGMA_TEMPLATE_PATH",
+    str(_SCRIPT_DIR / "BEMPEDOIC_ACID_REVIEW.html"),
+)
+OUTPUT_DIR = os.environ.get("LIVINGMA_OUTPUT_DIR", str(_SCRIPT_DIR))
 
 
 def escape_js_str(s):
