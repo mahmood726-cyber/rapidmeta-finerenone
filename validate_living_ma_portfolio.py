@@ -85,12 +85,17 @@ BENCHMARKS = {
 EXCLUDED_APPS = {
     'CORONARY_IVL',     # k=0 — Disrupt CAD III/IV are single-arm IDE; ISAR-WAVE/DECALCIFY/China RCT pending
     'ORFORGLIPRON',     # k=0 — Phase 2 only; ACHIEVE-1/3/4 + ATTAIN-1/2 read out 2025-2026
-    'EMPA_MI',          # k=1 effective — only EMPACT-MI has clinical HR; EMMY (NT-proBNP) + EMPRESS-MI (LV volumes by CMR) measure imaging/biomarker outcomes that cannot be pooled with clinical
+    'EMPA_MI',          # Gate 1b: clinical + biomarker + imaging mix (see MIXED_OUTCOME_APPS)
     'IPTACOPAN',        # k=1 — APPLY-PNH only PNH RCT; APPLAUSE-IgAN is a different disease
     'LEADLESS_PACING',  # k=1 — Micra/Aveir are single-arm pivotal IDEs vs historical controls
     'SEMAGLUTIDE_CKD',  # k=1 — FLOW only; REMODEL is bone-density not CV/kidney outcome
     'SPARSENTAN_IGAN',  # k=1 — PROTECT only; DUET was phase 2
     'TRICUSPID_TEER',   # k=1 — TRILUMINATE Pivotal only RCT; CLASP-TR/bRIGHT are single-arm/registry
+    # Gate 1b auto-detect batch 2026-04-16 — confirmed via inspection:
+    'DAPA_ACUTE_HF',    # Gate 1b: 1 clinical + 2 biomarker (see MIXED_OUTCOME_APPS)
+    'OMECAMTIV',        # Gate 1b: 1 clinical + 2 biomarker (see MIXED_OUTCOME_APPS)
+    'PAH_NMA',          # Gate 1b: 2 imaging + 2 clinical (see MIXED_OUTCOME_APPS); split candidate
+    'SOTATERCEPT_PAH',  # Gate 1b: 1 imaging + 2 clinical (see MIXED_OUTCOME_APPS); restrictable
 }
 
 # QUALITY_GATE v1.2 (2026-04-16) — Gate 1b: outcome-class homogeneity.
@@ -109,7 +114,11 @@ EXCLUDED_APPS = {
 # Apps in this set fail Gate 1b. To re-admit, either restrict to one
 # class (and re-check Gate 1 k_min) OR split into multiple sibling apps.
 MIXED_OUTCOME_APPS = {
-    'EMPA_MI': 'EMPACT-MI=clinical (HF/CV-death composite); EMMY=biomarker (NT-proBNP); EMPRESS-MI=imaging (LV volumes by CMR). Three outcome classes, cannot pool.',
+    'EMPA_MI': 'EMPACT-MI=clinical (HF/CV-death composite); EMMY=biomarker (NT-proBNP); EMPRESS-MI=imaging (LV volumes by CMR). Three outcome classes, cannot pool. Restrict: clinical-only gives k=1 → excluded anyway.',
+    'DAPA_ACUTE_HF': 'DAPA-ACT-HF-TIMI-68=clinical (CV death/WHF, HR 0.71) + DICTATE-AHF=biomarker (diuretic efficiency) + DAPA-RESPONSE-AHF=biomarker (dyspnea VAS). Confirmed by auto-detect 2026-04-16. Restrict: clinical-only gives k=1 → excluded; re-admit when a 2nd clinical acute-HF SGLT2 RCT publishes.',
+    'OMECAMTIV': 'GALACTIC-HF=clinical (CV death/HF event, HR 0.92) + METEORIC-HF=biomarker (Peak VO2) + COSMIC-HF=biomarker (SET change). Confirmed by auto-detect 2026-04-16. Restrict: clinical-only gives k=1 (GALACTIC-HF) → excluded; COMET-HF secondary also clinical but no publishedHR/event counts populated.',
+    'PAH_NMA': 'STELLAR=imaging (6MWD change) + PATENT-1=imaging (6MWD) + GRIPHON=clinical (morb/mort composite) + SERAPHIN=clinical (morb/mort). NMA across outcome classes is especially problematic. Split: imaging cohort (STELLAR+PATENT-1, k=2) + clinical cohort (GRIPHON+SERAPHIN, k=2) both viable — worth splitting into PAH_NMA_6MWD + PAH_NMA_CLINICAL sibling apps.',
+    'SOTATERCEPT_PAH': 'STELLAR=imaging (6MWD change, HR 0.22) + HYPERION=clinical (worsening) + ZENITH=clinical (morbidity/mortality). Restrict: clinical-only gives k=2 (HYPERION+ZENITH) → viable cohort. Drop STELLAR 6MWD from this pool and retain as SOTATERCEPT_PAH_6MWD sibling app if needed.',
 }
 
 # QUALITY_GATE v1.0 — apps using continuous-MD outcome handled by HTML JS engine.
@@ -236,6 +245,8 @@ SHORTLABEL_TO_CLASS = {
     'LVEF': 'imaging_endpoint', 'LVESVI': 'imaging_endpoint',
     '6MWD': 'imaging_endpoint',  # functional, often paired with imaging
     'Patency': 'imaging_endpoint', 'Restenosis': 'imaging_endpoint',
+    'Primary Patency 12m': 'imaging_endpoint', 'Primary Patency 24m': 'imaging_endpoint',
+    'Patency 12m': 'imaging_endpoint', 'Patency 24m': 'imaging_endpoint',
     'TR': 'imaging_endpoint', 'MR': 'imaging_endpoint',
 }
 
@@ -497,17 +508,26 @@ if __name__ == '__main__':
                         no_provenance.append(tnct)
             entry['gate4_pass'] = len(no_provenance) == 0
             entry['gate4_violations'] = no_provenance
-            # Gate 1b auto-detect: classify each trial's POOLED outcome
-            # (first allOutcomes shortLabel + title) and count distinct
-            # classes used. >1 class = mixed-outcome app candidate.
+            # Gate 1b auto-detect: classify each POOL-CONTRIBUTING trial's
+            # outcome (first allOutcomes shortLabel + title) and count
+            # distinct classes used. Only classify trials that pool_dl
+            # would actually include (have publishedHR or usable event
+            # counts), since non-contributing trials don't affect the pool.
             pooled = extract_pooled_outcomes(html)
-            class_per_trial = {tid: classify_pooled_outcome(sl, t) for tid, (sl, t) in pooled.items() if sl or t}
+            class_per_trial = {}
+            for tid, (sl, t) in pooled.items():
+                trial = trials.get(tid, {})
+                contributes = bool(trial.get('publishedHR')) or (
+                    trial.get('tN') and trial.get('cN') and
+                    (trial.get('tE', 0) > 0 or trial.get('cE', 0) > 0)
+                )
+                if not contributes:
+                    continue
+                if sl or t:
+                    class_per_trial[tid] = classify_pooled_outcome(sl, t)
             classes_used = set(class_per_trial.values()) - {'unclassified'}
             entry['gate1b_outcome_classes'] = sorted(classes_used)
             entry['gate1b_class_per_trial'] = class_per_trial
-            # Pass if 0 or 1 classes detected, OR if app is in MIXED_OUTCOME_APPS
-            # (already excluded for declared mixing — auto-detect is for *new*
-            # candidates only).
             entry['gate1b_pass'] = len(classes_used) <= 1
 
         results.append(entry)
