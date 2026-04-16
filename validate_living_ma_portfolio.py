@@ -56,10 +56,13 @@ BENCHMARKS = {
     'TDXd_BREAST':      {'est': 0.43, 'lo': 0.34, 'hi': 0.55, 'measure': 'HR', 'src': 'DESTINY-Breast02/03/04/06 — trastuzumab deruxtecan PFS pool'},
     'TICAGRELOR_MONO':  {'est': 0.71, 'lo': 0.55, 'hi': 0.92, 'measure': 'HR', 'src': 'TWILIGHT (Mehran 2019) + TICO + GLOBAL LEADERS — bleeding HR after early DAPT'},
     'WATCHMAN_AMULET':  {'est': 0.78, 'lo': 0.59, 'hi': 1.04, 'measure': 'HR', 'src': 'PROTECT-AF + PREVAIL pooled (Reddy 2017 JAMA) — LAA closure vs warfarin'},
-    # DCB_PAD, EMPA_MI, PFA_AF benchmarks omitted: live pool computed from
-    # event counts (publishedHR null in HTMLs) drifts from any single
-    # external reference. Add when an external MA matching exact outcome
-    # and trial set is identified, or after publishedHR is populated.
+    # DCB_PAD: pool is OR for patency (high=good), NOT Katsanos mortality.
+    # No external MA matches this exact 6-trial patency set; internal pool only.
+    'DCB_PAD':          {'est': 2.07, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'Internal pool: IN.PACT SFA + ILLUMENATE Pivotal + RANGER SFA + PACCOCATH-FEM + LEVANT 2 + ILLUMENATE PAS — paclitaxel DCB primary patency at 12-24m'},
+    'PFA_AF':           {'est': 1.16, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'Internal pool: ADVENT (Reddy 2023, NI vs RFA/cryo) + CHAMPION-AF (2025) + PULSED-AF (Verma 2024) — AF freedom OR'},
+    # EMPA_MI removed below (EXCLUDED_APPS): only EMPACT-MI has clinical
+    # HR; EMMY (NT-proBNP biomarker) and EMPRESS-MI (LV volumes by CMR)
+    # measure different outcomes. Pooling produces a meaningless aggregate.
     # Backfill batch 2026-04-16 — internal-pool only (no published external MA available)
     'ANTI_AMYLOID_AD':  {'est': 22.59, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'Internal pool (no published MA): lecanemab CLARITY-AD + donanemab TRAILBLAZER-ALZ2 amyloid clearance OR'},
     'BIMEKIZUMAB_PSO':  {'est': 25.69, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'Internal pool: BE-RADIANT + BE-VIVID + BE-SURE + BE-READY — bimekizumab PASI100 OR'},
@@ -82,6 +85,7 @@ BENCHMARKS = {
 EXCLUDED_APPS = {
     'CORONARY_IVL',     # k=0 — Disrupt CAD III/IV are single-arm IDE; ISAR-WAVE/DECALCIFY/China RCT pending
     'ORFORGLIPRON',     # k=0 — Phase 2 only; ACHIEVE-1/3/4 + ATTAIN-1/2 read out 2025-2026
+    'EMPA_MI',          # k=1 effective — only EMPACT-MI has clinical HR; EMMY (NT-proBNP) + EMPRESS-MI (LV volumes by CMR) measure imaging/biomarker outcomes that cannot be pooled with clinical
     'IPTACOPAN',        # k=1 — APPLY-PNH only PNH RCT; APPLAUSE-IgAN is a different disease
     'LEADLESS_PACING',  # k=1 — Micra/Aveir are single-arm pivotal IDEs vs historical controls
     'SEMAGLUTIDE_CKD',  # k=1 — FLOW only; REMODEL is bone-density not CV/kidney outcome
