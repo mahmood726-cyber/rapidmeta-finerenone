@@ -9,7 +9,7 @@
 
     <!-- Dependencies -->
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="tailwind.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
     <style>
@@ -2092,11 +2092,11 @@
                     }
                     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
                     if (this.state.activeTab === 'screen') {
-                        if (e.String(key ?? "").toLowerCase() === 'i') ScreenEngine.resolve('include');
-                        if (e.String(key ?? "").toLowerCase() === 'e') ScreenEngine.resolve('exclude');
-                        if (e.String(key ?? "").toLowerCase() === 'c') ScreenEngine.confirmCurrentDecision();
-                        if (e.String(key ?? "").toLowerCase() === 'n') { ScreenEngine.activeIdx = Math.min(ScreenEngine.activeIdx + 1, ScreenEngine.getQueue().length - 1); ScreenEngine.select(ScreenEngine.activeIdx); }
-                        if (e.String(key ?? "").toLowerCase() === 'p') { ScreenEngine.activeIdx = Math.max(ScreenEngine.activeIdx - 1, 0); ScreenEngine.select(ScreenEngine.activeIdx); }
+                        if (String(e.key ?? "").toLowerCase() === 'i') ScreenEngine.resolve('include');
+                        if (String(e.key ?? "").toLowerCase() === 'e') ScreenEngine.resolve('exclude');
+                        if (String(e.key ?? "").toLowerCase() === 'c') ScreenEngine.confirmCurrentDecision();
+                        if (String(e.key ?? "").toLowerCase() === 'n') { ScreenEngine.activeIdx = Math.min(ScreenEngine.activeIdx + 1, ScreenEngine.getQueue().length - 1); ScreenEngine.select(ScreenEngine.activeIdx); }
+                        if (String(e.key ?? "").toLowerCase() === 'p') { ScreenEngine.activeIdx = Math.max(ScreenEngine.activeIdx - 1, 0); ScreenEngine.select(ScreenEngine.activeIdx); }
                     }
                 });
                 const modal = document.getElementById('evidence-modal');

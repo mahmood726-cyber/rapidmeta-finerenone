@@ -10,7 +10,7 @@
      ═══════════════════════════════════════════════════════════════════ -->
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <!-- NOTE: Tailwind CDN is for development. For production, consider removing or replacing with minimal inline CSS -->
-<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="tailwind.min.css">
 
 <!-- ═══════════════════════════════════════════════════════════════════
      CUSTOM CSS — Dark Mode, Tabs, Badges, Cards, Tables
@@ -13867,7 +13867,7 @@ function init() {
   document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
     if (AppState.activeTab !== 'screen') return;
-    const key = e.String(key ?? "").toLowerCase();
+    const key = String(e.key ?? "").toLowerCase();
     if (key === 'i') { ScreenEngine.resolve('include'); e.preventDefault(); }
     if (key === 'e') { ScreenEngine.resolve('exclude'); e.preventDefault(); }
     if (key === 'c') { ScreenEngine.confirmCurrentDecision(); e.preventDefault(); }
