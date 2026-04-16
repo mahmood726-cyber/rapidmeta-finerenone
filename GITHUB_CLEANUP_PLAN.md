@@ -1,3 +1,5 @@
+<!-- sentinel:skip-file — this doc literally enumerates local C:\Projects\*_LivingMeta paths as data describing where each excluded sibling repo lives. The paths ARE the documentation, not hardcoded code. -->
+
 # GitHub Cleanup Plan — 8 EXCLUDED_APPS Sibling Repos
 
 > Generated 2026-04-16 alongside QUALITY_GATE v1.1 enforcement.
