@@ -8,7 +8,7 @@
 
 **Tech Stack:** Vanilla JS, Plotly.js, Tailwind CSS. No new dependencies.
 
-**Target file:** `C:\Users\user\Downloads\Finrenone\GLP1_CVOT_REVIEW.html`
+**Target file:** `GLP1_CVOT_REVIEW.html` (in the project repo root)
 
 ---
 

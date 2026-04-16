@@ -8,15 +8,15 @@
 
 **Tech Stack:** HTML5, Tailwind CSS (CDN), Plotly.js (CDN), vanilla JS (no frameworks). APIs: ClinicalTrials.gov v2, Europe PMC REST, OpenAlex REST.
 
-**Source Codebases:**
-- `C:\Users\user\Downloads\Finrenone\COLCHICINE_CVD_REVIEW.html` — Discovery APIs, baseline data, basic analysis engines, UI patterns
-- `C:\HTML apps\Truthcert1_work\` — Superior statistical engine (metajs-lib/meta-analysis.js + app_beautified.js), TruthCert certification, GRADE, verdict system
+**Source Codebases:** (paths relative to the project repo root)
+- `COLCHICINE_CVD_REVIEW.html` — Discovery APIs, baseline data, basic analysis engines, UI patterns
+- Truthcert1_work (sibling repo) — Superior statistical engine (metajs-lib/meta-analysis.js + app_beautified.js), TruthCert certification, GRADE, verdict system
 
 ---
 
 ## File Structure
 
-Single file: `C:\Users\user\Downloads\Finrenone\LivingMeta.html`
+Single file: `LivingMeta.html` (in the project repo root)
 
 Internal sections (marked with banner comments):
 ```
@@ -43,7 +43,7 @@ Internal sections (marked with banner comments):
 ### Task 1: HTML skeleton with 8-tab UI
 
 **Files:**
-- Create: `C:\Users\user\Downloads\Finrenone\LivingMeta.html`
+- Create: `LivingMeta.html` (in the project repo root)
 
 - [ ] **Step 1: Create base HTML with CDN imports**
 

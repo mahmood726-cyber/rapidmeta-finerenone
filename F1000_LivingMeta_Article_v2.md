@@ -159,7 +159,7 @@ A clinician/patient toggle activates a simplified display with: (i) traffic-ligh
 
 ### Accessibility
 
-All eight tab panels implement WAI-ARIA keyboard navigation (ArrowLeft/Right/Home/End), screen reader support (role="tablist", role="tab", role="tabpanel", aria-selected, tabindex management), and a prefers-reduced-motion media query. Dark mode is available with WCAG AA contrast ratios (minimum 4.5:1 for body text). Interactive tables include sortable headers with aria-sort attributes.
+All eight tab panels implement WAI-ARIA keyboard navigation (Arrow keys plus Home and End), screen reader support (role="tablist", role="tab", role="tabpanel", aria-selected, tabindex management), and a prefers-reduced-motion media query. Dark mode is available with WCAG AA contrast ratios (minimum 4.5:1 for body text). Interactive tables include sortable headers with aria-sort attributes.
 
 ### Quality Assurance
 

@@ -100,7 +100,7 @@ The extractor correctly identifies effect estimates from standard journal abstra
 
 ### Accessibility
 
-All eight tab panels are keyboard-navigable (ArrowLeft/Right/Home/End), screen reader accessible (ARIA roles, tabindex management), and support a prefers-reduced-motion media query. Dark mode maintains WCAG AA contrast ratios (4.5:1 minimum for body text).
+All eight tab panels are keyboard-navigable (Arrow keys plus Home and End), screen reader accessible (ARIA roles, tabindex management), and support a prefers-reduced-motion media query. Dark mode maintains WCAG AA contrast ratios (4.5:1 minimum for body text).
 
 ## Discussion
 
