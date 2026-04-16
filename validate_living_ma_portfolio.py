@@ -96,6 +96,7 @@ EXCLUDED_APPS = {
     'OMECAMTIV',        # Gate 1b: 1 clinical + 2 biomarker (see MIXED_OUTCOME_APPS)
     'PAH_NMA',          # Gate 1b: 2 imaging + 2 clinical (see MIXED_OUTCOME_APPS); split candidate
     'SOTATERCEPT_PAH',  # Gate 1b: 1 imaging + 2 clinical (see MIXED_OUTCOME_APPS); restrictable
+    'CSP',              # Gate 1b: scaffold-time caught 1 imaging + 1 clinical (see MIXED_OUTCOME_APPS)
 }
 
 # QUALITY_GATE v1.2 (2026-04-16) — Gate 1b: outcome-class homogeneity.
@@ -119,6 +120,7 @@ MIXED_OUTCOME_APPS = {
     'OMECAMTIV': 'GALACTIC-HF=clinical (CV death/HF event, HR 0.92) + METEORIC-HF=biomarker (Peak VO2) + COSMIC-HF=biomarker (SET change). Confirmed by auto-detect 2026-04-16. Restrict: clinical-only gives k=1 (GALACTIC-HF) → excluded; COMET-HF secondary also clinical but no publishedHR/event counts populated.',
     'PAH_NMA': 'STELLAR=imaging (6MWD change) + PATENT-1=imaging (6MWD) + GRIPHON=clinical (morb/mort composite) + SERAPHIN=clinical (morb/mort). NMA across outcome classes is especially problematic. Split: imaging cohort (STELLAR+PATENT-1, k=2) + clinical cohort (GRIPHON+SERAPHIN, k=2) both viable — worth splitting into PAH_NMA_6MWD + PAH_NMA_CLINICAL sibling apps.',
     'SOTATERCEPT_PAH': 'STELLAR=imaging (6MWD change, HR 0.22) + HYPERION=clinical (worsening) + ZENITH=clinical (morbidity/mortality). Restrict: clinical-only gives k=2 (HYPERION+ZENITH) → viable cohort. Drop STELLAR 6MWD from this pool and retain as SOTATERCEPT_PAH_6MWD sibling app if needed.',
+    'CSP': 'HOT-CRT=imaging (Echo Response) + PhysioSync-HF=clinical (Hierarchical Composite). Three other trials (HIS-alt-2, RAFT-P&A, LOT-CRT) are unclassified/don\'t contribute. Caught by scaffold-time Gate 1b before runtime (runtime previously misclassified hierarchical composite). Restrict: k=1 per class → excluded until a 2nd same-class CSP RCT publishes.',
 }
 
 # QUALITY_GATE v1.0 — apps using continuous-MD outcome handled by HTML JS engine.
@@ -137,6 +139,7 @@ OUTCOME_CLASS_LEXICON = (
         'cardiovascular death', 'cv death', 'cardiac death',
         'mortality', ' death', 'fatal', 'survival',
         'mace', 'major adverse', 'composite of', 'composite (',
+        'hierarchical composite', 'hierarchical win', 'win ratio',
         'myocardial infarction', ' mi ', ' mi)', 'reinfarction',
         'stroke', 'cerebrovascular', 'tia',
         'hospitalization', 'hospitalisation', 'hhf', 'heart failure event',
@@ -234,6 +237,11 @@ SHORTLABEL_TO_CLASS = {
     'KFE': 'clinical_event', 'Stroke': 'clinical_event', 'MI': 'clinical_event',
     'VTE': 'clinical_event', 'Bleeding': 'clinical_event',
     'Recurrence': 'clinical_event', 'Mortality': 'clinical_event',
+    'Hierarchical Composite': 'clinical_event', 'Win Ratio': 'clinical_event',
+    'CV Death/WHF': 'clinical_event', 'CV Death or HF Event': 'clinical_event',
+    'CV Death or HF Hosp': 'clinical_event', 'CV Death/HF Hosp/Urgent HF': 'clinical_event',
+    'Clinical Worsening': 'clinical_event', 'Morbidity/Mortality': 'clinical_event',
+    'Morb/Mort Composite': 'clinical_event',
     # surrogate_biomarker labels
     'KCCQ': 'surrogate_biomarker', 'BW': 'surrogate_biomarker',
     'NT-proBNP': 'surrogate_biomarker', 'BNP': 'surrogate_biomarker',

@@ -383,6 +383,96 @@ def transform_template(template_html, cfg):
 # VALIDATION
 # ═══════════════════════════════════════════════════════════
 
+# ═══════════════════════════════════════════════════════════
+# QUALITY_GATE v1.2 — scaffold-time Gate 1b (outcome-class homogeneity)
+# ═══════════════════════════════════════════════════════════
+# Prevents new apps from being generated with trials that mix
+# outcome classes. Mirrors the validator's SHORTLABEL_TO_CLASS
+# lexicon; kept inline to avoid a cross-module import at generate
+# time. If the two diverge, the validator is source of truth and
+# this copy should be synced.
+
+_SHORTLABEL_TO_CLASS = {
+    'MACE': 'clinical_event', 'ACM': 'clinical_event', 'OS': 'clinical_event',
+    'PFS': 'clinical_event', 'CVD': 'clinical_event', 'CV death': 'clinical_event',
+    'HHF': 'clinical_event', 'HF Hosp': 'clinical_event', 'HF': 'clinical_event',
+    'KFE': 'clinical_event', 'Stroke': 'clinical_event', 'MI': 'clinical_event',
+    'VTE': 'clinical_event', 'Bleeding': 'clinical_event',
+    'Recurrence': 'clinical_event', 'Mortality': 'clinical_event',
+    'Hierarchical Composite': 'clinical_event', 'Win Ratio': 'clinical_event',
+    'CV Death/WHF': 'clinical_event', 'CV Death or HF Event': 'clinical_event',
+    'CV Death or HF Hosp': 'clinical_event', 'CV Death/HF Hosp/Urgent HF': 'clinical_event',
+    'Clinical Worsening': 'clinical_event', 'Morbidity/Mortality': 'clinical_event',
+    'Morb/Mort Composite': 'clinical_event',
+    'KCCQ': 'surrogate_biomarker', 'BW': 'surrogate_biomarker',
+    'NT-proBNP': 'surrogate_biomarker', 'BNP': 'surrogate_biomarker',
+    'HbA1c': 'surrogate_biomarker', 'LDL': 'surrogate_biomarker',
+    'eGFR': 'surrogate_biomarker', 'Proteinuria': 'surrogate_biomarker',
+    'PASI': 'surrogate_biomarker', 'IgA': 'surrogate_biomarker',
+    'SBP': 'surrogate_biomarker', 'DBP': 'surrogate_biomarker',
+    'LVEF': 'imaging_endpoint', 'LVESVI': 'imaging_endpoint',
+    '6MWD': 'imaging_endpoint',
+    'Patency': 'imaging_endpoint', 'Restenosis': 'imaging_endpoint',
+    'Primary Patency 12m': 'imaging_endpoint', 'Primary Patency 24m': 'imaging_endpoint',
+    'Patency 12m': 'imaging_endpoint', 'Patency 24m': 'imaging_endpoint',
+    'TR': 'imaging_endpoint', 'MR': 'imaging_endpoint',
+}
+
+
+def _classify_trial_outcome(trial):
+    """Classify the pooled outcome of a single trial dict.
+    Looks at allOutcomes[0].shortLabel, falls back to title keywords."""
+    outcomes = trial.get('allOutcomes') or []
+    if not outcomes:
+        return 'unclassified'
+    first = outcomes[0]
+    sl = first.get('shortLabel')
+    if sl and sl in _SHORTLABEL_TO_CLASS:
+        return _SHORTLABEL_TO_CLASS[sl]
+    title = (first.get('title') or '').lower()
+    # Minimal fallback lexicon
+    if any(k in title for k in ['mortality', 'death', 'mace', 'stroke', 'mi ', 'composite']):
+        return 'clinical_event'
+    if any(k in title for k in ['lv volume', 'lvef', 'ejection fraction', 'cmr', 'echo', 'patency']):
+        return 'imaging_endpoint'
+    if any(k in title for k in ['nt-probnp', 'bnp', 'hba1c', 'ldl', 'kccq', 'egfr', 'change from baseline']):
+        return 'surrogate_biomarker'
+    return 'unclassified'
+
+
+def validate_config(cfg):
+    """QUALITY_GATE v1.2 Gate 1b check — block generation if the app
+    would pool trials across outcome classes.
+
+    Inspects cfg['trials'] and classifies each trial's first
+    allOutcomes entry. Only considers trials that would contribute
+    to the pool (have tE/cE or publishedHR). Returns (errors, info)
+    lists; errors block generation."""
+    errors = []
+    info = []
+    trials = cfg.get('trials') or {}
+    class_per_trial = {}
+    for nct, trial in trials.items():
+        has_hr = trial.get('publishedHR') is not None
+        has_ec = (trial.get('tE') is not None and trial.get('cE') is not None
+                  and (trial.get('tE', 0) > 0 or trial.get('cE', 0) > 0))
+        if not (has_hr or has_ec):
+            continue
+        cls = _classify_trial_outcome(trial)
+        class_per_trial[nct] = cls
+    classes_used = set(class_per_trial.values()) - {'unclassified'}
+    info.append(f"Gate 1b outcome-class scan: {len(class_per_trial)} pool-contributing trial(s), {len(classes_used)} distinct class(es): {sorted(classes_used) or ['none']}")
+    if len(classes_used) > 1:
+        per_trial_detail = '; '.join(f'{nct}={cls}' for nct, cls in sorted(class_per_trial.items()))
+        errors.append(
+            f"Gate 1b FAIL: mixed outcome classes ({', '.join(sorted(classes_used))}). "
+            f"Per-trial: {per_trial_detail}. "
+            f"Remediation: (a) restrict trials to one class, (b) split into sibling apps per class, "
+            f"or (c) set LIVINGMA_ALLOW_MIXED=1 to bypass (records in MIXED_OUTCOME_APPS expected)."
+        )
+    return errors, info
+
+
 def validate_html(html, filename, cfg):
     """Run structural validation checks on generated HTML."""
     errors = []
@@ -459,6 +549,18 @@ def generate_app(cfg, output_dir=None):
     print(f"\n{'='*60}")
     print(f"Generating: {cfg['filename']}")
     print(f"{'='*60}")
+
+    # Scaffold-time Gate 1b — block if trials mix outcome classes.
+    # Bypass with env var LIVINGMA_ALLOW_MIXED=1 (must then be added
+    # to validator's MIXED_OUTCOME_APPS at the same time).
+    gate_errors, gate_info = validate_config(cfg)
+    for line in gate_info:
+        print(f"  {line}")
+    if gate_errors and not os.environ.get('LIVINGMA_ALLOW_MIXED'):
+        print(f"  SCAFFOLD-TIME GATE 1b BLOCKED:")
+        for e in gate_errors:
+            print(f"    - {e}")
+        return gate_errors
 
     with open(TEMPLATE_PATH, 'r', encoding='utf-8') as f:
         template = f.read()
