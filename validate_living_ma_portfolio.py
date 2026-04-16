@@ -116,6 +116,137 @@ MIXED_OUTCOME_APPS = {
 # Python validator skips MD pooling so its k=0 finding is expected; gate uses MD k_min.
 MD_OUTCOME_APPS = {'RENAL_DENERV'}
 
+# QUALITY_GATE v1.2 — outcome-class lexicon for Gate 1b auto-detect.
+# Each class is a set of substring keywords (case-insensitive) that
+# strongly indicate the outcome class when present in a trial's
+# PRIMARY allOutcomes title. Matching is greedy: first hit wins, in
+# the order listed below (clinical first to give it priority over
+# imaging/biomarker words that may co-occur in clinical composites).
+OUTCOME_CLASS_LEXICON = (
+    ('clinical_event', (
+        'all-cause mortality', 'all cause mortality', 'all-cause death',
+        'cardiovascular death', 'cv death', 'cardiac death',
+        'mortality', ' death', 'fatal', 'survival',
+        'mace', 'major adverse', 'composite of', 'composite (',
+        'myocardial infarction', ' mi ', ' mi)', 'reinfarction',
+        'stroke', 'cerebrovascular', 'tia',
+        'hospitalization', 'hospitalisation', 'hhf', 'heart failure event',
+        'kidney failure', 'eskd', 'rrt', 'dialysis', 'transplant',
+        'cancer recurrence', 'progression', 'pfs', 'progression-free',
+        'overall survival', ' os ', ' os)',
+        'revascularization', 'revascularisation', 'tlr', 'tvr',
+        'amputation', 'limb event',
+        'vte', 'venous thromboembolism', 'recurrent thromboembolism',
+        'event', 'incidence',
+    )),
+    ('imaging_endpoint', (
+        'lv volume', 'lv end-systolic', 'lv end-diastolic', 'lvesvi', 'lvedvi',
+        'ejection fraction', 'lvef', ' ef ', ' ef)',
+        'cmr', 'cardiac mri', 'cardiac magnetic',
+        'echocardio', ' echo ', ' echo)',
+        'plaque', 'calcium score', 'iccs', 'cac',
+        'stenosis', 'restenosis', 'patency', 'lumen',
+        'wall thickness', 'septal',
+        '6mwd', '6-minute walk', 'six-minute walk',
+        'tr severity', 'mr severity', 'regurgitation grade',
+    )),
+    ('surrogate_biomarker', (
+        'nt-probnp', 'ntprobnp', 'bnp', 'troponin',
+        'hba1c', 'a1c', 'glucose', 'fasting',
+        'ldl-c', 'ldl ', ' ldl,', 'cholesterol', 'triglyceride', 'apob',
+        'kccq', 'minnesota living', 'efqol',
+        'egfr', 'creatinine', 'albuminuria', 'uacr', 'proteinuria',
+        'hemoglobin', 'haemoglobin', 'hgb', 'platelet',
+        'crp', 'il-6', 'il-1', 'cytokine',
+        'sbp', 'dbp', 'systolic blood pressure', 'diastolic blood pressure', 'mmhg',
+        'body weight', 'bmi', 'weight change', 'weight loss',
+        'change from baseline', 'change in', 'reduction in',
+        'pasi', 'iga', 'easi',
+    )),
+)
+
+
+def classify_outcome(title):
+    """Return outcome class for a trial's PRIMARY outcome title.
+    Returns one of {'clinical_event', 'imaging_endpoint', 'surrogate_biomarker', 'unclassified'}."""
+    if not title:
+        return 'unclassified'
+    t = title.lower()
+    for class_name, keywords in OUTCOME_CLASS_LEXICON:
+        for kw in keywords:
+            if kw in t:
+                return class_name
+    return 'unclassified'
+
+
+def extract_pooled_outcomes(html):
+    """For each trial, return the outcome USED for pooling.
+
+    Strategy: the validator's pool_dl uses publishedHR + hrLCI/hrUCI when
+    present, else falls back to top-level tE/cE event counts. The matching
+    allOutcomes entry is identified by shortLabel + tE/cE match. We
+    classify on shortLabel first (codebase convention: MACE/ACM/HHF/PFS/OS
+    are clinical-event labels) then on title only as fallback.
+
+    Returns {trial_id: (shortLabel, title) or (None, None)}."""
+    m = re.search(r'realData:\s*\{(.*?)\n\s{8,12}\},', html, re.DOTALL)
+    if not m:
+        return {}
+    block = m.group(1)
+    trial_id_pattern = r"'((?:NCT|ACTRN|ISRCTN|ChiCTR|EUCTR|JPRN)[A-Z0-9_-]+)':\s*\{"
+    nct_starts = [(tm.start(), tm.group(1)) for tm in re.finditer(trial_id_pattern, block)]
+    out = {}
+    for i, (start, nct) in enumerate(nct_starts):
+        end = nct_starts[i + 1][0] if i + 1 < len(nct_starts) else len(block)
+        body = block[start:end]
+        # First allOutcomes entry — by codebase convention, this is the
+        # one whose shortLabel maps to the pooling-default 'MACE'/etc.
+        first_pat = re.compile(
+            r"\{\s*shortLabel:\s*['\"]([^'\"]+)['\"][^}]*?title:\s*['\"]([^'\"]+)['\"]",
+            re.DOTALL,
+        )
+        fm = first_pat.search(body)
+        if fm:
+            out[nct] = (fm.group(1), fm.group(2))
+        else:
+            out[nct] = (None, None)
+    return out
+
+
+# shortLabel -> outcome class. By codebase convention, the first
+# allOutcomes entry's shortLabel signals which outcome class is being
+# pooled, regardless of the trial's published PRIMARY (which may be
+# a different outcome captured elsewhere in the entry).
+SHORTLABEL_TO_CLASS = {
+    # clinical_event labels
+    'MACE': 'clinical_event', 'ACM': 'clinical_event', 'OS': 'clinical_event',
+    'PFS': 'clinical_event', 'CVD': 'clinical_event', 'CV death': 'clinical_event',
+    'HHF': 'clinical_event', 'HF Hosp': 'clinical_event', 'HF': 'clinical_event',
+    'KFE': 'clinical_event', 'Stroke': 'clinical_event', 'MI': 'clinical_event',
+    'VTE': 'clinical_event', 'Bleeding': 'clinical_event',
+    'Recurrence': 'clinical_event', 'Mortality': 'clinical_event',
+    # surrogate_biomarker labels
+    'KCCQ': 'surrogate_biomarker', 'BW': 'surrogate_biomarker',
+    'NT-proBNP': 'surrogate_biomarker', 'BNP': 'surrogate_biomarker',
+    'HbA1c': 'surrogate_biomarker', 'LDL': 'surrogate_biomarker',
+    'eGFR': 'surrogate_biomarker', 'Proteinuria': 'surrogate_biomarker',
+    'PASI': 'surrogate_biomarker', 'IgA': 'surrogate_biomarker',
+    'SBP': 'surrogate_biomarker', 'DBP': 'surrogate_biomarker',
+    # imaging_endpoint labels
+    'LVEF': 'imaging_endpoint', 'LVESVI': 'imaging_endpoint',
+    '6MWD': 'imaging_endpoint',  # functional, often paired with imaging
+    'Patency': 'imaging_endpoint', 'Restenosis': 'imaging_endpoint',
+    'TR': 'imaging_endpoint', 'MR': 'imaging_endpoint',
+}
+
+
+def classify_pooled_outcome(short_label, title):
+    """Classify the outcome being pooled. shortLabel first (codebase
+    convention), title-keyword fallback."""
+    if short_label and short_label in SHORTLABEL_TO_CLASS:
+        return SHORTLABEL_TO_CLASS[short_label]
+    return classify_outcome(title)
+
 
 # ═══════════════════════════════════════════════════════════
 # PARSING & POOLING
@@ -366,6 +497,18 @@ if __name__ == '__main__':
                         no_provenance.append(tnct)
             entry['gate4_pass'] = len(no_provenance) == 0
             entry['gate4_violations'] = no_provenance
+            # Gate 1b auto-detect: classify each trial's POOLED outcome
+            # (first allOutcomes shortLabel + title) and count distinct
+            # classes used. >1 class = mixed-outcome app candidate.
+            pooled = extract_pooled_outcomes(html)
+            class_per_trial = {tid: classify_pooled_outcome(sl, t) for tid, (sl, t) in pooled.items() if sl or t}
+            classes_used = set(class_per_trial.values()) - {'unclassified'}
+            entry['gate1b_outcome_classes'] = sorted(classes_used)
+            entry['gate1b_class_per_trial'] = class_per_trial
+            # Pass if 0 or 1 classes detected, OR if app is in MIXED_OUTCOME_APPS
+            # (already excluded for declared mixing — auto-detect is for *new*
+            # candidates only).
+            entry['gate1b_pass'] = len(classes_used) <= 1
 
         results.append(entry)
 
@@ -388,21 +531,25 @@ if __name__ == '__main__':
             print(f"QUALITY_GATE v1.2 ENFORCEMENT")
             print(f"{'=' * 60}")
             g1_fails = [r for r in results if r.get('gate1_pass') is False]
+            g1b_fails = [r for r in results if r.get('gate1b_pass') is False]
             g2_fails = [r for r in results if r.get('gate2_pass') is False]
             g4_fails = [r for r in results if r.get('gate4_pass') is False]
             n = len(results)
-            print(f"  Gate 1 (k_min):      {n - len(g1_fails)}/{n} pass (in-portfolio)")
+            print(f"  Gate 1  (k_min):       {n - len(g1_fails)}/{n} pass (in-portfolio)")
             for r in g1_fails:
                 print(f"    FAIL  {r['name']:30s}  k={r.get('gate1_kmin_actual', 0)} < required {r.get('gate1_kmin_required', 2)}")
-            print(f"  Gate 2 (benchmark):  {n - len(g2_fails)}/{n} pass")
+            print(f"  Gate 1b (homogeneity): {len(MIXED_OUTCOME_APPS)} curated mixed-outcome exclusions; auto-detect advisory below")
+            print(f"  Gate 2  (benchmark):   {n - len(g2_fails)}/{n} pass")
             for r in g2_fails:
                 print(f"    FAIL  {r['name']:30s}  diff={r.get('diff_pct', '?')}% > 10%")
-            print(f"  Gate 4 (provenance): {n - len(g4_fails)}/{n} pass")
+            print(f"  Gate 4  (provenance):  {n - len(g4_fails)}/{n} pass")
             for r in g4_fails:
                 print(f"    FAIL  {r['name']:30s}  {len(r['gate4_violations'])} trial(s) lack hrSource and full CI")
+            # Gate 1b auto-detect is ADVISORY only — does not count as a violation.
+            # The curated MIXED_OUTCOME_APPS set is the blocking ground truth.
             total_fails = len(g1_fails) + len(g2_fails) + len(g4_fails)
 
-            # Gate 1b reporting (operates on EXCLUDED_APPS, not in-portfolio)
+            # Excluded-set summary
             print(f"\n  Removed from portfolio (EXCLUDED_APPS): {len(EXCLUDED_APPS)}")
             raw_kmin = sorted(EXCLUDED_APPS - set(MIXED_OUTCOME_APPS))
             mixed = sorted(MIXED_OUTCOME_APPS.keys())
@@ -410,6 +557,19 @@ if __name__ == '__main__':
             print(f"    Gate 1b mixed-outcome ({len(mixed)}): {', '.join(mixed) if mixed else '(none)'}")
             for app in mixed:
                 print(f"      {app}: {MIXED_OUTCOME_APPS[app]}")
+            # Auto-detect advisory: in-portfolio apps with auto-detected
+            # mixed outcomes not in the curated set. WARN-only — manual
+            # review required because shortLabel-based classification can
+            # be ambiguous (e.g. KCCQ shortLabel may be a clinical-event
+            # secondary by codebase convention).
+            auto_mixed = sorted({r['name'] for r in g1b_fails} - set(MIXED_OUTCOME_APPS))
+            if auto_mixed:
+                print(f"\n  Gate 1b auto-detect WARN (review candidates, NOT blocking): {len(auto_mixed)}")
+                for app in auto_mixed:
+                    r = next(x for x in results if x['name'] == app)
+                    classes = r.get('gate1b_outcome_classes', [])
+                    print(f"    {app:30s}  classes detected: {', '.join(classes)}")
+                print(f"    (Add to MIXED_OUTCOME_APPS if confirmed mixed; otherwise leave — common false-positive shape is shortLabel='MACE'+title='KCCQ-CSS' where pool uses event counts.)")
 
             print(f"\n  Total gate violations: {total_fails}")
             if gate_strict and total_fails > 0:
