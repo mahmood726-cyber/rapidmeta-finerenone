@@ -15,7 +15,8 @@ A "meta-analysis" of one trial is not a meta-analysis. Continuous-MD apps and HR
 
 - **Why this matters:** Single-trial apps shipped under "Meta-Analysis" headers are a misrepresentation. Ground-truth review of this portfolio (2026-04-16) found 6 apps documented as k=1 that were actually k=3-5 (stale README) and 0 apps that were genuinely single-trial after parser fixes.
 - **Trade-off:** Higher k blocks novel/sparse-evidence topics from the portfolio (e.g. ATTR-CM had k=1 for years). Lower k accepts weak pools as MAs.
-- **THRESHOLD:** `k_min_hr = 3`, `k_min_md = 2`
+- **THRESHOLD:** `k_min_hr = 2`, `k_min_md = 2` (any pool with <2 published RCTs is not a meta-analysis)
+- **REMOVAL POLICY (v1.1, 2026-04-16):** Apps below `k_min` that cannot be expanded to >=2 published RCTs (in same disease and outcome) are *removed from portfolio scope*, not relabeled. Local HTML and sibling repo retained for archival; validator's `EXCLUDED_APPS` set excludes them from scans. Re-admission requires a 2nd RCT.
 - **Edge case:** Single-trial reviews are allowed in the portfolio if and only if the app header is renamed from "Meta-Analysis" to "Single-Trial Evidence Review" and the portfolio page tags them distinctly.
 
 ## Gate 2 — Benchmark agreement tolerance
@@ -118,3 +119,4 @@ Once you fill the `<TODO>` values, increment a version + date here so we can aud
 |---------|------|--------|
 | 0.1 | 2026-04-16 | Initial stub by Claude. Awaiting threshold fills. |
 | 1.0 | 2026-04-16 | First locked threshold set. User delegated decision; values are conservative defaults from fix-all session reasoning. Loosen any gate by editing the THRESHOLD line and bumping version. |
+| 1.1 | 2026-04-16 | Gate 1 `k_min_hr` lowered 3 -> 2 (no meta without >=2 RCTs). Sub-threshold apps with no expansion path are *removed from portfolio scope*, not relabeled. First removal batch (7 apps): CORONARY_IVL, ORFORGLIPRON, IPTACOPAN, LEADLESS_PACING, SEMAGLUTIDE_CKD, SPARSENTAN_IGAN, TRICUSPID_TEER. |

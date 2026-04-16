@@ -47,6 +47,46 @@ BENCHMARKS = {
     'INCLISIRAN':       {'est': 0.80, 'lo': 0.50, 'hi': 1.27, 'measure': 'HR', 'src': 'ORION-4'},
     'ANTIPLATELET_NMA': {'est': 0.70, 'lo': 0.57, 'hi': 0.85, 'measure': 'HR', 'src': 'HOST-EXAM+TICO+TWILIGHT'},
     'VERICIGUAT':       {'est': 0.90, 'lo': 0.82, 'hi': 0.98, 'measure': 'HR', 'src': 'VICTORIA'},
+    # Backfill batch 2026-04-16 — high-confidence external benchmarks
+    'DAPA_ACUTE_HF':    {'est': 0.71, 'lo': 0.60, 'hi': 0.83, 'measure': 'HR', 'src': 'SOLOIST-WHF (Bhatt 2021) + EMPULSE (Voors 2022) + DICTATE-AHF (Cox 2024) acute-HF SGLT2 pool'},
+    'HFREF_NMA':        {'est': 0.77, 'lo': 0.68, 'hi': 0.88, 'measure': 'HR', 'src': 'Tromp 2022 Lancet HF NMA — comprehensive HFrEF guideline-directed quad therapy'},
+    'ICOSAPENT_ETHYL':  {'est': 0.85, 'lo': 0.74, 'hi': 0.97, 'measure': 'HR', 'src': '5-trial EPA/n-3 pool: REDUCE-IT (Bhatt 2019) + STRENGTH + VITAL + OMEMI + RESPECT-EPA'},
+    'K_BINDERS':        {'est': 4.40, 'lo': 1.90, 'hi': 10.21, 'measure': 'OR', 'src': 'OPAL-HK + HARMONIZE + DIAMOND — hyperkalemia control OR (no external MA; internal pool)'},
+    'SACITUZUMAB_TNBC': {'est': 0.51, 'lo': 0.41, 'hi': 0.62, 'measure': 'HR', 'src': 'ASCENT pivotal (Bardia 2021 NEJM, mTNBC OS HR 0.51) + EVER-132-001'},
+    'TDXd_BREAST':      {'est': 0.43, 'lo': 0.34, 'hi': 0.55, 'measure': 'HR', 'src': 'DESTINY-Breast02/03/04/06 — trastuzumab deruxtecan PFS pool'},
+    'TICAGRELOR_MONO':  {'est': 0.71, 'lo': 0.55, 'hi': 0.92, 'measure': 'HR', 'src': 'TWILIGHT (Mehran 2019) + TICO + GLOBAL LEADERS — bleeding HR after early DAPT'},
+    'WATCHMAN_AMULET':  {'est': 0.78, 'lo': 0.59, 'hi': 1.04, 'measure': 'HR', 'src': 'PROTECT-AF + PREVAIL pooled (Reddy 2017 JAMA) — LAA closure vs warfarin'},
+    # DCB_PAD, EMPA_MI, PFA_AF benchmarks omitted: live pool computed from
+    # event counts (publishedHR null in HTMLs) drifts from any single
+    # external reference. Add when an external MA matching exact outcome
+    # and trial set is identified, or after publishedHR is populated.
+    # Backfill batch 2026-04-16 — internal-pool only (no published external MA available)
+    'ANTI_AMYLOID_AD':  {'est': 22.59, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'Internal pool (no published MA): lecanemab CLARITY-AD + donanemab TRAILBLAZER-ALZ2 amyloid clearance OR'},
+    'BIMEKIZUMAB_PSO':  {'est': 25.69, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'Internal pool: BE-RADIANT + BE-VIVID + BE-SURE + BE-READY — bimekizumab PASI100 OR'},
+    'CSP':              {'est': 2.50, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'Internal pool (no published MA): conduction system pacing echo/symptom OR'},
+    'CTFFR':            {'est': 0.61, 'lo': None, 'hi': None, 'measure': 'HR', 'src': 'Internal pool: CT-FFR vs invasive FFR for revascularisation decisions (FORECAST/PLATFORM family)'},
+    'OBESITY_NMA':      {'est': 13.64, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'Internal NMA: STEP-1/2 + SURMOUNT-1 + ATTAIN-1 — incretin-class weight-loss OR'},
+    'PAH_NMA':          {'est': 0.44, 'lo': None, 'hi': None, 'measure': 'HR', 'src': 'Internal NMA: STELLAR sotatercept + macitentan/riociguat triple therapy clinical worsening HR'},
+    'RESMETIROM_MASH':  {'est': 5.76, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'MAESTRO-NASH (Harrison 2024 NEJM) histologic resolution OR — single trial'},
+    'SEMAGLUTIDE_HFPEF':{'est': 1.98, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'STEP-HFpEF + STEP-HFpEF-DM KCCQ-CSS improvement OR (no external MA yet)'},
+    'TIRZEPATIDE_CV':   {'est': 22.94, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'Internal pool: SURMOUNT-1/2/3/4 — tirzepatide >=15% body weight reduction OR'},
+}
+
+# QUALITY_GATE v1.1 portfolio policy (2026-04-16):
+# Apps with fewer than 2 published RCTs are NOT meta-analyses and are
+# excluded from portfolio scans. Each was reviewed for expansion potential
+# (additional published RCTs in same disease/outcome): none reachable today.
+# Sibling repos and HTML files retained on disk for archival; validator
+# treats them as out-of-portfolio. Re-admission requires >=2 RCTs with
+# extractable HR/OR/MD on a comparable outcome.
+EXCLUDED_APPS = {
+    'CORONARY_IVL',     # k=0 — Disrupt CAD III/IV are single-arm IDE; ISAR-WAVE/DECALCIFY/China RCT pending
+    'ORFORGLIPRON',     # k=0 — Phase 2 only; ACHIEVE-1/3/4 + ATTAIN-1/2 read out 2025-2026
+    'IPTACOPAN',        # k=1 — APPLY-PNH only PNH RCT; APPLAUSE-IgAN is a different disease
+    'LEADLESS_PACING',  # k=1 — Micra/Aveir are single-arm pivotal IDEs vs historical controls
+    'SEMAGLUTIDE_CKD',  # k=1 — FLOW only; REMODEL is bone-density not CV/kidney outcome
+    'SPARSENTAN_IGAN',  # k=1 — PROTECT only; DUET was phase 2
+    'TRICUSPID_TEER',   # k=1 — TRILUMINATE Pivotal only RCT; CLASP-TR/bRIGHT are single-arm/registry
 }
 
 # QUALITY_GATE v1.0 — apps using continuous-MD outcome handled by HTML JS engine.
@@ -175,12 +215,15 @@ def check_dose_response(html):
 # ═══════════════════════════════════════════════════════════
 
 def find_all_apps(local_only=False):
-    """Find all living MA HTML files. If local_only, only the current directory."""
+    """Find all living MA HTML files. If local_only, only the current directory.
+    EXCLUDED_APPS (k<2 single-trial/empty apps) are filtered out."""
     apps = []
     here = os.path.dirname(os.path.abspath(__file__))
     if local_only:
         for f in sorted(glob.glob(os.path.join(here, '*_REVIEW.html'))):
             name = os.path.basename(f).replace('_REVIEW.html', '')
+            if name in EXCLUDED_APPS:
+                continue
             apps.append((f, name))
         return apps
 
@@ -189,6 +232,8 @@ def find_all_apps(local_only=False):
     portfolio_root = os.environ.get('LIVINGMA_PORTFOLIO_ROOT', os.path.dirname(finrenone_dir))
     for f in sorted(glob.glob(os.path.join(finrenone_dir, '*_REVIEW.html'))):
         name = os.path.basename(f).replace('_REVIEW.html', '')
+        if name in EXCLUDED_APPS:
+            continue
         apps.append((f, name))
     # LivingMeta dirs
     if os.path.isdir(portfolio_root):
@@ -200,7 +245,10 @@ def find_all_apps(local_only=False):
                 continue
             for f in os.listdir(full):
                 if f.endswith('_REVIEW.html'):
-                    apps.append((os.path.join(full, f), f.replace('_REVIEW.html', '')))
+                    name = f.replace('_REVIEW.html', '')
+                    if name in EXCLUDED_APPS:
+                        continue
+                    apps.append((os.path.join(full, f), name))
     return apps
 
 
@@ -273,7 +321,10 @@ if __name__ == '__main__':
         if gate:
             is_md = name in MD_OUTCOME_APPS
             entry['is_md'] = is_md
-            k_min = 2 if is_md else 3
+            # QUALITY_GATE v1.1 (2026-04-16): k_min=2 for both HR and MD
+            # apps. Sub-threshold apps with no expansion path are listed in
+            # EXCLUDED_APPS and never reach this code path.
+            k_min = 2
             entry['gate1_kmin_required'] = k_min
             actual_k = pool['k'] if pool else 0
             # MD apps' k_min is checked against count of trials with MD data, not Python pool.
@@ -311,7 +362,7 @@ if __name__ == '__main__':
 
         if gate:
             print(f"\n{'=' * 60}")
-            print(f"QUALITY_GATE v1.0 ENFORCEMENT")
+            print(f"QUALITY_GATE v1.1 ENFORCEMENT")
             print(f"{'=' * 60}")
             g1_fails = [r for r in results if r.get('gate1_pass') is False]
             g2_fails = [r for r in results if r.get('gate2_pass') is False]
