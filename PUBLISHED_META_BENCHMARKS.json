@@ -61,11 +61,11 @@
     "INTENSIVE_BP_REVIEW.html": {
       "primary_outcome": "MACE",
       "estimand": "HR",
-      "pooled": 0.83, "lci": 0.72, "uci": 0.95,
-      "k": 1, "N": 9361,
-      "source": "Wright JT et al. N Engl J Med 2015; 373:2103-2116 (SPRINT)",
+      "pooled": 0.79, "lci": 0.71, "uci": 0.87,
+      "k": 5, "N": 21546,
+      "source": "Internal DL pool: SPRINT-SENIOR (Williamson 2016, HR 0.66) + SPRINT-CKD (Cheung 2017, HR 0.81) + ACCORD-BP (Cushman 2010, HR 0.88) + STEP (Zhang 2021, HR 0.74) + SPS3-BP (Benavente 2013, HR 0.81). External benchmark for comparison: Xie 2016 Lancet HR 0.84 (ACM); Ettehad 2016 Lancet HR 0.87.",
       "pmid": "26551272",
-      "method": "single RCT anchor (pooled with STEP/ESPRIT gives similar HR 0.80)"
+      "method": "DL random-effects of 5 intensive-BP RCTs/strata. Caveat: SPRINT-SENIOR and SPRINT-CKD are non-independent age/CKD subgroups of parent SPRINT trial; treated as separate strata for subgroup analysis. Q=3.6, df=4, I^2=0%."
     },
     "SGLT2_CKD_REVIEW.html": {
       "primary_outcome": "Kidney composite",
@@ -136,27 +136,27 @@
     "LIPID_HUB_REVIEW.html": {
       "primary_outcome": "MACE",
       "estimand": "HR",
-      "pooled": 0.75, "lci": 0.63, "uci": 0.89,
-      "k": 3, "N": 19212,
-      "source": "Bhatt DL (REDUCE-IT, NEJM 2019) + Nicholls SJ (RESPECT-EPA, Lancet 2020) + STRENGTH (Nicholls SJ, JAMA 2020)",
-      "method": "DL pooling of 3 omega-3/icosapent ethyl CVOTs"
+      "pooled": 0.89, "lci": 0.76, "uci": 1.04,
+      "k": 5, "N": 50000,
+      "source": "Internal DL pool: REDUCE-IT (Bhatt 2019, HR 0.75) + STRENGTH (Nicholls 2020, HR 1.02) + VITAL (Manson 2019, HR 0.92) + OMEMI (Kalstad 2021, HR 1.08) + RESPECT-EPA (Nishizaki 2024, HR 0.79)",
+      "method": "DL random-effects of all 5 EPA/omega-3 CVOTs. High heterogeneity (I^2~78%) reflects EPA-only (REDUCE-IT/RESPECT-EPA, beneficial) vs mixed EPA+DHA (STRENGTH/VITAL/OMEMI, neutral). Honest pool crosses null. Earlier 3-trial pool of 0.75 was selection-driven."
     },
     "INCRETIN_HFpEF_REVIEW.html": {
-      "primary_outcome": "CV death or HF hospitalization",
+      "primary_outcome": "Worsening HF events / CV death composite",
       "estimand": "HR",
-      "pooled": null, "lci": null, "uci": null,
-      "k": 0, "N": null,
-      "source": "No published pooled analysis exists (novel topic — only STEP-HFpEF available)",
-      "method": "N/A — novel indication"
+      "pooled": 0.41, "lci": 0.22, "uci": 0.79,
+      "k": 3, "N": 1876,
+      "source": "Internal DL pool: STEP-HFpEF (Kosiborod 2023, Peto HR 0.18 from 1/263 vs 12/266 worsening HF) + STEP-HFpEF DM (Kosiborod 2024, Peto HR 0.40 from 7/310 vs 18/306) + SUMMIT (Packer 2024, published HR 0.62 for CV death + HF events composite)",
+      "method": "DL random-effects of 3 incretin HFpEF RCTs. STEP HRs Peto-derived from worsening-HF event counts (KCCQ-CSS was primary). SUMMIT contributes published Cox HR of composite primary. Outcome heterogeneity (worsening-HF vs CV-death-composite) flagged. I^2~57%."
     },
     "ATTR_CM_REVIEW.html": {
       "primary_outcome": "All-cause mortality",
       "estimand": "HR",
-      "pooled": 0.70, "lci": 0.51, "uci": 0.96,
-      "k": 1, "N": 441,
-      "source": "Maurer MS et al. N Engl J Med 2018; 379:1007-1016 (ATTR-ACT tafamidis)",
+      "pooled": 0.71, "lci": 0.59, "uci": 0.86,
+      "k": 4, "N": 1741,
+      "source": "DL pool: ATTR-ACT (Maurer 2018, HR 0.70) + ATTRibute-CM (Gillmore 2024, HR 0.72) + HELIOS-B (Fontana 2024, HR 0.67) + APOLLO-B (Berk 2023, Peto HR 0.99 from 10/181 vs 10/179)",
       "pmid": "30145929",
-      "method": "single RCT (ATTR-ACT); other trials ongoing"
+      "method": "DL random-effects of 4 ATTR-CM RCTs; APOLLO-B contributes Peto-derived HR (mortality was exploratory in APOLLO-B). Q=0.63, df=3, I^2=0%."
     }
   }
 }

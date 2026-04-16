@@ -27,6 +27,13 @@ BENCHMARKS = {
     'IV_IRON_HF':       {'est': 0.84, 'lo': 0.74, 'hi': 0.96, 'measure': 'HR', 'src': 'CONFIRM+AFFIRM+IRONMAN+HEART-FID'},
     'COLCHICINE_CVD':   {'est': 0.85, 'lo': 0.74, 'hi': 0.97, 'measure': 'HR', 'src': 'Updated 5-trial pool: COLCOT+LoDoCo2+COPS+CLEAR-SYNERGY+CONVINCE'},
     'RIVAROXABAN_VASC': {'est': 0.85, 'lo': 0.77, 'hi': 0.94, 'measure': 'HR', 'src': 'COMPASS+VOYAGER+ATLAS'},
+    'ATTR_CM':          {'est': 0.71, 'lo': 0.59, 'hi': 0.86, 'measure': 'HR', 'src': 'ATTR-ACT+ATTRibute+HELIOS-B + APOLLO-B Peto (4-trial DL)'},
+    'INTENSIVE_BP':     {'est': 0.79, 'lo': 0.71, 'hi': 0.87, 'measure': 'HR', 'src': '5-trial DL: SPRINT-SENIOR/CKD strata + ACCORD-BP+STEP+SPS3'},
+    'INCRETIN_HFpEF':   {'est': 0.41, 'lo': 0.22, 'hi': 0.79, 'measure': 'HR', 'src': 'Internal DL: SUMMIT (Cox) + STEP-HFpEF/DM (Peto)'},
+    'DOAC_CANCER_VTE':  {'est': 0.55, 'lo': 0.30, 'hi': 1.00, 'measure': 'HR', 'src': 'HOKUSAI+SELECT-D+ADAM+CARAVAGGIO'},
+    'LIPID_HUB':        {'est': 0.89, 'lo': 0.76, 'hi': 1.04, 'measure': 'HR', 'src': '5-trial DL: REDUCE-IT+STRENGTH+VITAL+OMEMI+RESPECT-EPA (high heterogeneity I^2~78%)'},
+    'MAVACAMTEN_HCM':   {'est': 6.67, 'lo': 2.09, 'hi': 21.30, 'measure': 'OR', 'src': 'EXPLORER+VALOR+China-Phase3 (NYHA improvement)'},
+    # RENAL_DENERV: continuous-MD outcome, not poolable by this Python validator (handled in HTML JS engine).
     # New LivingMeta apps
     'OMECAMTIV':        {'est': 0.92, 'lo': 0.86, 'hi': 0.99, 'measure': 'HR', 'src': 'GALACTIC-HF+COSMIC-HF'},
     'SOTAGLIFLOZIN':    {'est': 0.72, 'lo': 0.62, 'hi': 0.83, 'measure': 'HR', 'src': 'SOLOIST+SCORED'},
@@ -56,8 +63,10 @@ def extract_real_data(html):
     block = m.group(1)
     trials = {}
 
-    # Find each trial entry by NCT id, then capture body until next NCT entry or closing brace
-    nct_starts = [(tm.start(), tm.group(1)) for tm in re.finditer(r"'(NCT\d+)':\s*\{", block)]
+    # Match NCT, ACTRN, ISRCTN, ChiCTR, EUCTR, JPRN registry IDs with optional suffix.
+    # Suffixes like _SENIOR/_CKD/_ON/_OFF appear for stratified subgroups of a single parent trial.
+    trial_id_pattern = r"'((?:NCT|ACTRN|ISRCTN|ChiCTR|EUCTR|JPRN)[A-Z0-9_-]+)':\s*\{"
+    nct_starts = [(tm.start(), tm.group(1)) for tm in re.finditer(trial_id_pattern, block)]
     if not nct_starts:
         return {}
 

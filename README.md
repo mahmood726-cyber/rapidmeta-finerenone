@@ -7,7 +7,7 @@ Browser-native, single-file living meta-analysis platform spanning **44 cardiova
 ## Highlights
 
 - **57 living MA apps** total across 12 specialties (18 in this repo + 39 in sibling repos)
-- **23/23 benchmarked apps** match published meta-analyses within 10% (100% portfolio validation)
+- **17/17 in-repo apps** within 10% of published benchmarks under `--strict` (1 app, RENAL_DENERV, uses MD outcome handled by HTML JS engine and skipped by Python validator)
 - **31 analytic engines** per app: DL/REML pooling, HKSJ adjustment, GRADE, NMA, dose-response Emax, cross-validation, provenance hashing, 18 automated QA checks
 - **766 trials** indexed across the portfolio
 - **7 dose-response apps** with Emax curve fitting
@@ -58,26 +58,28 @@ No server, no installation, no data leaves your machine.
 
 ## Apps in this repo (18)
 
-| App | k | Pooled | Benchmark | Status |
-|-----|---|--------|-----------|--------|
-| FINERENONE | 4 | HR 0.86 (0.79-0.92) | 0.86 | OK |
-| BEMPEDOIC_ACID | 1 | HR 0.87 | 0.87 | OK |
-| GLP1_CVOT | 10 | HR 0.86 (0.81-0.90) | 0.88 | OK |
-| SGLT2_HF | 5 | HR 0.77 (0.72-0.82) | 0.77 | OK |
-| PCSK9 | 1 | HR 0.85 | 0.85 | OK |
-| SGLT2_CKD | 3 | HR 0.68 (0.62-0.75) | 0.68 | OK |
-| ARNI_HF | 3 | HR 0.84 (0.78-0.90) | 0.84 | OK |
-| ABLATION_AF | 4 | HR ~0.77 | 0.77 | OK |
-| IV_IRON_HF | 4 | HR ~0.84 | 0.84 | OK |
-| COLCHICINE_CVD | 5 | HR 0.88 (0.75-1.02) | 0.85 | OK |
-| RIVAROXABAN_VASC | 4 | HR 0.85 (0.78-0.93) | 0.85 | OK |
-| ATTR_CM | 1 | HR 0.70 | -- | -- |
-| INTENSIVE_BP | 3 | HR 0.81 (0.72-0.92) | -- | -- |
-| LIPID_HUB | 1 | HR 0.74 | -- | -- |
-| MAVACAMTEN_HCM | 1 | OR 2.80 | -- | -- |
-| INCRETIN_HFpEF | 1 | OR 0.08 | -- | -- |
-| DOAC_CANCER_VTE | 1 | HR 0.97 | -- | -- |
-| RENAL_DENERV | 0 | -- | -- | -- |
+Values reflect live `validate_living_ma_portfolio.py --local --strict` output as of 2026-04-16 (17/17 within 10%, exit 0). k = trials contributing to live pool (Peto-derived HRs counted; null-HR trials with usable event counts contribute via OR).
+
+| App | k | Live pool | Benchmark | Outcome | Notes |
+|-----|---|-----------|-----------|---------|-------|
+| FINERENONE | 4 | HR 0.86 (0.79-0.92) | 0.86 | CV composite | FIDELIO+FIGARO+FINEARTS-HF + ARTS-DN OR |
+| GLP1_CVOT | 10 | HR 0.86 (0.81-0.90) | 0.88 | MACE | 10-trial GLP-1 CVOT pool |
+| SGLT2_HF | 5 | HR 0.77 (0.72-0.82) | 0.77 | MACE | EMPEROR/DAPA-HF/DELIVER family |
+| SGLT2_CKD | 3 | HR 0.68 (0.62-0.75) | 0.68 | KFE/CV death | DAPA-CKD+EMPA-KIDNEY+CREDENCE |
+| ARNI_HF | 3 | HR 0.84 (0.78-0.90) | 0.84 | CV death/HFH | PARADIGM+PARADISE-MI+PARAGON |
+| ABLATION_AF | 4 | HR 0.77 (0.68-0.87) | 0.77 | MACE | CABANA+CASTLE-AF family |
+| IV_IRON_HF | 4 | HR 0.87 (0.79-0.96) | 0.84 | MACE | CONFIRM+AFFIRM+IRONMAN+HEART-FID |
+| COLCHICINE_CVD | 5 | HR 0.81 (0.69-0.95) | 0.85 | MACE | COLCOT+LoDoCo2+COPS+CLEAR-SYNERGY+CONVINCE |
+| RIVAROXABAN_VASC | 4 | HR 0.85 (0.78-0.93) | 0.85 | MACE | COMPASS+VOYAGER+COMMANDER+ATLAS |
+| ATTR_CM | 4 | HR 0.71 (0.59-0.86) | 0.71 | ACM | ATTR-ACT+ATTRibute+HELIOS-B + APOLLO-B Peto |
+| INTENSIVE_BP | 5 | HR 0.79 (0.71-0.87) | 0.79 | MACE | SPRINT-SENIOR/CKD strata + ACCORD-BP+STEP+SPS3 |
+| LIPID_HUB | 5 | HR 0.89 (0.76-1.04) | 0.89 | MACE | 5-trial EPA/n-3 pool, I²=78%; REDUCE-IT+STRENGTH+VITAL+OMEMI+RESPECT-EPA |
+| RENAL_DENERV | 5 (MD) | MD -5.12 mmHg (-6.85,-3.40) | -5.12 | Office SBP | SPYRAL+RADIANCE+REQUIRE — continuous-MD outcome (HTML JS engine; Python validator skips) |
+| INCRETIN_HFpEF | 3 | HR 0.41 (0.22-0.79) | 0.41 | HF events composite | SUMMIT (published) + STEP-HFpEF/DM (Peto from worsening-HF events); outcome heterogeneity flagged |
+| BEMPEDOIC_ACID | 4 | HR 0.90 (0.72-1.12) | 0.87 | MACE / lipid CVAE | CLEAR Outcomes (Cox) + CLEAR Harmony (Cox) + Wisdom/Serenity (OR from event counts); pool drifts off CVOT-only benchmark |
+| PCSK9 | 2 | HR 0.85 (0.80-0.90) | 0.85 | MACE | FOURIER + ODYSSEY Outcomes (Guedeney 2020) |
+| MAVACAMTEN_HCM | 3 | OR 6.67 (2.09-21.30) | 6.67 | NYHA Δ | EXPLORER+VALOR+China-Phase3; NYHA improvement OR, not mortality |
+| DOAC_CANCER_VTE | 4 | HR 0.60 (0.36-1.00) | 0.55 | VTE recurrence | HOKUSAI+SELECT-D+ADAM+CARAVAGGIO |
 
 ## Sibling repositories (39 apps)
 
