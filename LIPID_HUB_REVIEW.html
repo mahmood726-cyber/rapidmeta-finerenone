@@ -2067,6 +2067,14 @@ const ContinuousMDEngine = {
                     trial.verified = true;
                     trial.reason = '';
                     trial.data = canonical;
+                    if (!trial.screenReview || !trial.screenReview.confirmed) {
+                        const sr = buildAutoIncludeScreenReview(id, trial?.screenReview?.note ?? '');
+                        sr.reviewer2 = 'autoscreener-secondary';
+                        sr.ts2 = new Date().toISOString();
+                        sr.sig2 = shortSeal(`screen-confirm-auto|${JSON.stringify({ trialId: id, decision: 'include', reviewer2: sr.reviewer2, ts2: sr.ts2 })}`);
+                        sr.confirmed = true;
+                        trial.screenReview = sr;
+                    }
                     const after = JSON.stringify({
                         source: trial.source,
                         status: trial.status,
@@ -3569,6 +3577,7 @@ const ContinuousMDEngine = {
                 if (id === 'extract') { ExtractEngine.render(); RapidMeta.retranslate(document.getElementById('tab-extract')); }
                 if (id === 'analysis') AnalysisEngine.run();
                 if (id === 'hub') NMAEngine.run();
+                if (id === 'report' && typeof PrismaEngine !== 'undefined') { try { PrismaEngine.renderToElement('prisma-flow-container'); } catch(e){ console.warn('PRISMA auto-render failed:', e); } }
             },
             async checkAACT() {
                 const dot = document.getElementById('aact-dot');
