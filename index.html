@@ -3,44 +3,120 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Browser-Based Finerenone Meta-Analysis Validated Against R metafor</title>
+<title>RapidMeta Cardiology — Living Meta-Analysis Portfolio</title>
+<meta property="og:title" content="RapidMeta Cardiology — Living Meta-Analysis Portfolio">
+<meta property="og:description" content="19 browser-based living meta-analysis apps across cardiology drug classes, validated against published pools.">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Georgia,serif;background:#FDFCFA;color:#1a1a1a;line-height:1.7}
-.page{max-width:700px;margin:0 auto;padding:3rem 1.5rem}
+body{font-family:Georgia,serif;background:#FDFCFA;color:#1a1a1a;line-height:1.6}
+.page{max-width:880px;margin:0 auto;padding:3rem 1.5rem}
 .badge{font-family:system-ui,sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:#7A5A10;margin-bottom:1rem}
-h1{font-size:1.8rem;margin-bottom:.5rem}
-.meta{font-family:system-ui,sans-serif;font-size:.85rem;color:#777;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:2px solid #E5E0D6}
-.summary{font-size:1.05rem;margin-bottom:2rem;color:#444}
-.links{display:grid;gap:.8rem;margin-bottom:2rem}
-.card{display:block;padding:1rem 1.2rem;background:#fff;border:1px solid #E5E0D6;border-radius:8px;text-decoration:none;color:#1a1a1a;font-family:system-ui,sans-serif;font-size:.9rem;transition:border-color .2s,box-shadow .2s}
-.card:hover{border-color:#7A5A10;box-shadow:0 2px 12px rgba(0,0,0,.06)}
-.card.app{border-left:4px solid #2E86C1}
-.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem}
-.figs img{width:100%;border-radius:6px;border:1px solid #E5E0D6}
-.footer{font-family:system-ui,sans-serif;font-size:.7rem;color:#aaa;padding-top:1rem;border-top:1px solid #E5E0D6}
+h1{font-size:1.9rem;margin-bottom:.5rem;line-height:1.25}
+h2{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#7A5A10;margin:2rem 0 .8rem}
+.meta{font-family:system-ui,sans-serif;font-size:.85rem;color:#777;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:2px solid #E5E0D6}
+.summary{font-size:1.05rem;margin-bottom:1.5rem;color:#444}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.7rem;margin-bottom:1.5rem}
+.card{display:block;padding:.85rem 1rem;background:#fff;border:1px solid #E5E0D6;border-radius:8px;text-decoration:none;color:#1a1a1a;font-family:system-ui,sans-serif;font-size:.86rem;transition:border-color .15s,box-shadow .15s;border-left:4px solid #2E86C1}
+.card:hover{border-color:#7A5A10;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.card .name{font-weight:600;display:block;margin-bottom:.15rem}
+.card .pub{font-size:.7rem;color:#888;font-family:ui-monospace,monospace}
+.card.hf{border-left-color:#D97706}
+.card.ckd{border-left-color:#059669}
+.card.lipid{border-left-color:#7C3AED}
+.card.cad{border-left-color:#DC2626}
+.card.rhythm{border-left-color:#DB2777}
+.card.dm{border-left-color:#0891B2}
+.card.bp{border-left-color:#EA580C}
+.card.vte{border-left-color:#475569}
+.card.util{border-left-color:#2E86C1;background:#F8FAFC}
+.links{display:grid;gap:.6rem}
+.footer{font-family:system-ui,sans-serif;font-size:.72rem;color:#aaa;padding-top:1rem;border-top:1px solid #E5E0D6;margin-top:2rem}
 .footer a{color:#2E6B8A}
+.note{font-family:system-ui,sans-serif;font-size:.78rem;color:#666;background:#FFF8E7;border:1px solid #F0E0B0;padding:.7rem .9rem;border-radius:6px;margin-bottom:1rem}
 </style>
 </head>
 <body>
 <div class="page">
-  <div class="badge">E156 Project</div>
-  <h1>Browser-Based Finerenone Meta-Analysis Validated Against R metafor</h1>
-  <div class="meta">Mahmood Ahmad &middot; Pairwise &middot; 2026-03-26</div>
-  <p class="summary">A browser meta-analysis of three finerenone trials matches R metafor to six decimal places across 14 analyses.</p>
-  <div class="links">
-    <a href="e156-submission/index.html" class="card">E156 Micro-Paper (interactive reader)</a>
-    <a href="e156-submission/assets/ABLATION_AF_REVIEW.html" class="card app">Ablation Af Review (interactive app)</a>
-    <a href="e156-submission/assets/ARNI_HF_REVIEW.html" class="card app">Arni Hf Review (interactive app)</a>
-    <a href="e156-submission/assets/ATTR_CM_REVIEW.html" class="card app">Attr Cm Review (interactive app)</a>
-    <a href="e156-submission/paper.md" class="card">Paper (markdown)</a>
-    <a href="e156-submission/protocol.md" class="card">Protocol (markdown)</a>
+  <div class="badge">RapidMeta Cardiology Portfolio</div>
+  <h1>Living meta-analysis apps &mdash; 19 drug classes, validated against published pools</h1>
+  <div class="meta">Mahmood Ahmad &middot; Pairwise &middot; Updated 2026-04-18</div>
+  <p class="summary">Browser-based living meta-analysis apps spanning 19 cardiology drug classes. Each app ships a full Protocol &rarr; Search &rarr; Screening &rarr; Extraction &rarr; Analysis &rarr; Scientific Output pipeline, with auto-seeded canonical trials and pooled estimates cross-checked against published meta-analyses.</p>
 
+  <div class="note">Every app tile below opens the full RapidMeta workbench &mdash; click into Screening to see Included / Excluded decisions, Extraction for 2&times;2 tables, and Analysis Suite for forest plots, Bayesian posterior, and PRISMA 2020 flow.</div>
+
+  <h2>Heart Failure &amp; Cardiomyopathy</h2>
+  <div class="grid">
+    <a href="ARNI_HF_REVIEW.html" class="card hf"><span class="name">ARNI in HFrEF/HFpEF</span><span class="pub">Published: HR 0.84 (0.77&ndash;0.91), k=3</span></a>
+    <a href="SGLT2_HF_REVIEW.html" class="card hf"><span class="name">SGLT2i in Heart Failure</span><span class="pub">Published: HR 0.77 (0.71&ndash;0.84), k=2</span></a>
+    <a href="IV_IRON_HF_REVIEW.html" class="card hf"><span class="name">IV Iron in HFrEF</span><span class="pub">Published: HR 0.84 (0.74&ndash;0.96), k=4</span></a>
+    <a href="INCRETIN_HFpEF_REVIEW.html" class="card hf"><span class="name">Incretins in HFpEF</span><span class="pub">Published: HR 0.41 (0.22&ndash;0.79), k=3</span></a>
+    <a href="MAVACAMTEN_HCM_REVIEW.html" class="card hf"><span class="name">Mavacamten in HCM</span><span class="pub">Published: OR 6.67 (2.09&ndash;21.30), k=3</span></a>
+    <a href="ATTR_CM_REVIEW.html" class="card hf"><span class="name">ATTR Cardiomyopathy</span><span class="pub">Tafamidis / Acoramidis</span></a>
   </div>
-  <h2 style='font-family:system-ui,sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#7A5A10;margin-bottom:.8rem'>Figures</h2><div class=figs><img src="e156-submission/assets/Figure 1.png" alt="Figure 1.png" loading="lazy"><img src="e156-submission/assets/Figure 2.png" alt="Figure 2.png" loading="lazy"><img src="e156-submission/assets/Figure 3.png" alt="Figure 3.png" loading="lazy"><img src="e156-submission/assets/Figure 4.png" alt="Figure 4.png" loading="lazy"><img src="e156-submission/assets/Figure 5.png" alt="Figure 5.png" loading="lazy"><img src="e156-submission/assets/figures_Paper1_Fig1_FINERENONE_Analysis.png" alt="figures_Paper1_Fig1_FINERENONE_Analysis.png" loading="lazy"></div>
+
+  <h2>Renal &amp; CKD</h2>
+  <div class="grid">
+    <a href="FINERENONE_REVIEW.html" class="card ckd"><span class="name">Finerenone (FIDELITY)</span><span class="pub">Published: HR 0.86 (0.78&ndash;0.95), k=2</span></a>
+    <a href="SGLT2_CKD_REVIEW.html" class="card ckd"><span class="name">SGLT2i in CKD</span><span class="pub">Published: HR 0.68 (0.60&ndash;0.77), k=3</span></a>
+  </div>
+
+  <h2>Lipid-Lowering &amp; Atherosclerosis</h2>
+  <div class="grid">
+    <a href="PCSK9_REVIEW.html" class="card lipid"><span class="name">PCSK9 Inhibitors</span><span class="pub">Published: HR 0.85 (0.79&ndash;0.92), k=2</span></a>
+    <a href="BEMPEDOIC_ACID_REVIEW.html" class="card lipid"><span class="name">Bempedoic Acid (CLEAR)</span><span class="pub">Published: HR 0.87 (0.79&ndash;0.96), k=1</span></a>
+    <a href="LIPID_HUB_REVIEW.html" class="card lipid"><span class="name">EPA/Omega-3 CVOTs</span><span class="pub">Published: HR 0.89 (0.76&ndash;1.04), k=5</span></a>
+  </div>
+
+  <h2>Anti-Inflammatory &amp; Vascular Protection</h2>
+  <div class="grid">
+    <a href="COLCHICINE_CVD_REVIEW.html" class="card cad"><span class="name">Colchicine in ASCVD</span><span class="pub">Published: HR 0.75 (0.61&ndash;0.91), k=2</span></a>
+    <a href="RIVAROXABAN_VASC_REVIEW.html" class="card cad"><span class="name">Rivaroxaban Vascular (COMPASS)</span><span class="pub">Published: HR 0.85 (0.77&ndash;0.94), k=4</span></a>
+  </div>
+
+  <h2>Diabetes &amp; Metabolic</h2>
+  <div class="grid">
+    <a href="GLP1_CVOT_REVIEW.html" class="card dm"><span class="name">GLP-1 RA CVOTs</span><span class="pub">Published: HR 0.88 (0.84&ndash;0.94), k=8</span></a>
+  </div>
+
+  <h2>Blood Pressure</h2>
+  <div class="grid">
+    <a href="INTENSIVE_BP_REVIEW.html" class="card bp"><span class="name">Intensive BP Control</span><span class="pub">Published: HR 0.79 (0.71&ndash;0.87), k=5</span></a>
+    <a href="RENAL_DENERV_REVIEW.html" class="card bp"><span class="name">Renal Denervation</span><span class="pub">Published: MD &minus;5.12 mmHg, k=5</span></a>
+  </div>
+
+  <h2>Rhythm</h2>
+  <div class="grid">
+    <a href="ABLATION_AF_REVIEW.html" class="card rhythm"><span class="name">Ablation in AF + HF</span><span class="pub">Published: HR 0.77 (0.64&ndash;0.93), k=4</span></a>
+  </div>
+
+  <h2>Anticoagulation</h2>
+  <div class="grid">
+    <a href="DOAC_CANCER_VTE_REVIEW.html" class="card vte"><span class="name">DOAC in Cancer VTE</span><span class="pub">Published: HR 0.55 (0.30&ndash;1.00), k=4</span></a>
+  </div>
+
+  <h2>Utilities &amp; Cross-Portfolio Tools</h2>
+  <div class="grid">
+    <a href="cardiology_mortality_atlas.html" class="card util"><span class="name">Mortality Atlas</span><span class="pub">25-class pooled ACM / CV-death HRs</span></a>
+    <a href="LivingMeta.html" class="card util"><span class="name">LivingMeta shell</span><span class="pub">Generic browser MA</span></a>
+    <a href="META_DASHBOARD.html" class="card util"><span class="name">Meta Dashboard</span><span class="pub">Cross-app aggregator</span></a>
+    <a href="MetaExtract.html" class="card util"><span class="name">MetaExtract</span><span class="pub">Data extraction tool</span></a>
+    <a href="AutoGRADE.html" class="card util"><span class="name">AutoGRADE</span><span class="pub">Certainty-of-evidence grader</span></a>
+    <a href="AutoManuscript.html" class="card util"><span class="name">AutoManuscript</span><span class="pub">PRISMA-2020 draft generator</span></a>
+    <a href="TrialRadar.html" class="card util"><span class="name">TrialRadar</span><span class="pub">CT.gov trial surveillance</span></a>
+  </div>
+
+  <h2>E156 submission (Finerenone micro-paper)</h2>
+  <div class="links">
+    <a href="e156-submission/index.html" class="card util"><span class="name">E156 micro-paper &mdash; interactive reader</span></a>
+    <a href="e156-submission/paper.md" class="card util"><span class="name">Paper (markdown)</span></a>
+    <a href="e156-submission/protocol.md" class="card util"><span class="name">Protocol (markdown)</span></a>
+    <a href="PUBLISHED_META_BENCHMARKS.json" class="card util"><span class="name">Published-meta benchmark JSON</span><span class="pub">Source for cross-validation chips</span></a>
+  </div>
+
   <div class="footer">
     <a href="https://github.com/mahmood726-cyber/rapidmeta-finerenone">&larr; Source on GitHub</a>
-    &middot; <a href="https://mahmood726-cyber.github.io/">All Projects</a>
+    &middot; <a href="https://mahmood726-cyber.github.io/">All projects</a>
+    &middot; Licence: MIT (see LICENSE)
   </div>
 </div>
 </body>

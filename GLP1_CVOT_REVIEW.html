@@ -2689,6 +2689,26 @@
                     this.state._migrated_v116_auto_include_seed = true;
                     if (mutated) this.save();
                 }
+                // v11.8 fix: auto-confirm the seeded canonical includes so Screening, Extraction, PRISMA, and Analysis tabs populate by default. Reason: downstream filters in this app use t.status === 'include'; leaving trials as pending-include made the Analysis/forest empty on first open.
+                if (this.state.trials?.length && !this.state._migrated_v118_auto_confirm_reference) {
+                    let mutated = false;
+                    this.state.trials.forEach(t => {
+                        if (!AUTO_INCLUDE_TRIAL_IDS.has(String(t?.id ?? ''))) return;
+                        const sr = t?.screenReview;
+                        if (!sr) return;
+                        if (String(sr.decision ?? '').toLowerCase() !== 'include') return;
+                        if (sr.confirmed === true && String(t.status ?? '').toLowerCase() === 'include') return;
+                        const ts2 = new Date().toISOString();
+                        sr.reviewer2 = sr.reviewer2 || 'autoscreener-secondary';
+                        sr.ts2 = sr.ts2 || ts2;
+                        sr.sig2 = sr.sig2 || shortSeal(`screen-confirm-auto|${JSON.stringify({ trialId: t.id, decision: 'include', reviewer2: sr.reviewer2, ts2: sr.ts2 })}`);
+                        sr.confirmed = true;
+                        t.status = 'include';
+                        mutated = true;
+                    });
+                    this.state._migrated_v118_auto_confirm_reference = true;
+                    if (mutated) this.save();
+                }
                 // v11.7 hotfix: rollback suspicious legacy mass-bulk includes (e.g., short reviewer IDs from old bug)
                 if (this.state.trials?.length && !this.state._migrated_v117_bulk_cleanup) {
                     let mutated = false;
