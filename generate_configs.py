@@ -277,7 +277,7 @@ TOPICS = [
      "population": "Adults or adolescents with T1DM",
      "intervention": "Closed-loop insulin delivery system", "comparator": "Open-loop pump or MDI",
      "primary_outcome": "Time in range (70-180 mg/dL)",
-     "key_ncts": ["NCT03563313", "NCT04531566"]},  # Various CL trials
+     "key_ncts": ["NCT03563313"]},  # DCLP3 (iDCL). NCT04531566 removed 2026-04-14: it is the neonatal FEED trial, not a closed-loop T1DM RCT.
 ]
 
 def fetch_ctgov(nct_id):

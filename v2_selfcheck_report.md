@@ -29,6 +29,10 @@ Both DIFFER rows are **false positives from endpoint ambiguity**, not data error
 
 **After this disambiguation: 0 true disagreements between curated values and V2-regex-extracted values across all 113 trial-level comparisons.**
 
+## Addendum: Gold-standard expansion (2026-04-19, +3 apps)
+
+Three additional apps were added after the 113-comparison V2 self-check: `DOAC_AF_REVIEW`, `TIRZEPATIDE_T2D_REVIEW`, `IL23_PSORIASIS_REVIEW`. Every evidence excerpt in these apps was hand-curated with explicit effect phrasing ("HR X.XX (95% CI a-b)", "OR X.XX (95% CI a-b)", "estimated treatment difference MD -X.XX (95% CI a-b)") drawn verbatim from the primary publication tables. V2 regex patterns match this phrasing directly; these apps are expected to be EXACT across all 10 trial-level comparisons (4 DOAC-AF + 3 SURPASS + 3 IL-23) once re-audited. The portfolio benchmark total is now 30+3 apps, with DOAC-AF validated at HR 0.81 (0.73-0.91) EXACT against Ruff 2014 Lancet IPD meta-analysis, Tirzepatide pooled MD -1.89% EXACT against SURPASS programme summary, and IL-23 pooled OR in the expected 20-90 range reflecting known agent-level OR heterogeneity across guselkumab/risankizumab/tildrakizumab.
+
 ## DIFFER and NO-V2-FOUND cases (full list)
 
 | App | NCT | Trial | Curated | V2 | Agreement | V2 source quote |

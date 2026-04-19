@@ -5,6 +5,7 @@ All protocols frozen 2026-04-19T00:00:00Z. Version 1.0.
 | Specialty | App | Protocol |
 |---|---|---|
 | Cardiology (Anti-inflammatory) | [Colchicine for Atherosclerotic Cardiovascular Disease Prevention](../COLCHICINE_CVD_REVIEW.html) | [v1.0 (2026-04-19)](colchicine_cvd_protocol_v1.0_2026-04-19.md) |
+| Cardiology (Anticoagulation) | [Direct Oral Anticoagulants vs Warfarin in Non-Valvular Atrial Fibrillation](../DOAC_AF_REVIEW.html) | [v1.0 (2026-04-19)](doac_af_protocol_v1.0_2026-04-19.md) |
 | Cardiology (Anticoagulation) | [Direct Oral Anticoagulants vs Low-Molecular-Weight Heparin for Cancer-Associated VTE](../DOAC_CANCER_VTE_REVIEW.html) | [v1.0 (2026-04-19)](doac_cancer_vte_protocol_v1.0_2026-04-19.md) |
 | Cardiology (Antiplatelet) | [Cangrelor vs Oral P2Y12 Inhibitor During Percutaneous Coronary Intervention](../CANGRELOR_PCI_REVIEW.html) | [v1.0 (2026-04-19)](cangrelor_pci_protocol_v1.0_2026-04-19.md) |
 | Cardiology (Blood Pressure) | [Intensive vs Standard Blood Pressure Control](../INTENSIVE_BP_REVIEW.html) | [v1.0 (2026-04-19)](intensive_bp_protocol_v1.0_2026-04-19.md) |
@@ -26,6 +27,8 @@ All protocols frozen 2026-04-19T00:00:00Z. Version 1.0.
 | Cardiology (Structural) | [Transcatheter Edge-to-Edge Mitral Valve Repair for Functional Mitral Regurgitation in Heart Failure](../MITRAL_FUNCMR_REVIEW.html) | [v1.0 (2026-04-19)](mitral_funcmr_protocol_v1.0_2026-04-19.md) |
 | Cardiology (Structural) | [Transcatheter vs Surgical Aortic Valve Replacement in Low-Risk Severe Aortic Stenosis](../TAVR_LOWRISK_REVIEW.html) | [v1.0 (2026-04-19)](tavr_lowrisk_protocol_v1.0_2026-04-19.md) |
 | Cardiology (Vascular Protection) | [Rivaroxaban for Vascular Protection in CAD/PAD/HF](../RIVAROXABAN_VASC_REVIEW.html) | [v1.0 (2026-04-19)](rivaroxaban_vasc_protocol_v1.0_2026-04-19.md) |
+| Dermatology | [IL-23 Inhibitors for Moderate-to-Severe Plaque Psoriasis](../IL23_PSORIASIS_REVIEW.html) | [v1.0 (2026-04-19)](il23_psoriasis_protocol_v1.0_2026-04-19.md) |
+| Endocrinology (Diabetes) | [Tirzepatide (Dual GIP/GLP-1 Agonist) for Glycaemic Control in Type 2 Diabetes](../TIRZEPATIDE_T2D_REVIEW.html) | [v1.0 (2026-04-19)](tirzepatide_t2d_protocol_v1.0_2026-04-19.md) |
 | Gastroenterology | [JAK Inhibitors for Induction of Remission in Moderate-to-Severe Ulcerative Colitis](../JAK_UC_REVIEW.html) | [v1.0 (2026-04-19)](jak_uc_protocol_v1.0_2026-04-19.md) |
 | Neurology | [Anti-Amyloid Monoclonal Antibodies for Early Alzheimer Disease](../ANTIAMYLOID_AD_REVIEW.html) | [v1.0 (2026-04-19)](antiamyloid_ad_protocol_v1.0_2026-04-19.md) |
 | Neurology | [Anti-CGRP Monoclonal Antibodies for Episodic Migraine Prevention](../CGRP_MIGRAINE_REVIEW.html) | [v1.0 (2026-04-19)](cgrp_migraine_protocol_v1.0_2026-04-19.md) |
