@@ -28,12 +28,16 @@ All protocols frozen 2026-04-19T00:00:00Z. Version 1.0.
 | Cardiology (Structural) | [Transcatheter vs Surgical Aortic Valve Replacement in Low-Risk Severe Aortic Stenosis](../TAVR_LOWRISK_REVIEW.html) | [v1.0 (2026-04-19)](tavr_lowrisk_protocol_v1.0_2026-04-19.md) |
 | Cardiology (Vascular Protection) | [Rivaroxaban for Vascular Protection in CAD/PAD/HF](../RIVAROXABAN_VASC_REVIEW.html) | [v1.0 (2026-04-19)](rivaroxaban_vasc_protocol_v1.0_2026-04-19.md) |
 | Dermatology | [IL-23 Inhibitors for Moderate-to-Severe Plaque Psoriasis](../IL23_PSORIASIS_REVIEW.html) | [v1.0 (2026-04-19)](il23_psoriasis_protocol_v1.0_2026-04-19.md) |
+| Endocrinology (Bone) | [Romosozumab (Sclerostin Monoclonal Antibody) for Osteoporotic Fracture Prevention](../ROMOSOZUMAB_OP_REVIEW.html) | [v1.0 (2026-04-19)](romosozumab_op_protocol_v1.0_2026-04-19.md) |
 | Endocrinology (Diabetes) | [Tirzepatide (Dual GIP/GLP-1 Agonist) for Glycaemic Control in Type 2 Diabetes](../TIRZEPATIDE_T2D_REVIEW.html) | [v1.0 (2026-04-19)](tirzepatide_t2d_protocol_v1.0_2026-04-19.md) |
+| Endocrinology (Obesity) | [Semaglutide 2.4 mg Once-Weekly for Weight Management in Adults with Overweight/Obesity](../SEMAGLUTIDE_OBESITY_REVIEW.html) | [v1.0 (2026-04-19)](semaglutide_obesity_protocol_v1.0_2026-04-19.md) |
 | Gastroenterology | [JAK Inhibitors for Induction of Remission in Moderate-to-Severe Ulcerative Colitis](../JAK_UC_REVIEW.html) | [v1.0 (2026-04-19)](jak_uc_protocol_v1.0_2026-04-19.md) |
 | Neurology | [Anti-Amyloid Monoclonal Antibodies for Early Alzheimer Disease](../ANTIAMYLOID_AD_REVIEW.html) | [v1.0 (2026-04-19)](antiamyloid_ad_protocol_v1.0_2026-04-19.md) |
 | Neurology | [Anti-CGRP Monoclonal Antibodies for Episodic Migraine Prevention](../CGRP_MIGRAINE_REVIEW.html) | [v1.0 (2026-04-19)](cgrp_migraine_protocol_v1.0_2026-04-19.md) |
 | Oncology (Breast) | [CDK4/6 Inhibitors plus Aromatase Inhibitor as First-Line Therapy for HR+/HER2- Metastatic Breast Cancer](../CDK46_MBC_REVIEW.html) | [v1.0 (2026-04-19)](cdk46_mbc_protocol_v1.0_2026-04-19.md) |
+| Oncology (Haematology) | [BCMA-Directed CAR-T Therapy in Relapsed/Refractory Multiple Myeloma](../CART_MM_REVIEW.html) | [v1.0 (2026-04-19)](cart_mm_protocol_v1.0_2026-04-19.md) |
 | Oncology (Ovarian) | [PARP Inhibitor Maintenance in First-Line Ovarian Cancer](../PARP_OVARIAN_REVIEW.html) | [v1.0 (2026-04-19)](parp_ovarian_protocol_v1.0_2026-04-19.md) |
 | Oncology (Prostate) | [Androgen Receptor Pathway Inhibitors plus ADT in Metastatic Hormone-Sensitive Prostate Cancer](../ARPI_mHSPC_REVIEW.html) | [v1.0 (2026-04-19)](arpi_mhspc_protocol_v1.0_2026-04-19.md) |
 | Respiratory | [Biologic Therapies for Severe Asthma](../BIOLOGIC_ASTHMA_REVIEW.html) | [v1.0 (2026-04-19)](biologic_asthma_protocol_v1.0_2026-04-19.md) |
 | Respiratory | [CFTR Modulators in Cystic Fibrosis](../CFTR_CF_REVIEW.html) | [v1.0 (2026-04-19)](cftr_cf_protocol_v1.0_2026-04-19.md) |
+| Respiratory | [Single-Inhaler Triple Therapy (ICS + LABA + LAMA) for Symptomatic COPD](../COPD_TRIPLE_REVIEW.html) | [v1.0 (2026-04-19)](copd_triple_protocol_v1.0_2026-04-19.md) |
