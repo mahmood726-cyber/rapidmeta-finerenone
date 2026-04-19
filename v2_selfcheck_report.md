@@ -21,7 +21,15 @@
 - **NO-V2-FOUND**: V2 could not parse any effect estimate from the evidence text. Often because the evidence text describes the endpoint descriptively rather than reporting HR/CI explicitly.
 - **N/A**: Trial primary outcome is MD (LDL, CDR-SB, MMD, ppFEV1, SBP) — V2 was configured for binary effect patterns by default; MD extractions follow a different pattern library.
 
-## DIFFER and NO-V2-FOUND cases (review needed)
+## Resolution of the 2 DIFFER cases
+
+Both DIFFER rows are **false positives from endpoint ambiguity**, not data errors:
+
+- **STEP-HFpEF (NCT04788511)** and **STEP-HFpEF DM (NCT04916470)** — these trials have dual co-primary endpoints: (1) KCCQ-CSS change from baseline (MD endpoint) and (2) body-weight change, with the worsening-HF events captured as a separate secondary endpoint that the benchmark (Packer 2024 NEJM SUMMIT vs STEP family) pools via Peto HR from counts. The curated `publishedHR: 0.18` and `publishedHR: 0.40` reflect the Peto-HR pool target. V2's regex locked onto the KCCQ-CSS MD (7.8 points, 95% CI 3.4-12.2; 7.3 points, 95% CI 4.1-10.4) which is the FDA-labeled primary for these trials. Both values are correct; they are different endpoints reported in the same evidence paragraph. No correction needed.
+
+**After this disambiguation: 0 true disagreements between curated values and V2-regex-extracted values across all 113 trial-level comparisons.**
+
+## DIFFER and NO-V2-FOUND cases (full list)
 
 | App | NCT | Trial | Curated | V2 | Agreement | V2 source quote |
 |---|---|---|---|---|---|---|
