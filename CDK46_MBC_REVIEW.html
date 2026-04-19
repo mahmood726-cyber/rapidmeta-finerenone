@@ -413,7 +413,7 @@
             </div>
             <div class="h-6 w-px bg-slate-800"></div>
             <select id="outcome-selector" onchange="RapidMeta.setOutcome(this.value)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-[10px] font-bold text-slate-300 outline-none uppercase tracking-wider" aria-label="Outcome to pool" title="Select outcome for pooling">
-                <option value="default">CV Death or HF Hospitalization (default)</option>
+                <option value="default">Progression-free survival (investigator or BICR assessed) (default)</option>
             </select>
             <div class="h-6 w-px bg-slate-800"></div>
             <button onclick="RapidMeta.togglePatientMode()" class="text-slate-400 hover:text-white transition-colors relative" title="Toggle Patient/Clinician Mode" id="btn-patient-mode" aria-label="Toggle between patient-friendly and clinician expert views">
@@ -439,7 +439,8 @@
             <div id="aact-status" class="text-[10px] text-slate-500 uppercase tracking-widest flex items-center gap-2 font-bold">
                 <div id="aact-dot" class="w-2 h-2 rounded-full bg-slate-700 font-bold"></div> AACT Proxy
             </div>
-            <button onclick="RapidMeta.reset()" class="text-slate-500 hover:text-red-400 transition-colors" title="Full Reset" aria-label="Reset all data and start fresh"><i class="fa-solid fa-rotate-left"></i></button>
+            <a href="protocols/cdk46_mbc_protocol_v1.0_2026-04-19.md" target="_blank" rel="noopener" class="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border border-emerald-500/40 text-emerald-300 bg-emerald-500/5 hover:bg-emerald-500/15 transition-all" title="Frozen protocol v1.0 (2026-04-19), GitHub-hosted permalink" data-protocol-version="1.0" data-protocol-date="2026-04-19">📑 Protocol v1.0 (2026-04-19)</a>
+                        <button onclick="RapidMeta.reset()" class="text-slate-500 hover:text-red-400 transition-colors" title="Full Reset" aria-label="Reset all data and start fresh"><i class="fa-solid fa-rotate-left"></i></button>
         </div>
     </header>
     <input id="review-import-input" type="file" accept=".json,application/json" class="hidden" onchange="RapidMeta.importReviewPack(event)">
@@ -490,12 +491,12 @@
                 <div class="glass rounded-[2rem] border border-slate-800 overflow-hidden shadow-2xl">
                     <div class="bg-slate-900/80 p-4 border-b border-slate-800"><h3 class="text-xs font-bold uppercase text-emerald-400 tracking-widest"><i class="fa-solid fa-bullseye mr-2"></i>2. Review Question &mdash; PICO Framework <span class="text-slate-500 ml-2">[PRISMA #3, AMSTAR #1]</span></h3></div>
                     <table class="w-full text-left text-xs"><tbody class="divide-y divide-slate-800/50">
-                        <tr><td class="p-4 w-1/4 font-bold text-blue-400 bg-blue-400/5">Population</td><td class="p-4"><input id="p-pop" class="w-full bg-transparent outline-none font-medium text-slate-200" value="Adults with Heart Failure (HFrEF, HFpEF, or post-MI)"></td></tr>
-                        <tr><td class="p-4 font-bold text-emerald-400 bg-emerald-400/5">Intervention</td><td class="p-4"><input id="p-int" class="w-full bg-transparent outline-none font-medium text-slate-200" value="Sacubitril/Valsartan (ARNI)"></td></tr>
-                        <tr><td class="p-4 font-bold text-rose-400 bg-rose-400/5">Comparator</td><td class="p-4"><input id="p-comp" class="w-full bg-transparent outline-none font-medium text-slate-200" value="RAAS Inhibitor (Enalapril or Valsartan)"></td></tr>
-                        <tr><td class="p-4 font-bold text-amber-400 bg-amber-400/5">Primary Outcome</td><td class="p-4"><input id="p-out" class="w-full bg-transparent outline-none font-medium text-slate-200" value="CV Death or HF Hospitalization"></td></tr>
+                        <tr><td class="p-4 w-1/4 font-bold text-blue-400 bg-blue-400/5">Population</td><td class="p-4"><input id="p-pop" class="w-full bg-transparent outline-none font-medium text-slate-200" value="Postmenopausal women with HR+/HER2- advanced breast cancer, no prior systemic therapy for advanced disease"></td></tr>
+                        <tr><td class="p-4 font-bold text-emerald-400 bg-emerald-400/5">Intervention</td><td class="p-4"><input id="p-int" class="w-full bg-transparent outline-none font-medium text-slate-200" value="CDK4/6 inhibitor (palbociclib 125 mg, ribociclib 600 mg, or abemaciclib 150 mg BID) plus aromatase inhibitor"></td></tr>
+                        <tr><td class="p-4 font-bold text-rose-400 bg-rose-400/5">Comparator</td><td class="p-4"><input id="p-comp" class="w-full bg-transparent outline-none font-medium text-slate-200" value="Aromatase inhibitor (letrozole 2.5 mg or anastrozole 1 mg) plus placebo"></td></tr>
+                        <tr><td class="p-4 font-bold text-amber-400 bg-amber-400/5">Primary Outcome</td><td class="p-4"><input id="p-out" class="w-full bg-transparent outline-none font-medium text-slate-200" value="Progression-free survival (investigator or BICR assessed)"></td></tr>
                         <tr><td class="p-4 font-bold text-purple-400 bg-purple-400/5">Secondary Outcomes</td><td class="p-4 text-slate-300">All-cause mortality; CV death; HF hospitalization; renal composite; quality of life</td></tr>
-                        <tr><td class="p-4 font-bold text-cyan-400 bg-cyan-400/5">Subgroup Plan</td><td class="p-4"><input id="p-subgroup" class="w-full bg-transparent outline-none font-medium text-slate-200" value="HF phenotype (HFrEF vs HFpEF vs post-MI), LVEF, Baseline NT-proBNP"></td></tr>
+                        <tr><td class="p-4 font-bold text-cyan-400 bg-cyan-400/5">Subgroup Plan</td><td class="p-4"><input id="p-subgroup" class="w-full bg-transparent outline-none font-medium text-slate-200" value="Visceral disease, prior endocrine sensitivity, menopausal status"></td></tr>
                     </tbody></table>
                 </div>
 
@@ -507,7 +508,7 @@
                         <tr><td class="p-3 font-bold text-slate-400">Study Design</td><td class="p-3 text-slate-300">Randomized controlled trials (RCTs), parallel or crossover</td><td class="p-3 text-slate-400">Non-randomized, observational, single-arm, case series</td></tr>
                         <tr><td class="p-3 font-bold text-slate-400">Phase</td><td class="p-3 text-slate-300">Phase III or IV</td><td class="p-3 text-slate-400">Phase I/II (including IIa/IIb), PK/PD, dose-finding, bioequivalence, first-in-human</td></tr>
                         <tr><td class="p-3 font-bold text-slate-400">Participants</td><td class="p-3 text-slate-300">Adults >=18 years with HFrEF, HFpEF, or recent MI with LV dysfunction</td><td class="p-3 text-slate-400">Healthy volunteers, paediatric, animal/in-vitro</td></tr>
-                        <tr><td class="p-3 font-bold text-slate-400">Intervention</td><td class="p-3 text-slate-300">Sacubitril/Valsartan (any dose) as primary experimental drug</td><td class="p-3 text-slate-400">Sacubitril/valsartan as background only; open-label extensions without comparator</td></tr>
+                        <tr><td class="p-3 font-bold text-slate-400">Intervention</td><td class="p-3 text-slate-300">CDK4/6 inhibitor (palbociclib 125 mg, ribociclib 600 mg, or abemaciclib 150 mg BID) plus aromatase inhibitor as primary experimental intervention</td><td class="p-3 text-slate-400">Open-label extensions without comparator; intervention used only as background</td></tr>
                         <tr><td class="p-3 font-bold text-slate-400">Comparator</td><td class="p-3 text-slate-300">Placebo, sham, or standard of care</td><td class="p-3 text-slate-400">Active comparator without placebo arm</td></tr>
                         <tr><td class="p-3 font-bold text-slate-400">Outcomes</td><td class="p-3 text-slate-300">&ge;1 clinical cardiovascular or renal endpoint with extractable 2&times;2 data</td><td class="p-3 text-slate-400">Biomarker-only, PK-only, no event data</td></tr>
                         <tr><td class="p-3 font-bold text-slate-400">Publication</td><td class="p-3 text-slate-300">Published or registered post-2015; any language</td><td class="p-3 text-slate-400">Pre-2015; duplicate cohorts; editorials, letters, reviews</td></tr>
@@ -520,9 +521,9 @@
                     <div class="bg-slate-900/80 p-4 border-b border-slate-800"><h3 class="text-xs font-bold uppercase text-blue-400 tracking-widest"><i class="fa-solid fa-magnifying-glass mr-2"></i>4. Information Sources &amp; Search Strategy <span class="text-slate-500 ml-2">[PRISMA #7&ndash;8, AMSTAR #4&ndash;5]</span></h3></div>
                     <table class="w-full text-left text-xs"><thead class="bg-slate-900/50"><tr><th class="p-3 text-[10px] font-bold uppercase text-slate-500 tracking-widest w-1/5">Database</th><th class="p-3 text-[10px] font-bold uppercase text-slate-500 tracking-widest">Search String / API Query</th><th class="p-3 text-[10px] font-bold uppercase text-slate-500 tracking-widest w-1/6">Type</th></tr></thead>
                     <tbody class="divide-y divide-slate-800/50">
-                        <tr><td class="p-3 font-bold text-blue-400">ClinicalTrials.gov</td><td class="p-3"><code class="text-[10px] text-slate-400 font-mono break-all">https://clinicaltrials.gov/api/v2/studies?query.intr=sacubitril AND valsartan&amp;pageSize=100&amp;filter.overallStatus=COMPLETED</code></td><td class="p-3 text-slate-400">Registry (API v2)</td></tr>
-                        <tr><td class="p-3 font-bold text-purple-400">PubMed (Europe PMC)</td><td class="p-3"><code class="text-[10px] text-slate-400 font-mono break-all">sacubitril valsartan AND (TITLE:randomized OR PUB_TYPE:"Randomized Controlled Trial" OR PUB_TYPE:"Clinical Trial") AND SRC:MED</code></td><td class="p-3 text-slate-400">Bibliographic (REST)</td></tr>
-                        <tr><td class="p-3 font-bold text-amber-400">OpenAlex</td><td class="p-3"><code class="text-[10px] text-slate-400 font-mono break-all">search=sacubitril valsartan&amp;filter=concepts.id:C71924100&amp;per_page=50</code></td><td class="p-3 text-slate-400">Bibliographic (REST)</td></tr>
+                        <tr><td class="p-3 font-bold text-blue-400">ClinicalTrials.gov</td><td class="p-3"><code class="text-[10px] text-slate-400 font-mono break-all">https://clinicaltrials.gov/api/v2/studies?query.intr=palbociclib OR ribociclib OR abemaciclib&amp;pageSize=100&amp;filter.overallStatus=COMPLETED</code></td><td class="p-3 text-slate-400">Registry (API v2)</td></tr>
+                        <tr><td class="p-3 font-bold text-purple-400">PubMed (Europe PMC)</td><td class="p-3"><code class="text-[10px] text-slate-400 font-mono break-all">(palbociclib OR ribociclib OR abemaciclib) AND (breast cancer) AND (TITLE:randomized OR PUB_TYPE:"Randomized Controlled Trial") AND SRC:MED</code></td><td class="p-3 text-slate-400">Bibliographic (REST)</td></tr>
+                        <tr><td class="p-3 font-bold text-amber-400">OpenAlex</td><td class="p-3"><code class="text-[10px] text-slate-400 font-mono break-all">search=palbociclib ribociclib abemaciclib breast&amp;per_page=50</code></td><td class="p-3 text-slate-400">Bibliographic (REST)</td></tr>
                         <tr><td class="p-3 font-bold text-emerald-400">Reference Check</td><td class="p-3 text-slate-400">Backward citation search: built-in landmark database cross-checked against API returns</td><td class="p-3 text-slate-400">Manual supplement</td></tr>
                     </tbody></table>
                     <div class="p-4 bg-slate-950/30 border-t border-slate-800">
@@ -689,15 +690,15 @@
                     <div class="grid grid-cols-3 gap-4">
                         <div class="p-4 bg-blue-500/5 rounded-xl border border-blue-500/10">
                             <div class="text-[9px] font-bold uppercase text-blue-400 tracking-widest mb-1">ClinicalTrials.gov API v2</div>
-                            <code class="text-[9px] text-slate-400 font-mono leading-relaxed block break-all">https://clinicaltrials.gov/api/v2/studies?query.intr=sacubitril AND valsartan&amp;pageSize=100&amp;filter.overallStatus=COMPLETED</code>
+                            <code class="text-[9px] text-slate-400 font-mono leading-relaxed block break-all">https://clinicaltrials.gov/api/v2/studies?query.intr=palbociclib OR ribociclib OR abemaciclib&amp;pageSize=100&amp;filter.overallStatus=COMPLETED</code>
                         </div>
                         <div class="p-4 bg-purple-500/5 rounded-xl border border-purple-500/10">
                             <div class="text-[9px] font-bold uppercase text-purple-400 tracking-widest mb-1">Europe PMC (PubMed mirror)</div>
-                            <code class="text-[9px] text-slate-400 font-mono leading-relaxed block break-all">sacubitril valsartan AND (TITLE:randomized OR PUB_TYPE:"Randomized Controlled Trial" OR PUB_TYPE:"Clinical Trial") AND SRC:MED</code>
+                            <code class="text-[9px] text-slate-400 font-mono leading-relaxed block break-all">(palbociclib OR ribociclib OR abemaciclib) AND (breast cancer) AND (TITLE:randomized OR PUB_TYPE:"Randomized Controlled Trial") AND SRC:MED</code>
                         </div>
                         <div class="p-4 bg-amber-500/5 rounded-xl border border-amber-500/10">
                             <div class="text-[9px] font-bold uppercase text-amber-400 tracking-widest mb-1">OpenAlex API</div>
-                            <code class="text-[9px] text-slate-400 font-mono leading-relaxed block break-all">search=sacubitril valsartan&amp;filter=concepts.id:C71924100&amp;per_page=50</code>
+                            <code class="text-[9px] text-slate-400 font-mono leading-relaxed block break-all">search=palbociclib ribociclib abemaciclib breast&amp;per_page=50</code>
                         </div>
                     </div>
                 </div>
@@ -1128,7 +1129,7 @@
                         <h3 class="text-sm font-bold opacity-60 uppercase tracking-[0.3em] mb-2">Publication-Quality Forest Plot</h3>
                         <p class="text-[10px] text-slate-500 mb-6">Annotated forest plot with trial-level statistics and weight contributions. Suitable for manuscript figures.</p>
                         <div id="plot-forest-nyt" class="chart-container" style="height:400px;"></div>
-                        <p class="nyt-figure-caption mt-3">Fig. — Forest plot of sacubitril\/valsartan vs placebo for MACE composite (random-effects, DL estimator)</p>
+                        <p class="nyt-figure-caption mt-3">Fig. — Forest plot of CDK4/6i + AI vs AI alone for PFS (random-effects, DL estimator)</p>
                         <div class="flex gap-2 mt-2">
                             <button id="btn-forest-svg" class="text-[10px] px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">Export Forest SVG</button>
                             <button id="btn-forest-png" class="text-[10px] px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">Export Forest PNG (300 DPI)</button>
@@ -1343,7 +1344,7 @@
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                             <div>
                                 <h3 class="text-sm font-bold opacity-60 uppercase tracking-[0.3em]">Published Meta Benchmark</h3>
-                                <p id="benchmark-summary" class="text-[10px] text-slate-500 mt-2">Generate a report to compare the current pooled estimate against published sacubitril/valsartan pooled analyses.</p>
+                                <p id="benchmark-summary" class="text-[10px] text-slate-500 mt-2">Generate a report to compare the current pooled estimate against published CDK4/6 inhibitor mBC pooled analyses.</p>
                             </div>
                             <div id="benchmark-status-chip" class="text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-full border border-slate-700 text-slate-300 bg-slate-900/60">No benchmark yet</div>
                         </div>
@@ -1366,7 +1367,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <p id="benchmark-footnote" class="text-[9px] text-slate-500 italic mt-3 px-2">Benchmarks use a locked local comparator database of published sacubitril/valsartan pooled analyses.</p>
+                        <p id="benchmark-footnote" class="text-[9px] text-slate-500 italic mt-3 px-2">Benchmarks use a locked local comparator database of published CDK4/6 inhibitor mBC pooled analyses.</p>
                     </div>
 
                     <!-- v12.0: PRISMA 2020 SVG Flow Diagram -->
@@ -1536,7 +1537,7 @@
         const STRICT_CANONICAL_AUTOSCREEN = false;
         const buildAutoIncludeScreenReview = (trialId, priorNote = '') => {
             const ts1 = new Date().toISOString();
-            const note = String(priorNote || 'Auto-screen proposed INCLUDE for canonical sacubitril/valsartan trial. Awaiting dual-review confirmation.').trim();
+            const note = String(priorNote || 'Auto-screen proposed INCLUDE for canonical CDK4/6i + letrozole mBC trial. Awaiting dual-review confirmation.').trim();
             const sig1 = shortSeal(`screen-propose-auto|${JSON.stringify({ trialId, decision: 'include', reviewer1: 'autoscreener', note, ts1 })}`);
             return {
                 decision: 'include',
@@ -1559,7 +1560,7 @@
             const score = parseInt(trial?.screenScore ?? 0, 10) || 0;
 
             const hasNct = /^NCT\d{8}$/i.test(id);
-            const hasDrug = /\bsacubitril|valsartan|arni|entresto\b/i.test(text);
+            const hasDrug = /\bpalbociclib|ribociclib|abemaciclib|cdk.?4.?6\b/i.test(text);
             const hasRandomized = /\brandomized|randomised\b/.test(text);
             const hasPlacebo = /\bplacebo\b/.test(text);
             const hasRelevantPop = /\bheart failure\b|\bhfref\b|\bhfpef\b|\bhfmref\b|\bejection fraction\b/.test(text);
@@ -1722,7 +1723,7 @@
         function downloadChart(plotId, name) {
             const el = document.getElementById(plotId);
             if (!el || !el.data) { showToast('Generate analysis first.'); return; }
-            Plotly.downloadImage(el, { format: 'svg', filename: 'arni_hf_' + name + '_' + new Date().toISOString().slice(0, 10), width: 900, height: 400 });
+            Plotly.downloadImage(el, { format: 'svg', filename: 'cdk46_mbc_' + name + '_' + new Date().toISOString().slice(0, 10), width: 900, height: 400 });
             showToast('Chart downloaded as SVG.');
         }
         const mulberry32 = (seed) => { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = t + Math.imul(t ^ (t >>> 7), 61 | t) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; };
@@ -1882,7 +1883,7 @@ const ContinuousMDEngine = {
     
         const RapidMeta = {
             state: {
-                protocol: { pop: 'Adults with Heart Failure (HFrEF, HFpEF, or post-MI)', int: 'Sacubitril/Valsartan (ARNI)', comp: 'RAAS Inhibitor (Enalapril or Valsartan)', out: 'CV Death or HF Hospitalization', subgroup: 'HF phenotype (HFrEF vs HFpEF vs post-MI), LVEF, Baseline NT-proBNP', query: '', rctOnly: true, post2015: true },
+                protocol: { pop: 'Postmenopausal women with HR+/HER2- advanced breast cancer, no prior systemic therapy for advanced disease', int: 'CDK4/6 inhibitor (palbociclib 125 mg, ribociclib 600 mg, or abemaciclib 150 mg BID) plus aromatase inhibitor', comp: 'Aromatase inhibitor (letrozole 2.5 mg or anastrozole 1 mg) plus placebo', out: 'Progression-free survival (investigator or BICR assessed)', subgroup: 'Visceral disease, prior endocrine sensitivity, menopausal status', query: '', rctOnly: true, post2015: true },
                 trials: [], activeTab: 'protocol', results: null, showExcluded: false, screenFilter: 'all',
                 confLevel: 0.95, effectMeasure: 'AUTO', selectedOutcome: 'MACE', updateLog: [], bayesPrior: 'informative', versionSnapshots: [],
                 searchLog: [], reviewerId: '', reviewLock: { owner: '', ts: '' }, mergeConflicts: [],
@@ -2431,7 +2432,7 @@ const ContinuousMDEngine = {
                     this.state._migrated_v115_highlight_cleanup = true;
                     if (mutated) this.save();
                 }
-                // v11.6 hotfix: seed canonical sacubitril\/valsartan includes as auto-proposed decisions for fast dual approval
+                // v11.6 hotfix: seed canonical CDK4/6i + letrozole mBC trial includes as auto-proposed decisions for fast dual approval
                 if (this.state.trials?.length && !this.state._migrated_v116_auto_include_seed) {
                     let mutated = false;
                     this.state.trials.forEach(t => {
@@ -3785,7 +3786,7 @@ const ContinuousMDEngine = {
                 'Secondary Outcomes': 'النتائج الثانوية',
                 'Subgroup Plan': 'خطة التحليل الفرعي',
                 'Adults with Heart Failure or Chronic Kidney Disease': 'البالغون المصابون بقصور القلب أو أمراض الكلى المزمنة',
-                'Sacubitril/Valsartan (ARNI)': 'الفينيرينون (مضاد مستقبلات المعادن القشرية غير الستيرويدي)',
+                'CDK4/6 inhibitor (palbociclib 125 mg, ribociclib 600 mg, or abemaciclib 150 mg BID) plus aromatase inhibitor': 'الفينيرينون (مضاد مستقبلات المعادن القشرية غير الستيرويدي)',
                 'Placebo or standard of care': 'الدواء الوهمي أو الرعاية المعيارية',
                 'MACE Composite (CV Death, Nonfatal MI, Nonfatal Stroke, HFH)': 'المركّب MACE (وفاة قلبية، احتشاء غير مميت، سكتة غير مميتة، دخول لقصور القلب)',
                 'All-cause mortality; CV death; HF hospitalization; renal composite; quality of life': 'الوفيات لجميع الأسباب؛ المركّب الكلوي (انخفاض eGFR، مرض كلوي نهائي، وفاة كلوية)؛ مكونات MACE الفردية؛ فرط بوتاسيوم الدم',
@@ -3806,8 +3807,8 @@ const ContinuousMDEngine = {
                 'Phase III or IV': 'المرحلة الثالثة أو الرابعة',
                 'Phase I PK/PD, bioequivalence, first-in-human': 'المرحلة الأولى PK/PD، تكافؤ حيوي، أول استخدام بشري',
                 'Healthy volunteers, paediatric, animal/in-vitro': 'متطوعون أصحاء، أطفال، حيوان/مختبري',
-                'Sacubitril/Valsartan (any dose) as primary experimental drug': 'الفينيرينون (أي جرعة) كدواء تجريبي أساسي',
-                'Sacubitril/valsartan as background only; open-label extensions without comparator': 'الفينيرينون كعلاج مصاحب/خلفي فقط',
+                'CDK4/6 inhibitor (palbociclib 125 mg, ribociclib 600 mg, or abemaciclib 150 mg BID) plus aromatase inhibitor as primary experimental intervention': 'الفينيرينون (أي جرعة) كدواء تجريبي أساسي',
+                'Open-label extensions without comparator; intervention used only as background': 'الفينيرينون كعلاج مصاحب/خلفي فقط',
                 'Placebo, sham, or standard of care': 'الدواء الوهمي أو الرعاية المعيارية',
                 'Active comparator without placebo arm': 'مقارنة فعالة بدون ذراع وهمي',
                 'Biomarker-only, PK-only, no event data': 'مؤشرات حيوية فقط، PK فقط، لا بيانات أحداث',
@@ -4454,7 +4455,7 @@ const ContinuousMDEngine = {
                 'out of 100 patients benefit': 'من 100 مريض يستفيدون',
                 'No measurable effect per 100 patients': 'لا يوجد تأثير قابل للقياس لكل 100 مريض',
                 '% lower risk with sacubitril\/valsartan': '% خطر أقل مع الفينيرينون',
-                '% higher risk with sacubitril/valsartan': '% خطر أعلى مع الفينيرينون',
+                '% higher risk with intervention': '% خطر أعلى مع الفينيرينون',
 
                 // ===== v11.3: VALIDATION & REMAINING FRAGMENTS =====
 
@@ -4478,7 +4479,7 @@ const ContinuousMDEngine = {
                 'trials (N =': 'دراسات (العدد =',
                 'suggesting a': 'مما يُشير إلى',
                 '% lower odds with sacubitril\/valsartan.': '% أرجحية أقل مع الفينيرينون.',
-                '% higher odds with sacubitril/valsartan.': '% أرجحية أعلى مع الفينيرينون.',
+                '% higher odds with intervention.': '% أرجحية أعلى مع الفينيرينون.',
                 'Note: OR from 2\u00d72 counts approximates HR at low event rates': 'ملاحظة: OR من جداول 2×2 تُقارب HR عند معدلات أحداث منخفضة',
                 '(Cochrane Ch 10.4.1).': '(كوكرين الفصل 10.4.1).',
 
@@ -4729,7 +4730,7 @@ const ContinuousMDEngine = {
                     [/double-blind|double blind/i, 10, 'Double-blind'],
                     [/placebo-controlled|placebo controlled/i, 10, 'Placebo-controlled'],
                     [/phase (iii|iv|3|4)/i, 10, 'Phase III/IV'],
-                    [/sacubitril|valsartan|arni|entresto/i, 10, 'Sacubitril/Valsartan intervention'],
+                    [/palbociclib|ribociclib|abemaciclib/i, 10, 'CDK4/6 inhibitor intervention'],
                     [/heart failure|hfpef|hfref|chronic kidney|ckd|cardiorenal/i, 5, 'Relevant population'],
                     [/primary endpoint|primary outcome|composite endpoint/i, 5, 'Reports primary endpoint'],
                     [/hazard ratio|odds ratio|risk ratio|confidence interval/i, 5, 'Reports effect estimates'],
@@ -4778,8 +4779,8 @@ const ContinuousMDEngine = {
 
                 try {
                     // === PARALLEL FETCH: all 3 sources simultaneously ===
-                    const ctgovUrl = 'https://clinicaltrials.gov/api/v2/studies?query.intr=sacubitril AND valsartan&pageSize=100&filter.overallStatus=COMPLETED';
-                    const epmcQuery = encodeURIComponent('sacubitril valsartan AND (TITLE:randomized OR PUB_TYPE:"Randomized Controlled Trial" OR PUB_TYPE:"Clinical Trial") AND SRC:MED');
+                    const ctgovUrl = 'https://clinicaltrials.gov/api/v2/studies?query.intr=palbociclib OR ribociclib OR abemaciclib&pageSize=100&filter.overallStatus=COMPLETED';
+                    const epmcQuery = encodeURIComponent('(palbociclib OR ribociclib OR abemaciclib) AND (breast cancer) AND (TITLE:randomized OR PUB_TYPE:"Randomized Controlled Trial") AND SRC:MED');
                     const epmcUrl = 'https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=' + epmcQuery + '&resultType=core&pageSize=100&format=json';
                     const oaUrl = 'https://api.openalex.org/works?search=sacubitril valsartan&per_page=50&select=id,doi,title,ids,abstract_inverted_index,publication_year,type,authorships';
 
@@ -12332,7 +12333,7 @@ print(res_sub)`;
                 const summaryEl = document.getElementById('benchmark-summary');
                 if (summaryEl) summaryEl.textContent = benchmark?.summary ?? 'No published benchmark available.';
                 const footnoteEl = document.getElementById('benchmark-footnote');
-                if (footnoteEl) footnoteEl.textContent = benchmark?.footnote ?? 'Benchmarks use a locked local comparator database of published sacubitril/valsartan pooled analyses.';
+                if (footnoteEl) footnoteEl.textContent = benchmark?.footnote ?? 'Benchmarks use a locked local comparator database of published CDK4/6 inhibitor mBC pooled analyses.';
                 const body = document.getElementById('benchmark-body');
                 if (!body) return;
                 if (!benchmark?.available || !Array.isArray(benchmark.entries) || benchmark.entries.length === 0) {
@@ -12698,7 +12699,7 @@ print(res_sub)`;
                 document.getElementById('wr-gauge-value').textContent = (isBenefit ? '' : '+') + Math.round(absRRR) + '%';
                 document.getElementById('wr-gauge-text').textContent = isBenefit
                     ? Math.round(absRRR) + '% lower risk with sacubitril\/valsartan'
-                    : Math.round(absRRR) + '% higher risk with sacubitril/valsartan';
+                    : Math.round(absRRR) + '% higher risk with intervention';
 
                 // Card 3: Key message
                 document.getElementById('wr-or-display').textContent = r.or;
