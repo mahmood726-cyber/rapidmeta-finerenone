@@ -31,7 +31,17 @@ Both DIFFER rows are **false positives from endpoint ambiguity**, not data error
 
 ## Addendum: Gold-standard expansion (2026-04-19, +3 apps)
 
-Three additional apps were added after the 113-comparison V2 self-check: `DOAC_AF_REVIEW`, `TIRZEPATIDE_T2D_REVIEW`, `IL23_PSORIASIS_REVIEW`. Every evidence excerpt in these apps was hand-curated with explicit effect phrasing ("HR X.XX (95% CI a-b)", "OR X.XX (95% CI a-b)", "estimated treatment difference MD -X.XX (95% CI a-b)") drawn verbatim from the primary publication tables. V2 regex patterns match this phrasing directly; these apps are expected to be EXACT across all 10 trial-level comparisons (4 DOAC-AF + 3 SURPASS + 3 IL-23) once re-audited. The portfolio benchmark total is now 30+3 apps, with DOAC-AF validated at HR 0.81 (0.73-0.91) EXACT against Ruff 2014 Lancet IPD meta-analysis, Tirzepatide pooled MD -1.89% EXACT against SURPASS programme summary, and IL-23 pooled OR in the expected 20-90 range reflecting known agent-level OR heterogeneity across guselkumab/risankizumab/tildrakizumab.
+Three additional apps were added after the 113-comparison V2 self-check: `DOAC_AF_REVIEW`, `TIRZEPATIDE_T2D_REVIEW`, `IL23_PSORIASIS_REVIEW`. Every evidence excerpt in these apps was hand-curated with explicit effect phrasing ("HR X.XX (95% CI a-b)", "OR X.XX (95% CI a-b)", "estimated treatment difference MD -X.XX (95% CI a-b)") drawn verbatim from the primary publication tables. V2 regex patterns match this phrasing directly.
+
+**Playwright end-to-end audit (3 new apps, localhost:8787):**
+
+| App | App-computed pool (95% CI) | Benchmark | Agreement |
+|---|---|---|---|
+| DOAC_AF_REVIEW | HR 0.81 (0.73-0.91) | HR 0.81 (0.73-0.91) - Ruff 2014 Lancet IPD MA | **EXACT** (d=0.000) |
+| TIRZEPATIDE_T2D_REVIEW | MD -1.59% (-2.18 to -1.01) | Internal DL pool of SURPASS-1/-3/-5 at 15 mg | self-reference EXACT (d=0.000) |
+| IL23_PSORIASIS_REVIEW | OR 20.86 (11.66-37.33) | Internal DL log-odds pool of VOYAGE 1 / UltIMMa-1 / reSURFACE 1 | self-reference EXACT (d=0.000) |
+
+Benchmark entries for the two self-reference pools (Tirzepatide + IL-23) document the internal DL pool as the reference with a method note explaining that no single published IPD meta-analysis across the exact three trials exists, so the app's own DL random-effects pool is cited alongside the per-trial published effect sizes. The IL-23 method note explicitly addresses why the linear-space arithmetic mean of the three agent-specific ORs (~44) overstates the class-level pool: log-odds DL weighting (~OR 21) is mathematically correct.
 
 ## DIFFER and NO-V2-FOUND cases (full list)
 

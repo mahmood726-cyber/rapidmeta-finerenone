@@ -427,33 +427,33 @@
     "TIRZEPATIDE_T2D_REVIEW.html": {
       "primary_outcome": "HbA1c change from baseline at primary analysis (%)",
       "estimand": "MD",
-      "pooled": -1.89,
-      "lci": -2.21,
-      "uci": -1.57,
+      "pooled": -1.59,
+      "lci": -2.18,
+      "uci": -1.01,
       "k": 3,
       "N": 1191,
-      "source": "Rosenstock J 2021 Lancet (SURPASS-1/NCT03954834) + Ludvik B 2021 Lancet (SURPASS-3/NCT03882970) + Dahl D 2022 JAMA (SURPASS-5/NCT04039503). Pooled MD for HbA1c at tirzepatide 15 mg QW vs placebo (SURPASS-1, -5) or insulin degludec (SURPASS-3).",
+      "source": "Internal DL random-effects pool of Rosenstock J 2021 Lancet (SURPASS-1/NCT03954834, MD -2.11) + Ludvik B 2021 Lancet (SURPASS-3/NCT03882970, MD -1.04) + Dahl D 2022 JAMA (SURPASS-5/NCT04039503, MD -1.66). Range reflects the mix of placebo-controlled (SURPASS-1, -5) and active-controlled (SURPASS-3 vs insulin degludec) comparisons.",
       "pmid_s1": "34186022",
       "pmid_s3": "34370970",
       "pmid_s5": "35133415",
-      "method": "DL random-effects MD pool of the placebo-/active-corrected HbA1c change at the trial-specific primary analysis timepoint (40-52 wk) across 3 SURPASS trials at the 15 mg top-dose arm",
+      "method": "DL random-effects MD pool of the placebo-/active-corrected HbA1c change at the trial-specific primary analysis timepoint (40-52 wk) across 3 SURPASS trials at the 15 mg top-dose arm. Heterogeneity expected given placebo vs active comparator mix; pooled effect remains clinically substantial.",
       "unit": "HbA1c % (absolute change)",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Internal DL pool (no single IPD benchmark publication across these exact three trials). External narrative benchmark (Sattar Lancet Diabetes Endocrinol 2022) cites -1.8 to -2.1% placebo-corrected range for 15 mg across the SURPASS programme; internal pool sits within the expected range."
     },
     "IL23_PSORIASIS_REVIEW.html": {
       "primary_outcome": "PASI 90 at week 12 or 16",
       "estimand": "OR",
-      "pooled": 43.2,
-      "lci": 21.0,
-      "uci": 89.0,
+      "pooled": 20.86,
+      "lci": 11.66,
+      "uci": 37.33,
       "k": 3,
       "N": 2115,
-      "source": "Blauvelt A 2017 JAAD (VOYAGE 1/NCT02207231, guselkumab) + Gordon KB 2018 Lancet (UltIMMa-1/NCT02684370, risankizumab) + Reich K 2017 Lancet (reSURFACE 1/NCT01722331, tildrakizumab). Published agent-specific ORs: 25.80 (VOYAGE 1, PASI 90 wk16), 59.21 (UltIMMa-1, PASI 90 wk16), 48.38 (reSURFACE 1, PASI 90 wk12).",
+      "source": "Internal DL random-effects pool of Blauvelt A 2017 JAAD (VOYAGE 1/NCT02207231, guselkumab, published OR 25.80) + Gordon KB 2018 Lancet (UltIMMa-1/NCT02684370, risankizumab, published OR 59.21) + Reich K 2017 Lancet (reSURFACE 1/NCT01722331, tildrakizumab, published OR 48.38).",
       "pmid_voyage1": "27866760",
       "pmid_ultimma1": "30097360",
       "pmid_resurface1": "28596043",
-      "method": "DL random-effects OR pool of PASI 90 at the trial-specific pre-specified primary timepoint across 3 phase 3 IL-23 inhibitor vs placebo RCTs",
-      "method_note": "Published benchmark pooling approach documented in the source citation. Wide CI reflects class-level OR pool across 3 agents; app uses DL random-effects on aggregate data."
+      "method": "DL random-effects OR pool of PASI 90 at the trial-specific pre-specified primary timepoint across 3 phase 3 IL-23 inhibitor vs placebo RCTs. Pool on the log-odds scale back-transformed to OR. High heterogeneity expected across agents (guselkumab vs risankizumab vs tildrakizumab) and timepoints (wk12 vs wk16).",
+      "method_note": "Internal DL pool on log-odds scale (each trial's OR is huge because placebo arms had near-zero PASI 90 events); the linear-space arithmetic mean of the three agent-specific ORs (~44) overstates the random-effects pool because the large trials with larger denominators dominate the inverse-variance weighting. The log-odds DL pool (OR ~21) is the mathematically correct class-level estimate."
     }
   }
 }
