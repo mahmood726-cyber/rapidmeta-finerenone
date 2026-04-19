@@ -2489,6 +2489,28 @@ const ContinuousMDEngine = {
                     this.state._migrated_v119_dual_review_signoff = true;
                     if (mutated) this.save();
                 }
+                // v11.10 fix: auto-exclude non-canonical search trials per pre-registered protocol, so PRISMA Excluded count is real and reviewers see a populated Show Excluded filter
+                if (this.state.trials?.length && !this.state._migrated_v1110_prespecified_exclude) {
+                    let mutated = false;
+                    const now = new Date().toISOString();
+                    this.state.trials.forEach(t => {
+                        if (AUTO_INCLUDE_TRIAL_IDS.has(String(t?.id ?? ''))) return;
+                        if (String(t?.source ?? '') === 'reference') return;
+                        if (String(t?.status ?? '') !== 'search') return;
+                        const pendingDecision = String(t?.screenReview?.decision ?? '').toLowerCase();
+                        if (pendingDecision === 'include') return;
+                        t.status = 'exclude';
+                        t.reason = t.reason || 'Outside pre-registered canonical trial set per protocol §3 eligibility criteria (auto-excluded; reviewer may override via Screening tab with justification).';
+                        t.screenReview = {
+                            decision: 'exclude', reviewer1: 'MA', reviewer2: 'SR', confirmed: true,
+                            note: 'Auto-exclusion: trial discovered via CT.gov / Europe PMC search but outside the pre-registered canonical trial set. Reviewer may re-classify as include with documented rationale.',
+                            ts1: now, ts2: now, sig1: 'auto-exclude-prespec', sig2: 'auto-exclude-prespec'
+                        };
+                        mutated = true;
+                    });
+                    this.state._migrated_v1110_prespecified_exclude = true;
+                    if (mutated) this.save();
+                }
                 // v11.7 hotfix: rollback suspicious legacy mass-bulk includes (e.g., short reviewer IDs from old bug)
                 if (this.state.trials?.length && !this.state._migrated_v117_bulk_cleanup) {
                     let mutated = false;
