@@ -1,11 +1,25 @@
 # V2 Self-Consistency Check Report
 
-**Date:** 2026-04-19  
+**Date:** 2026-04-20 (taxonomy revision)  
 **Tool:** RCT Extractor v5.0 (C:/Projects/rct-extractor-v2)  
 **Input:** Evidence text excerpts from realData blocks (not PDFs)  
-**Scope:** 113 trial-level comparisons across 30 apps
+**Scope:** 113 trial-level comparisons across 30 apps (2026-04-19 baseline) + addendum for 7 post-baseline apps (2026-04-19 and 2026-04-20 expansions = 41 apps total)
 
-## Summary
+## Scope of "validation" — two distinct comparisons
+
+This report combines two different comparisons. They must not be conflated in framework-paper claims.
+
+1. **V2-regex trial-level agreement** (`n=113` trial-level effect estimates)
+   Each app's hand-curated effect estimate is compared to what the V2 regex extractor finds in the *same evidence text*. This tests **intra-app consistency** between the curated effect and the evidence string. It does *not* validate the pool against an external ground truth.
+
+2. **App pool vs external benchmark** (n_external = 11/41)
+   The app's DL random-effects pool is compared to a published IPD or aggregate meta-analysis with the matching trial set. This is the only statistic that tests the framework's pooling correctness against external ground truth.
+
+The two headline numbers below should never appear in the same sentence without this distinction.
+
+## Headline numbers (revised 2026-04-20)
+
+### (1) V2-regex trial-level agreement (intra-app)
 
 - **EXACT:** 71 / 113
 - **CLOSE:** 1 / 113
@@ -29,7 +43,24 @@ Both DIFFER rows are **false positives from endpoint ambiguity**, not data error
 
 **After this disambiguation: 0 true disagreements between curated values and V2-regex-extracted values across all 113 trial-level comparisons.**
 
-## Addendum: Gold-standard expansion (2026-04-19, +3 apps)
+### (2) App DL pool vs external benchmark (true cross-validation)
+
+Per the 2026-04-20 benchmark taxonomy in `PUBLISHED_META_BENCHMARKS.json`:
+
+- `benchmark_type: "external_IPD"`       = **4 apps** (FINERENONE, GLP1_CVOT, CANGRELOR_PCI, DOAC_AF)
+- `benchmark_type: "external_aggregate"` = **7 apps** (BEMPEDOIC_ACID, SGLT2_HF, PCSK9, SGLT2_CKD, INCLISIRAN, TAVR_LOWRISK, JAK_UC)
+- `benchmark_type: "self_reference"`     = **30 apps** (benchmark = app's own DL pool — excluded from external validation)
+
+**Only the 11 externally-benchmarked apps contribute to the genuine "framework-pool vs published-pool" validation number.** Agreement for these 11 apps against their external benchmarks is reported in each app's benchmark JSON entry and summarised in the portfolio editor review. The 30 self-reference entries indicate that no single published MA with the matching trial set exists at protocol freeze; framework-paper claims must not cite these as external validation.
+
+Additionally (from the 2026-04-19 benchmark taxonomy):
+
+- `pool_type: "same_drug"`   = **15 apps** (one molecule / device / procedure across trials)
+- `pool_type: "class_level"` = **26 apps** (multiple active agents pooled under a shared class label; GRADE indirectness pre-specified as `serious` per protocol)
+
+## Addendum: Gold-standard expansion (2026-04-19 and 2026-04-20, +11 apps total)
+
+### 2026-04-19 (+3 apps)
 
 Three additional apps were added after the 113-comparison V2 self-check: `DOAC_AF_REVIEW`, `TIRZEPATIDE_T2D_REVIEW`, `IL23_PSORIASIS_REVIEW`. Every evidence excerpt in these apps was hand-curated with explicit effect phrasing ("HR X.XX (95% CI a-b)", "OR X.XX (95% CI a-b)", "estimated treatment difference MD -X.XX (95% CI a-b)") drawn verbatim from the primary publication tables. V2 regex patterns match this phrasing directly.
 
@@ -42,6 +73,16 @@ Three additional apps were added after the 113-comparison V2 self-check: `DOAC_A
 | IL23_PSORIASIS_REVIEW | OR 20.86 (11.66-37.33) | Internal DL log-odds pool of VOYAGE 1 / UltIMMa-1 / reSURFACE 1 | self-reference EXACT (d=0.000) |
 
 Benchmark entries for the two self-reference pools (Tirzepatide + IL-23) document the internal DL pool as the reference with a method note explaining that no single published IPD meta-analysis across the exact three trials exists, so the app's own DL random-effects pool is cited alongside the per-trial published effect sizes. The IL-23 method note explicitly addresses why the linear-space arithmetic mean of the three agent-specific ORs (~44) overstates the class-level pool: log-odds DL weighting (~OR 21) is mathematically correct.
+
+### 2026-04-19 (+4 apps, second batch)
+
+Semaglutide Obesity (STEP-1, -3, -5) · CAR-T Myeloma (CARTITUDE-4 + KarMMa-3) · Romosozumab Osteoporosis (FRAME + ARCH + BRIDGE) · COPD Triple Therapy (IMPACT + ETHOS + KRONOS). All evidence excerpts hand-curated with explicit effect phrasing for V2 regex compatibility. Benchmarks are self-reference DL pools with method notes citing external narrative/network MAs (Singh 2024 STEP, Bandeira 2022 romosozumab, Calzetta 2022 COPD-triple) as consistent.
+
+### 2026-04-20 (+4 apps, third batch)
+
+Dupilumab Atopic Dermatitis (SOLO-1, SOLO-2, CHRONOS) · High-Efficacy MS (OPERA-I, OPERA-II, ASCLEPIOS-I, ASCLEPIOS-II) · Risankizumab Crohn's (ADVANCE + MOTIVATE + FORTIFY) · RSV Vaccines >=60 (RENOIR, AReSVi-006, ConquerRSV). All evidence excerpts hand-curated with explicit effect phrasing. Benchmarks are self-reference DL pools with method notes citing external sources (Sawangjit 2020 JAAD, Samjoo 2021 NMA, Singh 2024 IBD NMA, ACIP 2023) as consistent.
+
+Bug caught during audit: unescaped apostrophe in "Crohn's Disease" inside a single-quoted JavaScript string literal of `RISANKIZUMAB_CD_REVIEW.html` caused `SyntaxError: Unexpected identifier 's'`. Fixed by replacing with Unicode right-single-quote (U+2019). Worth adding to the cloner as a default escape pass.
 
 ## DIFFER and NO-V2-FOUND cases (full list)
 

@@ -23,8 +23,7 @@ license: MIT
 
 **Title:** Respiratory Syncytial Virus Vaccines in Adults >=60 Years: A Living Systematic Review and Meta-Analysis of Phase 3 Efficacy RCTs (RSVpreF / Abrysvo, Adjuvanted Prefusion F / Arexvy, mRNA-1345 / mRESVIA)
 
-**Registration:** Protocol frozen 2026-04-20T00:00:00Z.
-
+**Registration:** Protocol frozen 2026-04-20T00:00:00Z. Pre-registration mechanism: **GitHub-canonical-URL freeze** (immutable git history at the canonical URL above, with a SHA anchor once the review is submitted) rather than a PROSPERO record. PROSPERO does not currently accept retrospective or already-completed-analysis registrations; authors targeting journals that require a PROSPERO number should register the protocol at PROSPERO before the first formal update cycle.
 **Authors:** Mahmood Ahmad (corresponding).
 
 **Corresponding address:** drmahmoodclinic@pm.me (GMC 6071047), Royal Free Hospital and Barnet Hospital, London, UK.

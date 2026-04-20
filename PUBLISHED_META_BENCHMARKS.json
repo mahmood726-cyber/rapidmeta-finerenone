@@ -1,7 +1,7 @@
 {
-  "_description": "Published meta-analysis benchmarks for RapidMeta validation. Each entry cites the source publication.",
-  "_version": "1.0.0",
-  "_date": "2026-03-17",
+  "_description": "Published meta-analysis benchmarks for RapidMeta validation. benchmark_type distinguishes external IPD vs aggregate vs self-reference pools; pool_type flags same-drug vs class-level pooling (class-level triggers GRADE indirectness downgrade).",
+  "_version": "1.1.0",
+  "_date": "2026-04-20",
   "benchmarks": {
     "FINERENONE_REVIEW.html": {
       "primary_outcome": "MACE",
@@ -14,7 +14,9 @@
       "source": "Agarwal R et al. Lancet 2022; 400:1788-1801 (FIDELITY pooled FIDELIO-DKD + FIGARO-DKD)",
       "pmid": "36351458",
       "method": "pre-specified individual patient data pooled analysis",
-      "method_note": "Published benchmark is IPD/patient-level; app uses aggregate-data DL random-effects. Direct point-estimate comparison expected to differ slightly."
+      "method_note": "Published benchmark is IPD/patient-level; app uses aggregate-data DL random-effects. Direct point-estimate comparison expected to differ slightly.",
+      "benchmark_type": "external_IPD",
+      "pool_type": "same_drug"
     },
     "BEMPEDOIC_ACID_REVIEW.html": {
       "primary_outcome": "MACE",
@@ -27,7 +29,9 @@
       "source": "Nissen SE et al. N Engl J Med 2023; 388:1353-1364 (CLEAR Outcomes)",
       "pmid": "36876740",
       "method": "single RCT (used as anchor; DL pooled with CLEAR-Harmony gives similar)",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
+      "benchmark_type": "external_aggregate",
+      "pool_type": "same_drug"
     },
     "COLCHICINE_CVD_REVIEW.html": {
       "primary_outcome": "MACE",
@@ -41,7 +45,9 @@
       "pmid_colcot": "31733140",
       "pmid_lodoco2": "32865375",
       "method": "DL random-effects pooling of 2 landmark RCTs",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
+      "benchmark_type": "self_reference",
+      "pool_type": "same_drug"
     },
     "GLP1_CVOT_REVIEW.html": {
       "primary_outcome": "MACE",
@@ -54,7 +60,10 @@
       "source": "Sattar N et al. Lancet Diabetes Endocrinol 2021; 9:653-662",
       "pmid": "34462123",
       "method": "IPD meta-analysis of 8 GLP-1RA CVOTs",
-      "method_note": "Published benchmark is IPD/patient-level; app uses aggregate-data DL random-effects. Direct point-estimate comparison expected to differ slightly."
+      "method_note": "Published benchmark is IPD/patient-level; app uses aggregate-data DL random-effects. Direct point-estimate comparison expected to differ slightly.",
+      "benchmark_type": "external_IPD",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "SGLT2_HF_REVIEW.html": {
       "primary_outcome": "CV death or HF hospitalization",
@@ -67,7 +76,10 @@
       "source": "Vaduganathan M et al. Lancet 2022; 400:757-767 (DELIVER + DAPA-HF pooled)",
       "pmid": "36041475",
       "method": "pre-specified cross-trial pooled analysis",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
+      "benchmark_type": "external_aggregate",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "PCSK9_REVIEW.html": {
       "primary_outcome": "MACE",
@@ -80,7 +92,10 @@
       "source": "Guedeney P et al. Eur Heart J 2020; 41:3336-3347 (FOURIER + ODYSSEY Outcomes)",
       "pmid": "31270523",
       "method": "DL pooling of 2 large PCSK9i outcome trials",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
+      "benchmark_type": "external_aggregate",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "INTENSIVE_BP_REVIEW.html": {
       "primary_outcome": "MACE",
@@ -93,7 +108,10 @@
       "source": "Internal DL pool: SPRINT-SENIOR (Williamson 2016, HR 0.66) + SPRINT-CKD (Cheung 2017, HR 0.81) + ACCORD-BP (Cushman 2010, HR 0.88) + STEP (Zhang 2021, HR 0.74) + SPS3-BP (Benavente 2013, HR 0.81). External benchmark for comparison: Xie 2016 Lancet HR 0.84 (ACM); Ettehad 2016 Lancet HR 0.87.",
       "pmid": "26551272",
       "method": "DL random-effects of 5 intensive-BP RCTs/strata. Caveat: SPRINT-SENIOR and SPRINT-CKD are non-independent age/CKD subgroups of parent SPRINT trial; treated as separate strata for subgroup analysis. Q=3.6, df=4, I^2=0%.",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
+      "benchmark_type": "self_reference",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "SGLT2_CKD_REVIEW.html": {
       "primary_outcome": "Kidney composite",
@@ -106,7 +124,10 @@
       "source": "Nuffield Dept Population Health. Lancet 2022; 400:1788 (SGLT2i MA: CREDENCE + DAPA-CKD + EMPA-KIDNEY)",
       "pmid": "36351458",
       "method": "DL random-effects pooling of 3 dedicated CKD trials",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
+      "benchmark_type": "external_aggregate",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "ARNI_HF_REVIEW.html": {
       "primary_outcome": "CV death or HF hospitalization",
@@ -118,7 +139,9 @@
       "N": 19519,
       "source": "McMurray JJV (PARADIGM-HF, NEJM 2014) + Solomon SD (PARAGON-HF, NEJM 2019) + Pfeffer MA (PARADISE-MI, NEJM 2021)",
       "method": "DL pooling of 3 sacubitril/valsartan RCTs",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
+      "benchmark_type": "self_reference",
+      "pool_type": "same_drug"
     },
     "ABLATION_AF_REVIEW.html": {
       "primary_outcome": "All-cause mortality",
@@ -130,7 +153,10 @@
       "N": 7211,
       "source": "Marrouche NF (CASTLE-AF, NEJM 2018) + Packer DL (CABANA, JAMA 2019) + Kirchhof P (EAST-AFNET4, NEJM 2020) + Tang ASL (RAFT-AF, NEJM 2022)",
       "method": "DL pooling of 4 ablation-vs-drug RCTs in HF+AF",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
+      "benchmark_type": "self_reference",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "IV_IRON_HF_REVIEW.html": {
       "primary_outcome": "CV death or HF hospitalization",
@@ -142,7 +168,10 @@
       "N": 6404,
       "source": "Anker SD (CONFIRM-HF 2014, AFFIRM-AHF 2020) + Kalra PR (IRONMAN 2022) + Mentz RJ (HEART-FID 2023)",
       "method": "DL pooling of 4 IV iron RCTs in HFrEF",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
+      "benchmark_type": "self_reference",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "RENAL_DENERV_REVIEW.html": {
       "primary_outcome": "Office SBP reduction",
@@ -155,7 +184,10 @@
       "source": "Azizi M (RADIANCE-HTN SOLO/TRIO) + Bohm M (SPYRAL HTN-OFF/ON MED) + Kandzari DE (SYMPLICITY HTN-3 ON-MED)",
       "method": "DL pooling of weighted mean difference in office SBP (mmHg)",
       "unit": "mmHg",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
+      "benchmark_type": "self_reference",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "DOAC_CANCER_VTE_REVIEW.html": {
       "primary_outcome": "VTE recurrence",
@@ -167,7 +199,10 @@
       "N": 2894,
       "source": "Raskob GE (HOKUSAI-VTE Cancer 2018) + Young AM (SELECT-D 2018) + McBane RD (ADAM-VTE 2020) + Agnelli G (CARAVAGGIO 2020)",
       "method": "DL pooling of 4 DOAC-vs-LMWH cancer VTE RCTs",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
+      "benchmark_type": "self_reference",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "MAVACAMTEN_HCM_REVIEW.html": {
       "primary_outcome": "NYHA improvement OR",
@@ -179,7 +214,9 @@
       "N": 444,
       "source": "Heitner SB (EXPLORER-HCM, Lancet 2019) + Desai MY (VALOR-HCM, NEJM 2022) + Chinese Phase 3 (2023)",
       "method": "DL pooling of published adjusted odds ratios for NYHA class improvement",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
+      "benchmark_type": "self_reference",
+      "pool_type": "same_drug"
     },
     "RIVAROXABAN_VASC_REVIEW.html": {
       "primary_outcome": "MACE",
@@ -191,7 +228,9 @@
       "N": 45242,
       "source": "Eikelboom JW (COMPASS, NEJM 2017) + Bonaca MP (VOYAGER-PAD, NEJM 2020) + Zannad F (COMMANDER-HF 2018) + Mega JL (ATLAS-ACS2 2012)",
       "method": "DL pooling of 4 rivaroxaban vascular protection RCTs",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
+      "benchmark_type": "self_reference",
+      "pool_type": "same_drug"
     },
     "LIPID_HUB_REVIEW.html": {
       "primary_outcome": "MACE",
@@ -203,7 +242,10 @@
       "N": 50000,
       "source": "Internal DL pool: REDUCE-IT (Bhatt 2019, HR 0.75) + STRENGTH (Nicholls 2020, HR 1.02) + VITAL (Manson 2019, HR 0.92) + OMEMI (Kalstad 2021, HR 1.08) + RESPECT-EPA (Nishizaki 2024, HR 0.79)",
       "method": "DL random-effects of all 5 EPA/omega-3 CVOTs. High heterogeneity (I^2~78%) reflects EPA-only (REDUCE-IT/RESPECT-EPA, beneficial) vs mixed EPA+DHA (STRENGTH/VITAL/OMEMI, neutral). Honest pool crosses null. Earlier 3-trial pool of 0.75 was selection-driven.",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
+      "benchmark_type": "self_reference",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "INCRETIN_HFpEF_REVIEW.html": {
       "primary_outcome": "Worsening HF events / CV death composite",
@@ -215,7 +257,10 @@
       "N": 1876,
       "source": "Internal DL pool: STEP-HFpEF (Kosiborod 2023, Peto HR 0.18 from 1/263 vs 12/266 worsening HF) + STEP-HFpEF DM (Kosiborod 2024, Peto HR 0.40 from 7/310 vs 18/306) + SUMMIT (Packer 2024, published HR 0.62 for CV death + HF events composite)",
       "method": "DL random-effects of 3 incretin HFpEF RCTs. STEP HRs Peto-derived from worsening-HF event counts (KCCQ-CSS was primary). SUMMIT contributes published Cox HR of composite primary. Outcome heterogeneity (worsening-HF vs CV-death-composite) flagged. I^2~57%.",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
+      "benchmark_type": "self_reference",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "ATTR_CM_REVIEW.html": {
       "primary_outcome": "All-cause mortality",
@@ -228,7 +273,10 @@
       "source": "DL pool: ATTR-ACT (Maurer 2018, HR 0.70) + ATTRibute-CM (Gillmore 2024, HR 0.72) + HELIOS-B (Fontana 2024, HR 0.67) + APOLLO-B (Berk 2023, Peto HR 0.99 from 10/181 vs 10/179)",
       "pmid": "30145929",
       "method": "DL random-effects of 4 ATTR-CM RCTs; APOLLO-B contributes Peto-derived HR (mortality was exploratory in APOLLO-B). Q=0.63, df=3, I^2=0%.",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
+      "benchmark_type": "self_reference",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "JAK_UC_REVIEW.html": {
       "primary_outcome": "Clinical remission at week 8/10 (induction in moderate-severe UC)",
@@ -243,7 +291,10 @@
       "pmid_uachieve": "35644166",
       "pmid_selection": "34002586",
       "method": "DL random-effects OR pool of clinical remission at induction end across 3 phase 3 JAK inhibitor UC RCTs",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
+      "benchmark_type": "external_aggregate",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "BIOLOGIC_ASTHMA_REVIEW.html": {
       "primary_outcome": "Annualized exacerbation rate ratio in severe asthma",
@@ -259,7 +310,10 @@
       "pmid_quest": "29782217",
       "pmid_navigator": "33979488",
       "method": "Random-effects exacerbation rate ratio pool across 4 severe-asthma biologic trials (anti-IL5, anti-IL5R, anti-IL4R, anti-TSLP)",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
+      "benchmark_type": "self_reference",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "CFTR_CF_REVIEW.html": {
       "primary_outcome": "Absolute ppFEV1 change at 24-48 weeks (placebo-corrected MD)",
@@ -275,7 +329,10 @@
       "pmid_103": "31697873",
       "method": "Random-effects MD pool of absolute ppFEV1 change across 3 CFTR-modulator phase 3 RCTs. High I^2 expected given mutation-genotype differences and modulator generation.",
       "unit": "percentage points ppFEV1",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
+      "benchmark_type": "self_reference",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "CGRP_MIGRAINE_REVIEW.html": {
       "primary_outcome": "Change in monthly migraine days (placebo-corrected MD)",
@@ -291,7 +348,10 @@
       "pmid_halo": "29800212",
       "method": "Fixed-effect pool of 4-6 month placebo-corrected MMD reduction (MD) across 3 phase 3 CGRP mAb episodic-migraine RCTs",
       "unit": "monthly migraine days change vs placebo",
-      "method_note": "Published benchmark is fixed-effect; app uses DL random-effects. In low-I^2 topics the two match closely."
+      "method_note": "Published benchmark is fixed-effect; app uses DL random-effects. In low-I^2 topics the two match closely.",
+      "benchmark_type": "self_reference",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "PARP_OVARIAN_REVIEW.html": {
       "primary_outcome": "Progression-free survival (1st-line PARP maintenance in ovarian cancer)",
@@ -306,7 +366,10 @@
       "pmid_paola1": "31851799",
       "pmid_prima": "31562799",
       "method": "DL random-effects PFS HR pool across 3 phase 3 PARP maintenance 1st-line ovarian trials. High I^2 expected (SOLO-1 BRCA-restricted vs PAOLA-1/PRIMA all-comer populations).",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
+      "benchmark_type": "self_reference",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "ANTIAMYLOID_AD_REVIEW.html": {
       "primary_outcome": "CDR-SB change at 18 months (adjusted mean difference vs placebo)",
@@ -322,7 +385,10 @@
       "pmid_aducanumab": "34532727",
       "method": "Fixed-effect pool of 18-month CDR-SB change (MD) across three phase-3 anti-amyloid monoclonal antibody trials",
       "unit": "CDR-SB point change",
-      "method_note": "Published benchmark is fixed-effect; app uses DL random-effects. In low-I^2 topics the two match closely."
+      "method_note": "Published benchmark is fixed-effect; app uses DL random-effects. In low-I^2 topics the two match closely.",
+      "benchmark_type": "self_reference",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "CDK46_MBC_REVIEW.html": {
       "primary_outcome": "Progression-free survival (1st-line HR+/HER2- mBC)",
@@ -337,7 +403,10 @@
       "pmid_monaleesa2": "27717303",
       "pmid_monarch3": "28968163",
       "method": "DL random-effects pool of PFS HR across 3 phase 3 RCTs of CDK4/6 inhibitors + aromatase inhibitor vs AI alone in HR+/HER2- first-line mBC",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
+      "benchmark_type": "self_reference",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "ARPI_mHSPC_REVIEW.html": {
       "primary_outcome": "Overall survival in metastatic hormone-sensitive prostate cancer",
@@ -353,7 +422,10 @@
       "pmid_titan": "31157964",
       "pmid_arasens": "35179323",
       "method": "DL random-effects OS HR pool across 4 mHSPC ARPI phase-3 RCTs. Note: ARCHES/ENZAMET/TITAN are ARPI+ADT vs ADT doublet; ARASENS is ARPI+docetaxel+ADT vs docetaxel+ADT triplet.",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
+      "benchmark_type": "self_reference",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "CANGRELOR_PCI_REVIEW.html": {
       "primary_outcome": "48-hour composite (death/MI/IDR/stent thrombosis)",
@@ -366,7 +438,9 @@
       "source": "Steg PG et al. Lancet 2013;382:1981 — patient-level pooled analysis of CHAMPION-PCI (NCT00305162), CHAMPION-PLATFORM (NCT00385138), and CHAMPION-PHOENIX (NCT01156571). 24,910 patients in original IPD meta; app uses 25,384 across three CT.gov enrollment totals.",
       "pmid": "24011548",
       "method": "Patient-level IPD pooled OR for 48h primary composite across 3 CHAMPION trials",
-      "method_note": "Published benchmark is IPD/patient-level; app uses aggregate-data DL random-effects. Direct point-estimate comparison expected to differ slightly."
+      "method_note": "Published benchmark is IPD/patient-level; app uses aggregate-data DL random-effects. Direct point-estimate comparison expected to differ slightly.",
+      "benchmark_type": "external_IPD",
+      "pool_type": "same_drug"
     },
     "TAVR_LOWRISK_REVIEW.html": {
       "primary_outcome": "All-cause mortality (low-risk pooled)",
@@ -379,7 +453,9 @@
       "source": "Siontis GCM et al. Eur Heart J 2019 — updated MA of low-risk TAVR RCTs including PARTNER 3 (NCT02675114) + Evolut Low Risk (NCT02701283) + NOTION (NCT01057173). Pooled HR for all-cause mortality at 1-2 years.",
       "pmid": "31544924",
       "method": "DL random-effects HR pool for ACM across 3 TAVR-vs-SAVR RCTs in low-risk patients",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
+      "benchmark_type": "external_aggregate",
+      "pool_type": "same_drug"
     },
     "MITRAL_FUNCMR_REVIEW.html": {
       "primary_outcome": "CV death + HF hospitalization composite",
@@ -394,7 +470,9 @@
       "pmid_mitrafr": "30145927",
       "pmid_reshape": "38530165",
       "method": "DL random-effects of composite primary across 3 RCTs",
-      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors."
+      "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
+      "benchmark_type": "self_reference",
+      "pool_type": "same_drug"
     },
     "INCLISIRAN_REVIEW.html": {
       "primary_outcome": "LDL-C % change at Day 510",
@@ -409,7 +487,9 @@
       "pmid_9": "32187462",
       "method": "Inverse-variance fixed-effect pool of time-adjusted LDL-C % change, 3 inclisiran phase III RCTs",
       "unit": "% change vs placebo",
-      "method_note": "Published benchmark is fixed-effect; app uses DL random-effects. In low-I^2 topics the two match closely."
+      "method_note": "Published benchmark is fixed-effect; app uses DL random-effects. In low-I^2 topics the two match closely.",
+      "benchmark_type": "external_aggregate",
+      "pool_type": "same_drug"
     },
     "DOAC_AF_REVIEW.html": {
       "primary_outcome": "Stroke or systemic embolism",
@@ -422,7 +502,10 @@
       "source": "Ruff CT et al. Lancet 2014; 383:955-62 - patient-level IPD meta-analysis of RE-LY (NCT00262600) + ROCKET-AF (NCT00403767) + ARISTOTLE (NCT00412984) + ENGAGE AF-TIMI 48 (NCT00781391)",
       "pmid": "24315724",
       "method": "Patient-level IPD pooled HR for stroke/SE across 4 pivotal DOAC-AF phase 3 RCTs at licensed high-dose arms",
-      "method_note": "Published benchmark is IPD/patient-level; app uses aggregate-data DL random-effects. Direct point-estimate comparison expected to differ slightly."
+      "method_note": "Published benchmark is IPD/patient-level; app uses aggregate-data DL random-effects. Direct point-estimate comparison expected to differ slightly.",
+      "benchmark_type": "external_IPD",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "TIRZEPATIDE_T2D_REVIEW.html": {
       "primary_outcome": "HbA1c change from baseline at primary analysis (%)",
@@ -438,7 +521,9 @@
       "pmid_s5": "35133415",
       "method": "DL random-effects MD pool of the placebo-/active-corrected HbA1c change at the trial-specific primary analysis timepoint (40-52 wk) across 3 SURPASS trials at the 15 mg top-dose arm. Heterogeneity expected given placebo vs active comparator mix; pooled effect remains clinically substantial.",
       "unit": "HbA1c % (absolute change)",
-      "method_note": "Internal DL pool (no single IPD benchmark publication across these exact three trials). External narrative benchmark (Sattar Lancet Diabetes Endocrinol 2022) cites -1.8 to -2.1% placebo-corrected range for 15 mg across the SURPASS programme; internal pool sits within the expected range."
+      "method_note": "Internal DL pool (no single IPD benchmark publication across these exact three trials). External narrative benchmark (Sattar Lancet Diabetes Endocrinol 2022) cites -1.8 to -2.1% placebo-corrected range for 15 mg across the SURPASS programme; internal pool sits within the expected range.",
+      "benchmark_type": "self_reference",
+      "pool_type": "same_drug"
     },
     "SEMAGLUTIDE_OBESITY_REVIEW.html": {
       "primary_outcome": "Percentage change in body weight at the primary analysis timepoint (68 or 104 weeks)",
@@ -454,7 +539,9 @@
       "pmid_step5": "36216945",
       "method": "DL random-effects MD pool of placebo-corrected percent body-weight change at the trial-specific primary timepoint (68-104 wk) across the 3 pivotal STEP phase 3 RCTs at the 2.4 mg dose",
       "unit": "% body weight change vs placebo",
-      "method_note": "Internal DL pool; external narrative benchmark (Singh 2024) cites pooled placebo-corrected percent weight-loss MD approximately -12% across STEP phase 3 trials at 2.4 mg."
+      "method_note": "Internal DL pool; external narrative benchmark (Singh 2024) cites pooled placebo-corrected percent weight-loss MD approximately -12% across STEP phase 3 trials at 2.4 mg.",
+      "benchmark_type": "self_reference",
+      "pool_type": "same_drug"
     },
     "CART_MM_REVIEW.html": {
       "primary_outcome": "Progression-free survival in relapsed/refractory multiple myeloma",
@@ -468,7 +555,10 @@
       "pmid_cartitude4": "37272512",
       "pmid_karmma3": "36762851",
       "method": "DL random-effects HR pool on the log-hazard scale. k=2 so PI suppressed. Heterogeneity reflects different eligibility (1-3 vs 2-4 prior lines, triple-class-exposed).",
-      "method_note": "Internal DL pool; no single published network MA combining these exact two trials at protocol freeze. Expected HR range 0.26-0.49 reflects patient-population differences (earlier vs later line)."
+      "method_note": "Internal DL pool; no single published network MA combining these exact two trials at protocol freeze. Expected HR range 0.26-0.49 reflects patient-population differences (earlier vs later line).",
+      "benchmark_type": "self_reference",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "ROMOSOZUMAB_OP_REVIEW.html": {
       "primary_outcome": "New vertebral fracture incidence at the trial-specific primary timepoint (12 or 24 months)",
@@ -483,7 +573,9 @@
       "pmid_arch": "28898233",
       "pmid_bridge": "30060226",
       "method": "DL random-effects RR pool of new vertebral fracture incidence on log-RR scale across 3 phase 3 romosozumab RCTs. Heterogeneity expected from placebo-controlled (FRAME, BRIDGE) vs active-controlled (ARCH vs alendronate) designs and population (women vs men).",
-      "method_note": "Internal DL pool aligned with Bandeira 2022 class-level benchmark. Cardiovascular SAE imbalance in ARCH triggered FDA boxed warning (2019); tracked as safety signal."
+      "method_note": "Internal DL pool aligned with Bandeira 2022 class-level benchmark. Cardiovascular SAE imbalance in ARCH triggered FDA boxed warning (2019); tracked as safety signal.",
+      "benchmark_type": "self_reference",
+      "pool_type": "same_drug"
     },
     "COPD_TRIPLE_REVIEW.html": {
       "primary_outcome": "Moderate or severe exacerbation rate ratio vs dual LAMA/LABA",
@@ -498,7 +590,10 @@
       "pmid_ethos": "32579807",
       "pmid_kronos": "30201345",
       "method": "DL random-effects rate-ratio pool for moderate/severe exacerbation on log-RR scale across 3 phase 3 single-inhaler triple therapy RCTs. KRONOS contributes a comparison vs ICS/LABA (not LAMA/LABA) so heterogeneity partially reflects comparator asymmetry.",
-      "method_note": "Internal DL pool; external benchmark (Calzetta 2022) reports RR approximately 0.74 (0.68-0.80) across the same 3 pivotal trials."
+      "method_note": "Internal DL pool; external benchmark (Calzetta 2022) reports RR approximately 0.74 (0.68-0.80) across the same 3 pivotal trials.",
+      "benchmark_type": "self_reference",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "DUPILUMAB_AD_REVIEW.html": {
       "primary_outcome": "IGA 0/1 at week 16 in moderate-to-severe atopic dermatitis",
@@ -512,7 +607,9 @@
       "pmid_solo": "27690741",
       "pmid_chronos": "28478972",
       "method": "DL random-effects OR pool of IGA 0/1 at week 16 across 3 pivotal dupilumab 300 mg Q2W phase 3 RCTs (SOLO-1 + SOLO-2 monotherapy + CHRONOS with concomitant TCS)",
-      "method_note": "Internal DL pool consistent with Sawangjit 2020 JAAD network MA class-level IGA 0/1 OR ~5-6 vs placebo."
+      "method_note": "Internal DL pool consistent with Sawangjit 2020 JAAD network MA class-level IGA 0/1 OR ~5-6 vs placebo.",
+      "benchmark_type": "self_reference",
+      "pool_type": "same_drug"
     },
     "HIGH_EFFICACY_MS_REVIEW.html": {
       "primary_outcome": "Annualized relapse rate ratio (high-efficacy anti-CD20 vs platform DMT)",
@@ -526,26 +623,31 @@
       "pmid_opera": "28002679",
       "pmid_asclepios": "32757523",
       "method": "DL random-effects rate-ratio pool on log-RR scale across 4 pivotal anti-CD20 vs platform DMT (IFN-beta-1a or teriflunomide) phase 3 RCTs in RRMS",
-      "method_note": "Internal DL pool; published meta-analyses (Samjoo 2021 J Comp Eff Res NMA) report anti-CD20-class ARR rate ratio consistent with the app pool."
+      "method_note": "Internal DL pool; published meta-analyses (Samjoo 2021 J Comp Eff Res NMA) report anti-CD20-class ARR rate ratio consistent with the app pool.",
+      "benchmark_type": "self_reference",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "RISANKIZUMAB_CD_REVIEW.html": {
       "primary_outcome": "Clinical remission (CDAI <150) at the trial-specific primary timepoint (week 12 induction; week 52 maintenance)",
       "estimand": "OR",
       "pooled": 1.73,
       "lci": 1.15,
-      "uci": 2.60,
+      "uci": 2.6,
       "k": 3,
       "N": 2010,
       "source": "DHaens G 2022 Lancet (ADVANCE/NCT03105128, OR 2.49; MOTIVATE/NCT03104413, OR 3.15) + Ferrante M 2022 Lancet (FORTIFY/NCT03105102, OR 1.79).",
       "pmid_advance_motivate": "35644166",
       "pmid_fortify": "35644167",
       "method": "DL random-effects OR pool of clinical remission across 2 induction + 1 maintenance phase 3 risankizumab CD RCTs",
-      "method_note": "Internal DL pool; Singh S et al. 2024 network MA of IBD biologics reports risankizumab-CD clinical-remission OR approximately 2.5-3 vs placebo."
+      "method_note": "Internal DL pool; Singh S et al. 2024 network MA of IBD biologics reports risankizumab-CD clinical-remission OR approximately 2.5-3 vs placebo.",
+      "benchmark_type": "self_reference",
+      "pool_type": "same_drug"
     },
     "RSV_VACCINE_OLDER_REVIEW.html": {
       "primary_outcome": "RSV-associated lower respiratory tract disease (RSV-LRTD) over first RSV season",
       "estimand": "RR",
-      "pooled": 0.20,
+      "pooled": 0.2,
       "lci": 0.14,
       "uci": 0.29,
       "k": 3,
@@ -555,7 +657,10 @@
       "pmid_aresvi": "36791160",
       "pmid_conquerrsv": "38091530",
       "method": "DL random-effects RR pool of RSV-LRTD on log-RR scale across 3 pivotal phase 3 placebo-controlled RSV vaccine efficacy RCTs in adults >=60",
-      "method_note": "Internal DL pool corresponds to pooled vaccine efficacy ~80% across licensed products (Abrysvo, Arexvy, mRESVIA). ACIP 2023 noted consistent ~80% VE across the three pivotal trials."
+      "method_note": "Internal DL pool corresponds to pooled vaccine efficacy ~80% across licensed products (Abrysvo, Arexvy, mRESVIA). ACIP 2023 noted consistent ~80% VE across the three pivotal trials.",
+      "benchmark_type": "self_reference",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     },
     "IL23_PSORIASIS_REVIEW.html": {
       "primary_outcome": "PASI 90 at week 12 or 16",
@@ -570,7 +675,10 @@
       "pmid_ultimma1": "30097360",
       "pmid_resurface1": "28596043",
       "method": "DL random-effects OR pool of PASI 90 at the trial-specific pre-specified primary timepoint across 3 phase 3 IL-23 inhibitor vs placebo RCTs. Pool on the log-odds scale back-transformed to OR. High heterogeneity expected across agents (guselkumab vs risankizumab vs tildrakizumab) and timepoints (wk12 vs wk16).",
-      "method_note": "Internal DL pool on log-odds scale (each trial's OR is huge because placebo arms had near-zero PASI 90 events); the linear-space arithmetic mean of the three agent-specific ORs (~44) overstates the random-effects pool because the large trials with larger denominators dominate the inverse-variance weighting. The log-odds DL pool (OR ~21) is the mathematically correct class-level estimate."
+      "method_note": "Internal DL pool on log-odds scale (each trial's OR is huge because placebo arms had near-zero PASI 90 events); the linear-space arithmetic mean of the three agent-specific ORs (~44) overstates the random-effects pool because the large trials with larger denominators dominate the inverse-variance weighting. The log-odds DL pool (OR ~21) is the mathematically correct class-level estimate.",
+      "benchmark_type": "self_reference",
+      "pool_type": "class_level",
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
     }
   }
 }

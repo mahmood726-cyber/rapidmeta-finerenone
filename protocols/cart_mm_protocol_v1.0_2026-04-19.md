@@ -23,8 +23,7 @@ license: MIT
 
 **Title:** BCMA-Directed CAR-T Therapy (Ciltacabtagene Autoleucel and Idecabtagene Vicleucel) vs Standard-of-Care Regimens in Relapsed/Refractory Multiple Myeloma: A Living Systematic Review and Meta-Analysis of Phase 3 RCTs
 
-**Registration:** Protocol frozen 2026-04-19T00:00:00Z.
-
+**Registration:** Protocol frozen 2026-04-19T00:00:00Z. Pre-registration mechanism: **GitHub-canonical-URL freeze** (immutable git history at the canonical URL above, with a SHA anchor once the review is submitted) rather than a PROSPERO record. PROSPERO does not currently accept retrospective or already-completed-analysis registrations; authors targeting journals that require a PROSPERO number should register the protocol at PROSPERO before the first formal update cycle.
 **Authors:** Mahmood Ahmad (corresponding).
 
 **Corresponding address:** drmahmoodclinic@pm.me (GMC 6071047), Royal Free Hospital and Barnet Hospital, London, UK.
@@ -96,13 +95,17 @@ Cochrane **RoB 2**. Design-based priors: D2 SOME CONCERNS (open-label by necessi
 
 ## 8. Synthesis / Statistical Methods
 
-- **Primary pool:** DerSimonian-Laird random-effects IVW on log-HR scale.
-- **CI adjustment:** HKSJ with t-distribution df = k-1.
-- **Prediction interval:** Undefined for k<3 (we have k=2 at v1.0 — PI suppressed).
-- **Heterogeneity:** Q (p-value), I^2, tau^2.
-- **Subgroup / meta-regression:** By prior lines (1-3 vs 2-4), triple-class exposure.
+At protocol freeze k=2. Standard random-effects DL+HKSJ is unreliable at k=2 (tau^2 estimate is unstable; HKSJ df=1 inflates CI; PI is undefined). The SAP below reflects this:
+
+- **Primary pool (k=2):** Fixed-effect inverse-variance weighting on the log-HR scale. Report as the point estimate + 95% CI for the v1.0 release.
+- **Sensitivity pool A (k=2):** DerSimonian-Laird random-effects IVW on the log-HR scale with HKSJ t-distribution df=1 and variance-inflation floor `max(1, Q/(k-1))`. Reported alongside the FE primary but **not** as the ship estimate at k=2.
+- **Sensitivity pool B (k=2):** Bayesian random-effects with a half-normal(0, 0.5) prior on tau (Spiegelhalter 2004 / Rover 2019 recommended weakly-informative prior for k<=4). Posterior median + 95% CrI reported as the stability check for the FE primary.
+- **Primary pool (k>=3, once more pivotal CAR-T RCTs publish):** Switch primary to DerSimonian-Laird random-effects IVW with HKSJ on the log-HR scale. Bayesian becomes the secondary/stability pool.
+- **Prediction interval:** Undefined for k<3; suppressed at v1.0 and enabled with t-df=k-2 once k>=3.
+- **Heterogeneity:** Cochran Q (p-value), I^2 with Q-profile CI (Viechtbauer 2007), tau^2 (DL estimator). Note all three are poorly estimated at k=2; report but do not use as decision criteria.
+- **Subgroup / meta-regression:** By prior lines (1-3 vs 2-4), triple-class exposure. Subgroup pools at k=2 are descriptive only.
 - **Sensitivity:** Leave-one-out does not apply at k=2; flagged.
-- **Updates:** CARTITUDE-5, CARTITUDE-6, KarMMa-9, and other ongoing CAR-T RCTs will be added when published.
+- **Updates:** CARTITUDE-5, CARTITUDE-6, KarMMa-9, and other ongoing CAR-T RCTs will be added when published; the primary pool switches to DL-HKSJ at k>=3 and the prior weighting becomes the sensitivity pool.
 
 ---
 
