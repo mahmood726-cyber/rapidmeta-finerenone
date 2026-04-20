@@ -31,6 +31,7 @@ All protocols at version 1.1 (editor-review revision 2026-04-20); original v1.0 
 | Dermatology | [IL-23 Inhibitors for Moderate-to-Severe Plaque Psoriasis](../IL23_PSORIASIS_REVIEW.html) | [v1.0 (2026-04-19)](il23_psoriasis_protocol_v1.0_2026-04-19.md) |
 | Endocrinology (Bone) | [Romosozumab (Sclerostin Monoclonal Antibody) for Osteoporotic Fracture Prevention](../ROMOSOZUMAB_OP_REVIEW.html) | [v1.0 (2026-04-19)](romosozumab_op_protocol_v1.0_2026-04-19.md) |
 | Endocrinology (Diabetes) | [Tirzepatide (Dual GIP/GLP-1 Agonist) for Glycaemic Control in Type 2 Diabetes](../TIRZEPATIDE_T2D_REVIEW.html) | [v1.0 (2026-04-19)](tirzepatide_t2d_protocol_v1.0_2026-04-19.md) |
+| Endocrinology (Diabetes) | [Insulin Icodec Once-Weekly Basal Insulin in Type 2 Diabetes (ONWARDS)](../INSULIN_ICODEC_REVIEW.html) | [v1.1 (2026-04-20)](insulin_icodec_protocol_v1.1_2026-04-20.md) |
 | Endocrinology (Obesity) | [Semaglutide 2.4 mg Once-Weekly for Weight Management in Adults with Overweight/Obesity](../SEMAGLUTIDE_OBESITY_REVIEW.html) | [v1.0 (2026-04-19)](semaglutide_obesity_protocol_v1.0_2026-04-19.md) |
 | Gastroenterology | [JAK Inhibitors for Induction of Remission in Moderate-to-Severe Ulcerative Colitis](../JAK_UC_REVIEW.html) | [v1.0 (2026-04-19)](jak_uc_protocol_v1.0_2026-04-19.md) |
 | Gastroenterology | [Risankizumab for Moderate-to-Severe Crohn's Disease](../RISANKIZUMAB_CD_REVIEW.html) | [v1.0 (2026-04-20)](risankizumab_cd_protocol_v1.0_2026-04-20.md) |
@@ -42,6 +43,7 @@ All protocols at version 1.1 (editor-review revision 2026-04-20); original v1.0 
 | Haematology (Lymphoma) | [Second-Line CAR-T vs SoC in R/R Aggressive B-Cell Lymphoma](../CART_DLBCL_REVIEW.html) | [v1.1 (2026-04-20)](cart_dlbcl_protocol_v1.1_2026-04-20.md) |
 | Infectious Disease (COVID-19) | [Oral Antivirals (Nirmatrelvir-Ritonavir and Molnupiravir) for High-Risk Non-Hospitalised COVID-19](../COVID_ORAL_ANTIVIRALS_REVIEW.html) | [v1.1 (2026-04-20)](covid_oral_antivirals_protocol_v1.1_2026-04-20.md) |
 | Infectious Disease (HIV) | [Long-Acting Cabotegravir Injection for HIV Pre-Exposure Prophylaxis](../CAB_PREP_HIV_REVIEW.html) | [v1.1 (2026-04-20)](cab_prep_hiv_protocol_v1.1_2026-04-20.md) |
+| Infectious Disease (Paediatric RSV) | [Nirsevimab for Infant RSV-LRTI Prevention](../NIRSEVIMAB_INFANT_RSV_REVIEW.html) | [v1.1 (2026-04-20)](nirsevimab_infant_rsv_protocol_v1.1_2026-04-20.md) |
 | Oncology (Haematology) | [BCMA-Directed CAR-T Therapy in Relapsed/Refractory Multiple Myeloma](../CART_MM_REVIEW.html) | [v1.0 (2026-04-19)](cart_mm_protocol_v1.0_2026-04-19.md) |
 | Oncology (Ovarian) | [PARP Inhibitor Maintenance in First-Line Ovarian Cancer](../PARP_OVARIAN_REVIEW.html) | [v1.0 (2026-04-19)](parp_ovarian_protocol_v1.0_2026-04-19.md) |
 | Oncology (Prostate) | [Androgen Receptor Pathway Inhibitors plus ADT in Metastatic Hormone-Sensitive Prostate Cancer](../ARPI_mHSPC_REVIEW.html) | [v1.0 (2026-04-19)](arpi_mhspc_protocol_v1.0_2026-04-19.md) |
@@ -49,3 +51,5 @@ All protocols at version 1.1 (editor-review revision 2026-04-20); original v1.0 
 | Respiratory | [CFTR Modulators in Cystic Fibrosis](../CFTR_CF_REVIEW.html) | [v1.0 (2026-04-19)](cftr_cf_protocol_v1.0_2026-04-19.md) |
 | Respiratory | [Single-Inhaler Triple Therapy (ICS + LABA + LAMA) for Symptomatic COPD](../COPD_TRIPLE_REVIEW.html) | [v1.0 (2026-04-19)](copd_triple_protocol_v1.0_2026-04-19.md) |
 | Respiratory (Vaccinology) | [RSV Vaccines in Adults >=60 Years](../RSV_VACCINE_OLDER_REVIEW.html) | [v1.0 (2026-04-20)](rsv_vaccine_older_protocol_v1.0_2026-04-20.md) |
+| Rheumatology | [JAK Inhibitors (Baricitinib, Upadacitinib, Filgotinib) in MTX-IR Rheumatoid Arthritis](../JAK_RA_REVIEW.html) | [v1.1 (2026-04-20)](jak_ra_protocol_v1.1_2026-04-20.md) |
+| Rheumatology (SLE) | [Anifrolumab in Moderate-to-Severe Systemic Lupus Erythematosus](../ANIFROLUMAB_SLE_REVIEW.html) | [v1.1 (2026-04-20)](anifrolumab_sle_protocol_v1.1_2026-04-20.md) |
