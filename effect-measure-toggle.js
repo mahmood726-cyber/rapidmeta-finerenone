@@ -21,14 +21,16 @@
 
   const SCALES = ['AUTO', 'OR', 'RR', 'HR'];
 
-  // RapidMeta is declared with `const` at module scope in the app's inline script,
-  // so it is NOT available as window.RapidMeta but IS accessible via global
-  // lexical lookup by bare name. We resolve it via eval so the lookup happens at
-  // call time (the app script may not have executed yet when our IIFE runs).
+  // RapidMeta is declared with `const` at module scope in the app's inline script.
+  // A tiny RM-BRIDGE inline <script> at end-of-body copies it onto window so
+  // CSP-restricted sibling files can reach it without eval. We also keep an
+  // eval fallback for environments where the bridge has not run yet.
   function getRM() {
+    if (window.RapidMeta) return window.RapidMeta;
     try { return (0, eval)('RapidMeta'); } catch (e) { return null; }
   }
   function getAE() {
+    if (window.AnalysisEngine) return window.AnalysisEngine;
     try { return (0, eval)('AnalysisEngine'); } catch (e) { return null; }
   }
 

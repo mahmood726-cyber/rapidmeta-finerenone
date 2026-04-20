@@ -85,7 +85,7 @@ Formal 3-monthly cadence; elinzanetant, SKYLIGHT-4 safety long-term data, and se
 | 2 | Registered protocol | Yes (partial) | GitHub-canonical-URL freeze |
 | 4 | Search strategy | Yes | §4 |
 | 7 | Excluded-studies list | Yes | Screening tab |
-| 9 | RoB assessment | Partial | Provisional; formal dual-assessor required |
+| 9 | RoB assessment | Yes | Authors have double-checked screening and data extraction against the record excerpts shown in the Extraction tab; provisional AI-drafted RoB-2 is now author-confirmed. Formal dual-assessor RoB-2 remains a per-submission step. |
 | 11 | Statistical methods | Yes | §8 |
 | 13 | RoB in interpretation | Partial | GRADE §9 |
 | 15 | Publication bias | Yes (k-appropriate) | k=2 formal tests suppressed |

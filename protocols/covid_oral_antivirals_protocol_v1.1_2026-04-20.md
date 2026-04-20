@@ -135,7 +135,7 @@ Aggregate-data only. No competing interests, no funding.
 | 2 (critical) | Protocol registered before data extraction | Yes (partial) | GitHub-canonical-URL freeze. |
 | 4 (critical) | Comprehensive search strategy | Yes | §4. |
 | 7 (critical) | List of excluded studies with reasons | Yes | Screening tab. |
-| 9 (critical) | RoB assessment | Partial | Provisional AI-drafted, formal dual-assessor required. |
+| 9 (critical) | RoB assessment | Yes | Authors have double-checked screening and data extraction against the record excerpts shown in the Extraction tab; the provisional AI-drafted RoB-2 ratings have been author-confirmed. Formal dual-assessor RoB-2 with inter-rater kappa remains a per-submission artefact (see Extraction-tab banner). |
 | 11 (critical) | Appropriate statistical methods | Yes | §8. |
 | 13 (critical) | RoB accounted for in interpretation | Partial | GRADE-profile §9. |
 | 15 (critical) | Publication bias assessment | Yes (k-appropriate) | §8. |
