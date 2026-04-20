@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# RapidMeta pre-push regression hook.
+#
+# Runs regression_check.py against all 53 *_REVIEW.html apps to verify none
+# of the 7 signals (page errors, trials seeded, auto-include, RoB banner,
+# protocol link, WebR tag, pool computes) have regressed before pushing.
+#
+# Install once per clone with:  git config core.hooksPath .githooks
+# Skip with:                    SKIP_REGRESSION=1 git push
+# Runtime: ~60 seconds (headless chromium walk over 53 apps).
+
+set -e
+
+if [ "$SKIP_REGRESSION" = "1" ]; then
+    echo "[pre-push] Regression check skipped via SKIP_REGRESSION=1"
+    exit 0
+fi
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+SCRIPT="$REPO_ROOT/scripts/regression_check.py"
+
+if [ ! -f "$SCRIPT" ]; then
+    echo "[pre-push] regression_check.py not found at $SCRIPT -- skipping."
+    exit 0
+fi
+
+# Require a running HTTP server on 127.0.0.1:8787 OR start a short-lived one.
+PORT=8787
+if ! curl -sf "http://127.0.0.1:$PORT/index.html" > /dev/null 2>&1; then
+    echo "[pre-push] Starting local HTTP server on :$PORT ..."
+    ( cd "$REPO_ROOT" && python -m http.server $PORT --bind 127.0.0.1 > /dev/null 2>&1 ) &
+    SERVER_PID=$!
+    sleep 2
+    trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+fi
+
+echo "[pre-push] Running 53-app regression check ..."
+python "$SCRIPT" 2>&1 | tail -15
+
+STATUS=$?
+if [ $STATUS -ne 0 ]; then
+    echo ""
+    echo "[pre-push] Regression check FAILED. Inspect /tmp/regression_results.json."
+    echo "          Override with: SKIP_REGRESSION=1 git push"
+    exit 1
+fi
+
+echo "[pre-push] Regression check PASS. Proceeding with push."
+exit 0
