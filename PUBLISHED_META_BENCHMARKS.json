@@ -1,6 +1,6 @@
 {
   "_description": "Published meta-analysis benchmarks for RapidMeta validation. benchmark_type distinguishes external IPD vs aggregate vs self-reference pools; pool_type flags same-drug vs class-level pooling (class-level triggers GRADE indirectness downgrade).",
-  "_version": "1.1.0",
+  "_version": "1.1.1",
   "_date": "2026-04-20",
   "benchmarks": {
     "FINERENONE_REVIEW.html": {
@@ -187,7 +187,9 @@
       "method_note": "Published benchmark pooling approach documented in the source citation. App uses DL random-effects on aggregate data; small point-estimate differences are methodological, not errors.",
       "benchmark_type": "self_reference",
       "pool_type": "class_level",
-      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity",
+      "surrogate_endpoint": true,
+      "surrogate_note": "primary outcome is a regulatory surrogate; GRADE indirectness should carry an additional downgrade for the surrogate -> clinical-outcome step"
     },
     "DOAC_CANCER_VTE_REVIEW.html": {
       "primary_outcome": "VTE recurrence",
@@ -489,7 +491,9 @@
       "unit": "% change vs placebo",
       "method_note": "Published benchmark is fixed-effect; app uses DL random-effects. In low-I^2 topics the two match closely.",
       "benchmark_type": "external_aggregate",
-      "pool_type": "same_drug"
+      "pool_type": "same_drug",
+      "surrogate_endpoint": true,
+      "surrogate_note": "primary outcome is a regulatory surrogate; GRADE indirectness should carry an additional downgrade for the surrogate -> clinical-outcome step"
     },
     "DOAC_AF_REVIEW.html": {
       "primary_outcome": "Stroke or systemic embolism",
@@ -523,7 +527,11 @@
       "unit": "HbA1c % (absolute change)",
       "method_note": "Internal DL pool (no single IPD benchmark publication across these exact three trials). External narrative benchmark (Sattar Lancet Diabetes Endocrinol 2022) cites -1.8 to -2.1% placebo-corrected range for 15 mg across the SURPASS programme; internal pool sits within the expected range.",
       "benchmark_type": "self_reference",
-      "pool_type": "same_drug"
+      "pool_type": "same_drug",
+      "surrogate_endpoint": true,
+      "surrogate_note": "primary outcome is a regulatory surrogate; GRADE indirectness should carry an additional downgrade for the surrogate -> clinical-outcome step",
+      "comparator_heterogeneity": true,
+      "subgroup_prespecified": "Pre-specified subgroup analysis on comparator type (placebo vs active / induction vs maintenance / platform-DMT class) is reported alongside the pooled primary estimate."
     },
     "SEMAGLUTIDE_OBESITY_REVIEW.html": {
       "primary_outcome": "Percentage change in body weight at the primary analysis timepoint (68 or 104 weeks)",
@@ -541,7 +549,11 @@
       "unit": "% body weight change vs placebo",
       "method_note": "Internal DL pool; external narrative benchmark (Singh 2024) cites pooled placebo-corrected percent weight-loss MD approximately -12% across STEP phase 3 trials at 2.4 mg.",
       "benchmark_type": "self_reference",
-      "pool_type": "same_drug"
+      "pool_type": "same_drug",
+      "surrogate_endpoint": true,
+      "surrogate_note": "primary outcome is a regulatory surrogate; GRADE indirectness should carry an additional downgrade for the surrogate -> clinical-outcome step",
+      "comparator_heterogeneity": true,
+      "subgroup_prespecified": "Pre-specified subgroup analysis on comparator type (placebo vs active / induction vs maintenance / platform-DMT class) is reported alongside the pooled primary estimate."
     },
     "CART_MM_REVIEW.html": {
       "primary_outcome": "Progression-free survival in relapsed/refractory multiple myeloma",
@@ -575,7 +587,11 @@
       "method": "DL random-effects RR pool of new vertebral fracture incidence on log-RR scale across 3 phase 3 romosozumab RCTs. Heterogeneity expected from placebo-controlled (FRAME, BRIDGE) vs active-controlled (ARCH vs alendronate) designs and population (women vs men).",
       "method_note": "Internal DL pool aligned with Bandeira 2022 class-level benchmark. Cardiovascular SAE imbalance in ARCH triggered FDA boxed warning (2019); tracked as safety signal.",
       "benchmark_type": "self_reference",
-      "pool_type": "same_drug"
+      "pool_type": "same_drug",
+      "surrogate_endpoint": true,
+      "surrogate_note": "primary outcome is a regulatory surrogate; GRADE indirectness should carry an additional downgrade for the surrogate -> clinical-outcome step",
+      "timepoint_heterogeneity": true,
+      "timepoint_harmonisation_note": "Pivotal trials report primary outcome at heterogeneous timepoints; primary pool uses shortest common timepoint with longer timepoints as sensitivity."
     },
     "COPD_TRIPLE_REVIEW.html": {
       "primary_outcome": "Moderate or severe exacerbation rate ratio vs dual LAMA/LABA",
@@ -626,7 +642,9 @@
       "method_note": "Internal DL pool; published meta-analyses (Samjoo 2021 J Comp Eff Res NMA) report anti-CD20-class ARR rate ratio consistent with the app pool.",
       "benchmark_type": "self_reference",
       "pool_type": "class_level",
-      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity",
+      "comparator_heterogeneity": true,
+      "subgroup_prespecified": "Pre-specified subgroup analysis on comparator type (placebo vs active / induction vs maintenance / platform-DMT class) is reported alongside the pooled primary estimate."
     },
     "RISANKIZUMAB_CD_REVIEW.html": {
       "primary_outcome": "Clinical remission (CDAI <150) at the trial-specific primary timepoint (week 12 induction; week 52 maintenance)",
@@ -642,7 +660,9 @@
       "method": "DL random-effects OR pool of clinical remission across 2 induction + 1 maintenance phase 3 risankizumab CD RCTs",
       "method_note": "Internal DL pool; Singh S et al. 2024 network MA of IBD biologics reports risankizumab-CD clinical-remission OR approximately 2.5-3 vs placebo.",
       "benchmark_type": "self_reference",
-      "pool_type": "same_drug"
+      "pool_type": "same_drug",
+      "comparator_heterogeneity": true,
+      "subgroup_prespecified": "Pre-specified subgroup analysis on comparator type (placebo vs active / induction vs maintenance / platform-DMT class) is reported alongside the pooled primary estimate."
     },
     "RSV_VACCINE_OLDER_REVIEW.html": {
       "primary_outcome": "RSV-associated lower respiratory tract disease (RSV-LRTD) over first RSV season",
@@ -660,7 +680,9 @@
       "method_note": "Internal DL pool corresponds to pooled vaccine efficacy ~80% across licensed products (Abrysvo, Arexvy, mRESVIA). ACIP 2023 noted consistent ~80% VE across the three pivotal trials.",
       "benchmark_type": "self_reference",
       "pool_type": "class_level",
-      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity"
+      "indirectness_note": "class-level pool across distinct active agents; GRADE indirectness pre-specified as 'serious' unless within-agent subgroup confirms homogeneity",
+      "timepoint_heterogeneity": true,
+      "timepoint_harmonisation_note": "Pivotal trials report primary outcome at heterogeneous timepoints; primary pool uses shortest common timepoint with longer timepoints as sensitivity."
     },
     "IL23_PSORIASIS_REVIEW.html": {
       "primary_outcome": "PASI 90 at week 12 or 16",

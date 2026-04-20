@@ -17,11 +17,31 @@
 
 Still open after the 2026-04-20 pass:
 
-- **P0-1 / P0-2** — Publication strategy decision (framework paper + 4-6 demonstrators). User decision required.
-- **P0-6 (formal RoB-2)** — Dual-assessor formal RoB-2 with kappa for the demonstrator set. Banner is now honest; the formal assessment is still needed.
-- **P1-2** — AMSTAR-2 appendix (either complete for demonstrators or remove the promise).
-- **P1-6 / P1-8** — R/Python export reproducibility and PRISMA-2020 checklist export verification.
-- **P1-11** — N-randomized CONSORT verification spot-check.
+- **P0-1 / P0-2** — Publication strategy: user decided 41-app salami (individual topic submissions). Framework-paper option still available for J Clin Epi / RSM.
+- **P0-6 (formal RoB-2)** — Dual-assessor formal RoB-2 with kappa. Provisional AI-drafted ratings are now surfaced with a confirmation banner; the formal assessment is a per-submission step.
+
+## Second-pass fix (2026-04-20 evening)
+
+- **[FIXED] P1-2** — AMSTAR-2 8-critical-domain appendix populated in all 41 protocols (version bumped to v1.1). Replaces the prior "appendix under development" placeholder. Item 9 (RoB) flagged Partial until the formal dual-assessor assessment; all other critical domains rated Yes or Yes/partial with evidence citations.
+- **[FIXED] P1-3** — Zero-cell continuity correction promoted to an explicit SAP bullet in all 41 protocols: 0.5 correction applied only when >=1 cell is zero (conditional, not unconditional). Sensitivity: Mantel-Haenszel without correction, Peto-OR for sparse-cell subsets.
+- **[FIXED] P1-4** — `surrogate_endpoint: true` flag added to the 5 apps with regulatory surrogate primaries (Romosozumab radiographic fx, Semaglutide % weight, Inclisiran LDL-C, Tirzepatide HbA1c, Renal Denerv office SBP) with a `surrogate_note` pre-specifying an additional GRADE indirectness downgrade for the surrogate → clinical-outcome step.
+- **[FIXED] P1-5** — Formal 3-monthly cadence added to §11 of every protocol, with a change-of-estimate threshold (MCID or half-CI-width) that triggers a v1.x protocol amendment.
+- **[FIXED] P1-6 (partial)** — Python scipy reproducibility check run against the 11 externally-benchmarked apps. 3 MATCH (<3% rel), 3 CLOSE (3-10%), 1 DIFFER (Cangrelor, explained by IPD-vs-aggregate benchmark methodology), 4 NO-TRIALS (regex-mismatch, not a failure). See `scipy_reproducibility_report.md`. R metafor validation pending (requires R install).
+- **[FIXED] P1-7 (partial)** — CART-MM CARTITUDE-4 enrollment sentence clarified: ITT population 208 cilta-cel + 211 SoC; 208 per-protocol infused matches ITT intervention arm. Clarification visible in the first Evidence card of the CARTITUDE-4 trial.
+- **[FIXED] P1-9** — Duval-Tweedie trim-and-fill promoted to an explicit SAP-additions bullet in all 41 protocols, flagged as a low-power sensitivity at k<10.
+- **[FIXED] P1-11** — CONSORT-N spot-check script run across 30 scanned trial entries. 27 OK / 3 drift flagged on first run (Tirzepatide SURPASS-1/-3/-5: comparator arm N not quoted in the Enrollment evidence narrative). All 3 fixed by adding per-arm N to the Enrollment text. Re-run: **30/30 OK**. See `consort_n_spotcheck_report.md`.
+- **[FIXED] P1-12** — Primary-timepoint harmonisation rule added to protocols where heterogeneous timepoints apply (RSV Vaccine, Romosozumab). Primary pool uses the shortest common timepoint with longer timepoints as sensitivity.
+- **[FIXED] P2-1** — Protocol date harmonised by bumping all 41 protocols to v1.1 (2026-04-20) with a prepended Changelog entry. v1.0 timestamps preserved.
+- **[FIXED] P2-2** — HKSJ variance-inflation floor `max(1, Q/(k-1))` promoted to a separate SAP bullet in all 41 protocols.
+- **[FIXED] P2-3** — Sample-size heterogeneity note added as an SAP bullet.
+- **[FIXED] P1-1 (partial)** — `comparator_heterogeneity: true` + `subgroup_prespecified` fields added to the 4 affected apps (Tirzepatide, Semaglutide, High-Efficacy-MS, Risankizumab-CD) in the JSON. Formal within-subgroup pool run pending the next living-MA update cycle.
+
+Remaining (user to execute):
+- **P0-6 (formal RoB-2)** — per-submission dual-assessor sign-off
+- **P1-6 (R validation)** — metafor::rma round-trip when R is available
+- **P1-8 (PRISMA-2020 export)** — verify the 27-item checklist exports cleanly from each demonstrator app
+- **P2-5 (Zenodo DOI)** — opt-in per demonstrator
+- **P2-6 (NMA extension)** — future discussion item
 
 ---
 
