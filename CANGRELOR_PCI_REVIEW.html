@@ -4827,7 +4827,7 @@ const ContinuousMDEngine = {
                     const ctgovUrl = 'https://clinicaltrials.gov/api/v2/studies?query.intr=cangrelor AND percutaneous coronary intervention&pageSize=100&filter.overallStatus=COMPLETED';
                     const epmcQuery = encodeURIComponent('cangrelor AND (PCI OR percutaneous coronary intervention) AND (TITLE:randomized OR PUB_TYPE:"Randomized Controlled Trial") AND SRC:MED');
                     const epmcUrl = 'https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=' + epmcQuery + '&resultType=core&pageSize=100&format=json';
-                    const oaUrl = 'https://api.openalex.org/works?search=sacubitril valsartan&per_page=50&select=id,doi,title,ids,abstract_inverted_index,publication_year,type,authorships';
+                    const oaUrl = 'https://api.openalex.org/works?search=cangrelor&per_page=50&select=id,doi,title,ids,abstract_inverted_index,publication_year,type,authorships';
 
                     const fetchWithTimeout = (url, ms = 8000) => {
                         const ac = new AbortController();
@@ -4840,7 +4840,7 @@ const ContinuousMDEngine = {
                         fetchWithTimeout(epmcUrl).then(r => { if (!r.ok) throw new Error('Europe PMC HTTP ' + r.status); return r.json(); })
                             .catch(async (e) => {
                                 console.error('PubMed primary query failed:', e);
-                                const fbQ = encodeURIComponent('sacubitril valsartan AND SRC:MED');
+                                const fbQ = encodeURIComponent('cangrelor AND SRC:MED');
                                 const fbRes = await fetchWithTimeout('https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=' + fbQ + '&resultType=core&pageSize=100&format=json');
                                 if (!fbRes.ok) throw new Error('Europe PMC fallback HTTP ' + fbRes.status);
                                 showToast('PubMed: used fallback query.');
@@ -4965,7 +4965,7 @@ const ContinuousMDEngine = {
                             t.status = 'exclude'; t.reason = 'Era Restriction: Pre-2015.';
                         }
                     });
-                    // Keep one-click workflow: autoscreener pre-proposes INCLUDE only for canonical sacubitril\/valsartan studies.
+                    // Keep one-click workflow: autoscreener pre-proposes INCLUDE only for canonical pre-registered trials in the AUTO_INCLUDE_TRIAL_IDS set.
                     trials.forEach(t => {
                         if (!AUTO_INCLUDE_TRIAL_IDS.has(String(t?.id ?? ''))) return;
                         const hasConfirmedScreen = Boolean(t?.screenReview?.confirmed && /^(include|exclude)$/i.test(String(t?.screenReview?.decision ?? '')));
@@ -4993,7 +4993,7 @@ const ContinuousMDEngine = {
                         t.status = 'search';
                         if (/auto-screen|era restriction/i.test(String(t?.reason ?? ''))) t.reason = '';
                     });
-                    // Fast mode: keep autoscreener focused on canonical sacubitril\/valsartan RCTs only.
+                    // Fast mode: keep autoscreener focused on canonical pre-registered RCTs only.
                     if (STRICT_CANONICAL_AUTOSCREEN) {
                         trials.forEach(t => {
                             if (AUTO_INCLUDE_TRIAL_IDS.has(String(t?.id ?? ''))) return;
@@ -5987,7 +5987,7 @@ const ContinuousMDEngine = {
                 const txPct = this._pct(best.tE, best.tN);
                 const ctPct = this._pct(best.cE, best.cN);
                 const confPct = Math.round(best.conf * 100);
-                const summary = `Matched event counts (${sourceKind}): sacubitril\/valsartan ${best.tE}/${best.tN} (${txPct}%) vs placebo ${best.cE}/${best.cN} (${ctPct}%). Strategy ${best.strat}, confidence ${confPct}%.`;
+                const summary = `Matched event counts (${sourceKind}): active ${best.tE}/${best.tN} (${txPct}%) vs comparator ${best.cE}/${best.cN} (${ctPct}%). Strategy ${best.strat}, confidence ${confPct}%.`;
                 const locatedPreview = this._findPairSnippet(fullText, best.tE, best.tN, best.cE, best.cN, 260, 460);
                 const locatedFull = this._findPairSnippet(fullText, best.tE, best.tN, best.cE, best.cN, 1100, 1800);
                 const fallbackPreview = this._compactSnippet(best.ctx ?? '', 460);
@@ -6199,7 +6199,7 @@ const ContinuousMDEngine = {
                     const fgGroups = flow?.groups ?? [];
                     for (const g of fgGroups) {
                         const t = (g.title ?? '').toLowerCase();
-                        if (/sacubitril\/valsartan|bay\s*94|treatment|active/i.test(t)) arms.tx = { id: g.id, label: g.title };
+                        if (/cangrelor|treatment|active/i.test(t)) arms.tx = { id: g.id, label: g.title };
                         else if (/placebo|control/i.test(t)) arms.ctrl = { id: g.id, label: g.title };
                     }
                     /* Get N from STARTED milestone */
@@ -6223,7 +6223,7 @@ const ContinuousMDEngine = {
                         let ogTx = null, ogCtrl = null;
                         for (const g of ogGroups) {
                             const t = (g.title ?? '').toLowerCase();
-                            if (/sacubitril\/valsartan|bay\s*94|treatment|active/i.test(t)) ogTx = g.id;
+                            if (/cangrelor|treatment|active/i.test(t)) ogTx = g.id;
                             else if (/placebo|control/i.test(t)) ogCtrl = g.id;
                         }
                         if (!ogTx || !ogCtrl) continue;
@@ -13431,7 +13431,7 @@ except ImportError:
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Checking...';
             try {
-                const r = await fetch('https://clinicaltrials.gov/api/v2/studies?query.intr=sacubitril+AND+valsartan&pageSize=50&filter.overallStatus=COMPLETED');
+                const r = await fetch('https://clinicaltrials.gov/api/v2/studies?query.intr=cangrelor AND percutaneous coronary intervention&pageSize=50&filter.overallStatus=COMPLETED');
                 const d = await r.json();
                 const ctgovIds = new Set((d.studies || []).map(s => s.protocolSection?.identificationModule?.nctId));
                 const knownIds = new Set((RapidMeta.state.trials ?? []).map(t => t.id));
@@ -13439,7 +13439,7 @@ except ImportError:
                 if (newTrials.length === 0) {
                     banner.classList.remove('hidden');
                     banner.className = banner.className.replace(/bg-amber-900\/50 border-amber-700 text-amber-300/g, 'bg-emerald-900/50 border-emerald-700 text-emerald-300');
-                    banner.innerHTML = '<i class="fa-solid fa-circle-check mr-2"></i> Up to date — no new completed sacubitril/valsartan trials found on CT.gov. Checked ' + new Date().toLocaleDateString() + '.';
+                    banner.innerHTML = '<i class="fa-solid fa-circle-check mr-2"></i> Up to date — no new completed cangrelor trials found on CT.gov. Checked ' + new Date().toLocaleDateString() + '.';
                 } else {
                     banner.classList.remove('hidden');
                     banner.className = banner.className.replace(/bg-emerald-900\/50 border-emerald-700 text-emerald-300/g, 'bg-amber-900/50 border-amber-700 text-amber-300');
@@ -13784,3 +13784,5 @@ except ImportError:
 <script src="webr-validator.js" defer></script>
 </body>
 </html>
+
+<!-- /* LIVING_MA_FIX_APPLIED */ cangrelor -->
