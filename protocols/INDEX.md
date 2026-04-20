@@ -1,6 +1,6 @@
 # RapidMeta Living Meta-Analysis Protocols Index
 
-All protocols frozen 2026-04-19T00:00:00Z. Version 1.0.
+All protocols at version 1.1 (editor-review revision 2026-04-20); original v1.0 timestamps preserved in each file's Changelog.
 
 | Specialty | App | Protocol |
 |---|---|---|
@@ -38,6 +38,10 @@ All protocols frozen 2026-04-19T00:00:00Z. Version 1.0.
 | Neurology | [Anti-CGRP Monoclonal Antibodies for Episodic Migraine Prevention](../CGRP_MIGRAINE_REVIEW.html) | [v1.0 (2026-04-19)](cgrp_migraine_protocol_v1.0_2026-04-19.md) |
 | Neurology | [High-Efficacy Anti-CD20 mAbs vs Platform DMTs in Relapsing MS](../HIGH_EFFICACY_MS_REVIEW.html) | [v1.0 (2026-04-20)](highefficacy_ms_protocol_v1.0_2026-04-20.md) |
 | Oncology (Breast) | [CDK4/6 Inhibitors plus Aromatase Inhibitor as First-Line Therapy for HR+/HER2- Metastatic Breast Cancer](../CDK46_MBC_REVIEW.html) | [v1.0 (2026-04-19)](cdk46_mbc_protocol_v1.0_2026-04-19.md) |
+| Haematology (Leukaemia) | [Venetoclax + Hypomethylator or LDAC for Untreated AML (VIALE Programme)](../VENETOCLAX_AML_REVIEW.html) | [v1.1 (2026-04-20)](venetoclax_aml_protocol_v1.1_2026-04-20.md) |
+| Haematology (Lymphoma) | [Second-Line CAR-T vs SoC in R/R Aggressive B-Cell Lymphoma](../CART_DLBCL_REVIEW.html) | [v1.1 (2026-04-20)](cart_dlbcl_protocol_v1.1_2026-04-20.md) |
+| Infectious Disease (COVID-19) | [Oral Antivirals (Nirmatrelvir-Ritonavir and Molnupiravir) for High-Risk Non-Hospitalised COVID-19](../COVID_ORAL_ANTIVIRALS_REVIEW.html) | [v1.1 (2026-04-20)](covid_oral_antivirals_protocol_v1.1_2026-04-20.md) |
+| Infectious Disease (HIV) | [Long-Acting Cabotegravir Injection for HIV Pre-Exposure Prophylaxis](../CAB_PREP_HIV_REVIEW.html) | [v1.1 (2026-04-20)](cab_prep_hiv_protocol_v1.1_2026-04-20.md) |
 | Oncology (Haematology) | [BCMA-Directed CAR-T Therapy in Relapsed/Refractory Multiple Myeloma](../CART_MM_REVIEW.html) | [v1.0 (2026-04-19)](cart_mm_protocol_v1.0_2026-04-19.md) |
 | Oncology (Ovarian) | [PARP Inhibitor Maintenance in First-Line Ovarian Cancer](../PARP_OVARIAN_REVIEW.html) | [v1.0 (2026-04-19)](parp_ovarian_protocol_v1.0_2026-04-19.md) |
 | Oncology (Prostate) | [Androgen Receptor Pathway Inhibitors plus ADT in Metastatic Hormone-Sensitive Prostate Cancer](../ARPI_mHSPC_REVIEW.html) | [v1.0 (2026-04-19)](arpi_mhspc_protocol_v1.0_2026-04-19.md) |
