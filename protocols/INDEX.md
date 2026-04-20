@@ -35,6 +35,7 @@ All protocols at version 1.1 (editor-review revision 2026-04-20); original v1.0 
 | Endocrinology (Obesity) | [Semaglutide 2.4 mg Once-Weekly for Weight Management in Adults with Overweight/Obesity](../SEMAGLUTIDE_OBESITY_REVIEW.html) | [v1.0 (2026-04-19)](semaglutide_obesity_protocol_v1.0_2026-04-19.md) |
 | Gastroenterology | [JAK Inhibitors for Induction of Remission in Moderate-to-Severe Ulcerative Colitis](../JAK_UC_REVIEW.html) | [v1.0 (2026-04-19)](jak_uc_protocol_v1.0_2026-04-19.md) |
 | Gastroenterology | [Risankizumab for Moderate-to-Severe Crohn's Disease](../RISANKIZUMAB_CD_REVIEW.html) | [v1.0 (2026-04-20)](risankizumab_cd_protocol_v1.0_2026-04-20.md) |
+| Gastroenterology | [Mirikizumab for Moderate-to-Severe Ulcerative Colitis (LUCENT)](../MIRIKIZUMAB_UC_REVIEW.html) | [v1.1 (2026-04-20)](mirikizumab_uc_protocol_v1.1_2026-04-20.md) |
 | Gastroenterology | [Upadacitinib for Moderate-to-Severe Crohn Disease](../UPADACITINIB_CD_REVIEW.html) | [v1.1 (2026-04-20)](upa_cd_protocol_v1.1_2026-04-20.md) |
 | Neurology | [Anti-Amyloid Monoclonal Antibodies for Early Alzheimer Disease](../ANTIAMYLOID_AD_REVIEW.html) | [v1.0 (2026-04-19)](antiamyloid_ad_protocol_v1.0_2026-04-19.md) |
 | Neurology | [Anti-CGRP Monoclonal Antibodies for Episodic Migraine Prevention](../CGRP_MIGRAINE_REVIEW.html) | [v1.0 (2026-04-19)](cgrp_migraine_protocol_v1.0_2026-04-19.md) |
@@ -45,6 +46,7 @@ All protocols at version 1.1 (editor-review revision 2026-04-20); original v1.0 
 | Haematology (Lymphoma) | [Second-Line CAR-T vs SoC in R/R Aggressive B-Cell Lymphoma](../CART_DLBCL_REVIEW.html) | [v1.1 (2026-04-20)](cart_dlbcl_protocol_v1.1_2026-04-20.md) |
 | Infectious Disease (COVID-19) | [Oral Antivirals (Nirmatrelvir-Ritonavir and Molnupiravir) for High-Risk Non-Hospitalised COVID-19](../COVID_ORAL_ANTIVIRALS_REVIEW.html) | [v1.1 (2026-04-20)](covid_oral_antivirals_protocol_v1.1_2026-04-20.md) |
 | Infectious Disease (HIV) | [Long-Acting Cabotegravir Injection for HIV Pre-Exposure Prophylaxis](../CAB_PREP_HIV_REVIEW.html) | [v1.1 (2026-04-20)](cab_prep_hiv_protocol_v1.1_2026-04-20.md) |
+| Infectious Disease (HIV) | [Lenacapavir Twice-Yearly Injection for HIV PrEP (PURPOSE)](../LENACAPAVIR_PREP_REVIEW.html) | [v1.1 (2026-04-20)](lenacapavir_prep_protocol_v1.1_2026-04-20.md) |
 | Infectious Disease (Paediatric RSV) | [Nirsevimab for Infant RSV-LRTI Prevention](../NIRSEVIMAB_INFANT_RSV_REVIEW.html) | [v1.1 (2026-04-20)](nirsevimab_infant_rsv_protocol_v1.1_2026-04-20.md) |
 | Oncology (Haematology) | [BCMA-Directed CAR-T Therapy in Relapsed/Refractory Multiple Myeloma](../CART_MM_REVIEW.html) | [v1.0 (2026-04-19)](cart_mm_protocol_v1.0_2026-04-19.md) |
 | Oncology (Ovarian) | [PARP Inhibitor Maintenance in First-Line Ovarian Cancer](../PARP_OVARIAN_REVIEW.html) | [v1.0 (2026-04-19)](parp_ovarian_protocol_v1.0_2026-04-19.md) |
@@ -52,8 +54,10 @@ All protocols at version 1.1 (editor-review revision 2026-04-20); original v1.0 
 | Respiratory | [Biologic Therapies for Severe Asthma](../BIOLOGIC_ASTHMA_REVIEW.html) | [v1.0 (2026-04-19)](biologic_asthma_protocol_v1.0_2026-04-19.md) |
 | Respiratory | [CFTR Modulators in Cystic Fibrosis](../CFTR_CF_REVIEW.html) | [v1.0 (2026-04-19)](cftr_cf_protocol_v1.0_2026-04-19.md) |
 | Respiratory | [Single-Inhaler Triple Therapy (ICS + LABA + LAMA) for Symptomatic COPD](../COPD_TRIPLE_REVIEW.html) | [v1.0 (2026-04-19)](copd_triple_protocol_v1.0_2026-04-19.md) |
+| Respiratory | [Dupilumab for COPD with Type 2 Inflammation (BOREAS + NOTUS)](../DUPILUMAB_COPD_REVIEW.html) | [v1.1 (2026-04-20)](dupilumab_copd_protocol_v1.1_2026-04-20.md) |
 | Respiratory (Vaccinology) | [RSV Vaccines in Adults >=60 Years](../RSV_VACCINE_OLDER_REVIEW.html) | [v1.0 (2026-04-20)](rsv_vaccine_older_protocol_v1.0_2026-04-20.md) |
 | Rheumatology | [JAK Inhibitors (Baricitinib, Upadacitinib, Filgotinib) in MTX-IR Rheumatoid Arthritis](../JAK_RA_REVIEW.html) | [v1.1 (2026-04-20)](jak_ra_protocol_v1.1_2026-04-20.md) |
 | Rheumatology (SLE) | [Anifrolumab in Moderate-to-Severe Systemic Lupus Erythematosus](../ANIFROLUMAB_SLE_REVIEW.html) | [v1.1 (2026-04-20)](anifrolumab_sle_protocol_v1.1_2026-04-20.md) |
 | Ophthalmology | [Faricimab for Neovascular Age-Related Macular Degeneration](../FARICIMAB_NAMD_REVIEW.html) | [v1.1 (2026-04-20)](faricimab_namd_protocol_v1.1_2026-04-20.md) |
+| Ophthalmology | [Pegcetacoplan for Geographic Atrophy Secondary to AMD](../PEGCETACOPLAN_GA_REVIEW.html) | [v1.1 (2026-04-20)](pegce_ga_protocol_v1.1_2026-04-20.md) |
 | Women Health | [Fezolinetant for Menopausal Vasomotor Symptoms (SKYLIGHT)](../FEZOLINETANT_VMS_REVIEW.html) | [v1.1 (2026-04-20)](fezolinetant_vms_protocol_v1.1_2026-04-20.md) |
