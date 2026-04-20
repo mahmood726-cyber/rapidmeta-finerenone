@@ -35,10 +35,12 @@ All protocols at version 1.1 (editor-review revision 2026-04-20); original v1.0 
 | Endocrinology (Obesity) | [Semaglutide 2.4 mg Once-Weekly for Weight Management in Adults with Overweight/Obesity](../SEMAGLUTIDE_OBESITY_REVIEW.html) | [v1.0 (2026-04-19)](semaglutide_obesity_protocol_v1.0_2026-04-19.md) |
 | Gastroenterology | [JAK Inhibitors for Induction of Remission in Moderate-to-Severe Ulcerative Colitis](../JAK_UC_REVIEW.html) | [v1.0 (2026-04-19)](jak_uc_protocol_v1.0_2026-04-19.md) |
 | Gastroenterology | [Risankizumab for Moderate-to-Severe Crohn's Disease](../RISANKIZUMAB_CD_REVIEW.html) | [v1.0 (2026-04-20)](risankizumab_cd_protocol_v1.0_2026-04-20.md) |
+| Gastroenterology | [Upadacitinib for Moderate-to-Severe Crohn Disease](../UPADACITINIB_CD_REVIEW.html) | [v1.1 (2026-04-20)](upa_cd_protocol_v1.1_2026-04-20.md) |
 | Neurology | [Anti-Amyloid Monoclonal Antibodies for Early Alzheimer Disease](../ANTIAMYLOID_AD_REVIEW.html) | [v1.0 (2026-04-19)](antiamyloid_ad_protocol_v1.0_2026-04-19.md) |
 | Neurology | [Anti-CGRP Monoclonal Antibodies for Episodic Migraine Prevention](../CGRP_MIGRAINE_REVIEW.html) | [v1.0 (2026-04-19)](cgrp_migraine_protocol_v1.0_2026-04-19.md) |
 | Neurology | [High-Efficacy Anti-CD20 mAbs vs Platform DMTs in Relapsing MS](../HIGH_EFFICACY_MS_REVIEW.html) | [v1.0 (2026-04-20)](highefficacy_ms_protocol_v1.0_2026-04-20.md) |
 | Oncology (Breast) | [CDK4/6 Inhibitors plus Aromatase Inhibitor as First-Line Therapy for HR+/HER2- Metastatic Breast Cancer](../CDK46_MBC_REVIEW.html) | [v1.0 (2026-04-19)](cdk46_mbc_protocol_v1.0_2026-04-19.md) |
+| Oncology (Breast) | [Trastuzumab Deruxtecan in HER2-Low Metastatic Breast Cancer](../TDXD_HER2LOW_BC_REVIEW.html) | [v1.1 (2026-04-20)](tdxd_her2low_bc_protocol_v1.1_2026-04-20.md) |
 | Haematology (Leukaemia) | [Venetoclax + Hypomethylator or LDAC for Untreated AML (VIALE Programme)](../VENETOCLAX_AML_REVIEW.html) | [v1.1 (2026-04-20)](venetoclax_aml_protocol_v1.1_2026-04-20.md) |
 | Haematology (Lymphoma) | [Second-Line CAR-T vs SoC in R/R Aggressive B-Cell Lymphoma](../CART_DLBCL_REVIEW.html) | [v1.1 (2026-04-20)](cart_dlbcl_protocol_v1.1_2026-04-20.md) |
 | Infectious Disease (COVID-19) | [Oral Antivirals (Nirmatrelvir-Ritonavir and Molnupiravir) for High-Risk Non-Hospitalised COVID-19](../COVID_ORAL_ANTIVIRALS_REVIEW.html) | [v1.1 (2026-04-20)](covid_oral_antivirals_protocol_v1.1_2026-04-20.md) |
@@ -53,3 +55,5 @@ All protocols at version 1.1 (editor-review revision 2026-04-20); original v1.0 
 | Respiratory (Vaccinology) | [RSV Vaccines in Adults >=60 Years](../RSV_VACCINE_OLDER_REVIEW.html) | [v1.0 (2026-04-20)](rsv_vaccine_older_protocol_v1.0_2026-04-20.md) |
 | Rheumatology | [JAK Inhibitors (Baricitinib, Upadacitinib, Filgotinib) in MTX-IR Rheumatoid Arthritis](../JAK_RA_REVIEW.html) | [v1.1 (2026-04-20)](jak_ra_protocol_v1.1_2026-04-20.md) |
 | Rheumatology (SLE) | [Anifrolumab in Moderate-to-Severe Systemic Lupus Erythematosus](../ANIFROLUMAB_SLE_REVIEW.html) | [v1.1 (2026-04-20)](anifrolumab_sle_protocol_v1.1_2026-04-20.md) |
+| Ophthalmology | [Faricimab for Neovascular Age-Related Macular Degeneration](../FARICIMAB_NAMD_REVIEW.html) | [v1.1 (2026-04-20)](faricimab_namd_protocol_v1.1_2026-04-20.md) |
+| Women Health | [Fezolinetant for Menopausal Vasomotor Symptoms (SKYLIGHT)](../FEZOLINETANT_VMS_REVIEW.html) | [v1.1 (2026-04-20)](fezolinetant_vms_protocol_v1.1_2026-04-20.md) |
