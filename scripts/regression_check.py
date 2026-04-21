@@ -51,10 +51,10 @@ with sync_playwright() as p:
         pg_errors = []
         pg.on('pageerror', lambda e: pg_errors.append(str(e)[:100]))
         try:
-            pg.goto(f'http://localhost:8787/{a}.html', wait_until='domcontentloaded', timeout=15000)
+            pg.goto(f'http://localhost:8787/{a}.html', wait_until='load', timeout=60000)
             pg.wait_for_timeout(1500)
             pg.evaluate('localStorage.clear()')
-            pg.goto(f'http://localhost:8787/{a}.html', wait_until='domcontentloaded', timeout=15000)
+            pg.goto(f'http://localhost:8787/{a}.html', wait_until='load', timeout=60000)
             pg.wait_for_timeout(2200)
         except Exception as e:
             signals["page_errors"].append((a, f"load: {e}"))

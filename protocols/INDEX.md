@@ -72,4 +72,8 @@ All protocols at version 1.1 (editor-review revision 2026-04-20); original v1.0 
 | Oncology (Lung) | [IO + Chemotherapy in 1L NSCLC (KEYNOTE-189 / 407 / IMpower150 / POSEIDON)](../IO_CHEMO_NSCLC_1L_REVIEW.html) | [v1.1 (2026-04-20)](io_chemo_nsclc_1l_protocol_v1.1_2026-04-20.md) |
 | Neurology (Stroke) | [Endovascular Thrombectomy in Extended (6-24h) Window Stroke (DAWN / DEFUSE 3 / MR CLEAN-LATE)](../EVT_EXTENDED_WINDOW_REVIEW.html) | [v1.1 (2026-04-20)](evt_extended_window_protocol_v1.1_2026-04-20.md) |
 | Neurology (Stroke) | [Tenecteplase vs Alteplase in Acute Ischaemic Stroke (NOR-TEST / AcT / TRACE-2)](../TNK_VS_TPA_STROKE_REVIEW.html) | [v1.1 (2026-04-20)](tnk_vs_tpa_ais_protocol_v1.1_2026-04-20.md) |
+| Neurology (Stroke) | [Thrombectomy in Basilar Artery Occlusion (ATTENTION / BAOCHE / BASICS)](../EVT_BASILAR_REVIEW.html) | [v1.1 (2026-04-20)](evt_basilar_protocol_v1.1_2026-04-20.md) |
+| Neurology (Stroke) | [Thrombectomy in Large-Core Infarct Stroke (RESCUE-Japan LIMIT / ANGEL-ASPECT / SELECT2)](../EVT_LARGECORE_REVIEW.html) | [v1.1 (2026-04-20)](evt_largecore_protocol_v1.1_2026-04-20.md) |
+| Oncology (Prostate) | [PARP Inhibitor + ARPI Combination in 1L mCRPC (PROpel / MAGNITUDE / TALAPRO-2)](../PARP_ARPI_MCRPC_REVIEW.html) | [v1.1 (2026-04-20)](parp_arpi_mcrpc_protocol_v1.1_2026-04-20.md) |
+| Rheumatology (SLE) | [Belimumab in SLE (BLISS-52 / BLISS-76 / BLISS-SC / BLISS-LN)](../BELIMUMAB_SLE_REVIEW.html) | [v1.1 (2026-04-20)](belimumab_sle_protocol_v1.1_2026-04-20.md) |
 | Women Health | [Fezolinetant for Menopausal Vasomotor Symptoms (SKYLIGHT)](../FEZOLINETANT_VMS_REVIEW.html) | [v1.1 (2026-04-20)](fezolinetant_vms_protocol_v1.1_2026-04-20.md) |
