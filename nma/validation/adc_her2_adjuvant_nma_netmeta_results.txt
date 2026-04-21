@@ -1,0 +1,71 @@
+=== RapidMeta Oncology | ADC NMA in HER2+ Early Breast Cancer Adjuvant (Residual Disease) v1.0 ===
+    studlab treat1      treat2         TE      seTE
+1 KATHERINE  T_DM1 Trastuzumab -0.6931472 0.1263575
+
+
+=== Consistency model ===
+Original data:
+
+          treat1      treat2      TE   seTE
+KATHERINE  T_DM1 Trastuzumab -0.6931 0.1264
+
+Number of treatment arms (by study):
+          narms
+KATHERINE     2
+
+Results (common effects model):
+
+          treat1      treat2     HR           95%-CI    Q leverage
+KATHERINE  T_DM1 Trastuzumab 0.5000 [0.3903; 0.6405] 0.00     1.00
+
+Results (random effects model):
+
+          treat1      treat2     HR           95%-CI
+KATHERINE  T_DM1 Trastuzumab 0.5000 [0.3903; 0.6405]
+
+Number of studies: k = 1
+Number of pairwise comparisons: m = 1
+Number of treatments: n = 2
+Number of designs: d = 1
+
+Common effects model
+
+Treatment estimate (sm = 'HR', comparison: 'T_DM1' vs 'Trastuzumab'):
+                HR           95%-CI     z  p-value
+T_DM1       0.5000 [0.3903; 0.6405] -5.49 < 0.0001
+Trastuzumab      .                .     .        .
+
+Random effects model
+
+Treatment estimate (sm = 'HR', comparison: 'T_DM1' vs 'Trastuzumab'):
+                HR           95%-CI     z  p-value
+T_DM1       0.5000 [0.3903; 0.6405] -5.49 < 0.0001
+Trastuzumab      .                .     .        .
+
+Quantifying heterogeneity:
+tau^2 = NA; tau = NA
+
+Details of network meta-analysis methods:
+- Frequentist graph-theoretical approach
+- Restricted maximum-likelihood estimator for tau^2
+
+=== League table (RE, HR/RR with 95% CI) ===
+                           T_DM1          Trastuzumab
+T_DM1                      T_DM1 0.500 [0.390; 0.641]
+Trastuzumab 0.500 [0.390; 0.641]          Trastuzumab
+
+=== Design-by-treatment inconsistency ===
+NULL
+
+=== Node-splitting ===
+
+=== P-scores (lower = better for HR/RR on protective scale) ===
+            P-score
+T_DM1             1
+Trastuzumab       0
+Warning message:
+No decomposition possible for network meta-analysis with only two treatments. 
+Warning message:
+No comparisons selected with argument 'show = both'. You could use 'show = "all" to show all comparisons. 
+Error in cov_full[ia, idx_ref] : subscript out of bounds
+Execution halted

@@ -1,0 +1,81 @@
+=== RapidMeta Oncology | ADC NMA in HER2-Low Metastatic Breast Cancer v1.0 ===
+           studlab treat1      treat2         TE       seTE
+1 DESTINY-Breast04  T_DXd TPC_HER2low -0.6931472 0.11588145
+2 DESTINY-Breast06  T_DXd TPC_HER2low -0.4780358 0.09342969
+
+
+=== Consistency model ===
+Original data:
+
+                 treat1      treat2      TE   seTE
+DESTINY-Breast04  T_DXd TPC_HER2low -0.6931 0.1159
+DESTINY-Breast06  T_DXd TPC_HER2low -0.4780 0.0934
+
+Number of treatment arms (by study):
+                 narms
+DESTINY-Breast04     2
+DESTINY-Breast06     2
+
+Results (common effects model):
+
+                 treat1      treat2     HR           95%-CI    Q leverage
+DESTINY-Breast04  T_DXd TPC_HER2low 0.5696 [0.4939; 0.6569] 1.27     0.39
+DESTINY-Breast06  T_DXd TPC_HER2low 0.5696 [0.4939; 0.6569] 0.82     0.61
+
+Results (random effects model):
+
+                 treat1      treat2     HR           95%-CI
+DESTINY-Breast04  T_DXd TPC_HER2low 0.5629 [0.4564; 0.6942]
+DESTINY-Breast06  T_DXd TPC_HER2low 0.5629 [0.4564; 0.6942]
+
+Number of studies: k = 2
+Number of pairwise comparisons: m = 2
+Number of treatments: n = 2
+Number of designs: d = 1
+
+Common effects model
+
+Treatment estimate (sm = 'HR', comparison: 'T_DXd' vs 'TPC_HER2low'):
+                HR           95%-CI     z  p-value
+T_DXd       0.5696 [0.4939; 0.6569] -7.74 < 0.0001
+TPC_HER2low      .                .     .        .
+
+Random effects model
+
+Treatment estimate (sm = 'HR', comparison: 'T_DXd' vs 'TPC_HER2low'):
+                HR           95%-CI     z  p-value
+T_DXd       0.5629 [0.4564; 0.6942] -5.37 < 0.0001
+TPC_HER2low      .                .     .        .
+
+Quantifying heterogeneity:
+tau^2 = 0.0121; tau = 0.1098; I^2 = 52.1% [0.0%; 88.0%]
+
+Test of heterogeneity:
+    Q d.f. p-value
+ 2.09    1  0.1484
+
+Details of network meta-analysis methods:
+- Frequentist graph-theoretical approach
+- Restricted maximum-likelihood estimator for tau^2
+- Calculation of I^2 based on Q
+
+=== League table (RE, HR/RR with 95% CI) ===
+                           T_DXd          TPC_HER2low
+T_DXd                      T_DXd 0.563 [0.456; 0.694]
+TPC_HER2low 0.563 [0.456; 0.694]          TPC_HER2low
+
+=== Design-by-treatment inconsistency ===
+NULL
+
+=== Node-splitting ===
+
+=== P-scores (lower = better for HR/RR on protective scale) ===
+            P-score
+T_DXd             1
+TPC_HER2low       0
+Warning message:
+No decomposition possible for network meta-analysis with only two treatments. 
+Warning message:
+No comparisons selected with argument 'show = both'. You could use 'show = "all" to show all comparisons. 
+Error in cov_full[ia, idx_ref] : subscript out of bounds
+Execution halted
