@@ -96,6 +96,9 @@ draws_nonref <- mvrnorm(n_draws, mu, Sigma)
 draws <- matrix(0, nrow=n_draws, ncol=n_trt)
 colnames(draws) <- trts
 for (i in seq_along(non_ref)) draws[, non_ref[i]] <- draws_nonref[, i]
+# Direction: small.values="desirable" -> rank 1 = smallest (e.g., HR<1 is best)
+# small.values="undesirable" -> rank 1 = largest (e.g., OR>1 is best for PASI 90)
+if ("{small}" == "undesirable") draws <- -draws
 ranks <- t(apply(draws, 1, rank, ties.method="random"))
 colnames(ranks) <- trts
 rank_prob <- matrix(0, nrow=n_trt, ncol=n_trt,
@@ -164,7 +167,7 @@ def extract_effects_from_config(cfg):
     is_log_scale = scale in ("HR", "OR", "RR")
     # Extract per-NCT { name, publishedHR, hrLCI, hrUCI } (signed numbers OK for MD)
     pattern = re.compile(
-        r"'(NCT\d+)':\s*\{\s*name:\s*'([^']+)'[^}]*?publishedHR:\s*(-?[\d.]+)[^}]*?hrLCI:\s*(-?[\d.]+)[^}]*?hrUCI:\s*(-?[\d.]+)",
+        r"'(NCT\d+[A-Z]?)':\s*\{\s*name:\s*'([^']+)'[^}]*?publishedHR:\s*(-?[\d.]+)[^}]*?hrLCI:\s*(-?[\d.]+)[^}]*?hrUCI:\s*(-?[\d.]+)",
         re.DOTALL
     )
     trials_data = {}

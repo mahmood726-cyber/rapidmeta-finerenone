@@ -90,4 +90,5 @@ All protocols at version 1.1 (editor-review revision 2026-04-20); original v1.0 
 | Ophthalmology | [Anti-VEGF Class NMA in nAMD v1.3 (VIEW-1/2 + TENAYA/LUCERNE + PULSAR + HAWK/HARRIER; BCVA MD scale)](../ANTIVEGF_NAMD_NMA_REVIEW.html) | [v1.3 (2026-04-21)](antivegf_namd_nma_protocol_v1.3_2026-04-21.md) |
 | Dermatology | [IL-17 / IL-23 Biologics NMA in Plaque Psoriasis v1.2 (k=10, OR scale)](../IL_PSORIASIS_NMA_REVIEW.html) | [v1.2 (2026-04-21)](il_psoriasis_nma_protocol_v1.2_2026-04-21.md) |
 | Endocrinology (Diabetes) | [Incretin Class NMA in T2D v1.0 (SURPASS / SUSTAIN / LEAD / AWARD; k=7, closed-loop network)](../INCRETINS_T2D_NMA_REVIEW.html) | [v1.0 (2026-04-21)](incretins_t2d_nma_protocol_v1.0_2026-04-21.md) |
+| Rheumatology (RA) | [JAKi NMA in MTX-IR RA v1.0 (ORAL-Standard / RA-BEAM / SELECT-Compare / FINCH-1; star network, ACR20 OR scale)](../JAKI_RA_NMA_REVIEW.html) | [v1.0 (2026-04-21)](jaki_ra_nma_protocol_v1.0_2026-04-21.md) |
 | Women Health | [Fezolinetant for Menopausal Vasomotor Symptoms (SKYLIGHT)](../FEZOLINETANT_VMS_REVIEW.html) | [v1.1 (2026-04-20)](fezolinetant_vms_protocol_v1.1_2026-04-20.md) |

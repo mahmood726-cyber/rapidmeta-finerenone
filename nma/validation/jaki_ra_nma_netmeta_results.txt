@@ -1,0 +1,158 @@
+=== RapidMeta Rheumatology | JAK Inhibitors NMA in MTX-IR RA v1.0 ===
+            studlab       treat1  treat2        TE      seTE
+1     ORAL-Standard  Tofacitinib Placebo 0.9820785 0.2609440
+2           RA-BEAM  Baricitinib Placebo 1.2556160 0.1357545
+3    SELECT-Compare Upadacitinib Placebo 1.4724721 0.1189729
+4           FINCH-1   Filgotinib Placebo 1.2059708 0.1423266
+5 FINCH-1 (Ada arm)   Adalimumab Placebo 0.8960880 0.1518076
+
+
+=== Consistency model ===
+Original data:
+
+                       treat1       treat2      TE   seTE
+ORAL-Standard         Placebo  Tofacitinib -0.9821 0.2609
+RA-BEAM           Baricitinib      Placebo  1.2556 0.1358
+SELECT-Compare        Placebo Upadacitinib -1.4725 0.1190
+FINCH-1            Filgotinib      Placebo  1.2060 0.1423
+FINCH-1 (Ada arm)  Adalimumab      Placebo  0.8961 0.1518
+
+Number of treatment arms (by study):
+                  narms
+ORAL-Standard         2
+RA-BEAM               2
+SELECT-Compare        2
+FINCH-1               2
+FINCH-1 (Ada arm)     2
+
+Results (common effects model):
+
+                       treat1       treat2     OR           95%-CI    Q
+ORAL-Standard         Placebo  Tofacitinib 0.3745 [0.2246; 0.6246] 0.00
+RA-BEAM           Baricitinib      Placebo 3.5100 [2.6900; 4.5800] 0.00
+SELECT-Compare        Placebo Upadacitinib 0.2294 [0.1817; 0.2896] 0.00
+FINCH-1            Filgotinib      Placebo 3.3400 [2.5270; 4.4146] 0.00
+FINCH-1 (Ada arm)  Adalimumab      Placebo 2.4500 [1.8195; 3.2990] 0.00
+                  leverage
+ORAL-Standard         1.00
+RA-BEAM               1.00
+SELECT-Compare        1.00
+FINCH-1               1.00
+FINCH-1 (Ada arm)     1.00
+
+Results (random effects model):
+
+                       treat1       treat2     OR           95%-CI
+ORAL-Standard         Placebo  Tofacitinib 0.3745 [0.2246; 0.6246]
+RA-BEAM           Baricitinib      Placebo 3.5100 [2.6900; 4.5800]
+SELECT-Compare        Placebo Upadacitinib 0.2294 [0.1817; 0.2896]
+FINCH-1            Filgotinib      Placebo 3.3400 [2.5270; 4.4146]
+FINCH-1 (Ada arm)  Adalimumab      Placebo 2.4500 [1.8195; 3.2990]
+
+Number of studies: k = 5
+Number of pairwise comparisons: m = 5
+Number of treatments: n = 6
+Number of designs: d = 5
+
+Common effects model
+
+Treatment estimate (sm = 'OR', comparison: other treatments vs 'Placebo'):
+                 OR           95%-CI     z  p-value
+Adalimumab   2.4500 [1.8195; 3.2990]  5.90 < 0.0001
+Baricitinib  3.5100 [2.6900; 4.5800]  9.25 < 0.0001
+Filgotinib   3.3400 [2.5270; 4.4146]  8.47 < 0.0001
+Placebo           .                .     .        .
+Tofacitinib  2.6700 [1.6010; 4.4527]  3.76   0.0002
+Upadacitinib 4.3600 [3.4532; 5.5050] 12.38 < 0.0001
+
+Random effects model
+
+Treatment estimate (sm = 'OR', comparison: other treatments vs 'Placebo'):
+                 OR           95%-CI     z  p-value
+Adalimumab   2.4500 [1.8195; 3.2990]  5.90 < 0.0001
+Baricitinib  3.5100 [2.6900; 4.5800]  9.25 < 0.0001
+Filgotinib   3.3400 [2.5270; 4.4146]  8.47 < 0.0001
+Placebo           .                .     .        .
+Tofacitinib  2.6700 [1.6010; 4.4527]  3.76   0.0002
+Upadacitinib 4.3600 [3.4532; 5.5050] 12.38 < 0.0001
+
+Quantifying heterogeneity / inconsistency:
+tau^2 = 0; tau = 0
+
+Tests of heterogeneity (within designs) and inconsistency (between designs):
+                Q d.f. p-value
+Total           0    0      --
+Within designs  0    0      --
+Between designs 0    0      --
+
+Details of network meta-analysis methods:
+- Frequentist graph-theoretical approach
+- Restricted maximum-likelihood estimator for tau^2
+
+=== League table (RE, HR/RR with 95% CI) ===
+                       Adalimumab          Baricitinib           Filgotinib
+Adalimumab             Adalimumab                    .                    .
+Baricitinib  0.698 [0.468; 1.040]          Baricitinib                    .
+Filgotinib   0.734 [0.488; 1.103] 1.051 [0.715; 1.545]           Filgotinib
+Placebo      2.450 [1.819; 3.299] 3.510 [2.690; 4.580] 3.340 [2.527; 4.415]
+Tofacitinib  0.918 [0.508; 1.658] 1.315 [0.739; 2.340] 1.251 [0.699; 2.240]
+Upadacitinib 0.562 [0.385; 0.820] 0.805 [0.565; 1.147] 0.766 [0.533; 1.102]
+                          Placebo          Tofacitinib         Upadacitinib
+Adalimumab   2.450 [1.819; 3.299]                    .                    .
+Baricitinib  3.510 [2.690; 4.580]                    .                    .
+Filgotinib   3.340 [2.527; 4.415]                    .                    .
+Placebo                   Placebo 0.375 [0.225; 0.625] 0.229 [0.182; 0.290]
+Tofacitinib  0.375 [0.225; 0.625]          Tofacitinib                    .
+Upadacitinib 0.229 [0.182; 0.290] 0.612 [0.349; 1.074]         Upadacitinib
+
+=== Design-by-treatment inconsistency ===
+Q statistics to assess homogeneity / consistency
+
+                   Q df p-value
+Total           0.00  0      --
+Within designs  0.00  0      --
+Between designs 0.00  0      --
+
+Q statistic to assess consistency under the assumption of
+a full design-by-treatment interaction random effects model
+
+                   Q df p-value tau.within tau2.within
+Between designs 0.00  0      --          0           0
+
+=== Node-splitting ===
+
+=== P-scores (lower = better for HR/RR on protective scale) ===
+             P-score
+Upadacitinib  0.9529
+Baricitinib   0.6999
+Filgotinib    0.6364
+Tofacitinib   0.4115
+Adalimumab    0.2993
+Placebo       0.0000
+
+=== Rank-probability matrix (N=100k draws) ===
+             rank_1 rank_2 rank_3 rank_4 rank_5 rank_6
+Adalimumab    0.005  0.016  0.031  0.278  0.668  0.001
+Baricitinib   0.090  0.578  0.262  0.062  0.008  0.000
+Filgotinib    0.098  0.287  0.593  0.021  0.000  0.000
+Placebo       0.000  0.000  0.000  0.000  0.001  0.999
+Tofacitinib   0.005  0.022  0.064  0.609  0.301  0.000
+Upadacitinib  0.802  0.097  0.050  0.030  0.021  0.000
+
+=== SUCRA ===
+Upadacitinib  Baricitinib   Filgotinib  Tofacitinib   Adalimumab      Placebo 
+       0.926        0.736        0.692        0.364        0.282        0.000 
+
+[wrote jaki_ra_nma_netmeta_results.rds + .json]
+
+=== Key results for peer-review bundle ===
+TAU2: 0 
+I2: NA %
+Q inc: 0 df 0 p NA 
+  Adalimumab               OR 2.450 (1.819, 3.299)
+  Baricitinib              OR 3.510 (2.690, 4.580)
+  Filgotinib               OR 3.340 (2.527, 4.415)
+  Tofacitinib              OR 2.670 (1.601, 4.453)
+  Upadacitinib             OR 4.360 (3.453, 5.505)
+Warning message:
+No comparisons selected with argument 'show = both'. You could use 'show = "all" to show all comparisons. 
