@@ -14,8 +14,11 @@ from pathlib import Path
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
-RSCRIPT = "C:/Program Files/R/R-4.5.2/bin/Rscript.exe"
-ROOT = Path("C:/Projects/Finrenone")
+import os
+import shutil
+RSCRIPT = os.environ.get("RSCRIPT") or shutil.which("Rscript") or \
+    os.environ.get("RAPIDMETA_RSCRIPT", "C:/Program Files/R/R-4.5.2/bin/Rscript.exe")
+ROOT = Path(os.environ.get("RAPIDMETA_ROOT", "C:/Projects/Finrenone"))
 VALIDATION_DIR = ROOT / "nma" / "validation"
 
 R_TEMPLATE = r'''## {title} — netmeta validation
@@ -106,14 +109,17 @@ cat("\n=== SUCRA ===\n")
 print(round(sort(sucra, decreasing=TRUE), 3))
 
 # JSON output
+# Back-transform: ratio measures use exp(), MD/SMD use identity
+is_log <- "{sm}" %in% c("HR", "OR", "RR")
+bt <- if (is_log) exp else function(x) x
 results <- list(
   title = "{title}",
   treatments = trts,
   te_random_vs_ref   = setNames(nma$TE.random[, "{ref}"], trts),
   se_random_vs_ref   = setNames(nma$seTE.random[, "{ref}"], trts),
-  hr_random_vs_chemoimm = setNames(exp(nma$TE.random[, "{ref}"]), trts),
-  hr_ci_lower   = setNames(exp(nma$lower.random[, "{ref}"]), trts),
-  hr_ci_upper   = setNames(exp(nma$upper.random[, "{ref}"]), trts),
+  hr_random_vs_chemoimm = setNames(bt(nma$TE.random[, "{ref}"]), trts),
+  hr_ci_lower   = setNames(bt(nma$lower.random[, "{ref}"]), trts),
+  hr_ci_upper   = setNames(bt(nma$upper.random[, "{ref}"]), trts),
   tau2 = nma$tau^2,
   I2 = nma$I2,
   Q_total = nma$Q,
@@ -139,31 +145,39 @@ for (tr in trts) {{
   if (tr == "{ref}") next
   cat(sprintf("  %-24s %s %.3f (%.3f, %.3f)\n",
               tr, "{sm}",
-              exp(nma$TE.random[tr, "{ref}"]),
-              exp(nma$lower.random[tr, "{ref}"]),
-              exp(nma$upper.random[tr, "{ref}"])))
+              bt(nma$TE.random[tr, "{ref}"]),
+              bt(nma$lower.random[tr, "{ref}"]),
+              bt(nma$upper.random[tr, "{ref}"])))
 }}
 '''
 
 
 def extract_effects_from_config(cfg):
-    """For each comparison × trial, pull the log-HR/RR + SE from realData block.
+    """For each comparison × trial, pull effect + SE from realData block.
 
-    Returns list of {studlab, treat1, treat2, TE, seTE}.
-    We parse the realData JS literal as best-effort using regex.
+    Handles both log-scale measures (HR / OR / RR → log-transform) and
+    linear-scale measures (MD / SMD → pass through on native scale).
+    Scale determined by `cfg['effect_scale']`.
     """
     data = cfg["realData_block"]
-    # Extract per-NCT { name, publishedHR, hrLCI, hrUCI }
+    scale = cfg.get("effect_scale", "HR").upper()
+    is_log_scale = scale in ("HR", "OR", "RR")
+    # Extract per-NCT { name, publishedHR, hrLCI, hrUCI } (signed numbers OK for MD)
     pattern = re.compile(
-        r"'(NCT\d+)':\s*\{\s*name:\s*'([^']+)'[^}]*?publishedHR:\s*([\d.]+)[^}]*?hrLCI:\s*([\d.]+)[^}]*?hrUCI:\s*([\d.]+)",
+        r"'(NCT\d+)':\s*\{\s*name:\s*'([^']+)'[^}]*?publishedHR:\s*(-?[\d.]+)[^}]*?hrLCI:\s*(-?[\d.]+)[^}]*?hrUCI:\s*(-?[\d.]+)",
         re.DOTALL
     )
     trials_data = {}
     for m in pattern.finditer(data):
         nct, name, hr, lci, uci = m.group(1), m.group(2), float(m.group(3)), float(m.group(4)), float(m.group(5))
         import math
-        te = math.log(hr)
-        se = (math.log(uci) - math.log(lci)) / 3.92
+        if is_log_scale:
+            te = math.log(hr)
+            se = (math.log(uci) - math.log(lci)) / 3.92
+        else:
+            # MD / SMD — native scale
+            te = hr  # `publishedHR` stores the MD value when effect_scale is MD
+            se = (uci - lci) / 3.92
         trials_data[nct] = {"name": name, "te": te, "se": se, "hr": hr, "lci": lci, "uci": uci}
 
     rows = []

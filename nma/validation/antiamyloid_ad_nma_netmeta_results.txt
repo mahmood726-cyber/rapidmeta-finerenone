@@ -1,128 +1,139 @@
-=== RapidMeta Neurology | Anti-Amyloid mAbs NMA in Early Alzheimer Disease v1.1 ===
-            studlab     treat1  treat2         TE       seTE
-1        Clarity AD  Lecanemab Placebo -0.3147107 0.09056996
-2 TRAILBLAZER-ALZ 2  Donanemab Placebo -0.3424903 0.08583475
-3            EMERGE Aducanumab Placebo -0.2484614 0.11679416
+=== RapidMeta Neurology | Anti-Amyloid mAbs NMA in Early Alzheimer Disease v1.3 ===
+            studlab     treat1  treat2    TE      seTE
+1        Clarity AD  Lecanemab Placebo -0.45 0.1122449
+2 TRAILBLAZER-ALZ 2  Donanemab Placebo -0.70 0.1275510
+3            EMERGE Aducanumab Placebo -0.39 0.1530612
+4            ENGAGE Aducanumab Placebo  0.03 0.1479592
 
 
 === Consistency model ===
 Original data:
 
                       treat1  treat2      TE   seTE
-Clarity AD         Lecanemab Placebo -0.3147 0.0906
-TRAILBLAZER-ALZ 2  Donanemab Placebo -0.3425 0.0858
-EMERGE            Aducanumab Placebo -0.2485 0.1168
+Clarity AD         Lecanemab Placebo -0.4500 0.1122
+TRAILBLAZER-ALZ 2  Donanemab Placebo -0.7000 0.1276
+EMERGE            Aducanumab Placebo -0.3900 0.1531
+ENGAGE            Aducanumab Placebo  0.0300 0.1480
 
 Number of treatment arms (by study):
                   narms
 Clarity AD            2
 TRAILBLAZER-ALZ 2     2
 EMERGE                2
+ENGAGE                2
 
 Results (common effects model):
 
-                      treat1  treat2     HR           95%-CI    Q leverage
-Clarity AD         Lecanemab Placebo 0.7300 [0.6113; 0.8718] 0.00     1.00
-TRAILBLAZER-ALZ 2  Donanemab Placebo 0.7100 [0.6001; 0.8401] 0.00     1.00
-EMERGE            Aducanumab Placebo 0.7800 [0.6204; 0.9806] 0.00     1.00
+                      treat1  treat2      MD             95%-CI    Q leverage
+Clarity AD         Lecanemab Placebo -0.4500 [-0.6700; -0.2300] 0.00     1.00
+TRAILBLAZER-ALZ 2  Donanemab Placebo -0.7000 [-0.9500; -0.4500] 0.00     1.00
+EMERGE            Aducanumab Placebo -0.1729 [-0.3814;  0.0356] 2.01     0.48
+ENGAGE            Aducanumab Placebo -0.1729 [-0.3814;  0.0356] 1.88     0.52
 
 Results (random effects model):
 
-                      treat1  treat2     HR           95%-CI
-Clarity AD         Lecanemab Placebo 0.7300 [0.6113; 0.8718]
-TRAILBLAZER-ALZ 2  Donanemab Placebo 0.7100 [0.6001; 0.8401]
-EMERGE            Aducanumab Placebo 0.7800 [0.6204; 0.9806]
+                      treat1  treat2      MD             95%-CI
+Clarity AD         Lecanemab Placebo -0.4500 [-0.9979;  0.0979]
+TRAILBLAZER-ALZ 2  Donanemab Placebo -0.7000 [-1.2606; -0.1394]
+EMERGE            Aducanumab Placebo -0.1782 [-0.5897;  0.2334]
+ENGAGE            Aducanumab Placebo -0.1782 [-0.5897;  0.2334]
 
-Number of studies: k = 3
-Number of pairwise comparisons: m = 3
+Number of studies: k = 4
+Number of pairwise comparisons: m = 4
 Number of treatments: n = 4
 Number of designs: d = 3
 
 Common effects model
 
-Treatment estimate (sm = 'HR', comparison: other treatments vs 'Placebo'):
-               HR           95%-CI     z  p-value
-Aducanumab 0.7800 [0.6204; 0.9806] -2.13   0.0334
-Donanemab  0.7100 [0.6001; 0.8401] -3.99 < 0.0001
-Lecanemab  0.7300 [0.6113; 0.8718] -3.47   0.0005
-Placebo         .                .     .        .
+Treatment estimate (sm = 'MD', comparison: other treatments vs 'Placebo'):
+                MD             95%-CI     z  p-value
+Aducanumab -0.1729 [-0.3814;  0.0356] -1.63   0.1041
+Donanemab  -0.7000 [-0.9500; -0.4500] -5.49 < 0.0001
+Lecanemab  -0.4500 [-0.6700; -0.2300] -4.01 < 0.0001
+Placebo          .                  .     .        .
 
 Random effects model
 
-Treatment estimate (sm = 'HR', comparison: other treatments vs 'Placebo'):
-               HR           95%-CI     z  p-value
-Aducanumab 0.7800 [0.6204; 0.9806] -2.13   0.0334
-Donanemab  0.7100 [0.6001; 0.8401] -3.99 < 0.0001
-Lecanemab  0.7300 [0.6113; 0.8718] -3.47   0.0005
-Placebo         .                .     .        .
+Treatment estimate (sm = 'MD', comparison: other treatments vs 'Placebo'):
+                MD             95%-CI     z p-value
+Aducanumab -0.1782 [-0.5897;  0.2334] -0.85  0.3962
+Donanemab  -0.7000 [-1.2606; -0.1394] -2.45  0.0144
+Lecanemab  -0.4500 [-0.9979;  0.0979] -1.61  0.1074
+Placebo          .                  .     .       .
 
 Quantifying heterogeneity / inconsistency:
-tau^2 = 0; tau = 0
+tau^2 = 0.0655; tau = 0.2560; I^2 = 74.3% [0.0%; 94.2%]
 
 Tests of heterogeneity (within designs) and inconsistency (between designs):
-                Q d.f. p-value
-Total           0    0      --
-Within designs  0    0      --
-Between designs 0    0      --
+                   Q d.f. p-value
+Total           3.89    1  0.0485
+Within designs  3.89    1  0.0485
+Between designs 0.00    0      --
 
 Details of network meta-analysis methods:
 - Frequentist graph-theoretical approach
 - Restricted maximum-likelihood estimator for tau^2
+- Calculation of I^2 based on Q
 
 === League table (RE, HR/RR with 95% CI) ===
-                     Aducanumab            Donanemab            Lecanemab
-Aducanumab           Aducanumab                    .                    .
-Donanemab  1.099 [0.827; 1.460]            Donanemab                    .
-Lecanemab  1.068 [0.800; 1.428] 0.973 [0.762; 1.242]            Lecanemab
-Placebo    0.780 [0.620; 0.981] 0.710 [0.600; 0.840] 0.730 [0.611; 0.872]
-                        Placebo
-Aducanumab 0.780 [0.620; 0.981]
-Donanemab  0.710 [0.600; 0.840]
-Lecanemab  0.730 [0.611; 0.872]
-Placebo                 Placebo
+                        Aducanumab               Donanemab
+Aducanumab              Aducanumab                       .
+Donanemab   0.522 [-0.174;  1.217]               Donanemab
+Lecanemab   0.272 [-0.413;  0.957] -0.250 [-1.034;  0.534]
+Placebo    -0.178 [-0.590;  0.233] -0.700 [-1.261; -0.139]
+                         Lecanemab                 Placebo
+Aducanumab                       . -0.178 [-0.590;  0.233]
+Donanemab                        . -0.700 [-1.261; -0.139]
+Lecanemab                Lecanemab -0.450 [-0.998;  0.098]
+Placebo    -0.450 [-0.998;  0.098]                 Placebo
 
 === Design-by-treatment inconsistency ===
 Q statistics to assess homogeneity / consistency
 
                    Q df p-value
-Total           0.00  0      --
-Within designs  0.00  0      --
+Total           3.89  1  0.0485
+Within designs  3.89  1  0.0485
 Between designs 0.00  0      --
+
+Design-specific decomposition of within-designs Q statistic
+
+             Design    Q df p-value
+ Placebo:Aducanumab 3.89  1  0.0485
 
 Q statistic to assess consistency under the assumption of
 a full design-by-treatment interaction random effects model
 
                    Q df p-value tau.within tau2.within
-Between designs 0.00  0      --          0           0
+Between designs 0.00  0      --     0.2560      0.0655
 
 === Node-splitting ===
 
 === P-scores (lower = better for HR/RR on protective scale) ===
            P-score
-Donanemab   0.7766
-Lecanemab   0.6949
-Aducanumab  0.5228
-Placebo     0.0057
+Donanemab   0.8854
+Lecanemab   0.6646
+Aducanumab  0.3637
+Placebo     0.0863
 
 === Rank-probability matrix (N=100k draws) ===
            rank_1 rank_2 rank_3 rank_4
-Aducanumab  0.129  0.190  0.545  0.136
-Donanemab   0.570  0.245  0.185  0.000
-Lecanemab   0.294  0.537  0.168  0.000
-Placebo     0.007  0.028  0.102  0.863
+Aducanumab  0.063  0.142  0.402  0.393
+Donanemab   0.762  0.169  0.069  0.000
+Lecanemab   0.153  0.549  0.296  0.001
+Placebo     0.022  0.140  0.232  0.605
 
 === SUCRA ===
  Donanemab  Lecanemab Aducanumab    Placebo 
-     0.795      0.708      0.437      0.060 
+     0.897      0.618      0.291      0.193 
 
 [wrote antiamyloid_ad_nma_netmeta_results.rds + .json]
 
 === Key results for peer-review bundle ===
-TAU2: 0 
-I2: NA %
+TAU2: 0.06554 
+I2: 74.31 %
 Q inc: 0 df 0 p NA 
-  Aducanumab               HR 0.780 (0.620, 0.981)
-  Donanemab                HR 0.710 (0.600, 0.840)
-  Lecanemab                HR 0.730 (0.611, 0.872)
+  Aducanumab               MD -0.178 (-0.590, 0.233)
+  Donanemab                MD -0.700 (-1.261, -0.139)
+  Lecanemab                MD -0.450 (-0.998, 0.098)
 Warning message:
 No comparisons selected with argument 'show = both'. You could use 'show = "all" to show all comparisons. 

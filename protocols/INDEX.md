@@ -85,8 +85,8 @@ All protocols at version 1.1 (editor-review revision 2026-04-20); original v1.0 
 
 | Specialty | App | Protocol |
 |---|---|---|
-| Haematology (CLL) | [BTKi Class NMA in CLL (ELEVATE-TN / ELEVATE-RR / ALPINE / RESONATE-2)](../BTKI_CLL_NMA_REVIEW.html) | [v1.1 (2026-04-21)](btki_cll_nma_protocol_v1.1_2026-04-21.md) |
-| Neurology (AD) | [Anti-Amyloid mAbs NMA in Early AD (Clarity AD / TRAILBLAZER-ALZ 2 / EMERGE)](../ANTIAMYLOID_AD_NMA_REVIEW.html) | NMA bundle in `nma/validation/antiamyloid_ad_nma_*` |
-| Ophthalmology | [Anti-VEGF Class NMA in nAMD (ANCHOR / TENAYA / PULSAR / HAWK)](../ANTIVEGF_NAMD_NMA_REVIEW.html) | NMA bundle in `nma/validation/antivegf_namd_nma_*` |
-| Dermatology | [IL-17 / IL-23 Biologics NMA in Plaque Psoriasis (VOYAGE / UltIMMa / UNCOVER / ERASURE / BE RADIANT)](../IL_PSORIASIS_NMA_REVIEW.html) | NMA bundle in `nma/validation/il_psoriasis_nma_*` |
+| Haematology (CLL) | [BTKi Class NMA in CLL v1.3 (ELEVATE-TN / ELEVATE-RR / ALPINE / RESONATE-2 / SEQUOIA; Chemoimm split)](../BTKI_CLL_NMA_REVIEW.html) | [v1.3 (2026-04-21)](btki_cll_nma_protocol_v1.3_2026-04-21.md) |
+| Neurology (AD) | [Anti-Amyloid mAbs NMA in Early AD v1.3 (Clarity AD / TRAILBLAZER-ALZ 2 / EMERGE + ENGAGE; MD scale)](../ANTIAMYLOID_AD_NMA_REVIEW.html) | [v1.3 (2026-04-21)](antiamyloid_ad_nma_protocol_v1.3_2026-04-21.md) |
+| Ophthalmology | [Anti-VEGF Class NMA in nAMD v1.3 (VIEW-1/2 + TENAYA/LUCERNE + PULSAR + HAWK/HARRIER; BCVA MD scale)](../ANTIVEGF_NAMD_NMA_REVIEW.html) | [v1.3 (2026-04-21)](antivegf_namd_nma_protocol_v1.3_2026-04-21.md) |
+| Dermatology | [IL-17 / IL-23 Biologics NMA in Plaque Psoriasis v1.2 (k=10, OR scale)](../IL_PSORIASIS_NMA_REVIEW.html) | [v1.2 (2026-04-21)](il_psoriasis_nma_protocol_v1.2_2026-04-21.md) |
 | Women Health | [Fezolinetant for Menopausal Vasomotor Symptoms (SKYLIGHT)](../FEZOLINETANT_VMS_REVIEW.html) | [v1.1 (2026-04-20)](fezolinetant_vms_protocol_v1.1_2026-04-20.md) |
