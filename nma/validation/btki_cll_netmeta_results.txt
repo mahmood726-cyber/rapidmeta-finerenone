@@ -1,0 +1,181 @@
+========================================
+BTKi-CLL NMA — netmeta gold-standard fit
+========================================
+
+INPUT DATA:
+     studlab        treat1    treat2         TE      seTE
+1 ELEVATE-RR Acalabrutinib Ibrutinib  0.0000000 0.1086307
+2 ELEVATE-TN Acalabrutinib  Chemoimm -1.5606477 0.2108874
+3 RESONATE-2     Ibrutinib  Chemoimm -1.9241487 0.2039611
+4     ALPINE  Zanubrutinib Ibrutinib -0.4307829 0.1435018
+
+=== CONSISTENCY MODEL (random-effects) ===
+
+Original data:
+
+                  treat1       treat2      TE   seTE
+ELEVATE-RR Acalabrutinib    Ibrutinib  0.0000 0.1086
+ELEVATE-TN Acalabrutinib     Chemoimm -1.5606 0.2109
+RESONATE-2      Chemoimm    Ibrutinib  1.9241 0.2040
+ALPINE         Ibrutinib Zanubrutinib  0.4308 0.1435
+
+Number of treatment arms (by study):
+           narms
+ELEVATE-RR     2
+ELEVATE-TN     2
+RESONATE-2     2
+ALPINE         2
+
+Results (common effects model):
+
+                  treat1       treat2     HR           95%-CI    Q leverage
+ELEVATE-RR Acalabrutinib    Ibrutinib 1.0448 [0.8557; 1.2757] 0.16     0.88
+ELEVATE-TN Acalabrutinib     Chemoimm 0.1780 [0.1312; 0.2416] 0.61     0.55
+RESONATE-2      Chemoimm    Ibrutinib 5.8688 [4.3342; 7.9468] 0.57     0.57
+ALPINE         Ibrutinib Zanubrutinib 1.5385 [1.1613; 2.0381] 0.00     1.00
+
+Results (random effects model):
+
+                  treat1       treat2     HR           95%-CI
+ELEVATE-RR Acalabrutinib    Ibrutinib 1.0660 [0.8128; 1.3980]
+ELEVATE-TN Acalabrutinib     Chemoimm 0.1801 [0.1266; 0.2560]
+RESONATE-2      Chemoimm    Ibrutinib 5.9197 [4.1749; 8.3939]
+ALPINE         Ibrutinib Zanubrutinib 1.5385 [1.0834; 2.1847]
+
+Number of studies: k = 4
+Number of pairwise comparisons: m = 4
+Number of treatments: n = 4
+Number of designs: d = 4
+
+Common effects model
+
+Treatment estimate (sm = 'HR', comparison: other treatments vs 'Chemoimm'):
+                  HR           95%-CI      z  p-value
+Acalabrutinib 0.1780 [0.1312; 0.2416] -11.08 < 0.0001
+Chemoimm           .                .      .        .
+Ibrutinib     0.1704 [0.1258; 0.2307] -11.44 < 0.0001
+Zanubrutinib  0.1108 [0.0732; 0.1675] -10.43 < 0.0001
+
+Random effects model
+
+Treatment estimate (sm = 'HR', comparison: other treatments vs 'Chemoimm'):
+                  HR           95%-CI     z  p-value
+Acalabrutinib 0.1801 [0.1266; 0.2560] -9.55 < 0.0001
+Chemoimm           .                .     .        .
+Ibrutinib     0.1689 [0.1191; 0.2395] -9.98 < 0.0001
+Zanubrutinib  0.1098 [0.0669; 0.1801] -8.75 < 0.0001
+
+Quantifying heterogeneity / inconsistency:
+tau^2 = 0.0114; tau = 0.1069; I^2 = 25.9%
+
+Tests of heterogeneity (within designs) and inconsistency (between designs):
+                   Q d.f. p-value
+Total           1.35    1  0.2453
+Within designs  0.00    0      --
+Between designs 1.35    1  0.2453
+
+Details of network meta-analysis methods:
+- Frequentist graph-theoretical approach
+- DerSimonian-Laird estimator for tau^2
+- Calculation of I^2 based on Q
+
+=== LEAGUE TABLE (random-effects, HR with 95% CI) ===
+
+                   Acalabrutinib           Chemoimm          Ibrutinib
+Acalabrutinib      Acalabrutinib 0.21 [0.13;  0.33] 1.00 [0.74;  1.35]
+Chemoimm      0.18 [0.13;  0.26]           Chemoimm 6.85 [4.36; 10.76]
+Ibrutinib     1.07 [0.81;  1.40] 5.92 [4.17;  8.39]          Ibrutinib
+Zanubrutinib  1.64 [1.05;  2.55] 9.11 [5.55; 14.94] 1.54 [1.08;  2.18]
+                    Zanubrutinib
+Acalabrutinib                  .
+Chemoimm                       .
+Ibrutinib     1.54 [1.08;  2.18]
+Zanubrutinib        Zanubrutinib
+
+=== GLOBAL INCONSISTENCY (design-by-treatment interaction, Higgins 2012) ===
+
+Q statistics to assess homogeneity / consistency
+
+                   Q df p-value
+Total           1.35  1  0.2453
+Within designs  0.00  0      --
+Between designs 1.35  1  0.2453
+
+Between-designs Q statistic after detaching of single designs
+(influential designs have p-value markedly different from 0.2453)
+
+         Detached design    Q df p-value
+ Acalabrutinib:Ibrutinib 0.00  0      --
+  Chemoimm:Acalabrutinib 0.00  0      --
+      Chemoimm:Ibrutinib 0.00  0      --
+
+Q statistic to assess consistency under the assumption of
+a full design-by-treatment interaction random effects model
+
+                   Q df p-value tau.within tau2.within
+Between designs 1.35  1  0.2453          0           0
+
+=== NODE-SPLITTING (Dias 2010, all comparisons with direct + indirect evidence) ===
+
+Separate indirect from direct evidence (SIDE) using back-calculation method
+
+Random effects model: 
+
+              comparison k prop    nma direct indir.    RoR     z p-value
+  Acalabrutinib:Chemoimm 1 0.58 0.1801 0.2100 0.1460 1.4384  1.00  0.3173
+ Acalabrutinib:Ibrutinib 1 0.82 1.0660 1.0000 1.4384 0.6952 -1.00  0.3173
+      Ibrutinib:Chemoimm 1 0.60 0.1689 0.1460 0.2100 0.6952 -1.00  0.3173
+
+Legend:
+ comparison - Treatment comparison
+ k          - Number of studies providing direct evidence
+ prop       - Direct evidence proportion
+ nma        - Estimated treatment effect (HR) in network meta-analysis
+ direct     - Estimated treatment effect (HR) derived from direct evidence
+ indir.     - Estimated treatment effect (HR) derived from indirect evidence
+ RoR        - Ratio of Ratios (direct versus indirect)
+ z          - z-value of test for disagreement (direct versus indirect)
+ p-value    - p-value of test for disagreement (direct versus indirect)
+
+=== RANKING — P-scores (random-effects; lower-better for PFS HR) ===
+
+              P-score
+Zanubrutinib   0.9925
+Ibrutinib      0.5620
+Acalabrutinib  0.4455
+Chemoimm       0.0000
+
+=== FULL RANK-PROBABILITY MATRIX (N = 100,000 MC draws) ===
+(rows = treatments; columns = rank positions; cell = P[this treatment gets this rank])
+
+              rank_1 rank_2 rank_3 rank_4
+Acalabrutinib  0.041  0.374  0.586      0
+Chemoimm       0.000  0.000  0.000      1
+Ibrutinib      0.070  0.542  0.388      0
+Zanubrutinib   0.889  0.085  0.027      0
+
+=== SUCRA (from MC rank-probability) ===
+
+ Zanubrutinib     Ibrutinib Acalabrutinib      Chemoimm 
+        0.954         0.561         0.485         0.000 
+
+
+[wrote btki_cll_netmeta_results.rds + .json]
+
+=== JSON-READABLE KEY RESULTS ===
+TAU2: 0.01142 
+I2 : 0.2593 
+Q  : 1.35  (p = 0.2453 )
+Q heterogeneity: 0  (df = 0 )
+Q inconsistency: 1.35  (df = 1 , p = 0.2453 )
+
+Treatment effects vs Chemoimm (random-effects, HR, 95% CI):
+  Acalabrutinib    HR 0.180 (0.127, 0.256)
+  Ibrutinib        HR 0.169 (0.119, 0.240)
+  Zanubrutinib     HR 0.110 (0.067, 0.180)
+
+SUCRA:
+  Zanubrutinib     0.954
+  Ibrutinib        0.561
+  Acalabrutinib    0.485
+  Chemoimm         0.000
