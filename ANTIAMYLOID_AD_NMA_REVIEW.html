@@ -1651,7 +1651,7 @@
             return safe;
         };
 
-        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03887455', 'NCT04437511', 'NCT02477800', 'NCT02484547']);
+        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03887455', 'NCT04437511', 'NCT02477800', 'NCT02484547', 'NCT03443973', 'NCT03444870']);
         const isPhaseTwoLike = (phaseLabel = '') => {
             const p = String(phaseLabel ?? '').toLowerCase().trim();
             if (!p) return false;
@@ -2094,7 +2094,7 @@
 
             // ISSUE 10 FIX: Corrected ARTS-DN Metadata (Phase IIb)
             /* Known acronyms for trials whose CT.gov search may not return the acronym field */
-            nctAcronyms: { 'NCT03887455': 'Clarity AD', 'NCT04437511': 'TRAILBLAZER-ALZ 2', 'NCT02477800': 'EMERGE', 'NCT02484547': 'ENGAGE' },
+            nctAcronyms: { 'NCT03887455': 'Clarity AD', 'NCT04437511': 'TRAILBLAZER-ALZ 2', 'NCT02477800': 'EMERGE', 'NCT02484547': 'ENGAGE', 'NCT03443973': 'GRADUATE I', 'NCT03444870': 'GRADUATE II' },
             _allowedSources: new Set(['registry', 'pubmed', 'openalex', 'reference', 'manual']),
             _allowedStatuses: new Set(['search', 'include', 'exclude']),
             sanitizeText(value, maxLen = 600) {
@@ -2454,6 +2454,28 @@
                     rob: ['low', 'some concerns', 'low', 'low', 'some concerns'],
                     snippet: 'Budd Haeberlein 2022 JPAD (ENGAGE). ENGAGE failed primary endpoint; pooled with EMERGE attenuates aducanumab efficacy toward null.',
                     sourceUrl: 'https://www.jpreventionalzheimer.com/en/article/aducanumab-phase-3-clinical-trials-for-alzheimers-disease',
+                    evidence: []
+                },
+                'NCT03443973': {
+                    name: 'GRADUATE I', phase: 'III', year: 2023, tE: 0, tN: 985, cE: 0, cN: 976, group: 'Gantenerumab vs Placebo (GRADUATE I; NEGATIVE pivotal, wk 116 CDR-SB MD)', publishedHR: -0.31, hrLCI: -0.66, hrUCI: 0.05,
+                    allOutcomes: [
+                        { shortLabel: 'CDR-SB', title: 'CDR-SB change at week 116 gantenerumab vs placebo (MD; P=0.10, did not meet primary)', tE: 0, cE: 0, type: 'PRIMARY', matchScore: 95, effect: -0.31, lci: -0.66, uci: 0.05, estimandType: 'MD' }
+                    ],
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+                    snippet: 'Bateman RJ et al. NEJM 2023;389:1862-1876 (GRADUATE I + II). Both pivotals NEGATIVE.',
+                    sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa2304430',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03443973',
+                    evidence: []
+                },
+                'NCT03444870': {
+                    name: 'GRADUATE II', phase: 'III', year: 2023, tE: 0, tN: 980, cE: 0, cN: 978, group: 'Gantenerumab vs Placebo (GRADUATE II pair; NEGATIVE pivotal, wk 116)', publishedHR: -0.19, hrLCI: -0.55, hrUCI: 0.17,
+                    allOutcomes: [
+                        { shortLabel: 'CDR-SB', title: 'CDR-SB change at week 116 gantenerumab vs placebo (MD; P=0.30, did not meet primary; pair to GRADUATE I)', tE: 0, cE: 0, type: 'PRIMARY', matchScore: 95, effect: -0.19, lci: -0.55, uci: 0.17, estimandType: 'MD' }
+                    ],
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+                    snippet: 'Bateman RJ et al. NEJM 2023 (GRADUATE II). NEGATIVE.',
+                    sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa2304430',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03444870',
                     evidence: []
                 }
             },
@@ -8380,7 +8402,8 @@
                 "Lecanemab",
                 "Donanemab",
                 "Aducanumab",
-                "Placebo"
+                "Placebo",
+                "Gantenerumab"
         ],
         "comparisons": [
                 {
@@ -8409,6 +8432,20 @@
                         "t2": "Placebo",
                         "trials": [
                                 "NCT02484547"
+                        ]
+                },
+                {
+                        "t1": "Gantenerumab",
+                        "t2": "Placebo",
+                        "trials": [
+                                "NCT03443973"
+                        ]
+                },
+                {
+                        "t1": "Gantenerumab",
+                        "t2": "Placebo",
+                        "trials": [
+                                "NCT03444870"
                         ]
                 }
         ],

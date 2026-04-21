@@ -8,11 +8,11 @@ logHR_SE <- function(hr, lci, uci) {
 
 # From config.comparisons + config.realData (one row per edge×trial)
 trials <- data.frame(
-  studlab = c("Clarity AD","TRAILBLAZER-ALZ 2","EMERGE","ENGAGE"),
-  treat1  = c("Lecanemab","Donanemab","Aducanumab","Aducanumab"),
-  treat2  = c("Placebo","Placebo","Placebo","Placebo"),
-  TE      = c(-0.4500000000,-0.7000000000,-0.3900000000,0.0300000000),
-  seTE    = c(0.1122448980,0.1275510204,0.1530612245,0.1479591837),
+  studlab = c("Clarity AD","TRAILBLAZER-ALZ 2","EMERGE","ENGAGE","GRADUATE I","GRADUATE II"),
+  treat1  = c("Lecanemab","Donanemab","Aducanumab","Aducanumab","Gantenerumab","Gantenerumab"),
+  treat2  = c("Placebo","Placebo","Placebo","Placebo","Placebo","Placebo"),
+  TE      = c(-0.4500000000,-0.7000000000,-0.3900000000,0.0300000000,-0.3100000000,-0.1900000000),
+  seTE    = c(0.1122448980,0.1275510204,0.1530612245,0.1479591837,0.1811224490,0.1836734694),
   stringsAsFactors = FALSE
 )
 cat("=== RapidMeta Neurology | Anti-Amyloid mAbs NMA in Early Alzheimer Disease v1.3 ===\n")
@@ -73,6 +73,9 @@ draws_nonref <- mvrnorm(n_draws, mu, Sigma)
 draws <- matrix(0, nrow=n_draws, ncol=n_trt)
 colnames(draws) <- trts
 for (i in seq_along(non_ref)) draws[, non_ref[i]] <- draws_nonref[, i]
+# Direction: small.values="desirable" -> rank 1 = smallest (e.g., HR<1 is best)
+# small.values="undesirable" -> rank 1 = largest (e.g., OR>1 is best for PASI 90)
+if ("desirable" == "undesirable") draws <- -draws
 ranks <- t(apply(draws, 1, rank, ties.method="random"))
 colnames(ranks) <- trts
 rank_prob <- matrix(0, nrow=n_trt, ncol=n_trt,

@@ -1651,7 +1651,7 @@
             return safe;
         };
 
-        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03954834', 'NCT03987919', 'NCT02054897', 'NCT01885208', 'NCT02648204', 'NCT00518882', 'NCT01624259']);
+        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03954834', 'NCT03987919', 'NCT02054897', 'NCT01885208', 'NCT02648204', 'NCT00518882', 'NCT01624259', 'NCT00318461', 'NCT01720446', 'NCT01144338']);
         const isPhaseTwoLike = (phaseLabel = '') => {
             const p = String(phaseLabel ?? '').toLowerCase().trim();
             if (!p) return false;
@@ -2094,7 +2094,7 @@
 
             // ISSUE 10 FIX: Corrected ARTS-DN Metadata (Phase IIb)
             /* Known acronyms for trials whose CT.gov search may not return the acronym field */
-            nctAcronyms: { 'NCT03954834': 'SURPASS-1', 'NCT03987919': 'SURPASS-2', 'NCT02054897': 'SUSTAIN-1', 'NCT01885208': 'SUSTAIN-3', 'NCT02648204': 'SUSTAIN-7', 'NCT00518882': 'LEAD-6', 'NCT01624259': 'AWARD-6' },
+            nctAcronyms: { 'NCT03954834': 'SURPASS-1', 'NCT03987919': 'SURPASS-2', 'NCT02054897': 'SUSTAIN-1', 'NCT01885208': 'SUSTAIN-3', 'NCT02648204': 'SUSTAIN-7', 'NCT00518882': 'LEAD-6', 'NCT01624259': 'AWARD-6', 'NCT00318461': 'LEAD-2', 'NCT01720446': 'SUSTAIN-6', 'NCT01144338': 'EXSCEL' },
             _allowedSources: new Set(['registry', 'pubmed', 'openalex', 'reference', 'manual']),
             _allowedStatuses: new Set(['search', 'include', 'exclude']),
             sanitizeText(value, maxLen = 600) {
@@ -2478,6 +2478,39 @@
                     rob: ['low', 'low', 'low', 'low', 'low'],
                     snippet: 'Dungan KM et al. Lancet 2014;384:1349-1357 (AWARD-6).',
                     sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(14)60976-4/fulltext',
+                    evidence: []
+                },
+                'NCT00318461': {
+                    name: 'LEAD-2', phase: 'III', year: 2009, tE: 0, tN: 242, cE: 0, cN: 122, group: 'Liraglutide 1.8mg daily vs placebo + metformin (LEAD-2; HbA1c wk 26 MD)', publishedHR: -1.1, hrLCI: -1.3, hrUCI: -0.9,
+                    allOutcomes: [
+                        { shortLabel: 'HBA1C', title: 'HbA1c change at week 26 liraglutide 1.8mg vs placebo on metformin (MD, %)', tE: 0, cE: 0, type: 'PRIMARY', matchScore: 95, effect: -1.1, lci: -1.3, uci: -0.9, estimandType: 'MD' }
+                    ],
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+                    snippet: 'Nauck MA et al. Diabetes Care 2009;32:84-90 (LEAD-2). Liraglutide vs placebo direct anchor.',
+                    sourceUrl: 'https://diabetesjournals.org/care/article/32/1/84/25127',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT00318461',
+                    evidence: []
+                },
+                'NCT01720446': {
+                    name: 'SUSTAIN-6', phase: 'III', year: 2016, tE: 0, tN: 1648, cE: 0, cN: 1649, group: 'Semaglutide 0.5/1mg weekly vs placebo (SUSTAIN-6 CV-outcomes; HbA1c at 2 yr MD)', publishedHR: -0.77, hrLCI: -0.85, hrUCI: -0.69,
+                    allOutcomes: [
+                        { shortLabel: 'HBA1C', title: 'HbA1c change at 2 years semaglutide pooled vs placebo (MD; SUSTAIN-6 CV-outcomes trial, HbA1c as secondary)', tE: 0, cE: 0, type: 'PRIMARY', matchScore: 95, effect: -0.77, lci: -0.85, uci: -0.69, estimandType: 'MD' }
+                    ],
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+                    snippet: 'Marso SP et al. NEJM 2016;375:1834-1844 (SUSTAIN-6). CV-outcomes trial; HbA1c benefit as secondary.',
+                    sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1607141',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT01720446',
+                    evidence: []
+                },
+                'NCT01144338': {
+                    name: 'EXSCEL', phase: 'III', year: 2017, tE: 0, tN: 7356, cE: 0, cN: 7396, group: 'Exenatide-ER 2mg weekly vs placebo (EXSCEL CV-outcomes; HbA1c at median 3.2 yr MD)', publishedHR: -0.53, hrLCI: -0.57, hrUCI: -0.49,
+                    allOutcomes: [
+                        { shortLabel: 'HBA1C', title: 'HbA1c change at median 3.2 years exenatide-ER vs placebo (MD; EXSCEL CV-outcomes)', tE: 0, cE: 0, type: 'PRIMARY', matchScore: 95, effect: -0.53, lci: -0.57, uci: -0.49, estimandType: 'MD' }
+                    ],
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+                    snippet: 'Holman RR et al. NEJM 2017;377:1228-1239 (EXSCEL). Largest GLP-1 RA CV-outcomes trial.',
+                    sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1612917',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT01144338',
                     evidence: []
                 }
             },
@@ -8456,6 +8489,27 @@
                         "t2": "Liraglutide",
                         "trials": [
                                 "NCT01624259"
+                        ]
+                },
+                {
+                        "t1": "Liraglutide",
+                        "t2": "Placebo",
+                        "trials": [
+                                "NCT00318461"
+                        ]
+                },
+                {
+                        "t1": "Semaglutide",
+                        "t2": "Placebo",
+                        "trials": [
+                                "NCT01720446"
+                        ]
+                },
+                {
+                        "t1": "Exenatide",
+                        "t2": "Placebo",
+                        "trials": [
+                                "NCT01144338"
                         ]
                 }
         ],

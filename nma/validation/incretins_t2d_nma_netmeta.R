@@ -8,11 +8,11 @@ logHR_SE <- function(hr, lci, uci) {
 
 # From config.comparisons + config.realData (one row per edge×trial)
 trials <- data.frame(
-  studlab = c("SURPASS-1","SURPASS-2","SUSTAIN-1","SUSTAIN-3","SUSTAIN-7","LEAD-6","AWARD-6"),
-  treat1  = c("Tirzepatide","Tirzepatide","Semaglutide","Semaglutide","Semaglutide","Liraglutide","Dulaglutide"),
-  treat2  = c("Placebo","Semaglutide","Placebo","Exenatide","Dulaglutide","Exenatide","Liraglutide"),
-  TE      = c(-2.1100000000,-0.4500000000,-1.5500000000,-0.6200000000,-0.3100000000,-0.3300000000,-0.0600000000),
-  seTE    = c(0.1198979592,0.0612244898,0.0943877551,0.0918367347,0.0561224490,0.0739795918,0.0663265306),
+  studlab = c("SURPASS-1","SURPASS-2","SUSTAIN-1","SUSTAIN-3","SUSTAIN-7","LEAD-6","AWARD-6","LEAD-2","SUSTAIN-6","EXSCEL"),
+  treat1  = c("Tirzepatide","Tirzepatide","Semaglutide","Semaglutide","Semaglutide","Liraglutide","Dulaglutide","Liraglutide","Semaglutide","Exenatide"),
+  treat2  = c("Placebo","Semaglutide","Placebo","Exenatide","Dulaglutide","Exenatide","Liraglutide","Placebo","Placebo","Placebo"),
+  TE      = c(-2.1100000000,-0.4500000000,-1.5500000000,-0.6200000000,-0.3100000000,-0.3300000000,-0.0600000000,-1.1000000000,-0.7700000000,-0.5300000000),
+  seTE    = c(0.1198979592,0.0612244898,0.0943877551,0.0918367347,0.0561224490,0.0739795918,0.0663265306,0.1020408163,0.0408163265,0.0204081633),
   stringsAsFactors = FALSE
 )
 cat("=== RapidMeta Endocrinology | Incretin Class NMA in Type 2 Diabetes v1.0 ===\n")
@@ -73,6 +73,9 @@ draws_nonref <- mvrnorm(n_draws, mu, Sigma)
 draws <- matrix(0, nrow=n_draws, ncol=n_trt)
 colnames(draws) <- trts
 for (i in seq_along(non_ref)) draws[, non_ref[i]] <- draws_nonref[, i]
+# Direction: small.values="desirable" -> rank 1 = smallest (e.g., HR<1 is best)
+# small.values="undesirable" -> rank 1 = largest (e.g., OR>1 is best for PASI 90)
+if ("desirable" == "undesirable") draws <- -draws
 ranks <- t(apply(draws, 1, rank, ties.method="random"))
 colnames(ranks) <- trts
 rank_prob <- matrix(0, nrow=n_trt, ncol=n_trt,

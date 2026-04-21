@@ -8,11 +8,11 @@ logHR_SE <- function(hr, lci, uci) {
 
 # From config.comparisons + config.realData (one row per edge×trial)
 trials <- data.frame(
-  studlab = c("VIEW-1","VIEW-2","TENAYA","LUCERNE","PULSAR","HAWK","HARRIER"),
-  treat1  = c("Aflibercept_2mg","Aflibercept_2mg","Faricimab","Faricimab","Aflibercept_8mg","Brolucizumab","Brolucizumab"),
-  treat2  = c("Ranibizumab","Ranibizumab","Aflibercept_2mg","Aflibercept_2mg","Aflibercept_2mg","Aflibercept_2mg","Aflibercept_2mg"),
-  TE      = c(0.5000000000,0.6000000000,0.7000000000,0.5000000000,1.0000000000,-0.2000000000,0.7000000000),
-  seTE    = c(0.8163265306,0.8673469388,0.6887755102,0.6887755102,0.7397959184,0.6632653061,0.6632653061),
+  studlab = c("VIEW-1","VIEW-2","TENAYA","LUCERNE","PULSAR","HAWK","HARRIER","CATT","IVAN"),
+  treat1  = c("Aflibercept_2mg","Aflibercept_2mg","Faricimab","Faricimab","Aflibercept_8mg","Brolucizumab","Brolucizumab","Bevacizumab","Bevacizumab"),
+  treat2  = c("Ranibizumab","Ranibizumab","Aflibercept_2mg","Aflibercept_2mg","Aflibercept_2mg","Aflibercept_2mg","Aflibercept_2mg","Ranibizumab","Ranibizumab"),
+  TE      = c(0.5000000000,0.6000000000,0.7000000000,0.5000000000,1.0000000000,-0.2000000000,0.7000000000,-0.5000000000,-1.3700000000),
+  seTE    = c(0.8163265306,0.8673469388,0.6887755102,0.6887755102,0.7397959184,0.6632653061,0.6632653061,1.0204081633,1.2142857143),
   stringsAsFactors = FALSE
 )
 cat("=== RapidMeta Ophthalmology | Anti-VEGF Class NMA in Neovascular AMD v1.3 ===\n")
@@ -20,7 +20,7 @@ print(trials)
 cat("\n")
 
 nma <- netmeta(TE=TE, seTE=seTE, treat1=treat1, treat2=treat2, studlab=studlab,
-               data=trials, sm="MD", reference.group="Brolucizumab",
+               data=trials, sm="MD", reference.group="Bevacizumab",
                common=TRUE, random=TRUE,
                method.tau="REML",   # REML per protocol (NOT DL, which is the netmeta default)
                hakn=TRUE)            # HKSJ (Hartung-Knapp-Sidik-Jonkman) CI adjustment
@@ -45,9 +45,9 @@ suppressPackageStartupMessages(library(MASS))
 n_draws <- 1e5
 trts <- nma$trts
 n_trt <- length(trts)
-non_ref <- trts[trts != "Brolucizumab"]
+non_ref <- trts[trts != "Bevacizumab"]
 # Mean vector: contrast vs reference for non-reference treatments
-mu <- nma$TE.random[non_ref, "Brolucizumab"]
+mu <- nma$TE.random[non_ref, "Bevacizumab"]
 # Full covariance of contrasts from the fitted random-effects model
 if (!is.null(nma$Cov.random)) {
   # Cov.random is keyed on treatment × treatment; extract the subset vs reference.
@@ -55,7 +55,7 @@ if (!is.null(nma$Cov.random)) {
   cov_full <- nma$Cov.random
   # Construct contrast-vs-ref covariance for non_ref × non_ref
   # Sigma[i,j] = Cov(mu_i - mu_ref, mu_j - mu_ref)
-  idx_ref <- which(trts == "Brolucizumab")
+  idx_ref <- which(trts == "Bevacizumab")
   idx <- which(trts %in% non_ref)
   Sigma <- matrix(0, nrow=length(non_ref), ncol=length(non_ref),
                   dimnames=list(non_ref, non_ref))
@@ -66,13 +66,16 @@ if (!is.null(nma$Cov.random)) {
   }
 } else {
   # Fallback: independent — clearly marked as a limitation in this case
-  Sigma <- diag(nma$seTE.random[non_ref, "Brolucizumab"]^2)
+  Sigma <- diag(nma$seTE.random[non_ref, "Bevacizumab"]^2)
   warning("Cov.random unavailable; falling back to independent-contrast MC draws. Results approximate.")
 }
 draws_nonref <- mvrnorm(n_draws, mu, Sigma)
 draws <- matrix(0, nrow=n_draws, ncol=n_trt)
 colnames(draws) <- trts
 for (i in seq_along(non_ref)) draws[, non_ref[i]] <- draws_nonref[, i]
+# Direction: small.values="desirable" -> rank 1 = smallest (e.g., HR<1 is best)
+# small.values="undesirable" -> rank 1 = largest (e.g., OR>1 is best for PASI 90)
+if ("undesirable" == "undesirable") draws <- -draws
 ranks <- t(apply(draws, 1, rank, ties.method="random"))
 colnames(ranks) <- trts
 rank_prob <- matrix(0, nrow=n_trt, ncol=n_trt,
@@ -92,11 +95,11 @@ bt <- if (is_log) exp else function(x) x
 results <- list(
   title = "RapidMeta Ophthalmology | Anti-VEGF Class NMA in Neovascular AMD v1.3",
   treatments = trts,
-  te_random_vs_ref   = setNames(nma$TE.random[, "Brolucizumab"], trts),
-  se_random_vs_ref   = setNames(nma$seTE.random[, "Brolucizumab"], trts),
-  hr_random_vs_chemoimm = setNames(bt(nma$TE.random[, "Brolucizumab"]), trts),
-  hr_ci_lower   = setNames(bt(nma$lower.random[, "Brolucizumab"]), trts),
-  hr_ci_upper   = setNames(bt(nma$upper.random[, "Brolucizumab"]), trts),
+  te_random_vs_ref   = setNames(nma$TE.random[, "Bevacizumab"], trts),
+  se_random_vs_ref   = setNames(nma$seTE.random[, "Bevacizumab"], trts),
+  hr_random_vs_chemoimm = setNames(bt(nma$TE.random[, "Bevacizumab"]), trts),
+  hr_ci_lower   = setNames(bt(nma$lower.random[, "Bevacizumab"]), trts),
+  hr_ci_upper   = setNames(bt(nma$upper.random[, "Bevacizumab"]), trts),
   tau2 = nma$tau^2,
   I2 = nma$I2,
   Q_total = nma$Q,
@@ -119,10 +122,10 @@ cat("TAU2:", round(nma$tau^2, 5), "\n")
 cat("I2:", round(nma$I2 * 100, 2), "%\n")
 cat("Q inc:", round(nma$Q.inconsistency, 3), "df", nma$df.Q.inconsistency, "p", round(nma$pval.Q.inconsistency, 4), "\n")
 for (tr in trts) {
-  if (tr == "Brolucizumab") next
+  if (tr == "Bevacizumab") next
   cat(sprintf("  %-24s %s %.3f (%.3f, %.3f)\n",
               tr, "MD",
-              bt(nma$TE.random[tr, "Brolucizumab"]),
-              bt(nma$lower.random[tr, "Brolucizumab"]),
-              bt(nma$upper.random[tr, "Brolucizumab"])))
+              bt(nma$TE.random[tr, "Bevacizumab"]),
+              bt(nma$lower.random[tr, "Bevacizumab"]),
+              bt(nma$upper.random[tr, "Bevacizumab"])))
 }

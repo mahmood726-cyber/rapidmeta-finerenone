@@ -8,11 +8,11 @@ logHR_SE <- function(hr, lci, uci) {
 
 # From config.comparisons + config.realData (one row per edge×trial)
 trials <- data.frame(
-  studlab = c("ELEVATE-RR","ELEVATE-TN","RESONATE-2","ALPINE","SEQUOIA"),
-  treat1  = c("Acalabrutinib","Acalabrutinib","Ibrutinib","Zanubrutinib","Zanubrutinib"),
-  treat2  = c("Ibrutinib","Clb_Obi","Clb_alone","Ibrutinib","BR"),
-  TE      = c(0.0000000000,-1.5606477483,-1.9241486573,-0.4307829161,-0.8675005677),
-  seTE    = c(0.1086307171,0.2108873911,0.2039611184,0.1435017852,0.2068699531),
+  studlab = c("ELEVATE-RR","ELEVATE-TN","RESONATE-2","ALPINE","SEQUOIA","RESONATE","ASCEND"),
+  treat1  = c("Acalabrutinib","Acalabrutinib","Ibrutinib","Zanubrutinib","Zanubrutinib","Ibrutinib","Acalabrutinib"),
+  treat2  = c("Ibrutinib","Clb_Obi","Clb_alone","Ibrutinib","BR","Ofatumumab","InvestigatorChoice"),
+  TE      = c(0.0000000000,-1.5606477483,-1.9241486573,-0.4307829161,-0.8675005677,-2.0024805005,-1.2729656758),
+  seTE    = c(0.1086307171,0.2108873911,0.2039611184,0.1435017852,0.2068699531,0.1768232603,0.1637382363),
   stringsAsFactors = FALSE
 )
 cat("=== RapidMeta Haematology | BTKi Class NMA in CLL v1.3 ===\n")
@@ -20,7 +20,7 @@ print(trials)
 cat("\n")
 
 nma <- netmeta(TE=TE, seTE=seTE, treat1=treat1, treat2=treat2, studlab=studlab,
-               data=trials, sm="HR", reference.group="BR",
+               data=trials, sm="HR", reference.group="InvestigatorChoice",
                common=TRUE, random=TRUE,
                method.tau="REML",   # REML per protocol (NOT DL, which is the netmeta default)
                hakn=TRUE)            # HKSJ (Hartung-Knapp-Sidik-Jonkman) CI adjustment
@@ -45,9 +45,9 @@ suppressPackageStartupMessages(library(MASS))
 n_draws <- 1e5
 trts <- nma$trts
 n_trt <- length(trts)
-non_ref <- trts[trts != "BR"]
+non_ref <- trts[trts != "InvestigatorChoice"]
 # Mean vector: contrast vs reference for non-reference treatments
-mu <- nma$TE.random[non_ref, "BR"]
+mu <- nma$TE.random[non_ref, "InvestigatorChoice"]
 # Full covariance of contrasts from the fitted random-effects model
 if (!is.null(nma$Cov.random)) {
   # Cov.random is keyed on treatment × treatment; extract the subset vs reference.
@@ -55,7 +55,7 @@ if (!is.null(nma$Cov.random)) {
   cov_full <- nma$Cov.random
   # Construct contrast-vs-ref covariance for non_ref × non_ref
   # Sigma[i,j] = Cov(mu_i - mu_ref, mu_j - mu_ref)
-  idx_ref <- which(trts == "BR")
+  idx_ref <- which(trts == "InvestigatorChoice")
   idx <- which(trts %in% non_ref)
   Sigma <- matrix(0, nrow=length(non_ref), ncol=length(non_ref),
                   dimnames=list(non_ref, non_ref))
@@ -66,13 +66,16 @@ if (!is.null(nma$Cov.random)) {
   }
 } else {
   # Fallback: independent — clearly marked as a limitation in this case
-  Sigma <- diag(nma$seTE.random[non_ref, "BR"]^2)
+  Sigma <- diag(nma$seTE.random[non_ref, "InvestigatorChoice"]^2)
   warning("Cov.random unavailable; falling back to independent-contrast MC draws. Results approximate.")
 }
 draws_nonref <- mvrnorm(n_draws, mu, Sigma)
 draws <- matrix(0, nrow=n_draws, ncol=n_trt)
 colnames(draws) <- trts
 for (i in seq_along(non_ref)) draws[, non_ref[i]] <- draws_nonref[, i]
+# Direction: small.values="desirable" -> rank 1 = smallest (e.g., HR<1 is best)
+# small.values="undesirable" -> rank 1 = largest (e.g., OR>1 is best for PASI 90)
+if ("desirable" == "undesirable") draws <- -draws
 ranks <- t(apply(draws, 1, rank, ties.method="random"))
 colnames(ranks) <- trts
 rank_prob <- matrix(0, nrow=n_trt, ncol=n_trt,
@@ -92,11 +95,11 @@ bt <- if (is_log) exp else function(x) x
 results <- list(
   title = "RapidMeta Haematology | BTKi Class NMA in CLL v1.3",
   treatments = trts,
-  te_random_vs_ref   = setNames(nma$TE.random[, "BR"], trts),
-  se_random_vs_ref   = setNames(nma$seTE.random[, "BR"], trts),
-  hr_random_vs_chemoimm = setNames(bt(nma$TE.random[, "BR"]), trts),
-  hr_ci_lower   = setNames(bt(nma$lower.random[, "BR"]), trts),
-  hr_ci_upper   = setNames(bt(nma$upper.random[, "BR"]), trts),
+  te_random_vs_ref   = setNames(nma$TE.random[, "InvestigatorChoice"], trts),
+  se_random_vs_ref   = setNames(nma$seTE.random[, "InvestigatorChoice"], trts),
+  hr_random_vs_chemoimm = setNames(bt(nma$TE.random[, "InvestigatorChoice"]), trts),
+  hr_ci_lower   = setNames(bt(nma$lower.random[, "InvestigatorChoice"]), trts),
+  hr_ci_upper   = setNames(bt(nma$upper.random[, "InvestigatorChoice"]), trts),
   tau2 = nma$tau^2,
   I2 = nma$I2,
   Q_total = nma$Q,
@@ -119,10 +122,10 @@ cat("TAU2:", round(nma$tau^2, 5), "\n")
 cat("I2:", round(nma$I2 * 100, 2), "%\n")
 cat("Q inc:", round(nma$Q.inconsistency, 3), "df", nma$df.Q.inconsistency, "p", round(nma$pval.Q.inconsistency, 4), "\n")
 for (tr in trts) {
-  if (tr == "BR") next
+  if (tr == "InvestigatorChoice") next
   cat(sprintf("  %-24s %s %.3f (%.3f, %.3f)\n",
               tr, "HR",
-              bt(nma$TE.random[tr, "BR"]),
-              bt(nma$lower.random[tr, "BR"]),
-              bt(nma$upper.random[tr, "BR"])))
+              bt(nma$TE.random[tr, "InvestigatorChoice"]),
+              bt(nma$lower.random[tr, "InvestigatorChoice"]),
+              bt(nma$upper.random[tr, "InvestigatorChoice"])))
 }

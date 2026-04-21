@@ -1651,7 +1651,7 @@
             return safe;
         };
 
-        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT02475681', 'NCT02477696', 'NCT03734016', 'NCT01722487', 'NCT03336333']);
+        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT02475681', 'NCT02477696', 'NCT03734016', 'NCT01722487', 'NCT03336333', 'NCT01578707', 'NCT02970318']);
         const isPhaseTwoLike = (phaseLabel = '') => {
             const p = String(phaseLabel ?? '').toLowerCase().trim();
             if (!p) return false;
@@ -2094,7 +2094,7 @@
 
             // ISSUE 10 FIX: Corrected ARTS-DN Metadata (Phase IIb)
             /* Known acronyms for trials whose CT.gov search may not return the acronym field */
-            nctAcronyms: { 'NCT02475681': 'ELEVATE-TN', 'NCT02477696': 'ELEVATE-RR', 'NCT03734016': 'ALPINE', 'NCT01722487': 'RESONATE-2', 'NCT03336333': 'SEQUOIA' },
+            nctAcronyms: { 'NCT02475681': 'ELEVATE-TN', 'NCT02477696': 'ELEVATE-RR', 'NCT03734016': 'ALPINE', 'NCT01722487': 'RESONATE-2', 'NCT03336333': 'SEQUOIA', 'NCT01578707': 'RESONATE', 'NCT02970318': 'ASCEND' },
             _allowedSources: new Set(['registry', 'pubmed', 'openalex', 'reference', 'manual']),
             _allowedStatuses: new Set(['search', 'include', 'exclude']),
             sanitizeText(value, maxLen = 600) {
@@ -2462,6 +2462,28 @@
                     rob: ['low', 'some concerns', 'low', 'low', 'low'],
                     snippet: 'Tam 2022 Lancet Oncol (SEQUOIA cohort 1). Comparator: BR.',
                     sourceUrl: 'https://www.thelancet.com/journals/lanonc/article/PIIS1470-2045(22)00310-6/fulltext',
+                    evidence: []
+                },
+                'NCT01578707': {
+                    name: 'RESONATE', phase: 'III', year: 2014, tE: 33, tN: 195, cE: 124, cN: 196, group: 'Ibrutinib vs Ofatumumab (R/R CLL; PFS HR 6-year update)', publishedHR: 0.135, hrLCI: 0.095, hrUCI: 0.19,
+                    allOutcomes: [
+                        { shortLabel: 'PFS', title: 'IRC PFS 6-yr update ibrutinib vs ofatumumab (HR)', tE: 33, cE: 124, type: 'PRIMARY', matchScore: 95, effect: 0.135, lci: 0.095, uci: 0.19, estimandType: 'HR' }
+                    ],
+                    rob: ['low', 'some concerns', 'low', 'low', 'low'],
+                    snippet: 'Byrd JC et al. NEJM 2014 + Munir T et al. Am J Hematol 2019 (RESONATE 6-yr).',
+                    sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1400376',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT01578707',
+                    evidence: []
+                },
+                'NCT02970318': {
+                    name: 'ASCEND', phase: 'III', year: 2020, tE: 55, tN: 155, cE: 95, cN: 155, group: 'Acalabrutinib vs Investigator Choice (idela+R or BR; R/R CLL; PFS HR 46-mo)', publishedHR: 0.28, hrLCI: 0.2, hrUCI: 0.38,
+                    allOutcomes: [
+                        { shortLabel: 'PFS', title: 'IRC PFS 46-mo acalabrutinib vs IC (HR; composite comparator)', tE: 55, cE: 95, type: 'PRIMARY', matchScore: 95, effect: 0.28, lci: 0.2, uci: 0.38, estimandType: 'HR' }
+                    ],
+                    rob: ['low', 'some concerns', 'low', 'low', 'low'],
+                    snippet: 'Ghia P et al. JCO 2020 + Jurczak W et al. Am J Hematol 2023 (ASCEND 46-mo).',
+                    sourceUrl: 'https://ascopubs.org/doi/10.1200/JCO.19.03355',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT02970318',
                     evidence: []
                 }
             },
@@ -8390,7 +8412,9 @@
                 "Zanubrutinib",
                 "Clb_alone",
                 "Clb_Obi",
-                "BR"
+                "BR",
+                "Ofatumumab",
+                "InvestigatorChoice"
         ],
         "comparisons": [
                 {
@@ -8426,6 +8450,20 @@
                         "t2": "BR",
                         "trials": [
                                 "NCT03336333"
+                        ]
+                },
+                {
+                        "t1": "Ibrutinib",
+                        "t2": "Ofatumumab",
+                        "trials": [
+                                "NCT01578707"
+                        ]
+                },
+                {
+                        "t1": "Acalabrutinib",
+                        "t2": "InvestigatorChoice",
+                        "trials": [
+                                "NCT02970318"
                         ]
                 }
         ],

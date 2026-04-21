@@ -1651,7 +1651,7 @@
             return safe;
         };
 
-        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT02207231', 'NCT02684370', 'NCT01474512', 'NCT01597245', 'NCT01646177', 'NCT01365455', 'NCT01358578', 'NCT03536884', 'NCT03370133', 'NCT03412747']);
+        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT02207231', 'NCT02684370', 'NCT01474512', 'NCT01597245', 'NCT01646177', 'NCT01365455', 'NCT01358578', 'NCT03536884', 'NCT03370133', 'NCT03412747', 'NCT02207162', 'NCT02694399', 'NCT01708590', 'NCT01722331']);
         const isPhaseTwoLike = (phaseLabel = '') => {
             const p = String(phaseLabel ?? '').toLowerCase().trim();
             if (!p) return false;
@@ -2094,7 +2094,7 @@
 
             // ISSUE 10 FIX: Corrected ARTS-DN Metadata (Phase IIb)
             /* Known acronyms for trials whose CT.gov search may not return the acronym field */
-            nctAcronyms: { 'NCT02207231': 'VOYAGE 1', 'NCT02684370': 'UltIMMa-1', 'NCT01474512': 'UNCOVER-1', 'NCT01597245': 'UNCOVER-2', 'NCT01646177': 'UNCOVER-3', 'NCT01365455': 'ERASURE', 'NCT01358578': 'FIXTURE', 'NCT03536884': 'BE RADIANT', 'NCT03370133': 'BE VIVID', 'NCT03412747': 'BE SURE' },
+            nctAcronyms: { 'NCT02207231': 'VOYAGE 1', 'NCT02684370': 'UltIMMa-1', 'NCT01474512': 'UNCOVER-1', 'NCT01597245': 'UNCOVER-2', 'NCT01646177': 'UNCOVER-3', 'NCT01365455': 'ERASURE', 'NCT01358578': 'FIXTURE', 'NCT03536884': 'BE RADIANT', 'NCT03370133': 'BE VIVID', 'NCT03412747': 'BE SURE', 'NCT02207162': 'VOYAGE 2', 'NCT02694399': 'UltIMMa-2', 'NCT01708590': 'AMAGINE-1', 'NCT01722331': 'reSURFACE-1' },
             _allowedSources: new Set(['registry', 'pubmed', 'openalex', 'reference', 'manual']),
             _allowedStatuses: new Set(['search', 'include', 'exclude']),
             sanitizeText(value, maxLen = 600) {
@@ -2502,6 +2502,50 @@
                     rob: ['low', 'low', 'low', 'low', 'low'],
                     snippet: 'Warren RB et al. NEJM 2021;385:130-41 (BE SURE)',
                     sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa2102388',
+                    evidence: []
+                },
+                'NCT02207162': {
+                    name: 'VOYAGE 2', phase: 'III', year: 2017, tE: 248, tN: 355, cE: 1, cN: 128, group: 'Guselkumab 100mg Q8W | IL-23 (VOYAGE 2 pair to VOYAGE 1; PASI 90 wk 16)', publishedHR: 147.09, hrLCI: 20.3, hrUCI: 1066.05,
+                    allOutcomes: [
+                        { shortLabel: 'PASI90', title: 'PASI 90 at week 16 guselkumab vs placebo (OR; VOYAGE 2 matched pair to VOYAGE 1)', tE: 248, cE: 1, type: 'PRIMARY', matchScore: 95, effect: 147.09, lci: 20.3, uci: 1066.05, estimandType: 'OR' }
+                    ],
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+                    snippet: 'Reich K et al. JAAD 2017;76:418-431 (VOYAGE 2).',
+                    sourceUrl: 'https://www.sciencedirect.com/science/article/pii/S0190962216310842',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT02207162',
+                    evidence: []
+                },
+                'NCT02694399': {
+                    name: 'UltIMMa-2', phase: 'III', year: 2018, tE: 225, tN: 301, cE: 2, cN: 100, group: 'Risankizumab 150mg Q12W | IL-23 (UltIMMa-2 pair to UltIMMa-1; PASI 90 wk 16)', publishedHR: 135.52, hrLCI: 29.12, hrUCI: 630.76,
+                    allOutcomes: [
+                        { shortLabel: 'PASI90', title: 'PASI 90 at week 16 risankizumab vs placebo (OR; UltIMMa-2 matched pair to UltIMMa-1)', tE: 225, cE: 2, type: 'PRIMARY', matchScore: 95, effect: 135.52, lci: 29.12, uci: 630.76, estimandType: 'OR' }
+                    ],
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+                    snippet: 'Gordon KB et al. Lancet 2018;392:650-661 (UltIMMa-2 pair to UltIMMa-1).',
+                    sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(18)31713-6/fulltext',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT02694399',
+                    evidence: []
+                },
+                'NCT01708590': {
+                    name: 'AMAGINE-1', phase: 'III', year: 2016, tE: 141, tN: 222, cE: 1, cN: 220, group: 'Brodalumab 210mg Q2W | IL-17RA (AMAGINE-1; PASI 90 wk 12)', publishedHR: 381.26, hrLCI: 52.81, hrUCI: 2753.45,
+                    allOutcomes: [
+                        { shortLabel: 'PASI90', title: 'PASI 90 at week 12 brodalumab 210mg vs placebo (OR; AMAGINE-1)', tE: 141, cE: 1, type: 'PRIMARY', matchScore: 95, effect: 381.26, lci: 52.81, uci: 2753.45, estimandType: 'OR' }
+                    ],
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+                    snippet: 'Papp KA et al. NEJM 2016;375:273-286 (AMAGINE-1).',
+                    sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1503824',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT01708590',
+                    evidence: []
+                },
+                'NCT01722331': {
+                    name: 'reSURFACE-1', phase: 'III', year: 2017, tE: 103, tN: 308, cE: 3, cN: 154, group: 'Tildrakizumab 200mg | IL-23 (reSURFACE-1; PASI 90 wk 12)', publishedHR: 25.28, hrLCI: 7.81, hrUCI: 81.81,
+                    allOutcomes: [
+                        { shortLabel: 'PASI90', title: 'PASI 90 at week 12 tildrakizumab 200mg vs placebo (OR; reSURFACE-1)', tE: 103, cE: 3, type: 'PRIMARY', matchScore: 95, effect: 25.28, lci: 7.81, uci: 81.81, estimandType: 'OR' }
+                    ],
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+                    snippet: 'Reich K et al. Lancet 2017;390:276-288 (reSURFACE-1).',
+                    sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(17)31279-5/fulltext',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT01722331',
                     evidence: []
                 }
             },
@@ -8432,7 +8476,9 @@
                 "Bimekizumab",
                 "Adalimumab",
                 "Etanercept",
-                "Placebo"
+                "Placebo",
+                "Brodalumab",
+                "Tildrakizumab"
         ],
         "comparisons": [
                 {
@@ -8503,6 +8549,34 @@
                         "t2": "Adalimumab",
                         "trials": [
                                 "NCT03412747"
+                        ]
+                },
+                {
+                        "t1": "Guselkumab",
+                        "t2": "Placebo",
+                        "trials": [
+                                "NCT02207162"
+                        ]
+                },
+                {
+                        "t1": "Risankizumab",
+                        "t2": "Placebo",
+                        "trials": [
+                                "NCT02694399"
+                        ]
+                },
+                {
+                        "t1": "Brodalumab",
+                        "t2": "Placebo",
+                        "trials": [
+                                "NCT01708590"
+                        ]
+                },
+                {
+                        "t1": "Tildrakizumab",
+                        "t2": "Placebo",
+                        "trials": [
+                                "NCT01722331"
                         ]
                 }
         ],

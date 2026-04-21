@@ -1,21 +1,25 @@
 === RapidMeta Haematology | BTKi Class NMA in CLL v1.3 ===
-     studlab        treat1    treat2         TE      seTE
-1 ELEVATE-RR Acalabrutinib Ibrutinib  0.0000000 0.1086307
-2 ELEVATE-TN Acalabrutinib   Clb_Obi -1.5606477 0.2108874
-3 RESONATE-2     Ibrutinib Clb_alone -1.9241487 0.2039611
-4     ALPINE  Zanubrutinib Ibrutinib -0.4307829 0.1435018
-5    SEQUOIA  Zanubrutinib        BR -0.8675006 0.2068700
+     studlab        treat1             treat2         TE      seTE
+1 ELEVATE-RR Acalabrutinib          Ibrutinib  0.0000000 0.1086307
+2 ELEVATE-TN Acalabrutinib            Clb_Obi -1.5606477 0.2108874
+3 RESONATE-2     Ibrutinib          Clb_alone -1.9241487 0.2039611
+4     ALPINE  Zanubrutinib          Ibrutinib -0.4307829 0.1435018
+5    SEQUOIA  Zanubrutinib                 BR -0.8675006 0.2068700
+6   RESONATE     Ibrutinib         Ofatumumab -2.0024805 0.1768233
+7     ASCEND Acalabrutinib InvestigatorChoice -1.2729657 0.1637382
 
 
 === Consistency model ===
 Original data:
 
-                  treat1       treat2      TE   seTE
-ELEVATE-RR Acalabrutinib    Ibrutinib  0.0000 0.1086
-ELEVATE-TN Acalabrutinib      Clb_Obi -1.5606 0.2109
-RESONATE-2     Clb_alone    Ibrutinib  1.9241 0.2040
-ALPINE         Ibrutinib Zanubrutinib  0.4308 0.1435
-SEQUOIA               BR Zanubrutinib  0.8675 0.2069
+                  treat1             treat2      TE   seTE
+ELEVATE-RR Acalabrutinib          Ibrutinib  0.0000 0.1086
+ELEVATE-TN Acalabrutinib            Clb_Obi -1.5606 0.2109
+RESONATE-2     Clb_alone          Ibrutinib  1.9241 0.2040
+ALPINE         Ibrutinib       Zanubrutinib  0.4308 0.1435
+SEQUOIA               BR       Zanubrutinib  0.8675 0.2069
+RESONATE       Ibrutinib         Ofatumumab -2.0025 0.1768
+ASCEND     Acalabrutinib InvestigatorChoice -1.2730 0.1637
 
 Number of treatment arms (by study):
            narms
@@ -24,51 +28,69 @@ ELEVATE-TN     2
 RESONATE-2     2
 ALPINE         2
 SEQUOIA        2
+RESONATE       2
+ASCEND         2
 
 Results (common effects model):
 
-                  treat1       treat2     HR            95%-CI    Q leverage
-ELEVATE-RR Acalabrutinib    Ibrutinib 1.0000 [0.8082;  1.2373] 0.00     1.00
-ELEVATE-TN Acalabrutinib      Clb_Obi 0.2100 [0.1389;  0.3175] 0.00     1.00
-RESONATE-2     Clb_alone    Ibrutinib 6.8493 [4.5924; 10.2155] 0.00     1.00
-ALPINE         Ibrutinib Zanubrutinib 1.5385 [1.1613;  2.0381] 0.00     1.00
-SEQUOIA               BR Zanubrutinib 2.3810 [1.5873;  3.5714] 0.00     1.00
+                  treat1             treat2     HR            95%-CI    Q
+ELEVATE-RR Acalabrutinib          Ibrutinib 1.0000 [0.8082;  1.2373] 0.00
+ELEVATE-TN Acalabrutinib            Clb_Obi 0.2100 [0.1389;  0.3175] 0.00
+RESONATE-2     Clb_alone          Ibrutinib 6.8493 [4.5924; 10.2155] 0.00
+ALPINE         Ibrutinib       Zanubrutinib 1.5385 [1.1613;  2.0381] 0.00
+SEQUOIA               BR       Zanubrutinib 2.3810 [1.5873;  3.5714] 0.00
+RESONATE       Ibrutinib         Ofatumumab 0.1350 [0.0955;  0.1909] 0.00
+ASCEND     Acalabrutinib InvestigatorChoice 0.2800 [0.2031;  0.3860] 0.00
+           leverage
+ELEVATE-RR     1.00
+ELEVATE-TN     1.00
+RESONATE-2     1.00
+ALPINE         1.00
+SEQUOIA        1.00
+RESONATE       1.00
+ASCEND         1.00
 
 Results (random effects model):
 
-                  treat1       treat2     HR            95%-CI
-ELEVATE-RR Acalabrutinib    Ibrutinib 1.0000 [0.8082;  1.2373]
-ELEVATE-TN Acalabrutinib      Clb_Obi 0.2100 [0.1389;  0.3175]
-RESONATE-2     Clb_alone    Ibrutinib 6.8493 [4.5924; 10.2155]
-ALPINE         Ibrutinib Zanubrutinib 1.5385 [1.1613;  2.0381]
-SEQUOIA               BR Zanubrutinib 2.3810 [1.5873;  3.5714]
+                  treat1             treat2     HR            95%-CI
+ELEVATE-RR Acalabrutinib          Ibrutinib 1.0000 [0.8082;  1.2373]
+ELEVATE-TN Acalabrutinib            Clb_Obi 0.2100 [0.1389;  0.3175]
+RESONATE-2     Clb_alone          Ibrutinib 6.8493 [4.5924; 10.2155]
+ALPINE         Ibrutinib       Zanubrutinib 1.5385 [1.1613;  2.0381]
+SEQUOIA               BR       Zanubrutinib 2.3810 [1.5873;  3.5714]
+RESONATE       Ibrutinib         Ofatumumab 0.1350 [0.0955;  0.1909]
+ASCEND     Acalabrutinib InvestigatorChoice 0.2800 [0.2031;  0.3860]
 
-Number of studies: k = 5
-Number of pairwise comparisons: m = 5
-Number of treatments: n = 6
-Number of designs: d = 5
+Number of studies: k = 7
+Number of pairwise comparisons: m = 7
+Number of treatments: n = 8
+Number of designs: d = 7
 
 Common effects model
 
-Treatment estimate (sm = 'HR', comparison: other treatments vs 'BR'):
-                  HR           95%-CI     z  p-value
-Acalabrutinib 0.6462 [0.3775; 1.1060] -1.59   0.1112
-BR                 .                .     .        .
-Clb_alone     4.4257 [2.3452; 8.3520]  4.59 < 0.0001
-Clb_Obi       3.0769 [1.5620; 6.0613]  3.25   0.0012
-Ibrutinib     0.6462 [0.3945; 1.0584] -1.73   0.0828
-Zanubrutinib  0.4200 [0.2800; 0.6300] -4.19 < 0.0001
+Treatment estimate (sm = 'HR', comparison: other treatments vs 'InvestigatorChoice'):
+                       HR           95%-CI     z  p-value
+Acalabrutinib      0.2800 [0.2031; 0.3860] -7.77 < 0.0001
+BR                 0.4333 [0.2317; 0.8103] -2.62   0.0088
+Clb_alone          1.9178 [1.1009; 3.3410]  2.30   0.0215
+Clb_Obi            1.3333 [0.7901; 2.2501]  1.08   0.2813
+Ibrutinib          0.2800 [0.1905; 0.4115] -6.48 < 0.0001
+InvestigatorChoice      .                .     .        .
+Ofatumumab         2.0741 [1.2354; 3.4820]  2.76   0.0058
+Zanubrutinib       0.1820 [0.1130; 0.2932] -7.00 < 0.0001
 
 Random effects model
 
-Treatment estimate (sm = 'HR', comparison: other treatments vs 'BR'):
-                  HR           95%-CI     z  p-value
-Acalabrutinib 0.6462 [0.3775; 1.1060] -1.59   0.1112
-BR                 .                .     .        .
-Clb_alone     4.4257 [2.3452; 8.3520]  4.59 < 0.0001
-Clb_Obi       3.0769 [1.5620; 6.0613]  3.25   0.0012
-Ibrutinib     0.6462 [0.3945; 1.0584] -1.73   0.0828
-Zanubrutinib  0.4200 [0.2800; 0.6300] -4.19 < 0.0001
+Treatment estimate (sm = 'HR', comparison: other treatments vs 'InvestigatorChoice'):
+                       HR           95%-CI     z  p-value
+Acalabrutinib      0.2800 [0.2031; 0.3860] -7.77 < 0.0001
+BR                 0.4333 [0.2317; 0.8103] -2.62   0.0088
+Clb_alone          1.9178 [1.1009; 3.3410]  2.30   0.0215
+Clb_Obi            1.3333 [0.7901; 2.2501]  1.08   0.2813
+Ibrutinib          0.2800 [0.1905; 0.4115] -6.48 < 0.0001
+InvestigatorChoice      .                .     .        .
+Ofatumumab         2.0741 [1.2354; 3.4820]  2.76   0.0058
+Zanubrutinib       0.1820 [0.1130; 0.2932] -7.00 < 0.0001
 
 Quantifying heterogeneity / inconsistency:
 tau^2 = 0; tau = 0
@@ -84,27 +106,42 @@ Details of network meta-analysis methods:
 - Restricted maximum-likelihood estimator for tau^2
 
 === League table (RE, HR/RR with 95% CI) ===
-                      Acalabrutinib                    BR
-Acalabrutinib         Acalabrutinib                     .
-BR            0.646 [0.378;  1.106]                    BR
-Clb_alone     0.146 [0.093;  0.230] 0.226 [0.120;  0.426]
-Clb_Obi       0.210 [0.139;  0.317] 0.325 [0.165;  0.640]
-Ibrutinib     1.000 [0.808;  1.237] 1.548 [0.945;  2.535]
-Zanubrutinib  1.538 [1.081;  2.189] 2.381 [1.587;  3.571]
-                           Clb_alone               Clb_Obi
-Acalabrutinib                      . 0.210 [0.139;  0.317]
-BR                                 .                     .
-Clb_alone                  Clb_alone                     .
-Clb_Obi        1.438 [0.779;  2.656]               Clb_Obi
-Ibrutinib      6.849 [4.592; 10.215] 4.762 [2.991;  7.581]
-Zanubrutinib  10.537 [6.463; 17.180] 7.326 [4.255; 12.614]
-                          Ibrutinib          Zanubrutinib
-Acalabrutinib 1.000 [0.808;  1.237]                     .
-BR                                . 2.381 [1.587;  3.571]
-Clb_alone     6.849 [4.592; 10.215]                     .
-Clb_Obi                           .                     .
-Ibrutinib                 Ibrutinib 1.538 [1.161;  2.038]
-Zanubrutinib  1.538 [1.161;  2.038]          Zanubrutinib
+                           Acalabrutinib                    BR
+Acalabrutinib              Acalabrutinib                     .
+BR                 0.646 [0.378;  1.106]                    BR
+Clb_alone          0.146 [0.093;  0.230] 0.226 [0.120;  0.426]
+Clb_Obi            0.210 [0.139;  0.317] 0.325 [0.165;  0.640]
+Ibrutinib          1.000 [0.808;  1.237] 1.548 [0.945;  2.535]
+InvestigatorChoice 0.280 [0.203;  0.386] 0.433 [0.232;  0.810]
+Ofatumumab         0.135 [0.090;  0.203] 0.209 [0.114;  0.382]
+Zanubrutinib       1.538 [1.081;  2.189] 2.381 [1.587;  3.571]
+                                Clb_alone               Clb_Obi
+Acalabrutinib                           . 0.210 [0.139;  0.317]
+BR                                      .                     .
+Clb_alone                       Clb_alone                     .
+Clb_Obi             1.438 [0.779;  2.656]               Clb_Obi
+Ibrutinib           6.849 [4.592; 10.215] 4.762 [2.991;  7.581]
+InvestigatorChoice  1.918 [1.101;  3.341] 1.333 [0.790;  2.250]
+Ofatumumab          0.925 [0.545;  1.569] 0.643 [0.360;  1.148]
+Zanubrutinib       10.537 [6.463; 17.180] 7.326 [4.255; 12.614]
+                               Ibrutinib    InvestigatorChoice
+Acalabrutinib      1.000 [0.808;  1.237] 0.280 [0.203;  0.386]
+BR                                     .                     .
+Clb_alone          6.849 [4.592; 10.215]                     .
+Clb_Obi                                .                     .
+Ibrutinib                      Ibrutinib                     .
+InvestigatorChoice 0.280 [0.191;  0.412]    InvestigatorChoice
+Ofatumumab         0.135 [0.095;  0.191] 0.482 [0.287;  0.809]
+Zanubrutinib       1.538 [1.161;  2.038] 5.495 [3.410;  8.852]
+                               Ofatumumab          Zanubrutinib
+Acalabrutinib                           .                     .
+BR                                      . 2.381 [1.587;  3.571]
+Clb_alone                               .                     .
+Clb_Obi                                 .                     .
+Ibrutinib           0.135 [0.095;  0.191] 1.538 [1.161;  2.038]
+InvestigatorChoice                      .                     .
+Ofatumumab                     Ofatumumab                     .
+Zanubrutinib       11.396 [7.293; 17.807]          Zanubrutinib
 
 === Design-by-treatment inconsistency ===
 Q statistics to assess homogeneity / consistency
@@ -123,28 +160,32 @@ Between designs 0.00  0      --          0           0
 === Node-splitting ===
 
 === P-scores (lower = better for HR/RR on protective scale) ===
-              P-score
-Zanubrutinib   0.9981
-Ibrutinib      0.6920
-Acalabrutinib  0.6905
-BR             0.4193
-Clb_Obi        0.1756
-Clb_alone      0.0245
+                   P-score
+Zanubrutinib        0.9986
+Ibrutinib           0.7800
+Acalabrutinib       0.7790
+BR                  0.5846
+InvestigatorChoice  0.4072
+Clb_Obi             0.2787
+Clb_alone           0.1068
+Ofatumumab          0.0652
 
 === Rank-probability matrix (N=100k draws) ===
-              rank_1 rank_2 rank_3 rank_4 rank_5 rank_6
-Acalabrutinib  0.200  0.311  0.406  0.084  0.000  0.000
-BR             0.000  0.028  0.077  0.895  0.000  0.000
-Clb_alone      0.000  0.000  0.000  0.000  0.063  0.937
-Clb_Obi        0.000  0.000  0.000  0.000  0.937  0.063
-Ibrutinib      0.031  0.574  0.376  0.020  0.000  0.000
-Zanubrutinib   0.769  0.088  0.141  0.001  0.000  0.000
+                   rank_1 rank_2 rank_3 rank_4 rank_5 rank_6 rank_7 rank_8
+Acalabrutinib       0.204  0.301  0.413  0.081  0.000  0.000  0.000  0.000
+BR                  0.000  0.019  0.112  0.868  0.001  0.000  0.000  0.000
+Clb_alone           0.000  0.000  0.000  0.000  0.011  0.055  0.546  0.388
+Clb_Obi             0.000  0.000  0.000  0.000  0.049  0.891  0.061  0.000
+Ibrutinib           0.035  0.539  0.377  0.049  0.000  0.000  0.000  0.000
+InvestigatorChoice  0.000  0.000  0.000  0.001  0.939  0.053  0.007  0.000
+Ofatumumab          0.000  0.000  0.000  0.000  0.000  0.001  0.386  0.612
+Zanubrutinib        0.761  0.140  0.098  0.001  0.000  0.000  0.000  0.000
 
 === SUCRA ===
- Zanubrutinib Acalabrutinib     Ibrutinib            BR       Clb_Obi 
-        0.925         0.725         0.723         0.426         0.187 
-    Clb_alone 
-        0.013 
+      Zanubrutinib      Acalabrutinib          Ibrutinib                 BR 
+             0.952              0.804              0.794              0.593 
+InvestigatorChoice            Clb_Obi          Clb_alone         Ofatumumab 
+             0.419              0.284              0.098              0.056 
 
 [wrote btki_cll_nma_netmeta_results.rds + .json]
 
@@ -152,10 +193,12 @@ Zanubrutinib   0.769  0.088  0.141  0.001  0.000  0.000
 TAU2: 0 
 I2: NA %
 Q inc: 0 df 0 p NA 
-  Acalabrutinib            HR 0.646 (0.378, 1.106)
-  Clb_alone                HR 4.426 (2.345, 8.352)
-  Clb_Obi                  HR 3.077 (1.562, 6.061)
-  Ibrutinib                HR 0.646 (0.394, 1.058)
-  Zanubrutinib             HR 0.420 (0.280, 0.630)
+  Acalabrutinib            HR 0.280 (0.203, 0.386)
+  BR                       HR 0.433 (0.232, 0.810)
+  Clb_alone                HR 1.918 (1.101, 3.341)
+  Clb_Obi                  HR 1.333 (0.790, 2.250)
+  Ibrutinib                HR 0.280 (0.191, 0.412)
+  Ofatumumab               HR 2.074 (1.235, 3.482)
+  Zanubrutinib             HR 0.182 (0.113, 0.293)
 Warning message:
 No comparisons selected with argument 'show = both'. You could use 'show = "all" to show all comparisons. 
