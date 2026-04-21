@@ -439,7 +439,7 @@
             <div id="aact-status" class="text-[10px] text-slate-500 uppercase tracking-widest flex items-center gap-2 font-bold">
                 <div id="aact-dot" class="w-2 h-2 rounded-full bg-slate-700 font-bold"></div> AACT Proxy
             </div>
-            <a href="protocols/pegce_ga_protocol_v1.1_2026-04-20.md" target="_blank" rel="noopener" class="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border border-emerald-500/40 text-emerald-300 bg-emerald-500/5 hover:bg-emerald-500/15 transition-all" title="Frozen protocol v1.0 (2026-04-19), GitHub-hosted permalink" data-protocol-version="1.0" data-protocol-date="2026-04-19">📑 Protocol v1.0 (2026-04-19)</a> <a href="protocols/INDEX.md" target="_blank" rel="noopener" class="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border border-sky-500/40 text-sky-300 bg-sky-500/5 hover:bg-sky-500/15 transition-all ml-1" data-availability-link="1" title="Data availability statement and protocols index on GitHub">📊 Data</a>
+            <a href="protocols/arni_hf_protocol_v1.0_2026-04-19.md" target="_blank" rel="noopener" class="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border border-emerald-500/40 text-emerald-300 bg-emerald-500/5 hover:bg-emerald-500/15 transition-all" title="Frozen protocol v1.0 (2026-04-19), GitHub-hosted permalink" data-protocol-version="1.0" data-protocol-date="2026-04-19">📑 Protocol v1.0 (2026-04-19)</a> <a href="protocols/INDEX.md" target="_blank" rel="noopener" class="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border border-sky-500/40 text-sky-300 bg-sky-500/5 hover:bg-sky-500/15 transition-all ml-1" data-availability-link="1" title="Data availability statement and protocols index on GitHub">📊 Data</a>
                         <button onclick="RapidMeta.reset()" class="text-slate-500 hover:text-red-400 transition-colors" title="Full Reset" aria-label="Reset all data and start fresh"><i class="fa-solid fa-rotate-left"></i></button>
         </div>
     </header>
@@ -1892,7 +1892,7 @@ const ContinuousMDEngine = {
 
             // ISSUE 10 FIX: Corrected ARTS-DN Metadata (Phase IIb)
             /* Known acronyms for trials whose CT.gov search may not return the acronym field */
-            nctAcronyms: { 'NCT03525613': 'OAKS', 'NCT03525600': 'DERBY' },
+            nctAcronyms: { 'NCT03525613': 'OAKS', 'NCT03525600': 'OAKS' },
             _allowedSources: new Set(['registry', 'pubmed', 'openalex', 'reference', 'manual']),
             _allowedStatuses: new Set(['search', 'include', 'exclude']),
             sanitizeText(value, maxLen = 600) {
@@ -2260,6 +2260,17 @@ const ContinuousMDEngine = {
                         { label: 'Secondary - Combined Analysis and 24-month Durability', source: 'Liao 2023 Lancet, Figure 2', text: 'Pre-specified combined OAKS + DERBY analysis at 24 months: monthly pegcetacoplan slows GA growth by 22%; Q2M by 16-17%. Exudative AMD conversion risk approximately 12% with pegcetacoplan vs 3-4% with sham; warrants monitoring.', highlights: ['22%', '16-17%', 'combined', '12%', '3-4%'] },
                         { label: 'Risk of Bias (RoB 2.0)', source: 'Liao 2023 Lancet design + RoB 2.0', text: 'D1 LOW - central IVR randomization. D2 LOW - double-blind with sham IVT procedure. D3 LOW - 90% primary follow-up. D4 LOW - central FAF reading. D5 LOW - SAP locked; DERBY did not meet 12-month primary but met 24-month analysis, transparently reported.', highlights: ['LOW', 'double-blind', 'FAF', '24-month'] }
                     ]
+                },
+                'NCT03525600': {
+                    name: 'OAKS', phase: 'III', year: 2023, tE: 0, tN: 213, cE: 0, cN: 204, group: 'GA secondary to AMD, pegcetacoplan 15 mg IVT monthly vs sham (12-mo GA lesion growth MD)', publishedHR: -0.59, hrLCI: -0.92, hrUCI: -0.26,
+                    allOutcomes: [
+                        { shortLabel: 'MACE', title: 'Mean difference in GA lesion area change at month 12 (sqrt mm^2, MD)', tE: 0, cE: 0, type: 'PRIMARY', matchScore: 95, effect: -0.59, lci: -0.92, uci: -0.26, estimandType: 'MD' }
+                    ],
+                    rob: ['low', 'some concerns', 'low', 'low', 'low'],
+                    snippet: 'Source: Heier JS et al. Lancet 2023;402:1434-1448 (OAKS, parallel to DERBY).',
+                    sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(23)01520-9/fulltext',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03525600',
+                    evidence: []
                 }
 },
 

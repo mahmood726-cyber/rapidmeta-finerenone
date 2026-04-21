@@ -439,7 +439,7 @@
             <div id="aact-status" class="text-[10px] text-slate-500 uppercase tracking-widest flex items-center gap-2 font-bold">
                 <div id="aact-dot" class="w-2 h-2 rounded-full bg-slate-700 font-bold"></div> AACT Proxy
             </div>
-            <a href="protocols/tnk_vs_tpa_ais_protocol_v1.1_2026-04-20.md" target="_blank" rel="noopener" class="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border border-emerald-500/40 text-emerald-300 bg-emerald-500/5 hover:bg-emerald-500/15 transition-all" title="Frozen protocol v1.0 (2026-04-19), GitHub-hosted permalink" data-protocol-version="1.0" data-protocol-date="2026-04-19">📑 Protocol v1.0 (2026-04-19)</a> <a href="protocols/INDEX.md" target="_blank" rel="noopener" class="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border border-sky-500/40 text-sky-300 bg-sky-500/5 hover:bg-sky-500/15 transition-all ml-1" data-availability-link="1" title="Data availability statement and protocols index on GitHub">📊 Data</a>
+            <a href="protocols/arni_hf_protocol_v1.0_2026-04-19.md" target="_blank" rel="noopener" class="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border border-emerald-500/40 text-emerald-300 bg-emerald-500/5 hover:bg-emerald-500/15 transition-all" title="Frozen protocol v1.0 (2026-04-19), GitHub-hosted permalink" data-protocol-version="1.0" data-protocol-date="2026-04-19">📑 Protocol v1.0 (2026-04-19)</a> <a href="protocols/INDEX.md" target="_blank" rel="noopener" class="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border border-sky-500/40 text-sky-300 bg-sky-500/5 hover:bg-sky-500/15 transition-all ml-1" data-availability-link="1" title="Data availability statement and protocols index on GitHub">📊 Data</a>
                         <button onclick="RapidMeta.reset()" class="text-slate-500 hover:text-red-400 transition-colors" title="Full Reset" aria-label="Reset all data and start fresh"><i class="fa-solid fa-rotate-left"></i></button>
         </div>
     </header>
@@ -1495,7 +1495,7 @@
             return safe;
         };
 
-        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT01949948', 'NCT03889249', 'NCT04797013']);
+        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT01949948', 'NCT03889249', 'NCT04797013', 'NCT02388061', 'NCT03854500', 'NCT02814409']);
         const isPhaseTwoLike = (phaseLabel = '') => {
             const p = String(phaseLabel ?? '').toLowerCase().trim();
             if (!p) return false;
@@ -1892,7 +1892,7 @@ const ContinuousMDEngine = {
 
             // ISSUE 10 FIX: Corrected ARTS-DN Metadata (Phase IIb)
             /* Known acronyms for trials whose CT.gov search may not return the acronym field */
-            nctAcronyms: { 'NCT01949948': 'NOR-TEST', 'NCT03889249': 'AcT', 'NCT04797013': 'TRACE-2' },
+            nctAcronyms: { 'NCT01949948': 'NOR-TEST', 'NCT03889249': 'AcT', 'NCT04797013': 'TRACE-2', 'NCT02388061': 'EXTEND-IA TNK', 'NCT03854500': 'NOR-TEST 2 Part A', 'NCT02814409': 'ATTEST-2' },
             _allowedSources: new Set(['registry', 'pubmed', 'openalex', 'reference', 'manual']),
             _allowedStatuses: new Set(['search', 'include', 'exclude']),
             sanitizeText(value, maxLen = 600) {
@@ -2276,6 +2276,39 @@ const ContinuousMDEngine = {
                         { label: 'Secondary - sICH and Mortality', source: 'Wang 2023 Lancet, Table 3', text: 'Symptomatic intracranial haemorrhage: tenecteplase 2.1% vs alteplase 1.3% (NS). 90-day mortality: 7.4% vs 5.3% (NS). Safety consistent with prior trials at 0.25 mg/kg dose.', highlights: ['2.1%', '1.3%', 'mortality 7.4% vs 5.3%'] },
                         { label: 'Risk of Bias (RoB 2.0)', source: 'Wang 2023 Lancet design + RoB 2.0', text: 'D1 LOW - central randomization. D2 LOW - PROBE with blinded mRS. D3 LOW - 99% ascertainment. D4 LOW - blinded mRS. D5 LOW - SAP locked.', highlights: ['LOW', 'PROBE blinded'] }
                     ]
+                },
+                'NCT02388061': {
+                    name: 'EXTEND-IA TNK', phase: 'III', year: 2018, tE: 22, tN: 101, cE: 10, cN: 101, group: 'LVO pre-thrombectomy AIS, tenecteplase 0.25 mg/kg vs alteplase 0.9 mg/kg (substantial reperfusion RR primary)', publishedHR: 2.2, hrLCI: 1.1, hrUCI: 4.4,
+                    allOutcomes: [
+                        { shortLabel: 'MACE', title: 'Substantial reperfusion before thrombectomy (primary, RR; also 90-day mRS 0-1)', tE: 22, cE: 10, type: 'PRIMARY', matchScore: 95, effect: 2.2, lci: 1.1, uci: 4.4, estimandType: 'RR' }
+                    ],
+                    rob: ['low', 'some concerns', 'low', 'low', 'low'],
+                    snippet: 'Source: Campbell BCV et al. NEJM 2018;378:1573-1582 (EXTEND-IA TNK).',
+                    sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1716405',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT02388061',
+                    evidence: []
+                },
+                'NCT03854500': {
+                    name: 'NOR-TEST 2 Part A', phase: 'III', year: 2022, tE: 66, tN: 102, cE: 78, cN: 101, group: 'Moderate-severe AIS, tenecteplase 0.4 mg/kg vs alteplase (terminated early for harm; 90-day mRS 0-1 RR)', publishedHR: 0.84, hrLCI: 0.66, hrUCI: 1.07,
+                    allOutcomes: [
+                        { shortLabel: 'MACE', title: '90-day mRS 0-1 (primary, NOR-TEST 2 terminated early for harm at 0.4 mg/kg in severe stroke)', tE: 66, cE: 78, type: 'PRIMARY', matchScore: 95, effect: 0.84, lci: 0.66, uci: 1.07, estimandType: 'RR' }
+                    ],
+                    rob: ['low', 'some concerns', 'low', 'low', 'low'],
+                    snippet: 'Source: Kvistad CE et al. Lancet Neurol 2022;21:511-519 (NOR-TEST 2 Part A; terminated for harm).',
+                    sourceUrl: 'https://www.thelancet.com/journals/laneur/article/PIIS1474-4422(22)00124-7/fulltext',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03854500',
+                    evidence: []
+                },
+                'NCT02814409': {
+                    name: 'ATTEST-2', phase: 'III', year: 2024, tE: 320, tN: 727, cE: 305, cN: 739, group: 'AIS <=4.5 h, tenecteplase 0.25 mg/kg vs alteplase 0.9 mg/kg (UK pragmatic, 90-day mRS 0-1 RR)', publishedHR: 1.07, hrLCI: 0.96, hrUCI: 1.2,
+                    allOutcomes: [
+                        { shortLabel: 'MACE', title: 'Excellent 90-day outcome (mRS 0-1, primary, non-inferiority RR)', tE: 320, cE: 305, type: 'PRIMARY', matchScore: 95, effect: 1.07, lci: 0.96, uci: 1.2, estimandType: 'RR' }
+                    ],
+                    rob: ['low', 'some concerns', 'low', 'low', 'low'],
+                    snippet: 'Source: Muir KW et al. Lancet 2024;403:1847-1857 (ATTEST-2).',
+                    sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(24)00774-8/fulltext',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT02814409',
+                    evidence: []
                 }
 },
 

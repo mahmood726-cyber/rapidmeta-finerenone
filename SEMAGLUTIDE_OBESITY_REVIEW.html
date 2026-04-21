@@ -439,7 +439,7 @@
             <div id="aact-status" class="text-[10px] text-slate-500 uppercase tracking-widest flex items-center gap-2 font-bold">
                 <div id="aact-dot" class="w-2 h-2 rounded-full bg-slate-700 font-bold"></div> AACT Proxy
             </div>
-            <a href="protocols/semaglutide_obesity_protocol_v1.0_2026-04-19.md" target="_blank" rel="noopener" class="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border border-emerald-500/40 text-emerald-300 bg-emerald-500/5 hover:bg-emerald-500/15 transition-all" title="Frozen protocol v1.0 (2026-04-19), GitHub-hosted permalink" data-protocol-version="1.0" data-protocol-date="2026-04-19">📑 Protocol v1.0 (2026-04-19)</a> <a href="protocols/INDEX.md" target="_blank" rel="noopener" class="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border border-sky-500/40 text-sky-300 bg-sky-500/5 hover:bg-sky-500/15 transition-all ml-1" data-availability-link="1" title="Data availability statement and protocols index on GitHub">📊 Data</a>
+            <a href="protocols/arni_hf_protocol_v1.0_2026-04-19.md" target="_blank" rel="noopener" class="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border border-emerald-500/40 text-emerald-300 bg-emerald-500/5 hover:bg-emerald-500/15 transition-all" title="Frozen protocol v1.0 (2026-04-19), GitHub-hosted permalink" data-protocol-version="1.0" data-protocol-date="2026-04-19">📑 Protocol v1.0 (2026-04-19)</a> <a href="protocols/INDEX.md" target="_blank" rel="noopener" class="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border border-sky-500/40 text-sky-300 bg-sky-500/5 hover:bg-sky-500/15 transition-all ml-1" data-availability-link="1" title="Data availability statement and protocols index on GitHub">📊 Data</a>
                         <button onclick="RapidMeta.reset()" class="text-slate-500 hover:text-red-400 transition-colors" title="Full Reset" aria-label="Reset all data and start fresh"><i class="fa-solid fa-rotate-left"></i></button>
         </div>
     </header>
@@ -1495,7 +1495,7 @@
             return safe;
         };
 
-        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03548935', 'NCT03611582', 'NCT03693430']);
+        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03548935', 'NCT03611582', 'NCT03693430', 'NCT03552757']);
         const isPhaseTwoLike = (phaseLabel = '') => {
             const p = String(phaseLabel ?? '').toLowerCase().trim();
             if (!p) return false;
@@ -1892,7 +1892,7 @@ const ContinuousMDEngine = {
 
             // ISSUE 10 FIX: Corrected ARTS-DN Metadata (Phase IIb)
             /* Known acronyms for trials whose CT.gov search may not return the acronym field */
-            nctAcronyms: { 'NCT03548935': 'STEP-1', 'NCT03611582': 'STEP-3', 'NCT03693430': 'STEP-5' },
+            nctAcronyms: { 'NCT03548935': 'STEP-1', 'NCT03611582': 'STEP-3', 'NCT03693430': 'STEP-5', 'NCT03552757': 'STEP-2' },
             _allowedSources: new Set(['registry', 'pubmed', 'openalex', 'reference', 'manual']),
             _allowedStatuses: new Set(['search', 'include', 'exclude']),
             sanitizeText(value, maxLen = 600) {
@@ -2276,6 +2276,17 @@ const ContinuousMDEngine = {
                         { label: 'Secondary - Long-term Weight-Loss Responders', source: 'Garvey 2022 Nat Med, Table 2', text: '>=5% weight loss at wk104: semaglutide 77.1% vs placebo 34.4%; >=10%: 61.8% vs 13.3%; >=15%: 52.1% vs 7.0%; >=20%: 36.1% vs 2.3%. All P<0.001.', highlights: ['77.1%', '34.4%', '61.8%', '52.1%', '36.1%'] },
                         { label: 'Risk of Bias (RoB 2.0)', source: 'Garvey 2022 Nat Med design + RoB 2.0', text: 'D1 LOW - central stratified randomization. D2 LOW - double-blind matched placebo. D3 LOW - 82% completion (2-yr follow-up, treatment-policy imputation). D4 LOW - calibrated site scales. D5 LOW - SAP locked.', highlights: ['LOW', 'double-blind', 'stratified'] }
                     ]
+                },
+                'NCT03552757': {
+                    name: 'STEP-2', phase: 'III', year: 2021, tE: 0, tN: 404, cE: 0, cN: 403, group: 'Obesity + T2D, semaglutide 2.4 mg SC weekly vs placebo (68-wk % weight change MD, T2D population)', publishedHR: -6.2, hrLCI: -7.3, hrUCI: -5.2,
+                    allOutcomes: [
+                        { shortLabel: 'MACE', title: 'Percent change in body weight from baseline at week 68 (MD, T2D population)', tE: 0, cE: 0, type: 'PRIMARY', matchScore: 95, effect: -6.2, lci: -7.3, uci: -5.2, estimandType: 'MD' }
+                    ],
+                    rob: ['low', 'some concerns', 'low', 'low', 'low'],
+                    snippet: 'Source: Davies M et al. Lancet 2021;397:971-984 (STEP-2, T2D obesity).',
+                    sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(21)00213-0/fulltext',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03552757',
+                    evidence: []
                 }
 },
 
@@ -4944,7 +4955,7 @@ const ContinuousMDEngine = {
                             t.status = 'exclude'; t.reason = 'Era Restriction: Pre-2015.';
                         }
                     });
-                    // Keep one-click workflow: autoscreener pre-proposes INCLUDE only for canonical pre-registered trials in the AUTO_INCLUDE_TRIAL_IDS set.
+                    // Keep one-click workflow: autoscreener pre-proposes INCLUDE only for canonical sacubitril\/valsartan studies.
                     trials.forEach(t => {
                         if (!AUTO_INCLUDE_TRIAL_IDS.has(String(t?.id ?? ''))) return;
                         const hasConfirmedScreen = Boolean(t?.screenReview?.confirmed && /^(include|exclude)$/i.test(String(t?.screenReview?.decision ?? '')));
@@ -4972,7 +4983,7 @@ const ContinuousMDEngine = {
                         t.status = 'search';
                         if (/auto-screen|era restriction/i.test(String(t?.reason ?? ''))) t.reason = '';
                     });
-                    // Fast mode: keep autoscreener focused on canonical pre-registered RCTs only.
+                    // Fast mode: keep autoscreener focused on canonical sacubitril\/valsartan RCTs only.
                     if (STRICT_CANONICAL_AUTOSCREEN) {
                         trials.forEach(t => {
                             if (AUTO_INCLUDE_TRIAL_IDS.has(String(t?.id ?? ''))) return;
@@ -5966,7 +5977,7 @@ const ContinuousMDEngine = {
                 const txPct = this._pct(best.tE, best.tN);
                 const ctPct = this._pct(best.cE, best.cN);
                 const confPct = Math.round(best.conf * 100);
-                const summary = `Matched event counts (${sourceKind}): active ${best.tE}/${best.tN} (${txPct}%) vs comparator ${best.cE}/${best.cN} (${ctPct}%). Strategy ${best.strat}, confidence ${confPct}%.`;
+                const summary = `Matched event counts (${sourceKind}): active ${best.tE}/${best.tN} (${txPct}%) vs placebo ${best.cE}/${best.cN} (${ctPct}%). Strategy ${best.strat}, confidence ${confPct}%.`;
                 const locatedPreview = this._findPairSnippet(fullText, best.tE, best.tN, best.cE, best.cN, 260, 460);
                 const locatedFull = this._findPairSnippet(fullText, best.tE, best.tN, best.cE, best.cN, 1100, 1800);
                 const fallbackPreview = this._compactSnippet(best.ctx ?? '', 460);
@@ -6178,7 +6189,7 @@ const ContinuousMDEngine = {
                     const fgGroups = flow?.groups ?? [];
                     for (const g of fgGroups) {
                         const t = (g.title ?? '').toLowerCase();
-                        if (/sacubitril|treatment|active/i.test(t)) arms.tx = { id: g.id, label: g.title };
+                        if (/sacubitril\/valsartan|bay\s*94|treatment|active/i.test(t)) arms.tx = { id: g.id, label: g.title };
                         else if (/placebo|control/i.test(t)) arms.ctrl = { id: g.id, label: g.title };
                     }
                     /* Get N from STARTED milestone */
@@ -6202,7 +6213,7 @@ const ContinuousMDEngine = {
                         let ogTx = null, ogCtrl = null;
                         for (const g of ogGroups) {
                             const t = (g.title ?? '').toLowerCase();
-                            if (/sacubitril|treatment|active/i.test(t)) ogTx = g.id;
+                            if (/sacubitril\/valsartan|bay\s*94|treatment|active/i.test(t)) ogTx = g.id;
                             else if (/placebo|control/i.test(t)) ogCtrl = g.id;
                         }
                         if (!ogTx || !ogCtrl) continue;
@@ -13768,6 +13779,4 @@ except ImportError:
 </body>
 </html>
 
-<!-- /* LIVING_MA_FIX_APPLIED */ sacubitril -->
-
-<!-- /* LIVING_MA_FIX_V3_APPLIED */ -->
+<!-- /* LIVING_MA_FIX_APPLIED */ ARNI_TEMPLATE_NOP -->

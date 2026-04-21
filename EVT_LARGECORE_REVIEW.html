@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>RapidMeta Neurology | Thrombectomy in Large-Core Infarct Stroke v1.1</title>
+    <title>RapidMeta Neurology | Thrombectomy in Large-Core Infarct Stroke v1.2</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.plot.ly https://webr.r-wasm.org; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src https://cdnjs.cloudflare.com https://fonts.gstatic.com; connect-src 'self' https://clinicaltrials.gov https://www.ebi.ac.uk https://api.openalex.org https://webr.r-wasm.org https://repo.r-wasm.org http://localhost:* http://127.0.0.1:*; worker-src 'self' blob:; img-src 'self' data: blob:;">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23020617'/%3E%3Cpath d='M18 18h12c8 0 14 6 14 14s-6 14-14 14H18V18zm10 22c5 0 8-3 8-8s-3-8-8-8h-2v16h2z' fill='%233b82f6'/%3E%3Cpath d='M40 18h6v28h-6z' fill='%23f8fafc'/%3E%3C/svg%3E">
@@ -439,7 +439,7 @@
             <div id="aact-status" class="text-[10px] text-slate-500 uppercase tracking-widest flex items-center gap-2 font-bold">
                 <div id="aact-dot" class="w-2 h-2 rounded-full bg-slate-700 font-bold"></div> AACT Proxy
             </div>
-            <a href="protocols/evt_largecore_protocol_v1.1_2026-04-20.md" target="_blank" rel="noopener" class="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border border-emerald-500/40 text-emerald-300 bg-emerald-500/5 hover:bg-emerald-500/15 transition-all" title="Frozen protocol v1.0 (2026-04-19), GitHub-hosted permalink" data-protocol-version="1.0" data-protocol-date="2026-04-19">📑 Protocol v1.0 (2026-04-19)</a> <a href="protocols/INDEX.md" target="_blank" rel="noopener" class="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border border-sky-500/40 text-sky-300 bg-sky-500/5 hover:bg-sky-500/15 transition-all ml-1" data-availability-link="1" title="Data availability statement and protocols index on GitHub">📊 Data</a>
+            <a href="protocols/arni_hf_protocol_v1.0_2026-04-19.md" target="_blank" rel="noopener" class="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border border-emerald-500/40 text-emerald-300 bg-emerald-500/5 hover:bg-emerald-500/15 transition-all" title="Frozen protocol v1.0 (2026-04-19), GitHub-hosted permalink" data-protocol-version="1.0" data-protocol-date="2026-04-19">📑 Protocol v1.0 (2026-04-19)</a> <a href="protocols/INDEX.md" target="_blank" rel="noopener" class="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border border-sky-500/40 text-sky-300 bg-sky-500/5 hover:bg-sky-500/15 transition-all ml-1" data-availability-link="1" title="Data availability statement and protocols index on GitHub">📊 Data</a>
                         <button onclick="RapidMeta.reset()" class="text-slate-500 hover:text-red-400 transition-colors" title="Full Reset" aria-label="Reset all data and start fresh"><i class="fa-solid fa-rotate-left"></i></button>
         </div>
     </header>
@@ -477,7 +477,7 @@
                 <div class="glass rounded-[2rem] border border-slate-800 overflow-hidden shadow-2xl">
                     <div class="bg-slate-900/80 p-4 border-b border-slate-800"><h3 class="text-xs font-bold uppercase text-blue-400 tracking-widest"><i class="fa-solid fa-id-card mr-2"></i>1. Registration &amp; Administrative Information <span class="text-slate-500 ml-2">[PRISMA #24, AMSTAR #2]</span></h3></div>
                     <table class="w-full text-left text-xs"><tbody class="divide-y divide-slate-800/50">
-                        <tr><td class="p-4 w-1/4 font-bold text-slate-400">Review Title</td><td class="p-4 text-slate-300">Endovascular Thrombectomy in Acute Ischaemic Stroke with Large Ischaemic Core (ASPECTS 3-5 or Core >50 mL): A Living Systematic Review and Meta-Analysis of the RESCUE-Japan LIMIT, ANGEL-ASPECT, and SELECT2 Phase 3 RCTs</td></tr>
+                        <tr><td class="p-4 w-1/4 font-bold text-slate-400">Review Title</td><td class="p-4 text-slate-300">Endovascular Thrombectomy in Acute Ischaemic Stroke with Large Ischaemic Core (ASPECTS 3-5 or Core >=50 mL): A Living Systematic Review and Meta-Analysis of the RESCUE-Japan LIMIT, ANGEL-ASPECT, SELECT2, TENSION, LASTE, and TESLA Phase 3 RCTs (v1.2 expanded to k=6)</td></tr>
                         <tr><td class="p-4 font-bold text-slate-400">Protocol Version</td><td class="p-4 text-slate-300">v12.0 (Living Protocol &mdash; auto-updating)</td></tr>
                         <tr><td class="p-4 font-bold text-slate-400">Protocol Freeze Date</td><td class="p-4 text-slate-300"><span id="proto-reg-date">2026-03-10</span></td></tr>
                         <tr><td class="p-4 font-bold text-slate-400">Last Substantive Amendment</td><td class="p-4 text-slate-300"><span id="proto-amend-date">2026-03-10</span></td></tr>
@@ -1495,7 +1495,7 @@
             return safe;
         };
 
-        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03702413', 'NCT04551664', 'NCT03876457']);
+        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03702413', 'NCT04551664', 'NCT03876457', 'NCT03094715', 'NCT05562076', 'NCT03805308']);
         const isPhaseTwoLike = (phaseLabel = '') => {
             const p = String(phaseLabel ?? '').toLowerCase().trim();
             if (!p) return false;
@@ -1892,7 +1892,7 @@ const ContinuousMDEngine = {
 
             // ISSUE 10 FIX: Corrected ARTS-DN Metadata (Phase IIb)
             /* Known acronyms for trials whose CT.gov search may not return the acronym field */
-            nctAcronyms: { 'NCT03702413': 'RESCUE-Japan LIMIT', 'NCT04551664': 'ANGEL-ASPECT', 'NCT03876457': 'SELECT2' },
+            nctAcronyms: { 'NCT03702413': 'RESCUE-Japan LIMIT', 'NCT04551664': 'ANGEL-ASPECT', 'NCT03876457': 'SELECT2', 'NCT03094715': 'TENSION', 'NCT05562076': 'LASTE', 'NCT03805308': 'TESLA' },
             _allowedSources: new Set(['registry', 'pubmed', 'openalex', 'reference', 'manual']),
             _allowedStatuses: new Set(['search', 'include', 'exclude']),
             sanitizeText(value, maxLen = 600) {
@@ -2276,6 +2276,39 @@ const ContinuousMDEngine = {
                         { label: 'Secondary - sICH and Mortality', source: 'Sarraj 2023 NEJM, Table 3', text: 'Symptomatic intracranial haemorrhage: thrombectomy 0.6% vs medical 1.1% (NS). Procedural complications (vessel perforation, dissection) 1.7%. 90-day mortality: 38% vs 42% (NS). Safety favourable.', highlights: ['0.6%', '1.1%', 'mortality 38% vs 42%', 'procedural 1.7%'] },
                         { label: 'Risk of Bias (RoB 2.0)', source: 'Sarraj 2023 NEJM design + RoB 2.0', text: 'D1 LOW - central IVR stratified by core volume and time window. D2 SOME CONCERNS - open-label (surgical), mitigated by blinded mRS. D3 LOW - 99% ascertainment. D4 LOW - blinded mRS. D5 LOW - SAP locked.', highlights: ['SOME CONCERNS', 'open-label'] }
                     ]
+                },
+                'NCT03094715': {
+                    name: 'TENSION', phase: 'III', year: 2023, tE: 50, tN: 125, cE: 18, cN: 128, group: 'Large-core AIS (ASPECTS 3-5) within 12 h, EVT + medical vs medical alone (90-day mRS 0-2 RR)', publishedHR: 2.84, hrLCI: 1.78, hrUCI: 4.53,
+                    allOutcomes: [
+                        { shortLabel: 'MACE', title: 'Functional independence (90-day mRS 0-2) primary (RR)', tE: 50, cE: 18, type: 'PRIMARY', matchScore: 95, effect: 2.84, lci: 1.78, uci: 4.53, estimandType: 'RR' }
+                    ],
+                    rob: ['low', 'some concerns', 'low', 'low', 'low'],
+                    snippet: 'Source: Bendszus M et al. Lancet 2023;402:1753-1763 (TENSION).',
+                    sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(23)02032-9/fulltext',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03094715',
+                    evidence: []
+                },
+                'NCT05562076': {
+                    name: 'LASTE', phase: 'III', year: 2024, tE: 16, tN: 166, cE: 7, cN: 167, group: 'Large-core AIS (ASPECTS 0-5) within 6.5 h, EVT + medical vs medical alone (90-day mRS 0-2 RR)', publishedHR: 2.3, hrLCI: 0.97, hrUCI: 5.43,
+                    allOutcomes: [
+                        { shortLabel: 'MACE', title: 'Functional independence (90-day mRS 0-2) (RR)', tE: 16, cE: 7, type: 'PRIMARY', matchScore: 95, effect: 2.3, lci: 0.97, uci: 5.43, estimandType: 'RR' }
+                    ],
+                    rob: ['low', 'some concerns', 'low', 'low', 'low'],
+                    snippet: 'Source: Costalat V et al. NEJM 2024;390:1677-1689 (LASTE).',
+                    sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa2314149',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT05562076',
+                    evidence: []
+                },
+                'NCT03805308': {
+                    name: 'TESLA', phase: 'III', year: 2024, tE: 30, tN: 152, cE: 24, cN: 148, group: 'Large-core AIS (ASPECTS 2-5) within 24 h, EVT + medical vs medical alone (90-day mRS 0-2 RR; trial stopped at pre-planned interim)', publishedHR: 1.22, hrLCI: 0.74, hrUCI: 2.01,
+                    allOutcomes: [
+                        { shortLabel: 'MACE', title: 'Functional independence (90-day mRS 0-2) (RR, TESLA stopped at pre-specified interim)', tE: 30, cE: 24, type: 'PRIMARY', matchScore: 95, effect: 1.22, lci: 0.74, uci: 2.01, estimandType: 'RR' }
+                    ],
+                    rob: ['low', 'some concerns', 'low', 'low', 'low'],
+                    snippet: 'Source: Yoo AJ et al. JAMA 2024;332:1355-1366 (TESLA).',
+                    sourceUrl: 'https://jamanetwork.com/journals/jama/fullarticle/2823637',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03805308',
+                    evidence: []
                 }
 },
 
@@ -12748,7 +12781,7 @@ print(res_sub)`;
                 // Safety: #wr-charts content is entirely app-generated from hardcoded trial data (icon grids + gauge SVGs).
                 // No user-supplied HTML can enter these elements. Stripping script tags as defense-in-depth.
                 const chartHtml = section.querySelector('#wr-charts').innerHTML.replace(new RegExp('<' + 'script[\\s\\S]*?</' + 'script>', 'gi'), '');
-                const printHtml = '<html><head><title>RapidMeta Neurology | Thrombectomy in Large-Core Infarct Stroke v1.1</title>'
+                const printHtml = '<html><head><title>RapidMeta Neurology | Thrombectomy in Large-Core Infarct Stroke v1.2</title>'
                     + '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha384-t1nt8BQoYMLFN5p42tRAtuAAFQaCQODekUVeKKZrEnEyp4H2R0RHFz0KWpmj7i8g" crossorigin="anonymous">'
                     + '<style>body{font-family:system-ui,sans-serif;background:#fff;color:#1e293b;padding:2rem;margin:0}'
                     + '.wr-icon-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;max-width:200px}'
@@ -12874,7 +12907,7 @@ print(res_sub)`;
                 const benchmarkRows = benchmark?.available
                     ? benchmark.entries.map(entry => `<tr><td>${escapeHtml(entry.label)}</td><td>${entry.year ?? '--'}</td><td>${escapeHtml(entry.measure)}</td><td>${entry.estimate.toFixed(2)}</td><td>${entry.lci.toFixed(2)}-${entry.uci.toFixed(2)}</td><td>${escapeHtml(entry.alignment)}</td></tr>`).join('')
                     : '';
-                const htmlContent = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>RapidMeta Neurology | Thrombectomy in Large-Core Infarct Stroke v1.1</title>
+                const htmlContent = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>RapidMeta Neurology | Thrombectomy in Large-Core Infarct Stroke v1.2</title>
 <style>body{font-family:Georgia,serif;max-width:800px;margin:2rem auto;color:#1e293b;line-height:1.7}table{width:100%;border-collapse:collapse;margin:1rem 0}th,td{border:1px solid #cbd5e1;padding:8px;text-align:left;font-size:13px}th{background:#f1f5f9;font-weight:bold}h1{font-size:1.8rem;border-bottom:3px solid #1e3a8a;padding-bottom:0.5rem}h2{font-size:1.2rem;color:#1e3a8a;margin-top:2rem}.stat{font-family:monospace;font-weight:bold;color:#1e40af;background:#eff6ff;padding:2px 6px;border-radius:4px}.footer{font-size:10px;color:#64748b;border-top:1px solid #e2e8f0;padding-top:1rem;margin-top:3rem}@media print{body{margin:1cm}}</style></head><body>
 <h1>Sacubitril/Valsartan in Heart Failure</h1>
 <p><em>Meta-analysis report generated ${escapeHtml(timestamp)}</em></p>

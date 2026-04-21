@@ -1495,7 +1495,7 @@
             return safe;
         };
 
-        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT02439749', 'NCT02649426', 'NCT03614260', 'NCT02918305']);
+        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT02439749', 'NCT02649426', 'NCT03614260', 'NCT02918305', 'NCT01418261']);
         const isPhaseTwoLike = (phaseLabel = '') => {
             const p = String(phaseLabel ?? '').toLowerCase().trim();
             if (!p) return false;
@@ -1892,7 +1892,7 @@ const ContinuousMDEngine = {
 
             // ISSUE 10 FIX: Corrected ARTS-DN Metadata (Phase IIb)
             /* Known acronyms for trials whose CT.gov search may not return the acronym field */
-            nctAcronyms: { 'NCT02439749': 'SPYRAL HTN-ON MED', 'NCT02649426': 'RADIANCE-HTN SOLO', 'NCT03614260': 'RADIANCE II', 'NCT02918305': 'REQUIRE' },
+            nctAcronyms: { 'NCT02439749': 'SPYRAL HTN-ON MED', 'NCT02649426': 'RADIANCE-HTN SOLO', 'NCT03614260': 'RADIANCE II', 'NCT02918305': 'REQUIRE', 'NCT01418261': 'SYMPLICITY HTN-3' },
             _allowedSources: new Set(['registry', 'pubmed', 'openalex', 'reference', 'manual']),
             _allowedStatuses: new Set(['search', 'include', 'exclude']),
             sanitizeText(value, maxLen = 600) {
@@ -2293,6 +2293,20 @@ const ContinuousMDEngine = {
         sourceUrl: 'https://www.ahajournals.org/doi/full/10.1161/CIRCINTERVENTIONS.120.009972',
         evidence: [
             { label: '24h Ambulatory SBP', source: 'Circ Cardiovasc Interv 2021; 14:e009972', text: '24h ambulatory SBP reduction was 6.6 mmHg greater with RDN vs sham procedure.', highlights: ["-6.6", "143"], sourceUrl: 'https://www.ahajournals.org/doi/full/10.1161/CIRCINTERVENTIONS.120.009972' }
+        ]
+    },
+    'NCT01418261': {
+                    baseline: {"n": 535, "age": 57.9, "female": 41.0, "sbp_office": 179.7},
+        name: 'SYMPLICITY HTN-3', phase: 'III', year: 2014, tE: null, tN: 364, cE: null, cN: 171, group: 'First-generation RDN (radiofrequency) vs sham — LANDMARK NEGATIVE pivotal', publishedHR: null,
+        allOutcomes: [
+            { shortLabel: 'MACE', title: 'Change in 6-month office SBP (primary, RDN vs sham; first-generation device, negative primary)', type: 'CONTINUOUS', md: -2.39, se: 2.30 }
+        ],
+        rob: ["low", "low", "low", "low", "low"],
+        snippet: 'Bhatt DL et al. NEJM 2014;370:1393-1401 (SYMPLICITY HTN-3). Largest sham-controlled RDN pivotal; NEGATIVE primary (did not meet superiority). Landmark finding that triggered second-generation device development.',
+        sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1402670',
+        evidence: [
+            { label: 'Primary - 6-mo Office SBP', source: 'Bhatt 2014 NEJM', text: 'Office SBP change at 6 months: RDN -14.13 mmHg vs sham -11.74 mmHg; mean difference -2.39 mmHg (95% CI -6.89 to +2.12; P=0.26). Primary endpoint NOT MET. First-generation Medtronic Symplicity catheter (unipolar radiofrequency).', highlights: ["-2.39", "NS", "negative primary", "first-generation"], sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1402670' },
+            { label: 'Scope note', source: 'Protocol', text: 'SYMPLICITY HTN-3 used first-generation Medtronic Symplicity catheter; subsequent trials (SPYRAL, RADIANCE) used second-generation multi-electrode catheters. Inclusion in this NMA broadens scope beyond "modern second-generation devices" — declare pre-specified sensitivity split at GRADE.', highlights: ["scope", "transitivity concern"] }
         ]
     }
 },
