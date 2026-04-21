@@ -43,11 +43,11 @@ SEQUOIA        0.51
 Results (random effects model):
 
                        treat1             treat2     HR            95%-CI
-ELEVATE-RR      Acalabrutinib          Ibrutinib 0.9510 [0.3838;  2.3564]
-ELEVATE-TN      Acalabrutinib Chemoimmunotherapy 0.2219 [0.0880;  0.5595]
-RESONATE-2 Chemoimmunotherapy          Ibrutinib 4.2856 [1.8744;  9.7988]
-ALPINE              Ibrutinib       Zanubrutinib 0.9395 [0.3765;  2.3441]
-SEQUOIA    Chemoimmunotherapy       Zanubrutinib 4.0262 [1.5949; 10.1642]
+ELEVATE-RR      Acalabrutinib          Ibrutinib 0.9510 [0.3761;  2.4046]
+ELEVATE-TN      Acalabrutinib Chemoimmunotherapy 0.2219 [0.0863;  0.5706]
+RESONATE-2 Chemoimmunotherapy          Ibrutinib 4.2867 [1.8419;  9.9767]
+ALPINE              Ibrutinib       Zanubrutinib 0.9387 [0.3688;  2.3897]
+SEQUOIA    Chemoimmunotherapy       Zanubrutinib 4.0241 [1.5627; 10.3619]
 
 Number of studies: k = 5
 Number of pairwise comparisons: m = 5
@@ -67,13 +67,13 @@ Random effects model
 
 Treatment estimate (sm = 'HR', comparison: other treatments vs 'Chemoimmunotherapy'):
                        HR           95%-CI     z p-value
-Acalabrutinib      0.2219 [0.0880; 0.5595] -3.19  0.0014
+Acalabrutinib      0.2219 [0.0863; 0.5706] -3.12  0.0018
 Chemoimmunotherapy      .                .     .       .
-Ibrutinib          0.2333 [0.1021; 0.5335] -3.45  0.0006
-Zanubrutinib       0.2484 [0.0984; 0.6270] -2.95  0.0032
+Ibrutinib          0.2333 [0.1002; 0.5429] -3.38  0.0007
+Zanubrutinib       0.2485 [0.0965; 0.6399] -2.89  0.0039
 
 Quantifying heterogeneity / inconsistency:
-tau^2 = 0.3204; tau = 0.5660; I^2 = 90.8% [75.9%; 96.5%]
+tau^2 = 0.3358; tau = 0.5795; I^2 = 90.8% [75.9%; 96.5%]
 
 Tests of heterogeneity (within designs) and inconsistency (between designs):
                    Q d.f.  p-value
@@ -83,20 +83,20 @@ Between designs 21.7    2 < 0.0001
 
 Details of network meta-analysis methods:
 - Frequentist graph-theoretical approach
-- DerSimonian-Laird estimator for tau^2
+- Restricted maximum-likelihood estimator for tau^2
 - Calculation of I^2 based on Q
 
 === League table (RE, HR/RR with 95% CI) ===
                            Acalabrutinib    Chemoimmunotherapy
-Acalabrutinib              Acalabrutinib 0.210 [0.064;  0.686]
-Chemoimmunotherapy 0.222 [0.088;  0.560]    Chemoimmunotherapy
-Ibrutinib          0.951 [0.384;  2.356] 4.286 [1.874;  9.799]
-Zanubrutinib       0.893 [0.280;  2.848] 4.026 [1.595; 10.164]
+Acalabrutinib              Acalabrutinib 0.210 [0.063;  0.703]
+Chemoimmunotherapy 0.222 [0.086;  0.571]    Chemoimmunotherapy
+Ibrutinib          0.951 [0.376;  2.405] 4.287 [1.842;  9.977]
+Zanubrutinib       0.893 [0.273;  2.918] 4.024 [1.563; 10.362]
                                Ibrutinib          Zanubrutinib
-Acalabrutinib      1.000 [0.323;  3.095]                     .
-Chemoimmunotherapy 6.849 [2.106; 22.274] 2.381 [0.731;  7.758]
-Ibrutinib                      Ibrutinib 1.538 [0.490;  4.832]
-Zanubrutinib       0.939 [0.377;  2.344]          Zanubrutinib
+Acalabrutinib      1.000 [0.315;  3.176]                     .
+Chemoimmunotherapy 6.849 [2.054; 22.835] 2.381 [0.713;  7.953]
+Ibrutinib                      Ibrutinib 1.538 [0.477;  4.958]
+Zanubrutinib       0.939 [0.369;  2.390]          Zanubrutinib
 
 === Design-by-treatment inconsistency ===
 Q statistics to assess homogeneity / consistency
@@ -128,11 +128,11 @@ Separate indirect from direct evidence (SIDE) using back-calculation method
 Random effects model: 
 
                        comparison k prop    nma direct indir.    RoR     z p-value
- Acalabrutinib:Chemoimmunotherapy 1 0.61 0.2219 0.2100 0.2419 0.8680 -0.15  0.8837
-          Acalabrutinib:Ibrutinib 1 0.65 0.9510 1.0000 0.8680 1.1520  0.15  0.8837
-     Ibrutinib:Chemoimmunotherapy 1 0.49 0.2333 0.1460 0.3673 0.3975 -1.09  0.2743
-  Zanubrutinib:Chemoimmunotherapy 1 0.61 0.2484 0.4200 0.1075 3.9086  1.40  0.1603
-           Ibrutinib:Zanubrutinib 1 0.64 0.9395 1.5385 0.3936 3.9086  1.40  0.1603
+ Acalabrutinib:Chemoimmunotherapy 1 0.61 0.2219 0.2100 0.2418 0.8684 -0.14  0.8865
+          Acalabrutinib:Ibrutinib 1 0.64 0.9510 1.0000 0.8684 1.1516  0.14  0.8865
+     Ibrutinib:Chemoimmunotherapy 1 0.49 0.2333 0.1460 0.3674 0.3974 -1.07  0.2845
+  Zanubrutinib:Chemoimmunotherapy 1 0.62 0.2485 0.4200 0.1074 3.9091  1.37  0.1693
+           Ibrutinib:Zanubrutinib 1 0.64 0.9387 1.5385 0.3936 3.9091  1.37  0.1693
 
 Legend:
  comparison - Treatment comparison
@@ -147,28 +147,28 @@ Legend:
 
 === P-scores (lower = better for HR/RR on protective scale) ===
                    P-score
-Acalabrutinib       0.7060
-Ibrutinib           0.6699
-Zanubrutinib        0.6232
-Chemoimmunotherapy  0.0009
+Acalabrutinib       0.7053
+Ibrutinib           0.6701
+Zanubrutinib        0.6236
+Chemoimmunotherapy  0.0011
 
 === Rank-probability matrix (N=100k draws) ===
                    rank_1 rank_2 rank_3 rank_4
-Acalabrutinib       0.389  0.322  0.288  0.001
-Chemoimmunotherapy  0.000  0.000  0.003  0.997
-Ibrutinib           0.325  0.357  0.317  0.000
-Zanubrutinib        0.286  0.320  0.392  0.002
+Acalabrutinib       0.362  0.370  0.267  0.000
+Chemoimmunotherapy  0.000  0.000  0.004  0.996
+Ibrutinib           0.283  0.425  0.290  0.001
+Zanubrutinib        0.354  0.204  0.439  0.002
 
 === SUCRA ===
      Acalabrutinib          Ibrutinib       Zanubrutinib Chemoimmunotherapy 
-             0.700              0.669              0.630              0.001 
+             0.698              0.663              0.637              0.001 
 
 [wrote btki_cll_nma_netmeta_results.rds + .json]
 
 === Key results for peer-review bundle ===
-TAU2: 0.32041 
+TAU2: 0.33584 
 I2: 90.78 %
 Q inc: 21.7 df 2 p 0 
-  Acalabrutinib            HR 0.222 (0.088, 0.560)
-  Ibrutinib                HR 0.233 (0.102, 0.534)
-  Zanubrutinib             HR 0.248 (0.098, 0.627)
+  Acalabrutinib            HR 0.222 (0.086, 0.571)
+  Ibrutinib                HR 0.233 (0.100, 0.543)
+  Zanubrutinib             HR 0.249 (0.097, 0.640)

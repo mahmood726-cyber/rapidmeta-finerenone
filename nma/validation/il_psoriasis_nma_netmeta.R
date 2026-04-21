@@ -21,7 +21,9 @@ cat("\n")
 
 nma <- netmeta(TE=TE, seTE=seTE, treat1=treat1, treat2=treat2, studlab=studlab,
                data=trials, sm="OR", reference.group="Placebo",
-               common=TRUE, random=TRUE)
+               common=TRUE, random=TRUE,
+               method.tau="REML",   # REML per protocol (NOT DL, which is the netmeta default)
+               hakn=TRUE)            # HKSJ (Hartung-Knapp-Sidik-Jonkman) CI adjustment
 
 cat("\n=== Consistency model ===\n")
 print(summary(nma))
@@ -35,19 +37,42 @@ cat("\n=== P-scores (lower = better for HR/RR on protective scale) ===\n")
 rk <- netrank(nma, small.values="undesirable", common=FALSE, random=TRUE)
 print(rk)
 
-# MC rank-probability matrix
+# MC rank-probability matrix — correct multivariate-normal draw using
+# netmeta's estimated contrast vcov (not independent rnorms; bug acknowledged
+# in v1.0 of this script, fixed 2026-04-21).
 set.seed(42)
+suppressPackageStartupMessages(library(MASS))
 n_draws <- 1e5
 trts <- nma$trts
 n_trt <- length(trts)
-se_contrast <- nma$seTE.random[, "Placebo"]
-mu <- nma$TE.random[, "Placebo"]
+non_ref <- trts[trts != "Placebo"]
+# Mean vector: contrast vs reference for non-reference treatments
+mu <- nma$TE.random[non_ref, "Placebo"]
+# Full covariance of contrasts from the fitted random-effects model
+if (!is.null(nma$Cov.random)) {
+  # Cov.random is keyed on treatment × treatment; extract the subset vs reference.
+  # netmeta stores this as a matrix indexed by trt names in the trts order.
+  cov_full <- nma$Cov.random
+  # Construct contrast-vs-ref covariance for non_ref × non_ref
+  # Sigma[i,j] = Cov(mu_i - mu_ref, mu_j - mu_ref)
+  idx_ref <- which(trts == "Placebo")
+  idx <- which(trts %in% non_ref)
+  Sigma <- matrix(0, nrow=length(non_ref), ncol=length(non_ref),
+                  dimnames=list(non_ref, non_ref))
+  for (a in seq_along(non_ref)) for (b in seq_along(non_ref)) {
+    ia <- which(trts == non_ref[a]); ib <- which(trts == non_ref[b])
+    Sigma[a, b] <- cov_full[ia, ib] - cov_full[ia, idx_ref] -
+                   cov_full[idx_ref, ib] + cov_full[idx_ref, idx_ref]
+  }
+} else {
+  # Fallback: independent — clearly marked as a limitation in this case
+  Sigma <- diag(nma$seTE.random[non_ref, "Placebo"]^2)
+  warning("Cov.random unavailable; falling back to independent-contrast MC draws. Results approximate.")
+}
+draws_nonref <- mvrnorm(n_draws, mu, Sigma)
 draws <- matrix(0, nrow=n_draws, ncol=n_trt)
 colnames(draws) <- trts
-for (i in seq_along(trts)) {
-  if (trts[i] == "Placebo") next
-  draws[, i] <- rnorm(n_draws, mu[trts[i]], se_contrast[trts[i]])
-}
+for (i in seq_along(non_ref)) draws[, non_ref[i]] <- draws_nonref[, i]
 ranks <- t(apply(draws, 1, rank, ties.method="random"))
 colnames(ranks) <- trts
 rank_prob <- matrix(0, nrow=n_trt, ncol=n_trt,

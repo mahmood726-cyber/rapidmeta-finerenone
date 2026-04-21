@@ -57,7 +57,7 @@ Lecanemab  0.7300 [0.6113; 0.8718] -3.47   0.0005
 Placebo         .                .     .        .
 
 Quantifying heterogeneity / inconsistency:
-tau^2 = NA; tau = NA
+tau^2 = 0; tau = 0
 
 Tests of heterogeneity (within designs) and inconsistency (between designs):
                 Q d.f. p-value
@@ -67,7 +67,7 @@ Between designs 0    0      --
 
 Details of network meta-analysis methods:
 - Frequentist graph-theoretical approach
-- DerSimonian-Laird estimator for tau^2
+- Restricted maximum-likelihood estimator for tau^2
 
 === League table (RE, HR/RR with 95% CI) ===
                      Aducanumab            Donanemab            Lecanemab
@@ -106,19 +106,19 @@ Placebo     0.0057
 
 === Rank-probability matrix (N=100k draws) ===
            rank_1 rank_2 rank_3 rank_4
-Aducanumab  0.172  0.243  0.568  0.017
-Donanemab   0.491  0.349  0.160  0.000
-Lecanemab   0.337  0.408  0.255  0.000
-Placebo     0.000  0.000  0.017  0.983
+Aducanumab  0.129  0.190  0.545  0.136
+Donanemab   0.570  0.245  0.185  0.000
+Lecanemab   0.294  0.537  0.168  0.000
+Placebo     0.007  0.028  0.102  0.863
 
 === SUCRA ===
  Donanemab  Lecanemab Aducanumab    Placebo 
-     0.777      0.694      0.524      0.006 
+     0.795      0.708      0.437      0.060 
 
 [wrote antiamyloid_ad_nma_netmeta_results.rds + .json]
 
 === Key results for peer-review bundle ===
-TAU2: NA 
+TAU2: 0 
 I2: NA %
 Q inc: 0 df 0 p NA 
   Aducanumab               HR 0.780 (0.620, 0.981)
