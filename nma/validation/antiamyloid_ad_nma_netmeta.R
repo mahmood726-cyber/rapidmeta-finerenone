@@ -8,11 +8,11 @@ logHR_SE <- function(hr, lci, uci) {
 
 # From config.comparisons + config.realData (one row per edge×trial)
 trials <- data.frame(
-  studlab = c("Clarity AD","TRAILBLAZER-ALZ 2","EMERGE","ENGAGE","GRADUATE I","GRADUATE II"),
-  treat1  = c("Lecanemab","Donanemab","Aducanumab","Aducanumab","Gantenerumab","Gantenerumab"),
-  treat2  = c("Placebo","Placebo","Placebo","Placebo","Placebo","Placebo"),
-  TE      = c(-0.4500000000,-0.7000000000,-0.3900000000,0.0300000000,-0.3100000000,-0.1900000000),
-  seTE    = c(0.1122448980,0.1275510204,0.1530612245,0.1479591837,0.1811224490,0.1836734694),
+  studlab = c("Clarity AD","TRAILBLAZER-ALZ 2","EMERGE","ENGAGE","GRADUATE I","GRADUATE II","EXPEDITION 3"),
+  treat1  = c("Lecanemab","Donanemab","Aducanumab","Aducanumab","Gantenerumab","Gantenerumab","Solanezumab"),
+  treat2  = c("Placebo","Placebo","Placebo","Placebo","Placebo","Placebo","Placebo"),
+  TE      = c(-0.4500000000,-0.7000000000,-0.3900000000,0.0300000000,-0.3100000000,-0.1900000000,-0.1000000000),
+  seTE    = c(0.1122448980,0.1275510204,0.1530612245,0.1479591837,0.1811224490,0.1836734694,0.0841836735),
   stringsAsFactors = FALSE
 )
 cat("=== RapidMeta Neurology | Anti-Amyloid mAbs NMA in Early Alzheimer Disease v1.3 ===\n")

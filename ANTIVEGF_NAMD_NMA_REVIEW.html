@@ -1651,7 +1651,7 @@
             return safe;
         };
 
-        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT00509795', 'NCT00637377', 'NCT03823287', 'NCT03823300', 'NCT04964089', 'NCT02307682', 'NCT02434328', 'NCT00593450', 'NCT00784290']);
+        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT00509795', 'NCT00637377', 'NCT03823287', 'NCT03823300', 'NCT04964089', 'NCT02307682', 'NCT02434328', 'NCT00593450', 'NCT00784290', 'NCT00056836', 'NCT00061594']);
         const isPhaseTwoLike = (phaseLabel = '') => {
             const p = String(phaseLabel ?? '').toLowerCase().trim();
             if (!p) return false;
@@ -2094,7 +2094,7 @@
 
             // ISSUE 10 FIX: Corrected ARTS-DN Metadata (Phase IIb)
             /* Known acronyms for trials whose CT.gov search may not return the acronym field */
-            nctAcronyms: { 'NCT00509795': 'VIEW-1', 'NCT00637377': 'VIEW-2', 'NCT03823287': 'TENAYA', 'NCT03823300': 'LUCERNE', 'NCT04964089': 'PULSAR', 'NCT02307682': 'HAWK', 'NCT02434328': 'HARRIER', 'NCT00593450': 'CATT', 'NCT00784290': 'IVAN' },
+            nctAcronyms: { 'NCT00509795': 'VIEW-1', 'NCT00637377': 'VIEW-2', 'NCT03823287': 'TENAYA', 'NCT03823300': 'LUCERNE', 'NCT04964089': 'PULSAR', 'NCT02307682': 'HAWK', 'NCT02434328': 'HARRIER', 'NCT00593450': 'CATT', 'NCT00784290': 'IVAN', 'NCT00056836': 'MARINA', 'NCT00061594': 'ANCHOR' },
             _allowedSources: new Set(['registry', 'pubmed', 'openalex', 'reference', 'manual']),
             _allowedStatuses: new Set(['search', 'include', 'exclude']),
             sanitizeText(value, maxLen = 600) {
@@ -2500,6 +2500,28 @@
                     snippet: 'Chakravarthy U et al. Lancet 2013;382:1258-1267 (IVAN).',
                     sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(13)61501-9/fulltext',
                     ctgovUrl: 'https://clinicaltrials.gov/study/NCT00784290',
+                    evidence: []
+                },
+                'NCT00056836': {
+                    name: 'MARINA', phase: 'III', year: 2006, tE: 0, tN: 240, cE: 0, cN: 238, group: 'Ranibizumab 0.5mg monthly vs Sham (MARINA minimally-classic/occult; 12-mo BCVA MD)', publishedHR: 17.6, hrLCI: 14.5, hrUCI: 20.7,
+                    allOutcomes: [
+                        { shortLabel: 'BCVA', title: 'BCVA change at 12 months ranibizumab 0.5mg monthly vs sham (MD letters; foundational pivotal)', tE: 0, cE: 0, type: 'PRIMARY', matchScore: 95, effect: 17.6, lci: 14.5, uci: 20.7, estimandType: 'MD' }
+                    ],
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+                    snippet: 'Rosenfeld PJ et al. NEJM 2006;355:1419-1431 (MARINA). Foundational ranibizumab vs sham landmark.',
+                    sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa054481',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT00056836',
+                    evidence: []
+                },
+                'NCT00061594': {
+                    name: 'ANCHOR', phase: 'III', year: 2006, tE: 0, tN: 140, cE: 0, cN: 143, group: 'Ranibizumab 0.5mg monthly vs Verteporfin PDT (ANCHOR predominantly-classic; 12-mo BCVA MD)', publishedHR: 20.8, hrLCI: 17.4, hrUCI: 24.2,
+                    allOutcomes: [
+                        { shortLabel: 'BCVA', title: 'BCVA change at 12 months ranibizumab 0.5mg monthly vs verteporfin PDT (MD letters; foundational pivotal)', tE: 0, cE: 0, type: 'PRIMARY', matchScore: 95, effect: 20.8, lci: 17.4, uci: 24.2, estimandType: 'MD' }
+                    ],
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+                    snippet: 'Brown DM et al. NEJM 2006;355:1432-1444 (ANCHOR). Adds verteporfin-PDT as pre-anti-VEGF comparator node.',
+                    sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa062655',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT00061594',
                     evidence: []
                 }
             },
@@ -8428,7 +8450,9 @@
                 "Aflibercept_8mg",
                 "Faricimab",
                 "Brolucizumab",
-                "Bevacizumab"
+                "Bevacizumab",
+                "Sham",
+                "VerteporfinPDT"
         ],
         "comparisons": [
                 {
@@ -8492,6 +8516,20 @@
                         "t2": "Ranibizumab",
                         "trials": [
                                 "NCT00784290"
+                        ]
+                },
+                {
+                        "t1": "Ranibizumab",
+                        "t2": "Sham",
+                        "trials": [
+                                "NCT00056836"
+                        ]
+                },
+                {
+                        "t1": "Ranibizumab",
+                        "t2": "VerteporfinPDT",
+                        "trials": [
+                                "NCT00061594"
                         ]
                 }
         ],

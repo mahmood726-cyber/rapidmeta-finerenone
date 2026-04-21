@@ -1,31 +1,37 @@
 === RapidMeta Endocrinology | Incretin Class NMA in Type 2 Diabetes v1.0 ===
-     studlab      treat1      treat2    TE       seTE
-1  SURPASS-1 Tirzepatide     Placebo -2.11 0.11989796
-2  SURPASS-2 Tirzepatide Semaglutide -0.45 0.06122449
-3  SUSTAIN-1 Semaglutide     Placebo -1.55 0.09438776
-4  SUSTAIN-3 Semaglutide   Exenatide -0.62 0.09183673
-5  SUSTAIN-7 Semaglutide Dulaglutide -0.31 0.05612245
-6     LEAD-6 Liraglutide   Exenatide -0.33 0.07397959
-7    AWARD-6 Dulaglutide Liraglutide -0.06 0.06632653
-8     LEAD-2 Liraglutide     Placebo -1.10 0.10204082
-9  SUSTAIN-6 Semaglutide     Placebo -0.77 0.04081633
-10    EXSCEL   Exenatide     Placebo -0.53 0.02040816
+     studlab          treat1      treat2    TE       seTE
+1  SURPASS-1     Tirzepatide     Placebo -2.11 0.11989796
+2  SURPASS-2     Tirzepatide Semaglutide -0.45 0.06122449
+3  SUSTAIN-1     Semaglutide     Placebo -1.55 0.09438776
+4  SUSTAIN-3     Semaglutide   Exenatide -0.62 0.09183673
+5  SUSTAIN-7     Semaglutide Dulaglutide -0.31 0.05612245
+6     LEAD-6     Liraglutide   Exenatide -0.33 0.07397959
+7    AWARD-6     Dulaglutide Liraglutide -0.06 0.06632653
+8     LEAD-2     Liraglutide     Placebo -1.10 0.10204082
+9  SUSTAIN-6     Semaglutide     Placebo -0.77 0.04081633
+10    EXSCEL       Exenatide     Placebo -0.53 0.02040816
+11 PIONEER-4 OralSemaglutide Liraglutide -0.10 0.05102041
+12 PIONEER-3 OralSemaglutide Sitagliptin -0.50 0.05102041
+13 SUSTAIN-2     Semaglutide Sitagliptin -1.10 0.05102041
 
 
 === Consistency model ===
 Original data:
 
-               treat1      treat2      TE   seTE
-SURPASS-1     Placebo Tirzepatide  2.1100 0.1199
-SURPASS-2 Semaglutide Tirzepatide  0.4500 0.0612
-SUSTAIN-1     Placebo Semaglutide  1.5500 0.0944
-SUSTAIN-3   Exenatide Semaglutide  0.6200 0.0918
-SUSTAIN-7 Dulaglutide Semaglutide  0.3100 0.0561
-LEAD-6      Exenatide Liraglutide  0.3300 0.0740
-AWARD-6   Dulaglutide Liraglutide -0.0600 0.0663
-LEAD-2    Liraglutide     Placebo -1.1000 0.1020
-SUSTAIN-6     Placebo Semaglutide  0.7700 0.0408
-EXSCEL      Exenatide     Placebo -0.5300 0.0204
+                   treat1          treat2      TE   seTE
+SURPASS-1         Placebo     Tirzepatide  2.1100 0.1199
+SURPASS-2     Semaglutide     Tirzepatide  0.4500 0.0612
+SUSTAIN-1         Placebo     Semaglutide  1.5500 0.0944
+SUSTAIN-3       Exenatide     Semaglutide  0.6200 0.0918
+SUSTAIN-7     Dulaglutide     Semaglutide  0.3100 0.0561
+LEAD-6          Exenatide     Liraglutide  0.3300 0.0740
+AWARD-6       Dulaglutide     Liraglutide -0.0600 0.0663
+LEAD-2        Liraglutide         Placebo -1.1000 0.1020
+SUSTAIN-6         Placebo     Semaglutide  0.7700 0.0408
+EXSCEL          Exenatide         Placebo -0.5300 0.0204
+PIONEER-4     Liraglutide OralSemaglutide  0.1000 0.0510
+PIONEER-3 OralSemaglutide     Sitagliptin -0.5000 0.0510
+SUSTAIN-2     Semaglutide     Sitagliptin -1.1000 0.0510
 
 Number of treatment arms (by study):
           narms
@@ -39,70 +45,97 @@ AWARD-6       2
 LEAD-2        2
 SUSTAIN-6     2
 EXSCEL        2
+PIONEER-4     2
+PIONEER-3     2
+SUSTAIN-2     2
 
 Results (common effects model):
 
-               treat1      treat2      MD             95%-CI     Q leverage
-SURPASS-1     Placebo Tirzepatide  1.5902 [ 1.4722;  1.7082] 18.79     0.25
-SURPASS-2 Semaglutide Tirzepatide  0.5855 [ 0.4779;  0.6932]  4.90     0.81
-SUSTAIN-1     Placebo Semaglutide  1.0047 [ 0.9416;  1.0678] 33.38     0.12
-SUSTAIN-3   Exenatide Semaglutide  0.4824 [ 0.4122;  0.5526]  2.24     0.15
-SUSTAIN-7 Dulaglutide Semaglutide  0.2243 [ 0.1294;  0.3193]  2.33     0.75
-LEAD-6      Exenatide Liraglutide  0.3178 [ 0.2172;  0.4183]  0.03     0.48
-AWARD-6   Dulaglutide Liraglutide  0.0597 [-0.0447;  0.1640]  3.26     0.64
-LEAD-2    Liraglutide     Placebo -0.8400 [-0.9407; -0.7394]  6.49     0.25
-SUSTAIN-6     Placebo Semaglutide  1.0047 [ 0.9416;  1.0678] 33.06     0.62
-EXSCEL      Exenatide     Placebo -0.5223 [-0.5608; -0.4838]  0.14     0.93
+                   treat1          treat2      MD             95%-CI     Q
+SURPASS-1         Placebo     Tirzepatide  1.6168 [ 1.4992;  1.7344] 16.92
+SURPASS-2     Semaglutide     Tirzepatide  0.5786 [ 0.4710;  0.6862]  4.41
+SUSTAIN-1         Placebo     Semaglutide  1.0382 [ 0.9763;  1.1000] 29.41
+SUSTAIN-3       Exenatide     Semaglutide  0.5221 [ 0.4535;  0.5906]  1.14
+SUSTAIN-7     Dulaglutide     Semaglutide  0.2855 [ 0.1934;  0.3775]  0.19
+LEAD-6          Exenatide     Liraglutide  0.2109 [ 0.1189;  0.3029]  2.59
+AWARD-6       Dulaglutide     Liraglutide -0.0257 [-0.1249;  0.0735]  0.27
+LEAD-2        Liraglutide         Placebo -0.7270 [-0.8180; -0.6360] 13.36
+SUSTAIN-6         Placebo     Semaglutide  1.0382 [ 0.9763;  1.1000] 43.16
+EXSCEL          Exenatide         Placebo -0.5161 [-0.5545; -0.4777]  0.46
+PIONEER-4     Liraglutide OralSemaglutide -0.0296 [-0.1167;  0.0574]  6.45
+PIONEER-3 OralSemaglutide     Sitagliptin -0.6296 [-0.7167; -0.5426]  6.45
+SUSTAIN-2     Semaglutide     Sitagliptin -0.9704 [-1.0574; -0.8833]  6.45
+          leverage
+SURPASS-1     0.25
+SURPASS-2     0.80
+SUSTAIN-1     0.11
+SUSTAIN-3     0.15
+SUSTAIN-7     0.70
+LEAD-6        0.40
+AWARD-6       0.58
+LEAD-2        0.21
+SUSTAIN-6     0.60
+EXSCEL        0.92
+PIONEER-4     0.76
+PIONEER-3     0.76
+SUSTAIN-2     0.76
 
 Results (random effects model):
 
-               treat1      treat2      MD             95%-CI
-SURPASS-1     Placebo Tirzepatide  1.8953 [ 1.4428;  2.3478]
-SURPASS-2 Semaglutide Tirzepatide  0.6413 [ 0.1953;  1.0872]
-SUSTAIN-1     Placebo Semaglutide  1.2540 [ 0.9346;  1.5733]
-SUSTAIN-3   Exenatide Semaglutide  0.6484 [ 0.2475;  1.0493]
-SUSTAIN-7 Dulaglutide Semaglutide  0.2582 [-0.2059;  0.7223]
-LEAD-6      Exenatide Liraglutide  0.3827 [-0.0466;  0.8119]
-AWARD-6   Dulaglutide Liraglutide -0.0075 [-0.4731;  0.4581]
-LEAD-2    Liraglutide     Placebo -0.9883 [-1.4070; -0.5695]
-SUSTAIN-6     Placebo Semaglutide  1.2540 [ 0.9346;  1.5733]
-EXSCEL      Exenatide     Placebo -0.6056 [-0.9931; -0.2181]
+                   treat1          treat2      MD             95%-CI
+SURPASS-1         Placebo     Tirzepatide  1.9062 [ 1.4685;  2.3439]
+SURPASS-2     Semaglutide     Tirzepatide  0.6302 [ 0.1990;  1.0614]
+SUSTAIN-1         Placebo     Semaglutide  1.2759 [ 0.9718;  1.5801]
+SUSTAIN-3       Exenatide     Semaglutide  0.6802 [ 0.2999;  1.0604]
+SUSTAIN-7     Dulaglutide     Semaglutide  0.2942 [-0.1463;  0.7347]
+LEAD-6          Exenatide     Liraglutide  0.3420 [-0.0618;  0.7457]
+AWARD-6       Dulaglutide     Liraglutide -0.0440 [-0.4858;  0.3979]
+LEAD-2        Liraglutide         Placebo -0.9378 [-1.3249; -0.5506]
+SUSTAIN-6         Placebo     Semaglutide  1.2759 [ 0.9718;  1.5801]
+EXSCEL          Exenatide         Placebo -0.5958 [-0.9701; -0.2215]
+PIONEER-4     Liraglutide OralSemaglutide -0.0206 [-0.4920;  0.4508]
+PIONEER-3 OralSemaglutide     Sitagliptin -0.6206 [-1.0920; -0.1492]
+SUSTAIN-2     Semaglutide     Sitagliptin -0.9794 [-1.4508; -0.5080]
 
-Number of studies: k = 10
-Number of pairwise comparisons: m = 10
-Number of treatments: n = 6
-Number of designs: d = 9
+Number of studies: k = 13
+Number of pairwise comparisons: m = 13
+Number of treatments: n = 8
+Number of designs: d = 12
 
 Common effects model
 
 Treatment estimate (sm = 'MD', comparison: other treatments vs 'Placebo'):
-                 MD             95%-CI      z  p-value
-Dulaglutide -0.7804 [-0.8845; -0.6762] -14.68 < 0.0001
-Exenatide   -0.5223 [-0.5608; -0.4838] -26.57 < 0.0001
-Liraglutide -0.8400 [-0.9407; -0.7394] -16.36 < 0.0001
-Placebo           .                  .      .        .
-Semaglutide -1.0047 [-1.0678; -0.9416] -31.19 < 0.0001
-Tirzepatide -1.5902 [-1.7082; -1.4722] -26.41 < 0.0001
+                     MD             95%-CI      z  p-value
+Dulaglutide     -0.7527 [-0.8563; -0.6491] -14.24 < 0.0001
+Exenatide       -0.5161 [-0.5545; -0.4777] -26.31 < 0.0001
+Liraglutide     -0.7270 [-0.8180; -0.6360] -15.66 < 0.0001
+OralSemaglutide -0.6974 [-0.8053; -0.5895] -12.67 < 0.0001
+Placebo               .                  .      .        .
+Semaglutide     -1.0382 [-1.1000; -0.9763] -32.91 < 0.0001
+Sitagliptin     -0.0678 [-0.1685;  0.0330]  -1.32   0.1874
+Tirzepatide     -1.6168 [-1.7344; -1.4992] -26.95 < 0.0001
 
 Random effects model
 
 Treatment estimate (sm = 'MD', comparison: other treatments vs 'Placebo'):
-                 MD             95%-CI     z  p-value
-Dulaglutide -0.9957 [-1.5013; -0.4902] -3.86   0.0001
-Exenatide   -0.6056 [-0.9931; -0.2181] -3.06   0.0022
-Liraglutide -0.9883 [-1.4070; -0.5695] -4.63 < 0.0001
-Placebo           .                  .     .        .
-Semaglutide -1.2540 [-1.5733; -0.9346] -7.70 < 0.0001
-Tirzepatide -1.8953 [-2.3478; -1.4428] -8.21 < 0.0001
+                     MD             95%-CI     z  p-value
+Dulaglutide     -0.9817 [-1.4700; -0.4935] -3.94 < 0.0001
+Exenatide       -0.5958 [-0.9701; -0.2215] -3.12   0.0018
+Liraglutide     -0.9378 [-1.3249; -0.5506] -4.75 < 0.0001
+OralSemaglutide -0.9171 [-1.4662; -0.3681] -3.27   0.0011
+Placebo               .                  .     .        .
+Semaglutide     -1.2759 [-1.5801; -0.9718] -8.22 < 0.0001
+Sitagliptin     -0.2965 [-0.8279;  0.2348] -1.09   0.2740
+Tirzepatide     -1.9062 [-2.3439; -1.4685] -8.54 < 0.0001
 
 Quantifying heterogeneity / inconsistency:
-tau^2 = 0.0830; tau = 0.2881; I^2 = 95.2% [92.0%; 97.2%]
+tau^2 = 0.0775; tau = 0.2783; I^2 = 95.4% [92.7%; 97.1%]
 
 Tests of heterogeneity (within designs) and inconsistency (between designs):
                      Q d.f.  p-value
-Total           104.62    5 < 0.0001
+Total           131.28    6 < 0.0001
 Within designs   57.53    1 < 0.0001
-Between designs  47.09    4 < 0.0001
+Between designs  73.75    5 < 0.0001
 
 Details of network meta-analysis methods:
 - Frequentist graph-theoretical approach
@@ -110,35 +143,50 @@ Details of network meta-analysis methods:
 - Calculation of I^2 based on Q
 
 === League table (RE, HR/RR with 95% CI) ===
-                        Dulaglutide               Exenatide
-Dulaglutide             Dulaglutide                       .
-Exenatide   -0.390 [-0.928;  0.148]               Exenatide
-Liraglutide -0.007 [-0.473;  0.458]  0.383 [-0.047;  0.812]
-Placebo     -0.996 [-1.501; -0.490] -0.606 [-0.993; -0.218]
-Semaglutide  0.258 [-0.206;  0.722]  0.648 [ 0.248;  1.049]
-Tirzepatide  0.900 [ 0.279;  1.520]  1.290 [ 0.736;  1.843]
-                        Liraglutide                 Placebo
-Dulaglutide -0.060 [-0.639;  0.519]                       .
-Exenatide    0.330 [-0.253;  0.913] -0.530 [-1.096;  0.036]
-Liraglutide             Liraglutide -1.100 [-1.699; -0.501]
-Placebo     -0.988 [-1.407; -0.570]                 Placebo
-Semaglutide  0.266 [-0.179;  0.710]  1.254 [ 0.935;  1.573]
-Tirzepatide  0.907 [ 0.326;  1.488]  1.895 [ 1.443;  2.348]
-                       Semaglutide            Tirzepatide
-Dulaglutide 0.310 [-0.265;  0.885]                      .
-Exenatide   0.620 [ 0.027;  1.213]                      .
-Liraglutide                      .                      .
-Placebo     1.144 [ 0.733;  1.555] 2.110 [ 1.498;  2.722]
-Semaglutide            Semaglutide 0.450 [-0.127;  1.027]
-Tirzepatide 0.641 [ 0.195;  1.087]            Tirzepatide
+                            Dulaglutide               Exenatide
+Dulaglutide                 Dulaglutide                       .
+Exenatide       -0.386 [-0.907;  0.135]               Exenatide
+Liraglutide     -0.044 [-0.486;  0.398]  0.342 [-0.062;  0.746]
+OralSemaglutide -0.065 [-0.669;  0.540]  0.321 [-0.251;  0.894]
+Placebo         -0.982 [-1.470; -0.493] -0.596 [-0.970; -0.222]
+Semaglutide      0.294 [-0.146;  0.735]  0.680 [ 0.300;  1.060]
+Sitagliptin     -0.685 [-1.289; -0.081] -0.299 [-0.866;  0.268]
+Tirzepatide      0.924 [ 0.327;  1.522]  1.310 [ 0.777;  1.844]
+                            Liraglutide         OralSemaglutide
+Dulaglutide     -0.060 [-0.621;  0.501]                       .
+Exenatide        0.330 [-0.234;  0.894]                       .
+Liraglutide                 Liraglutide  0.100 [-0.455;  0.655]
+OralSemaglutide -0.021 [-0.492;  0.451]         OralSemaglutide
+Placebo         -0.938 [-1.325; -0.551] -0.917 [-1.466; -0.368]
+Semaglutide      0.338 [-0.055;  0.731]  0.359 [-0.164;  0.882]
+Sitagliptin     -0.641 [-1.164; -0.118] -0.621 [-1.092; -0.149]
+Tirzepatide      0.968 [ 0.425;  1.511]  0.989 [ 0.334;  1.644]
+                                Placebo             Semaglutide
+Dulaglutide                           .  0.310 [-0.246;  0.866]
+Exenatide       -0.530 [-1.077;  0.017]  0.620 [ 0.046;  1.194]
+Liraglutide     -1.100 [-1.681; -0.519]                       .
+OralSemaglutide                       .                       .
+Placebo                         Placebo  1.143 [ 0.745;  1.541]
+Semaglutide      1.276 [ 0.972;  1.580]             Semaglutide
+Sitagliptin      0.297 [-0.235;  0.828] -0.979 [-1.451; -0.508]
+Tirzepatide      1.906 [ 1.468;  2.344]  0.630 [ 0.199;  1.061]
+                            Sitagliptin            Tirzepatide
+Dulaglutide                           .                      .
+Exenatide                             .                      .
+Liraglutide                           .                      .
+OralSemaglutide -0.500 [-1.055;  0.055]                      .
+Placebo                               . 2.110 [ 1.516;  2.704]
+Semaglutide     -1.100 [-1.655; -0.545] 0.450 [-0.109;  1.009]
+Sitagliptin                 Sitagliptin                      .
+Tirzepatide      1.610 [ 0.983;  2.236]            Tirzepatide
 
 === Design-by-treatment inconsistency ===
 Q statistics to assess homogeneity / consistency
 
                      Q df  p-value
-Total           104.62  5 < 0.0001
+Total           131.28  6 < 0.0001
 Within designs   57.53  1 < 0.0001
-Between designs  47.09  4 < 0.0001
+Between designs  73.75  5 < 0.0001
 
 Design-specific decomposition of within-designs Q statistic
 
@@ -148,38 +196,44 @@ Design-specific decomposition of within-designs Q statistic
 Between-designs Q statistic after detaching of single designs
 (influential designs have p-value markedly different from < 0.0001)
 
-         Detached design     Q df  p-value
-     Placebo:Semaglutide 12.95  3   0.0047
- Semaglutide:Tirzepatide 21.96  3 < 0.0001
-     Placebo:Tirzepatide 21.96  3 < 0.0001
- Dulaglutide:Liraglutide 37.94  3 < 0.0001
- Dulaglutide:Semaglutide 37.94  3 < 0.0001
-     Placebo:Liraglutide 38.40  3 < 0.0001
-   Exenatide:Semaglutide 44.45  3 < 0.0001
-       Placebo:Exenatide 45.12  3 < 0.0001
-   Exenatide:Liraglutide 47.04  3 < 0.0001
+             Detached design     Q df  p-value
+         Placebo:Semaglutide 22.04  4   0.0002
+     Semaglutide:Sitagliptin 47.09  4 < 0.0001
+ Liraglutide:OralSemaglutide 47.09  4 < 0.0001
+ OralSemaglutide:Sitagliptin 47.09  4 < 0.0001
+         Placebo:Tirzepatide 51.17  4 < 0.0001
+     Semaglutide:Tirzepatide 51.17  4 < 0.0001
+         Placebo:Liraglutide 56.90  4 < 0.0001
+           Placebo:Exenatide 67.64  4 < 0.0001
+       Exenatide:Liraglutide 69.41  4 < 0.0001
+       Exenatide:Semaglutide 72.42  4 < 0.0001
+     Dulaglutide:Liraglutide 73.11  4 < 0.0001
+     Dulaglutide:Semaglutide 73.11  4 < 0.0001
 
 Q statistic to assess consistency under the assumption of
 a full design-by-treatment interaction random effects model
 
                    Q df p-value tau.within tau2.within
-Between designs 0.42  4  0.9808     0.5467      0.2989
+Between designs 0.59  5  0.9884     0.5467      0.2989
 
 === Node-splitting ===
 Separate indirect from direct evidence (SIDE) using back-calculation method
 
 Random effects model: 
 
-              comparison k prop     nma  direct  indir.    Diff     z p-value
- Dulaglutide:Liraglutide 1 0.65 -0.0075 -0.0600  0.0883 -0.1483 -0.30  0.7653
- Dulaglutide:Semaglutide 1 0.65  0.2582  0.3100  0.1617  0.1483  0.30  0.7653
-   Exenatide:Liraglutide 1 0.54  0.3827  0.3300  0.4451 -0.1151 -0.26  0.7935
-       Exenatide:Placebo 1 0.47 -0.6056 -0.5300 -0.6722  0.1422  0.36  0.7196
-   Exenatide:Semaglutide 1 0.46  0.6484  0.6200  0.6723 -0.0523 -0.13  0.8985
-     Liraglutide:Placebo 1 0.49 -0.9883 -1.1000 -0.8815 -0.2185 -0.51  0.6092
-     Semaglutide:Placebo 2 0.60 -1.2540 -1.1440 -1.4206  0.2766  0.83  0.4061
-     Tirzepatide:Placebo 1 0.55 -1.8953 -2.1100 -1.6356 -0.4744 -1.02  0.3064
- Semaglutide:Tirzepatide 1 0.60  0.6413  0.4500  0.9244 -0.4744 -1.02  0.3064
+                  comparison k prop     nma  direct  indir.    Diff     z p-value
+     Dulaglutide:Liraglutide 1 0.62 -0.0440 -0.0600 -0.0177 -0.0423 -0.09  0.9275
+     Dulaglutide:Semaglutide 1 0.63  0.2942  0.3100  0.2677  0.0423  0.09  0.9275
+       Exenatide:Liraglutide 1 0.51  0.3420  0.3300  0.3545 -0.0245 -0.06  0.9526
+           Exenatide:Placebo 1 0.47 -0.5958 -0.5300 -0.6537  0.1237  0.32  0.7465
+       Exenatide:Semaglutide 1 0.44  0.6802  0.6200  0.7271 -0.1071 -0.27  0.7842
+ Liraglutide:OralSemaglutide 1 0.72 -0.0206  0.1000 -0.3346  0.4346  0.81  0.4185
+         Liraglutide:Placebo 1 0.44 -0.9378 -1.1000 -0.8081 -0.2919 -0.73  0.4628
+ OralSemaglutide:Sitagliptin 1 0.72 -0.6206 -0.5000 -0.9346  0.4346  0.81  0.4185
+         Semaglutide:Placebo 2 0.58 -1.2759 -1.1429 -1.4622  0.3192  1.01  0.3105
+         Tirzepatide:Placebo 1 0.54 -1.9062 -2.1100 -1.6638 -0.4462 -1.00  0.3197
+     Semaglutide:Sitagliptin 1 0.72 -0.9794 -1.1000 -0.6654 -0.4346 -0.81  0.4185
+     Semaglutide:Tirzepatide 1 0.60  0.6302  0.4500  0.8962 -0.4462 -1.00  0.3197
 
 Legend:
  comparison - Treatment comparison
@@ -193,35 +247,43 @@ Legend:
  p-value    - p-value of test for disagreement (direct versus indirect)
 
 === P-scores (lower = better for HR/RR on protective scale) ===
-            P-score
-Tirzepatide  0.9988
-Semaglutide  0.7486
-Dulaglutide  0.5150
-Liraglutide  0.5138
-Exenatide    0.2235
-Placebo      0.0002
+                P-score
+Tirzepatide      0.9993
+Semaglutide      0.8245
+Dulaglutide      0.5958
+Liraglutide      0.5638
+OralSemaglutide  0.5476
+Exenatide        0.3009
+Sitagliptin      0.1485
+Placebo          0.0198
 
 === Rank-probability matrix (N=100k draws) ===
-            rank_1 rank_2 rank_3 rank_4 rank_5 rank_6
-Dulaglutide  0.010  0.152  0.374  0.432  0.031  0.000
-Exenatide    0.000  0.002  0.013  0.056  0.926  0.004
-Liraglutide  0.001  0.073  0.463  0.435  0.028  0.000
-Placebo      0.000  0.000  0.000  0.000  0.004  0.996
-Semaglutide  0.059  0.719  0.140  0.071  0.010  0.000
-Tirzepatide  0.930  0.053  0.011  0.006  0.000  0.000
+                rank_1 rank_2 rank_3 rank_4 rank_5 rank_6 rank_7 rank_8
+Dulaglutide      0.008  0.122  0.313  0.332  0.200  0.025  0.001  0.000
+Exenatide        0.000  0.000  0.002  0.018  0.114  0.730  0.134  0.001
+Liraglutide      0.001  0.058  0.325  0.218  0.312  0.074  0.012  0.000
+OralSemaglutide  0.000  0.048  0.208  0.363  0.335  0.045  0.000  0.000
+Placebo          0.000  0.000  0.000  0.000  0.000  0.000  0.091  0.909
+Semaglutide      0.046  0.729  0.143  0.064  0.016  0.002  0.000  0.000
+Sitagliptin      0.000  0.000  0.001  0.003  0.023  0.123  0.762  0.089
+Tirzepatide      0.945  0.043  0.008  0.002  0.001  0.000  0.000  0.000
 
 === SUCRA ===
-Tirzepatide Semaglutide Dulaglutide Liraglutide   Exenatide     Placebo 
-      0.982       0.749       0.535       0.517       0.217       0.001 
+    Tirzepatide     Semaglutide     Dulaglutide     Liraglutide OralSemaglutide 
+          0.990           0.817           0.618           0.564           0.554 
+      Exenatide     Sitagliptin         Placebo 
+          0.289           0.156           0.013 
 
 [wrote incretins_t2d_nma_netmeta_results.rds + .json]
 
 === Key results for peer-review bundle ===
-TAU2: 0.083 
-I2: 95.22 %
-Q inc: 47.093 df 4 p 0 
-  Dulaglutide              MD -0.996 (-1.501, -0.490)
-  Exenatide                MD -0.606 (-0.993, -0.218)
-  Liraglutide              MD -0.988 (-1.407, -0.570)
-  Semaglutide              MD -1.254 (-1.573, -0.935)
-  Tirzepatide              MD -1.895 (-2.348, -1.443)
+TAU2: 0.07745 
+I2: 95.43 %
+Q inc: 73.749 df 5 p 0 
+  Dulaglutide              MD -0.982 (-1.470, -0.493)
+  Exenatide                MD -0.596 (-0.970, -0.222)
+  Liraglutide              MD -0.938 (-1.325, -0.551)
+  OralSemaglutide          MD -0.917 (-1.466, -0.368)
+  Semaglutide              MD -1.276 (-1.580, -0.972)
+  Sitagliptin              MD -0.297 (-0.828, 0.235)
+  Tirzepatide              MD -1.906 (-2.344, -1.468)

@@ -1651,7 +1651,7 @@
             return safe;
         };
 
-        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03887455', 'NCT04437511', 'NCT02477800', 'NCT02484547', 'NCT03443973', 'NCT03444870']);
+        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03887455', 'NCT04437511', 'NCT02477800', 'NCT02484547', 'NCT03443973', 'NCT03444870', 'NCT01900665']);
         const isPhaseTwoLike = (phaseLabel = '') => {
             const p = String(phaseLabel ?? '').toLowerCase().trim();
             if (!p) return false;
@@ -2094,7 +2094,7 @@
 
             // ISSUE 10 FIX: Corrected ARTS-DN Metadata (Phase IIb)
             /* Known acronyms for trials whose CT.gov search may not return the acronym field */
-            nctAcronyms: { 'NCT03887455': 'Clarity AD', 'NCT04437511': 'TRAILBLAZER-ALZ 2', 'NCT02477800': 'EMERGE', 'NCT02484547': 'ENGAGE', 'NCT03443973': 'GRADUATE I', 'NCT03444870': 'GRADUATE II' },
+            nctAcronyms: { 'NCT03887455': 'Clarity AD', 'NCT04437511': 'TRAILBLAZER-ALZ 2', 'NCT02477800': 'EMERGE', 'NCT02484547': 'ENGAGE', 'NCT03443973': 'GRADUATE I', 'NCT03444870': 'GRADUATE II', 'NCT01900665': 'EXPEDITION 3' },
             _allowedSources: new Set(['registry', 'pubmed', 'openalex', 'reference', 'manual']),
             _allowedStatuses: new Set(['search', 'include', 'exclude']),
             sanitizeText(value, maxLen = 600) {
@@ -2476,6 +2476,17 @@
                     snippet: 'Bateman RJ et al. NEJM 2023 (GRADUATE II). NEGATIVE.',
                     sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa2304430',
                     ctgovUrl: 'https://clinicaltrials.gov/study/NCT03444870',
+                    evidence: []
+                },
+                'NCT01900665': {
+                    name: 'EXPEDITION 3', phase: 'III', year: 2018, tE: 0, tN: 1057, cE: 0, cN: 1072, group: 'Solanezumab 400mg IV Q4W vs Placebo (EXPEDITION 3 mild AD; 80wk CDR-SB MD; NEGATIVE primary)', publishedHR: -0.1, hrLCI: -0.26, hrUCI: 0.07,
+                    allOutcomes: [
+                        { shortLabel: 'CDR-SB', title: 'CDR-SB change at 80wk solanezumab vs placebo (MD; anti-soluble-Abeta; NEGATIVE primary ADAS-cog14)', tE: 0, cE: 0, type: 'PRIMARY', matchScore: 95, effect: -0.1, lci: -0.26, uci: 0.07, estimandType: 'MD' }
+                    ],
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+                    snippet: 'Honig LS et al. NEJM 2018;378:321-330 (EXPEDITION 3). Broadens class coverage to anti-soluble-Abeta; NEGATIVE primary endpoint.',
+                    sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1705971',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT01900665',
                     evidence: []
                 }
             },
@@ -8403,7 +8414,8 @@
                 "Donanemab",
                 "Aducanumab",
                 "Placebo",
-                "Gantenerumab"
+                "Gantenerumab",
+                "Solanezumab"
         ],
         "comparisons": [
                 {
@@ -8446,6 +8458,13 @@
                         "t2": "Placebo",
                         "trials": [
                                 "NCT03444870"
+                        ]
+                },
+                {
+                        "t1": "Solanezumab",
+                        "t2": "Placebo",
+                        "trials": [
+                                "NCT01900665"
                         ]
                 }
         ],

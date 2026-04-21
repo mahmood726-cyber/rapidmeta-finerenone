@@ -1651,7 +1651,7 @@
             return safe;
         };
 
-        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03954834', 'NCT03987919', 'NCT02054897', 'NCT01885208', 'NCT02648204', 'NCT00518882', 'NCT01624259', 'NCT00318461', 'NCT01720446', 'NCT01144338']);
+        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03954834', 'NCT03987919', 'NCT02054897', 'NCT01885208', 'NCT02648204', 'NCT00518882', 'NCT01624259', 'NCT00318461', 'NCT01720446', 'NCT01144338', 'NCT02863419', 'NCT02607865', 'NCT01930188']);
         const isPhaseTwoLike = (phaseLabel = '') => {
             const p = String(phaseLabel ?? '').toLowerCase().trim();
             if (!p) return false;
@@ -2094,7 +2094,7 @@
 
             // ISSUE 10 FIX: Corrected ARTS-DN Metadata (Phase IIb)
             /* Known acronyms for trials whose CT.gov search may not return the acronym field */
-            nctAcronyms: { 'NCT03954834': 'SURPASS-1', 'NCT03987919': 'SURPASS-2', 'NCT02054897': 'SUSTAIN-1', 'NCT01885208': 'SUSTAIN-3', 'NCT02648204': 'SUSTAIN-7', 'NCT00518882': 'LEAD-6', 'NCT01624259': 'AWARD-6', 'NCT00318461': 'LEAD-2', 'NCT01720446': 'SUSTAIN-6', 'NCT01144338': 'EXSCEL' },
+            nctAcronyms: { 'NCT03954834': 'SURPASS-1', 'NCT03987919': 'SURPASS-2', 'NCT02054897': 'SUSTAIN-1', 'NCT01885208': 'SUSTAIN-3', 'NCT02648204': 'SUSTAIN-7', 'NCT00518882': 'LEAD-6', 'NCT01624259': 'AWARD-6', 'NCT00318461': 'LEAD-2', 'NCT01720446': 'SUSTAIN-6', 'NCT01144338': 'EXSCEL', 'NCT02863419': 'PIONEER-4', 'NCT02607865': 'PIONEER-3', 'NCT01930188': 'SUSTAIN-2' },
             _allowedSources: new Set(['registry', 'pubmed', 'openalex', 'reference', 'manual']),
             _allowedStatuses: new Set(['search', 'include', 'exclude']),
             sanitizeText(value, maxLen = 600) {
@@ -2511,6 +2511,39 @@
                     snippet: 'Holman RR et al. NEJM 2017;377:1228-1239 (EXSCEL). Largest GLP-1 RA CV-outcomes trial.',
                     sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1612917',
                     ctgovUrl: 'https://clinicaltrials.gov/study/NCT01144338',
+                    evidence: []
+                },
+                'NCT02863419': {
+                    name: 'PIONEER-4', phase: 'III', year: 2019, tE: 0, tN: 285, cE: 0, cN: 284, group: 'Oral semaglutide 14mg vs Liraglutide 1.8mg SC (PIONEER-4 head-to-head; wk 26 HbA1c MD)', publishedHR: -0.1, hrLCI: -0.2, hrUCI: 0.0,
+                    allOutcomes: [
+                        { shortLabel: 'HBA1C', title: 'HbA1c change at week 26 oral semaglutide 14mg vs liraglutide 1.8mg (MD; PIONEER-4; adds Oral Semaglutide node)', tE: 0, cE: 0, type: 'PRIMARY', matchScore: 95, effect: -0.1, lci: -0.2, uci: 0.0, estimandType: 'MD' }
+                    ],
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+                    snippet: 'Pratley R et al. Lancet 2019;394:39-50 (PIONEER-4). Adds Oral Semaglutide via Lira head-to-head.',
+                    sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(19)31271-1/fulltext',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT02863419',
+                    evidence: []
+                },
+                'NCT02607865': {
+                    name: 'PIONEER-3', phase: 'III', year: 2019, tE: 0, tN: 466, cE: 0, cN: 465, group: 'Oral semaglutide 14mg vs Sitagliptin 100mg (PIONEER-3; wk 26 HbA1c MD; adds Sitagliptin DPP-4 anchor)', publishedHR: -0.5, hrLCI: -0.6, hrUCI: -0.4,
+                    allOutcomes: [
+                        { shortLabel: 'HBA1C', title: 'HbA1c change at week 26 oral semaglutide 14mg vs sitagliptin 100mg (MD; PIONEER-3)', tE: 0, cE: 0, type: 'PRIMARY', matchScore: 95, effect: -0.5, lci: -0.6, uci: -0.4, estimandType: 'MD' }
+                    ],
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+                    snippet: 'Rosenstock J et al. JAMA 2019;321:1466-1480 (PIONEER-3). Adds Sitagliptin as DPP-4 anchor.',
+                    sourceUrl: 'https://jamanetwork.com/journals/jama/fullarticle/2731081',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT02607865',
+                    evidence: []
+                },
+                'NCT01930188': {
+                    name: 'SUSTAIN-2', phase: 'III', year: 2017, tE: 0, tN: 408, cE: 0, cN: 407, group: 'Semaglutide 1mg SC weekly vs Sitagliptin 100mg (SUSTAIN-2; wk 56 HbA1c MD)', publishedHR: -1.1, hrLCI: -1.2, hrUCI: -1.0,
+                    allOutcomes: [
+                        { shortLabel: 'HBA1C', title: 'HbA1c change at week 56 semaglutide 1mg vs sitagliptin 100mg (MD; SUSTAIN-2; consolidates Sitagliptin anchor)', tE: 0, cE: 0, type: 'PRIMARY', matchScore: 95, effect: -1.1, lci: -1.2, uci: -1.0, estimandType: 'MD' }
+                    ],
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+                    snippet: 'Ahren B et al. Lancet Diab Endocrinol 2017;5:341-354 (SUSTAIN-2).',
+                    sourceUrl: 'https://www.thelancet.com/journals/landia/article/PIIS2213-8587(17)30092-X/fulltext',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT01930188',
                     evidence: []
                 }
             },
@@ -8439,7 +8472,9 @@
                 "Dulaglutide",
                 "Liraglutide",
                 "Exenatide",
-                "Placebo"
+                "Placebo",
+                "OralSemaglutide",
+                "Sitagliptin"
         ],
         "comparisons": [
                 {
@@ -8510,6 +8545,27 @@
                         "t2": "Placebo",
                         "trials": [
                                 "NCT01144338"
+                        ]
+                },
+                {
+                        "t1": "OralSemaglutide",
+                        "t2": "Liraglutide",
+                        "trials": [
+                                "NCT02863419"
+                        ]
+                },
+                {
+                        "t1": "OralSemaglutide",
+                        "t2": "Sitagliptin",
+                        "trials": [
+                                "NCT02607865"
+                        ]
+                },
+                {
+                        "t1": "Semaglutide",
+                        "t2": "Sitagliptin",
+                        "trials": [
+                                "NCT01930188"
                         ]
                 }
         ],

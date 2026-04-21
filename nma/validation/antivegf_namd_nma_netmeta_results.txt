@@ -1,14 +1,16 @@
 === RapidMeta Ophthalmology | Anti-VEGF Class NMA in Neovascular AMD v1.3 ===
-  studlab          treat1          treat2    TE      seTE
-1  VIEW-1 Aflibercept_2mg     Ranibizumab  0.50 0.8163265
-2  VIEW-2 Aflibercept_2mg     Ranibizumab  0.60 0.8673469
-3  TENAYA       Faricimab Aflibercept_2mg  0.70 0.6887755
-4 LUCERNE       Faricimab Aflibercept_2mg  0.50 0.6887755
-5  PULSAR Aflibercept_8mg Aflibercept_2mg  1.00 0.7397959
-6    HAWK    Brolucizumab Aflibercept_2mg -0.20 0.6632653
-7 HARRIER    Brolucizumab Aflibercept_2mg  0.70 0.6632653
-8    CATT     Bevacizumab     Ranibizumab -0.50 1.0204082
-9    IVAN     Bevacizumab     Ranibizumab -1.37 1.2142857
+   studlab          treat1          treat2    TE      seTE
+1   VIEW-1 Aflibercept_2mg     Ranibizumab  0.50 0.8163265
+2   VIEW-2 Aflibercept_2mg     Ranibizumab  0.60 0.8673469
+3   TENAYA       Faricimab Aflibercept_2mg  0.70 0.6887755
+4  LUCERNE       Faricimab Aflibercept_2mg  0.50 0.6887755
+5   PULSAR Aflibercept_8mg Aflibercept_2mg  1.00 0.7397959
+6     HAWK    Brolucizumab Aflibercept_2mg -0.20 0.6632653
+7  HARRIER    Brolucizumab Aflibercept_2mg  0.70 0.6632653
+8     CATT     Bevacizumab     Ranibizumab -0.50 1.0204082
+9     IVAN     Bevacizumab     Ranibizumab -1.37 1.2142857
+10  MARINA     Ranibizumab            Sham 17.60 1.5816327
+11  ANCHOR     Ranibizumab  VerteporfinPDT 20.80 1.7346939
 
 
 === Consistency model ===
@@ -24,6 +26,8 @@ HAWK    Aflibercept_2mg    Brolucizumab  0.2000 0.6633
 HARRIER Aflibercept_2mg    Brolucizumab -0.7000 0.6633
 CATT        Bevacizumab     Ranibizumab -0.5000 1.0204
 IVAN        Bevacizumab     Ranibizumab -1.3700 1.2143
+MARINA      Ranibizumab            Sham 17.6000 1.5816
+ANCHOR      Ranibizumab  VerteporfinPDT 20.8000 1.7347
 
 Number of treatment arms (by study):
         narms
@@ -36,59 +40,81 @@ HAWK        2
 HARRIER     2
 CATT        2
 IVAN        2
+MARINA      2
+ANCHOR      2
 
 Results (common effects model):
 
-                 treat1          treat2      MD            95%-CI    Q leverage
-VIEW-1  Aflibercept_2mg     Ranibizumab  0.5470 [-0.6181; 1.7121] 0.00     0.53
-VIEW-2  Aflibercept_2mg     Ranibizumab  0.5470 [-0.6181; 1.7121] 0.00     0.47
-TENAYA  Aflibercept_2mg       Faricimab -0.6000 [-1.5546; 0.3546] 0.02     0.50
-LUCERNE Aflibercept_2mg       Faricimab -0.6000 [-1.5546; 0.3546] 0.02     0.50
-PULSAR  Aflibercept_2mg Aflibercept_8mg -1.0000 [-2.4500; 0.4500] 0.00     1.00
-HAWK    Aflibercept_2mg    Brolucizumab -0.2500 [-1.1692; 0.6692] 0.46     0.50
-HARRIER Aflibercept_2mg    Brolucizumab -0.2500 [-1.1692; 0.6692] 0.46     0.50
-CATT        Bevacizumab     Ranibizumab -0.8601 [-2.3912; 0.6710] 0.12     0.59
-IVAN        Bevacizumab     Ranibizumab -0.8601 [-2.3912; 0.6710] 0.18     0.41
+                 treat1          treat2      MD             95%-CI    Q
+VIEW-1  Aflibercept_2mg     Ranibizumab  0.5470 [-0.6181;  1.7121] 0.00
+VIEW-2  Aflibercept_2mg     Ranibizumab  0.5470 [-0.6181;  1.7121] 0.00
+TENAYA  Aflibercept_2mg       Faricimab -0.6000 [-1.5546;  0.3546] 0.02
+LUCERNE Aflibercept_2mg       Faricimab -0.6000 [-1.5546;  0.3546] 0.02
+PULSAR  Aflibercept_2mg Aflibercept_8mg -1.0000 [-2.4500;  0.4500] 0.00
+HAWK    Aflibercept_2mg    Brolucizumab -0.2500 [-1.1692;  0.6692] 0.46
+HARRIER Aflibercept_2mg    Brolucizumab -0.2500 [-1.1692;  0.6692] 0.46
+CATT        Bevacizumab     Ranibizumab -0.8601 [-2.3912;  0.6710] 0.12
+IVAN        Bevacizumab     Ranibizumab -0.8601 [-2.3912;  0.6710] 0.18
+MARINA      Ranibizumab            Sham 17.6000 [14.5001; 20.6999] 0.00
+ANCHOR      Ranibizumab  VerteporfinPDT 20.8000 [17.4001; 24.1999] 0.00
+        leverage
+VIEW-1      0.53
+VIEW-2      0.47
+TENAYA      0.50
+LUCERNE     0.50
+PULSAR      1.00
+HAWK        0.50
+HARRIER     0.50
+CATT        0.59
+IVAN        0.41
+MARINA      1.00
+ANCHOR      1.00
 
 Results (random effects model):
 
-                 treat1          treat2      MD            95%-CI
-VIEW-1  Aflibercept_2mg     Ranibizumab  0.5470 [-0.6181; 1.7121]
-VIEW-2  Aflibercept_2mg     Ranibizumab  0.5470 [-0.6181; 1.7121]
-TENAYA  Aflibercept_2mg       Faricimab -0.6000 [-1.5546; 0.3546]
-LUCERNE Aflibercept_2mg       Faricimab -0.6000 [-1.5546; 0.3546]
-PULSAR  Aflibercept_2mg Aflibercept_8mg -1.0000 [-2.4500; 0.4500]
-HAWK    Aflibercept_2mg    Brolucizumab -0.2500 [-1.1692; 0.6692]
-HARRIER Aflibercept_2mg    Brolucizumab -0.2500 [-1.1692; 0.6692]
-CATT        Bevacizumab     Ranibizumab -0.8601 [-2.3912; 0.6710]
-IVAN        Bevacizumab     Ranibizumab -0.8601 [-2.3912; 0.6710]
+                 treat1          treat2      MD             95%-CI
+VIEW-1  Aflibercept_2mg     Ranibizumab  0.5470 [-0.6181;  1.7121]
+VIEW-2  Aflibercept_2mg     Ranibizumab  0.5470 [-0.6181;  1.7121]
+TENAYA  Aflibercept_2mg       Faricimab -0.6000 [-1.5546;  0.3546]
+LUCERNE Aflibercept_2mg       Faricimab -0.6000 [-1.5546;  0.3546]
+PULSAR  Aflibercept_2mg Aflibercept_8mg -1.0000 [-2.4500;  0.4500]
+HAWK    Aflibercept_2mg    Brolucizumab -0.2500 [-1.1692;  0.6692]
+HARRIER Aflibercept_2mg    Brolucizumab -0.2500 [-1.1692;  0.6692]
+CATT        Bevacizumab     Ranibizumab -0.8601 [-2.3912;  0.6710]
+IVAN        Bevacizumab     Ranibizumab -0.8601 [-2.3912;  0.6710]
+MARINA      Ranibizumab            Sham 17.6000 [14.5001; 20.6999]
+ANCHOR      Ranibizumab  VerteporfinPDT 20.8000 [17.4001; 24.1999]
 
-Number of studies: k = 9
-Number of pairwise comparisons: m = 9
-Number of treatments: n = 6
-Number of designs: d = 5
+Number of studies: k = 11
+Number of pairwise comparisons: m = 11
+Number of treatments: n = 8
+Number of designs: d = 7
 
 Common effects model
 
-Treatment estimate (sm = 'MD', comparison: other treatments vs 'Bevacizumab'):
-                    MD            95%-CI    z p-value
-Aflibercept_2mg 1.4071 [-0.5170; 3.3311] 1.43  0.1518
-Aflibercept_8mg 2.4071 [-0.0021; 4.8163] 1.96  0.0502
-Bevacizumab          .                 .    .       .
-Brolucizumab    1.6571 [-0.4753; 3.7894] 1.52  0.1277
-Faricimab       2.0071 [-0.1407; 4.1549] 1.83  0.0670
-Ranibizumab     0.8601 [-0.6710; 2.3912] 1.10  0.2709
+Treatment estimate (sm = 'MD', comparison: other treatments vs 'Sham'):
+                     MD             95%-CI     z  p-value
+Aflibercept_2mg 18.1470 [14.8353; 21.4586] 10.74 < 0.0001
+Aflibercept_8mg 19.1470 [15.5318; 22.7622] 10.38 < 0.0001
+Bevacizumab     16.7399 [13.2825; 20.1974]  9.49 < 0.0001
+Brolucizumab    18.3970 [14.9601; 21.8338] 10.49 < 0.0001
+Faricimab       18.7470 [15.3005; 22.1935] 10.66 < 0.0001
+Ranibizumab     17.6000 [14.5001; 20.6999] 11.13 < 0.0001
+Sham                  .                  .     .        .
+VerteporfinPDT  -3.2000 [-7.8010;  1.4010] -1.36   0.1728
 
 Random effects model
 
-Treatment estimate (sm = 'MD', comparison: other treatments vs 'Bevacizumab'):
-                    MD            95%-CI    z p-value
-Aflibercept_2mg 1.4071 [-0.5170; 3.3311] 1.43  0.1518
-Aflibercept_8mg 2.4071 [-0.0021; 4.8163] 1.96  0.0502
-Bevacizumab          .                 .    .       .
-Brolucizumab    1.6571 [-0.4753; 3.7894] 1.52  0.1277
-Faricimab       2.0071 [-0.1407; 4.1549] 1.83  0.0670
-Ranibizumab     0.8601 [-0.6710; 2.3912] 1.10  0.2709
+Treatment estimate (sm = 'MD', comparison: other treatments vs 'Sham'):
+                     MD             95%-CI     z  p-value
+Aflibercept_2mg 18.1470 [14.8353; 21.4586] 10.74 < 0.0001
+Aflibercept_8mg 19.1470 [15.5318; 22.7622] 10.38 < 0.0001
+Bevacizumab     16.7399 [13.2825; 20.1974]  9.49 < 0.0001
+Brolucizumab    18.3970 [14.9601; 21.8338] 10.49 < 0.0001
+Faricimab       18.7470 [15.3005; 22.1935] 10.66 < 0.0001
+Ranibizumab     17.6000 [14.5001; 20.6999] 11.13 < 0.0001
+Sham                  .                  .     .        .
+VerteporfinPDT  -3.2000 [-7.8010;  1.4010] -1.36   0.1728
 
 Quantifying heterogeneity / inconsistency:
 tau^2 < 0.0001; tau < 0.0001; I^2 = 0% [0.0%; 79.2%]
@@ -105,35 +131,50 @@ Details of network meta-analysis methods:
 - Calculation of I^2 based on Q
 
 === League table (RE, HR/RR with 95% CI) ===
-                       Aflibercept_2mg        Aflibercept_8mg
-Aflibercept_2mg        Aflibercept_2mg -1.000 [-2.450; 0.450]
-Aflibercept_8mg -1.000 [-2.450; 0.450]        Aflibercept_8mg
-Bevacizumab      1.407 [-0.517; 3.331]  2.407 [-0.002; 4.816]
-Brolucizumab    -0.250 [-1.169; 0.669]  0.750 [-0.967; 2.467]
-Faricimab       -0.600 [-1.555; 0.355]  0.400 [-1.336; 2.136]
-Ranibizumab      0.547 [-0.618; 1.712]  1.547 [-0.313; 3.407]
-                           Bevacizumab           Brolucizumab
-Aflibercept_2mg                      . -0.250 [-1.169; 0.669]
-Aflibercept_8mg                      .                      .
-Bevacizumab                Bevacizumab                      .
-Brolucizumab    -1.657 [-3.789; 0.475]           Brolucizumab
-Faricimab       -2.007 [-4.155; 0.141] -0.350 [-1.675; 0.975]
-Ranibizumab     -0.860 [-2.391; 0.671]  0.797 [-0.687; 2.281]
-                             Faricimab            Ranibizumab
-Aflibercept_2mg -0.600 [-1.555; 0.355]  0.547 [-0.618; 1.712]
-Aflibercept_8mg                      .                      .
-Bevacizumab                          . -0.860 [-2.391; 0.671]
-Brolucizumab                         .                      .
-Faricimab                    Faricimab                      .
-Ranibizumab      1.147 [-0.359; 2.653]            Ranibizumab
+                          Aflibercept_2mg           Aflibercept_8mg
+Aflibercept_2mg           Aflibercept_2mg -1.000 [ -2.450;   0.450]
+Aflibercept_8mg -1.000 [ -2.450;   0.450]           Aflibercept_8mg
+Bevacizumab      1.407 [ -0.517;   3.331]  2.407 [ -0.002;   4.816]
+Brolucizumab    -0.250 [ -1.169;   0.669]  0.750 [ -0.967;   2.467]
+Faricimab       -0.600 [ -1.555;   0.355]  0.400 [ -1.336;   2.136]
+Ranibizumab      0.547 [ -0.618;   1.712]  1.547 [ -0.313;   3.407]
+Sham            18.147 [ 14.835;  21.459] 19.147 [ 15.532;  22.762]
+VerteporfinPDT  21.347 [ 17.753;  24.941] 22.347 [ 18.471;  26.222]
+                              Bevacizumab              Brolucizumab
+Aflibercept_2mg                         . -0.250 [ -1.169;   0.669]
+Aflibercept_8mg                         .                         .
+Bevacizumab                   Bevacizumab                         .
+Brolucizumab    -1.657 [ -3.789;   0.475]              Brolucizumab
+Faricimab       -2.007 [ -4.155;   0.141] -0.350 [ -1.675;   0.975]
+Ranibizumab     -0.860 [ -2.391;   0.671]  0.797 [ -0.687;   2.281]
+Sham            16.740 [ 13.282;  20.197] 18.397 [ 14.960;  21.834]
+VerteporfinPDT  19.940 [ 16.211;  23.669] 21.597 [ 17.887;  25.307]
+                                Faricimab               Ranibizumab
+Aflibercept_2mg -0.600 [ -1.555;   0.355]  0.547 [ -0.618;   1.712]
+Aflibercept_8mg                         .                         .
+Bevacizumab                             . -0.860 [ -2.391;   0.671]
+Brolucizumab                            .                         .
+Faricimab                       Faricimab                         .
+Ranibizumab      1.147 [ -0.359;   2.653]               Ranibizumab
+Sham            18.747 [ 15.300;  22.193] 17.600 [ 14.500;  20.700]
+VerteporfinPDT  21.947 [ 18.228;  25.666] 20.800 [ 17.400;  24.200]
+                                     Sham            VerteporfinPDT
+Aflibercept_2mg                         .                         .
+Aflibercept_8mg                         .                         .
+Bevacizumab                             .                         .
+Brolucizumab                            .                         .
+Faricimab                               .                         .
+Ranibizumab     17.600 [ 14.500;  20.700] 20.800 [ 17.400;  24.200]
+Sham                                 Sham                         .
+VerteporfinPDT   3.200 [ -1.401;   7.801]            VerteporfinPDT
 
 === Design-by-treatment inconsistency ===
 Q statistics to assess homogeneity / consistency
 
-                   Q df p-value
-Total           1.27  4  0.8663
-Within designs  1.27  4  0.8663
-Between designs 0.00  0      --
+                    Q df p-value
+Total            1.27  4  0.8663
+Within designs   1.27  4  0.8663
+Between designs -0.00  0      --
 
 Design-specific decomposition of within-designs Q statistic
 
@@ -146,34 +187,38 @@ Design-specific decomposition of within-designs Q statistic
 Q statistic to assess consistency under the assumption of
 a full design-by-treatment interaction random effects model
 
-                   Q df p-value tau.within tau2.within
-Between designs 0.00  0      --          0           0
+                    Q df p-value tau.within tau2.within
+Between designs -0.00  0      --          0           0
 
 === Node-splitting ===
 
 === P-scores (lower = better for HR/RR on protective scale) ===
                 P-score
-Aflibercept_8mg  0.8627
-Faricimab        0.7626
-Brolucizumab     0.5982
-Aflibercept_2mg  0.4479
-Ranibizumab      0.2618
-Bevacizumab      0.0668
+Aflibercept_8mg  0.9019
+Faricimab        0.8304
+Brolucizumab     0.7130
+Aflibercept_2mg  0.6057
+Ranibizumab      0.4727
+Bevacizumab      0.3334
+Sham             0.1305
+VerteporfinPDT   0.0123
 
 === Rank-probability matrix (N=100k draws) ===
-                rank_1 rank_2 rank_3 rank_4 rank_5 rank_6
-Aflibercept_2mg  0.116  0.135  0.196  0.215  0.287  0.051
-Aflibercept_8mg  0.567  0.199  0.123  0.099  0.012  0.000
-Bevacizumab      0.000  0.001  0.003  0.020  0.285  0.691
-Brolucizumab     0.134  0.170  0.237  0.381  0.075  0.003
-Faricimab        0.169  0.386  0.298  0.139  0.007  0.000
-Ranibizumab      0.014  0.110  0.142  0.146  0.333  0.254
+                rank_1 rank_2 rank_3 rank_4 rank_5 rank_6 rank_7 rank_8
+Aflibercept_2mg  0.101  0.125  0.181  0.316  0.242  0.035  0.000  0.000
+Aflibercept_8mg  0.512  0.212  0.132  0.096  0.042  0.006  0.000  0.000
+Bevacizumab      0.000  0.001  0.004  0.031  0.316  0.649  0.000  0.000
+Brolucizumab     0.117  0.171  0.286  0.298  0.126  0.003  0.000  0.000
+Faricimab        0.132  0.408  0.299  0.135  0.026  0.000  0.000  0.000
+Ranibizumab      0.138  0.084  0.099  0.124  0.248  0.307  0.000  0.000
+Sham             0.000  0.000  0.000  0.000  0.000  0.000  0.941  0.059
+VerteporfinPDT   0.000  0.000  0.000  0.000  0.000  0.000  0.059  0.941
 
 === SUCRA ===
 Aflibercept_8mg       Faricimab    Brolucizumab Aflibercept_2mg     Ranibizumab 
-          0.842           0.714           0.580           0.484           0.313 
-    Bevacizumab 
-          0.067 
+          0.862           0.783           0.692           0.632           0.546 
+    Bevacizumab            Sham  VerteporfinPDT 
+          0.342           0.134           0.008 
 
 [wrote antivegf_namd_nma_netmeta_results.rds + .json]
 
@@ -181,10 +226,12 @@ Aflibercept_8mg       Faricimab    Brolucizumab Aflibercept_2mg     Ranibizumab
 TAU2: 0 
 I2: 0 %
 Q inc: 0 df 0 p NA 
-  Aflibercept_2mg          MD 1.407 (-0.517, 3.331)
-  Aflibercept_8mg          MD 2.407 (-0.002, 4.816)
-  Brolucizumab             MD 1.657 (-0.475, 3.789)
-  Faricimab                MD 2.007 (-0.141, 4.155)
-  Ranibizumab              MD 0.860 (-0.671, 2.391)
+  Aflibercept_2mg          MD 18.147 (14.835, 21.459)
+  Aflibercept_8mg          MD 19.147 (15.532, 22.762)
+  Bevacizumab              MD 16.740 (13.282, 20.197)
+  Brolucizumab             MD 18.397 (14.960, 21.834)
+  Faricimab                MD 18.747 (15.300, 22.193)
+  Ranibizumab              MD 17.600 (14.500, 20.700)
+  VerteporfinPDT           MD -3.200 (-7.801, 1.401)
 Warning message:
 No comparisons selected with argument 'show = both'. You could use 'show = "all" to show all comparisons. 

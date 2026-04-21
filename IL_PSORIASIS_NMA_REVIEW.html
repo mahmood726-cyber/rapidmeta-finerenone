@@ -1651,7 +1651,7 @@
             return safe;
         };
 
-        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT02207231', 'NCT02684370', 'NCT01474512', 'NCT01597245', 'NCT01646177', 'NCT01365455', 'NCT01358578', 'NCT03536884', 'NCT03370133', 'NCT03412747', 'NCT02207162', 'NCT02694399', 'NCT01708590', 'NCT01722331']);
+        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT02207231', 'NCT02684370', 'NCT01474512', 'NCT01597245', 'NCT01646177', 'NCT01365455', 'NCT01358578', 'NCT03536884', 'NCT03370133', 'NCT03412747', 'NCT02207162', 'NCT02694399', 'NCT01708590', 'NCT01722331', 'NCT01729754', 'NCT01708603', 'NCT02074982']);
         const isPhaseTwoLike = (phaseLabel = '') => {
             const p = String(phaseLabel ?? '').toLowerCase().trim();
             if (!p) return false;
@@ -2094,7 +2094,7 @@
 
             // ISSUE 10 FIX: Corrected ARTS-DN Metadata (Phase IIb)
             /* Known acronyms for trials whose CT.gov search may not return the acronym field */
-            nctAcronyms: { 'NCT02207231': 'VOYAGE 1', 'NCT02684370': 'UltIMMa-1', 'NCT01474512': 'UNCOVER-1', 'NCT01597245': 'UNCOVER-2', 'NCT01646177': 'UNCOVER-3', 'NCT01365455': 'ERASURE', 'NCT01358578': 'FIXTURE', 'NCT03536884': 'BE RADIANT', 'NCT03370133': 'BE VIVID', 'NCT03412747': 'BE SURE', 'NCT02207162': 'VOYAGE 2', 'NCT02694399': 'UltIMMa-2', 'NCT01708590': 'AMAGINE-1', 'NCT01722331': 'reSURFACE-1' },
+            nctAcronyms: { 'NCT02207231': 'VOYAGE 1', 'NCT02684370': 'UltIMMa-1', 'NCT01474512': 'UNCOVER-1', 'NCT01597245': 'UNCOVER-2', 'NCT01646177': 'UNCOVER-3', 'NCT01365455': 'ERASURE', 'NCT01358578': 'FIXTURE', 'NCT03536884': 'BE RADIANT', 'NCT03370133': 'BE VIVID', 'NCT03412747': 'BE SURE', 'NCT02207162': 'VOYAGE 2', 'NCT02694399': 'UltIMMa-2', 'NCT01708590': 'AMAGINE-1', 'NCT01722331': 'reSURFACE-1', 'NCT01729754': 'reSURFACE-2', 'NCT01708603': 'AMAGINE-2', 'NCT02074982': 'CLEAR' },
             _allowedSources: new Set(['registry', 'pubmed', 'openalex', 'reference', 'manual']),
             _allowedStatuses: new Set(['search', 'include', 'exclude']),
             sanitizeText(value, maxLen = 600) {
@@ -2546,6 +2546,39 @@
                     snippet: 'Reich K et al. Lancet 2017;390:276-288 (reSURFACE-1).',
                     sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(17)31279-5/fulltext',
                     ctgovUrl: 'https://clinicaltrials.gov/study/NCT01722331',
+                    evidence: []
+                },
+                'NCT01729754': {
+                    name: 'reSURFACE-2', phase: 'III', year: 2017, tE: 117, tN: 314, cE: 40, cN: 313, group: 'Tildrakizumab 200mg vs Etanercept (reSURFACE-2 head-to-head; PASI 90 wk 12 OR)', publishedHR: 4.05, hrLCI: 2.7, hrUCI: 6.08,
+                    allOutcomes: [
+                        { shortLabel: 'PASI90', title: 'PASI 90 week 12 tildrakizumab 200mg vs etanercept (OR head-to-head; reSURFACE-2)', tE: 117, cE: 40, type: 'PRIMARY', matchScore: 95, effect: 4.05, lci: 2.7, uci: 6.08, estimandType: 'OR' }
+                    ],
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+                    snippet: 'Reich K et al. Lancet 2017;390:276-288 (reSURFACE-2 pair). Tilda-vs-Eta head-to-head.',
+                    sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(17)31279-5/fulltext',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT01729754',
+                    evidence: []
+                },
+                'NCT01708603': {
+                    name: 'AMAGINE-2', phase: 'III', year: 2015, tE: 445, tN: 646, cE: 200, cN: 425, group: 'Brodalumab 210mg Q2W vs Ustekinumab 45/90mg (AMAGINE-2 head-to-head; PASI 90 wk 12 OR)', publishedHR: 2.49, hrLCI: 1.94, hrUCI: 3.2,
+                    allOutcomes: [
+                        { shortLabel: 'PASI90', title: 'PASI 90 week 12 brodalumab 210mg vs ustekinumab (OR; AMAGINE-2; adds Ustekinumab IL-12/23 anchor)', tE: 445, cE: 200, type: 'PRIMARY', matchScore: 95, effect: 2.49, lci: 1.94, uci: 3.2, estimandType: 'OR' }
+                    ],
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+                    snippet: 'Lebwohl M et al. NEJM 2015;373:1318-1328 (AMAGINE-2). Adds Ustekinumab.',
+                    sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1503824',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT01708603',
+                    evidence: []
+                },
+                'NCT02074982': {
+                    name: 'CLEAR', phase: 'III', year: 2015, tE: 264, tN: 334, cE: 192, cN: 334, group: 'Secukinumab 300mg Q4W vs Ustekinumab 45/90mg (CLEAR head-to-head; PASI 90 wk 16 OR)', publishedHR: 2.79, hrLCI: 2.0, hrUCI: 3.89,
+                    allOutcomes: [
+                        { shortLabel: 'PASI90', title: 'PASI 90 week 16 secukinumab 300mg vs ustekinumab (OR; CLEAR)', tE: 264, cE: 192, type: 'PRIMARY', matchScore: 95, effect: 2.79, lci: 2.0, uci: 3.89, estimandType: 'OR' }
+                    ],
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+                    snippet: 'Thaci D et al. JAAD 2015;73:400-409 (CLEAR). Further anchors Ustekinumab.',
+                    sourceUrl: 'https://www.sciencedirect.com/science/article/pii/S0190962215020563',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT02074982',
                     evidence: []
                 }
             },
@@ -8478,7 +8511,8 @@
                 "Etanercept",
                 "Placebo",
                 "Brodalumab",
-                "Tildrakizumab"
+                "Tildrakizumab",
+                "Ustekinumab"
         ],
         "comparisons": [
                 {
@@ -8577,6 +8611,27 @@
                         "t2": "Placebo",
                         "trials": [
                                 "NCT01722331"
+                        ]
+                },
+                {
+                        "t1": "Tildrakizumab",
+                        "t2": "Etanercept",
+                        "trials": [
+                                "NCT01729754"
+                        ]
+                },
+                {
+                        "t1": "Brodalumab",
+                        "t2": "Ustekinumab",
+                        "trials": [
+                                "NCT01708603"
+                        ]
+                },
+                {
+                        "t1": "Secukinumab",
+                        "t2": "Ustekinumab",
+                        "trials": [
+                                "NCT02074982"
                         ]
                 }
         ],

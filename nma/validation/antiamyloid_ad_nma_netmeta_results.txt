@@ -1,23 +1,25 @@
 === RapidMeta Neurology | Anti-Amyloid mAbs NMA in Early Alzheimer Disease v1.3 ===
-            studlab       treat1  treat2    TE      seTE
-1        Clarity AD    Lecanemab Placebo -0.45 0.1122449
-2 TRAILBLAZER-ALZ 2    Donanemab Placebo -0.70 0.1275510
-3            EMERGE   Aducanumab Placebo -0.39 0.1530612
-4            ENGAGE   Aducanumab Placebo  0.03 0.1479592
-5        GRADUATE I Gantenerumab Placebo -0.31 0.1811224
-6       GRADUATE II Gantenerumab Placebo -0.19 0.1836735
+            studlab       treat1  treat2    TE       seTE
+1        Clarity AD    Lecanemab Placebo -0.45 0.11224490
+2 TRAILBLAZER-ALZ 2    Donanemab Placebo -0.70 0.12755102
+3            EMERGE   Aducanumab Placebo -0.39 0.15306122
+4            ENGAGE   Aducanumab Placebo  0.03 0.14795918
+5        GRADUATE I Gantenerumab Placebo -0.31 0.18112245
+6       GRADUATE II Gantenerumab Placebo -0.19 0.18367347
+7      EXPEDITION 3  Solanezumab Placebo -0.10 0.08418367
 
 
 === Consistency model ===
 Original data:
 
-                        treat1  treat2      TE   seTE
-Clarity AD           Lecanemab Placebo -0.4500 0.1122
-TRAILBLAZER-ALZ 2    Donanemab Placebo -0.7000 0.1276
-EMERGE              Aducanumab Placebo -0.3900 0.1531
-ENGAGE              Aducanumab Placebo  0.0300 0.1480
-GRADUATE I        Gantenerumab Placebo -0.3100 0.1811
-GRADUATE II       Gantenerumab Placebo -0.1900 0.1837
+                        treat1      treat2      TE   seTE
+Clarity AD           Lecanemab     Placebo -0.4500 0.1122
+TRAILBLAZER-ALZ 2    Donanemab     Placebo -0.7000 0.1276
+EMERGE              Aducanumab     Placebo -0.3900 0.1531
+ENGAGE              Aducanumab     Placebo  0.0300 0.1480
+GRADUATE I        Gantenerumab     Placebo -0.3100 0.1811
+GRADUATE II       Gantenerumab     Placebo -0.1900 0.1837
+EXPEDITION 3           Placebo Solanezumab  0.1000 0.0842
 
 Number of treatment arms (by study):
                   narms
@@ -27,31 +29,42 @@ EMERGE                2
 ENGAGE                2
 GRADUATE I            2
 GRADUATE II           2
+EXPEDITION 3          2
 
 Results (common effects model):
 
-                        treat1  treat2      MD             95%-CI    Q leverage
-Clarity AD           Lecanemab Placebo -0.4500 [-0.6700; -0.2300] 0.00     1.00
-TRAILBLAZER-ALZ 2    Donanemab Placebo -0.7000 [-0.9500; -0.4500] 0.00     1.00
-EMERGE              Aducanumab Placebo -0.1729 [-0.3814;  0.0356] 2.01     0.48
-ENGAGE              Aducanumab Placebo -0.1729 [-0.3814;  0.0356] 1.88     0.52
-GRADUATE I        Gantenerumab Placebo -0.2508 [-0.5036;  0.0019] 0.11     0.51
-GRADUATE II       Gantenerumab Placebo -0.2508 [-0.5036;  0.0019] 0.11     0.49
+                        treat1      treat2      MD             95%-CI    Q
+Clarity AD           Lecanemab     Placebo -0.4500 [-0.6700; -0.2300] 0.00
+TRAILBLAZER-ALZ 2    Donanemab     Placebo -0.7000 [-0.9500; -0.4500] 0.00
+EMERGE              Aducanumab     Placebo -0.1729 [-0.3814;  0.0356] 2.01
+ENGAGE              Aducanumab     Placebo -0.1729 [-0.3814;  0.0356] 1.88
+GRADUATE I        Gantenerumab     Placebo -0.2508 [-0.5036;  0.0019] 0.11
+GRADUATE II       Gantenerumab     Placebo -0.2508 [-0.5036;  0.0019] 0.11
+EXPEDITION 3           Placebo Solanezumab  0.1000 [-0.0650;  0.2650] 0.00
+                  leverage
+Clarity AD            1.00
+TRAILBLAZER-ALZ 2     1.00
+EMERGE                0.48
+ENGAGE                0.52
+GRADUATE I            0.51
+GRADUATE II           0.49
+EXPEDITION 3          1.00
 
 Results (random effects model):
 
-                        treat1  treat2      MD             95%-CI
-Clarity AD           Lecanemab Placebo -0.4500 [-0.8464; -0.0536]
-TRAILBLAZER-ALZ 2    Donanemab Placebo -0.7000 [-1.1138; -0.2862]
-EMERGE              Aducanumab Placebo -0.1768 [-0.4896;  0.1360]
-ENGAGE              Aducanumab Placebo -0.1768 [-0.4896;  0.1360]
-GRADUATE I        Gantenerumab Placebo -0.2505 [-0.5943;  0.0934]
-GRADUATE II       Gantenerumab Placebo -0.2505 [-0.5943;  0.0934]
+                        treat1      treat2      MD             95%-CI
+Clarity AD           Lecanemab     Placebo -0.4500 [-0.8464; -0.0536]
+TRAILBLAZER-ALZ 2    Donanemab     Placebo -0.7000 [-1.1138; -0.2862]
+EMERGE              Aducanumab     Placebo -0.1768 [-0.4896;  0.1360]
+ENGAGE              Aducanumab     Placebo -0.1768 [-0.4896;  0.1360]
+GRADUATE I        Gantenerumab     Placebo -0.2505 [-0.5943;  0.0934]
+GRADUATE II       Gantenerumab     Placebo -0.2505 [-0.5943;  0.0934]
+EXPEDITION 3           Placebo Solanezumab  0.1000 [-0.2687;  0.4687]
 
-Number of studies: k = 6
-Number of pairwise comparisons: m = 6
-Number of treatments: n = 5
-Number of designs: d = 4
+Number of studies: k = 7
+Number of pairwise comparisons: m = 7
+Number of treatments: n = 6
+Number of designs: d = 5
 
 Common effects model
 
@@ -62,6 +75,7 @@ Donanemab    -0.7000 [-0.9500; -0.4500] -5.49 < 0.0001
 Gantenerumab -0.2508 [-0.5036;  0.0019] -1.95   0.0518
 Lecanemab    -0.4500 [-0.6700; -0.2300] -4.01 < 0.0001
 Placebo            .                  .     .        .
+Solanezumab  -0.1000 [-0.2650;  0.0650] -1.19   0.2349
 
 Random effects model
 
@@ -72,6 +86,7 @@ Donanemab    -0.7000 [-1.1138; -0.2862] -3.32  0.0009
 Gantenerumab -0.2505 [-0.5943;  0.0934] -1.43  0.1534
 Lecanemab    -0.4500 [-0.8464; -0.0536] -2.23  0.0261
 Placebo            .                  .     .       .
+Solanezumab  -0.1000 [-0.4687;  0.2687] -0.53  0.5950
 
 Quantifying heterogeneity / inconsistency:
 tau^2 = 0.0283; tau = 0.1682; I^2 = 51.3% [0.0%; 86.0%]
@@ -94,18 +109,21 @@ Donanemab     0.523 [ 0.004;  1.042]               Donanemab
 Gantenerumab  0.074 [-0.391;  0.538] -0.450 [-0.988;  0.088]
 Lecanemab     0.273 [-0.232;  0.778] -0.250 [-0.823;  0.323]
 Placebo      -0.177 [-0.490;  0.136] -0.700 [-1.114; -0.286]
+Solanezumab  -0.077 [-0.560;  0.407] -0.600 [-1.154; -0.046]
                         Gantenerumab               Lecanemab
 Aducanumab                         .                       .
 Donanemab                          .                       .
 Gantenerumab            Gantenerumab                       .
 Lecanemab     0.200 [-0.325;  0.724]               Lecanemab
 Placebo      -0.250 [-0.594;  0.093] -0.450 [-0.846; -0.054]
-                             Placebo
-Aducanumab   -0.177 [-0.490;  0.136]
-Donanemab    -0.700 [-1.114; -0.286]
-Gantenerumab -0.250 [-0.594;  0.093]
-Lecanemab    -0.450 [-0.846; -0.054]
-Placebo                      Placebo
+Solanezumab  -0.150 [-0.655;  0.354] -0.350 [-0.891;  0.191]
+                             Placebo            Solanezumab
+Aducanumab   -0.177 [-0.490;  0.136]                      .
+Donanemab    -0.700 [-1.114; -0.286]                      .
+Gantenerumab -0.250 [-0.594;  0.093]                      .
+Lecanemab    -0.450 [-0.846; -0.054]                      .
+Placebo                      Placebo 0.100 [-0.269;  0.469]
+Solanezumab   0.100 [-0.269;  0.469]            Solanezumab
 
 === Design-by-treatment inconsistency ===
 Q statistics to assess homogeneity / consistency
@@ -131,23 +149,25 @@ Between designs 0.00  0      --     0.1686      0.0284
 
 === P-scores (lower = better for HR/RR on protective scale) ===
              P-score
-Donanemab     0.9321
-Lecanemab     0.7027
-Gantenerumab  0.4560
-Aducanumab    0.3532
-Placebo       0.0560
+Donanemab     0.9423
+Lecanemab     0.7416
+Gantenerumab  0.5089
+Aducanumab    0.4070
+Solanezumab   0.2958
+Placebo       0.1043
 
 === Rank-probability matrix (N=100k draws) ===
-             rank_1 rank_2 rank_3 rank_4 rank_5
-Aducanumab    0.020  0.076  0.263  0.333  0.308
-Donanemab     0.882  0.084  0.028  0.005  0.000
-Gantenerumab  0.035  0.120  0.305  0.441  0.098
-Lecanemab     0.058  0.650  0.264  0.028  0.000
-Placebo       0.004  0.070  0.139  0.192  0.595
+             rank_1 rank_2 rank_3 rank_4 rank_5 rank_6
+Aducanumab    0.020  0.075  0.224  0.258  0.235  0.188
+Donanemab     0.874  0.091  0.028  0.006  0.000  0.000
+Gantenerumab  0.036  0.113  0.245  0.376  0.164  0.067
+Lecanemab     0.058  0.600  0.302  0.040  0.000  0.000
+Placebo       0.001  0.007  0.045  0.148  0.395  0.404
+Solanezumab   0.011  0.114  0.156  0.172  0.205  0.341
 
 === SUCRA ===
-   Donanemab    Lecanemab Gantenerumab   Aducanumab      Placebo 
-       0.961        0.685        0.388        0.292        0.174 
+   Donanemab    Lecanemab Gantenerumab   Aducanumab  Solanezumab      Placebo 
+       0.966        0.735        0.456        0.365        0.306        0.171 
 
 [wrote antiamyloid_ad_nma_netmeta_results.rds + .json]
 
@@ -159,5 +179,6 @@ Q inc: 0 df 0 p NA
   Donanemab                MD -0.700 (-1.114, -0.286)
   Gantenerumab             MD -0.250 (-0.594, 0.093)
   Lecanemab                MD -0.450 (-0.846, -0.054)
+  Solanezumab              MD -0.100 (-0.469, 0.269)
 Warning message:
 No comparisons selected with argument 'show = both'. You could use 'show = "all" to show all comparisons. 
