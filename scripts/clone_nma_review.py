@@ -161,6 +161,46 @@ def clone(config):
             t, count=1,
         )
 
+    # J. Hardening for peer-review (CSP + COOP SW + bridge exports + PR panel)
+    #    Idempotent — only applied if not already present.
+    # (a) CSP: ensure 'unsafe-eval' and 'wasm-unsafe-eval' for WebR WASM
+    t = t.replace(
+        "script-src 'self' 'unsafe-inline' https://webr.r-wasm.org;",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://webr.r-wasm.org;",
+    )
+
+    # (b) Inject coi-serviceworker.js at top of <head>
+    coi_tag = '<script src="coi-serviceworker.js"></script>'
+    if coi_tag not in t:
+        # Insert right after <meta charset="UTF-8"> or first <meta>
+        m = re.search(r"(<meta\s+[^>]*charset[^>]*>)", t)
+        if m:
+            t = t[:m.end(1)] + "\n    " + coi_tag + t[m.end(1):]
+        else:
+            t = t.replace("<head>", "<head>\n    " + coi_tag, 1)
+
+    # (c) Bridge exports at end of main script (window.RapidMeta/NMAEngine/NMA_CONFIG)
+    bridge = (
+        "        // NMA Peer-Review bridge (auto-injected by clone_nma_review.py)\n"
+        "        try { window.RapidMeta = RapidMeta; } catch(e){}\n"
+        "        try { window.NMAEngine = NMAEngine; } catch(e){}\n"
+        "        try { window.NMA_CONFIG = NMA_CONFIG; } catch(e){}\n"
+    )
+    if "window.RapidMeta = RapidMeta" not in t:
+        # Insert before the final </script> of the main app block (the one just after `RapidMeta.init()`)
+        marker = "window.onload = () => RapidMeta.init();"
+        idx = t.find(marker)
+        if idx >= 0:
+            idx2 = t.find("</script>", idx)
+            if idx2 >= 0:
+                t = t[:idx2] + bridge + t[idx2:]
+
+    # (d) PR tools script tag before </body>
+    pr_tag = '<script src="nma-peer-review-tools.js" defer></script>'
+    if pr_tag not in t and "</body>" in t:
+        idx = t.rfind("</body>")
+        t = t[:idx] + pr_tag + "\n" + t[idx:]
+
     out.write_text(t, encoding="utf-8")
     print(f"  wrote {out.name} ({len(t)} bytes)")
     return out

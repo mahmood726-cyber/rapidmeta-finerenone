@@ -86,4 +86,7 @@ All protocols at version 1.1 (editor-review revision 2026-04-20); original v1.0 
 | Specialty | App | Protocol |
 |---|---|---|
 | Haematology (CLL) | [BTKi Class NMA in CLL (ELEVATE-TN / ELEVATE-RR / ALPINE / RESONATE-2)](../BTKI_CLL_NMA_REVIEW.html) | [v1.1 (2026-04-21)](btki_cll_nma_protocol_v1.1_2026-04-21.md) |
+| Neurology (AD) | [Anti-Amyloid mAbs NMA in Early AD (Clarity AD / TRAILBLAZER-ALZ 2 / EMERGE)](../ANTIAMYLOID_AD_NMA_REVIEW.html) | NMA bundle in `nma/validation/antiamyloid_ad_nma_*` |
+| Ophthalmology | [Anti-VEGF Class NMA in nAMD (ANCHOR / TENAYA / PULSAR / HAWK)](../ANTIVEGF_NAMD_NMA_REVIEW.html) | NMA bundle in `nma/validation/antivegf_namd_nma_*` |
+| Dermatology | [IL-17 / IL-23 Biologics NMA in Plaque Psoriasis (VOYAGE / UltIMMa / UNCOVER / ERASURE / BE RADIANT)](../IL_PSORIASIS_NMA_REVIEW.html) | NMA bundle in `nma/validation/il_psoriasis_nma_*` |
 | Women Health | [Fezolinetant for Menopausal Vasomotor Symptoms (SKYLIGHT)](../FEZOLINETANT_VMS_REVIEW.html) | [v1.1 (2026-04-20)](fezolinetant_vms_protocol_v1.1_2026-04-20.md) |

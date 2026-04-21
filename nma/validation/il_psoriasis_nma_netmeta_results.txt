@@ -1,0 +1,159 @@
+=== RapidMeta Dermatology | IL-17 / IL-23 Biologics NMA in Plaque Psoriasis v1.1 ===
+     studlab       treat1      treat2        TE       seTE
+1   VOYAGE 1   Guselkumab     Placebo 3.2503745 0.43347211
+2  UltIMMa-1 Risankizumab     Placebo 2.9559514 0.48908212
+3  UNCOVER-1   Ixekizumab     Placebo 4.7567748 0.70480454
+4    ERASURE  Secukinumab     Placebo 4.4880744 0.70494133
+5 BE RADIANT  Bimekizumab Secukinumab 0.7929925 0.08739741
+
+
+=== Consistency model ===
+Original data:
+
+                treat1       treat2      TE   seTE
+VOYAGE 1    Guselkumab      Placebo  3.2504 0.4335
+UltIMMa-1      Placebo Risankizumab -2.9560 0.4891
+UNCOVER-1   Ixekizumab      Placebo  4.7568 0.7048
+ERASURE        Placebo  Secukinumab -4.4881 0.7049
+BE RADIANT Bimekizumab  Secukinumab  0.7930 0.0874
+
+Number of treatment arms (by study):
+           narms
+VOYAGE 1       2
+UltIMMa-1      2
+UNCOVER-1      2
+ERASURE        2
+BE RADIANT     2
+
+Results (common effects model):
+
+                treat1       treat2       RR              95%-CI    Q leverage
+VOYAGE 1    Guselkumab      Placebo  25.8000 [11.0318;  60.3381] 0.00     1.00
+UltIMMa-1      Placebo Risankizumab   0.0520 [ 0.0199;   0.1357] 0.00     1.00
+UNCOVER-1   Ixekizumab      Placebo 116.3700 [29.2355; 463.2034] 0.00     1.00
+ERASURE        Placebo  Secukinumab   0.0112 [ 0.0028;   0.0448] 0.00     1.00
+BE RADIANT Bimekizumab  Secukinumab   2.2100 [ 1.8621;   2.6229] 0.00     1.00
+
+Results (random effects model):
+
+                treat1       treat2       RR              95%-CI
+VOYAGE 1    Guselkumab      Placebo  25.8000 [11.0318;  60.3381]
+UltIMMa-1      Placebo Risankizumab   0.0520 [ 0.0199;   0.1357]
+UNCOVER-1   Ixekizumab      Placebo 116.3700 [29.2355; 463.2034]
+ERASURE        Placebo  Secukinumab   0.0112 [ 0.0028;   0.0448]
+BE RADIANT Bimekizumab  Secukinumab   2.2100 [ 1.8621;   2.6229]
+
+Number of studies: k = 5
+Number of pairwise comparisons: m = 5
+Number of treatments: n = 6
+Number of designs: d = 5
+
+Common effects model
+
+Treatment estimate (sm = 'RR', comparison: other treatments vs 'Placebo'):
+                   RR              95%-CI    z  p-value
+Bimekizumab  196.5795 [48.8537; 791.0052] 7.43 < 0.0001
+Guselkumab    25.8000 [11.0318;  60.3381] 7.50 < 0.0001
+Ixekizumab   116.3700 [29.2355; 463.2034] 6.75 < 0.0001
+Placebo             .                   .    .        .
+Risankizumab  19.2200 [ 7.3696;  50.1257] 6.04 < 0.0001
+Secukinumab   88.9500 [22.3408; 354.1548] 6.37 < 0.0001
+
+Random effects model
+
+Treatment estimate (sm = 'RR', comparison: other treatments vs 'Placebo'):
+                   RR              95%-CI    z  p-value
+Bimekizumab  196.5795 [48.8537; 791.0052] 7.43 < 0.0001
+Guselkumab    25.8000 [11.0318;  60.3381] 7.50 < 0.0001
+Ixekizumab   116.3700 [29.2355; 463.2034] 6.75 < 0.0001
+Placebo             .                   .    .        .
+Risankizumab  19.2200 [ 7.3696;  50.1257] 6.04 < 0.0001
+Secukinumab   88.9500 [22.3408; 354.1548] 6.37 < 0.0001
+
+Quantifying heterogeneity / inconsistency:
+tau^2 = NA; tau = NA
+
+Tests of heterogeneity (within designs) and inconsistency (between designs):
+                Q d.f. p-value
+Total           0    0      --
+Within designs  0    0      --
+Between designs 0    0      --
+
+Details of network meta-analysis methods:
+- Frequentist graph-theoretical approach
+- DerSimonian-Laird estimator for tau^2
+
+=== League table (RE, HR/RR with 95% CI) ===
+                           Bimekizumab               Guselkumab
+Bimekizumab                Bimekizumab                        .
+Guselkumab     7.619 [ 1.491;  38.927]               Guselkumab
+Ixekizumab     1.689 [ 0.238;  12.008]  0.222 [ 0.044;   1.122]
+Placebo      196.579 [48.854; 791.005] 25.800 [11.032;  60.338]
+Risankizumab  10.228 [ 1.887;  55.448]  1.342 [ 0.373;   4.832]
+Secukinumab    2.210 [ 1.862;   2.623]  0.290 [ 0.057;   1.469]
+                            Ixekizumab                   Placebo
+Bimekizumab                          .                         .
+Guselkumab                           .  25.800 [11.032;  60.338]
+Ixekizumab                  Ixekizumab 116.370 [29.235; 463.203]
+Placebo      116.370 [29.235; 463.203]                   Placebo
+Risankizumab   6.055 [ 1.127;  32.532]   0.052 [ 0.020;   0.136]
+Secukinumab    1.308 [ 0.185;   9.230]   0.011 [ 0.003;   0.045]
+                        Risankizumab             Secukinumab
+Bimekizumab                        . 2.210 [ 1.862;   2.623]
+Guselkumab                         .                       .
+Ixekizumab                         .                       .
+Placebo      0.052 [ 0.020;   0.136] 0.011 [ 0.003;   0.045]
+Risankizumab            Risankizumab                       .
+Secukinumab  0.216 [ 0.040;   1.161]             Secukinumab
+
+=== Design-by-treatment inconsistency ===
+Q statistics to assess homogeneity / consistency
+
+                   Q df p-value
+Total           0.00  0      --
+Within designs  0.00  0      --
+Between designs 0.00  0      --
+
+Q statistic to assess consistency under the assumption of
+a full design-by-treatment interaction random effects model
+
+                   Q df p-value tau.within tau2.within
+Between designs 0.00  0      --          0           0
+
+=== Node-splitting ===
+
+=== P-scores (lower = better for HR/RR on protective scale) ===
+             P-score
+Bimekizumab   0.9378
+Ixekizumab    0.7708
+Secukinumab   0.6579
+Guselkumab    0.3566
+Risankizumab  0.2769
+Placebo       0.0000
+
+=== Rank-probability matrix (N=100k draws) ===
+             rank_1 rank_2 rank_3 rank_4 rank_5 rank_6
+Bimekizumab       0  0.001  0.007  0.118  0.268  0.605
+Guselkumab        0  0.314  0.596  0.082  0.007  0.000
+Ixekizumab        0  0.007  0.032  0.309  0.404  0.248
+Placebo           1  0.000  0.000  0.000  0.000  0.000
+Risankizumab      0  0.659  0.302  0.035  0.003  0.000
+Secukinumab       0  0.018  0.062  0.456  0.317  0.146
+
+=== SUCRA ===
+     Placebo Risankizumab   Guselkumab  Secukinumab   Ixekizumab  Bimekizumab 
+       1.000        0.723        0.643        0.298        0.229        0.106 
+
+[wrote il_psoriasis_nma_netmeta_results.rds + .json]
+
+=== Key results for peer-review bundle ===
+TAU2: NA 
+I2: NA %
+Q inc: 0 df 0 p NA 
+  Bimekizumab              RR 196.579 (48.854, 791.005)
+  Guselkumab               RR 25.800 (11.032, 60.338)
+  Ixekizumab               RR 116.370 (29.235, 463.203)
+  Risankizumab             RR 19.220 (7.370, 50.126)
+  Secukinumab              RR 88.950 (22.341, 354.155)
+Warning message:
+No comparisons selected with argument 'show = both'. You could use 'show = "all" to show all comparisons. 
