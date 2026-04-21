@@ -1,0 +1,128 @@
+=== RapidMeta Oncology | ADC NMA in HER2-Positive Metastatic Breast Cancer v1.0 ===
+           studlab treat1   treat2         TE       seTE
+1 DESTINY-Breast03  T_DXd    T_DM1 -1.1086626 0.12834275
+2           EMILIA  T_DM1 LapaCape -0.4307829 0.08583475
+3          TH3RESA  T_DM1      TPC -0.6386590 0.11447666
+
+
+=== Consistency model ===
+Original data:
+
+                   treat1 treat2      TE   seTE
+DESTINY-Breast03    T_DM1  T_DXd  1.1087 0.1283
+EMILIA           LapaCape  T_DM1  0.4308 0.0858
+TH3RESA             T_DM1    TPC -0.6387 0.1145
+
+Number of treatment arms (by study):
+                 narms
+DESTINY-Breast03     2
+EMILIA               2
+TH3RESA              2
+
+Results (common effects model):
+
+                   treat1 treat2     HR           95%-CI    Q leverage
+DESTINY-Breast03    T_DM1  T_DXd 3.0303 [2.3564; 3.8970] 0.00     1.00
+EMILIA           LapaCape  T_DM1 1.5385 [1.3002; 1.8203] 0.00     1.00
+TH3RESA             T_DM1    TPC 0.5280 [0.4219; 0.6608] 0.00     1.00
+
+Results (random effects model):
+
+                   treat1 treat2     HR           95%-CI
+DESTINY-Breast03    T_DM1  T_DXd 3.0303 [2.3564; 3.8970]
+EMILIA           LapaCape  T_DM1 1.5385 [1.3002; 1.8203]
+TH3RESA             T_DM1    TPC 0.5280 [0.4219; 0.6608]
+
+Number of studies: k = 3
+Number of pairwise comparisons: m = 3
+Number of treatments: n = 4
+Number of designs: d = 3
+
+Common effects model
+
+Treatment estimate (sm = 'HR', comparison: other treatments vs 'TPC'):
+             HR           95%-CI      z  p-value
+LapaCape 0.8123 [0.6137; 1.0753]  -1.45   0.1463
+T_DM1    0.5280 [0.4219; 0.6608]  -5.58 < 0.0001
+T_DXd    0.1742 [0.1244; 0.2441] -10.16 < 0.0001
+TPC           .                .      .        .
+
+Random effects model
+
+Treatment estimate (sm = 'HR', comparison: other treatments vs 'TPC'):
+             HR           95%-CI      z  p-value
+LapaCape 0.8123 [0.6137; 1.0753]  -1.45   0.1463
+T_DM1    0.5280 [0.4219; 0.6608]  -5.58 < 0.0001
+T_DXd    0.1742 [0.1244; 0.2441] -10.16 < 0.0001
+TPC           .                .      .        .
+
+Quantifying heterogeneity / inconsistency:
+tau^2 = 0; tau = 0
+
+Tests of heterogeneity (within designs) and inconsistency (between designs):
+                Q d.f. p-value
+Total           0    0      --
+Within designs  0    0      --
+Between designs 0    0      --
+
+Details of network meta-analysis methods:
+- Frequentist graph-theoretical approach
+- Restricted maximum-likelihood estimator for tau^2
+
+=== League table (RE, HR/RR with 95% CI) ===
+                     LapaCape                T_DM1                T_DXd
+LapaCape             LapaCape 1.538 [1.300; 1.820]                    .
+T_DM1    1.538 [1.300; 1.820]                T_DM1 3.030 [2.356; 3.897]
+T_DXd    4.662 [3.445; 6.310] 3.030 [2.356; 3.897]                T_DXd
+TPC      0.812 [0.614; 1.075] 0.528 [0.422; 0.661] 0.174 [0.124; 0.244]
+                          TPC
+LapaCape                    .
+T_DM1    0.528 [0.422; 0.661]
+T_DXd                       .
+TPC                       TPC
+
+=== Design-by-treatment inconsistency ===
+Q statistics to assess homogeneity / consistency
+
+                   Q df p-value
+Total           0.00  0      --
+Within designs  0.00  0      --
+Between designs 0.00  0      --
+
+Q statistic to assess consistency under the assumption of
+a full design-by-treatment interaction random effects model
+
+                   Q df p-value tau.within tau2.within
+Between designs 0.00  0      --          0           0
+
+=== Node-splitting ===
+
+=== P-scores (lower = better for HR/RR on protective scale) ===
+         P-score
+T_DXd     1.0000
+T_DM1     0.6667
+LapaCape  0.3090
+TPC       0.0244
+
+=== Rank-probability matrix (N=100k draws) ===
+         rank_1 rank_2 rank_3 rank_4
+LapaCape      0      0  0.909  0.091
+T_DM1         0      1  0.000  0.000
+T_DXd         1      0  0.000  0.000
+TPC           0      0  0.091  0.909
+
+=== SUCRA ===
+   T_DXd    T_DM1 LapaCape      TPC 
+   1.000    0.667    0.303    0.030 
+
+[wrote adc_her2_nma_netmeta_results.rds + .json]
+
+=== Key results for peer-review bundle ===
+TAU2: 0 
+I2: NA %
+Q inc: 0 df 0 p NA 
+  LapaCape                 HR 0.812 (0.614, 1.075)
+  T_DM1                    HR 0.528 (0.422, 0.661)
+  T_DXd                    HR 0.174 (0.124, 0.244)
+Warning message:
+No comparisons selected with argument 'show = both'. You could use 'show = "all" to show all comparisons. 

@@ -1,0 +1,140 @@
+=== RapidMeta Cardiology | Non-Statin LDL-Lowering CVOT NMA for MACE v1.0 ===
+           studlab        treat1  treat2         TE       seTE
+1       IMPROVE-IT     Ezetimibe Placebo -0.0661398 0.02716415
+2          FOURIER    Evolocumab Placebo -0.1625189 0.03886243
+3 ODYSSEY-OUTCOMES    Alirocumab Placebo -0.1625189 0.04487007
+4   CLEAR-OUTCOMES BempedoicAcid Placebo -0.1392621 0.04971947
+
+
+=== Consistency model ===
+Original data:
+
+                        treat1  treat2      TE   seTE
+IMPROVE-IT           Ezetimibe Placebo -0.0661 0.0272
+FOURIER             Evolocumab Placebo -0.1625 0.0389
+ODYSSEY-OUTCOMES    Alirocumab Placebo -0.1625 0.0449
+CLEAR-OUTCOMES   BempedoicAcid Placebo -0.1393 0.0497
+
+Number of treatment arms (by study):
+                 narms
+IMPROVE-IT           2
+FOURIER              2
+ODYSSEY-OUTCOMES     2
+CLEAR-OUTCOMES       2
+
+Results (common effects model):
+
+                        treat1  treat2     HR           95%-CI    Q leverage
+IMPROVE-IT           Ezetimibe Placebo 0.9360 [0.8875; 0.9872] 0.00     1.00
+FOURIER             Evolocumab Placebo 0.8500 [0.7877; 0.9173] 0.00     1.00
+ODYSSEY-OUTCOMES    Alirocumab Placebo 0.8500 [0.7784; 0.9281] 0.00     1.00
+CLEAR-OUTCOMES   BempedoicAcid Placebo 0.8700 [0.7892; 0.9590] 0.00     1.00
+
+Results (random effects model):
+
+                        treat1  treat2     HR           95%-CI
+IMPROVE-IT           Ezetimibe Placebo 0.9360 [0.8875; 0.9872]
+FOURIER             Evolocumab Placebo 0.8500 [0.7877; 0.9173]
+ODYSSEY-OUTCOMES    Alirocumab Placebo 0.8500 [0.7784; 0.9281]
+CLEAR-OUTCOMES   BempedoicAcid Placebo 0.8700 [0.7892; 0.9590]
+
+Number of studies: k = 4
+Number of pairwise comparisons: m = 4
+Number of treatments: n = 5
+Number of designs: d = 4
+
+Common effects model
+
+Treatment estimate (sm = 'HR', comparison: other treatments vs 'Placebo'):
+                  HR           95%-CI     z  p-value
+Alirocumab    0.8500 [0.7784; 0.9281] -3.62   0.0003
+BempedoicAcid 0.8700 [0.7892; 0.9590] -2.80   0.0051
+Evolocumab    0.8500 [0.7877; 0.9173] -4.18 < 0.0001
+Ezetimibe     0.9360 [0.8875; 0.9872] -2.43   0.0149
+Placebo            .                .     .        .
+
+Random effects model
+
+Treatment estimate (sm = 'HR', comparison: other treatments vs 'Placebo'):
+                  HR           95%-CI     z  p-value
+Alirocumab    0.8500 [0.7784; 0.9281] -3.62   0.0003
+BempedoicAcid 0.8700 [0.7892; 0.9590] -2.80   0.0051
+Evolocumab    0.8500 [0.7877; 0.9173] -4.18 < 0.0001
+Ezetimibe     0.9360 [0.8875; 0.9872] -2.43   0.0149
+Placebo            .                .     .        .
+
+Quantifying heterogeneity / inconsistency:
+tau^2 = 0; tau = 0
+
+Tests of heterogeneity (within designs) and inconsistency (between designs):
+                Q d.f. p-value
+Total           0    0      --
+Within designs  0    0      --
+Between designs 0    0      --
+
+Details of network meta-analysis methods:
+- Frequentist graph-theoretical approach
+- Restricted maximum-likelihood estimator for tau^2
+
+=== League table (RE, HR/RR with 95% CI) ===
+                        Alirocumab        BempedoicAcid           Evolocumab
+Alirocumab              Alirocumab                    .                    .
+BempedoicAcid 0.977 [0.857; 1.114]        BempedoicAcid                    .
+Evolocumab    1.000 [0.890; 1.123] 1.024 [0.904; 1.158]           Evolocumab
+Ezetimibe     0.908 [0.819; 1.006] 0.929 [0.832; 1.039] 0.908 [0.828; 0.997]
+Placebo       0.850 [0.778; 0.928] 0.870 [0.789; 0.959] 0.850 [0.788; 0.917]
+                         Ezetimibe              Placebo
+Alirocumab                       . 0.850 [0.778; 0.928]
+BempedoicAcid                    . 0.870 [0.789; 0.959]
+Evolocumab                       . 0.850 [0.788; 0.917]
+Ezetimibe                Ezetimibe 0.936 [0.887; 0.987]
+Placebo       0.936 [0.887; 0.987]              Placebo
+
+=== Design-by-treatment inconsistency ===
+Q statistics to assess homogeneity / consistency
+
+                   Q df p-value
+Total           0.00  0      --
+Within designs  0.00  0      --
+Between designs 0.00  0      --
+
+Q statistic to assess consistency under the assumption of
+a full design-by-treatment interaction random effects model
+
+                   Q df p-value tau.within tau2.within
+Between designs 0.00  0      --          0           0
+
+=== Node-splitting ===
+
+=== P-scores (lower = better for HR/RR on protective scale) ===
+              P-score
+Evolocumab     0.7807
+Alirocumab     0.7756
+BempedoicAcid  0.6549
+Ezetimibe      0.2863
+Placebo        0.0025
+
+=== Rank-probability matrix (N=100k draws) ===
+              rank_1 rank_2 rank_3 rank_4 rank_5
+Alirocumab     0.432  0.274  0.211  0.061  0.022
+BempedoicAcid  0.179  0.296  0.494  0.031  0.000
+Evolocumab     0.379  0.409  0.208  0.004  0.000
+Ezetimibe      0.000  0.001  0.035  0.787  0.178
+Placebo        0.010  0.021  0.053  0.117  0.799
+
+=== SUCRA ===
+   Evolocumab    Alirocumab BempedoicAcid     Ezetimibe       Placebo 
+        0.791         0.758         0.655         0.215         0.081 
+
+[wrote pcsk9_lipid_nma_netmeta_results.rds + .json]
+
+=== Key results for peer-review bundle ===
+TAU2: 0 
+I2: NA %
+Q inc: 0 df 0 p NA 
+  Alirocumab               HR 0.850 (0.778, 0.928)
+  BempedoicAcid            HR 0.870 (0.789, 0.959)
+  Evolocumab               HR 0.850 (0.788, 0.917)
+  Ezetimibe                HR 0.936 (0.887, 0.987)
+Warning message:
+No comparisons selected with argument 'show = both'. You could use 'show = "all" to show all comparisons. 

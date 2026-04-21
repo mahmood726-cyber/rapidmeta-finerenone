@@ -1,0 +1,146 @@
+=== RapidMeta Neurology | CGRP mAb Class NMA for Episodic Migraine Prevention v1.0 ===
+    studlab       treat1  treat2    TE      seTE
+1    STRIVE     Erenumab Placebo -1.85 0.3163265
+2   HALO-EM Fremanezumab Placebo -1.30 0.2474490
+3  EVOLVE-1 Galcanezumab Placebo -1.90 0.3112245
+4 PROMISE-1  Eptinezumab Placebo -0.69 0.2397959
+
+
+=== Consistency model ===
+Original data:
+
+                treat1  treat2      TE   seTE
+STRIVE        Erenumab Placebo -1.8500 0.3163
+HALO-EM   Fremanezumab Placebo -1.3000 0.2474
+EVOLVE-1  Galcanezumab Placebo -1.9000 0.3112
+PROMISE-1  Eptinezumab Placebo -0.6900 0.2398
+
+Number of treatment arms (by study):
+          narms
+STRIVE        2
+HALO-EM       2
+EVOLVE-1      2
+PROMISE-1     2
+
+Results (common effects model):
+
+                treat1  treat2      MD             95%-CI    Q leverage
+STRIVE        Erenumab Placebo -1.8500 [-2.4700; -1.2300] 0.00     1.00
+HALO-EM   Fremanezumab Placebo -1.3000 [-1.7850; -0.8150] 0.00     1.00
+EVOLVE-1  Galcanezumab Placebo -1.9000 [-2.5100; -1.2900] 0.00     1.00
+PROMISE-1  Eptinezumab Placebo -0.6900 [-1.1600; -0.2200] 0.00     1.00
+
+Results (random effects model):
+
+                treat1  treat2      MD             95%-CI
+STRIVE        Erenumab Placebo -1.8500 [-2.4700; -1.2300]
+HALO-EM   Fremanezumab Placebo -1.3000 [-1.7850; -0.8150]
+EVOLVE-1  Galcanezumab Placebo -1.9000 [-2.5100; -1.2900]
+PROMISE-1  Eptinezumab Placebo -0.6900 [-1.1600; -0.2200]
+
+Number of studies: k = 4
+Number of pairwise comparisons: m = 4
+Number of treatments: n = 5
+Number of designs: d = 4
+
+Common effects model
+
+Treatment estimate (sm = 'MD', comparison: other treatments vs 'Placebo'):
+                  MD             95%-CI     z  p-value
+Eptinezumab  -0.6900 [-1.1600; -0.2200] -2.88   0.0040
+Erenumab     -1.8500 [-2.4700; -1.2300] -5.85 < 0.0001
+Fremanezumab -1.3000 [-1.7850; -0.8150] -5.25 < 0.0001
+Galcanezumab -1.9000 [-2.5100; -1.2900] -6.10 < 0.0001
+Placebo            .                  .     .        .
+
+Random effects model
+
+Treatment estimate (sm = 'MD', comparison: other treatments vs 'Placebo'):
+                  MD             95%-CI     z  p-value
+Eptinezumab  -0.6900 [-1.1600; -0.2200] -2.88   0.0040
+Erenumab     -1.8500 [-2.4700; -1.2300] -5.85 < 0.0001
+Fremanezumab -1.3000 [-1.7850; -0.8150] -5.25 < 0.0001
+Galcanezumab -1.9000 [-2.5100; -1.2900] -6.10 < 0.0001
+Placebo            .                  .     .        .
+
+Quantifying heterogeneity / inconsistency:
+tau^2 = 0; tau = 0
+
+Tests of heterogeneity (within designs) and inconsistency (between designs):
+                Q d.f. p-value
+Total           0    0      --
+Within designs  0    0      --
+Between designs 0    0      --
+
+Details of network meta-analysis methods:
+- Frequentist graph-theoretical approach
+- Restricted maximum-likelihood estimator for tau^2
+
+=== League table (RE, HR/RR with 95% CI) ===
+                         Eptinezumab                Erenumab
+Eptinezumab              Eptinezumab                       .
+Erenumab      1.160 [ 0.382;  1.938]                Erenumab
+Fremanezumab  0.610 [-0.065;  1.285] -0.550 [-1.337;  0.237]
+Galcanezumab  1.210 [ 0.440;  1.980]  0.050 [-0.820;  0.920]
+Placebo      -0.690 [-1.160; -0.220] -1.850 [-2.470; -1.230]
+                        Fremanezumab            Galcanezumab
+Eptinezumab                        .                       .
+Erenumab                           .                       .
+Fremanezumab            Fremanezumab                       .
+Galcanezumab  0.600 [-0.179;  1.379]            Galcanezumab
+Placebo      -1.300 [-1.785; -0.815] -1.900 [-2.510; -1.290]
+                             Placebo
+Eptinezumab  -0.690 [-1.160; -0.220]
+Erenumab     -1.850 [-2.470; -1.230]
+Fremanezumab -1.300 [-1.785; -0.815]
+Galcanezumab -1.900 [-2.510; -1.290]
+Placebo                      Placebo
+
+=== Design-by-treatment inconsistency ===
+Q statistics to assess homogeneity / consistency
+
+                   Q df p-value
+Total           0.00  0      --
+Within designs  0.00  0      --
+Between designs 0.00  0      --
+
+Q statistic to assess consistency under the assumption of
+a full design-by-treatment interaction random effects model
+
+                   Q df p-value tau.within tau2.within
+Between designs 0.00  0      --          0           0
+
+=== Node-splitting ===
+
+=== P-scores (lower = better for HR/RR on protective scale) ===
+             P-score
+Galcanezumab  0.8695
+Erenumab      0.8420
+Fremanezumab  0.5282
+Eptinezumab   0.2598
+Placebo       0.0005
+
+=== Rank-probability matrix (N=100k draws) ===
+             rank_1 rank_2 rank_3 rank_4 rank_5
+Eptinezumab   0.000  0.001  0.085  0.746  0.168
+Erenumab      0.415  0.503  0.080  0.001  0.000
+Fremanezumab  0.019  0.072  0.814  0.094  0.001
+Galcanezumab  0.566  0.423  0.011  0.000  0.000
+Placebo       0.000  0.000  0.010  0.159  0.831
+
+=== SUCRA ===
+Galcanezumab     Erenumab Fremanezumab  Eptinezumab      Placebo 
+       0.889        0.833        0.504        0.230        0.045 
+
+[wrote cgrp_migraine_nma_netmeta_results.rds + .json]
+
+=== Key results for peer-review bundle ===
+TAU2: 0 
+I2: NA %
+Q inc: 0 df 0 p NA 
+  Eptinezumab              MD -0.690 (-1.160, -0.220)
+  Erenumab                 MD -1.850 (-2.470, -1.230)
+  Fremanezumab             MD -1.300 (-1.785, -0.815)
+  Galcanezumab             MD -1.900 (-2.510, -1.290)
+Warning message:
+No comparisons selected with argument 'show = both'. You could use 'show = "all" to show all comparisons. 
