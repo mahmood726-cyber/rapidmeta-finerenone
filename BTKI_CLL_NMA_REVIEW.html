@@ -14241,6 +14241,11 @@ except ImportError:
         }
 
         window.onload = () => RapidMeta.init();
+        // NMA Peer-Review bridge: expose const-scoped namespaces for external tools
+        try { window.RapidMeta = RapidMeta; } catch(e){}
+        try { window.NMAEngine = NMAEngine; } catch(e){}
+        try { window.NMA_CONFIG = NMA_CONFIG; } catch(e){}
     </script>
+<script src="nma-peer-review-tools.js" defer></script>
 </body>
 </html>
