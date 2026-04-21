@@ -1,0 +1,93 @@
+=== Incretins T2D NMA Stratum B (long-term CV-outcomes, 2 trials) ===
+    studlab      treat1  treat2    TE       seTE
+1 SUSTAIN-6 Semaglutide Placebo -0.77 0.04081633
+2    EXSCEL   Exenatide Placebo -0.53 0.02040816
+
+
+=== Consistency model (Stratum B) ===
+Original data:
+
+             treat1      treat2      TE   seTE
+SUSTAIN-6   Placebo Semaglutide  0.7700 0.0408
+EXSCEL    Exenatide     Placebo -0.5300 0.0204
+
+Number of treatment arms (by study):
+          narms
+SUSTAIN-6     2
+EXSCEL        2
+
+Results (common effects model):
+
+             treat1      treat2      MD             95%-CI    Q leverage
+SUSTAIN-6   Placebo Semaglutide  0.7700 [ 0.6900;  0.8500] 0.00     1.00
+EXSCEL    Exenatide     Placebo -0.5300 [-0.5700; -0.4900] 0.00     1.00
+
+Results (random effects model):
+
+             treat1      treat2      MD             95%-CI
+SUSTAIN-6   Placebo Semaglutide  0.7700 [ 0.6900;  0.8500]
+EXSCEL    Exenatide     Placebo -0.5300 [-0.5700; -0.4900]
+
+Number of studies: k = 2
+Number of pairwise comparisons: m = 2
+Number of treatments: n = 3
+Number of designs: d = 2
+
+Common effects model
+
+Treatment estimate (sm = 'MD', comparison: other treatments vs 'Placebo'):
+                 MD             95%-CI      z  p-value
+Exenatide   -0.5300 [-0.5700; -0.4900] -25.97 < 0.0001
+Placebo           .                  .      .        .
+Semaglutide -0.7700 [-0.8500; -0.6900] -18.87 < 0.0001
+
+Random effects model
+
+Treatment estimate (sm = 'MD', comparison: other treatments vs 'Placebo'):
+                 MD             95%-CI      z  p-value
+Exenatide   -0.5300 [-0.5700; -0.4900] -25.97 < 0.0001
+Placebo           .                  .      .        .
+Semaglutide -0.7700 [-0.8500; -0.6900] -18.87 < 0.0001
+
+Quantifying heterogeneity / inconsistency:
+tau^2 = NA; tau = NA
+
+Tests of heterogeneity (within designs) and inconsistency (between designs):
+                Q d.f. p-value
+Total           0    0      --
+Within designs  0    0      --
+Between designs 0    0      --
+
+Details of network meta-analysis methods:
+- Frequentist graph-theoretical approach
+- DerSimonian-Laird estimator for tau^2
+
+=== Q heterogeneity / inconsistency (limited — no closed loops) ===
+Q_total: 0 
+Q_het  : 0 
+Q_inc  : 0 df 0 
+[note] Star network has no closed loops — design-by-treatment consistency test not defined.
+
+=== P-scores (Stratum B) ===
+            P-score
+Semaglutide     1.0
+Exenatide       0.5
+Placebo         0.0
+
+=== Rank-probability matrix (Stratum B, N=100k draws) ===
+            rank_1 rank_2 rank_3
+Exenatide        0      1      0
+Placebo          0      0      1
+Semaglutide      1      0      0
+
+=== SUCRA (Stratum B) ===
+Semaglutide   Exenatide     Placebo 
+        1.0         0.5         0.0 
+
+[wrote stratumB .rds + .json]
+
+=== Key results (Stratum B) for peer-review bundle ===
+TAU2: NA 
+I2: NA %
+  Exenatide                MD -0.530 (-0.570, -0.490)
+  Semaglutide              MD -0.770 (-0.850, -0.690)
