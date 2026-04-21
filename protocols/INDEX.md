@@ -80,4 +80,10 @@ All protocols at version 1.1 (editor-review revision 2026-04-20); original v1.0 
 | Neurology (Epilepsy) | [Fenfluramine for Dravet and Lennox-Gastaut Syndrome](../FENFLURAMINE_SEIZURE_REVIEW.html) | [v1.1 (2026-04-20)](fenfluramine_seizure_protocol_v1.1_2026-04-20.md) |
 | Endocrinology (Obesity) | [Tirzepatide 15 mg for Weight Management (SURMOUNT-1 / 2 / 3)](../TIRZEPATIDE_OBESITY_REVIEW.html) | [v1.1 (2026-04-20)](tirz_obesity_protocol_v1.1_2026-04-20.md) |
 | Dermatology | [JAK Inhibitors (Abrocitinib + Upadacitinib) in AD (JADE MONO-1/2 + MEASURE-UP 1/2)](../JAKI_AD_REVIEW.html) | [v1.1 (2026-04-20)](jaki_ad_protocol_v1.1_2026-04-20.md) |
+
+## Network Meta-Analyses
+
+| Specialty | App | Protocol |
+|---|---|---|
+| Haematology (CLL) | [BTKi Class NMA in CLL (ELEVATE-TN / ELEVATE-RR / ALPINE / RESONATE-2)](../BTKI_CLL_NMA_REVIEW.html) | [v1.1 (2026-04-21)](btki_cll_nma_protocol_v1.1_2026-04-21.md) |
 | Women Health | [Fezolinetant for Menopausal Vasomotor Symptoms (SKYLIGHT)](../FEZOLINETANT_VMS_REVIEW.html) | [v1.1 (2026-04-20)](fezolinetant_vms_protocol_v1.1_2026-04-20.md) |
