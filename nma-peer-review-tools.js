@@ -91,6 +91,169 @@
     return { cfg: cfg, rows: rows };
   }
 
+  /* ---------------------- 1b. In-browser WebR netmeta ---------------------- */
+
+  var WEBR_CDN = 'https://webr.r-wasm.org/latest/webr.mjs';
+  var WEBR_REPO = 'https://repo.r-wasm.org';
+  var webR = null;
+  var webRReady = null; // promise when (meta)netmeta installed; null if not yet tried
+
+  function renderWebRSection(container, trialData) {
+    if (!trialData || !trialData.rows.length) return;
+
+    var card = el('div', {
+      style: {
+        'margin-top': '.6rem', padding: '.5rem .6rem', 'border-radius': '6px',
+        background: '#f5f3ff', border: '1px solid #c4b5fd'
+      }
+    });
+    var head = el('div', { style: { display: 'flex', 'align-items': 'center', gap: '.5rem', 'flex-wrap': 'wrap' } }, [
+      el('strong', { style: { 'font-size': '.78rem', color: '#5b21b6' } }, ['Live WebR re-run (R / netmeta)']),
+      el('button', {
+        id: 'prd-webr-btn',
+        style: {
+          'font-size': '.72rem', padding: '.25rem .6rem', 'border-radius': '3px',
+          background: '#5b21b6', color: '#fff', border: 'none', cursor: 'pointer'
+        }
+      }, ['Run netmeta in browser'])
+    ]);
+    var note = el('div', { style: { 'font-size': '.7rem', color: '#4b5563', 'margin-top': '.3rem' } }, [
+      'Optional. First click pulls WebR (~40 MB) + installs netmeta (~60–120 s). ',
+      'Subsequent runs are instant (cached in IndexedDB). Falls back to ',
+      el('code', null, ['metafor']),
+      ' per-edge if the netmeta install is unavailable in the WebR repo.'
+    ]);
+    var status = el('div', { id: 'prd-webr-status', style: { 'font-size': '.7rem', color: '#7c3aed', 'margin-top': '.3rem', 'font-style': 'italic' } });
+    var output = el('div', { id: 'prd-webr-output', style: { 'font-size': '.72rem', color: '#1f2937', 'margin-top': '.4rem', 'font-family': 'ui-monospace,monospace', 'white-space': 'pre-wrap' } });
+    card.appendChild(head);
+    card.appendChild(note);
+    card.appendChild(status);
+    card.appendChild(output);
+    container.appendChild(card);
+
+    card.querySelector('#prd-webr-btn').addEventListener('click', function () {
+      runWebRNetmeta(trialData, status, output);
+    });
+  }
+
+  async function ensureWebR(statusEl, prefer) {
+    if (webRReady) return webRReady;
+    webRReady = (async function () {
+      statusEl.textContent = 'Loading WebR WebAssembly (one-time ~40 MB)…';
+      var mod;
+      try { mod = await import(WEBR_CDN); }
+      catch (e) { throw new Error('WebR module load failed: ' + e.message); }
+      webR = new mod.WebR();
+      await webR.init();
+      statusEl.textContent = 'WebR loaded. Installing ' + prefer + ' (one-time)…';
+      try {
+        // Use webr::install() which handles the WASM binary path internally.
+        await webR.installPackages([prefer]);
+        await webR.evalR('suppressPackageStartupMessages(library(' + prefer + '))');
+        statusEl.textContent = prefer + ' installed. Ready.';
+        return { backend: prefer };
+      } catch (e) {
+        if (prefer === 'netmeta') {
+          statusEl.textContent = 'netmeta install failed (' + e.message.slice(0, 80) + '); falling back to metafor…';
+          try {
+            await webR.installPackages(['metafor']);
+            await webR.evalR('suppressPackageStartupMessages(library(metafor))');
+            statusEl.textContent = 'metafor installed (fallback mode). Ready.';
+            return { backend: 'metafor' };
+          } catch (e2) {
+            webRReady = null;
+            throw new Error('Both netmeta and metafor install failed: ' + e2.message);
+          }
+        }
+        webRReady = null;
+        throw e;
+      }
+    })();
+    return webRReady;
+  }
+
+  async function runWebRNetmeta(trialData, statusEl, outputEl) {
+    outputEl.textContent = '';
+    try {
+      var info = await ensureWebR(statusEl, 'netmeta');
+      var ref = 'Chemoimm';
+      var cfgTreatments = (trialData.cfg && trialData.cfg.treatments) || [];
+      ['Chemoimmunotherapy', 'Placebo', 'placebo'].forEach(function (r) {
+        if (cfgTreatments.indexOf(r) !== -1) ref = r;
+      });
+      // Shorten labels for R (avoid spaces/slashes)
+      function shortName(s) { return s.replace(/[^A-Za-z0-9]/g, '_').slice(0, 20); }
+      var shortRef = shortName(ref);
+      var rows = trialData.rows;
+
+      if (info.backend === 'netmeta') {
+        statusEl.textContent = 'Running netmeta on k=' + rows.length + ' trials…';
+        var code = [
+          'dat <- data.frame(',
+          '  studlab = c(' + rows.map(function (r) { return '"' + r.trial.replace(/"/g, '\\"') + '"'; }).join(',') + '),',
+          '  treat1  = c(' + rows.map(function (r) { return '"' + shortName(r.t1) + '"'; }).join(',') + '),',
+          '  treat2  = c(' + rows.map(function (r) { return '"' + shortName(r.t2) + '"'; }).join(',') + '),',
+          '  TE      = c(' + rows.map(function (r) { return r.logHR.toFixed(10); }).join(',') + '),',
+          '  seTE    = c(' + rows.map(function (r) { return r.se.toFixed(10); }).join(',') + '),',
+          '  stringsAsFactors = FALSE)',
+          'fit <- netmeta(TE=TE, seTE=seTE, treat1=treat1, treat2=treat2, studlab=studlab,',
+          '               data=dat, sm="HR", reference.group="' + shortRef + '", random=TRUE, common=FALSE)',
+          'trts <- fit$trts',
+          'hr  <- exp(fit$TE.random[, "' + shortRef + '"])',
+          'lci <- exp(fit$lower.random[, "' + shortRef + '"])',
+          'uci <- exp(fit$upper.random[, "' + shortRef + '"])',
+          'c(fit$tau^2, fit$I2, fit$Q, fit$pval.Q.inconsistency, fit$Q.inconsistency, fit$df.Q.inconsistency,',
+          '  hr, lci, uci)'
+        ].join('\n');
+        var res = await webR.evalR(code);
+        var vals = await res.toArray();
+        var n = cfgTreatments.length;
+        // Structure: tau2, I2, Q, pQ, Q_inc, df_inc, hr[n], lci[n], uci[n]
+        // Order of hr/lci/uci matches alphabetical trts from netmeta
+        var tau2 = vals[0], i2 = vals[1], Q = vals[2], pInc = vals[3], qInc = vals[4];
+        var hr = vals.slice(6, 6 + n);
+        var lci = vals.slice(6 + n, 6 + 2 * n);
+        var uci = vals.slice(6 + 2 * n, 6 + 3 * n);
+        // Need treatment names — run separate call
+        var trtRes = await webR.evalR('as.character(fit$trts)');
+        var trtArr = await trtRes.toArray();
+
+        var lines = [];
+        lines.push('== netmeta in WebR (random-effects, REML, reference=' + ref + ') ==');
+        lines.push('τ² = ' + norm(tau2, 5) + '   I² = ' + norm(i2 * 100, 2) + '%   Q_inc = ' + norm(qInc, 3) + ' (p = ' + norm(pInc, 4) + ')');
+        lines.push('');
+        lines.push('Treatment effects vs ' + ref + ' (HR, 95% CI):');
+        for (var i = 0; i < trtArr.length; i++) {
+          if (trtArr[i] === shortRef) continue;
+          lines.push('  ' + trtArr[i].padEnd(22) + 'HR ' + norm(hr[i]) + '  (' + norm(lci[i]) + '–' + norm(uci[i]) + ')');
+        }
+        outputEl.textContent = lines.join('\n');
+        statusEl.textContent = '✓ netmeta re-run complete (in-browser, independent of JS engine).';
+      } else {
+        // metafor per-edge fallback
+        statusEl.textContent = 'Running metafor per edge (k=' + rows.length + ')…';
+        var lines = ['== metafor per-edge fallback (netmeta unavailable) =='];
+        for (var i = 0; i < rows.length; i++) {
+          var r = rows[i];
+          var code = [
+            'yi <- c(' + r.logHR.toFixed(10) + ')',
+            'vi <- c(' + (r.se * r.se).toFixed(12) + ')',
+            'fit <- rma(yi=yi, vi=vi, method="FE")',
+            'c(exp(fit$beta[1,1]), exp(fit$ci.lb), exp(fit$ci.ub))'
+          ].join('\n');
+          var res = await webR.evalR(code);
+          var vals = await res.toArray();
+          lines.push('  ' + r.trial.padEnd(18) + ' ' + r.t1 + ' vs ' + r.t2 + ': HR ' + norm(vals[0]) + ' (' + norm(vals[1]) + '–' + norm(vals[2]) + ')');
+        }
+        outputEl.textContent = lines.join('\n');
+        statusEl.textContent = '✓ metafor per-edge complete (fallback mode).';
+      }
+    } catch (e) {
+      outputEl.textContent = 'Error: ' + (e && e.message ? e.message : String(e));
+      statusEl.textContent = 'WebR run failed.';
+    }
+  }
+
   /* ---------------------- 1. Engine-vs-netmeta table ---------------------- */
 
   function renderNetmetaTable(container, netmetaJSON, trialData) {
@@ -544,6 +707,7 @@
 
     tryFetchFirst(findNetmetaJSONUrl()).then(function (json) {
       renderNetmetaTable(sec1, json, trialData);
+      renderWebRSection(sec1, trialData);
     });
 
     // Section 2: funnel
