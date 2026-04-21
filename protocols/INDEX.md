@@ -43,6 +43,7 @@ All protocols at version 1.1 (editor-review revision 2026-04-20); original v1.0 
 | Neurology (Amyloidosis) | [Patisiran and Vutrisiran (siRNA) for hATTR Polyneuropathy (APOLLO / HELIOS-A)](../PATISIRAN_POLYNEUROPATHY_REVIEW.html) | [v1.1 (2026-04-20)](patisiran_polyneuropathy_protocol_v1.1_2026-04-20.md) |
 | Oncology (Breast) | [CDK4/6 Inhibitors plus Aromatase Inhibitor as First-Line Therapy for HR+/HER2- Metastatic Breast Cancer](../CDK46_MBC_REVIEW.html) | [v1.0 (2026-04-19)](cdk46_mbc_protocol_v1.0_2026-04-19.md) |
 | Oncology (Breast) | [Trastuzumab Deruxtecan in HER2-Low Metastatic Breast Cancer](../TDXD_HER2LOW_BC_REVIEW.html) | [v1.1 (2026-04-20)](tdxd_her2low_bc_protocol_v1.1_2026-04-20.md) |
+| Cardiology (Heart Failure) | [Sotagliflozin (Dual SGLT1/2) in HF / CKD-T2D (SOLOIST-WHF / SCORED)](../SOTAGLIFLOZIN_HF_REVIEW.html) | [v1.1 (2026-04-20)](sota_hf_protocol_v1.1_2026-04-20.md) |
 | Haematology (Leukaemia) | [Venetoclax + Hypomethylator or LDAC for Untreated AML (VIALE Programme)](../VENETOCLAX_AML_REVIEW.html) | [v1.1 (2026-04-20)](venetoclax_aml_protocol_v1.1_2026-04-20.md) |
 | Haematology (Leukaemia) | [Acalabrutinib for Chronic Lymphocytic Leukaemia (ELEVATE-TN / ASCEND)](../ACALABRUTINIB_CLL_REVIEW.html) | [v1.1 (2026-04-20)](acala_cll_protocol_v1.1_2026-04-20.md) |
 | Haematology (Lymphoma) | [Second-Line CAR-T vs SoC in R/R Aggressive B-Cell Lymphoma](../CART_DLBCL_REVIEW.html) | [v1.1 (2026-04-20)](cart_dlbcl_protocol_v1.1_2026-04-20.md) |
@@ -64,4 +65,7 @@ All protocols at version 1.1 (editor-review revision 2026-04-20); original v1.0 
 | Ophthalmology | [Pegcetacoplan for Geographic Atrophy Secondary to AMD](../PEGCETACOPLAN_GA_REVIEW.html) | [v1.1 (2026-04-20)](pegce_ga_protocol_v1.1_2026-04-20.md) |
 | Ophthalmology | [Aflibercept 8 mg High-Dose for nAMD and DME (PULSAR / PHOTON)](../AFLIBERCEPT_HD_REVIEW.html) | [v1.1 (2026-04-20)](aflib_hd_protocol_v1.1_2026-04-20.md) |
 | Psychiatry | [KarXT (Xanomeline-Trospium) for Schizophrenia (EMERGENT-2 / EMERGENT-3)](../KARXT_SCZ_REVIEW.html) | [v1.1 (2026-04-20)](karxt_scz_protocol_v1.1_2026-04-20.md) |
+| Psychiatry | [Intranasal Esketamine for Treatment-Resistant Depression (TRANSFORM-2 / TRANSFORM-3)](../ESKETAMINE_TRD_REVIEW.html) | [v1.1 (2026-04-20)](eske_trd_protocol_v1.1_2026-04-20.md) |
+| Hepatology | [PPAR Modulators (Elafibranor, Seladelpar) in PBC Second-Line (ELATIVE / RESPONSE)](../PBC_PPAR_REVIEW.html) | [v1.1 (2026-04-20)](pbc_ppar_protocol_v1.1_2026-04-20.md) |
+| Oncology (Prostate) | [177Lu-PSMA-617 Radioligand Therapy in mCRPC (VISION / PSMAfore)](../LU_PSMA_MCRPC_REVIEW.html) | [v1.1 (2026-04-20)](lu_psma_mcrpc_protocol_v1.1_2026-04-20.md) |
 | Women Health | [Fezolinetant for Menopausal Vasomotor Symptoms (SKYLIGHT)](../FEZOLINETANT_VMS_REVIEW.html) | [v1.1 (2026-04-20)](fezolinetant_vms_protocol_v1.1_2026-04-20.md) |
