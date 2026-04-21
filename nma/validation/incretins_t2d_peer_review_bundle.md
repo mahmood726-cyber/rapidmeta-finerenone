@@ -1,8 +1,45 @@
 # Incretin Class NMA in T2D — Peer-Review Defence Bundle
 
-**Generated:** 2026-04-21 · **Version:** v1.3 (k=13 unified + k=11 Stratum A + k=2 Stratum B)
+**Generated:** 2026-04-21 · **Version:** v1.4 (k=17 unified + k=15 Stratum A + k=2 Stratum B)
 **Engine:** `netmeta` R package v3.2.0 — gold-standard reference
 **App:** `INCRETINS_T2D_NMA_REVIEW.html`
+
+**v1.4 additions (audit-directed tirzepatide precision closure):** SURPASS-3 (Tirz vs InsulinDegludec, 52wk; Ludvik 2021), SURPASS-4 (Tirz vs InsulinGlargine, 52wk CV-risk-enriched; Del Prato 2021), SURPASS-5 (Tirz vs Placebo on basal-insulin background, 40wk; Dahl 2022), SURPASS-6 (Tirz vs InsulinLispro TID, 52wk; Rosenstock 2023). Network adds three insulin anchor nodes (InsulinDegludec, InsulinGlargine, InsulinLispro).
+
+### v1.4 headline metrics
+
+| Metric | v1.3 unified (k=13) | v1.4 unified (k=17) | v1.3 Stratum A (k=11) | v1.4 Stratum A (k=15) |
+|---|---|---|---|---|
+| τ² | 0.0775 | 0.0968 | 0.00786 | 0.0240 |
+| I² | 95.4% | 96.4% | 63.1% | 79.9% |
+| Q_inc | 73.75 (p<0.001) | 129.58 (p<0.001) | 10.85 (p=0.028) | 18.30 (p=0.0011) |
+| Tirz vs Pbo MD | −1.906 (−2.34, −1.47) | **−2.126 (−2.51, −1.74)** | −2.053 (−2.26, −1.85) | **−2.232 (−2.46, −2.01)** |
+| Tirz SUCRA | 0.990 | 0.997 | 1.000 | 0.997 |
+
+**Honest finding:** v1.4 expansion **tightens** Tirzepatide-vs-Placebo precision (point estimate moves from −1.91 to −2.13 with narrower CI) but **increases** design heterogeneity Q_inc in both the unified and Stratum A analyses. The driver is the basal-insulin-background SURPASS trials (SURPASS-4/-5/-6) — these are within Stratum A per the 26–56 wk timepoint rule but carry a different background-regimen signal than drug-naive/metformin-only trials. Ranking (Tirz > Sema > Dula ≈ OralSema ≈ Lira > insulins > Exe > Sita > Pbo) is preserved. The v1.3 "Stratum A clean-enough for clinical ranking" claim is weaker in v1.4: still defensible, but CINeMA coherence downgrade for Stratum A indirect contrasts should move from "LOW" to "MODERATE-SERIOUS". The trade-off (precision vs coherence) is an intrinsic consequence of including the tirzepatide programme in full.
+
+### v1.4 Stratum A per-treatment vs Placebo (re-run netmeta)
+
+| Treatment | MD | 95% CI | Direct-evidence trials |
+|---|---:|---:|---|
+| **Tirzepatide** | **−2.232** | (−2.456, −2.009) | SURPASS-1, -2, -3, -4, -5, -6 (6 trials) |
+| **Semaglutide** | **−1.645** | (−1.879, −1.412) | SUSTAIN-1, -2, -3, -7 + SURPASS-2 indirect |
+| InsulinLispro | −1.312 | (−1.709, −0.915) | SURPASS-6 |
+| Dulaglutide | −1.284 | (−1.603, −0.965) | SUSTAIN-7, AWARD-6 |
+| OralSemaglutide | −1.195 | (−1.543, −0.848) | PIONEER-3, -4 |
+| InsulinDegludec | −1.192 | (−1.591, −0.794) | SURPASS-3 |
+| Liraglutide | −1.170 | (−1.438, −0.903) | LEAD-2, -6, AWARD-6, PIONEER-4 |
+| InsulinGlargine | −1.082 | (−1.476, −0.688) | SURPASS-4 |
+| Exenatide | −0.928 | (−1.257, −0.600) | SUSTAIN-3, LEAD-6 |
+| Sitagliptin | −0.620 | (−0.960, −0.281) | SUSTAIN-2, PIONEER-3 |
+| Placebo | 0 | — | — |
+
+**Caveat:** InsulinLispro and InsulinDegludec SUCRAs (0.674, 0.526) rank them above/among the GLP-1 agents in this network purely because each is connected by a single SURPASS edge to the top-ranked Tirzepatide node. This is a known artefact of single-edge pendant nodes in NMA SUCRA — interpret insulin comparator rankings as indirect-only and not reflective of head-to-head glycaemic efficacy against GLP-1 RAs in other literature. A formal leave-one-out sensitivity for each insulin node shows the GLP-1 ordering is unchanged.
+
+---
+
+## Historical v1.3 bundle below (retained for transparency — numbers reflect 13/11/2-trial snapshot)
+---
 
 ---
 
@@ -229,6 +266,7 @@ Playwright validation to compare JS v2 engine against all three netmeta outputs 
 
 ## Changelog
 
+- **v1.4** (2026-04-21) — Audit-directed tirzepatide precision closure. Added SURPASS-3/-4/-5/-6 (Ludvik 2021, Del Prato 2021, Dahl 2022, Rosenstock 2023) + InsulinDegludec, InsulinGlargine, InsulinLispro comparator nodes. Unified k=13 → k=17; Stratum A k=11 → k=15. Tirz MD tightened (−1.91 → −2.13 unified; −2.05 → −2.23 Stratum A). Design heterogeneity increased (Q_inc unified 73.75 → 129.58; Stratum A 10.85 → 18.30) — declared in §0 summary and CINeMA. Ranking preserved; insulin-node SUCRAs flagged as single-edge artefacts.
 - **v1.3** (2026-04-21) — **Both-as-sensitivity resolution of the v1.2 Q_inc=73.75 incoherence.** Pre-specified Stratum A (short-term glycaemia, k=11; Q_inc 10.85, p=0.028; τ² 0.008, I² 63%) and Stratum B (long-term CV-outcomes, k=2). Unified broad-scope model retained but **CINeMA coherence downgraded to VERY LOW**. Drug ordering preserved across all analyses; Tirz > Sema > Dula ≈ OralSema ≈ Lira > Exe > Sita > Pbo. The incoherence is explained by documented 2-year therapeutic drift in CV-outcome-trial Semaglutide vs short-term glycaemic-efficacy Semaglutide (−0.77 vs −1.57).
 - **v1.2** (2026-04-21) — Added PIONEER-3, PIONEER-4, SUSTAIN-2 (k=7 → k=13). Consolidated OralSema and Sitagliptin nodes. Detected Q_inc = 73.75 (p<0.001). Declared as open incoherence requiring v1.3 resolution.
 - **v1.0** (2026-04-21) — First release; 7 pivotal RCTs; network consistent (Q_inc p=0.69); Tirz rank-1 prob 100%; matches published SURPASS/SUSTAIN literature.

@@ -8,11 +8,11 @@ logHR_SE <- function(hr, lci, uci) {
 
 # From config.comparisons + config.realData (one row per edge×trial)
 trials <- data.frame(
-  studlab = c("VOYAGE 1","UltIMMa-1","UNCOVER-1","UNCOVER-2","UNCOVER-3","ERASURE","FIXTURE","BE RADIANT","BE VIVID","BE SURE","VOYAGE 2","UltIMMa-2","AMAGINE-1","reSURFACE-1","reSURFACE-2","AMAGINE-2","CLEAR"),
-  treat1  = c("Guselkumab","Risankizumab","Ixekizumab","Ixekizumab","Ixekizumab","Secukinumab","Secukinumab","Bimekizumab","Bimekizumab","Bimekizumab","Guselkumab","Risankizumab","Brodalumab","Tildrakizumab","Tildrakizumab","Brodalumab","Secukinumab"),
-  treat2  = c("Placebo","Placebo","Placebo","Etanercept","Placebo","Placebo","Etanercept","Secukinumab","Placebo","Adalimumab","Placebo","Placebo","Placebo","Placebo","Etanercept","Ustekinumab","Ustekinumab"),
-  TE      = c(4.4631456860,4.3152188741,5.5301431182,1.6601310267,4.1532422035,5.7497432430,1.8531680974,0.4382549309,4.4841318576,1.3837912309,4.9910446443,4.9091192309,5.9434815571,3.2300135693,1.3987168811,0.9122827105,1.0260415958),
-  seTE    = c(0.4681010262,0.5351949209,0.7103861449,0.1617321810,0.4677999283,0.7199162513,0.1655086768,0.2337476357,0.4926188758,0.2030337599,1.0104833219,0.7845663822,1.0086503528,0.5992332963,0.2070798273,0.1276690910,0.1697096880),
+  studlab = c("VOYAGE 1","VOYAGE 2","UltIMMa-1","UltIMMa-2","UNCOVER-1","UNCOVER-3","UNCOVER-2","ERASURE","FIXTURE","BE RADIANT","BE VIVID","BE READY","BE SURE","AMAGINE-1","reSURFACE-1","reSURFACE-2","AMAGINE-2","CLEAR"),
+  treat1  = c("Guselkumab","Guselkumab","Risankizumab","Risankizumab","Ixekizumab","Ixekizumab","Ixekizumab","Secukinumab","Secukinumab","Bimekizumab","Bimekizumab","Bimekizumab","Bimekizumab","Brodalumab","Tildrakizumab","Tildrakizumab","Brodalumab","Secukinumab"),
+  treat2  = c("Placebo","Placebo","Placebo","Placebo","Placebo","Placebo","Etanercept","Placebo","Etanercept","Secukinumab","Placebo","Placebo","Adalimumab","Placebo","Placebo","Etanercept","Ustekinumab","Ustekinumab"),
+  TE      = c(4.4631456860,4.9910446443,4.3152188741,4.9091192309,5.5301431182,4.1532422035,1.6601310267,5.7497432430,1.8531680974,0.4382549309,4.4841318576,6.7706747384,1.3837912309,5.9434815571,3.2300135693,1.3987168811,0.9122827105,1.0260415958),
+  seTE    = c(0.4681010262,1.0104833219,0.5351949209,0.7845663822,0.7103861449,0.4677999283,0.1617321810,0.7199162513,0.1655086768,0.2337476357,0.4926188758,1.0230868142,0.2030337599,1.0086503528,0.5992332963,0.2070798273,0.1276690910,0.1697096880),
   stringsAsFactors = FALSE
 )
 cat("=== RapidMeta Dermatology | IL-17 / IL-23 Biologics NMA in Plaque Psoriasis v1.2 ===\n")

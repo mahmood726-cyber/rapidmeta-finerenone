@@ -8,11 +8,11 @@ logHR_SE <- function(hr, lci, uci) {
 
 # From config.comparisons + config.realData (one row per edge×trial)
 trials <- data.frame(
-  studlab = c("SURPASS-1","SURPASS-2","SUSTAIN-1","SUSTAIN-3","SUSTAIN-7","LEAD-6","AWARD-6","LEAD-2","SUSTAIN-6","EXSCEL","PIONEER-4","PIONEER-3","SUSTAIN-2"),
-  treat1  = c("Tirzepatide","Tirzepatide","Semaglutide","Semaglutide","Semaglutide","Liraglutide","Dulaglutide","Liraglutide","Semaglutide","Exenatide","OralSemaglutide","OralSemaglutide","Semaglutide"),
-  treat2  = c("Placebo","Semaglutide","Placebo","Exenatide","Dulaglutide","Exenatide","Liraglutide","Placebo","Placebo","Placebo","Liraglutide","Sitagliptin","Sitagliptin"),
-  TE      = c(-2.1100000000,-0.4500000000,-1.5500000000,-0.6200000000,-0.3100000000,-0.3300000000,-0.0600000000,-1.1000000000,-0.7700000000,-0.5300000000,-0.1000000000,-0.5000000000,-1.1000000000),
-  seTE    = c(0.1198979592,0.0612244898,0.0943877551,0.0918367347,0.0561224490,0.0739795918,0.0663265306,0.1020408163,0.0408163265,0.0204081633,0.0510204082,0.0510204082,0.0510204082),
+  studlab = c("SURPASS-1","SURPASS-5","SURPASS-2","SUSTAIN-1","SUSTAIN-6","SUSTAIN-3","SUSTAIN-7","LEAD-6","AWARD-6","LEAD-2","EXSCEL","PIONEER-4","PIONEER-3","SUSTAIN-2","SURPASS-3","SURPASS-4","SURPASS-6"),
+  treat1  = c("Tirzepatide","Tirzepatide","Tirzepatide","Semaglutide","Semaglutide","Semaglutide","Semaglutide","Liraglutide","Dulaglutide","Liraglutide","Exenatide","OralSemaglutide","OralSemaglutide","Semaglutide","Tirzepatide","Tirzepatide","Tirzepatide"),
+  treat2  = c("Placebo","Placebo","Semaglutide","Placebo","Placebo","Exenatide","Dulaglutide","Exenatide","Liraglutide","Placebo","Placebo","Liraglutide","Sitagliptin","Sitagliptin","InsulinDegludec","InsulinGlargine","InsulinLispro"),
+  TE      = c(-2.1100000000,-2.5000000000,-0.4500000000,-1.5500000000,-0.7700000000,-0.6200000000,-0.3100000000,-0.3300000000,-0.0600000000,-1.1000000000,-0.5300000000,-0.1000000000,-0.5000000000,-1.1000000000,-1.0400000000,-1.1500000000,-0.9200000000),
+  seTE    = c(0.1198979592,0.0943877551,0.0612244898,0.0943877551,0.0408163265,0.0918367347,0.0561224490,0.0739795918,0.0663265306,0.1020408163,0.0204081633,0.0510204082,0.0510204082,0.0510204082,0.0663265306,0.0586734694,0.0637755102),
   stringsAsFactors = FALSE
 )
 cat("=== RapidMeta Endocrinology | Incretin Class NMA in Type 2 Diabetes v1.0 ===\n")

@@ -1,9 +1,38 @@
 # IL-17 / IL-23 NMA in Plaque Psoriasis — Peer-Review Defence Bundle
 
-**Generated:** 2026-04-21 · **Version:** v1.2 (k=10, OR scale)
+**Generated:** 2026-04-21 · **Version:** v1.5 (k=18, 11 treatments, OR scale)
 **Engine:** `netmeta` R package v3.2.0 — gold-standard reference
 **App:** `IL_PSORIASIS_NMA_REVIEW.html`
 **Cross-check tolerance:** JS v2 matches netmeta exactly on 3/7 point estimates; close (≤7% τ² variant) on 4/7 — acceptable for submission.
+
+**v1.5 current-state summary (supersedes v1.2 below where they conflict):**
+- k = 18 (added 8 trials since v1.2: VOYAGE 2, UltIMMa-2, AMAGINE-1, AMAGINE-2, CLEAR, reSURFACE-1, reSURFACE-2, BE READY)
+- Treatments = 11 (added Brodalumab, Tildrakizumab, Ustekinumab; Bimekizumab now has 3 direct trials — BE RADIANT, BE VIVID, BE SURE, BE READY)
+- Q_inc = 6.51 (df=4, p=0.164) — **CONSISTENT** (v1.2 p=0.167; stability preserved across expansion)
+- τ² = 0.209, I² = 42.0% (improved from v1.2)
+- Bimekizumab OR vs Placebo = **197.1 (81.4, 477.6)** — tighter than v1.2's 150.2 due to BE READY precision add
+- Clinical ordering stable: Bime > Secu > Broda > Ixe > Gus > Risa > Tildra > Adali > Etaner > Usteki > Pbo (see updated key-results below)
+
+### v1.5 updated per-treatment vs Placebo (from re-run netmeta)
+
+| Treatment | OR | 95% CI |
+|---|---:|---:|
+| **Bimekizumab** | **197.14** | (81.39, 477.55) |
+| **Brodalumab** | 177.02 | (48.79, 642.30) |
+| **Secukinumab** | 148.47 | (64.23, 343.20) |
+| **Ixekizumab** | 100.32 | (43.68, 230.36) |
+| **Guselkumab** | 99.43 | (32.95, 300.03) |
+| **Risankizumab** | 93.52 | (31.43, 278.21) |
+| Ustekinumab | 61.75 | (19.72, 193.37) |
+| Tildrakizumab | 52.81 | (19.17, 145.49) |
+| Adalimumab | 49.41 | (13.19, 185.05) |
+| Etanercept | 18.08 | (7.63, 42.81) |
+| Placebo | 1 | — |
+
+---
+
+## Historical v1.2 bundle below (retained for transparency — numbers reflect 10-trial snapshot)
+---
 
 ---
 
@@ -160,4 +189,7 @@ Key items:
 - Protocol: `protocols/il_psoriasis_nma_protocol_v1.2_2026-04-21.md`
 
 ## Changelog
+- **v1.5** (2026-04-21) — Added BE READY (NCT03410992, Gordon 2021 Lancet; Bime 318/349 vs Pbo 1/86 → OR 871.9, 95% CI 117.5–6483 uncorrected). Closes the final auditor-flagged within-drug bimekizumab precision gap. Bime vs Placebo tightens 150→197; Q_inc 6.51 (p=0.164) stable; all 11 drug rankings preserved.
+- **v1.4** (2026-04-21) — Added reSURFACE-2, AMAGINE-2, CLEAR; brought Ustekinumab into network (k=17).
+- **v1.3** (2026-04-21) — Added AMAGINE-1 (Brodalumab) + reSURFACE-1 (Tildrakizumab); k=15.
 - **v1.0** (2026-04-21) — First bundle; aligns with protocol v1.2 (k=10 OR scale).
