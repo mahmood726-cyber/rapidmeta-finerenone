@@ -76,4 +76,8 @@ All protocols at version 1.1 (editor-review revision 2026-04-20); original v1.0 
 | Neurology (Stroke) | [Thrombectomy in Large-Core Infarct Stroke (RESCUE-Japan LIMIT / ANGEL-ASPECT / SELECT2)](../EVT_LARGECORE_REVIEW.html) | [v1.1 (2026-04-20)](evt_largecore_protocol_v1.1_2026-04-20.md) |
 | Oncology (Prostate) | [PARP Inhibitor + ARPI Combination in 1L mCRPC (PROpel / MAGNITUDE / TALAPRO-2)](../PARP_ARPI_MCRPC_REVIEW.html) | [v1.1 (2026-04-20)](parp_arpi_mcrpc_protocol_v1.1_2026-04-20.md) |
 | Rheumatology (SLE) | [Belimumab in SLE (BLISS-52 / BLISS-76 / BLISS-SC / BLISS-LN)](../BELIMUMAB_SLE_REVIEW.html) | [v1.1 (2026-04-20)](belimumab_sle_protocol_v1.1_2026-04-20.md) |
+| Neurology (Epilepsy) | [Cannabidiol for Dravet and Lennox-Gastaut Syndrome (GWPCARE 1/2/3/4)](../CBD_SEIZURE_REVIEW.html) | [v1.1 (2026-04-20)](cbd_seizure_protocol_v1.1_2026-04-20.md) |
+| Neurology (Epilepsy) | [Fenfluramine for Dravet and Lennox-Gastaut Syndrome](../FENFLURAMINE_SEIZURE_REVIEW.html) | [v1.1 (2026-04-20)](fenfluramine_seizure_protocol_v1.1_2026-04-20.md) |
+| Endocrinology (Obesity) | [Tirzepatide 15 mg for Weight Management (SURMOUNT-1 / 2 / 3)](../TIRZEPATIDE_OBESITY_REVIEW.html) | [v1.1 (2026-04-20)](tirz_obesity_protocol_v1.1_2026-04-20.md) |
+| Dermatology | [JAK Inhibitors (Abrocitinib + Upadacitinib) in AD (JADE MONO-1/2 + MEASURE-UP 1/2)](../JAKI_AD_REVIEW.html) | [v1.1 (2026-04-20)](jaki_ad_protocol_v1.1_2026-04-20.md) |
 | Women Health | [Fezolinetant for Menopausal Vasomotor Symptoms (SKYLIGHT)](../FEZOLINETANT_VMS_REVIEW.html) | [v1.1 (2026-04-20)](fezolinetant_vms_protocol_v1.1_2026-04-20.md) |
