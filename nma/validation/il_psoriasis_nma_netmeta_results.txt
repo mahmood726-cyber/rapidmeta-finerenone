@@ -1,159 +1,248 @@
-=== RapidMeta Dermatology | IL-17 / IL-23 Biologics NMA in Plaque Psoriasis v1.1 ===
-     studlab       treat1      treat2        TE       seTE
-1   VOYAGE 1   Guselkumab     Placebo 3.2503745 0.43347211
-2  UltIMMa-1 Risankizumab     Placebo 2.9559514 0.48908212
-3  UNCOVER-1   Ixekizumab     Placebo 4.7567748 0.70480454
-4    ERASURE  Secukinumab     Placebo 4.4880744 0.70494133
-5 BE RADIANT  Bimekizumab Secukinumab 0.7929925 0.08739741
+=== RapidMeta Dermatology | IL-17 / IL-23 Biologics NMA in Plaque Psoriasis v1.2 ===
+      studlab       treat1      treat2        TE      seTE
+1    VOYAGE 1   Guselkumab     Placebo 4.4631457 0.4681010
+2   UltIMMa-1 Risankizumab     Placebo 4.3152189 0.5351949
+3   UNCOVER-1   Ixekizumab     Placebo 5.5301431 0.7103861
+4   UNCOVER-2   Ixekizumab  Etanercept 1.6601310 0.1617322
+5   UNCOVER-3   Ixekizumab     Placebo 4.1532422 0.4677999
+6     ERASURE  Secukinumab     Placebo 5.7497432 0.7199163
+7     FIXTURE  Secukinumab  Etanercept 1.8531681 0.1655087
+8  BE RADIANT  Bimekizumab Secukinumab 0.4382549 0.2337476
+9    BE VIVID  Bimekizumab     Placebo 4.4841319 0.4926189
+10    BE SURE  Bimekizumab  Adalimumab 1.3837912 0.2030338
 
 
 === Consistency model ===
 Original data:
 
                 treat1       treat2      TE   seTE
-VOYAGE 1    Guselkumab      Placebo  3.2504 0.4335
-UltIMMa-1      Placebo Risankizumab -2.9560 0.4891
-UNCOVER-1   Ixekizumab      Placebo  4.7568 0.7048
-ERASURE        Placebo  Secukinumab -4.4881 0.7049
-BE RADIANT Bimekizumab  Secukinumab  0.7930 0.0874
+VOYAGE 1    Guselkumab      Placebo  4.4631 0.4681
+UltIMMa-1      Placebo Risankizumab -4.3152 0.5352
+UNCOVER-1   Ixekizumab      Placebo  5.5301 0.7104
+UNCOVER-2   Etanercept   Ixekizumab -1.6601 0.1617
+UNCOVER-3   Ixekizumab      Placebo  4.1532 0.4678
+ERASURE        Placebo  Secukinumab -5.7497 0.7199
+FIXTURE     Etanercept  Secukinumab -1.8532 0.1655
+BE RADIANT Bimekizumab  Secukinumab  0.4383 0.2337
+BE VIVID   Bimekizumab      Placebo  4.4841 0.4926
+BE SURE     Adalimumab  Bimekizumab -1.3838 0.2030
 
 Number of treatment arms (by study):
            narms
 VOYAGE 1       2
 UltIMMa-1      2
 UNCOVER-1      2
+UNCOVER-2      2
+UNCOVER-3      2
 ERASURE        2
+FIXTURE        2
 BE RADIANT     2
+BE VIVID       2
+BE SURE        2
 
 Results (common effects model):
 
-                treat1       treat2       RR              95%-CI    Q leverage
-VOYAGE 1    Guselkumab      Placebo  25.8000 [11.0318;  60.3381] 0.00     1.00
-UltIMMa-1      Placebo Risankizumab   0.0520 [ 0.0199;   0.1357] 0.00     1.00
-UNCOVER-1   Ixekizumab      Placebo 116.3700 [29.2355; 463.2034] 0.00     1.00
-ERASURE        Placebo  Secukinumab   0.0112 [ 0.0028;   0.0448] 0.00     1.00
-BE RADIANT Bimekizumab  Secukinumab   2.2100 [ 1.8621;   2.6229] 0.00     1.00
+                treat1       treat2       OR              95%-CI    Q leverage
+VOYAGE 1    Guselkumab      Placebo  86.7600 [34.6634; 217.1540] 0.00     1.00
+UltIMMa-1      Placebo Risankizumab   0.0134 [ 0.0047;   0.0381] 0.00     1.00
+UNCOVER-1   Ixekizumab      Placebo  93.0118 [51.0524; 169.4571] 1.97     0.19
+UNCOVER-2   Etanercept   Ixekizumab   0.1889 [ 0.1391;   0.2566] 0.00     0.93
+UNCOVER-3   Ixekizumab      Placebo  93.0118 [51.0524; 169.4571] 0.66     0.43
+ERASURE        Placebo  Secukinumab   0.0090 [ 0.0049;   0.0166] 2.07     0.19
+FIXTURE     Etanercept  Secukinumab   0.1578 [ 0.1154;   0.2158] 0.00     0.93
+BE RADIANT Bimekizumab  Secukinumab   1.3712 [ 0.8928;   2.1060] 0.27     0.88
+BE VIVID   Bimekizumab      Placebo 152.7007 [79.6467; 292.7617] 1.22     0.45
+BE SURE     Adalimumab  Bimekizumab   0.2506 [ 0.1683;   0.3731] 0.00     1.00
 
 Results (random effects model):
 
-                treat1       treat2       RR              95%-CI
-VOYAGE 1    Guselkumab      Placebo  25.8000 [11.0318;  60.3381]
-UltIMMa-1      Placebo Risankizumab   0.0520 [ 0.0199;   0.1357]
-UNCOVER-1   Ixekizumab      Placebo 116.3700 [29.2355; 463.2034]
-ERASURE        Placebo  Secukinumab   0.0112 [ 0.0028;   0.0448]
-BE RADIANT Bimekizumab  Secukinumab   2.2100 [ 1.8621;   2.6229]
+                treat1       treat2       OR              95%-CI
+VOYAGE 1    Guselkumab      Placebo  86.7600 [24.0746; 312.6657]
+UltIMMa-1      Placebo Risankizumab   0.0134 [ 0.0034;   0.0531]
+UNCOVER-1   Ixekizumab      Placebo 107.3521 [44.4605; 259.2071]
+UNCOVER-2   Etanercept   Ixekizumab   0.1913 [ 0.0824;   0.4440]
+UNCOVER-3   Ixekizumab      Placebo 107.3521 [44.4605; 259.2071]
+ERASURE        Placebo  Secukinumab   0.0076 [ 0.0029;   0.0199]
+FIXTURE     Etanercept  Secukinumab   0.1558 [ 0.0670;   0.3623]
+BE RADIANT Bimekizumab  Secukinumab   1.1393 [ 0.4751;   2.7325]
+BE VIVID   Bimekizumab      Placebo 150.1637 [54.9684; 410.2200]
+BE SURE     Adalimumab  Bimekizumab   0.2506 [ 0.0941;   0.6677]
 
-Number of studies: k = 5
-Number of pairwise comparisons: m = 5
-Number of treatments: n = 6
-Number of designs: d = 5
+Number of studies: k = 10
+Number of pairwise comparisons: m = 10
+Number of treatments: n = 8
+Number of designs: d = 9
 
 Common effects model
 
-Treatment estimate (sm = 'RR', comparison: other treatments vs 'Placebo'):
-                   RR              95%-CI    z  p-value
-Bimekizumab  196.5795 [48.8537; 791.0052] 7.43 < 0.0001
-Guselkumab    25.8000 [11.0318;  60.3381] 7.50 < 0.0001
-Ixekizumab   116.3700 [29.2355; 463.2034] 6.75 < 0.0001
-Placebo             .                   .    .        .
-Risankizumab  19.2200 [ 7.3696;  50.1257] 6.04 < 0.0001
-Secukinumab   88.9500 [22.3408; 354.1548] 6.37 < 0.0001
+Treatment estimate (sm = 'OR', comparison: other treatments vs 'Placebo'):
+                   OR              95%-CI     z  p-value
+Adalimumab    38.2709 [17.8464;  82.0704]  9.36 < 0.0001
+Bimekizumab  152.7007 [79.6467; 292.7617] 15.14 < 0.0001
+Etanercept    17.5711 [ 9.5166;  32.4428]  9.16 < 0.0001
+Guselkumab    86.7600 [34.6634; 217.1540]  9.53 < 0.0001
+Ixekizumab    93.0118 [51.0524; 169.4571] 14.81 < 0.0001
+Placebo             .                   .     .        .
+Risankizumab  74.8300 [26.2130; 213.6163]  8.06 < 0.0001
+Secukinumab  111.3619 [60.1816; 206.0675] 15.01 < 0.0001
 
 Random effects model
 
-Treatment estimate (sm = 'RR', comparison: other treatments vs 'Placebo'):
-                   RR              95%-CI    z  p-value
-Bimekizumab  196.5795 [48.8537; 791.0052] 7.43 < 0.0001
-Guselkumab    25.8000 [11.0318;  60.3381] 7.50 < 0.0001
-Ixekizumab   116.3700 [29.2355; 463.2034] 6.75 < 0.0001
-Placebo             .                   .    .        .
-Risankizumab  19.2200 [ 7.3696;  50.1257] 6.04 < 0.0001
-Secukinumab   88.9500 [22.3408; 354.1548] 6.37 < 0.0001
+Treatment estimate (sm = 'OR', comparison: other treatments vs 'Placebo'):
+                   OR              95%-CI     z  p-value
+Adalimumab    37.6350 [ 9.2474; 153.1670]  5.07 < 0.0001
+Bimekizumab  150.1637 [54.9684; 410.2200]  9.77 < 0.0001
+Etanercept    20.5330 [ 7.3788;  57.1370]  5.79 < 0.0001
+Guselkumab    86.7600 [24.0746; 312.6657]  6.82 < 0.0001
+Ixekizumab   107.3521 [44.4605; 259.2071] 10.40 < 0.0001
+Placebo             .                   .     .        .
+Risankizumab  74.8300 [18.8414; 297.1923]  6.13 < 0.0001
+Secukinumab  131.7998 [50.2366; 345.7872]  9.92 < 0.0001
 
 Quantifying heterogeneity / inconsistency:
-tau^2 = NA; tau = NA
+tau^2 = 0.2087; tau = 0.4569; I^2 = 51.6% [0.0%; 84.0%]
 
 Tests of heterogeneity (within designs) and inconsistency (between designs):
-                Q d.f. p-value
-Total           0    0      --
-Within designs  0    0      --
-Between designs 0    0      --
+                   Q d.f. p-value
+Total           6.20    3  0.1021
+Within designs  2.62    1  0.1055
+Between designs 3.58    2  0.1667
 
 Details of network meta-analysis methods:
 - Frequentist graph-theoretical approach
 - DerSimonian-Laird estimator for tau^2
+- Calculation of I^2 based on Q
 
 === League table (RE, HR/RR with 95% CI) ===
-                           Bimekizumab               Guselkumab
-Bimekizumab                Bimekizumab                        .
-Guselkumab     7.619 [ 1.491;  38.927]               Guselkumab
-Ixekizumab     1.689 [ 0.238;  12.008]  0.222 [ 0.044;   1.122]
-Placebo      196.579 [48.854; 791.005] 25.800 [11.032;  60.338]
-Risankizumab  10.228 [ 1.887;  55.448]  1.342 [ 0.373;   4.832]
-Secukinumab    2.210 [ 1.862;   2.623]  0.290 [ 0.057;   1.469]
-                            Ixekizumab                   Placebo
-Bimekizumab                          .                         .
-Guselkumab                           .  25.800 [11.032;  60.338]
-Ixekizumab                  Ixekizumab 116.370 [29.235; 463.203]
-Placebo      116.370 [29.235; 463.203]                   Placebo
-Risankizumab   6.055 [ 1.127;  32.532]   0.052 [ 0.020;   0.136]
-Secukinumab    1.308 [ 0.185;   9.230]   0.011 [ 0.003;   0.045]
-                        Risankizumab             Secukinumab
-Bimekizumab                        . 2.210 [ 1.862;   2.623]
-Guselkumab                         .                       .
-Ixekizumab                         .                       .
-Placebo      0.052 [ 0.020;   0.136] 0.011 [ 0.003;   0.045]
-Risankizumab            Risankizumab                       .
-Secukinumab  0.216 [ 0.040;   1.161]             Secukinumab
+                           Adalimumab               Bimekizumab
+Adalimumab                 Adalimumab  0.251 [ 0.094;    0.668]
+Bimekizumab   0.251 [ 0.094;   0.668]               Bimekizumab
+Etanercept    1.833 [ 0.413;   8.127]   7.313 [ 2.382;  22.451]
+Guselkumab    0.434 [ 0.065;   2.903]   1.731 [ 0.339;   8.824]
+Ixekizumab    0.351 [ 0.076;   1.609]   1.399 [ 0.436;   4.493]
+Placebo      37.635 [ 9.247; 153.167] 150.164 [54.968; 410.220]
+Risankizumab  0.503 [ 0.070;   3.598]   2.007 [ 0.364;  11.056]
+Secukinumab   0.286 [ 0.077;   1.062]   1.139 [ 0.475;   2.732]
+                           Etanercept               Guselkumab
+Adalimumab                          .                        .
+Bimekizumab                         .                        .
+Etanercept                 Etanercept                        .
+Guselkumab    0.237 [ 0.046;   1.221]               Guselkumab
+Ixekizumab    0.191 [ 0.082;   0.444]  0.808 [ 0.171;   3.830]
+Placebo      20.533 [ 7.379;  57.137] 86.760 [24.075; 312.666]
+Risankizumab  0.274 [ 0.049;   1.528]  1.159 [ 0.176;   7.621]
+Secukinumab   0.156 [ 0.067;   0.362]  0.658 [ 0.132;   3.275]
+                            Ixekizumab                    Placebo
+Adalimumab                           .                          .
+Bimekizumab                          .  88.600 [23.744;  330.610]
+Etanercept    0.190 [ 0.074;    0.492]                          .
+Guselkumab                           .  86.760 [24.075;  312.666]
+Ixekizumab                  Ixekizumab 106.615 [38.701;  293.713]
+Placebo      107.352 [44.460; 259.207]                    Placebo
+Risankizumab   1.435 [ 0.279;   7.372]    0.013 [ 0.003;   0.053]
+Secukinumab    0.815 [ 0.295;   2.251]    0.008 [ 0.003;   0.020]
+                         Risankizumab              Secukinumab
+Adalimumab                          .                        .
+Bimekizumab                         . 1.550 [ 0.567;    4.238]
+Etanercept                          . 0.157 [ 0.060;    0.406]
+Guselkumab                          .                        .
+Ixekizumab                          .                        .
+Placebo      0.013 [ 0.003;    0.053] 0.003 [ 0.001;    0.017]
+Risankizumab             Risankizumab                        .
+Secukinumab   0.568 [ 0.105;   3.055]              Secukinumab
 
 === Design-by-treatment inconsistency ===
 Q statistics to assess homogeneity / consistency
 
                    Q df p-value
-Total           0.00  0      --
-Within designs  0.00  0      --
-Between designs 0.00  0      --
+Total           6.20  3  0.1021
+Within designs  2.62  1  0.1055
+Between designs 3.58  2  0.1667
+
+Design-specific decomposition of within-designs Q statistic
+
+             Design    Q df p-value
+ Placebo:Ixekizumab 2.62  1  0.1055
+
+Between-designs Q statistic after detaching of single designs
+(influential designs have p-value markedly different from 0.1667)
+
+         Detached design    Q df p-value
+     Placebo:Secukinumab 1.02  1  0.3124
+     Placebo:Bimekizumab 1.34  1  0.2462
+ Bimekizumab:Secukinumab 1.34  1  0.2462
+  Etanercept:Secukinumab 3.56  1  0.0592
+      Placebo:Ixekizumab 3.56  1  0.0592
+   Etanercept:Ixekizumab 3.56  1  0.0592
 
 Q statistic to assess consistency under the assumption of
 a full design-by-treatment interaction random effects model
 
                    Q df p-value tau.within tau2.within
-Between designs 0.00  0      --          0           0
+Between designs 1.13  2  0.5680     0.7656      0.5862
 
 === Node-splitting ===
+Separate indirect from direct evidence (SIDE) using back-calculation method
+
+Random effects model: 
+
+              comparison k prop      nma   direct   indir.    RoR     z p-value
+     Bimekizumab:Placebo 1 0.58 150.1637  88.6000 313.4639 0.2826 -1.22  0.2243
+ Bimekizumab:Secukinumab 1 0.76   1.1393   1.5500   0.4381 3.5380  1.22  0.2243
+   Etanercept:Ixekizumab 1 0.79   0.1913   0.1901   0.1956 0.9721 -0.03  0.9785
+  Etanercept:Secukinumab 1 0.79   0.1558   0.1567   0.1524 1.0287  0.03  0.9785
+      Ixekizumab:Placebo 2 0.76 107.3521 106.6154 109.6761 0.9721 -0.03  0.9785
+     Secukinumab:Placebo 1 0.33 131.7998 314.1100  85.4089 3.6777  1.25  0.2123
+
+Legend:
+ comparison - Treatment comparison
+ k          - Number of studies providing direct evidence
+ prop       - Direct evidence proportion
+ nma        - Estimated treatment effect (OR) in network meta-analysis
+ direct     - Estimated treatment effect (OR) derived from direct evidence
+ indir.     - Estimated treatment effect (OR) derived from indirect evidence
+ RoR        - Ratio of Ratios (direct versus indirect)
+ z          - z-value of test for disagreement (direct versus indirect)
+ p-value    - p-value of test for disagreement (direct versus indirect)
 
 === P-scores (lower = better for HR/RR on protective scale) ===
              P-score
-Bimekizumab   0.9378
-Ixekizumab    0.7708
-Secukinumab   0.6579
-Guselkumab    0.3566
-Risankizumab  0.2769
+Bimekizumab   0.8370
+Secukinumab   0.7784
+Ixekizumab    0.6881
+Guselkumab    0.6111
+Risankizumab  0.5602
+Adalimumab    0.3359
+Etanercept    0.1894
 Placebo       0.0000
 
 === Rank-probability matrix (N=100k draws) ===
-             rank_1 rank_2 rank_3 rank_4 rank_5 rank_6
-Bimekizumab       0  0.001  0.007  0.118  0.268  0.605
-Guselkumab        0  0.314  0.596  0.082  0.007  0.000
-Ixekizumab        0  0.007  0.032  0.309  0.404  0.248
-Placebo           1  0.000  0.000  0.000  0.000  0.000
-Risankizumab      0  0.659  0.302  0.035  0.003  0.000
-Secukinumab       0  0.018  0.062  0.456  0.317  0.146
+             rank_1 rank_2 rank_3 rank_4 rank_5 rank_6 rank_7 rank_8
+Adalimumab        0  0.230  0.417  0.185  0.085  0.045  0.025  0.014
+Bimekizumab       0  0.001  0.013  0.058  0.116  0.183  0.254  0.375
+Etanercept        0  0.698  0.242  0.048  0.009  0.002  0.000  0.000
+Guselkumab        0  0.024  0.114  0.227  0.215  0.163  0.136  0.122
+Ixekizumab        0  0.002  0.034  0.136  0.230  0.256  0.212  0.130
+Placebo           1  0.000  0.000  0.000  0.000  0.000  0.000  0.000
+Risankizumab      0  0.045  0.159  0.265  0.190  0.137  0.109  0.096
+Secukinumab       0  0.001  0.019  0.081  0.156  0.215  0.264  0.263
 
 === SUCRA ===
-     Placebo Risankizumab   Guselkumab  Secukinumab   Ixekizumab  Bimekizumab 
-       1.000        0.723        0.643        0.298        0.229        0.106 
+     Placebo   Etanercept   Adalimumab Risankizumab   Guselkumab   Ixekizumab 
+       1.000        0.803        0.653        0.439        0.390        0.306 
+ Secukinumab  Bimekizumab 
+       0.227        0.181 
 
 [wrote il_psoriasis_nma_netmeta_results.rds + .json]
 
 === Key results for peer-review bundle ===
-TAU2: NA 
-I2: NA %
-Q inc: 0 df 0 p NA 
-  Bimekizumab              RR 196.579 (48.854, 791.005)
-  Guselkumab               RR 25.800 (11.032, 60.338)
-  Ixekizumab               RR 116.370 (29.235, 463.203)
-  Risankizumab             RR 19.220 (7.370, 50.126)
-  Secukinumab              RR 88.950 (22.341, 354.155)
-Warning message:
-No comparisons selected with argument 'show = both'. You could use 'show = "all" to show all comparisons. 
+TAU2: 0.20871 
+I2: 51.64 %
+Q inc: 3.583 df 2 p 0.1667 
+  Adalimumab               OR 37.635 (9.247, 153.167)
+  Bimekizumab              OR 150.164 (54.968, 410.220)
+  Etanercept               OR 20.533 (7.379, 57.137)
+  Guselkumab               OR 86.760 (24.075, 312.666)
+  Ixekizumab               OR 107.352 (44.460, 259.207)
+  Risankizumab             OR 74.830 (18.841, 297.192)
+  Secukinumab              OR 131.800 (50.237, 345.787)
