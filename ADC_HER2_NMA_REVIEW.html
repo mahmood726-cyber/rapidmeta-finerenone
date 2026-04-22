@@ -3730,8 +3730,11 @@
                     if (outcomeKey === 'default') {
                         const def = outcomes.find(o => o.shortLabel === 'MACE');
                         if (def) {
-                            t.data.tE = def.tE;
-                            t.data.cE = def.cE;
+                            // Preserve trial-level tE/cE when the outcome entry omits them
+                            // (e.g. MD-scale outcomes like ppFEV1 have no event counts; they
+                            // carry pubHR/pubHR_LCI/pubHR_UCI only). Nullish-coalesce so 0 is kept.
+                            t.data.tE = def.tE ?? t.data.tE;
+                            t.data.cE = def.cE ?? t.data.cE;
                             if (def.nT != null) t.data.tN = def.nT;
                             if (def.nC != null) t.data.cN = def.nC;
                             t.data.pubHR = def.pubHR ?? null;
@@ -3749,8 +3752,10 @@
                     } else {
                         const oc = outcomes.find(o => o.shortLabel === outcomeKey);
                         if (oc) {
-                            t.data.tE = oc.tE;
-                            t.data.cE = oc.cE;
+                            // Preserve trial-level tE/cE when the outcome entry omits them
+                            // (MD-scale outcomes carry no event counts).
+                            t.data.tE = oc.tE ?? t.data.tE;
+                            t.data.cE = oc.cE ?? t.data.cE;
                             // Per-outcome denominator override (e.g., safety analysis set for hyperkalemia)
                             if (oc.nT != null) t.data.tN = oc.nT;
                             if (oc.nC != null) t.data.cN = oc.nC;
@@ -3793,11 +3798,27 @@
                             score: Math.max(0, Math.min(100, Math.round(parseFloat(o.matchScore ?? (/PRIMARY/i.test(o.type ?? '') ? 85 : 70)))))
                         }))
                     };
+                    // Build an outcome-scale-aware evidence sentence: 2x2 counts for
+                    // binary outcomes, published effect estimate + CI for HR/MD/ratio-scale
+                    // outcomes (e.g. ppFEV1 MD, rate-ratio), so we never render "undefined".
+                    const _hasCounts = Number.isFinite(Number(t.data.tE)) && Number.isFinite(Number(t.data.cE));
+                    const _pubEff = selectedOutcome.pubHR ?? t.data.pubHR ?? null;
+                    const _pubLo  = selectedOutcome.pubHR_LCI ?? t.data.pubHR_LCI ?? null;
+                    const _pubHi  = selectedOutcome.pubHR_UCI ?? t.data.pubHR_UCI ?? null;
+                    const _effLabel = selectedOutcome.estimandType ?? t.data.estimandType ?? (_pubEff != null ? 'HR' : '');
+                    let _selectionDetail;
+                    if (_hasCounts && (t.data.tE > 0 || t.data.cE > 0)) {
+                        _selectionDetail = `counts ${t.data.tE}/${t.data.tN} vs ${t.data.cE}/${t.data.cN}`;
+                    } else if (_pubEff != null && _pubLo != null && _pubHi != null) {
+                        _selectionDetail = `${_effLabel || 'effect'} ${_pubEff} (95% CI ${_pubLo} to ${_pubHi}); n = ${t.data.tN} vs ${t.data.cN}`;
+                    } else {
+                        _selectionDetail = `n = ${t.data.tN} vs ${t.data.cN}`;
+                    }
                     const selectionEvidence = {
                         label: 'Outcome Selected For Pooling',
                         source: 'Outcome selector (analysis scope)',
-                        text: `Current selection for this trial: ${this.outcomeLabel(selectedOutcome.shortLabel ?? outcomeKey)} (${selectedOutcome.type ?? 'N/A'}) with counts ${t.data.tE}/${t.data.tN} vs ${t.data.cE}/${t.data.cN}. Note: other source extracts below may describe a different endpoint.`,
-                        highlights: [String(t.data.tE), String(t.data.tN), String(t.data.cE), String(t.data.cN), this.outcomeLabel(selectedOutcome.shortLabel ?? outcomeKey)]
+                        text: `Current selection for this trial: ${this.outcomeLabel(selectedOutcome.shortLabel ?? outcomeKey)} (${selectedOutcome.type ?? 'N/A'}) with ${_selectionDetail}. Note: other source extracts below may describe a different endpoint.`,
+                        highlights: [String(t.data.tN), String(t.data.cN), this.outcomeLabel(selectedOutcome.shortLabel ?? outcomeKey), _pubEff != null ? String(_pubEff) : null].filter(Boolean)
                     };
                     if (!Array.isArray(t.data.evidence)) t.data.evidence = [];
                     const existingSel = t.data.evidence.findIndex(e => String(e?.label ?? '') === 'Outcome Selected For Pooling');
