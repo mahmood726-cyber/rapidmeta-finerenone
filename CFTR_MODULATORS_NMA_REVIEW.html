@@ -1555,6 +1555,17 @@
 
                             <div id="nma-summary-container" class="mb-8"></div>
 
+                            <!-- NMA Auto-Generated Manuscript Text (Methods + Results) -->
+                            <div class="glass p-8 rounded-[30px] border border-indigo-500/20 bg-indigo-500/5 mb-8">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="text-xs font-bold opacity-60 uppercase tracking-[0.3em]"><i class="fa-solid fa-pen-nib mr-1"></i> Auto-Generated NMA Manuscript Text</h4>
+                                    <button onclick="copyNMAManuscriptText()" class="text-[11px] font-bold text-indigo-400 uppercase bg-indigo-400/10 px-4 py-1.5 rounded-full border border-indigo-400/20 hover:bg-indigo-400/20 transition-all"><i class="fa-solid fa-copy mr-1"></i> Copy All</button>
+                                </div>
+                                <div id="nma-manuscript-text" class="space-y-6 text-sm text-slate-300 leading-relaxed" style="font-family: Georgia, serif;" aria-live="polite">
+                                    <p class="text-slate-500 italic">Click "Run NMA" to generate Methods + Results text describing this network.</p>
+                                </div>
+                            </div>
+
                             <div id="nma-prisma-nma" class="mb-8">
                                 <h4 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">PRISMA-NMA Checklist Items</h4>
                                 <div class="text-[11px] text-slate-400 space-y-2">
@@ -1659,6 +1670,49 @@
         };
         const SEVERE_DENOM_RATIO_LOW = 0.60;
         const SEVERE_DENOM_RATIO_HIGH = 1.80;
+
+        /* ── Plotly export hook: every chart gets SVG + 300-DPI PNG buttons in
+           the modebar so reviewers can grab journal-ready figures. The apps
+           historically passed `displayModeBar: false` to suppress the toolbar;
+           we override that so our buttons are always visible. SVG is the
+           lossless path for journals that demand TIFF/EPS — convert in
+           Inkscape/Illustrator. ── */
+        (function installPlotlyExportButtons() {
+            if (typeof Plotly === 'undefined' || Plotly.__rmExportPatched) return;
+            const _origNewPlot = Plotly.newPlot;
+            const _origReact   = Plotly.react;
+            const buildButtons = (gd) => ([
+                {
+                    name: 'Download SVG (lossless)',
+                    title: 'Download SVG (lossless — best for journal submission)',
+                    icon: Plotly.Icons.disk,
+                    click: function (g) {
+                        const fn = (g && g.id) ? g.id.replace(/[^a-z0-9_-]+/gi, '_') : 'figure';
+                        Plotly.downloadImage(g, { format: 'svg', filename: fn, height: g.layout?.height || 600, width: g.layout?.width || 900 });
+                    }
+                },
+                {
+                    name: 'Download PNG @ 300 DPI',
+                    title: 'Download PNG at ~300 DPI (4x scale) — journal-quality raster',
+                    icon: Plotly.Icons.camera,
+                    click: function (g) {
+                        const fn = (g && g.id) ? g.id.replace(/[^a-z0-9_-]+/gi, '_') : 'figure';
+                        Plotly.downloadImage(g, { format: 'png', scale: 4, filename: fn, height: g.layout?.height || 600, width: g.layout?.width || 900 });
+                    }
+                }
+            ]);
+            const enrich = (cfg) => Object.assign({}, cfg || {}, {
+                displayModeBar: true,             /* override any displayModeBar:false in caller */
+                displaylogo: false,
+                modeBarButtonsToRemove: ['toImage'], /* drop Plotly's default low-res PNG; ours replace it */
+                modeBarButtonsToAdd: buildButtons(),
+                responsive: cfg?.responsive !== false
+            });
+            Plotly.newPlot = function (gd, data, layout, config) { return _origNewPlot.call(this, gd, data, layout, enrich(config)); };
+            Plotly.react   = function (gd, data, layout, config) { return _origReact.call(this, gd, data, layout, enrich(config)); };
+            Plotly.__rmExportPatched = true;
+        })();
+
         const KNOWN_TRIAL_ALIASES = {
             NCT02540993: ['fidelio', 'fidelio-dkd'],
             NCT02545049: ['figaro', 'figaro-dkd'],
@@ -2433,7 +2487,7 @@
                     evidence: []
                 },
                 'NCT02347657': {
-                    name: 'EVOLVE', pmid: '29099333', phase: 'III', year: 2017, tE: 0, tN: 251, cE: 0, cN: 248, group: 'Tezacaftor 100 mg + Ivacaftor 150 mg PO (AM tez+iva, PM iva) | Next-gen corrector + potentiator (F508del/F508del CF; vs Placebo; EVOLVE 24 wk ppFEV1)', publishedHR: 4.00, hrLCI: 3.10, hrUCI: 4.80,
+                    name: 'EVOLVE', pmid: '29099344', phase: 'III', year: 2017, tE: 0, tN: 251, cE: 0, cN: 248, group: 'Tezacaftor 100 mg + Ivacaftor 150 mg PO (AM tez+iva, PM iva) | Next-gen corrector + potentiator (F508del/F508del CF; vs Placebo; EVOLVE 24 wk ppFEV1)', publishedHR: 4.00, hrLCI: 3.10, hrUCI: 4.80,
                     allOutcomes: [ { shortLabel: 'ppFEV1', title: 'Absolute change in ppFEV1 at wk 24 tezacaftor/ivacaftor vs placebo (EVOLVE primary; MD)', type: 'PRIMARY', pubHR: 4.00, pubHR_LCI: 3.10, pubHR_UCI: 4.80 } ],
                     rob: ['low', 'low', 'low', 'low', 'low'],
                     snippet: 'Taylor-Cousar JL et al. NEJM 2017;377:2013-2023 (EVOLVE). Better tolerability than lumacaftor; approved as Symdeko 2018.',
@@ -8860,6 +8914,7 @@
                 this.renderRankings();
                 this.renderConsistency();
                 this.renderOutput();
+                try { if (typeof generateNMAManuscriptText === 'function') generateNMAManuscriptText(); } catch (e) {}
                 showToast('NMA complete: ' + cfg.treatments.length + ' treatments, ' + (cfg.comparisons ?? []).length + ' comparisons.');
                 addAuditEntry('NMA rendered: ' + cfg.treatments.length + ' treatments');
             }
@@ -14052,18 +14107,38 @@ except ImportError:
             // GRADE
             const grade = r.gradeCertainty ?? 'NOT ASSESSED';
 
-            // Methods paragraph
-            const methods = 'We conducted a systematic review and meta-analysis following PRISMA 2020 guidelines. ' +
-                'We searched ClinicalTrials.gov, PubMed, and OpenAlex for randomized controlled trials of ' +
-                drugName + ' versus ' + comparator + ' in ' + population + '. ' +
-                'Eligible studies were ' + (phases.length > 0 ? 'Phase ' + phases.join('/') + ' ' : '') + 'RCT' + (k !== 1 ? 's' : '') + ' reporting the primary cardiovascular composite endpoint. ' +
-                'We pooled ' + emLong.toLowerCase() + 's using the DerSimonian-Laird random-effects model with ' + confLevel + '% confidence intervals. ' +
-                'Heterogeneity was assessed using I\u00B2 and Cochran Q statistics. ' +
-                'Publication bias was evaluated using Egger regression, funnel plot asymmetry, trim-and-fill, and the Copas selection model. ' +
-                'Certainty of evidence was assessed using the GRADE framework. ' +
-                'Two-reviewer screening with cryptographic sign-off was used for study selection.';
+            // Outcome metadata for journal-style language.
+            const df = Math.max(0, k - 1);
+            const tau2num = (r.tau2 != null && r.tau2 !== '--') ? Number(r.tau2) : null;
+            const outcomeKey = String(RapidMeta.state.selectedOutcome ?? 'default');
+            const outcomeLabel = (typeof RapidMeta.outcomeLabel === 'function' && outcomeKey !== 'default')
+                ? RapidMeta.outcomeLabel(outcomeKey)
+                : (protocol.out || 'the primary outcome');
 
-            // Results paragraph (GRADE-informed language)
+            // I-squared qualitative classification (Cochrane Handbook 10.10.2)
+            const i2num = parseFloat(i2);
+            const i2Class = !Number.isFinite(i2num) ? 'unquantified'
+                : i2num < 30 ? 'low to negligible'
+                : i2num < 50 ? 'moderate'
+                : i2num < 75 ? 'substantial'
+                : 'considerable';
+
+            // Methods paragraph - fuller, with explicit estimator and CI adjustments.
+            const methods = 'We pre-registered the review protocol with PRISMA 2020 reporting and conducted study selection through two-reviewer screening with cryptographic sign-off. ' +
+                'Eligible studies were ' + (phases.length > 0 ? 'Phase ' + phases.join('/') + ' ' : '') + 'randomized controlled trials of ' +
+                drugName + ' versus ' + comparator + ' in ' + population + ', identified by structured search of ClinicalTrials.gov, PubMed, and OpenAlex. ' +
+                'For the present analysis the registered estimand is ' + outcomeLabel + '. ' +
+                'Trial-level effects were pooled on the log scale by inverse-variance random-effects meta-analysis using the DerSimonian-Laird \u03C4\u00B2 estimator, ' +
+                'with the Hartung-Knapp-Sidik-Jonkman adjustment of the ' + confLevel + '% confidence interval and a Q/(k\u22121) variance-inflation floor to prevent CI under-coverage when Q < k\u22121. ' +
+                'Between-study heterogeneity was reported as Cochran Q (with df = k\u22121 and a \u03C7\u00B2 p-value), \u03C4\u00B2 (DerSimonian-Laird), and I\u00B2 interpreted against Cochrane Handbook thresholds; ' +
+                (k >= 3
+                    ? 'a ' + confLevel + '% prediction interval (Higgins 2009 t-distribution with df = k\u22122) was reported alongside the pooled CI. '
+                    : 'a prediction interval is not defined for k < 3 and was therefore not reported. ') +
+                'Small-study effects and publication bias were evaluated by contour-enhanced funnel plot, Egger regression, Duval-Tweedie trim-and-fill, and the Copas selection model. ' +
+                'Sensitivity analyses included leave-one-out re-pooling and a Bayesian random-effects model with a half-normal prior on \u03C4. ' +
+                'Certainty of evidence was rated under the GRADE framework.';
+
+            // Results paragraph - GRADE-informed language
             const gradeHedge = grade === 'HIGH' ? '' : grade === 'MODERATE' ? 'probably ' : grade === 'LOW' ? 'may be ' : 'is very uncertain about ';
             const nullVal = (emShort === 'MD' || emShort === 'SMD') ? 0 : 1.0;
             const sigText = (grade === 'VERY LOW')
@@ -14076,23 +14151,171 @@ except ImportError:
                         ? gradeHedge + 'associated with an increase in'
                         : gradeHedge + 'associated with little to no difference in';
 
-            const results = 'We included ' + k + ' randomized controlled trial' + (k !== 1 ? 's' : '') + ' (' + trialNames.join(', ') +
-                ') enrolling ' + totalN.toLocaleString() + ' patients. ' +
-                drugName + ' was ' + sigText + ' the primary endpoint ' +
-                '(' + emShort + ' ' + or + ', ' + confLevel + '% CI ' + lci + ' to ' + uci + '; ' +
-                'I\u00B2 = ' + i2 + '%; k = ' + k + '). ' +
-                (r.hksjLCI && r.hksjLCI !== '--' ? 'The Hartung-Knapp-Sidik-Jonkman adjusted CI was ' + r.hksjLCI + ' to ' + r.hksjUCI + '. ' : '') +
-                (r.piLCI && r.piLCI !== '--' ? 'The ' + confLevel + '% prediction interval was ' + r.piLCI + ' to ' + r.piUCI + '. ' : '') +
-                'The certainty of evidence was rated ' + grade + ' according to GRADE. ' +
-                (r.eggerP && r.eggerP !== '--' ? 'Egger regression test for publication bias yielded p = ' + r.eggerP + '. ' : '') +
-                (r.fragIdx > 0 ? 'The fragility index was ' + r.fragIdx + '. ' : '');
+            const tau2Text = (tau2num != null && Number.isFinite(tau2num)) ? '\u03C4\u00B2 = ' + tau2num.toFixed(4) : '\u03C4\u00B2 not estimable';
+            const qText = (r.qPvalue != null && r.qPvalue !== '--')
+                ? 'Cochran Q on ' + df + ' df, p = ' + r.qPvalue
+                : 'Cochran Q not reported';
+
+            // Build sentences as discrete units so the final string composes cleanly even when fields are missing.
+            const sentences = [];
+            sentences.push('We included ' + k + ' randomized controlled trial' + (k !== 1 ? 's' : '') +
+                ' (' + trialNames.join(', ') + ') enrolling ' + totalN.toLocaleString() + ' randomized participants in total.');
+            sentences.push('Under DerSimonian-Laird random-effects pooling, ' + drugName + ' was ' + sigText +
+                ' ' + outcomeLabel + ' (' + emShort + ' ' + or + ', ' + confLevel + '% CI ' + lci + ' to ' + uci + ').');
+            if (r.hksjLCI && r.hksjLCI !== '--') {
+                sentences.push('The Hartung-Knapp-Sidik-Jonkman-adjusted ' + confLevel + '% CI was ' + r.hksjLCI + ' to ' + r.hksjUCI +
+                    ', accounting for uncertainty in the \u03C4\u00B2 estimator.');
+            }
+            sentences.push('Between-study heterogeneity was ' + i2Class +
+                ' (I\u00B2 = ' + i2 + '%, ' + tau2Text + '; ' + qText + ').');
+            if (r.piLCI && r.piLCI !== '--') {
+                sentences.push('The ' + confLevel + '% prediction interval for the true effect in a future similar trial was ' +
+                    r.piLCI + ' to ' + r.piUCI + '.');
+            }
+            if (r.eggerP && r.eggerP !== '--') {
+                const eggerSig = parseFloat(r.eggerP) < 0.10;
+                sentences.push('Egger regression test for small-study effects yielded p = ' + r.eggerP +
+                    (eggerSig ? ', raising concern for publication bias.' : ', with no statistical evidence of small-study effects.'));
+            }
+            if (r.trimK0 != null && r.trimK0 > 0 && r.trimAdjOR && r.trimAdjOR !== '--') {
+                sentences.push('Duval-Tweedie trim-and-fill imputed ' + r.trimK0 + ' missing studies; the bias-adjusted estimate was ' +
+                    emShort + ' ' + r.trimAdjOR + '.');
+            }
+            if (r.fragIdx != null && r.fragIdx !== '--') {
+                sentences.push(parseInt(r.fragIdx) === 0
+                    ? 'The fragility index was 0, indicating the result is robust to single-event modifications.'
+                    : 'The fragility index was ' + r.fragIdx + ', meaning ' + r.fragIdx + ' event modification' +
+                        (parseInt(r.fragIdx) !== 1 ? 's' : '') + ' across trials would reverse statistical significance.');
+            }
+            if (r.bayesCriLo && r.bayesCriLo !== '--') {
+                sentences.push('A Bayesian random-effects model with a half-normal prior on \u03C4 produced a ' + confLevel +
+                    '% credible interval of ' + r.bayesCriLo + ' to ' + r.bayesCriHi +
+                    (r.pORlt1 && r.pORlt1 !== '--'
+                        ? '; the posterior probability of effect direction (P[' + emShort + ' < ' + nullVal + ']) was ' + r.pORlt1 + '%.'
+                        : '.'));
+            }
+            sentences.push('The certainty of evidence for this outcome was rated ' + grade + ' under GRADE.');
+
+            const results = sentences.join(' ');
 
             container.innerHTML =
-                '<div><div class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2">Methods</div>' +
+                '<div><div class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2">Methods (estimand: ' + escapeHtml(outcomeLabel) + ')</div>' +
                 '<p>' + escapeHtml(methods) + '</p></div>' +
                 '<div><div class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2">Results</div>' +
                 '<p>' + escapeHtml(results) + '</p></div>' +
-                '<div class="text-[9px] text-slate-600 italic mt-2">Generated by RapidMeta v15.0. Verify all numbers against the analysis output before submission.</div>';
+                '<div class="text-[9px] text-slate-600 italic mt-2">Generated by RapidMeta. To regenerate for another endpoint, change the Outcome selector at the top of the page (the analysis re-runs and this text re-renders). Verify all numbers against the analysis panel before submission.</div>';
+        }
+
+        /* ── NMA Auto-Generated Manuscript Text ─────────────────────
+           Builds a Methods + Results paragraph that describes the network
+           (treatments, geometry, direct vs indirect contrasts, consistency,
+           transitivity) using the NMA_CONFIG declaration plus the live
+           pool from NMAEngine._getAllPairwise(). Called from NMAEngine.render()
+           after the network is computed. ──────────────────────────── */
+        function generateNMAManuscriptText() {
+            const cfg = (typeof NMA_CONFIG !== 'undefined') ? NMA_CONFIG : null;
+            if (!cfg || !cfg.treatments) return;
+            const container = document.getElementById('nma-manuscript-text');
+            if (!container) return;
+
+            const treatments = cfg.treatments || [];
+            const comparisons = cfg.comparisons || [];
+            const T = treatments.length;
+            const D = comparisons.length;
+            const trialIdSet = new Set();
+            comparisons.forEach(c => (c.trials || []).forEach(id => trialIdSet.add(id)));
+            const K = trialIdSet.size;
+
+            // Total N across all unique trials in the network
+            let totalN = 0;
+            for (const id of trialIdSet) {
+                const d = (RapidMeta.realData || {})[id];
+                if (d && d.tN && d.cN) totalN += (d.tN + d.cN);
+            }
+
+            // Network geometry detection: a star is when T-1 == D and the hub appears in every comparison
+            const degree = {};
+            treatments.forEach(t => degree[t] = 0);
+            comparisons.forEach(c => { degree[c.t1] = (degree[c.t1] || 0) + 1; degree[c.t2] = (degree[c.t2] || 0) + 1; });
+            const maxDeg = Math.max(0, ...Object.values(degree));
+            const hub = treatments.find(t => degree[t] === maxDeg) || null;
+            const isStar = (T - 1 === D) && hub && (degree[hub] === D);
+            const hasLoops = D >= T;
+
+            const outcomeLabel = cfg.outcome_label || cfg.outcome || 'the primary outcome';
+            const refTreatment = hub || treatments[treatments.length - 1] || 'the reference';
+
+            // Build network estimate sentences from NMAEngine._getAllPairwise() if available
+            let pairwiseSentence = '';
+            try {
+                if (typeof NMAEngine !== 'undefined' && typeof NMAEngine._getAllPairwise === 'function') {
+                    const all = NMAEngine._getAllPairwise() || {};
+                    const lines = [];
+                    for (const t of treatments) {
+                        if (t === refTreatment) continue;
+                        const direct = all[t + '|' + refTreatment] || all[refTreatment + '|' + t];
+                        const flipped = !!(all[refTreatment + '|' + t] && !all[t + '|' + refTreatment]);
+                        const result = direct;
+                        if (!result) continue;
+                        const candidate = result.network || result.direct || result.indirect;
+                        if (!candidate || !Number.isFinite(candidate.logEffect)) continue;
+                        const logEff = flipped ? -candidate.logEffect : candidate.logEffect;
+                        const measure = candidate.measure || result.measure || 'effect';
+                        const isLogScale = (measure === 'OR' || measure === 'RR' || measure === 'HR');
+                        const eff = isLogScale ? Math.exp(logEff) : logEff;
+                        const lo = isLogScale ? Math.exp(logEff - 1.96 * candidate.se) : (logEff - 1.96 * candidate.se);
+                        const hi = isLogScale ? Math.exp(logEff + 1.96 * candidate.se) : (logEff + 1.96 * candidate.se);
+                        lines.push(t + ' vs ' + refTreatment + ': ' + measure + ' ' +
+                            eff.toFixed(2) + ' (95% CI ' + lo.toFixed(2) + ' to ' + hi.toFixed(2) + ')');
+                    }
+                    if (lines.length > 0) {
+                        pairwiseSentence = ' Network estimates against ' + refTreatment + ' were: ' + lines.join('; ') + '.';
+                    }
+                }
+            } catch (e) { /* silent — pairwise sentence stays empty */ }
+
+            // Methods paragraph
+            const methods = 'We conducted a frequentist network meta-analysis combining direct and indirect treatment comparisons across ' +
+                K + ' randomized controlled trial' + (K !== 1 ? 's' : '') + ' covering ' + T + ' treatments (' + treatments.join(', ') + '). ' +
+                'Trial-level effects were pooled on the log scale by inverse-variance random-effects meta-analysis using the DerSimonian-Laird τ² estimator; ' +
+                'indirect contrasts were derived by Bucher subtraction through ' + refTreatment + ' as the common comparator. ' +
+                (hasLoops
+                    ? 'Design-by-treatment inconsistency was assessed by node-splitting on closed loops (P < 0.10 indicating possible inconsistency). '
+                    : 'The network has no closed loops, so internal inconsistency (node-splitting, design-by-treatment) is not testable; the transitivity assumption was therefore evaluated from clinical and methodological homogeneity across trials. ') +
+                'Treatment ranking was reported by P-score (the frequentist analogue of SUCRA), interpreted strictly as a ranking probability rather than a measure of effect magnitude. ' +
+                'The estimand is ' + outcomeLabel + '. ' +
+                'Reporting follows PRISMA-NMA 2020.';
+
+            // Results paragraph
+            const sentences = [];
+            sentences.push('The network comprised ' + T + ' treatments connected by ' + D + ' direct comparison' + (D !== 1 ? 's' : '') +
+                ' from ' + K + ' randomized trial' + (K !== 1 ? 's' : '') +
+                (totalN > 0 ? ' (n = ' + totalN.toLocaleString() + ' randomized participants in total)' : '') + '.');
+            sentences.push(isStar
+                ? 'The geometry is a placebo-anchored star with ' + refTreatment + ' as the common comparator and no closed loops; ' +
+                  'consistency cannot be tested by node-splitting and was assessed clinically.'
+                : 'The network contains closed loops permitting node-splitting consistency assessment; see the Consistency Assessment panel above for per-comparison results.');
+            if (pairwiseSentence) sentences.push(pairwiseSentence.trim());
+            if (cfg.note) sentences.push('Transitivity considerations: ' + cfg.note);
+            sentences.push('Treatment rankings via P-score should be interpreted as ranking probabilities, not as differences in effect magnitude — readers should always cross-reference the league table for the underlying contrasts.');
+
+            const results = sentences.join(' ');
+
+            container.innerHTML =
+                '<div><div class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2">Methods (estimand: ' + escapeHtml(outcomeLabel) + ')</div>' +
+                '<p>' + escapeHtml(methods) + '</p></div>' +
+                '<div><div class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2">Results</div>' +
+                '<p>' + escapeHtml(results) + '</p></div>' +
+                '<div class="text-[9px] text-slate-600 italic mt-2">Generated by RapidMeta NMA. Numbers reflect the most recent NMA run; click "Run NMA" again to refresh after changing trial inclusion. Verify against the league table before submission.</div>';
+        }
+
+        function copyNMAManuscriptText() {
+            const el = document.getElementById('nma-manuscript-text');
+            if (!el) return;
+            const text = el.innerText;
+            navigator.clipboard.writeText(text).then(() => showToast('NMA manuscript text copied.')).catch(() => {
+                const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); showToast('NMA manuscript text copied.');
+            });
         }
 
         function copyManuscriptText() {
