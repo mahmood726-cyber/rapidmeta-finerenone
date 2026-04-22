@@ -8781,10 +8781,49 @@
                 return NMA_CONFIG ?? RapidMeta.state?.nmaNetwork ?? null;
             },
 
-            _getTrialEffect(nctId) {
+            /* List distinct outcome shortLabels reported across trials in the network.
+               Returns [] if no trial has allOutcomes[]; the caller can then fall back
+               to the network's declared cfg.outcome / cfg.outcome_label. */
+            _getNetworkOutcomeKeys() {
+                const cfg = this._getConfig();
+                if (!cfg) return [];
+                const trialIdSet = new Set();
+                (cfg.comparisons ?? []).forEach(c => (c.trials ?? []).forEach(id => trialIdSet.add(id)));
+                const labels = new Set();
+                for (const id of trialIdSet) {
+                    const trial = (RapidMeta.state.trials ?? []).find(t => t.id === id);
+                    const d = trial?.data ?? RapidMeta.realData?.[id];
+                    for (const oc of (d?.allOutcomes ?? [])) {
+                        if (oc?.shortLabel) labels.add(oc.shortLabel);
+                    }
+                }
+                return [...labels];
+            },
+
+            /* Per-outcome effect extraction. If outcomeKey is non-null, look up the
+               matching entry in data.allOutcomes[] by shortLabel and use its
+               pubHR/pubHR_LCI/pubHR_UCI. If outcomeKey is null OR no match exists,
+               fall back to the trial-level publishedHR (the legacy primary-only path). */
+            _getTrialEffectForOutcome(nctId, outcomeKey) {
                 const trial = (RapidMeta.state.trials ?? []).find(t => t.id === nctId);
                 const d = trial?.data ?? RapidMeta.realData?.[nctId];
                 if (!d || !d.tN || !d.cN) return null;
+
+                /* Path 1: outcome-specific extraction from allOutcomes[i] */
+                if (outcomeKey) {
+                    const oc = (d.allOutcomes ?? []).find(o => o?.shortLabel === outcomeKey);
+                    if (oc && oc.pubHR && oc.pubHR_LCI && oc.pubHR_UCI) {
+                        const logHR = Math.log(oc.pubHR);
+                        const se = (Math.log(oc.pubHR_UCI) - Math.log(oc.pubHR_LCI)) / 3.92;
+                        return { logEffect: logHR, se, measure: 'HR', n: d.tN + d.cN, outcomeKey };
+                    }
+                    /* If a specific outcome was requested but the trial doesn't report
+                       it with a usable point estimate, return null so this trial is
+                       excluded from the per-outcome network. */
+                    return null;
+                }
+
+                /* Path 2: legacy trial-level extraction (network primary outcome) */
                 if (d.publishedHR && d.hrLCI && d.hrUCI) {
                     const logHR = Math.log(d.publishedHR);
                     const se = (Math.log(d.hrUCI) - Math.log(d.hrLCI)) / 3.92;
@@ -8801,8 +8840,13 @@
                 return null;
             },
 
-            _poolEffects(trialIds) {
-                const effects = trialIds.map(id => this._getTrialEffect(id)).filter(Boolean);
+            _getTrialEffect(nctId) {
+                /* Backward-compatible delegate — returns the trial-level primary effect. */
+                return this._getTrialEffectForOutcome(nctId, null);
+            },
+
+            _poolEffects(trialIds, outcomeKey) {
+                const effects = trialIds.map(id => this._getTrialEffectForOutcome(id, outcomeKey ?? null)).filter(Boolean);
                 if (effects.length === 0) return null;
                 if (effects.length === 1) return effects[0];
                 const weights = effects.map(e => 1 / (e.se * e.se));
@@ -8810,7 +8854,7 @@
                 const logEffect = effects.reduce((s, e, i) => s + weights[i] * e.logEffect, 0) / wSum;
                 const se = Math.sqrt(1 / wSum);
                 const n = effects.reduce((s, e) => s + e.n, 0);
-                return { logEffect, se, measure: effects[0].measure, n };
+                return { logEffect, se, measure: effects[0].measure, n, outcomeKey: outcomeKey ?? null };
             },
 
             _bucher(effectAC, effectBC) {
@@ -8820,7 +8864,7 @@
                 return { logEffect, se, measure: effectAC.measure, indirect: true };
             },
 
-            _getAllPairwise() {
+            _getAllPairwise(outcomeKey) {
                 const cfg = this._getConfig();
                 if (!cfg) return {};
                 const treatments = cfg.treatments;
@@ -8835,7 +8879,7 @@
                         const flipped = comp && comp.t1 === t2;
                         let direct = null;
                         if (trials.length > 0) {
-                            direct = this._poolEffects(trials);
+                            direct = this._poolEffects(trials, outcomeKey ?? null);
                             if (direct && flipped) direct = { ...direct, logEffect: -direct.logEffect };
                         }
                         let indirect = null;
@@ -8846,8 +8890,8 @@
                             const compBC = (cfg.comparisons ?? []).find(c =>
                                 (c.t1 === t2 && c.t2 === common) || (c.t1 === common && c.t2 === t2));
                             if (!compAC?.trials?.length || !compBC?.trials?.length) continue;
-                            let effAC = this._poolEffects(compAC.trials);
-                            let effBC = this._poolEffects(compBC.trials);
+                            let effAC = this._poolEffects(compAC.trials, outcomeKey ?? null);
+                            let effBC = this._poolEffects(compBC.trials, outcomeKey ?? null);
                             if (!effAC || !effBC) continue;
                             if (compAC.t1 === common) effAC = { ...effAC, logEffect: -effAC.logEffect };
                             if (compBC.t1 === common) effBC = { ...effBC, logEffect: -effBC.logEffect };
@@ -8855,7 +8899,7 @@
                             break;
                         }
                         const best = direct ?? indirect ?? null;
-                        results[key] = { direct, indirect, combined: best, t1, t2 };
+                        results[key] = { direct, indirect, combined: best, t1, t2, outcomeKey: outcomeKey ?? null };
                     }
                 }
                 return results;
@@ -14444,12 +14488,12 @@ except ImportError:
            transitivity) using the NMA_CONFIG declaration plus the live
            pool from NMAEngine._getAllPairwise(). Called from NMAEngine.render()
            after the network is computed. ──────────────────────────── */
-        function generateNMAManuscriptText() {
-            const cfg = (typeof NMA_CONFIG !== 'undefined') ? NMA_CONFIG : null;
-            if (!cfg || !cfg.treatments) return;
-            const container = document.getElementById('nma-manuscript-text');
-            if (!container) return;
-
+        /* Build one Methods+Results block for a specific outcome on the network.
+           If outcomeKey is null, uses the network's declared primary
+           (cfg.outcome_label) and the legacy trial-level publishedHR path.
+           If outcomeKey is provided, uses per-outcome NMA pool via
+           NMAEngine._getAllPairwise(outcomeKey). Returns { methods, results }. */
+        function _buildNMABlockForOutcome(cfg, outcomeKey, displayLabel) {
             const treatments = cfg.treatments || [];
             const comparisons = cfg.comparisons || [];
             const T = treatments.length;
@@ -14474,14 +14518,15 @@ except ImportError:
             const isStar = (T - 1 === D) && hub && (degree[hub] === D);
             const hasLoops = D >= T;
 
-            const outcomeLabel = cfg.outcome_label || cfg.outcome || 'the primary outcome';
+            const outcomeLabel = displayLabel || cfg.outcome_label || cfg.outcome || 'the primary outcome';
             const refTreatment = hub || treatments[treatments.length - 1] || 'the reference';
 
-            // Build network estimate sentences from NMAEngine._getAllPairwise() if available
+            // Build network estimate sentences from NMAEngine._getAllPairwise() — pass outcomeKey
+            // so the per-outcome path is used when this block represents a non-primary outcome.
             let pairwiseSentence = '';
             try {
                 if (typeof NMAEngine !== 'undefined' && typeof NMAEngine._getAllPairwise === 'function') {
-                    const all = NMAEngine._getAllPairwise() || {};
+                    const all = NMAEngine._getAllPairwise(outcomeKey) || {};
                     const lines = [];
                     for (const t of treatments) {
                         if (t === refTreatment) continue;
@@ -14532,13 +14577,58 @@ except ImportError:
             sentences.push('Treatment rankings via P-score should be interpreted as ranking probabilities, not as differences in effect magnitude — readers should always cross-reference the league table for the underlying contrasts.');
 
             const results = sentences.join(' ');
+            return { methods, results, outcomeLabel };
+        }
 
-            container.innerHTML =
-                '<div><div class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2">Methods (estimand: ' + escapeHtml(outcomeLabel) + ')</div>' +
-                '<p>' + escapeHtml(methods) + '</p></div>' +
-                '<div><div class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2">Results</div>' +
-                '<p>' + escapeHtml(results) + '</p></div>' +
-                '<div class="text-[9px] text-slate-600 italic mt-2">Generated by RapidMeta NMA. Numbers reflect the most recent NMA run; click "Run NMA" again to refresh after changing trial inclusion. Verify against the league table before submission.</div>';
+        /* Outer entry point: detects per-outcome data via NMAEngine._getNetworkOutcomeKeys()
+           and renders one Methods+Results block per outcome. Falls back to a single block
+           using the network's declared primary if no per-outcome data is present
+           (which is the current state across the portfolio's NMA apps until secondary
+           outcomes are populated into realData[*].allOutcomes[]). */
+        function generateNMAManuscriptText() {
+            const cfg = (typeof NMA_CONFIG !== 'undefined') ? NMA_CONFIG : null;
+            if (!cfg || !cfg.treatments) return;
+            const container = document.getElementById('nma-manuscript-text');
+            if (!container) return;
+
+            // Detect per-outcome data (intersection of trial.allOutcomes[] across the network).
+            // If empty, render one block for the network's declared primary outcome.
+            let outcomeKeys = [];
+            try {
+                if (typeof NMAEngine !== 'undefined' && typeof NMAEngine._getNetworkOutcomeKeys === 'function') {
+                    outcomeKeys = NMAEngine._getNetworkOutcomeKeys();
+                }
+            } catch (e) { outcomeKeys = []; }
+
+            const blocks = [];
+            if (outcomeKeys.length === 0) {
+                // Single-block mode (legacy / no per-outcome data)
+                blocks.push(_buildNMABlockForOutcome(cfg, null, null));
+            } else {
+                // Multi-outcome mode: one block per detected outcome shortLabel
+                for (const key of outcomeKeys) {
+                    const block = _buildNMABlockForOutcome(cfg, key, key);
+                    if (block) blocks.push(block);
+                }
+            }
+
+            const blockHtml = blocks.map(b =>
+                '<div class="mb-6">' +
+                '<div class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2">Methods (estimand: ' + escapeHtml(b.outcomeLabel) + ')</div>' +
+                '<p>' + escapeHtml(b.methods) + '</p>' +
+                '</div>' +
+                '<div class="mb-8">' +
+                '<div class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2">Results</div>' +
+                '<p>' + escapeHtml(b.results) + '</p>' +
+                '</div>'
+            ).join('<hr class="border-slate-800 my-6">');
+
+            const footer = '<div class="text-[9px] text-slate-600 italic mt-2">Generated by RapidMeta NMA. ' +
+                blocks.length + ' outcome' + (blocks.length !== 1 ? 's' : '') + ' detected. ' +
+                'Numbers reflect the most recent NMA run; click "Run NMA" again to refresh after changing trial inclusion. ' +
+                'Verify against the league table before submission.</div>';
+
+            container.innerHTML = blockHtml + footer;
         }
 
         function copyNMAManuscriptText() {
