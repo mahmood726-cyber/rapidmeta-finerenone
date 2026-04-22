@@ -251,7 +251,9 @@ def main():
         ap.error("--dry-run and --apply are mutually exclusive")
 
     if args.file:
-        targets = [ROOT / args.file]
+        p = pathlib.Path(args.file)
+        # Accept either an absolute path or a basename under ROOT.
+        targets = [p if p.is_absolute() else (ROOT / args.file)]
         if not targets[0].exists():
             sys.exit(f"file not found: {targets[0]}")
     else:
