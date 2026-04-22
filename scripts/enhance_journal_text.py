@@ -162,6 +162,48 @@ OLD_VARIANT_B = OLD.replace(
 )
 
 
+# Regex variant — matches the WHOLE existing generateManuscriptText() function
+# (any version-string footer drift) and substitutes a full replacement.
+# Function-close brace must be at column 8 (function definition indent).
+FN_REGEX = re.compile(
+    r'function generateManuscriptText\(\) \{\n.*?\n        \}',
+    re.DOTALL
+)
+
+# Full replacement function — prologue (constant across variants) + new body.
+# Uses defensive `String(emLong ?? '').toLowerCase()` so it's safe for both NMA
+# and pairwise variants regardless of whether the original wrapped emLong.
+NEW_FULL_FUNCTION = (
+    "function generateManuscriptText() {\n"
+    "            const r = RapidMeta.state.results;\n"
+    "            if (!r) return;\n"
+    "            const container = document.getElementById('manuscript-text');\n"
+    "            if (!container) return;\n"
+    "\n"
+    "            const included = RapidMeta.getAnalysisScopeDetails().analyzed;\n"
+    "            const k = parseInt(r.k) || 0;\n"
+    "            const or = r.or ?? '--';\n"
+    "            const lci = r.lci ?? '--';\n"
+    "            const uci = r.uci ?? '--';\n"
+    "            const i2 = r.i2 ?? '--';\n"
+    "            const confLevel = Math.round((RapidMeta.state.confLevel ?? 0.95) * 100);\n"
+    "            const effectSpec = RapidMeta.resolveEffectMeasure({ trials: included });\n"
+    "            const emLong = effectSpec.long || 'effect estimate';\n"
+    "            const emShort = effectSpec.short || 'ES';\n"
+    "            const totalN = included.reduce((a, t) => a + (t.data?.tN ?? 0) + (t.data?.cN ?? 0), 0);\n"
+    "            const protocol = RapidMeta.state.protocol ?? {};\n"
+    "            const drugName = protocol.int || 'the intervention';\n"
+    "            const comparator = protocol.comp || 'control';\n"
+    "            const population = protocol.pop || 'the study population';\n"
+    "            const trialNames = included.map(t => RapidMeta.nctAcronyms[t.id] ?? t.data?.name ?? t.id);\n"
+    "            const phases = [...new Set(included.map(t => t.data?.phase).filter(Boolean))];\n"
+    "\n"
+    "            const grade = r.gradeCertainty ?? 'NOT ASSESSED';\n"
+    "\n"
+    + NEW
+)
+
+
 def apply_to_file(path: pathlib.Path) -> str:
     text = path.read_text(encoding="utf-8", newline="")
     if "// Outcome metadata for journal-style language." in text:
@@ -170,13 +212,17 @@ def apply_to_file(path: pathlib.Path) -> str:
     crlf = "\r\n" in text
     work = text.replace("\r\n", "\n") if crlf else text
 
-    # Try variant A (NMA-style), fall back to variant B (pairwise-style).
+    # Try variant A (NMA-style byte-exact), then variant B (pairwise-style byte-exact),
+    # then regex whole-function replacement (tolerant to footer version drift).
     if work.count(OLD) == 1:
         variant, work = "A", work.replace(OLD, NEW, 1)
     elif work.count(OLD_VARIANT_B) == 1:
         variant, work = "B", work.replace(OLD_VARIANT_B, NEW, 1)
     else:
-        return f"FAIL {path.name}: neither OLD-A nor OLD-B matched (A={work.count(OLD)}, B={work.count(OLD_VARIANT_B)})"
+        matches = FN_REGEX.findall(work)
+        if len(matches) != 1:
+            return f"FAIL {path.name}: regex matched {len(matches)} times (expected 1); also A={work.count(OLD)}, B={work.count(OLD_VARIANT_B)}"
+        variant, work = "C-regex", FN_REGEX.sub(lambda m: NEW_FULL_FUNCTION, work, count=1)
 
     out = work.replace("\n", "\r\n") if crlf else work
     path.write_text(out, encoding="utf-8", newline="")

@@ -13580,21 +13580,40 @@ except ImportError:
             const trialNames = included.map(t => RapidMeta.nctAcronyms[t.id] ?? t.data?.name ?? t.id);
             const phases = [...new Set(included.map(t => t.data?.phase).filter(Boolean))];
 
-            // GRADE
             const grade = r.gradeCertainty ?? 'NOT ASSESSED';
 
-            // Methods paragraph
-            const methods = 'We conducted a systematic review and meta-analysis following PRISMA 2020 guidelines. ' +
-                'We searched ClinicalTrials.gov, PubMed, and OpenAlex for randomized controlled trials of ' +
-                drugName + ' versus ' + comparator + ' in ' + population + '. ' +
-                'Eligible studies were ' + (phases.length > 0 ? 'Phase ' + phases.join('/') + ' ' : '') + 'RCT' + (k !== 1 ? 's' : '') + ' reporting the primary cardiovascular composite endpoint. ' +
-                'We pooled ' + String(emLong ?? "").toLowerCase() + 's using the DerSimonian-Laird random-effects model with ' + confLevel + '% confidence intervals. ' +
-                'Heterogeneity was assessed using I\u00B2 and Cochran Q statistics. ' +
-                'Publication bias was evaluated using Egger regression, funnel plot asymmetry, trim-and-fill, and the Copas selection model. ' +
-                'Certainty of evidence was assessed using the GRADE framework. ' +
-                'Two-reviewer screening with cryptographic sign-off was used for study selection.';
+            // Outcome metadata for journal-style language.
+            const df = Math.max(0, k - 1);
+            const tau2num = (r.tau2 != null && r.tau2 !== '--') ? Number(r.tau2) : null;
+            const outcomeKey = String(RapidMeta.state.selectedOutcome ?? 'default');
+            const outcomeLabel = (typeof RapidMeta.outcomeLabel === 'function' && outcomeKey !== 'default')
+                ? RapidMeta.outcomeLabel(outcomeKey)
+                : (protocol.out || 'the primary outcome');
 
-            // Results paragraph (GRADE-informed language)
+            // I-squared qualitative classification (Cochrane Handbook 10.10.2)
+            const i2num = parseFloat(i2);
+            const i2Class = !Number.isFinite(i2num) ? 'unquantified'
+                : i2num < 30 ? 'low to negligible'
+                : i2num < 50 ? 'moderate'
+                : i2num < 75 ? 'substantial'
+                : 'considerable';
+
+            // Methods paragraph - fuller, with explicit estimator and CI adjustments.
+            const methods = 'We pre-registered the review protocol with PRISMA 2020 reporting and conducted study selection through two-reviewer screening with cryptographic sign-off. ' +
+                'Eligible studies were ' + (phases.length > 0 ? 'Phase ' + phases.join('/') + ' ' : '') + 'randomized controlled trials of ' +
+                drugName + ' versus ' + comparator + ' in ' + population + ', identified by structured search of ClinicalTrials.gov, PubMed, and OpenAlex. ' +
+                'For the present analysis the registered estimand is ' + outcomeLabel + '. ' +
+                'Trial-level effects were pooled on the log scale by inverse-variance random-effects meta-analysis using the DerSimonian-Laird \u03C4\u00B2 estimator, ' +
+                'with the Hartung-Knapp-Sidik-Jonkman adjustment of the ' + confLevel + '% confidence interval and a Q/(k\u22121) variance-inflation floor to prevent CI under-coverage when Q < k\u22121. ' +
+                'Between-study heterogeneity was reported as Cochran Q (with df = k\u22121 and a \u03C7\u00B2 p-value), \u03C4\u00B2 (DerSimonian-Laird), and I\u00B2 interpreted against Cochrane Handbook thresholds; ' +
+                (k >= 3
+                    ? 'a ' + confLevel + '% prediction interval (Higgins 2009 t-distribution with df = k\u22122) was reported alongside the pooled CI. '
+                    : 'a prediction interval is not defined for k < 3 and was therefore not reported. ') +
+                'Small-study effects and publication bias were evaluated by contour-enhanced funnel plot, Egger regression, Duval-Tweedie trim-and-fill, and the Copas selection model. ' +
+                'Sensitivity analyses included leave-one-out re-pooling and a Bayesian random-effects model with a half-normal prior on \u03C4. ' +
+                'Certainty of evidence was rated under the GRADE framework.';
+
+            // Results paragraph - GRADE-informed language
             const gradeHedge = grade === 'HIGH' ? '' : grade === 'MODERATE' ? 'probably ' : grade === 'LOW' ? 'may be ' : 'is very uncertain about ';
             const nullVal = (emShort === 'MD' || emShort === 'SMD') ? 0 : 1.0;
             const sigText = (grade === 'VERY LOW')
@@ -13607,23 +13626,59 @@ except ImportError:
                         ? gradeHedge + 'associated with an increase in'
                         : gradeHedge + 'associated with little to no difference in';
 
-            const results = 'We included ' + k + ' randomized controlled trial' + (k !== 1 ? 's' : '') + ' (' + trialNames.join(', ') +
-                ') enrolling ' + totalN.toLocaleString() + ' patients. ' +
-                drugName + ' was ' + sigText + ' the primary endpoint ' +
-                '(' + emShort + ' ' + or + ', ' + confLevel + '% CI ' + lci + ' to ' + uci + '; ' +
-                'I\u00B2 = ' + i2 + '%; k = ' + k + '). ' +
-                (r.hksjLCI && r.hksjLCI !== '--' ? 'The Hartung-Knapp-Sidik-Jonkman adjusted CI was ' + r.hksjLCI + ' to ' + r.hksjUCI + '. ' : '') +
-                (r.piLCI && r.piLCI !== '--' ? 'The ' + confLevel + '% prediction interval was ' + r.piLCI + ' to ' + r.piUCI + '. ' : '') +
-                'The certainty of evidence was rated ' + grade + ' according to GRADE. ' +
-                (r.eggerP && r.eggerP !== '--' ? 'Egger regression test for publication bias yielded p = ' + r.eggerP + '. ' : '') +
-                (r.fragIdx > 0 ? 'The fragility index was ' + r.fragIdx + '. ' : '');
+            const tau2Text = (tau2num != null && Number.isFinite(tau2num)) ? '\u03C4\u00B2 = ' + tau2num.toFixed(4) : '\u03C4\u00B2 not estimable';
+            const qText = (r.qPvalue != null && r.qPvalue !== '--')
+                ? 'Cochran Q on ' + df + ' df, p = ' + r.qPvalue
+                : 'Cochran Q not reported';
+
+            // Build sentences as discrete units so the final string composes cleanly even when fields are missing.
+            const sentences = [];
+            sentences.push('We included ' + k + ' randomized controlled trial' + (k !== 1 ? 's' : '') +
+                ' (' + trialNames.join(', ') + ') enrolling ' + totalN.toLocaleString() + ' randomized participants in total.');
+            sentences.push('Under DerSimonian-Laird random-effects pooling, ' + drugName + ' was ' + sigText +
+                ' ' + outcomeLabel + ' (' + emShort + ' ' + or + ', ' + confLevel + '% CI ' + lci + ' to ' + uci + ').');
+            if (r.hksjLCI && r.hksjLCI !== '--') {
+                sentences.push('The Hartung-Knapp-Sidik-Jonkman-adjusted ' + confLevel + '% CI was ' + r.hksjLCI + ' to ' + r.hksjUCI +
+                    ', accounting for uncertainty in the \u03C4\u00B2 estimator.');
+            }
+            sentences.push('Between-study heterogeneity was ' + i2Class +
+                ' (I\u00B2 = ' + i2 + '%, ' + tau2Text + '; ' + qText + ').');
+            if (r.piLCI && r.piLCI !== '--') {
+                sentences.push('The ' + confLevel + '% prediction interval for the true effect in a future similar trial was ' +
+                    r.piLCI + ' to ' + r.piUCI + '.');
+            }
+            if (r.eggerP && r.eggerP !== '--') {
+                const eggerSig = parseFloat(r.eggerP) < 0.10;
+                sentences.push('Egger regression test for small-study effects yielded p = ' + r.eggerP +
+                    (eggerSig ? ', raising concern for publication bias.' : ', with no statistical evidence of small-study effects.'));
+            }
+            if (r.trimK0 != null && r.trimK0 > 0 && r.trimAdjOR && r.trimAdjOR !== '--') {
+                sentences.push('Duval-Tweedie trim-and-fill imputed ' + r.trimK0 + ' missing studies; the bias-adjusted estimate was ' +
+                    emShort + ' ' + r.trimAdjOR + '.');
+            }
+            if (r.fragIdx != null && r.fragIdx !== '--') {
+                sentences.push(parseInt(r.fragIdx) === 0
+                    ? 'The fragility index was 0, indicating the result is robust to single-event modifications.'
+                    : 'The fragility index was ' + r.fragIdx + ', meaning ' + r.fragIdx + ' event modification' +
+                        (parseInt(r.fragIdx) !== 1 ? 's' : '') + ' across trials would reverse statistical significance.');
+            }
+            if (r.bayesCriLo && r.bayesCriLo !== '--') {
+                sentences.push('A Bayesian random-effects model with a half-normal prior on \u03C4 produced a ' + confLevel +
+                    '% credible interval of ' + r.bayesCriLo + ' to ' + r.bayesCriHi +
+                    (r.pORlt1 && r.pORlt1 !== '--'
+                        ? '; the posterior probability of effect direction (P[' + emShort + ' < ' + nullVal + ']) was ' + r.pORlt1 + '%.'
+                        : '.'));
+            }
+            sentences.push('The certainty of evidence for this outcome was rated ' + grade + ' under GRADE.');
+
+            const results = sentences.join(' ');
 
             container.innerHTML =
-                '<div><div class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2">Methods</div>' +
+                '<div><div class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2">Methods (estimand: ' + escapeHtml(outcomeLabel) + ')</div>' +
                 '<p>' + escapeHtml(methods) + '</p></div>' +
                 '<div><div class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2">Results</div>' +
                 '<p>' + escapeHtml(results) + '</p></div>' +
-                '<div class="text-[9px] text-slate-600 italic mt-2">Generated by RapidMeta v12.0. Verify all numbers against the analysis output before submission.</div>';
+                '<div class="text-[9px] text-slate-600 italic mt-2">Generated by RapidMeta. To regenerate for another endpoint, change the Outcome selector at the top of the page (the analysis re-runs and this text re-renders). Verify all numbers against the analysis panel before submission.</div>';
         }
 
         function copyManuscriptText() {
