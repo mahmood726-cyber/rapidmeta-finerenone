@@ -1,0 +1,128 @@
+=== RapidMeta Respiratory | CFTR Modulator Ladder in Cystic Fibrosis NMA v1.0 ===
+       studlab     treat1  treat2   TE      seTE
+1      TRAFFIC    LumaIva Placebo  2.7 0.6632653
+2       EVOLVE    TezaIva Placebo  4.0 0.4336735
+3 VX18-445-102 ElexTezIva Placebo 13.8 0.8418367
+
+
+=== Consistency model ===
+Original data:
+
+                 treat1  treat2      TE   seTE
+TRAFFIC         LumaIva Placebo  2.7000 0.6633
+EVOLVE          Placebo TezaIva -4.0000 0.4337
+VX18-445-102 ElexTezIva Placebo 13.8000 0.8418
+
+Number of treatment arms (by study):
+             narms
+TRAFFIC          2
+EVOLVE           2
+VX18-445-102     2
+
+Results (common effects model):
+
+                 treat1  treat2      MD             95%-CI    Q leverage
+TRAFFIC         LumaIva Placebo  2.7000 [ 1.4000;  4.0000] 0.00     1.00
+EVOLVE          Placebo TezaIva -4.0000 [-4.8500; -3.1500] 0.00     1.00
+VX18-445-102 ElexTezIva Placebo 13.8000 [12.1500; 15.4500] 0.00     1.00
+
+Results (random effects model):
+
+                 treat1  treat2      MD             95%-CI
+TRAFFIC         LumaIva Placebo  2.7000 [ 1.4000;  4.0000]
+EVOLVE          Placebo TezaIva -4.0000 [-4.8500; -3.1500]
+VX18-445-102 ElexTezIva Placebo 13.8000 [12.1500; 15.4500]
+
+Number of studies: k = 3
+Number of pairwise comparisons: m = 3
+Number of treatments: n = 4
+Number of designs: d = 3
+
+Common effects model
+
+Treatment estimate (sm = 'MD', comparison: other treatments vs 'Placebo'):
+                MD             95%-CI     z  p-value
+ElexTezIva 13.8000 [12.1500; 15.4500] 16.39 < 0.0001
+LumaIva     2.7000 [ 1.4000;  4.0000]  4.07 < 0.0001
+Placebo          .                  .     .        .
+TezaIva     4.0000 [ 3.1500;  4.8500]  9.22 < 0.0001
+
+Random effects model
+
+Treatment estimate (sm = 'MD', comparison: other treatments vs 'Placebo'):
+                MD             95%-CI     z  p-value
+ElexTezIva 13.8000 [12.1500; 15.4500] 16.39 < 0.0001
+LumaIva     2.7000 [ 1.4000;  4.0000]  4.07 < 0.0001
+Placebo          .                  .     .        .
+TezaIva     4.0000 [ 3.1500;  4.8500]  9.22 < 0.0001
+
+Quantifying heterogeneity / inconsistency:
+tau^2 = 0; tau = 0
+
+Tests of heterogeneity (within designs) and inconsistency (between designs):
+                Q d.f. p-value
+Total           0    0      --
+Within designs  0    0      --
+Between designs 0    0      --
+
+Details of network meta-analysis methods:
+- Frequentist graph-theoretical approach
+- Restricted maximum-likelihood estimator for tau^2
+
+=== League table (RE, HR/RR with 95% CI) ===
+                          ElexTezIva                   LumaIva
+ElexTezIva                ElexTezIva                         .
+LumaIva    11.100 [  8.999;  13.201]                   LumaIva
+Placebo    13.800 [ 12.150;  15.450]  2.700 [  1.400;   4.000]
+TezaIva     9.800 [  7.944;  11.656] -1.300 [ -2.853;   0.253]
+                             Placebo                 TezaIva
+ElexTezIva   13.800 [ 12.15;  15.45]                       .
+LumaIva       2.700 [  1.40;   4.00]                       .
+Placebo                      Placebo -4.000 [ -4.85;  -3.15]
+TezaIva    -4.000 [ -4.850;  -3.150]                 TezaIva
+
+=== Design-by-treatment inconsistency ===
+Q statistics to assess homogeneity / consistency
+
+                   Q df p-value
+Total           0.00  0      --
+Within designs  0.00  0      --
+Between designs 0.00  0      --
+
+Q statistic to assess consistency under the assumption of
+a full design-by-treatment interaction random effects model
+
+                   Q df p-value tau.within tau2.within
+Between designs 0.00  0      --          0           0
+
+=== Node-splitting ===
+
+=== P-scores (lower = better for HR/RR on protective scale) ===
+           P-score
+ElexTezIva  1.0000
+TezaIva     0.6498
+LumaIva     0.3501
+Placebo     0.0000
+
+=== Rank-probability matrix (N=100k draws) ===
+           rank_1 rank_2 rank_3 rank_4
+ElexTezIva      1  0.000  0.000      0
+LumaIva         0  0.113  0.887      0
+Placebo         0  0.000  0.000      1
+TezaIva         0  0.887  0.113      0
+
+=== SUCRA ===
+ElexTezIva    TezaIva    LumaIva    Placebo 
+     1.000      0.629      0.371      0.000 
+
+[wrote cftr_modulators_nma_netmeta_results.rds + .json]
+
+=== Key results for peer-review bundle ===
+TAU2: 0 
+I2: NA %
+Q inc: 0 df 0 p NA 
+  ElexTezIva               MD 13.800 (12.150, 15.450)
+  LumaIva                  MD 2.700 (1.400, 4.000)
+  TezaIva                  MD 4.000 (3.150, 4.850)
+Warning message:
+No comparisons selected with argument 'show = both'. You could use 'show = "all" to show all comparisons. 
