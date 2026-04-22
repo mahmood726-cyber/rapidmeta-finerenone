@@ -1503,6 +1503,48 @@
         };
         const SEVERE_DENOM_RATIO_LOW = 0.60;
         const SEVERE_DENOM_RATIO_HIGH = 1.80;
+        /* ── Plotly export hook: every chart gets SVG + 300-DPI PNG buttons in
+           the modebar so reviewers can grab journal-ready figures. The apps
+           historically passed `displayModeBar: false` to suppress the toolbar;
+           we override that so our buttons are always visible. SVG is the
+           lossless path for journals that demand TIFF/EPS — convert in
+           Inkscape/Illustrator. ── */
+        (function installPlotlyExportButtons() {
+            if (typeof Plotly === 'undefined' || Plotly.__rmExportPatched) return;
+            const _origNewPlot = Plotly.newPlot;
+            const _origReact   = Plotly.react;
+            const buildButtons = (gd) => ([
+                {
+                    name: 'Download SVG (lossless)',
+                    title: 'Download SVG (lossless — best for journal submission)',
+                    icon: Plotly.Icons.disk,
+                    click: function (g) {
+                        const fn = (g && g.id) ? g.id.replace(/[^a-z0-9_-]+/gi, '_') : 'figure';
+                        Plotly.downloadImage(g, { format: 'svg', filename: fn, height: g.layout?.height || 600, width: g.layout?.width || 900 });
+                    }
+                },
+                {
+                    name: 'Download PNG @ 300 DPI',
+                    title: 'Download PNG at ~300 DPI (4x scale) — journal-quality raster',
+                    icon: Plotly.Icons.camera,
+                    click: function (g) {
+                        const fn = (g && g.id) ? g.id.replace(/[^a-z0-9_-]+/gi, '_') : 'figure';
+                        Plotly.downloadImage(g, { format: 'png', scale: 4, filename: fn, height: g.layout?.height || 600, width: g.layout?.width || 900 });
+                    }
+                }
+            ]);
+            const enrich = (cfg) => Object.assign({}, cfg || {}, {
+                displayModeBar: true,             /* override any displayModeBar:false in caller */
+                displaylogo: false,
+                modeBarButtonsToRemove: ['toImage'], /* drop Plotly's default low-res PNG; ours replace it */
+                modeBarButtonsToAdd: buildButtons(),
+                responsive: cfg?.responsive !== false
+            });
+            Plotly.newPlot = function (gd, data, layout, config) { return _origNewPlot.call(this, gd, data, layout, enrich(config)); };
+            Plotly.react   = function (gd, data, layout, config) { return _origReact.call(this, gd, data, layout, enrich(config)); };
+            Plotly.__rmExportPatched = true;
+        })();
+
         const KNOWN_TRIAL_ALIASES = {
             NCT01035255: ['paradigm-hf', 'paradigm'],
             NCT01920711: ['paragon-hf', 'paragon'],
