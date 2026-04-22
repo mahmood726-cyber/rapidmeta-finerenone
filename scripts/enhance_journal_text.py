@@ -153,6 +153,15 @@ NEW = (
 )
 
 
+# Variant B — pairwise apps wrap `emLong.toLowerCase()` in `String(emLong ?? "")`.
+# Build OLD_VARIANT_B by patching the one-line diff into OLD (and matching new
+# template adapts the same way).
+OLD_VARIANT_B = OLD.replace(
+    "'We pooled ' + emLong.toLowerCase() + 's using the DerSimonian-Laird random-effects model with ' + confLevel + '% confidence intervals. ' +",
+    "'We pooled ' + String(emLong ?? \"\").toLowerCase() + 's using the DerSimonian-Laird random-effects model with ' + confLevel + '% confidence intervals. ' +"
+)
+
+
 def apply_to_file(path: pathlib.Path) -> str:
     text = path.read_text(encoding="utf-8", newline="")
     if "// Outcome metadata for journal-style language." in text:
@@ -160,15 +169,30 @@ def apply_to_file(path: pathlib.Path) -> str:
     # Normalise CRLF -> LF for the match, then restore.
     crlf = "\r\n" in text
     work = text.replace("\r\n", "\n") if crlf else text
-    if work.count(OLD) != 1:
-        return f"FAIL {path.name}: OLD pattern matched {work.count(OLD)} times (expected 1)"
-    work = work.replace(OLD, NEW, 1)
+
+    # Try variant A (NMA-style), fall back to variant B (pairwise-style).
+    if work.count(OLD) == 1:
+        variant, work = "A", work.replace(OLD, NEW, 1)
+    elif work.count(OLD_VARIANT_B) == 1:
+        variant, work = "B", work.replace(OLD_VARIANT_B, NEW, 1)
+    else:
+        return f"FAIL {path.name}: neither OLD-A nor OLD-B matched (A={work.count(OLD)}, B={work.count(OLD_VARIANT_B)})"
+
     out = work.replace("\n", "\r\n") if crlf else work
     path.write_text(out, encoding="utf-8", newline="")
-    return f"OK   {path.name}: +{len(out) - len(text)} chars"
+    return f"OK   {path.name}: variant={variant}, +{len(out) - len(text)} chars"
 
 
 if __name__ == "__main__":
-    targets = sys.argv[1:] or ["CFTR_MODULATORS_NMA_REVIEW.html"]
+    if "--all" in sys.argv:
+        targets = sorted(p.name for p in ROOT.glob("*_REVIEW.html"))
+    else:
+        targets = [a for a in sys.argv[1:] if not a.startswith("--")] or ["CFTR_MODULATORS_NMA_REVIEW.html"]
+    ok = skip = fail = 0
     for name in targets:
-        print(apply_to_file(ROOT / name))
+        result = apply_to_file(ROOT / name)
+        print(result)
+        if result.startswith("OK"): ok += 1
+        elif result.startswith("SKIP"): skip += 1
+        else: fail += 1
+    print(f"\nSummary: {len(targets)} files | {ok} migrate | {skip} skip | {fail} fail")
