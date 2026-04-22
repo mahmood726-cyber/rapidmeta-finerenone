@@ -13497,7 +13497,7 @@ print(res_sub)`;
                 // Safety: #wr-charts content is entirely app-generated from hardcoded trial data (icon grids + gauge SVGs).
                 // No user-supplied HTML can enter these elements. Stripping script tags as defense-in-depth.
                 const chartHtml = section.querySelector('#wr-charts').innerHTML.replace(new RegExp('<' + 'script[\\s\\S]*?</' + 'script>', 'gi'), '');
-                const printHtml = '<html><head><title>RapidMeta Gastroenterology | Crohn's Disease Biologics Induction-Remission NMA v1.0</title>'
+                const printHtml = '<html><head><title>RapidMeta Gastroenterology | Crohn\'s Disease Biologics Induction-Remission NMA v1.0</title>'
                     + '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">'
                     + '<style>body{font-family:system-ui,sans-serif;background:#fff;color:#1e293b;padding:2rem;margin:0}'
                     + '.wr-icon-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;max-width:200px}'
@@ -14357,7 +14357,7 @@ except ImportError:
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Checking...';
             try {
-                const r = await fetch('https://clinicaltrials.gov/api/v2/studies?query.intr=(infliximab OR adalimumab OR certolizumab OR vedolizumab OR ustekinumab OR risankizumab OR upadacitinib) AND Crohn's disease&pageSize=50&filter.overallStatus=COMPLETED');
+                const r = await fetch('https://clinicaltrials.gov/api/v2/studies?query.intr=(infliximab OR adalimumab OR certolizumab OR vedolizumab OR ustekinumab OR risankizumab OR upadacitinib) AND Crohn\'s disease&pageSize=50&filter.overallStatus=COMPLETED');
                 const d = await r.json();
                 const ctgovIds = new Set((d.studies || []).map(s => s.protocolSection?.identificationModule?.nctId));
                 const knownIds = new Set((RapidMeta.state.trials ?? []).map(t => t.id));
