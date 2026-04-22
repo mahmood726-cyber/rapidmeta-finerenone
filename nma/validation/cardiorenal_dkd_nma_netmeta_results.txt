@@ -1,0 +1,165 @@
+=== RapidMeta Nephrology | Modern Cardiorenal Therapies in CKD (+/- T2D) NMA v1.0 ===
+      studlab        treat1  treat2         TE       seTE
+1 FIDELIO-DKD    Finerenone Placebo -0.1984509 0.06177042
+2  FIGARO-DKD    Finerenone Placebo -0.1392621 0.07254775
+3    CREDENCE Canagliflozin Placebo -0.3566749 0.08397495
+4    DAPA-CKD Dapagliflozin Placebo -0.4942963 0.08796951
+5 EMPA-KIDNEY Empagliflozin Placebo -0.3285041 0.06322351
+6        FLOW   Semaglutide Placebo -0.2744368 0.07338828
+
+
+=== Consistency model ===
+Original data:
+
+                   treat1      treat2      TE   seTE
+FIDELIO-DKD    Finerenone     Placebo -0.1985 0.0618
+FIGARO-DKD     Finerenone     Placebo -0.1393 0.0725
+CREDENCE    Canagliflozin     Placebo -0.3567 0.0840
+DAPA-CKD    Dapagliflozin     Placebo -0.4943 0.0880
+EMPA-KIDNEY Empagliflozin     Placebo -0.3285 0.0632
+FLOW              Placebo Semaglutide  0.2744 0.0734
+
+Number of treatment arms (by study):
+            narms
+FIDELIO-DKD     2
+FIGARO-DKD      2
+CREDENCE        2
+DAPA-CKD        2
+EMPA-KIDNEY     2
+FLOW            2
+
+Results (common effects model):
+
+                   treat1      treat2     HR           95%-CI    Q leverage
+FIDELIO-DKD    Finerenone     Placebo 0.8407 [0.7666; 0.9218] 0.16     0.58
+FIGARO-DKD     Finerenone     Placebo 0.8407 [0.7666; 0.9218] 0.22     0.42
+CREDENCE    Canagliflozin     Placebo 0.7000 [0.5938; 0.8252] 0.00     1.00
+DAPA-CKD    Dapagliflozin     Placebo 0.6100 [0.5134; 0.7248] 0.00     1.00
+EMPA-KIDNEY Empagliflozin     Placebo 0.7200 [0.6361; 0.8150] 0.00     1.00
+FLOW              Placebo Semaglutide 1.3158 [1.1395; 1.5193] 0.00     1.00
+
+Results (random effects model):
+
+                   treat1      treat2     HR           95%-CI
+FIDELIO-DKD    Finerenone     Placebo 0.8407 [0.7666; 0.9218]
+FIGARO-DKD     Finerenone     Placebo 0.8407 [0.7666; 0.9218]
+CREDENCE    Canagliflozin     Placebo 0.7000 [0.5938; 0.8252]
+DAPA-CKD    Dapagliflozin     Placebo 0.6100 [0.5134; 0.7248]
+EMPA-KIDNEY Empagliflozin     Placebo 0.7200 [0.6361; 0.8150]
+FLOW              Placebo Semaglutide 1.3158 [1.1395; 1.5193]
+
+Number of studies: k = 6
+Number of pairwise comparisons: m = 6
+Number of treatments: n = 6
+Number of designs: d = 5
+
+Common effects model
+
+Treatment estimate (sm = 'HR', comparison: other treatments vs 'Placebo'):
+                  HR           95%-CI     z  p-value
+Canagliflozin 0.7000 [0.5938; 0.8252] -4.25 < 0.0001
+Dapagliflozin 0.6100 [0.5134; 0.7248] -5.62 < 0.0001
+Empagliflozin 0.7200 [0.6361; 0.8150] -5.20 < 0.0001
+Finerenone    0.8407 [0.7666; 0.9218] -3.69   0.0002
+Placebo            .                .     .        .
+Semaglutide   0.7600 [0.6582; 0.8776] -3.74   0.0002
+
+Random effects model
+
+Treatment estimate (sm = 'HR', comparison: other treatments vs 'Placebo'):
+                  HR           95%-CI     z  p-value
+Canagliflozin 0.7000 [0.5938; 0.8252] -4.25 < 0.0001
+Dapagliflozin 0.6100 [0.5134; 0.7248] -5.62 < 0.0001
+Empagliflozin 0.7200 [0.6361; 0.8150] -5.20 < 0.0001
+Finerenone    0.8407 [0.7666; 0.9218] -3.69   0.0002
+Placebo            .                .     .        .
+Semaglutide   0.7600 [0.6582; 0.8776] -3.74   0.0002
+
+Quantifying heterogeneity / inconsistency:
+tau^2 < 0.0001; tau < 0.0001; I^2 = 0%
+
+Tests of heterogeneity (within designs) and inconsistency (between designs):
+                   Q d.f. p-value
+Total           0.39    1  0.5345
+Within designs  0.39    1  0.5345
+Between designs 0.00    0      --
+
+Details of network meta-analysis methods:
+- Frequentist graph-theoretical approach
+- Restricted maximum-likelihood estimator for tau^2
+- Calculation of I^2 based on Q
+
+=== League table (RE, HR/RR with 95% CI) ===
+                     Canagliflozin        Dapagliflozin        Empagliflozin
+Canagliflozin        Canagliflozin                    .                    .
+Dapagliflozin 1.148 [0.904; 1.456]        Dapagliflozin                    .
+Empagliflozin 0.972 [0.791; 1.195] 0.847 [0.685; 1.048]        Empagliflozin
+Finerenone    0.833 [0.690; 1.006] 0.726 [0.597; 0.882] 0.856 [0.734; 1.000]
+Placebo       0.700 [0.594; 0.825] 0.610 [0.513; 0.725] 0.720 [0.636; 0.815]
+Semaglutide   0.921 [0.740; 1.146] 0.803 [0.641; 1.005] 0.947 [0.784; 1.145]
+                        Finerenone              Placebo          Semaglutide
+Canagliflozin                    . 0.700 [0.594; 0.825]                    .
+Dapagliflozin                    . 0.610 [0.513; 0.725]                    .
+Empagliflozin                    . 0.720 [0.636; 0.815]                    .
+Finerenone              Finerenone 0.841 [0.767; 0.922]                    .
+Placebo       0.841 [0.767; 0.922]              Placebo 1.316 [1.140; 1.519]
+Semaglutide   1.106 [0.932; 1.312] 1.316 [1.140; 1.519]          Semaglutide
+
+=== Design-by-treatment inconsistency ===
+Q statistics to assess homogeneity / consistency
+
+                   Q df p-value
+Total           0.39  1  0.5345
+Within designs  0.39  1  0.5345
+Between designs 0.00  0      --
+
+Design-specific decomposition of within-designs Q statistic
+
+             Design    Q df p-value
+ Placebo:Finerenone 0.39  1  0.5345
+
+Q statistic to assess consistency under the assumption of
+a full design-by-treatment interaction random effects model
+
+                   Q df p-value tau.within tau2.within
+Between designs 0.00  0      --          0           0
+
+=== Node-splitting ===
+
+=== P-scores (lower = better for HR/RR on protective scale) ===
+              P-score
+Dapagliflozin  0.9560
+Canagliflozin  0.6951
+Empagliflozin  0.6289
+Semaglutide    0.4845
+Finerenone     0.2355
+Placebo        0.0000
+
+=== Rank-probability matrix (N=100k draws) ===
+              rank_1 rank_2 rank_3 rank_4 rank_5 rank_6
+Canagliflozin  0.101  0.428  0.213  0.239  0.018  0.001
+Dapagliflozin  0.853  0.139  0.009  0.000  0.000  0.000
+Empagliflozin  0.011  0.188  0.641  0.159  0.000  0.000
+Finerenone     0.000  0.000  0.000  0.248  0.745  0.007
+Placebo        0.000  0.000  0.000  0.003  0.044  0.953
+Semaglutide    0.035  0.246  0.136  0.351  0.193  0.039
+
+=== SUCRA ===
+Dapagliflozin Canagliflozin Empagliflozin   Semaglutide    Finerenone 
+        0.969         0.671         0.610         0.492         0.248 
+      Placebo 
+        0.010 
+
+[wrote cardiorenal_dkd_nma_netmeta_results.rds + .json]
+
+=== Key results for peer-review bundle ===
+TAU2: 0 
+I2: 0 %
+Q inc: 0 df 0 p NA 
+  Canagliflozin            HR 0.700 (0.594, 0.825)
+  Dapagliflozin            HR 0.610 (0.513, 0.725)
+  Empagliflozin            HR 0.720 (0.636, 0.815)
+  Finerenone               HR 0.841 (0.767, 0.922)
+  Semaglutide              HR 0.760 (0.658, 0.878)
+Warning message:
+No comparisons selected with argument 'show = both'. You could use 'show = "all" to show all comparisons. 
