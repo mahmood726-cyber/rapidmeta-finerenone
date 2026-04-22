@@ -7868,6 +7868,19 @@ const ContinuousMDEngine = {
                 document.querySelectorAll('.extract-view-btn').forEach(btn => {
                     if (btn.dataset.view === view) btn.classList.add('active'); else btn.classList.remove('active');
                 });
+                /* Defensive re-hydration: if trial.data.evidence was wiped between views
+                   (e.g. runPrecision replaces t.data with a fresh realData copy that has
+                   evidence:[]), re-apply from the EvidenceHydrator's localStorage cache
+                   so Demographics + RoB + Data Entry all see the same items. */
+                try {
+                    if (typeof EvidenceHydrator !== 'undefined' && Array.isArray(RapidMeta.state.trials)) {
+                        for (const t of RapidMeta.state.trials) {
+                            if (!t?.id?.startsWith?.('NCT')) continue;
+                            const cached = EvidenceHydrator.getCached(t.id);
+                            if (cached && cached.length) EvidenceHydrator.applyToTrial(t, cached);
+                        }
+                    }
+                } catch (e) { /* swallow */ }
                 this.render();
             },
             _outcomeScopeLabel(key) {
