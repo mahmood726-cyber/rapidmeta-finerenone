@@ -2425,7 +2425,7 @@
             // not a hazard ratio; see estimandType:'RR'. HR-only analyses filter on estimandType.
             realData: {
                 'NCT01807923': {
-                    name: 'TRAFFIC', phase: 'III', year: 2015, tE: 0, tN: 369, cE: 0, cN: 184, group: 'Lumacaftor 400 mg + Ivacaftor 250 mg PO BID | CFTR corrector + potentiator (F508del/F508del CF; vs Placebo; TRAFFIC 24 wk ppFEV1)', publishedHR: 2.70, hrLCI: 1.40, hrUCI: 4.00,
+                    name: 'TRAFFIC', pmid: '25981758', phase: 'III', year: 2015, tE: 0, tN: 369, cE: 0, cN: 184, group: 'Lumacaftor 400 mg + Ivacaftor 250 mg PO BID | CFTR corrector + potentiator (F508del/F508del CF; vs Placebo; TRAFFIC 24 wk ppFEV1)', publishedHR: 2.70, hrLCI: 1.40, hrUCI: 4.00,
                     allOutcomes: [ { shortLabel: 'ppFEV1', title: 'Absolute change in ppFEV1 at wk 24 lumacaftor/ivacaftor vs placebo (TRAFFIC co-primary; MD)', type: 'PRIMARY', pubHR: 2.70, pubHR_LCI: 1.40, pubHR_UCI: 4.00 } ],
                     rob: ['low', 'low', 'low', 'low', 'low'],
                     snippet: 'Wainwright CE et al. NEJM 2015;373:220-231 (TRAFFIC + TRANSPORT). First CFTR modulator combination for F508del/F508del. Approved as Orkambi 2015.',
@@ -2433,7 +2433,7 @@
                     evidence: []
                 },
                 'NCT02347657': {
-                    name: 'EVOLVE', phase: 'III', year: 2017, tE: 0, tN: 251, cE: 0, cN: 248, group: 'Tezacaftor 100 mg + Ivacaftor 150 mg PO (AM tez+iva, PM iva) | Next-gen corrector + potentiator (F508del/F508del CF; vs Placebo; EVOLVE 24 wk ppFEV1)', publishedHR: 4.00, hrLCI: 3.10, hrUCI: 4.80,
+                    name: 'EVOLVE', pmid: '29099333', phase: 'III', year: 2017, tE: 0, tN: 251, cE: 0, cN: 248, group: 'Tezacaftor 100 mg + Ivacaftor 150 mg PO (AM tez+iva, PM iva) | Next-gen corrector + potentiator (F508del/F508del CF; vs Placebo; EVOLVE 24 wk ppFEV1)', publishedHR: 4.00, hrLCI: 3.10, hrUCI: 4.80,
                     allOutcomes: [ { shortLabel: 'ppFEV1', title: 'Absolute change in ppFEV1 at wk 24 tezacaftor/ivacaftor vs placebo (EVOLVE primary; MD)', type: 'PRIMARY', pubHR: 4.00, pubHR_LCI: 3.10, pubHR_UCI: 4.80 } ],
                     rob: ['low', 'low', 'low', 'low', 'low'],
                     snippet: 'Taylor-Cousar JL et al. NEJM 2017;377:2013-2023 (EVOLVE). Better tolerability than lumacaftor; approved as Symdeko 2018.',
@@ -2441,7 +2441,7 @@
                     evidence: []
                 },
                 'NCT03525444': {
-                    name: 'VX18-445-102', phase: 'III', year: 2019, tE: 0, tN: 200, cE: 0, cN: 203, group: 'Elexacaftor 200 mg + Tezacaftor 100 mg + Ivacaftor 150 mg PO | Triple therapy (F508del/MF CF; vs Placebo; VX18-445-102 24 wk ppFEV1)', publishedHR: 13.80, hrLCI: 12.10, hrUCI: 15.40,
+                    name: 'VX18-445-102', pmid: '31697873', phase: 'III', year: 2019, tE: 0, tN: 200, cE: 0, cN: 203, group: 'Elexacaftor 200 mg + Tezacaftor 100 mg + Ivacaftor 150 mg PO | Triple therapy (F508del/MF CF; vs Placebo; VX18-445-102 24 wk ppFEV1)', publishedHR: 13.80, hrLCI: 12.10, hrUCI: 15.40,
                     allOutcomes: [ { shortLabel: 'ppFEV1', title: 'Absolute change in ppFEV1 at wk 24 elexacaftor/tezacaftor/ivacaftor vs placebo (VX18-445-102 primary; F/MF population; MD)', type: 'PRIMARY', pubHR: 13.80, pubHR_LCI: 12.10, pubHR_UCI: 15.40 } ],
                     rob: ['low', 'low', 'low', 'low', 'low'],
                     snippet: 'Middleton PG et al. NEJM 2019;381:1809-1819 (VX18-445-102). Practice-changing: ppFEV1 gain of 13.8% vastly exceeds prior modulators. Approved as Trikafta 2019; revolutionised CF care.',
@@ -2730,6 +2730,10 @@
                     this.state.results = null;
                     this.save();
                 }
+                /* Rayyan-style abstract hydration: apply cached abstracts synchronously,
+                   then fetch any missing ones in parallel (non-blocking). Falls back to
+                   the per-trial snippet if the PMID lookup fails or the user is offline. */
+                try { AbstractHydrator.hydrateTrials(this.state.trials); } catch (e) {}
                 // Sync conf level UI (only buttons with data-conf, not data-em)
                 document.querySelectorAll('.conf-btn[data-conf]').forEach(btn => {
                     btn.classList.toggle('active', parseFloat(btn.dataset.conf) === this.state.confLevel);
@@ -5353,6 +5357,89 @@
             }
         };
 
+        /* ── Abstract hydration: Rayyan-style rich abstracts in Screening tab.
+           Uses Europe PMC (CORS-friendly) via AutoExtractEngine.fetchAbstract.
+           Cache: localStorage keyed by PMID, 90-day TTL.
+           Sync pass applies cached abstracts before first render; async pass
+           fetches missing ones in parallel and re-renders on each arrival. ── */
+        const AbstractHydrator = {
+            CACHE_PREFIX: 'rm_abstract_v1_',
+            CACHE_TTL_MS: 90 * 24 * 60 * 60 * 1000,
+
+            cacheKey(pmid) { return this.CACHE_PREFIX + String(pmid).trim(); },
+
+            getCached(pmid) {
+                try {
+                    const raw = localStorage.getItem(this.cacheKey(pmid));
+                    if (!raw) return null;
+                    const { text, fetchedAt } = JSON.parse(raw);
+                    if (!text || !fetchedAt) return null;
+                    if (Date.now() - fetchedAt > this.CACHE_TTL_MS) return null;
+                    return text;
+                } catch (e) { return null; }
+            },
+
+            setCached(pmid, text) {
+                try {
+                    localStorage.setItem(this.cacheKey(pmid), JSON.stringify({ text, fetchedAt: Date.now() }));
+                } catch (e) { /* quota exceeded — ignore */ }
+            },
+
+            resolvePmid(trial) {
+                return String(trial?.pmid
+                    ?? trial?.data?.pmid
+                    ?? (typeof RapidMeta !== 'undefined' && RapidMeta.realData?.[trial?.id]?.pmid)
+                    ?? '').trim() || null;
+            },
+
+            /* Only overwrite if the incoming text is richer than what's on the trial.
+               Protects search-fetched and hand-authored abstracts from being clobbered. */
+            applyToTrial(trial, text) {
+                if (!trial || !text) return false;
+                const current = String(trial.abstract ?? '');
+                if (current && current.length >= text.length) return false;
+                trial.abstract = text;
+                return true;
+            },
+
+            async hydrateTrials(trials) {
+                if (!Array.isArray(trials) || trials.length === 0) return;
+                let anyChanged = false;
+
+                /* Sync cache pass — applies before caller gets control back */
+                trials.forEach(t => {
+                    const pmid = this.resolvePmid(t);
+                    if (!pmid) return;
+                    const cached = this.getCached(pmid);
+                    if (cached && this.applyToTrial(t, cached)) anyChanged = true;
+                });
+                if (anyChanged && typeof ScreenEngine !== 'undefined') {
+                    try { ScreenEngine.render?.(); } catch (e) {}
+                }
+
+                /* Async fetch pass — in parallel for anything not cached */
+                const fetcher = typeof AutoExtractEngine !== 'undefined' ? AutoExtractEngine : null;
+                if (!fetcher?.fetchAbstract) return;
+
+                const pending = trials
+                    .map(t => ({ trial: t, pmid: this.resolvePmid(t) }))
+                    .filter(({ pmid }) => pmid && !this.getCached(pmid));
+                if (pending.length === 0) return;
+
+                await Promise.allSettled(pending.map(async ({ trial, pmid }) => {
+                    try {
+                        const text = await fetcher.fetchAbstract(pmid);
+                        if (!text) return;
+                        this.setCached(pmid, text);
+                        if (this.applyToTrial(trial, text) && typeof ScreenEngine !== 'undefined') {
+                            try { ScreenEngine.render?.(); } catch (e) {}
+                            try { RapidMeta.save?.(); } catch (e) {}
+                        }
+                    } catch (e) { /* swallow — trial keeps its snippet as fallback */ }
+                }));
+            }
+        };
+
         const ScreenEngine = {
             activeIdx: 0,
             srcColors: { registry: 'bg-blue-600', pubmed: 'bg-purple-600', openalex: 'bg-amber-600', reference: 'bg-emerald-600', manual: 'bg-cyan-600' },
@@ -5511,12 +5598,14 @@
                 const srcBadgeHtml = srcBadgeNames.filter(s => srcBadgeMap[s].test(srcHay)).map(s => '<span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">' + escapeHtml(s) + '</span>').join(' ');
                 const viewRecordLinks = ExtractEngine._allSourceLinks(srcHay);
                 const viewRecordHtml = viewRecordLinks.map(l => '<a href="' + escapeHtml(l.url) + '" target="_blank" rel="noopener" class="text-[9px] text-blue-400 hover:underline"><i class="fa-solid fa-arrow-up-right-from-square mr-0.5"></i>' + escapeHtml(l.label) + '</a>').join(' ');
-                /* Full abstract toggle (Task 6: D2) */
-                const hasFullAbstract = (t.abstract ?? '').length > 200;
-                const abstractPreview = hasFullAbstract ? escapeHtml(t.abstract.slice(0, 200)) + '...' : escapeHtml(absText);
-                const fullAbstractToggle = hasFullAbstract
-                    ? '<button type="button" class="text-[10px] text-slate-500 hover:text-slate-300 mt-2 underline" aria-expanded="false" onclick="const el=this.nextElementSibling;el.classList.toggle(\'hidden\');const exp=!el.classList.contains(\'hidden\');this.setAttribute(\'aria-expanded\',exp);this.textContent=exp?\'Collapse Abstract\':\'Show Full Abstract\'">Show Full Abstract</button><div class="hidden text-[13px] text-slate-400 mt-2 leading-[1.7] max-h-64 overflow-y-auto pr-2" style="font-family: Georgia, serif;">' + SearchEngine._highlightScreening(escapeHtml(t.abstract), screenHits) + '</div>'
-                    : '';
+                /* Full abstract — always rendered inline, no truncation, no toggle.
+                   Rayyan-style: the whole abstract is there from first paint so the
+                   reviewer doesn't have to click to read it. Section breaks in
+                   structured PubMed abstracts (BACKGROUND/METHODS/RESULTS/CONCLUSIONS)
+                   are preserved via `white-space: pre-line`. */
+                const abstractHtml = (t.abstract ?? '').trim()
+                    ? SearchEngine._highlightScreening(escapeHtml(t.abstract), screenHits)
+                    : escapeHtml(absText);
                 document.getElementById('screen-detail').innerHTML = `<div class="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-700">
                     <div class="space-y-4">
                         <div class="flex items-center gap-3 flex-wrap">
@@ -5536,8 +5625,7 @@
                     ${reviewSection}
                     <div class="bg-slate-950 p-8 rounded-[30px] border border-slate-800 shadow-2xl">
                         <h3 class="text-[10px] opacity-50 font-bold uppercase tracking-[0.3em] mb-5 flex items-center gap-2"><i class="fa-solid fa-file-lines" style="font-size:11px"></i> Abstract <span class="text-[9px] text-slate-600 ml-2">(screening keywords highlighted)</span></h3>
-                        <p class="text-[15px] text-slate-300 leading-[1.8] font-medium" style="font-family: Georgia, serif;">${SearchEngine._highlightScreening(abstractPreview, screenHits)}</p>
-                        ${fullAbstractToggle}
+                        <div class="text-[15px] text-slate-300 leading-[1.8] font-medium" style="font-family: Georgia, serif; white-space: pre-line;">${abstractHtml}</div>
                     </div>
                     ${(() => {
                         const extracted = TextExtractor.extract(absText);
