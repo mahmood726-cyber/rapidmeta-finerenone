@@ -20,7 +20,7 @@
             <div>
                 <h1 class="text-3xl font-bold tracking-tight text-slate-100">RapidMeta NMA Portfolio</h1>
                 <p class="mt-2 text-slate-400 text-sm max-w-3xl leading-relaxed">
-                    Living-review network meta-analyses (NMAs) spanning <strong class="text-slate-200">16 class-level analyses</strong> across
+                    Living-review network meta-analyses (NMAs) spanning <strong class="text-slate-200">18 class-level analyses</strong> across
                     cardiology, endocrinology, oncology, immunology, rheumatology, neurology, psychiatry, haem-oncology, and gastroenterology.
                     Every app ships with R/netmeta validation, full peer-review defence bundle (PRISMA-NMA 2020 + CINeMA),
                     pinned protocol, explicit scope badge, and direct head-to-head + network-synthesised contrasts.
@@ -34,8 +34,8 @@
                 </div>
             </div>
             <div class="flex flex-col gap-1 text-xs">
-                <div class="px-3 py-1.5 rounded-full bg-emerald-900/40 border border-emerald-700 text-emerald-200 font-mono">16 submission-ready</div>
-                <div class="px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-slate-300 font-mono">total k = 115 trials</div>
+                <div class="px-3 py-1.5 rounded-full bg-emerald-900/40 border border-emerald-700 text-emerald-200 font-mono">18 submission-ready</div>
+                <div class="px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-slate-300 font-mono">total k = 126 trials</div>
                 <div class="px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-slate-300 font-mono">9 specialties</div>
             </div>
         </div>
@@ -44,9 +44,9 @@
     <section class="max-w-7xl mx-auto px-6 pb-4">
         <div class="text-xs uppercase tracking-widest text-slate-500 mb-3">Filter by scope type</div>
         <div id="filters" class="flex gap-2 flex-wrap text-xs">
-            <button data-filter="all" class="filter-btn active px-3 py-1.5 rounded-full bg-slate-700 border border-slate-600 text-slate-200 font-semibold">All (16)</button>
-            <button data-filter="canonical" class="filter-btn px-3 py-1.5 rounded-full bg-emerald-900/40 border border-emerald-700 text-emerald-200 font-semibold">Canonical NMA (5)</button>
-            <button data-filter="class" class="filter-btn px-3 py-1.5 rounded-full bg-sky-900/40 border border-sky-700 text-sky-200 font-semibold">Class NMA (5)</button>
+            <button data-filter="all" class="filter-btn active px-3 py-1.5 rounded-full bg-slate-700 border border-slate-600 text-slate-200 font-semibold">All (18)</button>
+            <button data-filter="canonical" class="filter-btn px-3 py-1.5 rounded-full bg-emerald-900/40 border border-emerald-700 text-emerald-200 font-semibold">Canonical NMA (6)</button>
+            <button data-filter="class" class="filter-btn px-3 py-1.5 rounded-full bg-sky-900/40 border border-sky-700 text-sky-200 font-semibold">Class NMA (6)</button>
             <button data-filter="tree" class="filter-btn px-3 py-1.5 rounded-full bg-indigo-900/40 border border-indigo-700 text-indigo-200 font-semibold">Tree geometry (2)</button>
             <button data-filter="summary" class="filter-btn px-3 py-1.5 rounded-full bg-amber-900/40 border border-amber-700 text-amber-200 font-semibold">Summary / one-per-drug (3)</button>
             <button data-filter="pairwise" class="filter-btn px-3 py-1.5 rounded-full bg-slate-700/60 border border-slate-600 text-slate-300 font-semibold">Pairwise via NMA scaffold (2)</button>
@@ -77,6 +77,7 @@
             {app: 'GLP1_CVOT_NMA_REVIEW.html', name: 'GLP-1 RA CV-Outcome (MACE)', specialty: 'Cardiology', scope: 'canonical', scopeLabel: 'Canonical NMA', k: 8, outcome: 'MACE', estimand: 'HR', top: 'Efpeglenatide HR 0.73', bundle: 'glp1_cvot_peer_review_bundle.md'},
             {app: 'PCSK9_LIPID_NMA_REVIEW.html', name: 'Non-Statin LLT CV-Outcome', specialty: 'Cardiology', scope: 'canonical', scopeLabel: 'Canonical NMA', k: 4, outcome: 'MACE', estimand: 'HR', top: 'Evolocumab HR 0.85', bundle: 'pcsk9_lipid_peer_review_bundle.md'},
             {app: 'DOAC_AF_NMA_REVIEW.html', name: 'DOAC in Non-Valvular AF', specialty: 'Cardiology', scope: 'canonical', scopeLabel: 'Canonical NMA', k: 4, outcome: 'Stroke/SE', estimand: 'HR', top: 'Dabigatran HR 0.66', bundle: 'doac_af_peer_review_bundle.md'},
+            {app: 'DOAC_VTE_NMA_REVIEW.html', name: 'DOAC vs LMWH/Warfarin for Acute VTE', specialty: 'Cardiology', scope: 'canonical', scopeLabel: 'Canonical NMA', k: 4, outcome: 'Recurrent VTE', estimand: 'HR', top: 'Rivaroxaban HR 0.68', bundle: 'doac_vte_peer_review_bundle.md'},
             {app: 'ANTIVEGF_NAMD_NMA_REVIEW.html', name: 'Anti-VEGF in Neovascular AMD', specialty: 'Ophthalmology', scope: 'class', scopeLabel: 'Class NMA', k: 11, outcome: 'BCVA change', estimand: 'MD', top: 'Class-level comparison', bundle: null},
 
             // Endocrinology / Metabolic
@@ -105,6 +106,7 @@
 
             // Gastroenterology
             {app: 'UC_BIOLOGICS_NMA_REVIEW.html', name: 'UC Biologics Induction-Remission', specialty: 'Gastroenterology', scope: 'class', scopeLabel: 'Class NMA', k: 9, outcome: 'Clinical remission', estimand: 'OR', top: 'Upadacitinib OR 7.07', bundle: 'uc_biologics_peer_review_bundle.md'},
+            {app: 'CD_BIOLOGICS_NMA_REVIEW.html', name: 'Crohn\'s Disease Biologics Induction', specialty: 'Gastroenterology', scope: 'class', scopeLabel: 'Class NMA (endpoint heterogeneity declared)', k: 7, outcome: 'CDAI remission/response', estimand: 'OR', top: 'Upadacitinib OR 4.69', bundle: 'cd_biologics_peer_review_bundle.md'},
         ];
 
         const SCOPE_STYLES = {

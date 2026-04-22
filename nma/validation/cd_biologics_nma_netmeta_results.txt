@@ -1,0 +1,187 @@
+=== RapidMeta Gastroenterology | Crohn's Disease Biologics Induction-Remission NMA v1.0 ===
+    studlab       treat1  treat2        TE      seTE
+1  ACCENT-1   Infliximab Placebo 0.7466879 0.2551460
+2 CLASSIC-1   Adalimumab Placebo 1.5560371 0.3939672
+3 PRECiSE-1 Certolizumab Placebo 0.4252677 0.1850341
+4  GEMINI-2  Vedolizumab Placebo 0.9321641 0.3782477
+5   UNITI-1  Ustekinumab Placebo 0.6881346 0.2301061
+6   ADVANCE Risankizumab Placebo 0.5988365 0.2075717
+7   U-EXCEL Upadacitinib Placebo 1.5454326 0.2213683
+
+
+=== Consistency model ===
+Original data:
+
+                treat1       treat2      TE   seTE
+ACCENT-1    Infliximab      Placebo  0.7467 0.2551
+CLASSIC-1   Adalimumab      Placebo  1.5560 0.3940
+PRECiSE-1 Certolizumab      Placebo  0.4253 0.1850
+GEMINI-2       Placebo  Vedolizumab -0.9322 0.3782
+UNITI-1        Placebo  Ustekinumab -0.6881 0.2301
+ADVANCE        Placebo Risankizumab -0.5988 0.2076
+U-EXCEL        Placebo Upadacitinib -1.5454 0.2214
+
+Number of treatment arms (by study):
+          narms
+ACCENT-1      2
+CLASSIC-1     2
+PRECiSE-1     2
+GEMINI-2      2
+UNITI-1       2
+ADVANCE       2
+U-EXCEL       2
+
+Results (common effects model):
+
+                treat1       treat2     OR            95%-CI    Q leverage
+ACCENT-1    Infliximab      Placebo 2.1100 [1.2797;  3.4791] 0.00     1.00
+CLASSIC-1   Adalimumab      Placebo 4.7400 [2.1899; 10.2594] 0.00     1.00
+PRECiSE-1 Certolizumab      Placebo 1.5300 [1.0646;  2.1988] 0.00     1.00
+GEMINI-2       Placebo  Vedolizumab 0.3937 [0.1876;  0.8263] 0.00     1.00
+UNITI-1        Placebo  Ustekinumab 0.5025 [0.3201;  0.7889] 0.00     1.00
+ADVANCE        Placebo Risankizumab 0.5495 [0.3658;  0.8253] 0.00     1.00
+U-EXCEL        Placebo Upadacitinib 0.2132 [0.1382;  0.3290] 0.00     1.00
+
+Results (random effects model):
+
+                treat1       treat2     OR            95%-CI
+ACCENT-1    Infliximab      Placebo 2.1100 [1.2797;  3.4791]
+CLASSIC-1   Adalimumab      Placebo 4.7400 [2.1899; 10.2594]
+PRECiSE-1 Certolizumab      Placebo 1.5300 [1.0646;  2.1988]
+GEMINI-2       Placebo  Vedolizumab 0.3937 [0.1876;  0.8263]
+UNITI-1        Placebo  Ustekinumab 0.5025 [0.3201;  0.7889]
+ADVANCE        Placebo Risankizumab 0.5495 [0.3658;  0.8253]
+U-EXCEL        Placebo Upadacitinib 0.2132 [0.1382;  0.3290]
+
+Number of studies: k = 7
+Number of pairwise comparisons: m = 7
+Number of treatments: n = 8
+Number of designs: d = 7
+
+Common effects model
+
+Treatment estimate (sm = 'OR', comparison: other treatments vs 'Placebo'):
+                 OR            95%-CI    z  p-value
+Adalimumab   4.7400 [2.1899; 10.2594] 3.95 < 0.0001
+Certolizumab 1.5300 [1.0646;  2.1988] 2.30   0.0215
+Infliximab   2.1100 [1.2797;  3.4791] 2.93   0.0034
+Placebo           .                 .    .        .
+Risankizumab 1.8200 [1.2117;  2.7337] 2.88   0.0039
+Upadacitinib 4.6900 [3.0391;  7.2377] 6.98 < 0.0001
+Ustekinumab  1.9900 [1.2676;  3.1241] 2.99   0.0028
+Vedolizumab  2.5400 [1.2102;  5.3309] 2.46   0.0137
+
+Random effects model
+
+Treatment estimate (sm = 'OR', comparison: other treatments vs 'Placebo'):
+                 OR            95%-CI    z  p-value
+Adalimumab   4.7400 [2.1899; 10.2594] 3.95 < 0.0001
+Certolizumab 1.5300 [1.0646;  2.1988] 2.30   0.0215
+Infliximab   2.1100 [1.2797;  3.4791] 2.93   0.0034
+Placebo           .                 .    .        .
+Risankizumab 1.8200 [1.2117;  2.7337] 2.88   0.0039
+Upadacitinib 4.6900 [3.0391;  7.2377] 6.98 < 0.0001
+Ustekinumab  1.9900 [1.2676;  3.1241] 2.99   0.0028
+Vedolizumab  2.5400 [1.2102;  5.3309] 2.46   0.0137
+
+Quantifying heterogeneity / inconsistency:
+tau^2 = 0; tau = 0
+
+Tests of heterogeneity (within designs) and inconsistency (between designs):
+                Q d.f. p-value
+Total           0    0      --
+Within designs  0    0      --
+Between designs 0    0      --
+
+Details of network meta-analysis methods:
+- Frequentist graph-theoretical approach
+- Restricted maximum-likelihood estimator for tau^2
+
+=== League table (RE, HR/RR with 95% CI) ===
+                        Adalimumab          Certolizumab            Infliximab
+Adalimumab              Adalimumab                     .                     .
+Certolizumab 3.098 [1.320;  7.271]          Certolizumab                     .
+Infliximab   2.246 [0.895;  5.637] 0.725 [0.391;  1.345]            Infliximab
+Placebo      4.740 [2.190; 10.259] 1.530 [1.065;  2.199] 2.110 [1.280;  3.479]
+Risankizumab 2.604 [1.088;  6.234] 0.841 [0.487;  1.450] 1.159 [0.608;  2.209]
+Upadacitinib 1.011 [0.417;  2.451] 0.326 [0.185;  0.574] 0.450 [0.232;  0.872]
+Ustekinumab  2.382 [0.974;  5.825] 0.769 [0.431;  1.371] 1.060 [0.541;  2.079]
+Vedolizumab  1.866 [0.640;  5.443] 0.602 [0.264;  1.375] 0.831 [0.340;  2.031]
+                           Placebo          Risankizumab          Upadacitinib
+Adalimumab   4.740 [2.190; 10.259]                     .                     .
+Certolizumab 1.530 [1.065;  2.199]                     .                     .
+Infliximab   2.110 [1.280;  3.479]                     .                     .
+Placebo                    Placebo 0.549 [0.366;  0.825] 0.213 [0.138;  0.329]
+Risankizumab 0.549 [0.366;  0.825]          Risankizumab                     .
+Upadacitinib 0.213 [0.138;  0.329] 0.388 [0.214;  0.703]          Upadacitinib
+Ustekinumab  0.503 [0.320;  0.789] 0.915 [0.498;  1.679] 2.357 [1.260;  4.407]
+Vedolizumab  0.394 [0.188;  0.826] 0.717 [0.308;  1.669] 1.846 [0.782;  4.359]
+                       Ustekinumab           Vedolizumab
+Adalimumab                       .                     .
+Certolizumab                     .                     .
+Infliximab                       .                     .
+Placebo      0.503 [0.320;  0.789] 0.394 [0.188;  0.826]
+Risankizumab                     .                     .
+Upadacitinib                     .                     .
+Ustekinumab            Ustekinumab                     .
+Vedolizumab  0.783 [0.329;  1.866]           Vedolizumab
+
+=== Design-by-treatment inconsistency ===
+Q statistics to assess homogeneity / consistency
+
+                   Q df p-value
+Total           0.00  0      --
+Within designs  0.00  0      --
+Between designs 0.00  0      --
+
+Q statistic to assess consistency under the assumption of
+a full design-by-treatment interaction random effects model
+
+                   Q df p-value tau.within tau2.within
+Between designs 0.00  0      --          0           0
+
+=== Node-splitting ===
+
+=== P-scores (lower = better for HR/RR on protective scale) ===
+             P-score
+Upadacitinib  0.9137
+Adalimumab    0.8988
+Vedolizumab   0.6048
+Infliximab    0.4970
+Ustekinumab   0.4544
+Risankizumab  0.3831
+Certolizumab  0.2450
+Placebo       0.0032
+
+=== Rank-probability matrix (N=100k draws) ===
+             rank_1 rank_2 rank_3 rank_4 rank_5 rank_6 rank_7 rank_8
+Adalimumab    0.468  0.414  0.112  0.007  0.000  0.000  0.000  0.000
+Certolizumab  0.000  0.000  0.008  0.068  0.131  0.290  0.424  0.078
+Infliximab    0.000  0.000  0.145  0.397  0.340  0.107  0.011  0.000
+Placebo       0.000  0.000  0.000  0.001  0.006  0.034  0.133  0.826
+Risankizumab  0.000  0.001  0.080  0.174  0.254  0.283  0.193  0.015
+Upadacitinib  0.429  0.475  0.089  0.007  0.000  0.000  0.000  0.000
+Ustekinumab   0.008  0.023  0.212  0.211  0.159  0.168  0.172  0.047
+Vedolizumab   0.095  0.088  0.354  0.136  0.109  0.118  0.067  0.034
+
+=== SUCRA ===
+  Adalimumab Upadacitinib  Vedolizumab   Infliximab  Ustekinumab Risankizumab 
+       0.906        0.904        0.591        0.508        0.440        0.375 
+Certolizumab      Placebo 
+       0.244        0.032 
+
+[wrote cd_biologics_nma_netmeta_results.rds + .json]
+
+=== Key results for peer-review bundle ===
+TAU2: 0 
+I2: NA %
+Q inc: 0 df 0 p NA 
+  Adalimumab               OR 4.740 (2.190, 10.259)
+  Certolizumab             OR 1.530 (1.065, 2.199)
+  Infliximab               OR 2.110 (1.280, 3.479)
+  Risankizumab             OR 1.820 (1.212, 2.734)
+  Upadacitinib             OR 4.690 (3.039, 7.238)
+  Ustekinumab              OR 1.990 (1.268, 3.124)
+  Vedolizumab              OR 2.540 (1.210, 5.331)
+Warning message:
+No comparisons selected with argument 'show = both'. You could use 'show = "all" to show all comparisons. 
