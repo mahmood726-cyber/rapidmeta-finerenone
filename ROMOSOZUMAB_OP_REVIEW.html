@@ -2613,6 +2613,10 @@ const ContinuousMDEngine = {
                     this.state.results = null;
                     this.save();
                 }
+                /* Rayyan-style abstract hydration: apply cached abstracts synchronously,
+                   then fetch any missing ones in parallel (non-blocking). Falls back to
+                   the per-trial snippet if the PMID lookup fails or the user is offline. */
+                try { AbstractHydrator.hydrateTrials(this.state.trials); } catch (e) {}
                 // Sync conf level UI (only buttons with data-conf, not data-em)
                 document.querySelectorAll('.conf-btn[data-conf]').forEach(btn => {
                     btn.classList.toggle('active', parseFloat(btn.dataset.conf) === this.state.confLevel);
@@ -5107,6 +5111,89 @@ const ContinuousMDEngine = {
             }
         };
 
+        /* ── Abstract hydration: Rayyan-style rich abstracts in Screening tab.
+           Uses Europe PMC (CORS-friendly) via AutoExtractEngine.fetchAbstract.
+           Cache: localStorage keyed by PMID, 90-day TTL.
+           Sync pass applies cached abstracts before first render; async pass
+           fetches missing ones in parallel and re-renders on each arrival. ── */
+        const AbstractHydrator = {
+            CACHE_PREFIX: 'rm_abstract_v1_',
+            CACHE_TTL_MS: 90 * 24 * 60 * 60 * 1000,
+
+            cacheKey(pmid) { return this.CACHE_PREFIX + String(pmid).trim(); },
+
+            getCached(pmid) {
+                try {
+                    const raw = localStorage.getItem(this.cacheKey(pmid));
+                    if (!raw) return null;
+                    const { text, fetchedAt } = JSON.parse(raw);
+                    if (!text || !fetchedAt) return null;
+                    if (Date.now() - fetchedAt > this.CACHE_TTL_MS) return null;
+                    return text;
+                } catch (e) { return null; }
+            },
+
+            setCached(pmid, text) {
+                try {
+                    localStorage.setItem(this.cacheKey(pmid), JSON.stringify({ text, fetchedAt: Date.now() }));
+                } catch (e) { /* quota exceeded — ignore */ }
+            },
+
+            resolvePmid(trial) {
+                return String(trial?.pmid
+                    ?? trial?.data?.pmid
+                    ?? (typeof RapidMeta !== 'undefined' && RapidMeta.realData?.[trial?.id]?.pmid)
+                    ?? '').trim() || null;
+            },
+
+            /* Only overwrite if the incoming text is richer than what's on the trial.
+               Protects search-fetched and hand-authored abstracts from being clobbered. */
+            applyToTrial(trial, text) {
+                if (!trial || !text) return false;
+                const current = String(trial.abstract ?? '');
+                if (current && current.length >= text.length) return false;
+                trial.abstract = text;
+                return true;
+            },
+
+            async hydrateTrials(trials) {
+                if (!Array.isArray(trials) || trials.length === 0) return;
+                let anyChanged = false;
+
+                /* Sync cache pass — applies before caller gets control back */
+                trials.forEach(t => {
+                    const pmid = this.resolvePmid(t);
+                    if (!pmid) return;
+                    const cached = this.getCached(pmid);
+                    if (cached && this.applyToTrial(t, cached)) anyChanged = true;
+                });
+                if (anyChanged && typeof ScreenEngine !== 'undefined') {
+                    try { ScreenEngine.render?.(); } catch (e) {}
+                }
+
+                /* Async fetch pass — in parallel for anything not cached */
+                const fetcher = typeof AutoExtractEngine !== 'undefined' ? AutoExtractEngine : null;
+                if (!fetcher?.fetchAbstract) return;
+
+                const pending = trials
+                    .map(t => ({ trial: t, pmid: this.resolvePmid(t) }))
+                    .filter(({ pmid }) => pmid && !this.getCached(pmid));
+                if (pending.length === 0) return;
+
+                await Promise.allSettled(pending.map(async ({ trial, pmid }) => {
+                    try {
+                        const text = await fetcher.fetchAbstract(pmid);
+                        if (!text) return;
+                        this.setCached(pmid, text);
+                        if (this.applyToTrial(trial, text) && typeof ScreenEngine !== 'undefined') {
+                            try { ScreenEngine.render?.(); } catch (e) {}
+                            try { RapidMeta.save?.(); } catch (e) {}
+                        }
+                    } catch (e) { /* swallow — trial keeps its snippet as fallback */ }
+                }));
+            }
+        };
+
         const ScreenEngine = {
             _highlightScreening(html, hits) {
                 if (!hits || hits.length === 0) return html;
@@ -5279,12 +5366,14 @@ const ContinuousMDEngine = {
                 const srcBadgeHtml = srcBadgeNames.filter(s => srcBadgeMap[s].test(srcHay)).map(s => '<span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">' + escapeHtml(s) + '</span>').join(' ');
                 const viewRecordLinks = ExtractEngine._allSourceLinks(srcHay);
                 const viewRecordHtml = viewRecordLinks.map(l => '<a href="' + escapeHtml(l.url) + '" target="_blank" rel="noopener" class="text-[9px] text-blue-400 hover:underline"><i class="fa-solid fa-arrow-up-right-from-square mr-0.5"></i>' + escapeHtml(l.label) + '</a>').join(' ');
-                /* Full abstract toggle (Task 6: D2) */
-                const hasFullAbstract = (t.abstract ?? '').length > 200;
-                const abstractPreview = hasFullAbstract ? escapeHtml(t.abstract.slice(0, 200)) + '...' : escapeHtml(absText);
-                const fullAbstractToggle = hasFullAbstract
-                    ? '<button type="button" class="text-[10px] text-slate-500 hover:text-slate-300 mt-2 underline" aria-expanded="false" onclick="const el=this.nextElementSibling;el.classList.toggle(\'hidden\');const exp=!el.classList.contains(\'hidden\');this.setAttribute(\'aria-expanded\',exp);this.textContent=exp?\'Collapse Abstract\':\'Show Full Abstract\'">Show Full Abstract</button><div class="hidden text-[13px] text-slate-400 mt-2 leading-[1.7] max-h-64 overflow-y-auto pr-2" style="font-family: Georgia, serif;">' + SearchEngine._highlightScreening(escapeHtml(t.abstract), screenHits) + '</div>'
-                    : '';
+                /* Full abstract — always rendered inline, no truncation, no toggle.
+                   Rayyan-style: the whole abstract is there from first paint so the
+                   reviewer doesn't have to click to read it. Section breaks in
+                   structured PubMed abstracts (BACKGROUND/METHODS/RESULTS/CONCLUSIONS)
+                   are preserved via `white-space: pre-line`. */
+                const abstractHtml = (t.abstract ?? '').trim()
+                    ? SearchEngine._highlightScreening(escapeHtml(t.abstract), screenHits)
+                    : escapeHtml(absText);
                 document.getElementById('screen-detail').innerHTML = `<div class="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-700">
                     <div class="space-y-4">
                         <div class="flex items-center gap-3 flex-wrap">
@@ -5304,8 +5393,7 @@ const ContinuousMDEngine = {
                     ${reviewSection}
                     <div class="bg-slate-950 p-8 rounded-[30px] border border-slate-800 shadow-2xl">
                         <h3 class="text-[10px] opacity-50 font-bold uppercase tracking-[0.3em] mb-5 flex items-center gap-2"><i class="fa-solid fa-file-lines" style="font-size:11px"></i> Abstract <span class="text-[9px] text-slate-600 ml-2">(screening keywords highlighted)</span></h3>
-                        <p class="text-[15px] text-slate-300 leading-[1.8] font-medium" style="font-family: Georgia, serif;">${SearchEngine._highlightScreening(abstractPreview, screenHits)}</p>
-                        ${fullAbstractToggle}
+                        <div class="text-[15px] text-slate-300 leading-[1.8] font-medium" style="font-family: Georgia, serif; white-space: pre-line;">${abstractHtml}</div>
                     </div>
                 </div>`;
             },
