@@ -1,7 +1,7 @@
 {
   "app": "COVID_ORAL_ANTIVIRALS_REVIEW.html",
-  "timestamp": "2026-04-23T16:20:42.972Z",
-  "durationMs": 4126,
+  "timestamp": "2026-04-23T19:21:36.585Z",
+  "durationMs": 3858,
   "state": {
     "k": 2,
     "or": "0.29",
@@ -14,9 +14,10 @@
       "low": 10,
       "unclear": 0
     },
-    "isCompleteUniverse": false,
-    "totalAvailable": 226,
+    "isCompleteUniverse": true,
+    "totalAvailable": 2,
     "includedCount": 2,
+    "searchResultCount": 226,
     "nnt": 23.038787835641145,
     "absoluteRisk": 0.043405061374496186,
     "patientReportedOutcomes": {
@@ -29,8 +30,7 @@
         "NCT04575597"
       ],
       "inHeadlineAnalysis": false
-    },
-    "mocked": false
+    }
   },
   "findings": {
     "editor": {
@@ -41,7 +41,7 @@
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Only k=2 of 226 available trials included; heterogeneity and publication-bias diagnostics are underpowered. Justify exclusions or expand eligibility.",
+          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
           "Prediction interval not definable for k<3; flag as boundary condition."
         ],
         "recommendation": "Minor revision"
@@ -49,11 +49,10 @@
       {
         "role": "Clinical expert",
         "concerns": [
-          "Pooled 0.29 diverges from Hammond 2022 benchmark (RR 0.11 [0.05, 0.23]); Discussion should reconcile explicitly.",
           "k<3 - NNT ≈ 23 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.",
           "I² = 92.5% (considerable); show subgroup/strata estimates alongside pooled."
         ],
-        "recommendation": "Major revision"
+        "recommendation": "Minor revision"
       },
       {
         "role": "Biostatistician",
