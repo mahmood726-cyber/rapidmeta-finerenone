@@ -5525,7 +5525,25 @@ const ContinuousMDEngine = {
                         ${reviewProgress}
                     </div>`;
                 }).join('');
-                if (queue.length > 0) this.select(Math.min(this.activeIdx, queue.length - 1));
+                if (queue.length > 0) {
+                    this.select(Math.min(this.activeIdx, queue.length - 1));
+                } else {
+                    /* Empty queue (e.g. 'Show Excluded' on an app with no excluded trials)
+                       — clear the detail pane so the previously-selected include doesn't
+                       linger and look like the filter is broken. */
+                    const detail = document.getElementById('screen-detail');
+                    if (detail) {
+                        const label = activeFilter === 'include' ? 'included'
+                                    : activeFilter === 'exclude' ? 'excluded'
+                                    : 'matching';
+                        const hint = activeFilter === 'exclude'
+                            ? 'Run a CT.gov/PubMed/OpenAlex search from the Search tab, or mark a trial as excluded via the Screening sign-off panel.'
+                            : activeFilter === 'include'
+                                ? 'Confirm a trial as included from the Screening sign-off panel.'
+                                : 'Seed trials via Run Precision Extractor or the search tools.';
+                        detail.innerHTML = '<div class="max-w-4xl mx-auto text-center text-slate-500 italic py-20"><i class="fa-solid fa-filter-circle-xmark text-3xl text-slate-700 mb-4"></i><div class="text-sm mb-2">No ' + label + ' trials in scope.</div><div class="text-[11px] text-slate-600">' + hint + '</div></div>';
+                    }
+                }
                 this.updateMetrics();
                 RapidMeta.retranslate(document.getElementById('tab-screen'));
             },
