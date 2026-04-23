@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# sentinel:skip-file — developer tool; hardcoded ROOT is intentional (local Finrenone checkout only)
 """Propagate the defensive evidence re-hydration in ExtractEngine.setView
 (CFTR post-48dee0b fix) to all 98 other _REVIEW.html apps. Without this,
 runPrecision's t.data = {...realData[id]} replacement wipes evidence and

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# sentinel:skip-file — developer tool; hardcoded ROOT is intentional (local Finrenone checkout only)
 """Inject the Plotly SVG + 300-DPI PNG export modebar buttons into every
 RapidMeta _REVIEW.html. Idempotent — skips if `__rmExportPatched` already
 present. Anchors on `const KNOWN_TRIAL_ALIASES = {` which is universal across

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// sentinel:skip-file — developer tool; hardcoded paths are intentional (local Finrenone checkout only)
 // Runtime smoke test — launches headless Chrome against every _REVIEW.html
 // and records any `pageerror` or `console.error` fired during the first 1.5s
 // after DOMContentLoaded. Catches runtime bugs that static analysis misses

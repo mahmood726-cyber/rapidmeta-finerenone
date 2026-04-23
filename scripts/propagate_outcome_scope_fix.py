@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# sentinel:skip-file — developer tool; hardcoded ROOT is intentional (local Finrenone checkout only)
 """Propagate the applyOutcomeScope `undefined`-counts fix (CFTR) to all
 other _REVIEW.html apps. Three byte-exact edits per file, idempotent.
 """

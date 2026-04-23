@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# sentinel:skip-file — developer tool; hardcoded ROOT is intentional (local Finrenone checkout only)
 """Propagate the multi-outcome NMA refactor (CFTR commit b84ba3f) to the 21
 other NMA apps. Three byte-exact substitutions per file (idempotent — skips
 if _getNetworkOutcomeKeys is already present):

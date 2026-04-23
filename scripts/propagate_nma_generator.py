@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# sentinel:skip-file — developer tool; hardcoded ROOT is intentional (local Finrenone checkout only)
 """Propagate the NMA-specific journal-text generator (introduced in CFTR at
 6d3a8a0) to the 21 remaining NMA apps. Three edits per app, idempotent:
   1. Populate the empty `<div id="nma-summary-container" class="mb-8"></div>`

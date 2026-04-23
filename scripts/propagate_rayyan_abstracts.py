@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# sentinel:skip-file — developer tool; hardcoded ROOT is intentional (local Finrenone checkout only)
 """
 Propagate the Rayyan-style inline-abstract fix across every RapidMeta _REVIEW.html.
 

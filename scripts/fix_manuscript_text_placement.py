@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# sentinel:skip-file — developer tool; hardcoded ROOT is intentional (local Finrenone checkout only)
 """Fix the pre-existing structural bug where `<div id="manuscript-text">` was
 inserted INSIDE the `<style>` block in 76 of 99 apps. The element exists in
 source but is treated as CSS text by the browser, so getElementById() returns

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# sentinel:skip-file — developer tool; hardcoded ROOT is intentional (local Finrenone checkout only)
 """
 Populate `pmid:` fields in every RapidMeta _REVIEW.html realData block.
 
