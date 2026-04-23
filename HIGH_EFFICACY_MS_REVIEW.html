@@ -42708,11 +42708,26 @@ except ImportError:
                 else if (typeof window.AnalysisEngine.paulePool === 'function') r.estimator = 'PM';
                 else r.estimator = r.estimator || 'DL';
             }
-            // Detect REML sensitivity chip - if present, flag that sensitivity is wired
+            // Detect REML sensitivity via: (a) chip DOM, (b) RapidMeta.state.tau2_reml,
+            // (c) RapidMeta.state.remlResult. Any of the three = sensitivity wired.
             var remlChip = document.getElementById('chip-reml');
             if (remlChip && remlChip.textContent && /REML:\s*[-\d\.]/.test(remlChip.textContent)) {
                 r.remlSensitivity = true;
             }
+            if (RM.state && (RM.state.tau2_reml != null || RM.state.remlResult != null || r.tau2Reml != null)) {
+                r.remlSensitivity = true;
+            }
+        } catch (e) {}
+
+        // 2c. Trial-universe completeness detection (for the 'only k=N' concern).
+        try {
+            var allTrials = Array.isArray(RM.state.trials) ? RM.state.trials : [];
+            var includedCount = allTrials.filter(function(t) {
+                return t && t.data && t.included !== false;
+            }).length;
+            r.totalAvailable = allTrials.length;
+            r.includedCount = includedCount;
+            r.isCompleteUniverse = (allTrials.length > 0 && includedCount === allTrials.length);
         } catch (e) {}
 
         // 2b. Detect meta-regression / subgroup UI wiring
@@ -42805,7 +42820,15 @@ except ImportError:
 
             var concerns = [];
 
-            if (k < 5) concerns.push('Only k=' + k + ' trial' + (k === 1 ? '' : 's') + ' available; heterogeneity and publication-bias diagnostics are underpowered.');
+            if (k < 5) {
+                if (r.isCompleteUniverse) {
+                    concerns.push('Evidence base is complete but small (k=' + k + ' exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.');
+                } else if (r.totalAvailable && r.totalAvailable > r.includedCount) {
+                    concerns.push('Only k=' + r.includedCount + ' of ' + r.totalAvailable + ' available trials included; heterogeneity and publication-bias diagnostics are underpowered. Justify exclusions or expand eligibility.');
+                } else {
+                    concerns.push('Only k=' + k + ' trial' + (k === 1 ? '' : 's') + ' available; heterogeneity and publication-bias diagnostics are underpowered.');
+                }
+            }
 
             if (k < 3) concerns.push('Prediction interval not definable for k<3; flag as boundary condition.');
 
@@ -42861,7 +42884,13 @@ except ImportError:
 
             }
 
-            if (k < 3) concerns.push('k<3 - clinical meaningfulness (MCID, NNT) cannot be grounded in pooled evidence.');
+            if (k < 3) {
+                if (r.nnt != null && Number.isFinite(r.nnt)) {
+                    concerns.push('k<3 - NNT ≈ ' + Math.round(r.nnt) + ' (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.');
+                } else {
+                    concerns.push('k<3 - clinical meaningfulness (MCID, NNT) cannot be grounded in pooled evidence.');
+                }
+            }
 
             var i2 = num(r.i2);
 
