@@ -1979,15 +1979,23 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            PASI90: [
+                { label: 'Sbidian Cochrane living NMA (bimekizumab exemplar)', citation: 'Sbidian 2023', year: 2023, measure: 'RR', estimate: 17.0, lci: 14.0, uci: 21.0, k: 179, n: 60330, scope: 'Bimekizumab 320 mg vs placebo; PASI90 at induction (16 wk). Representative best-in-class IL-17/23 inhibitor from Cochrane CD011535.pub6 2023 179-RCT network.' },
+            ]
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
-            default: 'MACE',
-            MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            Hyperkalemia: 'Hyperkalemia'
+            default: 'PASI90',
+            MACE: 'PASI90',
+            ACH: 'PASI90',
+            ACM: 'PASI90',
+            Renal40: 'PASI90',
+            Hyperkalemia: 'PASI90',
+            HF_CV_First: 'PASI90',
+            KidneyComp: 'PASI90',
+            Renal57: 'PASI90',
+            PASI90: 'PASI90'
         };
 
         const BENCHMARK_OUTCOME_NOTES = {

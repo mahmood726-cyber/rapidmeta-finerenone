@@ -1978,15 +1978,23 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            REMISSION: [
+                { label: 'Shehab UC NMA (upadacitinib exemplar)', citation: 'Shehab 2024', year: 2024, measure: 'RR', estimate: 3.5, lci: 2.8, uci: 4.4, k: 36, n: 14270, scope: 'Upadacitinib 45 mg vs placebo; clinical remission at induction. Top-ranked (SUCRA 99.6%) in Shehab 2024 CGH NMA.' },
+            ]
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
-            default: 'MACE',
-            MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            Hyperkalemia: 'Hyperkalemia'
+            default: 'REMISSION',
+            MACE: 'REMISSION',
+            ACH: 'REMISSION',
+            ACM: 'REMISSION',
+            Renal40: 'REMISSION',
+            Hyperkalemia: 'REMISSION',
+            HF_CV_First: 'REMISSION',
+            KidneyComp: 'REMISSION',
+            Renal57: 'REMISSION',
+            REMISSION: 'REMISSION'
         };
 
         const BENCHMARK_OUTCOME_NOTES = {

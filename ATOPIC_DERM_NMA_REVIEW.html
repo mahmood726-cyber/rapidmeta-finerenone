@@ -1978,15 +1978,23 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            EASI75: [
+                { label: 'Drucker JAMA Dermatol living NMA (dupilumab exemplar)', citation: 'Drucker 2024', year: 2024, measure: 'RR', estimate: 3.3, lci: 2.9, uci: 3.8, k: 97, n: 24679, scope: 'Dupilumab vs placebo; EASI75 at 16 wk. Representative IL-4/13 inhibitor from JAMA Dermatol 2024;160:936-944 living NMA.' },
+            ]
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
-            default: 'MACE',
-            MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            Hyperkalemia: 'Hyperkalemia'
+            default: 'EASI75',
+            MACE: 'EASI75',
+            ACH: 'EASI75',
+            ACM: 'EASI75',
+            Renal40: 'EASI75',
+            Hyperkalemia: 'EASI75',
+            HF_CV_First: 'EASI75',
+            KidneyComp: 'EASI75',
+            Renal57: 'EASI75',
+            EASI75: 'EASI75'
         };
 
         const BENCHMARK_OUTCOME_NOTES = {
