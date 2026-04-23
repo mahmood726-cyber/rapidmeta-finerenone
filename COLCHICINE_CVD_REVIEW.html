@@ -4428,7 +4428,7 @@
                     // === Process SOURCE 3: OpenAlex ===
                     let oaCount = 0;
                     if (oaResult.status === 'fulfilled') {
-                        const seenTitles = new Set(trials.map(t => t.String(title ?? "").toLowerCase().replace(/[^a-z0-9]/g, '')));
+                        const seenTitles = new Set(trials.map(t => String(t.title ?? "").toLowerCase().replace(/[^a-z0-9]/g, '')));
                         (oaResult.value.results ?? []).forEach(work => {
                             const doi = work.doi?.replace('https://doi.org/', '') ?? '';
                             const oaId = work.ids?.pmid?.replace('https://pubmed.ncbi.nlm.nih.gov/', '') ?? '';
