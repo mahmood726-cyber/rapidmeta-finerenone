@@ -11832,6 +11832,95 @@ except ImportError:
 
         </script>
 <script>/*RM-BRIDGE*/try{window.RapidMeta=(typeof RapidMeta!=="undefined")?RapidMeta:null;}catch(e){}try{window.AnalysisEngine=(typeof AnalysisEngine!=="undefined")?AnalysisEngine:null;}catch(e){}try{window.SearchEngine=(typeof SearchEngine!=="undefined")?SearchEngine:null;}catch(e){}try{window.ScreenEngine=(typeof ScreenEngine!=="undefined")?ScreenEngine:null;}catch(e){}try{window.ReportEngine=(typeof ReportEngine!=="undefined")?ReportEngine:null;}catch(e){}</script>
+<script>/*BENCHMARK-RETROFIT-v1*/
+(function () {
+    const PUBLISHED_META_BENCHMARKS = {
+        MACE: [
+            { label: 'Vaduganathan 5-trial pooled analysis (SGLT2i HF)', citation: 'Vaduganathan 2022', year: 2022, measure: 'HR', estimate: 0.77, lci: 0.72, uci: 0.82, k: 5, n: 21947, scope: 'SGLT2i across EF spectrum; CV death or first HHF (DAPA-HF + EMPEROR-Reduced + DELIVER + EMPEROR-Preserved + SOLOIST-WHF). Lancet 2022;400:757-767.' },
+            { label: 'Jhund 5-trial HFrEF-only pool (SGLT2i)', citation: 'Jhund 2022', year: 2022, measure: 'HR', estimate: 0.78, lci: 0.72, uci: 0.84, k: 5, n: 21947, scope: 'SGLT2i pooled across HF spectrum; CV death or HHF subcomponent. Nat Med 2022;28:1956-1964.' }
+        ]
+    };
+    const BENCHMARK_OUTCOME_MAP = { default: 'MACE', MACE: 'MACE' };
+
+    let tries = 0;
+    function ready() {
+        if (tries++ > 120) return;
+        if (!window.RapidMeta || typeof window.generateManuscriptText !== 'function') {
+            return setTimeout(ready, 100);
+        }
+        install();
+    }
+
+    function install() {
+        if (window.RapidMeta.__benchmarkRetrofitInstalled) return;
+        window.RapidMeta.__benchmarkRetrofitInstalled = true;
+
+        window.RapidMeta.publishedMetaBenchmarks = PUBLISHED_META_BENCHMARKS;
+        window.RapidMeta.getSelectedBenchmarkEntries = function (outcomeKey) {
+            const k = BENCHMARK_OUTCOME_MAP[String(outcomeKey != null ? outcomeKey : 'default')] || null;
+            return k ? (PUBLISHED_META_BENCHMARKS[k] || []) : [];
+        };
+
+        const orig = window.generateManuscriptText;
+        window.generateManuscriptText = function () {
+            const result = orig.apply(this, arguments);
+            try {
+                renderBenchmarkParagraph();
+            } catch (e) { /* fall back silently */ }
+            return result;
+        };
+
+        // If manuscript already rendered, re-render now.
+        if (window.RapidMeta.state && window.RapidMeta.state.results) {
+            try { renderBenchmarkParagraph(); } catch (e) {}
+        }
+    }
+
+    function renderBenchmarkParagraph() {
+        const container = document.getElementById('manuscript-text');
+        if (!container) return;
+        const r = window.RapidMeta.state && window.RapidMeta.state.results;
+        if (!r || r.or == null || r.or === '--') return;
+
+        // Clear any prior retrofit paragraph so we don't stack.
+        container.querySelectorAll('.benchmark-retrofit').forEach(n => n.remove());
+
+        const entries = window.RapidMeta.getSelectedBenchmarkEntries('default');
+        if (!entries.length) return;
+
+        const currentOr = parseFloat(r.or);
+        const currentLci = parseFloat(r.lci);
+        const currentUci = parseFloat(r.uci);
+
+        const lines = entries.map(function (b) {
+            const pointInside = Number.isFinite(currentOr) && currentOr >= b.lci && currentOr <= b.uci;
+            const ciOverlap = Number.isFinite(currentLci) && Number.isFinite(currentUci)
+                ? (currentLci <= b.uci && currentUci >= b.lci) : false;
+            const verdict = pointInside ? 'inside published CI'
+                : ciOverlap ? 'overlaps published CI'
+                : 'diverges from published CI';
+            const nStr = typeof b.n === 'number' ? b.n.toLocaleString() : String(b.n);
+            return '<li><b>' + b.label + '</b> (' + b.citation + '): ' + b.measure + ' ' +
+                b.estimate.toFixed(2) + ' [' + b.lci.toFixed(2) + ', ' + b.uci.toFixed(2) + '], k=' +
+                b.k + ', n=' + nStr + '. Current pooled ' + r.or + ' ' + verdict +
+                '. <i class="text-slate-500">' + b.scope + '</i></li>';
+        }).join('');
+
+        const p = document.createElement('div');
+        p.className = 'benchmark-retrofit mt-6 pt-4 border-t border-slate-800 text-[11px] text-slate-300';
+        p.innerHTML = '<b class="uppercase tracking-widest text-slate-400 text-[10px]">Published meta-analysis comparator</b>' +
+            '<ul class="mt-2 space-y-2 list-disc pl-4">' + lines + '</ul>';
+        container.appendChild(p);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', ready);
+    } else {
+        ready();
+    }
+})();
+</script>
+
 <script src="webr-validator.js" defer></script>
 <script src="effect-measure-toggle.js" defer></script>
 <script src="grade-indirectness-ext.js" defer></script>
