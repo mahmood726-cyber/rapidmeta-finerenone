@@ -1811,15 +1811,22 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            'MACE': [
+                { label: 'MELODY nirsevimab vs placebo (infant RSV LRTI)', citation: 'Hammitt 2022', year: 2022, measure: 'RR', estimate: 0.25, lci: 0.13, uci: 0.46, k: 1, n: 1490, scope: 'Nirsevimab 50/100 mg IM one-time vs placebo in healthy term/late-preterm infants; medically-attended RSV LRTI through 150 d. NEJM 2022;386:837-846.' },
+            ],
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
             default: 'MACE',
             MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            
+            ACH: 'MACE',
+            ACM: 'MACE',
+            Renal40: 'MACE',
+            Hyperkalemia: 'MACE',
+            HF_CV_First: 'MACE',
+            KidneyComp: 'MACE',
+            Renal57: 'MACE'
         };
 
         const BENCHMARK_OUTCOME_NOTES = { default: '' };

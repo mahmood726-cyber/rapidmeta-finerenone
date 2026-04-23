@@ -1811,15 +1811,23 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            'MACE': [
+                { label: 'HPTN 083 cabotegravir-LA vs daily TDF/FTC (PrEP MSM/TGW)', citation: 'Landovitz 2021', year: 2021, measure: 'HR', estimate: 0.34, lci: 0.18, uci: 0.62, k: 1, n: 4566, scope: 'Long-acting cabotegravir IM Q8W vs daily oral TDF/FTC in at-risk MSM/transgender women; HIV incidence. NEJM 2021;385:595-608.' },
+                { label: 'HPTN 084 CAB-LA vs TDF/FTC (cis women)', citation: 'Delany-Moretlwe 2022', year: 2022, measure: 'HR', estimate: 0.11, lci: 0.04, uci: 0.31, k: 1, n: 3224, scope: 'CAB-LA vs daily TDF/FTC in sub-Saharan African cisgender women; HIV incidence. Lancet 2022;399:1779-1789.' },
+            ],
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
             default: 'MACE',
             MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            
+            ACH: 'MACE',
+            ACM: 'MACE',
+            Renal40: 'MACE',
+            Hyperkalemia: 'MACE',
+            HF_CV_First: 'MACE',
+            KidneyComp: 'MACE',
+            Renal57: 'MACE'
         };
 
         const BENCHMARK_OUTCOME_NOTES = { default: '' };

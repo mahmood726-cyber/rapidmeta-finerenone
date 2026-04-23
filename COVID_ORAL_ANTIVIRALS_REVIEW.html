@@ -1811,15 +1811,23 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            'MACE': [
+                { label: 'EPIC-HR nirmatrelvir/ritonavir vs placebo (hosp/death)', citation: 'Hammond 2022', year: 2022, measure: 'RR', estimate: 0.11, lci: 0.05, uci: 0.23, k: 1, n: 2246, scope: 'Nirmatrelvir/ritonavir 5-day vs placebo in unvaccinated high-risk COVID-19 outpatients; hospitalization or death by day 28. NEJM 2022;386:1397-1408.' },
+                { label: 'MOVe-OUT molnupiravir vs placebo', citation: 'Jayk Bernal 2022', year: 2022, measure: 'RR', estimate: 0.7, lci: 0.49, uci: 0.99, k: 1, n: 1433, scope: 'Molnupiravir 800 mg BID x 5 d vs placebo in at-risk unvaccinated COVID-19 outpatients; hosp/death at 29 d. NEJM 2022;386:509-520.' },
+            ],
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
             default: 'MACE',
             MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            
+            ACH: 'MACE',
+            ACM: 'MACE',
+            Renal40: 'MACE',
+            Hyperkalemia: 'MACE',
+            HF_CV_First: 'MACE',
+            KidneyComp: 'MACE',
+            Renal57: 'MACE'
         };
 
         const BENCHMARK_OUTCOME_NOTES = { default: '' };
