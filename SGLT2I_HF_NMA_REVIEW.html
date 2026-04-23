@@ -13148,6 +13148,10 @@ print(res_sub)`;
                 GradeProfileEngine.renderTable('grade-profile-container');
                 // Auto-generate manuscript Methods & Results text
                 if (typeof generateManuscriptText === 'function') generateManuscriptText();
+                // Auto-refresh R cross-validation against stored baseline (cheap; static check)
+                try { if (typeof this.runRValidation === 'function') this.runRValidation(); } catch (e) {}
+                // Auto-generate manuscript Methods & Results text
+                if (typeof generateManuscriptText === 'function') generateManuscriptText();
                 const reportEl = document.getElementById('report-content');
                 reportEl.classList.remove('hidden');
                 showToast("Synthesis Generated Successfully.");
