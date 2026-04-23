@@ -1978,43 +1978,7 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {
-            MACE: [
-                { label: 'FIDELITY pooled analysis', citation: 'Agarwal 2022', year: 2022, measure: 'HR', estimate: 0.86, lci: 0.78, uci: 0.95, k: 2, n: 13026, scope: 'FIDELIO + FIGARO, CKD/T2D' },
-                { label: 'Ahmed meta-analysis', citation: 'Ahmed 2025', year: 2025, measure: 'RR', estimate: 0.85, lci: 0.81, uci: 0.90, k: 8, n: 21200, scope: 'Broad randomized hfref quadruple therapy trials' },
-                { label: 'Yang meta-analysis', citation: 'Yang 2023', year: 2023, measure: 'RR', estimate: 0.88, lci: 0.80, uci: 0.96, k: 4, n: 13943, scope: 'CKD/T2D randomized trials' },
-                { label: 'Zhang meta-analysis', citation: 'Zhang 2022', year: 2022, measure: 'RR', estimate: 0.88, lci: 0.80, uci: 0.95, k: 5, n: 13078, scope: 'CKD randomized trials' },
-                { label: 'Chen meta-analysis', citation: 'Chen 2026', year: 2026, measure: 'HR', estimate: 0.81, lci: 0.76, uci: 0.87, k: 7, n: 33455, scope: 'Diabetic kidney disease trials' }
-            ],
-            ACH: [
-                { label: 'FIDELITY pooled analysis', citation: 'Agarwal 2022', year: 2022, measure: 'HR', estimate: 0.78, lci: 0.66, uci: 0.92, k: 2, n: 13026, scope: 'HF hospitalization' },
-                { label: 'FINE-HEART pooled analysis', citation: 'Vaduganathan 2024', year: 2024, measure: 'HR', estimate: 0.83, lci: 0.75, uci: 0.92, k: 3, n: 18991, scope: 'HF hospitalization' },
-                { label: 'Ahmed meta-analysis', citation: 'Ahmed 2025', year: 2025, measure: 'RR', estimate: 0.82, lci: 0.76, uci: 0.87, k: 8, n: 21200, scope: 'HF hospitalization / unplanned visits' },
-                { label: 'Rivera-Martinez meta-analysis', citation: 'Rivera-Martinez 2025', year: 2025, measure: 'HR', estimate: 0.80, lci: 0.72, uci: 0.90, k: 7, n: 19027, scope: 'HF hospitalization' },
-                { label: 'Peng meta-analysis', citation: 'Peng 2025', year: 2025, measure: 'RR', estimate: 0.81, lci: 0.76, uci: 0.87, k: 8, n: 21295, scope: 'HF occurrence / hospitalization' }
-            ],
-            ACM: [
-                { label: 'FINE-HEART pooled analysis', citation: 'Vaduganathan 2024', year: 2024, measure: 'HR', estimate: 0.91, lci: 0.84, uci: 0.99, k: 3, n: 18991, scope: 'All-cause mortality' },
-                { label: 'Ahmed meta-analysis', citation: 'Ahmed 2025', year: 2025, measure: 'RR', estimate: 0.92, lci: 0.85, uci: 0.99, k: 8, n: 21200, scope: 'All-cause mortality' },
-                { label: 'Rivera-Martinez meta-analysis', citation: 'Rivera-Martinez 2025', year: 2025, measure: 'RR', estimate: 0.86, lci: 0.77, uci: 0.97, k: 7, n: 19027, scope: 'All-cause mortality' },
-                { label: 'Yang meta-analysis', citation: 'Yang 2023', year: 2023, measure: 'RR', estimate: 0.89, lci: 0.80, uci: 0.99, k: 4, n: 13943, scope: 'All-cause mortality' },
-                { label: 'Peng meta-analysis', citation: 'Peng 2025', year: 2025, measure: 'RR', estimate: 0.94, lci: 0.87, uci: 1.02, k: 8, n: 21295, scope: 'All-cause mortality' }
-            ],
-            Renal40: [
-                { label: 'FIDELITY pooled analysis', citation: 'Agarwal 2022', year: 2022, measure: 'HR', estimate: 0.77, lci: 0.67, uci: 0.88, k: 2, n: 13026, scope: 'Kidney failure / eGFR decline composite' },
-                { label: 'FINE-HEART pooled analysis', citation: 'Vaduganathan 2024', year: 2024, measure: 'HR', estimate: 0.80, lci: 0.72, uci: 0.90, k: 3, n: 18991, scope: 'Kidney outcomes' },
-                { label: 'Chen meta-analysis', citation: 'Chen 2026', year: 2026, measure: 'HR', estimate: 0.76, lci: 0.70, uci: 0.83, k: 7, n: 33455, scope: 'Kidney failure' },
-                { label: 'Zheng meta-analysis', citation: 'Zheng 2022', year: 2022, measure: 'RR', estimate: 0.85, lci: 0.78, uci: 0.93, k: 5, n: 13945, scope: 'eGFR >=40% decline composite' },
-                { label: 'Zhang meta-analysis', citation: 'Zhang 2022', year: 2022, measure: 'RR', estimate: 0.80, lci: 0.65, uci: 0.99, k: 5, n: 13078, scope: 'ESKD / kidney outcomes' }
-            ],
-            Hyperkalemia: [
-                { label: 'Ahmed meta-analysis', citation: 'Ahmed 2025', year: 2025, measure: 'RR', estimate: 2.07, lci: 1.88, uci: 2.27, k: 8, n: 21200, scope: 'Hyperkalemia' },
-                { label: 'Rivera-Martinez meta-analysis', citation: 'Rivera-Martinez 2025', year: 2025, measure: 'RR', estimate: 2.31, lci: 1.98, uci: 2.69, k: 7, n: 19027, scope: 'Hyperkalemia' },
-                { label: 'Chen meta-analysis', citation: 'Chen 2026', year: 2026, measure: 'RR', estimate: 2.19, lci: 2.04, uci: 2.34, k: 7, n: 33455, scope: 'Hyperkalemia' },
-                { label: 'Yang meta-analysis', citation: 'Yang 2023', year: 2023, measure: 'RR', estimate: 2.04, lci: 1.80, uci: 2.32, k: 4, n: 13943, scope: 'Hyperkalemia' },
-                { label: 'Yasmin meta-analysis', citation: 'Yasmin 2023', year: 2023, measure: 'OR', estimate: 2.25, lci: 1.78, uci: 2.84, k: 7, n: 15462, scope: 'Hyperkalemia' }
-            ]
-        };
+        const PUBLISHED_META_BENCHMARKS = {};
 
         const BENCHMARK_OUTCOME_MAP = {
             default: 'MACE',

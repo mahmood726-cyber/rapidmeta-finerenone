@@ -1496,7 +1496,7 @@
             return safe;
         };
 
-        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT04526665', 'NCT04620240']);
+        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT04526665', 'NCT04620733']);
         const isPhaseTwoLike = (phaseLabel = '') => {
             const p = String(phaseLabel ?? '').toLowerCase().trim();
             if (!p) return false;
@@ -1935,7 +1935,7 @@ const ContinuousMDEngine = {
 
             // ISSUE 10 FIX: Corrected ARTS-DN Metadata (Phase IIb)
             /* Known acronyms for trials whose CT.gov search may not return the acronym field */
-            nctAcronyms: { 'NCT04526665': 'ELATIVE', 'NCT04620240': 'RESPONSE' },
+            nctAcronyms: { 'NCT04526665': 'ELATIVE', 'NCT04620733': 'RESPONSE' },
             _allowedSources: new Set(['registry', 'pubmed', 'openalex', 'reference', 'manual']),
             _allowedStatuses: new Set(['search', 'include', 'exclude']),
             sanitizeText(value, maxLen = 600) {
@@ -2288,7 +2288,7 @@ const ContinuousMDEngine = {
                         { label: 'Risk of Bias (RoB 2.0)', source: 'Kowdley 2024 NEJM design + RoB 2.0', text: 'D1 LOW - central IVR stratified by response/intolerance. D2 LOW - double-blind matched placebo. D3 LOW - 93% completion. D4 LOW - central laboratory for ALP/bilirubin. D5 LOW - SAP locked.', highlights: ['LOW', 'double-blind', 'central lab'] }
                     ]
                 },
-                'NCT04620240': {
+                'NCT04620733': {
                     name: 'RESPONSE', phase: 'III', year: 2024, tE: 81, tN: 130, cE: 13, cN: 63, group: 'UDCA-inadequate-response PBC, seladelpar 10 mg PO daily vs placebo (month 12, biochemical response RR)', publishedHR: 3.00, hrLCI: 1.81, hrUCI: 4.98,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'Biochemical response at month 12 (primary, composite) (RR)', tE: 81, cE: 13, type: 'PRIMARY', matchScore: 95, effect: 3.00, lci: 1.81, uci: 4.98, estimandType: 'RR' }
@@ -2296,7 +2296,7 @@ const ContinuousMDEngine = {
                     rob: ['low', 'low', 'low', 'low', 'low'],
                     snippet: 'Source: Hirschfield GM et al. NEJM 2024;390:783-794 (RESPONSE).',
                     sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa2312100',
-                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT04620240',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT04620733',
                     evidence: [
                         { label: 'Enrollment', source: 'Hirschfield 2024 NEJM, CONSORT', text: '193 adults with PBC and inadequate response to or intolerance of UDCA randomized 2:1 double-blind to seladelpar 10 mg PO daily (n=130) or matched placebo (n=63) for 12 months. Most patients continued background UDCA.', highlights: ['193', '130', '63', 'seladelpar', 'double-blind', '2:1'] },
                         { label: 'Primary - Biochemical Response at Month 12', source: 'Hirschfield 2024 NEJM, Figure 2', text: 'Biochemical response (composite: ALP <1.67x ULN with >=15% decrease AND total bilirubin <=ULN) at month 12: seladelpar 81/130 (62%) vs placebo 13/63 (20%); risk ratio 3.00 (95% CI 1.81-4.98; P<0.001). Primary endpoint met.', highlights: ['62%', '20%', 'RR 3.00', 'P<0.001'] },
