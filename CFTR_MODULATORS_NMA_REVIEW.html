@@ -1979,15 +1979,27 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            'ppFEV1': [
+                { label: 'Middleton ELX/TEZ/IVA vs placebo (ppFEV1)', citation: 'Middleton 2019', year: 2019, measure: 'MD', estimate: 13.8, lci: 12.1, uci: 15.4, k: 1, n: 403, scope: 'Elexacaftor/tezacaftor/ivacaftor vs placebo; absolute ppFEV1 change at 4 wk in F508del heterozygous CF. Pivotal triple-modulator trial, NEJM 2019;381:1809-1819.' },
+            ],
+            'PulmExacRR': [
+                { label: 'Triple CFTR modulator pool (pulmonary exacerbation)', citation: 'Huang 2023', year: 2023, measure: 'OR', estimate: 0.29, lci: 0.19, uci: 0.43, k: 3, n: 800, scope: 'ELX/TEZ/IVA vs placebo 3-study pool; pulmonary exacerbation odds. Frontiers Pharmacol 2023 SR-MA.' },
+            ],
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
-            default: 'MACE',
-            MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            Hyperkalemia: 'Hyperkalemia'
+            default: 'ppFEV1',
+            MACE: 'ppFEV1',
+            ACH: 'ppFEV1',
+            ACM: 'ppFEV1',
+            Renal40: 'ppFEV1',
+            Hyperkalemia: 'ppFEV1',
+            HF_CV_First: 'ppFEV1',
+            KidneyComp: 'ppFEV1',
+            Renal57: 'ppFEV1',
+            'ppFEV1': 'ppFEV1',
+            'PulmExacRR': 'PulmExacRR'
         };
 
         const BENCHMARK_OUTCOME_NOTES = {
