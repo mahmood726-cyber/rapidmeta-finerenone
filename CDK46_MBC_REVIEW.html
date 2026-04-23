@@ -1812,15 +1812,23 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            'MACE': [
+                { label: 'PALOMA-2 palbociclib + letrozole vs letrozole', citation: 'Rugo 2019', year: 2019, measure: 'HR', estimate: 0.58, lci: 0.46, uci: 0.72, k: 1, n: 666, scope: 'Palbociclib + letrozole vs placebo + letrozole in HR+/HER2- MBC 1L; PFS. NEJM 2016;375:1925-1936.' },
+                { label: 'MONARCH 3 abemaciclib + AI vs AI', citation: 'Goetz 2017', year: 2017, measure: 'HR', estimate: 0.54, lci: 0.41, uci: 0.72, k: 1, n: 493, scope: 'Abemaciclib + nonsteroidal AI vs AI in HR+/HER2- MBC 1L; PFS. JCO 2017;35:3638-3646.' },
+            ],
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
             default: 'MACE',
             MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            
+            ACH: 'MACE',
+            ACM: 'MACE',
+            Renal40: 'MACE',
+            Hyperkalemia: 'MACE',
+            HF_CV_First: 'MACE',
+            KidneyComp: 'MACE',
+            Renal57: 'MACE'
         };
 
         const BENCHMARK_OUTCOME_NOTES = { default: '' };

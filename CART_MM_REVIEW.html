@@ -1812,15 +1812,23 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            'MACE': [
+                { label: 'CARTITUDE-4 cilta-cel vs SOC (multiple myeloma)', citation: 'San-Miguel 2023', year: 2023, measure: 'HR', estimate: 0.26, lci: 0.18, uci: 0.38, k: 1, n: 419, scope: 'Ciltacabtagene autoleucel vs physician\'s-choice regimen in 1-3 prior lines R/R MM; PFS. NEJM 2023;389:335-347.' },
+                { label: 'KarMMa-3 ide-cel vs SOC (MM)', citation: 'Rodriguez-Otero 2023', year: 2023, measure: 'HR', estimate: 0.49, lci: 0.38, uci: 0.65, k: 1, n: 386, scope: 'Idecabtagene vicleucel vs SOC regimen in triple-class-exposed R/R MM; PFS. NEJM 2023;388:1002-1014.' },
+            ],
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
             default: 'MACE',
             MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            
+            ACH: 'MACE',
+            ACM: 'MACE',
+            Renal40: 'MACE',
+            Hyperkalemia: 'MACE',
+            HF_CV_First: 'MACE',
+            KidneyComp: 'MACE',
+            Renal57: 'MACE'
         };
 
         const BENCHMARK_OUTCOME_NOTES = { default: '' };

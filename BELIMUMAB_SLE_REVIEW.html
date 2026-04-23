@@ -1811,15 +1811,22 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            'MACE': [
+                { label: 'BLISS-52/-76 belimumab vs placebo meta (SLE)', citation: 'Furie 2011', year: 2011, measure: 'OR', estimate: 1.55, lci: 1.22, uci: 1.98, k: 2, n: 1684, scope: 'Belimumab 10 mg/kg vs placebo pooled (BLISS-52 + BLISS-76) in seropositive SLE; SRI4 response at week 52. Arthritis Rheum 2011;63:3918-3930.' },
+            ],
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
             default: 'MACE',
             MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            
+            ACH: 'MACE',
+            ACM: 'MACE',
+            Renal40: 'MACE',
+            Hyperkalemia: 'MACE',
+            HF_CV_First: 'MACE',
+            KidneyComp: 'MACE',
+            Renal57: 'MACE'
         };
 
         const BENCHMARK_OUTCOME_NOTES = { default: '' };
