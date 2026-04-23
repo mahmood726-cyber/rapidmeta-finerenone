@@ -8017,7 +8017,9 @@ const ContinuousMDEngine = {
                 const includedAll = this.getExtractionPool();
                 const includedScoped = includedAll.filter(t => {
                     if (!t?.data) return selectedOutcome === 'default';
-                    if (selectedOutcome === 'default') return true;
+                    // No bypass for 'default' — trials without a MACE-compatible outcome
+                    // (e.g. PARAGLIDE-HF with only CONTINUOUS NTproBNP) must be filtered
+                    // out of the default CV-composite pool display.
                     return !t.data._outcomeExcluded;
                 });
                 const scope = { selectedOutcome, totalIncluded: includedAll.length, shownIncluded: includedScoped.length };
@@ -8138,7 +8140,22 @@ const ContinuousMDEngine = {
                         </div>
                         <div class="extract-card-body">
                             ${this._provProgressHtml(t)}
-                            <div class="grid grid-cols-2 gap-8">
+                            ${(() => {
+                                const _isContinuous = (d?.tE == null && d?.cE == null);
+                                if (_isContinuous) {
+                                    const _contOutcome = (d?.allOutcomes ?? []).find(o => o?.type === 'CONTINUOUS') ?? {};
+                                    const _contTitle = _contOutcome.title || 'a continuous outcome (see Source Evidence Extracts)';
+                                    return `<div class="p-6 rounded-2xl border border-amber-500/30 bg-amber-500/5">
+                                        <div class="text-[10px] font-bold uppercase tracking-widest text-amber-400/80 mb-2"><i class="fa-solid fa-chart-line mr-1"></i>Continuous outcome &mdash; events display not applicable</div>
+                                        <div class="text-[13px] text-slate-200 mb-3">Primary endpoint: <span class="font-semibold text-amber-200">${escapeHtml(_contTitle)}</span></div>
+                                        <div class="text-[11px] text-slate-400 leading-relaxed">This trial reports a continuous effect (mean difference or ratio of change), not a 2&times;2 event table. The published effect estimate and 95% CI appear in the <strong>Source Evidence Extracts</strong> panel below. The 2&times;2 event fields are intentionally null and are excluded from OR/RR pooling. HR pooling also skips this trial unless a <code>publishedHR</code> is declared.</div>
+                                        <div class="grid grid-cols-2 gap-6 mt-4">
+                                            <div><div class="text-[9px] uppercase tracking-widest text-slate-500 font-bold mb-1">Treatment n</div><div class="text-2xl font-mono font-bold text-emerald-400">${d?.tN ?? '--'}</div></div>
+                                            <div><div class="text-[9px] uppercase tracking-widest text-slate-500 font-bold mb-1">Control n</div><div class="text-2xl font-mono font-bold text-rose-400">${d?.cN ?? '--'}</div></div>
+                                        </div>
+                                    </div>`;
+                                }
+                                return `<div class="grid grid-cols-2 gap-8">
                                 <div>
                                     <div class="text-[10px] font-bold uppercase tracking-widest text-emerald-400/70 mb-3">Treatment Arm</div>
                                     <div class="flex items-center gap-3">
@@ -8169,7 +8186,8 @@ const ContinuousMDEngine = {
                                         <div class="mt-4 text-[10px] text-rose-400/60 font-mono font-bold">${erC}</div>
                                     </div>
                                 </div>
-                            </div>
+                            </div>`;
+                            })()}
                             ${endpointMetaHtml}
                             <div class="mt-4 flex flex-wrap items-center gap-2">
                                 ${reviewActions}

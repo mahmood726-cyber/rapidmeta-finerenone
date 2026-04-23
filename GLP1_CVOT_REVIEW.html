@@ -8063,7 +8063,9 @@
                 const includedAll = this.getExtractionPool();
                 const includedScoped = includedAll.filter(t => {
                     if (!t?.data) return selectedOutcome === 'default';
-                    if (selectedOutcome === 'default') return true;
+                    // No bypass for 'default' — trials without a MACE-compatible outcome
+                    // (e.g. PARAGLIDE-HF with only CONTINUOUS NTproBNP) must be filtered
+                    // out of the default CV-composite pool display.
                     return !t.data._outcomeExcluded;
                 });
                 const scope = { selectedOutcome, totalIncluded: includedAll.length, shownIncluded: includedScoped.length };
