@@ -1462,7 +1462,7 @@
                         <tr><td class="p-4 font-bold text-purple-400 bg-purple-400/5">Secondary Outcomes</td><td class="p-4 text-slate-300">All-cause mortality; CV death; HF hospitalization; renal composite; quality of life</td></tr>
 
 
-                        <tr><td class="p-4 font-bold text-cyan-400 bg-cyan-400/5">Subgroup Plan</td><td class="p-4"><input id="p-subgroup" class="w-full bg-transparent outline-none font-medium text-slate-200" value="CHADS2 score stratum, prior vitamin K antagonist experience, age, renal function (CrCl)"></td></tr>
+                        <tr><td class="p-4 font-bold text-cyan-400 bg-cyan-400/5">Subgroup Plan</td><td class="p-4"><input id="p-subgroup" class="w-full bg-transparent outline-none font-medium text-slate-200" value="CHA2DS2-VASc, HAS-BLED, age, CrCl"></td></tr>
 
 
                     </tbody></table>
@@ -1495,10 +1495,10 @@
                         <tr><td class="p-3 font-bold text-slate-400">Phase</td><td class="p-3 text-slate-300">Phase III or IV</td><td class="p-3 text-slate-400">Phase I/II (including IIa/IIb), PK/PD, dose-finding, bioequivalence, first-in-human</td></tr>
 
 
-                        <tr><td class="p-3 font-bold text-slate-400">Participants</td><td class="p-3 text-slate-300">Adults >=18 years with HFrEF, HFpEF, or recent MI with LV dysfunction</td><td class="p-3 text-slate-400">Healthy volunteers, paediatric, animal/in-vitro</td></tr>
+                        <tr><td class="p-3 font-bold text-slate-400">Participants</td><td class="p-3 text-slate-300">Adults with NVAF</td><td class="p-3 text-slate-400">Healthy volunteers, paediatric, animal/in-vitro</td></tr>
 
 
-                        <tr><td class="p-3 font-bold text-slate-400">Intervention</td><td class="p-3 text-slate-300">Direct oral anticoagulant (dabigatran 150 mg BID, rivaroxaban 20 mg QD, apixaban 5 mg BID, or edoxaban 60 mg QD at high dose) as primary experimental intervention</td><td class="p-3 text-slate-400">Open-label extensions without comparator; intervention used only as background</td></tr>
+                        <tr><td class="p-3 font-bold text-slate-400">Intervention</td><td class="p-3 text-slate-300">DOAC as primary experimental drug</td><td class="p-3 text-slate-400">DOAC as background only; open-label extensions without comparator</td></tr>
 
 
                         <tr><td class="p-3 font-bold text-slate-400">Comparator</td><td class="p-3 text-slate-300">Placebo, sham, or standard of care</td><td class="p-3 text-slate-400">Active comparator without placebo arm</td></tr>
@@ -1627,7 +1627,7 @@
                         <tr><td class="p-3 font-bold text-slate-400">Participants</td><td class="p-3 text-slate-300">N randomized per arm, age, sex distribution, indication, baseline eGFR</td><td class="p-3 text-slate-500">Extraction &rarr; Demographics</td></tr>
 
 
-                        <tr><td class="p-3 font-bold text-slate-400">Intervention details</td><td class="p-3 text-slate-300">Sacubitril/Valsartan dose/regimen, trial phase, treatment duration</td><td class="p-3 text-slate-500">Extraction &rarr; Data Entry</td></tr>
+                        <tr><td class="p-3 font-bold text-slate-400">Intervention details</td><td class="p-3 text-slate-300">DOAC dose/regimen, trial phase, treatment duration</td><td class="p-3 text-slate-500">Extraction &rarr; Data Entry</td></tr>
 
 
                         <tr><td class="p-3 font-bold text-slate-400">Outcome events</td><td class="p-3 text-slate-300">2&times;2 table: Events(Tx), N(Tx), Events(Ctrl), N(Ctrl); continuity correction 0.5 for zero cells</td><td class="p-3 text-slate-500">Extraction &rarr; Data Entry</td></tr>
@@ -3073,7 +3073,7 @@
                         <div class="va-card shadow-2xl animate-in zoom-in duration-700">
 
 
-                            <div class="va-header"><h2 class="text-2xl font-bold uppercase tracking-tight">Sacubitril/Valsartan in Heart Failure</h2><p class="text-xs opacity-80 mt-1 font-mono uppercase font-bold tracking-widest">Multi-source meta-analysis of landmark RCTs</p></div>
+                            <div class="va-header"><h2 class="text-2xl font-bold uppercase tracking-tight">DOACs in Atrial Fibrillation</h2><p class="text-xs opacity-80 mt-1 font-mono uppercase font-bold tracking-widest">Multi-source meta-analysis of landmark RCTs</p></div>
 
 
                             <div class="va-grid">
@@ -3313,7 +3313,7 @@
                     <div class="glass p-10 rounded-[40px] border border-slate-800">
 
 
-                        <h3 class="nyt-headline text-white mb-4">The Sacubitril/Valsartan Evidence</h3>
+                        <h3 class="nyt-headline text-white mb-4">The DOACs Evidence</h3>
 
 
                         <p class="nyt-subhead mb-6" id="nyt-subhead">A quantitative synthesis of landmark randomized trials.</p>
@@ -5578,7 +5578,7 @@ const NMAEngine = {
             outcomeKey,
 
 
-            direct: { label: 'Sacubitril/Valsartan vs RAAS Inhibitor', k: trialData.length },
+            direct: { label: 'DOACs vs Warfarin', k: trialData.length },
 
 
             indirect: { label: 'ARNI vs Other HF Therapies (Indirect)', note: 'Network meta-analysis requires manual bridge trial configuration.' }
