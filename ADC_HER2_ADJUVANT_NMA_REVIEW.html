@@ -1979,15 +1979,23 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            'iDFS': [
+                { label: 'KATHERINE T-DM1 vs trastuzumab (adjuvant residual disease)', citation: 'von Minckwitz 2019', year: 2019, measure: 'HR', estimate: 0.5, lci: 0.39, uci: 0.64, k: 1, n: 1486, scope: 'T-DM1 vs trastuzumab in HER2+ early BC with residual invasive disease after neoadjuvant therapy; 3-yr iDFS. NEJM 2019;380:617-628.' },
+            ]
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
-            default: 'MACE',
-            MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            Hyperkalemia: 'Hyperkalemia'
+            default: 'iDFS',
+            MACE: 'iDFS',
+            ACH: 'iDFS',
+            ACM: 'iDFS',
+            Renal40: 'iDFS',
+            Hyperkalemia: 'iDFS',
+            HF_CV_First: 'iDFS',
+            KidneyComp: 'iDFS',
+            Renal57: 'iDFS',
+            'iDFS': 'iDFS'
         };
 
         const BENCHMARK_OUTCOME_NOTES = {

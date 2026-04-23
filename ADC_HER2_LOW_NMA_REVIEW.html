@@ -1979,15 +1979,24 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            'PFS': [
+                { label: 'DESTINY-Breast04 T-DXd vs TPC (HER2-low)', citation: 'Modi 2022', year: 2022, measure: 'HR', estimate: 0.51, lci: 0.4, uci: 0.64, k: 1, n: 557, scope: 'Trastuzumab deruxtecan vs physician\'s choice chemotherapy; PFS in HER2-low metastatic BC. First-in-class ADC in HER2-low, NEJM 2022;387:9-20.' },
+                { label: 'DESTINY-Breast06 T-DXd vs TPC (HER2-low/ultralow, HR+)', citation: 'Curigliano 2024', year: 2024, measure: 'HR', estimate: 0.62, lci: 0.51, uci: 0.74, k: 1, n: 866, scope: 'T-DXd vs TPC in HR+ HER2-low/ultralow metastatic BC after endocrine therapy; PFS. NEJM 2024.' },
+            ]
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
-            default: 'MACE',
-            MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            Hyperkalemia: 'Hyperkalemia'
+            default: 'PFS',
+            MACE: 'PFS',
+            ACH: 'PFS',
+            ACM: 'PFS',
+            Renal40: 'PFS',
+            Hyperkalemia: 'PFS',
+            HF_CV_First: 'PFS',
+            KidneyComp: 'PFS',
+            Renal57: 'PFS',
+            'PFS': 'PFS'
         };
 
         const BENCHMARK_OUTCOME_NOTES = {
