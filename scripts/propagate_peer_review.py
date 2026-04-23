@@ -299,7 +299,9 @@ PEER_REVIEW_SCRIPT = r"""<script>/*PEER-REVIEW-v1*/
         window.RapidMeta.__peerReviewInstalled = true;
         var orig = window.generateManuscriptText;
         window.generateManuscriptText = function () {
-            var out = orig.apply(this, arguments);
+            var out;
+            try { out = orig.apply(this, arguments); }
+            catch (e) { /* legacy generateManuscriptText may throw; still render panel */ }
             try { renderPanel(); } catch (e) { /* fail closed */ }
             return out;
         };
