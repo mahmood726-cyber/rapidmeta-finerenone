@@ -1811,15 +1811,23 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            'MACE': [
+                { label: 'OCTAVE Induction tofacitinib vs placebo (UC)', citation: 'Sandborn 2017', year: 2017, measure: 'RR', estimate: 2.8, lci: 1.7, uci: 4.6, k: 2, n: 1139, scope: 'Tofacitinib 10 mg BID vs placebo induction in moderate-severe UC; clinical remission at 8 wk (OCTAVE 1+2 pool). NEJM 2017;376:1723-1736.' },
+                { label: 'U-ACHIEVE + U-ACCOMPLISH upa vs placebo (UC)', citation: 'Danese 2022', year: 2022, measure: 'RR', estimate: 5.0, lci: 3.5, uci: 7.2, k: 2, n: 989, scope: 'Upadacitinib 45 mg vs placebo induction in moderate-severe UC; clinical remission at 8 wk. Lancet 2022;399:2113-2128.' },
+            ],
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
             default: 'MACE',
             MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            
+            ACH: 'MACE',
+            ACM: 'MACE',
+            Renal40: 'MACE',
+            Hyperkalemia: 'MACE',
+            HF_CV_First: 'MACE',
+            KidneyComp: 'MACE',
+            Renal57: 'MACE'
         };
 
         const BENCHMARK_OUTCOME_NOTES = { default: '' };
