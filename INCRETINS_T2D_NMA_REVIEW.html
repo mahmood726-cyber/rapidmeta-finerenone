@@ -1979,15 +1979,23 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            HBA1C: [
+                { label: 'Htike GLP-1 RA NMA (liraglutide 1.8 mg exemplar)', citation: 'Htike 2017', year: 2017, measure: 'MD', estimate: -1.14, lci: -1.23, uci: -1.05, k: 34, n: 14464, scope: 'Liraglutide 1.8 mg vs placebo; HbA1c (%) change at 24-32 wk. Class reductions span -0.55 (lixisenatide) to -1.21 (dulaglutide).' },
+            ]
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
-            default: 'MACE',
-            MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            Hyperkalemia: 'Hyperkalemia'
+            default: 'HBA1C',
+            MACE: 'HBA1C',
+            ACH: 'HBA1C',
+            ACM: 'HBA1C',
+            Renal40: 'HBA1C',
+            Hyperkalemia: 'HBA1C',
+            HF_CV_First: 'HBA1C',
+            KidneyComp: 'HBA1C',
+            Renal57: 'HBA1C',
+            HBA1C: 'HBA1C'
         };
 
         const BENCHMARK_OUTCOME_NOTES = {

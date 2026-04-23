@@ -1979,15 +1979,23 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            CVDEATH_HHF: [
+                { label: 'Vaduganathan 5-trial pooled analysis', citation: 'Vaduganathan 2022', year: 2022, measure: 'HR', estimate: 0.77, lci: 0.72, uci: 0.82, k: 5, n: 21947, scope: 'SGLT2i across EF spectrum; CV death or first HHF (DAPA-HF + EMPEROR-Reduced + DELIVER + EMPEROR-Preserved + SOLOIST-WHF). Lancet 2022;400:757-767.' },
+            ]
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
-            default: 'MACE',
-            MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            Hyperkalemia: 'Hyperkalemia'
+            default: 'CVDEATH_HHF',
+            MACE: 'CVDEATH_HHF',
+            ACH: 'CVDEATH_HHF',
+            ACM: 'CVDEATH_HHF',
+            Renal40: 'CVDEATH_HHF',
+            Hyperkalemia: 'CVDEATH_HHF',
+            HF_CV_First: 'CVDEATH_HHF',
+            KidneyComp: 'CVDEATH_HHF',
+            Renal57: 'CVDEATH_HHF',
+            CVDEATH_HHF: 'CVDEATH_HHF'
         };
 
         const BENCHMARK_OUTCOME_NOTES = {

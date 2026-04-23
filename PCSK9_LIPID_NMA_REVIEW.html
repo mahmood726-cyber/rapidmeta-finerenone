@@ -1979,15 +1979,23 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            MACE: [
+                { label: 'Schmidt Cochrane review', citation: 'Schmidt 2017', year: 2017, measure: 'OR', estimate: 0.86, lci: 0.8, uci: 0.92, k: 20, n: 67237, scope: 'PCSK9 inhibitors (alirocumab + evolocumab) vs placebo; composite cardiovascular events. Cochrane 2017.' },
+            ]
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
             default: 'MACE',
             MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            Hyperkalemia: 'Hyperkalemia'
+            ACH: 'MACE',
+            ACM: 'MACE',
+            Renal40: 'MACE',
+            Hyperkalemia: 'MACE',
+            HF_CV_First: 'MACE',
+            KidneyComp: 'MACE',
+            Renal57: 'MACE',
+            MACE: 'MACE'
         };
 
         const BENCHMARK_OUTCOME_NOTES = {

@@ -1979,15 +1979,23 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            MACE: [
+                { label: 'Sattar GLP-1 CVOT meta-analysis', citation: 'Sattar 2021', year: 2021, measure: 'HR', estimate: 0.86, lci: 0.8, uci: 0.93, k: 8, n: 60080, scope: 'GLP-1 RAs vs placebo; 3-point MACE (CV death + nonfatal MI + nonfatal stroke). Lancet Diabetes Endocrinol 2021;9:653-662.' },
+            ]
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
             default: 'MACE',
             MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            Hyperkalemia: 'Hyperkalemia'
+            ACH: 'MACE',
+            ACM: 'MACE',
+            Renal40: 'MACE',
+            Hyperkalemia: 'MACE',
+            HF_CV_First: 'MACE',
+            KidneyComp: 'MACE',
+            Renal57: 'MACE',
+            MACE: 'MACE'
         };
 
         const BENCHMARK_OUTCOME_NOTES = {
