@@ -1,0 +1,48 @@
+# sentinel:skip-file
+name: Trial accrual monitor
+
+on:
+  schedule:
+    - cron: '0 2 * * *'   # daily 02:00 UTC
+  workflow_dispatch:      # manual trigger
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Poll CT.gov v2 for status changes on all tracked NCTs
+        run: |
+          python scripts/workflow/check_trial_status.py \
+            --snapshot .workflow-state/trial_status_snapshot.json \
+            --report .workflow-state/trial_status_report.md
+        continue-on-error: false
+
+      - name: Commit snapshot
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .workflow-state/trial_status_snapshot.json
+          if git diff --cached --quiet; then
+            echo "no snapshot changes"
+          else
+            git commit -m "chore(workflow): update trial-status snapshot [skip ci]"
+            git push
+          fi
+
+      - name: Open issue if new changes
+        if: hashFiles('.workflow-state/trial_status_report.md') != ''
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: "Trial accrual report - ${{ github.run_number }}"
+          content-filepath: .workflow-state/trial_status_report.md
+          labels: trial-accrual, living-ma

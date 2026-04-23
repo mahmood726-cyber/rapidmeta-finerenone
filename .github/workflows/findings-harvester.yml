@@ -1,0 +1,72 @@
+# sentinel:skip-file
+name: Peer-review findings harvester
+
+on:
+  schedule:
+    - cron: '0 3 * * *'   # daily 03:00 UTC (after trial-accrual)
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '*_REVIEW.html'
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # need history for diff
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      - name: Start local HTTP server
+        run: |
+          python3 -m http.server 8080 &
+          sleep 2
+          echo "SMOKE_BASE=http://localhost:8080/" >> $GITHUB_ENV
+
+      - name: Harvest peer-review findings from all apps
+        run: node scripts/workflow/harvest_findings.mjs
+        env:
+          SMOKE_BASE: ${{ env.SMOKE_BASE }}
+          OUT_DIR: findings/${{ github.run_started_at }}
+
+      - name: Diff vs previous harvest
+        id: diff
+        run: |
+          python scripts/workflow/diff_findings.py \
+            --current "findings/${{ github.run_started_at }}" \
+            --report .workflow-state/findings_diff.md
+
+      - name: Commit snapshot
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add findings/ .workflow-state/
+          if git diff --cached --quiet; then
+            echo "no findings change"
+          else
+            git commit -m "chore(workflow): harvest peer-review findings [skip ci]"
+            git push
+          fi
+
+      - name: Open issue if new concerns emerged
+        if: hashFiles('.workflow-state/findings_diff.md') != ''
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: "Peer-review findings diff - ${{ github.run_number }}"
+          content-filepath: .workflow-state/findings_diff.md
+          labels: peer-review, living-ma

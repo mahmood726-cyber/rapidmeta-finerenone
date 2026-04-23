@@ -1,0 +1,49 @@
+# sentinel:skip-file
+name: Benchmark currency check
+
+on:
+  schedule:
+    - cron: '0 4 1 */3 *'   # quarterly, 1st of month 04:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install requests
+
+      - name: Check each app for newer published meta-analysis
+        run: |
+          python scripts/workflow/check_benchmark_currency.py \
+            --report .workflow-state/benchmark_currency_report.md
+
+      - name: Commit report
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .workflow-state/benchmark_currency_report.md
+          if git diff --cached --quiet; then
+            echo "no report change"
+          else
+            git commit -m "chore(workflow): benchmark currency report [skip ci]"
+            git push
+          fi
+
+      - name: Open issue with candidates for review
+        if: hashFiles('.workflow-state/benchmark_currency_report.md') != ''
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: "Benchmark refresh candidates - Q${{ github.run_number }}"
+          content-filepath: .workflow-state/benchmark_currency_report.md
+          labels: benchmark-refresh, living-ma
