@@ -336,9 +336,11 @@ def apply_pmids(scan: dict, lookup: dict, min_confidence: str, dry_run: bool) ->
                 continue
 
             # Inject `pmid: 'X', ` after the NCT's `name: '...'` literal.
-            # Use a specifically-anchored regex that finds ONE occurrence.
+            # Pairwise apps have `baseline: {...}` on a line BEFORE `name:`, so the
+            # regex must allow arbitrary NCT-object content (including ONE level of
+            # `{...}` nesting for the baseline dict) between `'NCT': {` and `name:`.
             injection_re = re.compile(
-                r"('" + re.escape(nct) + r"'\s*:\s*\{\s*name\s*:\s*'[^']*',)\s*(?!pmid\s*:)",
+                r"('" + re.escape(nct) + r"'\s*:\s*\{(?:[^{}]|\{[^{}]*\})*?name\s*:\s*'[^']*',)\s*(?!pmid\s*:)",
                 re.DOTALL,
             )
             replacement = r"\1 pmid: '" + look["best_pmid"] + "', "
