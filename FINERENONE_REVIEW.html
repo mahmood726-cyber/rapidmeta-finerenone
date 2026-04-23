@@ -41141,6 +41141,7 @@ print(res_sub)`;
 
 
                 const container = document.getElementById('version-timeline');
+                if (!container) return;
 
 
                 const snapshots = RapidMeta.state.versionSnapshots ?? [];
@@ -41176,7 +41177,7 @@ print(res_sub)`;
                         <div class="v-date">${escapeHtml(dateStr)} &middot; ${escapeHtml(s.version)}</div>
 
 
-                        <div class="v-summary">${scopeLabel} &middot; k=${s.k} &middot; ${escapeHtml(s.effectMeasure ?? RapidMeta.emLabel('short'))} ${s.or.toFixed(2)} [${s.lci.toFixed(2)}\u2013${s.uci.toFixed(2)}] &middot; I\u00B2=${s.i2.toFixed(1)}%</div>
+                        <div class="v-summary">${scopeLabel} &middot; k=${s.k} &middot; ${escapeHtml(s.effectMeasure ?? RapidMeta.emLabel('short'))} ${Number.isFinite(s.or) ? s.or.toFixed(2) : '--'} [${Number.isFinite(s.lci) ? s.lci.toFixed(2) : '--'}\u2013${Number.isFinite(s.uci) ? s.uci.toFixed(2) : '--'}] &middot; I\u00B2=${Number.isFinite(s.i2) ? s.i2.toFixed(1) : '--'}%</div>
 
 
                         ${newStudies}${removedStudies}
