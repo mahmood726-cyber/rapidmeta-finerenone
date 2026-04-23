@@ -28,7 +28,7 @@ reference only.
 
 ## Do NOT re-run
 
-The patched `clone_review.py` (at `C:\Users\user\clone_review.py`) already
+The patched `clone_review.py` (in the user's home dir) already
 propagates drug-class at clone time, and all existing apps are already fixed.
 Re-running these scripts would be a no-op (they are idempotent) but is not
 necessary for any current or future clone.

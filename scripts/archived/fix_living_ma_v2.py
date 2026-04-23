@@ -9,7 +9,7 @@ from pathlib import Path
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
-ROOT = Path("C:/Projects/Finrenone")
+ROOT = Path(__file__).resolve().parents[2]
 
 # User-visible template literal showing arm data with hardcoded arm label
 SUMMARY_OLD = "Matched event counts (${sourceKind}): sacubitril\\/valsartan ${best.tE}/${best.tN} (${txPct}%) vs placebo ${best.cE}/${best.cN} (${ctPct}%)."

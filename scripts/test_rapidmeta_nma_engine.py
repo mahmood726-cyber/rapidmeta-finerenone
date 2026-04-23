@@ -14,7 +14,7 @@ DATASETS = [
     ('il_psoriasis_nma',   'Placebo',         'OR',  True),   # OR; higher=better (PASI 90)
 ]
 
-ROOT = Path('C:/Projects/Finrenone')
+ROOT = Path(__file__).resolve().parents[1]
 VALIDATION_DIR = ROOT / 'nma' / 'validation'
 
 def load_trials(slug):

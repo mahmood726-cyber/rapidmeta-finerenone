@@ -20,7 +20,7 @@ from pathlib import Path
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
-ROOT = Path("C:/Projects/Finrenone")
+ROOT = Path(__file__).resolve().parents[2]
 
 CTGOV_RE = re.compile(r"const ctgovUrl = 'https://clinicaltrials\.gov/api/v2/studies\?([^']+)';")
 INTR_RE = re.compile(r"query\.intr=([^&]+)")

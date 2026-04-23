@@ -1,7 +1,7 @@
 # V2 Self-Consistency Check Report
 
 **Date:** 2026-04-20 (taxonomy revision)  
-**Tool:** RCT Extractor v5.0 (C:/Projects/rct-extractor-v2)  
+**Tool:** RCT Extractor v5.0 (sibling repo `rct-extractor-v2`)  
 **Input:** Evidence text excerpts from realData blocks (not PDFs)  
 **Scope:** 113 trial-level comparisons across 30 apps (2026-04-19 baseline) + addendum for 7 post-baseline apps (2026-04-19 and 2026-04-20 expansions = 41 apps total)
 

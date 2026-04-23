@@ -14,7 +14,7 @@ from pathlib import Path
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
-ROOT = Path("C:/Projects/Finrenone")
+ROOT = Path(__file__).resolve().parents[2]
 
 # Pattern that locates the app's own correct CT.gov query from executePrecision()
 CTGOV_RE = re.compile(

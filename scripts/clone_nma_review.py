@@ -34,11 +34,12 @@ from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
 import os
-ROOT = Path(os.environ.get("RAPIDMETA_ROOT", "C:/Projects/Finrenone"))
-TEMPLATE = Path(os.environ.get(
-    "RAPIDMETA_NMA_TEMPLATE",
-    "C:/Projects/HFrEF_NMA_LivingMeta/HFREF_NMA_REVIEW.html"
-))
+ROOT = Path(os.environ.get("RAPIDMETA_ROOT") or Path(__file__).resolve().parents[1])
+# Sibling project; lives under the same parent dir as Finrenone in dev layout.
+TEMPLATE = Path(
+    os.environ.get("RAPIDMETA_NMA_TEMPLATE")
+    or (ROOT.parent / "HFrEF_NMA_LivingMeta" / "HFREF_NMA_REVIEW.html")
+)
 
 
 def clone(config):

@@ -53,7 +53,7 @@ This document consolidates the four peer-review reports, lists accepted findings
 
 ⚠️ **Dedicated protocol files** for anti-amyloid AD, anti-VEGF nAMD, and IL-psoriasis — currently these are indexed only in `protocols/INDEX.md` without detailed protocol markdowns. Protocol drafts added in the next session.
 
-⚠️ **Hardcoded Windows paths** in `clone_nma_review.py` (`ROOT=C:/Projects/Finrenone`) and `nma_r_validate_template.py` (`RSCRIPT=C:/Program Files/R/...`). The v1.3 roadmap parametrises via env vars and CLI argparse; a cross-platform reproducibility test is added.
+⚠️ **Hardcoded Windows paths** in `clone_nma_review.py` (`ROOT` defaulting to a fixed Finrenone path) and `nma_r_validate_template.py` (`RSCRIPT` defaulting to a fixed R installation). The v1.3 roadmap parametrises via env vars and CLI argparse; a cross-platform reproducibility test is added.
 
 ⚠️ **`renv.lock` / dependency pinning + CI regression test** — current state relies on a comment-only "R 4.5.2 + netmeta 3.2.0" claim. The v1.3 roadmap adds `renv.lock` + `sessionInfo()` dump + a GitHub Actions workflow that runs `Rscript <slug>_netmeta.R` and diffs against committed JSON on each PR.
 

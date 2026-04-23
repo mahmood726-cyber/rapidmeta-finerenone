@@ -26,7 +26,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='repla
 
 from playwright.sync_api import sync_playwright
 
-ROOT = Path("C:/Projects/Finrenone")
+ROOT = Path(__file__).resolve().parents[1]
 SKIP = {"LivingMeta.html", "META_DASHBOARD.html", "AutoGRADE.html", "AutoManuscript.html"}
 
 apps = sorted([p.name.replace('.html', '') for p in ROOT.glob("*_REVIEW.html")])
