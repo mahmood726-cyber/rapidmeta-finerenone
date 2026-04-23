@@ -33,27 +33,24 @@ for (const app of apps) {
         });
         await page.waitForTimeout(1500);
 
-        // If the app's natural analysis didn't produce state.results (many apps
-        // require trial selection via UI), inject a neutral mock so the peer-
-        // review runs meaningful logic rather than returning null.
-        await page.evaluate(() => {
+        // Previously the harvester injected a mock state to force peer-review
+        // to run even when headless analysis didn't populate state.results.
+        // That produced spurious findings (e.g. benchmark-divergence concerns
+        // against fake pool values). Now: only run peer-review when real
+        // analysis produced real results. Otherwise emit {error: 'no-analysis'}
+        // so aggregate statistics exclude these apps.
+        const stateCheck = await page.evaluate(() => {
             const RM = window.RapidMeta;
-            if (!RM || !RM.state) return;
-            if (RM.state.results && RM.state.results.or != null && RM.state.results.or !== '--') return;
-            RM.state.results = RM.state.results || {};
-            Object.assign(RM.state.results, {
-                k: (RM.state.trials || []).filter(t => t && t.data && t.included !== false).length || 0,
-                or: '0.85', lci: '0.75', uci: '0.95', i2: 30, tau2: 0.01,
-                qPvalue: '0.2', gradeCertainty: 'MODERATE', confLevel: 0.95,
-                _mocked: true,
-            });
-            RM.state.protocol = RM.state.protocol || {};
+            if (!RM || !RM.state || !RM.state.results) return { ok: false, why: 'no-state.results' };
+            const r = RM.state.results;
+            if (r.or == null || r.or === '--') return { ok: false, why: 'or-unpopulated' };
+            return { ok: true };
         });
 
-        const findings = await page.evaluate(() => {
-            if (!window.RapidMeta || typeof window.RapidMeta.runPeerReview !== 'function') return null;
+        const findings = stateCheck.ok ? await page.evaluate(() => {
+            if (typeof window.RapidMeta.runPeerReview !== 'function') return null;
             try { return window.RapidMeta.runPeerReview(); } catch (e) { return { error: String(e) }; }
-        });
+        }) : { skipped: true, reason: stateCheck.why };
 
         const state = await page.evaluate(() => {
             const RM = window.RapidMeta;
@@ -67,10 +64,10 @@ for (const app of apps) {
                 isCompleteUniverse: r.isCompleteUniverse || false,
                 totalAvailable: r.totalAvailable || null,
                 includedCount: r.includedCount || null,
+                searchResultCount: r.searchResultCount || null,
                 nnt: r.nnt || null,
                 absoluteRisk: r.absoluteRisk || null,
                 patientReportedOutcomes: r.patientReportedOutcomes || null,
-                mocked: !!r._mocked,
             };
         });
 

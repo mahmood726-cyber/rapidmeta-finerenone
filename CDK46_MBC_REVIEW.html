@@ -43093,14 +43093,19 @@ except ImportError:
         } catch (e) {}
 
         // 2c. Trial-universe completeness detection (for the 'only k=N' concern).
+        // totalAvailable = curated trials with extracted data (from realData),
+        // NOT raw state.trials.length which includes search-result candidates
+        // that haven't been screened/extracted. Comparing k=2 to 'search returned
+        // 226' is misleading - 224 may be unrelated. Use data-present as the
+        // true eligibility universe.
         try {
             var allTrials = Array.isArray(RM.state.trials) ? RM.state.trials : [];
-            var includedCount = allTrials.filter(function(t) {
-                return t && t.data && t.included !== false;
-            }).length;
-            r.totalAvailable = allTrials.length;
+            var withData = allTrials.filter(function(t) { return t && t.data; });
+            var includedCount = withData.filter(function(t) { return t.included !== false; }).length;
+            r.totalAvailable = withData.length;
             r.includedCount = includedCount;
-            r.isCompleteUniverse = (allTrials.length > 0 && includedCount === allTrials.length);
+            r.isCompleteUniverse = (withData.length > 0 && includedCount === withData.length);
+            r.searchResultCount = allTrials.length;  // preserve original for transparency
         } catch (e) {}
 
         // 2b. Detect meta-regression / subgroup UI wiring
