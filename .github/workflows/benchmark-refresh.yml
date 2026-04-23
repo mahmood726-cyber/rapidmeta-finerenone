@@ -37,7 +37,12 @@ jobs:
             echo "no report change"
           else
             git commit -m "chore(workflow): benchmark currency report [skip ci]"
-            git push
+            # Parallel-workflow-safe push: pull-rebase + retry up to 5 times
+            for i in 1 2 3 4 5; do
+              git pull --rebase origin main && git push origin main && break
+              echo "push attempt $i failed; sleeping $((i*3))s"
+              sleep $((i*3))
+            done
           fi
 
       - name: Open issue with candidates for review
