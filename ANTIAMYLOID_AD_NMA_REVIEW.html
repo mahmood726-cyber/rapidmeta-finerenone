@@ -1979,15 +1979,23 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            'CDR-SB': [
+                { label: 'Avgerinos pooled anti-amyloid MA (lecanemab + donanemab)', citation: 'Avgerinos 2023', year: 2023, measure: 'MD', estimate: -0.49, lci: -0.67, uci: -0.3, k: 2, n: 3531, scope: 'Lecanemab (CLARITY-AD) + donanemab (TRAILBLAZER-ALZ2) pooled vs placebo; CDR-SB change at 18 mo. Phase III RCTs through Nov 2023.' },
+            ]
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
-            default: 'MACE',
-            MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            Hyperkalemia: 'Hyperkalemia'
+            default: 'CDR-SB',
+            MACE: 'CDR-SB',
+            ACH: 'CDR-SB',
+            ACM: 'CDR-SB',
+            Renal40: 'CDR-SB',
+            Hyperkalemia: 'CDR-SB',
+            HF_CV_First: 'CDR-SB',
+            KidneyComp: 'CDR-SB',
+            Renal57: 'CDR-SB',
+            'CDR-SB': 'CDR-SB'
         };
 
         const BENCHMARK_OUTCOME_NOTES = {

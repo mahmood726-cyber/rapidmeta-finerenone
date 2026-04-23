@@ -1978,15 +1978,24 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            'RENAL_COMP': [
+                { label: 'FIDELITY finerenone pooled (kidney composite)', citation: 'Agarwal 2022', year: 2022, measure: 'HR', estimate: 0.77, lci: 0.67, uci: 0.88, k: 2, n: 13026, scope: 'Finerenone vs placebo; kidney composite (sustained eGFR decline >=57%, kidney failure, or renal death) in FIDELIO-DKD + FIGARO-DKD pool. Eur Heart J 2022.' },
+                { label: 'SGLT2i DKD composite (Nuffield Dept Collaborative)', citation: 'Nuffield 2022', year: 2022, measure: 'HR', estimate: 0.62, lci: 0.56, uci: 0.7, k: 13, n: 90409, scope: 'SGLT2i class vs placebo; renal composite in CKD + CV + DM trials. Lancet Diabetes Endocrinol 2022 SMART-C meta-analysis.' },
+            ]
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
-            default: 'MACE',
-            MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            Hyperkalemia: 'Hyperkalemia'
+            default: 'RENAL_COMP',
+            MACE: 'RENAL_COMP',
+            ACH: 'RENAL_COMP',
+            ACM: 'RENAL_COMP',
+            Renal40: 'RENAL_COMP',
+            Hyperkalemia: 'RENAL_COMP',
+            HF_CV_First: 'RENAL_COMP',
+            KidneyComp: 'RENAL_COMP',
+            Renal57: 'RENAL_COMP',
+            'RENAL_COMP': 'RENAL_COMP'
         };
 
         const BENCHMARK_OUTCOME_NOTES = {
