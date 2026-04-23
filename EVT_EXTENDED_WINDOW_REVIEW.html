@@ -5440,7 +5440,7 @@
         const PUBLISHED_META_BENCHMARKS = {
 
 
-            'MACE': [
+            'mRS_0_2': [
 
 
                 { label: 'HERMES extended-window pool (DAWN + DEFUSE 3)', citation: 'Jovin 2022b', year: 2022, measure: 'OR', estimate: 2.54, lci: 1.83, uci: 3.54, k: 2, n: 388, scope: 'EVT vs medical therapy 6-24 h after anterior-circulation stroke with favorable imaging; functional independence (mRS 0-2) at 90 d. Lancet 2022.' },
@@ -5458,33 +5458,32 @@
         const BENCHMARK_OUTCOME_MAP = {
 
 
-            default: 'MACE',
+            default: 'mRS_0_2',
 
 
-            MACE: 'MACE',
+            MACE: 'mRS_0_2',
 
 
-            ACH: 'MACE',
+            ACH: 'mRS_0_2',
 
 
-            ACM: 'MACE',
+            ACM: 'mRS_0_2',
 
 
-            Renal40: 'MACE',
+            Renal40: 'mRS_0_2',
 
 
-            Hyperkalemia: 'MACE',
+            Hyperkalemia: 'mRS_0_2',
 
 
-            HF_CV_First: 'MACE',
+            HF_CV_First: 'mRS_0_2',
 
 
-            KidneyComp: 'MACE',
+            KidneyComp: 'mRS_0_2',
 
 
-            Renal57: 'MACE'
-
-
+            Renal57: 'mRS_0_2',
+            'mRS_0_2': 'mRS_0_2'
         };
 
 
@@ -42604,6 +42603,343 @@ except ImportError:
 <script src="stats-ext.js" defer></script>
 
 
+<script>/*PRO-DETECTOR-v1*/
+(function () {
+    'use strict';
+
+    // Validated PRO / QoL instruments commonly reported in pivotal trials.
+    // Pattern list ordered from more specific to generic.
+    var PATTERNS = [
+        { re: /\bEQ[-\s]?5D(?:[-\s]?5L|[-\s]?3L)?\b/i,          name: 'EQ-5D' },
+        { re: /\bSF[-\s]?36\b/i,                                 name: 'SF-36' },
+        { re: /\bSF[-\s]?12\b/i,                                 name: 'SF-12' },
+        { re: /\bKCCQ(?:[-\s]?(?:CSS|OSS|TSS))?\b/i,             name: 'KCCQ' },
+        { re: /\bPROMIS\b/i,                                      name: 'PROMIS' },
+        { re: /\bHAQ(?:[-\s]?DI)?\b/i,                           name: 'HAQ-DI' },
+        { re: /\bDLQI\b/i,                                        name: 'DLQI' },
+        { re: /\bPOEM\b/i,                                        name: 'POEM' },
+        { re: /\bPP[-\s]?NRS\b/i,                                 name: 'PP-NRS' },
+        { re: /\bEORTC\s*QLQ[-\s]?C30\b/i,                       name: 'EORTC QLQ-C30' },
+        { re: /\bFACT[-\s]?[A-Z]{1,4}\b/i,                       name: 'FACT (generic)' },
+        { re: /\bMSIS[-\s]?29\b/i,                                name: 'MSIS-29' },
+        { re: /\bMIDAS\b/i,                                       name: 'MIDAS' },
+        { re: /\bHIT[-\s]?6\b/i,                                  name: 'HIT-6' },
+        { re: /\bCDR[-\s]?SB\b/i,                                 name: 'CDR-SB' },
+        { re: /\bMoCA\b/i,                                        name: 'MoCA' },
+        { re: /\bMMSE\b/i,                                        name: 'MMSE' },
+        { re: /\bPANSS\b/i,                                       name: 'PANSS' },
+        { re: /\bMADRS\b/i,                                       name: 'MADRS' },
+        { re: /\bPHQ[-\s]?9\b/i,                                  name: 'PHQ-9' },
+        { re: /\bGAD[-\s]?7\b/i,                                  name: 'GAD-7' },
+        { re: /\bSGRQ\b/i,                                        name: 'SGRQ' },
+        { re: /\bACQ\b/i,                                         name: 'ACQ' },
+        { re: /\bCAT\s*\(COPD\)|COPD\s*assessment/i,             name: 'CAT (COPD)' },
+        { re: /\bpatient[- ]?global\s*(?:assessment|impression)/i, name: 'Patient Global Assessment' },
+        { re: /\bpatient[- ]?reported\b/i,                        name: 'PRO (generic)' },
+        { re: /\bquality[- ]of[- ]life\b/i,                       name: 'QoL (generic)' },
+        { re: /\bhealth[- ]related\s*quality\b/i,                 name: 'HRQoL' },
+    ];
+
+    function scanString(s) {
+        if (!s || typeof s !== 'string') return [];
+        var hits = [];
+        for (var i = 0; i < PATTERNS.length; i++) {
+            if (PATTERNS[i].re.test(s)) hits.push(PATTERNS[i].name);
+        }
+        return hits;
+    }
+
+    function scanTrialForPROs(trial) {
+        var hits = new Set();
+        var data = trial && trial.data;
+        if (!data) return hits;
+
+        // 1. allOutcomes[].shortLabel + title
+        if (Array.isArray(data.allOutcomes)) {
+            data.allOutcomes.forEach(function (o) {
+                scanString(o && o.shortLabel).forEach(function (h) { hits.add(h); });
+                scanString(o && o.title).forEach(function (h) { hits.add(h); });
+            });
+        }
+
+        // 2. evidence array (fetched by EvidenceHydrator or declared in realData)
+        if (Array.isArray(data.evidence)) {
+            data.evidence.forEach(function (ev) {
+                if (!ev) return;
+                ['label', 'title', 'source', 'text', 'outcome'].forEach(function (field) {
+                    scanString(ev[field]).forEach(function (h) { hits.add(h); });
+                });
+            });
+        }
+
+        // 3. pre-declared
+        if (data.patientReportedOutcomes === true) hits.add('Pre-declared PRO');
+        if (Array.isArray(data.patientReportedOutcomes)) {
+            data.patientReportedOutcomes.forEach(function (name) {
+                if (typeof name === 'string' && name.length) hits.add(name);
+            });
+        }
+
+        return hits;
+    }
+
+    function detectPROs() {
+        var RM = window.RapidMeta;
+        if (!RM || !RM.state || !RM.state.results) return;
+        var r = RM.state.results;
+        if (r.patientReportedOutcomes && (r.patientReportedOutcomes.count > 0 || r.patientReportedOutcomes.scales)) return;
+
+        var trials = (RM.state.trials || []).filter(function (t) { return t && t.data && t.included !== false; });
+        if (!trials.length) return;
+
+        var allScales = new Set();
+        var trialsWithPRO = [];
+        var totalHits = 0;
+
+        trials.forEach(function (t) {
+            var hits = scanTrialForPROs(t);
+            if (hits.size > 0) {
+                trialsWithPRO.push(t.id || (t.data && t.data.name) || '?');
+                hits.forEach(function (h) { allScales.add(h); totalHits++; });
+            }
+        });
+
+        r.patientReportedOutcomes = {
+            count: totalHits,
+            scales: Array.from(allScales),
+            trials: trialsWithPRO,
+            inHeadlineAnalysis: false,  // by default; apps that present PRO as headline should override
+        };
+    }
+
+    function install() {
+        var RM = window.RapidMeta;
+        if (!RM) return false;
+        if (RM.__proDetectorInstalled) return true;
+        RM.__proDetectorInstalled = true;
+
+        if (typeof window.AnalysisEngine === 'object' && window.AnalysisEngine && typeof window.AnalysisEngine.run === 'function') {
+            var origRun = window.AnalysisEngine.run;
+            window.AnalysisEngine.run = function () {
+                var out = origRun.apply(this, arguments);
+                try { detectPROs(); } catch (e) {}
+                return out;
+            };
+        }
+        if (RM.state && RM.state.results) {
+            try { detectPROs(); } catch (e) {}
+        }
+        return true;
+    }
+
+    var tries = 0;
+    function ready() {
+        if (tries++ > 120) return;
+        if (!install()) setTimeout(ready, 100);
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready);
+    else ready();
+})();
+</script>
+
+<script>/*REML-RETROFIT-v1*/
+(function () {
+    'use strict';
+
+    function toF(v) { var n = parseFloat(v); return Number.isFinite(n) ? n : null; }
+    function allFinite() { for (var i = 0; i < arguments.length; i++) { if (!Number.isFinite(arguments[i])) return false; } return true; }
+
+    function includedTrials() {
+        var RM = window.RapidMeta;
+        var arr = (RM && RM.state && RM.state.trials) || [];
+        return arr.filter(function (t) { return t && t.data && t.included !== false; });
+    }
+
+    function detectMeasure() {
+        var RM = window.RapidMeta;
+        var s = RM.state || {};
+        var m = s.effectMeasure || s.measure || s.effect;
+        if (m && typeof m === 'string') return m.toUpperCase();
+        // Heuristic on first included trial
+        var trials = includedTrials();
+        if (!trials.length) return 'OR';
+        var d = trials[0].data;
+        if (d.publishedHR != null) return 'HR';
+        if (d.tMean != null || d.tSD != null) return 'MD';
+        return 'OR';
+    }
+
+    function binaryEffect(d, measure) {
+        var tE = toF(d.tE), tN = toF(d.tN), cE = toF(d.cE), cN = toF(d.cN);
+        if (tE == null || tN == null || cE == null || cN == null) return null;
+        if (tN <= 0 || cN <= 0) return null;
+        var tNonE = tN - tE, cNonE = cN - cE;
+        if (tNonE < 0 || cNonE < 0) return null;
+        var add = (tE === 0 || tNonE === 0 || cE === 0 || cNonE === 0) ? 0.5 : 0;
+        var a = tE + add, b = tNonE + add, c = cE + add, e = cNonE + add;
+        if (a <= 0 || b <= 0 || c <= 0 || e <= 0) return null;
+        var y, v;
+        if (measure === 'RR') {
+            var pt = a / (a + b), pc = c / (c + e);
+            if (pt <= 0 || pc <= 0) return null;
+            y = Math.log(pt / pc);
+            v = (1 / a) - (1 / (a + b)) + (1 / c) - (1 / (c + e));
+        } else {
+            // OR default (also used as fallback for HR when publishedHR unavailable)
+            y = Math.log(a * e / (b * c));
+            v = 1 / a + 1 / b + 1 / c + 1 / e;
+        }
+        if (!Number.isFinite(y) || !Number.isFinite(v) || v <= 0) return null;
+        return { y: y, v: v };
+    }
+
+    function hrFromPublished(d) {
+        var hr = toF(d.publishedHR), lo = toF(d.hrLCI), hi = toF(d.hrUCI);
+        if (hr == null || lo == null || hi == null) return null;
+        if (hr <= 0 || lo <= 0 || hi <= 0) return null;
+        var y = Math.log(hr);
+        var se = (Math.log(hi) - Math.log(lo)) / (2 * 1.959964);
+        if (!Number.isFinite(se) || se <= 0) return null;
+        return { y: y, v: se * se };
+    }
+
+    function mdFromCont(d) {
+        var tMean = toF(d.tMean), tSD = toF(d.tSD), tN = toF(d.tN);
+        var cMean = toF(d.cMean), cSD = toF(d.cSD), cN = toF(d.cN);
+        if (tMean == null || tSD == null || tN == null || cMean == null || cSD == null || cN == null) return null;
+        if (tN <= 0 || cN <= 0 || tSD < 0 || cSD < 0) return null;
+        var v = (tSD * tSD) / tN + (cSD * cSD) / cN;
+        if (!Number.isFinite(v) || v <= 0) return null;
+        return { y: tMean - cMean, v: v };
+    }
+
+    function perTrialEffects(measure) {
+        var trials = includedTrials();
+        var eff = [];
+        trials.forEach(function (t) {
+            var d = t.data, e = null;
+            if (measure === 'MD' || measure === 'SMD') {
+                e = mdFromCont(d);
+            } else if (measure === 'HR') {
+                e = hrFromPublished(d) || binaryEffect(d, 'OR');  // fallback
+            } else {
+                e = binaryEffect(d, measure);
+                if (!e) e = hrFromPublished(d);
+            }
+            if (e && Number.isFinite(e.y) && Number.isFinite(e.v) && e.v > 0) eff.push(e);
+        });
+        return eff;
+    }
+
+    function pauleMandelTau2(y, v) {
+        var k = y.length;
+        if (k < 2) return 0;
+        var tau2 = 0;
+        var target = k - 1;
+        for (var iter = 0; iter < 200; iter++) {
+            var w = v.map(function (vi) { return 1 / (vi + tau2); });
+            var sumW = w.reduce(function (a, b) { return a + b; }, 0);
+            if (!(sumW > 0)) break;
+            var yBar = 0;
+            for (var i = 0; i < k; i++) yBar += y[i] * w[i];
+            yBar /= sumW;
+            var Q = 0;
+            for (var j = 0; j < k; j++) { var d = y[j] - yBar; Q += w[j] * d * d; }
+            var diff = Q - target;
+            if (Math.abs(diff) < 1e-5) break;
+            var slope = 0;
+            for (var m = 0; m < k; m++) { var dm = y[m] - yBar; slope += -w[m] * w[m] * dm * dm; }
+            if (!Number.isFinite(slope) || Math.abs(slope) < 1e-14) break;
+            var t2new = Math.max(0, tau2 + diff / slope);
+            if (!Number.isFinite(t2new)) break;
+            if (Math.abs(t2new - tau2) < 1e-9) { tau2 = t2new; break; }
+            tau2 = t2new;
+        }
+        return tau2;
+    }
+
+    function poolWith(y, v, tau2, confLevel) {
+        var z = 1.959964;
+        if (confLevel && confLevel > 0 && confLevel < 1) {
+            // Approximate z from confLevel (assumes normal CI)
+            var alpha = 1 - confLevel;
+            // Use well-known mapping
+            if (Math.abs(confLevel - 0.95) < 0.001) z = 1.959964;
+            else if (Math.abs(confLevel - 0.90) < 0.001) z = 1.644854;
+            else if (Math.abs(confLevel - 0.99) < 0.001) z = 2.575829;
+            // else stay at default 1.959964
+        }
+        var k = y.length;
+        var w = v.map(function (vi) { return 1 / (vi + tau2); });
+        var sumW = w.reduce(function (a, b) { return a + b; }, 0);
+        var effect = 0;
+        for (var i = 0; i < k; i++) effect += y[i] * w[i];
+        effect /= sumW;
+        var se = 1 / Math.sqrt(sumW);
+        return { effect: effect, se: se, lo: effect - z * se, hi: effect + z * se };
+    }
+
+    function computeREML() {
+        var RM = window.RapidMeta;
+        if (!RM || !RM.state || !RM.state.results) return;
+        var r = RM.state.results;
+        if (r.remlSensitivity && r.remlResult) return;  // already done
+
+        var measure = detectMeasure();
+        var effects = perTrialEffects(measure);
+        if (effects.length < 2) return;
+
+        var y = effects.map(function (e) { return e.y; });
+        var v = effects.map(function (e) { return e.v; });
+        var tau2 = pauleMandelTau2(y, v);
+        var pool = poolWith(y, v, tau2, r.confLevel || RM.state.confLevel || 0.95);
+        var onNat = (measure === 'OR' || measure === 'RR' || measure === 'HR');
+
+        r.tau2Reml = tau2;
+        r.remlResult = {
+            estimator: 'PM',  // Paule-Mandel (~REML for most cases, recommended for small k)
+            measure: measure,
+            tau2: tau2,
+            logEffect: pool.effect,
+            se: pool.se,
+            effect: onNat ? Math.exp(pool.effect) : pool.effect,
+            lci: onNat ? Math.exp(pool.lo) : pool.lo,
+            uci: onNat ? Math.exp(pool.hi) : pool.hi,
+            k: effects.length,
+        };
+        r.remlSensitivity = true;
+    }
+
+    function install() {
+        var RM = window.RapidMeta;
+        if (!RM) return false;
+        if (RM.__remlRetrofitInstalled) return true;
+        RM.__remlRetrofitInstalled = true;
+
+        if (typeof window.AnalysisEngine === 'object' && window.AnalysisEngine && typeof window.AnalysisEngine.run === 'function') {
+            var origRun = window.AnalysisEngine.run;
+            window.AnalysisEngine.run = function () {
+                var out = origRun.apply(this, arguments);
+                try { computeREML(); } catch (e) { /* fail closed */ }
+                return out;
+            };
+        }
+        if (RM.state && RM.state.results) {
+            try { computeREML(); } catch (e) {}
+        }
+        return true;
+    }
+
+    var tries = 0;
+    function ready() {
+        if (tries++ > 120) return;
+        if (!install()) setTimeout(ready, 100);
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready);
+    else ready();
+})();
+</script>
+
 <script>/*QA-ENHANCER-v1*/
 (function () {
     'use strict';
@@ -42894,7 +43230,12 @@ except ImportError:
 
             if (!r.absoluteRisk && !r.nnt) concerns.push('Effect not translated into absolute-risk difference / NNT for shared decision.');
 
-            if (!r.patientReportedOutcomes) concerns.push('QoL / PROs not in headline analysis.');
+            if (!r.patientReportedOutcomes || (typeof r.patientReportedOutcomes === 'object' && (r.patientReportedOutcomes.count || 0) === 0)) {
+                concerns.push('QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits.');
+            } else if (typeof r.patientReportedOutcomes === 'object' && !r.patientReportedOutcomes.inHeadlineAnalysis && (r.patientReportedOutcomes.count || 0) > 0) {
+                var scales = (r.patientReportedOutcomes.scales || []).slice(0, 4).join(', ');
+                concerns.push('QoL / PROs reported in ' + (r.patientReportedOutcomes.trials || []).length + ' trial(s) (' + scales + ') but not in headline pool; consider adding as a secondary analysis rather than omitting.');
+            }
 
             if (r.gradeCertainty === 'VERY LOW' || r.gradeCertainty === 'LOW') {
 
