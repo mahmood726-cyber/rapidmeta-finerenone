@@ -1811,15 +1811,22 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            'MACE': [
+                { label: 'IV iron HF pooled MA (Graham 2023)', citation: 'Graham 2023', year: 2023, measure: 'RR', estimate: 0.84, lci: 0.76, uci: 0.93, k: 3, n: 4501, scope: 'IV ferric carboxymaltose vs placebo in iron-deficient HFrEF (AFFIRM-AHF + CONFIRM-HF + HEART-FID + IRONMAN); CV death + HHF. Eur Heart J 2023.' },
+            ],
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
             default: 'MACE',
             MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            
+            ACH: 'MACE',
+            ACM: 'MACE',
+            Renal40: 'MACE',
+            Hyperkalemia: 'MACE',
+            HF_CV_First: 'MACE',
+            KidneyComp: 'MACE',
+            Renal57: 'MACE'
         };
 
         const BENCHMARK_OUTCOME_NOTES = { default: '' };

@@ -1812,15 +1812,22 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            'MACE': [
+                { label: 'SELECT semaglutide 2.4 mg vs placebo', citation: 'Lincoff 2023', year: 2023, measure: 'HR', estimate: 0.8, lci: 0.72, uci: 0.9, k: 1, n: 17604, scope: 'Semaglutide 2.4 mg weekly vs placebo in overweight/obese CVD without diabetes; CV death, nonfatal MI, nonfatal stroke. NEJM 2023;389:2221-2232.' },
+            ],
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
             default: 'MACE',
             MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            
+            ACH: 'MACE',
+            ACM: 'MACE',
+            Renal40: 'MACE',
+            Hyperkalemia: 'MACE',
+            HF_CV_First: 'MACE',
+            KidneyComp: 'MACE',
+            Renal57: 'MACE'
         };
 
         const BENCHMARK_OUTCOME_NOTES = { default: '' };

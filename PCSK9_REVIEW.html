@@ -1812,15 +1812,23 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            'MACE': [
+                { label: 'FOURIER evolocumab vs placebo', citation: 'Sabatine 2017', year: 2017, measure: 'HR', estimate: 0.85, lci: 0.79, uci: 0.92, k: 1, n: 27564, scope: 'Evolocumab + statin vs placebo + statin in ASCVD; CV death, MI, stroke, hospitalization for UA or coronary revascularization. NEJM 2017;376:1713-1722.' },
+                { label: 'ODYSSEY OUTCOMES alirocumab vs placebo', citation: 'Schwartz 2018', year: 2018, measure: 'HR', estimate: 0.85, lci: 0.78, uci: 0.93, k: 1, n: 18924, scope: 'Alirocumab vs placebo post-ACS; CHD death, MI, ischemic stroke, or UA requiring hospitalization. NEJM 2018;379:2097-2107.' },
+            ],
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
             default: 'MACE',
             MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            Hyperkalemia: 'Hyperkalemia'
+            ACH: 'MACE',
+            ACM: 'MACE',
+            Renal40: 'MACE',
+            Hyperkalemia: 'MACE',
+            HF_CV_First: 'MACE',
+            KidneyComp: 'MACE',
+            Renal57: 'MACE'
         };
 
         const BENCHMARK_OUTCOME_NOTES = {
