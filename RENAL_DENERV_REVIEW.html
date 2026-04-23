@@ -1811,15 +1811,22 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            'MACE': [
+                { label: 'SPYRAL HTN-ON MED renal denervation vs sham', citation: 'Kandzari 2023', year: 2023, measure: 'MD', estimate: -4.0, lci: -6.9, uci: -1.1, k: 1, n: 337, scope: 'Renal denervation vs sham procedure in uncontrolled HTN on meds; 24-h ambulatory SBP change at 6 mo (mm Hg). Lancet 2022;400:1405-1416.' },
+            ],
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
             default: 'MACE',
             MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            
+            ACH: 'MACE',
+            ACM: 'MACE',
+            Renal40: 'MACE',
+            Hyperkalemia: 'MACE',
+            HF_CV_First: 'MACE',
+            KidneyComp: 'MACE',
+            Renal57: 'MACE'
         };
 
         const BENCHMARK_OUTCOME_NOTES = { default: '' };

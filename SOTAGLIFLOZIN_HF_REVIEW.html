@@ -1811,15 +1811,22 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            'MACE': [
+                { label: 'SOLOIST-WHF sotagliflozin vs placebo', citation: 'Bhatt 2021', year: 2021, measure: 'HR', estimate: 0.67, lci: 0.52, uci: 0.85, k: 1, n: 1222, scope: 'Sotagliflozin vs placebo in T2D recently hospitalized for worsening HF; CV death, HHF, or urgent HF visit. NEJM 2021;384:117-128.' },
+            ],
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
             default: 'MACE',
             MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            
+            ACH: 'MACE',
+            ACM: 'MACE',
+            Renal40: 'MACE',
+            Hyperkalemia: 'MACE',
+            HF_CV_First: 'MACE',
+            KidneyComp: 'MACE',
+            Renal57: 'MACE'
         };
 
         const BENCHMARK_OUTCOME_NOTES = { default: '' };

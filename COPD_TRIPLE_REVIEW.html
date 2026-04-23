@@ -1811,15 +1811,22 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            'MACE': [
+                { label: 'IMPACT triple vs dual ICS/LABA (COPD exac)', citation: 'Lipson 2018', year: 2018, measure: 'RR', estimate: 0.85, lci: 0.8, uci: 0.9, k: 1, n: 10355, scope: 'FF/UMEC/VI triple therapy vs FF/VI in COPD; annual rate of moderate/severe exacerbations. NEJM 2018;378:1671-1680.' },
+            ],
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
             default: 'MACE',
             MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            
+            ACH: 'MACE',
+            ACM: 'MACE',
+            Renal40: 'MACE',
+            Hyperkalemia: 'MACE',
+            HF_CV_First: 'MACE',
+            KidneyComp: 'MACE',
+            Renal57: 'MACE'
         };
 
         const BENCHMARK_OUTCOME_NOTES = { default: '' };

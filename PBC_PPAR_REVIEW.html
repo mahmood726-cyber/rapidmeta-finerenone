@@ -1811,15 +1811,23 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            'MACE': [
+                { label: 'ELATIVE elafibranor vs placebo (PBC composite)', citation: 'Kowdley 2024', year: 2024, measure: 'RR', estimate: 5.4, lci: 2.6, uci: 11.3, k: 1, n: 161, scope: 'Elafibranor vs placebo in PBC with inadequate UDCA response; biochemical response at 52 wk (ALP <1.67x ULN + ALP reduction >=15% + normal bilirubin). NEJM 2024;390:795-805.' },
+                { label: 'RESPONSE seladelpar vs placebo (PBC composite)', citation: 'Hirschfield 2024', year: 2024, measure: 'RR', estimate: 4.2, lci: 2.5, uci: 7.1, k: 1, n: 193, scope: 'Seladelpar vs placebo in PBC; composite biochemical response at 12 mo. NEJM 2024.' },
+            ],
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
             default: 'MACE',
             MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            
+            ACH: 'MACE',
+            ACM: 'MACE',
+            Renal40: 'MACE',
+            Hyperkalemia: 'MACE',
+            HF_CV_First: 'MACE',
+            KidneyComp: 'MACE',
+            Renal57: 'MACE'
         };
 
         const BENCHMARK_OUTCOME_NOTES = { default: '' };

@@ -1811,15 +1811,23 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            'MACE': [
+                { label: 'Caravaggio apixaban vs dalteparin (cancer VTE)', citation: 'Agnelli 2020', year: 2020, measure: 'HR', estimate: 0.63, lci: 0.37, uci: 1.07, k: 1, n: 1155, scope: 'Apixaban vs dalteparin in cancer-associated VTE; recurrent VTE at 6 mo. NEJM 2020;382:1599-1607.' },
+                { label: 'Hokusai-VTE Cancer edoxaban vs dalteparin', citation: 'Raskob 2018', year: 2018, measure: 'HR', estimate: 0.71, lci: 0.48, uci: 1.06, k: 1, n: 1046, scope: 'Edoxaban vs dalteparin in cancer-associated VTE; recurrent VTE or major bleeding at 12 mo. NEJM 2018;378:615-624.' },
+            ],
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
             default: 'MACE',
             MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            
+            ACH: 'MACE',
+            ACM: 'MACE',
+            Renal40: 'MACE',
+            Hyperkalemia: 'MACE',
+            HF_CV_First: 'MACE',
+            KidneyComp: 'MACE',
+            Renal57: 'MACE'
         };
 
         const BENCHMARK_OUTCOME_NOTES = { default: '' };

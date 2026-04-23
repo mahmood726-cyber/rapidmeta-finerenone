@@ -1811,15 +1811,22 @@
             return { direction: 'neutral', significant: false, pct: Math.abs((or <= 1 ? 1 - or : or - 1) * 100).toFixed(0) };
         };
 
-        const PUBLISHED_META_BENCHMARKS = {};
+        const PUBLISHED_META_BENCHMARKS = {
+            'MACE': [
+                { label: 'ELEVATE-TN acalabrutinib+obinutuzumab vs chlor+obin', citation: 'Sharman 2020', year: 2020, measure: 'HR', estimate: 0.1, lci: 0.07, uci: 0.17, k: 1, n: 535, scope: 'Acalabrutinib +/- obinutuzumab vs chlorambucil + obinutuzumab in treatment-naive CLL; PFS. Lancet 2020;395:1278-1291.' },
+            ],
+        };
 
         const BENCHMARK_OUTCOME_MAP = {
             default: 'MACE',
             MACE: 'MACE',
-            ACH: 'ACH',
-            ACM: 'ACM',
-            Renal40: 'Renal40',
-            
+            ACH: 'MACE',
+            ACM: 'MACE',
+            Renal40: 'MACE',
+            Hyperkalemia: 'MACE',
+            HF_CV_First: 'MACE',
+            KidneyComp: 'MACE',
+            Renal57: 'MACE'
         };
 
         const BENCHMARK_OUTCOME_NOTES = { default: '' };
