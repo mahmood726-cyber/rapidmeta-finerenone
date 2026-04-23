@@ -43249,7 +43249,18 @@ except ImportError:
                 // benchmarks is RE-pooling arithmetic, not a divergence.
                 var insideAny = false, closest = null, minDist = Infinity;
                 var allLci = Infinity, allUci = -Infinity;
-                benchmarks.forEach(function(b) {
+                // Filter benchmarks to those whose measure matches the current
+                // pool measure. Comparing a pool OR (from tE/cE events) against
+                // a published HR (from time-to-event) is apples-to-oranges and
+                // produces spurious 'divergence' concerns even when the
+                // underlying clinical signal is concordant.
+                var poolMeasure = (r.effectMeasure || (r.effectSpec && r.effectSpec.short) || r.measure || '').toUpperCase();
+                var measureMatched = benchmarks.filter(function(b) {
+                    return !poolMeasure || String(b.measure).toUpperCase() === poolMeasure;
+                });
+                var checkSet = measureMatched.length > 0 ? measureMatched : benchmarks;
+                var unitMismatch = measureMatched.length === 0 && poolMeasure && benchmarks.length > 0;
+                checkSet.forEach(function(b) {
                     if (or_ !== null && or_ >= b.lci && or_ <= b.uci) insideAny = true;
                     if (b.lci < allLci) allLci = b.lci;
                     if (b.uci > allUci) allUci = b.uci;
@@ -43257,7 +43268,9 @@ except ImportError:
                     if (d < minDist) { minDist = d; closest = b; }
                 });
                 var insideCorridor = or_ !== null && or_ >= allLci && or_ <= allUci;
-                if (!insideAny && !insideCorridor) {
+                if (unitMismatch) {
+                    concerns.push('Pool measure (' + poolMeasure + ') does not match any published benchmark measure (' + benchmarks.map(function(b){return b.measure;}).join(', ') + '); cannot compare directly - extract benchmark in the pool measure or re-pool in the benchmark measure.');
+                } else if (!insideAny && !insideCorridor) {
                     var rangeStr = benchmarks.length > 1 ? ' (corridor ' + allLci.toFixed(2) + '-' + allUci.toFixed(2) + ')' : '';
                     concerns.push('Pooled ' + (or_ !== null ? or_.toFixed(2) : '--') + ' sits outside published benchmark range' + rangeStr + '; closest ' + closest.citation + ' ' + closest.measure + ' ' + closest.estimate.toFixed(2) + ' [' + closest.lci.toFixed(2) + ', ' + closest.uci.toFixed(2) + ']. Discussion should reconcile.');
                 }
