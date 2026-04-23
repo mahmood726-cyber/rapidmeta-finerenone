@@ -1,0 +1,70 @@
+{
+  "app": "DUPILUMAB_COPD_REVIEW.html",
+  "timestamp": "2026-04-23T16:21:07.938Z",
+  "durationMs": 4195,
+  "state": {
+    "k": 2,
+    "or": "0.70",
+    "i2": "61.9",
+    "tau2": 0.0017063038629231116,
+    "remlSensitivity": true,
+    "robSummary": {
+      "high": 0,
+      "someConcerns": 0,
+      "low": 10,
+      "unclear": 0
+    },
+    "isCompleteUniverse": false,
+    "totalAvailable": 230,
+    "includedCount": 2,
+    "nnt": 3.4279288776442476,
+    "absoluteRisk": 0.2917213383631294,
+    "patientReportedOutcomes": {
+      "count": 2,
+      "scales": [
+        "SGRQ"
+      ],
+      "trials": [
+        "NCT03930732",
+        "NCT04456673"
+      ],
+      "inHeadlineAnalysis": false
+    },
+    "mocked": false
+  },
+  "findings": {
+    "editor": {
+      "decision": "Minor revision",
+      "rationale": "Reviewers support publication but want clarifications on reporting completeness and residual uncertainty."
+    },
+    "reviewers": [
+      {
+        "role": "Methodology & PRISMA",
+        "concerns": [
+          "Only k=2 of 230 available trials included; heterogeneity and publication-bias diagnostics are underpowered. Justify exclusions or expand eligibility.",
+          "Prediction interval not definable for k<3; flag as boundary condition."
+        ],
+        "recommendation": "Minor revision"
+      },
+      {
+        "role": "Clinical expert",
+        "concerns": [
+          "k<3 - NNT ≈ 3 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
+        ],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Biostatistician",
+        "concerns": [],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Patient representative",
+        "concerns": [
+          "QoL / PROs reported in 2 trial(s) (SGRQ) but not in headline pool; consider adding as a secondary analysis rather than omitting."
+        ],
+        "recommendation": "Accept with minor revision"
+      }
+    ]
+  }
+}

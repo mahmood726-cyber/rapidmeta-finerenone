@@ -1,0 +1,66 @@
+{
+  "app": "LENACAPAVIR_PREP_REVIEW.html",
+  "timestamp": "2026-04-23T16:23:02.898Z",
+  "durationMs": 4177,
+  "state": {
+    "k": 2,
+    "or": "0.07",
+    "i2": "15.3",
+    "tau2": 0.23734121236075761,
+    "remlSensitivity": true,
+    "robSummary": {
+      "high": 0,
+      "someConcerns": 2,
+      "low": 8,
+      "unclear": 0
+    },
+    "isCompleteUniverse": false,
+    "totalAvailable": 195,
+    "includedCount": 2,
+    "nnt": 93.26099047810972,
+    "absoluteRisk": 0.010722596820743831,
+    "patientReportedOutcomes": {
+      "count": 0,
+      "scales": [],
+      "trials": [],
+      "inHeadlineAnalysis": false
+    },
+    "mocked": false
+  },
+  "findings": {
+    "editor": {
+      "decision": "Minor revision",
+      "rationale": "Reviewers support publication but want clarifications on reporting completeness and residual uncertainty."
+    },
+    "reviewers": [
+      {
+        "role": "Methodology & PRISMA",
+        "concerns": [
+          "Only k=2 of 195 available trials included; heterogeneity and publication-bias diagnostics are underpowered. Justify exclusions or expand eligibility.",
+          "Prediction interval not definable for k<3; flag as boundary condition.",
+          "RoB 2.0: 0 high-risk + 2 some-concerns domains; add low-RoB sensitivity analysis."
+        ],
+        "recommendation": "Major revision"
+      },
+      {
+        "role": "Clinical expert",
+        "concerns": [
+          "k<3 - NNT ≈ 93 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
+        ],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Biostatistician",
+        "concerns": [],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Patient representative",
+        "concerns": [
+          "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
+        ],
+        "recommendation": "Accept with minor revision"
+      }
+    ]
+  }
+}

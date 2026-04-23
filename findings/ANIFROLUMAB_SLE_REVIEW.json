@@ -1,0 +1,66 @@
+{
+  "app": "ANIFROLUMAB_SLE_REVIEW.html",
+  "timestamp": "2026-04-23T16:18:46.643Z",
+  "durationMs": 4867,
+  "state": {
+    "k": 2,
+    "or": "1.41",
+    "i2": "0.0",
+    "tau2": 0,
+    "remlSensitivity": true,
+    "robSummary": {
+      "high": 0,
+      "someConcerns": 1,
+      "low": 9,
+      "unclear": 0
+    },
+    "isCompleteUniverse": false,
+    "totalAvailable": 226,
+    "includedCount": 2,
+    "nnt": 5.859124866595519,
+    "absoluteRisk": -0.1706739526411657,
+    "patientReportedOutcomes": {
+      "count": 0,
+      "scales": [],
+      "trials": [],
+      "inHeadlineAnalysis": false
+    },
+    "mocked": false
+  },
+  "findings": {
+    "editor": {
+      "decision": "Minor revision",
+      "rationale": "Reviewers support publication but want clarifications on reporting completeness and residual uncertainty."
+    },
+    "reviewers": [
+      {
+        "role": "Methodology & PRISMA",
+        "concerns": [
+          "Only k=2 of 226 available trials included; heterogeneity and publication-bias diagnostics are underpowered. Justify exclusions or expand eligibility.",
+          "Prediction interval not definable for k<3; flag as boundary condition.",
+          "RoB 2.0: 0 high-risk + 1 some-concerns domains; add low-RoB sensitivity analysis."
+        ],
+        "recommendation": "Major revision"
+      },
+      {
+        "role": "Clinical expert",
+        "concerns": [
+          "k<3 - NNT ≈ 6 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
+        ],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Biostatistician",
+        "concerns": [],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Patient representative",
+        "concerns": [
+          "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
+        ],
+        "recommendation": "Accept with minor revision"
+      }
+    ]
+  }
+}

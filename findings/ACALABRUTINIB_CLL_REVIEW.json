@@ -1,0 +1,67 @@
+{
+  "app": "ACALABRUTINIB_CLL_REVIEW.html",
+  "timestamp": "2026-04-23T16:18:26.281Z",
+  "durationMs": 4699,
+  "state": {
+    "k": 2,
+    "or": "0.25",
+    "i2": "0.0",
+    "tau2": 0,
+    "remlSensitivity": true,
+    "robSummary": {
+      "high": 0,
+      "someConcerns": 2,
+      "low": 8,
+      "unclear": 0
+    },
+    "isCompleteUniverse": false,
+    "totalAvailable": 233,
+    "includedCount": 2,
+    "nnt": 2.2540043906008616,
+    "absoluteRisk": 0.44365485895678525,
+    "patientReportedOutcomes": {
+      "count": 0,
+      "scales": [],
+      "trials": [],
+      "inHeadlineAnalysis": false
+    },
+    "mocked": false
+  },
+  "findings": {
+    "editor": {
+      "decision": "Minor revision",
+      "rationale": "Reviewers support publication but want clarifications on reporting completeness and residual uncertainty."
+    },
+    "reviewers": [
+      {
+        "role": "Methodology & PRISMA",
+        "concerns": [
+          "Only k=2 of 233 available trials included; heterogeneity and publication-bias diagnostics are underpowered. Justify exclusions or expand eligibility.",
+          "Prediction interval not definable for k<3; flag as boundary condition.",
+          "RoB 2.0: 0 high-risk + 2 some-concerns domains; add low-RoB sensitivity analysis."
+        ],
+        "recommendation": "Major revision"
+      },
+      {
+        "role": "Clinical expert",
+        "concerns": [
+          "Pooled 0.25 diverges from Sharman 2020 benchmark (HR 0.10 [0.07, 0.17]); Discussion should reconcile explicitly.",
+          "k<3 - NNT ≈ 2 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
+        ],
+        "recommendation": "Minor revision"
+      },
+      {
+        "role": "Biostatistician",
+        "concerns": [],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Patient representative",
+        "concerns": [
+          "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
+        ],
+        "recommendation": "Accept with minor revision"
+      }
+    ]
+  }
+}

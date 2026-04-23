@@ -1,0 +1,68 @@
+{
+  "app": "CART_MM_REVIEW.html",
+  "timestamp": "2026-04-23T16:19:59.775Z",
+  "durationMs": 4213,
+  "state": {
+    "k": 2,
+    "or": "0.55",
+    "i2": "84.9",
+    "tau2": 0.08320200087683188,
+    "remlSensitivity": true,
+    "robSummary": {
+      "high": 0,
+      "someConcerns": 2,
+      "low": 8,
+      "unclear": 0
+    },
+    "isCompleteUniverse": false,
+    "totalAvailable": 226,
+    "includedCount": 2,
+    "nnt": 4.483660130718953,
+    "absoluteRisk": 0.22303206997084551,
+    "patientReportedOutcomes": {
+      "count": 0,
+      "scales": [],
+      "trials": [],
+      "inHeadlineAnalysis": false
+    },
+    "mocked": false
+  },
+  "findings": {
+    "editor": {
+      "decision": "Major revision",
+      "rationale": "Substantive concerns across reviewer roles; expect a second review round."
+    },
+    "reviewers": [
+      {
+        "role": "Methodology & PRISMA",
+        "concerns": [
+          "Only k=2 of 226 available trials included; heterogeneity and publication-bias diagnostics are underpowered. Justify exclusions or expand eligibility.",
+          "Prediction interval not definable for k<3; flag as boundary condition.",
+          "RoB 2.0: 0 high-risk + 2 some-concerns domains; add low-RoB sensitivity analysis."
+        ],
+        "recommendation": "Major revision"
+      },
+      {
+        "role": "Clinical expert",
+        "concerns": [
+          "Pooled 0.55 diverges from San-Miguel 2023 benchmark (HR 0.26 [0.18, 0.38]); Discussion should reconcile explicitly.",
+          "k<3 - NNT ≈ 4 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.",
+          "I² = 84.9% (considerable); show subgroup/strata estimates alongside pooled."
+        ],
+        "recommendation": "Major revision"
+      },
+      {
+        "role": "Biostatistician",
+        "concerns": [],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Patient representative",
+        "concerns": [
+          "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
+        ],
+        "recommendation": "Accept with minor revision"
+      }
+    ]
+  }
+}

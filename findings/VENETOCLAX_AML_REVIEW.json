@@ -1,0 +1,65 @@
+{
+  "app": "VENETOCLAX_AML_REVIEW.html",
+  "timestamp": "2026-04-23T16:25:26.972Z",
+  "durationMs": 4177,
+  "state": {
+    "k": 2,
+    "or": "0.77",
+    "i2": "0.0",
+    "tau2": 0,
+    "remlSensitivity": true,
+    "robSummary": {
+      "high": 0,
+      "someConcerns": 0,
+      "low": 10,
+      "unclear": 0
+    },
+    "isCompleteUniverse": false,
+    "totalAvailable": 226,
+    "includedCount": 2,
+    "nnt": 6.027904215317633,
+    "absoluteRisk": 0.16589513772612363,
+    "patientReportedOutcomes": {
+      "count": 0,
+      "scales": [],
+      "trials": [],
+      "inHeadlineAnalysis": false
+    },
+    "mocked": false
+  },
+  "findings": {
+    "editor": {
+      "decision": "Minor revision",
+      "rationale": "Reviewers support publication but want clarifications on reporting completeness and residual uncertainty."
+    },
+    "reviewers": [
+      {
+        "role": "Methodology & PRISMA",
+        "concerns": [
+          "Only k=2 of 226 available trials included; heterogeneity and publication-bias diagnostics are underpowered. Justify exclusions or expand eligibility.",
+          "Prediction interval not definable for k<3; flag as boundary condition."
+        ],
+        "recommendation": "Minor revision"
+      },
+      {
+        "role": "Clinical expert",
+        "concerns": [
+          "k<3 - NNT ≈ 6 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
+        ],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Biostatistician",
+        "concerns": [],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Patient representative",
+        "concerns": [
+          "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
+        ],
+        "recommendation": "Accept with minor revision"
+      }
+    ]
+  }
+}

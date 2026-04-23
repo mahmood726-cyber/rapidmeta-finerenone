@@ -1,0 +1,72 @@
+{
+  "app": "COVID_ORAL_ANTIVIRALS_REVIEW.html",
+  "timestamp": "2026-04-23T16:20:42.972Z",
+  "durationMs": 4126,
+  "state": {
+    "k": 2,
+    "or": "0.29",
+    "i2": "92.5",
+    "tau2": 1.5555084363067866,
+    "remlSensitivity": true,
+    "robSummary": {
+      "high": 0,
+      "someConcerns": 0,
+      "low": 10,
+      "unclear": 0
+    },
+    "isCompleteUniverse": false,
+    "totalAvailable": 226,
+    "includedCount": 2,
+    "nnt": 23.038787835641145,
+    "absoluteRisk": 0.043405061374496186,
+    "patientReportedOutcomes": {
+      "count": 2,
+      "scales": [
+        "FACT (generic)"
+      ],
+      "trials": [
+        "NCT04960202",
+        "NCT04575597"
+      ],
+      "inHeadlineAnalysis": false
+    },
+    "mocked": false
+  },
+  "findings": {
+    "editor": {
+      "decision": "Minor revision",
+      "rationale": "Reviewers support publication but want clarifications on reporting completeness and residual uncertainty."
+    },
+    "reviewers": [
+      {
+        "role": "Methodology & PRISMA",
+        "concerns": [
+          "Only k=2 of 226 available trials included; heterogeneity and publication-bias diagnostics are underpowered. Justify exclusions or expand eligibility.",
+          "Prediction interval not definable for k<3; flag as boundary condition."
+        ],
+        "recommendation": "Minor revision"
+      },
+      {
+        "role": "Clinical expert",
+        "concerns": [
+          "Pooled 0.29 diverges from Hammond 2022 benchmark (RR 0.11 [0.05, 0.23]); Discussion should reconcile explicitly.",
+          "k<3 - NNT ≈ 23 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.",
+          "I² = 92.5% (considerable); show subgroup/strata estimates alongside pooled."
+        ],
+        "recommendation": "Major revision"
+      },
+      {
+        "role": "Biostatistician",
+        "concerns": [],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Patient representative",
+        "concerns": [
+          "QoL / PROs reported in 2 trial(s) (FACT (generic)) but not in headline pool; consider adding as a secondary analysis rather than omitting."
+        ],
+        "recommendation": "Accept with minor revision"
+      }
+    ]
+  }
+}
