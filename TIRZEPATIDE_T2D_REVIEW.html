@@ -43218,21 +43218,24 @@ except ImportError:
             var concerns = [];
 
             if (benchmarks && benchmarks.length) {
-
-                var b = benchmarks[0];
-
-                var pointInside = or_ !== null && or_ >= b.lci && or_ <= b.uci;
-
-                if (!pointInside) {
-
-                    concerns.push('Pooled ' + (or_ !== null ? or_.toFixed(2) : '--') + ' diverges from ' + b.citation + ' benchmark (' + b.measure + ' ' + b.estimate.toFixed(2) + ' [' + b.lci.toFixed(2) + ', ' + b.uci.toFixed(2) + ']); Discussion should reconcile explicitly.');
-
+                // Multi-benchmark corridor check: a pool between two per-product
+                // benchmarks is RE-pooling arithmetic, not a divergence.
+                var insideAny = false, closest = null, minDist = Infinity;
+                var allLci = Infinity, allUci = -Infinity;
+                benchmarks.forEach(function(b) {
+                    if (or_ !== null && or_ >= b.lci && or_ <= b.uci) insideAny = true;
+                    if (b.lci < allLci) allLci = b.lci;
+                    if (b.uci > allUci) allUci = b.uci;
+                    var d = or_ !== null ? Math.abs(Math.log(or_) - Math.log(b.estimate)) : Infinity;
+                    if (d < minDist) { minDist = d; closest = b; }
+                });
+                var insideCorridor = or_ !== null && or_ >= allLci && or_ <= allUci;
+                if (!insideAny && !insideCorridor) {
+                    var rangeStr = benchmarks.length > 1 ? ' (corridor ' + allLci.toFixed(2) + '-' + allUci.toFixed(2) + ')' : '';
+                    concerns.push('Pooled ' + (or_ !== null ? or_.toFixed(2) : '--') + ' sits outside published benchmark range' + rangeStr + '; closest ' + closest.citation + ' ' + closest.measure + ' ' + closest.estimate.toFixed(2) + ' [' + closest.lci.toFixed(2) + ', ' + closest.uci.toFixed(2) + ']. Discussion should reconcile.');
                 }
-
             } else {
-
                 concerns.push('No endpoint-matched published benchmark wired to this outcome.');
-
             }
 
             if (k < 3) {
