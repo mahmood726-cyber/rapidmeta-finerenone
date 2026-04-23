@@ -5215,13 +5215,19 @@ const ContinuousMDEngine = {
             /* Fetch CT.gov v2 study record (design + eligibility + baseline)
                and parse into evidence items. Returns [] on failure. */
             async fetchCtgovEvidence(nct) {
+                /* Strip cohort suffix (e.g. NCT01206062_SENIOR -> NCT01206062)
+                   before hitting CT.gov v2, which rejects anything that isn't
+                   a bare NCT\d{7,8}. Cohort-suffixed trials in realData share
+                   the same real NCT so one fetch covers all cohorts. */
+                const baseMatch = String(nct).match(/^(NCT\d{7,8})/);
+                const baseNct = baseMatch ? baseMatch[1] : nct;
                 try {
                     const fields = 'protocolSection.designModule,protocolSection.eligibilityModule,resultsSection.baselineCharacteristicsModule';
-                    const url = `https://clinicaltrials.gov/api/v2/studies/${encodeURIComponent(nct)}?fields=${fields}&format=json`;
+                    const url = `https://clinicaltrials.gov/api/v2/studies/${encodeURIComponent(baseNct)}?fields=${fields}&format=json`;
                     const r = await fetch(url);
                     if (!r.ok) return [];
                     const data = await r.json();
-                    return this.parseToEvidenceItems(nct, data);
+                    return this.parseToEvidenceItems(baseNct, data);
                 } catch (e) { return []; }
             },
 
