@@ -9423,6 +9423,10 @@
                 // Auto-regenerate report if it was previously generated
                 const reportEl = document.getElementById('report-content');
                 if (reportEl && !reportEl.classList.contains('hidden')) ReportEngine.generate();
+                // Auto-generate manuscript Methods & Results text (no manual click needed)
+                try { if (typeof generateManuscriptText === 'function') generateManuscriptText(); } catch (e) {}
+                // Auto-refresh R cross-validation against stored baseline (cheap; static check)
+                try { if (typeof this.runRValidation === 'function') this.runRValidation(); } catch (e) {}
             },
 
             updatePatientMode(pOR, lci, uci, k, trials) {
