@@ -1,25 +1,25 @@
 {
-  "app": "MIRIKIZUMAB_UC_REVIEW.html",
-  "timestamp": "2026-04-25T08:43:14.990Z",
-  "durationMs": 3808,
+  "app": "AFICAMTEN_HCM_REVIEW.html",
+  "timestamp": "2026-04-25T08:38:17.927Z",
+  "durationMs": 4172,
   "state": {
-    "k": 2,
-    "or": "1.91",
+    "k": 1,
+    "or": "3.05",
     "i2": "0.0",
     "tau2": 0,
-    "remlSensitivity": true,
+    "remlSensitivity": false,
     "robSummary": {
       "high": 0,
       "someConcerns": 0,
-      "low": 10,
+      "low": 5,
       "unclear": 0
     },
     "isCompleteUniverse": true,
-    "totalAvailable": 2,
-    "includedCount": 2,
-    "searchResultCount": 89,
-    "nnt": 7.125861394848736,
-    "absoluteRisk": -0.14033391117078098,
+    "totalAvailable": 1,
+    "includedCount": 1,
+    "searchResultCount": 90,
+    "nnt": 2.1754405165809345,
+    "absoluteRisk": -0.45967701363384816,
     "patientReportedOutcomes": {
       "count": 0,
       "scales": [],
@@ -36,7 +36,7 @@
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Evidence base is complete but small (k=1 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
           "Prediction interval not definable for k<3; flag as boundary condition."
         ],
         "recommendation": "Minor revision"
@@ -44,13 +44,16 @@
       {
         "role": "Clinical expert",
         "concerns": [
-          "k<3 - NNT ≈ 7 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
+          "Pooled 3.05 sits outside published benchmark range (corridor 1.45-3.00); closest Olivotto 2020 RR 2.08 [1.45, 3.00]. Discussion should reconcile.",
+          "k<3 - NNT ≈ 2 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       },
       {
         "role": "Biostatistician",
-        "concerns": [],
+        "concerns": [
+          "DL estimator under-estimates τ² for k<10; add REML/Paule-Mandel sensitivity."
+        ],
         "recommendation": "Accept with minor revision"
       },
       {
