@@ -1,25 +1,25 @@
 {
-  "app": "BELIMUMAB_SLE_REVIEW.html",
-  "timestamp": "2026-04-25T08:49:32.867Z",
-  "durationMs": 3958,
+  "app": "VOCLOSPORIN_LN_REVIEW.html",
+  "timestamp": "2026-04-25T08:55:33.075Z",
+  "durationMs": 3886,
   "state": {
-    "k": 4,
-    "or": "1.29",
+    "k": 1,
+    "or": "1.81",
     "i2": "0.0",
     "tau2": 0,
-    "remlSensitivity": true,
+    "remlSensitivity": false,
     "robSummary": {
       "high": 0,
       "someConcerns": 0,
-      "low": 20,
+      "low": 5,
       "unclear": 0
     },
     "isCompleteUniverse": true,
-    "totalAvailable": 4,
-    "includedCount": 4,
-    "searchResultCount": 156,
-    "nnt": 7.191159859103153,
-    "absoluteRisk": -0.1390596259286489,
+    "totalAvailable": 1,
+    "includedCount": 1,
+    "searchResultCount": 144,
+    "nnt": 5.461432979088103,
+    "absoluteRisk": -0.18310212792668384,
     "patientReportedOutcomes": {
       "count": 0,
       "scales": [],
@@ -36,18 +36,23 @@
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Evidence base is complete but small (k=4 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue."
+          "Evidence base is complete but small (k=1 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition."
         ],
         "recommendation": "Minor revision"
       },
       {
         "role": "Clinical expert",
-        "concerns": [],
+        "concerns": [
+          "k<3 - NNT ≈ 5 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
+        ],
         "recommendation": "Accept with minor revision"
       },
       {
         "role": "Biostatistician",
-        "concerns": [],
+        "concerns": [
+          "DL estimator under-estimates τ² for k<10; add REML/Paule-Mandel sensitivity."
+        ],
         "recommendation": "Accept with minor revision"
       },
       {
