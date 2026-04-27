@@ -368,6 +368,90 @@
     };
   }
 
+  // ---------- SROC confidence ellipse ----------
+  // 95% bivariate-normal ellipse from (mu_sens_logit, mu_spec_logit) and 2x2 Cov.
+  // Sample 100 points; transform back to (1-spec, sens) space.
+  function _sroc(fitResult, opts) {
+    opts = opts || {};
+    var n = opts.n || 100;
+    var fi = fitResult._fitInternal;
+    var Cov = [[fi.se_sens_logit*fi.se_sens_logit, fi.cov_sens_spec_logit||0],
+               [fi.cov_sens_spec_logit||0, fi.se_spec_logit*fi.se_spec_logit]];
+    // Eigendecomp of 2x2
+    var a=Cov[0][0], b=Cov[0][1], d=Cov[1][1];
+    var trace=a+d, det=a*d-b*b;
+    var disc=Math.sqrt(Math.max(0, trace*trace/4 - det));
+    var lam1=trace/2 + disc, lam2=trace/2 - disc;
+    var theta = Math.atan2(b, lam1 - d);
+    var chi2 = 5.991;  // chi^2(0.95, df=2)
+    var ax1 = Math.sqrt(chi2*lam1), ax2 = Math.sqrt(chi2*lam2);
+    var pts = [];
+    for (var i=0;i<n;i++){
+      var t = 2*Math.PI*i/n;
+      var x = ax1*Math.cos(t)*Math.cos(theta) - ax2*Math.sin(t)*Math.sin(theta);
+      var y = ax1*Math.cos(t)*Math.sin(theta) + ax2*Math.sin(t)*Math.cos(theta);
+      var muSx = fi.mu_sens_logit + x;
+      var muSy = fi.mu_spec_logit + y;
+      var sens = 1/(1+Math.exp(-muSx));
+      var spec = 1/(1+Math.exp(-muSy));
+      pts.push([1-spec, sens]);  // (FPR, Sens)
+    }
+    return pts;
+  }
+
+  // ---------- HSROC reparam (post-hoc, Harbord 2007 §3) ----------
+  // theta = (mu_S - mu_C)/2;   alpha = (mu_S + mu_C)
+  // beta = log(tau_C/tau_S);   Lambda = mu_S + mu_C
+  // Curve: for each FPR f, predicted sens = invlogit(alpha/2 + theta - exp(-beta)*logit(f))
+  // Wait — the canonical Harbord 2007 form:
+  //   logit(sens_i) = (theta_i + alpha_i/2) / exp(beta/2)
+  //   logit(1-spec_i) = (theta_i - alpha_i/2) * exp(beta/2)
+  // For curve: parametrize over (1-Spec) ∈ (0.001, 0.999); solve for Sens.
+  function _hsrocReparam(fitResult, opts) {
+    opts = opts || {};
+    var n = opts.n || 100;
+    var fi = fitResult._fitInternal;
+    var muS = fi.mu_sens_logit, muC = fi.mu_spec_logit;
+    var tauS = Math.sqrt(Math.max(1e-10, fi.tau2_sens));
+    var tauC = Math.sqrt(Math.max(1e-10, fi.tau2_spec));
+    var beta = Math.log(tauC/tauS);
+    var alpha = muS + muC;
+    // theta parametrises position along the curve; vary over [-3, 3] in theta_i
+    var pts = [];
+    for (var i=0;i<n;i++){
+      var fpr_target = 0.001 + (0.999-0.001)*(i/(n-1));
+      var logitFPR = Math.log(fpr_target/(1-fpr_target));
+      // (theta - alpha/2) * exp(beta/2) = logitFPR  →  theta = logitFPR*exp(-beta/2) + alpha/2
+      var theta = logitFPR*Math.exp(-beta/2) + alpha/2;
+      var logitSens = (theta + alpha/2) / Math.exp(beta/2);
+      var sens = 1/(1+Math.exp(-logitSens));
+      pts.push([fpr_target, sens]);
+    }
+    return pts;
+  }
+
+  // ---------- Forest plot geometry (paired Sens/Spec) ----------
+  // Returns SVG-friendly per-study layout, no rendering — just numbers.
+  function _forest(trials, fitResult) {
+    var rows = trials.map(function(t, i){
+      var ps = perStudy(t);
+      return {
+        idx: i, studlab: t.studlab,
+        sens: ps.sens, sens_ci: ps.sens_ci, sens_n: t.TP + t.FN,
+        spec: ps.spec, spec_ci: ps.spec_ci, spec_n: t.TN + t.FP
+      };
+    });
+    rows.push({
+      idx: -1, studlab: 'Pooled',
+      sens: fitResult.pooled_sens,
+      sens_ci: [fitResult.pooled_sens_ci_lb, fitResult.pooled_sens_ci_ub],
+      spec: fitResult.pooled_spec,
+      spec_ci: [fitResult.pooled_spec_ci_lb, fitResult.pooled_spec_ci_ub],
+      is_pooled: true
+    });
+    return rows;
+  }
+
   function fit(trials, opts) {
     opts = opts || {};
     var issues = validate(trials);
@@ -469,7 +553,10 @@
     validate: validate,
     exportResults: exportResults,
     ppvNpv: _ppvNpv,
+    sroc: _sroc,
+    hsrocReparam: _hsrocReparam,
+    forest: _forest,
     _version: '1.0.0-rc',
-    _internal: { matmul, inv2x2, clopperPearson, perStudy, applyContinuityCorrection, feBivariate, lnGamma, ibeta, qbeta, reitsmaREML, reitsmaREMLRhoZero, spearmanRho, _ppvNpv }
+    _internal: { matmul, inv2x2, clopperPearson, perStudy, applyContinuityCorrection, feBivariate, lnGamma, ibeta, qbeta, reitsmaREML, reitsmaREMLRhoZero, spearmanRho, _ppvNpv, _sroc, _hsrocReparam, _forest }
   };
 })(typeof window !== 'undefined' ? window : globalThis);

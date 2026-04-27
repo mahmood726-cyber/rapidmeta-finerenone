@@ -173,6 +173,38 @@ test('_ppvNpv: prev=0 → ppv=0, npv=1; prev=1 → ppv=1, npv=0', () => {
   assert.ok(r0.npv > 0.99);
 });
 
+test('_sroc: ellipse passes through summary point', () => {
+  const fx = JSON.parse(readFileSync(join(__dirname, 'dta_fixtures/auditc.json'), 'utf-8'));
+  const res = DTA.fit(fx.trials);
+  const ellipse = DTA.sroc(res, { n: 100 });
+  assert.equal(ellipse.length, 100);
+  // Centre of ellipse points should be near (1-spec, sens)
+  var cx=0, cy=0;
+  for (const p of ellipse){ cx+=p[0]; cy+=p[1]; }
+  cx/=ellipse.length; cy/=ellipse.length;
+  assert.ok(Math.abs(cx - (1-res.pooled_spec)) < 0.05);
+  assert.ok(Math.abs(cy - res.pooled_sens) < 0.05);
+});
+
+test('_hsrocReparam: curve passes near summary point', () => {
+  const fx = JSON.parse(readFileSync(join(__dirname, 'dta_fixtures/auditc.json'), 'utf-8'));
+  const res = DTA.fit(fx.trials);
+  const curve = DTA.hsrocReparam(res, { n: 100 });
+  // Find curve point with FPR closest to (1-pooled_spec)
+  const targetFPR = 1 - res.pooled_spec;
+  let best = curve[0], bestDiff = Math.abs(curve[0][0]-targetFPR);
+  for (const p of curve){ const d = Math.abs(p[0]-targetFPR); if (d<bestDiff){ bestDiff=d; best=p; } }
+  assert.ok(Math.abs(best[1] - res.pooled_sens) < 0.05, 'curve sens '+best[1]+' vs pooled '+res.pooled_sens);
+});
+
+test('_forest: rows + pooled row', () => {
+  const fx = JSON.parse(readFileSync(join(__dirname, 'dta_fixtures/auditc.json'), 'utf-8'));
+  const res = DTA.fit(fx.trials);
+  const rows = DTA.forest(fx.trials, res);
+  assert.equal(rows.length, fx.trials.length + 1);
+  assert.equal(rows[rows.length-1].is_pooled, true);
+});
+
 // Run
 let pass = 0, fail = 0;
 for (const t of tests) {
