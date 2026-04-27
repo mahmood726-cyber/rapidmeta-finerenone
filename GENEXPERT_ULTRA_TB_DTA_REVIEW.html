@@ -10,8 +10,10 @@
   <meta property="og:site_name" content="RapidMeta">
   <meta name="twitter:card" content="summary">
 
-  <!-- COI service worker for WebR (loaded but harmless until T16-17) -->
+  <!-- COI service worker for WebR -->
   <script src="coi-serviceworker.js"></script>
+  <!-- WebR cross-validator (lazy: does nothing until #webr-validate-btn is clicked) -->
+  <script src="webr-dta-validator.js" defer></script>
 
   <!-- Tailwind: reuse existing prebuilt CSS for utility classes -->
   <link rel="stylesheet" href="FINERENONE_REVIEW.tailwind.css">
@@ -541,8 +543,9 @@
 
       <h3 class="subsection-title">R cross-validation (mada)</h3>
       <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1rem;margin-bottom:1.5rem;">
-        <button type="button" id="webr-validate-btn" disabled style="padding:0.45rem 0.9rem;background:#e5e7eb;border:1px solid #d1d5db;border-radius:0.25rem;cursor:not-allowed;font:inherit;color:#6b7280;">Validate pool with R (mada)</button>
-        <div id="webr-status" style="margin-top:0.5rem;font-size:0.85rem;color:#6b7280;">WebR validator coming in T16-T17. Build-time validation log will be auto-generated in T18.</div>
+        <button type="button" id="webr-validate-btn" style="padding:0.45rem 0.9rem;background:#2563eb;border:1px solid #1d4ed8;border-radius:0.25rem;cursor:pointer;font:inherit;color:#ffffff;">Validate pool with R (mada)</button>
+        <div id="webr-status" style="margin-top:0.5rem;font-size:0.85rem;color:#6b7280;">WebR not loaded — click to fetch (~40 MB, one-time). Subsequent clicks are instant (browser cache).</div>
+        <div id="webr-result" style="margin-top:0.75rem;font-size:0.85rem;color:#111827;"></div>
         <h4 style="font-size:0.85rem;font-weight:600;margin:1rem 0 0.5rem;color:#374151;">Build-time validation log</h4>
         <pre id="r-validation-log" style="background:#f3f4f6;padding:0.75rem;border-radius:0.25rem;font-size:0.75rem;overflow-x:auto;margin:0;">r_validation_log.json not yet generated (T18)</pre>
       </div>
@@ -1171,6 +1174,96 @@
         renderReferences();
       }
 
+      // ===== WebR cross-validation glue (Tasks 16+17) =====
+      var TOLERANCES = {
+        mu_sens_logit: 1e-3, mu_spec_logit: 1e-3,
+        se_sens_logit: 2e-3, se_spec_logit: 2e-3,
+        tau2_sens: 5e-3, tau2_spec: 5e-3, rho: 1e-2
+      };
+
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+      }
+
+      function renderValidationResult(engineFit, rResult) {
+        var fi = engineFit && engineFit._fitInternal;
+        if (!fi) {
+          document.getElementById('webr-result').innerHTML =
+            '<div style="color:#b45309;">Engine fit has no _fitInternal — cannot compare.</div>';
+          return;
+        }
+        var rows = [
+          ['μ logit-Sens', fi.mu_sens_logit, rResult.mu_sens_logit, TOLERANCES.mu_sens_logit],
+          ['μ logit-Spec', fi.mu_spec_logit, rResult.mu_spec_logit, TOLERANCES.mu_spec_logit],
+          ['SE logit-Sens', fi.se_sens_logit, rResult.se_sens_logit, TOLERANCES.se_sens_logit],
+          ['SE logit-Spec', fi.se_spec_logit, rResult.se_spec_logit, TOLERANCES.se_spec_logit],
+          ['τ²_sens', fi.tau2_sens, rResult.tau2_sens, TOLERANCES.tau2_sens],
+          ['τ²_spec', fi.tau2_spec, rResult.tau2_spec, TOLERANCES.tau2_spec],
+          ['ρ', fi.rho, rResult.rho, TOLERANCES.rho]
+        ];
+        function fmtNumOrNa(x) {
+          if (x == null || !isFinite(x)) return '—';
+          return x.toFixed(5);
+        }
+        var bodyRows = rows.map(function (row) {
+          var name = row[0], eng = row[1], r = row[2], tol = row[3];
+          var d = (isFinite(eng) && isFinite(r)) ? Math.abs(eng - r) : NaN;
+          var verdict, color;
+          if (!isFinite(d)) { verdict = 'N/A'; color = '#6b7280'; }
+          else if (d <= tol) { verdict = 'EXACT'; color = '#15803d'; }
+          else if (d <= 2 * tol) { verdict = 'CLOSE'; color = '#b45309'; }
+          else { verdict = 'DIFFER'; color = '#b91c1c'; }
+          return '<tr>' +
+            '<td style="padding:0.35rem 0.6rem;border:1px solid #e5e7eb;">' + escapeHtml(name) + '</td>' +
+            '<td style="padding:0.35rem 0.6rem;border:1px solid #e5e7eb;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;">' + fmtNumOrNa(eng) + '</td>' +
+            '<td style="padding:0.35rem 0.6rem;border:1px solid #e5e7eb;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;">' + fmtNumOrNa(r) + '</td>' +
+            '<td style="padding:0.35rem 0.6rem;border:1px solid #e5e7eb;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;">' + fmtNumOrNa(d) + '</td>' +
+            '<td style="padding:0.35rem 0.6rem;border:1px solid #e5e7eb;font-weight:600;color:' + color + ';">' + verdict + '</td>' +
+          '</tr>';
+        }).join('');
+        var html =
+          '<table style="border-collapse:collapse;width:100%;font-size:0.85rem;margin-bottom:0.5rem;">' +
+            '<thead><tr style="background:#f3f4f6;">' +
+              '<th style="padding:0.35rem 0.6rem;border:1px solid #e5e7eb;text-align:left;">Quantity</th>' +
+              '<th style="padding:0.35rem 0.6rem;border:1px solid #e5e7eb;text-align:left;">Engine</th>' +
+              '<th style="padding:0.35rem 0.6rem;border:1px solid #e5e7eb;text-align:left;">R (' + escapeHtml(rResult.pkg || '?') + ')</th>' +
+              '<th style="padding:0.35rem 0.6rem;border:1px solid #e5e7eb;text-align:left;">Δ</th>' +
+              '<th style="padding:0.35rem 0.6rem;border:1px solid #e5e7eb;text-align:left;">Verdict</th>' +
+            '</tr></thead>' +
+            '<tbody>' + bodyRows + '</tbody>' +
+          '</table>' +
+          '<div style="font-size:0.75rem;color:#6b7280;">R version: ' + escapeHtml(rResult.r_version || '—') +
+            ' | Package: ' + escapeHtml(rResult.pkg || '?') +
+            ' | Run: ' + escapeHtml(rResult.timestamp || new Date().toISOString()) + '</div>' +
+          (rResult.note ? '<div style="font-size:0.75rem;color:#b45309;margin-top:0.25rem;">Note: ' + escapeHtml(rResult.note) + '</div>' : '');
+        document.getElementById('webr-result').innerHTML = html;
+      }
+
+      async function runWebRValidation() {
+        var btn = document.getElementById('webr-validate-btn');
+        var statusEl = document.getElementById('webr-status');
+        if (!window.RapidMetaDTAValidator) {
+          if (statusEl) statusEl.textContent = 'WebR validator script not loaded (webr-dta-validator.js missing).';
+          return;
+        }
+        if (!currentFit) {
+          if (statusEl) statusEl.textContent = 'Engine has not produced a fit yet — switch tier and retry.';
+          return;
+        }
+        btn.disabled = true;
+        try {
+          var trialsForR = currentTier === 'primary' ? trials_primary : trials_combined;
+          var rResult = await window.RapidMetaDTAValidator.validateAgainstR(currentFit, trialsForR);
+          renderValidationResult(currentFit, rResult);
+        } catch (e) {
+          if (statusEl) statusEl.textContent = 'WebR validation failed: ' + (e && e.message ? e.message : String(e));
+        } finally {
+          btn.disabled = false;
+        }
+      }
+
       function init() {
         DTA = window.RapidMetaDTA;
         if (!DTA) {
@@ -1192,6 +1285,9 @@
             refit();
           });
         });
+
+        var webrBtn = document.getElementById('webr-validate-btn');
+        if (webrBtn) webrBtn.addEventListener('click', runWebRValidation);
       }
 
       // Engine script has `defer`, so it runs after DOM parse but before DOMContentLoaded.
