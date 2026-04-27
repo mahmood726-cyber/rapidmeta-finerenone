@@ -23,7 +23,10 @@
   'use strict';
 
   var WEBR_CDN = 'https://webr.r-wasm.org/latest/webr.mjs';
-  var RWASM_REPO = 'https://repo.r-wasm.org';
+  // Note: WebR's R 4.5.x does not run source install.packages() — non-base packages must
+  // be installed via webr::install("<pkg>") which fetches a precompiled WASM binary from
+  // https://repo.r-wasm.org under the hood. Using install.packages(repos=…) directly fails
+  // with "This version of R is not set up to install source packages".
 
   var webR = null;
   var packageInstalled = null; /* 'mada' | 'metafor' */
@@ -86,16 +89,16 @@
         rVersion = null;
       }
 
-      status('Installing mada from r-wasm CRAN…');
+      status('Installing mada via webr::install…');
       try {
-        await webR.evalR('install.packages("mada", repos = "' + RWASM_REPO + '")');
+        await webR.evalR('webr::install("mada")');
         await webR.evalR('suppressPackageStartupMessages(library(mada))');
         packageInstalled = 'mada';
         status('WebR + mada ready.');
       } catch (e) {
-        status('mada unavailable on r-wasm CRAN; trying metafor fallback…');
+        status('mada install failed; trying metafor fallback via webr::install…');
         try {
-          await webR.evalR('install.packages("metafor", repos = "' + RWASM_REPO + '")');
+          await webR.evalR('webr::install("metafor")');
           await webR.evalR('suppressPackageStartupMessages(library(metafor))');
           packageInstalled = 'metafor';
           status('WebR + metafor (fallback) ready. ρ row will be CLOSE-only.');
@@ -146,18 +149,23 @@
     var rCode;
     if (pkg === 'mada') {
       // mada::reitsma — bivariate Reitsma model.
-      // Field names below match the engine's _fitInternal contract.
+      // Convention: mada parameterises the second component as logit(FPR) = logit(1 - spec),
+      // i.e. -logit(spec). The engine's _fitInternal stores mu_spec_logit on the
+      // logit(spec) scale (see lessons.md "SROC sign"). We negate fit$coefficients[2]
+      // here so the comparison is convention-aligned (engine logit(spec) vs R logit(spec)).
+      // Variances and rho sign-flip cancels: SE is unchanged, and Cov(sens, -fpr) = -Cov(sens, fpr)
+      // so rho on the (sens, spec) scale = -rho on mada's (sens, fpr) scale.
       rCode = dataPrefix + '\n' + [
         'fit <- mada::reitsma(d)',
         's <- summary(fit)',
         'list(',
         '  mu_sens_logit = unname(fit$coefficients[1]),',
-        '  mu_spec_logit = unname(fit$coefficients[2]),',
+        '  mu_spec_logit = -unname(fit$coefficients[2]),',
         '  se_sens_logit = sqrt(unname(fit$vcov[1,1])),',
         '  se_spec_logit = sqrt(unname(fit$vcov[2,2])),',
         '  tau2_sens = unname(fit$Psi[1,1]),',
         '  tau2_spec = unname(fit$Psi[2,2]),',
-        '  rho = unname(fit$Psi[1,2] / sqrt(fit$Psi[1,1] * fit$Psi[2,2])),',
+        '  rho = -unname(fit$Psi[1,2] / sqrt(fit$Psi[1,1] * fit$Psi[2,2])),',
         '  pkg = "mada"',
         ')'
       ].join('\n');

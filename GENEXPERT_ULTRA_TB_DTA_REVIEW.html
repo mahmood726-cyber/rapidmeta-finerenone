@@ -1288,6 +1288,24 @@
 
         var webrBtn = document.getElementById('webr-validate-btn');
         if (webrBtn) webrBtn.addEventListener('click', runWebRValidation);
+
+        // Embed build-time R-validation record (T18). Static fallback so users without
+        // working WebR still see the developer's recorded comparison vs mada::reitsma.
+        var logEl = document.getElementById('r-validation-log');
+        if (logEl) {
+          fetch('r_validation_log.json', { cache: 'no-store' })
+            .then(function (r) {
+              if (!r.ok) throw new Error('HTTP ' + r.status);
+              return r.json();
+            })
+            .then(function (log) {
+              logEl.textContent = JSON.stringify(log, null, 2);
+            })
+            .catch(function (e) {
+              logEl.textContent = 'r_validation_log.json not found (' +
+                (e && e.message ? e.message : String(e)) + ')';
+            });
+        }
       }
 
       // Engine script has `defer`, so it runs after DOM parse but before DOMContentLoaded.
