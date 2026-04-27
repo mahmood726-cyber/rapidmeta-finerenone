@@ -455,40 +455,124 @@
       </div>
     </section>
 
-    <!-- ===================== Forest tab (T14 stub) ===================== -->
+    <!-- ===================== Forest tab ===================== -->
     <section id="tab-forest" class="tab-panel" role="tabpanel">
       <h2 class="section-title">Forest plot</h2>
-      <div class="tab-stub">Paired Sens/Spec forest plot &mdash; populated in T14.</div>
+      <p style="font-size:0.875rem;color:#4b5563;margin-bottom:1rem;">
+        Paired forest: per-study Sensitivity (left) and Specificity (right) with 95% Clopper&ndash;Pearson exact CIs. The pooled summary row (blue) uses the bivariate model estimate for the active tier.
+      </p>
+      <div id="forest-container" class="table-scroll" style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1rem;"></div>
     </section>
 
-    <!-- ===================== SROC tab (T14 stub) ===================== -->
+    <!-- ===================== SROC tab ===================== -->
     <section id="tab-sroc" class="tab-panel" role="tabpanel">
       <h2 class="section-title">SROC space</h2>
-      <div class="tab-stub">Summary ROC plot with 95% confidence ellipse and HSROC curve &mdash; populated in T14.</div>
+      <p style="font-size:0.875rem;color:#4b5563;margin-bottom:1rem;">
+        Summary ROC plot in (1&minus;Specificity, Sensitivity) coordinates. Grey dots = per-study estimates; red dashed ellipse = 95% confidence region from the bivariate fit; blue dashed curve = HSROC reparameterisation (Harbord 2007); large red dot = pooled summary point.
+      </p>
+      <div id="sroc-container" style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1rem;display:flex;justify-content:center;"></div>
     </section>
 
-    <!-- ===================== Heterogeneity tab (T14 stub) ===================== -->
+    <!-- ===================== Heterogeneity tab ===================== -->
     <section id="tab-heterogeneity" class="tab-panel" role="tabpanel">
       <h2 class="section-title">Heterogeneity</h2>
-      <div class="tab-stub">tau&sup2; (Sens), tau&sup2; (Spec), rho, threshold-effect Spearman &mdash; populated in T14.</div>
+      <p style="font-size:0.875rem;color:#4b5563;margin-bottom:1rem;">
+        Bivariate variance components on the logit scale, threshold-effect diagnostic, and convergence audit. Note: I&sup2; is not directly defined for the bivariate DTA model &mdash; tau&sup2; on logit-Sens / logit-Spec is the canonical between-study heterogeneity metric (Reitsma 2005).
+      </p>
+      <div id="heterogeneity-container"></div>
     </section>
 
-    <!-- ===================== Subgroups tab (T15 stub) ===================== -->
+    <!-- ===================== Subgroups tab ===================== -->
     <section id="tab-subgroups" class="tab-panel" role="tabpanel">
       <h2 class="section-title">Subgroups</h2>
-      <div class="tab-stub">Pre-specified subgroup analyses (population_age, specimen, reference_standard) &mdash; populated in T15.</div>
+      <p style="font-size:0.875rem;color:#4b5563;margin-bottom:1rem;">
+        Filter the combined-tier study pool (k=5) by pre-specified covariates and refit. Minimum k=3 required for a refit; below this threshold the subgroup is reported descriptively only.
+      </p>
+      <div id="subgroups-controls" style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1rem;margin-bottom:1rem;display:flex;flex-wrap:wrap;gap:1rem;align-items:flex-end;">
+        <div>
+          <label for="sg-population-age" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">population_age</label>
+          <select id="sg-population-age" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:150px;">
+            <option value="any">any</option>
+            <option value="adult">adult</option>
+            <option value="pediatric">pediatric</option>
+          </select>
+        </div>
+        <div>
+          <label for="sg-specimen" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">specimen</label>
+          <select id="sg-specimen" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:200px;">
+            <option value="any">any</option>
+            <option value="sputum">sputum</option>
+            <option value="mixed_sputum_gastric">mixed_sputum_gastric</option>
+            <option value="stool">stool</option>
+          </select>
+        </div>
+        <div>
+          <label for="sg-reference-standard" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">reference_standard_specific</label>
+          <select id="sg-reference-standard" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:280px;">
+            <option value="any">any</option>
+            <option value="sputum_culture_lj_mgit">sputum_culture_lj_mgit</option>
+            <option value="xpert_plus_culture_composite">xpert_plus_culture_composite</option>
+            <option value="composite_clinical_microbiological">composite_clinical_microbiological</option>
+            <option value="clinical_radiological_plus_treatment_response">clinical_radiological_plus_treatment_response</option>
+            <option value="bacteriologically_confirmed_on_induced_sputum">bacteriologically_confirmed_on_induced_sputum</option>
+          </select>
+        </div>
+        <div>
+          <button type="button" id="sg-reset" style="padding:0.45rem 0.9rem;background:#f3f4f6;border:1px solid #d1d5db;border-radius:0.25rem;cursor:pointer;font:inherit;">Reset</button>
+        </div>
+      </div>
+      <div id="subgroups-result"></div>
     </section>
 
-    <!-- ===================== Methods tab (T15 stub) ===================== -->
+    <!-- ===================== Methods tab ===================== -->
     <section id="tab-methods" class="tab-panel" role="tabpanel">
       <h2 class="section-title">Methods</h2>
-      <div class="tab-stub">PRISMA-DTA methods narrative + tier-by-tier estimator breakdown &mdash; populated in T15.</div>
+      <div id="methods-engine" style="margin-bottom:1.5rem;"></div>
+
+      <h3 class="subsection-title">Continuity-correction policy</h3>
+      <p style="font-size:0.9rem;color:#374151;margin:0 0 1.5rem;">
+        Conditional 0.5 added to all four cells of every study, and only when at least one cell of any study in the pool is zero. Unconditional correction biases the diagnostic odds ratio toward the null (Sweeting 2004) and is therefore not used here.
+      </p>
+
+      <h3 class="subsection-title">GRADE-DTA notes</h3>
+      <p style="font-size:0.9rem;color:#374151;margin:0 0 1.5rem;">
+        Certainty assessment is informed by (a) study limitations &mdash; QUADAS-2 was not formally tabulated in this v1 release; (b) inconsistency &mdash; visible heterogeneity (population, specimen, reference standard) prompts downgrading; (c) indirectness &mdash; reference-standard variability across tiers is the principal source; (d) imprecision &mdash; k&lt;10 triggers a coverage warning on Wald CIs; (e) publication bias &mdash; not formally assessed (Deeks' funnel plot requires k&ge;10). Tier divergence &gt;5pp on Sens or Spec is surfaced as a headline banner.
+      </p>
+
+      <h3 class="subsection-title">R cross-validation (mada)</h3>
+      <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1rem;margin-bottom:1.5rem;">
+        <button type="button" id="webr-validate-btn" disabled style="padding:0.45rem 0.9rem;background:#e5e7eb;border:1px solid #d1d5db;border-radius:0.25rem;cursor:not-allowed;font:inherit;color:#6b7280;">Validate pool with R (mada)</button>
+        <div id="webr-status" style="margin-top:0.5rem;font-size:0.85rem;color:#6b7280;">WebR validator coming in T16-T17. Build-time validation log will be auto-generated in T18.</div>
+        <h4 style="font-size:0.85rem;font-weight:600;margin:1rem 0 0.5rem;color:#374151;">Build-time validation log</h4>
+        <pre id="r-validation-log" style="background:#f3f4f6;padding:0.75rem;border-radius:0.25rem;font-size:0.75rem;overflow-x:auto;margin:0;">r_validation_log.json not yet generated (T18)</pre>
+      </div>
+
+      <h3 class="subsection-title">Provenance audit</h3>
+      <p style="font-size:0.875rem;color:#4b5563;margin:0 0 0.5rem;">
+        Per-study source &amp; verbatim raw quote for back-computed estimates.
+      </p>
+      <div class="table-scroll">
+        <table id="provenance-table" class="trials-table">
+          <thead>
+            <tr>
+              <th>Study</th>
+              <th>Provenance</th>
+              <th>Source link</th>
+              <th>Raw quote (back-computed only)</th>
+            </tr>
+          </thead>
+          <tbody id="provenance-tbody"></tbody>
+        </table>
+      </div>
     </section>
 
-    <!-- ===================== References tab (T15 stub) ===================== -->
+    <!-- ===================== References tab ===================== -->
     <section id="tab-references" class="tab-panel" role="tabpanel">
       <h2 class="section-title">References</h2>
-      <div class="tab-stub">Vancouver-style citations for all included studies &mdash; populated in T15.</div>
+      <p style="font-size:0.875rem;color:#4b5563;margin-bottom:1rem;">
+        Vancouver-style citations for included studies plus methodological references for the engine and validation package. PubMed (PMID), DOI, and ClinicalTrials.gov (NCT) links are provided where available.
+      </p>
+      <div id="references-container" style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1rem;"></div>
     </section>
   </main>
 
@@ -649,11 +733,442 @@
         }
       }
 
+      // ----------- Forest plot -----------
+      function renderForest(rows, fit) {
+        var container = document.getElementById('forest-container');
+        if (!container) return;
+        var forestRows = DTA.forest(rows, fit);
+        var rowH = 30;
+        var headerH = 30;
+        var footerH = 16;
+        var width = 800;
+        var labelW = 170;
+        var nW = 50;
+        var panelW = (width - labelW - nW - 20) / 2; // two panels
+        var leftPanelX = labelW;
+        var rightPanelX = labelW + panelW + 20;
+        var height = headerH + forestRows.length * rowH + footerH;
+
+        function xScale(p, panelX) { return panelX + p * panelW; }
+        function tickLabel(p) { return (p * 100).toFixed(0) + '%'; }
+
+        var svg = '';
+        svg += '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + width + ' ' + height + '" width="' + width + '" height="' + height + '" style="font-family:ui-sans-serif,system-ui,sans-serif;font-size:11px;">';
+
+        // Panel headers
+        svg += '<text x="' + (leftPanelX + panelW / 2) + '" y="14" text-anchor="middle" font-weight="700">Sensitivity (95% CI)</text>';
+        svg += '<text x="' + (rightPanelX + panelW / 2) + '" y="14" text-anchor="middle" font-weight="700">Specificity (95% CI)</text>';
+        svg += '<text x="' + (width - nW + 4) + '" y="14" text-anchor="start" font-weight="700">n</text>';
+
+        // Axis ticks
+        var ticks = [0, 0.25, 0.5, 0.75, 1.0];
+        ticks.forEach(function (p) {
+          var xL = xScale(p, leftPanelX);
+          var xR = xScale(p, rightPanelX);
+          svg += '<line x1="' + xL + '" y1="' + headerH + '" x2="' + xL + '" y2="' + (height - footerH) + '" stroke="#e5e7eb" stroke-width="1"/>';
+          svg += '<line x1="' + xR + '" y1="' + headerH + '" x2="' + xR + '" y2="' + (height - footerH) + '" stroke="#e5e7eb" stroke-width="1"/>';
+          svg += '<text x="' + xL + '" y="' + (height - 2) + '" text-anchor="middle" fill="#6b7280">' + tickLabel(p) + '</text>';
+          svg += '<text x="' + xR + '" y="' + (height - 2) + '" text-anchor="middle" fill="#6b7280">' + tickLabel(p) + '</text>';
+        });
+
+        forestRows.forEach(function (r, i) {
+          var y = headerH + i * rowH + rowH / 2;
+          var isPooled = !!r.is_pooled;
+          var color = isPooled ? '#1d4ed8' : '#374151';
+          var radius = isPooled ? 6 : 3.5;
+          var labelWeight = isPooled ? '700' : '400';
+          // Study label
+          svg += '<text x="6" y="' + (y + 4) + '" font-weight="' + labelWeight + '" fill="' + color + '">' +
+            escapeHtml(r.studlab) + '</text>';
+          // Sens panel: CI bar + point
+          var sxLo = xScale(r.sens_ci[0], leftPanelX);
+          var sxHi = xScale(r.sens_ci[1], leftPanelX);
+          var sx = xScale(r.sens, leftPanelX);
+          svg += '<line x1="' + sxLo + '" y1="' + y + '" x2="' + sxHi + '" y2="' + y + '" stroke="' + color + '" stroke-width="1.5"/>';
+          svg += '<circle cx="' + sx + '" cy="' + y + '" r="' + radius + '" fill="' + color + '"/>';
+          // Spec panel: CI bar + point
+          var pxLo = xScale(r.spec_ci[0], rightPanelX);
+          var pxHi = xScale(r.spec_ci[1], rightPanelX);
+          var px = xScale(r.spec, rightPanelX);
+          svg += '<line x1="' + pxLo + '" y1="' + y + '" x2="' + pxHi + '" y2="' + y + '" stroke="' + color + '" stroke-width="1.5"/>';
+          svg += '<circle cx="' + px + '" cy="' + y + '" r="' + radius + '" fill="' + color + '"/>';
+          // n
+          var nText = '';
+          if (!isPooled) {
+            nText = (r.sens_n != null ? r.sens_n : '') + '/' + (r.spec_n != null ? r.spec_n : '');
+          } else {
+            nText = '';
+          }
+          svg += '<text x="' + (width - nW + 4) + '" y="' + (y + 4) + '" fill="#6b7280">' + escapeHtml(nText) + '</text>';
+          // Pooled separator line above
+          if (isPooled) {
+            var sepY = headerH + i * rowH;
+            svg += '<line x1="0" y1="' + sepY + '" x2="' + width + '" y2="' + sepY + '" stroke="#9ca3af" stroke-width="1" stroke-dasharray="3,3"/>';
+          }
+        });
+
+        svg += '</svg>';
+        container.innerHTML = svg;
+      }
+
+      // ----------- SROC plot -----------
+      function renderSROC(rows, fit) {
+        var container = document.getElementById('sroc-container');
+        if (!container) return;
+        var size = 600;
+        var pad = 50;
+        var plotW = size - 2 * pad;
+        var plotH = size - 2 * pad;
+        function sx(fpr) { return pad + fpr * plotW; }
+        function sy(sens) { return (size - pad) - sens * plotH; }
+
+        var ellipse = [];
+        var hsroc = [];
+        try { ellipse = DTA.sroc(fit) || []; } catch (e) { ellipse = []; }
+        try { hsroc = DTA.hsrocReparam(fit) || []; } catch (e) { hsroc = []; }
+
+        var svg = '';
+        svg += '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + size + ' ' + size + '" width="' + size + '" height="' + size + '" style="font-family:ui-sans-serif,system-ui,sans-serif;font-size:11px;">';
+
+        // Plot box
+        svg += '<rect x="' + pad + '" y="' + pad + '" width="' + plotW + '" height="' + plotH + '" fill="#fafafa" stroke="#9ca3af" stroke-width="1"/>';
+
+        // Gridlines + tick labels
+        var ticks = [0, 0.25, 0.5, 0.75, 1.0];
+        ticks.forEach(function (t) {
+          var xT = sx(t), yT = sy(t);
+          svg += '<line x1="' + xT + '" y1="' + pad + '" x2="' + xT + '" y2="' + (size - pad) + '" stroke="#e5e7eb" stroke-width="1"/>';
+          svg += '<line x1="' + pad + '" y1="' + yT + '" x2="' + (size - pad) + '" y2="' + yT + '" stroke="#e5e7eb" stroke-width="1"/>';
+          svg += '<text x="' + xT + '" y="' + (size - pad + 16) + '" text-anchor="middle" fill="#6b7280">' + (t * 100).toFixed(0) + '%</text>';
+          svg += '<text x="' + (pad - 8) + '" y="' + (yT + 4) + '" text-anchor="end" fill="#6b7280">' + (t * 100).toFixed(0) + '%</text>';
+        });
+
+        // Diagonal (chance line)
+        svg += '<line x1="' + sx(0) + '" y1="' + sy(0) + '" x2="' + sx(1) + '" y2="' + sy(1) + '" stroke="#d1d5db" stroke-width="1" stroke-dasharray="4,4"/>';
+
+        // Axis labels
+        svg += '<text x="' + (size / 2) + '" y="' + (size - 8) + '" text-anchor="middle" font-weight="600">1 &#8722; Specificity (FPR)</text>';
+        svg += '<text x="14" y="' + (size / 2) + '" text-anchor="middle" font-weight="600" transform="rotate(-90 14,' + (size / 2) + ')">Sensitivity</text>';
+
+        // HSROC curve (blue dashed)
+        if (hsroc.length > 1) {
+          var dH = 'M';
+          hsroc.forEach(function (p, i) {
+            var xx = sx(p[0]), yy = sy(p[1]);
+            // clip to plot region
+            if (xx < pad) xx = pad; if (xx > size - pad) xx = size - pad;
+            if (yy < pad) yy = pad; if (yy > size - pad) yy = size - pad;
+            dH += (i === 0 ? '' : ' L') + xx.toFixed(2) + ',' + yy.toFixed(2);
+          });
+          svg += '<path d="' + dH + '" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="6,4"/>';
+        }
+
+        // Confidence ellipse (red dashed outline + light red fill)
+        if (ellipse.length > 1) {
+          var dE = 'M';
+          ellipse.forEach(function (p, i) {
+            var xx = sx(p[0]), yy = sy(p[1]);
+            dE += (i === 0 ? '' : ' L') + xx.toFixed(2) + ',' + yy.toFixed(2);
+          });
+          dE += ' Z';
+          svg += '<path d="' + dE + '" fill="rgba(239,68,68,0.10)" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5,3"/>';
+        }
+
+        // Per-study points (grey)
+        var perStudyArr = rows.map(function (t) { return DTA._internal.perStudy(t); });
+        perStudyArr.forEach(function (p, i) {
+          var fpr = 1 - p.spec;
+          svg += '<circle cx="' + sx(fpr) + '" cy="' + sy(p.sens) + '" r="4" fill="#6b7280" stroke="#374151" stroke-width="0.75" opacity="0.85"><title>' + escapeHtml(p.studlab) + ': Sens=' + (p.sens * 100).toFixed(1) + '%, Spec=' + (p.spec * 100).toFixed(1) + '%</title></circle>';
+        });
+
+        // Summary point (large red)
+        var sumFPR = 1 - fit.pooled_spec;
+        svg += '<circle cx="' + sx(sumFPR) + '" cy="' + sy(fit.pooled_sens) + '" r="8" fill="#dc2626" stroke="#7f1d1d" stroke-width="1.5"><title>Pooled: Sens=' + (fit.pooled_sens * 100).toFixed(1) + '%, Spec=' + (fit.pooled_spec * 100).toFixed(1) + '%</title></circle>';
+
+        // Legend
+        var lx = pad + 12, ly = pad + 12, lh = 16;
+        svg += '<rect x="' + lx + '" y="' + ly + '" width="190" height="' + (lh * 4 + 8) + '" fill="rgba(255,255,255,0.92)" stroke="#d1d5db" stroke-width="1"/>';
+        svg += '<circle cx="' + (lx + 12) + '" cy="' + (ly + 12) + '" r="4" fill="#6b7280" stroke="#374151" stroke-width="0.75"/>';
+        svg += '<text x="' + (lx + 24) + '" y="' + (ly + 16) + '">Per-study estimate</text>';
+        svg += '<line x1="' + (lx + 4) + '" y1="' + (ly + 12 + lh) + '" x2="' + (lx + 20) + '" y2="' + (ly + 12 + lh) + '" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5,3"/>';
+        svg += '<text x="' + (lx + 24) + '" y="' + (ly + 16 + lh) + '">95% confidence ellipse</text>';
+        svg += '<line x1="' + (lx + 4) + '" y1="' + (ly + 12 + 2 * lh) + '" x2="' + (lx + 20) + '" y2="' + (ly + 12 + 2 * lh) + '" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="6,4"/>';
+        svg += '<text x="' + (lx + 24) + '" y="' + (ly + 16 + 2 * lh) + '">HSROC curve</text>';
+        svg += '<circle cx="' + (lx + 12) + '" cy="' + (ly + 12 + 3 * lh) + '" r="6" fill="#dc2626" stroke="#7f1d1d" stroke-width="1.25"/>';
+        svg += '<text x="' + (lx + 24) + '" y="' + (ly + 16 + 3 * lh) + '">Pooled summary</text>';
+
+        svg += '</svg>';
+        container.innerHTML = svg;
+      }
+
+      // ----------- Heterogeneity tab -----------
+      function renderHeterogeneity(fit) {
+        var container = document.getElementById('heterogeneity-container');
+        if (!container) return;
+        var grid = '<div class="metric-grid">' +
+          '<div class="metric-card"><div class="metric-label">tau&sup2; (Sens, logit)</div>' +
+          '<div class="metric-value">' + fmtNum(fit.tau2_sens, 4) + '</div>' +
+          '<div class="metric-ci">between-study variance on logit scale</div></div>' +
+          '<div class="metric-card"><div class="metric-label">tau&sup2; (Spec, logit)</div>' +
+          '<div class="metric-value">' + fmtNum(fit.tau2_spec, 4) + '</div>' +
+          '<div class="metric-ci">between-study variance on logit scale</div></div>' +
+          '<div class="metric-card"><div class="metric-label">rho (Sens, Spec)</div>' +
+          '<div class="metric-value">' + fmtNum(fit.rho, 3) + '</div>' +
+          '<div class="metric-ci">between-study correlation, logit scale</div></div>' +
+          '<div class="metric-card"><div class="metric-label">Spearman rho (threshold)</div>' +
+          '<div class="metric-value">' + fmtNum(fit.threshold_effect_spearman, 3) + '</div>' +
+          '<div class="metric-ci">corr(logit Sens, logit(1&#8722;Spec))</div></div>' +
+          '<div class="metric-card"><div class="metric-label">Studies (k)</div>' +
+          '<div class="metric-value">' + String(fit.k) + '</div>' +
+          '<div class="metric-ci">in active tier</div></div>' +
+          '<div class="metric-card"><div class="metric-label">Estimator</div>' +
+          '<div class="metric-value" style="font-size:1rem;">' + escapeHtml(fit.estimator || 'unknown') + '</div>' +
+          '<div class="metric-ci">' + (fit.fallback ? 'fallback: ' + escapeHtml(String(fit.fallback)) : 'primary path') + '</div></div>' +
+          '</div>';
+
+        var notes = '';
+        // Coverage warning
+        if (fit.coverage_warning) {
+          notes += '<div class="banner banner-amber"><strong>Coverage warning (k&lt;10):</strong> ' +
+            'With only ' + fit.k + ' studies, Wald-based 95% CIs may under-cover the nominal rate. ' +
+            'HKSJ-style adjustments are not applied to the bivariate marginal SEs in this v1 release; ' +
+            'planned upgrade T16-T17 (R mada cross-validation).</div>';
+        } else {
+          notes += '<div class="banner" style="background:#ecfdf5;border-left:4px solid #10b981;color:#065f46;">' +
+            '<strong>Coverage OK:</strong> k=' + fit.k + ' &ge; 10. Wald-based 95% CIs expected to have nominal coverage.</div>';
+        }
+        // Threshold-effect warning
+        if (fit.threshold_effect) {
+          notes += '<div class="banner banner-amber"><strong>Threshold effect detected:</strong> ' +
+            '|Spearman rho| = ' + fmtNum(Math.abs(fit.threshold_effect_spearman), 2) +
+            ' &gt; 0.6. Per Macaskill 2010 / advanced-stats DTA rules, the canonical bivariate ' +
+            'point summary may be misleading &mdash; report the SROC curve as the primary summary instead.</div>';
+        }
+        // Convergence info
+        var convText = '';
+        if (fit.fallback) {
+          convText = '<strong>Convergence note:</strong> primary REML path produced fallback "' +
+            escapeHtml(String(fit.fallback)) + '". This is expected for k&lt;5 (always FE) and ' +
+            'common for k=5 with strong heterogeneity. Iterations: ' + (fit.iterations != null ? fit.iterations : 'n/a') + '.';
+        } else {
+          convText = '<strong>Convergence:</strong> primary REML path converged in ' +
+            (fit.iterations != null ? fit.iterations : 'n/a') + ' iterations (Nelder&ndash;Mead simplex).';
+        }
+        notes += '<div class="banner" style="background:#eff6ff;border-left:4px solid #2563eb;color:#1e3a8a;">' + convText + '</div>';
+
+        // I^2 note (skip computation)
+        notes += '<p style="font-size:0.85rem;color:#6b7280;margin-top:1rem;">' +
+          '<em>Note on I&sup2;:</em> A canonical I&sup2; statistic is not directly defined for the ' +
+          'bivariate DTA model &mdash; tau&sup2; on logit-Sens / logit-Spec serves the same role. ' +
+          'Univariate I&sup2; on Sens or Spec separately can be computed but is omitted here to ' +
+          'avoid implying a one-dimensional summary of two-dimensional heterogeneity.</p>';
+
+        container.innerHTML = grid + notes;
+      }
+
+      // ----------- Subgroups tab -----------
+      function applySubgroupFilter() {
+        var pa = document.getElementById('sg-population-age').value;
+        var sp = document.getElementById('sg-specimen').value;
+        var rs = document.getElementById('sg-reference-standard').value;
+        var filtered = trials_combined.filter(function (t) {
+          if (pa !== 'any' && t.population_age !== pa) return false;
+          if (sp !== 'any' && t.specimen !== sp) return false;
+          if (rs !== 'any' && t.reference_standard_specific !== rs) return false;
+          return true;
+        });
+
+        var resultEl = document.getElementById('subgroups-result');
+        if (!resultEl) return;
+
+        var summary = '<p style="font-size:0.875rem;color:#374151;margin:0 0 0.75rem;">' +
+          'Filtered pool: <strong>k = ' + filtered.length + '</strong> ' +
+          '(' + filtered.map(function (t) { return escapeHtml(t.studlab); }).join(', ') + ')' +
+          '</p>';
+
+        if (filtered.length === 0) {
+          resultEl.innerHTML = summary +
+            '<div class="banner banner-amber"><strong>No studies match.</strong> Loosen the filters or choose &ldquo;any&rdquo; for one or more covariates.</div>';
+          return;
+        }
+        if (filtered.length < 3) {
+          // Descriptive only
+          var listing = '<ul style="font-size:0.875rem;color:#374151;margin:0.5rem 0;padding-left:1.25rem;">';
+          filtered.forEach(function (t) {
+            var ps = DTA._internal.perStudy(t);
+            listing += '<li><strong>' + escapeHtml(t.studlab) + '</strong> &mdash; ' +
+              'Sens ' + fmt(ps.sens) + ' ' + fmtCI(ps.sens_ci[0], ps.sens_ci[1]) + ', ' +
+              'Spec ' + fmt(ps.spec) + ' ' + fmtCI(ps.spec_ci[0], ps.spec_ci[1]) +
+              '</li>';
+          });
+          listing += '</ul>';
+          resultEl.innerHTML = summary +
+            '<div class="banner banner-amber"><strong>Insufficient evidence (k&lt;3).</strong> ' +
+            'Subgroup pool too small to refit; per-study estimates only.</div>' + listing;
+          return;
+        }
+        // k >= 3 — refit
+        var sgFit;
+        try {
+          sgFit = DTA.fit(filtered);
+        } catch (e) {
+          resultEl.innerHTML = summary +
+            '<div class="banner banner-amber"><strong>Refit failed:</strong> ' + escapeHtml(e.message || String(e)) + '</div>';
+          return;
+        }
+
+        var grid = '<div class="metric-grid">' +
+          '<div class="metric-card"><div class="metric-label">Pooled Sensitivity</div>' +
+          '<div class="metric-value">' + fmt(sgFit.pooled_sens) + '</div>' +
+          '<div class="metric-ci">' + fmtCI(sgFit.pooled_sens_ci_lb, sgFit.pooled_sens_ci_ub) + '</div></div>' +
+          '<div class="metric-card"><div class="metric-label">Pooled Specificity</div>' +
+          '<div class="metric-value">' + fmt(sgFit.pooled_spec) + '</div>' +
+          '<div class="metric-ci">' + fmtCI(sgFit.pooled_spec_ci_lb, sgFit.pooled_spec_ci_ub) + '</div></div>' +
+          '<div class="metric-card"><div class="metric-label">DOR</div>' +
+          '<div class="metric-value">' + fmtNum(sgFit.dor, 2) + '</div>' +
+          '<div class="metric-ci">(' + fmtNum(sgFit.dor_ci_lb, 2) + ' &ndash; ' + fmtNum(sgFit.dor_ci_ub, 2) + ')</div></div>' +
+          '<div class="metric-card"><div class="metric-label">Estimator</div>' +
+          '<div class="metric-value" style="font-size:1rem;">' + escapeHtml(sgFit.estimator || '?') + '</div>' +
+          '<div class="metric-ci">' + (sgFit.fallback ? 'fallback' : 'primary') + '</div></div>' +
+          '</div>';
+
+        var caveats = '';
+        if (sgFit.cc_applied) {
+          caveats += '<span class="badge badge-blue">Continuity correction applied</span>';
+        }
+        if (sgFit.coverage_warning) {
+          caveats += '<span class="badge badge-amber">k&lt;10 coverage warning</span>';
+        }
+        if (sgFit.threshold_effect) {
+          caveats += '<span class="badge badge-amber">Threshold effect (Spearman ' +
+            fmtNum(sgFit.threshold_effect_spearman, 2) + ')</span>';
+        }
+        if (caveats) caveats = '<div style="margin-top:0.75rem;">' + caveats + '</div>';
+
+        resultEl.innerHTML = summary + grid + caveats;
+      }
+
+      function renderSubgroups() {
+        // Wire dropdowns once; idempotent via a flag.
+        var paEl = document.getElementById('sg-population-age');
+        if (paEl && !paEl._wired) {
+          paEl._wired = true;
+          ['sg-population-age', 'sg-specimen', 'sg-reference-standard'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) el.addEventListener('change', applySubgroupFilter);
+          });
+          var resetBtn = document.getElementById('sg-reset');
+          if (resetBtn) {
+            resetBtn.addEventListener('click', function () {
+              ['sg-population-age', 'sg-specimen', 'sg-reference-standard'].forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el) el.value = 'any';
+              });
+              applySubgroupFilter();
+            });
+          }
+        }
+        applySubgroupFilter();
+      }
+
+      // ----------- Methods tab -----------
+      function renderMethods() {
+        var engineEl = document.getElementById('methods-engine');
+        if (engineEl) {
+          var engVer = (DTA && DTA._version) ? DTA._version : 'unknown';
+          engineEl.innerHTML =
+            '<h3 class="subsection-title">Engine</h3>' +
+            '<p style="font-size:0.9rem;color:#374151;margin:0;">' +
+            'RapidMeta DTA engine v<strong>' + escapeHtml(engVer) + '</strong>. ' +
+            'Primary estimator is the Reitsma 2005 bivariate REML model fit by Nelder&ndash;Mead simplex over a profile log-likelihood. ' +
+            'For k&lt;5 or non-convergence, falls back to the fixed-effect bivariate. ' +
+            'Per-study Sens / Spec CIs are exact Clopper&ndash;Pearson (qbeta-based). ' +
+            'Pooled Sens / Spec CIs are Wald on the logit scale, back-transformed. ' +
+            'PPV / NPV are computed at user-supplied prevalence with extreme-case bounds from the Sens / Spec CI corners.' +
+            '</p>';
+        }
+
+        var tbody = document.getElementById('provenance-tbody');
+        if (tbody) {
+          var allTrials = data.primary_tier.concat(data.sensitivity_tier_added);
+          var html = allTrials.map(function (t) {
+            var quote = '';
+            if (t.provenance && /back_computed|raw_counts|table_via_abstract/.test(t.provenance) && t.raw_quote) {
+              quote = escapeHtml(t.raw_quote);
+            } else if (t.raw_quote) {
+              quote = escapeHtml(t.raw_quote);
+            } else {
+              quote = '<em style="color:#9ca3af;">&mdash;</em>';
+            }
+            return '<tr>' +
+              '<td class="study-name">' + escapeHtml(t.studlab) + '</td>' +
+              '<td><code style="font-size:0.75rem;">' + escapeHtml(t.provenance || '') + '</code></td>' +
+              '<td>' + sourceLink(t) + '</td>' +
+              '<td style="font-size:0.8rem;max-width:520px;">' + quote + '</td>' +
+              '</tr>';
+          }).join('');
+          tbody.innerHTML = html;
+        }
+      }
+
+      // ----------- References tab -----------
+      function renderReferences() {
+        var container = document.getElementById('references-container');
+        if (!container) return;
+        var allTrials = data.primary_tier.concat(data.sensitivity_tier_added);
+        var items = allTrials.map(function (t, i) {
+          var bits = [];
+          bits.push('<strong>' + escapeHtml(t.studlab) + '</strong>');
+          if (t.country) bits.push(escapeHtml(t.country));
+          if (t.year) bits.push('(' + escapeHtml(String(t.year)) + ')');
+          var cite = bits.join('. ') + '.';
+          var links = [];
+          if (t.ref_doi) {
+            links.push('<a class="external-link" href="https://doi.org/' + encodeURIComponent(t.ref_doi) +
+              '" target="_blank" rel="noopener">DOI: ' + escapeHtml(t.ref_doi) + '</a>');
+          }
+          if (t.pmid) {
+            links.push('<a class="external-link" href="https://pubmed.ncbi.nlm.nih.gov/' + encodeURIComponent(t.pmid) +
+              '" target="_blank" rel="noopener">PubMed: ' + escapeHtml(t.pmid) + '</a>');
+          }
+          if (t.nctid) {
+            links.push('<a class="external-link" href="https://clinicaltrials.gov/study/' + encodeURIComponent(t.nctid) +
+              '" target="_blank" rel="noopener">' + escapeHtml(t.nctid) + '</a>');
+          }
+          var linksHtml = links.length ? ' <span style="font-size:0.8rem;color:#4b5563;">[' + links.join(' &middot; ') + ']</span>' : '';
+          return '<li id="ref-trial-' + (i + 1) + '" style="margin-bottom:0.5rem;font-size:0.9rem;">' +
+            cite + linksHtml + '</li>';
+        }).join('');
+
+        var methodRefs = [
+          'Reitsma JB, Glas AS, Rutjes AWS, Scholten RJPM, Bossuyt PM, Zwinderman AH. Bivariate analysis of sensitivity and specificity produces informative summary measures in diagnostic reviews. <em>J Clin Epidemiol</em>. 2005;58(10):982&ndash;990. <a class="external-link" href="https://doi.org/10.1016/j.jclinepi.2005.02.022" target="_blank" rel="noopener">DOI: 10.1016/j.jclinepi.2005.02.022</a>',
+          'Harbord RM, Deeks JJ, Egger M, Whiting P, Sterne JAC. A unification of models for meta-analysis of diagnostic accuracy studies. <em>Biostatistics</em>. 2007;8(2):239&ndash;251. <a class="external-link" href="https://doi.org/10.1093/biostatistics/kxl004" target="_blank" rel="noopener">DOI: 10.1093/biostatistics/kxl004</a>',
+          'Macaskill P, Gatsonis C, Deeks JJ, Harbord RM, Takwoingi Y. Chapter 10: Analysing and presenting results. In: <em>Cochrane Handbook for Systematic Reviews of Diagnostic Test Accuracy</em>. Version 1.0. The Cochrane Collaboration; 2010. <a class="external-link" href="https://methods.cochrane.org/sdt/handbook-dta-reviews" target="_blank" rel="noopener">Handbook</a>',
+          'Doebler P, Holling H. <em>mada: Meta-Analysis of Diagnostic Accuracy</em>. R package version 0.5.11. <a class="external-link" href="https://CRAN.R-project.org/package=mada" target="_blank" rel="noopener">CRAN</a>',
+          'McGrath S, Sohn H, Steele R, Benedetti A. Meta-analysis of the difference of medians. <em>Biom J</em>. 2020;62(1):69&ndash;98. (cited for Clopper&ndash;Pearson exact CI usage; classic primary ref: Clopper CJ, Pearson ES. <em>Biometrika</em> 1934;26:404&ndash;413.)'
+        ];
+
+        var html = '<h3 class="subsection-title">Included studies</h3>' +
+          '<ol style="margin:0 0 1.5rem;padding-left:1.5rem;">' + items + '</ol>' +
+          '<h3 class="subsection-title">Methods &amp; software</h3>' +
+          '<ol start="' + (allTrials.length + 1) + '" style="margin:0;padding-left:1.5rem;">' +
+          methodRefs.map(function (r) { return '<li style="margin-bottom:0.5rem;font-size:0.9rem;">' + r + '</li>'; }).join('') +
+          '</ol>';
+
+        container.innerHTML = html;
+      }
+
       function refit() {
         var rows = currentTier === 'primary' ? trials_primary : trials_combined;
         currentFit = DTA.fit(rows);
         renderSummary(currentFit);
         renderTrials(rows);
+        renderForest(rows, currentFit);
+        renderSROC(rows, currentFit);
+        renderHeterogeneity(currentFit);
+        renderSubgroups();
+        renderMethods();
+        renderReferences();
       }
 
       function init() {
