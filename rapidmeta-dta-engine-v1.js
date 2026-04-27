@@ -348,6 +348,64 @@
     }
   }
 
+  // ---------- Inverse Student-t quantile (Wilson-Hilferty / beta-inverse) ----------
+  // For df >= 1, returns t such that P(T_df <= t) = p.
+  // Uses the relation: if X ~ Beta(df/2, df/2), then t = sqrt(df) * (X - 0.5) / sqrt(X*(1-X))
+  // i.e., we invert the beta CDF then transform.
+  function tinv(p, df) {
+    if (df < 1 || !isFinite(df)) return NaN;
+    if (p <= 0) return -Infinity;
+    if (p >= 1) return Infinity;
+    // Symmetry: handle p < 0.5 by reflection
+    var negate = false;
+    if (p < 0.5) { negate = true; p = 1 - p; }
+    // For T_df, P(T<=t) = 1 - 0.5 * I_{df/(df+t^2)}(df/2, 1/2) for t>=0
+    // Solve for x = df/(df+t^2): I_x(df/2, 1/2) = 2*(1 - p)
+    var alpha = 2 * (1 - p);
+    if (alpha <= 0) alpha = 1e-12;
+    if (alpha >= 1) alpha = 1 - 1e-12;
+    var x = qbeta(alpha, df / 2, 0.5);
+    // x = df/(df+t^2)  =>  t = sqrt(df*(1-x)/x)
+    if (x <= 0) return Infinity * (negate ? -1 : 1);
+    var t = Math.sqrt(df * (1 - x) / x);
+    return negate ? -t : t;
+  }
+
+  // ---------- Prediction Interval (Higgins 2009 / Riley 2011, t_{k-2} on logit scale) ----------
+  // P0-3: per-axis PI for future-study Sens/Spec. Undefined for k<3 or single-study fits.
+  function predict(fitResult) {
+    if (!fitResult || !fitResult._fitInternal) {
+      return { pi_sens_lb: null, pi_sens_ub: null, pi_spec_lb: null, pi_spec_ub: null, df: null };
+    }
+    var k = fitResult.k;
+    var fi = fitResult._fitInternal;
+    if (k < 3 || fi.estimator === 'single_study_clopper_pearson') {
+      return { pi_sens_lb: null, pi_sens_ub: null, pi_spec_lb: null, pi_spec_ub: null, df: null };
+    }
+    var df = k - 2;
+    var t975 = tinv(0.975, df);
+    if (!isFinite(t975)) {
+      return { pi_sens_lb: null, pi_sens_ub: null, pi_spec_lb: null, pi_spec_ub: null, df: df };
+    }
+    var tau2_s = (fi.tau2_sens && isFinite(fi.tau2_sens)) ? fi.tau2_sens : 0;
+    var tau2_c = (fi.tau2_spec && isFinite(fi.tau2_spec)) ? fi.tau2_spec : 0;
+    var se_s = fi.se_sens_logit, se_c = fi.se_spec_logit;
+    var pi_se_s = Math.sqrt(tau2_s + se_s * se_s);
+    var pi_se_c = Math.sqrt(tau2_c + se_c * se_c);
+    function back(mu, halfwidth) {
+      var lo = 1 / (1 + Math.exp(-(mu - halfwidth)));
+      var hi = 1 / (1 + Math.exp(-(mu + halfwidth)));
+      return [lo, hi];
+    }
+    var sens_pi = back(fi.mu_sens_logit, t975 * pi_se_s);
+    var spec_pi = back(fi.mu_spec_logit, t975 * pi_se_c);
+    return {
+      pi_sens_lb: sens_pi[0], pi_sens_ub: sens_pi[1],
+      pi_spec_lb: spec_pi[0], pi_spec_ub: spec_pi[1],
+      df: df
+    };
+  }
+
   // ---------- Spearman rank correlation (threshold-effect indicator) ----------
   function spearmanRho(xs, ys) {
     function ranks(arr){
@@ -504,7 +562,32 @@
 
     // Estimator selection
     var fitObj, fallback = null;
-    if (k_raw < 5) {
+    if (k_raw === 1) {
+      // P0-2: single study — no meta-analysis possible. Report Clopper-Pearson per axis
+      // and label estimator='single_study_clopper_pearson' instead of misleading fe_bivariate.
+      var t1 = working[0];
+      var ps1 = perStudy(t1);
+      // Logit-scale point + Wald SE on logit (used downstream for back-transformed CI; the
+      // exact Clopper-Pearson CI is also surfaced via per_study row for reporting).
+      var sens_logit = Math.log(ps1.sens / (1 - ps1.sens));
+      var spec_logit = Math.log(ps1.spec / (1 - ps1.spec));
+      var se_sens_logit = Math.sqrt(1 / t1.TP + 1 / t1.FN);
+      var se_spec_logit = Math.sqrt(1 / t1.TN + 1 / t1.FP);
+      fitObj = {
+        mu_sens_logit: sens_logit,
+        mu_spec_logit: spec_logit,
+        se_sens_logit: se_sens_logit,
+        se_spec_logit: se_spec_logit,
+        cov_sens_spec_logit: 0,
+        tau2_sens: null,
+        tau2_spec: null,
+        rho: null,
+        iterations: 0,
+        converged: true,
+        estimator: 'single_study_clopper_pearson'
+      };
+      fallback = 'single_study';
+    } else if (k_raw < 5) {
       fitObj = feBivariate(working);
       fallback = 'fe_bivariate';
     } else {
@@ -567,11 +650,141 @@
     };
   }
 
+  // ---------- Reitsma REML with rho FIXED at 0 (2-param: tau2_s, tau2_c) ----------
+  // Used as a defensive refit when unconstrained REML pushes rho to ±1 (boundary).
+  // P0-1: real 2-parameter REML on the rho=0 sub-model — NOT an FE collapse.
   function reitsmaREMLRhoZero(trials, opts) {
-    // Same as reitsmaREML but rho is fixed at 0; only optimize tau2_s and tau2_c.
-    // SHORT: refit using FE for now and tag — TODO if proper 2-parameter REML proves needed.
+    opts = opts || {};
+    var max_iter = opts.max_iter || 500;
+    var tol = opts.tol || 1e-7;
+
+    // Per-study (y_i, Sigma_i) — same build as reitsmaREML.
+    var ys = [], Sigs = [];
+    for (var i = 0; i < trials.length; i++) {
+      var t = trials[i], pos = t.TP + t.FN, neg = t.TN + t.FP;
+      var sens = t.TP / pos, spec = t.TN / neg;
+      ys.push([Math.log(sens / (1 - sens)), Math.log(spec / (1 - spec))]);
+      Sigs.push([[1 / t.TP + 1 / t.FN, 0], [0, 1 / t.TN + 1 / t.FP]]);
+    }
+
+    // Profile likelihood with rho fixed at 0 -> Omega is diagonal,
+    // each axis decouples in V_i, and mu_hat is the inverse-variance-weighted
+    // logit on each axis at the candidate (tau2_s, tau2_c).
+    function negLogLikRhoZero(par) {
+      var ts = par[0], tc = par[1];
+      if (ts <= 1e-10 || tc <= 1e-10) return 1e20;
+      var sV = [[0, 0], [0, 0]], sVy = [0, 0];
+      var Vis = [], dets = [];
+      for (var i = 0; i < ys.length; i++) {
+        var v00 = Sigs[i][0][0] + ts;
+        var v11 = Sigs[i][1][1] + tc;
+        var det = v00 * v11;  // diagonal
+        if (det <= 1e-15) return 1e20;
+        dets.push(det);
+        var Vmi = [[1 / v00, 0], [0, 1 / v11]];
+        Vis.push(Vmi);
+        sV[0][0] += Vmi[0][0]; sV[1][1] += Vmi[1][1];
+        sVy[0] += Vmi[0][0] * ys[i][0];
+        sVy[1] += Vmi[1][1] * ys[i][1];
+      }
+      var detSV = sV[0][0] * sV[1][1];
+      if (detSV <= 1e-15) return 1e20;
+      var muHat = [sVy[0] / sV[0][0], sVy[1] / sV[1][1]];
+      var ll = 0;
+      for (var i = 0; i < ys.length; i++) {
+        var Vmi = Vis[i];
+        var dy0 = ys[i][0] - muHat[0], dy1 = ys[i][1] - muHat[1];
+        var quad = dy0 * Vmi[0][0] * dy0 + dy1 * Vmi[1][1] * dy1;
+        ll += 0.5 * Math.log(dets[i]) + 0.5 * quad;
+      }
+      ll += 0.5 * Math.log(detSV);
+      return ll;
+    }
+
+    // 2-D Nelder-Mead simplex on (tau2_s, tau2_c).
+    function nm2(f, x0, maxIter, tolNM) {
+      var n = 2, alpha = 1, gamma = 2, rhoNM = 0.5, sigma = 0.5;
+      var s = [x0.slice(), [x0[0] + 0.1, x0[1]], [x0[0], x0[1] + 0.1]];
+      var fv = s.map(f);
+      var iter, conv = false;
+      for (iter = 0; iter < maxIter; iter++) {
+        var ord = s.map(function (_, i) { return i; })
+                   .sort(function (a, b) { return fv[a] - fv[b]; });
+        s = ord.map(function (i) { return s[i]; });
+        fv = ord.map(function (i) { return fv[i]; });
+        var spread = 0;
+        for (var j = 0; j < n; j++) {
+          var mn = s[0][j], mx = s[0][j];
+          for (var k = 1; k <= n; k++) {
+            if (s[k][j] < mn) mn = s[k][j];
+            if (s[k][j] > mx) mx = s[k][j];
+          }
+          spread += (mx - mn);
+        }
+        if (spread < tolNM) { conv = true; break; }
+        var c = [0, 0];
+        for (var i = 0; i < n; i++) for (var j = 0; j < n; j++) c[j] += s[i][j];
+        for (var j = 0; j < n; j++) c[j] /= n;
+        var w = s[n], fw = fv[n];
+        var xr = [c[0] + alpha * (c[0] - w[0]), c[1] + alpha * (c[1] - w[1])];
+        var fr = f(xr);
+        if (fv[0] <= fr && fr < fv[n - 1]) { s[n] = xr; fv[n] = fr; continue; }
+        if (fr < fv[0]) {
+          var xe = [c[0] + gamma * (xr[0] - c[0]), c[1] + gamma * (xr[1] - c[1])];
+          var fe2 = f(xe);
+          if (fe2 < fr) { s[n] = xe; fv[n] = fe2; } else { s[n] = xr; fv[n] = fr; }
+          continue;
+        }
+        var xc;
+        if (fr < fw) xc = [c[0] + rhoNM * (xr[0] - c[0]), c[1] + rhoNM * (xr[1] - c[1])];
+        else xc = [c[0] + rhoNM * (w[0] - c[0]), c[1] + rhoNM * (w[1] - c[1])];
+        var fc = f(xc);
+        if (fc < Math.min(fr, fw)) { s[n] = xc; fv[n] = fc; continue; }
+        for (var i = 1; i <= n; i++) {
+          for (var j = 0; j < n; j++) s[i][j] = s[0][j] + sigma * (s[i][j] - s[0][j]);
+          fv[i] = f(s[i]);
+        }
+      }
+      return { x: s[0], f: fv[0], iter: iter, converged: conv };
+    }
+
+    // Warm-start from FE bivariate variance components if available.
     var fe = feBivariate(trials);
-    return Object.assign({}, fe, { rho: 0, converged: true, iterations: 0, estimator: 'reml_rho_zero', _stub: true });
+    var x0 = [
+      Math.max(0.01, isFinite(fe.tau2_sens) && fe.tau2_sens > 0 ? fe.tau2_sens : 0.05),
+      Math.max(0.01, isFinite(fe.tau2_spec) && fe.tau2_spec > 0 ? fe.tau2_spec : 0.05)
+    ];
+    var result = nm2(negLogLikRhoZero, x0, max_iter, tol);
+    var tau2_s = result.x[0], tau2_c = result.x[1];
+
+    // Final marginal SEs at converged variance components, rho=0.
+    var sumVinvF = [[0, 0], [0, 0]], sVyF = [0, 0];
+    for (var i = 0; i < ys.length; i++) {
+      var v00 = Sigs[i][0][0] + tau2_s;
+      var v11 = Sigs[i][1][1] + tau2_c;
+      var Vfi00 = 1 / v00, Vfi11 = 1 / v11;
+      sumVinvF[0][0] += Vfi00; sumVinvF[1][1] += Vfi11;
+      sVyF[0] += Vfi00 * ys[i][0];
+      sVyF[1] += Vfi11 * ys[i][1];
+    }
+    var muS_final = sVyF[0] / sumVinvF[0][0];
+    var muC_final = sVyF[1] / sumVinvF[1][1];
+
+    return {
+      mu_sens_logit: muS_final,
+      mu_spec_logit: muC_final,
+      se_sens_logit: Math.sqrt(1 / sumVinvF[0][0]),
+      se_spec_logit: Math.sqrt(1 / sumVinvF[1][1]),
+      cov_sens_spec_logit: 0,  // by construction
+      tau2_sens: tau2_s,
+      tau2_spec: tau2_c,
+      rho: 0,
+      iterations: result.iter,
+      converged: result.converged,
+      estimator: 'reml_rho_zero',
+      rho_at_boundary: false,
+      _stub: false  // genuine 2-param REML fit, not FE collapse
+    };
   }
 
   function exportResults(fitResult) {
@@ -590,7 +803,8 @@
     sroc: _sroc,
     hsrocReparam: _hsrocReparam,
     forest: _forest,
+    predict: predict,
     _version: '1.0.0',
-    _internal: { matmul, inv2x2, clopperPearson, perStudy, applyContinuityCorrection, feBivariate, lnGamma, ibeta, qbeta, reitsmaREML, reitsmaREMLRhoZero, spearmanRho, _ppvNpv, _sroc, _hsrocReparam, _forest }
+    _internal: { matmul, inv2x2, clopperPearson, perStudy, applyContinuityCorrection, feBivariate, lnGamma, ibeta, qbeta, reitsmaREML, reitsmaREMLRhoZero, spearmanRho, tinv, predict, _ppvNpv, _sroc, _hsrocReparam, _forest }
   };
 })(typeof window !== 'undefined' ? window : globalThis);

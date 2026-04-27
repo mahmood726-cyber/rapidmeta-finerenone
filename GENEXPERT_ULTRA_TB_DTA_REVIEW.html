@@ -1354,7 +1354,7 @@
 <body>
   <header class="page-header">
     <h1>GeneXpert MTB/RIF Ultra for Pulmonary TB</h1>
-    <p class="subtitle">Diagnostic Test Accuracy Living Review &middot; v1.1.0 &middot; 2026-04-27</p>
+    <p class="subtitle">Diagnostic Test Accuracy Living Review &middot; v1.0.0 &middot; 2026-04-27</p>
   </header>
 
   <!-- Stale-data banner (feature 4) — populated at init() from extracted_at fields -->
@@ -1382,28 +1382,91 @@
 
   <nav class="tab-nav" aria-label="Review sections">
     <ul role="tablist">
-      <li><button class="tab-button active" data-tab="protocol" role="tab" aria-selected="true">1. Protocol</button></li>
-      <li><button class="tab-button" data-tab="search" role="tab" aria-selected="false">2. Search</button></li>
-      <li><button class="tab-button" data-tab="screening" role="tab" aria-selected="false">3. Screening</button></li>
-      <li><button class="tab-button" data-tab="extraction" role="tab" aria-selected="false">4. Extraction</button></li>
-      <li><button class="tab-button" data-tab="quadas" role="tab" aria-selected="false">5. QUADAS-2</button></li>
-      <li><button class="tab-button" data-tab="grade" role="tab" aria-selected="false">6. GRADE</button></li>
-      <li><button class="tab-button" data-tab="summary" role="tab" aria-selected="false">7. Summary</button></li>
-      <li><button class="tab-button" data-tab="trials" role="tab" aria-selected="false">8. Trials</button></li>
-      <li><button class="tab-button" data-tab="forest" role="tab" aria-selected="false">9. Forest</button></li>
-      <li><button class="tab-button" data-tab="sroc" role="tab" aria-selected="false">10. SROC</button></li>
-      <li><button class="tab-button" data-tab="heterogeneity" role="tab" aria-selected="false">11. Heterogeneity</button></li>
-      <li><button class="tab-button" data-tab="sensitivity" role="tab" aria-selected="false">12. Sensitivity</button></li>
-      <li><button class="tab-button" data-tab="subgroups" role="tab" aria-selected="false">13. Subgroups</button></li>
-      <li><button class="tab-button" data-tab="methods" role="tab" aria-selected="false">14. Methods</button></li>
-      <li><button class="tab-button" data-tab="references" role="tab" aria-selected="false">15. References</button></li>
-      <li><button class="tab-button" data-tab="report" role="tab" aria-selected="false">16. Scientific Output</button></li>
+      <li><button class="tab-button active" data-tab="plain" role="tab" aria-selected="true">1. Plain-language summary</button></li>
+      <li><button class="tab-button" data-tab="protocol" role="tab" aria-selected="false">2. Protocol</button></li>
+      <li><button class="tab-button" data-tab="search" role="tab" aria-selected="false">3. Search</button></li>
+      <li><button class="tab-button" data-tab="screening" role="tab" aria-selected="false">4. Screening</button></li>
+      <li><button class="tab-button" data-tab="extraction" role="tab" aria-selected="false">5. Extraction</button></li>
+      <li><button class="tab-button" data-tab="quadas" role="tab" aria-selected="false">6. QUADAS-2</button></li>
+      <li><button class="tab-button" data-tab="grade" role="tab" aria-selected="false">7. GRADE</button></li>
+      <li><button class="tab-button" data-tab="summary" role="tab" aria-selected="false">8. Summary</button></li>
+      <li><button class="tab-button" data-tab="trials" role="tab" aria-selected="false">9. Trials</button></li>
+      <li><button class="tab-button" data-tab="forest" role="tab" aria-selected="false">10. Forest</button></li>
+      <li><button class="tab-button" data-tab="sroc" role="tab" aria-selected="false">11. SROC</button></li>
+      <li><button class="tab-button" data-tab="heterogeneity" role="tab" aria-selected="false">12. Heterogeneity</button></li>
+      <li><button class="tab-button" data-tab="sensitivity" role="tab" aria-selected="false">13. Sensitivity</button></li>
+      <li><button class="tab-button" data-tab="subgroups" role="tab" aria-selected="false">14. Subgroups</button></li>
+      <li><button class="tab-button" data-tab="methods" role="tab" aria-selected="false">15. Methods</button></li>
+      <li><button class="tab-button" data-tab="references" role="tab" aria-selected="false">16. References</button></li>
+      <li><button class="tab-button" data-tab="report" role="tab" aria-selected="false">17. Scientific Output</button></li>
     </ul>
   </nav>
 
   <main class="container-rm">
-    <!-- ===================== Protocol tab (1) ===================== -->
-    <section id="tab-protocol" class="tab-panel active" role="tabpanel" aria-labelledby="tab-btn-protocol">
+    <!-- ===================== Plain-language summary tab (1) ===================== -->
+    <section id="tab-plain" class="tab-panel active" role="tabpanel" aria-labelledby="tab-btn-plain">
+      <h2 class="section-title">Plain-language summary</h2>
+      <p style="font-size:0.85rem;color:#6b7280;margin:0 0 1rem;">
+        Written for a general reader. About 300 words, Grade-8 reading level. The full technical review is in the other tabs.
+      </p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:0.9rem;margin-bottom:1.25rem;">
+        <div style="background:#ffffff;border:1px solid #e5e7eb;border-left:4px solid #1d4ed8;border-radius:0.375rem;padding:0.9rem;">
+          <h3 style="font-size:1rem;color:#1e3a8a;margin:0 0 0.5rem;">What this review is about</h3>
+          <p style="font-size:0.92rem;color:#374151;margin:0;line-height:1.5;">
+            GeneXpert Ultra is a rapid molecular test for tuberculosis (TB), endorsed by the World Health Organization in 2017. It detects TB DNA in sputum (or other samples) within about 90 minutes &mdash; much faster than traditional culture, which can take weeks.
+          </p>
+        </div>
+        <div style="background:#ffffff;border:1px solid #e5e7eb;border-left:4px solid #1d4ed8;border-radius:0.375rem;padding:0.9rem;">
+          <h3 style="font-size:1rem;color:#1e3a8a;margin:0 0 0.5rem;">What we did</h3>
+          <p style="font-size:0.92rem;color:#374151;margin:0;line-height:1.5;">
+            We searched ClinicalTrials.gov and PubMed for studies that tested GeneXpert Ultra in people who might have lung TB, between 2017 and 2026. We found 5 studies that we could include with extractable accuracy numbers.
+          </p>
+        </div>
+      </div>
+
+      <div style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:0.375rem;padding:0.9rem;margin-bottom:1.25rem;">
+        <h3 style="font-size:1rem;color:#065f46;margin:0 0 0.5rem;">What we found</h3>
+        <p style="font-size:0.92rem;color:#374151;margin:0 0 0.5rem;line-height:1.5;">
+          For adults with TB symptoms whose samples were tested against the gold-standard TB culture (2 studies, ~2100 people):
+        </p>
+        <ul style="font-size:0.92rem;color:#374151;margin:0 0 0.5rem;padding-left:1.25rem;line-height:1.5;">
+          <li><strong>Sensitivity ~89%</strong>: about 1 in 10 people with TB are missed on first test.</li>
+          <li><strong>Specificity ~96%</strong>: about 4 in 100 healthy people get a false-positive result.</li>
+        </ul>
+        <p style="font-size:0.92rem;color:#374151;margin:0;line-height:1.5;">
+          For children, where TB is harder to diagnose because they produce less of the bacteria, the test misses about half of true cases on stool samples.
+        </p>
+      </div>
+
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:0.375rem;padding:0.9rem;margin-bottom:1.25rem;">
+        <h3 style="font-size:1rem;color:#1e40af;margin:0 0 0.5rem;">What this means for you</h3>
+        <p style="font-size:0.92rem;color:#374151;margin:0 0 0.5rem;line-height:1.5;">
+          If your doctor uses Ultra and the result is <strong>positive</strong>, the chance you really have TB is high &mdash; but you should still have a confirmatory culture, especially if you've had TB before (false positives are more common then).
+        </p>
+        <p style="font-size:0.92rem;color:#374151;margin:0;line-height:1.5;">
+          If the result is <strong>negative</strong>, that mostly rules out TB in adults. In children, a negative test does NOT rule out TB &mdash; you need clinical follow-up.
+        </p>
+      </div>
+
+      <div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:0.375rem;padding:0.9rem;margin-bottom:1.25rem;">
+        <h3 style="font-size:1rem;color:#92400e;margin:0 0 0.5rem;">Important limitations</h3>
+        <ul style="font-size:0.92rem;color:#374151;margin:0;padding-left:1.25rem;line-height:1.5;">
+          <li>We only included 5 studies &mdash; much smaller than the Cochrane review of GeneXpert Ultra (which has 70+ studies). Use this review as a methods example, not as the definitive evidence on Ultra.</li>
+          <li>Data came from study abstracts only, not the full papers.</li>
+          <li>Children, adults, and different sample types are mixed in the headline number &mdash; see the Subgroups tab for more specific results.</li>
+        </ul>
+      </div>
+
+      <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:0.375rem;padding:0.9rem;">
+        <h3 style="font-size:1rem;color:#374151;margin:0 0 0.5rem;">Next update</h3>
+        <p style="font-size:0.92rem;color:#374151;margin:0;line-height:1.5;">
+          Last search: 2026-04-27. Next planned check: 2026-07-27 (3 months).
+        </p>
+      </div>
+    </section>
+
+    <!-- ===================== Protocol tab (2) ===================== -->
+    <section id="tab-protocol" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-protocol">
       <h2 class="section-title">Protocol</h2>
       <p style="font-size:0.875rem;color:#4b5563;margin-bottom:1rem;">
         Diagnostic Test Accuracy Living Review &middot; v1.0.0 (2026-04-27). Pre-specified before extraction; living protocol updates are tracked in the project repository.
@@ -1451,16 +1514,16 @@
         </div>
       </div>
 
-      <h3 class="subsection-title">Pre-registration</h3>
+      <h3 class="subsection-title">Pre-registration disclosure</h3>
       <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1rem;margin-bottom:1.5rem;">
         <p style="font-size:0.875rem;color:#374151;margin:0 0 0.5rem;">
-          <strong>Build-time spec:</strong> <code>docs/superpowers/specs/2026-04-27-rapidmeta-dta-engine-design.md</code> (commit <code>ab2828f</code>).
+          <strong>This review was not prospectively registered with PROSPERO before search execution.</strong>
         </p>
         <p style="font-size:0.875rem;color:#374151;margin:0 0 0.5rem;">
-          <strong>Implementation plan:</strong> <code>docs/superpowers/plans/2026-04-27-rapidmeta-dta-implementation.md</code> (commit <code>0e50486</code>).
+          The build-time spec (<code>docs/superpowers/specs/2026-04-27-rapidmeta-dta-engine-design.md</code>, commit <code>ab2828f</code>) and implementation plan (<code>docs/superpowers/plans/2026-04-27-rapidmeta-dta-implementation.md</code>, commit <code>0e50486</code>) provide internal versioning of the protocol, but these are not third-party temporal evidence.
         </p>
         <p style="font-size:0.875rem;color:#374151;margin:0;">
-          <strong>PROSPERO registration:</strong> not yet filed (deferred to v1.1 follow-up).
+          <strong>For methods-paper submission</strong> this is disclosed as a non-prospective registration: the present review is positioned as a methods-engine demonstration (RapidMeta DTA engine using GeneXpert Ultra as a worked example), not a substantive clinical-evidence claim about Ultra. <strong>For any clinical-evidence claim</strong> a retrospective PROSPERO record will be filed and linked here.
         </p>
       </div>
 
@@ -1471,14 +1534,14 @@
             <tr><th>Gate</th><th>Threshold</th><th>Outcome (this review)</th></tr>
           </thead>
           <tbody>
-            <tr><td>Primary tier (CT.gov-linked)</td><td>k &ge; 5</td><td><span class="badge badge-amber">k = 1 &mdash; coverage warning</span></td></tr>
-            <tr><td>Combined tier (primary + sensitivity)</td><td>k &ge; 8</td><td><span class="badge badge-amber">k = 5 &mdash; coverage warning</span></td></tr>
-            <tr><td>Combined tier floor</td><td>k &ge; 5</td><td><span class="badge badge-green">k = 5 &mdash; clears floor</span></td></tr>
+            <tr><td>Sputum + culture (default headline)</td><td>k &ge; 5</td><td><span class="badge badge-amber">k = 2 &mdash; coverage warning</span></td></tr>
+            <tr><td>All sputum / respiratory</td><td>k &ge; 5</td><td><span class="badge badge-amber">k = 4 &mdash; coverage warning</span></td></tr>
+            <tr><td>Combined all-tier (disclosure only)</td><td>k &ge; 8</td><td><span class="badge badge-amber">k = 5 &mdash; coverage warning</span></td></tr>
           </tbody>
         </table>
       </div>
       <p style="font-size:0.85rem;color:#4b5563;margin:0;">
-        Both tiers fall below the k &ge; 8 ceiling, so the engine ships under a coverage banner per the fallback rule. The combined tier just clears the k &ge; 5 floor.
+        All three tiers fall below the k &ge; 8 ceiling, so the engine ships under a coverage banner per the fallback rule. This is consistent with the methods-paper framing &mdash; the review demonstrates the RapidMeta DTA engine on a small worked-example dataset and is not the substantive evidence base for Xpert Ultra (the Cochrane review of Ultra has 70+ studies).
       </p>
     </section>
 
@@ -1827,16 +1890,30 @@
 
       <div class="tier-selector">
         <h3 class="subsection-title">Tier selection</h3>
-        <label><input type="radio" name="tier" value="primary"> Primary tier only (CT.gov-linked, k=1)</label>
-        <label><input type="radio" name="tier" value="combined" checked> Combined: primary + PubMed-abstract sensitivity tier (k=5)</label>
+        <p style="font-size:0.85rem;color:#374151;margin:0 0 0.6rem;">
+          Three pre-computed tiers reflect different methodological defensibility levels for the headline pool. Default is <strong>Sputum + culture</strong> (k=2) &mdash; the methodologically defensible adult sputum-vs-culture subset. The <strong>Combined</strong> tier (k=5) is provided for completeness with a disclosure banner; it pools studies that differ on population (adult vs. pediatric), specimen (sputum vs. stool), and reference standard (culture vs. composite/clinical) and so should not be used directly for clinical decisions.
+        </p>
+        <label><input type="radio" name="tier" value="sputum_culture" checked> Sputum + culture (k=2): Dorman 2018, Andama 2021 &mdash; adult sputum vs culture</label>
+        <label><input type="radio" name="tier" value="sputum_resp"> All sputum / respiratory (k=4): drops stool-only (Kabir 2021)</label>
+        <label><input type="radio" name="tier" value="combined"> Combined all-tier (k=5): full disclosure &mdash; not for clinical decisions</label>
       </div>
+      <div id="tier-cards" style="margin-top:0.75rem;"></div>
 
       <!-- ===== Feature 1: Fagan nomogram ===== -->
       <div class="fagan-panel">
         <h3 class="subsection-title">Fagan nomogram &mdash; pre-test &rarr; post-test probability</h3>
-        <p style="font-size:0.85rem;color:#374151;margin:0 0 0.75rem;">
-          Move the slider to translate a pre-test (clinical-suspicion) probability into a post-test probability using the active tier's pooled LR+ and LR&minus;. The nomogram beneath shows the classical 3-axis construction: pre-test probability on the left, likelihood ratio in the middle, post-test probability on the right.
+        <p style="font-size:0.85rem;color:#374151;margin:0 0 0.5rem;">
+          Move the slider to translate a pre-test (clinical-suspicion) probability into a post-test probability using the chosen tier's pooled LR+ and LR&minus;. The nomogram beneath shows the classical 3-axis construction: pre-test probability on the left, likelihood ratio in the middle, post-test probability on the right.
         </p>
+        <div class="fagan-row" style="margin-bottom:0.5rem;">
+          <label for="fagan-tier-select" style="font-size:0.8rem;font-weight:600;color:#374151;">Tier for LR+/LR&minus;:</label>
+          <select id="fagan-tier-select" style="padding:0.3rem 0.5rem;font-size:0.85rem;border:1px solid #d1d5db;border-radius:0.25rem;">
+            <option value="sputum_culture">Sputum + culture (k=2) &mdash; default, adult sputum-culture clinical decisions</option>
+            <option value="sputum_resp">All sputum / respiratory (k=4)</option>
+            <option value="combined">Combined (k=5) &mdash; not for clinical decisions</option>
+          </select>
+          <span id="fagan-tier-warn" style="font-size:0.75rem;color:#b45309;"></span>
+        </div>
         <div class="fagan-row">
           <label for="fagan-slider">Pre-test probability:</label>
           <input type="range" id="fagan-slider" min="-3" max="-0.0044" step="0.01" value="-1.0" aria-label="Pre-test probability (log scale)">
@@ -1987,6 +2064,33 @@
           </select>
         </div>
         <div>
+          <label for="sg-hiv-status" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">hiv_status</label>
+          <select id="sg-hiv-status" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:160px;">
+            <option value="any">any</option>
+            <option value="mixed">mixed</option>
+            <option value="low_or_unknown">low_or_unknown</option>
+            <option value="mostly_hivpos">mostly_hivpos</option>
+          </select>
+        </div>
+        <div>
+          <label for="sg-smear-status" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">smear_status</label>
+          <select id="sg-smear-status" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:200px;">
+            <option value="any">any</option>
+            <option value="mixed">mixed</option>
+            <option value="mostly_smear_positive">mostly_smear_positive</option>
+            <option value="mostly_smear_negative">mostly_smear_negative</option>
+          </select>
+          <div style="font-size:0.65rem;color:#6b7280;margin-top:0.15rem;">descriptive only &mdash; rarely reported</div>
+        </div>
+        <div>
+          <label for="sg-prior-tb" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">prior_tb_history</label>
+          <select id="sg-prior-tb" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:140px;">
+            <option value="any">any</option>
+            <option value="included">included</option>
+            <option value="excluded">excluded</option>
+          </select>
+        </div>
+        <div>
           <button type="button" id="sg-reset" style="padding:0.45rem 0.9rem;background:#f3f4f6;border:1px solid #d1d5db;border-radius:0.25rem;cursor:pointer;font:inherit;">Reset</button>
         </div>
       </div>
@@ -2005,7 +2109,7 @@
 
       <h3 class="subsection-title">GRADE-DTA notes</h3>
       <p style="font-size:0.9rem;color:#374151;margin:0 0 1.5rem;">
-        Certainty assessment is informed by (a) study limitations &mdash; QUADAS-2 was not formally tabulated in this v1 release; (b) inconsistency &mdash; visible heterogeneity (population, specimen, reference standard) prompts downgrading; (c) indirectness &mdash; reference-standard variability across tiers is the principal source; (d) imprecision &mdash; k&lt;10 triggers a coverage warning on Wald CIs; (e) publication bias &mdash; not formally assessed (Deeks' funnel plot requires k&ge;10). Tier divergence &gt;5pp on Sens or Spec is surfaced as a headline banner.
+        Certainty assessment is informed by (a) study limitations &mdash; QUADAS-2 is tabulated in the QUADAS-2 tab; auto-assessed RoB judgments feed the GRADE Risk of Bias domain. Reviewer overrides in edit mode persist via localStorage and are included in JSON export; (b) inconsistency &mdash; visible heterogeneity (population, specimen, reference standard) prompts downgrading; (c) indirectness &mdash; reference-standard variability across tiers is the principal source; (d) imprecision &mdash; per Schunemann 2020 GRADE-DTA, the imprecision rating uses an editable clinical decision threshold (set per outcome in the GRADE tab); when no threshold is supplied the engine falls back to a heuristic CI-width assessment, prefixed "[Heuristic]" in the rationale. For DOR, the CI width is computed on the log scale (log(DOR_ub / DOR_lb)); (e) publication bias &mdash; not formally assessed (Deeks' funnel plot requires k&ge;10). Tier divergence &gt;5pp on Sens or Spec is surfaced as a headline banner.
       </p>
 
       <h3 class="subsection-title">R cross-validation (mada)</h3>
@@ -2064,10 +2168,40 @@
       var BASELINE = JSON.parse(document.getElementById('dta-trials').textContent);
       function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
       var data = deepClone(BASELINE); // working copy; mutated by applyEdits
-      var trials_primary = data.primary_tier.slice();
-      var trials_combined = data.primary_tier.concat(data.sensitivity_tier_added);
+      // Tier definitions (P0-9):
+      //   sputum_culture (default, k=2): Dorman 2018 + Andama 2021 — adult sputum vs culture / culture-anchored composite
+      //   sputum_resp    (k=4): drop stool-only (Kabir 2021), keep adult + pediatric sputum/respiratory
+      //   combined       (k=5): all 5 with full disclosure
+      // Quan 2023 has incorporation bias (Xpert in composite reference) and is excluded from
+      // the sputum_culture default headline; it remains in the broader tiers for completeness.
+      function buildTiers() {
+        var allByLab = {};
+        data.primary_tier.concat(data.sensitivity_tier_added).forEach(function (t) {
+          allByLab[t.studlab] = t;
+        });
+        function pick(labels) {
+          return labels.map(function (l) { return allByLab[l]; }).filter(function (x) { return !!x; });
+        }
+        return {
+          sputum_culture: pick(['Dorman 2018', 'Andama 2021']),
+          sputum_resp:    pick(['Dorman 2018', 'Andama 2021', 'Quan 2023', 'Carvalho 2024']),
+          combined:       pick(['Dorman 2018', 'Andama 2021', 'Quan 2023', 'Carvalho 2024', 'Kabir 2021'])
+        };
+      }
+      var TIER_LABELS = {
+        sputum_culture: 'Sputum + culture (k=2)',
+        sputum_resp: 'All sputum / respiratory (k=4)',
+        combined: 'Combined all-tier (k=5)'
+      };
+      var TIER_KEYS = ['sputum_culture', 'sputum_resp', 'combined'];
+      var tiers = buildTiers();
+      // Back-compat: keep `trials_primary` and `trials_combined` aliases used elsewhere
+      // for the (kept) headline-banner divergence comparison and existing call sites.
+      var trials_primary = tiers.sputum_culture.slice();    // default sputum+culture
+      var trials_sputum_resp = tiers.sputum_resp.slice();
+      var trials_combined = tiers.combined.slice();
       var DTA;
-      var currentTier = 'combined';
+      var currentTier = 'sputum_culture';  // default headline (P0-9)
       var currentFit = null;
 
       // ===== localStorage edit-persistence layer =====
@@ -2228,8 +2362,15 @@
             if (Object.prototype.hasOwnProperty.call(ext, k)) t[k] = ext[k];
           });
         });
-        trials_primary = data.primary_tier.slice();
-        trials_combined = data.primary_tier.concat(data.sensitivity_tier_added);
+        // Rebuild tier views off the post-edit data
+        tiers = buildTiers();
+        trials_primary = tiers.sputum_culture.slice();
+        trials_sputum_resp = tiers.sputum_resp.slice();
+        trials_combined = tiers.combined.slice();
+      }
+      function trialsForTier(tierKey) {
+        if (!tiers || !tiers[tierKey]) return tiers.sputum_culture || [];
+        return tiers[tierKey];
       }
 
       // ===== QUADAS-2 specification (Whiting 2011) =====
@@ -2438,24 +2579,67 @@
 
       function renderHeadlineBanner() {
         try {
-          var primaryFit = DTA.fit(trials_primary);
+          var sputumCultureFit = DTA.fit(trials_primary);
           var combinedFit = DTA.fit(trials_combined);
-          var divSens = Math.abs(primaryFit.pooled_sens - combinedFit.pooled_sens) * 100;
-          var divSpec = Math.abs(primaryFit.pooled_spec - combinedFit.pooled_spec) * 100;
+          var divSens = Math.abs(sputumCultureFit.pooled_sens - combinedFit.pooled_sens) * 100;
+          var divSpec = Math.abs(sputumCultureFit.pooled_spec - combinedFit.pooled_spec) * 100;
           var maxDiv = Math.max(divSens, divSpec);
           if (maxDiv > 5) {
             document.getElementById('headline-banners').innerHTML =
               '<div class="banner banner-amber">' +
-                '<strong>&#9888; Tier divergence:</strong> Primary (CT.gov-only, k=' + primaryFit.k +
-                ') and sensitivity (CT.gov + PubMed-abstract, k=' + combinedFit.k +
-                ') tier estimates diverge by ' + maxDiv.toFixed(1) +
+                '<strong>&#9888; Tier divergence:</strong> Sputum+culture (k=' + sputumCultureFit.k +
+                ') and Combined (all tiers, k=' + combinedFit.k +
+                ') estimates diverge by ' + maxDiv.toFixed(1) +
                 'pp on Sens or Spec. The pooled estimate depends materially on whether ' +
-                'PubMed-abstract back-computed studies are included. See Methods tab for tier-by-tier breakdown.' +
+                'pediatric and stool-specimen studies are included. The default headline is the ' +
+                'methodologically defensible Sputum+culture (k=2) tier; the Combined tier is for ' +
+                'completeness only. See Methods tab for tier-by-tier breakdown.' +
               '</div>';
           }
         } catch (e) {
           console.error('renderHeadlineBanner failed:', e);
         }
+      }
+
+      // P0-7: 3 default tier comparator cards on Summary tab.
+      function renderTierCards() {
+        var host = document.getElementById('tier-cards');
+        if (!host) return;
+        var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.75rem;">';
+        TIER_KEYS.forEach(function (tk) {
+          var rows = trialsForTier(tk);
+          if (!rows || rows.length === 0) return;
+          var fit;
+          try { fit = DTA.fit(rows); } catch (e) { fit = null; }
+          var isCurrent = (tk === currentTier);
+          var border = isCurrent ? '2px solid #1d4ed8' : '1px solid #e5e7eb';
+          var bg = isCurrent ? '#eff6ff' : '#ffffff';
+          var caption = TIER_LABELS[tk] || tk;
+          if (!fit) {
+            html += '<div style="border:' + border + ';background:' + bg + ';border-radius:0.375rem;padding:0.7rem;">' +
+              '<div style="font-size:0.78rem;font-weight:600;color:#374151;">' + escapeHtml(caption) + '</div>' +
+              '<div style="font-size:0.85rem;color:#b91c1c;margin-top:0.3rem;">fit failed</div></div>';
+            return;
+          }
+          html += '<div style="border:' + border + ';background:' + bg + ';border-radius:0.375rem;padding:0.7rem;">' +
+            '<div style="font-size:0.78rem;font-weight:600;color:#374151;">' + escapeHtml(caption) +
+              (isCurrent ? ' <span style="font-size:0.65rem;color:#1d4ed8;">(active)</span>' : '') + '</div>' +
+            '<div style="font-size:0.78rem;color:#374151;margin-top:0.3rem;">' +
+              'Sens ' + fmt(fit.pooled_sens) + ' ' + fmtCI(fit.pooled_sens_ci_lb, fit.pooled_sens_ci_ub) + '<br>' +
+              'Spec ' + fmt(fit.pooled_spec) + ' ' + fmtCI(fit.pooled_spec_ci_lb, fit.pooled_spec_ci_ub) + '<br>' +
+              'DOR ' + fmtNum(fit.dor, 1) + ' (' + fmtNum(fit.dor_ci_lb, 1) + '&ndash;' + fmtNum(fit.dor_ci_ub, 1) + ')' +
+            '</div></div>';
+        });
+        html += '</div>';
+        // Disclosure banner when Combined active
+        if (currentTier === 'combined') {
+          html += '<div class="banner banner-amber" style="margin-top:0.6rem;">' +
+            '<strong>&#9888; Combined tier active &mdash; not for clinical decisions.</strong> ' +
+            'This pool mixes adults and children, sputum and stool, and 5 different reference standards. ' +
+            'Use the Sputum+culture (k=2) headline for adult sputum-vs-culture clinical decisions.' +
+            '</div>';
+        }
+        host.innerHTML = html;
       }
 
       // ----------- Forest plot -----------
@@ -2630,6 +2814,29 @@
       function renderHeterogeneity(fit) {
         var container = document.getElementById('heterogeneity-container');
         if (!container) return;
+        // P0-3: Prediction interval (Higgins 2009 / Riley 2011) — undefined for k<3 or single-study.
+        var pi = (DTA && typeof DTA.predict === 'function') ? DTA.predict(fit) : null;
+        var piRow = '';
+        if (pi && pi.pi_sens_lb != null) {
+          piRow =
+            '<div class="metric-card" style="background:#fef3c7;border-left:4px solid #d97706;">' +
+              '<div class="metric-label">95% Prediction Interval (Sens)</div>' +
+              '<div class="metric-value">' + fmt(pi.pi_sens_lb) + ' &ndash; ' + fmt(pi.pi_sens_ub) + '</div>' +
+              '<div class="metric-ci">future-study Sens, t<sub>' + pi.df + '</sub> on logit (Higgins 2009)</div>' +
+            '</div>' +
+            '<div class="metric-card" style="background:#fef3c7;border-left:4px solid #d97706;">' +
+              '<div class="metric-label">95% Prediction Interval (Spec)</div>' +
+              '<div class="metric-value">' + fmt(pi.pi_spec_lb) + ' &ndash; ' + fmt(pi.pi_spec_ub) + '</div>' +
+              '<div class="metric-ci">future-study Spec, t<sub>' + pi.df + '</sub> on logit (Higgins 2009)</div>' +
+            '</div>';
+        } else {
+          piRow =
+            '<div class="metric-card" style="background:#f9fafb;border-left:4px solid #9ca3af;">' +
+              '<div class="metric-label">95% Prediction Interval</div>' +
+              '<div class="metric-value" style="font-size:0.95rem;">undefined</div>' +
+              '<div class="metric-ci">requires k&ge;3 (and not single-study). Active k=' + fit.k + '.</div>' +
+            '</div>';
+        }
         var grid = '<div class="metric-grid">' +
           '<div class="metric-card"><div class="metric-label">tau&sup2; (Sens, logit)</div>' +
           '<div class="metric-value">' + fmtNum(fit.tau2_sens, 4) + '</div>' +
@@ -2649,6 +2856,7 @@
           '<div class="metric-card"><div class="metric-label">Estimator</div>' +
           '<div class="metric-value" style="font-size:1rem;">' + escapeHtml(fit.estimator || 'unknown') + '</div>' +
           '<div class="metric-ci">' + (fit.fallback ? 'fallback: ' + escapeHtml(String(fit.fallback)) : 'primary path') + '</div></div>' +
+          piRow +
           '</div>';
 
         var notes = '';
@@ -2780,10 +2988,29 @@
         var pa = document.getElementById('sg-population-age').value;
         var sp = document.getElementById('sg-specimen').value;
         var rs = document.getElementById('sg-reference-standard').value;
+        // P0-12: HIV / smear / prior-TB filters. Missing fields are treated as non-matching
+        // when a non-"any" value is requested, so tabs that lack the data show "k=0 descriptive only".
+        var hivEl = document.getElementById('sg-hiv-status');
+        var smEl = document.getElementById('sg-smear-status');
+        var ptEl = document.getElementById('sg-prior-tb');
+        var hivVal = hivEl ? hivEl.value : 'any';
+        var smVal = smEl ? smEl.value : 'any';
+        var ptVal = ptEl ? ptEl.value : 'any';
+        function hivMatches(t) {
+          if (hivVal === 'any') return true;
+          if (!t.hiv_status) return false;
+          if (hivVal === 'mostly_hivpos') return /mostly[_-]?hivpos|^hivpos|^mostly_hiv/i.test(t.hiv_status);
+          if (hivVal === 'mixed') return /^mixed/i.test(t.hiv_status);
+          if (hivVal === 'low_or_unknown') return /low_or_unknown|low|unknown/i.test(t.hiv_status);
+          return false;
+        }
         var filtered = trials_combined.filter(function (t) {
           if (pa !== 'any' && t.population_age !== pa) return false;
           if (sp !== 'any' && t.specimen !== sp) return false;
           if (rs !== 'any' && t.reference_standard_specific !== rs) return false;
+          if (!hivMatches(t)) return false;
+          if (smVal !== 'any' && t.smear_status !== smVal) return false;
+          if (ptVal !== 'any' && t.prior_tb_history !== ptVal) return false;
           return true;
         });
 
@@ -2918,7 +3145,7 @@
       function renderLeaveOneOut() {
         var container = document.getElementById('loo-container');
         if (!container) return;
-        var rows = currentTier === 'primary' ? trials_primary : trials_combined;
+        var rows = trialsForTier(currentTier);
         if (rows.length < 2) {
           container.innerHTML =
             '<div class="banner banner-amber"><strong>Leave-one-out unavailable:</strong> ' +
@@ -3134,7 +3361,10 @@
       function buildManuscriptSections() {
         var fit = currentFit;
         var allTrials = data.primary_tier.concat(data.sensitivity_tier_added);
-        var primaryTrials = data.primary_tier.slice();
+        // Path A repositioning (P0-9): use the new default headline tier (Sputum+culture)
+        // for the manuscript "primary tier" comparison rather than the legacy CT.gov-only
+        // primary_tier (which was k=1 = Dorman alone — incorporation-bias risk on Quan removed).
+        var primaryTrials = trialsForTier('sputum_culture');
         var k_combined = allTrials.length;
         var k_primary = primaryTrials.length;
 
@@ -3170,10 +3400,10 @@
 
         // ===== Abstract (structured) =====
         var abstractParts = {
-          background: 'Xpert MTB/RIF Ultra (Cepheid) was endorsed by the World Health Organization in 2017 as a successor cartridge to Xpert MTB/RIF for tuberculosis (TB) detection. Diagnostic accuracy estimates have accumulated across heterogeneous populations, specimen types, and reference standards, motivating a bivariate meta-analysis with explicit tier separation between CT.gov-linked primary studies and PubMed-abstract-derived sensitivity-tier studies.',
-          methods: 'We searched ClinicalTrials.gov (32 hits) and PubMed (390 + 81 hits across two queries) on 2026-04-27 for studies of Xpert Ultra against any reference standard for pulmonary TB in adults or children. Eligibility was restricted to post-2015 publications with reportable or back-computable 2x2 counts. QUADAS-2 was applied across four domains. Sensitivity, specificity, diagnostic odds ratio (DOR), and positive/negative likelihood ratios were pooled using the Reitsma 2005 bivariate REML model fit by Nelder-Mead simplex; the fixed-effect bivariate served as the k<5 fallback. Analysis is reproducible from the embedded JSON dataset and the open-source RapidMeta DTA engine.',
-          results: 'k = ' + k_combined + ' studies in the combined tier (CT.gov-linked + PubMed-abstract sensitivity tier); k = ' + k_primary +
-            ' in the primary CT.gov-linked tier. Pooled Sensitivity (combined tier) was ' + pct(combinedFit && combinedFit.pooled_sens) +
+          background: 'This methods-paper companion uses Xpert MTB/RIF Ultra (Cepheid) as a worked example to demonstrate the open-source RapidMeta DTA engine. Xpert Ultra was endorsed by the World Health Organization in 2017; substantive evidence on Ultra is provided by the Cochrane review (70+ studies). The present review extracts a small set (k=5) from CT.gov and PubMed abstracts to illustrate three pre-computed analytic tiers (Sputum+culture, k=2; All sputum/respiratory, k=4; Combined all-tier, k=5) and the engine’s bivariate fit, prediction interval, GRADE-DTA, Fagan, leave-one-out, subgroup, and Deeks’ funnel modules.',
+          methods: 'We searched ClinicalTrials.gov (32 hits) and PubMed (390 + 81 hits across two queries) on 2026-04-27 for studies of Xpert Ultra against any reference standard for pulmonary TB in adults or children. Eligibility was restricted to post-2015 publications with reportable or back-computable 2x2 counts. QUADAS-2 was applied across four domains. Sensitivity, specificity, diagnostic odds ratio (DOR), and positive/negative likelihood ratios were pooled using the Reitsma 2005 bivariate REML model fit by Nelder-Mead simplex; a real 2-parameter REML with rho fixed at 0 is used as the rho-boundary refit; FE bivariate is the k<5 fallback; for k=1 the engine reports per-axis Clopper-Pearson. A 95% prediction interval (Higgins 2009 / Riley 2011, t_{k-2} on logit scale) is reported when k>=3. Analysis is reproducible from the embedded JSON dataset and the open-source RapidMeta DTA engine.',
+          results: 'k = ' + k_combined + ' studies in the Combined all-tier (k=' + k_combined + '); k = ' + k_primary +
+            ' in the default Sputum+culture tier (Dorman 2018 + Andama 2021). Pooled Sensitivity (combined tier) was ' + pct(combinedFit && combinedFit.pooled_sens) +
             ' ' + (combinedFit ? pctCI(combinedFit.pooled_sens_ci_lb, combinedFit.pooled_sens_ci_ub) : '') +
             '; pooled Specificity ' + pct(combinedFit && combinedFit.pooled_spec) +
             ' ' + (combinedFit ? pctCI(combinedFit.pooled_spec_ci_lb, combinedFit.pooled_spec_ci_ub) : '') +
@@ -3217,6 +3447,18 @@
             ', tau-sq Spec = ' + nm(f.tau2_spec, 2) + ', rho = ' + nm(f.rho, 2) +
             '; threshold-effect Spearman = ' + nm(f.threshold_effect_spearman, 2) +
             ' (' + (f.threshold_effect ? 'detected, |rho|>0.6 — interpret SROC curve as primary summary' : 'not detected') + ').',
+          (function () {
+            // P0-3: 95% prediction interval (Higgins 2009 / Riley 2011), back-transformed.
+            try {
+              var pi = (DTA && typeof DTA.predict === 'function') ? DTA.predict(f) : null;
+              if (pi && pi.pi_sens_lb != null) {
+                return '95% prediction interval for a future study (back-transformed from logit, t_{k-2} = t_' + pi.df +
+                  '): Sens ' + pct(pi.pi_sens_lb) + '-' + pct(pi.pi_sens_ub) +
+                  '; Spec ' + pct(pi.pi_spec_lb) + '-' + pct(pi.pi_spec_ub) + '.';
+              }
+              return '95% prediction interval is undefined at k=' + f.k + ' (requires k>=3).';
+            } catch (e) { return ''; }
+          })(),
           'Tier divergence: |Sens primary - Sens combined| = ' + nm(divSens, 1) + ' pp; |Spec primary - Spec combined| = ' + nm(divSpec, 1) + ' pp.',
           (f.coverage_warning ? 'A k<10 coverage warning applies — Wald CIs may under-cover the nominal rate.' : 'k>=10 nominal coverage expected.'),
           (f.cc_applied ? 'Continuity correction was applied (zero cells present).' : 'No continuity correction was needed.')
@@ -3258,8 +3500,12 @@
           '<p class="manuscript-body"><strong>Reviewers and contributions.</strong> ' +
           reviewerLine(1, so1) + '. ' + reviewerLine(2, so2) + '. ' +
           'Both reviewers independently screened, extracted, and applied QUADAS-2; disagreements were resolved by consensus. CRediT roles will be assigned at journal submission.</p>' +
-          '<p class="manuscript-body" id="ms-funding-line"><strong>Funding.</strong> <span style="color:#9ca3af;">[Editable: enter funding statement &mdash; toggle Edit mode]</span></p>' +
-          '<p class="manuscript-body" id="ms-coi-line"><strong>Conflict of interest.</strong> <span style="color:#9ca3af;">[Editable: enter COI statement &mdash; toggle Edit mode]</span></p>';
+          '<p class="manuscript-body" id="ms-funding-line"><strong>Funding.</strong> No external funding. Build performed using freely available tools (ClinicalTrials.gov, PubMed, mada R package, WebR). Reviewers may add specific funding statements via Edit mode before publication.</p>' +
+          '<p class="manuscript-body" id="ms-coi-line"><strong>Conflicts of interest.</strong> None declared by the build-pipeline authors. Reviewer-author COI declarations to be added via Edit mode before publication.</p>' +
+          '<p class="manuscript-body" id="ms-ethics-line"><strong>Ethics.</strong> No ethical approval required (no patient-identifiable data; review of published aggregate study results).</p>' +
+          '<p class="manuscript-body" id="ms-data-line"><strong>Data availability.</strong> All extracted trial data, search records, audit logs, and analysis code are publicly available in the repository at <a href="https://github.com/mahmood726-cyber/rapidmeta-finerenone" target="_blank" rel="noopener">https://github.com/mahmood726-cyber/rapidmeta-finerenone</a>. The DTA review is at <code>GENEXPERT_ULTRA_TB_DTA_REVIEW.html</code>; raw extraction packs are at <code>ctgov_genexpert_ultra_pack_2026-04-27.json</code> and <code>pubmed_genexpert_ultra_abstracts_2026-04-27.json</code>.</p>' +
+          '<p class="manuscript-body" id="ms-code-line"><strong>Code availability.</strong> Engine source: <code>rapidmeta-dta-engine-v1.js</code> (~720 lines, 31+ unit tests, MIT license). WebR validator: <code>webr-dta-validator.js</code> (229 lines).</p>' +
+          '<p class="manuscript-body" id="ms-ppi-line"><strong>Patient/public involvement.</strong> No PPI panel was constituted for this v1 release. v2 plans include a TB-survivor advisory review.</p>';
 
         function copyButton(targetText) {
           // Encode as data attr (safe via base64 to dodge quoting/HTML)
@@ -3435,16 +3681,21 @@
       function renderSubgroups() {
         // Wire dropdowns once; idempotent via a flag.
         var paEl = document.getElementById('sg-population-age');
+        // P0-12: 6 dropdowns total (existing 3 + HIV + smear + prior-TB)
+        var SG_FILTER_IDS = [
+          'sg-population-age', 'sg-specimen', 'sg-reference-standard',
+          'sg-hiv-status', 'sg-smear-status', 'sg-prior-tb'
+        ];
         if (paEl && !paEl._wired) {
           paEl._wired = true;
-          ['sg-population-age', 'sg-specimen', 'sg-reference-standard'].forEach(function (id) {
+          SG_FILTER_IDS.forEach(function (id) {
             var el = document.getElementById(id);
             if (el) el.addEventListener('change', applySubgroupFilter);
           });
           var resetBtn = document.getElementById('sg-reset');
           if (resetBtn) {
             resetBtn.addEventListener('click', function () {
-              ['sg-population-age', 'sg-specimen', 'sg-reference-standard'].forEach(function (id) {
+              SG_FILTER_IDS.forEach(function (id) {
                 var el = document.getElementById(id);
                 if (el) el.value = 'any';
               });
@@ -4590,8 +4841,9 @@
       }
 
       function refit() {
-        var rows = currentTier === 'primary' ? trials_primary : trials_combined;
+        var rows = trialsForTier(currentTier);
         currentFit = DTA.fit(rows);
+        renderTierCards();
         renderSummary(currentFit);
         renderTrials(rows);
         renderForest(rows, currentFit);
@@ -4698,7 +4950,7 @@
         }
         btn.disabled = true;
         try {
-          var trialsForR = currentTier === 'primary' ? trials_primary : trials_combined;
+          var trialsForR = trialsForTier(currentTier);
           var rResult = await window.RapidMetaDTAValidator.validateAgainstR(currentFit, trialsForR);
           renderValidationResult(currentFit, rResult);
         } catch (e) {
@@ -5035,7 +5287,7 @@
       function getLastDeeks() { return _lastDeeks; }
 
       function renderDeeks() {
-        var rows = currentTier === 'primary' ? trials_primary : trials_combined;
+        var rows = trialsForTier(currentTier);
         var res = deeksAnalysis(rows);
         _lastDeeks = res;
         var svgEl = document.getElementById('deeks-svg-container');
@@ -5252,10 +5504,27 @@
         var chipPos = document.getElementById('fagan-postpos-chip');
         var chipNeg = document.getElementById('fagan-postneg-chip');
         var svgHost = document.getElementById('fagan-svg-container');
-        if (!slider || !currentFit) return;
+        if (!slider) return;
+        // P0-8: Fagan dropdown decouples the post-test calc from the headline tier.
+        // Default = current headline tier; user may pick a different tier explicitly.
+        var tierSel = document.getElementById('fagan-tier-select');
+        var faganTier = tierSel ? tierSel.value : currentTier;
+        var fitForFagan = currentFit;
+        try {
+          if (faganTier !== currentTier) {
+            fitForFagan = DTA.fit(trialsForTier(faganTier));
+          }
+        } catch (e) { fitForFagan = currentFit; }
+        if (!fitForFagan) return;
+        var warnEl = document.getElementById('fagan-tier-warn');
+        if (warnEl) {
+          warnEl.textContent = (faganTier === 'combined')
+            ? 'Combined tier — not for clinical decisions'
+            : '';
+        }
         var pre = pretestFromSliderLog10(parseFloat(slider.value));
-        var lrPos = currentFit.lr_pos;
-        var lrNeg = currentFit.lr_neg;
+        var lrPos = fitForFagan.lr_pos;
+        var lrNeg = fitForFagan.lr_neg;
         var postPos = postProb(pre, lrPos);
         var postNeg = postProb(pre, lrNeg);
         if (disp) disp.textContent = (pre * 100).toFixed(1) + '%';
@@ -5445,24 +5714,67 @@
           assessments.ind = { level: 0, reason: nRefStds + ' reference standard(s); single age stratum.' };
         }
 
-        // === Imprecision ===
-        // Trigger: 95% CI width on Sens or Spec > 0.20 (1 step) or > 0.40 (2 steps).
-        // For DOR, fall back to width of Sens-CI (and Spec-CI) — DOR-CI is on log scale, conservative trigger:
-        // we treat it as max of Sens / Spec CI widths.
+        // === Imprecision (P0-13) ===
+        // Per Schunemann 2020 GRADE-DTA: ideally rated against clinical decision thresholds.
+        // - If a clinical threshold is set per-outcome via editsGrade[outcome:imp].clinical_threshold,
+        //   downgrade if the 95% CI crosses the threshold (1 step if it crosses; 2 steps if the CI
+        //   straddles a clearly-decision-changing margin).
+        // - Otherwise fall back to a CI-width heuristic (rationale prefixed "[Heuristic]").
+        // For DOR, use log-CI width log(DOR_ub / DOR_lb) — CI is on the log scale.
         var ciSens = (fit.pooled_sens_ci_ub - fit.pooled_sens_ci_lb);
         var ciSpec = (fit.pooled_spec_ci_ub - fit.pooled_spec_ci_lb);
-        var width = (outcomeId === 'spec') ? ciSpec : (outcomeId === 'sens' ? ciSens : Math.max(ciSens, ciSpec));
+        var ciDorLog = (isFinite(fit.dor_ub) && isFinite(fit.dor_lb) && fit.dor_lb > 0)
+          ? Math.log(fit.dor_ub / fit.dor_lb)
+          : (isFinite(fit.dor_ci_ub) && isFinite(fit.dor_ci_lb) && fit.dor_ci_lb > 0
+              ? Math.log(fit.dor_ci_ub / fit.dor_ci_lb) : NaN);
+        var thresh = null;
+        try {
+          var gKey = gradeKey(outcomeId, 'imp');
+          if (editsGrade[gKey] && editsGrade[gKey].clinical_threshold != null && editsGrade[gKey].clinical_threshold !== '') {
+            var thNum = parseFloat(editsGrade[gKey].clinical_threshold);
+            if (isFinite(thNum)) thresh = thNum;
+          }
+        } catch (e) { thresh = null; }
+
         var impLevel = 0;
-        if (isFinite(width)) {
-          if (width > 0.40) impLevel = 2;
-          else if (width > 0.20) impLevel = 1;
+        var impReason = '';
+        if (thresh != null && (outcomeId === 'sens' || outcomeId === 'spec')) {
+          var pt = (outcomeId === 'spec') ? fit.pooled_spec : fit.pooled_sens;
+          var lb = (outcomeId === 'spec') ? fit.pooled_spec_ci_lb : fit.pooled_sens_ci_lb;
+          var ub = (outcomeId === 'spec') ? fit.pooled_spec_ci_ub : fit.pooled_sens_ci_ub;
+          var crossesThr = (lb < thresh && thresh < ub);
+          var farFromPoint = Math.abs(pt - thresh) >= 0.10; // 10pp = decision-changing margin
+          if (crossesThr) impLevel = farFromPoint ? 2 : 1;
+          impReason = 'Clinical threshold = ' + thresh.toFixed(3) +
+            '; 95% CI [' + lb.toFixed(3) + ', ' + ub.toFixed(3) + '] ' +
+            (crossesThr ? 'CROSSES threshold' : 'does not cross threshold') +
+            (impLevel ? ' &mdash; downgrade ' + impLevel + '.' : '.');
+        } else {
+          // [Heuristic] fallback when no clinical threshold is supplied.
+          var width = (outcomeId === 'spec') ? ciSpec
+                    : (outcomeId === 'sens' ? ciSens : ciDorLog);
+          if (outcomeId === 'dor') {
+            // log-CI width thresholds: log(2)~0.69 = 1 step; log(4)~1.39 = 2 steps.
+            if (isFinite(width)) {
+              if (width > 1.39) impLevel = 2;
+              else if (width > 0.69) impLevel = 1;
+            }
+            impReason = '[Heuristic — clinical threshold not specified] log(DOR-CI) width = ' +
+              (isFinite(width) ? width.toFixed(2) : '—') +
+              (impLevel === 0 ? ' (≤ 0.69 = factor-of-2).'
+                : (impLevel === 1 ? ' (> 0.69 = factor-of-2).' : ' (> 1.39 = factor-of-4).'));
+          } else {
+            if (isFinite(width)) {
+              if (width > 0.40) impLevel = 2;
+              else if (width > 0.20) impLevel = 1;
+            }
+            impReason = '[Heuristic — clinical threshold not specified] ' + outcomeId + '-CI width = ' +
+              (isFinite(width) ? width.toFixed(2) : '—') +
+              (impLevel === 0 ? ' (≤ 0.20).'
+                : (impLevel === 1 ? ' (> 0.20).' : ' (> 0.40).'));
+          }
         }
-        assessments.imp = {
-          level: impLevel,
-          reason: (outcomeId === 'dor' ? 'max(Sens-CI, Spec-CI) width' : (outcomeId + '-CI width')) +
-                  ' = ' + (isFinite(width) ? width.toFixed(2) : '—') +
-                  (impLevel === 0 ? ' (≤ 0.20).' : (impLevel === 1 ? ' (> 0.20).' : ' (> 0.40).'))
-        };
+        assessments.imp = { level: impLevel, reason: impReason };
 
         // === Publication bias ===
         // Trigger: Deeks p < 0.10 (uses Feature 3 result); skipped if k<5
@@ -5500,7 +5812,7 @@
       function renderGrade() {
         var container = document.getElementById('grade-table-container');
         if (!container) return;
-        var rows = currentTier === 'primary' ? trials_primary : trials_combined;
+        var rows = trialsForTier(currentTier);
         var fit = currentFit;
         if (!fit || !rows || rows.length === 0) {
           container.innerHTML = '<p style="color:#b91c1c;">No fit available — cannot render GRADE table.</p>';
@@ -5555,7 +5867,30 @@
                 '" data-grade-domain="' + escapeAttr(d.id) + '" data-grade-field="reason"' +
                 ' value="' + escapeAttr(cell.reason || '') + '" style="width:100%;font-size:0.8rem;">';
             } else {
-              reasonEl = '<span class="grade-downgrade-reason">' + escapeHtml(cell.reason || '') + '</span>';
+              // Reasons may contain a few intentional HTML entities (&mdash;) constructed in
+              // gradeAutoAssess; escape user-influenceable substrings (study labels) but allow
+              // those entities through. We use a lightweight escape that escapes <,>,& but
+              // leaves &mdash; in place by re-converting after escape.
+              var safeReason = escapeHtml(cell.reason || '').replace(/&amp;mdash;/g, '&mdash;');
+              reasonEl = '<span class="grade-downgrade-reason">' + safeReason + '</span>';
+            }
+            // P0-13: For Imprecision, render an editable "Clinical decision threshold" field
+            // alongside the reason. Visible in both view and edit mode.
+            if (d.id === 'imp') {
+              var gK = gradeKey(o.id, d.id);
+              var savedThr = (editsGrade[gK] && editsGrade[gK].clinical_threshold != null)
+                ? editsGrade[gK].clinical_threshold : '';
+              var thrLabel = (o.id === 'dor')
+                ? 'log-CI width threshold (e.g. 0.69 = factor of 2)'
+                : 'Clinical decision threshold (e.g. 0.80)';
+              reasonEl += '<div style="margin-top:0.4rem;font-size:0.72rem;color:#374151;">' +
+                '<label style="display:flex;align-items:center;gap:0.4rem;">' +
+                  '<span>' + escapeHtml(thrLabel) + ':</span>' +
+                  '<input type="number" step="0.01" min="0" data-grade-outcome="' + escapeAttr(o.id) +
+                    '" data-grade-domain="imp" data-grade-field="clinical_threshold"' +
+                    ' value="' + escapeAttr(String(savedThr)) + '" placeholder="(empty &rarr; heuristic)"' +
+                    ' style="width:6.5rem;padding:0.15rem 0.3rem;font-size:0.78rem;border:1px solid #d1d5db;border-radius:0.25rem;">' +
+                '</label></div>';
             }
             var firstCell = di === 0
               ? '<td class="gd-outcome" rowspan="' + (GRADE_DOMAINS.length + 1) + '">' + escapeHtml(o.label) + '</td>'
@@ -5599,6 +5934,19 @@
             lsSet('edits-grade', editsGrade);
           });
         });
+        // P0-13: clinical-threshold inputs (Imprecision row) — change re-renders so the
+        // auto-assessment picks up the new threshold.
+        container.querySelectorAll('input[data-grade-field="clinical_threshold"]').forEach(function (el) {
+          el.addEventListener('change', function () {
+            var oid = el.getAttribute('data-grade-outcome');
+            var k = gradeKey(oid, 'imp');
+            if (!editsGrade[k]) editsGrade[k] = {};
+            var v = el.value === '' ? null : el.value;
+            editsGrade[k].clinical_threshold = v;
+            lsSet('edits-grade', editsGrade);
+            renderGrade();
+          });
+        });
       }
 
       function init() {
@@ -5625,10 +5973,16 @@
         // Feature 1: Fagan slider — recompute on input without full refit
         var faganSlider = document.getElementById('fagan-slider');
         if (faganSlider) faganSlider.addEventListener('input', renderFagan);
+        // P0-8: Fagan tier dropdown — re-render Fagan on tier change.
+        var faganTierSel = document.getElementById('fagan-tier-select');
+        if (faganTierSel) faganTierSel.addEventListener('change', renderFagan);
 
         document.querySelectorAll('input[name="tier"]').forEach(function (radio) {
           radio.addEventListener('change', function () {
             currentTier = this.value;
+            // P0-8: keep Fagan dropdown synced to headline tier (user can still override)
+            var fts = document.getElementById('fagan-tier-select');
+            if (fts) fts.value = currentTier;
             refit();
           });
         });

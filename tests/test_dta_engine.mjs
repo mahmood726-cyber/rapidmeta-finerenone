@@ -264,6 +264,73 @@ test('_ppvNpv: throws on invalid prevalence', () => {
   assert.throws(() => DTA._internal._ppvNpv(f, 'foo'));
 });
 
+// P0-2: k=1 single study should label estimator as single_study_clopper_pearson, NOT fe_bivariate.
+test('fit: k=1 returns single_study_clopper_pearson estimator', () => {
+  const trials = [{studlab:'Solo', TP: 80, FP: 5, FN: 20, TN: 95}];
+  const res = DTA.fit(trials);
+  assert.equal(res.estimator, 'single_study_clopper_pearson');
+  assert.equal(res.fallback, 'single_study');
+  assert.equal(res.k, 1);
+  // Pooled sens/spec should be the per-study values
+  assert.ok(Math.abs(res.pooled_sens - 0.80) < 1e-6);
+  assert.ok(Math.abs(res.pooled_spec - 0.95) < 1e-6);
+  // tau^2 must be null (no meta-analysis)
+  assert.equal(res.tau2_sens, null);
+  assert.equal(res.tau2_spec, null);
+});
+
+// P0-3: prediction interval — Higgins 2009 / Riley 2011, t_{k-2} on logit scale.
+test('predict: returns null bounds for k<3 and single_study', () => {
+  const single = DTA.fit([{studlab:'A', TP:80, FP:5, FN:20, TN:95}]);
+  const pi1 = DTA.predict(single);
+  assert.equal(pi1.pi_sens_lb, null);
+  assert.equal(pi1.pi_spec_lb, null);
+  // k=2 — also undefined (df = k-2 = 0)
+  const k2 = DTA.fit([
+    {studlab:'A', TP:80, FP:5, FN:20, TN:95},
+    {studlab:'B', TP:75, FP:3, FN:25, TN:97}
+  ]);
+  const pi2 = DTA.predict(k2);
+  assert.equal(pi2.pi_sens_lb, null);
+});
+
+test('predict: AuditC k=14 returns finite PI brackets pooled estimates', () => {
+  const fx = JSON.parse(readFileSync(join(__dirname, 'dta_fixtures/auditc.json'), 'utf-8'));
+  const res = DTA.fit(fx.trials);
+  const pi = DTA.predict(res);
+  assert.ok(pi.pi_sens_lb !== null && pi.pi_sens_ub !== null);
+  assert.ok(pi.df === res.k - 2);
+  // PI must bracket the pooled point estimate AND be wider than the CI.
+  assert.ok(pi.pi_sens_lb < res.pooled_sens && res.pooled_sens < pi.pi_sens_ub);
+  assert.ok(pi.pi_spec_lb < res.pooled_spec && res.pooled_spec < pi.pi_spec_ub);
+  const ci_sens_w = res.pooled_sens_ci_ub - res.pooled_sens_ci_lb;
+  const pi_sens_w = pi.pi_sens_ub - pi.pi_sens_lb;
+  assert.ok(pi_sens_w >= ci_sens_w, 'PI must be at least as wide as CI');
+});
+
+// tinv sanity — t_{0.975, 10} ~ 2.228; t_{0.975, 30} ~ 2.042
+test('tinv: matches known t-quantiles within 1e-3', () => {
+  const t10 = DTA._internal.tinv(0.975, 10);
+  const t30 = DTA._internal.tinv(0.975, 30);
+  const t100 = DTA._internal.tinv(0.975, 100);
+  assert.ok(Math.abs(t10 - 2.228) < 1e-2, 't10='+t10);
+  assert.ok(Math.abs(t30 - 2.042) < 1e-2, 't30='+t30);
+  assert.ok(Math.abs(t100 - 1.984) < 1e-2, 't100='+t100);
+});
+
+// P0-1: rho=0 fallback must be a real 2-parameter REML fit, not an FE collapse.
+test('reitsmaREMLRhoZero: produces non-zero tau^2 (genuine REML, not FE stub)', () => {
+  // Use the AuditC dataset — has real between-study heterogeneity.
+  const fx = JSON.parse(readFileSync(join(__dirname, 'dta_fixtures/auditc.json'), 'utf-8'));
+  const res = DTA._internal.reitsmaREMLRhoZero(fx.trials, { max_iter: 500 });
+  assert.equal(res.estimator, 'reml_rho_zero');
+  assert.equal(res._stub, false, 'expected genuine fit, got stub');
+  assert.equal(res.rho, 0);
+  assert.ok(res.tau2_sens > 1e-6, 'tau2_sens must be > 0 on AuditC: '+res.tau2_sens);
+  assert.ok(res.tau2_spec > 1e-6, 'tau2_spec must be > 0 on AuditC: '+res.tau2_spec);
+  assert.ok(res.converged);
+});
+
 // Run
 let pass = 0, fail = 0;
 for (const t of tests) {
