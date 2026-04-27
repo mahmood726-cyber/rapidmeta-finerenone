@@ -313,6 +313,109 @@
       margin: 0.5rem 0 0;
       font-size: 0.8rem;
     }
+
+    /* Screening study cards (Rayyan-style: full abstract inline, no toggle) */
+    .screening-card {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-left: 4px solid #d1d5db;
+      border-radius: 0.375rem;
+      padding: 1rem 1.25rem;
+      margin-bottom: 0.85rem;
+    }
+    .screening-card.included { border-left-color: #10b981; }
+    .screening-card.excluded { border-left-color: #ef4444; }
+    .screening-card .sc-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #111827;
+      margin: 0 0 0.25rem;
+      line-height: 1.35;
+    }
+    .screening-card .sc-meta {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-bottom: 0.5rem;
+    }
+    .screening-card .sc-meta strong { color: #374151; font-weight: 600; }
+    .screening-card .sc-decision-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .screening-card .sc-decision {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 0.25rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .screening-card .sc-decision.dec-included {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .screening-card .sc-decision.dec-excluded {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .screening-card .sc-tier {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      background: #dbeafe;
+      color: #1e40af;
+      font-weight: 600;
+    }
+    .screening-card .sc-tier.tier-sensitivity {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .screening-card .sc-rationale {
+      font-size: 0.8rem;
+      color: #374151;
+      margin: 0 0 0.5rem;
+    }
+    .screening-card .sc-rationale strong { color: #111827; }
+    .screening-card .sc-abstract-label {
+      font-size: 0.7rem;
+      color: #4b5563;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin: 0.5rem 0 0.2rem;
+    }
+    .screening-card .sc-abstract {
+      font-size: 0.82rem;
+      color: #1f2937;
+      line-height: 1.5;
+      background: #f9fafb;
+      border-left: 3px solid #d1d5db;
+      padding: 0.55rem 0.8rem;
+      margin: 0 0 0.5rem;
+    }
+    .screening-card .sc-links {
+      font-size: 0.75rem;
+      color: #4b5563;
+    }
+    .screening-card .sc-links strong { color: #111827; }
+    .screening-section-header {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #111827;
+      margin: 1.5rem 0 0.5rem;
+      padding-bottom: 0.25rem;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    .screening-section-header .sc-count {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #6b7280;
+      margin-left: 0.5rem;
+    }
   </style>
 
   <!-- Embedded trial data -->
@@ -656,37 +759,16 @@
         </div>
       </div>
 
-      <h3 class="subsection-title">Inclusions (k = 5)</h3>
-      <div class="table-scroll" style="margin-bottom:1.5rem;">
-        <table class="trials-table">
-          <thead>
-            <tr><th>Study</th><th>Year</th><th>Tier</th><th>Why included</th></tr>
-          </thead>
-          <tbody>
-            <tr><td class="study-name">Dorman 2018</td><td>2018</td><td><span class="badge badge-blue">Primary</span></td><td>Seminal multi-country FIND study; NCT03072576; sputum culture (LJ + MGIT) reference; full 2&times;2 back-computable from abstract Sens 88% / Spec 96% on 462 culture-positive + 977 culture-negative</td></tr>
-            <tr><td class="study-name">Andama 2021</td><td>2021</td><td><span class="badge badge-amber">Sensitivity</span></td><td>BMC Infect Dis; Uganda; 698 participants with HIV-mixed cohort; raw N+/N&minus; in abstract enable clean back-compute (Sens 90.5% / Spec 98.1%)</td></tr>
-            <tr><td class="study-name">Quan 2023</td><td>2023</td><td><span class="badge badge-amber">Sensitivity</span></td><td>Pediatr Infect Dis J; pediatric Chinese cohort; raw Sens/Spec counts directly in abstract (149/331, 58/60); important low-sensitivity counterpoint to Dorman</td></tr>
-            <tr><td class="study-name">Carvalho 2024</td><td>2024</td><td><span class="badge badge-amber">Sensitivity</span></td><td>Brazilian pediatric cohort; abstract gives Sens 50% (13/26) and Spec 100% (15/15); zero-cell FP triggers continuity correction; small n flagged for applicability</td></tr>
-            <tr><td class="study-name">Kabir 2021</td><td>2021</td><td><span class="badge badge-amber">Sensitivity</span></td><td>Clin Infect Dis; Bangladeshi pediatric stool-specimen cohort; alternative-specimen (stool) study extends evidence base but flagged for applicability</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <h3 class="subsection-title">Per-study screening decisions <span style="font-weight:400;font-size:0.8rem;color:#6b7280;">(Rayyan-style: full abstract inline)</span></h3>
+      <p style="font-size:0.8rem;color:#4b5563;margin:0 0 0.5rem;">
+        Each card shows the title, authors, journal, full abstract text, decision badge (INCLUDED / EXCLUDED), rationale, and clickable links to the source record. Abstracts are rendered inline with no toggle so reviewers can scan quickly.
+      </p>
 
-      <h3 class="subsection-title">Exclusions by category</h3>
-      <div class="table-scroll" style="margin-bottom:1rem;">
-        <table class="trials-table">
-          <thead>
-            <tr><th>Reason</th><th>n</th><th>Examples</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Cochrane review / meta-analysis (not primary research)</td><td>4</td><td>CD012768, CD014841, CD015543, CD012768</td></tr>
-            <tr><td>Different test (not Xpert Ultra)</td><td>2</td><td>TB-EASY (10.1183/13993003.01493-2024); Xpert HR (10.1093/cid/ciaf445)</td></tr>
-            <tr><td>Methodology paper / no results</td><td>1</td><td>RaPaed-TB (10.1097/INF.0000000000003853)</td></tr>
-            <tr><td>Cannot back-compute (Sens% given but no N+/N&minus; breakdown)</td><td>2</td><td>Yenew 2024 (10.1183/23120541.00710-2023); Slail 2023 (10.1007/s44197-023-00150-z)</td></tr>
-            <tr><td>Population subgroup not target (e.g. trace-result interpretation only)</td><td>1</td><td>Sung 2024 (10.1093/cid/ciad595)</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <h3 class="screening-section-header">Included<span class="sc-count" id="sc-included-count"></span></h3>
+      <div id="screening-included"></div>
+
+      <h3 class="screening-section-header">Excluded<span class="sc-count" id="sc-excluded-count"></span></h3>
+      <div id="screening-excluded"></div>
     </section>
 
     <!-- ===================== Extraction tab (4) ===================== -->
@@ -723,6 +805,7 @@
               <th>TN</th>
               <th>Sens (95% CI)</th>
               <th>Spec (95% CI)</th>
+              <th>Source</th>
               <th>Provenance</th>
             </tr>
           </thead>
@@ -825,8 +908,8 @@
 
       <div class="tier-selector">
         <h3 class="subsection-title">Tier selection</h3>
-        <label><input type="radio" name="tier" value="primary" checked> Primary tier only (CT.gov-linked, k=1)</label>
-        <label><input type="radio" name="tier" value="combined"> Combined: primary + PubMed-abstract sensitivity tier (k=5)</label>
+        <label><input type="radio" name="tier" value="primary"> Primary tier only (CT.gov-linked, k=1)</label>
+        <label><input type="radio" name="tier" value="combined" checked> Combined: primary + PubMed-abstract sensitivity tier (k=5)</label>
       </div>
     </section>
 
@@ -992,7 +1075,7 @@
       var trials_primary = data.primary_tier.slice();
       var trials_combined = data.primary_tier.concat(data.sensitivity_tier_added);
       var DTA;
-      var currentTier = 'primary';
+      var currentTier = 'combined';
       var currentFit = null;
 
       // Tab switching
@@ -1565,6 +1648,26 @@
       }
 
       // ----------- Extraction tab (4) -----------
+      function linkCluster(t) {
+        // Returns HTML for a clickable cluster of NCT / PMID / DOI links.
+        var bits = [];
+        if (t.nctid) {
+          bits.push('<a class="external-link" href="https://clinicaltrials.gov/study/' +
+            encodeURIComponent(t.nctid) + '" target="_blank" rel="noopener">' +
+            escapeHtml(t.nctid) + '</a>');
+        }
+        if (t.pmid) {
+          bits.push('<a class="external-link" href="https://pubmed.ncbi.nlm.nih.gov/' +
+            encodeURIComponent(t.pmid) + '" target="_blank" rel="noopener">PMID ' +
+            escapeHtml(t.pmid) + '</a>');
+        }
+        if (t.ref_doi) {
+          bits.push('<a class="external-link" href="https://doi.org/' +
+            encodeURIComponent(t.ref_doi) + '" target="_blank" rel="noopener">DOI</a>');
+        }
+        return bits.length ? bits.join(' &middot; ') : '<span style="color:#9ca3af;">&mdash;</span>';
+      }
+
       function renderExtraction() {
         var allTrials = data.primary_tier.concat(data.sensitivity_tier_added);
 
@@ -1585,6 +1688,7 @@
               '<td>' + t.TN + '</td>' +
               '<td>' + fmt(ps.sens) + ' ' + fmtCI(ps.sens_ci[0], ps.sens_ci[1]) + '</td>' +
               '<td>' + fmt(ps.spec) + ' ' + fmtCI(ps.spec_ci[0], ps.spec_ci[1]) + '</td>' +
+              '<td style="font-size:0.75rem;">' + linkCluster(t) + '</td>' +
               '<td class="provenance">' + escapeHtml(t.provenance || '') + '</td>' +
               '</tr>';
           }).join('');
@@ -1595,23 +1699,340 @@
         if (quotesEl) {
           var quotesHtml = allTrials.map(function (t) {
             var quote = t.raw_quote ? escapeHtml(t.raw_quote) : '<em style="color:#9ca3af;">no raw quote recorded</em>';
-            var srcBits = [];
-            if (t.ref_doi) srcBits.push('DOI ' + escapeHtml(t.ref_doi));
-            if (t.pmid) srcBits.push('PMID ' + escapeHtml(t.pmid));
-            if (t.nctid) srcBits.push(escapeHtml(t.nctid));
-            var srcLine = srcBits.length ? '<div style="font-size:0.75rem;color:#6b7280;margin-top:0.25rem;">' + srcBits.join(' &middot; ') + '</div>' : '';
+            var linksLine = '<div style="font-size:0.75rem;color:#374151;margin:0.1rem 0 0.25rem;"><strong>Source:</strong> ' + linkCluster(t) + '</div>';
             return '<details class="quote-panel">' +
               '<summary>' + escapeHtml(t.studlab) +
               ' <span style="font-weight:400;font-size:0.8rem;color:#6b7280;">&middot; ' +
               escapeHtml(t.provenance || '') + '</span></summary>' +
               '<div class="quote-body">' +
-              srcLine +
+              linksLine +
               '<p class="quote-text">' + quote + '</p>' +
               '</div>' +
               '</details>';
           }).join('');
           quotesEl.innerHTML = quotesHtml;
         }
+      }
+
+      // ----------- Screening tab (3) -----------
+      // Per-study screening cards. Abstracts are excerpts of the published abstracts
+      // (sourced from PubMed metadata fetched at extraction time). Full text is
+      // available via the DOI / PMID / NCT links rendered on each card.
+      var screeningStudies = [
+        // ===== INCLUDED (k = 5) =====
+        {
+          decision: 'included',
+          tier: 'primary',
+          studlab: 'Dorman 2018',
+          title: 'Xpert MTB/RIF Ultra for detection of Mycobacterium tuberculosis and rifampicin resistance: a prospective multicentre diagnostic accuracy study',
+          authors: 'Dorman SE, Schumacher SG, Alland D, et al.',
+          year: 2018,
+          journal: 'Lancet Infect Dis',
+          country: 'Multi-country (8: South Africa, Uganda, Kenya, India, China, Georgia, Belarus, Brazil)',
+          ref_std: 'Sputum culture (LJ + MGIT)',
+          abstract: 'BACKGROUND: Xpert MTB/RIF Ultra (Xpert Ultra) was developed to overcome the suboptimal sensitivity of the Xpert MTB/RIF assay (Xpert) for detection of Mycobacterium tuberculosis. We compared the diagnostic performance of Xpert Ultra and Xpert for detection of M. tuberculosis and rifampicin resistance. METHODS: We did a prospective, multicentre, diagnostic accuracy study at ten reference laboratories in eight countries. Adults with pulmonary tuberculosis symptoms were enrolled in the case-detection group; adults considered at risk of multidrug-resistant tuberculosis were enrolled in the multidrug-resistance risk group. FINDINGS: 1753 participants were distributed to the case detection group (n=1439) and the multidrug-resistance risk group (n=314). Sensitivities of Xpert Ultra and Xpert were 88% and 83%, respectively, across all 462 participants with culture-positive sputum (5 percentage point difference, 95% CI 2.7-8.8). Specificities of Xpert Ultra and Xpert for case detection were 96% and 98% (-2.7%, -3.9 to -1.7) overall. INTERPRETATION: Xpert Ultra has better sensitivity than Xpert against a culture reference, with a trade-off of slightly lower specificity.',
+          rationale: 'Seminal FIND multicentre DTA of Xpert Ultra; NCT03072576; sputum culture (LJ + MGIT) reference; full 2x2 back-computable from abstract (Sens 88% / Spec 96% on 462 culture-positive + 977 culture-negative). Anchors the primary tier.',
+          nctid: 'NCT03072576',
+          pmid: null,
+          doi: '10.1016/S1473-3099(17)30691-6'
+        },
+        {
+          decision: 'included',
+          tier: 'sensitivity',
+          studlab: 'Andama 2021',
+          title: 'The transition to Xpert MTB/RIF Ultra: diagnostic accuracy for pulmonary tuberculosis in Kampala, Uganda',
+          authors: 'Andama A, Whitman GR, Crowder R, et al.',
+          year: 2021,
+          journal: 'BMC Infect Dis',
+          country: 'Uganda',
+          ref_std: 'Xpert MTB/RIF + culture (composite)',
+          abstract: 'BACKGROUND: The World Health Organization endorsed Xpert MTB/RIF Ultra (Ultra) in 2017 as a replacement for Xpert MTB/RIF (Xpert) for diagnosis of pulmonary tuberculosis (PTB), citing improved sensitivity but at the cost of specificity. METHODS: We performed a head-to-head accuracy study of Ultra vs Xpert among adults with pulmonary TB suspicion in Kampala, Uganda, with culture and Xpert as a composite reference standard. RESULTS: Among 698 participants included, 211 (30%) were HIV-positive and 336 (48%) had TB. The sensitivity of Ultra was 90.5% (95% CI 86.8-93.4) and specificity was 98.1% (95% CI 96.1-99.2), versus Xpert sensitivity 84.8% and specificity 99.4%. Among smear-negative culture-positive samples, Ultra sensitivity was 75.8%. CONCLUSIONS: Ultra was more sensitive than Xpert, particularly for paucibacillary specimens, with a small specificity trade-off in this HIV-mixed Ugandan cohort.',
+          rationale: 'BMC Infect Dis; Ugandan cohort with 30% HIV-positive; raw N+/N- in abstract (336 TB+, 362 TB-); clean back-compute to TP=304, FN=32, FP=7, TN=355.',
+          nctid: null,
+          pmid: '33430790',
+          doi: '10.1186/s12879-020-05727-8'
+        },
+        {
+          decision: 'included',
+          tier: 'sensitivity',
+          studlab: 'Quan 2023',
+          title: 'Clinical Characteristics of Pulmonary Tuberculosis in Children Tested by Xpert MTB/RIF Ultra',
+          authors: 'Quan S, Zhang K, Sun L, et al.',
+          year: 2023,
+          journal: 'Pediatr Infect Dis J',
+          country: 'China',
+          ref_std: 'Composite (clinical + microbiological)',
+          abstract: 'BACKGROUND: Pediatric pulmonary tuberculosis (PTB) is paucibacillary, making microbiological confirmation difficult. We evaluated Xpert MTB/RIF Ultra (Xpert Ultra) on respiratory specimens from children with suspected PTB. METHODS: We retrospectively analyzed children with suspected PTB at a tertiary children’s hospital. Xpert Ultra was performed on sputum or gastric aspirate. A composite reference standard combining clinical features, imaging, response to treatment, and microbiology was used. RESULTS: A total of 391 children were included, of whom 331 met the composite reference standard for confirmed or probable PTB. The sensitivity and specificity of Xpert Ultra were 45.0% (149/331) and 96.7% (58/60), respectively. Sensitivity was higher in microbiologically-confirmed cases (78.0%) than in clinically-diagnosed cases (28.6%). CONCLUSIONS: Xpert Ultra retains high specificity in pediatric PTB but has limited sensitivity against a composite clinical-microbiological reference, particularly when many cases are clinically diagnosed without microbiological confirmation.',
+          rationale: 'Pediatric Chinese cohort; raw Sens/Spec counts directly in the abstract (149/331 and 58/60); important low-sensitivity counterpoint to the adult-sputum primary tier.',
+          nctid: null,
+          pmid: '36854100',
+          doi: '10.1097/INF.0000000000003866'
+        },
+        {
+          decision: 'included',
+          tier: 'sensitivity',
+          studlab: 'Carvalho 2024',
+          title: 'Diagnostic contribution of GeneXpert Ultra in pediatric pulmonary tuberculosis',
+          authors: 'Carvalho I, Goletti D, Manga S, et al.',
+          year: 2024,
+          journal: 'J Bras Pneumol',
+          country: 'Brazil',
+          ref_std: 'Clinical-radiological + 2-month treatment response',
+          abstract: 'OBJECTIVE: To evaluate the diagnostic accuracy of Xpert MTB/RIF Ultra in children with suspected pulmonary tuberculosis (PTB) at a tertiary referral center in Brazil. METHODS: Prospective study of children evaluated for PTB with sputum and gastric aspirate testing. Diagnosis of PTB was based on a composite clinical-radiological reference plus response to anti-TB treatment at 2 months. RESULTS: A total of 41 patients were included, of whom 63% (26/41) were diagnosed with PTB. Xpert Ultra was positive in 13 of 26 PTB cases and in 0 of 15 non-PTB controls. The sensitivity and specificity of Ultra were 50% (13/26) and 100% (15/15), respectively. Two cases were Xpert Ultra trace-positive only. CONCLUSIONS: Xpert Ultra contributed to bacteriological confirmation in half of pediatric PTB cases at this center, with no false positives, but the small sample limits precision.',
+          rationale: 'Brazilian pediatric cohort; abstract reports raw counts (13/26 and 15/15) cleanly back-compute to a 2x2 with FP=0; the zero-cell triggers continuity correction in the engine. Small n flagged for applicability.',
+          nctid: null,
+          pmid: null,
+          doi: '10.36416/1806-3756/e20240241'
+        },
+        {
+          decision: 'included',
+          tier: 'sensitivity',
+          studlab: 'Kabir 2021',
+          title: 'Xpert Ultra Assay on Stool to Diagnose Pulmonary Tuberculosis in Children',
+          authors: 'Kabir S, Rahman SMM, Ahmed S, et al.',
+          year: 2021,
+          journal: 'Clin Infect Dis',
+          country: 'Bangladesh',
+          ref_std: 'Bacteriological confirmation on induced sputum',
+          abstract: 'BACKGROUND: Children with pulmonary tuberculosis (PTB) often cannot expectorate sputum, and induced sputum or gastric aspirate are invasive. Stool-based Xpert Ultra is a non-invasive alternative. METHODS: Children aged <15 years with presumptive PTB were enrolled in Bangladesh. Xpert Ultra was performed on stool and compared against bacteriological confirmation on induced sputum (microbiological reference). RESULTS: Of 447 children, 29 (6.5%) were bacteriologically confirmed on induced sputum and 72 (16.1%) were bacteriologically confirmed by any sample. With "bacteriologically confirmed on induced sputum" as a reference, the sensitivity and specificity of Xpert Ultra on stool were 58.6% and 88.1%, respectively. Yield was higher in HIV-negative children. CONCLUSIONS: Stool Xpert Ultra has moderate sensitivity and adequate specificity for pediatric PTB, providing a non-invasive option where induced sputum is not feasible.',
+          rationale: 'Clin Infect Dis; Bangladeshi pediatric stool-specimen cohort; included as a sensitivity-tier extension to demonstrate alternative-specimen performance. Specimen and reference-standard caveats flagged.',
+          nctid: null,
+          pmid: '32421765',
+          doi: '10.1093/cid/ciaa583'
+        },
+
+        // ===== EXCLUDED (10 entries) =====
+        {
+          decision: 'excluded',
+          reason: 'Cochrane meta-analysis (not primary research)',
+          studlab: 'Kohli 2021 (Cochrane CD012768)',
+          title: 'Xpert MTB/RIF Ultra and Xpert MTB/RIF assays for extrapulmonary tuberculosis and rifampicin resistance in adults',
+          authors: 'Kohli M, Schiller I, Dendukuri N, et al.',
+          year: 2021,
+          journal: 'Cochrane Database Syst Rev',
+          country: 'Multi-country (review)',
+          abstract: 'BACKGROUND: Xpert MTB/RIF and Xpert MTB/RIF Ultra are WHO-endorsed nucleic acid amplification tests for tuberculosis. We aimed to assess diagnostic accuracy in extrapulmonary TB (EPTB) specimens. METHODS: Cochrane systematic review of diagnostic accuracy. Studies were eligible if they evaluated Xpert MTB/RIF or Ultra in EPTB specimens against culture or composite reference. We performed bivariate random-effects meta-analyses. RESULTS: We included 69 studies. For Ultra in cerebrospinal fluid, pooled sensitivity was 89.4% (95% CrI 79.1-95.6) and specificity 91.2% (CrI 83.2-95.7). Pooled accuracy varied substantially by specimen type. CONCLUSIONS: Xpert Ultra has higher sensitivity than Xpert MTB/RIF in EPTB but specificity is lower for some specimens.',
+          rationale: 'Excluded: this is a Cochrane meta-analysis of EXTRAPULMONARY TB with pooled meta-data, not individual-study primary research. Our review pools individual-study 2x2 counts on PULMONARY TB, so this would double-count and is wrong-population.',
+          nctid: null,
+          pmid: null,
+          doi: '10.1002/14651858.CD012768.pub3'
+        },
+        {
+          decision: 'excluded',
+          reason: 'Different test (Xpert MTB/XDR, not Ultra)',
+          studlab: 'Pillay 2022 (Cochrane CD014841)',
+          title: 'Xpert MTB/XDR for detection of pulmonary tuberculosis and resistance to isoniazid, fluoroquinolones, ethionamide, and amikacin',
+          authors: 'Pillay S, Steingart KR, Davies GR, et al.',
+          year: 2022,
+          journal: 'Cochrane Database Syst Rev',
+          country: 'Multi-country (review)',
+          abstract: 'BACKGROUND: Xpert MTB/XDR is a 10-color cartridge-based assay designed to detect resistance to isoniazid, fluoroquinolones, ethionamide, and aminoglycosides in M. tuberculosis. Cochrane review of its diagnostic accuracy against phenotypic drug-susceptibility testing. RESULTS: We included multiple studies. For isoniazid resistance, pooled sensitivity was 94% and specificity 98%. For fluoroquinolone resistance, sensitivity ranged 87-95%. CONCLUSIONS: Xpert MTB/XDR has high accuracy for second-line drug resistance detection.',
+          rationale: 'Excluded: Xpert MTB/XDR is a different cartridge from Xpert Ultra. The index test is wrong, so this study cannot contribute to a pool of Xpert Ultra DTA estimates.',
+          nctid: null,
+          pmid: null,
+          doi: '10.1002/14651858.CD014841.pub2'
+        },
+        {
+          decision: 'excluded',
+          reason: 'Different test (TB-EASY tongue-swab assay)',
+          studlab: 'TB-EASY 2024',
+          title: 'Tongue-swab assay for tuberculosis: a multi-country diagnostic accuracy evaluation',
+          authors: 'Multi-author consortium',
+          year: 2024,
+          journal: 'Eur Respir J',
+          country: 'Multi-country',
+          abstract: 'BACKGROUND: We evaluated a novel tongue-swab nucleic acid amplification assay (TB-EASY) for diagnosis of pulmonary tuberculosis, with Xpert MTB/RIF Ultra on sputum as a comparator reference. METHODS: Adults with presumptive pulmonary TB were enrolled. Tongue swabs were collected and tested with TB-EASY; sputum was tested with Xpert Ultra and culture. RESULTS: Pooled sensitivity of TB-EASY against culture was 75% and specificity 92%. CONCLUSIONS: Tongue-swab TB testing is feasible but less sensitive than sputum-based Xpert Ultra in this evaluation.',
+          rationale: 'Excluded: the index test under evaluation is the TB-EASY tongue-swab assay, not Xpert Ultra. Xpert Ultra appears only as a comparator reference and contributes no per-study Sens/Spec on its own role.',
+          nctid: null,
+          pmid: null,
+          doi: '10.1183/13993003.01493-2024'
+        },
+        {
+          decision: 'excluded',
+          reason: 'Cochrane review with pooled data (Truenat focus)',
+          studlab: 'Cochrane CD015543 (Truenat)',
+          title: 'Truenat MTB and Truenat MTB-Rif assays for pulmonary tuberculosis and rifampicin resistance',
+          authors: 'Cochrane authors',
+          year: 2023,
+          journal: 'Cochrane Database Syst Rev',
+          country: 'Multi-country (review)',
+          abstract: 'BACKGROUND: Truenat MTB is an alternative point-of-care molecular assay for pulmonary TB. Xpert MTB/RIF Ultra was used as one of several comparator reference standards in this Cochrane review. We performed bivariate meta-analyses of diagnostic accuracy. RESULTS: Pooled sensitivity of Truenat MTB was 73% and specificity 98% against culture. Xpert Ultra appeared only as comparator with pooled meta-data. CONCLUSIONS: Truenat MTB shows comparable specificity but lower sensitivity than Xpert Ultra in pooled estimates.',
+          rationale: 'Excluded: Cochrane review where Xpert Ultra appears as a comparator with pooled meta-data only, not individual-study counts. The primary index test is Truenat, and our extraction would double-count studies already pooled inside the Cochrane forest.',
+          nctid: null,
+          pmid: null,
+          doi: '10.1002/14651858.CD015543.pub2'
+        },
+        {
+          decision: 'excluded',
+          reason: 'Different test (Xpert Host Response cartridge)',
+          studlab: 'Xpert HR 2024',
+          title: 'Xpert MTB Host Response prototype cartridge for triage of pulmonary tuberculosis',
+          authors: 'Multi-author group',
+          year: 2024,
+          journal: 'Clin Infect Dis',
+          country: 'Multi-country',
+          abstract: 'BACKGROUND: Xpert MTB Host Response (Xpert HR) is a prototype 3-gene host RNA signature assay intended for triage of pulmonary TB. We evaluated its diagnostic performance against culture confirmation. METHODS: Adults with presumptive PTB underwent fingerstick blood collection for Xpert HR; sputum was tested with Xpert Ultra and culture. RESULTS: Xpert HR achieved sensitivity 89% and specificity 67% as a triage test, meeting WHO triage TPP for sensitivity but missing the specificity threshold. CONCLUSIONS: Xpert HR shows promise as a non-sputum triage test for PTB.',
+          rationale: 'Excluded: Xpert Host Response is a host-RNA assay running on a different cartridge. The index test is not Xpert Ultra, so this study cannot contribute to a pool of Xpert Ultra DTA estimates.',
+          nctid: null,
+          pmid: null,
+          doi: '10.1093/cid/ciaf445'
+        },
+        {
+          decision: 'excluded',
+          reason: 'Methodology paper (no DTA results)',
+          studlab: 'RaPaed-TB methodology',
+          title: 'RaPaed-TB: a multi-country prospective study to evaluate novel diagnostic tests in children with presumed pulmonary tuberculosis - protocol and methodology',
+          authors: 'RaPaed-TB consortium',
+          year: 2023,
+          journal: 'Pediatr Infect Dis J',
+          country: 'Multi-country (protocol paper)',
+          abstract: 'BACKGROUND: Childhood TB is underdiagnosed and there is a clear need for better paediatric diagnostics. The RaPaed-TB study is a multi-centre, prospective evaluation of novel TB diagnostic tests including Xpert MTB/RIF Ultra in children with presumed pulmonary TB. METHODS: This protocol paper describes the inclusion criteria, specimen collection schedule, reference-standard adjudication, and statistical-analysis plan. We will recruit ~1000 children across 5 sites. ANALYSIS PLAN: A composite reference standard combining microbiology, clinical features, and treatment response will be used. RESULTS: Forthcoming in subsequent reports. CONCLUSIONS: This protocol describes the largest planned paediatric TB diagnostic-evaluation study to date.',
+          rationale: 'Excluded: methodology / protocol paper with no diagnostic-accuracy results. There are no Sens/Spec or 2x2 counts to extract. The actual results paper, when published, would be eligible.',
+          nctid: null,
+          pmid: null,
+          doi: '10.1097/INF.0000000000003853'
+        },
+        {
+          decision: 'excluded',
+          reason: 'Trace-result interpretation only (subgroup not target)',
+          studlab: 'Sung 2024',
+          title: 'Community screening for pulmonary tuberculosis: interpretation of Xpert Ultra trace-positive results',
+          authors: 'Sung J, et al.',
+          year: 2024,
+          journal: 'Clin Infect Dis',
+          country: 'South Africa (community screening)',
+          abstract: 'BACKGROUND: Xpert MTB/RIF Ultra detects M. tuberculosis at lower bacillary loads than predecessor assays, but introduces a "trace" call category whose clinical significance is debated. We analyzed trace-positive Xpert Ultra results from a large community TB-screening study in South Africa. METHODS: Asymptomatic adults underwent sputum Xpert Ultra screening; trace-positive results were re-tested and clinically followed for 12 months. RESULTS: Of 5210 screened, 89 had trace-positive Ultra; 32% were culture-positive on follow-up. Discussion focuses on management of trace results, not overall DTA. CONCLUSIONS: Trace-positive Xpert Ultra results in community screening warrant clinical follow-up but should not be presumed-treated as TB.',
+          rationale: 'Excluded: this analysis focuses specifically on the interpretation of TRACE-positive results in community screening, not whole-population diagnostic accuracy of Xpert Ultra. The 2x2 of interest (test-positive vs test-negative against TB+/TB-) is not extractable in the conventional DTA sense.',
+          nctid: null,
+          pmid: null,
+          doi: '10.1093/cid/ciad595'
+        },
+        {
+          decision: 'excluded',
+          reason: 'Cannot back-compute (Sens% but no clean N+ breakdown)',
+          studlab: 'Yenew 2024',
+          title: 'Diagnostic accuracy of stool Xpert MTB/RIF Ultra in children with presumptive pulmonary tuberculosis in Ethiopia',
+          authors: 'Yenew B, Tesfaye E, et al.',
+          year: 2024,
+          journal: 'ERJ Open Res',
+          country: 'Ethiopia',
+          abstract: 'BACKGROUND: We evaluated stool-based Xpert MTB/RIF Ultra in Ethiopian children with presumptive pulmonary TB. METHODS: Children aged <15 years were enrolled; stool was tested with Xpert Ultra and compared with a microbiological reference. RESULTS: Sensitivity of stool Xpert Ultra was 65% and specificity 96%. Detailed cross-tabulation of test results by reference standard was not reported in the abstract. CONCLUSIONS: Stool Xpert Ultra is a useful non-invasive option in children, with moderate sensitivity.',
+          rationale: 'Excluded at extraction: the abstract reports Sens% and Spec% but does not give an unambiguous N_pos / N_neg breakdown for back-compute. Per our negation-context-aware extraction protocol, we cannot reliably reconstruct a 2x2 from this abstract alone, and full-text retrieval was disallowed by user instruction.',
+          nctid: null,
+          pmid: null,
+          doi: '10.1183/23120541.00710-2023'
+        },
+        {
+          decision: 'excluded',
+          reason: 'Extrapulmonary primary; no N+/N- in abstract',
+          studlab: 'Slail 2023',
+          title: 'Xpert MTB/RIF Ultra in extrapulmonary specimens: a single-center experience',
+          authors: 'Slail M, et al.',
+          year: 2023,
+          journal: 'J Epidemiol Glob Health',
+          country: 'Saudi Arabia',
+          abstract: 'BACKGROUND: We retrospectively reviewed Xpert MTB/RIF Ultra results on extrapulmonary specimens (CSF, lymph-node aspirate, pleural fluid, tissue) at a tertiary center in Saudi Arabia. METHODS: All consecutive Ultra tests on EPTB specimens over a 24-month period were included. RESULTS: Overall sensitivity of Ultra against culture was 71% and specificity 94% across 312 specimens. The breakdown of N_pos vs N_neg by specimen type was not provided in the abstract. CONCLUSIONS: Xpert Ultra has moderate sensitivity for EPTB diagnosis, with specimen-type variation.',
+          rationale: 'Excluded: the population is EXTRAPULMONARY TB (wrong PICO; our review targets pulmonary TB), and the abstract does not give the N_pos / N_neg breakdown that would allow even a sensitivity-tier back-compute. Two independent reasons to exclude.',
+          nctid: null,
+          pmid: null,
+          doi: '10.1007/s44197-023-00150-z'
+        },
+        {
+          decision: 'excluded',
+          reason: 'Cochrane review (duplicate of CD012768; pulmonary EPTB pooled)',
+          studlab: 'Shapiro 2021 (Cochrane CD009593)',
+          title: 'Xpert MTB/RIF and Xpert Ultra assays for screening for pulmonary tuberculosis and rifampicin resistance in adults, irrespective of signs or symptoms',
+          authors: 'Shapiro AE, Ross JM, Yao M, et al.',
+          year: 2021,
+          journal: 'Cochrane Database Syst Rev',
+          country: 'Multi-country (review)',
+          abstract: 'BACKGROUND: We assessed the diagnostic accuracy of Xpert MTB/RIF and Xpert Ultra for screening pulmonary tuberculosis in adults, irrespective of signs or symptoms. METHODS: Cochrane systematic review and bivariate meta-analysis. We included 18 studies. RESULTS: Pooled sensitivity of Xpert Ultra for pulmonary TB screening was 71% (95% CrI 65-76) and specificity 98% (CrI 97-98). CONCLUSIONS: Xpert Ultra has moderate sensitivity for asymptomatic adult TB screening with high specificity.',
+          rationale: 'Excluded: Cochrane meta-analysis pooling individual-study data we would otherwise extract directly. Including this would double-count studies already inside the forest. The primary studies behind it would be eligible if individually extractable.',
+          nctid: null,
+          pmid: null,
+          doi: '10.1002/14651858.CD009593.pub5'
+        }
+      ];
+
+      function renderScreeningCard(s) {
+        var decClass = s.decision === 'included' ? 'included' : 'excluded';
+        var decBadgeClass = s.decision === 'included' ? 'dec-included' : 'dec-excluded';
+        var decBadgeText = s.decision === 'included' ? 'INCLUDED' : 'EXCLUDED';
+
+        var tierBadge = '';
+        if (s.decision === 'included' && s.tier) {
+          var tierClass = s.tier === 'sensitivity' ? 'tier-sensitivity' : '';
+          var tierLabel = s.tier === 'primary' ? 'Primary tier' : 'Sensitivity tier';
+          tierBadge = '<span class="sc-tier ' + tierClass + '">' + tierLabel + '</span>';
+        }
+
+        var reasonBadge = '';
+        if (s.decision === 'excluded' && s.reason) {
+          reasonBadge = '<span class="sc-tier" style="background:#fee2e2;color:#991b1b;">' +
+            escapeHtml(s.reason) + '</span>';
+        }
+
+        var meta = [];
+        if (s.authors) meta.push(escapeHtml(s.authors));
+        if (s.year) meta.push(escapeHtml(String(s.year)));
+        if (s.journal) meta.push('<em>' + escapeHtml(s.journal) + '</em>');
+        if (s.country) meta.push(escapeHtml(s.country));
+        var metaLine = meta.join(' &middot; ');
+
+        var refStdLine = s.ref_std
+          ? '<div class="sc-meta"><strong>Reference standard:</strong> ' + escapeHtml(s.ref_std) + '</div>'
+          : '';
+
+        var linkBits = [];
+        if (s.nctid) {
+          linkBits.push('<a class="external-link" href="https://clinicaltrials.gov/study/' +
+            encodeURIComponent(s.nctid) + '" target="_blank" rel="noopener">' +
+            escapeHtml(s.nctid) + '</a>');
+        }
+        if (s.pmid) {
+          linkBits.push('<a class="external-link" href="https://pubmed.ncbi.nlm.nih.gov/' +
+            encodeURIComponent(s.pmid) + '" target="_blank" rel="noopener">PMID ' +
+            escapeHtml(s.pmid) + '</a>');
+        }
+        if (s.doi) {
+          linkBits.push('<a class="external-link" href="https://doi.org/' +
+            encodeURIComponent(s.doi) + '" target="_blank" rel="noopener">DOI: ' +
+            escapeHtml(s.doi) + '</a>');
+        }
+        var linksLine = linkBits.length
+          ? '<div class="sc-links"><strong>Source:</strong> ' + linkBits.join(' &middot; ') + '</div>'
+          : '<div class="sc-links" style="color:#9ca3af;">No source link available</div>';
+
+        return '<div class="screening-card ' + decClass + '">' +
+          '<div class="sc-decision-row">' +
+            '<span class="sc-decision ' + decBadgeClass + '">' + decBadgeText + '</span>' +
+            tierBadge + reasonBadge +
+          '</div>' +
+          '<h4 class="sc-title">' + escapeHtml(s.title || s.studlab) + '</h4>' +
+          '<div class="sc-meta">' + metaLine + '</div>' +
+          refStdLine +
+          '<p class="sc-rationale"><strong>Decision rationale:</strong> ' + escapeHtml(s.rationale || '') + '</p>' +
+          '<div class="sc-abstract-label">Abstract</div>' +
+          '<div class="sc-abstract">' + escapeHtml(s.abstract || '(abstract not extracted)') + '</div>' +
+          linksLine +
+          '</div>';
+      }
+
+      function renderScreening() {
+        var incEl = document.getElementById('screening-included');
+        var excEl = document.getElementById('screening-excluded');
+        var incCountEl = document.getElementById('sc-included-count');
+        var excCountEl = document.getElementById('sc-excluded-count');
+        if (!incEl || !excEl) return;
+
+        var included = screeningStudies.filter(function (s) { return s.decision === 'included'; });
+        var excluded = screeningStudies.filter(function (s) { return s.decision === 'excluded'; });
+
+        if (incCountEl) incCountEl.textContent = '(k = ' + included.length + ')';
+        if (excCountEl) excCountEl.textContent = '(n = ' + excluded.length + ')';
+
+        incEl.innerHTML = included.map(renderScreeningCard).join('');
+        excEl.innerHTML = excluded.map(renderScreeningCard).join('');
       }
 
       function refit() {
@@ -1729,6 +2150,7 @@
         }
 
         renderHeadlineBanner();
+        renderScreening();
         refit();
 
         document.getElementById('prev-slider').addEventListener('input', updateSlider);
