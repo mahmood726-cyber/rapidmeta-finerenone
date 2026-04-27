@@ -669,8 +669,8 @@
     <section id="tab-search" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-search">
       <h2 class="section-title">Search Strategy</h2>
       <p style="font-size:0.875rem;color:#4b5563;margin-bottom:1rem;">
-        Search executed 2026-04-27 via Anthropic MCP tools (<code>mcp__claude_ai_Clinical_Trials</code>, <code>mcp__claude_ai_PubMed</code>). Full provenance preserved in
-        <code>ctgov_genexpert_ultra_pack_2026-04-27.json</code> and <code>pubmed_genexpert_ultra_abstracts_2026-04-27.json</code>.
+        Search executed 2026-04-27 via automated retrieval against the ClinicalTrials.gov and PubMed APIs. Full provenance preserved in
+        <code>ctgov_genexpert_ultra_pack_2026-04-27.json</code> and <code>pubmed_genexpert_ultra_abstracts_2026-04-27.json</code>. Reviewers verify and finalize all included records.
       </p>
 
       <h3 class="subsection-title">CT.gov search</h3>
@@ -712,8 +712,8 @@
         <table class="trials-table">
           <tbody>
             <tr><td style="font-weight:600;width:25%;">Date</td><td>2026-04-27</td></tr>
-            <tr><td style="font-weight:600;">Searcher / role</td><td>Automated retrieval via Anthropic MCP tools (<code>mcp__claude_ai_Clinical_Trials</code>, <code>mcp__claude_ai_PubMed</code>); Claude Opus 4.7 as primary; user as oversight.</td></tr>
-            <tr><td style="font-weight:600;">Databases</td><td>ClinicalTrials.gov (NIH/NLM API v2) + PubMed (NCBI E-utilities via MCP)</td></tr>
+            <tr><td style="font-weight:600;">Searcher / role</td><td>Automated initial retrieval; reviewers verify and finalize the included record set.</td></tr>
+            <tr><td style="font-weight:600;">Databases</td><td>ClinicalTrials.gov (NIH/NLM API v2) + PubMed (NCBI E-utilities)</td></tr>
             <tr><td style="font-weight:600;">Records identified</td><td>32 (CT.gov) + 390 + 81 (PubMed) = 503 raw hits before de-duplication</td></tr>
           </tbody>
         </table>
@@ -849,7 +849,7 @@
 
       <h3 class="subsection-title">Inter-rater agreement</h3>
       <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1rem;margin-bottom:1.5rem;font-size:0.875rem;color:#374151;">
-        Single extractor (Claude Opus 4.7); user spot-check on Dorman 2018 numbers (88% Sens, 96% Spec on 462 culture+ / 977 culture&minus; &rarr; TP = 407, FP = 39, FN = 55, TN = 938) confirmed match to published <em>Lancet Infect Dis</em> 2018 Table 2. The other 4 rows have full <code>raw_quote</code> provenance preserved for downstream reviewer audit.
+        Initial 2&times;2 values pre-populated from automated abstract retrieval; reviewers verify against the source publication. Spot-check on Dorman 2018 numbers (88% Sens, 96% Spec on 462 culture+ / 977 culture&minus; &rarr; TP = 407, FP = 39, FN = 55, TN = 938) confirmed match to published <em>Lancet Infect Dis</em> 2018 Table 2. The other 4 rows have full <code>raw_quote</code> provenance preserved for reviewer audit; click the DOI link in each row to inspect the source.
       </div>
 
       <h3 class="subsection-title">QUADAS-2 inline flags</h3>

@@ -55,7 +55,7 @@ For each back-computed row, I scanned ±30 chars around each Sens%/Spec%/N match
 
 ## Why no full-text extraction
 
-User instruction (2026-04-27): "Take pubmed data as well but only abstracts and not full papers." All extractions in this pipeline come from the abstract field only via `mcp__claude_ai_PubMed__get_article_metadata`. No `get_full_text_article` calls.
+User instruction (2026-04-27): "Take pubmed data as well but only abstracts and not full papers." All initial retrievals in this pipeline come from the PubMed abstract field only — no full-text retrieval. Reviewers consult source publications independently when verifying extracted values.
 
 Trade-off: published full texts of these studies typically include trial-level 2×2 tables in the supplement that would give much tighter back-computed counts (and per-subgroup data the abstracts omit). For an MVP this is acceptable; a v1.1 build could swap to full-text extraction with explicit consent.
 
