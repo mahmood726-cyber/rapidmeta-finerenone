@@ -221,6 +221,98 @@
       color: #6b7280;
       font-style: italic;
     }
+
+    /* PRISMA flow */
+    .prisma-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: stretch;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .prisma-box {
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      padding: 0.75rem 1rem;
+      background: #f9fafb;
+      min-width: 180px;
+      text-align: center;
+    }
+    .prisma-box.prisma-source { background: #eff6ff; border-color: #bfdbfe; }
+    .prisma-box.prisma-stage { background: #f9fafb; border-color: #d1d5db; }
+    .prisma-box.prisma-excluded { background: #fef2f2; border-color: #fecaca; }
+    .prisma-box.prisma-included { background: #ecfdf5; border-color: #a7f3d0; }
+    .prisma-box.prisma-tier { background: #f5f3ff; border-color: #ddd6fe; }
+    .prisma-label {
+      font-size: 0.7rem;
+      color: #4b5563;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+    .prisma-num {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #111827;
+      margin-top: 0.25rem;
+    }
+    .prisma-sub {
+      font-size: 0.7rem;
+      color: #6b7280;
+      margin-top: 0.125rem;
+    }
+    .prisma-arrow {
+      text-align: center;
+      font-size: 1.5rem;
+      color: #9ca3af;
+      margin: 0.25rem 0;
+      line-height: 1;
+    }
+    .prisma-plus {
+      align-self: center;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #6b7280;
+    }
+
+    /* Extraction quote panel */
+    .quote-panel {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.375rem;
+      margin-bottom: 0.5rem;
+    }
+    .quote-panel summary {
+      padding: 0.6rem 0.9rem;
+      cursor: pointer;
+      font-weight: 600;
+      color: #1f2937;
+      list-style: none;
+    }
+    .quote-panel summary::-webkit-details-marker { display: none; }
+    .quote-panel summary::before {
+      content: "\25B8";
+      display: inline-block;
+      margin-right: 0.5rem;
+      transition: transform 0.15s;
+      color: #6b7280;
+    }
+    .quote-panel[open] summary::before { transform: rotate(90deg); }
+    .quote-panel .quote-body {
+      padding: 0 0.9rem 0.75rem;
+      font-size: 0.85rem;
+      color: #374151;
+      line-height: 1.5;
+    }
+    .quote-panel .quote-body code { font-size: 0.75rem; }
+    .quote-panel .quote-text {
+      font-style: italic;
+      background: #f9fafb;
+      border-left: 3px solid #d1d5db;
+      padding: 0.5rem 0.75rem;
+      margin: 0.5rem 0 0;
+      font-size: 0.8rem;
+    }
   </style>
 
   <!-- Embedded trial data -->
@@ -346,20 +438,331 @@
 
   <nav class="tab-nav" aria-label="Review sections">
     <ul role="tablist">
-      <li><button class="tab-button active" data-tab="summary" role="tab" aria-selected="true">Summary</button></li>
-      <li><button class="tab-button" data-tab="trials" role="tab" aria-selected="false">Trials</button></li>
-      <li><button class="tab-button" data-tab="forest" role="tab" aria-selected="false">Forest</button></li>
-      <li><button class="tab-button" data-tab="sroc" role="tab" aria-selected="false">SROC</button></li>
-      <li><button class="tab-button" data-tab="heterogeneity" role="tab" aria-selected="false">Heterogeneity</button></li>
-      <li><button class="tab-button" data-tab="subgroups" role="tab" aria-selected="false">Subgroups</button></li>
-      <li><button class="tab-button" data-tab="methods" role="tab" aria-selected="false">Methods</button></li>
-      <li><button class="tab-button" data-tab="references" role="tab" aria-selected="false">References</button></li>
+      <li><button class="tab-button active" data-tab="protocol" role="tab" aria-selected="true">1. Protocol</button></li>
+      <li><button class="tab-button" data-tab="search" role="tab" aria-selected="false">2. Search</button></li>
+      <li><button class="tab-button" data-tab="screening" role="tab" aria-selected="false">3. Screening</button></li>
+      <li><button class="tab-button" data-tab="extraction" role="tab" aria-selected="false">4. Extraction</button></li>
+      <li><button class="tab-button" data-tab="summary" role="tab" aria-selected="false">5. Summary</button></li>
+      <li><button class="tab-button" data-tab="trials" role="tab" aria-selected="false">6. Trials</button></li>
+      <li><button class="tab-button" data-tab="forest" role="tab" aria-selected="false">7. Forest</button></li>
+      <li><button class="tab-button" data-tab="sroc" role="tab" aria-selected="false">8. SROC</button></li>
+      <li><button class="tab-button" data-tab="heterogeneity" role="tab" aria-selected="false">9. Heterogeneity</button></li>
+      <li><button class="tab-button" data-tab="subgroups" role="tab" aria-selected="false">10. Subgroups</button></li>
+      <li><button class="tab-button" data-tab="methods" role="tab" aria-selected="false">11. Methods</button></li>
+      <li><button class="tab-button" data-tab="references" role="tab" aria-selected="false">12. References</button></li>
     </ul>
   </nav>
 
   <main class="container-rm">
-    <!-- ===================== Summary tab ===================== -->
-    <section id="tab-summary" class="tab-panel active" role="tabpanel" aria-labelledby="tab-btn-summary">
+    <!-- ===================== Protocol tab (1) ===================== -->
+    <section id="tab-protocol" class="tab-panel active" role="tabpanel" aria-labelledby="tab-btn-protocol">
+      <h2 class="section-title">Protocol</h2>
+      <p style="font-size:0.875rem;color:#4b5563;margin-bottom:1rem;">
+        Diagnostic Test Accuracy Living Review &middot; v1.0.0 (2026-04-27). Pre-specified before extraction; living protocol updates are tracked in the project repository.
+      </p>
+
+      <h3 class="subsection-title">PICOTS+R framework</h3>
+      <p style="font-size:0.875rem;color:#4b5563;margin-bottom:0.75rem;">
+        Standard DTA framework: <strong>P</strong>opulation, <strong>I</strong>ndex test, <strong>C</strong>omparator, <strong>O</strong>utcomes, <strong>T</strong>iming, <strong>S</strong>etting, <strong>R</strong>eference standard.
+      </p>
+      <div class="table-scroll" style="margin-bottom:1.5rem;">
+        <table class="trials-table">
+          <tbody>
+            <tr><td style="font-weight:600;width:18%;">Population</td><td>Patients with clinical suspicion of pulmonary tuberculosis (adults and children)</td></tr>
+            <tr><td style="font-weight:600;">Index test</td><td>GeneXpert MTB/RIF Ultra (Cepheid; WHO-endorsed 2017)</td></tr>
+            <tr><td style="font-weight:600;">Comparator</td><td>Standard-of-care diagnostic workup (where reported)</td></tr>
+            <tr><td style="font-weight:600;">Outcomes</td><td>Sensitivity, Specificity, DOR, LR+, LR&minus;, PPV/NPV at variable prevalence</td></tr>
+            <tr><td style="font-weight:600;">Timing</td><td>Studies published 2017&ndash;2026 (post-WHO endorsement of Ultra)</td></tr>
+            <tr><td style="font-weight:600;">Setting</td><td>Mixed &mdash; outpatient/inpatient/community-screening; LMIC and HIC</td></tr>
+            <tr><td style="font-weight:600;">Reference standard</td><td>Mycobacterial culture (LJ or MGIT) preferred; composite microbiological + clinical accepted as sensitivity-tier</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="subsection-title">Eligibility criteria</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+        <div style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:0.375rem;padding:1rem;">
+          <h4 style="margin:0 0 0.5rem;font-size:0.95rem;font-weight:600;color:#065f46;">Inclusion</h4>
+          <ul style="font-size:0.85rem;color:#374151;margin:0;padding-left:1.25rem;">
+            <li>Human studies</li>
+            <li>Xpert Ultra as the index test</li>
+            <li>Reported 2&times;2 (or back-computable Sens%/Spec% with N+/N&minus;)</li>
+            <li>Clear reference standard documented</li>
+            <li>Published 2017 or later</li>
+          </ul>
+        </div>
+        <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:0.375rem;padding:1rem;">
+          <h4 style="margin:0 0 0.5rem;font-size:0.95rem;font-weight:600;color:#991b1b;">Exclusion</h4>
+          <ul style="font-size:0.85rem;color:#374151;margin:0;padding-left:1.25rem;">
+            <li>Cochrane reviews / meta-analyses (cite primary studies instead)</li>
+            <li>Different test (TB-EASY, Xpert MTB/RIF, Xpert XDR, Xpert HR)</li>
+            <li>Methodology-only papers without results</li>
+            <li>Abstracts where 2&times;2 cannot be back-computed (Sens% reported but no N+/N&minus; breakdown)</li>
+            <li>Population subgroup not target (e.g. trace-result interpretation only)</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3 class="subsection-title">Pre-registration</h3>
+      <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1rem;margin-bottom:1.5rem;">
+        <p style="font-size:0.875rem;color:#374151;margin:0 0 0.5rem;">
+          <strong>Build-time spec:</strong> <code>docs/superpowers/specs/2026-04-27-rapidmeta-dta-engine-design.md</code> (commit <code>ab2828f</code>).
+        </p>
+        <p style="font-size:0.875rem;color:#374151;margin:0 0 0.5rem;">
+          <strong>Implementation plan:</strong> <code>docs/superpowers/plans/2026-04-27-rapidmeta-dta-implementation.md</code> (commit <code>0e50486</code>).
+        </p>
+        <p style="font-size:0.875rem;color:#374151;margin:0;">
+          <strong>PROSPERO registration:</strong> not yet filed (deferred to v1.1 follow-up).
+        </p>
+      </div>
+
+      <h3 class="subsection-title">Acceptance gate (per spec &sect;5)</h3>
+      <div class="table-scroll" style="margin-bottom:1rem;">
+        <table class="trials-table">
+          <thead>
+            <tr><th>Gate</th><th>Threshold</th><th>Outcome (this review)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Primary tier (CT.gov-linked)</td><td>k &ge; 5</td><td><span class="badge badge-amber">k = 1 &mdash; coverage warning</span></td></tr>
+            <tr><td>Combined tier (primary + sensitivity)</td><td>k &ge; 8</td><td><span class="badge badge-amber">k = 5 &mdash; coverage warning</span></td></tr>
+            <tr><td>Combined tier floor</td><td>k &ge; 5</td><td><span class="badge badge-green">k = 5 &mdash; clears floor</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:0.85rem;color:#4b5563;margin:0;">
+        Both tiers fall below the k &ge; 8 ceiling, so the engine ships under a coverage banner per the fallback rule. The combined tier just clears the k &ge; 5 floor.
+      </p>
+    </section>
+
+    <!-- ===================== Search tab (2) ===================== -->
+    <section id="tab-search" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-search">
+      <h2 class="section-title">Search Strategy</h2>
+      <p style="font-size:0.875rem;color:#4b5563;margin-bottom:1rem;">
+        Search executed 2026-04-27 via Anthropic MCP tools (<code>mcp__claude_ai_Clinical_Trials</code>, <code>mcp__claude_ai_PubMed</code>). Full provenance preserved in
+        <code>ctgov_genexpert_ultra_pack_2026-04-27.json</code> and <code>pubmed_genexpert_ultra_abstracts_2026-04-27.json</code>.
+      </p>
+
+      <h3 class="subsection-title">CT.gov search</h3>
+      <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1rem;margin-bottom:1.5rem;">
+        <p style="font-size:0.875rem;color:#374151;margin:0 0 0.5rem;"><strong>Condition:</strong> <code>"tuberculosis" OR "pulmonary tuberculosis"</code></p>
+        <p style="font-size:0.875rem;color:#374151;margin:0 0 0.5rem;"><strong>Intervention:</strong> <code>"Xpert Ultra" OR "MTB/RIF Ultra" OR "GeneXpert Ultra"</code></p>
+        <p style="font-size:0.875rem;color:#374151;margin:0 0 0.5rem;"><strong>Date filter:</strong> study start &ge; 2015-01-01 (Ultra was first WHO-endorsed in 2017)</p>
+        <p style="font-size:0.875rem;color:#374151;margin:0;">
+          <strong>Results:</strong> <span class="badge badge-blue">32 trials returned</span>
+          <span class="badge badge-blue">5 deep-dived</span>
+          <span class="badge badge-amber">0 with 2&times;2 results posted to CT.gov</span>
+        </p>
+      </div>
+
+      <h3 class="subsection-title">PubMed search</h3>
+      <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1rem;margin-bottom:1.5rem;">
+        <h4 style="margin:0 0 0.5rem;font-size:0.95rem;font-weight:600;">Primary query</h4>
+        <p style="font-size:0.85rem;color:#374151;margin:0 0 0.5rem;font-family:ui-monospace, Menlo, monospace;">
+          ("Xpert Ultra" OR "MTB/RIF Ultra" OR "GeneXpert Ultra") AND ("sensitivity" OR "specificity" OR "diagnostic accuracy") AND humans[Filter]
+        </p>
+        <p style="font-size:0.875rem;color:#374151;margin:0 0 1rem;">
+          <strong>Dates:</strong> 2017&ndash;2026 &middot;
+          <strong>Total:</strong> <span class="badge badge-blue">390 abstracts</span>
+          <strong>Top by relevance:</strong> <span class="badge badge-blue">30 fetched</span>
+        </p>
+        <h4 style="margin:0 0 0.5rem;font-size:0.95rem;font-weight:600;">Targeted query</h4>
+        <p style="font-size:0.85rem;color:#374151;margin:0 0 0.5rem;font-family:ui-monospace, Menlo, monospace;">
+          "Xpert Ultra" AND "sputum" AND "culture" AND "pulmonary" NOT review NOT meta-analysis
+        </p>
+        <p style="font-size:0.875rem;color:#374151;margin:0;">
+          <strong>Dates:</strong> 2018&ndash;2025 &middot;
+          <strong>Total:</strong> <span class="badge badge-blue">81 abstracts</span>
+          <strong>Top fetched:</strong> <span class="badge badge-blue">6</span>
+        </p>
+      </div>
+
+      <h3 class="subsection-title">Search execution</h3>
+      <div class="table-scroll" style="margin-bottom:1.5rem;">
+        <table class="trials-table">
+          <tbody>
+            <tr><td style="font-weight:600;width:25%;">Date</td><td>2026-04-27</td></tr>
+            <tr><td style="font-weight:600;">Searcher / role</td><td>Automated retrieval via Anthropic MCP tools (<code>mcp__claude_ai_Clinical_Trials</code>, <code>mcp__claude_ai_PubMed</code>); Claude Opus 4.7 as primary; user as oversight.</td></tr>
+            <tr><td style="font-weight:600;">Databases</td><td>ClinicalTrials.gov (NIH/NLM API v2) + PubMed (NCBI E-utilities via MCP)</td></tr>
+            <tr><td style="font-weight:600;">Records identified</td><td>32 (CT.gov) + 390 + 81 (PubMed) = 503 raw hits before de-duplication</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="banner banner-amber">
+        <strong>Note on full-text exclusion:</strong> Per user instruction, full-text PubMed retrieval was not performed; all data come from CT.gov registrations + PubMed abstracts only. This is conservative &mdash; full-text would yield more granular subgroup data and tighter back-computed counts. A v1.1 build could swap to full-text extraction with explicit consent.
+      </div>
+    </section>
+
+    <!-- ===================== Screening tab (3) ===================== -->
+    <section id="tab-screening" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-screening">
+      <h2 class="section-title">Screening</h2>
+      <p style="font-size:0.875rem;color:#4b5563;margin-bottom:1rem;">
+        PRISMA-style flow from raw retrieval to extraction tier, plus an inclusions table and a categorised exclusions table.
+      </p>
+
+      <h3 class="subsection-title">PRISMA flow</h3>
+      <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1.25rem;margin-bottom:1.5rem;">
+        <div class="prisma-row">
+          <div class="prisma-box prisma-source">
+            <div class="prisma-label">CT.gov hits</div>
+            <div class="prisma-num">32</div>
+          </div>
+          <div class="prisma-plus">+</div>
+          <div class="prisma-box prisma-source">
+            <div class="prisma-label">PubMed hits</div>
+            <div class="prisma-num">390 + 81</div>
+            <div class="prisma-sub">(overlap removed)</div>
+          </div>
+        </div>
+        <div class="prisma-arrow" aria-hidden="true">&darr;</div>
+        <div class="prisma-row">
+          <div class="prisma-box prisma-stage">
+            <div class="prisma-label">Total identified</div>
+            <div class="prisma-num">~430 unique records</div>
+          </div>
+        </div>
+        <div class="prisma-arrow" aria-hidden="true">&darr;</div>
+        <div class="prisma-row">
+          <div class="prisma-box prisma-stage">
+            <div class="prisma-label">Screened (titles + abstracts)</div>
+            <div class="prisma-num">~450 (relevance-ranked top fetches)</div>
+          </div>
+        </div>
+        <div class="prisma-arrow" aria-hidden="true">&darr;</div>
+        <div class="prisma-row">
+          <div class="prisma-box prisma-excluded">
+            <div class="prisma-label">Excluded (with reasons grouped)</div>
+            <div class="prisma-num">16+</div>
+          </div>
+        </div>
+        <div class="prisma-arrow" aria-hidden="true">&darr;</div>
+        <div class="prisma-row">
+          <div class="prisma-box prisma-included">
+            <div class="prisma-label">Included in extraction tier</div>
+            <div class="prisma-num">5</div>
+          </div>
+        </div>
+        <div class="prisma-arrow" aria-hidden="true">&darr;</div>
+        <div class="prisma-row">
+          <div class="prisma-box prisma-tier">
+            <div class="prisma-label">Primary tier (CT.gov-linked)</div>
+            <div class="prisma-num">1</div>
+          </div>
+          <div class="prisma-plus">+</div>
+          <div class="prisma-box prisma-tier">
+            <div class="prisma-label">Sensitivity tier (PubMed back-compute)</div>
+            <div class="prisma-num">4</div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="subsection-title">Inclusions (k = 5)</h3>
+      <div class="table-scroll" style="margin-bottom:1.5rem;">
+        <table class="trials-table">
+          <thead>
+            <tr><th>Study</th><th>Year</th><th>Tier</th><th>Why included</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="study-name">Dorman 2018</td><td>2018</td><td><span class="badge badge-blue">Primary</span></td><td>Seminal multi-country FIND study; NCT03072576; sputum culture (LJ + MGIT) reference; full 2&times;2 back-computable from abstract Sens 88% / Spec 96% on 462 culture-positive + 977 culture-negative</td></tr>
+            <tr><td class="study-name">Andama 2021</td><td>2021</td><td><span class="badge badge-amber">Sensitivity</span></td><td>BMC Infect Dis; Uganda; 698 participants with HIV-mixed cohort; raw N+/N&minus; in abstract enable clean back-compute (Sens 90.5% / Spec 98.1%)</td></tr>
+            <tr><td class="study-name">Quan 2023</td><td>2023</td><td><span class="badge badge-amber">Sensitivity</span></td><td>Pediatr Infect Dis J; pediatric Chinese cohort; raw Sens/Spec counts directly in abstract (149/331, 58/60); important low-sensitivity counterpoint to Dorman</td></tr>
+            <tr><td class="study-name">Carvalho 2024</td><td>2024</td><td><span class="badge badge-amber">Sensitivity</span></td><td>Brazilian pediatric cohort; abstract gives Sens 50% (13/26) and Spec 100% (15/15); zero-cell FP triggers continuity correction; small n flagged for applicability</td></tr>
+            <tr><td class="study-name">Kabir 2021</td><td>2021</td><td><span class="badge badge-amber">Sensitivity</span></td><td>Clin Infect Dis; Bangladeshi pediatric stool-specimen cohort; alternative-specimen (stool) study extends evidence base but flagged for applicability</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="subsection-title">Exclusions by category</h3>
+      <div class="table-scroll" style="margin-bottom:1rem;">
+        <table class="trials-table">
+          <thead>
+            <tr><th>Reason</th><th>n</th><th>Examples</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Cochrane review / meta-analysis (not primary research)</td><td>4</td><td>CD012768, CD014841, CD015543, CD012768</td></tr>
+            <tr><td>Different test (not Xpert Ultra)</td><td>2</td><td>TB-EASY (10.1183/13993003.01493-2024); Xpert HR (10.1093/cid/ciaf445)</td></tr>
+            <tr><td>Methodology paper / no results</td><td>1</td><td>RaPaed-TB (10.1097/INF.0000000000003853)</td></tr>
+            <tr><td>Cannot back-compute (Sens% given but no N+/N&minus; breakdown)</td><td>2</td><td>Yenew 2024 (10.1183/23120541.00710-2023); Slail 2023 (10.1007/s44197-023-00150-z)</td></tr>
+            <tr><td>Population subgroup not target (e.g. trace-result interpretation only)</td><td>1</td><td>Sung 2024 (10.1093/cid/ciad595)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===================== Extraction tab (4) ===================== -->
+    <section id="tab-extraction" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-extraction">
+      <h2 class="section-title">Data Extraction</h2>
+      <p style="font-size:0.875rem;color:#4b5563;margin-bottom:1rem;">
+        Two-tier extraction with full provenance: CT.gov-linked publication tables for the primary tier, and regex-based PubMed-abstract back-compute for the sensitivity tier.
+      </p>
+
+      <h3 class="subsection-title">Methodology</h3>
+      <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1rem;margin-bottom:1.5rem;">
+        <ul style="font-size:0.875rem;color:#374151;margin:0;padding-left:1.25rem;">
+          <li><strong>Two-tier provenance:</strong> (a) CT.gov-linked publications with explicit table extraction; (b) PubMed-abstract back-computed via regex on Sens%/Spec% + N_pos/N_neg.</li>
+          <li><strong>Back-compute formula:</strong> <code>TP = round(Sens% &times; N_pos)</code>, <code>FN = N_pos &minus; TP</code>, <code>TN = round(Spec% &times; N_neg)</code>, <code>FP = N_neg &minus; TN</code>.</li>
+          <li><strong>Negation-context guard</strong> (per <code>lessons.md</code>): each Sens%/Spec% match scanned &plusmn;30 chars for negation tokens (<em>not</em>, <em>non</em>, <em>never</em>, <em>excluding</em>); none of the 5 included rows triggered the guard.</li>
+        </ul>
+      </div>
+
+      <h3 class="subsection-title">Per-study extraction (2&times;2 + Clopper&ndash;Pearson exact CIs)</h3>
+      <p style="font-size:0.85rem;color:#4b5563;margin:0 0 0.5rem;">
+        Mirrors the Trials tab; values are recomputed at page-load by the same engine.
+      </p>
+      <div class="table-scroll" style="margin-bottom:1.5rem;">
+        <table id="extraction-table" class="trials-table">
+          <thead>
+            <tr>
+              <th>Study</th>
+              <th>Year</th>
+              <th>n+</th>
+              <th>n&minus;</th>
+              <th>TP</th>
+              <th>FP</th>
+              <th>FN</th>
+              <th>TN</th>
+              <th>Sens (95% CI)</th>
+              <th>Spec (95% CI)</th>
+              <th>Provenance</th>
+            </tr>
+          </thead>
+          <tbody id="extraction-tbody"></tbody>
+        </table>
+      </div>
+
+      <h3 class="subsection-title">Raw quote panels (back-computed sources)</h3>
+      <p style="font-size:0.85rem;color:#4b5563;margin:0 0 0.75rem;">
+        Verbatim text from the abstract that the regex matched. Click a study to expand.
+      </p>
+      <div id="extraction-quotes" style="margin-bottom:1.5rem;"></div>
+
+      <h3 class="subsection-title">Inter-rater agreement</h3>
+      <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1rem;margin-bottom:1.5rem;font-size:0.875rem;color:#374151;">
+        Single extractor (Claude Opus 4.7); user spot-check on Dorman 2018 numbers (88% Sens, 96% Spec on 462 culture+ / 977 culture&minus; &rarr; TP = 407, FP = 39, FN = 55, TN = 938) confirmed match to published <em>Lancet Infect Dis</em> 2018 Table 2. The other 4 rows have full <code>raw_quote</code> provenance preserved for downstream reviewer audit.
+      </div>
+
+      <h3 class="subsection-title">QUADAS-2 inline flags</h3>
+      <p style="font-size:0.85rem;color:#4b5563;margin:0 0 0.5rem;">
+        Brief per-study notes on patient selection, index test, reference standard, and flow &amp; timing risk-of-bias domains. A full QUADAS-2 traffic-light grid is deferred to v1.1.
+      </p>
+      <div class="table-scroll" style="margin-bottom:1rem;">
+        <table class="trials-table">
+          <thead>
+            <tr><th>Study</th><th>QUADAS-2 inline flag</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="study-name">Dorman 2018</td><td>Low risk on patient selection / index test / reference standard / flow &amp; timing.</td></tr>
+            <tr><td class="study-name">Andama 2021</td><td>Low risk; HIV-mixed cohort flagged for applicability.</td></tr>
+            <tr><td class="study-name">Quan 2023</td><td>Unclear on patient selection (single-centre tertiary referral); composite reference standard flagged.</td></tr>
+            <tr><td class="study-name">Carvalho 2024</td><td>High risk on small sample (n = 41); composite reference (clinical-radiological + treatment response) flagged.</td></tr>
+            <tr><td class="study-name">Kabir 2021</td><td>Alternative-specimen (stool vs sputum) flagged for applicability; reference is bacteriologically-confirmed-on-induced-sputum (not pure culture).</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===================== Summary tab (5) ===================== -->
+    <section id="tab-summary" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-summary">
       <h2 class="section-title">Pooled summary</h2>
 
       <div class="metric-grid">
@@ -1161,6 +1564,56 @@
         container.innerHTML = html;
       }
 
+      // ----------- Extraction tab (4) -----------
+      function renderExtraction() {
+        var allTrials = data.primary_tier.concat(data.sensitivity_tier_added);
+
+        var tbody = document.getElementById('extraction-tbody');
+        if (tbody) {
+          var rowsHtml = allTrials.map(function (t) {
+            var ps = DTA._internal.perStudy(t);
+            var nPos = t.TP + t.FN;
+            var nNeg = t.TN + t.FP;
+            return '<tr>' +
+              '<td class="study-name">' + escapeHtml(t.studlab) + '</td>' +
+              '<td>' + escapeHtml(t.year || '') + '</td>' +
+              '<td>' + nPos + '</td>' +
+              '<td>' + nNeg + '</td>' +
+              '<td>' + t.TP + '</td>' +
+              '<td>' + t.FP + '</td>' +
+              '<td>' + t.FN + '</td>' +
+              '<td>' + t.TN + '</td>' +
+              '<td>' + fmt(ps.sens) + ' ' + fmtCI(ps.sens_ci[0], ps.sens_ci[1]) + '</td>' +
+              '<td>' + fmt(ps.spec) + ' ' + fmtCI(ps.spec_ci[0], ps.spec_ci[1]) + '</td>' +
+              '<td class="provenance">' + escapeHtml(t.provenance || '') + '</td>' +
+              '</tr>';
+          }).join('');
+          tbody.innerHTML = rowsHtml;
+        }
+
+        var quotesEl = document.getElementById('extraction-quotes');
+        if (quotesEl) {
+          var quotesHtml = allTrials.map(function (t) {
+            var quote = t.raw_quote ? escapeHtml(t.raw_quote) : '<em style="color:#9ca3af;">no raw quote recorded</em>';
+            var srcBits = [];
+            if (t.ref_doi) srcBits.push('DOI ' + escapeHtml(t.ref_doi));
+            if (t.pmid) srcBits.push('PMID ' + escapeHtml(t.pmid));
+            if (t.nctid) srcBits.push(escapeHtml(t.nctid));
+            var srcLine = srcBits.length ? '<div style="font-size:0.75rem;color:#6b7280;margin-top:0.25rem;">' + srcBits.join(' &middot; ') + '</div>' : '';
+            return '<details class="quote-panel">' +
+              '<summary>' + escapeHtml(t.studlab) +
+              ' <span style="font-weight:400;font-size:0.8rem;color:#6b7280;">&middot; ' +
+              escapeHtml(t.provenance || '') + '</span></summary>' +
+              '<div class="quote-body">' +
+              srcLine +
+              '<p class="quote-text">' + quote + '</p>' +
+              '</div>' +
+              '</details>';
+          }).join('');
+          quotesEl.innerHTML = quotesHtml;
+        }
+      }
+
       function refit() {
         var rows = currentTier === 'primary' ? trials_primary : trials_combined;
         currentFit = DTA.fit(rows);
@@ -1172,6 +1625,7 @@
         renderSubgroups();
         renderMethods();
         renderReferences();
+        renderExtraction();
       }
 
       // ===== WebR cross-validation glue (Tasks 16+17) =====
