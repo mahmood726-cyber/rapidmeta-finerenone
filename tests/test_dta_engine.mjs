@@ -33,6 +33,34 @@ test('validate accepts well-formed', () => {
   assert.deepEqual(issues, []);
 });
 
+test('matmul 2x2', () => {
+  const A = [[1,2],[3,4]], B = [[5,6],[7,8]];
+  const R = DTA._internal.matmul(A, B);
+  assert.deepEqual(R, [[19,22],[43,50]]);
+});
+
+test('inv2x2 round-trip', () => {
+  const A = [[2,1],[1,3]];
+  const Ai = DTA._internal.inv2x2(A);
+  const I = DTA._internal.matmul(A, Ai);
+  assert.ok(Math.abs(I[0][0]-1) < 1e-12);
+  assert.ok(Math.abs(I[1][1]-1) < 1e-12);
+  assert.ok(Math.abs(I[0][1]) < 1e-12);
+});
+
+test('Clopper-Pearson matches known value (10/20, alpha=0.05)', () => {
+  // R: binom.test(10, 20)$conf.int → 0.27194 0.72806
+  const ci = DTA._internal.clopperPearson(10, 20, 0.05);
+  assert.ok(Math.abs(ci[0] - 0.27194) < 1e-3, 'lower: ' + ci[0]);
+  assert.ok(Math.abs(ci[1] - 0.72806) < 1e-3, 'upper: ' + ci[1]);
+});
+
+test('perStudy: GeneXpert example row', () => {
+  const ps = DTA._internal.perStudy({ studlab: 'X', TP: 154, FP: 7, FN: 28, TN: 933 });
+  assert.ok(Math.abs(ps.sens - 154/(154+28)) < 1e-12);
+  assert.ok(Math.abs(ps.spec - 933/(933+7)) < 1e-12);
+});
+
 // Run
 let pass = 0, fail = 0;
 for (const t of tests) {
