@@ -929,6 +929,313 @@
       font-size: 0.875rem;
     }
     .loo-bigdelta { color: #b91c1c; font-weight: 600; }
+
+    /* ===== Feature 1: Fagan nomogram ===== */
+    .fagan-panel {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+      margin-top: 1.25rem;
+    }
+    .fagan-panel h3 { margin-top: 0; }
+    .fagan-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .fagan-row label { font-weight: 600; color: #1f2937; }
+    .fagan-row input[type="range"] {
+      flex: 1;
+      max-width: 26rem;
+      min-width: 200px;
+    }
+    .fagan-pretest-display {
+      font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+      width: 5rem;
+      text-align: right;
+      font-weight: 600;
+    }
+    .fagan-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .fagan-card {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.375rem;
+      padding: 0.75rem 1rem;
+    }
+    .fagan-card .fc-label {
+      font-size: 0.75rem;
+      color: #4b5563;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+    .fagan-card .fc-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-top: 0.25rem;
+      color: #111827;
+    }
+    .fagan-card .fc-lr {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-top: 0.15rem;
+    }
+    .fagan-chip {
+      display: inline-block;
+      padding: 0.3rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 0.4rem;
+    }
+    .fagan-chip.high { background: #d1fae5; color: #065f46; }
+    .fagan-chip.intermediate { background: #fef3c7; color: #92400e; }
+    .fagan-chip.low { background: #fee2e2; color: #991b1b; }
+    #fagan-svg-container { background: #ffffff; padding: 0.5rem 0; overflow-x: auto; }
+
+    /* ===== Feature 2: GRADE-DTA ===== */
+    .grade-table {
+      width: 100%;
+      font-size: 0.85rem;
+      border-collapse: collapse;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+    }
+    .grade-table th, .grade-table td {
+      padding: 0.5rem 0.6rem;
+      border: 1px solid #e5e7eb;
+      vertical-align: top;
+      text-align: left;
+    }
+    .grade-table th {
+      background: #f3f4f6;
+      font-weight: 600;
+    }
+    .grade-table tr.grade-summary-row td {
+      background: #eff6ff;
+      font-weight: 600;
+    }
+    .grade-table .gd-outcome { background: #f9fafb; font-weight: 600; }
+    .grade-cert {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 0.25rem;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.04em;
+    }
+    .grade-cert.high { background: #d1fae5; color: #065f46; }
+    .grade-cert.moderate { background: #dbeafe; color: #1e40af; }
+    .grade-cert.low { background: #fef3c7; color: #92400e; }
+    .grade-cert.verylow { background: #fee2e2; color: #991b1b; }
+    .grade-downgrade-reason {
+      font-size: 0.75rem;
+      color: #6b7280;
+      font-style: italic;
+      margin-top: 0.25rem;
+    }
+    .grade-judge-select {
+      font: inherit;
+      padding: 0.2rem 0.3rem;
+      border: 1px solid #93c5fd;
+      background: #eff6ff;
+      border-radius: 0.2rem;
+    }
+    .grade-override-flag {
+      color: #b45309;
+      font-weight: 700;
+      font-size: 0.75rem;
+      margin-left: 0.4rem;
+    }
+
+    /* ===== Feature 3: Deeks' funnel ===== */
+    .deeks-panel {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      padding: 1rem 1.25rem;
+      margin-top: 1.25rem;
+    }
+    .deeks-panel h3 { margin-top: 0; }
+    .deeks-summary {
+      font-size: 0.9rem;
+      color: #1f2937;
+      margin: 0.75rem 0 0.5rem;
+    }
+    .deeks-summary.asymmetric { color: #b45309; font-weight: 600; }
+    .deeks-skip {
+      background: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      color: #78350f;
+      padding: 0.6rem 0.9rem;
+      border-radius: 0.25rem;
+      font-size: 0.85rem;
+    }
+    #deeks-svg-container { overflow-x: auto; padding: 0.5rem 0; }
+
+    /* ===== Feature 4: RoB traffic-light grid ===== */
+    .rob-grid-wrap {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .rob-grid-wrap h3 { margin-top: 0; }
+    .rob-grid-table {
+      border-collapse: separate;
+      border-spacing: 4px;
+      font-size: 0.78rem;
+    }
+    .rob-grid-table th, .rob-grid-table td {
+      padding: 4px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    .rob-grid-table th.rob-st-name {
+      text-align: left;
+      font-weight: 600;
+    }
+    .rob-grid-table th {
+      background: #f3f4f6;
+      font-weight: 600;
+      max-width: 80px;
+      line-height: 1.1;
+    }
+    .rob-cell {
+      width: 22px; height: 22px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .rob-circle {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.7rem;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.08);
+    }
+    .rob-circle.low { background: #10b981; }
+    .rob-circle.high { background: #ef4444; }
+    .rob-circle.unclear { background: #f59e0b; }
+    .rob-cell:hover .rob-circle {
+      box-shadow: 0 0 0 2px #2563eb;
+    }
+    #rob-stack-container { margin-top: 1rem; }
+
+    /* ===== Feature 5: Reviewer notes ===== */
+    .notes-box {
+      margin-top: 0.75rem;
+      border: 1px dashed #cbd5e1;
+      border-radius: 0.375rem;
+      padding: 0.6rem 0.8rem;
+      background: #f8fafc;
+    }
+    .notes-box .notes-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.4rem;
+    }
+    .notes-box .notes-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #475569;
+    }
+    .notes-box button.note-add-btn {
+      font: inherit;
+      font-size: 0.78rem;
+      padding: 0.25rem 0.6rem;
+      background: #eff6ff;
+      border: 1px solid #93c5fd;
+      color: #1e40af;
+      border-radius: 0.25rem;
+      cursor: pointer;
+    }
+    .notes-box button.note-add-btn:hover { background: #dbeafe; }
+    .note-card {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.25rem;
+      padding: 0.5rem 0.6rem;
+      margin-top: 0.4rem;
+      font-size: 0.85rem;
+    }
+    .note-card .note-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-bottom: 0.25rem;
+    }
+    .note-author-chip {
+      display: inline-block;
+      padding: 0.1rem 0.45rem;
+      border-radius: 9999px;
+      background: #e0e7ff;
+      color: #3730a3;
+      font-weight: 600;
+    }
+    .note-delete-btn {
+      font: inherit;
+      font-size: 0.7rem;
+      padding: 0.1rem 0.4rem;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+      border-radius: 0.25rem;
+      cursor: pointer;
+    }
+    .note-delete-btn:hover { background: #fecaca; }
+    .note-editor textarea {
+      width: 100%;
+      min-height: 3.5rem;
+      box-sizing: border-box;
+      font: inherit;
+      padding: 0.4rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 0.25rem;
+      resize: vertical;
+    }
+    .note-editor-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin-top: 0.4rem;
+      flex-wrap: wrap;
+    }
+    .note-editor-row select {
+      font: inherit;
+      padding: 0.2rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 0.25rem;
+    }
+    .note-editor-row button {
+      font: inherit;
+      padding: 0.25rem 0.7rem;
+      border-radius: 0.25rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .note-save-btn { background: #2563eb; color: #ffffff; }
+    .note-save-btn:hover { background: #1d4ed8; }
+    .note-cancel-btn { background: #f3f4f6; color: #374151; border-color: #d1d5db; }
+    .note-cancel-btn:hover { background: #e5e7eb; }
   </style>
 
   <!-- Embedded trial data -->
@@ -1080,16 +1387,17 @@
       <li><button class="tab-button" data-tab="screening" role="tab" aria-selected="false">3. Screening</button></li>
       <li><button class="tab-button" data-tab="extraction" role="tab" aria-selected="false">4. Extraction</button></li>
       <li><button class="tab-button" data-tab="quadas" role="tab" aria-selected="false">5. QUADAS-2</button></li>
-      <li><button class="tab-button" data-tab="summary" role="tab" aria-selected="false">6. Summary</button></li>
-      <li><button class="tab-button" data-tab="trials" role="tab" aria-selected="false">7. Trials</button></li>
-      <li><button class="tab-button" data-tab="forest" role="tab" aria-selected="false">8. Forest</button></li>
-      <li><button class="tab-button" data-tab="sroc" role="tab" aria-selected="false">9. SROC</button></li>
-      <li><button class="tab-button" data-tab="heterogeneity" role="tab" aria-selected="false">10. Heterogeneity</button></li>
-      <li><button class="tab-button" data-tab="sensitivity" role="tab" aria-selected="false">11. Sensitivity</button></li>
-      <li><button class="tab-button" data-tab="subgroups" role="tab" aria-selected="false">12. Subgroups</button></li>
-      <li><button class="tab-button" data-tab="methods" role="tab" aria-selected="false">13. Methods</button></li>
-      <li><button class="tab-button" data-tab="references" role="tab" aria-selected="false">14. References</button></li>
-      <li><button class="tab-button" data-tab="report" role="tab" aria-selected="false">15. Scientific Output</button></li>
+      <li><button class="tab-button" data-tab="grade" role="tab" aria-selected="false">6. GRADE</button></li>
+      <li><button class="tab-button" data-tab="summary" role="tab" aria-selected="false">7. Summary</button></li>
+      <li><button class="tab-button" data-tab="trials" role="tab" aria-selected="false">8. Trials</button></li>
+      <li><button class="tab-button" data-tab="forest" role="tab" aria-selected="false">9. Forest</button></li>
+      <li><button class="tab-button" data-tab="sroc" role="tab" aria-selected="false">10. SROC</button></li>
+      <li><button class="tab-button" data-tab="heterogeneity" role="tab" aria-selected="false">11. Heterogeneity</button></li>
+      <li><button class="tab-button" data-tab="sensitivity" role="tab" aria-selected="false">12. Sensitivity</button></li>
+      <li><button class="tab-button" data-tab="subgroups" role="tab" aria-selected="false">13. Subgroups</button></li>
+      <li><button class="tab-button" data-tab="methods" role="tab" aria-selected="false">14. Methods</button></li>
+      <li><button class="tab-button" data-tab="references" role="tab" aria-selected="false">15. References</button></li>
+      <li><button class="tab-button" data-tab="report" role="tab" aria-selected="false">16. Scientific Output</button></li>
     </ul>
   </nav>
 
@@ -1422,6 +1730,19 @@
         </table>
       </div>
 
+      <!-- ===== Feature 4: RoB traffic-light grid ===== -->
+      <div class="rob-grid-wrap">
+        <h3 class="subsection-title">Risk-of-bias traffic-light grid</h3>
+        <p style="font-size:0.8rem;color:#4b5563;margin:0 0 0.6rem;">
+          Per Whiting 2011: 7 cells per study (Patient Selection RoB / App; Index Test RoB / App; Reference Standard RoB / App; Flow &amp; Timing RoB &mdash; no Applicability for Flow &amp; Timing). Click a cell to scroll to that study's detailed grid below. Stacked-bar chart shows the percentage breakdown across all 5 studies for each domain.
+        </p>
+        <div class="chart-toolbar">
+          <button type="button" class="svg-download-btn" data-svg-target="rob-stack-container" data-svg-name="rob_traffic_light" title="Download SVG">&darr; SVG</button>
+        </div>
+        <div id="rob-grid-container" style="overflow-x:auto;"></div>
+        <div id="rob-stack-container"></div>
+      </div>
+
       <h3 class="subsection-title">Per-study grid</h3>
       <div id="quadas-grid-container"></div>
 
@@ -1429,7 +1750,20 @@
       <div id="signoff-quadas" class="signoff-panel"></div>
     </section>
 
-    <!-- ===================== Summary tab (6) ===================== -->
+    <!-- ===================== GRADE-DTA tab (6) ===================== -->
+    <section id="tab-grade" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-grade">
+      <h2 class="section-title">GRADE-DTA evidence summary</h2>
+      <p style="font-size:0.875rem;color:#4b5563;margin-bottom:1rem;">
+        Per Schunemann 2008 / 2020 GRADE for diagnostic test accuracy: each pooled outcome (Sensitivity, Specificity, DOR) is rated across 5 domains (Risk of bias, Inconsistency, Indirectness, Imprecision, Publication bias). Triggers auto-fill from the engine output, the QUADAS-2 panel, and Deeks' funnel test (see Heterogeneity tab). Reviewers may override any cell when edit-mode is ON; overrides are flagged with a manual marker and persist to localStorage.
+      </p>
+      <div id="grade-table-container"></div>
+      <p style="font-size:0.75rem;color:#6b7280;margin-top:0.75rem;">
+        Certainty floor 0; starts HIGH (4 = &oplus;&oplus;&oplus;&oplus;) and subtracts the per-row downgrade.
+        Levels: HIGH &oplus;&oplus;&oplus;&oplus; / MODERATE &oplus;&oplus;&oplus;&#9675; / LOW &oplus;&oplus;&#9675;&#9675; / VERY LOW &oplus;&#9675;&#9675;&#9675;.
+      </p>
+    </section>
+
+    <!-- ===================== Summary tab (7) ===================== -->
     <section id="tab-summary" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-summary">
       <h2 class="section-title">Pooled summary</h2>
 
@@ -1496,6 +1830,40 @@
         <label><input type="radio" name="tier" value="primary"> Primary tier only (CT.gov-linked, k=1)</label>
         <label><input type="radio" name="tier" value="combined" checked> Combined: primary + PubMed-abstract sensitivity tier (k=5)</label>
       </div>
+
+      <!-- ===== Feature 1: Fagan nomogram ===== -->
+      <div class="fagan-panel">
+        <h3 class="subsection-title">Fagan nomogram &mdash; pre-test &rarr; post-test probability</h3>
+        <p style="font-size:0.85rem;color:#374151;margin:0 0 0.75rem;">
+          Move the slider to translate a pre-test (clinical-suspicion) probability into a post-test probability using the active tier's pooled LR+ and LR&minus;. The nomogram beneath shows the classical 3-axis construction: pre-test probability on the left, likelihood ratio in the middle, post-test probability on the right.
+        </p>
+        <div class="fagan-row">
+          <label for="fagan-slider">Pre-test probability:</label>
+          <input type="range" id="fagan-slider" min="-3" max="-0.0044" step="0.01" value="-1.0" aria-label="Pre-test probability (log scale)">
+          <span id="fagan-pretest-display" class="fagan-pretest-display">10.0%</span>
+        </div>
+        <div class="fagan-grid">
+          <div class="fagan-card">
+            <div class="fc-label">Post-test probability after positive test</div>
+            <div class="fc-value" id="fagan-postpos">&mdash;</div>
+            <div class="fc-lr" id="fagan-lrpos-line">LR+ &mdash;</div>
+            <div id="fagan-postpos-chip"></div>
+          </div>
+          <div class="fagan-card">
+            <div class="fc-label">Post-test probability after negative test</div>
+            <div class="fc-value" id="fagan-postneg">&mdash;</div>
+            <div class="fc-lr" id="fagan-lrneg-line">LR&minus; &mdash;</div>
+            <div id="fagan-postneg-chip"></div>
+          </div>
+        </div>
+        <div class="chart-toolbar">
+          <button type="button" class="svg-download-btn" data-svg-target="fagan-svg-container" data-svg-name="fagan_nomogram" title="Download SVG">&darr; SVG</button>
+        </div>
+        <div id="fagan-svg-container"></div>
+        <p style="font-size:0.75rem;color:#6b7280;margin:0.5rem 0 0;">
+          Slider is on a log scale (0.1% to 99.6%) so the nomogram axes are linear in log-odds. Default 10% reflects outpatient LMIC presumptive PTB.
+        </p>
+      </div>
     </section>
 
     <!-- ===================== Trials tab ===================== -->
@@ -1559,6 +1927,19 @@
         Bivariate variance components on the logit scale, threshold-effect diagnostic, and convergence audit. Note: I&sup2; is not directly defined for the bivariate DTA model &mdash; tau&sup2; on logit-Sens / logit-Spec is the canonical between-study heterogeneity metric (Reitsma 2005).
       </p>
       <div id="heterogeneity-container"></div>
+
+      <!-- ===== Feature 3: Deeks' funnel ===== -->
+      <div class="deeks-panel">
+        <h3 class="subsection-title">Deeks' funnel-asymmetry test</h3>
+        <p style="font-size:0.85rem;color:#374151;margin:0 0 0.5rem;">
+          Deeks 2005: regress ln(DOR) on 1/&radic;ESS where ESS = effective sample size = 4&middot;n+ &middot;n&minus; / (n+ + n&minus;). The slope tests funnel asymmetry; p &lt; 0.10 suggests possible publication bias. Skipped when k &lt; 5.
+        </p>
+        <div class="chart-toolbar">
+          <button type="button" class="svg-download-btn" data-svg-target="deeks-svg-container" data-svg-name="deeks_funnel" title="Download SVG">&darr; SVG</button>
+        </div>
+        <div id="deeks-svg-container"></div>
+        <div id="deeks-summary-line" class="deeks-summary"></div>
+      </div>
     </section>
 
     <!-- ===================== Sensitivity / LOO tab (feature 2) ===================== -->
@@ -3264,7 +3645,7 @@
               return '<dt>' + escapeHtml(r[0]) + '</dt><dd>' + r[1] + '</dd>';
             }).join('') + '</dl>';
           var linksLine = '<div class="ext-link-row"><strong>Source:</strong> ' + linkCluster(t) + '</div>';
-          return '<div class="extraction-detail-card">' +
+          return '<div class="extraction-detail-card" data-studlab="' + escapeAttr(t.studlab) + '">' +
             '<h4>' + escapeHtml(t.studlab) + '</h4>' +
             linksLine + dl +
             '</div>';
@@ -3701,7 +4082,7 @@
             escapeAttr(s.studlab) + '" data-edit-field="reason"></div>';
         }
 
-        return '<div class="screening-card ' + decClass + '">' +
+        return '<div class="screening-card ' + decClass + '" data-studlab="' + escapeAttr(s.studlab) + '">' +
           '<div class="sc-decision-row">' +
             '<span class="sc-decision ' + decBadgeClass + '">' + decBadgeText + '</span>' +
             (decisionSelect ? '<span style="margin-left:0.5rem;">' + decisionSelect + '</span>' : '') +
@@ -3840,7 +4221,7 @@
             ' &middot; ' + escapeHtml(t.country || '') +
             ' &middot; ' + escapeHtml(String(t.year || '')) +
             '</div>';
-          return '<div class="quadas-study-block">' +
+          return '<div class="quadas-study-block" data-studlab="' + escapeAttr(t.studlab) + '" id="quadas-block-' + escapeAttr(slugify(t.studlab)) + '">' +
             '<h3>' + escapeHtml(t.studlab) + '</h3>' +
             linksLine +
             domains +
@@ -4021,10 +4402,17 @@
           refit();
           // Re-render QUADAS-2 to refresh meta lines if year/country changed
           renderQuadasGrid();
+          renderRobTrafficLight();
+          renderGrade();
+          injectNotesIntoCards();
         } else if (section === 'quadas') {
           renderQuadasGrid();
+          renderRobTrafficLight();
+          renderGrade();
+          injectNotesIntoCards();
         } else if (section === 'screening') {
           renderScreening();
+          injectNotesIntoCards();
         }
         // Re-check sign-off validity for relevant tabs
         ['screening', 'extraction', 'quadas'].forEach(function (tab) {
@@ -4049,6 +4437,9 @@
         refit();
         renderScreening();
         renderQuadasGrid();
+        renderRobTrafficLight();
+        renderGrade();
+        injectNotesIntoCards();
         // Attach handlers AFTER all renders complete (refit also wires, but
         // renderScreening + renderQuadasGrid run after refit).
         attachEditHandlers(document);
@@ -4057,15 +4448,17 @@
       function exportStateJSON() {
         var stateOut = {
           schema: 'dta-genexpert-ultra-state',
-          schema_version: 1,
+          schema_version: 2,
           exported_at: new Date().toISOString(),
           baseline: BASELINE,
           edits: {
             screening: editsScreening,
             extraction: editsExtraction,
             metadata: editsMetadata,
-            quadas: editsQuadas
+            quadas: editsQuadas,
+            grade: editsGrade
           },
+          notes: listAllNotes(),
           signoffs: {}
         };
         ['screening', 'extraction', 'quadas'].forEach(function (tab) {
@@ -4100,10 +4493,12 @@
         editsExtraction = ed.extraction || {};
         editsMetadata = ed.metadata || {};
         editsQuadas = ed.quadas || {};
+        editsGrade = ed.grade || {};
         lsSet('edits-screening', editsScreening);
         lsSet('edits-extraction', editsExtraction);
         lsSet('edits-metadata', editsMetadata);
         lsSet('edits-quadas', editsQuadas);
+        lsSet('edits-grade', editsGrade);
         // Clear existing signoffs in localStorage, then import the new ones.
         ['screening', 'extraction', 'quadas'].forEach(function (tab) {
           [1, 2].forEach(function (r) { clearSignoff(tab, r); });
@@ -4114,10 +4509,28 @@
           var m = /^(\w+)-r([12])$/.exec(k);
           if (m) saveSignoff(m[1], parseInt(m[2], 10), sos[k]);
         });
+        // Import reviewer notes (Feature 5)
+        if (obj.notes && typeof obj.notes === 'object') {
+          // Wipe existing note keys first, then write incoming.
+          var keys = lsListKeys();
+          keys.forEach(function (full) {
+            var k = full.slice(LS_PREFIX.length);
+            if (/^notes-/.test(k)) lsRemove(k);
+          });
+          Object.keys(obj.notes).forEach(function (slug) {
+            var perTab = obj.notes[slug] || {};
+            Object.keys(perTab).forEach(function (tab) {
+              if (Array.isArray(perTab[tab])) saveNotes(slug, tab, perTab[tab]);
+            });
+          });
+        }
         applyEditsToData();
         refit();
         renderScreening();
         renderQuadasGrid();
+        renderRobTrafficLight();
+        renderGrade();
+        injectNotesIntoCards();
         alert('State imported successfully.');
       }
 
@@ -4128,6 +4541,7 @@
         editsExtraction = {};
         editsMetadata = {};
         editsQuadas = {};
+        editsGrade = {};
         lsClearAll();
         // Restore edit-mode state from defaults
         editMode = false;
@@ -4135,6 +4549,9 @@
         refit();
         renderScreening();
         renderQuadasGrid();
+        renderRobTrafficLight();
+        renderGrade();
+        injectNotesIntoCards();
         setEditModeUI(false);
       }
 
@@ -4186,6 +4603,16 @@
         renderReferences();
         renderExtraction();
         renderManuscript();
+        // Feature 3 (Deeks) must run before Feature 2 (GRADE) — GRADE pub-bias domain reads _lastDeeks.
+        renderDeeks();
+        // Feature 4: RoB grid (depends on QUADAS data; renderQuadasGrid is called separately)
+        renderRobTrafficLight();
+        // Feature 1: Fagan (depends on currentFit LR+/LR-)
+        renderFagan();
+        // Feature 2: GRADE-DTA (depends on Deeks result + currentFit + QUADAS)
+        renderGrade();
+        // Feature 5: Reviewer notes — inject into existing cards across screening/extraction/quadas
+        injectNotesIntoCards();
         // Wire SVG download buttons + editable handlers AFTER DOM is updated
         wireSvgDownloadButtons(document);
         attachEditHandlers(document);
@@ -4281,6 +4708,899 @@
         }
       }
 
+      // ============================================================
+      // ============== Feature 5: Reviewer notes ===================
+      // ============================================================
+      // Storage key: dta-genexpert-ultra-notes-{studlab}-{tab}
+      // Tabs supported: screening / extraction / quadas
+      // Note shape: { author, text, timestamp_iso }
+      var NOTE_TABS = ['screening', 'extraction', 'quadas'];
+      var NOTE_AUTHORS = ['Reviewer 1', 'Reviewer 2', 'anonymous'];
+
+      function notesKey(studlab, tab) {
+        return 'notes-' + studlab + '-' + tab;
+      }
+      function loadNotes(studlab, tab) {
+        var arr = lsGet(notesKey(studlab, tab));
+        return Array.isArray(arr) ? arr : [];
+      }
+      function saveNotes(studlab, tab, arr) {
+        lsSet(notesKey(studlab, tab), arr);
+      }
+      function listAllNotes() {
+        // Return { studlab: { tab: [notes...] } } for all stored notes (for JSON export).
+        var all = {};
+        var keys = lsListKeys();
+        keys.forEach(function (full) {
+          var k = full.slice(LS_PREFIX.length);
+          var m = /^notes-(.+)-(screening|extraction|quadas)$/.exec(k);
+          if (!m) return;
+          var slug = m[1], tab = m[2];
+          var arr = lsGet(k); // already stripped of prefix? — yes, lsGet adds it
+          if (!Array.isArray(arr)) return;
+          if (!all[slug]) all[slug] = {};
+          all[slug][tab] = arr;
+        });
+        return all;
+      }
+
+      function renderNotesBlock(studlab, tab) {
+        // Returns HTML for the notes section to attach to a study card.
+        var notes = loadNotes(studlab, tab);
+        var canEdit = !!editMode;
+        var slugAttr = escapeAttr(studlab);
+        var tabAttr = escapeAttr(tab);
+        var addBtn = canEdit ?
+          '<button type="button" class="note-add-btn" data-note-action="add" data-note-studlab="' +
+          slugAttr + '" data-note-tab="' + tabAttr + '">+ Add note</button>'
+          : '';
+        var header =
+          '<div class="notes-header">' +
+            '<span class="notes-title">Reviewer notes (' + notes.length + ')</span>' +
+            addBtn +
+          '</div>';
+        var editorAnchor =
+          '<div class="note-editor-anchor" data-note-editor-anchor="' + slugAttr + '|' + tabAttr + '"></div>';
+        var cards = notes.map(function (n, i) {
+          var ts = n.timestamp_iso || '';
+          var author = n.author || 'anonymous';
+          var text = n.text || '';
+          var delBtn = canEdit ?
+            '<button type="button" class="note-delete-btn" data-note-action="delete" data-note-studlab="' +
+            slugAttr + '" data-note-tab="' + tabAttr + '" data-note-index="' + i + '">delete</button>'
+            : '';
+          return '<div class="note-card">' +
+            '<div class="note-meta">' +
+              '<span><span class="note-author-chip">' + escapeHtml(author) + '</span>' +
+              ' <span style="color:#9ca3af;font-family:ui-monospace,monospace;">' + escapeHtml(ts) + '</span></span>' +
+              delBtn +
+            '</div>' +
+            '<div class="note-body">' + escapeHtml(text).replace(/\n/g, '<br>') + '</div>' +
+            '</div>';
+        }).join('');
+        return '<div class="notes-box" data-notes-block="' + slugAttr + '|' + tabAttr + '">' +
+          header + editorAnchor + cards + '</div>';
+      }
+
+      function noteEditorHTML(studlab, tab) {
+        var slugAttr = escapeAttr(studlab);
+        var tabAttr = escapeAttr(tab);
+        var optsHtml = NOTE_AUTHORS.map(function (a) {
+          return '<option value="' + escapeAttr(a) + '">' + escapeHtml(a) + '</option>';
+        }).join('');
+        return '<div class="note-editor">' +
+          '<textarea data-note-textarea="1" placeholder="Type a comment...">'+
+          '</textarea>' +
+          '<div class="note-editor-row">' +
+            '<select data-note-author="1">' + optsHtml + '</select>' +
+            '<button type="button" class="note-save-btn" data-note-action="save" data-note-studlab="' +
+            slugAttr + '" data-note-tab="' + tabAttr + '">Save</button>' +
+            '<button type="button" class="note-cancel-btn" data-note-action="cancel" data-note-studlab="' +
+            slugAttr + '" data-note-tab="' + tabAttr + '">Cancel</button>' +
+          '</div>' +
+        '</div>';
+      }
+
+      function noteFindAnchor(studlab, tab) {
+        var sel = '[data-note-editor-anchor="' + studlab.replace(/"/g, '\\"') + '|' + tab + '"]';
+        return document.querySelector(sel);
+      }
+
+      function rerenderNotesBlock(studlab, tab) {
+        var sel = '[data-notes-block="' + studlab.replace(/"/g, '\\"') + '|' + tab + '"]';
+        var blocks = document.querySelectorAll(sel);
+        blocks.forEach(function (b) {
+          var html = renderNotesBlock(studlab, tab);
+          // Replace innerHTML of the parent surroundings with fresh block.
+          var tmp = document.createElement('div');
+          tmp.innerHTML = html;
+          var newBlock = tmp.firstChild;
+          b.parentNode.replaceChild(newBlock, b);
+        });
+        // Edit-mode visibility on existing notes is also a re-render concern.
+      }
+
+      function attachNoteHandlers(scope) {
+        scope = scope || document;
+        scope.querySelectorAll('[data-note-action]').forEach(function (btn) {
+          if (btn._noteWired) return;
+          btn._noteWired = true;
+          btn.addEventListener('click', function () {
+            var action = btn.getAttribute('data-note-action');
+            var studlab = btn.getAttribute('data-note-studlab');
+            var tab = btn.getAttribute('data-note-tab');
+            if (action === 'add') {
+              var anchor = noteFindAnchor(studlab, tab);
+              if (anchor) {
+                anchor.innerHTML = noteEditorHTML(studlab, tab);
+                attachNoteHandlers(anchor);
+                var ta = anchor.querySelector('textarea[data-note-textarea]');
+                if (ta) ta.focus();
+              }
+            } else if (action === 'cancel') {
+              var anchor2 = noteFindAnchor(studlab, tab);
+              if (anchor2) anchor2.innerHTML = '';
+            } else if (action === 'save') {
+              var anchor3 = noteFindAnchor(studlab, tab);
+              if (!anchor3) return;
+              var textEl = anchor3.querySelector('textarea[data-note-textarea]');
+              var authorEl = anchor3.querySelector('select[data-note-author]');
+              var text = (textEl && textEl.value || '').trim();
+              var author = (authorEl && authorEl.value) || 'anonymous';
+              if (!text) { alert('Note text is empty.'); return; }
+              var arr = loadNotes(studlab, tab);
+              arr.push({ author: author, text: text, timestamp_iso: new Date().toISOString() });
+              saveNotes(studlab, tab, arr);
+              rerenderNotesBlock(studlab, tab);
+              var blockSel = '[data-notes-block="' + studlab.replace(/"/g, '\\"') + '|' + tab + '"]';
+              var freshBlock = document.querySelector(blockSel);
+              if (freshBlock) attachNoteHandlers(freshBlock);
+            } else if (action === 'delete') {
+              var idx = parseInt(btn.getAttribute('data-note-index'), 10);
+              if (!isFinite(idx)) return;
+              if (!confirm('Delete this reviewer note? This cannot be undone.')) return;
+              var arr2 = loadNotes(studlab, tab);
+              if (idx >= 0 && idx < arr2.length) {
+                arr2.splice(idx, 1);
+                saveNotes(studlab, tab, arr2);
+                rerenderNotesBlock(studlab, tab);
+                var blockSel2 = '[data-notes-block="' + studlab.replace(/"/g, '\\"') + '|' + tab + '"]';
+                var freshBlock2 = document.querySelector(blockSel2);
+                if (freshBlock2) attachNoteHandlers(freshBlock2);
+              }
+            }
+          });
+        });
+      }
+
+      function injectNotesIntoCards() {
+        // Screening cards: append to each .screening-card
+        document.querySelectorAll('#screening-included .screening-card, #screening-excluded .screening-card').forEach(function (card) {
+          if (card._notesInjected) {
+            // Re-render fresh because edit-mode may have flipped
+            var existing = card.querySelector('.notes-box');
+            if (existing) existing.parentNode.removeChild(existing);
+          }
+          card._notesInjected = true;
+          // Find studlab from the card title — but easier: title contains it. We need a data attr.
+          // Cards don't currently carry data-studlab; re-derive from the H4.
+          var titleEl = card.querySelector('.sc-title');
+          var studlab = card.getAttribute('data-studlab') || (titleEl ? titleEl.textContent.trim() : '');
+          if (!studlab) return;
+          card.insertAdjacentHTML('beforeend', renderNotesBlock(studlab, 'screening'));
+        });
+        // Extraction detail cards: append to each .extraction-detail-card
+        document.querySelectorAll('#extraction-detail-container .extraction-detail-card').forEach(function (card) {
+          var existing = card.querySelector('.notes-box');
+          if (existing) existing.parentNode.removeChild(existing);
+          var titleEl = card.querySelector('h4');
+          var studlab = card.getAttribute('data-studlab') || (titleEl ? titleEl.textContent.trim() : '');
+          if (!studlab) return;
+          card.insertAdjacentHTML('beforeend', renderNotesBlock(studlab, 'extraction'));
+        });
+        // QUADAS-2 per-study blocks
+        document.querySelectorAll('#quadas-grid-container .quadas-study-block').forEach(function (card) {
+          var existing = card.querySelector('.notes-box');
+          if (existing) existing.parentNode.removeChild(existing);
+          var studlab = card.getAttribute('data-studlab');
+          if (!studlab) {
+            var titleEl = card.querySelector('h3');
+            studlab = titleEl ? titleEl.textContent.trim() : '';
+          }
+          if (!studlab) return;
+          card.insertAdjacentHTML('beforeend', renderNotesBlock(studlab, 'quadas'));
+        });
+        attachNoteHandlers(document);
+      }
+
+      function slugify(s) {
+        return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      }
+
+      // ============================================================
+      // ============== Feature 3: Deeks' funnel ====================
+      // ============================================================
+      // Use studies in active tier. For each study i:
+      //   ESS_i = 4 * n+_i * n-_i / (n+_i + n-_i)
+      //   y_i = ln(DOR_i) with same CC policy as engine (cc applied if any cell in pool is zero).
+      //   x_i = 1 / sqrt(ESS_i)
+      // Weighted regression y_i = a + b * x_i, weights = ESS_i.
+      // Test slope=0 with t-test, df=k-2.
+      function deeksAnalysis(rows) {
+        if (!rows || rows.length < 5) {
+          return { skipped: true, k: rows ? rows.length : 0 };
+        }
+        // Determine if engine would have applied CC (any cell zero in any study)
+        var anyZero = rows.some(function (t) {
+          return t.TP === 0 || t.FP === 0 || t.FN === 0 || t.TN === 0;
+        });
+        var pts = rows.map(function (t) {
+          var TP = t.TP, FP = t.FP, FN = t.FN, TN = t.TN;
+          if (anyZero) { TP += 0.5; FP += 0.5; FN += 0.5; TN += 0.5; }
+          var nPos = TP + FN;
+          var nNeg = TN + FP;
+          var ess = (4 * nPos * nNeg) / (nPos + nNeg);
+          var lnDor = Math.log((TP * TN) / (FP * FN));
+          var x = 1 / Math.sqrt(ess);
+          return { studlab: t.studlab, x: x, y: lnDor, ess: ess, w: ess };
+        }).filter(function (p) { return isFinite(p.x) && isFinite(p.y) && isFinite(p.w) && p.w > 0; });
+        if (pts.length < 5) return { skipped: true, k: pts.length };
+        // Weighted regression
+        var Wsum = pts.reduce(function (s, p) { return s + p.w; }, 0);
+        var xBar = pts.reduce(function (s, p) { return s + p.w * p.x; }, 0) / Wsum;
+        var yBar = pts.reduce(function (s, p) { return s + p.w * p.y; }, 0) / Wsum;
+        var Sxx = pts.reduce(function (s, p) { return s + p.w * (p.x - xBar) * (p.x - xBar); }, 0);
+        var Sxy = pts.reduce(function (s, p) { return s + p.w * (p.x - xBar) * (p.y - yBar); }, 0);
+        if (!isFinite(Sxx) || Sxx <= 0) return { skipped: true, k: pts.length, reason: 'singular' };
+        var beta = Sxy / Sxx;
+        var alpha = yBar - beta * xBar;
+        // Residuals (weighted SS):
+        var residSS = pts.reduce(function (s, p) {
+          var pred = alpha + beta * p.x;
+          var r = p.y - pred;
+          return s + p.w * r * r;
+        }, 0);
+        var df = pts.length - 2;
+        if (df <= 0) return { skipped: true, k: pts.length };
+        // Use sigma2 = residSS / (Wsum * df / pts.length) is one variant; standard weighted regression:
+        // Var(beta_hat) = sigma2 / Sxx where sigma2 = SSres / df (residSS already weighted, so divide by df).
+        var sigma2 = residSS / df;
+        var seBeta = Math.sqrt(sigma2 / Sxx);
+        var tStat = beta / seBeta;
+        var p = isFinite(tStat) ? 2 * (1 - studentTcdf(Math.abs(tStat), df)) : NaN;
+        return {
+          skipped: false,
+          k: pts.length,
+          points: pts,
+          alpha: alpha, beta: beta,
+          se_beta: seBeta, t: tStat, p: p, df: df
+        };
+      }
+
+      // Student's t cdf via incomplete-beta — adapted from Numerical Recipes.
+      function studentTcdf(t, df) {
+        if (!isFinite(t) || !isFinite(df) || df <= 0) return NaN;
+        // x = df / (df + t*t); regularized I_x(df/2, 1/2) gives 1 - p_two_tail; we want CDF
+        var x = df / (df + t * t);
+        var ib = ibeta(x, df / 2, 0.5);
+        var oneMinusTwoSidedP = 1 - ib;
+        // CDF for positive t: 0.5 + 0.5 * (1 - ib) ; for negative: 0.5 - 0.5*(1 - ib)
+        var cdf = 0.5 + 0.5 * (t >= 0 ? oneMinusTwoSidedP : -oneMinusTwoSidedP);
+        return cdf;
+      }
+      // Regularized incomplete beta function I_x(a,b) (Numerical Recipes §6.4)
+      function ibeta(x, a, b) {
+        if (x < 0 || x > 1) return NaN;
+        if (x === 0 || x === 1) return x;
+        var lnGamma = function (z) {
+          var c = [76.18009172947146, -86.50532032941677, 24.01409824083091,
+                   -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5];
+          var x0 = z, y = z, tmp = x0 + 5.5;
+          tmp -= (x0 + 0.5) * Math.log(tmp);
+          var ser = 1.000000000190015;
+          for (var j = 0; j < 6; j++) { y += 1; ser += c[j] / y; }
+          return -tmp + Math.log(2.5066282746310005 * ser / x0);
+        };
+        var bt = Math.exp(lnGamma(a + b) - lnGamma(a) - lnGamma(b)
+                        + a * Math.log(x) + b * Math.log(1 - x));
+        if (x < (a + 1) / (a + b + 2)) {
+          return bt * betacf(x, a, b) / a;
+        }
+        return 1 - bt * betacf(1 - x, b, a) / b;
+      }
+      function betacf(x, a, b) {
+        var EPS = 3e-7, FPMIN = 1e-30, MAXIT = 200;
+        var qab = a + b, qap = a + 1, qam = a - 1;
+        var c = 1, d = 1 - qab * x / qap;
+        if (Math.abs(d) < FPMIN) d = FPMIN;
+        d = 1 / d;
+        var h = d;
+        for (var m = 1; m <= MAXIT; m++) {
+          var m2 = 2 * m;
+          var aa = m * (b - m) * x / ((qam + m2) * (a + m2));
+          d = 1 + aa * d; if (Math.abs(d) < FPMIN) d = FPMIN;
+          c = 1 + aa / c; if (Math.abs(c) < FPMIN) c = FPMIN;
+          d = 1 / d; h *= d * c;
+          aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
+          d = 1 + aa * d; if (Math.abs(d) < FPMIN) d = FPMIN;
+          c = 1 + aa / c; if (Math.abs(c) < FPMIN) c = FPMIN;
+          d = 1 / d; var del = d * c; h *= del;
+          if (Math.abs(del - 1) < EPS) break;
+        }
+        return h;
+      }
+
+      // Cache last result for GRADE consumption
+      var _lastDeeks = null;
+      function getLastDeeks() { return _lastDeeks; }
+
+      function renderDeeks() {
+        var rows = currentTier === 'primary' ? trials_primary : trials_combined;
+        var res = deeksAnalysis(rows);
+        _lastDeeks = res;
+        var svgEl = document.getElementById('deeks-svg-container');
+        var sumEl = document.getElementById('deeks-summary-line');
+        if (!svgEl || !sumEl) return;
+        if (res.skipped) {
+          svgEl.innerHTML = '<div class="deeks-skip">Insufficient studies (k = ' + res.k +
+            '; need k &ge; 5) for Deeks\' funnel-asymmetry test.</div>';
+          sumEl.textContent = '';
+          sumEl.className = 'deeks-summary';
+          return;
+        }
+        // Render scatter + regression line
+        var w = 560, h = 320;
+        var pad = { left: 60, right: 30, top: 24, bottom: 50 };
+        var pts = res.points;
+        var xMin = 0;
+        var xMax = Math.max.apply(null, pts.map(function (p) { return p.x; })) * 1.15;
+        if (!isFinite(xMax) || xMax <= 0) xMax = 1;
+        var yMin = Math.min.apply(null, pts.map(function (p) { return p.y; }));
+        var yMax = Math.max.apply(null, pts.map(function (p) { return p.y; }));
+        var yPad = (yMax - yMin) * 0.15 || 1;
+        yMin -= yPad; yMax += yPad;
+        function sx(v) { return pad.left + ((v - xMin) / (xMax - xMin)) * (w - pad.left - pad.right); }
+        function sy(v) { return h - pad.bottom - ((v - yMin) / (yMax - yMin)) * (h - pad.top - pad.bottom); }
+        var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h +
+          '" width="' + w + '" height="' + h + '" font-family="ui-sans-serif, system-ui" font-size="11">';
+        // Frame
+        svg += '<rect x="' + pad.left + '" y="' + pad.top + '" width="' + (w - pad.left - pad.right) +
+          '" height="' + (h - pad.top - pad.bottom) + '" fill="#ffffff" stroke="#9ca3af" stroke-width="1"/>';
+        // x-axis ticks (4)
+        for (var i = 0; i <= 4; i++) {
+          var xv = xMin + (i / 4) * (xMax - xMin);
+          var px = sx(xv);
+          svg += '<line x1="' + px + '" y1="' + (h - pad.bottom) + '" x2="' + px + '" y2="' + (h - pad.bottom + 4) + '" stroke="#9ca3af"/>';
+          svg += '<text x="' + px + '" y="' + (h - pad.bottom + 16) + '" text-anchor="middle" fill="#374151">' + xv.toFixed(3) + '</text>';
+        }
+        // y-axis ticks (5)
+        for (var j = 0; j <= 4; j++) {
+          var yv = yMin + (j / 4) * (yMax - yMin);
+          var py = sy(yv);
+          svg += '<line x1="' + (pad.left - 4) + '" y1="' + py + '" x2="' + pad.left + '" y2="' + py + '" stroke="#9ca3af"/>';
+          svg += '<text x="' + (pad.left - 6) + '" y="' + (py + 3) + '" text-anchor="end" fill="#374151">' + yv.toFixed(2) + '</text>';
+        }
+        // Axis labels
+        svg += '<text x="' + (pad.left + (w - pad.left - pad.right) / 2) + '" y="' + (h - 10) + '" text-anchor="middle" fill="#111827" font-weight="600">1 / &#8730;ESS</text>';
+        svg += '<text x="14" y="' + (pad.top + (h - pad.top - pad.bottom) / 2) + '" text-anchor="middle" fill="#111827" font-weight="600" transform="rotate(-90 14 ' + (pad.top + (h - pad.top - pad.bottom) / 2) + ')">ln(DOR)</text>';
+        // Regression line
+        var x1 = xMin, x2 = xMax;
+        var y1 = res.alpha + res.beta * x1;
+        var y2 = res.alpha + res.beta * x2;
+        // Clip to plot area
+        function clipY(yval) { return Math.max(yMin, Math.min(yMax, yval)); }
+        svg += '<line x1="' + sx(x1) + '" y1="' + sy(clipY(y1)) + '" x2="' + sx(x2) +
+          '" y2="' + sy(clipY(y2)) + '" stroke="#2563eb" stroke-width="2" stroke-dasharray="4,3"/>';
+        // Points
+        pts.forEach(function (p) {
+          var r = 4 + Math.min(4, Math.sqrt(p.w) / 8);
+          svg += '<circle cx="' + sx(p.x) + '" cy="' + sy(p.y) + '" r="' + r + '" fill="#dc2626" fill-opacity="0.7" stroke="#7f1d1d" stroke-width="1"/>';
+          svg += '<text x="' + (sx(p.x) + r + 3) + '" y="' + (sy(p.y) + 3) + '" fill="#374151" font-size="10">' + escapeHtml(p.studlab) + '</text>';
+        });
+        svg += '</svg>';
+        svgEl.innerHTML = svg;
+
+        var asym = isFinite(res.p) && res.p < 0.10;
+        sumEl.className = 'deeks-summary' + (asym ? ' asymmetric' : '');
+        sumEl.innerHTML = 'Deeks\' asymmetry test: &beta; = ' + res.beta.toFixed(2) +
+          ' (SE ' + res.se_beta.toFixed(2) + '), t = ' + res.t.toFixed(2) +
+          ' on df = ' + res.df + ', p = ' + (isFinite(res.p) ? res.p.toFixed(3) : '—') +
+          '. ' + (asym ? 'Asymmetry suggests possible publication bias (p < 0.10).' :
+          'No funnel asymmetry detected (p &ge; 0.10).');
+      }
+
+      // ============================================================
+      // ============== Feature 4: RoB traffic-light grid ===========
+      // ============================================================
+      var ROB_DOMAIN_COLS = [
+        { key: 'rob1', label: 'PS RoB',  domainId: 1 },
+        { key: 'app1', label: 'PS App',  domainId: 1 },
+        { key: 'rob2', label: 'IT RoB',  domainId: 2 },
+        { key: 'app2', label: 'IT App',  domainId: 2 },
+        { key: 'rob3', label: 'RS RoB',  domainId: 3 },
+        { key: 'app3', label: 'RS App',  domainId: 3 },
+        { key: 'rob4', label: 'F&T RoB', domainId: 4 }
+      ];
+      function robCellClass(val) {
+        var v = String(val || 'Unclear').toLowerCase();
+        if (v === 'low') return { cls: 'low', mark: 'L' };
+        if (v === 'high') return { cls: 'high', mark: 'H' };
+        return { cls: 'unclear', mark: 'U' };
+      }
+      function renderRobTrafficLight() {
+        var allTrials = data.primary_tier.concat(data.sensitivity_tier_added);
+        var gridEl = document.getElementById('rob-grid-container');
+        if (!gridEl) return;
+        // Header row
+        var headerCells = ROB_DOMAIN_COLS.map(function (c) {
+          return '<th>' + escapeHtml(c.label) + '</th>';
+        }).join('');
+        var rowsHtml = allTrials.map(function (t) {
+          var q = quadasFor(t.studlab);
+          var anchor = 'quadas-block-' + slugify(t.studlab);
+          var cells = ROB_DOMAIN_COLS.map(function (c) {
+            var info = robCellClass(q[c.key]);
+            return '<td><span class="rob-cell" data-rob-target="' + escapeAttr(anchor) +
+              '" title="' + escapeAttr(t.studlab + ' — ' + c.label + ': ' + (q[c.key] || 'Unclear')) +
+              '"><span class="rob-circle ' + info.cls + '">' + info.mark + '</span></span></td>';
+          }).join('');
+          return '<tr><th class="rob-st-name">' + escapeHtml(t.studlab) + '</th>' + cells + '</tr>';
+        }).join('');
+        gridEl.innerHTML =
+          '<table class="rob-grid-table">' +
+            '<thead><tr><th class="rob-st-name">Study</th>' + headerCells + '</tr></thead>' +
+            '<tbody>' + rowsHtml + '</tbody>' +
+          '</table>';
+        // Click handlers — scroll to study block
+        gridEl.querySelectorAll('.rob-cell').forEach(function (el) {
+          el.addEventListener('click', function () {
+            var anchor = el.getAttribute('data-rob-target');
+            var target = document.getElementById(anchor);
+            if (target && target.scrollIntoView) {
+              target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              target.style.outline = '2px solid #2563eb';
+              setTimeout(function () { target.style.outline = ''; }, 1500);
+            }
+          });
+        });
+        // Stacked bar chart per domain
+        renderRobStackChart(allTrials);
+      }
+      function renderRobStackChart(allTrials) {
+        var host = document.getElementById('rob-stack-container');
+        if (!host) return;
+        var cols = ROB_DOMAIN_COLS;
+        // Counts per column: { low, high, unclear }
+        var counts = cols.map(function (c) {
+          var lo = 0, hi = 0, un = 0;
+          allTrials.forEach(function (t) {
+            var q = quadasFor(t.studlab);
+            var info = robCellClass(q[c.key]);
+            if (info.cls === 'low') lo++;
+            else if (info.cls === 'high') hi++;
+            else un++;
+          });
+          return { col: c, low: lo, high: hi, unclear: un };
+        });
+        var n = allTrials.length || 1;
+        var w = 560, h = 28 + cols.length * 28 + 24;
+        var labelW = 80, barX = labelW + 10, barW = w - barX - 70;
+        var rowH = 22, gap = 6;
+        var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h +
+          '" width="' + w + '" height="' + h + '" font-family="ui-sans-serif, system-ui" font-size="11">';
+        svg += '<text x="0" y="14" fill="#111827" font-weight="600">Risk-of-bias proportion across studies</text>';
+        counts.forEach(function (cn, i) {
+          var y = 28 + i * (rowH + gap);
+          svg += '<text x="' + (labelW - 4) + '" y="' + (y + 14) + '" text-anchor="end" fill="#374151">' + escapeHtml(cn.col.label) + '</text>';
+          var lowW = barW * cn.low / n;
+          var highW = barW * cn.high / n;
+          var unW = barW * cn.unclear / n;
+          // Order: low (green) | unclear (yellow) | high (red)
+          var x = barX;
+          if (cn.low > 0) { svg += '<rect x="' + x + '" y="' + y + '" width="' + lowW + '" height="' + rowH + '" fill="#10b981"/>'; x += lowW; }
+          if (cn.unclear > 0) { svg += '<rect x="' + x + '" y="' + y + '" width="' + unW + '" height="' + rowH + '" fill="#f59e0b"/>'; x += unW; }
+          if (cn.high > 0) { svg += '<rect x="' + x + '" y="' + y + '" width="' + highW + '" height="' + rowH + '" fill="#ef4444"/>'; x += highW; }
+          svg += '<rect x="' + barX + '" y="' + y + '" width="' + barW + '" height="' + rowH + '" fill="none" stroke="#9ca3af" stroke-width="0.5"/>';
+          // Counts label
+          svg += '<text x="' + (barX + barW + 4) + '" y="' + (y + 14) + '" fill="#374151">L:' + cn.low +
+            ' U:' + cn.unclear + ' H:' + cn.high + '</text>';
+        });
+        // Legend
+        var legY = h - 10;
+        svg += '<rect x="0" y="' + (legY - 9) + '" width="10" height="10" fill="#10b981"/>';
+        svg += '<text x="14" y="' + legY + '" fill="#374151">Low</text>';
+        svg += '<rect x="60" y="' + (legY - 9) + '" width="10" height="10" fill="#f59e0b"/>';
+        svg += '<text x="74" y="' + legY + '" fill="#374151">Unclear</text>';
+        svg += '<rect x="130" y="' + (legY - 9) + '" width="10" height="10" fill="#ef4444"/>';
+        svg += '<text x="144" y="' + legY + '" fill="#374151">High</text>';
+        svg += '</svg>';
+        host.innerHTML = svg;
+      }
+
+      // ============================================================
+      // ============== Feature 1: Fagan nomogram ===================
+      // ============================================================
+      function clamp01(x, eps) {
+        eps = eps || 1e-4;
+        return Math.max(eps, Math.min(1 - eps, x));
+      }
+      function pretestFromSliderLog10(v) {
+        // v: log10 of pretest probability (in log scale slider). Return prob.
+        var p = Math.pow(10, v);
+        return clamp01(p);
+      }
+      function postProb(pre, lr) {
+        if (!isFinite(lr) || lr <= 0) return NaN;
+        var odds = pre / (1 - pre);
+        var post = odds * lr;
+        return post / (1 + post);
+      }
+      function faganChip(prob) {
+        if (!isFinite(prob)) return '';
+        if (prob > 0.90) return '<span class="fagan-chip high">High probability &mdash; treat</span>';
+        if (prob >= 0.10) return '<span class="fagan-chip intermediate">Intermediate &mdash; additional testing</span>';
+        return '<span class="fagan-chip low">Low probability &mdash; exclude</span>';
+      }
+
+      function renderFagan() {
+        var slider = document.getElementById('fagan-slider');
+        var disp = document.getElementById('fagan-pretest-display');
+        var postPosEl = document.getElementById('fagan-postpos');
+        var postNegEl = document.getElementById('fagan-postneg');
+        var lrPosLine = document.getElementById('fagan-lrpos-line');
+        var lrNegLine = document.getElementById('fagan-lrneg-line');
+        var chipPos = document.getElementById('fagan-postpos-chip');
+        var chipNeg = document.getElementById('fagan-postneg-chip');
+        var svgHost = document.getElementById('fagan-svg-container');
+        if (!slider || !currentFit) return;
+        var pre = pretestFromSliderLog10(parseFloat(slider.value));
+        var lrPos = currentFit.lr_pos;
+        var lrNeg = currentFit.lr_neg;
+        var postPos = postProb(pre, lrPos);
+        var postNeg = postProb(pre, lrNeg);
+        if (disp) disp.textContent = (pre * 100).toFixed(1) + '%';
+        if (postPosEl) postPosEl.textContent = isFinite(postPos) ? (postPos * 100).toFixed(1) + '%' : '—';
+        if (postNegEl) postNegEl.textContent = isFinite(postNeg) ? (postNeg * 100).toFixed(1) + '%' : '—';
+        if (lrPosLine) lrPosLine.innerHTML = 'LR+ = ' + (isFinite(lrPos) ? lrPos.toFixed(2) : '—');
+        if (lrNegLine) lrNegLine.innerHTML = 'LR&minus; = ' + (isFinite(lrNeg) ? lrNeg.toFixed(3) : '—');
+        if (chipPos) chipPos.innerHTML = faganChip(postPos);
+        if (chipNeg) chipNeg.innerHTML = faganChip(postNeg);
+        if (svgHost) svgHost.innerHTML = renderFaganSVG(pre, lrPos, lrNeg, postPos, postNeg);
+      }
+
+      function renderFaganSVG(pre, lrPos, lrNeg, postPos, postNeg) {
+        // 3-axis nomogram: pre-test (left, log scale 0.1%–99.6%), LR (middle, log scale 1e-3–1e3), post-test (right, log scale).
+        var w = 580, h = 380;
+        var top = 30, bot = 350;
+        var xL = 80, xM = 290, xR = 500;
+        // Pre-test axis: log-odds from log10(0.001) to log10(0.996/0.004) ≈ log10(249); probability axis
+        // Use log10(pre/(1-pre)) for left axis but label as probability.
+        function preY(p) {
+          var lo = Math.log10(p / (1 - p));
+          // Map lo in [-3, 2.4] to [bot, top]
+          var loMin = -3, loMax = 2.4;
+          var t = (lo - loMin) / (loMax - loMin);
+          return bot - t * (bot - top);
+        }
+        // For RIGHT axis: post-test, same log-odds mapping but inverted vs pre (Fagan reverses).
+        function postY(p) {
+          var lo = Math.log10(p / (1 - p));
+          var loMin = -3, loMax = 2.4;
+          var t = (lo - loMin) / (loMax - loMin);
+          return bot - t * (bot - top);
+        }
+        // Middle LR axis: log10(LR) from -3 to 3, but Fagan uses inverted mapping
+        // Standard Fagan: pre-test on left (0.1 → 99 from BOTTOM to TOP), LR in middle (1000 top, 0.001 bottom),
+        // post-test on right (0.1 bottom, 99 top). The line is straight when log10(post/(1-post)) = log10(pre/(1-pre)) + log10(LR).
+        function lrY(lr) {
+          var lo = Math.log10(lr);
+          var loMin = -3, loMax = 3;
+          var t = (lo - loMin) / (loMax - loMin);
+          return bot - t * (bot - top);
+        }
+        // Tick labels
+        var preTicks = [0.001, 0.005, 0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 0.95, 0.99];
+        var lrTicks = [0.001, 0.01, 0.1, 0.5, 1, 2, 10, 100, 1000];
+        var postTicks = [0.001, 0.005, 0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 0.95, 0.99];
+        function fmtPct(p) {
+          if (p < 0.01) return (p * 100).toFixed(1) + '%';
+          if (p < 0.1) return (p * 100).toFixed(0) + '%';
+          return (p * 100).toFixed(0) + '%';
+        }
+        var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h +
+          '" width="' + w + '" height="' + h + '" font-family="ui-sans-serif, system-ui" font-size="10">';
+        // Title
+        svg += '<text x="' + (w / 2) + '" y="20" text-anchor="middle" font-weight="600" fill="#111827" font-size="12">Fagan nomogram</text>';
+        // Three vertical axes
+        svg += '<line x1="' + xL + '" y1="' + top + '" x2="' + xL + '" y2="' + bot + '" stroke="#374151" stroke-width="1.5"/>';
+        svg += '<line x1="' + xM + '" y1="' + top + '" x2="' + xM + '" y2="' + bot + '" stroke="#374151" stroke-width="1.5"/>';
+        svg += '<line x1="' + xR + '" y1="' + top + '" x2="' + xR + '" y2="' + bot + '" stroke="#374151" stroke-width="1.5"/>';
+        // Axis labels
+        svg += '<text x="' + xL + '" y="' + (top - 8) + '" text-anchor="middle" font-weight="600" fill="#111827">Pre-test</text>';
+        svg += '<text x="' + xM + '" y="' + (top - 8) + '" text-anchor="middle" font-weight="600" fill="#111827">LR</text>';
+        svg += '<text x="' + xR + '" y="' + (top - 8) + '" text-anchor="middle" font-weight="600" fill="#111827">Post-test</text>';
+        preTicks.forEach(function (p) {
+          var y = preY(p);
+          svg += '<line x1="' + (xL - 4) + '" y1="' + y + '" x2="' + (xL + 4) + '" y2="' + y + '" stroke="#374151"/>';
+          svg += '<text x="' + (xL - 8) + '" y="' + (y + 3) + '" text-anchor="end" fill="#374151">' + fmtPct(p) + '</text>';
+        });
+        lrTicks.forEach(function (lr) {
+          var y = lrY(lr);
+          svg += '<line x1="' + (xM - 4) + '" y1="' + y + '" x2="' + (xM + 4) + '" y2="' + y + '" stroke="#374151"/>';
+          svg += '<text x="' + (xM + 8) + '" y="' + (y + 3) + '" fill="#374151">' + (lr < 1 ? lr.toFixed(3) : (lr < 10 ? lr.toFixed(0) : String(lr))) + '</text>';
+        });
+        postTicks.forEach(function (p) {
+          var y = postY(p);
+          svg += '<line x1="' + (xR - 4) + '" y1="' + y + '" x2="' + (xR + 4) + '" y2="' + y + '" stroke="#374151"/>';
+          svg += '<text x="' + (xR + 8) + '" y="' + (y + 3) + '" fill="#374151">' + fmtPct(p) + '</text>';
+        });
+        // Connecting line for LR+ (red) and LR− (blue)
+        function drawLine(lr, post, color, dash) {
+          if (!isFinite(lr) || !isFinite(post)) return '';
+          var y1 = preY(clamp01(pre));
+          var y2 = lrY(Math.max(0.001, Math.min(1000, lr)));
+          var y3 = postY(clamp01(post));
+          var line = '<line x1="' + xL + '" y1="' + y1 + '" x2="' + xR + '" y2="' + y3 +
+            '" stroke="' + color + '" stroke-width="2"' + (dash ? ' stroke-dasharray="' + dash + '"' : '') + '/>';
+          // Pre-test marker
+          line += '<circle cx="' + xL + '" cy="' + y1 + '" r="3.5" fill="' + color + '"/>';
+          // LR marker
+          line += '<circle cx="' + xM + '" cy="' + y2 + '" r="3.5" fill="' + color + '"/>';
+          // Post-test marker
+          line += '<circle cx="' + xR + '" cy="' + y3 + '" r="4" fill="' + color + '"/>';
+          return line;
+        }
+        svg += drawLine(lrPos, postPos, '#dc2626', null);
+        svg += drawLine(lrNeg, postNeg, '#2563eb', '5,3');
+        // Legend
+        svg += '<rect x="' + (w - 180) + '" y="' + (h - 26) + '" width="170" height="20" fill="#ffffff" stroke="#e5e7eb"/>';
+        svg += '<line x1="' + (w - 174) + '" y1="' + (h - 16) + '" x2="' + (w - 156) + '" y2="' + (h - 16) + '" stroke="#dc2626" stroke-width="2"/>';
+        svg += '<text x="' + (w - 152) + '" y="' + (h - 12) + '" fill="#374151">+ test (LR+)</text>';
+        svg += '<line x1="' + (w - 90) + '" y1="' + (h - 16) + '" x2="' + (w - 72) + '" y2="' + (h - 16) + '" stroke="#2563eb" stroke-width="2" stroke-dasharray="5,3"/>';
+        svg += '<text x="' + (w - 68) + '" y="' + (h - 12) + '" fill="#374151">&minus; test (LR&minus;)</text>';
+        svg += '</svg>';
+        return svg;
+      }
+
+      // ============================================================
+      // ============== Feature 2: GRADE-DTA ========================
+      // ============================================================
+      var GRADE_OUTCOMES = [
+        { id: 'sens', label: 'Pooled Sensitivity' },
+        { id: 'spec', label: 'Pooled Specificity' },
+        { id: 'dor',  label: 'Diagnostic Odds Ratio' }
+      ];
+      var GRADE_DOMAINS = [
+        { id: 'rob',  label: 'Risk of bias' },
+        { id: 'inc',  label: 'Inconsistency' },
+        { id: 'ind',  label: 'Indirectness' },
+        { id: 'imp',  label: 'Imprecision' },
+        { id: 'pub',  label: 'Publication bias' }
+      ];
+      // Levels: 0 = not serious, 1 = serious (-1), 2 = very serious (-2)
+      var GRADE_LEVEL_LABELS = ['not serious', 'serious (-1)', 'very serious (-2)'];
+
+      var editsGrade = lsGet('edits-grade') || {}; // { 'outcome:domain': { level: 0|1|2, reason: str } }
+
+      function gradeKey(outcomeId, domainId) { return outcomeId + ':' + domainId; }
+
+      function gradeAutoAssess(outcomeId, fit, allTrials) {
+        // Returns { level, reason } per domain id.
+        var assessments = {};
+        // === Risk of Bias ===
+        // Trigger: any QUADAS-2 study has High RoB on a relevant domain
+        var anyHighRob = false;
+        var highRobStudies = [];
+        allTrials.forEach(function (t) {
+          var q = quadasFor(t.studlab);
+          ['rob1', 'rob2', 'rob3', 'rob4'].forEach(function (k) {
+            if (String(q[k] || '').toLowerCase() === 'high') {
+              anyHighRob = true;
+              if (highRobStudies.indexOf(t.studlab) < 0) highRobStudies.push(t.studlab);
+            }
+          });
+        });
+        assessments.rob = anyHighRob
+          ? { level: 1, reason: 'High RoB in: ' + highRobStudies.join(', ') }
+          : { level: 0, reason: 'No High RoB across QUADAS-2 domains.' };
+
+        // === Inconsistency ===
+        // Trigger: tau^2 > 0.5 OR per-study Sens/Spec range > 30pp
+        var tau2 = (outcomeId === 'spec') ? fit.tau2_spec : fit.tau2_sens;
+        var perStudyRange = 0;
+        try {
+          var pStudies = allTrials.map(function (t) {
+            var ps = DTA._internal.perStudy(t);
+            return outcomeId === 'spec' ? ps.spec : ps.sens;
+          }).filter(isFinite);
+          if (pStudies.length >= 2) {
+            perStudyRange = (Math.max.apply(null, pStudies) - Math.min.apply(null, pStudies)) * 100;
+          }
+        } catch (e) { perStudyRange = 0; }
+        var incLevel = 0;
+        var incReasons = [];
+        if (isFinite(tau2) && tau2 > 0.5) { incLevel = Math.max(incLevel, 1); incReasons.push('tau-sq = ' + tau2.toFixed(2) + ' > 0.5'); }
+        if (perStudyRange > 50) { incLevel = 2; incReasons.push('per-study ' + outcomeId + ' range = ' + perStudyRange.toFixed(0) + 'pp > 50pp'); }
+        else if (perStudyRange > 30) { incLevel = Math.max(incLevel, 1); incReasons.push('per-study ' + outcomeId + ' range = ' + perStudyRange.toFixed(0) + 'pp > 30pp'); }
+        assessments.inc = incLevel === 0
+          ? { level: 0, reason: 'tau-sq = ' + (isFinite(tau2) ? tau2.toFixed(2) : '—') + '; per-study range ' + perStudyRange.toFixed(0) + 'pp.' }
+          : { level: incLevel, reason: incReasons.join('; ') };
+
+        // === Indirectness ===
+        // Trigger: >2 different reference standards OR mixed adult+pediatric
+        var refStds = {};
+        var ages = {};
+        allTrials.forEach(function (t) {
+          if (t.reference_standard_specific) refStds[t.reference_standard_specific] = true;
+          if (t.population_age) ages[t.population_age] = true;
+        });
+        var nRefStds = Object.keys(refStds).length;
+        var hasMixedAge = ages.adult && ages.pediatric;
+        if (nRefStds > 2 || hasMixedAge) {
+          var indReasons = [];
+          if (nRefStds > 2) indReasons.push(nRefStds + ' distinct reference standards');
+          if (hasMixedAge) indReasons.push('mixed adult + pediatric populations');
+          assessments.ind = { level: 1, reason: indReasons.join('; ') };
+        } else {
+          assessments.ind = { level: 0, reason: nRefStds + ' reference standard(s); single age stratum.' };
+        }
+
+        // === Imprecision ===
+        // Trigger: 95% CI width on Sens or Spec > 0.20 (1 step) or > 0.40 (2 steps).
+        // For DOR, fall back to width of Sens-CI (and Spec-CI) — DOR-CI is on log scale, conservative trigger:
+        // we treat it as max of Sens / Spec CI widths.
+        var ciSens = (fit.pooled_sens_ci_ub - fit.pooled_sens_ci_lb);
+        var ciSpec = (fit.pooled_spec_ci_ub - fit.pooled_spec_ci_lb);
+        var width = (outcomeId === 'spec') ? ciSpec : (outcomeId === 'sens' ? ciSens : Math.max(ciSens, ciSpec));
+        var impLevel = 0;
+        if (isFinite(width)) {
+          if (width > 0.40) impLevel = 2;
+          else if (width > 0.20) impLevel = 1;
+        }
+        assessments.imp = {
+          level: impLevel,
+          reason: (outcomeId === 'dor' ? 'max(Sens-CI, Spec-CI) width' : (outcomeId + '-CI width')) +
+                  ' = ' + (isFinite(width) ? width.toFixed(2) : '—') +
+                  (impLevel === 0 ? ' (≤ 0.20).' : (impLevel === 1 ? ' (> 0.20).' : ' (> 0.40).'))
+        };
+
+        // === Publication bias ===
+        // Trigger: Deeks p < 0.10 (uses Feature 3 result); skipped if k<5
+        var deeks = getLastDeeks();
+        if (!deeks || deeks.skipped) {
+          assessments.pub = { level: 0, reason: 'Deeks\' test skipped (k = ' + (deeks ? deeks.k : (allTrials.length || 0)) + ' < 5).' };
+        } else if (isFinite(deeks.p) && deeks.p < 0.10) {
+          assessments.pub = { level: 1, reason: 'Deeks\' test p = ' + deeks.p.toFixed(3) + ' < 0.10.' };
+        } else {
+          assessments.pub = { level: 0, reason: 'Deeks\' test p = ' + (isFinite(deeks.p) ? deeks.p.toFixed(3) : '—') + ' (≥ 0.10).' };
+        }
+
+        return assessments;
+      }
+
+      function effectiveGradeCell(outcomeId, domainId, autoCell) {
+        var k = gradeKey(outcomeId, domainId);
+        var ed = editsGrade[k];
+        if (ed && (ed.level != null || ed.reason != null)) {
+          var lvl = (ed.level != null) ? parseInt(ed.level, 10) : autoCell.level;
+          if (!isFinite(lvl) || lvl < 0 || lvl > 2) lvl = autoCell.level;
+          var reason = (ed.reason != null && ed.reason !== '') ? ed.reason : autoCell.reason;
+          return { level: lvl, reason: reason, override: true };
+        }
+        return { level: autoCell.level, reason: autoCell.reason, override: false };
+      }
+
+      function gradeCertSymbol(level) {
+        if (level >= 4) return { cls: 'high', label: 'HIGH', sym: '&oplus;&oplus;&oplus;&oplus;' };
+        if (level === 3) return { cls: 'moderate', label: 'MODERATE', sym: '&oplus;&oplus;&oplus;&#9675;' };
+        if (level === 2) return { cls: 'low', label: 'LOW', sym: '&oplus;&oplus;&#9675;&#9675;' };
+        return { cls: 'verylow', label: 'VERY LOW', sym: '&oplus;&#9675;&#9675;&#9675;' };
+      }
+
+      function renderGrade() {
+        var container = document.getElementById('grade-table-container');
+        if (!container) return;
+        var rows = currentTier === 'primary' ? trials_primary : trials_combined;
+        var fit = currentFit;
+        if (!fit || !rows || rows.length === 0) {
+          container.innerHTML = '<p style="color:#b91c1c;">No fit available — cannot render GRADE table.</p>';
+          return;
+        }
+
+        // Compute auto + override per (outcome, domain). Sum total downgrade per outcome.
+        var byOutcome = {};
+        GRADE_OUTCOMES.forEach(function (o) {
+          var auto = gradeAutoAssess(o.id, fit, rows);
+          var eff = {};
+          var totalDown = 0;
+          GRADE_DOMAINS.forEach(function (d) {
+            var c = effectiveGradeCell(o.id, d.id, auto[d.id]);
+            eff[d.id] = c;
+            totalDown += c.level;
+          });
+          var finalLevel = Math.max(0, 4 - totalDown);
+          byOutcome[o.id] = { auto: auto, eff: eff, totalDown: totalDown, finalLevel: finalLevel };
+        });
+
+        // Build table
+        var html = '<div style="overflow-x:auto;"><table class="grade-table">' +
+          '<thead><tr>' +
+            '<th>Outcome</th>' +
+            '<th>Domain</th>' +
+            '<th>Judgment</th>' +
+            '<th>Reason</th>' +
+          '</tr></thead><tbody>';
+        GRADE_OUTCOMES.forEach(function (o) {
+          var data = byOutcome[o.id];
+          GRADE_DOMAINS.forEach(function (d, di) {
+            var cell = data.eff[d.id];
+            var levelEl;
+            if (editMode) {
+              levelEl =
+                '<select class="grade-judge-select" data-grade-outcome="' + escapeAttr(o.id) +
+                '" data-grade-domain="' + escapeAttr(d.id) + '">' +
+                  GRADE_LEVEL_LABELS.map(function (lbl, idx) {
+                    return '<option value="' + idx + '"' + (cell.level === idx ? ' selected' : '') +
+                      '>' + escapeHtml(lbl) + '</option>';
+                  }).join('') +
+                '</select>' +
+                (cell.override ? '<span class="grade-override-flag">[manual]</span>' : '');
+            } else {
+              levelEl = '<span>' + escapeHtml(GRADE_LEVEL_LABELS[cell.level]) + '</span>' +
+                (cell.override ? '<span class="grade-override-flag">[manual]</span>' : '');
+            }
+            var reasonEl;
+            if (editMode) {
+              reasonEl = '<input type="text" class="editable" data-grade-outcome="' + escapeAttr(o.id) +
+                '" data-grade-domain="' + escapeAttr(d.id) + '" data-grade-field="reason"' +
+                ' value="' + escapeAttr(cell.reason || '') + '" style="width:100%;font-size:0.8rem;">';
+            } else {
+              reasonEl = '<span class="grade-downgrade-reason">' + escapeHtml(cell.reason || '') + '</span>';
+            }
+            var firstCell = di === 0
+              ? '<td class="gd-outcome" rowspan="' + (GRADE_DOMAINS.length + 1) + '">' + escapeHtml(o.label) + '</td>'
+              : '';
+            html += '<tr>' + firstCell +
+              '<td>' + escapeHtml(d.label) + '</td>' +
+              '<td>' + levelEl + '</td>' +
+              '<td>' + reasonEl + '</td>' +
+              '</tr>';
+          });
+          var sym = gradeCertSymbol(data.finalLevel);
+          html += '<tr class="grade-summary-row">' +
+            '<td>Final certainty</td>' +
+            '<td colspan="2"><span class="grade-cert ' + sym.cls + '">' + sym.label + ' ' + sym.sym + '</span>' +
+            ' &nbsp;<span style="font-size:0.8rem;color:#374151;">(starts HIGH = 4; total downgrade = -' + data.totalDown +
+            '; final = ' + data.finalLevel + ')</span></td>' +
+            '</tr>';
+        });
+        html += '</tbody></table></div>';
+        container.innerHTML = html;
+
+        // Wire grade overrides
+        container.querySelectorAll('select.grade-judge-select').forEach(function (el) {
+          el.addEventListener('change', function () {
+            var oid = el.getAttribute('data-grade-outcome');
+            var did = el.getAttribute('data-grade-domain');
+            var k = gradeKey(oid, did);
+            if (!editsGrade[k]) editsGrade[k] = {};
+            editsGrade[k].level = parseInt(el.value, 10);
+            lsSet('edits-grade', editsGrade);
+            renderGrade();
+          });
+        });
+        container.querySelectorAll('input[data-grade-field="reason"]').forEach(function (el) {
+          el.addEventListener('blur', function () {
+            var oid = el.getAttribute('data-grade-outcome');
+            var did = el.getAttribute('data-grade-domain');
+            var k = gradeKey(oid, did);
+            if (!editsGrade[k]) editsGrade[k] = {};
+            editsGrade[k].reason = el.value;
+            lsSet('edits-grade', editsGrade);
+          });
+        });
+      }
+
       function init() {
         DTA = window.RapidMetaDTA;
         if (!DTA) {
@@ -4301,6 +5621,10 @@
         refit();
 
         document.getElementById('prev-slider').addEventListener('input', updateSlider);
+
+        // Feature 1: Fagan slider — recompute on input without full refit
+        var faganSlider = document.getElementById('fagan-slider');
+        if (faganSlider) faganSlider.addEventListener('input', renderFagan);
 
         document.querySelectorAll('input[name="tier"]').forEach(function (radio) {
           radio.addEventListener('change', function () {
