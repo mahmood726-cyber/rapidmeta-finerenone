@@ -103,6 +103,53 @@
     return issues;
   }
 
+  // ---------- Continuity correction (Q1: 0.5 conditional on any zero, applied to all) ----------
+  function applyContinuityCorrection(trials, correction) {
+    correction = (correction == null) ? 0.5 : correction;
+    var hasZero = trials.some(function(t){ return t.TP===0 || t.FP===0 || t.FN===0 || t.TN===0; });
+    if (!hasZero || correction === 0) return { trials: trials.slice(), corrected: false };
+    var corrected = trials.map(function(t){
+      return { studlab: t.studlab, TP: t.TP+correction, FP: t.FP+correction, FN: t.FN+correction, TN: t.TN+correction };
+    });
+    return { trials: corrected, corrected: true };
+  }
+
+  // ---------- FE bivariate (closed form: inverse-variance weighted on logits) ----------
+  // Used as the k<5 fallback and as the Reitsma starting value.
+  function feBivariate(trials) {
+    // For each study: yi_sens = logit(sens_i), vi_sens = 1/TP + 1/FN
+    //                yi_spec = logit(spec_i), vi_spec = 1/TN + 1/FP
+    var ys=[], vs=[], ysp=[], vsp=[], wsens=[], wspec=[];
+    var swSens=0, swSpec=0, syw_s=0, syw_sp=0;
+    for (var i=0;i<trials.length;i++){
+      var t=trials[i], pos=t.TP+t.FN, neg=t.TN+t.FP;
+      var sens=t.TP/pos, spec=t.TN/neg;
+      var lse=Math.log(sens/(1-sens)), vse=1/t.TP + 1/t.FN;
+      var lsp=Math.log(spec/(1-spec)), vsp_=1/t.TN + 1/t.FP;
+      ys.push(lse); vs.push(vse); ysp.push(lsp); vsp.push(vsp_);
+      var ws=1/vse, wp=1/vsp_;
+      wsens.push(ws); wspec.push(wp);
+      swSens+=ws; swSpec+=wp; syw_s+=ws*lse; syw_sp+=wp*lsp;
+    }
+    var muSens = syw_s / swSens, muSpec = syw_sp / swSpec;
+    var seSens = Math.sqrt(1/swSens), seSpec = Math.sqrt(1/swSpec);
+    // Pearson correlation of standardized logit residuals (between-study, ignoring within)
+    var rs=0, rss=0, rsp=0;
+    for (var i=0;i<ys.length;i++){
+      var dy=ys[i]-muSens, dx=ysp[i]-muSpec;
+      rs += dy*dx; rss += dy*dy; rsp += dx*dx;
+    }
+    var rho = (rss>0 && rsp>0) ? rs/Math.sqrt(rss*rsp) : 0;
+    rho = Math.max(-0.95, Math.min(0.95, rho));
+    return {
+      mu_sens_logit: muSens, mu_spec_logit: muSpec,
+      se_sens_logit: seSens, se_spec_logit: seSpec,
+      tau2_sens: 0, tau2_spec: 0, rho: rho,
+      iterations: 0, converged: true,
+      estimator: 'fe_bivariate'
+    };
+  }
+
   function fit(trials, opts) {
     throw new Error('not yet implemented');
   }
@@ -116,6 +163,6 @@
     validate: validate,
     exportResults: exportResults,
     _version: '1.0.0-rc',
-    _internal: { matmul, inv2x2, clopperPearson, perStudy, lnGamma, ibeta, qbeta }
+    _internal: { matmul, inv2x2, clopperPearson, perStudy, applyContinuityCorrection, feBivariate, lnGamma, ibeta, qbeta }
   };
 })(typeof window !== 'undefined' ? window : globalThis);

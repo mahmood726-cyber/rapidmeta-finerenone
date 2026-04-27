@@ -61,6 +61,37 @@ test('perStudy: GeneXpert example row', () => {
   assert.ok(Math.abs(ps.spec - 933/(933+7)) < 1e-12);
 });
 
+test('continuity correction: not applied when no zero cells', () => {
+  const trials = [{TP:10,FP:2,FN:3,TN:100},{TP:8,FP:1,FN:4,TN:90}];
+  const out = DTA._internal.applyContinuityCorrection(trials, 0.5);
+  assert.equal(out.corrected, false);
+  assert.equal(out.trials[0].TP, 10);
+});
+
+test('continuity correction: applied to all when any zero present', () => {
+  const fx = JSON.parse(readFileSync(join(__dirname, 'dta_fixtures/zero_cells.json'), 'utf-8'));
+  const out = DTA._internal.applyContinuityCorrection(fx.trials, 0.5);
+  assert.equal(out.corrected, true);
+  assert.equal(out.trials[0].FP, 0.5);  // S1 had FP=0 → 0.5
+  assert.equal(out.trials[1].FP, 2.5);  // S2 had FP=2 → 2.5 (also corrected)
+});
+
+test('FE bivariate: pooled sens/spec on no-zero data', () => {
+  const trials = [
+    {studlab:'A',TP:80,FP:5,FN:20,TN:95},
+    {studlab:'B',TP:75,FP:3,FN:25,TN:97},
+    {studlab:'C',TP:88,FP:7,FN:12,TN:93},
+    {studlab:'D',TP:82,FP:4,FN:18,TN:96},
+    {studlab:'E',TP:78,FP:6,FN:22,TN:94}
+  ];
+  const fe = DTA._internal.feBivariate(trials);
+  // Expected: pooled sens around 0.806, pooled spec around 0.95 (all values positive)
+  const sens = 1/(1+Math.exp(-fe.mu_sens_logit));
+  const spec = 1/(1+Math.exp(-fe.mu_spec_logit));
+  assert.ok(sens > 0.78 && sens < 0.84, 'sens: '+sens);
+  assert.ok(spec > 0.93 && spec < 0.97, 'spec: '+spec);
+});
+
 // Run
 let pass = 0, fail = 0;
 for (const t of tests) {
