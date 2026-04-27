@@ -1,4 +1,4 @@
-/* rapidmeta-dta-engine-v1.js — v1.0.0-rc (2026-04-27)
+/* rapidmeta-dta-engine-v1.js — v1.0.0 (2026-04-27)
  *
  * Self-contained frequentist DTA meta-analysis engine for RapidMeta DTA apps.
  * Reitsma bivariate (logit-Sens, logit-Spec, ρ) via REML Fisher scoring,
@@ -71,7 +71,7 @@
     return mid;
   }
   function clopperPearson(x, n, alpha) {
-    alpha = alpha || 0.05;
+    alpha = (alpha == null) ? 0.05 : alpha;
     if (n === 0) return [0, 1];
     var lo = (x === 0) ? 0 : qbeta(alpha/2, x, n-x+1);
     var hi = (x === n) ? 1 : qbeta(1-alpha/2, x+1, n-x);
@@ -90,9 +90,14 @@
   function validate(trials) {
     var issues = [];
     if (!Array.isArray(trials)) { issues.push('trials must be an array'); return issues; }
+    if (trials.length === 0) { issues.push('trials array must be non-empty'); return issues; }
     var required = ['TP', 'FP', 'FN', 'TN'];
     for (var i = 0; i < trials.length; i++) {
       var t = trials[i];
+      if (t === null || typeof t !== 'object' || Array.isArray(t)) {
+        issues.push('trial ' + i + ': must be a plain object');
+        continue;
+      }
       for (var j = 0; j < required.length; j++) {
         var k = required[j];
         if (typeof t[k] !== 'number' || t[k] < 0 || !isFinite(t[k])) {
@@ -117,18 +122,24 @@
   // ---------- FE bivariate (closed form: inverse-variance weighted on logits) ----------
   // Used as the k<5 fallback and as the Reitsma starting value.
   function feBivariate(trials) {
+    // Contract: caller must supply zero-free cells (CC done upstream).
+    for (var i = 0; i < trials.length; i++) {
+      var t = trials[i];
+      if (t.TP <= 0 || t.FP <= 0 || t.FN <= 0 || t.TN <= 0) {
+        throw new Error('feBivariate: trial ' + (t.studlab || i) + ' has non-positive cell; apply continuity correction first');
+      }
+    }
     // For each study: yi_sens = logit(sens_i), vi_sens = 1/TP + 1/FN
     //                yi_spec = logit(spec_i), vi_spec = 1/TN + 1/FP
-    var ys=[], vs=[], ysp=[], vsp=[], wsens=[], wspec=[];
+    var ys=[], ysp=[];
     var swSens=0, swSpec=0, syw_s=0, syw_sp=0;
     for (var i=0;i<trials.length;i++){
       var t=trials[i], pos=t.TP+t.FN, neg=t.TN+t.FP;
       var sens=t.TP/pos, spec=t.TN/neg;
       var lse=Math.log(sens/(1-sens)), vse=1/t.TP + 1/t.FN;
       var lsp=Math.log(spec/(1-spec)), vsp_=1/t.TN + 1/t.FP;
-      ys.push(lse); vs.push(vse); ysp.push(lsp); vsp.push(vsp_);
+      ys.push(lse); ysp.push(lsp);
       var ws=1/vse, wp=1/vsp_;
-      wsens.push(ws); wspec.push(wp);
       swSens+=ws; swSpec+=wp; syw_s+=ws*lse; syw_sp+=wp*lsp;
     }
     var muSens = syw_s / swSens, muSpec = syw_sp / swSpec;
@@ -219,7 +230,13 @@
       var simplex = [x0.slice()];
       for (var i = 0; i < n; i++) {
         var v = x0.slice();
-        var step = (i === 2) ? 0.2 : 0.1;
+        var step;
+        if (i === 2) {
+          // ρ axis: sign-aware to avoid out-of-bounds when warm-start is near boundary
+          step = (v[i] + 0.2 > 0.9) ? -0.2 : 0.2;
+        } else {
+          step = 0.1;
+        }
         v[i] += step;
         simplex.push(v);
       }
@@ -286,37 +303,49 @@
     var tau2_s = result.x[0], tau2_c = result.x[1], rho = result.x[2];
     var rho_at_boundary = (Math.abs(rho) > 0.949);
 
-    // Final marginal Cov(mu_hat) = (sum V_i^{-1})^{-1} at the converged variance components.
-    var OmegaF = [[tau2_s, rho * Math.sqrt(tau2_s * tau2_c)],
-                  [rho * Math.sqrt(tau2_s * tau2_c), tau2_c]];
-    var sumVinvF = [[0, 0], [0, 0]], sVyF = [0, 0];
-    for (var i = 0; i < ys.length; i++) {
-      var Vf = [[Sigs[i][0][0] + OmegaF[0][0], Sigs[i][0][1] + OmegaF[0][1]],
-                [Sigs[i][1][0] + OmegaF[1][0], Sigs[i][1][1] + OmegaF[1][1]]];
-      var Vfi = inv2x2(Vf);
-      sumVinvF[0][0] += Vfi[0][0]; sumVinvF[0][1] += Vfi[0][1];
-      sumVinvF[1][0] += Vfi[1][0]; sumVinvF[1][1] += Vfi[1][1];
-      sVyF[0] += Vfi[0][0] * ys[i][0] + Vfi[0][1] * ys[i][1];
-      sVyF[1] += Vfi[1][0] * ys[i][0] + Vfi[1][1] * ys[i][1];
-    }
-    var muCovF = inv2x2(sumVinvF);
-    var muS_final = muCovF[0][0] * sVyF[0] + muCovF[0][1] * sVyF[1];
-    var muC_final = muCovF[1][0] * sVyF[0] + muCovF[1][1] * sVyF[1];
+    try {
+      // Final marginal Cov(mu_hat) = (sum V_i^{-1})^{-1} at the converged variance components.
+      var OmegaF = [[tau2_s, rho * Math.sqrt(tau2_s * tau2_c)],
+                    [rho * Math.sqrt(tau2_s * tau2_c), tau2_c]];
+      var sumVinvF = [[0, 0], [0, 0]], sVyF = [0, 0];
+      for (var i = 0; i < ys.length; i++) {
+        var Vf = [[Sigs[i][0][0] + OmegaF[0][0], Sigs[i][0][1] + OmegaF[0][1]],
+                  [Sigs[i][1][0] + OmegaF[1][0], Sigs[i][1][1] + OmegaF[1][1]]];
+        var Vfi = inv2x2(Vf);
+        sumVinvF[0][0] += Vfi[0][0]; sumVinvF[0][1] += Vfi[0][1];
+        sumVinvF[1][0] += Vfi[1][0]; sumVinvF[1][1] += Vfi[1][1];
+        sVyF[0] += Vfi[0][0] * ys[i][0] + Vfi[0][1] * ys[i][1];
+        sVyF[1] += Vfi[1][0] * ys[i][0] + Vfi[1][1] * ys[i][1];
+      }
+      var muCovF = inv2x2(sumVinvF);
+      var muS_final = muCovF[0][0] * sVyF[0] + muCovF[0][1] * sVyF[1];
+      var muC_final = muCovF[1][0] * sVyF[0] + muCovF[1][1] * sVyF[1];
 
-    return {
-      mu_sens_logit: muS_final,
-      mu_spec_logit: muC_final,
-      se_sens_logit: Math.sqrt(muCovF[0][0]),
-      se_spec_logit: Math.sqrt(muCovF[1][1]),
-      cov_sens_spec_logit: muCovF[0][1],
-      tau2_sens: tau2_s,
-      tau2_spec: tau2_c,
-      rho: rho,
-      iterations: result.iter,
-      converged: result.converged,
-      estimator: 'reml',
-      rho_at_boundary: rho_at_boundary
-    };
+      return {
+        mu_sens_logit: muS_final,
+        mu_spec_logit: muC_final,
+        se_sens_logit: Math.sqrt(muCovF[0][0]),
+        se_spec_logit: Math.sqrt(muCovF[1][1]),
+        cov_sens_spec_logit: muCovF[0][1],
+        tau2_sens: tau2_s,
+        tau2_spec: tau2_c,
+        rho: rho,
+        iterations: result.iter,
+        converged: result.converged,
+        estimator: 'reml',
+        rho_at_boundary: rho_at_boundary
+      };
+    } catch (e) {
+      return {
+        mu_sens_logit: NaN, mu_spec_logit: NaN,
+        se_sens_logit: NaN, se_spec_logit: NaN,
+        cov_sens_spec_logit: NaN,
+        tau2_sens: tau2_s, tau2_spec: tau2_c, rho: rho,
+        iterations: result.iter, converged: false, estimator: 'reml_failed',
+        rho_at_boundary: rho_at_boundary,
+        error: e.message
+      };
+    }
   }
 
   // ---------- Spearman rank correlation (threshold-effect indicator) ----------
@@ -330,6 +359,7 @@
     var rx=ranks(xs), ry=ranks(ys), n=xs.length;
     var mx=(n+1)/2, my=(n+1)/2, num=0, dx=0, dy=0;
     for (var i=0;i<n;i++){ num+=(rx[i]-mx)*(ry[i]-my); dx+=(rx[i]-mx)*(rx[i]-mx); dy+=(ry[i]-my)*(ry[i]-my); }
+    if (xs.length < 2 || dx === 0 || dy === 0) return 0;
     return num/Math.sqrt(dx*dy);
   }
 
@@ -541,11 +571,15 @@
     // Same as reitsmaREML but rho is fixed at 0; only optimize tau2_s and tau2_c.
     // SHORT: refit using FE for now and tag — TODO if proper 2-parameter REML proves needed.
     var fe = feBivariate(trials);
-    return Object.assign({}, fe, { rho: 0, converged: true, iterations: 0, estimator: 'reml_rho_zero' });
+    return Object.assign({}, fe, { rho: 0, converged: true, iterations: 0, estimator: 'reml_rho_zero', _stub: true });
   }
 
   function exportResults(fitResult) {
-    return JSON.parse(JSON.stringify(fitResult));
+    var out = JSON.parse(JSON.stringify(fitResult));
+    delete out._fitInternal;
+    out.exported_at = new Date().toISOString();
+    out.engine_version = '1.0.0';
+    return out;
   }
 
   root.RapidMetaDTA = {
@@ -556,7 +590,7 @@
     sroc: _sroc,
     hsrocReparam: _hsrocReparam,
     forest: _forest,
-    _version: '1.0.0-rc',
+    _version: '1.0.0',
     _internal: { matmul, inv2x2, clopperPearson, perStudy, applyContinuityCorrection, feBivariate, lnGamma, ibeta, qbeta, reitsmaREML, reitsmaREMLRhoZero, spearmanRho, _ppvNpv, _sroc, _hsrocReparam, _forest }
   };
 })(typeof window !== 'undefined' ? window : globalThis);

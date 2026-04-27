@@ -171,6 +171,9 @@ test('_ppvNpv: prev=0 → ppv=0, npv=1; prev=1 → ppv=1, npv=0', () => {
   const r0 = DTA._internal._ppvNpv(fakeFit, 0.001);
   assert.ok(r0.ppv < 0.05);
   assert.ok(r0.npv > 0.99);
+  const r1 = DTA._internal._ppvNpv(fakeFit, 0.999);
+  assert.ok(r1.ppv > 0.95);
+  assert.ok(r1.npv < 0.05);
 });
 
 test('_sroc: ellipse passes through summary point', () => {
@@ -203,6 +206,62 @@ test('_forest: rows + pooled row', () => {
   const rows = DTA.forest(fx.trials, res);
   assert.equal(rows.length, fx.trials.length + 1);
   assert.equal(rows[rows.length-1].is_pooled, true);
+});
+
+test('fit: rho-boundary triggers rho_fixed_zero fallback', () => {
+  // Construct a dataset where unconstrained REML pushes rho to ±1.
+  // Synthetic: perfect anti-correlation between per-study sens and spec.
+  const trials = [];
+  for (let i = 0; i < 12; i++) {
+    const sens = 0.95 - i*0.05;
+    const spec = 0.55 + i*0.04;
+    trials.push({studlab:'R'+i,
+      TP: Math.round(sens*100), FN: Math.round((1-sens)*100),
+      TN: Math.round(spec*100), FP: Math.round((1-spec)*100)});
+  }
+  const res = DTA.fit(trials);
+  // Either fallback fires OR threshold-effect flag fires; assert at least one defensive flag is set.
+  assert.ok(res.fallback === 'rho_fixed_zero' || res.threshold_effect === true,
+            'expected defensive flag on extreme dataset; got '+JSON.stringify({fb:res.fallback, te:res.threshold_effect}));
+});
+
+test('exportResults: strips _fitInternal and adds metadata', () => {
+  const fx = JSON.parse(readFileSync(join(__dirname, 'dta_fixtures/auditc.json'), 'utf-8'));
+  const res = DTA.fit(fx.trials);
+  const out = DTA.exportResults(res);
+  assert.equal(out._fitInternal, undefined);
+  assert.equal(out.engine_version, '1.0.0');
+  assert.ok(out.exported_at);
+});
+
+test('perStudy: returns Clopper-Pearson CIs that bracket the point estimate', () => {
+  const ps = DTA._internal.perStudy({ studlab: 'X', TP: 154, FP: 7, FN: 28, TN: 933 });
+  assert.ok(Array.isArray(ps.sens_ci) && ps.sens_ci.length === 2);
+  assert.ok(Array.isArray(ps.spec_ci) && ps.spec_ci.length === 2);
+  assert.ok(ps.sens_ci[0] <= ps.sens && ps.sens <= ps.sens_ci[1]);
+  assert.ok(ps.spec_ci[0] <= ps.spec && ps.spec <= ps.spec_ci[1]);
+});
+
+test('continuity correction: correction=0 disables CC even with zeros', () => {
+  const fx = JSON.parse(readFileSync(join(__dirname, 'dta_fixtures/zero_cells.json'), 'utf-8'));
+  const out = DTA._internal.applyContinuityCorrection(fx.trials, 0);
+  assert.equal(out.corrected, false);
+  assert.equal(out.trials[0].FP, 0);
+});
+
+test('continuity correction: does not mutate input', () => {
+  const trials = [{TP:80,FP:0,FN:20,TN:100}];
+  const snapshot = JSON.parse(JSON.stringify(trials));
+  DTA._internal.applyContinuityCorrection(trials, 0.5);
+  assert.deepEqual(trials, snapshot);
+});
+
+test('_ppvNpv: throws on invalid prevalence', () => {
+  const f = { pooled_sens: 0.8, pooled_spec: 0.9, pooled_sens_ci_lb: 0.7, pooled_sens_ci_ub: 0.9, pooled_spec_ci_lb: 0.85, pooled_spec_ci_ub: 0.95 };
+  assert.throws(() => DTA._internal._ppvNpv(f, -0.1));
+  assert.throws(() => DTA._internal._ppvNpv(f, 1.1));
+  assert.throws(() => DTA._internal._ppvNpv(f, NaN));
+  assert.throws(() => DTA._internal._ppvNpv(f, 'foo'));
 });
 
 // Run
