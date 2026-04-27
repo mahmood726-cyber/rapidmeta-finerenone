@@ -151,6 +151,28 @@ test('fit: AuditC k=14 → coverage_warning false', () => {
   assert.equal(res.fallback, null);
 });
 
+test('_ppvNpv: known values at prevalence=0.10', () => {
+  const fakeFit = {
+    pooled_sens: 0.85, pooled_spec: 0.95,
+    pooled_sens_ci_lb: 0.80, pooled_sens_ci_ub: 0.90,
+    pooled_spec_ci_lb: 0.92, pooled_spec_ci_ub: 0.98
+  };
+  const r = DTA._internal._ppvNpv(fakeFit, 0.10);
+  // PPV = 0.85*0.10 / (0.85*0.10 + 0.05*0.90) = 0.085/0.130 = 0.6538
+  // NPV = 0.95*0.90 / (0.15*0.10 + 0.95*0.90) = 0.855/0.870 = 0.9828
+  assert.ok(Math.abs(r.ppv - 0.6538) < 1e-3, 'ppv: '+r.ppv);
+  assert.ok(Math.abs(r.npv - 0.9828) < 1e-3, 'npv: '+r.npv);
+});
+
+test('_ppvNpv: prev=0 → ppv=0, npv=1; prev=1 → ppv=1, npv=0', () => {
+  const fakeFit = { pooled_sens: 0.80, pooled_spec: 0.90,
+                    pooled_sens_ci_lb: 0.7, pooled_sens_ci_ub: 0.9,
+                    pooled_spec_ci_lb: 0.8, pooled_spec_ci_ub: 0.95 };
+  const r0 = DTA._internal._ppvNpv(fakeFit, 0.001);
+  assert.ok(r0.ppv < 0.05);
+  assert.ok(r0.npv > 0.99);
+});
+
 // Run
 let pass = 0, fail = 0;
 for (const t of tests) {

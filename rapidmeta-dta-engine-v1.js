@@ -333,6 +333,41 @@
     return num/Math.sqrt(dx*dy);
   }
 
+  // ---------- PPV/NPV at user-supplied prevalence ----------
+  // CI strategy: extreme-case bounds (user-decided, locked v1.0).
+  // PPV and NPV are both monotonically increasing in Sens and Spec,
+  // so the worst-case bound uses Sens-CI-low + Spec-CI-low and the
+  // best-case uses Sens-CI-high + Spec-CI-high.
+  function _ppvNpv(fitResult, prevalence) {
+    if (typeof prevalence !== 'number' || !isFinite(prevalence) || prevalence < 0 || prevalence > 1) {
+      throw new Error('_ppvNpv: prevalence must be a finite number in [0, 1]');
+    }
+    function computePPV(sens, spec, p) {
+      var num = sens * p;
+      var den = sens * p + (1 - spec) * (1 - p);
+      return den > 0 ? num / den : 0;
+    }
+    function computeNPV(sens, spec, p) {
+      var num = spec * (1 - p);
+      var den = (1 - sens) * p + spec * (1 - p);
+      return den > 0 ? num / den : 1;
+    }
+    var ppv = computePPV(fitResult.pooled_sens, fitResult.pooled_spec, prevalence);
+    var npv = computeNPV(fitResult.pooled_sens, fitResult.pooled_spec, prevalence);
+    var sl = fitResult.pooled_sens_ci_lb, su = fitResult.pooled_sens_ci_ub;
+    var pl = fitResult.pooled_spec_ci_lb, pu = fitResult.pooled_spec_ci_ub;
+    var ppv_lo = computePPV(sl, pl, prevalence);
+    var ppv_hi = computePPV(su, pu, prevalence);
+    var npv_lo = computeNPV(sl, pl, prevalence);
+    var npv_hi = computeNPV(su, pu, prevalence);
+    return {
+      ppv: ppv,
+      npv: npv,
+      ppv_ci: [ppv_lo, ppv_hi],
+      npv_ci: [npv_lo, npv_hi]
+    };
+  }
+
   function fit(trials, opts) {
     opts = opts || {};
     var issues = validate(trials);
@@ -433,7 +468,8 @@
     fit: fit,
     validate: validate,
     exportResults: exportResults,
+    ppvNpv: _ppvNpv,
     _version: '1.0.0-rc',
-    _internal: { matmul, inv2x2, clopperPearson, perStudy, applyContinuityCorrection, feBivariate, lnGamma, ibeta, qbeta, reitsmaREML, reitsmaREMLRhoZero, spearmanRho }
+    _internal: { matmul, inv2x2, clopperPearson, perStudy, applyContinuityCorrection, feBivariate, lnGamma, ibeta, qbeta, reitsmaREML, reitsmaREMLRhoZero, spearmanRho, _ppvNpv }
   };
 })(typeof window !== 'undefined' ? window : globalThis);
