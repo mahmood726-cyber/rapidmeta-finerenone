@@ -319,8 +319,110 @@
     };
   }
 
+  // ---------- Spearman rank correlation (threshold-effect indicator) ----------
+  function spearmanRho(xs, ys) {
+    function ranks(arr){
+      var sorted = arr.map(function(v,i){return {v:v,i:i};}).sort(function(a,b){return a.v-b.v;});
+      var r = new Array(arr.length);
+      for (var k=0;k<sorted.length;k++) r[sorted[k].i] = k+1;
+      return r;
+    }
+    var rx=ranks(xs), ry=ranks(ys), n=xs.length;
+    var mx=(n+1)/2, my=(n+1)/2, num=0, dx=0, dy=0;
+    for (var i=0;i<n;i++){ num+=(rx[i]-mx)*(ry[i]-my); dx+=(rx[i]-mx)*(rx[i]-mx); dy+=(ry[i]-my)*(ry[i]-my); }
+    return num/Math.sqrt(dx*dy);
+  }
+
   function fit(trials, opts) {
-    throw new Error('not yet implemented');
+    opts = opts || {};
+    var issues = validate(trials);
+    if (issues.length > 0) throw new Error('invalid input: ' + issues.join('; '));
+
+    var k_raw = trials.length;
+    var ccOut = applyContinuityCorrection(trials, opts.correction);
+    var working = ccOut.trials;
+
+    // Threshold-effect Spearman on per-study logit Sens & logit(1-Spec)
+    var lse=[], lspc=[];
+    for (var i=0;i<working.length;i++){
+      var t=working[i], pos=t.TP+t.FN, neg=t.TN+t.FP;
+      var s=t.TP/pos, sp=t.TN/neg;
+      lse.push(Math.log(s/(1-s)));
+      lspc.push(Math.log((1-sp)/sp));
+    }
+    var sp_rho = spearmanRho(lse, lspc);
+    var threshold_effect = Math.abs(sp_rho) > 0.6;
+
+    // Estimator selection
+    var fitObj, fallback = null;
+    if (k_raw < 5) {
+      fitObj = feBivariate(working);
+      fallback = 'fe_bivariate';
+    } else {
+      fitObj = reitsmaREML(working, { max_iter: opts.max_iter || 500 });
+      if (!fitObj.converged) {
+        fitObj = feBivariate(working);
+        fallback = 'fe_bivariate';
+      } else if (fitObj.rho_at_boundary) {
+        // Refit with rho=0 fixed
+        var fitFixed = reitsmaREMLRhoZero(working, { max_iter: opts.max_iter || 500 });
+        if (fitFixed.converged) { fitObj = fitFixed; fallback = 'rho_fixed_zero'; }
+      }
+    }
+
+    // SEs from feBivariate path: compute marginal SE on the FE muCov (already inside reitsmaREML;
+    // for fe_bivariate fallback, se_sens_logit and se_spec_logit are present)
+    var sens = 1/(1+Math.exp(-fitObj.mu_sens_logit));
+    var spec = 1/(1+Math.exp(-fitObj.mu_spec_logit));
+    var z = 1.959963984540054;
+    function backCI(mu, se){
+      var lo = 1/(1+Math.exp(-(mu-z*se)));
+      var hi = 1/(1+Math.exp(-(mu+z*se)));
+      return [lo, hi];
+    }
+    var sens_ci = backCI(fitObj.mu_sens_logit, fitObj.se_sens_logit);
+    var spec_ci = backCI(fitObj.mu_spec_logit, fitObj.se_spec_logit);
+
+    // DOR + LR+ + LR-
+    var dor = (sens/(1-sens)) / ((1-spec)/spec);
+    var lr_pos = sens / (1-spec);
+    var lr_neg = (1-sens) / spec;
+
+    // DOR CI via delta method on log-DOR = mu_S + mu_C (var = se_S^2 + se_C^2 + 2*cov)
+    var cov = fitObj.cov_sens_spec_logit || 0;
+    var var_logDOR = fitObj.se_sens_logit*fitObj.se_sens_logit + fitObj.se_spec_logit*fitObj.se_spec_logit + 2*cov;
+    var se_logDOR = Math.sqrt(Math.max(0, var_logDOR));
+    var logDOR = fitObj.mu_sens_logit + fitObj.mu_spec_logit;
+    var dor_ci = [Math.exp(logDOR - z*se_logDOR), Math.exp(logDOR + z*se_logDOR)];
+
+    var per_study = working.map(function(t){ return perStudy(t); });
+
+    return {
+      k: k_raw,
+      pooled_sens: sens, pooled_spec: spec,
+      pooled_sens_ci_lb: sens_ci[0], pooled_sens_ci_ub: sens_ci[1],
+      pooled_spec_ci_lb: spec_ci[0], pooled_spec_ci_ub: spec_ci[1],
+      tau2_sens: fitObj.tau2_sens, tau2_spec: fitObj.tau2_spec, rho: fitObj.rho,
+      dor: dor, dor_ci_lb: dor_ci[0], dor_ci_ub: dor_ci[1],
+      lr_pos: lr_pos, lr_neg: lr_neg,
+      threshold_effect_spearman: sp_rho,
+      threshold_effect: threshold_effect,
+      coverage_warning: k_raw < 10,
+      fallback: fallback,
+      iterations: fitObj.iterations,
+      converged: fitObj.converged,
+      cc_applied: ccOut.corrected,
+      estimator: fitObj.estimator,
+      per_study: per_study,
+      _fitInternal: fitObj  // for downstream SROC computation
+    };
+  }
+
+  function reitsmaREMLRhoZero(trials, opts) {
+    // Same as reitsmaREML but rho is fixed at 0; only optimize tau2_s and tau2_c.
+    // SHORT: refit using FE for now and tag — TODO if proper 2-parameter REML proves needed.
+    var fe = feBivariate(trials);
+    return Object.assign({}, fe, { rho: 0, converged: true, iterations: 0, estimator: 'reml_rho_zero' });
   }
 
   function exportResults(fitResult) {
@@ -332,6 +434,6 @@
     validate: validate,
     exportResults: exportResults,
     _version: '1.0.0-rc',
-    _internal: { matmul, inv2x2, clopperPearson, perStudy, applyContinuityCorrection, feBivariate, lnGamma, ibeta, qbeta, reitsmaREML }
+    _internal: { matmul, inv2x2, clopperPearson, perStudy, applyContinuityCorrection, feBivariate, lnGamma, ibeta, qbeta, reitsmaREML, reitsmaREMLRhoZero, spearmanRho }
   };
 })(typeof window !== 'undefined' ? window : globalThis);

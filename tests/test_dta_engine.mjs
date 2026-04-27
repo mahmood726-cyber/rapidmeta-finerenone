@@ -121,6 +121,36 @@ test('reitsmaREML: AuditC matches mada within smoke-test tolerance', () => {
             'tau2_spec ' + res.tau2_spec);
 });
 
+test('fit: k<5 triggers fe_bivariate fallback', () => {
+  const fx = JSON.parse(readFileSync(join(__dirname, 'dta_fixtures/sparse.json'), 'utf-8'));
+  const res = DTA.fit(fx.trials);
+  assert.equal(res.fallback, 'fe_bivariate');
+  assert.equal(res.iterations, 0);
+  assert.equal(res.coverage_warning, true);
+});
+
+test('fit: threshold-effect detected', () => {
+  const fx = JSON.parse(readFileSync(join(__dirname, 'dta_fixtures/high_threshold_effect.json'), 'utf-8'));
+  const res = DTA.fit(fx.trials);
+  assert.equal(res.threshold_effect, true);
+  assert.ok(Math.abs(res.threshold_effect_spearman) > 0.6);
+});
+
+test('fit: coverage_warning true for k<10', () => {
+  const trials = JSON.parse(readFileSync(join(__dirname, 'dta_fixtures/zero_cells.json'), 'utf-8')).trials;
+  // k=8
+  const res = DTA.fit(trials);
+  assert.equal(res.coverage_warning, true);
+});
+
+test('fit: AuditC k=14 → coverage_warning false', () => {
+  const fx = JSON.parse(readFileSync(join(__dirname, 'dta_fixtures/auditc.json'), 'utf-8'));
+  const res = DTA.fit(fx.trials);
+  assert.equal(res.coverage_warning, false);
+  assert.equal(res.threshold_effect, false);
+  assert.equal(res.fallback, null);
+});
+
 // Run
 let pass = 0, fail = 0;
 for (const t of tests) {
