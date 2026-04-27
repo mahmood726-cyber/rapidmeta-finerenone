@@ -788,6 +788,147 @@
       color: #4b5563;
       margin-top: 0.4rem;
     }
+
+    /* ===== Stale-data banner (feature 4) ===== */
+    .stale-banner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      border-bottom: 1px solid #e5e7eb;
+      background: #ecfdf5;
+      color: #065f46;
+    }
+    .stale-banner.stale-amber {
+      background: #fffbeb;
+      color: #78350f;
+      border-bottom-color: #fde68a;
+    }
+    .stale-banner .stale-btn {
+      margin-left: auto;
+      padding: 0.25rem 0.6rem;
+      font: inherit;
+      font-size: 0.78rem;
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      border-radius: 0.25rem;
+      color: #1f2937;
+      cursor: pointer;
+    }
+    .stale-banner .stale-btn:hover { background: #f3f4f6; }
+
+    /* ===== Chart toolbar (SVG download — feature 3) ===== */
+    .chart-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.4rem;
+      margin-bottom: 0.4rem;
+    }
+    .chart-toolbar button {
+      padding: 0.2rem 0.55rem;
+      font: inherit;
+      font-size: 0.75rem;
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      border-radius: 0.25rem;
+      color: #1f2937;
+      cursor: pointer;
+    }
+    .chart-toolbar button:hover { background: #f3f4f6; }
+
+    /* ===== Manuscript / Scientific Output (feature 1) ===== */
+    .manuscript-section {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.375rem;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .manuscript-section h3 {
+      margin: 0 0 0.5rem;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1f2937;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .manuscript-section .manuscript-body,
+    .manuscript-section .manuscript-body p {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      color: #1f2937;
+      margin: 0 0 0.75rem;
+    }
+    .manuscript-section .manuscript-body p:last-child { margin-bottom: 0; }
+    .ms-copy-btn {
+      padding: 0.2rem 0.55rem;
+      font: inherit;
+      font-size: 0.72rem;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 0.25rem;
+      color: #1e40af;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .ms-copy-btn:hover { background: #dbeafe; }
+    .ms-copy-btn.copied { background: #d1fae5; color: #065f46; border-color: #a7f3d0; }
+    .manuscript-section .ms-structured-abstract dt {
+      font-weight: 700;
+      font-family: Georgia, serif;
+      color: #1f2937;
+      margin-top: 0.4rem;
+    }
+    .manuscript-section .ms-structured-abstract dd {
+      margin: 0 0 0.4rem 0;
+      font-family: Georgia, serif;
+      line-height: 1.55;
+    }
+    .ms-editable {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.35rem 0.5rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.25rem;
+      font: inherit;
+      font-family: Georgia, serif;
+    }
+
+    /* ===== Sensitivity / LOO tab (feature 2) ===== */
+    .loo-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+    }
+    .loo-table th, .loo-table td {
+      padding: 0.4rem 0.55rem;
+      border: 1px solid #e5e7eb;
+      text-align: right;
+    }
+    .loo-table th { background: #f3f4f6; font-weight: 600; }
+    .loo-table th:first-child, .loo-table td:first-child {
+      text-align: left;
+      font-weight: 600;
+    }
+    .loo-influence-callout {
+      background: #eff6ff;
+      border-left: 4px solid #2563eb;
+      color: #1e3a8a;
+      padding: 0.75rem 1rem;
+      border-radius: 0.25rem;
+      margin: 0.75rem 0;
+      font-size: 0.875rem;
+    }
+    .loo-bigdelta { color: #b91c1c; font-weight: 600; }
   </style>
 
   <!-- Embedded trial data -->
@@ -909,6 +1050,12 @@
     <p class="subtitle">Diagnostic Test Accuracy Living Review &middot; v1.1.0 &middot; 2026-04-27</p>
   </header>
 
+  <!-- Stale-data banner (feature 4) — populated at init() from extracted_at fields -->
+  <div id="stale-banner" class="stale-banner" role="status" aria-live="polite">
+    <span id="stale-banner-text">Checking last-search timestamps&hellip;</span>
+    <button type="button" id="stale-check-btn" class="stale-btn">Check for new trials</button>
+  </div>
+
   <!-- Audit-tooling control bar (edit-mode + Export/Import + Reset) -->
   <div class="audit-bar" role="toolbar" aria-label="Audit controls">
     <label class="ab-toggle" title="Toggle click-to-edit mode for screening / extraction / metadata / QUADAS-2 fields">
@@ -938,9 +1085,11 @@
       <li><button class="tab-button" data-tab="forest" role="tab" aria-selected="false">8. Forest</button></li>
       <li><button class="tab-button" data-tab="sroc" role="tab" aria-selected="false">9. SROC</button></li>
       <li><button class="tab-button" data-tab="heterogeneity" role="tab" aria-selected="false">10. Heterogeneity</button></li>
-      <li><button class="tab-button" data-tab="subgroups" role="tab" aria-selected="false">11. Subgroups</button></li>
-      <li><button class="tab-button" data-tab="methods" role="tab" aria-selected="false">12. Methods</button></li>
-      <li><button class="tab-button" data-tab="references" role="tab" aria-selected="false">13. References</button></li>
+      <li><button class="tab-button" data-tab="sensitivity" role="tab" aria-selected="false">11. Sensitivity</button></li>
+      <li><button class="tab-button" data-tab="subgroups" role="tab" aria-selected="false">12. Subgroups</button></li>
+      <li><button class="tab-button" data-tab="methods" role="tab" aria-selected="false">13. Methods</button></li>
+      <li><button class="tab-button" data-tab="references" role="tab" aria-selected="false">14. References</button></li>
+      <li><button class="tab-button" data-tab="report" role="tab" aria-selected="false">15. Scientific Output</button></li>
     </ul>
   </nav>
 
@@ -1385,6 +1534,9 @@
       <p style="font-size:0.875rem;color:#4b5563;margin-bottom:1rem;">
         Paired forest: per-study Sensitivity (left) and Specificity (right) with 95% Clopper&ndash;Pearson exact CIs. The pooled summary row (blue) uses the bivariate model estimate for the active tier.
       </p>
+      <div class="chart-toolbar">
+        <button type="button" class="svg-download-btn" data-svg-target="forest-container" data-svg-name="forest" title="Download SVG">&darr; SVG</button>
+      </div>
       <div id="forest-container" class="table-scroll" style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1rem;"></div>
     </section>
 
@@ -1394,6 +1546,9 @@
       <p style="font-size:0.875rem;color:#4b5563;margin-bottom:1rem;">
         Summary ROC plot in (1&minus;Specificity, Sensitivity) coordinates. Grey dots = per-study estimates; red dashed ellipse = 95% confidence region from the bivariate fit; blue dashed curve = HSROC reparameterisation (Harbord 2007); large red dot = pooled summary point.
       </p>
+      <div class="chart-toolbar">
+        <button type="button" class="svg-download-btn" data-svg-target="sroc-container" data-svg-name="sroc" title="Download SVG">&darr; SVG</button>
+      </div>
       <div id="sroc-container" style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1rem;display:flex;justify-content:center;"></div>
     </section>
 
@@ -1404,6 +1559,15 @@
         Bivariate variance components on the logit scale, threshold-effect diagnostic, and convergence audit. Note: I&sup2; is not directly defined for the bivariate DTA model &mdash; tau&sup2; on logit-Sens / logit-Spec is the canonical between-study heterogeneity metric (Reitsma 2005).
       </p>
       <div id="heterogeneity-container"></div>
+    </section>
+
+    <!-- ===================== Sensitivity / LOO tab (feature 2) ===================== -->
+    <section id="tab-sensitivity" class="tab-panel" role="tabpanel">
+      <h2 class="section-title">Sensitivity (leave-one-out)</h2>
+      <p style="font-size:0.875rem;color:#4b5563;margin-bottom:1rem;">
+        For each study i in the active tier, refit the bivariate model with study i excluded and record pooled Sens, Spec, DOR. The largest mover quantifies which single study most influences the headline summary. When removing a study takes the remaining pool below k=5, the engine falls back to the FE bivariate (per the existing fallback rule).
+      </p>
+      <div id="loo-container" style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1rem;"></div>
     </section>
 
     <!-- ===================== Subgroups tab ===================== -->
@@ -1498,6 +1662,15 @@
         Vancouver-style citations for included studies plus methodological references for the engine and validation package. PubMed (PMID), DOI, and ClinicalTrials.gov (NCT) links are provided where available.
       </p>
       <div id="references-container" style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1rem;"></div>
+    </section>
+
+    <!-- ===================== Scientific Output tab (feature 1) ===================== -->
+    <section id="tab-report" class="tab-panel" role="tabpanel">
+      <h2 class="section-title">Scientific Output</h2>
+      <p style="font-size:0.875rem;color:#4b5563;margin-bottom:1rem;">
+        Auto-generated manuscript text rendered from the live engine fit. Each section has a copy-to-clipboard button. Edit-mode changes (e.g. TP/FP/FN/TN values) re-render the Results paragraph automatically.
+      </p>
+      <div id="manuscript-container" aria-live="polite"></div>
     </section>
   </main>
 
@@ -2138,6 +2311,90 @@
       }
 
       // ----------- Subgroups tab -----------
+      // Chi-square upper-tail survival via series + continued fraction (Numerical Recipes).
+      function chi2SurvivalP(x, df) {
+        if (!isFinite(x) || x < 0 || df <= 0) return NaN;
+        // P(X^2 > x | df) = upper incomplete gamma regularized = 1 - P(df/2, x/2)
+        // Use lnGamma + series/CF
+        function lnGammaLocal(z) {
+          var c = [76.18009172947146, -86.50532032941677, 24.01409824083091,
+                   -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5];
+          var x0 = z, y = z, tmp = x0 + 5.5;
+          tmp -= (x0 + 0.5) * Math.log(tmp);
+          var ser = 1.000000000190015;
+          for (var j = 0; j < 6; j++) { y += 1; ser += c[j] / y; }
+          return -tmp + Math.log(2.5066282746310005 * ser / x0);
+        }
+        var a = df / 2, xx = x / 2;
+        if (xx === 0) return 1.0;
+        // Series for xx < a+1, CF otherwise
+        if (xx < a + 1) {
+          var ap = a, sum = 1 / a, del = sum;
+          for (var n = 1; n < 200; n++) {
+            ap += 1; del *= xx / ap; sum += del;
+            if (Math.abs(del) < Math.abs(sum) * 1e-12) break;
+          }
+          var p = sum * Math.exp(-xx + a * Math.log(xx) - lnGammaLocal(a));
+          return 1 - p;
+        } else {
+          // Lentz's continued fraction
+          var b = xx + 1 - a, c = 1e30, d = 1 / b, h = d;
+          for (var i = 1; i < 200; i++) {
+            var an = -i * (i - a);
+            b += 2;
+            d = an * d + b; if (Math.abs(d) < 1e-300) d = 1e-300;
+            c = b + an / c; if (Math.abs(c) < 1e-300) c = 1e-300;
+            d = 1 / d;
+            var delcf = d * c; h *= delcf;
+            if (Math.abs(delcf - 1) < 1e-12) break;
+          }
+          var q = Math.exp(-xx + a * Math.log(xx) - lnGammaLocal(a)) * h;
+          return q;
+        }
+      }
+
+      // Q-between for a list of subgroup fits, on logit-Sens or logit-Spec.
+      // Each subgroup contributes a (mu_hat, se_hat) on the logit scale; weights are 1/se^2.
+      // Returns { Q, df, p } or null if insufficient.
+      function qBetween(subgroupFits, axis) {
+        // axis: 'sens' or 'spec'
+        var pts = [];
+        subgroupFits.forEach(function (sf) {
+          var fi = sf && sf._fitInternal;
+          if (!fi) return;
+          var mu = (axis === 'sens') ? fi.mu_sens_logit : fi.mu_spec_logit;
+          var se = (axis === 'sens') ? fi.se_sens_logit : fi.se_spec_logit;
+          if (!isFinite(mu) || !isFinite(se) || se <= 0) return;
+          pts.push({ mu: mu, se: se });
+        });
+        if (pts.length < 2) return null;
+        var w = pts.map(function (p) { return 1 / (p.se * p.se); });
+        var Wsum = w.reduce(function (a, b) { return a + b; }, 0);
+        var muBar = pts.reduce(function (acc, p, i) { return acc + w[i] * p.mu; }, 0) / Wsum;
+        var Q = pts.reduce(function (acc, p, i) {
+          var d = p.mu - muBar;
+          return acc + w[i] * d * d;
+        }, 0);
+        var df = pts.length - 1;
+        var p = chi2SurvivalP(Q, df);
+        return { Q: Q, df: df, p: p, k: pts.length };
+      }
+
+      // Build full set of subgroup fits across all levels of the chosen axis.
+      // Used for the interaction test only (independent of the user's filter).
+      function subgroupFitsByAxis(axisField, levels) {
+        var out = [];
+        levels.forEach(function (lvl) {
+          var subset = trials_combined.filter(function (t) { return t[axisField] === lvl; });
+          if (subset.length < 2) return; // need >=2 to contribute a usable variance
+          try {
+            var fit = DTA.fit(subset);
+            out.push({ level: lvl, k: subset.length, fit: fit });
+          } catch (e) { /* skip non-converging level */ }
+        });
+        return out;
+      }
+
       function applySubgroupFilter() {
         var pa = document.getElementById('sg-population-age').value;
         var sp = document.getElementById('sg-specimen').value;
@@ -2157,8 +2414,65 @@
           '(' + filtered.map(function (t) { return escapeHtml(t.studlab); }).join(', ') + ')' +
           '</p>';
 
+        // Feature 5: Q_between over the *active* axis (whichever is the most-restrictive
+        // non-"any" filter; if all "any", omit). We test for differences across the
+        // levels of the axis the user is filtering on, using the full combined-tier pool.
+        var activeAxis = null, axisLevels = null, axisName = null;
+        if (pa !== 'any') { activeAxis = 'population_age'; axisName = 'population_age';
+          axisLevels = ['adult', 'pediatric', 'mixed']; }
+        else if (sp !== 'any') { activeAxis = 'specimen'; axisName = 'specimen';
+          axisLevels = ['sputum', 'mixed_sputum_gastric', 'stool', 'tongue_swab', 'other']; }
+        else if (rs !== 'any') { activeAxis = 'reference_standard_specific'; axisName = 'reference_standard';
+          axisLevels = [
+            'sputum_culture_lj_mgit', 'xpert_plus_culture_composite',
+            'composite_clinical_microbiological',
+            'clinical_radiological_plus_treatment_response',
+            'bacteriologically_confirmed_on_induced_sputum',
+            'culture_only', 'other'
+          ]; }
+
+        var interactionHTML = '';
+        if (activeAxis) {
+          try {
+            var sgFits = subgroupFitsByAxis(activeAxis, axisLevels);
+            var totalK = sgFits.reduce(function (a, b) { return a + b.k; }, 0);
+            if (sgFits.length >= 2 && totalK >= 5) {
+              var qSens = qBetween(sgFits.map(function (x) { return x.fit; }), 'sens');
+              var qSpec = qBetween(sgFits.map(function (x) { return x.fit; }), 'spec');
+              var lines = [];
+              if (qSens) {
+                lines.push('Pooled Sensitivity: Q<sub>between</sub> = ' + fmtNum(qSens.Q, 2) +
+                  ' (df = ' + qSens.df + '), p = ' + (isFinite(qSens.p) ? qSens.p.toFixed(3) : '—'));
+              }
+              if (qSpec) {
+                lines.push('Pooled Specificity: Q<sub>between</sub> = ' + fmtNum(qSpec.Q, 2) +
+                  ' (df = ' + qSpec.df + '), p = ' + (isFinite(qSpec.p) ? qSpec.p.toFixed(3) : '—'));
+              }
+              if (lines.length) {
+                interactionHTML =
+                  '<div class="banner" style="background:#eef2ff;border-left:4px solid #6366f1;color:#3730a3;margin-bottom:0.75rem;">' +
+                  '<strong>Test for subgroup differences</strong> (axis: <code>' + escapeHtml(axisName) + '</code>, ' +
+                  sgFits.length + ' levels with k&ge;2):<br>' + lines.join('<br>') +
+                  '<div style="font-size:0.75rem;color:#4338ca;margin-top:0.4rem;">' +
+                  'Inverse-variance weighted Q on the logit scale across all subgroup levels (uses full combined-tier pool, not the filtered subset).' +
+                  '</div></div>';
+              }
+            } else {
+              interactionHTML =
+                '<div class="banner banner-amber" style="margin-bottom:0.75rem;">' +
+                '<strong>Subgroup interaction test omitted:</strong> only ' + sgFits.length +
+                ' subgroup level(s) with k&ge;2 (need &ge;2 levels and total k&ge;5). Descriptive comparison only.' +
+                '</div>';
+            }
+          } catch (e) {
+            interactionHTML =
+              '<div class="banner banner-amber" style="margin-bottom:0.75rem;">' +
+              '<strong>Q<sub>between</sub> failed:</strong> ' + escapeHtml(e.message || String(e)) + '</div>';
+          }
+        }
+
         if (filtered.length === 0) {
-          resultEl.innerHTML = summary +
+          resultEl.innerHTML = interactionHTML + summary +
             '<div class="banner banner-amber"><strong>No studies match.</strong> Loosen the filters or choose &ldquo;any&rdquo; for one or more covariates.</div>';
           return;
         }
@@ -2173,7 +2487,7 @@
               '</li>';
           });
           listing += '</ul>';
-          resultEl.innerHTML = summary +
+          resultEl.innerHTML = interactionHTML + summary +
             '<div class="banner banner-amber"><strong>Insufficient evidence (k&lt;3).</strong> ' +
             'Subgroup pool too small to refit; per-study estimates only.</div>' + listing;
           return;
@@ -2183,7 +2497,7 @@
         try {
           sgFit = DTA.fit(filtered);
         } catch (e) {
-          resultEl.innerHTML = summary +
+          resultEl.innerHTML = interactionHTML + summary +
             '<div class="banner banner-amber"><strong>Refit failed:</strong> ' + escapeHtml(e.message || String(e)) + '</div>';
           return;
         }
@@ -2216,7 +2530,525 @@
         }
         if (caveats) caveats = '<div style="margin-top:0.75rem;">' + caveats + '</div>';
 
-        resultEl.innerHTML = summary + grid + caveats;
+        resultEl.innerHTML = interactionHTML + summary + grid + caveats;
+      }
+
+      // ----------- Leave-one-out sensitivity (feature 2) -----------
+      function renderLeaveOneOut() {
+        var container = document.getElementById('loo-container');
+        if (!container) return;
+        var rows = currentTier === 'primary' ? trials_primary : trials_combined;
+        if (rows.length < 2) {
+          container.innerHTML =
+            '<div class="banner banner-amber"><strong>Leave-one-out unavailable:</strong> ' +
+            'k = ' + rows.length + ' in active tier. Need k&ge;2 to remove one and refit.</div>';
+          return;
+        }
+        // Reference fit: all-included
+        var allFit = currentFit;
+        if (!allFit) {
+          try { allFit = DTA.fit(rows); } catch (e) {
+            container.innerHTML = '<div class="banner banner-amber">All-included fit failed: ' +
+              escapeHtml(e.message || String(e)) + '</div>';
+            return;
+          }
+        }
+
+        var looRows = rows.map(function (excluded) {
+          var remaining = rows.filter(function (t) { return t.studlab !== excluded.studlab; });
+          var fit, err = null;
+          try { fit = DTA.fit(remaining); }
+          catch (e) { err = e.message || String(e); fit = null; }
+          var dSens = (fit && isFinite(fit.pooled_sens) && isFinite(allFit.pooled_sens))
+            ? (fit.pooled_sens - allFit.pooled_sens) * 100 : NaN;
+          var dSpec = (fit && isFinite(fit.pooled_spec) && isFinite(allFit.pooled_spec))
+            ? (fit.pooled_spec - allFit.pooled_spec) * 100 : NaN;
+          return {
+            excluded: excluded.studlab,
+            remaining_k: remaining.length,
+            fit: fit,
+            err: err,
+            dSens: dSens,
+            dSpec: dSpec,
+            absDelta: Math.max(Math.abs(dSens || 0), Math.abs(dSpec || 0))
+          };
+        });
+
+        // Identify the largest mover (max |dSens| or |dSpec|)
+        var biggest = null;
+        looRows.forEach(function (r) {
+          if (!r.fit) return;
+          if (!biggest || r.absDelta > biggest.absDelta) biggest = r;
+        });
+
+        function fmtDelta(v) {
+          if (!isFinite(v)) return '—';
+          var sign = v >= 0 ? '+' : '';
+          var bigClass = Math.abs(v) >= 5 ? ' class="loo-bigdelta"' : '';
+          return '<span' + bigClass + '>' + sign + v.toFixed(1) + ' pp</span>';
+        }
+
+        var tableRows = looRows.map(function (r) {
+          if (r.err || !r.fit) {
+            return '<tr><td>' + escapeHtml(r.excluded) + '</td>' +
+              '<td>' + r.remaining_k + '</td>' +
+              '<td colspan="5" style="color:#b91c1c;">refit failed: ' + escapeHtml(r.err || 'unknown') + '</td>' +
+              '<td>—</td></tr>';
+          }
+          var fbBadge = r.fit.fallback
+            ? ' <span class="badge badge-amber" style="font-size:0.7rem;padding:0.05rem 0.35rem;">FE</span>' : '';
+          return '<tr>' +
+            '<td>' + escapeHtml(r.excluded) + fbBadge + '</td>' +
+            '<td>' + r.remaining_k + '</td>' +
+            '<td>' + fmt(r.fit.pooled_sens) + '</td>' +
+            '<td style="font-size:0.78rem;">' + fmtCI(r.fit.pooled_sens_ci_lb, r.fit.pooled_sens_ci_ub) + '</td>' +
+            '<td>' + fmt(r.fit.pooled_spec) + '</td>' +
+            '<td style="font-size:0.78rem;">' + fmtCI(r.fit.pooled_spec_ci_lb, r.fit.pooled_spec_ci_ub) + '</td>' +
+            '<td>' + fmtNum(r.fit.dor, 1) + '</td>' +
+            '<td>Sens ' + fmtDelta(r.dSens) + ' &middot; Spec ' + fmtDelta(r.dSpec) + '</td>' +
+            '</tr>';
+        }).join('');
+
+        var allRow =
+          '<tr style="background:#f9fafb;font-weight:600;">' +
+          '<td>(all included &mdash; reference)</td>' +
+          '<td>' + rows.length + '</td>' +
+          '<td>' + fmt(allFit.pooled_sens) + '</td>' +
+          '<td style="font-size:0.78rem;">' + fmtCI(allFit.pooled_sens_ci_lb, allFit.pooled_sens_ci_ub) + '</td>' +
+          '<td>' + fmt(allFit.pooled_spec) + '</td>' +
+          '<td style="font-size:0.78rem;">' + fmtCI(allFit.pooled_spec_ci_lb, allFit.pooled_spec_ci_ub) + '</td>' +
+          '<td>' + fmtNum(allFit.dor, 1) + '</td>' +
+          '<td>—</td>' +
+          '</tr>';
+
+        var tableHTML =
+          '<div class="table-scroll"><table class="loo-table">' +
+          '<thead><tr>' +
+          '<th>Excluded study</th><th>Remaining k</th>' +
+          '<th>Sens</th><th>Sens 95% CI</th>' +
+          '<th>Spec</th><th>Spec 95% CI</th>' +
+          '<th>DOR</th>' +
+          '<th>&Delta; vs all-included</th>' +
+          '</tr></thead><tbody>' + allRow + tableRows + '</tbody></table></div>';
+
+        var callout = '';
+        if (biggest) {
+          callout =
+            '<div class="loo-influence-callout">' +
+            '<strong>Largest single-study influence:</strong> excluding <em>' + escapeHtml(biggest.excluded) +
+            '</em> moves Sens by ' + fmtDelta(biggest.dSens) + ' and Spec by ' + fmtDelta(biggest.dSpec) +
+            '. ' + (Math.abs(biggest.absDelta) >= 5
+              ? 'This exceeds the 5pp tier-divergence threshold &mdash; consider whether the headline summary is robust to this single trial.'
+              : 'No single trial moves the headline summary by &gt;5pp; the pool is reasonably stable.') +
+            '</div>';
+        }
+
+        // Forest-style mini-chart of pooled Sens across LOO iterations
+        var chartHTML = '';
+        try {
+          var w = 760, rowH = 22, padTop = 30, padBot = 24, padLeft = 200, plotW = 380, nW = 50;
+          var n = looRows.length + 1; // include all-row as ref
+          var h = padTop + n * rowH + padBot;
+          var allLo = allFit.pooled_sens_ci_lb;
+          var allHi = allFit.pooled_sens_ci_ub;
+          // x range: 0..1
+          function sx(p) { return padLeft + p * plotW; }
+          var svgChart = '';
+          svgChart += '<svg id="loo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" height="' + h + '" style="font-family:ui-sans-serif,system-ui,sans-serif;font-size:11px;">';
+          svgChart += '<text x="' + (padLeft + plotW / 2) + '" y="14" text-anchor="middle" font-weight="700">Pooled Sensitivity (each row = study removed)</text>';
+          svgChart += '<text x="' + (w - nW + 4) + '" y="14" font-weight="700">DOR</text>';
+          [0, 0.25, 0.5, 0.75, 1.0].forEach(function (t) {
+            var xT = sx(t);
+            svgChart += '<line x1="' + xT + '" y1="' + padTop + '" x2="' + xT + '" y2="' + (h - padBot) + '" stroke="#e5e7eb" stroke-width="1"/>';
+            svgChart += '<text x="' + xT + '" y="' + (h - 6) + '" text-anchor="middle" fill="#6b7280">' + (t * 100).toFixed(0) + '%</text>';
+          });
+          // Reference band
+          svgChart += '<rect x="' + sx(allLo) + '" y="' + padTop + '" width="' + (sx(allHi) - sx(allLo)) +
+            '" height="' + (n * rowH) + '" fill="#dbeafe" opacity="0.4"/>';
+          // Reference vertical line
+          svgChart += '<line x1="' + sx(allFit.pooled_sens) + '" y1="' + padTop + '" x2="' + sx(allFit.pooled_sens) + '" y2="' + (h - padBot) + '" stroke="#1d4ed8" stroke-width="1.5" stroke-dasharray="3,3"/>';
+
+          var allRowY = padTop + 0.5 * rowH;
+          svgChart += '<text x="6" y="' + (allRowY + 4) + '" font-weight="700" fill="#1d4ed8">(all included)</text>';
+          svgChart += '<line x1="' + sx(allLo) + '" y1="' + allRowY + '" x2="' + sx(allHi) + '" y2="' + allRowY + '" stroke="#1d4ed8" stroke-width="2"/>';
+          svgChart += '<circle cx="' + sx(allFit.pooled_sens) + '" cy="' + allRowY + '" r="5" fill="#1d4ed8"/>';
+          svgChart += '<text x="' + (w - nW + 4) + '" y="' + (allRowY + 4) + '" fill="#1d4ed8" font-weight="700">' + fmtNum(allFit.dor, 1) + '</text>';
+
+          looRows.forEach(function (r, i) {
+            var y = padTop + (i + 1.5) * rowH;
+            svgChart += '<text x="6" y="' + (y + 4) + '" fill="#374151">&minus; ' + escapeHtml(r.excluded) + '</text>';
+            if (r.fit) {
+              var lo = r.fit.pooled_sens_ci_lb, hi = r.fit.pooled_sens_ci_ub;
+              var color = (r === biggest) ? '#dc2626' : '#374151';
+              svgChart += '<line x1="' + sx(lo) + '" y1="' + y + '" x2="' + sx(hi) + '" y2="' + y + '" stroke="' + color + '" stroke-width="1.5"/>';
+              svgChart += '<circle cx="' + sx(r.fit.pooled_sens) + '" cy="' + y + '" r="3.5" fill="' + color + '"/>';
+              svgChart += '<text x="' + (w - nW + 4) + '" y="' + (y + 4) + '" fill="' + color + '">' + fmtNum(r.fit.dor, 1) + '</text>';
+            } else {
+              svgChart += '<text x="' + sx(0.5) + '" y="' + (y + 4) + '" text-anchor="middle" fill="#b91c1c">refit failed</text>';
+            }
+          });
+          svgChart += '</svg>';
+          chartHTML =
+            '<div class="chart-toolbar">' +
+            '<button type="button" class="svg-download-btn" data-svg-target="loo-chart-container" data-svg-name="loo">&darr; SVG</button>' +
+            '</div>' +
+            '<div id="loo-chart-container" style="margin:0.75rem 0;overflow-x:auto;">' + svgChart + '</div>';
+        } catch (e) {
+          // chart is decorative; skip silently if it fails
+          chartHTML = '';
+        }
+
+        container.innerHTML = chartHTML + tableHTML + callout;
+
+        // Wire SVG download buttons inside this fresh DOM
+        wireSvgDownloadButtons(container);
+      }
+
+      // ----------- SVG download helper (feature 3) -----------
+      function downloadSvgFromContainer(targetId, nameStem) {
+        var host = document.getElementById(targetId);
+        if (!host) return;
+        var svg = host.querySelector('svg');
+        if (!svg) {
+          alert('No SVG to download yet — try opening the corresponding tab once so the chart renders.');
+          return;
+        }
+        // Clone and ensure xmlns is present (some clones drop it)
+        var clone = svg.cloneNode(true);
+        if (!clone.getAttribute('xmlns')) clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+        if (!clone.getAttribute('xmlns:xlink')) clone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+        var serialized = new XMLSerializer().serializeToString(clone);
+        // Add XML declaration so external tools recognise it cleanly
+        var xml = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n' + serialized;
+        var blob = new Blob([xml], { type: 'image/svg+xml;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        var stamp = new Date().toISOString().slice(0, 10);
+        a.href = url;
+        a.download = (nameStem || 'chart') + '_' + stamp + '.svg';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        // Revoke after click to free memory (lessons.md: revoke Blob URLs after use)
+        setTimeout(function () { URL.revokeObjectURL(url); }, 100);
+      }
+
+      function wireSvgDownloadButtons(scope) {
+        scope = scope || document;
+        var btns = scope.querySelectorAll('.svg-download-btn');
+        btns.forEach(function (btn) {
+          if (btn._wired) return;
+          btn._wired = true;
+          btn.addEventListener('click', function () {
+            var t = btn.getAttribute('data-svg-target');
+            var n = btn.getAttribute('data-svg-name');
+            downloadSvgFromContainer(t, n);
+          });
+        });
+      }
+
+      // ----------- Manuscript / Scientific Output (feature 1) -----------
+      // Live-rendered, copyable journal-format text. Each section reads from currentFit
+      // so an edit-mode change to TP/FP/FN/TN updates the Results paragraph on next refit.
+      function buildManuscriptSections() {
+        var fit = currentFit;
+        var allTrials = data.primary_tier.concat(data.sensitivity_tier_added);
+        var primaryTrials = data.primary_tier.slice();
+        var k_combined = allTrials.length;
+        var k_primary = primaryTrials.length;
+
+        var primaryFit, combinedFit;
+        try { primaryFit = DTA.fit(primaryTrials); } catch (e) { primaryFit = null; }
+        try { combinedFit = DTA.fit(allTrials); } catch (e) { combinedFit = null; }
+
+        var divSens = (primaryFit && combinedFit) ?
+          Math.abs(primaryFit.pooled_sens - combinedFit.pooled_sens) * 100 : NaN;
+        var divSpec = (primaryFit && combinedFit) ?
+          Math.abs(primaryFit.pooled_spec - combinedFit.pooled_spec) * 100 : NaN;
+        var maxDiv = Math.max(divSens || 0, divSpec || 0);
+
+        var f = fit || combinedFit; // fall back to combined if currentTier=primary fit oddly missing
+        if (!f) {
+          return [{
+            id: 'error', title: 'Manuscript unavailable',
+            html: '<p class="manuscript-body">Engine fit not available — cannot generate manuscript text.</p>'
+          }];
+        }
+
+        function pct(p) { return isFinite(p) ? (p * 100).toFixed(1) + '%' : '—'; }
+        function pctCI(lo, hi) {
+          return '(' + pct(lo) + '-' + pct(hi) + ')';
+        }
+        function nm(x, d) {
+          d = (d == null) ? 2 : d;
+          return (isFinite(x) ? x.toFixed(d) : '—');
+        }
+
+        // ===== Title =====
+        var title = 'GeneXpert MTB/RIF Ultra for diagnosis of pulmonary tuberculosis: a living systematic review and bivariate meta-analysis';
+
+        // ===== Abstract (structured) =====
+        var abstractParts = {
+          background: 'Xpert MTB/RIF Ultra (Cepheid) was endorsed by the World Health Organization in 2017 as a successor cartridge to Xpert MTB/RIF for tuberculosis (TB) detection. Diagnostic accuracy estimates have accumulated across heterogeneous populations, specimen types, and reference standards, motivating a bivariate meta-analysis with explicit tier separation between CT.gov-linked primary studies and PubMed-abstract-derived sensitivity-tier studies.',
+          methods: 'We searched ClinicalTrials.gov (32 hits) and PubMed (390 + 81 hits across two queries) on 2026-04-27 for studies of Xpert Ultra against any reference standard for pulmonary TB in adults or children. Eligibility was restricted to post-2015 publications with reportable or back-computable 2x2 counts. QUADAS-2 was applied across four domains. Sensitivity, specificity, diagnostic odds ratio (DOR), and positive/negative likelihood ratios were pooled using the Reitsma 2005 bivariate REML model fit by Nelder-Mead simplex; the fixed-effect bivariate served as the k<5 fallback. Analysis is reproducible from the embedded JSON dataset and the open-source RapidMeta DTA engine.',
+          results: 'k = ' + k_combined + ' studies in the combined tier (CT.gov-linked + PubMed-abstract sensitivity tier); k = ' + k_primary +
+            ' in the primary CT.gov-linked tier. Pooled Sensitivity (combined tier) was ' + pct(combinedFit && combinedFit.pooled_sens) +
+            ' ' + (combinedFit ? pctCI(combinedFit.pooled_sens_ci_lb, combinedFit.pooled_sens_ci_ub) : '') +
+            '; pooled Specificity ' + pct(combinedFit && combinedFit.pooled_spec) +
+            ' ' + (combinedFit ? pctCI(combinedFit.pooled_spec_ci_lb, combinedFit.pooled_spec_ci_ub) : '') +
+            '. DOR was ' + nm(combinedFit && combinedFit.dor, 1) +
+            ', positive likelihood ratio ' + nm(combinedFit && combinedFit.lr_pos, 1) +
+            ', negative likelihood ratio ' + nm(combinedFit && combinedFit.lr_neg, 2) +
+            '. Between-study variance on logit-Sens (tau-squared) was ' + nm(combinedFit && combinedFit.tau2_sens, 2) +
+            '; threshold-effect Spearman correlation was ' + nm(combinedFit && combinedFit.threshold_effect_spearman, 2) +
+            ' (no threshold effect detected at the |rho|>0.6 cut). Primary-vs-combined tier divergence: ' +
+            nm(maxDiv, 1) + ' percentage points (Sens or Spec). The k<10 coverage warning applies.',
+          conclusions: 'Xpert Ultra has high specificity but only moderate pooled sensitivity in this evidence base, with substantial heterogeneity driven by population age, specimen type, and reference-standard choice. The k=1 primary tier and k=' + k_combined +
+            ' combined tier both fall below conventional reliability thresholds; the headline summary should be interpreted alongside the SROC curve, the leave-one-out sensitivity table, and the QUADAS-2 risk-of-bias assessments rather than as a single point estimate.'
+        };
+
+        var absHTML = '<dl class="ms-structured-abstract">' +
+          '<dt>Background</dt><dd>' + escapeHtml(abstractParts.background) + '</dd>' +
+          '<dt>Methods</dt><dd>' + escapeHtml(abstractParts.methods) + '</dd>' +
+          '<dt>Results</dt><dd>' + escapeHtml(abstractParts.results) + '</dd>' +
+          '<dt>Conclusions</dt><dd>' + escapeHtml(abstractParts.conclusions) + '</dd>' +
+          '</dl>';
+
+        var absPlain = 'Background: ' + abstractParts.background + '\n\n' +
+          'Methods: ' + abstractParts.methods + '\n\n' +
+          'Results: ' + abstractParts.results + '\n\n' +
+          'Conclusions: ' + abstractParts.conclusions;
+
+        // ===== Methods paragraph =====
+        var methodsPara = 'We pre-specified the protocol (PICOTS+R framework) before extraction (build-time spec docs/superpowers/specs/2026-04-27-rapidmeta-dta-engine-design.md, commit ab2828f). The search executed on 2026-04-27 against ClinicalTrials.gov (NIH/NLM API v2) and PubMed (NCBI E-utilities); raw retrieval is preserved in ctgov_genexpert_ultra_pack_2026-04-27.json and pubmed_genexpert_ultra_abstracts_2026-04-27.json. Inclusion required Xpert Ultra as the index test, a documented reference standard, and 2x2 counts (or back-computable Sens%/Spec% with N+/N-). Two reviewers independently screened, extracted to a structured form (TP/FP/FN/TN, population_age, specimen, reference_standard_specific, prevalence_setting, HIV mix), and applied QUADAS-2 across patient selection, index test, reference standard, and flow-and-timing. Studies were stratified into a primary CT.gov-linked tier and a PubMed-abstract sensitivity tier; both tier-specific and combined-tier estimates are reported. The bivariate model was fit by Reitsma 2005 REML via a Nelder-Mead simplex over the profile log-likelihood (rapidmeta-dta-engine-v1.js), with FE bivariate fallback for k<5 or non-convergence. Per-study sensitivity and specificity CIs are exact Clopper-Pearson; pooled CIs are Wald on the logit scale, back-transformed. Continuity correction (0.5 added to all four cells, conditional on at least one zero cell anywhere in the pool) follows Sweeting 2004. Cross-validation against R mada::reitsma is wired (build-time log + on-demand WebR). Heterogeneity was summarised by tau-squared on logit-Sens and logit-Spec; threshold effect by Spearman correlation between logit(Sens) and logit(1-Spec) per Macaskill 2010. Subgroup interaction tests use Q_between on the logit scale across pre-specified covariate axes.';
+
+        // ===== Results paragraph (LIVE values) =====
+        var k_now = f.k;
+        var resultsParts = [
+          'Of ' + (32 + 390 + 81) + ' raw retrieval hits, ' + k_combined + ' studies met inclusion criteria (' + k_primary + ' CT.gov-linked primary tier; ' + (k_combined - k_primary) + ' PubMed-abstract sensitivity tier).',
+          'In the active (' + currentTier + ') tier (k=' + k_now + '), pooled Sensitivity was ' + pct(f.pooled_sens) + ' ' +
+            pctCI(f.pooled_sens_ci_lb, f.pooled_sens_ci_ub) + ' and pooled Specificity ' +
+            pct(f.pooled_spec) + ' ' + pctCI(f.pooled_spec_ci_lb, f.pooled_spec_ci_ub) +
+            ' (estimator: ' + (f.estimator || 'unknown') + (f.fallback ? '; fallback: ' + f.fallback : '') + ').',
+          'DOR ' + nm(f.dor, 1) + ' (' + nm(f.dor_ci_lb, 1) + '-' + nm(f.dor_ci_ub, 1) + '); LR+ ' +
+            nm(f.lr_pos, 1) + '; LR- ' + nm(f.lr_neg, 2) + '.',
+          'Between-study heterogeneity on the logit scale was tau-sq Sens = ' + nm(f.tau2_sens, 2) +
+            ', tau-sq Spec = ' + nm(f.tau2_spec, 2) + ', rho = ' + nm(f.rho, 2) +
+            '; threshold-effect Spearman = ' + nm(f.threshold_effect_spearman, 2) +
+            ' (' + (f.threshold_effect ? 'detected, |rho|>0.6 — interpret SROC curve as primary summary' : 'not detected') + ').',
+          'Tier divergence: |Sens primary - Sens combined| = ' + nm(divSens, 1) + ' pp; |Spec primary - Spec combined| = ' + nm(divSpec, 1) + ' pp.',
+          (f.coverage_warning ? 'A k<10 coverage warning applies — Wald CIs may under-cover the nominal rate.' : 'k>=10 nominal coverage expected.'),
+          (f.cc_applied ? 'Continuity correction was applied (zero cells present).' : 'No continuity correction was needed.')
+        ];
+        var resultsPara = resultsParts.join(' ');
+
+        // ===== Discussion paragraph =====
+        var discussionFlags = [];
+        if (combinedFit && combinedFit.tau2_sens > 0.5) {
+          discussionFlags.push('high between-study variance on logit-Sens (tau-sq = ' + nm(combinedFit.tau2_sens, 2) + ') driven by inclusion of pediatric and stool-specimen studies, which differ structurally from adult-sputum trials');
+        } else if (combinedFit) {
+          discussionFlags.push('moderate between-study variance on logit-Sens (tau-sq = ' + nm(combinedFit.tau2_sens, 2) + ')');
+        }
+        if (maxDiv > 5) {
+          discussionFlags.push('a primary-vs-combined tier divergence of ' + nm(maxDiv, 1) + ' pp, exceeding the 5pp threshold and indicating the headline summary depends materially on whether PubMed-abstract back-computed studies are included');
+        }
+        if (k_primary < 5) {
+          discussionFlags.push('a k<5 primary-tier limitation that forces the FE bivariate fallback for the CT.gov-linked subset');
+        }
+        discussionFlags.push('reference-standard heterogeneity across five distinct standards (sputum culture LJ/MGIT; Xpert+culture composite; clinical+microbiological composite; clinical+radiological+treatment-response; bacteriologically-confirmed-on-induced-sputum), each with different operating characteristics');
+        var discussionPara = 'Three tensions shape the interpretation of these estimates: ' +
+          discussionFlags.join('; ') +
+          '. The leave-one-out sensitivity table on the Sensitivity tab quantifies single-study influence; the SROC space on the SROC tab visualises the threshold-effect axis. Subgroup analyses on the Subgroups tab support stratified clinical use rather than a single pooled point estimate.';
+
+        // ===== Limitations paragraph =====
+        var limitationsPara = 'Limitations: (i) full-text PubMed retrieval was deferred per the build-time decision; data come from CT.gov registrations and PubMed abstracts only, which limits granularity of subgroup data and may force conservative back-computation of 2x2 cells from reported summary percentages. (ii) Both tiers fall below the spec-defined k>=8 ceiling for headline reliability and trigger the coverage banner. (iii) Five distinct reference standards across five studies prevent a single canonical reference-standard subgroup analysis. (iv) Risk of bias was scored from QUADAS-2 baselines populated from the published abstracts; reviewers may upgrade to full-text-driven judgements in a v1.1 build. (v) PROSPERO registration is deferred to a v1.1 follow-up.';
+
+        // ===== Authorship =====
+        var so1 = loadSignoff('extraction', 1);
+        var so2 = loadSignoff('extraction', 2);
+        function reviewerLine(n, s) {
+          if (s && s.reviewer_name) {
+            return 'Reviewer ' + n + ': ' + escapeHtml(s.reviewer_name) +
+              (s.timestamp ? ' (sign-off: ' + escapeHtml(s.timestamp.slice(0, 10)) + ')' : '');
+          }
+          return 'Reviewer ' + n + ': [name placeholder &mdash; sign off on the Extraction tab to populate]';
+        }
+        var authorshipHTML =
+          '<p class="manuscript-body"><strong>Reviewers and contributions.</strong> ' +
+          reviewerLine(1, so1) + '. ' + reviewerLine(2, so2) + '. ' +
+          'Both reviewers independently screened, extracted, and applied QUADAS-2; disagreements were resolved by consensus. CRediT roles will be assigned at journal submission.</p>' +
+          '<p class="manuscript-body" id="ms-funding-line"><strong>Funding.</strong> <span style="color:#9ca3af;">[Editable: enter funding statement &mdash; toggle Edit mode]</span></p>' +
+          '<p class="manuscript-body" id="ms-coi-line"><strong>Conflict of interest.</strong> <span style="color:#9ca3af;">[Editable: enter COI statement &mdash; toggle Edit mode]</span></p>';
+
+        function copyButton(targetText) {
+          // Encode as data attr (safe via base64 to dodge quoting/HTML)
+          var b64 = btoa(unescape(encodeURIComponent(targetText)));
+          return '<button type="button" class="ms-copy-btn" data-ms-payload="' + b64 + '" title="Copy to clipboard">Copy</button>';
+        }
+
+        return [
+          {
+            id: 'title', title: 'Title',
+            html: '<p class="manuscript-body" style="font-size:1.05rem;font-weight:600;">' + escapeHtml(title) + '</p>',
+            copyText: title
+          },
+          {
+            id: 'abstract', title: 'Abstract',
+            html: absHTML,
+            copyText: absPlain
+          },
+          {
+            id: 'methods', title: 'Methods',
+            html: '<p class="manuscript-body">' + escapeHtml(methodsPara) + '</p>',
+            copyText: methodsPara
+          },
+          {
+            id: 'results', title: 'Results (live from engine)',
+            html: '<p class="manuscript-body">' + escapeHtml(resultsPara) + '</p>',
+            copyText: resultsPara
+          },
+          {
+            id: 'discussion', title: 'Discussion',
+            html: '<p class="manuscript-body">' + escapeHtml(discussionPara) + '</p>',
+            copyText: discussionPara
+          },
+          {
+            id: 'limitations', title: 'Limitations',
+            html: '<p class="manuscript-body">' + escapeHtml(limitationsPara) + '</p>',
+            copyText: limitationsPara
+          },
+          {
+            id: 'authorship', title: 'Authorship, funding, conflict of interest',
+            html: authorshipHTML,
+            copyText: authorshipHTML.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+          }
+        ];
+      }
+
+      function renderManuscript() {
+        var container = document.getElementById('manuscript-container');
+        if (!container) return;
+        var sections = buildManuscriptSections();
+        var html = sections.map(function (s) {
+          var copyBtn = '';
+          if (s.copyText != null) {
+            var b64 = btoa(unescape(encodeURIComponent(s.copyText)));
+            copyBtn = '<button type="button" class="ms-copy-btn" data-ms-payload="' + b64 + '" title="Copy to clipboard">Copy</button>';
+          }
+          return '<div class="manuscript-section" id="ms-section-' + s.id + '">' +
+            '<h3>' + escapeHtml(s.title) + ' ' + copyBtn + '</h3>' +
+            '<div class="manuscript-body">' + s.html + '</div>' +
+            '</div>';
+        }).join('');
+        container.innerHTML = html;
+
+        // Wire copy buttons (idempotent — re-rendered DOM, must always re-wire).
+        var btns = container.querySelectorAll('.ms-copy-btn');
+        btns.forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var b64 = btn.getAttribute('data-ms-payload');
+            var text;
+            try { text = decodeURIComponent(escape(atob(b64))); }
+            catch (e) { text = ''; }
+            var doneOk = function () {
+              btn.classList.add('copied');
+              var orig = btn.textContent;
+              btn.textContent = 'Copied!';
+              setTimeout(function () {
+                btn.classList.remove('copied');
+                btn.textContent = orig;
+              }, 1400);
+            };
+            if (window.navigator && window.navigator.clipboard && window.navigator.clipboard.writeText) {
+              window.navigator.clipboard.writeText(text).then(doneOk, function () {
+                fallbackCopy(text); doneOk();
+              });
+            } else {
+              fallbackCopy(text); doneOk();
+            }
+          });
+        });
+      }
+      function fallbackCopy(text) {
+        var ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+      }
+
+      // ----------- Stale-data banner (feature 4) -----------
+      function renderStaleBanner() {
+        var banner = document.getElementById('stale-banner');
+        var textEl = document.getElementById('stale-banner-text');
+        var btn = document.getElementById('stale-check-btn');
+        if (!banner || !textEl) return;
+
+        // Try to fetch the JSON packs to read extracted_at; fall back to baked-in dates
+        // already known at build-time (2026-04-27). If fetch fails (e.g. file:// w/ CORS),
+        // we still have the build-time date.
+        var BUILT_CTGOV = '2026-04-27';
+        var BUILT_PUBMED = '2026-04-27';
+        var ctgovDate = BUILT_CTGOV, pubmedDate = BUILT_PUBMED;
+
+        function todayStr() {
+          var d = new Date();
+          var y = d.getFullYear();
+          var m = String(d.getMonth() + 1).padStart(2, '0');
+          var dd = String(d.getDate()).padStart(2, '0');
+          return y + '-' + m + '-' + dd;
+        }
+        function ageDays(iso) {
+          if (!iso) return Infinity;
+          var d = new Date(iso + 'T00:00:00Z');
+          if (!isFinite(d.getTime())) return Infinity;
+          var now = new Date();
+          var nowUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+          return Math.round((nowUtc - d) / (1000 * 60 * 60 * 24));
+        }
+        function ageLabel(iso) {
+          var a = ageDays(iso);
+          if (a === 0) return ' (today)';
+          if (a === 1) return ' (1 day ago)';
+          if (a < 90) return ' (' + a + ' days ago)';
+          return ' (' + a + ' days ago — stale, review may need updating)';
+        }
+
+        function paint() {
+          var maxAge = Math.max(ageDays(ctgovDate), ageDays(pubmedDate));
+          banner.classList.toggle('stale-amber', maxAge > 90);
+          textEl.innerHTML = 'Last CT.gov check: <strong>' + escapeHtml(ctgovDate) + '</strong>' + escapeHtml(ageLabel(ctgovDate)) +
+            ' &middot; Last PubMed check: <strong>' + escapeHtml(pubmedDate) + '</strong>' + escapeHtml(ageLabel(pubmedDate));
+        }
+
+        // Async fetch — non-blocking; baked-in dates render immediately.
+        paint();
+        if (typeof fetch === 'function') {
+          fetch('ctgov_genexpert_ultra_pack_2026-04-27.json', { cache: 'no-store' })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (j) {
+              if (j && j.extracted_at) { ctgovDate = j.extracted_at; paint(); }
+            }).catch(function () { /* silent */ });
+          fetch('pubmed_genexpert_ultra_abstracts_2026-04-27.json', { cache: 'no-store' })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (j) {
+              if (j && j.extracted_at) { pubmedDate = j.extracted_at; paint(); }
+            }).catch(function () { /* silent */ });
+        }
+
+        if (btn && !btn._wired) {
+          btn._wired = true;
+          btn.addEventListener('click', function () {
+            var ok = window.confirm(
+              'This is a static review. Re-running the CT.gov / PubMed search would require ' +
+              'running the build script (search → screen → extract → r-validate → publish).\n\n' +
+              'Open the audit log in a new tab? (genexpert_ultra_extraction_audit.md)'
+            );
+            if (ok) {
+              window.open('genexpert_ultra_extraction_audit.md', '_blank', 'noopener');
+            }
+          });
+        }
       }
 
       function renderSubgroups() {
@@ -3348,11 +4180,14 @@
         renderForest(rows, currentFit);
         renderSROC(rows, currentFit);
         renderHeterogeneity(currentFit);
+        renderLeaveOneOut();
         renderSubgroups();
         renderMethods();
         renderReferences();
         renderExtraction();
-        // Wire editable handlers AFTER DOM is updated
+        renderManuscript();
+        // Wire SVG download buttons + editable handlers AFTER DOM is updated
+        wireSvgDownloadButtons(document);
         attachEditHandlers(document);
       }
 
@@ -3459,6 +4294,7 @@
         // Apply localStorage edits to working data BEFORE first render
         applyEditsToData();
         wireAuditBar();
+        renderStaleBanner();
         renderHeadlineBanner();
         renderScreening();
         renderQuadasGrid();
