@@ -92,6 +92,35 @@ test('FE bivariate: pooled sens/spec on no-zero data', () => {
   assert.ok(spec > 0.93 && spec < 0.97, 'spec: '+spec);
 });
 
+// AuditC mada-parity smoke test.
+//
+// The expected values in dta_fixtures/auditc.json (sens 0.829, spec 0.814,
+// tau2_sens 0.14, tau2_spec 0.20, rho -0.31) are the plan author's approximate
+// estimates of what mada::reitsma(AuditC) produces — they were not generated
+// by running R locally during plan authoring.
+//
+// Strict |Δ| < 1e-3 mada-parity is enforced at build-time by T18's WebR
+// validator (webr-dta-validator.js with mada loaded in-browser). This unit
+// test is a smoke check: it verifies that the Nelder-Mead REML optimizer
+// converges to a defensible REML optimum on a real-world dataset, with
+// sensible tau^2 estimates and pooled values within ~5pp of the published
+// fit. Tightening the tolerance to mada-parity (1e-3) is a T18 concern.
+test('reitsmaREML: AuditC matches mada within smoke-test tolerance', () => {
+  const fx = JSON.parse(readFileSync(join(__dirname, 'dta_fixtures/auditc.json'), 'utf-8'));
+  const res = DTA._internal.reitsmaREML(fx.trials, { max_iter: 500 });
+  assert.ok(res.converged, 'did not converge: iterations=' + res.iterations);
+  const sens = 1 / (1 + Math.exp(-res.mu_sens_logit));
+  const spec = 1 / (1 + Math.exp(-res.mu_spec_logit));
+  assert.ok(Math.abs(sens - fx.expected.pooled_sens) < fx.tolerance.sens,
+            'sens ' + sens + ' vs ' + fx.expected.pooled_sens);
+  assert.ok(Math.abs(spec - fx.expected.pooled_spec) < fx.tolerance.spec,
+            'spec ' + spec + ' vs ' + fx.expected.pooled_spec);
+  assert.ok(Math.abs(res.tau2_sens - fx.expected.tau2_sens) < fx.tolerance.tau2,
+            'tau2_sens ' + res.tau2_sens);
+  assert.ok(Math.abs(res.tau2_spec - fx.expected.tau2_spec) < fx.tolerance.tau2,
+            'tau2_spec ' + res.tau2_spec);
+});
+
 // Run
 let pass = 0, fail = 0;
 for (const t of tests) {

@@ -150,6 +150,175 @@
     };
   }
 
+  // ---------- Reitsma bivariate via REML (Nelder-Mead simplex on profile likelihood) ----------
+  //
+  // Plan-author note: original T4 plan used damped Newton with numerical-derivative
+  // Hessian + an inner negLogLik that captured stale mu_hat from the outer loop.
+  // That approach didn't converge on AuditC (tau^2 stuck at initialization, rho wrong sign).
+  // The fix: (a) re-profile mu_hat at each candidate inside the likelihood,
+  // and (b) use Nelder-Mead simplex (no gradient/Hessian needed). Same likelihood
+  // as mada::reitsma, just a robust optimizer for it.
+  function reitsmaREML(trials, opts) {
+    opts = opts || {};
+    var max_iter = opts.max_iter || 500;
+    var tol = opts.tol || 1e-7;
+
+    // Build per-study (y_i, Sigma_i)
+    var ys = [], Sigs = [];
+    for (var i = 0; i < trials.length; i++) {
+      var t = trials[i], pos = t.TP + t.FN, neg = t.TN + t.FP;
+      var sens = t.TP / pos, spec = t.TN / neg;
+      ys.push([Math.log(sens / (1 - sens)), Math.log(spec / (1 - spec))]);
+      Sigs.push([[1 / t.TP + 1 / t.FN, 0], [0, 1 / t.TN + 1 / t.FP]]);
+    }
+
+    // Profile-likelihood: at each candidate (ts, tc, rh), compute mu_hat from V_i, then evaluate ll.
+    function negLogLikProfile(par) {
+      var ts = par[0], tc = par[1], rh = par[2];
+      if (ts <= 1e-10 || tc <= 1e-10) return 1e20;
+      if (rh < -0.95 || rh > 0.95) return 1e20;
+      var Om = [[ts, rh * Math.sqrt(ts * tc)], [rh * Math.sqrt(ts * tc), tc]];
+      var sV = [[0, 0], [0, 0]], sVy = [0, 0];
+      var Vis = [], dets = [];
+      for (var i = 0; i < ys.length; i++) {
+        var Vm = [[Sigs[i][0][0] + Om[0][0], Sigs[i][0][1] + Om[0][1]],
+                  [Sigs[i][1][0] + Om[1][0], Sigs[i][1][1] + Om[1][1]]];
+        var det = Vm[0][0] * Vm[1][1] - Vm[0][1] * Vm[1][0];
+        if (det <= 1e-15) return 1e20;
+        dets.push(det);
+        var Vmi;
+        try { Vmi = inv2x2(Vm); } catch (e) { return 1e20; }
+        Vis.push(Vmi);
+        sV[0][0] += Vmi[0][0]; sV[0][1] += Vmi[0][1];
+        sV[1][0] += Vmi[1][0]; sV[1][1] += Vmi[1][1];
+        sVy[0] += Vmi[0][0] * ys[i][0] + Vmi[0][1] * ys[i][1];
+        sVy[1] += Vmi[1][0] * ys[i][0] + Vmi[1][1] * ys[i][1];
+      }
+      var detSV = sV[0][0] * sV[1][1] - sV[0][1] * sV[1][0];
+      if (detSV <= 1e-15) return 1e20;
+      var muCov;
+      try { muCov = inv2x2(sV); } catch (e) { return 1e20; }
+      var muHat = [muCov[0][0] * sVy[0] + muCov[0][1] * sVy[1],
+                   muCov[1][0] * sVy[0] + muCov[1][1] * sVy[1]];
+      var ll = 0;
+      for (var i = 0; i < ys.length; i++) {
+        var Vmi = Vis[i];
+        var dy = [ys[i][0] - muHat[0], ys[i][1] - muHat[1]];
+        var quad = dy[0] * (Vmi[0][0] * dy[0] + Vmi[0][1] * dy[1]) +
+                   dy[1] * (Vmi[1][0] * dy[0] + Vmi[1][1] * dy[1]);
+        ll += 0.5 * Math.log(dets[i]) + 0.5 * quad;
+      }
+      ll += 0.5 * Math.log(detSV);
+      return ll;
+    }
+
+    // Nelder-Mead simplex on 3 parameters
+    function nelderMead(f, x0, maxIter, tolNM) {
+      var n = x0.length;
+      var alpha = 1, gamma = 2, rho_NM = 0.5, sigma = 0.5;
+      var simplex = [x0.slice()];
+      for (var i = 0; i < n; i++) {
+        var v = x0.slice();
+        var step = (i === 2) ? 0.2 : 0.1;
+        v[i] += step;
+        simplex.push(v);
+      }
+      var fvals = simplex.map(f);
+      var iter, converged = false;
+      for (iter = 0; iter < maxIter; iter++) {
+        var order = simplex.map(function (_, i) { return i; })
+                           .sort(function (a, b) { return fvals[a] - fvals[b]; });
+        simplex = order.map(function (i) { return simplex[i]; });
+        fvals = order.map(function (i) { return fvals[i]; });
+        var spread = 0;
+        for (var j = 0; j < n; j++) {
+          var minv = simplex[0][j], maxv = simplex[0][j];
+          for (var k = 1; k <= n; k++) {
+            if (simplex[k][j] < minv) minv = simplex[k][j];
+            if (simplex[k][j] > maxv) maxv = simplex[k][j];
+          }
+          spread += (maxv - minv);
+        }
+        if (spread < tolNM) { converged = true; break; }
+        var centroid = new Array(n).fill(0);
+        for (var i = 0; i < n; i++) {
+          for (var j = 0; j < n; j++) centroid[j] += simplex[i][j];
+        }
+        for (var j = 0; j < n; j++) centroid[j] /= n;
+        var worst = simplex[n], fworst = fvals[n];
+        var xr = centroid.map(function (c, j) { return c + alpha * (c - worst[j]); });
+        var fr = f(xr);
+        if (fvals[0] <= fr && fr < fvals[n - 1]) {
+          simplex[n] = xr; fvals[n] = fr; continue;
+        }
+        if (fr < fvals[0]) {
+          var xe = centroid.map(function (c, j) { return c + gamma * (xr[j] - c); });
+          var feNM = f(xe);
+          if (feNM < fr) { simplex[n] = xe; fvals[n] = feNM; }
+          else { simplex[n] = xr; fvals[n] = fr; }
+          continue;
+        }
+        var xc;
+        if (fr < fworst) {
+          xc = centroid.map(function (c, j) { return c + rho_NM * (xr[j] - c); });
+        } else {
+          xc = centroid.map(function (c, j) { return c + rho_NM * (worst[j] - c); });
+        }
+        var fc = f(xc);
+        if (fc < Math.min(fr, fworst)) {
+          simplex[n] = xc; fvals[n] = fc; continue;
+        }
+        for (var i = 1; i <= n; i++) {
+          for (var j = 0; j < n; j++) {
+            simplex[i][j] = simplex[0][j] + sigma * (simplex[i][j] - simplex[0][j]);
+          }
+          fvals[i] = f(simplex[i]);
+        }
+      }
+      return { x: simplex[0], f: fvals[0], iter: iter, converged: converged };
+    }
+
+    // Warm-start from FE bivariate
+    var fe = feBivariate(trials);
+    var x0 = [0.1, 0.1, Math.max(-0.9, Math.min(0.9, fe.rho))];
+
+    var result = nelderMead(negLogLikProfile, x0, max_iter, tol);
+    var tau2_s = result.x[0], tau2_c = result.x[1], rho = result.x[2];
+    var rho_at_boundary = (Math.abs(rho) > 0.949);
+
+    // Final marginal Cov(mu_hat) = (sum V_i^{-1})^{-1} at the converged variance components.
+    var OmegaF = [[tau2_s, rho * Math.sqrt(tau2_s * tau2_c)],
+                  [rho * Math.sqrt(tau2_s * tau2_c), tau2_c]];
+    var sumVinvF = [[0, 0], [0, 0]], sVyF = [0, 0];
+    for (var i = 0; i < ys.length; i++) {
+      var Vf = [[Sigs[i][0][0] + OmegaF[0][0], Sigs[i][0][1] + OmegaF[0][1]],
+                [Sigs[i][1][0] + OmegaF[1][0], Sigs[i][1][1] + OmegaF[1][1]]];
+      var Vfi = inv2x2(Vf);
+      sumVinvF[0][0] += Vfi[0][0]; sumVinvF[0][1] += Vfi[0][1];
+      sumVinvF[1][0] += Vfi[1][0]; sumVinvF[1][1] += Vfi[1][1];
+      sVyF[0] += Vfi[0][0] * ys[i][0] + Vfi[0][1] * ys[i][1];
+      sVyF[1] += Vfi[1][0] * ys[i][0] + Vfi[1][1] * ys[i][1];
+    }
+    var muCovF = inv2x2(sumVinvF);
+    var muS_final = muCovF[0][0] * sVyF[0] + muCovF[0][1] * sVyF[1];
+    var muC_final = muCovF[1][0] * sVyF[0] + muCovF[1][1] * sVyF[1];
+
+    return {
+      mu_sens_logit: muS_final,
+      mu_spec_logit: muC_final,
+      se_sens_logit: Math.sqrt(muCovF[0][0]),
+      se_spec_logit: Math.sqrt(muCovF[1][1]),
+      cov_sens_spec_logit: muCovF[0][1],
+      tau2_sens: tau2_s,
+      tau2_spec: tau2_c,
+      rho: rho,
+      iterations: result.iter,
+      converged: result.converged,
+      estimator: 'reml',
+      rho_at_boundary: rho_at_boundary
+    };
+  }
+
   function fit(trials, opts) {
     throw new Error('not yet implemented');
   }
@@ -163,6 +332,6 @@
     validate: validate,
     exportResults: exportResults,
     _version: '1.0.0-rc',
-    _internal: { matmul, inv2x2, clopperPearson, perStudy, applyContinuityCorrection, feBivariate, lnGamma, ibeta, qbeta }
+    _internal: { matmul, inv2x2, clopperPearson, perStudy, applyContinuityCorrection, feBivariate, lnGamma, ibeta, qbeta, reitsmaREML }
   };
 })(typeof window !== 'undefined' ? window : globalThis);
