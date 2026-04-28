@@ -9923,6 +9923,21 @@ const ContinuousMDEngine = {
             },
 
 
+            // Non-inferiority margin + favourability overlay for the headline forest
+            // plot. nAMD pivotal trials (TENAYA, LUCERNE) prespecified -4 ETDRS letters.
+            // Sign convention: contrast is faricimab - aflibercept, so negative values
+            // favour aflibercept; positive values favour faricimab. Return null to
+            // suppress the overlay (non-NI reviews).
+            continuousNIMargin(outcomeKey) {
+                const map = {
+                    default: { value: -4, favoursLeft: 'aflibercept', favoursRight: 'faricimab' },
+                    MACE:    { value: -4, favoursLeft: 'aflibercept', favoursRight: 'faricimab' },
+                    BCVA:    { value: -4, favoursLeft: 'aflibercept', favoursRight: 'faricimab' },
+                };
+                return map[outcomeKey] ?? null;
+            },
+
+
             outcomeLabel(key) {
 
 
@@ -39221,13 +39236,40 @@ print(res_sub)`;
                     hovertext: hoverTexts, hoverinfo: 'text'
                 };
 
+                // NI-margin overlay for non-inferiority continuous outcomes (e.g. nAMD
+                // BCVA where the protocol-specified margin is -4 letters, TENAYA/LUCERNE
+                // and PULSAR/PHOTON convention). Returns null to suppress when not
+                // applicable. Override per dashboard via RapidMeta.continuousNIMargin.
+                const _niMargin = (typeof RapidMeta.continuousNIMargin === 'function')
+                    ? RapidMeta.continuousNIMargin(_selOutcome)
+                    : null;
+                const _shapes = [
+                    { type: 'line', x0: 0, x1: 0, y0: -0.5, y1: yLabels.length - 0.5, line: { color: '#ef4444', width: 1.5, dash: 'dot' } }
+                ];
+                if (_niMargin && Number.isFinite(_niMargin.value)) {
+                    _shapes.push({ type: 'line', x0: _niMargin.value, x1: _niMargin.value, y0: -0.5, y1: yLabels.length - 0.5, line: { color: '#f59e0b', width: 1.5, dash: 'dash' } });
+                    annotations.push({
+                        x: _niMargin.value, y: -0.5, yanchor: 'bottom',
+                        text: 'NI margin (' + _niMargin.value + ')',
+                        showarrow: false,
+                        font: { size: 9, color: '#f59e0b', family: 'JetBrains Mono' }
+                    });
+                }
+                // Favourability annotations under the x-axis (paper-coordinates).
+                if (_niMargin && _niMargin.favoursLeft && _niMargin.favoursRight) {
+                    annotations.push(
+                        { xref: 'paper', yref: 'paper', x: 0.0, y: -0.16, xanchor: 'left',  text: '← favours ' + _niMargin.favoursLeft,  showarrow: false, font: { size: 9, color: '#94a3b8' } },
+                        { xref: 'paper', yref: 'paper', x: 1.0, y: -0.16, xanchor: 'right', text: 'favours ' + _niMargin.favoursRight + ' →', showarrow: false, font: { size: 9, color: '#94a3b8' } }
+                    );
+                }
+
                 const layout = {
                     paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
                     xaxis: { title: _outcomeLabel + ' (' + ciPct + '% CI)', gridcolor: '#1e293b', color: '#94a3b8', zeroline: false },
                     yaxis: { gridcolor: '#1e293b', color: '#94a3b8', autorange: 'reversed' },
                     font: { color: '#94a3b8', size: 10 },
-                    margin: { t: 10, b: 50, l: 160, r: 200 },
-                    shapes: [{ type: 'line', x0: 0, x1: 0, y0: -0.5, y1: yLabels.length - 0.5, line: { color: '#ef4444', width: 1.5, dash: 'dot' } }],
+                    margin: { t: 10, b: 70, l: 160, r: 200 },
+                    shapes: _shapes,
                     annotations: annotations,
                     showlegend: false
                 };
