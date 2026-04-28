@@ -140,3 +140,44 @@ caveat, plus Plain-language PPI improvements). Two new DOIs introduced; both res
   - `10.7326/M21-2625` → "Safety and Efficiency of Diagnostic Strategies for Ruling Out Pulmonary Embolism in Clinically Relevant Patient Subgroups", *Annals of Internal Medicine*, 2022-02, first authors Stals M, Takada T, Kraaijpoel N. Matches the in-page rendered citation.
 - **PMID for Stals 2022 (34904857)** also rendered alongside the DOI; not separately re-verified in this round but the citation cluster (PMID + DOI + author surnames + journal + year + page numbers) is internally consistent and the DOI matches.
 - **Pre-existing `10.7326/M16-0676` (van Es 2017) and `10.7326/M16-1718` (Kearon 2017)** previously flagged 404 in Section A round remain flagged; not addressed in this round (out of scope).
+
+---
+
+## mpMRI prostate Path-B (2026-04-28, after Section A residue + B substantive + C PPI polish)
+
+Round triggered by Path-B-equivalent polish on `MPMRI_PROSTATE_DTA_REVIEW.html` mirroring
+the D-dimer Section A + B+C pattern (commits `52c66fb` + `a8571a8`). Adds Drost 2020
++ Oerther 2022 substantive comparators, plus Whiting 2011 QUADAS-2, Sweeting 2004 CC-bias
+caveat, and Dendukuri 2012 imperfect-reference deferral references. All 5 new DOIs
+checked via doi.org HEAD with browser UA and Crossref `/works/<DOI>/agency` registration
+endpoint.
+
+| #  | DOI                                       | Plain HEAD | UA HEAD | Crossref     | Verdict       | Source                                      |
+|----|-------------------------------------------|-----------:|--------:|:------------:|:-------------:|:--------------------------------------------|
+| 18 | 10.1016/j.eururo.2019.06.023              |        302 |     200 | ok           | resolves      | Drost 2020 (Eur Urol Cochrane DTA review)  |
+| 19 | 10.1038/s41391-021-00417-1                |        302 |     200 | ok           | resolves      | Oerther 2022 (Prostate Cancer Prostatic Dis PI-RADSv2.1 CDR meta) |
+| 20 | 10.7326/0003-4819-155-8-201110180-00009   |        302 |     200 | ok           | resolves      | Whiting 2011 (QUADAS-2, Ann Intern Med)   |
+| 21 | 10.1002/sim.1761                          |        302 |     200 | ok           | resolves      | Sweeting 2004 (Stat Med, continuity correction bias) |
+| 22 | 10.1111/j.1541-0420.2012.01773.x          |        302 |     200 | ok           | resolves      | Dendukuri 2012 (Biometrics, latent-class for imperfect reference) |
+
+### mpMRI Path-B round summary
+
+- **Resolved:** 5/5 (all via UA HEAD, all Crossref-registered)
+- **Broken:** 0
+- **Crossref metadata cross-check (sanity, not full audit):**
+  - `10.1016/j.eururo.2019.06.023` -> "Prostate Magnetic Resonance Imaging, with or Without
+    Magnetic Resonance Imaging-targeted Biopsy, and Systematic Biopsy for Detecting Prostate
+    Cancer: A Cochrane Systematic Review and Meta-analysis", *European Urology*, 2020,
+    first authors Drost, Osses, Nieboer, Bangma, Steyerberg. Matches the in-page citation.
+  - `10.1038/s41391-021-00417-1` -> "Cancer detection rates of the PI-RADSv2.1 assessment
+    categories: systematic review and meta-analysis on lesion level and patient level",
+    *Prostate Cancer and Prostatic Diseases*, 2022, first authors Oerther, Engel, Bamberg,
+    Sigle, Gratzke. Matches the in-page citation. (Note: brief mentioned 2024
+    Radiology article; the actual cited Oerther meta-analysis is 2022 PCPD - the title
+    in the brief was indicative not exact, and the cited paper is the canonical
+    PI-RADSv2.1 patient+lesion-level meta-analysis. Year/title in HTML matches Crossref.)
+  - Whiting 2011, Sweeting 2004, and Dendukuri 2012 are well-known methodology refs;
+    metadata verified by Crossref to match HTML rendering.
+- **No automated DOI substitution was performed.** All 5 new DOIs were drafted from
+  human-recalled metadata and then verified.
+
