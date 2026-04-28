@@ -1260,6 +1260,8 @@
       "FP": 1832,
       "FN": 10,
       "TN": 1177,
+      "n_excluded": 1651,
+      "vte_at_3mo": 7,
       "prevalence_setting": "ED_outpatient_suspected_PE",
       "test_brand": "VIDAS / Innovance / STA-Liatest (mixed across 12 centres)",
       "population_setting": "ED_outpatient",
@@ -1287,6 +1289,8 @@
       "FP": 1420,
       "FN": 3,
       "TN": 1290,
+      "n_excluded": 331,
+      "vte_at_3mo": 1,
       "prevalence_setting": "ED_outpatient_suspected_PE",
       "test_brand": "VIDAS D-Dimer Exclusion (bioMerieux)",
       "population_setting": "ED_outpatient",
@@ -1314,6 +1318,8 @@
       "FP": 543,
       "FN": 0,
       "TN": 1325,
+      "n_excluded": 1325,
+      "vte_at_3mo": 0,
       "prevalence_setting": "ED_outpatient_suspected_PE",
       "test_brand": "STA-Liatest D-Di / VIDAS / Innovance (varied)",
       "population_setting": "ED_outpatient",
@@ -1342,6 +1348,8 @@
       "FP": 768,
       "FN": 4,
       "TN": 660,
+      "n_excluded": 660,
+      "vte_at_3mo": 5,
       "prevalence_setting": "ED_outpatient_suspected_PE",
       "test_brand": "VIDAS / Innovance / STA-Liatest (multinational)",
       "population_setting": "ED_outpatient",
@@ -1369,6 +1377,8 @@
       "FP": 1430,
       "FN": 10,
       "TN": 1011,
+      "n_excluded": 1028,
+      "vte_at_3mo": 5,
       "prevalence_setting": "ED_outpatient_suspected_PE",
       "test_brand": "VIDAS / Tina-quant / STA-Liatest",
       "population_setting": "ED_outpatient",
@@ -1398,6 +1408,8 @@
       "FP": 295,
       "FN": 1,
       "TN": 207,
+      "n_excluded": 207,
+      "vte_at_3mo": 1,
       "prevalence_setting": "primary_care_and_ED_outpatient_suspected_PE",
       "test_brand": "Innovance / STA-Liatest (per local lab)",
       "population_setting": "primary_care_plus_ED",
@@ -1494,8 +1506,14 @@
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:0.9rem;margin-bottom:1.25rem;">
         <div style="background:#ffffff;border:1px solid #e5e7eb;border-left:4px solid #1d4ed8;border-radius:0.375rem;padding:0.9rem;">
           <h3 style="font-size:1rem;color:#1e3a8a;margin:0 0 0.5rem;">What this review is about</h3>
-          <p style="font-size:0.92rem;color:#374151;margin:0;line-height:1.5;">
+          <p style="font-size:0.92rem;color:#374151;margin:0 0 0.5rem;line-height:1.5;">
             D-dimer is a blood test that measures fragments left over when the body breaks down a blood clot. In emergency departments it is used to help decide whether a patient with chest pain or breathlessness needs a CT scan of the lungs (CT pulmonary angiogram, CTPA) to look for a pulmonary embolism (a clot in the lung). The headline use is as a <strong>rule-out test</strong>: a negative D-dimer in a patient with low or moderate clinical probability lets the clinician safely send the patient home without the CT scan. Different cutoff strategies exist &mdash; a fixed 500 ng/mL cutoff, an age-adjusted cutoff (10 &times; age in years for patients over 50), and decision-rule-conditional cutoffs (YEARS, PEGeD).
+          </p>
+          <p class="gloss" style="font-size:0.85rem;color:#4b5563;margin:0 0 0.4rem;line-height:1.45;font-style:italic;">
+            <strong>Wells score:</strong> a checklist your ED clinician fills in (points for a swollen calf, fast heart rate, recent surgery, prior clot, and similar features) that estimates your probability of a pulmonary embolism <em>before</em> any blood test or scan. Low / moderate / high probability changes which pathway you go on.
+          </p>
+          <p style="font-size:0.85rem;color:#4b5563;margin:0;line-height:1.45;">
+            <strong>Where this review fits in your ED journey.</strong> If your ED clinician judged you <em>high</em>-probability for PE (high Wells / Geneva score, suggestive imaging, or hemodynamic instability), you would have gone directly to a CT scan and skipped the D-dimer step &mdash; this review does not address that pathway. The findings here apply to the low- and moderate-probability adult outpatients for whom D-dimer is the next step after the Wells / Geneva score.
           </p>
         </div>
         <div style="background:#ffffff;border:1px solid #e5e7eb;border-left:4px solid #1d4ed8;border-radius:0.375rem;padding:0.9rem;">
@@ -1522,8 +1540,12 @@
 
       <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:0.375rem;padding:0.9rem;margin-bottom:1.25rem;">
         <h3 style="font-size:1rem;color:#1e40af;margin:0 0 0.5rem;">What this means for you</h3>
+        <p id="pl-bottom-line" style="font-size:0.95rem;color:#1e3a8a;margin:0 0 0.6rem;line-height:1.55;font-weight:500;">
+          <!-- Filled by renderPlainLanguageSafety() at refit() — leads with the 3-month VTE failure-rate. -->
+          The bottom line: across the included studies, fewer than 1 in 100 patients sent home with a negative D-dimer and a low / moderate Wells score had a clot diagnosed in the next 3 months.
+        </p>
         <p style="font-size:0.92rem;color:#374151;margin:0 0 0.5rem;line-height:1.5;">
-          A <strong>negative</strong> D-dimer (below the chosen cutoff) in a patient with low or moderate Wells / Geneva clinical probability is enough to safely rule out PE without a CTPA. The 3-month rate of missed VTE in this group is consistently below 1% across the included studies (YEARS: 0.43%; ADJUST-PE: 0.3%; PEGeD-Kearon: 0.0%; ADJUST-validation: 0.7%; Christopher: 0.5%).
+          A <strong>negative</strong> D-dimer (below the chosen cutoff) in a patient with low or moderate Wells / Geneva clinical probability is enough to safely rule out PE without a CTPA. Per-study 3-month VTE rates: YEARS 0.43%, ADJUST-PE 0.3%, PEGeD-Kearon 0.0%, ADJUST-validation 0.7%, Christopher 0.5%, Theunissen 0.4%.
         </p>
         <p style="font-size:0.92rem;color:#374151;margin:0;line-height:1.5;">
           A <strong>positive</strong> D-dimer (or any D-dimer in a patient with high clinical probability) means the patient should have a CTPA &mdash; about half of these will still be negative for PE because D-dimer is elevated in many non-PE conditions. D-dimer is a rule-out test, not a rule-in diagnostic.
@@ -1536,7 +1558,8 @@
           <li><strong>Sensitivity at or near 100% is a structural property of management-outcome studies</strong>, not a noise artifact. The 3-month-VTE endpoint, combined with anticoagulation of imaging-positive patients, suppresses the false-negative count. The Subgroups tab exposes the cutoff_strategy axis where this is honestly documented.</li>
           <li>Specificity varies from 39% (YEARS-conditional) up to 71% (PEGeD graduated) across cutoff strategies &mdash; a more-than-30-percentage-point spread driven by which cutoff is used, not by underlying biology. Pick the cutoff that matches local practice when interpreting the headline.</li>
           <li>Data came from study abstracts only, not the full papers; back-computed 2&times;2 cells used reported Sens/Spec and prevalence.</li>
-          <li>This review excludes pregnancy / postpartum and active-cancer cohorts by design (different cutoff considerations); also excludes high-pretest-probability patients (D-dimer is not first-line in this group).</li>
+          <li><strong>If you are pregnant, recently postpartum, or have active cancer</strong>, your baseline D-dimer is naturally elevated &mdash; pregnancy raises D-dimer through normal placental and uterine remodeling, and many cancers (especially metastatic and pancreatic, lung, ovarian, and gastric tumours) raise D-dimer through tumour-related coagulation activation. As a result the standard 500 ng/mL cutoff would call almost everyone "positive" and the rule-out test loses most of its discriminating power. <strong>These results do not apply to you</strong>, and your clinician will use a different pathway: the pregnancy-adapted YEARS algorithm or direct CTPA imaging with abdominal shielding for pregnancy; a specialised thrombosis-service consultation (often with direct CTPA or a higher D-dimer cutoff) for active cancer.</li>
+          <li>This review also excludes high-pretest-probability patients (D-dimer is not first-line in this group; the ED pathway goes straight to CTPA).</li>
         </ul>
       </div>
 
@@ -1685,6 +1708,92 @@
 
       <div class="banner banner-amber">
         <strong>Note on full-text exclusion:</strong> Per user instruction, full-text PubMed retrieval was not performed; all data come from PubMed abstracts only. This is conservative &mdash; full-text would yield direct cell counts for the Wells-stratified subgroups, age-adjusted vs fixed-500 head-to-head numbers within the same cohort (ADJUST-PE), and assay-by-assay (VIDAS / Innovance / STA-Liatest) per-centre breakdowns. A v1.1 build could swap to full-text extraction with explicit consent.
+      </div>
+
+      <!-- B3: PRISMA-DTA flow diagram (pure HTML/CSS, no images). -->
+      <h3 class="subsection-title" style="margin-top:1.5rem;">PRISMA-DTA flow diagram</h3>
+      <p style="font-size:0.85rem;color:#4b5563;margin:0 0 0.75rem;">
+        Identification &rarr; screening &rarr; eligibility &rarr; inclusion. Counts derive from the search records above; categorised exclusions are detailed in the Screening tab.
+      </p>
+      <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1.25rem;margin-bottom:1.5rem;">
+        <div class="prisma-row">
+          <div class="prisma-box prisma-source">
+            <div class="prisma-label">Records identified — CT.gov</div>
+            <div class="prisma-num">~244</div>
+            <div class="prisma-sub">(0 with posted 2&times;2 panels)</div>
+          </div>
+          <div class="prisma-plus">+</div>
+          <div class="prisma-box prisma-source">
+            <div class="prisma-label">Records identified — PubMed</div>
+            <div class="prisma-num">412 + 158 = ~570</div>
+            <div class="prisma-sub">(two queries; primary + cutoff-strategy)</div>
+          </div>
+        </div>
+        <div class="prisma-arrow" aria-hidden="true">&darr;</div>
+        <div class="prisma-row">
+          <div class="prisma-box prisma-stage">
+            <div class="prisma-label">Total raw hits</div>
+            <div class="prisma-num">~814</div>
+            <div class="prisma-sub">CT.gov + PubMed before de-duplication</div>
+          </div>
+        </div>
+        <div class="prisma-arrow" aria-hidden="true">&darr;</div>
+        <div class="prisma-row">
+          <div class="prisma-box prisma-stage">
+            <div class="prisma-label">After de-duplication</div>
+            <div class="prisma-num">~770</div>
+            <div class="prisma-sub">~5% overlap removed (estimate)</div>
+          </div>
+        </div>
+        <div class="prisma-arrow" aria-hidden="true">&darr;</div>
+        <div class="prisma-row">
+          <div class="prisma-box prisma-stage">
+            <div class="prisma-label">Title / abstract screened</div>
+            <div class="prisma-num">30</div>
+            <div class="prisma-sub">relevance-ranked top fetches</div>
+          </div>
+        </div>
+        <div class="prisma-arrow" aria-hidden="true">&darr;</div>
+        <div class="prisma-row">
+          <div class="prisma-box prisma-stage">
+            <div class="prisma-label">Full-text assessed for eligibility</div>
+            <div class="prisma-num">~11</div>
+            <div class="prisma-sub">6 included + ~5 excluded with reasons</div>
+          </div>
+          <div class="prisma-plus">&rarr;</div>
+          <div class="prisma-box prisma-excluded">
+            <div class="prisma-label">Excluded with reasons</div>
+            <div class="prisma-num">~5+</div>
+            <div class="prisma-sub" style="font-size:0.7rem;line-height:1.3;text-align:left;">
+              &middot; Meta-analyses / IPD-MA (cite primaries instead): Crawford 2016, Stals 2022, van Es 2017<br>
+              &middot; PERC-rule (different decision point upstream of D-dimer): Freund 2018 PROPER<br>
+              &middot; Derivation cohort (validation included instead): Kearon 2017 PEGeD derivation<br>
+              &middot; Methodology-only papers (no 2&times;2 reportable)<br>
+              &middot; Pregnancy / cancer-cohort-only (different cutoff considerations &mdash; out of population)
+            </div>
+          </div>
+        </div>
+        <div class="prisma-arrow" aria-hidden="true">&darr;</div>
+        <div class="prisma-row">
+          <div class="prisma-box prisma-included">
+            <div class="prisma-label">Included in synthesis</div>
+            <div class="prisma-num">6 studies</div>
+            <div class="prisma-sub">5 primary tier + 1 sensitivity tier</div>
+          </div>
+        </div>
+        <div class="prisma-arrow" aria-hidden="true">&darr;</div>
+        <div class="prisma-row">
+          <div class="prisma-box prisma-tier">
+            <div class="prisma-label">Primary tier (k=5)</div>
+            <div class="prisma-num">YEARS, ADJUST-PE, PEGeD, ADJUST-validation, Christopher</div>
+          </div>
+          <div class="prisma-plus">+</div>
+          <div class="prisma-box prisma-tier">
+            <div class="prisma-label">Sensitivity tier (k=1)</div>
+            <div class="prisma-num">Theunissen 2017</div>
+            <div class="prisma-sub">single-centre primary-care + ED</div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1916,6 +2025,37 @@
     <!-- ===================== Summary tab (7) ===================== -->
     <section id="tab-summary" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-summary">
       <h2 class="section-title">Pooled summary</h2>
+
+      <!-- B4: Per-strategy headline cards (PRIMARY) — one card per pre-specified rule-out strategy.
+           Each card calls DTA.fit() on that strategy's subset only, so the headline reflects the actual
+           clinical decision (fixed-500 vs age-adjusted vs YEARS-conditional vs PEGeD-graduated) instead
+           of pooling 4 distinct strategies as if they were one test (Macaskill 2010 §10.4 violation). -->
+      <h3 class="subsection-title" style="margin-top:0.25rem;">Per-strategy headline (primary)</h3>
+      <p style="font-size:0.85rem;color:#374151;margin:0 0 0.75rem;">
+        Each rule-out strategy is fit independently. For k=1 strategies (YEARS, PEGeD-graduated) the engine reports per-axis Clopper&ndash;Pearson exact CIs (single-study); for k=2 strategies (fixed-500, age-adjusted) the engine falls back to the FE bivariate. Use these per-strategy estimates for clinical interpretation.
+      </p>
+      <div id="per-strategy-cards" style="margin-bottom:1.25rem;"></div>
+
+      <!-- B1: Clinical-safety metric — pooled 3-month VTE failure rate among ruled-out patients.
+           Random-effects logit DerSimonian-Laird with one-sided 97.5% UCL vs 1.85% safety
+           threshold (Schouten 2013 / van Es 2017). This is THE clinically-relevant rule-out metric. -->
+      <h3 class="subsection-title">Clinical safety: 3-month VTE failure rate</h3>
+      <p style="font-size:0.85rem;color:#374151;margin:0 0 0.75rem;">
+        Random-effects pooled rate of symptomatic VTE within 3 months among patients ruled out by the strategy in the active tier (logit DerSimonian&ndash;Laird). The PASS/FAIL chip compares the one-sided 97.5% upper confidence limit against the 1.85% safety threshold (Schouten 2013 / van Es 2017 / 2019 ESC PE Guidelines).
+      </p>
+      <div class="metric-grid" style="grid-template-columns:1fr;margin-bottom:1.5rem;">
+        <div class="metric-card" id="failure-rate-card" style="background:#f0fdf4;border-color:#86efac;border-left:4px solid #10b981;">
+          <div class="metric-label">3-month VTE failure rate (rule-out safety)</div>
+          <div class="metric-value" id="failure-rate-value">&mdash;</div>
+          <div class="metric-ci" id="failure-rate-ci">&mdash;</div>
+          <div id="failure-rate-benchmark" style="font-size:0.78rem;margin-top:0.5rem;color:#047857;"></div>
+        </div>
+      </div>
+
+      <h3 class="subsection-title">Pooled bivariate (engine demonstration only)</h3>
+      <p style="font-size:0.85rem;color:#374151;margin:0 0 0.75rem;">
+        <strong style="color:#b45309;">&#9888; Engine demonstration only.</strong> The k=5/k=6 pooled bivariate Sens/Spec below pools four distinct rule-out strategies (fixed-500, age-adjusted, YEARS-conditional, PEGeD-graduated) as if they were one diagnostic test (Macaskill 2010 <em>Cochrane DTA Handbook</em> &sect;10.4 violation). Use the per-strategy cards above for clinical interpretation; the pooled estimate exists to demonstrate the engine.
+      </p>
 
       <div class="metric-grid">
         <div class="metric-card">
@@ -2201,14 +2341,22 @@
       <h2 class="section-title">Methods</h2>
       <div id="methods-engine" style="margin-bottom:1.5rem;"></div>
 
+      <h3 class="subsection-title">Substantive comparators (this review defers to)</h3>
+      <p style="font-size:0.9rem;color:#374151;margin:0 0 1.5rem;">
+        This k=5 review uses D-dimer / pulmonary-embolism rule-out as a worked methodological example for the RapidMeta DTA engine; the substantive evidence base is <strong>Crawford et al. 2016</strong> (Cochrane DTA review of D-dimer for excluding PE, ~40 D-dimer/PE primary studies, CD010864; <a class="external-link" href="https://doi.org/10.1002/14651858.CD010864.pub2" target="_blank" rel="noopener">DOI: 10.1002/14651858.CD010864.pub2</a>) and <strong>Stals et al. 2022</strong> (individual-patient-data meta-analysis across 14 prospective cohorts, n=14,896 patients; <em>Ann Intern Med</em> 175:244&ndash;255; <a class="external-link" href="https://doi.org/10.7326/M21-2625" target="_blank" rel="noopener">DOI: 10.7326/M21-2625</a>). The earlier <strong>van Es 2017</strong> Wells-and-D-dimer IPD-MA (k=11 cohorts, n=14,256) is the canonical safety-threshold reference (post-rule-out 3-month VTE one-sided 97.5% UCL &lt;1.85%; threshold from Schouten 2013). Quantitative interpretation should defer to those references; the present review's contribution is methodological transparency, edit-mode auditability, and engine validation.
+      </p>
+
       <h3 class="subsection-title">Reference standard &mdash; differential verification bias</h3>
       <p style="font-size:0.9rem;color:#374151;margin:0 0 1.5rem;">
         <strong>Differential verification bias.</strong> All five primary-tier studies (and the Theunissen 2017 sensitivity-tier study) use a composite reference standard: CTPA at presentation for D-dimer-positive patients (or those whose pre-test probability or rule-output requires imaging) OR 3-month clinical follow-up for VTE outcomes among D-dimer-negative patients managed without imaging. Per QUADAS-2 (Whiting 2011), this constitutes <em>differential verification</em> &mdash; the reference standard differs by index-test result &mdash; and Q3.2 ("Were the reference standard results interpreted without knowledge of the index test?") must therefore be answered "No". Following Macaskill 2010 (Cochrane DTA Handbook &sect;10.4), this design is recognised as the canonical management-outcome approach for rule-out tests but does inflate apparent sensitivity and is recorded as <strong>High Risk of Bias</strong> on the Reference Standard QUADAS-2 domain across all six studies. The composite is also imperfect: CTPA misses subsegmental PE (~83% sensitivity vs digital subtraction angiography); 3-month follow-up misses asymptomatic non-fatal PE. Bayesian latent-class meta-analysis (Dendukuri 2012, <em>Biometrics</em> 68:1285) is the formal handling for imperfect references and is deferred to v1.2.
       </p>
 
       <h3 class="subsection-title">Continuity-correction policy</h3>
-      <p style="font-size:0.9rem;color:#374151;margin:0 0 1.5rem;">
+      <p style="font-size:0.9rem;color:#374151;margin:0 0 1rem;">
         Conditional 0.5 added to all four cells of every study, and only when at least one cell of any study in the pool is zero. Unconditional correction biases the diagnostic odds ratio toward the null (Sweeting 2004) and is therefore not used here.
+      </p>
+      <p style="font-size:0.9rem;color:#374151;margin:0 0 1.5rem;background:#fef3c7;border-left:4px solid #d97706;padding:0.75rem;">
+        <strong>Continuity-correction bias-toward-null caveat (B6).</strong> When PEGeD&minus;Kearon's FN=0 fires the zero-cell trigger, the engine adds 0.5 to all four cells in <em>every</em> study in the pool. Because the pooled Sensitivity is structurally near 100% (a property of management-outcome rule-out designs), the logit-Sens estimator is pulled toward the logit-of-0.5 anchor (i.e. zero on the logit scale = 50% on the natural scale), biasing the pooled Sens estimate <strong>downward</strong> by approximately 1&ndash;2 percentage points. Per-study Clopper&ndash;Pearson exact CIs in the Trials tab are continuity-correction-free and may be a more accurate per-study Sens estimate. The cell-only correction recommended by Sweeting 2004 for sparse-data binary meta-analysis is preferable in principle but is deferred until the engine adds a per-cell correction mode in v1.1; the all-studies correction here is the conservative default and is reported transparently.
       </p>
 
       <h3 class="subsection-title">GRADE-DTA notes</h3>
@@ -2419,6 +2567,126 @@
         return x.toFixed(digits);
       }
 
+      // C3: Plain-language "bottom line" — leads with the pooled 3-month VTE failure rate.
+      // Filled at refit() so the patient-facing message updates with the active tier.
+      function renderPlainLanguageSafety(activeTrials) {
+        var el = document.getElementById('pl-bottom-line');
+        if (!el) return;
+        var allTrials = data.primary_tier.concat(data.sensitivity_tier_added);
+        // Use the *whole* combined pool for the patient-facing summary (most generalisable N).
+        var fr = poolFailureRate(allTrials);
+        if (!fr) {
+          el.innerHTML = '<strong>The bottom line:</strong> across the included studies, the 3-month rate of missed clots after a negative D-dimer was below 1% in every study reporting the rule-out denominator.';
+          return;
+        }
+        var totalN = fr.studies.reduce(function (s, r) { return s + r.n; }, 0);
+        var nApprox = totalN >= 1000 ? (Math.round(totalN / 100) * 100).toLocaleString() : totalN.toLocaleString();
+        var ratePct = (fr.rate * 100).toFixed(2);
+        var lclPct = (fr.rate_lcl * 100).toFixed(2);
+        var uclPct = (fr.rate_ucl * 100).toFixed(2);
+        var oneSidedPct = (fr.one_sided_975_ucl * 100).toFixed(2);
+        var pass = fr.one_sided_975_ucl < 0.0185;
+        el.innerHTML =
+          '<strong>The bottom line.</strong> If you were sent home from the ED with a negative D-dimer ' +
+          'and a low or moderate Wells score, across approximately ' + escapeHtml(nApprox) + ' patients in these ' +
+          'studies (k=' + fr.k + ' cohorts with reported rule-out denominators), fewer than 1 in 100 came back ' +
+          'with a clot in the next 3 months. The pooled estimate is <strong>' + ratePct + '%</strong> ' +
+          '(95% CI ' + lclPct + '&ndash;' + uclPct + '%; one-sided 97.5% upper limit ' + oneSidedPct + '%) &mdash; ' +
+          (pass
+            ? 'within the international safety benchmark of <strong>1.85% upper bound</strong> '
+            : 'above the international safety benchmark of <strong>1.85% upper bound</strong> ') +
+          '(Schouten 2013 / van Es 2017 / 2019 ESC PE Guidelines).';
+      }
+
+      // B1: Render the clinical-safety failure-rate card from the active-tier trials.
+      function renderFailureRateCard(activeTrials) {
+        var valEl = document.getElementById('failure-rate-value');
+        var ciEl = document.getElementById('failure-rate-ci');
+        var bmEl = document.getElementById('failure-rate-benchmark');
+        if (!valEl || !ciEl || !bmEl) return;
+        var fr = poolFailureRate(activeTrials);
+        if (!fr) {
+          valEl.textContent = 'n/a';
+          ciEl.textContent = 'rule-out denominators unavailable in the active tier';
+          bmEl.innerHTML = 'See the Trials tab for per-study 3-month VTE rates.';
+          return;
+        }
+        var ucl_pct = (fr.one_sided_975_ucl * 100).toFixed(2);
+        var pass = fr.one_sided_975_ucl < 0.0185;
+        var passOrFail = pass ? 'PASS' : 'FAIL';
+        var passColor = pass ? '#10b981' : '#ef4444';
+        valEl.textContent = (fr.rate * 100).toFixed(2) + '%';
+        ciEl.textContent = '95% CI ' + (fr.rate_lcl * 100).toFixed(2) + '–' + (fr.rate_ucl * 100).toFixed(2) +
+          '% (k=' + fr.k + ', τ² = ' + fr.tau2.toFixed(3) + ' on logit scale)';
+        bmEl.innerHTML = 'One-sided 97.5% UCL: <strong>' + ucl_pct + '%</strong>. Benchmark: <strong>&lt;1.85%</strong> ' +
+          '(Schouten 2013 / van Es 2017 / 2019 ESC PE Guidelines): ' +
+          '<strong style="color:' + passColor + ';">' + passOrFail + '</strong>';
+      }
+
+      // B4: Render per-strategy headline cards (one card per pre-specified rule-out strategy).
+      // Each strategy is fit independently; k=1 falls back to single_study_clopper_pearson.
+      function renderPerStrategyCards() {
+        var host = document.getElementById('per-strategy-cards');
+        if (!host) return;
+        var allTrials = data.primary_tier.concat(data.sensitivity_tier_added);
+        // Group by cutoff_strategy
+        var groups = {};
+        allTrials.forEach(function (t) {
+          var s = t.cutoff_strategy || 'unknown';
+          if (!groups[s]) groups[s] = [];
+          groups[s].push(t);
+        });
+        var STRATEGY_LABELS = {
+          fixed_500: 'Fixed 500 ng/mL',
+          age_adjusted: 'Age-adjusted (10×age for ≥50yo)',
+          years_conditional: 'YEARS-conditional',
+          peged: 'PEGeD-graduated'
+        };
+        var STRATEGY_ORDER = ['fixed_500', 'age_adjusted', 'years_conditional', 'peged'];
+        var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0.75rem;">';
+        STRATEGY_ORDER.forEach(function (s) {
+          if (!groups[s] || groups[s].length === 0) return;
+          var rows = groups[s];
+          var fit;
+          try { fit = DTA.fit(rows); } catch (e) { fit = null; }
+          var label = STRATEGY_LABELS[s] || s;
+          var labels = rows.map(function (r) { return r.studlab; }).join('; ');
+          var fr = poolFailureRate(rows);
+          var frBlock = '';
+          if (fr) {
+            var pass = fr.one_sided_975_ucl < 0.0185;
+            var passColor = pass ? '#10b981' : '#ef4444';
+            frBlock = '<div style="font-size:0.72rem;color:#374151;margin-top:0.25rem;">' +
+              '3-mo VTE: <strong>' + (fr.rate * 100).toFixed(2) + '%</strong> ' +
+              '(95% UCL ' + (fr.one_sided_975_ucl * 100).toFixed(2) + '%) ' +
+              '<span style="color:' + passColor + ';font-weight:600;">' + (pass ? 'PASS' : 'FAIL') + '</span></div>';
+          }
+          if (!fit) {
+            html += '<div style="border:1px solid #e5e7eb;background:#ffffff;border-radius:0.375rem;padding:0.7rem;">' +
+              '<div style="font-size:0.85rem;font-weight:600;color:#1e3a8a;">' + escapeHtml(label) + '</div>' +
+              '<div style="font-size:0.75rem;color:#6b7280;margin-top:0.2rem;">' + escapeHtml(labels) + ' (k=' + rows.length + ')</div>' +
+              '<div style="font-size:0.85rem;color:#b91c1c;margin-top:0.3rem;">fit failed</div>' +
+              frBlock +
+              '</div>';
+            return;
+          }
+          var estimatorTag = (fit.estimator === 'single_study_clopper_pearson')
+            ? ' <span style="font-size:0.7rem;color:#7c3aed;">[k=1, Clopper&ndash;Pearson]</span>'
+            : (fit.fallback ? ' <span style="font-size:0.7rem;color:#b45309;">[' + escapeHtml(String(fit.fallback)) + ']</span>' : '');
+          html += '<div style="border:1px solid #bfdbfe;background:#eff6ff;border-radius:0.375rem;padding:0.7rem;">' +
+            '<div style="font-size:0.85rem;font-weight:600;color:#1e3a8a;">' + escapeHtml(label) + estimatorTag + '</div>' +
+            '<div style="font-size:0.7rem;color:#6b7280;margin-top:0.2rem;">' + escapeHtml(labels) + ' (k=' + rows.length + ')</div>' +
+            '<div style="font-size:0.78rem;color:#374151;margin-top:0.35rem;">' +
+              'Sens ' + fmt(fit.pooled_sens) + ' ' + fmtCI(fit.pooled_sens_ci_lb, fit.pooled_sens_ci_ub) + '<br>' +
+              'Spec ' + fmt(fit.pooled_spec) + ' ' + fmtCI(fit.pooled_spec_ci_lb, fit.pooled_spec_ci_ub) +
+            '</div>' +
+            frBlock +
+            '</div>';
+        });
+        html += '</div>';
+        host.innerHTML = html;
+      }
+
       function renderSummary(fit) {
         document.getElementById('pooled-sens').textContent = fmt(fit.pooled_sens);
         document.getElementById('pooled-sens-ci').textContent = fmtCI(fit.pooled_sens_ci_lb, fit.pooled_sens_ci_ub);
@@ -2508,6 +2776,59 @@
       function trialsForTier(tierKey) {
         if (!tiers || !tiers[tierKey]) return tiers.fixed500_strategy || [];
         return tiers[tierKey];
+      }
+
+      // ===== B1: Pooled 3-month VTE failure rate (rule-out safety) =====
+      // Random-effects pool of single proportion on logit scale (DerSimonian-Laird).
+      // For a rule-out test the clinically relevant metric is the 3-month VTE incidence
+      // among patients ruled out by the strategy. ESC 2019 / Schouten 2013 / van Es 2017
+      // safety threshold: post-rule-out 3-month VTE rate one-sided 97.5% UCL < 1.85%.
+      // Trials missing rule-out denominators in their abstract are skipped.
+      function poolFailureRate(trialsList) {
+        if (!trialsList || trialsList.length === 0) return null;
+        var rows = [];
+        for (var i = 0; i < trialsList.length; i++) {
+          var t = trialsList[i];
+          if (t.n_excluded == null || t.vte_at_3mo == null) continue;
+          var n = +t.n_excluded;
+          var e = +t.vte_at_3mo;
+          if (!isFinite(n) || !isFinite(e) || n <= 0 || e < 0 || e > n) continue;
+          // Continuity correction for zero events (logit undefined at 0)
+          var ec = (e === 0) ? 0.5 : e;
+          var nc = (e === 0) ? n + 1 : n;
+          var p = ec / nc;
+          var lp = Math.log(p / (1 - p));
+          var v = 1 / (nc * p * (1 - p));
+          rows.push({ studlab: t.studlab, e: e, n: n, p_obs: e / n, lp: lp, v: v });
+        }
+        if (rows.length === 0) return null;
+        var k = rows.length;
+        var w = rows.map(function (r) { return 1 / r.v; });
+        var sumW = w.reduce(function (a, b) { return a + b; }, 0);
+        var pooled_fe = rows.reduce(function (s, r, idx) { return s + w[idx] * r.lp; }, 0) / sumW;
+        // DerSimonian-Laird tau^2
+        var Q = rows.reduce(function (s, r, idx) {
+          var d = r.lp - pooled_fe;
+          return s + w[idx] * d * d;
+        }, 0);
+        var sumW2 = w.reduce(function (s, wi) { return s + wi * wi; }, 0);
+        var tau2 = (k > 1) ? Math.max(0, (Q - (k - 1)) / (sumW - sumW2 / sumW)) : 0;
+        var w_re = rows.map(function (r) { return 1 / (r.v + tau2); });
+        var sumW_re = w_re.reduce(function (a, b) { return a + b; }, 0);
+        var pooled_re = rows.reduce(function (s, r, idx) { return s + w_re[idx] * r.lp; }, 0) / sumW_re;
+        var se_re = Math.sqrt(1 / sumW_re);
+        var z = 1.959963984540054;
+        function back(l) { return 1 / (1 + Math.exp(-l)); }
+        return {
+          k: k,
+          rate: back(pooled_re),
+          rate_lcl: back(pooled_re - z * se_re),
+          rate_ucl: back(pooled_re + z * se_re),
+          one_sided_975_ucl: back(pooled_re + z * se_re),
+          tau2: tau2,
+          Q: Q,
+          studies: rows
+        };
       }
 
       // ===== QUADAS-2 specification (Whiting 2011) =====
@@ -2733,19 +3054,38 @@
         try {
           var primaryFit = DTA.fit(trials_primary);
           var combinedFit = DTA.fit(trials_combined);
-          var divSens = Math.abs(primaryFit.pooled_sens - combinedFit.pooled_sens) * 100;
-          var divSpec = Math.abs(primaryFit.pooled_spec - combinedFit.pooled_spec) * 100;
-          var maxDiv = Math.max(divSens, divSpec);
-          if (maxDiv > 5) {
+          var divSens = Math.abs(primaryFit.pooled_sens - combinedFit.pooled_sens);
+          var divSpec = Math.abs(primaryFit.pooled_spec - combinedFit.pooled_spec);
+          // B5: Add |Δ log(LR-)| as a third trigger because Sens is structurally capped near 100%
+          // (so divSens is always tiny by design); divergence in the rule-out test's discriminant
+          // collapses onto Spec alone unless we look at LR- on the log scale.
+          // LR- = (1 - Sens) / Spec
+          function lrNeg(f) { return (1 - f.pooled_sens) / f.pooled_spec; }
+          var lrnPrimary = lrNeg(primaryFit);
+          var lrnCombined = lrNeg(combinedFit);
+          var divLogLRneg = (isFinite(lrnPrimary) && isFinite(lrnCombined) && lrnPrimary > 0 && lrnCombined > 0)
+            ? Math.abs(Math.log(lrnPrimary) - Math.log(lrnCombined))
+            : 0;
+          var divSensPP = divSens * 100;
+          var divSpecPP = divSpec * 100;
+          var trip = (Math.max(divSens, divSpec) > 0.05) || (divLogLRneg > 0.3);
+          if (trip) {
+            // Identify which test triggered the banner (could be multiple)
+            var triggers = [];
+            if (divSens > 0.05) triggers.push('|ΔSens| = ' + divSensPP.toFixed(1) + 'pp');
+            if (divSpec > 0.05) triggers.push('|ΔSpec| = ' + divSpecPP.toFixed(1) + 'pp');
+            if (divLogLRneg > 0.3) triggers.push('|Δlog(LR&minus;)| = ' + divLogLRneg.toFixed(2) +
+              ' (factor ' + Math.exp(divLogLRneg).toFixed(2) + '×)');
             document.getElementById('headline-banners').innerHTML =
               '<div class="banner banner-amber">' +
-                '<strong>&#9888; Tier divergence:</strong> Fixed-500 / strategy-conditional (k=' + primaryFit.k +
-                ') and Combined all-tier (k=' + combinedFit.k +
-                ') estimates diverge by ' + maxDiv.toFixed(1) +
-                'pp on Sens or Spec. The pooled estimate depends materially on whether ' +
-                'the Theunissen 2017 single-centre primary-care row is included. The default headline is the ' +
-                'methodologically defensible fixed-500 / strategy-conditional (k=3) tier; the Combined tier is for ' +
-                'completeness only. See Methods tab for tier-by-tier breakdown.' +
+                '<strong>&#9888; Tier divergence detected:</strong> ' + triggers.join(' &middot; ') + '. ' +
+                'Fixed-500 / strategy-conditional (k=' + primaryFit.k +
+                ') vs Combined all-tier (k=' + combinedFit.k +
+                ') diverge on the rule-out discriminant. Because pooled Sens is structurally capped near 100% in ' +
+                'management-outcome studies, the |Δlog(LR&minus;)| term is the most clinically informative ' +
+                'divergence test (it captures rule-out negative-LR change; Spec alone would over-fire and Sens ' +
+                'alone would under-fire). The default headline is the methodologically defensible fixed-500 / ' +
+                'strategy-conditional (k=3) tier; the Combined tier is for completeness only. See Methods tab.' +
               '</div>';
           }
         } catch (e) {
@@ -3049,6 +3389,18 @@
           'bivariate DTA model &mdash; tau&sup2; on logit-Sens / logit-Spec serves the same role. ' +
           'Univariate I&sup2; on Sens or Spec separately can be computed but is omitted here to ' +
           'avoid implying a one-dimensional summary of two-dimensional heterogeneity.</p>';
+
+        // B6: Continuity-correction bias-toward-null caveat — relevant when fit.cc_applied
+        // and Sens is near 100% (the structural rule-out property of management-outcome studies).
+        if (fit.cc_applied) {
+          notes += '<div class="banner" style="background:#fef3c7;border-left:4px solid #d97706;color:#78350f;margin-top:0.75rem;">' +
+            '<strong>Continuity correction caveat:</strong> 0.5 was added to all four cells of every study in this pool ' +
+            '(PEGeD-Kearon has FN=0, which fires the zero-cell trigger and propagates the correction across all studies). ' +
+            'Because pooled Sensitivity is structurally near 100% in this dataset, the correction pulls the logit-Sens ' +
+            'estimator toward the logit-of-0.5 anchor and biases pooled Sens <strong>downward</strong> by ~1&ndash;2 ' +
+            'percentage points. Per-study Clopper&ndash;Pearson exact CIs in the Trials tab are continuity-correction-free ' +
+            'and may be more accurate per-study estimates. See Methods &rarr; Continuity-correction policy.</div>';
+        }
 
         container.innerHTML = grid + notes;
       }
@@ -3649,7 +4001,7 @@
           '. The leave-one-out sensitivity table on the Sensitivity tab quantifies single-study influence (PEGeD-Kearon is typically the largest mover on Spec because of its 71% point estimate); the SROC space on the SROC tab visualises the threshold-effect axis. Subgroup analyses on the Subgroups tab support stratified clinical use rather than a single pooled point estimate.';
 
         // ===== Limitations paragraph =====
-        var limitationsPara = 'Limitations: (i) full-text PubMed retrieval was deferred per the build-time decision; data come from PubMed abstracts only, which limits granularity of subgroup data (e.g. Wells-low vs Wells-moderate within-study breakdowns, age-stratified Spec for the age-adjusted cutoff arm of ADJUST-PE, per-assay Sens/Spec at each centre) and forces conservative back-computation of 2x2 cells. (ii) The combined tier (k=6) falls below the spec-defined k>=8 ceiling for headline reliability and triggers the coverage banner. (iii) High-pretest-probability cohorts are excluded by design (D-dimer is not first-line in this group; CTPA is done directly), pregnancy / postpartum cohorts are excluded (different cutoff considerations), and active-cancer cohorts are excluded (high baseline D-dimer). The included cohorts are therefore representative of the Wells-non-high outpatient population only. (iv) FN=0 in PEGeD-Kearon yields a Sens point estimate of 100% which approaches the upper Clopper-Pearson bound; the engine handles this cleanly via the exact 1-sided 97.5% confidence limit, but reviewers should not over-interpret a 100% point estimate as a hard guarantee. (v) Risk of bias was scored from QUADAS-2 baselines populated from the published abstracts; reviewers may upgrade to full-text-driven judgements in a v1.1 build. (vi) PROSPERO registration is deferred to a v1.1 follow-up; canonical evidence base is the van Es 2017 Annals of Internal Medicine IPD meta-analysis (k=11 cohorts, n=14,256) and the 2019 ESC PE Guidelines. (vii) Differential verification bias: all six included studies use a composite reference standard (CTPA at presentation for D-dimer-positive or pre-test-probability-positive patients; 3-month clinical follow-up for D-dimer-negative patients managed without imaging). Per QUADAS-2 (Whiting 2011) and the STARD 2015 elaboration (Bossuyt 2015) following Schuetz 2008, this is differential verification: the reference standard differs by index-test arm and inflates apparent sensitivity. Q3.2 is therefore recorded "No" and the Reference Standard domain is rated High Risk of Bias for all six studies. Macaskill 2010 (Cochrane DTA Handbook §10.4) recognises the management-outcome design as canonical for rule-out tests but the inflated-sensitivity caveat applies. Formal Bayesian latent-class meta-analysis for imperfect references (Dendukuri 2012) is deferred to v1.2.';
+        var limitationsPara = 'Limitations: (i) full-text PubMed retrieval was deferred per the build-time decision; data come from PubMed abstracts only, which limits granularity of subgroup data (e.g. Wells-low vs Wells-moderate within-study breakdowns, age-stratified Spec for the age-adjusted cutoff arm of ADJUST-PE, per-assay Sens/Spec at each centre) and forces conservative back-computation of 2x2 cells. (ii) The combined tier (k=6) falls below the spec-defined k>=8 ceiling for headline reliability and triggers the coverage banner. (iii) High-pretest-probability cohorts are excluded by design (D-dimer is not first-line in this group; CTPA is done directly), pregnancy / postpartum cohorts are excluded (different cutoff considerations), and active-cancer cohorts are excluded (high baseline D-dimer). The included cohorts are therefore representative of the Wells-non-high outpatient population only. (iv) FN=0 in PEGeD-Kearon yields a Sens point estimate of 100% which approaches the upper Clopper-Pearson bound; the engine handles this cleanly via the exact 1-sided 97.5% confidence limit, but reviewers should not over-interpret a 100% point estimate as a hard guarantee. (v) Risk of bias was scored from QUADAS-2 baselines populated from the published abstracts; reviewers may upgrade to full-text-driven judgements in a v1.1 build. (vi) PROSPERO registration is deferred to a v1.1 follow-up; canonical evidence base for D-dimer / PE rule-out is Crawford 2016 (Cochrane DTA review CD010864, ~40 primary studies), Stals 2022 (Ann Intern Med IPD-MA across 14 cohorts, n=14,896), and van Es 2017 (Ann Intern Med IPD-MA, k=11 cohorts, n=14,256), framed by the 2019 ESC PE Guidelines and the Schouten 2013 / van Es 2017 post-rule-out 3-month VTE one-sided 97.5% UCL <1.85% safety threshold. (vii) Differential verification bias: all six included studies use a composite reference standard (CTPA at presentation for D-dimer-positive or pre-test-probability-positive patients; 3-month clinical follow-up for D-dimer-negative patients managed without imaging). Per QUADAS-2 (Whiting 2011) and the STARD 2015 elaboration (Bossuyt 2015) following Schuetz 2008, this is differential verification: the reference standard differs by index-test arm and inflates apparent sensitivity. Q3.2 is therefore recorded "No" and the Reference Standard domain is rated High Risk of Bias for all six studies. Macaskill 2010 (Cochrane DTA Handbook §10.4) recognises the management-outcome design as canonical for rule-out tests but the inflated-sensitivity caveat applies. Formal Bayesian latent-class meta-analysis for imperfect references (Dendukuri 2012) is deferred to v1.2. (viii) Continuity-correction bias-toward-null: PEGeD-Kearon FN=0 fires the zero-cell trigger, propagating a 0.5 correction across all studies. Because pooled Sens is structurally near 100%, the correction biases pooled Sens downward by ~1-2pp; per-study Clopper-Pearson exact CIs in the Trials tab are correction-free and may be more accurate per-study estimates. (ix) Strategy-pooling caveat: the k=5 / k=6 pooled bivariate Sens/Spec mixes four distinct rule-out strategies (fixed-500, age-adjusted, YEARS-conditional, PEGeD-graduated), which is a Macaskill 2010 §10.4 violation; per-strategy estimates on the Summary tab are the methodologically defensible primary headline.';
 
         // ===== Authorship =====
         var so1 = loadSignoff('extraction', 1);
@@ -3947,6 +4299,12 @@
           'Reitsma JB, Glas AS, Rutjes AWS, Scholten RJPM, Bossuyt PM, Zwinderman AH. Bivariate analysis of sensitivity and specificity produces informative summary measures in diagnostic reviews. <em>J Clin Epidemiol</em>. 2005;58(10):982&ndash;990. <a class="external-link" href="https://doi.org/10.1016/j.jclinepi.2005.02.022" target="_blank" rel="noopener">DOI: 10.1016/j.jclinepi.2005.02.022</a>',
           'Harbord RM, Deeks JJ, Egger M, Whiting P, Sterne JAC. A unification of models for meta-analysis of diagnostic accuracy studies. <em>Biostatistics</em>. 2007;8(2):239&ndash;251. <a class="external-link" href="https://doi.org/10.1093/biostatistics/kxl004" target="_blank" rel="noopener">DOI: 10.1093/biostatistics/kxl004</a>',
           'Macaskill P, Gatsonis C, Deeks JJ, Harbord RM, Takwoingi Y. Chapter 10: Analysing and presenting results. In: <em>Cochrane Handbook for Systematic Reviews of Diagnostic Test Accuracy</em>. Version 1.0. The Cochrane Collaboration; 2010. <a class="external-link" href="https://methods.cochrane.org/sdt/handbook-dta-reviews" target="_blank" rel="noopener">Handbook</a>',
+          // B2: substantive comparators that this k=5 review defers to.
+          'Crawford F, Andras A, Welch K, Sheares K, Keeling D, Chappell FM. D-dimer test for excluding the diagnosis of pulmonary embolism. <em>Cochrane Database of Systematic Reviews</em> 2016, Issue 8. Art. No.: CD010864. <a class="external-link" href="https://doi.org/10.1002/14651858.CD010864.pub2" target="_blank" rel="noopener">DOI: 10.1002/14651858.CD010864.pub2</a>',
+          'Stals MAM, Takada T, Kraaijpoel N, van Es N, Büller HR, Courtney DM, et al. Safety and Efficiency of Diagnostic Strategies for Ruling Out Pulmonary Embolism in Clinically Relevant Patient Subgroups: A Systematic Review and Individual-Patient Data Meta-analysis. <em>Ann Intern Med</em>. 2022;175(2):244&ndash;255. <a class="external-link" href="https://doi.org/10.7326/M21-2625" target="_blank" rel="noopener">DOI: 10.7326/M21-2625</a> <a class="external-link" href="https://pubmed.ncbi.nlm.nih.gov/34904857" target="_blank" rel="noopener">PubMed: 34904857</a>',
+          'van Es N, van der Hulle T, van Es J, den Exter PL, Douma RA, Goekoop RJ, et al. Wells Rule and d-Dimer Testing to Rule Out Pulmonary Embolism: A Systematic Review and Individual-Patient Data Meta-analysis. <em>Ann Intern Med</em>. 2016;165(4):253&ndash;261. (canonical IPD-MA, k=11 cohorts, n=14,256 patients; safety threshold one-sided 97.5% UCL &lt;1.85% used in this review.)',
+          'Schouten HJ, Geersing GJ, Koek HL, Zuithoff NPA, Janssen KJM, Douma RA, et al. Diagnostic accuracy of conventional or age-adjusted D-dimer cut-off values in older patients with suspected venous thromboembolism: systematic review and meta-analysis. <em>BMJ</em>. 2013;346:f2492. (origin of the &lt;1.85% safety benchmark for rule-out failure rate.)',
+          'Konstantinides SV, Meyer G, Becattini C, Bueno H, Geersing GJ, Harjola VP, et al. 2019 ESC Guidelines for the diagnosis and management of acute pulmonary embolism. <em>Eur Heart J</em>. 2020;41(4):543&ndash;603. (defines the &lt;1.85% post-rule-out 3-month VTE failure-rate benchmark.)',
           'Doebler P, Holling H. <em>mada: Meta-Analysis of Diagnostic Accuracy</em>. R package version 0.5.11. <a class="external-link" href="https://CRAN.R-project.org/package=mada" target="_blank" rel="noopener">CRAN</a>',
           'McGrath S, Sohn H, Steele R, Benedetti A. Meta-analysis of the difference of medians. <em>Biom J</em>. 2020;62(1):69&ndash;98. (cited for Clopper&ndash;Pearson exact CI usage; classic primary ref: Clopper CJ, Pearson ES. <em>Biometrika</em> 1934;26:404&ndash;413.)'
         ];
@@ -4960,6 +5318,9 @@
         var rows = trialsForTier(currentTier);
         currentFit = DTA.fit(rows);
         renderTierCards();
+        renderPerStrategyCards();
+        renderFailureRateCard(rows);
+        renderPlainLanguageSafety(rows);
         renderSummary(currentFit);
         renderTrials(rows);
         renderForest(rows, currentFit);
@@ -5753,7 +6114,9 @@
       var GRADE_OUTCOMES = [
         { id: 'sens', label: 'Pooled Sensitivity' },
         { id: 'spec', label: 'Pooled Specificity' },
-        { id: 'dor',  label: 'Diagnostic Odds Ratio' }
+        { id: 'dor',  label: 'Diagnostic Odds Ratio' },
+        // B1: 3-month VTE failure rate (rule-out safety) — clinically the headline metric.
+        { id: 'fail3mo', label: '3-month VTE failure rate (rule-out safety)' }
       ];
       var GRADE_DOMAINS = [
         { id: 'rob',  label: 'Risk of bias' },
@@ -5769,9 +6132,93 @@
 
       function gradeKey(outcomeId, domainId) { return outcomeId + ':' + domainId; }
 
+      // B1: GRADE auto-assessment for 3-month VTE failure rate (rule-out safety).
+      // Uses poolFailureRate(); rates are on the natural-proportion scale, tau^2 is on the logit
+      // scale so we keep the threshold modest (0.25 ~ ±50% on the proportion scale).
+      function gradeAutoAssessFail3mo(fit, allTrials) {
+        var assessments = {};
+        var fr = poolFailureRate(allTrials);
+
+        // Risk of Bias: same QUADAS-derived signal as other outcomes.
+        var anyHighRob = false;
+        var highRobStudies = [];
+        allTrials.forEach(function (t) {
+          var q = quadasFor(t.studlab);
+          ['rob1', 'rob2', 'rob3', 'rob4'].forEach(function (k) {
+            if (String(q[k] || '').toLowerCase() === 'high') {
+              anyHighRob = true;
+              if (highRobStudies.indexOf(t.studlab) < 0) highRobStudies.push(t.studlab);
+            }
+          });
+        });
+        assessments.rob = anyHighRob
+          ? { level: 1, reason: 'High RoB in: ' + highRobStudies.join(', ') }
+          : { level: 0, reason: 'No High RoB across QUADAS-2 domains.' };
+
+        // Inconsistency: tau^2 on logit scale + per-study rate range
+        if (!fr) {
+          assessments.inc = { level: 0, reason: 'Rule-out denominators unavailable for the active tier &mdash; cannot assess.' };
+        } else {
+          var rates = fr.studies.map(function (r) { return r.p_obs * 100; });
+          var rng = rates.length >= 2 ? (Math.max.apply(null, rates) - Math.min.apply(null, rates)) : 0;
+          var lvl = 0;
+          var reasons = [];
+          if (fr.tau2 > 0.5) { lvl = Math.max(lvl, 1); reasons.push('logit-scale tau&sup2; = ' + fr.tau2.toFixed(2) + ' &gt; 0.5'); }
+          if (rng > 1.0) { lvl = Math.max(lvl, 1); reasons.push('per-study failure-rate range = ' + rng.toFixed(2) + 'pp'); }
+          assessments.inc = lvl === 0
+            ? { level: 0, reason: 'logit-scale tau&sup2; = ' + fr.tau2.toFixed(2) + '; per-study range = ' + rng.toFixed(2) + 'pp.' }
+            : { level: lvl, reason: reasons.join('; ') };
+        }
+
+        // Indirectness: same as DTA outcomes (reference-standard / population variability)
+        var refStds = {};
+        var ages = {};
+        allTrials.forEach(function (t) {
+          if (t.reference_standard_specific) refStds[t.reference_standard_specific] = true;
+          if (t.population_age) ages[t.population_age] = true;
+        });
+        var nRefStds = Object.keys(refStds).length;
+        var hasMixedAge = ages.adult && ages.pediatric;
+        if (nRefStds > 2 || hasMixedAge) {
+          var indReasons = [];
+          if (nRefStds > 2) indReasons.push(nRefStds + ' distinct reference standards');
+          if (hasMixedAge) indReasons.push('mixed adult + pediatric populations');
+          assessments.ind = { level: 1, reason: indReasons.join('; ') };
+        } else {
+          assessments.ind = { level: 0, reason: nRefStds + ' reference standard(s); single age stratum.' };
+        }
+
+        // Imprecision: compare 97.5% UCL against the 1.85% safety benchmark
+        if (!fr) {
+          assessments.imp = { level: 1, reason: 'Rate cannot be pooled in active tier &mdash; imprecision conservatively serious.' };
+        } else {
+          var uclPct = fr.one_sided_975_ucl * 100;
+          var ratePct = fr.rate * 100;
+          if (uclPct >= 1.85) {
+            // UCL crosses or exceeds the benchmark
+            assessments.imp = { level: ratePct >= 1.85 ? 2 : 1,
+              reason: 'One-sided 97.5% UCL = ' + uclPct.toFixed(2) + '% &ge; 1.85% benchmark (Schouten 2013).' +
+                (ratePct >= 1.85 ? ' Point estimate also exceeds &mdash; very serious.' : '') };
+          } else {
+            assessments.imp = { level: 0,
+              reason: 'One-sided 97.5% UCL = ' + uclPct.toFixed(2) + '% &lt; 1.85% benchmark (Schouten 2013).' };
+          }
+        }
+
+        // Publication bias: not formally testable for single-rate pool with k<10. Default not serious.
+        assessments.pub = { level: 0, reason: 'Single-rate funnel not implemented; small-study effects not formally tested for k=' + (fr ? fr.k : (allTrials.length || 0)) + '.' };
+        return assessments;
+      }
+
       function gradeAutoAssess(outcomeId, fit, allTrials) {
         // Returns { level, reason } per domain id.
         var assessments = {};
+
+        // B1: For the 3-month VTE failure-rate outcome, route to a rate-specific assessor.
+        if (outcomeId === 'fail3mo') {
+          return gradeAutoAssessFail3mo(fit, allTrials);
+        }
+
         // === Risk of Bias ===
         // Trigger: any QUADAS-2 study has High RoB on a relevant domain
         var anyHighRob = false;

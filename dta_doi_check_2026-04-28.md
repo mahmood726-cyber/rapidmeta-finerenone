@@ -116,3 +116,27 @@ two-pass libcurl + UA + Crossref pipeline.
   pending citation re-verification.
 - **No automated DOI substitution was performed.** The two 404s are recorded for
   human attention before any submission round.
+
+---
+
+## D-dimer PE — Section B+C round (2026-04-28, after substantive methodological + PPI polish)
+
+Round triggered by Section B+C polish on `DDIMER_PE_DTA_REVIEW.html` (pooled 3-month
+VTE failure rate, Crawford 2016 + Stals 2022 substantive comparators, PRISMA-DTA flow,
+per-strategy headline cards, divLogLRneg divergence indicator, CC bias-toward-null
+caveat, plus Plain-language PPI improvements). Two new DOIs introduced; both resolved.
+
+| #  | DOI                                       | Plain HEAD | UA HEAD | Crossref     | Verdict       | Source                                      |
+|----|-------------------------------------------|-----------:|--------:|:------------:|:-------------:|:--------------------------------------------|
+| 12 | 10.1002/14651858.CD010864.pub2            |        403 |     412 | ok           | resolves (Crossref-confirmed; publisher CF blocks bots) | Crawford 2016 (Cochrane DTA, CD010864) |
+| 13 | 10.7326/M21-2625                          |        403 |     403 | ok           | resolves (Crossref-confirmed; publisher CF blocks bots) | Stals 2022 (Ann Intern Med IPD-MA)     |
+
+### Section B+C round summary
+
+- **Resolved:** 2/2 (both publisher-blocked at HEAD but registered with Crossref)
+- **Broken:** 0
+- **Crossref metadata cross-check:**
+  - `10.1002/14651858.CD010864.pub2` → "D-dimer test for excluding the diagnosis of pulmonary embolism", *Cochrane Database of Systematic Reviews*, 2016-08-05, first authors Crawford F, Andras A, Welch K. Matches the in-page rendered citation.
+  - `10.7326/M21-2625` → "Safety and Efficiency of Diagnostic Strategies for Ruling Out Pulmonary Embolism in Clinically Relevant Patient Subgroups", *Annals of Internal Medicine*, 2022-02, first authors Stals M, Takada T, Kraaijpoel N. Matches the in-page rendered citation.
+- **PMID for Stals 2022 (34904857)** also rendered alongside the DOI; not separately re-verified in this round but the citation cluster (PMID + DOI + author surnames + journal + year + page numbers) is internally consistent and the DOI matches.
+- **Pre-existing `10.7326/M16-0676` (van Es 2017) and `10.7326/M16-1718` (Kearon 2017)** previously flagged 404 in Section A round remain flagged; not addressed in this round (out of scope).
