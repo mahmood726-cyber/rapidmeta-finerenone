@@ -5703,7 +5703,13 @@ const ContinuousMDEngine = {
         const pSE = Math.sqrt(1/sWR);
 
 
-        
+        // Alias md->logOR, name->id so existing OR/HR-shaped consumers (renderPlots
+        // forest/subgroup/cumulative) read MD values without rewriting their schema.
+        // Linear-scale renderers must check r.isContinuous and skip exp() back-transforms.
+        plotData.forEach(d => { d.logOR = d.md; d.id = d.name; d.group = d.group ?? 'Treatment vs comparator'; d.tE = d.tE ?? 0; d.cE = d.cE ?? 0; d.tN = d.tN ?? 0; d.cN = d.cN ?? 0; });
+
+
+
 
 
         const lci = pMD - zCrit * pSE;
@@ -5730,7 +5736,10 @@ const ContinuousMDEngine = {
             or: pMD.toFixed(2), lci: lci, uci: uci,
 
 
-            pOR: pMD, I2: I2, Q: Q, df: df, tau2: tau2,
+            pOR: pMD, pLogOR: pMD, pSE: pSE, zCrit: zCrit,
+
+
+            I2: I2, Q: Q, df: df, tau2: tau2,
 
 
             confLevel: confLevel,
@@ -9993,6 +10002,22 @@ const ContinuousMDEngine = {
                 return map[format] ?? em;
 
 
+            },
+
+
+            // Axis label for continuous (mean-difference) forest plots. Routed from
+            // renderAnnotatedForestMD. Override per dashboard to set domain-specific
+            // wording (units, contrast direction).
+            continuousAxisLabel(outcomeKey) {
+                return 'Mean difference (intervention - comparator)';
+            },
+
+
+            // Non-inferiority margin overlay. Returns {value, favoursLeft, favoursRight}
+            // or null. Default null (no overlay). Override per dashboard for NI trials
+            // (e.g. nAMD pivotals where margin is -4 ETDRS letters).
+            continuousNIMargin(outcomeKey) {
+                return null;
             },
 
 
@@ -31017,7 +31042,10 @@ const AnalysisEngine = {
                 } else {
 
 
-                    this.renderPlots(c.plotData, parseFloat(c.or), parseFloat(c.pSE), Math.exp(parseFloat(c.or)), parseFloat(c.zCrit ?? 1.96), parseFloat(c.tau2), {}, {}, {});
+                    // Continuous MD: pLogOR=MD, pOR=MD (no exp back-transform), pSE/zCrit
+                    // come straight from ContinuousMDEngine. The downstream forest plot is
+                    // linear-scale; reference line at 0 is handled inside renderAnnotatedForest.
+                    this.renderPlots(c.plotData, parseFloat(c.pLogOR ?? c.or), parseFloat(c.pSE), parseFloat(c.pOR ?? c.or), parseFloat(c.zCrit ?? 1.96), parseFloat(c.tau2), {}, {}, {});
 
 
                     if (this.renderGRADE) this.renderGRADE(c.I2, c.lci, c.uci, c.plotData, c.piLCI, c.piUCI, c.hksjLCI, c.hksjUCI);
@@ -38929,6 +38957,14 @@ print(res_sub)`;
                 const ciPct = (confLevel * 100).toFixed(0);
 
 
+                // CONTINUOUS (MD) branch — for outcomes pooled by ContinuousMDEngine.
+                // Linear x-axis, reference at 0, no exp() back-transform.
+                // Binary OR/RR/HR branch below is unchanged.
+                if (r && r.isContinuous) {
+                    return this.renderAnnotatedForestMD(r, included, zCrit, ciPct);
+                }
+
+
 
 
 
@@ -39208,6 +39244,120 @@ print(res_sub)`;
                 Plotly.newPlot('plot-forest-nyt', [trace], layout, { displayModeBar: false, responsive: true });
 
 
+            },
+
+
+            // Headline forest plot for CONTINUOUS (mean-difference) outcomes.
+            // Routed from renderAnnotatedForest when r.isContinuous === true.
+            // Linear x-axis, reference line at 0, no exp() back-transform.
+            renderAnnotatedForestMD(r, included, zCrit, ciPct) {
+                const studies = (r.plotData ?? []).map(d => {
+                    const md = d.md;
+                    const se = d.se;
+                    const lo = md - zCrit * se;
+                    const hi = md + zCrit * se;
+                    const w  = 1 / (se * se);
+                    return { name: d.name ?? d.id, year: d.year ?? '', md, lo, hi, w };
+                });
+                if (studies.length === 0) {
+                    Plotly.newPlot('plot-forest-nyt', [], { paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)' });
+                    return;
+                }
+                const totalW = studies.reduce((a, s) => a + s.w, 0);
+
+                const yLabels = studies.map(s => s.name + (s.year ? ' (' + s.year + ')' : ''));
+                yLabels.push('Pooled (RE)');
+
+                const xVals = studies.map(s => s.md);
+                xVals.push(parseFloat(r.or));
+
+                const errLo = studies.map(s => s.md - s.lo);
+                errLo.push(parseFloat(r.or) - parseFloat(r.lci));
+
+                const errHi = studies.map(s => s.hi - s.md);
+                errHi.push(parseFloat(r.uci) - parseFloat(r.or));
+
+                const sizes = studies.map(s => 8 + 20 * (s.w / totalW));
+                sizes.push(18);
+
+                const colors = studies.map(() => '#3b82f6');
+                colors.push('#ef4444');
+
+                const symbols = studies.map(() => 'square');
+                symbols.push('diamond');
+
+                const _selOutcome = RapidMeta.state.selectedOutcome || 'default';
+                const _outcomeLabel = (typeof RapidMeta.continuousAxisLabel === 'function')
+                    ? RapidMeta.continuousAxisLabel(_selOutcome)
+                    : 'Mean difference (intervention - comparator)';
+
+                const hoverTexts = studies.map(s =>
+                    s.name + '<br>MD: ' + s.md.toFixed(2) + ' (' + s.lo.toFixed(2) + '–' + s.hi.toFixed(2) + ')'
+                    + '<br>Weight: ' + (s.w / totalW * 100).toFixed(1) + '%'
+                );
+                hoverTexts.push('Pooled<br>MD: ' + r.or + ' (' + (parseFloat(r.lci)).toFixed(2) + '–' + (parseFloat(r.uci)).toFixed(2) + ')');
+
+                const annotations = studies.map((s, i) => ({
+                    x: Math.max(s.hi + 0.4, parseFloat(r.uci) + 0.4),
+                    y: i,
+                    text: '<b>' + s.md.toFixed(2) + '</b> [' + s.lo.toFixed(2) + ', ' + s.hi.toFixed(2) + '] W=' + (s.w / totalW * 100).toFixed(0) + '%',
+                    showarrow: false,
+                    font: { size: 9, color: '#94a3b8', family: 'JetBrains Mono' },
+                    xanchor: 'left'
+                }));
+                annotations.push({
+                    x: Math.max(parseFloat(r.uci) + 0.4, parseFloat(r.or) + 0.4),
+                    y: studies.length,
+                    text: '<b>' + parseFloat(r.or).toFixed(2) + '</b> [' + parseFloat(r.lci).toFixed(2) + ', ' + parseFloat(r.uci).toFixed(2) + ']',
+                    showarrow: false,
+                    font: { size: 10, color: '#ef4444', family: 'JetBrains Mono' },
+                    xanchor: 'left'
+                });
+
+                const _niMargin = (typeof RapidMeta.continuousNIMargin === 'function')
+                    ? RapidMeta.continuousNIMargin(_selOutcome)
+                    : null;
+                const _shapes = [
+                    { type: 'line', x0: 0, x1: 0, y0: -0.5, y1: yLabels.length - 0.5, line: { color: '#ef4444', width: 1.5, dash: 'dot' } }
+                ];
+                if (_niMargin && Number.isFinite(_niMargin.value)) {
+                    _shapes.push({ type: 'line', x0: _niMargin.value, x1: _niMargin.value, y0: -0.5, y1: yLabels.length - 0.5, line: { color: '#f59e0b', width: 1.5, dash: 'dash' } });
+                    annotations.push({
+                        x: _niMargin.value, y: -0.5, yanchor: 'bottom',
+                        text: 'NI margin (' + _niMargin.value + ')',
+                        showarrow: false,
+                        font: { size: 9, color: '#f59e0b', family: 'JetBrains Mono' }
+                    });
+                }
+                if (_niMargin && _niMargin.favoursLeft && _niMargin.favoursRight) {
+                    annotations.push(
+                        { xref: 'paper', yref: 'paper', x: 0.0, y: -0.16, xanchor: 'left',  text: '← favours ' + _niMargin.favoursLeft,  showarrow: false, font: { size: 9, color: '#94a3b8' } },
+                        { xref: 'paper', yref: 'paper', x: 1.0, y: -0.16, xanchor: 'right', text: 'favours ' + _niMargin.favoursRight + ' →', showarrow: false, font: { size: 9, color: '#94a3b8' } }
+                    );
+                }
+
+                const trace = {
+                    x: xVals, y: yLabels, mode: 'markers', type: 'scatter',
+                    marker: { size: sizes, color: colors, symbol: symbols },
+                    error_x: { type: 'data', symmetric: false, array: errHi, arrayminus: errLo, visible: true, color: '#3b82f6', thickness: 2 },
+                    hovertext: hoverTexts, hoverinfo: 'text'
+                };
+
+                const layout = {
+                    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+                    xaxis: { title: _outcomeLabel + ' (' + ciPct + '% CI)', gridcolor: '#1e293b', color: '#94a3b8', zeroline: false },
+                    yaxis: { gridcolor: '#1e293b', color: '#94a3b8', autorange: 'reversed' },
+                    font: { color: '#94a3b8', size: 10 },
+                    margin: { t: 10, b: 70, l: 160, r: 200 },
+                    shapes: _shapes,
+                    annotations: annotations,
+                    showlegend: false
+                };
+
+                Plotly.newPlot('plot-forest-nyt', [trace], layout, { displayModeBar: false, responsive: true });
+
+                const cap = document.querySelector('#plot-forest-nyt')?.closest('section, div')?.querySelector('.nyt-figure-caption');
+                if (cap) cap.textContent = 'Fig. - Forest plot of ' + _outcomeLabel + ' (random-effects, DL estimator)';
             },
 
 
