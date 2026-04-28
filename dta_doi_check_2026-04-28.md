@@ -181,3 +181,32 @@ endpoint.
 - **No automated DOI substitution was performed.** All 5 new DOIs were drafted from
   human-recalled metadata and then verified.
 
+---
+
+## COVID antigen Path-B (2026-04-28, after Section A residue + B substantive + C PPI polish)
+
+Round triggered by Path-B-equivalent polish on `COVID_ANTIGEN_DTA_REVIEW.html` mirroring
+the D-dimer + mpMRI Section A + B+C pattern (commits `52c66fb` + `a8571a8` + `329da52`).
+Adds Dinnes 2022 (Cochrane DTA review) substantive comparator + Whiting 2011 QUADAS-2 +
+Sweeting 2004 CC-bias caveat + McInnes 2018 PRISMA-DTA. All 4 new DOIs checked via
+doi.org HEAD with browser UA and Crossref `/works/<DOI>/agency` registration endpoint.
+
+| #  | DOI                                       | Plain HEAD | UA HEAD | Crossref     | Verdict       | Source                                      |
+|----|-------------------------------------------|-----------:|--------:|:------------:|:-------------:|:--------------------------------------------|
+| 23 | 10.1002/14651858.CD013705.pub3            |        302 |     302 | ok           | resolves      | Dinnes 2022 (Cochrane DTA review, ~155 evaluations / ~76,000 samples) |
+| 24 | 10.1001/jama.2017.19163                   |        302 |     302 | ok           | resolves      | McInnes 2018 (PRISMA-DTA Statement, JAMA)   |
+| 25 | 10.7326/0003-4819-155-8-201110180-00009   |        302 |     200 | ok           | resolves      | Whiting 2011 (QUADAS-2, Ann Intern Med) — re-verified |
+| 26 | 10.1002/sim.1761                          |        302 |     200 | ok           | resolves      | Sweeting 2004 (Stat Med, continuity correction bias) — re-verified |
+
+### COVID antigen Path-B round summary
+
+- **Resolved:** 4/4 (all Crossref-registered)
+- **Broken:** 0
+- **Crossref metadata cross-check (sanity):**
+  - `10.1002/14651858.CD013705.pub3` -> "Rapid, point-of-care antigen tests for diagnosis of SARS-CoV-2 infection", *Cochrane Database of Systematic Reviews*, 2022, first authors Dinnes, Sharma, Berhane, van Wyk, Nyaaba. Matches the in-page rendered citation.
+  - `10.1001/jama.2017.19163` -> "Preferred Reporting Items for a Systematic Review and Meta-analysis of Diagnostic Test Accuracy Studies", *JAMA*, 2018, first authors McInnes, Moher, Thombs, McGrath, Bossuyt. Matches the in-page rendered citation.
+  - Whiting 2011 + Sweeting 2004 carried over from the mpMRI Path-B round; same DOIs, same Crossref-verified metadata.
+- **No automated DOI substitution was performed.** Dinnes 2022 was drafted from
+  human-recalled metadata (Cochrane CD013705.pub3, Issue 7, 2022) and then verified
+  end-to-end via Crossref + UA HEAD.
+
