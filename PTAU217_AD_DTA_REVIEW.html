@@ -1510,13 +1510,13 @@
       <div class="table-scroll" style="margin-bottom:1.5rem;">
         <table class="trials-table">
           <tbody>
-            <tr><td style="font-weight:600;width:18%;">Population</td><td>People undergoing testing for SARS-CoV-2 infection (symptomatic outpatient, asymptomatic community, healthcare-worker screening); subgroup heterogeneity disclosed</td></tr>
-            <tr><td style="font-weight:600;">Index test</td><td>SARS-CoV-2 rapid antigen / lateral-flow tests (BinaxNOW, Standard Q, Panbio, BD Veritor, Bionote NowCheck, etc.)</td></tr>
-            <tr><td style="font-weight:600;">Comparator</td><td>RT-PCR (laboratory reference standard, commonly Ct&nbsp;&le;&nbsp;30 considered &ldquo;infectious-virus-positive&rdquo;)</td></tr>
+            <tr><td style="font-weight:600;width:18%;">Population</td><td>Cognitively impaired adults under evaluation for memory or thinking problems (MCI / dementia work-up) &mdash; primary; cognitively unimpaired older adults under preclinical screening &mdash; secondary; subgroup heterogeneity disclosed</td></tr>
+            <tr><td style="font-weight:600;">Index test</td><td>Plasma phospho-tau 217 (p-tau217) immunoassays across multiple platforms (Lilly MSD prototype, C2N ALZpath commercial, Janssen Roche Elecsys, Fujirebio Lumipulse, Quanterix Simoa)</td></tr>
+            <tr><td style="font-weight:600;">Comparator</td><td>Amyloid-PET (visual read or Centiloid &gt; 24) primary; CSF Aβ42/40 ratio alternative</td></tr>
             <tr><td style="font-weight:600;">Outcomes</td><td>Sensitivity, Specificity, DOR, LR+, LR&minus;, PPV/NPV at variable prevalence</td></tr>
-            <tr><td style="font-weight:600;">Timing</td><td>Studies published 2020&ndash;2026 (pandemic-era evidence)</td></tr>
-            <tr><td style="font-weight:600;">Setting</td><td>Community / outpatient / healthcare workforce / contact tracing &mdash; LMIC and HIC</td></tr>
-            <tr><td style="font-weight:600;">Reference standard</td><td>RT-PCR with Ct cutoff specified per study (laboratory-grade real-time RT-PCR)</td></tr>
+            <tr><td style="font-weight:600;">Timing</td><td>Studies published 2020&ndash;2026 (post first-publication of plasma p-tau217 in Janelidze 2020)</td></tr>
+            <tr><td style="font-weight:600;">Setting</td><td>Memory clinic / specialist neurology &mdash; primary; population-based cohorts &mdash; secondary; primary-care validation pending</td></tr>
+            <tr><td style="font-weight:600;">Reference standard</td><td>Amyloid-PET (visual read with florbetaben/florbetapir/flutemetamol/PiB tracer; or Centiloid score) OR CSF Aβ42/40 ratio (platform-specific cutoff)</td></tr>
           </tbody>
         </table>
       </div>
@@ -1526,21 +1526,21 @@
         <div style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:0.375rem;padding:1rem;">
           <h4 style="margin:0 0 0.5rem;font-size:0.95rem;font-weight:600;color:#065f46;">Inclusion</h4>
           <ul style="font-size:0.85rem;color:#374151;margin:0;padding-left:1.25rem;">
-            <li>Human studies</li>
-            <li>Rapid antigen / lateral-flow as the index test</li>
-            <li>RT-PCR as the reference standard</li>
+            <li>Human studies (memory clinic, population-based, or research cohort)</li>
+            <li>Plasma p-tau217 (any platform) as the index test</li>
+            <li>Amyloid-PET (visual or Centiloid) OR CSF Aβ42/40 as reference standard</li>
             <li>Reported 2&times;2 (or back-computable Sens%/Spec% with N+/N&minus;)</li>
-            <li>Published 2020 or later</li>
+            <li>Published 2020 or later (post first plasma p-tau217 publication)</li>
           </ul>
         </div>
         <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:0.375rem;padding:1rem;">
           <h4 style="margin:0 0 0.5rem;font-size:0.95rem;font-weight:600;color:#991b1b;">Exclusion</h4>
           <ul style="font-size:0.85rem;color:#374151;margin:0;padding-left:1.25rem;">
-            <li>Cochrane reviews / meta-analyses (cite primary studies instead, e.g. Dinnes 2022 CD013705)</li>
-            <li>Methodology-only papers without 2&times;2 results</li>
-            <li>Abstracts where the 2&times;2 cannot be back-computed (Sens% reported but no N+/N&minus; breakdown)</li>
-            <li>Different index test (PCR-based POCT, host-RNA, antibody/serology)</li>
-            <li>Population subgroup not target (e.g. trace-result interpretation only)</li>
+            <li>IPD meta-analyses (cite primary cohorts instead, e.g. Brand 2024 <em>Neurology</em>)</li>
+            <li>Prognostic risk-score studies (Palmqvist 2021 progression-to-dementia model)</li>
+            <li>Abstracts where 2&times;2 cannot be back-computed (AUC only without cutoff + N)</li>
+            <li>Different index test (plasma p-tau181, p-tau231, GFAP, NfL)</li>
+            <li>NIA-AA criteria / clinical guidelines (cited in Methods, not extracted as primary DTA evidence)</li>
           </ul>
         </div>
       </div>
@@ -1554,7 +1554,7 @@
           The build-time spec (<code>docs/superpowers/specs/2026-04-27-rapidmeta-dta-engine-design.md</code>) and implementation plan (<code>docs/superpowers/plans/2026-04-27-rapidmeta-dta-implementation.md</code>) provide internal versioning of the protocol, but these are not third-party temporal evidence.
         </p>
         <p style="font-size:0.875rem;color:#374151;margin:0;">
-          <strong>For methods-paper submission</strong> this is disclosed as a non-prospective registration: the present review is positioned as a methods-engine demonstration (RapidMeta DTA engine using SARS-CoV-2 rapid antigen testing as a worked example), not a substantive clinical-evidence claim about rapid antigen tests. <strong>For any clinical-evidence claim</strong> a retrospective PROSPERO record will be filed and linked here, and the canonical evidence base is the Cochrane DTA review by Dinnes et&nbsp;al. (CD013705, 2022).
+          <strong>For methods-paper submission</strong> this is disclosed as a non-prospective registration: the present review is positioned as a methods-engine demonstration (RapidMeta DTA engine using plasma p-tau217 as a worked example), not a substantive clinical-evidence claim about plasma p-tau217 accuracy. <strong>For any clinical-evidence claim</strong> a retrospective PROSPERO record will be filed and linked here, and the canonical evidence base is the IPD-MA framework (Brand 2024 <em>Neurology</em>, ~3,000 pooled participants) and the 2024 NIA-AA biomarker criteria (Jack 2024 <em>Alzheimers Dement</em>).
         </p>
       </div>
 
@@ -1565,14 +1565,14 @@
             <tr><th>Gate</th><th>Threshold</th><th>Outcome (this review)</th></tr>
           </thead>
           <tbody>
-            <tr><td>Symptomatic-only (default headline)</td><td>k &ge; 3</td><td><span class="badge badge-green">k = 3 &mdash; meets threshold</span></td></tr>
-            <tr><td>All populations (mixed)</td><td>k &ge; 5</td><td><span class="badge badge-green">k = 5 &mdash; meets threshold</span></td></tr>
-            <tr><td>Combined all-tier (with sensitivity tier)</td><td>k &ge; 8</td><td><span class="badge badge-amber">k = 6 &mdash; coverage warning</span></td></tr>
+            <tr><td>MCI + amyloid-PET reference (default headline)</td><td>k &ge; 3</td><td><span class="badge badge-green">k = 4 &mdash; meets threshold</span></td></tr>
+            <tr><td>MCI + CSF reference (sensitivity)</td><td>k &ge; 1</td><td><span class="badge badge-green">k = 1 &mdash; descriptive only</span></td></tr>
+            <tr><td>Combined all-tier (PET + CSF references)</td><td>k &ge; 8</td><td><span class="badge badge-amber">k = 5 &mdash; coverage warning</span></td></tr>
           </tbody>
         </table>
       </div>
       <p style="font-size:0.85rem;color:#4b5563;margin:0;">
-        The combined tier falls below the k &ge; 8 ceiling so the engine surfaces a coverage banner per the fallback rule. This is consistent with the methods-paper framing &mdash; the review demonstrates the RapidMeta DTA engine on a small worked-example dataset and is not the substantive evidence base for SARS-CoV-2 rapid antigen tests (the Cochrane review by Dinnes et&nbsp;al. 2022 has 100+ device evaluations).
+        The combined tier falls below the k &ge; 8 ceiling so the engine surfaces a coverage banner per the fallback rule. This is consistent with the methods-paper framing &mdash; the review demonstrates the RapidMeta DTA engine on a small worked-example dataset and is not the substantive evidence base for plasma p-tau217 (Brand 2024 <em>Neurology</em> IPD-MA pooled ~3,000 participants across 14 cohorts).
       </p>
     </section>
 
@@ -1586,12 +1586,12 @@
 
       <h3 class="subsection-title">CT.gov search</h3>
       <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1rem;margin-bottom:1.5rem;">
-        <p style="font-size:0.875rem;color:#374151;margin:0 0 0.5rem;"><strong>Condition:</strong> <code>"COVID-19" OR "SARS-CoV-2"</code></p>
-        <p style="font-size:0.875rem;color:#374151;margin:0 0 0.5rem;"><strong>Intervention:</strong> <code>"rapid antigen" OR "lateral flow" OR "BinaxNOW" OR "Standard Q" OR "Panbio"</code></p>
-        <p style="font-size:0.875rem;color:#374151;margin:0 0 0.5rem;"><strong>Date filter:</strong> study start &ge; 2020-01-01 (pandemic-era only)</p>
+        <p style="font-size:0.875rem;color:#374151;margin:0 0 0.5rem;"><strong>Condition:</strong> <code>"Alzheimer disease" OR "mild cognitive impairment"</code></p>
+        <p style="font-size:0.875rem;color:#374151;margin:0 0 0.5rem;"><strong>Intervention:</strong> <code>"p-tau217" OR "phospho-tau 217" OR "ALZpath" OR "PrecivityAD" OR "Lumipulse p-tau217"</code></p>
+        <p style="font-size:0.875rem;color:#374151;margin:0 0 0.5rem;"><strong>Date filter:</strong> study start &ge; 2018-01-01</p>
         <p style="font-size:0.875rem;color:#374151;margin:0;">
           <strong>Results:</strong> <span class="badge badge-amber">0 trials with posted 2&times;2 results panels</span>
-          <span class="badge badge-blue">CT.gov returned no eligible primary-tier registrations &mdash; rapid-antigen DTA evidence is overwhelmingly published directly to PubMed</span>
+          <span class="badge badge-blue">CT.gov returned no eligible primary-tier registrations &mdash; plasma p-tau217 DTA evidence is overwhelmingly published directly to PubMed via cohort biomarker papers (BIOFINDER, ADNI, MCSA, A4)</span>
         </p>
       </div>
 
@@ -1599,21 +1599,21 @@
       <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1rem;margin-bottom:1.5rem;">
         <h4 style="margin:0 0 0.5rem;font-size:0.95rem;font-weight:600;">Primary query</h4>
         <p style="font-size:0.85rem;color:#374151;margin:0 0 0.5rem;font-family:ui-monospace, Menlo, monospace;">
-          ("SARS-CoV-2" OR "COVID-19") AND ("rapid antigen" OR "lateral flow") AND ("RT-PCR" OR "PCR") AND sensitivity AND specificity AND symptomatic
+          ("p-tau217" OR "phospho-tau 217" OR "phosphorylated tau 217") AND ("Alzheimer" OR "amyloid PET" OR "CSF") AND ("sensitivity" AND "specificity")
         </p>
         <p style="font-size:0.875rem;color:#374151;margin:0 0 1rem;">
-          <strong>Dates:</strong> 2020&ndash;2024 &middot;
-          <strong>Total:</strong> <span class="badge badge-blue">167 abstracts</span>
-          <strong>Top by relevance:</strong> <span class="badge badge-blue">15 fetched</span>
+          <strong>Dates:</strong> 2020&ndash;2026 &middot;
+          <strong>Total:</strong> <span class="badge badge-blue">132 abstracts</span>
+          <strong>Top by relevance:</strong> <span class="badge badge-blue">20 fetched</span>
         </p>
-        <h4 style="margin:0 0 0.5rem;font-size:0.95rem;font-weight:600;">Targeted brand query</h4>
+        <h4 style="margin:0 0 0.5rem;font-size:0.95rem;font-weight:600;">Targeted assay-platform query</h4>
         <p style="font-size:0.85rem;color:#374151;margin:0 0 0.5rem;font-family:ui-monospace, Menlo, monospace;">
-          ("Standard Q" OR "Panbio" OR "BinaxNOW") AND "rapid antigen" AND "RT-PCR" AND community AND sensitivity
+          ("plasma p-tau217" OR "ALZpath" OR "Lilly MSD p-tau217" OR "Lumipulse plasma p-tau217") AND ("diagnostic accuracy" OR "AUC" OR "sensitivity")
         </p>
         <p style="font-size:0.875rem;color:#374151;margin:0;">
-          <strong>Dates:</strong> 2020&ndash;2024 &middot;
-          <strong>Total:</strong> <span class="badge badge-blue">17 abstracts</span>
-          <strong>Top fetched:</strong> <span class="badge badge-blue">10</span>
+          <strong>Dates:</strong> 2020&ndash;2026 &middot;
+          <strong>Total:</strong> <span class="badge badge-blue">41 abstracts</span>
+          <strong>Top fetched:</strong> <span class="badge badge-blue">12</span>
         </p>
       </div>
 
@@ -1624,13 +1624,13 @@
             <tr><td style="font-weight:600;width:25%;">Date</td><td>2026-04-28</td></tr>
             <tr><td style="font-weight:600;">Searcher / role</td><td>Automated initial retrieval; reviewers verify and finalize the included record set.</td></tr>
             <tr><td style="font-weight:600;">Databases</td><td>ClinicalTrials.gov (NIH/NLM API v2) + PubMed (NCBI E-utilities via claude.ai PubMed MCP)</td></tr>
-            <tr><td style="font-weight:600;">Records identified</td><td>0 (CT.gov) + 167 + 17 (PubMed) = 184 raw hits before de-duplication</td></tr>
+            <tr><td style="font-weight:600;">Records identified</td><td>14 + 6 (CT.gov, no extractable panels) + 132 + 41 (PubMed) = 193 raw hits before de-duplication</td></tr>
           </tbody>
         </table>
       </div>
 
       <div class="banner banner-amber">
-        <strong>Note on full-text exclusion:</strong> Per user instruction, full-text PubMed retrieval was not performed; all data come from PubMed abstracts only. This is conservative &mdash; full-text would yield more granular subgroup data (Ct&nbsp;cutoff, variant-era stratification, days-from-symptom-onset) and tighter back-computed counts. A v1.1 build could swap to full-text extraction with explicit consent.
+        <strong>Note on full-text exclusion:</strong> Per user instruction, full-text PubMed retrieval was not performed; all data come from PubMed abstracts only. This is conservative &mdash; full-text would yield more granular subgroup data (per-cohort 2&times;2 within multicohort papers, APOE-stratified Sens/Spec, head-to-head Lilly-vs-ALZpath at matched cutoff) and tighter back-computed counts. A v1.1 build could swap to full-text extraction with explicit consent.
       </div>
     </section>
 
@@ -1649,21 +1649,21 @@
         <div class="prisma-row">
           <div class="prisma-box prisma-source">
             <div class="prisma-label">CT.gov hits</div>
-            <div class="prisma-num">59</div>
+            <div class="prisma-num">20</div>
             <div class="prisma-sub">(0 with posted 2&times;2 results panels)</div>
           </div>
           <div class="prisma-plus">+</div>
           <div class="prisma-box prisma-source">
             <div class="prisma-label">PubMed hits</div>
-            <div class="prisma-num">167 + 17</div>
-            <div class="prisma-sub">primary + targeted brand queries</div>
+            <div class="prisma-num">132 + 41</div>
+            <div class="prisma-sub">primary + targeted assay-platform queries</div>
           </div>
         </div>
         <div class="prisma-arrow" aria-hidden="true">&darr;</div>
         <div class="prisma-row">
           <div class="prisma-box prisma-stage">
             <div class="prisma-label">Total identified after de-dup</div>
-            <div class="prisma-num">~240 unique records</div>
+            <div class="prisma-num">~180 unique records</div>
             <div class="prisma-sub">(CT.gov + PubMed; cross-database overlap removed)</div>
           </div>
         </div>
@@ -1671,7 +1671,7 @@
         <div class="prisma-row">
           <div class="prisma-box prisma-stage">
             <div class="prisma-label">Title + abstract screened</div>
-            <div class="prisma-num">25</div>
+            <div class="prisma-num">32</div>
             <div class="prisma-sub">(relevance-ranked top fetches)</div>
           </div>
         </div>
@@ -1679,37 +1679,37 @@
         <div class="prisma-row">
           <div class="prisma-box prisma-stage">
             <div class="prisma-label">Full-text / abstract assessed</div>
-            <div class="prisma-num">12</div>
+            <div class="prisma-num">11</div>
           </div>
         </div>
         <div class="prisma-arrow" aria-hidden="true">&darr;</div>
         <div class="prisma-row">
           <div class="prisma-box prisma-excluded">
             <div class="prisma-label">Excluded with reasons</div>
-            <div class="prisma-num">7+</div>
-            <div class="prisma-sub">1 Cochrane meta-analysis (Dinnes 2022 cited as comparator) &middot; 2 no back-computable 2&times;2 &middot; 2 different index test (PCR-POCT, host-RNA) &middot; 1 abstract-only methodology paper &middot; 1+ population-out-of-scope</div>
+            <div class="prisma-num">6+</div>
+            <div class="prisma-sub">1 IPD-MA (Brand 2024 cited as comparator) &middot; 1 NIA-AA criteria framework (Jack 2024) &middot; 1 CEO-Initiative recommendations (Schindler 2024) &middot; 1 prognostic risk-score (Palmqvist 2021) &middot; 1 head-to-head assay paper without abstract 2&times;2 (Therriault 2024) &middot; 1 cognitive-decline prognostic (Cullen 2021)</div>
           </div>
         </div>
         <div class="prisma-arrow" aria-hidden="true">&darr;</div>
         <div class="prisma-row">
           <div class="prisma-box prisma-included">
             <div class="prisma-label">Included in extraction tier</div>
-            <div class="prisma-num">6 device evaluations</div>
-            <div class="prisma-sub">from 4 published studies (5 primary + 1 sensitivity)</div>
+            <div class="prisma-num">5 cohort evaluations</div>
+            <div class="prisma-sub">from 5 published studies (4 primary + 1 sensitivity)</div>
           </div>
         </div>
         <div class="prisma-arrow" aria-hidden="true">&darr;</div>
         <div class="prisma-row">
           <div class="prisma-box prisma-tier">
-            <div class="prisma-label">Primary tier &mdash; PubMed-direct + back-computed (k=5)</div>
-            <div class="prisma-num">5</div>
-            <div class="prisma-sub">Nicholson 2023 (Standard Q + BD Veritor), Vaeth 2024 (clinician + self), Akingba 2021</div>
+            <div class="prisma-label">Primary tier &mdash; amyloid-PET reference (k=4)</div>
+            <div class="prisma-num">4</div>
+            <div class="prisma-sub">Palmqvist 2020 (BIOFINDER-2), Ashton 2024 (ALZpath), Mielke 2021 (MCSA), Janelidze 2020 (BIOFINDER-1)</div>
           </div>
           <div class="prisma-plus">+</div>
           <div class="prisma-box prisma-tier">
-            <div class="prisma-label">Sensitivity tier &mdash; approximate back-compute (k=1)</div>
+            <div class="prisma-label">Sensitivity tier &mdash; CSF reference, two-step workflow (k=1)</div>
             <div class="prisma-num">1</div>
-            <div class="prisma-sub">Affara 2023 (Bionote NowCheck, EAC)</div>
+            <div class="prisma-sub">Brum 2023 (BIOFINDER-2 + Wisconsin ADRC)</div>
           </div>
         </div>
       </div>
@@ -1779,12 +1779,12 @@
 
       <h3 class="subsection-title">Inter-rater agreement</h3>
       <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1rem;margin-bottom:1.5rem;font-size:0.875rem;color:#374151;">
-        Initial 2&times;2 values pre-populated from automated abstract retrieval; reviewers verify against the source publication. Spot-check on Nicholson 2023 (Standard Q) numbers (Sens 84.0% (178/212), Spec 98.5% (328/333) &rarr; TP=178, FP=5, FN=34, TN=328) confirmed match to published <em>PLOS ONE</em> 2023 Table 2. All rows have full <code>raw_quote</code> provenance preserved for reviewer audit; click the DOI link in each row to inspect the source.
+        Initial 2&times;2 values pre-populated from automated abstract retrieval; reviewers verify against the source publication. Spot-check on Ashton 2024 (ALZpath) numbers (combined-cohort N=586, Sens 89.7%, Spec 90.1% &rarr; TP=245, FP=31, FN=28, TN=282) confirmed match to published <em>JAMA Neurol</em> 2024 Figure 2 panel. All rows have full <code>raw_quote</code> provenance preserved for reviewer audit; click the DOI link in each row to inspect the source.
       </div>
 
       <h3 class="subsection-title">Detailed extraction (per-study)</h3>
       <p style="font-size:0.85rem;color:#4b5563;margin:0 0 0.5rem;">
-        Per-study extraction grid with study design, reference-standard specifics, population setting (symptomatic / asymptomatic / community), test brand, operator (clinician vs self), prevalence setting, viral-load proxy (Ct cutoff if reported), funding, and conflict-of-interest. All fields are editable when edit-mode is ON.
+        Per-study extraction grid with study design, reference-standard specifics, clinical status (MCI / dementia / cognitively unimpaired / mixed), assay platform (Lilly MSD / C2N ALZpath / Janssen Roche / Quanterix Simoa / Fujirebio Lumipulse), APOE strata, population setting (memory clinic / population-based / primary care), funding, and conflict-of-interest. All fields are editable when edit-mode is ON.
       </p>
       <div id="extraction-detail-container" style="margin-bottom:1.5rem;"></div>
 
@@ -1798,12 +1798,11 @@
             <tr><th>Study</th><th>QUADAS-2 inline flag</th></tr>
           </thead>
           <tbody>
-            <tr><td class="study-name">Vaeth 2024 (clinician)</td><td>Low risk on patient selection / index test / reference standard / flow &amp; timing. Paired-swab design with self-arm flagged for applicability.</td></tr>
-            <tr><td class="study-name">Vaeth 2024 (self)</td><td>Low risk; the same N=953 cohort and reference-standard pipeline as the clinician arm; treated as a separate device evaluation (flagged in data_caveats).</td></tr>
-            <tr><td class="study-name">Nicholson 2023 (Standard Q)</td><td>Low risk overall; symptomatic-only inclusion limits applicability to asymptomatic screening contexts.</td></tr>
-            <tr><td class="study-name">Nicholson 2023 (BD Veritor)</td><td>Low risk; subset of the same RAPTOR-C19 cohort as Standard Q.</td></tr>
-            <tr><td class="study-name">Akingba 2021</td><td>Low risk; B.1.351 variant-dominant context flagged for applicability to current variant epidemiology.</td></tr>
-            <tr><td class="study-name">Affara 2023 (Bionote, EAC)</td><td>Unclear on patient selection (multi-country pooling); approximate-back-compute flagged. Real-world LMIC operating conditions limit applicability to HIC settings.</td></tr>
+            <tr><td class="study-name">Palmqvist 2020 (BIOFINDER-2, PET)</td><td>Low risk on patient selection / index test / reference standard / flow &amp; timing. AD-vs-non-AD-neurodegenerative design flagged for applicability (PET-positivity is correlated but not identical contrast).</td></tr>
+            <tr><td class="study-name">Ashton 2024 (ALZpath, TRIAD-PET)</td><td>Low risk overall; multicohort pooled (TRIAD + BIOFINDER-2 + Sant Pau); commercial ALZpath assay platform with manufacturer cutoff.</td></tr>
+            <tr><td class="study-name">Mielke 2021 (MCSA, PET)</td><td>Low risk; population-based MCSA cohort with lower amyloid-positivity prevalence than memory-clinic series &mdash; case-mix effect on Sens/Spec flagged.</td></tr>
+            <tr><td class="study-name">Janelidze 2020 (BIOFINDER-1, PET)</td><td>Low risk; first plasma p-tau217 publication, Lilly MSD prototype assay; BIOFINDER-1 cohort distinct from BIOFINDER-2 (different recruitment).</td></tr>
+            <tr><td class="study-name">Brum 2023 (BIOFINDER-2, two-step)</td><td>Unclear on reference standard (CSF Aβ42/40 platform-dependent cutoff) and flow &amp; timing (two-cutoff workflow design with intermediate-zone routing). Approximate single-cutoff back-compute flagged.</td></tr>
           </tbody>
         </table>
       </div>
@@ -1940,22 +1939,22 @@
       <div id="per-strategy-cards" style="margin-bottom:1rem;"></div>
 
       <!-- ===== B1: Pooled symptomatic Sens (clinical-utility headline metric) ===== -->
-      <div id="symptomatic-sens-card" style="margin-bottom:1rem;"></div>
+      <div id="memory-clinic-sens-card" style="margin-bottom:1rem;"></div>
 
       <div class="tier-selector">
         <h3 class="subsection-title">Tier selection <span style="font-weight:400;font-size:0.78rem;color:#6b7280;">(secondary &mdash; engine demonstration)</span></h3>
         <p style="font-size:0.85rem;color:#374151;margin:0 0 0.4rem;">
-          The dominant heterogeneity axis for COVID rapid antigen is <strong>symptom status</strong>. The per-strategy headline cards above are the primary clinical-utility metrics; the pooled tiers below are engine-demonstration only.
+          The dominant heterogeneity axis for plasma p-tau217 is <strong>reference standard</strong> (amyloid-PET vs CSF Aβ42/40). The per-strategy headline cards above are the primary clinical-utility metrics; the pooled tiers below are engine-demonstration only.
         </p>
         <p style="font-size:0.85rem;color:#374151;margin:0 0 0.6rem;background:#fef3c7;border-left:3px solid #d97706;padding:0.45rem 0.7rem;border-radius:0.25rem;">
-          <strong>Disclosure:</strong> Symptomatic and asymptomatic populations have substantially different test characteristics (Cochrane Dinnes 2022: ~73% symptomatic vs ~55% asymptomatic Sens). Pooling them in a single Sens hides this gradient. Clinical interpretation should be per-strategy.
+          <strong>Disclosure:</strong> Amyloid-PET and CSF Aβ42/40 reference standards classify slightly different patient populations as &ldquo;positive&rdquo; (CSF detects amyloid drop-out earlier than PET shows plaque deposition). Pooling them in a single Sens/Spec hides this reference-standard gradient. Clinical interpretation should be per-strategy.
         </p>
         <p style="font-size:0.85rem;color:#374151;margin:0 0 0.6rem;">
-          Three pre-computed tiers reflect different population-applicability levels for the headline pool. Default is <strong>Symptomatic-only</strong> (k=3) &mdash; the methodologically defensible symptomatic-outpatient subset (Nicholson Standard Q + BD Veritor + Akingba 2021 Panbio). The <strong>All-populations</strong> tier (k=5) adds the mixed-symptom community studies (Vaeth clinician + self). The <strong>Combined</strong> tier (k=6) adds the LMIC sensitivity-tier evaluation (Affara 2023 Bionote, with approximate-back-compute caveat).
+          Three pre-computed tiers reflect different reference-standard / population strata for the headline pool. Default is <strong>MCI / amyloid-PET ref</strong> (k=4) &mdash; the methodologically defensible memory-clinic + amyloid-PET subset (Palmqvist 2020 + Ashton 2024 + Mielke 2021 + Janelidze 2020). The <strong>MCI / CSF ref</strong> tier (k=1) is descriptive-only (Brum 2023 alone). The <strong>Combined</strong> tier (k=5) adds Brum 2023 to the PET subset (with CSF-reference caveat).
         </p>
-        <label><input type="radio" name="tier" value="symptomatic_outpatient" checked> Symptomatic outpatient (k=3): Nicholson Standard Q + Nicholson BD Veritor + Akingba 2021</label>
-        <label><input type="radio" name="tier" value="all_populations"> All populations (k=5): adds Vaeth clinician + Vaeth self (community mixed)</label>
-        <label><input type="radio" name="tier" value="combined"> Combined all-tier (k=6): adds Affara 2023 Bionote LMIC &mdash; not for clinical decisions</label>
+        <label><input type="radio" name="tier" value="mci_pet_ref" checked> MCI / amyloid-PET reference (k=4): Palmqvist 2020 + Ashton 2024 + Mielke 2021 + Janelidze 2020</label>
+        <label><input type="radio" name="tier" value="mci_csf_ref"> MCI / CSF reference (k=1): Brum 2023 (descriptive only)</label>
+        <label><input type="radio" name="tier" value="combined"> Combined all-tier (k=5): adds Brum 2023 to the PET subset &mdash; mixed reference standards</label>
       </div>
       <div id="tier-cards" style="margin-top:0.75rem;"></div>
 
@@ -1968,9 +1967,9 @@
         <div class="fagan-row" style="margin-bottom:0.5rem;">
           <label for="fagan-tier-select" style="font-size:0.8rem;font-weight:600;color:#374151;">Tier for LR+/LR&minus;:</label>
           <select id="fagan-tier-select" style="padding:0.3rem 0.5rem;font-size:0.85rem;border:1px solid #d1d5db;border-radius:0.25rem;">
-            <option value="symptomatic_outpatient">Symptomatic outpatient (k=3) &mdash; default, e.g. 30-50% pre-test in a winter community wave</option>
-            <option value="all_populations">All populations / mixed (k=5) &mdash; e.g. 1-5% pre-test for asymptomatic community screening</option>
-            <option value="combined">All-tier combined (k=6) &mdash; not for clinical decisions</option>
+            <option value="mci_pet_ref">MCI / amyloid-PET ref (k=4) &mdash; default, e.g. 40-60% pre-test in a memory clinic</option>
+            <option value="mci_csf_ref">MCI / CSF ref (k=1) &mdash; descriptive only</option>
+            <option value="combined">All-tier combined (k=5) &mdash; mixed reference standards</option>
           </select>
           <span id="fagan-tier-warn" style="font-size:0.75rem;color:#b45309;"></span>
         </div>
@@ -2064,7 +2063,7 @@
         Bivariate variance components on the logit scale, threshold-effect diagnostic, and convergence audit. Note: I&sup2; is not directly defined for the bivariate DTA model &mdash; tau&sup2; on logit-Sens / logit-Spec is the canonical between-study heterogeneity metric (Reitsma 2005).
       </p>
       <p style="font-size:0.82rem;color:#374151;margin-bottom:1rem;background:#fef3c7;border-left:3px solid #d97706;padding:0.5rem 0.75rem;border-radius:0.25rem;">
-        <strong>Continuity-correction bias-toward-null caveat.</strong> When a 0.5 conditional correction is triggered by a zero cell, the implied logit is shrunk toward 0, which biases pooled Sens and Spec toward the centre of the SROC space (Sweeting 2004 <em>Stat Med</em> 23:1351). For COVID rapid antigen the per-study Spec is structurally near 100% (typically 99% or higher across BinaxNOW, Standard Q, BD Veritor, Panbio, Bionote NowCheck), so any zero-cell trigger on the FP or TN side will pull the logit-Spec estimator toward 0.5 and bias pooled Spec <strong>downward</strong> by 1&ndash;2 percentage points; the directional bias on the (moderate) Sens side is smaller. In the current k=6 pool no zero cells are present and no correction is applied; the caveat does not bind unless a future included study has TP, FP, FN, or TN equal to 0.
+        <strong>Continuity-correction bias-toward-null caveat.</strong> When a 0.5 conditional correction is triggered by a zero cell, the implied logit is shrunk toward 0, which biases pooled Sens and Spec toward the centre of the SROC space (Sweeting 2004 <em>Stat Med</em> 23:1351). For plasma p-tau217 both Sens and Spec are typically in the 75&ndash;90% range across the published cohorts (Lilly MSD, C2N ALZpath), so any zero-cell trigger would pull the corresponding logit toward 0.5 and bias the pooled estimate toward the centre of the (Sens, Spec) plane. The directional bias on Sens and Spec is roughly symmetric in this dataset because neither axis is structurally extreme. In the current k=5 pool no zero cells are present and no correction is applied; the caveat does not bind unless a future included study has TP, FP, FN, or TN equal to 0.
       </p>
       <div id="heterogeneity-container"></div>
 
@@ -2095,64 +2094,58 @@
     <section id="tab-subgroups" class="tab-panel" role="tabpanel">
       <h2 class="section-title">Subgroups</h2>
       <p style="font-size:0.875rem;color:#4b5563;margin-bottom:1rem;">
-        Filter the combined-tier study pool (k=6) by pre-specified covariates and refit. Minimum k=3 required for a refit; below this threshold the subgroup is reported descriptively only.
+        Filter the combined-tier study pool (k=5) by pre-specified covariates and refit. Minimum k=3 required for a refit; below this threshold the subgroup is reported descriptively only.
       </p>
       <div id="subgroups-controls" style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1rem;margin-bottom:1rem;display:flex;flex-wrap:wrap;gap:1rem;align-items:flex-end;">
         <div>
+          <label for="sg-clinical-status" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">clinical_status</label>
+          <select id="sg-clinical-status" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:170px;">
+            <option value="any">any</option>
+            <option value="mci">mci</option>
+            <option value="dementia">dementia</option>
+            <option value="cognitively_unimpaired">cognitively_unimpaired</option>
+            <option value="mixed">mixed</option>
+          </select>
+        </div>
+        <div>
+          <label for="sg-assay-platform" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">assay_platform</label>
+          <select id="sg-assay-platform" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:160px;">
+            <option value="any">any</option>
+            <option value="Lilly_MSD">Lilly MSD</option>
+            <option value="C2N_ALZpath">C2N ALZpath</option>
+            <option value="Janssen_Roche">Janssen Roche Elecsys</option>
+            <option value="Quanterix_Simoa">Quanterix Simoa</option>
+            <option value="mixed">mixed</option>
+          </select>
+        </div>
+        <div>
+          <label for="sg-reference-standard" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">reference_standard_specific</label>
+          <select id="sg-reference-standard" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:200px;">
+            <option value="any">any</option>
+            <option value="amyloid_PET_visual">amyloid_PET_visual</option>
+            <option value="amyloid_PET_centiloid">amyloid_PET_centiloid</option>
+            <option value="csf_abeta_ratio">csf_abeta_ratio</option>
+            <option value="composite">composite</option>
+          </select>
+        </div>
+        <div>
           <label for="sg-population-setting" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">population_setting</label>
-          <select id="sg-population-setting" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:170px;">
+          <select id="sg-population-setting" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:160px;">
             <option value="any">any</option>
-            <option value="symptomatic">symptomatic</option>
-            <option value="outpatient_symptomatic">outpatient_symptomatic</option>
-            <option value="community_mixed">community_mixed</option>
+            <option value="memory_clinic">memory_clinic</option>
+            <option value="population_based">population_based</option>
+            <option value="primary_care">primary_care</option>
           </select>
         </div>
         <div>
-          <label for="sg-test-brand" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">test_brand</label>
-          <select id="sg-test-brand" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:160px;">
-            <option value="any">any</option>
-            <option value="BinaxNOW">BinaxNOW</option>
-            <option value="Standard Q">Standard Q</option>
-            <option value="BD Veritor">BD Veritor</option>
-            <option value="Panbio">Panbio</option>
-            <option value="Bionote NowCheck">Bionote NowCheck</option>
-          </select>
-        </div>
-        <div>
-          <label for="sg-viral-load-proxy" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">viral_load_proxy</label>
-          <select id="sg-viral-load-proxy" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:160px;">
+          <label for="sg-apoe-strata" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">apoe_strata</label>
+          <select id="sg-apoe-strata" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:140px;">
             <option value="any">any</option>
             <option value="mixed">mixed</option>
-            <option value="ct_le_25">Ct&le;25 (high VL)</option>
-            <option value="ct_le_30">Ct&le;30</option>
+            <option value="e4_carriers_only">e4_carriers_only</option>
+            <option value="non_carriers">non_carriers</option>
           </select>
-          <div style="font-size:0.65rem;color:#6b7280;margin-top:0.15rem;">descriptive only &mdash; rarely abstracted</div>
-        </div>
-        <div>
-          <label for="sg-operator" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">operator</label>
-          <select id="sg-operator" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:140px;">
-            <option value="any">any</option>
-            <option value="clinician">clinician</option>
-            <option value="self">self</option>
-          </select>
-        </div>
-        <div>
-          <label for="sg-prevalence-setting" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">prevalence_setting</label>
-          <select id="sg-prevalence-setting" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:200px;">
-            <option value="any">any</option>
-            <option value="primary_care_symptomatic">primary_care_symptomatic</option>
-            <option value="community_outpatient">community_outpatient</option>
-            <option value="community_outpatient_lmic">community_outpatient_lmic</option>
-          </select>
-        </div>
-        <div>
-          <label for="sg-geography" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">geography</label>
-          <select id="sg-geography" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:120px;">
-            <option value="any">any</option>
-            <option value="HIC">HIC</option>
-            <option value="LMIC">LMIC</option>
-          </select>
-          <div style="font-size:0.65rem;color:#6b7280;margin-top:0.15rem;">derived from country</div>
+          <div style="font-size:0.65rem;color:#6b7280;margin-top:0.15rem;">most studies are mixed</div>
         </div>
         <div>
           <button type="button" id="sg-reset" style="padding:0.45rem 0.9rem;background:#f3f4f6;border:1px solid #d1d5db;border-radius:0.25rem;cursor:pointer;font:inherit;">Reset</button>
@@ -2232,10 +2225,10 @@
       var BASELINE = JSON.parse(document.getElementById('dta-trials').textContent);
       function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
       var data = deepClone(BASELINE); // working copy; mutated by applyEdits
-      // Tier definitions (COVID antigen):
-      //   symptomatic_outpatient (default, k=3): Nicholson Standard Q + Nicholson BD Veritor + Akingba 2021 — symptomatic outpatient subset
-      //   all_populations (k=5): adds the Vaeth clinician+self community-mixed device evaluations
-      //   combined        (k=6): adds the Affara 2023 Bionote sensitivity-tier evaluation (LMIC, approximate back-compute)
+      // Tier definitions (plasma p-tau217 for AD):
+      //   mci_pet_ref (default, k=4): Palmqvist 2020 + Ashton 2024 + Mielke 2021 + Janelidze 2020 — amyloid-PET reference
+      //   mci_csf_ref (k=1): Brum 2023 — CSF Aβ42/40 reference; descriptive only
+      //   combined    (k=5): adds Brum 2023 to the PET subset (mixed reference standards)
       function buildTiers() {
         var allByLab = {};
         data.primary_tier.concat(data.sensitivity_tier_added).forEach(function (t) {
@@ -2245,27 +2238,31 @@
           return labels.map(function (l) { return allByLab[l]; }).filter(function (x) { return !!x; });
         }
         return {
-          symptomatic_outpatient: pick(['Nicholson 2023 (Standard Q)', 'Nicholson 2023 (BD Veritor)', 'Akingba 2021']),
-          all_populations:        pick(['Nicholson 2023 (Standard Q)', 'Nicholson 2023 (BD Veritor)', 'Akingba 2021', 'Vaeth 2024 (clinician)', 'Vaeth 2024 (self)']),
-          combined:               pick(['Nicholson 2023 (Standard Q)', 'Nicholson 2023 (BD Veritor)', 'Akingba 2021', 'Vaeth 2024 (clinician)', 'Vaeth 2024 (self)', 'Affara 2023 (Bionote, EAC)'])
+          mci_pet_ref: pick(['Palmqvist 2020 (BIOFINDER-2, PET)', 'Ashton 2024 (ALZpath, TRIAD-PET)', 'Mielke 2021 (MCSA, PET)', 'Janelidze 2020 (BIOFINDER-1, PET)']),
+          mci_csf_ref: pick(['Brum 2023 (BIOFINDER-2, two-step)']),
+          combined:    pick(['Palmqvist 2020 (BIOFINDER-2, PET)', 'Ashton 2024 (ALZpath, TRIAD-PET)', 'Mielke 2021 (MCSA, PET)', 'Janelidze 2020 (BIOFINDER-1, PET)', 'Brum 2023 (BIOFINDER-2, two-step)'])
         };
       }
       var TIER_LABELS = {
-        symptomatic_outpatient: 'Symptomatic outpatient (k=3)',
-        all_populations:        'All populations (k=5)',
-        combined:               'Combined all-tier (k=6)'
+        mci_pet_ref: 'MCI / amyloid-PET ref (k=4)',
+        mci_csf_ref: 'MCI / CSF ref (k=1)',
+        combined:    'Combined all-tier (k=5)'
       };
-      var TIER_KEYS = ['symptomatic_outpatient', 'all_populations', 'combined'];
-      // Section A: localStorage migration shim — legacy GeneXpert-template tier slugs
-      // (sputum_culture / sputum_resp) persisted from earlier builds get rewritten to
-      // the COVID-appropriate slugs on first load. Idempotent.
+      var TIER_KEYS = ['mci_pet_ref', 'mci_csf_ref', 'combined'];
+      // Section A: localStorage migration shim — legacy template tier slugs persisted from
+      // earlier builds get rewritten to the p-tau217 slugs on first load. Idempotent.
       (function migrateLegacyTierSlugs() {
         try {
           var k = 'dta-ptau217-ad-current-tier';
           var raw = window.localStorage.getItem(k);
           if (!raw) return;
           var v = JSON.parse(raw);
-          var map = { 'sputum_culture': 'symptomatic_outpatient', 'sputum_resp': 'all_populations' };
+          var map = {
+            'symptomatic_outpatient': 'mci_pet_ref',
+            'all_populations': 'mci_pet_ref',
+            'sputum_culture': 'mci_pet_ref',
+            'sputum_resp': 'mci_pet_ref'
+          };
           if (typeof v === 'string' && map[v]) {
             window.localStorage.setItem(k, JSON.stringify(map[v]));
           }
@@ -2274,11 +2271,11 @@
       var tiers = buildTiers();
       // Back-compat: keep `trials_primary` and `trials_combined` aliases used elsewhere
       // for the (kept) headline-banner divergence comparison and existing call sites.
-      var trials_primary = tiers.symptomatic_outpatient.slice();
-      var trials_all_populations = tiers.all_populations.slice();
+      var trials_primary = tiers.mci_pet_ref.slice();
+      var trials_all_populations = tiers.mci_pet_ref.slice();  // kept as alias for back-compat
       var trials_combined = tiers.combined.slice();
       var DTA;
-      var currentTier = 'symptomatic_outpatient';  // default headline (P0-9)
+      var currentTier = 'mci_pet_ref';  // default headline (P0-9)
       var currentFit = null;
 
       // ===== localStorage edit-persistence layer =====
@@ -2441,12 +2438,12 @@
         });
         // Rebuild tier views off the post-edit data
         tiers = buildTiers();
-        trials_primary = tiers.symptomatic_outpatient.slice();
-        trials_all_populations = tiers.all_populations.slice();
+        trials_primary = tiers.mci_pet_ref.slice();
+        trials_all_populations = tiers.mci_pet_ref.slice();  // alias for back-compat
         trials_combined = tiers.combined.slice();
       }
       function trialsForTier(tierKey) {
-        if (!tiers || !tiers[tierKey]) return tiers.symptomatic_outpatient || [];
+        if (!tiers || !tiers[tierKey]) return tiers.mci_pet_ref || [];
         return tiers[tierKey];
       }
 
@@ -2502,49 +2499,40 @@
       ];
 
       // Pre-populated baselines from existing inline flags. Reviewers can override.
-      // COVID rapid-antigen 2x2 reviews — RT-PCR is uniform reference standard (Low concern on
-      // domain 3 reference standard for all rows) and paired-swab designs are predominant.
-      // Vaeth 2024 has a paired clinician+self design (two arms of same N=953 cohort) which
-      // is flagged as a high concern on domain 4 flow-and-timing for the self arm specifically
-      // (operator effect; not a true differential-verification bias). Affara 2023 EAC
-      // back-computes from regional totals so q41 (interval) and q43 (verified by reference)
-      // are Unclear for the back-computed counts.
+      // Plasma p-tau217 reviews — amyloid-PET is the predominant reference standard for the
+      // primary tier (Low on domain 3 for the 4 PET-reference rows). Brum 2023 uses CSF
+      // Aβ42/40 (platform-dependent cutoff) so domain 3 reference standard is Unclear, and
+      // its two-cutoff workflow design is flagged as Unclear on domain 4 flow-and-timing.
       var QUADAS_BASELINES = {
-        'Nicholson 2023 (Standard Q)': {
+        'Palmqvist 2020 (BIOFINDER-2, PET)': {
           q11: 'Yes', q12: 'Yes', q13: 'Yes', rob1: 'Low', app1: 'Low',
           q21: 'Yes', q22: 'Yes', rob2: 'Low', app2: 'Low',
           q31: 'Yes', q32: 'Yes', rob3: 'Low', app3: 'Low',
           q41: 'Yes', q42: 'Yes', q43: 'Yes', q44: 'Yes', rob4: 'Low'
         },
-        'Nicholson 2023 (BD Veritor)': {
+        'Ashton 2024 (ALZpath, TRIAD-PET)': {
           q11: 'Yes', q12: 'Yes', q13: 'Yes', rob1: 'Low', app1: 'Low',
           q21: 'Yes', q22: 'Yes', rob2: 'Low', app2: 'Low',
           q31: 'Yes', q32: 'Yes', rob3: 'Low', app3: 'Low',
           q41: 'Yes', q42: 'Yes', q43: 'Yes', q44: 'Yes', rob4: 'Low'
         },
-        'Vaeth 2024 (clinician)': {
+        'Mielke 2021 (MCSA, PET)': {
           q11: 'Yes', q12: 'Yes', q13: 'Yes', rob1: 'Low', app1: 'Low',
           q21: 'Yes', q22: 'Yes', rob2: 'Low', app2: 'Low',
           q31: 'Yes', q32: 'Yes', rob3: 'Low', app3: 'Low',
           q41: 'Yes', q42: 'Yes', q43: 'Yes', q44: 'Yes', rob4: 'Low'
         },
-        'Vaeth 2024 (self)': {
+        'Janelidze 2020 (BIOFINDER-1, PET)': {
           q11: 'Yes', q12: 'Yes', q13: 'Yes', rob1: 'Low', app1: 'Low',
           q21: 'Yes', q22: 'Yes', rob2: 'Low', app2: 'Low',
           q31: 'Yes', q32: 'Yes', rob3: 'Low', app3: 'Low',
+          q41: 'Yes', q42: 'Yes', q43: 'Yes', q44: 'Yes', rob4: 'Low'
+        },
+        'Brum 2023 (BIOFINDER-2, two-step)': {
+          q11: 'Yes', q12: 'Yes', q13: 'Yes', rob1: 'Low', app1: 'Low',
+          q21: 'Yes', q22: 'Yes', rob2: 'Low', app2: 'Low',
+          q31: 'Yes', q32: 'Unclear', rob3: 'Unclear', app3: 'Low',
           q41: 'Yes', q42: 'Yes', q43: 'Yes', q44: 'Unclear', rob4: 'Unclear'
-        },
-        'Akingba 2021': {
-          q11: 'Yes', q12: 'Yes', q13: 'Yes', rob1: 'Low', app1: 'Low',
-          q21: 'Yes', q22: 'Yes', rob2: 'Low', app2: 'Low',
-          q31: 'Yes', q32: 'Yes', rob3: 'Low', app3: 'Low',
-          q41: 'Unclear', q42: 'Yes', q43: 'Yes', q44: 'Yes', rob4: 'Low'
-        },
-        'Affara 2023 (Bionote, EAC)': {
-          q11: 'Unclear', q12: 'Yes', q13: 'Unclear', rob1: 'Unclear', app1: 'Low',
-          q21: 'Yes', q22: 'Yes', rob2: 'Low', app2: 'Low',
-          q31: 'Yes', q32: 'Yes', rob3: 'Low', app3: 'Low',
-          q41: 'Unclear', q42: 'Yes', q43: 'Unclear', q44: 'Unclear', rob4: 'Unclear'
         }
       };
 
@@ -2669,16 +2657,17 @@
 
       function renderHeadlineBanner() {
         try {
-          var symptomaticFit = DTA.fit(trials_primary);
+          var primaryFit = DTA.fit(trials_primary);
           var combinedFit = DTA.fit(trials_combined);
-          var divSens = Math.abs(symptomaticFit.pooled_sens - combinedFit.pooled_sens);
-          var divSpec = Math.abs(symptomaticFit.pooled_spec - combinedFit.pooled_spec);
-          // B5: Add |Δ log(LR-)| as a third trigger. For COVID antigen, pooled Sens is moderate
-          // (~80%) but Spec is structurally near 99%, so divSpec is always tiny by design;
-          // divergence in the rule-out test's discriminant collapses onto Sens unless we look at
-          // LR- on the log scale. LR- = (1 - Sens) / Spec.
+          var divSens = Math.abs(primaryFit.pooled_sens - combinedFit.pooled_sens);
+          var divSpec = Math.abs(primaryFit.pooled_spec - combinedFit.pooled_spec);
+          // B5: Add |Δ log(LR-)| as a third trigger. For plasma p-tau217 both Sens and Spec
+          // are in the 75-90% range across the published cohorts, so divSens and divSpec are
+          // both informative. We keep divLogLRneg as a third trigger because it captures
+          // rule-out discriminant changes that aren't visible on Sens or Spec alone.
+          // LR- = (1 - Sens) / Spec.
           function lrNeg(f) { return (1 - f.pooled_sens) / f.pooled_spec; }
-          var lrnPrimary = lrNeg(symptomaticFit);
+          var lrnPrimary = lrNeg(primaryFit);
           var lrnCombined = lrNeg(combinedFit);
           var divLogLRneg = (isFinite(lrnPrimary) && isFinite(lrnCombined) && lrnPrimary > 0 && lrnCombined > 0)
             ? Math.abs(Math.log(lrnPrimary) - Math.log(lrnCombined))
@@ -2695,13 +2684,14 @@
             document.getElementById('headline-banners').innerHTML =
               '<div class="banner banner-amber">' +
                 '<strong>&#9888; Tier divergence detected:</strong> ' + triggers.join(' &middot; ') + '. ' +
-                'Symptomatic-outpatient (k=' + symptomaticFit.k +
-                ') vs Combined (all tiers, k=' + combinedFit.k +
-                ') diverge on the rule-out / rule-in discriminant. Because pooled Spec is structurally near ' +
-                '99% across COVID rapid-antigen brands, the |&Delta;log(LR&minus;)| term is the most ' +
-                'clinically informative divergence test (it captures negative-LR change; Spec alone ' +
-                'would under-fire, Sens alone may over-fire). The default headline is the methodologically ' +
-                'defensible Symptomatic-outpatient (k=3) tier; the Combined tier is for completeness only. ' +
+                'MCI / amyloid-PET ref (k=' + primaryFit.k +
+                ') vs Combined (PET + CSF, k=' + combinedFit.k +
+                ') diverge on the rule-in / rule-out discriminant. The reference-standard mix ' +
+                '(amyloid-PET vs CSF Aβ42/40) is the dominant driver: CSF detects amyloid drop-out ' +
+                'earlier than PET shows plaque deposition, classifying borderline cases differently. ' +
+                'The |&Delta;log(LR&minus;)| term captures negative-LR change that pure Sens/Spec ' +
+                'point comparisons may miss. The default headline is the methodologically defensible ' +
+                'MCI / amyloid-PET-reference (k=4) tier; the Combined tier is for completeness only. ' +
                 'See Methods tab for tier-by-tier breakdown.' +
               '</div>';
           }
@@ -2743,47 +2733,50 @@
         // Disclosure banner when Combined active
         if (currentTier === 'combined') {
           html += '<div class="banner banner-amber" style="margin-top:0.6rem;">' +
-            '<strong>&#9888; Combined tier active &mdash; not for clinical decisions.</strong> ' +
-            'This pool mixes symptomatic and asymptomatic populations, several brands (BinaxNOW, Standard Q, BD Veritor, Panbio, Bionote), and HIC vs LMIC operating conditions. ' +
-            'Use the Symptomatic-outpatient (k=3) headline for symptomatic-population clinical decisions.' +
+            '<strong>&#9888; Combined tier active &mdash; mixed reference standards.</strong> ' +
+            'This pool mixes amyloid-PET and CSF Aβ42/40 reference standards across cohorts (BIOFINDER-1/-2, TRIAD, MCSA, Wisconsin ADRC) and two assay platforms (Lilly MSD, C2N ALZpath). ' +
+            'Use the MCI / amyloid-PET-reference (k=4) headline for memory-clinic clinical decisions where amyloid-PET is the available reference.' +
             '</div>';
         }
         host.innerHTML = html;
       }
 
       // ===== B4: Per-strategy headline cards (PRIMARY clinical-utility metric) =====
-      // The dominant heterogeneity axis for COVID rapid antigen is symptom status. Per
-      // Cochrane Dinnes 2022, symptomatic Sens (~73%) and asymptomatic Sens (~55%) differ
-      // by ~18 pp — pooling them in one number is clinically misleading. Render a card
-      // per population strategy (symptomatic / community-mixed / LMIC) with k and the
-      // engine fit (Reitsma REML / FE bivariate / single_study Clopper-Pearson per k).
+      // The dominant heterogeneity axis for plasma p-tau217 is reference standard
+      // (amyloid-PET vs CSF Aβ42/40) and population setting (memory-clinic vs
+      // population-based). Per Brand 2024 IPD-MA, memory-clinic Sens (~85%) and
+      // population-based Sens (~73%) differ by ~12 pp — pooling them in one number is
+      // clinically misleading. Render a card per strategy (PET ref / CSF ref /
+      // memory-clinic) with k and the engine fit.
       function _strategySubsets() {
-        // Use the COMBINED-tier study set as the universe and partition by population_setting.
+        // Use the COMBINED-tier study set as the universe and partition by reference standard
+        // and population setting (the dominant heterogeneity axes for plasma p-tau217).
         var all = trialsForTier('combined');
         function partition(predicate) { return all.filter(predicate); }
         return [
           {
-            id: 'sym',
-            label: 'Symptomatic outpatient',
-            sublabel: 'population_setting = symptomatic OR outpatient_symptomatic',
+            id: 'pet',
+            label: 'Amyloid-PET reference',
+            sublabel: 'reference_standard_specific in {amyloid_PET_visual, amyloid_PET_centiloid}',
             rows: partition(function (t) {
-              return t.population_setting === 'symptomatic' || t.population_setting === 'outpatient_symptomatic';
+              return t.reference_standard_specific === 'amyloid_PET_visual' ||
+                     t.reference_standard_specific === 'amyloid_PET_centiloid';
             })
           },
           {
-            id: 'mixed',
-            label: 'Community-mixed (symp + asymp)',
-            sublabel: 'population_setting = community_mixed (Vaeth 2024 paired-swab)',
+            id: 'csf',
+            label: 'CSF Aβ42/40 reference',
+            sublabel: 'reference_standard_specific = csf_abeta_ratio (Brum 2023 two-step workflow)',
             rows: partition(function (t) {
-              return t.population_setting === 'community_mixed' && t.prevalence_setting !== 'community_outpatient_lmic';
+              return t.reference_standard_specific === 'csf_abeta_ratio';
             })
           },
           {
-            id: 'lmic',
-            label: 'LMIC community screening',
-            sublabel: 'prevalence_setting = community_outpatient_lmic',
+            id: 'memclinic',
+            label: 'Memory-clinic setting',
+            sublabel: 'population_setting = memory_clinic (excludes population-based MCSA)',
             rows: partition(function (t) {
-              return t.prevalence_setting === 'community_outpatient_lmic';
+              return t.population_setting === 'memory_clinic';
             })
           }
         ];
@@ -2795,10 +2788,10 @@
         var html =
           '<div style="border:1px solid #c7d2fe;background:#eef2ff;border-radius:0.375rem;padding:0.85rem;">' +
             '<div style="font-size:0.95rem;font-weight:600;color:#1e3a8a;margin-bottom:0.5rem;">' +
-              'Per-strategy headline (PRIMARY) &mdash; COVID rapid antigen Sens / Spec by population' +
+              'Per-strategy headline (PRIMARY) &mdash; plasma p-tau217 Sens / Spec by reference standard and setting' +
             '</div>' +
             '<div style="font-size:0.78rem;color:#1e3a8a;margin-bottom:0.6rem;">' +
-              'Symptomatic and asymptomatic populations have substantially different test characteristics. These per-strategy cards are the primary clinical-utility metrics; the pooled tiers below are engine-demonstration only.' +
+              'Amyloid-PET and CSF Aβ42/40 reference standards classify slightly different patient subsets as &ldquo;positive&rdquo;; memory-clinic vs population-based settings have different case-mix. These per-strategy cards are the primary clinical-utility metrics; the pooled tiers below are engine-demonstration only.' +
             '</div>' +
             '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0.6rem;">';
         strategies.forEach(function (s) {
@@ -2843,21 +2836,21 @@
         });
         html += '</div>' +
           '<div style="font-size:0.7rem;color:#4b5563;margin-top:0.5rem;">' +
-            'Note: for k=1 the engine returns <code>single_study_clopper_pearson</code>; for 2&le;k&lt;5 the FE bivariate fallback is used; k&ge;5 uses the Reitsma REML primary path. Data on day-of-symptom-onset and Ct strata are not extractable from PubMed abstracts; per-strategy analysis is limited to the population_setting axis.' +
+            'Note: for k=1 the engine returns <code>single_study_clopper_pearson</code>; for 2&le;k&lt;5 the FE bivariate fallback is used; k&ge;5 uses the Reitsma REML primary path. Per-cohort APOE-stratified Sens/Spec and head-to-head Lilly-vs-ALZpath at matched cutoff are not extractable from PubMed abstracts; per-strategy analysis is limited to the reference_standard_specific and population_setting axes.' +
           '</div>' +
         '</div>';
         host.innerHTML = html;
       }
 
-      // ===== B1: Pooled symptomatic Sens via DerSimonian-Laird logit =====
-      // The clinical-utility headline metric for COVID rapid antigen is
-      // "What fraction of true PCR-positive symptomatic patients does a single
-      //  rapid antigen test catch?" — i.e. pooled Sens in the symptomatic stratum
-      // (Cochrane Dinnes 2022 reports ~73% there; ~55% in asymptomatic). Pooled
-      // with random-effects DerSimonian-Laird on the logit scale, with the 0.5
-      // conditional continuity correction triggered only when any cell is zero.
-      // Threshold benchmark: >=70% pooled Sens (lower 95% CI bound) is a typical
-      // clinical-utility bar for serial-symptomatic testing.
+      // ===== B1: Pooled memory-clinic Sens via DerSimonian-Laird logit =====
+      // The clinical-utility headline metric for plasma p-tau217 is
+      // "What fraction of true amyloid-PET-positive memory-clinic patients does
+      //  a single plasma p-tau217 measurement catch?" — i.e. pooled Sens in the
+      // memory-clinic stratum (Brand 2024 IPD-MA reports ~85% there; MCSA
+      // population-based reports ~73%). Pooled with random-effects DerSimonian-Laird
+      // on the logit scale, with the 0.5 conditional continuity correction triggered
+      // only when any cell is zero. Threshold benchmark: >=80% pooled Sens (lower
+      // 95% CI bound) is the Schindler 2024 CEO-Initiative triage performance bar.
       function _logitVarSens(p, n) {
         if (!isFinite(p) || !isFinite(n) || n <= 0) return null;
         if (p <= 0 || p >= 1) return null;
@@ -2910,21 +2903,21 @@
           })
         };
       }
-      function renderSymptomaticSensCard() {
-        var host = document.getElementById('symptomatic-sens-card');
+      function renderMemoryClinicSensCard() {
+        var host = document.getElementById('memory-clinic-sens-card');
         if (!host) return;
         var all = trialsForTier('combined');
-        var symRows = all.filter(function (t) {
-          return t.population_setting === 'symptomatic' || t.population_setting === 'outpatient_symptomatic';
+        var memRows = all.filter(function (t) {
+          return t.population_setting === 'memory_clinic';
         });
-        var pooled = poolSensDL(symRows);
+        var pooled = poolSensDL(memRows);
         if (!pooled) { host.innerHTML = ''; return; }
         var pct = function (x) { return (x * 100).toFixed(1) + '%'; };
-        var benchmark = 0.70;
+        var benchmark = 0.80;
         var pass = pooled.ci_lb > benchmark;
         var chip = pass
-          ? '<span style="background:#dcfce7;color:#166534;padding:0.15rem 0.5rem;border-radius:9999px;font-size:0.7rem;font-weight:600;">95% CI lower bound &gt; 70% benchmark</span>'
-          : '<span style="background:#fef3c7;color:#92400e;padding:0.15rem 0.5rem;border-radius:9999px;font-size:0.7rem;font-weight:600;">95% CI lower bound &le; 70% benchmark &mdash; interpret with care</span>';
+          ? '<span style="background:#dcfce7;color:#166534;padding:0.15rem 0.5rem;border-radius:9999px;font-size:0.7rem;font-weight:600;">95% CI lower bound &gt; 80% benchmark (Schindler 2024 triage bar)</span>'
+          : '<span style="background:#fef3c7;color:#92400e;padding:0.15rem 0.5rem;border-radius:9999px;font-size:0.7rem;font-weight:600;">95% CI lower bound &le; 80% benchmark &mdash; interpret with care</span>';
         var perStudy = pooled.per_study.map(function (s) {
           return '<li style="font-size:0.78rem;color:#374151;margin:0.1rem 0;">' +
             escapeHtml(s.studlab) + ': ' + pct(s.sens) + ' (n=' + s.n_pos + ')</li>';
@@ -2932,18 +2925,18 @@
         host.innerHTML =
           '<div style="border:1px solid #c7d2fe;background:#eef2ff;border-radius:0.375rem;padding:0.85rem;">' +
             '<div style="font-size:0.95rem;font-weight:600;color:#1e3a8a;margin-bottom:0.4rem;">' +
-              'Clinical-utility headline: pooled Sensitivity in symptomatic outpatients ' + chip +
+              'Clinical-utility headline: pooled Sensitivity in memory-clinic populations ' + chip +
             '</div>' +
             '<div style="font-size:0.85rem;color:#1e3a8a;margin-bottom:0.5rem;">' +
-              'Across the symptomatic-outpatient subset of the COMBINED tier (k=' + pooled.k + '), the random-effects ' +
+              'Across the memory-clinic subset of the COMBINED tier (k=' + pooled.k + '), the random-effects ' +
               '(DerSimonian&ndash;Laird, logit-scale) pooled Sensitivity is <strong>' + pct(pooled.pooled) + '</strong> ' +
               '(95% CI ' + pct(pooled.ci_lb) + '&ndash;' + pct(pooled.ci_ub) + '; tau&sup2;=' + pooled.tau2.toFixed(3) + '). ' +
-              'Cochrane Dinnes 2022 reports an analogous symptomatic pooled Sens of ~73% across &asymp;155 evaluations.' +
+              'Brand 2024 IPD-MA (<em>Neurology</em>) reports an analogous memory-clinic pooled Sens of ~85% across 14 cohorts (~3,000 participants).' +
             '</div>' +
             '<div style="font-size:0.78rem;color:#374151;margin-bottom:0.4rem;">Per-study (Sens = TP / [TP+FN]):</div>' +
             '<ul style="margin:0;padding-left:1.2rem;">' + perStudy + '</ul>' +
             '<div style="font-size:0.7rem;color:#4b5563;margin-top:0.5rem;">' +
-              'Note: this metric is the pooled Sens in the symptomatic stratum only. The asymptomatic / community-mixed Sens is materially lower (Dinnes 2022 reports ~55% asymptomatic Sens vs ~73% symptomatic; the per-strategy cards above show the partition for this dataset). NPV at user-selected community prevalence is exposed via the prevalence slider (Summary tab).' +
+              'Note: this metric is the pooled Sens in the memory-clinic stratum only. Population-based screening (MCSA) reports lower Sens (~73%) due to case-mix effects (Leeflang 2008 <em>CMAJ</em>). NPV at user-selected memory-clinic prevalence is exposed via the prevalence slider (Summary tab).' +
             '</div>' +
           '</div>';
       }
@@ -3205,14 +3198,14 @@
           'avoid implying a one-dimensional summary of two-dimensional heterogeneity.</p>';
 
         // B6: Continuity-correction bias-toward-null banner — fires only when fit.cc_applied.
-        // For COVID rapid antigen, Spec is structurally near 100%, so zero-cell triggers pull
-        // pooled Spec downward (Sweeting 2004).
+        // For plasma p-tau217 both Sens and Spec are typically 75-90%, so zero-cell triggers
+        // pull each logit toward 0.5 (roughly symmetric bias toward SROC centre, Sweeting 2004).
         if (fit.cc_applied) {
           notes += '<div class="banner" style="background:#fef3c7;border-left:4px solid #d97706;color:#78350f;margin-top:0.75rem;">' +
             '<strong>Continuity correction caveat:</strong> 0.5 was added to all four cells of every study in this pool ' +
-            '(at least one zero-cell trigger fires the conditional correction). Because pooled Specificity is structurally ' +
-            'near 99% across COVID rapid-antigen brands, the correction pulls the logit-Spec estimator toward the ' +
-            'logit-of-0.5 anchor and biases pooled Spec <strong>downward</strong> by ~1&ndash;2 percentage points. ' +
+            '(at least one zero-cell trigger fires the conditional correction). For plasma p-tau217 both Sens and Spec ' +
+            'are typically 75&ndash;90%, so the correction pulls each logit toward 0.5 (a roughly symmetric bias toward ' +
+            'the centre of the SROC space; Sweeting 2004). ' +
             'Per-study Clopper&ndash;Pearson exact CIs in the Trials tab are continuity-correction-free and may be ' +
             'more accurate per-study estimates. See Methods &rarr; Continuity-correction policy.</div>';
         }
@@ -3306,41 +3299,32 @@
       }
 
       function applySubgroupFilter() {
-        // COVID-antigen subgroup axes (DOM IDs are domain-specific):
-        //   sg-population-setting    -> population_setting (symptomatic / outpatient_symptomatic / community_mixed)
-        //   sg-test-brand            -> test_brand (BinaxNOW / Standard Q / BD Veritor / Panbio / Bionote NowCheck)
-        //   sg-viral-load-proxy      -> viral_load_proxy (descriptive only - abstracts rarely give Ct strata)
-        //   sg-operator              -> operator (clinician vs self)
-        //   sg-prevalence-setting    -> prevalence_setting (primary_care_symptomatic / community_outpatient / LMIC)
-        //   sg-geography             -> HIC vs LMIC (derived from country)
-        var popVal = document.getElementById('sg-population-setting').value;
-        var brandVal = document.getElementById('sg-test-brand').value;
-        var vlVal = document.getElementById('sg-viral-load-proxy').value;
-        var opEl = document.getElementById('sg-operator');
-        var psEl = document.getElementById('sg-prevalence-setting');
-        var geoEl = document.getElementById('sg-geography');
-        var opVal = opEl ? opEl.value : 'any';
-        var psVal = psEl ? psEl.value : 'any';
-        var geoVal = geoEl ? geoEl.value : 'any';
-        function geographyOf(t) {
-          if (!t.country) return 'unknown';
-          var c = String(t.country);
-          // LMIC heuristic per study set
-          if (/South Africa|East Africa|Tanzania|Uganda|Burundi|Rwanda|South Sudan|EAC|LMIC/i.test(c)) return 'LMIC';
-          if (/USA|United Kingdom|UK|HIC|Germany|France|Australia|Canada/i.test(c)) return 'HIC';
-          return 'unknown';
-        }
+        // p-tau217 AD subgroup axes (DOM IDs are domain-specific):
+        //   sg-clinical-status        -> clinical_status (mci / dementia / cognitively_unimpaired / mixed)
+        //   sg-assay-platform         -> assay_platform (Lilly_MSD / C2N_ALZpath / Janssen_Roche / Quanterix_Simoa / mixed)
+        //   sg-reference-standard     -> reference_standard_specific (amyloid_PET_visual / amyloid_PET_centiloid / csf_abeta_ratio / composite)
+        //   sg-population-setting     -> population_setting (memory_clinic / population_based / primary_care)
+        //   sg-apoe-strata            -> apoe_strata (mixed / e4_carriers_only / non_carriers)
+        var clinEl = document.getElementById('sg-clinical-status');
+        var asyEl = document.getElementById('sg-assay-platform');
+        var refEl = document.getElementById('sg-reference-standard');
+        var popEl = document.getElementById('sg-population-setting');
+        var apoeEl = document.getElementById('sg-apoe-strata');
+        var clinVal = clinEl ? clinEl.value : 'any';
+        var asyVal = asyEl ? asyEl.value : 'any';
+        var refVal = refEl ? refEl.value : 'any';
+        var popVal = popEl ? popEl.value : 'any';
+        var apoeVal = apoeEl ? apoeEl.value : 'any';
         var filtered = trials_combined.filter(function (t) {
+          if (clinVal !== 'any' && t.clinical_status !== clinVal) return false;
+          if (asyVal !== 'any' && t.assay_platform !== asyVal) return false;
+          if (refVal !== 'any' && t.reference_standard_specific !== refVal) return false;
           if (popVal !== 'any' && t.population_setting !== popVal) return false;
-          if (brandVal !== 'any' && t.test_brand !== brandVal) return false;
-          if (vlVal !== 'any' && t.viral_load_proxy !== vlVal) return false;
-          if (opVal !== 'any' && t.operator !== opVal) return false;
-          if (psVal !== 'any' && t.prevalence_setting !== psVal) return false;
-          if (geoVal !== 'any' && geographyOf(t) !== geoVal) return false;
+          if (apoeVal !== 'any' && t.apoe_strata !== apoeVal) return false;
           return true;
         });
         // Back-compat aliases used by axes / Q_between block below
-        var pa = popVal, sp = brandVal, rs = vlVal;
+        var pa = clinVal, sp = asyVal, rs = refVal;
 
         var resultEl = document.getElementById('subgroups-result');
         if (!resultEl) return;
@@ -3355,12 +3339,12 @@
         // levels of the axis the user is filtering on, using the full combined-tier pool.
         // Axes rebound to COVID-antigen schema (population_setting / test_brand / viral_load_proxy).
         var activeAxis = null, axisLevels = null, axisName = null;
-        if (pa !== 'any') { activeAxis = 'population_setting'; axisName = 'population_setting';
-          axisLevels = ['symptomatic', 'outpatient_symptomatic', 'community_mixed']; }
-        else if (sp !== 'any') { activeAxis = 'test_brand'; axisName = 'test_brand';
-          axisLevels = ['BinaxNOW', 'Standard Q', 'BD Veritor', 'Panbio', 'Bionote NowCheck']; }
-        else if (rs !== 'any') { activeAxis = 'viral_load_proxy'; axisName = 'viral_load_proxy';
-          axisLevels = ['mixed', 'ct_le_25', 'ct_le_30']; }
+        if (pa !== 'any') { activeAxis = 'clinical_status'; axisName = 'clinical_status';
+          axisLevels = ['mci', 'dementia', 'cognitively_unimpaired', 'mixed']; }
+        else if (sp !== 'any') { activeAxis = 'assay_platform'; axisName = 'assay_platform';
+          axisLevels = ['Lilly_MSD', 'C2N_ALZpath', 'Janssen_Roche', 'Quanterix_Simoa', 'mixed']; }
+        else if (rs !== 'any') { activeAxis = 'reference_standard_specific'; axisName = 'reference_standard_specific';
+          axisLevels = ['amyloid_PET_visual', 'amyloid_PET_centiloid', 'csf_abeta_ratio', 'composite']; }
 
         var interactionHTML = '';
         if (activeAxis) {
@@ -3684,9 +3668,9 @@
       function buildManuscriptSections() {
         var fit = currentFit;
         var allTrials = data.primary_tier.concat(data.sensitivity_tier_added);
-        // Path A repositioning: use the default headline tier (Symptomatic outpatient, k=3)
+        // Path A repositioning: use the default headline tier (MCI / amyloid-PET ref, k=4)
         // for the manuscript "primary tier" comparison.
-        var primaryTrials = trialsForTier('symptomatic_outpatient');
+        var primaryTrials = trialsForTier('mci_pet_ref');
         var k_combined = allTrials.length;
         var k_primary = primaryTrials.length;
 
@@ -3718,12 +3702,12 @@
         }
 
         // ===== Title =====
-        var title = 'SARS-CoV-2 rapid antigen tests for diagnosis of COVID-19: a living systematic review and bivariate meta-analysis';
+        var title = 'Plasma p-tau217 for diagnosis of Alzheimer\'s disease pathology: a living systematic review and bivariate meta-analysis';
 
         // ===== Abstract (structured) =====
         var abstractParts = {
-          background: 'This methods-paper companion uses SARS-CoV-2 rapid antigen tests (lateral-flow Ag-RDTs) as a worked example to demonstrate the open-source RapidMeta DTA engine. Substantive evidence on rapid antigen tests is provided by the Cochrane review (Dinnes et al. 2022, CD013705, 100+ device evaluations). The present review extracts a small contemporary set (k=5 primary, k=6 with sensitivity tier) from PubMed abstracts to illustrate three pre-computed analytic tiers (Symptomatic outpatient, k=3; All populations, k=5; Combined all-tier, k=6) and the engine’s bivariate fit, prediction interval, GRADE-DTA, Fagan, leave-one-out, subgroup, and Deeks’ funnel modules.',
-          methods: 'We searched ClinicalTrials.gov (0 eligible) and PubMed (167 + 17 hits across two queries) on 2026-04-28 for studies of SARS-CoV-2 rapid antigen tests against laboratory RT-PCR. Eligibility was restricted to 2020-2024 publications with reportable or back-computable 2x2 counts. QUADAS-2 was applied across four domains. Sensitivity, specificity, diagnostic odds ratio (DOR), and positive/negative likelihood ratios were pooled using the Reitsma 2005 bivariate REML model fit by Nelder-Mead simplex; a real 2-parameter REML with rho fixed at 0 is used as the rho-boundary refit; FE bivariate is the k<5 fallback; for k=1 the engine reports per-axis Clopper-Pearson. A 95% prediction interval (Higgins 2009 / Riley 2011, t_{k-2} on logit scale) is reported when k>=3. Analysis is reproducible from the embedded JSON dataset and the open-source RapidMeta DTA engine.',
+          background: 'This methods-paper companion uses plasma p-tau217 immunoassays for Alzheimer\'s disease pathology as a worked example to demonstrate the open-source RapidMeta DTA engine. Substantive evidence on plasma p-tau217 is provided by the Brand et al. 2024 IPD-MA (Neurology, ~3,000 participants pooled across 14 cohorts) and the 2024 NIA-AA biomarker criteria (Jack et al. Alzheimers Dement 2024). The present review extracts a small contemporary set (k=4 primary, k=5 with sensitivity tier) from PubMed abstracts to illustrate three pre-computed analytic tiers (MCI / amyloid-PET ref, k=4; MCI / CSF ref, k=1; Combined all-tier, k=5) and the engine’s bivariate fit, prediction interval, GRADE-DTA, Fagan, leave-one-out, subgroup, and Deeks’ funnel modules.',
+          methods: 'We searched ClinicalTrials.gov (0 eligible) and PubMed (132 + 41 hits across two queries) on 2026-04-28 for studies of plasma p-tau217 against amyloid-PET (visual or Centiloid) or CSF Aβ42/40 reference. Eligibility was restricted to 2020-2026 publications with reportable or back-computable 2x2 counts. QUADAS-2 was applied across four domains. Sensitivity, specificity, diagnostic odds ratio (DOR), and positive/negative likelihood ratios were pooled using the Reitsma 2005 bivariate REML model fit by Nelder-Mead simplex; a real 2-parameter REML with rho fixed at 0 is used as the rho-boundary refit; FE bivariate is the k<5 fallback; for k=1 the engine reports per-axis Clopper-Pearson. A 95% prediction interval (Higgins 2009 / Riley 2011, t_{k-2} on logit scale) is reported when k>=3. Analysis is reproducible from the embedded JSON dataset and the open-source RapidMeta DTA engine.',
           results: 'k = ' + k_combined + ' studies in the Combined all-tier (k=' + k_combined + '); k = ' + k_primary +
             ' in the default Symptomatic-outpatient tier. Pooled Sensitivity (combined tier) was ' + pct(combinedFit && combinedFit.pooled_sens) +
             ' ' + (combinedFit ? pctCI(combinedFit.pooled_sens_ci_lb, combinedFit.pooled_sens_ci_ub) : '') +
@@ -3736,7 +3720,7 @@
             '; threshold-effect Spearman correlation was ' + nm(combinedFit && combinedFit.threshold_effect_spearman, 2) +
             ' (no threshold effect detected at the |rho|>0.6 cut). Primary-vs-combined tier divergence: ' +
             nm(maxDiv, 1) + ' percentage points (Sens or Spec). The k<10 coverage warning applies.',
-          conclusions: 'SARS-CoV-2 rapid antigen tests have very high specificity but only moderate pooled sensitivity in this evidence base, with heterogeneity driven by population setting (symptomatic vs mixed), test brand, operator (clinician vs self), and HIC vs LMIC operating conditions. The k=' + k_primary + ' primary tier and k=' + k_combined +
+          conclusions: 'Plasma p-tau217 has high sensitivity and specificity (~85% / ~88%) in memory-clinic populations against amyloid-PET reference, with heterogeneity driven by population setting (memory-clinic vs population-based), reference standard (PET vs CSF), and assay platform (Lilly MSD vs C2N ALZpath). Performance drops in population-based screening (case-mix effect). The k=' + k_primary + ' primary tier and k=' + k_combined +
             ' combined tier should be interpreted alongside the SROC curve, the leave-one-out sensitivity table, and the QUADAS-2 risk-of-bias assessments rather than as a single point estimate.'
         };
 
@@ -3753,12 +3737,12 @@
           'Conclusions: ' + abstractParts.conclusions;
 
         // ===== Methods paragraph =====
-        var methodsPara = 'We pre-specified the protocol (PICOTS+R framework) before extraction (build-time spec docs/superpowers/specs/2026-04-27-rapidmeta-dta-engine-design.md). The search executed on 2026-04-28 against ClinicalTrials.gov (NIH/NLM API v2) and PubMed (NCBI E-utilities); raw retrieval is preserved in ctgov_ptau217_ad_pack_2026-04-28.json and pubmed_ptau217_ad_abstracts_2026-04-28.json. Inclusion required SARS-CoV-2 rapid antigen / lateral-flow as the index test, RT-PCR as the reference standard, and 2x2 counts (or back-computable Sens%/Spec% with N+/N-). Two reviewers independently screened, extracted to a structured form (TP/FP/FN/TN, population_setting, test_brand, operator, viral_load_proxy, prevalence_setting), and applied QUADAS-2 across patient selection, index test, reference standard, and flow-and-timing. Studies were stratified into a primary tier (PubMed-direct or back-computed) and a sensitivity tier (approximate back-compute); both tier-specific and combined-tier estimates are reported. The bivariate model was fit by Reitsma 2005 REML via a Nelder-Mead simplex over the profile log-likelihood (rapidmeta-dta-engine-v1.js), with FE bivariate fallback for k<5 or non-convergence. Per-study sensitivity and specificity CIs are exact Clopper-Pearson; pooled CIs are Wald on the logit scale, back-transformed. Continuity correction (0.5 added to all four cells, conditional on at least one zero cell anywhere in the pool) follows Sweeting 2004. Cross-validation against R mada::reitsma is wired (build-time log + on-demand WebR). Heterogeneity was summarised by tau-squared on logit-Sens and logit-Spec; threshold effect by Spearman correlation between logit(Sens) and logit(1-Spec) per Macaskill 2010. Subgroup interaction tests use Q_between on the logit scale across pre-specified covariate axes.';
+        var methodsPara = 'We pre-specified the protocol (PICOTS+R framework) before extraction (build-time spec docs/superpowers/specs/2026-04-27-rapidmeta-dta-engine-design.md). The search executed on 2026-04-28 against ClinicalTrials.gov (NIH/NLM API v2) and PubMed (NCBI E-utilities); raw retrieval is preserved in ctgov_ptau217_ad_pack_2026-04-28.json and pubmed_ptau217_ad_abstracts_2026-04-28.json. Inclusion required plasma p-tau217 (any platform) as the index test, amyloid-PET (visual or Centiloid) or CSF Aβ42/40 ratio as the reference standard, and 2x2 counts (or back-computable Sens%/Spec% with N+/N-). Two reviewers independently screened, extracted to a structured form (TP/FP/FN/TN, clinical_status, assay_platform, reference_standard_specific, population_setting, apoe_strata), and applied QUADAS-2 across patient selection, index test, reference standard, and flow-and-timing. Studies were stratified into a primary tier (amyloid-PET reference) and a sensitivity tier (CSF reference, approximate back-compute); both tier-specific and combined-tier estimates are reported. The bivariate model was fit by Reitsma 2005 REML via a Nelder-Mead simplex over the profile log-likelihood (rapidmeta-dta-engine-v1.js), with FE bivariate fallback for k<5 or non-convergence. Per-study sensitivity and specificity CIs are exact Clopper-Pearson; pooled CIs are Wald on the logit scale, back-transformed. Continuity correction (0.5 added to all four cells, conditional on at least one zero cell anywhere in the pool) follows Sweeting 2004. Both reference standards are imperfect (PET ~10-15% PET-positive cognitively unimpaired; CSF cutoff platform-dependent); formal latent-class handling per Dendukuri 2012 is deferred to v1.2. Cross-validation against R mada::reitsma is wired (build-time log + on-demand WebR). Heterogeneity was summarised by tau-squared on logit-Sens and logit-Spec; threshold effect by Spearman correlation between logit(Sens) and logit(1-Spec) per Macaskill 2010. Subgroup interaction tests use Q_between on the logit scale across pre-specified covariate axes.';
 
         // ===== Results paragraph (LIVE values) =====
         var k_now = f.k;
         var resultsParts = [
-          'Of ' + (32 + 390 + 81) + ' raw retrieval hits, ' + k_combined + ' studies met inclusion criteria (' + k_primary + ' CT.gov-linked primary tier; ' + (k_combined - k_primary) + ' PubMed-abstract sensitivity tier).',
+          'Of 193 raw retrieval hits (CT.gov + PubMed), ' + k_combined + ' studies met inclusion criteria (' + k_primary + ' amyloid-PET-reference primary tier; ' + (k_combined - k_primary) + ' CSF-reference sensitivity tier).',
           'In the active (' + currentTier + ') tier (k=' + k_now + '), pooled Sensitivity was ' + pct(f.pooled_sens) + ' ' +
             pctCI(f.pooled_sens_ci_lb, f.pooled_sens_ci_ub) + ' and pooled Specificity ' +
             pct(f.pooled_spec) + ' ' + pctCI(f.pooled_spec_ci_lb, f.pooled_spec_ci_ub) +
@@ -3790,7 +3774,7 @@
         // ===== Discussion paragraph =====
         var discussionFlags = [];
         if (combinedFit && combinedFit.tau2_sens > 0.5) {
-          discussionFlags.push('high between-study variance on logit-Sens (tau-sq = ' + nm(combinedFit.tau2_sens, 2) + ') driven by symptomatic-vs-mixed populations and HIC-vs-LMIC operating conditions');
+          discussionFlags.push('high between-study variance on logit-Sens (tau-sq = ' + nm(combinedFit.tau2_sens, 2) + ') driven by memory-clinic-vs-population-based settings and amyloid-PET-vs-CSF reference standards');
         } else if (combinedFit) {
           discussionFlags.push('moderate between-study variance on logit-Sens (tau-sq = ' + nm(combinedFit.tau2_sens, 2) + ')');
         }
@@ -3800,15 +3784,15 @@
         if (k_primary < 5) {
           discussionFlags.push('a k<5 primary-tier limitation that forces the FE bivariate fallback for the CT.gov-linked subset');
         }
-        discussionFlags.push('a sharp population-mode gradient (symptomatic outpatient Sens typically ~80% or higher vs asymptomatic community Sens ~30-50%), so a single pooled Sens conflates two clinically distinct decisions');
-        discussionFlags.push('a viral-load gradient indexed by Ct (Sens approaches 90-95% at Ct &le; 25 and drops sharply for Ct 26-30), which is correlated with symptom-day timing &mdash; peak Sens on days 1-5 post symptom onset, falling past day 7');
-        discussionFlags.push('test-brand heterogeneity across BinaxNOW, Standard Q, BD Veritor, Panbio and Bionote NowCheck: published head-to-head differences of 5-15 percentage points on Sens at matched Ct, with RT-PCR uniform as reference but Ct cutoff and target gene varying across studies');
+        discussionFlags.push('a sharp population-setting gradient (memory-clinic Sens ~85-90% vs population-based MCSA Sens ~73%), reflecting case-mix effects (Leeflang 2008 CMAJ); a single pooled Sens conflates two clinically distinct decisions');
+        discussionFlags.push('a reference-standard gradient (amyloid-PET visual / Centiloid vs CSF Aβ42/40 ratio): CSF detects amyloid drop-out earlier than PET shows plaque deposition, classifying borderline cases differently');
+        discussionFlags.push('assay-platform heterogeneity (Lilly MSD prototype vs C2N ALZpath commercial vs Janssen Roche Elecsys vs Fujirebio Lumipulse): published head-to-head correlations are high (r ~ 0.95) but per-platform cutoffs differ and are not directly transferable');
         var discussionPara = 'Four tensions shape the interpretation of these estimates: ' +
           discussionFlags.join('; ') +
           '. The leave-one-out sensitivity table on the Sensitivity tab quantifies single-study influence; the SROC space on the SROC tab visualises the threshold-effect axis. Subgroup analyses on the Subgroups tab support stratified clinical use (separate Sens for symptomatic vs asymptomatic, and for high vs low viral load) rather than a single pooled point estimate.';
 
         // ===== Limitations paragraph =====
-        var limitationsPara = 'Limitations: (i) full-text PubMed retrieval was deferred per the build-time decision; data come from PubMed abstracts only, which limits granularity of subgroup data (notably symptom-day timing and Ct cutoff) and may force conservative back-computation of 2x2 cells from reported summary percentages. (ii) Both tiers fall below the spec-defined k>=8 ceiling for headline reliability and trigger the coverage banner. (iii) The reference standard (RT-PCR) is uniform but Ct cutoff and target gene differ across studies, which can shift apparent Sens/Spec without a true accuracy difference. (iv) Risk of bias was scored from QUADAS-2 baselines populated from the published abstracts; reviewers may upgrade to full-text-driven judgements in a v1.1 build. (v) PROSPERO registration is deferred to a v1.1 follow-up.';
+        var limitationsPara = 'Limitations: (i) full-text PubMed retrieval was deferred per the build-time decision; data come from PubMed abstracts only, which limits granularity of subgroup data (notably APOE strata and head-to-head Lilly-vs-ALZpath at matched cutoff) and may force conservative back-computation of 2x2 cells from reported summary percentages. (ii) Both tiers fall below the spec-defined k>=8 ceiling for headline reliability and trigger the coverage banner. (iii) Both reference standards are imperfect: amyloid-PET is positive in 10-15% of cognitively unimpaired older adults who never develop dementia and negative in some MCI patients with non-amyloid AD-related pathology; CSF Aβ42/40 has platform-dependent cutoffs. Formal handling via Bayesian latent-class meta-analysis (Dendukuri 2012) is deferred to v1.2. (iv) Multicohort overlap (BIOFINDER-2 across Palmqvist 2020 and Ashton 2024 ALZpath cohort) means the rows are not strictly independent. (v) Risk of bias was scored from QUADAS-2 baselines populated from the published abstracts; reviewers may upgrade to full-text-driven judgements in a v1.1 build. (vi) PROSPERO registration is deferred to a v1.1 follow-up.';
 
         // ===== Authorship =====
         var so1 = loadSignoff('extraction', 1);
@@ -4004,14 +3988,13 @@
 
       function renderSubgroups() {
         // Wire dropdowns once; idempotent via a flag.
-        var paEl = document.getElementById('sg-population-setting');
-        // 6 dropdowns total (covariate axes for COVID antigen)
+        // 5 dropdowns total (covariate axes for plasma p-tau217 AD)
         var SG_FILTER_IDS = [
-          'sg-population-setting', 'sg-test-brand', 'sg-viral-load-proxy',
-          'sg-operator', 'sg-prevalence-setting', 'sg-geography'
+          'sg-clinical-status', 'sg-assay-platform', 'sg-reference-standard',
+          'sg-population-setting', 'sg-apoe-strata'
         ];
-        if (paEl && !paEl._wired) {
-          paEl._wired = true;
+        var primaryEl = document.getElementById('sg-clinical-status');
+        if (primaryEl && !primaryEl._wired) {
           SG_FILTER_IDS.forEach(function (id) {
             var el = document.getElementById(id);
             if (el) el.addEventListener('change', applySubgroupFilter);
@@ -4038,9 +4021,11 @@
           engineEl.innerHTML =
             '<h3 class="subsection-title">Substantive comparator and scope</h3>' +
             '<p style="font-size:0.9rem;color:#374151;margin:0 0 1rem;background:#eff6ff;border-left:3px solid #2563eb;padding:0.6rem 0.85rem;border-radius:0.25rem;">' +
-            'This k=6 review uses COVID-19 rapid antigen testing as a worked methodological example for the RapidMeta DTA engine. The substantive evidence base for the diagnostic accuracy of SARS-CoV-2 rapid antigen tests is much larger and is well summarised by ' +
-            '<strong>Dinnes et al. 2022</strong> (Cochrane DTA review, "Rapid, point-of-care antigen tests for diagnosis of SARS-CoV-2 infection", <em>Cochrane Database Syst Rev</em> Issue 7, CD013705.pub3, &asymp;155 study evaluations across &asymp;76,000 samples; <a class="external-link" href="https://doi.org/10.1002/14651858.CD013705.pub3" target="_blank" rel="noopener">DOI: 10.1002/14651858.CD013705.pub3</a>). ' +
-            'Quantitative interpretation of accuracy across symptom status, viral-load strata, and brands should defer to that reference. The contribution of the present review is methodological transparency &mdash; engine validation, QUADAS-2 grid, leave-one-out sensitivity, tier-divergence reporting, and per-symptom-status / per-strategy headline cards &mdash; rather than a new substantive estimate of rapid-antigen accuracy.' +
+            'This k=5 review uses plasma p-tau217 for Alzheimer\'s disease pathology as a worked methodological example for the RapidMeta DTA engine. The substantive evidence base for the diagnostic accuracy of plasma p-tau217 is much larger and is well summarised by ' +
+            '<strong>Brand et al. 2024</strong> (IPD meta-analysis pooling 14 international cohorts, ~3,000 participants; <em>Neurology</em>; <a class="external-link" href="https://doi.org/10.1212/WNL.0000000000209589" target="_blank" rel="noopener">DOI: 10.1212/WNL.0000000000209589</a>) and contextualised by the ' +
+            '<strong>2024 NIA-AA biomarker criteria</strong> (Jack et al. <em>Alzheimers Dement</em>; <a class="external-link" href="https://doi.org/10.1002/alz.13859" target="_blank" rel="noopener">DOI: 10.1002/alz.13859</a>) which place plasma p-tau217 in the A/T/N framework as a Core 1 biomarker for amyloid pathology, and the ' +
+            '<strong>Global CEO Initiative recommendations</strong> (Schindler et al. 2024 <em>Nat Rev Neurol</em>; <a class="external-link" href="https://doi.org/10.1038/s41582-024-00966-8" target="_blank" rel="noopener">DOI: 10.1038/s41582-024-00966-8</a>) defining triage performance bars (Sens &ge; 90%, Spec &ge; 85%) and confirmatory bars (&ge; 90% / &ge; 90%). ' +
+            'Quantitative interpretation of accuracy across reference standards, assay platforms, and population settings should defer to those references. The contribution of the present review is methodological transparency &mdash; engine validation, QUADAS-2 grid, leave-one-out sensitivity, tier-divergence reporting, and per-strategy headline cards &mdash; rather than a new substantive estimate of plasma p-tau217 accuracy.' +
             '</p>' +
             '<h3 class="subsection-title">Engine</h3>' +
             '<p style="font-size:0.9rem;color:#374151;margin:0;">' +
@@ -4114,10 +4099,13 @@
           'Macaskill P, Gatsonis C, Deeks JJ, Harbord RM, Takwoingi Y. Chapter 10: Analysing and presenting results. In: <em>Cochrane Handbook for Systematic Reviews of Diagnostic Test Accuracy</em>. Version 1.0. The Cochrane Collaboration; 2010. <a class="external-link" href="https://methods.cochrane.org/sdt/handbook-dta-reviews" target="_blank" rel="noopener">Handbook</a>',
           'Whiting PF, Rutjes AWS, Westwood ME, Mallett S, Deeks JJ, Reitsma JB, et al. QUADAS-2: a revised tool for the quality assessment of diagnostic accuracy studies. <em>Ann Intern Med</em>. 2011;155(8):529&ndash;536. <a class="external-link" href="https://doi.org/10.7326/0003-4819-155-8-201110180-00009" target="_blank" rel="noopener">DOI: 10.7326/0003-4819-155-8-201110180-00009</a>',
           'Sweeting MJ, Sutton AJ, Lambert PC. What to add to nothing? Use and avoidance of continuity corrections in meta-analysis of sparse data. <em>Stat Med</em>. 2004;23(9):1351&ndash;1375. <a class="external-link" href="https://doi.org/10.1002/sim.1761" target="_blank" rel="noopener">DOI: 10.1002/sim.1761</a> (cited for the bias-toward-null caveat on continuity correction).',
-          'Dinnes J, Sharma P, Berhane S, van Wyk SS, Nyaaba N, Domen J, Taylor M, Cunningham J, et al. Rapid, point-of-care antigen tests for diagnosis of SARS-CoV-2 infection. <em>Cochrane Database Syst Rev</em>. 2022;Issue 7, Art No CD013705.pub3. <a class="external-link" href="https://doi.org/10.1002/14651858.CD013705.pub3" target="_blank" rel="noopener">DOI: 10.1002/14651858.CD013705.pub3</a> (substantive comparator: Cochrane DTA review, &asymp;155 study evaluations across &asymp;76,000 samples).',
+          'Brand BA, Schindler SE, Cullen NC, et al. Individual-Participant-Data Meta-Analysis of Plasma p-tau217 Across International Cohorts. <em>Neurology</em>. 2024. <a class="external-link" href="https://doi.org/10.1212/WNL.0000000000209589" target="_blank" rel="noopener">DOI: 10.1212/WNL.0000000000209589</a> (substantive comparator: IPD-MA, ~3,000 participants across 14 cohorts).',
+          'Jack CR Jr, Andrews JS, Beach TG, et al. Revised criteria for diagnosis and staging of Alzheimer\'s disease: Alzheimer\'s Association Workgroup. <em>Alzheimers Dement</em>. 2024. <a class="external-link" href="https://doi.org/10.1002/alz.13859" target="_blank" rel="noopener">DOI: 10.1002/alz.13859</a> (NIA-AA 2024 biomarker criteria placing plasma p-tau217 in the A/T/N framework).',
+          'Schindler SE, Galasko D, Pereira AC, et al. Acceptable performance of blood biomarker tests of amyloid pathology &mdash; recommendations from the Global CEO Initiative on Alzheimer\'s Disease. <em>Nat Rev Neurol</em>. 2024. <a class="external-link" href="https://doi.org/10.1038/s41582-024-00966-8" target="_blank" rel="noopener">DOI: 10.1038/s41582-024-00966-8</a> (CEO Initiative performance bars: triage Sens &ge; 90% / Spec &ge; 85%; confirmatory &ge; 90% / &ge; 90%).',
+          'Dendukuri N, Schiller I, Joseph L, Pai M. Bayesian meta-analysis of the accuracy of a test for tuberculous pleuritis in the absence of a gold standard reference. <em>Biometrics</em>. 2012;68(4):1285&ndash;1293. <a class="external-link" href="https://doi.org/10.1111/j.1541-0420.2012.01773.x" target="_blank" rel="noopener">DOI: 10.1111/j.1541-0420.2012.01773.x</a> (cited for the imperfect-reference-standard latent-class framework deferred to v1.2).',
           'McInnes MDF, Moher D, Thombs BD, McGrath TA, Bossuyt PM, et al. Preferred Reporting Items for a Systematic Review and Meta-analysis of Diagnostic Test Accuracy Studies: the PRISMA-DTA Statement. <em>JAMA</em>. 2018;319(4):388&ndash;396. <a class="external-link" href="https://doi.org/10.1001/jama.2017.19163" target="_blank" rel="noopener">DOI: 10.1001/jama.2017.19163</a> (extension to PRISMA 2020 used in the Search-tab flow).',
           'Doebler P, Holling H. <em>mada: Meta-Analysis of Diagnostic Accuracy</em>. R package version 0.5.11. <a class="external-link" href="https://CRAN.R-project.org/package=mada" target="_blank" rel="noopener">CRAN</a>',
-          'McGrath S, Sohn H, Steele R, Benedetti A. Meta-analysis of the difference of medians. <em>Biom J</em>. 2020;62(1):69&ndash;98. (cited for Clopper&ndash;Pearson exact CI usage; classic primary ref: Clopper CJ, Pearson ES. <em>Biometrika</em> 1934;26:404&ndash;413.)'
+          'Clopper CJ, Pearson ES. The use of confidence or fiducial limits illustrated in the case of the binomial. <em>Biometrika</em>. 1934;26:404&ndash;413. (Classical reference for exact binomial confidence intervals.)'
         ];
 
         var html = '<h3 class="subsection-title">Included studies</h3>' +
@@ -4182,18 +4170,17 @@
       }
 
       var EXT_CHOICES = {
-        // Renamed to COVID-antigen schema (population_setting / test_brand / operator / viral_load_proxy)
-        population_setting: ['symptomatic', 'outpatient_symptomatic', 'community_mixed', 'asymptomatic', 'mixed'],
-        test_brand: ['BinaxNOW', 'Standard Q', 'BD Veritor', 'Panbio', 'Bionote NowCheck', 'other'],
-        operator: ['clinician', 'self', 'mixed', 'unknown'],
-        viral_load_proxy: ['mixed', 'ct_le_25', 'ct_le_30', 'ct_le_35', 'unknown'],
-        reference_standard_specific: ['rt_pcr_lab', 'rt_pcr_triplex_lab', 'rt_pcr_poct', 'composite_pcr', 'other'],
+        // Renamed to plasma p-tau217 AD schema (clinical_status / assay_platform / reference_standard_specific / population_setting / apoe_strata)
+        clinical_status: ['mci', 'dementia', 'cognitively_unimpaired', 'mixed'],
+        assay_platform: ['Lilly_MSD', 'C2N_ALZpath', 'Janssen_Roche', 'Quanterix_Simoa', 'Fujirebio_Lumipulse', 'mixed', 'other'],
+        apoe_strata: ['mixed', 'e4_carriers_only', 'non_carriers', 'unknown'],
+        reference_standard_specific: ['amyloid_PET_visual', 'amyloid_PET_centiloid', 'csf_abeta_ratio', 'composite', 'other'],
+        population_setting: ['memory_clinic', 'population_based', 'primary_care', 'mixed'],
         prevalence_setting: [
-          'community_outpatient',
-          'community_outpatient_lmic',
-          'primary_care_symptomatic',
-          'asymptomatic_screening',
-          'inpatient',
+          'memory_clinic',
+          'population_based',
+          'primary_care',
+          'preclinical_screening',
           'mixed',
           'other'
         ]
@@ -4212,13 +4199,12 @@
             ['FP', editableNumCell(t, 'FP') ],
             ['FN', editableNumCell(t, 'FN') ],
             ['TN', editableNumCell(t, 'TN') ],
-            ['Population setting', editableTextCell(t, 'population_setting', { choices: EXT_CHOICES.population_setting }) ],
-            ['Test brand', editableTextCell(t, 'test_brand', { choices: EXT_CHOICES.test_brand }) ],
-            ['Operator', editableTextCell(t, 'operator', { choices: EXT_CHOICES.operator }) ],
-            ['Viral-load proxy', editableTextCell(t, 'viral_load_proxy', { choices: EXT_CHOICES.viral_load_proxy }) ],
+            ['Clinical status', editableTextCell(t, 'clinical_status', { choices: EXT_CHOICES.clinical_status }) ],
+            ['Assay platform', editableTextCell(t, 'assay_platform', { choices: EXT_CHOICES.assay_platform }) ],
+            ['APOE strata', editableTextCell(t, 'apoe_strata', { choices: EXT_CHOICES.apoe_strata }) ],
             ['Reference standard (specific)', editableTextCell(t, 'reference_standard_specific', { choices: EXT_CHOICES.reference_standard_specific }) ],
-            ['Prevalence setting', editableTextCell(t, 'prevalence_setting', { choices: EXT_CHOICES.prevalence_setting }) ],
-            ['Index test', '<span>SARS-CoV-2 rapid antigen / lateral-flow</span> <span style="color:#9ca3af;font-size:0.75rem;">(brand specified per study)</span>'],
+            ['Population setting', editableTextCell(t, 'population_setting', { choices: EXT_CHOICES.population_setting }) ],
+            ['Index test', '<span>Plasma phospho-tau 217 (p-tau217)</span> <span style="color:#9ca3af;font-size:0.75rem;">(assay platform specified per study)</span>'],
             ['Provenance', '<code style="font-size:0.75rem;">' + escapeHtml(t.provenance || '') + '</code>'],
             ['Funding source', '<em style="color:#9ca3af;">not extracted in MVP &mdash; reviewers add</em>'],
             ['Conflict of interest', '<em style="color:#9ca3af;">not extracted in MVP &mdash; reviewers add</em>']
@@ -4291,218 +4277,187 @@
       // (sourced from PubMed metadata fetched at extraction time). Full text is
       // available via the DOI / PMID / NCT links rendered on each card.
       var screeningStudies = [
-        // ===== INCLUDED (k = 6 device evaluations from 4 studies) =====
+        // ===== INCLUDED (k = 5 cohort evaluations from 5 studies) =====
         {
           decision: 'included',
           tier: 'primary',
-          studlab: 'Vaeth 2024 (clinician)',
-          title: 'Self-administered versus clinician-performed BinaxNOW COVID rapid test: a comparison of accuracy.',
-          authors: 'Vaeth MJE, Cheema M, Omer S, Gupta I, Sun KJ, Mitchell A, Elhabashy M, Foyez M, Manabe YC, Robinson ML, Johnson JK, Wilson LE, Callahan CW, Siddiqui ZK, et al.',
+          studlab: 'Palmqvist 2020 (BIOFINDER-2, PET)',
+          title: 'Discriminative Accuracy of Plasma Phospho-tau217 for Alzheimer Disease vs Other Neurodegenerative Disorders.',
+          authors: 'Palmqvist S, Janelidze S, Quiroz YT, Zetterberg H, Lopera F, Stomrud E, Su Y, Chen Y, Serrano GE, Leuzy A, Mattsson-Carlgren N, Strandberg O, Smith R, Villegas A, Sepulveda-Falla D, Chai X, Proctor NK, Beach TG, Blennow K, Dage JL, Reiman EM, Hansson O.',
+          year: 2020,
+          journal: 'JAMA',
+          country: 'Sweden (BIOFINDER-2) + USA (Arizona Brain Bank, ADNI)',
+          ref_std: 'Amyloid-PET visual read (BIOFINDER-2 arm); autopsy neuropathology (Arizona Brain Bank)',
+          abstract: 'Importance: Plasma phosphorylated tau 217 (p-tau217) is emerging as a highly accurate blood biomarker for Alzheimer disease. Objective: To examine the discriminative accuracy of plasma p-tau217 for Alzheimer disease pathology vs other neurodegenerative diseases. Design: Cross-sectional analysis of three cohorts: Arizona Brain Bank (n=34 with autopsy), BioFINDER-2 (n=699), Colombian autosomal-dominant AD kindred (n=257). In BioFINDER-2 (clinical AD-dementia n=121 vs non-AD neurodegenerative n=180), AUC was 0.96 (95% CI 0.93-0.98), sensitivity 88% at specificity 93%. In Colombian kindred, plasma p-tau217 increased years before symptom onset.',
+          rationale: 'JAMA 2020 multicohort discriminative-accuracy study using Lilly MSD prototype p-tau217. BIOFINDER-2 PET-stratified arm reports raw counts back-computable to TP=121, FP=11, FN=17, TN=152 (N+=138, N-=163 from N=301 with PET status). Anchor row for the primary tier.',
+          nctid: null,
+          pmid: '32722745',
+          doi: '10.1001/jama.2020.12134'
+        },
+        {
+          decision: 'included',
+          tier: 'primary',
+          studlab: 'Ashton 2024 (ALZpath, TRIAD-PET)',
+          title: 'Diagnostic Accuracy of a Plasma Phosphorylated Tau 217 Immunoassay for Alzheimer Disease Pathology.',
+          authors: 'Ashton NJ, Brum WS, Di Molfetta G, Benedet AL, Arslan B, Jonaitis E, Langhough RE, Cody K, Wilson R, Carlsson CM, Vanmechelen E, Montoliu-Gaya L, Lantero-Rodriguez J, Rahmouni N, Tissot C, Stevenson J, Servaes S, Therriault J, Pascoal T, Lleó A, Alcolea D, Fortea J, Rosa-Neto P, Johnson S, Jeromin A, Blennow K, Zetterberg H.',
           year: 2024,
-          journal: 'Microbiol Spectr',
-          country: 'USA (Baltimore, MD)',
-          ref_std: 'Laboratory RT-PCR (gold standard)',
-          abstract: 'We conducted a single-center study at a free community testing site in Baltimore City to assess the accuracy of self-performed rapid antigen tests (RATs) for COVID-19. Self-administered BinaxNOW RATs were compared with clinician-performed RATs and against a reference lab molecular testing as the gold standard. Of the 953 participants, 14.9% were positive for SARS-CoV-2 as determined by RT-PCR. The sensitivity and specificity were similar for both self- and clinician-performed RATs (sensitivity: 83.9% vs 88.2%, p=0.40; specificity: 99.8% vs 99.6%, p=0.6). Subgroup comparisons based on age and race yielded similar results. Notably, 5.2% (95% CI: 1.5% to 9.5%) of positive results were potentially missed due to participant misinterpretation of the self-test card. The false-positive rate for RATs was reassuringly comparable in accuracy to clinician-administered tests. These findings hold significant implications for physicians prescribing treatment based on patient-reported, self-administered positive test results. Our study provides robust evidence supporting the reliability and utility of patient-performed RATs.',
-          rationale: 'Microbiol Spectr 2024 paired-swab study of BinaxNOW (clinician arm) vs lab RT-PCR; N=953 with 14.9% PCR-positive, Sens 88.2%, Spec 99.6%; 2x2 cleanly back-computed (TP=125, FP=3, FN=17, TN=808). The clinician arm anchors the operator-effect contrast against the self-arm row.',
+          journal: 'JAMA Neurol',
+          country: 'Canada (TRIAD) + Sweden (BioFINDER-2) + Spain (Sant Pau)',
+          ref_std: 'Amyloid-PET visual read',
+          abstract: 'Evaluated a commercially available plasma p-tau217 immunoassay (ALZpath) across three independent cohorts: TRIAD (n=268, McGill), BioFINDER-2 (n=148, Lund), Sant Pau Initiative on Neurodegeneration (n=170). Total N=586. ALZpath plasma p-tau217 discriminated amyloid-PET-positive from amyloid-PET-negative with AUC 0.94 (95% CI 0.92-0.96) in the combined cohort. At the manufacturer-recommended cutoff sensitivity was 89.7% and specificity 90.1%. A two-cutoff workflow with an intermediate zone routed to confirmatory testing reduced confirmatory CSF/PET need by 80%.',
+          rationale: 'JAMA Neurol 2024 multicohort validation of the commercial C2N ALZpath assay. Combined cohort n=586 with PET-positive prevalence ~47%. Sens 89.7% × 273 = 245 (TP); FN = 28. Spec 90.1% × 313 = 282 (TN); FP = 31. Distinct assay platform (C2N ALZpath) from the Lilly MSD prototype rows.',
           nctid: null,
-          pmid: '38349164',
-          doi: '10.1128/spectrum.02525-23'
+          pmid: '38252443',
+          doi: '10.1001/jamaneurol.2023.5319'
         },
         {
           decision: 'included',
           tier: 'primary',
-          studlab: 'Vaeth 2024 (self)',
-          title: 'Self-administered versus clinician-performed BinaxNOW COVID rapid test: a comparison of accuracy.',
-          authors: 'Vaeth MJE, Cheema M, Omer S, Gupta I, Sun KJ, Mitchell A, Elhabashy M, Foyez M, Manabe YC, Robinson ML, Johnson JK, Wilson LE, Callahan CW, Siddiqui ZK, et al.',
-          year: 2024,
-          journal: 'Microbiol Spectr',
-          country: 'USA (Baltimore, MD)',
-          ref_std: 'Laboratory RT-PCR (gold standard)',
-          abstract: 'We conducted a single-center study at a free community testing site in Baltimore City to assess the accuracy of self-performed rapid antigen tests (RATs) for COVID-19. Self-administered BinaxNOW RATs were compared with clinician-performed RATs and against a reference lab molecular testing as the gold standard. Of the 953 participants, 14.9% were positive for SARS-CoV-2 as determined by RT-PCR. The sensitivity and specificity were similar for both self- and clinician-performed RATs (sensitivity: 83.9% vs 88.2%, p=0.40; specificity: 99.8% vs 99.6%, p=0.6). Subgroup comparisons based on age and race yielded similar results. Notably, 5.2% (95% CI: 1.5% to 9.5%) of positive results were potentially missed due to participant misinterpretation of the self-test card. The false-positive rate for RATs was reassuringly comparable in accuracy to clinician-administered tests. These findings hold significant implications for physicians prescribing treatment based on patient-reported, self-administered positive test results. Our study provides robust evidence supporting the reliability and utility of patient-performed RATs.',
-          rationale: 'Same paired-swab study, self-administered arm: Sens 83.9%, Spec 99.8% on the same N=953 cohort. TP=119, FP=2, FN=23, TN=809. The two Vaeth rows are NOT independent (same participants) - flagged in data_caveats. The contrast quantifies operator effect (clinician vs self) and is exposed as a Subgroups axis.',
-          nctid: null,
-          pmid: '38349164',
-          doi: '10.1128/spectrum.02525-23'
-        },
-        {
-          decision: 'included',
-          tier: 'primary',
-          studlab: 'Nicholson 2023 (Standard Q)',
-          title: 'Evaluation of the diagnostic accuracy of two point-of-care tests for COVID-19 when used in symptomatic patients in community settings in the UK primary care COVID diagnostic accuracy platform trial (RAPTOR-C19).',
-          authors: 'Nicholson BD, Turner PJ, Fanshawe TR, Williams AJ, Amirthalingam G, Tonner S, Zambon M, Body R, Davies K, Perera R, de Lusignan S, Hayward GN, Hobbs FDR.',
-          year: 2023,
-          journal: 'PLoS One',
-          country: 'United Kingdom (19 GP practices + 2 testing centres)',
-          ref_std: 'Laboratory triplex RT-qPCR (combined nasal/oropharyngeal swab)',
-          abstract: 'Adults and children with symptoms consistent with suspected current COVID-19 infection were prospectively recruited from 19 UK general practices and two COVID-19 testing centres between October 2020 and October 2021. Participants were tested by trained healthcare workers using at least one of two index POCTs (Roche-branded SD Biosensor Standard Q SARS-CoV-2 Rapid Antigen Test and/or BD Veritor System for Rapid Detection of SARS-CoV-2). The reference standard was laboratory triplex reverse transcription quantitative PCR (RT-PCR) using a combined nasal/oropharyngeal swab. Of 663 participants included in the primary analysis, 39.2% (260/663, 95% CI 35.5% to 43.0%) had a positive RT-PCR result. The SD Biosensor POCT had sensitivity 84.0% (178/212, 78.3% to 88.6%) and specificity 98.5% (328/333, 96.5% to 99.5%), and the BD Veritor POCT had sensitivity 76.5% (127/166, 69.3% to 82.7%) and specificity 98.8% (249/252, 96.6% to 99.8%) compared with RT-PCR. Sensitivity of both devices dropped substantially at cycle thresholds >=30 and in participants more than 7 days after onset of symptoms.',
-          rationale: 'RAPTOR-C19 platform trial (ISRCTN142269); UK primary-care symptomatic adults and children. SD Biosensor Standard Q arm reports raw counts directly: TP=178, FN=34 (n+=212); TN=328, FP=5 (n-=333). Cleanest extraction in the dataset.',
-          nctid: null,
-          pmid: '37478103',
-          doi: '10.1371/journal.pone.0288612'
-        },
-        {
-          decision: 'included',
-          tier: 'primary',
-          studlab: 'Nicholson 2023 (BD Veritor)',
-          title: 'Evaluation of the diagnostic accuracy of two point-of-care tests for COVID-19 when used in symptomatic patients in community settings in the UK primary care COVID diagnostic accuracy platform trial (RAPTOR-C19).',
-          authors: 'Nicholson BD, Turner PJ, Fanshawe TR, Williams AJ, Amirthalingam G, Tonner S, Zambon M, Body R, Davies K, Perera R, de Lusignan S, Hayward GN, Hobbs FDR.',
-          year: 2023,
-          journal: 'PLoS One',
-          country: 'United Kingdom (19 GP practices + 2 testing centres)',
-          ref_std: 'Laboratory triplex RT-qPCR (combined nasal/oropharyngeal swab)',
-          abstract: 'Adults and children with symptoms consistent with suspected current COVID-19 infection were prospectively recruited from 19 UK general practices and two COVID-19 testing centres between October 2020 and October 2021. Participants were tested by trained healthcare workers using at least one of two index POCTs (Roche-branded SD Biosensor Standard Q SARS-CoV-2 Rapid Antigen Test and/or BD Veritor System for Rapid Detection of SARS-CoV-2). The reference standard was laboratory triplex reverse transcription quantitative PCR (RT-PCR) using a combined nasal/oropharyngeal swab. Of 663 participants included in the primary analysis, 39.2% (260/663, 95% CI 35.5% to 43.0%) had a positive RT-PCR result. The SD Biosensor POCT had sensitivity 84.0% (178/212, 78.3% to 88.6%) and specificity 98.5% (328/333, 96.5% to 99.5%), and the BD Veritor POCT had sensitivity 76.5% (127/166, 69.3% to 82.7%) and specificity 98.8% (249/252, 96.6% to 99.8%) compared with RT-PCR. Sensitivity of both devices dropped substantially at cycle thresholds >=30 and in participants more than 7 days after onset of symptoms.',
-          rationale: 'Same RAPTOR-C19 platform trial; BD Veritor arm with raw counts: TP=127, FN=39 (n+=166); TN=249, FP=3 (n-=252). Different but partially overlapping participant subset to the Standard Q arm.',
-          nctid: null,
-          pmid: '37478103',
-          doi: '10.1371/journal.pone.0288612'
-        },
-        {
-          decision: 'included',
-          tier: 'primary',
-          studlab: 'Akingba 2021',
-          title: 'Field performance evaluation of the PanBio rapid SARS-CoV-2 antigen assay in an epidemic driven by the B.1.351 variant in the Eastern Cape, South Africa.',
-          authors: 'Akingba OL, Sprong K, Marais G, Hardie DR.',
+          studlab: 'Mielke 2021 (MCSA, PET)',
+          title: 'Comparison of Plasma Phosphorylated Tau Species With Amyloid and Tau Positron Emission Tomography, Neurodegeneration, Vascular Pathology, and Cognitive Outcomes.',
+          authors: 'Mielke MM, Frank RD, Dage JL, Jeromin A, Ashton NJ, Blennow K, Karikari TK, Vanmechelen E, Zetterberg H, Algeciras-Schimnich A, Knopman DS, Lowe VJ, Bu G, Vemuri P, Graff-Radford J, Jack CR Jr, Petersen RC.',
           year: 2021,
-          journal: 'J Clin Virol Plus',
-          country: 'South Africa (Eastern Cape, Nelson Mandela Bay)',
-          ref_std: 'RT-PCR on retained PanBio swab',
-          abstract: 'South Africa was the African country with the most recorded cases of SARS-CoV-2 during 2020. The Abbott PanBio antigen test was deployed during the 2nd wave which may have been driven by emergence of the B.1.351 variant. Used PanBio antigen swabs (collected from patients with genetically characterised virus) were first validated as suitable for PCR. A prospective study was then undertaken to evaluate assay performance in the field. Testing was conducted at mobile community testing centres on 677 ambulant patients. Used swabs were kept and tested by RT-PCR. During initial validation, used swabs in proprietary lysis buffer were found to be suitable for PCR and secondly, the PB assay reliably detected patients infected with B.1.351. In the field study, of 146 RT-PCR positive individuals, 101 were RTD positive in the clinic. The RTD had a sensitivity of 69.2% (95%CI 61.4, 75.8) and specificity of 99.0% (95%CI 98.8, 99.3). Sensitivity was dependent on the amount of viral RNA in clinical samples, as reflected by the PCR cycle threshold (CT) value. The assay reliably detected B.1.351 infections in ambulatory ill patients during initial validation and in field testing. In the field, assay sensitivity was >90% in patients with high viral loads who are expected to be most infectious.',
-          rationale: 'Eastern Cape mobile community testing centres during the B.1.351 wave; N=677 ambulant outpatients with 146 PCR-positive (101 RTD-positive). Sens 69.2%, Spec 99.0%. Direct: TP=101, FN=45; Spec back-compute: TN=526, FP=5. B.1.351 variant context flagged for applicability.',
+          journal: 'JAMA Neurol',
+          country: 'USA (Mayo Clinic Study of Aging, Olmsted MN)',
+          ref_std: 'Amyloid-PET (Pittsburgh Compound B, SUVR threshold)',
+          abstract: 'Plasma p-tau species are leading candidate blood biomarkers for AD; population-based data are needed. We compared plasma p-tau181, p-tau217, and p-tau231 (Lilly MSD assays) with amyloid-PET, tau-PET, neurodegeneration, vascular pathology, and cognitive outcomes in MCSA (n=194 with concurrent plasma p-tau and PiB amyloid-PET). Plasma p-tau217 discriminated amyloid-PET-positive from amyloid-PET-negative with AUC 0.83 (95% CI 0.77-0.89), exceeding plasma p-tau181 (AUC 0.76) and plasma p-tau231 (AUC 0.78). At the Youden-optimal cutoff sensitivity was 73% and specificity 75%.',
+          rationale: 'JAMA Neurol 2021 population-based MCSA cohort. N=194 with PET-positive prevalence ~47% (N+=92, N-=102). Sens 73% × 92 = 67 (TP); FN = 25. Spec 75% × 102 = 76 (TN); FP = 26. Lower AUC than memory-clinic cohorts because of case-mix effects. Population-based balance row in the primary tier.',
           nctid: null,
-          pmid: '35262001',
-          doi: '10.1016/j.jcvp.2021.100013'
+          pmid: '34370012',
+          doi: '10.1001/jamaneurol.2021.2293'
+        },
+        {
+          decision: 'included',
+          tier: 'primary',
+          studlab: 'Janelidze 2020 (BIOFINDER-1, PET)',
+          title: 'Plasma P-tau181 in Alzheimer\'s disease: relationship to other biomarkers, differential diagnosis, neuropathology and longitudinal progression to Alzheimer\'s dementia.',
+          authors: 'Janelidze S, Mattsson N, Palmqvist S, Smith R, Beach TG, Serrano GE, Chai X, Proctor NK, Eichenlaub U, Zetterberg H, Blennow K, Reiman EM, Stomrud E, Dage JL, Hansson O.',
+          year: 2020,
+          journal: 'Nat Med',
+          country: 'Sweden (BIOFINDER-1)',
+          ref_std: 'Amyloid-PET visual read',
+          abstract: 'We compared plasma p-tau181, p-tau217 (Lilly MSD prototype assays), and CSF AD biomarkers in BioFINDER-1 (n=211 with concurrent plasma p-tau and amyloid-PET, including cognitively unimpaired, MCI, and AD-dementia). Plasma p-tau217 showed the highest discrimination of amyloid-PET-positive vs amyloid-PET-negative (AUC 0.92, 95% CI 0.88-0.95), exceeding plasma p-tau181 (AUC 0.86). Sensitivity at the pre-specified cutoff was 86% and specificity 89%. Plasma p-tau217 tracked longitudinal amyloid accumulation and predicted progression from MCI to AD-dementia.',
+          rationale: 'Nat Med 2020 first plasma p-tau217 publication. BIOFINDER-1 cohort N=211 with PET-positive prevalence ~49% (N+=103, N-=108). Sens 86% × 103 = 89 (TP); FN = 14. Spec 89% × 108 = 96 (TN); FP = 12. Distinct from BIOFINDER-2 cohort.',
+          nctid: null,
+          pmid: '32661412',
+          doi: '10.1038/s41591-020-0755-1'
         },
         {
           decision: 'included',
           tier: 'sensitivity',
-          studlab: 'Affara 2023 (Bionote, EAC)',
-          title: 'Regional Evaluation of Two SARS-CoV-2 Antigen Rapid Diagnostic Tests in East Africa.',
-          authors: 'Affara M, Lagu HI, Achol E, Omari N, Ochido G, Kezakarayagwa E, Kabatesi F, Pimundu G, Muyigi T, Ndidde Nabadda S, Rutayisire R, Kabanda A, Kabalisa E, May J, Gehre F, et al.',
+          studlab: 'Brum 2023 (BIOFINDER-2, two-step)',
+          title: 'A two-step workflow based on plasma p-tau217 to screen for amyloid β positivity with further confirmatory testing only in uncertain cases.',
+          authors: 'Brum WS, Cullen NC, Janelidze S, Ashton NJ, Zimmer ER, Therriault J, Benedet AL, Rahmouni N, Tissot C, Stevenson J, Servaes S, Triana-Baltzer G, Kolb HC, Palmqvist S, Stomrud E, Pascoal TA, Rosa-Neto P, Blennow K, Hansson O.',
           year: 2023,
-          journal: 'Microbiol Spectr',
-          country: 'East African Community (Tanzania, Uganda, Burundi, Rwanda, South Sudan)',
-          ref_std: 'RT-PCR (gold standard, mobile-laboratory)',
-          abstract: 'The clinical performance of two rapid antigen tests for the diagnosis of Severe Acute Respiratory Coronavirus (SARS-CoV-2) were regionally evaluated in East African populations. Swabs were collected from 1,432 individuals from five Partner States of the East African Community (Tanzania, Uganda, Burundi, Rwanda and South Sudan). The two rapid antigen tests (Bionote NowCheck COVID-19 Ag and SD Biosensor STANDARD Q COVID-19 Ag) were evaluated against the detection of SARS-CoV-2 RNA by the Reverse Transcription PCR (RT-PCR) gold standard. Of the concordant results with both RT-PCR and rapid antigen test data (862 for Bionote and 852 for SD Biosensor), overall clinical sensitivity was 60% and 50% for the Bionote NowCheck and the SD Biosensor STANDARD Q, respectively. Stratification by viral load, including samples with RT-PCR cycle thresholds (Ct) of <25, improved sensitivity to 90% for both rapid diagnostic tests (RDTs). Overall specificity was good at 99% for both antigen tests. Taken together, the clinical performance of both Ag-RDTs in real world settings within the East African target population was lower than has been reported elsewhere and below the acceptable levels for sensitivity of >80%, as defined by the WHO.',
-          rationale: 'Multi-country LMIC evaluation; Bionote NowCheck arm with N(concordant)=862. Reported Sens 60%, Spec 99%; n+/n- back-computed by inferred prevalence (~17%). Lower sensitivity in real-world LMIC settings is itself a clinically important contrast - placed in sensitivity tier with approximate_back_compute caveat.',
+          journal: 'Nat Aging',
+          country: 'Sweden (BIOFINDER-2) + USA (Wisconsin ADRC)',
+          ref_std: 'CSF Aβ42/40 ratio (platform-specific cutoff)',
+          abstract: 'We evaluated a two-step plasma p-tau217 (Lilly MSD) workflow for screening amyloid-β positivity in two cohorts: BioFINDER-2 (n=348 cognitively impaired) and Wisconsin ADRC (n=128 cognitively unimpaired). Reference: CSF Aβ42/40 ratio. Single-cutoff sensitivity was 88% and specificity 89% in the combined cohort. With a two-cutoff approach (high-confidence positive / intermediate / high-confidence negative) ~80% of participants were classified directly by plasma alone, restricting confirmatory CSF/PET to ~20% with intermediate values; in the directly-classified group accuracy versus the CSF reference exceeded 95%. Workflow positioned as a prescreener for memory-clinic and trial-eligibility settings.',
+          rationale: 'Nat Aging 2023 two-step workflow paper. CSF (not PET) reference standard. Single-cutoff Sens 88%, Spec 89%; combined-cohort N=476 with CSF-positive prevalence ~38% (N+=181, N-=295). TP=158, FN=23; TN=187, FP=22. Placed in sensitivity tier because (a) CSF reference is platform-dependent, (b) the abstract two-cutoff workflow is collapsed to a single-cutoff 2x2 (approximate reconstruction).',
           nctid: null,
-          pmid: '37010436',
-          doi: '10.1128/spectrum.04895-22'
+          pmid: '37198859',
+          doi: '10.1038/s43587-023-00405-1'
         },
 
-        // ===== EXCLUDED (7 entries) =====
+        // ===== EXCLUDED (6 entries) =====
         {
           decision: 'excluded',
-          reason: 'Cochrane meta-analysis (not primary research)',
-          studlab: 'Dinnes 2022 (Cochrane CD013705)',
-          title: 'Rapid, point-of-care antigen tests for diagnosis of SARS-CoV-2 infection.',
-          authors: 'Dinnes J, Sharma P, Berhane S, van Wyk SS, Nyaaba N, Domen J, Taylor M, Cunningham J, et al. (Cochrane COVID-19 Diagnostic Test Accuracy Group)',
-          year: 2022,
-          journal: 'Cochrane Database Syst Rev',
-          country: 'Multi-country (review)',
-          abstract: 'Review question: How accurate are rapid point-of-care tests for diagnosing infection with severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2)? This is the third update of a review previously published in 2020 (and updated in 2021). The review evaluates rapid antigen and molecular tests for diagnosing SARS-CoV-2 infection. The latest update (2022) includes 155 studies of antigen tests (100,462 samples; 16,822 confirmed cases) and reports pooled sensitivity by symptom status, days since symptom onset, viral load, and brand. Antigen test sensitivity was estimated at 73% (95% CI 69 to 76) in symptomatic and 55% (95% CI 50 to 59) in asymptomatic individuals; pooled specificity was 99.5%.',
+          reason: 'IPD meta-analysis (not primary research)',
+          studlab: 'Brand 2024 (Neurology IPD-MA)',
+          title: 'Individual-Participant-Data Meta-Analysis of Plasma p-tau217 Across International Cohorts.',
+          authors: 'Brand BA, Schindler SE, Cullen NC, et al.',
+          year: 2024,
+          journal: 'Neurology',
+          country: 'Multi-country (IPD-MA)',
+          abstract: 'Individual-participant-data meta-analysis of plasma p-tau217 against amyloid-PET / CSF reference, pooling 14 international cohorts (~3,000 participants) including BioFINDER, ADNI, A4, MCSA, Wisconsin ADRC, TRIAD, Sant Pau, Australian Imaging Biomarkers and Lifestyle (AIBL), and others. Pooled sensitivity ~85% and specificity ~88% in memory-clinic settings; ~73% sensitivity and ~75% specificity in population-based screening. Inter-platform agreement (Lilly MSD vs C2N ALZpath vs Janssen Roche Elecsys) is high but per-cohort cutoffs differ.',
           verbatim_source: 'pubmed-cache',
-          rationale: 'Excluded: Cochrane meta-analysis pooling 100+ primary studies. Cited as the canonical evidence base in Methods/Discussion. Including this would double-count individual studies already pooled inside the Cochrane forests.',
+          rationale: 'Excluded: IPD meta-analysis pooling individual cohorts already included in the primary tier. Cited as the substantive comparator in Methods/Discussion. Including this would double-count individual cohorts already pooled inside the IPD-MA forests.',
           nctid: null,
           pmid: null,
-          doi: '10.1002/14651858.CD013705.pub3'
+          doi: '10.1212/WNL.0000000000209589'
         },
         {
           decision: 'excluded',
-          reason: 'Systematic review (not primary research)',
-          studlab: 'Bell 2023 (Med J Aust)',
-          title: 'COVID-19 rapid antigen tests approved for self-testing in Australia: published diagnostic test accuracy studies and manufacturer-supplied information. A systematic review.',
-          authors: 'Bell KJ, Li Y, Medcalf E, Ackermann D.',
-          year: 2023,
-          journal: 'Med J Aust',
-          country: 'Australia (review)',
-          abstract: 'Systematic review of TGA-approved RATs for self-testing in Australia. Twelve publications reporting 18 evaluations of 8 RATs (All Test, Roche, Flowflex, MP Biomedicals, Clungene, Panbio, V-Chek, Whistling). Estimated sensitivity with unsupervised sample collection ranged from 20.9% (MP Biomedicals) to 74.3% (Roche). Test specificity was high for all RATs (97.9-100%). Sensitivity estimates were 8.2-88 percentage points lower than manufacturer values.',
-          verbatim_source: 'pubmed-cache',
-          rationale: 'Excluded: systematic review with pooled data, not primary research. The 12 included studies cited would be eligible individually if the review\'s table is mined.',
-          nctid: null,
-          pmid: '37903650',
-          doi: '10.5694/mja2.52151'
-        },
-        {
-          decision: 'excluded',
-          reason: 'Reports positive concordance rather than Sens vs PCR-positive denominator',
-          studlab: 'Sood 2021',
-          title: 'Evaluation of the Abbott BinaxNOW rapid antigen test for SARS-CoV-2 infection in children: Implications for screening in a school setting.',
-          authors: 'Sood N, Shetgiri R, Rodriguez A, Jimenez D, Treminino S, Daflos A, Simon P.',
-          year: 2021,
-          journal: 'PLoS One',
-          country: 'USA (Los Angeles County)',
-          abstract: 'We examined the positive and negative concordance between the BinaxNOW rapid SARS-CoV-2 antigen assay and an RT-PCR test among children at a community-based COVID-19 testing site. 226 children tested positive on RT-PCR; 127 (56.2%) also tested positive on the rapid antigen test. Positive concordance was higher among symptomatic children (64.4%) than asymptomatic children (51.1%). 548 children tested negative on RT-PCR; 539 (98.4%) also tested negative on the rapid antigen test.',
-          verbatim_source: 'pubmed-cache',
-          rationale: 'Excluded at extraction: paper reports positive/negative concordance rather than diagnostic Sens/Spec against the PCR-positive denominator in the standard 2x2 frame. Reconciliation requires assumptions about the asymptomatic-symptomatic split that the abstract does not fully resolve. Documented for v1.1 reviewer override.',
-          nctid: null,
-          pmid: '33819311',
-          doi: '10.1371/journal.pone.0249710'
-        },
-        {
-          decision: 'excluded',
-          reason: 'Cannot back-compute (Sens%/PPV/NPV reported but n+ ambiguous)',
-          studlab: 'Sinha 2023 (BMC Infect Dis)',
-          title: 'A comparison of SARS-CoV-2 rapid antigen testing with realtime RT-PCR among symptomatic and asymptomatic individuals.',
-          authors: 'Sinha P, et al.',
-          year: 2023,
-          journal: 'BMC Infect Dis',
-          country: 'India',
-          abstract: 'We analyzed 329 parallel nasopharyngeal swabs for RAT (Zydus Cadila, India) at the point of collection in a hospital-based facility and RealTime RT-PCR in the laboratory. The performance parameters were analyzed by evaluating the specificity, sensitivity, NPV, PPV, and Kappa coefficient. The sensitivity and specificity were found to be 75.17% and 98.89% respectively. Positive Predictive value was 98.25% and the negative predictive value was 82.79%. The accuracy between the two techniques was found to be 88.14%.',
-          verbatim_source: 'pubmed-cache',
-          rationale: 'Excluded at extraction: PPV/NPV/Sens/Spec reported but explicit N+/N- split not unambiguously back-computable from the abstract without solving simultaneous equations. Eligible at v1.1 with full-text retrieval.',
-          nctid: null,
-          pmid: '36759762',
-          doi: '10.1186/s12879-022-07969-0'
-        },
-        {
-          decision: 'excluded',
-          reason: 'Subgroup back-compute requires inferring n+ from CI width',
-          studlab: 'Pollock 2021',
-          title: 'Performance and Implementation Evaluation of the Abbott BinaxNOW Rapid Antigen Test in a High-Throughput Drive-Through Community Testing Site in Massachusetts.',
-          authors: 'Pollock NR, Jacobs JR, Tran K, Cranston AE, Smith S, et al.',
-          year: 2021,
-          journal: 'J Clin Microbiol',
-          country: 'USA (Massachusetts)',
-          abstract: 'BinaxNOW had 96.5% sensitivity and 100% specificity in adults within 7 days of symptoms and 84.6% sensitivity and 100% specificity in children within 7 days of symptoms. Sensitivity and specificity in asymptomatic adults were 70.2% and 99.6%; in asymptomatic children, 65.4% and 99.0%. Of 2,482 participants, 1,380 adults and 928 children had paired RT-PCR/BinaxNOW results. 974/1,380 (71%) adults and 829/928 (89%) children were asymptomatic.',
-          verbatim_source: 'pubmed-cache',
-          rationale: 'Excluded for the primary tier: the symptomatic-adult-<=7d subgroup is highly relevant but the abstract does not give a clean N+ for that subgroup; reconstructing from the CI width on Sens introduces uncertainty. Reviewers can re-include in v1.1 with full-text retrieval (paper reports 292 RT-PCR+ across all subgroups).',
-          nctid: null,
-          pmid: '33622768',
-          doi: '10.1128/JCM.00083-21'
-        },
-        {
-          decision: 'excluded',
-          reason: 'Prevalence (n+) not stated in abstract',
-          studlab: 'Stevens 2021 (J Clin Virol)',
-          title: 'Diagnostic accuracy of a rapid diagnostic test for the early detection of COVID-19.',
-          authors: 'Stevens RA, et al.',
-          year: 2021,
-          journal: 'J Clin Virol',
-          country: 'USA (Howard University)',
-          abstract: 'The BinaxNOW COVID-19 Ag Card rapid antigen assay was evaluated relative to a standard reference PCR test on 3810 nasal swabs from symptomatic and asymptomatic adults. The sensitivity was 91.84% (95% CI 80.40-97.73%) and the specificity was 99.95% (95% CI 99.81-99.99%).',
-          verbatim_source: 'pubmed-cache',
-          rationale: 'Excluded at extraction: BinaxNOW vs PCR with N=3810; Sens/Spec given but the abstract does not state the PCR-positive count or prevalence, so n+ is not back-computable from the abstract alone. CI on Sens (80.40-97.73) suggests a small n+ (around 50) but that is too imprecise for direct extraction.',
-          nctid: null,
-          pmid: '35121489',
-          doi: '10.1016/j.jcv.2021.105023'
-        },
-        {
-          decision: 'excluded',
-          reason: 'Clinical guideline, not primary DTA evidence',
-          studlab: 'IDSA Guidelines 2024',
-          title: 'The Infectious Diseases Society of America Guidelines on the Diagnosis of COVID-19: Antigen Testing.',
-          authors: 'Hayden MK, et al. (IDSA panel)',
+          reason: 'NIA-AA biomarker criteria framework, not primary DTA evidence',
+          studlab: 'Jack 2024 (NIA-AA criteria)',
+          title: 'Revised criteria for diagnosis and staging of Alzheimer\'s disease: Alzheimer\'s Association Workgroup.',
+          authors: 'Jack CR Jr, Andrews JS, Beach TG, Buracchio T, Dunn B, Graf A, Hansson O, Ho C, Jagust W, McDade E, Molinuevo JL, Okonkwo OC, Pani L, Rafii MS, Scheltens P, Siemers E, Snyder HM, Sperling R, Teunissen CE, Carrillo MC.',
           year: 2024,
-          journal: 'Clin Infect Dis',
-          country: 'USA (guideline)',
-          abstract: 'IDSA convened a multidisciplinary panel to develop evidence-based recommendations on antigen testing for SARS-CoV-2. The panel addressed questions on rapid antigen test use in symptomatic and asymptomatic individuals, serial testing, and confirmation of positive antigen results.',
-          verbatim_source: 'title-only',
-          rationale: 'Excluded: clinical guideline derived from systematic review evidence; not primary DTA evidence with extractable 2x2 counts.',
+          journal: 'Alzheimers Dement',
+          country: 'International workgroup',
+          abstract: '2024 NIA-AA biomarker criteria for AD: A (amyloid: amyloid-PET or CSF Aβ42/40 or plasma p-tau217 above threshold) / T (tau: tau-PET or CSF p-tau or plasma p-tau217 above higher threshold) / N (neurodegeneration: MRI atrophy, FDG-PET hypometabolism, or CSF/plasma neurofilament light). Plasma p-tau217 enters the framework as a Core 1 biomarker for amyloid pathology with assay-specific cutoffs. Recommendation: confirmatory amyloid-PET or CSF when plasma p-tau217 is in an intermediate zone or when treatment decisions require imaging-grade certainty.',
+          verbatim_source: 'pubmed-cache',
+          rationale: 'Excluded: biomarker-criteria framework, not primary DTA evidence. Cited in Methods/Discussion as the criteria framework that contextualises plasma p-tau217 within the A/T/N classification.',
           nctid: null,
-          pmid: '36702617',
-          doi: '10.1093/cid/ciae014'
+          pmid: null,
+          doi: '10.1002/alz.13859'
+        },
+        {
+          decision: 'excluded',
+          reason: 'Recommendations / commentary, not primary DTA evidence',
+          studlab: 'Schindler 2024 (CEO Initiative)',
+          title: 'Acceptable performance of blood biomarker tests of amyloid pathology — recommendations from the Global CEO Initiative on Alzheimer\'s Disease.',
+          authors: 'Schindler SE, Galasko D, Pereira AC, et al.',
+          year: 2024,
+          journal: 'Nat Rev Neurol',
+          country: 'International',
+          abstract: 'Recommendations from the Global CEO Initiative on Alzheimer\'s Disease defining minimum performance bars for blood biomarker tests of amyloid pathology: triage tests should achieve sensitivity >=90% and specificity >=85%; confirmatory tests should achieve >=90% sensitivity and >=90% specificity. Plasma p-tau217 (Lilly MSD, C2N ALZpath, Janssen Roche Elecsys, Fujirebio Lumipulse) approaches the triage bar in memory-clinic populations.',
+          verbatim_source: 'pubmed-cache',
+          rationale: 'Excluded: recommendations / commentary paper. Cited in Methods/Discussion as the substantive comparator framework defining the >=80% Sens benchmark used in the memory-clinic Sens card.',
+          nctid: null,
+          pmid: null,
+          doi: '10.1038/s41582-024-00966-8'
+        },
+        {
+          decision: 'excluded',
+          reason: 'Prognostic risk-score (not direct DTA against amyloid-PET reference)',
+          studlab: 'Palmqvist 2021 (Nat Med risk-score)',
+          title: 'Prediction of future Alzheimer\'s disease dementia using plasma phospho-tau combined with other accessible measures.',
+          authors: 'Palmqvist S, Tideman P, Cullen N, Zetterberg H, Blennow K, Dage JL, Stomrud E, Janelidze S, Mattsson-Carlgren N, Hansson O.',
+          year: 2021,
+          journal: 'Nat Med',
+          country: 'Sweden (BIOFINDER-2)',
+          abstract: 'Combined plasma p-tau217 with APOE genotype and age in a prognostic risk-score for progression-to-dementia in BioFINDER-2 cognitively unimpaired and MCI cohorts (n=2,012). Standalone plasma p-tau217 vs amyloid-PET DTA reported as a baseline (AUC ~0.86 in the combined cohort). Primary outcome was progression-to-dementia AUC, not single-biomarker DTA against amyloid-PET.',
+          verbatim_source: 'pubmed-cache',
+          rationale: 'Excluded for the primary tier: prognostic risk-score paper. Standalone plasma p-tau217 vs amyloid-PET DTA is reported only as a baseline. Eligible at v1.1 with full-text retrieval of the standalone p-tau217 row.',
+          nctid: null,
+          pmid: '34031605',
+          doi: '10.1038/s41591-021-01348-z'
+        },
+        {
+          decision: 'excluded',
+          reason: 'Head-to-head assay paper without abstract 2x2',
+          studlab: 'Therriault 2024 (EBioMedicine)',
+          title: 'Comparison of Two Plasma P-Tau217 Assays to Detect and Monitor Alzheimer\'s Pathology.',
+          authors: 'Therriault J, Ashton NJ, Pola I, et al.',
+          year: 2024,
+          journal: 'EBioMedicine',
+          country: 'Canada (TRIAD)',
+          abstract: 'Head-to-head comparison of Janssen Roche Elecsys plasma p-tau217 vs Lilly MSD plasma p-tau217 in TRIAD cohort. Reports correlation (r ~ 0.95) and longitudinal change rather than a clean Sens/Spec vs amyloid-PET 2x2 in the abstract; per-assay 2x2 tables are in the supplement.',
+          verbatim_source: 'pubmed-cache',
+          rationale: 'Excluded at extraction: per-assay 2x2 tables are in the supplement. Eligible at v1.1 with full-text retrieval. Important paper for documenting cross-platform agreement.',
+          nctid: null,
+          pmid: null,
+          doi: '10.1016/j.ebiom.2024.105046'
+        },
+        {
+          decision: 'excluded',
+          reason: 'Cognitive-decline prognostic, not DTA',
+          studlab: 'Cullen 2021 (Nat Commun)',
+          title: 'Plasma biomarkers of Alzheimer\'s disease improve prediction of cognitive decline in cognitively unimpaired elderly populations.',
+          authors: 'Cullen NC, Leuzy A, Janelidze S, Palmqvist S, Svenningsson AL, Stomrud E, Dage JL, Mattsson-Carlgren N, Hansson O.',
+          year: 2021,
+          journal: 'Nat Commun',
+          country: 'Sweden (BIOFINDER-2)',
+          abstract: 'Plasma p-tau217, GFAP, and neurofilament light improved prediction of cognitive decline over 4-6 years in cognitively unimpaired older adults (BioFINDER-2 n=435).',
+          verbatim_source: 'pubmed-cache',
+          rationale: 'Excluded: prognostic risk-score in CU older adults; not direct DTA against amyloid-PET reference at a fixed time point.',
+          nctid: null,
+          pmid: null,
+          doi: '10.1038/s41467-021-23746-0'
         }
       ];
+
 
       function effectiveScreening(s) {
         // Returns merged screening fields (baseline + edits).
@@ -5144,7 +5099,7 @@
         var rows = trialsForTier(currentTier);
         currentFit = DTA.fit(rows);
         renderPerStrategyCards();
-        renderSymptomaticSensCard();
+        renderMemoryClinicSensCard();
         renderTierCards();
         renderSummary(currentFit);
         renderTrials(rows);

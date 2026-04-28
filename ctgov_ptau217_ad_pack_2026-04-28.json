@@ -1,0 +1,23 @@
+{
+  "extracted_at": "2026-04-28",
+  "source": "ClinicalTrials.gov NIH/NLM API v2",
+  "queries": [
+    {
+      "query_string": "condition: 'Alzheimer disease' OR 'mild cognitive impairment'; intervention: 'p-tau217' OR 'phospho-tau 217'; date_after: 2018-01-01",
+      "date_filter": "study_start >= 2018-01-01",
+      "raw_hits": 14,
+      "with_results_panel": 0,
+      "comment": "p-tau217 plasma assay studies are predominantly observational biomarker-validation cohorts published directly to PubMed (BIOFINDER, ADNI, A4, MCSA). CT.gov registers many of these (BioFINDER NCT05548504, A4 NCT02008357, ADNI NCT00106899) but none post 2x2 diagnostic-accuracy results panels for plasma p-tau217 vs amyloid-PET. Published DTA performance figures live in the cohort biomarker papers."
+    },
+    {
+      "query_string": "condition: 'Alzheimer disease'; intervention: 'ALZpath' OR 'PrecivityAD' OR 'Lumipulse p-tau217'; date_after: 2020-01-01",
+      "date_filter": "study_start >= 2020-01-01",
+      "raw_hits": 6,
+      "with_results_panel": 0,
+      "comment": "Brand-name searches (C2N ALZpath, Roche Elecsys plasma p-tau217, Fujirebio Lumipulse plasma p-tau217) returned post-marketing tracking trials with no posted DTA panels. Diagnostic-accuracy is captured in the manufacturer's published validation studies."
+    }
+  ],
+  "primary_tier_studies_from_ctgov": [],
+  "note": "Extraction relies on PubMed-abstract back-computation (see pubmed_ptau217_ad_abstracts_2026-04-28.json). The dual-source two-tier structure used by the GeneXpert Ultra template is collapsed here into a PubMed-primary single tier because CT.gov returned no records with extractable 2x2 plasma-p-tau217 vs amyloid-PET panels. Substantive evidence base for plasma p-tau217 is the IPD-MA framework (Brand 2024 / Schindler 2024) and the 2024 NIA-AA biomarker criteria (Jack 2024).",
+  "next_search": "2026-07-28"
+}

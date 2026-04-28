@@ -1,0 +1,25 @@
+{
+  "captured_at": "2026-04-28T00:00:00Z",
+  "engine_version": "1.0.0",
+  "package": "mada",
+  "r_version": "4.5.1",
+  "webr_version": "latest (https://webr.r-wasm.org/latest/webr.mjs)",
+  "tolerances": {
+    "mu_sens_logit": 1e-3,
+    "mu_spec_logit": 1e-3,
+    "se_sens_logit": 2e-3,
+    "se_spec_logit": 2e-3,
+    "tau2_sens": 5e-3,
+    "tau2_spec": 5e-3,
+    "rho": 1e-2,
+    "comment": "Δ ≤ tol → EXACT, Δ ≤ 2*tol → CLOSE, Δ > 2*tol → DIFFER (per *_DTA_REVIEW.html TOLERANCES)."
+  },
+  "convention_note": "mada::reitsma reports the second component as logit(FPR) = -logit(spec). webr-dta-validator.js negates fit$coefficients[2] and Psi[1,2] so the comparison is on the engine's logit(spec) convention (lessons.md SROC sign rule).",
+  "runs": [],
+  "all_runs_exact": null,
+  "all_runs_within_tolerance": null,
+  "note": "Placeholder — engine itself is shared across the DTA portfolio (rapidmeta-dta-engine-v1.js). Cross-validation against R mada::reitsma was performed on the upstream GeneXpert Ultra fixtures (see r_validation_log_genexpert_ultra_tb.json — 7/7 EXACT for primary tier and 7/7 EXACT for combined tier). A p-tau217-AD-specific validation run is planned for v1.1; click 'Validate pool with R (mada)' on the Methods tab to run a live in-browser validation via WebR.",
+  "validator_path": "webr-dta-validator.js",
+  "validator_install_method": "webr::install(\"mada\") (R 4.5.x WebR cannot run install.packages() for source packages; webr::install fetches a precompiled WASM binary)",
+  "browser": "Playwright Chromium via Playwright MCP (COOP/COEP served by serve_coop.py on :8765)"
+}
