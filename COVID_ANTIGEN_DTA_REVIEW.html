@@ -2084,7 +2084,7 @@
     <section id="tab-sensitivity" class="tab-panel" role="tabpanel">
       <h2 class="section-title">Sensitivity (leave-one-out)</h2>
       <p style="font-size:0.875rem;color:#4b5563;margin-bottom:1rem;">
-        For each study i in the active tier, refit the bivariate model with study i excluded and record pooled Sens, Spec, DOR. The largest mover quantifies which single study most influences the headline summary. When removing a study takes the remaining pool below k=5, the engine falls back to the FE bivariate (per the existing fallback rule).
+        For each study i in the active tier, refit the bivariate model with study i excluded and record pooled Sens, Spec, DOR. The largest mover quantifies which single study most influences the headline summary. When removing a study takes the remaining pool to 2&le;k&lt;5 the engine falls back to the FE bivariate; when it leaves k=1 the engine reports per-axis Clopper&ndash;Pearson (single_study) instead of a pooled estimate.
       </p>
       <div id="loo-container" style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1rem;"></div>
     </section>
@@ -2944,8 +2944,10 @@
         var convText = '';
         if (fit.fallback) {
           convText = '<strong>Convergence note:</strong> primary REML path produced fallback "' +
-            escapeHtml(String(fit.fallback)) + '". This is expected for k&lt;5 (always FE) and ' +
-            'common for k=5 with strong heterogeneity. Iterations: ' + (fit.iterations != null ? fit.iterations : 'n/a') + '.';
+            escapeHtml(String(fit.fallback)) + '". Expected at k=1 (single_study, per-axis Clopper&ndash;Pearson), ' +
+            'expected at 2&le;k&lt;5 (always fe_bivariate), and a defensive 2-parameter REML refit with rho=0 ' +
+            'is used when unconstrained REML pushes rho to its boundary. ' +
+            'Iterations: ' + (fit.iterations != null ? fit.iterations : 'n/a') + '.';
         } else {
           convText = '<strong>Convergence:</strong> primary REML path converged in ' +
             (fit.iterations != null ? fit.iterations : 'n/a') + ' iterations (Nelder&ndash;Mead simplex).';
@@ -3468,7 +3470,7 @@
           background: 'This methods-paper companion uses SARS-CoV-2 rapid antigen tests (lateral-flow Ag-RDTs) as a worked example to demonstrate the open-source RapidMeta DTA engine. Substantive evidence on rapid antigen tests is provided by the Cochrane review (Dinnes et al. 2022, CD013705, 100+ device evaluations). The present review extracts a small contemporary set (k=5 primary, k=6 with sensitivity tier) from PubMed abstracts to illustrate three pre-computed analytic tiers (Symptomatic outpatient, k=3; All populations, k=5; Combined all-tier, k=6) and the engine’s bivariate fit, prediction interval, GRADE-DTA, Fagan, leave-one-out, subgroup, and Deeks’ funnel modules.',
           methods: 'We searched ClinicalTrials.gov (0 eligible) and PubMed (167 + 17 hits across two queries) on 2026-04-28 for studies of SARS-CoV-2 rapid antigen tests against laboratory RT-PCR. Eligibility was restricted to 2020-2024 publications with reportable or back-computable 2x2 counts. QUADAS-2 was applied across four domains. Sensitivity, specificity, diagnostic odds ratio (DOR), and positive/negative likelihood ratios were pooled using the Reitsma 2005 bivariate REML model fit by Nelder-Mead simplex; a real 2-parameter REML with rho fixed at 0 is used as the rho-boundary refit; FE bivariate is the k<5 fallback; for k=1 the engine reports per-axis Clopper-Pearson. A 95% prediction interval (Higgins 2009 / Riley 2011, t_{k-2} on logit scale) is reported when k>=3. Analysis is reproducible from the embedded JSON dataset and the open-source RapidMeta DTA engine.',
           results: 'k = ' + k_combined + ' studies in the Combined all-tier (k=' + k_combined + '); k = ' + k_primary +
-            ' in the default Sputum+culture tier (Dorman 2018 + Andama 2021). Pooled Sensitivity (combined tier) was ' + pct(combinedFit && combinedFit.pooled_sens) +
+            ' in the default Symptomatic-outpatient tier. Pooled Sensitivity (combined tier) was ' + pct(combinedFit && combinedFit.pooled_sens) +
             ' ' + (combinedFit ? pctCI(combinedFit.pooled_sens_ci_lb, combinedFit.pooled_sens_ci_ub) : '') +
             '; pooled Specificity ' + pct(combinedFit && combinedFit.pooled_spec) +
             ' ' + (combinedFit ? pctCI(combinedFit.pooled_spec_ci_lb, combinedFit.pooled_spec_ci_ub) : '') +
@@ -3543,13 +3545,15 @@
         if (k_primary < 5) {
           discussionFlags.push('a k<5 primary-tier limitation that forces the FE bivariate fallback for the CT.gov-linked subset');
         }
-        discussionFlags.push('test-brand heterogeneity across five devices (BinaxNOW, Standard Q, BD Veritor, Panbio, Bionote NowCheck), each with potentially different operating characteristics; the reference standard (RT-PCR) is uniform but Ct cutoff varies between studies');
-        var discussionPara = 'Three tensions shape the interpretation of these estimates: ' +
+        discussionFlags.push('a sharp population-mode gradient (symptomatic outpatient Sens typically ~80% or higher vs asymptomatic community Sens ~30-50%), so a single pooled Sens conflates two clinically distinct decisions');
+        discussionFlags.push('a viral-load gradient indexed by Ct (Sens approaches 90-95% at Ct &le; 25 and drops sharply for Ct 26-30), which is correlated with symptom-day timing &mdash; peak Sens on days 1-5 post symptom onset, falling past day 7');
+        discussionFlags.push('test-brand heterogeneity across BinaxNOW, Standard Q, BD Veritor, Panbio and Bionote NowCheck: published head-to-head differences of 5-15 percentage points on Sens at matched Ct, with RT-PCR uniform as reference but Ct cutoff and target gene varying across studies');
+        var discussionPara = 'Four tensions shape the interpretation of these estimates: ' +
           discussionFlags.join('; ') +
-          '. The leave-one-out sensitivity table on the Sensitivity tab quantifies single-study influence; the SROC space on the SROC tab visualises the threshold-effect axis. Subgroup analyses on the Subgroups tab support stratified clinical use rather than a single pooled point estimate.';
+          '. The leave-one-out sensitivity table on the Sensitivity tab quantifies single-study influence; the SROC space on the SROC tab visualises the threshold-effect axis. Subgroup analyses on the Subgroups tab support stratified clinical use (separate Sens for symptomatic vs asymptomatic, and for high vs low viral load) rather than a single pooled point estimate.';
 
         // ===== Limitations paragraph =====
-        var limitationsPara = 'Limitations: (i) full-text PubMed retrieval was deferred per the build-time decision; data come from CT.gov registrations and PubMed abstracts only, which limits granularity of subgroup data and may force conservative back-computation of 2x2 cells from reported summary percentages. (ii) Both tiers fall below the spec-defined k>=8 ceiling for headline reliability and trigger the coverage banner. (iii) Five distinct reference standards across five studies prevent a single canonical reference-standard subgroup analysis. (iv) Risk of bias was scored from QUADAS-2 baselines populated from the published abstracts; reviewers may upgrade to full-text-driven judgements in a v1.1 build. (v) PROSPERO registration is deferred to a v1.1 follow-up.';
+        var limitationsPara = 'Limitations: (i) full-text PubMed retrieval was deferred per the build-time decision; data come from PubMed abstracts only, which limits granularity of subgroup data (notably symptom-day timing and Ct cutoff) and may force conservative back-computation of 2x2 cells from reported summary percentages. (ii) Both tiers fall below the spec-defined k>=8 ceiling for headline reliability and trigger the coverage banner. (iii) The reference standard (RT-PCR) is uniform but Ct cutoff and target gene differ across studies, which can shift apparent Sens/Spec without a true accuracy difference. (iv) Risk of bias was scored from QUADAS-2 baselines populated from the published abstracts; reviewers may upgrade to full-text-driven judgements in a v1.1 build. (v) PROSPERO registration is deferred to a v1.1 follow-up.';
 
         // ===== Authorship =====
         var so1 = loadSignoff('extraction', 1);
@@ -3781,9 +3785,12 @@
             '<p style="font-size:0.9rem;color:#374151;margin:0;">' +
             'RapidMeta DTA engine v<strong>' + escapeHtml(engVer) + '</strong>. ' +
             'Primary estimator is the Reitsma 2005 bivariate REML model fit by Nelder&ndash;Mead simplex over a profile log-likelihood. ' +
-            'For k&lt;5 or non-convergence, falls back to the fixed-effect bivariate. ' +
+            'For 2&le;k&lt;5 or non-convergence the engine falls back to the fixed-effect bivariate (estimator=<code>fe_bivariate</code>); ' +
+            'when unconstrained REML pushes the between-study correlation rho to its boundary, a defensive refit is performed using a genuine 2-parameter REML on (tau&sup2;<sub>S</sub>, tau&sup2;<sub>C</sub>) with rho fixed at 0 (estimator=<code>reitsma_reml_rho_zero</code>) &mdash; this is a real REML on the rho=0 sub-model, not an FE collapse. ' +
+            'For k=1 no meta-analysis is performed; the engine reports per-axis exact Clopper&ndash;Pearson intervals (estimator=<code>single_study_clopper_pearson</code>). ' +
             'Per-study Sens / Spec CIs are exact Clopper&ndash;Pearson (qbeta-based). ' +
             'Pooled Sens / Spec CIs are Wald on the logit scale, back-transformed. ' +
+            'A 95% prediction interval for a future study (Higgins 2009 / Riley 2011) is computed when k&ge;3 by combining tau&sup2; on each axis with the Wald SE on logit and back-transforming using <em>t</em><sub><em>k</em>&minus;2</sub> (the IntHout 2016 convention; an alternative literature uses <em>t</em><sub><em>k</em>&minus;1</sub>, see Heterogeneity tab). ' +
             'PPV / NPV are computed at user-supplied prevalence with extreme-case bounds from the Sens / Spec CI corners.' +
             '</p>';
         }
