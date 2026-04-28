@@ -5841,12 +5841,36 @@ const ContinuousMDEngine = {
             nctAcronyms: { 'NCT03525600': 'OAKS', 'NCT03525613': 'DERBY' },
 
 
-            // Trials known to be ineligible for pooling. Screening flows can read this
-            // map to auto-exclude with a documented reason. Currently used for cosmetic
-            // exclusion documentation; consumers (CT.gov ingest, screening UI) can wire
-            // to it as needed.
+            // Trials known to be ineligible for pooling. Screening flows read this
+            // map to auto-exclude with a documented reason. See _applySeedExclusion
+            // below for the consumer hook (called from every ingest site).
             seedExcludedNCTs: {
                 'NCT04770545': { acronym: 'GALE', reason: 'Open-label extension of OAKS + DERBY; patients roll over from the pivotal RCTs, so pooling GALE alongside would double-count. Per ICH E9 and Cochrane guidance, the extension cohort is captured by the long-term follow-up of OAKS/DERBY (Liao 2023 Lancet 24-mo analysis).' }
+            },
+
+
+            // Auto-exclusion hook: stamps a screening-stage exclude on any trial whose
+            // id matches seedExcludedNCTs. Callers wrap their trials.push({...}) like
+            //   trials.push(RapidMeta._applySeedExclusion({ id, title, ... }));
+            // No-op for trials not in the map. Idempotent (won't re-stamp if status is
+            // already exclude/include).
+            _applySeedExclusion(trial) {
+                if (!trial || !trial.id) return trial;
+                const seed = (this.seedExcludedNCTs ?? {})[trial.id];
+                if (!seed) return trial;
+                if (trial.status === 'exclude' || trial.status === 'include') return trial;
+                trial.status = 'exclude';
+                const ts = new Date().toISOString();
+                trial.screenReview = {
+                    decision: 'exclude',
+                    reviewer1: 'auto-seed',
+                    reviewer2: '',
+                    confirmed: false,
+                    note: '[seedExcludedNCTs] ' + (seed.reason ?? 'Trial flagged as ineligible by dashboard protocol.'),
+                    ts1: ts, ts2: '', sig1: '', sig2: '',
+                    auto: true, seedAcronym: seed.acronym ?? null
+                };
+                return trial;
             },
 
 
@@ -8720,7 +8744,7 @@ const ContinuousMDEngine = {
                         }
 
 
-                        this.state.trials.push(stub);
+                        this.state.trials.push(RapidMeta._applySeedExclusion(stub));
 
 
                         byId.set(importedId, stub);
@@ -14750,7 +14774,7 @@ const ContinuousMDEngine = {
                             seenIds.add(nctId);
 
 
-                            trials.push({
+                            trials.push(RapidMeta._applySeedExclusion({
 
 
                                 id: nctId, title: RapidMeta.nctAcronyms[nctId] ?? m.identificationModule.acronym ?? m.identificationModule.briefTitle,
@@ -14768,7 +14792,7 @@ const ContinuousMDEngine = {
                                 journal: '', source: 'registry', status: 'search'
 
 
-                            });
+                            }));
 
 
                         });
@@ -14903,7 +14927,7 @@ const ContinuousMDEngine = {
                             pubmedCount++;
 
 
-                            trials.push({ id: pubId, title, year, abstract: abstractText, authors: authors + (authors ? ' et al.' : ''), journal, pmid, source: 'pubmed', status: 'search' });
+                            trials.push(RapidMeta._applySeedExclusion({ id: pubId, title, year, abstract: abstractText, authors: authors + (authors ? ' et al.' : ''), journal, pmid, source: 'pubmed', status: 'search' }));
 
 
                         });
@@ -14996,7 +15020,7 @@ const ContinuousMDEngine = {
                             oaCount++;
 
 
-                            trials.push({ id, title, year, abstract: abstractText, authors: authors + (authors ? ' et al.' : ''), journal: '', doi, source: 'openalex', status: 'search' });
+                            trials.push(RapidMeta._applySeedExclusion({ id, title, year, abstract: abstractText, authors: authors + (authors ? ' et al.' : ''), journal: '', doi, source: 'openalex', status: 'search' }));
 
 
                         });
@@ -15026,7 +15050,7 @@ const ContinuousMDEngine = {
                             seenIds.add(nctId);
 
 
-                            trials.push({ id: nctId, title: rd.name + ' (' + rd.phase + ')', year: rd.year, abstract: rd.snippet, source: 'reference', status: 'search', authors: '', journal: '' });
+                            trials.push(RapidMeta._applySeedExclusion({ id: nctId, title: rd.name + ' (' + rd.phase + ')', year: rd.year, abstract: rd.snippet, source: 'reference', status: 'search', authors: '', journal: '' }));
 
 
                         }
