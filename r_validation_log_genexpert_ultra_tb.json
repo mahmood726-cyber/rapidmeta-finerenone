@@ -1,0 +1,68 @@
+{
+  "captured_at": "2026-04-27T12:25:00Z",
+  "engine_version": "1.0.0",
+  "package": "mada",
+  "r_version": "4.5.1",
+  "webr_version": "latest (https://webr.r-wasm.org/latest/webr.mjs)",
+  "tolerances": {
+    "mu_sens_logit": 1e-3,
+    "mu_spec_logit": 1e-3,
+    "se_sens_logit": 2e-3,
+    "se_spec_logit": 2e-3,
+    "tau2_sens": 5e-3,
+    "tau2_spec": 5e-3,
+    "rho": 1e-2,
+    "comment": "Δ ≤ tol → EXACT, Δ ≤ 2*tol → CLOSE, Δ > 2*tol → DIFFER (per *_DTA_REVIEW.html TOLERANCES)."
+  },
+  "convention_note": "mada::reitsma reports the second component as logit(FPR) = -logit(spec). webr-dta-validator.js negates fit$coefficients[2] and Psi[1,2] so the comparison is on the engine's logit(spec) convention (lessons.md SROC sign rule).",
+  "runs": [
+    {
+      "fixture": "GeneXpert Ultra primary tier (CT.gov-only, k=1)",
+      "tier": "primary",
+      "k": 1,
+      "captured_at": "2026-04-27T12:24:04.459Z",
+      "rows": [
+        {"quantity": "μ logit-Sens", "engine": 2.00148, "r": 2.00148, "delta": 0.00000, "verdict": "EXACT"},
+        {"quantity": "μ logit-Spec", "engine": 3.18019, "r": 3.18019, "delta": 0.00000, "verdict": "EXACT"},
+        {"quantity": "SE logit-Sens", "engine": 0.14366, "r": 0.14366, "delta": 0.00000, "verdict": "EXACT"},
+        {"quantity": "SE logit-Spec", "engine": 0.16342, "r": 0.16342, "delta": 0.00000, "verdict": "EXACT"},
+        {"quantity": "τ²_sens", "engine": 0.00000, "r": 0.00000, "delta": 0.00000, "verdict": "EXACT"},
+        {"quantity": "τ²_spec", "engine": 0.00000, "r": 0.00000, "delta": 0.00000, "verdict": "EXACT"},
+        {"quantity": "ρ", "engine": 0.00000, "r": 0.00000, "delta": 0.00000, "verdict": "EXACT"}
+      ],
+      "summary": {"exact": 7, "close": 0, "differ": 0, "na": 0},
+      "all_exact": true,
+      "all_within_tolerance": true,
+      "r_warnings": [
+        "There are very few primary studies! (mada warning, expected for k=1)"
+      ]
+    },
+    {
+      "fixture": "GeneXpert Ultra combined tier (CT.gov + PubMed-abstract, k=5)",
+      "tier": "combined",
+      "k": 5,
+      "captured_at": "2026-04-27T12:24:42.800Z",
+      "rows": [
+        {"quantity": "μ logit-Sens", "engine": 0.87287, "r": 0.87287, "delta": 0.00000, "verdict": "EXACT"},
+        {"quantity": "μ logit-Spec", "engine": 2.77983, "r": 2.77983, "delta": 0.00000, "verdict": "EXACT"},
+        {"quantity": "SE logit-Sens", "engine": 0.53034, "r": 0.53034, "delta": 0.00000, "verdict": "EXACT"},
+        {"quantity": "SE logit-Spec", "engine": 0.36811, "r": 0.36811, "delta": 0.00000, "verdict": "EXACT"},
+        {"quantity": "τ²_sens", "engine": 1.34037, "r": 1.34037, "delta": 0.00000, "verdict": "EXACT"},
+        {"quantity": "τ²_spec", "engine": 0.52082, "r": 0.52082, "delta": 0.00000, "verdict": "EXACT"},
+        {"quantity": "ρ", "engine": 0.81990, "r": 0.81990, "delta": 0.00000, "verdict": "EXACT"}
+      ],
+      "summary": {"exact": 7, "close": 0, "differ": 0, "na": 0},
+      "all_exact": true,
+      "all_within_tolerance": true,
+      "r_warnings": [
+        "Some of the values of TP,FN,FP or TN do have non zero decimal places. Did you forget to round? (mada warning; expected because the engine continuity-corrects with +0.5 to the trial pool before fitting)"
+      ]
+    }
+  ],
+  "all_runs_exact": true,
+  "all_runs_within_tolerance": true,
+  "note": null,
+  "validator_path": "webr-dta-validator.js",
+  "validator_install_method": "webr::install(\"mada\") (R 4.5.x WebR cannot run install.packages() for source packages; webr::install fetches a precompiled WASM binary)",
+  "browser": "Playwright Chromium via Playwright MCP (COOP/COEP served by serve_coop.py on :8765)"
+}

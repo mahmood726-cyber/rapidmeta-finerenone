@@ -210,3 +210,39 @@ doi.org HEAD with browser UA and Crossref `/works/<DOI>/agency` registration end
   human-recalled metadata (Cochrane CD013705.pub3, Issue 7, 2022) and then verified
   end-to-end via Crossref + UA HEAD.
 
+## GeneXpert TB Path-B (2026-04-28, after Section A residue audit + B substantive + C PPI polish)
+
+Round triggered by Path-B-equivalent polish on `GENEXPERT_ULTRA_TB_DTA_REVIEW.html`
+mirroring the D-dimer + mpMRI + COVID Section A + B+C pattern (commits `52c66fb`
++ `a8571a8` + `329da52` + `ade231e`). GeneXpert was the original DTA review (T28
+engine-narrative consistency) but had not been given the Path-B substantive +
+PPI treatment. Adds Zifodya 2022 + Horne 2025 (Cochrane CD009593 substantive
+comparators) + Dendukuri 2012 (Bayesian latent-class meta-analysis for imperfect
+reference standard, deferred to v1.2). Whiting 2011 + Sweeting 2004 + McInnes
+2018 also added to the methodRefs list so the Reference tab is self-contained
+(previously cited inline only). All 4 new DOIs checked via doi.org HEAD with
+browser UA and Crossref `/works/<DOI>/agency` registration endpoint.
+
+| #  | DOI                                       | Plain HEAD | UA HEAD | Crossref     | Verdict       | Source                                      |
+|----|-------------------------------------------|-----------:|--------:|:------------:|:-------------:|:--------------------------------------------|
+| 27 | 10.1002/14651858.CD009593.pub5            |        302 |     302 | crossref     | resolves      | Zifodya 2022 (Cochrane DTA review, ~70 evaluations) — substantive comparator |
+| 28 | 10.1002/14651858.CD009593.pub6            |        302 |     302 | crossref     | resolves      | Horne 2025 (Cochrane DTA, 2025 update — supersedes Zifodya 2022) |
+| 29 | 10.1111/j.1541-0420.2012.01773.x          |        302 |     302 | crossref     | resolves      | Dendukuri 2012 (Biometrics, Bayesian latent-class meta-analysis for imperfect reference standard) |
+| 30 | 10.7326/0003-4819-155-8-201110180-00009   |        302 |     200 | crossref     | resolves      | Whiting 2011 (QUADAS-2, Ann Intern Med) — re-verified, now in methodRefs list |
+
+(McInnes 2018 PRISMA-DTA 10.1001/jama.2017.19163 and Sweeting 2004 10.1002/sim.1761
+were already verified in the D-dimer / mpMRI / COVID rounds — re-cited here for
+the GeneXpert methodRefs list, no additional Crossref check needed.)
+
+### GeneXpert TB Path-B round summary
+
+- **New DOIs verified:** 4/4 (all Crossref-registered).
+- **Broken:** 0.
+- **Crossref metadata cross-check (sanity):**
+  - `10.1002/14651858.CD009593.pub5` -> "Xpert Ultra versus Xpert MTB/RIF for pulmonary tuberculosis and rifampicin resistance in adults with presumptive pulmonary tuberculosis", *Cochrane Database of Systematic Reviews*, 2022, Issue 1, first authors Zifodya, Kreniske, Schiller, Kohli, Dendukuri. Matches the in-page rendered citation (the spec text incorrectly listed pub6 — pub5 is the Zifodya 2022 paper; pub6 is the 2025 update by Horne, cited as the most recent update).
+  - `10.1002/14651858.CD009593.pub6` -> "Xpert MTB/RIF Ultra assay for pulmonary tuberculosis and rifampicin resistance in adults and adolescents", *Cochrane Database of Systematic Reviews*, 2025, Issue 7, first authors Horne, Zifodya, Shapiro, Church, Kreniske. Both pub5 and pub6 cited (substantive comparator + most-recent update).
+  - `10.1111/j.1541-0420.2012.01773.x` -> "Bayesian Meta-Analysis of the Accuracy of a Test for Tuberculous Pleuritis in the Absence of a Gold Standard Reference", *Biometrics*, 2012, first authors Dendukuri, Schiller, Joseph, Pai. Cited for the imperfect-reference-standard / Bayesian latent-class meta-analysis framework deferred to v1.2.
+  - Whiting 2011 carried over from the COVID Path-B round; same DOI, same Crossref-verified metadata.
+- **Citation-swap risk audit (lessons.md 2026-04-16):** None. The 3 new substantive citations all match the project's topic (Cochrane DTA reviews of Xpert Ultra; Bayesian latent-class meta-analysis with named application to TB pleuritis). Author surnames spot-checked against Crossref author arrays; first-author family names match in all 3 cases.
+- **Spec note correction:** the polish brief listed Zifodya 2022 with DOI `CD009593.pub6`, but `pub6` is the 2025 update by Horne et al. — Zifodya 2022 is `pub5`. Both are cited so the substantive comparator plus most-recent update are present; the in-page text reflects this.
+
