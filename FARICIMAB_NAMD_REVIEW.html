@@ -10396,7 +10396,7 @@ const ContinuousMDEngine = {
                     if (outcomeKey === 'default') {
 
 
-                        const def = outcomes.find(o => o.shortLabel === 'MACE');
+                        const def = (outcomes && outcomes[0]);
 
 
                         if (def) {
@@ -19085,11 +19085,6 @@ const ContinuousMDEngine = {
 
 
                 if (isPrimary) score += 22;
-
-
-                if (shortLabel === 'MACE') score += 20;
-
-
                 if (/mace|cardiovascular|cv|myocardial|stroke|heart failure/.test(protocolOut) && /mace|cardiovascular|cv|myocardial|stroke|heart failure/.test(txt)) score += 24;
 
 
@@ -35977,7 +35972,7 @@ print(res_sub)`;
                     const selected = outcomeKey === 'default'
 
 
-                        ? outcomes.find(o => o.shortLabel === 'MACE')
+                        ? (outcomes && outcomes[0])
 
 
                         : outcomes.find(o => o.shortLabel === outcomeKey);
