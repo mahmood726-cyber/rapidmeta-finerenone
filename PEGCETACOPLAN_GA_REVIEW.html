@@ -1213,7 +1213,7 @@
             <select id="outcome-selector" onchange="RapidMeta.setOutcome(this.value)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-[10px] font-bold text-slate-300 outline-none uppercase tracking-wider" aria-label="Outcome to pool" title="Select outcome for pooling">
 
 
-                <option value="default">CV Death or HF Hospitalization (default)</option>
+                <option value="default">Primary outcome (default)</option>
 
 
             </select>
@@ -1459,7 +1459,7 @@
                         <tr><td class="p-4 font-bold text-amber-400 bg-amber-400/5">Primary Outcome</td><td class="p-4"><input id="p-out" class="w-full bg-transparent outline-none font-medium text-slate-200" value="GA lesion-area change"></td></tr>
 
 
-                        <tr><td class="p-4 font-bold text-purple-400 bg-purple-400/5">Secondary Outcomes</td><td class="p-4 text-slate-300">All-cause mortality; CV death; HF hospitalization; renal composite; quality of life</td></tr>
+                        <tr><td class="p-4 font-bold text-purple-400 bg-purple-400/5">Secondary Outcomes</td><td class="p-4 text-slate-300">GA lesion growth rate; BCVA letter-score change; low-luminance visual acuity; microperimetry mean threshold; NEI VFQ-25 quality of life; intraocular inflammation rate; exudative-AMD conversion rate</td></tr>
 
 
                         <tr><td class="p-4 font-bold text-cyan-400 bg-cyan-400/5">Subgroup Plan</td><td class="p-4"><input id="p-subgroup" class="w-full bg-transparent outline-none font-medium text-slate-200" value="Subfoveal vs extrafoveal, baseline GA area"></td></tr>
@@ -6891,7 +6891,11 @@ const ContinuousMDEngine = {
                     allOutcomes: [
 
 
-                        { shortLabel: 'MACE', title: 'GA lesion area change from baseline at month 12 (primary, ETD MD mm^2)', type: 'CONTINUOUS', md: -0.47, se: 0.17 }
+                        { shortLabel: 'GA12_Q4W', title: 'GA lesion area change at month 12, Q4W vs sham (sqrt mm^2, MD)', type: 'CONTINUOUS', md: -0.47, se: 0.17 },
+                        { shortLabel: 'GA12_Q8W', title: 'GA lesion area change at month 12, Q8W vs sham (sqrt mm^2, MD)', type: 'CONTINUOUS', md: -0.39, se: 0.17 },
+                        { shortLabel: 'GA24_Q4W', title: 'GA lesion area change at month 24, Q4W vs sham (sqrt mm^2, MD; Liao 2023)', type: 'CONTINUOUS', md: -0.84, se: 0.21 },
+                        { shortLabel: 'BCVA12',   title: 'BCVA letter-score change at month 12, Q4W vs sham (ETDRS, MD)', type: 'CONTINUOUS', md: -0.5, se: 0.9 },
+                        { shortLabel: 'IOI',      title: 'Intraocular inflammation event rate (24-mo annualised, RR)', type: 'BINARY', tE: 13, tN: 202, cE: 1, cN: 106 }
 
 
                     ],
@@ -6900,7 +6904,7 @@ const ContinuousMDEngine = {
                     rob: ['low', 'low', 'low', 'low', 'low'],
 
 
-                    snippet: 'Source: Liao DS et al. Lancet 2023;402:1591-1604 (OAKS + DERBY 24-month analyses).',
+                    snippet: 'Source: Heier 2023 Ophthalmology + Liao 2023 Lancet (OAKS 12-mo primary + 24-mo durability).',
 
 
                     sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(23)01578-0/fulltext',
@@ -6939,7 +6943,11 @@ const ContinuousMDEngine = {
                     allOutcomes: [
 
 
-                        { shortLabel: 'MACE', title: 'GA lesion area change from baseline at month 12 (primary, ETD MD mm/sqrt(area))', type: 'CONTINUOUS', md: -0.29, se: 0.17 }
+                        { shortLabel: 'GA12_Q4W', title: 'GA lesion area change at month 12, Q4W vs sham (sqrt mm^2, MD; did not meet alpha)', type: 'CONTINUOUS', md: -0.29, se: 0.17 },
+                        { shortLabel: 'GA12_Q8W', title: 'GA lesion area change at month 12, Q8W vs sham (sqrt mm^2, MD)', type: 'CONTINUOUS', md: -0.17, se: 0.17 },
+                        { shortLabel: 'GA24_Q4W', title: 'GA lesion area change at month 24, Q4W vs sham (sqrt mm^2, MD; Liao 2023)', type: 'CONTINUOUS', md: -0.66, se: 0.21 },
+                        { shortLabel: 'BCVA12',   title: 'BCVA letter-score change at month 12, Q4W vs sham (ETDRS, MD)', type: 'CONTINUOUS', md: -1.1, se: 0.9 },
+                        { shortLabel: 'IOI',      title: 'Intraocular inflammation event rate (24-mo annualised, RR)', type: 'BINARY', tE: 9, tN: 206, cE: 0, cN: 103 }
 
 
                     ],
@@ -6948,7 +6956,7 @@ const ContinuousMDEngine = {
                     rob: ['low', 'low', 'low', 'low', 'low'],
 
 
-                    snippet: 'Source: Liao DS et al. Lancet 2023;402:1591-1604 (DERBY).',
+                    snippet: 'Source: Liao DS et al. Lancet 2023;402:1591-1604 (DERBY 12-mo primary + 24-mo durability).',
 
 
                     sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(23)01578-0/fulltext',

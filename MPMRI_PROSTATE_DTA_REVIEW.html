@@ -1962,8 +1962,8 @@
         <p style="font-size:0.85rem;color:#374151;margin:0 0 0.6rem;">
           Three pre-computed tiers reflect different population-applicability levels for the headline pool. Default is <strong>Biopsy-na&iuml;ve, PI-RADS&nbsp;&ge;3</strong> (k=3) &mdash; the methodologically cleanest subset (PROMIS + MRI-FIRST + PRIMARY MRI-alone), all biopsy-na&iuml;ve men with histological reference. The <strong>Mixed biopsy-history</strong> tier (k=5) adds Bao 2020 (2-centre retrospective) and PI-CAI radiologists (international v2.1) for broader applicability. The <strong>Combined</strong> tier (k=6) adds the lesion-level Metser 2021 evaluation as a sensitivity check (within-patient clustering not modelled).
         </p>
-        <label><input type="radio" name="tier" value="sputum_culture" checked> Biopsy-na&iuml;ve, PI-RADS&nbsp;&ge;3 (k=3): PROMIS + MRI-FIRST + PRIMARY MRI-alone</label>
-        <label><input type="radio" name="tier" value="sputum_resp"> Mixed biopsy-history (k=5): adds Bao 2020 + PI-CAI radiologists</label>
+        <label><input type="radio" name="tier" value="biopsy_naive_pirads3" checked> Biopsy-na&iuml;ve, PI-RADS&nbsp;&ge;3 (k=3): PROMIS + MRI-FIRST + PRIMARY MRI-alone</label>
+        <label><input type="radio" name="tier" value="mixed_biopsy_history"> Mixed biopsy-history (k=5): adds Bao 2020 + PI-CAI radiologists</label>
         <label><input type="radio" name="tier" value="combined"> Combined all-tier (k=6): adds Metser 2021 lesion-level &mdash; interpret with care</label>
       </div>
       <div id="tier-cards" style="margin-top:0.75rem;"></div>
@@ -1977,8 +1977,8 @@
         <div class="fagan-row" style="margin-bottom:0.5rem;">
           <label for="fagan-tier-select" style="font-size:0.8rem;font-weight:600;color:#374151;">Tier for LR+/LR&minus;:</label>
           <select id="fagan-tier-select" style="padding:0.3rem 0.5rem;font-size:0.85rem;border:1px solid #d1d5db;border-radius:0.25rem;">
-            <option value="sputum_culture">Biopsy-na&iuml;ve, PSA-elevated (k=3) &mdash; default, ~15-30% pre-test for csPCa</option>
-            <option value="sputum_resp">Mixed biopsy-history (k=5) &mdash; ~10-20% pre-test for prior-negative-biopsy with persistent suspicion</option>
+            <option value="biopsy_naive_pirads3">Biopsy-na&iuml;ve, PSA-elevated (k=3) &mdash; default, ~15-30% pre-test for csPCa</option>
+            <option value="mixed_biopsy_history">Mixed biopsy-history (k=5) &mdash; ~10-20% pre-test for prior-negative-biopsy with persistent suspicion</option>
             <option value="combined">All-tier combined (k=6) &mdash; interpret with care, includes lesion-level Metser data</option>
           </select>
           <span id="fagan-tier-warn" style="font-size:0.75rem;color:#b45309;"></span>
@@ -2105,8 +2105,8 @@
       </p>
       <div id="subgroups-controls" style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1rem;margin-bottom:1rem;display:flex;flex-wrap:wrap;gap:1rem;align-items:flex-end;">
         <div>
-          <label for="sg-population-age" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">prior_biopsy_history</label>
-          <select id="sg-population-age" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:200px;">
+          <label for="sg-prior-biopsy-history" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">prior_biopsy_history</label>
+          <select id="sg-prior-biopsy-history" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:200px;">
             <option value="any">any</option>
             <option value="biopsy_naive">biopsy_naive</option>
             <option value="prior_negative_biopsy">prior_negative_biopsy</option>
@@ -2114,8 +2114,8 @@
           </select>
         </div>
         <div>
-          <label for="sg-specimen" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">test_brand (scanner / sequence)</label>
-          <select id="sg-specimen" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:240px;">
+          <label for="sg-scanner-sequence" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">test_brand (scanner / sequence)</label>
+          <select id="sg-scanner-sequence" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:240px;">
             <option value="any">any</option>
             <option value="1.5T mpMRI (T2W + DWI + DCE)">1.5T mpMRI (T2W+DWI+DCE)</option>
             <option value="3.0T mpMRI PI-RADS">3.0T mpMRI PI-RADS</option>
@@ -2137,15 +2137,15 @@
           </select>
         </div>
         <div>
-          <label for="sg-hiv-status" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">operator</label>
-          <select id="sg-hiv-status" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:200px;">
+          <label for="sg-reader-experience" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">operator (reader experience)</label>
+          <select id="sg-reader-experience" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:200px;">
             <option value="any">any</option>
             <option value="expert_centre_radiologist">expert_centre_radiologist</option>
           </select>
         </div>
         <div>
-          <label for="sg-smear-status" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">prevalence_setting</label>
-          <select id="sg-smear-status" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:240px;">
+          <label for="sg-population-setting" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">prevalence_setting</label>
+          <select id="sg-population-setting" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:240px;">
             <option value="any">any</option>
             <option value="biopsy_naive_psa_elevated">biopsy_naive_psa_elevated</option>
             <option value="psa_elevated_mixed_biopsy_history">psa_elevated_mixed_biopsy_history</option>
@@ -2153,8 +2153,8 @@
           </select>
         </div>
         <div>
-          <label for="sg-prior-tb" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">geography</label>
-          <select id="sg-prior-tb" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:140px;">
+          <label for="sg-geography" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">geography</label>
+          <select id="sg-geography" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:140px;">
             <option value="any">any</option>
             <option value="Europe">Europe</option>
             <option value="North America">North America</option>
@@ -2177,8 +2177,16 @@
       <div id="methods-engine" style="margin-bottom:1.5rem;"></div>
 
       <h3 class="subsection-title">Continuity-correction policy</h3>
-      <p style="font-size:0.9rem;color:#374151;margin:0 0 1.5rem;">
+      <p style="font-size:0.9rem;color:#374151;margin:0 0 0.5rem;">
         Conditional 0.5 added to all four cells of every study, and only when at least one cell of any study in the pool is zero. Unconditional correction biases the diagnostic odds ratio toward the null (Sweeting 2004) and is therefore not used here.
+      </p>
+      <p style="font-size:0.85rem;color:#374151;margin:0 0 1.5rem;background:#fef3c7;border-left:3px solid #d97706;padding:0.5rem 0.75rem;border-radius:0.25rem;">
+        <strong>Bias-toward-null caveat (B6).</strong> Even the conditional 0.5 correction is not bias-free when applied to a cell whose underlying probability is at the boundary (e.g. a perfect-Sens study with FN=0). The correction shrinks the implied logit toward 0, which (a) shrinks Sens away from 1 and (b) shrinks Spec away from 0 &mdash; biasing both pooled summary points toward the centre of the SROC space. For mpMRI prostate the sample-level Spec is moderate (&asymp;50%) so the directional bias is smaller than in tests with extreme Sens (e.g. D-dimer near 100%); the bias still exists, particularly for studies with small TN cells. Where no zero cells are present (the default in this k=6 pool), no correction is applied and this caveat does not bind.
+      </p>
+
+      <h3 class="subsection-title">Reference standard &mdash; imperfect reference, not differential verification</h3>
+      <p style="font-size:0.9rem;color:#374151;margin:0 0 1.5rem;">
+        The principal Reference-Standard concern in this k=6 mpMRI pool is <strong>imperfect (composite) reference</strong>, not the differential-verification design that dominates evaluations like D-dimer-for-PE. In every study here, all enrolled patients receive the reference standard <em>regardless of the mpMRI result</em> &mdash; PROMIS uses transperineal template-prostate-mapping (TPM) biopsy as a near-gold reference applied universally; MRI-FIRST, PRIMARY, Bao 2020, and PI-CAI use targeted &plusmn; systematic biopsy (composite) applied to all participants. The bias here is therefore <em>imperfect-reference attenuation</em> (Whiting 2011 QUADAS-2 Domain 3; Cochrane DTA Handbook &sect;10.6.3), not partial / differential verification. Bayesian latent-class meta-analysis adjusting for an imperfect reference (Dendukuri 2012) is deferred to v1.2 of this review and would require disease-prevalence informative priors per Pepe 2003. The Metser 2021 sensitivity-tier row is the one exception: lesions are scored before fusion-biopsy verification of <em>only those suspicious on any imaging modality</em>, introducing a lesion-level partial-verification structure (Whiting 2011 Q41/Q43) &mdash; this is why Metser sits in the sensitivity tier rather than the primary tier.
       </p>
 
       <h3 class="subsection-title">GRADE-DTA notes</h3>
@@ -2242,13 +2250,44 @@
       var BASELINE = JSON.parse(document.getElementById('dta-trials').textContent);
       function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
       var data = deepClone(BASELINE); // working copy; mutated by applyEdits
+
+      // One-time migration: rename old GeneXpert-template tier slugs to mpMRI slugs.
+      // Any reviewer who used the page before the slug rename has localStorage entries
+      // keyed under the old names (sputum_culture / sputum_resp / combined). Migrate them
+      // to the new mpMRI keys (biopsy_naive_pirads3 / mixed_biopsy_history / combined)
+      // so their edits and tier preference are preserved. The 'combined' key is unchanged.
+      (function migrateTierSlugs() {
+        try {
+          var M = { 'sputum_culture': 'biopsy_naive_pirads3', 'sputum_resp': 'mixed_biopsy_history' };
+          var PREFIX = 'dta-mpmri-prostate-';
+          for (var oldS in M) {
+            if (!Object.prototype.hasOwnProperty.call(M, oldS)) continue;
+            var newS = M[oldS];
+            var oldKey = PREFIX + 'tier-' + oldS;
+            var newKey = PREFIX + 'tier-' + newS;
+            var v = window.localStorage.getItem(oldKey);
+            if (v !== null && window.localStorage.getItem(newKey) === null) {
+              window.localStorage.setItem(newKey, v);
+              window.localStorage.removeItem(oldKey);
+            }
+          }
+          // Also migrate currentTier preference if stored
+          var ctKey = PREFIX + 'currentTier';
+          var ct = window.localStorage.getItem(ctKey);
+          if (ct) {
+            // Stored value may be JSON-quoted (lsSet uses JSON.stringify), so try to parse
+            var ctVal = ct;
+            try { ctVal = JSON.parse(ct); } catch (e) { /* raw string */ }
+            if (M[ctVal]) {
+              window.localStorage.setItem(ctKey, JSON.stringify(M[ctVal]));
+            }
+          }
+        } catch (e) { /* private mode / quota-exceeded / disabled — silent */ }
+      })();
       // Tier definitions (mpMRI prostate):
-      //   sputum_culture (default, k=3): PROMIS + MRI-FIRST + PRIMARY MRI-alone — biopsy-naive PSA-elevated subset
-      //   sputum_resp    (k=5): adds Bao 2020 + PI-CAI radiologists (mixed biopsy-history)
-      //   combined       (k=6): adds Metser 2021 lesion-level (sensitivity tier - within-patient clustering not modelled)
-      // Note: tier keys retain the GeneXpert-template names (sputum_culture / sputum_resp / combined)
-      // as internal identifiers — the engine reads JSON keys, not these names. The visible labels
-      // and study membership are mpMRI-prostate-specific.
+      //   biopsy_naive_pirads3 (default, k=3): PROMIS + MRI-FIRST + PRIMARY MRI-alone — biopsy-naive PSA-elevated subset
+      //   mixed_biopsy_history (k=5): adds Bao 2020 + PI-CAI radiologists (mixed biopsy-history)
+      //   combined             (k=6): adds Metser 2021 lesion-level (sensitivity tier - within-patient clustering not modelled)
       function buildTiers() {
         var allByLab = {};
         data.primary_tier.concat(data.sensitivity_tier_added).forEach(function (t) {
@@ -2258,25 +2297,25 @@
           return labels.map(function (l) { return allByLab[l]; }).filter(function (x) { return !!x; });
         }
         return {
-          sputum_culture: pick(['PROMIS - Ahmed 2017', 'MRI-FIRST - Rouviere 2019', 'PRIMARY (MRI-alone) - Emmett 2021']),
-          sputum_resp:    pick(['PROMIS - Ahmed 2017', 'MRI-FIRST - Rouviere 2019', 'PRIMARY (MRI-alone) - Emmett 2021', 'Bao 2020 (mpMRI)', 'PI-CAI radiologists - Saha 2024']),
-          combined:       pick(['PROMIS - Ahmed 2017', 'MRI-FIRST - Rouviere 2019', 'PRIMARY (MRI-alone) - Emmett 2021', 'Bao 2020 (mpMRI)', 'PI-CAI radiologists - Saha 2024', 'Metser 2021 (lesion-level)'])
+          biopsy_naive_pirads3: pick(['PROMIS - Ahmed 2017', 'MRI-FIRST - Rouviere 2019', 'PRIMARY (MRI-alone) - Emmett 2021']),
+          mixed_biopsy_history: pick(['PROMIS - Ahmed 2017', 'MRI-FIRST - Rouviere 2019', 'PRIMARY (MRI-alone) - Emmett 2021', 'Bao 2020 (mpMRI)', 'PI-CAI radiologists - Saha 2024']),
+          combined:             pick(['PROMIS - Ahmed 2017', 'MRI-FIRST - Rouviere 2019', 'PRIMARY (MRI-alone) - Emmett 2021', 'Bao 2020 (mpMRI)', 'PI-CAI radiologists - Saha 2024', 'Metser 2021 (lesion-level)'])
         };
       }
       var TIER_LABELS = {
-        sputum_culture: 'Biopsy-naive, PI-RADS >=3 (k=3)',
-        sputum_resp: 'Mixed biopsy-history (k=5)',
+        biopsy_naive_pirads3: 'Biopsy-naive, PI-RADS >=3 (k=3)',
+        mixed_biopsy_history: 'Mixed biopsy-history (k=5)',
         combined: 'Combined all-tier (k=6)'
       };
-      var TIER_KEYS = ['sputum_culture', 'sputum_resp', 'combined'];
+      var TIER_KEYS = ['biopsy_naive_pirads3', 'mixed_biopsy_history', 'combined'];
       var tiers = buildTiers();
       // Back-compat: keep `trials_primary` and `trials_combined` aliases used elsewhere
       // for the (kept) headline-banner divergence comparison and existing call sites.
-      var trials_primary = tiers.sputum_culture.slice();    // default sputum+culture
-      var trials_sputum_resp = tiers.sputum_resp.slice();
+      var trials_primary = tiers.biopsy_naive_pirads3.slice();    // default biopsy-naive PI-RADS>=3
+      var trials_mixed_biopsy = tiers.mixed_biopsy_history.slice();
       var trials_combined = tiers.combined.slice();
       var DTA;
-      var currentTier = 'sputum_culture';  // default headline (P0-9)
+      var currentTier = 'biopsy_naive_pirads3';  // default headline (biopsy-naive PI-RADS>=3)
       var currentFit = null;
 
       // ===== localStorage edit-persistence layer =====
@@ -2439,12 +2478,12 @@
         });
         // Rebuild tier views off the post-edit data
         tiers = buildTiers();
-        trials_primary = tiers.sputum_culture.slice();
-        trials_sputum_resp = tiers.sputum_resp.slice();
+        trials_primary = tiers.biopsy_naive_pirads3.slice();
+        trials_mixed_biopsy = tiers.mixed_biopsy_history.slice();
         trials_combined = tiers.combined.slice();
       }
       function trialsForTier(tierKey) {
-        if (!tiers || !tiers[tierKey]) return tiers.sputum_culture || [];
+        if (!tiers || !tiers[tierKey]) return tiers.biopsy_naive_pirads3 || [];
         return tiers[tierKey];
       }
 
@@ -2499,37 +2538,49 @@
         }
       ];
 
-      // Pre-populated baselines from existing inline flags. Reviewers can override.
+      // Pre-populated baselines for the 6 mpMRI prostate studies. Reviewers can override.
+      // Reference-standard heterogeneity is the dominant QUADAS-2 risk axis here:
+      //   - PROMIS uses TPM-biopsy (gold standard, no verification bias)
+      //   - MRI-FIRST / PRIMARY use targeted+systematic biopsy (composite imperfect reference)
+      //   - Bao 2020 uses biopsy-or-prostatectomy histology (cancer-positive enriched for RP)
+      //   - PI-CAI uses histology + 3y follow-up (low-prevalence MRI-negative arm)
+      //   - Metser 2021 is lesion-level (PET/MR-fusion biopsy of suspicious lesions only)
       var QUADAS_BASELINES = {
-        'Dorman 2018': {
+        'PROMIS - Ahmed 2017': {
           q11: 'Yes', q12: 'Yes', q13: 'Yes', rob1: 'Low', app1: 'Low',
           q21: 'Yes', q22: 'Yes', rob2: 'Low', app2: 'Low',
           q31: 'Yes', q32: 'Yes', rob3: 'Low', app3: 'Low',
           q41: 'Yes', q42: 'Yes', q43: 'Yes', q44: 'Yes', rob4: 'Low'
         },
-        'Andama 2021': {
-          q11: 'Yes', q12: 'Yes', q13: 'Yes', rob1: 'Low', app1: 'High',
+        'MRI-FIRST - Rouviere 2019': {
+          q11: 'Yes', q12: 'Yes', q13: 'Yes', rob1: 'Low', app1: 'Low',
           q21: 'Yes', q22: 'Yes', rob2: 'Low', app2: 'Low',
-          q31: 'Unclear', q32: 'Unclear', rob3: 'Low', app3: 'Low',
+          q31: 'Yes', q32: 'Unclear', rob3: 'Unclear', app3: 'Low',
           q41: 'Yes', q42: 'Yes', q43: 'Yes', q44: 'Yes', rob4: 'Low'
         },
-        'Quan 2023': {
-          q11: 'Unclear', q12: 'Yes', q13: 'Unclear', rob1: 'Unclear', app1: 'Unclear',
-          q21: 'Unclear', q22: 'Unclear', rob2: 'Unclear', app2: 'Unclear',
-          q31: 'No', q32: 'Unclear', rob3: 'High', app3: 'High',
-          q41: 'Unclear', q42: 'Yes', q43: 'No', q44: 'Yes', rob4: 'Unclear'
+        'PRIMARY (MRI-alone) - Emmett 2021': {
+          q11: 'Yes', q12: 'Yes', q13: 'Yes', rob1: 'Low', app1: 'Low',
+          q21: 'Yes', q22: 'Yes', rob2: 'Low', app2: 'Low',
+          q31: 'Yes', q32: 'Unclear', rob3: 'Unclear', app3: 'Low',
+          q41: 'Yes', q42: 'Yes', q43: 'Yes', q44: 'Yes', rob4: 'Low'
         },
-        'Carvalho 2024': {
-          q11: 'Yes', q12: 'Yes', q13: 'Unclear', rob1: 'High', app1: 'High',
-          q21: 'Unclear', q22: 'Unclear', rob2: 'Unclear', app2: 'Unclear',
-          q31: 'No', q32: 'Unclear', rob3: 'High', app3: 'High',
+        'Bao 2020 (mpMRI)': {
+          q11: 'Unclear', q12: 'Yes', q13: 'Unclear', rob1: 'Unclear', app1: 'Low',
+          q21: 'Yes', q22: 'Yes', rob2: 'Low', app2: 'Low',
+          q31: 'Unclear', q32: 'Unclear', rob3: 'Unclear', app3: 'Low',
           q41: 'Yes', q42: 'Yes', q43: 'Yes', q44: 'Yes', rob4: 'Unclear'
         },
-        'Kabir 2021': {
-          q11: 'Yes', q12: 'Yes', q13: 'Yes', rob1: 'Low', app1: 'High',
-          q21: 'Unclear', q22: 'Unclear', rob2: 'Unclear', app2: 'High',
-          q31: 'Unclear', q32: 'Unclear', rob3: 'Unclear', app3: 'High',
+        'PI-CAI radiologists - Saha 2024': {
+          q11: 'Yes', q12: 'Yes', q13: 'Yes', rob1: 'Low', app1: 'Low',
+          q21: 'Yes', q22: 'Yes', rob2: 'Low', app2: 'Low',
+          q31: 'Yes', q32: 'Unclear', rob3: 'Unclear', app3: 'Low',
           q41: 'Yes', q42: 'Yes', q43: 'Yes', q44: 'Yes', rob4: 'Low'
+        },
+        'Metser 2021 (lesion-level)': {
+          q11: 'Yes', q12: 'Yes', q13: 'Yes', rob1: 'Low', app1: 'High',
+          q21: 'Yes', q22: 'Yes', rob2: 'Low', app2: 'High',
+          q31: 'Unclear', q32: 'Unclear', rob3: 'Unclear', app3: 'High',
+          q41: 'Yes', q42: 'Yes', q43: 'No', q44: 'Yes', rob4: 'High'
         }
       };
 
@@ -2654,18 +2705,41 @@
 
       function renderHeadlineBanner() {
         try {
-          var sputumCultureFit = DTA.fit(trials_primary);
+          var primaryFit = DTA.fit(trials_primary);
           var combinedFit = DTA.fit(trials_combined);
-          var divSens = Math.abs(sputumCultureFit.pooled_sens - combinedFit.pooled_sens) * 100;
-          var divSpec = Math.abs(sputumCultureFit.pooled_spec - combinedFit.pooled_spec) * 100;
+          var divSens = Math.abs(primaryFit.pooled_sens - combinedFit.pooled_sens) * 100;
+          var divSpec = Math.abs(primaryFit.pooled_spec - combinedFit.pooled_spec) * 100;
+          // divLogLRneg: divergence on log(LR-) — clinically meaningful for biopsy-avoidance
+          // (LR- governs how much a negative mpMRI lowers the post-test probability of csPCa).
+          // Computed from pooled_sens / pooled_spec because the engine does not always expose
+          // log_lr_neg directly. Guard against Sens=1 or Spec=0 edge cases.
+          function safeLogLRneg(f) {
+            var sens = f.pooled_sens;
+            var spec = f.pooled_spec;
+            if (!isFinite(sens) || !isFinite(spec) || sens >= 0.9999 || spec <= 0.0001) return null;
+            var lrn = (1 - sens) / spec;
+            if (!isFinite(lrn) || lrn <= 0) return null;
+            return Math.log(lrn);
+          }
+          var llp = safeLogLRneg(primaryFit);
+          var llc = safeLogLRneg(combinedFit);
+          var divLogLRneg = (llp != null && llc != null) ? Math.abs(llp - llc) : null;
+          // 0.20 in absolute log-LR- ~= 22% relative change in LR- (e.g. 0.10 -> 0.12) — meaningful.
+          var lrFlag = divLogLRneg != null && divLogLRneg > 0.20;
           var maxDiv = Math.max(divSens, divSpec);
-          if (maxDiv > 5) {
+          if (maxDiv > 5 || lrFlag) {
+            var lrTxt = (divLogLRneg != null)
+              ? ' Divergence on log(LR&minus;) is ' + divLogLRneg.toFixed(2) +
+                ' (relative LR&minus; ratio &asymp; ' + Math.exp(divLogLRneg).toFixed(2) + '&times;)' +
+                (lrFlag ? ' &mdash; <strong>materially different post-test probability after a negative mpMRI</strong>.' : '.')
+              : '';
             document.getElementById('headline-banners').innerHTML =
               '<div class="banner banner-amber">' +
-                '<strong>&#9888; Tier divergence:</strong> Biopsy-na&iuml;ve, PI-RADS&nbsp;&ge;3 (k=' + sputumCultureFit.k +
+                '<strong>&#9888; Tier divergence:</strong> Biopsy-na&iuml;ve, PI-RADS&nbsp;&ge;3 (k=' + primaryFit.k +
                 ') and Combined (all tiers, k=' + combinedFit.k +
                 ') estimates diverge by ' + maxDiv.toFixed(1) +
-                'pp on Sens or Spec. The pooled estimate depends materially on whether ' +
+                'pp on Sens or Spec.' + lrTxt +
+                ' The pooled estimate depends materially on whether ' +
                 'the lesion-level Metser 2021 row is included. The default headline is the ' +
                 'methodologically defensible Biopsy-na&iuml;ve (k=3) tier; the Combined tier is for ' +
                 'completeness only. See Methods tab for tier-by-tier breakdown.' +
@@ -3062,19 +3136,19 @@
       }
 
       function applySubgroupFilter() {
-        // Note: DOM IDs retained from GeneXpert template; semantic fields rebound to mpMRI-prostate schema:
-        //   sg-population-age      -> population_setting (biopsy_naive vs prior_negative vs mixed)
-        //   sg-specimen            -> test_brand (mpMRI scanner / sequence)
-        //   sg-reference-standard  -> reference_standard_specific (TPM vs targeted+systematic vs RP vs composite)
-        //   sg-hiv-status          -> operator (expert_centre_radiologist vs other)
-        //   sg-smear-status        -> prevalence_setting
-        //   sg-prior-tb            -> geography (Europe / North America / Australia / China)
-        var popVal = document.getElementById('sg-population-age').value;
-        var brandVal = document.getElementById('sg-specimen').value;
+        // mpMRI-prostate subgroup DOM IDs (renamed from GeneXpert/D-dimer template):
+        //   sg-prior-biopsy-history -> population_setting (biopsy_naive vs prior_negative vs mixed)
+        //   sg-scanner-sequence     -> test_brand (mpMRI scanner / sequence)
+        //   sg-reference-standard   -> reference_standard_specific (TPM vs targeted+systematic vs RP vs composite)
+        //   sg-reader-experience    -> operator (expert_centre_radiologist vs other)
+        //   sg-population-setting   -> prevalence_setting
+        //   sg-geography            -> geography (Europe / North America / Australia / Asia / International)
+        var popVal = document.getElementById('sg-prior-biopsy-history').value;
+        var brandVal = document.getElementById('sg-scanner-sequence').value;
         var vlVal = document.getElementById('sg-reference-standard').value;
-        var opEl = document.getElementById('sg-hiv-status');
-        var psEl = document.getElementById('sg-smear-status');
-        var geoEl = document.getElementById('sg-prior-tb');
+        var opEl = document.getElementById('sg-reader-experience');
+        var psEl = document.getElementById('sg-population-setting');
+        var geoEl = document.getElementById('sg-geography');
         var opVal = opEl ? opEl.value : 'any';
         var psVal = psEl ? psEl.value : 'any';
         var geoVal = geoEl ? geoEl.value : 'any';
@@ -3442,10 +3516,9 @@
       function buildManuscriptSections() {
         var fit = currentFit;
         var allTrials = data.primary_tier.concat(data.sensitivity_tier_added);
-        // Path A repositioning (P0-9): use the new default headline tier (Sputum+culture)
-        // for the manuscript "primary tier" comparison rather than the legacy CT.gov-only
-        // primary_tier (which was k=1 = Dorman alone — incorporation-bias risk on Quan removed).
-        var primaryTrials = trialsForTier('sputum_culture');
+        // Path A repositioning: use the default headline tier (Biopsy-naive PI-RADS>=3)
+        // for the manuscript "primary tier" comparison.
+        var primaryTrials = trialsForTier('biopsy_naive_pirads3');
         var k_combined = allTrials.length;
         var k_primary = primaryTrials.length;
 
@@ -3764,11 +3837,11 @@
 
       function renderSubgroups() {
         // Wire dropdowns once; idempotent via a flag.
-        var paEl = document.getElementById('sg-population-age');
-        // P0-12: 6 dropdowns total (covariate axes for mpMRI prostate)
+        var paEl = document.getElementById('sg-prior-biopsy-history');
+        // 6 dropdowns total (covariate axes for mpMRI prostate)
         var SG_FILTER_IDS = [
-          'sg-population-age', 'sg-specimen', 'sg-reference-standard',
-          'sg-hiv-status', 'sg-smear-status', 'sg-prior-tb'
+          'sg-prior-biopsy-history', 'sg-scanner-sequence', 'sg-reference-standard',
+          'sg-reader-experience', 'sg-population-setting', 'sg-geography'
         ];
         if (paEl && !paEl._wired) {
           paEl._wired = true;
