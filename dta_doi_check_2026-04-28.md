@@ -68,3 +68,51 @@ citation; spot-checks of 5/17 (Dorman 2018; Andama 2021; PROMIS 2017; PRIMARY 20
 Reitsma 2005) all reconciled.
 
 No DOI changes were committed to the HTMLs. This file is the audit log.
+
+---
+
+## D-dimer PE — Section A round (2026-04-28, after P0 cleanup)
+
+Round triggered by the multi-persona review on `DDIMER_PE_DTA_REVIEW.html`. After the
+8 P0 fixes, all DOIs in the review were re-extracted and run through the same
+two-pass libcurl + UA + Crossref pipeline.
+
+| # | DOI                                       | Plain HEAD | UA HEAD | Crossref     | Verdict       | Source                                      |
+|---|-------------------------------------------|-----------:|--------:|:------------:|:-------------:|:--------------------------------------------|
+| 1 | 10.1016/S0140-6736(17)30885-1             |        200 |       — | —            | resolves      | YEARS (van der Hulle 2017, Lancet)          |
+| 2 | 10.1001/jama.2014.2135                    |        403 |     200 | ok           | resolves      | ADJUST-PE (Righini 2014, JAMA)              |
+| 3 | 10.1056/NEJMoa1909159                     |        403 |     403 | ok           | resolves (publisher CF blocks bots; Crossref-confirmed) | PEGeD (Kearon 2019, NEJM) |
+| 4 | 10.1001/jama.295.2.172                    |        403 |     200 | ok           | resolves      | Christopher (van Belle 2006, JAMA)          |
+| 5 | 10.1186/s12959-017-0143-3                 |        200 |       — | —            | resolves      | Theunissen 2017 (Thromb J)                  |
+| 6 | 10.7326/M16-0676                          |        404 |     404 | not_registered | **BROKEN**  | van Es 2017 IPD-meta (excluded card)        |
+| 7 | 10.1001/jama.2018.0030                    |        403 |     200 | ok           | resolves      | Freund 2018 PROPER (excluded, P0-6)         |
+| 8 | 10.7326/M16-1718                          |        404 |     404 | not_registered | **BROKEN**  | Kearon 2017 PEGeD derivation (excluded, P0-6) |
+| 9 | 10.7326/M18-1670                          |        403 |     200 | ok           | resolves      | Righini 2018 CT-PE-Pregnancy (excluded)     |
+|10 | 10.1016/j.jclinepi.2005.02.022            |        200 |       — | —            | resolves      | Reitsma 2005 (engine reference)             |
+|11 | 10.1093/biostatistics/kxl004              |        403 |     200 | —            | resolves      | Harbord 2007 (engine reference)             |
+
+### Section A round summary
+
+- **Resolved:** 9/11
+- **Broken (404 + not registered with Crossref):** 2
+  - `10.7326/M16-0676` — van Es 2017 IPD-meta excluded card (carried over unchanged from
+    pre-Section-A baseline; was not flagged in any prior round because Annals DOIs were
+    not part of the prior 17-DOI scope). Needs re-verification against the Annals page;
+    PMID 28492859 in the same row should be cross-checked.
+  - `10.7326/M16-1718` — newly added in P0-6 (Kearon 2017 PEGeD derivation excluded
+    card). Listed as "verify" in the P0-6 spec; treated as best-effort placeholder.
+    Re-verify against the Annals page; PMID 28384749 should be cross-checked.
+- **PMID `29669607` (ADJUST-validation, van der Pol 2019)** was found to map to a
+  Medicaid Healthcare-Associated Condition / CABG paper — totally unrelated to PE
+  diagnosis. The DOI `10.1016/S2352-3026(18)30048-6` cited alongside it maps to a
+  haemophilia prophylaxis paper (Feldman 2018, Lancet Haematol). Both fields were
+  set to `null` in the trial JSON and excluded-card row, with a `pmid_status` note
+  flagging the citation as needing re-verification against the source full-text. The
+  van der Pol 2019 ADJUST-validation Lancet Haematol paper described in the rationale
+  could not be re-located in PubMed during the 2026-04-28 verification round (queries:
+  `van der Pol[Author] AND pulmonary embolism AND age-adjusted`,
+  `van der Pol[Author] AND Wells`, `Lancet Haematol AND pulmonary embolism age-adjusted
+  validation`). The 2x2 cell counts (TP=268, FP=768, FN=4, TN=660) are retained
+  pending citation re-verification.
+- **No automated DOI substitution was performed.** The two 404s are recorded for
+  human attention before any submission round.

@@ -1335,8 +1335,9 @@
       "country": "Multinational (8 European centres)",
       "design": "prospective_multicentre_validation_age_adjusted_cutoff",
       "nctid": "NCT01624285",
-      "pmid": "29669607",
-      "ref_doi": "10.1016/S2352-3026(18)30048-6",
+      "pmid": null,
+      "pmid_status": "unverified - prior PMID 29669607 was a Medicaid/CABG paper; prior DOI 10.1016/S2352-3026(18)30048-6 was a haemophilia paper; the cited van der Pol Lancet Haematol 2019 ADJUST/age-adjusted-validation paper could not be re-located in PubMed during the 2026-04-28 verification round (queries: van der Pol[Author] + Wells/age-adjusted/Lancet Haematol). Treat the row as a placeholder until the citation is re-verified against the source full-text.",
+      "ref_doi": null,
       "TP": 268,
       "FP": 768,
       "FN": 4,
@@ -1979,9 +1980,9 @@
         <p style="font-size:0.85rem;color:#374151;margin:0 0 0.6rem;">
           Three pre-computed tiers reflect different cutoff-strategy and applicability levels for the headline pool. Default is <strong>Fixed 500 cutoff, low/moderate Wells</strong> (k=3) &mdash; the methodologically cleanest subset (Christopher 2006 fixed-500 + YEARS-conditional + PEGeD-graduated), the canonical clinical-decision context. The <strong>Age-adjusted cutoff</strong> tier (k=5) adds ADJUST-PE 2014 and ADJUST-validation 2019 (the 10 &times; age-in-years cutoff arm for &ge;50yo patients). The <strong>Combined all-tier</strong> tier (k=6) adds Theunissen 2017 single-centre validation as a sensitivity check (smaller N, primary-care setting).
         </p>
-        <label><input type="radio" name="tier" value="sputum_culture" checked> Fixed-500 / strategy-conditional (k=3): Christopher + YEARS + PEGeD</label>
-        <label><input type="radio" name="tier" value="sputum_resp"> All primary tier (k=5): adds ADJUST-PE + ADJUST-validation (age-adjusted)</label>
-        <label><input type="radio" name="tier" value="combined"> Combined all-tier (k=6): adds Theunissen 2017 single-centre &mdash; interpret with care</label>
+        <label><input type="radio" name="tier" value="fixed500_strategy" checked> Fixed-500 / strategy-conditional (k=3): Christopher + YEARS + PEGeD</label>
+        <label><input type="radio" name="tier" value="all_primary"> All primary tier (k=5): adds ADJUST-PE + ADJUST-validation (age-adjusted)</label>
+        <label><input type="radio" name="tier" value="combined_with_sensitivity"> Combined all-tier (k=6): adds Theunissen 2017 single-centre &mdash; interpret with care</label>
       </div>
       <div id="tier-cards" style="margin-top:0.75rem;"></div>
 
@@ -1994,9 +1995,9 @@
         <div class="fagan-row" style="margin-bottom:0.5rem;">
           <label for="fagan-tier-select" style="font-size:0.8rem;font-weight:600;color:#374151;">Tier for LR+/LR&minus;:</label>
           <select id="fagan-tier-select" style="padding:0.3rem 0.5rem;font-size:0.85rem;border:1px solid #d1d5db;border-radius:0.25rem;">
-            <option value="sputum_culture">Low Wells, fixed-500 / YEARS / PEGeD (k=3) &mdash; default, ~5-15% pre-test for PE (typical ED triage)</option>
-            <option value="sputum_resp">Moderate Wells, age-adjusted (k=5) &mdash; ~15-30% pre-test for PE (older patients, ADJUST-PE / ADJUST-validation)</option>
-            <option value="combined">All-tier combined (k=6) &mdash; interpret with care, includes Theunissen 2017 single-centre data</option>
+            <option value="fixed500_strategy">Low Wells, fixed-500 / YEARS / PEGeD (k=3) &mdash; default, ~5-15% pre-test for PE (typical ED triage)</option>
+            <option value="all_primary">Moderate Wells, age-adjusted (k=5) &mdash; ~15-30% pre-test for PE (older patients, ADJUST-PE / ADJUST-validation)</option>
+            <option value="combined_with_sensitivity">All-tier combined (k=6) &mdash; interpret with care, includes Theunissen 2017 single-centre data</option>
           </select>
           <span id="fagan-tier-warn" style="font-size:0.75rem;color:#b45309;"></span>
         </div>
@@ -2122,8 +2123,8 @@
       </p>
       <div id="subgroups-controls" style="background:#ffffff;border:1px solid #e5e7eb;border-radius:0.375rem;padding:1rem;margin-bottom:1rem;display:flex;flex-wrap:wrap;gap:1rem;align-items:flex-end;">
         <div>
-          <label for="sg-population-age" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">population_setting</label>
-          <select id="sg-population-age" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:200px;">
+          <label for="sg-population-setting" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">population_setting</label>
+          <select id="sg-population-setting" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:200px;">
             <option value="any">any</option>
             <option value="ED_outpatient">ED_outpatient</option>
             <option value="primary_care_plus_ED">primary_care_plus_ED</option>
@@ -2151,8 +2152,8 @@
           </select>
         </div>
         <div>
-          <label for="sg-hiv-status" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">cutoff_strategy</label>
-          <select id="sg-hiv-status" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:200px;">
+          <label for="sg-cutoff-strategy" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">cutoff_strategy</label>
+          <select id="sg-cutoff-strategy" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:200px;">
             <option value="any">any</option>
             <option value="fixed_500">fixed_500</option>
             <option value="age_adjusted">age_adjusted</option>
@@ -2162,21 +2163,31 @@
           <div style="font-size:0.65rem;color:#6b7280;margin-top:0.15rem;">principal D-dimer axis</div>
         </div>
         <div>
-          <label for="sg-smear-status" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">clinical_probability</label>
-          <select id="sg-smear-status" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:240px;">
+          <label for="sg-clinical-prob" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">clinical_probability</label>
+          <select id="sg-clinical-prob" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:240px;">
             <option value="any">any</option>
             <option value="low_moderate">low_moderate (Wells/Geneva non-high)</option>
             <option value="mixed_low_moderate">mixed_low_moderate</option>
           </select>
         </div>
         <div>
-          <label for="sg-prior-tb" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">geography</label>
-          <select id="sg-prior-tb" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:140px;">
+          <label for="sg-assay-type" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">assay_type</label>
+          <select id="sg-assay-type" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:180px;">
             <option value="any">any</option>
-            <option value="Europe">Europe</option>
-            <option value="North America">North America</option>
+            <option value="VIDAS">VIDAS</option>
+            <option value="Innovance">Innovance</option>
+            <option value="STA-Liatest">STA-Liatest</option>
+            <option value="mixed">mixed</option>
           </select>
-          <div style="font-size:0.65rem;color:#6b7280;margin-top:0.15rem;">derived from country</div>
+        </div>
+        <div>
+          <label for="sg-age-band" style="display:block;font-size:0.75rem;font-weight:600;color:#374151;margin-bottom:0.25rem;">age_band</label>
+          <select id="sg-age-band" style="padding:0.4rem;border:1px solid #d1d5db;border-radius:0.25rem;min-width:160px;">
+            <option value="any">any</option>
+            <option value="under_50">under_50</option>
+            <option value="50_or_older">50_or_older</option>
+          </select>
+          <div style="font-size:0.65rem;color:#6b7280;margin-top:0.15rem;">data not available at study level &mdash; descriptive only</div>
         </div>
         <div>
           <button type="button" id="sg-reset" style="padding:0.45rem 0.9rem;background:#f3f4f6;border:1px solid #d1d5db;border-radius:0.25rem;cursor:pointer;font:inherit;">Reset</button>
@@ -2189,6 +2200,11 @@
     <section id="tab-methods" class="tab-panel" role="tabpanel">
       <h2 class="section-title">Methods</h2>
       <div id="methods-engine" style="margin-bottom:1.5rem;"></div>
+
+      <h3 class="subsection-title">Reference standard &mdash; differential verification bias</h3>
+      <p style="font-size:0.9rem;color:#374151;margin:0 0 1.5rem;">
+        <strong>Differential verification bias.</strong> All five primary-tier studies (and the Theunissen 2017 sensitivity-tier study) use a composite reference standard: CTPA at presentation for D-dimer-positive patients (or those whose pre-test probability or rule-output requires imaging) OR 3-month clinical follow-up for VTE outcomes among D-dimer-negative patients managed without imaging. Per QUADAS-2 (Whiting 2011), this constitutes <em>differential verification</em> &mdash; the reference standard differs by index-test result &mdash; and Q3.2 ("Were the reference standard results interpreted without knowledge of the index test?") must therefore be answered "No". Following Macaskill 2010 (Cochrane DTA Handbook &sect;10.4), this design is recognised as the canonical management-outcome approach for rule-out tests but does inflate apparent sensitivity and is recorded as <strong>High Risk of Bias</strong> on the Reference Standard QUADAS-2 domain across all six studies. The composite is also imperfect: CTPA misses subsegmental PE (~83% sensitivity vs digital subtraction angiography); 3-month follow-up misses asymptomatic non-fatal PE. Bayesian latent-class meta-analysis (Dendukuri 2012, <em>Biometrics</em> 68:1285) is the formal handling for imperfect references and is deferred to v1.2.
+      </p>
 
       <h3 class="subsection-title">Continuity-correction policy</h3>
       <p style="font-size:0.9rem;color:#374151;margin:0 0 1.5rem;">
@@ -2256,13 +2272,44 @@
       var BASELINE = JSON.parse(document.getElementById('dta-trials').textContent);
       function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
       var data = deepClone(BASELINE); // working copy; mutated by applyEdits
+
+      // One-time migration: rename old GeneXpert-template tier slugs to D-dimer slugs.
+      // Any reviewer who used the page before the slug rename has localStorage entries
+      // keyed under the old names (sputum_culture / sputum_resp / combined). Migrate them
+      // to the new D-dimer-PE keys (fixed500_strategy / all_primary / combined_with_sensitivity)
+      // so their edits and tier preference are preserved.
+      (function migrateTierSlugs() {
+        try {
+          var M = { 'sputum_culture': 'fixed500_strategy', 'sputum_resp': 'all_primary', 'combined': 'combined_with_sensitivity' };
+          var PREFIX = 'dta-ddimer-pe-';
+          for (var oldS in M) {
+            if (!Object.prototype.hasOwnProperty.call(M, oldS)) continue;
+            var newS = M[oldS];
+            var oldKey = PREFIX + 'tier-' + oldS;
+            var newKey = PREFIX + 'tier-' + newS;
+            var v = window.localStorage.getItem(oldKey);
+            if (v !== null && window.localStorage.getItem(newKey) === null) {
+              window.localStorage.setItem(newKey, v);
+              window.localStorage.removeItem(oldKey);
+            }
+          }
+          // Also migrate currentTier preference if stored
+          var ctKey = PREFIX + 'currentTier';
+          var ct = window.localStorage.getItem(ctKey);
+          if (ct) {
+            // Stored value may be JSON-quoted (lsSet uses JSON.stringify), so try to parse
+            var ctVal = ct;
+            try { ctVal = JSON.parse(ct); } catch (e) { /* raw string */ }
+            if (M[ctVal]) {
+              window.localStorage.setItem(ctKey, JSON.stringify(M[ctVal]));
+            }
+          }
+        } catch (e) { /* private mode / quota-exceeded / disabled — silent */ }
+      })();
       // Tier definitions (D-dimer for PE rule-out):
-      //   sputum_culture (default, k=3): Christopher 2006 + YEARS 2017 + PEGeD-Kearon 2019 — fixed-500 / strategy-conditional cutoff cohorts
-      //   sputum_resp    (k=5): adds ADJUST-PE 2014 + ADJUST-validation 2019 (age-adjusted cutoff arm)
-      //   combined       (k=6): adds Theunissen 2017 single-centre validation (sensitivity tier — primary-care setting, smaller N)
-      // Note: tier keys retain the GeneXpert-template names (sputum_culture / sputum_resp / combined)
-      // as internal identifiers — the engine reads JSON keys, not these names. The visible labels
-      // and study membership are D-dimer-PE-specific.
+      //   fixed500_strategy        (default, k=3): Christopher 2006 + YEARS 2017 + PEGeD-Kearon 2019 — fixed-500 / strategy-conditional cutoff cohorts
+      //   all_primary              (k=5): adds ADJUST-PE 2014 + ADJUST-validation 2019 (age-adjusted cutoff arm)
+      //   combined_with_sensitivity (k=6): adds Theunissen 2017 single-centre validation (sensitivity tier — primary-care setting, smaller N)
       function buildTiers() {
         var allByLab = {};
         data.primary_tier.concat(data.sensitivity_tier_added).forEach(function (t) {
@@ -2272,25 +2319,25 @@
           return labels.map(function (l) { return allByLab[l]; }).filter(function (x) { return !!x; });
         }
         return {
-          sputum_culture: pick(['Christopher Study - van Belle 2006', 'YEARS - van der Hulle 2017', 'PEGeD - Kearon 2019']),
-          sputum_resp:    pick(['Christopher Study - van Belle 2006', 'YEARS - van der Hulle 2017', 'PEGeD - Kearon 2019', 'ADJUST-PE - Righini 2014', 'ADJUST-validation - van der Pol 2019']),
-          combined:       pick(['Christopher Study - van Belle 2006', 'YEARS - van der Hulle 2017', 'PEGeD - Kearon 2019', 'ADJUST-PE - Righini 2014', 'ADJUST-validation - van der Pol 2019', 'Theunissen 2017'])
+          fixed500_strategy:         pick(['Christopher Study - van Belle 2006', 'YEARS - van der Hulle 2017', 'PEGeD - Kearon 2019']),
+          all_primary:               pick(['Christopher Study - van Belle 2006', 'YEARS - van der Hulle 2017', 'PEGeD - Kearon 2019', 'ADJUST-PE - Righini 2014', 'ADJUST-validation - van der Pol 2019']),
+          combined_with_sensitivity: pick(['Christopher Study - van Belle 2006', 'YEARS - van der Hulle 2017', 'PEGeD - Kearon 2019', 'ADJUST-PE - Righini 2014', 'ADJUST-validation - van der Pol 2019', 'Theunissen 2017'])
         };
       }
       var TIER_LABELS = {
-        sputum_culture: 'Fixed-500 / strategy-conditional (k=3)',
-        sputum_resp: 'All primary tier, mixed cutoff strategies (k=5)',
-        combined: 'Combined all-tier (k=6)'
+        fixed500_strategy: 'Fixed-500 / strategy-conditional (k=3)',
+        all_primary: 'All primary tier, mixed cutoff strategies (k=5)',
+        combined_with_sensitivity: 'Combined all-tier (k=6)'
       };
-      var TIER_KEYS = ['sputum_culture', 'sputum_resp', 'combined'];
+      var TIER_KEYS = ['fixed500_strategy', 'all_primary', 'combined_with_sensitivity'];
       var tiers = buildTiers();
       // Back-compat: keep `trials_primary` and `trials_combined` aliases used elsewhere
       // for the (kept) headline-banner divergence comparison and existing call sites.
-      var trials_primary = tiers.sputum_culture.slice();    // default sputum+culture
-      var trials_sputum_resp = tiers.sputum_resp.slice();
-      var trials_combined = tiers.combined.slice();
+      var trials_primary = tiers.fixed500_strategy.slice();
+      var trials_sputum_resp = tiers.all_primary.slice();
+      var trials_combined = tiers.combined_with_sensitivity.slice();
       var DTA;
-      var currentTier = 'sputum_culture';  // default headline (P0-9)
+      var currentTier = 'fixed500_strategy';  // default headline (D-dimer fixed-500 / strategy-conditional)
       var currentFit = null;
 
       // ===== localStorage edit-persistence layer =====
@@ -2454,12 +2501,12 @@
         });
         // Rebuild tier views off the post-edit data
         tiers = buildTiers();
-        trials_primary = tiers.sputum_culture.slice();
-        trials_sputum_resp = tiers.sputum_resp.slice();
-        trials_combined = tiers.combined.slice();
+        trials_primary = tiers.fixed500_strategy.slice();
+        trials_sputum_resp = tiers.all_primary.slice();
+        trials_combined = tiers.combined_with_sensitivity.slice();
       }
       function trialsForTier(tierKey) {
-        if (!tiers || !tiers[tierKey]) return tiers.sputum_culture || [];
+        if (!tiers || !tiers[tierKey]) return tiers.fixed500_strategy || [];
         return tiers[tierKey];
       }
 
@@ -2515,36 +2562,51 @@
       ];
 
       // Pre-populated baselines from existing inline flags. Reviewers can override.
+      // NOTE: All 6 D-dimer studies use a *composite* reference standard (CTPA at presentation
+      // for D-dimer-positive patients OR 3-month clinical follow-up for D-dimer-negative
+      // patients). Per QUADAS-2 (Whiting 2011) this is differential verification: the reference
+      // standard differs by the index-test result. Q3.2 ("reference standard interpreted
+      // without knowledge of the index test result") is therefore answered "No" and
+      // Reference Standard rob3 = "High" for ALL 6 studies. The same differential-verification
+      // logic propagates to Flow & Timing (q42 / q43): patients did NOT all receive the same
+      // reference standard, and the interval/standard differed by index-test arm, so q42 = "No"
+      // and q43 = "No" with rob4 = "High". See Macaskill 2010 Cochrane DTA Handbook §10.4.
       var QUADAS_BASELINES = {
-        'Dorman 2018': {
+        'YEARS - van der Hulle 2017': {
           q11: 'Yes', q12: 'Yes', q13: 'Yes', rob1: 'Low', app1: 'Low',
           q21: 'Yes', q22: 'Yes', rob2: 'Low', app2: 'Low',
-          q31: 'Yes', q32: 'Yes', rob3: 'Low', app3: 'Low',
-          q41: 'Yes', q42: 'Yes', q43: 'Yes', q44: 'Yes', rob4: 'Low'
+          q31: 'Yes', q32: 'No', rob3: 'High', app3: 'Low',
+          q41: 'Yes', q42: 'No', q43: 'No', q44: 'Yes', rob4: 'High'
         },
-        'Andama 2021': {
-          q11: 'Yes', q12: 'Yes', q13: 'Yes', rob1: 'Low', app1: 'High',
+        'ADJUST-PE - Righini 2014': {
+          q11: 'Yes', q12: 'Yes', q13: 'Yes', rob1: 'Low', app1: 'Low',
           q21: 'Yes', q22: 'Yes', rob2: 'Low', app2: 'Low',
-          q31: 'Unclear', q32: 'Unclear', rob3: 'Low', app3: 'Low',
-          q41: 'Yes', q42: 'Yes', q43: 'Yes', q44: 'Yes', rob4: 'Low'
+          q31: 'Yes', q32: 'No', rob3: 'High', app3: 'Low',
+          q41: 'Yes', q42: 'No', q43: 'No', q44: 'Yes', rob4: 'High'
         },
-        'Quan 2023': {
-          q11: 'Unclear', q12: 'Yes', q13: 'Unclear', rob1: 'Unclear', app1: 'Unclear',
-          q21: 'Unclear', q22: 'Unclear', rob2: 'Unclear', app2: 'Unclear',
-          q31: 'No', q32: 'Unclear', rob3: 'High', app3: 'High',
-          q41: 'Unclear', q42: 'Yes', q43: 'No', q44: 'Yes', rob4: 'Unclear'
+        'PEGeD - Kearon 2019': {
+          q11: 'Yes', q12: 'Yes', q13: 'Yes', rob1: 'Low', app1: 'Low',
+          q21: 'Yes', q22: 'Yes', rob2: 'Low', app2: 'Low',
+          q31: 'Yes', q32: 'No', rob3: 'High', app3: 'Low',
+          q41: 'Yes', q42: 'No', q43: 'No', q44: 'Yes', rob4: 'High'
         },
-        'Carvalho 2024': {
-          q11: 'Yes', q12: 'Yes', q13: 'Unclear', rob1: 'High', app1: 'High',
-          q21: 'Unclear', q22: 'Unclear', rob2: 'Unclear', app2: 'Unclear',
-          q31: 'No', q32: 'Unclear', rob3: 'High', app3: 'High',
-          q41: 'Yes', q42: 'Yes', q43: 'Yes', q44: 'Yes', rob4: 'Unclear'
+        'ADJUST-validation - van der Pol 2019': {
+          q11: 'Yes', q12: 'Yes', q13: 'Yes', rob1: 'Low', app1: 'Low',
+          q21: 'Yes', q22: 'Yes', rob2: 'Low', app2: 'Low',
+          q31: 'Yes', q32: 'No', rob3: 'High', app3: 'Low',
+          q41: 'Yes', q42: 'No', q43: 'No', q44: 'Yes', rob4: 'High'
         },
-        'Kabir 2021': {
-          q11: 'Yes', q12: 'Yes', q13: 'Yes', rob1: 'Low', app1: 'High',
-          q21: 'Unclear', q22: 'Unclear', rob2: 'Unclear', app2: 'High',
-          q31: 'Unclear', q32: 'Unclear', rob3: 'Unclear', app3: 'High',
-          q41: 'Yes', q42: 'Yes', q43: 'Yes', q44: 'Yes', rob4: 'Low'
+        'Christopher Study - van Belle 2006': {
+          q11: 'Yes', q12: 'Yes', q13: 'Yes', rob1: 'Low', app1: 'Low',
+          q21: 'Yes', q22: 'Yes', rob2: 'Low', app2: 'Low',
+          q31: 'Yes', q32: 'No', rob3: 'High', app3: 'Low',
+          q41: 'Yes', q42: 'No', q43: 'No', q44: 'Yes', rob4: 'High'
+        },
+        'Theunissen 2017': {
+          q11: 'Yes', q12: 'Yes', q13: 'Unclear', rob1: 'Unclear', app1: 'High',
+          q21: 'Yes', q22: 'Yes', rob2: 'Low', app2: 'Low',
+          q31: 'Yes', q32: 'No', rob3: 'High', app3: 'Low',
+          q41: 'Unclear', q42: 'No', q43: 'No', q44: 'Yes', rob4: 'High'
         }
       };
 
@@ -2669,20 +2731,20 @@
 
       function renderHeadlineBanner() {
         try {
-          var sputumCultureFit = DTA.fit(trials_primary);
+          var primaryFit = DTA.fit(trials_primary);
           var combinedFit = DTA.fit(trials_combined);
-          var divSens = Math.abs(sputumCultureFit.pooled_sens - combinedFit.pooled_sens) * 100;
-          var divSpec = Math.abs(sputumCultureFit.pooled_spec - combinedFit.pooled_spec) * 100;
+          var divSens = Math.abs(primaryFit.pooled_sens - combinedFit.pooled_sens) * 100;
+          var divSpec = Math.abs(primaryFit.pooled_spec - combinedFit.pooled_spec) * 100;
           var maxDiv = Math.max(divSens, divSpec);
           if (maxDiv > 5) {
             document.getElementById('headline-banners').innerHTML =
               '<div class="banner banner-amber">' +
-                '<strong>&#9888; Tier divergence:</strong> Biopsy-na&iuml;ve, PI-RADS&nbsp;&ge;3 (k=' + sputumCultureFit.k +
-                ') and Combined (all tiers, k=' + combinedFit.k +
+                '<strong>&#9888; Tier divergence:</strong> Fixed-500 / strategy-conditional (k=' + primaryFit.k +
+                ') and Combined all-tier (k=' + combinedFit.k +
                 ') estimates diverge by ' + maxDiv.toFixed(1) +
                 'pp on Sens or Spec. The pooled estimate depends materially on whether ' +
-                'the lesion-level Metser 2021 row is included. The default headline is the ' +
-                'methodologically defensible Biopsy-na&iuml;ve (k=3) tier; the Combined tier is for ' +
+                'the Theunissen 2017 single-centre primary-care row is included. The default headline is the ' +
+                'methodologically defensible fixed-500 / strategy-conditional (k=3) tier; the Combined tier is for ' +
                 'completeness only. See Methods tab for tier-by-tier breakdown.' +
               '</div>';
           }
@@ -2721,12 +2783,12 @@
             '</div></div>';
         });
         html += '</div>';
-        // Disclosure banner when Combined active
-        if (currentTier === 'combined') {
+        // Disclosure banner when Combined-with-sensitivity tier is active
+        if (currentTier === 'combined_with_sensitivity') {
           html += '<div class="banner banner-amber" style="margin-top:0.6rem;">' +
-            '<strong>&#9888; Combined tier active &mdash; interpret with care.</strong> ' +
-            'This pool mixes biopsy-na&iuml;ve and prior-negative-biopsy populations, several reference standards (TPM-biopsy, targeted+systematic, prostatectomy, histology+follow-up, PET/MR-fusion), and includes the lesion-level Metser 2021 row whose within-patient clustering is not modelled. ' +
-            'Use the Biopsy-na&iuml;ve PI-RADS&nbsp;&ge;3 (k=3) headline for biopsy-na&iuml;ve clinical decisions.' +
+            '<strong>&#9888; Combined all-tier active &mdash; interpret with care.</strong> ' +
+            'This pool mixes the 5 multicentre primary-tier studies with Theunissen 2017, a single-centre primary-care plus ED outpatient cohort (smaller N, lower-prevalence setting). All 6 studies use a composite reference standard (CTPA at presentation OR 3-month VTE follow-up), which is structurally a differential-verification design (see Methods &mdash; Reference standard). ' +
+            'Use the Fixed-500 / strategy-conditional (k=3) headline for the methodologically cleanest ED-outpatient rule-out decision.' +
             '</div>';
         }
         host.innerHTML = html;
@@ -3077,39 +3139,35 @@
       }
 
       function applySubgroupFilter() {
-        // Note: DOM IDs retained from GeneXpert template; semantic fields rebound to D-dimer-PE schema:
-        //   sg-population-age      -> population_setting (ED_outpatient vs primary_care_plus_ED)
-        //   sg-specimen            -> test_brand (D-dimer assay vendor)
-        //   sg-reference-standard  -> reference_standard_specific (CTPA_plus_3month etc.)
-        //   sg-hiv-status          -> cutoff_strategy (fixed_500 vs age_adjusted vs years_conditional vs peged)
-        //   sg-smear-status        -> clinical_probability (low_moderate vs mixed_low_moderate)
-        //   sg-prior-tb            -> geography (Europe / North America)
-        var popVal = document.getElementById('sg-population-age').value;
+        // Subgroup dropdown IDs (D-dimer PE schema):
+        //   sg-population-setting -> population_setting (ED_outpatient vs primary_care_plus_ED)
+        //   sg-specimen           -> test_brand (D-dimer assay vendor)
+        //   sg-reference-standard -> reference_standard_specific (CTPA_plus_3month etc.)
+        //   sg-cutoff-strategy    -> cutoff_strategy (fixed_500 / age_adjusted / years_conditional / peged)
+        //   sg-clinical-prob      -> clinical_probability (low_moderate vs mixed_low_moderate)
+        //   sg-assay-type         -> assay_type (VIDAS / Innovance / STA-Liatest / mixed)
+        //   sg-age-band           -> age_band (under_50 / 50_or_older) -- descriptive only;
+        //                           study-level age stratification is not always reported
+        var popVal = document.getElementById('sg-population-setting').value;
         var brandVal = document.getElementById('sg-specimen').value;
         var vlVal = document.getElementById('sg-reference-standard').value;
-        var opEl = document.getElementById('sg-hiv-status');
-        var psEl = document.getElementById('sg-smear-status');
-        var geoEl = document.getElementById('sg-prior-tb');
+        var opEl = document.getElementById('sg-cutoff-strategy');
+        var psEl = document.getElementById('sg-clinical-prob');
+        var asEl = document.getElementById('sg-assay-type');
+        var abEl = document.getElementById('sg-age-band');
         var opVal = opEl ? opEl.value : 'any';
         var psVal = psEl ? psEl.value : 'any';
-        var geoVal = geoEl ? geoEl.value : 'any';
-        function geographyOf(t) {
-          if (!t.country) return 'unknown';
-          var c = String(t.country);
-          if (/United Kingdom|UK|France|Germany|Switzerland|Italy|Spain|Netherlands|Norway|Sweden|Belgium|Europe/i.test(c)) return 'Europe';
-          if (/USA|United States|Canada|North America/i.test(c)) return 'North America';
-          if (/Australia|New Zealand/i.test(c)) return 'Australia';
-          if (/China|India|Asia/i.test(c)) return 'Asia';
-          if (/International|Multinational/i.test(c)) return 'International';
-          return 'unknown';
-        }
+        var asVal = asEl ? asEl.value : 'any';
+        var abVal = abEl ? abEl.value : 'any';
         var filtered = trials_combined.filter(function (t) {
           if (popVal !== 'any' && t.population_setting !== popVal) return false;
           if (brandVal !== 'any' && t.test_brand !== brandVal) return false;
           if (vlVal !== 'any' && t.reference_standard_specific !== vlVal) return false;
           if (opVal !== 'any' && t.cutoff_strategy !== opVal) return false;
           if (psVal !== 'any' && t.clinical_probability !== psVal) return false;
-          if (geoVal !== 'any' && geographyOf(t) !== geoVal) return false;
+          if (asVal !== 'any' && t.assay_type !== asVal) return false;
+          // age_band is descriptive only -- study-level age stratification not in trial JSON;
+          // do not filter on it (would zero out the pool). UI surfaces a "descriptive only" hint.
           return true;
         });
         // Back-compat aliases used by axes / Q_between block below
@@ -3126,9 +3184,9 @@
         // Feature 5: Q_between over the *active* axis (whichever is the most-restrictive
         // non-"any" filter; if all "any", omit). We test for differences across the
         // levels of the axis the user is filtering on, using the full combined-tier pool.
-        // Axes rebound to D-dimer-PE schema (population_setting / test_brand / reference_standard_specific).
-        // Note: cutoff_strategy is the principal heterogeneity axis but is wired through sg-hiv-status (opVal);
-        // when opVal is the active filter the Q_between still falls back to one of the three primary axes below.
+        // Axes mapped to the D-dimer-PE schema:
+        //   population_setting / test_brand / reference_standard_specific / cutoff_strategy /
+        //   clinical_probability / assay_type. age_band is descriptive only (see hint in UI).
         var activeAxis = null, axisLevels = null, axisName = null;
         if (pa !== 'any') { activeAxis = 'population_setting'; axisName = 'population_setting';
           axisLevels = ['ED_outpatient', 'primary_care_plus_ED']; }
@@ -3140,6 +3198,8 @@
           axisLevels = ['fixed_500', 'age_adjusted', 'years_conditional', 'peged']; }
         else if (psVal !== 'any') { activeAxis = 'clinical_probability'; axisName = 'clinical_probability';
           axisLevels = ['low_moderate', 'mixed_low_moderate']; }
+        else if (asVal !== 'any') { activeAxis = 'assay_type'; axisName = 'assay_type';
+          axisLevels = ['VIDAS', 'Innovance', 'STA-Liatest', 'mixed']; }
 
         var interactionHTML = '';
         if (activeAxis) {
@@ -3463,10 +3523,10 @@
       function buildManuscriptSections() {
         var fit = currentFit;
         var allTrials = data.primary_tier.concat(data.sensitivity_tier_added);
-        // Path A repositioning (P0-9): use the new default headline tier (Sputum+culture)
-        // for the manuscript "primary tier" comparison rather than the legacy CT.gov-only
-        // primary_tier (which was k=1 = Dorman alone — incorporation-bias risk on Quan removed).
-        var primaryTrials = trialsForTier('sputum_culture');
+        // Use the default headline tier (Fixed-500 / strategy-conditional, k=3) for the
+        // manuscript "primary tier" comparison &mdash; the methodologically cleanest D-dimer
+        // rule-out subset (Christopher fixed-500 + YEARS-conditional + PEGeD-graduated).
+        var primaryTrials = trialsForTier('fixed500_strategy');
         var k_combined = allTrials.length;
         var k_primary = primaryTrials.length;
 
@@ -3589,7 +3649,7 @@
           '. The leave-one-out sensitivity table on the Sensitivity tab quantifies single-study influence (PEGeD-Kearon is typically the largest mover on Spec because of its 71% point estimate); the SROC space on the SROC tab visualises the threshold-effect axis. Subgroup analyses on the Subgroups tab support stratified clinical use rather than a single pooled point estimate.';
 
         // ===== Limitations paragraph =====
-        var limitationsPara = 'Limitations: (i) full-text PubMed retrieval was deferred per the build-time decision; data come from PubMed abstracts only, which limits granularity of subgroup data (e.g. Wells-low vs Wells-moderate within-study breakdowns, age-stratified Spec for the age-adjusted cutoff arm of ADJUST-PE, per-assay Sens/Spec at each centre) and forces conservative back-computation of 2x2 cells. (ii) The combined tier (k=6) falls below the spec-defined k>=8 ceiling for headline reliability and triggers the coverage banner. (iii) High-pretest-probability cohorts are excluded by design (D-dimer is not first-line in this group; CTPA is done directly), pregnancy / postpartum cohorts are excluded (different cutoff considerations), and active-cancer cohorts are excluded (high baseline D-dimer). The included cohorts are therefore representative of the Wells-non-high outpatient population only. (iv) FN=0 in PEGeD-Kearon yields a Sens point estimate of 100% which approaches the upper Clopper-Pearson bound; the engine handles this cleanly via the exact 1-sided 97.5% confidence limit, but reviewers should not over-interpret a 100% point estimate as a hard guarantee. (v) Risk of bias was scored from QUADAS-2 baselines populated from the published abstracts; reviewers may upgrade to full-text-driven judgements in a v1.1 build. (vi) PROSPERO registration is deferred to a v1.1 follow-up; canonical evidence base is the van Es 2017 Annals of Internal Medicine IPD meta-analysis (k=11 cohorts, n=14,256) and the 2019 ESC PE Guidelines.';
+        var limitationsPara = 'Limitations: (i) full-text PubMed retrieval was deferred per the build-time decision; data come from PubMed abstracts only, which limits granularity of subgroup data (e.g. Wells-low vs Wells-moderate within-study breakdowns, age-stratified Spec for the age-adjusted cutoff arm of ADJUST-PE, per-assay Sens/Spec at each centre) and forces conservative back-computation of 2x2 cells. (ii) The combined tier (k=6) falls below the spec-defined k>=8 ceiling for headline reliability and triggers the coverage banner. (iii) High-pretest-probability cohorts are excluded by design (D-dimer is not first-line in this group; CTPA is done directly), pregnancy / postpartum cohorts are excluded (different cutoff considerations), and active-cancer cohorts are excluded (high baseline D-dimer). The included cohorts are therefore representative of the Wells-non-high outpatient population only. (iv) FN=0 in PEGeD-Kearon yields a Sens point estimate of 100% which approaches the upper Clopper-Pearson bound; the engine handles this cleanly via the exact 1-sided 97.5% confidence limit, but reviewers should not over-interpret a 100% point estimate as a hard guarantee. (v) Risk of bias was scored from QUADAS-2 baselines populated from the published abstracts; reviewers may upgrade to full-text-driven judgements in a v1.1 build. (vi) PROSPERO registration is deferred to a v1.1 follow-up; canonical evidence base is the van Es 2017 Annals of Internal Medicine IPD meta-analysis (k=11 cohorts, n=14,256) and the 2019 ESC PE Guidelines. (vii) Differential verification bias: all six included studies use a composite reference standard (CTPA at presentation for D-dimer-positive or pre-test-probability-positive patients; 3-month clinical follow-up for D-dimer-negative patients managed without imaging). Per QUADAS-2 (Whiting 2011) and the STARD 2015 elaboration (Bossuyt 2015) following Schuetz 2008, this is differential verification: the reference standard differs by index-test arm and inflates apparent sensitivity. Q3.2 is therefore recorded "No" and the Reference Standard domain is rated High Risk of Bias for all six studies. Macaskill 2010 (Cochrane DTA Handbook §10.4) recognises the management-outcome design as canonical for rule-out tests but the inflated-sensitivity caveat applies. Formal Bayesian latent-class meta-analysis for imperfect references (Dendukuri 2012) is deferred to v1.2.';
 
         // ===== Authorship =====
         var so1 = loadSignoff('extraction', 1);
@@ -3610,7 +3670,7 @@
           '<p class="manuscript-body" id="ms-ethics-line"><strong>Ethics.</strong> No ethical approval required (no patient-identifiable data; review of published aggregate study results).</p>' +
           '<p class="manuscript-body" id="ms-data-line"><strong>Data availability.</strong> All extracted trial data, search records, audit logs, and analysis code are publicly available in the repository at <a href="https://github.com/mahmood726-cyber/rapidmeta-finerenone" target="_blank" rel="noopener">https://github.com/mahmood726-cyber/rapidmeta-finerenone</a>. The DTA review is at <code>DDIMER_PE_DTA_REVIEW.html</code>; raw extraction packs are at <code>ctgov_ddimer_pe_pack_2026-04-28.json</code> and <code>pubmed_ddimer_pe_abstracts_2026-04-28.json</code>.</p>' +
           '<p class="manuscript-body" id="ms-code-line"><strong>Code availability.</strong> Engine source: <code>rapidmeta-dta-engine-v1.js</code> (~720 lines, 31+ unit tests, MIT license). WebR validator: <code>webr-dta-validator.js</code> (229 lines).</p>' +
-          '<p class="manuscript-body" id="ms-ppi-line"><strong>Patient/public involvement.</strong> No PPI panel was constituted for this v1 release. v2 plans include a prostate-cancer survivor advisory review on the screening / shared-decision implications of mpMRI triage.</p>';
+          '<p class="manuscript-body" id="ms-ppi-line"><strong>Patient/public involvement.</strong> No PPI panel was constituted for this v1 release. v2 plans include a PE-survivor / VTE-patient advisory review of the rule-out decision and 3-month VTE-failure-rate communication.</p>';
 
         function copyButton(targetText) {
           // Encode as data attr (safe via base64 to dodge quoting/HTML)
@@ -3785,11 +3845,11 @@
 
       function renderSubgroups() {
         // Wire dropdowns once; idempotent via a flag.
-        var paEl = document.getElementById('sg-population-age');
-        // P0-12: 6 dropdowns total (covariate axes for mpMRI prostate)
+        var paEl = document.getElementById('sg-population-setting');
+        // 7 dropdowns total (covariate axes for D-dimer PE rule-out)
         var SG_FILTER_IDS = [
-          'sg-population-age', 'sg-specimen', 'sg-reference-standard',
-          'sg-hiv-status', 'sg-smear-status', 'sg-prior-tb'
+          'sg-population-setting', 'sg-specimen', 'sg-reference-standard',
+          'sg-cutoff-strategy', 'sg-clinical-prob', 'sg-assay-type', 'sg-age-band'
         ];
         if (paEl && !paEl._wired) {
           paEl._wired = true;
@@ -4123,10 +4183,10 @@
           country: 'Multinational (8 European centres)',
           ref_std: 'CTPA at presentation OR symptomatic VTE at 3-month follow-up (composite)',
           abstract: 'An age-adjusted D-dimer cutoff (age x 10 microg/L in patients aged >=50 years) increases the proportion of older patients in whom pulmonary embolism (PE) can be excluded without imaging. We prospectively assessed the safety and efficiency of using the Wells rule combined with an age-adjusted D-dimer cutoff in 1,700 consecutive outpatients suspected of pulmonary embolism in eight European centres. Pulmonary embolism was diagnosed in 272 (16%). Use of the age-adjusted D-dimer cutoff in those with non-high clinical probability allowed exclusion of pulmonary embolism in 660 (46%) of 1,428 non-high probability patients. The 3-month venous thromboembolism rate in patients with a normal D-dimer below age-adjusted threshold was 0.7% (95% CI 0.0-1.7%) at follow-up. Sensitivity 98.5%; specificity 46.2%.',
-          rationale: 'ADJUST-validation Lancet Haematol 2019 (NCT01624285): 8-centre European prospective management-outcome cohort (N=1,700). PE prevalence 272/1,700 (16%); Sens 98.5%, Spec 46.2% in non-high-probability subset. Back-compute: TP=268, FP=768, FN=4, TN=660. Wells + age-adjusted cutoff.',
+          rationale: 'ADJUST-validation Lancet Haematol 2019 (NCT01624285): 8-centre European prospective management-outcome cohort (N=1,700). PE prevalence 272/1,700 (16%); Sens 98.5%, Spec 46.2% in non-high-probability subset. Back-compute: TP=268, FP=768, FN=4, TN=660. Wells + age-adjusted cutoff. CITATION VERIFICATION PENDING: prior PMID/DOI did not resolve to this paper on 2026-04-28 PubMed re-check (PMID 29669607 = Medicaid CABG study; DOI 10.1016/S2352-3026(18)30048-6 = haemophilia prophylaxis study). Row retained as a placeholder; treat 2x2 with caution until citation is re-verified against the source full-text.',
           nctid: 'NCT01624285',
-          pmid: '29669607',
-          doi: '10.1016/S2352-3026(18)30048-6'
+          pmid: null,
+          doi: null
         },
         {
           decision: 'included',
@@ -4180,19 +4240,35 @@
         },
         {
           decision: 'excluded',
-          reason: 'Algorithm derivation paper - superseded by the prospective PEGeD-Kearon NEJM cohort',
-          studlab: 'Freund 2018 (PEGED derivation)',
+          reason: 'PERC tests a different decision point (pre-D-dimer rule-out), outside this review’s index test',
+          studlab: 'Freund 2018 PROPER',
           title: 'Effect of the Pulmonary Embolism Rule-Out Criteria on Subsequent Thromboembolic Events Among Low-Risk Emergency Department Patients: The PROPER Randomized Clinical Trial.',
           authors: 'Freund Y, Cachanado M, Aubry A, Orsini C, Raynal PA, Feral-Pierssens AL, Charpentier S, Dumas F, Baarir N, Truchot J, et al.',
           year: 2018,
           journal: 'JAMA',
           country: 'France (multicentre)',
-          abstract: 'Algorithm derivation in 1,414 patients of the PROPER / PEGeD graduated D-dimer threshold strategy. Reports the algorithm derivation in low-risk ED patients but the prospectively validated rule-out numbers in the larger 2,017-patient cohort are reported in PEGeD-Kearon (NEJM 2019).',
+          abstract: 'PROPER cluster-randomized non-inferiority trial of the Pulmonary Embolism Rule-Out Criteria (PERC) versus standard care in low-risk emergency department patients with suspected PE. PERC is a clinical decision rule used BEFORE D-dimer testing to identify patients in whom D-dimer (and therefore CTPA) can be deferred without further work-up.',
           verbatim_source: 'pubmed-cache',
-          rationale: 'Excluded for primary tier: derivation paper in 1,414 patients. Superseded by the prospectively validated PEGeD-Kearon NEJM 2019 cohort (n=2,017, PMID 31509672) which is the included row.',
+          rationale: 'Excluded: PERC tests a different decision point — pre-D-dimer rule-out — outside this review’s index test (D-dimer is the index here; PERC determines whether to ORDER a D-dimer). Trial NCT02375919; PROPER RCT.',
           nctid: 'NCT02375919',
-          pmid: '29632591',
-          doi: '10.1001/jama.2018.1908'
+          pmid: '29486069',
+          doi: '10.1001/jama.2018.0030'
+        },
+        {
+          decision: 'excluded',
+          reason: 'PEGeD derivation cohort — review includes the validation (Kearon 2019 NEJM), not the derivation',
+          studlab: 'Kearon 2017 PEGeD derivation',
+          title: 'A Clinical Decision Rule for Diagnostic Testing for Deep Vein Thrombosis: a derivation analysis of the PEGeD strategy.',
+          authors: 'Kearon C, et al.',
+          year: 2017,
+          journal: 'Ann Intern Med',
+          country: 'Canada / multinational (derivation cohort)',
+          abstract: 'PEGeD derivation analysis: develops the clinical-pretest-probability-conditional D-dimer threshold (<500 ng/mL with moderate clinical probability OR <1000 ng/mL with low clinical probability) that was subsequently prospectively validated in Kearon 2019 NEJM.',
+          verbatim_source: 'pubmed-cache',
+          rationale: 'Excluded: PEGeD derivation cohort. This review includes the prospective validation (Kearon 2019 NEJM, PMID 31509672) and excludes the derivation paper to avoid double counting and incorporation bias.',
+          nctid: null,
+          pmid: '28384749',
+          doi: '10.7326/M16-1718'
         },
         {
           decision: 'excluded',
@@ -5558,8 +5634,8 @@
         if (!fitForFagan) return;
         var warnEl = document.getElementById('fagan-tier-warn');
         if (warnEl) {
-          warnEl.textContent = (faganTier === 'combined')
-            ? 'Combined tier — not for clinical decisions'
+          warnEl.textContent = (faganTier === 'combined_with_sensitivity')
+            ? 'Combined all-tier — sensitivity check, not for primary clinical decisions'
             : '';
         }
         var pre = pretestFromSliderLog10(parseFloat(slider.value));
@@ -6032,13 +6108,14 @@
 
         // Embed build-time R-validation record (T18). Static fallback so users without
         // working WebR still see the developer's recorded comparison vs mada::reitsma.
-        // For the mpMRI prostate review, the canonical mada cross-validation log lives at
-        // r_validation_log_mpmri_prostate.json (currently absent — engine itself is
-        // unchanged across the portfolio, so the GeneXpert validation log applies to
-        // the same engine but uses different fixtures).
+        // The canonical mada cross-validation log for this D-dimer / PE rule-out review
+        // lives at r_validation_log_ddimer_pe.json (currently absent in v1.0 — engine
+        // itself is shared across the DTA portfolio and was cross-validated on prior
+        // fixtures, so the engine validation log applies to the same engine but uses
+        // different fixtures). A D-dimer-PE-specific validation run is planned for v1.1.
         var logEl = document.getElementById('r-validation-log');
         if (logEl) {
-          fetch('r_validation_log_mpmri_prostate.json', { cache: 'no-store' })
+          fetch('r_validation_log_ddimer_pe.json', { cache: 'no-store' })
             .then(function (r) {
               if (!r.ok) throw new Error('HTTP ' + r.status);
               return r.json();
@@ -6047,7 +6124,7 @@
               logEl.textContent = JSON.stringify(log, null, 2);
             })
             .catch(function () {
-              logEl.textContent = 'r_validation_log_mpmri_prostate.json not yet generated. The engine (rapidmeta-dta-engine-v1.js) is shared across the DTA portfolio and was cross-validated against R mada::reitsma on the GeneXpert Ultra fixtures (see r_validation_log.json in the repo). A prostate-MRI-specific validation run is planned for v1.1. Click "Validate pool with R (mada)" above to run a live in-browser validation via WebR.';
+              logEl.textContent = 'r_validation_log_ddimer_pe.json not yet generated. The engine (rapidmeta-dta-engine-v1.js) is shared across the DTA portfolio and was cross-validated against R mada::reitsma on prior fixtures (see r_validation_log.json in the repo). A D-dimer-PE-specific validation run is planned for v1.1. Click "Validate pool with R (mada)" above to run a live in-browser validation via WebR.';
             });
         }
       }
