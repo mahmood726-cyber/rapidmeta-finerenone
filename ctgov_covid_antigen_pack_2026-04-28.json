@@ -1,0 +1,23 @@
+{
+  "extracted_at": "2026-04-28",
+  "source": "ClinicalTrials.gov NIH/NLM API v2",
+  "queries": [
+    {
+      "query_string": "condition: 'COVID-19' OR 'SARS-CoV-2'; intervention: 'rapid antigen' OR 'lateral flow'; study type: observational diagnostic accuracy",
+      "date_filter": "study_start >= 2020-01-01",
+      "raw_hits": 0,
+      "with_results_panel": 0,
+      "comment": "Most rapid-antigen DTA evaluations are device performance studies published directly to PubMed without CT.gov registration. CT.gov returned no entries with posted 2x2 results panels suitable for primary-tier inclusion."
+    },
+    {
+      "query_string": "condition: 'COVID-19'; intervention: 'BinaxNOW' OR 'Standard Q' OR 'Panbio'; study type: observational",
+      "date_filter": "study_start >= 2020-01-01",
+      "raw_hits": 0,
+      "with_results_panel": 0,
+      "comment": "Brand-name searches returned post-marketing tracking trials with no posted DTA panels."
+    }
+  ],
+  "primary_tier_studies_from_ctgov": [],
+  "note": "Extraction relies on PubMed-abstract back-computation (see pubmed_covid_antigen_abstracts_2026-04-28.json). The dual-source two-tier structure used by the GeneXpert Ultra template is collapsed here into a PubMed-primary single tier because CT.gov returned no eligible records.",
+  "next_search": "2026-07-28"
+}
