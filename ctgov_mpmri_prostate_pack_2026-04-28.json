@@ -1,0 +1,29 @@
+{
+  "extracted_at": "2026-04-28",
+  "source": "ClinicalTrials.gov NIH/NLM API v2",
+  "queries": [
+    {
+      "query_string": "condition: 'prostate cancer'; intervention: 'multiparametric MRI' OR 'PI-RADS' OR 'mpMRI'; study type: observational diagnostic accuracy",
+      "date_filter": "study_start >= 2015-01-01 (PI-RADS v2 era)",
+      "raw_hits": 12,
+      "with_results_panel": 0,
+      "comment": "PI-RADS DTA studies are typically registered as imaging-trial protocols (PRECISION NCT02380027, PROMIS NCT01292291, MRI-FIRST NCT02485379, PRIMARY NCT04018911, PI-CAI NCT05489341) but the structured 2x2 results panel is rarely posted to CT.gov - results are published in the paired peer-reviewed paper. CT.gov returned 0 panels with extractable Sens/Spec for csPCa."
+    },
+    {
+      "query_string": "condition: 'prostate cancer'; intervention: 'magnetic resonance imaging' AND 'targeted biopsy'; study type: observational",
+      "date_filter": "study_start >= 2015-01-01",
+      "raw_hits": 38,
+      "with_results_panel": 0,
+      "comment": "Brand-/protocol-name searches returned biopsy-protocol trials (in-bore, fusion, cognitive); none post a 2x2 panel for csPCa detection."
+    }
+  ],
+  "primary_tier_studies_from_ctgov": [],
+  "linked_registrations": [
+    {"nctid": "NCT01292291", "trial": "PROMIS", "publication_pmid": "28110982", "comment": "registry entry exists, results-panel-not-posted; data extracted from Lancet 2017 abstract"},
+    {"nctid": "NCT02485379", "trial": "MRI-FIRST", "publication_pmid": "30470502", "comment": "registry entry exists, results-panel-not-posted; data extracted from Lancet Oncol 2018 abstract"},
+    {"nctid": "NCT05489341", "trial": "PI-CAI", "publication_pmid": "38876123", "comment": "registry entry exists, results-panel-not-posted; radiologist-arm Sens/Spec extracted from Lancet Oncol 2024 abstract"},
+    {"nctid": "NCT03149861", "trial": "Metser 18F-DCFPyL prostate PET/mpMR", "publication_pmid": "33846845", "comment": "registry entry exists, results-panel-not-posted; sensitivity-tier lesion-level data from EJNMMI 2021 abstract"}
+  ],
+  "note": "Extraction relies on PubMed-abstract back-computation (see pubmed_mpmri_prostate_abstracts_2026-04-28.json). The dual-source two-tier structure used by the GeneXpert Ultra template is collapsed here into a PubMed-primary single tier because CT.gov returned no eligible records.",
+  "next_search": "2026-07-28"
+}
