@@ -148,58 +148,6 @@ The generator uses `FINERENONE_REVIEW.html` as the v16 reference template and ap
 | `PUBLISHED_META_BENCHMARKS.json` | Reference values for validation |
 | `docs/superpowers/specs/` | Design specs and plans |
 
-## DTA review portfolio (3 reviews from a shared template)
-
-Three Diagnostic Test Accuracy (DTA) living reviews share a single `dta_template.html` plus per-topic JSON configs:
-
-```
-dta_template.html                         # shared template (~6,000 lines)
-topics/
-  _schema.md                              # config-field documentation
-  genexpert_ultra_tb.config.json          # GeneXpert Ultra (TB)
-  covid_antigen.config.json               # SARS-CoV-2 rapid antigen
-  mpmri_prostate.config.json              # multiparametric MRI (prostate)
-scripts/
-  build_dta_review.mjs                    # build script (vanilla Node, no deps)
-GENEXPERT_ULTRA_TB_DTA_REVIEW.html        # GENERATED -- do not edit by hand
-COVID_ANTIGEN_DTA_REVIEW.html             # GENERATED
-MPMRI_PROSTATE_DTA_REVIEW.html            # GENERATED
-```
-
-The shared engine, validator, and service worker (`rapidmeta-dta-engine-v1.js`, `webr-dta-validator.js`, `coi-serviceworker.js`) are unchanged for any topic.
-
-### Building all three reviews
-
-```bash
-npm run build:dta              # builds GeneXpert + COVID + mpMRI
-npm run build:dta:genexpert    # one topic only
-npm run test:dta               # 31 engine unit tests
-```
-
-Or directly:
-
-```bash
-node scripts/build_dta_review.mjs topics/genexpert_ultra_tb.config.json
-```
-
-### Adding a new DTA topic
-
-1. Copy an existing config (e.g. `topics/genexpert_ultra_tb.config.json`) to `topics/<new_slug>.config.json`.
-2. Edit topic-specific fields. Schema documented in `topics/_schema.md`. Critical fields:
-   - `topic_slug`, `output_filename`, `ls_prefix` (must be unique per topic)
-   - `tiers[]`, `default_tier_slug`, `all_tier_slug`
-   - `subgroups_axes[]`, `ext_choices`, `quadas_flags`, `screening_cards[]`
-   - `manuscript.*` strings
-   - `trials` (the embedded JSON dataset)
-3. Add a `build:dta:<slug>` line to `package.json` and chain it into `build:dta`.
-4. Run `npm run build:dta` and smoke-test the generated HTML in a browser.
-
-The build script enforces:
-- 0 unsubstituted `{{key}}` placeholders
-- Required fields fail-closed
-- Generated HTML reproduces existing functionality (17 tabs, edit mode, sign-off, JSON export)
-- Each topic has a unique localStorage prefix (no cross-talk between reviews)
-
 ## E156 Micro-Papers
 
 13 living MAs in this portfolio have E156 micro-paper drafts in `C:\E156\rewrite-workbook.txt` (entries 402-414): Omecamtiv, Sotagliflozin, Tezepelumab, Osimertinib, Enfortumab, KRAS-G12C, Pembro-Adj-Mel, Inclisiran, Antiplatelet-NMA, Dupilumab-COPD, Semaglutide-CKD, ARNI-HF, plus the portfolio itself.
