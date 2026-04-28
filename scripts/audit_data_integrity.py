@@ -25,7 +25,7 @@ Usage:
 import argparse, os, re, json, sys, io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
-ROOT = r'C:\Projects\Finrenone'
+ROOT = os.environ.get('RAPIDMETA_REPO_ROOT', os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Match a top-level NCT key inside realData. realData entries look like:
 #   'NCT01234567': {

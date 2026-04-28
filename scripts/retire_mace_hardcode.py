@@ -26,7 +26,7 @@ lookups silently.
 """
 import argparse, os, re, sys
 
-ROOT = r'C:\Projects\Finrenone'
+ROOT = os.environ.get('RAPIDMETA_REPO_ROOT', os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Pattern 1: outcomes.find(o => o.shortLabel === 'MACE') -> outcomes[0]
 # Match common variations:

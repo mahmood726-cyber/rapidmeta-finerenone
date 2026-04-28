@@ -37,9 +37,9 @@ Config schema:
       "extra_replaces": [["old", "new"], ...]   # any file-specific tweaks
     }
 """
-import argparse, json, os, re, sys, shutil
+import argparse, os, json, os, re, sys, shutil
 
-ROOT = r'C:\Projects\Finrenone'
+ROOT = os.environ.get('RAPIDMETA_REPO_ROOT', os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 def js_escape(s):

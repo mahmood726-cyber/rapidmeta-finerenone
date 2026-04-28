@@ -15,7 +15,7 @@ Usage:
 """
 import argparse, os, re, sys
 
-ROOT = r'C:\Projects\Finrenone'
+ROOT = os.environ.get('RAPIDMETA_REPO_ROOT', os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Match 2+ consecutive identical pmid declarations and replace with a single one.
 # Capture the first declaration; backreference enforces "same value".

@@ -12,7 +12,7 @@ Usage:
 """
 import argparse, os, re, sys
 
-ROOT = r'C:\Projects\Finrenone'
+ROOT = os.environ.get('RAPIDMETA_REPO_ROOT', os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # The 20 pairwise reviews flagged NEEDS_FIX by the audit.
 TARGETS = [

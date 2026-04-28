@@ -12,7 +12,7 @@ Usage:
 """
 import argparse, os, re, sys
 
-ROOT = r'C:\Projects\Finrenone'
+ROOT = os.environ.get('RAPIDMETA_REPO_ROOT', os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Per-file correct PICO. Each tuple is (pop, int, comp, out, subgroup).
 # Sourced from each dashboard's actual trial(s) — primary endpoints per protocol/SAP.

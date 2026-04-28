@@ -17,7 +17,7 @@ Usage:
 """
 import argparse, os, re, sys
 
-ROOT = r'C:\Projects\Finrenone'
+ROOT = os.environ.get('RAPIDMETA_REPO_ROOT', os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 NEW_BLOCK = """// Walk realData[*].allOutcomes once; dedupe by shortLabel; centralise the
             // per-trial outcome metadata so outcomeLabel + _outcomeNamesMap produce

@@ -19,7 +19,7 @@ Usage:
 """
 import argparse, os, re, sys
 
-ROOT = r'C:\Projects\Finrenone'
+ROOT = os.environ.get('RAPIDMETA_REPO_ROOT', os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 CARDIO_KEYWORDS = (
     'arni_hf', 'mavacamten_hcm', 'aficamten', 'attr_cm', 'iv_iron_hf',
