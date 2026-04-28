@@ -10042,42 +10042,56 @@ const ContinuousMDEngine = {
             },
 
 
+            // Walk realData[*].allOutcomes once; dedupe by shortLabel; centralise the
+            // per-trial outcome metadata so outcomeLabel + _outcomeNamesMap produce
+            // dashboard-correct labels from the same source of truth that drives the
+            // analysis pipeline. Replaces the prior hardcoded cardiology map.
+            _derivedOutcomeMap() {
+                const map = new Map();
+                const real = this.realData ?? {};
+                for (const id of Object.keys(real)) {
+                    const outcomes = real[id]?.allOutcomes ?? [];
+                    for (const o of outcomes) {
+                        const key = o.shortLabel;
+                        if (!key) continue;
+                        if (!map.has(key)) {
+                            map.set(key, { shortLabel: key, title: o.title ?? key, type: o.type ?? '', count: 0 });
+                        }
+                        map.get(key).count += 1;
+                    }
+                }
+                return map;
+            },
+
+
             outcomeLabel(key) {
+                const m = this._derivedOutcomeMap();
+                if (key === 'default' || key == null || key === '') {
+                    const entries = [...m.values()].sort((a, b) => b.count - a.count);
+                    if (entries.length > 0) return entries[0].title;
+                    return 'Primary outcome';
+                }
+                const e = m.get(String(key));
+                if (e) return e.title;
+                return String(key);
+            },
 
 
-                const map = {
-
-
-                    default: 'Matched CV Composite (default)',
-
-
-                    MACE: 'CV Composite (CV Death, Nonfatal MI, Nonfatal Stroke, HF Hospitalization)',
-
-
-                    HF_CV_First: 'HF First Event or CV Death',
-
-
-                    
-
-
-                    
-
-
-                    ACM: 'All-Cause Mortality',
-
-
-                    ACH: 'HF Hospitalization',
-
-
-                    
-
-
-                };
-
-
-                return map[key] ?? String(key ?? 'default');
-
-
+            // Replaces the previous inline cardiology-flavoured `outcomeNames` literal
+            // at the SoF render site. Shape: { [shortLabel]: [shortLabel, title], default: [...] }
+            _outcomeNamesMap() {
+                const map = this._derivedOutcomeMap();
+                const out = {};
+                for (const e of map.values()) {
+                    out[e.shortLabel] = [e.shortLabel, e.title];
+                }
+                const entries = [...map.values()].sort((a, b) => b.count - a.count);
+                if (entries.length > 0) {
+                    out.default = [entries[0].shortLabel, entries[0].title];
+                } else {
+                    out.default = ['Primary outcome', 'Trial-registered primary outcome'];
+                }
+                return out;
             },
 
 
@@ -38684,7 +38698,10 @@ print(res_sub)`;
                 const outcomeKey = RapidMeta.state.selectedOutcome ?? 'default';
 
 
-                const outcomeNames = { default: ['Matched CV Composite', 'CV death, MI, stroke, or HF hospitalization across cardiovascular death or heart failure hospitalization across pooled HF trials'], LDLC: ['% LDL-C Reduction', 'Mean percentage change in LDL-cholesterol from baseline'], MACE: ['CV Composite', 'CV death, MI, stroke, or HF hospitalization'], HF_CV_First: ['HF First Event or CV Death', 'First worsening HF event or CV death (trial-specific)'], Renal40: ['Renal Composite', 'Kidney failure, \u226540% eGFR decline, or renal death'], KidneyComp: ['Kidney Composite', 'Trial-specific kidney composite outcome (trial-specific)'], Renal57: ['Renal Composite', 'Kidney failure, \u226557% eGFR decline'], ACM: ['All-Cause Mortality', 'Death from any cause'], ACH: ['HF Hospitalization', 'Hospitalization for heart failure'], Hyperkalemia: ['Hyperkalemia', 'Serum potassium \u22655.5 mmol/L'] };
+                // Data-driven from realData[*].allOutcomes (per-dashboard outcome metadata).
+                // Replaces a hardcoded cardiology-flavoured map that leaked HF/MI/stroke
+                // descriptors into non-cardio dashboards' SoF table.
+                const outcomeNames = RapidMeta._outcomeNamesMap();
 
 
                 const [ocName, ocDesc] = outcomeNames[outcomeKey] ?? [outcomeKey, ''];
