@@ -5838,7 +5838,16 @@ const ContinuousMDEngine = {
             /* Known acronyms for trials whose CT.gov search may not return the acronym field */
 
 
-            nctAcronyms: { 'NCT03525613': 'OAKS', 'NCT03525600': 'OAKS' },
+            nctAcronyms: { 'NCT03525600': 'OAKS', 'NCT03525613': 'DERBY' },
+
+
+            // Trials known to be ineligible for pooling. Screening flows can read this
+            // map to auto-exclude with a documented reason. Currently used for cosmetic
+            // exclusion documentation; consumers (CT.gov ingest, screening UI) can wire
+            // to it as needed.
+            seedExcludedNCTs: {
+                'NCT04770545': { acronym: 'GALE', reason: 'Open-label extension of OAKS + DERBY; patients roll over from the pivotal RCTs, so pooling GALE alongside would double-count. Per ICH E9 and Cochrane guidance, the extension cohort is captured by the long-term follow-up of OAKS/DERBY (Liao 2023 Lancet 24-mo analysis).' }
+            },
 
 
             _allowedSources: new Set(['registry', 'pubmed', 'openalex', 'reference', 'manual']),
@@ -6849,7 +6858,7 @@ const ContinuousMDEngine = {
             realData: {
 
 
-                'NCT03525613': {
+                'NCT03525600': {
 
 
                     name: 'OAKS', pmid: '37865470', phase: 'III', year: 2023, tE: null, tN: 202, cE: null, cN: 213, group: 'GA secondary to AMD, pegcetacoplan 15 mg intravitreal monthly vs sham (12 mo, GA lesion growth)', publishedHR: null,
@@ -6873,7 +6882,7 @@ const ContinuousMDEngine = {
                     sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(23)01578-0/fulltext',
 
 
-                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03525613',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03525600',
 
 
                     evidence: [
@@ -6897,10 +6906,10 @@ const ContinuousMDEngine = {
                 },
 
 
-                'NCT03525600': {
+                'NCT03525613': {
 
 
-                    name: 'DERBY', pmid: '37865470',  pmid: '37865470', phase: 'III', year: 2023, tE: null, tN: 206, cE: null, cN: 208, group: 'GA secondary to AMD, pegcetacoplan monthly vs sham (12 mo, GA lesion growth, replicate pivotal)', publishedHR: null,
+                    name: 'DERBY', pmid: '37865470', phase: 'III', year: 2023, tE: null, tN: 206, cE: null, cN: 208, group: 'GA secondary to AMD, pegcetacoplan monthly vs sham (12 mo, GA lesion growth, replicate pivotal)', publishedHR: null,
 
 
                     allOutcomes: [
@@ -6921,7 +6930,7 @@ const ContinuousMDEngine = {
                     sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(23)01578-0/fulltext',
 
 
-                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03525600',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03525613',
 
 
                     evidence: [
@@ -6945,37 +6954,6 @@ const ContinuousMDEngine = {
                 },
 
 
-                'NCT03525600': {
-
-
-                    name: 'OAKS', phase: 'III', year: 2023, tE: 0, tN: 213, cE: 0, cN: 204, group: 'GA secondary to AMD, pegcetacoplan 15 mg IVT monthly vs sham (12-mo GA lesion growth MD)', publishedHR: -0.59, hrLCI: -0.92, hrUCI: -0.26,
-
-
-                    allOutcomes: [
-
-
-                        { shortLabel: 'MACE', title: 'Mean difference in GA lesion area change at month 12 (sqrt mm^2, MD)', tE: 0, cE: 0, type: 'PRIMARY', matchScore: 95, effect: -0.59, lci: -0.92, uci: -0.26, estimandType: 'MD' }
-
-
-                    ],
-
-
-                    rob: ['low', 'some concerns', 'low', 'low', 'low'],
-
-
-                    snippet: 'Source: Heier JS et al. Lancet 2023;402:1434-1448 (OAKS, parallel to DERBY).',
-
-
-                    sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(23)01520-9/fulltext',
-
-
-                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03525600',
-
-
-                    evidence: []
-
-
-                }
 
 
 },
