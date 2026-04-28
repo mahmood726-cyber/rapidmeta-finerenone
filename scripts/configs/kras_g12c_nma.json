@@ -1,0 +1,65 @@
+{
+  "base": "C:\\Projects\\Finrenone\\RCC_1L_NMA_REVIEW.html",
+  "out":  "C:\\Projects\\Finrenone\\KRAS_G12C_NMA_REVIEW.html",
+
+  "title": "RapidMeta Oncology | KRAS G12C Inhibitors in Pretreated KRAS-G12C-Mutated Advanced NSCLC NMA v1.0",
+  "hero_h2": "KRAS G12C Inhibitors in Pretreated KRAS-G12C+ Advanced NSCLC",
+  "nyt_headline": "The KRAS G12C Inhibitor Evidence",
+
+  "auto_include_ncts": ["NCT04303780", "NCT04685135"],
+  "nct_acronyms": { "NCT04303780": "CodeBreaK 200", "NCT04685135": "KRYSTAL-12" },
+
+  "localstorage_old": "rapid_meta_io_chemo_nsclc_1l_v1_0",
+  "localstorage_new": "rapid_meta_kras_g12c_nma_v1_0",
+
+  "pico": {
+    "pop":      "Adults with KRAS-G12C-mutated locally advanced unresectable or metastatic NSCLC after >=1 prior line of platinum-based chemotherapy and PD-(L)1 inhibitor",
+    "int":      "Sotorasib 960 mg PO QD or Adagrasib 600 mg PO BID (oral KRAS-G12C inhibitors)",
+    "comp":     "Docetaxel 75 mg/m2 IV every 3 weeks",
+    "out":      "Investigator-assessed progression-free survival (primary in both pivotal trials); overall survival (key secondary)",
+    "subgroup": "Prior PD-(L)1 line, brain metastases, ECOG PS, CNS metastases status"
+  },
+
+  "real_data_entries": [
+    {
+      "nct": "NCT04303780",
+      "name": "CodeBreaK 200",
+      "pmid": "37582415",
+      "phase": "III",
+      "year": 2023,
+      "tE": 0, "tN": 171, "cE": 0, "cN": 174,
+      "group": "KRAS-G12C+ pretreated NSCLC, sotorasib 960 mg PO QD vs docetaxel (PFS primary)",
+      "publishedHR": 0.66, "hrLCI": 0.51, "hrUCI": 0.86,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "Investigator-assessed PFS (primary; HR vs docetaxel)", "tE": 0, "cE": 0, "type": "PRIMARY", "matchScore": 95, "effect": 0.66, "lci": 0.51, "uci": 0.86, "estimandType": "HR"},
+        {"shortLabel": "OS", "title": "Overall survival (key secondary; HR)", "type": "BINARY", "tE": 0, "cE": 0, "matchScore": 88, "effect": 1.01, "lci": 0.77, "uci": 1.33, "estimandType": "HR"},
+        {"shortLabel": "ORR", "title": "Confirmed objective response rate (RR vs docetaxel)", "type": "BINARY", "tE": 47, "cE": 23, "matchScore": 80, "effect": 2.08, "lci": 1.32, "uci": 3.27, "estimandType": "RR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Johnson ML et al. Lancet Oncol 2023;24:1093-1106 (CodeBreaK 200).",
+      "sourceUrl": "https://www.thelancet.com/journals/lanonc/article/PIIS1470-2045(23)00306-7/fulltext",
+      "evidence": []
+    },
+    {
+      "nct": "NCT04685135",
+      "name": "KRYSTAL-12",
+      "pmid": "38937977",
+      "phase": "III",
+      "year": 2024,
+      "tE": 0, "tN": 301, "cE": 0, "cN": 152,
+      "group": "KRAS-G12C+ pretreated NSCLC, adagrasib 600 mg PO BID vs docetaxel (PFS primary)",
+      "publishedHR": 0.58, "hrLCI": 0.45, "hrUCI": 0.76,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "Investigator-assessed PFS (primary; HR vs docetaxel)", "tE": 0, "cE": 0, "type": "PRIMARY", "matchScore": 95, "effect": 0.58, "lci": 0.45, "uci": 0.76, "estimandType": "HR"},
+        {"shortLabel": "OS", "title": "Overall survival (key secondary; HR; immature)", "type": "BINARY", "tE": 0, "cE": 0, "matchScore": 80, "effect": 0.84, "lci": 0.62, "uci": 1.13, "estimandType": "HR"},
+        {"shortLabel": "ORR", "title": "Confirmed objective response rate (RR vs docetaxel)", "type": "BINARY", "tE": 96, "cE": 14, "matchScore": 80, "effect": 3.46, "lci": 2.05, "uci": 5.84, "estimandType": "RR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Tan DSW et al. (KRYSTAL-12) — ESMO 2024 plenary; manuscript in publication.",
+      "sourceUrl": "https://www.annalsofoncology.org/article/S0923-7534(24)03739-2/fulltext",
+      "evidence": []
+    }
+  ],
+
+  "extra_replaces": []
+}
