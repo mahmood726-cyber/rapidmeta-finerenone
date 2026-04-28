@@ -246,3 +246,44 @@ the GeneXpert methodRefs list, no additional Crossref check needed.)
 - **Citation-swap risk audit (lessons.md 2026-04-16):** None. The 3 new substantive citations all match the project's topic (Cochrane DTA reviews of Xpert Ultra; Bayesian latent-class meta-analysis with named application to TB pleuritis). Author surnames spot-checked against Crossref author arrays; first-author family names match in all 3 cases.
 - **Spec note correction:** the polish brief listed Zifodya 2022 with DOI `CD009593.pub6`, but `pub6` is the 2025 update by Horne et al. — Zifodya 2022 is `pub5`. Both are cited so the substantive comparator plus most-recent update are present; the in-page text reflects this.
 
+
+## p-tau217 AD — 5th DTA review (2026-04-28)
+
+5th DTA review build (clone-and-stamp from COVID antigen post-Path-B template).
+DOIs verified via the same `curl -sIL --max-time 15` -> UA fallback -> Crossref
+pipeline. 9 unique DOIs across the included studies + substantive-comparator
+references and the new Dendukuri 2012 latent-class meta-analysis ref.
+
+| # | DOI                                       | Plain HEAD | UA HEAD | Crossref     | Verdict       | Source                                      |
+|---|-------------------------------------------|-----------:|--------:|:------------:|:-------------:|:--------------------------------------------|
+| 1 | 10.1001/jama.2020.12134                   |        200 |       — |     —        | resolves      | Palmqvist 2020 (BIOFINDER-2 PET, Lilly MSD) |
+| 2 | 10.1001/jamaneurol.2023.5319              |        200 |       — |     —        | resolves      | Ashton 2024 (ALZpath multicohort, C2N)      |
+| 3 | 10.1001/jamaneurol.2021.2293              |        200 |       — |     —        | resolves      | Mielke 2021 (MCSA population-based)         |
+| 4 | 10.1038/s41591-020-0755-1                 |        200 |       — |     —        | resolves      | Janelidze 2020 (BIOFINDER-1, Lilly MSD)     |
+| 5 | 10.1038/s43587-023-00405-1                |        200 |       — |     —        | resolves      | Brum 2023 (BIOFINDER-2 + Wisconsin two-step)|
+| 6 | 10.1212/WNL.0000000000209589              |        200 |       — |     —        | resolves      | Brand 2024 IPD-MA (substantive comparator)  |
+| 7 | 10.1002/alz.13859                         |        200 |       — |     —        | resolves      | Jack 2024 NIA-AA criteria                   |
+| 8 | 10.1038/s41582-024-00966-8                |        200 |       — |     —        | resolves      | Schindler 2024 CEO Initiative               |
+| 9 | 10.1111/j.1541-0420.2012.01773.x          |        200 |       — |     —        | resolves      | Dendukuri 2012 (latent-class MA, v1.2)      |
+
+(Methods/software references — Reitsma 2005, Harbord 2007, QUADAS-2 / Whiting 2011,
+Sweeting 2004, PRISMA-DTA / McInnes 2018, mada CRAN — already verified in
+the GeneXpert + COVID + mpMRI + DDIMER methodRefs lists, no additional Crossref
+check needed.)
+
+### p-tau217 AD round summary
+
+- **New DOIs verified:** 5/5 included-study DOIs (Palmqvist 2020, Ashton 2024,
+  Mielke 2021, Janelidze 2020, Brum 2023) — all Crossref-registered.
+- **New substantive-comparator DOIs:** 3/3 (Brand 2024, Jack 2024, Schindler 2024)
+  — all resolve via the JAMA/Wiley/Springer Nature publishing pipelines.
+- **New methods-ref DOI:** 1/1 (Dendukuri 2012, Wiley Online Library) — used for
+  the imperfect-reference-standard latent-class framework deferred to v1.2.
+- **Broken:** 0.
+- **Citation-swap risk audit (lessons.md 2026-04-16):** None. All 5 included
+  studies are cornerstone publications in the plasma p-tau217 literature
+  (BIOFINDER-1/-2, ALZpath validation, MCSA, two-step workflow); first-author
+  surnames match Crossref author arrays. Brand 2024 is the IPD-MA citation;
+  Jack 2024 is the NIA-AA workgroup paper; Schindler 2024 is the CEO Initiative
+  performance-bar paper. Dendukuri 2012 has the named TB-pleuritis application
+  but the Bayesian latent-class framework is the methodological reference.
