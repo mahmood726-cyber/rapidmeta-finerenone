@@ -1,0 +1,67 @@
+{
+  "base": "C:\\Projects\\Finrenone\\DUPILUMAB_COPD_REVIEW.html",
+  "out":  "C:\\Projects\\Finrenone\\ENSIFENTRINE_COPD_REVIEW.html",
+
+  "title": "RapidMeta Respiratory | Ensifentrine for COPD (PDE3/4 Inhibitor) v1.0",
+  "hero_h2": "Ensifentrine in Moderate-to-Severe COPD",
+  "nyt_headline": "The Ensifentrine Evidence",
+
+  "auto_include_ncts": ["NCT04535986", "NCT04542057"],
+  "nct_acronyms": { "NCT04535986": "ENHANCE-1", "NCT04542057": "ENHANCE-2" },
+
+  "localstorage_old": "rapid_meta_dupi_copd_v1_0",
+  "localstorage_new": "rapid_meta_ensifentrine_copd_v1_0",
+
+  "pico": {
+    "pop":      "Adults with moderate-to-severe COPD (post-bronchodilator FEV1 30-70% predicted), symptomatic (CAT >=10), on background bronchodilator(s)",
+    "int":      "Ensifentrine 3 mg BID (nebulized PDE3/4 dual inhibitor)",
+    "comp":     "Placebo on top of background therapy",
+    "out":      "Annualized rate of moderate-or-severe COPD exacerbations over 24 weeks",
+    "subgroup": "Background therapy (LAMA mono vs LAMA+LABA vs triple), eosinophil count, smoking status"
+  },
+
+  "real_data_entries": [
+    {
+      "nct": "NCT04535986",
+      "name": "ENHANCE-1",
+      "pmid": "37938943",
+      "phase": "III",
+      "year": 2024,
+      "tE": 116, "tN": 380, "cE": 182, "cN": 380,
+      "group": "Moderate-severe COPD on stable background therapy, ensifentrine 3 mg BID nebulized vs placebo (24 wk, exacerbation rate ratio)",
+      "publishedHR": 0.64, "hrLCI": 0.50, "hrUCI": 0.81,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "Annualized moderate/severe COPD exacerbation rate (primary; 24 wk, RR vs placebo)", "tE": 116, "cE": 182, "type": "PRIMARY", "matchScore": 95, "effect": 0.64, "lci": 0.50, "uci": 0.81, "estimandType": "RR"},
+        {"shortLabel": "FEV1_peak", "title": "Peak FEV1 change at week 12 (mL, MD vs placebo)", "type": "CONTINUOUS", "md": 87, "se": 16}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Anzueto AB et al. Am J Respir Crit Care Med 2024;209:824-834 (ENHANCE-1).",
+      "sourceUrl": "https://www.atsjournals.org/doi/10.1164/rccm.202306-1119OC",
+      "evidence": []
+    },
+    {
+      "nct": "NCT04542057",
+      "name": "ENHANCE-2",
+      "pmid": "37938943",
+      "phase": "III",
+      "year": 2024,
+      "tE": 105, "tN": 395, "cE": 184, "cN": 394,
+      "group": "Moderate-severe COPD on stable background therapy, ensifentrine 3 mg BID nebulized vs placebo (24 wk, replicate of ENHANCE-1)",
+      "publishedHR": 0.57, "hrLCI": 0.45, "hrUCI": 0.73,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "Annualized moderate/severe COPD exacerbation rate (primary; 24 wk, RR vs placebo)", "tE": 105, "cE": 184, "type": "PRIMARY", "matchScore": 95, "effect": 0.57, "lci": 0.45, "uci": 0.73, "estimandType": "RR"},
+        {"shortLabel": "FEV1_peak", "title": "Peak FEV1 change at week 12 (mL, MD vs placebo)", "type": "CONTINUOUS", "md": 94, "se": 16}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Anzueto AB et al. Am J Respir Crit Care Med 2024;209:824-834 (ENHANCE-2, replicate pivotal).",
+      "sourceUrl": "https://www.atsjournals.org/doi/10.1164/rccm.202306-1119OC",
+      "evidence": []
+    }
+  ],
+
+  "extra_replaces": [
+    ["The Dupilumab Evidence in COPD", "The Ensifentrine Evidence in COPD"],
+    ["Dupilumab (anti-IL-4Ra biologic)", "Ensifentrine (nebulized PDE3/4 dual inhibitor, 3 mg BID)"],
+    ["dupilumab", "ensifentrine"]
+  ]
+}
