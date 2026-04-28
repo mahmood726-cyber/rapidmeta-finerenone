@@ -1,9 +1,14 @@
 {
   "name": "finrenone-tailwind-build",
   "private": true,
-  "description": "Local Tailwind build to replace cdn.tailwindcss.com on shipped Pages.",
+  "description": "Local Tailwind build + DTA-review build script.",
   "scripts": {
-    "build:css": "tailwindcss -i tailwind.input.css -o tailwind.min.css --minify"
+    "build:css": "tailwindcss -i tailwind.input.css -o tailwind.min.css --minify",
+    "build:dta": "node scripts/build_dta_review.mjs topics/genexpert_ultra_tb.config.json && node scripts/build_dta_review.mjs topics/covid_antigen.config.json && node scripts/build_dta_review.mjs topics/mpmri_prostate.config.json",
+    "build:dta:genexpert": "node scripts/build_dta_review.mjs topics/genexpert_ultra_tb.config.json",
+    "build:dta:covid": "node scripts/build_dta_review.mjs topics/covid_antigen.config.json",
+    "build:dta:mpmri": "node scripts/build_dta_review.mjs topics/mpmri_prostate.config.json",
+    "test:dta": "node tests/test_dta_engine.mjs"
   },
   "devDependencies": {
     "tailwindcss": "^3.4.4"
