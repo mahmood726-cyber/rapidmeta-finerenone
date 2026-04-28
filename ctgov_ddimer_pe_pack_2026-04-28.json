@@ -1,0 +1,29 @@
+{
+  "extracted_at": "2026-04-28",
+  "source": "ClinicalTrials.gov NIH/NLM API v2",
+  "queries": [
+    {
+      "query_string": "condition: 'pulmonary embolism'; intervention: 'D-dimer' OR 'D dimer'; study type: observational diagnostic accuracy",
+      "date_filter": "study_start >= 2010-01-01 (post-Christopher era; covers ADJUST-PE 2014, YEARS 2017, PEGeD 2019, ADJUST-validation 2019)",
+      "raw_hits": 23,
+      "with_results_panel": 0,
+      "comment": "PE-rule-out DTA studies are typically registered as management-outcome trials (ADJUST-PE NCT01134068, YEARS NCT02365129, PEGeD NCT02384135, ADJUST-validation NCT01624285) but the structured 2x2 results panel is rarely posted to CT.gov - results are published in the paired peer-reviewed paper. CT.gov returned 0 panels with extractable Sens/Spec for PE."
+    },
+    {
+      "query_string": "condition: 'pulmonary embolism'; intervention: 'CT pulmonary angiography' AND 'D-dimer'; study type: observational",
+      "date_filter": "study_start >= 2010-01-01",
+      "raw_hits": 47,
+      "with_results_panel": 0,
+      "comment": "Imaging-protocol trials (CTPA radiation reduction, V/Q vs CTPA); none post a 2x2 panel for PE rule-out via D-dimer."
+    }
+  ],
+  "primary_tier_studies_from_ctgov": [],
+  "linked_registrations": [
+    {"nctid": "NCT02365129", "trial": "YEARS", "publication_pmid": "28549662", "comment": "registry entry exists, results-panel-not-posted; data extracted from Lancet 2017 abstract"},
+    {"nctid": "NCT01134068", "trial": "ADJUST-PE", "publication_pmid": "24643601", "comment": "registry entry exists, results-panel-not-posted; data extracted from JAMA 2014 abstract (age-adjusted cutoff arm)"},
+    {"nctid": "NCT02384135", "trial": "PEGeD", "publication_pmid": "31509672", "comment": "registry entry exists, results-panel-not-posted; FN=0 in management arm extracted from NEJM 2019 abstract"},
+    {"nctid": "NCT01624285", "trial": "ADJUST-validation (Wells + age-adjusted)", "publication_pmid": "29669607", "comment": "registry entry exists, results-panel-not-posted; data extracted from Lancet Haematol 2019 abstract"}
+  ],
+  "note": "Extraction relies on PubMed-abstract back-computation (see pubmed_ddimer_pe_abstracts_2026-04-28.json). The dual-source two-tier structure used by the GeneXpert Ultra template is collapsed here into a PubMed-primary single tier because CT.gov returned no eligible records. Christopher Study (van Belle 2006) and Theunissen 2017 are not registered on CT.gov.",
+  "next_search": "2026-07-28"
+}
