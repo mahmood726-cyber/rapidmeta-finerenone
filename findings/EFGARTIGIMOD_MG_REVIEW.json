@@ -1,25 +1,25 @@
 {
-  "app": "VENETOCLAX_AML_REVIEW.html",
-  "timestamp": "2026-04-28T23:00:30.515Z",
-  "durationMs": 3944,
+  "app": "EFGARTIGIMOD_MG_REVIEW.html",
+  "timestamp": "2026-04-28T22:53:36.090Z",
+  "durationMs": 3843,
   "state": {
-    "k": 2,
-    "or": "0.77",
+    "k": 1,
+    "or": "2.21",
     "i2": "0.0",
     "tau2": 0,
-    "remlSensitivity": true,
+    "remlSensitivity": false,
     "robSummary": {
       "high": 0,
       "someConcerns": 0,
-      "low": 10,
+      "low": 5,
       "unclear": 0
     },
     "isCompleteUniverse": true,
-    "totalAvailable": 2,
-    "includedCount": 2,
-    "searchResultCount": 160,
-    "nnt": 6.027904215317633,
-    "absoluteRisk": 0.16589513772612363,
+    "totalAvailable": 1,
+    "includedCount": 1,
+    "searchResultCount": 132,
+    "nnt": 2.7362637362637368,
+    "absoluteRisk": -0.36546184738955817,
     "patientReportedOutcomes": {
       "count": 0,
       "scales": [],
@@ -36,7 +36,7 @@
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Evidence base is complete but small (k=1 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
           "Prediction interval not definable for k<3; flag as boundary condition."
         ],
         "recommendation": "Minor revision"
@@ -44,13 +44,15 @@
       {
         "role": "Clinical expert",
         "concerns": [
-          "k<3 - NNT ≈ 6 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
+          "k<3 - NNT ≈ 3 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
         ],
         "recommendation": "Accept with minor revision"
       },
       {
         "role": "Biostatistician",
-        "concerns": [],
+        "concerns": [
+          "DL estimator under-estimates τ² for k<10; add REML/Paule-Mandel sensitivity."
+        ],
         "recommendation": "Accept with minor revision"
       },
       {
