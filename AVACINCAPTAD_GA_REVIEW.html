@@ -28536,13 +28536,13 @@ const ContinuousMDEngine = {
                 const trials = s.trials ?? [];
 
 
-                const ctgovN = searchLog.filter(l => l.source === 'registry').reduce((a, l) => a + (l.count ?? 0), 0);
+                const ctgovN = Math.max(searchLog.filter(l => l.source === 'registry').reduce((a, l) => a + (l.count ?? 0), 0), trials.filter(t => t.source === 'registry').length);
 
 
-                const pubmedN = searchLog.filter(l => l.source === 'pubmed').reduce((a, l) => a + (l.count ?? 0), 0);
+                const pubmedN = Math.max(searchLog.filter(l => l.source === 'pubmed').reduce((a, l) => a + (l.count ?? 0), 0), trials.filter(t => t.source === 'pubmed').length);
 
 
-                const oaN = searchLog.filter(l => l.source === 'openalex').reduce((a, l) => a + (l.count ?? 0), 0);
+                const oaN = Math.max(searchLog.filter(l => l.source === 'openalex').reduce((a, l) => a + (l.count ?? 0), 0), trials.filter(t => t.source === 'openalex').length);
 
 
                 const landmarkN = trials.filter(t => t.source === 'reference').length;
