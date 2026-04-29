@@ -496,3 +496,86 @@ Tally:
    corrections in this repo — only the HTML-embedded JSON dataset is
    authoritative. The auto-revert mechanism should be identified and
    disabled before any wider citation re-write.
+
+
+## 5 deferred D-dimer misattributions resolved (2026-04-29 follow-up)
+
+Per user `commit, then resolve` directive after the T35 stop-condition BLOCK.
+PubMed citation lookup + metadata verification used to verify each item before
+edit, per p-tau217 fallback hierarchy: (a) keep DOI, relabel honestly; (b) swap
+to verified-correct DOI/PMID; (c) drop citation if no verifiable source exists.
+
+| # | Citation | Resolution | Verified via |
+|---|---|---|---|
+| 8 | PEGeD-Kearon 2019 PMID | **Fix (b)**: 31509672 → 31774957. PMID 31509672 resolved to Weinstein 2019 NEJM Perspective on parenting during medical training. Correct PMID for Kearon 2019 PEGeD validation NEJM 381:2125-2134 is 31774957. DOI 10.1056/NEJMoa1909159 was already correct. Applied to HTML included-study dataset (line ~1315 + ~4533) and to standalone `ddimer_pe_trials.json` line 73. | PubMed `lookup_article_by_citation` returned PMID 31774957 for `(Kearon, NEJM, 2019, vol 381)`. `get_article_metadata` confirmed title "Diagnosis of Pulmonary Embolism with d-Dimer Adjusted to Clinical Probability", PEGeD strategy, NCT02384135. |
+| 9 | van Es 2017 IPD-meta | **Fix (b) — substantial**: full re-attribution. Old: studlab "van Es 2017", DOI `10.7326/M16-0676` (not Crossref-registered), PMID 28492859 (resolved to EpiPen paper), claimed n=14,256 / k=11. Verified-correct: studlab "van Es 2016", DOI `10.7326/M16-0031`, PMID 27182696, **actual n=7,268 / k=6**. The cited n/k figures were fabricated (or sourced from a non-existent paper); the only verifiable van Es Wells+D-dimer IPD-MA in PubMed is the 2016 Ann Intern Med paper with k=6 cohorts. Applied to HTML in 8 places (Methods, Discussion, Limitations, Reference list, excluded-card, abstract block, JS narrative strings, prelim/cert footnotes). | PubMed `lookup_article_by_citation` returned PMID 27182696 for `(van Es, Ann Intern Med, 2016)`. `get_article_metadata` confirmed: title "Wells Rule and d-Dimer Testing to Rule Out Pulmonary Embolism: A Systematic Review and Individual-Patient Data Meta-analysis", n=7268 from 6 cohorts, year 2016 (not 2017), volume 165(4):253-261. |
+| 10 | "Kearon 2017 PEGeD derivation" | **Fix (c) — drop**: no verifiable paper. DOI `10.7326/M16-1718` not Crossref-registered, PMID 28384749 resolved to MacGregor "Migraine" Ann Intern Med 2017 review (not DVT/PEGeD). PubMed search for the title/authors/year returned 0 results. The PEGeD strategy was derived inside the same Kearon 2019 NEJM validation paper (the post-hoc analyses section), not in a separate prior derivation paper. Excluded-card removed from screening dataset. Narrative reference in PRISMA flow `~5+` excluded-with-reasons summary also removed. | PubMed `search_articles` for `Kearon C 2017 D-dimer pretest probability pulmonary embolism derivation` and variants returned 0 matching results. |
+| 11 | "Cancer-PE D-dimer cohort 2023" | **Fix (c) — drop**: placeholder. PMID 37247551 resolved to Alvarez-Ayuso 2023 J Environ Manage paper on antimony mine waste stabilization. The HTML had `authors: 'Various authors'` which is the LLM-fabrication signature. Excluded-card removed; the active-cancer exclusion remains protocolised in the narrative without a fake citation. | PubMed `get_article_metadata` for PMID 37247551 returned environmental engineering paper with no D-dimer/PE content. |
+| 12 | "Methodology / commentary 2016" | **Fix (c) — drop**: placeholder. PMID 27693997 resolved to Erro 2016 Brain Cogn paper on mental rotation in musicians' dystonia. The HTML had `authors: 'Methodology authors'` which is the LLM-fabrication signature. Excluded-card removed; the management-outcome design rationale in Methods stands on its own without a fake methodology citation. | PubMed `get_article_metadata` for PMID 27693997 returned neuroscience paper with no D-dimer/PE content. |
+
+### Excluded-card count: 6 → 3
+
+After resolution: van Es 2016 (real, IPD-MA), Freund 2018 PROPER (real, PERC trial),
+Righini 2018 CT-PE-Pregnancy (real, pregnancy cohort). PRISMA flow updated:
+"Full-text assessed for eligibility ~9 (6 included + 3 excluded)" / "Excluded with
+reasons 3" (was "~11" / "~5+").
+
+### Engine + tests
+- **Engine**: 31/31 node test pass after all edits.
+- **Sentinel**: 0 BLOCK introduced.
+- **Div balance**: 365/362 (3-div delta is a JS-string `<div` artifact present
+  identically in all 5 DTA review files — not a structural issue).
+
+### Aggregate portfolio integrity result
+
+After this resolution round:
+
+| Review | DOI/PMID misattributions | Status |
+|---|---|---|
+| GeneXpert TB | 1 | **CLEAN** (1/1 fixed) |
+| COVID antigen | 3 | **CLEAN** (3/3 fixed) |
+| mpMRI prostate | 0 | **CLEAN** (no misattributions found) |
+| D-dimer PE | 8 | **CLEAN** (8/8 fixed: 5 in T35 first round + 3 in this resolution) |
+| p-tau217 AD | 5 | **CLEAN** (fixed in earlier commit `893897c`) |
+| **Total** | **17** | **17 / 17 resolved (~23% baseline rate)** |
+
+This validates the lessons.md 2026-04-28 LLM-citation-misattribution rule at a
+portfolio scale: ~23% misattribution across 5 LLM-drafted DTA reviews, 5x the
+~4.13% study-side baseline. Excluded-card subset rate was even higher (~50%);
+multiple cards were full LLM fabrications with placeholder-author signatures
+(`'Various authors'`, `'Methodology authors'`).
+
+### Lessons.md update — promote rules
+
+Promoting these from "candidate" to active rules in `lessons.md`:
+
+1. **Crossref + PubMed cross-check, not Crossref-only**: Multiple items had a
+   correct DOI but a wrong PMID (PEGeD-Kearon 2019, Righini 2018, IDSA Guidelines
+   2024). DOI-only verification missed these. **Rule**: every citation needs both
+   `crossref/works/<DOI>` title-match AND `pubmed/get_article_metadata/<PMID>`
+   title-match. Either one alone is insufficient.
+
+2. **Placeholder-author signatures are P0 fabrication signals**: `'Various authors'`,
+   `'Methodology authors'`, `'et al.'` standing alone (no first author surname) —
+   these are LLM completion-failure signatures and indicate the citation was
+   fabricated to populate a slot. **Rule**: pre-commit grep for these patterns
+   in any `references[]` array or excluded-studies dataset; block at WARN.
+
+3. **Excluded-card subset misattribution rate is ~10x higher than included**:
+   In this audit, included-study citations had ~3% misattribution; excluded-card
+   citations had ~50%. **Rule**: build-time citation audits must verify excluded
+   cards with the same Crossref/PubMed protocol as included studies. Excluded
+   cards are NOT lower-stakes — they form the PRISMA flow denominator and the
+   "studies considered but rejected" record that downstream readers verify.
+
+4. **Number-figure verification**: van Es 2016 was claimed in this review's
+   prose to have "k=11 cohorts, n=14,256" — actual values are k=6, n=7,268.
+   When LLM-completion fabricates a citation, it often fabricates the headline
+   numbers in a plausible direction (here: doubled). **Rule**: any narrative
+   that quotes specific n/k figures from a cited paper must verify those figures
+   against the actual abstract returned by PubMed/Crossref before commit.
+
+(These will be added to `C:\Users\user\.claude\rules\lessons.md` Agent Workflow
+section in a separate commit, scoped to that file alone, so this DTA-portfolio
+commit stays focused.)
+

@@ -1312,8 +1312,9 @@
       "country": "Canada (multicentre)",
       "design": "prospective_multicentre_management_outcome_study",
       "nctid": "NCT02384135",
-      "pmid": "31509672",
+      "pmid": "31774957",
       "ref_doi": "10.1056/NEJMoa1909159",
+      "_pmid_correction_2026-04-29": "PMID corrected via PubMed citation lookup. Prior PMID 31509672 resolved to Weinstein 2019 'Parenting during Graduate Medical Training' (NEJM perspective piece) — wrong paper. Correct PMID for Kearon 2019 PEGeD validation (NEJM 381:2125-2134) is 31774957. DOI 10.1056/NEJMoa1909159 was already correct.",
       "TP": 149,
       "FP": 543,
       "FN": 0,
@@ -1618,7 +1619,7 @@
             <li>Active-cancer cohorts (high baseline D-dimer makes the test less informative)</li>
             <li>High-pretest-probability cohorts (D-dimer is not first-line; CTPA done directly)</li>
             <li>Methodology-only papers without 2&times;2 results</li>
-            <li>Reviews / meta-analyses (cite primaries instead; van Es 2017 IPD-meta serves as the canonical k=11-cohort benchmark)</li>
+            <li>Reviews / meta-analyses (cite primaries instead; van Es 2016 IPD-MA serves as the canonical k=6-cohort benchmark)</li>
             <li>Abstracts where the 2&times;2 cannot be back-computed</li>
           </ul>
         </div>
@@ -1633,7 +1634,7 @@
           The build-time spec (<code>docs/superpowers/specs/2026-04-27-rapidmeta-dta-engine-design.md</code>) and implementation plan (<code>docs/superpowers/plans/2026-04-27-rapidmeta-dta-implementation.md</code>) provide internal versioning of the protocol, but these are not third-party temporal evidence.
         </p>
         <p style="font-size:0.875rem;color:#374151;margin:0;">
-          <strong>For methods-paper submission</strong> this is disclosed as a non-prospective registration: the present review is positioned as a methods-engine demonstration (RapidMeta DTA engine using D-dimer for pulmonary embolism rule-out as a worked example), not a substantive clinical-evidence claim about D-dimer. <strong>For any clinical-evidence claim</strong> a retrospective PROSPERO record will be filed and linked here, and the canonical evidence base is the van Es 2017 <em>Ann Intern Med</em> individual-patient-data meta-analysis (k=11 cohorts, n=14,256 patients) and the 2019 ESC PE Guidelines.
+          <strong>For methods-paper submission</strong> this is disclosed as a non-prospective registration: the present review is positioned as a methods-engine demonstration (RapidMeta DTA engine using D-dimer for pulmonary embolism rule-out as a worked example), not a substantive clinical-evidence claim about D-dimer. <strong>For any clinical-evidence claim</strong> a retrospective PROSPERO record will be filed and linked here, and the canonical evidence base is the van Es 2016 <em>Ann Intern Med</em> individual-patient-data meta-analysis (k=6 cohorts, n=7,268 patients; PMID 27182696, DOI 10.7326/M16-0031) and the 2019 ESC PE Guidelines.
         </p>
       </div>
 
@@ -1651,7 +1652,7 @@
         </table>
       </div>
       <p style="font-size:0.85rem;color:#4b5563;margin:0;">
-        The combined tier falls below the k &ge; 8 ceiling so the engine surfaces a coverage banner per the fallback rule. This is consistent with the methods-paper framing &mdash; the review demonstrates the RapidMeta DTA engine on a small worked-example dataset and is not the substantive evidence base for D-dimer; the van Es 2017 <em>Ann Intern Med</em> IPD meta-analysis pools 11 cohorts and 14,256 patients.
+        The combined tier falls below the k &ge; 8 ceiling so the engine surfaces a coverage banner per the fallback rule. This is consistent with the methods-paper framing &mdash; the review demonstrates the RapidMeta DTA engine on a small worked-example dataset and is not the substantive evidence base for D-dimer; the van Es 2016 <em>Ann Intern Med</em> IPD meta-analysis pools 6 cohorts and 7,268 patients (PMID 27182696, DOI 10.7326/M16-0031). The earlier headline cited as "van Es 2017 / k=11 / n=14,256" was a Crossref re-verification miss (2026-04-29 audit) — the closest verifiable IPD-MA matching the cited Wells + d-dimer rule-out design is van Es 2016 with k=6 / n=7,268.
       </p>
     </section>
 
@@ -1759,18 +1760,16 @@
         <div class="prisma-row">
           <div class="prisma-box prisma-stage">
             <div class="prisma-label">Full-text assessed for eligibility</div>
-            <div class="prisma-num">~11</div>
-            <div class="prisma-sub">6 included + ~5 excluded with reasons</div>
+            <div class="prisma-num">~9</div>
+            <div class="prisma-sub">6 included + 3 excluded with reasons</div>
           </div>
           <div class="prisma-plus">&rarr;</div>
           <div class="prisma-box prisma-excluded">
             <div class="prisma-label">Excluded with reasons</div>
-            <div class="prisma-num">~5+</div>
+            <div class="prisma-num">3</div>
             <div class="prisma-sub" style="font-size:0.7rem;line-height:1.3;text-align:left;">
-              &middot; Meta-analyses / IPD-MA (cite primaries instead): Crawford 2016, Stals 2022, van Es 2017<br>
+              &middot; Meta-analyses / IPD-MA (cite primaries instead): Crawford 2016, Stals 2022, van Es 2016<br>
               &middot; PERC-rule (different decision point upstream of D-dimer): Freund 2018 PROPER<br>
-              &middot; Derivation cohort (validation included instead): Kearon 2017 PEGeD derivation<br>
-              &middot; Methodology-only papers (no 2&times;2 reportable)<br>
               &middot; Pregnancy / cancer-cohort-only (different cutoff considerations &mdash; out of population)
             </div>
           </div>
@@ -2040,10 +2039,10 @@
 
       <!-- B1: Clinical-safety metric — pooled 3-month VTE failure rate among ruled-out patients.
            Random-effects logit DerSimonian-Laird with one-sided 97.5% UCL vs 1.85% safety
-           threshold (Schouten 2013 / van Es 2017). This is THE clinically-relevant rule-out metric. -->
+           threshold (Schouten 2013 / van Es 2016). This is THE clinically-relevant rule-out metric. -->
       <h3 class="subsection-title">Clinical safety: 3-month VTE failure rate</h3>
       <p style="font-size:0.85rem;color:#374151;margin:0 0 0.75rem;">
-        Random-effects pooled rate of symptomatic VTE within 3 months among patients ruled out by the strategy in the active tier (logit DerSimonian&ndash;Laird). The PASS/FAIL chip compares the one-sided 97.5% upper confidence limit against the 1.85% safety threshold (Schouten 2013 / van Es 2017 / 2019 ESC PE Guidelines).
+        Random-effects pooled rate of symptomatic VTE within 3 months among patients ruled out by the strategy in the active tier (logit DerSimonian&ndash;Laird). The PASS/FAIL chip compares the one-sided 97.5% upper confidence limit against the 1.85% safety threshold (Schouten 2013 / van Es 2016 / 2019 ESC PE Guidelines).
       </p>
       <div class="metric-grid" style="grid-template-columns:1fr;margin-bottom:1.5rem;">
         <div class="metric-card" id="failure-rate-card" style="background:#f0fdf4;border-color:#86efac;border-left:4px solid #10b981;">
@@ -2345,7 +2344,7 @@
 
       <h3 class="subsection-title">Substantive comparators (this review defers to)</h3>
       <p style="font-size:0.9rem;color:#374151;margin:0 0 1.5rem;">
-        This k=5 review uses D-dimer / pulmonary-embolism rule-out as a worked methodological example for the RapidMeta DTA engine; the substantive evidence base is <strong>Crawford et al. 2016</strong> (Cochrane DTA review of D-dimer for excluding PE, ~40 D-dimer/PE primary studies, CD010864; <a class="external-link" href="https://doi.org/10.1002/14651858.CD010864.pub2" target="_blank" rel="noopener">DOI: 10.1002/14651858.CD010864.pub2</a>) and <strong>Stals et al. 2022</strong> (individual-patient-data meta-analysis across 14 prospective cohorts, n=14,896 patients; <em>Ann Intern Med</em> 175:244&ndash;255; <a class="external-link" href="https://doi.org/10.7326/M21-2625" target="_blank" rel="noopener">DOI: 10.7326/M21-2625</a>). The earlier <strong>van Es 2017</strong> Wells-and-D-dimer IPD-MA (k=11 cohorts, n=14,256) is the canonical safety-threshold reference (post-rule-out 3-month VTE one-sided 97.5% UCL &lt;1.85%; threshold from Schouten 2013). Quantitative interpretation should defer to those references; the present review's contribution is methodological transparency, edit-mode auditability, and engine validation.
+        This k=5 review uses D-dimer / pulmonary-embolism rule-out as a worked methodological example for the RapidMeta DTA engine; the substantive evidence base is <strong>Crawford et al. 2016</strong> (Cochrane DTA review of D-dimer for excluding PE, ~40 D-dimer/PE primary studies, CD010864; <a class="external-link" href="https://doi.org/10.1002/14651858.CD010864.pub2" target="_blank" rel="noopener">DOI: 10.1002/14651858.CD010864.pub2</a>) and <strong>Stals et al. 2022</strong> (individual-patient-data meta-analysis across 14 prospective cohorts, n=14,896 patients; <em>Ann Intern Med</em> 175:244&ndash;255; <a class="external-link" href="https://doi.org/10.7326/M21-2625" target="_blank" rel="noopener">DOI: 10.7326/M21-2625</a>). The earlier <strong>van Es 2016</strong> Wells-and-D-dimer IPD-MA (k=6 cohorts, n=7,268; <em>Ann Intern Med</em> 165:253&ndash;261; PMID 27182696, DOI 10.7326/M16-0031) provides the post-rule-out 3-month VTE safety reference (one-sided 97.5% UCL &lt;1.85%; threshold from Schouten 2013). Quantitative interpretation should defer to those references; the present review's contribution is methodological transparency, edit-mode auditability, and engine validation.
       </p>
 
       <h3 class="subsection-title">Reference standard &mdash; differential verification bias</h3>
@@ -2597,7 +2596,7 @@
           (pass
             ? 'within the international safety benchmark of <strong>1.85% upper bound</strong> '
             : 'above the international safety benchmark of <strong>1.85% upper bound</strong> ') +
-          '(Schouten 2013 / van Es 2017 / 2019 ESC PE Guidelines).';
+          '(Schouten 2013 / van Es 2016 / 2019 ESC PE Guidelines).';
       }
 
       // B1: Render the clinical-safety failure-rate card from the active-tier trials.
@@ -2621,7 +2620,7 @@
         ciEl.textContent = '95% CI ' + (fr.rate_lcl * 100).toFixed(2) + '–' + (fr.rate_ucl * 100).toFixed(2) +
           '% (k=' + fr.k + ', τ² = ' + fr.tau2.toFixed(3) + ' on logit scale)';
         bmEl.innerHTML = 'One-sided 97.5% UCL: <strong>' + ucl_pct + '%</strong>. Benchmark: <strong>&lt;1.85%</strong> ' +
-          '(Schouten 2013 / van Es 2017 / 2019 ESC PE Guidelines): ' +
+          '(Schouten 2013 / van Es 2016 / 2019 ESC PE Guidelines): ' +
           '<strong style="color:' + passColor + ';">' + passOrFail + '</strong>';
       }
 
@@ -2783,7 +2782,7 @@
       // ===== B1: Pooled 3-month VTE failure rate (rule-out safety) =====
       // Random-effects pool of single proportion on logit scale (DerSimonian-Laird).
       // For a rule-out test the clinically relevant metric is the 3-month VTE incidence
-      // among patients ruled out by the strategy. ESC 2019 / Schouten 2013 / van Es 2017
+      // among patients ruled out by the strategy. ESC 2019 / Schouten 2013 / van Es 2016
       // safety threshold: post-rule-out 3-month VTE rate one-sided 97.5% UCL < 1.85%.
       // Trials missing rule-out denominators in their abstract are skipped.
       function poolFailureRate(trialsList) {
@@ -3916,7 +3915,7 @@
 
         // ===== Abstract (structured) =====
         var abstractParts = {
-          background: 'This methods-paper companion uses quantitative D-dimer testing for pulmonary embolism rule-out as a worked example to demonstrate the open-source RapidMeta DTA engine. Substantive evidence on D-dimer is provided by the van Es 2017 Annals of Internal Medicine individual-patient-data meta-analysis (k=11 cohorts, n=14,256 patients) and the 2019 ESC Pulmonary Embolism Guidelines. The present review extracts a small landmark set (k=5 primary, k=6 with sensitivity tier) from PubMed abstracts to illustrate three pre-computed analytic tiers (Fixed-500 / strategy-conditional, k=3; All primary tier with age-adjusted, k=5; Combined all-tier, k=6) and the engine’s bivariate fit, prediction interval, GRADE-DTA, Fagan, leave-one-out, subgroup, and Deeks’ funnel modules.',
+          background: 'This methods-paper companion uses quantitative D-dimer testing for pulmonary embolism rule-out as a worked example to demonstrate the open-source RapidMeta DTA engine. Substantive evidence on D-dimer is provided by the van Es 2016 Annals of Internal Medicine individual-patient-data meta-analysis (k=6 cohorts, n=7,268 patients; PMID 27182696, DOI 10.7326/M16-0031) and the 2019 ESC Pulmonary Embolism Guidelines. The present review extracts a small landmark set (k=5 primary, k=6 with sensitivity tier) from PubMed abstracts to illustrate three pre-computed analytic tiers (Fixed-500 / strategy-conditional, k=3; All primary tier with age-adjusted, k=5; Combined all-tier, k=6) and the engine’s bivariate fit, prediction interval, GRADE-DTA, Fagan, leave-one-out, subgroup, and Deeks’ funnel modules.',
           methods: 'We searched ClinicalTrials.gov (0 eligible results panels) and PubMed (412 + 158 hits across two queries) on 2026-04-28 for prospective management-outcome studies of quantitative D-dimer for pulmonary embolism rule-out, against the canonical composite reference standard (CTPA at presentation OR symptomatic VTE at 3-month clinical follow-up). Eligibility was restricted to 2006-2026 publications (Christopher Study era onwards) with reportable or back-computable 2x2 counts; pregnancy / postpartum, active-cancer, and high-pretest-probability cohorts were excluded by design. QUADAS-2 was applied across four domains. Sensitivity, specificity, diagnostic odds ratio (DOR), and positive/negative likelihood ratios were pooled using the Reitsma 2005 bivariate REML model fit by Nelder-Mead simplex; a real 2-parameter REML with rho fixed at 0 is used as the rho-boundary refit; FE bivariate is the k<5 fallback; for k=1 the engine reports per-axis Clopper-Pearson. A 95% prediction interval (Higgins 2009 / Riley 2011, t_{k-2} on logit scale) is reported when k>=3. Analysis is reproducible from the embedded JSON dataset and the open-source RapidMeta DTA engine.',
           results: 'k = ' + k_combined + ' studies in the Combined all-tier; k = ' + k_primary +
             ' in the default Fixed-500 / strategy-conditional tier (Christopher 2006 + YEARS 2017 + PEGeD-Kearon 2019). Pooled Sensitivity (combined tier) was ' + pct(combinedFit && combinedFit.pooled_sens) +
@@ -4003,7 +4002,7 @@
           '. The leave-one-out sensitivity table on the Sensitivity tab quantifies single-study influence (PEGeD-Kearon is typically the largest mover on Spec because of its 71% point estimate); the SROC space on the SROC tab visualises the threshold-effect axis. Subgroup analyses on the Subgroups tab support stratified clinical use rather than a single pooled point estimate.';
 
         // ===== Limitations paragraph =====
-        var limitationsPara = 'Limitations: (i) full-text PubMed retrieval was deferred per the build-time decision; data come from PubMed abstracts only, which limits granularity of subgroup data (e.g. Wells-low vs Wells-moderate within-study breakdowns, age-stratified Spec for the age-adjusted cutoff arm of ADJUST-PE, per-assay Sens/Spec at each centre) and forces conservative back-computation of 2x2 cells. (ii) The combined tier (k=6) falls below the spec-defined k>=8 ceiling for headline reliability and triggers the coverage banner. (iii) High-pretest-probability cohorts are excluded by design (D-dimer is not first-line in this group; CTPA is done directly), pregnancy / postpartum cohorts are excluded (different cutoff considerations), and active-cancer cohorts are excluded (high baseline D-dimer). The included cohorts are therefore representative of the Wells-non-high outpatient population only. (iv) FN=0 in PEGeD-Kearon yields a Sens point estimate of 100% which approaches the upper Clopper-Pearson bound; the engine handles this cleanly via the exact 1-sided 97.5% confidence limit, but reviewers should not over-interpret a 100% point estimate as a hard guarantee. (v) Risk of bias was scored from QUADAS-2 baselines populated from the published abstracts; reviewers may upgrade to full-text-driven judgements in a v1.1 build. (vi) PROSPERO registration is deferred to a v1.1 follow-up; canonical evidence base for D-dimer / PE rule-out is Crawford 2016 (Cochrane DTA review CD010864, ~40 primary studies), Stals 2022 (Ann Intern Med IPD-MA across 14 cohorts, n=14,896), and van Es 2017 (Ann Intern Med IPD-MA, k=11 cohorts, n=14,256), framed by the 2019 ESC PE Guidelines and the Schouten 2013 / van Es 2017 post-rule-out 3-month VTE one-sided 97.5% UCL <1.85% safety threshold. (vii) Differential verification bias: all six included studies use a composite reference standard (CTPA at presentation for D-dimer-positive or pre-test-probability-positive patients; 3-month clinical follow-up for D-dimer-negative patients managed without imaging). Per QUADAS-2 (Whiting 2011) and the STARD 2015 elaboration (Bossuyt 2015) following Schuetz 2008, this is differential verification: the reference standard differs by index-test arm and inflates apparent sensitivity. Q3.2 is therefore recorded "No" and the Reference Standard domain is rated High Risk of Bias for all six studies. Macaskill 2010 (Cochrane DTA Handbook §10.4) recognises the management-outcome design as canonical for rule-out tests but the inflated-sensitivity caveat applies. Formal Bayesian latent-class meta-analysis for imperfect references (Dendukuri 2012) is deferred to v1.2. (viii) Continuity-correction bias-toward-null: PEGeD-Kearon FN=0 fires the zero-cell trigger, propagating a 0.5 correction across all studies. Because pooled Sens is structurally near 100%, the correction biases pooled Sens downward by ~1-2pp; per-study Clopper-Pearson exact CIs in the Trials tab are correction-free and may be more accurate per-study estimates. (ix) Strategy-pooling caveat: the k=5 / k=6 pooled bivariate Sens/Spec mixes four distinct rule-out strategies (fixed-500, age-adjusted, YEARS-conditional, PEGeD-graduated), which is a Macaskill 2010 §10.4 violation; per-strategy estimates on the Summary tab are the methodologically defensible primary headline.';
+        var limitationsPara = 'Limitations: (i) full-text PubMed retrieval was deferred per the build-time decision; data come from PubMed abstracts only, which limits granularity of subgroup data (e.g. Wells-low vs Wells-moderate within-study breakdowns, age-stratified Spec for the age-adjusted cutoff arm of ADJUST-PE, per-assay Sens/Spec at each centre) and forces conservative back-computation of 2x2 cells. (ii) The combined tier (k=6) falls below the spec-defined k>=8 ceiling for headline reliability and triggers the coverage banner. (iii) High-pretest-probability cohorts are excluded by design (D-dimer is not first-line in this group; CTPA is done directly), pregnancy / postpartum cohorts are excluded (different cutoff considerations), and active-cancer cohorts are excluded (high baseline D-dimer). The included cohorts are therefore representative of the Wells-non-high outpatient population only. (iv) FN=0 in PEGeD-Kearon yields a Sens point estimate of 100% which approaches the upper Clopper-Pearson bound; the engine handles this cleanly via the exact 1-sided 97.5% confidence limit, but reviewers should not over-interpret a 100% point estimate as a hard guarantee. (v) Risk of bias was scored from QUADAS-2 baselines populated from the published abstracts; reviewers may upgrade to full-text-driven judgements in a v1.1 build. (vi) PROSPERO registration is deferred to a v1.1 follow-up; canonical evidence base for D-dimer / PE rule-out is Crawford 2016 (Cochrane DTA review CD010864, ~40 primary studies), Stals 2022 (Ann Intern Med IPD-MA across 14 cohorts, n=14,896), and van Es 2016 (Ann Intern Med IPD-MA, k=6 cohorts, n=7,268; PMID 27182696, DOI 10.7326/M16-0031), framed by the 2019 ESC PE Guidelines and the Schouten 2013 / van Es 2016 post-rule-out 3-month VTE one-sided 97.5% UCL <1.85% safety threshold. (vii) Differential verification bias: all six included studies use a composite reference standard (CTPA at presentation for D-dimer-positive or pre-test-probability-positive patients; 3-month clinical follow-up for D-dimer-negative patients managed without imaging). Per QUADAS-2 (Whiting 2011) and the STARD 2015 elaboration (Bossuyt 2015) following Schuetz 2008, this is differential verification: the reference standard differs by index-test arm and inflates apparent sensitivity. Q3.2 is therefore recorded "No" and the Reference Standard domain is rated High Risk of Bias for all six studies. Macaskill 2010 (Cochrane DTA Handbook §10.4) recognises the management-outcome design as canonical for rule-out tests but the inflated-sensitivity caveat applies. Formal Bayesian latent-class meta-analysis for imperfect references (Dendukuri 2012) is deferred to v1.2. (viii) Continuity-correction bias-toward-null: PEGeD-Kearon FN=0 fires the zero-cell trigger, propagating a 0.5 correction across all studies. Because pooled Sens is structurally near 100%, the correction biases pooled Sens downward by ~1-2pp; per-study Clopper-Pearson exact CIs in the Trials tab are correction-free and may be more accurate per-study estimates. (ix) Strategy-pooling caveat: the k=5 / k=6 pooled bivariate Sens/Spec mixes four distinct rule-out strategies (fixed-500, age-adjusted, YEARS-conditional, PEGeD-graduated), which is a Macaskill 2010 §10.4 violation; per-strategy estimates on the Summary tab are the methodologically defensible primary headline.';
 
         // ===== Authorship =====
         var so1 = loadSignoff('extraction', 1);
@@ -4304,7 +4303,7 @@
           // B2: substantive comparators that this k=5 review defers to.
           'Crawford F, Andras A, Welch K, Sheares K, Keeling D, Chappell FM. D-dimer test for excluding the diagnosis of pulmonary embolism. <em>Cochrane Database of Systematic Reviews</em> 2016, Issue 8. Art. No.: CD010864. <a class="external-link" href="https://doi.org/10.1002/14651858.CD010864.pub2" target="_blank" rel="noopener">DOI: 10.1002/14651858.CD010864.pub2</a>',
           'Stals MAM, Takada T, Kraaijpoel N, van Es N, Büller HR, Courtney DM, et al. Safety and Efficiency of Diagnostic Strategies for Ruling Out Pulmonary Embolism in Clinically Relevant Patient Subgroups: A Systematic Review and Individual-Patient Data Meta-analysis. <em>Ann Intern Med</em>. 2022;175(2):244&ndash;255. <a class="external-link" href="https://doi.org/10.7326/M21-2625" target="_blank" rel="noopener">DOI: 10.7326/M21-2625</a> <a class="external-link" href="https://pubmed.ncbi.nlm.nih.gov/34904857" target="_blank" rel="noopener">PubMed: 34904857</a>',
-          'van Es N, van der Hulle T, van Es J, den Exter PL, Douma RA, Goekoop RJ, et al. Wells Rule and d-Dimer Testing to Rule Out Pulmonary Embolism: A Systematic Review and Individual-Patient Data Meta-analysis. <em>Ann Intern Med</em>. 2016;165(4):253&ndash;261. (canonical IPD-MA, k=11 cohorts, n=14,256 patients; safety threshold one-sided 97.5% UCL &lt;1.85% used in this review.)',
+          'van Es N, van der Hulle T, van Es J, den Exter PL, Douma RA, Goekoop RJ, et al. Wells Rule and d-Dimer Testing to Rule Out Pulmonary Embolism: A Systematic Review and Individual-Patient Data Meta-analysis. <em>Ann Intern Med</em>. 2016;165(4):253&ndash;261. <a class="external-link" href="https://doi.org/10.7326/M16-0031" target="_blank" rel="noopener">DOI: 10.7326/M16-0031</a> <a class="external-link" href="https://pubmed.ncbi.nlm.nih.gov/27182696" target="_blank" rel="noopener">PubMed: 27182696</a> (canonical IPD-MA, k=6 cohorts, n=7,268 patients; safety threshold one-sided 97.5% UCL &lt;1.85% used in this review.)',
           'Schouten HJ, Geersing GJ, Koek HL, Zuithoff NPA, Janssen KJM, Douma RA, et al. Diagnostic accuracy of conventional or age-adjusted D-dimer cut-off values in older patients with suspected venous thromboembolism: systematic review and meta-analysis. <em>BMJ</em>. 2013;346:f2492. (origin of the &lt;1.85% safety benchmark for rule-out failure rate.)',
           'Konstantinides SV, Meyer G, Becattini C, Bueno H, Geersing GJ, Harjola VP, et al. 2019 ESC Guidelines for the diagnosis and management of acute pulmonary embolism. <em>Eur Heart J</em>. 2020;41(4):543&ndash;603. (defines the &lt;1.85% post-rule-out 3-month VTE failure-rate benchmark.)',
           'Doebler P, Holling H. <em>mada: Meta-Analysis of Diagnostic Accuracy</em>. R package version 0.5.11. <a class="external-link" href="https://CRAN.R-project.org/package=mada" target="_blank" rel="noopener">CRAN</a>',
@@ -4527,9 +4526,9 @@
           country: 'Canada (multicentre)',
           ref_std: 'CTPA at presentation OR symptomatic VTE at 3-month follow-up (composite)',
           abstract: 'Retrospective analyses suggest that pulmonary embolism is ruled out by a D-dimer level of less than 1000 ng per millilitre in patients with a low clinical pretest probability and by a D-dimer level of less than 500 ng per millilitre in patients with a moderate clinical pretest probability (PEGeD strategy). We performed a prospective study to evaluate the safety of this strategy. We enrolled outpatients with clinically suspected acute pulmonary embolism in a multicentre prospective study at 11 academic emergency departments in Canada. Among 2,017 patients enrolled, the prevalence of pulmonary embolism was 7.4%. With the use of a strategy of a D-dimer level of less than 1000 ng per millilitre with a low clinical pretest probability and a level of less than 500 ng per millilitre with a moderate clinical pretest probability to exclude pulmonary embolism, 1,325 patients (66%) had pulmonary embolism ruled out without imaging. Among these 1,325 patients, none had venous thromboembolism during the 3-month follow-up period (95% CI 0.00 to 0.29%). 0 of the 1,285 patients who underwent the strategy and had pulmonary embolism ruled out by the strategy had VTE during follow-up (failure rate 0.0%, 95% CI 0.00-0.29%).',
-          rationale: 'PEGeD-Kearon NEJM 2019 (NCT02384135): Canada 11-centre prospective management-outcome validation (N=2,017). PE prevalence 149/2,017 (7.4%); FN=0 (0/1,285 3-month VTE among PE-excluded by strategy). Back-compute: TP=149, FP=543, FN=0, TN=1,325. PEGeD graduated cutoff strategy.',
+          rationale: 'PEGeD-Kearon NEJM 2019 (NCT02384135): Canada 11-centre prospective management-outcome validation (N=2,017). PE prevalence 149/2,017 (7.4%); FN=0 (0/1,285 3-month VTE among PE-excluded by strategy). Back-compute: TP=149, FP=543, FN=0, TN=1,325. PEGeD graduated cutoff strategy. (PMID corrected 2026-04-29: prior PMID 31509672 resolved to Weinstein 2019 NEJM Perspective on parenting during medical training — wrong paper. Correct PMID 31774957.)',
           nctid: 'NCT02384135',
-          pmid: '31509672',
+          pmid: '31774957',
           doi: '10.1056/NEJMoa1909159'
         },
         {
@@ -4582,22 +4581,30 @@
           data_caveat: '2x2 counts (TP=79, FP=295, FN=1, TN=207) are approximate back-computes from the quantitative-arm Sens 98.6% / Spec 47.2% applied to the N=582 POC-result subset; exact per-cell counts are not reported in the abstract. Flagged for v1.1 re-extraction against the full text.'
         },
 
-        // ===== EXCLUDED (5 entries) =====
+        // ===== EXCLUDED (3 entries) =====
+        // 2026-04-29 audit: dropped 3 prior excluded cards that contained fabricated/
+        // unverifiable citations (Kearon 2017 PEGeD derivation — DOI 10.7326/M16-1718
+        // and PMID 28384749 both resolve to unrelated papers and no derivation paper
+        // exists in PubMed; "Cancer-PE D-dimer cohort 2023" — PMID 37247551 resolves
+        // to environmental engineering and authors 'Various authors' is a placeholder;
+        // "Methodology / commentary 2016" — PMID 27693997 resolves to neuroscience
+        // paper and authors 'Methodology authors' is a placeholder). Per p-tau217
+        // precedent fallback (c): drop the citation rather than ship a misattribution.
         {
           decision: 'excluded',
           reason: 'IPD meta-analysis (cited as canonical IPD benchmark in Discussion)',
-          studlab: 'van Es 2017 (Ann Intern Med IPD-meta)',
+          studlab: 'van Es 2016 (Ann Intern Med IPD-MA)',
           title: 'Wells Rule and d-Dimer Testing to Rule Out Pulmonary Embolism: A Systematic Review and Individual-Patient Data Meta-analysis.',
           authors: 'van Es N, van der Hulle T, van Es J, den Exter PL, Douma RA, Goekoop RJ, Mos IC, Galipienzo J, Kamphuisen PW, Huisman MV, Klok FA, Buller HR, Bossuyt PM.',
-          year: 2017,
+          year: 2016,
           journal: 'Ann Intern Med',
-          country: 'Multi-country (k=11 cohorts pooled)',
-          abstract: 'Background: Several meta-analyses suggest that pulmonary embolism (PE) can be safely ruled out using the Wells rule combined with D-dimer testing. We did an individual-patient-data meta-analysis to compare the diagnostic yield of various strategies. Sources: We pooled data from 14,256 patients from 11 prospective cohort studies. The strategy combining the Wells rule with a fixed D-dimer threshold of 500 ng/mL had a 3-month failure rate of 0.34%. Sensitivity 97-99% across cohorts; specificity ranged 35-50% for fixed 500.',
-          verbatim_source: 'pubmed-cache',
-          rationale: 'Excluded: IPD meta-analysis pooling 11 prospective cohorts (n=14,256). Cited in Methods/Discussion as the canonical IPD-meta benchmark. Including this would double-count individual studies (Christopher, ADJUST-PE, ADJUST-validation, YEARS) already pooled inside van Es 2017. The IPD-meta is the substantive benchmark for clinical inference; this RapidMeta build is a methods-paper companion.',
+          country: 'Multi-country (k=6 cohorts pooled)',
+          abstract: 'The performance of different diagnostic strategies for pulmonary embolism (PE) in patient subgroups is unclear. We performed an individual-patient-data meta-analysis pooling data from 7,268 patients across 6 prospective cohort studies in which the diagnostic management of PE was guided by the dichotomized Wells rule and quantitative D-dimer testing. Efficiency increased from 28% to 33% when the age-adjusted (instead of fixed-500) D-dimer threshold was applied. The failure rate of age-adjusted D-dimer testing was less than 3% in all examined subgroups. Volume 165, Issue 4, pages 253-261.',
+          verbatim_source: 'pubmed',
+          rationale: 'Excluded: IPD meta-analysis pooling 6 prospective cohorts (n=7,268). Cited in Methods/Discussion as the canonical IPD-MA benchmark. Including this would double-count individual studies (Christopher, ADJUST-PE, ADJUST-validation, YEARS) already pooled inside van Es 2016. The IPD-MA is the substantive benchmark for clinical inference; this RapidMeta build is a methods-paper companion. (Year/DOI/PMID corrected 2026-04-29: prior label "van Es 2017", DOI 10.7326/M16-0676, PMID 28492859, n=14,256, k=11 were a Crossref re-verification miss — DOI was not Crossref-registered, PMID resolved to an EpiPen paper, and the 14,256/k=11 figures do not match any PubMed-findable van Es paper. Correct: van Es 2016, DOI 10.7326/M16-0031, PMID 27182696, n=7,268, k=6.)',
           nctid: null,
-          pmid: '28492859',
-          doi: '10.7326/M16-0676'
+          pmid: '27182696',
+          doi: '10.7326/M16-0031'
         },
         {
           decision: 'excluded',
@@ -4617,22 +4624,6 @@
         },
         {
           decision: 'excluded',
-          reason: 'PEGeD derivation cohort — review includes the validation (Kearon 2019 NEJM), not the derivation',
-          studlab: 'Kearon 2017 PEGeD derivation',
-          title: 'A Clinical Decision Rule for Diagnostic Testing for Deep Vein Thrombosis: a derivation analysis of the PEGeD strategy.',
-          authors: 'Kearon C, et al.',
-          year: 2017,
-          journal: 'Ann Intern Med',
-          country: 'Canada / multinational (derivation cohort)',
-          abstract: 'PEGeD derivation analysis: develops the clinical-pretest-probability-conditional D-dimer threshold (<500 ng/mL with moderate clinical probability OR <1000 ng/mL with low clinical probability) that was subsequently prospectively validated in Kearon 2019 NEJM.',
-          verbatim_source: 'pubmed-cache',
-          rationale: 'Excluded: PEGeD derivation cohort. This review includes the prospective validation (Kearon 2019 NEJM, PMID 31509672) and excludes the derivation paper to avoid double counting and incorporation bias.',
-          nctid: null,
-          pmid: '28384749',
-          doi: '10.7326/M16-1718'
-        },
-        {
-          decision: 'excluded',
           reason: 'Pregnancy / postpartum cohort - excluded by protocol design (different cutoff considerations)',
           studlab: 'Righini 2018 (CT-PE-Pregnancy)',
           title: 'Diagnosis of Pulmonary Embolism During Pregnancy: A Multicenter Prospective Management Outcome Study.',
@@ -4647,38 +4638,6 @@
           pmid: '30357273',
           doi: '10.7326/M18-1670'
         },
-        {
-          decision: 'excluded',
-          reason: 'Active-cancer cohort - high baseline D-dimer makes the test less informative',
-          studlab: 'Cancer-PE D-dimer cohort 2023',
-          title: 'D-dimer in suspected pulmonary embolism in patients with active cancer.',
-          authors: 'Various authors',
-          year: 2023,
-          journal: 'Thromb Res',
-          country: 'Multicentre',
-          abstract: 'Active-cancer patients have physiologically elevated D-dimer (cancer-related procoagulant activity), making the test less useful as a rule-out: Spec collapses to ~10-20% in this group. A separate cancer-specific cutoff or a direct-to-imaging strategy may be more appropriate.',
-          verbatim_source: 'pubmed-cache',
-          rationale: 'Excluded: active-cancer patients have systematically elevated baseline D-dimer that erodes test specificity. Excluded by protocol; the included cohorts represent the general suspected-PE outpatient population without active cancer.',
-          nctid: null,
-          pmid: '37247551',
-          doi: null
-        },
-        {
-          decision: 'excluded',
-          reason: 'Methodology / commentary paper - no 2x2 extraction possible',
-          studlab: 'Methodology / commentary 2016',
-          title: 'D-dimer rule-out for pulmonary embolism: methodological considerations.',
-          authors: 'Methodology authors',
-          year: 2016,
-          journal: 'Thromb Haemost',
-          country: 'NA',
-          abstract: 'Discusses methodological considerations of D-dimer rule-out designs (management-outcome vs DTA, FN-suppression by anticoagulation, the choice of 3-month-VTE composite reference), but does not report 2x2 cell counts.',
-          verbatim_source: 'pubmed-cache',
-          rationale: 'Excluded: methodology / commentary paper. No 2x2 extraction possible. Cited in Methods for the management-outcome design rationale.',
-          nctid: null,
-          pmid: '27693997',
-          doi: null
-        }
       ];
 
       function effectiveScreening(s) {
