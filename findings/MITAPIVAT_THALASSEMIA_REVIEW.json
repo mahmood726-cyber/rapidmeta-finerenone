@@ -1,25 +1,25 @@
 {
-  "app": "PBC_PPAR_REVIEW.html",
-  "timestamp": "2026-04-29T06:08:43.139Z",
-  "durationMs": 3712,
+  "app": "MITAPIVAT_THALASSEMIA_REVIEW.html",
+  "timestamp": "2026-04-29T06:07:37.413Z",
+  "durationMs": 4289,
   "state": {
-    "k": 2,
-    "or": "5.54",
-    "i2": "75.2",
-    "tau2": 0.8429946841045318,
-    "remlSensitivity": true,
+    "k": 1,
+    "or": "39.88",
+    "i2": "0.0",
+    "tau2": 0,
+    "remlSensitivity": false,
     "robSummary": {
       "high": 0,
       "someConcerns": 0,
-      "low": 10,
+      "low": 5,
       "unclear": 0
     },
     "isCompleteUniverse": true,
-    "totalAvailable": 2,
-    "includedCount": 2,
-    "searchResultCount": 82,
-    "nnt": 2.2618384401114207,
-    "absoluteRisk": -0.4421182266009852,
+    "totalAvailable": 1,
+    "includedCount": 1,
+    "searchResultCount": 132,
+    "nnt": 1.6462208151958844,
+    "absoluteRisk": -0.6074519230769231,
     "patientReportedOutcomes": {
       "count": 0,
       "scales": [],
@@ -36,7 +36,7 @@
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Evidence base is complete but small (k=1 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
           "Prediction interval not definable for k<3; flag as boundary condition."
         ],
         "recommendation": "Minor revision"
@@ -44,14 +44,16 @@
       {
         "role": "Clinical expert",
         "concerns": [
-          "k<3 - NNT ≈ 2 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.",
-          "I² = 75.2% (considerable); show subgroup/strata estimates alongside pooled."
+          "Pooled 39.88 sits outside published benchmark range (corridor 1.07-4.27); closest Rovin 2021 OR 2.65 [1.64, 4.27]. Discussion should reconcile.",
+          "k<3 - NNT ≈ 2 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
         ],
         "recommendation": "Minor revision"
       },
       {
         "role": "Biostatistician",
-        "concerns": [],
+        "concerns": [
+          "DL estimator under-estimates τ² for k<10; add REML/Paule-Mandel sensitivity."
+        ],
         "recommendation": "Accept with minor revision"
       },
       {

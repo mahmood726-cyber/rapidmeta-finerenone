@@ -1,25 +1,25 @@
 {
-  "app": "DOAC_CANCER_VTE_REVIEW.html",
-  "timestamp": "2026-04-29T06:03:27.124Z",
-  "durationMs": 3858,
+  "app": "RUSFERTIDE_PV_REVIEW.html",
+  "timestamp": "2026-04-29T06:10:00.792Z",
+  "durationMs": 4099,
   "state": {
-    "k": 4,
-    "or": "0.60",
-    "i2": "62.9",
-    "tau2": 0.15779379355689604,
-    "remlSensitivity": true,
+    "k": 1,
+    "or": "2.05",
+    "i2": "0.0",
+    "tau2": 0,
+    "remlSensitivity": false,
     "robSummary": {
       "high": 0,
-      "someConcerns": 2,
-      "low": 18,
+      "someConcerns": 0,
+      "low": 5,
       "unclear": 0
     },
     "isCompleteUniverse": true,
-    "totalAvailable": 4,
-    "includedCount": 4,
-    "searchResultCount": 152,
-    "nnt": 37.66891385767791,
-    "absoluteRisk": 0.02654708876869233,
+    "totalAvailable": 1,
+    "includedCount": 1,
+    "searchResultCount": 132,
+    "nnt": 2.0003743916136276,
+    "absoluteRisk": -0.4999064196144488,
     "patientReportedOutcomes": {
       "count": 0,
       "scales": [],
@@ -36,19 +36,23 @@
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Evidence base is complete but small (k=4 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
-          "RoB 2.0: 0 high-risk + 2 some-concerns domains; add low-RoB sensitivity analysis."
+          "Evidence base is complete but small (k=1 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition."
         ],
         "recommendation": "Minor revision"
       },
       {
         "role": "Clinical expert",
-        "concerns": [],
+        "concerns": [
+          "k<3 - NNT ≈ 2 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
+        ],
         "recommendation": "Accept with minor revision"
       },
       {
         "role": "Biostatistician",
-        "concerns": [],
+        "concerns": [
+          "DL estimator under-estimates τ² for k<10; add REML/Paule-Mandel sensitivity."
+        ],
         "recommendation": "Accept with minor revision"
       },
       {
