@@ -2767,6 +2767,9 @@
             
 
 
+                        <div class="col-span-1 md:col-span-2"><div class="chart-header mb-2 px-2"><h4 class="text-[10px] opacity-70 font-bold uppercase tracking-widest">1b. Dose-Response Curve (linear fit, observed by dose)</h4><button class="chart-dl-btn" onclick="downloadChart('plot-dose-response','dose_response')" title="Download as SVG"><i class="fa-solid fa-download"></i></button></div><div id="plot-dose-response" class="chart-container" aria-describedby="desc-dose-response"></div><div id="desc-dose-response" class="chart-desc"></div></div>
+
+
                         <div class="col-span-1 md:col-span-2"><div class="chart-header mb-2 px-2"><h4 class="text-[10px] opacity-70 font-bold uppercase tracking-widest">2. Subgroup Synthesis (HF vs CKD)</h4><button class="chart-dl-btn" onclick="downloadChart('plot-subgroup','subgroup')" title="Download as SVG"><i class="fa-solid fa-download"></i></button></div><div id="plot-subgroup" class="chart-container" aria-describedby="desc-subgroup"></div><div id="desc-subgroup" class="chart-desc"></div></div>
 
 
@@ -33060,6 +33063,12 @@ const AnalysisEngine = {
 
 
             renderPlots(data, pLogOR, pSE, pOR, zCrit, tau2, eggerResult, tfResult, powerResult) {
+
+
+                // Render dose-response panel (if multi-dose data parseable)
+                if (typeof DoseResponseEngine !== 'undefined') {
+                    try { DoseResponseEngine.render('plot-dose-response', RapidMeta.realData); } catch (e) { /* tolerate */ }
+                }
 
 
                 const layout = plotlyLayout;
