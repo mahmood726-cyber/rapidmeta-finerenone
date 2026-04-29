@@ -1302,7 +1302,7 @@
       "raw_quote": "The sensitivity and specificity of Xpert Ultra were 45.0% (149/331) and 96.7% (58/60), respectively."
     },
     {
-      "studlab": "Carvalho 2024",
+      "studlab": "Pereira Battaglia 2025",
       "year": 2024,
       "country": "Brazil",
       "design": "prospective_dta_single_country",
@@ -1715,7 +1715,7 @@
           <div class="prisma-box prisma-tier">
             <div class="prisma-label">Sensitivity tier &mdash; PubMed back-compute</div>
             <div class="prisma-num">4</div>
-            <div class="prisma-sub">Andama 2021, Quan 2023, Carvalho 2024, Kabir 2021</div>
+            <div class="prisma-sub">Andama 2021, Quan 2023, Pereira Battaglia 2025, Kabir 2021</div>
           </div>
         </div>
       </div>
@@ -1807,7 +1807,7 @@
             <tr><td class="study-name">Dorman 2018</td><td>Low risk on patient selection / index test / reference standard / flow &amp; timing.</td></tr>
             <tr><td class="study-name">Andama 2021</td><td>Low risk; HIV-mixed cohort flagged for applicability.</td></tr>
             <tr><td class="study-name">Quan 2023</td><td>Unclear on patient selection (single-centre tertiary referral); composite reference standard flagged.</td></tr>
-            <tr><td class="study-name">Carvalho 2024</td><td>High risk on small sample (n = 41); composite reference (clinical-radiological + treatment response) flagged.</td></tr>
+            <tr><td class="study-name">Pereira Battaglia 2025</td><td>High risk on small sample (n = 41); composite reference (clinical-radiological + treatment response) flagged.</td></tr>
             <tr><td class="study-name">Kabir 2021</td><td>Alternative-specimen (stool vs sputum) flagged for applicability; reference is bacteriologically-confirmed-on-induced-sputum (not pure culture).</td></tr>
           </tbody>
         </table>
@@ -2166,7 +2166,7 @@
         Conditional 0.5 added to all four cells of every study, and only when at least one cell of any study in the pool is zero. Unconditional correction biases the diagnostic odds ratio toward the null (Sweeting 2004) and is therefore not used here.
       </p>
       <div class="banner banner-amber" style="margin-bottom:1.5rem;">
-        <strong>&#9888; Continuity-correction bias caveat (Path-B).</strong> When any single cell is zero in any included study, the conditional rule fires for <em>all</em> studies in the pool (Sweeting 2004 recommendation), not just the offending study. In this dataset Carvalho 2024 has FP=0, so the FE-bivariate fallback adds 0.5 to all 4 cells of all 5 studies in the Combined tier. This shrinks the per-study Sens/Spec toward 50% slightly, biases pooled Spec downward, and biases pooled DOR toward the null (the well-known continuity-correction conservatism). The bias is largest in studies with small N (Carvalho n=41); for Dorman 2018 (n=1439) the per-cell shift is negligible. Reviewers can disable CC entirely via the <code>correction=0</code> path in the engine for sensitivity analysis (Sweeting 2004 deems exclusion or DerSimonian&ndash;Laird random-effects without CC valid alternatives when the zero is genuine and not a sparse-data artefact).
+        <strong>&#9888; Continuity-correction bias caveat (Path-B).</strong> When any single cell is zero in any included study, the conditional rule fires for <em>all</em> studies in the pool (Sweeting 2004 recommendation), not just the offending study. In this dataset Pereira Battaglia 2025 has FP=0, so the FE-bivariate fallback adds 0.5 to all 4 cells of all 5 studies in the Combined tier. This shrinks the per-study Sens/Spec toward 50% slightly, biases pooled Spec downward, and biases pooled DOR toward the null (the well-known continuity-correction conservatism). The bias is largest in studies with small N (Pereira Battaglia n=41); for Dorman 2018 (n=1439) the per-cell shift is negligible. Reviewers can disable CC entirely via the <code>correction=0</code> path in the engine for sensitivity analysis (Sweeting 2004 deems exclusion or DerSimonian&ndash;Laird random-effects without CC valid alternatives when the zero is genuine and not a sparse-data artefact).
       </div>
 
       <h3 class="subsection-title">GRADE-DTA notes</h3>
@@ -2246,8 +2246,8 @@
         }
         return {
           sputum_culture: pick(['Dorman 2018', 'Andama 2021']),
-          sputum_resp:    pick(['Dorman 2018', 'Andama 2021', 'Quan 2023', 'Carvalho 2024']),
-          combined:       pick(['Dorman 2018', 'Andama 2021', 'Quan 2023', 'Carvalho 2024', 'Kabir 2021'])
+          sputum_resp:    pick(['Dorman 2018', 'Andama 2021', 'Quan 2023', 'Pereira Battaglia 2025']),
+          combined:       pick(['Dorman 2018', 'Andama 2021', 'Quan 2023', 'Pereira Battaglia 2025', 'Kabir 2021'])
         };
       }
       var TIER_LABELS = {
@@ -2506,7 +2506,7 @@
           q31: 'No', q32: 'Unclear', rob3: 'High', app3: 'High',
           q41: 'Unclear', q42: 'Yes', q43: 'No', q44: 'Yes', rob4: 'Unclear'
         },
-        'Carvalho 2024': {
+        'Pereira Battaglia 2025': {
           q11: 'Yes', q12: 'Yes', q13: 'Unclear', rob1: 'High', app1: 'High',
           q21: 'Unclear', q22: 'Unclear', rob2: 'Unclear', app2: 'Unclear',
           q31: 'No', q32: 'Unclear', rob3: 'High', app3: 'High',
@@ -3169,7 +3169,7 @@
         if (fit.cc_applied) {
           notes += '<div class="banner banner-amber" style="margin-top:0.5rem;">' +
             '<strong>&#9888; Continuity correction applied &mdash; bias-toward-null caveat (Sweeting 2004).</strong> ' +
-            'At least one cell is zero in the active tier (in the Combined tier this is Carvalho 2024 FP=0). The conditional 0.5 rule fires for all studies in the pool, not just the offending study. This shrinks per-study Sens/Spec toward 50%, biases pooled Spec downward, and biases pooled DOR toward the null. Bias is largest in studies with small N (Carvalho n=41); for Dorman 2018 (n=1439) the per-cell shift is negligible. See Methods tab for full details and disable-CC sensitivity-analysis pathway.' +
+            'At least one cell is zero in the active tier (in the Combined tier this is Pereira Battaglia 2025 FP=0). The conditional 0.5 rule fires for all studies in the pool, not just the offending study. This shrinks per-study Sens/Spec toward 50%, biases pooled Spec downward, and biases pooled DOR toward the null. Bias is largest in studies with small N (Pereira Battaglia n=41); for Dorman 2018 (n=1439) the per-cell shift is negligible. See Methods tab for full details and disable-CC sensitivity-analysis pathway.' +
             '</div>';
         }
 
@@ -3177,7 +3177,7 @@
         if (currentTier === 'combined' || currentTier === 'sputum_resp') {
           notes += '<div class="banner" style="background:#f3f4f6;border-left:4px solid #6b7280;color:#374151;margin-top:0.5rem;">' +
             '<strong>Imperfect reference standard caveat (Path-B).</strong> ' +
-            'Quan 2023, Carvalho 2024, and Kabir 2021 use a composite (clinical + microbiological) reference standard rather than culture, which is itself imperfect for paucibacillary disease (especially in children and stool specimens). Composite reference incorporates the index test in some forms, biasing observed Sens upward and Spec downward; clinical-only confirmation biases the opposite direction. The formal handling is Bayesian latent-class meta-analysis without a gold-standard assumption (Dendukuri 2012, <em>Biometrics</em>; latent-class extension explored in Kohli 2021 Cochrane CD012768 for extrapulmonary TB). This is deferred to v1.2; the present release reports both the methodologically defensible Sputum+culture (k=2) tier and the wider tiers with disclosure.' +
+            'Quan 2023, Pereira Battaglia 2025, and Kabir 2021 use a composite (clinical + microbiological) reference standard rather than culture, which is itself imperfect for paucibacillary disease (especially in children and stool specimens). Composite reference incorporates the index test in some forms, biasing observed Sens upward and Spec downward; clinical-only confirmation biases the opposite direction. The formal handling is Bayesian latent-class meta-analysis without a gold-standard assumption (Dendukuri 2012, <em>Biometrics</em>; latent-class extension explored in Kohli 2021 Cochrane CD012768 for extrapulmonary TB). This is deferred to v1.2; the present release reports both the methodologically defensible Sputum+culture (k=2) tier and the wider tiers with disclosure.' +
             '</div>';
         }
 
@@ -3693,7 +3693,7 @@
         // ===== Abstract (structured) =====
         var abstractParts = {
           background: 'This methods-paper companion uses Xpert MTB/RIF Ultra (Cepheid) as a worked example to demonstrate the open-source RapidMeta DTA engine. Xpert Ultra was endorsed by the World Health Organization in 2017; the substantive evidence base for Xpert Ultra in pulmonary tuberculosis is the Cochrane review by Zifodya 2022 (CD009593.pub5, ~70 study evaluations) and its 2025 update by Horne 2025 (CD009593.pub6) — quantitative interpretation should defer to those references. The present review extracts a small set (k=5) from CT.gov and PubMed abstracts to illustrate three pre-computed analytic tiers (Sputum+culture, k=2; All sputum/respiratory, k=4; Combined all-tier, k=5) and the engine’s bivariate fit, prediction interval, GRADE-DTA, Fagan, leave-one-out, subgroup, and Deeks’ funnel modules. The contribution is methodological transparency and engine validation, not a re-analysis of the substantive evidence.',
-          methods: 'We searched ClinicalTrials.gov (32 hits) and PubMed (390 + 81 hits across two queries) on 2026-04-27 for studies of Xpert Ultra against any reference standard for pulmonary TB in adults or children. Eligibility was restricted to post-2015 publications with reportable or back-computable 2x2 counts. The PRISMA-DTA (McInnes 2018, JAMA) flow is reported on the Screening tab. QUADAS-2 (Whiting 2011, Ann Intern Med) was applied across four domains. Sensitivity, specificity, diagnostic odds ratio (DOR), and positive/negative likelihood ratios were pooled using the Reitsma 2005 bivariate REML model fit by Nelder-Mead simplex; a real 2-parameter REML with rho fixed at 0 is used as the rho-boundary refit; FE bivariate is the k<5 fallback; for k=1 the engine reports per-axis Clopper-Pearson. A 95% prediction interval (Higgins 2009 / Riley 2011, t_{k-2} on logit scale) is reported when k>=3. Continuity correction follows Sweeting 2004 (conditional 0.5 added to all four cells of every study, only when at least one cell of any study is zero); the resulting bias-toward-null is acknowledged. For composite-reference subgroups (Quan 2023, Carvalho 2024, Kabir 2021) the imperfect-reference-standard assumption is documented; Bayesian latent-class meta-analysis (Dendukuri 2012, Biometrics) is the formal handling and is deferred to v1.2. Analysis is reproducible from the embedded JSON dataset and the open-source RapidMeta DTA engine.',
+          methods: 'We searched ClinicalTrials.gov (32 hits) and PubMed (390 + 81 hits across two queries) on 2026-04-27 for studies of Xpert Ultra against any reference standard for pulmonary TB in adults or children. Eligibility was restricted to post-2015 publications with reportable or back-computable 2x2 counts. The PRISMA-DTA (McInnes 2018, JAMA) flow is reported on the Screening tab. QUADAS-2 (Whiting 2011, Ann Intern Med) was applied across four domains. Sensitivity, specificity, diagnostic odds ratio (DOR), and positive/negative likelihood ratios were pooled using the Reitsma 2005 bivariate REML model fit by Nelder-Mead simplex; a real 2-parameter REML with rho fixed at 0 is used as the rho-boundary refit; FE bivariate is the k<5 fallback; for k=1 the engine reports per-axis Clopper-Pearson. A 95% prediction interval (Higgins 2009 / Riley 2011, t_{k-2} on logit scale) is reported when k>=3. Continuity correction follows Sweeting 2004 (conditional 0.5 added to all four cells of every study, only when at least one cell of any study is zero); the resulting bias-toward-null is acknowledged. For composite-reference subgroups (Quan 2023, Pereira Battaglia 2025, Kabir 2021) the imperfect-reference-standard assumption is documented; Bayesian latent-class meta-analysis (Dendukuri 2012, Biometrics) is the formal handling and is deferred to v1.2. Analysis is reproducible from the embedded JSON dataset and the open-source RapidMeta DTA engine.',
           results: 'k = ' + k_combined + ' studies in the Combined all-tier (k=' + k_combined + '); k = ' + k_primary +
             ' in the default Sputum+culture tier (Dorman 2018 + Andama 2021). Pooled Sensitivity (combined tier) was ' + pct(combinedFit && combinedFit.pooled_sens) +
             ' ' + (combinedFit ? pctCI(combinedFit.pooled_sens_ci_lb, combinedFit.pooled_sens_ci_ub) : '') +
@@ -3723,7 +3723,7 @@
           'Conclusions: ' + abstractParts.conclusions;
 
         // ===== Methods paragraph =====
-        var methodsPara = 'We pre-specified the protocol (PICOTS+R framework) before extraction (build-time spec docs/superpowers/specs/2026-04-27-rapidmeta-dta-engine-design.md). The search executed on 2026-04-27 against ClinicalTrials.gov (NIH/NLM API v2) and PubMed (NCBI E-utilities); raw retrieval is preserved in ctgov_genexpert_ultra_pack_2026-04-27.json and pubmed_genexpert_ultra_abstracts_2026-04-27.json. The PRISMA-DTA flow (McInnes 2018, JAMA) is on the Screening tab. Inclusion required Xpert Ultra as the index test, a documented reference standard, and 2x2 counts (or back-computable Sens%/Spec% with N+/N-). Two reviewers independently screened, extracted to a structured form (TP/FP/FN/TN, population_age, specimen, reference_standard_specific, prevalence_setting, HIV mix), and applied QUADAS-2 (Whiting 2011, Ann Intern Med) across patient selection, index test, reference standard, and flow-and-timing. Studies were stratified into a primary CT.gov-linked tier and a PubMed-abstract sensitivity tier; both tier-specific and combined-tier estimates are reported. The bivariate model was fit by Reitsma 2005 REML via a Nelder-Mead simplex over the profile log-likelihood (rapidmeta-dta-engine-v1.js), with FE bivariate fallback for k<5 or non-convergence. Per-study sensitivity and specificity CIs are exact Clopper-Pearson; pooled CIs are Wald on the logit scale, back-transformed. Continuity correction (0.5 added to all four cells, conditional on at least one zero cell anywhere in the pool) follows Sweeting 2004; the resulting bias-toward-null is acknowledged. Cross-validation against R mada::reitsma is wired (build-time log + on-demand WebR). Heterogeneity was summarised by tau-squared on logit-Sens and logit-Spec; threshold effect by Spearman correlation between logit(Sens) and logit(1-Spec) per Macaskill 2010. Subgroup interaction tests use Q_between on the logit scale across pre-specified covariate axes. Substantive evidence comparator: Cochrane Zifodya 2022 (CD009593.pub5, ~70 evaluations) and the 2025 update Horne 2025 (CD009593.pub6); imperfect-reference-standard handling for composite-reference subgroups (Quan 2023, Carvalho 2024, Kabir 2021) via Bayesian latent-class meta-analysis (Dendukuri 2012, Biometrics) is deferred to v1.2.';
+        var methodsPara = 'We pre-specified the protocol (PICOTS+R framework) before extraction (build-time spec docs/superpowers/specs/2026-04-27-rapidmeta-dta-engine-design.md). The search executed on 2026-04-27 against ClinicalTrials.gov (NIH/NLM API v2) and PubMed (NCBI E-utilities); raw retrieval is preserved in ctgov_genexpert_ultra_pack_2026-04-27.json and pubmed_genexpert_ultra_abstracts_2026-04-27.json. The PRISMA-DTA flow (McInnes 2018, JAMA) is on the Screening tab. Inclusion required Xpert Ultra as the index test, a documented reference standard, and 2x2 counts (or back-computable Sens%/Spec% with N+/N-). Two reviewers independently screened, extracted to a structured form (TP/FP/FN/TN, population_age, specimen, reference_standard_specific, prevalence_setting, HIV mix), and applied QUADAS-2 (Whiting 2011, Ann Intern Med) across patient selection, index test, reference standard, and flow-and-timing. Studies were stratified into a primary CT.gov-linked tier and a PubMed-abstract sensitivity tier; both tier-specific and combined-tier estimates are reported. The bivariate model was fit by Reitsma 2005 REML via a Nelder-Mead simplex over the profile log-likelihood (rapidmeta-dta-engine-v1.js), with FE bivariate fallback for k<5 or non-convergence. Per-study sensitivity and specificity CIs are exact Clopper-Pearson; pooled CIs are Wald on the logit scale, back-transformed. Continuity correction (0.5 added to all four cells, conditional on at least one zero cell anywhere in the pool) follows Sweeting 2004; the resulting bias-toward-null is acknowledged. Cross-validation against R mada::reitsma is wired (build-time log + on-demand WebR). Heterogeneity was summarised by tau-squared on logit-Sens and logit-Spec; threshold effect by Spearman correlation between logit(Sens) and logit(1-Spec) per Macaskill 2010. Subgroup interaction tests use Q_between on the logit scale across pre-specified covariate axes. Substantive evidence comparator: Cochrane Zifodya 2022 (CD009593.pub5, ~70 evaluations) and the 2025 update Horne 2025 (CD009593.pub6); imperfect-reference-standard handling for composite-reference subgroups (Quan 2023, Pereira Battaglia 2025, Kabir 2021) via Bayesian latent-class meta-analysis (Dendukuri 2012, Biometrics) is deferred to v1.2.';
 
         // ===== Results paragraph (LIVE values) =====
         var k_now = f.k;
@@ -4083,7 +4083,7 @@
           'McInnes MDF, Moher D, Thombs BD, McGrath TA, Bossuyt PM, et al. Preferred Reporting Items for a Systematic Review and Meta-analysis of Diagnostic Test Accuracy Studies: the PRISMA-DTA Statement. <em>JAMA</em>. 2018;319(4):388&ndash;396. <a class="external-link" href="https://doi.org/10.1001/jama.2017.19163" target="_blank" rel="noopener">DOI: 10.1001/jama.2017.19163</a> (extension to PRISMA 2020 used in the Screening-tab flow).',
           '<strong>Zifodya JS, Kreniske JS, Schiller I, Kohli M, Dendukuri N, Schumacher SG, Ochodo EA, Haraka F, Zwerling AA, Pai M, Steingart KR, Horne DJ.</strong> Xpert Ultra versus Xpert MTB/RIF for pulmonary tuberculosis and rifampicin resistance in adults with presumptive pulmonary tuberculosis. <em>Cochrane Database Syst Rev</em>. 2022;Issue 1:CD009593.pub5. <a class="external-link" href="https://doi.org/10.1002/14651858.CD009593.pub5" target="_blank" rel="noopener">DOI: 10.1002/14651858.CD009593.pub5</a> <strong>&mdash; substantive comparator</strong>: this k=5 review uses GeneXpert Ultra as a worked methodological example for the RapidMeta DTA engine; the substantive evidence base is Zifodya 2022 (~70 study evaluations). Quantitative interpretation should defer to that reference.',
           'Horne DJ, Zifodya JS, Shapiro AE, Church EC, Kreniske JS, Kay AW, Scandrett K, Steingart KR, Takwoingi Y. Xpert MTB/RIF Ultra assay for pulmonary tuberculosis and rifampicin resistance in adults and adolescents. <em>Cochrane Database Syst Rev</em>. 2025;Issue 7:CD009593.pub6. <a class="external-link" href="https://doi.org/10.1002/14651858.CD009593.pub6" target="_blank" rel="noopener">DOI: 10.1002/14651858.CD009593.pub6</a> (most recent Cochrane update; supersedes Zifodya 2022).',
-          'Dendukuri N, Schiller I, Joseph L, Pai M. Bayesian Meta-Analysis of the Accuracy of a Test for Tuberculous Pleuritis in the Absence of a Gold Standard Reference. <em>Biometrics</em>. 2012;68(4):1285&ndash;1293. <a class="external-link" href="https://doi.org/10.1111/j.1541-0420.2012.01773.x" target="_blank" rel="noopener">DOI: 10.1111/j.1541-0420.2012.01773.x</a> (cited for the imperfect-reference-standard / Bayesian latent-class meta-analysis framework deferred to v1.2 for the composite-reference subgroups: Quan 2023, Carvalho 2024, Kabir 2021).'
+          'Dendukuri N, Schiller I, Joseph L, Pai M. Bayesian Meta-Analysis of the Accuracy of a Test for Tuberculous Pleuritis in the Absence of a Gold Standard Reference. <em>Biometrics</em>. 2012;68(4):1285&ndash;1293. <a class="external-link" href="https://doi.org/10.1111/j.1541-0420.2012.01773.x" target="_blank" rel="noopener">DOI: 10.1111/j.1541-0420.2012.01773.x</a> (cited for the imperfect-reference-standard / Bayesian latent-class meta-analysis framework deferred to v1.2 for the composite-reference subgroups: Quan 2023, Pereira Battaglia 2025, Kabir 2021).'
         ];
 
         var html = '<h3 class="subsection-title">Included studies</h3>' +
@@ -4314,10 +4314,10 @@
         {
           decision: 'included',
           tier: 'sensitivity',
-          studlab: 'Carvalho 2024',
+          studlab: 'Pereira Battaglia 2025',
           title: 'Diagnostic contribution of GeneXpert Ultra in pediatric pulmonary tuberculosis',
-          authors: 'Carvalho I, Goletti D, Manga S, et al.',
-          year: 2024,
+          authors: 'Pereira Battaglia CS, Amaral Ibiapina Parente AA, Raggio Luiz R, Baroni Aurilio R, Alexandrino de Souza Pinheiro M, et al.',
+          year: 2025,
           journal: 'J Bras Pneumol',
           country: 'Brazil',
           ref_std: 'Clinical-radiological + 2-month treatment response',
