@@ -5779,34 +5779,50 @@ const ContinuousMDEngine = {
 
 
 // =============================================================================
-// DoseResponseEngine — pools outcomes by dose (parsed from title) and fits a
-// linear regression of effect vs dose with 95% CI band. Distinct from per-dose
-// forest entries — visualises the effect-by-dose curve directly.
+// DoseResponseEngine — drug-stratified dose-response analysis.
+// Parses {drug, dose} from outcome titles ("tirzepatide 5 mg", "dupilumab 300 mg"),
+// pools by (drug, dose), fits one linear regression per drug, plots one curve
+// per drug with separate colors. For single-drug dashboards (TIRZEPATIDE_T2D)
+// behaves identically to the prior version. For multi-drug NMAs (ATOPIC_DERM,
+// INCRETINS_T2D), produces methodologically sound stratified curves rather
+// than mis-pooling 5 mg semaglutide with 5 mg something-else.
 // Usage: DoseResponseEngine.render('plot-dose-response', RapidMeta.realData)
 // =============================================================================
 const DoseResponseEngine = {
-    parseDose(title) {
+    // Parse first <drug> <number> mg pattern from title.
+    parseDrugDose(title) {
         if (!title) return null;
-        const m = String(title).match(/(\d+(?:\.\d+)?)\s*mg\b/i);
-        return m ? parseFloat(m[1]) : null;
+        const m = String(title).match(/(\w{3,})\s+(\d+(?:\.\d+)?)\s*mg\b/i);
+        if (!m) return null;
+        const drug = m[1].toLowerCase();
+        // Skip stop-words that look like words but aren't drugs
+        if (['week', 'weeks', 'day', 'days', 'mean', 'change', 'baseline', 'arm'].includes(drug)) return null;
+        return { drug, dose: parseFloat(m[2]) };
     },
-    extractDoseSeries(realData) {
-        const byDose = new Map();
+    extractDrugSeries(realData) {
+        // Returns Map<drug, [{dose, effect, se}]> sorted by dose ascending.
+        const byKey = new Map();
         for (const trialId of Object.keys(realData ?? {})) {
             const outs = realData[trialId]?.allOutcomes ?? [];
             for (const o of outs) {
-                const dose = this.parseDose(o.title);
-                if (dose == null) continue;
+                const dd = this.parseDrugDose(o.title);
+                if (!dd) continue;
                 if (o.md == null || o.se == null) continue;
+                const k = dd.drug + '@' + dd.dose;
                 const w = 1 / (o.se * o.se);
-                const cur = byDose.get(dose) ?? { sumW: 0, sumWX: 0 };
+                const cur = byKey.get(k) ?? { drug: dd.drug, dose: dd.dose, sumW: 0, sumWX: 0 };
                 cur.sumW += w; cur.sumWX += w * o.md;
-                byDose.set(dose, cur);
+                byKey.set(k, cur);
             }
         }
-        return [...byDose.entries()]
-            .map(([dose, agg]) => ({ dose, effect: agg.sumWX / agg.sumW, se: Math.sqrt(1 / agg.sumW) }))
-            .sort((a, b) => a.dose - b.dose);
+        const drugGroups = new Map();
+        for (const v of byKey.values()) {
+            const series = drugGroups.get(v.drug) ?? [];
+            series.push({ dose: v.dose, effect: v.sumWX / v.sumW, se: Math.sqrt(1 / v.sumW) });
+            drugGroups.set(v.drug, series);
+        }
+        for (const series of drugGroups.values()) series.sort((a, b) => a.dose - b.dose);
+        return drugGroups;
     },
     fitLinear(series) {
         const n = series.length;
@@ -5827,23 +5843,44 @@ const DoseResponseEngine = {
     render(containerId, realData) {
         const el = typeof containerId === 'string' ? document.getElementById(containerId) : containerId;
         if (!el || typeof Plotly === 'undefined') return null;
-        const series = this.extractDoseSeries(realData);
-        if (series.length < 2) {
-            el.innerHTML = '<p style="padding:20px;color:#94a3b8;font-size:11px;">Dose-response analysis requires &gt;=2 dose levels with continuous (md/se) outcomes parseable from title (e.g. "5 mg", "10 mg"). None detected.</p>';
+        const drugGroups = this.extractDrugSeries(realData);
+        if (drugGroups.size === 0) {
+            el.innerHTML = '<p style="padding:20px;color:#94a3b8;font-size:11px;">Dose-response analysis requires outcome titles in the form "<drug> <dose> mg" (e.g. "tirzepatide 5 mg", "dupilumab 300 mg"). None detected.</p>';
             return null;
         }
-        const fit = this.fitLinear(series);
-        const xs = series.map(p => p.dose);
-        const ys = series.map(p => p.effect);
-        const errs = series.map(p => 1.96 * p.se);
-        const xMin = Math.min(...xs), xMax = Math.max(...xs);
-        const fitXs = []; for (let i = 0; i <= 50; i++) fitXs.push(xMin + (xMax - xMin) * i / 50);
-        const fitYs = fitXs.map(x => fit.a + fit.b * x);
-        const fitLo = fitXs.map(x => (fit.a + fit.b * x) - 1.96 * fit.seSlope * Math.abs(x - fit.meanX));
-        const fitHi = fitXs.map(x => (fit.a + fit.b * x) + 1.96 * fit.seSlope * Math.abs(x - fit.meanX));
-        const obs = { x: xs, y: ys, error_y: { type: 'data', array: errs, color: '#3b82f6' }, mode: 'markers', name: 'Observed (pooled by dose, 95% CI)', marker: { size: 14, color: '#3b82f6' }, type: 'scatter' };
-        const fitLine = { x: fitXs, y: fitYs, mode: 'lines', name: 'Linear fit (slope ' + fit.b.toFixed(3) + ' per mg, R²=' + fit.R2.toFixed(3) + ')', line: { color: '#10b981', width: 2.5 }, type: 'scatter' };
-        const ciBand = { x: [...fitXs, ...fitXs.slice().reverse()], y: [...fitHi, ...fitLo.slice().reverse()], fill: 'toself', fillcolor: 'rgba(16,185,129,0.15)', line: { color: 'transparent' }, name: '95% CI on fit', type: 'scatter', hoverinfo: 'skip' };
+        // Color palette per drug (cycle through 8 distinct colors)
+        const PALETTE = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
+        const traces = [];
+        const fits = {};
+        let allXs = [];
+        let drugIdx = 0;
+        for (const [drug, series] of [...drugGroups.entries()].sort()) {
+            const color = PALETTE[drugIdx % PALETTE.length]; drugIdx++;
+            const xs = series.map(p => p.dose);
+            const ys = series.map(p => p.effect);
+            const errs = series.map(p => 1.96 * p.se);
+            allXs = allXs.concat(xs);
+            // Observed points
+            traces.push({
+                x: xs, y: ys, error_y: { type: 'data', array: errs, color: color },
+                mode: 'markers', name: drug, marker: { size: 12, color: color }, type: 'scatter',
+                legendgroup: drug
+            });
+            // Fit line if >=2 doses
+            if (series.length >= 2) {
+                const fit = this.fitLinear(series);
+                fits[drug] = fit;
+                const fitXs = []; for (let i = 0; i <= 30; i++) fitXs.push(xs[0] + (xs[xs.length-1] - xs[0]) * i / 30);
+                const fitYs = fitXs.map(x => fit.a + fit.b * x);
+                traces.push({
+                    x: fitXs, y: fitYs, mode: 'lines',
+                    name: drug + ' fit (slope ' + fit.b.toFixed(3) + ', R²=' + fit.R2.toFixed(3) + ')',
+                    line: { color: color, width: 2, dash: 'solid' },
+                    type: 'scatter', legendgroup: drug, showlegend: true
+                });
+            }
+        }
+        const xMin = Math.min(...allXs), xMax = Math.max(...allXs);
         const layout = {
             paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
             xaxis: { title: 'Dose (mg)', gridcolor: '#1e293b', color: '#94a3b8', zeroline: false },
@@ -5852,8 +5889,8 @@ const DoseResponseEngine = {
             shapes: [{ type: 'line', x0: xMin, x1: xMax, y0: 0, y1: 0, line: { color: '#ef4444', width: 1.5, dash: 'dot' } }],
             showlegend: true, legend: { x: 0.02, y: 0.98, font: { size: 9 } }
         };
-        Plotly.newPlot(el, [ciBand, fitLine, obs], layout, { displayModeBar: false, responsive: true });
-        return fit;
+        Plotly.newPlot(el, traces, layout, { displayModeBar: false, responsive: true });
+        return fits;
     },
 };
 
