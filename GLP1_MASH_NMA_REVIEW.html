@@ -32690,13 +32690,15 @@
                 const I2 = (Q > df) ? ((Q - df) / Q) * 100 : 0;
 
 
-                const tau2 = (Q > df) ? (Q - df) / (sW - (sW2 / sW)) : 0;
+                // DL tau2 (kept as sensitivity sidecar, exposed via tau2_dl)
+                const tau2_dl = (Q > df) ? (Q - df) / (sW - (sW2 / sW)) : 0;
 
 
-                /* REML tau-squared via Fisher scoring (Viechtbauer 2005) */
+                /* REML tau-squared via Fisher scoring (Viechtbauer 2005). */
+                /* Cochrane Handbook v6.5 / RevMan-2025: REML is the primary tau2. */
 
 
-                let tau2_reml = tau2; /* start from DL estimate */
+                let tau2_reml = tau2_dl; /* start from DL estimate */
 
 
                 if (k >= 2) {
@@ -32754,6 +32756,10 @@
 
 
                 }
+
+
+                // Primary tau2 = REML when k>=2 (Cochrane v6.5 default), else DL.
+                const tau2 = (k >= 2) ? tau2_reml : tau2_dl;
 
 
                 let sWR = 0, sWRY = 0;
@@ -32822,13 +32828,14 @@
                 const piSE = Math.sqrt(tau2 + pSE * pSE);
 
 
-                const tCritPI = (k >= 3) ? tQuantile(1 - (1 - confLevel) / 2, k - 2) : NaN;
+                // PI df = k-1 per Cochrane Handbook v6.5 §10.10.4.3 (RevMan default).
+                const tCritPI = (k >= 2) ? tQuantile(1 - (1 - confLevel) / 2, k - 1) : NaN;
 
 
-                const piLCI = (k >= 3) ? Math.exp(pLogOR - tCritPI * piSE) : NaN;
+                const piLCI = (k >= 2) ? Math.exp(pLogOR - tCritPI * piSE) : NaN;
 
 
-                const piUCI = (k >= 3) ? Math.exp(pLogOR + tCritPI * piSE) : NaN;
+                const piUCI = (k >= 2) ? Math.exp(pLogOR + tCritPI * piSE) : NaN;
 
 
                 const qPvalue = chi2Pvalue(Q, df);
@@ -33214,7 +33221,7 @@
                 }
 
 
-                document.getElementById('res-pi').innerText = (c.k >= 3) ? `${c.piLCI.toFixed(2)} \u2014 ${c.piUCI.toFixed(2)}` : 'N/A (k < 3)';
+                document.getElementById('res-pi').innerText = (c.k >= 2 && Number.isFinite(c.piLCI)) ? `${c.piLCI.toFixed(2)} \u2014 ${c.piUCI.toFixed(2)}` : 'N/A (k < 2)';
 
 
                 document.getElementById('res-qtest').innerText = `Q(${c.df}) = ${c.Q.toFixed(1)}, p = ${c.qPvalue < 0.001 ? '<0.001' : c.qPvalue.toFixed(3)}`;
