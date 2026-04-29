@@ -39277,7 +39277,7 @@ print(res_sub)`;
                     <td class="p-3">${escapeHtml(row.registeredPrimary)}</td>
 
 
-                    <td class="p-3">${escapeHtml(row.currentEndpoint)}</td>
+                    <td class="p-3">${row.currentEndpoint === row.registeredPrimary ? '<span class="text-slate-500 italic text-[10px]">&mdash; matches registered</span>' : escapeHtml(row.currentEndpoint)}</td>
 
 
                     <td class="p-3">${escapeHtml(row.ctgovStatus)}<br><span class="text-[9px] opacity-60">${escapeHtml(row.docsStatus)}</span></td>
