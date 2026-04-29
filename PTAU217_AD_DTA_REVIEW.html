@@ -3139,10 +3139,10 @@
         var grid = '<div class="metric-grid">' +
           '<div class="metric-card"><div class="metric-label">tau&sup2; (Sens, logit)</div>' +
           '<div class="metric-value">' + fmtNum(fit.tau2_sens, 4) + '</div>' +
-          '<div class="metric-ci">between-study variance on logit scale</div></div>' +
+          '<div class="metric-ci">' + (Number.isFinite(fit.tau2_sens_lo) && Number.isFinite(fit.tau2_sens_hi) ? 'Q-profile 95% CI: ' + fmtNum(fit.tau2_sens_lo, 4) + ' &mdash; ' + fmtNum(fit.tau2_sens_hi, 4) : 'between-study variance on logit scale') + '</div></div>' +
           '<div class="metric-card"><div class="metric-label">tau&sup2; (Spec, logit)</div>' +
           '<div class="metric-value">' + fmtNum(fit.tau2_spec, 4) + '</div>' +
-          '<div class="metric-ci">between-study variance on logit scale</div></div>' +
+          '<div class="metric-ci">' + (Number.isFinite(fit.tau2_spec_lo) && Number.isFinite(fit.tau2_spec_hi) ? 'Q-profile 95% CI: ' + fmtNum(fit.tau2_spec_lo, 4) + ' &mdash; ' + fmtNum(fit.tau2_spec_hi, 4) : 'between-study variance on logit scale') + '</div></div>' +
           '<div class="metric-card"><div class="metric-label">rho (Sens, Spec)</div>' +
           '<div class="metric-value">' + fmtNum(fit.rho, 3) + '</div>' +
           '<div class="metric-ci">between-study correlation, logit scale</div></div>' +

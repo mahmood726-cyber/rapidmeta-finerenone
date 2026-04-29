@@ -371,6 +371,71 @@
     return negate ? -t : t;
   }
 
+  // ---------- Chi-square quantile (Cochrane v6.5 / Q-profile support) ----------
+  function qchisq(p, df) {
+    if (df <= 0 || p <= 0) return 0;
+    if (p >= 1) return Infinity;
+    if (df === 1) {
+      // Inverse normal at (1+p)/2, squared
+      var z = _qnormApprox((1 + p) / 2);
+      return z * z;
+    }
+    if (df === 2) return -2 * Math.log(1 - p);
+    // Wilson-Hilferty for df>=3
+    var z2 = _qnormApprox(p);
+    var v = 1 - 2/(9*df) + z2 * Math.sqrt(2/(9*df));
+    return Math.max(0, df * v * v * v);
+  }
+  // Beasley-Springer-Moro inverse normal (good to ~7 digits in [1e-9, 1-1e-9])
+  function _qnormApprox(p) {
+    if (p <= 0) return -Infinity;
+    if (p >= 1) return Infinity;
+    var a = [-3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02,
+             1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00];
+    var b = [-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02,
+             6.680131188771972e+01, -1.328068155288572e+01];
+    var c = [-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00,
+             -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00];
+    var d = [7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00,
+             3.754408661907416e+00];
+    var pl = 0.02425, ph = 1 - pl, q, r;
+    if (p < pl) { q = Math.sqrt(-2 * Math.log(p));
+      return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+    if (p <= ph) { q = p - 0.5; r = q*q;
+      return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q / (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1); }
+    q = Math.sqrt(-2 * Math.log(1-p));
+    return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+  }
+
+  // ---------- Q-profile tau2 CI (univariate, Viechtbauer 2007) ----------
+  // Applied per-axis (sens, spec) as marginal approximation of the bivariate CI.
+  function qProfileTau2CI(yi, vi, df, alpha) {
+    if (df < 1 || yi.length < 2) return { tau2_lo: NaN, tau2_hi: NaN };
+    function qGen(tau2) {
+      var sW = 0, sWY = 0, sW_Y2 = 0;
+      for (var i = 0; i < yi.length; i++) {
+        var w = 1 / (vi[i] + tau2);
+        sW += w; sWY += w * yi[i]; sW_Y2 += w * yi[i] * yi[i];
+      }
+      if (sW === 0) return 0;
+      return Math.max(0, sW_Y2 - (sWY * sWY) / sW);
+    }
+    var cutHi = qchisq(1 - alpha/2, df);
+    var cutLo = qchisq(alpha/2, df);
+    var Q0 = qGen(0);
+    function bisect(target) {
+      if (Q0 <= target) return 0;
+      var lo = 0, hi = 100;
+      for (var _e = 0; _e < 30 && qGen(hi) > target && hi < 1e8; _e++) hi *= 2;
+      for (var _i = 0; _i < 60; _i++) {
+        var mid = (lo + hi) / 2;
+        if (qGen(mid) > target) lo = mid; else hi = mid;
+      }
+      return (lo + hi) / 2;
+    }
+    return { tau2_lo: bisect(cutHi), tau2_hi: bisect(cutLo) };
+  }
+
   // ---------- Prediction Interval (Higgins 2009 / Riley 2011, t_{k-2} on logit scale) ----------
   // P0-3: per-axis PI for future-study Sens/Spec. Undefined for k<3 or single-study fits.
   function predict(fitResult) {
@@ -607,6 +672,22 @@
     var sens = 1/(1+Math.exp(-fitObj.mu_sens_logit));
     var spec = 1/(1+Math.exp(-fitObj.mu_spec_logit));
     var z = 1.959963984540054;
+
+    // Q-profile tau2 CI per-axis (Cochrane v6.5 / RevMan-2025; univariate marginal)
+    var tau2SensCI = { tau2_lo: NaN, tau2_hi: NaN };
+    var tau2SpecCI = { tau2_lo: NaN, tau2_hi: NaN };
+    if (k_raw >= 2 && fitObj.estimator !== 'single_study_clopper_pearson') {
+      var ySens = [], vSens = [], ySpec = [], vSpec = [];
+      for (var qi = 0; qi < working.length; qi++) {
+        var qt = working[qi], qpos = qt.TP + qt.FN, qneg = qt.TN + qt.FP;
+        var qs = qt.TP / qpos, qsp = qt.TN / qneg;
+        ySens.push(Math.log(qs / (1 - qs))); vSens.push(1/qt.TP + 1/qt.FN);
+        ySpec.push(Math.log(qsp / (1 - qsp))); vSpec.push(1/qt.TN + 1/qt.FP);
+      }
+      tau2SensCI = qProfileTau2CI(ySens, vSens, k_raw - 1, 0.05);
+      tau2SpecCI = qProfileTau2CI(ySpec, vSpec, k_raw - 1, 0.05);
+    }
+
     function backCI(mu, se){
       var lo = 1/(1+Math.exp(-(mu-z*se)));
       var hi = 1/(1+Math.exp(-(mu+z*se)));
@@ -635,6 +716,8 @@
       pooled_sens_ci_lb: sens_ci[0], pooled_sens_ci_ub: sens_ci[1],
       pooled_spec_ci_lb: spec_ci[0], pooled_spec_ci_ub: spec_ci[1],
       tau2_sens: fitObj.tau2_sens, tau2_spec: fitObj.tau2_spec, rho: fitObj.rho,
+      tau2_sens_lo: tau2SensCI.tau2_lo, tau2_sens_hi: tau2SensCI.tau2_hi,
+      tau2_spec_lo: tau2SpecCI.tau2_lo, tau2_spec_hi: tau2SpecCI.tau2_hi,
       dor: dor, dor_ci_lb: dor_ci[0], dor_ci_ub: dor_ci[1],
       lr_pos: lr_pos, lr_neg: lr_neg,
       threshold_effect_spearman: sp_rho,
