@@ -5780,9 +5780,15 @@
 
 
 
-        // Chi-square quantile via Wilson-Hilferty inverse (sufficient for df >= 1).
+        // Chi-square quantile.
+        // df=1: chi^2_1 -> qnorm((1+p)/2)^2 (exact).
+        // df=2: chi^2_2 -> -2*ln(1-p) (exact).
+        // df>=3: Wilson-Hilferty cube-root inverse (sufficient).
         const qchisq = (p, df) => {
-            if (df <= 0) return NaN;
+            if (df <= 0 || p <= 0) return 0;
+            if (p >= 1) return Infinity;
+            if (df === 1) { const z = normalQuantile((1 + p) / 2); return z * z; }
+            if (df === 2) return -2 * Math.log(1 - p);
             const z = normalQuantile(p);
             const v = 1 - 2/(9*df) + z * Math.sqrt(2/(9*df));
             return Math.max(0, df * v * v * v);
