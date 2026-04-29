@@ -2563,7 +2563,7 @@
                 <!-- v10.0: Secondary stat cards -->
 
 
-                <div class="grid grid-cols-3 gap-8">
+                <div class="grid grid-cols-4 gap-8">
 
 
                     <div class="glass p-6 rounded-[30px] border border-slate-800 text-center" title="Hartung-Knapp-Sidik-Jonkman adjustment uses t-distribution with k-1 df, accounting for uncertainty in tau-squared estimation. More reliable than Wald for small k."><div class="text-[10px] opacity-50 uppercase font-bold mb-2 tracking-[0.2em]">HKSJ-Adjusted CI</div><div id="res-hksj" aria-label="HKSJ-adjusted confidence interval" class="text-lg font-bold font-mono tracking-tight text-cyan-400">--</div></div>
@@ -2573,6 +2573,9 @@
 
 
                     <div class="glass p-6 rounded-[30px] border border-slate-800 text-center"><div class="text-[10px] opacity-50 uppercase font-bold mb-2 tracking-[0.2em]">Q-test (Cochran)</div><div id="res-qtest" aria-label="Cochran Q test for heterogeneity" class="text-lg font-bold font-mono tracking-tight text-amber-400">--</div></div>
+
+
+                    <div class="glass p-6 rounded-[30px] border border-slate-800 text-center" title="Tau-squared (between-study variance) with Q-profile 95% CI (Viechtbauer 2007); Cochrane v6.5 / RevMan-2025 default."><div class="text-[10px] opacity-50 uppercase font-bold mb-2 tracking-[0.2em]">τ² (95% CI)</div><div id="res-tau2-ci" aria-label="Tau-squared with Q-profile CI" class="text-lg font-bold font-mono tracking-tight text-emerald-400">--</div></div>
 
 
                 </div>
@@ -2741,6 +2744,8 @@
 
 
                     <div class="stat-chip stat-chip-blue" id="chip-egger"><i class="fa-solid fa-chart-line" style="font-size:10px"></i> Egger's: --</div>
+
+                    <div class="stat-chip stat-chip-blue" id="chip-robme" title="Cochrane Ch.13 ROB-ME: per-MA risk of missing evidence (Q1 search, Q2 missing trials, Q3 selective reporting, Q4 small-study effects)."><i class="fa-solid fa-eye-slash" style="font-size:10px"></i> ROB-ME: --</div>
 
 
                     <div class="stat-chip stat-chip-blue" id="chip-fragility"><i class="fa-solid fa-shield-halved" style="font-size:10px"></i> Fragility: --</div>
@@ -28892,7 +28897,32 @@
                 const I2 = (Q > df && Q > 0) ? ((Q - df) / Q) * 100 : 0;
 
 
-                const tau2 = (Q > df && sW > 0) ? (Q - df) / (sW - (sW2 / sW)) : 0;
+                // DL tau2 (kept as sensitivity sidecar, exposed via tau2_dl)
+                const tau2_dl = (Q > df && sW > 0) ? (Q - df) / (sW - (sW2 / sW)) : 0;
+
+                // REML iteration starting from DL (Cochrane v6.5 / RevMan-2025: REML primary).
+                let tau2_reml = tau2_dl;
+                if (k >= 2) {
+                    const _yi = plotData.map(d => d.logOR);
+                    const _vi = plotData.map(d => d.vi);
+                    for (let _it = 0; _it < 100; _it++) {
+                        const _w = _vi.map(v => 1 / (v + tau2_reml));
+                        const _sW = _w.reduce((a, b) => a + b, 0);
+                        const _mu = _w.reduce((a, wi, i) => a + wi * _yi[i], 0) / _sW;
+                        const _sW2 = _w.reduce((a, wi) => a + wi * wi, 0);
+                        const _sW3 = _w.reduce((a, wi) => a + wi * wi * wi, 0);
+                        const _trP = _sW - _sW2 / _sW;
+                        const _yP2y = _w.reduce((a, wi, i) => a + wi * wi * Math.pow(_yi[i] - _mu, 2), 0);
+                        const _trP2 = _sW2 - 2 * _sW3 / _sW + _sW2 * _sW2 / (_sW * _sW);
+                        if (_trP2 < 1e-15) break;
+                        const _delta = (_yP2y - _trP) / _trP2;
+                        const _new = Math.max(0, tau2_reml + _delta);
+                        if (Math.abs(_new - tau2_reml) < 1e-10) { tau2_reml = _new; break; }
+                        tau2_reml = _new;
+                    }
+                }
+                // Primary tau2 = REML when k>=2 (Cochrane v6.5 default), else DL.
+                const tau2 = (k >= 2) ? tau2_reml : tau2_dl;
 
 
                 let sWR = 0, sWRY = 0;
@@ -29726,6 +29756,51 @@
 
 
 
+            _assessROBME(c) {
+                if (!c) return null;
+                const k = c.k || 0;
+                const eggerP = (c.eggerResult && c.eggerResult.sufficient) ? c.eggerResult.pValue : null;
+                const k0 = (c.tfResult && c.tfResult.available) ? c.tfResult.k0 : 0;
+                const drift = (typeof c.primaryEndpointDrift === 'number') ? c.primaryEndpointDrift : null;
+                // Q1 Search comprehensiveness -- manual
+                const q1 = { level: 'manual', text: 'Manual: assess search comprehensiveness (databases, grey literature, registries, language coverage).' };
+                // Q2 Trials missing from synthesis vs registered -- manual
+                const q2 = { level: 'manual', text: 'Manual: identify registered trials without published or posted results.' };
+                // Q3 Selective non-reporting within studies -- from endpoint drift signal
+                let q3;
+                if (drift == null) {
+                    q3 = { level: 'manual', text: 'Manual: review individual trial outcome drift / selective reporting.' };
+                } else if (drift === 0) {
+                    q3 = { level: 'low', text: 'No analyzed trials pooled on a non-primary endpoint (CT.gov surveillance).' };
+                } else if (drift <= 1) {
+                    q3 = { level: 'some', text: drift + ' analyzed trial pooled on a non-primary endpoint.' };
+                } else {
+                    q3 = { level: 'high', text: drift + ' analyzed trials pooled on non-primary endpoints.' };
+                }
+                // Q4 Small-study effects -- Egger + trim-fill + k>=10 threshold
+                let q4;
+                if (k < 10) {
+                    q4 = { level: 'manual', text: 'k<10: Egger / trim-fill underpowered; visual funnel inspection insufficient on its own.' };
+                } else if (eggerP != null && eggerP < 0.05) {
+                    q4 = { level: 'high', text: 'Egger p=' + eggerP.toFixed(3) + ' (<0.05) suggests asymmetric funnel.' };
+                } else if (eggerP != null && eggerP < 0.10) {
+                    q4 = { level: 'some', text: 'Egger p=' + eggerP.toFixed(3) + ' (<0.10).' };
+                } else if (k0 >= 3) {
+                    q4 = { level: 'some', text: 'Trim-and-fill imputes ' + k0 + ' missing studies.' };
+                } else {
+                    q4 = { level: 'low', text: 'Egger p=' + (eggerP != null ? eggerP.toFixed(3) : '--') + ', trim-fill k0=' + k0 + '.' };
+                }
+                const flags = { q1, q2, q3, q4 };
+                const levels = Object.values(flags).map(f => f.level);
+                let overall;
+                if (levels.includes('high')) overall = { level: 'high', text: 'High risk of missing evidence' };
+                else if (levels.includes('some')) overall = { level: 'some', text: 'Some concerns' };
+                else if (levels.every(l => l === 'low')) overall = { level: 'low', text: 'Low risk of missing evidence' };
+                else overall = { level: 'manual', text: 'Pending manual judgements (Q1/Q2)' };
+                return { flags, overall };
+            },
+
+
             updateStatCards(c) {
 
 
@@ -29751,6 +29826,10 @@
 
 
                     document.getElementById('res-qtest').innerText = '--';
+
+
+                    const _tau2El = document.getElementById('res-tau2-ci');
+                    if (_tau2El) _tau2El.innerText = '--';
 
 
                     const eggerChip = document.getElementById('chip-egger') ?? document.getElementById('stat-egger');
@@ -29807,13 +29886,23 @@
                 document.getElementById('res-ci-label').innerText = `Precision (${ciPct}% CI)`;
 
 
-                document.getElementById('res-i2').innerText = c.I2_hi > 0 && c.k >= 2
-
-
-                    ? `${c.I2.toFixed(0)}% (${c.I2_lo.toFixed(0)}-${c.I2_hi.toFixed(0)}%)`
-
-
+                // Prefer Q-profile-derived I² CI when available (Cochrane v6.5).
+                const _i2lo = (typeof c.I2_lo_qp === 'number' && Number.isFinite(c.I2_lo_qp)) ? c.I2_lo_qp : c.I2_lo;
+                const _i2hi = (typeof c.I2_hi_qp === 'number' && Number.isFinite(c.I2_hi_qp)) ? c.I2_hi_qp : c.I2_hi;
+                document.getElementById('res-i2').innerText = (Number.isFinite(_i2hi) && _i2hi > 0 && c.k >= 2)
+                    ? `${c.I2.toFixed(0)}% (${_i2lo.toFixed(0)}-${_i2hi.toFixed(0)}%)`
                     : `${c.I2.toFixed(1)}%`;
+
+                // τ² with Q-profile CI (added by Cochrane v6.5 alignment commit).
+                const _tau2El = document.getElementById('res-tau2-ci');
+                if (_tau2El) {
+                    const _tau2 = Number.isFinite(c.tau2) ? c.tau2 : 0;
+                    if (c.k >= 2 && Number.isFinite(c.tau2Lo) && Number.isFinite(c.tau2Hi)) {
+                        _tau2El.innerText = `${_tau2.toFixed(3)} (${c.tau2Lo.toFixed(3)}-${c.tau2Hi.toFixed(3)})`;
+                    } else {
+                        _tau2El.innerText = `${_tau2.toFixed(3)}`;
+                    }
+                }
 
 
                 if (Number.isFinite(c.hksjLCI) && Number.isFinite(c.hksjUCI)) {
@@ -29901,6 +29990,21 @@
 
                 }
 
+
+                // ROB-ME chip (Cochrane Ch.13 per-MA reporting-bias verdict)
+                const robmeChip = document.getElementById('chip-robme');
+                if (robmeChip) {
+                    const _r = this._assessROBME(c);
+                    if (_r) {
+                        const _cmap = { low: 'stat-chip-green', some: 'stat-chip-amber', high: 'stat-chip-red', manual: 'stat-chip-blue' };
+                        robmeChip.className = 'stat-chip ' + (_cmap[_r.overall.level] || 'stat-chip-blue');
+                        robmeChip.title = 'Q1 (search): ' + _r.flags.q1.text + '\n'
+                                        + 'Q2 (missing trials): ' + _r.flags.q2.text + '\n'
+                                        + 'Q3 (selective reporting): ' + _r.flags.q3.text + '\n'
+                                        + 'Q4 (small-study effects): ' + _r.flags.q4.text;
+                        robmeChip.innerHTML = '<i class="fa-solid fa-eye-slash" style="font-size:10px"></i> ROB-ME: ' + _r.overall.text;
+                    }
+                }
 
                 // Sensitivity concordance summary
 
