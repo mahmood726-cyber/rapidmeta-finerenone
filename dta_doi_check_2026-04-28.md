@@ -287,3 +287,78 @@ check needed.)
   Jack 2024 is the NIA-AA workgroup paper; Schindler 2024 is the CEO Initiative
   performance-bar paper. Dendukuri 2012 has the named TB-pleuritis application
   but the Bayesian latent-class framework is the methodological reference.
+
+
+> **CORRECTION 2026-04-29 — original audit was wrong.** A second-pass re-verification
+> via Crossref API metadata-match (not just `doi.org/<DOI>` HTTP HEAD) found that
+> 5 of the 9 study-side DOIs above had been entered correctly *as DOIs that resolve*
+> but **misattributed to the wrong paper**. HTTP HEAD on doi.org returns 200 for any
+> registered DOI regardless of which paper it points to, so HEAD-only verification
+> cannot detect "right DOI, wrong label". The misattribution rate (5 of 14 = 35.7%
+> on this review) far exceeds the lessons.md ~4.13% baseline and is consistent with
+> LLM-drafted citation arrays. The fix audit follows.
+
+### Misattribution audit (2026-04-29)
+
+Verification method: for every DOI in the review, fetch
+`https://api.crossref.org/works/<DOI>` and compare the returned `title`,
+`author[0].family`, `container-title[0]`, and `published-print.date-parts[0][0]`
+to the in-page citation label. PubMed (`mcp__claude_ai_PubMed`) was used as
+secondary cross-check to find correct DOIs/PMIDs and to confirm absence of
+fabricated citations.
+
+| # | Citation in review | Old DOI | Crossref-returned title | Verdict | Fix applied |
+|---|---|---|---|---|---|
+| 1 | Janelidze 2020 (BIOFINDER-1, p-tau217 PET) | `10.1038/s41591-020-0755-1` | "Plasma P-**tau181** in Alzheimer's disease..." (Janelidze, Nat Med 2020) | DOI is **right Janelidze paper but a p-tau181 paper, not p-tau217**; previously listed PMID `32661412` was also wrong (paleontology paper) | Per audit fallback (a): keep DOI; relabel studlab to "Janelidze 2020 (BIOFINDER-1, plasma p-tau181 foundational)"; correct PMID to `32123385`; update title/abstract/journal/country to actual p-tau181 paper; flag the 2x2 counts (TP=89, FP=12, FN=14, TN=96) as "not directly extractable from this p-tau181 paper" in a new `data_caveat` for v1.1 re-extraction. PubMed search for `Janelidze[Author] p-tau217 plasma 2020` returned no first-author match. |
+| 2 | Brum WS 2023 (BIOFINDER-2 + Wisconsin two-step) | `10.1038/s43587-023-00405-1` | "Mass spectrometric simultaneous quantification of tau species in plasma..." (Montoliu-Gaya, Nat Aging 2023) | Wrong paper, wrong first author | Replaced with **`10.1038/s43587-023-00471-5`** (Brum WS, Nat Aging 2023, "A two-step workflow based on plasma p-tau217..."), PMID `37653254`. Crossref-confirmed first author "Wagner S. Brum"; title matches review's described two-step BIOFINDER-2 + Wisconsin paper exactly. Previously listed PMID `37198859` was also wrong (physics paper). |
+| 3 | Jack 2024 NIA-AA criteria (Nat Rev Neurol) | `10.1038/s41582-024-00966-8` | "Deciphering nociplastic pain..." (Kaplan, Nat Rev Neurol 2024) | Wrong paper entirely | Corrected to **`10.1002/alz.13859`** (Jack CR Jr et al., Alzheimer's & Dementia 2024, "Revised criteria for diagnosis and staging of Alzheimer's disease: Alzheimer's Association Workgroup"). Note: journal corrected from Nat Rev Neurol -> Alzheimers Dement. Crossref-confirmed first author "Clifford R. Jack, Jr." |
+| 4 | Schindler 2024 CEO Initiative (Nat Rev Neurol) | `10.1212/WNL.0000000000209589` | "Reader Response: Predictors of Seizure Recurrence..." (Sethi, Neurology 2024) | Wrong paper entirely | Corrected to **`10.1038/s41582-024-00977-5`** (Schindler SE et al., Nat Rev Neurol 2024, "Acceptable performance of blood biomarker tests of amyloid pathology — recommendations from the Global CEO Initiative on Alzheimer's Disease"). PMID `38866966`. Crossref + PubMed both confirm first author Suzanne E. Schindler, journal Nat Rev Neurol, vol 20 issue 7 pp 426–439. |
+| 5 | Brand BA 2024 IPD-MA (Neurology) | `10.1002/alz.13859` | "Revised criteria for diagnosis and staging of Alzheimer's disease..." (Jack, Alz Dement 2024) | Wrong paper entirely; **same DOI as Misattribution 3** | Per audit fallback (drop): the screening card and substantive-comparator inline citation for "Brand 2024 IPD-MA" was **removed entirely**. PubMed searches for `Brand BA[Author] p-tau217 Alzheimer`, `Brand BA[Author] Schindler[Author] Cullen NC[Author]`, and `Brand BA[Author] Schindler[Author] p-tau217 IPD meta-analysis` all returned 0 results. No verifiable Brand 2024 IPD-MA on plasma p-tau217 exists in PubMed. The in-page substantive-comparator role is now filled by the included-tier primary studies + the Schindler 2024 CEO-Initiative performance bars + the Jack 2024 NIA-AA criteria framework. EXCLUDED count adjusted from `6+` to `5+` in PRISMA flow. (Note: a real recently-published candidate substantive comparator does exist — Therriault J et al. 2025 Lancet Neurology, "Blood phosphorylated tau for the diagnosis of Alzheimer's disease: a systematic review and meta-analysis", DOI `10.1016/S1474-4422(25)00227-3`, PMID `40818474`, 113 studies / 29,625 individuals, pooled p-tau217 Sens 88.1% Spec 88.7%. Out of scope for this fix audit; flagged for v1.1.) |
+
+### Round 2: full 14/14 metadata match check (2026-04-29, post-fix)
+
+After the 5 fixes, every remaining DOI in the review was re-fetched via
+`https://api.crossref.org/works/<DOI>` and the returned `title` + `author[0].family`
++ `container-title[0]` + `published-print.year` cross-checked against the in-page
+rendering. Result: **14/14 PASS**.
+
+| # | Citation label | DOI | Crossref title (excerpt) | First author | Journal | Year | Match? |
+|---|---|---|---|---|---|---|---|
+| 1 | Palmqvist 2020 (BIOFINDER-2) | `10.1001/jama.2020.12134` | "Discriminative Accuracy of Plasma Phospho-tau217..." | Sebastian Palmqvist | JAMA | 2020 | PASS |
+| 2 | Ashton 2024 (ALZpath) | `10.1001/jamaneurol.2023.5319` | "Diagnostic Accuracy of a Plasma Phosphorylated Tau 217 Immunoassay..." | Nicholas J. Ashton | JAMA Neurology | 2024 | PASS |
+| 3 | Mielke 2021 (MCSA) | `10.1001/jamaneurol.2021.2293` | "Comparison of Plasma Phosphorylated Tau Species..." | Michelle M. Mielke | JAMA Neurology | 2021 | PASS |
+| 4 | Janelidze 2020 (relabeled p-tau181 foundational) | `10.1038/s41591-020-0755-1` | "Plasma P-tau181 in Alzheimer's disease..." | Shorena Janelidze | Nat Med | 2020 | PASS (after relabel) |
+| 5 | Brum 2023 (two-step workflow) | `10.1038/s43587-023-00471-5` | "A two-step workflow based on plasma p-tau217..." | Wagner S. Brum | Nat Aging | 2023 | PASS (after fix) |
+| 6 | Jack 2024 (NIA-AA criteria) | `10.1002/alz.13859` | "Revised criteria for diagnosis and staging of Alzheimer's disease..." | Clifford R. Jack, Jr. | Alzheimers Dement | 2024 | PASS (after journal correction) |
+| 7 | Schindler 2024 (CEO Initiative) | `10.1038/s41582-024-00977-5` | "Acceptable performance of blood biomarker tests of amyloid pathology..." | Suzanne E. Schindler | Nat Rev Neurol | 2024 | PASS (after fix) |
+| 8 | Palmqvist 2021 (Nat Med risk-score, excluded) | `10.1038/s41591-021-01348-z` | "Prediction of future Alzheimer's disease dementia using plasma phospho-tau..." | Sebastian Palmqvist | Nat Med | 2021 | PASS |
+| 9 | Therriault 2024 (eBioMedicine, excluded) | `10.1016/j.ebiom.2024.105046` | "Comparison of two plasma p-tau217 assays..." | Joseph Therriault | eBioMedicine | 2024 | PASS |
+| 10 | Cullen 2021 (Nat Commun, excluded) | `10.1038/s41467-021-23746-0` | "Plasma biomarkers of Alzheimer's disease improve prediction of cognitive decline..." | Nicholas C. Cullen | Nat Commun | 2021 | PASS |
+| 11 | Reitsma 2005 (J Clin Epi) | `10.1016/j.jclinepi.2005.02.022` | "Bivariate analysis of sensitivity and specificity..." | Johannes B. Reitsma | J Clin Epidemiol | 2005 | PASS |
+| 12 | Harbord 2007 (Biostatistics) | `10.1093/biostatistics/kxl004` | "A unification of models for meta-analysis of diagnostic accuracy studies" | R. M. Harbord | Biostatistics | 2006 (pub-print 2007) | PASS |
+| 13 | Whiting 2011 QUADAS-2 | `10.7326/0003-4819-155-8-201110180-00009` | "QUADAS-2: A Revised Tool..." | Penny F. Whiting | Ann Intern Med | 2011 | PASS |
+| 14 | Sweeting 2004 + Dendukuri 2012 + McInnes 2018 | `10.1002/sim.1761`, `10.1111/j.1541-0420.2012.01773.x`, `10.1001/jama.2017.19163` | (Sweeting/Dendukuri/McInnes) | Sweeting MJ / Dendukuri N / McInnes MDF | Stat Med / Biometrics / JAMA | 2004 / 2012 / 2018 | PASS (group entry; previously verified in earlier rounds) |
+
+(Brand 2024 IPD-MA dropped, so the original 14-DOI list becomes 13 unique
+DOIs after the fix; the table above lists 14 entries by treating the methods-refs
+group at #14 as one row.)
+
+### Misattribution audit summary
+
+- **Misattribution rate found:** 5 of 14 (35.7%) — far above the 4.13% lessons.md
+  baseline. Likely explanation: this review's substantive-comparator + framework
+  citations (Brand 2024, Jack 2024, Schindler 2024) were drafted from human
+  recall + LLM completion without per-DOI metadata verification, and the build-time
+  audit only checked DOI resolution (HTTP HEAD), not metadata-match.
+- **Citations dropped:** 1 (Brand 2024 IPD-MA — no verifiable paper exists).
+- **Citations relabeled honestly:** 1 (Janelidze 2020 — kept DOI, relabeled as
+  the actual plasma p-tau181 paper; 2x2 data flagged for v1.1 re-extraction).
+- **Citations corrected (DOI/PMID/journal swapped to verified-correct values):** 3
+  (Brum 2023, Jack 2024, Schindler 2024).
+- **Citations untouched (already correct):** 9 of 14.
+- **Engine + tests:** 31/31 node test pass after the fix (no regressions).
+- **Lessons.md update candidate:** the 4.13% baseline applies to study-side
+  citations drafted under TDD discipline. Substantive-comparator and framework
+  citations drafted from recall in the Methods/Discussion sections of a small
+  review can run an order of magnitude higher (~36% here). Build-time audits
+  must use Crossref metadata-match, not just HTTP HEAD on doi.org.

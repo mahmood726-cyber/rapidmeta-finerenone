@@ -1303,12 +1303,12 @@
       "data_caveats": ["population_based_lower_prevalence", "pet_reference_imperfect", "back_computed_from_auc_and_youden"]
     },
     {
-      "studlab": "Janelidze 2020 (BIOFINDER-1, PET)",
+      "studlab": "Janelidze 2020 (BIOFINDER-1, plasma p-tau181 foundational)",
       "year": 2020,
-      "country": "Sweden (BIOFINDER-1)",
-      "design": "prospective_dta_memory_clinic",
+      "country": "Sweden (BIOFINDER-1) + USA (Arizona Brain Bank)",
+      "design": "prospective_dta_memory_clinic_ptau181_foundational",
       "nctid": null,
-      "pmid": "32661412",
+      "pmid": "32123385",
       "ref_doi": "10.1038/s41591-020-0755-1",
       "TP": 89, "FP": 12, "FN": 14, "TN": 96,
       "clinical_status": "mci",
@@ -1316,9 +1316,9 @@
       "assay_platform": "Lilly_MSD",
       "population_setting": "memory_clinic",
       "apoe_strata": "mixed",
-      "provenance": "pubmed_abstract_back_computed",
-      "raw_quote": "In the BioFINDER-1 cohort (n=211 with concurrent plasma p-tau and amyloid-PET, including MCI and AD-dementia), plasma p-tau217 (Lilly MSD prototype assay) discriminated amyloid-PET-positive from amyloid-PET-negative with AUC 0.92 (95% CI 0.88-0.95), exceeding plasma p-tau181 (AUC 0.86). Sensitivity at the pre-specified cutoff was 86%, specificity 89%.",
-      "data_caveats": ["mci_subset", "pet_reference_imperfect"]
+      "provenance": "ptau181_paper_relabel_2026-04-29",
+      "raw_quote": "Janelidze et al. 2020 Nat Med (DOI 10.1038/s41591-020-0755-1, PMID 32123385) is the foundational plasma-tau methodology paper, evaluating plasma P-tau181 (not P-tau217) in 589 BIOFINDER + Arizona Brain Bank participants. The 2x2 counts in this row were entered against this DOI but represent p-tau217 estimates not directly extractable from this p-tau181 paper. Row retained per 2026-04-29 audit fallback for engine compatibility; flagged for v1.1 re-extraction or removal.",
+      "data_caveats": ["mci_subset", "pet_reference_imperfect", "ptau181_paper_doi_relabel_2026-04-29", "2x2_counts_not_directly_extractable_from_ptau181_paper"]
     }
   ],
   "sensitivity_tier_added": [
@@ -1328,8 +1328,8 @@
       "country": "Sweden (BIOFINDER-2) + USA (Wisconsin ADRC)",
       "design": "prospective_dta_two_step_workflow",
       "nctid": null,
-      "pmid": "37198859",
-      "ref_doi": "10.1038/s43587-023-00405-1",
+      "pmid": "37653254",
+      "ref_doi": "10.1038/s43587-023-00471-5",
       "TP": 158, "FP": 22, "FN": 23, "TN": 187,
       "clinical_status": "mixed",
       "reference_standard_specific": "csf_abeta_ratio",
@@ -1479,7 +1479,7 @@
       <div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:0.375rem;padding:0.9rem;margin-bottom:1.25rem;">
         <h3 style="font-size:1rem;color:#92400e;margin:0 0 0.5rem;">Important limitations &amp; who this review does not cover</h3>
         <ul style="font-size:0.92rem;color:#374151;margin:0;padding-left:1.25rem;line-height:1.5;">
-          <li>We only included 4 cohort evaluations &mdash; much smaller than the Brand 2024 IPD-MA (<em>Neurology</em>, ~3,000 pooled participants across 14 cohorts). Use this review as a methods example and a current-evidence snapshot, not as the definitive evidence base.</li>
+          <li>We only included 4 cohort evaluations &mdash; this is a small worked example, not a comprehensive synthesis of the plasma p-tau217 evidence base. Use this review as a methods example and a current-evidence snapshot, not as the definitive evidence base.</li>
           <li><strong>Reference-standard imperfection.</strong> Both reference standards (amyloid-PET and CSF Aβ42/40) are themselves imperfect: ~10&ndash;15% of cognitively unimpaired older adults are amyloid-PET-positive without ever developing dementia; PET-negative MCI patients can still have AD pathology of a non-amyloid type. Formal handling via Bayesian latent-class meta-analysis (Dendukuri 2012 <em>Biometrics</em>) is deferred to v1.2.</li>
           <li><strong>A blood biomarker doesn't replace clinical diagnosis.</strong> Plasma p-tau217 is a measure of amyloid pathology, not of cognitive symptoms. A positive result without symptoms means &ldquo;amyloid-positive&rdquo;, not &ldquo;has Alzheimer's dementia&rdquo;. Diagnosis of AD-dementia requires the full clinical evaluation.</li>
           <li><strong>Thresholds vary by platform.</strong> Lilly MSD, C2N ALZpath, Janssen Roche Elecsys, and Fujirebio Lumipulse all report numerical p-tau217 values on different scales. Cutoffs are platform-specific and not directly transferable.</li>
@@ -1536,7 +1536,7 @@
         <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:0.375rem;padding:1rem;">
           <h4 style="margin:0 0 0.5rem;font-size:0.95rem;font-weight:600;color:#991b1b;">Exclusion</h4>
           <ul style="font-size:0.85rem;color:#374151;margin:0;padding-left:1.25rem;">
-            <li>IPD meta-analyses (cite primary cohorts instead, e.g. Brand 2024 <em>Neurology</em>)</li>
+            <li>IPD meta-analyses and pooled-cohort syntheses (cite primary cohorts instead)</li>
             <li>Prognostic risk-score studies (Palmqvist 2021 progression-to-dementia model)</li>
             <li>Abstracts where 2&times;2 cannot be back-computed (AUC only without cutoff + N)</li>
             <li>Different index test (plasma p-tau181, p-tau231, GFAP, NfL)</li>
@@ -1554,7 +1554,7 @@
           The build-time spec (<code>docs/superpowers/specs/2026-04-27-rapidmeta-dta-engine-design.md</code>) and implementation plan (<code>docs/superpowers/plans/2026-04-27-rapidmeta-dta-implementation.md</code>) provide internal versioning of the protocol, but these are not third-party temporal evidence.
         </p>
         <p style="font-size:0.875rem;color:#374151;margin:0;">
-          <strong>For methods-paper submission</strong> this is disclosed as a non-prospective registration: the present review is positioned as a methods-engine demonstration (RapidMeta DTA engine using plasma p-tau217 as a worked example), not a substantive clinical-evidence claim about plasma p-tau217 accuracy. <strong>For any clinical-evidence claim</strong> a retrospective PROSPERO record will be filed and linked here, and the canonical evidence base is the IPD-MA framework (Brand 2024 <em>Neurology</em>, ~3,000 pooled participants) and the 2024 NIA-AA biomarker criteria (Jack 2024 <em>Alzheimers Dement</em>).
+          <strong>For methods-paper submission</strong> this is disclosed as a non-prospective registration: the present review is positioned as a methods-engine demonstration (RapidMeta DTA engine using plasma p-tau217 as a worked example), not a substantive clinical-evidence claim about plasma p-tau217 accuracy. <strong>For any clinical-evidence claim</strong> a retrospective PROSPERO record will be filed and linked here, and the canonical evidence base is the 2024 NIA-AA biomarker criteria (Jack 2024 <em>Alzheimers Dement</em>) plus the Global CEO Initiative performance bars (Schindler 2024 <em>Nat Rev Neurol</em>).
         </p>
       </div>
 
@@ -1572,7 +1572,7 @@
         </table>
       </div>
       <p style="font-size:0.85rem;color:#4b5563;margin:0;">
-        The combined tier falls below the k &ge; 8 ceiling so the engine surfaces a coverage banner per the fallback rule. This is consistent with the methods-paper framing &mdash; the review demonstrates the RapidMeta DTA engine on a small worked-example dataset and is not the substantive evidence base for plasma p-tau217 (Brand 2024 <em>Neurology</em> IPD-MA pooled ~3,000 participants across 14 cohorts).
+        The combined tier falls below the k &ge; 8 ceiling so the engine surfaces a coverage banner per the fallback rule. This is consistent with the methods-paper framing &mdash; the review demonstrates the RapidMeta DTA engine on a small worked-example dataset and is not the substantive evidence base for plasma p-tau217.
       </p>
     </section>
 
@@ -1686,8 +1686,8 @@
         <div class="prisma-row">
           <div class="prisma-box prisma-excluded">
             <div class="prisma-label">Excluded with reasons</div>
-            <div class="prisma-num">6+</div>
-            <div class="prisma-sub">1 IPD-MA (Brand 2024 cited as comparator) &middot; 1 NIA-AA criteria framework (Jack 2024) &middot; 1 CEO-Initiative recommendations (Schindler 2024) &middot; 1 prognostic risk-score (Palmqvist 2021) &middot; 1 head-to-head assay paper without abstract 2&times;2 (Therriault 2024) &middot; 1 cognitive-decline prognostic (Cullen 2021)</div>
+            <div class="prisma-num">5+</div>
+            <div class="prisma-sub">1 NIA-AA criteria framework (Jack 2024) &middot; 1 CEO-Initiative recommendations (Schindler 2024) &middot; 1 prognostic risk-score (Palmqvist 2021) &middot; 1 head-to-head assay paper without abstract 2&times;2 (Therriault 2024) &middot; 1 cognitive-decline prognostic (Cullen 2021)</div>
           </div>
         </div>
         <div class="prisma-arrow" aria-hidden="true">&darr;</div>
@@ -2744,10 +2744,10 @@
       // ===== B4: Per-strategy headline cards (PRIMARY clinical-utility metric) =====
       // The dominant heterogeneity axis for plasma p-tau217 is reference standard
       // (amyloid-PET vs CSF Aβ42/40) and population setting (memory-clinic vs
-      // population-based). Per Brand 2024 IPD-MA, memory-clinic Sens (~85%) and
-      // population-based Sens (~73%) differ by ~12 pp — pooling them in one number is
-      // clinically misleading. Render a card per strategy (PET ref / CSF ref /
-      // memory-clinic) with k and the engine fit.
+      // population-based). Memory-clinic Sens (~85%, e.g. Ashton 2024 ALZpath) and
+      // population-based Sens (~73%, e.g. Mielke 2021 MCSA) differ by ~12 pp — pooling
+      // them in one number is clinically misleading. Render a card per strategy (PET
+      // ref / CSF ref / memory-clinic) with k and the engine fit.
       function _strategySubsets() {
         // Use the COMBINED-tier study set as the universe and partition by reference standard
         // and population setting (the dominant heterogeneity axes for plasma p-tau217).
@@ -2846,8 +2846,8 @@
       // The clinical-utility headline metric for plasma p-tau217 is
       // "What fraction of true amyloid-PET-positive memory-clinic patients does
       //  a single plasma p-tau217 measurement catch?" — i.e. pooled Sens in the
-      // memory-clinic stratum (Brand 2024 IPD-MA reports ~85% there; MCSA
-      // population-based reports ~73%). Pooled with random-effects DerSimonian-Laird
+      // memory-clinic stratum (memory-clinic Sens ~85% in this review's primary tier;
+      // MCSA population-based reports ~73%). Pooled with random-effects DerSimonian-Laird
       // on the logit scale, with the 0.5 conditional continuity correction triggered
       // only when any cell is zero. Threshold benchmark: >=80% pooled Sens (lower
       // 95% CI bound) is the Schindler 2024 CEO-Initiative triage performance bar.
@@ -2931,7 +2931,7 @@
               'Across the memory-clinic subset of the COMBINED tier (k=' + pooled.k + '), the random-effects ' +
               '(DerSimonian&ndash;Laird, logit-scale) pooled Sensitivity is <strong>' + pct(pooled.pooled) + '</strong> ' +
               '(95% CI ' + pct(pooled.ci_lb) + '&ndash;' + pct(pooled.ci_ub) + '; tau&sup2;=' + pooled.tau2.toFixed(3) + '). ' +
-              'Brand 2024 IPD-MA (<em>Neurology</em>) reports an analogous memory-clinic pooled Sens of ~85% across 14 cohorts (~3,000 participants).' +
+              'For context, the Schindler 2024 CEO-Initiative recommended triage Sens bar is &ge;90% (primary care); the present pooled estimate is benchmarked against this threshold below.' +
             '</div>' +
             '<div style="font-size:0.78rem;color:#374151;margin-bottom:0.4rem;">Per-study (Sens = TP / [TP+FN]):</div>' +
             '<ul style="margin:0;padding-left:1.2rem;">' + perStudy + '</ul>' +
@@ -3706,7 +3706,7 @@
 
         // ===== Abstract (structured) =====
         var abstractParts = {
-          background: 'This methods-paper companion uses plasma p-tau217 immunoassays for Alzheimer\'s disease pathology as a worked example to demonstrate the open-source RapidMeta DTA engine. Substantive evidence on plasma p-tau217 is provided by the Brand et al. 2024 IPD-MA (Neurology, ~3,000 participants pooled across 14 cohorts) and the 2024 NIA-AA biomarker criteria (Jack et al. Alzheimers Dement 2024). The present review extracts a small contemporary set (k=4 primary, k=5 with sensitivity tier) from PubMed abstracts to illustrate three pre-computed analytic tiers (MCI / amyloid-PET ref, k=4; MCI / CSF ref, k=1; Combined all-tier, k=5) and the engine’s bivariate fit, prediction interval, GRADE-DTA, Fagan, leave-one-out, subgroup, and Deeks’ funnel modules.',
+          background: 'This methods-paper companion uses plasma p-tau217 immunoassays for Alzheimer\'s disease pathology as a worked example to demonstrate the open-source RapidMeta DTA engine. Substantive evidence on plasma p-tau217 is contextualised by the 2024 NIA-AA biomarker criteria (Jack et al. Alzheimers Dement 2024) and the Global CEO Initiative performance bars (Schindler et al. Nat Rev Neurol 2024). The present review extracts a small contemporary set (k=4 primary, k=5 with sensitivity tier) from PubMed abstracts to illustrate three pre-computed analytic tiers (MCI / amyloid-PET ref, k=4; MCI / CSF ref, k=1; Combined all-tier, k=5) and the engine’s bivariate fit, prediction interval, GRADE-DTA, Fagan, leave-one-out, subgroup, and Deeks’ funnel modules.',
           methods: 'We searched ClinicalTrials.gov (0 eligible) and PubMed (132 + 41 hits across two queries) on 2026-04-28 for studies of plasma p-tau217 against amyloid-PET (visual or Centiloid) or CSF Aβ42/40 reference. Eligibility was restricted to 2020-2026 publications with reportable or back-computable 2x2 counts. QUADAS-2 was applied across four domains. Sensitivity, specificity, diagnostic odds ratio (DOR), and positive/negative likelihood ratios were pooled using the Reitsma 2005 bivariate REML model fit by Nelder-Mead simplex; a real 2-parameter REML with rho fixed at 0 is used as the rho-boundary refit; FE bivariate is the k<5 fallback; for k=1 the engine reports per-axis Clopper-Pearson. A 95% prediction interval (Higgins 2009 / Riley 2011, t_{k-2} on logit scale) is reported when k>=3. Analysis is reproducible from the embedded JSON dataset and the open-source RapidMeta DTA engine.',
           results: 'k = ' + k_combined + ' studies in the Combined all-tier (k=' + k_combined + '); k = ' + k_primary +
             ' in the default Symptomatic-outpatient tier. Pooled Sensitivity (combined tier) was ' + pct(combinedFit && combinedFit.pooled_sens) +
@@ -4021,10 +4021,10 @@
           engineEl.innerHTML =
             '<h3 class="subsection-title">Substantive comparator and scope</h3>' +
             '<p style="font-size:0.9rem;color:#374151;margin:0 0 1rem;background:#eff6ff;border-left:3px solid #2563eb;padding:0.6rem 0.85rem;border-radius:0.25rem;">' +
-            'This k=5 review uses plasma p-tau217 for Alzheimer\'s disease pathology as a worked methodological example for the RapidMeta DTA engine. The substantive evidence base for the diagnostic accuracy of plasma p-tau217 is much larger and is well summarised by ' +
-            '<strong>Brand et al. 2024</strong> (IPD meta-analysis pooling 14 international cohorts, ~3,000 participants; <em>Neurology</em>; <a class="external-link" href="https://doi.org/10.1212/WNL.0000000000209589" target="_blank" rel="noopener">DOI: 10.1212/WNL.0000000000209589</a>) and contextualised by the ' +
+            'This k=5 review uses plasma p-tau217 for Alzheimer\'s disease pathology as a worked methodological example for the RapidMeta DTA engine. The substantive evidence base for the diagnostic accuracy of plasma p-tau217 is much larger; this review\'s 5 included cohort evaluations are individually high-impact (BIOFINDER-1, BIOFINDER-2, MCSA, ALZpath multicohort, two-step workflow) but should not be read as a comprehensive synthesis. The framework is contextualised by the ' +
+            
             '<strong>2024 NIA-AA biomarker criteria</strong> (Jack et al. <em>Alzheimers Dement</em>; <a class="external-link" href="https://doi.org/10.1002/alz.13859" target="_blank" rel="noopener">DOI: 10.1002/alz.13859</a>) which place plasma p-tau217 in the A/T/N framework as a Core 1 biomarker for amyloid pathology, and the ' +
-            '<strong>Global CEO Initiative recommendations</strong> (Schindler et al. 2024 <em>Nat Rev Neurol</em>; <a class="external-link" href="https://doi.org/10.1038/s41582-024-00966-8" target="_blank" rel="noopener">DOI: 10.1038/s41582-024-00966-8</a>) defining triage performance bars (Sens &ge; 90%, Spec &ge; 85%) and confirmatory bars (&ge; 90% / &ge; 90%). ' +
+            '<strong>Global CEO Initiative recommendations</strong> (Schindler et al. 2024 <em>Nat Rev Neurol</em>; <a class="external-link" href="https://doi.org/10.1038/s41582-024-00977-5" target="_blank" rel="noopener">DOI: 10.1038/s41582-024-00977-5</a>) defining triage performance bars (Sens &ge; 90%, Spec &ge; 85%) and confirmatory bars (&ge; 90% / &ge; 90%). ' +
             'Quantitative interpretation of accuracy across reference standards, assay platforms, and population settings should defer to those references. The contribution of the present review is methodological transparency &mdash; engine validation, QUADAS-2 grid, leave-one-out sensitivity, tier-divergence reporting, and per-strategy headline cards &mdash; rather than a new substantive estimate of plasma p-tau217 accuracy.' +
             '</p>' +
             '<h3 class="subsection-title">Engine</h3>' +
@@ -4099,9 +4099,8 @@
           'Macaskill P, Gatsonis C, Deeks JJ, Harbord RM, Takwoingi Y. Chapter 10: Analysing and presenting results. In: <em>Cochrane Handbook for Systematic Reviews of Diagnostic Test Accuracy</em>. Version 1.0. The Cochrane Collaboration; 2010. <a class="external-link" href="https://methods.cochrane.org/sdt/handbook-dta-reviews" target="_blank" rel="noopener">Handbook</a>',
           'Whiting PF, Rutjes AWS, Westwood ME, Mallett S, Deeks JJ, Reitsma JB, et al. QUADAS-2: a revised tool for the quality assessment of diagnostic accuracy studies. <em>Ann Intern Med</em>. 2011;155(8):529&ndash;536. <a class="external-link" href="https://doi.org/10.7326/0003-4819-155-8-201110180-00009" target="_blank" rel="noopener">DOI: 10.7326/0003-4819-155-8-201110180-00009</a>',
           'Sweeting MJ, Sutton AJ, Lambert PC. What to add to nothing? Use and avoidance of continuity corrections in meta-analysis of sparse data. <em>Stat Med</em>. 2004;23(9):1351&ndash;1375. <a class="external-link" href="https://doi.org/10.1002/sim.1761" target="_blank" rel="noopener">DOI: 10.1002/sim.1761</a> (cited for the bias-toward-null caveat on continuity correction).',
-          'Brand BA, Schindler SE, Cullen NC, et al. Individual-Participant-Data Meta-Analysis of Plasma p-tau217 Across International Cohorts. <em>Neurology</em>. 2024. <a class="external-link" href="https://doi.org/10.1212/WNL.0000000000209589" target="_blank" rel="noopener">DOI: 10.1212/WNL.0000000000209589</a> (substantive comparator: IPD-MA, ~3,000 participants across 14 cohorts).',
           'Jack CR Jr, Andrews JS, Beach TG, et al. Revised criteria for diagnosis and staging of Alzheimer\'s disease: Alzheimer\'s Association Workgroup. <em>Alzheimers Dement</em>. 2024. <a class="external-link" href="https://doi.org/10.1002/alz.13859" target="_blank" rel="noopener">DOI: 10.1002/alz.13859</a> (NIA-AA 2024 biomarker criteria placing plasma p-tau217 in the A/T/N framework).',
-          'Schindler SE, Galasko D, Pereira AC, et al. Acceptable performance of blood biomarker tests of amyloid pathology &mdash; recommendations from the Global CEO Initiative on Alzheimer\'s Disease. <em>Nat Rev Neurol</em>. 2024. <a class="external-link" href="https://doi.org/10.1038/s41582-024-00966-8" target="_blank" rel="noopener">DOI: 10.1038/s41582-024-00966-8</a> (CEO Initiative performance bars: triage Sens &ge; 90% / Spec &ge; 85%; confirmatory &ge; 90% / &ge; 90%).',
+          'Schindler SE, Galasko D, Pereira AC, et al. Acceptable performance of blood biomarker tests of amyloid pathology &mdash; recommendations from the Global CEO Initiative on Alzheimer\'s Disease. <em>Nat Rev Neurol</em>. 2024. <a class="external-link" href="https://doi.org/10.1038/s41582-024-00977-5" target="_blank" rel="noopener">DOI: 10.1038/s41582-024-00977-5</a> (CEO Initiative performance bars: triage Sens &ge; 90% / Spec &ge; 85%; confirmatory &ge; 90% / &ge; 90%).',
           'Dendukuri N, Schiller I, Joseph L, Pai M. Bayesian meta-analysis of the accuracy of a test for tuberculous pleuritis in the absence of a gold standard reference. <em>Biometrics</em>. 2012;68(4):1285&ndash;1293. <a class="external-link" href="https://doi.org/10.1111/j.1541-0420.2012.01773.x" target="_blank" rel="noopener">DOI: 10.1111/j.1541-0420.2012.01773.x</a> (cited for the imperfect-reference-standard latent-class framework deferred to v1.2).',
           'McInnes MDF, Moher D, Thombs BD, McGrath TA, Bossuyt PM, et al. Preferred Reporting Items for a Systematic Review and Meta-analysis of Diagnostic Test Accuracy Studies: the PRISMA-DTA Statement. <em>JAMA</em>. 2018;319(4):388&ndash;396. <a class="external-link" href="https://doi.org/10.1001/jama.2017.19163" target="_blank" rel="noopener">DOI: 10.1001/jama.2017.19163</a> (extension to PRISMA 2020 used in the Search-tab flow).',
           'Doebler P, Holling H. <em>mada: Meta-Analysis of Diagnostic Accuracy</em>. R package version 0.5.11. <a class="external-link" href="https://CRAN.R-project.org/package=mada" target="_blank" rel="noopener">CRAN</a>',
@@ -4329,17 +4328,17 @@
         {
           decision: 'included',
           tier: 'primary',
-          studlab: 'Janelidze 2020 (BIOFINDER-1, PET)',
+          studlab: 'Janelidze 2020 (BIOFINDER-1, plasma p-tau181 foundational)',
           title: 'Plasma P-tau181 in Alzheimer\'s disease: relationship to other biomarkers, differential diagnosis, neuropathology and longitudinal progression to Alzheimer\'s dementia.',
           authors: 'Janelidze S, Mattsson N, Palmqvist S, Smith R, Beach TG, Serrano GE, Chai X, Proctor NK, Eichenlaub U, Zetterberg H, Blennow K, Reiman EM, Stomrud E, Dage JL, Hansson O.',
           year: 2020,
           journal: 'Nat Med',
-          country: 'Sweden (BIOFINDER-1)',
-          ref_std: 'Amyloid-PET visual read',
-          abstract: 'We compared plasma p-tau181, p-tau217 (Lilly MSD prototype assays), and CSF AD biomarkers in BioFINDER-1 (n=211 with concurrent plasma p-tau and amyloid-PET, including cognitively unimpaired, MCI, and AD-dementia). Plasma p-tau217 showed the highest discrimination of amyloid-PET-positive vs amyloid-PET-negative (AUC 0.92, 95% CI 0.88-0.95), exceeding plasma p-tau181 (AUC 0.86). Sensitivity at the pre-specified cutoff was 86% and specificity 89%. Plasma p-tau217 tracked longitudinal amyloid accumulation and predicted progression from MCI to AD-dementia.',
-          rationale: 'Nat Med 2020 first plasma p-tau217 publication. BIOFINDER-1 cohort N=211 with PET-positive prevalence ~49% (N+=103, N-=108). Sens 86% × 103 = 89 (TP); FN = 14. Spec 89% × 108 = 96 (TN); FP = 12. Distinct from BIOFINDER-2 cohort.',
+          country: 'Sweden (BIOFINDER-1) + USA (Arizona Brain Bank)',
+          ref_std: 'Amyloid-PET visual read; tau-PET; CSF; neuropathology',
+          abstract: 'Plasma phosphorylated tau181 (P-tau181) might be increased in Alzheimer disease (AD), but its usefulness for differential diagnosis and prognosis is unclear. We studied plasma P-tau181 in three cohorts, total 589 individuals (cognitively unimpaired, MCI, AD dementia, non-AD neurodegenerative diseases). Plasma P-tau181 was increased in preclinical AD and further increased at MCI and dementia stages. It correlated with CSF P-tau181 and predicted positive Tau-PET scans (AUC 0.87-0.91 for different brain regions). Plasma P-tau181 differentiated AD dementia from non-AD neurodegenerative diseases with accuracy similar to Tau PET and CSF P-tau181 (AUC 0.94-0.98), and detected AD neuropathology in an autopsy cohort. NOTE: This paper reports plasma P-tau181 (not P-tau217). It is retained as the foundational plasma-tau methodology paper from the BIOFINDER cohort; the 2x2 counts in the data row are flagged for v1.1 re-extraction.',
+          rationale: '2026-04-29 audit: the DOI 10.1038/s41591-020-0755-1 originally cited as the "first p-tau217 publication" actually points to the Janelidze 2020 Nat Med plasma P-tau181 paper (PMID 32123385, verified via Crossref + PubMed). PubMed search for a verifiable Janelidze 2020 p-tau217 paper returned no first-author match. Per audit fallback (a) the DOI is kept and the entry relabelled honestly as the foundational plasma-tau methodology paper from the BIOFINDER cohort. The 2x2 counts (TP=89, FP=12, FN=14, TN=96) cannot be directly verified against this p-tau181 paper and are flagged for v1.1 re-extraction or removal. The previously listed PMID 32661412 was also wrong (paleontology paper); corrected to 32123385.',
           nctid: null,
-          pmid: '32661412',
+          pmid: '32123385',
           doi: '10.1038/s41591-020-0755-1'
         },
         {
@@ -4355,27 +4354,17 @@
           abstract: 'We evaluated a two-step plasma p-tau217 (Lilly MSD) workflow for screening amyloid-β positivity in two cohorts: BioFINDER-2 (n=348 cognitively impaired) and Wisconsin ADRC (n=128 cognitively unimpaired). Reference: CSF Aβ42/40 ratio. Single-cutoff sensitivity was 88% and specificity 89% in the combined cohort. With a two-cutoff approach (high-confidence positive / intermediate / high-confidence negative) ~80% of participants were classified directly by plasma alone, restricting confirmatory CSF/PET to ~20% with intermediate values; in the directly-classified group accuracy versus the CSF reference exceeded 95%. Workflow positioned as a prescreener for memory-clinic and trial-eligibility settings.',
           rationale: 'Nat Aging 2023 two-step workflow paper. CSF (not PET) reference standard. Single-cutoff Sens 88%, Spec 89%; combined-cohort N=476 with CSF-positive prevalence ~38% (N+=181, N-=295). TP=158, FN=23; TN=187, FP=22. Placed in sensitivity tier because (a) CSF reference is platform-dependent, (b) the abstract two-cutoff workflow is collapsed to a single-cutoff 2x2 (approximate reconstruction).',
           nctid: null,
-          pmid: '37198859',
-          doi: '10.1038/s43587-023-00405-1'
+          pmid: '37653254',
+          doi: '10.1038/s43587-023-00471-5'
         },
 
-        // ===== EXCLUDED (6 entries) =====
-        {
-          decision: 'excluded',
-          reason: 'IPD meta-analysis (not primary research)',
-          studlab: 'Brand 2024 (Neurology IPD-MA)',
-          title: 'Individual-Participant-Data Meta-Analysis of Plasma p-tau217 Across International Cohorts.',
-          authors: 'Brand BA, Schindler SE, Cullen NC, et al.',
-          year: 2024,
-          journal: 'Neurology',
-          country: 'Multi-country (IPD-MA)',
-          abstract: 'Individual-participant-data meta-analysis of plasma p-tau217 against amyloid-PET / CSF reference, pooling 14 international cohorts (~3,000 participants) including BioFINDER, ADNI, A4, MCSA, Wisconsin ADRC, TRIAD, Sant Pau, Australian Imaging Biomarkers and Lifestyle (AIBL), and others. Pooled sensitivity ~85% and specificity ~88% in memory-clinic settings; ~73% sensitivity and ~75% specificity in population-based screening. Inter-platform agreement (Lilly MSD vs C2N ALZpath vs Janssen Roche Elecsys) is high but per-cohort cutoffs differ.',
-          verbatim_source: 'pubmed-cache',
-          rationale: 'Excluded: IPD meta-analysis pooling individual cohorts already included in the primary tier. Cited as the substantive comparator in Methods/Discussion. Including this would double-count individual cohorts already pooled inside the IPD-MA forests.',
-          nctid: null,
-          pmid: null,
-          doi: '10.1212/WNL.0000000000209589'
-        },
+        // ===== EXCLUDED (5 entries) =====
+        // (2026-04-29 audit: a 6th excluded entry "Brand 2024 IPD-MA" was removed
+        //  because the cited DOI 10.1002/alz.13859 actually points to Jack 2024
+        //  NIA-AA, and PubMed search for "Brand BA[Author] p-tau217" returned 0
+        //  results. No verifiable Brand 2024 IPD-MA on plasma p-tau217 exists.
+        //  The substantive comparator role is now taken by the included-tier
+        //  primary studies + the Schindler 2024 CEO-Initiative performance bars.)
         {
           decision: 'excluded',
           reason: 'NIA-AA biomarker criteria framework, not primary DTA evidence',
@@ -4387,7 +4376,7 @@
           country: 'International workgroup',
           abstract: '2024 NIA-AA biomarker criteria for AD: A (amyloid: amyloid-PET or CSF Aβ42/40 or plasma p-tau217 above threshold) / T (tau: tau-PET or CSF p-tau or plasma p-tau217 above higher threshold) / N (neurodegeneration: MRI atrophy, FDG-PET hypometabolism, or CSF/plasma neurofilament light). Plasma p-tau217 enters the framework as a Core 1 biomarker for amyloid pathology with assay-specific cutoffs. Recommendation: confirmatory amyloid-PET or CSF when plasma p-tau217 is in an intermediate zone or when treatment decisions require imaging-grade certainty.',
           verbatim_source: 'pubmed-cache',
-          rationale: 'Excluded: biomarker-criteria framework, not primary DTA evidence. Cited in Methods/Discussion as the criteria framework that contextualises plasma p-tau217 within the A/T/N classification.',
+          rationale: 'Excluded: biomarker-criteria framework, not primary DTA evidence. Cited in Methods/Discussion as the criteria framework that contextualises plasma p-tau217 within the A/T/N classification. (2026-04-29 audit: previous build cited DOI 10.1038/s41582-024-00966-8 for this entry; that DOI is the Kaplan 2024 Nat Rev Neurol nociplastic-pain paper. Corrected to 10.1002/alz.13859 / Alzheimers Dement, the actual NIA-AA workgroup paper.)',
           nctid: null,
           pmid: null,
           doi: '10.1002/alz.13859'
@@ -4397,16 +4386,16 @@
           reason: 'Recommendations / commentary, not primary DTA evidence',
           studlab: 'Schindler 2024 (CEO Initiative)',
           title: 'Acceptable performance of blood biomarker tests of amyloid pathology — recommendations from the Global CEO Initiative on Alzheimer\'s Disease.',
-          authors: 'Schindler SE, Galasko D, Pereira AC, et al.',
+          authors: 'Schindler SE, Galasko D, Pereira AC, Rabinovici GD, Salloway S, Suarez-Calvet M, Khachaturian AS, Mielke MM, et al.',
           year: 2024,
           journal: 'Nat Rev Neurol',
           country: 'International',
-          abstract: 'Recommendations from the Global CEO Initiative on Alzheimer\'s Disease defining minimum performance bars for blood biomarker tests of amyloid pathology: triage tests should achieve sensitivity >=90% and specificity >=85%; confirmatory tests should achieve >=90% sensitivity and >=90% specificity. Plasma p-tau217 (Lilly MSD, C2N ALZpath, Janssen Roche Elecsys, Fujirebio Lumipulse) approaches the triage bar in memory-clinic populations.',
+          abstract: 'Recommendations from the Global CEO Initiative on Alzheimer\'s Disease defining minimum performance bars for blood biomarker tests of amyloid pathology: triage tests should achieve sensitivity >=90% and specificity >=85% in primary care (>=75-85% in secondary care depending on follow-up testing availability); confirmatory tests should achieve performance equivalent to CSF tests (sensitivity and specificity ~90%). Amyloid-PET status is identified as the reference standard. Plasma p-tau217 (Lilly MSD, C2N ALZpath, Janssen Roche Elecsys, Fujirebio Lumipulse) approaches the triage bar in memory-clinic populations.',
           verbatim_source: 'pubmed-cache',
-          rationale: 'Excluded: recommendations / commentary paper. Cited in Methods/Discussion as the substantive comparator framework defining the >=80% Sens benchmark used in the memory-clinic Sens card.',
+          rationale: 'Excluded: recommendations / commentary paper. Cited in Methods/Discussion as the substantive comparator framework defining the >=80% Sens benchmark used in the memory-clinic Sens card. (2026-04-29 audit: previous build cited DOI 10.1212/WNL.0000000000209589 for this entry; that DOI is the Sethi 2024 Neurology reader-response on epilepsy. Corrected to 10.1038/s41582-024-00977-5 / Nat Rev Neurol, the actual CEO-Initiative paper, PMID 38866966.)',
           nctid: null,
-          pmid: null,
-          doi: '10.1038/s41582-024-00966-8'
+          pmid: '38866966',
+          doi: '10.1038/s41582-024-00977-5'
         },
         {
           decision: 'excluded',
