@@ -1,6 +1,6 @@
 # Peer-review findings diff
 
-Apps with material change vs prior harvest: **82**
+Apps with material change vs prior harvest: **84**
 
 - Current run: `findings`
 - Prior run:   `tests`
@@ -8,8 +8,8 @@ Apps with material change vs prior harvest: **82**
 ## ABLATION_AF_REVIEW
 - **New concerns:**
   - *Patient representative:* QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits.
-  - *Methodology & PRISMA:* Evidence base is complete but small (k=4 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
   - *Methodology & PRISMA:* RoB 2.0: 0 high-risk + 4 some-concerns domains; add low-RoB sensitivity analysis.
+  - *Methodology & PRISMA:* Evidence base is complete but small (k=4 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
 
 ## ACALABRUTINIB_CLL_REVIEW
 - **New concerns:**
@@ -26,13 +26,13 @@ Apps with material change vs prior harvest: **82**
   - *Patient representative:* QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits.
   - *Methodology & PRISMA:* Evidence base is complete but small (k=1 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
   - *Methodology & PRISMA:* Prediction interval not definable for k<3; flag as boundary condition.
-  - *Clinical expert:* k<3 - NNT ≈ 2 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.
   - *Clinical expert:* Pooled 3.05 sits outside published benchmark range (corridor 1.45-3.00); closest Olivotto 2020 RR 2.08 [1.45, 3.00]. Discussion should reconcile.
+  - *Clinical expert:* k<3 - NNT ≈ 2 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.
 
 ## AFLIBERCEPT_HD_REVIEW
 - **New concerns:**
-  - *Patient representative:* Effect not translated into absolute-risk difference / NNT for shared decision.
   - *Patient representative:* QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits.
+  - *Patient representative:* Effect not translated into absolute-risk difference / NNT for shared decision.
   - *Methodology & PRISMA:* Prediction interval not definable for k<3; flag as boundary condition.
   - *Methodology & PRISMA:* Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
   - *Clinical expert:* k<3 - clinical meaningfulness (MCID, NNT) cannot be grounded in pooled evidence.
@@ -44,15 +44,15 @@ Apps with material change vs prior harvest: **82**
 ## ANIFROLUMAB_SLE_REVIEW
 - **New concerns:**
   - *Patient representative:* QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits.
+  - *Methodology & PRISMA:* RoB 2.0: 0 high-risk + 1 some-concerns domains; add low-RoB sensitivity analysis.
   - *Methodology & PRISMA:* Prediction interval not definable for k<3; flag as boundary condition.
   - *Methodology & PRISMA:* Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
-  - *Methodology & PRISMA:* RoB 2.0: 0 high-risk + 1 some-concerns domains; add low-RoB sensitivity analysis.
   - *Clinical expert:* k<3 - NNT ≈ 6 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.
 
 ## ANTIAMYLOID_AD_REVIEW
 - **New concerns:**
-  - *Patient representative:* Effect not translated into absolute-risk difference / NNT for shared decision.
   - *Patient representative:* QoL / PROs reported in 4 trial(s) (CDR-SB) but not in headline pool; consider adding as a secondary analysis rather than omitting.
+  - *Patient representative:* Effect not translated into absolute-risk difference / NNT for shared decision.
   - *Methodology & PRISMA:* RoB 2.0: 0 high-risk + 2 some-concerns domains; add low-RoB sensitivity analysis.
   - *Methodology & PRISMA:* Evidence base is complete but small (k=3 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
 
@@ -120,15 +120,15 @@ Apps with material change vs prior harvest: **82**
 
 ## CFTR_CF_REVIEW
 - **New concerns:**
-  - *Patient representative:* Effect not translated into absolute-risk difference / NNT for shared decision.
   - *Patient representative:* QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits.
+  - *Patient representative:* Effect not translated into absolute-risk difference / NNT for shared decision.
   - *Methodology & PRISMA:* Evidence base is complete but small (k=3 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
   - *Clinical expert:* Pooled 11.67 sits outside published benchmark range; closest Middleton 2019 MD 13.80 [12.10, 15.40]. Discussion should reconcile.
 
 ## CGRP_MIGRAINE_REVIEW
 - **New concerns:**
-  - *Patient representative:* Effect not translated into absolute-risk difference / NNT for shared decision.
   - *Patient representative:* QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits.
+  - *Patient representative:* Effect not translated into absolute-risk difference / NNT for shared decision.
   - *Methodology & PRISMA:* Evidence base is complete but small (k=3 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
 
 ## COLCHICINE_CVD_REVIEW
@@ -147,14 +147,14 @@ Apps with material change vs prior harvest: **82**
   - *Patient representative:* QoL / PROs reported in 2 trial(s) (FACT (generic)) but not in headline pool; consider adding as a secondary analysis rather than omitting.
   - *Methodology & PRISMA:* Prediction interval not definable for k<3; flag as boundary condition.
   - *Methodology & PRISMA:* Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
-  - *Clinical expert:* k<3 - NNT ≈ 23 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.
   - *Clinical expert:* I² = 92.5% (considerable); show subgroup/strata estimates alongside pooled.
+  - *Clinical expert:* k<3 - NNT ≈ 23 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.
 
 ## DOAC_AF_REVIEW
 - **New concerns:**
   - *Patient representative:* QoL / PROs reported in 1 trial(s) (FACT (generic)) but not in headline pool; consider adding as a secondary analysis rather than omitting.
-  - *Methodology & PRISMA:* Evidence base is complete but small (k=4 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
   - *Methodology & PRISMA:* RoB 2.0: 0 high-risk + 1 some-concerns domains; add low-RoB sensitivity analysis.
+  - *Methodology & PRISMA:* Evidence base is complete but small (k=4 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
 
 ## DOAC_CANCER_VTE_REVIEW
 - **New concerns:**
@@ -199,8 +199,8 @@ Apps with material change vs prior harvest: **82**
 
 ## ESKETAMINE_TRD_REVIEW
 - **New concerns:**
-  - *Patient representative:* Effect not translated into absolute-risk difference / NNT for shared decision.
   - *Patient representative:* QoL / PROs reported in 2 trial(s) (MADRS) but not in headline pool; consider adding as a secondary analysis rather than omitting.
+  - *Patient representative:* Effect not translated into absolute-risk difference / NNT for shared decision.
   - *Methodology & PRISMA:* Prediction interval not definable for k<3; flag as boundary condition.
   - *Methodology & PRISMA:* Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
   - *Clinical expert:* k<3 - clinical meaningfulness (MCID, NNT) cannot be grounded in pooled evidence.
@@ -210,8 +210,8 @@ Apps with material change vs prior harvest: **82**
   - *Patient representative:* QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits.
   - *Methodology & PRISMA:* Prediction interval not definable for k<3; flag as boundary condition.
   - *Methodology & PRISMA:* Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
-  - *Clinical expert:* k<3 - NNT ≈ 6 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.
   - *Clinical expert:* I² = 75.2% (considerable); show subgroup/strata estimates alongside pooled.
+  - *Clinical expert:* k<3 - NNT ≈ 6 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.
 
 ## EVT_BASILAR_REVIEW
 - **New concerns:**
@@ -226,18 +226,23 @@ Apps with material change vs prior harvest: **82**
   - *Methodology & PRISMA:* Evidence base is complete but small (k=3 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
   - *Clinical expert:* I² = 83% (considerable); show subgroup/strata estimates alongside pooled.
 
+## EVT_LARGECORE_REVIEW
+- **New concerns:**
+  - *Patient representative:* QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits.
+  - *Methodology & PRISMA:* RoB 2.0: 0 high-risk + 6 some-concerns domains; add low-RoB sensitivity analysis.
+
 ## FARICIMAB_NAMD_REVIEW
 - **New concerns:**
-  - *Patient representative:* Effect not translated into absolute-risk difference / NNT for shared decision.
   - *Patient representative:* QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits.
+  - *Patient representative:* Effect not translated into absolute-risk difference / NNT for shared decision.
   - *Methodology & PRISMA:* Prediction interval not definable for k<3; flag as boundary condition.
   - *Methodology & PRISMA:* Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
   - *Clinical expert:* k<3 - clinical meaningfulness (MCID, NNT) cannot be grounded in pooled evidence.
 
 ## FEZOLINETANT_VMS_REVIEW
 - **New concerns:**
-  - *Patient representative:* Effect not translated into absolute-risk difference / NNT for shared decision.
   - *Patient representative:* QoL / PROs reported in 1 trial(s) (PROMIS) but not in headline pool; consider adding as a secondary analysis rather than omitting.
+  - *Patient representative:* Effect not translated into absolute-risk difference / NNT for shared decision.
   - *Methodology & PRISMA:* Prediction interval not definable for k<3; flag as boundary condition.
   - *Methodology & PRISMA:* Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
   - *Clinical expert:* k<3 - clinical meaningfulness (MCID, NNT) cannot be grounded in pooled evidence.
@@ -346,8 +351,8 @@ Apps with material change vs prior harvest: **82**
 ## MAVACAMTEN_HCM_REVIEW
 - **New concerns:**
   - *Patient representative:* QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits.
-  - *Methodology & PRISMA:* Evidence base is complete but small (k=3 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
   - *Methodology & PRISMA:* RoB 2.0: 0 high-risk + 1 some-concerns domains; add low-RoB sensitivity analysis.
+  - *Methodology & PRISMA:* Evidence base is complete but small (k=3 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
   - *Clinical expert:* Pooled 6.63 sits outside published benchmark range; closest Olivotto 2020 RR 2.08 [1.45, 3.00]. Discussion should reconcile.
   - *Clinical expert:* I² = 79.3% (considerable); show subgroup/strata estimates alongside pooled.
 
@@ -364,8 +369,8 @@ Apps with material change vs prior harvest: **82**
   - *Patient representative:* QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits.
   - *Methodology & PRISMA:* Evidence base is complete but small (k=1 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
   - *Methodology & PRISMA:* Prediction interval not definable for k<3; flag as boundary condition.
-  - *Clinical expert:* k<3 - NNT ≈ 2 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.
   - *Clinical expert:* Pooled 39.88 sits outside published benchmark range (corridor 1.07-4.27); closest Rovin 2021 OR 2.65 [1.64, 4.27]. Discussion should reconcile.
+  - *Clinical expert:* k<3 - NNT ≈ 2 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.
 
 ## MITRAL_FUNCMR_REVIEW
 - **New concerns:**
@@ -383,9 +388,9 @@ Apps with material change vs prior harvest: **82**
 ## NIRSEVIMAB_INFANT_RSV_REVIEW
 - **New concerns:**
   - *Patient representative:* QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits.
+  - *Methodology & PRISMA:* RoB 2.0: 0 high-risk + 1 some-concerns domains; add low-RoB sensitivity analysis.
   - *Methodology & PRISMA:* Prediction interval not definable for k<3; flag as boundary condition.
   - *Methodology & PRISMA:* Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
-  - *Methodology & PRISMA:* RoB 2.0: 0 high-risk + 1 some-concerns domains; add low-RoB sensitivity analysis.
   - *Clinical expert:* k<3 - NNT ≈ 70 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.
 
 ## PARP_ARPI_MCRPC_REVIEW
@@ -401,11 +406,11 @@ Apps with material change vs prior harvest: **82**
 
 ## PATISIRAN_POLYNEUROPATHY_REVIEW
 - **New concerns:**
-  - *Patient representative:* Effect not translated into absolute-risk difference / NNT for shared decision.
   - *Patient representative:* QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits.
+  - *Patient representative:* Effect not translated into absolute-risk difference / NNT for shared decision.
+  - *Methodology & PRISMA:* RoB 2.0: 0 high-risk + 1 some-concerns domains; add low-RoB sensitivity analysis.
   - *Methodology & PRISMA:* Prediction interval not definable for k<3; flag as boundary condition.
   - *Methodology & PRISMA:* Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
-  - *Methodology & PRISMA:* RoB 2.0: 0 high-risk + 1 some-concerns domains; add low-RoB sensitivity analysis.
   - *Clinical expert:* k<3 - clinical meaningfulness (MCID, NNT) cannot be grounded in pooled evidence.
 
 ## PBC_PPAR_REVIEW
@@ -413,8 +418,8 @@ Apps with material change vs prior harvest: **82**
   - *Patient representative:* QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits.
   - *Methodology & PRISMA:* Prediction interval not definable for k<3; flag as boundary condition.
   - *Methodology & PRISMA:* Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
-  - *Clinical expert:* k<3 - NNT ≈ 2 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.
   - *Clinical expert:* I² = 75.2% (considerable); show subgroup/strata estimates alongside pooled.
+  - *Clinical expert:* k<3 - NNT ≈ 2 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.
 
 ## PCSK9_REVIEW
 - **New concerns:**
@@ -430,8 +435,8 @@ Apps with material change vs prior harvest: **82**
 
 ## RENAL_DENERV_REVIEW
 - **New concerns:**
-  - *Patient representative:* Effect not translated into absolute-risk difference / NNT for shared decision.
   - *Patient representative:* QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits.
+  - *Patient representative:* Effect not translated into absolute-risk difference / NNT for shared decision.
   - *Methodology & PRISMA:* RoB 2.0: 0 high-risk + 2 some-concerns domains; add low-RoB sensitivity analysis.
 
 ## RESMETIROM_MASH_REVIEW
@@ -483,6 +488,12 @@ Apps with material change vs prior harvest: **82**
   - *Patient representative:* QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits.
   - *Methodology & PRISMA:* Evidence base is complete but small (k=4 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
 
+## SGLT2_MACE_CVOT_REVIEW
+- **New concerns:**
+  - *Patient representative:* QoL / PROs reported in 2 trial(s) (FACT (generic)) but not in headline pool; consider adding as a secondary analysis rather than omitting.
+  - *Methodology & PRISMA:* RoB 2.0: 0 high-risk + 1 some-concerns domains; add low-RoB sensitivity analysis.
+  - *Methodology & PRISMA:* Evidence base is complete but small (k=4 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
+
 ## SOTAGLIFLOZIN_HF_REVIEW
 - **New concerns:**
   - *Patient representative:* QoL / PROs reported in 1 trial(s) (FACT (generic)) but not in headline pool; consider adding as a secondary analysis rather than omitting.
@@ -511,9 +522,9 @@ Apps with material change vs prior harvest: **82**
   - *Methodology & PRISMA:* RoB 2.0: 0 high-risk + 2 some-concerns domains; add low-RoB sensitivity analysis.
   - *Methodology & PRISMA:* Prediction interval not definable for k<3; flag as boundary condition.
   - *Methodology & PRISMA:* Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.
-  - *Clinical expert:* I² = 92.7% (considerable); show subgroup/strata estimates alongside pooled.
   - *Clinical expert:* Pooled 0.78 sits outside published benchmark range; closest Modi 2022 HR 0.51 [0.40, 0.64]. Discussion should reconcile.
   - *Clinical expert:* k<3 - NNT ≈ 9 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.
+  - *Clinical expert:* I² = 92.7% (considerable); show subgroup/strata estimates alongside pooled.
 
 ## TNK_VS_TPA_STROKE_REVIEW
 - **New concerns:**
