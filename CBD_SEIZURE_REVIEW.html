@@ -5765,6 +5765,21 @@ const ContinuousMDEngine = {
         const _qpVi = plotData.map(d => d.vi);
         const { tau2_lo: tau2Lo, tau2_hi: tau2Hi } = qProfileTau2CI(_qpYi, _qpVi, df, 1 - confLevel);
 
+        // I² CI via Q-profile tau² CI (Cochrane v6.5; Viechtbauer 2007).
+        // Higgins-Thompson typical within-study variance s² used to map tau² -> I².
+        let I2_lo = 0, I2_hi = 0;
+        if (k >= 2) {
+            const _wfx = _qpVi.map(v => 1 / v);
+            const _sWfx = _wfx.reduce((a, b) => a + b, 0);
+            const _sWfx2 = _wfx.reduce((a, w) => a + w * w, 0);
+            const _denom = (_sWfx * _sWfx) - _sWfx2;
+            const _s2 = (_denom > 0) ? ((k - 1) * _sWfx) / _denom : 0;
+            if (_s2 > 0) {
+                I2_lo = Number.isFinite(tau2Lo) ? Math.max(0, 100 * tau2Lo / (tau2Lo + _s2)) : 0;
+                I2_hi = Number.isFinite(tau2Hi) ? Math.min(100, 100 * tau2Hi / (tau2Hi + _s2)) : 0;
+            }
+        }
+
         // Random-effects pooling using REML weights (Cochrane v6.5 default)
         let sWR = 0, sWRY = 0;
         plotData.forEach(d => { const wr = 1 / (d.vi + tau2); d.w_random = wr; sWR += wr; sWRY += wr * d.md; });
@@ -5810,7 +5825,7 @@ const ContinuousMDEngine = {
             confLevel: confLevel,
 
 
-            hksjLCI, hksjUCI, piLCI, piUCI, tau2_reml, tau2Lo, tau2Hi,
+            hksjLCI, hksjUCI, piLCI, piUCI, tau2_reml, tau2Lo, tau2Hi, I2_lo, I2_hi,
 
 
             qPvalue: chi2Pvalue(Q, df),
@@ -31501,6 +31516,20 @@ const AnalysisEngine = {
                 const _qpVi = plotData.map(d => d.vi);
                 const { tau2_lo: tau2Lo, tau2_hi: tau2Hi } = qProfileTau2CI(_qpYi, _qpVi, df, 1 - confLevel);
 
+                // I² CI via Q-profile tau² CI (Cochrane v6.5).
+                let I2_lo_qp = 0, I2_hi_qp = 0;
+                if (k >= 2) {
+                    const _wfx = _qpVi.map(v => 1 / v);
+                    const _sWfx = _wfx.reduce((a, b) => a + b, 0);
+                    const _sWfx2 = _wfx.reduce((a, w) => a + w * w, 0);
+                    const _denom = (_sWfx * _sWfx) - _sWfx2;
+                    const _s2 = (_denom > 0) ? ((k - 1) * _sWfx) / _denom : 0;
+                    if (_s2 > 0) {
+                        I2_lo_qp = Number.isFinite(tau2Lo) ? Math.max(0, 100 * tau2Lo / (tau2Lo + _s2)) : 0;
+                        I2_hi_qp = Number.isFinite(tau2Hi) ? Math.min(100, 100 * tau2Hi / (tau2Hi + _s2)) : 0;
+                    }
+                }
+
 
                 let sWR = 0, sWRY = 0;
 
@@ -31809,7 +31838,7 @@ const AnalysisEngine = {
                 }
 
 
-                return { plotData, Q, k, df, I2, tau2, tau2_dl, tau2_reml, tau2Lo, tau2Hi, sWR, pLogOR, pSE, confLevel, zCrit, pOR, lci, uci, hksjLCI, hksjUCI, piLCI, piUCI, qPvalue, eggerResult, fragIdx, fragQuot, useHR, I2_lo, I2_hi };
+                return { plotData, Q, k, df, I2, tau2, tau2_dl, tau2_reml, tau2Lo, tau2Hi, sWR, pLogOR, pSE, confLevel, zCrit, pOR, lci, uci, hksjLCI, hksjUCI, piLCI, piUCI, qPvalue, eggerResult, fragIdx, fragQuot, useHR, I2_lo, I2_hi, I2_lo_qp, I2_hi_qp };
 
 
             },
