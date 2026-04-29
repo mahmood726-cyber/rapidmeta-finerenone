@@ -5277,6 +5277,53 @@
 
 
 
+        // Chi-square quantile via Wilson-Hilferty inverse (sufficient for df >= 1).
+        const qchisq = (p, df) => {
+            if (df <= 0) return NaN;
+            const z = normalQuantile(p);
+            const v = 1 - 2/(9*df) + z * Math.sqrt(2/(9*df));
+            return Math.max(0, df * v * v * v);
+        };
+
+
+
+
+        // Q-profile tau-squared CI (Viechtbauer 2007).
+        // Q_GEN(tau2) = sum w_i(tau2) (y_i - mu_w(tau2))^2.
+        // tau2_lo: largest tau2 with Q_GEN(tau2) >= qchisq(1-alpha/2, df).
+        // tau2_hi: largest tau2 with Q_GEN(tau2) >= qchisq(alpha/2, df).
+        const qProfileTau2CI = (yi, vi, df, alpha) => {
+            if (df < 1 || yi.length < 2) return { tau2_lo: NaN, tau2_hi: NaN };
+            const qGen = (tau2) => {
+                let sW = 0, sWY = 0, sW_Y2 = 0;
+                for (let i = 0; i < yi.length; i++) {
+                    const w = 1 / (vi[i] + tau2);
+                    sW += w;
+                    sWY += w * yi[i];
+                    sW_Y2 += w * yi[i] * yi[i];
+                }
+                if (sW === 0) return 0;
+                return Math.max(0, sW_Y2 - (sWY * sWY) / sW);
+            };
+            const cutHi = qchisq(1 - alpha/2, df);
+            const cutLo = qchisq(alpha/2, df);
+            const Q0 = qGen(0);
+            const bisect = (target) => {
+                if (Q0 <= target) return 0;
+                let lo = 0, hi = 100;
+                for (let _e = 0; _e < 30 && qGen(hi) > target && hi < 1e8; _e++) hi *= 2;
+                for (let _i = 0; _i < 60; _i++) {
+                    const mid = (lo + hi) / 2;
+                    if (qGen(mid) > target) lo = mid; else hi = mid;
+                }
+                return (lo + hi) / 2;
+            };
+            return { tau2_lo: bisect(cutHi), tau2_hi: bisect(cutLo) };
+        };
+
+
+
+
 
         const chi2Pvalue = (Q, df) => {
 
@@ -5716,6 +5763,11 @@ const ContinuousMDEngine = {
         // Primary tau2 = REML when k>=2, else DL.
         const tau2 = (k >= 2) ? tau2_reml : tau2_dl;
 
+        // Q-profile tau2 CI (Cochrane v6.5 / RevMan-2025: tau2 CI by Q-profile).
+        const _qpYi = plotData.map(d => d.md);
+        const _qpVi = plotData.map(d => d.vi);
+        const { tau2_lo: tau2Lo, tau2_hi: tau2Hi } = qProfileTau2CI(_qpYi, _qpVi, df, 1 - confLevel);
+
         // Random-effects pooling using REML weights (Cochrane v6.5 default)
         let sWR = 0, sWRY = 0;
         plotData.forEach(d => { const wr = 1 / (d.vi + tau2); d.w_random = wr; sWR += wr; sWRY += wr * d.md; });
@@ -5769,7 +5821,7 @@ const ContinuousMDEngine = {
             confLevel: confLevel,
 
 
-            hksjLCI, hksjUCI, piLCI, piUCI, tau2_reml,
+            hksjLCI, hksjUCI, piLCI, piUCI, tau2_reml, tau2Lo, tau2Hi,
 
 
             qPvalue: chi2Pvalue(Q, df),
@@ -29453,7 +29505,10 @@ const RapidMeta = {
             const _gUCI = Number.isFinite(hksjUCI) ? hksjUCI : uci;
 
 
-            const ciWidth = (Number.isFinite(_gLCI) && Number.isFinite(_gUCI) && _gLCI > 0 && _gUCI > 0) ? Math.log(_gUCI) - Math.log(_gLCI) : Infinity;
+            // Use log-ratio width for OR/RR (both bounds positive); absolute width for MD/SMD.
+            const ciWidth = (Number.isFinite(_gLCI) && Number.isFinite(_gUCI))
+                ? ((_gLCI > 0 && _gUCI > 0) ? Math.log(_gUCI) - Math.log(_gLCI) : Math.abs(_gUCI - _gLCI))
+                : Infinity;
 
 
             const domainLabels = ['D1 Randomization', 'D2 Deviations', 'D3 Missing data', 'D4 Measurement', 'D5 Selective Reporting'];
@@ -31468,6 +31523,11 @@ const AnalysisEngine = {
                 // Primary tau2 = REML when k>=2 (Cochrane v6.5 default), else DL.
                 const tau2 = (k >= 2) ? tau2_reml : tau2_dl;
 
+                // Q-profile tau2 CI (Cochrane v6.5 / RevMan-2025: tau2 CI by Q-profile).
+                const _qpYi = plotData.map(d => d.logOR);
+                const _qpVi = plotData.map(d => d.vi);
+                const { tau2_lo: tau2Lo, tau2_hi: tau2Hi } = qProfileTau2CI(_qpYi, _qpVi, df, 1 - confLevel);
+
 
                 let sWR = 0, sWRY = 0;
 
@@ -31776,7 +31836,7 @@ const AnalysisEngine = {
                 }
 
 
-                return { plotData, Q, k, df, I2, tau2, tau2_reml, sWR, pLogOR, pSE, confLevel, zCrit, pOR, lci, uci, hksjLCI, hksjUCI, piLCI, piUCI, qPvalue, eggerResult, fragIdx, fragQuot, useHR, I2_lo, I2_hi };
+                return { plotData, Q, k, df, I2, tau2, tau2_dl, tau2_reml, tau2Lo, tau2Hi, sWR, pLogOR, pSE, confLevel, zCrit, pOR, lci, uci, hksjLCI, hksjUCI, piLCI, piUCI, qPvalue, eggerResult, fragIdx, fragQuot, useHR, I2_lo, I2_hi };
 
 
             },
@@ -33979,7 +34039,10 @@ const AnalysisEngine = {
                 const _gUCI = Number.isFinite(hksjUCI) ? hksjUCI : uci;
 
 
-                const ciWidth = (_gLCI > 0 && _gUCI > 0) ? Math.log(_gUCI) - Math.log(_gLCI) : Infinity;
+                // Use log-ratio width for OR/RR (both bounds positive); absolute width for MD/SMD.
+                const ciWidth = (Number.isFinite(_gLCI) && Number.isFinite(_gUCI))
+                    ? ((_gLCI > 0 && _gUCI > 0) ? Math.log(_gUCI) - Math.log(_gLCI) : Math.abs(_gUCI - _gLCI))
+                    : Infinity;
 
 
                 const domainLabels = ['D1 Randomization', 'D2 Deviations', 'D3 Missing data', 'D4 Measurement', 'D5 Selective Reporting'];
