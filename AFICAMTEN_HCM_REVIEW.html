@@ -26684,6 +26684,9 @@ const ContinuousMDEngine = {
                 const useHR = (emMode === 'HR');
 
 
+                const useRR = (emMode === 'RR');
+
+
                 const confLevel = RapidMeta.state.confLevel ?? 0.95;
 
 
@@ -26732,10 +26735,14 @@ const ContinuousMDEngine = {
                         const a = t.data.tE + adj, b = t.data.tN - t.data.tE + adj, c = t.data.cE + adj, dd = t.data.cN - t.data.cE + adj;
 
 
-                        const logEff = Math.log((a / b) / (c / dd));
-
-
-                        const vi = 1 / a + 1 / b + 1 / c + 1 / dd;
+                        let logEff, vi;
+                        if (useRR) {
+                            logEff = Math.log((a / (a + b)) / (c / (c + dd)));
+                            vi = b / (a * (a + b)) + dd / (c * (c + dd));
+                        } else {
+                            logEff = Math.log((a / b) / (c / dd));
+                            vi = 1 / a + 1 / b + 1 / c + 1 / dd;
+                        }
 
 
                         return { logOR: logEff, vi, se: Math.sqrt(vi), id: RapidMeta.nctAcronyms[t.id] ?? t.data?.name ?? t.id, year: t.data.year ?? 2020 };
