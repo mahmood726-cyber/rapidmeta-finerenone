@@ -5715,13 +5715,47 @@ const ContinuousMDEngine = {
         const uci = pMD + zCrit * pSE;
 
 
+        // REML iteration starting from DL tau2
+        let tau2_reml = tau2;
+        if (k >= 2) {
+            const _yi = plotData.map(d => d.md);
+            const _vi = plotData.map(d => d.vi);
+            for (let _it = 0; _it < 100; _it++) {
+                const _w = _vi.map(v => 1 / (v + tau2_reml));
+                const _sW = _w.reduce((a, b) => a + b, 0);
+                const _mu = _w.reduce((a, wi, i) => a + wi * _yi[i], 0) / _sW;
+                const _sW2 = _w.reduce((a, wi) => a + wi * wi, 0);
+                const _sW3 = _w.reduce((a, wi) => a + wi * wi * wi, 0);
+                const _trP = _sW - _sW2 / _sW;
+                const _yP2y = _w.reduce((a, wi, i) => a + wi * wi * Math.pow(_yi[i] - _mu, 2), 0);
+                const _trP2 = _sW2 - 2 * _sW3 / _sW + _sW2 * _sW2 / (_sW * _sW);
+                if (_trP2 < 1e-15) break;
+                const _delta = (_yP2y - _trP) / _trP2;
+                const _new = Math.max(0, tau2_reml + _delta);
+                if (Math.abs(_new - tau2_reml) < 1e-10) { tau2_reml = _new; break; }
+                tau2_reml = _new;
+            }
+        }
 
+        // HKSJ adjustment (Hartung-Knapp-Sidik-Jonkman) on DL random-effects weights.
+        // Floor q* at 1 (max(1, q*)) to prevent CI narrowing below DL when Q < df.
+        let hksjLCI = NaN, hksjUCI = NaN;
+        if (k >= 2) {
+            let qStar = 0;
+            plotData.forEach(d => { qStar += d.w_random * Math.pow(d.md - pMD, 2); });
+            qStar = qStar / df;
+            const hksjAdj = Math.max(1, qStar);
+            const hksjSE = Math.sqrt(hksjAdj / sWR);
+            const tCritHKSJ = tQuantile(1 - (1 - confLevel) / 2, df);
+            hksjLCI = pMD - tCritHKSJ * hksjSE;
+            hksjUCI = pMD + tCritHKSJ * hksjSE;
+        }
 
-
-        
-
-
-        
+        // Prediction interval (Higgins 2009, t_{k-2}). NaN for k < 3.
+        const piSE = Math.sqrt(tau2 + pSE * pSE);
+        const tCritPI = (k >= 3) ? tQuantile(1 - (1 - confLevel) / 2, k - 2) : NaN;
+        const piLCI = (k >= 3) ? (pMD - tCritPI * piSE) : NaN;
+        const piUCI = (k >= 3) ? (pMD + tCritPI * piSE) : NaN;
 
 
         return {
@@ -5742,7 +5776,7 @@ const ContinuousMDEngine = {
             confLevel: confLevel,
 
 
-            hksjLCI: NaN, hksjUCI: NaN, piLCI: NaN, piUCI: NaN,
+            hksjLCI, hksjUCI, piLCI, piUCI, tau2_reml,
 
 
             qPvalue: chi2Pvalue(Q, df),
@@ -31637,22 +31671,18 @@ const AnalysisEngine = {
                     const hksjEl = document.getElementById('res-hksj');
 
 
-                    const _hkLo = Math.max(0.001, c.hksjLCI);
-
-
-                    const _hkHi = Math.min(999, c.hksjUCI);
-
-
-                    const _hkCapped = c.hksjLCI < 0.001 || c.hksjUCI > 999;
-
-
-                    hksjEl.innerText = `${_hkLo.toFixed(2)} \u2014 ${_hkHi > 10 ? '>10' : _hkHi.toFixed(2)}${_hkCapped ? ' *' : ''}`;
-
-
-                    const waldSig = (c.lci > 1) || (c.uci < 1);
-
-
-                    const hksjSig = (c.hksjLCI > 1) || (c.hksjUCI < 1);
+                    const _isCont = !!c.isContinuous;
+                    if (_isCont) {
+                        hksjEl.innerText = `${c.hksjLCI.toFixed(2)} \u2014 ${c.hksjUCI.toFixed(2)}`;
+                    } else {
+                        const _hkLo = Math.max(0.001, c.hksjLCI);
+                        const _hkHi = Math.min(999, c.hksjUCI);
+                        const _hkCapped = c.hksjLCI < 0.001 || c.hksjUCI > 999;
+                        hksjEl.innerText = `${_hkLo.toFixed(2)} \u2014 ${_hkHi > 10 ? '>10' : _hkHi.toFixed(2)}${_hkCapped ? ' *' : ''}`;
+                    }
+                    const _nullVal = _isCont ? 0 : 1;
+                    const waldSig = (c.lci > _nullVal) || (c.uci < _nullVal);
+                    const hksjSig = (c.hksjLCI > _nullVal) || (c.hksjUCI < _nullVal);
 
 
                     const hksjCard = hksjEl.closest('.glass') || hksjEl.parentElement;

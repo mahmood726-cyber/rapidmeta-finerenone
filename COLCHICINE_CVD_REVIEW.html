@@ -27089,22 +27089,18 @@
                     const hksjEl = document.getElementById('res-hksj');
 
 
-                    const _hkLo = Math.max(0.001, c.hksjLCI);
-
-
-                    const _hkHi = Math.min(999, c.hksjUCI);
-
-
-                    const _hkCapped = c.hksjLCI < 0.001 || c.hksjUCI > 999;
-
-
-                    hksjEl.innerText = `${_hkLo.toFixed(2)} \u2014 ${_hkHi > 10 ? '>10' : _hkHi.toFixed(2)}${_hkCapped ? ' *' : ''}`;
-
-
-                    const waldSig = (c.lci > 1) || (c.uci < 1);
-
-
-                    const hksjSig = (c.hksjLCI > 1) || (c.hksjUCI < 1);
+                    const _isCont = !!c.isContinuous;
+                    if (_isCont) {
+                        hksjEl.innerText = `${c.hksjLCI.toFixed(2)} \u2014 ${c.hksjUCI.toFixed(2)}`;
+                    } else {
+                        const _hkLo = Math.max(0.001, c.hksjLCI);
+                        const _hkHi = Math.min(999, c.hksjUCI);
+                        const _hkCapped = c.hksjLCI < 0.001 || c.hksjUCI > 999;
+                        hksjEl.innerText = `${_hkLo.toFixed(2)} \u2014 ${_hkHi > 10 ? '>10' : _hkHi.toFixed(2)}${_hkCapped ? ' *' : ''}`;
+                    }
+                    const _nullVal = _isCont ? 0 : 1;
+                    const waldSig = (c.lci > _nullVal) || (c.uci < _nullVal);
+                    const hksjSig = (c.hksjLCI > _nullVal) || (c.hksjUCI < _nullVal);
 
 
                     const hksjCard = hksjEl.closest('.glass') || hksjEl.parentElement;
