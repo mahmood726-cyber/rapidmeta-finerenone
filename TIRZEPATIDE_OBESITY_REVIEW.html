@@ -2764,6 +2764,9 @@
             
 
 
+                        <div class="col-span-1 md:col-span-2"><div class="chart-header mb-2 px-2"><h4 class="text-[10px] opacity-70 font-bold uppercase tracking-widest">1b. Dose-Response Curve (linear fit, observed by dose)</h4><button class="chart-dl-btn" onclick="downloadChart('plot-dose-response','dose_response')" title="Download as SVG"><i class="fa-solid fa-download"></i></button></div><div id="plot-dose-response" class="chart-container" aria-describedby="desc-dose-response"></div><div id="desc-dose-response" class="chart-desc"></div></div>
+
+
                         <div class="col-span-1 md:col-span-2"><div class="chart-header mb-2 px-2"><h4 class="text-[10px] opacity-70 font-bold uppercase tracking-widest">2. Subgroup Synthesis (HF vs CKD)</h4><button class="chart-dl-btn" onclick="downloadChart('plot-subgroup','subgroup')" title="Download as SVG"><i class="fa-solid fa-download"></i></button></div><div id="plot-subgroup" class="chart-container" aria-describedby="desc-subgroup"></div><div id="desc-subgroup" class="chart-desc"></div></div>
 
 
@@ -5760,15 +5763,92 @@ const ContinuousMDEngine = {
         };
 
 
-    
 
 
-    
 
 
     }
 
 
+};
+
+
+// =============================================================================
+// DoseResponseEngine — pools outcomes by dose (parsed from title) and fits a
+// linear regression of effect vs dose with 95% CI band.
+// Usage: DoseResponseEngine.render('plot-dose-response', RapidMeta.realData)
+// =============================================================================
+const DoseResponseEngine = {
+    parseDose(title) {
+        if (!title) return null;
+        const m = String(title).match(/(\d+(?:\.\d+)?)\s*mg\b/i);
+        return m ? parseFloat(m[1]) : null;
+    },
+    extractDoseSeries(realData) {
+        const byDose = new Map();
+        for (const trialId of Object.keys(realData ?? {})) {
+            const outs = realData[trialId]?.allOutcomes ?? [];
+            for (const o of outs) {
+                const dose = this.parseDose(o.title);
+                if (dose == null) continue;
+                if (o.md == null || o.se == null) continue;
+                const w = 1 / (o.se * o.se);
+                const cur = byDose.get(dose) ?? { sumW: 0, sumWX: 0 };
+                cur.sumW += w; cur.sumWX += w * o.md;
+                byDose.set(dose, cur);
+            }
+        }
+        return [...byDose.entries()]
+            .map(([dose, agg]) => ({ dose, effect: agg.sumWX / agg.sumW, se: Math.sqrt(1 / agg.sumW) }))
+            .sort((a, b) => a.dose - b.dose);
+    },
+    fitLinear(series) {
+        const n = series.length;
+        if (n < 2) return null;
+        const xs = series.map(p => p.dose);
+        const ys = series.map(p => p.effect);
+        const meanX = xs.reduce((s, x) => s + x, 0) / n;
+        const meanY = ys.reduce((s, y) => s + y, 0) / n;
+        let Sxx = 0, Sxy = 0, Syy = 0;
+        for (let i = 0; i < n; i++) { const dx = xs[i] - meanX, dy = ys[i] - meanY; Sxx += dx*dx; Sxy += dx*dy; Syy += dy*dy; }
+        const b = Sxy / Sxx;
+        const a = meanY - b * meanX;
+        const R2 = (Syy === 0) ? 1 : (Sxy * Sxy) / (Sxx * Syy);
+        let rss = 0; for (let i = 0; i < n; i++) rss += (ys[i] - (a + b * xs[i])) ** 2;
+        const seSlope = n > 2 ? Math.sqrt((rss / (n - 2)) / Sxx) : 0;
+        return { a, b, R2, seSlope, n, meanX };
+    },
+    render(containerId, realData) {
+        const el = typeof containerId === 'string' ? document.getElementById(containerId) : containerId;
+        if (!el || typeof Plotly === 'undefined') return null;
+        const series = this.extractDoseSeries(realData);
+        if (series.length < 2) {
+            el.innerHTML = '<p style="padding:20px;color:#94a3b8;font-size:11px;">Dose-response analysis requires &gt;=2 dose levels with continuous (md/se) outcomes parseable from title (e.g. "5 mg", "10 mg"). None detected.</p>';
+            return null;
+        }
+        const fit = this.fitLinear(series);
+        const xs = series.map(p => p.dose);
+        const ys = series.map(p => p.effect);
+        const errs = series.map(p => 1.96 * p.se);
+        const xMin = Math.min(...xs), xMax = Math.max(...xs);
+        const fitXs = []; for (let i = 0; i <= 50; i++) fitXs.push(xMin + (xMax - xMin) * i / 50);
+        const fitYs = fitXs.map(x => fit.a + fit.b * x);
+        const fitLo = fitXs.map(x => (fit.a + fit.b * x) - 1.96 * fit.seSlope * Math.abs(x - fit.meanX));
+        const fitHi = fitXs.map(x => (fit.a + fit.b * x) + 1.96 * fit.seSlope * Math.abs(x - fit.meanX));
+        const obs = { x: xs, y: ys, error_y: { type: 'data', array: errs, color: '#3b82f6' }, mode: 'markers', name: 'Observed (pooled by dose, 95% CI)', marker: { size: 14, color: '#3b82f6' }, type: 'scatter' };
+        const fitLine = { x: fitXs, y: fitYs, mode: 'lines', name: 'Linear fit (slope ' + fit.b.toFixed(3) + ' per mg, R²=' + fit.R2.toFixed(3) + ')', line: { color: '#10b981', width: 2.5 }, type: 'scatter' };
+        const ciBand = { x: [...fitXs, ...fitXs.slice().reverse()], y: [...fitHi, ...fitLo.slice().reverse()], fill: 'toself', fillcolor: 'rgba(16,185,129,0.15)', line: { color: 'transparent' }, name: '95% CI on fit', type: 'scatter', hoverinfo: 'skip' };
+        const layout = {
+            paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+            xaxis: { title: 'Dose (mg)', gridcolor: '#1e293b', color: '#94a3b8', zeroline: false },
+            yaxis: { title: 'Pooled effect (MD vs comparator)', gridcolor: '#1e293b', color: '#94a3b8' },
+            font: { color: '#94a3b8', size: 10 }, margin: { t: 20, b: 50, l: 60, r: 30 },
+            shapes: [{ type: 'line', x0: xMin, x1: xMax, y0: 0, y1: 0, line: { color: '#ef4444', width: 1.5, dash: 'dot' } }],
+            showlegend: true, legend: { x: 0.02, y: 0.98, font: { size: 9 } }
+        };
+        Plotly.newPlot(el, [ciBand, fitLine, obs], layout, { displayModeBar: false, responsive: true });
+        return fit;
+    },
 };
 
 
@@ -6858,7 +6938,10 @@ const ContinuousMDEngine = {
                     allOutcomes: [
 
 
-                        { shortLabel: 'MACE', title: 'Percent change in body weight from baseline at week 72 (primary, tirzepatide 15 mg minus placebo, MD)', type: 'CONTINUOUS', md: -17.8, se: 0.587 }
+                        { shortLabel: 'MACE',     title: 'Percent change in body weight from baseline at week 72 (primary, tirzepatide 15 mg minus placebo, MD)', type: 'CONTINUOUS', md: -17.8, se: 0.587 },
+                        { shortLabel: 'BodyWt_5mg',  title: '% body-weight change at week 72, tirzepatide 5 mg vs placebo (MD; SURMOUNT-1)',  type: 'CONTINUOUS', md: -11.9, se: 0.56 },
+                        { shortLabel: 'BodyWt_10mg', title: '% body-weight change at week 72, tirzepatide 10 mg vs placebo (MD; SURMOUNT-1)', type: 'CONTINUOUS', md: -16.4, se: 0.56 },
+                        { shortLabel: 'BodyWt_15mg', title: '% body-weight change at week 72, tirzepatide 15 mg vs placebo (MD; SURMOUNT-1)', type: 'CONTINUOUS', md: -17.8, se: 0.587 }
 
 
                     ],
@@ -32906,6 +32989,11 @@ const AnalysisEngine = {
 
 
             renderPlots(data, pLogOR, pSE, pOR, zCrit, tau2, eggerResult, tfResult, powerResult) {
+
+
+                if (typeof DoseResponseEngine !== 'undefined') {
+                    try { DoseResponseEngine.render('plot-dose-response', RapidMeta.realData); } catch (e) { /* tolerate */ }
+                }
 
 
                 const layout = plotlyLayout;
