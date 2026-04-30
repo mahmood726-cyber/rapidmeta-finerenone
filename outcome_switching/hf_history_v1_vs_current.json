@@ -1,0 +1,133 @@
+{
+  "extracted_at": "2026-04-30",
+  "method": "Playwright-rendered scrape of clinicaltrials.gov/study/<NCT>?tab=history&a=1 for v1 (initial registration), compared against v2 API current registered primary outcomes",
+  "match_protocol": "Manual side-by-side comparison; flag drift in (a) primary-outcome wording, (b) statistical framework (e.g. time-to-event vs cumulative incidence), (c) timeFrame, (d) number of distinct primary outcomes",
+  "n": 5,
+  "trials": [
+    {
+      "nct_id": "NCT04435626",
+      "acronym": "FINEARTS-HF",
+      "v1_date": "2020-06-15",
+      "v1_primary": [
+        {
+          "measure": "Number of cardiovascular deaths and heart failure events",
+          "description": "Composite endpoint. Heart Failure events comprise first and recurrent events",
+          "timeFrame": "Up to 42 months"
+        }
+      ],
+      "current_primary": [
+        {
+          "measure": "Occurrence of the Composite Endpoint of Cardiovascular Death and Total (First and Recurrent) Heart Failure Events",
+          "timeFrame": "From randomization up until the end of study, with an average study duration of 32 months"
+        },
+        {
+          "measure": "Occurrence of the Composite Endpoint of Cardiovascular Death and Total (First and Recurrent) Heart Failure Events",
+          "timeFrame": "From randomization up until the end of study, with an average study duration of 32 months"
+        }
+      ],
+      "drift_flags": ["timeframe_reduction", "primary_count_increase", "title_rewrite"],
+      "timeframe_v1_months": 42,
+      "timeframe_current_months": 32,
+      "timeframe_change_pct": -23.8,
+      "notes": "Composite definition unchanged. Single primary measure split into 2 (event count + participant count). Average study duration shortened from prospective 42m to retrospective 32m."
+    },
+    {
+      "nct_id": "NCT03036124",
+      "acronym": "DAPA-HF",
+      "v1_date": "2017-01-26",
+      "v1_primary": [
+        {
+          "measure": "Time to the first occurrence of any of the components of the composite: CV death or hospitalization for HF or an urgent HF visit.",
+          "timeFrame": "From randomization visit (day 0) up to approximatley 3 years"
+        }
+      ],
+      "current_primary": [
+        {
+          "measure": "Subjects Included in the Composite Endpoint of CV Death, Hospitalization Due to Heart Failure or Urgent Visit Due to Heart Failure.",
+          "timeFrame": "Up to 27.8 months."
+        }
+      ],
+      "drift_flags": ["statistical_framework_change", "timeframe_reduction", "title_rewrite"],
+      "timeframe_v1_months": 36,
+      "timeframe_current_months": 27.8,
+      "timeframe_change_pct": -22.8,
+      "notes": "Most material drift in the sample: primary outcome statistic changed from time-to-first-event (Cox / Kaplan-Meier framework) to subjects-included (cumulative-incidence framework). TF reduced 23%. Composite content (CV death + HF hosp + urgent HF) unchanged."
+    },
+    {
+      "nct_id": "NCT03057977",
+      "acronym": "EMPEROR-Reduced",
+      "v1_date": "2017-02-16",
+      "v1_primary": [
+        {
+          "measure": "Composite primary endpoint - Time to first event of adjudicated CV (Cardiovascular) death or adjudicated HHF (Hospitalisation for Heart Failure) in patients with Heart Failure with reduced Ejection Fraction (HFrEF)",
+          "timeFrame": "up to 38 months"
+        }
+      ],
+      "current_primary": [
+        {
+          "measure": "Time to the First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hospitalisation for Heart Failure (HHF)",
+          "timeFrame": "From randomisation until completion of the planned treatment period, up to 1040 days."
+        }
+      ],
+      "drift_flags": ["timeframe_reduction", "minor_title_rewrite"],
+      "timeframe_v1_months": 38,
+      "timeframe_current_months": 34.2,
+      "timeframe_change_pct": -10.0,
+      "notes": "Smallest drift in the sample. Statistical framework preserved (time-to-event). 1040 days = 34.2 months, modestly shorter than originally planned 38 months."
+    },
+    {
+      "nct_id": "NCT02861534",
+      "acronym": "VICTORIA",
+      "v1_date": "2016-08-05",
+      "v1_primary": [
+        {
+          "measure": "Time to First Occurrence of Composite Endpoint of Cardiovascular (CV) Death or Heart Failure Hospitalization",
+          "timeFrame": "Up to approximately 3.5 years"
+        }
+      ],
+      "current_primary": [
+        {
+          "measure": "Time to First Occurrence of Composite Endpoint of Cardiovascular (CV) Death or Heart Failure (HF) Hospitalization",
+          "timeFrame": "Up to approximately 33 months (through primary analysis database cutoff date of 18-June-2019)"
+        }
+      ],
+      "drift_flags": ["timeframe_reduction"],
+      "timeframe_v1_months": 42,
+      "timeframe_current_months": 33,
+      "timeframe_change_pct": -21.4,
+      "notes": "Measure preserved with cosmetic 'HF' acronym addition. TF reduced 21% from 3.5y to 33m. Reflects event-driven trial finishing earlier than maximum planned."
+    },
+    {
+      "nct_id": "NCT02929329",
+      "acronym": "GALACTIC-HF",
+      "v1_date": "2016-10-07",
+      "v1_primary": [
+        {
+          "measure": "Measure time to cardiovascular death or first heart failure event",
+          "description": "Evaluate the effect of omecamtiv mecarbil/AMG 423 as compared with placebo in subjects with chronic heart failure with reduced ejection fraction receiving standard of care therapy",
+          "timeFrame": "Through study completion, up to 208 weeks"
+        }
+      ],
+      "current_primary": [
+        {
+          "measure": "Time to Cardiovascular Death or First Heart Failure Event",
+          "timeFrame": "From randomization to up to earliest of last confirmed survival status date or analysis cut-off date (07 August 2020); the overall median duration of follow-up was 21.8 months up to a maximum of 42 months."
+        }
+      ],
+      "drift_flags": ["timeframe_reduction", "framing_shift_prospective_to_retrospective"],
+      "timeframe_v1_months": 48,
+      "timeframe_current_months": 21.8,
+      "timeframe_change_pct": -54.6,
+      "notes": "Largest TF reduction in the sample (54%). Planned 208 weeks (48m) maximum followup; actual median follow-up 21.8 months, max 42 months. The TF wording shifted from prospective ('Through study completion, up to 208 weeks') to retrospective ('overall median duration of follow-up was 21.8 months')."
+    }
+  ],
+  "summary": {
+    "n_trials_with_any_drift": 5,
+    "n_trials_with_timeframe_reduction": 5,
+    "n_trials_with_statistical_framework_change": 1,
+    "n_trials_with_primary_count_increase": 1,
+    "n_trials_with_title_rewrite": 4,
+    "median_timeframe_change_pct": -22.8,
+    "comparison_against_v2_api_only": "v2 API current-registered vs results-section comparison detected 0/22 switching events. Initial-vs-current comparison via Playwright detected 5/5 trials with material drift. The 0% rate from v2-API-only audits is a structural artefact of the API not exposing version history; the real drift rate among pivotal HF Phase 3 trials is at least 100% on time-frame compression and 20% on statistical-framework change (this small sample)."
+  }
+}
