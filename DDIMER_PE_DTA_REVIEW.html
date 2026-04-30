@@ -2244,6 +2244,7 @@
         </div>
         <div id="deeks-svg-container"></div>
         <div id="deeks-summary-line" class="deeks-summary"></div>
+        <div id="chip-robme-dta" class="deeks-summary" style="margin-top:0.5rem;display:inline-block;padding:0.4rem 0.8rem;border-radius:9999px;font-size:0.85rem;font-weight:600;background:#e5e7eb;color:#374151;border:1px solid #d1d5db;" title="Cochrane Ch.13 ROB-ME: per-MA risk of missing evidence (Q1 search, Q2 missing trials, Q3 selective reporting via threshold-effect Spearman rho, Q4 small-study effects via Deeks' funnel).">ROB-ME: --</div>
       </div>
     </section>
 
@@ -2690,9 +2691,16 @@
 
       function renderSummary(fit) {
         document.getElementById('pooled-sens').textContent = fmt(fit.pooled_sens);
-        document.getElementById('pooled-sens-ci').textContent = fmtCI(fit.pooled_sens_ci_lb, fit.pooled_sens_ci_ub);
+        // Cochrane v6.5: prefer HKSJ CI when available (k>=2 + REML/FE bivariate path)
+        var _useHKSJSens = isFinite(fit.pooled_sens_hksj_ci_lb) && isFinite(fit.pooled_sens_hksj_ci_ub);
+        document.getElementById('pooled-sens-ci').textContent = _useHKSJSens
+          ? fmtCI(fit.pooled_sens_hksj_ci_lb, fit.pooled_sens_hksj_ci_ub) + ' (HKSJ)'
+          : fmtCI(fit.pooled_sens_ci_lb, fit.pooled_sens_ci_ub) + ' (Wald)';
         document.getElementById('pooled-spec').textContent = fmt(fit.pooled_spec);
-        document.getElementById('pooled-spec-ci').textContent = fmtCI(fit.pooled_spec_ci_lb, fit.pooled_spec_ci_ub);
+        var _useHKSJSpec = isFinite(fit.pooled_spec_hksj_ci_lb) && isFinite(fit.pooled_spec_hksj_ci_ub);
+        document.getElementById('pooled-spec-ci').textContent = _useHKSJSpec
+          ? fmtCI(fit.pooled_spec_hksj_ci_lb, fit.pooled_spec_hksj_ci_ub) + ' (HKSJ)'
+          : fmtCI(fit.pooled_spec_ci_lb, fit.pooled_spec_ci_ub) + ' (Wald)';
         document.getElementById('pooled-dor').textContent = fmtNum(fit.dor, 2);
         document.getElementById('pooled-dor-ci').textContent =
           '(' + fmtNum(fit.dor_ci_lb, 2) + ' – ' + fmtNum(fit.dor_ci_ub, 2) + ')';
@@ -3355,10 +3363,13 @@
         var notes = '';
         // Coverage warning
         if (fit.coverage_warning) {
+          var _hkInfo = (isFinite(fit.hksj_sens_adj) && isFinite(fit.hksj_spec_adj))
+            ? ' HKSJ adjustment applied (q*_sens=' + fit.hksj_sens_adj.toFixed(2) +
+              ', q*_spec=' + fit.hksj_spec_adj.toFixed(2) + '; floored at 1 per Cochrane v6.5).'
+            : ' HKSJ unavailable for this fit (single study).';
           notes += '<div class="banner banner-amber"><strong>Coverage warning (k&lt;10):</strong> ' +
-            'With only ' + fit.k + ' studies, Wald-based 95% CIs may under-cover the nominal rate. ' +
-            'HKSJ-style adjustments are not applied to the bivariate marginal SEs in this v1 release; ' +
-            'planned upgrade T16-T17 (R mada cross-validation).</div>';
+            'With only ' + fit.k + ' studies, Wald-based 95% CIs may under-cover the nominal rate.' +
+            _hkInfo + '</div>';
         } else {
           notes += '<div class="banner" style="background:#ecfdf5;border-left:4px solid #10b981;color:#065f46;">' +
             '<strong>Coverage OK:</strong> k=' + fit.k + ' &ge; 10. Wald-based 95% CIs expected to have nominal coverage.</div>';
@@ -5725,10 +5736,36 @@
       var _lastDeeks = null;
       function getLastDeeks() { return _lastDeeks; }
 
+      // ROB-ME chip update (Cochrane Ch.13 2024+) -- runs even when Deeks skipped
+      function _updateROBMEDTA(res) {
+        var robmeChip = document.getElementById('chip-robme-dta');
+        if (!robmeChip) return;
+        var rho = (currentFit && typeof currentFit.threshold_effect_spearman === 'number') ? currentFit.threshold_effect_spearman : null;
+        var q3level = (rho == null) ? 'manual' : (Math.abs(rho) > 0.8 ? 'high' : (Math.abs(rho) > 0.6 ? 'some' : 'low'));
+        var deeksP = (res && !res.skipped && isFinite(res.p)) ? res.p : null;
+        var q4level = (deeksP == null) ? 'manual' : (deeksP < 0.05 ? 'high' : (deeksP < 0.10 ? 'some' : 'low'));
+        var levels = ['manual', 'manual', q3level, q4level];
+        var overall = levels.indexOf('high') >= 0 ? 'high' : (levels.indexOf('some') >= 0 ? 'some' : (levels.every(function(l){return l === 'low';}) ? 'low' : 'manual'));
+        var palette = { low: '#10b981', some: '#f59e0b', high: '#ef4444', manual: '#6b7280' };
+        var verdict = { low: 'Low risk of missing evidence', some: 'Some concerns', high: 'High risk of missing evidence', manual: 'Pending manual judgements (Q1/Q2)' };
+        robmeChip.style.background = palette[overall] + '20';
+        robmeChip.style.color = palette[overall];
+        robmeChip.style.border = '1px solid ' + palette[overall];
+        var q4Note = (deeksP == null && (res && res.skipped))
+          ? ' (k<5: Deeks underpowered)'
+          : '';
+        robmeChip.title = 'Q1 (search): manual judgement required\n'
+                        + 'Q2 (missing trials): manual judgement required\n'
+                        + 'Q3 (selective reporting / threshold): Spearman rho = ' + (rho == null ? '--' : rho.toFixed(2)) + ' (' + q3level + ')\n'
+                        + 'Q4 (small-study effects via Deeks): p = ' + (deeksP == null ? '--' : deeksP.toFixed(3)) + q4Note + ' (' + q4level + ')';
+        robmeChip.textContent = 'ROB-ME: ' + verdict[overall];
+      }
+
       function renderDeeks() {
         var rows = trialsForTier(currentTier);
         var res = deeksAnalysis(rows);
         _lastDeeks = res;
+        _updateROBMEDTA(res);
         var svgEl = document.getElementById('deeks-svg-container');
         var sumEl = document.getElementById('deeks-summary-line');
         if (!svgEl || !sumEl) return;

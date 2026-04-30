@@ -436,6 +436,22 @@
     return { tau2_lo: bisect(cutHi), tau2_hi: bisect(cutLo) };
   }
 
+  // ---------- HKSJ per-axis adjustment (Hartung-Knapp 2001 marginal adaptation) ----------
+  // Scales the bivariate's cross-axis-aware marginal SE by sqrt(max(1, q*))
+  // where q* = (1/df) Σ wr_i (y_i - mu_axis)^2. df = k-1.
+  function hksjScaleAxis(yi, vi, tau2, muAxis, df) {
+    if (df < 1 || yi.length < 2) return { adj: NaN, qstar: NaN };
+    var t2 = (typeof tau2 === 'number' && isFinite(tau2)) ? tau2 : 0;
+    var sumW = 0, qStar = 0;
+    for (var i = 0; i < yi.length; i++) {
+      var wr = 1 / (vi[i] + t2);
+      sumW += wr;
+      qStar += wr * Math.pow(yi[i] - muAxis, 2);
+    }
+    qStar /= df;
+    return { adj: Math.max(1, qStar), qstar: qStar };
+  }
+
   // ---------- Prediction Interval (Higgins 2009 / Riley 2011, t_{k-2} on logit scale) ----------
   // P0-3: per-axis PI for future-study Sens/Spec. Undefined for k<3 or single-study fits.
   function predict(fitResult) {
@@ -688,6 +704,39 @@
       tau2SpecCI = qProfileTau2CI(ySpec, vSpec, k_raw - 1, 0.05);
     }
 
+    // HKSJ per-axis adjustment (Cochrane v6.5 default for small k; resolves
+    // the prior "T16-T17" TODO for HKSJ on bivariate marginal SEs).
+    var hksjSensAdj = NaN, hksjSpecAdj = NaN;
+    var hksjSensCI = [NaN, NaN], hksjSpecCI = [NaN, NaN];
+    if (k_raw >= 2 && fitObj.estimator !== 'single_study_clopper_pearson' && isFinite(fitObj.se_sens_logit) && isFinite(fitObj.se_spec_logit)) {
+      var ySensH = [], vSensH = [], ySpecH = [], vSpecH = [];
+      for (var hi = 0; hi < working.length; hi++) {
+        var ht = working[hi], hpos = ht.TP + ht.FN, hneg = ht.TN + ht.FP;
+        var hs = ht.TP / hpos, hsp = ht.TN / hneg;
+        ySensH.push(Math.log(hs / (1 - hs))); vSensH.push(1/ht.TP + 1/ht.FN);
+        ySpecH.push(Math.log(hsp / (1 - hsp))); vSpecH.push(1/ht.TN + 1/ht.FP);
+      }
+      var hsens = hksjScaleAxis(ySensH, vSensH, fitObj.tau2_sens || 0, fitObj.mu_sens_logit, k_raw - 1);
+      var hspec = hksjScaleAxis(ySpecH, vSpecH, fitObj.tau2_spec || 0, fitObj.mu_spec_logit, k_raw - 1);
+      hksjSensAdj = hsens.adj;
+      hksjSpecAdj = hspec.adj;
+      var t975h = tinv(0.975, k_raw - 1);
+      if (isFinite(t975h) && isFinite(hksjSensAdj)) {
+        var seSensH = Math.sqrt(hksjSensAdj) * fitObj.se_sens_logit;
+        hksjSensCI = [
+          1 / (1 + Math.exp(-(fitObj.mu_sens_logit - t975h * seSensH))),
+          1 / (1 + Math.exp(-(fitObj.mu_sens_logit + t975h * seSensH)))
+        ];
+      }
+      if (isFinite(t975h) && isFinite(hksjSpecAdj)) {
+        var seSpecH = Math.sqrt(hksjSpecAdj) * fitObj.se_spec_logit;
+        hksjSpecCI = [
+          1 / (1 + Math.exp(-(fitObj.mu_spec_logit - t975h * seSpecH))),
+          1 / (1 + Math.exp(-(fitObj.mu_spec_logit + t975h * seSpecH)))
+        ];
+      }
+    }
+
     function backCI(mu, se){
       var lo = 1/(1+Math.exp(-(mu-z*se)));
       var hi = 1/(1+Math.exp(-(mu+z*se)));
@@ -718,6 +767,9 @@
       tau2_sens: fitObj.tau2_sens, tau2_spec: fitObj.tau2_spec, rho: fitObj.rho,
       tau2_sens_lo: tau2SensCI.tau2_lo, tau2_sens_hi: tau2SensCI.tau2_hi,
       tau2_spec_lo: tau2SpecCI.tau2_lo, tau2_spec_hi: tau2SpecCI.tau2_hi,
+      hksj_sens_adj: hksjSensAdj, hksj_spec_adj: hksjSpecAdj,
+      pooled_sens_hksj_ci_lb: hksjSensCI[0], pooled_sens_hksj_ci_ub: hksjSensCI[1],
+      pooled_spec_hksj_ci_lb: hksjSpecCI[0], pooled_spec_hksj_ci_ub: hksjSpecCI[1],
       dor: dor, dor_ci_lb: dor_ci[0], dor_ci_ub: dor_ci[1],
       lr_pos: lr_pos, lr_neg: lr_neg,
       threshold_effect_spearman: sp_rho,
