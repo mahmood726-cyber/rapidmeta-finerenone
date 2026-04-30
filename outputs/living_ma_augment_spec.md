@@ -187,20 +187,16 @@ revert + reconvene:
   ~4% citation-misattribution baseline from lessons.md as the floor).
 - Per-dashboard configurable extraction templates.
 
-## Open questions (for user before implementation)
+## Locked decisions (2026-04-30)
 
-1. **Reviewer-id source**: dual-sign needs two distinct reviewer
-   identities. Pre-curated trials use `RapidMeta.getReviewerId()` +
-   a co-signer prompt. Should user-added trials use the same flow,
-   or require a second human (e.g. via email confirmation)?
-2. **CT.gov rate limits**: v2 API allows ~250 requests/hour without
-   auth. For a single dashboard's search this is fine. Worth
-   caching responses for 24h?
-3. **PMID for abstract regex**: if a candidate trial has CT.gov
-   results posted, we can skip PubMed entirely. If it doesn't, do
-   we (a) require the user to provide a PMID/DOI manually, or (b)
-   try to PubMed-search by NCT first?
-
-Will spec-lock once these three are decided. Default plan if no
-input: same reviewer-id flow as existing screening; 24h cache;
-auto-search PubMed by NCT first.
+1. **Reviewer-id source**: SAME flow as existing screening
+   (`RapidMeta.getReviewerId()` + co-signer prompt). Pragmatic for
+   the Makerere cohort use-case; user-added trials carry the same
+   provenance trail as curated ones plus the explicit `userAdded`
+   flag.
+2. **Cache**: 24-hour browser-side cache via localStorage, keyed by
+   `searchAugment.cache.<sha256(query+excludeNcts+dateFrom)>`.
+   Bypassed by a "Force refresh" link on the candidate panel.
+3. **PMID lookup**: auto-search PubMed by NCT first
+   (`esearch.fcgi?db=pubmed&term=<NCT>[si]`). Fall back to manual
+   PMID/DOI paste only if zero hits.
