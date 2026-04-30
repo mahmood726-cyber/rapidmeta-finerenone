@@ -5939,7 +5939,7 @@ const ContinuousMDEngine = {
             /* Known acronyms for trials whose CT.gov search may not return the acronym field */
 
 
-            nctAcronyms: { 'NCT03525600': 'OAKS', 'NCT03525613': 'DERBY' },
+            nctAcronyms: { 'NCT03525600': 'OAKS-PM', 'NCT03525613': 'DERBY-PM', 'NCT03525600_PEOM': 'OAKS-PEOM', 'NCT03525613_PEOM': 'DERBY-PEOM' },
 
 
             // Trials known to be ineligible for pooling. Screening flows read this
@@ -6986,16 +6986,14 @@ const ContinuousMDEngine = {
                 'NCT03525600': {
 
 
-                    name: 'OAKS', pmid: '37865470', phase: 'III', year: 2023, tE: null, tN: 202, cE: null, cN: 213, group: 'GA secondary to AMD, pegcetacoplan 15 mg intravitreal monthly vs pooled sham (12 mo, GA lesion growth). tN=202 = peg-monthly mITT; cN=213 = pooled sham mITT (sham-monthly + sham-Q2M, per OAKS pre-specified analysis). NOTE: 213 also appears in narrative below as the peg-Q2M ALLOCATED count -- distinct meaning.', publishedHR: null,
+                    name: 'OAKS-PM', pmid: '37865470', phase: 'III', year: 2023, tE: null, tN: 202, cE: null, cN: 213, group: 'OAKS pegcetacoplan-monthly (PM) arm vs pooled-sham comparison. tN=202 PM mITT, cN=213 pooled sham mITT (sham-monthly 106 + sham-PEOM 107) per Heier 2023 pre-specified analysis. PEOM contrast lives in NCT03525600_PEOM (separate trial-row by design, multi-arm shared-control noted there).', publishedHR: null,
 
 
                     allOutcomes: [
 
 
-                        { shortLabel: 'GA12_PM',   title: 'GA lesion area change at month 12, pegcetacoplan-monthly (PM) vs sham (mm^2, MD; primary)', type: 'CONTINUOUS', md: -0.41, se: 0.117 },
-                        { shortLabel: 'GA12_PEOM', title: 'GA lesion area change at month 12, pegcetacoplan-every-other-month (PEOM) vs sham (mm^2, MD; key secondary)', type: 'CONTINUOUS', md: -0.32, se: 0.115 },
-                        { shortLabel: 'GA24_PM',   title: 'GA lesion area change at month 24, PM vs sham (mm^2, MD; secondary)', type: 'CONTINUOUS', md: -0.90, se: 0.204 },
-                        { shortLabel: 'GA24_PEOM', title: 'GA lesion area change at month 24, PEOM vs sham (mm^2, MD; secondary)', type: 'CONTINUOUS', md: -0.74, se: 0.196 },
+                        { shortLabel: 'GA12',     title: 'GA lesion area change at month 12, PM vs sham (mm^2, MD; primary)', type: 'CONTINUOUS', md: -0.41, se: 0.117 },
+                        { shortLabel: 'GA24',     title: 'GA lesion area change at month 24, PM vs sham (mm^2, MD; secondary)', type: 'CONTINUOUS', md: -0.90, se: 0.204 },
                         { shortLabel: 'BCVA12',   title: 'BCVA letter-score change at month 12, PM vs sham (ETDRS, MD)', type: 'CONTINUOUS', md: -0.5, se: 0.9 },
                         { shortLabel: 'IOI',      title: 'Intraocular inflammation event rate (24-mo annualised, RR)', type: 'BINARY', tE: 13, tN: 202, cE: 1, cN: 106 }
 
@@ -7039,16 +7037,14 @@ const ContinuousMDEngine = {
                 'NCT03525613': {
 
 
-                    name: 'DERBY', pmid: '37865470', phase: 'III', year: 2023, tE: null, tN: 206, cE: null, cN: 208, group: 'GA secondary to AMD, pegcetacoplan monthly vs pooled sham (12 mo, GA lesion growth, replicate pivotal). tN=206 = peg-monthly mITT; cN=208 = pooled sham mITT (sham-monthly + sham-Q2M, per DERBY pre-specified analysis), NOT randomized-allocation count.', publishedHR: null,
+                    name: 'DERBY-PM', pmid: '37865470', phase: 'III', year: 2023, tE: null, tN: 206, cE: null, cN: 208, group: 'DERBY pegcetacoplan-monthly (PM) arm vs pooled-sham comparison. tN=206 PM mITT, cN=208 pooled sham mITT (sham-monthly 103 + sham-PEOM 105) per Heier 2023. PEOM contrast lives in NCT03525613_PEOM. DERBY 12-mo PM did NOT meet alpha; 24-mo positive.', publishedHR: null,
 
 
                     allOutcomes: [
 
 
-                        { shortLabel: 'GA12_PM',   title: 'GA lesion area change at month 12, PM vs sham (mm^2, MD; primary, did NOT meet alpha at 12 mo)', type: 'CONTINUOUS', md: -0.23, se: 0.122 },
-                        { shortLabel: 'GA12_PEOM', title: 'GA lesion area change at month 12, PEOM vs sham (mm^2, MD; key secondary, did NOT meet alpha at 12 mo)', type: 'CONTINUOUS', md: -0.21, se: 0.120 },
-                        { shortLabel: 'GA24_PM',   title: 'GA lesion area change at month 24, PM vs sham (mm^2, MD; secondary)', type: 'CONTINUOUS', md: -0.75, se: 0.207 },
-                        { shortLabel: 'GA24_PEOM', title: 'GA lesion area change at month 24, PEOM vs sham (mm^2, MD; secondary)', type: 'CONTINUOUS', md: -0.63, se: 0.212 },
+                        { shortLabel: 'GA12',     title: 'GA lesion area change at month 12, PM vs sham (mm^2, MD; primary, did NOT meet alpha at 12 mo)', type: 'CONTINUOUS', md: -0.23, se: 0.122 },
+                        { shortLabel: 'GA24',     title: 'GA lesion area change at month 24, PM vs sham (mm^2, MD; secondary)', type: 'CONTINUOUS', md: -0.75, se: 0.207 },
                         { shortLabel: 'BCVA12',   title: 'BCVA letter-score change at month 12, PM vs sham (ETDRS, MD)', type: 'CONTINUOUS', md: -1.1, se: 0.9 },
                         { shortLabel: 'IOI',      title: 'Intraocular inflammation event rate (24-mo annualised, RR)', type: 'BINARY', tE: 9, tN: 206, cE: 0, cN: 103 }
 
@@ -7085,6 +7081,66 @@ const ContinuousMDEngine = {
 
                     ]
 
+
+                },
+
+
+                // ============================================================
+                // PEOM (every-other-month) contrast as separate trial-rows.
+                // Architectural split (2026-05-01) so PEOM can be pooled
+                // independently. Multi-arm shared-control caveat: the same
+                // pooled sham (n=213 OAKS, n=208 DERBY) is the comparator for
+                // BOTH the PM arm AND the PEOM arm in each trial. If both PM
+                // and PEOM rows are included in the same pool, sham gets
+                // double-counted and the pool's sham weight is inflated; the
+                // user should pick PM-only OR PEOM-only OR all-four-with-
+                // adjustment per Cochrane Handbook 23.3.4 (split-control).
+                // ============================================================
+
+                'NCT03525600_PEOM': {
+
+                    name: 'OAKS-PEOM', pmid: '37865470', phase: 'III', year: 2023, tE: null, tN: 213, cE: null, cN: 213, group: 'OAKS pegcetacoplan-every-other-month (PEOM) arm vs pooled-sham comparison. tN=213 PEOM mITT, cN=213 pooled sham mITT. SHARED-CONTROL CAVEAT: same sham as OAKS-PM (NCT03525600). Pool PEOM-only OR PM-only -- including both inflates sham weight unless split-control applied (Cochrane 23.3.4).', publishedHR: null,
+
+                    allOutcomes: [
+                        { shortLabel: 'GA12',     title: 'GA lesion area change at month 12, PEOM vs sham (mm^2, MD; key secondary)', type: 'CONTINUOUS', md: -0.32, se: 0.115 },
+                        { shortLabel: 'GA24',     title: 'GA lesion area change at month 24, PEOM vs sham (mm^2, MD; secondary)', type: 'CONTINUOUS', md: -0.74, se: 0.196 }
+                    ],
+
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+
+                    snippet: 'Source: Heier JS et al. Lancet 2023;402(10411):1434-1448 (OAKS PEOM contrast; same trial as OAKS-PM).',
+
+                    sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(23)01520-9/fulltext',
+
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03525600',
+
+                    evidence: [
+                        { label: 'Arm-Specific Endpoint', source: 'Heier 2023 Lancet, key secondary', text: 'OAKS PEOM (every-other-month) arm: 12-mo ETD -0.32 mm^2 (95% CI -0.54 to -0.09; P=0.0055; 16% slowing) and 24-mo ETD -0.74 mm^2 (95% CI -1.13 to -0.36; P=0.0002; 18% slowing). PEOM met its key secondary endpoint at 12 mo and 24 mo in OAKS.', highlights: ['-0.32', '-0.54', 'P=0.0055', '16%', '-0.74', '18%'] }
+                    ]
+
+                },
+
+
+                'NCT03525613_PEOM': {
+
+                    name: 'DERBY-PEOM', pmid: '37865470', phase: 'III', year: 2023, tE: null, tN: 208, cE: null, cN: 208, group: 'DERBY pegcetacoplan-every-other-month (PEOM) arm vs pooled-sham comparison. tN=208 PEOM mITT, cN=208 pooled sham mITT. SHARED-CONTROL CAVEAT: same sham as DERBY-PM (NCT03525613). DERBY 12-mo PEOM did NOT meet alpha; 24-mo positive.', publishedHR: null,
+
+                    allOutcomes: [
+                        { shortLabel: 'GA12',     title: 'GA lesion area change at month 12, PEOM vs sham (mm^2, MD; key secondary, did NOT meet alpha at 12 mo)', type: 'CONTINUOUS', md: -0.21, se: 0.120 },
+                        { shortLabel: 'GA24',     title: 'GA lesion area change at month 24, PEOM vs sham (mm^2, MD; secondary)', type: 'CONTINUOUS', md: -0.63, se: 0.212 }
+                    ],
+
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+
+                    snippet: 'Source: Heier JS et al. Lancet 2023;402(10411):1434-1448 (DERBY PEOM contrast; same trial as DERBY-PM).',
+
+                    sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(23)01520-9/fulltext',
+
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03525613',
+
+                    evidence: [
+                        { label: 'Arm-Specific Endpoint', source: 'Heier 2023 Lancet, key secondary', text: 'DERBY PEOM (every-other-month) arm: 12-mo ETD -0.21 mm^2 (95% CI -0.44 to 0.03; P=0.085; 11% slowing, NOT significant). 24-mo ETD -0.63 mm^2 (95% CI -1.05 to -0.22; P=0.0030; 16% slowing, significant). PEOM met its key secondary at 24 mo only.', highlights: ['-0.21', 'P=0.085', 'NS', '-0.63', 'P=0.0030', '16%'] }
+                    ]
 
                 },
 
