@@ -1,0 +1,85 @@
+{
+  "base": "C:\\Projects\\Finrenone\\IL23_PSORIASIS_REVIEW.html",
+  "out":  "C:\\Projects\\Finrenone\\BIMEKIZUMAB_PSORIASIS_REVIEW.html",
+
+  "title": "RapidMeta Dermatology | Bimekizumab (IL-17A/F Dual) in Plaque Psoriasis v1.0",
+  "hero_h2": "Bimekizumab in Moderate-to-Severe Plaque Psoriasis",
+  "nyt_headline": "The Bimekizumab Evidence",
+
+  "auto_include_ncts": ["NCT03370133", "NCT03410992", "NCT03412747"],
+  "nct_acronyms": {
+    "NCT03370133": "BE-VIVID",
+    "NCT03410992": "BE-READY",
+    "NCT03412747": "BE-SURE"
+  },
+
+  "localstorage_old": "rapid_meta_il23_pso_v1_0",
+  "localstorage_new": "rapid_meta_bimekizumab_pso_v1_0",
+
+  "pico": {
+    "pop":      "Adults with moderate-to-severe plaque psoriasis (PASI >=12, BSA >=10%, IGA >=3)",
+    "int":      "Bimekizumab 320 mg SC every 4 weeks (humanized IgG1 mAb, dual IL-17A and IL-17F neutralization)",
+    "comp":     "Placebo (BE-VIVID, BE-READY) or adalimumab 80/40 mg SC (BE-SURE active-controlled head-to-head)",
+    "out":      "Proportion achieving PASI 90 at week 16 (primary)",
+    "subgroup": "Prior biologic exposure, baseline PASI severity, BMI, body weight"
+  },
+
+  "real_data_entries": [
+    {
+      "nct": "NCT03370133",
+      "name": "BE-VIVID",
+      "pmid": "33549193",
+      "phase": "III",
+      "year": 2021,
+      "tE": 273, "tN": 321, "cE": 4, "cN": 83,
+      "group": "Moderate-severe plaque psoriasis, bimekizumab 320 mg Q4W vs placebo arm of 3-arm RCT (3:2:1 bimi:ustek:placebo); ustekinumab arm reported separately",
+      "publishedHR": 17.62, "hrLCI": 6.74, "hrUCI": 46.07,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "Proportion achieving PASI 90 at week 16 (primary)", "tE": 273, "cE": 4, "type": "PRIMARY", "matchScore": 95, "effect": 17.62, "lci": 6.74, "uci": 46.07, "estimandType": "RR"},
+        {"shortLabel": "CVD",  "title": "Proportion achieving IGA 0/1 (clear/almost clear) at week 16", "tE": 270, "cE": 4, "type": "SECONDARY", "matchScore": 85, "effect": 17.43, "lci": 6.66, "uci": 45.59, "estimandType": "RR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Reich K et al. Lancet 2021;397:487-498 (BE-VIVID).",
+      "sourceUrl": "https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(21)00125-2/fulltext",
+      "evidence": []
+    },
+    {
+      "nct": "NCT03410992",
+      "name": "BE-READY",
+      "pmid": "33549192",
+      "phase": "III",
+      "year": 2021,
+      "tE": 273, "tN": 349, "cE": 1, "cN": 86,
+      "group": "Moderate-severe plaque psoriasis, bimekizumab 320 mg Q4W vs placebo (4:1 randomization)",
+      "publishedHR": 67.27, "hrLCI": 9.55, "hrUCI": 473.83,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "Proportion achieving PASI 90 at week 16 (primary)", "tE": 273, "cE": 1, "type": "PRIMARY", "matchScore": 95, "effect": 67.27, "lci": 9.55, "uci": 473.83, "estimandType": "RR"},
+        {"shortLabel": "CVD",  "title": "Proportion achieving IGA 0/1 at week 16", "tE": 264, "cE": 1, "type": "SECONDARY", "matchScore": 85, "effect": 65.05, "lci": 9.24, "uci": 458.10, "estimandType": "RR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Gordon KB et al. Lancet 2021;397:475-486 (BE-READY).",
+      "sourceUrl": "https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(21)00126-4/fulltext",
+      "evidence": []
+    },
+    {
+      "nct": "NCT03412747",
+      "name": "BE-SURE",
+      "pmid": "34260840",
+      "phase": "III",
+      "year": 2021,
+      "tE": 275, "tN": 319, "cE": 75, "cN": 159,
+      "group": "Moderate-severe plaque psoriasis, bimekizumab 320 mg (Q4W and Q4W->Q8W combined) vs adalimumab 80/40 mg (active-controlled head-to-head)",
+      "publishedHR": 1.83, "hrLCI": 1.55, "hrUCI": 2.15,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "Proportion achieving PASI 90 at week 16 (primary, vs adalimumab)", "tE": 275, "cE": 75, "type": "PRIMARY", "matchScore": 95, "effect": 1.83, "lci": 1.55, "uci": 2.15, "estimandType": "RR"},
+        {"shortLabel": "CVD",  "title": "Proportion achieving IGA 0/1 at week 16", "tE": 268, "cE": 64, "type": "SECONDARY", "matchScore": 85, "effect": 2.09, "lci": 1.71, "uci": 2.55, "estimandType": "RR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Reich K et al. NEJM 2021;385:142-152 (BE-SURE bimekizumab vs adalimumab).",
+      "sourceUrl": "https://www.nejm.org/doi/full/10.1056/NEJMoa2102383",
+      "evidence": []
+    }
+  ],
+
+  "extra_replaces": []
+}
