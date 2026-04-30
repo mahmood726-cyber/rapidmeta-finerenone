@@ -26246,6 +26246,12 @@
                 const tau2 = (k >= 2) ? tau2_reml : tau2_dl;
 
 
+                // Q-profile tau2 CI (Cochrane v6.5 / RevMan-2025: Viechtbauer 2007).
+                const _qpYi = plotData.map(d => d.logOR);
+                const _qpVi = plotData.map(d => d.vi);
+                const { tau2_lo: tau2Lo, tau2_hi: tau2Hi } = qProfileTau2CI(_qpYi, _qpVi, df, 1 - confLevel);
+
+
                 let sWR = 0, sWRY = 0;
 
 
@@ -26381,7 +26387,7 @@
                 return {
 
 
-                    plotData, Q, k, df, I2, tau2, sWR, pLogOR, pSE, confLevel, zCrit, pOR, lci, uci,
+                    plotData, Q, k, df, I2, tau2, tau2Lo, tau2Hi, sWR, pLogOR, pSE, confLevel, zCrit, pOR, lci, uci,
 
 
                     hksjLCI, hksjUCI, piLCI, piUCI, qPvalue, eggerResult, fragIdx: 0, fragQuot: '--', fragilityNA: true

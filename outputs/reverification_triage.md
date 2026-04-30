@@ -3,6 +3,19 @@
 Status: **NEW-TOPIC FREEZE in effect.** No new dashboards until the
 audits below are addressed.
 
+## Update 2026-04-30 (post-fix pass)
+
+Three of the seven REM-* tasks have been resolved this session:
+
+| Task        | Status   | Notes                                                                                     |
+|-------------|----------|-------------------------------------------------------------------------------------------|
+| REM-ENG-1   | PARTIAL  | V3 (Q-profile call) backfilled in COLCHICINE_CVD, GLP1_CVOT, SGLT2_HF -- audit shows V3 FAIL = 0 across the portfolio. V8 (MH pool) still fails for the same 3 because the older engine layout lacks `_petoPool`/`_remlHksjPool` anchors -- queue as a re-clone. Smoke-tested all 3 in Playwright: 0 console errors. |
+| REM-MITT-1  | DONE     | UltIMMa-2 mITT corrected to Gordon 2018 published (ris n=294, pbo n=98) in IL_PSORIASIS_NMA_REVIEW.html. |
+| Sentinel V3 | DONE     | `cochrane_v65_invariants.py` now requires call-site presence (`qProfileTau2CI(`) AND definition (`qProfileTau2CI =`), and applies the same lift to `_mhPool` + `_assessROBME`. 466 Sentinel tests still pass. |
+
+Remaining REM-* tasks (REM-MITT-2, REM-CONT-1/2, REM-CLUSTER-1, plus
+the REM-ENG-1 V8 re-clone) carry over to the next session.
+
 This consolidates three audit passes over the 170-dashboard portfolio:
 
 1. `audit_mitt_vs_allocated.py`     -> binary tN/cN denominator convention
