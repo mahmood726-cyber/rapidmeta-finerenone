@@ -5501,7 +5501,9 @@
             'GA_Growth': [
 
 
-                { label: 'OAKS + DERBY pegcetacoplan vs sham (GA lesion growth)', citation: 'Heier 2023', year: 2023, measure: 'MD', estimate: -0.34, lci: -0.52, uci: -0.16, k: 2, n: 1258, scope: 'Pegcetacoplan IVT monthly/every-other-month vs sham; GA lesion-area change at 24 mo (mm^2). Lancet 2023;402:1434-1448.' },
+                { label: 'OAKS + DERBY PM vs sham (12-mo primary)', citation: 'Heier 2023', year: 2023, measure: 'MD', estimate: -0.32, lci: -0.49, uci: -0.16, k: 2, n: 829, scope: 'Inverse-variance pool of OAKS PM (-0.41) + DERBY PM (-0.23) 12-mo ETD on UNTRANSFORMED mm^2 scale. Heier JS et al. Lancet 2023;402(10411):1434-1448. Note: prior dashboard benchmark used -0.34 on sqrt-mm^2 scale; corrected 2026-05-01.' },
+                { label: 'OAKS + DERBY PM vs sham (24-mo)', citation: 'Heier 2023', year: 2023, measure: 'MD', estimate: -0.83, lci: -1.11, uci: -0.54, k: 2, n: 829, scope: 'Inverse-variance pool of OAKS PM 24-mo (-0.90, SE 0.204) + DERBY PM 24-mo (-0.75, SE 0.207) untransformed mm^2. Heier 2023 Lancet.' },
+                { label: 'OAKS + DERBY PEOM vs sham (12-mo key secondary)', citation: 'Heier 2023', year: 2023, measure: 'MD', estimate: -0.27, lci: -0.43, uci: -0.10, k: 2, n: 837, scope: 'Inverse-variance pool of OAKS PEOM (-0.32) + DERBY PEOM (-0.21) 12-mo ETD untransformed mm^2. Heier 2023 Lancet.' },
 
 
             ],
@@ -5910,7 +5912,7 @@ const ContinuousMDEngine = {
             state: {
 
 
-                protocol: { pop: 'Adults with geographic atrophy secondary to AMD', int: 'Intravitreal pegcetacoplan', comp: 'Sham', out: 'GA lesion-area change (mm^2 at 12 mo, MD vs sham). Trial denominators tN/cN reflect modified-ITT (mITT) populations matching the published primary analysis (Heier 2023 Ophthalmology + Liao 2023 Lancet), NOT randomized-allocation counts. Sham arms are pooled (monthly + every-other-month) per OAKS/DERBY pre-specified analysis plan. Pooled mean differences reflect the trial-published primary analytic method (typically LSMD via MMRM or ANCOVA-adjusted change from baseline; see per-trial snippet for the trial-specific model).', subgroup: 'Subfoveal vs extrafoveal, baseline GA area', query: '', rctOnly: true, post2015: true },
+                protocol: { pop: 'Adults with geographic atrophy secondary to AMD', int: 'Intravitreal pegcetacoplan', comp: 'Sham', out: 'GA lesion-area change (mm^2 untransformed at 12 mo, ETD vs sham; key secondary 24 mo). Primary publication: Heier JS et al. Lancet 2023;402(10411):1434-1448 (PMID 37865470, DOI 10.1016/S0140-6736(23)01520-9). Trial denominators tN/cN reflect modified-ITT (mITT) populations matching the published primary analysis, NOT randomized-allocation counts. Sham arms are pooled (monthly + every-other-month) per OAKS/DERBY pre-specified analysis plan. Both PM (pegcetacoplan-monthly) and PEOM (pegcetacoplan-every-other-month) arm contrasts are available in allOutcomes (GA12_PM, GA12_PEOM, GA24_PM, GA24_PEOM). Pooled mean differences reflect the trial-published LSMD via MMRM with ANCOVA-adjusted baseline.', subgroup: 'Subfoveal vs extrafoveal, baseline GA area', query: '', rctOnly: true, post2015: true },
 
 
                 trials: [], activeTab: 'protocol', results: null, showExcluded: false, screenFilter: 'all',
@@ -5944,7 +5946,7 @@ const ContinuousMDEngine = {
             // map to auto-exclude with a documented reason. See _applySeedExclusion
             // below for the consumer hook (called from every ingest site).
             seedExcludedNCTs: {
-                'NCT04770545': { acronym: 'GALE', reason: 'Open-label extension of OAKS + DERBY; patients roll over from the pivotal RCTs, so pooling GALE alongside would double-count. Per ICH E9 and Cochrane guidance, the extension cohort is captured by the long-term follow-up of OAKS/DERBY (Liao 2023 Lancet 24-mo analysis).' }
+                'NCT04770545': { acronym: 'GALE', reason: 'Open-label extension of OAKS + DERBY; patients roll over from the pivotal RCTs, so pooling GALE alongside would double-count. Per ICH E9 and Cochrane guidance, the extension cohort is captured by the long-term follow-up of OAKS/DERBY (Heier 2023 Lancet 24-mo analysis).' }
             },
 
 
@@ -6990,10 +6992,11 @@ const ContinuousMDEngine = {
                     allOutcomes: [
 
 
-                        { shortLabel: 'GA12_Q4W', title: 'GA lesion area change at month 12, Q4W vs sham (sqrt mm^2, MD)', type: 'CONTINUOUS', md: -0.47, se: 0.17 },
-                        { shortLabel: 'GA12_Q8W', title: 'GA lesion area change at month 12, Q8W vs sham (sqrt mm^2, MD)', type: 'CONTINUOUS', md: -0.39, se: 0.17 },
-                        { shortLabel: 'GA24_Q4W', title: 'GA lesion area change at month 24, Q4W vs sham (sqrt mm^2, MD; Liao 2023)', type: 'CONTINUOUS', md: -0.84, se: 0.21 },
-                        { shortLabel: 'BCVA12',   title: 'BCVA letter-score change at month 12, Q4W vs sham (ETDRS, MD)', type: 'CONTINUOUS', md: -0.5, se: 0.9 },
+                        { shortLabel: 'GA12_PM',   title: 'GA lesion area change at month 12, pegcetacoplan-monthly (PM) vs sham (mm^2, MD; primary)', type: 'CONTINUOUS', md: -0.41, se: 0.117 },
+                        { shortLabel: 'GA12_PEOM', title: 'GA lesion area change at month 12, pegcetacoplan-every-other-month (PEOM) vs sham (mm^2, MD; key secondary)', type: 'CONTINUOUS', md: -0.32, se: 0.115 },
+                        { shortLabel: 'GA24_PM',   title: 'GA lesion area change at month 24, PM vs sham (mm^2, MD; secondary)', type: 'CONTINUOUS', md: -0.90, se: 0.204 },
+                        { shortLabel: 'GA24_PEOM', title: 'GA lesion area change at month 24, PEOM vs sham (mm^2, MD; secondary)', type: 'CONTINUOUS', md: -0.74, se: 0.196 },
+                        { shortLabel: 'BCVA12',   title: 'BCVA letter-score change at month 12, PM vs sham (ETDRS, MD)', type: 'CONTINUOUS', md: -0.5, se: 0.9 },
                         { shortLabel: 'IOI',      title: 'Intraocular inflammation event rate (24-mo annualised, RR)', type: 'BINARY', tE: 13, tN: 202, cE: 1, cN: 106 }
 
 
@@ -7003,10 +7006,10 @@ const ContinuousMDEngine = {
                     rob: ['low', 'low', 'low', 'low', 'low'],
 
 
-                    snippet: 'Source: Heier 2023 Ophthalmology + Liao 2023 Lancet (OAKS 12-mo primary + 24-mo durability).',
+                    snippet: 'Source: Heier JS et al. Lancet 2023;402(10411):1434-1448 (OAKS + DERBY combined paper; primary 12-mo + 24-mo + safety).',
 
 
-                    sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(23)01578-0/fulltext',
+                    sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(23)01520-9/fulltext',
 
 
                     ctgovUrl: 'https://clinicaltrials.gov/study/NCT03525600',
@@ -7015,16 +7018,16 @@ const ContinuousMDEngine = {
                     evidence: [
 
 
-                        { label: 'Enrollment', source: 'Heier 2023 Ophthalmology / Liao 2023 Lancet, CONSORT', text: '637 adults with geographic atrophy secondary to age-related macular degeneration randomized 2:2:1:1 double-blind to pegcetacoplan 15 mg intravitreal every month (n=202), every other month (Q2M, n=213), sham monthly (n=106), or sham Q2M (n=116) for 24 months. OAKS was one of two pivotal replicate trials.', highlights: ['637', '202', '213', 'pegcetacoplan', 'double-blind'] },
+                        { label: 'Enrollment', source: 'Heier 2023 Lancet, CONSORT', text: '637 adults with geographic atrophy secondary to age-related macular degeneration randomized 2:2:1:1 double-blind to pegcetacoplan 15 mg intravitreal pegcetacoplan-monthly PM (n=202), pegcetacoplan-every-other-month PEOM (n=213), sham monthly (n=106), or sham PEOM (n=116) for 24 months. OAKS was one of two pivotal replicate trials.', highlights: ['637', '202', '213', 'pegcetacoplan', 'double-blind'] },
 
 
-                        { label: 'Primary - GA Lesion Area Change at Month 12', source: 'Heier 2023 Ophthalmology + Liao 2023 Lancet, Table 2', text: 'Square-root-transformed GA lesion area change from baseline at month 12: pegcetacoplan monthly -2.07 mm vs sham -2.54 mm; estimated treatment difference MD -0.47 mm/sqrt(area) (95% CI -0.80 to -0.14; P=0.0054). 22% slowing of lesion growth with monthly dosing; 16% with Q2M dosing.', highlights: ['-2.07', '-2.54', 'MD -0.47', '-0.80', '-0.14', 'P=0.0054', '22%'] },
+                        { label: 'Primary - GA Lesion Area Change at Month 12 (mm^2, untransformed)', source: 'Heier 2023 Lancet, primary endpoint', text: 'OAKS month-12 ETD vs sham (least-squares mean change in GA lesion area, mm^2): PM -0.41 mm^2 (95% CI -0.64 to -0.18; P=0.0004; 21% slowing). PEOM -0.32 mm^2 (95% CI -0.54 to -0.09; P=0.0055; 16% slowing). NOTE: published primary is on the UNTRANSFORMED mm^2 scale (NOT sqrt-transformed -- prior dashboard values -0.47/-0.39 were sqrt-mm^2 and have been corrected).', highlights: ['-0.41', '-0.64', '-0.18', 'P=0.0004', '21%', '-0.32', '-0.54', '16%'] },
 
 
-                        { label: 'Secondary - 24-month Durability and Safety', source: 'Liao 2023 Lancet, Figure 2', text: 'At 24 months, monthly dosing continued to slow GA growth with 22% reduction vs sham. Intraocular inflammation (2.1% annualized) and rare cases of exudative AMD development (12.2% in pegcetacoplan vs 3.1% in sham) require monitoring. No endophthalmitis in OAKS.', highlights: ['22%', '24 months', 'IOI 2.1%', 'exudation'] },
+                        { label: 'Secondary - 24-month Durability', source: 'Heier 2023 Lancet, secondary endpoint', text: 'OAKS month-24 ETD vs sham: PM -0.90 mm^2 (95% CI -1.30 to -0.50; P<0.0001; 22% slowing). PEOM -0.74 mm^2 (95% CI -1.13 to -0.36; P=0.0002; 18% slowing). Intraocular inflammation (2.1% annualized PM); rare exudative AMD (12.2% pegcetacoplan vs 3.1% sham).', highlights: ['-0.90', '-1.30', '22%', '-0.74', '18%', 'IOI 2.1%'] },
 
 
-                        { label: 'Risk of Bias (RoB 2.0)', source: 'Heier 2023 Ophthalmology + Liao 2023 Lancet design + RoB 2.0', text: 'D1 LOW - central IVR randomization stratified by baseline lesion size. D2 LOW - double-blind with sham intravitreal procedure masking. D3 LOW - 91% primary follow-up at 12 months. D4 LOW - central reading center for fundus autofluorescence (FAF) GA measurement. D5 LOW - SAP locked.', highlights: ['LOW', 'double-blind', 'central reading', 'FAF'] }
+                        { label: 'Risk of Bias (RoB 2.0)', source: 'Heier 2023 Lancet design + RoB 2.0', text: 'D1 LOW - central IVR randomization stratified by baseline lesion size. D2 LOW - double-blind with sham intravitreal procedure masking. D3 LOW - 91% primary follow-up at 12 months. D4 LOW - central reading center for fundus autofluorescence (FAF) GA measurement. D5 LOW - SAP locked.', highlights: ['LOW', 'double-blind', 'central reading', 'FAF'] }
 
 
                     ]
@@ -7042,10 +7045,11 @@ const ContinuousMDEngine = {
                     allOutcomes: [
 
 
-                        { shortLabel: 'GA12_Q4W', title: 'GA lesion area change at month 12, Q4W vs sham (sqrt mm^2, MD; did not meet alpha)', type: 'CONTINUOUS', md: -0.29, se: 0.17 },
-                        { shortLabel: 'GA12_Q8W', title: 'GA lesion area change at month 12, Q8W vs sham (sqrt mm^2, MD)', type: 'CONTINUOUS', md: -0.17, se: 0.17 },
-                        { shortLabel: 'GA24_Q4W', title: 'GA lesion area change at month 24, Q4W vs sham (sqrt mm^2, MD; Liao 2023)', type: 'CONTINUOUS', md: -0.66, se: 0.21 },
-                        { shortLabel: 'BCVA12',   title: 'BCVA letter-score change at month 12, Q4W vs sham (ETDRS, MD)', type: 'CONTINUOUS', md: -1.1, se: 0.9 },
+                        { shortLabel: 'GA12_PM',   title: 'GA lesion area change at month 12, PM vs sham (mm^2, MD; primary, did NOT meet alpha at 12 mo)', type: 'CONTINUOUS', md: -0.23, se: 0.122 },
+                        { shortLabel: 'GA12_PEOM', title: 'GA lesion area change at month 12, PEOM vs sham (mm^2, MD; key secondary, did NOT meet alpha at 12 mo)', type: 'CONTINUOUS', md: -0.21, se: 0.120 },
+                        { shortLabel: 'GA24_PM',   title: 'GA lesion area change at month 24, PM vs sham (mm^2, MD; secondary)', type: 'CONTINUOUS', md: -0.75, se: 0.207 },
+                        { shortLabel: 'GA24_PEOM', title: 'GA lesion area change at month 24, PEOM vs sham (mm^2, MD; secondary)', type: 'CONTINUOUS', md: -0.63, se: 0.212 },
+                        { shortLabel: 'BCVA12',   title: 'BCVA letter-score change at month 12, PM vs sham (ETDRS, MD)', type: 'CONTINUOUS', md: -1.1, se: 0.9 },
                         { shortLabel: 'IOI',      title: 'Intraocular inflammation event rate (24-mo annualised, RR)', type: 'BINARY', tE: 9, tN: 206, cE: 0, cN: 103 }
 
 
@@ -7055,10 +7059,10 @@ const ContinuousMDEngine = {
                     rob: ['low', 'low', 'low', 'low', 'low'],
 
 
-                    snippet: 'Source: Liao DS et al. Lancet 2023;402:1591-1604 (DERBY 12-mo primary + 24-mo durability).',
+                    snippet: 'Source: Heier JS et al. Lancet 2023;402(10411):1434-1448 (OAKS + DERBY combined paper; DERBY 12-mo primary did NOT meet alpha but 24-mo analyses positive).',
 
 
-                    sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(23)01578-0/fulltext',
+                    sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(23)01520-9/fulltext',
 
 
                     ctgovUrl: 'https://clinicaltrials.gov/study/NCT03525613',
@@ -7067,16 +7071,16 @@ const ContinuousMDEngine = {
                     evidence: [
 
 
-                        { label: 'Enrollment', source: 'Liao 2023 Lancet, CONSORT', text: '621 adults with geographic atrophy secondary to AMD randomized 2:2:1:1 double-blind to pegcetacoplan monthly (n=206), Q2M (n=208), sham monthly (n=103), or sham Q2M (n=104) for 24 months. DERBY was the replicate pivotal trial to OAKS.', highlights: ['621', '206', '208', 'replicate', 'double-blind'] },
+                        { label: 'Enrollment', source: 'Heier 2023 Lancet, CONSORT', text: '621 adults with geographic atrophy secondary to AMD randomized 2:2:1:1 double-blind to PM (n=206), PEOM (n=208), sham monthly (n=103), or sham PEOM (n=104) for 24 months. DERBY was the replicate pivotal trial to OAKS.', highlights: ['621', '206', '208', 'replicate', 'double-blind'] },
 
 
-                        { label: 'Primary - GA Lesion Area Change at Month 12 (did not meet significance)', source: 'Liao 2023 Lancet, Table 2', text: 'Square-root-transformed GA lesion area change at month 12: pegcetacoplan monthly -2.48 mm vs sham -2.77 mm; ETD MD -0.29 mm/sqrt(area) (95% CI -0.62 to +0.04; P=0.086). 12% slowing of lesion growth, non-significant at 12 months. At 24 months, monthly dosing slowed GA growth 18-19% vs sham.', highlights: ['-2.48', '-2.77', 'MD -0.29', 'P=0.086', '12%', '24 months 18-19%'] },
+                        { label: 'Primary - GA Lesion Area Change at Month 12 (mm^2; did NOT meet significance)', source: 'Heier 2023 Lancet, primary endpoint', text: 'DERBY month-12 ETD vs sham (mm^2 untransformed): PM -0.23 mm^2 (95% CI -0.47 to 0.01; P=0.062; 12% slowing, non-significant). PEOM -0.21 mm^2 (95% CI -0.44 to 0.03; P=0.085; 11% slowing, non-significant). DERBY did NOT meet its 12-month primary endpoint -- the FDA approval relied on OAKS + 24-month DERBY data. NOTE: published primary is on UNTRANSFORMED mm^2 (NOT sqrt-transformed -- prior dashboard values -0.29/-0.17 were sqrt-mm^2 and have been corrected).', highlights: ['-0.23', '-0.47', 'P=0.062', 'NS', '-0.21', '-0.44', '11%'] },
 
 
-                        { label: 'Secondary - Combined Analysis and 24-month Durability', source: 'Liao 2023 Lancet, Figure 2', text: 'Pre-specified combined OAKS + DERBY analysis at 24 months: monthly pegcetacoplan slows GA growth by 22%; Q2M by 16-17%. Exudative AMD conversion risk approximately 12% with pegcetacoplan vs 3-4% with sham; warrants monitoring.', highlights: ['22%', '16-17%', 'combined', '12%', '3-4%'] },
+                        { label: 'Secondary - 24-month Durability', source: 'Heier 2023 Lancet, secondary endpoint', text: 'DERBY month-24 ETD vs sham (significant): PM -0.75 mm^2 (95% CI -1.15 to -0.34; P=0.0004; 19% slowing). PEOM -0.63 mm^2 (95% CI -1.05 to -0.22; P=0.0030; 16% slowing). The 24-month analyses across both arms supported pegcetacoplan-syfovre approval.', highlights: ['-0.75', '-1.15', 'P=0.0004', '19%', '-0.63', '16%'] },
 
 
-                        { label: 'Risk of Bias (RoB 2.0)', source: 'Liao 2023 Lancet design + RoB 2.0', text: 'D1 LOW - central IVR randomization. D2 LOW - double-blind with sham IVT procedure. D3 LOW - 90% primary follow-up. D4 LOW - central FAF reading. D5 LOW - SAP locked; DERBY did not meet 12-month primary but met 24-month analysis, transparently reported.', highlights: ['LOW', 'double-blind', 'FAF', '24-month'] }
+                        { label: 'Risk of Bias (RoB 2.0)', source: 'Heier 2023 Lancet design + RoB 2.0', text: 'D1 LOW - central IVR randomization. D2 LOW - double-blind with sham IVT procedure. D3 LOW - 90% primary follow-up. D4 LOW - central FAF reading. D5 LOW - SAP locked; DERBY did not meet 12-month primary but met 24-month analysis, transparently reported.', highlights: ['LOW', 'double-blind', 'FAF', '24-month'] }
 
 
                     ]
