@@ -579,3 +579,26 @@ Promoting these from "candidate" to active rules in `lessons.md`:
 section in a separate commit, scoped to that file alone, so this DTA-portfolio
 commit stays focused.)
 
+
+
+## Task C closure (2026-04-30) — D-dimer ADJUST-validation van der Pol 2019
+
+After the T35 stop-condition was hit, the entry "ADJUST-validation - van der Pol 2019" in `ddimer_pe_trials.json` was left with `pmid: null` and a flag for re-verification. v0.3 follow-up (TODO_v1.1 Task C) attempted that re-verification.
+
+**Method**: PubMed `search_articles` with permutations of:
+- `van der Pol[Author] AND D-dimer AND (age-adjusted OR Wells) AND pulmonary embolism AND ("2018"-"2020")`
+- `van der Pol[Author] AND "Lancet Haematology"[Journal] AND ("2019"-"2020")`
+- `NCT01624285` (claimed trial registration)
+- `van der Pol[Author] AND YEARS AND pulmonary embolism AND ("2017"-"2020")`
+
+**Result**: **No verifiable paper exists** matching the cited "ADJUST-validation - van der Pol 2019, Lancet Haematol, multinational 8 European centres". The Lancet Haematology query returned 0 results for any van der Pol publication 2019-2020. NCT01624285 returned 0 PubMed hits.
+
+The closest verifiable van der Pol publications in this window are:
+- **van Mens 2018** JTH (PMID 29460484, DOI 10.1111/jth.13984) — IPD analysis of 6 Wells + 1 YEARS cohorts comparing pre-imaging diagnostic algorithms by sex. Van der Pol is 2nd author, NOT first author. This is NOT an ADJUST-validation paper.
+- **van der Pol 2018** BJH (PMID 30198551, DOI 10.1111/bjh.15556) — Subsegmental PE prevalence after YEARS algorithm. NOT an ADJUST-validation paper.
+- **van der Pol 2019** NEJM (PMID 30893534, DOI 10.1056/NEJMoa1813865) — Pregnancy-adapted YEARS algorithm. NOT an ADJUST-validation paper.
+
+**Per p-tau217 fallback rule (c)**: drop the citation rather than ship a misattribution. The "ADJUST-validation - van der Pol 2019" row has been removed from `ddimer_pe_trials.json`. The primary tier in the standalone JSON shrinks from k=5 to k=4. The HTML review (`DDIMER_PE_DTA_REVIEW.html`) still references the row and needs a corresponding edit in v1.2 — not done in this closure round to keep the change minimal-and-reversible. The 2x2 cell counts associated with this row (TP=268, FP=768, FN=4, TN=660) cannot be tied to any verifiable source and should be considered unverified.
+
+**Lessons.md update candidate**: when a primary-tier study in a meta-analysis cannot be verified to a real paper, dropping the row is preferable to keeping unverified 2x2 cells. The k=4 vs k=5 cosmetic difference is much less serious than a fabricated row passing as primary evidence.
+
