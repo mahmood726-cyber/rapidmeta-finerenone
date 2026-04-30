@@ -106,16 +106,21 @@
             }
         }
 
+        // CT.gov v2 quirks:
+        //   - `filter.studyType` is a single value (not "INTERVENTIONAL_STUDY")
+        //   - `filter.phase` accepts PHASE3 PHASE4 etc, multi via "PHASE3|PHASE4"
+        //   - `filter.advanced` syntax is finicky; we filter dates client-side
+        //     (smaller blast radius, robust to API quirks).
+        //   - `fields` whitelist must use camelCase v2 paths (not v1 names).
         const params = new URLSearchParams();
         params.set('query.term', query);
-        params.set('filter.studyType', 'INTERVENTIONAL');
-        params.set('filter.phase', phases.join(','));
-        params.set('filter.advanced', `AREA[StartDate]RANGE[${dateFrom},MAX]`);
+        params.set('filter.overallStatus', 'COMPLETED|ACTIVE_NOT_RECRUITING|RECRUITING|TERMINATED');
         params.set('pageSize', String(pageSize));
-        params.set('fields',
-            'NCTId,BriefTitle,OverallStatus,Phase,StartDate,CompletionDate,LeadSponsorName,BriefSummary,StudyType'
-        );
         params.set('format', 'json');
+        // Phase filter via aggFilters (v2 dotted path).
+        if (phases && phases.length) {
+            params.set('aggFilters', `studyType:int,phase:${phases.map(p => p.replace(/^PHASE/i, '')).join(' ')}`);
+        }
 
         const url = `${API_BASE}?${params.toString()}`;
         const res = await fetch(url);
@@ -141,8 +146,15 @@
             };
         });
 
-        cacheSet(cacheKey, studies);
-        return studies.filter(c => !excludeNcts.has(c.nct));
+        // Client-side date filter on startDate.
+        const filtered = studies.filter(s => {
+            if (!dateFrom) return true;
+            const sd = s.startDate || '';
+            // accept any startDate >= dateFrom (string compare works for ISO dates)
+            return sd >= dateFrom;
+        });
+        cacheSet(cacheKey, filtered);
+        return filtered.filter(c => !excludeNcts.has(c.nct));
     }
 
     /**
