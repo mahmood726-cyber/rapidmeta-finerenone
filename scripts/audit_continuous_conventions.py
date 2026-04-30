@@ -177,9 +177,15 @@ def declares_mmrm(blob: str) -> bool:
 
 def compute_flags(*, tN: int | None, cN: int | None,
                   md: float | None, se: float | None,
-                  title: str, group: str, snippet: str) -> list[str]:
+                  title: str, group: str, snippet: str,
+                  pico_out: str = "") -> list[str]:
     flags: list[str] = []
+    # Per-outcome declaration sources: title, group (trial header), snippet.
     blob = f"{title} {group} {snippet}"
+    # Dashboard-level declaration source: PICO `out` field. Treated as a
+    # blanket declaration for every continuous outcome in that dashboard
+    # (added portfolio-wide 2026-04-30 by scripts/add_lsmd_disclaimer.py).
+    blob_pico = f"{blob} {pico_out}"
 
     # Denominator heuristics (same as binary audit).
     if tN is not None and tN > 0 and tN % 100 == 0:
@@ -199,13 +205,14 @@ def compute_flags(*, tN: int | None, cN: int | None,
             flags.append("ARM_ASYMMETRIC")
 
     # Analytic-method declaration. Only meaningful for primary-style
-    # change-from-baseline outcomes; flag when omitted.
+    # change-from-baseline outcomes; flag when omitted at BOTH the
+    # per-outcome level and the dashboard-level PICO.
     is_change = any(tok in blob.lower() for tok in (
         "change", "from baseline", "difference from", "least", "mmrm", "ancova",
     ))
-    if is_change and not declares_lsmd(blob):
+    if is_change and not declares_lsmd(blob_pico):
         flags.append("LSMD_NOT_DECLARED")
-    if is_change and not declares_mmrm(blob):
+    if is_change and not declares_mmrm(blob_pico):
         flags.append("MMRM_NOT_DECLARED")
 
     # MITT_MENTIONED stays useful as a positive tag.
@@ -237,12 +244,19 @@ def compute_flags(*, tN: int | None, cN: int | None,
     return flags
 
 
+PICO_OUT_RE = re.compile(
+    r"protocol:\s*\{\s*pop:\s*'(?:[^'\\]|\\.)*',\s*int:\s*'(?:[^'\\]|\\.)*',\s*comp:\s*'(?:[^'\\]|\\.)*',\s*out:\s*'((?:[^'\\]|\\.)*)'"
+)
+
+
 def scan_dashboard(path: Path) -> list[dict]:
     try:
         text = path.read_text(encoding="utf-8", errors="replace")
     except Exception:
         return []
     nct_map = build_nct_map(text)
+    pico_match = PICO_OUT_RE.search(text)
+    pico_out = pico_match.group(1) if pico_match else ""
     rows: list[dict] = []
     for _, _, block in find_trial_blocks(text):
         # Trial header fields (pull from first line of the block).
@@ -270,6 +284,7 @@ def scan_dashboard(path: Path) -> list[dict]:
             flags = compute_flags(
                 tN=tN, cN=cN, md=md, se=se,
                 title=title, group=group, snippet=snippet,
+                pico_out=pico_out,
             )
             rows.append({
                 "dashboard": path.name,

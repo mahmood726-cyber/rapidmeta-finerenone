@@ -3,7 +3,15 @@
 Status: **NEW-TOPIC FREEZE in effect.** No new dashboards until the
 audits below are addressed.
 
-## Update 2026-04-30 (post-fix pass)
+## Update 2026-04-30 (second post-fix pass)
+
+Six of the seven REM-* tasks have been resolved this session:
+
+| Task        | Status   | Notes                                                                                     |
+|-------------|----------|-------------------------------------------------------------------------------------------|
+| REM-MITT-2  | DONE     | SELECT-Compare entry annotated -- cN=651 is the placebo arm (NOT the n=327 ada arm), per the NMA single-anchor methodology. False-flag from the audit, no value change required. |
+| REM-CONT-2  | DONE     | 8 proportion-as-MD entries (Q12W_pct, Q16W_pct in PULSAR/PHOTON/TENAYA/LUCERNE) relabelled `type: 'DESCRIPTIVE_PROPORTION'` so the engine excludes them from the continuous MD pool. |
+| REM-CONT-1  | DONE     | LSMD/MMRM transparency clause appended to PICO `out` field of all 27 dashboards with continuous outcomes. Audit-aware update: heuristic now reads PICO `out` as a blanket declaration source. **LSMD_NOT_DECLARED: 81 -> 0. MMRM_NOT_DECLARED: 81 -> 0.** Hot-fix follow-up: first version of the disclaimer used a literal apostrophe (`trial's`) inside a single-quoted JS string and broke 27 dashboards (Playwright caught `Unexpected identifier 's'`). `scripts/fix_lsmd_disclaimer_apostrophe.py` swept all 27 to the apostrophe-free phrasing; `scripts/add_lsmd_disclaimer.py` updated to use the safe text and to flag the trap in a comment. |
 
 Three of the seven REM-* tasks have been resolved this session:
 
