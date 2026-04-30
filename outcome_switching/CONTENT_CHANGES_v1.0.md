@@ -102,3 +102,74 @@ Both are invisible to the v2 API and require Playwright UI scraping to detect. B
 - Eyeball the remaining 36 candidates from the detector for confirmation rate and final content-change count
 - Sub-classify content changes by direction: hard-event→biomarker, biomarker→QoL, safety→efficacy, etc.
 - Compare to medRxiv 2025.11.06 24% silent-drop baseline — content changes are arguably *more* serious than silent drops because they replace rather than just remove the primary.
+
+---
+
+## v1.1 update — full eyeball of all 43 candidates (2026-04-30 same-day)
+
+After shipping v1.0, eyeballed the remaining 24 candidates beyond the original top-7 sample. Final classification of all 43:
+
+| Bucket | n | Notes |
+|---|---|---|
+| **Confirmed real content changes** | **14** | enumerated below |
+| Borderline (specification, dose-change, framework-with-content-edge) | 5 | NCT04080518, NCT03300427, NCT03458325, NCT03036462, NCT02690974 |
+| False positives (vague→specified, framework-only, identical-after-strip) | 24 | all carefully reviewed |
+
+### 14 confirmed content changes (full list)
+
+| # | NCT | Acronym | Sponsor | n | v1 → current direction |
+|---|---|---|---|---|---|
+| 1 | NCT03888066 | DIAMOND | INDUSTRY | 1,195 | CV-event composite → serum K+ biomarker |
+| 2 | NCT02856698 | MIMO | OTHER | 111 | Safety AEs → in-hospital mortality |
+| 3 | NCT03030235 | PRESERVED-HF | OTHER | 324 | NTproBNP biomarker → KCCQ patient-reported QoL |
+| 4 | NCT05243199 | — | OTHER | 330 | Cardiac function → BP in CKD-on-dialysis (population also narrowed) |
+| 5 | NCT03877224 | DETERMINE-Preserved | INDUSTRY | 504 | Single 6MWD primary → 3 co-primaries (KCCQ-TSS + KCCQ-PLS + 6MWD) |
+| 6 | NCT03877237 | DETERMINE-Reduced | INDUSTRY | 313 | Same DETERMINE pattern: single 6MWD primary → 3 co-primaries (KCCQ-TSS + KCCQ-PLS + 6MWD) |
+| 7 | NCT02438306 | — | INDUSTRY | 125 | 6MWD at 12mo → 3-tiered Finkelstein-Schoenfeld hierarchical composite |
+| 8 | NCT05278962 | — | OTHER | 32 | LVEDD echo metric → "ramp stages needed for hemodynamic optimization" (device-titration metric) |
+| 9 | NCT02589977 | HFpEF-PRoF | OTHER | 55 | "Myocardial energy starvation" count → Coronary Flow Reserve |
+| 10 | NCT03315143 | SCORED | INDUSTRY | 10,584 | Time-to-first MACE (CV death + MI + stroke) → CV death + HHF + Urgent HF visits (composite **components changed**) |
+| 11 | NCT02900378 | OUTSTEP-HF | INDUSTRY | 621 | Single non-sedentary-activity primary → 2 co-primaries (6MWT + non-sedentary activity) |
+| 12 | NCT04778787 | — | OTHER | 370 | "ICU admission for worsening HF" → "death due to HF" (escalated to harder endpoint) |
+| 13 | NCT02653482 | DEFINE-HF | OTHER | 263 | NTproBNP-only primary → NTproBNP + KCCQ co-primary added |
+| 14 | NCT03514108 | DANHEART | OTHER | 1,100 | H-HeFT primary only → H-HeFT + Met-HeFT (added second concurrent trial as co-primary) |
+
+### Updated sociology (n=14 confirmed content changes)
+
+| Sponsor class | n | % of confirmed content changes | Population baseline |
+|---|---|---|---|
+| **INDUSTRY** | 6 | **42.9%** | 29.0% (78/269) |
+| OTHER (academic + nonprofit) | 8 | 57.1% | 68.4% (184/269) |
+
+Industry is over-represented vs population baseline (43% vs 29%) but the asymmetry is **modest** compared to framework changes (100% industry vs 29% baseline). The framework-change pattern is dramatically industry-concentrated; the content-change pattern is just modestly so.
+
+### Updated rate estimates
+
+| Drift type | Confirmed n / 269 | % | Notes |
+|---|---|---|---|
+| **Framework changes** | 5 | **1.9%** | All industry; corporate-template-driven housekeeping |
+| **Content changes** | **14** | **5.2%** | Mixed industry + academic; trial-pivot events |
+| Combined (framework + content) | 19 | 7.1% | Substantive primary outcome edits invisible to v2 API |
+
+The 5.2% content-change rate is the most rigorous number; it has been fully eyeballed across all 43 detector candidates. Combined with the 1.9% framework-change rate, the substantive-primary-drift rate in pivotal HF P3/P4 trials is **7.1% (n=19/269)**.
+
+### 5 borderline cases (not counted)
+
+- **DAPA-Shuttle1** (NCT04080518) — vague v1 ("urine osmolyte") specified to "urea-dominated renal water conservation" in current. Specification, not swap.
+- **TurkuPET** (NCT03300427) — "cardiac oxygen consumption + efficiency" → "Myocardial Energetic Efficiency". Same content, framework wording.
+- **FREEDOM-HF** (NCT03458325) — "HF-attributable direct medical costs" → "Healthcare Utilization Costs". Same content, broader framing.
+- **FAIR-HF2** (NCT03036462) — Rate-based primary → time-to-first + rate co-primaries. Composite content preserved; this is a framework-with-additions case.
+- **PARASAIL** (NCT02690974) — "Tolerating LCZ696 at 97.2/102.8 mg" → "On LCZ696 200 mg". Dose label changed but content (tolerability) unchanged.
+
+### Additional pattern: DETERMINE-Reduced + DETERMINE-Preserved
+
+NCT03877224 (DETERMINE-Preserved, INDUSTRY n=504) and NCT03877237 (DETERMINE-Reduced, INDUSTRY n=313) are the two arms of the AstraZeneca DETERMINE programme. Both show **identical** content edits: single 6MWD primary → 3 co-primaries (KCCQ-TSS + KCCQ-PLS + 6MWD) at Week 16. This confirms the *programme-level template* hypothesis: AstraZeneca's mechanistic-DAPA-in-HFpEF/HFrEF programme appears to have a shared registry-edit pattern across both arms.
+
+### What this means for the v1.0/v2.0 paper
+
+The headline now has clean numbers: **7.1% of 269 pivotal HF P3/P4 trials show substantive primary-outcome drift between initial registration and current view, invisible to the CT.gov v2 API**. This breaks down as:
+
+- 1.9% framework changes (industry-concentrated)
+- 5.2% content changes (sponsor-class moderate excess for industry)
+
+Combined with the 14 confirmed content-change case studies + 5 framework-change case studies, there is enough material for a substantive Methods Note. Cross-cardiology expansion remains the v2.0 question: does the same 7.1% rate hold in oncology / nephrology / endocrinology?
