@@ -1,0 +1,1 @@
+SCRIPT BROKEN — query syntax error: "AREA[ResultsFirstPostDate]EXIST" is not valid CT.gov v2 Essie syntax. HTTP 400 Bad Request. Fix: use aggFilters=results:with instead, OR drop the gate and post-filter in Python. Fix and re-run in a fresh session.
