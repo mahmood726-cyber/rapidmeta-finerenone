@@ -26524,6 +26524,60 @@
             },
 
 
+            // ===== v12.0: MANTEL-HAENSZEL FIXED-EFFECT ENGINE =====
+            // Cochrane Handbook v6.5 §10.4.1: MH preferred over inverse-variance for
+            // sparse binary outcomes. RBG (Robins-Breslow-Greenland 1986) variance.
+            // Ported from COLCHICINE_CVD older-style mhPoolOR/mhPoolRR pair.
+
+
+            mhPoolOR(plotData, confLevel) {
+                const k = plotData.length;
+                if (k < 2) return null;
+                const zCrit = normalQuantile(1 - (1 - confLevel) / 2);
+                let R = 0, S = 0, Pv = 0, Q_num = 0, RpS = 0;
+                plotData.forEach(d => {
+                    const a = d.tE, b = d.tN - d.tE, c = d.cE, dd = d.cN - d.cE;
+                    const N = d.tN + d.cN;
+                    if (N === 0) return;
+                    R += (a * dd) / N;
+                    S += (b * c) / N;
+                    const Ri = (a * dd) / N, Si = (b * c) / N;
+                    const Pi = (a + dd) / N, Qi = (b + c) / N;
+                    Pv += Pi * Ri / 2;
+                    Q_num += (Pi * Si + Qi * Ri) / 2;
+                    RpS += Qi * Si / 2;
+                });
+                if (S === 0 || R === 0) return null;
+                const mhOR = R / S;
+                const logMH = Math.log(mhOR);
+                const varLog = Pv / (R * R) + Q_num / (R * S) + RpS / (S * S);
+                const se = Math.sqrt(varLog);
+                return { pOR: mhOR, lci: Math.exp(logMH - zCrit * se), uci: Math.exp(logMH + zCrit * se), pLogOR: logMH, pSE: se, method: 'MH', k };
+            },
+
+
+            mhPoolRR(plotData, confLevel) {
+                const k = plotData.length;
+                if (k < 2) return null;
+                const zCrit = normalQuantile(1 - (1 - confLevel) / 2);
+                let num = 0, den = 0, P2 = 0;
+                plotData.forEach(d => {
+                    const a = d.tE, c = d.cE;
+                    const N = d.tN + d.cN;
+                    if (N === 0 || d.cN === 0 || d.tN === 0) return;
+                    num += (a * d.cN) / N;
+                    den += (c * d.tN) / N;
+                    P2 += ((d.tE + d.cE) * d.tN * d.cN / (N * N) - a * c / N);
+                });
+                if (den === 0 || num === 0) return null;
+                const mhRR = num / den;
+                const logMH = Math.log(mhRR);
+                const varLog = P2 / (num * den);
+                const se = Math.sqrt(Math.abs(varLog));
+                return { pOR: mhRR, lci: Math.exp(logMH - zCrit * se), uci: Math.exp(logMH + zCrit * se), pLogOR: logMH, pSE: se, method: 'MH-RR', k };
+            },
+
+
 
 
 
@@ -27919,6 +27973,18 @@
 
 
                 if (sub.bayesResult) methods.push({ name: 'Bayesian (CrI)', pOR: sub.bayesResult.postOR, lci: sub.bayesResult.criLo, uci: sub.bayesResult.criHi });
+
+
+                // v12.0: Mantel-Haenszel sensitivity (Cochrane v6.5 §10.4.1).
+                if (c.plotData && c.plotData.length >= 2 && c.plotData[0].tE > 0 && c.plotData[0].cE > 0) {
+                    const em = RapidMeta.state.effectMeasure ?? 'OR';
+                    const isRR = em === 'RR';
+                    const mhResult = isRR ? this.mhPoolRR(c.plotData, c.confLevel) : this.mhPoolOR(c.plotData, c.confLevel);
+                    if (mhResult) {
+                        methods.push({ name: 'Mantel-Haenszel', pOR: mhResult.pOR, lci: mhResult.lci, uci: mhResult.uci });
+                        RapidMeta.state._mhResult = mhResult;
+                    }
+                }
 
 
                 if (sub.tfResult && sub.tfResult.available && sub.tfResult.k0 > 0) {

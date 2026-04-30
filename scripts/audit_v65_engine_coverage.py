@@ -33,14 +33,22 @@ ROOT = Path(r"C:\Projects\Finrenone")
 DEFAULT_CSV = ROOT / "outputs" / "v65_engine_coverage.csv"
 
 CHECKS = [
+    # Mirrors C:\Sentinel\sentinel\rules\plugins\cochrane_v65_invariants.py.
+    # See that rule for the full rationale of each needle pair. Both audits
+    # now require call-site / push-site presence, not just helper-function
+    # definition (closes the 2026-04-30 silent-no-render gap).
     ("V1_REML_iter",     ["tau2_reml"]),
     ("V2_REML_primary",  ["const tau2_dl =", "const tau2 = (k >= 2) ? tau2_reml"]),
-    ("V3_Qprofile_tau2", ["qProfileTau2CI("]),
+    ("V3_Qprofile_tau2", ["qProfileTau2CI =", "qProfileTau2CI("]),
     ("V4_qchisq_lowdf",  ["qchisq", "df === 1"]),
     ("V5_HKSJ_floor",    ["Math.max(1, qStar)"]),
     ("V6_PI_df_kminus1", ["// PI df = k-1 per Cochrane Handbook v6.5"]),
-    ("V7_ROBME",         ["_assessROBME("]),
-    ("V8_MH_pool",       ["_mhPool("]),
+    ("V7_ROBME",         ["_assessROBME(", "this._assessROBME("]),
+    # V8 accepts both engine families: IL23-style `_mhPool(plotData...)` and
+    # older `mhPoolOR(...)`/`mhPoolRR(...)` pair. The substring `mhPool`
+    # matches all four; the second needle confirms the method actually
+    # gets pushed into the methods/sensitivity-scenarios array.
+    ("V8_MH_pool",       ["mhPool", "Mantel-Haenszel"]),
 ]
 
 

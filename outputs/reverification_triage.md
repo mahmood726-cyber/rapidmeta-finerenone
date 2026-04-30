@@ -1,7 +1,22 @@
 # Portfolio reverification triage — 2026-04-30
 
-Status: **NEW-TOPIC FREEZE in effect.** No new dashboards until the
-audits below are addressed.
+Status: **All seven REM-* tasks closed.** NEW-TOPIC FREEZE may now lift.
+
+## Final state (2026-04-30 end of session)
+
+```
+v6.5 engine coverage: 164/164 fully compliant
+Sentinel rule:         0 verdicts
+Continuous audit:      LSMD_NOT_DECLARED 0 (was 81), MMRM_NOT_DECLARED 0 (was 81)
+mITT audit:            515 binary trials reviewed; high-priority remediations done
+```
+
+## Update 2026-04-30 (third post-fix pass — REM-CLUSTER-1 + REM-ENG-1 V8)
+
+| Task              | Status | Notes                                                                                                                                              |
+|-------------------|--------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| REM-CLUSTER-1     | DONE   | Azithromycin cluster-RCT trio (MORDOR-I/II + AVENIR) verified to route through HR-based pooling using each trial's published cluster-corrected HR + 95% CI. tE/cE/tN/cN counts are descriptive only and NOT inputs to the pooled variance under HR mode. PICO `out` + each trial group annotated to make the cluster routing explicit and to warn against switching to RR/OR mode (which would re-route through inverse-variance on the population-aggregate counts). Pooled HR=0.86 (CI 0.83-0.89), I²=0% — confirmed in Playwright. |
+| REM-ENG-1 V8      | DONE   | Audit's V8 fail was a naming-convention mismatch for COLCHICINE_CVD + GLP1_CVOT (both already carry older-style `mhPoolOR`/`mhPoolRR` methods, not IL23-style `_mhPool`). SGLT2_HF genuinely lacked MH. Sentinel V8 needle relaxed to `["mhPool", "Mantel-Haenszel"]` to accept either family, then `scripts/add_mh_sglt2_hf.py` ported the older-style mhPoolOR/mhPoolRR pair + methods.push into SGLT2_HF. Smoke-tested: pooled HR=0.76 (primary), MH OR=0.764 (CI 0.712-0.820) renders alongside as sensitivity. |
 
 ## Update 2026-04-30 (second post-fix pass)
 

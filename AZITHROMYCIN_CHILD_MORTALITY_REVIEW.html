@@ -5902,7 +5902,7 @@ const ContinuousMDEngine = {
             state: {
 
 
-                protocol: { pop: 'Children aged 1-59 months in sub-Saharan African communities with high under-5 mortality (MORDOR-I: Niger / Malawi / Tanzania; MORDOR-II / AVENIR: Niger)', int: 'Biannual single-dose oral azithromycin (20 mg/kg, mass drug administration to all eligible children regardless of infection status)', comp: 'Placebo (MORDOR-I/II) or no MDA control (AVENIR design partially unblinded for some arms)', out: 'All-cause under-5 mortality (primary; reported as incidence rate ratio over 2-year follow-up). Secondary: cause-specific mortality, antimicrobial resistance.', subgroup: 'Country, age (1-11 vs 12-59 months -- AVENIR isolated infants), baseline mortality rate, vaccination coverage', query: '', rctOnly: true, post2015: true },
+                protocol: { pop: 'Children aged 1-59 months in sub-Saharan African communities with high under-5 mortality (MORDOR-I: Niger / Malawi / Tanzania; MORDOR-II / AVENIR: Niger)', int: 'Biannual single-dose oral azithromycin (20 mg/kg, mass drug administration to all eligible children regardless of infection status)', comp: 'Placebo (MORDOR-I/II) or no MDA control (AVENIR design partially unblinded for some arms)', out: 'All-cause under-5 mortality (primary; reported as incidence rate ratio over 2-year follow-up). Secondary: cause-specific mortality, antimicrobial resistance. CLUSTER-RCT DESIGN NOTE: All three trials are community-level cluster randomizations -- pooled effect uses each trial-published cluster-randomization-corrected HR + 95% CI as inputs to the HR-pool path. The tE/tN/cE/cN counts in each trial entry are population-aggregate enrollment for descriptive context only and are NOT inputs to the pooled variance under HR mode. Switching the dashboard effect-measure from HR to RR/OR would re-route through inverse-variance on those raw counts and would NOT respect the cluster design -- keep HR mode for valid pooling.', subgroup: 'Country, age (1-11 vs 12-59 months -- AVENIR isolated infants), baseline mortality rate, vaccination coverage', query: '', rctOnly: true, post2015: true },
 
 
                 trials: [], activeTab: 'protocol', results: null, showExcluded: false, screenFilter: 'all',
@@ -6943,7 +6943,7 @@ const ContinuousMDEngine = {
                 'NCT02047981': {
 
 
-                    name: 'MORDOR-I', pmid: '29694816', phase: 'III', year: 2018, tE: 3000, tN: 95000, cE: 3500, cN: 95000, group: 'Cluster-RCT in Niger / Malawi / Tanzania, biannual single-dose azithromycin vs placebo in children 1-59 months; 2-year follow-up; primary all-cause under-5 mortality, IRR pooled across countries', publishedHR: 0.86, hrLCI: 0.79, hrUCI: 0.93,
+                    name: 'MORDOR-I', pmid: '29694816', phase: 'III', year: 2018, tE: 3000, tN: 95000, cE: 3500, cN: 95000, group: 'CLUSTER-RCT (1533 communities) in Niger / Malawi / Tanzania, biannual single-dose azithromycin vs placebo in children 1-59 months; 2-year follow-up; primary all-cause under-5 mortality. publishedHR=0.86 is the trial-published incidence rate ratio cluster-randomization-corrected (Keenan 2018 NEJM); engine pools via HR path. The tE=3000/cE=3500 counts are illustrative population-aggregate deaths over 2y, NOT patient-level binary events.', publishedHR: 0.86, hrLCI: 0.79, hrUCI: 0.93,
 
 
                     allOutcomes: [
@@ -6972,7 +6972,7 @@ const ContinuousMDEngine = {
                 'NCT02048007': {
 
 
-                    name: 'MORDOR-II', pmid: '32334706', phase: 'III', year: 2020, tE: 1100, tN: 50000, cE: 1265, cN: 50000, group: 'Cluster-RCT continuation in Niger only, MORDOR-I placebo communities crossed over to azithromycin; 2-year extension; primary all-cause under-5 mortality', publishedHR: 0.87, hrLCI: 0.81, hrUCI: 0.94,
+                    name: 'MORDOR-II', pmid: '32334706', phase: 'III', year: 2020, tE: 1100, tN: 50000, cE: 1265, cN: 50000, group: 'CLUSTER-RCT continuation in Niger only, MORDOR-I placebo communities crossed over to azithromycin; 2-year extension; primary all-cause under-5 mortality. publishedHR=0.87 is cluster-corrected per Keenan 2020 Lancet GH; engine pools via HR path. tE/cE = aggregate deaths, NOT patient-level binary events.', publishedHR: 0.87, hrLCI: 0.81, hrUCI: 0.94,
 
 
                     allOutcomes: [
@@ -7001,7 +7001,7 @@ const ContinuousMDEngine = {
                 'NCT04483725': {
 
 
-                    name: 'AVENIR', pmid: '38913641', phase: 'III', year: 2024, tE: 580, tN: 45000, cE: 672, cN: 45000, group: 'Cluster-RCT in Niger; biannual azithromycin restricted to infants 1-11 months vs control; 2-year follow-up; primary all-cause infant mortality (1-11 mo subgroup, where MDA effect strongest)', publishedHR: 0.86, hrLCI: 0.78, hrUCI: 0.94,
+                    name: 'AVENIR', pmid: '38913641', phase: 'III', year: 2024, tE: 580, tN: 45000, cE: 672, cN: 45000, group: 'CLUSTER-RCT in Niger; biannual azithromycin restricted to infants 1-11 months vs control; 2-year follow-up; primary all-cause infant mortality (1-11 mo subgroup, where MDA effect strongest). publishedHR=0.86 is cluster-corrected per O\'Brien 2024 NEJM; engine pools via HR path. tE/cE = aggregate deaths, NOT patient-level binary events.', publishedHR: 0.86, hrLCI: 0.78, hrUCI: 0.94,
 
 
                     allOutcomes: [
