@@ -28,7 +28,8 @@ def fetch_all_ncts() -> list[dict]:
     params = {
         "query.cond": "cancer",
         "filter.overallStatus": "COMPLETED",
-        "filter.advanced": "AREA[Phase]COVERAGE[FullMatch]PHASE3 AND AREA[StudyType]Interventional AND AREA[StartDate]RANGE[2015-01-01,MAX] AND AREA[ResultsFirstPostDate]EXIST",
+        "filter.advanced": "AREA[Phase]COVERAGE[FullMatch]PHASE3 AND AREA[StudyType]Interventional AND AREA[StartDate]RANGE[2015-01-01,MAX] AND AREA[EnrollmentCount]RANGE[500,MAX]",
+        "aggFilters": "results:with",
         "fields": "NCTId,BriefTitle,Acronym,Phase,EnrollmentCount,LeadSponsorClass,LeadSponsorName,StartDate,OverallStatus,HasResults",
         "pageSize": "100",
         "format": "json",
