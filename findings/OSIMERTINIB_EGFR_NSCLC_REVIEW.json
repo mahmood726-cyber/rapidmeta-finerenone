@@ -1,24 +1,25 @@
 {
-  "app": "FARICIMAB_NAMD_REVIEW.html",
-  "timestamp": "2026-04-30T13:09:40.901Z",
-  "durationMs": 3802,
+  "app": "OSIMERTINIB_EGFR_NSCLC_REVIEW.html",
+  "timestamp": "2026-04-30T13:14:20.967Z",
+  "durationMs": 3970,
   "state": {
-    "k": 2,
-    "or": "0.36",
-    "tau2": 0,
+    "k": 4,
+    "or": "0.37",
+    "i2": "90.2",
+    "tau2": 0.2147820308285685,
     "remlSensitivity": true,
     "robSummary": {
       "high": 0,
       "someConcerns": 0,
-      "low": 10,
+      "low": 20,
       "unclear": 0
     },
     "isCompleteUniverse": true,
-    "totalAvailable": 2,
-    "includedCount": 2,
-    "searchResultCount": 136,
-    "nnt": null,
-    "absoluteRisk": null,
+    "totalAvailable": 4,
+    "includedCount": 4,
+    "searchResultCount": 152,
+    "nnt": 4.264710198092444,
+    "absoluteRisk": 0.2344825213322323,
     "patientReportedOutcomes": {
       "count": 0,
       "scales": [],
@@ -35,17 +36,17 @@
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
-          "Prediction interval not definable for k<3; flag as boundary condition."
+          "Evidence base is complete but small (k=4 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue."
         ],
         "recommendation": "Minor revision"
       },
       {
         "role": "Clinical expert",
         "concerns": [
-          "k<3 - clinical meaningfulness (MCID, NNT) cannot be grounded in pooled evidence."
+          "Pooled 0.37 sits outside published benchmark range (corridor 0.38-0.85); closest Gandhi 2018 HR 0.49 [0.38, 0.64]. Discussion should reconcile.",
+          "I² = 90.2% (considerable); show subgroup/strata estimates alongside pooled."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       },
       {
         "role": "Biostatistician",
@@ -55,10 +56,9 @@
       {
         "role": "Patient representative",
         "concerns": [
-          "Effect not translated into absolute-risk difference / NNT for shared decision.",
           "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
         ],
-        "recommendation": "Minor revision"
+        "recommendation": "Accept with minor revision"
       }
     ]
   }
