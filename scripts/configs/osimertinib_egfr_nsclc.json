@@ -1,0 +1,100 @@
+{
+  "base": "C:\\Projects\\Finrenone\\IO_CHEMO_NSCLC_1L_REVIEW.html",
+  "out":  "C:\\Projects\\Finrenone\\OSIMERTINIB_EGFR_NSCLC_REVIEW.html",
+
+  "title": "RapidMeta Oncology | Osimertinib in EGFR-Mutant NSCLC (FLAURA / AURA3 / ADAURA / FLAURA2) v1.0",
+  "hero_h2": "Osimertinib Across the EGFR-Mutant NSCLC Treatment Landscape",
+  "nyt_headline": "The Osimertinib EGFR-Mutant NSCLC Evidence",
+
+  "auto_include_ncts": ["NCT02151981", "NCT02296125", "NCT02511106", "NCT04035486"],
+  "nct_acronyms": {
+    "NCT02151981": "AURA3",
+    "NCT02296125": "FLAURA",
+    "NCT02511106": "ADAURA",
+    "NCT04035486": "FLAURA2"
+  },
+
+  "localstorage_old": "rapid_meta_io_chemo_nsclc_1l_v1_0",
+  "localstorage_new": "rapid_meta_osimertinib_egfr_nsclc_v1_0",
+
+  "pico": {
+    "pop":      "Adults with EGFR-mutant non-small-cell lung cancer (exon 19 deletion or L858R mutation): T790M-positive after first-generation EGFR-TKI failure (AURA3), treatment-naive advanced (FLAURA, FLAURA2), or completely-resected stage IB-IIIA after surgery and adjuvant chemotherapy (ADAURA)",
+    "int":      "Osimertinib 80 mg PO QD (third-generation, T790M-active EGFR tyrosine-kinase inhibitor); FLAURA2 adds platinum + pemetrexed chemotherapy",
+    "comp":     "Platinum-based chemotherapy (AURA3), first-generation EGFR-TKI gefitinib or erlotinib (FLAURA), placebo (ADAURA), or osimertinib monotherapy (FLAURA2 control)",
+    "out":      "Progression-free survival (PFS; primary in AURA3 / FLAURA / FLAURA2) or disease-free survival (DFS; primary in ADAURA, time from randomization to disease recurrence or death); HR vs control",
+    "subgroup": "EGFR mutation type (exon 19 vs L858R), CNS metastases at baseline, race / ethnicity (Asian vs non-Asian), age, smoking history, performance status"
+  },
+
+  "real_data_entries": [
+    {
+      "nct": "NCT02151981",
+      "name": "AURA3",
+      "pmid": "27959700",
+      "phase": "III",
+      "year": 2017,
+      "tE": 140, "tN": 279, "cE": 110, "cN": 140,
+      "group": "Osimertinib 80 mg QD vs platinum + pemetrexed chemotherapy in T790M-positive EGFR-mutant NSCLC after first-line EGFR-TKI failure; primary endpoint PFS",
+      "publishedHR": 0.30, "hrLCI": 0.23, "hrUCI": 0.41, "pubHR": 0.30, "pubHR_LCI": 0.23, "pubHR_UCI": 0.41,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "Progression-free survival (primary; HR vs platinum-pemetrexed)", "tE": 140, "cE": 110, "type": "PRIMARY", "matchScore": 95, "effect": 0.30, "lci": 0.23, "uci": 0.41, "pubHR": 0.30, "pubHR_LCI": 0.23, "pubHR_UCI": 0.41, "estimandType": "HR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Mok TS et al. NEJM 2017;376:629-640 (AURA3 osimertinib 2L T790M+).",
+      "sourceUrl": "https://www.nejm.org/doi/full/10.1056/NEJMoa1612674",
+      "evidence": []
+    },
+    {
+      "nct": "NCT02296125",
+      "name": "FLAURA",
+      "pmid": "29151359",
+      "phase": "III",
+      "year": 2018,
+      "tE": 136, "tN": 279, "cE": 206, "cN": 277,
+      "group": "Osimertinib 80 mg QD vs gefitinib 250 mg QD or erlotinib 150 mg QD in treatment-naive advanced EGFR-mutant NSCLC (1st line); primary endpoint PFS",
+      "publishedHR": 0.46, "hrLCI": 0.37, "hrUCI": 0.57, "pubHR": 0.46, "pubHR_LCI": 0.37, "pubHR_UCI": 0.57,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "Progression-free survival (primary; HR vs gefitinib/erlotinib)", "tE": 136, "cE": 206, "type": "PRIMARY", "matchScore": 95, "effect": 0.46, "lci": 0.37, "uci": 0.57, "pubHR": 0.46, "pubHR_LCI": 0.37, "pubHR_UCI": 0.57, "estimandType": "HR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Soria JC et al. NEJM 2018;378:113-125 (FLAURA osimertinib 1L EGFR-mut).",
+      "sourceUrl": "https://www.nejm.org/doi/full/10.1056/NEJMoa1713137",
+      "evidence": []
+    },
+    {
+      "nct": "NCT02511106",
+      "name": "ADAURA",
+      "pmid": "32955177",
+      "phase": "III",
+      "year": 2020,
+      "tE": 26, "tN": 339, "cE": 130, "cN": 343,
+      "group": "Adjuvant osimertinib 80 mg QD x 3 years vs placebo after complete resection of stage IB-IIIA EGFR-mutant NSCLC and adjuvant chemotherapy if indicated; primary endpoint DFS",
+      "publishedHR": 0.20, "hrLCI": 0.14, "hrUCI": 0.30, "pubHR": 0.20, "pubHR_LCI": 0.14, "pubHR_UCI": 0.30,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "Disease-free survival (primary; HR vs placebo)", "tE": 26, "cE": 130, "type": "PRIMARY", "matchScore": 95, "effect": 0.20, "lci": 0.14, "uci": 0.30, "pubHR": 0.20, "pubHR_LCI": 0.14, "pubHR_UCI": 0.30, "estimandType": "HR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Wu YL et al. NEJM 2020;383:1711-1723 (ADAURA adjuvant osimertinib).",
+      "sourceUrl": "https://www.nejm.org/doi/full/10.1056/NEJMoa2027071",
+      "evidence": []
+    },
+    {
+      "nct": "NCT04035486",
+      "name": "FLAURA2",
+      "pmid": "37937763",
+      "phase": "III",
+      "year": 2023,
+      "tE": 153, "tN": 279, "cE": 199, "cN": 278,
+      "group": "Osimertinib + platinum-pemetrexed chemotherapy vs osimertinib monotherapy in treatment-naive advanced EGFR-mutant NSCLC; primary endpoint PFS",
+      "publishedHR": 0.62, "hrLCI": 0.49, "hrUCI": 0.79, "pubHR": 0.62, "pubHR_LCI": 0.49, "pubHR_UCI": 0.79,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "Progression-free survival (primary; HR vs osimertinib monotherapy)", "tE": 153, "cE": 199, "type": "PRIMARY", "matchScore": 95, "effect": 0.62, "lci": 0.49, "uci": 0.79, "pubHR": 0.62, "pubHR_LCI": 0.49, "pubHR_UCI": 0.79, "estimandType": "HR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Planchard D et al. NEJM 2023;389:1935-1948 (FLAURA2 osimertinib + chemo 1L).",
+      "sourceUrl": "https://www.nejm.org/doi/full/10.1056/NEJMoa2306434",
+      "evidence": []
+    }
+  ],
+
+  "extra_replaces": []
+}

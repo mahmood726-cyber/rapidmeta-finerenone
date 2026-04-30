@@ -1,0 +1,82 @@
+{
+  "base": "C:\\Projects\\Finrenone\\IO_CHEMO_NSCLC_1L_REVIEW.html",
+  "out":  "C:\\Projects\\Finrenone\\NEOADJUVANT_IO_NSCLC_REVIEW.html",
+
+  "title": "RapidMeta Oncology | Neoadjuvant Immunotherapy + Chemo in Resectable NSCLC v1.0",
+  "hero_h2": "Neoadjuvant Immune Checkpoint Inhibitor + Chemotherapy in Resectable Non-Small-Cell Lung Cancer",
+  "nyt_headline": "The Neoadjuvant Immunotherapy NSCLC Evidence",
+
+  "auto_include_ncts": ["NCT02998528", "NCT03425643", "NCT03800134"],
+  "nct_acronyms": {
+    "NCT02998528": "CheckMate-816",
+    "NCT03425643": "KEYNOTE-671",
+    "NCT03800134": "AEGEAN"
+  },
+
+  "localstorage_old": "rapid_meta_io_chemo_nsclc_1l_v1_0",
+  "localstorage_new": "rapid_meta_neoadjuvant_io_nsclc_v1_0",
+
+  "pico": {
+    "pop":      "Adults with resectable non-small-cell lung cancer (CheckMate-816: stage IB-IIIA; KEYNOTE-671 / AEGEAN: stage II-IIIB), staged by AJCC 7th/8th edition, ECOG 0-1",
+    "int":      "Neoadjuvant programmed-death-1/PD-L1 immune checkpoint inhibitor + platinum-doublet chemotherapy: nivolumab 360 mg Q3W (CheckMate-816), pembrolizumab 200 mg Q3W (KEYNOTE-671), or durvalumab 1500 mg Q3W (AEGEAN); KEYNOTE-671 and AEGEAN add adjuvant ICI for 12-13 cycles after surgery",
+    "comp":     "Neoadjuvant platinum-doublet chemotherapy alone (CheckMate-816) or chemotherapy + adjuvant placebo (KEYNOTE-671, AEGEAN)",
+    "out":      "Event-free survival (EFS; primary in all three trials, defined as time from randomization to disease progression precluding curative-intent surgery, recurrence after surgery, or death; HR vs control)",
+    "subgroup": "Stage (II vs III), histology (squamous vs non-squamous), PD-L1 expression (TPS <1% / 1-49% / >=50%), smoking status, EGFR / ALK status, sex"
+  },
+
+  "real_data_entries": [
+    {
+      "nct": "NCT02998528",
+      "name": "CheckMate-816",
+      "pmid": "35403841",
+      "phase": "III",
+      "year": 2022,
+      "tE": 109, "tN": 179, "cE": 124, "cN": 179,
+      "group": "Neoadjuvant nivolumab + platinum-doublet chemotherapy x3 cycles vs neoadjuvant chemotherapy alone, resectable stage IB-IIIA NSCLC; co-primary EFS + pCR",
+      "publishedHR": 0.63, "hrLCI": 0.43, "hrUCI": 0.91, "pubHR": 0.63, "pubHR_LCI": 0.43, "pubHR_UCI": 0.91,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "Event-free survival (co-primary; HR vs chemo)", "tE": 109, "cE": 124, "type": "PRIMARY", "matchScore": 95, "effect": 0.63, "lci": 0.43, "uci": 0.91, "pubHR": 0.63, "pubHR_LCI": 0.43, "pubHR_UCI": 0.91, "estimandType": "HR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Forde PM et al. NEJM 2022;386:1973-1985 (CheckMate-816 nivolumab + chemo neoadjuvant).",
+      "sourceUrl": "https://www.nejm.org/doi/full/10.1056/NEJMoa2202170",
+      "evidence": []
+    },
+    {
+      "nct": "NCT03425643",
+      "name": "KEYNOTE-671",
+      "pmid": "37272513",
+      "phase": "III",
+      "year": 2023,
+      "tE": 169, "tN": 397, "cE": 235, "cN": 400,
+      "group": "Neoadjuvant pembrolizumab + chemo x4 cycles + adjuvant pembrolizumab x13 cycles vs neoadjuvant chemo + adjuvant placebo; resectable stage II-IIIB NSCLC; co-primary EFS + OS",
+      "publishedHR": 0.58, "hrLCI": 0.46, "hrUCI": 0.72, "pubHR": 0.58, "pubHR_LCI": 0.46, "pubHR_UCI": 0.72,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "Event-free survival (co-primary)", "tE": 169, "cE": 235, "type": "PRIMARY", "matchScore": 95, "effect": 0.58, "lci": 0.46, "uci": 0.72, "pubHR": 0.58, "pubHR_LCI": 0.46, "pubHR_UCI": 0.72, "estimandType": "HR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Wakelee H et al. NEJM 2023;389:491-503 (KEYNOTE-671 pembrolizumab perioperative).",
+      "sourceUrl": "https://www.nejm.org/doi/full/10.1056/NEJMoa2302983",
+      "evidence": []
+    },
+    {
+      "nct": "NCT03800134",
+      "name": "AEGEAN",
+      "pmid": "37870974",
+      "phase": "III",
+      "year": 2023,
+      "tE": 162, "tN": 401, "cE": 213, "cN": 401,
+      "group": "Neoadjuvant durvalumab + chemo x4 cycles + adjuvant durvalumab x12 cycles vs neoadjuvant chemo + adjuvant placebo; resectable stage II-IIIB NSCLC; primary EFS + pCR",
+      "publishedHR": 0.68, "hrLCI": 0.53, "hrUCI": 0.88, "pubHR": 0.68, "pubHR_LCI": 0.53, "pubHR_UCI": 0.88,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "Event-free survival (primary)", "tE": 162, "cE": 213, "type": "PRIMARY", "matchScore": 95, "effect": 0.68, "lci": 0.53, "uci": 0.88, "pubHR": 0.68, "pubHR_LCI": 0.53, "pubHR_UCI": 0.88, "estimandType": "HR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Heymach JV et al. NEJM 2023;389:1672-1684 (AEGEAN durvalumab perioperative).",
+      "sourceUrl": "https://www.nejm.org/doi/full/10.1056/NEJMoa2304875",
+      "evidence": []
+    }
+  ],
+
+  "extra_replaces": []
+}

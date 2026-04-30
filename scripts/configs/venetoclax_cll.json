@@ -1,0 +1,82 @@
+{
+  "base": "C:\\Projects\\Finrenone\\ACALABRUTINIB_CLL_REVIEW.html",
+  "out":  "C:\\Projects\\Finrenone\\VENETOCLAX_CLL_REVIEW.html",
+
+  "title": "RapidMeta Haematology | Venetoclax-Based Fixed-Duration Therapy in CLL v1.0",
+  "hero_h2": "Venetoclax-Based Fixed-Duration Combination Therapy in Chronic Lymphocytic Leukaemia",
+  "nyt_headline": "The Venetoclax CLL Evidence",
+
+  "auto_include_ncts": ["NCT02242942", "NCT02005471", "NCT02950051"],
+  "nct_acronyms": {
+    "NCT02242942": "CLL14",
+    "NCT02005471": "MURANO",
+    "NCT02950051": "CLL13/GAIA"
+  },
+
+  "localstorage_old": "rapid_meta_acala_cll_v1_0",
+  "localstorage_new": "rapid_meta_venetoclax_cll_v1_0",
+
+  "pico": {
+    "pop":      "Adults with chronic lymphocytic leukaemia / small lymphocytic lymphoma: previously-untreated with comorbidities (CLL14), relapsed/refractory after >=1 prior therapy (MURANO), or fit treatment-naive (CLL13/GAIA)",
+    "int":      "Venetoclax-based fixed-duration combination: venetoclax + obinutuzumab (Ven+G; CLL14, 12-month duration), venetoclax + rituximab (Ven+R; MURANO, 24-month duration), or venetoclax + obinutuzumab +/- ibrutinib in fit patients (CLL13/GAIA, 12-15 month duration)",
+    "comp":     "Standard chemo-immunotherapy: chlorambucil + obinutuzumab (CLL14), bendamustine + rituximab (MURANO and CLL13/GAIA chemo-immunotherapy arm), or fludarabine + cyclophosphamide + rituximab (CLL13/GAIA fit-FCR arm)",
+    "out":      "Progression-free survival (PFS; primary in all three trials, time from randomization to documented disease progression or death; HR vs control)",
+    "subgroup": "Fitness (CIRS, creatinine clearance), TP53 status (mutation / del17p), IGHV mutation status, age, prior lines of therapy"
+  },
+
+  "real_data_entries": [
+    {
+      "nct": "NCT02242942",
+      "name": "CLL14",
+      "pmid": "31141626",
+      "phase": "III",
+      "year": 2019,
+      "tE": 50, "tN": 216, "cE": 93, "cN": 216,
+      "group": "Venetoclax + obinutuzumab (12 months) vs chlorambucil + obinutuzumab in previously-untreated CLL with comorbidities; primary endpoint PFS",
+      "publishedHR": 0.35, "hrLCI": 0.23, "hrUCI": 0.53, "pubHR": 0.35, "pubHR_LCI": 0.23, "pubHR_UCI": 0.53,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "Progression-free survival (primary; HR vs Clb+G)", "tE": 50, "cE": 93, "type": "PRIMARY", "matchScore": 95, "effect": 0.35, "lci": 0.23, "uci": 0.53, "pubHR": 0.35, "pubHR_LCI": 0.23, "pubHR_UCI": 0.53, "estimandType": "HR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Fischer K et al. NEJM 2019;380:2225-2236 (CLL14 venetoclax + obinutuzumab 1L).",
+      "sourceUrl": "https://www.nejm.org/doi/full/10.1056/NEJMoa1815281",
+      "evidence": []
+    },
+    {
+      "nct": "NCT02005471",
+      "name": "MURANO",
+      "pmid": "29562156",
+      "phase": "III",
+      "year": 2018,
+      "tE": 32, "tN": 194, "cE": 114, "cN": 195,
+      "group": "Venetoclax + rituximab (24 months) vs bendamustine + rituximab in relapsed/refractory CLL; primary endpoint PFS",
+      "publishedHR": 0.17, "hrLCI": 0.11, "hrUCI": 0.25, "pubHR": 0.17, "pubHR_LCI": 0.11, "pubHR_UCI": 0.25,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "Progression-free survival (primary; HR vs B+R)", "tE": 32, "cE": 114, "type": "PRIMARY", "matchScore": 95, "effect": 0.17, "lci": 0.11, "uci": 0.25, "pubHR": 0.17, "pubHR_LCI": 0.11, "pubHR_UCI": 0.25, "estimandType": "HR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Seymour JF et al. NEJM 2018;378:1107-1120 (MURANO venetoclax + rituximab R/R CLL).",
+      "sourceUrl": "https://www.nejm.org/doi/full/10.1056/NEJMoa1713976",
+      "evidence": []
+    },
+    {
+      "nct": "NCT02950051",
+      "name": "CLL13/GAIA",
+      "pmid": "37069088",
+      "phase": "III",
+      "year": 2023,
+      "tE": 53, "tN": 229, "cE": 79, "cN": 229,
+      "group": "Venetoclax + obinutuzumab (12 months) vs standard chemoimmunotherapy (FCR / BR by age) in previously-untreated fit CLL without TP53 aberrations; primary endpoint PFS (Ven+G vs CIT arm)",
+      "publishedHR": 0.42, "hrLCI": 0.30, "hrUCI": 0.59, "pubHR": 0.42, "pubHR_LCI": 0.30, "pubHR_UCI": 0.59,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "Progression-free survival (primary; HR Ven+G vs CIT)", "tE": 53, "cE": 79, "type": "PRIMARY", "matchScore": 95, "effect": 0.42, "lci": 0.30, "uci": 0.59, "pubHR": 0.42, "pubHR_LCI": 0.30, "pubHR_UCI": 0.59, "estimandType": "HR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Eichhorst B et al. NEJM 2023;388:1739-1754 (CLL13/GAIA venetoclax-based 1L fit CLL).",
+      "sourceUrl": "https://www.nejm.org/doi/full/10.1056/NEJMoa2213093",
+      "evidence": []
+    }
+  ],
+
+  "extra_replaces": []
+}

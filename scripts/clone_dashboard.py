@@ -54,7 +54,8 @@ def render_outcome(o):
             parts.append(f"{k}: '{js_escape(o[k])}'")
     if 'type' in o:
         parts.append(f"type: '{o['type']}'")
-    for k in ('tE', 'cE', 'matchScore', 'effect', 'lci', 'uci', 'md', 'se'):
+    for k in ('tE', 'cE', 'matchScore', 'effect', 'lci', 'uci', 'md', 'se',
+              'pubHR', 'pubHR_LCI', 'pubHR_UCI'):
         if k in o and o[k] is not None:
             parts.append(f"{k}: {o[k]}")
     if 'estimandType' in o:
@@ -78,7 +79,10 @@ def render_trial_entry(t):
         f"tE: {t.get('tE','null')}, tN: {t['tN']}, cE: {t.get('cE','null')}, cN: {t['cN']}, "
         f"group: '{js_escape(t.get('group',''))}', "
         f"publishedHR: {t.get('publishedHR','null')}, "
-        f"hrLCI: {t.get('hrLCI','null')}, hrUCI: {t.get('hrUCI','null')}"
+        f"hrLCI: {t.get('hrLCI','null')}, hrUCI: {t.get('hrUCI','null')}, "
+        f"pubHR: {t.get('pubHR', t.get('publishedHR','null'))}, "
+        f"pubHR_LCI: {t.get('pubHR_LCI', t.get('hrLCI','null'))}, "
+        f"pubHR_UCI: {t.get('pubHR_UCI', t.get('hrUCI','null'))}"
     )
     outcomes_str = ',\n                        '.join(render_outcome(o) for o in t.get('allOutcomes', []))
     rob = t.get('rob', ['low', 'low', 'low', 'low', 'low'])

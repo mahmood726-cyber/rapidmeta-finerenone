@@ -1,0 +1,82 @@
+{
+  "base": "C:\\Projects\\Finrenone\\CAB_PREP_HIV_REVIEW.html",
+  "out":  "C:\\Projects\\Finrenone\\CABOTEGRAVIR_HIV_ART_REVIEW.html",
+
+  "title": "RapidMeta Infectious Disease | Long-Acting Cabotegravir + Rilpivirine for HIV Treatment v1.0",
+  "hero_h2": "Long-Acting Cabotegravir + Rilpivirine for Maintenance HIV Antiretroviral Therapy",
+  "nyt_headline": "The Long-Acting Cabotegravir HIV ART Evidence",
+
+  "auto_include_ncts": ["NCT02951052", "NCT02938520", "NCT03299049"],
+  "nct_acronyms": {
+    "NCT02951052": "ATLAS",
+    "NCT02938520": "FLAIR",
+    "NCT03299049": "ATLAS-2M"
+  },
+
+  "localstorage_old": "rapid_meta_cab_prep_hiv_v1_0",
+  "localstorage_new": "rapid_meta_cabotegravir_hiv_art_v1_0",
+
+  "pico": {
+    "pop":      "Adults living with HIV-1, virologically suppressed (HIV-1 RNA <50 copies/mL) on stable oral antiretroviral therapy",
+    "int":      "Long-acting cabotegravir 600 mg + rilpivirine 900 mg IM injections every 4 weeks (ATLAS, FLAIR) or every 8 weeks (ATLAS-2M Q8W arm)",
+    "comp":     "Continued oral antiretroviral therapy (ATLAS, FLAIR) or LA injection every 4 weeks (ATLAS-2M comparator)",
+    "out":      "HIV-1 RNA >=50 copies/mL at week 48 (treatment failure, snapshot ITT; primary in all three trials, non-inferiority margin 6%)",
+    "subgroup": "Sex, race, baseline regimen class (NNRTI / INSTI / PI), age, body-mass index, time on prior ART"
+  },
+
+  "real_data_entries": [
+    {
+      "nct": "NCT02951052",
+      "name": "ATLAS",
+      "pmid": "32130806",
+      "phase": "III",
+      "year": 2020,
+      "tE": 5, "tN": 308, "cE": 3, "cN": 308,
+      "group": "Switch from oral ART to LA cabotegravir + rilpivirine Q4W vs continued oral ART; HIV-1 RNA >=50 c/mL at week 48 (snapshot, treatment failure)",
+      "publishedHR": 1.67, "hrLCI": 0.40, "hrUCI": 6.91,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "HIV-1 RNA >=50 copies/mL at week 48 (primary, treatment failure; non-inferior)", "tE": 5, "cE": 3, "type": "PRIMARY", "matchScore": 95, "effect": 1.67, "lci": 0.40, "uci": 6.91, "estimandType": "RR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Swindells S et al. NEJM 2020;382:1112-1123 (ATLAS).",
+      "sourceUrl": "https://www.nejm.org/doi/full/10.1056/NEJMoa1909512",
+      "evidence": []
+    },
+    {
+      "nct": "NCT02938520",
+      "name": "FLAIR",
+      "pmid": "32130807",
+      "phase": "III",
+      "year": 2020,
+      "tE": 6, "tN": 283, "cE": 7, "cN": 283,
+      "group": "Switch to LA cabotegravir + rilpivirine Q4W after 20-week DTG/ABC/3TC induction vs continued oral DTG/ABC/3TC; HIV-1 RNA >=50 c/mL at week 48",
+      "publishedHR": 0.86, "hrLCI": 0.29, "hrUCI": 2.53,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "HIV-1 RNA >=50 copies/mL at week 48 (primary, treatment failure; non-inferior)", "tE": 6, "cE": 7, "type": "PRIMARY", "matchScore": 95, "effect": 0.86, "lci": 0.29, "uci": 2.53, "estimandType": "RR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Orkin C et al. NEJM 2020;382:1124-1135 (FLAIR).",
+      "sourceUrl": "https://www.nejm.org/doi/full/10.1056/NEJMoa1909513",
+      "evidence": []
+    },
+    {
+      "nct": "NCT03299049",
+      "name": "ATLAS-2M",
+      "pmid": "33523915",
+      "phase": "III",
+      "year": 2021,
+      "tE": 9, "tN": 522, "cE": 5, "cN": 523,
+      "group": "LA cabotegravir + rilpivirine every 8 weeks vs every 4 weeks; HIV-1 RNA >=50 c/mL at week 48 (Q8W vs Q4W non-inferiority)",
+      "publishedHR": 1.80, "hrLCI": 0.61, "hrUCI": 5.34,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "HIV-1 RNA >=50 copies/mL at week 48 (primary, Q8W vs Q4W; non-inferior)", "tE": 9, "cE": 5, "type": "PRIMARY", "matchScore": 95, "effect": 1.80, "lci": 0.61, "uci": 5.34, "estimandType": "RR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Overton ET et al. Lancet 2021;396:1994-2005 (ATLAS-2M Q8W vs Q4W).",
+      "sourceUrl": "https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)32666-0/fulltext",
+      "evidence": []
+    }
+  ],
+
+  "extra_replaces": []
+}
