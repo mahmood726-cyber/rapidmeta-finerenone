@@ -1,25 +1,25 @@
 {
-  "app": "VENETOCLAX_AML_REVIEW.html",
-  "timestamp": "2026-04-30T10:35:50.630Z",
-  "durationMs": 3978,
+  "app": "BPAL_MDRTB_REVIEW.html",
+  "timestamp": "2026-04-30T10:23:08.291Z",
+  "durationMs": 4074,
   "state": {
-    "k": 2,
-    "or": "0.77",
-    "i2": "0.0",
-    "tau2": 0,
+    "k": 3,
+    "or": "1.28",
+    "i2": "87.3",
+    "tau2": 0.04258610384060583,
     "remlSensitivity": true,
     "robSummary": {
       "high": 0,
-      "someConcerns": 0,
-      "low": 10,
+      "someConcerns": 1,
+      "low": 14,
       "unclear": 0
     },
     "isCompleteUniverse": true,
-    "totalAvailable": 2,
-    "includedCount": 2,
-    "searchResultCount": 160,
-    "nnt": 6.027904215317633,
-    "absoluteRisk": 0.16589513772612363,
+    "totalAvailable": 3,
+    "includedCount": 3,
+    "searchResultCount": 171,
+    "nnt": 5.921821786204443,
+    "absoluteRisk": -0.16886695278969954,
     "patientReportedOutcomes": {
       "count": 0,
       "scales": [],
@@ -36,17 +36,18 @@
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
-          "Prediction interval not definable for k<3; flag as boundary condition."
+          "Evidence base is complete but small (k=3 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "RoB 2.0: 0 high-risk + 1 some-concerns domains; add low-RoB sensitivity analysis."
         ],
         "recommendation": "Minor revision"
       },
       {
         "role": "Clinical expert",
         "concerns": [
-          "k<3 - NNT ≈ 6 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
+          "Pooled 1.28 sits outside published benchmark range (corridor 0.05-0.99); closest Jayk Bernal 2022 RR 0.70 [0.49, 0.99]. Discussion should reconcile.",
+          "I² = 87.3% (considerable); show subgroup/strata estimates alongside pooled."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       },
       {
         "role": "Biostatistician",
