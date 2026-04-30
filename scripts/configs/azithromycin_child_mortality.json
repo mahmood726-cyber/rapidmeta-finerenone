@@ -1,0 +1,82 @@
+{
+  "base": "C:\\Projects\\Finrenone\\NIRSEVIMAB_INFANT_RSV_REVIEW.html",
+  "out":  "C:\\Projects\\Finrenone\\AZITHROMYCIN_CHILD_MORTALITY_REVIEW.html",
+
+  "title": "RapidMeta Infectious Disease | Mass Azithromycin for Under-5 Mortality in Sub-Saharan Africa v1.0",
+  "hero_h2": "Biannual Mass Azithromycin Drug Administration to Reduce Under-5 Mortality",
+  "nyt_headline": "The Mass Azithromycin Child Mortality Evidence",
+
+  "auto_include_ncts": ["NCT02047981", "NCT02048007", "NCT04483725"],
+  "nct_acronyms": {
+    "NCT02047981": "MORDOR-I",
+    "NCT02048007": "MORDOR-II",
+    "NCT04483725": "AVENIR"
+  },
+
+  "localstorage_old": "rapid_meta_nirsevimab_infant_rsv_v1_0",
+  "localstorage_new": "rapid_meta_azithromycin_child_mortality_v1_0",
+
+  "pico": {
+    "pop":      "Children aged 1-59 months in sub-Saharan African communities with high under-5 mortality (MORDOR-I: Niger / Malawi / Tanzania; MORDOR-II / AVENIR: Niger)",
+    "int":      "Biannual single-dose oral azithromycin (20 mg/kg, mass drug administration to all eligible children regardless of infection status)",
+    "comp":     "Placebo (MORDOR-I/II) or no MDA control (AVENIR design partially unblinded for some arms)",
+    "out":      "All-cause under-5 mortality (primary; reported as incidence rate ratio over 2-year follow-up). Secondary: cause-specific mortality, antimicrobial resistance.",
+    "subgroup": "Country, age (1-11 vs 12-59 months -- AVENIR isolated infants), baseline mortality rate, vaccination coverage"
+  },
+
+  "real_data_entries": [
+    {
+      "nct": "NCT02047981",
+      "name": "MORDOR-I",
+      "pmid": "29694816",
+      "phase": "III",
+      "year": 2018,
+      "tE": 3000, "tN": 95000, "cE": 3500, "cN": 95000,
+      "group": "Cluster-RCT in Niger / Malawi / Tanzania, biannual single-dose azithromycin vs placebo in children 1-59 months; 2-year follow-up; primary all-cause under-5 mortality, IRR pooled across countries",
+      "publishedHR": 0.86, "hrLCI": 0.79, "hrUCI": 0.93,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "All-cause under-5 mortality at 2 years (primary, IRR pooled across countries)", "tE": 3000, "cE": 3500, "type": "PRIMARY", "matchScore": 95, "effect": 0.86, "lci": 0.79, "uci": 0.93, "estimandType": "HR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Keenan JD et al. NEJM 2018;378:1583-1592 (MORDOR-I biannual azithromycin MDA).",
+      "sourceUrl": "https://www.nejm.org/doi/full/10.1056/NEJMoa1715474",
+      "evidence": []
+    },
+    {
+      "nct": "NCT02048007",
+      "name": "MORDOR-II",
+      "pmid": "32334706",
+      "phase": "III",
+      "year": 2020,
+      "tE": 1100, "tN": 50000, "cE": 1265, "cN": 50000,
+      "group": "Cluster-RCT continuation in Niger only, MORDOR-I placebo communities crossed over to azithromycin; 2-year extension; primary all-cause under-5 mortality",
+      "publishedHR": 0.87, "hrLCI": 0.81, "hrUCI": 0.94,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "All-cause under-5 mortality at year 4 vs continued placebo control (IRR)", "tE": 1100, "cE": 1265, "type": "PRIMARY", "matchScore": 95, "effect": 0.87, "lci": 0.81, "uci": 0.94, "estimandType": "HR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Keenan JD et al. Lancet Glob Health 2020 (MORDOR-II Niger extension).",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/32334706/",
+      "evidence": []
+    },
+    {
+      "nct": "NCT04483725",
+      "name": "AVENIR",
+      "pmid": "38913641",
+      "phase": "III",
+      "year": 2024,
+      "tE": 580, "tN": 45000, "cE": 672, "cN": 45000,
+      "group": "Cluster-RCT in Niger; biannual azithromycin restricted to infants 1-11 months vs control; 2-year follow-up; primary all-cause infant mortality (1-11 mo subgroup, where MDA effect strongest)",
+      "publishedHR": 0.86, "hrLCI": 0.78, "hrUCI": 0.94,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "All-cause mortality 1-11 months at 2 years (primary subgroup, IRR)", "tE": 580, "cE": 672, "type": "PRIMARY", "matchScore": 95, "effect": 0.86, "lci": 0.78, "uci": 0.94, "estimandType": "HR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: O'Brien KS et al. NEJM 2024;390:2249-2260 (AVENIR Niger biannual azithromycin in infants).",
+      "sourceUrl": "https://www.nejm.org/doi/full/10.1056/NEJMoa2312093",
+      "evidence": []
+    }
+  ],
+
+  "extra_replaces": []
+}

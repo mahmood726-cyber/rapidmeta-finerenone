@@ -1,0 +1,82 @@
+{
+  "base": "C:\\Projects\\Finrenone\\CAB_PREP_HIV_REVIEW.html",
+  "out":  "C:\\Projects\\Finrenone\\DOLUTEGRAVIR_ART_SSA_REVIEW.html",
+
+  "title": "RapidMeta Infectious Disease | Dolutegravir First-Line ART in Sub-Saharan Africa v1.0",
+  "hero_h2": "Dolutegravir vs Efavirenz First-Line ART in Sub-Saharan African Adults and Pregnant Women",
+  "nyt_headline": "The Dolutegravir First-Line ART Evidence",
+
+  "auto_include_ncts": ["NCT03122262", "NCT02777229", "NCT03048422"],
+  "nct_acronyms": {
+    "NCT03122262": "ADVANCE",
+    "NCT02777229": "NAMSAL",
+    "NCT03048422": "IMPAACT 2010"
+  },
+
+  "localstorage_old": "rapid_meta_cab_prep_hiv_v1_0",
+  "localstorage_new": "rapid_meta_dolutegravir_art_ssa_v1_0",
+
+  "pico": {
+    "pop":      "ART-naive adults living with HIV in sub-Saharan Africa (ADVANCE: South Africa adults; NAMSAL: Cameroon adults; IMPAACT 2010: pregnant women in 6 sub-Saharan African countries plus India / Thailand)",
+    "int":      "Dolutegravir-based ART (DTG + tenofovir + emtricitabine or lamivudine; tenofovir as TDF in NAMSAL / IMPAACT, TDF or TAF in ADVANCE)",
+    "comp":     "Efavirenz-based ART (EFV 600 mg in IMPAACT and ADVANCE; EFV 400 mg in NAMSAL)",
+    "out":      "Virologic suppression (HIV-1 RNA <50 copies/mL at week 48 in ADVANCE / NAMSAL; <200 copies/mL at delivery in IMPAACT 2010, snapshot ITT)",
+    "subgroup": "Sex, baseline viral load, baseline CD4, country / region, NRTI backbone (TDF vs TAF), pregnant vs non-pregnant"
+  },
+
+  "real_data_entries": [
+    {
+      "nct": "NCT03122262",
+      "name": "ADVANCE",
+      "pmid": "31339677",
+      "phase": "III",
+      "year": 2019,
+      "tE": 285, "tN": 351, "cE": 257, "cN": 351,
+      "group": "South African adults, TDF/FTC + DTG vs TDF/FTC/EFV first-line ART; week 48 virologic suppression (HIV-1 RNA <50 copies/mL, snapshot ITT)",
+      "publishedHR": 1.11, "hrLCI": 1.02, "hrUCI": 1.20,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "HIV-1 RNA <50 copies/mL at week 48 (primary, snapshot ITT)", "tE": 285, "cE": 257, "type": "PRIMARY", "matchScore": 95, "effect": 1.11, "lci": 1.02, "uci": 1.20, "estimandType": "RR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Venter WD et al. NEJM 2019;381:803-815 (ADVANCE South Africa first-line DTG vs EFV).",
+      "sourceUrl": "https://www.nejm.org/doi/full/10.1056/NEJMoa1902824",
+      "evidence": []
+    },
+    {
+      "nct": "NCT02777229",
+      "name": "NAMSAL",
+      "pmid": "31339674",
+      "phase": "III",
+      "year": 2019,
+      "tE": 231, "tN": 310, "cE": 209, "cN": 303,
+      "group": "Cameroonian adults, TDF/3TC + DTG vs TDF/3TC + EFV 400 mg first-line ART; week 48 virologic suppression (HIV-1 RNA <50 copies/mL, snapshot ITT)",
+      "publishedHR": 1.08, "hrLCI": 0.97, "hrUCI": 1.20,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "HIV-1 RNA <50 copies/mL at week 48 (primary, snapshot ITT)", "tE": 231, "cE": 209, "type": "PRIMARY", "matchScore": 95, "effect": 1.08, "lci": 0.97, "uci": 1.20, "estimandType": "RR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Calmy A et al. NEJM 2019;381:816-826 (NAMSAL ANRS 12313 Cameroon DTG vs EFV 400 mg).",
+      "sourceUrl": "https://www.nejm.org/doi/full/10.1056/NEJMoa1904340",
+      "evidence": []
+    },
+    {
+      "nct": "NCT03048422",
+      "name": "IMPAACT 2010",
+      "pmid": "33812489",
+      "phase": "III",
+      "year": 2021,
+      "tE": 212, "tN": 217, "cE": 183, "cN": 211,
+      "group": "ART-naive pregnant women initiating in 2nd / early 3rd trimester (multi-country: Botswana / Malawi / South Africa / Tanzania / Uganda / Zimbabwe + India + Thailand + US); DTG + FTC/TDF vs EFV/FTC/TDF; HIV-1 RNA <200 copies/mL at delivery (snapshot ITT)",
+      "publishedHR": 1.13, "hrLCI": 1.06, "hrUCI": 1.21,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "HIV-1 RNA <200 copies/mL at delivery (primary, snapshot ITT)", "tE": 212, "cE": 183, "type": "PRIMARY", "matchScore": 95, "effect": 1.13, "lci": 1.06, "uci": 1.21, "estimandType": "RR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Lockman S et al. Lancet 2021;397:1276-1292 (IMPAACT 2010/VESTED pregnant women DTG vs EFV).",
+      "sourceUrl": "https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(21)00314-7/fulltext",
+      "evidence": []
+    }
+  ],
+
+  "extra_replaces": []
+}
