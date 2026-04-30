@@ -71,7 +71,19 @@ These two outliers probably explain ~30% of the variance in the TF-change distri
 
 ---
 
-## Task D — Add the published-manuscript comparator (third pair)
+## Task D — Add the published-manuscript comparator (third pair)  ⚠️ PARTIAL CLOSE 2026-04-30
+
+Implemented PubMed E-utilities NCT cross-reference in `fetch_publications.py`; pulled PMIDs + abstracts for 21 of 22 trials. `compute_pub_diff.py` runs Jaccard token-overlap on registered measure vs abstract-extracted "primary"-keyword sentence.
+
+**Outcome**: 14/22 flagged Jaccard <0.30, 7/22 minor wording diff. **However**, eyeball spot-check of 3 zero-Jaccard trials reveals 2/3 are wrong-publication artefacts (ENDEAVOR rationale-paper, PERSPECTIVE review-article-not-trial-paper). Real drift rate is bounded above by 64% (flagging) and likely 5-25% based on sample manual review. HEART-FID is one likely true positive (registered list-of-3 vs published hierarchical composite).
+
+**Deferred to v1.0**: pub-type-aware filter (use `publication_types` field, exclude Review/Editorial/Comment/Rationale-and-design via PubMed metadata not title keywords) + full manual annotation of all 22 trials' real primary publications.
+
+Findings folded into FINDINGS_v0.3.md.
+
+---
+
+## Task D (original) — Add the published-manuscript comparator (third pair)
 
 Currently we have:
 - v1 (initial registered) vs current (registered) — Playwright UI scrape ✅
@@ -90,7 +102,22 @@ This is the **highest-value extension** for a methods paper because reported-vs-
 
 ---
 
-## Task E — Expand to all 198 P3/P4 HF trials post-2015
+## Task E — Expand to all 198 P3/P4 HF trials post-2015  ✅ CLOSED 2026-04-30 (269 actual)
+
+Pool size resolved to 269 trials, not 198 (after dropping the n>=500 + has_results gates and including TERMINATED + WITHDRAWN). Stage 1 (CT.gov v2 API pagination) + Stage 2 (Playwright scrape of v1 history for all 269) + Stage 3 (CT.gov v2 API current-registered-primaries fetch for all 269) all completed.
+
+**Headline result**:
+- 147/269 (54.6%) any drift — much lower than v0.2's 95%, confirming the pivotal-pool selection bias
+- 5/269 (1.9%) statistical-framework changes, ALL INDUSTRY (5/78 industry vs 0/184 academic+nonprofit). PARALLEL-HF + AEGIS-II are net-new vs v0.2's 3
+- Industry-sponsored: 73.1% drift; academic/nonprofit: 46.2% drift
+- Has-results: 77.9% drift; No-results: 35.4% drift (longer trial duration → more registry edits)
+- COMPLETED: 59.1%; TERMINATED: 54.2%; WITHDRAWN: 17.4%
+
+Findings folded into FINDINGS_v0.3.md. **Industry-vs-academic asymmetry is the strongest pattern in the audit.**
+
+---
+
+## Task E (original) — Expand to all 198 P3/P4 HF trials post-2015
 
 Drop the n≥500 + has_results gates. The 22-trial pool is biased toward FDAAA-compliant pivotal industry trials. Expanding to:
 
@@ -104,7 +131,13 @@ This produces a properly-powered rate estimate that can be compared to the medRx
 
 ---
 
-## Task F — Run engine tests + commit
+## Task F — Run engine tests + commit  ✅ CLOSED 2026-04-30
+
+No engine tests apply to outcome-switching (this isn't a DTA review). Sentinel scan + commits done; pushes confirmed.
+
+---
+
+## Task F (original) — Run engine tests + commit
 
 After Tasks A-E, no engine tests apply (this isn't a DTA review with the Reitsma engine). But verify Sentinel passes:
 
@@ -123,7 +156,13 @@ Then push.
 
 ---
 
-## Task G — Update the E156 workbook entry
+## Task G — Update the E156 workbook entry  ✅ CLOSED 2026-04-30
+
+Workbook entry [560/549] updated v0.2.1 → v0.3 (industry-vs-academic framework-change pattern as headline). Header counter line updated.
+
+---
+
+## Task G (original) — Update the E156 workbook entry
 
 After v0.3 is shipped:
 
