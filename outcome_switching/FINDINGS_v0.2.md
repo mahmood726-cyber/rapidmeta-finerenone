@@ -16,6 +16,31 @@
 
 Median TF change: **−5%** (range −95% to +150%). Compression (n=8) is more common than extension (n=5), but extension is real and not negligible.
 
+## v0.2.1 update (2026-04-30 same-day patches after v0.3 Tasks A–C)
+
+After shipping v0.2, the v0.3 follow-up (`TODO_v0.3.md`) closed three tasks same-day:
+
+**Task A — TF parser fix.** The original regex returned the FIRST month-equivalent in a timeFrame string, which broke on patterns like `baseline (week 0) to end of treatment (week 52)` (returned 0 instead of 52) and `WeekN` no-space variants. v0.2.1 parser returns the LARGEST candidate. Effect: 5 previously-uncertain trials now have numeric Δ (DETERMINE-Preserved 0%, ACTIVATE-HF 0%, STEP-HFpEF 0%, PARALLAX 0%, **SUMMIT −56.7%**); GALACTIC-HF refines from −54.5% to −12.3% (max-vs-max instead of max-vs-median). Updated counts: 14 timeframe changes (was 13), 9 compressions (was 8), 5 extensions (unchanged).
+
+**Task B — Framework-change verification.** Side-by-side v1 vs current inspection confirms PARADISE-MI and DELIVER framework switches are real, not regex artefacts:
+- **PARADISE-MI**: v1 "Time to the first occurrence of a confirmed composite endpoint" → current "Number of Participants With First CEC Confirmed Primary Composite Endpoint". Pattern: time-to-event → cumulative-incidence. Same as DAPA-HF.
+- **DELIVER**: v1 "Time to the first occurrence" → current "Subjects Included in the Composite Endpoint". Plus a 2nd primary added for the LVEF<60% subpopulation. Same time-to-event → cumulative-incidence pattern.
+
+**All 3 statistical-framework changes go in the same direction**: time-to-event reframed as cumulative-incidence. PARADISE-MI is Novartis; DAPA-HF and DELIVER are AstraZeneca. The pattern looks deliberate, not accidental — and is invisible to the v2 API.
+
+**Task C — Outlier case studies.**
+
+- **DIAMOND (−99% TF)** is **the most consequential drift in the entire audit**. The primary outcome was switched from a hard CV-event endpoint (`Time to first occurrence of CV death or CV hospitalization`, 6m–2.5y window) to a surrogate biochemistry endpoint (`Changes in Serum K+ Levels From Baseline`, 227-day exposure window). This is not a timeframe artefact — it's a fundamental change in *what the trial is measuring*. DIAMOND was a randomized-withdrawal design of patiromer in HF; the CV-event primary likely wasn't powered, so the trial was reframed around the potassium biomarker that *is* powered. Whatever the sponsor's rationale, this is a registered-vs-current primary outcome substitution that the v2 API does not flag. It should be the headline DIAMOND case study in any v1.0 paper.
+- **TRANSFORM-HF (+150% TF)** is a legitimate extension: same outcome (all-cause mortality), follow-up window extended from 12 months to 30 months, with NDI added as a data source. Outcome content stable. This is normal mid-trial extension.
+
+**Revised drift typology**:
+- *Outcome-content change*: 1 (DIAMOND, hard CV-event → surrogate biomarker) — newly identified
+- *Statistical-framework change*: 3 (PARADISE-MI, DAPA-HF, DELIVER, all time-to-event → cumulative-incidence) — confirmed
+- *Timeframe-only drift*: 14 (mix of compressions and extensions, no content change)
+- *Title rewrite only*: 13 (cosmetic)
+
+The 1 outcome-content change is qualitatively the most serious failure mode and should be foregrounded in v1.0 over the cosmetic 95% drift rate.
+
 ## v0.1 → v0.2 lessons
 
 **The n=5 sample undersampled in two ways**:

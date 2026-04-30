@@ -36,17 +36,34 @@ TF_PATTERNS = [
 
 
 def parse_tf_months(text: str) -> float | None:
-    """Extract the FIRST month-equivalent number from a timeFrame string."""
+    """Extract the LARGEST month-equivalent number from a timeFrame string.
+
+    v0.3 fix: previous version returned the FIRST match, which broke on
+    timeFrames like 'baseline (week 0) to end of treatment (week 52)' —
+    where 'week 0' parsed to 0 instead of the meaningful endpoint at
+    week 52. Also handles 'Week16' (no space) by relaxing the \\s*
+    constraint to allow zero whitespace.
+    """
     if not text:
         return None
-    for pat, mult in TF_PATTERNS:
-        m = pat.search(text)
-        if m:
+    # Patterns with relaxed whitespace (accept 'Week16' as 16 weeks)
+    PATTERNS = [
+        (re.compile(r"(\d+(?:\.\d+)?)\s*month", re.I), 1.0),
+        (re.compile(r"(\d+(?:\.\d+)?)\s*year", re.I), 12.0),
+        (re.compile(r"(?:^|\W)(\d+)\s*-?\s*(?:week|wk)", re.I), 1.0 / 4.345),
+        (re.compile(r"week\s*(\d+(?:\.\d+)?)", re.I), 1.0 / 4.345),  # "Week 16" or "Week16"
+        (re.compile(r"(\d+)\s*day", re.I), 1.0 / 30.44),
+    ]
+    candidates = []
+    for pat, mult in PATTERNS:
+        for m in pat.finditer(text):
             try:
-                return float(m.group(1)) * mult
+                v = float(m.group(1)) * mult
+                if v > 0:
+                    candidates.append(v)
             except (TypeError, ValueError):
                 continue
-    return None
+    return max(candidates) if candidates else None
 
 
 def detect_stat_framework(text: str) -> str:

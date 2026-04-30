@@ -7,7 +7,15 @@ Working directory: `C:\Projects\Finrenone\outcome_switching\`
 
 ---
 
-## Task A — Manual TF extraction for the 5 parse-uncertain trials
+## Task A — Manual TF extraction for the 5 parse-uncertain trials  ✅ CLOSED 2026-04-30
+
+Fixed via parser patch in `compute_v1_vs_current.py` (use LARGEST candidate, accept `WeekN` no-space). All 22 trials now have numeric Δ%.
+
+Findings folded into FINDINGS_v0.2.md "v0.2.1 update" section. SUMMIT −56.7%, GALACTIC-HF revised −54.5% → −12.3%, four trials confirmed stable at 0%.
+
+---
+
+## Task A (original) — Manual TF extraction for the 5 parse-uncertain trials
 
 The v0.2 regex parser failed to extract a numeric month-equivalent from v1 timeFrame text on these 5 trials:
 
@@ -27,7 +35,13 @@ Some of these may have multiple primary outcomes where the FIRST one has a non-n
 
 ---
 
-## Task B — Verify the 2 unconfirmed statistical-framework changes
+## Task B — Verify the 2 unconfirmed statistical-framework changes  ✅ CLOSED 2026-04-30
+
+Both confirmed by side-by-side v1 vs current inspection. PARADISE-MI: time-to-event → cumulative-incidence (Novartis). DELIVER: time-to-event → cumulative-incidence (AstraZeneca). Same pattern as DAPA-HF (AstraZeneca). 3/3 framework changes go in the same direction. Findings folded into FINDINGS_v0.2.md.
+
+---
+
+## Task B (original) — Verify the 2 unconfirmed statistical-framework changes
 
 The v0.2 detector flagged 3 framework changes (PARADISE-MI, DAPA-HF, DELIVER). DAPA-HF was fully verified in v0.1. The other 2 need eyeball confirmation because the regex pattern can hit on shared wording like "occurrence of":
 
@@ -38,7 +52,17 @@ For each: confirm whether the framework genuinely switched (DAPA-HF case) vs whe
 
 ---
 
-## Task C — Case studies on 2 extreme outliers
+## Task C — Case studies on 2 extreme outliers  ✅ CLOSED 2026-04-30
+
+**DIAMOND** is the headline finding: primary outcome **content-changed** from hard CV event (CV death or CV hospitalization, 6m–2.5y window) to surrogate biomarker (serum K+ levels, 227-day exposure). This is a fundamental switch in *what the trial measures*, not a TF artefact. Most serious drift in the entire pool. New typology label: "outcome_content_change" (1/22).
+
+**TRANSFORM-HF** is a legitimate extension: same outcome (all-cause mortality), follow-up extended 12m → 30m with NDI added. Outcome content stable. Normal mid-trial extension.
+
+Findings folded into FINDINGS_v0.2.md.
+
+---
+
+## Task C (original) — Case studies on 2 extreme outliers
 
 - **DIAMOND** (NCT03888066) — TF Δ −95.1%. Likely reflects a randomized-withdrawal trial with multiple "primary outcome" candidates at different windows. Read v1 and current carefully and write a case-study paragraph for FINDINGS_v0.2.md.
 - **TRANSFORM-HF** (NCT03296813) — TF Δ +150%. Likely reflects mid-trial extension as event rate came in lower than planned. Same case-study treatment.
