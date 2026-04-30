@@ -1,0 +1,82 @@
+{
+  "base": "C:\\Projects\\Finrenone\\NIRSEVIMAB_INFANT_RSV_REVIEW.html",
+  "out":  "C:\\Projects\\Finrenone\\MALARIA_VACCINES_NMA_REVIEW.html",
+
+  "title": "RapidMeta Infectious Disease | Malaria Vaccines NMA (RTS,S + R21 / Matrix-M) v1.0",
+  "hero_h2": "Malaria Vaccines for African Children: RTS,S/AS01 and R21/Matrix-M",
+  "nyt_headline": "The Malaria Vaccine Evidence",
+
+  "auto_include_ncts": ["NCT00866619", "NCT03896724", "NCT04704830"],
+  "nct_acronyms": {
+    "NCT00866619": "RTS,S Phase 3",
+    "NCT03896724": "R21 Phase 2b",
+    "NCT04704830": "R21 Phase 3"
+  },
+
+  "localstorage_old": "rapid_meta_nirsevimab_infant_rsv_v1_0",
+  "localstorage_new": "rapid_meta_malaria_vaccines_nma_v1_0",
+
+  "pico": {
+    "pop":      "African children residing in P. falciparum malaria-endemic areas; primary cohorts age 5-17 months at first vaccination (RTS,S Phase 3, R21 Phase 3) or 5-36 months (R21 Phase 2b)",
+    "int":      "Pre-erythrocytic CSP-based malaria vaccine: RTS,S/AS01 (Mosquirix; AS01 adjuvant) or R21/Matrix-M (Matrix-M adjuvant), 3-dose primary series followed by booster",
+    "comp":     "Comparator vaccine (rabies in RTS,S P3; rabies / control in R21 trials) with same schedule",
+    "out":      "Clinical falciparum malaria episode (case definition: parasitaemia + symptoms; first or any episode within 12-month follow-up). Reported here as per-protocol incidence-rate / hazard ratio.",
+    "subgroup": "Age cohort (5-17 mo vs older), country / transmission intensity, seasonal vs perennial transmission, vaccine schedule (3-dose vs 3+booster), HIV / sickle cell status"
+  },
+
+  "real_data_entries": [
+    {
+      "nct": "NCT00866619",
+      "name": "RTS,S Phase 3",
+      "pmid": "25913272",
+      "phase": "III",
+      "year": 2015,
+      "tE": 2960, "tN": 5949, "cE": 4165, "cN": 5950,
+      "group": "RTS,S/AS01 4-dose schedule (3-dose primary + 18-month booster) vs rabies-vaccine control in children 5-17 months at first dose; multi-country (Burkina Faso, Gabon, Ghana, Kenya, Malawi, Mozambique, Tanzania); cumulative incidence to month 48",
+      "publishedHR": 0.64, "hrLCI": 0.59, "hrUCI": 0.68,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "Clinical malaria episode by month 48 (per-protocol primary, IRR)", "tE": 2960, "cE": 4165, "type": "PRIMARY", "matchScore": 95, "effect": 0.64, "lci": 0.59, "uci": 0.68, "estimandType": "HR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: RTS,S Clinical Trials Partnership. Lancet 2015;386:31-45 (RTS,S/AS01 phase 3 final report).",
+      "sourceUrl": "https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(15)60721-8/fulltext",
+      "evidence": []
+    },
+    {
+      "nct": "NCT03896724",
+      "name": "R21 Phase 2b",
+      "pmid": "33964223",
+      "phase": "III",
+      "year": 2021,
+      "tE": 38, "tN": 150, "cE": 105, "cN": 150,
+      "group": "R21/Matrix-M (Matrix-M 50 ug high-dose adjuvant) 3-dose primary series vs rabies-vaccine control in children 5-17 months in Burkina Faso (Nanoro); 12-month follow-up",
+      "publishedHR": 0.23, "hrLCI": 0.16, "hrUCI": 0.33,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "Clinical malaria episode at 12 months (vaccine efficacy 77%, high-dose adjuvant arm)", "tE": 38, "cE": 105, "type": "PRIMARY", "matchScore": 95, "effect": 0.23, "lci": 0.16, "uci": 0.33, "estimandType": "HR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Datoo MS et al. Lancet 2021;397:1809-1818 (R21/Matrix-M phase 2b Burkina Faso).",
+      "sourceUrl": "https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(21)00943-0/fulltext",
+      "evidence": []
+    },
+    {
+      "nct": "NCT04704830",
+      "name": "R21 Phase 3",
+      "pmid": "38346856",
+      "phase": "III",
+      "year": 2024,
+      "tE": 400, "tN": 1601, "cE": 1199, "cN": 1599,
+      "group": "R21/Matrix-M 3-dose primary + booster vs rabies-vaccine control; multi-country (Burkina Faso, Kenya, Mali, Tanzania); 12-month efficacy in children 5-36 months",
+      "publishedHR": 0.25, "hrLCI": 0.21, "hrUCI": 0.30,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "Clinical malaria episode at 12 months (vaccine efficacy 75% all sites)", "tE": 400, "cE": 1199, "type": "PRIMARY", "matchScore": 95, "effect": 0.25, "lci": 0.21, "uci": 0.30, "estimandType": "HR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Datoo MS et al. Lancet 2024;403:533-544 (R21/Matrix-M phase 3 multi-country).",
+      "sourceUrl": "https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(23)02511-4/fulltext",
+      "evidence": []
+    }
+  ],
+
+  "extra_replaces": []
+}
