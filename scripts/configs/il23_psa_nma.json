@@ -1,0 +1,100 @@
+{
+  "base": "C:\\Projects\\Finrenone\\IL23_PSORIASIS_REVIEW.html",
+  "out":  "C:\\Projects\\Finrenone\\IL23_PSA_NMA_REVIEW.html",
+
+  "title": "RapidMeta Rheumatology | IL-23 Inhibitors in Psoriatic Arthritis (NMA) v1.0",
+  "hero_h2": "IL-23 Inhibitors in Active Psoriatic Arthritis (Risankizumab + Guselkumab)",
+  "nyt_headline": "The IL-23 Psoriatic Arthritis Evidence",
+
+  "auto_include_ncts": ["NCT03671148", "NCT03675308", "NCT03162796", "NCT03158285"],
+  "nct_acronyms": {
+    "NCT03671148": "KEEPsAKE-1",
+    "NCT03675308": "KEEPsAKE-2",
+    "NCT03162796": "DISCOVER-1",
+    "NCT03158285": "DISCOVER-2"
+  },
+
+  "localstorage_old": "rapid_meta_il23_pso_v1_0",
+  "localstorage_new": "rapid_meta_il23_psa_nma_v1_0",
+
+  "pico": {
+    "pop":      "Adults with active psoriatic arthritis (>=5 swollen + >=5 tender joints, active plaque psoriasis), conventional-synthetic-DMARD inadequate response (KEEPsAKE-1, DISCOVER-2 biologic-naive) or biologic-IR (KEEPsAKE-2, DISCOVER-1 biologic-experienced)",
+    "int":      "Anti-IL-23p19 monoclonal antibody: risankizumab 150 mg SC week 0, 4, then Q12W (KEEPsAKE-1, KEEPsAKE-2) or guselkumab 100 mg SC week 0, 4, then Q4W or Q8W (DISCOVER-1, DISCOVER-2)",
+    "comp":     "Placebo on top of stable csDMARD background therapy",
+    "out":      "ACR20 response (>=20% improvement in ACR composite) at week 24 (primary in all four trials; RR vs placebo)",
+    "subgroup": "Prior biologic exposure (naive vs IR), baseline csDMARD use, baseline tender / swollen joint counts, enthesitis / dactylitis status, BSA"
+  },
+
+  "real_data_entries": [
+    {
+      "nct": "NCT03671148",
+      "name": "KEEPsAKE-1",
+      "pmid": "35134812",
+      "phase": "III",
+      "year": 2022,
+      "tE": 248, "tN": 483, "cE": 152, "cN": 481,
+      "group": "Risankizumab 150 mg SC vs placebo in active PsA, csDMARD-IR; primary ACR20 at week 24",
+      "publishedHR": 1.62, "hrLCI": 1.38, "hrUCI": 1.91,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "ACR20 at week 24 (primary; RR vs placebo + csDMARD)", "tE": 248, "cE": 152, "type": "PRIMARY", "matchScore": 95, "effect": 1.62, "lci": 1.38, "uci": 1.91, "estimandType": "RR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Kristensen LE et al. Ann Rheum Dis 2022 (KEEPsAKE-1 risankizumab PsA, csDMARD-IR).",
+      "sourceUrl": "https://ard.bmj.com/content/81/2/225",
+      "evidence": []
+    },
+    {
+      "nct": "NCT03675308",
+      "name": "KEEPsAKE-2",
+      "pmid": "35134811",
+      "phase": "III",
+      "year": 2022,
+      "tE": 110, "tN": 224, "cE": 44, "cN": 220,
+      "group": "Risankizumab 150 mg SC vs placebo in active PsA, biologic-IR or csDMARD-IR; primary ACR20 at week 24",
+      "publishedHR": 2.45, "hrLCI": 1.83, "hrUCI": 3.28,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "ACR20 at week 24 (primary; RR vs placebo + csDMARD)", "tE": 110, "cE": 44, "type": "PRIMARY", "matchScore": 95, "effect": 2.45, "lci": 1.83, "uci": 3.28, "estimandType": "RR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Östör A et al. Ann Rheum Dis 2022 (KEEPsAKE-2 risankizumab PsA, biologic-IR).",
+      "sourceUrl": "https://ard.bmj.com/content/81/3/351",
+      "evidence": []
+    },
+    {
+      "nct": "NCT03162796",
+      "name": "DISCOVER-1",
+      "pmid": "32178765",
+      "phase": "III",
+      "year": 2020,
+      "tE": 78, "tN": 127, "cE": 28, "cN": 127,
+      "group": "Guselkumab 100 mg SC Q8W vs placebo in active PsA (biologic-naive or anti-TNF IR); primary ACR20 at week 24",
+      "publishedHR": 2.79, "hrLCI": 1.96, "hrUCI": 3.96,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "ACR20 at week 24 (primary; RR vs placebo)", "tE": 78, "cE": 28, "type": "PRIMARY", "matchScore": 95, "effect": 2.79, "lci": 1.96, "uci": 3.96, "estimandType": "RR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Deodhar A et al. Lancet 2020;395:1115-1125 (DISCOVER-1 guselkumab PsA).",
+      "sourceUrl": "https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)30265-8/fulltext",
+      "evidence": []
+    },
+    {
+      "nct": "NCT03158285",
+      "name": "DISCOVER-2",
+      "pmid": "32178766",
+      "phase": "III",
+      "year": 2020,
+      "tE": 156, "tN": 246, "cE": 80, "cN": 246,
+      "group": "Guselkumab 100 mg SC Q8W vs placebo in biologic-naive active PsA; primary ACR20 at week 24",
+      "publishedHR": 1.95, "hrLCI": 1.59, "hrUCI": 2.40,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "ACR20 at week 24 (primary; RR vs placebo)", "tE": 156, "cE": 80, "type": "PRIMARY", "matchScore": 95, "effect": 1.95, "lci": 1.59, "uci": 2.40, "estimandType": "RR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Mease PJ et al. Lancet 2020;395:1126-1136 (DISCOVER-2 guselkumab PsA, biologic-naive).",
+      "sourceUrl": "https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)30263-4/fulltext",
+      "evidence": []
+    }
+  ],
+
+  "extra_replaces": []
+}

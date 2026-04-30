@@ -1,0 +1,82 @@
+{
+  "base": "C:\\Projects\\Finrenone\\PATISIRAN_POLYNEUROPATHY_REVIEW.html",
+  "out":  "C:\\Projects\\Finrenone\\ATTR_PN_NMA_REVIEW.html",
+
+  "title": "RapidMeta Neurology | ATTR Polyneuropathy NMA (Patisiran + Vutrisiran + Eplontersen) v1.0",
+  "hero_h2": "Disease-Modifying Therapy for Hereditary Transthyretin Amyloid Polyneuropathy",
+  "nyt_headline": "The ATTR-PN Class Evidence",
+
+  "auto_include_ncts": ["NCT01960348", "NCT03759379", "NCT04136184"],
+  "nct_acronyms": {
+    "NCT01960348": "APOLLO",
+    "NCT03759379": "HELIOS-A",
+    "NCT04136184": "NEURO-TTRansform"
+  },
+
+  "localstorage_old": "rapid_meta_patisiran_polyneuropathy_v1_0",
+  "localstorage_new": "rapid_meta_attr_pn_nma_v1_0",
+
+  "pico": {
+    "pop":      "Adults with hereditary transthyretin amyloid polyneuropathy (hATTR-PN), stage 1-2, with confirmed pathogenic TTR variant",
+    "int":      "Hepatic-TTR-knockdown therapy: patisiran 0.3 mg/kg IV every 3 weeks (APOLLO; double-stranded siRNA in lipid nanoparticle), vutrisiran 25 mg SC every 3 months (HELIOS-A; conjugated siRNA), or eplontersen 45 mg SC monthly (NEURO-TTRansform; ligand-conjugated antisense oligonucleotide)",
+    "comp":     "Placebo (APOLLO direct comparator) or external placebo arm from APOLLO / NEURO-TTR (used as historical control in HELIOS-A and NEURO-TTRansform per regulatory designs)",
+    "out":      "Change in modified Neuropathy Impairment Score +7 (mNIS+7) from baseline to month 18 (APOLLO, HELIOS-A) or week 65 (NEURO-TTRansform); mean difference vs placebo (negative = better)",
+    "subgroup": "TTR variant (V30M vs non-V30M), baseline NIS, Coutinho stage, age at onset, sex"
+  },
+
+  "real_data_entries": [
+    {
+      "nct": "NCT01960348",
+      "name": "APOLLO",
+      "pmid": "29972753",
+      "phase": "III",
+      "year": 2018,
+      "tN": 148, "cN": 77,
+      "group": "Patisiran 0.3 mg/kg IV Q3W vs placebo, hereditary ATTR-PN; primary mNIS+7 change at month 18 (mean difference vs placebo)",
+      "publishedHR": -34.0, "hrLCI": -39.9, "hrUCI": -28.1,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "mNIS+7 change at month 18 (primary, MD patisiran minus placebo; negative favours treatment)", "type": "CONTINUOUS", "matchScore": 95, "md": -34.0, "se": 3.01}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Adams D et al. NEJM 2018;379:11-21 (APOLLO patisiran).",
+      "sourceUrl": "https://www.nejm.org/doi/full/10.1056/NEJMoa1716153",
+      "evidence": []
+    },
+    {
+      "nct": "NCT03759379",
+      "name": "HELIOS-A",
+      "pmid": "35822484",
+      "phase": "III",
+      "year": 2022,
+      "tN": 122, "cN": 77,
+      "group": "Vutrisiran 25 mg SC Q3M vs APOLLO external placebo, hereditary ATTR-PN; primary mNIS+7 change at month 18",
+      "publishedHR": -17.0, "hrLCI": -21.83, "hrUCI": -12.17,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "mNIS+7 change at month 18 (primary, MD vutrisiran minus APOLLO placebo)", "type": "CONTINUOUS", "matchScore": 95, "md": -17.0, "se": 2.46}
+      ],
+      "rob": ["low", "some", "low", "low", "low"],
+      "snippet": "Source: Adams D et al. Amyloid 2023 / NEJM 2022 (HELIOS-A vutrisiran).",
+      "sourceUrl": "https://www.tandfonline.com/doi/full/10.1080/13506129.2022.2091422",
+      "evidence": []
+    },
+    {
+      "nct": "NCT04136184",
+      "name": "NEURO-TTRansform",
+      "pmid": "37815926",
+      "phase": "III",
+      "year": 2023,
+      "tN": 144, "cN": 60,
+      "group": "Eplontersen 45 mg SC monthly vs NEURO-TTR external placebo, hereditary ATTR-PN; primary mNIS+7 change at week 65",
+      "publishedHR": -14.83, "hrLCI": -19.07, "hrUCI": -10.59,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "mNIS+7 change at week 65 (primary, MD eplontersen minus external placebo)", "type": "CONTINUOUS", "matchScore": 95, "md": -14.83, "se": 2.16}
+      ],
+      "rob": ["low", "some", "low", "low", "low"],
+      "snippet": "Source: Coelho T et al. JAMA 2023;330:1448-1458 (NEURO-TTRansform eplontersen).",
+      "sourceUrl": "https://jamanetwork.com/journals/jama/fullarticle/2810405",
+      "evidence": []
+    }
+  ],
+
+  "extra_replaces": []
+}

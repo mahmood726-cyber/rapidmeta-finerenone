@@ -1,0 +1,85 @@
+{
+  "base": "C:\\Projects\\Finrenone\\ATTR_CM_REVIEW.html",
+  "out":  "C:\\Projects\\Finrenone\\ATTR_CM_NMA_REVIEW.html",
+
+  "title": "RapidMeta Cardiology | ATTR Cardiomyopathy NMA (Tafamidis + Vutrisiran + Acoramidis) v1.0",
+  "hero_h2": "Disease-Modifying Therapy for Transthyretin Amyloid Cardiomyopathy: Tafamidis, Vutrisiran, Acoramidis",
+  "nyt_headline": "The ATTR Cardiomyopathy Class Evidence",
+
+  "auto_include_ncts": ["NCT01994889", "NCT04153149", "NCT03860935"],
+  "nct_acronyms": {
+    "NCT01994889": "ATTR-ACT",
+    "NCT04153149": "HELIOS-B",
+    "NCT03860935": "ATTRibute-CM"
+  },
+
+  "localstorage_old": "rapid_meta_attr_cm_v1_0",
+  "localstorage_new": "rapid_meta_attr_cm_nma_v1_0",
+
+  "pico": {
+    "pop":      "Adults with transthyretin amyloid cardiomyopathy (ATTR-CM, wild-type or hereditary), NYHA I-III, with cardiac involvement confirmed by tissue biopsy or 99mTc-PYP scintigraphy",
+    "int":      "Disease-modifying therapy: TTR stabilizer tafamidis 80 mg PO QD (ATTR-ACT) or acoramidis 800 mg PO BID (ATTRibute-CM); or hepatic-TTR-silencing siRNA vutrisiran 25 mg SC every 3 months (HELIOS-B)",
+    "comp":     "Placebo on top of standard heart failure care",
+    "out":      "All-cause mortality at trial endpoint (HR vs placebo; primary composite endpoint also reported per trial)",
+    "subgroup": "Genotype (wild-type vs variant TTR), NYHA class, NT-proBNP, 6-minute walk distance, age, sex"
+  },
+
+  "real_data_entries": [
+    {
+      "nct": "NCT01994889",
+      "name": "ATTR-ACT",
+      "pmid": "30145929",
+      "phase": "III",
+      "year": 2018,
+      "tE": 78, "tN": 264, "cE": 76, "cN": 177,
+      "group": "Tafamidis 80 mg or 20 mg PO QD vs placebo in ATTR-CM (wild-type or hereditary); 30-month follow-up; primary hierarchical death + CV hospitalization",
+      "publishedHR": 0.70, "hrLCI": 0.51, "hrUCI": 0.96,
+      "pubHR": 0.70, "pubHR_LCI": 0.51, "pubHR_UCI": 0.96,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "All-cause mortality at month 30 (HR vs placebo)", "tE": 78, "cE": 76, "type": "PRIMARY", "matchScore": 95, "effect": 0.70, "lci": 0.51, "uci": 0.96, "pubHR": 0.70, "pubHR_LCI": 0.51, "pubHR_UCI": 0.96, "estimandType": "HR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Maurer MS et al. NEJM 2018;379:1007-1016 (ATTR-ACT tafamidis).",
+      "sourceUrl": "https://www.nejm.org/doi/full/10.1056/NEJMoa1805689",
+      "evidence": []
+    },
+    {
+      "nct": "NCT04153149",
+      "name": "HELIOS-B",
+      "pmid": "39213395",
+      "phase": "III",
+      "year": 2024,
+      "tE": 83, "tN": 326, "cE": 119, "cN": 329,
+      "group": "Vutrisiran 25 mg SC every 3 months vs placebo in ATTR-CM (incl. ~30% on tafamidis at baseline); 36-month primary composite (death + recurrent CV events)",
+      "publishedHR": 0.71, "hrLCI": 0.56, "hrUCI": 0.90,
+      "pubHR": 0.71, "pubHR_LCI": 0.56, "pubHR_UCI": 0.90,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "All-cause mortality (HR vs placebo, monotherapy population)", "tE": 83, "cE": 119, "type": "PRIMARY", "matchScore": 95, "effect": 0.71, "lci": 0.56, "uci": 0.90, "pubHR": 0.71, "pubHR_LCI": 0.56, "pubHR_UCI": 0.90, "estimandType": "HR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Fontana M et al. NEJM 2024 (HELIOS-B vutrisiran).",
+      "sourceUrl": "https://www.nejm.org/doi/full/10.1056/NEJMoa2409134",
+      "evidence": []
+    },
+    {
+      "nct": "NCT03860935",
+      "name": "ATTRibute-CM",
+      "pmid": "38197859",
+      "phase": "III",
+      "year": 2024,
+      "tE": 81, "tN": 421, "cE": 47, "cN": 211,
+      "group": "Acoramidis 800 mg PO BID vs placebo in ATTR-CM; 30-month hierarchical primary (death + CV hosp + NT-proBNP + 6MWD); win ratio 1.8",
+      "publishedHR": 0.81, "hrLCI": 0.56, "hrUCI": 1.16,
+      "pubHR": 0.81, "pubHR_LCI": 0.56, "pubHR_UCI": 1.16,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "All-cause mortality at month 30 (HR vs placebo)", "tE": 81, "cE": 47, "type": "PRIMARY", "matchScore": 95, "effect": 0.81, "lci": 0.56, "uci": 1.16, "pubHR": 0.81, "pubHR_LCI": 0.56, "pubHR_UCI": 1.16, "estimandType": "HR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: Gillmore JD et al. NEJM 2024;390:132-142 (ATTRibute-CM acoramidis).",
+      "sourceUrl": "https://www.nejm.org/doi/full/10.1056/NEJMoa2305434",
+      "evidence": []
+    }
+  ],
+
+  "extra_replaces": []
+}
