@@ -4461,34 +4461,118 @@
 
 
 
+        const HIGHLIGHT_AUTO_PATTERNS = [
+            /P\s*[<>=]\s*0?\.\d+/g,           // P-values: P=0.0004, P<0.0001
+            /\b\d+(?:\.\d+)?\s*%/g,            // percentages: 22%, 2.1%
+            /-?\d+\.\d+/g,                     // signed decimals: -0.41, 1.30
+            /\bn\s*=\s*\d+\b/gi,               // n=N counts: n=202
+            /\b\d{3,}\b/g                      // multi-digit integers: 637, 2023
+        ];
+
+
         const highlightEvidence = (text, highlights) => {
-
-
-            let safe = escapeHtml(text);
 
 
             const terms = sanitizeHighlightTerms(highlights);
 
 
-            if (terms.length === 0) return safe;
+            const ranges = [];
 
 
-            terms.forEach(h => {
+            for (const re of HIGHLIGHT_AUTO_PATTERNS) {
 
 
-                const escaped = escapeHtml(h);
+                for (const m of String(text ?? '').matchAll(re)) {
 
 
-                safe = safe.replace(new RegExp(escaped.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
+                    ranges.push([m.index, m.index + m[0].length]);
 
 
-                    `<span class="highlight-data">${escaped}</span>`);
+                }
 
 
-            });
+            }
 
 
-            return safe;
+            for (const term of terms) {
+
+
+                const escapedTerm = String(term).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+
+                const re = new RegExp(escapedTerm, 'g');
+
+
+                for (const m of String(text ?? '').matchAll(re)) {
+
+
+                    ranges.push([m.index, m.index + m[0].length]);
+
+
+                }
+
+
+            }
+
+
+            if (ranges.length === 0) return escapeHtml(text);
+
+
+            ranges.sort((a, b) => a[0] - b[0] || b[1] - a[1]);
+
+
+            const merged = [];
+
+
+            for (const [s, e] of ranges) {
+
+
+                if (merged.length && s < merged[merged.length - 1][1]) {
+
+
+                    merged[merged.length - 1][1] = Math.max(merged[merged.length - 1][1], e);
+
+
+                } else {
+
+
+                    merged.push([s, e]);
+
+
+                }
+
+
+            }
+
+
+            let out = '';
+
+
+            let cursor = 0;
+
+
+            const src = String(text ?? '');
+
+
+            for (const [s, e] of merged) {
+
+
+                out += escapeHtml(src.substring(cursor, s));
+
+
+                out += `<span class="highlight-data">${escapeHtml(src.substring(s, e))}</span>`;
+
+
+                cursor = e;
+
+
+            }
+
+
+            out += escapeHtml(src.substring(cursor));
+
+
+            return out;
 
 
         };
@@ -4497,7 +4581,7 @@
 
 
 
-        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03525613', 'NCT03525600']);
+        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03525600', 'NCT03525613']);
 
 
         const isPhaseTwoLike = (phaseLabel = '') => {
@@ -5939,7 +6023,7 @@ const ContinuousMDEngine = {
             /* Known acronyms for trials whose CT.gov search may not return the acronym field */
 
 
-            nctAcronyms: { 'NCT03525600': 'OAKS-PM', 'NCT03525613': 'DERBY-PM', 'NCT03525600_PEOM': 'OAKS-PEOM', 'NCT03525613_PEOM': 'DERBY-PEOM' },
+            nctAcronyms: { 'NCT03525613': 'OAKS-PM', 'NCT03525600': 'DERBY-PM', 'NCT03525613_PEOM': 'OAKS-PEOM', 'NCT03525600_PEOM': 'DERBY-PEOM' },
 
 
             // Trials known to be ineligible for pooling. Screening flows read this
@@ -6983,10 +7067,10 @@ const ContinuousMDEngine = {
             realData: {
 
 
-                'NCT03525600': {
+                'NCT03525613': {
 
 
-                    name: 'OAKS-PM', pmid: '37865470', phase: 'III', year: 2023, tE: null, tN: 202, cE: null, cN: 213, group: 'OAKS pegcetacoplan-monthly (PM) arm vs pooled-sham comparison. tN=202 PM mITT, cN=213 pooled sham mITT (sham-monthly 106 + sham-PEOM 107) per Heier 2023 pre-specified analysis. PEOM contrast lives in NCT03525600_PEOM (separate trial-row by design, multi-arm shared-control noted there).', publishedHR: null,
+                    name: 'OAKS-PM', pmid: '37865470', phase: 'III', year: 2023, tE: null, tN: 202, cE: null, cN: 207, group: 'OAKS pegcetacoplan-monthly (PM) arm vs pooled-sham mITT comparison. tN=202 PM mITT, cN=207 pooled-sham mITT (monthly+EOM combined) per Heier 2023 Lancet primary analysis [DOI 10.1016/S0140-6736(23)01520-9]; mITT n=614 of 637 randomized. PEOM contrast lives in NCT03525613_PEOM (separate trial-row by design, multi-arm shared-control noted there).', publishedHR: null,
 
 
                     allOutcomes: [
@@ -6995,7 +7079,7 @@ const ContinuousMDEngine = {
                         { shortLabel: 'GA12',     title: 'GA lesion area change at month 12, PM vs sham (mm^2, MD; primary)', type: 'CONTINUOUS', md: -0.41, se: 0.117 },
                         { shortLabel: 'GA24',     title: 'GA lesion area change at month 24, PM vs sham (mm^2, MD; secondary)', type: 'CONTINUOUS', md: -0.90, se: 0.204 },
                         { shortLabel: 'BCVA12',   title: 'BCVA letter-score change at month 12, PM vs sham (ETDRS, MD)', type: 'CONTINUOUS', md: -0.5, se: 0.9 },
-                        { shortLabel: 'IOI',      title: 'Intraocular inflammation event rate (24-mo annualised, RR)', type: 'BINARY', tE: 13, tN: 202, cE: 1, cN: 106 }
+                        { shortLabel: 'IOI',      title: 'Intraocular inflammation event rate (24-mo annualised RR; SAFETY-SET denominator, PM-monthly vs sham-monthly — different convention from primary-outcome mITT denominators above)', type: 'BINARY', tE: 13, tN: 202, cE: 1, cN: 106 }
 
 
                     ],
@@ -7010,13 +7094,13 @@ const ContinuousMDEngine = {
                     sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(23)01520-9/fulltext',
 
 
-                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03525600',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03525613',
 
 
                     evidence: [
 
 
-                        { label: 'Enrollment', source: 'Heier 2023 Lancet, CONSORT', text: '637 adults with geographic atrophy secondary to age-related macular degeneration randomized 2:2:1:1 double-blind to pegcetacoplan 15 mg intravitreal pegcetacoplan-monthly PM (n=202), pegcetacoplan-every-other-month PEOM (n=213), sham monthly (n=106), or sham PEOM (n=116) for 24 months. OAKS was one of two pivotal replicate trials.', highlights: ['637', '202', '213', 'pegcetacoplan', 'double-blind'] },
+                        { label: 'Enrollment', source: 'Heier 2023 Lancet, CONSORT', text: '637 adults with geographic atrophy secondary to age-related macular degeneration were randomized 2:2:1:1 (double-blind) to intravitreal pegcetacoplan 15 mg monthly (PM) or every-other-month (PEOM), or sham monthly or every-other-month, for 24 months. The modified-ITT (mITT) primary-analysis population comprised 614 (96%) of 637: PM n=202, PEOM n=205, pooled sham n=207. OAKS (NCT03525613) was one of two pivotal replicate trials with DERBY (NCT03525600). Source: Heier 2023 Lancet [DOI 10.1016/S0140-6736(23)01520-9].', highlights: ['637', '614', '202', '205', '207', 'pegcetacoplan', 'double-blind', 'mITT', 'OAKS'] },
 
 
                         { label: 'Primary - GA Lesion Area Change at Month 12 (mm^2, untransformed)', source: 'Heier 2023 Lancet, primary endpoint', text: 'OAKS month-12 ETD vs sham (least-squares mean change in GA lesion area, mm^2): PM -0.41 mm^2 (95% CI -0.64 to -0.18; P=0.0004; 21% slowing). PEOM -0.32 mm^2 (95% CI -0.54 to -0.09; P=0.0055; 16% slowing). NOTE: published primary is on the UNTRANSFORMED mm^2 scale (NOT sqrt-transformed -- prior dashboard values -0.47/-0.39 were sqrt-mm^2 and have been corrected).', highlights: ['-0.41', '-0.64', '-0.18', 'P=0.0004', '21%', '-0.32', '-0.54', '16%'] },
@@ -7034,10 +7118,10 @@ const ContinuousMDEngine = {
                 },
 
 
-                'NCT03525613': {
+                'NCT03525600': {
 
 
-                    name: 'DERBY-PM', pmid: '37865470', phase: 'III', year: 2023, tE: null, tN: 206, cE: null, cN: 208, group: 'DERBY pegcetacoplan-monthly (PM) arm vs pooled-sham comparison. tN=206 PM mITT, cN=208 pooled sham mITT (sham-monthly 103 + sham-PEOM 105) per Heier 2023. PEOM contrast lives in NCT03525613_PEOM. DERBY 12-mo PM did NOT meet alpha; 24-mo positive.', publishedHR: null,
+                    name: 'DERBY-PM', pmid: '37865470', phase: 'III', year: 2023, tE: null, tN: 201, cE: null, cN: 195, group: 'DERBY pegcetacoplan-monthly (PM) arm vs pooled-sham mITT comparison. tN=201 PM mITT, cN=195 pooled-sham mITT (monthly+EOM combined) per Heier 2023 Lancet primary analysis [DOI 10.1016/S0140-6736(23)01520-9]; mITT n=597 of 621 randomized. PEOM contrast lives in NCT03525600_PEOM. DERBY 12-mo PM did NOT meet alpha; 24-mo positive.', publishedHR: null,
 
 
                     allOutcomes: [
@@ -7046,7 +7130,7 @@ const ContinuousMDEngine = {
                         { shortLabel: 'GA12',     title: 'GA lesion area change at month 12, PM vs sham (mm^2, MD; primary, did NOT meet alpha at 12 mo)', type: 'CONTINUOUS', md: -0.23, se: 0.122 },
                         { shortLabel: 'GA24',     title: 'GA lesion area change at month 24, PM vs sham (mm^2, MD; secondary)', type: 'CONTINUOUS', md: -0.75, se: 0.207 },
                         { shortLabel: 'BCVA12',   title: 'BCVA letter-score change at month 12, PM vs sham (ETDRS, MD)', type: 'CONTINUOUS', md: -1.1, se: 0.9 },
-                        { shortLabel: 'IOI',      title: 'Intraocular inflammation event rate (24-mo annualised, RR)', type: 'BINARY', tE: 9, tN: 206, cE: 0, cN: 103 }
+                        { shortLabel: 'IOI',      title: 'Intraocular inflammation event rate (24-mo annualised RR; SAFETY-SET denominator, PM-monthly vs sham-monthly — different convention from primary-outcome mITT denominators above)', type: 'BINARY', tE: 9, tN: 206, cE: 0, cN: 103 }
 
 
                     ],
@@ -7061,13 +7145,13 @@ const ContinuousMDEngine = {
                     sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(23)01520-9/fulltext',
 
 
-                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03525613',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03525600',
 
 
                     evidence: [
 
 
-                        { label: 'Enrollment', source: 'Heier 2023 Lancet, CONSORT', text: '621 adults with geographic atrophy secondary to AMD randomized 2:2:1:1 double-blind to PM (n=206), PEOM (n=208), sham monthly (n=103), or sham PEOM (n=104) for 24 months. DERBY was the replicate pivotal trial to OAKS.', highlights: ['621', '206', '208', 'replicate', 'double-blind'] },
+                        { label: 'Enrollment', source: 'Heier 2023 Lancet, CONSORT', text: '621 adults with geographic atrophy secondary to AMD were randomized 2:2:1:1 (double-blind) to intravitreal pegcetacoplan 15 mg monthly (PM) or every-other-month (PEOM), or sham monthly or every-other-month, for 24 months. The modified-ITT (mITT) primary-analysis population comprised 597 (96%) of 621: PM n=201, PEOM n=201, pooled sham n=195. DERBY (NCT03525600) was the replicate pivotal trial to OAKS (NCT03525613); the 12-month primary endpoint did not meet alpha but the 24-month analyses did. Source: Heier 2023 Lancet [DOI 10.1016/S0140-6736(23)01520-9].', highlights: ['621', '597', '201', '195', 'pegcetacoplan', 'double-blind', 'mITT', 'replicate', 'DERBY'] },
 
 
                         { label: 'Primary - GA Lesion Area Change at Month 12 (mm^2; did NOT meet significance)', source: 'Heier 2023 Lancet, primary endpoint', text: 'DERBY month-12 ETD vs sham (mm^2 untransformed): PM -0.23 mm^2 (95% CI -0.47 to 0.01; P=0.062; 12% slowing, non-significant). PEOM -0.21 mm^2 (95% CI -0.44 to 0.03; P=0.085; 11% slowing, non-significant). DERBY did NOT meet its 12-month primary endpoint -- the FDA approval relied on OAKS + 24-month DERBY data. NOTE: published primary is on UNTRANSFORMED mm^2 (NOT sqrt-transformed -- prior dashboard values -0.29/-0.17 were sqrt-mm^2 and have been corrected).', highlights: ['-0.23', '-0.47', 'P=0.062', 'NS', '-0.21', '-0.44', '11%'] },
@@ -7089,7 +7173,7 @@ const ContinuousMDEngine = {
                 // PEOM (every-other-month) contrast as separate trial-rows.
                 // Architectural split (2026-05-01) so PEOM can be pooled
                 // independently. Multi-arm shared-control caveat: the same
-                // pooled sham (n=213 OAKS, n=208 DERBY) is the comparator for
+                // pooled sham (mITT n=207 OAKS, n=195 DERBY) is the comparator for
                 // BOTH the PM arm AND the PEOM arm in each trial. If both PM
                 // and PEOM rows are included in the same pool, sham gets
                 // double-counted and the pool's sham weight is inflated; the
@@ -7097,9 +7181,9 @@ const ContinuousMDEngine = {
                 // adjustment per Cochrane Handbook 23.3.4 (split-control).
                 // ============================================================
 
-                'NCT03525600_PEOM': {
+                'NCT03525613_PEOM': {
 
-                    name: 'OAKS-PEOM', pmid: '37865470', phase: 'III', year: 2023, tE: null, tN: 213, cE: null, cN: 213, group: 'OAKS pegcetacoplan-every-other-month (PEOM) arm vs pooled-sham comparison. tN=213 PEOM mITT, cN=213 pooled sham mITT. SHARED-CONTROL CAVEAT: same sham as OAKS-PM (NCT03525600). Pool PEOM-only OR PM-only -- including both inflates sham weight unless split-control applied (Cochrane 23.3.4).', publishedHR: null,
+                    name: 'OAKS-PEOM', pmid: '37865470', phase: 'III', year: 2023, tE: null, tN: 205, cE: null, cN: 207, group: 'OAKS pegcetacoplan-every-other-month (PEOM) arm vs pooled-sham mITT comparison. tN=205 PEOM mITT, cN=207 pooled-sham mITT per Heier 2023 Lancet primary analysis [DOI 10.1016/S0140-6736(23)01520-9]. SHARED-CONTROL CAVEAT: same sham as OAKS-PM (NCT03525613). Pool PEOM-only OR PM-only -- including both inflates sham weight unless split-control applied (Cochrane 23.3.4).', publishedHR: null,
 
                     allOutcomes: [
                         { shortLabel: 'GA12',     title: 'GA lesion area change at month 12, PEOM vs sham (mm^2, MD; key secondary)', type: 'CONTINUOUS', md: -0.32, se: 0.115 },
@@ -7112,7 +7196,7 @@ const ContinuousMDEngine = {
 
                     sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(23)01520-9/fulltext',
 
-                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03525600',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03525613',
 
                     evidence: [
                         { label: 'Arm-Specific Endpoint', source: 'Heier 2023 Lancet, key secondary', text: 'OAKS PEOM (every-other-month) arm: 12-mo ETD -0.32 mm^2 (95% CI -0.54 to -0.09; P=0.0055; 16% slowing) and 24-mo ETD -0.74 mm^2 (95% CI -1.13 to -0.36; P=0.0002; 18% slowing). PEOM met its key secondary endpoint at 12 mo and 24 mo in OAKS.', highlights: ['-0.32', '-0.54', 'P=0.0055', '16%', '-0.74', '18%'] }
@@ -7121,9 +7205,9 @@ const ContinuousMDEngine = {
                 },
 
 
-                'NCT03525613_PEOM': {
+                'NCT03525600_PEOM': {
 
-                    name: 'DERBY-PEOM', pmid: '37865470', phase: 'III', year: 2023, tE: null, tN: 208, cE: null, cN: 208, group: 'DERBY pegcetacoplan-every-other-month (PEOM) arm vs pooled-sham comparison. tN=208 PEOM mITT, cN=208 pooled sham mITT. SHARED-CONTROL CAVEAT: same sham as DERBY-PM (NCT03525613). DERBY 12-mo PEOM did NOT meet alpha; 24-mo positive.', publishedHR: null,
+                    name: 'DERBY-PEOM', pmid: '37865470', phase: 'III', year: 2023, tE: null, tN: 201, cE: null, cN: 195, group: 'DERBY pegcetacoplan-every-other-month (PEOM) arm vs pooled-sham mITT comparison. tN=201 PEOM mITT, cN=195 pooled-sham mITT per Heier 2023 Lancet primary analysis [DOI 10.1016/S0140-6736(23)01520-9]. SHARED-CONTROL CAVEAT: same sham as DERBY-PM (NCT03525600). DERBY 12-mo PEOM did NOT meet alpha; 24-mo positive.', publishedHR: null,
 
                     allOutcomes: [
                         { shortLabel: 'GA12',     title: 'GA lesion area change at month 12, PEOM vs sham (mm^2, MD; key secondary, did NOT meet alpha at 12 mo)', type: 'CONTINUOUS', md: -0.21, se: 0.120 },
@@ -7136,7 +7220,7 @@ const ContinuousMDEngine = {
 
                     sourceUrl: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(23)01520-9/fulltext',
 
-                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03525613',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03525600',
 
                     evidence: [
                         { label: 'Arm-Specific Endpoint', source: 'Heier 2023 Lancet, key secondary', text: 'DERBY PEOM (every-other-month) arm: 12-mo ETD -0.21 mm^2 (95% CI -0.44 to 0.03; P=0.085; 11% slowing, NOT significant). 24-mo ETD -0.63 mm^2 (95% CI -1.05 to -0.22; P=0.0030; 16% slowing, significant). PEOM met its key secondary at 24 mo only.', highlights: ['-0.21', 'P=0.085', 'NS', '-0.63', 'P=0.0030', '16%'] }
@@ -15904,13 +15988,13 @@ const ContinuousMDEngine = {
                     items.push({
 
 
-                        label: 'Design — Allocation & masking',
+                        label: 'CT.gov design metadata (informs RoB — NOT a RoB-2 judgment)',
 
 
-                        source: `CT.gov ${nct} protocolSection.designModule`,
+                        source: `CT.gov ${nct} protocolSection.designModule (auto-derived from registry; see "Risk of Bias (RoB 2.0)" evidence row and RoB tab for the curated 5-domain assessment)`,
 
 
-                        text: `Allocation: ${allocText}. Masking: ${maskText}${whoMasked ? ' (' + whoMasked + ')' : ''}.`,
+                        text: `[CT.gov registry metadata] Allocation: ${allocText}. Masking: ${maskText}${whoMasked ? ' (' + whoMasked + ')' : ''}. — Note: this row is structured CT.gov registration metadata, not a RoB-2 domain rating. The curated D1–D5 RoB-2 judgments are in the separate "Risk of Bias (RoB 2.0)" evidence row and in the RoB tab. Do not treat the two as conflicting; they answer different questions.`,
 
 
                         highlights: [allocText, maskText, whoMasked].filter(Boolean)
