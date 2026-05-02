@@ -4962,34 +4962,118 @@
 
 
 
+        const HIGHLIGHT_AUTO_PATTERNS = [
+            /P\s*[<>=]\s*0?\.\d+/g,           // P-values: P=0.0004, P<0.0001
+            /\b\d+(?:\.\d+)?\s*%/g,            // percentages: 22%, 2.1%
+            /-?\d+\.\d+/g,                     // signed decimals: -0.41, 1.30
+            /\bn\s*=\s*\d+\b/gi,               // n=N counts: n=202
+            /\b\d{3,}\b/g                      // multi-digit integers: 637, 2023
+        ];
+
+
         const highlightEvidence = (text, highlights) => {
-
-
-            let safe = escapeHtml(text);
 
 
             const terms = sanitizeHighlightTerms(highlights);
 
 
-            if (terms.length === 0) return safe;
+            const ranges = [];
 
 
-            terms.forEach(h => {
+            for (const re of HIGHLIGHT_AUTO_PATTERNS) {
 
 
-                const escaped = escapeHtml(h);
+                for (const m of String(text ?? '').matchAll(re)) {
 
 
-                safe = safe.replace(new RegExp(escaped.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
+                    ranges.push([m.index, m.index + m[0].length]);
 
 
-                    `<span class="highlight-data">${escaped}</span>`);
+                }
 
 
-            });
+            }
 
 
-            return safe;
+            for (const term of terms) {
+
+
+                const escapedTerm = String(term).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+
+                const re = new RegExp(escapedTerm, 'g');
+
+
+                for (const m of String(text ?? '').matchAll(re)) {
+
+
+                    ranges.push([m.index, m.index + m[0].length]);
+
+
+                }
+
+
+            }
+
+
+            if (ranges.length === 0) return escapeHtml(text);
+
+
+            ranges.sort((a, b) => a[0] - b[0] || b[1] - a[1]);
+
+
+            const merged = [];
+
+
+            for (const [s, e] of ranges) {
+
+
+                if (merged.length && s < merged[merged.length - 1][1]) {
+
+
+                    merged[merged.length - 1][1] = Math.max(merged[merged.length - 1][1], e);
+
+
+                } else {
+
+
+                    merged.push([s, e]);
+
+
+                }
+
+
+            }
+
+
+            let out = '';
+
+
+            let cursor = 0;
+
+
+            const src = String(text ?? '');
+
+
+            for (const [s, e] of merged) {
+
+
+                out += escapeHtml(src.substring(cursor, s));
+
+
+                out += `<span class="highlight-data">${escapeHtml(src.substring(s, e))}</span>`;
+
+
+                cursor = e;
+
+
+            }
+
+
+            out += escapeHtml(src.substring(cursor));
+
+
+            return out;
 
 
         };
@@ -16430,13 +16514,13 @@
                     items.push({
 
 
-                        label: 'Design — Allocation & masking',
+                        label: 'CT.gov design metadata (informs RoB — NOT a RoB-2 judgment)',
 
 
-                        source: `CT.gov ${nct} protocolSection.designModule`,
+                        source: `CT.gov ${nct} protocolSection.designModule (auto-derived from registry; see "Risk of Bias (RoB 2.0)" evidence row and RoB tab for the curated 5-domain assessment)`,
 
 
-                        text: `Allocation: ${allocText}. Masking: ${maskText}${whoMasked ? ' (' + whoMasked + ')' : ''}.`,
+                        text: `[CT.gov registry metadata] Allocation: ${allocText}. Masking: ${maskText}${whoMasked ? ' (' + whoMasked + ')' : ''}. — Note: this row is structured CT.gov registration metadata, not a RoB-2 domain rating. The curated D1–D5 RoB-2 judgments are in the separate "Risk of Bias (RoB 2.0)" evidence row and in the RoB tab. Do not treat the two as conflicting; they answer different questions.`,
 
 
                         highlights: [allocText, maskText, whoMasked].filter(Boolean)
