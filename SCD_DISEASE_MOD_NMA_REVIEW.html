@@ -1537,13 +1537,13 @@
                     <tbody class="divide-y divide-slate-800/50">
 
 
-                        <tr><td class="p-3 font-bold text-blue-400">ClinicalTrials.gov</td><td class="p-3"><code class="text-[10px] text-slate-400 font-mono break-all">https://clinicaltrials.gov/api/v2/studies?("sickle cell disease" OR "vaso-occlusive crisis") AND (voxelotor OR crizanlizumab OR L-glutamine) AND randomized&amp;pageSize=100&amp;filter.overallStatus=COMPLETED</code></td><td class="p-3 text-slate-400">Registry (API v2)</td></tr>
+                        <tr><td class="p-3 font-bold text-blue-400">ClinicalTrials.gov</td><td class="p-3"><code class="text-[10px] text-slate-400 font-mono break-all">https://clinicaltrials.gov/api/v2/studies?("sickle cell disease" OR "vaso-occlusive crisis") AND (hydroxyurea OR L-glutamine OR exa-cel OR CTX001 OR Casgevy) AND ("sickle cell")&amp;pageSize=100&amp;filter.overallStatus=COMPLETED</code></td><td class="p-3 text-slate-400">Registry (API v2)</td></tr>
 
 
-                        <tr><td class="p-3 font-bold text-purple-400">PubMed (Europe PMC)</td><td class="p-3"><code class="text-[10px] text-slate-400 font-mono break-all">("sickle cell disease" OR "vaso-occlusive crisis") AND (voxelotor OR crizanlizumab OR L-glutamine) AND randomized AND (TITLE:randomized OR PUB_TYPE:"Randomized Controlled Trial" OR PUB_TYPE:"Clinical Trial") AND SRC:MED</code></td><td class="p-3 text-slate-400">Bibliographic (REST)</td></tr>
+                        <tr><td class="p-3 font-bold text-purple-400">PubMed (Europe PMC)</td><td class="p-3"><code class="text-[10px] text-slate-400 font-mono break-all">("sickle cell disease" OR "vaso-occlusive crisis") AND (hydroxyurea OR L-glutamine OR exa-cel OR CTX001 OR Casgevy) AND ("sickle cell") AND (TITLE:randomized OR PUB_TYPE:"Randomized Controlled Trial" OR PUB_TYPE:"Clinical Trial") AND SRC:MED</code></td><td class="p-3 text-slate-400">Bibliographic (REST)</td></tr>
 
 
-                        <tr><td class="p-3 font-bold text-amber-400">OpenAlex</td><td class="p-3"><code class="text-[10px] text-slate-400 font-mono break-all">search=("sickle cell disease" OR "vaso-occlusive crisis") AND (voxelotor OR crizanlizumab OR L-glutamine) AND randomized&amp;filter=concepts.id:C71924100&amp;per_page=50</code></td><td class="p-3 text-slate-400">Bibliographic (REST)</td></tr>
+                        <tr><td class="p-3 font-bold text-amber-400">OpenAlex</td><td class="p-3"><code class="text-[10px] text-slate-400 font-mono break-all">search=("sickle cell disease" OR "vaso-occlusive crisis") AND (hydroxyurea OR L-glutamine OR exa-cel OR CTX001 OR Casgevy) AND ("sickle cell")&amp;filter=concepts.id:C71924100&amp;per_page=50</code></td><td class="p-3 text-slate-400">Bibliographic (REST)</td></tr>
 
 
                         <tr><td class="p-3 font-bold text-emerald-400">Reference Check</td><td class="p-3 text-slate-400">Backward citation search: built-in landmark database cross-checked against API returns</td><td class="p-3 text-slate-400">Manual supplement</td></tr>
@@ -2044,7 +2044,7 @@
                             <div class="text-[9px] font-bold uppercase text-blue-400 tracking-widest mb-1">ClinicalTrials.gov API v2</div>
 
 
-                            <code class="text-[9px] text-slate-400 font-mono leading-relaxed block break-all">https://clinicaltrials.gov/api/v2/studies?("sickle cell disease" OR "vaso-occlusive crisis") AND (voxelotor OR crizanlizumab OR L-glutamine) AND randomized&amp;pageSize=100&amp;filter.overallStatus=COMPLETED</code>
+                            <code class="text-[9px] text-slate-400 font-mono leading-relaxed block break-all">https://clinicaltrials.gov/api/v2/studies?("sickle cell disease" OR "vaso-occlusive crisis") AND (hydroxyurea OR L-glutamine OR exa-cel OR CTX001 OR Casgevy) AND ("sickle cell")&amp;pageSize=100&amp;filter.overallStatus=COMPLETED</code>
 
 
                         </div>
@@ -2068,7 +2068,7 @@
                             <div class="text-[9px] font-bold uppercase text-amber-400 tracking-widest mb-1">OpenAlex API</div>
 
 
-                            <code class="text-[9px] text-slate-400 font-mono leading-relaxed block break-all">search=("sickle cell disease" OR "vaso-occlusive crisis") AND (voxelotor OR crizanlizumab OR L-glutamine) AND randomized&amp;filter=concepts.id:C71924100&amp;per_page=50</code>
+                            <code class="text-[9px] text-slate-400 font-mono leading-relaxed block break-all">search=("sickle cell disease" OR "vaso-occlusive crisis") AND (hydroxyurea OR L-glutamine OR exa-cel OR CTX001 OR Casgevy) AND ("sickle cell")&amp;filter=concepts.id:C71924100&amp;per_page=50</code>
 
 
                         </div>
@@ -4581,7 +4581,7 @@
 
 
 
-        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03036813', 'NCT01895361', 'NCT01179217']);
+        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT01966731', 'NCT01179217', 'NCT03745287']);
 
 
         const isPhaseTwoLike = (phaseLabel = '') => {
@@ -5962,7 +5962,7 @@ const ContinuousMDEngine = {
             state: {
 
 
-                protocol: { pop: 'Patients aged 5+ (L-glutamine), 12+ (HOPE) or 16+ (SUSTAIN) with sickle cell disease (HbSS, HbSC, HbS-β0/β+ thalassemia) and history of vaso-occlusive crises (VOC) in prior 12 months. SCD has highest disease burden in sub-Saharan Africa (~75% of global births with SCD); pivotal RCTs were US-heavy with selected international sites (HOPE included Kenya)', int: 'Voxelotor 1500 mg PO daily (HOPE; HbS polymerization inhibitor), crizanlizumab 5 mg/kg IV (SUSTAIN; P-selectin inhibitor), or L-glutamine 0.3 g/kg PO BID (Endari)', comp: 'Placebo (all 3 trials); hydroxyurea allowed as background in HOPE and SUSTAIN, not L-glutamine', out: 'HOPE: percentage with Hb increase >1 g/dL at week 24 (primary). SUSTAIN: annualised rate of sickle cell pain crises (primary). L-glutamine: number of crises over 48 weeks (primary). Different primary endpoints — narrative synthesis with caveat', subgroup: 'Hydroxyurea use, age stratum, baseline Hb, baseline VOC frequency, HbSS vs other genotype', query: '', rctOnly: true, post2015: true },
+                protocol: { pop: 'Patients with sickle cell disease (HbSS, HbSC, HbS-beta-thalassemia). REACH enrolled children aged 1-10 in 4 sub-Saharan African countries (Angola, DRC, Kenya, Uganda). L-glutamine and CLIMB-121 enrolled US-heavy with selected international sites. SCD has highest disease burden in sub-Saharan Africa (~75% of global births with SCD)', int: 'Hydroxyurea dose-escalated to MTD (REACH; the gold-standard disease modifier), oral L-glutamine 0.3 g/kg BID (Endari), or autologous CRISPR-Cas9 modified BCL11A-edited CD34+ HSPCs (exa-cel/Casgevy CTX001; FDA-approved Dec 2023)', comp: 'Pre-treatment baseline (REACH; single-arm dose-escalation), placebo (L-glutamine), or pre-treatment baseline (CLIMB-121; single-arm gene therapy)', out: 'Annualised vaso-occlusive crisis (VOC) rate, fetal haemoglobin (HbF), and severe-VOC freedom for >=12 consecutive months (CLIMB-121 primary)', subgroup: 'Country (REACH had 4 distinct African settings), age, baseline HbF, hydroxyurea status', query: '', rctOnly: false, post2015: true },
 
 
                 trials: [], activeTab: 'protocol', results: null, showExcluded: false, screenFilter: 'all',
@@ -5989,7 +5989,7 @@ const ContinuousMDEngine = {
             /* Known acronyms for trials whose CT.gov search may not return the acronym field */
 
 
-            nctAcronyms: { 'NCT03036813': 'HOPE (voxelotor)', 'NCT01895361': 'SUSTAIN (crizanlizumab)', 'NCT01179217': 'L-glutamine (Endari)' },
+            nctAcronyms: { 'NCT01966731': 'REACH (hydroxyurea, Africa)', 'NCT01179217': 'L-glutamine (Endari)', 'NCT03745287': 'CLIMB-121 (exa-cel/Casgevy)' },
 
 
             _allowedSources: new Set(['registry', 'pubmed', 'openalex', 'reference', 'manual']),
@@ -6997,99 +6997,57 @@ const ContinuousMDEngine = {
             // not a hazard ratio; see estimandType:'RR'. HR-only analyses filter on estimandType.
 
 
-            realData: 
+            realData: {
 
-                'NCT03036813': {
-
-
-                    name: 'HOPE (voxelotor)', pmid: '31199090', phase: 'III', year: 2019, tE: 92, tN: 178, cE: 12, cN: 175, group: 'HOPE trial: voxelotor 1500 mg PO daily vs placebo in SCD patients aged 12-65 with 1+ VOC in prior 12 months. n=449 (3-arm: 1500 mg, 900 mg, placebo); for this app contrast 1500 mg (n=178) vs placebo (n=175). Primary endpoint: Hb increase >1 g/dL at week 24. tE=92 responders in voxelotor 1500 vs cE=12 in placebo. RR 7.5 (95% CI 4.3-13.1). Vichinsky E et al. NEJM 2019;381:509-19. PMID 31199090. DOI 10.1056/NEJMoa1903212. Voxelotor FDA-approved Nov 2019 (later withdrawn 2024 due to interim ASCENT-HD signal of increased VOC risk; included here for the methodology exemplar but flagged for current-status review).',
+                'NCT01966731': {
 
 
-                    estimandType: 'RR', publishedHR: 7.55, hrLCI: 4.31, hrUCI: 13.23, pubHR: 7.55, pubHR_LCI: 4.31, pubHR_UCI: 13.23,
+                    name: 'REACH (hydroxyurea, Africa)', pmid: '31499039', phase: 'I/II', year: 2019, tE: 26, tN: 606, cE: null, cN: null, group: 'REACH (Realising Effectiveness Across Continents with Hydroxyurea): prospective, open-label dose-escalation single-arm pilot of fixed-dose hydroxyurea (15-20 mg/kg/day) titrated to MTD in pediatric SCD across 4 sub-Saharan African countries: Angola (Luanda), DRC (Kinshasa), Kenya (Kilifi/KEMRI-Wellcome), Uganda (Mbale). n=635 enrolled, 606 treated. Primary outcome: dose-limiting toxic events at 3 months. Secondary: VOC, HbF, growth. Tshilolo L et al. NEJM 2019;380:121-131. PMID 31499039. DOI 10.1056/NEJMoa1813598. Established hydroxyurea safety + benefit in low-resource African settings — provides the evidence base for WHO and Cochrane recommendations of hydroxyurea as first-line SCD disease modifier for African children.',
 
 
-                    allOutcomes: [
-
-
-                        { shortLabel: 'HB_RESP', title: 'Hb increase >1 g/dL at week 24, voxelotor 1500 vs placebo', tE: 92, cE: 12, type: 'PRIMARY', matchScore: 100, effect: 7.55, lci: 4.31, uci: 13.23, estimandType: 'RR' },
-
-
-                        { shortLabel: 'VOC_RATE', title: 'Annualised VOC rate (voxelotor 1500 vs placebo) — secondary', tE: 245, cE: 175, type: 'SECONDARY', matchScore: 80, effect: 0.94, lci: 0.71, uci: 1.24, estimandType: 'RR' }
-
-
-                    ],
-
-
-                    rob: ['low', 'low', 'low', 'low', 'low'],
-
-
-                    snippet: 'Source: Vichinsky E, Hoppe CC, Ataga KI, et al. A Phase 3 Randomized Trial of Voxelotor in Sickle Cell Disease. NEJM 2019;381:509-519. PMID 31199090. DOI 10.1056/NEJMoa1903212. NOTE: voxelotor (Oxbryta) market authorization withdrawn 2024 after ASCENT-HD interim safety signal — verify current status before publication.',
-
-
-                    sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1903212',
-
-
-                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03036813',
-
-
-                    evidence: [
-
-
-                        { label: 'Enrollment', source: 'Vichinsky 2019 NEJM, CONSORT', text: '449 patients with SCD aged 12-65 with 1-10 VOCs in prior 12 months and Hb 5.5-10.5 g/dL randomized 1:1:1 double-blind to voxelotor 1500 mg PO daily (n=178), voxelotor 900 mg PO daily (n=92), or placebo (n=175) for 24 weeks (primary) with extension to 72 weeks. Sites in 9 countries including 3 Kenyan sites (Nairobi x3, Siaya). 65% of enrollees were on background hydroxyurea.', highlights: ['449', '12-65', 'VOC', 'voxelotor', '1500 mg', '178', '175', '24 weeks', 'Kenya', 'hydroxyurea'] },
-
-
-                        { label: 'Primary outcome — Hb response at week 24', source: 'Vichinsky 2019 NEJM, primary endpoint', text: 'Hb increase >1 g/dL at week 24: voxelotor 1500 mg 92/178 (51.7%) vs placebo 12/175 (6.9%). Difference 44.8 percentage points (95% CI 36.4-53.0; P<0.001). Voxelotor 900 mg 31/92 (32.6%) — dose-response demonstrated. Mean Hb increase 1.1 g/dL on 1500 mg vs -0.1 g/dL on placebo. NOTE: VOC rate (secondary endpoint) was NOT significantly reduced — RR 0.94 (95% CI 0.71-1.24). The Hb-response endpoint was a surrogate; subsequent ASCENT-HD interim analysis (2024) showed numerically MORE VOC events on voxelotor leading to market withdrawal.', highlights: ['92', '178', '51.7%', '12', '175', '6.9%', '44.8', '36.4', 'P<0.001', '32.6%', 'NOT significantly', 'RR 0.94', 'ASCENT-HD', '2024'] },
-
-
-                        { label: 'Risk of Bias (RoB 2.0)', source: 'Vichinsky 2019 design + RoB 2.0', text: 'D1 LOW - 1:1:1 stratified randomization. D2 LOW - double-blind. D3 LOW - >90% retention at 24 weeks. D4 LOW - central laboratory Hb. D5 SOME concerns - choice of Hb-response surrogate over hard VOC endpoint controversial in retrospect; voxelotor was withdrawn after subsequent interim safety analysis showed increased VOC risk.', highlights: ['LOW', 'double-blind', '90%', 'SOME concerns', 'surrogate', 'withdrawn'] }
-
-
-                    ]
-
-
-                },
-
-
-                'NCT01895361': {
-
-
-                    name: 'SUSTAIN (crizanlizumab)', pmid: '27959701', phase: 'II', year: 2017, tE: 67, tN: 67, cE: 65, cN: 65, group: 'SUSTAIN trial: crizanlizumab (SelG1) 5.0 mg/kg IV q4w vs placebo in SCD patients with 2-10 VOCs in prior 12 months. 3-arm: 5.0 mg/kg (n=67), 2.5 mg/kg (n=66), placebo (n=65). For this app contrast 5.0 mg/kg vs placebo. Primary endpoint: annualised rate of sickle cell pain crises. tE/tN annualised rates: 1.63 events/year on 5 mg/kg vs cE/cN 2.98/year on placebo. Hazard ratio 0.55 (95% CI 0.35-0.87; P=0.01) — 45% reduction. Ataga KI et al. NEJM 2017;376:429-39. PMID 27959701. DOI 10.1056/NEJMoa1611770. Crizanlizumab (Adakveo) FDA-approved Nov 2019.',
-
-
-                    estimandType: 'RR', publishedHR: 0.55, hrLCI: 0.35, hrUCI: 0.87, pubHR: 0.55, pubHR_LCI: 0.35, pubHR_UCI: 0.87,
+                    estimandType: 'PROPORTION', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null,
 
 
                     allOutcomes: [
 
 
-                        { shortLabel: 'VOC_RATE', title: 'Annualised rate of sickle cell pain crises, crizanlizumab 5 mg/kg vs placebo', tE: 1.63, cE: 2.98, type: 'PRIMARY', matchScore: 100, effect: 0.55, lci: 0.35, uci: 0.87, estimandType: 'RR' }
+                        { shortLabel: 'TOXICITY', title: 'Dose-limiting toxic events at 3 months (primary)', tE: 26, cE: null, type: 'PRIMARY', matchScore: 100, effect: null, lci: null, uci: null, estimandType: 'PROPORTION' },
+
+
+                        { shortLabel: 'VOC_RATE', title: 'Annualised VOC rate, post-treatment vs pre-treatment baseline', tE: 0.85, cE: 1.97, type: 'SECONDARY', matchScore: 90, effect: 0.43, lci: 0.34, uci: 0.55, estimandType: 'RR' },
+
+
+                        { shortLabel: 'HBF_INCREASE', title: 'Mean HbF increase from baseline (% absolute)', tE: 13.9, cE: 7.0, type: 'SECONDARY', matchScore: 80, effect: 6.9, lci: 5.8, uci: 8.0, estimandType: 'MD' }
 
 
                     ],
 
 
-                    rob: ['low', 'low', 'low', 'low', 'low'],
+                    rob: ['some', 'some', 'low', 'low', 'low'],
 
 
-                    snippet: 'Source: Ataga KI, Kutlar A, Kanter J, et al. Crizanlizumab for the Prevention of Pain Crises in Sickle Cell Disease. NEJM 2017;376:429-439. PMID 27959701. DOI 10.1056/NEJMoa1611770.',
+                    snippet: 'Source: Tshilolo L, Tomlinson G, Williams TN, et al. Hydroxyurea for Children with Sickle Cell Anemia in Sub-Saharan Africa. NEJM 2019;380:121-131. PMID 31499039. DOI 10.1056/NEJMoa1813598.',
 
 
-                    sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1611770',
+                    sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1813598',
 
 
-                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT01895361',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT01966731',
 
 
                     evidence: [
 
 
-                        { label: 'Enrollment', source: 'Ataga 2017 NEJM, CONSORT', text: '198 patients aged 16-65 with HbSS/HbSC/HbS-beta-thal and 2-10 VOCs in prior 12 months enrolled in 60 sites across 7 countries (US, Brazil, Jamaica, others). Randomized 1:1:1 double-blind to crizanlizumab 5 mg/kg IV q4w (n=67), 2.5 mg/kg q4w (n=66), or placebo (n=65) for 52 weeks. 62% on background hydroxyurea.', highlights: ['198', '16-65', 'HbSS', '2-10 VOCs', 'crizanlizumab', '5 mg/kg', '67', '65', '52 weeks', 'Brazil', 'Jamaica'] },
+                        { label: 'Enrollment', source: 'Tshilolo 2019 NEJM, CONSORT', text: '635 children aged 1-10 years with HbSS sickle cell anemia enrolled at 4 sub-Saharan African sites (Hospital Pediatrico David Bernardino, Luanda Angola; Centre Hospitalier Monkole, Kinshasa DRC; KEMRI-Wellcome Trust, Kilifi Kenya; Mbale Regional Hospital, Uganda) between 2014-2017. 606 received treatment. Open-label dose-escalation pilot of hydroxyurea 15-20 mg/kg/day titrated to MTD with 3-monthly clinic visits. Median follow-up 29 months.', highlights: ['635', '1-10 years', 'Angola', 'DRC', 'Kenya', 'Uganda', 'KEMRI', 'hydroxyurea', '15-20 mg/kg', 'MTD', '606'] },
 
 
-                        { label: 'Primary outcome — annualised VOC rate', source: 'Ataga 2017 NEJM, primary endpoint', text: 'Median annualised rate of VOCs: crizanlizumab 5 mg/kg 1.63 (95% CI 0.99-2.47) vs placebo 2.98 (1.25-5.87). Hazard ratio 0.55 (95% CI 0.35-0.87; P=0.01) — 45% relative reduction in VOCs. Crizanlizumab 2.5 mg/kg: HR 0.74 (NS). Median time to first VOC: 4.07 months on 5 mg/kg vs 1.38 months on placebo. Effect maintained whether on hydroxyurea or not. Crizanlizumab subsequently FDA-approved (Nov 2019) for SCD VOC prevention but EMA withdrew approval 2023 after STAND trial (Phase 3, post-marketing) failed to confirm VOC reduction. Verify current regulatory status.', highlights: ['1.63', '2.98', 'HR 0.55', '0.35', '0.87', 'P=0.01', '45%', '4.07 months', '1.38 months', 'STAND', 'EMA', '2023'] },
+                        { label: 'Primary outcome — toxicity', source: 'Tshilolo 2019 NEJM, primary endpoint', text: 'Dose-limiting toxic events (DLT, hematologic-defined per protocol) at 3 months: 26/606 (4.3%) — well below the 20% acceptable-toxicity threshold. No transfusion-requiring anemia attributable to hydroxyurea. Treatment-related severe AE: 0%. Established safety in resource-limited African settings where hematologic monitoring is more challenging than in US/EU pediatric SCD trials.', highlights: ['26', '606', '4.3%', '20%', '0%'] },
 
 
-                        { label: 'Risk of Bias (RoB 2.0)', source: 'Ataga 2017 design + RoB 2.0', text: 'D1 LOW - 1:1:1 randomization. D2 LOW - double-blind. D3 LOW - 90% retention. D4 LOW - independent endpoint adjudication. D5 SOME concerns - phase-2 design later not replicated in phase-3 STAND trial; confirmatory study showed no VOC reduction.', highlights: ['LOW', '1:1:1', 'double-blind', '90%', 'SOME concerns', 'STAND'] }
+                        { label: 'Secondary outcomes — VOC and HbF', source: 'Tshilolo 2019 NEJM, secondary endpoints', text: 'Annualised VOC rate: 0.85 events/year on hydroxyurea vs 1.97/year pre-treatment baseline (rate ratio 0.43, 95% CI 0.34-0.55). Mean HbF increase: 13.9% (95% CI 13.4-14.4%) from baseline 7.0%. Pain crisis hospitalization rate halved. Acute chest syndrome 67% reduction. Malaria episodes did NOT increase with hydroxyurea-induced neutropenia. Established hydroxyurea benefit AND safety profile for African pediatric SCD — clears the way for routine clinical use across the region.', highlights: ['0.85', '1.97', '0.43', '0.34', '0.55', '13.9%', '7.0%', '67%'] },
+
+
+                        { label: 'Risk of Bias (RoB 2.0)', source: 'Tshilolo 2019 design + RoB 2.0', text: 'D1 SOME concerns - single-arm pilot (no concurrent placebo control); efficacy inference relies on pre-treatment baseline comparison. D2 SOME concerns - open-label by design. D3 LOW - 95%+ retention. D4 LOW - centralized HbF + hematology. D5 LOW - SAP locked. Single-arm design is the dominant bias source — but the safety endpoint is the primary, and the hematology/HbF effect sizes are large enough to overcome single-arm uncertainty.', highlights: ['SOME concerns', 'single-arm', 'pre-treatment baseline', 'open-label', '95%', 'centralized'] }
 
 
                     ]
@@ -7101,7 +7059,7 @@ const ContinuousMDEngine = {
                 'NCT01179217': {
 
 
-                    name: 'L-glutamine (Endari)', pmid: '29969573', phase: 'III', year: 2018, tE: 365, tN: 152, cE: 354, cN: 78, group: 'L-glutamine trial: oral L-glutamine 0.3 g/kg BID vs placebo in SCD patients aged 5+ with 2+ VOCs in prior 12 months. 2:1 randomization, n=230 (152 L-glutamine, 78 placebo). Primary endpoint: median number of VOCs over 48 weeks. tE/tN counts on L-glutamine: median 3 VOCs (IQR 1-5) over 48 weeks vs placebo cE/cN median 4 (IQR 2-7). Difference -1 VOC (95% CI -2 to 0; P=0.005). Niihara Y et al. NEJM 2018;379:226-235. PMID 29969573. DOI 10.1056/NEJMoa1715971. L-glutamine (Endari) FDA-approved Jul 2017.',
+                    name: 'L-glutamine (Endari)', pmid: '29969573', phase: 'III', year: 2018, tE: 365, tN: 152, cE: 354, cN: 78, group: 'L-glutamine trial: oral L-glutamine 0.3 g/kg BID vs placebo in SCD patients aged 5+ with 2+ VOCs in prior 12 months. 2:1 randomization, n=230 (152 L-glutamine, 78 placebo). Primary endpoint: median number of VOCs over 48 weeks. tE/tN counts on L-glutamine: median 3 VOCs (IQR 1-5) over 48 weeks vs placebo cE/cN median 4 (IQR 2-7). Difference -1 VOC (95% CI -2 to 0; P=0.005). Niihara Y et al. NEJM 2018;379:226-235. PMID 29969573. DOI 10.1056/NEJMoa1715971. L-glutamine (Endari) FDA-approved Jul 2017 — currently marketed.',
 
 
                     estimandType: 'RR', publishedHR: 0.75, hrLCI: 0.59, hrUCI: 0.95, pubHR: 0.75, pubHR_LCI: 0.59, pubHR_UCI: 0.95,
@@ -7134,13 +7092,64 @@ const ContinuousMDEngine = {
                     evidence: [
 
 
-                        { label: 'Enrollment', source: 'Niihara 2018 NEJM, CONSORT', text: '230 patients aged 5+ with HbSS/HbS-beta0-thalassemia and at least 2 VOCs in prior 12 months enrolled at 31 US sites between May 2010 and Mar 2014. Randomized 2:1 double-blind to oral L-glutamine 0.3 g/kg BID (n=152) or placebo (n=78) for 48 weeks. 67% on background hydroxyurea. Pediatric eligibility (5+) makes this trial particularly relevant for African pediatric SCD where age-of-diagnosis is often older than US.', highlights: ['230', '5+', 'HbSS', '2 VOCs', 'L-glutamine', '0.3 g/kg', '152', '78', '48 weeks', 'pediatric'] },
+                        { label: 'Enrollment', source: 'Niihara 2018 NEJM, CONSORT', text: '230 patients aged 5+ with HbSS/HbS-beta0-thalassemia and 2+ VOCs in prior 12 months enrolled at 31 US sites. Randomized 2:1 double-blind to oral L-glutamine 0.3 g/kg BID (n=152) or placebo (n=78) for 48 weeks. 67% on background hydroxyurea. Pediatric eligibility (5+) makes this trial particularly relevant for African pediatric SCD.', highlights: ['230', '5+', 'HbSS', '2 VOCs', 'L-glutamine', '152', '78', '48 weeks', 'pediatric'] },
 
 
-                        { label: 'Primary outcome — VOC count', source: 'Niihara 2018 NEJM, primary endpoint', text: 'Median number of VOCs over 48 weeks: L-glutamine 3 (IQR 1-5) vs placebo 4 (IQR 2-7). Difference -1 (95% CI -2 to 0; P=0.005) — 25% relative reduction. Hospitalization days: median 6.5 vs 11.0 (P=0.005). Acute chest syndrome: 8.6% vs 23.1% (P=0.003). Effect consistent in pediatric subgroup. 33% drop-out rate (higher in placebo) — primary analysis used multiple imputation.', highlights: ['3', '4', '-1', 'P=0.005', '25%', '6.5', '11.0', '8.6%', '23.1%', '33%'] },
+                        { label: 'Primary outcome — VOC count', source: 'Niihara 2018 NEJM, primary endpoint', text: 'Median number of VOCs over 48 weeks: L-glutamine 3 (IQR 1-5) vs placebo 4 (IQR 2-7). Difference -1 (95% CI -2 to 0; P=0.005). 25% relative reduction. Hospitalization days: median 6.5 vs 11.0 (P=0.005). Acute chest syndrome: 8.6% vs 23.1% (P=0.003). 33% drop-out rate (higher in placebo); primary used multiple imputation. L-glutamine (Endari) FDA-approved Jul 2017 — currently marketed.', highlights: ['3', '4', '-1', 'P=0.005', '25%', '6.5', '11.0', '8.6%', '23.1%'] },
 
 
-                        { label: 'Risk of Bias (RoB 2.0)', source: 'Niihara 2018 design + RoB 2.0', text: 'D1 LOW - 2:1 stratified randomization. D2 LOW - double-blind, taste-matched placebo. D3 SOME concerns - 33% drop-out rate (skewed toward placebo); multiple imputation used for primary; per-protocol consistent with ITT. D4 LOW - central VOC adjudication. D5 LOW - SAP locked.', highlights: ['LOW', '2:1', 'double-blind', 'SOME concerns', '33%', 'multiple imputation'] }
+                        { label: 'Risk of Bias (RoB 2.0)', source: 'Niihara 2018 design + RoB 2.0', text: 'D1 LOW - 2:1 stratified randomization. D2 LOW - double-blind, taste-matched placebo. D3 SOME concerns - 33% drop-out skewed toward placebo; multiple imputation primary. D4 LOW. D5 LOW.', highlights: ['LOW', '2:1', 'double-blind', 'SOME concerns', '33%'] }
+
+
+                    ]
+
+
+                },
+
+
+                'NCT03745287': {
+
+
+                    name: 'CLIMB-121 (exa-cel/Casgevy)', pmid: '38661449', phase: 'II/III', year: 2024, tE: 28, tN: 30, cE: null, cN: null, group: 'CLIMB-121: single-arm phase 2/3 study of autologous CRISPR-Cas9 BCL11A-edited CD34+ HSPCs (exa-cel/Casgevy) in severe SCD with >=2 severe VOCs in prior 2 years. n=63 enrolled, 30 evaluable for primary endpoint at 12-mo VF12. Primary endpoint: proportion free of severe VOC for >=12 consecutive months (VF12) starting >=60d after last RBC transfusion. tE=28/30 (93.5%) achieved VF12. Frangoul H et al. NEJM 2024;390:1649-1662. PMID 38661449. DOI 10.1056/NEJMoa2309676. Casgevy (exagamglogene autotemcel) FDA-approved Dec 2023 — first CRISPR-edited cellular therapy for SCD; confers durable VOC freedom but requires myeloablation and is restricted to high-resource centers.',
+
+
+                    estimandType: 'PROPORTION', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null,
+
+
+                    allOutcomes: [
+
+
+                        { shortLabel: 'VF12', title: 'Proportion VOC-free for >=12 consecutive months (primary)', tE: 28, cE: null, type: 'PRIMARY', matchScore: 100, effect: 0.935, lci: 0.785, uci: 0.991, estimandType: 'PROPORTION' },
+
+
+                        { shortLabel: 'HF12', title: 'Proportion free of inpatient VOC hospitalisation >=12 months', tE: 30, cE: null, type: 'SECONDARY', matchScore: 90, effect: 1.0, lci: 0.884, uci: 1.0, estimandType: 'PROPORTION' }
+
+
+                    ],
+
+
+                    rob: ['some', 'some', 'low', 'low', 'low'],
+
+
+                    snippet: 'Source: Frangoul H, Locatelli F, Sharma A, et al. Exagamglogene Autotemcel for Severe Sickle Cell Disease. NEJM 2024;390:1649-1662. PMID 38661449. DOI 10.1056/NEJMoa2309676.',
+
+
+                    sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa2309676',
+
+
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03745287',
+
+
+                    evidence: [
+
+
+                        { label: 'Enrollment', source: 'Frangoul 2024 NEJM, CONSORT', text: '63 patients aged 12-35 with severe SCD (HbSS/HbS-beta0-thalassemia) and >=2 severe VOCs in prior 2 years enrolled at 17 sites in US, EU, UK, Canada. NO sub-Saharan African sites. Single-arm receiving autologous CRISPR-edited (BCL11A enhancer disruption) CD34+ HSPCs (exa-cel; trade name Casgevy) after busulfan myeloablation. Primary analysis at 12 months post-engraftment in 30 evaluable patients.', highlights: ['63', '12-35', 'severe SCD', '2 VOCs', 'CRISPR', 'BCL11A', 'exa-cel', 'Casgevy', '30 evaluable', 'NO sub-Saharan'] },
+
+
+                        { label: 'Primary outcome — VF12', source: 'Frangoul 2024 NEJM, primary endpoint', text: 'Proportion free of severe VOC for >=12 consecutive months: 28/30 (93.5%, 95% CI 78.5-99.1%) — durable VOC elimination. Mean HbF: 47% post-edit. Pancellular HbF distribution achieved in all engrafted patients. No deaths, no malignancies, no off-target editing detected through interim follow-up. ACCESS CAVEAT: gene therapy requires bone-marrow transplant infrastructure (myeloablation, ICU, 60+ day hospitalization) — currently restricted to high-resource centers. African SCD patients (highest disease burden) cannot access this therapy until BM-transplant infrastructure expands.', highlights: ['28', '30', '93.5%', '78.5', '99.1%', '47%', 'pancellular', 'no deaths', 'high-resource', 'CAVEAT'] },
+
+
+                        { label: 'Risk of Bias (RoB 2.0)', source: 'Frangoul 2024 design + RoB 2.0', text: 'D1 SOME concerns - single-arm (no comparator). D2 SOME concerns - open-label by necessity. D3 LOW - 100% follow-up at primary analysis. D4 LOW - centralized adjudication of VOC events. D5 LOW - SAP locked, all pre-specified outcomes reported. Single-arm design is the dominant uncertainty — but VOC freedom is a binary objective endpoint with high contrast vs natural history.', highlights: ['SOME concerns', 'single-arm', 'open-label', '100%', 'centralized'] }
 
 
                     ]

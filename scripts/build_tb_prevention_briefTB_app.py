@@ -119,7 +119,7 @@ def main() -> int:
         elif c == "}": depth -= 1
         if depth == 0 and i > body_start: body_end = i; break
         i += 1
-    text = text[:body_start] + NEW_REAL_DATA_BODY + text[body_end+1:]
+    text = text[:body_start] + "{" + NEW_REAL_DATA_BODY + text[body_end+1:]
     edits.append("realData")
     FILE.write_text(text, encoding="utf-8")
     print(f"Edits: {', '.join(edits)} | Size: {FILE.stat().st_size:,}")
