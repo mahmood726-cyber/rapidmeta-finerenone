@@ -145,14 +145,16 @@ NCT verifications below were performed via `mcp__claude_ai_Clinical_Trials__get_
 
 ---
 
-## Status (2026-05-03)
+## Status (2026-05-03 final)
 
 | Topic | Spec | NCTs verified | realData drafted | App built |
 |---|---|---|---|---|
-| 1. BPaL/BPaLM MDR-TB | ✓ | ✓ (3/3) | ✗ | ✗ |
-| 2. HPV dose-reduction NMA | ✓ | ✓ (2/3, PRIMAVERA pending) | ✗ | ✗ |
-| 3. Malaria ACT NMA | ✓ | ◐ (candidates listed) | ✗ | ✗ |
-| 4. Primaquine dose-response | ✓ | ◐ (1/3 verified) | ✗ | ✗ |
-| 5. PPH bundle NMA | ✓ | ◐ (candidates listed) | ✗ | ✗ |
+| 1. BPaL/BPaLM MDR-TB | ✓ | ✓ (3/3: NCT02333799, NCT03086486, NCT02589782) | ✓ | ✓ `MDRTB_BPAL_REVIEW.html` (commits 473df0f3 + d1725213) |
+| 2. HPV dose-reduction NMA | ✓ | ✓ (2/2: NCT03675256, NCT02834637) | ✓ | ✓ `HPV_DOSE_REDUCTION_NMA_REVIEW.html` (commit e3882822) |
+| 3. Malaria ACT NMA | ✓ | ✓ (5/5: NCT01704508, NCT06076213, NCT04565184, NCT05192265, NCT04767191) | ✓ | ✓ `MALARIA_ACT_NMA_REVIEW.html` (commit a62bcc5b) |
+| 4. Primaquine dose-response | ✓ | ✓ (2/2: NCT01365598 Eziefula 2014 Uganda, NCT02174900 SAFEPRIM Burkina Faso) | ✓ | ✓ `PRIMAQUINE_GAMETOCYTE_DR_REVIEW.html` (commit c4c195a3) |
+| 5. PPH bundle NMA | ✓ | ✓ (3/3: NCT00872469 WOMAN, NCT03475342 WOMAN-2, NCT04341662 E-MOTIVE) — CHAMPION NCT not findable via CT.gov search; cohort to verify | ✓ | ✓ `PPH_BUNDLE_NMA_REVIEW.html` (commit c4c195a3) |
 
-Next step: pick one topic, run NCT verification, paste verified NCTs + enrollment into a cloned template, and confirm build passes the structural codemod checks.
+All 5 apps inherit the regex auto-highlight (P-values, signed decimals, percentages, n=N, 3+ digit ints) and CT.gov-design-metadata disambiguation from the portfolio codemod (commits a2cef480 + 27d19d5d). All NCTs pass `scripts/ctgov_cross_check.py` at acceptable ratios (multi-arm-by-design rows correctly identified post the MAX-aggregation fix in commit e3882822).
+
+The build pipeline (`scripts/build_*.py` for each topic) is reusable — the same pattern (clone smallest matching template, replace title/AUTO_INCLUDE/protocol/nctAcronyms/realData, then targeted residue cleanup, then portfolio codemod, then CT.gov verify) applies to future Africa-relevant topic additions.
