@@ -24,7 +24,7 @@ import urllib.error
 from pathlib import Path
 
 ROW_RE = re.compile(
-    r"'(?P<key>NCT\d+(?:_[A-Za-z0-9]+)?)'\s*:\s*\{\s*\n[^\n]*"
+    r"'(?P<key>(?:NCT\d+(?:_[A-Za-z0-9]+)?|ISRCTN\d+|LEGACY-[A-Za-z0-9-]+))'\s*:\s*\{\s*\n[^\n]*"
     r"name:\s*'(?P<name>[^']+)'[^\n]*?"
     r"tN:\s*(?P<tN>\d+|null)[^\n]*?"
     r"cN:\s*(?P<cN>\d+|null)",
@@ -32,14 +32,26 @@ ROW_RE = re.compile(
 )
 
 
+def is_ctgov_key(key: str) -> bool:
+    """True if key is a CT.gov NCT (skips ISRCTN/LEGACY synthetic keys)."""
+    return key.startswith("NCT")
+
+
 def base_nct(key: str) -> str:
-    """Strip _PEOM, _A, _SUBGROUP suffixes to get the canonical NCT for CT.gov."""
+    """Strip _PEOM, _A, _SUBGROUP suffixes to get the canonical NCT for CT.gov.
+    Returns the key unchanged if it's a non-CT.gov registry (ISRCTN/LEGACY-)."""
+    if not is_ctgov_key(key):
+        return key
     return re.sub(r"_[A-Za-z][A-Za-z0-9]*$", "", key)
 
 
 def fetch_enrollment(nct: str, cache: dict, retries: int = 3) -> dict:
-    """Fetch enrollment for an NCT, with on-disk cache and retry."""
+    """Fetch enrollment for an NCT, with on-disk cache and retry.
+    For non-CT.gov keys (ISRCTN, LEGACY-), returns a synthetic 'NON_CTGOV' record."""
     if nct in cache:
+        return cache[nct]
+    if not is_ctgov_key(nct):
+        cache[nct] = {"nct": nct, "found": False, "error": "NON_CTGOV_REGISTRY"}
         return cache[nct]
     url = f"https://clinicaltrials.gov/api/v2/studies/{nct}?format=json&fields=protocolSection.identificationModule.briefTitle,protocolSection.designModule.enrollmentInfo,protocolSection.identificationModule.acronym"
     last_err = None
@@ -145,9 +157,11 @@ def main() -> int:
     for (f, nct), info in agg.items():
         ctg = cache.get(nct, {})
         if not ctg.get("found"):
+            err = ctg.get("error", "")
+            cat = "NON_CTGOV_REGISTRY" if err == "NON_CTGOV_REGISTRY" else "CTGOV_NOT_FOUND"
             findings.append({**info, "ctg_enrollment": None, "ctg_acronym": None,
-                            "ratio": None, "category": "CTGOV_NOT_FOUND",
-                            "ctg_title": ctg.get("error", "")})
+                            "ratio": None, "category": cat,
+                            "ctg_title": err})
             continue
         ctg_n = ctg.get("enrollment")
         if ctg_n is None or ctg_n == 0:

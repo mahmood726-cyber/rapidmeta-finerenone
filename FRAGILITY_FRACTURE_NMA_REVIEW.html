@@ -4581,7 +4581,7 @@
 
 
 
-        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT01631214', 'NCT01575834', 'NCT00321620', 'NCT00089791', 'NCT00077428']);
+        const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT01631214', 'NCT01575834', 'NCT00321620', 'NCT00089791', 'LEGACY-VERT-1999']);
 
 
         const isPhaseTwoLike = (phaseLabel = '') => {
@@ -5989,7 +5989,7 @@ const ContinuousMDEngine = {
             /* Known acronyms for trials whose CT.gov search may not return the acronym field */
 
 
-            nctAcronyms: { 'NCT01631214': 'ARCH', 'NCT01575834': 'FRAME', 'NCT00321620': 'ACTIVE', 'NCT00089791': 'FREEDOM', 'NCT00077428': 'VERT' },
+            nctAcronyms: { 'NCT01631214': 'ARCH', 'NCT01575834': 'FRAME', 'NCT00321620': 'ACTIVE', 'NCT00089791': 'FREEDOM', 'LEGACY-VERT-1999': 'VERT' },
 
 
             _allowedSources: new Set(['registry', 'pubmed', 'openalex', 'reference', 'manual']),
@@ -7042,7 +7042,7 @@ const ContinuousMDEngine = {
                     ctgovUrl: 'https://clinicaltrials.gov/study/NCT00089791',
                     evidence: []
                 },
-                'NCT00077428': {
+                'LEGACY-VERT-1999': {
                     name: 'VERT', pmid: '11346808', phase: 'III', year: 2001, tE: 35, tN: 197, cE: 64, cN: 191, group: 'Postmenopausal osteoporosis with prior vertebral fracture, teriparatide 20 mcg SC daily vs placebo (21-mo new vertebral fracture; RR)', publishedHR: 0.53, hrLCI: 0.37, hrUCI: 0.77,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'New vertebral fracture at 21 mo (primary; teriparatide vs placebo, FPT)', tE: 35, cE: 64, type: 'PRIMARY', matchScore: 95, effect: 0.53, lci: 0.37, uci: 0.77, estimandType: 'RR' }
@@ -7050,7 +7050,7 @@ const ContinuousMDEngine = {
                     rob: ['low', 'low', 'low', 'low', 'low'],
                     snippet: 'Source: Neer RM et al. NEJM 2001;344:1434-1441 (FPT/teriparatide pivotal).',
                     sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJM200105103441904',
-                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT00077428',
+                    ctgovUrl: 'https://clinicaltrials.gov/study/LEGACY-VERT-1999',
                     evidence: []
                 }
             },
