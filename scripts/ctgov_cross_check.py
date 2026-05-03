@@ -204,11 +204,13 @@ def main() -> int:
         # Multi-trial program (CANVAS = CANVAS + CANVAS-R combined under one NCT)
         elif (fname, nct) in MULTI_TRIAL_PROGRAM:
             cat = "MULTI_TRIAL_PROGRAM"
-        # Multi-arm subset by design: row total 20-85% of CT.gov enrolment is consistent
-        # with using 2 of 3-4 arms (per-protocol or subgroup), or 2-of-3-arm trials.
-        elif 0.20 <= ratio < 0.85:
+        # MULTI_ARM_SUBSET (true 2-of-3-arm or 2-of-4-arm comparisons): row 20-55% of CT.gov n
+        elif 0.20 <= ratio < 0.55:
             cat = "MULTI_ARM_SUBSET"
-        # Slightly-over (mITT + open-label-extension or reference cohort): 1.10-1.30
+        # MITT_FRACTION (mITT or per-protocol subset of full randomized population): 55-85%
+        elif 0.55 <= ratio < 0.85:
+            cat = "MITT_FRACTION"
+        # MITT_PLUS_OLE (mITT + open-label-extension or external reference cohort): 1.10-1.30
         elif 1.10 < ratio <= 1.30:
             cat = "MITT_PLUS_OLE"
         elif ratio > 1.30 or ratio < 0.20:
