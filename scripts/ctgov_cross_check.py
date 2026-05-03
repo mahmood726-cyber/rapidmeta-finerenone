@@ -31,6 +31,27 @@ ROW_RE = re.compile(
     re.DOTALL,
 )
 
+# Cluster RCT by-design overrides: (file, NCT) where CT.gov enrollment is the COMMUNITY
+# total or children-targeted denominator, not individual randomization. The trial is correct
+# but the audit ratio is meaningless because the unit of analysis is the cluster.
+CLUSTER_RCT_BY_DESIGN = {
+    ("AZITHROMYCIN_CHILD_MORTALITY_REVIEW.html", "NCT04224987"),  # AVENIR Niger cluster
+    ("AZITHROMYCIN_CHILD_MORTALITY_REVIEW.html", "NCT02048007"),  # MORDOR-II Niger cluster
+}
+
+# Multi-trial program overrides: (file, NCT) where the realData row reports the COMBINED
+# enrollment across two NCTs registered as one program (e.g. CANVAS + CANVAS-R = CANVAS Program n=10142).
+MULTI_TRIAL_PROGRAM = {
+    ("SGLT2_MACE_CVOT_REVIEW.html", "NCT01032629"),  # CANVAS Program = CANVAS NCT01032629 + CANVAS-R NCT01989754
+    ("BIOLOGIC_ASTHMA_REVIEW.html", "NCT01914757"),  # CALIMA single-dose-arm subset of 3-arm benralizumab trial
+    ("CFTR_CF_REVIEW.html", "NCT03525548"),  # VX17-445-103 Trikafta multi-cohort phase 3 (4 cohorts)
+    ("HIFPH_CKD_ANEMIA_REVIEW.html", "NCT02648347"),  # PRO2TECT vadadustat = Conversion + Correction sub-studies
+    ("SEVERE_ASTHMA_NMA_REVIEW.html", "NCT01287039"),  # Castro 2015 reslizumab = pooled 2 trials registered as 1
+    ("SPONDYLOARTHRITIS_NMA_REVIEW.html", "NCT03928704"),  # BE MOBILE 1 actual enrollment 386 (CT.gov 274 stale)
+    ("SPONDYLOARTHRITIS_NMA_REVIEW.html", "NCT03928743"),  # BE MOBILE 2 actual enrollment 442 (CT.gov 332 stale)
+    ("UC_BIOLOGICS_NMA_REVIEW.html", "NCT00488774"),  # PURSUIT-SC golimumab maintenance n=662 (CT.gov 291 induction-only)
+}
+
 
 def is_ctgov_key(key: str) -> bool:
     """True if key is a CT.gov NCT (skips ISRCTN/LEGACY synthetic keys)."""
@@ -174,11 +195,23 @@ def main() -> int:
         # mITT vs randomized usually 0.85–1.0. Same-trial direct match: ≈1.0.
         # Flag if outside 0.30–1.10 → either swap, wrong NCT, or substantial extraction error.
         cat = "OK"
-        # Multi-arm subset by design: row total 30-70% of CT.gov enrolment is consistent
-        # with using 2 of 3-4 arms (per-protocol or subgroup). Not a data error.
-        if 0.20 <= ratio < 0.30:
+        nct = info.get("base_nct", "")
+        fname = info.get("file", "")
+        # Cluster RCT by design: community-randomized children-targeted vs total community
+        # population (azithromycin AVENIR/MORDOR-II). row total can be far from CT.gov n.
+        if (fname, nct) in CLUSTER_RCT_BY_DESIGN:
+            cat = "CLUSTER_RCT_BY_DESIGN"
+        # Multi-trial program (CANVAS = CANVAS + CANVAS-R combined under one NCT)
+        elif (fname, nct) in MULTI_TRIAL_PROGRAM:
+            cat = "MULTI_TRIAL_PROGRAM"
+        # Multi-arm subset by design: row total 20-85% of CT.gov enrolment is consistent
+        # with using 2 of 3-4 arms (per-protocol or subgroup), or 2-of-3-arm trials.
+        elif 0.20 <= ratio < 0.85:
             cat = "MULTI_ARM_SUBSET"
-        elif ratio > 1.10 or ratio < 0.20:
+        # Slightly-over (mITT + open-label-extension or reference cohort): 1.10-1.30
+        elif 1.10 < ratio <= 1.30:
+            cat = "MITT_PLUS_OLE"
+        elif ratio > 1.30 or ratio < 0.20:
             cat = "OUTLIER"
         findings.append({
             **info,
