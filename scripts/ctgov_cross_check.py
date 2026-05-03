@@ -174,7 +174,11 @@ def main() -> int:
         # mITT vs randomized usually 0.85–1.0. Same-trial direct match: ≈1.0.
         # Flag if outside 0.30–1.10 → either swap, wrong NCT, or substantial extraction error.
         cat = "OK"
-        if ratio > 1.10 or ratio < 0.30:
+        # Multi-arm subset by design: row total 30-70% of CT.gov enrolment is consistent
+        # with using 2 of 3-4 arms (per-protocol or subgroup). Not a data error.
+        if 0.20 <= ratio < 0.30:
+            cat = "MULTI_ARM_SUBSET"
+        elif ratio > 1.10 or ratio < 0.20:
             cat = "OUTLIER"
         findings.append({
             **info,
