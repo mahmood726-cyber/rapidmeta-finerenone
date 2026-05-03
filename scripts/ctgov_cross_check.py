@@ -122,14 +122,21 @@ def main() -> int:
     cache_path.write_text(json.dumps(cache, indent=1), encoding="utf-8")
     print(f"Fetched {fetched} new NCTs; total cache: {len(cache)}")
 
-    # Aggregate row totals per (file, base_nct) — handles _PEOM splits
+    # Aggregate row totals per (file, base_nct). For multi-row shared-control
+    # splits (e.g. PEOM/_NONAV variants of one trial), use MAX of row_totals
+    # rather than SUM — summing double-counts the shared control arm and
+    # produces false-positive outliers (~1.3× ratio) for valid designs.
     agg: dict[tuple[str, str], dict] = {}
     for r in rows:
         key = (r["file"], r["base_nct"])
         if key not in agg:
-            agg[key] = {"file": r["file"], "base_nct": r["base_nct"], "names": [], "total": 0}
+            agg[key] = {"file": r["file"], "base_nct": r["base_nct"], "names": [], "total": 0, "row_totals": []}
         agg[key]["names"].append(r["name"])
-        agg[key]["total"] += r["row_total"]
+        agg[key]["row_totals"].append(r["row_total"])
+    for k, v in agg.items():
+        # Use MAX row_total as the representative; falls back to SUM if rows
+        # differ wildly (suggesting genuinely independent contrasts).
+        v["total"] = max(v["row_totals"])
 
     findings = []
     swap_candidates = []
