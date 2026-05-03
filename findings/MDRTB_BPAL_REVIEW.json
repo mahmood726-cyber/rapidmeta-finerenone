@@ -1,0 +1,68 @@
+{
+  "app": "MDRTB_BPAL_REVIEW.html",
+  "timestamp": "2026-05-03T14:36:58.600Z",
+  "durationMs": 3749,
+  "state": {
+    "k": 2,
+    "or": "0.46",
+    "i2": "92.9",
+    "tau2": 3.1495757605143644,
+    "remlSensitivity": true,
+    "robSummary": {
+      "high": 0,
+      "someConcerns": 2,
+      "low": 13,
+      "unclear": 0
+    },
+    "isCompleteUniverse": true,
+    "totalAvailable": 3,
+    "includedCount": 3,
+    "searchResultCount": 3,
+    "nnt": 3.8125000000000004,
+    "absoluteRisk": 0.2622950819672131,
+    "patientReportedOutcomes": {
+      "count": 0,
+      "scales": [],
+      "trials": [],
+      "inHeadlineAnalysis": false
+    }
+  },
+  "findings": {
+    "editor": {
+      "decision": "Major revision",
+      "rationale": "Substantive concerns across reviewer roles; expect a second review round."
+    },
+    "reviewers": [
+      {
+        "role": "Methodology & PRISMA",
+        "concerns": [
+          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition.",
+          "RoB 2.0: 0 high-risk + 2 some-concerns domains; add low-RoB sensitivity analysis."
+        ],
+        "recommendation": "Major revision"
+      },
+      {
+        "role": "Clinical expert",
+        "concerns": [
+          "Pooled 0.46 sits outside published benchmark range (corridor 0.72-0.84); closest Vaduganathan 2022 HR 0.77 [0.72, 0.82]. Discussion should reconcile.",
+          "k<3 - NNT ≈ 4 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.",
+          "I² = 92.9% (considerable); show subgroup/strata estimates alongside pooled."
+        ],
+        "recommendation": "Major revision"
+      },
+      {
+        "role": "Biostatistician",
+        "concerns": [],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Patient representative",
+        "concerns": [
+          "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
+        ],
+        "recommendation": "Accept with minor revision"
+      }
+    ]
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "app": "MENTAL_HEALTH_FRIENDSHIP_BENCH_REVIEW.html",
+  "timestamp": "2026-05-03T14:37:02.224Z",
+  "durationMs": 3591,
+  "state": {
+    "k": 1,
+    "or": "0.16",
+    "i2": "0.0",
+    "tau2": 0,
+    "remlSensitivity": false,
+    "robSummary": {
+      "high": 0,
+      "someConcerns": 1,
+      "low": 4,
+      "unclear": 0
+    },
+    "isCompleteUniverse": true,
+    "totalAvailable": 1,
+    "includedCount": 1,
+    "searchResultCount": 1,
+    "nnt": 2.7632385120350107,
+    "absoluteRisk": 0.361894203357618,
+    "patientReportedOutcomes": {
+      "count": 1,
+      "scales": [
+        "PHQ-9"
+      ],
+      "trials": [
+        "LEGACY-PACTR-FRIENDSHIP-BENCH"
+      ],
+      "inHeadlineAnalysis": false
+    }
+  },
+  "findings": {
+    "editor": {
+      "decision": "Minor revision",
+      "rationale": "Reviewers support publication but want clarifications on reporting completeness and residual uncertainty."
+    },
+    "reviewers": [
+      {
+        "role": "Methodology & PRISMA",
+        "concerns": [
+          "Evidence base is complete but small (k=1 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition.",
+          "RoB 2.0: 0 high-risk + 1 some-concerns domains; add low-RoB sensitivity analysis."
+        ],
+        "recommendation": "Major revision"
+      },
+      {
+        "role": "Clinical expert",
+        "concerns": [
+          "Pooled 0.16 sits outside published benchmark range (corridor 0.72-0.84); closest Vaduganathan 2022 HR 0.77 [0.72, 0.82]. Discussion should reconcile.",
+          "k<3 - NNT ≈ 3 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
+        ],
+        "recommendation": "Minor revision"
+      },
+      {
+        "role": "Biostatistician",
+        "concerns": [
+          "DL estimator under-estimates τ² for k<10; add REML/Paule-Mandel sensitivity."
+        ],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Patient representative",
+        "concerns": [
+          "QoL / PROs reported in 1 trial(s) (PHQ-9) but not in headline pool; consider adding as a secondary analysis rather than omitting."
+        ],
+        "recommendation": "Accept with minor revision"
+      }
+    ]
+  }
+}
