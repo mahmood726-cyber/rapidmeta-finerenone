@@ -44,6 +44,10 @@ CLUSTER_RCT_BY_DESIGN = {
 # for forest-plot/NMA contrast. Allowed ratios: ~1.8-2.2.
 SINGLE_ARM_HISTORICAL_CONTROL = {
     ("MDR_TB_SHORTENED_NMA_REVIEW.html", "NCT02333799"),  # Nix-TB BPaL single-arm, n=109
+    # Hemophilia gene therapy: each is single-arm pre-vs-post prophylactic baseline
+    ("HEMOPHILIA_GENE_THERAPY_NMA_REVIEW.html", "NCT03370913"),  # GENEr8-1 valoctocogene
+    ("HEMOPHILIA_GENE_THERAPY_NMA_REVIEW.html", "NCT03569891"),  # HOPE-B etranacogene
+    ("HEMOPHILIA_GENE_THERAPY_NMA_REVIEW.html", "NCT04370054"),  # AFFINE giroctocogene
 }
 
 # Multi-trial program overrides: (file, NCT) where the realData row reports the COMBINED
