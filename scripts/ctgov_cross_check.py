@@ -39,6 +39,13 @@ CLUSTER_RCT_BY_DESIGN = {
     ("AZITHROMYCIN_CHILD_MORTALITY_REVIEW.html", "NCT02048007"),  # MORDOR-II Niger cluster
 }
 
+# Single-arm trials with synthetic historical-control comparator. Row total = ~2x CT.gov n
+# because the trial enrolled only one arm but the realData encoding adds a benchmark cN row
+# for forest-plot/NMA contrast. Allowed ratios: ~1.8-2.2.
+SINGLE_ARM_HISTORICAL_CONTROL = {
+    ("MDR_TB_SHORTENED_NMA_REVIEW.html", "NCT02333799"),  # Nix-TB BPaL single-arm, n=109
+}
+
 # Multi-trial program overrides: (file, NCT) where the realData row reports the COMBINED
 # enrollment across two NCTs registered as one program (e.g. CANVAS + CANVAS-R = CANVAS Program n=10142).
 MULTI_TRIAL_PROGRAM = {
@@ -201,6 +208,9 @@ def main() -> int:
         # population (azithromycin AVENIR/MORDOR-II). row total can be far from CT.gov n.
         if (fname, nct) in CLUSTER_RCT_BY_DESIGN:
             cat = "CLUSTER_RCT_BY_DESIGN"
+        # Single-arm trial with synthetic historical-control comparator (Nix-TB).
+        elif (fname, nct) in SINGLE_ARM_HISTORICAL_CONTROL:
+            cat = "SINGLE_ARM_HISTORICAL_CONTROL"
         # Multi-trial program (CANVAS = CANVAS + CANVAS-R combined under one NCT)
         elif (fname, nct) in MULTI_TRIAL_PROGRAM:
             cat = "MULTI_TRIAL_PROGRAM"

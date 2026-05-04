@@ -32063,7 +32063,10 @@ const AnalysisEngine = {
 
                     const _isCont = !!c.isContinuous;
                     if (_isCont) {
-                        hksjEl.innerText = `${c.hksjLCI.toFixed(2)} \u2014 ${c.hksjUCI.toFixed(2)}`;
+                        const _hkLo = Math.max(0.001, c.hksjLCI);
+                    const _hkHi = Math.min(999, c.hksjUCI);
+                    const _hkCapped = c.hksjLCI < 0.001 || c.hksjUCI > 999;
+                    hksjEl.innerText = `${_hkLo.toFixed(2)} \u2014 ${_hkHi > 100 ? '>100' : _hkHi.toFixed(2)}${_hkCapped ? ' *' : ''}`;
                     } else {
                         const _hkLo = Math.max(0.001, c.hksjLCI);
                         const _hkHi = Math.min(999, c.hksjUCI);

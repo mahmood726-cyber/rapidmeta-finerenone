@@ -30009,7 +30009,10 @@
 
                     const _isCont = !!c.isContinuous;
                     if (_isCont) {
-                        hksjEl.innerText = `${c.hksjLCI.toFixed(2)} \u2014 ${c.hksjUCI.toFixed(2)}`;
+                        const _hkLo = Math.max(0.001, c.hksjLCI);
+                    const _hkHi = Math.min(999, c.hksjUCI);
+                    const _hkCapped = c.hksjLCI < 0.001 || c.hksjUCI > 999;
+                    hksjEl.innerText = `${_hkLo.toFixed(2)} \u2014 ${_hkHi > 100 ? '>100' : _hkHi.toFixed(2)}${_hkCapped ? ' *' : ''}`;
                     } else {
                         const _hkLo = Math.max(0.001, c.hksjLCI);
                         const _hkHi = Math.min(999, c.hksjUCI);
@@ -46332,6 +46335,183 @@ AnalysisEngine.renderCredibilityCeilingRobust = function(plotData, confLevel) {
 
 
 
+
+
+        const BenchmarkEngine = {
+
+
+            analyze(r, scope) {
+
+
+                const outcomeKey = String(RapidMeta.state.selectedOutcome ?? 'default');
+
+
+                const entries = RapidMeta.getSelectedBenchmarkEntries(outcomeKey);
+
+
+                if (!entries.length) {
+
+
+                    return {
+
+
+                        available: false,
+
+
+                        outcomeKey,
+
+
+                        status: 'No direct benchmark',
+
+
+                        summary: BENCHMARK_OUTCOME_NOTES[outcomeKey] || 'No direct published benchmark is available for the selected outcome.',
+
+
+                        footnote: 'Benchmarks require endpoint-matched published comparators; this outcome remains internally validated only.',
+
+
+                        entries: []
+
+
+                    };
+
+
+                }
+
+
+                const current = parseFloat(r?.or ?? 'NaN');
+
+
+                const currentLo = parseFloat(r?.lci ?? 'NaN');
+
+
+                const currentHi = parseFloat(r?.uci ?? 'NaN');
+
+
+                const effectiveMeasure = scope?.effectSpec?.effective ?? RapidMeta.resolveEffectMeasure({ trials: scope?.analyzed ?? [] }).effective;
+
+
+                const enriched = entries.map(entry => {
+
+
+                    const ciOverlap = Number.isFinite(currentLo) && Number.isFinite(currentHi) ? currentLo <= entry.uci && currentHi >= entry.lci : false;
+
+
+                    const sameDirection = Number.isFinite(current) ? ((current <= 1 && entry.estimate <= 1) || (current >= 1 && entry.estimate >= 1)) : true;
+
+
+                    const sameMeasure = String(entry.measure) === String(effectiveMeasure);
+
+
+                    const logDistance = Number.isFinite(current) && current > 0 ? Math.abs(Math.log(current) - Math.log(entry.estimate)) : Infinity;
+
+
+                    const alignment = sameMeasure && ciOverlap
+
+
+                        ? 'Strong'
+
+
+                        : ciOverlap && sameDirection
+
+
+                            ? 'Matched direction'
+
+
+                            : sameDirection
+
+
+                                ? 'Directional'
+
+
+                                : 'Tension';
+
+
+                    return { ...entry, ciOverlap, sameDirection, sameMeasure, logDistance, alignment };
+
+
+                }).sort((a, b) => a.logDistance - b.logDistance || a.year - b.year);
+
+
+                const estimates = enriched.map(entry => entry.estimate);
+
+
+                const corridorLow = Math.min(...estimates);
+
+
+                const corridorHigh = Math.max(...estimates);
+
+
+                const withinCorridor = Number.isFinite(current) ? current >= corridorLow && current <= corridorHigh : false;
+
+
+                const closest = enriched[0] ?? null;
+
+
+                const status = withinCorridor ? 'Inside published corridor' : 'Outside published corridor';
+
+
+                const summary = withinCorridor
+
+
+                    ? `Current pooled ${effectiveMeasure} ${r.or} sits inside the published ${RapidMeta.state.protocol?.int ?? 'benchmark'} corridor (${corridorLow.toFixed(2)} to ${corridorHigh.toFixed(2)}) across ${enriched.length} comparator${enriched.length === 1 ? '' : 's'}.`
+
+
+                    : `Current pooled ${effectiveMeasure} ${r.or} sits outside the published ${RapidMeta.state.protocol?.int ?? 'benchmark'} corridor (${corridorLow.toFixed(2)} to ${corridorHigh.toFixed(2)}) across ${enriched.length} comparator${enriched.length === 1 ? '' : 's'}.`;
+
+
+                const footnote = closest
+
+
+                    ? `Closest locked comparator: ${closest.label} (${closest.citation}), ${closest.measure} ${closest.estimate.toFixed(2)} [${closest.lci.toFixed(2)}-${closest.uci.toFixed(2)}]. Endpoint scope still varies across publications.`
+
+
+                    : 'Published comparators are directionally informative but not identical in endpoint definitions, populations, or estimands.';
+
+
+                return {
+
+
+                    available: true,
+
+
+                    outcomeKey,
+
+
+                    effectiveMeasure,
+
+
+                    status,
+
+
+                    summary,
+
+
+                    footnote,
+
+
+                    withinCorridor,
+
+
+                    corridorLow,
+
+
+                    corridorHigh,
+
+
+                    closest,
+
+
+                    entries: enriched
+
+
+                };
+
+
+            }
+
+
+        };
 
         function downloadPDFReport() {
 
