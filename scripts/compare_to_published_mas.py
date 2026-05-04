@@ -134,6 +134,95 @@ GROUND_TRUTH: dict[str, dict] = {
     # ===== Polycythemia vera =====
     "NCT01243944": {"trial": "RESPONSE", "citation": "Vannucchi 2015 NEJM 372:426", "measure": "OR", "point": 28.6, "lci": 4.5, "uci": 1206.0, "outcome": "Composite HCT control + spleen response wk32 (rux vs BAT)"},
 
+    # ===== HF (sacubitril/valsartan + finerenone) =====
+    "NCT01035255": {"trial": "PARADIGM-HF", "citation": "McMurray 2014 NEJM 371:993", "measure": "HR", "point": 0.80, "lci": 0.73, "uci": 0.87, "outcome": "CV death + HHF (sac/val vs enal HFrEF)"},
+    "NCT01920711": {"trial": "PARAGON-HF", "citation": "Solomon 2019 NEJM 381:1609", "measure": "RR", "point": 0.87, "lci": 0.75, "uci": 1.01, "outcome": "Total HHF + CV death (sac/val vs val HFpEF)"},
+    "NCT02540993": {"trial": "FIDELIO-DKD", "citation": "Bakris 2020 NEJM 383:2219", "measure": "HR", "point": 0.82, "lci": 0.73, "uci": 0.93, "outcome": "Kidney composite (finerenone)"},
+    "NCT02545049": {"trial": "FIGARO-DKD", "citation": "Pitt 2021 NEJM 385:2252", "measure": "HR", "point": 0.87, "lci": 0.76, "uci": 0.98, "outcome": "CV composite (finerenone)"},
+    "NCT04435626": {"trial": "FINEARTS-HF", "citation": "Solomon 2024 NEJM 391:1475", "measure": "RR", "point": 0.84, "lci": 0.74, "uci": 0.95, "outcome": "Total HF events + CV death (finerenone HFpEF/HFmrEF)"},
+
+    # ===== Inclisiran ORION =====
+    "NCT03397121": {"trial": "ORION-9", "citation": "Raal 2020 NEJM 382:1520", "measure": "MD", "point": -39.7, "lci": -43.7, "uci": -35.7, "outcome": "LDL-C %change from baseline (inclisiran HoFH/HeFH)"},
+    "NCT03399370": {"trial": "ORION-10", "citation": "Ray 2020 NEJM 382:1507", "measure": "MD", "point": -52.3, "lci": -55.7, "uci": -48.8, "outcome": "LDL-C %change (ASCVD)"},
+    "NCT03400800": {"trial": "ORION-11", "citation": "Ray 2020 NEJM 382:1507", "measure": "MD", "point": -49.9, "lci": -53.1, "uci": -46.6, "outcome": "LDL-C %change (ASCVD/HeFH)"},
+
+    # ===== Bempedoic acid =====
+    "NCT02993406": {"trial": "CLEAR Outcomes", "citation": "Nissen 2023 NEJM 388:1353", "measure": "HR", "point": 0.87, "lci": 0.79, "uci": 0.96, "outcome": "MACE-4 (bempedoic vs placebo statin-intolerant)"},
+
+    # ===== T2D CV outcome trials (DPP-4 / tirz) =====
+    "NCT00790205": {"trial": "TECOS", "citation": "Green 2015 NEJM 373:232", "measure": "HR", "point": 0.98, "lci": 0.88, "uci": 1.09, "outcome": "MACE (sitagliptin)"},
+    "NCT01107886": {"trial": "SAVOR-TIMI 53", "citation": "Scirica 2013 NEJM 369:1317", "measure": "HR", "point": 1.00, "lci": 0.89, "uci": 1.12, "outcome": "MACE (saxagliptin)"},
+    "NCT00968708": {"trial": "EXAMINE", "citation": "White 2013 NEJM 369:1327", "measure": "HR", "point": 0.96, "lci": None, "uci": 1.16, "outcome": "MACE (alogliptin)"},
+
+    # ===== Anti-amyloid AD =====
+    "NCT02484547": {"trial": "EMERGE", "citation": "Budd Haeberlein 2022 J Prev AD 9:197", "measure": "MD", "point": -0.39, "lci": -0.69, "uci": -0.09, "outcome": "CDR-SB MD high-dose aducanumab vs placebo"},
+    "NCT02477800": {"trial": "ENGAGE", "citation": "Budd Haeberlein 2022 J Prev AD 9:197", "measure": "MD", "point": 0.03, "lci": -0.27, "uci": 0.34, "outcome": "CDR-SB MD high-dose aducanumab vs placebo (NS)"},
+    "NCT03444870": {"trial": "GRADUATE I", "citation": "Bateman 2023 NEJM 389:1862", "measure": "MD", "point": -0.31, "lci": -0.66, "uci": 0.05, "outcome": "CDR-SB MD gantenerumab vs placebo"},
+    "NCT03443973": {"trial": "GRADUATE II", "citation": "Bateman 2023 NEJM 389:1862", "measure": "MD", "point": -0.19, "lci": -0.55, "uci": 0.17, "outcome": "CDR-SB MD gantenerumab vs placebo"},
+
+    # ===== HER2 ADC =====
+    "NCT03734029": {"trial": "DESTINY-Breast04", "citation": "Modi 2022 NEJM 387:9", "measure": "HR", "point": 0.50, "lci": 0.40, "uci": 0.63, "outcome": "PFS T-DXd vs TPC (HER2-low)"},
+    "NCT04494425": {"trial": "DESTINY-Breast06", "citation": "Bardia 2024 NEJM 391:2110", "measure": "HR", "point": 0.62, "lci": 0.51, "uci": 0.74, "outcome": "PFS T-DXd vs chemo HR+/HER2-low/-ultralow"},
+    "NCT00829166": {"trial": "EMILIA", "citation": "Verma 2012 NEJM 367:1783", "measure": "HR", "point": 0.65, "lci": 0.55, "uci": 0.77, "outcome": "PFS T-DM1 vs cape+lap HER2+ MBC"},
+    "NCT01772472": {"trial": "KATHERINE", "citation": "von Minckwitz 2019 NEJM 380:617", "measure": "HR", "point": 0.50, "lci": 0.39, "uci": 0.64, "outcome": "IDFS T-DM1 adjuvant vs trastuzumab"},
+
+    # ===== RCC 1L =====
+    "NCT02231749": {"trial": "CheckMate-214", "citation": "Motzer 2018 NEJM 378:1277", "measure": "HR", "point": 0.63, "lci": 0.44, "uci": 0.89, "outcome": "OS nivo+ipi vs sunitinib (intermediate/poor risk)"},
+    "NCT02853331": {"trial": "KEYNOTE-426", "citation": "Rini 2019 NEJM 380:1116", "measure": "HR", "point": 0.69, "lci": 0.57, "uci": 0.84, "outcome": "PFS pembro+axi vs sunitinib"},
+    "NCT03141177": {"trial": "CheckMate-9ER", "citation": "Choueiri 2021 NEJM 384:829", "measure": "HR", "point": 0.51, "lci": 0.41, "uci": 0.64, "outcome": "PFS nivo+cabo vs sunitinib"},
+    "NCT02811861": {"trial": "CLEAR", "citation": "Motzer 2021 NEJM 384:1289", "measure": "HR", "point": 0.39, "lci": 0.32, "uci": 0.49, "outcome": "PFS lenva+pembro vs sunitinib"},
+
+    # ===== MM 1L =====
+    "NCT02252172": {"trial": "MAIA", "citation": "Facon 2019 NEJM 380:2104", "measure": "HR", "point": 0.56, "lci": 0.43, "uci": 0.73, "outcome": "PFS D-Rd vs Rd transplant-ineligible NDMM"},
+    "NCT02195479": {"trial": "ALCYONE", "citation": "Mateos 2018 NEJM 378:518", "measure": "HR", "point": 0.50, "lci": 0.38, "uci": 0.65, "outcome": "PFS D-VMP vs VMP"},
+
+    # ===== Migraine prevention CGRP =====
+    "NCT02621931": {"trial": "HALO-CM", "citation": "Silberstein 2017 NEJM 377:2113", "measure": "MD", "point": -4.3, "lci": -5.2, "uci": -3.4, "outcome": "Mean reduction headache days/mo (fremanezumab CM)"},
+    "NCT02629861": {"trial": "HALO-EM", "citation": "Dodick 2018 JAMA 319:1999", "measure": "MD", "point": -3.7, "lci": -4.1, "uci": -3.3, "outcome": "Reduction migraine days/mo (fremanezumab EM)"},
+    "NCT02456740": {"trial": "STRIVE", "citation": "Goadsby 2017 NEJM 377:2123", "measure": "MD", "point": -3.7, "lci": -4.0, "uci": -3.4, "outcome": "Reduction migraine days/mo (erenumab 140mg EM)"},
+    "NCT02483585": {"trial": "ARISE", "citation": "Dodick 2018 Cephalalgia 38:1026", "measure": "MD", "point": -2.9, "lci": -3.4, "uci": -2.4, "outcome": "Reduction migraine days/mo (erenumab 70mg EM)"},
+
+    # ===== TNK stroke =====
+    "NCT02388061": {"trial": "EXTEND-IA TNK", "citation": "Campbell 2018 NEJM 378:1573", "measure": "RD", "point": 0.12, "lci": 0.02, "uci": 0.21, "outcome": "Substantial reperfusion (TNK vs alteplase, 22% vs 10%)"},
+    "NCT03889249": {"trial": "AcT", "citation": "Menon 2022 Lancet 400:161", "measure": "RD", "point": 0.02, "lci": -0.02, "uci": 0.06, "outcome": "mRS 0-1 at 90d NI (TNK vs alteplase)"},
+
+    # ===== Asthma biologics =====
+    "NCT01000506": {"trial": "DREAM", "citation": "Pavord 2012 Lancet 380:651", "measure": "RR", "point": 0.52, "lci": 0.43, "uci": 0.62, "outcome": "Annual exacerbation rate (mepo dose-ranging)"},
+    "NCT01691521": {"trial": "MENSA", "citation": "Ortega 2014 NEJM 371:1198", "measure": "RR", "point": 0.53, "lci": 0.40, "uci": 0.69, "outcome": "Exacerbation rate (mepolizumab vs placebo)"},
+    "NCT01928771": {"trial": "SIROCCO", "citation": "Bleecker 2016 Lancet 388:2115", "measure": "RR", "point": 0.49, "lci": 0.37, "uci": 0.65, "outcome": "Exacerbation rate (benra Q8w eos>=300)"},
+    "NCT01914757": {"trial": "CALIMA", "citation": "FitzGerald 2016 Lancet 388:2128", "measure": "RR", "point": 0.72, "lci": 0.54, "uci": 0.95, "outcome": "Exacerbation rate (benra Q8w)"},
+    "NCT03347279": {"trial": "NAVIGATOR", "citation": "Menzies-Gow 2021 NEJM 384:1800", "measure": "RR", "point": 0.44, "lci": 0.37, "uci": 0.53, "outcome": "AAER (tezepelumab vs placebo)"},
+
+    # ===== Wet AMD faricimab =====
+    "NCT03823287": {"trial": "TENAYA", "citation": "Heier 2022 Lancet 399:729", "measure": "MD", "point": 0.7, "lci": -1.1, "uci": 2.5, "outcome": "BCVA letter change NI (faricimab vs aflibercept)"},
+    "NCT03823300": {"trial": "LUCERNE", "citation": "Heier 2022 Lancet 399:729", "measure": "MD", "point": 0.0, "lci": -1.7, "uci": 1.8, "outcome": "BCVA letter change NI (faricimab vs aflibercept)"},
+
+    # ===== ACS antiplatelet =====
+    "NCT00097591": {"trial": "TRITON-TIMI 38", "citation": "Wiviott 2007 NEJM 357:2001", "measure": "HR", "point": 0.81, "lci": 0.73, "uci": 0.90, "outcome": "MACE composite (prasugrel vs clopidogrel)"},
+    "NCT00391872": {"trial": "PLATO", "citation": "Wallentin 2009 NEJM 361:1045", "measure": "HR", "point": 0.84, "lci": 0.77, "uci": 0.92, "outcome": "MACE composite (ticagrelor vs clopidogrel)"},
+    "NCT02270242": {"trial": "TWILIGHT", "citation": "Mehran 2019 NEJM 381:2032", "measure": "HR", "point": 0.56, "lci": 0.45, "uci": 0.68, "outcome": "BARC 2/3/5 (ticagrelor mono vs DAPT)"},
+
+    # ===== MS anti-CD20 =====
+    "NCT01247324": {"trial": "OPERA I", "citation": "Hauser 2017 NEJM 376:221", "measure": "RR", "point": 0.54, "lci": 0.40, "uci": 0.71, "outcome": "ARR (ocrelizumab vs IFNb-1a RRMS)"},
+    "NCT01412333": {"trial": "OPERA II", "citation": "Hauser 2017 NEJM 376:221", "measure": "RR", "point": 0.53, "lci": 0.40, "uci": 0.71, "outcome": "ARR (ocrelizumab vs IFNb-1a)"},
+    "NCT02792218": {"trial": "ASCLEPIOS I", "citation": "Hauser 2020 NEJM 383:546", "measure": "RR", "point": 0.49, "lci": 0.40, "uci": 0.59, "outcome": "ARR (ofatumumab vs terifluno)"},
+    "NCT02792231": {"trial": "ASCLEPIOS II", "citation": "Hauser 2020 NEJM 383:546", "measure": "RR", "point": 0.51, "lci": 0.41, "uci": 0.62, "outcome": "ARR (ofatumumab vs terifluno)"},
+
+    # ===== UC biologics =====
+    "NCT00036439": {"trial": "ACT-1", "citation": "Rutgeerts 2005 NEJM 353:2462", "measure": "RR", "point": 1.86, "lci": 1.43, "uci": 2.41, "outcome": "Clinical response wk8 (infliximab UC)"},
+    "NCT00783718": {"trial": "GEMINI 1", "citation": "Feagan 2013 NEJM 369:699", "measure": "RD", "point": 0.22, "lci": 0.12, "uci": 0.32, "outcome": "Clinical response wk6 (vedolizumab UC induction)"},
+    "NCT01465763": {"trial": "OCTAVE Induction", "citation": "Sandborn 2017 NEJM 376:1723", "measure": "RD", "point": 0.10, "lci": 0.04, "uci": 0.16, "outcome": "Remission wk8 (tofacitinib UC induction)"},
+    "NCT02819635": {"trial": "U-ACHIEVE", "citation": "Danese 2022 Lancet 399:2113", "measure": "RD", "point": 0.32, "lci": 0.26, "uci": 0.39, "outcome": "Remission wk8 (upadacitinib 45mg UC)"},
+
+    # ===== CD biologics =====
+    "NCT00077779": {"trial": "CHARM", "citation": "Colombel 2007 Gastro 132:52", "measure": "RR", "point": 1.91, "lci": 1.44, "uci": 2.54, "outcome": "Remission wk26 (adalimumab CD maintenance)"},
+    "NCT01369329": {"trial": "UNITI 1+2", "citation": "Feagan 2016 NEJM 375:1946", "measure": "RR", "point": 1.50, "lci": 1.14, "uci": 1.97, "outcome": "Clinical response wk6 (ustekinumab CD induction)"},
+    "NCT03345849": {"trial": "U-EXCEL", "citation": "Loftus 2023 NEJM 388:1966", "measure": "RD", "point": 0.27, "lci": 0.19, "uci": 0.34, "outcome": "Remission wk12 (upadacitinib CD induction)"},
+
+    # ===== Tirzepatide T2D =====
+    "NCT03954834": {"trial": "SURPASS-1", "citation": "Rosenstock 2021 Lancet 398:143", "measure": "MD", "point": -1.87, "lci": -2.07, "uci": -1.67, "outcome": "HbA1c MD vs placebo (tirz 5mg)"},
+    "NCT03987919": {"trial": "SURPASS-2", "citation": "Frias 2021 NEJM 385:503", "measure": "MD", "point": -0.45, "lci": -0.57, "uci": -0.32, "outcome": "HbA1c MD tirz 15mg vs sema 1mg"},
+
     # ===== ICU sedation / sepsis =====
     "NCT01728558": {"trial": "SPICE-III", "citation": "Shehabi 2019 NEJM 380:2506", "measure": "RR", "point": 1.00, "lci": 0.91, "uci": 1.10, "outcome": "90-day mortality (dexmed vs usual care)"},
     "NCT01945983": {"trial": "CENSER", "citation": "Permpikul 2019 AJRCCM 199:1097", "measure": "RR", "point": 0.72, "lci": 0.39, "uci": 1.32, "outcome": "28-day mortality (early NE vs standard)"},
