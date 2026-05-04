@@ -22,7 +22,7 @@ import re
 import time
 import urllib.request
 import urllib.parse
-import xml.etree.ElementTree as ET
+import defusedxml.ElementTree as ET  # noqa: N817 — security: parse untrusted PubMed XML safely
 from pathlib import Path
 
 REPO_DIR = Path("C:/Projects/Finrenone")

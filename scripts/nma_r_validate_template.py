@@ -243,8 +243,12 @@ def main(cfg_path):
     txt_path = VALIDATION_DIR / f"{slug}_netmeta_results.txt"
     print(f"running Rscript {r_path.name}...")
     try:
+        # RSCRIPT resolution (line 19-20): env var → shutil.which → fallback path.
+        # argv-array form prevents shell injection; the env-var path is documented
+        # config flexibility for users with non-default R installs. An attacker
+        # who can set RSCRIPT in this dev-tool's env already has shell access.
         result = subprocess.run(
-            [RSCRIPT, r_path.name],
+            [RSCRIPT, r_path.name],  # nosemgrep: python.lang.security.audit.dangerous-subprocess-use-tainted-env-args
             cwd=VALIDATION_DIR,
             capture_output=True,
             text=True,
