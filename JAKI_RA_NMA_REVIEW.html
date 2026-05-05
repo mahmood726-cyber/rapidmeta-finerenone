@@ -1255,6 +1255,11 @@
     <script src="vendor/doi-lfk.js"></script>
     <script src="vendor/comparison-adjusted-funnel.js"></script>
     <script src="vendor/cinema-certainty.js"></script>
+    <!-- Tier-3 NMA error-detection (Wigle 2025 POTH; Krahn 2013 Q-decomp; Papakonstantinou 2018 contribution) -->
+    <script src="vendor/poth.js"></script>
+    <script src="vendor/q-decomposition.js"></script>
+    <script src="vendor/contribution-matrix.js"></script>
+
 
 
 
@@ -4776,6 +4781,9 @@
                                     <button id="biasDoiBtn" class="px-4 py-2 text-xs font-bold bg-amber-600 hover:bg-amber-500 text-white rounded">Doi plot + LFK</button>
                                     <button id="biasFunnelBtn" class="px-4 py-2 text-xs font-bold bg-cyan-600 hover:bg-cyan-500 text-white rounded">Comparison-adjusted funnel</button>
                                     <button id="biasCinemaBtn" class="px-4 py-2 text-xs font-bold bg-violet-600 hover:bg-violet-500 text-white rounded">CINeMA certainty</button>
+                                    <button id="biasPothBtn" class="px-4 py-2 text-xs font-bold bg-pink-600 hover:bg-pink-500 text-white rounded">POTH</button>
+                                    <button id="biasQdecompBtn" class="px-4 py-2 text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white rounded">Q decomposition</button>
+                                    <button id="biasContribBtn" class="px-4 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded">Contribution matrix</button>
                                     <select id="biasMeasure" class="px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded text-slate-200">
                                         <option value="RR">RR</option>
                                         <option value="OR">OR</option>
@@ -4909,6 +4917,76 @@
                                 });
                             })();
                             </script>
+                            <script>
+                            (function () {
+                                function getCfgAndData() {
+                                    return {
+                                        cfg: window.NMA_CONFIG,
+                                        rd: window.RapidMeta && window.RapidMeta.realData,
+                                    };
+                                }
+
+                                function showError(msg) {
+                                    document.getElementById('biasOutput').innerHTML =
+                                        '<div style="color:#f87171;font-size:12px;padding:1em;">' + msg + '</div>';
+                                }
+
+                                function runPoth() {
+                                    var ctx = getCfgAndData();
+                                    if (!ctx.cfg) return showError('Need NMA_CONFIG.');
+                                    if (!window.POTH) return showError('POTH module not loaded.');
+                                    // Build approximate SUCRA from network fits via NMAEngine if available.
+                                    // Fall back to assigning equal SUCRA if no engine output.
+                                    var treatments = (ctx.cfg.treatments || []).map(function (t) {
+                                        var s = 0.5;
+                                        try {
+                                            if (window.NMAEngine && window.NMAEngine.computePScores) {
+                                                var ps = window.NMAEngine.computePScores();
+                                                if (ps && ps[t] != null) s = ps[t];
+                                            }
+                                        } catch (e) {}
+                                        return { treatment: t, sucra: s };
+                                    });
+                                    var ranko = window.POTH.fromSUCRA(treatments);
+                                    var res = window.POTH.compute(ranko);
+                                    var div = document.getElementById('biasOutput');
+                                    div.innerHTML = '<h4 style="color:#f9a8d4;font-size:13px;font-weight:700;margin-bottom:8px;">POTH (Precision Of Treatment Hierarchy, Wigle 2025)</h4><div id="biasPothInner"></div>';
+                                    window.POTH.render('biasPothInner', res, { fromSucra: true });
+                                }
+
+                                function runQdecomp() {
+                                    var ctx = getCfgAndData();
+                                    if (!ctx.rd || !ctx.cfg) return showError('Need realData + NMA_CONFIG.');
+                                    if (!window.QDecomposition) return showError('QDecomposition module not loaded.');
+                                    var measure = document.getElementById('biasMeasure').value;
+                                    var res = window.QDecomposition.compute(ctx.rd, ctx.cfg, { measure: measure });
+                                    var div = document.getElementById('biasOutput');
+                                    div.innerHTML = '<h4 style="color:#fb923c;font-size:13px;font-weight:700;margin-bottom:8px;">Q decomposition: heterogeneity vs inconsistency (Krahn-König 2013)</h4><div id="biasQdecompInner"></div>';
+                                    window.QDecomposition.render('biasQdecompInner', res);
+                                }
+
+                                function runContrib() {
+                                    var ctx = getCfgAndData();
+                                    if (!ctx.rd || !ctx.cfg) return showError('Need realData + NMA_CONFIG.');
+                                    if (!window.ContributionMatrix) return showError('ContributionMatrix module not loaded.');
+                                    var measure = document.getElementById('biasMeasure').value;
+                                    var res = window.ContributionMatrix.compute(ctx.rd, ctx.cfg, { measure: measure });
+                                    var div = document.getElementById('biasOutput');
+                                    div.innerHTML = '<h4 style="color:#6ee7b7;font-size:13px;font-weight:700;margin-bottom:8px;">Contribution matrix (Papakonstantinou 2018)</h4><div id="biasContribInner"></div>';
+                                    window.ContributionMatrix.render('biasContribInner', res);
+                                }
+
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    var p = document.getElementById('biasPothBtn');
+                                    var q = document.getElementById('biasQdecompBtn');
+                                    var c = document.getElementById('biasContribBtn');
+                                    if (p) p.addEventListener('click', runPoth);
+                                    if (q) q.addEventListener('click', runQdecomp);
+                                    if (c) c.addEventListener('click', runContrib);
+                                });
+                            })();
+                            </script>
+
 
 
                             <script>
