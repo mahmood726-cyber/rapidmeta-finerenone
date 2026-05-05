@@ -22463,7 +22463,7 @@ const ContinuousMDEngine = {
                 }
 
 
-                return evData.map(ev => {
+                return evData.filter(Boolean).map(ev => {
 
 
                     const tone = this._detectEvidenceTone(ev);
@@ -22637,7 +22637,7 @@ const ContinuousMDEngine = {
                 const evData = this._getEvidenceDataForTrial(t);
 
 
-                const hay = evData.map(ev => `${ev.source ?? ''} ${ev.text ?? ''}`).join(' ');
+                const hay = evData.filter(Boolean).map(ev => `${ev.source ?? ''} ${ev.text ?? ''}`).join(' ');
 
 
                 const matches = hay.match(/PMID:\s*\d+|PMC\d+|NCT\d{8}/gi) ?? [];
