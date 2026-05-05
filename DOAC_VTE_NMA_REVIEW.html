@@ -1249,6 +1249,9 @@
 
     <!-- PairwisePool: live re-pool from raw 2x2 (DL+REML+HKSJ+PI per Cochrane v6.5) -->
     <script src="vendor/pairwise-pool.js"></script>
+    <!-- NMA consistency: direct/indirect node-split + Fisher-combined inconsistency test (NMA Pro v8 transplant) -->
+    <script src="vendor/nma-consistency.js"></script>
+
 
     <!-- Verdict badge: per-topic data-integrity rollup of 7 gates -->
     <script src="vendor/verdict-badge.js"></script>
@@ -4734,6 +4737,42 @@
 
 
                             <div id="nma-consistency-container"></div>
+                            <div class="glass p-10 rounded-[40px] border border-slate-800 mt-10">
+                                <h3 class="text-sm font-bold opacity-60 uppercase tracking-[0.3em] mb-2">Network Consistency (NMA Pro Transplant)</h3>
+                                <p class="text-[11px] text-slate-400 mb-4">
+                                    NMA-Pro-style direct/indirect node-splitting with Fisher-combined global inconsistency test (Dias et al. 2010 back-calculation).
+                                    Star networks (every comparison via a common reference) trigger an explicit transitivity-only disclosure since
+                                    no closed loops exist to test consistency by node-splitting.
+                                </p>
+                                <div class="flex gap-2 items-center mb-4">
+                                    <button id="nmaConsBtn" class="px-4 py-2 text-xs font-bold bg-cyan-600 hover:bg-cyan-500 text-white rounded transition">Run consistency check</button>
+                                    <select id="nmaConsMeasure" class="px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded text-slate-200">
+                                        <option value="RR">Risk ratio (RR)</option>
+                                        <option value="OR">Odds ratio (OR)</option>
+                                    </select>
+                                </div>
+                                <div id="nmaConsResult"></div>
+                            </div>
+
+                            <script>
+                            (function () {
+                                function go() {
+                                    var measure = document.getElementById('nmaConsMeasure').value;
+                                    var rd = window.RapidMeta && window.RapidMeta.realData;
+                                    var cfg = window.NMA_CONFIG;
+                                    var container = document.getElementById('nmaConsResult');
+                                    if (!rd) { container.innerHTML = '<div style="color:#f87171;font-size:12px;padding:1em;">No realData found.</div>'; return; }
+                                    if (!cfg) { container.innerHTML = '<div style="color:#f87171;font-size:12px;padding:1em;">No NMA_CONFIG found.</div>'; return; }
+                                    var res = window.NMAConsistency.analyze(rd, cfg, { measure: measure });
+                                    window.NMAConsistency.render(container, res);
+                                }
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    var btn = document.getElementById('nmaConsBtn');
+                                    if (btn) btn.addEventListener('click', go);
+                                });
+                            })();
+                            </script>
+
 
 
                             <div class="text-[9px] text-slate-500 mt-2">Compares direct vs indirect evidence for each comparison. P &lt; 0.10 suggests inconsistency.</div>
