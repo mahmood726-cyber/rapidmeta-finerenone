@@ -34,34 +34,32 @@ OUT_CSV = REPO_DIR / "outputs" / "internal_consistency_check.csv"
 # Single-arm trials with synthetic pre-vs-post comparator: row counts can't
 # match publishedHR by 2x2 implication. Skip from sign/drift checks.
 SINGLE_ARM_EXEMPT = {
-    ("HEMOPHILIA_GENE_THERAPY_NMA_REVIEW.html", "NCT03569891"),  # HOPE-B
-    ("HEMOPHILIA_GENE_THERAPY_NMA_REVIEW.html", "NCT04370054"),  # AFFINE
-    ("HEMOPHILIA_GENE_THERAPY_NMA_REVIEW.html", "NCT03370913"),  # GENEr8-1
-    ("MDR_TB_SHORTENED_NMA_REVIEW.html", "NCT02333799"),  # Nix-TB
+    ("HEMOPHILIA_GENE_THERAPY_REVIEW.html", "NCT03569891"),  # HOPE-B
+    ("HEMOPHILIA_GENE_THERAPY_REVIEW.html", "NCT04370054"),  # AFFINE
+    ("HEMOPHILIA_GENE_THERAPY_REVIEW.html", "NCT03370913"),  # GENEr8-1
+    ("MDR_TB_SHORTENED_REVIEW.html", "NCT02333799"),  # Nix-TB
 }
 
 # Trials where raw counts reflect a DIFFERENT outcome to publishedHR (a known
 # divergence preserved deliberately so the user can show both data points).
 # Documented case-by-case in the trial's `group` field.
+# Filename keys updated 2026-05-05 after Phase 1+2 demote/rename pass.
 MIXED_METRIC_EXEMPT = {
     # HCC HIMALAYA: HR 0.78 OS time-to-death; raw 421/393 vs 395/389 are
-    # crude proportion of deaths at end of follow-up (longer follow-up of
-    # survivors in STRIDE arm = higher crude death proportion).
-    ("HCC_1L_NMA_REVIEW.html", "NCT03298451"),
+    # crude proportion of deaths at end of follow-up.
+    ("HCC_1L_REVIEW.html", "NCT03298451"),
     # DESTINY-Breast06: HR 0.62 PFS time-to-event; raw is response-rate.
-    # File renamed 2026-05-05 from HER2_LOW_ADC_NMA_REVIEW.html (was a 2-treatment
-    # NMA mislabelled, demoted to pairwise per audit_nma_config.py).
     ("HER2_LOW_ADC_REVIEW.html", "NCT04494425"),
     # HPTN 052: HR 0.07 genotype-confirmed transmission; raw is all incident HIV.
-    ("HIV_ART_TIMING_NMA_REVIEW.html", "NCT00074581"),
+    ("HIV_ART_TIMING_REVIEW.html", "NCT00074581"),
     # SERAPHIN PAH: HR 0.55 composite morbidity-mortality; raw all-cause.
-    ("PAH_THERAPY_NMA_REVIEW.html", "NCT00660179"),
+    ("PAH_THERAPY_REVIEW.html", "NCT00660179"),
     # R21 Phase 3 malaria: HR 0.25 time-adjusted VE 75%; raw is crude RR 0.56.
-    ("MALARIA_VACCINE_NMA_REVIEW.html", "NCT04704830"),
+    ("MALARIA_VACCINE_REVIEW.html", "NCT04704830"),
     # SURMOUNT-1 tirzepatide: RR 36.7 ≥20% weight loss; raw is ≥5%.
-    ("OBESITY_DRUGS_NMA_REVIEW.html", "NCT04184622"),
+    ("OBESITY_DRUGS_REVIEW.html", "NCT04184622"),
     # SCALE Obesity liraglutide: RR 6.0 ≥10% weight loss; raw is ≥5%.
-    ("OBESITY_DRUGS_NMA_REVIEW.html", "NCT01272219"),
+    ("OBESITY_DRUGS_REVIEW.html", "NCT01272219"),
     # ENERGIZE mitapivat: RR 24.7 hemoglobin response ≥1.5g/dL; raw is ≥1g/dL.
     ("MITAPIVAT_THALASSEMIA_REVIEW.html", "NCT04770753"),
 }

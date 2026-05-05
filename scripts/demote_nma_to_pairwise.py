@@ -126,29 +126,76 @@ def rename_file(path: Path, dry_run: bool) -> Path | None:
         return None
     if dry_run:
         return new_path
-    # Use git mv for clean history
+    # Critical: stage the in-place modification BEFORE git mv. Plain `git mv`
+    # of a modified file silently drops the modification in some git versions
+    # — only the rename gets committed. This bit us in c5bb8c42 (had to fix
+    # up in a follow-up commit). Always: git add OLD -> git mv OLD NEW -> git
+    # add NEW (belt-and-braces).
     try:
-        subprocess.check_call(
-            ["git", "-C", str(REPO), "mv", path.name, new_name],
-            stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT
-        )
+        subprocess.check_call(["git", "-C", str(REPO), "add", path.name],
+                              stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+        subprocess.check_call(["git", "-C", str(REPO), "mv", path.name, new_name],
+                              stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+        subprocess.check_call(["git", "-C", str(REPO), "add", new_name],
+                              stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError:
-        # Fallback: file isn't tracked yet → plain rename
+        # Fallback: not in a git repo or file untracked
         path.rename(new_path)
     return new_path
 
 
+# Phase 2: 33 files where NMA_CONFIG NCTs and realData NCTs do NOT overlap
+# (intersection=0). The engine has nothing to compute on. Demote.
+NO_OVERLAP = [
+    "ACS_ANTIPLATELET_NMA_REVIEW.html",
+    "ANTI_CD20_MS_NMA_REVIEW.html",
+    "ANTIPSYCHOTICS_SCHIZO_NMA_REVIEW.html",
+    "CRYPTOCOCCAL_MENINGITIS_AFRICA_NMA_REVIEW.html",
+    "DIABETIC_MACULAR_EDEMA_NMA_REVIEW.html",
+    "DIABETIC_RETINOPATHY_NMA_REVIEW.html",
+    "GLP1_MASH_NMA_REVIEW.html",
+    "HEMOPHILIA_GENE_THERAPY_NMA_REVIEW.html",
+    "HIDRADENITIS_SUPPURATIVA_NMA_REVIEW.html",
+    "HIV_ART_TIMING_NMA_REVIEW.html",
+    "HIV_PREP_INJECTABLE_NMA_REVIEW.html",
+    "HIV_TB_COINFECTION_ART_TIMING_NMA_REVIEW.html",
+    "HPV_VACCINE_SCHEDULES_NMA_REVIEW.html",
+    "HYDROCORTISONE_SEPTIC_SHOCK_NMA_REVIEW.html",
+    "ICU_SEDATION_NMA_REVIEW.html",
+    "MALARIA_VACCINE_NMA_REVIEW.html",
+    "MDR_TB_SHORTENED_NMA_REVIEW.html",
+    "MEDITERRANEAN_DIET_CV_NMA_REVIEW.html",
+    "MIGRAINE_ACUTE_NMA_REVIEW.html",
+    "OBESITY_DRUGS_NMA_REVIEW.html",
+    "PAH_THERAPY_NMA_REVIEW.html",
+    "PEDIATRIC_HIV_ART_NMA_REVIEW.html",
+    "PHYSICAL_REHAB_OLDER_NMA_REVIEW.html",
+    "POLYCYTHEMIA_VERA_NMA_REVIEW.html",
+    "POSTPARTUM_HEMORRHAGE_NMA_REVIEW.html",
+    "PSA_BIOLOGICS_NMA_REVIEW.html",
+    "ROTAVIRUS_VACCINE_AFRICA_NMA_REVIEW.html",
+    "SEPSIS_RESUSCITATION_NMA_REVIEW.html",
+    "SEVERE_PEDIATRIC_FEBRILE_AFRICA_NMA_REVIEW.html",
+    "SPONDYLOARTHRITIS_NMA_REVIEW.html",
+    "TB_PREVENTION_NMA_REVIEW.html",
+    "VITAMIN_D_FRACTURE_FALL_NMA_REVIEW.html",
+    "VITILIGO_NMA_REVIEW.html",
+]
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--target", choices=["degenerate", "no-config", "both"], required=True)
+    ap.add_argument("--target", choices=["degenerate", "no-config", "no-overlap", "all"], required=True)
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
     queue: list[str] = []
-    if args.target in ("degenerate", "both"):
+    if args.target in ("degenerate", "all"):
         queue.extend(DEGENERATE)
-    if args.target in ("no-config", "both"):
+    if args.target in ("no-config", "all"):
         queue.extend(NO_CONFIG)
+    if args.target in ("no-overlap", "all"):
+        queue.extend(NO_OVERLAP)
 
     print(f"Phase 1 demote — {len(queue)} files (--target {args.target})")
     if args.dry_run:
