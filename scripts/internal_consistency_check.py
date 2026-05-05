@@ -31,6 +31,15 @@ from pathlib import Path
 REPO_DIR = Path("C:/Projects/Finrenone")
 OUT_CSV = REPO_DIR / "outputs" / "internal_consistency_check.csv"
 
+# Single-arm trials with synthetic pre-vs-post comparator: row counts can't
+# match publishedHR by 2x2 implication. Skip from sign/drift checks.
+SINGLE_ARM_EXEMPT = {
+    ("HEMOPHILIA_GENE_THERAPY_NMA_REVIEW.html", "NCT03569891"),  # HOPE-B
+    ("HEMOPHILIA_GENE_THERAPY_NMA_REVIEW.html", "NCT04370054"),  # AFFINE
+    ("HEMOPHILIA_GENE_THERAPY_NMA_REVIEW.html", "NCT03370913"),  # GENEr8-1
+    ("MDR_TB_SHORTENED_NMA_REVIEW.html", "NCT02333799"),  # Nix-TB
+}
+
 # Match a trial block grabbing tE/tN/cE/cN + publishedHR + hrLCI/hrUCI + estimandType.
 TRIAL_RE = re.compile(
     r"'(NCT\d+(?:_[A-Za-z0-9]+)?|LEGACY-[A-Za-z0-9-]+)'\s*:\s*\{[^}]*?"
@@ -78,6 +87,9 @@ def main():
         for m in TRIAL_RE.finditer(text):
             key = m.group(1)
             name = m.group(2)
+            # Skip single-arm trials with synthetic comparator (raw counts won't reconcile)
+            if (hp.name, key) in SINGLE_ARM_EXEMPT:
+                continue
             tE = parse_num(m.group(3))
             tN = parse_num(m.group(4))
             cE = parse_num(m.group(5))
