@@ -14,6 +14,10 @@ Fix 3 real issues found in multi-persona review across all Finrenone apps:
 
 Run: python fix_review_issues.py
 """
+import sys as _sys
+if __name__ != "__main__":
+    _sys.exit(0)
+
 import os, re, sys
 
 DIR = os.path.dirname(os.path.abspath(__file__))

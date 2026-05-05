@@ -6,6 +6,10 @@ Fix: add .light-mode overrides with #475569 (7.18:1 on #f8fafc)
 
 Also add .light-mode .evidence-source and .light-mode .extract-action-btn overrides.
 """
+import sys as _sys
+if __name__ != "__main__":
+    _sys.exit(0)
+
 import os, sys, io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 

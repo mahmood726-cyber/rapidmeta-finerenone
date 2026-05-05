@@ -15,6 +15,10 @@ Methodological improvements for RapidMeta apps:
 
 Run: python improve_methodological.py
 """
+import sys as _sys
+if __name__ != "__main__":
+    _sys.exit(0)
+
 import os, sys, io, re
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
