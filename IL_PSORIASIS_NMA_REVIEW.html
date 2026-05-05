@@ -1246,6 +1246,9 @@
     </style>
 
 
+
+    <!-- PairwisePool: live re-pool from raw 2x2 (DL+REML+HKSJ+PI per Cochrane v6.5) -->
+    <script src="vendor/pairwise-pool.js"></script>
 </head>
 
 
@@ -4609,6 +4612,98 @@
 
 
                         </div>
+
+
+                        <!-- Live Re-pool panel (PairwisePool transplant from TruthCert-PairwisePro) -->
+                        <div class="glass p-10 rounded-[40px] border border-slate-800">
+                            <h3 class="text-sm font-bold opacity-60 uppercase tracking-[0.3em] mb-2">Live Re-pool from Raw 2&times;2 (verifier)</h3>
+                            <p class="text-[11px] text-slate-400 mb-4">
+                                Re-pools the trial-level raw event counts in <code>realData</code> using DerSimonian-Laird random-effects + HKSJ + Cochrane v6.5 prediction interval (t<sub>k-1</sub>).
+                                Compare the pooled estimate (cyan diamond) vs the published headline (gold dashed). Per-trial rows show the
+                                back-transformed RR with 95% CI and RE weight.
+                            </p>
+                            <div class="flex gap-2 items-center mb-4">
+                                <button id="ppPoolBtn" class="px-4 py-2 text-xs font-bold bg-cyan-600 hover:bg-cyan-500 text-white rounded transition">Re-pool from raw counts</button>
+                                <select id="ppMeasureSel" class="px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded text-slate-200">
+                                    <option value="RR">Risk ratio (RR)</option>
+                                    <option value="OR">Odds ratio (OR)</option>
+                                </select>
+                                <span id="ppStatus" class="text-[11px] text-slate-500"></span>
+                            </div>
+                            <div id="ppForest"></div>
+                        </div>
+
+                        <script>
+                        (function () {
+                            function getTrials() {
+                                // Canonical path on this corpus: window.RapidMeta.realData
+                                var rd = null;
+                                try { rd = window.RapidMeta && window.RapidMeta.realData; } catch (e) {}
+                                if (!rd) {
+                                    try { rd = window.RapidMeta && window.RapidMeta.state && window.RapidMeta.state.protocol && window.RapidMeta.state.protocol.realData; } catch (e) {}
+                                }
+                                if (!rd) {
+                                    for (var k in window) {
+                                        var v = window[k];
+                                        if (v && typeof v === 'object' && !Array.isArray(v)) {
+                                            var keys = Object.keys(v);
+                                            if (keys.length && keys[0].startsWith('NCT')) {
+                                                var probe = v[keys[0]];
+                                                if (probe && probe.tE != null && probe.tN != null && probe.cE != null) {
+                                                    rd = v; break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                if (!rd) return [];
+                                return Object.keys(rd).map(function (key) {
+                                    var t = rd[key];
+                                    return {
+                                        name: t.name || key,
+                                        tE: t.tE, tN: t.tN, cE: t.cE, cN: t.cN,
+                                        publishedHR: t.publishedHR
+                                    };
+                                });
+                            }
+
+                            function getReferenceEffect(trials) {
+                                var hrs = trials.map(function (t) { return t.publishedHR; }).filter(function (v) { return v && isFinite(v) && v > 0; });
+                                if (!hrs.length) return null;
+                                hrs.sort(function (a, b) { return a - b; });
+                                return hrs[Math.floor(hrs.length / 2)];
+                            }
+
+                            function go() {
+                                var measure = document.getElementById('ppMeasureSel').value;
+                                var trials = getTrials();
+                                var status = document.getElementById('ppStatus');
+                                var container = document.getElementById('ppForest');
+                                if (!trials.length) {
+                                    status.textContent = 'No realData found.';
+                                    container.innerHTML = '<div style="color:#f87171;font-size:12px;padding:1em;">Could not locate realData on this page.</div>';
+                                    return;
+                                }
+                                var res = window.PairwisePool.pool2x2(trials, { measure: measure });
+                                if (res.error) {
+                                    status.textContent = res.error;
+                                    container.innerHTML = '<div style="color:#f87171;font-size:12px;padding:1em;">' + res.error + '</div>';
+                                    return;
+                                }
+                                var ref = getReferenceEffect(trials);
+                                window.PairwisePool.renderForest(container, res, { referenceEffect: ref });
+                                status.textContent = 'k=' + res.k_used + ' trials pooled · τ²=' + res.tau2.toFixed(3) + ' · I²=' + res.I2.toFixed(0) + '% · ' + measure + '=' + res.mu.toFixed(3) + ' (' + res.ci_lo.toFixed(2) + '–' + res.ci_hi.toFixed(2) + ')';
+                            }
+
+                            document.addEventListener('DOMContentLoaded', function () {
+                                var btn = document.getElementById('ppPoolBtn');
+                                if (btn) btn.addEventListener('click', go);
+                            });
+                        })();
+                        </script>
+
+
+
 
 
 
