@@ -1,7 +1,16 @@
 """Comprehensive test: all tabs, screening abstracts, extraction sub-views, GRADE across all 18 REVIEW files."""
+# pytest-collection skip: this is a one-shot Selenium CLI script, not a
+# pytest test. Use pytest.skip(allow_module_level=True) so pytest stops
+# executing this file rather than treating sys.exit() as an INTERNALERROR.
+import sys as _sys
+if "pytest" in _sys.modules:
+    import pytest
+    pytest.skip("Selenium CLI script — run with `python <file>`, not pytest", allow_module_level=True)
+
 import sys, io, os, time, json
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
-sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+if "pytest" not in sys.modules:
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options

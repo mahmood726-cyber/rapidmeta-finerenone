@@ -9,6 +9,14 @@ runtime classifier and the generator's scaffold-time classifier.
 If any of these fail, the gate has become self-inconsistent and
 the failing invariant must be fixed before the next push.
 """
+# pytest-collection skip: this is a one-shot Selenium CLI script, not a
+# pytest test. Use pytest.skip(allow_module_level=True) so pytest stops
+# executing this file rather than treating sys.exit() as an INTERNALERROR.
+import sys as _sys
+if "pytest" in _sys.modules:
+    import pytest
+    pytest.skip("Selenium CLI script — run with `python <file>`, not pytest", allow_module_level=True)
+
 import os
 import sys
 import pytest

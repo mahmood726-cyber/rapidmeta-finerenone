@@ -6,6 +6,10 @@ Propagate 3 features from FINERENONE_REVIEW.html to all sibling apps:
 
 Run: python propagate_features.py
 """
+import sys as _sys
+if __name__ != "__main__":
+    _sys.exit(0)
+
 import re, os, sys
 
 DIR = os.path.dirname(os.path.abspath(__file__))

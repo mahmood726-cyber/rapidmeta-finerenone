@@ -6,6 +6,14 @@ Targeted Selenium tests for the 3 review fixes:
 
 Run: python test_wcag_and_fixes.py
 """
+# pytest-collection skip: this is a one-shot Selenium CLI script, not a
+# pytest test. Use pytest.skip(allow_module_level=True) so pytest stops
+# executing this file rather than treating sys.exit() as an INTERNALERROR.
+import sys as _sys
+if "pytest" in _sys.modules:
+    import pytest
+    pytest.skip("Selenium CLI script — run with `python <file>`, not pytest", allow_module_level=True)
+
 import sys, io, os, time, traceback, subprocess
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
