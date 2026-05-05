@@ -161,6 +161,24 @@ def compute_fragility(tE, tN, cE, cN):
             "flip_target": flip_target}
 
 
+# Trials where the published primary endpoint is NOT a parallel-arm binary
+# proportion (e.g., rate ratio, continuous mean difference). Fragility
+# Index doesn't apply to these — exclude from the audit to avoid false
+# alarms. Documented per Agent 2 audit findings (2026-05-05).
+NON_BINARY_PRIMARY_EXEMPT = {
+    # HOPE-B (NCT03569891): primary is annualized bleeding rate ratio
+    # (within-subject comparison vs lead-in). Our 54/54 vs 45/52 binary
+    # tabulation is a derived patient-level any-bleed counts, not the
+    # primary endpoint. Pipe 2023 NEJM PMID 36812434.
+    ("HEMOPHILIA_GENE_THERAPY_REVIEW.html", "NCT03569891"),
+    # PATENT-1 (NCT00810693): primary is 6-minute walk distance change
+    # (continuous, MD = +30m vs placebo). Our 23/254 vs 21/126 binary
+    # tabulation is from a non-primary clinical-worsening secondary.
+    # Ghofrani 2013 NEJM PMID 23883378.
+    ("PAH_THERAPY_REVIEW.html", "NCT00810693"),
+}
+
+
 def main():
     review_files = sorted(REPO_DIR.glob("*_REVIEW.html"))
     print(f"Scanning {len(review_files)} review HTMLs ...")
@@ -171,6 +189,8 @@ def main():
         for m in TRIAL_RE.finditer(text):
             key = m.group(1)
             name = m.group(2)
+            if (hp.name, key) in NON_BINARY_PRIMARY_EXEMPT:
+                continue
             tE = parse_int(m.group(3))
             tN = parse_int(m.group(4))
             cE = parse_int(m.group(5))
