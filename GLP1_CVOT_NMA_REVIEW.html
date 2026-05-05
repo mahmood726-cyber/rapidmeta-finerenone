@@ -4635,13 +4635,13 @@
                         <script>
                         (function () {
                             function getTrials() {
-                                // Find realData on the global RapidMeta state. The pattern across the corpus
-                                // is `RapidMeta.state.protocol.realData` or a nearby spot. Fall back to a
-                                // recursive grep of window for any object whose values look like trial blocks.
+                                // Canonical path on this corpus: window.RapidMeta.realData (verified
+                                // 2026-05-05 via Playwright introspection on GLP1_CVOT + UC_BIOLOGICS).
                                 var rd = null;
-                                try {
-                                    rd = window.RapidMeta && window.RapidMeta.state && window.RapidMeta.state.protocol && window.RapidMeta.state.protocol.realData;
-                                } catch (e) {}
+                                try { rd = window.RapidMeta && window.RapidMeta.realData; } catch (e) {}
+                                if (!rd) {
+                                    try { rd = window.RapidMeta && window.RapidMeta.state && window.RapidMeta.state.protocol && window.RapidMeta.state.protocol.realData; } catch (e) {}
+                                }
                                 if (!rd) {
                                     // Last-ditch: scan window for an object whose values are { name, tE, tN, cE, cN, ... }
                                     for (var k in window) {

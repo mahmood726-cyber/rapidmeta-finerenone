@@ -4635,10 +4635,13 @@
                         <script>
                         (function () {
                             function getTrials() {
+                                // Canonical path on this corpus: window.RapidMeta.realData (verified
+                                // 2026-05-05 via Playwright introspection on GLP1_CVOT + UC_BIOLOGICS).
                                 var rd = null;
-                                try {
-                                    rd = window.RapidMeta && window.RapidMeta.state && window.RapidMeta.state.protocol && window.RapidMeta.state.protocol.realData;
-                                } catch (e) {}
+                                try { rd = window.RapidMeta && window.RapidMeta.realData; } catch (e) {}
+                                if (!rd) {
+                                    try { rd = window.RapidMeta && window.RapidMeta.state && window.RapidMeta.state.protocol && window.RapidMeta.state.protocol.realData; } catch (e) {}
+                                }
                                 if (!rd) {
                                     for (var k in window) {
                                         var v = window[k];
