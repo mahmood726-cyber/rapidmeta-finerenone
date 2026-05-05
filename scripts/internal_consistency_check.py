@@ -40,6 +40,30 @@ SINGLE_ARM_EXEMPT = {
     ("MDR_TB_SHORTENED_NMA_REVIEW.html", "NCT02333799"),  # Nix-TB
 }
 
+# Trials where raw counts reflect a DIFFERENT outcome to publishedHR (a known
+# divergence preserved deliberately so the user can show both data points).
+# Documented case-by-case in the trial's `group` field.
+MIXED_METRIC_EXEMPT = {
+    # HCC HIMALAYA: HR 0.78 OS time-to-death; raw 421/393 vs 395/389 are
+    # crude proportion of deaths at end of follow-up (longer follow-up of
+    # survivors in STRIDE arm = higher crude death proportion).
+    ("HCC_1L_NMA_REVIEW.html", "NCT03298451"),
+    # DESTINY-Breast06: HR 0.62 PFS time-to-event; raw is response-rate.
+    ("HER2_LOW_ADC_NMA_REVIEW.html", "NCT04494425"),
+    # HPTN 052: HR 0.07 genotype-confirmed transmission; raw is all incident HIV.
+    ("HIV_ART_TIMING_NMA_REVIEW.html", "NCT00074581"),
+    # SERAPHIN PAH: HR 0.55 composite morbidity-mortality; raw all-cause.
+    ("PAH_THERAPY_NMA_REVIEW.html", "NCT00660179"),
+    # R21 Phase 3 malaria: HR 0.25 time-adjusted VE 75%; raw is crude RR 0.56.
+    ("MALARIA_VACCINE_NMA_REVIEW.html", "NCT04704830"),
+    # SURMOUNT-1 tirzepatide: RR 36.7 ≥20% weight loss; raw is ≥5%.
+    ("OBESITY_DRUGS_NMA_REVIEW.html", "NCT04184622"),
+    # SCALE Obesity liraglutide: RR 6.0 ≥10% weight loss; raw is ≥5%.
+    ("OBESITY_DRUGS_NMA_REVIEW.html", "NCT01272219"),
+    # ENERGIZE mitapivat: RR 24.7 hemoglobin response ≥1.5g/dL; raw is ≥1g/dL.
+    ("MITAPIVAT_THALASSEMIA_REVIEW.html", "NCT04770753"),
+}
+
 # Match a trial block grabbing tE/tN/cE/cN + publishedHR + hrLCI/hrUCI + estimandType.
 TRIAL_RE = re.compile(
     r"'(NCT\d+(?:_[A-Za-z0-9]+)?|LEGACY-[A-Za-z0-9-]+)'\s*:\s*\{[^}]*?"
@@ -89,6 +113,9 @@ def main():
             name = m.group(2)
             # Skip single-arm trials with synthetic comparator (raw counts won't reconcile)
             if (hp.name, key) in SINGLE_ARM_EXEMPT:
+                continue
+            # Skip trials with documented different-metric raw counts vs publishedHR
+            if (hp.name, key) in MIXED_METRIC_EXEMPT:
                 continue
             tE = parse_num(m.group(3))
             tN = parse_num(m.group(4))
