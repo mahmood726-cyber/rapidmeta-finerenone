@@ -49,7 +49,9 @@ MIXED_METRIC_EXEMPT = {
     # survivors in STRIDE arm = higher crude death proportion).
     ("HCC_1L_NMA_REVIEW.html", "NCT03298451"),
     # DESTINY-Breast06: HR 0.62 PFS time-to-event; raw is response-rate.
-    ("HER2_LOW_ADC_NMA_REVIEW.html", "NCT04494425"),
+    # File renamed 2026-05-05 from HER2_LOW_ADC_NMA_REVIEW.html (was a 2-treatment
+    # NMA mislabelled, demoted to pairwise per audit_nma_config.py).
+    ("HER2_LOW_ADC_REVIEW.html", "NCT04494425"),
     # HPTN 052: HR 0.07 genotype-confirmed transmission; raw is all incident HIV.
     ("HIV_ART_TIMING_NMA_REVIEW.html", "NCT00074581"),
     # SERAPHIN PAH: HR 0.55 composite morbidity-mortality; raw all-cause.
