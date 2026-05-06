@@ -26,49 +26,83 @@
     return Number(v).toPrecision(3);
   }
 
+  const STORAGE_KEY = 'r-validation-badge-expanded';
+
+  function isExpanded() {
+    try { return localStorage.getItem(STORAGE_KEY) === '1'; } catch (e) { return false; }
+  }
+  function setExpanded(val) {
+    try { localStorage.setItem(STORAGE_KEY, val ? '1' : '0'); } catch (e) {}
+  }
+
   function buildPanel(topic, data, jsCompare) {
     const wrap = document.createElement('div');
-    wrap.id = 'r-validation-badge';
+    wrap.className = 'r-validation-badge-panel';
     wrap.style.cssText = [
       'background:#0f172a',
       'border:1px solid #1e3a5f',
-      'border-radius:10px',
-      'padding:12px 14px',
-      'margin:14px 0',
+      'border-radius:8px',
+      'padding:6px 10px',
+      'margin:8px 0',
       'font-family:Inter,system-ui,sans-serif',
-      'font-size:12.5px',
+      'font-size:12px',
       'color:#e2e8f0',
       'box-shadow:0 0 0 1px rgba(59,130,246,0.06)',
     ].join(';');
 
+    // Build a tight one-line summary string for the header
+    const summary = data.error
+      ? 'skipped: ' + data.error + ' (k=' + (data.k || '?') + ')'
+      : ('OR ' + fmt(data.pooled_OR, 2)
+         + ' [' + fmt(data.ci_low_OR, 2) + '–' + fmt(data.ci_high_OR, 2) + ']'
+         + ' · k=' + (data.k || '?')
+         + ' · I²=' + fmt(data.I2, 1) + '%'
+         + ' · τ²=' + fmt(data.tau2, 3));
+
     const head = document.createElement('div');
-    head.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;';
+    head.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;cursor:pointer;user-select:none;';
+    head.title = 'Click to ' + (isExpanded() ? 'collapse' : 'expand') + ' R metafor validation';
     head.innerHTML =
-      '<div style="display:flex;align-items:center;gap:8px;">' +
-        '<span style="background:#1e3a5f;color:#7dd3fc;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:0.04em;">R metafor</span>' +
-        '<span style="color:#cbd5e1;font-weight:600;">' + topic + '</span>' +
+      '<div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">' +
+        '<span aria-label="toggle" style="display:inline-block;width:14px;color:#7dd3fc;font-size:10px;transition:transform 0.15s;transform:rotate(' + (isExpanded() ? 90 : 0) + 'deg);">▶</span>' +
+        '<span style="background:#1e3a5f;color:#7dd3fc;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:0.04em;flex:0 0 auto;">R metafor</span>' +
+        '<span style="color:#94a3b8;font-size:11px;flex:0 0 auto;white-space:nowrap;">' + topic + '</span>' +
+        '<span style="color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + summary + '</span>' +
       '</div>' +
-      '<a href="outputs/r_validation/' + topic + '.json" target="_blank" style="color:#7dd3fc;font-size:11px;text-decoration:none;">view raw R JSON ↗</a>';
+      '<a href="outputs/r_validation/' + topic + '.json" target="_blank" onclick="event.stopPropagation()" style="color:#7dd3fc;font-size:10.5px;text-decoration:none;flex:0 0 auto;">raw JSON ↗</a>';
     wrap.appendChild(head);
+
+    // Body — hidden by default
+    const body = document.createElement('div');
+    body.style.cssText = 'display:' + (isExpanded() ? 'block' : 'none') + ';margin-top:8px;padding-top:8px;border-top:1px solid #1e293b;';
 
     if (data.error) {
       const err = document.createElement('div');
-      err.style.cssText = 'margin-top:8px;color:#fbbf24;font-size:11.5px;';
+      err.style.cssText = 'color:#fbbf24;font-size:11.5px;';
       err.textContent = 'R validation skipped: ' + data.error + ' (k=' + (data.k || '?') + ')';
-      wrap.appendChild(err);
+      body.appendChild(err);
+      wrap.appendChild(body);
+
+      head.addEventListener('click', () => {
+        const expanded = body.style.display === 'block';
+        body.style.display = expanded ? 'none' : 'block';
+        const arrow = head.querySelector('span[aria-label="toggle"]');
+        if (arrow) arrow.style.transform = expanded ? 'rotate(0deg)' : 'rotate(90deg)';
+        setExpanded(!expanded);
+      });
       return wrap;
     }
 
     const grid = document.createElement('div');
-    grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:10px;';
+    grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;';
 
     function cell(label, value, sub) {
       const c = document.createElement('div');
-      c.style.cssText = 'background:#0b1220;border:1px solid #1e293b;border-radius:6px;padding:7px 9px;';
+      c.style.cssText = 'background:#0b1220;border:1px solid #1e293b;border-radius:6px;padding:6px 8px;';
       c.innerHTML =
-        '<div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;">' + label + '</div>' +
-        '<div style="font-size:14px;color:#f1f5f9;font-weight:700;font-family:JetBrains Mono,monospace;margin-top:2px;">' + value + '</div>' +
-        (sub ? '<div style="font-size:10.5px;color:#94a3b8;margin-top:2px;">' + sub + '</div>' : '');
+        '<div style="font-size:9.5px;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;">' + label + '</div>' +
+        '<div style="font-size:13px;color:#f1f5f9;font-weight:700;font-family:JetBrains Mono,monospace;margin-top:2px;">' + value + '</div>' +
+        (sub ? '<div style="font-size:10px;color:#94a3b8;margin-top:1px;">' + sub + '</div>' : '');
       return c;
     }
 
@@ -85,11 +119,11 @@
       fmt(data.PI_low_OR, 2) + '–' + fmt(data.PI_high_OR, 2),
       data.pi_df_convention || 't_{k-1}'));
 
-    wrap.appendChild(grid);
+    body.appendChild(grid);
 
     // Method line + JS comparison
     const meth = document.createElement('div');
-    meth.style.cssText = 'margin-top:9px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:11px;color:#94a3b8;';
+    meth.style.cssText = 'margin-top:7px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:10.5px;color:#94a3b8;';
     let cmp = '';
     if (jsCompare && jsCompare.pooled_OR && data.pooled_OR) {
       const delta = Math.abs(jsCompare.pooled_OR - data.pooled_OR);
@@ -101,7 +135,19 @@
       '<span>method: ' + (data.method || '?') +
       (data.hksj_floor_applied ? ' (HKSJ floor applied)' : '') + '</span>' +
       cmp;
-    wrap.appendChild(meth);
+    body.appendChild(meth);
+
+    wrap.appendChild(body);
+
+    // Toggle handler
+    head.addEventListener('click', () => {
+      const expanded = body.style.display === 'block';
+      body.style.display = expanded ? 'none' : 'block';
+      const arrow = head.querySelector('span[aria-label="toggle"]');
+      if (arrow) arrow.style.transform = expanded ? 'rotate(0deg)' : 'rotate(90deg)';
+      head.title = 'Click to ' + (expanded ? 'expand' : 'collapse') + ' R metafor validation';
+      setExpanded(!expanded);
+    });
 
     return wrap;
   }
