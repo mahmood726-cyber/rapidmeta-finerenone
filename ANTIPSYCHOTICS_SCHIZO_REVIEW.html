@@ -8372,7 +8372,7 @@
                 // Restore theme preference
 
 
-                try { if (localStorage.getItem('rapid_meta_antipsychotics_schizo_nma_theme') === 'light') document.body.classList.add('light-mode'); } catch(e) {}
+                try { if (localStorage.getItem('rapid_meta_antipsychotics_schizo_theme') === 'light') document.body.classList.add('light-mode'); } catch(e) {}
 
 
                 const bootstrapSeed = !this.hasAnalysisReadyTrials() ? this.ensureCanonicalAnalysisSeed() : { changed: false, seeded: [] };
@@ -10628,7 +10628,7 @@
                 document.body.classList.toggle('light-mode');
 
 
-                try { localStorage.setItem('rapid_meta_antipsychotics_schizo_nma_theme', document.body.classList.contains('light-mode') ? 'light' : 'dark'); } catch(e) {}
+                try { localStorage.setItem('rapid_meta_antipsychotics_schizo_theme', document.body.classList.contains('light-mode') ? 'light' : 'dark'); } catch(e) {}
 
 
             },
