@@ -71,14 +71,29 @@
       return { tier: 'NONE', label: 'NOT DONE', color: '#6b7280' };
     }
 
+    // Living update — last run from RapidMeta.state.livingUpdates[]
+    const updates = Array.isArray(state.livingUpdates) ? state.livingUpdates : [];
+    const lastUpdate = updates.length ? updates[updates.length - 1] : null;
+    const livingBadge = lastUpdate
+      ? {
+          tier: 'LIVING',
+          color: '#22d3ee',
+          label: 'LIVING ✓',
+          sub: lastUpdate.ts ? lastUpdate.ts.slice(0, 10) : '',
+          reviewerId: lastUpdate.reviewerId || '',
+        }
+      : { tier: 'NEVER', color: '#6b7280', label: 'NEVER', sub: 'Run living update' };
+
     return {
       totalTrials,
       screening: tier(screenedDual, screenedSingle, totalTrials),
       extraction: tier(extractedDual, extractedSingle, totalTrials),
       frozen: { tier: frozen ? 'FROZEN' : 'OPEN', color: frozen ? '#10b981' : '#6b7280',
                  label: frozen ? 'FROZEN ✓' : 'OPEN' },
+      living: livingBadge,
       counts: { screenedSingle, screenedDual, extractedSingle, extractedDual,
-                lockOwner: lock.owner || '', lockTs: lock.ts || '' },
+                lockOwner: lock.owner || '', lockTs: lock.ts || '',
+                livingRuns: updates.length, lastUpdateTs: lastUpdate ? lastUpdate.ts : '' },
     };
   }
 
@@ -121,6 +136,8 @@
       r.counts.extractedDual + '/' + r.totalTrials + ' dual'));
     wrap.appendChild(makeBadge('Lock', r.frozen,
       r.frozen.tier === 'FROZEN' ? r.counts.lockOwner : '—'));
+    wrap.appendChild(makeBadge('Living', r.living,
+      r.living.tier === 'LIVING' ? (r.living.sub + ' ' + (r.living.reviewerId || '')) : '—'));
     container.appendChild(wrap);
   }
 
