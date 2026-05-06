@@ -1106,6 +1106,9 @@
     <script src="vendor/outcome-switching.js"></script>
     <!-- RoB-2 traffic-light visualization -->
     <script src="vendor/rob2-traffic-light.js"></script>
+    <!-- RoB-2 regex auto-fill + user attest workflow -->
+    <script src="vendor/rob2-autofill.js"></script>
+
 
 
 
@@ -2492,7 +2495,7 @@
                         <button onclick="window.Rob2TrafficLight && window.Rob2TrafficLight.render('#rob2Widget')"
                             style="padding:4px 10px;background:#0891b2;color:#fff;border:none;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer;">
                             Render
-                        </button>
+                        </button><button onclick="window.Rob2Autofill && window.Rob2Autofill.open()" style="padding:4px 10px;background:#7c3aed;color:#fff;border:none;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer;margin-left:6px;" title="Auto-fill RoB-2 from PubMed abstracts via regex inference; user attests each per-trial proposal">🤖 Auto-fill + attest</button>
                     </div>
                     <div id="rob2Widget"><span style="color:#64748b;font-size:11px;font-style:italic;">Click "Render" to see RoB-2 status across all trials. Stub-only state (default 'low' across all 5 domains) is flagged for completion.</span></div>
                 </div>
