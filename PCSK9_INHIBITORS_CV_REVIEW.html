@@ -6419,16 +6419,16 @@
                 // v11.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_jak_ra_v1_0');
+                let saved = localStorage.getItem('rapid_meta_pcsk9_inhibitors_cv_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_jak_ra_v0_9');
+                    const old10 = localStorage.getItem('rapid_meta_pcsk9_inhibitors_cv_v0_9');
 
 
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_jak_ra_v1_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_pcsk9_inhibitors_cv_v1_0', old10); }
 
 
                 }
@@ -6437,10 +6437,10 @@
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_jak_ra_v0_8');
+                    const old93 = localStorage.getItem('rapid_meta_pcsk9_inhibitors_cv_v0_8');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_jak_ra_v1_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_pcsk9_inhibitors_cv_v1_0', old93); }
 
 
                 }
@@ -6476,7 +6476,7 @@
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_jak_ra_v1_0');
+                        localStorage.removeItem('rapid_meta_pcsk9_inhibitors_cv_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -7403,7 +7403,7 @@
                 // Restore theme preference
 
 
-                try { if (localStorage.getItem('rapid_meta_jak_ra_theme') === 'light') document.body.classList.add('light-mode'); } catch(e) {}
+                try { if (localStorage.getItem('rapid_meta_pcsk9_inhibitors_cv_theme') === 'light') document.body.classList.add('light-mode'); } catch(e) {}
 
 
                 // v12 canonical bootstrap: seed reference trials if no analysis-ready data
@@ -7729,11 +7729,11 @@
 
             save() {
                 try {
-                    localStorage.setItem('rapid_meta_jak_ra_v1_0', JSON.stringify(this.state));
+                    localStorage.setItem('rapid_meta_pcsk9_inhibitors_cv_v1_0', JSON.stringify(this.state));
                 } catch(e) {
                     if (e.name === 'QuotaExceededError') {
-                        if (this._pruneOtherReviews && this._pruneOtherReviews('rapid_meta_jak_ra_v1_0')) {
-                            try { localStorage.setItem('rapid_meta_jak_ra_v1_0', JSON.stringify(this.state)); }
+                        if (this._pruneOtherReviews && this._pruneOtherReviews('rapid_meta_pcsk9_inhibitors_cv_v1_0')) {
+                            try { localStorage.setItem('rapid_meta_pcsk9_inhibitors_cv_v1_0', JSON.stringify(this.state)); }
                             catch(e2) { showToast('Storage quota exceeded. Clear old version snapshots.'); }
                         } else {
                             showToast('Storage quota exceeded. Clear old version snapshots.');
@@ -8633,7 +8633,7 @@
                 document.body.classList.toggle('light-mode');
 
 
-                try { localStorage.setItem('rapid_meta_jak_ra_theme', document.body.classList.contains('light-mode') ? 'light' : 'dark'); } catch(e) {}
+                try { localStorage.setItem('rapid_meta_pcsk9_inhibitors_cv_theme', document.body.classList.contains('light-mode') ? 'light' : 'dark'); } catch(e) {}
 
 
             },
@@ -9800,7 +9800,7 @@
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_jak_ra_v1_0'); localStorage.removeItem('rapid_meta_jak_ra_v0_9'); localStorage.removeItem('rapid_meta_jak_ra_v0_8'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_pcsk9_inhibitors_cv_v1_0'); localStorage.removeItem('rapid_meta_pcsk9_inhibitors_cv_v0_9'); localStorage.removeItem('rapid_meta_pcsk9_inhibitors_cv_v0_8'); location.reload(); } },
 
 
             setBayesPrior(prior) {
