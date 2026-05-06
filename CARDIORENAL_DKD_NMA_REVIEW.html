@@ -1269,6 +1269,12 @@
     <script src="vendor/attestation-badges.js"></script>
     <!-- Living-review user-triggered re-search workflow -->
     <script src="vendor/living-review.js"></script>
+    <!-- PRISMA-NMA flow diagram (Page 2021 BMJ) -->
+    <script src="vendor/prisma-flow.js"></script>
+    <!-- Outcome-switching audit (Goldacre COMPare 2019) -->
+    <script src="vendor/outcome-switching.js"></script>
+
+
 
 
 
@@ -1605,6 +1611,12 @@
 
 
                         <tr><td class="p-4 font-bold text-slate-400">Conflicts of Interest</td><td class="p-4 text-slate-300">None declared</td></tr>
+
+
+                        <tr><td class="p-4 font-bold text-slate-400">Contributor Roles (CRediT)</td><td class="p-4 text-slate-300">MA &mdash; Conceptualization, Methodology, Data Curation, Writing (Original Draft &amp; Review &amp; Editing), Supervision. Per ICMJE 2023: human author takes full responsibility for accuracy and integrity of the work, including all AI-assisted components.</td></tr>
+
+
+                        <tr><td class="p-4 font-bold text-slate-400">AI Assistance Disclosure</td><td class="p-4 text-slate-300">AI tools (Claude / Anthropic) provided: (a) automated audit tooling implementation (internal-consistency, fragility-index, PI-gap, GRIM/Benford, AACT cross-check, PMID DataBankList verification), (b) statistical module implementation (DerSimonian-Laird+REML+HKSJ pooling, node-splitting, Doi/LFK, comparison-adjusted funnel, CINeMA-lite, POTH, Q-decomposition, contribution matrix), (c) initial drafts of summary text subject to human verification. AI is NOT listed as an author per ICMJE 2023; AI cannot take responsibility for a manuscript. All AI-generated content was reviewed and verified by the human author. The audit/extraction infrastructure is open-source at the GitHub repository for independent verification.</td></tr>
 
 
                     </tbody></table>
@@ -2294,7 +2306,13 @@
             </div>
 
 
-        </section>
+        
+
+                <div class="bg-slate-900/50 mt-4 p-4 rounded-lg border border-slate-800">
+                    <h4 class="text-xs font-bold uppercase text-blue-400 tracking-widest mb-3">PRISMA-NMA Flow Diagram</h4>
+                    <div id="prismaFlowContainer"></div>
+                </div>
+                </section>
 
 
 
@@ -2618,7 +2636,19 @@
             </div>
 
 
-        </section>
+        
+
+                <div class="bg-slate-900/50 mt-4 p-4 rounded-lg border border-slate-800">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <h4 class="text-xs font-bold uppercase text-blue-400 tracking-widest">Outcome-Switching Audit (registry vs paper)</h4>
+                        <button onclick="window.OutcomeSwitching && window.OutcomeSwitching.render('#osAudit')"
+                            style="padding:4px 10px;background:#0891b2;color:#fff;border:none;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer;">
+                            Run audit
+                        </button>
+                    </div>
+                    <div id="osAudit"><span style="color:#64748b;font-size:11px;font-style:italic;">Click "Run audit" to compare each trial's reported endpoint against the AACT-registered primary outcome (COMPare-style; Goldacre 2019).</span></div>
+                </div>
+                </section>
 
 
 
