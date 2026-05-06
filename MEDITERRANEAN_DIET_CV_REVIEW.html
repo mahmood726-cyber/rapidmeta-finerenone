@@ -1252,6 +1252,9 @@
 
     <!-- Verdict badge: per-topic data-integrity rollup of 7 gates -->
     <script src="vendor/verdict-badge.js"></script>
+    <!-- Attestation badges: dual screening + dual extraction + review-lock -->
+    <script src="vendor/attestation-badges.js"></script>
+
 
 <script>window.__verdict = {"verdict": "STABLE", "counts": {"P0_internal": 0, "P0_aact_nct_missing": 0, "P0_grim": 0, "P1_aact_concord": 0, "P1_fi_critical": 0, "P1_fi_warn": 0, "P1_pi_gap": 0, "P2_evidence_incomplete": 3, "n_trials_seen": 3, "P2_aact_advisory": 3}, "reasons": ["3 AACT title/registry advisory", "3 trial(s) missing evidence rows"], "p0_total": 0};</script>
 </head>
@@ -1557,7 +1560,7 @@
                 <div class="glass rounded-[2rem] border border-slate-800 overflow-hidden shadow-2xl">
 
 
-                    <div id="verdictBadgeContainer"></div>
+                    <div id="verdictBadgeContainer"></div><div id="attestationBadgesContainer"></div>
                     <div class="bg-slate-900/80 p-4 border-b border-slate-800"><h3 class="text-xs font-bold uppercase text-blue-400 tracking-widest"><i class="fa-solid fa-id-card mr-2"></i>1. Registration &amp; Administrative Information <span class="text-slate-500 ml-2">[PRISMA #24, AMSTAR #2]</span></h3></div>
 
 
@@ -7319,7 +7322,7 @@
 
                 'NCT00924937': {
 
-                    name: 'CORDIOPREV (Delgado-Lista 2022)', pmid: '35525596', phase: 'NA', year: 2022, tE: 87, tN: 502, cE: 122, cN: 500, group: 'Delgado-Lista J, Alcala-Diaz JF, Torres-Pena JD, et al; CORDIOPREV Investigators. Lancet 2022;399:1876-1885 (PMID 35525596). Spanish Ministry of Health + Andalusian Govt-sponsored single-center randomized open-label trial in n=1,002 patients aged 20-75 with established coronary heart disease (recent MI or PCI/CABG) at the Hospital Reina Sofia Cordoba, Spain, recruited 2009-2012, followed for 7 years. Randomized 1:1 to (A) Mediterranean diet rich in extra-virgin olive oil (MeDiet, n=502) vs (B) low-fat diet (LFD, n=500), both intensively counselled by trained dietitians. PRIMARY: composite of MI + revascularization + ischemic stroke + peripheral artery disease + CV death. RESULT: 87/502 (17.3%) MeDiet vs 122/500 (24.4%) LFD — HR 0.74 (95% CI 0.57-0.96; P=0.022) — MeDiet SUPERIOR for SECONDARY prevention. Larger benefit in men HR 0.67 (0.49-0.90); women HR 1.34 (0.71-2.50, NS, smaller subgroup). NNT 14 over 7 years. Drove ESC 2021 secondary-prevention dietary recommendation update.',
+                    name: 'CORDIOPREV (Delgado-Lista 2022)', pmid: '32903262', phase: 'NA', year: 2022, tE: 87, tN: 502, cE: 122, cN: 500, group: 'Delgado-Lista J, Alcala-Diaz JF, Torres-Pena JD, et al; CORDIOPREV Investigators. Lancet 2022;399:1876-1885 (PMID 35525596). Spanish Ministry of Health + Andalusian Govt-sponsored single-center randomized open-label trial in n=1,002 patients aged 20-75 with established coronary heart disease (recent MI or PCI/CABG) at the Hospital Reina Sofia Cordoba, Spain, recruited 2009-2012, followed for 7 years. Randomized 1:1 to (A) Mediterranean diet rich in extra-virgin olive oil (MeDiet, n=502) vs (B) low-fat diet (LFD, n=500), both intensively counselled by trained dietitians. PRIMARY: composite of MI + revascularization + ischemic stroke + peripheral artery disease + CV death. RESULT: 87/502 (17.3%) MeDiet vs 122/500 (24.4%) LFD — HR 0.74 (95% CI 0.57-0.96; P=0.022) — MeDiet SUPERIOR for SECONDARY prevention. Larger benefit in men HR 0.67 (0.49-0.90); women HR 1.34 (0.71-2.50, NS, smaller subgroup). NNT 14 over 7 years. Drove ESC 2021 secondary-prevention dietary recommendation update.',
 
                     estimandType: 'HR', publishedHR: 0.74, hrLCI: 0.57, hrUCI: 0.96, pubHR: 0.74,
 
@@ -45423,6 +45426,9 @@ except ImportError:
     ready(function () {
         if (window.VerdictBadge && document.getElementById('verdictBadgeContainer')) {
             window.VerdictBadge.render('#verdictBadgeContainer');
+        }
+        if (window.AttestationBadges && document.getElementById('attestationBadgesContainer')) {
+            window.AttestationBadges.render('#attestationBadgesContainer');
         }
     });
 })();

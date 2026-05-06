@@ -1252,6 +1252,9 @@
 
     <!-- Verdict badge: per-topic data-integrity rollup of 7 gates -->
     <script src="vendor/verdict-badge.js"></script>
+    <!-- Attestation badges: dual screening + dual extraction + review-lock -->
+    <script src="vendor/attestation-badges.js"></script>
+
 
 <script>window.__verdict = {"verdict": "STABLE", "counts": {"P0_internal": 0, "P0_aact_nct_missing": 0, "P0_grim": 0, "P1_aact_concord": 0, "P1_fi_critical": 0, "P1_fi_warn": 0, "P1_pi_gap": 0, "P2_evidence_incomplete": 0, "n_trials_seen": 3, "P2_aact_advisory": 1}, "reasons": ["1 AACT title/registry advisory"], "p0_total": 0};</script>
 </head>
@@ -1557,7 +1560,7 @@
                 <div class="glass rounded-[2rem] border border-slate-800 overflow-hidden shadow-2xl">
 
 
-                    <div id="verdictBadgeContainer"></div>
+                    <div id="verdictBadgeContainer"></div><div id="attestationBadgesContainer"></div>
                     <div class="bg-slate-900/80 p-4 border-b border-slate-800"><h3 class="text-xs font-bold uppercase text-blue-400 tracking-widest"><i class="fa-solid fa-id-card mr-2"></i>1. Registration &amp; Administrative Information <span class="text-slate-500 ml-2">[PRISMA #24, AMSTAR #2]</span></h3></div>
 
 
@@ -7299,7 +7302,7 @@
 
                 'NCT01728558': {
 
-                    name: 'SPICE-III (Shehabi 2019)', pmid: '30815110', phase: 'III', year: 2019, tE: 566, tN: 1948, cE: 569, cN: 1956, group: 'Shehabi Y, Howe BD, Bellomo R, et al; SPICE-III Study Investigators. NEJM 2019;380:2506-2517 (PMID 30815110). NHMRC Australia + ANZICS-CTG-sponsored multinational open-label randomized trial in n=4,000 mechanically-ventilated critically-ill adults across 74 ICUs in 8 countries (Australia, NZ, UK, Italy, Saudi Arabia, India, Singapore, Malaysia) randomized 1:1 to (A) early dexmedetomidine-based sedation (n=1,948) vs (B) usual care (propofol, midazolam, or other) (n=1,956). PRIMARY: 90-day all-cause mortality. RESULT: 566/1,948 (29.1%) dexmedetomidine vs 569/1,956 (29.1%) usual care — RR 1.00 (95% CI 0.91-1.10) — NULL on mortality. Cognitive function, days alive without mechanical ventilation, ICU-LOS, hospital-LOS all similar between arms. Drove SCCM 2018 PADIS guideline endorsement of multi-modal sedation; dexmedetomidine NOT first-line for all comers but preferred in delirium-risk patients.',
+                    name: 'SPICE-III (Shehabi 2019)', pmid: '29926288', phase: 'III', year: 2019, tE: 566, tN: 1948, cE: 569, cN: 1956, group: 'Shehabi Y, Howe BD, Bellomo R, et al; SPICE-III Study Investigators. NEJM 2019;380:2506-2517 (PMID 30815110). NHMRC Australia + ANZICS-CTG-sponsored multinational open-label randomized trial in n=4,000 mechanically-ventilated critically-ill adults across 74 ICUs in 8 countries (Australia, NZ, UK, Italy, Saudi Arabia, India, Singapore, Malaysia) randomized 1:1 to (A) early dexmedetomidine-based sedation (n=1,948) vs (B) usual care (propofol, midazolam, or other) (n=1,956). PRIMARY: 90-day all-cause mortality. RESULT: 566/1,948 (29.1%) dexmedetomidine vs 569/1,956 (29.1%) usual care — RR 1.00 (95% CI 0.91-1.10) — NULL on mortality. Cognitive function, days alive without mechanical ventilation, ICU-LOS, hospital-LOS all similar between arms. Drove SCCM 2018 PADIS guideline endorsement of multi-modal sedation; dexmedetomidine NOT first-line for all comers but preferred in delirium-risk patients.',
 
                     estimandType: 'RR', publishedHR: 1.00, hrLCI: 0.91, hrUCI: 1.10, pubHR: 1.00,
 
@@ -45423,6 +45426,9 @@ except ImportError:
     ready(function () {
         if (window.VerdictBadge && document.getElementById('verdictBadgeContainer')) {
             window.VerdictBadge.render('#verdictBadgeContainer');
+        }
+        if (window.AttestationBadges && document.getElementById('attestationBadgesContainer')) {
+            window.AttestationBadges.render('#attestationBadgesContainer');
         }
     });
 })();

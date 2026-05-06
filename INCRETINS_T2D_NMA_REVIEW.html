@@ -1265,6 +1265,9 @@
 
     <!-- Verdict badge: per-topic data-integrity rollup of 7 gates -->
     <script src="vendor/verdict-badge.js"></script>
+    <!-- Attestation badges: dual screening + dual extraction + review-lock -->
+    <script src="vendor/attestation-badges.js"></script>
+
 
 <script>window.__verdict = {"verdict": "STABLE", "counts": {"P0_internal": 0, "P0_aact_nct_missing": 0, "P0_grim": 0, "P1_aact_concord": 0, "P1_fi_critical": 0, "P1_fi_warn": 0, "P1_pi_gap": 0, "P2_evidence_incomplete": 17, "n_trials_seen": 17, "P2_aact_advisory": 8}, "reasons": ["8 AACT title/registry advisory", "17 trial(s) missing evidence rows"], "p0_total": 0};</script>
 </head>
@@ -1576,7 +1579,7 @@
                 <div class="glass rounded-[2rem] border border-slate-800 overflow-hidden shadow-2xl">
 
 
-                    <div id="verdictBadgeContainer"></div>
+                    <div id="verdictBadgeContainer"></div><div id="attestationBadgesContainer"></div>
                     <div class="bg-slate-900/80 p-4 border-b border-slate-800"><h3 class="text-xs font-bold uppercase text-blue-400 tracking-widest"><i class="fa-solid fa-id-card mr-2"></i>1. Registration &amp; Administrative Information <span class="text-slate-500 ml-2">[PRISMA #24, AMSTAR #2]</span></h3></div>
 
 
@@ -46859,6 +46862,9 @@ except ImportError:
     ready(function () {
         if (window.VerdictBadge && document.getElementById('verdictBadgeContainer')) {
             window.VerdictBadge.render('#verdictBadgeContainer');
+        }
+        if (window.AttestationBadges && document.getElementById('attestationBadgesContainer')) {
+            window.AttestationBadges.render('#attestationBadgesContainer');
         }
     });
 })();

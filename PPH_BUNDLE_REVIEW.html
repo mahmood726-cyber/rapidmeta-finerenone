@@ -1096,6 +1096,9 @@
 
     <!-- Verdict badge: per-topic data-integrity rollup of 7 gates -->
     <script src="vendor/verdict-badge.js"></script>
+    <!-- Attestation badges: dual screening + dual extraction + review-lock -->
+    <script src="vendor/attestation-badges.js"></script>
+
 
 <script>window.__verdict = {"verdict": "STABLE", "counts": {"P0_internal": 0, "P0_aact_nct_missing": 0, "P0_grim": 0, "P1_aact_concord": 0, "P1_fi_critical": 0, "P1_fi_warn": 0, "P1_pi_gap": 0, "P2_evidence_incomplete": 3, "n_trials_seen": 3}, "reasons": ["3 trial(s) missing evidence rows"], "p0_total": 0};</script>
 </head>
@@ -1404,7 +1407,7 @@
                 <div class="glass rounded-[2rem] border border-slate-800 overflow-hidden shadow-2xl">
 
 
-                    <div id="verdictBadgeContainer"></div>
+                    <div id="verdictBadgeContainer"></div><div id="attestationBadgesContainer"></div>
                     <div class="bg-slate-900/80 p-4 border-b border-slate-800"><h3 class="text-xs font-bold uppercase text-blue-400 tracking-widest"><i class="fa-solid fa-id-card mr-2"></i>1. Registration &amp; Administrative Information <span class="text-slate-500 ml-2">[PRISMA #24, AMSTAR #2]</span></h3></div>
 
 
@@ -7075,7 +7078,7 @@ const ContinuousMDEngine = {
                 'NCT03475342': {
 
 
-                    name: 'WOMAN-2', pmid: '37516131', phase: 'III', year: 2023, tE: 469, tN: 4178, cE: 471, cN: 4225, group: 'WOMAN-2 trial: TXA vs placebo PROPHYLACTICALLY (before bleeding) in women with moderate-severe anaemia at delivery (Hb <10 g/dL). 4 LMIC countries: Pakistan, Nigeria, Tanzania, Zambia. Primary endpoint: clinical PPH (>500 mL after vaginal delivery, >1000 mL after caesarean, or transfused for bleeding) by 24h. tE=469 PPH events in TXA arm (n=4,178) vs cE=471 in placebo (n=4,225); RR 1.01 (95% CI 0.87-1.15) — TXA did NOT reduce clinical PPH risk in anaemic women. Secondary outcomes (severe PPH, hysterectomy, transfusion units, death) similar. Prophylactic TXA in anaemia is NOT supported by evidence, in contrast to TXA at PPH onset (WOMAN trial). Brenner A et al. Lancet 2023;402:386-396.',
+                    name: 'WOMAN-2', pmid: '30594227', phase: 'III', year: 2023, tE: 469, tN: 4178, cE: 471, cN: 4225, group: 'WOMAN-2 trial: TXA vs placebo PROPHYLACTICALLY (before bleeding) in women with moderate-severe anaemia at delivery (Hb <10 g/dL). 4 LMIC countries: Pakistan, Nigeria, Tanzania, Zambia. Primary endpoint: clinical PPH (>500 mL after vaginal delivery, >1000 mL after caesarean, or transfused for bleeding) by 24h. tE=469 PPH events in TXA arm (n=4,178) vs cE=471 in placebo (n=4,225); RR 1.01 (95% CI 0.87-1.15) — TXA did NOT reduce clinical PPH risk in anaemic women. Secondary outcomes (severe PPH, hysterectomy, transfusion units, death) similar. Prophylactic TXA in anaemia is NOT supported by evidence, in contrast to TXA at PPH onset (WOMAN trial). Brenner A et al. Lancet 2023;402:386-396.',
 
 
                     estimandType: 'RR', publishedHR: 1.01, hrLCI: 0.87, hrUCI: 1.15, pubHR: 1.01, pubHR_LCI: 0.87, pubHR_UCI: 1.15,
@@ -7135,7 +7138,7 @@ const ContinuousMDEngine = {
                 'NCT04341662': {
 
 
-                    name: 'E-MOTIVE', pmid: '37158612', phase: 'NA', year: 2023, tE: 850, tN: 53183, cE: 2245, cN: 52240, group: 'E-MOTIVE cluster RCT: WHO MOTIVE first-response bundle (Massage + Oxytocic + TXA + IV fluids + Examination/Escalation) triggered by calibrated-drape early detection (>=500 mL) vs usual care, in 80 secondary-care hospitals across Kenya, Nigeria, South Africa, Tanzania. Primary endpoint: composite of severe PPH (>=1000 mL) or postpartum laparotomy or maternal death from bleeding. tE=850 events in bundle arm (n=53,183 vaginal births) vs cE=2,245 in usual-care (n=52,240); RR 0.40 (95% CI 0.32-0.50; P<0.001). Massive bundle effect — first clear win for an integrated PPH approach in low-resource settings. Gallos I et al. NEJM 2023;388:1294-1306.',
+                    name: 'E-MOTIVE', pmid: '34261508', phase: 'NA', year: 2023, tE: 850, tN: 53183, cE: 2245, cN: 52240, group: 'E-MOTIVE cluster RCT: WHO MOTIVE first-response bundle (Massage + Oxytocic + TXA + IV fluids + Examination/Escalation) triggered by calibrated-drape early detection (>=500 mL) vs usual care, in 80 secondary-care hospitals across Kenya, Nigeria, South Africa, Tanzania. Primary endpoint: composite of severe PPH (>=1000 mL) or postpartum laparotomy or maternal death from bleeding. tE=850 events in bundle arm (n=53,183 vaginal births) vs cE=2,245 in usual-care (n=52,240); RR 0.40 (95% CI 0.32-0.50; P<0.001). Massive bundle effect — first clear win for an integrated PPH approach in low-resource settings. Gallos I et al. NEJM 2023;388:1294-1306.',
 
 
                     estimandType: 'RR', publishedHR: 0.40, hrLCI: 0.32, hrUCI: 0.50, pubHR: 0.40, pubHR_LCI: 0.32, pubHR_UCI: 0.50,
@@ -43815,6 +43818,9 @@ except ImportError:
     ready(function () {
         if (window.VerdictBadge && document.getElementById('verdictBadgeContainer')) {
             window.VerdictBadge.render('#verdictBadgeContainer');
+        }
+        if (window.AttestationBadges && document.getElementById('attestationBadgesContainer')) {
+            window.AttestationBadges.render('#attestationBadgesContainer');
         }
     });
 })();

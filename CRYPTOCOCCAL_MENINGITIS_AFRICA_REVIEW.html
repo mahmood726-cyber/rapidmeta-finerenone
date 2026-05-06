@@ -1252,6 +1252,9 @@
 
     <!-- Verdict badge: per-topic data-integrity rollup of 7 gates -->
     <script src="vendor/verdict-badge.js"></script>
+    <!-- Attestation badges: dual screening + dual extraction + review-lock -->
+    <script src="vendor/attestation-badges.js"></script>
+
 
 <script>window.__verdict = {"verdict": "MODERATE", "counts": {"P0_internal": 0, "P0_aact_nct_missing": 0, "P0_grim": 0, "P1_aact_concord": 0, "P1_fi_critical": 1, "P1_fi_warn": 0, "P1_pi_gap": 0, "P2_evidence_incomplete": 3, "n_trials_seen": 3, "P2_aact_advisory": 2}, "reasons": ["2 AACT title/registry advisory", "1 trial(s) at FI=1", "3 trial(s) missing evidence rows"], "p0_total": 0};</script>
 </head>
@@ -1557,7 +1560,7 @@
                 <div class="glass rounded-[2rem] border border-slate-800 overflow-hidden shadow-2xl">
 
 
-                    <div id="verdictBadgeContainer"></div>
+                    <div id="verdictBadgeContainer"></div><div id="attestationBadgesContainer"></div>
                     <div class="bg-slate-900/80 p-4 border-b border-slate-800"><h3 class="text-xs font-bold uppercase text-blue-400 tracking-widest"><i class="fa-solid fa-id-card mr-2"></i>1. Registration &amp; Administrative Information <span class="text-slate-500 ml-2">[PRISMA #24, AMSTAR #2]</span></h3></div>
 
 
@@ -7341,7 +7344,7 @@
 
                 'NCT01075152': {
 
-                    name: 'COAT (ART timing in CM)', pmid: '24941068', phase: 'IV', year: 2014, tE: 40, tN: 88, cE: 27, cN: 89, group: 'Boulware DR, Meya DB, Muzoora C, et al. NEJM 2014;370:2487-2498 (PMID 24941068). University of Minnesota + Makerere + Mbarara + UCT-sponsored multicentre open-label randomized trial in HIV-1-infected ART-naive adults with cryptococcal meningitis across 3 sites in 2 sub-Saharan African countries: Uganda (Mbarara + IDI Mulago Kampala), South Africa (GF Jooste Hospital, Cape Town). n=177 enrolled; randomized 1:1 after 7-11 days of amphotericin B induction to (A) early ART within 48h of randomization (n=88) vs (B) deferred ART >=4 weeks post-randomization (n=89). All received efavirenz + 2 NRTIs. PRIMARY EFFICACY: 26-week all-cause mortality. RESULT: 40/88 (45%) early-ART vs 27/89 (30%) deferred-ART — HR 1.73 (95% CI 1.06-2.82) — early ART HARMFUL. Trial stopped early by DSMB. Driving mechanism: increased cryptococcal-IRIS-related mortality with early ART. Drove WHO 2017 confirmation of 4-6 week ART deferral after CM diagnosis. Africa relevance: DIRECT — entirely Uganda + South Africa.',
+                    name: 'COAT (ART timing in CM)', pmid: '23945372', phase: 'IV', year: 2014, tE: 40, tN: 88, cE: 27, cN: 89, group: 'Boulware DR, Meya DB, Muzoora C, et al. NEJM 2014;370:2487-2498 (PMID 24941068). University of Minnesota + Makerere + Mbarara + UCT-sponsored multicentre open-label randomized trial in HIV-1-infected ART-naive adults with cryptococcal meningitis across 3 sites in 2 sub-Saharan African countries: Uganda (Mbarara + IDI Mulago Kampala), South Africa (GF Jooste Hospital, Cape Town). n=177 enrolled; randomized 1:1 after 7-11 days of amphotericin B induction to (A) early ART within 48h of randomization (n=88) vs (B) deferred ART >=4 weeks post-randomization (n=89). All received efavirenz + 2 NRTIs. PRIMARY EFFICACY: 26-week all-cause mortality. RESULT: 40/88 (45%) early-ART vs 27/89 (30%) deferred-ART — HR 1.73 (95% CI 1.06-2.82) — early ART HARMFUL. Trial stopped early by DSMB. Driving mechanism: increased cryptococcal-IRIS-related mortality with early ART. Drove WHO 2017 confirmation of 4-6 week ART deferral after CM diagnosis. Africa relevance: DIRECT — entirely Uganda + South Africa.',
 
                     estimandType: 'HR', publishedHR: 1.73, hrLCI: 1.06, hrUCI: 2.82, pubHR: 1.73,
 
@@ -45426,6 +45429,9 @@ except ImportError:
     ready(function () {
         if (window.VerdictBadge && document.getElementById('verdictBadgeContainer')) {
             window.VerdictBadge.render('#verdictBadgeContainer');
+        }
+        if (window.AttestationBadges && document.getElementById('attestationBadgesContainer')) {
+            window.AttestationBadges.render('#attestationBadgesContainer');
         }
     });
 })();

@@ -1252,6 +1252,9 @@
 
     <!-- Verdict badge: per-topic data-integrity rollup of 7 gates -->
     <script src="vendor/verdict-badge.js"></script>
+    <!-- Attestation badges: dual screening + dual extraction + review-lock -->
+    <script src="vendor/attestation-badges.js"></script>
+
 
 <script>window.__verdict = {"verdict": "STABLE", "counts": {"P0_internal": 0, "P0_aact_nct_missing": 0, "P0_grim": 0, "P1_aact_concord": 0, "P1_fi_critical": 0, "P1_fi_warn": 0, "P1_pi_gap": 0, "P2_evidence_incomplete": 0, "n_trials_seen": 3, "P2_aact_advisory": 1}, "reasons": ["1 AACT title/registry advisory"], "p0_total": 0};</script>
 </head>
@@ -1557,7 +1560,7 @@
                 <div class="glass rounded-[2rem] border border-slate-800 overflow-hidden shadow-2xl">
 
 
-                    <div id="verdictBadgeContainer"></div>
+                    <div id="verdictBadgeContainer"></div><div id="attestationBadgesContainer"></div>
                     <div class="bg-slate-900/80 p-4 border-b border-slate-800"><h3 class="text-xs font-bold uppercase text-blue-400 tracking-widest"><i class="fa-solid fa-id-card mr-2"></i>1. Registration &amp; Administrative Information <span class="text-slate-500 ml-2">[PRISMA #24, AMSTAR #2]</span></h3></div>
 
 
@@ -7319,7 +7322,7 @@
 
                 'NCT02718326': {
 
-                    name: 'PANORAMA (Brown 2021)', pmid: '33890860', phase: 'III', year: 2021, tE: 79, tN: 269, cE: 16, cN: 133, group: 'Brown DM, Wykoff CC, Boyer D, et al; PANORAMA Investigators. Ophthalmology 2021;128:1573-1583 (PMID 33890860). Regeneron/Bayer-sponsored multinational double-blind randomized phase 3 trial in n=402 adults with moderately severe to severe NPDR (DR Severity Scale 47-53) WITHOUT DME, across 87 US/Europe/Asia sites. Randomized 1:1:1 to (A) aflibercept 2mg q16w (after 5 monthly + 1 8-week loading) (n=135), (B) aflibercept 2mg q8-16w PRN (n=134), (C) sham (n=133). PRIMARY: proportion improving >=2 steps on DRSS at week 52. RESULT (combined aflibercept arms vs sham at week 100): 79/269 (29.4%) >=2-step improvement vs 16/133 (12.0%) sham — RR 2.44 (95% CI 1.49-4.01); proliferative DR development 3.0% aflibercept vs 19.5% sham (RR 0.15). Drove FDA 2019 + EMA 2020 approval of aflibercept for non-proliferative DR.',
+                    name: 'PANORAMA (Brown 2021)', pmid: '34351414', phase: 'III', year: 2021, tE: 79, tN: 269, cE: 16, cN: 133, group: 'Brown DM, Wykoff CC, Boyer D, et al; PANORAMA Investigators. Ophthalmology 2021;128:1573-1583 (PMID 33890860). Regeneron/Bayer-sponsored multinational double-blind randomized phase 3 trial in n=402 adults with moderately severe to severe NPDR (DR Severity Scale 47-53) WITHOUT DME, across 87 US/Europe/Asia sites. Randomized 1:1:1 to (A) aflibercept 2mg q16w (after 5 monthly + 1 8-week loading) (n=135), (B) aflibercept 2mg q8-16w PRN (n=134), (C) sham (n=133). PRIMARY: proportion improving >=2 steps on DRSS at week 52. RESULT (combined aflibercept arms vs sham at week 100): 79/269 (29.4%) >=2-step improvement vs 16/133 (12.0%) sham — RR 2.44 (95% CI 1.49-4.01); proliferative DR development 3.0% aflibercept vs 19.5% sham (RR 0.15). Drove FDA 2019 + EMA 2020 approval of aflibercept for non-proliferative DR.',
 
                     estimandType: 'RR', publishedHR: 2.44, hrLCI: 1.49, hrUCI: 4.01, pubHR: 2.44,
 
@@ -45423,6 +45426,9 @@ except ImportError:
     ready(function () {
         if (window.VerdictBadge && document.getElementById('verdictBadgeContainer')) {
             window.VerdictBadge.render('#verdictBadgeContainer');
+        }
+        if (window.AttestationBadges && document.getElementById('attestationBadgesContainer')) {
+            window.AttestationBadges.render('#attestationBadgesContainer');
         }
     });
 })();

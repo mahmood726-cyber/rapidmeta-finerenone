@@ -1252,6 +1252,9 @@
 
     <!-- Verdict badge: per-topic data-integrity rollup of 7 gates -->
     <script src="vendor/verdict-badge.js"></script>
+    <!-- Attestation badges: dual screening + dual extraction + review-lock -->
+    <script src="vendor/attestation-badges.js"></script>
+
 
 <script>window.__verdict = {"verdict": "MODERATE", "counts": {"P0_internal": 0, "P0_aact_nct_missing": 0, "P0_grim": 0, "P1_aact_concord": 0, "P1_fi_critical": 1, "P1_fi_warn": 0, "P1_pi_gap": 0, "P2_evidence_incomplete": 3, "n_trials_seen": 3, "P2_aact_advisory": 2}, "reasons": ["2 AACT title/registry advisory", "1 trial(s) at FI=1", "3 trial(s) missing evidence rows"], "p0_total": 0};</script>
 </head>
@@ -1557,7 +1560,7 @@
                 <div class="glass rounded-[2rem] border border-slate-800 overflow-hidden shadow-2xl">
 
 
-                    <div id="verdictBadgeContainer"></div>
+                    <div id="verdictBadgeContainer"></div><div id="attestationBadgesContainer"></div>
                     <div class="bg-slate-900/80 p-4 border-b border-slate-800"><h3 class="text-xs font-bold uppercase text-blue-400 tracking-widest"><i class="fa-solid fa-id-card mr-2"></i>1. Registration &amp; Administrative Information <span class="text-slate-500 ml-2">[PRISMA #24, AMSTAR #2]</span></h3></div>
 
 
@@ -7341,7 +7344,7 @@
 
                 'NCT02145000': {
 
-                    name: 'Rotasiil ROSE Niger (Isanaka 2017)', pmid: '28327203', phase: 'III', year: 2017, tE: 31, tN: 2207, cE: 87, cN: 2206, group: 'Isanaka S, Guindo O, Langendorf C, et al. NEJM 2017;376:1121-1130 (PMID 28327203). Epicentre + MSF + Serum Institute of India-sponsored phase 3 double-blind randomized placebo-controlled trial in healthy infants 6-8 weeks of age in Madarounfa Health District, Maradi Region, Niger (Sahelian zone with high seasonal rotavirus burden + LMIC EPI conditions). n=6,586 enrolled, 4,413 included in per-protocol primary efficacy analysis; randomized 1:1 to (A) BRV-PV / Rotasiil pentavalent heat-stable lyophilized rotavirus vaccine 3-dose schedule vs (B) placebo. Vaccine administered at 6-8 / 10-12 / 14-16 weeks. KEY DESIGN: Rotasiil is heat-stable (no cold-chain required), so trial directly tested feasibility for Sahelian/sub-Saharan rural EPI. PRIMARY EFFICACY: severe rotavirus gastroenteritis (Vesikari >=11) from 28 days post 3rd dose to 2 years of age. RESULT: 31/2207 vaccine vs 87/2206 placebo — VE 66.7% (95% CI 49.9-77.9). Drove WHO 2018 prequalification of BRV-PV/Rotasiil — first heat-stable rotavirus vaccine, transformative for rural African EPI cold-chain limits. Africa relevance: DIRECT — entire trial in rural Niger.',
+                    name: 'Rotasiil ROSE Niger (Isanaka 2017)', pmid: '28328346', phase: 'III', year: 2017, tE: 31, tN: 2207, cE: 87, cN: 2206, group: 'Isanaka S, Guindo O, Langendorf C, et al. NEJM 2017;376:1121-1130 (PMID 28327203). Epicentre + MSF + Serum Institute of India-sponsored phase 3 double-blind randomized placebo-controlled trial in healthy infants 6-8 weeks of age in Madarounfa Health District, Maradi Region, Niger (Sahelian zone with high seasonal rotavirus burden + LMIC EPI conditions). n=6,586 enrolled, 4,413 included in per-protocol primary efficacy analysis; randomized 1:1 to (A) BRV-PV / Rotasiil pentavalent heat-stable lyophilized rotavirus vaccine 3-dose schedule vs (B) placebo. Vaccine administered at 6-8 / 10-12 / 14-16 weeks. KEY DESIGN: Rotasiil is heat-stable (no cold-chain required), so trial directly tested feasibility for Sahelian/sub-Saharan rural EPI. PRIMARY EFFICACY: severe rotavirus gastroenteritis (Vesikari >=11) from 28 days post 3rd dose to 2 years of age. RESULT: 31/2207 vaccine vs 87/2206 placebo — VE 66.7% (95% CI 49.9-77.9). Drove WHO 2018 prequalification of BRV-PV/Rotasiil — first heat-stable rotavirus vaccine, transformative for rural African EPI cold-chain limits. Africa relevance: DIRECT — entire trial in rural Niger.',
 
                     estimandType: 'RR', publishedHR: 0.353, hrLCI: 0.221, hrUCI: 0.501, pubHR: 0.353,
 
@@ -45426,6 +45429,9 @@ except ImportError:
     ready(function () {
         if (window.VerdictBadge && document.getElementById('verdictBadgeContainer')) {
             window.VerdictBadge.render('#verdictBadgeContainer');
+        }
+        if (window.AttestationBadges && document.getElementById('attestationBadgesContainer')) {
+            window.AttestationBadges.render('#attestationBadgesContainer');
         }
     });
 })();

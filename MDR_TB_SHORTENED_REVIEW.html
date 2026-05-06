@@ -1252,6 +1252,9 @@
 
     <!-- Verdict badge: per-topic data-integrity rollup of 7 gates -->
     <script src="vendor/verdict-badge.js"></script>
+    <!-- Attestation badges: dual screening + dual extraction + review-lock -->
+    <script src="vendor/attestation-badges.js"></script>
+
 
 <script>window.__verdict = {"verdict": "STABLE", "counts": {"P0_internal": 0, "P0_aact_nct_missing": 0, "P0_grim": 0, "P1_aact_concord": 0, "P1_fi_critical": 0, "P1_fi_warn": 0, "P1_pi_gap": 0, "P2_evidence_incomplete": 3, "n_trials_seen": 2, "P2_aact_advisory": 1}, "reasons": ["1 AACT title/registry advisory", "3 trial(s) missing evidence rows"], "p0_total": 0};</script>
 </head>
@@ -1557,7 +1560,7 @@
                 <div class="glass rounded-[2rem] border border-slate-800 overflow-hidden shadow-2xl">
 
 
-                    <div id="verdictBadgeContainer"></div>
+                    <div id="verdictBadgeContainer"></div><div id="attestationBadgesContainer"></div>
                     <div class="bg-slate-900/80 p-4 border-b border-slate-800"><h3 class="text-xs font-bold uppercase text-blue-400 tracking-widest"><i class="fa-solid fa-id-card mr-2"></i>1. Registration &amp; Administrative Information <span class="text-slate-500 ml-2">[PRISMA #24, AMSTAR #2]</span></h3></div>
 
 
@@ -7341,7 +7344,7 @@
 
                 'NCT03086486': {
 
-                    name: 'ZeNix (BPaL dose-finding)', pmid: '36167739', phase: 'III', year: 2022, tE: 7, tN: 91, cE: 9, cN: 93, group: 'Conradie F, Bagdasaryan TR, Borisov S, et al. NEJM 2022;387:810-823 (PMID 36167739). TB Alliance-sponsored phase 3 partially-blinded randomised trial in adults with pulmonary XDR-TB / pre-XDR-TB / treatment-intolerant or non-responsive MDR-TB across 11 sites in Georgia, Moldova, Russia (5 sites), and South Africa (4 sites: Empilweni Port Elizabeth, Tshepong Klerksdorp, King DinuZulu Durban, CHRU Sizwe Johannesburg). n=181 enrolled; randomized 1:1:1:1 to bedaquiline + pretomanid + linezolid (BPaL) with linezolid 1200mg/26w (Arm A), 1200mg/9w (Arm B), 600mg/26w (Arm C), or 600mg/9w (Arm D). PRIMARY EFFICACY: incidence of bacteriologic failure/relapse or clinical failure 26w post-EOT. RESULT in mITT: Arm C (Lzd 600mg/26w, the WHO-endorsed dose, n=91) 7/91 (8%) unfavourable vs Arm A (Lzd 1200mg/26w reference, n=93) 9/93 (10%) — RR 0.79 (95% CI 0.31-2.04) — non-inferior. Linezolid AEs lower in 600mg arms (peripheral neuropathy 13/91 vs 38/93 in 1200mg arm; RR 0.35). Drove WHO 2022 update endorsing 600mg/26w linezolid dose. Africa relevance: DIRECT — 4 of 11 sites in South Africa.',
+                    name: 'ZeNix (BPaL dose-finding)', pmid: '36053506', phase: 'III', year: 2022, tE: 7, tN: 91, cE: 9, cN: 93, group: 'Conradie F, Bagdasaryan TR, Borisov S, et al. NEJM 2022;387:810-823 (PMID 36167739). TB Alliance-sponsored phase 3 partially-blinded randomised trial in adults with pulmonary XDR-TB / pre-XDR-TB / treatment-intolerant or non-responsive MDR-TB across 11 sites in Georgia, Moldova, Russia (5 sites), and South Africa (4 sites: Empilweni Port Elizabeth, Tshepong Klerksdorp, King DinuZulu Durban, CHRU Sizwe Johannesburg). n=181 enrolled; randomized 1:1:1:1 to bedaquiline + pretomanid + linezolid (BPaL) with linezolid 1200mg/26w (Arm A), 1200mg/9w (Arm B), 600mg/26w (Arm C), or 600mg/9w (Arm D). PRIMARY EFFICACY: incidence of bacteriologic failure/relapse or clinical failure 26w post-EOT. RESULT in mITT: Arm C (Lzd 600mg/26w, the WHO-endorsed dose, n=91) 7/91 (8%) unfavourable vs Arm A (Lzd 1200mg/26w reference, n=93) 9/93 (10%) — RR 0.79 (95% CI 0.31-2.04) — non-inferior. Linezolid AEs lower in 600mg arms (peripheral neuropathy 13/91 vs 38/93 in 1200mg arm; RR 0.35). Drove WHO 2022 update endorsing 600mg/26w linezolid dose. Africa relevance: DIRECT — 4 of 11 sites in South Africa.',
 
                     estimandType: 'RR', publishedHR: 0.79, hrLCI: 0.31, hrUCI: 2.04, pubHR: 0.79,
 
@@ -45426,6 +45429,9 @@ except ImportError:
     ready(function () {
         if (window.VerdictBadge && document.getElementById('verdictBadgeContainer')) {
             window.VerdictBadge.render('#verdictBadgeContainer');
+        }
+        if (window.AttestationBadges && document.getElementById('attestationBadgesContainer')) {
+            window.AttestationBadges.render('#attestationBadgesContainer');
         }
     });
 })();

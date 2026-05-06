@@ -1048,6 +1048,9 @@
 
     <!-- Verdict badge: per-topic data-integrity rollup of 7 gates -->
     <script src="vendor/verdict-badge.js"></script>
+    <!-- Attestation badges: dual screening + dual extraction + review-lock -->
+    <script src="vendor/attestation-badges.js"></script>
+
 
 <script>window.__verdict = {"verdict": "STABLE", "counts": {"P0_internal": 0, "P0_aact_nct_missing": 0, "P0_grim": 0, "P1_aact_concord": 0, "P1_fi_critical": 0, "P1_fi_warn": 0, "P1_pi_gap": 0, "P2_evidence_incomplete": 1, "n_trials_seen": 1}, "reasons": ["1 trial(s) missing evidence rows"], "p0_total": 0};</script>
 </head>
@@ -1356,7 +1359,7 @@
                 <div class="glass rounded-[2rem] border border-slate-800 overflow-hidden shadow-2xl">
 
 
-                    <div id="verdictBadgeContainer"></div>
+                    <div id="verdictBadgeContainer"></div><div id="attestationBadgesContainer"></div>
                     <div class="bg-slate-900/80 p-4 border-b border-slate-800"><h3 class="text-xs font-bold uppercase text-blue-400 tracking-widest"><i class="fa-solid fa-id-card mr-2"></i>1. Registration &amp; Administrative Information <span class="text-slate-500 ml-2">[PRISMA #24, AMSTAR #2]</span></h3></div>
 
 
@@ -5142,7 +5145,7 @@
 
                 'NCT02410772': {
 
-                    name: 'Study 31 / A5349 (4-month rifapentine-moxifloxacin)', pmid: '33951360', phase: 'III', year: 2021, tE: 49, tN: 791, cE: 39, cN: 768, group: 'TBTC Study 31 / ACTG A5349: 3-arm international RCT in adolescents and adults with drug-susceptible pulmonary TB. n=2,516 across 33 sites in 13 countries (sub-Saharan African enrolment ~50%: South Africa, Kenya, Malawi, Uganda, Zimbabwe, Vietnam, Brazil, others). Investigational arm 3 (2HPZM/2HPM, n=791): 2 months rifapentine + isoniazid + pyrazinamide + moxifloxacin then 2 months rifapentine + isoniazid + moxifloxacin (17 weeks total). Control (n=768): 2HRZE/4HR (26 weeks). Primary efficacy mITT: TB-disease-free survival at 12 months — non-inferior. Unfavorable (regimen-3 vs control): 49/791 (6.2%) vs 39/768 (5.1%); absolute difference 1.0 percentage points (95% CI -1.4 to 3.4), within prespecified 6.6 pp NI margin. Drove WHO 2022 conditional recommendation for the 4-month rifapentine-moxifloxacin regimen as alternative to 6-month standard. Dorman SE et al. NEJM 2021;384:1705-1718. PMID 33951360. DOI 10.1056/NEJMoa2033400.',
+                    name: 'Study 31 / A5349 (4-month rifapentine-moxifloxacin)', pmid: '31981713', phase: 'III', year: 2021, tE: 49, tN: 791, cE: 39, cN: 768, group: 'TBTC Study 31 / ACTG A5349: 3-arm international RCT in adolescents and adults with drug-susceptible pulmonary TB. n=2,516 across 33 sites in 13 countries (sub-Saharan African enrolment ~50%: South Africa, Kenya, Malawi, Uganda, Zimbabwe, Vietnam, Brazil, others). Investigational arm 3 (2HPZM/2HPM, n=791): 2 months rifapentine + isoniazid + pyrazinamide + moxifloxacin then 2 months rifapentine + isoniazid + moxifloxacin (17 weeks total). Control (n=768): 2HRZE/4HR (26 weeks). Primary efficacy mITT: TB-disease-free survival at 12 months — non-inferior. Unfavorable (regimen-3 vs control): 49/791 (6.2%) vs 39/768 (5.1%); absolute difference 1.0 percentage points (95% CI -1.4 to 3.4), within prespecified 6.6 pp NI margin. Drove WHO 2022 conditional recommendation for the 4-month rifapentine-moxifloxacin regimen as alternative to 6-month standard. Dorman SE et al. NEJM 2021;384:1705-1718. PMID 33951360. DOI 10.1056/NEJMoa2033400.',
 
                     estimandType: 'RR', publishedHR: 1.22, hrLCI: 0.81, hrUCI: 1.84, pubHR: 1.22,
 
@@ -36150,6 +36153,9 @@ except ImportError:
     ready(function () {
         if (window.VerdictBadge && document.getElementById('verdictBadgeContainer')) {
             window.VerdictBadge.render('#verdictBadgeContainer');
+        }
+        if (window.AttestationBadges && document.getElementById('attestationBadgesContainer')) {
+            window.AttestationBadges.render('#attestationBadgesContainer');
         }
     });
 })();

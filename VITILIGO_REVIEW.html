@@ -1252,6 +1252,9 @@
 
     <!-- Verdict badge: per-topic data-integrity rollup of 7 gates -->
     <script src="vendor/verdict-badge.js"></script>
+    <!-- Attestation badges: dual screening + dual extraction + review-lock -->
+    <script src="vendor/attestation-badges.js"></script>
+
 
 <script>window.__verdict = {"verdict": "STABLE", "counts": {"P0_internal": 0, "P0_aact_nct_missing": 0, "P0_grim": 0, "P1_aact_concord": 1, "P1_fi_critical": 0, "P1_fi_warn": 0, "P1_pi_gap": 0, "P2_evidence_incomplete": 0, "n_trials_seen": 3}, "reasons": ["1 AACT outcome-direction divergence(s)"], "p0_total": 0};</script>
 </head>
@@ -1557,7 +1560,7 @@
                 <div class="glass rounded-[2rem] border border-slate-800 overflow-hidden shadow-2xl">
 
 
-                    <div id="verdictBadgeContainer"></div>
+                    <div id="verdictBadgeContainer"></div><div id="attestationBadgesContainer"></div>
                     <div class="bg-slate-900/80 p-4 border-b border-slate-800"><h3 class="text-xs font-bold uppercase text-blue-400 tracking-widest"><i class="fa-solid fa-id-card mr-2"></i>1. Registration &amp; Administrative Information <span class="text-slate-500 ml-2">[PRISMA #24, AMSTAR #2]</span></h3></div>
 
 
@@ -7339,7 +7342,7 @@
 
                 'NCT04927975': {
 
-                    name: 'UpA-Vitiligo Phase 2/3 (Passeron 2024)', pmid: '38744278', phase: 'III', year: 2024, tE: 28, tN: 70, cE: 5, cN: 55, group: 'Passeron T, Ezzedine K, Bahadoran P, et al. Lancet 2024 (PMID 38744278 / preprint from initial phase 2 results for upadacitinib in vitiligo; full Phase 3 ongoing). AbbVie-sponsored multinational randomized phase 2/3 trial in adults with non-segmental vitiligo (eligibility similar to TRuE: F-VASI >=0.5, T-VASI >=3, BSA 0.5-10%) randomized to (A) upadacitinib 22mg PO QD (n=70) vs (B) placebo (n=55) for 24 weeks. PRIMARY (Phase 2 at 24 weeks): F-VASI50. RESULT: 28/70 (40.0%) upadacitinib vs 5/55 (9.1%) placebo — RR 4.40 (95% CI 1.83-10.59); difference 31pp (95% CI 18-43). DEMONSTRATES that ORAL JAK1 inhibition is more effective than topical ruxolitinib cream — but at the cost of systemic safety profile (herpes zoster, lab abnormalities); risk-benefit shifts towards severe widespread vitiligo. Drove regulatory submission for vitiligo indication 2024.',
+                    name: 'UpA-Vitiligo Phase 2/3 (Passeron 2024)', pmid: '38873632', phase: 'III', year: 2024, tE: 28, tN: 70, cE: 5, cN: 55, group: 'Passeron T, Ezzedine K, Bahadoran P, et al. Lancet 2024 (PMID 38744278 / preprint from initial phase 2 results for upadacitinib in vitiligo; full Phase 3 ongoing). AbbVie-sponsored multinational randomized phase 2/3 trial in adults with non-segmental vitiligo (eligibility similar to TRuE: F-VASI >=0.5, T-VASI >=3, BSA 0.5-10%) randomized to (A) upadacitinib 22mg PO QD (n=70) vs (B) placebo (n=55) for 24 weeks. PRIMARY (Phase 2 at 24 weeks): F-VASI50. RESULT: 28/70 (40.0%) upadacitinib vs 5/55 (9.1%) placebo — RR 4.40 (95% CI 1.83-10.59); difference 31pp (95% CI 18-43). DEMONSTRATES that ORAL JAK1 inhibition is more effective than topical ruxolitinib cream — but at the cost of systemic safety profile (herpes zoster, lab abnormalities); risk-benefit shifts towards severe widespread vitiligo. Drove regulatory submission for vitiligo indication 2024.',
 
                     estimandType: 'RR', publishedHR: 4.40, hrLCI: 1.83, hrUCI: 10.59, pubHR: 4.40,
 
@@ -45423,6 +45426,9 @@ except ImportError:
     ready(function () {
         if (window.VerdictBadge && document.getElementById('verdictBadgeContainer')) {
             window.VerdictBadge.render('#verdictBadgeContainer');
+        }
+        if (window.AttestationBadges && document.getElementById('attestationBadgesContainer')) {
+            window.AttestationBadges.render('#attestationBadgesContainer');
         }
     });
 })();

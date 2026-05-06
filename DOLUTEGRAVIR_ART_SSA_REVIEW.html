@@ -1096,6 +1096,9 @@
 
     <!-- Verdict badge: per-topic data-integrity rollup of 7 gates -->
     <script src="vendor/verdict-badge.js"></script>
+    <!-- Attestation badges: dual screening + dual extraction + review-lock -->
+    <script src="vendor/attestation-badges.js"></script>
+
 
 <script>window.__verdict = {"verdict": "STABLE", "counts": {"P0_internal": 0, "P0_aact_nct_missing": 0, "P0_grim": 0, "P1_aact_concord": 0, "P1_fi_critical": 0, "P1_fi_warn": 0, "P1_pi_gap": 0, "P2_evidence_incomplete": 3, "n_trials_seen": 3, "P2_aact_advisory": 1}, "reasons": ["1 AACT title/registry advisory", "3 trial(s) missing evidence rows"], "p0_total": 0};</script>
 </head>
@@ -1404,7 +1407,7 @@
                 <div class="glass rounded-[2rem] border border-slate-800 overflow-hidden shadow-2xl">
 
 
-                    <div id="verdictBadgeContainer"></div>
+                    <div id="verdictBadgeContainer"></div><div id="attestationBadgesContainer"></div>
                     <div class="bg-slate-900/80 p-4 border-b border-slate-800"><h3 class="text-xs font-bold uppercase text-blue-400 tracking-widest"><i class="fa-solid fa-id-card mr-2"></i>1. Registration &amp; Administrative Information <span class="text-slate-500 ml-2">[PRISMA #24, AMSTAR #2]</span></h3></div>
 
 
@@ -7068,7 +7071,7 @@ const ContinuousMDEngine = {
                 'NCT02777229': {
 
 
-                    name: 'NAMSAL', pmid: '31339674', phase: 'III', year: 2019, tE: 231, tN: 310, cE: 209, cN: 303, group: 'Cameroonian adults, TDF/3TC + DTG vs TDF/3TC + EFV 400 mg first-line ART; week 48 virologic suppression (HIV-1 RNA <50 copies/mL, snapshot ITT)', publishedHR: 1.08, hrLCI: 0.97, hrUCI: 1.2,
+                    name: 'NAMSAL', pmid: '31339676', phase: 'III', year: 2019, tE: 231, tN: 310, cE: 209, cN: 303, group: 'Cameroonian adults, TDF/3TC + DTG vs TDF/3TC + EFV 400 mg first-line ART; week 48 virologic suppression (HIV-1 RNA <50 copies/mL, snapshot ITT)', publishedHR: 1.08, hrLCI: 0.97, hrUCI: 1.2,
 
 
                     allOutcomes: [
@@ -7099,7 +7102,7 @@ const ContinuousMDEngine = {
                 'NCT03048422': {
 
 
-                    name: 'IMPAACT 2010', pmid: '33812489', phase: 'III', year: 2021, tE: 212, tN: 217, cE: 183, cN: 211, group: 'ART-naive pregnant women initiating in 2nd / early 3rd trimester (multi-country: Botswana / South Africa / Tanzania / Uganda / Zimbabwe + Brazil + India + Thailand + US); DTG + FTC/TDF vs EFV/FTC/TDF; HIV-1 RNA <200 copies/mL at delivery (snapshot ITT)', publishedHR: 1.13, hrLCI: 1.06, hrUCI: 1.21,
+                    name: 'IMPAACT 2010', pmid: '33812487', phase: 'III', year: 2021, tE: 212, tN: 217, cE: 183, cN: 211, group: 'ART-naive pregnant women initiating in 2nd / early 3rd trimester (multi-country: Botswana / South Africa / Tanzania / Uganda / Zimbabwe + Brazil + India + Thailand + US); DTG + FTC/TDF vs EFV/FTC/TDF; HIV-1 RNA <200 copies/mL at delivery (snapshot ITT)', publishedHR: 1.13, hrLCI: 1.06, hrUCI: 1.21,
 
 
                     allOutcomes: [
@@ -43776,6 +43779,9 @@ except ImportError:
     ready(function () {
         if (window.VerdictBadge && document.getElementById('verdictBadgeContainer')) {
             window.VerdictBadge.render('#verdictBadgeContainer');
+        }
+        if (window.AttestationBadges && document.getElementById('attestationBadgesContainer')) {
+            window.AttestationBadges.render('#attestationBadgesContainer');
         }
     });
 })();

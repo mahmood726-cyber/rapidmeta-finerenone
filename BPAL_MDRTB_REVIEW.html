@@ -1096,6 +1096,9 @@
 
     <!-- Verdict badge: per-topic data-integrity rollup of 7 gates -->
     <script src="vendor/verdict-badge.js"></script>
+    <!-- Attestation badges: dual screening + dual extraction + review-lock -->
+    <script src="vendor/attestation-badges.js"></script>
+
 
 <script>window.__verdict = {"verdict": "STABLE", "counts": {"P0_internal": 0, "P0_aact_nct_missing": 0, "P0_grim": 0, "P1_aact_concord": 0, "P1_fi_critical": 0, "P1_fi_warn": 0, "P1_pi_gap": 0, "P2_evidence_incomplete": 3, "n_trials_seen": 3}, "reasons": ["3 trial(s) missing evidence rows"], "p0_total": 0};</script>
 </head>
@@ -1404,7 +1407,7 @@
                 <div class="glass rounded-[2rem] border border-slate-800 overflow-hidden shadow-2xl">
 
 
-                    <div id="verdictBadgeContainer"></div>
+                    <div id="verdictBadgeContainer"></div><div id="attestationBadgesContainer"></div>
                     <div class="bg-slate-900/80 p-4 border-b border-slate-800"><h3 class="text-xs font-bold uppercase text-blue-400 tracking-widest"><i class="fa-solid fa-id-card mr-2"></i>1. Registration &amp; Administrative Information <span class="text-slate-500 ml-2">[PRISMA #24, AMSTAR #2]</span></h3></div>
 
 
@@ -7068,7 +7071,7 @@ const ContinuousMDEngine = {
                 'NCT02409290': {
 
 
-                    name: 'STREAM-2', pmid: '36368333', phase: 'III', year: 2022, tE: 172, tN: 207, cE: 143, cN: 202, group: 'Rifampicin-resistant TB, Stage 2B all-oral 9-month bedaquiline + linezolid + levofloxacin + clofazimine + pyrazinamide vs Stage 2A 9-month standard with injectable (Ethiopia / South Africa / India / Mongolia / Moldova / Uganda / Georgia)', publishedHR: 1.17, hrLCI: 1.05, hrUCI: 1.31,
+                    name: 'STREAM-2', pmid: '30865791', phase: 'III', year: 2022, tE: 172, tN: 207, cE: 143, cN: 202, group: 'Rifampicin-resistant TB, Stage 2B all-oral 9-month bedaquiline + linezolid + levofloxacin + clofazimine + pyrazinamide vs Stage 2A 9-month standard with injectable (Ethiopia / South Africa / India / Mongolia / Moldova / Uganda / Georgia)', publishedHR: 1.17, hrLCI: 1.05, hrUCI: 1.31,
 
 
                     allOutcomes: [
@@ -43770,6 +43773,9 @@ except ImportError:
     ready(function () {
         if (window.VerdictBadge && document.getElementById('verdictBadgeContainer')) {
             window.VerdictBadge.render('#verdictBadgeContainer');
+        }
+        if (window.AttestationBadges && document.getElementById('attestationBadgesContainer')) {
+            window.AttestationBadges.render('#attestationBadgesContainer');
         }
     });
 })();

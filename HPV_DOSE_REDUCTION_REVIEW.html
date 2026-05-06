@@ -1096,6 +1096,9 @@
 
     <!-- Verdict badge: per-topic data-integrity rollup of 7 gates -->
     <script src="vendor/verdict-badge.js"></script>
+    <!-- Attestation badges: dual screening + dual extraction + review-lock -->
+    <script src="vendor/attestation-badges.js"></script>
+
 
 <script>window.__verdict = {"verdict": "STABLE", "counts": {"P0_internal": 0, "P0_aact_nct_missing": 0, "P0_grim": 0, "P1_aact_concord": 0, "P1_fi_critical": 0, "P1_fi_warn": 0, "P1_pi_gap": 0, "P2_evidence_incomplete": 3, "n_trials_seen": 3}, "reasons": ["3 trial(s) missing evidence rows"], "p0_total": 0};</script>
 </head>
@@ -1404,7 +1407,7 @@
                 <div class="glass rounded-[2rem] border border-slate-800 overflow-hidden shadow-2xl">
 
 
-                    <div id="verdictBadgeContainer"></div>
+                    <div id="verdictBadgeContainer"></div><div id="attestationBadgesContainer"></div>
                     <div class="bg-slate-900/80 p-4 border-b border-slate-800"><h3 class="text-xs font-bold uppercase text-blue-400 tracking-widest"><i class="fa-solid fa-id-card mr-2"></i>1. Registration &amp; Administrative Information <span class="text-slate-500 ml-2">[PRISMA #24, AMSTAR #2]</span></h3></div>
 
 
@@ -7017,7 +7020,7 @@ const ContinuousMDEngine = {
                 'NCT03675256': {
 
 
-                    name: 'KEN-SHE bivalent', pmid: '35693867', phase: 'IV', year: 2022, tE: 0, tN: 758, cE: 38, cN: 758, group: 'KEN-SHE bivalent (HPV 16/18) single-dose vs delayed-meningococcal control. tE=0 persistent HPV 16/18 infections at 18 mo (immediate-bivalent arm, n=758 mITT). cE=38 (delayed-control arm, n=758). Vaccine efficacy 97.5% (95% CI 81.7-99.7) per modified-ITT analysis. SHARED-CONTROL CAVEAT: same delayed-control as KEN-SHE nonavalent contrast (NCT03675256_NONAV) — pool one or apply split-control per Cochrane 23.3.4. Barnabas RV et al. NEJM Evid 2022 (DOI 10.1056/EVIDoa2100046).',
+                    name: 'KEN-SHE bivalent', pmid: '32078808', phase: 'IV', year: 2022, tE: 0, tN: 758, cE: 38, cN: 758, group: 'KEN-SHE bivalent (HPV 16/18) single-dose vs delayed-meningococcal control. tE=0 persistent HPV 16/18 infections at 18 mo (immediate-bivalent arm, n=758 mITT). cE=38 (delayed-control arm, n=758). Vaccine efficacy 97.5% (95% CI 81.7-99.7) per modified-ITT analysis. SHARED-CONTROL CAVEAT: same delayed-control as KEN-SHE nonavalent contrast (NCT03675256_NONAV) — pool one or apply split-control per Cochrane 23.3.4. Barnabas RV et al. NEJM Evid 2022 (DOI 10.1056/EVIDoa2100046).',
 
 
                     estimandType: 'RR', publishedHR: 0.025, hrLCI: 0.003, hrUCI: 0.183, pubHR: 0.025, pubHR_LCI: 0.003, pubHR_UCI: 0.183,
@@ -7140,7 +7143,7 @@ const ContinuousMDEngine = {
                 'NCT02834637': {
 
 
-                    name: 'DoRIS 1d-vs-3d bivalent', pmid: '36410354', phase: 'III', year: 2022, tE: 155, tN: 155, cE: 155, cN: 155, group: 'DoRIS bivalent 1-dose vs 3-dose contrast — HPV 16/18 antibody seropositivity at month 24, immunobridging non-inferiority. tE=155/tN=155 (1-dose bivalent arm seropositive at M24, 100%). cE=155/cN=155 (3-dose bivalent arm seropositive at M24, 100%). Non-inferiority margin (10-percentage-point lower bound on the 1-sided 97.5% CI for the difference) was met. Geometric mean titer (GMT) 1-dose ~5x lower than 3-dose but well above the seroprotective threshold derived from historical efficacy cohorts.',
+                    name: 'DoRIS 1d-vs-3d bivalent', pmid: '36113531', phase: 'III', year: 2022, tE: 155, tN: 155, cE: 155, cN: 155, group: 'DoRIS bivalent 1-dose vs 3-dose contrast — HPV 16/18 antibody seropositivity at month 24, immunobridging non-inferiority. tE=155/tN=155 (1-dose bivalent arm seropositive at M24, 100%). cE=155/cN=155 (3-dose bivalent arm seropositive at M24, 100%). Non-inferiority margin (10-percentage-point lower bound on the 1-sided 97.5% CI for the difference) was met. Geometric mean titer (GMT) 1-dose ~5x lower than 3-dose but well above the seroprotective threshold derived from historical efficacy cohorts.',
 
 
                     estimandType: 'RR', publishedHR: 1.0, hrLCI: 0.96, hrUCI: 1.04, pubHR: 1.0, pubHR_LCI: 0.96, pubHR_UCI: 1.04,
@@ -43817,6 +43820,9 @@ except ImportError:
     ready(function () {
         if (window.VerdictBadge && document.getElementById('verdictBadgeContainer')) {
             window.VerdictBadge.render('#verdictBadgeContainer');
+        }
+        if (window.AttestationBadges && document.getElementById('attestationBadgesContainer')) {
+            window.AttestationBadges.render('#attestationBadgesContainer');
         }
     });
 })();

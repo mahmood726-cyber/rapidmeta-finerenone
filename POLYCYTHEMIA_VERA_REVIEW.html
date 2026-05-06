@@ -1252,6 +1252,9 @@
 
     <!-- Verdict badge: per-topic data-integrity rollup of 7 gates -->
     <script src="vendor/verdict-badge.js"></script>
+    <!-- Attestation badges: dual screening + dual extraction + review-lock -->
+    <script src="vendor/attestation-badges.js"></script>
+
 
 <script>window.__verdict = {"verdict": "STABLE", "counts": {"P0_internal": 0, "P0_aact_nct_missing": 0, "P0_grim": 0, "P1_aact_concord": 0, "P1_fi_critical": 0, "P1_fi_warn": 0, "P1_pi_gap": 0, "P2_evidence_incomplete": 3, "n_trials_seen": 3, "P2_aact_advisory": 1}, "reasons": ["1 AACT title/registry advisory", "3 trial(s) missing evidence rows"], "p0_total": 0};</script>
 </head>
@@ -1557,7 +1560,7 @@
                 <div class="glass rounded-[2rem] border border-slate-800 overflow-hidden shadow-2xl">
 
 
-                    <div id="verdictBadgeContainer"></div>
+                    <div id="verdictBadgeContainer"></div><div id="attestationBadgesContainer"></div>
                     <div class="bg-slate-900/80 p-4 border-b border-slate-800"><h3 class="text-xs font-bold uppercase text-blue-400 tracking-widest"><i class="fa-solid fa-id-card mr-2"></i>1. Registration &amp; Administrative Information <span class="text-slate-500 ml-2">[PRISMA #24, AMSTAR #2]</span></h3></div>
 
 
@@ -7339,7 +7342,7 @@
 
                 'NCT01949805': {
 
-                    name: 'PROUD-PV (Gisslinger 2020)', pmid: '31816374', phase: 'III', year: 2020, tE: 25, tN: 122, cE: 22, cN: 127, group: 'Gisslinger H, Klade C, Georgiev P, et al; PROUD-PV Study Group. Lancet Haematol 2020;7:e196-e208 (PMID 31816374). AOP Health-sponsored European multicenter open-label randomized phase 3 non-inferiority trial in n=257 polycythemia-vera patients across 16 sites in 8 European countries (PROUD-PV phase + extension CONTINUATION-PV). Randomized 1:1 to (A) ropeginterferon alfa-2b 100-500ug SC q2w (n=127) vs (B) hydroxyurea (HU) (n=127), both titrated to disease control. PRIMARY (12 months): complete hematological response (CHR; HCT <45%, normal WBC + platelets, normal spleen). RESULT (mITT, ropeg vs HU at 12mo): 25/122 (20.5%) ropeg vs 22/127 (17.3%) HU — RR 1.18 (95% CI 0.71-1.95) — non-inferior at margin 0.50; MOLECULAR response (>=50% reduction JAK2-V617F allele burden) was significantly better with ropeg long-term (24-month CONTINUATION-PV: 53% vs 38%, P=0.04). Drove EMA 2019 + FDA 2021 approval of ropeginterferon for PV. Africa relevance: indirect (Europe-only); ropeginterferon as PEG-IFN-alpha-2b refinement provides the cytoreduction benchmark for any African PV NMA.',
+                    name: 'PROUD-PV (Gisslinger 2020)', pmid: '30287855', phase: 'III', year: 2020, tE: 25, tN: 122, cE: 22, cN: 127, group: 'Gisslinger H, Klade C, Georgiev P, et al; PROUD-PV Study Group. Lancet Haematol 2020;7:e196-e208 (PMID 31816374). AOP Health-sponsored European multicenter open-label randomized phase 3 non-inferiority trial in n=257 polycythemia-vera patients across 16 sites in 8 European countries (PROUD-PV phase + extension CONTINUATION-PV). Randomized 1:1 to (A) ropeginterferon alfa-2b 100-500ug SC q2w (n=127) vs (B) hydroxyurea (HU) (n=127), both titrated to disease control. PRIMARY (12 months): complete hematological response (CHR; HCT <45%, normal WBC + platelets, normal spleen). RESULT (mITT, ropeg vs HU at 12mo): 25/122 (20.5%) ropeg vs 22/127 (17.3%) HU — RR 1.18 (95% CI 0.71-1.95) — non-inferior at margin 0.50; MOLECULAR response (>=50% reduction JAK2-V617F allele burden) was significantly better with ropeg long-term (24-month CONTINUATION-PV: 53% vs 38%, P=0.04). Drove EMA 2019 + FDA 2021 approval of ropeginterferon for PV. Africa relevance: indirect (Europe-only); ropeginterferon as PEG-IFN-alpha-2b refinement provides the cytoreduction benchmark for any African PV NMA.',
 
                     estimandType: 'RR', publishedHR: 1.18, hrLCI: 0.71, hrUCI: 1.95, pubHR: 1.18,
 
@@ -45423,6 +45426,9 @@ except ImportError:
     ready(function () {
         if (window.VerdictBadge && document.getElementById('verdictBadgeContainer')) {
             window.VerdictBadge.render('#verdictBadgeContainer');
+        }
+        if (window.AttestationBadges && document.getElementById('attestationBadgesContainer')) {
+            window.AttestationBadges.render('#attestationBadgesContainer');
         }
     });
 })();

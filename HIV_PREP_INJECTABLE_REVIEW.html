@@ -1252,6 +1252,9 @@
 
     <!-- Verdict badge: per-topic data-integrity rollup of 7 gates -->
     <script src="vendor/verdict-badge.js"></script>
+    <!-- Attestation badges: dual screening + dual extraction + review-lock -->
+    <script src="vendor/attestation-badges.js"></script>
+
 
 <script>window.__verdict = {"verdict": "STABLE", "counts": {"P0_internal": 0, "P0_aact_nct_missing": 0, "P0_grim": 0, "P1_aact_concord": 0, "P1_fi_critical": 0, "P1_fi_warn": 0, "P1_pi_gap": 0, "P2_evidence_incomplete": 3, "n_trials_seen": 3, "P2_aact_advisory": 2}, "reasons": ["2 AACT title/registry advisory", "3 trial(s) missing evidence rows"], "p0_total": 0};</script>
 </head>
@@ -1557,7 +1560,7 @@
                 <div class="glass rounded-[2rem] border border-slate-800 overflow-hidden shadow-2xl">
 
 
-                    <div id="verdictBadgeContainer"></div>
+                    <div id="verdictBadgeContainer"></div><div id="attestationBadgesContainer"></div>
                     <div class="bg-slate-900/80 p-4 border-b border-slate-800"><h3 class="text-xs font-bold uppercase text-blue-400 tracking-widest"><i class="fa-solid fa-id-card mr-2"></i>1. Registration &amp; Administrative Information <span class="text-slate-500 ml-2">[PRISMA #24, AMSTAR #2]</span></h3></div>
 
 
@@ -7320,7 +7323,7 @@
 
                 'NCT03164564': {
 
-                    name: 'HPTN 084', pmid: '35594553', phase: 'III', year: 2022, tE: 4, tN: 1614, cE: 36, cN: 1610, group: 'Delany-Moretlwe S, Hughes JP, Bock P, et al. Lancet 2022;399:1779-1789 (PMID 35594553). NIAID-sponsored phase 3 double-blind double-dummy non-inferiority trial in HIV-uninfected cisgender women aged 18-45 across 20 sites in 7 sub-Saharan African countries: Botswana (Gaborone), Eswatini (Mbabane), Kenya (Kisumu), Malawi (Lilongwe + Blantyre), South Africa (Soweto + Johannesburg + Durban + Cape Town), Uganda (Entebbe + Kampala 2x), Zimbabwe (Chitungwiza 3x + Harare 2x). n=3,224 randomized 1:1 to CAB-LA every 8wk IM vs daily F/TDF. PRIMARY EFFICACY: HIV-1 incidence. RESULT: 4/1614 CAB-LA vs 36/1610 F/TDF — HR 0.12 (95% CI 0.05-0.31) — CAB-LA SUPERIOR (DSMB stopped trial early). 89% reduction. Africa relevance: DIRECT — entirely sub-Saharan African; pivotal evidence for WHO 2022 guideline basis for CAB-LA preferred PrEP for African women + AGYW.',
+                    name: 'HPTN 084', pmid: '35378077', phase: 'III', year: 2022, tE: 4, tN: 1614, cE: 36, cN: 1610, group: 'Delany-Moretlwe S, Hughes JP, Bock P, et al. Lancet 2022;399:1779-1789 (PMID 35594553). NIAID-sponsored phase 3 double-blind double-dummy non-inferiority trial in HIV-uninfected cisgender women aged 18-45 across 20 sites in 7 sub-Saharan African countries: Botswana (Gaborone), Eswatini (Mbabane), Kenya (Kisumu), Malawi (Lilongwe + Blantyre), South Africa (Soweto + Johannesburg + Durban + Cape Town), Uganda (Entebbe + Kampala 2x), Zimbabwe (Chitungwiza 3x + Harare 2x). n=3,224 randomized 1:1 to CAB-LA every 8wk IM vs daily F/TDF. PRIMARY EFFICACY: HIV-1 incidence. RESULT: 4/1614 CAB-LA vs 36/1610 F/TDF — HR 0.12 (95% CI 0.05-0.31) — CAB-LA SUPERIOR (DSMB stopped trial early). 89% reduction. Africa relevance: DIRECT — entirely sub-Saharan African; pivotal evidence for WHO 2022 guideline basis for CAB-LA preferred PrEP for African women + AGYW.',
 
                     estimandType: 'HR', publishedHR: 0.12, hrLCI: 0.05, hrUCI: 0.31, pubHR: 0.12,
 
@@ -7341,7 +7344,7 @@
 
                 'NCT02842086': {
 
-                    name: 'DISCOVER (F/TAF vs F/TDF)', pmid: '32896293', phase: 'III', year: 2020, tE: 8, tN: 2694, cE: 15, cN: 2693, group: 'Mayer KH, Molina JM, Thompson MA, et al. Lancet 2020;396:239-254 (PMID 32896293). Gilead-sponsored phase 3 double-blind randomized non-inferiority trial of daily oral F/TAF (Descovy 200/25 mg) vs daily oral F/TDF (Truvada 200/300 mg) for HIV PrEP in HIV-uninfected MSM and TGW (male at birth) at high HIV risk across 94 sites in 11 countries (USA, Canada, Austria, Denmark, France, Germany, Ireland, Italy, Netherlands, Spain, UK). n=5,387 randomized 1:1 (5,399 enrolled). PRIMARY: HIV-1 incidence per 100 PY (NI margin 1.62). RESULT: 8/2694 F/TAF vs 15/2693 F/TDF over 8,756 PY — incidence 0.16 vs 0.34 per 100 PY; IRR 0.47 (95% CI 0.19-1.15) — non-inferior; secondary renal/bone safety advantage F/TAF. Africa relevance: indirect — no African sites; but provides comparator efficacy benchmark for any oral PrEP NMA against the injectable (HPTN 083/084) arm.',
+                    name: 'DISCOVER (F/TAF vs F/TDF)', pmid: '32711800', phase: 'III', year: 2020, tE: 8, tN: 2694, cE: 15, cN: 2693, group: 'Mayer KH, Molina JM, Thompson MA, et al. Lancet 2020;396:239-254 (PMID 32896293). Gilead-sponsored phase 3 double-blind randomized non-inferiority trial of daily oral F/TAF (Descovy 200/25 mg) vs daily oral F/TDF (Truvada 200/300 mg) for HIV PrEP in HIV-uninfected MSM and TGW (male at birth) at high HIV risk across 94 sites in 11 countries (USA, Canada, Austria, Denmark, France, Germany, Ireland, Italy, Netherlands, Spain, UK). n=5,387 randomized 1:1 (5,399 enrolled). PRIMARY: HIV-1 incidence per 100 PY (NI margin 1.62). RESULT: 8/2694 F/TAF vs 15/2693 F/TDF over 8,756 PY — incidence 0.16 vs 0.34 per 100 PY; IRR 0.47 (95% CI 0.19-1.15) — non-inferior; secondary renal/bone safety advantage F/TAF. Africa relevance: indirect — no African sites; but provides comparator efficacy benchmark for any oral PrEP NMA against the injectable (HPTN 083/084) arm.',
 
                     estimandType: 'IRR', publishedHR: 0.47, hrLCI: 0.19, hrUCI: 1.15, pubHR: 0.47,
 
@@ -45426,6 +45429,9 @@ except ImportError:
     ready(function () {
         if (window.VerdictBadge && document.getElementById('verdictBadgeContainer')) {
             window.VerdictBadge.render('#verdictBadgeContainer');
+        }
+        if (window.AttestationBadges && document.getElementById('attestationBadgesContainer')) {
+            window.AttestationBadges.render('#attestationBadgesContainer');
         }
     });
 })();

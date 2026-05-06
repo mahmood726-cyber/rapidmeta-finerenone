@@ -1252,6 +1252,9 @@
 
     <!-- Verdict badge: per-topic data-integrity rollup of 7 gates -->
     <script src="vendor/verdict-badge.js"></script>
+    <!-- Attestation badges: dual screening + dual extraction + review-lock -->
+    <script src="vendor/attestation-badges.js"></script>
+
 
 <script>window.__verdict = {"verdict": "STABLE", "counts": {"P0_internal": 0, "P0_aact_nct_missing": 0, "P0_grim": 0, "P1_aact_concord": 0, "P1_fi_critical": 0, "P1_fi_warn": 0, "P1_pi_gap": 0, "P2_evidence_incomplete": 3, "n_trials_seen": 3, "P2_aact_advisory": 2}, "reasons": ["2 AACT title/registry advisory", "3 trial(s) missing evidence rows"], "p0_total": 0};</script>
 </head>
@@ -1557,7 +1560,7 @@
                 <div class="glass rounded-[2rem] border border-slate-800 overflow-hidden shadow-2xl">
 
 
-                    <div id="verdictBadgeContainer"></div>
+                    <div id="verdictBadgeContainer"></div><div id="attestationBadgesContainer"></div>
                     <div class="bg-slate-900/80 p-4 border-b border-slate-800"><h3 class="text-xs font-bold uppercase text-blue-400 tracking-widest"><i class="fa-solid fa-id-card mr-2"></i>1. Registration &amp; Administrative Information <span class="text-slate-500 ml-2">[PRISMA #24, AMSTAR #2]</span></h3></div>
 
 
@@ -7299,7 +7302,7 @@
 
                 'NCT00091936': {
 
-                    name: 'SAPiT (Karim 2010+2011)', pmid: '21345101', phase: 'NA', year: 2011, tE: 36, tN: 429, cE: 27, cN: 213, group: 'Abdool Karim SS, Naidoo K, Grobler A, et al. NEJM 2010;362:697-706 (early integrated vs sequential, PMID 20181971) + NEJM 2011;365:1492-1501 (early vs late integrated, PMID 21992580). CAPRISA-coordinated open-label randomized trial in n=642 HIV-TB co-infected adults at the Prince Cyril Zulu CDC in Durban, South Africa (single-site, mostly black African Zulu population, KwaZulu-Natal). Randomized 1:1:1 to (A) early integrated ART within 4 weeks of TB-treatment start (n=214), (B) late integrated ART within first 4 weeks of TB-continuation phase (n=215), (C) sequential ART after TB completed (n=213). PRIMARY: AIDS-defining event or all-cause mortality. CT.gov n=592 represents Stage-2 enrolment after early-vs-sequential separation. RESULT (combined integrated arms vs sequential): 36/429 (8.4%) integrated vs 27/213 (12.7%) sequential -- HR 0.56 (95% CI 0.34-0.92) for AIDS/death; sequential arm stopped early by DSMB for harm. CD4<50 subset: HR 0.32 in favour of early integrated. Drove WHO 2012 recommendation of ART start within 8 weeks of TB-treatment initiation for all HIV-TB co-infected, and within 2 weeks if CD4<50. Africa relevance: DIRECT — entirely Durban SA single-site.',
+                    name: 'SAPiT (Karim 2010+2011)', pmid: '22108776', phase: 'NA', year: 2011, tE: 36, tN: 429, cE: 27, cN: 213, group: 'Abdool Karim SS, Naidoo K, Grobler A, et al. NEJM 2010;362:697-706 (early integrated vs sequential, PMID 20181971) + NEJM 2011;365:1492-1501 (early vs late integrated, PMID 21992580). CAPRISA-coordinated open-label randomized trial in n=642 HIV-TB co-infected adults at the Prince Cyril Zulu CDC in Durban, South Africa (single-site, mostly black African Zulu population, KwaZulu-Natal). Randomized 1:1:1 to (A) early integrated ART within 4 weeks of TB-treatment start (n=214), (B) late integrated ART within first 4 weeks of TB-continuation phase (n=215), (C) sequential ART after TB completed (n=213). PRIMARY: AIDS-defining event or all-cause mortality. CT.gov n=592 represents Stage-2 enrolment after early-vs-sequential separation. RESULT (combined integrated arms vs sequential): 36/429 (8.4%) integrated vs 27/213 (12.7%) sequential -- HR 0.56 (95% CI 0.34-0.92) for AIDS/death; sequential arm stopped early by DSMB for harm. CD4<50 subset: HR 0.32 in favour of early integrated. Drove WHO 2012 recommendation of ART start within 8 weeks of TB-treatment initiation for all HIV-TB co-infected, and within 2 weeks if CD4<50. Africa relevance: DIRECT — entirely Durban SA single-site.',
 
                     estimandType: 'HR', publishedHR: 0.56, hrLCI: 0.34, hrUCI: 0.92, pubHR: 0.56,
 
@@ -45426,6 +45429,9 @@ except ImportError:
     ready(function () {
         if (window.VerdictBadge && document.getElementById('verdictBadgeContainer')) {
             window.VerdictBadge.render('#verdictBadgeContainer');
+        }
+        if (window.AttestationBadges && document.getElementById('attestationBadgesContainer')) {
+            window.AttestationBadges.render('#attestationBadgesContainer');
         }
     });
 })();
