@@ -23,7 +23,32 @@ import csv
 import re
 from pathlib import Path
 
-AACT_DIR = Path("D:/AACT-storage/AACT/2026-04-12")
+def _resolve_aact_dir() -> Path:
+    """Candidate-root discovery for the AACT snapshot.
+    Per lessons.md "Do not hardcode one drive" — AACT may live on D: or C:
+    depending on the machine. Try canonical locations in order; fail closed
+    with an actionable message if none resolve.
+    """
+    import os
+    if os.environ.get("AACT_ROOT"):
+        env = Path(os.environ["AACT_ROOT"])
+        if env.exists():
+            return env
+    candidates = [
+        Path(r"D:/AACT-storage/AACT/2026-04-12"),
+        Path(r"D:/AACT/2026-04-12"),
+        Path(r"C:/Users/user/AACT/2026-04-12"),
+    ]
+    for c in candidates:
+        if (c / "studies.txt").exists():
+            return c
+    raise FileNotFoundError(
+        "AACT snapshot not found. Set AACT_ROOT env var or place at one of: "
+        + ", ".join(str(c) for c in candidates)
+    )
+
+
+AACT_DIR = _resolve_aact_dir()
 REPO_DIR = Path(__file__).resolve().parent.parent
 OUT_CSV = REPO_DIR / "outputs" / "aact_cross_check_v2.csv"
 
