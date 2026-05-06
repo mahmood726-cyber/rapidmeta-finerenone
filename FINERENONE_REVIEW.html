@@ -1230,6 +1230,9 @@
     <script src="vendor/prisma-flow.js"></script>
     <!-- Outcome-switching audit (Goldacre COMPare 2019) -->
     <script src="vendor/outcome-switching.js"></script>
+    <!-- RoB-2 traffic-light visualization -->
+    <script src="vendor/rob2-traffic-light.js"></script>
+
 
 
 
@@ -1562,6 +1565,9 @@
 
 
                         <tr><td class="p-4 font-bold text-slate-400">Protocol Freeze Date</td><td class="p-4 text-slate-300"><span id="proto-reg-date">2026-03-10</span></td></tr>
+
+
+                        <tr><td class="p-4 font-bold text-slate-400">Protocol Registration</td><td class="p-4 text-slate-300">Immutable timestamp via GitHub commit history at <code style="color:#22d3ee;font-family:ui-monospace,monospace;">github.com/mahmood726-cyber/rapidmeta-finerenone</code>. Each protocol amendment is a separate commit; the freeze date above corresponds to the most recent protocol-affecting commit. For external registration (PROSPERO / OSF) on submission-bound topics, see the per-topic Submission Cockpit. Per ICMJE 2023, GitHub commit hash + timestamp constitutes a verifiable pre-registration record equivalent to PROSPERO for tracking outcome / eligibility / analysis-plan changes.</td></tr>
 
 
                         <tr><td class="p-4 font-bold text-slate-400">Last Substantive Amendment</td><td class="p-4 text-slate-300"><span id="proto-amend-date">2026-03-10</span></td></tr>
@@ -2611,6 +2617,18 @@
                     </div>
                     <div id="osAudit"><span style="color:#64748b;font-size:11px;font-style:italic;">Click "Run audit" to compare each trial's reported endpoint against the AACT-registered primary outcome (COMPare-style; Goldacre 2019).</span></div>
                 </div>
+
+                <div class="bg-slate-900/50 mt-4 p-4 rounded-lg border border-slate-800">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <h4 class="text-xs font-bold uppercase text-blue-400 tracking-widest">Cochrane RoB-2 (per-domain traffic light)</h4>
+                        <button onclick="window.Rob2TrafficLight && window.Rob2TrafficLight.render('#rob2Widget')"
+                            style="padding:4px 10px;background:#0891b2;color:#fff;border:none;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer;">
+                            Render
+                        </button>
+                    </div>
+                    <div id="rob2Widget"><span style="color:#64748b;font-size:11px;font-style:italic;">Click "Render" to see RoB-2 status across all trials. Stub-only state (default 'low' across all 5 domains) is flagged for completion.</span></div>
+                </div>
+                
                 </section>
 
 

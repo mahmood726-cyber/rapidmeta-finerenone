@@ -1273,6 +1273,13 @@
     <script src="vendor/prisma-flow.js"></script>
     <!-- Outcome-switching audit (Goldacre COMPare 2019) -->
     <script src="vendor/outcome-switching.js"></script>
+    <!-- RoB-2 traffic-light visualization -->
+    <script src="vendor/rob2-traffic-light.js"></script>
+
+    <!-- ROB-NMA (Lunny 2025) + Transitivity matrix (Brignardello-Petersen 2023 / Lasch 2025) -->
+    <script src="vendor/rob-nma.js"></script>
+    <script src="vendor/transitivity-matrix.js"></script>
+
 
 
 
@@ -1602,6 +1609,9 @@
 
 
                         <tr><td class="p-4 font-bold text-slate-400">Protocol Freeze Date</td><td class="p-4 text-slate-300"><span id="proto-reg-date">2026-03-10</span></td></tr>
+
+
+                        <tr><td class="p-4 font-bold text-slate-400">Protocol Registration</td><td class="p-4 text-slate-300">Immutable timestamp via GitHub commit history at <code style="color:#22d3ee;font-family:ui-monospace,monospace;">github.com/mahmood726-cyber/rapidmeta-finerenone</code>. Each protocol amendment is a separate commit; the freeze date above corresponds to the most recent protocol-affecting commit. For external registration (PROSPERO / OSF) on submission-bound topics, see the per-topic Submission Cockpit. Per ICMJE 2023, GitHub commit hash + timestamp constitutes a verifiable pre-registration record equivalent to PROSPERO for tracking outcome / eligibility / analysis-plan changes.</td></tr>
 
 
                         <tr><td class="p-4 font-bold text-slate-400">Last Substantive Amendment</td><td class="p-4 text-slate-300"><span id="proto-amend-date">2026-03-10</span></td></tr>
@@ -2651,6 +2661,18 @@
                     </div>
                     <div id="osAudit"><span style="color:#64748b;font-size:11px;font-style:italic;">Click "Run audit" to compare each trial's reported endpoint against the AACT-registered primary outcome (COMPare-style; Goldacre 2019).</span></div>
                 </div>
+
+                <div class="bg-slate-900/50 mt-4 p-4 rounded-lg border border-slate-800">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <h4 class="text-xs font-bold uppercase text-blue-400 tracking-widest">Cochrane RoB-2 (per-domain traffic light)</h4>
+                        <button onclick="window.Rob2TrafficLight && window.Rob2TrafficLight.render('#rob2Widget')"
+                            style="padding:4px 10px;background:#0891b2;color:#fff;border:none;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer;">
+                            Render
+                        </button>
+                    </div>
+                    <div id="rob2Widget"><span style="color:#64748b;font-size:11px;font-style:italic;">Click "Render" to see RoB-2 status across all trials. Stub-only state (default 'low' across all 5 domains) is flagged for completion.</span></div>
+                </div>
+                
                 </section>
 
 
@@ -4805,6 +4827,26 @@
                                 </div>
                                 <div id="nmaConsResult"></div>
                             </div>
+
+                            <div class="glass p-10 rounded-[40px] border border-slate-800 mt-10">
+                                <h3 class="text-sm font-bold opacity-60 uppercase tracking-[0.3em] mb-2">ROB-NMA + Transitivity (Cochrane 2025)</h3>
+                                <p class="text-[11px] text-slate-400 mb-4">
+                                    Lunny 2025 BMJ ROB-NMA tool (17 items, 3 domains) with auto-prefill from existing modules + transitivity effect-modifier balance per Brignardello-Petersen 2023 GRADE-NMA Article 5 / Lasch 2025 Res Synth Methods.
+                                </p>
+                                <div style="display:flex;gap:10px;margin-bottom:14px;">
+                                    <button onclick="window.RobNma && window.RobNma.render('#robNmaResult')"
+                                        style="padding:6px 14px;background:#0891b2;color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">
+                                        Run ROB-NMA assessment
+                                    </button>
+                                    <button onclick="window.TransitivityMatrix && window.TransitivityMatrix.render('#transitivityResult')"
+                                        style="padding:6px 14px;background:#7c3aed;color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">
+                                        Transitivity matrix
+                                    </button>
+                                </div>
+                                <div id="robNmaResult" style="margin-bottom:14px;"></div>
+                                <div id="transitivityResult"></div>
+                            </div>
+                            
 
                             <!-- Tier-2 panel: Doi/LFK + Comparison-adjusted funnel + CINeMA certainty -->
                             <div class="glass p-10 rounded-[40px] border border-slate-800 mt-10">

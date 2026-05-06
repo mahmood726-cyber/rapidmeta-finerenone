@@ -1191,6 +1191,9 @@
     <script src="vendor/prisma-flow.js"></script>
     <!-- Outcome-switching audit (Goldacre COMPare 2019) -->
     <script src="vendor/outcome-switching.js"></script>
+    <!-- RoB-2 traffic-light visualization -->
+    <script src="vendor/rob2-traffic-light.js"></script>
+
 
 
 
@@ -2566,6 +2569,18 @@
                     </div>
                     <div id="osAudit"><span style="color:#64748b;font-size:11px;font-style:italic;">Click "Run audit" to compare each trial's reported endpoint against the AACT-registered primary outcome (COMPare-style; Goldacre 2019).</span></div>
                 </div>
+
+                <div class="bg-slate-900/50 mt-4 p-4 rounded-lg border border-slate-800">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <h4 class="text-xs font-bold uppercase text-blue-400 tracking-widest">Cochrane RoB-2 (per-domain traffic light)</h4>
+                        <button onclick="window.Rob2TrafficLight && window.Rob2TrafficLight.render('#rob2Widget')"
+                            style="padding:4px 10px;background:#0891b2;color:#fff;border:none;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer;">
+                            Render
+                        </button>
+                    </div>
+                    <div id="rob2Widget"><span style="color:#64748b;font-size:11px;font-style:italic;">Click "Render" to see RoB-2 status across all trials. Stub-only state (default 'low' across all 5 domains) is flagged for completion.</span></div>
+                </div>
+                
                 </section>
 
 
