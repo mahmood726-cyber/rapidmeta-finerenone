@@ -7,7 +7,8 @@
  *
  * Or paste the function body into browser_evaluate.
  */
-window.__UAT_AUDIT__ = async function (opts = {}) {
+window.__UAT_AUDIT__ = async function (opts) {
+  if (opts === null || opts === undefined) opts = {};
   const exerciseButtons = opts.exerciseButtons !== false;
   const out = {
     url: location.pathname.split('/').pop(),
@@ -96,12 +97,12 @@ window.__UAT_AUDIT__ = async function (opts = {}) {
       'poth': /poth|hierarchy uncertainty/i,
       'q-decomposition': /q.?decomposition/i,
       'contribution-matrix': /contribution matrix/i,
-      'rob2': /\brob.?2\b|risk of bias 2|autofill rob/i,
-      'rob-nma': /rob.?nma/i,
+      'rob2': /Rob2TrafficLight|Rob2Autofill|risk of bias 2|autofill.*attest/i,
+      'rob-nma': /rob.?nma|RobNMA/i,
       'prisma': /prisma/i,
-      'outcome-switching': /outcome.switching|outcome switch/i,
-      'living-review': /living review|trigger living|update search/i,
-      'verdict': /verdict|7-gate|recompute verdict/i,
+      'outcome-switching': /OutcomeSwitching|outcome.switching|outcome switch/i,
+      'living-review': /LivingReview|living update|trigger living|update search/i,
+      'verdict': /VerdictBadge|verdict|7-gate|recompute verdict/i,
     };
 
     for (const [key, rx] of Object.entries(targets)) {
@@ -116,17 +117,20 @@ window.__UAT_AUDIT__ = async function (opts = {}) {
         onclick_present: !!btn.getAttribute('onclick'),
       };
       try {
-        const beforeHash = JSON.stringify(Object.fromEntries(
-          widgetIds.map(id => [id, document.getElementById(id)?.innerText?.length || 0])
-        ));
+        // Use a MutationObserver to count DOM changes after click — more reliable
+        // than per-widget content delta (we can't enumerate every container).
+        let mutationCount = 0;
+        const mo = new MutationObserver(muts => { mutationCount += muts.length; });
+        mo.observe(document.body, { childList: true, subtree: true, characterData: true });
+        const beforeBodyLen = document.body.innerText.length;
         btn.click();
-        // give it a moment
-        await new Promise(r => setTimeout(r, 250));
-        const afterHash = JSON.stringify(Object.fromEntries(
-          widgetIds.map(id => [id, document.getElementById(id)?.innerText?.length || 0])
-        ));
+        await new Promise(r => setTimeout(r, 350));
+        mo.disconnect();
+        const afterBodyLen = document.body.innerText.length;
         out.buttons[key].clicked = true;
-        out.buttons[key].state_changed = beforeHash !== afterHash;
+        out.buttons[key].mutations = mutationCount;
+        out.buttons[key].body_delta_chars = afterBodyLen - beforeBodyLen;
+        out.buttons[key].state_changed = mutationCount > 0 || Math.abs(afterBodyLen - beforeBodyLen) > 10;
       } catch (e) {
         out.buttons[key].clicked = false;
         out.buttons[key].error = String(e).slice(0, 200);
