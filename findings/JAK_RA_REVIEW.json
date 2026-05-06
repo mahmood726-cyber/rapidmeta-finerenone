@@ -1,33 +1,29 @@
 {
   "app": "JAK_RA_REVIEW.html",
-  "timestamp": "2026-05-06T16:28:36.425Z",
-  "durationMs": 4466,
+  "timestamp": "2026-05-06T17:21:06.750Z",
+  "durationMs": 4529,
   "state": {
-    "k": 3,
-    "or": "1.67",
-    "i2": "17.9",
-    "tau2": 0.0017776019075266404,
+    "k": 12,
+    "or": "3.45",
+    "i2": "75.4",
+    "tau2": 0.09128044058250322,
     "remlSensitivity": true,
     "robSummary": {
       "high": 0,
       "someConcerns": 0,
-      "low": 15,
+      "low": 0,
       "unclear": 0
     },
     "isCompleteUniverse": true,
-    "totalAvailable": 3,
-    "includedCount": 3,
-    "searchResultCount": 144,
-    "nnt": 3.454696132596685,
-    "absoluteRisk": -0.2894610586918279,
+    "totalAvailable": 12,
+    "includedCount": 12,
+    "searchResultCount": 12,
+    "nnt": 3.352724063587695,
+    "absoluteRisk": -0.2982649275735255,
     "patientReportedOutcomes": {
-      "count": 1,
-      "scales": [
-        "HAQ-DI"
-      ],
-      "trials": [
-        "NCT01710358"
-      ],
+      "count": 0,
+      "scales": [],
+      "trials": [],
       "inHeadlineAnalysis": false
     }
   },
@@ -40,26 +36,27 @@
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Evidence base is complete but small (k=3 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue."
+          "Publication-bias assessment (Egger / trim-and-fill) absent despite k>=10."
         ],
-        "recommendation": "Minor revision"
+        "recommendation": "Accept with minor revision"
       },
       {
         "role": "Clinical expert",
         "concerns": [
-          "Pooled 1.67 sits outside published benchmark range; closest Li 2024 RR 2.10 [1.90, 2.40]. Discussion should reconcile."
+          "Pooled 3.45 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile.",
+          "I² = 75.4% (considerable); show subgroup/strata estimates alongside pooled."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       },
       {
         "role": "Biostatistician",
         "concerns": [],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Accept"
       },
       {
         "role": "Patient representative",
         "concerns": [
-          "QoL / PROs reported in 1 trial(s) (HAQ-DI) but not in headline pool; consider adding as a secondary analysis rather than omitting."
+          "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
         ],
         "recommendation": "Accept with minor revision"
       }
