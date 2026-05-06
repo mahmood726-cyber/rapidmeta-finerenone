@@ -105,7 +105,11 @@
   }
 
   function render(container) {
-    if (typeof container === 'string') container = document.getElementById(container);
+    if (typeof container === 'string') {
+      container = container.charAt(0) === '#'
+        ? document.getElementById(container.slice(1))
+        : document.getElementById(container) || document.querySelector(container);
+    }
     if (!container) return;
     const r = compute();
     container.innerHTML = '';
@@ -120,5 +124,32 @@
     container.appendChild(wrap);
   }
 
-  global.AttestationBadges = { compute, render };
+  /**
+   * Render with auto-retry — RapidMeta.state.trials populates after init()
+   * via localStorage restore, which can lag DOMContentLoaded by 100-500ms.
+   * Retry every 500ms for up to 5s if totalTrials reads 0.
+   */
+  function renderWithRetry(container, attempts) {
+    attempts = attempts || 0;
+    render(container);
+    if (attempts < 10) {
+      const r = compute();
+      if (r.totalTrials === 0) {
+        setTimeout(function () { renderWithRetry(container, attempts + 1); }, 500);
+      }
+    }
+  }
+
+  global.AttestationBadges = { compute, render, renderWithRetry };
+
+  // Auto-bind: when DOM ready, re-render once RapidMeta.state.trials populates.
+  // (Belt-and-braces with the codemod-injected render call.)
+  function ready(fn) {
+    if (document.readyState !== 'loading') fn();
+    else document.addEventListener('DOMContentLoaded', fn);
+  }
+  ready(function () {
+    var c = document.getElementById('attestationBadgesContainer');
+    if (c) renderWithRetry(c);
+  });
 })(typeof window !== 'undefined' ? window : globalThis);
