@@ -1,5 +1,66 @@
 {
   "app": "DELANDISTROGENE_DMD_REVIEW.html",
-  "error": "TimeoutError: page.waitForFunction: Timeout 30000ms exceeded.",
-  "timestamp": "2026-05-06T15:07:05.402Z"
+  "timestamp": "2026-05-06T15:56:21.492Z",
+  "durationMs": 4662,
+  "state": {
+    "k": 1,
+    "or": "0.65",
+    "tau2": 0,
+    "remlSensitivity": true,
+    "robSummary": {
+      "high": 0,
+      "someConcerns": 0,
+      "low": 5,
+      "unclear": 0
+    },
+    "isCompleteUniverse": true,
+    "totalAvailable": 1,
+    "includedCount": 1,
+    "searchResultCount": 134,
+    "nnt": null,
+    "absoluteRisk": null,
+    "patientReportedOutcomes": {
+      "count": 0,
+      "scales": [],
+      "trials": [],
+      "inHeadlineAnalysis": false
+    }
+  },
+  "findings": {
+    "editor": {
+      "decision": "Minor revision",
+      "rationale": "Reviewers support publication but want clarifications on reporting completeness and residual uncertainty."
+    },
+    "reviewers": [
+      {
+        "role": "Methodology & PRISMA",
+        "concerns": [
+          "Evidence base is complete but small (k=1 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition."
+        ],
+        "recommendation": "Minor revision"
+      },
+      {
+        "role": "Clinical expert",
+        "concerns": [
+          "Pooled 0.65 sits outside published benchmark range (corridor 1.07-4.27); closest Furie 2020 OR 1.55 [1.07, 2.25]. Discussion should reconcile.",
+          "k<3 - clinical meaningfulness (MCID, NNT) cannot be grounded in pooled evidence."
+        ],
+        "recommendation": "Minor revision"
+      },
+      {
+        "role": "Biostatistician",
+        "concerns": [],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Patient representative",
+        "concerns": [
+          "Effect not translated into absolute-risk difference / NNT for shared decision.",
+          "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
+        ],
+        "recommendation": "Minor revision"
+      }
+    ]
+  }
 }
