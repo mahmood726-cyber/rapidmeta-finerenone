@@ -6046,6 +6046,33 @@ const ContinuousMDEngine = {
         const RapidMeta = {
 
 
+
+            /* AUTOPRUNE-HELPER-v1 */
+            _pruneOtherReviews(myKey) {
+                try {
+                    const items = [];
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const k = localStorage.key(i);
+                        if (k === myKey) continue;
+                        if (!k.startsWith('rapid_meta_')) continue;
+                        items.push({ k, sz: (localStorage.getItem(k) || '').length });
+                    }
+                    items.sort((a, b) => b.sz - a.sz);
+                    let freed = 0, removed = 0;
+                    const TARGET = 1500 * 1024;
+                    for (const it of items) {
+                        localStorage.removeItem(it.k);
+                        freed += it.sz;
+                        removed++;
+                        if (freed >= TARGET) break;
+                    }
+                    if (removed > 0 && typeof showToast === 'function') {
+                        showToast('Auto-pruned ' + removed + ' other-review snapshots ('
+                            + (freed/1024).toFixed(0) + ' kB) — saved successfully.');
+                    }
+                    return removed > 0;
+                } catch (err) { return false; }
+            },
             state: {
 
 
@@ -8441,7 +8468,7 @@ const ContinuousMDEngine = {
 
 
 
-            save() { try { localStorage.setItem('rapid_meta_lu_psma_mcrpc_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_lu_psma_mcrpc_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') { if (this._pruneOtherReviews && this._pruneOtherReviews('rapid_meta_lu_psma_mcrpc_v1_0')) { try { localStorage.setItem('rapid_meta_lu_psma_mcrpc_v1_0', JSON.stringify(this.state)); } catch(e2) { showToast('Storage quota exceeded. Clear old version snapshots.'); } } else { showToast('Storage quota exceeded. Clear old version snapshots.'); } } } },
 
 
             getReviewerId() {
