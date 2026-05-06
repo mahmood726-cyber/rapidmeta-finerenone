@@ -7326,7 +7326,7 @@
 
             realData: {
                 'NCT04822181': {
-                    name: 'ESSENCE', pmid: '39412509', phase: 'III', year: 2024, tE: 199, tN: 534, cE: 88, cN: 533, group: 'MASH F2-F3 with diabetes/obesity, semaglutide 2.4 mg SC weekly vs placebo (NASH resolution at 72 wk; OR; ESSENCE Part 1 interim)', publishedHR: 3.18, hrLCI: 2.43, hrUCI: 4.16,
+                    name: 'ESSENCE', baseline: {n: 1067}, pmid: '39412509', phase: 'III', year: 2024, tE: 199, tN: 534, cE: 88, cN: 533, group: 'MASH F2-F3 with diabetes/obesity, semaglutide 2.4 mg SC weekly vs placebo (NASH resolution at 72 wk; OR; ESSENCE Part 1 interim)', publishedHR: 3.18, hrLCI: 2.43, hrUCI: 4.16,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'NASH resolution without worsening of fibrosis at week 72 (primary; ESSENCE Part 1 interim)', tE: 199, cE: 88, type: 'PRIMARY', matchScore: 95, effect: 3.18, lci: 2.43, uci: 4.16, estimandType: 'RR' }
                     ],
@@ -7339,7 +7339,7 @@
                     ]
                 },
                 'NCT04166773': {
-                    name: 'SYNERGY-NASH', pmid: '38856224', phase: 'III', year: 2024, tE: 33, tN: 64, cE: 7, cN: 65, group: 'MASH F2-F3, tirzepatide 15 mg SC weekly vs placebo (NASH resolution at 52 wk; OR)', estimandType: 'OR', publishedHR: 9.71, hrLCI: 3.83, hrUCI: 24.61,
+                    name: 'SYNERGY-NASH', baseline: {n: 129, age: 55.0, pct_female: 75.0}, pmid: '38856224', phase: 'III', year: 2024, tE: 33, tN: 64, cE: 7, cN: 65, group: 'MASH F2-F3, tirzepatide 15 mg SC weekly vs placebo (NASH resolution at 52 wk; OR)', estimandType: 'OR', publishedHR: 9.71, hrLCI: 3.83, hrUCI: 24.61,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'NASH resolution at 52 wk (primary; tirzepatide 15 mg vs placebo)', tE: 33, cE: 7, type: 'PRIMARY', matchScore: 95, effect: 9.71, lci: 3.83, uci: 24.61, estimandType: 'RR' }
                     ],
@@ -7352,7 +7352,7 @@
                     ]
                 },
                 'NCT02970942': {
-                    name: 'Newsome NAFLD', pmid: '33185364', phase: 'III', year: 2021, tE: 59, tN: 80, cE: 17, cN: 80, group: 'Biopsy-confirmed NASH (F1-F3), semaglutide 0.4 mg SC daily vs placebo (NASH resolution at 72 wk; OR)', estimandType: 'OR', publishedHR: 10.41, hrLCI: 4.79, hrUCI: 22.62,
+                    name: 'Newsome NAFLD', baseline: {n: 160, age: 55.2, pct_female: 26.4}, pmid: '33185364', phase: 'III', year: 2021, tE: 59, tN: 80, cE: 17, cN: 80, group: 'Biopsy-confirmed NASH (F1-F3), semaglutide 0.4 mg SC daily vs placebo (NASH resolution at 72 wk; OR)', estimandType: 'OR', publishedHR: 10.41, hrLCI: 4.79, hrUCI: 22.62,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'NASH resolution without fibrosis worsening at 72 wk (primary, semaglutide 0.4 mg dose vs placebo)', tE: 59, cE: 17, type: 'PRIMARY', matchScore: 95, effect: 10.41, lci: 4.79, uci: 22.62, estimandType: 'RR' }
                     ],
@@ -7376,16 +7376,16 @@
                 // v15.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_glp1_mash_nma_v1_0');
+                let saved = localStorage.getItem('rapid_meta_glp1_mash_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old14 = localStorage.getItem('rapid_meta_glp1_mash_nma_v1_0');
+                    const old14 = localStorage.getItem('rapid_meta_glp1_mash_v1_0');
 
 
-                    if (old14) { saved = old14; localStorage.setItem('rapid_meta_glp1_mash_nma_v1_0', old14); }
+                    if (old14) { saved = old14; localStorage.setItem('rapid_meta_glp1_mash_v1_0', old14); }
 
 
                 }
@@ -7394,22 +7394,10 @@
                 if (!saved) {
 
 
-                    const old13 = localStorage.getItem('rapid_meta_glp1_mash_nma_v1_0');
+                    const old13 = localStorage.getItem('rapid_meta_glp1_mash_v1_0');
 
 
-                    if (old13) { saved = old13; localStorage.setItem('rapid_meta_glp1_mash_nma_v1_0', old13); }
-
-
-                }
-
-
-                if (!saved) {
-
-
-                    const old12 = localStorage.getItem('rapid_meta_glp1_mash_nma_v1_0');
-
-
-                    if (old12) { saved = old12; localStorage.setItem('rapid_meta_glp1_mash_nma_v1_0', old12); }
+                    if (old13) { saved = old13; localStorage.setItem('rapid_meta_glp1_mash_v1_0', old13); }
 
 
                 }
@@ -7418,22 +7406,10 @@
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_glp1_mash_nma_v1_0');
+                    const old12 = localStorage.getItem('rapid_meta_glp1_mash_v1_0');
 
 
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_glp1_mash_nma_v1_0', old11); }
-
-
-                }
-
-
-                if (!saved) {
-
-
-                    const old10 = localStorage.getItem('rapid_meta_glp1_mash_nma_v1_0');
-
-
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_glp1_mash_nma_v1_0', old10); }
+                    if (old12) { saved = old12; localStorage.setItem('rapid_meta_glp1_mash_v1_0', old12); }
 
 
                 }
@@ -7442,10 +7418,34 @@
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_glp1_mash_nma_v1_0');
+                    const old11 = localStorage.getItem('rapid_meta_glp1_mash_v1_0');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_glp1_mash_nma_v1_0', old93); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_glp1_mash_v1_0', old11); }
+
+
+                }
+
+
+                if (!saved) {
+
+
+                    const old10 = localStorage.getItem('rapid_meta_glp1_mash_v1_0');
+
+
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_glp1_mash_v1_0', old10); }
+
+
+                }
+
+
+                if (!saved) {
+
+
+                    const old93 = localStorage.getItem('rapid_meta_glp1_mash_v1_0');
+
+
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_glp1_mash_v1_0', old93); }
 
 
                 }
@@ -7493,7 +7493,7 @@
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_glp1_mash_nma_v1_0');
+                        localStorage.removeItem('rapid_meta_glp1_mash_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -8849,7 +8849,7 @@
 
 
 
-            save() { try { localStorage.setItem('rapid_meta_glp1_mash_nma_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_glp1_mash_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
 
 
             getReviewerId() {
@@ -11618,7 +11618,7 @@
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_glp1_mash_nma_v1_0'); localStorage.removeItem('rapid_meta_glp1_mash_nma_v1_0'); localStorage.removeItem('rapid_meta_glp1_mash_nma_v1_0'); localStorage.removeItem('rapid_meta_glp1_mash_nma_v1_0'); localStorage.removeItem('rapid_meta_glp1_mash_nma_v1_0'); localStorage.removeItem('rapid_meta_glp1_mash_nma_v1_0'); localStorage.removeItem('rapid_meta_glp1_mash_nma_v1_0'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_glp1_mash_v1_0'); localStorage.removeItem('rapid_meta_glp1_mash_v1_0'); localStorage.removeItem('rapid_meta_glp1_mash_v1_0'); localStorage.removeItem('rapid_meta_glp1_mash_v1_0'); localStorage.removeItem('rapid_meta_glp1_mash_v1_0'); localStorage.removeItem('rapid_meta_glp1_mash_v1_0'); localStorage.removeItem('rapid_meta_glp1_mash_v1_0'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -45708,6 +45708,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

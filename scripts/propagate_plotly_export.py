@@ -11,7 +11,7 @@ Usage:
 """
 import argparse, pathlib, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 ANCHOR = "        const KNOWN_TRIAL_ALIASES = {"
 

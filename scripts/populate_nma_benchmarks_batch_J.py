@@ -3,7 +3,7 @@
 """Populate benchmarks for Batch J (15 mixed pairwise apps; 3 legacy MISSING deferred)."""
 import argparse, pathlib, re, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 BATCH = {
     "HIGH_EFFICACY_MS_REVIEW.html": {

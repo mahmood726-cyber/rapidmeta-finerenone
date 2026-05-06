@@ -10,7 +10,7 @@ Keeps the original ARNI_HF_REVIEW.html intact (it's the source drug).
 """
 import argparse, pathlib, re, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 # (population, intervention, comparator, outcome)
 PICO = {

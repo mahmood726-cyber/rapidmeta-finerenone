@@ -7096,7 +7096,7 @@ const ContinuousMDEngine = {
                 'NCT02437318': {
 
 
-                    name: 'SOLAR-1', pmid: '31091374', phase: 'III', year: 2019, tE: 103, tN: 169, cE: 129, cN: 172, group: 'Alpelisib 300 mg QD + fulvestrant vs placebo + fulvestrant in PIK3CA-mutant cohort, HR+/HER2- advanced BC; primary PFS in PIK3CA-mutant', publishedHR: 0.65, hrLCI: 0.5, hrUCI: 0.85, pubHR: 0.65, pubHR_LCI: 0.5, pubHR_UCI: 0.85,
+                    name: 'SOLAR-1', baseline: {n: 341, age: 62.6}, pmid: '31091374', phase: 'III', year: 2019, tE: 103, tN: 169, cE: 129, cN: 172, group: 'Alpelisib 300 mg QD + fulvestrant vs placebo + fulvestrant in PIK3CA-mutant cohort, HR+/HER2- advanced BC; primary PFS in PIK3CA-mutant', publishedHR: 0.65, hrLCI: 0.5, hrUCI: 0.85, pubHR: 0.65, pubHR_LCI: 0.5, pubHR_UCI: 0.85,
 
 
                     allOutcomes: [
@@ -7127,7 +7127,7 @@ const ContinuousMDEngine = {
                 'NCT04305496': {
 
 
-                    name: 'CAPItello-291', pmid: '37256976', phase: 'III', year: 2023, tE: 195, tN: 355, cE: 245, cN: 353, group: 'Capivasertib 400 mg BID 4-on-3-off + fulvestrant vs placebo + fulvestrant in HR+/HER2- advanced BC, post-aromatase-inhibitor; primary PFS in overall and AKT-pathway-altered populations', publishedHR: 0.6, hrLCI: 0.51, hrUCI: 0.71, pubHR: 0.6, pubHR_LCI: 0.51, pubHR_UCI: 0.71,
+                    name: 'CAPItello-291', baseline: {n: 708, age: 58.6, pct_female: 99.2}, pmid: '37256976', phase: 'III', year: 2023, tE: 195, tN: 355, cE: 245, cN: 353, group: 'Capivasertib 400 mg BID 4-on-3-off + fulvestrant vs placebo + fulvestrant in HR+/HER2- advanced BC, post-aromatase-inhibitor; primary PFS in overall and AKT-pathway-altered populations', publishedHR: 0.6, hrLCI: 0.51, hrUCI: 0.71, pubHR: 0.6, pubHR_LCI: 0.51, pubHR_UCI: 0.71,
 
 
                     allOutcomes: [
@@ -7159,7 +7159,7 @@ const ContinuousMDEngine = {
                 'NCT04191499': {
 
 
-                    name: 'INAVO120', pmid: '39476340', phase: 'III', year: 2024, tE: 76, tN: 161, cE: 124, cN: 164, group: 'Inavolisib 9 mg QD + palbociclib + fulvestrant vs placebo + palbociclib + fulvestrant in PIK3CA-mutant HR+/HER2- advanced BC; primary PFS', publishedHR: 0.43, hrLCI: 0.32, hrUCI: 0.59, pubHR: 0.43, pubHR_LCI: 0.32, pubHR_UCI: 0.59,
+                    name: 'INAVO120', baseline: {n: 325, age: 53.8, pct_female: 80.8}, pmid: '39476340', phase: 'III', year: 2024, tE: 76, tN: 161, cE: 124, cN: 164, group: 'Inavolisib 9 mg QD + palbociclib + fulvestrant vs placebo + palbociclib + fulvestrant in PIK3CA-mutant HR+/HER2- advanced BC; primary PFS', publishedHR: 0.43, hrLCI: 0.32, hrUCI: 0.59, pubHR: 0.43, pubHR_LCI: 0.32, pubHR_UCI: 0.59,
 
 
                     allOutcomes: [
@@ -7206,7 +7206,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_capivasertib_bc_v0_9');
+                    const old11 = localStorage.getItem('rapid_meta_pi3k_akt_bc_v0_9');
 
 
                     if (old11) { saved = old11; localStorage.setItem('rapid_meta_pi3k_akt_bc_v1_0', old11); }
@@ -7218,7 +7218,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_capivasertib_bc_v0_8');
+                    const old10 = localStorage.getItem('rapid_meta_pi3k_akt_bc_v0_8');
 
 
                     if (old10) { saved = old10; localStorage.setItem('rapid_meta_pi3k_akt_bc_v1_0', old10); }
@@ -7230,7 +7230,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_capivasertib_bc_v0_7');
+                    const old93 = localStorage.getItem('rapid_meta_pi3k_akt_bc_v0_7');
 
 
                     if (old93) { saved = old93; localStorage.setItem('rapid_meta_pi3k_akt_bc_v1_0', old93); }
@@ -11207,7 +11207,7 @@ const ContinuousMDEngine = {
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_pi3k_akt_bc_v1_0'); localStorage.removeItem('rapid_meta_capivasertib_bc_v0_9'); localStorage.removeItem('rapid_meta_capivasertib_bc_v0_8'); localStorage.removeItem('rapid_meta_capivasertib_bc_v0_7'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_pi3k_akt_bc_v1_0'); localStorage.removeItem('rapid_meta_pi3k_akt_bc_v0_9'); localStorage.removeItem('rapid_meta_pi3k_akt_bc_v0_8'); localStorage.removeItem('rapid_meta_pi3k_akt_bc_v0_7'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -43837,6 +43837,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

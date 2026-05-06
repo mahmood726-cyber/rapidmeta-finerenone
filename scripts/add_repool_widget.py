@@ -21,7 +21,7 @@ import sys, io, argparse, re
 from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-REPO = Path("C:/Projects/Finrenone")
+REPO = Path(__file__).resolve().parent.parent
 
 SCRIPT_TAG = (
     '\n    <!-- PairwisePool: live re-pool from raw 2x2 (DL+REML+HKSJ+PI per Cochrane v6.5) -->\n'

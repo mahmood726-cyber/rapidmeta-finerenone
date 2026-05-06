@@ -27,7 +27,7 @@ import io
 import sys
 from pathlib import Path
 
-ROOT = Path(r"C:\Projects\Finrenone")
+ROOT = Path(__file__).resolve().parent.parent
 TARGET = ROOT / "SGLT2_HF_REVIEW.html"
 
 # ============================================================================

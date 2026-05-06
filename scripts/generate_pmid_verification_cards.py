@@ -38,7 +38,7 @@ import sys
 import urllib.parse
 from pathlib import Path
 
-ROOT = Path(r"C:\Projects\Finrenone")
+ROOT = Path(__file__).resolve().parent.parent
 CORRECTIONS_CSV = ROOT / "outputs" / "pmid_corrections.csv"
 OUT_MD = ROOT / "outputs" / "pmid_verification_cards.md"
 OUT_DECISIONS = ROOT / "outputs" / "pmid_verification_decisions.csv"

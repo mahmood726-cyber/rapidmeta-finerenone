@@ -7094,7 +7094,7 @@ const ContinuousMDEngine = {
                 'NCT02720094': {
 
 
-                    name: 'HPTN 083', pmid: '34379922', phase: 'III', year: 2021, tE: 12, tN: 2283, cE: 39, cN: 2283, group: 'Cabotegravir LA Q8W vs daily oral F/TDF in cisgender MSM and transgender women (multi-region: US / Latin America / sub-Saharan Africa / Asia); incident HIV infections', publishedHR: 0.34, hrLCI: 0.18, hrUCI: 0.62,
+                    name: 'HPTN 083', baseline: {n: 4566, age: 28.0}, pmid: '34379922', phase: 'III', year: 2021, tE: 12, tN: 2283, cE: 39, cN: 2283, group: 'Cabotegravir LA Q8W vs daily oral F/TDF in cisgender MSM and transgender women (multi-region: US / Latin America / sub-Saharan Africa / Asia); incident HIV infections', publishedHR: 0.34, hrLCI: 0.18, hrUCI: 0.62,
 
 
                     allOutcomes: [
@@ -7125,7 +7125,7 @@ const ContinuousMDEngine = {
                 'NCT03164564': {
 
 
-                    name: 'HPTN 084', pmid: '35378077', phase: 'III', year: 2022, tE: 4, tN: 1614, cE: 36, cN: 1610, group: 'Cabotegravir LA Q8W vs daily oral F/TDF in cisgender women in 7 countries in sub-Saharan Africa (Botswana, Eswatini, Kenya, Malawi, South Africa, Uganda, Zimbabwe)', publishedHR: 0.12, hrLCI: 0.05, hrUCI: 0.31,
+                    name: 'HPTN 084', baseline: {n: 3224, age: 25.0}, pmid: '35378077', phase: 'III', year: 2022, tE: 4, tN: 1614, cE: 36, cN: 1610, group: 'Cabotegravir LA Q8W vs daily oral F/TDF in cisgender women in 7 countries in sub-Saharan Africa (Botswana, Eswatini, Kenya, Malawi, South Africa, Uganda, Zimbabwe)', publishedHR: 0.12, hrLCI: 0.05, hrUCI: 0.31,
 
 
                     allOutcomes: [
@@ -7156,7 +7156,7 @@ const ContinuousMDEngine = {
                 'NCT04994509': {
 
 
-                    name: 'PURPOSE-1', pmid: '39046157', phase: 'III', year: 2024, tE: 0, tN: 2134, cE: 39, cN: 2136, group: 'Lenacapavir 927 mg SC Q26W vs daily oral F/TAF (Descovy) in cisgender adolescent girls and young women age 16-25 in South Africa and Uganda', publishedHR: 0.0, hrLCI: 0.0, hrUCI: 0.04,
+                    name: 'PURPOSE-1', baseline: {n: 4270, age: 21.0}, pmid: '39046157', phase: 'III', year: 2024, tE: 0, tN: 2134, cE: 39, cN: 2136, group: 'Lenacapavir 927 mg SC Q26W vs daily oral F/TAF (Descovy) in cisgender adolescent girls and young women age 16-25 in South Africa and Uganda', publishedHR: 0.0, hrLCI: 0.0, hrUCI: 0.04,
 
 
                     allOutcomes: [
@@ -7187,7 +7187,7 @@ const ContinuousMDEngine = {
                 'NCT04925752': {
 
 
-                    name: 'PURPOSE-2', pmid: '39602624', phase: 'III', year: 2024, tE: 2, tN: 2179, cE: 9, cN: 1086, group: 'Lenacapavir 927 mg SC Q26W vs daily oral F/TDF (Truvada) in cisgender MSM, transgender women, transgender men, and gender non-conforming individuals (multi-region)', publishedHR: 0.11, hrLCI: 0.02, hrUCI: 0.51,
+                    name: 'PURPOSE-2', baseline: {n: 3265, age: 30.0, pct_female: 97.8}, pmid: '39602624', phase: 'III', year: 2024, tE: 2, tN: 2179, cE: 9, cN: 1086, group: 'Lenacapavir 927 mg SC Q26W vs daily oral F/TDF (Truvada) in cisgender MSM, transgender women, transgender men, and gender non-conforming individuals (multi-region)', publishedHR: 0.11, hrLCI: 0.02, hrUCI: 0.51,
 
 
                     allOutcomes: [
@@ -7228,16 +7228,16 @@ const ContinuousMDEngine = {
                 // v12.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_hiv_la_prep_nma_v1_0');
+                let saved = localStorage.getItem('rapid_meta_hiv_la_prep_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_cab_prep_hiv_v0_9');
+                    const old11 = localStorage.getItem('rapid_meta_hiv_la_prep_v0_9');
 
 
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_hiv_la_prep_nma_v1_0', old11); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_hiv_la_prep_v1_0', old11); }
 
 
                 }
@@ -7246,10 +7246,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_cab_prep_hiv_v0_8');
+                    const old10 = localStorage.getItem('rapid_meta_hiv_la_prep_v0_8');
 
 
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_hiv_la_prep_nma_v1_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_hiv_la_prep_v1_0', old10); }
 
 
                 }
@@ -7258,10 +7258,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_cab_prep_hiv_v0_7');
+                    const old93 = localStorage.getItem('rapid_meta_hiv_la_prep_v0_7');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_hiv_la_prep_nma_v1_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_hiv_la_prep_v1_0', old93); }
 
 
                 }
@@ -7309,7 +7309,7 @@ const ContinuousMDEngine = {
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_hiv_la_prep_nma_v1_0');
+                        localStorage.removeItem('rapid_meta_hiv_la_prep_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -8467,7 +8467,7 @@ const ContinuousMDEngine = {
 
 
 
-            save() { try { localStorage.setItem('rapid_meta_hiv_la_prep_nma_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_hiv_la_prep_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
 
 
             getReviewerId() {
@@ -11235,7 +11235,7 @@ const ContinuousMDEngine = {
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_hiv_la_prep_nma_v1_0'); localStorage.removeItem('rapid_meta_cab_prep_hiv_v0_9'); localStorage.removeItem('rapid_meta_cab_prep_hiv_v0_8'); localStorage.removeItem('rapid_meta_cab_prep_hiv_v0_7'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_hiv_la_prep_v1_0'); localStorage.removeItem('rapid_meta_hiv_la_prep_v0_9'); localStorage.removeItem('rapid_meta_hiv_la_prep_v0_8'); localStorage.removeItem('rapid_meta_hiv_la_prep_v0_7'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -43865,6 +43865,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

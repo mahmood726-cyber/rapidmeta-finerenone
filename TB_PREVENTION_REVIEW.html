@@ -5196,7 +5196,7 @@
                 'NCT01404312': {
 
 
-                    name: 'BRIEF-TB / A5279', pmid: '26082504', phase: 'III', year: 2019, tE: 32, tN: 1488, cE: 33, cN: 1498, group: 'BRIEF-TB (ACTG A5279) trial: 1HP (rifapentine + isoniazid 1 month) vs 9H (isoniazid 9 months) in HIV-positive adults at risk of active TB. tE=32 incident TB events (or TB-related death/unknown-cause death) on 1HP arm (n=1488) vs cE=33 on 9H arm (n=1498). Composite incidence rate 0.65 vs 0.67 per 100 person-years; HR 0.97 (95% CI 0.59-1.61). Non-inferiority margin 1.25 met. Treatment completion: 1HP 97% vs 9H 90% (P<0.001) — major adherence advantage. Swindells S et al. NEJM 2019;380:1001-1011. PMID 30855125. DOI 10.1056/NEJMoa1806808. WHO 2018 endorsed 1HP for HIV-positive LTBI based on these results.',
+                    name: 'BRIEF-TB / A5279', baseline: {n: 2986, age: 35.7, pct_female: 53.6}, pmid: '26082504', phase: 'III', year: 2019, tE: 32, tN: 1488, cE: 33, cN: 1498, group: 'BRIEF-TB (ACTG A5279) trial: 1HP (rifapentine + isoniazid 1 month) vs 9H (isoniazid 9 months) in HIV-positive adults at risk of active TB. tE=32 incident TB events (or TB-related death/unknown-cause death) on 1HP arm (n=1488) vs cE=33 on 9H arm (n=1498). Composite incidence rate 0.65 vs 0.67 per 100 person-years; HR 0.97 (95% CI 0.59-1.61). Non-inferiority margin 1.25 met. Treatment completion: 1HP 97% vs 9H 90% (P<0.001) — major adherence advantage. Swindells S et al. NEJM 2019;380:1001-1011. PMID 30855125. DOI 10.1056/NEJMoa1806808. WHO 2018 endorsed 1HP for HIV-positive LTBI based on these results.',
 
 
                     estimandType: 'HR', publishedHR: 0.97, hrLCI: 0.59, hrUCI: 1.61, pubHR: 0.97, pubHR_LCI: 0.59, pubHR_UCI: 1.61,
@@ -5556,16 +5556,16 @@
                 // v11.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_sglt2hf_v1_0');
+                let saved = localStorage.getItem('rapid_meta_tb_prevention_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_sglt2hf_v0_9');
+                    const old10 = localStorage.getItem('rapid_meta_tb_prevention_v0_9');
 
 
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_sglt2hf_v1_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_tb_prevention_v1_0', old10); }
 
 
                 }
@@ -5574,10 +5574,10 @@
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_sglt2hf_v0_8');
+                    const old93 = localStorage.getItem('rapid_meta_tb_prevention_v0_8');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_sglt2hf_v1_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_tb_prevention_v1_0', old93); }
 
 
                 }
@@ -5613,7 +5613,7 @@
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_sglt2hf_v1_0');
+                        localStorage.removeItem('rapid_meta_tb_prevention_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -6870,7 +6870,7 @@
                 try {
 
 
-                    localStorage.setItem('rapid_meta_sglt2hf_v1_0', JSON.stringify(this.state));
+                    localStorage.setItem('rapid_meta_tb_prevention_v1_0', JSON.stringify(this.state));
 
 
                 } catch(e) {
@@ -8940,7 +8940,7 @@
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_sglt2hf_v1_0'); localStorage.removeItem('rapid_meta_sglt2hf_v0_9'); localStorage.removeItem('rapid_meta_sglt2hf_v0_8'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_tb_prevention_v1_0'); localStorage.removeItem('rapid_meta_tb_prevention_v0_9'); localStorage.removeItem('rapid_meta_tb_prevention_v0_8'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -36237,6 +36237,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

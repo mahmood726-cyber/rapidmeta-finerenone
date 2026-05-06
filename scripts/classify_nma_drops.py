@@ -23,7 +23,7 @@ import sys, io, csv, re, json
 from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-REPO = Path("C:/Projects/Finrenone")
+REPO = Path(__file__).resolve().parent.parent
 OUT_CSV = REPO / "outputs" / "nma_classification.csv"
 
 NMA_CONFIG_RE = re.compile(r'const\s+NMA_CONFIG\s*=\s*(\{[\s\S]*?\});', re.MULTILINE)

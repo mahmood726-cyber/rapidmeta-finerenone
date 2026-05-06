@@ -22,7 +22,7 @@ import sys, io, argparse, json, re, subprocess
 from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-REPO = Path("C:/Projects/Finrenone")
+REPO = Path(__file__).resolve().parent.parent
 JSON_PATH = REPO / "outputs" / "verdict_badges.json"
 
 SCRIPT_TAG = '\n    <!-- Verdict badge: per-topic data-integrity rollup of 7 gates -->\n    <script src="vendor/verdict-badge.js"></script>\n'

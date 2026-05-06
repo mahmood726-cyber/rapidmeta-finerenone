@@ -7090,7 +7090,7 @@ const ContinuousMDEngine = {
                 'NCT00866619': {
 
 
-                    name: 'RTS,S Phase 3', pmid: '25913272', phase: 'III', year: 2015, tE: 2960, tN: 5949, cE: 4165, cN: 5950, group: 'RTS,S/AS01 4-dose schedule (3-dose primary + 18-month booster) vs rabies-vaccine control in children 5-17 months at first dose; multi-country (Burkina Faso, Gabon, Ghana, Kenya, Malawi, Mozambique, Tanzania); cumulative incidence to month 48', publishedHR: 0.64, hrLCI: 0.59, hrUCI: 0.68,
+                    name: 'RTS,S Phase 3', baseline: {n: 11899, age: 10.6}, pmid: '25913272', phase: 'III', year: 2015, tE: 2960, tN: 5949, cE: 4165, cN: 5950, group: 'RTS,S/AS01 4-dose schedule (3-dose primary + 18-month booster) vs rabies-vaccine control in children 5-17 months at first dose; multi-country (Burkina Faso, Gabon, Ghana, Kenya, Malawi, Mozambique, Tanzania); cumulative incidence to month 48', publishedHR: 0.64, hrLCI: 0.59, hrUCI: 0.68,
 
 
                     allOutcomes: [
@@ -7121,7 +7121,7 @@ const ContinuousMDEngine = {
                 'NCT03896724': {
 
 
-                    name: 'R21 Phase 2b', pmid: '33964223', phase: 'III', year: 2021, tE: 38, tN: 150, cE: 105, cN: 150, group: 'R21/Matrix-M (Matrix-M 50 ug high-dose adjuvant) 3-dose primary series vs rabies-vaccine control in children 5-17 months in Burkina Faso (Nanoro); 12-month follow-up', publishedHR: 0.23, hrLCI: 0.16, hrUCI: 0.33,
+                    name: 'R21 Phase 2b', baseline: {n: 300, followup: 12.0}, pmid: '33964223', phase: 'III', year: 2021, tE: 38, tN: 150, cE: 105, cN: 150, group: 'R21/Matrix-M (Matrix-M 50 ug high-dose adjuvant) 3-dose primary series vs rabies-vaccine control in children 5-17 months in Burkina Faso (Nanoro); 12-month follow-up', publishedHR: 0.23, hrLCI: 0.16, hrUCI: 0.33,
 
 
                     allOutcomes: [
@@ -7152,7 +7152,7 @@ const ContinuousMDEngine = {
                 'NCT04704830': {
 
 
-                    name: 'R21 Phase 3', pmid: '38310910', phase: 'III', year: 2024, tE: 400, tN: 1601, cE: 1199, cN: 1599, group: 'R21/Matrix-M 3-dose primary + booster vs rabies-vaccine control; multi-country (Burkina Faso, Kenya, Mali, Tanzania); 12-month efficacy in children 5-36 months', publishedHR: 0.25, hrLCI: 0.21, hrUCI: 0.3,
+                    name: 'R21 Phase 3', baseline: {n: 3200}, pmid: '38310910', phase: 'III', year: 2024, tE: 400, tN: 1601, cE: 1199, cN: 1599, group: 'R21/Matrix-M 3-dose primary + booster vs rabies-vaccine control; multi-country (Burkina Faso, Kenya, Mali, Tanzania); 12-month efficacy in children 5-36 months', publishedHR: 0.25, hrLCI: 0.21, hrUCI: 0.3,
 
 
                     allOutcomes: [
@@ -7193,16 +7193,16 @@ const ContinuousMDEngine = {
                 // v12.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_malaria_vaccines_nma_v1_0');
+                let saved = localStorage.getItem('rapid_meta_malaria_vaccines_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_nirsevimab_infant_rsv_v0_9');
+                    const old11 = localStorage.getItem('rapid_meta_malaria_vaccines_v0_9');
 
 
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_malaria_vaccines_nma_v1_0', old11); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_malaria_vaccines_v1_0', old11); }
 
 
                 }
@@ -7211,10 +7211,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_nirsevimab_infant_rsv_v0_8');
+                    const old10 = localStorage.getItem('rapid_meta_malaria_vaccines_v0_8');
 
 
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_malaria_vaccines_nma_v1_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_malaria_vaccines_v1_0', old10); }
 
 
                 }
@@ -7223,10 +7223,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_nirsevimab_infant_rsv_v0_7');
+                    const old93 = localStorage.getItem('rapid_meta_malaria_vaccines_v0_7');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_malaria_vaccines_nma_v1_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_malaria_vaccines_v1_0', old93); }
 
 
                 }
@@ -7274,7 +7274,7 @@ const ContinuousMDEngine = {
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_malaria_vaccines_nma_v1_0');
+                        localStorage.removeItem('rapid_meta_malaria_vaccines_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -8432,7 +8432,7 @@ const ContinuousMDEngine = {
 
 
 
-            save() { try { localStorage.setItem('rapid_meta_malaria_vaccines_nma_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_malaria_vaccines_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
 
 
             getReviewerId() {
@@ -11200,7 +11200,7 @@ const ContinuousMDEngine = {
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_malaria_vaccines_nma_v1_0'); localStorage.removeItem('rapid_meta_nirsevimab_infant_rsv_v0_9'); localStorage.removeItem('rapid_meta_nirsevimab_infant_rsv_v0_8'); localStorage.removeItem('rapid_meta_nirsevimab_infant_rsv_v0_7'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_malaria_vaccines_v1_0'); localStorage.removeItem('rapid_meta_malaria_vaccines_v0_9'); localStorage.removeItem('rapid_meta_malaria_vaccines_v0_8'); localStorage.removeItem('rapid_meta_malaria_vaccines_v0_7'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -43830,6 +43830,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

@@ -29,7 +29,7 @@ import io
 import sys
 from pathlib import Path
 
-ROOT = Path(r"C:\Projects\Finrenone")
+ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_CSV = ROOT / "outputs" / "v65_engine_coverage.csv"
 
 CHECKS = [

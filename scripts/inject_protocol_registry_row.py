@@ -12,7 +12,7 @@ import sys, io, argparse, re
 from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-REPO = Path("C:/Projects/Finrenone")
+REPO = Path(__file__).resolve().parent.parent
 
 FREEZE_ROW_RE = re.compile(
     r'(<tr><td class="p-4 font-bold text-slate-400">Protocol Freeze Date</td>'

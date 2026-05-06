@@ -16,7 +16,7 @@ from pathlib import Path
 from urllib.request import urlopen, Request
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-REPO = Path("C:/Projects/Finrenone")
+REPO = Path(__file__).resolve().parent.parent
 
 
 def extract_group(file_path: Path, nct: str) -> str:

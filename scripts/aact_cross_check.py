@@ -25,7 +25,7 @@ import re
 from pathlib import Path
 
 AACT_DIR = Path("D:/AACT-storage/AACT/2026-04-12")
-REPO_DIR = Path("C:/Projects/Finrenone")
+REPO_DIR = Path(__file__).resolve().parent.parent
 OUT_CSV = REPO_DIR / "outputs" / "aact_cross_check_findings.csv"
 
 # Schema positions (1-indexed converted to 0-indexed)

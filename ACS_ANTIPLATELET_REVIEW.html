@@ -7326,7 +7326,7 @@
 
             realData: {
                 'NCT00391872': {
-                    name: 'PLATO', pmid: '19717846', phase: 'III', year: 2009, tE: 864, tN: 9333, cE: 1014, cN: 9291, group: 'ACS (NSTE-ACS or STEMI), ticagrelor 90 mg BID vs clopidogrel 75 mg daily on aspirin (12-mo CV death/MI/stroke; HR)', publishedHR: 0.84, hrLCI: 0.77, hrUCI: 0.92,
+                    name: 'PLATO', baseline: {n: 18624, age: 62.1}, pmid: '19717846', phase: 'III', year: 2009, tE: 864, tN: 9333, cE: 1014, cN: 9291, group: 'ACS (NSTE-ACS or STEMI), ticagrelor 90 mg BID vs clopidogrel 75 mg daily on aspirin (12-mo CV death/MI/stroke; HR)', publishedHR: 0.84, hrLCI: 0.77, hrUCI: 0.92,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'Composite of CV death, MI, or stroke at 12 mo (primary; ticagrelor vs clopidogrel)', tE: 864, cE: 1014, type: 'PRIMARY', matchScore: 95, effect: 0.84, lci: 0.77, uci: 0.92, estimandType: 'RR' }
                     ],
@@ -7339,7 +7339,7 @@
                     ]
                 },
                 'NCT00097591': {
-                    name: 'TRITON-TIMI 38', pmid: '17982182', phase: 'III', year: 2007, tE: 643, tN: 6813, cE: 781, cN: 6795, group: 'ACS undergoing PCI, prasugrel 10 mg vs clopidogrel 75 mg on aspirin (15-mo CV death/MI/stroke; HR)', publishedHR: 0.81, hrLCI: 0.73, hrUCI: 0.9,
+                    name: 'TRITON-TIMI 38', baseline: {n: 13608, age: 60.9}, pmid: '17982182', phase: 'III', year: 2007, tE: 643, tN: 6813, cE: 781, cN: 6795, group: 'ACS undergoing PCI, prasugrel 10 mg vs clopidogrel 75 mg on aspirin (15-mo CV death/MI/stroke; HR)', publishedHR: 0.81, hrLCI: 0.73, hrUCI: 0.9,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'Composite of CV death, nonfatal MI, or nonfatal stroke (primary; prasugrel vs clopidogrel)', tE: 643, cE: 781, type: 'PRIMARY', matchScore: 95, effect: 0.81, lci: 0.73, uci: 0.9, estimandType: 'RR' }
                     ],
@@ -7352,7 +7352,7 @@
                     ]
                 },
                 'NCT01944800': {
-                    name: 'ISAR-REACT 5', pmid: '31475799', phase: 'III', year: 2019, tE: 184, tN: 2012, cE: 137, cN: 2006, group: 'ACS planned for invasive evaluation, ticagrelor 90 mg BID vs prasugrel 10 mg on aspirin (12-mo composite; HR)', publishedHR: 1.36, hrLCI: 1.09, hrUCI: 1.7,
+                    name: 'ISAR-REACT 5', baseline: {n: 4018}, pmid: '31475799', phase: 'III', year: 2019, tE: 184, tN: 2012, cE: 137, cN: 2006, group: 'ACS planned for invasive evaluation, ticagrelor 90 mg BID vs prasugrel 10 mg on aspirin (12-mo composite; HR)', publishedHR: 1.36, hrLCI: 1.09, hrUCI: 1.7,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'Composite of death, MI, or stroke at 12 mo (primary; ticagrelor vs prasugrel)', tE: 184, cE: 137, type: 'PRIMARY', matchScore: 95, effect: 1.36, lci: 1.09, uci: 1.7, estimandType: 'RR' }
                     ],
@@ -7365,7 +7365,7 @@
                     ]
                 },
                 'NCT02270242': {
-                    name: 'TWILIGHT', pmid: '31556978', phase: 'III', year: 2019, tE: 141, tN: 3555, cE: 250, cN: 3564, group: 'High-risk PCI patients, ticagrelor monotherapy vs ticagrelor+aspirin after 3 mo DAPT - PRIMARY endpoint BARC 2/3/5 bleeding at 12 mo (Mehran 2019 NEJM 381:2032). Raw counts updated 2026-05-05 from MACE 135/137 to BARC 141/250 to match the headline publishedHR 0.56.', publishedHR: 0.56, hrLCI: 0.45, hrUCI: 0.68,
+                    name: 'TWILIGHT', baseline: {n: 7119, followup: 12.0, age: 65.2, pct_female: 23.8}, pmid: '31556978', phase: 'III', year: 2019, tE: 141, tN: 3555, cE: 250, cN: 3564, group: 'High-risk PCI patients, ticagrelor monotherapy vs ticagrelor+aspirin after 3 mo DAPT - PRIMARY endpoint BARC 2/3/5 bleeding at 12 mo (Mehran 2019 NEJM 381:2032). Raw counts updated 2026-05-05 from MACE 135/137 to BARC 141/250 to match the headline publishedHR 0.56.', publishedHR: 0.56, hrLCI: 0.45, hrUCI: 0.68,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'Composite of death, MI, or stroke at 15 mo (key secondary; ticagrelor mono vs +ASA)', tE: 135, cE: 137, type: 'PRIMARY', matchScore: 95, effect: 0.99, lci: 0.78, uci: 1.25, estimandType: 'RR' }
                     ],
@@ -7389,16 +7389,16 @@
                 // v15.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_acs_antiplatelet_nma_v1_0');
+                let saved = localStorage.getItem('rapid_meta_acs_antiplatelet_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old14 = localStorage.getItem('rapid_meta_acs_antiplatelet_nma_v1_0');
+                    const old14 = localStorage.getItem('rapid_meta_acs_antiplatelet_v1_0');
 
 
-                    if (old14) { saved = old14; localStorage.setItem('rapid_meta_acs_antiplatelet_nma_v1_0', old14); }
+                    if (old14) { saved = old14; localStorage.setItem('rapid_meta_acs_antiplatelet_v1_0', old14); }
 
 
                 }
@@ -7407,22 +7407,10 @@
                 if (!saved) {
 
 
-                    const old13 = localStorage.getItem('rapid_meta_acs_antiplatelet_nma_v1_0');
+                    const old13 = localStorage.getItem('rapid_meta_acs_antiplatelet_v1_0');
 
 
-                    if (old13) { saved = old13; localStorage.setItem('rapid_meta_acs_antiplatelet_nma_v1_0', old13); }
-
-
-                }
-
-
-                if (!saved) {
-
-
-                    const old12 = localStorage.getItem('rapid_meta_acs_antiplatelet_nma_v1_0');
-
-
-                    if (old12) { saved = old12; localStorage.setItem('rapid_meta_acs_antiplatelet_nma_v1_0', old12); }
+                    if (old13) { saved = old13; localStorage.setItem('rapid_meta_acs_antiplatelet_v1_0', old13); }
 
 
                 }
@@ -7431,22 +7419,10 @@
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_acs_antiplatelet_nma_v1_0');
+                    const old12 = localStorage.getItem('rapid_meta_acs_antiplatelet_v1_0');
 
 
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_acs_antiplatelet_nma_v1_0', old11); }
-
-
-                }
-
-
-                if (!saved) {
-
-
-                    const old10 = localStorage.getItem('rapid_meta_acs_antiplatelet_nma_v1_0');
-
-
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_acs_antiplatelet_nma_v1_0', old10); }
+                    if (old12) { saved = old12; localStorage.setItem('rapid_meta_acs_antiplatelet_v1_0', old12); }
 
 
                 }
@@ -7455,10 +7431,34 @@
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_acs_antiplatelet_nma_v1_0');
+                    const old11 = localStorage.getItem('rapid_meta_acs_antiplatelet_v1_0');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_acs_antiplatelet_nma_v1_0', old93); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_acs_antiplatelet_v1_0', old11); }
+
+
+                }
+
+
+                if (!saved) {
+
+
+                    const old10 = localStorage.getItem('rapid_meta_acs_antiplatelet_v1_0');
+
+
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_acs_antiplatelet_v1_0', old10); }
+
+
+                }
+
+
+                if (!saved) {
+
+
+                    const old93 = localStorage.getItem('rapid_meta_acs_antiplatelet_v1_0');
+
+
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_acs_antiplatelet_v1_0', old93); }
 
 
                 }
@@ -7506,7 +7506,7 @@
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_acs_antiplatelet_nma_v1_0');
+                        localStorage.removeItem('rapid_meta_acs_antiplatelet_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -8862,7 +8862,7 @@
 
 
 
-            save() { try { localStorage.setItem('rapid_meta_acs_antiplatelet_nma_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_acs_antiplatelet_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
 
 
             getReviewerId() {
@@ -11631,7 +11631,7 @@
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_acs_antiplatelet_nma_v1_0'); localStorage.removeItem('rapid_meta_acs_antiplatelet_nma_v1_0'); localStorage.removeItem('rapid_meta_acs_antiplatelet_nma_v1_0'); localStorage.removeItem('rapid_meta_acs_antiplatelet_nma_v1_0'); localStorage.removeItem('rapid_meta_acs_antiplatelet_nma_v1_0'); localStorage.removeItem('rapid_meta_acs_antiplatelet_nma_v1_0'); localStorage.removeItem('rapid_meta_acs_antiplatelet_nma_v1_0'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_acs_antiplatelet_v1_0'); localStorage.removeItem('rapid_meta_acs_antiplatelet_v1_0'); localStorage.removeItem('rapid_meta_acs_antiplatelet_v1_0'); localStorage.removeItem('rapid_meta_acs_antiplatelet_v1_0'); localStorage.removeItem('rapid_meta_acs_antiplatelet_v1_0'); localStorage.removeItem('rapid_meta_acs_antiplatelet_v1_0'); localStorage.removeItem('rapid_meta_acs_antiplatelet_v1_0'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -45466,6 +45466,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

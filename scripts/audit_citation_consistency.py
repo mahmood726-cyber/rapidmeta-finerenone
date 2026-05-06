@@ -95,7 +95,7 @@ def journal_match(url_token: str | None, pubmed_journal: str) -> bool | None:
     pj = (pubmed_journal or "").lower()
     return url_token in pj or any(tok in pj for tok in url_token.split())
 
-ROOT = Path(r"C:\Projects\Finrenone")
+ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_CSV = ROOT / "outputs" / "citation_audit.csv"
 CACHE_PATH = ROOT / "outputs" / "_pubmed_cache.json"
 CACHE_TTL_SEC = 24 * 60 * 60

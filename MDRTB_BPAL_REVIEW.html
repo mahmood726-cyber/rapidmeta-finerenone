@@ -5209,7 +5209,7 @@
                 'NCT02333799': {
 
 
-                    name: 'Nix-TB', pmid: '32130813', phase: 'III', year: 2020, tE: 11, tN: 109, cE: null, cN: null, group: 'BPaL (bedaquiline + pretomanid + linezolid) — single-arm cohort. tE=11 unfavorable outcomes / tN=109 mITT at 6-month post-treatment follow-up; 98/109 (90%) favorable outcome. NO comparator arm — descriptive only. Conradie JS et al. NEJM 2020 (DOI 10.1056/NEJMoa1901814). Linezolid 1200 mg×6 mo with frequent peripheral neuropathy and myelosuppression motivating ZeNix dose-finding follow-up.',
+                    name: 'Nix-TB', baseline: {n: 109, followup: 6.0, age: 35.6, pct_female: 47.7}, pmid: '32130813', phase: 'III', year: 2020, tE: 11, tN: 109, cE: null, cN: null, group: 'BPaL (bedaquiline + pretomanid + linezolid) — single-arm cohort. tE=11 unfavorable outcomes / tN=109 mITT at 6-month post-treatment follow-up; 98/109 (90%) favorable outcome. NO comparator arm — descriptive only. Conradie JS et al. NEJM 2020 (DOI 10.1056/NEJMoa1901814). Linezolid 1200 mg×6 mo with frequent peripheral neuropathy and myelosuppression motivating ZeNix dose-finding follow-up.',
 
 
                     allOutcomes: [
@@ -5268,7 +5268,7 @@
                 'NCT03086486': {
 
 
-                    name: 'ZeNix', pmid: '36053506', phase: 'III', year: 2022, tE: 8, tN: 45, cE: 5, cN: 46, group: 'ZeNix LZD dose comparison. tE=8 unfavorable (LZD 1200 mg ×26 wk, n=45). cE=5 unfavorable (LZD 600 mg ×26 wk, n=46) — selected as the pairwise comparator (best efficacy at lowest LZD-AE burden). Two other arms (1200×9 wk and 600×9 wk) excluded from this contrast for clarity. mITT 6-month post-EOT. Conradie F et al. NEJM 2022;387:810-823 (DOI 10.1056/NEJMoa2119430).',
+                    name: 'ZeNix', baseline: {n: 91, age: 37.4, pct_female: 33.3}, pmid: '36053506', phase: 'III', year: 2022, tE: 8, tN: 45, cE: 5, cN: 46, group: 'ZeNix LZD dose comparison. tE=8 unfavorable (LZD 1200 mg ×26 wk, n=45). cE=5 unfavorable (LZD 600 mg ×26 wk, n=46) — selected as the pairwise comparator (best efficacy at lowest LZD-AE burden). Two other arms (1200×9 wk and 600×9 wk) excluded from this contrast for clarity. mITT 6-month post-EOT. Conradie F et al. NEJM 2022;387:810-823 (DOI 10.1056/NEJMoa2119430).',
 
 
                     allOutcomes: [
@@ -5329,7 +5329,7 @@
                 'NCT02589782': {
 
 
-                    name: 'TB-PRACTECAL', pmid: '38842323', phase: 'III', year: 2022, tE: 15, tN: 138, cE: 66, cN: 137, group: 'TB-PRACTECAL stage 2 mITT contrast — BPaLM (bedaquiline + pretomanid + linezolid + moxifloxacin, 24 weeks) vs locally accepted WHO-recommended longer regimen (typically 9-24 months including a fluoroquinolone and historically an injectable). tE=15 unfavorable BPaLM, cE=66 unfavorable SOC. mITT denominators per Nyang\u2019wa BT et al. NEJM 2022 primary analysis. RR 0.23 (95% CI 0.15-0.36) for unfavorable; non-inferiority and superiority both met. WHO-conditional preferred regimen 2022.',
+                    name: 'TB-PRACTECAL', baseline: {n: 275}, pmid: '38842323', phase: 'III', year: 2022, tE: 15, tN: 138, cE: 66, cN: 137, group: 'TB-PRACTECAL stage 2 mITT contrast — BPaLM (bedaquiline + pretomanid + linezolid + moxifloxacin, 24 weeks) vs locally accepted WHO-recommended longer regimen (typically 9-24 months including a fluoroquinolone and historically an injectable). tE=15 unfavorable BPaLM, cE=66 unfavorable SOC. mITT denominators per Nyang\u2019wa BT et al. NEJM 2022 primary analysis. RR 0.23 (95% CI 0.15-0.36) for unfavorable; non-inferiority and superiority both met. WHO-conditional preferred regimen 2022.',
 
 
                     allOutcomes: [
@@ -5689,16 +5689,16 @@
                 // v11.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_sglt2hf_v1_0');
+                let saved = localStorage.getItem('rapid_meta_mdrtb_bpal_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_sglt2hf_v0_9');
+                    const old10 = localStorage.getItem('rapid_meta_mdrtb_bpal_v0_9');
 
 
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_sglt2hf_v1_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_mdrtb_bpal_v1_0', old10); }
 
 
                 }
@@ -5707,10 +5707,10 @@
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_sglt2hf_v0_8');
+                    const old93 = localStorage.getItem('rapid_meta_mdrtb_bpal_v0_8');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_sglt2hf_v1_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_mdrtb_bpal_v1_0', old93); }
 
 
                 }
@@ -5746,7 +5746,7 @@
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_sglt2hf_v1_0');
+                        localStorage.removeItem('rapid_meta_mdrtb_bpal_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -7003,7 +7003,7 @@
                 try {
 
 
-                    localStorage.setItem('rapid_meta_sglt2hf_v1_0', JSON.stringify(this.state));
+                    localStorage.setItem('rapid_meta_mdrtb_bpal_v1_0', JSON.stringify(this.state));
 
 
                 } catch(e) {
@@ -9073,7 +9073,7 @@
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_sglt2hf_v1_0'); localStorage.removeItem('rapid_meta_sglt2hf_v0_9'); localStorage.removeItem('rapid_meta_sglt2hf_v0_8'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_mdrtb_bpal_v1_0'); localStorage.removeItem('rapid_meta_mdrtb_bpal_v0_9'); localStorage.removeItem('rapid_meta_mdrtb_bpal_v0_8'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -36370,6 +36370,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

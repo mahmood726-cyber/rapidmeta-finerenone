@@ -23,7 +23,7 @@ Idempotent (sentinel /*PEER-REVIEW-v1*/). Fails closed if state missing.
 """
 import argparse, pathlib, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 SENTINEL = "/*PEER-REVIEW-v1*/"
 
 

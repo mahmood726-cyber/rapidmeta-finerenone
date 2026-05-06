@@ -7094,7 +7094,7 @@ const ContinuousMDEngine = {
                 'NCT02951052': {
 
 
-                    name: 'ATLAS', pmid: '33136751', phase: 'III', year: 2020, tE: 5, tN: 308, cE: 3, cN: 308, group: 'Switch from oral ART to LA cabotegravir + rilpivirine Q4W vs continued oral ART; HIV-1 RNA >=50 c/mL at week 48 (snapshot, treatment failure)', publishedHR: 1.67, hrLCI: 0.4, hrUCI: 6.91,
+                    name: 'ATLAS', baseline: {n: 616, followup: 11.0, age: 41.6}, pmid: '33136751', phase: 'III', year: 2020, tE: 5, tN: 308, cE: 3, cN: 308, group: 'Switch from oral ART to LA cabotegravir + rilpivirine Q4W vs continued oral ART; HIV-1 RNA >=50 c/mL at week 48 (snapshot, treatment failure)', publishedHR: 1.67, hrLCI: 0.4, hrUCI: 6.91,
 
 
                     allOutcomes: [
@@ -7125,7 +7125,7 @@ const ContinuousMDEngine = {
                 'NCT02938520': {
 
 
-                    name: 'FLAIR', pmid: '32130806', phase: 'III', year: 2020, tE: 6, tN: 283, cE: 7, cN: 283, group: 'Switch to LA cabotegravir + rilpivirine Q4W after 20-week DTG/ABC/3TC induction vs continued oral DTG/ABC/3TC; HIV-1 RNA >=50 c/mL at week 48', publishedHR: 0.86, hrLCI: 0.29, hrUCI: 2.53,
+                    name: 'FLAIR', baseline: {n: 566, followup: 11.0, age: 35.9, pct_female: 32.6}, pmid: '32130806', phase: 'III', year: 2020, tE: 6, tN: 283, cE: 7, cN: 283, group: 'Switch to LA cabotegravir + rilpivirine Q4W after 20-week DTG/ABC/3TC induction vs continued oral DTG/ABC/3TC; HIV-1 RNA >=50 c/mL at week 48', publishedHR: 0.86, hrLCI: 0.29, hrUCI: 2.53,
 
 
                     allOutcomes: [
@@ -7156,7 +7156,7 @@ const ContinuousMDEngine = {
                 'NCT03299049': {
 
 
-                    name: 'ATLAS-2M', pmid: '33308425', phase: 'III', year: 2021, tE: 9, tN: 522, cE: 5, cN: 523, group: 'LA cabotegravir + rilpivirine every 8 weeks vs every 4 weeks; HIV-1 RNA >=50 c/mL at week 48 (Q8W vs Q4W non-inferiority)', publishedHR: 1.8, hrLCI: 0.61, hrUCI: 5.34,
+                    name: 'ATLAS-2M', baseline: {n: 1045, followup: 11.0, age: 42.7}, pmid: '33308425', phase: 'III', year: 2021, tE: 9, tN: 522, cE: 5, cN: 523, group: 'LA cabotegravir + rilpivirine every 8 weeks vs every 4 weeks; HIV-1 RNA >=50 c/mL at week 48 (Q8W vs Q4W non-inferiority)', publishedHR: 1.8, hrLCI: 0.61, hrUCI: 5.34,
 
 
                     allOutcomes: [
@@ -7203,7 +7203,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_cab_prep_hiv_v0_9');
+                    const old11 = localStorage.getItem('rapid_meta_cabotegravir_hiv_art_v0_9');
 
 
                     if (old11) { saved = old11; localStorage.setItem('rapid_meta_cabotegravir_hiv_art_v1_0', old11); }
@@ -7215,7 +7215,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_cab_prep_hiv_v0_8');
+                    const old10 = localStorage.getItem('rapid_meta_cabotegravir_hiv_art_v0_8');
 
 
                     if (old10) { saved = old10; localStorage.setItem('rapid_meta_cabotegravir_hiv_art_v1_0', old10); }
@@ -7227,7 +7227,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_cab_prep_hiv_v0_7');
+                    const old93 = localStorage.getItem('rapid_meta_cabotegravir_hiv_art_v0_7');
 
 
                     if (old93) { saved = old93; localStorage.setItem('rapid_meta_cabotegravir_hiv_art_v1_0', old93); }
@@ -11204,7 +11204,7 @@ const ContinuousMDEngine = {
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_cabotegravir_hiv_art_v1_0'); localStorage.removeItem('rapid_meta_cab_prep_hiv_v0_9'); localStorage.removeItem('rapid_meta_cab_prep_hiv_v0_8'); localStorage.removeItem('rapid_meta_cab_prep_hiv_v0_7'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_cabotegravir_hiv_art_v1_0'); localStorage.removeItem('rapid_meta_cabotegravir_hiv_art_v0_9'); localStorage.removeItem('rapid_meta_cabotegravir_hiv_art_v0_8'); localStorage.removeItem('rapid_meta_cabotegravir_hiv_art_v0_7'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -43834,6 +43834,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

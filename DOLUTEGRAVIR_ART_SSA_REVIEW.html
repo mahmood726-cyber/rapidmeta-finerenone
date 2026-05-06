@@ -7094,7 +7094,7 @@ const ContinuousMDEngine = {
                 'NCT03122262': {
 
 
-                    name: 'ADVANCE', pmid: '31339677', phase: 'III', year: 2019, tE: 285, tN: 351, cE: 257, cN: 351, group: 'South African adults, TDF/FTC + DTG vs TDF/FTC/EFV first-line ART; week 48 virologic suppression (HIV-1 RNA <50 copies/mL, snapshot ITT)', publishedHR: 1.11, hrLCI: 1.02, hrUCI: 1.2,
+                    name: 'ADVANCE', baseline: {n: 702, followup: 11.0}, pmid: '31339677', phase: 'III', year: 2019, tE: 285, tN: 351, cE: 257, cN: 351, group: 'South African adults, TDF/FTC + DTG vs TDF/FTC/EFV first-line ART; week 48 virologic suppression (HIV-1 RNA <50 copies/mL, snapshot ITT)', publishedHR: 1.11, hrLCI: 1.02, hrUCI: 1.2,
 
 
                     allOutcomes: [
@@ -7125,7 +7125,7 @@ const ContinuousMDEngine = {
                 'NCT02777229': {
 
 
-                    name: 'NAMSAL', pmid: '31339676', phase: 'III', year: 2019, tE: 231, tN: 310, cE: 209, cN: 303, group: 'Cameroonian adults, TDF/3TC + DTG vs TDF/3TC + EFV 400 mg first-line ART; week 48 virologic suppression (HIV-1 RNA <50 copies/mL, snapshot ITT)', publishedHR: 1.08, hrLCI: 0.97, hrUCI: 1.2,
+                    name: 'NAMSAL', baseline: {n: 613, followup: 11.0}, pmid: '31339676', phase: 'III', year: 2019, tE: 231, tN: 310, cE: 209, cN: 303, group: 'Cameroonian adults, TDF/3TC + DTG vs TDF/3TC + EFV 400 mg first-line ART; week 48 virologic suppression (HIV-1 RNA <50 copies/mL, snapshot ITT)', publishedHR: 1.08, hrLCI: 0.97, hrUCI: 1.2,
 
 
                     allOutcomes: [
@@ -7156,7 +7156,7 @@ const ContinuousMDEngine = {
                 'NCT03048422': {
 
 
-                    name: 'IMPAACT 2010', pmid: '33812487', phase: 'III', year: 2021, tE: 212, tN: 217, cE: 183, cN: 211, group: 'ART-naive pregnant women initiating in 2nd / early 3rd trimester (multi-country: Botswana / South Africa / Tanzania / Uganda / Zimbabwe + Brazil + India + Thailand + US); DTG + FTC/TDF vs EFV/FTC/TDF; HIV-1 RNA <200 copies/mL at delivery (snapshot ITT)', publishedHR: 1.13, hrLCI: 1.06, hrUCI: 1.21,
+                    name: 'IMPAACT 2010', baseline: {n: 428, age: 27.5, pct_female: 100.0}, pmid: '33812487', phase: 'III', year: 2021, tE: 212, tN: 217, cE: 183, cN: 211, group: 'ART-naive pregnant women initiating in 2nd / early 3rd trimester (multi-country: Botswana / South Africa / Tanzania / Uganda / Zimbabwe + Brazil + India + Thailand + US); DTG + FTC/TDF vs EFV/FTC/TDF; HIV-1 RNA <200 copies/mL at delivery (snapshot ITT)', publishedHR: 1.13, hrLCI: 1.06, hrUCI: 1.21,
 
 
                     allOutcomes: [
@@ -7203,7 +7203,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_cab_prep_hiv_v0_9');
+                    const old11 = localStorage.getItem('rapid_meta_dolutegravir_art_ssa_v0_9');
 
 
                     if (old11) { saved = old11; localStorage.setItem('rapid_meta_dolutegravir_art_ssa_v1_0', old11); }
@@ -7215,7 +7215,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_cab_prep_hiv_v0_8');
+                    const old10 = localStorage.getItem('rapid_meta_dolutegravir_art_ssa_v0_8');
 
 
                     if (old10) { saved = old10; localStorage.setItem('rapid_meta_dolutegravir_art_ssa_v1_0', old10); }
@@ -7227,7 +7227,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_cab_prep_hiv_v0_7');
+                    const old93 = localStorage.getItem('rapid_meta_dolutegravir_art_ssa_v0_7');
 
 
                     if (old93) { saved = old93; localStorage.setItem('rapid_meta_dolutegravir_art_ssa_v1_0', old93); }
@@ -11204,7 +11204,7 @@ const ContinuousMDEngine = {
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_dolutegravir_art_ssa_v1_0'); localStorage.removeItem('rapid_meta_cab_prep_hiv_v0_9'); localStorage.removeItem('rapid_meta_cab_prep_hiv_v0_8'); localStorage.removeItem('rapid_meta_cab_prep_hiv_v0_7'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_dolutegravir_art_ssa_v1_0'); localStorage.removeItem('rapid_meta_dolutegravir_art_ssa_v0_9'); localStorage.removeItem('rapid_meta_dolutegravir_art_ssa_v0_8'); localStorage.removeItem('rapid_meta_dolutegravir_art_ssa_v0_7'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -43840,6 +43840,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

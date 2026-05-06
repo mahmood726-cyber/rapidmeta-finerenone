@@ -14,7 +14,7 @@ import sys, io, re
 from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-REPO = Path("C:/Projects/Finrenone")
+REPO = Path(__file__).resolve().parent.parent
 
 # Match a trial block whose publishedHR or hrLCI or hrUCI is negative.
 TRIAL_RE = re.compile(

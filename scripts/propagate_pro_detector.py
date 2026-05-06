@@ -28,7 +28,7 @@ peer-review reads state.
 """
 import argparse, pathlib, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 SENTINEL = "/*PRO-DETECTOR-v1*/"
 
 

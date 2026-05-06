@@ -22,7 +22,7 @@ Usage:
 from __future__ import annotations
 import argparse, difflib, pathlib, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 HYDRATOR_MARKER = "const AbstractHydrator = {"
 

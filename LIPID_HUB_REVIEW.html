@@ -7301,7 +7301,7 @@ const ContinuousMDEngine = {
     'NCT01492361': { // REDUCE-IT
 
 
-        name: 'REDUCE-IT', pmid: '30415628', intervention: 'Icosapent Ethyl 4g/day', comparator: 'Mineral Oil Placebo', year: 2019,
+        name: 'REDUCE-IT', baseline: {n: 8179, age: 64.0}, pmid: '30415628', intervention: 'Icosapent Ethyl 4g/day', comparator: 'Mineral Oil Placebo', year: 2019,
 
 
         tE: 705, tN: 4089, cE: 901, cN: 4090,
@@ -7337,7 +7337,7 @@ const ContinuousMDEngine = {
     'NCT02104817': { // STRENGTH
 
 
-        name: 'STRENGTH', pmid: '33190147', intervention: 'Omega-3 CA (EPA+DHA) 4g/day', comparator: 'Corn Oil Placebo', year: 2020,
+        name: 'STRENGTH', baseline: {n: 13078, age: 62.5}, pmid: '33190147', intervention: 'Omega-3 CA (EPA+DHA) 4g/day', comparator: 'Corn Oil Placebo', year: 2020,
 
 
         tE: 785, tN: 6539, cE: 795, cN: 6539,
@@ -7373,7 +7373,7 @@ const ContinuousMDEngine = {
     'NCT01169259': { // VITAL
 
 
-        name: 'VITAL', pmid: '33206192', intervention: 'Omega-3 (EPA+DHA) 1g/day', comparator: 'Placebo', year: 2019,
+        name: 'VITAL', baseline: {n: 25871, age: 67.1, pct_female: 50.7}, pmid: '33206192', intervention: 'Omega-3 (EPA+DHA) 1g/day', comparator: 'Placebo', year: 2019,
 
 
         tE: 386, tN: 12933, cE: 419, cN: 12938,
@@ -7409,7 +7409,7 @@ const ContinuousMDEngine = {
     'NCT01841944': { // OMEMI
 
 
-        name: 'OMEMI', pmid: '24928284', intervention: 'Omega-3 (EPA+DHA) 1.8g/day', comparator: 'Corn Oil Placebo', year: 2021,
+        name: 'OMEMI', baseline: {n: 1027}, pmid: '24928284', intervention: 'Omega-3 (EPA+DHA) 1.8g/day', comparator: 'Corn Oil Placebo', year: 2021,
 
 
         tE: 99, tN: 505, cE: 91, cN: 522,
@@ -7445,7 +7445,7 @@ const ContinuousMDEngine = {
     'NCT02944682': { // RESPECT-EPA
 
 
-        name: 'RESPECT-EPA', pmid: '32994243', intervention: 'EPA 1.8g/day', comparator: 'No EPA (open-label)', year: 2022,
+        name: 'RESPECT-EPA', baseline: {n: 3884}, pmid: '32994243', intervention: 'EPA 1.8g/day', comparator: 'No EPA (open-label)', year: 2022,
 
 
         tE: 91, tN: 1939, cE: 118, cN: 1945,
@@ -7496,16 +7496,16 @@ const ContinuousMDEngine = {
                 // Omega-3 / Icosapent Ethyl CVD Prevention — unique localStorage keys
 
 
-                let saved = localStorage.getItem('rapid_meta_omega3_cvd_v12_0');
+                let saved = localStorage.getItem('rapid_meta_lipid_hub_v12_0');
 
 
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_omega3_cvd_v11_0');
+                    const old11 = localStorage.getItem('rapid_meta_lipid_hub_v11_0');
 
 
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_omega3_cvd_v12_0', old11); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_lipid_hub_v12_0', old11); }
 
 
                 }
@@ -7514,10 +7514,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_omega3_cvd_v10_0');
+                    const old10 = localStorage.getItem('rapid_meta_lipid_hub_v10_0');
 
 
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_omega3_cvd_v12_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_lipid_hub_v12_0', old10); }
 
 
                 }
@@ -7526,10 +7526,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_omega3_cvd_v9_3');
+                    const old93 = localStorage.getItem('rapid_meta_lipid_hub_v9_3');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_omega3_cvd_v12_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_lipid_hub_v12_0', old93); }
 
 
                 }
@@ -7577,7 +7577,7 @@ const ContinuousMDEngine = {
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_omega3_cvd_v12_0');
+                        localStorage.removeItem('rapid_meta_lipid_hub_v12_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -8732,7 +8732,7 @@ const ContinuousMDEngine = {
 
 
 
-            save() { try { localStorage.setItem('rapid_meta_omega3_cvd_v12_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_lipid_hub_v12_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
 
 
             getReviewerId() {
@@ -11503,7 +11503,7 @@ const ContinuousMDEngine = {
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_omega3_cvd_v12_0'); localStorage.removeItem('rapid_meta_omega3_cvd_v11_0'); localStorage.removeItem('rapid_meta_omega3_cvd_v10_0'); localStorage.removeItem('rapid_meta_omega3_cvd_v9_3'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_lipid_hub_v12_0'); localStorage.removeItem('rapid_meta_lipid_hub_v11_0'); localStorage.removeItem('rapid_meta_lipid_hub_v10_0'); localStorage.removeItem('rapid_meta_lipid_hub_v9_3'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -44196,6 +44196,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

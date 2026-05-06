@@ -34,7 +34,7 @@ import sys, io, csv, re, math
 from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-REPO = Path("C:/Projects/Finrenone")
+REPO = Path(__file__).resolve().parent.parent
 AACT_DIR = Path("D:/AACT-storage/AACT/2026-04-12")
 OUT_CSV = REPO / "outputs" / "aact_outcome_concordance.csv"
 

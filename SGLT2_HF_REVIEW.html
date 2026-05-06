@@ -5210,7 +5210,7 @@
                 'NCT03036124': {
 
 
-                    name: 'DAPA-HF', pmid: '31535829', phase: 'III', year: 2019, tE: 386, tN: 2373, cE: 502, cN: 2371, group: 'Dapagliflozin', estimandType: 'HR', publishedHR: 0.74, hrLCI: 0.65, hrUCI: 0.85,
+                    name: 'DAPA-HF', baseline: {n: 4744, age: 66.2}, pmid: '31535829', phase: 'III', year: 2019, tE: 386, tN: 2373, cE: 502, cN: 2371, group: 'Dapagliflozin', estimandType: 'HR', publishedHR: 0.74, hrLCI: 0.65, hrUCI: 0.85,
 
 
                     allOutcomes: [
@@ -5386,7 +5386,7 @@
                 'NCT03057977': {
 
 
-                    name: 'EMPEROR-Reduced', pmid: '32865377', phase: 'III', year: 2020, tE: 361, tN: 1863, cE: 462, cN: 1867, group: 'Empagliflozin', estimandType: 'HR', publishedHR: 0.75, hrLCI: 0.65, hrUCI: 0.86,
+                    name: 'EMPEROR-Reduced', baseline: {n: 3730, age: 66.5}, pmid: '32865377', phase: 'III', year: 2020, tE: 361, tN: 1863, cE: 462, cN: 1867, group: 'Empagliflozin', estimandType: 'HR', publishedHR: 0.75, hrLCI: 0.65, hrUCI: 0.86,
 
 
                     allOutcomes: [
@@ -5568,7 +5568,7 @@
                 'NCT03057951': {
 
 
-                    name: 'EMPEROR-Preserved', pmid: '34449189', phase: 'III', year: 2021, tE: 415, tN: 2997, cE: 511, cN: 2991, group: 'Empagliflozin', estimandType: 'HR', publishedHR: 0.79, hrLCI: 0.69, hrUCI: 0.90,
+                    name: 'EMPEROR-Preserved', baseline: {n: 5988, age: 71.9}, pmid: '34449189', phase: 'III', year: 2021, tE: 415, tN: 2997, cE: 511, cN: 2991, group: 'Empagliflozin', estimandType: 'HR', publishedHR: 0.79, hrLCI: 0.69, hrUCI: 0.90,
 
 
                     allOutcomes: [
@@ -5738,7 +5738,7 @@
                 'NCT03619213': {
 
 
-                    name: 'DELIVER', pmid: '36029465', phase: 'III', year: 2022, tE: 512, tN: 3131, cE: 610, cN: 3132, group: 'Dapagliflozin', estimandType: 'HR', publishedHR: 0.82, hrLCI: 0.73, hrUCI: 0.92,
+                    name: 'DELIVER', baseline: {n: 6263, age: 71.8}, pmid: '36029465', phase: 'III', year: 2022, tE: 512, tN: 3131, cE: 610, cN: 3132, group: 'Dapagliflozin', estimandType: 'HR', publishedHR: 0.82, hrLCI: 0.73, hrUCI: 0.92,
 
 
                     allOutcomes: [
@@ -5908,7 +5908,7 @@
                 'NCT03521934': {
 
 
-                    name: 'SOLOIST-WHF', pmid: '33200892', phase: 'III', year: 2021, group: 'Sotagliflozin', analysisOnly: 'HR', estimandType: 'RR', tE: 245, tN: 608, cE: 355, cN: 614, publishedHR: 0.67, hrLCI: 0.52, hrUCI: 0.85,
+                    name: 'SOLOIST-WHF', baseline: {age: 68.6}, pmid: '33200892', phase: 'III', year: 2021, group: 'Sotagliflozin', analysisOnly: 'HR', estimandType: 'RR', tE: 245, tN: 608, cE: 355, cN: 614, publishedHR: 0.67, hrLCI: 0.52, hrUCI: 0.85,
 
 
                     allOutcomes: [
@@ -6392,16 +6392,16 @@
                 // v11.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_sglt2hf_v1_0');
+                let saved = localStorage.getItem('rapid_meta_sglt2_hf_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_sglt2hf_v0_9');
+                    const old10 = localStorage.getItem('rapid_meta_sglt2_hf_v0_9');
 
 
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_sglt2hf_v1_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_sglt2_hf_v1_0', old10); }
 
 
                 }
@@ -6410,10 +6410,10 @@
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_sglt2hf_v0_8');
+                    const old93 = localStorage.getItem('rapid_meta_sglt2_hf_v0_8');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_sglt2hf_v1_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_sglt2_hf_v1_0', old93); }
 
 
                 }
@@ -6449,7 +6449,7 @@
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_sglt2hf_v1_0');
+                        localStorage.removeItem('rapid_meta_sglt2_hf_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -7706,7 +7706,7 @@
                 try {
 
 
-                    localStorage.setItem('rapid_meta_sglt2hf_v1_0', JSON.stringify(this.state));
+                    localStorage.setItem('rapid_meta_sglt2_hf_v1_0', JSON.stringify(this.state));
 
 
                 } catch(e) {
@@ -9776,7 +9776,7 @@
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_sglt2hf_v1_0'); localStorage.removeItem('rapid_meta_sglt2hf_v0_9'); localStorage.removeItem('rapid_meta_sglt2hf_v0_8'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_sglt2_hf_v1_0'); localStorage.removeItem('rapid_meta_sglt2_hf_v0_9'); localStorage.removeItem('rapid_meta_sglt2_hf_v0_8'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -37250,6 +37250,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

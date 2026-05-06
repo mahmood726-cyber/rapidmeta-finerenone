@@ -16,7 +16,7 @@ import sys, io, argparse, re
 from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-REPO = Path("C:/Projects/Finrenone")
+REPO = Path(__file__).resolve().parent.parent
 
 SCRIPT_TAGS = (
     '\n    <!-- Tier-3 NMA error-detection (Wigle 2025 POTH; Krahn 2013 Q-decomp; Papakonstantinou 2018 contribution) -->\n'

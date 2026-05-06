@@ -22,7 +22,7 @@
 """
 import argparse, pathlib, re, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 
 # -------- Fix 1: ROMOSOZUMAB_OP ARCH duplicate -------------------------------

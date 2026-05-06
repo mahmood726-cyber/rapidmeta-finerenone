@@ -12,7 +12,7 @@ Two-step fix per affected app:
 """
 import argparse, pathlib, re, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 # The exact 9-line HTML block as currently found inside <style>
 # (CRLF tolerated via LF-normalization pre-match).

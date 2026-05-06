@@ -7064,7 +7064,7 @@ const ContinuousMDEngine = {
                 'NCT03122262': {
 
 
-                    name: 'ADVANCE DTG/TAF', pmid: '33010240', phase: 'III', year: 2019, tE: 310, tN: 351, cE: 282, cN: 351, group: 'ADVANCE 3-arm RCT first-line ART comparison. For this app: DTG + TAF + FTC (n=351) vs EFV + TDF + FTC (n=351, reference). tE=310 with HIV-1 RNA <50 copies/mL at week 48 (DTG/TAF) vs cE=282 (EFV). Non-inferior to EFV (difference 8.0 pp, 95% CI 1.4-14.6). DTG/TAF associated with greatest weight gain (especially in women). Venter WDF et al. NEJM 2019;381:803-815. PMID 31339677. DOI 10.1056/NEJMoa1902824. SHARED-CONTROL CAVEAT: same EFV control as ADVANCE DTG/TDF row (NCT03122262_TDF).',
+                    name: 'ADVANCE DTG/TAF', baseline: {n: 702, followup: 11.0}, pmid: '33010240', phase: 'III', year: 2019, tE: 310, tN: 351, cE: 282, cN: 351, group: 'ADVANCE 3-arm RCT first-line ART comparison. For this app: DTG + TAF + FTC (n=351) vs EFV + TDF + FTC (n=351, reference). tE=310 with HIV-1 RNA <50 copies/mL at week 48 (DTG/TAF) vs cE=282 (EFV). Non-inferior to EFV (difference 8.0 pp, 95% CI 1.4-14.6). DTG/TAF associated with greatest weight gain (especially in women). Venter WDF et al. NEJM 2019;381:803-815. PMID 31339677. DOI 10.1056/NEJMoa1902824. SHARED-CONTROL CAVEAT: same EFV control as ADVANCE DTG/TDF row (NCT03122262_TDF).',
 
 
                     estimandType: 'RR', publishedHR: 1.10, hrLCI: 1.02, hrUCI: 1.18, pubHR: 1.10, pubHR_LCI: 1.02, pubHR_UCI: 1.18,
@@ -7120,7 +7120,7 @@ const ContinuousMDEngine = {
                 'NCT03122262_TDF': {
 
 
-                    name: 'ADVANCE DTG/TDF', pmid: '31339677', phase: 'III', year: 2019, tE: 315, tN: 351, cE: 282, cN: 351, group: 'ADVANCE 3-arm RCT, second contrast row for the NMA. DTG + TDF + FTC (n=351) vs EFV + TDF + FTC (n=351, same reference). tE=315 with HIV-1 RNA <50 at week 48 vs cE=282. Non-inferior to EFV (8.5 pp). DTG/TDF: less weight gain than DTG/TAF, comparable virologic efficacy — the WHO-preferred regimen for resource-limited first-line. SHARED-CONTROL CAVEAT: same EFV reference as ADVANCE DTG/TAF row (NCT03122262).',
+                    name: 'ADVANCE DTG/TDF', baseline: {n: 702, followup: 11.0}, pmid: '31339677', phase: 'III', year: 2019, tE: 315, tN: 351, cE: 282, cN: 351, group: 'ADVANCE 3-arm RCT, second contrast row for the NMA. DTG + TDF + FTC (n=351) vs EFV + TDF + FTC (n=351, same reference). tE=315 with HIV-1 RNA <50 at week 48 vs cE=282. Non-inferior to EFV (8.5 pp). DTG/TDF: less weight gain than DTG/TAF, comparable virologic efficacy — the WHO-preferred regimen for resource-limited first-line. SHARED-CONTROL CAVEAT: same EFV reference as ADVANCE DTG/TAF row (NCT03122262).',
 
 
                     estimandType: 'RR', publishedHR: 1.12, hrLCI: 1.04, hrUCI: 1.21, pubHR: 1.12, pubHR_LCI: 1.04, pubHR_UCI: 1.21,
@@ -7178,16 +7178,16 @@ const ContinuousMDEngine = {
                 // v12.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_kras_g12c_nma_v1_0');
+                let saved = localStorage.getItem('rapid_meta_hiv_art_firstline_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_kras_g12c_nma_v0_9');
+                    const old11 = localStorage.getItem('rapid_meta_hiv_art_firstline_v0_9');
 
 
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_kras_g12c_nma_v1_0', old11); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_hiv_art_firstline_v1_0', old11); }
 
 
                 }
@@ -7196,10 +7196,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_kras_g12c_nma_v0_8');
+                    const old10 = localStorage.getItem('rapid_meta_hiv_art_firstline_v0_8');
 
 
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_kras_g12c_nma_v1_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_hiv_art_firstline_v1_0', old10); }
 
 
                 }
@@ -7208,10 +7208,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_kras_g12c_nma_v0_7');
+                    const old93 = localStorage.getItem('rapid_meta_hiv_art_firstline_v0_7');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_kras_g12c_nma_v1_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_hiv_art_firstline_v1_0', old93); }
 
 
                 }
@@ -7259,7 +7259,7 @@ const ContinuousMDEngine = {
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_kras_g12c_nma_v1_0');
+                        localStorage.removeItem('rapid_meta_hiv_art_firstline_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -8417,7 +8417,7 @@ const ContinuousMDEngine = {
 
 
 
-            save() { try { localStorage.setItem('rapid_meta_kras_g12c_nma_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_hiv_art_firstline_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
 
 
             getReviewerId() {
@@ -11171,7 +11171,7 @@ const ContinuousMDEngine = {
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_kras_g12c_nma_v1_0'); localStorage.removeItem('rapid_meta_kras_g12c_nma_v0_9'); localStorage.removeItem('rapid_meta_kras_g12c_nma_v0_8'); localStorage.removeItem('rapid_meta_kras_g12c_nma_v0_7'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_hiv_art_firstline_v1_0'); localStorage.removeItem('rapid_meta_hiv_art_firstline_v0_9'); localStorage.removeItem('rapid_meta_hiv_art_firstline_v0_8'); localStorage.removeItem('rapid_meta_hiv_art_firstline_v0_7'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -43798,6 +43798,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

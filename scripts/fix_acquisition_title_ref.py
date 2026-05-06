@@ -20,7 +20,7 @@ Should be:  String(t.title ?? "")
 """
 import argparse, pathlib, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 OLD = 'const seenTitles = new Set(trials.map(t => t.String(title ?? "").toLowerCase().replace(/[^a-z0-9]/g, \'\')));'
 NEW = 'const seenTitles = new Set(trials.map(t => String(t.title ?? "").toLowerCase().replace(/[^a-z0-9]/g, \'\')));'

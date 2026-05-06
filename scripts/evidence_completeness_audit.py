@@ -22,7 +22,7 @@ import sys, io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 from pathlib import Path
 
-REPO_DIR = Path("C:/Projects/Finrenone")
+REPO_DIR = Path(__file__).resolve().parent.parent
 OUT_CSV = REPO_DIR / "outputs" / "evidence_completeness_audit.csv"
 
 

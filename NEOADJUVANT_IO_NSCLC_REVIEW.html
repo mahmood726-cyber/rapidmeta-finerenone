@@ -7093,7 +7093,7 @@ const ContinuousMDEngine = {
                 'NCT02998528': {
 
 
-                    name: 'CheckMate-816', pmid: '35403841', phase: 'III', year: 2022, tE: 109, tN: 179, cE: 124, cN: 179, group: 'Neoadjuvant nivolumab + platinum-doublet chemotherapy x3 cycles vs neoadjuvant chemotherapy alone, resectable stage IB-IIIA NSCLC; co-primary EFS + pCR', publishedHR: 0.63, hrLCI: 0.43, hrUCI: 0.91, pubHR: 0.63, pubHR_LCI: 0.43, pubHR_UCI: 0.91,
+                    name: 'CheckMate-816', baseline: {n: 358}, pmid: '35403841', phase: 'III', year: 2022, tE: 109, tN: 179, cE: 124, cN: 179, group: 'Neoadjuvant nivolumab + platinum-doublet chemotherapy x3 cycles vs neoadjuvant chemotherapy alone, resectable stage IB-IIIA NSCLC; co-primary EFS + pCR', publishedHR: 0.63, hrLCI: 0.43, hrUCI: 0.91, pubHR: 0.63, pubHR_LCI: 0.43, pubHR_UCI: 0.91,
 
 
                     allOutcomes: [
@@ -7124,7 +7124,7 @@ const ContinuousMDEngine = {
                 'NCT03425643': {
 
 
-                    name: 'KEYNOTE-671', pmid: '37272513', phase: 'III', year: 2023, tE: 169, tN: 397, cE: 235, cN: 400, group: 'Neoadjuvant pembrolizumab + chemo x4 cycles + adjuvant pembrolizumab x13 cycles vs neoadjuvant chemo + adjuvant placebo; resectable stage II-IIIB NSCLC; co-primary EFS + OS', publishedHR: 0.58, hrLCI: 0.46, hrUCI: 0.72, pubHR: 0.58, pubHR_LCI: 0.46, pubHR_UCI: 0.72,
+                    name: 'KEYNOTE-671', baseline: {n: 797, age: 62.7}, pmid: '37272513', phase: 'III', year: 2023, tE: 169, tN: 397, cE: 235, cN: 400, group: 'Neoadjuvant pembrolizumab + chemo x4 cycles + adjuvant pembrolizumab x13 cycles vs neoadjuvant chemo + adjuvant placebo; resectable stage II-IIIB NSCLC; co-primary EFS + OS', publishedHR: 0.58, hrLCI: 0.46, hrUCI: 0.72, pubHR: 0.58, pubHR_LCI: 0.46, pubHR_UCI: 0.72,
 
 
                     allOutcomes: [
@@ -7155,7 +7155,7 @@ const ContinuousMDEngine = {
                 'NCT03800134': {
 
 
-                    name: 'AEGEAN', pmid: '37870974', phase: 'III', year: 2023, tE: 162, tN: 401, cE: 213, cN: 401, group: 'Neoadjuvant durvalumab + chemo x4 cycles + adjuvant durvalumab x12 cycles vs neoadjuvant chemo + adjuvant placebo; resectable stage II-IIIB NSCLC; primary EFS + pCR', publishedHR: 0.68, hrLCI: 0.53, hrUCI: 0.88, pubHR: 0.68, pubHR_LCI: 0.53, pubHR_UCI: 0.88,
+                    name: 'AEGEAN', baseline: {n: 802}, pmid: '37870974', phase: 'III', year: 2023, tE: 162, tN: 401, cE: 213, cN: 401, group: 'Neoadjuvant durvalumab + chemo x4 cycles + adjuvant durvalumab x12 cycles vs neoadjuvant chemo + adjuvant placebo; resectable stage II-IIIB NSCLC; primary EFS + pCR', publishedHR: 0.68, hrLCI: 0.53, hrUCI: 0.88, pubHR: 0.68, pubHR_LCI: 0.53, pubHR_UCI: 0.88,
 
 
                     allOutcomes: [
@@ -7202,7 +7202,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_io_chemo_nsclc_1l_v0_9');
+                    const old11 = localStorage.getItem('rapid_meta_neoadjuvant_io_nsclc_v0_9');
 
 
                     if (old11) { saved = old11; localStorage.setItem('rapid_meta_neoadjuvant_io_nsclc_v1_0', old11); }
@@ -7214,7 +7214,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_io_chemo_nsclc_1l_v0_8');
+                    const old10 = localStorage.getItem('rapid_meta_neoadjuvant_io_nsclc_v0_8');
 
 
                     if (old10) { saved = old10; localStorage.setItem('rapid_meta_neoadjuvant_io_nsclc_v1_0', old10); }
@@ -7226,7 +7226,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_io_chemo_nsclc_1l_v0_7');
+                    const old93 = localStorage.getItem('rapid_meta_neoadjuvant_io_nsclc_v0_7');
 
 
                     if (old93) { saved = old93; localStorage.setItem('rapid_meta_neoadjuvant_io_nsclc_v1_0', old93); }
@@ -11203,7 +11203,7 @@ const ContinuousMDEngine = {
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_neoadjuvant_io_nsclc_v1_0'); localStorage.removeItem('rapid_meta_io_chemo_nsclc_1l_v0_9'); localStorage.removeItem('rapid_meta_io_chemo_nsclc_1l_v0_8'); localStorage.removeItem('rapid_meta_io_chemo_nsclc_1l_v0_7'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_neoadjuvant_io_nsclc_v1_0'); localStorage.removeItem('rapid_meta_neoadjuvant_io_nsclc_v0_9'); localStorage.removeItem('rapid_meta_neoadjuvant_io_nsclc_v0_8'); localStorage.removeItem('rapid_meta_neoadjuvant_io_nsclc_v0_7'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -43833,6 +43833,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

@@ -5199,7 +5199,7 @@
 
                 'NCT02378753': {
 
-                    name: 'STRIVE Sierra Leone (rVSV\u0394G-ZEBOV)', pmid: '29788343', phase: 'II/III', year: 2018, tE: 0, tN: 4341, cE: 0, cN: 4310, group: 'Widdowson MA, Schrag SJ, Carter RJ, et al. Implementing an Ebola Vaccine Study in Sierra Leone. CID 2018;67(Suppl 1):S98-S106 (and Samai 2018, Carter 2018 sub-papers). STRIVE = Sierra Leone Trial to Introduce a Vaccine against Ebola. CDC + University of Sierra Leone + MoH-Sanitation + eHealth Africa. Open-label individually-randomized phase 2/3 trial in healthcare workers and frontline workers (Ebola care, holding/treatment, surveillance, ambulance, burial, swab teams) at high occupational Ebola exposure risk during the 2014-2016 West African outbreak. n=8,651 enrolled Apr 2015 - Aug 2015 across 5 districts (Western Area Urban/Rural, Bombali, Port Loko, Tonkolili). Randomized 1:1 to immediate (within 7 days, n=4,341) vs deferred (18-24 weeks later, n=4,310) single-dose intramuscular rVSV\u0394G-ZEBOV (Merck V920, BPSC-1001). PRIMARY EFFICACY ENDPOINT: laboratory-confirmed Ebola during randomized 18-24 week period. RESULT: 0/4,341 cases in immediate vs 0/4,310 in deferred — no efficacy estimate possible because the West African outbreak waned during the trial (no community transmission by trial midpoint). Safety endpoint: SAEs over 6 months not different between arms. Drove WHO prequalification of Ervebo (rVSV-ZEBOV) Nov 2019; first FDA-approved Ebola vaccine Dec 2019. Africa relevance: this trial is the SIERRA LEONE arm of the global rVSV-ZEBOV evidence base — the WHO/Médecins Sans Frontières Guinea ring trial (Henao-Restrepo 2017) provides the efficacy estimate (100% protection within 10 days post-vaccination); STRIVE provides healthcare-worker safety/feasibility evidence in the most affected country.',
+                    name: 'STRIVE Sierra Leone (rVSV\u0394G-ZEBOV)', baseline: {n: 8651, followup: 6.0, age: 30.5}, pmid: '29788343', phase: 'II/III', year: 2018, tE: 0, tN: 4341, cE: 0, cN: 4310, group: 'Widdowson MA, Schrag SJ, Carter RJ, et al. Implementing an Ebola Vaccine Study in Sierra Leone. CID 2018;67(Suppl 1):S98-S106 (and Samai 2018, Carter 2018 sub-papers). STRIVE = Sierra Leone Trial to Introduce a Vaccine against Ebola. CDC + University of Sierra Leone + MoH-Sanitation + eHealth Africa. Open-label individually-randomized phase 2/3 trial in healthcare workers and frontline workers (Ebola care, holding/treatment, surveillance, ambulance, burial, swab teams) at high occupational Ebola exposure risk during the 2014-2016 West African outbreak. n=8,651 enrolled Apr 2015 - Aug 2015 across 5 districts (Western Area Urban/Rural, Bombali, Port Loko, Tonkolili). Randomized 1:1 to immediate (within 7 days, n=4,341) vs deferred (18-24 weeks later, n=4,310) single-dose intramuscular rVSV\u0394G-ZEBOV (Merck V920, BPSC-1001). PRIMARY EFFICACY ENDPOINT: laboratory-confirmed Ebola during randomized 18-24 week period. RESULT: 0/4,341 cases in immediate vs 0/4,310 in deferred — no efficacy estimate possible because the West African outbreak waned during the trial (no community transmission by trial midpoint). Safety endpoint: SAEs over 6 months not different between arms. Drove WHO prequalification of Ervebo (rVSV-ZEBOV) Nov 2019; first FDA-approved Ebola vaccine Dec 2019. Africa relevance: this trial is the SIERRA LEONE arm of the global rVSV-ZEBOV evidence base — the WHO/Médecins Sans Frontières Guinea ring trial (Henao-Restrepo 2017) provides the efficacy estimate (100% protection within 10 days post-vaccination); STRIVE provides healthcare-worker safety/feasibility evidence in the most affected country.',
 
                     estimandType: 'RR', publishedHR: NaN, hrLCI: NaN, hrUCI: NaN, pubHR: NaN,
 
@@ -5560,16 +5560,16 @@
                 // v11.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_sglt2hf_v1_0');
+                let saved = localStorage.getItem('rapid_meta_ebola_vaccine_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_sglt2hf_v0_9');
+                    const old10 = localStorage.getItem('rapid_meta_ebola_vaccine_v0_9');
 
 
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_sglt2hf_v1_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_ebola_vaccine_v1_0', old10); }
 
 
                 }
@@ -5578,10 +5578,10 @@
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_sglt2hf_v0_8');
+                    const old93 = localStorage.getItem('rapid_meta_ebola_vaccine_v0_8');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_sglt2hf_v1_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_ebola_vaccine_v1_0', old93); }
 
 
                 }
@@ -5617,7 +5617,7 @@
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_sglt2hf_v1_0');
+                        localStorage.removeItem('rapid_meta_ebola_vaccine_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -6874,7 +6874,7 @@
                 try {
 
 
-                    localStorage.setItem('rapid_meta_sglt2hf_v1_0', JSON.stringify(this.state));
+                    localStorage.setItem('rapid_meta_ebola_vaccine_v1_0', JSON.stringify(this.state));
 
 
                 } catch(e) {
@@ -8944,7 +8944,7 @@
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_sglt2hf_v1_0'); localStorage.removeItem('rapid_meta_sglt2hf_v0_9'); localStorage.removeItem('rapid_meta_sglt2hf_v0_8'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_ebola_vaccine_v1_0'); localStorage.removeItem('rapid_meta_ebola_vaccine_v0_9'); localStorage.removeItem('rapid_meta_ebola_vaccine_v0_8'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -36241,6 +36241,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

@@ -20,7 +20,7 @@ import sys, io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 from pathlib import Path
 
-REPO = Path("C:/Projects/Finrenone")
+REPO = Path(__file__).resolve().parent.parent
 
 # Each fix: (file, trial_name, old_HR_part, new_HR_part)
 # old/new are the substring containing publishedHR + hrLCI + hrUCI to make unique.

@@ -7356,7 +7356,7 @@
 
                 'NCT02259127': {
 
-                    name: 'ODYSSEY (DTG vs SOC, paeds)', pmid: '34879188', phase: 'II/III', year: 2021, tE: 47, tN: 354, cE: 75, cN: 353, group: 'Turkova A, White E, Mujuru HA, et al. NEJM 2021;385:2531-2543 (PMID 34879188). PENTA Foundation + INSERM + ViiV-sponsored international randomised open-label non-inferiority trial in HIV-1-infected children >=28 days and <18 years across 29 sites in 7 countries — Africa-heavy: Uganda (4 sites: Baylor + JCRC Kampala 2x + JCRC Mbarara + MUJHU), South Africa (5 sites: King Edward VIII Durban, AHRI Hlabisa, PHRU Klerksdorp, Kid-Cru Parow, PHRU Soweto), Zimbabwe (UZCRC Harare), plus Germany, Portugal, Spain, Thailand, UK. n=792 randomized (>=14kg cohort n=707; <14kg cohort n=85). Randomized 1:1 to (A) dolutegravir-based ART with 2 NRTI backbone vs (B) standard-of-care non-DTG-based ART (typically EFV-based or PI-based per WHO age-weighted guidelines). PRIMARY: virological or clinical treatment failure by 96 weeks. RESULT (>=14kg cohort, primary analysis): 47/354 (14%) DTG vs 75/353 (22%) SOC — risk difference -8% (95% CI -14 to -3); HR 0.61 (95% CI 0.42-0.87) — DTG SUPERIOR (NI demonstrated, then superiority). Drove WHO 2021/2023 recommendation of DTG-based ART as preferred first-line for all weight bands >=4 weeks of age. Africa relevance: DIRECT — Uganda + South Africa + Zimbabwe = ~75%+ enrolment.',
+                    name: 'ODYSSEY (DTG vs SOC, paeds)', baseline: {n: 707, age: 12.2, pct_female: 49.7}, pmid: '34879188', phase: 'II/III', year: 2021, tE: 47, tN: 354, cE: 75, cN: 353, group: 'Turkova A, White E, Mujuru HA, et al. NEJM 2021;385:2531-2543 (PMID 34879188). PENTA Foundation + INSERM + ViiV-sponsored international randomised open-label non-inferiority trial in HIV-1-infected children >=28 days and <18 years across 29 sites in 7 countries — Africa-heavy: Uganda (4 sites: Baylor + JCRC Kampala 2x + JCRC Mbarara + MUJHU), South Africa (5 sites: King Edward VIII Durban, AHRI Hlabisa, PHRU Klerksdorp, Kid-Cru Parow, PHRU Soweto), Zimbabwe (UZCRC Harare), plus Germany, Portugal, Spain, Thailand, UK. n=792 randomized (>=14kg cohort n=707; <14kg cohort n=85). Randomized 1:1 to (A) dolutegravir-based ART with 2 NRTI backbone vs (B) standard-of-care non-DTG-based ART (typically EFV-based or PI-based per WHO age-weighted guidelines). PRIMARY: virological or clinical treatment failure by 96 weeks. RESULT (>=14kg cohort, primary analysis): 47/354 (14%) DTG vs 75/353 (22%) SOC — risk difference -8% (95% CI -14 to -3); HR 0.61 (95% CI 0.42-0.87) — DTG SUPERIOR (NI demonstrated, then superiority). Drove WHO 2021/2023 recommendation of DTG-based ART as preferred first-line for all weight bands >=4 weeks of age. Africa relevance: DIRECT — Uganda + South Africa + Zimbabwe = ~75%+ enrolment.',
 
                     estimandType: 'HR', publishedHR: 0.61, hrLCI: 0.42, hrUCI: 0.87, pubHR: 0.61,
 
@@ -7428,16 +7428,16 @@
                 // v15.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_sglt2i_hf_nma_v1_0');
+                let saved = localStorage.getItem('rapid_meta_pediatric_hiv_art_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old14 = localStorage.getItem('rapid_meta_sglt2i_hf_nma_v1_0');
+                    const old14 = localStorage.getItem('rapid_meta_pediatric_hiv_art_v1_0');
 
 
-                    if (old14) { saved = old14; localStorage.setItem('rapid_meta_sglt2i_hf_nma_v1_0', old14); }
+                    if (old14) { saved = old14; localStorage.setItem('rapid_meta_pediatric_hiv_art_v1_0', old14); }
 
 
                 }
@@ -7446,22 +7446,10 @@
                 if (!saved) {
 
 
-                    const old13 = localStorage.getItem('rapid_meta_sglt2i_hf_nma_v1_0');
+                    const old13 = localStorage.getItem('rapid_meta_pediatric_hiv_art_v1_0');
 
 
-                    if (old13) { saved = old13; localStorage.setItem('rapid_meta_sglt2i_hf_nma_v1_0', old13); }
-
-
-                }
-
-
-                if (!saved) {
-
-
-                    const old12 = localStorage.getItem('rapid_meta_sglt2i_hf_nma_v1_0');
-
-
-                    if (old12) { saved = old12; localStorage.setItem('rapid_meta_sglt2i_hf_nma_v1_0', old12); }
+                    if (old13) { saved = old13; localStorage.setItem('rapid_meta_pediatric_hiv_art_v1_0', old13); }
 
 
                 }
@@ -7470,22 +7458,10 @@
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_sglt2i_hf_nma_v1_0');
+                    const old12 = localStorage.getItem('rapid_meta_pediatric_hiv_art_v1_0');
 
 
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_sglt2i_hf_nma_v1_0', old11); }
-
-
-                }
-
-
-                if (!saved) {
-
-
-                    const old10 = localStorage.getItem('rapid_meta_sglt2i_hf_nma_v1_0');
-
-
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_sglt2i_hf_nma_v1_0', old10); }
+                    if (old12) { saved = old12; localStorage.setItem('rapid_meta_pediatric_hiv_art_v1_0', old12); }
 
 
                 }
@@ -7494,10 +7470,34 @@
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_sglt2i_hf_nma_v1_0');
+                    const old11 = localStorage.getItem('rapid_meta_pediatric_hiv_art_v1_0');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_sglt2i_hf_nma_v1_0', old93); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_pediatric_hiv_art_v1_0', old11); }
+
+
+                }
+
+
+                if (!saved) {
+
+
+                    const old10 = localStorage.getItem('rapid_meta_pediatric_hiv_art_v1_0');
+
+
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_pediatric_hiv_art_v1_0', old10); }
+
+
+                }
+
+
+                if (!saved) {
+
+
+                    const old93 = localStorage.getItem('rapid_meta_pediatric_hiv_art_v1_0');
+
+
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_pediatric_hiv_art_v1_0', old93); }
 
 
                 }
@@ -7545,7 +7545,7 @@
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_sglt2i_hf_nma_v1_0');
+                        localStorage.removeItem('rapid_meta_pediatric_hiv_art_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -8901,7 +8901,7 @@
 
 
 
-            save() { try { localStorage.setItem('rapid_meta_sglt2i_hf_nma_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_pediatric_hiv_art_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
 
 
             getReviewerId() {
@@ -11670,7 +11670,7 @@
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_sglt2i_hf_nma_v1_0'); localStorage.removeItem('rapid_meta_sglt2i_hf_nma_v1_0'); localStorage.removeItem('rapid_meta_sglt2i_hf_nma_v1_0'); localStorage.removeItem('rapid_meta_sglt2i_hf_nma_v1_0'); localStorage.removeItem('rapid_meta_sglt2i_hf_nma_v1_0'); localStorage.removeItem('rapid_meta_sglt2i_hf_nma_v1_0'); localStorage.removeItem('rapid_meta_sglt2i_hf_nma_v1_0'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_pediatric_hiv_art_v1_0'); localStorage.removeItem('rapid_meta_pediatric_hiv_art_v1_0'); localStorage.removeItem('rapid_meta_pediatric_hiv_art_v1_0'); localStorage.removeItem('rapid_meta_pediatric_hiv_art_v1_0'); localStorage.removeItem('rapid_meta_pediatric_hiv_art_v1_0'); localStorage.removeItem('rapid_meta_pediatric_hiv_art_v1_0'); localStorage.removeItem('rapid_meta_pediatric_hiv_art_v1_0'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -45490,6 +45490,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

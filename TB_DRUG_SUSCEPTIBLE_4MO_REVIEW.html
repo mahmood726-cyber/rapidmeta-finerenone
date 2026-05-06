@@ -5196,7 +5196,7 @@
 
                 'NCT02410772': {
 
-                    name: 'Study 31 / A5349 (4-month rifapentine-moxifloxacin)', pmid: '31981713', phase: 'III', year: 2021, tE: 49, tN: 791, cE: 39, cN: 768, group: 'TBTC Study 31 / ACTG A5349: 3-arm international RCT in adolescents and adults with drug-susceptible pulmonary TB. n=2,516 across 33 sites in 13 countries (sub-Saharan African enrolment ~50%: South Africa, Kenya, Malawi, Uganda, Zimbabwe, Vietnam, Brazil, others). Investigational arm 3 (2HPZM/2HPM, n=791): 2 months rifapentine + isoniazid + pyrazinamide + moxifloxacin then 2 months rifapentine + isoniazid + moxifloxacin (17 weeks total). Control (n=768): 2HRZE/4HR (26 weeks). Primary efficacy mITT: TB-disease-free survival at 12 months — non-inferior. Unfavorable (regimen-3 vs control): 49/791 (6.2%) vs 39/768 (5.1%); absolute difference 1.0 percentage points (95% CI -1.4 to 3.4), within prespecified 6.6 pp NI margin. Drove WHO 2022 conditional recommendation for the 4-month rifapentine-moxifloxacin regimen as alternative to 6-month standard. Dorman SE et al. NEJM 2021;384:1705-1718. PMID 33951360. DOI 10.1056/NEJMoa2033400.',
+                    name: 'Study 31 / A5349 (4-month rifapentine-moxifloxacin)', baseline: {n: 1559, followup: 12.0, age: 30.9}, pmid: '31981713', phase: 'III', year: 2021, tE: 49, tN: 791, cE: 39, cN: 768, group: 'TBTC Study 31 / ACTG A5349: 3-arm international RCT in adolescents and adults with drug-susceptible pulmonary TB. n=2,516 across 33 sites in 13 countries (sub-Saharan African enrolment ~50%: South Africa, Kenya, Malawi, Uganda, Zimbabwe, Vietnam, Brazil, others). Investigational arm 3 (2HPZM/2HPM, n=791): 2 months rifapentine + isoniazid + pyrazinamide + moxifloxacin then 2 months rifapentine + isoniazid + moxifloxacin (17 weeks total). Control (n=768): 2HRZE/4HR (26 weeks). Primary efficacy mITT: TB-disease-free survival at 12 months — non-inferior. Unfavorable (regimen-3 vs control): 49/791 (6.2%) vs 39/768 (5.1%); absolute difference 1.0 percentage points (95% CI -1.4 to 3.4), within prespecified 6.6 pp NI margin. Drove WHO 2022 conditional recommendation for the 4-month rifapentine-moxifloxacin regimen as alternative to 6-month standard. Dorman SE et al. NEJM 2021;384:1705-1718. PMID 33951360. DOI 10.1056/NEJMoa2033400.',
 
                     estimandType: 'RR', publishedHR: 1.22, hrLCI: 0.81, hrUCI: 1.84, pubHR: 1.22,
 
@@ -5530,16 +5530,16 @@
                 // v11.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_sglt2hf_v1_0');
+                let saved = localStorage.getItem('rapid_meta_tb_drug_susceptible_4mo_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_sglt2hf_v0_9');
+                    const old10 = localStorage.getItem('rapid_meta_tb_drug_susceptible_4mo_v0_9');
 
 
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_sglt2hf_v1_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_tb_drug_susceptible_4mo_v1_0', old10); }
 
 
                 }
@@ -5548,10 +5548,10 @@
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_sglt2hf_v0_8');
+                    const old93 = localStorage.getItem('rapid_meta_tb_drug_susceptible_4mo_v0_8');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_sglt2hf_v1_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_tb_drug_susceptible_4mo_v1_0', old93); }
 
 
                 }
@@ -5587,7 +5587,7 @@
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_sglt2hf_v1_0');
+                        localStorage.removeItem('rapid_meta_tb_drug_susceptible_4mo_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -6844,7 +6844,7 @@
                 try {
 
 
-                    localStorage.setItem('rapid_meta_sglt2hf_v1_0', JSON.stringify(this.state));
+                    localStorage.setItem('rapid_meta_tb_drug_susceptible_4mo_v1_0', JSON.stringify(this.state));
 
 
                 } catch(e) {
@@ -8914,7 +8914,7 @@
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_sglt2hf_v1_0'); localStorage.removeItem('rapid_meta_sglt2hf_v0_9'); localStorage.removeItem('rapid_meta_sglt2hf_v0_8'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_tb_drug_susceptible_4mo_v1_0'); localStorage.removeItem('rapid_meta_tb_drug_susceptible_4mo_v0_9'); localStorage.removeItem('rapid_meta_tb_drug_susceptible_4mo_v0_8'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -36211,6 +36211,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

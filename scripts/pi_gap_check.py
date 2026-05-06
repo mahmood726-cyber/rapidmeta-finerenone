@@ -20,7 +20,7 @@ import sys, io, csv, re, math
 from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-REPO_DIR = Path("C:/Projects/Finrenone")
+REPO_DIR = Path(__file__).resolve().parent.parent
 OUT_CSV = REPO_DIR / "outputs" / "pi_gap_check.csv"
 
 TRIAL_RE = re.compile(

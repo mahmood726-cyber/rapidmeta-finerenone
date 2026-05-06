@@ -26,7 +26,7 @@ from urllib.parse import quote
 import xml.etree.ElementTree as ET
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-REPO = Path("C:/Projects/Finrenone")
+REPO = Path(__file__).resolve().parent.parent
 EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 RATE_S = 0.5
 

@@ -7326,7 +7326,7 @@
 
             realData: {
                 'NCT04184622': {
-                    name: 'SURMOUNT-1', pmid: '35658024', phase: 'III', year: 2022, tE: 1812, tN: 2519, cE: 31, cN: 643, group: 'Overweight/obesity without DM, tirzepatide 15 mg SC weekly vs placebo (>=5% weight loss at 72 wk; OR)', publishedHR: 36.7, hrLCI: 25.5, hrUCI: 52.7,
+                    name: 'SURMOUNT-1', baseline: {n: 3162, age: 44.4}, pmid: '35658024', phase: 'III', year: 2022, tE: 1812, tN: 2519, cE: 31, cN: 643, group: 'Overweight/obesity without DM, tirzepatide 15 mg SC weekly vs placebo (>=5% weight loss at 72 wk; OR)', publishedHR: 36.7, hrLCI: 25.5, hrUCI: 52.7,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'Body-weight reduction >=5% at 72 wk (primary, tirzepatide 15 mg pooled vs placebo, OR)', tE: 1812, cE: 31, type: 'PRIMARY', matchScore: 95, effect: 36.7, lci: 25.5, uci: 52.7, estimandType: 'RR' }
                     ],
@@ -7339,7 +7339,7 @@
                     ]
                 },
                 'NCT03548935': {
-                    name: 'STEP 1', pmid: '33567185', phase: 'III', year: 2021, tE: 1047, tN: 1306, cE: 138, cN: 655, group: 'Overweight/obesity without DM, semaglutide 2.4 mg SC weekly vs placebo (>=5% weight loss at 68 wk; OR)', estimandType: 'OR', publishedHR: 18.4, hrLCI: 14.4, hrUCI: 23.4,
+                    name: 'STEP 1', baseline: {n: 1961, age: 46.0}, pmid: '33567185', phase: 'III', year: 2021, tE: 1047, tN: 1306, cE: 138, cN: 655, group: 'Overweight/obesity without DM, semaglutide 2.4 mg SC weekly vs placebo (>=5% weight loss at 68 wk; OR)', estimandType: 'OR', publishedHR: 18.4, hrLCI: 14.4, hrUCI: 23.4,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'Body-weight reduction >=5% at 68 wk (primary, semaglutide 2.4 mg vs placebo, OR)', tE: 1047, cE: 138, type: 'PRIMARY', matchScore: 95, effect: 18.4, lci: 14.4, uci: 23.4, estimandType: 'RR' }
                     ],
@@ -7352,7 +7352,7 @@
                     ]
                 },
                 'NCT01272219': {
-                    name: 'SCALE Obesity', pmid: '26132939', phase: 'III', year: 2015, tE: 1257, tN: 2487, cE: 376, cN: 1244, group: 'Overweight/obesity without DM, liraglutide 3.0 mg SC daily vs placebo (>=5% weight loss at 56 wk; OR)', publishedHR: 6.0, hrLCI: 5.1, hrUCI: 7.0,
+                    name: 'SCALE Obesity', baseline: {n: 3731, age: 41.6}, pmid: '26132939', phase: 'III', year: 2015, tE: 1257, tN: 2487, cE: 376, cN: 1244, group: 'Overweight/obesity without DM, liraglutide 3.0 mg SC daily vs placebo (>=5% weight loss at 56 wk; OR)', publishedHR: 6.0, hrLCI: 5.1, hrUCI: 7.0,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'Body-weight reduction >=5% at 56 wk (primary, liraglutide 3.0 mg vs placebo, OR)', tE: 1257, cE: 376, type: 'PRIMARY', matchScore: 95, effect: 6.0, lci: 5.1, uci: 7.0, estimandType: 'RR' }
                     ],
@@ -7376,16 +7376,16 @@
                 // v15.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_obesity_drugs_nma_v1_0');
+                let saved = localStorage.getItem('rapid_meta_obesity_drugs_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old14 = localStorage.getItem('rapid_meta_obesity_drugs_nma_v1_0');
+                    const old14 = localStorage.getItem('rapid_meta_obesity_drugs_v1_0');
 
 
-                    if (old14) { saved = old14; localStorage.setItem('rapid_meta_obesity_drugs_nma_v1_0', old14); }
+                    if (old14) { saved = old14; localStorage.setItem('rapid_meta_obesity_drugs_v1_0', old14); }
 
 
                 }
@@ -7394,22 +7394,10 @@
                 if (!saved) {
 
 
-                    const old13 = localStorage.getItem('rapid_meta_obesity_drugs_nma_v1_0');
+                    const old13 = localStorage.getItem('rapid_meta_obesity_drugs_v1_0');
 
 
-                    if (old13) { saved = old13; localStorage.setItem('rapid_meta_obesity_drugs_nma_v1_0', old13); }
-
-
-                }
-
-
-                if (!saved) {
-
-
-                    const old12 = localStorage.getItem('rapid_meta_obesity_drugs_nma_v1_0');
-
-
-                    if (old12) { saved = old12; localStorage.setItem('rapid_meta_obesity_drugs_nma_v1_0', old12); }
+                    if (old13) { saved = old13; localStorage.setItem('rapid_meta_obesity_drugs_v1_0', old13); }
 
 
                 }
@@ -7418,22 +7406,10 @@
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_obesity_drugs_nma_v1_0');
+                    const old12 = localStorage.getItem('rapid_meta_obesity_drugs_v1_0');
 
 
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_obesity_drugs_nma_v1_0', old11); }
-
-
-                }
-
-
-                if (!saved) {
-
-
-                    const old10 = localStorage.getItem('rapid_meta_obesity_drugs_nma_v1_0');
-
-
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_obesity_drugs_nma_v1_0', old10); }
+                    if (old12) { saved = old12; localStorage.setItem('rapid_meta_obesity_drugs_v1_0', old12); }
 
 
                 }
@@ -7442,10 +7418,34 @@
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_obesity_drugs_nma_v1_0');
+                    const old11 = localStorage.getItem('rapid_meta_obesity_drugs_v1_0');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_obesity_drugs_nma_v1_0', old93); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_obesity_drugs_v1_0', old11); }
+
+
+                }
+
+
+                if (!saved) {
+
+
+                    const old10 = localStorage.getItem('rapid_meta_obesity_drugs_v1_0');
+
+
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_obesity_drugs_v1_0', old10); }
+
+
+                }
+
+
+                if (!saved) {
+
+
+                    const old93 = localStorage.getItem('rapid_meta_obesity_drugs_v1_0');
+
+
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_obesity_drugs_v1_0', old93); }
 
 
                 }
@@ -7493,7 +7493,7 @@
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_obesity_drugs_nma_v1_0');
+                        localStorage.removeItem('rapid_meta_obesity_drugs_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -8849,7 +8849,7 @@
 
 
 
-            save() { try { localStorage.setItem('rapid_meta_obesity_drugs_nma_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_obesity_drugs_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
 
 
             getReviewerId() {
@@ -11618,7 +11618,7 @@
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_obesity_drugs_nma_v1_0'); localStorage.removeItem('rapid_meta_obesity_drugs_nma_v1_0'); localStorage.removeItem('rapid_meta_obesity_drugs_nma_v1_0'); localStorage.removeItem('rapid_meta_obesity_drugs_nma_v1_0'); localStorage.removeItem('rapid_meta_obesity_drugs_nma_v1_0'); localStorage.removeItem('rapid_meta_obesity_drugs_nma_v1_0'); localStorage.removeItem('rapid_meta_obesity_drugs_nma_v1_0'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_obesity_drugs_v1_0'); localStorage.removeItem('rapid_meta_obesity_drugs_v1_0'); localStorage.removeItem('rapid_meta_obesity_drugs_v1_0'); localStorage.removeItem('rapid_meta_obesity_drugs_v1_0'); localStorage.removeItem('rapid_meta_obesity_drugs_v1_0'); localStorage.removeItem('rapid_meta_obesity_drugs_v1_0'); localStorage.removeItem('rapid_meta_obesity_drugs_v1_0'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -45708,6 +45708,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

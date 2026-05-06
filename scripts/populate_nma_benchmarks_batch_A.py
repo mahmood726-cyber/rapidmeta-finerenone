@@ -14,7 +14,7 @@ published abstracts/full texts.
 """
 import argparse, pathlib, re, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 # outcomeKey -> list of benchmark entries. Each entry is a dict.
 # measure/estimate/lci/uci all numeric. Scope is human-readable.

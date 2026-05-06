@@ -15,7 +15,7 @@ import sys, io, argparse, re
 from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-REPO = Path("C:/Projects/Finrenone")
+REPO = Path(__file__).resolve().parent.parent
 
 # Match `evData.map(ev =>` but NOT if `.filter(` is already chained before .map
 PATTERN = re.compile(r"\bevData\.map\(ev\s*=>")

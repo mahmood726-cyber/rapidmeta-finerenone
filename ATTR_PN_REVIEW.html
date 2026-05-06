@@ -7098,7 +7098,7 @@ const ContinuousMDEngine = {
                 'NCT01960348': {
 
 
-                    name: 'APOLLO', pmid: '29972753', phase: 'III', year: 2018, tE: null, tN: 148, cE: null, cN: 77, group: 'Patisiran 0.3 mg/kg IV Q3W vs placebo, hereditary ATTR-PN; primary mNIS+7 change at month 18 (mean difference vs placebo)', estimandType: 'MD', publishedHR: -34.0, hrLCI: -39.9, hrUCI: -28.1, pubHR: -34.0, pubHR_LCI: -39.9, pubHR_UCI: -28.1,
+                    name: 'APOLLO', baseline: {n: 225, age: 59.6, pct_female: 84.7}, pmid: '29972753', phase: 'III', year: 2018, tE: null, tN: 148, cE: null, cN: 77, group: 'Patisiran 0.3 mg/kg IV Q3W vs placebo, hereditary ATTR-PN; primary mNIS+7 change at month 18 (mean difference vs placebo)', estimandType: 'MD', publishedHR: -34.0, hrLCI: -39.9, hrUCI: -28.1, pubHR: -34.0, pubHR_LCI: -39.9, pubHR_UCI: -28.1,
 
 
                     allOutcomes: [
@@ -7129,7 +7129,7 @@ const ContinuousMDEngine = {
                 'NCT03759379': {
 
 
-                    name: 'HELIOS-A', pmid: '35875890', phase: 'III', year: 2022, tE: null, tN: 122, cE: null, cN: 77, group: 'Vutrisiran 25 mg SC Q3M vs APOLLO external placebo, hereditary ATTR-PN; primary mNIS+7 change at month 18', estimandType: 'MD', publishedHR: -17.0, hrLCI: -21.83, hrUCI: -12.17, pubHR: -17.0, pubHR_LCI: -21.83, pubHR_UCI: -12.17,
+                    name: 'HELIOS-A', baseline: {n: 199, age: 62.2, pct_female: 24.7}, pmid: '35875890', phase: 'III', year: 2022, tE: null, tN: 122, cE: null, cN: 77, group: 'Vutrisiran 25 mg SC Q3M vs APOLLO external placebo, hereditary ATTR-PN; primary mNIS+7 change at month 18', estimandType: 'MD', publishedHR: -17.0, hrLCI: -21.83, hrUCI: -12.17, pubHR: -17.0, pubHR_LCI: -21.83, pubHR_UCI: -12.17,
 
 
                     allOutcomes: [
@@ -7160,7 +7160,7 @@ const ContinuousMDEngine = {
                 'NCT04136184': {
 
 
-                    name: 'NEURO-TTRansform', pmid: '41913562', phase: 'III', year: 2023, tE: null, tN: 144, cE: null, cN: 60, group: 'Eplontersen 45 mg SC monthly vs NEURO-TTR external placebo, hereditary ATTR-PN; primary mNIS+7 change at week 65', estimandType: 'MD', publishedHR: -14.83, hrLCI: -19.07, hrUCI: -10.59, pubHR: -14.83, pubHR_LCI: -19.07, pubHR_UCI: -10.59,
+                    name: 'NEURO-TTRansform', baseline: {n: 204, followup: 15.0, age: 51.1, pct_female: 33.3}, pmid: '41913562', phase: 'III', year: 2023, tE: null, tN: 144, cE: null, cN: 60, group: 'Eplontersen 45 mg SC monthly vs NEURO-TTR external placebo, hereditary ATTR-PN; primary mNIS+7 change at week 65', estimandType: 'MD', publishedHR: -14.83, hrLCI: -19.07, hrUCI: -10.59, pubHR: -14.83, pubHR_LCI: -19.07, pubHR_UCI: -10.59,
 
 
                     allOutcomes: [
@@ -7201,16 +7201,16 @@ const ContinuousMDEngine = {
                 // v12.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_attr_pn_nma_v1_0');
+                let saved = localStorage.getItem('rapid_meta_attr_pn_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_patisiran_polyneuropathy_v0_9');
+                    const old11 = localStorage.getItem('rapid_meta_attr_pn_v0_9');
 
 
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_attr_pn_nma_v1_0', old11); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_attr_pn_v1_0', old11); }
 
 
                 }
@@ -7219,10 +7219,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_patisiran_polyneuropathy_v0_8');
+                    const old10 = localStorage.getItem('rapid_meta_attr_pn_v0_8');
 
 
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_attr_pn_nma_v1_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_attr_pn_v1_0', old10); }
 
 
                 }
@@ -7231,10 +7231,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_patisiran_polyneuropathy_v0_7');
+                    const old93 = localStorage.getItem('rapid_meta_attr_pn_v0_7');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_attr_pn_nma_v1_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_attr_pn_v1_0', old93); }
 
 
                 }
@@ -7282,7 +7282,7 @@ const ContinuousMDEngine = {
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_attr_pn_nma_v1_0');
+                        localStorage.removeItem('rapid_meta_attr_pn_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -8440,7 +8440,7 @@ const ContinuousMDEngine = {
 
 
 
-            save() { try { localStorage.setItem('rapid_meta_attr_pn_nma_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_attr_pn_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
 
 
             getReviewerId() {
@@ -11224,7 +11224,7 @@ const ContinuousMDEngine = {
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_attr_pn_nma_v1_0'); localStorage.removeItem('rapid_meta_patisiran_polyneuropathy_v0_9'); localStorage.removeItem('rapid_meta_patisiran_polyneuropathy_v0_8'); localStorage.removeItem('rapid_meta_patisiran_polyneuropathy_v0_7'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_attr_pn_v1_0'); localStorage.removeItem('rapid_meta_attr_pn_v0_9'); localStorage.removeItem('rapid_meta_attr_pn_v0_8'); localStorage.removeItem('rapid_meta_attr_pn_v0_7'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -43979,6 +43979,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

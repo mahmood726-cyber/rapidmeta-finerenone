@@ -24,7 +24,7 @@ from pathlib import Path
 from collections import defaultdict
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-REPO = Path("C:/Projects/Finrenone")
+REPO = Path(__file__).resolve().parent.parent
 OUT_JSON = REPO / "outputs" / "verdict_badges.json"
 
 

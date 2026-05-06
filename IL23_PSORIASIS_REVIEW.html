@@ -7093,7 +7093,7 @@ const ContinuousMDEngine = {
                 'NCT02207231': {
 
 
-                    name: 'VOYAGE 1', pmid: '28057360', phase: 'III', year: 2017, tE: 241, tN: 329, cE: 5, cN: 174, group: 'Moderate-severe plaque psoriasis, guselkumab 100 mg SC vs placebo (week 16)', publishedHR: 25.80, hrLCI: 10.53, hrUCI: 63.20,
+                    name: 'VOYAGE 1', baseline: {n: 503, followup: 3.7, age: 44.9, pct_female: 28.5}, pmid: '28057360', phase: 'III', year: 2017, tE: 241, tN: 329, cE: 5, cN: 174, group: 'Moderate-severe plaque psoriasis, guselkumab 100 mg SC vs placebo (week 16)', publishedHR: 25.80, hrLCI: 10.53, hrUCI: 63.20,
 
 
                     allOutcomes: [
@@ -7146,7 +7146,7 @@ const ContinuousMDEngine = {
                 'NCT02684370': {
 
 
-                    name: 'UltIMMa-1', pmid: '30097359', phase: 'III', year: 2018, tE: 229, tN: 304, cE: 5, cN: 102, group: 'Moderate-severe plaque psoriasis, risankizumab 150 mg SC vs placebo (week 16)', publishedHR: 59.21, hrLCI: 23.38, hrUCI: 149.88,
+                    name: 'UltIMMa-1', baseline: {n: 406, followup: 3.7, age: 49.3, pct_female: 63.9}, pmid: '30097359', phase: 'III', year: 2018, tE: 229, tN: 304, cE: 5, cN: 102, group: 'Moderate-severe plaque psoriasis, risankizumab 150 mg SC vs placebo (week 16)', publishedHR: 59.21, hrLCI: 23.38, hrUCI: 149.88,
 
 
                     allOutcomes: [
@@ -7199,7 +7199,7 @@ const ContinuousMDEngine = {
                 'NCT01722331': {
 
 
-                    name: 'reSURFACE 1', pmid: '28596043', phase: 'III', year: 2017, tE: 74, tN: 308, cE: 1, cN: 154, group: 'Moderate-severe plaque psoriasis, tildrakizumab 200 mg SC vs placebo (week 12)', publishedHR: 48.38, hrLCI: 6.66, hrUCI: 351.4,
+                    name: 'reSURFACE 1', baseline: {n: 462, followup: 2.8, age: 46.9, pct_female: 26.6}, pmid: '28596043', phase: 'III', year: 2017, tE: 74, tN: 308, cE: 1, cN: 154, group: 'Moderate-severe plaque psoriasis, tildrakizumab 200 mg SC vs placebo (week 12)', publishedHR: 48.38, hrLCI: 6.66, hrUCI: 351.4,
 
 
                     allOutcomes: [
@@ -7264,16 +7264,16 @@ const ContinuousMDEngine = {
                 // v12.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_il23_pso_v1_0');
+                let saved = localStorage.getItem('rapid_meta_il23_psoriasis_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_il23_pso_v0_9');
+                    const old11 = localStorage.getItem('rapid_meta_il23_psoriasis_v0_9');
 
 
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_il23_pso_v1_0', old11); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_il23_psoriasis_v1_0', old11); }
 
 
                 }
@@ -7282,10 +7282,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_il23_pso_v0_8');
+                    const old10 = localStorage.getItem('rapid_meta_il23_psoriasis_v0_8');
 
 
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_il23_pso_v1_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_il23_psoriasis_v1_0', old10); }
 
 
                 }
@@ -7294,10 +7294,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_il23_pso_v0_7');
+                    const old93 = localStorage.getItem('rapid_meta_il23_psoriasis_v0_7');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_il23_pso_v1_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_il23_psoriasis_v1_0', old93); }
 
 
                 }
@@ -7345,7 +7345,7 @@ const ContinuousMDEngine = {
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_il23_pso_v1_0');
+                        localStorage.removeItem('rapid_meta_il23_psoriasis_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -8503,7 +8503,7 @@ const ContinuousMDEngine = {
 
 
 
-            save() { try { localStorage.setItem('rapid_meta_il23_pso_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_il23_psoriasis_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
 
 
             getReviewerId() {
@@ -11271,7 +11271,7 @@ const ContinuousMDEngine = {
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_il23_pso_v1_0'); localStorage.removeItem('rapid_meta_il23_pso_v0_9'); localStorage.removeItem('rapid_meta_il23_pso_v0_8'); localStorage.removeItem('rapid_meta_il23_pso_v0_7'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_il23_psoriasis_v1_0'); localStorage.removeItem('rapid_meta_il23_psoriasis_v0_9'); localStorage.removeItem('rapid_meta_il23_psoriasis_v0_8'); localStorage.removeItem('rapid_meta_il23_psoriasis_v0_7'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -43901,6 +43901,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

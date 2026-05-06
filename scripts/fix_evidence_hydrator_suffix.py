@@ -19,7 +19,7 @@ duplicates of the same NCT share one cache entry.
 """
 import argparse, pathlib, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 OLD = (
     "            async fetchCtgovEvidence(nct) {\n"

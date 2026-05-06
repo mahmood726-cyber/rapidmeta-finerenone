@@ -22,7 +22,7 @@ manuscript text AND the R validation panel.
 """
 import argparse, pathlib, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 OLD = (
     "                PrismaEngine.renderToElement('prisma-flow-container');\n"

@@ -32,7 +32,7 @@ data can't be extracted (non-standard measure, missing fields).
 """
 import argparse, pathlib, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 SENTINEL = "/*REML-RETROFIT-v1*/"
 
 

@@ -23,7 +23,7 @@ Idempotent (sentinel /*PEER-REVIEW-v2*/). Runs on all 99 _REVIEW.html files.
 """
 import argparse, pathlib, re, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 V1_START = "<script>/*PEER-REVIEW-v1*/"
 V2_SENTINEL = "/*PEER-REVIEW-v2*/"

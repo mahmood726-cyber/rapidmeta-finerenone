@@ -7101,7 +7101,7 @@ const ContinuousMDEngine = {
                 'NCT03930732': {
 
 
-                    name: 'BOREAS', pmid: '37272521', phase: 'III', year: 2023, tE: 330, tN: 468, cE: 457, cN: 471, group: 'Moderate-severe COPD on triple therapy, blood eos >=300/uL, dupilumab 300 mg SC Q2W vs placebo (52 wk)', publishedHR: 0.70, hrLCI: 0.58, hrUCI: 0.86,
+                    name: 'BOREAS', baseline: {n: 939, age: 65.2, pct_female: 77.2}, pmid: '37272521', phase: 'III', year: 2023, tE: 330, tN: 468, cE: 457, cN: 471, group: 'Moderate-severe COPD on triple therapy, blood eos >=300/uL, dupilumab 300 mg SC Q2W vs placebo (52 wk)', publishedHR: 0.70, hrLCI: 0.58, hrUCI: 0.86,
 
 
                     allOutcomes: [
@@ -7154,7 +7154,7 @@ const ContinuousMDEngine = {
                 'NCT04456673': {
 
 
-                    name: 'NOTUS', pmid: '38767614', phase: 'III', year: 2024, tE: 309, tN: 468, cE: 457, cN: 467, group: 'Moderate-severe COPD on triple therapy, blood eos >=300/uL, dupilumab 300 mg SC Q2W vs placebo (52 wk)', publishedHR: 0.66, hrLCI: 0.54, hrUCI: 0.82,
+                    name: 'NOTUS', baseline: {n: 935, age: 64.9, pct_female: 79.3}, pmid: '38767614', phase: 'III', year: 2024, tE: 309, tN: 468, cE: 457, cN: 467, group: 'Moderate-severe COPD on triple therapy, blood eos >=300/uL, dupilumab 300 mg SC Q2W vs placebo (52 wk)', publishedHR: 0.66, hrLCI: 0.54, hrUCI: 0.82,
 
 
                     allOutcomes: [
@@ -7219,16 +7219,16 @@ const ContinuousMDEngine = {
                 // v12.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_dupi_copd_v1_0');
+                let saved = localStorage.getItem('rapid_meta_dupilumab_copd_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_dupi_copd_v0_9');
+                    const old11 = localStorage.getItem('rapid_meta_dupilumab_copd_v0_9');
 
 
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_dupi_copd_v1_0', old11); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_dupilumab_copd_v1_0', old11); }
 
 
                 }
@@ -7237,10 +7237,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_dupi_copd_v0_8');
+                    const old10 = localStorage.getItem('rapid_meta_dupilumab_copd_v0_8');
 
 
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_dupi_copd_v1_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_dupilumab_copd_v1_0', old10); }
 
 
                 }
@@ -7249,10 +7249,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_dupi_copd_v0_7');
+                    const old93 = localStorage.getItem('rapid_meta_dupilumab_copd_v0_7');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_dupi_copd_v1_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_dupilumab_copd_v1_0', old93); }
 
 
                 }
@@ -7300,7 +7300,7 @@ const ContinuousMDEngine = {
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_dupi_copd_v1_0');
+                        localStorage.removeItem('rapid_meta_dupilumab_copd_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -8458,7 +8458,7 @@ const ContinuousMDEngine = {
 
 
 
-            save() { try { localStorage.setItem('rapid_meta_dupi_copd_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_dupilumab_copd_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
 
 
             getReviewerId() {
@@ -11242,7 +11242,7 @@ const ContinuousMDEngine = {
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_dupi_copd_v1_0'); localStorage.removeItem('rapid_meta_dupi_copd_v0_9'); localStorage.removeItem('rapid_meta_dupi_copd_v0_8'); localStorage.removeItem('rapid_meta_dupi_copd_v0_7'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_dupilumab_copd_v1_0'); localStorage.removeItem('rapid_meta_dupilumab_copd_v0_9'); localStorage.removeItem('rapid_meta_dupilumab_copd_v0_8'); localStorage.removeItem('rapid_meta_dupilumab_copd_v0_7'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -43997,6 +43997,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

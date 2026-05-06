@@ -20,7 +20,7 @@ benchmark-engine wiring transfer cleanly.
 """
 import argparse, pathlib, re, shutil, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 
 def find_balanced_close(text: str, open_pos: int) -> int:

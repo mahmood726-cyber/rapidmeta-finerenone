@@ -35,7 +35,7 @@ from urllib.request import urlopen, Request
 from urllib.parse import quote
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-REPO = Path("C:/Projects/Finrenone")
+REPO = Path(__file__).resolve().parent.parent
 OUT_CSV = REPO / "outputs" / "pmid_audit.csv"
 
 EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"

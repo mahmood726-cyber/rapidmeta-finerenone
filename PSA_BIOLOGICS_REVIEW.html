@@ -7326,7 +7326,7 @@
 
             realData: {
                 'NCT01695239': {
-                    name: 'SPIRIT-P1', pmid: '27553214', phase: 'III', year: 2017, tE: 64, tN: 107, cE: 31, cN: 106, group: 'Biologic-naive PsA, ixekizumab Q4W vs placebo (ACR20 at week 24; RR)', publishedHR: 2.04, hrLCI: 1.45, hrUCI: 2.87,
+                    name: 'SPIRIT-P1', baseline: {n: 213, followup: 5.5, age: 50.6, pct_female: 30.1}, pmid: '27553214', phase: 'III', year: 2017, tE: 64, tN: 107, cE: 31, cN: 106, group: 'Biologic-naive PsA, ixekizumab Q4W vs placebo (ACR20 at week 24; RR)', publishedHR: 2.04, hrLCI: 1.45, hrUCI: 2.87,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'ACR20 response at week 24 (primary, ixekizumab Q4W vs placebo, biologic-naive PsA)', tE: 64, cE: 31, type: 'PRIMARY', matchScore: 95, effect: 2.04, lci: 1.45, uci: 2.87, estimandType: 'RR' }
                     ],
@@ -7339,7 +7339,7 @@
                     ]
                 },
                 'NCT03158285': {
-                    name: 'DISCOVER-2', pmid: '32178766', phase: 'III', year: 2020, tE: 156, tN: 245, cE: 81, cN: 246, group: 'Biologic-naive PsA, guselkumab 100 mg Q8W vs placebo (ACR20 at week 24; RR)', publishedHR: 1.93, hrLCI: 1.58, hrUCI: 2.36,
+                    name: 'DISCOVER-2', baseline: {n: 491, followup: 5.5, age: 46.3, pct_female: 66.8}, pmid: '32178766', phase: 'III', year: 2020, tE: 156, tN: 245, cE: 81, cN: 246, group: 'Biologic-naive PsA, guselkumab 100 mg Q8W vs placebo (ACR20 at week 24; RR)', publishedHR: 1.93, hrLCI: 1.58, hrUCI: 2.36,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'ACR20 response at week 24 (primary, guselkumab Q8W vs placebo, biologic-naive PsA)', tE: 156, cE: 81, type: 'PRIMARY', matchScore: 95, effect: 1.93, lci: 1.58, uci: 2.36, estimandType: 'RR' }
                     ],
@@ -7352,7 +7352,7 @@
                     ]
                 },
                 'NCT03895203': {
-                    name: 'BE OPTIMAL', pmid: '39313302', phase: 'III', year: 2023, tE: 189, tN: 431, cE: 28, cN: 281, group: 'Biologic-naive PsA, bimekizumab 160 mg Q4W vs placebo (ACR50 at week 16; RR)', publishedHR: 4.4, hrLCI: 3.05, hrUCI: 6.34,
+                    name: 'BE OPTIMAL', baseline: {n: 712, followup: 3.7, age: 48.7, pct_female: 79.8}, pmid: '39313302', phase: 'III', year: 2023, tE: 189, tN: 431, cE: 28, cN: 281, group: 'Biologic-naive PsA, bimekizumab 160 mg Q4W vs placebo (ACR50 at week 16; RR)', publishedHR: 4.4, hrLCI: 3.05, hrUCI: 6.34,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'ACR50 response at week 16 (primary, bimekizumab vs placebo, biologic-naive PsA)', tE: 189, cE: 28, type: 'PRIMARY', matchScore: 95, effect: 4.4, lci: 3.05, uci: 6.34, estimandType: 'RR' }
                     ],
@@ -7365,7 +7365,7 @@
                     ]
                 },
                 'NCT03104400': {
-                    name: 'SELECT-PsA 1', pmid: '38331400', phase: 'III', year: 2021, tE: 305, tN: 425, cE: 154, cN: 423, group: 'Biologic-naive PsA, upadacitinib 15 mg vs placebo (ACR20 at week 12; RR)', publishedHR: 1.97, hrLCI: 1.71, hrUCI: 2.27,
+                    name: 'SELECT-PsA 1', baseline: {n: 848, followup: 2.8, age: 50.0, pct_female: 46.4}, pmid: '38331400', phase: 'III', year: 2021, tE: 305, tN: 425, cE: 154, cN: 423, group: 'Biologic-naive PsA, upadacitinib 15 mg vs placebo (ACR20 at week 12; RR)', publishedHR: 1.97, hrLCI: 1.71, hrUCI: 2.27,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'ACR20 response at week 12 (primary, upadacitinib 15 mg vs placebo, biologic-naive PsA)', tE: 305, cE: 154, type: 'PRIMARY', matchScore: 95, effect: 1.97, lci: 1.71, uci: 2.27, estimandType: 'RR' }
                     ],
@@ -7389,16 +7389,16 @@
                 // v15.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_psa_biologics_nma_v1_0');
+                let saved = localStorage.getItem('rapid_meta_psa_biologics_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old14 = localStorage.getItem('rapid_meta_psa_biologics_nma_v1_0');
+                    const old14 = localStorage.getItem('rapid_meta_psa_biologics_v1_0');
 
 
-                    if (old14) { saved = old14; localStorage.setItem('rapid_meta_psa_biologics_nma_v1_0', old14); }
+                    if (old14) { saved = old14; localStorage.setItem('rapid_meta_psa_biologics_v1_0', old14); }
 
 
                 }
@@ -7407,22 +7407,10 @@
                 if (!saved) {
 
 
-                    const old13 = localStorage.getItem('rapid_meta_psa_biologics_nma_v1_0');
+                    const old13 = localStorage.getItem('rapid_meta_psa_biologics_v1_0');
 
 
-                    if (old13) { saved = old13; localStorage.setItem('rapid_meta_psa_biologics_nma_v1_0', old13); }
-
-
-                }
-
-
-                if (!saved) {
-
-
-                    const old12 = localStorage.getItem('rapid_meta_psa_biologics_nma_v1_0');
-
-
-                    if (old12) { saved = old12; localStorage.setItem('rapid_meta_psa_biologics_nma_v1_0', old12); }
+                    if (old13) { saved = old13; localStorage.setItem('rapid_meta_psa_biologics_v1_0', old13); }
 
 
                 }
@@ -7431,22 +7419,10 @@
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_psa_biologics_nma_v1_0');
+                    const old12 = localStorage.getItem('rapid_meta_psa_biologics_v1_0');
 
 
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_psa_biologics_nma_v1_0', old11); }
-
-
-                }
-
-
-                if (!saved) {
-
-
-                    const old10 = localStorage.getItem('rapid_meta_psa_biologics_nma_v1_0');
-
-
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_psa_biologics_nma_v1_0', old10); }
+                    if (old12) { saved = old12; localStorage.setItem('rapid_meta_psa_biologics_v1_0', old12); }
 
 
                 }
@@ -7455,10 +7431,34 @@
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_psa_biologics_nma_v1_0');
+                    const old11 = localStorage.getItem('rapid_meta_psa_biologics_v1_0');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_psa_biologics_nma_v1_0', old93); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_psa_biologics_v1_0', old11); }
+
+
+                }
+
+
+                if (!saved) {
+
+
+                    const old10 = localStorage.getItem('rapid_meta_psa_biologics_v1_0');
+
+
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_psa_biologics_v1_0', old10); }
+
+
+                }
+
+
+                if (!saved) {
+
+
+                    const old93 = localStorage.getItem('rapid_meta_psa_biologics_v1_0');
+
+
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_psa_biologics_v1_0', old93); }
 
 
                 }
@@ -7506,7 +7506,7 @@
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_psa_biologics_nma_v1_0');
+                        localStorage.removeItem('rapid_meta_psa_biologics_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -8862,7 +8862,7 @@
 
 
 
-            save() { try { localStorage.setItem('rapid_meta_psa_biologics_nma_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_psa_biologics_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
 
 
             getReviewerId() {
@@ -11631,7 +11631,7 @@
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_psa_biologics_nma_v1_0'); localStorage.removeItem('rapid_meta_psa_biologics_nma_v1_0'); localStorage.removeItem('rapid_meta_psa_biologics_nma_v1_0'); localStorage.removeItem('rapid_meta_psa_biologics_nma_v1_0'); localStorage.removeItem('rapid_meta_psa_biologics_nma_v1_0'); localStorage.removeItem('rapid_meta_psa_biologics_nma_v1_0'); localStorage.removeItem('rapid_meta_psa_biologics_nma_v1_0'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_psa_biologics_v1_0'); localStorage.removeItem('rapid_meta_psa_biologics_v1_0'); localStorage.removeItem('rapid_meta_psa_biologics_v1_0'); localStorage.removeItem('rapid_meta_psa_biologics_v1_0'); localStorage.removeItem('rapid_meta_psa_biologics_v1_0'); localStorage.removeItem('rapid_meta_psa_biologics_v1_0'); localStorage.removeItem('rapid_meta_psa_biologics_v1_0'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -45490,6 +45490,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

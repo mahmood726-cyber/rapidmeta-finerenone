@@ -7074,7 +7074,7 @@ const ContinuousMDEngine = {
                 'NCT03675256': {
 
 
-                    name: 'KEN-SHE bivalent', pmid: '32078808', phase: 'IV', year: 2022, tE: 0, tN: 758, cE: 38, cN: 758, group: 'KEN-SHE bivalent (HPV 16/18) single-dose vs delayed-meningococcal control. tE=0 persistent HPV 16/18 infections at 18 mo (immediate-bivalent arm, n=758 mITT). cE=38 (delayed-control arm, n=758). Vaccine efficacy 97.5% (95% CI 81.7-99.7) per modified-ITT analysis. SHARED-CONTROL CAVEAT: same delayed-control as KEN-SHE nonavalent contrast (NCT03675256_NONAV) — pool one or apply split-control per Cochrane 23.3.4. Barnabas RV et al. NEJM Evid 2022 (DOI 10.1056/EVIDoa2100046).',
+                    name: 'KEN-SHE bivalent', baseline: {n: 1516, followup: 18.0}, pmid: '32078808', phase: 'IV', year: 2022, tE: 0, tN: 758, cE: 38, cN: 758, group: 'KEN-SHE bivalent (HPV 16/18) single-dose vs delayed-meningococcal control. tE=0 persistent HPV 16/18 infections at 18 mo (immediate-bivalent arm, n=758 mITT). cE=38 (delayed-control arm, n=758). Vaccine efficacy 97.5% (95% CI 81.7-99.7) per modified-ITT analysis. SHARED-CONTROL CAVEAT: same delayed-control as KEN-SHE nonavalent contrast (NCT03675256_NONAV) — pool one or apply split-control per Cochrane 23.3.4. Barnabas RV et al. NEJM Evid 2022 (DOI 10.1056/EVIDoa2100046).',
 
 
                     estimandType: 'RR', publishedHR: 0.025, hrLCI: 0.003, hrUCI: 0.183, pubHR: 0.025, pubHR_LCI: 0.003, pubHR_UCI: 0.183,
@@ -7138,7 +7138,7 @@ const ContinuousMDEngine = {
                 'NCT03675256_NONAV': {
 
 
-                    name: 'KEN-SHE nonavalent', pmid: '35693867', phase: 'IV', year: 2022, tE: 4, tN: 760, cE: 38, cN: 758, group: 'KEN-SHE nonavalent (HPV 6/11/16/18/31/33/45/52/58) single-dose vs delayed-meningococcal control. tE=4 persistent HPV 16/18 infections at 18 mo (immediate-nonavalent arm, n=760 mITT). cE=38 (delayed-control). Vaccine efficacy 89% (95% CI 70.0-97.4) for HPV 16/18; 86% (95% CI 73-93%) for the broader 9-type panel. SHARED-CONTROL CAVEAT: same delayed-control as KEN-SHE bivalent (NCT03675256). Same trial.',
+                    name: 'KEN-SHE nonavalent', baseline: {n: 1518, followup: 18.0}, pmid: '35693867', phase: 'IV', year: 2022, tE: 4, tN: 760, cE: 38, cN: 758, group: 'KEN-SHE nonavalent (HPV 6/11/16/18/31/33/45/52/58) single-dose vs delayed-meningococcal control. tE=4 persistent HPV 16/18 infections at 18 mo (immediate-nonavalent arm, n=760 mITT). cE=38 (delayed-control). Vaccine efficacy 89% (95% CI 70.0-97.4) for HPV 16/18; 86% (95% CI 73-93%) for the broader 9-type panel. SHARED-CONTROL CAVEAT: same delayed-control as KEN-SHE bivalent (NCT03675256). Same trial.',
 
 
                     estimandType: 'RR', publishedHR: 0.105, hrLCI: 0.038, hrUCI: 0.292, pubHR: 0.105, pubHR_LCI: 0.038, pubHR_UCI: 0.292,
@@ -7197,7 +7197,7 @@ const ContinuousMDEngine = {
                 'NCT02834637': {
 
 
-                    name: 'DoRIS 1d-vs-3d bivalent', pmid: '36113531', phase: 'III', year: 2022, tE: 155, tN: 155, cE: 155, cN: 155, group: 'DoRIS bivalent 1-dose vs 3-dose contrast — HPV 16/18 antibody seropositivity at month 24, immunobridging non-inferiority. tE=155/tN=155 (1-dose bivalent arm seropositive at M24, 100%). cE=155/cN=155 (3-dose bivalent arm seropositive at M24, 100%). Non-inferiority margin (10-percentage-point lower bound on the 1-sided 97.5% CI for the difference) was met. Geometric mean titer (GMT) 1-dose ~5x lower than 3-dose but well above the seroprotective threshold derived from historical efficacy cohorts.',
+                    name: 'DoRIS 1d-vs-3d bivalent', baseline: {n: 310}, pmid: '36113531', phase: 'III', year: 2022, tE: 155, tN: 155, cE: 155, cN: 155, group: 'DoRIS bivalent 1-dose vs 3-dose contrast — HPV 16/18 antibody seropositivity at month 24, immunobridging non-inferiority. tE=155/tN=155 (1-dose bivalent arm seropositive at M24, 100%). cE=155/cN=155 (3-dose bivalent arm seropositive at M24, 100%). Non-inferiority margin (10-percentage-point lower bound on the 1-sided 97.5% CI for the difference) was met. Geometric mean titer (GMT) 1-dose ~5x lower than 3-dose but well above the seroprotective threshold derived from historical efficacy cohorts.',
 
 
                     estimandType: 'RR', publishedHR: 1.0, hrLCI: 0.96, hrUCI: 1.04, pubHR: 1.0, pubHR_LCI: 0.96, pubHR_UCI: 1.04,
@@ -7261,16 +7261,16 @@ const ContinuousMDEngine = {
                 // v12.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_kras_g12c_nma_v1_0');
+                let saved = localStorage.getItem('rapid_meta_hpv_dose_reduction_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_kras_g12c_nma_v0_9');
+                    const old11 = localStorage.getItem('rapid_meta_hpv_dose_reduction_v0_9');
 
 
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_kras_g12c_nma_v1_0', old11); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_hpv_dose_reduction_v1_0', old11); }
 
 
                 }
@@ -7279,10 +7279,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_kras_g12c_nma_v0_8');
+                    const old10 = localStorage.getItem('rapid_meta_hpv_dose_reduction_v0_8');
 
 
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_kras_g12c_nma_v1_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_hpv_dose_reduction_v1_0', old10); }
 
 
                 }
@@ -7291,10 +7291,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_kras_g12c_nma_v0_7');
+                    const old93 = localStorage.getItem('rapid_meta_hpv_dose_reduction_v0_7');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_kras_g12c_nma_v1_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_hpv_dose_reduction_v1_0', old93); }
 
 
                 }
@@ -7342,7 +7342,7 @@ const ContinuousMDEngine = {
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_kras_g12c_nma_v1_0');
+                        localStorage.removeItem('rapid_meta_hpv_dose_reduction_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -8500,7 +8500,7 @@ const ContinuousMDEngine = {
 
 
 
-            save() { try { localStorage.setItem('rapid_meta_kras_g12c_nma_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_hpv_dose_reduction_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
 
 
             getReviewerId() {
@@ -11254,7 +11254,7 @@ const ContinuousMDEngine = {
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_kras_g12c_nma_v1_0'); localStorage.removeItem('rapid_meta_kras_g12c_nma_v0_9'); localStorage.removeItem('rapid_meta_kras_g12c_nma_v0_8'); localStorage.removeItem('rapid_meta_kras_g12c_nma_v0_7'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_hpv_dose_reduction_v1_0'); localStorage.removeItem('rapid_meta_hpv_dose_reduction_v0_9'); localStorage.removeItem('rapid_meta_hpv_dose_reduction_v0_8'); localStorage.removeItem('rapid_meta_hpv_dose_reduction_v0_7'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -43881,6 +43881,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

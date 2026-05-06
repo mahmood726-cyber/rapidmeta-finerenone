@@ -4,7 +4,7 @@
 Operates on byte-exact text to avoid Edit-tool unicode-escape mismatches."""
 import sys, pathlib, re
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 # OLD body — exactly as it appears on disk (with literal ² escape sequences).
 OLD = (

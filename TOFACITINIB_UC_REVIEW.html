@@ -7093,7 +7093,7 @@ const ContinuousMDEngine = {
                 'NCT01465763': {
 
 
-                    name: 'OCTAVE Induction 1', pmid: '28467869', phase: 'III', year: 2017, tE: 88, tN: 476, cE: 10, cN: 122, group: 'Tofacitinib 10 mg BID vs placebo, 8-week induction in moderate-severe UC; primary clinical remission at week 8 (Mayo)', publishedHR: 2.26, hrLCI: 1.21, hrUCI: 4.2,
+                    name: 'OCTAVE Induction 1', baseline: {n: 598, followup: 1.8}, pmid: '28467869', phase: 'III', year: 2017, tE: 88, tN: 476, cE: 10, cN: 122, group: 'Tofacitinib 10 mg BID vs placebo, 8-week induction in moderate-severe UC; primary clinical remission at week 8 (Mayo)', publishedHR: 2.26, hrLCI: 1.21, hrUCI: 4.2,
 
 
                     allOutcomes: [
@@ -7124,7 +7124,7 @@ const ContinuousMDEngine = {
                 'NCT01458951': {
 
 
-                    name: 'OCTAVE Induction 2', pmid: '28467869', phase: 'III', year: 2017, tE: 71, tN: 429, cE: 4, cN: 112, group: 'Tofacitinib 10 mg BID vs placebo, 8-week induction in moderate-severe UC; primary clinical remission at week 8 (Mayo)', publishedHR: 4.63, hrLCI: 1.74, hrUCI: 12.31,
+                    name: 'OCTAVE Induction 2', baseline: {n: 541, followup: 1.8, pct_female: 88.1}, pmid: '28467869', phase: 'III', year: 2017, tE: 71, tN: 429, cE: 4, cN: 112, group: 'Tofacitinib 10 mg BID vs placebo, 8-week induction in moderate-severe UC; primary clinical remission at week 8 (Mayo)', publishedHR: 4.63, hrLCI: 1.74, hrUCI: 12.31,
 
 
                     allOutcomes: [
@@ -7155,7 +7155,7 @@ const ContinuousMDEngine = {
                 'NCT01458574': {
 
 
-                    name: 'OCTAVE Sustain', pmid: '28467869', phase: 'III', year: 2017, tE: 80, tN: 197, cE: 22, cN: 198, group: 'Tofacitinib 10 mg BID vs placebo, 52-week maintenance in induction-responders to moderate-severe UC; primary clinical remission at week 52', publishedHR: 3.66, hrLCI: 2.39, hrUCI: 5.61,
+                    name: 'OCTAVE Sustain', baseline: {n: 395, followup: 12.0, age: 41.9}, pmid: '28467869', phase: 'III', year: 2017, tE: 80, tN: 197, cE: 22, cN: 198, group: 'Tofacitinib 10 mg BID vs placebo, 52-week maintenance in induction-responders to moderate-severe UC; primary clinical remission at week 52', publishedHR: 3.66, hrLCI: 2.39, hrUCI: 5.61,
 
 
                     allOutcomes: [
@@ -7202,7 +7202,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_jak_uc_v0_9');
+                    const old11 = localStorage.getItem('rapid_meta_tofacitinib_uc_v0_9');
 
 
                     if (old11) { saved = old11; localStorage.setItem('rapid_meta_tofacitinib_uc_v1_0', old11); }
@@ -7214,7 +7214,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_jak_uc_v0_8');
+                    const old10 = localStorage.getItem('rapid_meta_tofacitinib_uc_v0_8');
 
 
                     if (old10) { saved = old10; localStorage.setItem('rapid_meta_tofacitinib_uc_v1_0', old10); }
@@ -7226,7 +7226,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_jak_uc_v0_7');
+                    const old93 = localStorage.getItem('rapid_meta_tofacitinib_uc_v0_7');
 
 
                     if (old93) { saved = old93; localStorage.setItem('rapid_meta_tofacitinib_uc_v1_0', old93); }
@@ -11203,7 +11203,7 @@ const ContinuousMDEngine = {
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_tofacitinib_uc_v1_0'); localStorage.removeItem('rapid_meta_jak_uc_v0_9'); localStorage.removeItem('rapid_meta_jak_uc_v0_8'); localStorage.removeItem('rapid_meta_jak_uc_v0_7'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_tofacitinib_uc_v1_0'); localStorage.removeItem('rapid_meta_tofacitinib_uc_v0_9'); localStorage.removeItem('rapid_meta_tofacitinib_uc_v0_8'); localStorage.removeItem('rapid_meta_tofacitinib_uc_v0_7'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -43833,6 +43833,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

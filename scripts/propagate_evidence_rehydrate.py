@@ -7,7 +7,7 @@ subsequent view switches show the empty-extracts placeholder.
 """
 import argparse, pathlib, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 SENTINEL = "/* Defensive re-hydration"
 

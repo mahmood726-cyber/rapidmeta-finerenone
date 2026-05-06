@@ -17,7 +17,7 @@ require per-trial outcome curation and risks breaking downstream filters.
 """
 import argparse, pathlib, re, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 RENAMES = {
     'ACALABRUTINIB_CLL_REVIEW.html':       'PFS',

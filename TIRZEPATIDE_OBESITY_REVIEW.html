@@ -7267,7 +7267,7 @@ const DoseResponseEngine = {
                 'NCT04184622': {
 
 
-                    name: 'SURMOUNT-1', pmid: '35658024', phase: 'III', year: 2022, tE: null, tN: 630, cE: null, cN: 643, group: 'Adults with obesity without T2D, tirzepatide 15 mg SC weekly vs placebo (wk 72, % weight change MD). Trial design: 4-arm RCT (n≈2,539) randomising tirzepatide 5 mg + 10 mg + 15 mg + placebo. This entry uses the 15 mg arm only (FDA-approved high dose); 5 mg and 10 mg arms are NOT extracted but available in Jastreboff 2022 NEJM Table 2 if dose-response sensitivity is needed.', extractionScope: 'highest_approved_dose_only', publishedHR: null,
+                    name: 'SURMOUNT-1', baseline: {n: 1273, followup: 16.6, age: 44.4}, pmid: '35658024', phase: 'III', year: 2022, tE: null, tN: 630, cE: null, cN: 643, group: 'Adults with obesity without T2D, tirzepatide 15 mg SC weekly vs placebo (wk 72, % weight change MD). Trial design: 4-arm RCT (n≈2,539) randomising tirzepatide 5 mg + 10 mg + 15 mg + placebo. This entry uses the 15 mg arm only (FDA-approved high dose); 5 mg and 10 mg arms are NOT extracted but available in Jastreboff 2022 NEJM Table 2 if dose-response sensitivity is needed.', extractionScope: 'highest_approved_dose_only', publishedHR: null,
 
 
                     allOutcomes: [
@@ -7320,7 +7320,7 @@ const DoseResponseEngine = {
                 'NCT04657003': {
 
 
-                    name: 'SURMOUNT-2', pmid: '37385275', phase: 'III', year: 2023, tE: null, tN: 312, cE: null, cN: 315, group: 'Adults with obesity AND T2D, tirzepatide 15 mg SC weekly vs placebo (wk 72, % weight change MD)', publishedHR: null,
+                    name: 'SURMOUNT-2', baseline: {n: 627, followup: 16.6, age: 54.7}, pmid: '37385275', phase: 'III', year: 2023, tE: null, tN: 312, cE: null, cN: 315, group: 'Adults with obesity AND T2D, tirzepatide 15 mg SC weekly vs placebo (wk 72, % weight change MD)', publishedHR: null,
 
 
                     allOutcomes: [
@@ -7370,7 +7370,7 @@ const DoseResponseEngine = {
                 'NCT04657016': {
 
 
-                    name: 'SURMOUNT-3', pmid: '37840095', phase: 'III', year: 2023, tE: null, tN: 287, cE: null, cN: 292, group: 'Adults with obesity after 12-week intensive-lifestyle lead-in, tirzepatide max-tolerated vs placebo (wk 0-72, % weight change from lead-in end, MD)', publishedHR: null,
+                    name: 'SURMOUNT-3', baseline: {n: 579, followup: 0.0, age: 45.7}, pmid: '37840095', phase: 'III', year: 2023, tE: null, tN: 287, cE: null, cN: 292, group: 'Adults with obesity after 12-week intensive-lifestyle lead-in, tirzepatide max-tolerated vs placebo (wk 0-72, % weight change from lead-in end, MD)', publishedHR: null,
 
 
                     allOutcomes: [
@@ -7432,16 +7432,16 @@ const DoseResponseEngine = {
                 // v12.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_tirz_obesity_v1_0');
+                let saved = localStorage.getItem('rapid_meta_tirzepatide_obesity_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_tirz_obesity_v0_9');
+                    const old11 = localStorage.getItem('rapid_meta_tirzepatide_obesity_v0_9');
 
 
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_tirz_obesity_v1_0', old11); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_tirzepatide_obesity_v1_0', old11); }
 
 
                 }
@@ -7450,10 +7450,10 @@ const DoseResponseEngine = {
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_tirz_obesity_v0_8');
+                    const old10 = localStorage.getItem('rapid_meta_tirzepatide_obesity_v0_8');
 
 
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_tirz_obesity_v1_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_tirzepatide_obesity_v1_0', old10); }
 
 
                 }
@@ -7462,10 +7462,10 @@ const DoseResponseEngine = {
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_tirz_obesity_v0_7');
+                    const old93 = localStorage.getItem('rapid_meta_tirzepatide_obesity_v0_7');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_tirz_obesity_v1_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_tirzepatide_obesity_v1_0', old93); }
 
 
                 }
@@ -7513,7 +7513,7 @@ const DoseResponseEngine = {
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_tirz_obesity_v1_0');
+                        localStorage.removeItem('rapid_meta_tirzepatide_obesity_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -8671,7 +8671,7 @@ const DoseResponseEngine = {
 
 
 
-            save() { try { localStorage.setItem('rapid_meta_tirz_obesity_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_tirzepatide_obesity_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
 
 
             getReviewerId() {
@@ -11455,7 +11455,7 @@ const DoseResponseEngine = {
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_tirz_obesity_v1_0'); localStorage.removeItem('rapid_meta_tirz_obesity_v0_9'); localStorage.removeItem('rapid_meta_tirz_obesity_v0_8'); localStorage.removeItem('rapid_meta_tirz_obesity_v0_7'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_tirzepatide_obesity_v1_0'); localStorage.removeItem('rapid_meta_tirzepatide_obesity_v0_9'); localStorage.removeItem('rapid_meta_tirzepatide_obesity_v0_8'); localStorage.removeItem('rapid_meta_tirzepatide_obesity_v0_7'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -44215,6 +44215,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

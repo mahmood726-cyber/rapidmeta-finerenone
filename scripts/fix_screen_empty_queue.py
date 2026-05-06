@@ -10,7 +10,7 @@ Fix: when queue is empty after filter change, write a placeholder into
 """
 import argparse, pathlib, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 OLD = (
     "                }).join('');\n"

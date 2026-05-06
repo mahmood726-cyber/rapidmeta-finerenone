@@ -3,7 +3,7 @@
 """Populate benchmarks for Batch I (14 immuno #2 + neuro apps)."""
 import argparse, pathlib, re, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 BATCH = {
     "IL23_PSORIASIS_REVIEW.html": {

@@ -7094,7 +7094,7 @@ const ContinuousMDEngine = {
                 'NCT02403674': {
 
 
-                    name: 'DRIVE-AHEAD', pmid: '30184165', phase: 'III', year: 2019, tE: 307, tN: 364, cE: 294, cN: 364, group: 'Treatment-naive adults, doravirine + 2 NRTIs vs efavirenz + 2 NRTIs (DOR vs EFV first-line); HIV-1 RNA <50 copies/mL at week 48 (snapshot ITT)', publishedHR: 1.04, hrLCI: 0.97, hrUCI: 1.13,
+                    name: 'DRIVE-AHEAD', baseline: {n: 728, followup: 11.0, age: 33.6, pct_female: 16.2}, pmid: '30184165', phase: 'III', year: 2019, tE: 307, tN: 364, cE: 294, cN: 364, group: 'Treatment-naive adults, doravirine + 2 NRTIs vs efavirenz + 2 NRTIs (DOR vs EFV first-line); HIV-1 RNA <50 copies/mL at week 48 (snapshot ITT)', publishedHR: 1.04, hrLCI: 0.97, hrUCI: 1.13,
 
 
                     allOutcomes: [
@@ -7125,7 +7125,7 @@ const ContinuousMDEngine = {
                 'NCT02275780': {
 
 
-                    name: 'DRIVE-FORWARD', pmid: '29592840', phase: 'III', year: 2018, tE: 321, tN: 383, cE: 306, cN: 383, group: 'Treatment-naive adults, doravirine + 2 NRTIs vs darunavir + ritonavir + 2 NRTIs (DOR vs DRV/r first-line); HIV-1 RNA <50 copies/mL at week 48 (snapshot ITT)', publishedHR: 1.05, hrLCI: 0.98, hrUCI: 1.13,
+                    name: 'DRIVE-FORWARD', baseline: {n: 766, followup: 11.0, age: 34.9, pct_female: 16.9}, pmid: '29592840', phase: 'III', year: 2018, tE: 321, tN: 383, cE: 306, cN: 383, group: 'Treatment-naive adults, doravirine + 2 NRTIs vs darunavir + ritonavir + 2 NRTIs (DOR vs DRV/r first-line); HIV-1 RNA <50 copies/mL at week 48 (snapshot ITT)', publishedHR: 1.05, hrLCI: 0.98, hrUCI: 1.13,
 
 
                     allOutcomes: [
@@ -7156,7 +7156,7 @@ const ContinuousMDEngine = {
                 'NCT02397096': {
 
 
-                    name: 'DRIVE-SHIFT', pmid: '30985556', phase: 'III', year: 2019, tE: 406, tN: 447, cE: 211, cN: 223, group: 'Virologically suppressed adults, switch to doravirine/3TC/TDF FDC vs continued baseline regimen (PI / INSTI / NNRTI); HIV-1 RNA <50 copies/mL at week 48 (immediate switch) vs week 24 (continue) -- snapshot ITT', publishedHR: 0.96, hrLCI: 0.92, hrUCI: 1.01,
+                    name: 'DRIVE-SHIFT', baseline: {n: 670, followup: 11.0, age: 43.1}, pmid: '30985556', phase: 'III', year: 2019, tE: 406, tN: 447, cE: 211, cN: 223, group: 'Virologically suppressed adults, switch to doravirine/3TC/TDF FDC vs continued baseline regimen (PI / INSTI / NNRTI); HIV-1 RNA <50 copies/mL at week 48 (immediate switch) vs week 24 (continue) -- snapshot ITT', publishedHR: 0.96, hrLCI: 0.92, hrUCI: 1.01,
 
 
                     allOutcomes: [
@@ -7203,7 +7203,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_cab_prep_hiv_v0_9');
+                    const old11 = localStorage.getItem('rapid_meta_doravirine_hiv_v0_9');
 
 
                     if (old11) { saved = old11; localStorage.setItem('rapid_meta_doravirine_hiv_v1_0', old11); }
@@ -7215,7 +7215,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_cab_prep_hiv_v0_8');
+                    const old10 = localStorage.getItem('rapid_meta_doravirine_hiv_v0_8');
 
 
                     if (old10) { saved = old10; localStorage.setItem('rapid_meta_doravirine_hiv_v1_0', old10); }
@@ -7227,7 +7227,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_cab_prep_hiv_v0_7');
+                    const old93 = localStorage.getItem('rapid_meta_doravirine_hiv_v0_7');
 
 
                     if (old93) { saved = old93; localStorage.setItem('rapid_meta_doravirine_hiv_v1_0', old93); }
@@ -11204,7 +11204,7 @@ const ContinuousMDEngine = {
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_doravirine_hiv_v1_0'); localStorage.removeItem('rapid_meta_cab_prep_hiv_v0_9'); localStorage.removeItem('rapid_meta_cab_prep_hiv_v0_8'); localStorage.removeItem('rapid_meta_cab_prep_hiv_v0_7'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_doravirine_hiv_v1_0'); localStorage.removeItem('rapid_meta_doravirine_hiv_v0_9'); localStorage.removeItem('rapid_meta_doravirine_hiv_v0_8'); localStorage.removeItem('rapid_meta_doravirine_hiv_v0_7'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -43834,6 +43834,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

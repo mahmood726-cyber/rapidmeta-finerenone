@@ -7090,7 +7090,7 @@ const ContinuousMDEngine = {
                 'NCT03345849': {
 
 
-                    name: 'U-EXCEL', pmid: '37224198', phase: 'III', year: 2023, tE: 130, tN: 263, cE: 77, cN: 263, group: 'Moderate-severe CD (biologic-naive or -exposed), upadacitinib 45 mg PO QD induction vs placebo (wk 12, clinical remission)', publishedHR: 2.29, hrLCI: 1.57, hrUCI: 3.34,
+                    name: 'U-EXCEL', baseline: {n: 526, followup: 2.8, age: 39.3, pct_female: 46.6}, pmid: '37224198', phase: 'III', year: 2023, tE: 130, tN: 263, cE: 77, cN: 263, group: 'Moderate-severe CD (biologic-naive or -exposed), upadacitinib 45 mg PO QD induction vs placebo (wk 12, clinical remission)', publishedHR: 2.29, hrLCI: 1.57, hrUCI: 3.34,
 
 
                     allOutcomes: [
@@ -7143,7 +7143,7 @@ const ContinuousMDEngine = {
                 'NCT03345836': {
 
 
-                    name: 'U-EXCEED', pmid: '37224198', phase: 'III', year: 2023, tE: 96, tN: 247, cE: 52, cN: 248, group: 'Moderate-severe CD biologic-failure, upadacitinib 45 mg PO QD induction vs placebo (wk 12)', publishedHR: 2.44, hrLCI: 1.65, hrUCI: 3.62,
+                    name: 'U-EXCEED', baseline: {n: 495, followup: 2.8, age: 37.5, pct_female: 43.9}, pmid: '37224198', phase: 'III', year: 2023, tE: 96, tN: 247, cE: 52, cN: 248, group: 'Moderate-severe CD biologic-failure, upadacitinib 45 mg PO QD induction vs placebo (wk 12)', publishedHR: 2.44, hrLCI: 1.65, hrUCI: 3.62,
 
 
                     allOutcomes: [
@@ -7196,7 +7196,7 @@ const ContinuousMDEngine = {
                 'NCT03345823': {
 
 
-                    name: 'U-ENDURE', pmid: '37224198', phase: 'III', year: 2023, tE: 94, tN: 252, cE: 34, cN: 250, group: 'CD wk12 responders, upadacitinib 30 mg PO QD vs placebo maintenance (wk 52)', publishedHR: 3.77, hrLCI: 2.40, hrUCI: 5.91,
+                    name: 'U-ENDURE', baseline: {n: 502, followup: 12.0}, pmid: '37224198', phase: 'III', year: 2023, tE: 94, tN: 252, cE: 34, cN: 250, group: 'CD wk12 responders, upadacitinib 30 mg PO QD vs placebo maintenance (wk 52)', publishedHR: 3.77, hrLCI: 2.40, hrUCI: 5.91,
 
 
                     allOutcomes: [
@@ -7261,16 +7261,16 @@ const ContinuousMDEngine = {
                 // v12.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_upa_cd_v1_0');
+                let saved = localStorage.getItem('rapid_meta_upadacitinib_cd_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_upa_cd_v0_9');
+                    const old11 = localStorage.getItem('rapid_meta_upadacitinib_cd_v0_9');
 
 
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_upa_cd_v1_0', old11); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_upadacitinib_cd_v1_0', old11); }
 
 
                 }
@@ -7279,10 +7279,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_upa_cd_v0_8');
+                    const old10 = localStorage.getItem('rapid_meta_upadacitinib_cd_v0_8');
 
 
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_upa_cd_v1_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_upadacitinib_cd_v1_0', old10); }
 
 
                 }
@@ -7291,10 +7291,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_upa_cd_v0_7');
+                    const old93 = localStorage.getItem('rapid_meta_upadacitinib_cd_v0_7');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_upa_cd_v1_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_upadacitinib_cd_v1_0', old93); }
 
 
                 }
@@ -7342,7 +7342,7 @@ const ContinuousMDEngine = {
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_upa_cd_v1_0');
+                        localStorage.removeItem('rapid_meta_upadacitinib_cd_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -8500,7 +8500,7 @@ const ContinuousMDEngine = {
 
 
 
-            save() { try { localStorage.setItem('rapid_meta_upa_cd_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_upadacitinib_cd_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
 
 
             getReviewerId() {
@@ -11268,7 +11268,7 @@ const ContinuousMDEngine = {
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_upa_cd_v1_0'); localStorage.removeItem('rapid_meta_upa_cd_v0_9'); localStorage.removeItem('rapid_meta_upa_cd_v0_8'); localStorage.removeItem('rapid_meta_upa_cd_v0_7'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_upadacitinib_cd_v1_0'); localStorage.removeItem('rapid_meta_upadacitinib_cd_v0_9'); localStorage.removeItem('rapid_meta_upadacitinib_cd_v0_8'); localStorage.removeItem('rapid_meta_upadacitinib_cd_v0_7'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -43898,6 +43898,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

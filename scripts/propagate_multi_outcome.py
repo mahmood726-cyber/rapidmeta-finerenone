@@ -14,7 +14,7 @@ if _getNetworkOutcomeKeys is already present):
 """
 import argparse, pathlib, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 # Edit 1: insert helpers + replace _getTrialEffect with a delegate.
 EDIT1_OLD = (

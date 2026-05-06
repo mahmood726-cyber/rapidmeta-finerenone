@@ -42,7 +42,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-ROOT = Path(r"C:\Projects\Finrenone")
+ROOT = Path(__file__).resolve().parent.parent
 AUDIT_CSV = ROOT / "outputs" / "citation_audit.csv"
 OUT_CSV = ROOT / "outputs" / "pmid_corrections.csv"
 CACHE_PATH = ROOT / "outputs" / "_pubmed_cache.json"

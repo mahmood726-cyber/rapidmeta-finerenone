@@ -7148,7 +7148,7 @@ const ContinuousMDEngine = {
                 'NCT03299426': {
 
 
-                    name: 'TyVAC Malawi', pmid: '34525285', phase: 'III', year: 2021, tE: 12, tN: 14069, cE: 62, cN: 14061, group: 'Cluster-RCT in Blantyre, Malawi; 9 months - 12 years; Vi-TT vs MenA conjugate vaccine; primary blood-culture confirmed typhoid fever', publishedHR: 0.193, hrLCI: 0.105, hrUCI: 0.358,
+                    name: 'TyVAC Malawi', baseline: {n: 28130}, pmid: '34525285', phase: 'III', year: 2021, tE: 12, tN: 14069, cE: 62, cN: 14061, group: 'Cluster-RCT in Blantyre, Malawi; 9 months - 12 years; Vi-TT vs MenA conjugate vaccine; primary blood-culture confirmed typhoid fever', publishedHR: 0.193, hrLCI: 0.105, hrUCI: 0.358,
 
 
                     allOutcomes: [
@@ -7195,7 +7195,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_nirsevimab_infant_rsv_v0_9');
+                    const old11 = localStorage.getItem('rapid_meta_tyvac_typhoid_v0_9');
 
 
                     if (old11) { saved = old11; localStorage.setItem('rapid_meta_tyvac_typhoid_v1_0', old11); }
@@ -7207,7 +7207,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_nirsevimab_infant_rsv_v0_8');
+                    const old10 = localStorage.getItem('rapid_meta_tyvac_typhoid_v0_8');
 
 
                     if (old10) { saved = old10; localStorage.setItem('rapid_meta_tyvac_typhoid_v1_0', old10); }
@@ -7219,7 +7219,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_nirsevimab_infant_rsv_v0_7');
+                    const old93 = localStorage.getItem('rapid_meta_tyvac_typhoid_v0_7');
 
 
                     if (old93) { saved = old93; localStorage.setItem('rapid_meta_tyvac_typhoid_v1_0', old93); }
@@ -11196,7 +11196,7 @@ const ContinuousMDEngine = {
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_tyvac_typhoid_v1_0'); localStorage.removeItem('rapid_meta_nirsevimab_infant_rsv_v0_9'); localStorage.removeItem('rapid_meta_nirsevimab_infant_rsv_v0_8'); localStorage.removeItem('rapid_meta_nirsevimab_infant_rsv_v0_7'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_tyvac_typhoid_v1_0'); localStorage.removeItem('rapid_meta_tyvac_typhoid_v0_9'); localStorage.removeItem('rapid_meta_tyvac_typhoid_v0_8'); localStorage.removeItem('rapid_meta_tyvac_typhoid_v0_7'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -43826,6 +43826,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

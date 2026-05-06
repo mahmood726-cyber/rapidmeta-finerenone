@@ -3,7 +3,7 @@
 """Populate benchmarks for Batch G (12 cardio #2 + onco #1 apps)."""
 import argparse, pathlib, re, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 BATCH = {
     "SOTAGLIFLOZIN_HF_REVIEW.html": {

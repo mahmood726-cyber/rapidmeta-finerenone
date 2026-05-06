@@ -3,7 +3,7 @@
 """Populate benchmarks for Batch D (4 onco NMAs)."""
 import argparse, pathlib, re, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 BATCH = {
     "BTKI_CLL_NMA_REVIEW.html": {

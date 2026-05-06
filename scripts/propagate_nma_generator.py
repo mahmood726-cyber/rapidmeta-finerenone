@@ -10,7 +10,7 @@
 """
 import argparse, pathlib, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 EDIT1_OLD = '                            <div id="nma-summary-container" class="mb-8"></div>'
 EDIT1_NEW = (

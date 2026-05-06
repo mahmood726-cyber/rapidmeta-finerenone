@@ -18,7 +18,7 @@ import sys, io, argparse, re
 from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-REPO = Path("C:/Projects/Finrenone")
+REPO = Path(__file__).resolve().parent.parent
 
 SCRIPT_TAGS = (
     '\n    <!-- Tier-2 transplants: small-study bias + per-edge certainty -->\n'

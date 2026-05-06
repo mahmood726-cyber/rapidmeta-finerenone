@@ -11,7 +11,7 @@ import sys, io, re, math, csv
 from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-REPO = Path("C:/Projects/Finrenone")
+REPO = Path(__file__).resolve().parent.parent
 CSV_PATH = REPO / "outputs" / "internal_consistency_check.csv"
 
 # Read defects

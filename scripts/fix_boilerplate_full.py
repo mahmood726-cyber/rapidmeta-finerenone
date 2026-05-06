@@ -26,7 +26,7 @@ ARNI_HF_REVIEW.html left intact (it is the source template).
 """
 import argparse, pathlib, re, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 # (pop_brief, drug_display, drug_short, search_term, subgroup, elig_pop, elig_int_short, pop_full, int_full, comp_full, out_full)
 SPEC = {

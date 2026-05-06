@@ -4,7 +4,7 @@ import sys, io, argparse, re
 from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-REPO = Path("C:/Projects/Finrenone")
+REPO = Path(__file__).resolve().parent.parent
 
 OUTCOME_INCLUDE_RE = re.compile(r'<script\s+src="vendor/outcome-switching\.js"\s*></script>')
 

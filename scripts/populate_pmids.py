@@ -29,7 +29,7 @@ Flags:
 from __future__ import annotations
 import argparse, json, pathlib, re, sys, time, urllib.parse, urllib.request
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 RESULTS_DIR = ROOT / "scripts" / "pmid_results"
 RESULTS_DIR.mkdir(exist_ok=True)
 CACHE_FILE = RESULTS_DIR / "pmid_lookup_cache.json"

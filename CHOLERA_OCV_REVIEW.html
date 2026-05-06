@@ -5197,7 +5197,7 @@
                 'NCT02027207': {
 
 
-                    name: 'Single-Dose Shanchol Bangladesh', pmid: '27144848', phase: 'III', year: 2018, tE: 14, tN: 102552, cE: 28, cN: 101886, group: 'Single-dose Shanchol Bangladesh: individually-randomized double-blind placebo-controlled efficacy trial in cholera-endemic Mirpur, Dhaka. n=204,438 individuals aged 1+ in 9 high-risk wards. Single oral dose Shanchol vs matched placebo. tE=14 culture-proven V. cholerae O1 cases at 6 months post-vaccination in vaccine arm (n=102,552), cE=28 in placebo (n=101,886). Vaccine efficacy at 6 months 40% (95% CI -10 to 67), 2-year efficacy 39% (95% CI 23-52). Single-dose Shanchol is endorsed by the WHO oral-cholera-vaccine stockpile for emergency outbreak control where 2-dose deployment is logistically prohibitive. Qadri F et al. NEJM 2018;378:1378-1382 (also Lancet Glob Health 2018 for 2-year efficacy). PMID 29456042.',
+                    name: 'Single-Dose Shanchol Bangladesh', baseline: {n: 204438, followup: 6.0}, pmid: '27144848', phase: 'III', year: 2018, tE: 14, tN: 102552, cE: 28, cN: 101886, group: 'Single-dose Shanchol Bangladesh: individually-randomized double-blind placebo-controlled efficacy trial in cholera-endemic Mirpur, Dhaka. n=204,438 individuals aged 1+ in 9 high-risk wards. Single oral dose Shanchol vs matched placebo. tE=14 culture-proven V. cholerae O1 cases at 6 months post-vaccination in vaccine arm (n=102,552), cE=28 in placebo (n=101,886). Vaccine efficacy at 6 months 40% (95% CI -10 to 67), 2-year efficacy 39% (95% CI 23-52). Single-dose Shanchol is endorsed by the WHO oral-cholera-vaccine stockpile for emergency outbreak control where 2-dose deployment is logistically prohibitive. Qadri F et al. NEJM 2018;378:1378-1382 (also Lancet Glob Health 2018 for 2-year efficacy). PMID 29456042.',
 
 
                     estimandType: 'RR', publishedHR: 0.50, hrLCI: 0.26, hrUCI: 0.97, pubHR: 0.50, pubHR_LCI: 0.26, pubHR_UCI: 0.97,
@@ -5560,16 +5560,16 @@
                 // v11.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_sglt2hf_v1_0');
+                let saved = localStorage.getItem('rapid_meta_cholera_ocv_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_sglt2hf_v0_9');
+                    const old10 = localStorage.getItem('rapid_meta_cholera_ocv_v0_9');
 
 
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_sglt2hf_v1_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_cholera_ocv_v1_0', old10); }
 
 
                 }
@@ -5578,10 +5578,10 @@
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_sglt2hf_v0_8');
+                    const old93 = localStorage.getItem('rapid_meta_cholera_ocv_v0_8');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_sglt2hf_v1_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_cholera_ocv_v1_0', old93); }
 
 
                 }
@@ -5617,7 +5617,7 @@
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_sglt2hf_v1_0');
+                        localStorage.removeItem('rapid_meta_cholera_ocv_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -6874,7 +6874,7 @@
                 try {
 
 
-                    localStorage.setItem('rapid_meta_sglt2hf_v1_0', JSON.stringify(this.state));
+                    localStorage.setItem('rapid_meta_cholera_ocv_v1_0', JSON.stringify(this.state));
 
 
                 } catch(e) {
@@ -8944,7 +8944,7 @@
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_sglt2hf_v1_0'); localStorage.removeItem('rapid_meta_sglt2hf_v0_9'); localStorage.removeItem('rapid_meta_sglt2hf_v0_8'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_cholera_ocv_v1_0'); localStorage.removeItem('rapid_meta_cholera_ocv_v0_9'); localStorage.removeItem('rapid_meta_cholera_ocv_v0_8'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -36241,6 +36241,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

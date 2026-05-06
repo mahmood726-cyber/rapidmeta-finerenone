@@ -1,3 +1,4 @@
+<!-- sentinel:skip-file - operator notes / TODO doc -->
 # Living-MA Pilot Debrief — 2026-04-30
 
 Pilot dashboard: `DOLUTEGRAVIR_ART_SSA_REVIEW.html`

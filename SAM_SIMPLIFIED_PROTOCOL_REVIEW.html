@@ -5196,7 +5196,7 @@
 
                 'NCT04698070': {
 
-                    name: 'OptiMA Niger (ComPAS vs Standard)', pmid: '41043877', phase: 'NA', year: 2025, tE: 277, tN: 576, cE: 283, cN: 577, group: 'Daures M, Hien J, Phelan K et al. Am J Clin Nutr 2025;122:972-985 (PMID 41043877). Sponsor: ALIMA (Alliance for International Medical Action), Bordeaux Population Health Research Centre, Harvard School of Public Health. 3-arm individually-randomized non-inferiority RCT of acute malnutrition treatment strategies in children aged 6-59 months presenting at 8 community-based sites in Mirriah District, Zinder Region, Niger between 2021-03-22 and 2022-03-22. n=2,304 enrolled (per CT.gov; 1,732 with primary-outcome data per AJCN paper). Three arms: (1) Standard Niger national protocol — separate SAM/MAM track, weight-based RUTF; (2) OptiMA — single-product RUTF dose adapted to MUAC severity (170 then progressively reduced to 75 kcal/kg/d); (3) ComPAS — fixed simplified RUTF (1000 kcal/d if MUAC<115mm or oedema; 500 kcal/d if MUAC 115-124mm). PRIMARY ENDPOINT: 6-month composite success (alive + not acutely malnourished + no relapse). HEADLINE RESULT (the comparison shown here): ComPAS 51.9% success vs Standard 50.9% — difference +1.0pp (97.5% CI -5.5 to +7.6); non-inferiority met in ITT and PP at the 10pp margin. OptiMA arm 49.7% (NI met ITT only, FAILED PP — see SECONDARY arm-pair below). Among severely malnourished (MUAC<115mm or oedema, n=1,140), Standard remained superior in nutritional recovery for both ITT and PP. ComPAS used 50% less RUTF than Standard with equivalent growth trajectories. Africa relevance: directly addresses the WHO simplified-approach evidence gap for sub-Saharan Sahel acute malnutrition; ComPAS validated as primary alternative for moderate-MUAC presentations.',
+                    name: 'OptiMA Niger (ComPAS vs Standard)', baseline: {n: 1153}, pmid: '41043877', phase: 'NA', year: 2025, tE: 277, tN: 576, cE: 283, cN: 577, group: 'Daures M, Hien J, Phelan K et al. Am J Clin Nutr 2025;122:972-985 (PMID 41043877). Sponsor: ALIMA (Alliance for International Medical Action), Bordeaux Population Health Research Centre, Harvard School of Public Health. 3-arm individually-randomized non-inferiority RCT of acute malnutrition treatment strategies in children aged 6-59 months presenting at 8 community-based sites in Mirriah District, Zinder Region, Niger between 2021-03-22 and 2022-03-22. n=2,304 enrolled (per CT.gov; 1,732 with primary-outcome data per AJCN paper). Three arms: (1) Standard Niger national protocol — separate SAM/MAM track, weight-based RUTF; (2) OptiMA — single-product RUTF dose adapted to MUAC severity (170 then progressively reduced to 75 kcal/kg/d); (3) ComPAS — fixed simplified RUTF (1000 kcal/d if MUAC<115mm or oedema; 500 kcal/d if MUAC 115-124mm). PRIMARY ENDPOINT: 6-month composite success (alive + not acutely malnourished + no relapse). HEADLINE RESULT (the comparison shown here): ComPAS 51.9% success vs Standard 50.9% — difference +1.0pp (97.5% CI -5.5 to +7.6); non-inferiority met in ITT and PP at the 10pp margin. OptiMA arm 49.7% (NI met ITT only, FAILED PP — see SECONDARY arm-pair below). Among severely malnourished (MUAC<115mm or oedema, n=1,140), Standard remained superior in nutritional recovery for both ITT and PP. ComPAS used 50% less RUTF than Standard with equivalent growth trajectories. Africa relevance: directly addresses the WHO simplified-approach evidence gap for sub-Saharan Sahel acute malnutrition; ComPAS validated as primary alternative for moderate-MUAC presentations.',
 
                     estimandType: 'RR', publishedHR: 0.96, hrLCI: 0.86, hrUCI: 1.07, pubHR: 0.96,
 
@@ -5534,16 +5534,16 @@
                 // v11.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_sglt2hf_v1_0');
+                let saved = localStorage.getItem('rapid_meta_sam_simplified_protocol_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_sglt2hf_v0_9');
+                    const old10 = localStorage.getItem('rapid_meta_sam_simplified_protocol_v0_9');
 
 
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_sglt2hf_v1_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_sam_simplified_protocol_v1_0', old10); }
 
 
                 }
@@ -5552,10 +5552,10 @@
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_sglt2hf_v0_8');
+                    const old93 = localStorage.getItem('rapid_meta_sam_simplified_protocol_v0_8');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_sglt2hf_v1_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_sam_simplified_protocol_v1_0', old93); }
 
 
                 }
@@ -5591,7 +5591,7 @@
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_sglt2hf_v1_0');
+                        localStorage.removeItem('rapid_meta_sam_simplified_protocol_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -6848,7 +6848,7 @@
                 try {
 
 
-                    localStorage.setItem('rapid_meta_sglt2hf_v1_0', JSON.stringify(this.state));
+                    localStorage.setItem('rapid_meta_sam_simplified_protocol_v1_0', JSON.stringify(this.state));
 
 
                 } catch(e) {
@@ -8918,7 +8918,7 @@
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_sglt2hf_v1_0'); localStorage.removeItem('rapid_meta_sglt2hf_v0_9'); localStorage.removeItem('rapid_meta_sglt2hf_v0_8'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_sam_simplified_protocol_v1_0'); localStorage.removeItem('rapid_meta_sam_simplified_protocol_v0_9'); localStorage.removeItem('rapid_meta_sam_simplified_protocol_v0_8'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -36215,6 +36215,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

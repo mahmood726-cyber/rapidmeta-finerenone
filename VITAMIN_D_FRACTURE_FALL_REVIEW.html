@@ -7356,7 +7356,7 @@
 
                 'NCT01169259': {
 
-                    name: 'VITAL (Manson 2019)', pmid: '30415629', phase: 'IV', year: 2019, tE: 805, tN: 12927, cE: 754, cN: 12944, group: 'Manson JE, Cook NR, Lee IM, et al. NEJM 2019;380:33-44 (PMID 30415629). NIH-NHLBI-sponsored 2x2 factorial randomized double-blind placebo-controlled trial of vitamin D3 (cholecalciferol 2000 IU/day) and/or marine omega-3 fatty acids (1g/day, EPA+DHA) in n=25,871 generally healthy US adults aged >=50y (men) or >=55y (women) with no prior cancer or cardiovascular disease, recruited from all 50 US states between 2011-2014, followed for median 5.3 years. PRIMARY COMPOSITE: invasive cancer of any type OR major cardiovascular event (MI, stroke, or CVD death). RESULT (vitamin D vs placebo): 805/12927 vs 754/12944 invasive cancer events — HR 1.04 (95% CI 0.94-1.16) — NULL. CVD primary composite HR 0.97 (0.85-1.12). Drove LANDMARK FINDING: routine vitamin D supplementation does NOT reduce cancer or CVD in already-replete US adults. Africa relevance: indirect (US-only); but VITAL provides the primary efficacy benchmark for any vitamin-D mega-trial NMA, where contrasts against D-Health and ViDA inform LMIC supplementation policy.',
+                    name: 'VITAL (Manson 2019)', baseline: {n: 25871, age: 67.1, pct_female: 50.7}, pmid: '30415629', phase: 'IV', year: 2019, tE: 805, tN: 12927, cE: 754, cN: 12944, group: 'Manson JE, Cook NR, Lee IM, et al. NEJM 2019;380:33-44 (PMID 30415629). NIH-NHLBI-sponsored 2x2 factorial randomized double-blind placebo-controlled trial of vitamin D3 (cholecalciferol 2000 IU/day) and/or marine omega-3 fatty acids (1g/day, EPA+DHA) in n=25,871 generally healthy US adults aged >=50y (men) or >=55y (women) with no prior cancer or cardiovascular disease, recruited from all 50 US states between 2011-2014, followed for median 5.3 years. PRIMARY COMPOSITE: invasive cancer of any type OR major cardiovascular event (MI, stroke, or CVD death). RESULT (vitamin D vs placebo): 805/12927 vs 754/12944 invasive cancer events — HR 1.04 (95% CI 0.94-1.16) — NULL. CVD primary composite HR 0.97 (0.85-1.12). Drove LANDMARK FINDING: routine vitamin D supplementation does NOT reduce cancer or CVD in already-replete US adults. Africa relevance: indirect (US-only); but VITAL provides the primary efficacy benchmark for any vitamin-D mega-trial NMA, where contrasts against D-Health and ViDA inform LMIC supplementation policy.',
 
                     estimandType: 'HR', publishedHR: 1.04, hrLCI: 0.94, hrUCI: 1.16, pubHR: 1.04,
 
@@ -7428,16 +7428,16 @@
                 // v15.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_sglt2i_hf_nma_v1_0');
+                let saved = localStorage.getItem('rapid_meta_vitamin_d_fracture_fall_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old14 = localStorage.getItem('rapid_meta_sglt2i_hf_nma_v1_0');
+                    const old14 = localStorage.getItem('rapid_meta_vitamin_d_fracture_fall_v1_0');
 
 
-                    if (old14) { saved = old14; localStorage.setItem('rapid_meta_sglt2i_hf_nma_v1_0', old14); }
+                    if (old14) { saved = old14; localStorage.setItem('rapid_meta_vitamin_d_fracture_fall_v1_0', old14); }
 
 
                 }
@@ -7446,22 +7446,10 @@
                 if (!saved) {
 
 
-                    const old13 = localStorage.getItem('rapid_meta_sglt2i_hf_nma_v1_0');
+                    const old13 = localStorage.getItem('rapid_meta_vitamin_d_fracture_fall_v1_0');
 
 
-                    if (old13) { saved = old13; localStorage.setItem('rapid_meta_sglt2i_hf_nma_v1_0', old13); }
-
-
-                }
-
-
-                if (!saved) {
-
-
-                    const old12 = localStorage.getItem('rapid_meta_sglt2i_hf_nma_v1_0');
-
-
-                    if (old12) { saved = old12; localStorage.setItem('rapid_meta_sglt2i_hf_nma_v1_0', old12); }
+                    if (old13) { saved = old13; localStorage.setItem('rapid_meta_vitamin_d_fracture_fall_v1_0', old13); }
 
 
                 }
@@ -7470,22 +7458,10 @@
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_sglt2i_hf_nma_v1_0');
+                    const old12 = localStorage.getItem('rapid_meta_vitamin_d_fracture_fall_v1_0');
 
 
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_sglt2i_hf_nma_v1_0', old11); }
-
-
-                }
-
-
-                if (!saved) {
-
-
-                    const old10 = localStorage.getItem('rapid_meta_sglt2i_hf_nma_v1_0');
-
-
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_sglt2i_hf_nma_v1_0', old10); }
+                    if (old12) { saved = old12; localStorage.setItem('rapid_meta_vitamin_d_fracture_fall_v1_0', old12); }
 
 
                 }
@@ -7494,10 +7470,34 @@
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_sglt2i_hf_nma_v1_0');
+                    const old11 = localStorage.getItem('rapid_meta_vitamin_d_fracture_fall_v1_0');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_sglt2i_hf_nma_v1_0', old93); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_vitamin_d_fracture_fall_v1_0', old11); }
+
+
+                }
+
+
+                if (!saved) {
+
+
+                    const old10 = localStorage.getItem('rapid_meta_vitamin_d_fracture_fall_v1_0');
+
+
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_vitamin_d_fracture_fall_v1_0', old10); }
+
+
+                }
+
+
+                if (!saved) {
+
+
+                    const old93 = localStorage.getItem('rapid_meta_vitamin_d_fracture_fall_v1_0');
+
+
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_vitamin_d_fracture_fall_v1_0', old93); }
 
 
                 }
@@ -7545,7 +7545,7 @@
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_sglt2i_hf_nma_v1_0');
+                        localStorage.removeItem('rapid_meta_vitamin_d_fracture_fall_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -8901,7 +8901,7 @@
 
 
 
-            save() { try { localStorage.setItem('rapid_meta_sglt2i_hf_nma_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_vitamin_d_fracture_fall_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
 
 
             getReviewerId() {
@@ -11670,7 +11670,7 @@
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_sglt2i_hf_nma_v1_0'); localStorage.removeItem('rapid_meta_sglt2i_hf_nma_v1_0'); localStorage.removeItem('rapid_meta_sglt2i_hf_nma_v1_0'); localStorage.removeItem('rapid_meta_sglt2i_hf_nma_v1_0'); localStorage.removeItem('rapid_meta_sglt2i_hf_nma_v1_0'); localStorage.removeItem('rapid_meta_sglt2i_hf_nma_v1_0'); localStorage.removeItem('rapid_meta_sglt2i_hf_nma_v1_0'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_vitamin_d_fracture_fall_v1_0'); localStorage.removeItem('rapid_meta_vitamin_d_fracture_fall_v1_0'); localStorage.removeItem('rapid_meta_vitamin_d_fracture_fall_v1_0'); localStorage.removeItem('rapid_meta_vitamin_d_fracture_fall_v1_0'); localStorage.removeItem('rapid_meta_vitamin_d_fracture_fall_v1_0'); localStorage.removeItem('rapid_meta_vitamin_d_fracture_fall_v1_0'); localStorage.removeItem('rapid_meta_vitamin_d_fracture_fall_v1_0'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -45490,6 +45490,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

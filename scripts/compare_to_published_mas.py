@@ -19,7 +19,7 @@ import sys, io, csv, re
 from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-REPO_DIR = Path("C:/Projects/Finrenone")
+REPO_DIR = Path(__file__).resolve().parent.parent
 OUT_CSV = REPO_DIR / "outputs" / "published_ma_comparison.csv"
 
 # Hand-curated canonical published primary effect estimates for high-impact trials.

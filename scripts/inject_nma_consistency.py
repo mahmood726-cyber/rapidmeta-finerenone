@@ -18,7 +18,7 @@ import sys, io, argparse, re
 from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-REPO = Path("C:/Projects/Finrenone")
+REPO = Path(__file__).resolve().parent.parent
 
 SCRIPT_TAG_AFTER_PAIRWISE = (
     '\n    <!-- NMA consistency: direct/indirect node-split + Fisher-combined inconsistency test (NMA Pro v8 transplant) -->\n'

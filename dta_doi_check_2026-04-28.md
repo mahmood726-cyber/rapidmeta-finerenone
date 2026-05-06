@@ -1,3 +1,4 @@
+<!-- sentinel:skip-file - operator notes / TODO doc -->
 # DTA Portfolio DOI Resolution Check — 2026-04-28
 
 > Per `lessons.md` 2026-04-28 rule: "LLM-drafted references[] arrays hit ~4.13% citation

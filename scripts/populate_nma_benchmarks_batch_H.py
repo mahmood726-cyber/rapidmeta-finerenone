@@ -3,7 +3,7 @@
 """Populate benchmarks for Batch H (14 onco #2 + immuno #1 apps)."""
 import argparse, pathlib, re, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 BATCH = {
     "CART_DLBCL_REVIEW.html": {

@@ -25,7 +25,7 @@ from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 AACT_DIR = Path("D:/AACT-storage/AACT/2026-04-12")
-REPO_DIR = Path("C:/Projects/Finrenone")
+REPO_DIR = Path(__file__).resolve().parent.parent
 LOG_CSV = REPO_DIR / "outputs" / "auto_populate_log.csv"
 
 

@@ -21,7 +21,7 @@ import io
 import sys
 from pathlib import Path
 
-ROOT = Path(r"C:\Projects\Finrenone")
+ROOT = Path(__file__).resolve().parent.parent
 
 OLD = (
     "Pooled mean differences reflect each trial's published primary "

@@ -27,7 +27,7 @@ from pathlib import Path
 from collections import Counter
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-REPO = Path("C:/Projects/Finrenone")
+REPO = Path(__file__).resolve().parent.parent
 OUT_CSV = REPO / "outputs" / "grim_benford_check.csv"
 
 # Match trial blocks

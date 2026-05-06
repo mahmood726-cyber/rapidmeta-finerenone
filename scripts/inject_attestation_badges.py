@@ -9,7 +9,7 @@ import sys, io, argparse, re
 from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-REPO = Path("C:/Projects/Finrenone")
+REPO = Path(__file__).resolve().parent.parent
 
 VERDICT_INCLUDE_RE = re.compile(r'<script\s+src="vendor/verdict-badge\.js"\s*></script>')
 HEAD_CLOSE_RE = re.compile(r'</head>')

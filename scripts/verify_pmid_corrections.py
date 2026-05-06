@@ -17,7 +17,7 @@ from pathlib import Path
 from urllib.request import urlopen, Request
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-REPO = Path("C:/Projects/Finrenone")
+REPO = Path(__file__).resolve().parent.parent
 
 # Title patterns that signal NOT-a-primary-trial-paper
 NON_PRIMARY_PATTERNS = [

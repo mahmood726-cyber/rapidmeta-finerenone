@@ -5,7 +5,7 @@ other _REVIEW.html apps. Three byte-exact edits per file, idempotent.
 """
 import argparse, pathlib, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 SENTINEL = "// Preserve trial-level tE/cE when the outcome entry omits them"
 
 EDIT1_OLD = (

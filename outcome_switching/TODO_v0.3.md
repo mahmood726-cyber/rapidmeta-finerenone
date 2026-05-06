@@ -1,3 +1,4 @@
+<!-- sentinel:skip-file - operator notes / TODO doc -->
 # Outcome-switching MA — v0.3 follow-up
 
 > Created 2026-04-30 after the n=22 v0.2 ship (commit `fa9ffb5`).

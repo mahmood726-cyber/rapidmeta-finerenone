@@ -7361,7 +7361,7 @@
                 'NCT03734029': {
 
 
-                    name: 'DESTINY-Breast04', pmid: '35665782', phase: 'III', year: 2022, tE: 184, tN: 373, cE: 127, cN: 184, group: 'Trastuzumab Deruxtecan (T-DXd) 5.4 mg/kg IV q3w | ADC (HER2-low MBC IHC 1+ or IHC 2+/ISH-, previously treated; vs Treatment of Physician’s Choice chemo)', publishedHR: 0.50, hrLCI: 0.40, hrUCI: 0.63,
+                    name: 'DESTINY-Breast04', baseline: {n: 557, age: 56.5}, pmid: '35665782', phase: 'III', year: 2022, tE: 184, tN: 373, cE: 127, cN: 184, group: 'Trastuzumab Deruxtecan (T-DXd) 5.4 mg/kg IV q3w | ADC (HER2-low MBC IHC 1+ or IHC 2+/ISH-, previously treated; vs Treatment of Physician’s Choice chemo)', publishedHR: 0.50, hrLCI: 0.40, hrUCI: 0.63,
 
 
                     allOutcomes: [ { shortLabel: 'PFS', title: 'BICR PFS T-DXd vs TPC in HER2-low MBC overall population (DESTINY-Breast04 primary; median follow-up 18.4 mo)', type: 'PRIMARY', pubHR: 0.50, pubHR_LCI: 0.40, pubHR_UCI: 0.63 } ],
@@ -7387,7 +7387,7 @@
                 'NCT04494425': {
 
 
-                    name: 'DESTINY-Breast06', pmid: '39282896', phase: 'III', year: 2024, tE: 235, tN: 436, cE: 274, cN: 430, group: 'Trastuzumab Deruxtecan (T-DXd) 5.4 mg/kg IV q3w | ADC (HR+ HER2-low or HER2-ultralow MBC, chemo-naive in MBC; vs Treatment of Physician’s Choice chemo)', publishedHR: 0.62, hrLCI: 0.52, hrUCI: 0.75,
+                    name: 'DESTINY-Breast06', baseline: {n: 866, age: 58.2}, pmid: '39282896', phase: 'III', year: 2024, tE: 235, tN: 436, cE: 274, cN: 430, group: 'Trastuzumab Deruxtecan (T-DXd) 5.4 mg/kg IV q3w | ADC (HR+ HER2-low or HER2-ultralow MBC, chemo-naive in MBC; vs Treatment of Physician’s Choice chemo)', publishedHR: 0.62, hrLCI: 0.52, hrUCI: 0.75,
 
 
                     allOutcomes: [ { shortLabel: 'PFS', title: 'BICR PFS T-DXd vs TPC in HER2-low HR+ MBC (DESTINY-Breast06 primary; chemo-naive MBC after progression on endocrine therapy)', type: 'PRIMARY', pubHR: 0.62, pubHR_LCI: 0.52, pubHR_UCI: 0.75 } ],
@@ -7422,16 +7422,16 @@
                 // v15.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_adc_her2_low_nma_v1_0');
+                let saved = localStorage.getItem('rapid_meta_adc_her2_low_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old14 = localStorage.getItem('rapid_meta_adc_her2_low_nma_v1_0');
+                    const old14 = localStorage.getItem('rapid_meta_adc_her2_low_v1_0');
 
 
-                    if (old14) { saved = old14; localStorage.setItem('rapid_meta_adc_her2_low_nma_v1_0', old14); }
+                    if (old14) { saved = old14; localStorage.setItem('rapid_meta_adc_her2_low_v1_0', old14); }
 
 
                 }
@@ -7440,22 +7440,10 @@
                 if (!saved) {
 
 
-                    const old13 = localStorage.getItem('rapid_meta_adc_her2_low_nma_v1_0');
+                    const old13 = localStorage.getItem('rapid_meta_adc_her2_low_v1_0');
 
 
-                    if (old13) { saved = old13; localStorage.setItem('rapid_meta_adc_her2_low_nma_v1_0', old13); }
-
-
-                }
-
-
-                if (!saved) {
-
-
-                    const old12 = localStorage.getItem('rapid_meta_adc_her2_low_nma_v1_0');
-
-
-                    if (old12) { saved = old12; localStorage.setItem('rapid_meta_adc_her2_low_nma_v1_0', old12); }
+                    if (old13) { saved = old13; localStorage.setItem('rapid_meta_adc_her2_low_v1_0', old13); }
 
 
                 }
@@ -7464,22 +7452,10 @@
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_adc_her2_low_nma_v1_0');
+                    const old12 = localStorage.getItem('rapid_meta_adc_her2_low_v1_0');
 
 
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_adc_her2_low_nma_v1_0', old11); }
-
-
-                }
-
-
-                if (!saved) {
-
-
-                    const old10 = localStorage.getItem('rapid_meta_adc_her2_low_nma_v1_0');
-
-
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_adc_her2_low_nma_v1_0', old10); }
+                    if (old12) { saved = old12; localStorage.setItem('rapid_meta_adc_her2_low_v1_0', old12); }
 
 
                 }
@@ -7488,10 +7464,34 @@
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_adc_her2_low_nma_v1_0');
+                    const old11 = localStorage.getItem('rapid_meta_adc_her2_low_v1_0');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_adc_her2_low_nma_v1_0', old93); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_adc_her2_low_v1_0', old11); }
+
+
+                }
+
+
+                if (!saved) {
+
+
+                    const old10 = localStorage.getItem('rapid_meta_adc_her2_low_v1_0');
+
+
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_adc_her2_low_v1_0', old10); }
+
+
+                }
+
+
+                if (!saved) {
+
+
+                    const old93 = localStorage.getItem('rapid_meta_adc_her2_low_v1_0');
+
+
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_adc_her2_low_v1_0', old93); }
 
 
                 }
@@ -7539,7 +7539,7 @@
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_adc_her2_low_nma_v1_0');
+                        localStorage.removeItem('rapid_meta_adc_her2_low_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -8895,7 +8895,7 @@
 
 
 
-            save() { try { localStorage.setItem('rapid_meta_adc_her2_low_nma_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_adc_her2_low_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
 
 
             getReviewerId() {
@@ -11664,7 +11664,7 @@
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_adc_her2_low_nma_v1_0'); localStorage.removeItem('rapid_meta_adc_her2_low_nma_v1_0'); localStorage.removeItem('rapid_meta_adc_her2_low_nma_v1_0'); localStorage.removeItem('rapid_meta_adc_her2_low_nma_v1_0'); localStorage.removeItem('rapid_meta_adc_her2_low_nma_v1_0'); localStorage.removeItem('rapid_meta_adc_her2_low_nma_v1_0'); localStorage.removeItem('rapid_meta_adc_her2_low_nma_v1_0'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_adc_her2_low_v1_0'); localStorage.removeItem('rapid_meta_adc_her2_low_v1_0'); localStorage.removeItem('rapid_meta_adc_her2_low_v1_0'); localStorage.removeItem('rapid_meta_adc_her2_low_v1_0'); localStorage.removeItem('rapid_meta_adc_her2_low_v1_0'); localStorage.removeItem('rapid_meta_adc_her2_low_v1_0'); localStorage.removeItem('rapid_meta_adc_her2_low_v1_0'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -45430,6 +45430,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

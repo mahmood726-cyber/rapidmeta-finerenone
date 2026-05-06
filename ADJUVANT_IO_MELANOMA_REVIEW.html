@@ -7093,7 +7093,7 @@ const ContinuousMDEngine = {
                 'NCT02362594': {
 
 
-                    name: 'KEYNOTE-054', pmid: '29658430', phase: 'III', year: 2018, tE: 135, tN: 514, cE: 216, cN: 505, group: 'Adjuvant pembrolizumab vs placebo, completely-resected stage III melanoma; primary endpoint RFS', publishedHR: 0.57, hrLCI: 0.43, hrUCI: 0.74, pubHR: 0.57, pubHR_LCI: 0.43, pubHR_UCI: 0.74,
+                    name: 'KEYNOTE-054', baseline: {n: 1019, age: 53.9, pct_female: 37.0}, pmid: '29658430', phase: 'III', year: 2018, tE: 135, tN: 514, cE: 216, cN: 505, group: 'Adjuvant pembrolizumab vs placebo, completely-resected stage III melanoma; primary endpoint RFS', publishedHR: 0.57, hrLCI: 0.43, hrUCI: 0.74, pubHR: 0.57, pubHR_LCI: 0.43, pubHR_UCI: 0.74,
 
 
                     allOutcomes: [
@@ -7124,7 +7124,7 @@ const ContinuousMDEngine = {
                 'NCT02388906': {
 
 
-                    name: 'CheckMate-238', pmid: '28891423', phase: 'III', year: 2017, tE: 154, tN: 453, cE: 206, cN: 453, group: 'Adjuvant nivolumab vs ipilimumab 10 mg/kg, completely-resected stage IIIB-C / IV melanoma; primary endpoint RFS', publishedHR: 0.65, hrLCI: 0.51, hrUCI: 0.83, pubHR: 0.65, pubHR_LCI: 0.51, pubHR_UCI: 0.83,
+                    name: 'CheckMate-238', baseline: {n: 906, age: 54.4}, pmid: '28891423', phase: 'III', year: 2017, tE: 154, tN: 453, cE: 206, cN: 453, group: 'Adjuvant nivolumab vs ipilimumab 10 mg/kg, completely-resected stage IIIB-C / IV melanoma; primary endpoint RFS', publishedHR: 0.65, hrLCI: 0.51, hrUCI: 0.83, pubHR: 0.65, pubHR_LCI: 0.51, pubHR_UCI: 0.83,
 
 
                     allOutcomes: [
@@ -7155,7 +7155,7 @@ const ContinuousMDEngine = {
                 'NCT01682083': {
 
 
-                    name: 'COMBI-AD', pmid: '28891408', phase: 'III', year: 2017, tE: 166, tN: 438, cE: 248, cN: 432, group: 'Adjuvant dabrafenib + trametinib vs placebo, completely-resected stage III BRAF V600E/K-mutant melanoma; primary endpoint RFS', publishedHR: 0.47, hrLCI: 0.39, hrUCI: 0.58, pubHR: 0.47, pubHR_LCI: 0.39, pubHR_UCI: 0.58,
+                    name: 'COMBI-AD', baseline: {n: 870, age: 50.4}, pmid: '28891408', phase: 'III', year: 2017, tE: 166, tN: 438, cE: 248, cN: 432, group: 'Adjuvant dabrafenib + trametinib vs placebo, completely-resected stage III BRAF V600E/K-mutant melanoma; primary endpoint RFS', publishedHR: 0.47, hrLCI: 0.39, hrUCI: 0.58, pubHR: 0.47, pubHR_LCI: 0.39, pubHR_UCI: 0.58,
 
 
                     allOutcomes: [
@@ -7202,7 +7202,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_io_chemo_nsclc_1l_v0_9');
+                    const old11 = localStorage.getItem('rapid_meta_adjuvant_io_melanoma_v0_9');
 
 
                     if (old11) { saved = old11; localStorage.setItem('rapid_meta_adjuvant_io_melanoma_v1_0', old11); }
@@ -7214,7 +7214,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_io_chemo_nsclc_1l_v0_8');
+                    const old10 = localStorage.getItem('rapid_meta_adjuvant_io_melanoma_v0_8');
 
 
                     if (old10) { saved = old10; localStorage.setItem('rapid_meta_adjuvant_io_melanoma_v1_0', old10); }
@@ -7226,7 +7226,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_io_chemo_nsclc_1l_v0_7');
+                    const old93 = localStorage.getItem('rapid_meta_adjuvant_io_melanoma_v0_7');
 
 
                     if (old93) { saved = old93; localStorage.setItem('rapid_meta_adjuvant_io_melanoma_v1_0', old93); }
@@ -11203,7 +11203,7 @@ const ContinuousMDEngine = {
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_adjuvant_io_melanoma_v1_0'); localStorage.removeItem('rapid_meta_io_chemo_nsclc_1l_v0_9'); localStorage.removeItem('rapid_meta_io_chemo_nsclc_1l_v0_8'); localStorage.removeItem('rapid_meta_io_chemo_nsclc_1l_v0_7'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_adjuvant_io_melanoma_v1_0'); localStorage.removeItem('rapid_meta_adjuvant_io_melanoma_v0_9'); localStorage.removeItem('rapid_meta_adjuvant_io_melanoma_v0_8'); localStorage.removeItem('rapid_meta_adjuvant_io_melanoma_v0_7'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -43833,6 +43833,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

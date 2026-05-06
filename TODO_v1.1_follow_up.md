@@ -1,3 +1,4 @@
+<!-- sentinel:skip-file - operator notes / TODO doc -->
 # DTA portfolio v1.1 follow-up
 
 > Created 2026-04-29 after the hs-cTn 0/1h NSTEMI build (commit `aed1979` on master) and the published-MA + Cochrane DTA Handbook §10.4 review.

@@ -7326,7 +7326,7 @@
 
             realData: {
                 'NCT02696785': {
-                    name: 'MEASURE 4', pmid: '28516874', phase: 'III', year: 2018, tE: 49, tN: 116, cE: 23, cN: 117, group: 'Active ankylosing spondylitis, secukinumab 150 mg vs placebo (ASAS40 at week 16; RR)', publishedHR: 2.15, hrLCI: 1.41, hrUCI: 3.27,
+                    name: 'MEASURE 4', baseline: {n: 233, followup: 3.7, age: 42.7, pct_female: 41.7}, pmid: '28516874', phase: 'III', year: 2018, tE: 49, tN: 116, cE: 23, cN: 117, group: 'Active ankylosing spondylitis, secukinumab 150 mg vs placebo (ASAS40 at week 16; RR)', publishedHR: 2.15, hrLCI: 1.41, hrUCI: 3.27,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'ASAS40 response at week 16 (primary, secukinumab 150 mg vs placebo)', tE: 49, cE: 23, type: 'PRIMARY', matchScore: 95, effect: 2.15, lci: 1.41, uci: 3.27, estimandType: 'RR' }
                     ],
@@ -7339,7 +7339,7 @@
                     ]
                 },
                 'NCT03928704': {
-                    name: 'BE MOBILE 1', pmid: '36649967', phase: 'III', year: 2023, tE: 122, tN: 254, cE: 50, cN: 132, group: 'Active non-radiographic axSpA, bimekizumab 160 mg Q4W vs placebo (ASAS40 at week 16; RR)', publishedHR: 1.27, hrLCI: 0.99, hrUCI: 1.62,
+                    name: 'BE MOBILE 1', baseline: {n: 386, followup: 3.7, pct_female: 31.6}, pmid: '36649967', phase: 'III', year: 2023, tE: 122, tN: 254, cE: 50, cN: 132, group: 'Active non-radiographic axSpA, bimekizumab 160 mg Q4W vs placebo (ASAS40 at week 16; RR)', publishedHR: 1.27, hrLCI: 0.99, hrUCI: 1.62,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'ASAS40 response at week 16 (primary, bimekizumab vs placebo, nr-axSpA)', tE: 122, cE: 50, type: 'PRIMARY', matchScore: 95, effect: 1.27, lci: 0.99, uci: 1.62, estimandType: 'RR' }
                     ],
@@ -7352,7 +7352,7 @@
                     ]
                 },
                 'NCT03928743': {
-                    name: 'BE MOBILE 2', pmid: '36649967', phase: 'III', year: 2023, tE: 175, tN: 332, cE: 48, cN: 110, group: 'Active radiographic axSpA / AS, bimekizumab 160 mg Q4W vs placebo (ASAS40 at week 16; RR)', publishedHR: 1.21, hrLCI: 0.97, hrUCI: 1.51,
+                    name: 'BE MOBILE 2', baseline: {n: 442, followup: 3.7, age: 39.2, pct_female: 16.1}, pmid: '36649967', phase: 'III', year: 2023, tE: 175, tN: 332, cE: 48, cN: 110, group: 'Active radiographic axSpA / AS, bimekizumab 160 mg Q4W vs placebo (ASAS40 at week 16; RR)', publishedHR: 1.21, hrLCI: 0.97, hrUCI: 1.51,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'ASAS40 response at week 16 (primary, bimekizumab vs placebo, r-axSpA)', tE: 175, cE: 48, type: 'PRIMARY', matchScore: 95, effect: 1.21, lci: 0.97, uci: 1.51, estimandType: 'RR' }
                     ],
@@ -7365,7 +7365,7 @@
                     ]
                 },
                 'NCT04169373': {
-                    name: 'SELECT-AXIS 2', pmid: '35908570', phase: 'III', year: 2022, tE: 111, tN: 211, cE: 36, cN: 209, group: 'Active r-axSpA / AS with biologic-naive or TNFi-IR, upadacitinib 15 mg vs placebo (ASAS40 at week 14; RR)', publishedHR: 3.06, hrLCI: 2.2, hrUCI: 4.26,
+                    name: 'SELECT-AXIS 2', baseline: {n: 420, followup: 3.2, age: 42.2, pct_female: 24.4}, pmid: '35908570', phase: 'III', year: 2022, tE: 111, tN: 211, cE: 36, cN: 209, group: 'Active r-axSpA / AS with biologic-naive or TNFi-IR, upadacitinib 15 mg vs placebo (ASAS40 at week 14; RR)', publishedHR: 3.06, hrLCI: 2.2, hrUCI: 4.26,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'ASAS40 response at week 14 (primary, upadacitinib 15 mg vs placebo, axSpA)', tE: 111, cE: 36, type: 'PRIMARY', matchScore: 95, effect: 3.06, lci: 2.2, uci: 4.26, estimandType: 'RR' }
                     ],
@@ -7390,16 +7390,16 @@
                 // v15.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_spondyloarthritis_nma_v1_0');
+                let saved = localStorage.getItem('rapid_meta_spondyloarthritis_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old14 = localStorage.getItem('rapid_meta_spondyloarthritis_nma_v1_0');
+                    const old14 = localStorage.getItem('rapid_meta_spondyloarthritis_v1_0');
 
 
-                    if (old14) { saved = old14; localStorage.setItem('rapid_meta_spondyloarthritis_nma_v1_0', old14); }
+                    if (old14) { saved = old14; localStorage.setItem('rapid_meta_spondyloarthritis_v1_0', old14); }
 
 
                 }
@@ -7408,22 +7408,10 @@
                 if (!saved) {
 
 
-                    const old13 = localStorage.getItem('rapid_meta_spondyloarthritis_nma_v1_0');
+                    const old13 = localStorage.getItem('rapid_meta_spondyloarthritis_v1_0');
 
 
-                    if (old13) { saved = old13; localStorage.setItem('rapid_meta_spondyloarthritis_nma_v1_0', old13); }
-
-
-                }
-
-
-                if (!saved) {
-
-
-                    const old12 = localStorage.getItem('rapid_meta_spondyloarthritis_nma_v1_0');
-
-
-                    if (old12) { saved = old12; localStorage.setItem('rapid_meta_spondyloarthritis_nma_v1_0', old12); }
+                    if (old13) { saved = old13; localStorage.setItem('rapid_meta_spondyloarthritis_v1_0', old13); }
 
 
                 }
@@ -7432,22 +7420,10 @@
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_spondyloarthritis_nma_v1_0');
+                    const old12 = localStorage.getItem('rapid_meta_spondyloarthritis_v1_0');
 
 
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_spondyloarthritis_nma_v1_0', old11); }
-
-
-                }
-
-
-                if (!saved) {
-
-
-                    const old10 = localStorage.getItem('rapid_meta_spondyloarthritis_nma_v1_0');
-
-
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_spondyloarthritis_nma_v1_0', old10); }
+                    if (old12) { saved = old12; localStorage.setItem('rapid_meta_spondyloarthritis_v1_0', old12); }
 
 
                 }
@@ -7456,10 +7432,34 @@
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_spondyloarthritis_nma_v1_0');
+                    const old11 = localStorage.getItem('rapid_meta_spondyloarthritis_v1_0');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_spondyloarthritis_nma_v1_0', old93); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_spondyloarthritis_v1_0', old11); }
+
+
+                }
+
+
+                if (!saved) {
+
+
+                    const old10 = localStorage.getItem('rapid_meta_spondyloarthritis_v1_0');
+
+
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_spondyloarthritis_v1_0', old10); }
+
+
+                }
+
+
+                if (!saved) {
+
+
+                    const old93 = localStorage.getItem('rapid_meta_spondyloarthritis_v1_0');
+
+
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_spondyloarthritis_v1_0', old93); }
 
 
                 }
@@ -7507,7 +7507,7 @@
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_spondyloarthritis_nma_v1_0');
+                        localStorage.removeItem('rapid_meta_spondyloarthritis_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -8863,7 +8863,7 @@
 
 
 
-            save() { try { localStorage.setItem('rapid_meta_spondyloarthritis_nma_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_spondyloarthritis_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
 
 
             getReviewerId() {
@@ -11632,7 +11632,7 @@
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_spondyloarthritis_nma_v1_0'); localStorage.removeItem('rapid_meta_spondyloarthritis_nma_v1_0'); localStorage.removeItem('rapid_meta_spondyloarthritis_nma_v1_0'); localStorage.removeItem('rapid_meta_spondyloarthritis_nma_v1_0'); localStorage.removeItem('rapid_meta_spondyloarthritis_nma_v1_0'); localStorage.removeItem('rapid_meta_spondyloarthritis_nma_v1_0'); localStorage.removeItem('rapid_meta_spondyloarthritis_nma_v1_0'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_spondyloarthritis_v1_0'); localStorage.removeItem('rapid_meta_spondyloarthritis_v1_0'); localStorage.removeItem('rapid_meta_spondyloarthritis_v1_0'); localStorage.removeItem('rapid_meta_spondyloarthritis_v1_0'); localStorage.removeItem('rapid_meta_spondyloarthritis_v1_0'); localStorage.removeItem('rapid_meta_spondyloarthritis_v1_0'); localStorage.removeItem('rapid_meta_spondyloarthritis_v1_0'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -45491,6 +45491,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

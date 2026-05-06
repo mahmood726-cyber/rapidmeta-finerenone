@@ -3,7 +3,7 @@
 """Populate benchmarks for Batch B (6 immuno/derm/rheum/GI NMAs)."""
 import argparse, pathlib, re, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 BATCH = {
     "IL_PSORIASIS_NMA_REVIEW.html": {

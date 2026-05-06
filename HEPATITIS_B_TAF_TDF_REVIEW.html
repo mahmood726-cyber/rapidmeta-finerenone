@@ -5199,7 +5199,7 @@
 
                 'NCT01940341': {
 
-                    name: 'GS-US-320-0108 (TAF vs TDF, HBeAg-negative)', pmid: '28404092', phase: 'III', year: 2016, tE: 268, tN: 285, cE: 130, cN: 140, group: 'Buti M et al. Lancet Gastroenterology and Hepatology 2016;1:196-206. Phase 3 multicentre randomized double-blind active-controlled non-inferiority trial. Adults aged 18+ with HBeAg-negative chronic hepatitis B (HBV DNA >=20,000 IU/mL, ALT >ULN). Randomized 2:1 to TAF 25mg QD (n=285) vs TDF 300mg QD (n=140). Primary endpoint: HBV DNA <29 IU/mL at Week 48 (FDA snapshot). Result: TAF 268/285 (94.0%) vs TDF 130/140 (92.9%); difference 1.1pp (95% CI -3.5 to 5.7), non-inferior at -10pp margin. Renal/bone safety advantages: smaller declines in eGFR-CG and hip/spine BMD with TAF. Drove EMA/FDA TAF approval Nov 2016. Africa relevance: HBV prevalence 6.1% across sub-Saharan Africa (highest WHO region) — Buti+Chan trials are the pivotal evidence supporting WHO 2024 guideline recommendation for TAF as preferred NA in low-bone-mineral-density and renal-impairment populations.',
+                    name: 'GS-US-320-0108 (TAF vs TDF, HBeAg-negative)', baseline: {n: 425, followup: 11.0, age: 45.0, pct_female: 58.0}, pmid: '28404092', phase: 'III', year: 2016, tE: 268, tN: 285, cE: 130, cN: 140, group: 'Buti M et al. Lancet Gastroenterology and Hepatology 2016;1:196-206. Phase 3 multicentre randomized double-blind active-controlled non-inferiority trial. Adults aged 18+ with HBeAg-negative chronic hepatitis B (HBV DNA >=20,000 IU/mL, ALT >ULN). Randomized 2:1 to TAF 25mg QD (n=285) vs TDF 300mg QD (n=140). Primary endpoint: HBV DNA <29 IU/mL at Week 48 (FDA snapshot). Result: TAF 268/285 (94.0%) vs TDF 130/140 (92.9%); difference 1.1pp (95% CI -3.5 to 5.7), non-inferior at -10pp margin. Renal/bone safety advantages: smaller declines in eGFR-CG and hip/spine BMD with TAF. Drove EMA/FDA TAF approval Nov 2016. Africa relevance: HBV prevalence 6.1% across sub-Saharan Africa (highest WHO region) — Buti+Chan trials are the pivotal evidence supporting WHO 2024 guideline recommendation for TAF as preferred NA in low-bone-mineral-density and renal-impairment populations.',
 
                     estimandType: 'RR', publishedHR: 1.01, hrLCI: 0.96, hrUCI: 1.07, pubHR: 1.01,
 
@@ -5222,7 +5222,7 @@
 
                 'NCT01940471': {
 
-                    name: 'GS-US-320-0110 (TAF vs TDF, HBeAg-positive)', pmid: '28404091', phase: 'III', year: 2016, tE: 371, tN: 581, cE: 195, cN: 292, group: 'Chan HLY et al. Lancet Gastroenterology and Hepatology 2016;1:185-195 (and Agarwal 2018 J Hepatol 2-year follow-up). Phase 3 multicentre randomized double-blind active-controlled non-inferiority trial. Adults aged 18+ with HBeAg-positive chronic hepatitis B (HBV DNA >=20,000 IU/mL, ALT >ULN). Randomized 2:1 to TAF 25mg QD (n=581) vs TDF 300mg QD (n=292). Primary endpoint: HBV DNA <29 IU/mL at Week 48. Result: TAF 371/581 (63.9%) vs TDF 195/292 (66.8%); difference -2.9pp (95% CI -9.0 to 3.2), non-inferior at -10pp margin. Renal/bone safety advantages preserved. Buti+Chan together = 1,298-patient pivotal pooled evidence base. Africa relevance: HBeAg-positive disease is more common in younger sub-Saharan African populations infected vertically; TAF preferred for bone/kidney-spared long-term suppression in adolescents and pregnant women.',
+                    name: 'GS-US-320-0110 (TAF vs TDF, HBeAg-positive)', baseline: {n: 873, followup: 24.0, age: 38.0}, pmid: '28404091', phase: 'III', year: 2016, tE: 371, tN: 581, cE: 195, cN: 292, group: 'Chan HLY et al. Lancet Gastroenterology and Hepatology 2016;1:185-195 (and Agarwal 2018 J Hepatol 2-year follow-up). Phase 3 multicentre randomized double-blind active-controlled non-inferiority trial. Adults aged 18+ with HBeAg-positive chronic hepatitis B (HBV DNA >=20,000 IU/mL, ALT >ULN). Randomized 2:1 to TAF 25mg QD (n=581) vs TDF 300mg QD (n=292). Primary endpoint: HBV DNA <29 IU/mL at Week 48. Result: TAF 371/581 (63.9%) vs TDF 195/292 (66.8%); difference -2.9pp (95% CI -9.0 to 3.2), non-inferior at -10pp margin. Renal/bone safety advantages preserved. Buti+Chan together = 1,298-patient pivotal pooled evidence base. Africa relevance: HBeAg-positive disease is more common in younger sub-Saharan African populations infected vertically; TAF preferred for bone/kidney-spared long-term suppression in adolescents and pregnant women.',
 
                     estimandType: 'RR', publishedHR: 0.96, hrLCI: 0.87, hrUCI: 1.05, pubHR: 0.96,
 
@@ -5550,16 +5550,16 @@
                 // v11.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_sglt2hf_v1_0');
+                let saved = localStorage.getItem('rapid_meta_hepatitis_b_taf_tdf_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_sglt2hf_v0_9');
+                    const old10 = localStorage.getItem('rapid_meta_hepatitis_b_taf_tdf_v0_9');
 
 
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_sglt2hf_v1_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_hepatitis_b_taf_tdf_v1_0', old10); }
 
 
                 }
@@ -5568,10 +5568,10 @@
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_sglt2hf_v0_8');
+                    const old93 = localStorage.getItem('rapid_meta_hepatitis_b_taf_tdf_v0_8');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_sglt2hf_v1_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_hepatitis_b_taf_tdf_v1_0', old93); }
 
 
                 }
@@ -5607,7 +5607,7 @@
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_sglt2hf_v1_0');
+                        localStorage.removeItem('rapid_meta_hepatitis_b_taf_tdf_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -6864,7 +6864,7 @@
                 try {
 
 
-                    localStorage.setItem('rapid_meta_sglt2hf_v1_0', JSON.stringify(this.state));
+                    localStorage.setItem('rapid_meta_hepatitis_b_taf_tdf_v1_0', JSON.stringify(this.state));
 
 
                 } catch(e) {
@@ -8934,7 +8934,7 @@
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_sglt2hf_v1_0'); localStorage.removeItem('rapid_meta_sglt2hf_v0_9'); localStorage.removeItem('rapid_meta_sglt2hf_v0_8'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_hepatitis_b_taf_tdf_v1_0'); localStorage.removeItem('rapid_meta_hepatitis_b_taf_tdf_v0_9'); localStorage.removeItem('rapid_meta_hepatitis_b_taf_tdf_v0_8'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -36231,6 +36231,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

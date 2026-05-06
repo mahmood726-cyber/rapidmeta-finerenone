@@ -7062,7 +7062,7 @@ const ContinuousMDEngine = {
 
             realData: {
                 'NCT03434379': {
-                    name: 'IMbrave150', pmid: '32402160', phase: 'III', year: 2020, tE: 137, tN: 336, cE: 86, cN: 165, group: 'Unresectable HCC (1L), atezolizumab + bevacizumab vs sorafenib (OS HR)', publishedHR: 0.66, hrLCI: 0.52, hrUCI: 0.85,
+                    name: 'IMbrave150', baseline: {n: 501, age: 64.4, pct_female: 17.0}, pmid: '32402160', phase: 'III', year: 2020, tE: 137, tN: 336, cE: 86, cN: 165, group: 'Unresectable HCC (1L), atezolizumab + bevacizumab vs sorafenib (OS HR)', publishedHR: 0.66, hrLCI: 0.52, hrUCI: 0.85,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'Overall survival (co-primary, atezo+bev vs sorafenib in 1L HCC)', tE: 137, cE: 86, type: 'PRIMARY', matchScore: 95, effect: 0.66, lci: 0.52, uci: 0.85, estimandType: 'RR' }
                     ],
@@ -7076,7 +7076,7 @@ const ContinuousMDEngine = {
                     ]
                 },
                 'NCT03298451': {
-                    name: 'HIMALAYA', pmid: '40222621', phase: 'III', year: 2022, tE: 234, tN: 393, cE: 198, cN: 389, group: 'Unresectable HCC (1L), STRIDE (durvalumab + tremelimumab) vs sorafenib (OS HR)', publishedHR: 0.78, hrLCI: 0.65, hrUCI: 0.93,
+                    name: 'HIMALAYA', baseline: {n: 782, age: 62.6}, pmid: '40222621', phase: 'III', year: 2022, tE: 234, tN: 393, cE: 198, cN: 389, group: 'Unresectable HCC (1L), STRIDE (durvalumab + tremelimumab) vs sorafenib (OS HR)', publishedHR: 0.78, hrLCI: 0.65, hrUCI: 0.93,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'Overall survival (primary, STRIDE vs sorafenib in 1L HCC)', tE: 234, cE: 198, type: 'PRIMARY', matchScore: 95, effect: 0.78, lci: 0.65, uci: 0.93, estimandType: 'RR' }
                     ],
@@ -7089,7 +7089,7 @@ const ContinuousMDEngine = {
                     ]
                 },
                 'NCT04039607': {
-                    name: 'CheckMate 9DW', pmid: '40349714', phase: 'III', year: 2024, tE: 268, tN: 335, cE: 281, cN: 333, group: 'Unresectable HCC (1L), nivolumab + ipilimumab vs sorafenib or lenvatinib (OS HR)', publishedHR: 0.79, hrLCI: 0.65, hrUCI: 0.96,
+                    name: 'CheckMate 9DW', baseline: {n: 668}, pmid: '40349714', phase: 'III', year: 2024, tE: 268, tN: 335, cE: 281, cN: 333, group: 'Unresectable HCC (1L), nivolumab + ipilimumab vs sorafenib or lenvatinib (OS HR)', publishedHR: 0.79, hrLCI: 0.65, hrUCI: 0.96,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'Overall survival (primary, nivo+ipi vs sorafenib/lenvatinib in 1L HCC)', tE: 268, cE: 281, type: 'PRIMARY', matchScore: 95, effect: 0.79, lci: 0.65, uci: 0.96, estimandType: 'RR' }
                     ],
@@ -7102,7 +7102,7 @@ const ContinuousMDEngine = {
                     ]
                 },
                 'NCT03713593': {
-                    name: 'LEAP-002', pmid: '38039993', phase: 'III', year: 2023, tE: 205, tN: 395, cE: 213, cN: 399, group: 'Unresectable HCC (1L), lenvatinib + pembrolizumab vs lenvatinib (OS HR; did not meet pre-specified)', publishedHR: 0.84, hrLCI: 0.71, hrUCI: 1.01,
+                    name: 'LEAP-002', baseline: {n: 794, age: 64.2}, pmid: '38039993', phase: 'III', year: 2023, tE: 205, tN: 395, cE: 213, cN: 399, group: 'Unresectable HCC (1L), lenvatinib + pembrolizumab vs lenvatinib (OS HR; did not meet pre-specified)', publishedHR: 0.84, hrLCI: 0.71, hrUCI: 1.01,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'Overall survival (primary; lenva+pembro vs lenva alone in 1L HCC; NS)', tE: 205, cE: 213, type: 'PRIMARY', matchScore: 95, effect: 0.84, lci: 0.71, uci: 1.01, estimandType: 'RR' }
                     ],
@@ -7129,16 +7129,16 @@ const ContinuousMDEngine = {
                 // v12.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_hcc_1l_nma_v1_0');
+                let saved = localStorage.getItem('rapid_meta_hcc_1l_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_hcc_1l_nma_v0_9');
+                    const old11 = localStorage.getItem('rapid_meta_hcc_1l_v0_9');
 
 
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_hcc_1l_nma_v1_0', old11); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_hcc_1l_v1_0', old11); }
 
 
                 }
@@ -7147,10 +7147,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_hcc_1l_nma_v0_8');
+                    const old10 = localStorage.getItem('rapid_meta_hcc_1l_v0_8');
 
 
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_hcc_1l_nma_v1_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_hcc_1l_v1_0', old10); }
 
 
                 }
@@ -7159,10 +7159,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_hcc_1l_nma_v0_7');
+                    const old93 = localStorage.getItem('rapid_meta_hcc_1l_v0_7');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_hcc_1l_nma_v1_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_hcc_1l_v1_0', old93); }
 
 
                 }
@@ -7210,7 +7210,7 @@ const ContinuousMDEngine = {
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_hcc_1l_nma_v1_0');
+                        localStorage.removeItem('rapid_meta_hcc_1l_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -8368,7 +8368,7 @@ const ContinuousMDEngine = {
 
 
 
-            save() { try { localStorage.setItem('rapid_meta_hcc_1l_nma_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_hcc_1l_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
 
 
             getReviewerId() {
@@ -11122,7 +11122,7 @@ const ContinuousMDEngine = {
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_hcc_1l_nma_v1_0'); localStorage.removeItem('rapid_meta_hcc_1l_nma_v0_9'); localStorage.removeItem('rapid_meta_hcc_1l_nma_v0_8'); localStorage.removeItem('rapid_meta_hcc_1l_nma_v0_7'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_hcc_1l_v1_0'); localStorage.removeItem('rapid_meta_hcc_1l_v0_9'); localStorage.removeItem('rapid_meta_hcc_1l_v0_8'); localStorage.removeItem('rapid_meta_hcc_1l_v0_7'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -43749,6 +43749,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

@@ -12,7 +12,7 @@ import pathlib, re, sys, io
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 SENTINELS_EXPECTED = [
     ("const AbstractHydrator = {",     "AbstractHydrator",       "all"),

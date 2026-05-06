@@ -8,7 +8,7 @@ benchmark shows regardless of selected outcome.
 """
 import argparse, pathlib, re, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 BATCH = {
     "ABLATION_AF_REVIEW.html": {

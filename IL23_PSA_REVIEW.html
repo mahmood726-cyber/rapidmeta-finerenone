@@ -7093,7 +7093,7 @@ const ContinuousMDEngine = {
                 'NCT03675308': {
 
 
-                    name: 'KEEPsAKE-1', pmid: '34911706', phase: 'III', year: 2022, tE: 248, tN: 483, cE: 152, cN: 481, group: 'Risankizumab 150 mg SC vs placebo in active PsA, csDMARD-IR; primary ACR20 at week 24', publishedHR: 1.62, hrLCI: 1.38, hrUCI: 1.91, pubHR: 1.62, pubHR_LCI: 1.38, pubHR_UCI: 1.91,
+                    name: 'KEEPsAKE-1', baseline: {n: 964, followup: 5.5, age: 51.2, pct_female: 51.4}, pmid: '34911706', phase: 'III', year: 2022, tE: 248, tN: 483, cE: 152, cN: 481, group: 'Risankizumab 150 mg SC vs placebo in active PsA, csDMARD-IR; primary ACR20 at week 24', publishedHR: 1.62, hrLCI: 1.38, hrUCI: 1.91, pubHR: 1.62, pubHR_LCI: 1.38, pubHR_UCI: 1.91,
 
 
                     allOutcomes: [
@@ -7124,7 +7124,7 @@ const ContinuousMDEngine = {
                 'NCT03671148': {
 
 
-                    name: 'KEEPsAKE-2', pmid: '35701011', phase: 'III', year: 2022, tE: 110, tN: 224, cE: 44, cN: 220, group: 'Risankizumab 150 mg SC vs placebo in active PsA, biologic-IR or csDMARD-IR; primary ACR20 at week 24', publishedHR: 2.45, hrLCI: 1.83, hrUCI: 3.28, pubHR: 2.45, pubHR_LCI: 1.83, pubHR_UCI: 3.28,
+                    name: 'KEEPsAKE-2', baseline: {n: 444, followup: 5.5, age: 52.7, pct_female: 54.8}, pmid: '35701011', phase: 'III', year: 2022, tE: 110, tN: 224, cE: 44, cN: 220, group: 'Risankizumab 150 mg SC vs placebo in active PsA, biologic-IR or csDMARD-IR; primary ACR20 at week 24', publishedHR: 2.45, hrLCI: 1.83, hrUCI: 3.28, pubHR: 2.45, pubHR_LCI: 1.83, pubHR_UCI: 3.28,
 
 
                     allOutcomes: [
@@ -7155,7 +7155,7 @@ const ContinuousMDEngine = {
                 'NCT03162796': {
 
 
-                    name: 'DISCOVER-1', pmid: '32178765', phase: 'III', year: 2020, tE: 78, tN: 127, cE: 28, cN: 127, group: 'Guselkumab 100 mg SC Q8W vs placebo in active PsA (biologic-naive or anti-TNF IR); primary ACR20 at week 24', publishedHR: 2.79, hrLCI: 1.96, hrUCI: 3.96, pubHR: 2.79, pubHR_LCI: 1.96, pubHR_UCI: 3.96,
+                    name: 'DISCOVER-1', baseline: {n: 254, followup: 5.5, age: 49.0, pct_female: 33.7}, pmid: '32178765', phase: 'III', year: 2020, tE: 78, tN: 127, cE: 28, cN: 127, group: 'Guselkumab 100 mg SC Q8W vs placebo in active PsA (biologic-naive or anti-TNF IR); primary ACR20 at week 24', publishedHR: 2.79, hrLCI: 1.96, hrUCI: 3.96, pubHR: 2.79, pubHR_LCI: 1.96, pubHR_UCI: 3.96,
 
 
                     allOutcomes: [
@@ -7186,7 +7186,7 @@ const ContinuousMDEngine = {
                 'NCT03158285': {
 
 
-                    name: 'DISCOVER-2', pmid: '32178766', phase: 'III', year: 2020, tE: 156, tN: 246, cE: 80, cN: 246, group: 'Guselkumab 100 mg SC Q8W vs placebo in biologic-naive active PsA; primary ACR20 at week 24', publishedHR: 1.95, hrLCI: 1.59, hrUCI: 2.4, pubHR: 1.95, pubHR_LCI: 1.59, pubHR_UCI: 2.4,
+                    name: 'DISCOVER-2', baseline: {n: 492, followup: 5.5, age: 46.3, pct_female: 66.8}, pmid: '32178766', phase: 'III', year: 2020, tE: 156, tN: 246, cE: 80, cN: 246, group: 'Guselkumab 100 mg SC Q8W vs placebo in biologic-naive active PsA; primary ACR20 at week 24', publishedHR: 1.95, hrLCI: 1.59, hrUCI: 2.4, pubHR: 1.95, pubHR_LCI: 1.59, pubHR_UCI: 2.4,
 
 
                     allOutcomes: [
@@ -7227,16 +7227,16 @@ const ContinuousMDEngine = {
                 // v12.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_il23_psa_nma_v1_0');
+                let saved = localStorage.getItem('rapid_meta_il23_psa_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_il23_pso_v0_9');
+                    const old11 = localStorage.getItem('rapid_meta_il23_psa_v0_9');
 
 
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_il23_psa_nma_v1_0', old11); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_il23_psa_v1_0', old11); }
 
 
                 }
@@ -7245,10 +7245,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_il23_pso_v0_8');
+                    const old10 = localStorage.getItem('rapid_meta_il23_psa_v0_8');
 
 
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_il23_psa_nma_v1_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_il23_psa_v1_0', old10); }
 
 
                 }
@@ -7257,10 +7257,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_il23_pso_v0_7');
+                    const old93 = localStorage.getItem('rapid_meta_il23_psa_v0_7');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_il23_psa_nma_v1_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_il23_psa_v1_0', old93); }
 
 
                 }
@@ -7308,7 +7308,7 @@ const ContinuousMDEngine = {
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_il23_psa_nma_v1_0');
+                        localStorage.removeItem('rapid_meta_il23_psa_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -8466,7 +8466,7 @@ const ContinuousMDEngine = {
 
 
 
-            save() { try { localStorage.setItem('rapid_meta_il23_psa_nma_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_il23_psa_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
 
 
             getReviewerId() {
@@ -11234,7 +11234,7 @@ const ContinuousMDEngine = {
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_il23_psa_nma_v1_0'); localStorage.removeItem('rapid_meta_il23_pso_v0_9'); localStorage.removeItem('rapid_meta_il23_pso_v0_8'); localStorage.removeItem('rapid_meta_il23_pso_v0_7'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_il23_psa_v1_0'); localStorage.removeItem('rapid_meta_il23_psa_v0_9'); localStorage.removeItem('rapid_meta_il23_psa_v0_8'); localStorage.removeItem('rapid_meta_il23_psa_v0_7'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -43864,6 +43864,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

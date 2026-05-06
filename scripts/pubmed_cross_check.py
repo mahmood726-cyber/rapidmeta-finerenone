@@ -25,7 +25,7 @@ import urllib.parse
 import defusedxml.ElementTree as ET  # noqa: N817 — security: parse untrusted PubMed XML safely
 from pathlib import Path
 
-REPO_DIR = Path("C:/Projects/Finrenone")
+REPO_DIR = Path(__file__).resolve().parent.parent
 OUT_CSV = REPO_DIR / "outputs" / "pubmed_cross_check.csv"
 
 PMID_BLOCK_RE = re.compile(

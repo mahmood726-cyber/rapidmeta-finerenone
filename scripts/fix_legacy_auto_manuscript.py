@@ -24,7 +24,7 @@ inside AnalysisEngine.run().
 """
 import argparse, pathlib, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 LEGACY_APPS = ['COLCHICINE_CVD_REVIEW.html', 'GLP1_CVOT_REVIEW.html', 'SGLT2_HF_REVIEW.html']
 
 OLD = (

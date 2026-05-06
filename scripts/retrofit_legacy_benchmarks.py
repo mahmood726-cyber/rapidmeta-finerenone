@@ -18,7 +18,7 @@ initializes, etc.) the app falls back silently to its original behavior.
 """
 import argparse, pathlib, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 SENTINEL = "/*BENCHMARK-RETROFIT-v1*/"
 

@@ -5196,7 +5196,7 @@
 
                 'NCT03048422': {
 
-                    name: 'IMPAACT 2010 / VESTED', pmid: '33891894', phase: 'III', year: 2021, tE: 395, tN: 426, cE: 184, cN: 217, group: 'Lockman S, Brummel SS, Ziemba L, et al. Lancet HIV 2021;8:e521-e533 (PMID 33891894). NIH/NIAID-sponsored phase 3 multinational randomized open-label trial in HIV-1-positive pregnant women aged 18+ at 14-28 weeks gestation, ART-naive. Sites: predominantly sub-Saharan Africa (Botswana, South Africa Soweto/Wits/Umlazi/Famcru, Tanzania KCMC Moshi, Uganda Baylor Kampala, Zimbabwe Seke North/St Marys/Harare = ~70% of enrolment) plus India Pune, Brazil 4 sites, Thailand 3 sites, USA Florida 2 sites. n=643 randomized 1:1:1 to (1) DTG+FTC/TAF (n=217), (2) DTG+FTC/TDF (n=215), (3) EFV/FTC/TDF (n=211). Primary efficacy: maternal HIV-1 RNA <200 copies/mL at delivery (NI margin -10pp); primary safety: composite adverse pregnancy outcome (APO: spontaneous abortion + stillbirth + preterm + small-for-gestational-age) + maternal grade ≥3 AE + infant grade ≥3 AE. RESULT: viral suppression DTG-pooled 395/418 (94.5%) vs EFV 184/200 (92.0%) — DTG superior (diff +5.4pp, 95% CI +1.0 to +9.7); APO favoured DTG over EFV (24% vs 33%); maternal weight gain higher with DTG. Drove WHO 2021 guideline preference for DTG-based ART in pregnancy and breastfeeding (replacing EFV-based as preferred first-line). Africa relevance: ~70% sub-Saharan African enrolment + WHO 2021 guideline driver = pivotal evidence for African PMTCT programs.',
+                    name: 'IMPAACT 2010 / VESTED', baseline: {n: 643, age: 27.5, pct_female: 100.0}, pmid: '33891894', phase: 'III', year: 2021, tE: 395, tN: 426, cE: 184, cN: 217, group: 'Lockman S, Brummel SS, Ziemba L, et al. Lancet HIV 2021;8:e521-e533 (PMID 33891894). NIH/NIAID-sponsored phase 3 multinational randomized open-label trial in HIV-1-positive pregnant women aged 18+ at 14-28 weeks gestation, ART-naive. Sites: predominantly sub-Saharan Africa (Botswana, South Africa Soweto/Wits/Umlazi/Famcru, Tanzania KCMC Moshi, Uganda Baylor Kampala, Zimbabwe Seke North/St Marys/Harare = ~70% of enrolment) plus India Pune, Brazil 4 sites, Thailand 3 sites, USA Florida 2 sites. n=643 randomized 1:1:1 to (1) DTG+FTC/TAF (n=217), (2) DTG+FTC/TDF (n=215), (3) EFV/FTC/TDF (n=211). Primary efficacy: maternal HIV-1 RNA <200 copies/mL at delivery (NI margin -10pp); primary safety: composite adverse pregnancy outcome (APO: spontaneous abortion + stillbirth + preterm + small-for-gestational-age) + maternal grade ≥3 AE + infant grade ≥3 AE. RESULT: viral suppression DTG-pooled 395/418 (94.5%) vs EFV 184/200 (92.0%) — DTG superior (diff +5.4pp, 95% CI +1.0 to +9.7); APO favoured DTG over EFV (24% vs 33%); maternal weight gain higher with DTG. Drove WHO 2021 guideline preference for DTG-based ART in pregnancy and breastfeeding (replacing EFV-based as preferred first-line). Africa relevance: ~70% sub-Saharan African enrolment + WHO 2021 guideline driver = pivotal evidence for African PMTCT programs.',
 
                     estimandType: 'RR', publishedHR: 1.03, hrLCI: 0.99, hrUCI: 1.07, pubHR: 1.03,
 
@@ -5532,16 +5532,16 @@
                 // v11.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_sglt2hf_v1_0');
+                let saved = localStorage.getItem('rapid_meta_pregnancy_hiv_vested_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_sglt2hf_v0_9');
+                    const old10 = localStorage.getItem('rapid_meta_pregnancy_hiv_vested_v0_9');
 
 
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_sglt2hf_v1_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_pregnancy_hiv_vested_v1_0', old10); }
 
 
                 }
@@ -5550,10 +5550,10 @@
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_sglt2hf_v0_8');
+                    const old93 = localStorage.getItem('rapid_meta_pregnancy_hiv_vested_v0_8');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_sglt2hf_v1_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_pregnancy_hiv_vested_v1_0', old93); }
 
 
                 }
@@ -5589,7 +5589,7 @@
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_sglt2hf_v1_0');
+                        localStorage.removeItem('rapid_meta_pregnancy_hiv_vested_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -6846,7 +6846,7 @@
                 try {
 
 
-                    localStorage.setItem('rapid_meta_sglt2hf_v1_0', JSON.stringify(this.state));
+                    localStorage.setItem('rapid_meta_pregnancy_hiv_vested_v1_0', JSON.stringify(this.state));
 
 
                 } catch(e) {
@@ -8916,7 +8916,7 @@
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_sglt2hf_v1_0'); localStorage.removeItem('rapid_meta_sglt2hf_v0_9'); localStorage.removeItem('rapid_meta_sglt2hf_v0_8'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_pregnancy_hiv_vested_v1_0'); localStorage.removeItem('rapid_meta_pregnancy_hiv_vested_v0_9'); localStorage.removeItem('rapid_meta_pregnancy_hiv_vested_v0_8'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -36213,6 +36213,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

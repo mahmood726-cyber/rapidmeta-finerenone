@@ -29,7 +29,7 @@ realData (tE=null, cE=null, publishedHR=null — only allOutcomes[].md/.se):
 """
 import argparse, pathlib, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 # ---------------------------------------------------------------------------
 # Fix 1: filter respects _outcomeExcluded for default scope

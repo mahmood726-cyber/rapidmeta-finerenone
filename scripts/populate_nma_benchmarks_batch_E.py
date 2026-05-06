@@ -3,7 +3,7 @@
 """Populate benchmarks for Batch E (3 specialty NMAs)."""
 import argparse, pathlib, re, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 # CFTR has TWO outcomes (ppFEV1 + PulmExacRR) — needs dict of outcome arrays.
 BATCH = {

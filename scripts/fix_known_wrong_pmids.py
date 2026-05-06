@@ -19,7 +19,7 @@ import sys, io, csv
 from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-REPO = Path("C:/Projects/Finrenone")
+REPO = Path(__file__).resolve().parent.parent
 
 CONFIRMED_FIXES = [
     ("ALDO_SYNTHASE_REVIEW.html", "BrigHTN", "36302086", "36342143"),

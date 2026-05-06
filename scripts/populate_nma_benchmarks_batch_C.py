@@ -3,7 +3,7 @@
 """Populate benchmarks for Batch C (4 neuro/psych/renal NMAs)."""
 import argparse, pathlib, re, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 BATCH = {
     "ANTIPSYCHOTICS_SCHIZO_NMA_REVIEW.html": {

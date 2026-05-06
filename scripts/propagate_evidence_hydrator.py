@@ -7,7 +7,7 @@ which is universal across all apps post-Rayyan migration.
 """
 import argparse, pathlib, sys
 
-ROOT = pathlib.Path(r"C:\Projects\Finrenone")
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 ANCHOR = "        /* ── Abstract hydration: Rayyan-style rich abstracts in Screening tab."
 

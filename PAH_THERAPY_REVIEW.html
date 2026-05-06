@@ -7324,7 +7324,7 @@
 
             realData: {
                 'NCT04576988': {
-                    name: 'STELLAR', pmid: '36877098', phase: 'III', year: 2023, tE: 9, tN: 163, cE: 42, cN: 160, group: 'PAH on background standard therapy, sotatercept vs placebo (composite clinical worsening at 24 wk; HR)', publishedHR: 0.16, hrLCI: 0.08, hrUCI: 0.35,
+                    name: 'STELLAR', baseline: {n: 323, age: 47.6, pct_female: 66.8}, pmid: '36877098', phase: 'III', year: 2023, tE: 9, tN: 163, cE: 42, cN: 160, group: 'PAH on background standard therapy, sotatercept vs placebo (composite clinical worsening at 24 wk; HR)', publishedHR: 0.16, hrLCI: 0.08, hrUCI: 0.35,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'Composite clinical worsening at 24 wk (key secondary; sotatercept vs placebo)', tE: 9, cE: 42, type: 'PRIMARY', matchScore: 95, effect: 0.16, lci: 0.08, uci: 0.35, estimandType: 'RR' }
                     ],
@@ -7337,7 +7337,7 @@
                     ]
                 },
                 'NCT01106014': {
-                    name: 'GRIPHON', pmid: '26699168', phase: 'III', year: 2015, tE: 155, tN: 574, cE: 242, cN: 582, group: 'PAH on background therapy, selexipag vs placebo (composite morbidity/mortality; HR)', publishedHR: 0.6, hrLCI: 0.46, hrUCI: 0.78,
+                    name: 'GRIPHON', baseline: {n: 1156, age: 48.2}, pmid: '26699168', phase: 'III', year: 2015, tE: 155, tN: 574, cE: 242, cN: 582, group: 'PAH on background therapy, selexipag vs placebo (composite morbidity/mortality; HR)', publishedHR: 0.6, hrLCI: 0.46, hrUCI: 0.78,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'Composite morbidity/mortality (primary; selexipag vs placebo, mean follow-up 71 wk)', tE: 155, cE: 242, type: 'PRIMARY', matchScore: 95, effect: 0.6, lci: 0.46, uci: 0.78, estimandType: 'RR' }
                     ],
@@ -7350,7 +7350,7 @@
                     ]
                 },
                 'NCT00810693': {
-                    name: 'PATENT-1', pmid: '23883378', phase: 'III', year: 2013, tE: 23, tN: 254, cE: 21, cN: 126, group: 'PAH treatment-naive or on ERA/prostanoid background, riociguat 2.5 mg PO TID vs placebo (composite clinical worsening at 12 wk; HR)', publishedHR: 0.55, hrLCI: 0.3, hrUCI: 0.99,
+                    name: 'PATENT-1', baseline: {n: 380, age: 51.1, pct_female: 79.2}, pmid: '23883378', phase: 'III', year: 2013, tE: 23, tN: 254, cE: 21, cN: 126, group: 'PAH treatment-naive or on ERA/prostanoid background, riociguat 2.5 mg PO TID vs placebo (composite clinical worsening at 12 wk; HR)', publishedHR: 0.55, hrLCI: 0.3, hrUCI: 0.99,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'Composite clinical worsening at 12 wk (secondary; riociguat 2.5 mg vs placebo)', tE: 23, cE: 21, type: 'PRIMARY', matchScore: 95, effect: 0.55, lci: 0.3, uci: 0.99, estimandType: 'RR' }
                     ],
@@ -7363,7 +7363,7 @@
                     ]
                 },
                 'NCT00660179': {
-                    name: 'SERAPHIN', pmid: '23984728', phase: 'III', year: 2013, tE: 116, tN: 242, cE: 116, cN: 250, group: 'PAH (treatment-naive or on background therapy), macitentan 10 mg PO daily vs placebo (composite morbidity/mortality; HR)', publishedHR: 0.55, hrLCI: 0.39, hrUCI: 0.76,
+                    name: 'SERAPHIN', baseline: {n: 492, age: 46.7}, pmid: '23984728', phase: 'III', year: 2013, tE: 116, tN: 242, cE: 116, cN: 250, group: 'PAH (treatment-naive or on background therapy), macitentan 10 mg PO daily vs placebo (composite morbidity/mortality; HR)', publishedHR: 0.55, hrLCI: 0.39, hrUCI: 0.76,
                     allOutcomes: [
                         { shortLabel: 'MACE', title: 'Composite morbidity/mortality (primary; macitentan 10 mg vs placebo, median follow-up 100 wk)', tE: 116, cE: 116, type: 'PRIMARY', matchScore: 95, effect: 0.55, lci: 0.39, uci: 0.76, estimandType: 'RR' }
                     ],
@@ -7388,16 +7388,16 @@
                 // v15.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_pah_therapy_nma_v1_0');
+                let saved = localStorage.getItem('rapid_meta_pah_therapy_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old14 = localStorage.getItem('rapid_meta_pah_therapy_nma_v1_0');
+                    const old14 = localStorage.getItem('rapid_meta_pah_therapy_v1_0');
 
 
-                    if (old14) { saved = old14; localStorage.setItem('rapid_meta_pah_therapy_nma_v1_0', old14); }
+                    if (old14) { saved = old14; localStorage.setItem('rapid_meta_pah_therapy_v1_0', old14); }
 
 
                 }
@@ -7406,22 +7406,10 @@
                 if (!saved) {
 
 
-                    const old13 = localStorage.getItem('rapid_meta_pah_therapy_nma_v1_0');
+                    const old13 = localStorage.getItem('rapid_meta_pah_therapy_v1_0');
 
 
-                    if (old13) { saved = old13; localStorage.setItem('rapid_meta_pah_therapy_nma_v1_0', old13); }
-
-
-                }
-
-
-                if (!saved) {
-
-
-                    const old12 = localStorage.getItem('rapid_meta_pah_therapy_nma_v1_0');
-
-
-                    if (old12) { saved = old12; localStorage.setItem('rapid_meta_pah_therapy_nma_v1_0', old12); }
+                    if (old13) { saved = old13; localStorage.setItem('rapid_meta_pah_therapy_v1_0', old13); }
 
 
                 }
@@ -7430,22 +7418,10 @@
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_pah_therapy_nma_v1_0');
+                    const old12 = localStorage.getItem('rapid_meta_pah_therapy_v1_0');
 
 
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_pah_therapy_nma_v1_0', old11); }
-
-
-                }
-
-
-                if (!saved) {
-
-
-                    const old10 = localStorage.getItem('rapid_meta_pah_therapy_nma_v1_0');
-
-
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_pah_therapy_nma_v1_0', old10); }
+                    if (old12) { saved = old12; localStorage.setItem('rapid_meta_pah_therapy_v1_0', old12); }
 
 
                 }
@@ -7454,10 +7430,34 @@
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_pah_therapy_nma_v1_0');
+                    const old11 = localStorage.getItem('rapid_meta_pah_therapy_v1_0');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_pah_therapy_nma_v1_0', old93); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_pah_therapy_v1_0', old11); }
+
+
+                }
+
+
+                if (!saved) {
+
+
+                    const old10 = localStorage.getItem('rapid_meta_pah_therapy_v1_0');
+
+
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_pah_therapy_v1_0', old10); }
+
+
+                }
+
+
+                if (!saved) {
+
+
+                    const old93 = localStorage.getItem('rapid_meta_pah_therapy_v1_0');
+
+
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_pah_therapy_v1_0', old93); }
 
 
                 }
@@ -7505,7 +7505,7 @@
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_pah_therapy_nma_v1_0');
+                        localStorage.removeItem('rapid_meta_pah_therapy_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -8861,7 +8861,7 @@
 
 
 
-            save() { try { localStorage.setItem('rapid_meta_pah_therapy_nma_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_pah_therapy_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
 
 
             getReviewerId() {
@@ -11630,7 +11630,7 @@
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_pah_therapy_nma_v1_0'); localStorage.removeItem('rapid_meta_pah_therapy_nma_v1_0'); localStorage.removeItem('rapid_meta_pah_therapy_nma_v1_0'); localStorage.removeItem('rapid_meta_pah_therapy_nma_v1_0'); localStorage.removeItem('rapid_meta_pah_therapy_nma_v1_0'); localStorage.removeItem('rapid_meta_pah_therapy_nma_v1_0'); localStorage.removeItem('rapid_meta_pah_therapy_nma_v1_0'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_pah_therapy_v1_0'); localStorage.removeItem('rapid_meta_pah_therapy_v1_0'); localStorage.removeItem('rapid_meta_pah_therapy_v1_0'); localStorage.removeItem('rapid_meta_pah_therapy_v1_0'); localStorage.removeItem('rapid_meta_pah_therapy_v1_0'); localStorage.removeItem('rapid_meta_pah_therapy_v1_0'); localStorage.removeItem('rapid_meta_pah_therapy_v1_0'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -45492,6 +45492,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

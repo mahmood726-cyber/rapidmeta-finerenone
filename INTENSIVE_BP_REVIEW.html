@@ -6959,7 +6959,7 @@
                 'NCT01206062_SENIOR': {
 
 
-                    name: 'SPRINT-SENIOR', pmid: '27195814', phase: 'III', year: 2016, tE: 102, tN: 1317, cE: 148, cN: 1319, group: 'Systolic Target ≥75y subgroup. SPRINT was a single RCT (NCT01206062) pre-specified into age-stratified subgroups; SENIOR (n=2,636) and CKD (n=2,646) subgroups share neither patients nor randomization with each other but DO depend on the parent SPRINT design. Pooled meta-analysis treating these as independent will under-estimate variance ~5-10% via shared methodology effects. Recommended: subgroup-only or sensitivity analysis with joint variance.', dependencyType: 'subgroup_of_parent', parentTrial: 'NCT01206062', publishedHR: 0.66, hrLCI: 0.51, hrUCI: 0.85,
+                    name: 'SPRINT-SENIOR', baseline: {n: 2636}, pmid: '27195814', phase: 'III', year: 2016, tE: 102, tN: 1317, cE: 148, cN: 1319, group: 'Systolic Target ≥75y subgroup. SPRINT was a single RCT (NCT01206062) pre-specified into age-stratified subgroups; SENIOR (n=2,636) and CKD (n=2,646) subgroups share neither patients nor randomization with each other but DO depend on the parent SPRINT design. Pooled meta-analysis treating these as independent will under-estimate variance ~5-10% via shared methodology effects. Recommended: subgroup-only or sensitivity analysis with joint variance.', dependencyType: 'subgroup_of_parent', parentTrial: 'NCT01206062', publishedHR: 0.66, hrLCI: 0.51, hrUCI: 0.85,
 
 
                     allOutcomes: [
@@ -6991,7 +6991,7 @@
                 'NCT01206062_CKD': {
 
 
-                    name: 'SPRINT-CKD', pmid: '28028821', phase: 'III', year: 2017, tE: 112, tN: 1330, cE: 131, cN: 1316, group: 'Systolic Target CKD subgroup. Sister-subgroup of SPRINT-SENIOR — same parent trial NCT01206062 with different stratification slice. See SPRINT-SENIOR group field for dependency note.', dependencyType: 'subgroup_of_parent', parentTrial: 'NCT01206062', publishedHR: 0.81, hrLCI: 0.63, hrUCI: 1.05,
+                    name: 'SPRINT-CKD', baseline: {n: 2646}, pmid: '28028821', phase: 'III', year: 2017, tE: 112, tN: 1330, cE: 131, cN: 1316, group: 'Systolic Target CKD subgroup. Sister-subgroup of SPRINT-SENIOR — same parent trial NCT01206062 with different stratification slice. See SPRINT-SENIOR group field for dependency note.', dependencyType: 'subgroup_of_parent', parentTrial: 'NCT01206062', publishedHR: 0.81, hrLCI: 0.63, hrUCI: 1.05,
 
 
                     allOutcomes: [
@@ -7023,7 +7023,7 @@
                 'NCT00000620': {
 
 
-                    name: 'ACCORD-BP', pmid: '20228401',   phase: 'III', year: 2010, tE: 208, tN: 2362, cE: 237, cN: 2371, group: 'Glucose+BP', publishedHR: 0.88, hrLCI: 0.73, hrUCI: 1.06,
+                    name: 'ACCORD-BP', baseline: {n: 4733}, pmid: '20228401',   phase: 'III', year: 2010, tE: 208, tN: 2362, cE: 237, cN: 2371, group: 'Glucose+BP', publishedHR: 0.88, hrLCI: 0.73, hrUCI: 1.06,
 
 
                     allOutcomes: [
@@ -7055,7 +7055,7 @@
                 'NCT03015311': {
 
 
-                    name: 'STEP', pmid: '34491661',   phase: 'III', year: 2021, tE: 147, tN: 4243, cE: 196, cN: 4268, group: 'Systolic Target', publishedHR: 0.74, hrLCI: 0.60, hrUCI: 0.92,
+                    name: 'STEP', baseline: {n: 8511}, pmid: '34491661',   phase: 'III', year: 2021, tE: 147, tN: 4243, cE: 196, cN: 4268, group: 'Systolic Target', publishedHR: 0.74, hrLCI: 0.60, hrUCI: 0.92,
 
 
                     allOutcomes: [
@@ -7087,7 +7087,7 @@
                 'NCT00059306': {
 
 
-                    name: 'SPS3-BP', pmid: '23726159', phase: 'III', year: 2013, tE: 125, tN: 1519, cE: 152, cN: 1501, group: 'Post-Stroke', publishedHR: 0.81, hrLCI: 0.64, hrUCI: 1.03,
+                    name: 'SPS3-BP', baseline: {n: 3020}, pmid: '23726159', phase: 'III', year: 2013, tE: 125, tN: 1519, cE: 152, cN: 1501, group: 'Post-Stroke', publishedHR: 0.81, hrLCI: 0.64, hrUCI: 1.03,
 
 
                     allOutcomes: [
@@ -43474,6 +43474,8 @@ Snapshot Date: ${new Date().toISOString()}
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

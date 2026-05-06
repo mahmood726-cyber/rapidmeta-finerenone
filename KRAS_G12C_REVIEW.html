@@ -7066,7 +7066,7 @@ const ContinuousMDEngine = {
                 'NCT04303780': {
 
 
-                    name: 'CodeBreaK 200', pmid: '40774040', phase: 'III', year: 2023, tE: 0, tN: 171, cE: 0, cN: 174, group: 'KRAS-G12C+ pretreated NSCLC, sotorasib 960 mg PO QD vs docetaxel (PFS primary)', publishedHR: 0.66, hrLCI: 0.51, hrUCI: 0.86,
+                    name: 'CodeBreaK 200', baseline: {n: 345, age: 63.4}, pmid: '40774040', phase: 'III', year: 2023, tE: 0, tN: 171, cE: 0, cN: 174, group: 'KRAS-G12C+ pretreated NSCLC, sotorasib 960 mg PO QD vs docetaxel (PFS primary)', publishedHR: 0.66, hrLCI: 0.51, hrUCI: 0.86,
 
 
                     allOutcomes: [
@@ -7099,7 +7099,7 @@ const ContinuousMDEngine = {
                 'NCT04685135': {
 
 
-                    name: 'KRYSTAL-12', pmid: '40783289', phase: 'III', year: 2024, tE: 0, tN: 301, cE: 0, cN: 152, group: 'KRAS-G12C+ pretreated NSCLC, adagrasib 600 mg PO BID vs docetaxel (PFS primary)', publishedHR: 0.58, hrLCI: 0.45, hrUCI: 0.76,
+                    name: 'KRYSTAL-12', baseline: {n: 453, age: 63.6}, pmid: '40783289', phase: 'III', year: 2024, tE: 0, tN: 301, cE: 0, cN: 152, group: 'KRAS-G12C+ pretreated NSCLC, adagrasib 600 mg PO BID vs docetaxel (PFS primary)', publishedHR: 0.58, hrLCI: 0.45, hrUCI: 0.76,
 
 
                     allOutcomes: [
@@ -7142,16 +7142,16 @@ const ContinuousMDEngine = {
                 // v12.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_kras_g12c_nma_v1_0');
+                let saved = localStorage.getItem('rapid_meta_kras_g12c_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_kras_g12c_nma_v0_9');
+                    const old11 = localStorage.getItem('rapid_meta_kras_g12c_v0_9');
 
 
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_kras_g12c_nma_v1_0', old11); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_kras_g12c_v1_0', old11); }
 
 
                 }
@@ -7160,10 +7160,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_kras_g12c_nma_v0_8');
+                    const old10 = localStorage.getItem('rapid_meta_kras_g12c_v0_8');
 
 
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_kras_g12c_nma_v1_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_kras_g12c_v1_0', old10); }
 
 
                 }
@@ -7172,10 +7172,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_kras_g12c_nma_v0_7');
+                    const old93 = localStorage.getItem('rapid_meta_kras_g12c_v0_7');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_kras_g12c_nma_v1_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_kras_g12c_v1_0', old93); }
 
 
                 }
@@ -7223,7 +7223,7 @@ const ContinuousMDEngine = {
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_kras_g12c_nma_v1_0');
+                        localStorage.removeItem('rapid_meta_kras_g12c_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -8381,7 +8381,7 @@ const ContinuousMDEngine = {
 
 
 
-            save() { try { localStorage.setItem('rapid_meta_kras_g12c_nma_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_kras_g12c_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
 
 
             getReviewerId() {
@@ -11135,7 +11135,7 @@ const ContinuousMDEngine = {
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_kras_g12c_nma_v1_0'); localStorage.removeItem('rapid_meta_kras_g12c_nma_v0_9'); localStorage.removeItem('rapid_meta_kras_g12c_nma_v0_8'); localStorage.removeItem('rapid_meta_kras_g12c_nma_v0_7'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_kras_g12c_v1_0'); localStorage.removeItem('rapid_meta_kras_g12c_v0_9'); localStorage.removeItem('rapid_meta_kras_g12c_v0_8'); localStorage.removeItem('rapid_meta_kras_g12c_v0_7'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -43762,6 +43762,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

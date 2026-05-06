@@ -20,7 +20,7 @@ import urllib.request
 import defusedxml.ElementTree as ET  # noqa: N817 — security: parse untrusted PubMed XML safely
 from pathlib import Path
 
-REPO_DIR = Path("C:/Projects/Finrenone")
+REPO_DIR = Path(__file__).resolve().parent.parent
 PRIOR_CSV = REPO_DIR / "outputs" / "pubmed_cross_check.csv"
 OUT_CSV = REPO_DIR / "outputs" / "pubmed_cross_check_v2.csv"
 

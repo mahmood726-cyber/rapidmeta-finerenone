@@ -37,7 +37,7 @@ import re
 import sys
 from pathlib import Path
 
-ROOT = Path(r"C:\Projects\Finrenone")
+ROOT = Path(__file__).resolve().parent.parent
 CORRECTIONS_CSV = ROOT / "outputs" / "pmid_corrections.csv"
 
 

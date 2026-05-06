@@ -7093,7 +7093,7 @@ const ContinuousMDEngine = {
                 'NCT03370133': {
 
 
-                    name: 'BE-VIVID', pmid: '33549193', phase: 'III', year: 2021, tE: 273, tN: 321, cE: 4, cN: 83, group: 'Moderate-severe plaque psoriasis, bimekizumab 320 mg Q4W vs placebo arm of 3-arm RCT (3:2:1 bimi:ustek:placebo); ustekinumab arm reported separately', publishedHR: 17.62, hrLCI: 6.74, hrUCI: 46.07,
+                    name: 'BE-VIVID', baseline: {n: 404, age: 49.7, pct_female: 11.9}, pmid: '33549193', phase: 'III', year: 2021, tE: 273, tN: 321, cE: 4, cN: 83, group: 'Moderate-severe plaque psoriasis, bimekizumab 320 mg Q4W vs placebo arm of 3-arm RCT (3:2:1 bimi:ustek:placebo); ustekinumab arm reported separately', publishedHR: 17.62, hrLCI: 6.74, hrUCI: 46.07,
 
 
                     allOutcomes: [
@@ -7125,7 +7125,7 @@ const ContinuousMDEngine = {
                 'NCT03410992': {
 
 
-                    name: 'BE-READY', pmid: '33549192', phase: 'III', year: 2021, tE: 273, tN: 349, cE: 1, cN: 86, group: 'Moderate-severe plaque psoriasis, bimekizumab 320 mg Q4W vs placebo (4:1 randomization)', publishedHR: 67.27, hrLCI: 9.55, hrUCI: 473.83,
+                    name: 'BE-READY', baseline: {n: 435, age: 43.5, pct_female: 77.8}, pmid: '33549192', phase: 'III', year: 2021, tE: 273, tN: 349, cE: 1, cN: 86, group: 'Moderate-severe plaque psoriasis, bimekizumab 320 mg Q4W vs placebo (4:1 randomization)', publishedHR: 67.27, hrLCI: 9.55, hrUCI: 473.83,
 
 
                     allOutcomes: [
@@ -7157,7 +7157,7 @@ const ContinuousMDEngine = {
                 'NCT03412747': {
 
 
-                    name: 'BE-SURE', pmid: '36751950', phase: 'III', year: 2021, tE: 275, tN: 319, cE: 75, cN: 159, group: 'Moderate-severe plaque psoriasis, bimekizumab 320 mg (Q4W and Q4W->Q8W combined) vs adalimumab 80/40 mg (active-controlled head-to-head)', publishedHR: 1.83, hrLCI: 1.55, hrUCI: 2.15,
+                    name: 'BE-SURE', baseline: {n: 478, age: 44.0, pct_female: 25.4}, pmid: '36751950', phase: 'III', year: 2021, tE: 275, tN: 319, cE: 75, cN: 159, group: 'Moderate-severe plaque psoriasis, bimekizumab 320 mg (Q4W and Q4W->Q8W combined) vs adalimumab 80/40 mg (active-controlled head-to-head)', publishedHR: 1.83, hrLCI: 1.55, hrUCI: 2.15,
 
 
                     allOutcomes: [
@@ -7199,16 +7199,16 @@ const ContinuousMDEngine = {
                 // v12.0 migration: read from old keys if new key is empty
 
 
-                let saved = localStorage.getItem('rapid_meta_bimekizumab_pso_v1_0');
+                let saved = localStorage.getItem('rapid_meta_bimekizumab_psoriasis_v1_0');
 
 
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_il23_pso_v0_9');
+                    const old11 = localStorage.getItem('rapid_meta_bimekizumab_psoriasis_v0_9');
 
 
-                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_bimekizumab_pso_v1_0', old11); }
+                    if (old11) { saved = old11; localStorage.setItem('rapid_meta_bimekizumab_psoriasis_v1_0', old11); }
 
 
                 }
@@ -7217,10 +7217,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_il23_pso_v0_8');
+                    const old10 = localStorage.getItem('rapid_meta_bimekizumab_psoriasis_v0_8');
 
 
-                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_bimekizumab_pso_v1_0', old10); }
+                    if (old10) { saved = old10; localStorage.setItem('rapid_meta_bimekizumab_psoriasis_v1_0', old10); }
 
 
                 }
@@ -7229,10 +7229,10 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_il23_pso_v0_7');
+                    const old93 = localStorage.getItem('rapid_meta_bimekizumab_psoriasis_v0_7');
 
 
-                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_bimekizumab_pso_v1_0', old93); }
+                    if (old93) { saved = old93; localStorage.setItem('rapid_meta_bimekizumab_psoriasis_v1_0', old93); }
 
 
                 }
@@ -7280,7 +7280,7 @@ const ContinuousMDEngine = {
                         console.error('Corrupted localStorage, resetting:', e);
 
 
-                        localStorage.removeItem('rapid_meta_bimekizumab_pso_v1_0');
+                        localStorage.removeItem('rapid_meta_bimekizumab_psoriasis_v1_0');
 
 
                         showToast('State was corrupted and has been reset.');
@@ -8438,7 +8438,7 @@ const ContinuousMDEngine = {
 
 
 
-            save() { try { localStorage.setItem('rapid_meta_bimekizumab_pso_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
+            save() { try { localStorage.setItem('rapid_meta_bimekizumab_psoriasis_v1_0', JSON.stringify(this.state)); } catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage quota exceeded. Clear old version snapshots.'); } },
 
 
             getReviewerId() {
@@ -11206,7 +11206,7 @@ const ContinuousMDEngine = {
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_bimekizumab_pso_v1_0'); localStorage.removeItem('rapid_meta_il23_pso_v0_9'); localStorage.removeItem('rapid_meta_il23_pso_v0_8'); localStorage.removeItem('rapid_meta_il23_pso_v0_7'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_bimekizumab_psoriasis_v1_0'); localStorage.removeItem('rapid_meta_bimekizumab_psoriasis_v0_9'); localStorage.removeItem('rapid_meta_bimekizumab_psoriasis_v0_8'); localStorage.removeItem('rapid_meta_bimekizumab_psoriasis_v0_7'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -43836,6 +43836,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

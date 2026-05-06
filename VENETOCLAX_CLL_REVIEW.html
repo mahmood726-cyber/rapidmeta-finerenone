@@ -7090,7 +7090,7 @@ const ContinuousMDEngine = {
                 'NCT02242942': {
 
 
-                    name: 'CLL14', pmid: '32888452', phase: 'III', year: 2019, tE: 50, tN: 216, cE: 93, cN: 216, group: 'Venetoclax + obinutuzumab (12 months) vs chlorambucil + obinutuzumab in previously-untreated CLL with comorbidities; primary endpoint PFS', publishedHR: 0.35, hrLCI: 0.23, hrUCI: 0.53, pubHR: 0.35, pubHR_LCI: 0.23, pubHR_UCI: 0.53,
+                    name: 'CLL14', baseline: {n: 432, age: 71.1}, pmid: '32888452', phase: 'III', year: 2019, tE: 50, tN: 216, cE: 93, cN: 216, group: 'Venetoclax + obinutuzumab (12 months) vs chlorambucil + obinutuzumab in previously-untreated CLL with comorbidities; primary endpoint PFS', publishedHR: 0.35, hrLCI: 0.23, hrUCI: 0.53, pubHR: 0.35, pubHR_LCI: 0.23, pubHR_UCI: 0.53,
 
 
                     allOutcomes: [
@@ -7121,7 +7121,7 @@ const ContinuousMDEngine = {
                 'NCT02005471': {
 
 
-                    name: 'MURANO', pmid: '29562156', phase: 'III', year: 2018, tE: 32, tN: 194, cE: 114, cN: 195, group: 'Venetoclax + rituximab (24 months) vs bendamustine + rituximab in relapsed/refractory CLL; primary endpoint PFS', publishedHR: 0.17, hrLCI: 0.11, hrUCI: 0.25, pubHR: 0.17, pubHR_LCI: 0.11, pubHR_UCI: 0.25,
+                    name: 'MURANO', baseline: {n: 389, age: 64.4}, pmid: '29562156', phase: 'III', year: 2018, tE: 32, tN: 194, cE: 114, cN: 195, group: 'Venetoclax + rituximab (24 months) vs bendamustine + rituximab in relapsed/refractory CLL; primary endpoint PFS', publishedHR: 0.17, hrLCI: 0.11, hrUCI: 0.25, pubHR: 0.17, pubHR_LCI: 0.11, pubHR_UCI: 0.25,
 
 
                     allOutcomes: [
@@ -7152,7 +7152,7 @@ const ContinuousMDEngine = {
                 'NCT02950051': {
 
 
-                    name: 'CLL13/GAIA', pmid: '37163621', phase: 'III', year: 2023, tE: 53, tN: 229, cE: 79, cN: 229, group: 'Venetoclax + obinutuzumab (12 months) vs standard chemoimmunotherapy (FCR / BR by age) in previously-untreated fit CLL without TP53 aberrations; primary endpoint PFS (Ven+G vs CIT arm)', publishedHR: 0.42, hrLCI: 0.3, hrUCI: 0.59, pubHR: 0.42, pubHR_LCI: 0.3, pubHR_UCI: 0.59,
+                    name: 'CLL13/GAIA', baseline: {n: 458}, pmid: '37163621', phase: 'III', year: 2023, tE: 53, tN: 229, cE: 79, cN: 229, group: 'Venetoclax + obinutuzumab (12 months) vs standard chemoimmunotherapy (FCR / BR by age) in previously-untreated fit CLL without TP53 aberrations; primary endpoint PFS (Ven+G vs CIT arm)', publishedHR: 0.42, hrLCI: 0.3, hrUCI: 0.59, pubHR: 0.42, pubHR_LCI: 0.3, pubHR_UCI: 0.59,
 
 
                     allOutcomes: [
@@ -7199,7 +7199,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old11 = localStorage.getItem('rapid_meta_acala_cll_v0_9');
+                    const old11 = localStorage.getItem('rapid_meta_venetoclax_cll_v0_9');
 
 
                     if (old11) { saved = old11; localStorage.setItem('rapid_meta_venetoclax_cll_v1_0', old11); }
@@ -7211,7 +7211,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old10 = localStorage.getItem('rapid_meta_acala_cll_v0_8');
+                    const old10 = localStorage.getItem('rapid_meta_venetoclax_cll_v0_8');
 
 
                     if (old10) { saved = old10; localStorage.setItem('rapid_meta_venetoclax_cll_v1_0', old10); }
@@ -7223,7 +7223,7 @@ const ContinuousMDEngine = {
                 if (!saved) {
 
 
-                    const old93 = localStorage.getItem('rapid_meta_acala_cll_v0_7');
+                    const old93 = localStorage.getItem('rapid_meta_venetoclax_cll_v0_7');
 
 
                     if (old93) { saved = old93; localStorage.setItem('rapid_meta_venetoclax_cll_v1_0', old93); }
@@ -11200,7 +11200,7 @@ const ContinuousMDEngine = {
             },
 
 
-            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_venetoclax_cll_v1_0'); localStorage.removeItem('rapid_meta_acala_cll_v0_9'); localStorage.removeItem('rapid_meta_acala_cll_v0_8'); localStorage.removeItem('rapid_meta_acala_cll_v0_7'); location.reload(); } },
+            reset() { if(confirm("System Factory Reset?")) { localStorage.removeItem('rapid_meta_venetoclax_cll_v1_0'); localStorage.removeItem('rapid_meta_venetoclax_cll_v0_9'); localStorage.removeItem('rapid_meta_venetoclax_cll_v0_8'); localStorage.removeItem('rapid_meta_venetoclax_cll_v0_7'); location.reload(); } },
 
 
             setBayesPrior(prior) {
@@ -43830,6 +43830,8 @@ except ImportError:
     });
 })();
 </script>
+  <script src="vendor/network-graph.js" defer></script>
+  <script src="vendor/r-validation-badge.js" defer></script>
 </body>
 
 

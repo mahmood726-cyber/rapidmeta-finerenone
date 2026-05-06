@@ -28,7 +28,7 @@ import sys, io, csv, re, math
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 from pathlib import Path
 
-REPO_DIR = Path("C:/Projects/Finrenone")
+REPO_DIR = Path(__file__).resolve().parent.parent
 OUT_CSV = REPO_DIR / "outputs" / "internal_consistency_check.csv"
 
 # Single-arm trials with synthetic pre-vs-post comparator: row counts can't
