@@ -68,6 +68,71 @@ def extract_trials(text):
     return rows
 
 
+# Continuous outcome detection — walk the file, find each trial entry's
+# balanced { } block, then within it search for allOutcomes containing a
+# CONTINUOUS row with md + se. Bracket nesting in `baseline:{...}` and
+# `allOutcomes:[{...}]` rules out a single-pass regex.
+TRIAL_HEAD_RE = re.compile(r"'(NCT\d{8})'\s*:\s*\{")
+NAME_INSIDE_RE = re.compile(r"name\s*:\s*'([^']+?)'")
+CONTINUOUS_INNER_RE = re.compile(
+    r"\{[^{}]*?type\s*:\s*['\"]?CONTINUOUS['\"]?[^{}]*?"
+    r"md\s*:\s*(-?[\d.eE+\-]+)[^{}]*?"
+    r"se\s*:\s*(-?[\d.eE+\-]+)",
+    re.DOTALL,
+)
+
+
+def find_balanced_block(text, start_brace_pos):
+    """Given the position of an opening '{', return (start, end) of its
+    balanced-brace block (end exclusive). Returns None on mismatch."""
+    depth = 1
+    i = start_brace_pos + 1
+    n = len(text)
+    while i < n and depth > 0:
+        c = text[i]
+        if c == "'":
+            i += 1
+            while i < n and text[i] != "'":
+                i += 2 if text[i] == "\\" else 1
+            i += 1
+        elif c == '{': depth += 1; i += 1
+        elif c == '}': depth -= 1; i += 1
+        else: i += 1
+    return (start_brace_pos, i) if depth == 0 else None
+
+
+def to_float(s):
+    s = (s or "").strip()
+    if s.lower() in ("null", "none", "nan", ""): return None
+    try: return float(s)
+    except (ValueError, TypeError): return None
+
+
+def extract_continuous_trials(text):
+    """Walk each NCT entry's balanced { } block and pick the first
+    allOutcomes entry of type CONTINUOUS with md + se. Returns rows."""
+    rows = []
+    for m in TRIAL_HEAD_RE.finditer(text):
+        nct = m.group(1)
+        bounds = find_balanced_block(text, m.end() - 1)
+        if not bounds:
+            continue
+        block = text[bounds[0]:bounds[1]]
+        nm = NAME_INSIDE_RE.search(block)
+        if not nm:
+            continue
+        name = nm.group(1)
+        cm = CONTINUOUS_INNER_RE.search(block)
+        if not cm:
+            continue
+        md = to_float(cm.group(1))
+        se = to_float(cm.group(2))
+        if md is None or se is None or se <= 0:
+            continue
+        rows.append({"nct": nct, "name": name, "md": md, "se": se})
+    return rows
+
+
 R_SCRIPT = r'''
 suppressPackageStartupMessages({ library(metafor); library(jsonlite) })
 
@@ -164,13 +229,89 @@ jsonlite::write_json(out, json_out, auto_unbox = TRUE, pretty = TRUE, digits = 6
 '''
 
 
+R_SCRIPT_CONTINUOUS = r'''
+suppressPackageStartupMessages({ library(metafor); library(jsonlite) })
+
+args <- commandArgs(trailingOnly = TRUE)
+csv_in <- args[1]
+json_out <- args[2]
+
+dat <- read.csv(csv_in, stringsAsFactors = FALSE)
+k <- nrow(dat)
+
+if (k < 2) {
+  jsonlite::write_json(list(error = "k<2", k = k), json_out, auto_unbox = TRUE)
+  quit(status = 0)
+}
+
+# Generic precomputed-yi/vi pool: yi = mean difference, vi = se^2
+dat$vi <- dat$se ^ 2
+res <- tryCatch(
+  metafor::rma(yi = dat$md, vi = dat$vi, method = "REML", test = "knha"),
+  error = function(e) NULL
+)
+if (is.null(res)) {
+  res <- tryCatch(
+    metafor::rma(yi = dat$md, vi = dat$vi, method = "DL", test = "knha"),
+    error = function(e) NULL
+  )
+}
+if (is.null(res)) {
+  jsonlite::write_json(list(error = "rma_failed", k = k), json_out, auto_unbox = TRUE)
+  quit(status = 0)
+}
+
+# HKSJ floor flag
+Q <- as.numeric(res$QE); df <- k - 1
+hksj_floor_applied <- (Q < df)
+
+# PI: t_{k-1} convention
+tau2 <- as.numeric(res$tau2)
+se_b <- as.numeric(res$se)
+b <- as.numeric(res$b)
+tcrit <- qt(0.975, df = max(1, k - 1))
+pi_se <- sqrt(tau2 + se_b^2)
+PI_low <- b - tcrit * pi_se
+PI_high <- b + tcrit * pi_se
+
+ci_low <- as.numeric(res$ci.lb)
+ci_high <- as.numeric(res$ci.ub)
+
+out <- list(
+  k = k,
+  effect_type = "MD",
+  pooled_MD = b,
+  pooled_se = se_b,
+  ci_low_MD = ci_low,
+  ci_high_MD = ci_high,
+  tau2 = tau2,
+  I2 = as.numeric(res$I2),
+  H2 = as.numeric(res$H2),
+  Q = Q, Qdf = df, Qp = as.numeric(res$QEp),
+  PI_low_MD = PI_low,
+  PI_high_MD = PI_high,
+  pi_df_convention = "t_{k-1}_Cochrane_v6.5",
+  hksj_floor_applied = hksj_floor_applied,
+  method = paste0(res$method, "+HKSJ+continuous"),
+  trials = lapply(seq_len(k), function(i) list(
+    name = dat$name[i], nct = dat$nct[i],
+    md = dat$md[i], se = dat$se[i]
+  ))
+)
+jsonlite::write_json(out, json_out, auto_unbox = TRUE, pretty = TRUE, digits = 6)
+'''
+
+
 _R_SCRIPT_PATH = OUTDIR / "_validate.R"
 _R_SCRIPT_PATH.write_text(R_SCRIPT, encoding="utf-8")
+_R_SCRIPT_CONT_PATH = OUTDIR / "_validate_continuous.R"
+_R_SCRIPT_CONT_PATH.write_text(R_SCRIPT_CONTINUOUS, encoding="utf-8")
 
 
-def run_r(csv_path: Path, json_path: Path):
+def run_r(csv_path: Path, json_path: Path, scale="binary"):
+    script_path = _R_SCRIPT_CONT_PATH if scale == "continuous" else _R_SCRIPT_PATH
     proc = subprocess.run(
-        [RSCRIPT, str(_R_SCRIPT_PATH), str(csv_path), str(json_path)],
+        [RSCRIPT, str(script_path), str(csv_path), str(json_path)],
         capture_output=True, text=True, timeout=60,
     )
     return proc.returncode, proc.stdout, proc.stderr
@@ -193,47 +334,63 @@ def main(argv):
     n_skipped_lowK = 0
     n_failed = 0
 
+    n_validated_continuous = 0
     for hp in files:
         topic = topic_name(hp)
         text = hp.read_text(encoding="utf-8", errors="replace")
         trials = extract_trials(text)
-        if len(trials) < 2:
-            n_skipped_lowK += 1
+
+        # Path A: binary 2x2 — pool log-OR (existing behaviour)
+        if len(trials) >= 2:
+            csv_path = CSVDIR / f"{topic}.csv"
+            with csv_path.open("w", newline="", encoding="utf-8") as f:
+                w = csv.DictWriter(f, fieldnames=["nct", "name", "tE", "tN", "cE", "cN"])
+                w.writeheader()
+                for r in trials: w.writerow(r)
+            json_path = JSONDIR / f"{topic}.json"
+            rc, _stdout, stderr = run_r(csv_path, json_path)
+            if rc != 0 or not json_path.exists():
+                n_failed += 1; print(f"  FAIL {topic}: rc={rc} {stderr[:200]}"); continue
+            try: res = json.loads(json_path.read_text())
+            except Exception as e:
+                n_failed += 1; print(f"  FAIL {topic}: parse {e}"); continue
+            if "error" in res: n_failed += 1; continue
+            n_validated += 1
+            manifest.append({
+                "topic": topic, "file": hp.name, "effect_type": "OR",
+                "k": res["k"], "pooled_OR": res.get("pooled_OR"),
+                "ci_low": res.get("ci_low_OR"), "ci_high": res.get("ci_high_OR"),
+                "I2": res.get("I2"), "tau2": res.get("tau2"),
+            })
             continue
-        # Write CSV
-        csv_path = CSVDIR / f"{topic}.csv"
-        with csv_path.open("w", newline="", encoding="utf-8") as f:
-            w = csv.DictWriter(f, fieldnames=["nct", "name", "tE", "tN", "cE", "cN"])
-            w.writeheader()
-            for r in trials:
-                w.writerow(r)
-        # Run R
-        json_path = JSONDIR / f"{topic}.json"
-        rc, _stdout, stderr = run_r(csv_path, json_path)
-        if rc != 0 or not json_path.exists():
-            n_failed += 1
-            print(f"  FAIL {topic}: rc={rc} {stderr[:200]}")
+
+        # Path B: no binary 2x2 — try continuous (md/se from allOutcomes)
+        cont_trials = extract_continuous_trials(text)
+        if len(cont_trials) >= 2:
+            csv_path = CSVDIR / f"{topic}__cont.csv"
+            with csv_path.open("w", newline="", encoding="utf-8") as f:
+                w = csv.DictWriter(f, fieldnames=["nct", "name", "md", "se"])
+                w.writeheader()
+                for r in cont_trials: w.writerow(r)
+            json_path = JSONDIR / f"{topic}.json"
+            rc, _stdout, stderr = run_r(csv_path, json_path, scale="continuous")
+            if rc != 0 or not json_path.exists():
+                n_failed += 1; print(f"  FAIL {topic} (cont): rc={rc} {stderr[:200]}"); continue
+            try: res = json.loads(json_path.read_text())
+            except Exception as e:
+                n_failed += 1; print(f"  FAIL {topic} (cont): parse {e}"); continue
+            if "error" in res: n_failed += 1; continue
+            n_validated_continuous += 1
+            manifest.append({
+                "topic": topic, "file": hp.name, "effect_type": "MD",
+                "k": res["k"], "pooled_MD": res.get("pooled_MD"),
+                "ci_low": res.get("ci_low_MD"), "ci_high": res.get("ci_high_MD"),
+                "I2": res.get("I2"), "tau2": res.get("tau2"),
+            })
             continue
-        try:
-            res = json.loads(json_path.read_text())
-        except Exception as e:
-            n_failed += 1
-            print(f"  FAIL {topic}: parse {e}")
-            continue
-        if "error" in res:
-            n_failed += 1
-            continue
-        n_validated += 1
-        manifest.append({
-            "topic": topic,
-            "file": hp.name,
-            "k": res["k"],
-            "pooled_OR": res.get("pooled_OR"),
-            "ci_low": res.get("ci_low_OR"),
-            "ci_high": res.get("ci_high_OR"),
-            "I2": res.get("I2"),
-            "tau2": res.get("tau2"),
-        })
+
+        # Skipped — neither path had enough data
+        n_skipped_lowK += 1
 
     manifest.sort(key=lambda r: r["topic"])
     (OUTDIR / "index.json").write_text(json.dumps({
@@ -241,16 +398,19 @@ def main(argv):
         "method": "REML + HKSJ + PI t_{k-1} (Cochrane v6.5)",
         "generated": __import__("datetime").datetime.now().isoformat(timespec="seconds"),
         "n_validated": n_validated,
+        "n_validated_continuous": n_validated_continuous,
         "n_skipped_lowK": n_skipped_lowK,
         "n_failed": n_failed,
         "topics": manifest,
     }, indent=2))
 
     print(f"\n=== Summary ===")
-    print(f"  Validated:   {n_validated}")
-    print(f"  Skipped k<2: {n_skipped_lowK}")
-    print(f"  Failed:      {n_failed}")
-    print(f"  Manifest:    {OUTDIR / 'index.json'}")
+    print(f"  Validated (binary OR):     {n_validated}")
+    print(f"  Validated (continuous MD): {n_validated_continuous}")
+    print(f"  Total validated:           {n_validated + n_validated_continuous}")
+    print(f"  Skipped (k<2 both paths):  {n_skipped_lowK}")
+    print(f"  Failed:                    {n_failed}")
+    print(f"  Manifest:                  {OUTDIR / 'index.json'}")
 
 
 if __name__ == "__main__":
