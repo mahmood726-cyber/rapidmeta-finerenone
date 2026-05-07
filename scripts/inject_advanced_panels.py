@@ -36,6 +36,9 @@ TAGS = [
     # Stats tab: moves panels into a new tab in the RapidMeta nav. Loaded
     # last so it can take over from the legacy floating accordion.
     '<script src="vendor/stats-tab.js" defer></script>',
+    # RevMan-compatible PDF export — adds a button in Scientific Output
+    # that bundles tab-report + tab-statistics into one printable document.
+    '<script src="vendor/cochrane-export.js" defer></script>',
 ]
 
 
