@@ -50,6 +50,10 @@ TAGS = [
     # Tier B: well-validated, ubiquitous in published MAs
     '<script src="vendor/funnel-diagnostics.js" defer></script>',
     '<script src="vendor/influence-diagnostics.js" defer></script>',
+    # Continuous-outcome support (MD + Hedges' g)
+    '<script src="vendor/continuous-outcome.js" defer></script>',
+    # INSPECT-SR per-review trustworthiness card
+    '<script src="vendor/inspect-sr-panel.js" defer></script>',
 ]
 
 

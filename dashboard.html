@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RapidMeta Portfolio Dashboard — 286 living meta-analyses</title>
+<meta property="og:title" content="RapidMeta Portfolio Dashboard">
+<meta property="og:description" content="Filterable analytical view of 286 living meta-analyses with R metafor cross-validation, GRADE certainty, integrity flags, and Cochrane v6.5 sensitivity diagnostics.">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: #0b1220; color: #e2e8f0;
+  font-size: 13px; line-height: 1.45;
+}
+.page { max-width: 1400px; margin: 0 auto; padding: 18px 20px; }
+header { padding-bottom: 12px; border-bottom: 1px solid #1e293b; margin-bottom: 18px; }
+h1 { font-size: 22px; color: #f1f5f9; font-weight: 700; margin-bottom: 6px; }
+.tagline { color: #94a3b8; font-size: 12.5px; max-width: 900px; }
+.tagline a { color: #7dd3fc; text-decoration: none; }
+.tagline a:hover { text-decoration: underline; }
+
+.summary-bar {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px; margin: 14px 0 18px;
+}
+.stat {
+  background: #0f172a; border: 1px solid #1e3a5f; border-radius: 8px;
+  padding: 8px 12px;
+}
+.stat-label { font-size: 9.5px; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; }
+.stat-value { font-size: 18px; color: #f1f5f9; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.stat-sub   { font-size: 10.5px; color: #94a3b8; }
+
+.controls {
+  display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+  margin-bottom: 14px; padding: 10px; background: #0f172a;
+  border: 1px solid #1e293b; border-radius: 8px;
+}
+.controls input, .controls select {
+  background: #0b1220; color: #e2e8f0; border: 1px solid #334155;
+  border-radius: 6px; padding: 6px 10px; font-size: 12.5px; font-family: inherit;
+  outline: none;
+}
+.controls input:focus, .controls select:focus { border-color: #7dd3fc; }
+.controls input[type="search"] { min-width: 240px; }
+.controls label { font-size: 11px; color: #94a3b8; }
+.btn {
+  background: #1e293b; color: #cbd5e1; border: 1px solid #334155;
+  padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 11.5px;
+}
+.btn:hover { background: #1e3a5f; color: #7dd3fc; }
+.btn.active { background: #1e3a5f; color: #7dd3fc; border-color: #7dd3fc; }
+
+.count-line { font-size: 11.5px; color: #94a3b8; margin-bottom: 8px; }
+.count-line strong { color: #f1f5f9; }
+
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead th {
+  background: #1e293b; color: #cbd5e1; font-weight: 700;
+  padding: 7px 9px; text-align: left; border-bottom: 1px solid #475569;
+  cursor: pointer; user-select: none; position: sticky; top: 0; z-index: 1;
+  font-size: 11px;
+}
+thead th:hover { color: #7dd3fc; }
+thead th.sort-asc::after  { content: ' ▲'; color: #7dd3fc; font-size: 9px; }
+thead th.sort-desc::after { content: ' ▼'; color: #7dd3fc; font-size: 9px; }
+
+tbody tr { border-bottom: 1px solid #1e293b; }
+tbody tr:hover { background: #1c2030; }
+tbody td { padding: 6px 9px; vertical-align: middle; }
+.col-name a { color: #e2e8f0; text-decoration: none; font-weight: 500; }
+.col-name a:hover { color: #7dd3fc; }
+.col-bucket { color: #94a3b8; font-size: 10.5px; }
+.tag {
+  display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px;
+  font-family: 'JetBrains Mono', monospace; font-weight: 700;
+  background: #1e3a5f; color: #7dd3fc;
+}
+.tag.nma { background: #312e81; color: #c4b5fd; }
+.tag.pairwise { background: #1e3a5f; color: #7dd3fc; }
+.col-numeric, .col-or {
+  text-align: right; font-family: 'JetBrains Mono', monospace; color: #cbd5e1;
+}
+.col-or .or-sig { color: #7dd3fc; font-weight: 600; }
+.col-or .or-ns  { color: #94a3b8; }
+.col-or .or-na  { color: #475569; }
+.col-flag {
+  text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 11px;
+}
+.flag-clean { color: #34d399; }
+.flag-mod   { color: #fbbf24; }
+.flag-high  { color: #fca5a5; }
+.col-cert .cert-high { color: #34d399; font-size: 10.5px; }
+.col-cert .cert-mod  { color: #7dd3fc; font-size: 10.5px; }
+.col-cert .cert-low  { color: #fbbf24; font-size: 10.5px; }
+.col-cert .cert-vlow { color: #fca5a5; font-size: 10.5px; }
+.col-cert .cert-na   { color: #475569; font-size: 10.5px; }
+.col-date { color: #94a3b8; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; }
+
+footer {
+  margin-top: 24px; padding-top: 14px; border-top: 1px solid #1e293b;
+  color: #64748b; font-size: 10.5px;
+}
+footer a { color: #7dd3fc; text-decoration: none; }
+
+.empty {
+  padding: 40px; text-align: center; color: #94a3b8; font-size: 13px;
+  background: #0f172a; border: 1px dashed #334155; border-radius: 8px;
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <h1>RapidMeta Portfolio Dashboard</h1>
+  <p class="tagline">Filterable analytical view of every shipped review. R metafor cross-validation, GRADE certainty, AACT-derived pre-registration concordance, and Cochrane Handbook v6.5 sensitivity diagnostics. <a href="index.html">← editorial landing</a></p>
+</header>
+
+<div class="summary-bar" id="summary"></div>
+
+<div class="controls">
+  <input type="search" id="search" placeholder="Search drug, condition, NCT…" />
+  <select id="filterType">
+    <option value="">All types</option>
+    <option value="Pairwise">Pairwise only</option>
+    <option value="NMA">NMA only</option>
+  </select>
+  <select id="filterBucket">
+    <option value="">All clinical areas</option>
+  </select>
+  <select id="filterFlag">
+    <option value="">Any integrity status</option>
+    <option value="clean">No integrity flags</option>
+    <option value="any">≥1 integrity flag</option>
+    <option value="multi">≥3 integrity flags</option>
+  </select>
+  <select id="filterK">
+    <option value="">Any k</option>
+    <option value="ge5">k ≥ 5</option>
+    <option value="ge10">k ≥ 10</option>
+  </select>
+  <button class="btn" id="resetBtn">Reset filters</button>
+</div>
+
+<div class="count-line" id="count"></div>
+
+<div id="tableWrap">
+<table>
+  <thead>
+    <tr>
+      <th data-key="display_name">Topic</th>
+      <th data-key="type">Type</th>
+      <th data-key="bucket">Area</th>
+      <th data-key="n_trials" class="col-numeric">k</th>
+      <th data-key="pooled_OR" class="col-or">Pooled OR (95% CI)</th>
+      <th data-key="I2" class="col-numeric">I²</th>
+      <th data-key="tau2" class="col-numeric">τ²</th>
+      <th data-key="integrity_flags" class="col-flag">Integrity</th>
+      <th data-key="last_modified" class="col-date">Last update</th>
+    </tr>
+  </thead>
+  <tbody id="rows"></tbody>
+</table>
+</div>
+
+<div id="emptyState" class="empty" style="display:none;">No reviews match the current filters.</div>
+
+<footer>
+  <span id="meta"></span>
+  &nbsp;·&nbsp; <a href="outputs/portfolio_index.json" target="_blank">raw JSON ↗</a>
+  &nbsp;·&nbsp; <a href="outputs/r_validation/index.json" target="_blank">R validation manifest ↗</a>
+  &nbsp;·&nbsp; <a href="outputs/trial_integrity.json" target="_blank">trial integrity ↗</a>
+  &nbsp;·&nbsp; Generated by RapidMeta · Not a Cochrane Collaboration document
+</footer>
+
+</div>
+
+<script>
+let DATA = null;
+let sortKey = 'display_name';
+let sortDir = 1;
+
+function fmt(v, d) {
+  if (v === null || v === undefined || isNaN(v)) return '—';
+  if (typeof v !== 'number') v = Number(v);
+  return d == null ? String(v) : v.toFixed(d);
+}
+
+function renderSummary() {
+  const el = document.getElementById('summary');
+  const stats = [
+    { label: 'Reviews shipped', value: DATA.n_total, sub: DATA.n_pairwise + ' pairwise · ' + DATA.n_nma + ' NMA' },
+    { label: 'R metafor validated', value: DATA.n_with_r_validation, sub: 'cross-validated against JS engine' },
+    { label: 'With integrity flag', value: DATA.rows.filter(r => r.integrity_flags > 0).length, sub: 'concordance heuristics from AACT' },
+    { label: 'With AACT baselines', value: DATA.rows.filter(r => r.n_with_baseline > 0).length, sub: 'age + female% auto-injected' },
+    { label: 'Total trials referenced', value: DATA.rows.reduce((s, r) => s + r.n_trials, 0).toLocaleString() },
+  ];
+  el.innerHTML = stats.map(s =>
+    '<div class="stat">' +
+      '<div class="stat-label">' + s.label + '</div>' +
+      '<div class="stat-value">' + s.value + '</div>' +
+      (s.sub ? '<div class="stat-sub">' + s.sub + '</div>' : '') +
+    '</div>'
+  ).join('');
+}
+
+function populateBuckets() {
+  const select = document.getElementById('filterBucket');
+  const buckets = Array.from(new Set(DATA.rows.map(r => r.bucket))).sort();
+  buckets.forEach(b => {
+    const o = document.createElement('option');
+    o.value = b; o.textContent = b;
+    select.appendChild(o);
+  });
+}
+
+function applyFilters() {
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  const tFil = document.getElementById('filterType').value;
+  const bFil = document.getElementById('filterBucket').value;
+  const fFil = document.getElementById('filterFlag').value;
+  const kFil = document.getElementById('filterK').value;
+
+  let rows = DATA.rows.slice();
+
+  if (q) {
+    rows = rows.filter(r => {
+      const hay = (r.display_name + ' ' + r.topic + ' ' + (r.ncts || []).join(' ') + ' ' + r.bucket).toLowerCase();
+      return hay.includes(q);
+    });
+  }
+  if (tFil) rows = rows.filter(r => r.type === tFil);
+  if (bFil) rows = rows.filter(r => r.bucket === bFil);
+  if (fFil === 'clean') rows = rows.filter(r => r.integrity_flags === 0);
+  if (fFil === 'any')   rows = rows.filter(r => r.integrity_flags >= 1);
+  if (fFil === 'multi') rows = rows.filter(r => r.integrity_flags >= 3);
+  if (kFil === 'ge5')   rows = rows.filter(r => r.n_trials >= 5);
+  if (kFil === 'ge10')  rows = rows.filter(r => r.n_trials >= 10);
+
+  // Sort
+  rows.sort((a, b) => {
+    let av = a[sortKey], bv = b[sortKey];
+    if (av == null && bv == null) return 0;
+    if (av == null) return 1;
+    if (bv == null) return -1;
+    if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * sortDir;
+    return String(av).localeCompare(String(bv)) * sortDir;
+  });
+
+  renderRows(rows);
+  document.getElementById('count').innerHTML =
+    'Showing <strong>' + rows.length + '</strong> of <strong>' + DATA.rows.length + '</strong> reviews' +
+    (q || tFil || bFil || fFil || kFil ? ' (filtered)' : '');
+}
+
+function renderRows(rows) {
+  const body = document.getElementById('rows');
+  if (rows.length === 0) {
+    body.innerHTML = '';
+    document.getElementById('emptyState').style.display = 'block';
+    document.getElementById('tableWrap').style.display = 'none';
+    return;
+  }
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('tableWrap').style.display = 'block';
+
+  body.innerHTML = rows.map(r => {
+    const orHtml = r.pooled_OR != null
+      ? (() => {
+          const sig = (r.ci_low > 1) || (r.ci_high < 1);
+          const cls = sig ? 'or-sig' : 'or-ns';
+          return '<span class="' + cls + '">' + fmt(r.pooled_OR, 2) + '</span> [' + fmt(r.ci_low, 2) + '–' + fmt(r.ci_high, 2) + ']';
+        })()
+      : '<span class="or-na">— (k<2 / continuous?)</span>';
+
+    const flagHtml = r.integrity_flags === 0
+      ? '<span class="flag-clean">✓</span>'
+      : (r.integrity_flags >= 3
+          ? '<span class="flag-high">⚠ ' + r.integrity_flags + '</span>'
+          : '<span class="flag-mod">⚠ ' + r.integrity_flags + '</span>');
+
+    const date = (r.last_modified || '').split('T')[0] || '—';
+
+    return '<tr>' +
+      '<td class="col-name"><a href="' + r.file + '" target="_blank">' + r.display_name + '</a></td>' +
+      '<td><span class="tag ' + (r.type === 'NMA' ? 'nma' : 'pairwise') + '">' + r.type + (r.type === 'NMA' && r.n_treatments ? ' · ' + r.n_treatments + ' tx' : '') + '</span></td>' +
+      '<td class="col-bucket">' + r.bucket + '</td>' +
+      '<td class="col-numeric">' + r.n_trials + '</td>' +
+      '<td class="col-or">' + orHtml + '</td>' +
+      '<td class="col-numeric">' + (r.I2 != null ? fmt(r.I2, 0) + '%' : '—') + '</td>' +
+      '<td class="col-numeric">' + (r.tau2 != null ? fmt(r.tau2, 3) : '—') + '</td>' +
+      '<td class="col-flag">' + flagHtml + '</td>' +
+      '<td class="col-date">' + date + '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function setSort(key) {
+  if (sortKey === key) sortDir = -sortDir;
+  else { sortKey = key; sortDir = 1; }
+  // Update header indicators
+  document.querySelectorAll('thead th').forEach(th => {
+    th.classList.remove('sort-asc', 'sort-desc');
+    if (th.dataset.key === sortKey) {
+      th.classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
+    }
+  });
+  applyFilters();
+}
+
+document.querySelectorAll('thead th').forEach(th => {
+  th.addEventListener('click', () => setSort(th.dataset.key));
+});
+['search', 'filterType', 'filterBucket', 'filterFlag', 'filterK'].forEach(id => {
+  document.getElementById(id).addEventListener('input', applyFilters);
+  document.getElementById(id).addEventListener('change', applyFilters);
+});
+document.getElementById('resetBtn').addEventListener('click', () => {
+  document.getElementById('search').value = '';
+  document.getElementById('filterType').value = '';
+  document.getElementById('filterBucket').value = '';
+  document.getElementById('filterFlag').value = '';
+  document.getElementById('filterK').value = '';
+  applyFilters();
+});
+
+fetch('outputs/portfolio_index.json', { cache: 'no-cache' })
+  .then(r => r.json())
+  .then(d => {
+    DATA = d;
+    document.getElementById('meta').textContent =
+      'Index generated ' + (DATA.generated || '') +
+      ' · ' + DATA.n_total + ' reviews · ' + DATA.n_with_r_validation + ' R-validated';
+    renderSummary();
+    populateBuckets();
+    applyFilters();
+  })
+  .catch(e => {
+    document.getElementById('count').textContent = 'Failed to load portfolio_index.json — ' + e.message;
+  });
+</script>
+
+</body>
+</html>

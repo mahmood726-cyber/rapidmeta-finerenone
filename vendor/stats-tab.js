@@ -43,6 +43,8 @@
     'meta-regression-panel',
     'funnel-diagnostics-panel',
     'influence-diagnostics-panel',
+    'continuous-outcome-panel',
+    'inspect-sr-panel',
   ];
 
   function buildTabButton(referenceBtn) {
