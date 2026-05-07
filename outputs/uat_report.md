@@ -1,6 +1,6 @@
 # UAT Audit Report
 
-_Generated 2026-05-07T13:33:19_
+_Generated 2026-05-07T13:58:44_
 
 **Scope:** 36 files audited via headless Chromium
 
@@ -39,32 +39,16 @@ _Generated 2026-05-07T13:33:19_
 | ALOPECIA_JAKI_REVIEW.html | PASS | ✓ | 5 | 0 |  |
 | ANTI_CD20_MS_REVIEW.html | PASS | ✓ | 6 | 0 |  |
 | ARPI_mHSPC_REVIEW.html | PASS | ✓ | 5 | 0 |  |
-| AVACINCAPTAD_GA_REVIEW.html | PASS | ✓ | 2 | 1 |  |
+| AVACINCAPTAD_GA_REVIEW.html | PASS | ✓ | 2 | 0 |  |
 | BELIMUMAB_SLE_REVIEW.html | PASS | ✓ | 4 | 0 |  |
-| CGRP_MIGRAINE_REVIEW.html | PASS | ✓ | 3 | 1 |  |
+| CGRP_MIGRAINE_REVIEW.html | PASS | ✓ | 3 | 0 |  |
 | DUPILUMAB_AD_REVIEW.html | PASS | ✓ | 3 | 0 |  |
 | HIV_LA_PREP_REVIEW.html | PASS | ✓ | 4 | 0 |  |
-| INCLISIRAN_REVIEW.html | PASS | ✓ | 3 | 1 |  |
+| INCLISIRAN_REVIEW.html | PASS | ✓ | 3 | 0 |  |
 | JAK_UC_REVIEW.html | PASS | ✓ | 3 | 0 |  |
 | PAH_THERAPY_REVIEW.html | PASS | ✓ | 4 | 0 |  |
 | PHYSICAL_REHAB_OLDER_REVIEW.html | PASS | ✓ | 3 | 0 |  |
-| RENAL_DENERV_REVIEW.html | PASS | ✓ | 6 | 1 |  |
+| RENAL_DENERV_REVIEW.html | PASS | ✓ | 6 | 0 |  |
 | SOTAGLIFLOZIN_HF_REVIEW.html | PASS | ✓ | 2 | 0 |  |
 
 ## Issues detail (FAIL + WARN)
-
-### AVACINCAPTAD_GA_REVIEW.html
-  - **Console errors (1):**
-    - `Failed to load resource: the server responded with a status of 404 (File not found)`
-
-### CGRP_MIGRAINE_REVIEW.html
-  - **Console errors (1):**
-    - `Failed to load resource: the server responded with a status of 404 (File not found)`
-
-### INCLISIRAN_REVIEW.html
-  - **Console errors (1):**
-    - `Failed to load resource: the server responded with a status of 404 (File not found)`
-
-### RENAL_DENERV_REVIEW.html
-  - **Console errors (1):**
-    - `Failed to load resource: the server responded with a status of 404 (File not found)`
