@@ -33,6 +33,9 @@ TAGS = [
     # Master accordion: consolidates all of the above into one ~31 px
     # collapsed row so the RapidMeta tabs stay above the fold.
     '<script src="vendor/advanced-stats-suite.js" defer></script>',
+    # Stats tab: moves panels into a new tab in the RapidMeta nav. Loaded
+    # last so it can take over from the legacy floating accordion.
+    '<script src="vendor/stats-tab.js" defer></script>',
 ]
 
 
