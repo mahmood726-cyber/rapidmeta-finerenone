@@ -36,6 +36,8 @@
     'tsa-panel',
     'nma-league-table-panel',
     'nma-forest-all-treatments-panel',
+    'trial-integrity-panel',
+    'bayesian-sensitivity-panel',
   ];
 
   function buildTabButton(referenceBtn) {

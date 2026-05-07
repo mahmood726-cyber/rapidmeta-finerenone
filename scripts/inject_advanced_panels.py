@@ -39,6 +39,10 @@ TAGS = [
     # RevMan-compatible PDF export — adds a button in Scientific Output
     # that bundles tab-report + tab-statistics into one printable document.
     '<script src="vendor/cochrane-export.js" defer></script>',
+    # Trial-integrity sensitivity (concordance heuristics from AACT)
+    '<script src="vendor/trial-integrity-panel.js" defer></script>',
+    # Bayesian sensitivity (pure-JS grid; weakly-informative priors)
+    '<script src="vendor/bayesian-sensitivity.js" defer></script>',
 ]
 
 
