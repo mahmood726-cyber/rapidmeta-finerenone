@@ -177,9 +177,13 @@
     return true;
   }
 
+  function isNMA() {
+    return !!(global.NMA_CONFIG && global.NMA_CONFIG.treatments && global.NMA_CONFIG.treatments.length >= 2);
+  }
+
   global.PanelHelper = {
     getRealData, fmt, extractBinaryTrials,
     poolRandomLogOR, poolRandomRD,
-    buildCollapsiblePanel, insertAfterRBadge,
+    buildCollapsiblePanel, insertAfterRBadge, isNMA,
   };
 })(typeof window !== 'undefined' ? window : this);

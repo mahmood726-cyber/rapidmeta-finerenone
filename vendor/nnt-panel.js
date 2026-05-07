@@ -110,11 +110,12 @@
     if (!pool) return false;
     const info = nntFromRD(pool.rd, pool.ci_low, pool.ci_high);
 
+    const umbrella = P.isNMA && P.isNMA() ? ' [umbrella, drug-class vs ref]' : '';
     let summary;
     if (info.crossesZero || info.nnt === null || !isFinite(info.nnt)) {
-      summary = 'NNT undefined (no significant effect) · pooled RD ' + P.fmt(pool.rd * 100, 1) + '% · k=' + pool.k;
+      summary = 'NNT undefined (no significant effect) · pooled RD ' + P.fmt(pool.rd * 100, 1) + '% · k=' + pool.k + umbrella;
     } else {
-      summary = info.direction + ' ' + Math.ceil(info.nnt) + ' [' + Math.ceil(info.nntLow) + '–' + Math.ceil(info.nntHigh) + '] · k=' + pool.k;
+      summary = info.direction + ' ' + Math.ceil(info.nnt) + ' [' + Math.ceil(info.nntLow) + '–' + Math.ceil(info.nntHigh) + '] · k=' + pool.k + umbrella;
     }
 
     const panel = P.buildCollapsiblePanel({

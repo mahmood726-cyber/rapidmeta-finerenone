@@ -187,7 +187,8 @@
     const auto = autoCertainty(pool, trials);
     const attest = getAttestation();
     const finalLevel = attest ? attest.level : auto.level;
-    const summary = 'Certainty: ' + finalLevel + ' · k=' + pool.k + ' · OR ' + P.fmt(pool.OR, 2) + ' [' + P.fmt(pool.ci_low, 2) + '–' + P.fmt(pool.ci_high, 2) + ']' + (attest ? ' · attested' : ' · auto');
+    const umbrella = P.isNMA && P.isNMA() ? ' [umbrella; per-comparison in NMA Forest]' : '';
+    const summary = 'Certainty: ' + finalLevel + ' · k=' + pool.k + ' · OR ' + P.fmt(pool.OR, 2) + ' [' + P.fmt(pool.ci_low, 2) + '–' + P.fmt(pool.ci_high, 2) + ']' + (attest ? ' · attested' : ' · auto') + umbrella;
 
     const panel = P.buildCollapsiblePanel({
       id: 'grade-sof-panel',

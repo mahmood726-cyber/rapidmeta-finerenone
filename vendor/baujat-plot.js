@@ -116,9 +116,10 @@
     const yMax = Math.max(...rows.map(r => r.influence), 0.01);
     const outliers = rows.filter(r => r.qContrib > xMax / 2 && r.influence > yMax / 2);
 
-    const summary = outliers.length > 0
+    const umbrella = P.isNMA && P.isNMA() ? ' [umbrella]' : '';
+    const summary = (outliers.length > 0
       ? '⚠ outlier candidate' + (outliers.length > 1 ? 's' : '') + ': ' + outliers.map(o => o.name).slice(0, 3).join(', ') + ' · k=' + trials.length
-      : '✓ no outliers — diagnostic clean across k=' + trials.length;
+      : '✓ no outliers — diagnostic clean across k=' + trials.length) + umbrella;
 
     const svg = buildSVG(rows);
     const note = '<div style="font-size:10.5px;color:#64748b;margin-top:8px;line-height:1.5;">'

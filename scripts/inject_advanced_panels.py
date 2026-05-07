@@ -26,6 +26,10 @@ TAGS = [
     '<script src="vendor/cumulative-ma.js" defer></script>',
     '<script src="vendor/baujat-plot.js" defer></script>',
     '<script src="vendor/tsa-panel.js" defer></script>',
+    # NMA-only modules — self-guard and exit silently in pairwise reviews,
+    # so it's safe to inject everywhere.
+    '<script src="vendor/nma-league-table.js" defer></script>',
+    '<script src="vendor/nma-forest-all-treatments.js" defer></script>',
 ]
 
 

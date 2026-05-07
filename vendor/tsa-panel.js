@@ -195,7 +195,8 @@
     const accrued_pct_raw = (tsa.cumPoints[tsa.cumPoints.length-1].t_k) * 100;
     const accrued_pct = Math.min(100, Math.round(accrued_pct_raw));
     const accrued_label = accrued_pct_raw >= 100 ? '≥100%' : accrued_pct + '%';
-    const summary = tsa.verdict + ' · accrued ' + accrued_label + ' of RIS (' + Math.round(tsa.N_adj).toLocaleString() + ')';
+    const umbrella = P.isNMA && P.isNMA() ? ' [umbrella]' : '';
+    const summary = tsa.verdict + ' · accrued ' + accrued_label + ' of RIS (' + Math.round(tsa.N_adj).toLocaleString() + ')' + umbrella;
 
     const stats = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:10px;">';
     function cell(label, value, sub) {

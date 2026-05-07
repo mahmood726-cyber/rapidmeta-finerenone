@@ -95,13 +95,14 @@
     if (!fullPool) return false;
 
     const built = buildBody(P, trials, fullPool);
+    const umbrella = P.isNMA && P.isNMA() ? ' [umbrella]' : '';
     let summary;
     if (built.flipCount > 0) {
-      summary = '⚠ ' + built.flipCount + ' trial(s) flip significance · max Δ ' + P.fmt(built.maxShift * 100, 1) + '%';
+      summary = '⚠ ' + built.flipCount + ' trial(s) flip significance · max Δ ' + P.fmt(built.maxShift * 100, 1) + '%' + umbrella;
     } else if (built.maxShift >= 0.10) {
-      summary = '⚠ max Δ ' + P.fmt(built.maxShift * 100, 1) + '% (driver trial)';
+      summary = '⚠ max Δ ' + P.fmt(built.maxShift * 100, 1) + '% (driver trial)' + umbrella;
     } else {
-      summary = '✓ robust · max Δ ' + P.fmt(built.maxShift * 100, 1) + '%';
+      summary = '✓ robust · max Δ ' + P.fmt(built.maxShift * 100, 1) + '%' + umbrella;
     }
 
     const panel = P.buildCollapsiblePanel({

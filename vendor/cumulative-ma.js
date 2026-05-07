@@ -100,9 +100,10 @@
     for (let i = 0; i < points.length; i++) {
       if ((points[i].ci_low > 1) || (points[i].ci_high < 1)) { firstSig = points[i]; break; }
     }
-    const summary = firstSig
+    const umbrella = P.isNMA && P.isNMA() ? ' [umbrella]' : '';
+    const summary = (firstSig
       ? 'evidence first significant at ' + firstSig.year + ' (k=' + firstSig.k + ') · ' + points.length + ' cumulative pools'
-      : 'evidence not yet conclusive across ' + points.length + ' pools (CI still crosses null)';
+      : 'evidence not yet conclusive across ' + points.length + ' pools (CI still crosses null)') + umbrella;
 
     const svg = buildSVG(P, points, fullPool);
     const note = '<div style="font-size:10.5px;color:#64748b;margin-top:8px;line-height:1.5;">'
