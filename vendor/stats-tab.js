@@ -45,6 +45,7 @@
     'influence-diagnostics-panel',
     'continuous-outcome-panel',
     'inspect-sr-panel',
+    'nma-forest-continuous-panel',
   ];
 
   function buildTabButton(referenceBtn) {

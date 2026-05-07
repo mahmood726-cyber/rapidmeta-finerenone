@@ -54,6 +54,8 @@ TAGS = [
     '<script src="vendor/continuous-outcome.js" defer></script>',
     # INSPECT-SR per-review trustworthiness card
     '<script src="vendor/inspect-sr-panel.js" defer></script>',
+    # NMA forest for continuous outcomes (analogue of nma-forest-all-treatments.js)
+    '<script src="vendor/nma-forest-continuous.js" defer></script>',
 ]
 
 

@@ -53,12 +53,34 @@ def to_int(s):
         return None
 
 
+BINARY_INSIDE_RE = re.compile(
+    r"\btE\s*:\s*(-?[\d.eE+\-]+|null|None|NaN)\s*,[^{}]*?"
+    r"\btN\s*:\s*(-?[\d.eE+\-]+|null|None|NaN)\s*,[^{}]*?"
+    r"\bcE\s*:\s*(-?[\d.eE+\-]+|null|None|NaN)\s*,[^{}]*?"
+    r"\bcN\s*:\s*(-?[\d.eE+\-]+|null|None|NaN)",
+    re.DOTALL,
+)
+
+
 def extract_trials(text):
-    """Return list of dicts: name, tE, tN, cE, cN."""
+    """Walk each NCT entry's balanced { } block and pick tE/tN/cE/cN.
+    Tolerant of the realData entry ordering (baseline before name, etc).
+    Returns list of dicts: nct, name, tE, tN, cE, cN."""
     rows = []
-    for m in TRIAL_RE.finditer(text):
-        nct, name, tE, tN, cE, cN = m.groups()
-        tE_i, tN_i, cE_i, cN_i = (to_int(x) for x in (tE, tN, cE, cN))
+    for m in TRIAL_HEAD_RE.finditer(text):
+        nct = m.group(1)
+        bounds = find_balanced_block(text, m.end() - 1)
+        if not bounds:
+            continue
+        block = text[bounds[0]:bounds[1]]
+        nm = NAME_INSIDE_RE.search(block)
+        if not nm:
+            continue
+        name = nm.group(1)
+        bm = BINARY_INSIDE_RE.search(block)
+        if not bm:
+            continue
+        tE_i, tN_i, cE_i, cN_i = (to_int(x) for x in bm.groups())
         if None in (tE_i, tN_i, cE_i, cN_i): continue
         if tN_i <= 0 or cN_i <= 0: continue
         if tE_i < 0 or cE_i < 0: continue
