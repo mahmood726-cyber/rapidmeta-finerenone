@@ -30,6 +30,9 @@ TAGS = [
     # so it's safe to inject everywhere.
     '<script src="vendor/nma-league-table.js" defer></script>',
     '<script src="vendor/nma-forest-all-treatments.js" defer></script>',
+    # Master accordion: consolidates all of the above into one ~31 px
+    # collapsed row so the RapidMeta tabs stay above the fold.
+    '<script src="vendor/advanced-stats-suite.js" defer></script>',
 ]
 
 
