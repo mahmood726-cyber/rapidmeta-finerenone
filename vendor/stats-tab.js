@@ -38,6 +38,11 @@
     'nma-forest-all-treatments-panel',
     'trial-integrity-panel',
     'bayesian-sensitivity-panel',
+    'subgroup-interaction-panel',
+    'rr-sensitivity-panel',
+    'meta-regression-panel',
+    'funnel-diagnostics-panel',
+    'influence-diagnostics-panel',
   ];
 
   function buildTabButton(referenceBtn) {

@@ -43,6 +43,13 @@ TAGS = [
     '<script src="vendor/trial-integrity-panel.js" defer></script>',
     # Bayesian sensitivity (pure-JS grid; weakly-informative priors)
     '<script src="vendor/bayesian-sensitivity.js" defer></script>',
+    # Tier A: Cochrane v6.5 explicit recommendations
+    '<script src="vendor/subgroup-interaction.js" defer></script>',
+    '<script src="vendor/rr-sensitivity.js" defer></script>',
+    '<script src="vendor/meta-regression.js" defer></script>',
+    # Tier B: well-validated, ubiquitous in published MAs
+    '<script src="vendor/funnel-diagnostics.js" defer></script>',
+    '<script src="vendor/influence-diagnostics.js" defer></script>',
 ]
 
 
