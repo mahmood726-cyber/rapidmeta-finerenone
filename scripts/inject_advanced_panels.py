@@ -60,6 +60,8 @@ TAGS = [
     '<script src="vendor/single-arm-proportion.js" defer></script>',
     # Dose-response meta-regression (Greenland-Longnecker 1992; Cochrane v6.5 §10.4)
     '<script src="vendor/dose-response.js" defer></script>',
+    # Diagnostic Test Accuracy (Cochrane DTA Handbook; Reitsma 2005)
+    '<script src="vendor/dta-bivariate.js" defer></script>',
 ]
 
 

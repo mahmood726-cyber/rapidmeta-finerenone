@@ -48,6 +48,7 @@
     'nma-forest-continuous-panel',
     'single-arm-proportion-panel',
     'dose-response-panel',
+    'dta-bivariate-panel',
   ];
 
   function buildTabButton(referenceBtn) {
