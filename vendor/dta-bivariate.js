@@ -33,9 +33,60 @@
   'use strict';
   const STORAGE_KEY = 'dta-bivariate-expanded';
 
+  // Order-flexible cell parsing: extract each of TP/FP/FN/TN independently
+  // from free-text rationale fields. Fall back to "Sens X% / Spec Y% on N+/M−"
+  // back-computation when 2×2 not present verbatim.
+  function parseCellsFromText(text) {
+    if (!text) return null;
+    const re = (label) => new RegExp('\\b' + label + '\\s*=\\s*(\\d+)', 'i');
+    const grab = (label) => {
+      const m = text.match(re(label));
+      return m ? +m[1] : null;
+    };
+    const TP = grab('TP'), FP = grab('FP'), FN = grab('FN'), TN = grab('TN');
+    if (TP !== null && FP !== null && FN !== null && TN !== null) {
+      return { TP, FP, FN, TN };
+    }
+    // Variant: "Sens 88% / Spec 96% on 462 culture-positive + 977 culture-negative"
+    const sm = text.match(/Sens\s*[≈~]?\s*(\d+(?:\.\d+)?)\s*%/i);
+    const spm = text.match(/Spec\s*[≈~]?\s*(\d+(?:\.\d+)?)\s*%/i);
+    const nPosM = text.match(/(\d+)\s*(?:culture[\s-]?positive|TB[+\s]?\+?|disease[d\s]?\+?|positive)/i);
+    const nNegM = text.match(/(\d+)\s*(?:culture[\s-]?negative|TB[\s-]?[−-]?|disease[d\s]?[−-]?|negative)/i);
+    if (sm && spm && nPosM && nNegM) {
+      const sens = +sm[1] / 100;
+      const spec = +spm[1] / 100;
+      const nPos = +nPosM[1], nNeg = +nNegM[1];
+      const _TP = Math.round(sens * nPos);
+      const _FN = nPos - _TP;
+      const _TN = Math.round(spec * nNeg);
+      const _FP = nNeg - _TN;
+      if (_TP >= 0 && _FN >= 0 && _TN >= 0 && _FP >= 0) {
+        return { TP: _TP, FP: _FP, FN: _FN, TN: _TN };
+      }
+    }
+    return null;
+  }
+
   function pickDTATrials(rd) {
-    if (!rd) return [];
     const out = [];
+
+    // Path A: legacy DTA reviews — _screeningStudies array with rationale text
+    const screeningStudies = global._screeningStudies;
+    if (Array.isArray(screeningStudies)) {
+      screeningStudies.forEach(s => {
+        if (!s || s.decision !== 'included') return;
+        const cells = parseCellsFromText(s.rationale || '');
+        if (!cells) return;
+        const { TP, FP, FN, TN } = cells;
+        if ((TP + FN) > 0 && (TN + FP) > 0) {
+          out.push({ name: s.studlab || s.title || '?', TP, FP, FN, TN });
+        }
+      });
+      if (out.length >= 2) return out;
+    }
+
+    // Path B: standard RapidMeta realData shape
+    if (!rd) return out;
     Object.values(rd).forEach(t => {
       if (!t) return;
       // Variant 1: explicit TP/FP/FN/TN at top level
@@ -71,6 +122,22 @@
       }
     });
     return out;
+  }
+
+  // If the host page exposes a full RapidMetaDTA engine (legacy DTA
+  // reviews ship one with bivariate fitting + HSROC reparameterisation +
+  // threshold-effect detection), use its richer output instead of our
+  // independent-univariate fallback.
+  function tryEnginePool(trials) {
+    const Eng = global.RapidMetaDTA;
+    if (!Eng || typeof Eng.fit !== 'function') return null;
+    try {
+      const r = Eng.fit(trials);
+      if (!r || r.error) return null;
+      return r;
+    } catch (e) {
+      return null;
+    }
   }
 
   function logit(p) { return Math.log(p / (1 - p)); }
@@ -252,20 +319,171 @@
     return html;
   }
 
+  function buildBodyFromEngine(P, trials, eng) {
+    const fmt = P.fmt;
+    let html = '';
+
+    // Headline
+    const Se = +eng.pooled_sens, Sp = +eng.pooled_spec;
+    const SeLo = +eng.pooled_sens_ci_lb, SeHi = +eng.pooled_sens_ci_ub;
+    const SpLo = +eng.pooled_spec_ci_lb, SpHi = +eng.pooled_spec_ci_ub;
+    html += '<div style="background:#0e3a1f;border:1px solid #34d399;color:#e2e8f0;padding:8px 10px;border-radius:6px;margin-bottom:10px;font-size:11.5px;">'
+          + '<strong>Pooled DTA (full bivariate ' + (eng.estimator || 'REML') + '):</strong> '
+          + 'Sensitivity ' + fmt(Se*100, 1) + '% [' + fmt(SeLo*100, 1) + '–' + fmt(SeHi*100, 1) + '%], '
+          + 'Specificity ' + fmt(Sp*100, 1) + '% [' + fmt(SpLo*100, 1) + '–' + fmt(SpHi*100, 1) + '%], '
+          + 'DOR ' + fmt(+eng.dor, 1)
+          + (eng.dor_ci_lb ? ' [' + fmt(+eng.dor_ci_lb, 1) + '–' + fmt(+eng.dor_ci_ub, 1) + ']' : '')
+          + '. k = ' + eng.k + '.'
+          + '</div>';
+
+    // Threshold-effect / coverage warnings from engine
+    if (eng.threshold_effect) {
+      html += '<div style="background:#3a2a0a;border:1px solid #92400e;color:#fbbf24;padding:6px 10px;border-radius:6px;margin-bottom:10px;font-size:11px;">'
+            + '⚠ <strong>Threshold effect suspected</strong> '
+            + (eng.threshold_effect_spearman != null ? '(Spearman ρ(logit Se, logit 1−Sp) = ' + fmt(+eng.threshold_effect_spearman, 2) + ')' : '')
+            + '. Cochrane DTA Handbook §10: report the SROC curve rather than a single pooled (Se, Sp) point — pooled values may be misleading when threshold varies across studies.'
+            + '</div>';
+    }
+    if (eng.coverage_warning || (eng.fallback && eng.fallback !== 'reitsma_full')) {
+      html += '<div style="background:#3a2a0a;border:1px solid #92400e;color:#fbbf24;padding:6px 10px;border-radius:6px;margin-bottom:10px;font-size:11px;">'
+            + '⚠ Engine fell back to <code>' + (eng.fallback || 'simplified') + '</code> '
+            + (eng.iterations === 0 ? '(non-iterative path; possibly k<4 or convergence failure)' : '')
+            + '. Treat CI widths as conservative; consider <code>mada::reitsma()</code> in R for verification.'
+            + '</div>';
+    }
+
+    function cell(label, value, sub) {
+      return '<div style="background:#0b1220;border:1px solid #1e293b;border-radius:6px;padding:6px 8px;">'
+           + '<div style="font-size:9.5px;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;">' + label + '</div>'
+           + '<div style="font-size:13px;color:#f1f5f9;font-weight:700;font-family:JetBrains Mono,monospace;margin-top:2px;">' + value + '</div>'
+           + (sub ? '<div style="font-size:10px;color:#94a3b8;margin-top:1px;">' + sub + '</div>' : '')
+           + '</div>';
+    }
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:10px;">';
+    html += cell('Pooled Se', fmt(Se*100, 1) + '%', '95% CI ' + fmt(SeLo*100, 1) + '–' + fmt(SeHi*100, 1) + '%');
+    html += cell('Pooled Sp', fmt(Sp*100, 1) + '%', '95% CI ' + fmt(SpLo*100, 1) + '–' + fmt(SpHi*100, 1) + '%');
+    html += cell('DOR', fmt(+eng.dor, 1),
+      eng.dor_ci_lb ? '95% CI ' + fmt(+eng.dor_ci_lb, 1) + '–' + fmt(+eng.dor_ci_ub, 1) : '');
+    html += cell('LR+', fmt(+eng.lr_pos, 2));
+    html += cell('LR−', fmt(+eng.lr_neg, 3));
+    html += cell('Trials (k)', String(eng.k),
+      'estimator: ' + (eng.estimator || 'REML') + (eng.converged === false ? ' · ✗ not converged' : ''));
+    html += cell('τ² (logit-Se)', fmt(+eng.tau2_sens, 4));
+    html += cell('τ² (logit-Sp)', fmt(+eng.tau2_spec, 4));
+    html += cell('ρ (between-study)', fmt(+eng.rho, 3));
+    html += '</div>';
+
+    // ROC plot — use trial-level Se/Sp from engine's per_study or recompute from cells
+    const points = trials.map((t, i) => {
+      const ss = trialSensSpec(t);
+      return { name: t.name, Se: ss.Se, Sp: ss.Sp, TP: t.TP, FP: t.FP, FN: t.FN, TN: t.TN };
+    });
+    const summary = {
+      Se, Sp,
+      Se_ci_low: SeLo, Se_ci_high: SeHi,
+      Sp_ci_low: SpLo, Sp_ci_high: SpHi,
+    };
+    let svg = buildROC(P, points, summary);
+
+    // Overlay HSROC curve if engine provides one
+    let curvePoints = null;
+    try {
+      const Eng = global.RapidMetaDTA;
+      if (Eng && typeof Eng.sroc === 'function') {
+        curvePoints = Eng.sroc(eng);  // engine should return [{fpr, tpr}, ...]
+      }
+    } catch (e) { /* ignore */ }
+    if (Array.isArray(curvePoints) && curvePoints.length > 1) {
+      // Inject path into the SVG just before </svg>
+      const W = 720, margin = { l: 60, r: 30, t: 30, b: 50 };
+      const innerW = W - margin.l - margin.r;
+      const xPx = v => margin.l + v * innerW;
+      const yPx = v => margin.t + (1 - v) * (380 - margin.t - 50);
+      let d = '';
+      curvePoints.forEach((p, i) => {
+        if (typeof p.fpr !== 'number' || typeof p.tpr !== 'number') return;
+        d += (i === 0 ? 'M' : 'L') + xPx(p.fpr).toFixed(1) + ',' + yPx(p.tpr).toFixed(1) + ' ';
+      });
+      if (d) {
+        svg = svg.replace('</svg>',
+          '<path d="' + d + '" stroke="#fbbf24" stroke-width="2" fill="none" stroke-dasharray="0" />'
+          + '<text x="' + (W - 35) + '" y="50" fill="#fbbf24" font-size="10" text-anchor="end">SROC curve</text>'
+          + '</svg>');
+      }
+    }
+    html += svg;
+
+    // Per-trial table
+    html += '<div style="font-size:11px;color:#94a3b8;margin-top:10px;margin-bottom:4px;">Per-trial 2×2 cells + diagnostic ratios:</div>';
+    html += '<table style="width:100%;font-size:11px;border-collapse:collapse;">';
+    html += '<thead><tr style="color:#64748b;text-align:left;">'
+          + '<th style="padding:3px 6px;border-bottom:1px solid #1e293b;">Trial</th>'
+          + '<th style="padding:3px 6px;border-bottom:1px solid #1e293b;text-align:right;">TP / FN</th>'
+          + '<th style="padding:3px 6px;border-bottom:1px solid #1e293b;text-align:right;">FP / TN</th>'
+          + '<th style="padding:3px 6px;border-bottom:1px solid #1e293b;text-align:right;">Se</th>'
+          + '<th style="padding:3px 6px;border-bottom:1px solid #1e293b;text-align:right;">Sp</th>'
+          + '<th style="padding:3px 6px;border-bottom:1px solid #1e293b;text-align:right;">LR+</th>'
+          + '<th style="padding:3px 6px;border-bottom:1px solid #1e293b;text-align:right;">LR−</th>'
+          + '<th style="padding:3px 6px;border-bottom:1px solid #1e293b;text-align:right;">DOR</th>'
+          + '</tr></thead><tbody>';
+    trials.forEach(t => {
+      const ss = trialSensSpec(t);
+      html += '<tr style="border-bottom:1px solid #0b1220;">'
+            + '<td style="padding:3px 6px;color:#e2e8f0;">' + t.name + '</td>'
+            + '<td style="padding:3px 6px;text-align:right;font-family:JetBrains Mono,monospace;color:#cbd5e1;">' + t.TP + ' / ' + t.FN + '</td>'
+            + '<td style="padding:3px 6px;text-align:right;font-family:JetBrains Mono,monospace;color:#cbd5e1;">' + t.FP + ' / ' + t.TN + '</td>'
+            + '<td style="padding:3px 6px;text-align:right;font-family:JetBrains Mono,monospace;color:#7dd3fc;">' + fmt(ss.Se*100, 1) + '%</td>'
+            + '<td style="padding:3px 6px;text-align:right;font-family:JetBrains Mono,monospace;color:#7dd3fc;">' + fmt(ss.Sp*100, 1) + '%</td>'
+            + '<td style="padding:3px 6px;text-align:right;font-family:JetBrains Mono,monospace;color:#cbd5e1;">' + fmt(ss.LRpos, 2) + '</td>'
+            + '<td style="padding:3px 6px;text-align:right;font-family:JetBrains Mono,monospace;color:#cbd5e1;">' + fmt(ss.LRneg, 2) + '</td>'
+            + '<td style="padding:3px 6px;text-align:right;font-family:JetBrains Mono,monospace;color:#cbd5e1;">' + fmt(ss.DORtrial, 1) + '</td>'
+            + '</tr>';
+    });
+    html += '</tbody></table>';
+
+    html += '<div style="font-size:10.5px;color:#64748b;margin-top:8px;line-height:1.5;border-top:1px solid #1e293b;padding-top:8px;">'
+          + '<strong>Method:</strong> full bivariate model fit by the host review\'s <code>RapidMetaDTA</code> engine '
+          + '(Reitsma 2005 / Chu-Cole 2006 with HKSJ small-sample CI adjustment, threshold-effect detection by Spearman ρ on logit-Se/logit-(1−Sp), '
+          + 'and HSROC reparameterisation per Harbord-Whiting 2007). '
+          + 'Engine status: ' + (eng.estimator || 'REML') + (eng.fallback ? ' (fallback: ' + eng.fallback + ')' : '') + '. '
+          + 'Cochrane DTA Handbook (Macaskill 2010); Cochrane Handbook v6.5 ch.20.'
+          + '</div>';
+
+    return html;
+  }
+
   function render() {
     const P = global.PanelHelper;
     if (!P) return false;
     const rd = P.getRealData();
-    if (!rd) return false;
     const trials = pickDTATrials(rd);
     if (trials.length < 2) return false;
 
+    // Try engine first (legacy DTA reviews)
+    const enginePool = tryEnginePool(trials);
+    if (enginePool) {
+      const Se = +enginePool.pooled_sens, Sp = +enginePool.pooled_spec;
+      const summary = 'Pooled Se ' + P.fmt(Se*100, 1) + '%, Sp ' + P.fmt(Sp*100, 1) + '%, DOR ' + P.fmt(+enginePool.dor, 1) + ' · k=' + enginePool.k
+                    + (enginePool.threshold_effect ? ' · ⚠ threshold effect' : '');
+      const panel = P.buildCollapsiblePanel({
+        id: 'dta-bivariate-panel',
+        badge: 'DTA',
+        summary,
+        bodyHtml: buildBodyFromEngine(P, trials, enginePool),
+        storageKey: STORAGE_KEY,
+      });
+      const existing = document.getElementById('dta-bivariate-panel');
+      if (existing) existing.replaceWith(panel);
+      else P.insertAfterRBadge(panel);
+      return true;
+    }
+
+    // Fallback: independent-univariate logit pool
     const ss = trials.map(trialSensSpec);
     const sePool = poolDLRE(ss.map(s => s.logitSe), ss.map(s => s.varLogitSe));
     const spPool = poolDLRE(ss.map(s => s.logitSp), ss.map(s => s.varLogitSp));
     if (!sePool || !spPool) return false;
 
-    // DOR pool: combine on log scale via logit-Se + logit-Sp
     const dorYi = ss.map(s => s.logitSe + s.logitSp);
     const dorVi = ss.map(s => s.varLogitSe + s.varLogitSp);
     const dorPool = poolDLRE(dorYi, dorVi);
@@ -273,7 +491,7 @@
 
     const Se = invLogit(sePool.mean);
     const Sp = invLogit(spPool.mean);
-    const summary = 'Pooled Se ' + P.fmt(Se*100, 1) + '%, Sp ' + P.fmt(Sp*100, 1) + '%, DOR ' + P.fmt(Math.exp(dorPool.mean), 1) + ' · k=' + sePool.k;
+    const summary = 'Pooled Se ' + P.fmt(Se*100, 1) + '%, Sp ' + P.fmt(Sp*100, 1) + '%, DOR ' + P.fmt(Math.exp(dorPool.mean), 1) + ' · k=' + sePool.k + ' · independent-univariate';
 
     const panel = P.buildCollapsiblePanel({
       id: 'dta-bivariate-panel',

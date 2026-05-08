@@ -148,6 +148,23 @@
     html += '<div style="background:#0e3a1f;border:1px solid #34d399;color:#e2e8f0;padding:8px 10px;border-radius:6px;margin-bottom:10px;font-size:11.5px;">'
           + '✓ Single-arm proportion MA detected — ' + headline + '</div>';
 
+    // Small-k advisory: DL+logit unreliable below ~5 trials
+    if (logitPool.k <= 5) {
+      html += '<div style="background:#3a2a0a;border:1px solid #92400e;color:#fbbf24;padding:6px 10px;border-radius:6px;margin-bottom:10px;font-size:11px;">'
+            + '⚠ Small-sample advisory: k=' + logitPool.k + ' (≤5). DerSimonian–Laird + logit can have undercoverage at this scale; '
+            + 'a binomial-normal generalised linear mixed model (GLMM) via `metafor::rma.glmm(measure="PLO")` in R is typically preferred. '
+            + 'Treat the CI as approximate and consider GLMM as a confirmatory sensitivity.'
+            + '</div>';
+    }
+    // Extreme-proportions advisory (Schwarzer 2019)
+    const extremeCount = trials.filter(t => t.e === 0 || t.e === t.n).length;
+    if (extremeCount >= 1) {
+      html += '<div style="background:#3a2a0a;border:1px solid #92400e;color:#fbbf24;padding:6px 10px;border-radius:6px;margin-bottom:10px;font-size:11px;">'
+            + '⚠ ' + extremeCount + ' trial' + (extremeCount > 1 ? 's' : '') + ' with extreme proportion (0% or 100%). '
+            + 'Logit pool used +0.5 continuity correction; Freeman–Tukey shown as sensitivity. Schwarzer 2019 caveat applies.'
+            + '</div>';
+    }
+
     // Side-by-side cells
     function cell(label, value, sub) {
       return '<div style="background:#0b1220;border:1px solid #1e293b;border-radius:6px;padding:6px 8px;">'

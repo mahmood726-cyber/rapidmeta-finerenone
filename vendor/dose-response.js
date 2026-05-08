@@ -108,6 +108,42 @@
              xbar, ybar, Sxx, weights: w, xbar_orig: xbar };
   }
 
+  // Quadratic dose-response: log-OR ~ β₀ + β₁·log(dose) + β₂·log(dose)²
+  // Solves the 3×3 weighted normal equations directly. Returns AIC vs linear.
+  function metaRegQuadratic(yi, vi, x, tau2_total) {
+    const k = yi.length;
+    if (k < 4) return null;
+    const w = vi.map(v => 1 / (v + tau2_total));
+    // Design: rows are [1, x, x²]
+    let M00 = 0, M01 = 0, M02 = 0, M11 = 0, M12 = 0, M22 = 0;
+    let r0 = 0, r1 = 0, r2 = 0;
+    for (let i = 0; i < k; i++) {
+      const wi = w[i], xi = x[i], xi2 = xi * xi;
+      M00 += wi;          M01 += wi * xi;     M02 += wi * xi2;
+                          M11 += wi * xi2;    M12 += wi * xi2 * xi;
+                                              M22 += wi * xi2 * xi2;
+      r0 += wi * yi[i];   r1 += wi * yi[i] * xi;   r2 += wi * yi[i] * xi2;
+    }
+    // Solve symmetric 3×3 via Cramer's rule
+    function det3(a,b,c,d,e,f,g,h,i){return a*(e*i-f*h)-b*(d*i-f*g)+c*(d*h-e*g);}
+    const D = det3(M00, M01, M02, M01, M11, M12, M02, M12, M22);
+    if (Math.abs(D) < 1e-12) return null;
+    const a = det3(r0,  M01, M02, r1,  M11, M12, r2,  M12, M22) / D;
+    const b1 = det3(M00, r0,  M02, M01, r1,  M12, M02, r2,  M22) / D;
+    const b2 = det3(M00, M01, r0,  M01, M11, r1,  M02, M12, r2)  / D;
+    // Residual SS for AIC
+    let rss = 0;
+    for (let i = 0; i < k; i++) {
+      const fitted = a + b1 * x[i] + b2 * x[i] * x[i];
+      rss += w[i] * Math.pow(yi[i] - fitted, 2);
+    }
+    const dfQuad = k - 3;
+    const tau2_resid = dfQuad > 0 ? Math.max(0, (rss - dfQuad) / (M00 - (M01*M01 + M02*M02) / M00)) : 0;
+    // AIC: -2 × log-likelihood + 2 × p; for weighted regression use rss as proxy
+    // AIC_diff between linear (p=2) and quadratic (p=3) = (rss_linear - rss_quad) − 2
+    return { alpha: a, beta1: b1, beta2: b2, rss, tau2_resid, dfQuad };
+  }
+
   function buildBubble(P, mr, points, baseUnit) {
     const W = 760, H = 320, margin = { l: 60, r: 30, t: 30, b: 50 };
     const innerW = W - margin.l - margin.r, innerH = H - margin.t - margin.b;
@@ -200,6 +236,16 @@
     html += cell('OR per doubling', fmt(orPerDoubling, 2));
     html += '</div>';
 
+    // Quadratic-vs-linear preference flag
+    if (mr.prefer_quadratic) {
+      html += '<div style="background:#3a2a0a;border:1px solid #92400e;color:#fbbf24;padding:6px 10px;border-radius:6px;margin-bottom:10px;font-size:11px;">'
+            + '⚠ Quadratic fit favoured over linear by ΔAIC = ' + fmt(mr.quadratic_aic_diff, 1)
+            + ' (β₁ = ' + fmt(mr.quadratic.beta1, 3) + ', β₂ = ' + fmt(mr.quadratic.beta2, 3)
+            + '). A non-monotonic dose-response (e.g. inverted-U or threshold effect) may better fit the data than the linear model — '
+            + 'consider restricted cubic splines via R `dosresmeta`.'
+            + '</div>';
+    }
+
     // Bubble plot
     const points = doseTrials.map(t => ({ x: Math.log(t.dose), y: t.yi, name: t.name, dose: t.dose }));
     html += buildBubble(P, mr, points, baseUnit);
@@ -276,6 +322,22 @@
     const x = doseTrials.map(t => Math.log(t.dose));
     const mr = metaReg(yi, vi, x);
     if (!mr) return false;
+
+    // Try quadratic; report whether it improves on linear
+    const mrQ = metaRegQuadratic(yi, vi, x, mr.tau2_total);
+    if (mrQ) {
+      // RSS for linear at the same weights
+      const wLin = vi.map(v => 1 / (v + mr.tau2_total));
+      let rssLin = 0;
+      for (let i = 0; i < doseTrials.length; i++) {
+        const fitted = mr.alpha + mr.beta * x[i];
+        rssLin += wLin[i] * Math.pow(yi[i] - fitted, 2);
+      }
+      const aicDiff = (rssLin - mrQ.rss) - 2;  // approx ΔAIC (quadratic − linear)
+      mr.quadratic = mrQ;
+      mr.quadratic_aic_diff = aicDiff;
+      mr.prefer_quadratic = aicDiff > 2;  // ΔAIC > 2 favours quadratic
+    }
 
     const baseUnit = 'mg';
     const orPerDoubling = Math.exp(mr.beta * Math.log(2));
