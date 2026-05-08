@@ -47,6 +47,7 @@
     'inspect-sr-panel',
     'nma-forest-continuous-panel',
     'single-arm-proportion-panel',
+    'dose-response-panel',
   ];
 
   function buildTabButton(referenceBtn) {

@@ -58,6 +58,8 @@ TAGS = [
     '<script src="vendor/nma-forest-continuous.js" defer></script>',
     # Single-arm / proportion meta-analysis (Cochrane v6.5 §10.3.2)
     '<script src="vendor/single-arm-proportion.js" defer></script>',
+    # Dose-response meta-regression (Greenland-Longnecker 1992; Cochrane v6.5 §10.4)
+    '<script src="vendor/dose-response.js" defer></script>',
 ]
 
 
