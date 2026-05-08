@@ -85,6 +85,13 @@ def extract_trials(text):
         if tN_i <= 0 or cN_i <= 0: continue
         if tE_i < 0 or cE_i < 0: continue
         if tE_i > tN_i or cE_i > cN_i: continue
+        # Reject placeholder zero-event-both-arms rows: when both arms have
+        # exactly 0 events with N>>0, the row is encoding a continuous
+        # outcome with dummy event counts (e.g. ANTIAMYLOID_AD's CDR-SB MD
+        # outcome). Pooling these as binary OR with continuity correction
+        # produces a meaningless OR ≈ 1 from synthetic 0.5/N corrections.
+        if tE_i == 0 and cE_i == 0 and tN_i >= 30 and cN_i >= 30:
+            continue
         rows.append({"nct": nct, "name": name, "tE": tE_i, "tN": tN_i,
                      "cE": cE_i, "cN": cN_i})
     return rows

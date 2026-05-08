@@ -46,11 +46,12 @@
     // Imprecision: CI width on log scale > 1
     const widthLog = Math.log(pool.ci_high) - Math.log(pool.ci_low);
     if (widthLog > 1.0) { downgrades++; reasons.push('imprecision (wide CI)'); }
-    // Inconsistency: I² > 50%
-    const I2 = pool.tau2 > 0
-      ? Math.max(0, 100 * pool.tau2 / (pool.tau2 + 0.05)) // very crude
+    // Inconsistency: real Q-based I² > 50% (Higgins–Thompson StatMed 2002)
+    // pool.Q and pool.Qdf are populated by PanelHelper.poolRandomLogOR.
+    const I2 = (pool.Q != null && pool.Qdf != null && pool.Q > pool.Qdf)
+      ? 100 * (pool.Q - pool.Qdf) / pool.Q
       : 0;
-    if (I2 > 50) { downgrades++; reasons.push('inconsistency (I²>50%)'); }
+    if (I2 > 50) { downgrades++; reasons.push('inconsistency (I²=' + I2.toFixed(0) + '%)'); }
     // Few trials -> indirectness/imprecision risk
     if (trials.length < 5) { downgrades++; reasons.push('few trials (k<5)'); }
     // We can't auto-grade RoB or publication bias without user input
