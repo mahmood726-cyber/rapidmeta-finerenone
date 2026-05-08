@@ -46,6 +46,7 @@
     'continuous-outcome-panel',
     'inspect-sr-panel',
     'nma-forest-continuous-panel',
+    'single-arm-proportion-panel',
   ];
 
   function buildTabButton(referenceBtn) {

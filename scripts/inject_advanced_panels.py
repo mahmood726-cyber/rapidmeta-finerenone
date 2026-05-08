@@ -56,6 +56,8 @@ TAGS = [
     '<script src="vendor/inspect-sr-panel.js" defer></script>',
     # NMA forest for continuous outcomes (analogue of nma-forest-all-treatments.js)
     '<script src="vendor/nma-forest-continuous.js" defer></script>',
+    # Single-arm / proportion meta-analysis (Cochrane v6.5 §10.3.2)
+    '<script src="vendor/single-arm-proportion.js" defer></script>',
 ]
 
 
