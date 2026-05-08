@@ -14,14 +14,35 @@
 
   function getNMACfg() { return global.NMA_CONFIG || null; }
 
+  // Continuous-instrument shortLabels — when an outcome is type:'PRIMARY'
+  // but the shortLabel matches one of these, treat it as continuous (MD)
+  // and back-compute se from pubHR_LCI/pubHR_UCI.
+  const CONT_LABEL_RE = /^(CDR_?SB|CDR-?SB|MMSE|ADAS|PPF[Ee]V1|FEV1|BCVA|KCCQ|SF36|EQ5D|EQ-?5D|ETDRS|HADS|PHQ|GAD|HRSD|MADRS|YBOCS|SLEDAI|UPDRS|MD|change|score)/i;
+
   function pickContinuous(t) {
     if (!t) return null;
     const allOutcomes = t.allOutcomes || (t.data && t.data.allOutcomes);
     if (!Array.isArray(allOutcomes)) return null;
-    const cont = allOutcomes.find(o => o && (o.type === 'CONTINUOUS' || o.type === 'continuous')
-                                       && typeof o.md === 'number' && typeof o.se === 'number'
-                                       && o.se > 0);
-    return cont ? { md: cont.md, se: cont.se } : null;
+    // Variant 1: explicit type='CONTINUOUS' with md+se (current standard)
+    let cont = allOutcomes.find(o => o && (o.type === 'CONTINUOUS' || o.type === 'continuous')
+                                          && typeof o.md === 'number' && typeof o.se === 'number'
+                                          && o.se > 0);
+    if (cont) return { md: cont.md, se: cont.se };
+    // Variant 2: legacy NMA encoding — type='PRIMARY' with continuous-
+    // instrument shortLabel and pubHR / pubHR_LCI / pubHR_UCI carrying
+    // MD + 95% CI (despite the "HR" naming, the numbers are mean differences).
+    cont = allOutcomes.find(o => o && o.type === 'PRIMARY'
+                                    && CONT_LABEL_RE.test(String(o.shortLabel || o.title || ''))
+                                    && typeof o.pubHR === 'number'
+                                    && typeof o.pubHR_LCI === 'number'
+                                    && typeof o.pubHR_UCI === 'number'
+                                    && o.pubHR_UCI > o.pubHR_LCI);
+    if (cont) {
+      const md = cont.pubHR;
+      const se = (cont.pubHR_UCI - cont.pubHR_LCI) / 3.92;  // (UCI - LCI) / (2 * 1.96)
+      if (se > 0 && isFinite(se)) return { md, se };
+    }
+    return null;
   }
 
   function poolDLRE(points) {

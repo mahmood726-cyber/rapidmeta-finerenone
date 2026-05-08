@@ -38,16 +38,19 @@
   // back-computation when 2×2 not present verbatim.
   function parseCellsFromText(text) {
     if (!text) return null;
-    const re = (label) => new RegExp('\\b' + label + '\\s*=\\s*(\\d+)', 'i');
+    // Accept thousand-separator commas: "FP=1,832" → 1832. Strip commas
+    // before Number().
+    const stripCommas = s => +String(s).replace(/,/g, '');
+    const re = (label) => new RegExp('\\b' + label + '\\s*=\\s*(\\d{1,3}(?:,\\d{3})*|\\d+)', 'i');
     const grab = (label) => {
       const m = text.match(re(label));
-      return m ? +m[1] : null;
+      return m ? stripCommas(m[1]) : null;
     };
     const TP = grab('TP'), FP = grab('FP'), FN = grab('FN'), TN = grab('TN');
     if (TP !== null && FP !== null && FN !== null && TN !== null) {
       return { TP, FP, FN, TN };
     }
-    // Variant: "Sens 88% / Spec 96% on 462 culture-positive + 977 culture-negative"
+    // Variant A: "Sens 88% / Spec 96% on 462 culture-positive + 977 culture-negative"
     const sm = text.match(/Sens\s*[≈~]?\s*(\d+(?:\.\d+)?)\s*%/i);
     const spm = text.match(/Spec\s*[≈~]?\s*(\d+(?:\.\d+)?)\s*%/i);
     const nPosM = text.match(/(\d+)\s*(?:culture[\s-]?positive|TB[+\s]?\+?|disease[d\s]?\+?|positive)/i);
@@ -62,6 +65,17 @@
       const _FP = nNeg - _TN;
       if (_TP >= 0 && _FN >= 0 && _TN >= 0 && _FP >= 0) {
         return { TP: _TP, FP: _FP, FN: _FN, TN: _TN };
+      }
+    }
+    // Variant B: slot-positional "raw counts X/Y and Z/W" — first pair
+    // (TP/diseased+) and second pair (TN/healthy−). Used by some
+    // GENEXPERT pediatric studies.
+    const slotM = text.match(/(\d+)\s*\/\s*(\d+)\s*(?:and|;|\.|,)\s*(\d+)\s*\/\s*(\d+)/);
+    if (slotM) {
+      const tp = +slotM[1], dPos = +slotM[2];
+      const tn = +slotM[3], dNeg = +slotM[4];
+      if (tp <= dPos && tn <= dNeg && dPos > 0 && dNeg > 0) {
+        return { TP: tp, FP: dNeg - tn, FN: dPos - tp, TN: tn };
       }
     }
     return null;

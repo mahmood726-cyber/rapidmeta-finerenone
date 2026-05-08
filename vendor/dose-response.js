@@ -138,10 +138,10 @@
       rss += w[i] * Math.pow(yi[i] - fitted, 2);
     }
     const dfQuad = k - 3;
-    const tau2_resid = dfQuad > 0 ? Math.max(0, (rss - dfQuad) / (M00 - (M01*M01 + M02*M02) / M00)) : 0;
-    // AIC: -2 × log-likelihood + 2 × p; for weighted regression use rss as proxy
-    // AIC_diff between linear (p=2) and quadratic (p=3) = (rss_linear - rss_quad) − 2
-    return { alpha: a, beta1: b1, beta2: b2, rss, tau2_resid, dfQuad };
+    // We deliberately do NOT compute a quadratic τ²_resid here: the proper
+    // estimator requires tr(M⁻¹·X^T W² X) which is heavy in pure JS. The
+    // AIC verdict (in render()) is the published preference test.
+    return { alpha: a, beta1: b1, beta2: b2, rss, dfQuad };
   }
 
   function buildBubble(P, mr, points, baseUnit) {
@@ -208,7 +208,16 @@
     const slopePerDoubling = mr.beta * Math.log(2); // log-OR change per doubling of dose
     const orPerDoubling = Math.exp(slopePerDoubling);
     let toneCol, toneBg, toneBorder, verdict;
-    if (mr.p < 0.05) {
+    if (mr._crossClass) {
+      // Cross-class guard: mg not on a common scale across distinct drugs;
+      // do not present the slope as a clinical dose-response. Show as
+      // exploratory scatter only.
+      toneCol = '#fbbf24'; toneBg = '#3a2a0a'; toneBorder = '#92400e';
+      verdict = '⚠ <strong>Cross-class scatter — not a clinical dose-response.</strong> Trials span ' + (mr._drugStems || []).slice(0, 4).join(' / ')
+              + ' (' + (mr._drugStems || []).length + ' distinct drug stems). Milligram doses across heterogeneous mechanisms / molecular weights are not commensurable; '
+              + 'a regression slope on log-mg is uninterpretable as a true dose-response. '
+              + 'Greenland & Longnecker 1992 assumes a single agent; for a true multi-drug dose-response see component / dose-equivalence analyses.';
+    } else if (mr.p < 0.05) {
       toneCol = '#fbbf24'; toneBg = '#3a2a0a'; toneBorder = '#92400e';
       verdict = '⚠ Significant dose-response slope (β̂ = ' + fmt(mr.beta, 3)
               + ' log-OR per log-' + baseUnit + ', p = ' + fmt(mr.p, 3)
@@ -317,6 +326,20 @@
     const uniqueDoses = new Set(doseTrials.map(t => t.dose));
     if (uniqueDoses.size < 2) return false;
 
+    // Cross-class guard: refuse to regress log-OR on log-mg when trials
+    // span obviously incommensurable drug classes. Heuristic: extract the
+    // first word of each trial's group field as a drug-stem proxy.
+    // If >2 distinct stems, mg are not on a common scale and the slope
+    // is methodologically meaningless (Greenland 1992 caveat).
+    const drugStems = new Set();
+    doseTrials.forEach(t => {
+      const raw = byName[t.name] || {};
+      const g = (raw.group || '').toLowerCase();
+      const stem = g.split(/\s|\/|,|-|\(|\+/)[0];
+      if (stem && stem.length >= 4) drugStems.add(stem);
+    });
+    const crossClass = drugStems.size > 2;
+
     const yi = doseTrials.map(t => t.yi);
     const vi = doseTrials.map(t => t.vi);
     const x = doseTrials.map(t => Math.log(t.dose));
@@ -333,7 +356,10 @@
         const fitted = mr.alpha + mr.beta * x[i];
         rssLin += wLin[i] * Math.pow(yi[i] - fitted, 2);
       }
-      const aicDiff = (rssLin - mrQ.rss) - 2;  // approx ΔAIC (quadratic − linear)
+      // ΔAIC = AIC_lin − AIC_quad = (RSS_lin − RSS_quad) − 2  (under inverse-
+      // variance weights, σ̂² is implicit at 1; +2 for the extra quadratic
+      // parameter). Positive ⇒ quadratic preferred (lower AIC).
+      const aicDiff = (rssLin - mrQ.rss) - 2;
       mr.quadratic = mrQ;
       mr.quadratic_aic_diff = aicDiff;
       mr.prefer_quadratic = aicDiff > 2;  // ΔAIC > 2 favours quadratic
@@ -341,11 +367,14 @@
 
     const baseUnit = 'mg';
     const orPerDoubling = Math.exp(mr.beta * Math.log(2));
-    const summary = (mr.p < 0.05 ? '⚠ ' : '✓ ')
-                  + 'β̂ = ' + P.fmt(mr.beta, 3)
-                  + ' (p = ' + P.fmt(mr.p, 3) + ')'
+    const crossClassTag = crossClass ? ' · ⚠ cross-class (mg not commensurable)' : '';
+    const summary = (mr.p < 0.05 && !crossClass ? '⚠ ' : '· ')
+                  + (crossClass ? 'exploratory across-arm dose scatter' : ('β̂ = ' + P.fmt(mr.beta, 3) + ' (p = ' + P.fmt(mr.p, 3) + ')'))
                   + ' · OR × ' + P.fmt(orPerDoubling, 2) + ' per doubling'
-                  + ' · k=' + mr.k;
+                  + ' · k=' + mr.k
+                  + crossClassTag;
+    mr._crossClass = crossClass;
+    mr._drugStems = Array.from(drugStems);
 
     const panel = P.buildCollapsiblePanel({
       id: 'dose-response-panel',
