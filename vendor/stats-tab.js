@@ -56,6 +56,10 @@
     'single-arm-forest-panel',
     'single-arm-influence-panel',
     'nma-league-continuous-panel',
+    'nma-sucra-panel',
+    'fagan-nomogram-panel',
+    'dose-spline-panel',
+    'single-arm-cumulative-panel',
   ];
 
   function buildTabButton(referenceBtn) {

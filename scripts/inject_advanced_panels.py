@@ -76,6 +76,14 @@ TAGS = [
     '<script src="vendor/single-arm-influence.js" defer></script>',
     # NMA league table for continuous outcomes
     '<script src="vendor/nma-league-continuous.js" defer></script>',
+    # SUCRA + Monte-Carlo ranking probabilities (Salanti JCE 2011)
+    '<script src="vendor/nma-sucra.js" defer></script>',
+    # Fagan nomogram — interactive PPV/NPV from pooled DTA LR+/LR-
+    '<script src="vendor/fagan-nomogram.js" defer></script>',
+    # Restricted cubic spline dose-response (3-knot)
+    '<script src="vendor/dose-spline.js" defer></script>',
+    # Cumulative MA for single-arm proportion pools
+    '<script src="vendor/single-arm-cumulative.js" defer></script>',
 ]
 
 
