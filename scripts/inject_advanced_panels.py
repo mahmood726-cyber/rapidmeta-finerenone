@@ -84,6 +84,14 @@ TAGS = [
     '<script src="vendor/dose-spline.js" defer></script>',
     # Cumulative MA for single-arm proportion pools
     '<script src="vendor/single-arm-cumulative.js" defer></script>',
+    # Tier 1: Cochrane v6.5 + reviewer-completeness panels
+    '<script src="vendor/tau2-qprofile.js" defer></script>',
+    '<script src="vendor/pi-convention.js" defer></script>',
+    '<script src="vendor/grade-nma-comparison.js" defer></script>',
+    '<script src="vendor/prisma-checklist.js" defer></script>',
+    # Tier 2: methodological depth + data integrity
+    '<script src="vendor/meta-regression-permutation.js" defer></script>',
+    '<script src="vendor/grim-benford.js" defer></script>',
 ]
 
 

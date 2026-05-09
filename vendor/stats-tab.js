@@ -60,6 +60,12 @@
     'fagan-nomogram-panel',
     'dose-spline-panel',
     'single-arm-cumulative-panel',
+    'tau2-qprofile-panel',
+    'pi-convention-panel',
+    'grade-nma-comparison-panel',
+    'prisma-checklist-panel',
+    'meta-regression-permutation-panel',
+    'grim-benford-panel',
   ];
 
   function buildTabButton(referenceBtn) {
