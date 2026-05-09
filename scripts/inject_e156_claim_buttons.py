@@ -34,9 +34,39 @@ def parse_entries(students_html: str) -> list[dict]:
     return json.loads(m.group(1))
 
 
-def build_map(entries: list[dict]) -> dict[str, dict]:
-    """Map review-file basename → {num, title} for rapidmeta papers."""
-    out: dict[str, dict] = {}
+def _score_match(review_base: str, title: str) -> int:
+    """Heuristic match score between a review filename and an E156 paper title.
+
+    Higher = better. The intent is to pick the most-canonical paper when
+    multiple E156 papers reference the same review HTML. Tie-broken by
+    lower paper number (older / canonical) at the caller.
+    """
+    rev_stem = review_base.replace("_REVIEW.html", "").lower()
+    tit_norm = (title or "").lower().replace("-", "").replace("/", "").replace(" ", "")
+    score = 0
+    # Strong: the entire review stem (no underscores) is a substring of the title
+    rev_norm = rev_stem.replace("_", "")
+    if rev_norm and rev_norm in tit_norm:
+        score += 200
+    # Per-token matches (drug stems, abbreviations)
+    for tok in rev_stem.split("_"):
+        tok = tok.replace("-", "")
+        if len(tok) >= 3 and tok in tit_norm:
+            score += 10 * len(tok)
+    # Slight reward for "RapidMeta" branded papers (canonical series)
+    if "rapidmeta" in tit_norm:
+        score += 5
+    return score
+
+
+def build_map(entries: list[dict]) -> tuple[dict[str, dict], list[dict]]:
+    """Map review-file basename → {num, title} for rapidmeta papers.
+
+    On collision (two E156 papers point to the same _REVIEW.html), pick
+    the higher-scoring match; tie-break by lower paper-num. Returns
+    (mapping, audit) where audit is a list of every collision shown.
+    """
+    candidates: dict[str, list[dict]] = {}
     for e in entries:
         code_url = e.get("code_url") or ""
         if RAPIDMETA_REPO_URL not in code_url:
@@ -47,8 +77,48 @@ def build_map(entries: list[dict]) -> dict[str, dict]:
         basename = pages_url.rsplit("/", 1)[-1]
         if not basename.endswith("_REVIEW.html"):
             continue
-        out[basename] = {"num": int(e["num"]), "title": e.get("title") or ""}
-    return out
+        candidates.setdefault(basename, []).append({
+            "num": int(e["num"]),
+            "title": e.get("title") or "",
+        })
+
+    mapping: dict[str, dict] = {}
+    audit: list[dict] = []
+    for basename, papers in candidates.items():
+        if len(papers) == 1:
+            mapping[basename] = papers[0]
+            continue
+        # Collision — score, pick highest, tie-break by lower num
+        scored = sorted(
+            papers,
+            key=lambda p: (-_score_match(basename, p["title"]), p["num"]),
+        )
+        mapping[basename] = scored[0]
+        audit.append({
+            "basename": basename,
+            "chosen": scored[0],
+            "rejected": scored[1:],
+            "scores": [(p["num"], _score_match(basename, p["title"])) for p in scored],
+        })
+    return mapping, audit
+
+
+def write_audit_csv(mapping: dict[str, dict], landing_hrefs: set[str], audit_path: Path) -> None:
+    """Write a CSV showing every landing-page review and what chip (if any)
+    was chosen. Helps the user spot bad mappings + uncovered reviews."""
+    import csv
+    audit_path.parent.mkdir(parents=True, exist_ok=True)
+    rows = []
+    for href in sorted(landing_hrefs):
+        if href in mapping:
+            rec = mapping[href]
+            rows.append([href, "MATCH", rec["num"], rec["title"]])
+        else:
+            rows.append([href, "UNCOVERED", "", ""])
+    with audit_path.open("w", encoding="utf-8", newline="") as fh:
+        w = csv.writer(fh)
+        w.writerow(["review_file", "status", "e156_paper_num", "e156_paper_title"])
+        w.writerows(rows)
 
 
 STYLE_BLOCK = """{begin}
@@ -195,12 +265,30 @@ def main() -> None:
 
     students_html = STUDENTS.read_text(encoding="utf-8", errors="replace")
     entries = parse_entries(students_html)
-    mapping = build_map(entries)
+    mapping, audit = build_map(entries)
     print(f"Parsed {len(entries)} ENTRIES; built map with {len(mapping)} review files.")
+    if audit:
+        print(f"Resolved {len(audit)} collisions:")
+        for a in audit:
+            print(f"  {a['basename']}")
+            print(f"    KEEP  #{a['chosen']['num']:3d}  {a['chosen']['title'][:70]}")
+            for r in a["rejected"]:
+                print(f"    drop  #{r['num']:3d}  {r['title'][:70]}")
 
     if not mapping:
         print("ERROR: no rapidmeta entries matched. Aborting.")
         sys.exit(2)
+
+    # Audit CSV: every landing-page review + chip status
+    landing_hrefs: set[str] = set()
+    if INDEX.exists():
+        idx_text = INDEX.read_text(encoding="utf-8", errors="replace")
+        landing_hrefs |= set(re.findall(r'href="([A-Z0-9_]+_REVIEW\.html)"', idx_text))
+    audit_csv = REPO / "outputs" / "e156_chip_audit.csv"
+    write_audit_csv(mapping, landing_hrefs, audit_csv)
+    uncovered = sum(1 for h in landing_hrefs if h not in mapping)
+    print(f"Audit CSV: {audit_csv.relative_to(REPO)}  "
+          f"({len(landing_hrefs)} reviews on landing, {uncovered} UNCOVERED)")
 
     for target in (INDEX, DASHBOARD):
         if not target.exists():
