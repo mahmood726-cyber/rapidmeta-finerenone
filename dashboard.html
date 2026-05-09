@@ -112,6 +112,8 @@ footer a { color: #7dd3fc; text-decoration: none; }
 
 
 
+
+
 <!-- e156-claim-chips-style:begin -->
 <style>
 .card-host { position: relative; display: block; }
@@ -395,6 +397,8 @@ fetch('outputs/portfolio_index.json', { cache: 'no-cache' })
 
 
 
+
+
 <!-- e156-claim-chips:begin -->
 <script>
 (function () {
@@ -415,27 +419,34 @@ fetch('outputs/portfolio_index.json', { cache: 'no-cache' })
     var anchors = document.querySelectorAll("a[href$='_REVIEW.html']");
     var injected = 0;
     anchors.forEach(function (a) {
+      // Per-anchor idempotency flag — descendant search on parent is unsafe
+      // because a single grid/td may contain many sibling anchors and the
+      // first-card chip would falsely satisfy the check for all the others.
+      if (a.dataset && a.dataset.e156ChipInjected === "1") return;
       var href = a.getAttribute("href") || "";
       var basename = href.split("/").pop();
       var rec = RAPIDMETA_TO_E156[basename];
       if (!rec) return;
-      // Skip if already injected (idempotent across re-runs)
-      if (a.parentNode && a.parentNode.querySelector(".claim-chip")) return;
       // Card style — wrap in .card-host so the absolute-positioned chip
       // can anchor without nesting <a> inside <a> (invalid HTML).
       if (a.classList && a.classList.contains("card")) {
-        if (a.parentNode && a.parentNode.classList.contains("card-host")) return;
+        if (a.parentNode && a.parentNode.classList.contains("card-host")) {
+          a.dataset.e156ChipInjected = "1";
+          return;
+        }
         var wrap = document.createElement("div");
         wrap.className = "card-host";
         a.parentNode.insertBefore(wrap, a);
         wrap.appendChild(a);
         wrap.appendChild(buildClaimLink(rec.num, rec.title));
+        a.dataset.e156ChipInjected = "1";
         injected++;
         return;
       }
       // Inline / table cell — append the chip as a sibling of the <a>.
       var chip = buildClaimLink(rec.num, rec.title, "inline-claim-chip");
       a.insertAdjacentElement("afterend", chip);
+      a.dataset.e156ChipInjected = "1";
       injected++;
     });
     return injected;

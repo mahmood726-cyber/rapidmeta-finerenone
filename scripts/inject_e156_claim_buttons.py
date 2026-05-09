@@ -16,6 +16,14 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="repla
 REPO = Path(__file__).resolve().parent.parent
 INDEX = REPO / "index.html"
 DASHBOARD = REPO / "dashboard.html"
+# Other landing/index pages that link to reviews. Discovered by grepping
+# for _REVIEW.html across non-review HTML in the repo. Anything matching
+# this list also gets the chip injector + style block.
+EXTRA_LANDING_PAGES = [
+    REPO / "NMA_INDEX.html",
+    REPO / "META_DASHBOARD.html",
+    REPO / "AutoManuscript.html",
+]
 STUDENTS = Path(r"C:\E156\students.html")
 E156_BASE = "https://mahmood726-cyber.github.io/e156/students.html"
 RAPIDMETA_REPO_URL = "rapidmeta-finerenone"  # match against e.code_url
@@ -190,27 +198,34 @@ SCRIPT_TEMPLATE = """__BEGIN__
     var anchors = document.querySelectorAll("a[href$='_REVIEW.html']");
     var injected = 0;
     anchors.forEach(function (a) {
+      // Per-anchor idempotency flag — descendant search on parent is unsafe
+      // because a single grid/td may contain many sibling anchors and the
+      // first-card chip would falsely satisfy the check for all the others.
+      if (a.dataset && a.dataset.e156ChipInjected === "1") return;
       var href = a.getAttribute("href") || "";
       var basename = href.split("/").pop();
       var rec = RAPIDMETA_TO_E156[basename];
       if (!rec) return;
-      // Skip if already injected (idempotent across re-runs)
-      if (a.parentNode && a.parentNode.querySelector(".claim-chip")) return;
       // Card style — wrap in .card-host so the absolute-positioned chip
       // can anchor without nesting <a> inside <a> (invalid HTML).
       if (a.classList && a.classList.contains("card")) {
-        if (a.parentNode && a.parentNode.classList.contains("card-host")) return;
+        if (a.parentNode && a.parentNode.classList.contains("card-host")) {
+          a.dataset.e156ChipInjected = "1";
+          return;
+        }
         var wrap = document.createElement("div");
         wrap.className = "card-host";
         a.parentNode.insertBefore(wrap, a);
         wrap.appendChild(a);
         wrap.appendChild(buildClaimLink(rec.num, rec.title));
+        a.dataset.e156ChipInjected = "1";
         injected++;
         return;
       }
       // Inline / table cell — append the chip as a sibling of the <a>.
       var chip = buildClaimLink(rec.num, rec.title, "inline-claim-chip");
       a.insertAdjacentElement("afterend", chip);
+      a.dataset.e156ChipInjected = "1";
       injected++;
     });
     return injected;
@@ -290,7 +305,7 @@ def main() -> None:
     print(f"Audit CSV: {audit_csv.relative_to(REPO)}  "
           f"({len(landing_hrefs)} reviews on landing, {uncovered} UNCOVERED)")
 
-    for target in (INDEX, DASHBOARD):
+    for target in (INDEX, DASHBOARD, *EXTRA_LANDING_PAGES):
         if not target.exists():
             print(f"  skip (missing): {target.name}")
             continue
