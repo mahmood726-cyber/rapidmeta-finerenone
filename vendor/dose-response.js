@@ -326,11 +326,14 @@
     const uniqueDoses = new Set(doseTrials.map(t => t.dose));
     if (uniqueDoses.size < 2) return false;
 
-    // Cross-class guard: refuse to regress log-OR on log-mg when trials
-    // span obviously incommensurable drug classes. Heuristic: extract the
-    // first word of each trial's group field as a drug-stem proxy.
-    // If >2 distinct stems, mg are not on a common scale and the slope
-    // is methodologically meaningless (Greenland 1992 caveat).
+    // Drug-class detection: extract the first word of each trial's group
+    // field as a drug-stem proxy. Used to gate cross-class regression
+    // (Greenland-Longnecker 1992 assumes a single agent).
+    //
+    //  drugStems.size === 1 → single-drug multi-dose: full dose-response
+    //                         is methodologically valid (gold standard)
+    //  drugStems.size === 2 → mark as cautious (possible heterogeneity)
+    //  drugStems.size  > 2 → cross-class scatter (mg not commensurable)
     const drugStems = new Set();
     doseTrials.forEach(t => {
       const raw = byName[t.name] || {};
@@ -339,6 +342,8 @@
       if (stem && stem.length >= 4) drugStems.add(stem);
     });
     const crossClass = drugStems.size > 2;
+    const singleDrug = drugStems.size === 1;
+    const twoDrugCaution = drugStems.size === 2;
 
     const yi = doseTrials.map(t => t.yi);
     const vi = doseTrials.map(t => t.vi);
@@ -367,13 +372,20 @@
 
     const baseUnit = 'mg';
     const orPerDoubling = Math.exp(mr.beta * Math.log(2));
-    const crossClassTag = crossClass ? ' · ⚠ cross-class (mg not commensurable)' : '';
-    const summary = (mr.p < 0.05 && !crossClass ? '⚠ ' : '· ')
-                  + (crossClass ? 'exploratory across-arm dose scatter' : ('β̂ = ' + P.fmt(mr.beta, 3) + ' (p = ' + P.fmt(mr.p, 3) + ')'))
+    const drugTag = crossClass ? ' · ⚠ cross-class (mg not commensurable)'
+                  : twoDrugCaution ? ' · ⚠ two-drug pool'
+                  : singleDrug ? ' · single-drug · ' + Array.from(drugStems)[0]
+                  : '';
+    const sig = mr.p < 0.05 && !crossClass;
+    const summary = (sig ? '⚠ ' : '· ')
+                  + (crossClass ? 'exploratory across-arm dose scatter'
+                       : ('β̂ = ' + P.fmt(mr.beta, 3) + ' (p = ' + P.fmt(mr.p, 3) + ')'))
                   + ' · OR × ' + P.fmt(orPerDoubling, 2) + ' per doubling'
                   + ' · k=' + mr.k
-                  + crossClassTag;
+                  + drugTag;
     mr._crossClass = crossClass;
+    mr._twoDrugCaution = twoDrugCaution;
+    mr._singleDrug = singleDrug;
     mr._drugStems = Array.from(drugStems);
 
     const panel = P.buildCollapsiblePanel({

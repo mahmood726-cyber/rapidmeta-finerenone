@@ -62,6 +62,20 @@ TAGS = [
     '<script src="vendor/dose-response.js" defer></script>',
     # Diagnostic Test Accuracy (Cochrane DTA Handbook; Reitsma 2005)
     '<script src="vendor/dta-bivariate.js" defer></script>',
+    # DTA twin forest (per-metric Se/Sp + Wilson CIs)
+    '<script src="vendor/dta-forest.js" defer></script>',
+    # DTA Deeks' funnel (publication bias)
+    '<script src="vendor/dta-funnel.js" defer></script>',
+    # QUADAS-2 RoB for DTA reviews
+    '<script src="vendor/quadas2-panel.js" defer></script>',
+    # Per-drug stratified dose-response (companion to dose-response.js)
+    '<script src="vendor/dose-stratified.js" defer></script>',
+    # Single-arm forest with Wilson CIs
+    '<script src="vendor/single-arm-forest.js" defer></script>',
+    # Single-arm leave-one-out sensitivity
+    '<script src="vendor/single-arm-influence.js" defer></script>',
+    # NMA league table for continuous outcomes
+    '<script src="vendor/nma-league-continuous.js" defer></script>',
 ]
 
 

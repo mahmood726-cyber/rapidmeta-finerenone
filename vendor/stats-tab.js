@@ -49,6 +49,13 @@
     'single-arm-proportion-panel',
     'dose-response-panel',
     'dta-bivariate-panel',
+    'dta-forest-panel',
+    'dta-funnel-panel',
+    'quadas2-panel',
+    'dose-stratified-panel',
+    'single-arm-forest-panel',
+    'single-arm-influence-panel',
+    'nma-league-continuous-panel',
   ];
 
   function buildTabButton(referenceBtn) {

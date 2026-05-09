@@ -4,3 +4,5 @@
 - **2026-05-05** [UNKNOWN] No recognized pattern: 
 8 skipped in 1.23s
  — Action: Manual investigation needed
+- **2026-05-09** [UNKNOWN] No recognized pattern: semgrep findings: ERROR=1 WARNING=36 INFO=0; engine errors=13
+blocking ERROR  — Action: Manual investigation needed
