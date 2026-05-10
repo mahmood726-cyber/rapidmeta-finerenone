@@ -190,6 +190,9 @@
                + 'Continuous-outcome analogue of NMA Forest. Pooled mean difference (DL random effects) '
                + 'per direct comparison vs <strong>' + reference + '</strong>. '
                + 'Diamond size ∝ √k. Cyan when 95% CI excludes MD=0. '
+               + '<strong>Limitation:</strong> each comparison vs reference is pooled <em>univariately</em>; multi-arm trials with shared control are <em>not</em> adjusted for the off-diagonal covariance τ²/2 (advanced-stats.md). '
+               + 'For trials with arms A, B, C vs D, treat the three pairwise (A−D, B−D, C−D) estimates as if independent — an over-confidence bias of unknown magnitude. '
+               + 'For publication-grade NMA, use <code>netmeta</code> (R) or <code>BUGSnet</code> with proper shared-control covariance. '
                + 'Cochrane Handbook v6.5 §10.5; sensitivity only for indirect estimates.'
                + '</div>';
 

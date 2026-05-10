@@ -215,6 +215,7 @@
           + 'Two basis functions [x, RCS₂(x)] plus intercept = 3 parameters; weighted regression with τ² from intercept-only DerSimonian-Laird. '
           + 'Wald-z test on the second basis function (β̂₂ = 0 ⇔ linearity); p < 0.05 ⇒ reject linearity. '
           + 'Crippa & Orsini (<em>JSS</em> 2016;72:11). For full multivariate dose-response with within-trial covariance, see R `dosresmeta`. '
+          + '<strong>Knot placement is fixed at 3 knots regardless of n</strong> — Harrell 2001 recommends 5 knots for n &gt; 100 with the canonical 5/27.5/50/72.5/95 percentile placement; n-adaptive knot selection is intentionally out of scope to keep the in-browser engine deterministic and dependency-free. '
           + '<strong>Limitations:</strong> RCS is one of many non-linear families; needs k ≥ 4 trials; cross-class data is still uninterpretable even if the spline fits.'
           + '</div>';
 

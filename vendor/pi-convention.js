@@ -85,6 +85,30 @@
     }
     if (!pts || pts.length < 2) return false;
 
+    // PI is undefined for k<3 under the Cochrane v6.5 t_{k-1} convention
+    // (df = k − 1 = 1 → t_{0.975, 1} = 12.7, but the variance estimate of τ̂²
+    // collapses with one degree of freedom and the PI is not interpretable).
+    // Render the panel with an explicit message instead of silently
+    // producing a misleading interval.
+    if (pts.length < 3) {
+      const undefBody =
+        '<div style="background:#3a2a0a;border:1px solid #92400e;color:#fbbf24;padding:8px 12px;border-radius:6px;font-size:11.5px;line-height:1.5;">'
+        + '⚠ <strong>Prediction interval undefined for k = ' + pts.length + '.</strong> '
+        + 'Cochrane Handbook v6.5 §10.10.4.3 recommends k ≥ 3 for the t_{k−1} PI; with k = 2, df = 1 and the τ̂² estimate is not stable. '
+        + 'Report only the random-effects mean (and HKSJ CI) until additional studies accrue.'
+        + '</div>';
+      const panel = P.buildCollapsiblePanel({
+        id: 'pi-convention-panel',
+        badge: 'PI convention (Cochrane v6.5)',
+        summary: 'PI undefined for k<3 (k=' + pts.length + ')',
+        bodyHtml: undefBody,
+        storageKey: STORAGE_KEY,
+      });
+      const existing = document.getElementById('pi-convention-panel');
+      if (existing) existing.replaceWith(panel); else P.insertAfterRBadge(panel);
+      return true;
+    }
+
     const pool = computePool(pts);
     const t_crit = tCrit975(pool.df);
 

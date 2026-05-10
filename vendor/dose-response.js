@@ -284,7 +284,11 @@
           + 'One-stage mixed-effects meta-regression on log-dose with weights w<sub>i</sub> = 1/(v<sub>i</sub> + τ²); '
           + 'τ² from DerSimonian–Laird intercept-only pool. Pseudo-R² per Raudenbush 2009. '
           + 'Linear log-dose model (Greenland-Longnecker 1992); non-linear / spline models out of scope here. '
-          + 'Cochrane Handbook v6.5 §10.4. <strong>Limitations:</strong> requires ≥1 dose per trial parseable from the name; '
+          + 'Cochrane Handbook v6.5 §10.4. <strong>Cross-class detection:</strong> if ≥3 distinct drug stems are detected from group fields, '
+          + 'the regression is tagged exploratory only — log-mg is not commensurable across mechanistically heterogeneous classes. '
+          + '<strong>Quadratic vs linear:</strong> preference is reported via ΔAIC = RSS<sub>lin</sub> − RSS<sub>quad</sub> − 2 (one extra parameter); '
+          + 'no τ²<sub>resid</sub> estimator is reported because the ad-hoc DL-univariate analogue does not generalize cleanly to a 3-parameter design (proper Raudenbush trace requires tr(M⁻¹·X<sup>T</sup>W²X), out of scope). '
+          + '<strong>Limitations:</strong> requires ≥1 dose per trial parseable from the name; '
           + 'trials at the same dose share regression weight; bubble plot shows trial-level points, not within-trial dose-pairs.'
           + '</div>';
 
@@ -416,6 +420,17 @@
     }
   }
 
-  global.DoseResponse = { render };
+  // Extracted helper for testability (see tests/test_panel_improvements.mjs).
+  // Mirrors the inline drug-stem detection in render().
+  function detectDrugStems(groupFields) {
+    const stems = new Set();
+    (groupFields || []).forEach(g => {
+      const s = (g || '').toLowerCase();
+      const stem = s.split(/\s|\/|,|-|\(|\+/)[0];
+      if (stem && stem.length >= 4) stems.add(stem);
+    });
+    return stems;
+  }
+  global.DoseResponse = { render, __test__: { detectDrugStems } };
   bootstrap();
 })(typeof window !== 'undefined' ? window : this);

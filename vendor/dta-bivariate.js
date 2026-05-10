@@ -157,6 +157,37 @@
   function logit(p) { return Math.log(p / (1 - p)); }
   function invLogit(y) { return Math.exp(y) / (1 + Math.exp(y)); }
 
+  // Spearman rank correlation — for threshold-effect detection per
+  // Cochrane DTA Handbook §10. |ρ| > 0.6 signals threshold heterogeneity
+  // and means a single (Se, Sp) point is misleading; SROC should be reported.
+  function spearmanRho(xs, ys) {
+    if (xs.length !== ys.length || xs.length < 3) return null;
+    const rank = (arr) => {
+      const idx = arr.map((v, i) => [v, i]).sort((a, b) => a[0] - b[0]);
+      const r = new Array(arr.length);
+      // Average ranks for ties
+      let i = 0;
+      while (i < idx.length) {
+        let j = i;
+        while (j + 1 < idx.length && idx[j + 1][0] === idx[i][0]) j++;
+        const avg = (i + j) / 2 + 1;
+        for (let k = i; k <= j; k++) r[idx[k][1]] = avg;
+        i = j + 1;
+      }
+      return r;
+    };
+    const rx = rank(xs), ry = rank(ys);
+    const n = xs.length;
+    const meanX = (n + 1) / 2, meanY = (n + 1) / 2;
+    let num = 0, dx = 0, dy = 0;
+    for (let i = 0; i < n; i++) {
+      const a = rx[i] - meanX, b = ry[i] - meanY;
+      num += a * b; dx += a * a; dy += b * b;
+    }
+    if (dx === 0 || dy === 0) return null;
+    return num / Math.sqrt(dx * dy);
+  }
+
   function trialSensSpec(t) {
     let TP = t.TP, FN = t.FN, TN = t.TN, FP = t.FP;
     // Continuity correction for any zero cell
@@ -259,6 +290,30 @@
     const DOR_ci_high = Math.exp(dorPool.ci_high);
 
     let html = '';
+
+    // Small-k advisory — bivariate convergence often fails for k<5; we use the
+    // independent-univariate fallback (rho fixed at 0). Per advanced-stats.md.
+    if (sePool.k < 5) {
+      html += '<div style="background:#3a2a0a;border:1px solid #92400e;color:#fbbf24;padding:6px 10px;border-radius:6px;margin-bottom:10px;font-size:11px;">'
+            + '⚠ <strong>Small-k advisory (k=' + sePool.k + ').</strong> Bivariate Reitsma 2005 commonly fails to converge at k&lt;5; this panel falls back to '
+            + '<em>independent-univariate logit pooling with ρ fixed at 0</em>. CIs may be over-narrow (within-study correlation ignored). '
+            + 'Verify with <code>mada::reitsma()</code> in R; see Cochrane DTA Handbook §10.'
+            + '</div>';
+    }
+
+    // Threshold-effect detection in independent-univariate path (Cochrane DTA §10).
+    // Compute Spearman ρ on logit(Se) vs logit(1−Sp); |ρ| > 0.6 ⇒ threshold heterogeneity.
+    const ssAll = trials.map(trialSensSpec);
+    const xLogitSe = ssAll.map(s => s.logitSe);
+    const xLogit1mSp = ssAll.map(s => Math.log((1 - s.Sp) / s.Sp));  // = -logit(Sp)
+    const rhoThresh = spearmanRho(xLogitSe, xLogit1mSp);
+    if (rhoThresh != null && Math.abs(rhoThresh) > 0.6) {
+      html += '<div style="background:#3a2a0a;border:1px solid #92400e;color:#fbbf24;padding:6px 10px;border-radius:6px;margin-bottom:10px;font-size:11px;">'
+            + '⚠ <strong>Threshold effect suspected</strong> (Spearman ρ(logit Se, logit 1−Sp) = ' + fmt(rhoThresh, 2) + ', |ρ|&gt;0.6). '
+            + 'Cochrane DTA Handbook §10: report the SROC curve rather than a single pooled (Se, Sp) point — pooled values can be misleading when the diagnostic threshold varies across studies.'
+            + '</div>';
+    }
+
     // Headline
     html += '<div style="background:#0e3a1f;border:1px solid #34d399;color:#e2e8f0;padding:8px 10px;border-radius:6px;margin-bottom:10px;font-size:11.5px;">'
           + '<strong>Pooled DTA:</strong> Sensitivity ' + fmt(Se*100, 1) + '% [' + fmt(Se_ci_low*100, 1) + '–' + fmt(Se_ci_high*100, 1) + '%], '
@@ -535,6 +590,6 @@
     }
   }
 
-  global.DTABivariate = { render };
+  global.DTABivariate = { render, __test__: { spearmanRho, trialSensSpec, poolDLRE, logit, invLogit } };
   bootstrap();
 })(typeof window !== 'undefined' ? window : this);

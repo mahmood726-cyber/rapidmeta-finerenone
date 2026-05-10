@@ -210,6 +210,6 @@
     } else { setTimeout(tick, 2100); }
   }
 
-  global.MetaRegPermutation = { render };
+  global.MetaRegPermutation = { render, __test__: { rng, permute } };
   bootstrap();
 })(typeof window !== 'undefined' ? window : this);
