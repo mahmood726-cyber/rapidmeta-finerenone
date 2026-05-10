@@ -1,13 +1,13 @@
 {
   "app": "DERMATOMYOSITIS_NMA_REVIEW.html",
-  "timestamp": "2026-05-10T10:39:45.312Z",
-  "durationMs": 3736,
+  "timestamp": "2026-05-10T12:26:34.533Z",
+  "durationMs": 3626,
   "state": {
-    "k": 6,
-    "or": "3.22",
+    "k": 1,
+    "or": "5.43",
     "i2": "0.0",
     "tau2": 0,
-    "remlSensitivity": true,
+    "remlSensitivity": false,
     "robSummary": {
       "high": 0,
       "someConcerns": 0,
@@ -15,11 +15,11 @@
       "unclear": 0
     },
     "isCompleteUniverse": true,
-    "totalAvailable": 6,
-    "includedCount": 6,
-    "searchResultCount": 6,
-    "nnt": 3.5884602917341977,
-    "absoluteRisk": -0.27867105072987425,
+    "totalAvailable": 1,
+    "includedCount": 1,
+    "searchResultCount": 1,
+    "nnt": 2.6953405017921153,
+    "absoluteRisk": -0.3710106382978723,
     "patientReportedOutcomes": {
       "count": 0,
       "scales": [],
@@ -29,26 +29,32 @@
   },
   "findings": {
     "editor": {
-      "decision": "Accept with minor revision",
-      "rationale": "All reviewers support publication after minor clarifications."
+      "decision": "Minor revision",
+      "rationale": "Reviewers support publication but want clarifications on reporting completeness and residual uncertainty."
     },
     "reviewers": [
       {
         "role": "Methodology & PRISMA",
-        "concerns": [],
-        "recommendation": "Accept with minor revision"
+        "concerns": [
+          "Evidence base is complete but small (k=1 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition."
+        ],
+        "recommendation": "Minor revision"
       },
       {
         "role": "Clinical expert",
         "concerns": [
-          "Pooled 3.22 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile."
+          "Pooled 5.43 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile.",
+          "k<3 - NNT ≈ 3 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       },
       {
         "role": "Biostatistician",
-        "concerns": [],
-        "recommendation": "Accept"
+        "concerns": [
+          "DL estimator under-estimates τ² for k<10; add REML/Paule-Mandel sensitivity."
+        ],
+        "recommendation": "Accept with minor revision"
       },
       {
         "role": "Patient representative",

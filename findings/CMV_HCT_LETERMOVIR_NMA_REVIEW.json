@@ -1,12 +1,12 @@
 {
   "app": "CMV_HCT_LETERMOVIR_NMA_REVIEW.html",
-  "timestamp": "2026-05-10T10:37:17.546Z",
-  "durationMs": 4044,
+  "timestamp": "2026-05-10T12:24:07.510Z",
+  "durationMs": 3633,
   "state": {
-    "k": 7,
-    "or": "0.40",
-    "i2": "61.7",
-    "tau2": 0.11800084614208875,
+    "k": 2,
+    "or": "0.55",
+    "i2": "91.1",
+    "tau2": 0.4412580083260812,
     "remlSensitivity": true,
     "robSummary": {
       "high": 0,
@@ -15,11 +15,11 @@
       "unclear": 0
     },
     "isCompleteUniverse": true,
-    "totalAvailable": 7,
-    "includedCount": 7,
-    "searchResultCount": 7,
-    "nnt": 4.259882869692532,
-    "absoluteRisk": 0.23474823852895688,
+    "totalAvailable": 2,
+    "includedCount": 2,
+    "searchResultCount": 2,
+    "nnt": 5.861657982590248,
+    "absoluteRisk": 0.1706001958780446,
     "patientReportedOutcomes": {
       "count": 0,
       "scales": [],
@@ -29,26 +29,31 @@
   },
   "findings": {
     "editor": {
-      "decision": "Accept with minor revision",
-      "rationale": "All reviewers support publication after minor clarifications."
+      "decision": "Minor revision",
+      "rationale": "Reviewers support publication but want clarifications on reporting completeness and residual uncertainty."
     },
     "reviewers": [
       {
         "role": "Methodology & PRISMA",
-        "concerns": [],
-        "recommendation": "Accept with minor revision"
+        "concerns": [
+          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition."
+        ],
+        "recommendation": "Minor revision"
       },
       {
         "role": "Clinical expert",
         "concerns": [
-          "Pooled 0.40 sits outside published benchmark range (corridor 0.72-0.84); closest Vaduganathan 2022 HR 0.77 [0.72, 0.82]. Discussion should reconcile."
+          "Pooled 0.55 sits outside published benchmark range (corridor 0.72-0.84); closest Vaduganathan 2022 HR 0.77 [0.72, 0.82]. Discussion should reconcile.",
+          "k<3 - NNT ≈ 6 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.",
+          "I² = 91.1% (considerable); show subgroup/strata estimates alongside pooled."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Major revision"
       },
       {
         "role": "Biostatistician",
         "concerns": [],
-        "recommendation": "Accept"
+        "recommendation": "Accept with minor revision"
       },
       {
         "role": "Patient representative",

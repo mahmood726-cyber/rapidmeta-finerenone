@@ -1,10 +1,10 @@
 {
   "app": "PEDIATRIC_HF_DAPA_NMA_REVIEW.html",
-  "timestamp": "2026-05-10T10:56:33.685Z",
-  "durationMs": 3773,
+  "timestamp": "2026-05-10T12:43:20.680Z",
+  "durationMs": 3654,
   "state": {
-    "k": 6,
-    "or": "0.46",
+    "k": 2,
+    "or": "0.56",
     "i2": "0.0",
     "tau2": 0,
     "remlSensitivity": true,
@@ -15,11 +15,11 @@
       "unclear": 0
     },
     "isCompleteUniverse": true,
-    "totalAvailable": 6,
-    "includedCount": 6,
-    "searchResultCount": 6,
-    "nnt": 5.611650485436894,
-    "absoluteRisk": 0.17820069204152245,
+    "totalAvailable": 2,
+    "includedCount": 2,
+    "searchResultCount": 2,
+    "nnt": 7.657142857142851,
+    "absoluteRisk": 0.13059701492537323,
     "patientReportedOutcomes": {
       "count": 0,
       "scales": [],
@@ -29,26 +29,30 @@
   },
   "findings": {
     "editor": {
-      "decision": "Accept with minor revision",
-      "rationale": "All reviewers support publication after minor clarifications."
+      "decision": "Minor revision",
+      "rationale": "Reviewers support publication but want clarifications on reporting completeness and residual uncertainty."
     },
     "reviewers": [
       {
         "role": "Methodology & PRISMA",
-        "concerns": [],
-        "recommendation": "Accept with minor revision"
+        "concerns": [
+          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition."
+        ],
+        "recommendation": "Minor revision"
       },
       {
         "role": "Clinical expert",
         "concerns": [
-          "Pooled 0.46 sits outside published benchmark range (corridor 0.72-0.84); closest Vaduganathan 2022 HR 0.77 [0.72, 0.82]. Discussion should reconcile."
+          "Pooled 0.56 sits outside published benchmark range (corridor 0.72-0.84); closest Vaduganathan 2022 HR 0.77 [0.72, 0.82]. Discussion should reconcile.",
+          "k<3 - NNT ≈ 8 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       },
       {
         "role": "Biostatistician",
         "concerns": [],
-        "recommendation": "Accept"
+        "recommendation": "Accept with minor revision"
       },
       {
         "role": "Patient representative",

@@ -1,12 +1,12 @@
 {
   "app": "HEMODIALYSIS_AV_ACCESS_DCB_NMA_REVIEW.html",
-  "timestamp": "2026-05-10T10:45:15.995Z",
-  "durationMs": 3715,
+  "timestamp": "2026-05-10T12:32:03.868Z",
+  "durationMs": 3641,
   "state": {
-    "k": 7,
-    "or": "2.97",
-    "i2": "0.0",
-    "tau2": 0,
+    "k": 2,
+    "or": "2.93",
+    "i2": "65.8",
+    "tau2": 0.11443696622586148,
     "remlSensitivity": true,
     "robSummary": {
       "high": 0,
@@ -15,11 +15,11 @@
       "unclear": 0
     },
     "isCompleteUniverse": true,
-    "totalAvailable": 7,
-    "includedCount": 7,
-    "searchResultCount": 7,
-    "nnt": 4.005548755609954,
-    "absoluteRisk": -0.2496536831812256,
+    "totalAvailable": 2,
+    "includedCount": 2,
+    "searchResultCount": 2,
+    "nnt": 3.9636150234741785,
+    "absoluteRisk": -0.2522949363340243,
     "patientReportedOutcomes": {
       "count": 0,
       "scales": [],
@@ -29,26 +29,30 @@
   },
   "findings": {
     "editor": {
-      "decision": "Accept with minor revision",
-      "rationale": "All reviewers support publication after minor clarifications."
+      "decision": "Minor revision",
+      "rationale": "Reviewers support publication but want clarifications on reporting completeness and residual uncertainty."
     },
     "reviewers": [
       {
         "role": "Methodology & PRISMA",
-        "concerns": [],
-        "recommendation": "Accept with minor revision"
+        "concerns": [
+          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition."
+        ],
+        "recommendation": "Minor revision"
       },
       {
         "role": "Clinical expert",
         "concerns": [
-          "Pooled 2.97 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile."
+          "Pooled 2.93 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile.",
+          "k<3 - NNT ≈ 4 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       },
       {
         "role": "Biostatistician",
         "concerns": [],
-        "recommendation": "Accept"
+        "recommendation": "Accept with minor revision"
       },
       {
         "role": "Patient representative",
