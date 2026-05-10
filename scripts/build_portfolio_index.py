@@ -34,11 +34,14 @@ def display_from_topic(topic):
     return " ".join(p.title() if p.isupper() and len(p) > 3 else p for p in parts)
 
 
-def is_nma(text):
-    # Heuristic: file has the NMA tab container OR NMA_CONFIG.treatments
-    if 'id="nma-network-plot"' in text: return True
-    if re.search(r"const NMA_CONFIG\s*=\s*\{[^{}]*?treatments\s*:\s*\[[^\]]+\]", text, re.DOTALL): return True
-    return False
+def is_nma(text, filename=""):
+    # Filename "_NMA_" is the canonical signal — matches the user's commit-
+    # message convention and the landing-page count. Structural heuristics
+    # (vendor/nma-*.js script tags, id="plot-nma", id="nma-network-plot")
+    # are NOT reliable: vendor scripts are loaded by every review template
+    # regardless of analysis type, and the placeholder NMA tab div exists
+    # in pairwise reviews too. Only the filename distinguishes them.
+    return "_NMA_" in filename
 
 
 def git_last_modified(path: Path) -> str:
@@ -78,7 +81,7 @@ def main():
             inner = treat_match.group(1)
             n_treatments = len(re.findall(r"'[^']+'", inner))
 
-        rtype = "NMA" if is_nma(text) else "Pairwise"
+        rtype = "NMA" if is_nma(text, hp.name) else "Pairwise"
 
         row = {
             "file": hp.name,
