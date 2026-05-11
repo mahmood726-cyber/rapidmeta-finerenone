@@ -543,7 +543,10 @@ vi      = seLog²                              = 0.0647</pre>
               poolBar +
               '<div class="effect">' + fmt(r.pooled_HR, 2) + ' (' + fmtCI(r.ci_lb, r.ci_ub, 2) + ')</div>' +
               '</div>';
-      if (r.pi_lb != null) {
+      // Render the PI row only when bounds are available (k>=3 per Cochrane v6.5).
+      // For k<3 the row is omitted entirely rather than rendered with em-dashes,
+      // which would otherwise produce a confusing "—–—" placeholder.
+      if (r.pi_lb != null && r.pi_ub != null) {
         html += '<div class="forest-row pool" style="background:#f5f3ff;font-weight:500;">' +
                 '<div class="stud">95% Prediction interval (df = ' + r.pi_df + ')</div>' +
                 '<div class="weight">—</div>' +
