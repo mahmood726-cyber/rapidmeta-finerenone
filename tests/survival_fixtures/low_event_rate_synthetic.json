@@ -1,0 +1,20 @@
+{
+  "description": "SYNTHETIC fixture — low-event-rate stress test. Trials with HR estimable but events ~10-30 per arm; CIs accordingly wider. Tests engine variance handling at the precision boundary where the normal-approximation assumption is least defensible.",
+  "_note": "synthetic — for engine stress testing only; do not use for substantive conclusions",
+  "trials": [
+    { "studlab": "Sparse-A", "HR": 0.65, "HR_ci_lo": 0.35, "HR_ci_hi": 1.20, "events_trt": 12, "events_ctl": 18, "n_trt": 500, "n_ctl": 500, "schoenfeld_p": 0.60 },
+    { "studlab": "Sparse-B", "HR": 0.75, "HR_ci_lo": 0.45, "HR_ci_hi": 1.25, "events_trt": 15, "events_ctl": 20, "n_trt": 600, "n_ctl": 600, "schoenfeld_p": 0.55 },
+    { "studlab": "Sparse-C", "HR": 0.55, "HR_ci_lo": 0.28, "HR_ci_hi": 1.08, "events_trt": 10, "events_ctl": 18, "n_trt": 500, "n_ctl": 500, "schoenfeld_p": 0.45 },
+    { "studlab": "Sparse-D", "HR": 0.80, "HR_ci_lo": 0.55, "HR_ci_hi": 1.16, "events_trt": 25, "events_ctl": 31, "n_trt": 800, "n_ctl": 800, "schoenfeld_p": 0.65 },
+    { "studlab": "Sparse-E", "HR": 0.70, "HR_ci_lo": 0.42, "HR_ci_hi": 1.17, "events_trt": 14, "events_ctl": 20, "n_trt": 550, "n_ctl": 550, "schoenfeld_p": 0.50 },
+    { "studlab": "Sparse-F", "HR": 0.85, "HR_ci_lo": 0.58, "HR_ci_hi": 1.24, "events_trt": 22, "events_ctl": 26, "n_trt": 700, "n_ctl": 700, "schoenfeld_p": 0.40 }
+  ],
+  "expected": {
+    "k": 6,
+    "pooled_HR_band": [0.65, 0.85],
+    "individual_CIs_wide": true,
+    "engine_no_numerical_failure": true,
+    "REML_converges": true,
+    "nonph_flag": false
+  }
+}

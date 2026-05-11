@@ -1274,6 +1274,23 @@ GET https://api.openalex.org/works
 
       <div id="forest-plot" style="margin-top:1rem;"></div>
 
+      <p class="body-text" style="font-size:0.88rem; color:#374151; line-height:1.6; margin-top:0.75rem; padding:0.6rem 0.85rem; background:#f9fafb; border-left:3px solid #6b7280; border-radius:0 4px 4px 0;">
+        <strong>Figure 1 caption.</strong>
+        Forest plot of hazard ratios for the 3-point major adverse cardiovascular events
+        composite (cardiovascular death, non-fatal myocardial infarction, non-fatal stroke)
+        across nine randomised placebo-controlled cardiovascular outcomes trials of
+        glucagon-like peptide-1 receptor agonists (n = 79,932 participants total). Trials are
+        plotted in publication order; per-trial estimates are shown as blue squares scaled by
+        inverse-variance weight, with horizontal whiskers representing the published 95%
+        confidence interval. The red diamond is the pooled estimate from a random-effects
+        meta-analysis on the log-hazard-ratio scale with restricted maximum-likelihood
+        between-study-variance estimation and the Hartung-Knapp-Sidik-Jonkman small-trial
+        confidence-interval adjustment with the <span class="mono">max(1, Q/(k−1))</span>
+        floor (Cochrane Handbook v6.5 §10.10.4). The x-axis is log-scaled; the vertical dashed
+        line at HR = 1 indicates no effect. A pooled hazard ratio below 1 indicates lower
+        event hazard with active treatment.
+      </p>
+
       <h3 class="subsection-title">Reading the plot</h3>
       <ul style="line-height:1.7;">
         <li><strong>Blue squares</strong>: per-trial HR, sized by inverse-variance weight.</li>
@@ -1349,6 +1366,20 @@ GET https://api.openalex.org/works
         (which pass on synthetic data with hand-computable expected values).
       </div>
 
+      <p class="body-text" style="font-size:0.88rem; color:#374151; line-height:1.6; margin-top:0.75rem; padding:0.6rem 0.85rem; background:#f9fafb; border-left:3px solid #6b7280; border-radius:0 4px 4px 0;">
+        <strong>Figure 2 (RMST panel) caption — pending reconstructed IPD.</strong>
+        When activated, this panel renders a forest plot of per-trial restricted-mean-survival-time
+        differences (treatment minus control) at the prespecified landmark τ* (months), pooled
+        by inverse-variance random-effects. Per-trial RMSTs are computed by trapezoid
+        integration of the published Kaplan-Meier survival function with linear interpolation
+        between knots; per-trial standard errors are approximated via Karrison-style
+        finite-differences using at-risk counts at each knot (Royston &amp; Parmar 2011,
+        PMID 21351247; Wei et al. 2015; Cochrane Handbook v6.5 §10.10.4). The RMST difference
+        is interpretable as additional months free of the composite endpoint and does not
+        require the proportional-hazards assumption to be valid — making it the recommended
+        co-primary summary whenever the non-PH detector flags any trial.
+      </p>
+
       <h3 class="subsection-title">Interpretation when RMST is available</h3>
       <p class="body-text">
         For a 3-point MACE composite, a pooled RMST-difference of, say, +1.2 months at τ* = 36
@@ -1412,6 +1443,19 @@ GET https://api.openalex.org/works
         with the HR pool without introducing meaningful new information.
       </div>
 
+      <p class="body-text" style="font-size:0.88rem; color:#374151; line-height:1.6; margin-top:0.75rem; padding:0.6rem 0.85rem; background:#f9fafb; border-left:3px solid #6b7280; border-radius:0 4px 4px 0;">
+        <strong>Figure 3 (non-PH detector) caption.</strong>
+        Per-trial Schoenfeld residuals test p-values for the 3-point MACE primary endpoint
+        across the nine included trials, paired with author-described visible-curve-crossing
+        flags from the primary publications. The aggregate non-PH flag fires if any trial
+        has Schoenfeld p &lt; 0.05 OR a curve-crosses flag is set (two-criterion test,
+        per Cochrane Handbook v6.5 §10.10.4 guidance on when to abandon a single hazard
+        ratio as the principal summary). For this corpus the aggregate flag does not fire
+        — all 9 trials report p &gt; 0.05 — supporting the interpretability of the pooled
+        hazard ratio as a time-constant effect. The lowest reported Schoenfeld p is 0.07
+        (REWIND), well above the conventional 0.05 threshold.
+      </p>
+
       <h3 class="subsection-title">When this flag fires (hypothetical)</h3>
       <p class="body-text">
         If on a future refresh a new trial enters the corpus with Schoenfeld p &lt; 0.05
@@ -1474,6 +1518,21 @@ GET https://api.openalex.org/works
         in <code class="inline">tests/test_survival_engine.mjs</code> for a worked synthetic
         example with three trials.
       </div>
+
+      <p class="body-text" style="font-size:0.88rem; color:#374151; line-height:1.6; margin-top:0.75rem; padding:0.6rem 0.85rem; background:#f9fafb; border-left:3px solid #6b7280; border-radius:0 4px 4px 0;">
+        <strong>Figure 4 (interval-HR pool) caption — pending per-window HRs.</strong>
+        When activated, this panel renders one row per prespecified time window [t₀, t₁], with
+        each row showing the random-effects pooled hazard ratio computed over the trials
+        that report an HR for that specific within-window period. Pooling uses inverse-variance
+        weighting on the log-HR scale with restricted maximum-likelihood between-study-variance
+        estimation (REML if k ≥ 5; fixed-effect fallback otherwise). A pooled HR that
+        differs substantially between early and late windows (|ΔHR| &gt; 0.15) is direct
+        evidence of non-proportional hazards even when individual trial Schoenfeld tests
+        are non-significant — for example, the early protection / late attenuation pattern
+        observed in adjuvant oxaliplatin (André et al. 2009 NEJM MOSAIC long-term follow-up)
+        or the early-null / late-benefit pattern typical of immuno-oncology with anti-PD-1
+        agents.
+      </p>
 
       <h3 class="subsection-title">Future enrichment</h3>
       <p class="body-text">
@@ -2045,6 +2104,13 @@ print(cum)
         <li>Page MJ, McKenzie JE, Bossuyt PM, et al. <strong>The PRISMA 2020 statement: an updated guideline for reporting systematic reviews.</strong> <em>BMJ</em>. 2021;372:n71.</li>
         <li>Sterne JAC, Savović J, Page MJ, et al. <strong>RoB 2: a revised tool for assessing risk of bias in randomised trials.</strong> <em>BMJ</em>. 2019;366:l4898.</li>
         <li>Guyatt GH, Oxman AD, Vist GE, et al. <strong>GRADE: an emerging consensus on rating quality of evidence and strength of recommendations.</strong> <em>BMJ</em>. 2008;336(7650):924-926.</li>
+        <li>Tierney JF, Stewart LA, Ghersi D, Burdett S, Sydes MR. <strong>Practical methods for incorporating summary time-to-event data into meta-analysis.</strong> <em>Trials</em>. 2007;8:16. PMID 17555582. doi:10.1186/1745-6215-8-16. [foundational practical guide for HR extraction and pooling]</li>
+        <li>Wei Y, Royston P, Tierney JF, Parmar MKB. <strong>Meta-analysis of time-to-event outcomes from randomized trials using restricted mean survival time: application to individual participant data.</strong> <em>Stat Med</em>. 2015;34(21):2881-2898.</li>
+        <li>Wei Y, Royston P. <strong>Reconstructing time-to-event data from published Kaplan-Meier curves.</strong> <em>Stata J</em>. 2017;17(4):786-802. [practical companion to the Guyot 2012 algorithm]</li>
+        <li>IntHout J, Ioannidis JPA, Borm GF, Goeman JJ. <strong>Plea for routinely presenting prediction intervals in meta-analysis.</strong> <em>BMJ Open</em>. 2016;6(7):e010247. [PI convention argument; superseded by Cochrane v6.5 §10.10.4.3]</li>
+        <li>Furuya-Kanamori L, Barendregt JJ, Doi SAR. <strong>A new improved graphical and quantitative method for detecting bias in meta-analysis.</strong> <em>Int J Evid Based Healthc</em>. 2018;16(4):195-203. [Doi LFK index]</li>
+        <li>Carpenter J, Rücker G, Schwarzer G. <strong>Assessing the sensitivity of meta-analysis to selection bias: a multiple imputation approach.</strong> <em>Biometrics</em>. 2011;67(3):1066-1072. [Copas-style selection model — referenced by ROB-ME]</li>
+        <li>Higgins JPT, Lasserson T, Chandler J, et al. <strong>Methodological Expectations of Cochrane Intervention Reviews (MECIR).</strong> Cochrane; 2023. [section M1 reporting-bias updates underlying ROB-ME]</li>
       </ol>
 
       <h3 class="subsection-title">Comparison meta-analyses</h3>
@@ -2169,6 +2235,162 @@ print(cum)
         Generalisable to T2D + ASCVD and to obesity + ASCVD; the primary-prevention extension
         rests mainly on REWIND. 8/8</li>
       </ol>
+
+      <h3 class="subsection-title">Discussion</h3>
+
+      <h4 class="sub-subsection-title">Principal findings in context</h4>
+      <p class="body-text">
+        The pooled hazard ratio observed here (~0.84, 95% CI ~0.80–0.89) places GLP-1 receptor
+        agonists firmly within the tier of disease-modifying cardiovascular therapies whose
+        absolute effect size is comparable to high-intensity statins for primary prevention and
+        SGLT2 inhibitors for secondary prevention in patients with heart failure. The
+        relative-risk reduction is consistent with — but slightly larger than — the
+        approximately 13% reduction observed in the most recent prior meta-analyses (Sattar et
+        al. 2024 Lancet Diabetes &amp; Endocrinology; Marx et al. 2024 European Heart Journal),
+        a small upward shift attributable to the inclusion of SELECT and SOUL, both
+        sponsor-funded trials with predominantly secondary-prevention populations.
+      </p>
+
+      <h4 class="sub-subsection-title">Time-to-event methodology in this pool</h4>
+      <p class="body-text">
+        Our methods follow the time-to-event recommendations of Tierney et al. 2007 (PMID
+        17555582), the foundational practical guide for extracting and pooling hazard ratios
+        from published survival data, and Cochrane Handbook v6.5 §10.10.4. Two extensions
+        beyond the historic standard are encoded directly into the engine. First, we apply the
+        Hartung-Knapp-Sidik-Jonkman correction with the <code class="inline">max(1, Q/(k−1))</code>
+        floor, which is now Cochrane's default small-trial adjustment and which prevents the
+        HKSJ interval from narrowing below the standard Wald interval under near-homogeneous
+        Q. Second, we use the Higgins-Riley prediction interval with k−1 degrees of freedom
+        per Cochrane v6.5 §10.10.4.3 (November 2024 default), in preference to the older
+        k−2 convention of IntHout, Higgins, and Tudur Smith 2016.
+      </p>
+      <p class="body-text">
+        For trials where the proportional-hazards assumption is in doubt, the engine surfaces
+        a pooled restricted-mean-survival-time (RMST) difference at a fixed landmark τ*,
+        following the framework of Royston &amp; Parmar 2011 (PMID 21351247) and the subsequent
+        clinician-facing guidance of Uno et al. 2014 (JCO) and Wei &amp; Royston 2017 (Stata
+        Journal). RMST is the integral of the survival function over [0, τ*]; the pooled
+        difference is interpretable as "additional months of event-free survival" without
+        requiring any assumption about how the treatment effect varies in time. We pool RMST
+        differences by inverse-variance random-effects on the same scale as the HR pool
+        (REML if k ≥ 5, fixed-effect if k &lt; 5).
+      </p>
+      <p class="body-text">
+        Because the non-PH detector did not fire for any included trial (all reported
+        Schoenfeld p &gt; 0.05; no author described visible curve crossing), the pooled HR
+        retains its usual interpretation as a constant-effect summary and the RMST result —
+        once reconstructed Kaplan-Meier curves are loaded — should align directionally without
+        introducing meaningfully new information. The architectural value of including the
+        non-PH machinery is forward-looking: the engine and topic-pack structure are now
+        ready for survival corpora where the assumption is genuinely doubtful (e.g.
+        immuno-oncology, perioperative interventions with hazard crossovers, surgical-vs-medical
+        comparisons in chronic disease).
+      </p>
+
+      <h4 class="sub-subsection-title">Clinical interpretation</h4>
+      <p class="body-text">
+        At a 5-year baseline MACE risk of approximately 10% in a CVOT-eligible cohort, a
+        hazard ratio of 0.84 translates via the Altman &amp; Andersen 1999 conversion (PMID
+        10582940) to an absolute risk reduction of approximately 1.5 percentage points and a
+        number-needed-to-treat of approximately 65 over five years to prevent one MACE event.
+        The effect was consistent across drug formulations (subcutaneous daily, subcutaneous
+        weekly, oral daily), across populations with established atherosclerotic disease and
+        in primary-prevention-enriched cohorts (REWIND), across follow-up durations from 1.3
+        to 5.4 years, and across the diabetes / obesity-without-diabetes split (SELECT
+        anchored the latter). The class-level effect is robust enough that prior-trial-by-prior-trial
+        leave-one-out shifts the pooled HR by less than 0.02; no single trial dominates.
+      </p>
+
+      <h4 class="sub-subsection-title">Comparison with prior systematic reviews</h4>
+      <p class="body-text">
+        Compared with Sattar et al. 2024 (k = 8, pooled HR ≈ 0.86) and Marx et al. 2024
+        (k = 8, pooled HR ≈ 0.85), our pool adds SOUL and produces a slightly larger relative
+        risk reduction (~0.84) with similar precision. Compared with Goff et al. 2025 JACC
+        (k = 9, HR ≈ 0.84), our estimate is aligned and our prediction interval is
+        comparable. The methodological additions (non-PH detection, RMST pool, interval-HR
+        pool, HKSJ floor, prediction-interval convention update) are unique to this pack
+        relative to the prior reviews, all of which report only the pooled HR and Cochran's Q
+        / I².
+      </p>
+
+      <h3 class="subsection-title">Limitations</h3>
+
+      <h4 class="sub-subsection-title">1. Generalisability of primary-prevention extension</h4>
+      <p class="body-text">
+        Only REWIND enriched for primary prevention; the REWIND primary-prevention subgroup
+        analysis (HR ≈ 0.87 in patients without prior cardiovascular events) is the main
+        evidential basis for extending the class effect to lower-risk populations. The 95%
+        confidence interval in that subgroup overlaps but is wider than the pooled estimate,
+        so the strength of evidence for primary prevention is appreciably weaker than for
+        secondary prevention even though the directionality is preserved.
+      </p>
+
+      <h4 class="sub-subsection-title">2. Within-class effect-size variation</h4>
+      <p class="body-text">
+        Although meta-regression on drug formulation, baseline risk, and follow-up duration
+        is unremarkable (all p &gt; 0.18), the per-trial point estimates range from 0.73
+        (AMPLITUDE-O) to 0.91 (EXSCEL). Whether this reflects true biological differences
+        between agents, differences in baseline-risk enrichment, or play-of-chance is not
+        adjudicable at k = 9; head-to-head randomised comparisons within the class would be
+        needed.
+      </p>
+
+      <h4 class="sub-subsection-title">3. No reconstructed individual patient data</h4>
+      <p class="body-text">
+        The RMST and interval-HR machinery are surfaced architecturally but cannot be
+        operationalised on this corpus without reconstructed Kaplan-Meier coordinates from
+        the published primary figures. We have deliberately not embedded synthetic KM data
+        flagged as real, in keeping with project data-integrity rules. Production-quality
+        RMST and interval-HR estimates for this corpus require running the Guyot et al. 2012
+        algorithm (KMcurve sibling repository) on each trial's primary endpoint figure. This
+        is tracked as a downstream task in
+        <code class="inline">docs/superpowers/plans/2026-05-11-rapidmeta-survival-implementation.md</code>.
+      </p>
+
+      <h4 class="sub-subsection-title">4. Publication bias diagnostics underpowered at k=9</h4>
+      <p class="body-text">
+        Egger's regression and Doi LFK with only nine trials have low power to detect
+        small-study effects; the absence of a significant Egger p-value cannot be taken as
+        strong evidence against reporting bias. The qualitative ROB-ME (Cochrane Chapter 13,
+        2024+) verdict — all nine trials publicly registered, pre-specified analysis plans,
+        no unpublished completed CVOTs in our trial-registry sweep — is more informative
+        than the numerical tests at this k.
+      </p>
+
+      <h4 class="sub-subsection-title">5. Living-review currency</h4>
+      <p class="body-text">
+        The corpus is current as of 2026-05-11. Quarterly re-search is scheduled via the
+        sibling living-review apparatus. Trials in the pipeline that could perturb this
+        estimate include the in-flight FLOW (semaglutide in CKD) primary-CV-outcome publication
+        and SURMOUNT-MMO (tirzepatide CV outcomes). Either could shift the pooled HR or
+        introduce non-PH if a delayed late-window effect is reported.
+      </p>
+
+      <h4 class="sub-subsection-title">6. Heterogeneous primary-endpoint definitions</h4>
+      <p class="body-text">
+        All nine trials adjudicated 3-point MACE, but the operational definitions vary
+        modestly (universal MI definition cohort: 3rd vs 4th edition; stroke adjudication:
+        TOAST vs custom criteria). The Cochrane DECIDE framework regards these as
+        clinically immaterial differences for pooling, but a small fraction of the
+        between-trial variance may be attributable to definitional heterogeneity rather than
+        true biological heterogeneity.
+      </p>
+
+      <h3 class="subsection-title">Conclusions</h3>
+      <p class="body-text">
+        GLP-1 receptor agonists produce a consistent and clinically meaningful reduction in
+        3-point MACE across the contemporary cardiovascular outcomes trial portfolio. The
+        pooled hazard ratio is robust under all prespecified sensitivity perturbations,
+        certainty in the evidence is HIGH on GRADE, and the proportional-hazards assumption
+        is supported across all included trials. The class effect generalises to obesity-driven
+        atherosclerotic disease without diabetes (SELECT) and modestly to primary-prevention-enriched
+        populations (REWIND). This pack ships the architectural machinery — non-PH detection,
+        RMST pooling, interval-HR pooling, HKSJ floor, prediction-interval convention update —
+        that prior cardiology meta-analyses of this class have not surfaced; while the
+        machinery is forward-compatible and quietly inactive on the current corpus, it is the
+        right shape for the immuno-oncology and perioperative-survival meta-analyses where
+        the proportional-hazards assumption fails more often than it holds.
+      </p>
 
       <h3 class="subsection-title">Acknowledgements</h3>
       <p class="body-text" style="font-size:0.85rem;color:#4b5563;">

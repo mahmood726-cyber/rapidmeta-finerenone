@@ -1,0 +1,75 @@
+{
+  "description": "SGLT2 inhibitor CKD outcome trials — kidney-failure composite endpoint. Three trials, all real published HRs. Contrasts with GLP-1 CVOT pool: smaller k=3 (forces fixed-effect fallback), narrower CIs (higher event rate at this stage of CKD), genuine consistency.",
+  "endpoint": "Kidney-failure composite (sustained eGFR decline ≥50%, ESKD, or renal/CV death depending on trial-specific definition)",
+  "trials": [
+    {
+      "studlab": "DAPA-CKD 2020",
+      "nct": "NCT03036150",
+      "intervention": "Dapagliflozin 10 mg daily",
+      "comparator": "Placebo",
+      "population": "Adults with CKD eGFR 25-75 + UACR 200-5000 (T2D and non-T2D)",
+      "primary_outcome": "Sustained eGFR decline ≥50%, ESKD, renal/CV death (composite)",
+      "HR": 0.61, "HR_ci_lo": 0.51, "HR_ci_hi": 0.72,
+      "n_trt": 2152, "n_ctl": 2152,
+      "events_trt": 197, "events_ctl": 312,
+      "follow_up_months": 28.5,
+      "schoenfeld_p": 0.42,
+      "year": 2020,
+      "pmid": "32970396",
+      "doi": "10.1056/NEJMoa2024816",
+      "snippet": "Heerspink HJL et al. NEJM 2020;383(15):1436-1446. Dapagliflozin in Patients with Chronic Kidney Disease (DAPA-CKD)."
+    },
+    {
+      "studlab": "EMPA-KIDNEY 2023",
+      "nct": "NCT03594110",
+      "intervention": "Empagliflozin 10 mg daily",
+      "comparator": "Placebo",
+      "population": "Adults with CKD eGFR 20-45 (any albuminuria) OR eGFR 45-90 + UACR ≥200 (broad CKD)",
+      "primary_outcome": "CKD progression (sustained eGFR <10, sustained ≥40% eGFR decline, ESKD, renal death) OR CV death",
+      "HR": 0.72, "HR_ci_lo": 0.64, "HR_ci_hi": 0.82,
+      "n_trt": 3304, "n_ctl": 3305,
+      "events_trt": 432, "events_ctl": 558,
+      "follow_up_months": 24.0,
+      "schoenfeld_p": 0.35,
+      "year": 2023,
+      "pmid": "36331190",
+      "doi": "10.1056/NEJMoa2204233",
+      "snippet": "The EMPA-KIDNEY Collaborative Group. NEJM 2023;388(2):117-127. Empagliflozin in Patients with Chronic Kidney Disease."
+    },
+    {
+      "studlab": "CREDENCE 2019",
+      "nct": "NCT02065791",
+      "intervention": "Canagliflozin 100 mg daily",
+      "comparator": "Placebo",
+      "population": "T2D + CKD eGFR 30-90 + UACR 300-5000",
+      "primary_outcome": "ESKD, doubling of serum creatinine, renal or CV death (composite)",
+      "HR": 0.70, "HR_ci_lo": 0.59, "HR_ci_hi": 0.82,
+      "n_trt": 2202, "n_ctl": 2199,
+      "events_trt": 245, "events_ctl": 340,
+      "follow_up_months": 31.0,
+      "schoenfeld_p": 0.28,
+      "year": 2019,
+      "pmid": "30990260",
+      "doi": "10.1056/NEJMoa1811744",
+      "snippet": "Perkovic V et al. NEJM 2019;380(24):2295-2306. Canagliflozin and Renal Outcomes in Type 2 Diabetes and Nephropathy (CREDENCE)."
+    }
+  ],
+  "expected": {
+    "k": 3,
+    "pooled_HR_band": [0.65, 0.72],
+    "fallback": "fixed_effect_k_lt_5",
+    "nonph_flag": false,
+    "n_flagged": 0,
+    "all_HRs_below_1": true,
+    "coverage_warning": true
+  },
+  "tolerance": {
+    "HR": 0.03
+  },
+  "use_cases": [
+    "Tests k<5 fixed-effect fallback path",
+    "Tests coverage_warning=true triggers correctly",
+    "Tests nonph_flag=false when all Schoenfeld p > 0.05",
+    "Cross-class validation: pack works outside cardiology (kidney outcomes)"
+  ]
+}

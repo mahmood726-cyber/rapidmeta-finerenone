@@ -1,0 +1,21 @@
+{
+  "description": "SYNTHETIC fixture — explicitly NOT real published data. Tests engine numerical stability when between-study heterogeneity is large (I² > 75%). Trial values constructed by hand to produce a known I² with all studies still pointing in the same direction but with widely different effect sizes.",
+  "_note": "synthetic — for engine stress testing only; do not use for substantive conclusions",
+  "trials": [
+    { "studlab": "Synthetic-A", "HR": 0.50, "HR_ci_lo": 0.40, "HR_ci_hi": 0.62, "schoenfeld_p": 0.50 },
+    { "studlab": "Synthetic-B", "HR": 0.55, "HR_ci_lo": 0.45, "HR_ci_hi": 0.67, "schoenfeld_p": 0.50 },
+    { "studlab": "Synthetic-C", "HR": 0.95, "HR_ci_lo": 0.84, "HR_ci_hi": 1.07, "schoenfeld_p": 0.50 },
+    { "studlab": "Synthetic-D", "HR": 0.92, "HR_ci_lo": 0.81, "HR_ci_hi": 1.05, "schoenfeld_p": 0.50 },
+    { "studlab": "Synthetic-E", "HR": 0.65, "HR_ci_lo": 0.55, "HR_ci_hi": 0.77, "schoenfeld_p": 0.50 },
+    { "studlab": "Synthetic-F", "HR": 0.88, "HR_ci_lo": 0.78, "HR_ci_hi": 0.99, "schoenfeld_p": 0.50 },
+    { "studlab": "Synthetic-G", "HR": 0.60, "HR_ci_lo": 0.50, "HR_ci_hi": 0.72, "schoenfeld_p": 0.50 }
+  ],
+  "expected": {
+    "k": 7,
+    "I2_above_50": true,
+    "tau2_above_0_01": true,
+    "REML_converges": true,
+    "PI_wider_than_CI": true,
+    "HKSJ_wider_than_Wald": true
+  }
+}

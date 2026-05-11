@@ -434,6 +434,156 @@ test('forest: returns rows + pooled row', () => {
 });
 
 // ============================================================
+// Section J: SGLT2-CKD pool (real 3-trial small-k cross-class validation)
+// ============================================================
+
+test('SGLT2-CKD fixture: forces fixed_effect_k_lt_5 fallback at k=3', () => {
+  const fx = JSON.parse(readFileSync(join(__dirname, 'survival_fixtures/sglt2_ckd_kidney_outcomes.json'), 'utf-8'));
+  const res = SURV.fit(fx.trials);
+  assert.equal(res.k, fx.expected.k);
+  assert.equal(res.fallback, fx.expected.fallback);
+  assert.equal(res.coverage_warning, fx.expected.coverage_warning);
+});
+
+test('SGLT2-CKD fixture: pooled HR in published meta-analysis range', () => {
+  const fx = JSON.parse(readFileSync(join(__dirname, 'survival_fixtures/sglt2_ckd_kidney_outcomes.json'), 'utf-8'));
+  const res = SURV.fit(fx.trials);
+  const [lo, hi] = fx.expected.pooled_HR_band;
+  assert.ok(res.pooled_HR >= lo && res.pooled_HR <= hi,
+            'pooled HR=' + res.pooled_HR + ' outside expected band [' + lo + ',' + hi + ']');
+});
+
+test('SGLT2-CKD fixture: all 3 trial CIs exclude 1 (real consistent benefit)', () => {
+  const fx = JSON.parse(readFileSync(join(__dirname, 'survival_fixtures/sglt2_ckd_kidney_outcomes.json'), 'utf-8'));
+  for (const t of fx.trials) {
+    assert.ok(t.HR_ci_hi < 1, t.studlab + ' upper CI ' + t.HR_ci_hi + ' should exclude 1');
+  }
+});
+
+test('SGLT2-CKD fixture: pooled HR upper CI is below 1 (significant pool)', () => {
+  const fx = JSON.parse(readFileSync(join(__dirname, 'survival_fixtures/sglt2_ckd_kidney_outcomes.json'), 'utf-8'));
+  const res = SURV.fit(fx.trials);
+  assert.ok(res.pooled_HR_ci_hi < 1, 'pooled HR CI ub=' + res.pooled_HR_ci_hi + ' should be <1');
+});
+
+// ============================================================
+// Section K: Extreme heterogeneity stress (numerical stability)
+// ============================================================
+
+test('extreme_heterogeneity: REML converges and produces tau2 > 0.01', () => {
+  const fx = JSON.parse(readFileSync(join(__dirname, 'survival_fixtures/extreme_heterogeneity_synthetic.json'), 'utf-8'));
+  const res = SURV.fit(fx.trials);
+  assert.equal(res.converged, true);
+  assert.ok(res.tau2 > 0.01, 'tau2=' + res.tau2 + ' should be > 0.01 on heterogeneous data');
+});
+
+test('extreme_heterogeneity: I^2 > 50% as expected', () => {
+  const fx = JSON.parse(readFileSync(join(__dirname, 'survival_fixtures/extreme_heterogeneity_synthetic.json'), 'utf-8'));
+  const res = SURV.fit(fx.trials);
+  assert.ok(res.I2 > 50, 'I^2=' + res.I2 + ' should be > 50');
+});
+
+test('extreme_heterogeneity: HKSJ CI strictly wider than Wald CI', () => {
+  const fx = JSON.parse(readFileSync(join(__dirname, 'survival_fixtures/extreme_heterogeneity_synthetic.json'), 'utf-8'));
+  const res = SURV.fit(fx.trials);
+  const waldW = Math.log(res.pooled_HR_ci_hi) - Math.log(res.pooled_HR_ci_lo);
+  const hksjW = Math.log(res.pooled_HR_hksj_ci_hi) - Math.log(res.pooled_HR_hksj_ci_lo);
+  assert.ok(hksjW > waldW, 'HKSJ width ' + hksjW + ' must exceed Wald width ' + waldW + ' under heterogeneity');
+});
+
+test('extreme_heterogeneity: PI strictly wider than CI', () => {
+  const fx = JSON.parse(readFileSync(join(__dirname, 'survival_fixtures/extreme_heterogeneity_synthetic.json'), 'utf-8'));
+  const res = SURV.fit(fx.trials);
+  const ciW = Math.log(res.pooled_HR_ci_hi) - Math.log(res.pooled_HR_ci_lo);
+  const piW = Math.log(res.pi_HR_hi) - Math.log(res.pi_HR_lo);
+  assert.ok(piW > ciW, 'PI width ' + piW + ' should exceed CI width ' + ciW + ' under heterogeneity');
+});
+
+// ============================================================
+// Section L: Low-event-rate stress (precision boundary)
+// ============================================================
+
+test('low_event_rate: engine no numerical failure', () => {
+  const fx = JSON.parse(readFileSync(join(__dirname, 'survival_fixtures/low_event_rate_synthetic.json'), 'utf-8'));
+  const res = SURV.fit(fx.trials);
+  assert.ok(isFinite(res.pooled_HR), 'pooled_HR=' + res.pooled_HR + ' must be finite');
+  assert.ok(isFinite(res.pooled_HR_ci_lo) && isFinite(res.pooled_HR_ci_hi));
+  assert.ok(isFinite(res.tau2));
+});
+
+test('low_event_rate: REML converges', () => {
+  const fx = JSON.parse(readFileSync(join(__dirname, 'survival_fixtures/low_event_rate_synthetic.json'), 'utf-8'));
+  const res = SURV.fit(fx.trials);
+  assert.equal(res.converged, true);
+});
+
+test('low_event_rate: pooled HR in expected band', () => {
+  const fx = JSON.parse(readFileSync(join(__dirname, 'survival_fixtures/low_event_rate_synthetic.json'), 'utf-8'));
+  const res = SURV.fit(fx.trials);
+  const [lo, hi] = fx.expected.pooled_HR_band;
+  assert.ok(res.pooled_HR >= lo && res.pooled_HR <= hi,
+            'pooled HR=' + res.pooled_HR + ' outside expected band [' + lo + ',' + hi + ']');
+});
+
+// ============================================================
+// Section M: Edge cases — very small / very large effects
+// ============================================================
+
+test('edge case: HR ≈ 1 (no effect) pools near null', () => {
+  const trials = [
+    { studlab: 'A', HR: 1.00, HR_ci_lo: 0.92, HR_ci_hi: 1.09 },
+    { studlab: 'B', HR: 0.99, HR_ci_lo: 0.91, HR_ci_hi: 1.08 },
+    { studlab: 'C', HR: 1.01, HR_ci_lo: 0.93, HR_ci_hi: 1.10 },
+    { studlab: 'D', HR: 0.98, HR_ci_lo: 0.90, HR_ci_hi: 1.07 },
+    { studlab: 'E', HR: 1.02, HR_ci_lo: 0.94, HR_ci_hi: 1.11 },
+    { studlab: 'F', HR: 1.00, HR_ci_lo: 0.93, HR_ci_hi: 1.08 }
+  ];
+  const res = SURV.fit(trials);
+  assert.ok(Math.abs(res.pooled_HR - 1.0) < 0.02, 'pooled HR=' + res.pooled_HR + ' should be ≈ 1');
+  // CI should include 1.0
+  assert.ok(res.pooled_HR_ci_lo < 1 && res.pooled_HR_ci_hi > 1, 'CI should bracket 1');
+});
+
+test('edge case: HR << 1 (large benefit) pools below null with tight CI', () => {
+  const trials = [
+    { studlab: 'A', HR: 0.30, HR_ci_lo: 0.20, HR_ci_hi: 0.45 },
+    { studlab: 'B', HR: 0.32, HR_ci_lo: 0.22, HR_ci_hi: 0.47 },
+    { studlab: 'C', HR: 0.28, HR_ci_lo: 0.19, HR_ci_hi: 0.42 },
+    { studlab: 'D', HR: 0.35, HR_ci_lo: 0.24, HR_ci_hi: 0.51 },
+    { studlab: 'E', HR: 0.31, HR_ci_lo: 0.21, HR_ci_hi: 0.46 }
+  ];
+  const res = SURV.fit(trials);
+  assert.ok(res.pooled_HR < 0.4, 'pooled HR=' + res.pooled_HR + ' should be < 0.4');
+  assert.ok(res.pooled_HR_ci_hi < 0.55, 'CI ub=' + res.pooled_HR_ci_hi + ' should exclude weak effects');
+});
+
+// ============================================================
+// Section N: R-metafor baseline cross-validation (when file exists)
+// ============================================================
+
+test('R baseline parity: engine matches metafor REML+HKSJ at |Δ| < 1e-3 (skips if no baseline)', () => {
+  let baseline;
+  try {
+    baseline = JSON.parse(readFileSync(join(__dirname, '..', 'r_validation_log_glp1_cvot_surv.json'), 'utf-8'));
+  } catch (e) {
+    console.log('  (R baseline not yet generated; run `Rscript validate_glp1_cvot_surv.R` to enable this comparison.)');
+    return;
+  }
+  const fx = JSON.parse(readFileSync(join(__dirname, 'survival_fixtures/glp1_cvot_mace.json'), 'utf-8'));
+  const res = SURV.fit(fx.trials);
+  const tol = baseline.expected_engine_match.tolerance_log_scale;
+  const r_mu = baseline.pool_reml_knha.mu_logHR;
+  const r_se = baseline.pool_reml_knha.se_logHR;
+  const r_tau2 = baseline.heterogeneity.tau2;
+  assert.ok(Math.abs(res.pooled_logHR - r_mu) < tol,
+            'mu_logHR engine=' + res.pooled_logHR + ' R=' + r_mu);
+  assert.ok(Math.abs(res.pooled_logHR_se - r_se) < tol,
+            'se_logHR engine=' + res.pooled_logHR_se + ' R=' + r_se);
+  assert.ok(Math.abs(res.tau2 - r_tau2) < tol,
+            'tau2 engine=' + res.tau2 + ' R=' + r_tau2);
+});
+
+// ============================================================
 // Run
 // ============================================================
 let pass = 0, fail = 0;
