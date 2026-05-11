@@ -190,7 +190,7 @@
     </p>
     <div class="forest-svg-host" id="forest-discrimination"></div>
     <p class="figure-caption">
-      <b>Figure 1.</b> Pooled C-statistic of the 4-variable Kidney Failure Risk Equation at the 5-year prediction horizon across six external validation cohorts. Blue squares are per-cohort point estimates with 95% CIs. The cyan diamond is the pooled estimate by Paule-Mandel REML τ² with HKSJ small-sample CI (Cochrane v6.5 floor max(1, Q/(k−1)); Student-t<sub>k-1</sub> critical value). The dashed orange bracket below the diamond is the 95% prediction interval (Higgins 2009; Riley 2011), reflecting the between-cohort variability in the underlying logit-C population. Heterogeneity is high (I² ≈ 97%), driven by a wide spread of validation settings: primary care (C = 0.93 in Major 2019), advanced CKD (C = 0.77–0.82 in Ali 2021 and Gallego-Valcarce 2024), kidney transplant recipients (C = 0.73 in Tangri 2020 — a different prediction context to the derivation cohort), and population data linkage (C = 0.96 in Irish 2023). The wide HKSJ-adjusted CI is a deliberate honest reflection of this heterogeneity, not a numerical artefact.
+      <b>Figure 1.</b> Pooled C-statistic of the 4-variable Kidney Failure Risk Equation at the 5-year prediction horizon across six external validation cohorts. Blue squares are per-cohort point estimates with 95% CIs. The cyan diamond is the pooled estimate by Paule-Mandel REML τ² with HKSJ small-sample CI (Cochrane v6.5 floor max(1, Q/(k−1)); Student-t<sub>k-1</sub> critical value). The dashed orange bracket below the diamond is the 95% prediction interval (Higgins 2009; Riley 2011), reflecting the between-cohort variability in the underlying logit-C population. Heterogeneity is high (I² ≈ 97%; τ² point estimate on logit-C scale ≈ 0.68 with q-profile 95% CI [≈ 0.25, ≈ 4.42], Viechtbauer 2007), driven by a wide spread of validation settings: primary care (C = 0.93 in Major 2019), advanced CKD (C = 0.77–0.82 in Ali 2021 and Gallego-Valcarce 2024), kidney transplant recipients (C = 0.73 in Tangri 2020 — a different prediction context to the derivation cohort), and population data linkage (C = 0.96 in Irish 2023). The wide HKSJ-adjusted CI is a deliberate honest reflection of this heterogeneity, not a numerical artefact. The heterogeneity-fragility flag (parity with the pairwise-pool engine) is <em>agree</em> here: both the pooled CI and the prediction interval lie above logit(0.5) = 0, so the conclusion of useful discrimination is not heterogeneity-fragile.
     </p>
     <p class="small-print">
       Variance derivation: SE(C) is taken from the published 95% CI assuming Wald symmetry. Delta-method conversion to the logit scale: SE(logit C) = SE(C) / [C(1−C)]. Pooling on the logit-C scale follows Snell et al. 2018 (BMC Med Res Methodol) and Debray et al. 2017 (BMJ tutorial). Back-transformation is via the inverse-logit (sigmoid) function.
@@ -322,6 +322,9 @@
     </p>
     <p class="body">
       Small-sample CI used the Hartung-Knapp-Sidik-Jonkman adjustment with the Cochrane Handbook v6.5 (Nov 2024 §10.10.4.3) floor: HKSJ scale factor = max(1, Q / (k − 1)), with Student-t<sub>k − 1</sub> critical value rather than the normal-z. This protects against CI under-coverage in the presence of heterogeneity. A 95% prediction interval (Higgins 2009; Riley 2011) was reported using t<sub>k − 1</sub> × √(τ² + SE<sub>μ</sub>²), defined for k ≥ 3.
+    </p>
+    <p class="body">
+      In addition to the τ² point estimate the engine reports a 95% q-profile confidence interval for τ² (Viechtbauer 2007, Statistics in Medicine), obtained by bisection-inverting Cochran's Q against χ²(k−1) at α/2 and 1 − α/2. This is the same algorithm used by the DTA engine's <code>qProfileTau2CI</code>. A wide τ² CI is informative: it confirms that the heterogeneity estimate itself is uncertain at small k, separately from the τ² magnitude. A heterogeneity-fragility flag (parity with the pairwise-pool engine's <code>piGap</code>) reports whether the pooled CI and prediction interval disagree about whether a clinically-meaningful reference value lies inside the interval — reference values are logit(0.5) = 0 for the C-statistic, 0 for calibration intercept, 1 for calibration slope, and log(1) = 0 for the O/E ratio. The flag takes three values: <em>agree</em>, <em>ci_excludes_pi_includes</em> (pooled CI claims discrimination but a future cohort could be at chance — heterogeneity-fragile), or <em>ci_includes_pi_excludes</em> (CI is null but PI is shifted).
     </p>
     <p class="body">
       All pooling primitives, back-transformations, and the PROBAST rollup are implemented in the open-source <code>rapidmeta-prediction-engine-v1.js</code> (~ 826 lines, MIT licence, no external dependencies). The engine is validated by a 64-assertion unit-test suite (<code>tests/test_prediction_engine.mjs</code>) including: closed-form τ² = 0 case (hand-derived against inverse-variance algebra), heterogeneous k = 3 case where PM converges to a value identical to DerSimonian-Laird (verified by hand on symmetric balanced data), the 6-cohort KFRE real-data frozen baseline, the Hanley-McNeil 1982 variance against the 1982 Radiology paper Table II hand-calculation, Student-t and chi-squared quantiles against Abramowitz &amp; Stegun, and various edge-case stress paths.
@@ -468,6 +471,8 @@
         <li>Riley RD, Higgins JPT, Deeks JJ. <em>Interpretation of random effects meta-analyses.</em> BMJ. 2011;342:d549. DOI <a href="https://doi.org/10.1136/bmj.d549" target="_blank" rel="noopener">10.1136/bmj.d549</a></li>
         <li>Vergouwe Y, Moons KG, Steyerberg EW. <em>External validity of risk models: use of benchmark values to disentangle a case-mix effect from incorrect coefficients.</em> Am J Epidemiol. 2010;172(8):971–980. DOI <a href="https://doi.org/10.1093/aje/kwq223" target="_blank" rel="noopener">10.1093/aje/kwq223</a></li>
         <li>Viechtbauer W. <em>Conducting meta-analyses in R with the metafor package.</em> J Stat Softw. 2010;36(3):1–48. DOI <a href="https://doi.org/10.18637/jss.v036.i03" target="_blank" rel="noopener">10.18637/jss.v036.i03</a></li>
+        <li>Viechtbauer W. <em>Confidence intervals for the amount of heterogeneity in meta-analysis.</em> Stat Med. 2007;26(1):37–52. (q-profile τ² CI by inverting Cochran's Q against χ².) DOI <a href="https://doi.org/10.1002/sim.2514" target="_blank" rel="noopener">10.1002/sim.2514</a></li>
+        <li>Borenstein M, Hedges LV, Higgins JPT, Rothstein HR. <em>Introduction to Meta-Analysis.</em> Wiley, 2009. Chapter 19 (subgroup analyses; Q_between as a Wald contrast on subgroup means).</li>
       </ol>
     </div>
   </section>
@@ -689,10 +694,29 @@
     let hetHtml = '';
     hetHtml += ovCell('Cochran Q', fmt(Cp.Q, 1),
       'df ' + Cp.df_Q + ', p ' + (Cp.p_Q < 0.001 ? '< 0.001' : fmt(Cp.p_Q, 3)));
-    hetHtml += ovCell('τ² (logit-C)', fmt(Cp.tau2, 4),
-      'I² ' + fmt(Cp.I2, 0) + '% — substantial');
+    // τ² with q-profile 95% CI (Viechtbauer 2007)
+    let tauSub = 'I² ' + fmt(Cp.I2, 0) + '%';
+    if (isFinite(Cp.tau2_lo) && isFinite(Cp.tau2_hi)) {
+      tauSub += ' · q-profile CI ' + fmt(Cp.tau2_lo, 3) + '–' + fmt(Cp.tau2_hi, 3);
+    }
+    hetHtml += ovCell('τ² (logit-C)', fmt(Cp.tau2, 4), tauSub);
     hetHtml += ovCell('Cohorts (k)', String(result.k),
       result.k_C + ' contributed to C pool');
+    // PI-gap fragility advisory (parity with pairwise-pool's piGap)
+    let pgLabel = 'Heterogeneity-fragility';
+    let pgValue = 'agree';
+    let pgSub = 'CI and PI agree about chance discrimination (C = 0.5)';
+    if (Cp.pi_gap === 'ci_excludes_pi_includes') {
+      pgValue = 'fragile';
+      pgSub = '⚠ Pooled CI excludes chance discrimination but PI brackets it — a 7th cohort could land at C ≈ 0.5';
+    } else if (Cp.pi_gap === 'ci_includes_pi_excludes') {
+      pgValue = 'reverse';
+      pgSub = 'Pooled CI brackets chance discrimination but PI excludes it';
+    } else if (Cp.pi_gap === null) {
+      pgValue = '—';
+      pgSub = 'PI undefined (k < 3)';
+    }
+    hetHtml += ovCell(pgLabel, pgValue, pgSub);
     ovHet.innerHTML = hetHtml;
 
     const probast = result.probast;
