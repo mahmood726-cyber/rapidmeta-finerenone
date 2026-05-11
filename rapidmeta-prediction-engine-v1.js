@@ -322,10 +322,13 @@
   }
 
   // ---------- REML τ² via Paule-Mandel iteration ----------
-  // Paule-Mandel (1982) is an exact REML estimator for a single-axis random-effects
-  // meta-analysis: solve Σ w_i² (y_i - μ_w)² / Σ w_i = (k-1) where w_i = 1/(v_i+τ²).
-  // For k<10 advanced-stats.md prefers REML/PM over DL — PM is a robust REML solver
-  // that converges without derivatives.
+  // Paule-Mandel (1982) is a method-of-moments estimator that coincides with the
+  // empirical-Bayes (and single-axis REML) solution: solve Q(τ²) = k-1, where
+  //   Q(τ²) = Σ w_i (y_i - μ_w)²,  w_i = 1/(v_i + τ²),  μ_w = (Σ w_i y_i) / (Σ w_i).
+  // Per advanced-stats.md, for k<10 PM/REML is preferred over DerSimonian-Laird
+  // (which is downward-biased at small k). The Newton step below uses the
+  // partial derivative ∂Q/∂τ² ≈ -Σ w_i² (y_i - μ_w)² (treating μ_w as profiled
+  // at each iterate; the chain-rule term through μ_w vanishes at the root).
   function paule_mandel(yi, vi) {
     if (yi.length < 2) return { tau2: 0, mu: yi[0] || 0, se_mu: Math.sqrt(vi[0] || 0),
                                 Q: 0, df: 0, sumW: 0, w: [], converged: true, iter: 0 };
@@ -518,7 +521,9 @@
       if (!pool) return null;
       return {
         k: pool.k,
-        C_pool: invLogit(pool.mu),
+        mu_logit: pool.mu,        // P1 fix: expose the actual random-effects SE on the
+        se_logit: pool.se_mu,     //         logit-C scale instead of back-deriving from
+        C_pool: invLogit(pool.mu),//         the HKSJ-inflated CI (which used t_{k-1}).
         C_ci_lo: invLogit(pool.ci_lo),
         C_ci_hi: invLogit(pool.ci_hi),
         tau2: pool.tau2, I2: pool.I2, Q: pool.Q
@@ -526,16 +531,20 @@
     }
     var devPool = poolBucket(dev);
     var extPool = poolBucket(ext);
-    // Q_between via fixed-effect contrast of subgroup means on logit-C scale
+    // Q_between as a Wald test of the contrast μ_dev − μ_ext on the logit-C scale.
+    // Per Borenstein et al. 2009 (Introduction to Meta-Analysis, ch. 19):
+    //   Q_between = (μ_dev − μ_ext)² / (Var(μ_dev) + Var(μ_ext))   ~ χ²(1)
+    // Var(μ_g) is the random-effects SE² from the per-bucket pool (= 1/Σ w_i at the
+    // converged τ²). The previous implementation back-derived SE from the HKSJ CI
+    // via (CI_hi − CI_lo)/(2 × 1.96), which overstated SE by t_{k_g − 1}/1.96 — a
+    // factor of ≈ 6.3 at k_g = 2 — and shrank Q_between toward zero.
     var Q_b = null, df_b = null, p_b = null;
-    if (devPool && extPool && devPool.k > 0 && extPool.k > 0) {
-      var mu_d = logit(devPool.C_pool), mu_e = logit(extPool.C_pool);
-      // SEs on logit scale need recomputation — derive from CI brackets symmetrically
-      var se_d = (logit(devPool.C_ci_hi) - logit(devPool.C_ci_lo)) / (2 * 1.959963984540054);
-      var se_e = (logit(extPool.C_ci_hi) - logit(extPool.C_ci_lo)) / (2 * 1.959963984540054);
-      var pooled_var = se_d * se_d + se_e * se_e;
+    if (devPool && extPool && devPool.k > 0 && extPool.k > 0
+        && isFiniteNum(devPool.se_logit) && isFiniteNum(extPool.se_logit)) {
+      var pooled_var = devPool.se_logit * devPool.se_logit
+                     + extPool.se_logit * extPool.se_logit;
       if (pooled_var > 0) {
-        Q_b = Math.pow(mu_d - mu_e, 2) / pooled_var;
+        Q_b = Math.pow(devPool.mu_logit - extPool.mu_logit, 2) / pooled_var;
         df_b = 1;
         p_b = chi2UpperP(Q_b, df_b);
       }
@@ -546,7 +555,8 @@
       Q_between: Q_b,
       df_between: df_b,
       p_between: p_b,
-      note: 'Q_between is a fixed-effect contrast of subgroup means on logit-C scale; ' +
+      note: 'Q_between is a Wald contrast of subgroup means on logit-C scale using ' +
+            'the random-effects SE from each bucket pool (Borenstein 2009, ch.19); ' +
             'interpret with caution when either subgroup is small.'
     };
   }
@@ -603,12 +613,13 @@
     var disc = cohorts.map(function(c){ return perCohortDiscrimination(c); });
 
     // Pool discrimination (logit-C scale)
-    var yi_disc = [], vi_disc = [];
-    disc.forEach(function(d){
+    var yi_disc = [], vi_disc = [], idx_disc = [];
+    disc.forEach(function(d, originalIdx){
       if (isFiniteNum(d.logitC) && isFiniteNum(d.varLogitC) && d.varLogitC > 0) {
         yi_disc.push(d.logitC); vi_disc.push(d.varLogitC);
-      }
-    });
+        idx_disc.push(originalIdx);  // P1 fix: track mapping from filtered → original
+      }                              //         index so per-cohort weights attribute
+    });                              //         correctly when cohorts are dropped.
     var discPool = poolGeneric(yi_disc, vi_disc);
     var C_pool = null;
     if (discPool) {
@@ -639,23 +650,21 @@
     }
 
     // Calibration intercept pool
-    var yi_int = [], vi_int = [], idx_int = [];
-    cohorts.forEach(function(c, i){
+    var yi_int = [], vi_int = [];
+    cohorts.forEach(function(c){
       if (isFiniteNum(c.calib_int) && isFiniteNum(c.calib_int_se) && c.calib_int_se > 0) {
         yi_int.push(c.calib_int);
         vi_int.push(c.calib_int_se * c.calib_int_se);
-        idx_int.push(i);
       }
     });
     var calib_int_pool = poolGeneric(yi_int, vi_int);
 
     // Calibration slope pool
-    var yi_sl = [], vi_sl = [], idx_sl = [];
-    cohorts.forEach(function(c, i){
+    var yi_sl = [], vi_sl = [];
+    cohorts.forEach(function(c){
       if (isFiniteNum(c.calib_slope) && isFiniteNum(c.calib_slope_se) && c.calib_slope_se > 0) {
         yi_sl.push(c.calib_slope);
         vi_sl.push(c.calib_slope_se * c.calib_slope_se);
-        idx_sl.push(i);
       }
     });
     var calib_slope_pool = poolGeneric(yi_sl, vi_sl);
@@ -708,17 +717,13 @@
         C: d.C
       };
       if (isFiniteNum(d.logitC) && isFiniteNum(d.logitC_se)) {
-        // Weight uses 1/(v_i + tau2) from pool when available
+        // P1 fix: C_pool.weights is indexed by the FILTERED list (only cohorts
+        // that passed the validity check), not the original cohort index.
+        // Use idx_disc to map original index → filtered slot.
         var w = NaN;
-        if (C_pool && isFiniteNum(C_pool.tau2)) {
-          var wRaw = 1 / (d.varLogitC + C_pool.tau2);
-          var sumW = C_pool.weights ? C_pool.weights.reduce(function(a){ return a + 1/(d.varLogitC + C_pool.tau2); }, 0) : 0;
-          // simpler: pull weight from pool's weights array by matching order
-          var slot = -1;
-          for (var s = 0; s < disc.length; s++) {
-            if (disc[s] === d) { slot = s; break; }
-          }
-          if (slot >= 0 && C_pool.weights && C_pool.weights[slot] != null) {
+        if (C_pool && C_pool.weights) {
+          var slot = idx_disc.indexOf(i);
+          if (slot >= 0 && C_pool.weights[slot] != null) {
             w = C_pool.weights[slot];
           }
         }
