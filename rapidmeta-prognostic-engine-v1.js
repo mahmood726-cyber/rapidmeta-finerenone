@@ -813,6 +813,24 @@
 
   // ===================================================================
   // Section 8: Funnel plot diagnostics — Egger's regression test.
+  //
+  // BUNDLED-VS-DELEGATED DECISION (round-2 code review):
+  // vendor/funnel-diagnostics.js exposes eggerTest(points) which takes
+  // [{yi, vi}] — mathematically identical to what this section needs.
+  // We considered delegating to that module but kept Egger bundled here
+  // for two reasons:
+  //   1. Test-harness isolation: tests/test_prognostic_engine.mjs loads
+  //      the engine via new Function('window', src)(ctx) without vendor
+  //      modules. Delegating to FunnelDiagnostics would require either
+  //      a stub injection in the test loader or making the engine fall
+  //      back when window.FunnelDiagnostics is absent — both add
+  //      complexity for no testable benefit.
+  //   2. Numerical-method coherence: the engine's Egger uses the same
+  //      WLS-on-(y/√v, 1/√v) formulation as the vendor module (verified
+  //      by inspection 2026-05-11); the math is identical, so bundling
+  //      vs delegating affects only call-site plumbing.
+  // If a future refactor decouples vendor/*.js from the global RapidMeta
+  // 2×2 helper, this section becomes a candidate for delegation.
   // ===================================================================
   function funnelDiagnostics(per_study_log) {
     var k = per_study_log.length;
