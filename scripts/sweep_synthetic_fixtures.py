@@ -14,7 +14,7 @@ Outputs:
   - Top 15 reviews by 4-or-5-criterion match
   - 5 spot-check trials (4-of-5 with real PMID)
 
-Run: python C:/Projects/Finrenone/scripts/sweep_synthetic_fixtures.py
+Run: python scripts/sweep_synthetic_fixtures.py   (from repo root)
 """
 
 from __future__ import annotations
@@ -29,7 +29,10 @@ from pathlib import Path
 # Force UTF-8 stdout on Windows (cp1252 default crashes on box-drawing).
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-DATA_DIR = Path("C:/Projects/Finrenone/outputs/extraction_audit/data")
+# Repo-root-relative paths (Sentinel P0-hardcoded-local-path compliance).
+# Script lives at <repo>/scripts/, so parents[1] is the repo root.
+REPO_ROOT = Path(__file__).resolve().parents[1]
+DATA_DIR = REPO_ROOT / "outputs" / "extraction_audit" / "data"
 INDEX = DATA_DIR / "_index.json"
 
 NCT05_PLACEHOLDER = re.compile(r"^NCT05000\d{3}$")
@@ -228,7 +231,7 @@ def main() -> int:
             for (s, n, t) in fiveof5
         ],
     }
-    out_path = Path("C:/Projects/Finrenone/outputs/synthetic_fixture_sweep.json")
+    out_path = REPO_ROOT / "outputs" / "synthetic_fixture_sweep.json"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with out_path.open("w", encoding="utf-8") as f:
         json.dump(out, f, indent=2, ensure_ascii=False)
