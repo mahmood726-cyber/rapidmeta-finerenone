@@ -1,0 +1,9 @@
+{
+  "_provenance": "Adversarial fixture for round-2 code review. Three trials report HRs on three different per_unit metrics (per-SD, per-doubling, per-IQR) and one trial omits per_unit entirely. Engine's cutoff harmonization must gracefully skip the missing-per_unit trial and rescale only the other three. Synthetic data.",
+  "trials": [
+    {"studlab":"per_SD_study",       "effect_type":"HR","hr_adj":1.40,"hr_adj_ci_lb":1.25,"hr_adj_ci_ub":1.57,"n":500,"events":80,"per_unit":1.0,   "biomarker_sd":1.0,   "cutoff":"per_SD",      "year":2019},
+    {"studlab":"per_doubling_study", "effect_type":"HR","hr_adj":1.35,"hr_adj_ci_lb":1.20,"hr_adj_ci_ub":1.52,"n":620,"events":92,"per_unit":0.693, "biomarker_sd":1.10,  "cutoff":"per_doubling","year":2020},
+    {"studlab":"per_IQR_study",      "effect_type":"HR","hr_adj":1.45,"hr_adj_ci_lb":1.28,"hr_adj_ci_ub":1.64,"n":480,"events":76,"per_unit":1.0,   "biomarker_iqr":1.349,"cutoff":"per_IQR",     "year":2021},
+    {"studlab":"no_per_unit_study",  "effect_type":"HR","hr_adj":1.55,"hr_adj_ci_lb":1.30,"hr_adj_ci_ub":1.85,"n":380,"events":58,                                       "cutoff":"unspecified", "year":2022}
+  ]
+}
