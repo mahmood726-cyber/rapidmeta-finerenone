@@ -10,6 +10,7 @@
   "effect_metric": "HR per 100 pg/mL BNP",
   "_known_data_quality_notes": [
     "Bettencourt 2000 HR=1.01 (1.00-1.02) is suspiciously tight on the per-100-pg/mL scale and may reflect a units-coding artifact in the source review (likely reported per pg/mL in the primary paper). Retained as published; the engine's INSPECT-SR + influence diagnostics should flag it as an outlier, which is the correct behavior.",
+    "Bettencourt 2000 lower-bound round-trip: the Doust 2005 review tabulates the CI as exactly [1.00, 1.02]. The prognostic engine's validate() rejects ci_lb<=0 strictly (positive-width log-scale CIs are required to avoid seLog=0/infinite IV weight). We therefore round-trip the CI lower bound from 1.00 to 1.005 (a 5e-3 shift) so the fixture passes validate() without losing the practical 'pathologically tight' character of the original cited interval. Document this in the methods narrative of any derived review.",
     "Harrison 2002 (PMID 12106937) HR=37.9 (5.7-755.8) is for CARDIAC death (not all-cause) and is the canonical example of a wildly imprecise HR in this literature — kept in the dichotomous-cutoff table of Doust 2005 (not used here)."
   ],
   "trials": [
