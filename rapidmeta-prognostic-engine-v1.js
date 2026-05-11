@@ -244,6 +244,13 @@
         issues.push(lbl + ': hr_adj_ci_lb > hr_adj_ci_ub');
         continue;
       }
+      // Reject zero-width CIs: log(ub)−log(lb) → 0 produces seLog=0, vi=0, infinite IV weight.
+      // The relative-tolerance threshold (1e-9 on (ub−lb)/lb) catches both literal lb==ub
+      // and floating-point near-equality without rejecting tight-but-finite CIs.
+      if ((t.hr_adj_ci_ub - t.hr_adj_ci_lb) / Math.max(t.hr_adj_ci_lb, 1e-12) < 1e-9) {
+        issues.push(lbl + ': zero-width CI [' + t.hr_adj_ci_lb + ', ' + t.hr_adj_ci_ub + '] — log-scale SE would be 0 (degenerate)');
+        continue;
+      }
       if (t.hr_adj < t.hr_adj_ci_lb || t.hr_adj > t.hr_adj_ci_ub) {
         issues.push(lbl + ': point estimate ' + t.hr_adj + ' outside CI [' + t.hr_adj_ci_lb + ', ' + t.hr_adj_ci_ub + ']');
         continue;
@@ -610,6 +617,25 @@
 
   // ===================================================================
   // Section 7: Leave-one-out, cumulative, Baujat, influence diagnostics.
+  //
+  // ARCHITECTURAL NOTE (do not refactor away from this):
+  // These analytics are intentionally bundled INSIDE the engine rather than
+  // delegated to the existing vendor/leave-one-out.js / vendor/cumulative-ma.js
+  // / vendor/baujat-plot.js / vendor/influence-diagnostics.js modules.
+  //
+  // Rationale: those vendor modules consume PanelHelper.extractBinaryTrials(rd),
+  // which hard-requires 2×2 cell counts (tE/tN/cE/cN) on RapidMeta.realData.
+  // Prognostic-factor data is per-cohort log-HR + SE — no 2×2 cells exist.
+  // The only path to delegate would be to fake 2×2 cells from log-HR + N via
+  // Stijnen 2010 method-of-moments, which loses log-scale fidelity and would
+  // be a scientific bug (turning an adjusted-HR pool into an unadjusted-OR pool
+  // is exactly the confounding the CHARMS-PF + QUIPS pipeline is designed to
+  // detect, not produce).
+  //
+  // Co-locating these analytics in the engine means: one call to fit() returns
+  // a rich result with log-scale-correct sensitivity panels, and the host HTML
+  // renders them directly from r.leave_one_out, r.cumulative, r.baujat, etc.
+  // The trade-off is a longer engine file in exchange for log-scale fidelity.
   // ===================================================================
   function leaveOneOut(per_study_log, mainHR, mainCI) {
     var rows = [];
@@ -1026,12 +1052,20 @@
     // HKSJ CI (with Cochrane v6.5 floor max(1, Q/(k-1)))
     var hksj_mult = 1;
     var hksj_ci_lb = null, hksj_ci_ub = null;
+    var hksj_warning = null;
     if (k >= 2 && hksj) {
       hksj_mult = hksjMultiplier(yi, vi, pooled.tau2 != null ? pooled.tau2 : 0, pooled.mu);
       var t_crit = tinv(1 - alpha / 2, df);
       var se_hksj = pooled.se * Math.sqrt(hksj_mult);
       hksj_ci_lb = Math.exp(pooled.mu - t_crit * se_hksj);
       hksj_ci_ub = Math.exp(pooled.mu + t_crit * se_hksj);
+      // df=1 (k=2) makes t_{0.975, 1} ≈ 12.71 — the resulting HKSJ CI is mathematically
+      // defined but practically uninformative (always >5× wider than the Wald CI).
+      // Cochrane Handbook v6.5 cautions against HKSJ at k=2 for this reason; surface
+      // the warning so downstream consumers can suppress or annotate the column.
+      if (df === 1) {
+        hksj_warning = 'HKSJ at k=2 uses t_{0.975, df=1} ≈ 12.71; the resulting CI is uninformatively wide. Cochrane Handbook v6.5 sec 10.10.4.3 cautions against HKSJ at k=2.';
+      }
     }
 
     // Q-profile tau^2 CI (Viechtbauer)
@@ -1132,6 +1166,7 @@
       hksj_mult: hksj_mult,
       hksj_ci_lb: hksj_ci_lb,
       hksj_ci_ub: hksj_ci_ub,
+      hksj_warning: hksj_warning,
       tau2: pooled.tau2,
       tau2_lo: qpCI.tau2_lo,
       tau2_hi: qpCI.tau2_hi,
