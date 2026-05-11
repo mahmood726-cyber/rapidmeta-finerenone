@@ -26,7 +26,9 @@ import re
 import sys
 from pathlib import Path
 
-ROOT = Path(r"C:/Projects/Finrenone")
+# Script lives at <repo>/scripts/, so parents[1] is the repo root
+# (Sentinel P0-hardcoded-local-path compliance).
+ROOT = Path(__file__).resolve().parents[1]
 LANDING = ROOT / "index.html"
 
 try:

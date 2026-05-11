@@ -30,21 +30,23 @@ def _resolve_aact_dir() -> Path:
     with an actionable message if none resolve.
     """
     import os
+    # AACT snapshots are multi-GB and typically live outside the repo. Resolution
+    # is env-var driven (Sentinel P0-hardcoded-local-path compliance):
+    #   AACT_ROOT  : explicit path to the snapshot directory containing studies.txt
+    # Fallback: home-relative AACT/<date> if AACT_ROOT is unset and the home path
+    # contains a studies.txt.
     if os.environ.get("AACT_ROOT"):
         env = Path(os.environ["AACT_ROOT"])
-        if env.exists():
+        if (env / "studies.txt").exists():
             return env
-    candidates = [
-        Path(r"D:/AACT-storage/AACT/2026-04-12"),
-        Path(r"D:/AACT/2026-04-12"),
-        Path(r"C:/Users/user/AACT/2026-04-12"),
-    ]
-    for c in candidates:
-        if (c / "studies.txt").exists():
-            return c
+    home_candidate = Path.home() / "AACT" / "2026-04-12"
+    if (home_candidate / "studies.txt").exists():
+        return home_candidate
     raise FileNotFoundError(
-        "AACT snapshot not found. Set AACT_ROOT env var or place at one of: "
-        + ", ".join(str(c) for c in candidates)
+        "AACT snapshot not found. Set the AACT_ROOT environment variable to the "
+        "directory containing studies.txt, or place the snapshot at "
+        f"{home_candidate}. Example: AACT_ROOT=/path/to/AACT/2026-04-12 python "
+        "scripts/aact_cross_check_v2.py"
     )
 
 
