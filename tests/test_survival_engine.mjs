@@ -48,6 +48,34 @@ test('validate rejects HR_ci_lo > HR_ci_hi', () => {
   assert.ok(issues.some(s => s.toLowerCase().includes('ci')));
 });
 
+// P1-1: zero-width CI rejected — prevents 1/0 weight downstream
+test('validate rejects zero-width CI (HR_ci_lo === HR_ci_hi)', () => {
+  const issues = SURV.validate([{ HR: 0.85, HR_ci_lo: 0.85, HR_ci_hi: 0.85, studlab: 'Z' }]);
+  assert.ok(issues.length > 0);
+  assert.ok(issues.some(s => s.includes('zero-width') || s.includes('infinite weight')),
+            'expected zero-width-CI message, got: ' + issues.join('; '));
+});
+
+// P1-4: CI must bracket HR (catches transcription errors)
+test('validate rejects HR outside its own CI (transcription-error guard)', () => {
+  // HR=0.80 but CI=[0.90, 0.99] — HR sits below the lower CI bound
+  const issues = SURV.validate([{ HR: 0.80, HR_ci_lo: 0.90, HR_ci_hi: 0.99, studlab: 'Q' }]);
+  assert.ok(issues.length > 0);
+  assert.ok(issues.some(s => s.includes('outside its own')),
+            'expected outside-own-CI message, got: ' + issues.join('; '));
+});
+
+test('validate accepts HR exactly at CI boundary (tolerance allowed)', () => {
+  // HR equals lower bound — allowed within 0.5% log-scale tolerance
+  const issues = SURV.validate([{ HR: 0.85, HR_ci_lo: 0.85, HR_ci_hi: 0.95, studlab: 'B' }]);
+  // Should still be rejected by the zero-width guard since lo equals HR but not hi.
+  // The intent here: confirm boundary case error message is the zero-width one, not the
+  // outside-CI one (because HR=lo means CI brackets HR fine).
+  // Actually HR=0.85, lo=0.85, hi=0.95 → lo !== hi (so not zero-width), and HR is at the
+  // boundary so CI brackets it. Should accept.
+  assert.deepEqual(issues, []);
+});
+
 test('validate accepts well-formed trial', () => {
   const issues = SURV.validate([{ HR: 0.85, HR_ci_lo: 0.75, HR_ci_hi: 0.95, studlab: 'LEADER 2016' }]);
   assert.deepEqual(issues, []);
@@ -231,6 +259,52 @@ test('nonPHDetect: schoenfeld_p_min computed correctly', () => {
   const nph = SURV.nonPHDetect(fx.trials);
   // Min should be 0.02 (MOSAIC)
   assert.ok(Math.abs(nph.schoenfeld_p_min - 0.02) < 1e-9);
+});
+
+// P1-2: distinguish "no Schoenfeld data" from "PH supported"
+test('nonPHDetect: verdict_quality=no_data when no trials report Schoenfeld or curve_crosses', () => {
+  const trials = [
+    { studlab: 'A', HR: 0.85, HR_ci_lo: 0.75, HR_ci_hi: 0.96 },
+    { studlab: 'B', HR: 0.90, HR_ci_lo: 0.80, HR_ci_hi: 1.01 }
+  ];
+  const nph = SURV.nonPHDetect(trials);
+  assert.equal(nph.flag, false);
+  assert.equal(nph.verdict_quality, 'no_data');
+  assert.equal(nph.data_completeness, 0);
+  assert.equal(nph.n_schoenfeld_reported, 0);
+});
+
+test('nonPHDetect: verdict_quality=complete_data when all trials report Schoenfeld', () => {
+  const fx = JSON.parse(readFileSync(join(__dirname, 'survival_fixtures/glp1_cvot_mace.json'), 'utf-8'));
+  const nph = SURV.nonPHDetect(fx.trials);
+  assert.equal(nph.verdict_quality, 'complete_data');
+  assert.equal(nph.data_completeness, 1.0);
+  assert.equal(nph.n_schoenfeld_reported, fx.trials.length);
+});
+
+test('nonPHDetect: verdict_quality=partial_data when some trials report Schoenfeld', () => {
+  const trials = [
+    { studlab: 'A', HR: 0.85, HR_ci_lo: 0.75, HR_ci_hi: 0.96, schoenfeld_p: 0.40 },
+    { studlab: 'B', HR: 0.90, HR_ci_lo: 0.80, HR_ci_hi: 1.01 },
+    { studlab: 'C', HR: 0.88, HR_ci_lo: 0.78, HR_ci_hi: 1.00, schoenfeld_p: 0.55 }
+  ];
+  const nph = SURV.nonPHDetect(trials);
+  assert.equal(nph.verdict_quality, 'partial_data');
+  assert.ok(Math.abs(nph.data_completeness - 2/3) < 1e-9);
+});
+
+// P1-3: RMST returns both `se` (legacy) and `se_approximate` (honest) + a method label
+test('rmstAtTau: returns se_method and se_caveat fields documenting approximation', () => {
+  const km = [
+    { t_months: 0,  surv: 1.0, n_at_risk: 100 },
+    { t_months: 12, surv: 0.8, n_at_risk:  80 },
+    { t_months: 24, surv: 0.6, n_at_risk:  60 }
+  ];
+  const out = SURV.rmstAtTau(km, 24);
+  assert.equal(out.se_method, 'karrison_finite_difference_approx');
+  assert.ok(typeof out.se_caveat === 'string' && out.se_caveat.length > 0);
+  // se_approximate and se should be equal (the latter kept for backward compat)
+  assert.equal(out.se, out.se_approximate);
 });
 
 test('nonPHDetect: triggers on curve_crosses=true even without Schoenfeld', () => {

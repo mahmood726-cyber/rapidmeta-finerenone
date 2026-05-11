@@ -167,6 +167,21 @@
       }
       if (lo > hi) {
         issues.push('trial ' + i + ' (' + sl + '): HR_ci_lo > HR_ci_hi (' + lo + ' > ' + hi + ')');
+        continue;
+      }
+      if (lo === hi) {
+        issues.push('trial ' + i + ' (' + sl + '): HR_ci_lo === HR_ci_hi gives zero-width CI ' +
+                    '(seLogHR=0 → infinite weight); a CI of width 0 is not interpretable');
+        continue;
+      }
+      // CI-brackets-HR sanity (catches transcription errors where HR is outside its own CI).
+      // Allow a tiny rounding tolerance (0.5% on log scale).
+      var logHR = Math.log(t.HR);
+      var logLo = Math.log(lo), logHi = Math.log(hi);
+      if (logHR < logLo - 5e-3 || logHR > logHi + 5e-3) {
+        issues.push('trial ' + i + ' (' + sl + '): HR ' + t.HR +
+                    ' lies outside its own 95% CI [' + lo + ', ' + hi + '] — ' +
+                    'likely transcription error in source data');
       }
     }
     return issues;
@@ -379,22 +394,44 @@
     var k = trials.length;
     var flagged = [];
     var minP = null;
+    var n_schoenfeld_reported = 0;
+    var n_curve_crosses_reported = 0;
     for (var i = 0; i < k; i++) {
       var t = trials[i];
       var p = (typeof t.schoenfeld_p === 'number' && isFinite(t.schoenfeld_p)) ? t.schoenfeld_p : null;
       var crosses = (t.curve_crosses === true);
+      var crosses_reported = (typeof t.curve_crosses === 'boolean');
       var hit = (p !== null && p < 0.05) || crosses;
       if (hit) flagged.push({ studlab: t.studlab, schoenfeld_p: p, curve_crosses: crosses });
       if (p !== null) {
+        n_schoenfeld_reported++;
         if (minP === null || p < minP) minP = p;
       }
+      if (crosses_reported) n_curve_crosses_reported++;
+    }
+    // "data_available" distinguishes "all trials report PH-supported" from "no trials
+    // report Schoenfeld at all". Same flag=false outcome, very different evidential weight.
+    var n_with_any_signal = 0;
+    for (var j = 0; j < k; j++) {
+      var tt = trials[j];
+      var has_p = typeof tt.schoenfeld_p === 'number' && isFinite(tt.schoenfeld_p);
+      var has_cc = typeof tt.curve_crosses === 'boolean';
+      if (has_p || has_cc) n_with_any_signal++;
     }
     return {
       flag: flagged.length > 0,
       n_flagged: flagged.length,
       fraction_flagged: k > 0 ? flagged.length / k : 0,
       schoenfeld_p_min: minP,
-      flagged_trials: flagged
+      flagged_trials: flagged,
+      n_schoenfeld_reported: n_schoenfeld_reported,
+      n_curve_crosses_reported: n_curve_crosses_reported,
+      n_trials_with_any_ph_signal: n_with_any_signal,
+      data_completeness: k > 0 ? n_with_any_signal / k : 0,
+      verdict_quality: k === 0 ? 'no_trials' :
+                       n_with_any_signal === 0 ? 'no_data' :
+                       n_with_any_signal < k ? 'partial_data' :
+                       'complete_data'
     };
   }
 
@@ -438,10 +475,16 @@
         }
       }
     }
+    // SE here is a Karrison-style approximation only — the exact Karrison 1987 formula
+    // needs per-interval events d_i, which the engine doesn't have unless reconstructed
+    // IPD coordinates are supplied. The point estimate (rmst) is exact via trapezoid.
     return {
       rmst: rmst,
-      se: var_rmst > 0 ? Math.sqrt(var_rmst) : null,
-      tau_effective: tau_eff
+      se_approximate: var_rmst > 0 ? Math.sqrt(var_rmst) : null,
+      se: var_rmst > 0 ? Math.sqrt(var_rmst) : null,  // kept for backward compatibility
+      tau_effective: tau_eff,
+      se_method: 'karrison_finite_difference_approx',
+      se_caveat: 'Approximation; exact Karrison requires per-interval event counts d_i'
     };
   }
 
