@@ -449,6 +449,29 @@ test('fit k=1: estimator=single_study', () => {
   assert.ok(Math.abs(res.pooled_HR - 0.85) < 1e-9);
 });
 
+// P2-3: HKSJ at k=2 emits a warning
+test('fit k=2: hksj_warning surfaced (uses t_1=12.706 → very wide CI)', () => {
+  const trials = [
+    { studlab: 'A', HR: 0.80, HR_ci_lo: 0.70, HR_ci_hi: 0.92 },
+    { studlab: 'B', HR: 0.85, HR_ci_lo: 0.75, HR_ci_hi: 0.97 }
+  ];
+  const res = SURV.fit(trials);
+  assert.equal(res.k, 2);
+  assert.ok(typeof res.hksj_warning === 'string' && res.hksj_warning.length > 0,
+            'expected hksj_warning at k=2');
+  assert.ok(res.hksj_warning.includes('12.706'), 'warning should name the t-quantile');
+});
+
+test('fit k>=3: hksj_warning is null', () => {
+  const trials = [
+    { studlab: 'A', HR: 0.80, HR_ci_lo: 0.70, HR_ci_hi: 0.92 },
+    { studlab: 'B', HR: 0.85, HR_ci_lo: 0.75, HR_ci_hi: 0.97 },
+    { studlab: 'C', HR: 0.82, HR_ci_lo: 0.72, HR_ci_hi: 0.94 }
+  ];
+  const res = SURV.fit(trials);
+  assert.equal(res.hksj_warning, null);
+});
+
 test('fit k<5: fallback=fixed_effect_k_lt_5', () => {
   const trials = [
     { studlab: 'A', HR: 0.85, HR_ci_lo: 0.75, HR_ci_hi: 0.96 },

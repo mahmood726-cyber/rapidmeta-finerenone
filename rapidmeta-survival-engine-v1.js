@@ -263,25 +263,21 @@
         sumWY += ws[i] * yi[i];
       }
       var muHat = sumWY / sumW;
-      // REML score: U(tau2) = sum( w_i^2 * ((y_i - mu)^2 - v_i - tau2 + 1/sumW) )
-      //   (the 1/sumW term is the REML correction vs ML)
-      var U = 0, I = 0;
+      // REML score U(tau2) and Fisher info I(tau2) (Viechtbauer 2005 §3.1).
+      //   U(tau2) = Σ w_i^2 [(y_i - μ̂)^2 - v_i - tau2] + Σ w_i^2 / Σ w_i  (REML correction)
+      //   I(tau2) = (1/2) Σ w_i^2
+      // Both use Σ w_i^2 — accumulated once.
+      var U = 0, sum_w_sq = 0;
       for (var i = 0; i < k; i++) {
         var w = ws[i];
         var resid = yi[i] - muHat;
         U += w * w * (resid * resid - vi[i] - tau2);
-        I += w * w * w * (resid * resid - 0.5 * (vi[i] + tau2));
+        sum_w_sq += w * w;
       }
-      // REML correction: + (1/sumW) * sum(w_i^2)
-      var sumW2 = 0;
-      for (var i = 0; i < k; i++) sumW2 += ws[i] * ws[i];
-      U += sumW2 / sumW;
-      // Information matrix (positive semi-definite). Cap from below.
-      var info = 0;
-      for (var i = 0; i < k; i++) info += ws[i] * ws[i];
-      info = 0.5 * info;
+      U += sum_w_sq / sumW;  // REML correction vs ML
+      var info = 0.5 * sum_w_sq;
       if (info < 1e-12) break;
-      var delta = U / (2 * info);
+      var delta = U / (2 * info);  // Fisher-scoring step
       var tau2_new = tau2 + dampening * delta;
       if (tau2_new < 0) tau2_new = 0;
       if (Math.abs(tau2_new - tau2) < tol) { tau2 = tau2_new; converged = true; break; }
@@ -757,6 +753,9 @@
       hksj_qstar: hksjQstar,
       pooled_HR_hksj_ci_lo: hksjLo,
       pooled_HR_hksj_ci_hi: hksjHi,
+      hksj_warning: (k === 2) ?
+        'HKSJ at k=2 uses t_{1, 0.975}=12.706 — the resulting CI is mathematically valid but very wide; consider reporting the Wald CI alongside or restricting interpretation. (Cochrane v6.5 §10.10.4 implicitly assumes k>=3 for meaningful HKSJ inference.)' :
+        null,
       tau2: poolResult.tau2,
       tau2_lo: tau2CI.tau2_lo,
       tau2_hi: tau2CI.tau2_hi,
