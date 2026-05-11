@@ -1,0 +1,20 @@
+{
+  "description": "Synthetic KM curves for an RMST trapezoid test. Trial has piecewise-linear survival, easy hand-computable RMST at tau=24 months.",
+  "trial": {
+    "studlab": "Synthetic-RMST",
+    "km_curve": [
+      { "t_months":  0, "surv_trt": 1.00, "surv_ctl": 1.00, "n_at_risk_trt": 1000, "n_at_risk_ctl": 1000 },
+      { "t_months":  6, "surv_trt": 0.95, "surv_ctl": 0.90, "n_at_risk_trt":  950, "n_at_risk_ctl":  900 },
+      { "t_months": 12, "surv_trt": 0.90, "surv_ctl": 0.80, "n_at_risk_trt":  900, "n_at_risk_ctl":  800 },
+      { "t_months": 18, "surv_trt": 0.85, "surv_ctl": 0.70, "n_at_risk_trt":  850, "n_at_risk_ctl":  700 },
+      { "t_months": 24, "surv_trt": 0.80, "surv_ctl": 0.60, "n_at_risk_trt":  800, "n_at_risk_ctl":  600 }
+    ]
+  },
+  "expected": {
+    "rmst_trt_tau24": 21.60,
+    "rmst_ctl_tau24": 19.20,
+    "rmst_diff_tau24": 2.40,
+    "tolerance": 0.05
+  },
+  "math": "Trapezoid: trt = 0.5*6*(1.00+0.95) + 0.5*6*(0.95+0.90) + 0.5*6*(0.90+0.85) + 0.5*6*(0.85+0.80) = 5.85+5.55+5.25+4.95 = 21.60; ctl = 0.5*6*(1.00+0.90) + 0.5*6*(0.90+0.80) + 0.5*6*(0.80+0.70) + 0.5*6*(0.70+0.60) = 5.70+5.10+4.50+3.90 = 19.20; diff = 2.40"
+}

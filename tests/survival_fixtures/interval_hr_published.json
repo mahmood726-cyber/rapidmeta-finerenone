@@ -1,0 +1,36 @@
+{
+  "description": "Published interval-HR data for an immuno-oncology endpoint with classic late-separation (HR < 1 in 6-24m window, ~1 in 0-6m window). Three trials report interval-restricted HRs explicitly.",
+  "trials": [
+    {
+      "studlab": "IO-Trial-A",
+      "HR": 0.74, "HR_ci_lo": 0.62, "HR_ci_hi": 0.89,
+      "intervals": [
+        { "label": "0-6m",    "t0": 0,  "t1":  6, "HR": 1.05, "HR_ci_lo": 0.85, "HR_ci_hi": 1.30 },
+        { "label": "6-24m",   "t0": 6,  "t1": 24, "HR": 0.62, "HR_ci_lo": 0.50, "HR_ci_hi": 0.77 }
+      ]
+    },
+    {
+      "studlab": "IO-Trial-B",
+      "HR": 0.80, "HR_ci_lo": 0.65, "HR_ci_hi": 0.98,
+      "intervals": [
+        { "label": "0-6m",    "t0": 0,  "t1":  6, "HR": 1.10, "HR_ci_lo": 0.88, "HR_ci_hi": 1.38 },
+        { "label": "6-24m",   "t0": 6,  "t1": 24, "HR": 0.68, "HR_ci_lo": 0.54, "HR_ci_hi": 0.85 }
+      ]
+    },
+    {
+      "studlab": "IO-Trial-C",
+      "HR": 0.77, "HR_ci_lo": 0.60, "HR_ci_hi": 0.99,
+      "intervals": [
+        { "label": "0-6m",    "t0": 0,  "t1":  6, "HR": 0.98, "HR_ci_lo": 0.75, "HR_ci_hi": 1.28 },
+        { "label": "6-24m",   "t0": 6,  "t1": 24, "HR": 0.65, "HR_ci_lo": 0.50, "HR_ci_hi": 0.84 }
+      ]
+    }
+  ],
+  "breakpoints": [0, 6, 24],
+  "expected": {
+    "n_intervals": 2,
+    "interval_0_6_HR_around": 1.04,
+    "interval_6_24_HR_around": 0.65,
+    "tolerance": 0.10
+  }
+}
