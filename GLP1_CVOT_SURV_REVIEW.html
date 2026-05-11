@@ -2630,9 +2630,13 @@ print(cum)
       // can discover them.
       // ------------------------------------------------------------
       function bridgeToRapidMeta(trials) {
+        // Key realData by NCT ID where available (matches pairwise/NMA pack convention,
+        // so pairwise-aware vendor panels that probe rd[t.id] find the trials).
+        // Fall back to sequential 'trial_N' only when no NCT is recorded.
         var rd = {};
         trials.forEach(function (t, i) {
-          rd['trial_' + i] = Object.assign({}, t, { name: t.studlab });
+          var key = (typeof t.nct === 'string' && t.nct.length > 0) ? t.nct : ('trial_' + i);
+          rd[key] = Object.assign({}, t, { name: t.studlab, id: key });
         });
         window.RapidMeta = window.RapidMeta || {};
         window.RapidMeta.realData = rd;
@@ -2664,24 +2668,90 @@ print(cum)
         var rid = function (id) { return document.getElementById(id); };
         if (!fit) return;
         var setText = function (id, v) { var el = rid(id); if (el) el.textContent = v; };
+        var ciStr  = fmt(fit.pooled_HR_ci_lo, 2) + '–' + fmt(fit.pooled_HR_ci_hi, 2);
+        var hksjCiStr = fmt(fit.pooled_HR_hksj_ci_lo, 2) + '–' + fmt(fit.pooled_HR_hksj_ci_hi, 2);
+        var piStr = fit.pi_HR_lo != null ? fmt(fit.pi_HR_lo, 2) + '–' + fmt(fit.pi_HR_hi, 2) : '—';
+        var pctReduction = Math.round((1 - fit.pooled_HR) * 100);
+
+        // Summary tab — 8-card metric grid
         setText('hl-pooled-hr',     fmt(fit.pooled_HR, 2));
-        setText('hl-pooled-hr-ci',  '95% CI ' + fmt(fit.pooled_HR_ci_lo, 2) + '–' + fmt(fit.pooled_HR_ci_hi, 2));
-        setText('hl-pooled-hr-hksj-ci', 'HKSJ CI ' + fmt(fit.pooled_HR_hksj_ci_lo, 2) + '–' + fmt(fit.pooled_HR_hksj_ci_hi, 2));
+        setText('hl-pooled-hr-ci',  '95% CI ' + ciStr);
+        setText('hl-pooled-hr-hksj-ci', 'HKSJ CI ' + hksjCiStr);
         setText('hl-k',             String(fit.k));
         setText('hl-tau2',          fmt(fit.tau2, 4));
         setText('hl-tau2-ci',       'Q-profile ' + fmt(fit.tau2_lo, 4) + '–' + fmt(fit.tau2_hi, 4));
         setText('hl-q',             fmt(fit.Q, 2) + ' (df=' + fit.Q_df + ')');
         setText('hl-i2',            fmt(fit.I2, 0) + '%');
-        setText('hl-pi',            fit.pi_HR_lo != null ? fmt(fit.pi_HR_lo, 2) + '–' + fmt(fit.pi_HR_hi, 2) + ' (df=' + fit.pi_df + ')' : '—');
+        setText('hl-pi',            piStr + (fit.pi_df != null ? ' (df=' + fit.pi_df + ')' : ''));
         setText('hl-nonph-flag',    fit.nonph && fit.nonph.flag ? '⚠ FLAGGED' : '✓ Supported');
         setText('hl-nonph-detail',  fit.nonph ? ('n_flagged=' + fit.nonph.n_flagged + '/' + fit.k + ' · min Schoenfeld p=' + (fit.nonph.schoenfeld_p_min != null ? fmt(fit.nonph.schoenfeld_p_min, 3) : '—')) : '—');
         setText('hl-estimator',     fit.estimator);
         setText('hl-fallback',      fit.fallback || 'none');
         setText('hl-coverage',      fit.coverage_warning ? '⚠ k<10' : '✓ k≥10');
 
+        // Plain-language summary — bottom-line and bullet IDs
+        setText('hl-pooled-hr-inline', pctReduction + '%');
+        setText('hl-plain-hr',         fmt(fit.pooled_HR, 2));
+        setText('hl-plain-ci',         ciStr);
+        setText('hl-plain-tau2',       fmt(fit.tau2, 4));
+        setText('hl-plain-i2',         fmt(fit.I2, 0));
+        setText('hl-plain-pi',         piStr);
+
+        // Compute NNT via the engine's nntForHR; baseline-risk inferred from median crude
+        // control-arm rate across trials with events_ctl + n_ctl. Falls back to 0.10.
+        var baseline = 0.10;
+        try {
+          var trials = window.RapidMeta && window.RapidMeta.surv_trials;
+          if (Array.isArray(trials)) {
+            var rates = [];
+            trials.forEach(function (t) {
+              if (typeof t.events_ctl === 'number' && typeof t.n_ctl === 'number' && t.n_ctl > 0) {
+                rates.push(t.events_ctl / t.n_ctl);
+              }
+            });
+            if (rates.length) {
+              rates.sort(function (a, b) { return a - b; });
+              var mid = Math.floor(rates.length / 2);
+              baseline = rates.length % 2 ? rates[mid] : 0.5 * (rates[mid - 1] + rates[mid]);
+            }
+          }
+        } catch (e) {}
+        var nntInfo = window.RapidMetaSurvival.nntForHR(fit.pooled_HR, baseline);
+        setText('hl-plain-nnt', nntInfo && nntInfo.nnt ? '~' + Math.ceil(nntInfo.nnt) : '—');
+
+        // GRADE tab — primary outcome summary
+        setText('hl-grade-hr', fmt(fit.pooled_HR, 2));
+        setText('hl-grade-ci', ciStr);
+
+        // Scientific output abstract — same numbers in manuscript-prose context
+        setText('hl-abstract-hr',   fmt(fit.pooled_HR, 2));
+        setText('hl-abstract-ci',   ciStr);
+        setText('hl-abstract-hksj', hksjCiStr);
+        setText('hl-abstract-tau2', fmt(fit.tau2, 4));
+        setText('hl-abstract-i2',   fmt(fit.I2, 0));
+        setText('hl-abstract-pi',   piStr);
+
+        // Summary tab — comparison-with-published table self-row
+        setText('hl-summary-k',  String(fit.k));
+        setText('hl-summary-hr', fmt(fit.pooled_HR, 2) + ' (' + ciStr + ')');
+
         // Engine audit row
         var audit = rid('audit-engine-ver');
         if (audit) audit.innerHTML = 'engine: <strong>v' + window.RapidMetaSurvival._version + '</strong>';
+
+        // HKSJ-k=2 caveat banner (P2-3 surfacing)
+        if (fit.hksj_warning) {
+          var banner = rid('hksj-warning-banner');
+          if (!banner) {
+            banner = document.createElement('div');
+            banner.id = 'hksj-warning-banner';
+            banner.style.cssText = 'background:#fef3c7;border:1px solid #f59e0b;color:#78350f;padding:0.5rem 1rem;font-size:0.85rem;text-align:center;';
+            banner.textContent = '⚠ HKSJ caveat (k=2): ' + fit.hksj_warning;
+            var staleBanner = rid('stale-data-banner');
+            if (staleBanner && staleBanner.parentNode) staleBanner.parentNode.insertBefore(banner, staleBanner.nextSibling);
+            else document.body.insertBefore(banner, document.body.firstChild);
+          }
+        }
       }
 
       // ------------------------------------------------------------
