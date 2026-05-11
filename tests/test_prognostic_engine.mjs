@@ -14,6 +14,26 @@
 // against them pin engine output bit-stably so that any change to PM tau^2 or
 // Wald CI construction trips a regression test (Δ tolerance: 1e-3 for HR/CI,
 // 1e-3 for tau^2, 1e-2 for Q).
+//
+// SCOPE OF THE "PARITY BASELINE" CHECK
+// ------------------------------------
+// These baselines are ENGINE SELF-CONSISTENCY snapshots, NOT external parity
+// vs metafor::rma(). They detect regressions in the engine's own PM bisection
+// + Wald construction + Q-profile + PI implementation. They do NOT certify
+// that the engine matches metafor::rma(method='PM') bit-for-bit.
+//
+// Cross-engine parity vs metafor::rma() is delivered separately via
+// webr-prognostic-validator.js (lazy WebR + metafor install, runs in-browser
+// from the host HTML; see PROGNOSTIC_HSTN_PAD_REVIEW.html). The DTA engine
+// uses the same split: the unit-test suite verifies internal consistency,
+// the WebR validator certifies cross-engine parity.
+//
+// To upgrade these baselines to metafor-parity values, run the WebR
+// validator on each fixture, copy the metafor::rma() output into
+// r_parity.json, and tighten the tolerances. The engine's PM bisection
+// is designed to converge to the same fixed point as metafor::rma(method='PM')
+// (see "CONVERGENCE GUARANTEE (PM bisection)" comment in the engine source),
+// so the resulting deltas should be within machine precision.
 import { strict as assert } from 'node:assert';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -220,6 +240,25 @@ test('tau2DL: heterogeneous yi → tau2 > 0', () => {
   const vi = [0.01, 0.01, 0.01, 0.01, 0.01];
   assert.ok(I.tau2DL(yi, vi) > 0.01);
 });
+
+// PM-identity check helper — used by both the synthetic-data test below and
+// the per-fixture parity tests later. Verifies the bisection landed on the
+// correct fixed point Σwᵢ(yᵢ−μ̂)² = k − 1 (or τ²=0 floor if Σwᵢ(yᵢ−μ̂)²|_{τ²=0} ≤ k − 1).
+function verifyPMIdentity(yi, vi, t, label) {
+  let W = 0, WY = 0;
+  for (let i = 0; i < yi.length; i++) { const w = 1 / (vi[i] + t); W += w; WY += w * yi[i]; }
+  const mu = WY / W;
+  let s = 0;
+  for (let i = 0; i < yi.length; i++) { const w = 1 / (vi[i] + t); s += w * (yi[i] - mu) * (yi[i] - mu); }
+  if (t > 0) {
+    assert.ok(Math.abs(s - (yi.length - 1)) < 1e-6,
+              label + ': PM identity Σw(y-μ̂)² ≈ k-1 violated at τ²=' + t + ': ' + s + ' vs ' + (yi.length - 1));
+  } else {
+    assert.ok(s <= yi.length - 1 + 1e-6,
+              label + ': τ²=0 floor but Σw(y-μ̂)² > k-1: ' + s);
+  }
+  return { mu, s, W };
+}
 
 test('tau2REML (Paule-Mandel bisection): satisfies Σw(y-μ̂)² = k-1 at convergence', () => {
   const yi = [0.20, 0.30, 0.25, 0.15, 0.40];
@@ -515,6 +554,51 @@ PARITY_FIXTURES.forEach(([name, tol]) => {
     near(r.I2, b.I2, 1e-3, name + ' I^2');
     near(r.Q, b.Q, 1e-2, name + ' Q');
   });
+  // Per-fixture PM identity: τ² returned by the bisection must satisfy
+  // Σw(y-μ̂)² = k-1 (the PM equation) to <1e-6. This is the structural
+  // guarantee that the bisection landed on the correct fixed point — a
+  // tighter check than the parity-baseline numeric tolerance.
+  test('PM identity holds on real fixture: ' + name, () => {
+    const fx = loadFx(name + '.json');
+    const yi = [], vi = [];
+    for (const t of fx.trials) {
+      yi.push(Math.log(t.hr_adj));
+      const se = (Math.log(t.hr_adj_ci_ub) - Math.log(t.hr_adj_ci_lb)) / (2 * 1.959963984540054);
+      vi.push(se * se);
+    }
+    const tau2 = I.tau2REML(yi, vi);
+    verifyPMIdentity(yi, vi, tau2, name);
+  });
+});
+
+test('per_study row exposes effect_type_differs_from_primary for mixed-type pools', () => {
+  // Code-review N.2: when a cohort's effect_type (e.g. OR) differs from
+  // the pool's primary effect type (e.g. HR), the per-cohort flag must
+  // surface so the host HTML can annotate. Verified on KIM-1 fixture
+  // where ACCORD is OR but NEPHRON-D and CRIC are HR (primary = HR).
+  const fx = loadFx('kim1_dkd_coca2017.json');
+  const r = PROG.fit(fx.trials);
+  const accord = r.per_study.find(s => s.studlab.includes('ACCORD'));
+  const nephron = r.per_study.find(s => s.studlab.includes('NEPHRON-D'));
+  assert.ok(accord, 'expected ACCORD row in per_study');
+  assert.equal(r.effect_type, 'HR', 'primary effect_type should be HR (2/3 cohorts)');
+  assert.equal(accord.effect_type_differs_from_primary, true,
+               'ACCORD is OR, should flag as differing from primary HR pool');
+  assert.equal(nephron.effect_type_differs_from_primary, false,
+               'NEPHRON-D matches primary HR, should not flag');
+});
+
+test('cumulative MA: study with year=null deterministically placed last', () => {
+  // Code-review P2.3: year=null sentinel = Infinity, secondary sort on
+  // original index. Verifies the behavior is documented and tested.
+  const r = PROG.fit([
+    {studlab: 'first',  hr_adj: 1.3, hr_adj_ci_lb: 1.2, hr_adj_ci_ub: 1.41, year: 2010},
+    {studlab: 'nullyr', hr_adj: 1.4, hr_adj_ci_lb: 1.3, hr_adj_ci_ub: 1.51},  // year=null
+    {studlab: 'last',   hr_adj: 1.5, hr_adj_ci_lb: 1.4, hr_adj_ci_ub: 1.61, year: 2020}
+  ]);
+  assert.equal(r.cumulative[0].studlab, 'first');
+  assert.equal(r.cumulative[1].studlab, 'last');
+  assert.equal(r.cumulative[2].studlab, 'nullyr', 'null-year study must be placed last');
 });
 
 // -----------------------------------------------------------------------------

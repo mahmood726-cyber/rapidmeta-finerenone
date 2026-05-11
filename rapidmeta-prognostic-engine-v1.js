@@ -341,7 +341,34 @@
   }
 
   // Paule-Mandel tau^2 (Berkey 1995; metafor::rma(method='PM') equivalent).
-  // Solves Σ w_i(τ²) (y_i − μ̂(τ²))² = k − 1 by bisection on a monotone equation.
+  //
+  // CONVERGENCE GUARANTEE (PM bisection)
+  // -----------------------------------
+  // Solves Σ w_i(τ²) · (y_i − μ̂(τ²))² = k − 1 by bisection on a monotone
+  // equation, where w_i(τ²) = 1 / (v_i + τ²) and μ̂(τ²) = (Σw_iy_i)/(Σw_i).
+  //
+  // The PM statistic is monotonically non-increasing in τ² (Paule 1982 J Res
+  // Natl Bur Stand 87:377). Therefore the equation has at most one root in
+  // (0, ∞), making bisection both correct and numerically stable. The
+  // implementation:
+  //   1. Returns 0 immediately if pmStat(0) ≤ k-1 (PM equation already satisfied at floor)
+  //   2. Otherwise brackets the root by doubling from a DL warm-start until pmStat(hi) ≤ target
+  //   3. Bisects (lo, hi) to convergence at tolerance 1e-9 or 100 iterations
+  //
+  // The test suite includes an explicit verification:
+  //     test('tau2REML (Paule-Mandel bisection): satisfies Σw(y-μ̂)² = k-1 at convergence')
+  // which asserts |Σw(y-μ̂)² − (k-1)| < 1e-6 at the converged τ². Additional
+  // per-fixture tests verify the identity holds on real-data inputs.
+  //
+  // HISTORICAL NOTE
+  // ---------------
+  // An earlier (pre-2026-05-11) iteration used a Newton-step formula
+  //     τ²_new = τ² + [Σw²(y-μ̂)² − Σw²v] / Σw²
+  // which converges to the wrong fixed point Σw²(y-μ̂)² = Σw²v ≠ k-1.
+  // On the BNP/HF fixture this produced τ²=0.27 while the Q-profile upper
+  // bound was 0.026 — a clear sign of wrong-equation convergence. The
+  // bisection replacement fixes this; the regression test above pins it.
+  //
   // PM is asymptotically equivalent to REML for univariate random-effects MA
   // and is the method we use here as the REML proxy — the engine header refers
   // to it as REML for caller-facing consistency with metafor's rma() default
@@ -668,6 +695,13 @@
   }
 
   // Cumulative MA in chronological order (by year ascending; ties stable).
+  //
+  // Studies with year=null are deterministically placed AT THE END of the
+  // cumulative sequence (Infinity sentinel + stable secondary sort on original
+  // index). Rationale: a missing year cannot be ordered chronologically
+  // against known years; placing it last ensures (a) the cumulative pool
+  // evolves through known years first, then absorbs the year-missing studies
+  // as a final pass, and (b) the per-row indices remain stable across runs.
   function cumulativeMA(per_study_log) {
     var sortable = per_study_log.map(function (s, i) { return { idx: i, s: s, year: s.year != null ? s.year : Infinity }; });
     sortable.sort(function (a, b) {
@@ -1140,6 +1174,12 @@
         subgroup: s.subgroup, dose: s.dose, reference_dose: s.reference_dose,
         covariates: s.covariates,
         effect_type: s.effect_type,
+        // Flag the cohort as deviating from the pool's primary effect type
+        // (e.g., OR cohort in an HR-dominated pool). Pool semantics treat
+        // log(OR) ≈ log(HR) for rare events per Stijnen 2010 Stat Med
+        // 29:3046; the per-cohort flag lets the host HTML annotate the
+        // forest plot or sensitivity table when this approximation is in play.
+        effect_type_differs_from_primary: (s.effect_type || 'HR') !== primary_effect_type,
         quips_overall: s.quips ? (function () {
           var rank = { low: 0, unclear: 1, moderate: 2, high: 3 };
           var ov = 'low';
