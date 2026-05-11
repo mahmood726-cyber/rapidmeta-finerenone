@@ -73,6 +73,9 @@ def build_map(entries: list[dict]) -> tuple[dict[str, dict], list[dict]]:
     On collision (two E156 papers point to the same _REVIEW.html), pick
     the higher-scoring match; tie-break by lower paper-num. Returns
     (mapping, audit) where audit is a list of every collision shown.
+
+    Skips review-file basenames that don't exist on disk (deleted reviews —
+    e.g. fully-fabricated quarantined ones removed 2026-05-11).
     """
     candidates: dict[str, list[dict]] = {}
     for e in entries:
@@ -84,6 +87,9 @@ def build_map(entries: list[dict]) -> tuple[dict[str, dict], list[dict]]:
             continue
         basename = pages_url.rsplit("/", 1)[-1]
         if not basename.endswith("_REVIEW.html"):
+            continue
+        # Only include reviews whose HTML still exists on disk.
+        if not (REPO / basename).exists():
             continue
         candidates.setdefault(basename, []).append({
             "num": int(e["num"]),
