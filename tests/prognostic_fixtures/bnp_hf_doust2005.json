@@ -1,0 +1,90 @@
+{
+  "_provenance": "Per-study continuous-BNP hazard ratios for all-cause mortality in heart-failure patients, as tabulated in the Doust 2005 BMJ systematic review (PMC554905, Table 2). All 6 HRs are quoted verbatim from the published review; the review unit is 'per 100 pg/mL' for all six rows.",
+  "source_meta_analysis": {
+    "citation": "Doust JA, Pietrzak E, Dobson A, Glasziou P. How well does B-type natriuretic peptide predict death and cardiac events in patients with heart failure: systematic review. BMJ 2005;330(7492):625.",
+    "pmid": "15774989",
+    "pmc": "PMC554905",
+    "doi": "10.1136/bmj.330.7492.625"
+  },
+  "outcome": "all-cause mortality in patients with established heart failure",
+  "effect_metric": "HR per 100 pg/mL BNP",
+  "_known_data_quality_notes": [
+    "Bettencourt 2000 HR=1.01 (1.00-1.02) is suspiciously tight on the per-100-pg/mL scale and may reflect a units-coding artifact in the source review (likely reported per pg/mL in the primary paper). Retained as published; the engine's INSPECT-SR + influence diagnostics should flag it as an outlier, which is the correct behavior.",
+    "Harrison 2002 (PMID 12106937) HR=37.9 (5.7-755.8) is for CARDIAC death (not all-cause) and is the canonical example of a wildly imprecise HR in this literature — kept in the dichotomous-cutoff table of Doust 2005 (not used here)."
+  ],
+  "trials": [
+    {
+      "studlab":"Tsutamoto 1999",
+      "effect_type":"HR",
+      "hr_adj":1.5,"hr_adj_ci_lb":1.3,"hr_adj_ci_ub":1.8,
+      "n":290,"events":24,
+      "cutoff":"continuous","unit":"per_100_pg_mL_BNP","per_unit":100,
+      "covariates":"per Doust 2005 Table 2 — adjustment set not uniformly reported across primary studies",
+      "year":1999,
+      "quips":{"participation":"low","attrition":"low","prognostic_factor_measurement":"low","outcome_measurement":"low","study_confounding":"moderate","statistical_analysis":"low"},
+      "subgroup":"continuous-BNP"
+    },
+    {
+      "studlab":"Wijeysundera 2003",
+      "effect_type":"HR",
+      "hr_adj":1.5,"hr_adj_ci_lb":1.2,"hr_adj_ci_ub":1.8,
+      "n":181,"events":53,
+      "cutoff":"continuous","unit":"per_100_pg_mL_BNP","per_unit":100,
+      "covariates":"per Doust 2005 Table 2",
+      "year":2003,
+      "quips":{"participation":"low","attrition":"low","prognostic_factor_measurement":"low","outcome_measurement":"low","study_confounding":"moderate","statistical_analysis":"low"},
+      "subgroup":"continuous-BNP"
+    },
+    {
+      "studlab":"Bettencourt 2000",
+      "effect_type":"HR",
+      "hr_adj":1.01,"hr_adj_ci_lb":1.005,"hr_adj_ci_ub":1.02,
+      "n":139,"events":39,
+      "cutoff":"continuous","unit":"per_100_pg_mL_BNP","per_unit":100,
+      "covariates":"per Doust 2005 Table 2",
+      "year":2000,
+      "quips":{"participation":"low","attrition":"moderate","prognostic_factor_measurement":"moderate","outcome_measurement":"low","study_confounding":"moderate","statistical_analysis":"high"},
+      "subgroup":"continuous-BNP"
+    },
+    {
+      "studlab":"Tsutamoto 2001",
+      "effect_type":"HR",
+      "hr_adj":1.2,"hr_adj_ci_lb":1.1,"hr_adj_ci_ub":1.3,
+      "n":96,"events":29,
+      "cutoff":"continuous","unit":"per_100_pg_mL_BNP","per_unit":100,
+      "covariates":"per Doust 2005 Table 2",
+      "year":2001,
+      "quips":{"participation":"low","attrition":"low","prognostic_factor_measurement":"low","outcome_measurement":"low","study_confounding":"low","statistical_analysis":"low"},
+      "subgroup":"continuous-BNP"
+    },
+    {
+      "studlab":"Tsutamoto 1997",
+      "effect_type":"HR",
+      "hr_adj":1.3,"hr_adj_ci_lb":1.1,"hr_adj_ci_ub":1.5,
+      "n":85,"events":25,
+      "cutoff":"continuous","unit":"per_100_pg_mL_BNP","per_unit":100,
+      "covariates":"per Doust 2005 Table 2",
+      "year":1997,
+      "quips":{"participation":"low","attrition":"low","prognostic_factor_measurement":"low","outcome_measurement":"low","study_confounding":"moderate","statistical_analysis":"low"},
+      "subgroup":"continuous-BNP"
+    },
+    {
+      "studlab":"Imamura 2001",
+      "effect_type":"HR",
+      "hr_adj":1.6,"hr_adj_ci_lb":1.2,"hr_adj_ci_ub":2.2,
+      "n":171,"events":11,
+      "cutoff":"continuous","unit":"per_100_pg_mL_BNP","per_unit":100,
+      "covariates":"per Doust 2005 Table 2",
+      "year":2001,
+      "quips":{"participation":"low","attrition":"low","prognostic_factor_measurement":"low","outcome_measurement":"low","study_confounding":"moderate","statistical_analysis":"low"},
+      "subgroup":"continuous-BNP"
+    }
+  ],
+  "published_pool": {
+    "headline_text": "Doust 2005 narrative-pooled RR death per 100 pg/mL BNP across continuous-BNP studies = 1.35 (95% CI 1.22–1.49). Method: random-effects pool described as DerSimonian-Laird in the original review.",
+    "pooled_HR_per_100_pgmL": 1.35,
+    "ci_lb": 1.22,
+    "ci_ub": 1.49,
+    "note": "Doust 2005 pooled across a subset of the 6 studies; exact study subset not fully specified in PMC text. Used as a sanity reference, not as a strict parity target."
+  }
+}

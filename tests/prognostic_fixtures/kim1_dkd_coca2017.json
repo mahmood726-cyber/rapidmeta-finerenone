@@ -1,0 +1,58 @@
+{
+  "_provenance": "Per-cohort hazard / odds ratios for KIM-1 as a prognostic biomarker for diabetic kidney disease progression. Cohort effect estimates quoted verbatim from Coca 2017 JASN (ACCORD + VA NEPHRON-D, PMC5576932) and Gutiérrez 2022 AJKD (CRIC, PMC9072594). All estimates are on the per-doubling-KIM-1 scale (i.e., per log2-unit). Coca 2017 reports ORs from a case-control / nested design and a HR from a prospective cohort; the analysis combines them on the log-effect scale per the published convention.",
+  "source_studies": [
+    {
+      "citation": "Coca SG, Nadkarni GN, Huang Y, et al. Plasma Biomarkers and Kidney Function Decline in Early and Established Diabetic Kidney Disease. JASN 2017;28(9):2786-2793.",
+      "pmid": "28476763",
+      "pmc": "PMC5576932",
+      "doi": "10.1681/ASN.2016101101"
+    },
+    {
+      "citation": "Gutiérrez OM, Shlipak MG, Katz R, et al. Associations of Plasma Biomarkers of Inflammation, Fibrosis, and Kidney Tubular Injury With Progression of Diabetic Kidney Disease: A Cohort Study. AJKD 2022;79(6):849-857.",
+      "pmid": "34752914",
+      "pmc": "PMC9072594",
+      "doi": "10.1053/j.ajkd.2021.09.018"
+    }
+  ],
+  "outcome": "Composite of sustained eGFR decline and/or kidney failure (kidney function decline endpoint)",
+  "effect_metric": "log-effect per doubling of KIM-1 (Model 3 / fully adjusted)",
+  "finerenone_relevance": "These three cohorts establish the prognostic importance of KIM-1 in DKD progression. Finerenone is approved for DKD (FIDELIO-DKD, FIGARO-DKD) and its mechanism is plausibly modulated by tubular injury markers — these prognostic biomarkers contextualize trial-arm event rates.",
+  "trials": [
+    {
+      "studlab":"ACCORD (Coca 2017)",
+      "effect_type":"OR",
+      "hr_adj":2.42,"hr_adj_ci_lb":1.66,"hr_adj_ci_ub":3.53,
+      "n":380,"events":190,
+      "cutoff":"continuous","unit":"per_doubling_KIM1","per_unit":0.693,
+      "covariates":"Model 3: treatment arm, baseline eGFR, ACR, age, race, SBP, DBP, BP/glucose/lipid meds",
+      "year":2017,
+      "quips":{"participation":"low","attrition":"low","prognostic_factor_measurement":"low","outcome_measurement":"low","study_confounding":"low","statistical_analysis":"low"},
+      "subgroup":"type-2-DM-intensive-vs-standard-glycemic"
+    },
+    {
+      "studlab":"VA NEPHRON-D (Coca 2017)",
+      "effect_type":"HR",
+      "hr_adj":1.73,"hr_adj_ci_lb":1.45,"hr_adj_ci_ub":2.06,
+      "n":1156,"events":153,
+      "cutoff":"continuous","unit":"per_doubling_KIM1","per_unit":0.693,
+      "covariates":"Model 3: treatment arm, baseline eGFR, ACR, age, race, SBP, DBP, BP/glucose/lipid meds",
+      "year":2017,
+      "quips":{"participation":"low","attrition":"low","prognostic_factor_measurement":"low","outcome_measurement":"low","study_confounding":"low","statistical_analysis":"low"},
+      "subgroup":"ACEi-ARB-combination"
+    },
+    {
+      "studlab":"CRIC (Gutiérrez 2022)",
+      "effect_type":"HR",
+      "hr_adj":1.52,"hr_adj_ci_lb":1.25,"hr_adj_ci_ub":1.84,
+      "n":594,"events":98,
+      "cutoff":"continuous","unit":"per_doubling_KIM1","per_unit":0.693,
+      "covariates":"Model 3 (Table 3): demographics + clinical risk factors + baseline eGFR + UACR",
+      "year":2022,
+      "quips":{"participation":"low","attrition":"low","prognostic_factor_measurement":"low","outcome_measurement":"low","study_confounding":"low","statistical_analysis":"low"},
+      "subgroup":"diabetic-CKD"
+    }
+  ],
+  "_known_data_quality_notes": [
+    "ACCORD result is OR (nested case-control) while NEPHRON-D and CRIC are HR (prospective cohort). The engine pools all three on the log-effect scale, treating log(OR) as numerically comparable to log(HR) for rare events; this is the standard approach in prognostic-factor MAs (Stijnen 2010 Stat Med). Document this in the methods narrative."
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "_provenance": "Pooled hazard ratios for hsCRP and CHD/stroke/vascular mortality, quoted verbatim from Kaptoge 2010 Lancet (ERFC IPD meta-analysis, PMC3162187). Per-cohort effect estimates were not extractable from PMC text (only the headline IV-pooled HRs across 54 cohorts are reported). This fixture is intentionally a 4-row single-MA fixture (4 outcomes × 1 pooled estimate each) — it exercises the engine's mixed-outcome handling and serves as a k=1 fallback test per outcome. To pool across outcomes within this fixture is scientifically wrong; use it for engine-correctness, not as a multi-cohort prognostic-factor MA.",
+  "source_meta_analysis": {
+    "citation": "Kaptoge S, Di Angelantonio E, Lowe G, et al. for the Emerging Risk Factors Collaboration. C-reactive protein concentration and risk of coronary heart disease, stroke, and mortality: an individual participant meta-analysis. Lancet 2010;375(9709):132-140.",
+    "pmid": "20031199",
+    "pmc": "PMC3162187",
+    "doi": "10.1016/S0140-6736(09)61717-7"
+  },
+  "outcome": "CHD / stroke / vascular mortality / non-vascular mortality (4 endpoints separately)",
+  "effect_metric": "HR per 1-SD higher loge(CRP) (~3-fold higher CRP on mg/L scale) after full conventional-risk-factor adjustment",
+  "design": "Individual-participant data meta-analysis; 160,309 participants without prior vascular disease across 54 long-term prospective studies; 1.31M person-years; 27,769 events",
+  "finerenone_relevance": "Residual inflammatory risk (hsCRP-driven MACE) is a major CV risk pathway in T2D/CKD patients. ERFC establishes the magnitude of this effect across populations and outcomes — relevant context for any cardio-renal trial including FIDELIO-DKD/FIGARO-DKD.",
+  "trials": [
+    {
+      "studlab":"ERFC pooled — CHD",
+      "effect_type":"HR",
+      "hr_adj":1.37,"hr_adj_ci_lb":1.27,"hr_adj_ci_ub":1.48,
+      "n":160309,"events":11352,
+      "cutoff":"continuous","unit":"per_1SD_loge_CRP","per_unit":1.0,"biomarker_sd":1.0,
+      "covariates":"Adjusted for age, sex, smoking status, systolic BP, history of diabetes, TC, HDL-C, alcohol use, BMI (full conventional-risk-factor adjustment per Kaptoge 2010 Methods)",
+      "year":2010,
+      "quips":{"participation":"low","attrition":"low","prognostic_factor_measurement":"low","outcome_measurement":"low","study_confounding":"low","statistical_analysis":"low"},
+      "subgroup":"CHD"
+    },
+    {
+      "studlab":"ERFC pooled — Ischemic stroke",
+      "effect_type":"HR",
+      "hr_adj":1.27,"hr_adj_ci_lb":1.15,"hr_adj_ci_ub":1.40,
+      "n":160309,"events":3463,
+      "cutoff":"continuous","unit":"per_1SD_loge_CRP","per_unit":1.0,"biomarker_sd":1.0,
+      "covariates":"Same conventional-risk-factor adjustment as CHD model",
+      "year":2010,
+      "quips":{"participation":"low","attrition":"low","prognostic_factor_measurement":"low","outcome_measurement":"low","study_confounding":"low","statistical_analysis":"low"},
+      "subgroup":"Stroke"
+    },
+    {
+      "studlab":"ERFC pooled — Vascular mortality",
+      "effect_type":"HR",
+      "hr_adj":1.55,"hr_adj_ci_lb":1.41,"hr_adj_ci_ub":1.69,
+      "n":160309,"events":4860,
+      "cutoff":"continuous","unit":"per_1SD_loge_CRP","per_unit":1.0,"biomarker_sd":1.0,
+      "covariates":"Same conventional-risk-factor adjustment",
+      "year":2010,
+      "quips":{"participation":"low","attrition":"low","prognostic_factor_measurement":"low","outcome_measurement":"low","study_confounding":"low","statistical_analysis":"low"},
+      "subgroup":"Vascular-mortality"
+    },
+    {
+      "studlab":"ERFC pooled — Non-vascular mortality",
+      "effect_type":"HR",
+      "hr_adj":1.55,"hr_adj_ci_lb":1.43,"hr_adj_ci_ub":1.68,
+      "n":160309,"events":8094,
+      "cutoff":"continuous","unit":"per_1SD_loge_CRP","per_unit":1.0,"biomarker_sd":1.0,
+      "covariates":"Same conventional-risk-factor adjustment",
+      "year":2010,
+      "quips":{"participation":"low","attrition":"low","prognostic_factor_measurement":"low","outcome_measurement":"low","study_confounding":"low","statistical_analysis":"low"},
+      "subgroup":"Non-vascular-mortality"
+    }
+  ],
+  "_known_data_quality_notes": [
+    "These four rows are different OUTCOMES, not different studies. Pooling them across outcomes is scientifically inappropriate (they are not exchangeable). This fixture is for engine smoke-test only, demonstrating the universal-panel pipeline on real published values.",
+    "Per-cohort log-HRs across the 54 ERFC studies require the ERFC IPD or supplementary appendix (paywalled / not in PMC)."
+  ]
+}

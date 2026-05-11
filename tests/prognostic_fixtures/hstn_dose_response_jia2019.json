@@ -1,0 +1,70 @@
+{
+  "_provenance": "Per-quintile adjusted hazard ratios for high-sensitivity cardiac troponin I (hs-TnI) and incident heart-failure hospitalization in the ARIC prospective cohort. All HRs and CIs quoted verbatim from Jia 2019 Circulation Table 2 (Model 2 adjustments) via PMC6546524. Quintile cutpoints (ng/L) from same table.",
+  "source_study": {
+    "citation": "Jia X, Sun W, Hoogeveen RC, et al. High-Sensitivity Troponin I and Incident Coronary Events, Stroke, Heart Failure Hospitalization, and Mortality in the ARIC Study. Circulation 2019;139(23):2642-2653.",
+    "pmid": "31030544",
+    "pmc": "PMC6546524",
+    "doi": "10.1161/CIRCULATIONAHA.118.038772"
+  },
+  "outcome": "Heart Failure Hospitalization (median 15-year follow-up)",
+  "effect_metric": "HR per quintile of hs-TnI vs Q1 reference",
+  "model": "Model 2: age, sex, race, total cholesterol, HDL-C, systolic BP, antihypertensive medication, current smoking, diabetes",
+  "finerenone_relevance": "Heart-failure hospitalization is a primary endpoint of FIDELIO-DKD/FIGARO-DKD. Sub-clinical myocardial injury detected by hs-TnI in a stable general-population cohort (ARIC) is one of the strongest single prognostic markers for incident HF — directly relevant context for the cardiorenal trial population.",
+  "quintile_cutpoints_ng_per_L": {
+    "Q1": "0.6-1.3",
+    "Q2": "1.4-1.9",
+    "Q3": "2.0-2.5",
+    "Q4": "2.6-3.7",
+    "Q5": "3.8-2575.4"
+  },
+  "trials": [
+    {
+      "studlab":"ARIC Q2 vs Q1",
+      "effect_type":"HR",
+      "hr_adj":1.36,"hr_adj_ci_lb":1.03,"hr_adj_ci_ub":1.79,
+      "n":8121,"events":1020,
+      "dose":1,"reference_dose":0,
+      "cutoff":"Q2","unit":"quintile_2_of_hs_TnI",
+      "covariates":"Model 2: age, sex, race, TC, HDL-C, SBP, antihypertensive use, smoking, diabetes",
+      "year":2019,
+      "quips":{"participation":"low","attrition":"low","prognostic_factor_measurement":"low","outcome_measurement":"low","study_confounding":"low","statistical_analysis":"low"}
+    },
+    {
+      "studlab":"ARIC Q3 vs Q1",
+      "effect_type":"HR",
+      "hr_adj":1.84,"hr_adj_ci_lb":1.41,"hr_adj_ci_ub":2.40,
+      "n":8121,"events":1020,
+      "dose":2,"reference_dose":0,
+      "cutoff":"Q3","unit":"quintile_3_of_hs_TnI",
+      "covariates":"Model 2 same as above",
+      "year":2019,
+      "quips":{"participation":"low","attrition":"low","prognostic_factor_measurement":"low","outcome_measurement":"low","study_confounding":"low","statistical_analysis":"low"}
+    },
+    {
+      "studlab":"ARIC Q4 vs Q1",
+      "effect_type":"HR",
+      "hr_adj":2.12,"hr_adj_ci_lb":1.64,"hr_adj_ci_ub":2.75,
+      "n":8121,"events":1020,
+      "dose":3,"reference_dose":0,
+      "cutoff":"Q4","unit":"quintile_4_of_hs_TnI",
+      "covariates":"Model 2 same as above",
+      "year":2019,
+      "quips":{"participation":"low","attrition":"low","prognostic_factor_measurement":"low","outcome_measurement":"low","study_confounding":"low","statistical_analysis":"low"}
+    },
+    {
+      "studlab":"ARIC Q5 vs Q1",
+      "effect_type":"HR",
+      "hr_adj":4.20,"hr_adj_ci_lb":3.28,"hr_adj_ci_ub":5.37,
+      "n":8121,"events":1020,
+      "dose":4,"reference_dose":0,
+      "cutoff":"Q5","unit":"quintile_5_of_hs_TnI",
+      "covariates":"Model 2 same as above",
+      "year":2019,
+      "quips":{"participation":"low","attrition":"low","prognostic_factor_measurement":"low","outcome_measurement":"low","study_confounding":"low","statistical_analysis":"low"}
+    }
+  ],
+  "_known_data_quality_notes": [
+    "Q1 is the reference (HR=1.0 by definition) and is not included as a trial row — the engine's dose-response code expects N rows of (dose, HR vs reference). Adding Q1 with HR=1.0 (1.0-1.0) would produce a degenerate SE=0; instead Q1 is implicit via reference_dose=0 on each row.",
+    "ARIC is a single cohort, so the 4 rows here are not independent studies — they share the Q1 reference comparator. The engine pools them with shared denominator (n=8121, events=1020 spread across quintiles). For a multi-cohort dose-response MA, combine with similar quintile-level data from Cardiovascular Health Study (Saunders 2011), CHS, or MESA cohorts."
+  ]
+}
