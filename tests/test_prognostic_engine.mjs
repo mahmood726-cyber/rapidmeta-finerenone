@@ -96,6 +96,54 @@ test('validate: rejects invalid quips level', () => {
   assert.ok(issues.length > 0);
 });
 
+test('validate: rejects zero-width CI (lb == ub triggers seLog=0 degeneracy)', () => {
+  // Code-review P1.1: validate() must reject zero-width CIs to prevent
+  // downstream pool divergence (infinite IV weight from seLog=0).
+  const issues = PROG.validate([{
+    studlab: 'ZeroWidth', hr_adj: 1.5, hr_adj_ci_lb: 1.5, hr_adj_ci_ub: 1.5
+  }]);
+  assert.ok(issues.length > 0, 'expected zero-width CI to be rejected');
+  assert.ok(issues[0].includes('zero-width') || issues[0].includes('degenerate'),
+            'expected message to mention zero-width or degenerate; got: ' + issues[0]);
+});
+
+test('validate: rejects near-zero-width CI via relative tolerance', () => {
+  // Boundary: (ub-lb)/lb < 1e-9
+  const issues = PROG.validate([{
+    studlab: 'NearZero', hr_adj: 1.30, hr_adj_ci_lb: 1.30, hr_adj_ci_ub: 1.30 + 1e-12
+  }]);
+  assert.ok(issues.length > 0, 'expected near-zero-width CI to be rejected');
+});
+
+test('validate: accepts tight-but-finite CI (above the relative-tolerance floor)', () => {
+  // Tight 1% CI on HR=1.30 is fine (real biomarker MAs report this)
+  const issues = PROG.validate([{
+    studlab: 'Tight', hr_adj: 1.30, hr_adj_ci_lb: 1.29, hr_adj_ci_ub: 1.31
+  }]);
+  assert.deepEqual(issues, [], 'tight-but-finite CI must pass validation');
+});
+
+test('fit: k=2 surfaces hksj_warning (df=1 → t ≈ 12.7 is uninformative)', () => {
+  // Code-review P1.2: HKSJ at k=2 is mathematically defined but produces a
+  // wildly conservative CI. The engine must surface a warning so consumers
+  // can suppress / annotate the column rather than silently emit a useless CI.
+  const r = PROG.fit([
+    {studlab: 'A', hr_adj: 1.30, hr_adj_ci_lb: 1.20, hr_adj_ci_ub: 1.41},
+    {studlab: 'B', hr_adj: 1.40, hr_adj_ci_lb: 1.30, hr_adj_ci_ub: 1.51}
+  ]);
+  assert.equal(r.k, 2);
+  assert.ok(r.hksj_warning != null, 'expected hksj_warning to be populated for k=2');
+  assert.ok(r.hksj_warning.includes('k=2') || r.hksj_warning.includes('df=1'),
+            'expected warning to reference k=2 or df=1; got: ' + r.hksj_warning);
+});
+
+test('fit: k>=3 sets hksj_warning to null', () => {
+  const fx = loadFx('kim1_dkd_coca2017.json');
+  const r = PROG.fit(fx.trials);
+  assert.equal(r.k, 3);
+  assert.equal(r.hksj_warning, null, 'hksj_warning should be null for k>=3');
+});
+
 test('validate: all 5 real fixtures pass validation cleanly', () => {
   const names = ['bnp_hf_doust2005', 'kim1_dkd_coca2017', 'hstn_pad_vrsalovic2022',
                  'hscrp_chd_erfc2010', 'hstn_dose_response_jia2019'];
