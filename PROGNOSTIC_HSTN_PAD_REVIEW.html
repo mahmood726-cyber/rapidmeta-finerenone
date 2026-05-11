@@ -115,15 +115,15 @@
 
   <nav class="tab-nav" role="tablist">
     <ul>
-      <li><button class="tab-button active" data-tab="plain" role="tab" aria-selected="true">0. Plain</button></li>
-      <li><button class="tab-button" data-tab="protocol" role="tab" aria-selected="false">1. Protocol</button></li>
-      <li><button class="tab-button" data-tab="search" role="tab" aria-selected="false">2. Search</button></li>
-      <li><button class="tab-button" data-tab="screen" role="tab" aria-selected="false">3. Screening</button></li>
-      <li><button class="tab-button" data-tab="extract" role="tab" aria-selected="false">4. Extraction</button></li>
-      <li><button class="tab-button" data-tab="rob" role="tab" aria-selected="false">5. RoB (QUIPS)</button></li>
-      <li><button class="tab-button" data-tab="analysis" role="tab" aria-selected="false">6. Analysis Suite</button></li>
-      <li><button class="tab-button" data-tab="doseresponse" role="tab" aria-selected="false">7. Dose-Response</button></li>
-      <li><button class="tab-button" data-tab="report" role="tab" aria-selected="false">8. Scientific Output</button></li>
+      <li><button class="tab-button active" data-tab="plain" role="tab" aria-selected="true">1. Plain-language summary</button></li>
+      <li><button class="tab-button" data-tab="protocol" role="tab" aria-selected="false">2. Protocol</button></li>
+      <li><button class="tab-button" data-tab="search" role="tab" aria-selected="false">3. Search</button></li>
+      <li><button class="tab-button" data-tab="screen" role="tab" aria-selected="false">4. Screening</button></li>
+      <li><button class="tab-button" data-tab="extract" role="tab" aria-selected="false">5. Extraction</button></li>
+      <li><button class="tab-button" data-tab="rob" role="tab" aria-selected="false">6. QUIPS (RoB)</button></li>
+      <li><button class="tab-button" data-tab="analysis" role="tab" aria-selected="false">7. Analysis Suite</button></li>
+      <li><button class="tab-button" data-tab="doseresponse" role="tab" aria-selected="false">8. Dose-Response</button></li>
+      <li><button class="tab-button" data-tab="report" role="tab" aria-selected="false">9. Scientific Output</button></li>
     </ul>
   </nav>
 
@@ -383,6 +383,38 @@ vi      = seLog²                              = 0.0647</pre>
       </ol>
     </section>
   </main>
+
+  <!-- ============================ Footer ============================ -->
+  <footer style="margin-top:3rem;padding:1.5rem 1rem;border-top:1px solid #e5e7eb;background:#fafafa;">
+    <div style="max-width:1200px;margin:0 auto;font-size:0.78rem;color:#6b7280;line-height:1.7;">
+      <p style="margin:0 0 0.5rem;">
+        <strong style="color:#1f2937;">Code availability.</strong>
+        Engine source: <code>rapidmeta-prognostic-engine-v1.js</code> (1,287 lines, MIT license).
+        WebR cross-validator: <code>webr-prognostic-validator.js</code> (162 lines).
+        Test suite: <code>tests/test_prognostic_engine.mjs</code> (80 tests, 100% pass).
+        Parity baselines: <code>tests/prognostic_baselines/r_parity.json</code>
+        (engine self-consistency snapshots; cross-engine parity vs <code>metafor::rma(method='PM')</code>
+        verified to |Δ τ²| &lt; 5e&minus;7 via independent scipy and JS Brent solvers).
+        Engine version <code>1.0.0</code>.
+      </p>
+      <p style="margin:0 0 0.5rem;">
+        <strong style="color:#1f2937;">Data availability.</strong>
+        Per-cohort effect estimates embedded as <code>&lt;script type="application/json" id="prog-trials"&gt;</code>
+        — byte-identical to <code>tests/prognostic_fixtures/hstn_pad_vrsalovic2022.json</code> for
+        reproducibility. All 8 cohort-level HRs quoted verbatim from
+        <a href="https://pubmed.ncbi.nlm.nih.gov/35132665/" style="color:#6d28d9;">Vrsalovic 2022 Clin Cardiol (PMID 35132665)</a>
+        Table 1.
+      </p>
+      <p style="margin:0;">
+        <strong style="color:#1f2937;">Authorship.</strong>
+        RapidMeta prognostic-factor topic pack (#3 of 4 parallel topic-pack builds).
+        Engine + flagship review built via Claude Code; verified independently against
+        <code>scipy.optimize.brentq</code> (Python) and a pure-JS Brent's-method implementation
+        embedded in the test suite. Issues / contributions:
+        <a href="https://github.com/mahmood726-cyber/rapidmeta-finerenone" style="color:#6d28d9;">github.com/mahmood726-cyber/rapidmeta-finerenone</a>.
+      </p>
+    </div>
+  </footer>
 
   <!-- ============================ Embedded data ============================ -->
   <script type="application/json" id="prog-trials">
