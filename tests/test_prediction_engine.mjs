@@ -710,6 +710,141 @@ test('parity: PM iteration on KFRE 6-cohort logit-C inputs reproduces frozen Q t
   assert.ok(Math.abs(pm.tau2 - 0.6840823119267038) < 1e-6, 'tau2 ' + pm.tau2);
 });
 
+// ───── P2 parity: q-profile τ² CI ─────
+test('q-profile τ² CI: returns NaN when df < 1', () => {
+  const r = PRED._internal.qProfileTau2CI([1], [0.04], 0, 0.05);
+  assert.ok(isNaN(r.tau2_lo) && isNaN(r.tau2_hi));
+});
+
+test('q-profile τ² CI: τ² floor = 0 when Q(0) below upper χ² cutoff', () => {
+  // Homogeneous data → Q(0) = 0; the lower bound must be 0.
+  const r = PRED._internal.qProfileTau2CI([1.0, 1.0, 1.0], [0.04, 0.04, 0.04], 2, 0.05);
+  assert.equal(r.tau2_lo, 0);
+});
+
+test('q-profile τ² CI: brackets the PM point estimate on heterogeneous data', () => {
+  // 5 cohorts with clear spread; PM τ² should land inside [τ²_lo, τ²_hi].
+  const yi = [0.5, 0.7, 1.0, 1.3, 1.5];
+  const vi = [0.02, 0.02, 0.02, 0.02, 0.02];
+  const pm = PRED._internal.paule_mandel(yi, vi);
+  const ci = PRED._internal.qProfileTau2CI(yi, vi, pm.df, 0.05);
+  assert.ok(pm.tau2 >= ci.tau2_lo, 'τ² ' + pm.tau2 + ' < τ²_lo ' + ci.tau2_lo);
+  assert.ok(pm.tau2 <= ci.tau2_hi, 'τ² ' + pm.tau2 + ' > τ²_hi ' + ci.tau2_hi);
+});
+
+test('q-profile τ² CI: surfaces on pool result', () => {
+  const r = PRED.fit([
+    { studlab: 'a', C: 0.85, C_se: 0.02 },
+    { studlab: 'b', C: 0.72, C_se: 0.02 },
+    { studlab: 'c', C: 0.78, C_se: 0.02 },
+    { studlab: 'd', C: 0.90, C_se: 0.02 }
+  ]);
+  assert.ok(isFinite(r.C_pool.tau2_lo), 'tau2_lo missing');
+  assert.ok(isFinite(r.C_pool.tau2_hi), 'tau2_hi missing');
+  assert.ok(r.C_pool.tau2_lo <= r.C_pool.tau2 && r.C_pool.tau2 <= r.C_pool.tau2_hi,
+            'PM τ² ' + r.C_pool.tau2 + ' outside [' + r.C_pool.tau2_lo + ', ' + r.C_pool.tau2_hi + ']');
+});
+
+test('q-profile τ² CI on KFRE 6-cohort fixture: PM τ² inside CI', () => {
+  const fx = JSON.parse(readFileSync(join(__dirname, 'prediction_fixtures/kfre_5y_external_validations.json'), 'utf-8'));
+  const cohorts = fx.cohorts.map(c => ({ studlab: c.studlab, C: c.C, C_se: c.C_se }));
+  const r = PRED.fit(cohorts);
+  assert.ok(r.C_pool.tau2_lo <= r.C_pool.tau2);
+  assert.ok(r.C_pool.tau2 <= r.C_pool.tau2_hi);
+  // Heterogeneous KFRE → upper bound must be substantially above zero.
+  assert.ok(r.C_pool.tau2_hi > 0.5, 'expected high τ² upper bound, got ' + r.C_pool.tau2_hi);
+});
+
+// ───── P2 parity: PI-gap flag ─────
+test('PI-gap: agree when pooled C clearly above 0.5 with tight homogeneous data', () => {
+  // 4 cohorts all at C≈0.80 with small SE → both CI and PI exclude 0.5 → agree.
+  const r = PRED.fit([
+    { studlab: 'a', C: 0.80, C_se: 0.015 },
+    { studlab: 'b', C: 0.80, C_se: 0.015 },
+    { studlab: 'c', C: 0.80, C_se: 0.015 },
+    { studlab: 'd', C: 0.80, C_se: 0.015 }
+  ]);
+  assert.equal(r.C_pool.pi_gap, 'agree', 'pi_gap was ' + r.C_pool.pi_gap);
+});
+
+test('PI-gap: ci_excludes_pi_includes fires on hand-crafted pool with tight CI + wide PI', () => {
+  // Hand-crafted pool: CI excludes the reference but PI brackets it. Tests the
+  // piGapDirection helper without relying on which input scenarios produce
+  // which combination of CI / PI widths via the PM iteration.
+  const pool = {
+    pi_defined: true,
+    ci_lo: 0.30, ci_hi: 0.80,      // CI excludes ref = 0
+    pi_lo: -0.50, pi_hi: 1.20      // PI brackets ref = 0
+  };
+  assert.equal(PRED._internal.piGapDirection(pool, 0.0), 'ci_excludes_pi_includes');
+});
+
+test('PI-gap: ci_includes_pi_excludes fires on hand-crafted pool with wide CI + shifted PI', () => {
+  const pool = {
+    pi_defined: true,
+    ci_lo: -0.20, ci_hi: 0.80,     // CI brackets ref = 0
+    pi_lo: 0.10, pi_hi: 0.90       // PI excludes ref = 0 (entirely above)
+  };
+  assert.equal(PRED._internal.piGapDirection(pool, 0.0), 'ci_includes_pi_excludes');
+});
+
+test('PI-gap: discrimination ref is logit(0.5) = 0 and ref_natural = 0.5', () => {
+  const r = PRED.fit([
+    { studlab: 'a', C: 0.75, C_se: 0.02 },
+    { studlab: 'b', C: 0.75, C_se: 0.02 },
+    { studlab: 'c', C: 0.75, C_se: 0.02 }
+  ]);
+  assert.equal(r.C_pool.pi_gap_ref, 0.0);
+  assert.equal(r.C_pool.pi_gap_ref_natural, 0.5);
+  assert.equal(r.C_pool.pi_gap_ref_scale, 'logit(C)');
+});
+
+test('PI-gap: calibration intercept uses ref 0 (raw scale)', () => {
+  const r = PRED.fit([
+    { studlab: 'a', C: 0.75, C_se: 0.02, calib_int: 0.0, calib_int_se: 0.05 },
+    { studlab: 'b', C: 0.75, C_se: 0.02, calib_int: 0.0, calib_int_se: 0.05 },
+    { studlab: 'c', C: 0.75, C_se: 0.02, calib_int: 0.0, calib_int_se: 0.05 }
+  ]);
+  assert.equal(r.calib_int_pool.pi_gap_ref, 0.0);
+  assert.equal(r.calib_int_pool.pi_gap_ref_natural, 0.0);
+  // Homogeneous data centered at 0 → CI and PI both include 0 → agree.
+  assert.equal(r.calib_int_pool.pi_gap, 'agree');
+});
+
+test('PI-gap: calibration slope uses ref 1 (raw scale)', () => {
+  const r = PRED.fit([
+    { studlab: 'a', C: 0.75, C_se: 0.02, calib_slope: 1.0, calib_slope_se: 0.05 },
+    { studlab: 'b', C: 0.75, C_se: 0.02, calib_slope: 1.0, calib_slope_se: 0.05 },
+    { studlab: 'c', C: 0.75, C_se: 0.02, calib_slope: 1.0, calib_slope_se: 0.05 }
+  ]);
+  assert.equal(r.calib_slope_pool.pi_gap_ref, 1.0);
+  assert.equal(r.calib_slope_pool.pi_gap_ref_natural, 1.0);
+});
+
+test('PI-gap: O/E uses ref log(1) = 0 on log scale; ref_natural = 1', () => {
+  const r = PRED.fit([
+    { studlab: 'a', C: 0.75, C_se: 0.02, OE: 1.0, OE_se_log: 0.05 },
+    { studlab: 'b', C: 0.75, C_se: 0.02, OE: 1.0, OE_se_log: 0.05 },
+    { studlab: 'c', C: 0.75, C_se: 0.02, OE: 1.0, OE_se_log: 0.05 }
+  ]);
+  assert.equal(r.OE_pool.pi_gap_ref, 0.0);
+  assert.equal(r.OE_pool.pi_gap_ref_natural, 1.0);
+  assert.equal(r.OE_pool.pi_gap_ref_scale, 'log(O/E)');
+});
+
+test('PI-gap: piGapDirection returns null when pool.pi_defined is false', () => {
+  // k=2 pool — PI is not defined (df < 2).
+  const pool = PRED._internal.poolGeneric([1, 1], [0.04, 0.04]);
+  const dir = PRED._internal.piGapDirection(pool, 0.0);
+  assert.equal(dir, null);
+});
+
+test('PI-gap: piGapDirection returns null when ref is non-finite', () => {
+  const pool = PRED._internal.poolGeneric([1, 1, 1], [0.04, 0.04, 0.04]);
+  assert.equal(PRED._internal.piGapDirection(pool, NaN), null);
+  assert.equal(PRED._internal.piGapDirection(pool, Infinity), null);
+});
+
 // ───── Run ─────
 let pass = 0, fail = 0;
 for (const t of tests) {

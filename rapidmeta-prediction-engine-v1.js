@@ -388,6 +388,61 @@
     };
   }
 
+  // Q-profile τ² CI (Viechtbauer 2007 Stat Med). Inverts Cochran's Q against
+  // χ²(df) at α/2 and 1-α/2 to bracket τ². Ported from rapidmeta-dta-engine-v1.js
+  // for cross-engine consistency. Returns { tau2_lo, tau2_hi } in (0, ∞);
+  // tau2_lo is 0 when Q(τ²=0) ≤ χ²(df, 1-α/2) (homogeneous-compatible).
+  function qProfileTau2CI(yi, vi, df, alpha) {
+    if (df < 1 || yi.length < 2) return { tau2_lo: NaN, tau2_hi: NaN };
+    function qGen(tau2) {
+      var sW = 0, sWY = 0, sW_Y2 = 0;
+      for (var i = 0; i < yi.length; i++) {
+        var w = 1 / (vi[i] + tau2);
+        sW += w; sWY += w * yi[i]; sW_Y2 += w * yi[i] * yi[i];
+      }
+      if (sW === 0) return 0;
+      return Math.max(0, sW_Y2 - (sWY * sWY) / sW);
+    }
+    var cutHi = qchisq(1 - alpha / 2, df);
+    var cutLo = qchisq(alpha / 2, df);
+    var Q0 = qGen(0);
+    function bisect(target) {
+      if (Q0 <= target) return 0;
+      var lo = 0, hi = 100;
+      for (var _e = 0; _e < 30 && qGen(hi) > target && hi < 1e8; _e++) hi *= 2;
+      for (var _i = 0; _i < 60; _i++) {
+        var mid = (lo + hi) / 2;
+        if (qGen(mid) > target) lo = mid; else hi = mid;
+      }
+      return (lo + hi) / 2;
+    }
+    return { tau2_lo: bisect(cutHi), tau2_hi: bisect(cutLo) };
+  }
+
+  // Heterogeneity-fragility flag (parity with vendor/pairwise-pool.js piGap).
+  // True when the CI and the prediction interval disagree about whether a
+  // reference value lies inside or outside the interval. Per Cochrane v6.5
+  // §10.10.4.3 the PI is the more appropriate inference for the next study.
+  //
+  // Direction:
+  //   'ci_excludes_pi_includes' : CI rejects null but PI doesn't — pooled point
+  //                               looks decisive but heterogeneity could erase it.
+  //   'ci_includes_pi_excludes' : CI brackets null but PI doesn't — pooled point
+  //                               looks null but a future study would not.
+  //   'agree'                   : CI and PI agree on the reference (typical).
+  //
+  // ref is on the analysis scale of the pool (logit-C, raw intercept, raw slope,
+  // log-OE, raw Brier — see fit() for how callers pass it).
+  function piGapDirection(pool, ref) {
+    if (!pool || !pool.pi_defined) return null;
+    if (!isFiniteNum(ref)) return null;
+    var ciIncl = pool.ci_lo <= ref && ref <= pool.ci_hi;
+    var piIncl = pool.pi_lo <= ref && ref <= pool.pi_hi;
+    if (ciIncl === piIncl) return 'agree';
+    if (!ciIncl && piIncl) return 'ci_excludes_pi_includes';
+    return 'ci_includes_pi_excludes';
+  }
+
   // Cochrane v6.5 PI: t_{k-1} × √(τ² + SE_µ²) — undefined for k < 3
   function predictionInterval(pm, alpha) {
     if (pm.df < 2) return { pi_lo: NaN, pi_hi: NaN, df: pm.df, defined: false };
@@ -428,6 +483,8 @@
     var hksj = hksjCI(pm, alpha);
     var pi = predictionInterval(pm, alpha);
     var I2 = (pm.Q > pm.df && pm.Q > 0) ? Math.max(0, (pm.Q - pm.df) / pm.Q) * 100 : 0;
+    // Q-profile τ² CI (Viechtbauer 2007) — parity with DTA engine.
+    var tau2CI = qProfileTau2CI(yi, vi, pm.df, alpha);
     return {
       k: k,
       mu: pm.mu,
@@ -438,6 +495,8 @@
       pi_hi: pi.pi_hi,
       pi_defined: pi.defined,
       tau2: pm.tau2,
+      tau2_lo: tau2CI.tau2_lo,
+      tau2_hi: tau2CI.tau2_hi,
       I2: I2,
       Q: pm.Q,
       df_Q: pm.df,
@@ -623,6 +682,10 @@
     var discPool = poolGeneric(yi_disc, vi_disc);
     var C_pool = null;
     if (discPool) {
+      // PI-gap reference for discrimination: logit(0.5) = 0 (no-discrimination
+      // boundary). pi_gap = 'ci_excludes_pi_includes' → pooled CI claims useful
+      // discrimination but PI says a future cohort could be at chance.
+      var disc_pi_gap = piGapDirection(discPool, 0.0);
       C_pool = {
         k: discPool.k,
         mu: discPool.mu,                // on logit-C scale
@@ -638,6 +701,8 @@
         C_pi_lo: discPool.pi_defined ? invLogit(discPool.pi_lo) : NaN,
         C_pi_hi: discPool.pi_defined ? invLogit(discPool.pi_hi) : NaN,
         tau2: discPool.tau2,
+        tau2_lo: discPool.tau2_lo,        // q-profile τ² CI (Viechtbauer 2007)
+        tau2_hi: discPool.tau2_hi,
         I2: discPool.I2,
         Q: discPool.Q,
         df_Q: discPool.df_Q,
@@ -645,7 +710,11 @@
         hksj_factor: discPool.hksj_factor,
         weights: discPool.weights,
         method: discPool.method,
-        converged: discPool.converged
+        converged: discPool.converged,
+        pi_gap: disc_pi_gap,              // 'ci_excludes_pi_includes' | 'ci_includes_pi_excludes' | 'agree'
+        pi_gap_ref: 0.0,
+        pi_gap_ref_scale: 'logit(C)',
+        pi_gap_ref_natural: 0.5
       };
     }
 
@@ -658,6 +727,13 @@
       }
     });
     var calib_int_pool = poolGeneric(yi_int, vi_int);
+    if (calib_int_pool) {
+      // Reference α = 0 (perfectly calibrated in the large).
+      calib_int_pool.pi_gap = piGapDirection(calib_int_pool, 0.0);
+      calib_int_pool.pi_gap_ref = 0.0;
+      calib_int_pool.pi_gap_ref_scale = 'raw intercept';
+      calib_int_pool.pi_gap_ref_natural = 0.0;
+    }
 
     // Calibration slope pool
     var yi_sl = [], vi_sl = [];
@@ -668,6 +744,13 @@
       }
     });
     var calib_slope_pool = poolGeneric(yi_sl, vi_sl);
+    if (calib_slope_pool) {
+      // Reference β = 1 (perfect calibration slope).
+      calib_slope_pool.pi_gap = piGapDirection(calib_slope_pool, 1.0);
+      calib_slope_pool.pi_gap_ref = 1.0;
+      calib_slope_pool.pi_gap_ref_scale = 'raw slope';
+      calib_slope_pool.pi_gap_ref_natural = 1.0;
+    }
 
     // O/E pool (log scale)
     var oe_per = cohorts.map(function(c){ return perCohortOE(c); });
@@ -680,12 +763,18 @@
     var oePool = poolGeneric(yi_oe, vi_oe);
     var OE_pool = null;
     if (oePool) {
+      // Reference O/E = 1 → log(1) = 0 on the analysis scale.
+      var oe_pi_gap = piGapDirection(oePool, 0.0);
       OE_pool = Object.assign({}, oePool, {
         OE_pool: Math.exp(oePool.mu),
         OE_ci_lo: Math.exp(oePool.ci_lo),
         OE_ci_hi: Math.exp(oePool.ci_hi),
         OE_pi_lo: oePool.pi_defined ? Math.exp(oePool.pi_lo) : NaN,
-        OE_pi_hi: oePool.pi_defined ? Math.exp(oePool.pi_hi) : NaN
+        OE_pi_hi: oePool.pi_defined ? Math.exp(oePool.pi_hi) : NaN,
+        pi_gap: oe_pi_gap,
+        pi_gap_ref: 0.0,
+        pi_gap_ref_scale: 'log(O/E)',
+        pi_gap_ref_natural: 1.0
       });
     }
 
@@ -823,6 +912,8 @@
       paule_mandel: paule_mandel,
       hksjCI: hksjCI,
       predictionInterval: predictionInterval,
+      qProfileTau2CI: qProfileTau2CI,
+      piGapDirection: piGapDirection,
       poolGeneric: poolGeneric,
       perCohortDiscrimination: perCohortDiscrimination,
       perCohortOE: perCohortOE
