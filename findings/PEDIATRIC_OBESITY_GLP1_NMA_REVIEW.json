@@ -1,13 +1,13 @@
 {
   "app": "PEDIATRIC_OBESITY_GLP1_NMA_REVIEW.html",
-  "timestamp": "2026-05-12T16:14:39.747Z",
-  "durationMs": 3581,
+  "timestamp": "2026-05-12T17:11:25.972Z",
+  "durationMs": 3372,
   "state": {
-    "k": 3,
-    "or": "9.28",
-    "i2": "63.8",
-    "tau2": 0.33358505583048836,
-    "remlSensitivity": true,
+    "k": 1,
+    "or": "56.00",
+    "i2": "0.0",
+    "tau2": 0,
+    "remlSensitivity": false,
     "robSummary": {
       "high": 0,
       "someConcerns": 0,
@@ -18,8 +18,8 @@
     "totalAvailable": 3,
     "includedCount": 3,
     "searchResultCount": 3,
-    "nnt": 2.1019399572176733,
-    "absoluteRisk": -0.4757509825940483,
+    "nnt": 1.3636363636363635,
+    "absoluteRisk": -0.7333333333333334,
     "patientReportedOutcomes": {
       "count": 0,
       "scales": [],
@@ -36,20 +36,24 @@
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Evidence base is complete but small (k=3 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue."
+          "Evidence base is complete but small (k=1 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition."
         ],
         "recommendation": "Minor revision"
       },
       {
         "role": "Clinical expert",
         "concerns": [
-          "Pooled 9.28 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile."
+          "Pooled 56.00 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile.",
+          "k<3 - NNT ≈ 1 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       },
       {
         "role": "Biostatistician",
-        "concerns": [],
+        "concerns": [
+          "DL estimator under-estimates τ² for k<10; add REML/Paule-Mandel sensitivity."
+        ],
         "recommendation": "Accept with minor revision"
       },
       {

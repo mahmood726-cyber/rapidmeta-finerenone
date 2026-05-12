@@ -1,12 +1,12 @@
 {
   "app": "DPN_NEW_AGENTS_NMA_REVIEW.html",
-  "timestamp": "2026-05-12T15:59:56.713Z",
-  "durationMs": 3512,
+  "timestamp": "2026-05-12T16:56:52.029Z",
+  "durationMs": 3474,
   "state": {
-    "k": 7,
-    "or": "3.26",
-    "i2": "84.3",
-    "tau2": 0.22058254833309346,
+    "k": 2,
+    "or": "7.57",
+    "i2": "93.8",
+    "tau2": 1.636663882873912,
     "remlSensitivity": true,
     "robSummary": {
       "high": 0,
@@ -18,8 +18,8 @@
     "totalAvailable": 7,
     "includedCount": 7,
     "searchResultCount": 7,
-    "nnt": 4.333914881733474,
-    "absoluteRisk": -0.2307382648918156,
+    "nnt": 2.2550850109523313,
+    "absoluteRisk": -0.44344226277203447,
     "patientReportedOutcomes": {
       "count": 0,
       "scales": [],
@@ -35,21 +35,25 @@
     "reviewers": [
       {
         "role": "Methodology & PRISMA",
-        "concerns": [],
-        "recommendation": "Accept with minor revision"
-      },
-      {
-        "role": "Clinical expert",
         "concerns": [
-          "Pooled 3.26 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile.",
-          "I² = 84.3% (considerable); show subgroup/strata estimates alongside pooled."
+          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition."
         ],
         "recommendation": "Minor revision"
       },
       {
+        "role": "Clinical expert",
+        "concerns": [
+          "Pooled 7.57 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile.",
+          "k<3 - NNT ≈ 2 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.",
+          "I² = 93.8% (considerable); show subgroup/strata estimates alongside pooled."
+        ],
+        "recommendation": "Major revision"
+      },
+      {
         "role": "Biostatistician",
         "concerns": [],
-        "recommendation": "Accept"
+        "recommendation": "Accept with minor revision"
       },
       {
         "role": "Patient representative",

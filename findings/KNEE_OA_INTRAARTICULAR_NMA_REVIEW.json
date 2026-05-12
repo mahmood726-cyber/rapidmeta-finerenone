@@ -1,13 +1,13 @@
 {
   "app": "KNEE_OA_INTRAARTICULAR_NMA_REVIEW.html",
-  "timestamp": "2026-05-12T16:08:47.770Z",
-  "durationMs": 3403,
+  "timestamp": "2026-05-12T17:05:38.327Z",
+  "durationMs": 3290,
   "state": {
-    "k": 6,
-    "or": "2.34",
+    "k": 1,
+    "or": "2.35",
     "i2": "0.0",
     "tau2": 0,
-    "remlSensitivity": true,
+    "remlSensitivity": false,
     "robSummary": {
       "high": 0,
       "someConcerns": 0,
@@ -18,8 +18,8 @@
     "totalAvailable": 6,
     "includedCount": 6,
     "searchResultCount": 6,
-    "nnt": 4.995315301270559,
-    "absoluteRisk": -0.20018756368504903,
+    "nnt": 4.751194267515924,
+    "absoluteRisk": -0.21047339757017175,
     "patientReportedOutcomes": {
       "count": 0,
       "scales": [],
@@ -29,26 +29,32 @@
   },
   "findings": {
     "editor": {
-      "decision": "Accept with minor revision",
-      "rationale": "All reviewers support publication after minor clarifications."
+      "decision": "Minor revision",
+      "rationale": "Reviewers support publication but want clarifications on reporting completeness and residual uncertainty."
     },
     "reviewers": [
       {
         "role": "Methodology & PRISMA",
-        "concerns": [],
-        "recommendation": "Accept with minor revision"
+        "concerns": [
+          "Evidence base is complete but small (k=1 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition."
+        ],
+        "recommendation": "Minor revision"
       },
       {
         "role": "Clinical expert",
         "concerns": [
-          "Pooled 2.34 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile."
+          "Pooled 2.35 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile.",
+          "k<3 - NNT ≈ 5 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       },
       {
         "role": "Biostatistician",
-        "concerns": [],
-        "recommendation": "Accept"
+        "concerns": [
+          "DL estimator under-estimates τ² for k<10; add REML/Paule-Mandel sensitivity."
+        ],
+        "recommendation": "Accept with minor revision"
       },
       {
         "role": "Patient representative",

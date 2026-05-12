@@ -1,13 +1,13 @@
 {
   "app": "DEPRESSION_PSYCHEDELIC_NMA_REVIEW.html",
-  "timestamp": "2026-05-12T15:59:13.424Z",
-  "durationMs": 3371,
+  "timestamp": "2026-05-12T16:56:08.861Z",
+  "durationMs": 3342,
   "state": {
-    "k": 3,
-    "or": "7.77",
-    "i2": "67.0",
-    "tau2": 0.26105265957944096,
-    "remlSensitivity": true,
+    "k": 1,
+    "or": "4.35",
+    "i2": "0.0",
+    "tau2": 0,
+    "remlSensitivity": false,
     "robSummary": {
       "high": 0,
       "someConcerns": 0,
@@ -18,8 +18,8 @@
     "totalAvailable": 3,
     "includedCount": 3,
     "searchResultCount": 3,
-    "nnt": 2.2865171604736183,
-    "absoluteRisk": -0.43734637871375726,
+    "nnt": 3.2857142857142856,
+    "absoluteRisk": -0.30434782608695654,
     "patientReportedOutcomes": {
       "count": 3,
       "scales": [
@@ -28,7 +28,7 @@
       "trials": [
         "NCT05249907",
         "NCT04918810",
-        "NCT04122690"
+        "NULLED:NCT04122690"
       ],
       "inHeadlineAnalysis": false
     }
@@ -42,20 +42,24 @@
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Evidence base is complete but small (k=3 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue."
+          "Evidence base is complete but small (k=1 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition."
         ],
         "recommendation": "Minor revision"
       },
       {
         "role": "Clinical expert",
         "concerns": [
-          "Pooled 7.77 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile."
+          "Pooled 4.35 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile.",
+          "k<3 - NNT ≈ 3 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       },
       {
         "role": "Biostatistician",
-        "concerns": [],
+        "concerns": [
+          "DL estimator under-estimates τ² for k<10; add REML/Paule-Mandel sensitivity."
+        ],
         "recommendation": "Accept with minor revision"
       },
       {
