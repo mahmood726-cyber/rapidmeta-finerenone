@@ -4,6 +4,14 @@
   const STORAGE_KEY = 'r-validation-nma-expanded';
   const PANEL_ID = 'r-validation-nma-panel';
 
+  // P1-6 fix: HTML-escape every R-sourced string before innerHTML concat.
+  function escapeHtml(s) {
+    if (s == null) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+
   function getReviewStem() {
     const path = global.location && global.location.pathname || '';
     return (path.split('/').pop() || '').replace(/\.html$/, '');
@@ -12,7 +20,8 @@
   function fmtN(x, d) { return Number.isFinite(x) ? x.toFixed(d == null ? 2 : d) : '—'; }
 
   function buildBadge(r) {
-    const ref = r.reference || '(unset)';
+    // P1-6 fix: every R-JSON-sourced string is HTML-escaped before innerHTML.
+    const ref = escapeHtml(r.reference || '(unset)');
     let rowsHtml = '';
     const pooled = r.pooled || {};
     const treatments = Object.keys(pooled);
@@ -20,7 +29,7 @@
       const p = pooled[tr];
       rowsHtml +=
         '<tr style="border-top:1px solid #1e293b;">' +
-        '<td style="padding:3px 8px;color:#cbd5e1;">' + tr + '</td>' +
+        '<td style="padding:3px 8px;color:#cbd5e1;">' + escapeHtml(tr) + '</td>' +
         '<td style="padding:3px 8px;text-align:right;color:#7dd3fc;">' + fmtN(p.OR, 2) +
         ' [' + fmtN(p.lci, 2) + ', ' + fmtN(p.uci, 2) + ']</td>' +
         '</tr>';
@@ -32,7 +41,7 @@
       psHtml = '<div style="margin-top:10px;color:#94a3b8;font-size:10.5px;text-transform:uppercase;letter-spacing:0.05em;">P-scores (netmeta SUCRA-equivalent)</div>' +
         '<table style="width:100%;border-collapse:collapse;font-family:JetBrains Mono,monospace;font-size:11px;">' +
         entries.map(([tr, ps]) =>
-          '<tr><td style="padding:2px 8px;color:#cbd5e1;">' + tr + '</td>' +
+          '<tr><td style="padding:2px 8px;color:#cbd5e1;">' + escapeHtml(tr) + '</td>' +
           '<td style="padding:2px 8px;text-align:right;color:#7dd3fc;">' + fmtN(ps, 3) + '</td></tr>'
         ).join('') + '</table>';
     }
@@ -43,8 +52,8 @@
 
     const body =
       '<div style="font-size:11px;color:#cbd5e1;line-height:1.55;">' +
-      '<table style="width:100%;border-collapse:collapse;font-family:JetBrains Mono,monospace;font-size:11px;margin-bottom:10px;">' +
-      '<tr><td style="padding:3px 8px;color:#94a3b8;">Engine</td><td style="color:#7dd3fc;">' + r.engine + ' · netmeta ' + r.netmeta_version + '</td></tr>' +
+      '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-family:JetBrains Mono,monospace;font-size:11px;margin-bottom:10px;"><caption style="position:absolute;left:-9999px;">NMA cross-validation metadata</caption>' +
+      '<tr><td style="padding:3px 8px;color:#94a3b8;">Engine</td><td style="color:#7dd3fc;">' + escapeHtml(r.engine) + ' · netmeta ' + escapeHtml(r.netmeta_version) + '</td></tr>' +
       '<tr><td style="padding:3px 8px;color:#94a3b8;">Treatments</td><td style="color:#7dd3fc;">' + r.n_treatments + '</td></tr>' +
       '<tr><td style="padding:3px 8px;color:#94a3b8;">Direct contrasts</td><td style="color:#7dd3fc;">' + r.k_comparisons + '</td></tr>' +
       '<tr><td style="padding:3px 8px;color:#94a3b8;">Reference</td><td style="color:#7dd3fc;">' + ref + '</td></tr>' +
@@ -54,13 +63,13 @@
       '</table>' +
       '<div style="color:#94a3b8;font-size:10.5px;text-transform:uppercase;letter-spacing:0.05em;">RE-model OR vs ' + ref + '</div>' +
       '<table style="width:100%;border-collapse:collapse;font-family:JetBrains Mono,monospace;font-size:11px;">' +
-      '<thead><tr style="color:#94a3b8;"><th style="padding:4px 8px;text-align:left;">Treatment</th>' +
-      '<th style="padding:4px 8px;text-align:right;">OR (95% CI)</th></tr></thead>' +
+      '<thead><tr style="color:#94a3b8;"><th scope="col" style="padding:4px 8px;text-align:left;">Treatment</th>' +
+      '<th scope="col" style="padding:4px 8px;text-align:right;">OR (95% CI)</th></tr></thead>' +
       '<tbody>' + rowsHtml + '</tbody></table>' +
       psHtml +
-      '<div style="margin-top:8px;font-size:10.5px;color:#64748b;line-height:1.5;">' +
+      '<div style="margin-top:8px;font-size:10.5px;color:#94a3b8;line-height:1.5;">' +
       'External cross-validation against R 4.5.2 + <a href="https://cran.r-project.org/package=netmeta" target="_blank" style="color:#7dd3fc;text-decoration:none;">netmeta</a> ' +
-      '(Rücker & Schwarzer frequentist NMA, REML). Source: <code style="color:#94a3b8;">outputs/r_validation/nma/' + r.review + '.json</code>.' +
+      '(Rücker & Schwarzer frequentist NMA, REML). Source: <code style="color:#94a3b8;">outputs/r_validation/nma/' + escapeHtml(r.review) + '.json</code>.' +
       '</div></div>';
     return { summary, body };
   }
@@ -88,11 +97,17 @@
       .then(r => r.ok ? r.json() : null)
       .then(r => {
         if (!r || !r.fit_ok) return;
+        // P1-21 fix: retry pattern.
+        let tries = 0;
+        const tick = () => {
+          if (global.PanelHelper) { render(r); return; }
+          if (++tries < 20) setTimeout(tick, 300);
+        };
         if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', () => setTimeout(() => render(r), 1500));
-        } else { setTimeout(() => render(r), 1500); }
+          document.addEventListener('DOMContentLoaded', () => setTimeout(tick, 800));
+        } else { setTimeout(tick, 800); }
       })
-      .catch(() => {});
+      .catch(err => { console.warn('[R-validation] fetch failed:', err); });
   }
 
   global.RValidationNMA = { render };

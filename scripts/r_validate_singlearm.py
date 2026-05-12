@@ -30,6 +30,13 @@ RSCRIPT_EXE = (
     or r"C:\Program Files\R\R-4.5.2\bin\Rscript.exe"
 )
 
+# P1-7 fix: path-traversal guard. stem comes from _index.json; refuse any
+# value with path separators, ".." segments, or non-[A-Za-z0-9_-.] chars.
+import re as _re_p17
+_STEM_OK = _re_p17.compile(r"^[A-Za-z0-9_.-]+$")
+def _stem_safe(s) -> bool:
+    return isinstance(s, str) and bool(_STEM_OK.match(s)) and ".." not in s
+
 
 def pick_singlearm_trials(rd: dict) -> list[dict]:
     """Match vendor/single-arm-proportion.js variant-4 logic: tE/tN present,
@@ -56,6 +63,9 @@ def main() -> None:
         if not entry.get("has_realData"):
             continue
         stem = entry["stem"]
+        if not _stem_safe(stem):
+            print(f"  skip (unsafe stem): {stem!r}")
+            continue
         doc = json.loads((DATA_DIR / f"{stem}.json").read_text(encoding="utf-8"))
         rd = doc.get("realData") or {}
         trials = pick_singlearm_trials(rd)
@@ -75,9 +85,9 @@ def main() -> None:
                 capture_output=True, text=True, timeout=90,
             )
         except subprocess.TimeoutExpired:
-            print(f"  {stem}: ✗ timeout"); n_fail += 1; continue
+            print(f"  {stem}: [FAIL] timeout"); n_fail += 1; continue
         if r.returncode != 0:
-            print(f"  {stem}: ✗ exit {r.returncode}: {r.stderr.strip()[:200]}")
+            print(f"  {stem}: [FAIL] exit {r.returncode}: {r.stderr.strip()[:200]}")
             n_fail += 1; continue
         result = json.loads(output_path.read_text(encoding="utf-8"))
         if result.get("fit_ok"):
@@ -86,10 +96,10 @@ def main() -> None:
             lci = (lp.get("lci") or 0) * 100
             uci = (lp.get("uci") or 0) * 100
             i2 = lp.get("I2") or 0
-            print(f"  {stem}: ✓ k={result['k']} prop={pool:.1f}% [{lci:.1f}–{uci:.1f}%] I²={i2:.0f}%")
+            print(f"  {stem}: [OK] k={result['k']} prop={pool:.1f}% [{lci:.1f}-{uci:.1f}%] I2={i2:.0f}%")
             n_ok += 1
         else:
-            print(f"  {stem}: ⚠ {result.get('error')}")
+            print(f"  {stem}: [WARN] {result.get('error')}")
             n_fail += 1
     print(f"\nOK: {n_ok}  failed: {n_fail}")
 

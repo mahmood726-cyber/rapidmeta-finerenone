@@ -29,6 +29,12 @@ RSCRIPT_EXE = (
     or r"C:\Program Files\R\R-4.5.2\bin\Rscript.exe"
 )
 
+# P1-7 fix: path-traversal guard.
+import re as _re_p17
+_STEM_OK = _re_p17.compile(r"^[A-Za-z0-9_.-]+$")
+def _stem_safe(s) -> bool:
+    return isinstance(s, str) and bool(_STEM_OK.match(s)) and ".." not in s
+
 # Instrument labels that encode MD scale (must match vendor/nma-forest-continuous.js)
 CONT_LABEL_RE = re.compile(
     r"^(CDR_?SB|CDR-?SB|MMSE|ADAS|PPF[Ee]V1|FEV1|BCVA|KCCQ|SF36|EQ5D|EQ-?5D|"
@@ -101,6 +107,9 @@ def main() -> None:
         if not entry.get("has_realData"):
             continue
         stem = entry["stem"]
+        if not _stem_safe(stem):
+            print(f"  skip (unsafe stem): {stem!r}")
+            continue
         doc = json.loads((DATA_DIR / f"{stem}.json").read_text(encoding="utf-8"))
         rd = doc.get("realData") or {}
         trials = collect_continuous_yi_vi(rd)
@@ -120,17 +129,17 @@ def main() -> None:
                 capture_output=True, text=True, timeout=90,
             )
         except subprocess.TimeoutExpired:
-            print(f"  {stem}: ✗ timeout"); n_fail += 1; continue
+            print(f"  {stem}: [FAIL] timeout"); n_fail += 1; continue
         if r.returncode != 0:
-            print(f"  {stem}: ✗ exit {r.returncode}: {r.stderr.strip()[:200]}")
+            print(f"  {stem}: [FAIL] exit {r.returncode}: {r.stderr.strip()[:200]}")
             n_fail += 1; continue
         result = json.loads(output_path.read_text(encoding="utf-8"))
         if result.get("fit_ok"):
-            print(f"  {stem}: ✓ k={result['k']} pool={result['pool']:.3f} "
-                  f"[{result['lci']:.3f}, {result['uci']:.3f}] τ²={result['tau2']:.4f} I²={result['I2']:.0f}%")
+            print(f"  {stem}: [OK] k={result['k']} pool={result['pool']:.3f} "
+                  f"[{result['lci']:.3f}, {result['uci']:.3f}] tau2={result['tau2']:.4f} I2={result['I2']:.0f}%")
             n_ok += 1
         else:
-            print(f"  {stem}: ⚠ {result.get('error')}")
+            print(f"  {stem}: [WARN] {result.get('error')}")
             n_fail += 1
     print(f"\nOK: {n_ok}  failed: {n_fail}")
 

@@ -49,8 +49,18 @@ if (is.null(fit)) {
   quit(status = 0)
 }
 
-# Prediction interval (Cochrane v6.5 t_{k-1} convention)
-pi <- predict(fit)
+# P1-17 fix: PI undefined for k<3 under Cochrane v6.5 t_{k-1} (df = k-1 = 1
+# → t_{0.975,1}=12.706, τ̂² estimate is not stable). Refuse to emit PI for k<3
+# rather than print a misleading number.
+pi_lci <- NA_real_
+pi_uci <- NA_real_
+pi_skip_reason <- NULL
+if (k >= 3) {
+  pi <- tryCatch(predict(fit), error = function(e) NULL)
+  if (!is.null(pi)) { pi_lci <- as.numeric(pi$pi.lb); pi_uci <- as.numeric(pi$pi.ub) }
+} else {
+  pi_skip_reason <- paste0("PI undefined for k=", k, " (Cochrane v6.5 §10.10.4.3: requires k≥3)")
+}
 
 out <- list(
   review = dat$review,
@@ -71,8 +81,10 @@ out <- list(
   H2 = as.numeric(fit$H2),
   Q  = as.numeric(fit$QE),
   Qp = as.numeric(fit$QEp),
-  PI_lci = as.numeric(pi$pi.lb),
-  PI_uci = as.numeric(pi$pi.ub)
+  PI_lci = pi_lci,
+  PI_uci = pi_uci,
+  PI_skip_reason = pi_skip_reason,
+  PI_convention = "t_{k-1} (Cochrane v6.5 §10.10.4.3)"
 )
 writeLines(toJSON(out, auto_unbox = TRUE, pretty = TRUE, na = "null"), output_path)
 cat("Wrote", output_path, "\n")

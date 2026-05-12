@@ -36,6 +36,12 @@ DTA_JSON_RE = re.compile(
     re.DOTALL,
 )
 
+# P1-7 fix: path-traversal guard.
+import re as _re_p17
+_STEM_OK = _re_p17.compile(r"^[A-Za-z0-9_.-]+$")
+def _stem_safe(s) -> bool:
+    return isinstance(s, str) and bool(_STEM_OK.match(s)) and ".." not in s
+
 
 def extract_dta_trials(html_path: Path) -> dict | None:
     text = html_path.read_text(encoding="utf-8", errors="replace")
@@ -99,14 +105,14 @@ def main() -> None:
         if ok:
             result = json.loads(output_path.read_text(encoding="utf-8"))
             if result.get("fit_ok"):
-                print(f"  {stem}: ✓ k={result['k']} Se={result['sens_pool']:.3f} "
+                print(f"  {stem}: [OK] k={result['k']} Se={result['sens_pool']:.3f} "
                       f"Sp={result['spec_pool']:.3f} DOR={result['dor']:.1f} AUC={result.get('auc',0):.3f}")
                 n_ok += 1
             else:
-                print(f"  {stem}: ⚠ fit failed — {result.get('error')}")
+                print(f"  {stem}: [WARN] fit failed — {result.get('error')}")
                 n_fail += 1
         else:
-            print(f"  {stem}: ✗ Rscript failed: {msg}")
+            print(f"  {stem}: [FAIL] Rscript failed: {msg}")
             n_fail += 1
     print(f"\nOK: {n_ok}  skipped: {n_skip}  failed: {n_fail}")
 

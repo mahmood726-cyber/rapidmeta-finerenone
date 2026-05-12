@@ -27,6 +27,12 @@ RSCRIPT_EXE = (
     or r"C:\Program Files\R\R-4.5.2\bin\Rscript.exe"
 )
 
+# P1-7 fix: path-traversal guard.
+import re as _re_p17
+_STEM_OK = _re_p17.compile(r"^[A-Za-z0-9_.-]+$")
+def _stem_safe(s) -> bool:
+    return isinstance(s, str) and bool(_STEM_OK.match(s)) and ".." not in s
+
 
 def _is_int_like(x):
     return isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(x)
@@ -66,6 +72,9 @@ def main() -> None:
         if not entry.get("has_NMA_CONFIG"):
             continue
         stem = entry["stem"]
+        if not _stem_safe(stem):
+            print(f"  skip (unsafe stem): {stem!r}")
+            continue
         doc = json.loads((DATA_DIR / f"{stem}.json").read_text(encoding="utf-8"))
         rd = doc.get("realData") or {}
         cfg = doc.get("NMA_CONFIG") or {}
@@ -115,9 +124,9 @@ def main() -> None:
                 capture_output=True, text=True, timeout=120,
             )
         except subprocess.TimeoutExpired:
-            print(f"  {stem}: ✗ timeout"); n_fail += 1; continue
+            print(f"  {stem}: [FAIL] timeout"); n_fail += 1; continue
         if r.returncode != 0:
-            print(f"  {stem}: ✗ exit {r.returncode}: {r.stderr.strip()[:200]}")
+            print(f"  {stem}: [FAIL] exit {r.returncode}: {r.stderr.strip()[:200]}")
             n_fail += 1; continue
         result = json.loads(output_path.read_text(encoding="utf-8"))
         if result.get("fit_ok"):
@@ -128,7 +137,7 @@ def main() -> None:
             print(f"  {stem}: OK {n_trts} trts, {kcomp} contrasts, tau2={tau2:.3f}, I2={i2:.0f}%")
             n_ok += 1
         else:
-            print(f"  {stem}: ⚠ {result.get('error')}")
+            print(f"  {stem}: [WARN] {result.get('error')}")
             n_fail += 1
     print(f"\nOK: {n_ok}  failed: {n_fail}")
 

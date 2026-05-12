@@ -12,6 +12,14 @@
   const STORAGE_KEY = 'r-validation-singlearm-expanded';
   const PANEL_ID = 'r-validation-singlearm-panel';
 
+  // P1-6 fix: HTML-escape every R-sourced string before innerHTML concat.
+  function escapeHtml(s) {
+    if (s == null) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+
   function getReviewStem() {
     const path = global.location && global.location.pathname || '';
     return (path.split('/').pop() || '').replace(/\.html$/, '');
@@ -53,16 +61,17 @@
     let cmpRow = '';
     if (engine && Number.isFinite(engine.prop) && Number.isFinite(rProp)) {
       const d = Math.abs(engine.prop - rProp);
-      // P0-4 fix: only award ✓ for tight match. The wider 3pp "method
-      // gap" is descriptive — at low baseline rates 3pp is a large
-      // relative divergence (e.g. 60% relative at 5% rate). Tight
-      // tolerance combines absolute 1pp AND ≤20% relative.
+      // P0-4 + P1-13 fix: only award ✓ for tight match AND k ≥ 3 (HKSJ
+      // t_{k-1} at k=2 has multiplier 12.706 — trivially matches anything).
       const baseline = (engine.prop + rProp) / 2;
       const tight_abs = 0.01;                // 1pp absolute
       const tight_rel = 0.20 * baseline;     // 20% relative
       const tight_tol = Math.min(tight_abs, Math.max(0.005, tight_rel));
-      if (d < tight_tol) {
+      const k_ok = (r.k || 0) >= 3;
+      if (d < tight_tol && k_ok) {
         verdict = '✓ R metafor cross-validated · Δ ' + (d * 100).toFixed(2) + 'pp · within tight tolerance';
+      } else if (d < tight_tol && !k_ok) {
+        verdict = '⚠ k=' + r.k + ' (HKSJ t_{k-1} CI uninformative — ✓ not awarded)';
       } else if (d < 0.03) {
         verdict = '⚠ R-engine method-spread Δ ' + (d * 100).toFixed(1) + 'pp · likely PFT-vs-logit or REML-vs-DL drift';
       } else {
@@ -81,7 +90,7 @@
     const body =
       '<div style="font-size:11px;color:#cbd5e1;line-height:1.6;">' +
       '<table style="width:100%;border-collapse:collapse;font-family:JetBrains Mono,monospace;font-size:11px;">' +
-      '<tr><td style="padding:3px 8px;color:#94a3b8;">Engine</td><td style="color:#7dd3fc;">' + r.engine + ' · metafor ' + r.metafor_version + '</td></tr>' +
+      '<tr><td style="padding:3px 8px;color:#94a3b8;">Engine</td><td style="color:#7dd3fc;">' + escapeHtml(r.engine) + ' · metafor ' + escapeHtml(r.metafor_version) + '</td></tr>' +
       '<tr><td style="padding:3px 8px;color:#94a3b8;">Trials (k)</td><td style="color:#7dd3fc;">' + r.k + '</td></tr>' +
       '<tr><td style="padding:3px 8px;color:#94a3b8;">Logit-RE pool (REML+HKSJ)</td><td style="color:#7dd3fc;">' + pctFmt(rProp, 1) + ' [' + pctFmt(rLci, 1) + ', ' + pctFmt(rUci, 1) + ']</td></tr>' +
       (ft.pool != null ?
@@ -90,11 +99,11 @@
       '<tr><td style="padding:3px 8px;color:#94a3b8;">I²</td><td style="color:#7dd3fc;">' + (rI2 || 0).toFixed(0) + '%</td></tr>' +
       cmpRow +
       '</table>' +
-      '<div style="margin-top:8px;font-size:10.5px;color:#64748b;line-height:1.5;">' +
+      '<div style="margin-top:8px;font-size:10.5px;color:#94a3b8;line-height:1.5;">' +
       'External cross-validation against R 4.5.2 + ' +
       '<a href="https://cran.r-project.org/package=metafor" target="_blank" style="color:#7dd3fc;text-decoration:none;">metafor</a> ' +
       '(measure="PLO" for logit; measure="PFT" for Freeman-Tukey double-arcsine), REML estimator with Hartung-Knapp-Sidik-Jonkman small-sample correction. ' +
-      'Source: <code style="color:#94a3b8;">outputs/r_validation/singlearm/' + r.review + '.json</code>.' +
+      'Source: <code style="color:#94a3b8;">outputs/r_validation/singlearm/' + escapeHtml(r.review) + '.json</code>.' +
       '</div></div>';
 
     return { summary, body };
@@ -137,7 +146,7 @@
           document.addEventListener('DOMContentLoaded', () => setTimeout(tick, 800));
         } else { setTimeout(tick, 800); }
       })
-      .catch(() => {});
+      .catch(err => { console.warn('[R-validation] fetch failed:', err); });
   }
 
   global.RValidationSingleArm = { render };

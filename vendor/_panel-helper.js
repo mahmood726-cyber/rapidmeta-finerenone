@@ -29,6 +29,18 @@
     return d == null ? String(v) : v.toFixed(d);
   }
 
+  // P1-6 fix: HTML-escape helper. All R-JSON-sourced strings rendered
+  // inside innerHTML go through this. Five-char escape (&<>"').
+  function escapeHtml(s) {
+    if (s == null) return '';
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   function extractBinaryTrials(rd) {
     if (!rd) return [];
     const out = [];
@@ -144,7 +156,7 @@
       '<div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">' +
         '<span class="ph-arrow" aria-hidden="true" style="display:inline-block;width:14px;color:#7dd3fc;font-size:10px;transition:transform 0.15s;transform:rotate(' + (expanded ? 90 : 0) + 'deg);">▶</span>' +
         '<span style="background:#1e3a5f;color:#7dd3fc;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:0.04em;flex:0 0 auto;">' + (opts.badge || 'Panel') + '</span>' +
-        '<span style="color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (opts.summary || '') + '</span>' +
+        '<span title="' + escapeHtml(opts.summary || '') + '" style="color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">' + (opts.summary || '') + '</span>' +
       '</div>';
     wrap.appendChild(head);
 
@@ -190,7 +202,7 @@
   }
 
   global.PanelHelper = {
-    getRealData, fmt, extractBinaryTrials,
+    getRealData, fmt, escapeHtml, extractBinaryTrials,
     poolRandomLogOR, poolRandomRD,
     buildCollapsiblePanel, insertAfterRBadge, isNMA,
   };

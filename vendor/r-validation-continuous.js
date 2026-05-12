@@ -4,6 +4,14 @@
   const STORAGE_KEY = 'r-validation-continuous-expanded';
   const PANEL_ID = 'r-validation-continuous-panel';
 
+  // P1-6 fix: HTML-escape every R-sourced string before innerHTML concat.
+  function escapeHtml(s) {
+    if (s == null) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+
   function getReviewStem() {
     const path = global.location && global.location.pathname || '';
     return (path.split('/').pop() || '').replace(/\.html$/, '');
@@ -18,7 +26,7 @@
     const body =
       '<div style="font-size:11px;color:#cbd5e1;line-height:1.6;">' +
       '<table style="width:100%;border-collapse:collapse;font-family:JetBrains Mono,monospace;font-size:11px;">' +
-      '<tr><td style="padding:3px 8px;color:#94a3b8;">Engine</td><td style="color:#7dd3fc;">' + r.engine + ' · metafor ' + r.metafor_version + '</td></tr>' +
+      '<tr><td style="padding:3px 8px;color:#94a3b8;">Engine</td><td style="color:#7dd3fc;">' + escapeHtml(r.engine) + ' · metafor ' + escapeHtml(r.metafor_version) + '</td></tr>' +
       '<tr><td style="padding:3px 8px;color:#94a3b8;">Trials (k)</td><td style="color:#7dd3fc;">' + r.k + '</td></tr>' +
       '<tr><td style="padding:3px 8px;color:#94a3b8;">Scale</td><td style="color:#7dd3fc;">' + (r.scale || 'MD') + '</td></tr>' +
       '<tr><td style="padding:3px 8px;color:#94a3b8;">REML+HKSJ pool</td><td style="color:#7dd3fc;">' + fmtN(r.pool, 3) + ' [' + fmtN(r.lci, 3) + ', ' + fmtN(r.uci, 3) + ']</td></tr>' +
@@ -28,10 +36,10 @@
       '<tr><td style="padding:3px 8px;color:#94a3b8;">Q · p</td><td style="color:#7dd3fc;">' + fmtN(r.Q, 2) + ' · ' + fmtN(r.Qp, 4) + '</td></tr>' +
       '<tr><td style="padding:3px 8px;color:#94a3b8;">z · p (overall)</td><td style="color:#7dd3fc;">' + fmtN(r.zval, 2) + ' · ' + fmtN(r.pval, 4) + '</td></tr>' +
       '</table>' +
-      '<div style="margin-top:8px;font-size:10.5px;color:#64748b;line-height:1.5;">' +
+      '<div style="margin-top:8px;font-size:10.5px;color:#94a3b8;line-height:1.5;">' +
       'External cross-validation against R 4.5.2 + <a href="https://cran.r-project.org/package=metafor" target="_blank" style="color:#7dd3fc;text-decoration:none;">metafor</a>, ' +
       'rma(yi, vi, method="REML", test="knha"). Prediction interval uses Cochrane v6.5 t_{k-1} convention. ' +
-      'Source: <code style="color:#94a3b8;">outputs/r_validation/continuous/' + r.review + '.json</code>.' +
+      'Source: <code style="color:#94a3b8;">outputs/r_validation/continuous/' + escapeHtml(r.review) + '.json</code>.' +
       '</div></div>';
     return { summary, body };
   }
@@ -59,11 +67,17 @@
       .then(r => r.ok ? r.json() : null)
       .then(r => {
         if (!r || !r.fit_ok) return;
+        // P1-21 fix: retry up to 6s for PanelHelper to become available.
+        let tries = 0;
+        const tick = () => {
+          if (global.PanelHelper) { render(r); return; }
+          if (++tries < 20) setTimeout(tick, 300);
+        };
         if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', () => setTimeout(() => render(r), 1500));
-        } else { setTimeout(() => render(r), 1500); }
+          document.addEventListener('DOMContentLoaded', () => setTimeout(tick, 800));
+        } else { setTimeout(tick, 800); }
       })
-      .catch(() => {});
+      .catch(err => { console.warn('[R-validation] fetch failed:', err); });
   }
 
   global.RValidationContinuous = { render };

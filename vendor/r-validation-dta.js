@@ -16,6 +16,13 @@
 (function (global) {
   'use strict';
   const STORAGE_KEY = 'r-validation-dta-expanded';
+  // P1-6 fix: HTML-escape every R-sourced string before innerHTML concat.
+  function escapeHtml(s) {
+    if (s == null) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
   const PANEL_ID = 'r-validation-badge';   // reuse the canonical badge slot
 
   function fetchValidation(reviewStem) {
@@ -112,11 +119,11 @@
       '<tr><td style="padding:3px 8px;color:#94a3b8;">HSROC AUC</td><td style="color:#7dd3fc;">' + (rAUC ? rAUC.toFixed(3) : '—') + '</td></tr>' +
       cmpHtml +
       '</table>' +
-      '<div style="margin-top:8px;font-size:10.5px;color:#64748b;line-height:1.5;">' +
+      '<div style="margin-top:8px;font-size:10.5px;color:#94a3b8;line-height:1.5;">' +
       'External cross-validation against R 4.5.2 + ' +
       '<a href="https://cran.r-project.org/web/packages/mada/" target="_blank" style="color:#7dd3fc;text-decoration:none;">mada</a> ' +
       'package (Doebler, Reitsma bivariate model). Same 2x2 inputs as the in-page Reitsma; differences indicate engine vs reference implementation drift. ' +
-      'Source data: <code style="color:#94a3b8;">outputs/r_validation/dta/' + r.review + '.json</code>.' +
+      'Source data: <code style="color:#94a3b8;">outputs/r_validation/dta/' + escapeHtml(r.review) + '.json</code>.' +
       '</div></div>';
 
     return { summary, body, color: verdictColor };
