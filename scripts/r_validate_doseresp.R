@@ -72,21 +72,25 @@ fit_lin <- tryCatch(
   dosresmeta(formula = logrr ~ dose,
              cases = events, n = n, type = type, v = v,
              data = df, id = studlab, method = "reml"),
-  error = function(e) NULL
+  error = function(e) structure(list(), class = "fitError", .error_msg = conditionMessage(e))
 )
 
 # RCS-3 pool: knots at Harrell 25/50/75 of non-reference doses
-knots <- quantile(df$dose[df$dose > 0], c(0.25, 0.50, 0.75))
+# P1-1: Use unique non-reference doses for Harrell-percentile knot placement, aligning with
+# the JS engine's rcsKnots() convention. Closer to Harrell's intent (percentiles of distinct
+# covariate values) and eliminates the silent engine-vs-R knot divergence on datasets with
+# dose-level repetition.
+knots <- quantile(unique(df$dose[df$dose > 0]), c(0.25, 0.50, 0.75))
 fit_rcs <- tryCatch(
   dosresmeta(formula = logrr ~ rcs(dose, knots),
              cases = events, n = n, type = type, v = v,
              data = df, id = studlab, method = "reml"),
-  error = function(e) NULL
+  error = function(e) structure(list(), class = "fitError", .error_msg = conditionMessage(e))
 )
 
 # Wald non-linearity test on RCS fit
 nl_p <- NA_real_
-if (!is.null(fit_rcs)) {
+if (!is.null(fit_rcs) && !inherits(fit_rcs, "fitError")) {
   bv <- coef(fit_rcs)
   V  <- vcov(fit_rcs)
   if (length(bv) >= 2) {
@@ -97,24 +101,79 @@ if (!is.null(fit_rcs)) {
   }
 }
 
+# One-stage Poisson hierarchical (lme4::glmer with offset). Per-arm counts modelled
+# with random study intercept; dose enters as a fixed effect on the log-rate scale.
+# Dose is scaled by sd(dose[dose > 0]) to avoid the "very large eigenvalue" near-
+# unidentifiability warning; coefficients are back-transformed to the original scale.
+suppressPackageStartupMessages({ library(lme4) })
+
+dose_sd_pos <- sd(df$dose[df$dose > 0])
+df$dose_scaled <- df$dose / dose_sd_pos
+
+fit_os <- tryCatch(
+  glmer(events ~ dose_scaled + (1 | studlab), offset = log(n),
+        family = poisson(link = "log"), data = df,
+        control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 1e5))),
+  error = function(e) structure(list(), class = "fitError", .error_msg = conditionMessage(e))
+)
+
+one_stage_block <- if (is.null(fit_os) || inherits(fit_os, "fitError")) {
+  list(fit_ok = FALSE, error_msg = if (inherits(fit_os, "fitError")) attr(fit_os, ".error_msg") else "glmer fit returned NULL")
+} else tryCatch({
+  conv_ok <- is.null(fit_os@optinfo$conv$lme4$messages) ||
+             length(fit_os@optinfo$conv$lme4$messages) == 0
+  # Back-transform to original dose scale
+  coef_sc  <- as.numeric(fixef(fit_os)["dose_scaled"])
+  se_sc    <- as.numeric(sqrt(diag(vcov(fit_os))["dose_scaled"]))
+  coef_orig <- coef_sc  / dose_sd_pos
+  se_orig   <- se_sc    / dose_sd_pos
+  ci_lo_orig <- coef_orig - 1.96 * se_orig
+  ci_hi_orig <- coef_orig + 1.96 * se_orig
+  list(
+    fit_ok = TRUE,
+    lme4_version = as.character(packageVersion("lme4")),
+    dose_scale_sd = dose_sd_pos,
+    coef_dose_on_scaled = as.numeric(coef_sc),
+    coef_dose = coef_orig,
+    coef_dose_se = se_orig,
+    coef_dose_ci_lo = ci_lo_orig,
+    coef_dose_ci_hi = ci_hi_orig,
+    random_effects_var = as.numeric(VarCorr(fit_os)$studlab[1, 1]),
+    converged = conv_ok
+  )
+}, error = function(e) list(fit_ok = FALSE, error_msg = paste0("post-fit failure: ", conditionMessage(e))))
+
 out <- list(
   review = dat$review,
   engine = "R-dosresmeta",
   dosresmeta_version = as.character(packageVersion("dosresmeta")),
   k = length(trials),
-  linear = if (is.null(fit_lin)) list(fit_ok = FALSE) else list(
-    fit_ok = TRUE,
-    pooled_slope_log    = as.numeric(coef(fit_lin)),
-    pooled_slope_log_se = as.numeric(sqrt(vcov(fit_lin))),
-    tau2 = if (!is.null(fit_lin$Psi)) as.numeric(fit_lin$Psi[1, 1]) else NA_real_
-  ),
-  rcs = if (is.null(fit_rcs)) list(fit_ok = FALSE) else list(
-    fit_ok = TRUE,
-    knots            = as.numeric(knots),
-    spline_coefs     = as.numeric(coef(fit_rcs)),
-    spline_coefs_cov = matrix(as.numeric(vcov(fit_rcs)), nrow = length(coef(fit_rcs))),
-    nonlinearity_wald_p = nl_p
-  )
+  linear = if (is.null(fit_lin)) {
+    list(fit_ok = FALSE, error_msg = "fit not attempted")
+  } else if (inherits(fit_lin, "fitError")) {
+    list(fit_ok = FALSE, error_msg = attr(fit_lin, ".error_msg"))
+  } else {
+    list(
+      fit_ok = TRUE,
+      pooled_slope_log    = as.numeric(coef(fit_lin)),
+      pooled_slope_log_se = as.numeric(sqrt(vcov(fit_lin))),
+      tau2 = if (!is.null(fit_lin$Psi)) as.numeric(fit_lin$Psi[1, 1]) else NA_real_
+    )
+  },
+  rcs = if (is.null(fit_rcs)) {
+    list(fit_ok = FALSE, error_msg = "fit not attempted")
+  } else if (inherits(fit_rcs, "fitError")) {
+    list(fit_ok = FALSE, error_msg = attr(fit_rcs, ".error_msg"))
+  } else {
+    list(
+      fit_ok = TRUE,
+      knots            = as.numeric(knots),
+      spline_coefs     = as.numeric(coef(fit_rcs)),
+      spline_coefs_cov = matrix(as.numeric(vcov(fit_rcs)), nrow = length(coef(fit_rcs))),
+      nonlinearity_wald_p = nl_p
+    )
+  },
+  one_stage = one_stage_block
 )
 writeLines(toJSON(out, auto_unbox = TRUE, pretty = TRUE, na = "null"), output_path)
 cat("Wrote", output_path, "\n")

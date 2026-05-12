@@ -370,6 +370,55 @@ test('engine fitRCS linear-component matches R within tolerance', () => {
        'rcs linear-component vs R');
 });
 
+test('forest() on fitRCS result uses RE weights from tau2_per_dim[0] (F-3 fix)', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const res = DR.fitRCS(fx.trials, { knots: 3 });
+  const rows = DR.forest(fx.trials, res);
+  assert.equal(rows.length, 5);
+
+  // RCS layer carries tau² inside res.rcs.tau2_per_dim[0]. Verify forest uses it.
+  const tau2 = res.rcs.tau2_per_dim[0] || 0;
+  const studlab = rows[0].label;
+  const matchingStudy = res.per_study.find(s => s.studlab === studlab);
+  const expectedW = 1 / (matchingStudy.slope_log_se * matchingStudy.slope_log_se + tau2);
+  const allExpectedW = rows.map(r => {
+    const s = res.per_study.find(ss => ss.studlab === r.label);
+    return 1 / (s.slope_log_se * s.slope_log_se + tau2);
+  });
+  const totalW = allExpectedW.reduce((a, b) => a + b, 0);
+  const expectedPct = 100 * expectedW / totalW;
+  near(rows[0].weight_pct, expectedPct, 1e-6, 'RCS forest uses RE weights from tau2_per_dim[0]');
+});
+
+// === Fix A: fitOneStage fit_ok propagation ===
+
+test('fitOneStage propagates fit_ok: false from precomputed JSON', () => {
+  const failedFit = { one_stage: { fit_ok: false, error: 'glmer did not converge' } };
+  const res = DR.fitOneStage([], {}, failedFit);
+  assert.equal(res.one_stage.fit_ok, false, 'fit_ok=false must propagate');
+});
+
+test('fitOneStage propagates fit_ok: true (default) from precomputed JSON', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const okFit = { one_stage: { coef_dose: 0.011, coef_dose_se: 0.001, converged: true, random_effects_var: 0.001 } };
+  const res = DR.fitOneStage(fx.trials, {}, okFit);
+  assert.equal(res.one_stage.fit_ok, true, 'fit_ok defaults to true when not explicitly false');
+});
+
+test('predict() linear CI uses t_{k-1} not raw z=1.96 (F-2 fix)', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const res = DR.fitLinear(fx.trials, {});
+  // For k=5, qt(0.975, 4) ≈ 2.776, NOT 1.96. CI half-width at dose=5 should be ~5*se*2.776.
+  const p = DR.predict(res, 5);
+  const halfWidth = p.ci_hi - p.est;
+  const expected = 5 * res.pooled_slope_log_se * I.qt(0.975, res.pi_df);
+  near(halfWidth, expected, 1e-10, 'predict CI half-width = dose * se * t_{k-1}');
+  // Confirm it is NOT the 1.96-based value (sanity: the two are visibly different at k=5)
+  const wrongValue = 5 * res.pooled_slope_log_se * 1.96;
+  assert.ok(Math.abs(halfWidth - wrongValue) > 0.0001,
+    `should not equal z=1.96 width; got ${halfWidth}, z-based was ${wrongValue}`);
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }
