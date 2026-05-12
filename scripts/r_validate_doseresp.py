@@ -12,7 +12,7 @@ Outputs:
   outputs/r_validation/doseresp/<REVIEW>.json
 """
 from __future__ import annotations
-import argparse, io, json, subprocess, sys
+import argparse, io, json, os, shutil, subprocess, sys
 from pathlib import Path
 
 if sys.platform == "win32" and hasattr(sys.stdout, "buffer"):
@@ -25,7 +25,11 @@ REPO = Path(__file__).resolve().parent.parent
 OUT_DIR = REPO / "outputs" / "r_validation" / "doseresp"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 R_SCRIPT = REPO / "scripts" / "r_validate_doseresp.R"
-RSCRIPT_EXE = r"C:\Program Files\R\R-4.5.2\bin\Rscript.exe"
+RSCRIPT_EXE = (
+    os.environ.get("RSCRIPT_EXE")
+    or shutil.which("Rscript")
+    or r"C:\Program Files\R\R-4.5.2\bin\Rscript.exe"
+)
 FIXTURE_DIR = REPO / "tests" / "dose_response_fixtures"
 
 
