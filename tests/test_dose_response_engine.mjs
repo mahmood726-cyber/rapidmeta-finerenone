@@ -66,6 +66,12 @@ test('ref_only fixture has 1 trial with only the reference arm', () => {
   assert.equal(fx.trials[0].arms[0].is_reference, true);
 });
 
+test('extrapolation fixture max-observed-dose is 12', () => {
+  const fx = loadFx('extrapolation.json');
+  const allDoses = fx.trials.flatMap(t => t.arms.map(a => a.dose));
+  assert.equal(Math.max(...allDoses), 12);
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }
