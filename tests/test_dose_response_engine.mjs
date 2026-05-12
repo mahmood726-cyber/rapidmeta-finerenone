@@ -169,6 +169,23 @@ test('fitLinear throws on k=1 (single trial)', () => {
   assert.throws(() => DR.fitLinear(oneTrial, {}), /k >= 2|requires k/i);
 });
 
+// === Task 11: rcsKnots (Harrell percentile knot placement) ===
+
+test('rcsKnots returns 3 knots at Harrell 25/50/75 for k=3', () => {
+  const doses = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];  // n=12
+  const knots = I.rcsKnots(doses, 3);
+  assert.equal(knots.length, 3);
+  near(knots[0], 3.75, 0.5, 'knot1 ≈ p25');
+  near(knots[1], 6.5,  0.5, 'knot2 ≈ p50');
+  near(knots[2], 9.25, 0.5, 'knot3 ≈ p75');
+});
+
+test('rcsKnots degenerates to empty array for <3 unique doses', () => {
+  const doses = [5, 5, 5, 5];
+  const knots = I.rcsKnots(doses, 3);
+  assert.equal(knots.length, 0, 'should return empty array to signal degeneration');
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }

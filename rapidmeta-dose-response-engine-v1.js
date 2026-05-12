@@ -335,6 +335,35 @@
   }
 
   // ===================================================================
+  // Section 2b: RCS helpers — knot placement (Harrell percentiles) and
+  // truncated power basis (Units 11-12).
+  // ===================================================================
+
+  // quantile(sorted, p): R type-7 linear interpolation on a pre-sorted array.
+  function quantile(sorted, p) {
+    var n = sorted.length;
+    if (n === 0) return NaN;
+    if (n === 1) return sorted[0];
+    var h = (n - 1) * p;
+    var lo = Math.floor(h), hi = Math.ceil(h);
+    return sorted[lo] + (h - lo) * (sorted[hi] - sorted[lo]);
+  }
+
+  // rcsKnots(doses, k): Harrell rcspline.eval default percentile knots.
+  // Filters to unique positive doses, sorts, then computes percentiles.
+  // Returns [] (empty) if fewer than k unique positive doses (degenerate).
+  function rcsKnots(doses, k) {
+    var uniq = Array.from(new Set(doses)).filter(function (d) { return d > 0; }).sort(function (a, b) { return a - b; });
+    if (uniq.length < k) return [];  // degenerate
+    var pcts;
+    if (k === 3)      pcts = [0.25, 0.50, 0.75];
+    else if (k === 4) pcts = [0.05, 0.35, 0.65, 0.95];
+    else if (k === 5) pcts = [0.05, 0.275, 0.50, 0.725, 0.95];
+    else throw new Error('rcsKnots: only k in {3,4,5} supported');
+    return pcts.map(function (p) { return quantile(uniq, p); });
+  }
+
+  // ===================================================================
   // Section 2a: fitLinear — two-stage Greenland-Longnecker linear pool.
   // Per-study WLS slope via GL covariance, then REML+HKSJ RE pool.
   // ===================================================================
@@ -476,6 +505,8 @@
     qchisq: qchisq, qt: qt, pchisq: pchisq, pt: pt,
     pmTau2: pmTau2,
     glCovariance: glCovariance,
+    quantile: quantile,
+    rcsKnots: rcsKnots,
   });
 
   root.RapidMetaDoseResp = API;
