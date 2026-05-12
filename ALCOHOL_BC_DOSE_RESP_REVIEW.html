@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Alcohol intake and breast cancer incidence — dose-response meta-analysis</title>
 <meta name="description" content="Pooled re-analysis of Greenland &amp; Longnecker 1992 alcohol-breast-cancer dataset using two-stage GL linear + RCS + one-stage Poisson hierarchical, with R cross-validation badge.">
 <style>
@@ -51,22 +52,22 @@
   <div id="trial-summary"></div>
 </details>
 
-<nav class="tab-nav">
-  <button data-tab="linear" class="active" onclick="showTab('linear')">1. Linear (GL two-stage)</button>
-  <button data-tab="rcs" onclick="showTab('rcs')">2. RCS (3 knots)</button>
-  <button data-tab="onestage" onclick="showTab('onestage')">3. One-stage (Poisson glmer)</button>
-  <button data-tab="parity" onclick="showTab('parity')">4. R-parity badge</button>
+<nav class="tab-nav" role="tablist" aria-label="Analysis tabs">
+  <button id="tab-btn-linear" data-tab="linear" class="active" role="tab" aria-selected="true" aria-controls="tab-linear" tabindex="0" onclick="showTab('linear')">1. Linear (GL two-stage)</button>
+  <button id="tab-btn-rcs" data-tab="rcs" role="tab" aria-selected="false" aria-controls="tab-rcs" tabindex="-1" onclick="showTab('rcs')">2. RCS (3 knots)</button>
+  <button id="tab-btn-onestage" data-tab="onestage" role="tab" aria-selected="false" aria-controls="tab-onestage" tabindex="-1" onclick="showTab('onestage')">3. One-stage (Poisson glmer)</button>
+  <button id="tab-btn-parity" data-tab="parity" role="tab" aria-selected="false" aria-controls="tab-parity" tabindex="-1" onclick="showTab('parity')">4. R-parity badge</button>
 </nav>
 
-<section id="tab-linear" class="tab-content active">
+<section id="tab-linear" class="tab-content active" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-linear">
   <h2>Linear pool — two-stage Greenland-Longnecker</h2>
-  <div id="linear-kpis"></div>
+  <div id="linear-kpis" aria-live="polite" aria-atomic="true"></div>
   <div id="linear-forest"></div>
   <div id="linear-curve"></div>
   <div id="linear-summary"></div>
 </section>
 
-<section id="tab-rcs" class="tab-content">
+<section id="tab-rcs" class="tab-content" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-rcs">
   <h2>RCS pool — 3 knots at Harrell percentiles</h2>
   <div id="rcs-kpis"></div>
   <div id="rcs-curve"></div>
@@ -74,15 +75,15 @@
   <div id="rcs-wald"></div>
 </section>
 
-<section id="tab-onestage" class="tab-content">
+<section id="tab-onestage" class="tab-content" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-onestage">
   <h2>One-stage Poisson hierarchical (lme4::glmer)</h2>
-  <div id="onestage-kpis"></div>
+  <div id="onestage-kpis" aria-live="polite" aria-atomic="true"></div>
   <div id="onestage-methods"></div>
 </section>
 
-<section id="tab-parity" class="tab-content">
+<section id="tab-parity" class="tab-content" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-parity">
   <h2>Engine vs R — parity badge</h2>
-  <div id="r-parity-doseresp"></div>
+  <div id="r-parity-doseresp" aria-live="polite" aria-atomic="true"></div>
 </section>
 
 <div class="footnote">
@@ -145,16 +146,22 @@
 
 <!-- Engine + badge -->
 <script src="rapidmeta-dose-response-engine-v1.js" defer></script>
-<script src="vendor/r-validation-badge.js" defer></script>
 <script src="vendor/r-validation-doseresp.js" defer></script>
 
 <!-- Page wiring -->
 <script>
 function showTab(name) {
   document.querySelectorAll('.tab-content').forEach(function (el) { el.classList.remove('active'); });
-  document.querySelectorAll('.tab-nav button').forEach(function (el) { el.classList.remove('active'); });
+  document.querySelectorAll('.tab-nav button').forEach(function (el) {
+    el.classList.remove('active');
+    el.setAttribute('aria-selected', 'false');
+    el.setAttribute('tabindex', '-1');
+  });
   document.getElementById('tab-' + name).classList.add('active');
-  document.querySelector('.tab-nav button[data-tab="' + name + '"]').classList.add('active');
+  var activeBtn = document.querySelector('.tab-nav button[data-tab="' + name + '"]');
+  activeBtn.classList.add('active');
+  activeBtn.setAttribute('aria-selected', 'true');
+  activeBtn.setAttribute('tabindex', '0');
 }
 
 window.addEventListener('DOMContentLoaded', function () {
@@ -166,7 +173,7 @@ window.addEventListener('DOMContentLoaded', function () {
   document.getElementById('gen-date').textContent = new Date().toISOString().slice(0, 10);
 
   // Trial-summary table
-  var summary = '<table><thead><tr><th>Study</th><th>PMID</th><th>Arms</th><th>Total events</th><th>Total person-years</th></tr></thead><tbody>';
+  var summary = '<table><thead><tr><th>Study</th><th>PMID</th><th>Arms</th><th>Total events</th><th>Total n (person-years or subjects)</th></tr></thead><tbody>';
   trials.forEach(function (t) {
     var totalE = t.arms.reduce(function (a, b) { return a + b.events; }, 0);
     var totalN = t.arms.reduce(function (a, b) { return a + b.n; }, 0);
@@ -177,6 +184,7 @@ window.addEventListener('DOMContentLoaded', function () {
                '<td>' + totalN.toLocaleString() + '</td></tr>';
   });
   summary += '</tbody></table>';
+  summary += '<p style="font-size:0.85em; color:#444; margin-top:0.4em;"><strong>Note:</strong> Howe 1991 is a case-control study reanalysed using cohort-equivalent methods (Greenland &amp; Longnecker 1992, Table 1 footnote); its <code>n</code> column represents subjects (cases + controls), not person-years. The Poisson hierarchical model treats all five studies uniformly per the GL 1992 worked example.</p>';
   document.getElementById('trial-summary').innerHTML = summary;
 
   // === Tab 1: Linear ===
@@ -192,7 +200,7 @@ window.addEventListener('DOMContentLoaded', function () {
     '<div class="kpi"><div class="kpi-label">τ²</div><div class="kpi-value">' + lin.tau2.toFixed(5) + '</div></div>' +
     '<div class="kpi"><div class="kpi-label">I²</div><div class="kpi-value">' + lin.I2.toFixed(1) + '%</div><div>Q = ' + lin.Q.toFixed(2) + ' (df ' + lin.Q_df + ')</div></div>' +
     '<div class="kpi"><div class="kpi-label">PI (per 11 g/day, df=' + lin.pi_df + ')</div><div class="kpi-value">' + Math.exp(lin.pi_lo * 11).toFixed(3) + '&ndash;' + Math.exp(lin.pi_hi * 11).toFixed(3) + '</div></div>' +
-    '<div class="kpi"><div class="kpi-label">k</div><div class="kpi-value">' + lin.k + '</div>' + (lin.coverage_warning ? '<div style="color:#d97706">coverage warning: k&lt;10</div>' : '') + '</div>' +
+    '<div class="kpi"><div class="kpi-label">k</div><div class="kpi-value">' + lin.k + '</div>' + (lin.coverage_warning ? '<div style="color:#92400e">coverage warning: k&lt;10</div>' : '') + '</div>' +
     '</div>';
 
   var forestRows = DR.forest(trials, lin);
@@ -220,7 +228,7 @@ window.addEventListener('DOMContentLoaded', function () {
   document.getElementById('linear-curve').innerHTML = curveHtml;
 
   document.getElementById('linear-summary').innerHTML =
-    '<p><strong>Plain-English summary:</strong> Each additional 11 g/day of alcohol (≈ 1 drink/day) is associated with a ' +
+    '<p><strong>Plain-English summary:</strong> Each additional 11 g/day of alcohol (≈ 1 standard drink by WHO/Australian convention; US standard drink = 14 g) is associated with a ' +
     ((linHR - 1) * 100).toFixed(1) + '% relative increase in breast-cancer incidence (RR = ' + linHR.toFixed(3) +
     ', 95% CI ' + linHR_lo.toFixed(3) + '–' + linHR_hi.toFixed(3) + '). ' +
     'Between-study heterogeneity is high (I² = ' + lin.I2.toFixed(0) + '%); the prediction interval is wider than the confidence interval and is the better summary of expected effect in a future similar study.</p>';
