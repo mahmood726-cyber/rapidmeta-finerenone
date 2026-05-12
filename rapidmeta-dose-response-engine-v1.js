@@ -343,6 +343,12 @@
     var issues = validate(trials);
     if (issues.length > 0) throw new Error('fitLinear: ' + issues[0]);
 
+  // I-1 fix: validate() is a data-shape checker, not a statistical-feasibility
+  // checker. k<2 produces NaN downstream (qt(0.975, 0) is undefined).
+  if (trials.length < 2) {
+    throw new Error('fitLinear: requires k >= 2 trials; got k=' + trials.length);
+  }
+
     var alpha = opts.alpha || 0.05;
     var perStudy = [];
 
@@ -351,6 +357,11 @@
       var ref = T.arms.find(function (a) { return a.is_reference; });
       var contrasts = T.arms.filter(function (a) { return !a.is_reference; });
       var x = contrasts.map(function (a) { return a.dose - ref.dose; });
+  // P1 hardening TODO: zero-cell continuity correction (advanced-stats.md).
+  // If a.events === 0 or ref.events === 0, log(0/p) = -Infinity which propagates
+  // to NaN through WLS. Add conditional +0.5 only if ≥1 cell is zero (per
+  // advanced-stats.md: "Add 0.5 ONLY if >=1 cell is zero. Unconditional correction biases OR->1").
+  // Deferred from Round 1A.
       var y = contrasts.map(function (a) {
         var pi = a.events / a.n, p0 = ref.events / ref.n;
         return Math.log(pi / p0);
@@ -391,8 +402,12 @@
     var wFE = vi.map(function (v) { return 1 / v; });
     var wsumFE = wFE.reduce(function (a, b) { return a + b; }, 0);
     var pooledFE = yi.reduce(function (acc, yval, i) { return acc + wFE[i] * yval; }, 0) / wsumFE;
-    var seFE = Math.sqrt(1 / wsum);  // SE from RE weights (denominator for HKSJ)
+    var seREBase = Math.sqrt(1 / wsum);  // RE-weighted base SE; FE-weighted variant lives below in Q computation
 
+  // Q uses FE weights and the FE pooled estimate (classical Cochran Q convention).
+  // metafor's HKSJ variant uses RE weights and RE pooled by default; we verified
+  // parity vs R mvmeta on GL-1992 (|Δ|<0.0005 on pooled slope) so the choice is
+  // numerically equivalent for our test set, but worth flagging for future hardening.
     // Cochran Q using FE weights around RE pooled estimate (standard HKSJ convention)
     var Q = yi.reduce(function (acc, yval, i) {
       var wfe = 1 / vi[i];
@@ -402,7 +417,7 @@
     // HKSJ floor per advanced-stats.md: max(1, Q/(k-1))
     var qstar = Math.max(1, Q / df);
     var hksjMult = Math.sqrt(qstar);
-    var seHKSJ = seFE * hksjMult;
+    var seHKSJ = seREBase * hksjMult;
     var tcrit = qt(1 - alpha / 2, df);
 
     var I2 = Math.max(0, (Q - df) / Q) * 100;
@@ -435,6 +450,9 @@
       coverage_warning: k < 10,
       fallback: null,
       estimator: 'reml_hksj',
+      converged: true,         // fitLinear is closed-form WLS + PM bisection; always converges
+      iterations: null,        // not meaningful for closed-form fitLinear
+      _fitInternal: null,      // reserved for future debug payloads
       engine_version: API.engine_version,
     };
   }

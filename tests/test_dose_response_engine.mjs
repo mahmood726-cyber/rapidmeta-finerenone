@@ -163,6 +163,12 @@ test('fitLinear refuses fitting on single_arm fixture', () => {
   assert.throws(() => DR.fitLinear(fx.trials, {}), /single arm|< 2 arms|validate/i);
 });
 
+test('fitLinear throws on k=1 (single trial)', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const oneTrial = [fx.trials[0]];
+  assert.throws(() => DR.fitLinear(oneTrial, {}), /k >= 2|requires k/i);
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }
