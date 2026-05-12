@@ -269,7 +269,50 @@ window.addEventListener('DOMContentLoaded', function () {
     'from R full multivariate REML (which gives p ≈ 0.7 on this dataset). See the R-parity tab for the ' +
     'side-by-side comparison. P2 hardening will lift to full multivariate REML and close this gap.</div>';
 
-  // Tabs 3-4 populated in subsequent tasks.
+  // Load R-precomputed JSON for Tabs 3 and 4
+  fetch('outputs/r_validation/doseresp/gl1992_alcohol_bc.json')
+    .then(function (resp) {
+      if (!resp.ok) throw new Error('R JSON not found: HTTP ' + resp.status);
+      return resp.json();
+    })
+    .then(function (rRes) {
+      // === Tab 3: One-stage ===
+      var os = DR.fitOneStage(trials, {}, rRes);
+      if (!os || !os.one_stage || os.one_stage.fit_ok === false) {
+        document.getElementById('onestage-kpis').innerHTML =
+          '<div class="rv-banner rv-banner-error">One-stage R output unavailable. Run <code>python scripts/r_validate_doseresp.py --review gl1992_alcohol_bc</code> to populate.</div>';
+        return rRes;
+      }
+      var osCoef = os.one_stage.coef_dose;
+      var osHR11 = Math.exp(osCoef * 11);
+      document.getElementById('onestage-kpis').innerHTML =
+        '<div class="kpi-grid">' +
+        '<div class="kpi"><div class="kpi-label">coef_dose (per gram)</div><div class="kpi-value">' + osCoef.toFixed(5) + '</div><div>SE ' + os.one_stage.coef_dose_se.toFixed(5) + '</div></div>' +
+        '<div class="kpi"><div class="kpi-label">RR per 11 g/day</div><div class="kpi-value">' + osHR11.toFixed(3) + '</div><div>95% CI ' + Math.exp(os.one_stage.coef_dose_ci_lo * 11).toFixed(3) + '&ndash;' + Math.exp(os.one_stage.coef_dose_ci_hi * 11).toFixed(3) + '</div></div>' +
+        '<div class="kpi"><div class="kpi-label">Random-effects variance (studlab)</div><div class="kpi-value">' + os.one_stage.random_effects_var.toFixed(5) + '</div></div>' +
+        '<div class="kpi"><div class="kpi-label">Converged</div><div class="kpi-value">' + (os.one_stage.converged ? 'Yes' : 'No') + '</div></div>' +
+        '<div class="kpi"><div class="kpi-label">Solver</div><div class="kpi-value">lme4 ' + (os.one_stage.lme4_version || rRes.one_stage.lme4_version || 'unknown') + '</div></div>' +
+        '</div>';
+      document.getElementById('onestage-methods').innerHTML =
+        '<p><strong>Methodology:</strong> One-stage Poisson hierarchical model fit by R using <code>lme4::glmer(events ~ dose + (1 | studlab), offset = log(n), family = poisson(link = "log"))</code> with the bobyqa optimizer. ' +
+        'Per-arm event counts modelled on the log-rate scale; person-years (here approximated by <code>n</code>) enter as an offset. ' +
+        'Random intercept per study captures between-study baseline-rate variation. ' +
+        'The engine surfaces the precomputed R coefficients only — no JS-side fitter for one-stage, per spec §11.</p>';
+
+      // === Tab 4: R-parity badge ===
+      window.RValidationDoseresp.render('r-parity-doseresp',
+        { linear: lin, rcs: rcs, one_stage: os },
+        rRes);
+      return rRes;
+    })
+    .catch(function (e) {
+      console.error('[ALCOHOL_BC] failed to load R JSON:', e);
+      document.getElementById('onestage-kpis').innerHTML =
+        '<div style="color:#c00">One-stage tab unavailable: ' + e.message + '</div>';
+      document.getElementById('r-parity-doseresp').innerHTML =
+        '<div style="color:#c00">R-parity badge unavailable: ' + e.message + '</div>';
+    });
+  // All 4 tabs populated.
 });
 </script>
 
