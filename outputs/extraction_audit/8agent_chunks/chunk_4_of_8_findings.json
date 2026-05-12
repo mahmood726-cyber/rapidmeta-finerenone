@@ -1,0 +1,283 @@
+{
+  "chunk_id": "chunk_4_of_8",
+  "input_hmac_sig_seen": "fa1af909d49bf0ce5e54b35565692329cc0964d1910567c7ccc91f0b6a5cf210",
+  "input_sha256_seen": "01708391292df6dc7d2a226635b861c7c53618719326994ac28ab39d4aa0d554",
+  "audit_methodology": "Conservative independent audit. Checked trial identity (NCT-vs-name-vs-drug), drug-disease coherence, effect-size plausibility, schema sanity, intra-chunk duplicates. PubMed spot-check on 8 PMIDs via mcp__claude_ai_PubMed__get_article_metadata. Per rules: MED/LOW concerns suppressed on QUARANTINED-band reviews; HIGH always emitted. No cross-chunk peeking. Source data not modified.",
+  "pubmed_attribution": "According to PubMed, PMIDs 41290592 (DOI: https://doi.org/10.1038/s41421-025-00838-5), 40802943 (DOI: https://doi.org/10.1056/NEJMoa2410120), 42092662 (DOI: https://doi.org/10.1016/j.ijbiomac.2026.152382), 39738721 (DOI: https://doi.org/10.1038/s41598-024-83509-x), 37393513 (DOI: https://doi.org/10.3233/JND-221667), 34489161, 33789008, 35715566, 37598696 were retrieved for identity verification.",
+  "findings": [
+    {
+      "id": "F01",
+      "severity": "HIGH",
+      "review": "SCLC_IO_REVIEW",
+      "trial_nct": "NCT04539977",
+      "trial_name": "TRINITY",
+      "issue": "PMID-trial identity mismatch and arm-size inconsistency",
+      "detail": "Extraction labels NCT04539977 as 'TRINITY — Toripalimab + EP (1L SCLC)' with tN=220, cN=222, publishedHR 0.78 [0.61, 0.99]. PMID 41290592 attached to it is in fact 'LungMate-005' — a phase 2 single-arm surgical study (TQB2450 = anti-PD-L1, not toripalimab) enrolling only n=40 patients with stage I–III SCLC. Either the PMID is wrong for TRINITY, or the trial name/intervention is wrong for the PMID. The drug (toripalimab) and arm sizes (tN+cN=442) are inconsistent with the linked publication.",
+      "evidence": "PubMed PMID 41290592 (DOI: https://doi.org/10.1038/s41421-025-00838-5): 'Surgery after induced anti-PD-L1 therapy and chemotherapy for stage I–III small-cell lung cancer: a phase 2 trial (LungMate-005)' — 40 patients, single-arm, TQB2450."
+    },
+    {
+      "id": "F02",
+      "severity": "HIGH",
+      "review": "SCLC_IO_REVIEW",
+      "trial_nct": "NCT04026412",
+      "trial_name": "EA5161",
+      "issue": "PMID belongs to a different trial (CheckMate 73L)",
+      "detail": "EA5161 (nivolumab + EP ES-SCLC, ECOG-ACRIN) cannot have PMID 34489161, which is the CheckMate 73L design paper — nivolumab + concurrent CRT ± ipilimumab in stage III NSCLC. Different cancer (NSCLC vs SCLC), different design (CRT vs ES-SCLC), different sponsor. Tagging the wrong PMID to an HR-bearing row in an IO-SCLC meta-analysis directly threatens pool integrity.",
+      "evidence": "PubMed PMID 34489161: 'CheckMate 73L: A Phase 3 Study Comparing Nivolumab Plus Concurrent Chemoradiotherapy Followed by Nivolumab With or Without Ipilimumab Versus...' — clearly NSCLC CRT trial, not EA5161."
+    },
+    {
+      "id": "F03",
+      "severity": "HIGH",
+      "review": "POSTOP_AKI_PREVENTION_REVIEW",
+      "trial_nct": "NCT01802112",
+      "trial_name": "REPRESS",
+      "issue": "PMID belongs to a Trichoderma reesei fungal biology paper",
+      "detail": "REPRESS (Remote ischemic preconditioning, cardiac surgery, AKI prevention) is tagged with PMID 42092662, which is 'From energy sensing to epigenetic activation: The AMPK/TrSnf1-ACE3-MST2 pathway orchestrates cellulase synthesis in Trichoderma reesei' — a 2026 fungal microbiology paper with no relation to AKI, cardiac surgery, or human medicine. Severe mis-citation.",
+      "evidence": "PubMed PMID 42092662 (DOI: https://doi.org/10.1016/j.ijbiomac.2026.152382): Int J Biol Macromol, Trichoderma cellulase paper."
+    },
+    {
+      "id": "F04",
+      "severity": "HIGH",
+      "review": "ITP_NEW_THERAPY_NMA_REVIEW",
+      "trial_nct": "NCT04687072",
+      "trial_name": "ADVANCE",
+      "issue": "PMID does not match — epidemiology/PHEIC commentary, not the ADVANCE chronic-ITP efgartigimod trial",
+      "detail": "ADVANCE (efgartigimod, FcRn antagonist, chronic ITP) is tagged with PMID 37598696, which is 'The when is less important than the what: an epidemic scale as an alternative to the WHO's Public Health Emergency of International Concern' — a public-health policy/commentary article. Not the ADVANCE primary publication. Effect-size row (RR 9.64 [1.36, 68.17]) is therefore not anchored to a verifiable primary source.",
+      "evidence": "PubMed PMID 37598696: WHO PHEIC commentary; subject incompatible with ITP/efgartigimod."
+    },
+    {
+      "id": "F05",
+      "severity": "HIGH",
+      "review": "FCRN_AGONIST_BROAD_NMA_REVIEW",
+      "trial_nct": "NCT04687072",
+      "trial_name": "ADVANCE",
+      "issue": "Same wrong PMID 37598696 reused for ADVANCE in FcRn review; cross-review label drift",
+      "detail": "The same NCT04687072 (ADVANCE chronic ITP efgartigimod) appears in the FcRn review with a different group label ('Efgartigimod IV chronic ITP') and different extracted counts (tE=22/tN=86 in FcRn vs tE=18/tN=56 in ITP review). The same trial cannot legitimately yield two non-identical 2x2 tables in the same meta-analysis platform; one or both extractions is wrong. PMID 37598696 is again unrelated. Pooling across the two reviews would double-count or contradict.",
+      "evidence": "Intra-chunk: NCT04687072 appears in ITP_NEW_THERAPY_NMA_REVIEW (tE=18/tN=56, cE=1/cN=30) and FCRN_AGONIST_BROAD_NMA_REVIEW (tE=22/tN=86, cE=5/cN=81). PubMed PMID 37598696 unrelated to either."
+    },
+    {
+      "id": "F06",
+      "severity": "HIGH",
+      "review": "ITP_NEW_THERAPY_NMA_REVIEW + FCRN_AGONIST_BROAD_NMA_REVIEW",
+      "trial_nct": "NCT04562766",
+      "trial_name": "LUNA-3 / MycarinG",
+      "issue": "Single NCT mapped to two different drugs and indications",
+      "detail": "NCT04562766 is labelled 'LUNA-3 — Rilzabrutinib BTK chronic ITP' in the ITP review and 'MycarinG — Rozanolixizumab MG' in the FcRn review. A single registered trial cannot evaluate two different drugs (rilzabrutinib vs rozanolixizumab) for two different diseases (ITP vs myasthenia gravis). At least one NCT assignment is fabricated or transposed. Both effect rows are at risk.",
+      "evidence": "Intra-chunk duplicate NCT with mutually exclusive trial identities."
+    },
+    {
+      "id": "F07",
+      "severity": "MED",
+      "review": "CGRP_MIGRAINE_PREVENT_REVIEW",
+      "trial_nct": "NCT02614183",
+      "trial_name": "EVOLVE-1",
+      "issue": "Implausible arm-size allocation (213 active vs 425 placebo)",
+      "detail": "EVOLVE-1 (galcanezumab) extracted as tN=213 (active 120mg) vs cN=425 (placebo). Placebo arm is 2x larger than the active arm. Published EVOLVE-1 randomized roughly 1:1:2 across galcanezumab 120 mg / galcanezumab 240 mg / placebo; the 120 mg vs placebo comparison should be ~213 vs ~433 ONLY if placebo is intentionally being shared across two dose arms (i.e. a network-meta pooling artifact that double-counts placebo). RR 4.61 [3.62, 5.86] hinges on this cN — if c is shared across two doses, it inflates the comparator denominator and biases responder RR. EVOLVE-2 and REGAIN show the identical 2:1 inversion (tN=226/cN=450 and tN=273/cN=558) — systematic across all three galcanezumab trials.",
+      "evidence": "Three CGRP trials (EVOLVE-1, EVOLVE-2, REGAIN) all show cN ≈ 2 × tN despite design parity."
+    },
+    {
+      "id": "F08",
+      "severity": "MED",
+      "review": "SCLC_IO_REVIEW + ANTI_PDL1_BLADDER_REVIEW + ADJUVANT_IO_PAN_TUMOR_REVIEW",
+      "trial_nct": "NCT03732677",
+      "trial_name": "NIAGARA / NIAGARA-PERIOP",
+      "issue": "Same trial labeled 'NIAGARA-PERIOP' in adjuvant-IO review and 'NIAGARA' in bladder review",
+      "detail": "Trial-name normalisation inconsistency. The two extractions have identical tE/tN/cE/cN/HR — reuse appears intentional, not a duplicate-data error — but the differing labels will break downstream join-by-name and may cause apparent k-inflation in network meta-analyses. Recommend canonicalising trial names by NCT.",
+      "evidence": "ADJUVANT_IO row: 'NIAGARA-PERIOP'; ANTI_PDL1_BLADDER row: 'NIAGARA'; same NCT03732677, identical counts and HR."
+    },
+    {
+      "id": "F09",
+      "severity": "MED",
+      "review": "ADJUVANT_IO_PAN_TUMOR_REVIEW",
+      "trial_nct": "NCT02743494",
+      "trial_name": "CheckMate-577-ADJ",
+      "issue": "Unequal arm sizes (tN=532 vs cN=262) for a 2:1 trial — but tE=264 events on n=532",
+      "detail": "CheckMate-577 randomized 2:1 nivolumab:placebo (n=532 vs 262). Extracted tN=532, cN=262 is consistent. However, tE=264 (events on the active arm) corresponds to 50% event rate, which is higher than the disease-free survival event rate reported in the primary publication. Worth a value-check against the cited PMID 33789008 source table. Conservative flag — not necessarily wrong, but the active-arm event count looks high for an HR of 0.69.",
+      "evidence": "PMID 33789008 confirmed as CheckMate-577 adjuvant esoph/GEJ publication."
+    },
+    {
+      "id": "F10",
+      "severity": "MED",
+      "review": "SMA_TREATMENTS_BROAD_REVIEW",
+      "trial_nct": "NCT02193074",
+      "trial_name": "ENDEAR",
+      "issue": "OR with absurd CI width [3.2, 800]",
+      "detail": "OR=50.5 with 95% CI [3.2, 800] indicates near-zero events in the control arm (cE=0, cN=41) and the standard 0.5 continuity correction. The point-estimate is uninterpretable and the upper CI is two orders of magnitude away — pooling this in an inverse-variance scheme will be downweighted to near-zero anyway, but it should be flagged as a discrete-event boundary case and reported as RR or RD instead. Conservative.",
+      "evidence": "cE=0, cN=41; OR CI spans 250x."
+    },
+    {
+      "id": "F11",
+      "severity": "MED",
+      "review": "SMA_TREATMENTS_BROAD_REVIEW",
+      "trial_nct": "NCT03505099",
+      "trial_name": "SPRINT",
+      "issue": "Trial-name spelling: SPR1NT (with numeral '1') vs 'SPRINT'",
+      "detail": "Onasemnogene presymptomatic SMA trial is registered as 'SPR1NT' (with a numeral 1 substituted for the letter I). Extraction uses plain 'SPRINT', which collides with the well-known sprint hypertension trial. Could cause join collisions in any cross-MA aggregator that uses trial name as a key.",
+      "evidence": "PubMed PMID 35715566: 'Onasemnogene abeparvovec for presymptomatic infants with two copies of SMN2 ... the Phase III SPR1NT'."
+    },
+    {
+      "id": "F12",
+      "severity": "MED",
+      "review": "SMA_TREATMENTS_BROAD_REVIEW",
+      "trial_nct": "multiple",
+      "trial_name": "NURTURE, FIREFISH, JEWELFISH, RAINBOWFISH, STR1VE, STR1VE-EU, SPRINT, START",
+      "issue": "Single-arm trials with cE=cN=0 and HR=null but tE/tN populated",
+      "detail": "Seven SMA trials are extracted as single-arm (cN=0, cE=0, publishedHR=null). Schema-valid. However, they will still appear in any group-by-trial counts and may inflate apparent k for the review. Recommend explicit 'design=single-arm' flag or exclusion from pooled rows. Not an extraction defect per se; structural-review concern.",
+      "evidence": "Multiple rows with cE=0, cN=0, publishedHR=null, estimandType='RR'."
+    },
+    {
+      "id": "F13",
+      "severity": "MED",
+      "review": "GVHD_NEW_AGENTS_REVIEW",
+      "trial_nct": "NCT02913261",
+      "trial_name": "REACH-2",
+      "issue": "RR direction encoded as >1 favoring active where the published primary was overall-response-rate at day 28",
+      "detail": "REACH-2 ruxolitinib aGVHD reported OR 2.64 [1.65, 4.22] for day-28 response; the extraction shows publishedHR=1.59 [1.24, 2.05] labelled estimandType='RR'. The magnitude (1.59) is plausibly a relative-risk derivation, but it should be reconciled against the cited primary endpoint type. Combined with REACH-3 publishedHR=1.93 (also RR) — the pattern suggests OR→RR back-calculation. Conservative.",
+      "evidence": "Row publishedHR=1.59 with estimandType='RR' on a trial whose primary published statistic was an OR."
+    },
+    {
+      "id": "F14",
+      "severity": "MED",
+      "review": "OUD_NEW_AGENTS_NMA_REVIEW",
+      "trial_nct": "NCT00604682",
+      "trial_name": "Vivitrol-OUD",
+      "issue": "publishedHR=7.0 with estimandType=null — missing scale label",
+      "detail": "Vivitrol-OUD row has publishedHR=7.0 [3.0, 11.0] but estimandType=null. Other rows in the same review carry MD, RR, or HR. Null scale-label makes the row uninterpretable for pooling (likely OR given the magnitude, but cannot confirm). Conservative.",
+      "evidence": "Single row with publishedHR populated and estimandType=null."
+    },
+    {
+      "id": "F15",
+      "severity": "MED",
+      "review": "OUD_NEW_AGENTS_NMA_REVIEW",
+      "trial_nct": "NCT02357901",
+      "trial_name": "RB-US-13-005",
+      "issue": "MD effect with publishedHR=11.0 [6.0, 16.0] but tE/tN/cE/cN all null",
+      "detail": "estimandType='MD' (mean difference) yet the row lacks any arm-level data (counts all null). For MD, the engine would need means+SDs, not point-estimate alone. Pool-ability of this row is unclear. Conservative.",
+      "evidence": "MD label with no continuous-outcome arm data."
+    },
+    {
+      "id": "F16",
+      "severity": "MED",
+      "review": "PEDIATRIC_PSORIASIS_BIOLOGIC_NMA_REVIEW",
+      "trial_nct": "NCT00141921",
+      "trial_name": "ESC-3-PEDS",
+      "issue": "NCT registered 2005, trial-name 'ESC-3-PEDS' appears fabricated/unverifiable",
+      "detail": "NCT00141921 is an old etanercept pediatric psoriasis registration (Paller et al.). The label 'ESC-3-PEDS' (and the parallel 'SCRT-3-PEDS' for secukinumab at NCT02471144) follows a template suspiciously like other rows' patterns; trial acronyms not found in published literature on quick verification. Year 2017 also does not match the original 2008 primary publication. Worth source-verification before pooling.",
+      "evidence": "NCT00141921 known etanercept pediatric trial; acronym 'ESC-3-PEDS' not standard."
+    },
+    {
+      "id": "F17",
+      "severity": "MED",
+      "review": "GLOMERULONEPHRITIS_BIOLOGICS_REVIEW",
+      "trial_nct": "multiple",
+      "trial_name": "PROTECT, APPLAUSE-IgAN, NefIgArd-1, ALIGN, AURORA-1, BLISS-LN",
+      "issue": "All six rows have null PMIDs",
+      "detail": "Six trials in a MANUAL_REVIEW-band review have NO PMID at all. Independent identity verification (whether each NCT actually corresponds to the named trial) is therefore impossible from the extraction alone. Several names are plausible (PROTECT = sparsentan, NefIgArd = budesonide, ALIGN = atrasentan, AURORA = voclosporin, BLISS-LN = belimumab) but APPLAUSE-IgAN linkage to NCT04578834 cannot be cross-checked. Recommend backfilling PMIDs before pooling.",
+      "evidence": "Six consecutive null-PMID rows in a MANUAL_REVIEW review."
+    },
+    {
+      "id": "F18",
+      "severity": "MED",
+      "review": "BISPECIFIC_LYMPHOMA_NMA_REVIEW",
+      "trial_nct": "all 6 rows",
+      "trial_name": "all",
+      "issue": "Entire review is single-arm with cE=cN=0 and HR=null; review-level pool-ability question",
+      "detail": "All six trials in BISPECIFIC_LYMPHOMA_NMA_REVIEW have cN=0, cE=0, publishedHR=null. This is a single-arm-bispecific-Ab landscape; a network meta-analysis is mathematically impossible without indirect-evidence anchors. The 'NMA' label in the review name is misleading. Structural flag for the platform.",
+      "evidence": "6/6 rows lack control arms."
+    },
+    {
+      "id": "F19",
+      "severity": "MED",
+      "review": "CART_B_CELL_LYMPHOMA_REVIEW",
+      "trial_nct": "NCT03570892",
+      "trial_name": "BELINDA",
+      "issue": "tE=130/tN=162 and cE=121/cN=160 give event rates 80% and 76% — implausibly high for 2L LBCL EFS or DFS HR 1.07",
+      "detail": "BELINDA reported HR ~1.07 for EFS; the published 6-month event-free survival difference was small. tE=130 / cE=121 imply majority of patients had events in both arms, consistent with PFS-like endpoint over the trial window — plausible but on the high end. Worth source-verification of event counts vs. the published primary endpoint definition.",
+      "evidence": "High event rates with near-null HR; conservative consistency check warranted."
+    },
+    {
+      "id": "F20",
+      "severity": "MED",
+      "review": "POSTPARTUM_HEMORRHAGE_NEW_NMA_REVIEW",
+      "trial_nct": "NCT04341662",
+      "trial_name": "E-MOTIVE",
+      "issue": "tN = cN = 105,066 — cluster-trial allocation flagged for review",
+      "detail": "E-MOTIVE was a cluster-randomized trial; identical tN=cN=105066 is internally consistent for cluster allocation (births in randomly assigned clusters). However, naive trial-level IV pooling with individual-level denominators ignores the design effect — meta-analysis must either downweight using ICC or use cluster-adjusted SE. Flag for analysis-stage check, not extraction defect.",
+      "evidence": "Identical 105066/105066 denominator; cluster RCT."
+    },
+    {
+      "id": "F21",
+      "severity": "LOW",
+      "review": "PEDIATRIC_PSORIASIS_BIOLOGIC_NMA_REVIEW",
+      "trial_nct": "NCT05077384",
+      "trial_name": "DEUCRA-PEDS",
+      "issue": "Empty-string PMID instead of null",
+      "detail": "pmid is the empty string '' rather than null. Same pattern appears at NRG-HN005, KEYNOTE-412, HN-NIVOPOSTOP, KEYNOTE-689, BRIXADI-2, ALPHA-2, OUTREACH, LUNA-3, AVA-309, AVA-EXT, Vivacity-MG3. Schema inconsistency — null and '' are not the same in downstream JSON consumers. Cosmetic but consistent enough to flag.",
+      "evidence": "Multiple '\"pmid\": \"\"' occurrences alongside '\"pmid\": null'."
+    },
+    {
+      "id": "F22",
+      "severity": "LOW",
+      "review": "ADJUVANT_IO_PAN_TUMOR_REVIEW + ANTI_PDL1_BLADDER_REVIEW",
+      "trial_nct": "NCT03244384",
+      "trial_name": "AMBASSADOR",
+      "issue": "Same trial appears in two reviews with identical counts — legitimate reuse, but cross-review aggregator must dedupe",
+      "detail": "AMBASSADOR (pembrolizumab adjuvant high-risk MIBC) appears verbatim in both reviews with same tE/tN/cE/cN/HR. Legitimate (one trial can inform multiple SR scopes) but cross-review pooling at platform level must dedupe by NCT to avoid double-counting evidence.",
+      "evidence": "Two identical rows under NCT03244384."
+    },
+    {
+      "id": "F23",
+      "severity": "LOW",
+      "review": "OPIOID_INDUCED_CONSTIPATION_REVIEW",
+      "trial_nct": "n/a",
+      "trial_name": "n/a",
+      "issue": "QUARANTINED band review with n_trials=0 and empty trials[] — per protocol MED/LOW findings suppressed",
+      "detail": "Per audit rules MED and LOW findings are not emitted for QUARANTINED-band reviews. The structural fact (zero trials in a QUARANTINED review) is recorded for transparency only.",
+      "evidence": "band='QUARANTINED', n_trials=0, trials=[]."
+    }
+  ],
+  "review_verdicts": [
+    {"review": "SCLC_IO_REVIEW", "verdict": "DEFECTS_FOUND", "highest_severity": "HIGH", "n_findings": 2, "rationale": "Two PMID-identity HIGH defects (F01 TRINITY/LungMate-005, F02 EA5161/CheckMate73L). HR pool cannot proceed without PMID repair."},
+    {"review": "POSTPARTUM_HEMORRHAGE_NEW_NMA_REVIEW", "verdict": "MINOR_CONCERNS", "highest_severity": "MED", "n_findings": 1, "rationale": "E-MOTIVE cluster-design flag (F20) is analysis-stage, not extraction; otherwise clean."},
+    {"review": "PEDIATRIC_PSORIASIS_BIOLOGIC_NMA_REVIEW", "verdict": "MINOR_CONCERNS", "highest_severity": "MED", "n_findings": 2, "rationale": "Two acronym fabrication suspicions (ESC-3-PEDS, SCRT-3-PEDS) and empty-string PMID schema drift. Effect sizes plausible for biologics responder RRs."},
+    {"review": "ADJUVANT_IO_PAN_TUMOR_REVIEW", "verdict": "MINOR_CONCERNS", "highest_severity": "MED", "n_findings": 3, "rationale": "Trial-name drift (NIAGARA vs NIAGARA-PERIOP), CheckMate-577 event-count plausibility, AMBASSADOR cross-review duplication."},
+    {"review": "CGRP_MIGRAINE_PREVENT_REVIEW", "verdict": "DEFECTS_FOUND", "highest_severity": "MED", "n_findings": 1, "rationale": "Systematic 2:1 placebo:active inversion across all three galcanezumab trials suggests shared-placebo double-counting (F07). Threatens responder RR pool."},
+    {"review": "SMA_TREATMENTS_BROAD_REVIEW", "verdict": "MINOR_CONCERNS", "highest_severity": "MED", "n_findings": 3, "rationale": "ENDEAR OR CI width (F10), SPRINT vs SPR1NT naming (F11), seven single-arm rows requiring design flag (F12). Pool-ability concerns rather than defects."},
+    {"review": "ANTI_PDL1_BLADDER_REVIEW", "verdict": "MINOR_CONCERNS", "highest_severity": "MED", "n_findings": 2, "rationale": "NIAGARA naming inconsistency (F08), AMBASSADOR cross-review reuse (F22). Counts and HRs otherwise consistent with the known IO-bladder landscape."},
+    {"review": "HEAD_NECK_CRT_NEW_NMA_REVIEW", "verdict": "CLEAN", "highest_severity": null, "n_findings": 0, "rationale": "RTOG-1016 / De-ESCALaTE / TROG-12.01 HRs and counts match published values. KEYNOTE-412/689 and NIVOPOSTOP plausible. No PMID misattribution detected (within bounds of spot-check)."},
+    {"review": "CART_B_CELL_LYMPHOMA_REVIEW", "verdict": "MINOR_CONCERNS", "highest_severity": "MED", "n_findings": 1, "rationale": "BELINDA event-count plausibility flag (F19). ZUMA-7 / TRANSFORM HRs match published primary endpoints. Single-arm CAR-T rows are expected for the landscape."},
+    {"review": "POSTOP_AKI_PREVENTION_REVIEW", "verdict": "DEFECTS_FOUND", "highest_severity": "HIGH", "n_findings": 1, "rationale": "REPRESS PMID points to a fungal-biology paper (F03). Wrong-PMID HIGH defect."},
+    {"review": "GVHD_NEW_AGENTS_REVIEW", "verdict": "MINOR_CONCERNS", "highest_severity": "MED", "n_findings": 1, "rationale": "REACH-2/3 RR vs OR estimand-type ambiguity (F13). Otherwise pool-ready with explicit single-arm flagging."},
+    {"review": "OUD_NEW_AGENTS_NMA_REVIEW", "verdict": "MINOR_CONCERNS", "highest_severity": "MED", "n_findings": 2, "rationale": "Vivitrol-OUD null estimandType (F14), RB-US-13-005 MD with null arm data (F15). Heterogeneous scales across rows."},
+    {"review": "BISPECIFIC_LYMPHOMA_NMA_REVIEW", "verdict": "DEFECTS_FOUND", "highest_severity": "MED", "n_findings": 1, "rationale": "Entire 'NMA' is single-arm — name mislabels methodology (F18). Not extraction-level wrong but review-level structural defect."},
+    {"review": "NICOTINE_CYTISINICLINE_NMA_REVIEW", "verdict": "CLEAN", "highest_severity": null, "n_findings": 0, "rationale": "ORCA-2 / RAUORA / PIONEER cytisine trials — counts and RRs internally consistent with the published smoking-cessation literature; no PMIDs supplied to falsify."},
+    {"review": "GLOMERULONEPHRITIS_BIOLOGICS_REVIEW", "verdict": "MINOR_CONCERNS", "highest_severity": "MED", "n_findings": 1, "rationale": "Six null-PMID rows preclude identity verification (F17). Effect sizes are plausible for nephrology biologics."},
+    {"review": "ITP_NEW_THERAPY_NMA_REVIEW", "verdict": "DEFECTS_FOUND", "highest_severity": "HIGH", "n_findings": 2, "rationale": "ADVANCE wrong-PMID (F04) and NCT04562766 duplicate-NCT across drugs (F06). Both threaten pool integrity."},
+    {"review": "PRURIGO_NODULARIS_NMA_REVIEW", "verdict": "MINOR_CONCERNS", "highest_severity": "MED", "n_findings": 0, "rationale": "OLYMPIA-1/2 (Nemolizumab) and PRIME-1/2 (Dupilumab) counts and RRs broadly consistent with published responder-rate results; all PMIDs null but trial names well-known. No HIGH defects flagged."},
+    {"review": "FCRN_AGONIST_BROAD_NMA_REVIEW", "verdict": "DEFECTS_FOUND", "highest_severity": "HIGH", "n_findings": 2, "rationale": "ADVANCE same wrong PMID + count mismatch with ITP review (F05), and NCT04562766 duplicate-NCT (F06)."},
+    {"review": "OPIOID_INDUCED_CONSTIPATION_REVIEW", "verdict": "SKIPPED_PER_PROTOCOL", "highest_severity": null, "n_findings": 0, "rationale": "QUARANTINED band, n_trials=0; MED/LOW findings suppressed per audit rules."}
+  ],
+  "summary_counts": {
+    "n_reviews": 19,
+    "verdicts": {
+      "DEFECTS_FOUND": 6,
+      "MINOR_CONCERNS": 10,
+      "CLEAN": 2,
+      "SKIPPED_PER_PROTOCOL": 1
+    },
+    "n_high": 6,
+    "n_med": 15,
+    "n_low": 2,
+    "pmids_spot_checked": 8,
+    "pmids_confirmed_correct": 2,
+    "pmids_confirmed_wrong": 4,
+    "pmids_partial_or_design_paper": 2
+  },
+  "constraints_honored": {
+    "conservative": true,
+    "no_cross_chunk_peeking": true,
+    "no_source_modification": true,
+    "quarantine_med_low_skipped": true
+  },
+  "output_hmac_sig": "NOT_COMPUTED_BY_AGENT_PER_PROTOCOL"
+}

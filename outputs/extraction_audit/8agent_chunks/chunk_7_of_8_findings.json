@@ -1,0 +1,498 @@
+{
+  "chunk_id": "chunk_7_of_8",
+  "input_hmac_sig_seen": "0c8cd9701520c45e7db1516f71f2baa9e5d393d4b594b34c0785307c2eb0eac6",
+  "audit_meta": {
+    "n_reviews_audited": 19,
+    "n_trials_audited": 136,
+    "pubmed_spot_checks_attempted": 9,
+    "pubmed_spot_checks_resolved": 6,
+    "pubmed_unverifiable_due_to_tool_error": ["37146588", "38320275"],
+    "method": "blinded independent audit, no cross-chunk peeking, PubMed via mcp_pubmed_get_article_metadata, conservative grading; QUARANTINED band reports HIGH-only per protocol"
+  },
+  "findings": [
+    {
+      "id": "F-7-001",
+      "review": "NEOADJUVANT_IO_BREAST_REVIEW",
+      "band": "LOW_CONCERN",
+      "trial": "KEYNOTE-522",
+      "nct": "NCT03036488",
+      "severity": "HIGH",
+      "category": "effect_direction_inversion",
+      "detail": "KEYNOTE-522 pembrolizumab+chemo in TNBC neoadjuvant produced a *beneficial* effect on pCR and EFS (HR/RR favouring pembrolizumab); published EFS HR ~0.63. Extraction records publishedHR=1.23 [1.07,1.41] estimandType=RR, which would imply pembrolizumab is worse than control. Direction is inverted relative to the trial's primary outcome. Either the labels for tE/cE are swapped, or the HR/RR was inverted. tE/tN=313/591 in pembrolizumab arm vs cE/cN=173/401 in control implies RR=(313/591)/(173/401)=1.23 — i.e. the extractor computed RR with the *event* being non-pCR (failure), not pCR (response), but the published primary is pCR-favouring."
+    },
+    {
+      "id": "F-7-002",
+      "review": "NEOADJUVANT_IO_BREAST_REVIEW",
+      "band": "LOW_CONCERN",
+      "trial": "IMpassion031",
+      "nct": "NCT03197935",
+      "severity": "HIGH",
+      "category": "effect_direction_inversion",
+      "detail": "IMpassion031 atezolizumab+chemo TNBC neoadjuvant: published primary (pCR) showed atezolizumab benefit (~58% vs 41%). Extraction's publishedHR=1.40 [1.10,1.79] for tE/tN=95/165 vs cE/cN=69/168 implies RR=(95/165)/(69/168)=1.40 — same non-pCR framing as KEYNOTE-522 (F-7-001). Direction therefore looks reversed vs the published primary."
+    },
+    {
+      "id": "F-7-003",
+      "review": "NEOADJUVANT_IO_BREAST_REVIEW",
+      "band": "LOW_CONCERN",
+      "trial": "GeparNuevo",
+      "nct": "NCT02685059",
+      "severity": "MED",
+      "category": "effect_direction_inversion",
+      "detail": "Durvalumab GeparNuevo TNBC: extraction's publishedHR=1.55 [1.10,2.18] with tE/tN=49/88 vs cE/cN=31/86 again implies a 'non-pCR' framing (RR=1.54); published primary endpoint favoured durvalumab. Same systematic outcome-framing inversion as F-7-001/002."
+    },
+    {
+      "id": "F-7-004",
+      "review": "NEOADJUVANT_IO_BREAST_REVIEW",
+      "band": "LOW_CONCERN",
+      "trial": "KEYNOTE-756",
+      "nct": "NCT03725059",
+      "severity": "MED",
+      "category": "effect_direction_inversion",
+      "detail": "KEYNOTE-756 pembrolizumab+chemo HR+/HER2- neoadjuvant: pCR rate published higher with pembro (~24.3% vs 15.6%). Extraction's RR=1.61 [1.27,2.04] from tE/cE=159/100 in identical-sized arms again uses non-pCR direction. Sign inverted relative to drug benefit."
+    },
+    {
+      "id": "F-7-005",
+      "review": "NEOADJUVANT_IO_BREAST_REVIEW",
+      "band": "LOW_CONCERN",
+      "trial": "CheckMate-7FL",
+      "nct": "NCT04109066",
+      "severity": "MED",
+      "category": "pmid_citation_quality",
+      "detail": "PMID 38913933 cited for CheckMate-7FL is a 2024 review article (Expert Opin Biol Ther; Schlam et al., DOI 10.1080/14712598.2024.2370395) that *discusses* CheckMate-7FL and KEYNOTE-756, not the trial primary publication. According to PubMed. Secondary citation acceptable but suboptimal for a verification anchor. RR direction also same non-pCR framing as F-7-001."
+    },
+    {
+      "id": "F-7-006",
+      "review": "NEOADJUVANT_IO_BREAST_REVIEW",
+      "band": "LOW_CONCERN",
+      "trial": "KEYNOTE-B49",
+      "nct": "NCT04195750",
+      "severity": "HIGH",
+      "category": "pmid_mismatch",
+      "detail": "PMID 39167807 attached to KEYNOTE-B49 (pembrolizumab HR+ high-risk breast) is in fact 'Belzutifan versus Everolimus for Advanced Renal-Cell Carcinoma' (NEJM 2024, DOI 10.1056/NEJMoa2313906). According to PubMed. Wrong-disease, wrong-drug citation. Schema would pass any non-null PMID check but the citation is semantically wrong."
+    },
+    {
+      "id": "F-7-007",
+      "review": "NEOADJUVANT_IO_BREAST_REVIEW",
+      "band": "LOW_CONCERN",
+      "trial": "IMpassion032",
+      "nct": "NCT03726879",
+      "severity": "MED",
+      "category": "trial_identity",
+      "detail": "Extraction labels NCT03726879 as 'IMpassion032' adjuvant TNBC atezolizumab. NCT03726879 is in fact the IMpassion031 / NSABP B-59-related adjuvant programme variant. IMpassion032 nomenclature is non-canonical; the published Roche atezolizumab adjuvant TNBC programme typically reads NSABP B-59 / GBG 96-GeparDouze (different NCT). NCT-to-name binding warrants verification — possible name-NCT mismatch."
+    },
+    {
+      "id": "F-7-008",
+      "review": "HFpEF_DRUGS_NMA_REVIEW",
+      "band": "LOW_CONCERN",
+      "trial": "TOPCAT",
+      "nct": "NCT00094302",
+      "severity": "MED",
+      "category": "cohort_label_n_mismatch",
+      "detail": "PMID 24716680 verified (TOPCAT primary, NEJM 2014, DOI 10.1056/NEJMoa1313731). Per PubMed, full ITT N=3445 (1722 spironolactone / 1723 placebo). Published primary composite events 320 vs 351, HR 0.89 [0.77,1.04]. Extraction's tE/tN=320/1722, cE/cN=351/1723, HR 0.89 matches the FULL ITT, NOT the 'TOPCAT-Americas' subgroup labelled in the 'group' field. Group label 'TOPCAT-Americas' is inconsistent with the numbers (Americas subgroup N ~1767). Also, year=2017 in the extraction is wrong (true year 2014)."
+    },
+    {
+      "id": "F-7-009",
+      "review": "HFpEF_DRUGS_NMA_REVIEW",
+      "band": "LOW_CONCERN",
+      "trial": "STEP-HFpEF",
+      "nct": "NCT04788511",
+      "severity": "MED",
+      "category": "effect_size_plausibility",
+      "detail": "STEP-HFpEF semaglutide in obesity HFpEF reported a continuous primary (KCCQ score Δ ~7.8 points, weight Δ ~-10.7%). Extraction encodes a binary RR=1.81 [1.49,2.20] with tE/tN=195/263 vs cE/cN=109/266 — implies a binary responder analysis (e.g., ≥5-point KCCQ improvement). The 'publishedHR' label combined with estimandType='RR' is fine, but the magnitude (RR 1.81) is in the upper plausibility range for a responder definition without a stated threshold; flag for definition verification."
+    },
+    {
+      "id": "F-7-010",
+      "review": "HFpEF_DRUGS_NMA_REVIEW",
+      "band": "LOW_CONCERN",
+      "trial": "CHIEF-HF",
+      "nct": "NCT04252287",
+      "severity": "HIGH",
+      "category": "pmid_mismatch",
+      "detail": "PMID 35190648 attached to CHIEF-HF (canagliflozin HFpEF/HFrEF) is in fact 'Tracking haplotypes to quantify genome erosion' in Nat Rev Genet 2022 (DOI 10.1038/s41576-022-00461-0), a wolf-genome research-highlight piece. According to PubMed. Wrong-domain citation; CHIEF-HF actual primary is Spertus 2022 in Nat Med. Schema-valid but semantically false PMID."
+    },
+    {
+      "id": "F-7-011",
+      "review": "HFpEF_DRUGS_NMA_REVIEW",
+      "band": "LOW_CONCERN",
+      "trial": "FREEDOM-HF",
+      "nct": "NCT05047536",
+      "severity": "MED",
+      "category": "trial_identity_speculative",
+      "detail": "Trial labelled 'FREEDOM-HF' (Levosimendan / pump optimization HFpEF) under NCT05047536, year 2023. The canonical FREEDOM-HF acronym in cardiology refers to the older Levosimendan/IV outpatient trial; whether NCT05047536 is the same programme is non-obvious. Trial-identity coherence flag for human verification (no PMID supplied)."
+    },
+    {
+      "id": "F-7-012",
+      "review": "CHECKPOINT_MELANOMA_1L_REVIEW",
+      "band": "LOW_CONCERN",
+      "trial": "IMspire150",
+      "nct": "NCT02908672",
+      "severity": "MED",
+      "category": "drug_disease_coherence",
+      "detail": "IMspire150 evaluated atezolizumab + cobimetinib + vemurafenib (BRAF-mutant melanoma) vs placebo + cobimetinib + vemurafenib. Listed under 'CHECKPOINT_MELANOMA_1L_REVIEW' is fine, but the trial is BRAF-restricted (BRAF V600+) — not a general 1L checkpoint trial. Inclusion is coherent only if the review explicitly handles BRAF-mutant subset. Flag for review-scope check, not a hard mismatch."
+    },
+    {
+      "id": "F-7-013",
+      "review": "ICH_MIS_HEMATOMA_NMA_REVIEW",
+      "band": "LOW_CONCERN",
+      "trial": "STICH-II",
+      "nct": "NCT00046424",
+      "severity": "MED",
+      "category": "nct_year_mismatch",
+      "detail": "STICH-II's NCT is typically NCT01406548 (Mendelow 2013 Lancet). NCT00046424 corresponds to the original STICH (Mendelow 2005). Extraction's year=2017 also predates neither publication accurately. Possible NCT-trial-name binding error."
+    },
+    {
+      "id": "F-7-014",
+      "review": "ICH_MIS_HEMATOMA_NMA_REVIEW",
+      "band": "LOW_CONCERN",
+      "trial": "INTERACT-2",
+      "nct": "NCT01462878",
+      "severity": "MED",
+      "category": "nct_trial_mismatch",
+      "detail": "INTERACT-2 (Anderson 2013 NEJM) registered as NCT00716079. NCT01462878 is not the recognized INTERACT-2 registration. Possible NCT-name mismatch. Year=2017 in extraction is also off (true 2013)."
+    },
+    {
+      "id": "F-7-015",
+      "review": "COPD_BIOLOGICS_BROAD_REVIEW",
+      "band": "LOW_CONCERN",
+      "trial": "METREX_METREO",
+      "nct": "NCT01463644 / NCT02105961",
+      "severity": "LOW",
+      "category": "pmid_duplication",
+      "detail": "METREX (NCT01463644) and METREO (NCT02105961) both list PMID 28893133 (Pavord NEJM 2017). That is the joint METREX+METREO publication so duplication is correct — flagging for transparency, not an error."
+    },
+    {
+      "id": "F-7-016",
+      "review": "HFNC_NIV_RESP_FAILURE_REVIEW",
+      "band": "LOW_CONCERN",
+      "trial": "RENOVATE",
+      "nct": "NCT04518709",
+      "severity": "HIGH",
+      "category": "pmid_mismatch",
+      "detail": "PMID 37882727 attached to RENOVATE is in fact 'Amphetamine-induced dopamine release in rat: whole-brain spatiotemporal analysis with [C]raclopride and PET' (J Cereb Blood Flow Metab 2023, DOI 10.1177/0271678X231210128). According to PubMed. Wrong-domain (rat PET pharmacology, not human HFNC/NIV trial). Schema-valid but semantically false PMID."
+    },
+    {
+      "id": "F-7-017",
+      "review": "HFNC_NIV_RESP_FAILURE_REVIEW",
+      "band": "LOW_CONCERN",
+      "trial": "VENTILATE",
+      "nct": "NCT04553575",
+      "severity": "HIGH",
+      "category": "pmid_mismatch",
+      "detail": "PMID 42093364 attached to VENTILATE (HFNC vs NIV immunocompromised, 2023) is in fact 'The Course of Rehabilitation of Ventilated and Tracheally Cannulated Patients in Neurological-Neurosurgical Early Rehabilitation' (Dtsch Arztebl Int, 2026, DOI 10.3238/arztebl.m2025.0241). According to PubMed. Wrong-domain (rehab care, not RCT). Schema-valid but semantically false PMID. Note: 'VENTILATE' acronym also unusual — flag trial identity too."
+    },
+    {
+      "id": "F-7-018",
+      "review": "OSTEOPOROSIS_BROAD_NMA_REVIEW",
+      "band": "LOW_CONCERN",
+      "trial": "STRUCTURE",
+      "nct": "NCT01796301",
+      "severity": "MED",
+      "category": "schema_estimand_mismatch",
+      "detail": "STRUCTURE row has tE/tN/cE/cN all null, estimandType='MD', publishedHR=6.2 [5.4,7.0]. MD of 6.2 (presumably hip BMD %Δ in romosozumab vs teriparatide, ~~published ~6.2% diff) on the natural scale is plausible. But the field name 'publishedHR' for an MD is mislabeled; schema is using one numeric slot for incompatible estimands. Pooling code that interprets publishedHR on log scale will silently corrupt this row."
+    },
+    {
+      "id": "F-7-019",
+      "review": "HYPERKALEMIA_K_BINDER_NMA_REVIEW",
+      "band": "LOW_CONCERN",
+      "trial": "OPAL-HK,HARMONIZE",
+      "nct": "NCT01902368, NCT01737697",
+      "severity": "HIGH",
+      "category": "schema_estimand_mismatch_negative_HR",
+      "detail": "OPAL-HK and HARMONIZE rows have publishedHR= -1.01 and -0.70 respectively with estimandType='MD'. Hazard ratios cannot be negative; the value is a continuous MD on serum potassium (mEq/L). If the pooling engine treats publishedHR as log-HR or HR, exp(-1.01)=0.36 (silent corruption); if treated as raw HR, the math will fail or be nonsensical. This is a schema-vs-engine contract risk identical to the SE_FLOOR / mislabelled-estimand pattern. Two trials affected."
+    },
+    {
+      "id": "F-7-020",
+      "review": "HYPERKALEMIA_K_BINDER_NMA_REVIEW",
+      "band": "LOW_CONCERN",
+      "trial": "AMETHYST-DN",
+      "nct": "NCT01514461",
+      "severity": "MED",
+      "category": "control_arm_size",
+      "detail": "tE/tN=220/222 (99.1% response on patiromer) and cE/cN=60/82 (73.2% on control) — AMETHYST-DN was actually a dose-finding study with three patiromer arms and *no placebo* in the published cohort; control N=82 implies a synthesized comparator. Verify whether the 82 'control' patients are from an arm not in the published Pitt 2015 cohort (NCT01514461 was originally single-arm in some versions). Possible synthesized denominator."
+    },
+    {
+      "id": "F-7-021",
+      "review": "HYPERKALEMIA_K_BINDER_NMA_REVIEW",
+      "band": "LOW_CONCERN",
+      "trial": "ZS-005",
+      "nct": "NCT02163499",
+      "severity": "MED",
+      "category": "effect_size_plausibility",
+      "detail": "ZS-005 extraction has tE/tN=530/575 vs cE/cN=25/175 yielding RR ~6.45 [4.59,9.07]. ZS-005 was an open-label extension and the 'control' cohort of 175 with only 25 events looks like a non-randomized historical/observational comparator rather than a randomized control. Including it as RR with a randomized-trial-shaped row is misleading; this needs design-flag (single-arm vs RCT)."
+    },
+    {
+      "id": "F-7-022",
+      "review": "HEMOPHILIA_NEW_AGENTS_NMA_REVIEW",
+      "band": "MANUAL_REVIEW",
+      "trial": "HOPE-B, GENEr8-1",
+      "nct": "NCT03569891, NCT03370913",
+      "severity": "HIGH",
+      "category": "schema_fractional_events",
+      "detail": "HOPE-B: tE=1.51, cE=4.18; GENEr8-1: tE=0.8, cE=4.8. tE/cE are integer event-count slots in this schema. Fractional values here are *rates* (ABR — annualized bleeding rate), not events. Computing RR or pooling these as counts with binomial variance will fail or silently misbehave. Same pattern in other hemophilia rows (12 vs 53; 21 vs 80 — these are counts, but HOPE-B and GENEr8-1 break the contract). This is a 'silent failure sentinel' risk if the engine doesn't type-check."
+    },
+    {
+      "id": "F-7-023",
+      "review": "HEMOPHILIA_NEW_AGENTS_NMA_REVIEW",
+      "band": "MANUAL_REVIEW",
+      "trial": "BENJAMIN",
+      "nct": "NCT05033301",
+      "severity": "MED",
+      "category": "control_arm_size_imbalance",
+      "detail": "BENJAMIN pediatric marstacimab: tN=55 (treatment) vs cN=27 (control). A near-2:1 split is unusual for a hemophilia pivotal with a planned historical-OBP comparator. Verify whether the 27 'control' represent an actual randomized comparator or an observational period; likely the latter, which means the row should be flagged as single-arm + historical."
+    },
+    {
+      "id": "F-7-024",
+      "review": "HAE_PROPHYLAXIS_REVIEW",
+      "band": "MANUAL_REVIEW",
+      "trial": "HELP",
+      "nct": "NCT02586805",
+      "severity": "MED",
+      "category": "effect_direction_check",
+      "detail": "Lanadelumab HELP (Banerji 2018 JAMA) showed marked attack-rate reduction (~87% vs placebo). Extraction tE/tN=45/84 and cE/cN=35/41 yields RR=(45/84)/(35/41)=0.628; published HR=0.13 [0.07,0.24] in the row implies a rate ratio for attack count, not a binomial RR — inconsistent: the integer-count interpretation gives RR ≈ 0.63, not 0.13. tE/tN format incompatible with published HR. Likely tE/cE here are responder *counts*, not attack counts; double-encoding ambiguity."
+    },
+    {
+      "id": "F-7-025",
+      "review": "HAE_PROPHYLAXIS_REVIEW",
+      "band": "MANUAL_REVIEW",
+      "trial": "DEFINE-1",
+      "nct": "NCT05120830",
+      "severity": "LOW",
+      "category": "single_arm_correctly_flagged",
+      "detail": "NTLA-2002 DEFINE-1 single-arm (cE=cN=0) with null HR — correctly encoded as single-arm. No defect; positive note."
+    },
+    {
+      "id": "F-7-026",
+      "review": "BLADDER_UROTHEL_FRONTLINE_IO_NMA_REVIEW",
+      "band": "MANUAL_REVIEW",
+      "trial": "KEYNOTE-052",
+      "nct": "NCT02853305",
+      "severity": "MED",
+      "category": "single_arm_with_event_count",
+      "detail": "KEYNOTE-052 is a single-arm phase 2 in cisplatin-ineligible UC (Balar 2017 Lancet Oncol). cE=cN=0 with null HR is the correct single-arm encoding, but tE=103/tN=370 still pools an event proportion that the engine may treat as comparative. Add a study-design flag = 'single_arm' so the engine excludes from pairwise pooling. (Same pattern as DEFINE-1 above; here flagging only the design-tag absence risk.)"
+    },
+    {
+      "id": "F-7-027",
+      "review": "ITP_NEW_AGENTS_REVIEW",
+      "band": "MANUAL_REVIEW",
+      "trial": "FIT-1, FIT-2",
+      "nct": "NCT02076399, NCT02075021",
+      "severity": "HIGH",
+      "category": "zero_control_events_or_no_correction",
+      "detail": "FIT-1: tE=13, cE=0 (n=25); FIT-2: tE=12, cE=0 (n=24). Published OR fields are 13.46 [0.83, 218.4] and 12.0 [0.74, 195.4] respectively. Wide CIs are consistent with zero-cell scenarios. Per Cochrane guidance, 0.5 continuity correction needed for log-OR variance. Engine must detect zero-cell and apply correction; otherwise variance underestimated. Schema does not carry a 'correction_applied' flag — risk of silent miscoding."
+    },
+    {
+      "id": "F-7-028",
+      "review": "ITP_NEW_AGENTS_REVIEW",
+      "band": "MANUAL_REVIEW",
+      "trial": "FIT-1",
+      "nct": "NCT02076399",
+      "severity": "LOW",
+      "category": "nct_label_swap_potential",
+      "detail": "FIT-1 trial typical NCT is NCT02076399 (correct here). However, FIT-2 (NCT02075021) appears reversed in some sources (NCT02076399 vs NCT02075021 ordering). Suggest cross-check, low priority."
+    },
+    {
+      "id": "F-7-029",
+      "review": "CHOLANGIO_TARGETED_NMA_REVIEW",
+      "band": "MANUAL_REVIEW",
+      "trial": "ClarIDHy",
+      "nct": "NCT02989857",
+      "severity": "MED",
+      "category": "comparator_n_implausible",
+      "detail": "ClarIDHy ivosidenib vs placebo (Abou-Alfa 2020 Lancet Oncol): published N=187 ITT (124 ivo / 61 placebo). Extraction's tE/tN=60/124, cE/cN=50/61 — implies 60/124=48% events on ivo vs 50/61=82% events on placebo. HR 0.37 [0.25, 0.54] is published PFS HR (correct). Event proportions consistent with PFS by IRC. OK. Flag only because tE here are PFS events, not deaths — ensure schema endpoint label is PFS not OS."
+    },
+    {
+      "id": "F-7-030",
+      "review": "CONGENITAL_ADRENAL_HYPER_NMA_REVIEW",
+      "band": "MANUAL_REVIEW",
+      "trial": "CAHptain-1, CAHptain-2",
+      "nct": "NCT04490915, NCT04806971",
+      "severity": "MED",
+      "category": "trial_name_typography",
+      "detail": "Trial name 'CAHptain-1/-2' is non-canonical; actual trial brand for crinecerfont CAH is 'CAHtalyst' (NCT04490915 for adults, NCT04806971 for pediatric). 'CAHptain' appears to be a typographic or fabricated variant. NCTs are likely correct; names need correction."
+    },
+    {
+      "id": "F-7-031",
+      "review": "CONGENITAL_ADRENAL_HYPER_NMA_REVIEW",
+      "band": "MANUAL_REVIEW",
+      "trial": "Chronocort-CAH",
+      "nct": "NCT05000905",
+      "severity": "MED",
+      "category": "year_anachronism",
+      "detail": "Chronocort row year=2018, NCT=NCT05000905. NCT prefix NCT05 means first posted 2021 or later; a 2018 result cannot have an NCT05 number. Year-NCT anachronism. Likely the 2018 reference is the original Mallappa/Merke paper and a different NCT, or the NCT belongs to a later confirmatory trial."
+    },
+    {
+      "id": "F-7-032",
+      "review": "BLADDER_NMIBC_NEW_NMA_REVIEW",
+      "band": "QUARANTINED",
+      "trial": "All four trials",
+      "nct": "NCT02773849, NCT03635710, NCT02449239, NCT02625961",
+      "severity": "HIGH",
+      "category": "all_single_arm_pooled_as_comparative_review_design",
+      "detail": "Review consists of 4 single-arm trials (Nadofaragene firadenovec, Cretostimogene CG0070, Oportuzumab monatox, Pembrolizumab KEYNOTE-057). All have cE=cN=0 and null HR — encoded correctly, but a review of 4 single-arm trials cannot yield a valid pairwise NMA. QUARANTINED band is the correct disposition. Flagging only HIGH-severity item per chunk protocol: review topology is incompatible with NMA — needs comparator-construction step (e.g., synthetic control or proportion meta-analysis) before any pooled effect is computed."
+    },
+    {
+      "id": "F-7-033",
+      "review": "BLADDER_NMIBC_NEW_NMA_REVIEW",
+      "band": "QUARANTINED",
+      "trial": "NCT02773849",
+      "nct": "NCT02773849",
+      "severity": "HIGH",
+      "category": "trial_name_is_nct",
+      "detail": "First row in QUARANTINED review has name='NCT02773849' (i.e., the NCT itself was used as trial name). Missing trial name (Nadofaragene firadenovec is the agent; trial commonly 'CS-003' or no acronym). The placeholder name suggests an extractor fallback when no acronym was found — should be human-verified rather than left as NCT-as-name."
+    }
+  ],
+  "review_verdicts": [
+    {
+      "review": "NEOADJUVANT_IO_BREAST_REVIEW",
+      "band": "LOW_CONCERN",
+      "verdict": "DEFECTS_FOUND",
+      "n_findings": 7,
+      "highest_severity": "HIGH",
+      "notes": "Systematic outcome-framing inversion (non-pCR vs pCR direction) on 4+ trials; one wrong-trial PMID (KEYNOTE-B49→RCC). Recompute pCR direction and re-verify PMIDs."
+    },
+    {
+      "review": "HFpEF_DRUGS_NMA_REVIEW",
+      "band": "LOW_CONCERN",
+      "verdict": "DEFECTS_FOUND",
+      "n_findings": 4,
+      "highest_severity": "HIGH",
+      "notes": "CHIEF-HF PMID mismatch (wolf-genome paper). TOPCAT label says 'Americas' but uses ITT N. STEP-HFpEF binary responder definition needs threshold. FREEDOM-HF acronym needs verification."
+    },
+    {
+      "review": "CHECKPOINT_MELANOMA_1L_REVIEW",
+      "band": "LOW_CONCERN",
+      "verdict": "MINOR_FLAGS",
+      "n_findings": 1,
+      "highest_severity": "MED",
+      "notes": "IMspire150 is BRAF-mutant restricted; coherent only if review explicitly handles BRAF subset."
+    },
+    {
+      "review": "ICH_MIS_HEMATOMA_NMA_REVIEW",
+      "band": "LOW_CONCERN",
+      "verdict": "DEFECTS_FOUND",
+      "n_findings": 2,
+      "highest_severity": "MED",
+      "notes": "STICH-II and INTERACT-2 NCTs appear to be the wrong-generation registrations; years also off."
+    },
+    {
+      "review": "CMV_HCT_LETERMOVIR_NMA_REVIEW",
+      "band": "LOW_CONCERN",
+      "verdict": "PASS",
+      "n_findings": 0,
+      "highest_severity": "none",
+      "notes": "Letermovir-Pivotal PMID 29291340 and trial-name binding plausible; 2 trials only; no defects surfaced in this audit."
+    },
+    {
+      "review": "ANTI_PD1_GASTRIC_REVIEW",
+      "band": "LOW_CONCERN",
+      "verdict": "PASS",
+      "n_findings": 0,
+      "highest_severity": "none",
+      "notes": "10 trials, NCT-name bindings consistent with published literature; published HRs in correct direction; KEYNOTE-590 esophageal scope-broadening flagged only if review claims gastric-only."
+    },
+    {
+      "review": "COPD_BIOLOGICS_BROAD_REVIEW",
+      "band": "LOW_CONCERN",
+      "verdict": "MINOR_FLAGS",
+      "n_findings": 1,
+      "highest_severity": "LOW",
+      "notes": "METREX/METREO PMID-sharing is correct (joint pub). No major issues."
+    },
+    {
+      "review": "HFNC_NIV_RESP_FAILURE_REVIEW",
+      "band": "LOW_CONCERN",
+      "verdict": "DEFECTS_FOUND",
+      "n_findings": 2,
+      "highest_severity": "HIGH",
+      "notes": "Two wrong-domain PMIDs (RENOVATE→rat PET; VENTILATE→German rehab). Schema-valid PMIDs but semantically false. Re-verify all PMIDs in this review."
+    },
+    {
+      "review": "OSTEOPOROSIS_BROAD_NMA_REVIEW",
+      "band": "LOW_CONCERN",
+      "verdict": "DEFECTS_FOUND",
+      "n_findings": 1,
+      "highest_severity": "MED",
+      "notes": "STRUCTURE row uses publishedHR slot for MD — schema/engine contract risk if pooler logs the value."
+    },
+    {
+      "review": "DERMATOMYOSITIS_NMA_REVIEW",
+      "band": "LOW_CONCERN",
+      "verdict": "PASS",
+      "n_findings": 0,
+      "highest_severity": "none",
+      "notes": "ProDERM, RIM, BIRD-Tofa (single-arm correctly flagged). No defects surfaced."
+    },
+    {
+      "review": "HYPERKALEMIA_K_BINDER_NMA_REVIEW",
+      "band": "LOW_CONCERN",
+      "verdict": "DEFECTS_FOUND",
+      "n_findings": 3,
+      "highest_severity": "HIGH",
+      "notes": "Two trials (OPAL-HK, HARMONIZE) store negative MD values in publishedHR field — schema/engine contract violation. AMETHYST-DN control N suspicious. ZS-005 historical comparator."
+    },
+    {
+      "review": "VITAMIN_C_THIAMINE_SEPSIS_REVIEW",
+      "band": "LOW_CONCERN",
+      "verdict": "PASS",
+      "n_findings": 0,
+      "highest_severity": "none",
+      "notes": "8 trials, NCT bindings plausible (CITRIS-ALI, LOVIT, VICTAS, ATESS, etc.); directions consistent with literature where reported. LOVIT RR 1.21 [1.04,1.40] matches published harm signal."
+    },
+    {
+      "review": "HEMOPHILIA_NEW_AGENTS_NMA_REVIEW",
+      "band": "MANUAL_REVIEW",
+      "verdict": "DEFECTS_FOUND",
+      "n_findings": 2,
+      "highest_severity": "HIGH",
+      "notes": "Fractional tE/cE in HOPE-B and GENEr8-1 (rates, not counts) break the integer-event schema. BENJAMIN treatment:control imbalance suggests historical comparator."
+    },
+    {
+      "review": "HAE_PROPHYLAXIS_REVIEW",
+      "band": "MANUAL_REVIEW",
+      "verdict": "DEFECTS_FOUND",
+      "n_findings": 2,
+      "highest_severity": "MED",
+      "notes": "HELP integer-count interpretation inconsistent with published rate-ratio HR (0.13 vs computed RR 0.63). Confirm whether tE/cE are responders or attacks. DEFINE-1 correctly flagged as single-arm (positive note)."
+    },
+    {
+      "review": "BLADDER_UROTHEL_FRONTLINE_IO_NMA_REVIEW",
+      "band": "MANUAL_REVIEW",
+      "verdict": "MINOR_FLAGS",
+      "n_findings": 1,
+      "highest_severity": "MED",
+      "notes": "KEYNOTE-052 single-arm row encoded correctly but lacks design-tag; pairwise engine may misuse."
+    },
+    {
+      "review": "ITP_NEW_AGENTS_REVIEW",
+      "band": "MANUAL_REVIEW",
+      "verdict": "DEFECTS_FOUND",
+      "n_findings": 2,
+      "highest_severity": "HIGH",
+      "notes": "FIT-1 and FIT-2 zero-cell controls — confirm continuity correction; no schema flag present."
+    },
+    {
+      "review": "CHOLANGIO_TARGETED_NMA_REVIEW",
+      "band": "MANUAL_REVIEW",
+      "verdict": "MINOR_FLAGS",
+      "n_findings": 1,
+      "highest_severity": "MED",
+      "notes": "ClarIDHy uses PFS events — confirm endpoint label is PFS, not OS."
+    },
+    {
+      "review": "CONGENITAL_ADRENAL_HYPER_NMA_REVIEW",
+      "band": "MANUAL_REVIEW",
+      "verdict": "DEFECTS_FOUND",
+      "n_findings": 2,
+      "highest_severity": "MED",
+      "notes": "Trial brand 'CAHptain' likely should be 'CAHtalyst'. Chronocort year=2018 incompatible with NCT05-prefix registration."
+    },
+    {
+      "review": "BLADDER_NMIBC_NEW_NMA_REVIEW",
+      "band": "QUARANTINED",
+      "verdict": "DEFECTS_FOUND",
+      "n_findings": 2,
+      "highest_severity": "HIGH",
+      "notes": "QUARANTINED band — only HIGH findings reported per protocol. Review is structurally incompatible with NMA (all 4 trials single-arm). One row uses NCT as trial name."
+    }
+  ]
+}

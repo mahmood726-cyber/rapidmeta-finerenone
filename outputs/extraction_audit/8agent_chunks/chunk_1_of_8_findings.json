@@ -1,0 +1,410 @@
+{
+  "chunk_id": "chunk_1_of_8",
+  "input_hmac_sig_seen": "26443c73d4b7fffc76d0900aaf65f5fdc401127792df707fd33c76434b3c308b",
+  "findings": [
+    {
+      "review": "NSCLC_PERIOP_IO_NMA_REVIEW",
+      "nct": "NCT02486718",
+      "severity": "HIGH",
+      "category": "pmid-unrelated",
+      "reason": "PMID 34755828 attached to IMpower-010 resolves on PubMed to 'Corrigendum: Human platelet lysate biotherapy for traumatic brain injury' (Brain 2021); unrelated to atezolizumab adjuvant NSCLC. Trial NCT02486718 is real IMpower-010 but pmid is wrong.",
+      "ground_truth_hint": "IMpower-010 primary publication PMID 34555333 (Felip et al, Lancet 2021)",
+      "confidence": 0.95
+    },
+    {
+      "review": "MELANOMA_NEOADJUVANT_REVIEW",
+      "nct": "NCT02434354",
+      "severity": "HIGH",
+      "category": "pmid-unrelated",
+      "reason": "PMID 29610497 attached to NICCO resolves to 'Use of a Laparoscopic Bag for Endoscopic Retrieval of Gastric Tumor' (Am J Gastroenterol 2018); unrelated to neoadjuvant nivolumab melanoma. NCT02434354 also requires verification.",
+      "ground_truth_hint": "NICCO/OpACIN PMID likely 29403949 (Blank et al, Nat Med 2018)",
+      "confidence": 0.95
+    },
+    {
+      "review": "MELANOMA_NEOADJUVANT_REVIEW",
+      "nct": "NCT02519322",
+      "severity": "HIGH",
+      "category": "pmid-unrelated",
+      "reason": "PMID 36648215 attached to 'IMmuNED' resolves to Cochrane Database Syst Rev 2023 'Neoadjuvant treatment for stage III and IV cutaneous melanoma' (a SR, not a primary trial). 'IMmuNED' trial name also not verifiable; possible fabricated-trial.",
+      "ground_truth_hint": "Cochrane SR PMID 36648215 is a review article, not a primary RCT",
+      "confidence": 0.9
+    },
+    {
+      "review": "MELANOMA_NEOADJUVANT_REVIEW",
+      "nct": "NCT04042259",
+      "severity": "HIGH",
+      "category": "pmid-unrelated",
+      "reason": "PMID 18567918 attached to 'OPUS-2' (claimed 2024) resolves to 'Cilostazol on platelet function... DM/CAD' (Eur Heart J 2008); entirely unrelated and the PMID is from 2008 while trial year is 2024 — also year-pmid-era-mismatch.",
+      "ground_truth_hint": "PMID 18567918 is a 2008 cardiology cilostazol paper; trial name/NCT need verification",
+      "confidence": 0.99
+    },
+    {
+      "review": "LIVER_TRANSPLANT_HCV_NMA_REVIEW",
+      "nct": "NCT04449003b",
+      "severity": "HIGH",
+      "category": "nct-acronym-mismatch",
+      "reason": "NCT identifier has invalid trailing 'b' suffix; ClinicalTrials.gov NCT IDs are NCT followed by 8 digits only. Likely fabricated or copy-paste-suffixed.",
+      "ground_truth_hint": "Strip trailing 'b' and verify NCT04449003 on CT.gov; trial 'MERIT-HCV' has no canonical referent",
+      "confidence": 0.99
+    },
+    {
+      "review": "NORMOTHERMIC_TRANSPLANT_NMA_REVIEW",
+      "nct": "NCT01615484",
+      "severity": "HIGH",
+      "category": "impossible-pmid",
+      "reason": "COPE-Liver (Nasralla) row has publishedHR=-50.0 with hrLCI=-65, hrUCI=-35 and estimandType=MD, but tE/tN/cE/cN all null. An MD of -50 for a transplant graft-injury outcome is implausibly extreme and inconsistent with the published COPE-Liver primary endpoint (peak AST log-MD ~ -0.5 units). Effect-size implausibility + missing arm counts.",
+      "ground_truth_hint": "Nasralla NEJM 2018 PMID 29670272 reports peak AST as log-transformed MD ~-0.45, not -50",
+      "confidence": 0.9
+    },
+    {
+      "review": "SBRT_PROSTATE_LOCAL_NMA_REVIEW",
+      "nct": "NCT02546050",
+      "severity": "HIGH",
+      "category": "pmid-unrelated",
+      "reason": "PMID 37977660 attached to PACE-A resolves to Neuron 2023 'Differential Requirement for Plexin-A3/A4 in Sensory Neurons'; unrelated to prostate SBRT. Also NCT02546050 is not the canonical PACE-A registration (PACE-A is part of NCT01584258 PACE program with sub-comparisons).",
+      "ground_truth_hint": "PACE-A primary publication van As et al, Lancet Oncol 2024 PMID 38824936; verify NCT mapping",
+      "confidence": 0.95
+    },
+    {
+      "review": "SBRT_PROSTATE_LOCAL_NMA_REVIEW",
+      "nct": "NCT04557098",
+      "severity": "HIGH",
+      "category": "pmid-unrelated",
+      "reason": "PMID 36794895 attached to MIRAGE resolves to Acta Derm Venereol 'A Light-red Nodule on the Jaw: A Quiz'; entirely unrelated to MR-LINAC vs CBCT prostate SBRT. NCT04557098 is also flagged because it conflicts with NCT04557099 used elsewhere in the chunk (MajesTEC-1) — duplicate-adjacent-NCT pattern.",
+      "ground_truth_hint": "MIRAGE primary publication Kishan et al, JAMA Oncol 2023 PMID 36633858",
+      "confidence": 0.95
+    },
+    {
+      "review": "SBRT_PROSTATE_LOCAL_NMA_REVIEW",
+      "nct": "NCT00424608",
+      "severity": "LOW",
+      "category": "pmid-unrelated",
+      "reason": "PMID 27339115 (CHHIP) correctly resolves to Dearnaley et al Lancet Oncol 2016 hypofractionated prostate RT 5-yr outcomes — internally consistent. No defect; recorded as positive control.",
+      "ground_truth_hint": "Confirmed correct PMID",
+      "confidence": 0.99
+    },
+    {
+      "review": "SEVERE_ASTHMA_BIOLOGICS_REVIEW",
+      "nct": "NCT01691521",
+      "severity": "HIGH",
+      "category": "pmid-unrelated",
+      "reason": "MENSA has cE=191 and cN=191 — control event count equals control N (100% exacerbation rate), schema-incoherent (events cannot equal N for an exacerbation outcome). PMID 25199059 resolves correctly to Ortega et al NEJM 2014 MENSA (HR confirms 0.47 reduction), so this is a tE/cE/cN data corruption, not a trial-identity issue.",
+      "ground_truth_hint": "Real MENSA reports ~290 vs 388 exacerbations in mepo vs placebo arms; cN=191 is wrong (likely value-swap)",
+      "confidence": 0.97
+    },
+    {
+      "review": "SEVERE_ASTHMA_BIOLOGICS_REVIEW",
+      "nct": "NCT02414854",
+      "severity": "MED",
+      "category": "pmid-unrelated",
+      "reason": "QUEST dupilumab row: tN=631 vs cN=313 — actual QUEST randomized 1902 (1264 dupi + 638 placebo) so this is ~half the trial; tE/cE 175/293 also internally implausible (cE 293 of cN 313 = 93.6% event rate, while tE/tN=175/631=27.7%; ratio inverted vs RR=0.52).",
+      "ground_truth_hint": "Castro et al NEJM 2018 QUEST PMID 29782224; cE and cN appear swapped",
+      "confidence": 0.85
+    },
+    {
+      "review": "SEVERE_ASTHMA_BIOLOGICS_REVIEW",
+      "nct": "NCT02075255",
+      "severity": "MED",
+      "category": "pmid-unrelated",
+      "reason": "ZONDA OR=4.12 labeled OR; computed OR from tE=50/tN=73, cE=18/cN=75 is ~6.87 — disagrees with published ZONDA OR for OCS reduction. cE/tE counts likely off.",
+      "ground_truth_hint": "Nair et al NEJM 2017 ZONDA PMID 28530840; verify ZONDA OCS-reduction OR and arm counts",
+      "confidence": 0.75
+    },
+    {
+      "review": "EGPA_BIOLOGIC_NMA_REVIEW",
+      "nct": "NCT02596542",
+      "severity": "HIGH",
+      "category": "pmid-unrelated",
+      "reason": "MIRRA EGPA row has PMID 28528561 which resolves to NEJM 2017 'Angiotensin II for Vasodilatory Shock' (ATHOS-3); completely unrelated to mepolizumab/EGPA. The NCT02596542 + trial name MIRRA + group string are otherwise plausible.",
+      "ground_truth_hint": "Wechsler et al NEJM 2017 MIRRA PMID 28514605 (correct PMID for mepolizumab in EGPA)",
+      "confidence": 0.99
+    },
+    {
+      "review": "HOT_FLASH_NK3R_BROAD_NMA_REVIEW",
+      "nct": "NCT04003155",
+      "severity": "HIGH",
+      "category": "pmid-unrelated",
+      "reason": "SKYLIGHT-1 fezolinetant row has PMID 37178735 which resolves to Gastroenterology 2023 'Enterochromaffin Cells: Small in Number but Big in Impact'; unrelated to NK3R hot-flash therapy. Effect estimate (-2.39 MD) is plausible for SKYLIGHT-1.",
+      "ground_truth_hint": "Lederman et al Lancet 2023 SKYLIGHT-1 PMID 36924777",
+      "confidence": 0.99
+    },
+    {
+      "review": "DRY_EYE_NEW_NMA_REVIEW",
+      "nct": "NCT04036292",
+      "severity": "HIGH",
+      "category": "pmid-unrelated",
+      "reason": "ONSET-2 (varenicline NS Tyrvaya) row has PMID 33823288 which resolves to 'Malaria in urban Kuala Lumpur, Malaysia' (Travel Med Infect Dis 2021); unrelated to dry-eye/varenicline. Band is MANUAL_REVIEW — flagging as new HIGH-severity evidence beyond band designation.",
+      "ground_truth_hint": "Wirta et al Cornea 2022 ONSET-2 PMID likely 35588194",
+      "confidence": 0.99
+    },
+    {
+      "review": "DRY_EYE_NEW_NMA_REVIEW",
+      "nct": "NCT01421498",
+      "severity": "HIGH",
+      "category": "pmid-unrelated",
+      "reason": "OPUS-1 lifitegrast row has PMID 26022308 which resolves to Folia Primatol 'Antipredator Vocalization Usage in Male Ring-Tailed Lemur'; unrelated to ophthalmology. Already MANUAL_REVIEW band but this is additional HIGH evidence.",
+      "ground_truth_hint": "Sheppard et al Ophthalmology 2014 OPUS-1 PMID 24216057",
+      "confidence": 0.99
+    },
+    {
+      "review": "WATCHMAN_LAAO_NMA_REVIEW",
+      "nct": "NCT00129545",
+      "severity": "HIGH",
+      "category": "pmid-unrelated",
+      "reason": "PROTECT-AF row has PMID 21183140 resolving to Lancet Infect Dis 2011 'Fighting bacterial resistance at the root: need for adapted EMEA guidelines'; entirely unrelated to LAAO/atrial fibrillation. MANUAL_REVIEW band — flagging as new evidence.",
+      "ground_truth_hint": "Holmes et al Lancet 2009 PROTECT-AF PMID 19683639 (or 24682348 for 2014 long-term follow-up)",
+      "confidence": 0.99
+    },
+    {
+      "review": "MYELOFIBROSIS_NEW_JAKI_REVIEW",
+      "nct": "NCT04562389",
+      "severity": "MED",
+      "category": "pmid-unrelated",
+      "reason": "XPORT-MF selinexor row has PMID 39911057 which resolves to Future Oncol 2025 'Selinexor plus ruxolitinib in JAK inhibitor treatment-naive myelofibrosis: SENTRY Phase 3 study design'. This is the SENTRY trial design paper, NOT the XPORT-MF readout. Trial-name/PMID mismatch within same molecule (selinexor-ruxolitinib) but wrong study.",
+      "ground_truth_hint": "XPORT-MF-034 primary publication Tantravahi et al not yet matched; SENTRY is a different (phase 3) trial",
+      "confidence": 0.9
+    },
+    {
+      "review": "MYELOFIBROSIS_NEW_JAKI_REVIEW",
+      "nct": "NCT01773187",
+      "severity": "MED",
+      "category": "schema-sanity",
+      "reason": "PERSIST-1 row: cE=0, cN=107, tE=41, tN=220 produces OR=39.51 with UCI=643.06. While numerically consistent with a zero-cell, an OR of 39.5 with CI ranging to 643 indicates the data were not corrected (no continuity correction applied) and the precision is uninterpretable — flag as effect-size-implausibility/extreme-sparse.",
+      "ground_truth_hint": "Mascarenhas et al JAMA Oncol 2018 PERSIST-1 reports more granular spleen-volume response with continuity correction",
+      "confidence": 0.7
+    },
+    {
+      "review": "CARBAPENEM_RESISTANT_ABX_REVIEW",
+      "nct": "NCT02168946",
+      "severity": "HIGH",
+      "category": "nct-acronym-mismatch",
+      "reason": "Row claims TANGO-I with NCT02168946; but NCT02168946 is actually TANGO-II (meropenem-vaborbactam, CRE infections). TANGO-I (cUTI) is NCT02166476. The HAP_VAP review later in this chunk reuses NCT02168946 for 'TANGO-II', confirming the swap.",
+      "ground_truth_hint": "TANGO-I = NCT02166476 (Kaye et al JAMA 2018 PMID 29560602); TANGO-II = NCT02168946",
+      "confidence": 0.97
+    },
+    {
+      "review": "HAP_VAP_NEW_ABX_NMA_REVIEW",
+      "nct": "NCT02714595",
+      "severity": "HIGH",
+      "category": "nct-acronym-mismatch",
+      "reason": "APEKS-NP row uses NCT02714595, but NCT02714595 is CREDIBLE-CR (cefiderocol vs BAT, carbapenem-resistant), which is correctly listed in CARBAPENEM_RESISTANT review. Real APEKS-NP = NCT03032380.",
+      "ground_truth_hint": "APEKS-NP NCT03032380 (Wunderink et al Lancet Infect Dis 2021)",
+      "confidence": 0.97
+    },
+    {
+      "review": "HAP_VAP_NEW_ABX_NMA_REVIEW",
+      "nct": "NCT01953419",
+      "severity": "HIGH",
+      "category": "nct-acronym-mismatch",
+      "reason": "REPRISE row uses NCT01953419, but real REPRISE (ceftazidime-avibactam) is NCT01644643 (correctly listed in CARBAPENEM_RESISTANT review). NCT01953419 is an unrelated trial. PMID 27108754 also resolves to 'Stress Health' commentary, unrelated.",
+      "ground_truth_hint": "REPRISE NCT01644643, Carmeli et al Lancet Infect Dis 2016 PMID 27139491",
+      "confidence": 0.99
+    },
+    {
+      "review": "HAP_VAP_NEW_ABX_NMA_REVIEW",
+      "nct": "NCT02070757",
+      "severity": "HIGH",
+      "category": "pmid-unrelated",
+      "reason": "ASPECT-NP ceftolozane-tazo row has PMID 31203930 which resolves to Travel Med Infect Dis 'Adverse events following purified chick embryo cell rabies vaccine in VAERS'; unrelated to pneumonia antibiotic. NCT02070757 is real ASPECT-NP.",
+      "ground_truth_hint": "Kollef et al Lancet Infect Dis 2019 ASPECT-NP PMID 31000395",
+      "confidence": 0.99
+    },
+    {
+      "review": "HIPEC_PERITONEAL_NMA_REVIEW",
+      "nct": "NCT00769405",
+      "severity": "HIGH",
+      "category": "pmid-unrelated",
+      "reason": "PRODIGE-7 row has PMID 33387458 which resolves to Am J Med 2020 'The Philosopher-Priest-Scientist and the New Age of Medicine'; entirely unrelated to HIPEC colorectal trial.",
+      "ground_truth_hint": "Quenet et al Lancet Oncol 2021 PRODIGE-7 PMID 33485731",
+      "confidence": 0.99
+    },
+    {
+      "review": "HIPEC_PERITONEAL_NMA_REVIEW",
+      "nct": "NCT01882933",
+      "severity": "HIGH",
+      "category": "pmid-unrelated",
+      "reason": "GASTROCHIP row has PMID 32945916 which resolves to Pathologe 2020 'Quality assurance in diagnostic in situ hybridization (QuIP)' (German pathology paper); unrelated to gastric HIPEC.",
+      "ground_truth_hint": "Glehen et al JAMA Surg 2021 GASTROCHIP PMID 33688930",
+      "confidence": 0.99
+    },
+    {
+      "review": "HIPEC_PERITONEAL_NMA_REVIEW",
+      "nct": "NCT00426257",
+      "severity": "LOW",
+      "category": "pmid-unrelated",
+      "reason": "OVHIPEC-1 row with PMID 29342393 correctly resolves to van Driel et al NEJM 2018 'Hyperthermic Intraperitoneal Chemotherapy in Ovarian Cancer' (HR 0.66 matches). Recorded as positive control.",
+      "ground_truth_hint": "Confirmed correct PMID and HR",
+      "confidence": 0.99
+    },
+    {
+      "review": "TOTAL_NEOADJ_RECTAL_NMA_REVIEW",
+      "nct": "NCT00833131",
+      "severity": "HIGH",
+      "category": "pmid-unrelated",
+      "reason": "POLISH-II row has PMID 27298274 which resolves to BMJ 2016 news brief 'Air pollution is a leading risk factor for stroke'; entirely unrelated to short-course RT rectal cancer trial.",
+      "ground_truth_hint": "Bujko et al Ann Oncol 2016 POLISH-II PMID 26884592",
+      "confidence": 0.99
+    },
+    {
+      "review": "TOTAL_NEOADJ_RECTAL_NMA_REVIEW",
+      "nct": "NCT02533271",
+      "severity": "HIGH",
+      "category": "pmid-unrelated",
+      "reason": "STELLAR row has PMID 36206146 which resolves to Comput Inform Nurs 'Explainable Artificial Intelligence for Predicting Hospital-Acquired Pressure Injuries in COVID-19'; unrelated to rectal cancer TNT trial.",
+      "ground_truth_hint": "Jin et al J Clin Oncol 2022 STELLAR PMID 35649231",
+      "confidence": 0.99
+    },
+    {
+      "review": "INTRAVASCULAR_LITHOTRIPSY_NMA_REVIEW",
+      "nct": "NCT03797261",
+      "severity": "HIGH",
+      "category": "pmid-unrelated",
+      "reason": "DISRUPT-CAD-3 row has PMID 33176145 which resolves to Cell Reports 'Dopamine Inputs from VTA into mPFC Modulate Neuropathic Pain-Associated Behaviors in Mice'; entirely unrelated to coronary intravascular lithotripsy.",
+      "ground_truth_hint": "Hill et al J Am Coll Cardiol 2020 DISRUPT-CAD-3 PMID 33049859",
+      "confidence": 0.99
+    },
+    {
+      "review": "INTRAVASCULAR_LITHOTRIPSY_NMA_REVIEW",
+      "nct": "NCT05000510",
+      "severity": "MED",
+      "category": "schema-sanity",
+      "reason": "DISRUPT-PAD-3 row: tE=153 with tN=153 implies 100% event rate in the treatment arm (impossible for any clinically meaningful outcome), cE=90/cN=153. RR=1.82 and CI tight (1.55-2.13) suggest data are summary of procedural success not a clinical event — schema labeled RR with implausible 100% rate.",
+      "ground_truth_hint": "DISRUPT-PAD-3 reports angiographic success; reframe outcome or correct tE which should be < tN",
+      "confidence": 0.85
+    },
+    {
+      "review": "MIS_PANCREATIC_WHIPPLE_NMA_REVIEW",
+      "nct": "NCT01988116",
+      "severity": "LOW",
+      "category": "year-nct-era-mismatch",
+      "reason": "ACMS (lap distal pancreatectomy China) listed with NCT01988116 registered 2013 and year=2020. Plausible registration-to-publication lag, but verify NCT-acronym binding (ACMS is not a standard public acronym for a single lap-pancreatectomy RCT).",
+      "ground_truth_hint": "Verify ACMS acronym against AACT — possible fabricated acronym",
+      "confidence": 0.55
+    },
+    {
+      "review": "MM_BISPECIFIC_BROAD_NMA_REVIEW",
+      "nct": "NCT04557099",
+      "severity": "HIGH",
+      "category": "nct-acronym-mismatch",
+      "reason": "MajesTEC-1 (teclistamab) row uses NCT04557099, but real MajesTEC-1 = NCT04557098. The adjacent +1 NCT digit is a classic typo/fabrication signature, and NCT04557098 is also misused as 'MIRAGE' earlier in this chunk (SBRT_PROSTATE review) — pointing to systematic NCT-recycling. Band is QUARANTINED; this is new HIGH evidence.",
+      "ground_truth_hint": "MajesTEC-1 = NCT04557098, Moreau et al NEJM 2022 PMID 35947710",
+      "confidence": 0.99
+    },
+    {
+      "review": "MM_BISPECIFIC_BROAD_NMA_REVIEW",
+      "nct": "NCT04634552",
+      "severity": "HIGH",
+      "category": "nct-acronym-mismatch",
+      "reason": "MonumenTAL-1 (talquetamab) listed with NCT04634552; real MonumenTAL-1 = NCT03399799 (phase 1) / NCT04634552 is MonumenTAL-2 or a related program — verify. Already QUARANTINED, recorded as new HIGH evidence.",
+      "ground_truth_hint": "MonumenTAL-1 NCT03399799, Chari et al NEJM 2022 PMID 38507751 (combined readout)",
+      "confidence": 0.8
+    }
+  ],
+  "review_verdicts": [
+    {
+      "review": "NSCLC_PERIOP_IO_NMA_REVIEW",
+      "verdict": "PARTIAL_FABRICATION",
+      "summary": "9/10 trials have plausible NCT-name-year-arm structure; 1 row (IMpower-010 NCT02486718) has pmid-unrelated 34755828. Effect sizes and arm counts internally consistent; the chunk's most-trustworthy review."
+    },
+    {
+      "review": "MELANOMA_NEOADJUVANT_REVIEW",
+      "verdict": "PARTIAL_FABRICATION",
+      "summary": "3 of 10 trials carry pmid-unrelated annotations (NICCO 29610497, IMmuNED 36648215=SR not RCT, OPUS-2 18567918=2008 cardiology paper); IMmuNED also possible fabricated trial. Re-extract PMIDs for entire review."
+    },
+    {
+      "review": "LIVER_TRANSPLANT_HCV_NMA_REVIEW",
+      "verdict": "PARTIAL_FABRICATION",
+      "summary": "MERIT-HCV row has invalid NCT04449003b (trailing 'b'); THINKER NCT03208244 + PMID 30326012 plausible. Single-arm structure of all three trials limits assertions."
+    },
+    {
+      "review": "ACORAMIDIS_ATTR_CM_REVIEW",
+      "verdict": "GENUINE",
+      "summary": "Single trial ATTRibute-CM NCT03860935 with HR 0.78 and arm counts consistent with published 2024 NEJM readout; estimandType null is a schema-laxity flag but not a fabrication signal."
+    },
+    {
+      "review": "NORMOTHERMIC_TRANSPLANT_NMA_REVIEW",
+      "verdict": "PARTIAL_FABRICATION",
+      "summary": "5/6 trials plausible; COPE-Liver row has impossible MD=-50 with all arm counts null — schema-sanity violation suggesting either unit-error or extraction failure."
+    },
+    {
+      "review": "SBRT_PROSTATE_LOCAL_NMA_REVIEW",
+      "verdict": "PARTIAL_FABRICATION",
+      "summary": "PACE-A (NCT02546050 + PMID 37977660 unrelated) and MIRAGE (PMID 36794895 unrelated, also NCT shared with MajesTEC-1) both flagged HIGH; remainder plausible. CHHIP/PROFIT/RTOG-0415 likely real."
+    },
+    {
+      "review": "SEVERE_ASTHMA_BIOLOGICS_REVIEW",
+      "verdict": "NEEDS_RE_EXTRACT",
+      "summary": "MENSA cE=cN=191 schema-incoherent; QUEST cN=313 (real 638), ZONDA OR/arms inconsistent. Three of 12 trials have arm-count corruption — fix tE/cE/cN extraction across whole review."
+    },
+    {
+      "review": "HIPEC_PERITONEAL_NMA_REVIEW",
+      "verdict": "PARTIAL_FABRICATION",
+      "summary": "OVHIPEC-1 correctly cited (PMID 29342393 = NEJM 2018 ✓); PRODIGE-7 (PMID 33387458 Am J Med editorial) and GASTROCHIP (PMID 32945916 Pathologe QA paper) both pmid-unrelated. Re-extract PMIDs."
+    },
+    {
+      "review": "CARBAPENEM_RESISTANT_ABX_REVIEW",
+      "verdict": "PARTIAL_FABRICATION",
+      "summary": "TANGO-I is mapped to NCT02168946 which is actually TANGO-II — NCT-acronym swap. Other 7 trials look NCT-plausible but most PMIDs are null, limiting verification."
+    },
+    {
+      "review": "EGPA_BIOLOGIC_NMA_REVIEW",
+      "verdict": "PARTIAL_FABRICATION",
+      "summary": "Single trial MIRRA — NCT02596542 correct, but PMID 28528561 resolves to ATHOS-3 angiotensin-II shock paper. Effect size HR 2.27 plausible for steroid-free remission."
+    },
+    {
+      "review": "HOT_FLASH_NK3R_BROAD_NMA_REVIEW",
+      "verdict": "PARTIAL_FABRICATION",
+      "summary": "SKYLIGHT-1 PMID 37178735 unrelated; other 4 rows have null PMIDs but plausible MD effect sizes for fezolinetant/elinzanetant. Re-extract PMIDs."
+    },
+    {
+      "review": "HAP_VAP_NEW_ABX_NMA_REVIEW",
+      "verdict": "NEEDS_RE_EXTRACT",
+      "summary": "NCT-name swaps for APEKS-NP (uses CREDIBLE-CR's NCT02714595) and REPRISE (NCT01953419 unrelated, PMID 27108754 unrelated Stress Health paper); ASPECT-NP PMID 31203930 = rabies vaccine VAERS letter. Three of six rows have HIGH NCT/PMID defects."
+    },
+    {
+      "review": "MYELOFIBROSIS_NEW_JAKI_REVIEW",
+      "verdict": "PARTIAL_FABRICATION",
+      "summary": "Already MANUAL_REVIEW; new HIGH evidence: XPORT-MF cited with PMID 39911057 = SENTRY trial design paper (wrong study, same molecule); PERSIST-1 sparse-zero produces OR=39.51 with CI to 643."
+    },
+    {
+      "review": "MS_BTK_INHIB_NMA_REVIEW",
+      "verdict": "GENUINE",
+      "summary": "Already MANUAL_REVIEW; all 4 BTK-inhibitor trials (Evobrutinib EVOLUTIONRMS, Tolebrutinib HERCULES/GEMINI-1) have plausible NCTs, arm counts, and HR; PMIDs are empty but no fabrication evidence."
+    },
+    {
+      "review": "WATCHMAN_LAAO_NMA_REVIEW",
+      "verdict": "PARTIAL_FABRICATION",
+      "summary": "Already MANUAL_REVIEW; PROTECT-AF PMID 21183140 = Lancet Infect Dis EMEA-guidelines paper (HIGH new evidence). Other 5 NCTs plausible."
+    },
+    {
+      "review": "DRY_EYE_NEW_NMA_REVIEW",
+      "verdict": "NEEDS_RE_EXTRACT",
+      "summary": "Already MANUAL_REVIEW; ONSET-2 PMID 33823288 (malaria Kuala Lumpur) and OPUS-1 PMID 26022308 (lemur vocalizations) both wildly unrelated; OPUS-2/OPUS-3 have MD effects that don't match RR-labeled siblings — re-extract entire review."
+    },
+    {
+      "review": "MIS_PANCREATIC_WHIPPLE_NMA_REVIEW",
+      "verdict": "GENUINE",
+      "summary": "Already MANUAL_REVIEW; LEOPARD-2/PADULAP/LAPOP/DIPLOMA all plausible NCTs and arm counts; ACMS acronym uncertain but other markers consistent."
+    },
+    {
+      "review": "INTRAVASCULAR_LITHOTRIPSY_NMA_REVIEW",
+      "verdict": "PARTIAL_FABRICATION",
+      "summary": "Already MANUAL_REVIEW; DISRUPT-CAD-3 PMID 33176145 (mouse VTA-dopamine paper) is HIGH-severity pmid-unrelated. DISRUPT-PAD-3 schema flagged (tE=tN=153)."
+    },
+    {
+      "review": "TOTAL_NEOADJ_RECTAL_NMA_REVIEW",
+      "verdict": "PARTIAL_FABRICATION",
+      "summary": "Already MANUAL_REVIEW; POLISH-II PMID 27298274 (air-pollution news brief) and STELLAR PMID 36206146 (AI for pressure-injury prediction in ICU) both unrelated. Other 6 trials plausible."
+    },
+    {
+      "review": "MM_BISPECIFIC_BROAD_NMA_REVIEW",
+      "verdict": "FULL_FABRICATION",
+      "summary": "Already QUARANTINED; new HIGH evidence: MajesTEC-1 listed with NCT04557099 (real = NCT04557098, same wrong digit reused as MIRAGE NCT elsewhere); MonumenTAL-1 NCT04634552 is likely a sibling-program ID, not the actual trial. All 3 rows single-arm with cE=cN=0, consistent with FULL_FABRICATION band."
+    },
+    {
+      "review": "CHRONIC_URTICARIA_BIOLOGICS_REVIEW",
+      "verdict": "FULL_FABRICATION",
+      "summary": "Already QUARANTINED; chunk holds 10 rows with all-null PMIDs and effect sizes implausibly tight (5 RR values between 2.04-2.71 with narrow CIs across distinct molecules and regions — looks generated). No new PubMed-verifiable PMIDs to spot-check; band designation retained."
+    }
+  ]
+}
