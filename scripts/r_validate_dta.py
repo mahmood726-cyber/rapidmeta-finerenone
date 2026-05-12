@@ -13,7 +13,10 @@ from __future__ import annotations
 import io, json, re, subprocess, sys
 from pathlib import Path
 
-if sys.platform == "win32" and hasattr(sys.stdout, "buffer"):
+# P1-3 fix: only wrap stdout once; idempotent against multiple imports.
+if (sys.platform == "win32"
+    and hasattr(sys.stdout, "buffer")
+    and getattr(sys.stdout, "encoding", "").lower() != "utf-8"):
     try:
         sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     except Exception:

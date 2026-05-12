@@ -11,7 +11,10 @@ from __future__ import annotations
 import io, json, os, shutil, subprocess, sys
 from pathlib import Path
 
-if sys.platform == "win32" and hasattr(sys.stdout, "buffer"):
+# P1-3 fix: only wrap stdout once; idempotent against multiple imports.
+if (sys.platform == "win32"
+    and hasattr(sys.stdout, "buffer")
+    and getattr(sys.stdout, "encoding", "").lower() != "utf-8"):
     try:
         sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     except Exception:
@@ -57,39 +60,74 @@ def pick_singlearm_trials(rd: dict) -> list[dict]:
 
 
 def main() -> None:
+    # P1-1/2/4/5 fix: shared runner with idempotency, parallelism, stderr
+    # persistence, and schema validation.
+    from r_validate_common import (hash_input, already_validated, write_sidecar,
+                                    parallel_run, validate_index_entry,
+                                    validate_r_output)
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--force", action="store_true", help="rerun even if sha matches")
+    ap.add_argument("--max-workers", type=int, default=4)
+    args = ap.parse_args()
+
     index = json.loads((DATA_DIR / "_index.json").read_text(encoding="utf-8"))
     candidates = []
+    n_invalid = 0
     for entry in index:
+        if not validate_index_entry(entry):  # P1-5 schema
+            n_invalid += 1
+            continue
         if not entry.get("has_realData"):
             continue
         stem = entry["stem"]
-        if not _stem_safe(stem):
-            print(f"  skip (unsafe stem): {stem!r}")
-            continue
         doc = json.loads((DATA_DIR / f"{stem}.json").read_text(encoding="utf-8"))
         rd = doc.get("realData") or {}
         trials = pick_singlearm_trials(rd)
         if len(trials) >= 2:
             candidates.append((stem, trials))
 
-    print(f"Single-arm review candidates: {len(candidates)}")
-    n_ok, n_fail = 0, 0
+    print(f"Single-arm review candidates: {len(candidates)}  invalid-index: {n_invalid}")
+    jobs, deferred_results, skipped_idempotent = [], [], 0
     for stem, trials in candidates:
         input_path  = OUT_DIR / f"{stem}.input.json"
         output_path = OUT_DIR / f"{stem}.json"
-        input_path.write_text(json.dumps({"review": stem, "trials": trials},
-                                          indent=2), encoding="utf-8")
-        try:
-            r = subprocess.run(
-                [RSCRIPT_EXE, str(R_SCRIPT), str(input_path), str(output_path)],
-                capture_output=True, text=True, timeout=90,
-            )
-        except subprocess.TimeoutExpired:
-            print(f"  {stem}: [FAIL] timeout"); n_fail += 1; continue
-        if r.returncode != 0:
-            print(f"  {stem}: [FAIL] exit {r.returncode}: {r.stderr.strip()[:200]}")
+        sha_sidecar = OUT_DIR / f"{stem}.input.sha256"
+        error_log   = OUT_DIR / f"{stem}.error.log"
+        payload = {"review": stem, "trials": trials}
+        expected_sha = hash_input(payload, R_SCRIPT)
+        if not args.force and already_validated(output_path, sha_sidecar, expected_sha):
+            skipped_idempotent += 1; deferred_results.append((stem, None, True)); continue
+        input_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        jobs.append((R_SCRIPT, input_path, output_path, error_log))
+        deferred_results.append((stem, sha_sidecar, expected_sha))
+
+    if jobs:
+        print(f"  running {len(jobs)} job(s) on {args.max_workers}-worker pool  "
+              f"(skipped {skipped_idempotent} idempotent)")
+        results = parallel_run(jobs, max_workers=args.max_workers)
+    else:
+        results = []
+        print(f"  all {skipped_idempotent} jobs idempotent — nothing to run")
+
+    n_ok = 0
+    n_fail = 0
+    res_iter = iter(results)
+    for stem, sidecar, sha_or_done in deferred_results:
+        if sha_or_done is True:
+            n_ok += 1; continue  # already-validated cache hit
+        r = next(res_iter)
+        output_path = OUT_DIR / f"{stem}.json"
+        if not r["ok"]:
+            print(f"  {stem}: [FAIL] exit {r['exit']}: {r['stderr'].strip()[:200]}")
             n_fail += 1; continue
-        result = json.loads(output_path.read_text(encoding="utf-8"))
+        try:
+            result = json.loads(output_path.read_text(encoding="utf-8"))
+        except Exception as e:
+            print(f"  {stem}: [FAIL] parse: {e}"); n_fail += 1; continue
+        if not validate_r_output(result):  # P1-5
+            print(f"  {stem}: [FAIL] schema mismatch"); n_fail += 1; continue
+        write_sidecar(sidecar, sha_or_done)
         if result.get("fit_ok"):
             lp = result.get("logit_pool") or {}
             pool = (lp.get("pool") or 0) * 100
@@ -101,7 +139,8 @@ def main() -> None:
         else:
             print(f"  {stem}: [WARN] {result.get('error')}")
             n_fail += 1
-    print(f"\nOK: {n_ok}  failed: {n_fail}")
+    print(f"\nOK: {n_ok}  failed: {n_fail}  (idempotent-skipped: {skipped_idempotent})")
+    sys.exit(1 if n_fail else 0)
 
 
 if __name__ == "__main__":

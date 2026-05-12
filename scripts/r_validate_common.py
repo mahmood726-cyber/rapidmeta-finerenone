@@ -23,7 +23,10 @@ import sys
 from pathlib import Path
 from typing import Callable
 
-if sys.platform == "win32" and hasattr(sys.stdout, "buffer"):
+# P1-3 fix: only wrap stdout once; idempotent against multiple imports.
+if (sys.platform == "win32"
+    and hasattr(sys.stdout, "buffer")
+    and getattr(sys.stdout, "encoding", "").lower() != "utf-8"):
     try:
         sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     except Exception:

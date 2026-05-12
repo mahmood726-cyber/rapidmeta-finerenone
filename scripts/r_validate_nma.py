@@ -9,7 +9,10 @@ from __future__ import annotations
 import io, json, math, os, shutil, subprocess, sys
 from pathlib import Path
 
-if sys.platform == "win32" and hasattr(sys.stdout, "buffer"):
+# P1-3 fix: only wrap stdout once; idempotent against multiple imports.
+if (sys.platform == "win32"
+    and hasattr(sys.stdout, "buffer")
+    and getattr(sys.stdout, "encoding", "").lower() != "utf-8"):
     try:
         sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     except Exception:
@@ -110,36 +113,63 @@ def main() -> None:
             candidates.append((stem, treatments, comps, ref))
 
     print(f"Binary NMA review candidates: {len(candidates)}")
-    n_ok, n_fail = 0, 0
+    # P1-1/2/4/5
+    from r_validate_common import (hash_input, already_validated, write_sidecar,
+                                    parallel_run, validate_r_output)
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--force", action="store_true")
+    ap.add_argument("--max-workers", type=int, default=4)
+    args = ap.parse_args()
+
+    jobs, deferred, skipped = [], [], 0
     for stem, trts, comps, ref in candidates:
         input_path  = OUT_DIR / f"{stem}.input.json"
         output_path = OUT_DIR / f"{stem}.json"
-        input_path.write_text(json.dumps({
-            "review": stem, "treatments": trts, "comparisons": comps,
-            "reference": ref,
-        }, indent=2), encoding="utf-8")
-        try:
-            r = subprocess.run(
-                [RSCRIPT_EXE, str(R_SCRIPT), str(input_path), str(output_path)],
-                capture_output=True, text=True, timeout=120,
-            )
-        except subprocess.TimeoutExpired:
-            print(f"  {stem}: [FAIL] timeout"); n_fail += 1; continue
-        if r.returncode != 0:
-            print(f"  {stem}: [FAIL] exit {r.returncode}: {r.stderr.strip()[:200]}")
+        sha_sidecar = OUT_DIR / f"{stem}.input.sha256"
+        error_log   = OUT_DIR / f"{stem}.error.log"
+        payload = {"review": stem, "treatments": trts, "comparisons": comps, "reference": ref}
+        expected_sha = hash_input(payload, R_SCRIPT)
+        if not args.force and already_validated(output_path, sha_sidecar, expected_sha):
+            skipped += 1; deferred.append((stem, None, True)); continue
+        input_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        jobs.append((R_SCRIPT, input_path, output_path, error_log))
+        deferred.append((stem, sha_sidecar, expected_sha))
+
+    if jobs:
+        print(f"  running {len(jobs)} job(s) on {args.max_workers}-worker pool  (skipped {skipped})")
+        results = parallel_run(jobs, max_workers=args.max_workers)
+    else:
+        results = []; print(f"  all {skipped} jobs idempotent — nothing to run")
+
+    n_ok = n_fail = 0
+    res_iter = iter(results)
+    for stem, sidecar, sha_or_done in deferred:
+        if sha_or_done is True: n_ok += 1; continue
+        r = next(res_iter)
+        output_path = OUT_DIR / f"{stem}.json"
+        if not r["ok"]:
+            print(f"  {stem}: [FAIL] exit {r['exit']}: {r['stderr'].strip()[:200]}")
             n_fail += 1; continue
-        result = json.loads(output_path.read_text(encoding="utf-8"))
+        try:
+            result = json.loads(output_path.read_text(encoding="utf-8"))
+        except Exception as e:
+            print(f"  {stem}: [FAIL] parse: {e}"); n_fail += 1; continue
+        if not validate_r_output(result):
+            print(f"  {stem}: [FAIL] schema"); n_fail += 1; continue
+        write_sidecar(sidecar, sha_or_done)
         if result.get("fit_ok"):
             n_trts = result.get("n_treatments") or 0
             kcomp = result.get("k_comparisons") or 0
             tau2 = result.get("tau2"); tau2 = 0.0 if tau2 is None else tau2
             i2 = result.get("I2"); i2 = 0.0 if i2 is None else i2
-            print(f"  {stem}: OK {n_trts} trts, {kcomp} contrasts, tau2={tau2:.3f}, I2={i2:.0f}%")
+            print(f"  {stem}: [OK] {n_trts} trts, {kcomp} contrasts, tau2={tau2:.3f}, I2={i2:.0f}%")
             n_ok += 1
         else:
             print(f"  {stem}: [WARN] {result.get('error')}")
             n_fail += 1
-    print(f"\nOK: {n_ok}  failed: {n_fail}")
+    print(f"\nOK: {n_ok}  failed: {n_fail}  (idempotent-skipped: {skipped})")
+    sys.exit(1 if n_fail else 0)
 
 
 if __name__ == "__main__":
