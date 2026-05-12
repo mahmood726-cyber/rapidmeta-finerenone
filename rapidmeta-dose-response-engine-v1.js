@@ -363,16 +363,6 @@
     return pcts.map(function (p) { return quantile(uniq, p); });
   }
 
-  // rcsBasis(x, knots): Harrell truncated-power basis for RCS regression.
-  // Returns a vector of length K-1 (where K = knots.length).
-  //   basis[0] = x  (linear term)
-  //   basis[j] for j=1..K-2 = truncated-power spline term (Harrell rcspline.eval formula)
-  // Degenerates to [x] when K < 3.
-  // Formula per Harrell "Regression Modeling Strategies" (rms/Hmisc rcspline.eval):
-  //   denom1 = (t_K - t_1)^2,  denom2 = (t_K - t_{K-1}) * denom1
-  //   b_j = ((x - t_j)_+^3 - (x - t_{K-1})_+^3 * (t_K - t_j) / (t_K - t_{K-1})
-  //          + (x - t_K)_+^3 * (t_{K-1} - t_j) / (t_K - t_{K-1})) / denom1
-  // where (z)_+ = max(0, z), j indexes the interior knots (1..K-2, 0-indexed).
   // rcsBasis(x, knots): Harrell truncated-power basis, matched to R's rcspline.eval (norm=2, inclx=TRUE).
   // Returns a vector of length K-1 (K = knots.length):
   //   basis[0] = x   (linear term, inclx)

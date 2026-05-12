@@ -185,15 +185,35 @@ test('rcsBasis at known input matches Harrell rcspline.eval reference', () => {
   near(basis[2], 0.06944444,  0.001, 'b3');
 });
 
+test('rcsBasis edge regimes: at first knot, at x=0, and extrapolated', () => {
+  // At first knot: all truncated-power terms are zero (no (x - t_j)_+ active beyond x).
+  const basisAtFirstKnot = I.rcsBasis(5, [5, 10, 15, 20]);
+  near(basisAtFirstKnot[0], 5, 1e-10, 'at first knot: b1 = x');
+  near(basisAtFirstKnot[1], 0, 1e-10, 'at first knot: b2 = 0 (no truncated term yet)');
+  near(basisAtFirstKnot[2], 0, 1e-10, 'at first knot: b3 = 0');
+
+  // At x=0: all terms zero (x < first knot).
+  const basisAtZero = I.rcsBasis(0, [5, 10, 15, 20]);
+  near(basisAtZero[0], 0, 1e-10, 'at x=0: b1 = 0');
+  near(basisAtZero[1], 0, 1e-10, 'at x=0: b2 = 0');
+  near(basisAtZero[2], 0, 1e-10, 'at x=0: b3 = 0');
+
+  // Extrapolation past last knot: linear continuation.
+  const basisExtrapolated = I.rcsBasis(100, [5, 10, 15, 20]);
+  near(basisExtrapolated[0], 100, 1e-10, 'at x=100: b1 = x');
+  near(basisExtrapolated[1], 173.33333333, 0.01, 'at x=100: b2 ≈ 173.33');
+  near(basisExtrapolated[2], 56.66666667, 0.01, 'at x=100: b3 ≈ 56.67');
+});
+
 // === Task 11: rcsKnots (Harrell percentile knot placement) ===
 
 test('rcsKnots returns 3 knots at Harrell 25/50/75 for k=3', () => {
   const doses = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];  // n=12
   const knots = I.rcsKnots(doses, 3);
   assert.equal(knots.length, 3);
-  near(knots[0], 3.75, 0.5, 'knot1 ≈ p25');
-  near(knots[1], 6.5,  0.5, 'knot2 ≈ p50');
-  near(knots[2], 9.25, 0.5, 'knot3 ≈ p75');
+  near(knots[0], 3.75, 0.01, 'knot1 ≈ p25');
+  near(knots[1], 6.5,  0.01, 'knot2 ≈ p50');
+  near(knots[2], 9.25, 0.01, 'knot3 ≈ p75');
 });
 
 test('rcsKnots degenerates to empty array for <3 unique doses', () => {
