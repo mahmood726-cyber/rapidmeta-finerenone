@@ -697,7 +697,10 @@
     var nlSEs = rcsResult.rcs.spline_coefs_se.slice(1);
     var W = 0;
     for (var d = 0; d < nlCoefs.length; d++) {
-      W += (nlCoefs[d] / nlSEs[d]) * (nlCoefs[d] / nlSEs[d]);
+      if (nlSEs[d] > 0) {
+        W += (nlCoefs[d] / nlSEs[d]) * (nlCoefs[d] / nlSEs[d]);
+      }
+      // I2 guard: skip terms with zero SE (would produce Infinity); the per-dim Wald is 0 for that dim.
     }
     var p = rcsResult.rcs.nonlinearity_wald_p;
     var conclusion = p < 0.05 ? 'non_linear' : (p > 0.20 ? 'linear' : 'inconclusive');
@@ -772,7 +775,10 @@
     });
     // Weights: 1 / (vi + tau2) — re-derive from result to match pool.
     var tau2 = result.tau2 || 0;
-    var w = rows.map(function (r) { return 1 / (r.slope_log_se * r.slope_log_se + tau2); });
+    var w = rows.map(function (r) {
+      var vi = r.slope_log_se * r.slope_log_se + tau2;
+      return vi > 0 ? 1 / vi : 0;  // I1 guard: zero-variance row gets zero weight (excluded from pool)
+    });
     var ws = w.reduce(function (a, b) { return a + b; }, 0);
     for (var i = 0; i < rows.length; i++) rows[i].weight_pct = 100 * w[i] / ws;
     return rows;
