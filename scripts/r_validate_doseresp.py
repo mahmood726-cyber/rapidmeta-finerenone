@@ -10,9 +10,16 @@ Inputs:
 Outputs:
   outputs/r_validation/doseresp/<REVIEW>.input.json
   outputs/r_validation/doseresp/<REVIEW>.json
+
+Exit codes:
+  0 = success
+  2 = fixture missing/empty or invalid --review argument
+  3 = R script timeout
+  4 = R script non-zero exit
+  5 = R did not write the expected output JSON
 """
 from __future__ import annotations
-import argparse, io, json, os, shutil, subprocess, sys
+import argparse, io, json, os, re, shutil, subprocess, sys
 from pathlib import Path
 
 if sys.platform == "win32" and hasattr(sys.stdout, "buffer"):
@@ -38,6 +45,9 @@ def main() -> int:
     parser.add_argument("--review", required=True,
                         help="Fixture stem (e.g. gl1992_alcohol_bc)")
     args = parser.parse_args()
+    if not re.fullmatch(r'[A-Za-z0-9_\-]+', args.review):
+        print(f"ERROR: --review must be alphanumeric + underscore + hyphen only (got: {args.review!r})", file=sys.stderr)
+        return 2
 
     fixture_path = FIXTURE_DIR / f"{args.review}.json"
     if not fixture_path.exists():

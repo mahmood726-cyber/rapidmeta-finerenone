@@ -123,7 +123,7 @@
 - **P2-10** [Software Engineer]: Section banner order is `2 → 2b → 2a → 2c` (non-sequential). (engine lines 257, 338, 402, 525)
 - **P2-11** [Software Engineer]: `allGreen` detection scans HTML strings for `rv-row-green` — fragile if CSS class renames. (badge JS line 101)
 - **P2-12** [Software Engineer]: `forest()` uses raw `z=1.96` for per-study CIs while pooled CI uses `t_{k-1}` (F-2 fix). Asymmetry not commented. (engine lines 777–778)
-- **P2-13** [Software Engineer]: `API` referenced inside `fit*` function bodies before it's defined — works via hoisting but is a latent footgun. (engine lines 520, 684, 737, 807 vs 811)
+- **P2-13** [Software Engineer]: `API` referenced inside `fit*` function bodies before it's defined — works via hoisting but is a latent footgun. (engine lines 520, 684, 737, 807 vs 811) **[DEFERRED — structural; safer in dedicated commit]**
 - **P2-14** [Domain Expert]: Fixture `outcome_type: "binary"` is clinically inaccurate for cohort person-years data — should be `"cohort_incidence_rate"` or `"ci"` (matching dosresmeta terminology). (fixture JSON line 6)
 - **P2-15** [Domain Expert]: Tabs 1 vs 3 show RR 1.289 vs 1.129 — 14% point-estimate gap with no comparative explanation. Teaching opportunity missed. (HTML line ~287–300)
 
