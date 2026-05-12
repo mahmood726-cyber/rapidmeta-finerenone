@@ -144,6 +144,7 @@
   // Chi-squared CDF via Wilson-Hilferty
   function pchisq(x, df) {
     if (x <= 0) return 0;
+    if (df <= 0) return 0;
     var h = Math.pow(x / df, 1 / 3);
     var z = (h - (1 - 2 / (9 * df))) / Math.sqrt(2 / (9 * df));
     // Standard-normal CDF via Abramowitz & Stegun 7.1.26
@@ -261,6 +262,9 @@
     if (!Array.isArray(trials) || trials.length === 0) {
       return ['no trials provided'];
     }
+  // TODO (P2 hardening): negation-word check per lessons.md ("Not Randomized 1,807" incident).
+  // If studlab matches /\b(not|non|never)\b/i AND a single-arm trial has high n,
+  // emit a 'suspicious-extraction: negation in studlab' issue. Deferred from Round 1A.
     for (var i = 0; i < trials.length; i++) {
       var t = trials[i] || {};
       var lab = t.studlab || ('trial[' + i + ']');
@@ -345,7 +349,7 @@
 
   API._internal = Object.assign(API._internal || {}, {
     zeros: zeros, inv2x2: inv2x2, matInv: matInv,
-    matMul: matMul, matVec: matVec, matvec: matvec, transpose: transpose,
+    matMul: matMul, matVec: matVec, transpose: transpose,
     qchisq: qchisq, qt: qt, pchisq: pchisq, pt: pt,
     pmTau2: pmTau2,
     glCovariance: glCovariance,
