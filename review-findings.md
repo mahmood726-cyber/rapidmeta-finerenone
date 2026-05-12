@@ -47,85 +47,90 @@
 
 ## P1 — Important (should fix this round or next)
 
-- **P1-1** [Statistical Methodologist]: Knot placement diverges between JS and R. Engine `rcsKnots()` uses **unique** doses (gives [10, 20, 27]); R script uses **all arm-level rows** (gives [5, 15, 24]). Parity badge compares spline coefficients fit under different knots; happens to pass tolerance on GL-1992 but masks a real silent inconsistency. (engine line ~356; R script line ~79)
+> **P1 status:** 18/20 FIXED (P1-7 deferred to parallel-session ownership)
+
+- **[FIXED] P1-1** [Statistical Methodologist]: Knot placement diverges between JS and R. Engine `rcsKnots()` uses **unique** doses (gives [10, 20, 27]); R script uses **all arm-level rows** (gives [5, 15, 24]). Parity badge compares spline coefficients fit under different knots; happens to pass tolerance on GL-1992 but masks a real silent inconsistency. (engine line ~356; R script line ~79)
   - Fix: align — either change `rcsKnots` to accept the full (non-deduplicated) dose vector, OR change the R script to `quantile(unique(df$dose[df$dose > 0]), ...)`. Document the chosen convention.
 
-- **P1-2** [Statistical Methodologist]: `fitRCS` has no post-loop guard on `perStudy.length`. If all per-study WLS fail (singular `XtSX`), `pmTau2([], [])` returns 0, `0/0 = NaN` propagates through pooled coefs silently. (engine line ~593–636)
+- **[FIXED] P1-2** [Statistical Methodologist]: `fitRCS` has no post-loop guard on `perStudy.length`. If all per-study WLS fail (singular `XtSX`), `pmTau2([], [])` returns 0, `0/0 = NaN` propagates through pooled coefs silently. (engine line ~593–636)
   - Fix: `if (perStudy.length < 2) throw new Error('fitRCS: fewer than 2 studies survived covariance inversion');`
 
-- **P1-3** [Statistical Methodologist]: `predict()` ignores `ci_method` field set by `fitOneStage` (which is `'z_1.96'`). If a caller passes a one-stage result, CIs are computed using `t_{k-1}` (e.g. 2.776 at k=5) — contradicts the result's own annotation. Currently latent (HTML reads CIs directly from JSON), but the function contract is misleading. (engine line ~762–768)
+- **[FIXED] P1-3** [Statistical Methodologist]: `predict()` ignores `ci_method` field set by `fitOneStage` (which is `'z_1.96'`). If a caller passes a one-stage result, CIs are computed using `t_{k-1}` (e.g. 2.776 at k=5) — contradicts the result's own annotation. Currently latent (HTML reads CIs directly from JSON), but the function contract is misleading. (engine line ~762–768)
   - Fix: add `if (result.ci_method === 'z_1.96') { tcrit = 1.96; }` before the df/tcrit calculation.
 
-- **P1-4** [Statistical Methodologist]: PI df convention (`k-1`, Cochrane v6.5) is documented in file header but NOT at the decision point. `advanced-stats.md` rule: "document which convention if computing locally." (engine line ~490)
+- **[FIXED] P1-4** [Statistical Methodologist]: PI df convention (`k-1`, Cochrane v6.5) is documented in file header but NOT at the decision point. `advanced-stats.md` rule: "document which convention if computing locally." (engine line ~490)
   - Fix: one-line inline comment naming the convention + the IntHout/Higgins/Tudur Smith 2016 `k-2` alternative.
 
-- **P1-5** [Security]: `e.message` from `fetch().catch()` interpolated raw into `innerHTML`. Browser-built TypeError is safe today, but the pattern is XSS-unsafe by construction. (file `ALCOHOL_BC_DOSE_RESP_REVIEW.html` lines 311–313)
+- **[FIXED] P1-5** [Security]: `e.message` from `fetch().catch()` interpolated raw into `innerHTML`. Browser-built TypeError is safe today, but the pattern is XSS-unsafe by construction. (file `ALCOHOL_BC_DOSE_RESP_REVIEW.html` lines 311–313)
   - Fix: use `textContent` or `escapeHtml(e.message)`.
 
-- **P1-6** [Security]: Path traversal in `scripts/r_validate_doseresp.py` via `args.review` — value concatenated into `OUT_DIR / f"{args.review}.input.json"` with no validation. `--review ../../evil` would write outside `OUT_DIR`. (file `scripts/r_validate_doseresp.py` lines 38, 49, 50)
+- **[FIXED] P1-6** [Security]: Path traversal in `scripts/r_validate_doseresp.py` via `args.review` — value concatenated into `OUT_DIR / f"{args.review}.input.json"` with no validation. `--review ../../evil` would write outside `OUT_DIR`. (file `scripts/r_validate_doseresp.py` lines 38, 49, 50)
   - Fix: `if not re.fullmatch(r'[A-Za-z0-9_\-]+', args.review): sys.exit("ERROR: --review must be alphanumeric")` after `args.parse_args()`.
 
-- **P1-7** [Security]: `vendor/r-validation-badge.js` (shared framework, **not** my badge) has unescaped innerHTML on `topic` and `data.error` / `data.method`. Partially obviated by P0-1 (removing the badge.js load) — but if any other review still uses badge.js, fix the framework. (file `vendor/r-validation-badge.js` lines 54–55, 69, 72, 134–136)
+- **[DEFERRED — vendor/r-validation-badge.js owned by parallel session] P1-7** [Security]: `vendor/r-validation-badge.js` (shared framework, **not** my badge) has unescaped innerHTML on `topic` and `data.error` / `data.method`. Partially obviated by P0-1 (removing the badge.js load) — but if any other review still uses badge.js, fix the framework. (file `vendor/r-validation-badge.js` lines 54–55, 69, 72, 134–136)
   - Fix: extract shared `escapeHtml()` into badge.js and wrap interpolations.
 
-- **P1-8** [UX/Accessibility]: No `<main>` landmark. Screen-reader landmark navigation lands on `<nav>` only. (file `ALCOHOL_BC_DOSE_RESP_REVIEW.html` line 32)
+- **[FIXED] P1-8** [UX/Accessibility]: No `<main>` landmark. Screen-reader landmark navigation lands on `<nav>` only. (file `ALCOHOL_BC_DOSE_RESP_REVIEW.html` line 32)
   - Fix: wrap `<h1>` through footnote `<div>` in `<main>`.
 
-- **P1-9** [UX/Accessibility]: No arrow-key navigation between tabs. WAI-ARIA Tabs pattern requires `ArrowLeft`/`ArrowRight` + roving tabindex. Currently all 4 buttons are in tab order; user must press Tab 4 times to pass the strip. (file `ALCOHOL_BC_DOSE_RESP_REVIEW.html` lines 54–59 + `showTab()`)
+- **[FIXED] P1-9** [UX/Accessibility]: No arrow-key navigation between tabs. WAI-ARIA Tabs pattern requires `ArrowLeft`/`ArrowRight` + roving tabindex. Currently all 4 buttons are in tab order; user must press Tab 4 times to pass the strip. (file `ALCOHOL_BC_DOSE_RESP_REVIEW.html` lines 54–59 + `showTab()`)
   - Fix: implement roving tabindex + arrow-key handler in `showTab()`/`keydown`.
 
-- **P1-10** [UX/Accessibility]: Tables lack `<caption>` elements. Screen readers announce "table" with no context — 5+ tables per panel makes orientation hard. (HTML multiple lines; badge JS line 109)
+- **[FIXED] P1-10** [UX/Accessibility]: Tables lack `<caption>` elements. Screen readers announce "table" with no context — 5+ tables per panel makes orientation hard. (HTML multiple lines; badge JS line 109)
   - Fix: add `<caption>` as first child of each `<table>`.
 
-- **P1-11** [UX/Accessibility]: Numeric tables overflow at 320px viewport — WCAG 1.4.10. (HTML lines 199–207, 210–219, 241–248, 253–260)
+- **[FIXED] P1-11** [UX/Accessibility]: Numeric tables overflow at 320px viewport — WCAG 1.4.10. (HTML lines 199–207, 210–219, 241–248, 253–260)
   - Fix: add `.table-scroll { overflow-x: auto; }` wrapper class and use it around each rendered table.
 
-- **P1-12** [UX/Accessibility]: Tab switching doesn't move focus. Keyboard user activates a tab and lands on the button, then must Tab through dozens of non-focusable KPI divs to reach content. (HTML `showTab()` line 153–158)
+- **[FIXED] P1-12** [UX/Accessibility]: Tab switching doesn't move focus. Keyboard user activates a tab and lands on the button, then must Tab through dozens of non-focusable KPI divs to reach content. (HTML `showTab()` line 153–158)
   - Fix: after panel becomes visible, `document.getElementById('tab-' + name).querySelector('h2')?.focus()` (add `tabindex="-1"` to each `<h2>`).
 
-- **P1-13** [Software Engineer]: `matvec` (lowercase) is dead code in the engine — defined at line 57 but never called or exported. Round 1A cleanup was supposed to remove it; persists. (engine line 57–60)
+- **[FIXED] P1-13** [Software Engineer]: `matvec` (lowercase) is dead code in the engine — defined at line 57 but never called or exported. Round 1A cleanup was supposed to remove it; persists. (engine line 57–60)
   - Fix: delete the dead function.
 
-- **P1-14** [Software Engineer]: R `tryCatch` blocks discard error messages (`error = function(e) NULL`). On glmer/dosresmeta failure, output JSON shows only `fit_ok: false` with zero diagnostic. (R script lines 71–76, 80–85, 109–114)
+- **[FIXED] P1-14** [Software Engineer]: R `tryCatch` blocks discard error messages (`error = function(e) NULL`). On glmer/dosresmeta failure, output JSON shows only `fit_ok: false` with zero diagnostic. (R script lines 71–76, 80–85, 109–114)
   - Fix: capture `conditionMessage(e)` into `error_msg` field in each block.
 
-- **P1-15** [Software Engineer]: `DOMContentLoaded` handler has no guard against `window.RapidMetaDoseResp` being undefined. If engine script fails to load, `DR.engine_version` throws and all 4 tabs render blank silently. `JSON.parse` on embedded trial JSON also has no try/catch. (HTML lines 161–165)
+- **[FIXED] P1-15** [Software Engineer]: `DOMContentLoaded` handler has no guard against `window.RapidMetaDoseResp` being undefined. If engine script fails to load, `DR.engine_version` throws and all 4 tabs render blank silently. `JSON.parse` on embedded trial JSON also has no try/catch. (HTML lines 161–165)
   - Fix: early guard with visible error banner if `DR` is undefined; wrap JSON.parse in try/catch.
 
-- **P1-16** [Software Engineer]: `forest(trials, result)` accepts `trials` but never uses it; operates entirely on `result.per_study`. Misrepresents data dependencies. (engine line 771; all 3 call sites)
+- **[FIXED] P1-16** [Software Engineer]: `forest(trials, result)` accepts `trials` but never uses it; operates entirely on `result.per_study`. Misrepresents data dependencies. (engine line 771; all 3 call sites)
   - Fix: drop `trials` from signature OR add `/* trials reserved for future per-arm weight override */` comment.
 
-- **P1-17** [Software Engineer]: Python wrapper exit codes (2–5) undocumented in module docstring. CI consumers can't distinguish failure modes without reading source. (file `scripts/r_validate_doseresp.py` lines 1–13)
+- **[FIXED] P1-17** [Software Engineer]: Python wrapper exit codes (2–5) undocumented in module docstring. CI consumers can't distinguish failure modes without reading source. (file `scripts/r_validate_doseresp.py` lines 1–13)
   - Fix: add `Exit codes:` section to docstring.
 
-- **P1-18** [Domain Expert]: Howe 1991 case-control-reanalysed-as-cohort design is silently mixed with 4 true cohorts. GL 1992 documents this explicitly in Table 1 footnote; the HTML methods collapsible doesn't. (HTML line ~135 / line ~297–300)
+- **[FIXED] P1-18** [Domain Expert]: Howe 1991 case-control-reanalysed-as-cohort design is silently mixed with 4 true cohorts. GL 1992 documents this explicitly in Table 1 footnote; the HTML methods collapsible doesn't. (HTML line ~135 / line ~297–300)
   - Fix: add a footnote/methods sentence explaining the design difference and that the Poisson hierarchical model treats all studies uniformly per GL 1992's choice.
 
-- **P1-19** [Domain Expert]: RE pool gives RR ≈ 1.289 per 11 g/day — ~4× the FE estimate from the source paper and ~3× modern best-evidence (Smith-Warner 1998, Allen 2009: ~7–10% per 10 g/day). Plain-English summary presents 1.289 without caveats. Teaching audience will misinterpret. (HTML line ~222)
+- **[FIXED] P1-19** [Domain Expert]: RE pool gives RR ≈ 1.289 per 11 g/day — ~4× the FE estimate from the source paper and ~3× modern best-evidence (Smith-Warner 1998, Allen 2009: ~7–10% per 10 g/day). Plain-English summary presents 1.289 without caveats. Teaching audience will misinterpret. (HTML line ~222)
   - Fix: append note: "this is a methodology paper's worked example, not best-evidence; modern estimates are ~7–10% per 10 g/day; high RE value reflects extreme I² (≈ 95%) driven by Howe 1991."
 
-- **P1-20** [Domain Expert]: Dose values in fixture are GL 1992's **assigned midpoints** (per Table 1) — not category boundaries. Not documented anywhere. (fixture JSON; HTML methods collapsible)
+- **[FIXED] P1-20** [Domain Expert]: Dose values in fixture are GL 1992's **assigned midpoints** (per Table 1) — not category boundaries. Not documented anywhere. (fixture JSON; HTML methods collapsible)
   - Fix: add `dose_assignment_method` field to fixture; one sentence in methods.
 
 ---
 
 ## P2 — Minor (polish; queue for Round 2)
 
-- **P2-1** [Statistical Methodologist]: `dose_scale_sd` (glmer convergence-aid factor) is in JSON but not propagated into `fitOneStage` return or displayed in HTML. (file `r_validate_doseresp.R` line 129; HTML line ~290)
-- **P2-2** [Statistical Methodologist]: Wald non-linearity comment doesn't explain that the marginal-sum form is a consequence of diagonal-PM independence assumption. (engine line ~626–636)
-- **P2-3** [Statistical Methodologist]: R `glmer` block lacks `tryCatch` around `vcov()`/`VarCorr()` — a post-fit failure crashes the script. (R script lines 116–138)
-- **P2-4** [Security]: No `Content-Security-Policy` meta tag. (HTML `<head>`)
-- **P2-5** [Security]: `vendor/r-validation-badge.js` localStorage key `'r-validation-badge-expanded'` is unnamespaced — cross-page collision risk. (badge.js line 35)
-- **P2-6** [UX/Accessibility]: Inline `style="background:#fef8ec;..."` on the amber notes — won't render correctly in Windows High Contrast Mode (forced-colors strips backgrounds). (HTML line 265)
-- **P2-7** [UX/Accessibility]: No explicit `:focus-visible` ring on tab buttons. (HTML `<style>`)
-- **P2-8** [UX/Accessibility]: `<nav>` has no `aria-label`. (HTML line 54)
-- **P2-9** [Software Engineer]: `fitOneStage(trials, opts, precomputedJson)` — `opts` is accepted but never read. (engine line 716)
-- **P2-10** [Software Engineer]: Section banner order is `2 → 2b → 2a → 2c` (non-sequential). (engine lines 257, 338, 402, 525)
-- **P2-11** [Software Engineer]: `allGreen` detection scans HTML strings for `rv-row-green` — fragile if CSS class renames. (badge JS line 101)
-- **P2-12** [Software Engineer]: `forest()` uses raw `z=1.96` for per-study CIs while pooled CI uses `t_{k-1}` (F-2 fix). Asymmetry not commented. (engine lines 777–778)
-- **P2-13** [Software Engineer]: `API` referenced inside `fit*` function bodies before it's defined — works via hoisting but is a latent footgun. (engine lines 520, 684, 737, 807 vs 811) **[DEFERRED — structural; safer in dedicated commit]**
-- **P2-14** [Domain Expert]: Fixture `outcome_type: "binary"` is clinically inaccurate for cohort person-years data — should be `"cohort_incidence_rate"` or `"ci"` (matching dosresmeta terminology). (fixture JSON line 6)
-- **P2-15** [Domain Expert]: Tabs 1 vs 3 show RR 1.289 vs 1.129 — 14% point-estimate gap with no comparative explanation. Teaching opportunity missed. (HTML line ~287–300)
+> **P2 status:** 11/14 FIXED (P2-5 deferred to parallel-session, P2-13 structural-deferred)
+> **REVIEW STATUS: All blocking P0+P1 closed except shared-file items.**
+
+- **[FIXED] P2-1** [Statistical Methodologist]: `dose_scale_sd` (glmer convergence-aid factor) is in JSON but not propagated into `fitOneStage` return or displayed in HTML. (file `r_validate_doseresp.R` line 129; HTML line ~290)
+- **[FIXED] P2-2** [Statistical Methodologist]: Wald non-linearity comment doesn't explain that the marginal-sum form is a consequence of diagonal-PM independence assumption. (engine line ~626–636)
+- **[FIXED] P2-3** [Statistical Methodologist]: R `glmer` block lacks `tryCatch` around `vcov()`/`VarCorr()` — a post-fit failure crashes the script. (R script lines 116–138)
+- **[FIXED] P2-4** [Security]: No `Content-Security-Policy` meta tag. (HTML `<head>`)
+- **[DEFERRED — vendor/r-validation-badge.js owned by parallel session] P2-5** [Security]: `vendor/r-validation-badge.js` localStorage key `'r-validation-badge-expanded'` is unnamespaced — cross-page collision risk. (badge.js line 35)
+- **[FIXED] P2-6** [UX/Accessibility]: Inline `style="background:#fef8ec;..."` on the amber notes — won't render correctly in Windows High Contrast Mode (forced-colors strips backgrounds). (HTML line 265)
+- **[FIXED] P2-7** [UX/Accessibility]: No explicit `:focus-visible` ring on tab buttons. (HTML `<style>`)
+- **[FIXED] P2-8** [UX/Accessibility]: `<nav>` has no `aria-label`. (HTML line 54)
+- **[FIXED] P2-9** [Software Engineer]: `fitOneStage(trials, opts, precomputedJson)` — `opts` is accepted but never read. (engine line 716)
+- **[FIXED] P2-10** [Software Engineer]: Section banner order is `2 → 2b → 2a → 2c` (non-sequential). (engine lines 257, 338, 402, 525)
+- **[FIXED] P2-11** [Software Engineer]: `allGreen` detection scans HTML strings for `rv-row-green` — fragile if CSS class renames. (badge JS line 101)
+- **[FIXED] P2-12** [Software Engineer]: `forest()` uses raw `z=1.96` for per-study CIs while pooled CI uses `t_{k-1}` (F-2 fix). Asymmetry not commented. (engine lines 777–778)
+- **[DEFERRED — structural API restructure; safer in dedicated commit] P2-13** [Software Engineer]: `API` referenced inside `fit*` function bodies before it's defined — works via hoisting but is a latent footgun. (engine lines 520, 684, 737, 807 vs 811)
+- **[FIXED] P2-14** [Domain Expert]: Fixture `outcome_type: "binary"` is clinically inaccurate for cohort person-years data — should be `"cohort_incidence_rate"` or `"ci"` (matching dosresmeta terminology). (fixture JSON line 6)
+- **[FIXED] P2-15** [Domain Expert]: Tabs 1 vs 3 show RR 1.289 vs 1.129 — 14% point-estimate gap with no comparative explanation. Teaching opportunity missed. (HTML line ~287–300)
 
 ---
 

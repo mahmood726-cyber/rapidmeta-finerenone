@@ -39,15 +39,18 @@
     var withinTol = (threshold != null && delta != null && delta < threshold);
     var status = opts.alwaysAmber ? 'amber' : (withinTol ? 'green' : 'amber');
     var note = opts.note || '';
-    return (
-      '<tr class="rv-row rv-row-' + status + '">' +
-      '<td class="rv-label">' + label + '</td>' +
-      '<td class="rv-engine">' + fmt(engineVal) + '</td>' +
-      '<td class="rv-r">' + fmt(rVal) + '</td>' +
-      '<td class="rv-delta">' + (delta != null ? fmt(delta) : 'n/a') + '</td>' +
-      '<td class="rv-note">' + note + '</td>' +
-      '</tr>'
-    );
+    return {
+      isGreen: status === 'green',
+      html: (
+        '<tr class="rv-row rv-row-' + status + '">' +
+        '<td class="rv-label">' + label + '</td>' +
+        '<td class="rv-engine">' + fmt(engineVal) + '</td>' +
+        '<td class="rv-r">' + fmt(rVal) + '</td>' +
+        '<td class="rv-delta">' + (delta != null ? fmt(delta) : 'n/a') + '</td>' +
+        '<td class="rv-note">' + note + '</td>' +
+        '</tr>'
+      )
+    };
   }
 
   function render(mountId, engineResults, rResults) {
@@ -96,9 +99,10 @@
 
     // NOTE: allGreen is structurally false in v0.1 because row 5 (Non-linearity Wald p) is
     // always amber by design (documented diagonal-PM tradeoff). When P2 hardening lifts to
-    // full multivariate REML, the alwaysAmber flag goes away and this line starts producing
+    // full multivariate REML, the alwaysAmber flag goes away and allGreen will start producing
     // a green header for clean parity. See engine fitRCS comment block for the design note.
-    var allGreen = rows.every(function (rowStr) { return rowStr.indexOf('rv-row-green') !== -1; });
+    // P2-11: allGreen reads structural isGreen flag, not HTML string content.
+    var allGreen = rows.every(function (r) { return r.isGreen; });
     var headerStatus = allGreen ? 'green' : 'amber';
 
     var html = '' +
@@ -108,7 +112,7 @@
       '    <table class="rv-table">' +
       '      <caption>R-parity comparison: engine vs R validator (4 green-threshold rows + 1 always-amber non-linearity row)</caption>' +
       '      <thead><tr><th>Metric</th><th>Engine</th><th>R</th><th>|Δ|</th><th>Note</th></tr></thead>' +
-      '      <tbody>' + rows.join('') + '</tbody>' +
+      '      <tbody>' + rows.map(function (r) { return r.html; }).join('') + '</tbody>' +
       '    </table>' +
       '    <p class="rv-disclosure">Non-linearity p divergence is the documented v0.1 diagonal-PM approximation. P2 hardening will lift to full multivariate REML. See engine source comment in <code>fitRCS</code>.</p>' +
       '  </details>' +
