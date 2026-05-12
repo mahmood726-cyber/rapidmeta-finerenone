@@ -277,6 +277,22 @@ test('nonLinearityTest extracts p, df, chi2 from fitRCS result', () => {
   assert.equal(nl.df, res.rcs.spline_coefs.length - 1);
 });
 
+// === Task 15: fitOneStage() ===
+
+test('fitOneStage returns null when precomputedJson is null', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const res = DR.fitOneStage(fx.trials, {}, null);
+  assert.equal(res, null);
+});
+
+test('fitOneStage reads R-precomputed coefficients', () => {
+  const synthetic = { one_stage: { coef_dose: 0.05, coef_dose_se: 0.01, converged: true, random_effects_var: 0.003 } };
+  const res = DR.fitOneStage([], {}, synthetic);
+  near(res.one_stage.coef_dose, 0.05, 1e-12, 'coef passthrough');
+  assert.equal(res.layer, 'one_stage');
+  assert.equal(res.estimator, 'r_precomputed');
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }
