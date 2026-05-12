@@ -1,0 +1,33 @@
+{
+  "fixture_name": "extrapolation",
+  "synthetic": true,
+  "outcome": "synthetic_event_rate",
+  "outcome_type": "binary",
+  "trials": [
+    {
+      "studlab": "Trial X",
+      "arms": [
+        { "dose": 0,  "events": 50, "n": 1000, "is_reference": true },
+        { "dose": 5,  "events": 60, "n": 1000, "is_reference": false },
+        { "dose": 10, "events": 75, "n": 1000, "is_reference": false }
+      ]
+    },
+    {
+      "studlab": "Trial Y",
+      "arms": [
+        { "dose": 0,  "events": 55, "n": 1000, "is_reference": true },
+        { "dose": 5,  "events": 62, "n": 1000, "is_reference": false },
+        { "dose": 12, "events": 80, "n": 1000, "is_reference": false }
+      ]
+    },
+    {
+      "studlab": "Trial Z",
+      "arms": [
+        { "dose": 0,  "events": 48, "n": 1000, "is_reference": true },
+        { "dose": 8,  "events": 70, "n": 1000, "is_reference": false }
+      ]
+    }
+  ],
+  "max_observed_dose": 12,
+  "extrapolation_threshold_factor": 1.2
+}
