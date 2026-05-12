@@ -104,7 +104,7 @@
       '<a href="https://cran.r-project.org/package=metafor" target="_blank" style="color:#7dd3fc;text-decoration:none;">metafor</a> ' +
       '(measure="PLO" for logit; measure="PFT" for Freeman-Tukey double-arcsine), REML estimator with Hartung-Knapp-Sidik-Jonkman small-sample correction. ' +
       'Source: <code style="color:#94a3b8;">outputs/r_validation/singlearm/' + escapeHtml(r.review) + '.json</code>.' +
-      '</div></div>';
+      '<div style="margin-top:6px;padding:4px 8px;background:#1e1f3a;border-left:2px solid #fbbf24;font-size:10px;color:#fbbf24;">⚠ Computational validation only — not a GRADE certainty rating. RoB-2, indirectness, imprecision, inconsistency, and publication bias require separate assessment.</div></div></div>';
 
     return { summary, body };
   }

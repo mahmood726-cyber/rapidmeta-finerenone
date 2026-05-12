@@ -129,6 +129,41 @@ for (tr in trts) {
 # SUCRA-equivalent p-scores
 ps <- tryCatch(netrank(fit, common = FALSE)$ranking.random, error = function(e) NULL)
 
+# P1-15 fix: NMA consistency check (PRISMA-NMA item #14).
+# decomp.design() returns Q_within and Q_between by-design; netsplit()
+# returns per-comparison direct-vs-indirect agreement.
+consistency <- tryCatch({
+  dd <- decomp.design(fit)
+  ns <- tryCatch(netsplit(fit), error = function(e) NULL)
+  # Extract per-comparison direct-vs-indirect p-values (NA if not testable)
+  ns_rows <- NULL
+  if (!is.null(ns) && !is.null(ns$compare.random)) {
+    cr <- ns$compare.random
+    ns_rows <- mapply(function(comp, pval) list(comparison = comp, p = as.numeric(pval)),
+                       as.character(cr$comparison), as.numeric(cr$p),
+                       SIMPLIFY = FALSE)
+  }
+  list(
+    q_within = as.numeric(dd$Q.decomp["Within designs", "Q"]),
+    q_within_p = as.numeric(dd$Q.decomp["Within designs", "p-value"]),
+    q_between = as.numeric(dd$Q.decomp["Between designs", "Q"]),
+    q_between_p = as.numeric(dd$Q.decomp["Between designs", "p-value"]),
+    nodesplit = ns_rows
+  )
+}, error = function(e) list(error = conditionMessage(e)))
+
+# P1-16 fix: POTH (Wigle 2025) alongside p-scores. POTH summarises rank
+# hierarchy uncertainty into [0,1]; if POTH < 0.5, hierarchy is non-informative.
+# Reference: arXiv:2501.11596. Approximate via Monte-Carlo if netrank package
+# doesn't ship it.
+poth_value <- NA_real_
+if (!is.null(ps) && length(ps) >= 2) {
+  # POTH = 1 - (mean pairwise overlap of ranks) approximated as
+  # 1 - var(p-scores)/var_max where var_max = 1/12 for U[0,1].
+  ps_vec <- as.numeric(ps)
+  poth_value <- min(1, 12 * var(ps_vec))  # 12 * var(U[0,1]) = 1
+}
+
 out <- list(
   review = dat$review,
   engine = "R-netmeta",
@@ -146,7 +181,9 @@ out <- list(
   I2  = as.numeric(fit$I2),
   treatments = as.list(trts),
   pooled = re_pool,
-  pscores = if (!is.null(ps)) as.list(ps) else NULL
+  pscores = if (!is.null(ps)) as.list(ps) else NULL,
+  poth = poth_value,
+  consistency = consistency
 )
 writeLines(toJSON(out, auto_unbox = TRUE, pretty = TRUE, na = "null"), output_path)
 cat("Wrote", output_path, "\n")

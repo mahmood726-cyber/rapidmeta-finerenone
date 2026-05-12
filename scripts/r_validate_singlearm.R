@@ -92,12 +92,36 @@ fit_pool <- function(measure, transf_fn = NULL) {
 logit_pool <- fit_pool("PLO", transf.ilogit)
 ft_pool    <- fit_pool("PFT", transf.ipft.hm)
 
+# P1-18 fix: Schwarzer 2019 rule for primary pool selection.
+#   PFT primary when any p̂_i < 0.2 or > 0.8 AND τ̂² > 0.1
+#   Logit primary otherwise.
+proportions <- with(trials, e / n)
+schwarzer_pft <- (any(proportions < 0.2 | proportions > 0.8) &&
+                  !is.null(logit_pool) && logit_pool$tau2 > 0.1)
+primary_method <- if (schwarzer_pft) "freeman_tukey" else "logit"
+
+# P1-9 fix: HKSJ floor disclosure. metafor's test="knha" can produce CIs
+# narrower than DL when Q < df; the Cochrane v6.5 / RevMan-2025 convention
+# is to enforce max(1, Q/(k-1)). We report whether the floor would have
+# been active (HKSJ inflation factor).
+hksj_floor_applied <- FALSE
+hksj_inflation <- NA_real_
+if (!is.null(logit_pool) && !is.null(logit_pool$Q) && k >= 2) {
+  q_over_df <- logit_pool$Q / max(1, k - 1)
+  hksj_inflation <- max(1, q_over_df)
+  hksj_floor_applied <- (q_over_df < 1)
+}
+
 out <- list(
   review = dat$review,
   engine = "R-metafor-rma",
   metafor_version = as.character(packageVersion("metafor")),
   k = k,
   fit_ok = !is.null(logit_pool),
+  primary_method = primary_method,  # P1-18 Schwarzer choice
+  schwarzer_rule = if (schwarzer_pft) "PFT primary (extreme proportions + tau2>0.1)" else "logit primary",
+  hksj_floor_applied = hksj_floor_applied,  # P1-9 disclosure
+  hksj_inflation_factor = hksj_inflation,
   logit_pool = logit_pool,
   freeman_tukey_pool = ft_pool
 )

@@ -40,7 +40,7 @@
       'External cross-validation against R 4.5.2 + <a href="https://cran.r-project.org/package=metafor" target="_blank" style="color:#7dd3fc;text-decoration:none;">metafor</a>, ' +
       'rma(yi, vi, method="REML", test="knha"). Prediction interval uses Cochrane v6.5 t_{k-1} convention. ' +
       'Source: <code style="color:#94a3b8;">outputs/r_validation/continuous/' + escapeHtml(r.review) + '.json</code>.' +
-      '</div></div>';
+      '<div style="margin-top:6px;padding:4px 8px;background:#1e1f3a;border-left:2px solid #fbbf24;font-size:10px;color:#fbbf24;">⚠ Computational validation only — not a GRADE certainty rating. RoB-2, indirectness, imprecision, inconsistency, and publication bias require separate assessment.</div></div></div>';
     return { summary, body };
   }
 

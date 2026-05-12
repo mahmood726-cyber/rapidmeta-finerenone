@@ -124,7 +124,7 @@
       '<a href="https://cran.r-project.org/web/packages/mada/" target="_blank" style="color:#7dd3fc;text-decoration:none;">mada</a> ' +
       'package (Doebler, Reitsma bivariate model). Same 2x2 inputs as the in-page Reitsma; differences indicate engine vs reference implementation drift. ' +
       'Source data: <code style="color:#94a3b8;">outputs/r_validation/dta/' + escapeHtml(r.review) + '.json</code>.' +
-      '</div></div>';
+      '<div style="margin-top:6px;padding:4px 8px;background:#1e1f3a;border-left:2px solid #fbbf24;font-size:10px;color:#fbbf24;">⚠ Computational validation only — not a GRADE certainty rating. RoB-2, indirectness, imprecision, inconsistency, and publication bias require separate assessment.</div></div></div>';
 
     return { summary, body, color: verdictColor };
   }
