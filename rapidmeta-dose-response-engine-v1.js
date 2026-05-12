@@ -54,12 +54,6 @@
     }
     return A.map(function (row) { return row.slice(n); });
   }
-  function matvec(A, v) {
-    var r = new Array(A.length).fill(0);
-    for (var i = 0; i < A.length; i++) { var s = 0; for (var j = 0; j < v.length; j++) s += A[i][j] * v[j]; r[i] = s; }
-    return r;
-  }
-
   // Beasley-Springer-Moro inverse normal (good to ~7 digits in [1e-9, 1-1e-9])
   function qnormApprox(p) {
     if (p <= 0) return -Infinity;
@@ -334,10 +328,7 @@
     return S;
   }
 
-  // ===================================================================
-  // Section 2b: RCS helpers — knot placement (Harrell percentiles) and
-  // truncated power basis (Units 11-12).
-  // ===================================================================
+  // === Section 2b: RCS helpers (precedes Section 2a in file; positioned by dependency order) ===
 
   // quantile(sorted, p): R type-7 linear interpolation on a pre-sorted array.
   function quantile(sorted, p) {
@@ -487,6 +478,9 @@
     var I2 = Math.max(0, (Q - df) / Q) * 100;
     var H2 = Q / df;
 
+    // P1-4: PI df convention = k-1 (Cochrane v6.5 §10.10.4.3 / RevMan-2025).
+    // Alternative t_{k-2} from IntHout/Higgins/Tudur Smith 2016 is NOT used here.
+    // See advanced-stats.md "PI df conflict" rule.
     // PI per Cochrane v6.5: t_{k-1} × sqrt(τ² + seHKSJ²)
     var piHalf = tcrit * Math.sqrt(tau2 + seHKSJ * seHKSJ);
 
@@ -591,6 +585,10 @@
       perStudy.push({ studlab: T.studlab, beta: beta_i, V: V_i, n_arms: T.arms.length });
     }
 
+  if (perStudy.length < 2) {
+    throw new Error('fitRCS: fewer than 2 studies survived covariance inversion; k_effective=' + perStudy.length);
+  }
+
     // v0.1 design choice: diagonal-PM-per-dimension τ² approximation.
     // Each spline-basis dimension gets its own Paule-Mandel τ², independent of
     // the others. This is simpler than the full multivariate REML used by R's
@@ -627,6 +625,10 @@
     // H0: all non-linear basis coefs (d >= 1) are zero.
     // Statistic: sum_d (beta_d / se_d)^2 ~ chi2(K-2) under H0.
     // Note: pooled[0] is the linear trend; pooled[1..Kp-1] are the non-linear deviations.
+    // P2-2: Under diagonal-PM, pooled spline coefs are treated as independent, so the Wald
+    // statistic reduces to sum(z_d^2) = b' diag(1/se_d^2) b ~ chi2(K-2). This is NOT
+    // t(b) %*% solve(V_full) %*% b (the form R uses with full multivariate REML).
+    // Full-vcov Wald variant is deferred to P2 multivariate-REML hardening.
     var nlCoefs = pooled.slice(1);
     var nlSEs = pooledSE.slice(1);
     var W = 0;
@@ -714,6 +716,7 @@
   // outputs/r_validation/doseresp/<REVIEW>.json to read R precomputed coefs.
   // ===================================================================
   function fitOneStage(trials, opts, precomputedJson) {
+    // P2-9: opts is reserved for future use (currently ignored).
     if (precomputedJson == null) return null;
     var os = precomputedJson.one_stage || {};
     return {
@@ -728,6 +731,8 @@
         random_effects_var: os.random_effects_var,
         fit_ok: os.fit_ok !== false,  // default true unless explicitly false in input
         lme4_version: os.lme4_version,
+        dose_scale_sd: os.dose_scale_sd,
+        coef_dose_on_scaled: os.coef_dose_on_scaled,
       },
       pooled_slope_log: os.coef_dose,
       pooled_slope_log_se: os.coef_dose_se,
@@ -762,18 +767,28 @@
       // F-2 fix: use t_{k-1} (matches fitLinear's own CI construction) instead of raw z=1.96.
       // Falls back to z=1.96 only when pi_df is missing (defensive) or non-positive (k=1 edge,
       // which fitLinear itself rejects via the k<2 guard).
-      var df = result.pi_df != null ? result.pi_df : (result.k != null ? result.k - 1 : 0);
-      var tcrit = df > 0 ? qt(0.975, df) : 1.96;
+      var tcrit;
+      if (result.ci_method === 'z_1.96') {
+        tcrit = 1.96;  // P1-3: honour fitOneStage's documented z-CI annotation
+      } else {
+        var df = result.pi_df != null ? result.pi_df : (result.k != null ? result.k - 1 : 0);
+        tcrit = df > 0 ? qt(0.975, df) : 1.96;
+      }
       return { est: est, ci_lo: est - tcrit * se, ci_hi: est + tcrit * se, extrapolation_banner: banner };
     }
   }
 
   function forest(trials, result) {
+    // P1-16: `trials` is reserved for future per-arm weight override; the function operates
+    // entirely on result.per_study. Keep the param for backward compatibility.
     var rows = (result.per_study || []).map(function (s) {
       var sl = s.slope_log || 0, ssle = s.slope_log_se || 0;
       return {
         label: s.studlab,
         hr: Math.exp(sl),
+        // P2-12: Per-study CIs use z=1.96 (standard forest-plot convention; the POOLED CI uses
+        // t_{k-1} via F-2 fix). Asymmetry is intentional: per-study CIs are descriptive (one
+        // study's own data); the pool's CI uses t because of the RE+HKSJ estimator.
         hr_ci_lo: Math.exp(sl - 1.96 * ssle),
         hr_ci_hi: Math.exp(sl + 1.96 * ssle),
         slope_log: sl,
