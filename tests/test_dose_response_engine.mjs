@@ -370,6 +370,26 @@ test('engine fitRCS linear-component matches R within tolerance', () => {
        'rcs linear-component vs R');
 });
 
+test('forest() on fitRCS result uses RE weights from tau2_per_dim[0] (F-3 fix)', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const res = DR.fitRCS(fx.trials, { knots: 3 });
+  const rows = DR.forest(fx.trials, res);
+  assert.equal(rows.length, 5);
+
+  // RCS layer carries tau² inside res.rcs.tau2_per_dim[0]. Verify forest uses it.
+  const tau2 = res.rcs.tau2_per_dim[0] || 0;
+  const studlab = rows[0].label;
+  const matchingStudy = res.per_study.find(s => s.studlab === studlab);
+  const expectedW = 1 / (matchingStudy.slope_log_se * matchingStudy.slope_log_se + tau2);
+  const allExpectedW = rows.map(r => {
+    const s = res.per_study.find(ss => ss.studlab === r.label);
+    return 1 / (s.slope_log_se * s.slope_log_se + tau2);
+  });
+  const totalW = allExpectedW.reduce((a, b) => a + b, 0);
+  const expectedPct = 100 * expectedW / totalW;
+  near(rows[0].weight_pct, expectedPct, 1e-6, 'RCS forest uses RE weights from tau2_per_dim[0]');
+});
+
 test('predict() linear CI uses t_{k-1} not raw z=1.96 (F-2 fix)', () => {
   const fx = loadFx('gl1992_alcohol_bc.json');
   const res = DR.fitLinear(fx.trials, {});

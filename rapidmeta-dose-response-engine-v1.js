@@ -778,8 +778,16 @@
         slope_log_se: ssle,
       };
     });
-    // Weights: 1 / (vi + tau2) — re-derive from result to match pool.
-    var tau2 = result.tau2 || 0;
+    // weights: 1 / (vi + tau2).
+    // F-3 fix: fitRCS results carry tau² inside result.rcs.tau2_per_dim (per-dimension);
+    // use dim 0 (the linear component) for forest weighting. fitLinear / fitOneStage
+    // results expose result.tau2 directly.
+    var tau2;
+    if (result.layer === 'rcs' && result.rcs && Array.isArray(result.rcs.tau2_per_dim)) {
+      tau2 = result.rcs.tau2_per_dim[0] || 0;
+    } else {
+      tau2 = result.tau2 || 0;
+    }
     var w = rows.map(function (r) {
       var vi = r.slope_log_se * r.slope_log_se + tau2;
       return vi > 0 ? 1 / vi : 0;  // I1 guard: zero-variance row gets zero weight (excluded from pool)
