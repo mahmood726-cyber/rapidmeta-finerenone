@@ -97,6 +97,44 @@ if (!is.null(fit_rcs)) {
   }
 }
 
+# One-stage Poisson hierarchical (lme4::glmer with offset). Per-arm counts modelled
+# with random study intercept; dose enters as a fixed effect on the log-rate scale.
+# Dose is scaled by sd(dose[dose > 0]) to avoid the "very large eigenvalue" near-
+# unidentifiability warning; coefficients are back-transformed to the original scale.
+suppressPackageStartupMessages({ library(lme4) })
+
+dose_sd_pos <- sd(df$dose[df$dose > 0])
+df$dose_scaled <- df$dose / dose_sd_pos
+
+fit_os <- tryCatch(
+  glmer(events ~ dose_scaled + (1 | studlab), offset = log(n),
+        family = poisson(link = "log"), data = df,
+        control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 1e5))),
+  error = function(e) NULL
+)
+
+one_stage_block <- if (is.null(fit_os)) list(fit_ok = FALSE) else {
+  conv_ok <- is.null(fit_os@optinfo$conv$lme4$messages) ||
+             length(fit_os@optinfo$conv$lme4$messages) == 0
+  # Back-transform to original dose scale
+  coef_sc  <- as.numeric(fixef(fit_os)["dose_scaled"])
+  se_sc    <- as.numeric(sqrt(diag(vcov(fit_os))["dose_scaled"]))
+  coef_orig <- coef_sc  / dose_sd_pos
+  se_orig   <- se_sc    / dose_sd_pos
+  ci_lo_orig <- coef_orig - 1.96 * se_orig
+  ci_hi_orig <- coef_orig + 1.96 * se_orig
+  list(
+    fit_ok = TRUE,
+    lme4_version = as.character(packageVersion("lme4")),
+    coef_dose = coef_orig,
+    coef_dose_se = se_orig,
+    coef_dose_ci_lo = ci_lo_orig,
+    coef_dose_ci_hi = ci_hi_orig,
+    random_effects_var = as.numeric(VarCorr(fit_os)$studlab[1, 1]),
+    converged = conv_ok
+  )
+}
+
 out <- list(
   review = dat$review,
   engine = "R-dosresmeta",
@@ -114,7 +152,8 @@ out <- list(
     spline_coefs     = as.numeric(coef(fit_rcs)),
     spline_coefs_cov = matrix(as.numeric(vcov(fit_rcs)), nrow = length(coef(fit_rcs))),
     nonlinearity_wald_p = nl_p
-  )
+  ),
+  one_stage = one_stage_block
 )
 writeLines(toJSON(out, auto_unbox = TRUE, pretty = TRUE, na = "null"), output_path)
 cat("Wrote", output_path, "\n")
