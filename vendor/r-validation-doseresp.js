@@ -21,6 +21,13 @@
     rcs_coef_1: 0.01,
   };
 
+  // P1-6 fix: HTML-escape every R-sourced string before innerHTML concat.
+  function escapeHtml(s) {
+    if (s == null) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
   function fmt(x, dp) {
     if (x == null || !isFinite(x)) return 'n/a';
     return (+x).toFixed(dp == null ? 4 : dp);
@@ -87,13 +94,17 @@
         note: 'Engine uses diagonal-PM v0.1; R uses full multivariate REML — documented design tradeoff' }
     ));
 
-    var allGreen = rows.every(function (r) { return r.indexOf('rv-row-green') !== -1; });
+    // NOTE: allGreen is structurally false in v0.1 because row 5 (Non-linearity Wald p) is
+    // always amber by design (documented diagonal-PM tradeoff). When P2 hardening lifts to
+    // full multivariate REML, the alwaysAmber flag goes away and this line starts producing
+    // a green header for clean parity. See engine fitRCS comment block for the design note.
+    var allGreen = rows.every(function (rowStr) { return rowStr.indexOf('rv-row-green') !== -1; });
     var headerStatus = allGreen ? 'green' : 'amber';
 
     var html = '' +
       '<div class="rv-badge rv-badge-' + headerStatus + '">' +
       '  <details open>' +
-      '    <summary>R-parity badge — engine vs R (' + (r.dosresmeta_version ? 'dosresmeta ' + r.dosresmeta_version : 'R dosresmeta') + (r.one_stage && r.one_stage.lme4_version ? ', lme4 ' + r.one_stage.lme4_version : '') + ')</summary>' +
+      '    <summary>R-parity badge — engine vs R (' + (r.dosresmeta_version ? 'dosresmeta ' + escapeHtml(r.dosresmeta_version) : 'R dosresmeta') + (r.one_stage && r.one_stage.lme4_version ? ', lme4 ' + escapeHtml(r.one_stage.lme4_version) : '') + ')</summary>' +
       '    <table class="rv-table">' +
       '      <thead><tr><th>Metric</th><th>Engine</th><th>R</th><th>|Δ|</th><th>Note</th></tr></thead>' +
       '      <tbody>' + rows.join('') + '</tbody>' +
