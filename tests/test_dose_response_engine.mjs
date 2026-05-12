@@ -59,6 +59,13 @@ test('single_arm fixture loads with 1 trial having 1 arm', () => {
   assert.equal(fx.trials[0].arms.length, 1);
 });
 
+test('ref_only fixture has 1 trial with only the reference arm', () => {
+  const fx = loadFx('ref_only.json');
+  assert.equal(fx.trials.length, 1);
+  assert.equal(fx.trials[0].arms.length, 1);
+  assert.equal(fx.trials[0].arms[0].is_reference, true);
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }
