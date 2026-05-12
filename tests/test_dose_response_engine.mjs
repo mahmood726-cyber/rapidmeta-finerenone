@@ -34,6 +34,21 @@ test('engine exports expected API surface', () => {
 
 // === Subsequent tests added in later units. ===
 
+test('gl1992 fixture loads with 5 trials and well-formed arms', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  assert.equal(fx.trials.length, 5);
+  for (const t of fx.trials) {
+    assert.ok(Array.isArray(t.arms) && t.arms.length >= 4);
+    const ref = t.arms.filter(a => a.is_reference);
+    assert.equal(ref.length, 1, `${t.studlab} should have exactly 1 reference arm`);
+    for (const a of t.arms) {
+      assert.ok(Number.isFinite(a.dose) && a.dose >= 0);
+      assert.ok(Number.isFinite(a.events) && a.events >= 0);
+      assert.ok(Number.isFinite(a.n) && a.n > 0);
+    }
+  }
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }
