@@ -70,21 +70,20 @@
     if (engine && Number.isFinite(engine.sens) && Number.isFinite(engine.spec)) {
       const dSe = Math.abs(engine.sens - rSe);
       const dSp = Math.abs(engine.spec - rSp);
-      // The engine's in-page pool is a fixed-effect logit pool by default;
-      // R mada::reitsma is a bivariate REML random-effects model. With
-      // heterogeneous trials, point estimates can legitimately diverge by
-      // 1-3pp — not an engine bug. Use 3pp as the routine cross-method
-      // tolerance; flag tight (1pp) match green, looser amber.
-      const tight_tol  = 0.01;    // 1pp — tight method-agnostic match
-      const method_tol = 0.03;    // 3pp — typical FE vs bivariate-RE gap
-      if (dSe < tight_tol && dSp < tight_tol) {
-        verdict = '✓ R mada cross-validated · Se Sp match within 1pp';
+      // P0-4 fix: only award ✓ for tight match. Method-spread is amber.
+      // Tight tolerance: absolute 1pp AND ≤20% relative to baseline.
+      const baselineSe = (engine.sens + rSe) / 2;
+      const baselineSp = (engine.spec + rSp) / 2;
+      const tightSe = Math.min(0.01, Math.max(0.005, 0.20 * baselineSe));
+      const tightSp = Math.min(0.01, Math.max(0.005, 0.20 * baselineSp));
+      if (dSe < tightSe && dSp < tightSp) {
+        verdict = '✓ R mada cross-validated · Se Sp within tight tolerance';
         verdictColor = '#22c55e';
-      } else if (dSe < method_tol && dSp < method_tol) {
-        verdict = '✓ R mada cross-validated · within bivariate-vs-FE method gap';
-        verdictColor = '#22c55e';
+      } else if (dSe < 0.03 && dSp < 0.03) {
+        verdict = '⚠ Method-spread (Δ Se ' + (dSe * 100).toFixed(1) + 'pp, Δ Sp ' + (dSp * 100).toFixed(1) + 'pp) · bivariate-RE vs FE-logit';
+        verdictColor = '#fbbf24';
       } else {
-        verdict = '⚠ R-engine diverges beyond method gap (Δ Se ' +
+        verdict = '⚠ R-engine diverges (Δ Se ' +
                   (dSe * 100).toFixed(1) + 'pp, Δ Sp ' + (dSp * 100).toFixed(1) + 'pp)';
         verdictColor = '#fbbf24';
       }

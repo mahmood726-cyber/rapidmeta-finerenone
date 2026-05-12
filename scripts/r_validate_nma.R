@@ -14,8 +14,12 @@
 
 suppressPackageStartupMessages({
   library(netmeta)
+  library(metafor)
   library(jsonlite)
 })
+
+# P0-1 fix: define `%||%` BEFORE first use.
+`%||%` <- function(a, b) if (is.null(a)) b else a
 
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) < 2) stop("Usage: Rscript r_validate_nma.R <input.json> <output.json>")
@@ -47,32 +51,60 @@ if (k < 2) {
   quit(status = 0)
 }
 
-# Compute log-OR + SE per contrast (Haldane 0.5 cc for zero cells)
-zero <- with(cmp, e1 == 0 | n1 - e1 == 0 | e2 == 0 | n2 - e2 == 0)
-cmp$e1c <- cmp$e1 + ifelse(zero, 0.5, 0)
-cmp$n1c <- cmp$n1 + ifelse(zero, 1, 0)
-cmp$e2c <- cmp$e2 + ifelse(zero, 0.5, 0)
-cmp$n2c <- cmp$n2 + ifelse(zero, 1, 0)
-cmp$logOR <- with(cmp, log((e1c * (n2c - e2c)) / ((n1c - e1c) * e2c)))
-cmp$seLogOR <- with(cmp, sqrt(1/e1c + 1/(n1c - e1c) + 1/e2c + 1/(n2c - e2c)))
+# P0-7 fix: cell-level Haldane 0.5 continuity correction via metafor::escalc
+# (add=1/2, to="only0") — only zero cells get +0.5, not the whole 2x2. The
+# yi/vi returned are the standard Woolf log-OR and its asymptotic variance.
+es <- escalc(measure = "OR",
+             ai = cmp$e1, n1i = cmp$n1,
+             ci = cmp$e2, n2i = cmp$n2,
+             slab = cmp$studlab,
+             add = 1/2, to = "only0")
+cmp$logOR   <- as.numeric(es$yi)
+cmp$seLogOR <- sqrt(as.numeric(es$vi))
+zero_count  <- sum(with(cmp, e1 == 0 | n1 - e1 == 0 | e2 == 0 | n2 - e2 == 0))
 
-# netmeta needs studlab uniqueness; if duplicates, suffix-number
-if (anyDuplicated(cmp$studlab)) {
-  cmp$studlab <- make.unique(cmp$studlab)
+# P0-2 fix: do NOT make.unique() studlabs. netmeta detects multi-arm trials
+# by repeated studlab and applies the tau²/2 shared-control covariance
+# automatically. Fake-uniquing destroys that linkage.
+
+# P0-9 fix: explicit connectivity check BEFORE attempting the fit.
+nc <- tryCatch(
+  netconnection(treat1 = cmp$t1, treat2 = cmp$t2, studlab = cmp$studlab),
+  error = function(e) NULL
+)
+if (!is.null(nc) && nc$n.subnets > 1) {
+  # Compose subnet summary
+  subnet_sizes <- as.integer(table(nc$subnet))
+  writeLines(toJSON(list(
+    review = dat$review, fit_ok = FALSE,
+    engine = "R-netmeta",
+    netmeta_version = as.character(packageVersion("netmeta")),
+    k_comparisons = k,
+    connected = FALSE,
+    n_subnets = as.integer(nc$n.subnets),
+    subnet_sizes = subnet_sizes,
+    error = paste0("Disconnected network: ", nc$n.subnets,
+                    " sub-networks (sizes: ", paste(subnet_sizes, collapse = ", "), ")")
+  ), auto_unbox = TRUE, pretty = TRUE), output_path)
+  quit(status = 0)
 }
 
 fit <- tryCatch(
   netmeta(TE = cmp$logOR, seTE = cmp$seLogOR, treat1 = cmp$t1, treat2 = cmp$t2,
           studlab = cmp$studlab, sm = "OR", common = FALSE, random = TRUE,
           reference.group = dat$reference %||% NULL),
-  error = function(e) NULL
+  error = function(e) list(caught_message = conditionMessage(e))
 )
 
-if (is.null(fit)) {
-  writeLines(toJSON(list(review = dat$review, fit_ok = FALSE,
-                         engine = "R-netmeta", k_comparisons = k,
-                         error = "netmeta() failed — disconnected network or degenerate"),
-                    auto_unbox = TRUE), output_path)
+if (is.list(fit) && !is.null(fit$caught_message)) {
+  writeLines(toJSON(list(
+    review = dat$review, fit_ok = FALSE,
+    engine = "R-netmeta",
+    netmeta_version = as.character(packageVersion("netmeta")),
+    k_comparisons = k,
+    connected = TRUE,
+    error = paste0("netmeta() error: ", fit$caught_message)
+  ), auto_unbox = TRUE, pretty = TRUE), output_path)
   quit(status = 0)
 }
 
@@ -105,6 +137,8 @@ out <- list(
   n_treatments = length(trts),
   reference = ref,
   fit_ok = TRUE,
+  connected = TRUE,
+  n_zero_cell_corrected = as.integer(zero_count),
   tau2 = as.numeric(fit$tau2),
   Q   = as.numeric(fit$Q),
   Qdf = as.numeric(fit$df.Q),
@@ -116,5 +150,3 @@ out <- list(
 )
 writeLines(toJSON(out, auto_unbox = TRUE, pretty = TRUE, na = "null"), output_path)
 cat("Wrote", output_path, "\n")
-
-`%||%` <- function(a, b) if (is.null(a)) b else a

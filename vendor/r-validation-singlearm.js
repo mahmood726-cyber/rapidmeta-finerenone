@@ -53,12 +53,18 @@
     let cmpRow = '';
     if (engine && Number.isFinite(engine.prop) && Number.isFinite(rProp)) {
       const d = Math.abs(engine.prop - rProp);
-      const tight_tol = 0.01;   // 1pp
-      const method_tol = 0.03;  // 3pp
+      // P0-4 fix: only award ✓ for tight match. The wider 3pp "method
+      // gap" is descriptive — at low baseline rates 3pp is a large
+      // relative divergence (e.g. 60% relative at 5% rate). Tight
+      // tolerance combines absolute 1pp AND ≤20% relative.
+      const baseline = (engine.prop + rProp) / 2;
+      const tight_abs = 0.01;                // 1pp absolute
+      const tight_rel = 0.20 * baseline;     // 20% relative
+      const tight_tol = Math.min(tight_abs, Math.max(0.005, tight_rel));
       if (d < tight_tol) {
-        verdict = '✓ R metafor cross-validated · within 1pp';
-      } else if (d < method_tol) {
-        verdict = '✓ R metafor cross-validated · within DL-vs-REML method gap';
+        verdict = '✓ R metafor cross-validated · Δ ' + (d * 100).toFixed(2) + 'pp · within tight tolerance';
+      } else if (d < 0.03) {
+        verdict = '⚠ R-engine method-spread Δ ' + (d * 100).toFixed(1) + 'pp · likely PFT-vs-logit or REML-vs-DL drift';
       } else {
         verdict = '⚠ R-engine diverges (Δ ' + (d * 100).toFixed(1) + 'pp)';
       }

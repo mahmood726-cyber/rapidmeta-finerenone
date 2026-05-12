@@ -8,7 +8,7 @@ Detection: ≥2 trials with an `allOutcomes[]` entry having both `md` and `se`
 Outputs to outputs/r_validation/continuous/<REVIEW>.json
 """
 from __future__ import annotations
-import io, json, math, re, subprocess, sys
+import io, json, math, os, re, shutil, subprocess, sys
 from pathlib import Path
 
 if sys.platform == "win32" and hasattr(sys.stdout, "buffer"):
@@ -22,7 +22,12 @@ DATA_DIR = REPO / "outputs" / "extraction_audit" / "data"
 OUT_DIR = REPO / "outputs" / "r_validation" / "continuous"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 R_SCRIPT = REPO / "scripts" / "r_validate_continuous.R"
-RSCRIPT_EXE = r"C:\Program Files\R\R-4.5.2\bin\Rscript.exe"
+# P0-5 fix: env var → PATH lookup → hardcoded fallback.
+RSCRIPT_EXE = (
+    os.environ.get("RSCRIPT_EXE")
+    or shutil.which("Rscript")
+    or r"C:\Program Files\R\R-4.5.2\bin\Rscript.exe"
+)
 
 # Instrument labels that encode MD scale (must match vendor/nma-forest-continuous.js)
 CONT_LABEL_RE = re.compile(
@@ -50,19 +55,39 @@ def collect_continuous_yi_vi(rd: dict) -> list[dict]:
             if not isinstance(o, dict): continue
             if (o.get("type") or "").upper() == "CONTINUOUS" and _is_finite(o.get("md")) and _is_finite(o.get("se")) and o["se"] > 0:
                 yi = float(o["md"]); vi = float(o["se"]) ** 2; break
-        # Variant 2: instrument label + pubHR/pubHR_LCI/pubHR_UCI carrying MD
+        # Variant 2: instrument label + pubHR/pubHR_LCI/pubHR_UCI carrying MD.
+        # P0-6 fix: require explicit MD/SMD scale signal — either o.scale set,
+        # OR the value-pattern is unambiguously MD (negative, OR same-sign CI
+        # with |value| > 1.5 which is implausible for a ratio measure).
         if yi is None:
             for o in ao:
                 if not isinstance(o, dict): continue
                 lab = o.get("shortLabel") or ""
-                if (CONT_LABEL_RE.match(lab) and _is_finite(o.get("pubHR")) and
-                    _is_finite(o.get("pubHR_LCI")) and _is_finite(o.get("pubHR_UCI"))
-                    and o["pubHR_UCI"] > o["pubHR_LCI"]):
-                    md = float(o["pubHR"])
-                    # back-compute SE from 95% CI: SE = (UCI - LCI) / 3.92
-                    se = (float(o["pubHR_UCI"]) - float(o["pubHR_LCI"])) / 3.92
-                    if se > 0:
-                        yi = md; vi = se ** 2; break
+                if not (CONT_LABEL_RE.match(lab) and
+                        _is_finite(o.get("pubHR")) and
+                        _is_finite(o.get("pubHR_LCI")) and
+                        _is_finite(o.get("pubHR_UCI")) and
+                        o["pubHR_UCI"] > o["pubHR_LCI"]):
+                    continue
+                # Scale-disambiguation gate
+                explicit_scale = (o.get("scale") or "").upper()
+                value = float(o["pubHR"])
+                lci_v, uci_v = float(o["pubHR_LCI"]), float(o["pubHR_UCI"])
+                is_md_unambiguous = (
+                    explicit_scale in ("MD", "SMD") or
+                    value < 0 or
+                    lci_v < 0 or
+                    abs(value) > 1.5  # ratio measures rarely exceed 1.5 on natural scale
+                )
+                if not is_md_unambiguous:
+                    # Ambiguous (positive value in [0, 1.5], no explicit scale,
+                    # both CI bounds positive) — could be HR/OR/RR. Skip to
+                    # avoid mislabelling.
+                    continue
+                # back-compute SE from 95% CI on natural scale: (UCI-LCI)/3.92
+                se = (uci_v - lci_v) / 3.92
+                if se > 0:
+                    yi = value; vi = se ** 2; break
         if yi is None:
             continue
         out.append({"studlab": t.get("name") or nct, "yi": yi, "vi": vi})

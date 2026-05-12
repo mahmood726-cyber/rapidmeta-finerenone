@@ -13,6 +13,10 @@ suppressPackageStartupMessages({
   library(jsonlite)
 })
 
+# P0-1 fix: define `%||%` BEFORE first use. Survives R<4.4 (which lacks base
+# `%||%`); on R≥4.4 this shadows the identical base operator harmlessly.
+`%||%` <- function(a, b) if (is.null(a)) b else a
+
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) < 2) stop("Usage: Rscript r_validate_continuous.R <input.json> <output.json>")
 input_path  <- args[1]
@@ -72,5 +76,3 @@ out <- list(
 )
 writeLines(toJSON(out, auto_unbox = TRUE, pretty = TRUE, na = "null"), output_path)
 cat("Wrote", output_path, "\n")
-
-`%||%` <- function(a, b) if (is.null(a)) b else a

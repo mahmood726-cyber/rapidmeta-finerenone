@@ -130,18 +130,26 @@
       try { expanded = localStorage.getItem(opts.storageKey) === '1'; } catch (e) {}
     }
 
-    const head = document.createElement('div');
-    head.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;cursor:pointer;user-select:none;';
-    head.title = 'Click to ' + (expanded ? 'collapse' : 'expand');
+    // P0-10/P0-11 fix: keyboard-accessible toggle. Real <button> with
+    // role="button" (implicit), tabindex=0 (implicit), Enter/Space activation
+    // (implicit), aria-expanded/aria-controls for screen readers.
+    const head = document.createElement('button');
+    head.type = 'button';
+    head.style.cssText = 'all:unset;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;cursor:pointer;user-select:none;width:100%;box-sizing:border-box;';
+    head.title = 'Toggle details';
+    const bodyId = (opts.id || ('panel-' + Math.random().toString(36).slice(2, 8))) + '-body';
+    head.setAttribute('aria-expanded', String(expanded));
+    head.setAttribute('aria-controls', bodyId);
     head.innerHTML =
       '<div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">' +
-        '<span class="ph-arrow" style="display:inline-block;width:14px;color:#7dd3fc;font-size:10px;transition:transform 0.15s;transform:rotate(' + (expanded ? 90 : 0) + 'deg);">▶</span>' +
+        '<span class="ph-arrow" aria-hidden="true" style="display:inline-block;width:14px;color:#7dd3fc;font-size:10px;transition:transform 0.15s;transform:rotate(' + (expanded ? 90 : 0) + 'deg);">▶</span>' +
         '<span style="background:#1e3a5f;color:#7dd3fc;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:0.04em;flex:0 0 auto;">' + (opts.badge || 'Panel') + '</span>' +
         '<span style="color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (opts.summary || '') + '</span>' +
       '</div>';
     wrap.appendChild(head);
 
     const body = document.createElement('div');
+    body.id = bodyId;
     body.style.cssText = 'display:' + (expanded ? 'block' : 'none') + ';margin-top:8px;padding-top:8px;border-top:1px solid #1e293b;';
     if (opts.bodyHtml) body.innerHTML = opts.bodyHtml;
     if (opts.bodyNode) body.appendChild(opts.bodyNode);
@@ -152,7 +160,7 @@
       body.style.display = isOpen ? 'none' : 'block';
       const arrow = head.querySelector('.ph-arrow');
       if (arrow) arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(90deg)';
-      head.title = 'Click to ' + (isOpen ? 'expand' : 'collapse');
+      head.setAttribute('aria-expanded', String(!isOpen));
       if (opts.storageKey) {
         try { localStorage.setItem(opts.storageKey, isOpen ? '0' : '1'); } catch (e) {}
       }

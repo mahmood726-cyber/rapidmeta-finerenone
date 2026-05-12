@@ -6,7 +6,7 @@ Inputs: NMA_CONFIG.comparisons + realData per-trial e/n cells.
 Outputs: outputs/r_validation/nma/<REVIEW>.json
 """
 from __future__ import annotations
-import io, json, math, subprocess, sys
+import io, json, math, os, shutil, subprocess, sys
 from pathlib import Path
 
 if sys.platform == "win32" and hasattr(sys.stdout, "buffer"):
@@ -20,7 +20,12 @@ DATA_DIR = REPO / "outputs" / "extraction_audit" / "data"
 OUT_DIR = REPO / "outputs" / "r_validation" / "nma"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 R_SCRIPT = REPO / "scripts" / "r_validate_nma.R"
-RSCRIPT_EXE = r"C:\Program Files\R\R-4.5.2\bin\Rscript.exe"
+# P0-5 fix: env var → PATH lookup → hardcoded fallback.
+RSCRIPT_EXE = (
+    os.environ.get("RSCRIPT_EXE")
+    or shutil.which("Rscript")
+    or r"C:\Program Files\R\R-4.5.2\bin\Rscript.exe"
+)
 
 
 def _is_int_like(x):
@@ -66,8 +71,34 @@ def main() -> None:
         cfg = doc.get("NMA_CONFIG") or {}
         comps = build_comparisons(rd, cfg)
         if len(comps) >= 2:
-            candidates.append((stem, cfg.get("treatments") or [], comps,
-                                "Placebo" if "Placebo" in (cfg.get("treatments") or []) else None))
+            # P0-8 fix: ordered-priority reference selection.
+            #   1. cfg.reference (explicit author choice)
+            #   2. case-insensitive match against {Placebo, Control, Sham,
+            #      Standard care, Standard of care, SoC, Usual care, No
+            #      treatment}
+            #   3. highest-degree node in the contrast graph (most-connected)
+            treatments = cfg.get("treatments") or []
+            explicit = cfg.get("reference") if isinstance(cfg.get("reference"), str) else None
+            ref = None
+            if explicit and explicit in treatments:
+                ref = explicit
+            else:
+                preferred = ["Placebo", "Control", "Sham", "Standard care",
+                             "Standard of care", "SoC", "Usual care", "No treatment"]
+                for p in preferred:
+                    for t in treatments:
+                        if str(t).strip().lower() == p.lower():
+                            ref = t; break
+                    if ref: break
+                if ref is None and treatments:
+                    # Highest-degree node fallback
+                    from collections import Counter
+                    deg = Counter()
+                    for c in comps:
+                        deg[c["t1"]] += 1; deg[c["t2"]] += 1
+                    if deg:
+                        ref = deg.most_common(1)[0][0]
+            candidates.append((stem, treatments, comps, ref))
 
     print(f"Binary NMA review candidates: {len(candidates)}")
     n_ok, n_fail = 0, 0

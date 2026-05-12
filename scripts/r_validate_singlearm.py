@@ -8,7 +8,7 @@ A "single-arm review" is one whose realData contains ≥2 trials where:
 Idempotent. Outputs to outputs/r_validation/singlearm/<REVIEW>.json
 """
 from __future__ import annotations
-import io, json, subprocess, sys
+import io, json, os, shutil, subprocess, sys
 from pathlib import Path
 
 if sys.platform == "win32" and hasattr(sys.stdout, "buffer"):
@@ -22,7 +22,13 @@ DATA_DIR = REPO / "outputs" / "extraction_audit" / "data"
 OUT_DIR = REPO / "outputs" / "r_validation" / "singlearm"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 R_SCRIPT = REPO / "scripts" / "r_validate_singlearm.R"
-RSCRIPT_EXE = r"C:\Program Files\R\R-4.5.2\bin\Rscript.exe"
+# P0-5 fix: env var → PATH lookup → hardcoded fallback. Portable across
+# Linux/Mac/CI and survives R-version upgrades.
+RSCRIPT_EXE = (
+    os.environ.get("RSCRIPT_EXE")
+    or shutil.which("Rscript")
+    or r"C:\Program Files\R\R-4.5.2\bin\Rscript.exe"
+)
 
 
 def pick_singlearm_trials(rd: dict) -> list[dict]:

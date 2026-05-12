@@ -70,6 +70,14 @@ fit_pool <- function(measure, transf_fn = NULL) {
       pool_lci <- transf_fn(lci_logit)
       pool_uci <- transf_fn(uci_logit)
     }
+    # P0-3 fix: clamp to [0,1] (back-transforms can produce out-of-range
+    # bounds for sparse-event proportions) AND enforce monotonicity
+    # (Barendregt 2013 warns ipft.hm can give non-monotone CIs at small k).
+    pool_est <- pmin(pmax(as.numeric(pool_est), 0), 1)
+    pool_lci <- pmin(pmax(as.numeric(pool_lci), 0), 1)
+    pool_uci <- pmin(pmax(as.numeric(pool_uci), 0), 1)
+    if (pool_lci > pool_est) pool_lci <- pool_est
+    if (pool_uci < pool_est) pool_uci <- pool_est
   } else {
     pool_est <- est_logit; pool_lci <- lci_logit; pool_uci <- uci_logit
   }

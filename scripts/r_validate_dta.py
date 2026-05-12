@@ -23,7 +23,13 @@ REPO = Path(__file__).resolve().parent.parent
 OUT_DIR = REPO / "outputs" / "r_validation" / "dta"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 R_SCRIPT = REPO / "scripts" / "r_validate_dta.R"
-RSCRIPT_EXE = r"C:\Program Files\R\R-4.5.2\bin\Rscript.exe"
+# P0-5 fix: env var → PATH lookup → hardcoded fallback.
+import os as _os, shutil as _shutil
+RSCRIPT_EXE = (
+    _os.environ.get("RSCRIPT_EXE")
+    or _shutil.which("Rscript")
+    or r"C:\Program Files\R\R-4.5.2\bin\Rscript.exe"
+)
 
 DTA_JSON_RE = re.compile(
     r'<script\s+type="application/json"\s+id="dta-trials"\s*>(.*?)</script>',
