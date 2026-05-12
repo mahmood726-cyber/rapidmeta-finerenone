@@ -651,6 +651,11 @@
       fit_at_dose.push({ dose: dose_i, est: est, ci_lo: est - 1.96 * seEst, ci_hi: est + 1.96 * seEst });
     }
 
+    // v0.1 CI method: raw z=1.96 on diagonal-PM pooled SE. Unlike fitLinear (which uses
+    // HKSJ-adjusted t_{k-1}), fitRCS does NOT apply HKSJ here because the multivariate
+    // version requires a pooled Q across all spline dimensions which isn't computed
+    // under the diagonal-PM approximation. P2 hardening: when full multivariate REML
+    // lands, swap to HKSJ-multivariate + t_{k-1}.
     return {
       layer: 'rcs', k: perStudy.length,
       rcs: {
@@ -671,7 +676,8 @@
       max_observed_dose: maxD,
       coverage_warning: perStudy.length < 10,
       fallback: null,
-      estimator: 'reml_hksj_multivariate',
+      estimator: 'pm_diagonal_z',
+      ci_method: 'z_1.96',
       converged: true,
       iterations: null,
       _fitInternal: null,
