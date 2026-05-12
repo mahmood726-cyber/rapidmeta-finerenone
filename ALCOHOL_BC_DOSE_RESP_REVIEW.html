@@ -92,6 +92,55 @@
 
 <!-- Trial data: embedded JSON, parsed by engine + tab renderers -->
 <script type="application/json" id="doseresp-trials">
+[
+  {
+    "studlab": "Schatzkin 1987", "pmid": "3658177",
+    "arms": [
+      {"dose": 0, "events": 165, "n": 41937, "is_reference": true},
+      {"dose": 1.5, "events": 74, "n": 19089, "is_reference": false},
+      {"dose": 5, "events": 90, "n": 16669, "is_reference": false},
+      {"dose": 15, "events": 35, "n": 5928, "is_reference": false},
+      {"dose": 24, "events": 23, "n": 2682, "is_reference": false}
+    ]
+  },
+  {
+    "studlab": "Willett 1987", "pmid": "3574409",
+    "arms": [
+      {"dose": 0, "events": 167, "n": 33155, "is_reference": true},
+      {"dose": 1.5, "events": 152, "n": 31269, "is_reference": false},
+      {"dose": 5, "events": 248, "n": 36321, "is_reference": false},
+      {"dose": 15, "events": 89, "n": 11484, "is_reference": false},
+      {"dose": 30, "events": 50, "n": 4140, "is_reference": false}
+    ]
+  },
+  {
+    "studlab": "Hiatt 1988", "pmid": "3375247",
+    "arms": [
+      {"dose": 0, "events": 53, "n": 26142, "is_reference": true},
+      {"dose": 5, "events": 24, "n": 9402, "is_reference": false},
+      {"dose": 20, "events": 18, "n": 6063, "is_reference": false},
+      {"dose": 45, "events": 8, "n": 1971, "is_reference": false}
+    ]
+  },
+  {
+    "studlab": "Garfinkel 1988", "pmid": "3358415",
+    "arms": [
+      {"dose": 0, "events": 348, "n": 200195, "is_reference": true},
+      {"dose": 5, "events": 250, "n": 150295, "is_reference": false},
+      {"dose": 15, "events": 140, "n": 50855, "is_reference": false},
+      {"dose": 30, "events": 85, "n": 17890, "is_reference": false}
+    ]
+  },
+  {
+    "studlab": "Howe 1991", "pmid": "1888691",
+    "arms": [
+      {"dose": 0, "events": 1281, "n": 5054, "is_reference": true},
+      {"dose": 5, "events": 1004, "n": 3973, "is_reference": false},
+      {"dose": 15, "events": 481, "n": 1573, "is_reference": false},
+      {"dose": 45, "events": 269, "n": 837, "is_reference": false}
+    ]
+  }
+]
 </script>
 
 <!-- Engine + badge -->
@@ -109,11 +158,74 @@ function showTab(name) {
 }
 
 window.addEventListener('DOMContentLoaded', function () {
-  // Read embedded trial data (populated in Task 7)
-  var trialsScript = document.getElementById('doseresp-trials');
-  var trialsJson = trialsScript ? trialsScript.textContent.trim() : '';
-  if (!trialsJson) { return; /* scaffold only; tabs populated by Tasks 7-10 */ }
-  // Tabs 1-4 wiring is added in Tasks 7-10.
+  var trials = JSON.parse(document.getElementById('doseresp-trials').textContent);
+  var DR = window.RapidMetaDoseResp;
+
+  // Engine version + date
+  document.getElementById('engine-version').textContent = DR.engine_version;
+  document.getElementById('gen-date').textContent = new Date().toISOString().slice(0, 10);
+
+  // Trial-summary table
+  var summary = '<table><thead><tr><th>Study</th><th>PMID</th><th>Arms</th><th>Total events</th><th>Total person-years</th></tr></thead><tbody>';
+  trials.forEach(function (t) {
+    var totalE = t.arms.reduce(function (a, b) { return a + b.events; }, 0);
+    var totalN = t.arms.reduce(function (a, b) { return a + b.n; }, 0);
+    summary += '<tr><td>' + t.studlab + '</td>' +
+               '<td><a href="https://pubmed.ncbi.nlm.nih.gov/' + t.pmid + '/" target="_blank">' + t.pmid + '</a></td>' +
+               '<td>' + t.arms.length + '</td>' +
+               '<td>' + totalE.toLocaleString() + '</td>' +
+               '<td>' + totalN.toLocaleString() + '</td></tr>';
+  });
+  summary += '</tbody></table>';
+  document.getElementById('trial-summary').innerHTML = summary;
+
+  // === Tab 1: Linear ===
+  var lin = DR.fitLinear(trials, {});
+  var linHR = Math.exp(lin.pooled_slope_log * 11);
+  var linHR_lo = Math.exp(lin.pooled_slope_log_ci_lo * 11);
+  var linHR_hi = Math.exp(lin.pooled_slope_log_ci_hi * 11);
+
+  document.getElementById('linear-kpis').innerHTML =
+    '<div class="kpi-grid">' +
+    '<div class="kpi"><div class="kpi-label">RR per 11 g/day</div><div class="kpi-value">' + linHR.toFixed(3) + '</div><div>95% CI ' + linHR_lo.toFixed(3) + '&ndash;' + linHR_hi.toFixed(3) + '</div></div>' +
+    '<div class="kpi"><div class="kpi-label">log-RR per gram</div><div class="kpi-value">' + lin.pooled_slope_log.toFixed(5) + '</div><div>SE ' + lin.pooled_slope_log_se.toFixed(5) + '</div></div>' +
+    '<div class="kpi"><div class="kpi-label">τ²</div><div class="kpi-value">' + lin.tau2.toFixed(5) + '</div></div>' +
+    '<div class="kpi"><div class="kpi-label">I²</div><div class="kpi-value">' + lin.I2.toFixed(1) + '%</div><div>Q = ' + lin.Q.toFixed(2) + ' (df ' + lin.Q_df + ')</div></div>' +
+    '<div class="kpi"><div class="kpi-label">PI (per 11 g/day, df=' + lin.pi_df + ')</div><div class="kpi-value">' + Math.exp(lin.pi_lo * 11).toFixed(3) + '&ndash;' + Math.exp(lin.pi_hi * 11).toFixed(3) + '</div></div>' +
+    '<div class="kpi"><div class="kpi-label">k</div><div class="kpi-value">' + lin.k + '</div>' + (lin.coverage_warning ? '<div style="color:#d97706">coverage warning: k&lt;10</div>' : '') + '</div>' +
+    '</div>';
+
+  var forestRows = DR.forest(trials, lin);
+  var fHtml = '<h3>Per-study forest (linear layer)</h3><table><thead><tr><th>Study</th><th>HR per gram</th><th>95% CI</th><th>Weight</th></tr></thead><tbody>';
+  forestRows.forEach(function (r) {
+    fHtml += '<tr><td>' + r.label + '</td>' +
+             '<td>' + r.hr.toFixed(4) + '</td>' +
+             '<td>' + r.hr_ci_lo.toFixed(4) + '&ndash;' + r.hr_ci_hi.toFixed(4) + '</td>' +
+             '<td>' + r.weight_pct.toFixed(1) + '%</td></tr>';
+  });
+  fHtml += '</tbody></table>';
+  document.getElementById('linear-forest').innerHTML = fHtml;
+
+  // Linear curve: 20-point grid from 0 to 45 g/day
+  var curveHtml = '<h3>Dose-response curve (95% CI via t<sub>' + lin.pi_df + '</sub>)</h3><table><thead><tr><th>Dose (g/day)</th><th>log-RR</th><th>RR</th><th>95% CI</th></tr></thead><tbody>';
+  for (var i = 0; i < 20; i++) {
+    var d = i * 45 / 19;
+    var p = DR.predict(lin, d);
+    curveHtml += '<tr><td>' + d.toFixed(2) + '</td>' +
+                 '<td>' + p.est.toFixed(4) + '</td>' +
+                 '<td>' + Math.exp(p.est).toFixed(4) + '</td>' +
+                 '<td>' + Math.exp(p.ci_lo).toFixed(4) + '&ndash;' + Math.exp(p.ci_hi).toFixed(4) + '</td></tr>';
+  }
+  curveHtml += '</tbody></table>';
+  document.getElementById('linear-curve').innerHTML = curveHtml;
+
+  document.getElementById('linear-summary').innerHTML =
+    '<p><strong>Plain-English summary:</strong> Each additional 11 g/day of alcohol (≈ 1 drink/day) is associated with a ' +
+    ((linHR - 1) * 100).toFixed(1) + '% relative increase in breast-cancer incidence (RR = ' + linHR.toFixed(3) +
+    ', 95% CI ' + linHR_lo.toFixed(3) + '–' + linHR_hi.toFixed(3) + '). ' +
+    'Between-study heterogeneity is high (I² = ' + lin.I2.toFixed(0) + '%); the prediction interval is wider than the confidence interval and is the better summary of expected effect in a future similar study.</p>';
+
+  // Tabs 2-4 populated in subsequent tasks.
 });
 </script>
 
