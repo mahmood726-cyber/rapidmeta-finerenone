@@ -234,6 +234,30 @@ test('fitRCS on GL-1992 returns 3-knot fit with non-linearity p-value', () => {
   assert.ok(res.rcs.nonlinearity_wald_p >= 0 && res.rcs.nonlinearity_wald_p <= 1);
 });
 
+test('fitRCS GL-1992 non-linearity p is ~0.05 under diagonal-PM v0.1 design', () => {
+  // REGRESSION-PIN: this test pins the engine's current output under the
+  // v0.1 diagonal-PM-per-dimension τ² approximation. R mixmeta full-REML
+  // gives p ≈ 0.704 on the same data; the engine's diagonal approximation
+  // gives p ≈ 0.05. This is a known v0.1 limitation, documented in fitRCS
+  // source. P2 hardening will lift to full multivariate REML; when that
+  // lands, this test SHOULD fail and be updated to match R.
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const res = DR.fitRCS(fx.trials, { knots: 3 });
+  near(res.rcs.nonlinearity_wald_p, 0.05, 0.02, 'engine non-linearity p (diagonal-PM v0.1)');
+});
+
+test('fitRCS GL-1992 linear spline coef matches fitLinear within tolerance', () => {
+  // Cross-layer sanity: the first spline coefficient from fitRCS should
+  // approximate fitLinear's pooled slope on the same data, since both use
+  // the same per-study WLS first stage and the same diagonal PM second stage.
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const resLin = DR.fitLinear(fx.trials, {});
+  const resRCS = DR.fitRCS(fx.trials, { knots: 3 });
+  // Tolerance is widened because RCS centers on dose-vs-ref basis differences
+  // (not raw doses), which subtly changes the linear component's interpretation.
+  near(resRCS.rcs.spline_coefs[0], resLin.pooled_slope_log, 0.01, 'rcs spline_coefs[0] vs fitLinear pooled_slope_log');
+});
+
 test('fitRCS on k2_identical_doses degenerates to linear', () => {
   const fx = loadFx('k2_identical_doses.json');
   const res = DR.fitRCS(fx.trials, { knots: 3 });

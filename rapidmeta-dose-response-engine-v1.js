@@ -591,6 +591,23 @@
       perStudy.push({ studlab: T.studlab, beta: beta_i, V: V_i, n_arms: T.arms.length });
     }
 
+    // v0.1 design choice: diagonal-PM-per-dimension τ² approximation.
+    // Each spline-basis dimension gets its own Paule-Mandel τ², independent of
+    // the others. This is simpler than the full multivariate REML used by R's
+    // dosresmeta/mixmeta and matches dosresmeta's vcov='ind' family of methods,
+    // but is even further simplified (no joint REML across dimensions).
+    //
+    // Practical consequence: the non-linearity Wald p-value will differ
+    // substantially from R for datasets where the non-linear-coefficient
+    // heterogeneity is high. Verified on GL-1992: engine p ≈ 0.048 vs R mixmeta
+    // p ≈ 0.704. The engine's linear-component pooled slope still matches R to
+    // ~6% (this is what fitLinear's parity test validates).
+    //
+    // P2 hardening: lift to full multivariate REML via joint optimization of
+    // a τ² matrix (Jackson 2010). Until then, the R-parity badge in Unit 8
+    // must use a looser tolerance for non-linearity p OR exclude it from the
+    // parity gate.
+
     // Step 3: per-dimension PM tau² + IV pool (diagonal tau² approximation).
     // Each spline-coef dimension gets its own tau²_d via Paule-Mandel.
     var pooled = new Array(Kp).fill(0);
