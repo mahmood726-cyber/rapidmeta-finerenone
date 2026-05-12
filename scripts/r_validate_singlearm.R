@@ -81,10 +81,17 @@ fit_pool <- function(measure, transf_fn = NULL) {
   } else {
     pool_est <- est_logit; pool_lci <- lci_logit; pool_uci <- uci_logit
   }
+  # P2-1 fix: τ² confidence interval via Q-profile (per advanced-stats.md).
+  tau2_ci <- tryCatch({
+    ci <- confint(m)$random
+    list(tau2_lci = as.numeric(ci["tau^2", "ci.lb"]),
+         tau2_uci = as.numeric(ci["tau^2", "ci.ub"]))
+  }, error = function(e) list(tau2_lci = NA_real_, tau2_uci = NA_real_))
   list(
     pool = as.numeric(pool_est), lci = as.numeric(pool_lci), uci = as.numeric(pool_uci),
     tau2 = as.numeric(m$tau2), I2 = as.numeric(m$I2), Q = as.numeric(m$QE),
     Qp  = as.numeric(m$QEp),  H2 = as.numeric(m$H2),
+    tau2_lci = tau2_ci$tau2_lci, tau2_uci = tau2_ci$tau2_uci,
     se_pool = as.numeric(m$se), k = m$k.eff
   )
 }

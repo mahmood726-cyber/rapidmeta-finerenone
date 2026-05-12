@@ -80,7 +80,15 @@
       cmpRow =
         '<tr><td style="padding:3px 8px;color:#94a3b8;">Engine vs R logit pool</td>' +
         '<td style="color:#7dd3fc;">' + pctFmt(engine.prop, 1) + ' vs ' + pctFmt(rProp, 1) +
-        ' <span style="color:#64748b;">(Δ ' + pctFmt(d, 2) + ')</span></td></tr>';
+        ' <span style="color:#94a3b8;">(Δ ' + pctFmt(d, 2) + ')</span></td></tr>';
+      // P1-10 fix: also surface Δ against PFT pool (preferred for sparse/extreme p̂).
+      if (ft.pool != null && Number.isFinite(ft.pool)) {
+        const dFT = Math.abs(engine.prop - ft.pool);
+        cmpRow +=
+          '<tr><td style="padding:3px 8px;color:#94a3b8;">Engine vs R Freeman-Tukey pool</td>' +
+          '<td style="color:#7dd3fc;">' + pctFmt(engine.prop, 1) + ' vs ' + pctFmt(ft.pool, 1) +
+          ' <span style="color:#94a3b8;">(Δ ' + pctFmt(dFT, 2) + ')</span></td></tr>';
+      }
     }
 
     const summary = verdict + ' · ' + pctFmt(rProp, 1) +
@@ -101,10 +109,10 @@
       '</table>' +
       '<div style="margin-top:8px;font-size:10.5px;color:#94a3b8;line-height:1.5;">' +
       'External cross-validation against R 4.5.2 + ' +
-      '<a href="https://cran.r-project.org/package=metafor" target="_blank" style="color:#7dd3fc;text-decoration:none;">metafor</a> ' +
+      '<a href="https://cran.r-project.org/package=metafor" target="_blank" rel="noopener noreferrer" style="color:#7dd3fc;text-decoration:none;">metafor</a> ' +
       '(measure="PLO" for logit; measure="PFT" for Freeman-Tukey double-arcsine), REML estimator with Hartung-Knapp-Sidik-Jonkman small-sample correction. ' +
-      'Source: <code style="color:#94a3b8;">outputs/r_validation/singlearm/' + escapeHtml(r.review) + '.json</code>.' +
-      '<div style="margin-top:6px;padding:4px 8px;background:#1e1f3a;border-left:2px solid #fbbf24;font-size:10px;color:#fbbf24;">⚠ Computational validation only — not a GRADE certainty rating. RoB-2, indirectness, imprecision, inconsistency, and publication bias require separate assessment.</div></div></div>';
+      'Source: <code style="color:#94a3b8;word-break:break-all;">outputs/r_validation/singlearm/' + escapeHtml(r.review) + '.json</code>.' +
+      '<div style="margin-top:4px;font-size:10px;color:#94a3b8;">PRISMA 2020 items 13d (synthesis methods) + 13e (heterogeneity) + 13f (sensitivity) supported.</div><div style="margin-top:6px;padding:4px 8px;background:#1e1f3a;border-left:2px solid #fbbf24;font-size:10px;color:#fbbf24;">⚠ Computational validation only — not a GRADE certainty rating. RoB-2, indirectness, imprecision, inconsistency, and publication bias require separate assessment.</div></div></div>';
 
     return { summary, body };
   }

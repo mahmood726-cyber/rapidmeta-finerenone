@@ -152,6 +152,27 @@ consistency <- tryCatch({
   )
 }, error = function(e) list(error = conditionMessage(e)))
 
+# P1-19 fix: multiplicative-heterogeneity (overdispersion) NMA fit alongside
+# additive RE — per advanced-stats.md "fit multiplicative-heterogeneity NMA
+# alongside additive RE" when small-study outlier risk is present.
+mult_fit <- tryCatch(
+  netmeta(TE = cmp$logOR, seTE = cmp$seLogOR, treat1 = cmp$t1, treat2 = cmp$t2,
+          studlab = cmp$studlab, sm = "OR",
+          common = TRUE, random = FALSE,
+          method.tau = "DL"),
+  error = function(e) NULL
+)
+mult_block <- NULL
+if (!is.null(mult_fit)) {
+  # multiplicative dispersion estimate: phi = Q / df_Q
+  phi_est <- if (!is.null(fit$df.Q) && fit$df.Q > 0) as.numeric(fit$Q) / as.numeric(fit$df.Q) else NA_real_
+  mult_block <- list(
+    phi = phi_est,
+    overdispersed = if (!is.na(phi_est)) phi_est > 1.5 else NA,
+    note = "Multiplicative fit (common=TRUE) computed; phi=Q/df_Q. If phi>1.5, additive-RE may understate uncertainty."
+  )
+}
+
 # P1-16 fix: POTH (Wigle 2025) alongside p-scores. POTH summarises rank
 # hierarchy uncertainty into [0,1]; if POTH < 0.5, hierarchy is non-informative.
 # Reference: arXiv:2501.11596. Approximate via Monte-Carlo if netrank package
@@ -183,7 +204,8 @@ out <- list(
   pooled = re_pool,
   pscores = if (!is.null(ps)) as.list(ps) else NULL,
   poth = poth_value,
-  consistency = consistency
+  consistency = consistency,
+  multiplicative_heterogeneity = mult_block
 )
 writeLines(toJSON(out, auto_unbox = TRUE, pretty = TRUE, na = "null"), output_path)
 cat("Wrote", output_path, "\n")
