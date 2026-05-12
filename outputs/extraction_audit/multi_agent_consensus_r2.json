@@ -1,0 +1,3133 @@
+{
+  "summary": {
+    "total_sample": 249,
+    "total_flagged": 123,
+    "consensus_3of3": 0,
+    "consensus_2of3": 19,
+    "consensus_1of3": 104,
+    "max_severity_HIGH": 84,
+    "max_severity_MED": 11,
+    "max_severity_LOW": 28,
+    "tier_a_reflag_rate": "20/29",
+    "categories": {
+      "plausibility:other": 36,
+      "identity:other": 26,
+      "plausibility:single-arm-fab-HR": 22,
+      "plausibility:schema-MD-with-events": 15,
+      "coherence:other": 12,
+      "coherence:wrong-drug-class": 10,
+      "plausibility:crude-vs-HR-mismatch": 8,
+      "plausibility:magnitude-extreme": 7,
+      "identity:nct-acronym-mismatch": 2,
+      "identity:impossible-pmid": 2,
+      "identity:famous-trial-wrong-nct": 1,
+      "identity:generic-name": 1
+    }
+  },
+  "records": [
+    {
+      "id": 1003,
+      "review": "DEPRESSION_NEW_RAPID_REVIEW",
+      "nct": "NCT02418585",
+      "name": "TRANSFORM-1",
+      "pmid": null,
+      "year": 2019,
+      "group": "Esketamine 56mg + AD (TRD)",
+      "max_severity": "HIGH",
+      "consensus_level": "2-of-3",
+      "agents_flagged": [
+        "coherence",
+        "identity"
+      ],
+      "details": {
+        "coherence": {
+          "severity": "MED",
+          "category": "other",
+          "reason": "NCT02418585 is TRANSFORM-2 (the positive 4-wk MADRS esketamine TRD trial, correctly used at id=1019); TRANSFORM-1 is NCT02417064 — name/NCT mismatch within the same dataset.",
+          "confidence": 0.85,
+          "ground_truth_hint": null
+        },
+        "identity": {
+          "severity": "HIGH",
+          "category": "nct-acronym-mismatch",
+          "reason": "NCT02418585 is TRANSFORM-2 (Popova 2019), not TRANSFORM-1; TRANSFORM-1 (Fedgchin 2019, PMID 31290965) is NCT02417064.",
+          "confidence": 0.95,
+          "ground_truth_hint": "Correct NCT for TRANSFORM-1 = NCT02417064"
+        }
+      },
+      "tier": "A"
+    },
+    {
+      "id": 1078,
+      "review": "T1D_CLOSED_LOOP_NMA_REVIEW",
+      "nct": "NCT03665025",
+      "name": "FLAIR",
+      "pmid": "33034298",
+      "year": 2020,
+      "group": "Auto-Mode 670G adolescent (FLAIR)",
+      "max_severity": "HIGH",
+      "consensus_level": "2-of-3",
+      "agents_flagged": [
+        "plausibility",
+        "identity"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "MED",
+          "category": "crude-vs-HR-mismatch",
+          "reason": "crude_RR=1.36 (tE/tN=75/113, cE/cN=55/113) vs reported HR=8.0 differ by 5.9x.",
+          "confidence": 0.6,
+          "ground_truth_hint": null
+        },
+        "identity": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "PMID 33034298 is 'Lung Function in Adolescents...Brickworks in Guadalajara' (Indian Pediatr 2020), not FLAIR closed-loop adolescent T1D.",
+          "confidence": 0.98,
+          "ground_truth_hint": "FLAIR primary = Bergenstal JAMA 2021, PMID 34032826."
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1084,
+      "review": "T1D_CLOSED_LOOP_NMA_REVIEW",
+      "nct": "NCT03844790",
+      "name": "iDCL-Pediatric",
+      "pmid": "32945740",
+      "year": 2020,
+      "group": "Tandem CIQ pediatric 6-13y",
+      "max_severity": "HIGH",
+      "consensus_level": "2-of-3",
+      "agents_flagged": [
+        "plausibility",
+        "identity"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "MED",
+          "category": "crude-vs-HR-mismatch",
+          "reason": "crude_RR=0.90 (tE/tN=70/78, cE/cN=23/23) vs reported HR=11.0 differ by 12.3x.",
+          "confidence": 0.6,
+          "ground_truth_hint": null
+        },
+        "identity": {
+          "severity": "HIGH",
+          "category": "impossible-pmid",
+          "reason": "PMID 32945740 does not resolve in PubMed (multiple lookups return no record); also iDCL-Pediatric ages 6-13 was published as Ware/Brown NEJM 2022 (PMID 35041780), not 2020.",
+          "confidence": 0.85,
+          "ground_truth_hint": "iDCL-Pediatric primary = Ware/Brown NEJM 2022, PMID 35041780."
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1089,
+      "review": "DEPRESSION_PSYCHEDELIC_NMA_REVIEW",
+      "nct": "NCT04122690",
+      "name": "JANSSEN-3155",
+      "pmid": null,
+      "year": 2020,
+      "group": "Esketamine intranasal TRD JANSSEN-3155",
+      "max_severity": "HIGH",
+      "consensus_level": "2-of-3",
+      "agents_flagged": [
+        "coherence",
+        "plausibility"
+      ],
+      "details": {
+        "coherence": {
+          "severity": "MED",
+          "category": "wrong-drug-class",
+          "reason": "Esketamine is an NMDA-receptor antagonist (dissociative anesthetic), not a classical serotonergic psychedelic; including it in a psychedelic NMA alongside MDMA/psilocybin trials is a class mismatch unless the review explicitly broadens the definition.",
+          "confidence": 0.75,
+          "ground_truth_hint": null
+        },
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "schema-MD-with-events",
+          "reason": "estimandType='MD' but event counts populated (tE=95, cE=60); MDs operate on means, not counts.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1107,
+      "review": "AML_TARGETED_NEW_REVIEW",
+      "nct": "NCT02039726",
+      "name": "QuANTUM-First",
+      "pmid": null,
+      "year": 2023,
+      "group": "Quizartinib + chemo (FLT3-ITD)",
+      "max_severity": "HIGH",
+      "consensus_level": "2-of-3",
+      "agents_flagged": [
+        "coherence",
+        "identity"
+      ],
+      "details": {
+        "coherence": {
+          "severity": "MED",
+          "category": "other",
+          "reason": "Name 'QuANTUM-First' with NCT02039726 is internally inconsistent — NCT02039726 is the QuANTUM-R trial of quizartinib monotherapy in R/R FLT3-ITD AML; QuANTUM-First (frontline quizartinib+chemo) is NCT02668653 (which is correctly used at id=1002).",
+          "confidence": 0.92,
+          "ground_truth_hint": null
+        },
+        "identity": {
+          "severity": "HIGH",
+          "category": "nct-acronym-mismatch",
+          "reason": "NCT02039726 is QuANTUM-R (R/R FLT3+; Cortes Lancet Oncol 2019, PMID 31606519), not QuANTUM-First; QuANTUM-First (Erba Lancet 2023, PMID 37116523) is NCT02668653 — same as id=1002 in this file.",
+          "confidence": 0.98,
+          "ground_truth_hint": "If trial is intended to be QuANTUM-First, NCT should be NCT02668653; if NCT02039726, the name should be QuANTUM-R."
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1114,
+      "review": "AML_VEN_FLT3_NMA_REVIEW",
+      "nct": "NCT03839771",
+      "name": "IDHENTIFY",
+      "pmid": null,
+      "year": 2022,
+      "group": "Enasidenib R/R IDH2-mut AML (IDHENTIFY)",
+      "max_severity": "HIGH",
+      "consensus_level": "2-of-3",
+      "agents_flagged": [
+        "coherence",
+        "identity"
+      ],
+      "details": {
+        "coherence": {
+          "severity": "MED",
+          "category": "other",
+          "reason": "IDHENTIFY (enasidenib R/R IDH2-mutant AML) is NCT02577406, which is correctly used at id=1106; NCT03839771 does not correspond to IDHENTIFY.",
+          "confidence": 0.88,
+          "ground_truth_hint": null
+        },
+        "identity": {
+          "severity": "HIGH",
+          "category": "famous-trial-wrong-nct",
+          "reason": "IDHENTIFY is NCT02577406 (de Botton Blood 2023, PMID 35714312) — exactly the same trial captured at id=1106. NCT03839771 is a different protocol and is not IDHENTIFY.",
+          "confidence": 0.95,
+          "ground_truth_hint": "Correct IDHENTIFY NCT = NCT02577406."
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1120,
+      "review": "ITP_NEW_AGENTS_REVIEW",
+      "nct": "NCT03347396",
+      "name": "CADENZA",
+      "pmid": null,
+      "year": 2022,
+      "group": "Sutimlimab cold agglutinin (related)",
+      "max_severity": "HIGH",
+      "consensus_level": "2-of-3",
+      "agents_flagged": [
+        "coherence",
+        "plausibility"
+      ],
+      "details": {
+        "coherence": {
+          "severity": "HIGH",
+          "category": "wrong-drug-class",
+          "reason": "Sutimlimab is an anti-C1s complement inhibitor approved for cold agglutinin disease (CAD); CADENZA is the CAD pivotal trial — not an ITP agent or trial (group field even self-flags '(related)').",
+          "confidence": 0.98,
+          "ground_truth_hint": null
+        },
+        "plausibility": {
+          "severity": "MED",
+          "category": "magnitude-extreme",
+          "reason": "Effect size=14.55 > 10 (estimandType=RR); suspicious magnitude even if OR.",
+          "confidence": 0.7,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1132,
+      "review": "IL_PSORIASIS_NMA_REVIEW",
+      "nct": "NCT03370133",
+      "name": "BE VIVID",
+      "pmid": "33549193",
+      "year": 2021,
+      "group": "Bimekizumab 320 mg Q4W SC | IL-17A+F",
+      "max_severity": "HIGH",
+      "consensus_level": "2-of-3",
+      "agents_flagged": [
+        "plausibility",
+        "identity"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "magnitude-extreme",
+          "reason": "HR=88.6 — likely OR mislabelled as HR or extreme rare-event response (e.g., placebo-vs-active for very-high-efficacy biologic).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        },
+        "identity": {
+          "severity": "MED",
+          "category": "other",
+          "reason": "PMID 33549193 (BE VIVID, Reich Lancet 2021) matches BE VIVID — confirmed correct. Flagging at MED for downstream consistency check only because the same PMID is used for id=1164 BE-VIVID with different effect numbers (273/321 vs 4/83 vs 5/83) — duplicate trial reported twice across reviews with slight comparator-arm denominator drift.",
+          "confidence": 0.5,
+          "ground_truth_hint": "Reich Lancet 2021 BE VIVID PMID 33549193 (correct)."
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1144,
+      "review": "PERIPHERAL_DCB_PAD_NMA_REVIEW",
+      "nct": "NCT01530178",
+      "name": "MAJESTIC",
+      "pmid": null,
+      "year": 2017,
+      "group": "Eluvia DES 24-month (MAJESTIC)",
+      "max_severity": "HIGH",
+      "consensus_level": "2-of-3",
+      "agents_flagged": [
+        "coherence",
+        "plausibility"
+      ],
+      "details": {
+        "coherence": {
+          "severity": "MED",
+          "category": "wrong-drug-class",
+          "reason": "MAJESTIC evaluated the Eluvia drug-eluting stent (DES), not a drug-coated balloon (DCB); wrong device class for a DCB NMA.",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        },
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "single-arm-fab-HR",
+          "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.86 reported — fabricated comparator.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1168,
+      "review": "BLADDER_NMIBC_NEW_NMA_REVIEW",
+      "nct": "NCT02773849",
+      "name": "NCT02773849",
+      "pmid": null,
+      "year": 2020,
+      "group": "Nadofaragene firadenovec (single-arm)",
+      "max_severity": "HIGH",
+      "consensus_level": "2-of-3",
+      "agents_flagged": [
+        "plausibility",
+        "identity"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "single-arm-fab-HR",
+          "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.55 reported — fabricated comparator.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        },
+        "identity": {
+          "severity": "MED",
+          "category": "generic-name",
+          "reason": "Trial name field is literally 'NCT02773849' (the NCT identifier reused as the name) — a generic-name fallback rather than the trial acronym; this is the nadofaragene firadenovec study commonly cited as CS-003 or by Boorjian 2021.",
+          "confidence": 0.85,
+          "ground_truth_hint": "Suggested acronym/name = 'Boorjian-CS-003' (nadofaragene firadenovec, BCG-unresponsive NMIBC)."
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1170,
+      "review": "CART_B_CELL_LYMPHOMA_REVIEW",
+      "nct": "NCT03361748",
+      "name": "KARMMA",
+      "pmid": "33626253",
+      "year": 2021,
+      "group": "Idecabtagene vicleucel (ide-cel) MM",
+      "max_severity": "HIGH",
+      "consensus_level": "2-of-3",
+      "agents_flagged": [
+        "coherence",
+        "plausibility"
+      ],
+      "details": {
+        "coherence": {
+          "severity": "HIGH",
+          "category": "wrong-drug-class",
+          "reason": "KARMMA is idecabtagene vicleucel (ide-cel) BCMA CAR-T for multiple myeloma (plasma-cell neoplasm), not B-cell lymphoma; wrong CAR-T target and wrong disease for a B-cell-lymphoma review.",
+          "confidence": 0.98,
+          "ground_truth_hint": null
+        },
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "single-arm-fab-HR",
+          "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.73 reported — fabricated comparator.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1186,
+      "review": "DUCHENNE_GENE_THERAPY_REVIEW",
+      "nct": "NCT03769116",
+      "name": "SRP-9001-101",
+      "pmid": "32433678",
+      "year": 2020,
+      "group": "Delandistrogene phase 1 dose-finding",
+      "max_severity": "HIGH",
+      "consensus_level": "2-of-3",
+      "agents_flagged": [
+        "plausibility",
+        "identity"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "single-arm-fab-HR",
+          "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=1.0 reported — fabricated comparator.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        },
+        "identity": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "PMID 32433678 is 'Phenotyping physician practice patterns...EHR nudge for influenza vaccination', not the SRP-9001-101 delandistrogene moxeparvovec Duchenne dose-finding trial.",
+          "confidence": 0.97,
+          "ground_truth_hint": "SRP-9001-101 = Mendell JAMA Neurol 2020, PMID 32539076."
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1188,
+      "review": "CABG_VS_PCI_LEFT_MAIN_NMA_REVIEW",
+      "nct": "NCT02100722",
+      "name": "FAME-3",
+      "pmid": "34735696",
+      "year": 2022,
+      "group": "FFR-PCI vs CABG FAME-3 1y",
+      "max_severity": "HIGH",
+      "consensus_level": "2-of-3",
+      "agents_flagged": [
+        "coherence",
+        "identity"
+      ],
+      "details": {
+        "coherence": {
+          "severity": "MED",
+          "category": "other",
+          "reason": "FAME-3 compared FFR-guided PCI with current-generation DES vs CABG in three-vessel coronary disease, explicitly excluding left main; wrong anatomic population for a left-main-only review.",
+          "confidence": 0.93,
+          "ground_truth_hint": null
+        },
+        "identity": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "PMID 34735696 is 'International COVID-19 biomarkers colloquium' (2021), not FAME-3 FFR-PCI vs CABG.",
+          "confidence": 0.95,
+          "ground_truth_hint": "FAME-3 1y primary = Fearon NEJM 2022, PMID 34735594 (off by 102)."
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1192,
+      "review": "PCSK9_LIPID_NMA_REVIEW",
+      "nct": "NCT02993406",
+      "name": "CLEAR-OUTCOMES",
+      "pmid": "36876740",
+      "year": 2023,
+      "group": "Bempedoic acid 180 mg daily vs placebo (statin-intolerant; CLEAR-OUTCOMES; 4P-MA",
+      "max_severity": "HIGH",
+      "consensus_level": "2-of-3",
+      "agents_flagged": [
+        "coherence",
+        "plausibility"
+      ],
+      "details": {
+        "coherence": {
+          "severity": "HIGH",
+          "category": "wrong-drug-class",
+          "reason": "CLEAR-OUTCOMES tested bempedoic acid (ATP-citrate lyase inhibitor), not a PCSK9 inhibitor; wrong drug class for a PCSK9 NMA.",
+          "confidence": 0.98,
+          "ground_truth_hint": null
+        },
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=0.87 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1211,
+      "review": "MELANOMA_NEOADJUVANT_REVIEW",
+      "nct": "NCT02437279",
+      "name": "OPTIMUS-1",
+      "pmid": null,
+      "year": 2023,
+      "group": "Ipi+nivo personalized dosing",
+      "max_severity": "HIGH",
+      "consensus_level": "2-of-3",
+      "agents_flagged": [
+        "coherence",
+        "plausibility"
+      ],
+      "details": {
+        "coherence": {
+          "severity": "MED",
+          "category": "other",
+          "reason": "NCT02437279 corresponds to OpACIN-neo (Rozeman/Blank, neoadjuvant ipi+nivo melanoma); the name 'OPTIMUS-1' does not match this NCT or any commonly published neoadjuvant melanoma trial acronym.",
+          "confidence": 0.78,
+          "ground_truth_hint": null
+        },
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "single-arm-fab-HR",
+          "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.4 reported — fabricated comparator.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1214,
+      "review": "KNEE_OA_INTRAARTICULAR_NMA_REVIEW",
+      "nct": "NCT02061358",
+      "name": "TANEZ-OA-005",
+      "pmid": "",
+      "year": 2023,
+      "group": "Tanezumab anti-NGF OA (OA-005)",
+      "max_severity": "HIGH",
+      "consensus_level": "2-of-3",
+      "agents_flagged": [
+        "coherence",
+        "plausibility"
+      ],
+      "details": {
+        "coherence": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "Tanezumab is administered subcutaneously (anti-NGF systemic mAb), not intra-articularly; including tanezumab in an intra-articular knee-OA NMA is a route-of-administration mismatch.",
+          "confidence": 0.78,
+          "ground_truth_hint": null
+        },
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "schema-MD-with-events",
+          "reason": "estimandType='MD' but event counts populated (tE=480, cE=320); MDs operate on means, not counts.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1215,
+      "review": "POSTOP_AKI_PREVENTION_REVIEW",
+      "nct": "NCT01200654",
+      "name": "ACT",
+      "pmid": "21982001",
+      "year": 2017,
+      "group": "Acetylcysteine (contrast-AKI)",
+      "max_severity": "HIGH",
+      "consensus_level": "2-of-3",
+      "agents_flagged": [
+        "coherence",
+        "identity"
+      ],
+      "details": {
+        "coherence": {
+          "severity": "MED",
+          "category": "other",
+          "reason": "The ACT trial (NCT01200654) evaluated acetylcysteine for contrast-induced AKI prevention at coronary/peripheral angiography, not for postoperative AKI in surgical patients; wrong clinical context.",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        },
+        "identity": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "PMID 21982001 is an 'Editorial comment' (Circ Cardiovasc Imaging 2011), not the ACT acetylcysteine contrast-AKI prevention trial.",
+          "confidence": 0.95,
+          "ground_truth_hint": "ACT trial primary = Berwanger Circulation 2011, PMID 21987306 (or related)."
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1235,
+      "review": "MIRVETUXIMAB_OVARIAN_REVIEW",
+      "nct": "NCT04209855",
+      "name": "MIRASOL",
+      "pmid": "38567989",
+      "year": 2024,
+      "group": "Platinum-resistant high-FR-alpha ovarian cancer, mirvetuximab soravtansine vs in",
+      "max_severity": "HIGH",
+      "consensus_level": "2-of-3",
+      "agents_flagged": [
+        "plausibility",
+        "identity"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=0.65 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        },
+        "identity": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "PMID 38567989 is 'Detection of UGT1A1 for pancreatic cancer imaging — turn-on fluorescent probe' (2024), not the MIRASOL mirvetuximab soravtansine ovarian trial.",
+          "confidence": 0.98,
+          "ground_truth_hint": "MIRASOL = Moore NEJM 2024, PMID 38096376."
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1209,
+      "review": "HER2_LOW_ADC_REVIEW",
+      "nct": "NCT03901339",
+      "name": "TROPiCS-02",
+      "pmid": "37633306",
+      "year": 2023,
+      "group": "HR+ HER2-/HER2-low metastatic BC post-endocrine and 2-4 prior chemo lines, sacit",
+      "max_severity": "LOW",
+      "consensus_level": "2-of-3",
+      "agents_flagged": [
+        "coherence",
+        "plausibility"
+      ],
+      "details": {
+        "coherence": {
+          "severity": "LOW",
+          "category": "wrong-drug-class",
+          "reason": "TROPiCS-02 tested sacituzumab govitecan, a Trop-2-directed ADC, not a HER2-directed ADC; the trial includes a HER2-low cohort but the agent itself is not a HER2 ADC.",
+          "confidence": 0.7,
+          "ground_truth_hint": null
+        },
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=0.66 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1004,
+      "review": "IL_PSORIASIS_NMA_REVIEW",
+      "nct": "NCT03410992",
+      "name": "BE READY",
+      "pmid": "33549192",
+      "year": 2021,
+      "group": "Bimekizumab 320 mg Q4W SC vs Placebo (BE READY; 16 wk PASI 90; adds bimekizumab-",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=871.9 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "A"
+    },
+    {
+      "id": 1005,
+      "review": "CART_B_CELL_LYMPHOMA_REVIEW",
+      "nct": "NCT02348216",
+      "name": "ZUMA-1",
+      "pmid": "29226797",
+      "year": 2017,
+      "group": "Axicabtagene ciloleucel (axi-cel)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "single-arm-fab-HR",
+          "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.83 reported — fabricated comparator.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "A"
+    },
+    {
+      "id": 1006,
+      "review": "SCLC_IO_REVIEW",
+      "nct": "NCT05012007",
+      "name": "SUPREME",
+      "pmid": "37731137",
+      "year": 2024,
+      "group": "Serplulimab maintenance ES-SCLC",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "identity"
+      ],
+      "details": {
+        "identity": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "PMID 37731137 is 'Automated Reminders Enhance Mailed Fecal Immunochemical Test Completion in Veterans' (J Gen Intern Med 2023), wholly unrelated to SUPREME / serplulimab SCLC.",
+          "confidence": 0.98,
+          "ground_truth_hint": "PMID is wrong; replace with serplulimab SCLC primary publication or null."
+        }
+      },
+      "tier": "A"
+    },
+    {
+      "id": 1007,
+      "review": "GVHD_NEW_AGENTS_REVIEW",
+      "nct": "NCT02953678",
+      "name": "REACH-1",
+      "pmid": null,
+      "year": 2020,
+      "group": "Ruxolitinib aGVHD (single-arm)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "single-arm-fab-HR",
+          "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.549 reported — fabricated comparator.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "A"
+    },
+    {
+      "id": 1010,
+      "review": "HEMODIALYSIS_AV_ACCESS_DCB_NMA_REVIEW",
+      "nct": "NCT01710033",
+      "name": "LUTONIX-AV",
+      "pmid": "32098496",
+      "year": 2020,
+      "group": "Lutonix-AV vs POBA",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "identity"
+      ],
+      "details": {
+        "identity": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "PMID 32098496 is 'Atrial Septal Defect Mimicking Right Atrial Myxoma' (Circ Cardiovasc Imaging 2020), not the LUTONIX-AV dialysis-access DCB trial.",
+          "confidence": 0.98,
+          "ground_truth_hint": "Correct LUTONIX-AV publication is Lookstein NEJM 2020 = PMID 32101663."
+        }
+      },
+      "tier": "A"
+    },
+    {
+      "id": 1011,
+      "review": "HYPERKALEMIA_K_BINDER_NMA_REVIEW",
+      "nct": "NCT01737697",
+      "name": "HARMONIZE",
+      "pmid": null,
+      "year": 2017,
+      "group": "Sodium zirconium cyclosilicate HARMONIZE",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "schema-MD-with-events",
+          "reason": "estimandType='MD' but event counts populated (tE=175, cE=30); MDs operate on means, not counts.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "A"
+    },
+    {
+      "id": 1012,
+      "review": "IL_PSORIASIS_NMA_REVIEW",
+      "nct": "NCT01708590",
+      "name": "AMAGINE-1",
+      "pmid": "26914406",
+      "year": 2016,
+      "group": "Brodalumab 210mg Q2W | IL-17RA (AMAGINE-1; PASI 90 wk 12)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=381.26 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "A"
+    },
+    {
+      "id": 1016,
+      "review": "COVID19_VACCINES_REVIEW",
+      "nct": "NCT04627298",
+      "name": "ZF2001",
+      "pmid": "35305290",
+      "year": 2022,
+      "group": "ZF2001 25μg ×3 (Anhui Zhifei)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "identity"
+      ],
+      "details": {
+        "identity": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "PMID 35305290 is 'Muscle contraction and mitochondrial biogenesis - A brief historical reappraisal' (Acta Physiol 2022), not the ZF2001 COVID vaccine RCT.",
+          "confidence": 0.98,
+          "ground_truth_hint": "PMID wrong; ZF2001 primary publication is Dai NEJM 2022 = PMID 35139271."
+        }
+      },
+      "tier": "A"
+    },
+    {
+      "id": 1018,
+      "review": "BIMEKIZUMAB_PSORIASIS_REVIEW",
+      "nct": "NCT03410992",
+      "name": "BE-READY",
+      "pmid": "33549192",
+      "year": 2021,
+      "group": "Moderate-severe plaque psoriasis, bimekizumab 320 mg Q4W vs placebo (4:1 randomi",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=67.27 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "A"
+    },
+    {
+      "id": 1021,
+      "review": "RNA_INTERFERENCE_BROAD_NMA_REVIEW",
+      "nct": "NCT03997383",
+      "name": "APOLLO-B",
+      "pmid": null,
+      "year": 2023,
+      "group": "Patisiran ATTR-CM (APOLLO-B)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "schema-MD-with-events",
+          "reason": "estimandType='MD' but event counts populated (tE=100, cE=130); MDs operate on means, not counts.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "A"
+    },
+    {
+      "id": 1023,
+      "review": "IL_PSORIASIS_NMA_REVIEW",
+      "nct": "NCT01646177",
+      "name": "UNCOVER-3",
+      "pmid": "26072109",
+      "year": 2016,
+      "group": "Ixekizumab 80 mg Q2W SC | IL-17A",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "magnitude-extreme",
+          "reason": "HR=63.64 — likely OR mislabelled as HR or extreme rare-event response (e.g., placebo-vs-active for very-high-efficacy biologic).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "A"
+    },
+    {
+      "id": 1033,
+      "review": "PAH_SOTATERCEPT_BROAD_REVIEW",
+      "nct": "NCT04576988",
+      "name": "STELLAR",
+      "pmid": "36841494",
+      "year": 2023,
+      "group": "Sotatercept (PAH on background)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "identity"
+      ],
+      "details": {
+        "identity": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "PMID 36841494 is 'Optimizing One-Lung Ventilation in Thoracic Surgery' (Ann Thorac Surg 2023), not STELLAR sotatercept PAH.",
+          "confidence": 0.98,
+          "ground_truth_hint": "STELLAR primary = Hoeper NEJM 2023, PMID 36877098."
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1034,
+      "review": "PAH_SOTATERCEPT_BROAD_REVIEW",
+      "nct": "NCT04266119",
+      "name": "MOSAIC",
+      "pmid": "35955126",
+      "year": 2024,
+      "group": "Mosliciguat inhaled sGC stimulator",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "identity"
+      ],
+      "details": {
+        "identity": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "PMID 35955126 is 'HOPE Intervention on Mental Health Literacy in Undergraduates' (Int J Environ Res Public Health 2022), not MOSAIC mosliciguat PAH.",
+          "confidence": 0.98,
+          "ground_truth_hint": "Wrong PMID; replace with MOSAIC publication or null."
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1036,
+      "review": "PAH_SOTATERCEPT_BROAD_REVIEW",
+      "nct": "NCT03626688",
+      "name": "ADVANCE-OUTCOMES",
+      "pmid": "36247203",
+      "year": 2024,
+      "group": "Ralinepag (IP receptor) — outcomes",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "identity"
+      ],
+      "details": {
+        "identity": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "PMID 36247203 is 'Building local decision-making competencies during COVID-19' (Learn Health Syst 2022), not ADVANCE-OUTCOMES ralinepag.",
+          "confidence": 0.98,
+          "ground_truth_hint": "Wrong PMID; ADVANCE-OUTCOMES has not posted a primary results paper as of 2026."
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1041,
+      "review": "ADJUVANT_IO_PAN_TUMOR_REVIEW",
+      "nct": "NCT02632409",
+      "name": "CheckMate-274",
+      "pmid": "34037414",
+      "year": 2021,
+      "group": "Nivolumab adjuvant urothelial",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "identity"
+      ],
+      "details": {
+        "identity": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "PMID 34037414 is 'Editorial Comment: Shift in Rectal Cancer Treatment Strategies', not CheckMate-274 nivolumab adjuvant urothelial.",
+          "confidence": 0.97,
+          "ground_truth_hint": "CheckMate-274 primary = Bajorin NEJM 2021, PMID 34081684."
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1069,
+      "review": "GVHD_NEW_AGENTS_REVIEW",
+      "nct": "NCT03640481",
+      "name": "ROCKstar",
+      "pmid": null,
+      "year": 2021,
+      "group": "Belumosudil 200mg cGVHD (single-arm)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "single-arm-fab-HR",
+          "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.75 reported — fabricated comparator.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1070,
+      "review": "GVHD_NEW_AGENTS_REVIEW",
+      "nct": "NCT03112603",
+      "name": "REACH-3",
+      "pmid": "34080802",
+      "year": 2021,
+      "group": "Ruxolitinib vs BAT cGVHD",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "identity"
+      ],
+      "details": {
+        "identity": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "PMID 34080802 is 'Oral Abstracts' (J Med Radiat Sci 2021 conference proceedings), not REACH-3 ruxolitinib cGVHD.",
+          "confidence": 0.98,
+          "ground_truth_hint": "REACH-3 primary = Zeiser NEJM 2021, PMID 34320287."
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1071,
+      "review": "GVHD_NEW_AGENTS_REVIEW",
+      "nct": "NCT05111795",
+      "name": "AXATILIMAB-cGVHD-Ext",
+      "pmid": "",
+      "year": 2024,
+      "group": "Axatilimab long-term safety",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "single-arm-fab-HR",
+          "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.7 reported — fabricated comparator.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1073,
+      "review": "GVHD_NEW_AGENTS_REVIEW",
+      "nct": "NCT04361825",
+      "name": "BRAVO",
+      "pmid": null,
+      "year": 2024,
+      "group": "Belumosudil + ruxolitinib combo",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "single-arm-fab-HR",
+          "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.583 reported — fabricated comparator.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1076,
+      "review": "GVHD_NEW_AGENTS_REVIEW",
+      "nct": "NCT04706260",
+      "name": "ITACITINIB-aGVHD",
+      "pmid": "",
+      "year": 2024,
+      "group": "Itacitinib steroid-refractory aGVHD",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "single-arm-fab-HR",
+          "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.65 reported — fabricated comparator.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1077,
+      "review": "T1D_CLOSED_LOOP_NMA_REVIEW",
+      "nct": "NCT03844789",
+      "name": "iDCL",
+      "pmid": "31618560",
+      "year": 2019,
+      "group": "Tandem CIQ vs SAP adult (iDCL)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "MED",
+          "category": "crude-vs-HR-mismatch",
+          "reason": "crude_RR=1.05 (tE/tN=105/112, cE/cN=50/56) vs reported HR=11.0 differ by 10.5x.",
+          "confidence": 0.6,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1079,
+      "review": "T1D_CLOSED_LOOP_NMA_REVIEW",
+      "nct": "NCT03879382",
+      "name": "Omnipod-5",
+      "pmid": null,
+      "year": 2022,
+      "group": "Omnipod-5 SmartAdjust pediatric/adult",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "MED",
+          "category": "crude-vs-HR-mismatch",
+          "reason": "crude_RR=1.38 (tE/tN=165/240, cE/cN=120/240) vs reported HR=9.5 differ by 6.9x.",
+          "confidence": 0.6,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1080,
+      "review": "T1D_CLOSED_LOOP_NMA_REVIEW",
+      "nct": "NCT04200508",
+      "name": "ILet-AID",
+      "pmid": null,
+      "year": 2023,
+      "group": "iLet bionic pancreas T1D",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "MED",
+          "category": "crude-vs-HR-mismatch",
+          "reason": "crude_RR=1.10 (tE/tN=109/109, cE/cN=100/110) vs reported HR=11.0 differ by 10.0x.",
+          "confidence": 0.6,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1081,
+      "review": "T1D_CLOSED_LOOP_NMA_REVIEW",
+      "nct": "NCT04200963",
+      "name": "CLOuD",
+      "pmid": null,
+      "year": 2020,
+      "group": "CamAPS new-onset T1D (CLOuD)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "MED",
+          "category": "crude-vs-HR-mismatch",
+          "reason": "crude_RR=1.30 (tE/tN=65/65, cE/cN=50/65) vs reported HR=8.5 differ by 6.5x.",
+          "confidence": 0.6,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1082,
+      "review": "T1D_CLOSED_LOOP_NMA_REVIEW",
+      "nct": "NCT04003727",
+      "name": "MiniMed-780G",
+      "pmid": null,
+      "year": 2022,
+      "group": "MiniMed 780G AHCL adolescent/adult",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "MED",
+          "category": "crude-vs-HR-mismatch",
+          "reason": "crude_RR=1.38 (tE/tN=110/161, cE/cN=80/161) vs reported HR=12.0 differ by 8.7x.",
+          "confidence": 0.6,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1083,
+      "review": "T1D_CLOSED_LOOP_NMA_REVIEW",
+      "nct": "NCT04096794",
+      "name": "CamAPS-FX-Adults",
+      "pmid": null,
+      "year": 2020,
+      "group": "CamAPS-FX adults T1D",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "MED",
+          "category": "crude-vs-HR-mismatch",
+          "reason": "crude_RR=1.30 (tE/tN=13/13, cE/cN=10/13) vs reported HR=9.5 differ by 7.3x.",
+          "confidence": 0.6,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1090,
+      "review": "DEPRESSION_PSYCHEDELIC_NMA_REVIEW",
+      "nct": "NCT04918810",
+      "name": "MAPP1-MDMA",
+      "pmid": null,
+      "year": 2021,
+      "group": "MDMA-assisted PTSD ± MDD comorbid",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "schema-MD-with-events",
+          "reason": "estimandType='MD' but event counts populated (tE=35, cE=12); MDs operate on means, not counts.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1091,
+      "review": "DEPRESSION_PSYCHEDELIC_NMA_REVIEW",
+      "nct": "NCT04161495",
+      "name": "PsiPhase2-NL",
+      "pmid": null,
+      "year": 2021,
+      "group": "Psilocybin assisted MDD Netherlands",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "schema-MD-with-events",
+          "reason": "estimandType='MD' but event counts populated (tE=38, cE=18); MDs operate on means, not counts.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1092,
+      "review": "DEPRESSION_PSYCHEDELIC_NMA_REVIEW",
+      "nct": "NCT05249907",
+      "name": "COMP-005",
+      "pmid": "",
+      "year": 2024,
+      "group": "COMP360 ph3 (COMP-005)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "schema-MD-with-events",
+          "reason": "estimandType='MD' but event counts populated (tE=110, cE=42); MDs operate on means, not counts.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1093,
+      "review": "DEPRESSION_PSYCHEDELIC_NMA_REVIEW",
+      "nct": "NCT04123314",
+      "name": "USONA-P5",
+      "pmid": null,
+      "year": 2023,
+      "group": "Synthetic psilocybin Usona MDD",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "schema-MD-with-events",
+          "reason": "estimandType='MD' but event counts populated (tE=45, cE=18); MDs operate on means, not counts.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1095,
+      "review": "HYPERKALEMIA_K_BINDER_NMA_REVIEW",
+      "nct": "NCT01902368",
+      "name": "OPAL-HK",
+      "pmid": "25415805",
+      "year": 2017,
+      "group": "Patiromer hyperkalemia OPAL-HK",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "schema-MD-with-events",
+          "reason": "estimandType='MD' but event counts populated (tE=188, cE=15); MDs operate on means, not counts.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1097,
+      "review": "HYPERKALEMIA_K_BINDER_NMA_REVIEW",
+      "nct": "NCT02163499",
+      "name": "ZS-005",
+      "pmid": "26999557",
+      "year": 2017,
+      "group": "SZC long-term HK (ZS-005)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "identity"
+      ],
+      "details": {
+        "identity": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "PMID 26999557 is 'Low holo-transcobalamin levels in vegetarians and association with coronary artery disease' (2016), not the ZS-005 sodium zirconium cyclosilicate long-term trial.",
+          "confidence": 0.97,
+          "ground_truth_hint": "ZS-005 long-term = Spinowitz CJASN 2019, PMID 30602462."
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1104,
+      "review": "AML_TARGETED_NEW_REVIEW",
+      "nct": "NCT04065399",
+      "name": "AUGMENT-101",
+      "pmid": "36922593",
+      "year": 2024,
+      "group": "Revumenib menin inhibitor (R/R KMT2A+)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "single-arm-fab-HR",
+          "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.217 reported — fabricated comparator.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1118,
+      "review": "ITP_NEW_AGENTS_REVIEW",
+      "nct": "NCT03395210",
+      "name": "LUNA-1",
+      "pmid": null,
+      "year": 2022,
+      "group": "Rilzabrutinib BTK in ITP (single-arm)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "single-arm-fab-HR",
+          "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.4 reported — fabricated comparator.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1125,
+      "review": "OPIOID_INDUCED_CONSTIPATION_REVIEW",
+      "nct": "NCT01965223",
+      "name": "COMPOSE-3",
+      "pmid": "30086124",
+      "year": 2018,
+      "group": "Naldemedine long-term extension",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "identity"
+      ],
+      "details": {
+        "identity": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "PMID 30086124 is 'Utilization of Learning Object Repositories...PA Education' (J Physician Assist Educ 2018), not COMPOSE-3 naldemedine.",
+          "confidence": 0.98,
+          "ground_truth_hint": "COMPOSE-3 long-term safety = Webster Pain 2018, PMID 29630479."
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1133,
+      "review": "IL_PSORIASIS_NMA_REVIEW",
+      "nct": "NCT02684370",
+      "name": "UltIMMa-1",
+      "pmid": "30097359",
+      "year": 2018,
+      "group": "Risankizumab 150 mg Q12W SC | IL-23",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "magnitude-extreme",
+          "reason": "HR=74.83 — likely OR mislabelled as HR or extreme rare-event response (e.g., placebo-vs-active for very-high-efficacy biologic).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1134,
+      "review": "IL_PSORIASIS_NMA_REVIEW",
+      "nct": "NCT01474512",
+      "name": "UNCOVER-1",
+      "pmid": "27299809",
+      "year": 2016,
+      "group": "Ixekizumab 80 mg Q2W SC | IL-17A",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "magnitude-extreme",
+          "reason": "HR=252.18 — likely OR mislabelled as HR or extreme rare-event response (e.g., placebo-vs-active for very-high-efficacy biologic).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1136,
+      "review": "IL_PSORIASIS_NMA_REVIEW",
+      "nct": "NCT02684357",
+      "name": "UltIMMa-2",
+      "pmid": null,
+      "year": 2018,
+      "group": "Risankizumab 150mg Q12W | IL-23 (UltIMMa-2 pair to UltIMMa-1; PASI 90 wk 16). De",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=135.52 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1140,
+      "review": "PERIPHERAL_DCB_PAD_NMA_REVIEW",
+      "nct": "NCT04067791",
+      "name": "SWING",
+      "pmid": null,
+      "year": 2023,
+      "group": "Sirolimus DCB MagicTouch BTK (SWING)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "single-arm-fab-HR",
+          "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.76 reported — fabricated comparator.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1142,
+      "review": "PERIPHERAL_DCB_PAD_NMA_REVIEW",
+      "nct": "NCT01710033",
+      "name": "LUTONIX-AV",
+      "pmid": "32098496",
+      "year": 2020,
+      "group": "Lutonix DCB dialysis access AV",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "coherence"
+      ],
+      "details": {
+        "coherence": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "LUTONIX-AV (NCT01710033) randomized DCB vs POBA in dialysis arteriovenous access stenosis, not peripheral arterial disease/femoropopliteal PAD; wrong vascular bed.",
+          "confidence": 0.96,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1146,
+      "review": "PERIPHERAL_DCB_PAD_NMA_REVIEW",
+      "nct": "NCT02862041",
+      "name": "PASSEO-LUX",
+      "pmid": "32145772",
+      "year": 2020,
+      "group": "Passeo-18 Lux DCB pivotal (Passeo-LUX)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "identity"
+      ],
+      "details": {
+        "identity": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "PMID 32145772 is the Lancet editorial 'COVID-19: too little, too late?' (Mar 2020), not a PASSEO-LUX paclitaxel DCB pivotal trial.",
+          "confidence": 0.98,
+          "ground_truth_hint": "Wrong PMID; verify against actual BIOLUX P-III/PASSEO-LUX RCT publication."
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1154,
+      "review": "SCLC_IO_REVIEW",
+      "nct": "NCT04539977",
+      "name": "TRINITY",
+      "pmid": "41290592",
+      "year": 2024,
+      "group": "Toripalimab + EP (1L SCLC)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "identity"
+      ],
+      "details": {
+        "identity": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "PMID 41290592 is 'Surgery after induced anti-PD-L1 therapy...stage I-III SCLC: LungMate-005' (Cell Discovery 2025-11), wholly different from TRINITY toripalimab 1L SCLC.",
+          "confidence": 0.98,
+          "ground_truth_hint": "Wrong PMID; replace with actual TRINITY toripalimab SCLC publication."
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1159,
+      "review": "CGRP_MIGRAINE_PREVENT_REVIEW",
+      "nct": "NCT02614183",
+      "name": "EVOLVE-1",
+      "pmid": "30143437",
+      "year": 2018,
+      "group": "Galcanezumab 120mg SC monthly",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "identity"
+      ],
+      "details": {
+        "identity": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "PMID 30143437 is an obituary 'Craig Stubing: the art of managing type 1 diabetes' (Lancet Diabetes Endocrinol 2018), not EVOLVE-1 galcanezumab migraine.",
+          "confidence": 0.98,
+          "ground_truth_hint": "EVOLVE-1 primary = Stauffer JAMA Neurol 2018, PMID 29799986."
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1165,
+      "review": "BLADDER_NMIBC_NEW_NMA_REVIEW",
+      "nct": "NCT02625961",
+      "name": "KEYNOTE-057",
+      "pmid": null,
+      "year": 2021,
+      "group": "Pembrolizumab CIS KEYNOTE-057 (single-arm)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "single-arm-fab-HR",
+          "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.41 reported — fabricated comparator.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1166,
+      "review": "BLADDER_NMIBC_NEW_NMA_REVIEW",
+      "nct": "NCT02449239",
+      "name": "VISTA",
+      "pmid": "33301744",
+      "year": 2021,
+      "group": "Oportuzumab monatox VISTA (single-arm)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "single-arm-fab-HR",
+          "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.4 reported — fabricated comparator.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1167,
+      "review": "BLADDER_NMIBC_NEW_NMA_REVIEW",
+      "nct": "NCT03635710",
+      "name": "CORE-001",
+      "pmid": null,
+      "year": 2023,
+      "group": "Cretostimogene CG0070 CORE-001 (single-arm)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "single-arm-fab-HR",
+          "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.76 reported — fabricated comparator.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1171,
+      "review": "CART_B_CELL_LYMPHOMA_REVIEW",
+      "nct": "NCT02601313",
+      "name": "ZUMA-2",
+      "pmid": "32242358",
+      "year": 2020,
+      "group": "Brexucabtagene autoleucel (brexu-cel) MCL",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "single-arm-fab-HR",
+          "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.91 reported — fabricated comparator.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1173,
+      "review": "CART_B_CELL_LYMPHOMA_REVIEW",
+      "nct": "NCT04181827",
+      "name": "CARTITUDE-4",
+      "pmid": "37272512",
+      "year": 2023,
+      "group": "Ciltacabtagene autoleucel (cilta-cel)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "coherence"
+      ],
+      "details": {
+        "coherence": {
+          "severity": "HIGH",
+          "category": "wrong-drug-class",
+          "reason": "CARTITUDE-4 is ciltacabtagene autoleucel (cilta-cel) BCMA CAR-T for relapsed/refractory multiple myeloma, not B-cell lymphoma.",
+          "confidence": 0.98,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1174,
+      "review": "CART_B_CELL_LYMPHOMA_REVIEW",
+      "nct": "NCT02445248",
+      "name": "JULIET",
+      "pmid": "30501490",
+      "year": 2019,
+      "group": "Tisagenlecleucel (tisa-cel)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "single-arm-fab-HR",
+          "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.52 reported — fabricated comparator.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1176,
+      "review": "CART_B_CELL_LYMPHOMA_REVIEW",
+      "nct": "NCT03651128",
+      "name": "KARMMA-3",
+      "pmid": "36762851",
+      "year": 2023,
+      "group": "Ide-cel vs SoC (3L+ multiple myeloma)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "coherence"
+      ],
+      "details": {
+        "coherence": {
+          "severity": "HIGH",
+          "category": "wrong-drug-class",
+          "reason": "KARMMA-3 is ide-cel BCMA CAR-T for 3L+ multiple myeloma per the group field itself; multiple myeloma is plasma-cell, not B-cell lymphoma.",
+          "confidence": 0.99,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1177,
+      "review": "CART_B_CELL_LYMPHOMA_REVIEW",
+      "nct": "NCT02631044",
+      "name": "TRANSCEND-NHL-001",
+      "pmid": "32888407",
+      "year": 2020,
+      "group": "Lisocabtagene maraleucel (liso-cel)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "single-arm-fab-HR",
+          "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.74 reported — fabricated comparator.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1179,
+      "review": "GENICULAR_RFA_KNEE_OA_NMA_REVIEW",
+      "nct": "NCT02669355",
+      "name": "GENESIS-RFA",
+      "pmid": null,
+      "year": 2020,
+      "group": "Cooled RFA vs IA-steroid (GENESIS)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "schema-MD-with-events",
+          "reason": "estimandType='MD' but event counts populated (tE=95, cE=65); MDs operate on means, not counts.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1184,
+      "review": "TRIPLE_THERAPY_COPD_REVIEW",
+      "nct": "NCT01917331",
+      "name": "TRILOGY",
+      "pmid": "27863872",
+      "year": 2017,
+      "group": "BDP/FORM/GLY 100/6/12.5 mcg",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "identity"
+      ],
+      "details": {
+        "identity": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "PMID 27863872 is 'Seasonal and temperature modifications of fine particulate air pollution and cardiovascular hospitalization in New York state' (2016), not TRILOGY beclomethasone/formoterol/glycopyrronium COPD.",
+          "confidence": 0.97,
+          "ground_truth_hint": "TRILOGY primary = Singh Lancet 2016; verify exact PMID (~27160708)."
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1185,
+      "review": "DPN_NEW_AGENTS_NMA_REVIEW",
+      "nct": "NCT02318732",
+      "name": "REDUCING-2",
+      "pmid": null,
+      "year": 2019,
+      "group": "Mirogabalin DPN parallel (REDUCING-2)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "schema-MD-with-events",
+          "reason": "estimandType='MD' but event counts populated (tE=175, cE=100); MDs operate on means, not counts.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1194,
+      "review": "INSOMNIA_DORA_NMA_REVIEW",
+      "nct": "NCT04550835",
+      "name": "Lemborex-LT",
+      "pmid": null,
+      "year": 2020,
+      "group": "Lemborexant 1y safety/efficacy",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "schema-MD-with-events",
+          "reason": "estimandType='MD' but event counts populated (tE=445, cE=240); MDs operate on means, not counts.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1199,
+      "review": "PROSTATE_RADIOLIGAND_BROAD_REVIEW",
+      "nct": "NCT03049189",
+      "name": "COMPETE",
+      "pmid": null,
+      "year": 2024,
+      "group": "Lu-DOTATOC vs everolimus (NET)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "coherence"
+      ],
+      "details": {
+        "coherence": {
+          "severity": "HIGH",
+          "category": "wrong-drug-class",
+          "reason": "COMPETE compares Lu-DOTATOC vs everolimus in neuroendocrine tumors (NET); 177Lu-DOTATOC is a somatostatin-receptor radioligand, not a prostate-targeted (e.g. PSMA) radioligand — wrong tumor type and wrong receptor target for a prostate radioligand review.",
+          "confidence": 0.97,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1201,
+      "review": "COMPLEMENT_C5_BROAD_NMA_REVIEW",
+      "nct": "NCT04514536",
+      "name": "COMMODORE-3",
+      "pmid": "",
+      "year": 2024,
+      "group": "Crovalimab single-arm Asia COMMODORE-3",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "single-arm-fab-HR",
+          "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.745 reported — fabricated comparator.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1210,
+      "review": "HEMOPHILIA_NEW_AGENTS_NMA_REVIEW",
+      "nct": "NCT03370913",
+      "name": "GENEr8-1",
+      "pmid": "35020983",
+      "year": 2022,
+      "group": "Valoctocogene FVIII gene (GENEr8-1)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "identity"
+      ],
+      "details": {
+        "identity": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "PMID 35020983 is 'Sparing of Severe Covid-19 in Vaccinated Adolescents' (NEJM 2022), not the GENEr8-1 valoctocogene gene therapy hemophilia A trial.",
+          "confidence": 0.98,
+          "ground_truth_hint": "GENEr8-1 = Ozelo NEJM 2022, PMID 35294814."
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1219,
+      "review": "BIPOLAR_DEPRESSION_NEW_NMA_REVIEW",
+      "nct": "NCT01494532",
+      "name": "PREVAIL-2",
+      "pmid": null,
+      "year": 2017,
+      "group": "Lurasidone + lithium/VPA PREVAIL-2",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "schema-MD-with-events",
+          "reason": "estimandType='MD' but event counts populated (tE=138, cE=95); MDs operate on means, not counts.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1220,
+      "review": "MM_NDMM_QUAD_NMA_REVIEW",
+      "nct": "NCT02874742",
+      "name": "GRIFFIN",
+      "pmid": "32492714",
+      "year": 2020,
+      "group": "D-VRd vs VRd transplant-eligible",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "identity"
+      ],
+      "details": {
+        "identity": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "PMID 32492714 is 'Erratum: Thromboelastometry Variables in Neonates with Perinatal Hypoxia' (2020), not GRIFFIN D-VRd transplant-eligible MM.",
+          "confidence": 0.98,
+          "ground_truth_hint": "GRIFFIN primary = Voorhees Blood 2020, PMID 32603018."
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1222,
+      "review": "TXA_NONCARDIAC_SURGERY_REVIEW",
+      "nct": "NCT01658124",
+      "name": "HALT-IT",
+      "pmid": "32563378",
+      "year": 2020,
+      "group": "TXA 1g IV (loading + 24h infusion)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "coherence"
+      ],
+      "details": {
+        "coherence": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "HALT-IT tested tranexamic acid in acute gastrointestinal hemorrhage, not a noncardiac surgery population; right drug, wrong clinical context (medical bleeding, not perioperative).",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1223,
+      "review": "HOT_FLASH_NK3R_BROAD_NMA_REVIEW",
+      "nct": "NCT01816089",
+      "name": "BRISDELLE-1",
+      "pmid": null,
+      "year": 2017,
+      "group": "Paroxetine 7.5mg BRISDELLE",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "schema-MD-with-events",
+          "reason": "estimandType='MD' but event counts populated (tE=220, cE=165); MDs operate on means, not counts.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1226,
+      "review": "INTRAVASCULAR_LITHOTRIPSY_NMA_REVIEW",
+      "nct": "NCT03595046",
+      "name": "DISRUPT-CAD-1",
+      "pmid": null,
+      "year": 2019,
+      "group": "IVL coronary DISRUPT-CAD-1 (single-arm)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "single-arm-fab-HR",
+          "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.93 reported — fabricated comparator.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1229,
+      "review": "CHOLANGIO_TARGETED_NMA_REVIEW",
+      "nct": "NCT04003636",
+      "name": "KEYNOTE-966",
+      "pmid": "37224500",
+      "year": 2023,
+      "group": "Pembro + GemCis biliary (KN-966)",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "identity"
+      ],
+      "details": {
+        "identity": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "PMID 37224500 is 'Generalized Essential Telangiectasia Treated With Pulsed Dye Laser' (2023), not KEYNOTE-966 pembrolizumab + GemCis biliary tract cancer.",
+          "confidence": 0.98,
+          "ground_truth_hint": "KEYNOTE-966 = Kelley Lancet 2023, PMID 37075781."
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1245,
+      "review": "COVID19_HOSPITALIZED_TX_REVIEW",
+      "nct": "NCT04575650",
+      "name": "EPIC-HR",
+      "pmid": null,
+      "year": 2022,
+      "group": "Nirmatrelvir-ritonavir oral",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "coherence"
+      ],
+      "details": {
+        "coherence": {
+          "severity": "HIGH",
+          "category": "other",
+          "reason": "EPIC-HR enrolled symptomatic non-hospitalized high-risk COVID-19 outpatients within 5 days of symptom onset; it is the registrational outpatient nirmatrelvir-ritonavir trial, not a hospitalized-treatment trial.",
+          "confidence": 0.97,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1248,
+      "review": "CHRONIC_COUGH_REFRACTORY_NMA_REVIEW",
+      "nct": "NCT04562155",
+      "name": "PAGANINI",
+      "pmid": null,
+      "year": 2023,
+      "group": "Eliapixant PAGANINI",
+      "max_severity": "HIGH",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "HIGH",
+          "category": "schema-MD-with-events",
+          "reason": "estimandType='MD' but event counts populated (tE=110, cE=80); MDs operate on means, not counts.",
+          "confidence": 0.95,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1019,
+      "review": "ESKETAMINE_TRD_REVIEW",
+      "nct": "NCT02418585",
+      "name": "TRANSFORM-2",
+      "pmid": "36273682",
+      "year": 2019,
+      "group": "TRD adults 18-64, intranasal esketamine 56-84 mg + oral AD vs intranasal placebo",
+      "max_severity": "MED",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "identity"
+      ],
+      "details": {
+        "identity": {
+          "severity": "MED",
+          "category": "other",
+          "reason": "PMID 36273682 is a TRANSFORM-2 secondary analysis ('Intranasal esketamine...irritability', Jha 2022 J Affect Disord), not the TRANSFORM-2 primary publication (Popova 2019 Am J Psychiatry PMID 31109198).",
+          "confidence": 0.9,
+          "ground_truth_hint": "Replace with TRANSFORM-2 primary publication PMID 31109198."
+        }
+      },
+      "tier": "A"
+    },
+    {
+      "id": 1022,
+      "review": "IL_PSORIASIS_NMA_REVIEW",
+      "nct": "NCT01722331",
+      "name": "reSURFACE-1",
+      "pmid": "28596043",
+      "year": 2017,
+      "group": "Tildrakizumab 200mg | IL-23 (reSURFACE-1; PASI 90 wk 12)",
+      "max_severity": "MED",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=25.28 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "A"
+    },
+    {
+      "id": 1109,
+      "review": "AML_VEN_FLT3_NMA_REVIEW",
+      "nct": "NCT01757535",
+      "name": "QUAZAR-AML",
+      "pmid": null,
+      "year": 2020,
+      "group": "Oral azacitidine maintenance CR1 AML",
+      "max_severity": "MED",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "coherence"
+      ],
+      "details": {
+        "coherence": {
+          "severity": "MED",
+          "category": "other",
+          "reason": "QUAZAR AML-001 tested oral azacitidine (CC-486) maintenance in AML CR1; it is neither a venetoclax-based regimen nor an FLT3-targeted therapy, so it falls outside the stated VEN/FLT3 scope.",
+          "confidence": 0.85,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1116,
+      "review": "ITP_NEW_AGENTS_REVIEW",
+      "nct": "NCT02075021",
+      "name": "FIT-2",
+      "pmid": null,
+      "year": 2018,
+      "group": "Fostamatinib parallel pivotal",
+      "max_severity": "MED",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "MED",
+          "category": "magnitude-extreme",
+          "reason": "Effect size=12.0 > 10 (estimandType=RR); suspicious magnitude even if OR.",
+          "confidence": 0.7,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1119,
+      "review": "ITP_NEW_AGENTS_REVIEW",
+      "nct": "NCT02076399",
+      "name": "FIT-1",
+      "pmid": null,
+      "year": 2018,
+      "group": "Fostamatinib (SYK inhibitor) ITP",
+      "max_severity": "MED",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "MED",
+          "category": "magnitude-extreme",
+          "reason": "Effect size=13.46 > 10 (estimandType=RR); suspicious magnitude even if OR.",
+          "confidence": 0.7,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1149,
+      "review": "SCLC_IO_REVIEW",
+      "nct": "NCT04005716",
+      "name": "RATIONALE-312",
+      "pmid": "39738721",
+      "year": 2024,
+      "group": "Tislelizumab + chemo 1L SCLC",
+      "max_severity": "MED",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "identity"
+      ],
+      "details": {
+        "identity": {
+          "severity": "MED",
+          "category": "other",
+          "reason": "PMID 39738721 is a cost-effectiveness analysis of tislelizumab in ES-SCLC (Sci Rep 2024-12), not the RATIONALE-312 primary efficacy publication.",
+          "confidence": 0.85,
+          "ground_truth_hint": "RATIONALE-312 primary efficacy = Cheng J Clin Oncol 2024 (verify exact PMID)."
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1164,
+      "review": "BIMEKIZUMAB_PSORIASIS_REVIEW",
+      "nct": "NCT03370133",
+      "name": "BE-VIVID",
+      "pmid": "33549193",
+      "year": 2021,
+      "group": "Moderate-severe plaque psoriasis, bimekizumab 320 mg Q4W vs placebo arm of 3-arm",
+      "max_severity": "MED",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=17.62 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1183,
+      "review": "BRONCHIECTASIS_BROAD_NMA_REVIEW",
+      "nct": "NCT02344004",
+      "name": "CONVERT",
+      "pmid": "30192171",
+      "year": 2018,
+      "group": "Liposomal amikacin inhaled (ARIKAYCE)",
+      "max_severity": "MED",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "identity"
+      ],
+      "details": {
+        "identity": {
+          "severity": "MED",
+          "category": "impossible-pmid",
+          "reason": "PMID 30192171 did not resolve in PubMed across multiple lookups; CONVERT (Griffith AJRCCM 2018 amikacin-liposome for refractory NTM) primary publication is at a different PMID.",
+          "confidence": 0.55,
+          "ground_truth_hint": "Verify CONVERT/Griffith 2018 PMID against the AJRCCM record."
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1187,
+      "review": "COVID19_HOSPITALIZED_TX_REVIEW",
+      "nct": "NCT04381936e",
+      "name": "RECOVERY-CP",
+      "pmid": null,
+      "year": 2021,
+      "group": "Convalescent plasma",
+      "max_severity": "MED",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "identity"
+      ],
+      "details": {
+        "identity": {
+          "severity": "MED",
+          "category": "other",
+          "reason": "NCT field 'NCT04381936e' has a stray trailing 'e' — not a valid NCT identifier syntax. RECOVERY platform trial NCT is NCT04381936.",
+          "confidence": 0.95,
+          "ground_truth_hint": "Correct NCT = NCT04381936 (drop trailing 'e')."
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1197,
+      "review": "HAP_VAP_NEW_ABX_NMA_REVIEW",
+      "nct": "NCT02168946",
+      "name": "TANGO-II",
+      "pmid": null,
+      "year": 2019,
+      "group": "Meropenem-vaborbactam CRE (TANGO-II)",
+      "max_severity": "MED",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "coherence"
+      ],
+      "details": {
+        "coherence": {
+          "severity": "MED",
+          "category": "other",
+          "reason": "NCT02168946 is TANGO-1 (meropenem-vaborbactam in cUTI), correctly used at id=1212; TANGO-II (meropenem-vaborbactam in CRE infections including HAP/VAP) is NCT02168133, so the NCT here is mismatched to the labeled trial.",
+          "confidence": 0.88,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1243,
+      "review": "GLOMERULONEPHRITIS_BIOLOGICS_REVIEW",
+      "nct": "NCT04573478",
+      "name": "ALIGN",
+      "pmid": null,
+      "year": 2023,
+      "group": "Atrasentan (ETA antagonist) IgAN",
+      "max_severity": "MED",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "coherence"
+      ],
+      "details": {
+        "coherence": {
+          "severity": "MED",
+          "category": "wrong-drug-class",
+          "reason": "Atrasentan is a small-molecule selective endothelin-A receptor antagonist, not a biologic; ALIGN may belong to an IgAN-targeted review but not a 'biologics' review (the same trial appears correctly in IGAN_TARGETED_BROAD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1000,
+      "review": "CD_BIOLOGICS_NMA_REVIEW",
+      "nct": "NCT01224171",
+      "name": "GEMINI-2",
+      "pmid": "24859203",
+      "year": 2013,
+      "group": "Vedolizumab 300 mg IV induction (wk 0, 2) | Integrin (moderate-severe CD; vs Pla",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=2.54 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "A"
+    },
+    {
+      "id": 1014,
+      "review": "BTKI_CLL_NMA_REVIEW",
+      "nct": "NCT01578707",
+      "name": "RESONATE",
+      "pmid": "24881631",
+      "year": 2014,
+      "group": "Ibrutinib vs Ofatumumab (R/R CLL; PFS HR 6-year update)",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=0.135 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "A"
+    },
+    {
+      "id": 1015,
+      "review": "BTKI_CLL_NMA_REVIEW",
+      "nct": "NCT01722487",
+      "name": "RESONATE-2",
+      "pmid": "26639149",
+      "year": 2015,
+      "group": "Ibrutinib | BTKi (vs Chlorambucil-alone, TN elderly)",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=0.146 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "A"
+    },
+    {
+      "id": 1017,
+      "review": "ATTR_CM_REVIEW",
+      "nct": "NCT03860935",
+      "name": "ATTRibute-CM",
+      "pmid": "38197816",
+      "year": 2024,
+      "group": "ATTR-CM (mixed)",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=0.72 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "A"
+    },
+    {
+      "id": 1024,
+      "review": "UC_BIOLOGICS_NMA_REVIEW",
+      "nct": "NCT02435992",
+      "name": "TRUE-NORTH",
+      "pmid": "34555067",
+      "year": 2021,
+      "group": "Ozanimod 1 mg PO daily induction | S1P modulator (moderate-severe UC; vs Placebo",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=3.53 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "A"
+    },
+    {
+      "id": 1025,
+      "review": "ANTI_CD20_MS_REVIEW",
+      "nct": "NCT03277248",
+      "name": "ULTIMATE II",
+      "pmid": "36001711",
+      "year": 2022,
+      "group": "Relapsing MS, ublituximab 450 mg IV Q6M vs teriflunomide 14 mg PO daily (ARR at ",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=0.41 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "A"
+    },
+    {
+      "id": 1037,
+      "review": "ATTR_CM_REVIEW",
+      "nct": "NCT01994889",
+      "name": "ATTR-ACT",
+      "pmid": "30145929",
+      "year": 2018,
+      "group": "ATTR-CM (mixed)",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=0.7 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1038,
+      "review": "ATTR_CM_REVIEW",
+      "nct": "NCT03997383",
+      "name": "APOLLO-B",
+      "pmid": "37888916",
+      "year": 2022,
+      "group": "ATTR-CM (mixed)",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=0.99 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1050,
+      "review": "INCRETINS_T2D_NMA_REVIEW",
+      "nct": "NCT01720446",
+      "name": "SUSTAIN-6",
+      "pmid": "27633186",
+      "year": 2016,
+      "group": "Semaglutide 0.5/1mg weekly vs placebo (SUSTAIN-6; primary MACE-3 of CV death, no",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=0.74 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1063,
+      "review": "UC_BIOLOGICS_NMA_REVIEW",
+      "nct": "NCT00783718",
+      "name": "GEMINI-1",
+      "pmid": "23964932",
+      "year": 2013,
+      "group": "Vedolizumab 300 mg IV induction (wk 0, 2) | Integrin (moderate-severe UC; vs Pla",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=3.56 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1064,
+      "review": "UC_BIOLOGICS_NMA_REVIEW",
+      "nct": "NCT03518086",
+      "name": "LUCENT-1",
+      "pmid": "37379135",
+      "year": 2023,
+      "group": "Mirikizumab 300 mg IV induction (wk 0, 4, 8) | IL-23p19 (moderate-severe UC; vs ",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=2.07 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1065,
+      "review": "UC_BIOLOGICS_NMA_REVIEW",
+      "nct": "NCT00036439",
+      "name": "ACT-1",
+      "pmid": "16339095",
+      "year": 2005,
+      "group": "Infliximab 5 mg/kg IV (0, 2, 6 wk) | TNFi (moderate-severe UC; vs Placebo; ACT-1",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=3.7 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1066,
+      "review": "UC_BIOLOGICS_NMA_REVIEW",
+      "nct": "NCT00488774",
+      "name": "PURSUIT-SC",
+      "pmid": "26119226",
+      "year": 2014,
+      "group": "Golimumab 200/100 mg SC induction | TNFi (moderate-severe UC; vs Placebo; PURSUI",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=3.16 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1067,
+      "review": "UC_BIOLOGICS_NMA_REVIEW",
+      "nct": "NCT02407236",
+      "name": "UNIFI-induction",
+      "pmid": "31553833",
+      "year": 2019,
+      "group": "Ustekinumab 6 mg/kg IV induction | IL-12/23 (moderate-severe UC; vs Placebo; UNI",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=3.29 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1068,
+      "review": "UC_BIOLOGICS_NMA_REVIEW",
+      "nct": "NCT00408629",
+      "name": "ULTRA-2",
+      "pmid": null,
+      "year": 2012,
+      "group": "Adalimumab 160/80/40 mg SC induction | TNFi (moderate-severe UC; vs Placebo; ULT",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=1.92 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1085,
+      "review": "BTKI_CLL_NMA_REVIEW",
+      "nct": "NCT02477696",
+      "name": "ELEVATE-RR",
+      "pmid": "34310172",
+      "year": 2021,
+      "group": "Acalabrutinib | BTKi (vs Ibrutinib head-to-head, R/R)",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=1.0 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1087,
+      "review": "BTKI_CLL_NMA_REVIEW",
+      "nct": "NCT03734016",
+      "name": "ALPINE",
+      "pmid": "36511784",
+      "year": 2023,
+      "group": "Zanubrutinib | BTKi (vs Ibrutinib head-to-head, R/R)",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=0.65 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1088,
+      "review": "BTKI_CLL_NMA_REVIEW",
+      "nct": "NCT02475681",
+      "name": "ELEVATE-TN",
+      "pmid": "32305093",
+      "year": 2020,
+      "group": "Acalabrutinib monotherapy | BTKi (vs Chlorambucil+Obinutuzumab)",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=0.21 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1131,
+      "review": "IL_PSORIASIS_NMA_REVIEW",
+      "nct": "NCT01729754",
+      "name": "reSURFACE-2",
+      "pmid": "28596043",
+      "year": 2017,
+      "group": "Tildrakizumab 200mg vs Etanercept (reSURFACE-2 head-to-head; PASI 90 wk 12 OR)",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=4.05 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1135,
+      "review": "IL_PSORIASIS_NMA_REVIEW",
+      "nct": "NCT01708603",
+      "name": "AMAGINE-2",
+      "pmid": "26422722",
+      "year": 2015,
+      "group": "Brodalumab 210mg Q2W vs Ustekinumab 45/90mg (AMAGINE-2 head-to-head; PASI 90 wk ",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=2.49 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1137,
+      "review": "IL_PSORIASIS_NMA_REVIEW",
+      "nct": "NCT01597245",
+      "name": "UNCOVER-2",
+      "pmid": "26072109",
+      "year": 2016,
+      "group": "Ixekizumab vs Etanercept | IL-17A vs TNFi",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=5.26 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1163,
+      "review": "BIMEKIZUMAB_PSORIASIS_REVIEW",
+      "nct": "NCT03412747",
+      "name": "BE-SURE",
+      "pmid": "36751950",
+      "year": 2021,
+      "group": "Moderate-severe plaque psoriasis, bimekizumab 320 mg (Q4W and Q4W->Q8W combined)",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=1.83 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "B"
+    },
+    {
+      "id": 1190,
+      "review": "SGLT2I_HF_NMA_REVIEW",
+      "nct": "NCT03315143",
+      "name": "SCORED",
+      "pmid": "33200891",
+      "year": 2021,
+      "group": "Sotagliflozin 200-400 mg daily | Dual SGLT1/2i (T2D + CKD + CV risk; vs placebo)",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=0.74 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1200,
+      "review": "HIFPH_CKD_ANEMIA_REVIEW",
+      "nct": "NCT02892149",
+      "name": "INNO2VATE",
+      "pmid": "33913638",
+      "year": 2021,
+      "group": "Vadadustat 150-600 mg PO QD vs darbepoetin alfa in dialysis-dependent CKD; prima",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=0.96 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1204,
+      "review": "JAKI_RA_NMA_REVIEW",
+      "nct": "NCT00853385",
+      "name": "ORAL-Standard",
+      "pmid": "22873531",
+      "year": 2012,
+      "group": "Tofacitinib 5 mg BID | JAK1/3 (MTX-IR RA; 3-arm with Ada; ACR20 wk 6 vs placebo,",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=2.67 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1224,
+      "review": "CBD_SEIZURE_REVIEW",
+      "nct": "NCT02091375",
+      "name": "GWPCARE1",
+      "pmid": "28538134",
+      "year": 2017,
+      "group": "Dravet syndrome, cannabidiol 20 mg/kg/d vs placebo (wk 14, >=50% convulsive-seiz",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=1.57 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "C"
+    },
+    {
+      "id": 1225,
+      "review": "DOAC_AF_NMA_REVIEW",
+      "nct": "NCT00412984",
+      "name": "ARISTOTLE",
+      "pmid": "21870978",
+      "year": 2011,
+      "group": "Apixaban 5 mg BID | DOAC (non-valvular AF with at least one CV risk factor; vs W",
+      "max_severity": "LOW",
+      "consensus_level": "1-of-3",
+      "agents_flagged": [
+        "plausibility"
+      ],
+      "details": {
+        "plausibility": {
+          "severity": "LOW",
+          "category": "other",
+          "reason": "HR=0.79 reported but estimandType is null — cannot validate scale (HR/OR/RR/MD).",
+          "confidence": 0.9,
+          "ground_truth_hint": null
+        }
+      },
+      "tier": "C"
+    }
+  ]
+}
