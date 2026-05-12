@@ -110,6 +110,16 @@ test('validate rejects events > n', () => {
   assert.match(issues.join('|'), /events > n|events exceed/i);
 });
 
+// === Task 8: numerics primitives verification ===
+
+test('numerics: matInv(I) === I; qt(0.975, 10) ≈ 2.228', () => {
+  const M = [[1,0,0],[0,1,0],[0,0,1]];
+  const Mi = I.matInv(M);
+  for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++)
+    near(Mi[i][j], i === j ? 1 : 0, 1e-12, `Mi[${i}][${j}]`);
+  near(I.qt(0.975, 10), 2.228, 0.01, 'qt(0.975, 10)');
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }
