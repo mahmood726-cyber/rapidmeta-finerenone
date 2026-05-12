@@ -49,14 +49,19 @@ test('gl1992 fixture loads with 5 trials and well-formed arms', () => {
   }
 });
 
-test('k2_identical_doses fixture loads', () => {
+test('k2_identical_doses fixture loads with identical dose sets', () => {
   const fx = loadFx('k2_identical_doses.json');
-  assert.equal(fx.trials.length, 2);
+  assert.equal(fx.trials.length, 2, 'k2 fixture needs exactly 2 trials');
+  const doseSet = (t) => t.arms.map(a => a.dose).sort((a, b) => a - b).join(',');
+  assert.equal(doseSet(fx.trials[0]), doseSet(fx.trials[1]),
+    'both trials must share the same dose set (degenerate-non-linearity property)');
 });
 
-test('single_arm fixture loads with 1 trial having 1 arm', () => {
+test('single_arm fixture: sole arm is a treatment arm (not reference)', () => {
   const fx = loadFx('single_arm.json');
   assert.equal(fx.trials[0].arms.length, 1);
+  assert.equal(fx.trials[0].arms[0].is_reference, false,
+    'single_arm: the sole arm must be a treatment arm so validate() triggers the "<2 arms" path');
 });
 
 test('ref_only fixture has 1 trial with only the reference arm', () => {
@@ -66,10 +71,12 @@ test('ref_only fixture has 1 trial with only the reference arm', () => {
   assert.equal(fx.trials[0].arms[0].is_reference, true);
 });
 
-test('extrapolation fixture max-observed-dose is 12', () => {
+test('extrapolation fixture: max_observed_dose field matches computed max', () => {
   const fx = loadFx('extrapolation.json');
   const allDoses = fx.trials.flatMap(t => t.arms.map(a => a.dose));
-  assert.equal(Math.max(...allDoses), 12);
+  assert.equal(Math.max(...allDoses), 12, 'computed max of arm doses must be 12');
+  assert.equal(fx.max_observed_dose, Math.max(...allDoses),
+    'top-level max_observed_dose field must equal computed max so predict() banner uses the right threshold');
 });
 
 let pass = 0, fail = 0;
