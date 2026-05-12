@@ -363,6 +363,51 @@
     return pcts.map(function (p) { return quantile(uniq, p); });
   }
 
+  // rcsBasis(x, knots): Harrell truncated-power basis for RCS regression.
+  // Returns a vector of length K-1 (where K = knots.length).
+  //   basis[0] = x  (linear term)
+  //   basis[j] for j=1..K-2 = truncated-power spline term (Harrell rcspline.eval formula)
+  // Degenerates to [x] when K < 3.
+  // Formula per Harrell "Regression Modeling Strategies" (rms/Hmisc rcspline.eval):
+  //   denom1 = (t_K - t_1)^2,  denom2 = (t_K - t_{K-1}) * denom1
+  //   b_j = ((x - t_j)_+^3 - (x - t_{K-1})_+^3 * (t_K - t_j) / (t_K - t_{K-1})
+  //          + (x - t_K)_+^3 * (t_{K-1} - t_j) / (t_K - t_{K-1})) / denom1
+  // where (z)_+ = max(0, z), j indexes the interior knots (1..K-2, 0-indexed).
+  // rcsBasis(x, knots): Harrell truncated-power basis, matched to R's rcspline.eval (norm=2, inclx=TRUE).
+  // Returns a vector of length K-1 (K = knots.length):
+  //   basis[0] = x   (linear term, inclx)
+  //   basis[1..K-2] = K-2 spline terms, one per knot in knots[0..K-3]
+  //     (R loops j in 1:(nk-2) over knots[j] 1-indexed = knots[0..K-3] 0-indexed)
+  // Degenerates to [x] when K < 3.
+  //
+  // R formula (norm=2): kd = (t_K - t_1)^(2/3); basis[j] = pos3((x-t_j)/kd)
+  //   + [(t_{K-1}-t_j)*pos3((x-t_K)/kd) - (t_K-t_j)*pos3((x-t_{K-1})/kd)] / (t_K-t_{K-1})
+  // Equivalently (factoring out 1/kd^3 = 1/(t_K-t_1)^2 = 1/denom1):
+  //   basis[j] = [pos3(x-t_j) + (t_{K-1}-t_j)*pos3(x-t_K)/(t_K-t_{K-1})
+  //               - (t_K-t_j)*pos3(x-t_{K-1})/(t_K-t_{K-1})] / denom1
+  //
+  // Reference values from R: library(Hmisc); rcspline.eval(12.5, knots=c(5,10,15,20), inclx=TRUE)
+  //   = [12.5, 1.875, 0.06944444]
+  function rcsBasis(x, knots) {
+    var K = knots.length;
+    if (K < 3) return [x];  // degenerate to linear
+    var tK   = knots[K - 1];
+    var tKm1 = knots[K - 2];
+    var t1   = knots[0];
+    var denom1 = Math.pow(tK - t1, 2);
+    var pos3 = function (z) { return z <= 0 ? 0 : z * z * z; };
+    var basis = [x];
+    // Loop over knots[0..K-3] (first K-2 knots), matching R's 1:(nk-2) loop.
+    for (var j = 0; j < K - 2; j++) {
+      var tj = knots[j];
+      var b = (pos3(x - tj)
+             + pos3(x - tK)   * (tKm1 - tj) / (tK - tKm1)
+             - pos3(x - tKm1) * (tK  - tj)  / (tK - tKm1)) / denom1;
+      basis.push(b);
+    }
+    return basis;
+  }
+
   // ===================================================================
   // Section 2a: fitLinear — two-stage Greenland-Longnecker linear pool.
   // Per-study WLS slope via GL covariance, then REML+HKSJ RE pool.
@@ -507,6 +552,7 @@
     glCovariance: glCovariance,
     quantile: quantile,
     rcsKnots: rcsKnots,
+    rcsBasis: rcsBasis,
   });
 
   root.RapidMetaDoseResp = API;

@@ -169,6 +169,22 @@ test('fitLinear throws on k=1 (single trial)', () => {
   assert.throws(() => DR.fitLinear(oneTrial, {}), /k >= 2|requires k/i);
 });
 
+// === Task 12: rcsBasis (RCS truncated power basis) ===
+
+test('rcsBasis at known input matches Harrell rcspline.eval reference', () => {
+  const knots = [5, 10, 15, 20];
+  const basis = I.rcsBasis(12.5, knots);
+  assert.equal(basis.length, 3);  // K-1 = 3
+  near(basis[0], 12.5, 1e-10, 'b1 = x');
+  // Reference values from R: library(Hmisc); rcspline.eval(12.5, knots=c(5,10,15,20), inclx=TRUE)
+  // = [12.5, 1.875, 0.06944444]  (verified 2026-05-12 with R 4.5.2 + Hmisc)
+  // Plan placeholder values (b2≈0.02314, b3≈0.0) were wrong — they used a JS loop starting
+  // at knots[1] instead of knots[0], skipping the first spline term. R loops j in 1:(nk-2)
+  // (1-indexed) which is knots[0..K-3] in 0-indexed JS. Test updated to R ground truth (Case B).
+  near(basis[1], 1.875,       0.001, 'b2');
+  near(basis[2], 0.06944444,  0.001, 'b3');
+});
+
 // === Task 11: rcsKnots (Harrell percentile knot placement) ===
 
 test('rcsKnots returns 3 knots at Harrell 25/50/75 for k=3', () => {
