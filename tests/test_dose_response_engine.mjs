@@ -54,6 +54,11 @@ test('k2_identical_doses fixture loads', () => {
   assert.equal(fx.trials.length, 2);
 });
 
+test('single_arm fixture loads with 1 trial having 1 arm', () => {
+  const fx = loadFx('single_arm.json');
+  assert.equal(fx.trials[0].arms.length, 1);
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }
