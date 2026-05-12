@@ -38,7 +38,7 @@ REPO = Path(__file__).resolve().parent.parent
 DATA_DIR = REPO / "outputs" / "extraction_audit" / "data"
 OUT_DIR = REPO / "outputs" / "extraction_audit"
 
-NCT_RE = re.compile(r"^(NCT\d{8}([a-zA-Z]|_[A-Z0-9]+)?|LEGACY-[A-Z0-9-]+|ISRCTN\d+|ACTRN\d+|UMIN\d+|EUCTR-[\d-]+|JPRN-[\w-]+)$")
+NCT_RE = re.compile(r"^(NCT\d{8}([a-zA-Z]|_[A-Z0-9]+)?|NULLED:NCT\d{8}|LEGACY-[A-Z0-9-]+|ISRCTN\d+|ACTRN\d+|UMIN\d+|EUCTR-[\d-]+|JPRN-[\w-]+)$")
 PMID_RE = re.compile(r"^\d{6,9}$")
 BENFORD_EXPECTED = [math.log10(1 + 1/d) for d in range(1, 10)]
 

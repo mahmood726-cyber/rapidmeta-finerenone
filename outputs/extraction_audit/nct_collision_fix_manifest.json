@@ -1,0 +1,78 @@
+{
+  "fix_applied": [
+    {
+      "review": "CAR_T_LBCL_BROAD_NMA_REVIEW",
+      "nct": "NCT02601313",
+      "reason": "Per AACT 2026-04-12 NCT02601313 is ZUMA-2 (Brexucabtagene Autoleucel in R/R Mantle Cell Lymphoma), not ZUMA-1 (axi-cel in R/R LBCL = NCT02348216). The review labelled this entry 'ZUMA-1' under the wrong NCT; data may correspond to either trial. Nulling NCT to force re-extraction.",
+      "aact_title": "Study of Brexucabtagene Autoleucel (KTE-X19) in Participants With Relapsed/Refractory Mantle Cell Lymphoma",
+      "changed": true,
+      "message": "CAR_T_LBCL_BROAD_NMA_REVIEW.html: renamed 2 key(s) NCT02601313 \u2192 NULLED:NCT02601313"
+    }
+  ],
+  "duplicate_review_pairs": [
+    {
+      "name_variant_a": "MALARIA_VACCINE_REVIEW",
+      "name_variant_b": "MALARIA_VACCINES_REVIEW",
+      "shared_ncts": [
+        "NCT00866619",
+        "NCT04704830"
+      ],
+      "reason": "Singular/plural variant of the same review topic; shared trial set with divergent extracted values. Recommend: keep one, delete the other (user judgment \u2014 neither auto-deletable)."
+    },
+    {
+      "name_variant_a": "JAKI_RA_NMA_REVIEW",
+      "name_variant_b": "JAK_RA_REVIEW",
+      "shared_ncts": [
+        "NCT01710358",
+        "NCT02629159",
+        "NCT02889796"
+      ],
+      "reason": "Acronym-variant of the same review topic (JAKi vs JAK); shared trial set (baricitinib + upadacitinib + filgotinib RA trials) with divergent extracted values. Recommend: keep one, delete the other."
+    }
+  ],
+  "divergent_value_pairs": [
+    {
+      "nct": "NCT03775200",
+      "trial": "Psilocybin TRD (Carhart-Harris)",
+      "review_a": "DEPRESSION_NEW_RAPID_REVIEW",
+      "review_b": "DEPRESSION_PSYCHEDELIC_NMA_REVIEW",
+      "issue": "Different extracted N: (14,14,8,13) vs (79,79,35,79) \u2014 one is wrong."
+    },
+    {
+      "nct": "NCT02418585",
+      "trial": "Esketamine TRANSFORM-2",
+      "review_a": "ESKETAMINE_TRD_REVIEW",
+      "review_b": "DEPRESSION_NEW_RAPID_REVIEW",
+      "issue": "ESKETAMINE_TRD has continuous (N=114,109); DEPRESSION_NEW_RAPID has binary (36/115 vs 30/113). May be different outcomes \u2014 verify."
+    },
+    {
+      "nct": "NCT02668653",
+      "trial": "QuANTUM-First (quizartinib AML + FLT3-ITD)",
+      "review_a": "AML_VEN_FLT3_NMA_REVIEW",
+      "review_b": "AML_TARGETED_NEW_REVIEW",
+      "issue": "AML_TARGETED has (188/245, 89/122 HR 0.76); AML_VEN_FLT3_NMA has (145/268, 169/271 HR 0.78). Different outcomes likely (OS vs EFS)."
+    },
+    {
+      "nct": "NCT03860935",
+      "trial": "ATTRibute-CM (acoramidis)",
+      "review_a": "ACORAMIDIS_ATTR_CM_REVIEW",
+      "review_b": "ATTR_CM_REVIEW",
+      "issue": "ACORAMIDIS_ATTR_CM has (76/421, 62/211 HR 0.78); ATTR_CM has (79/409, 52/202 HR 0.72). Close but not identical \u2014 extraction noise."
+    },
+    {
+      "nct": "NCT02388906",
+      "trial": "CheckMate-238 (nivolumab vs ipilimumab adjuvant melanoma)",
+      "review_a": "ADJUVANT_IO_MELANOMA_REVIEW",
+      "review_b": "CHECKPOINT_MELANOMA_1L_REVIEW",
+      "review_c": "ADJUVANT_IO_PAN_TUMOR_REVIEW",
+      "issue": "Adjuvant melanoma trial legitimately in all three (1L-therapy review is mixed metastatic+adjuvant). HR differs 0.65 vs 0.71 vs 0.71 \u2014 likely OS vs RFS endpoint difference."
+    },
+    {
+      "nct": "NCT03410992",
+      "trial": "BE READY (bimekizumab Ps PASI100)",
+      "review_a": "BIMEKIZUMAB_PSORIASIS_REVIEW",
+      "review_b": "IL_PSORIASIS_NMA_REVIEW",
+      "issue": "BIMEKIZUMAB has (273/349, 1/86 OR 67.27); IL_PSORIASIS_NMA has (318/349, 1/86 OR 871.9). Event counts diverge (273 vs 318) \u2014 one wrong."
+    }
+  ]
+}
