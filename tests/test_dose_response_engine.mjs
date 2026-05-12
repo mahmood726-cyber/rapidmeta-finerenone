@@ -293,6 +293,41 @@ test('fitOneStage reads R-precomputed coefficients', () => {
   assert.equal(res.estimator, 'r_precomputed');
 });
 
+// === Task 16: predict / forest / exportResults ===
+
+test('predict at dose=0 returns 0 for linear fit', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const res = DR.fitLinear(fx.trials, {});
+  const p = DR.predict(res, 0);
+  near(p.est, 0, 1e-10, 'predict(0) = 0');
+});
+
+test('predict sets extrapolation_banner when dose > 1.2 * max_observed', () => {
+  const fx = loadFx('extrapolation.json');
+  const res = DR.fitLinear(fx.trials, {});
+  const p = DR.predict(res, fx.max_observed_dose * 1.5);
+  assert.equal(p.extrapolation_banner, true);
+});
+
+test('exportResults strips _fitInternal and adds exported_at', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const res = DR.fitLinear(fx.trials, {});
+  res._fitInternal = { secret: 1 };
+  const exp = DR.exportResults(res);
+  assert.equal(exp._fitInternal, undefined);
+  assert.ok(/T/.test(exp.exported_at));
+  assert.equal(exp.engine_version, DR.engine_version);
+});
+
+test('forest returns per_study rows with weight_pct', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const res = DR.fitLinear(fx.trials, {});
+  const rows = DR.forest(fx.trials, res);
+  assert.equal(rows.length, 5);
+  var sumW = 0; for (var i = 0; i < rows.length; i++) sumW += rows[i].weight_pct;
+  near(sumW, 100, 1e-6, 'weights sum to 100%');
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }
