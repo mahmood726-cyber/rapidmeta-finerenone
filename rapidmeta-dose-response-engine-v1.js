@@ -685,16 +685,118 @@
     };
   }
 
+  // ===================================================================
+  // Section 3a: nonLinearityTest(rcsResult) — thin wrapper (Task 14)
+  // Extracts Wald chi² / df / p from a fitRCS result.
+  // ===================================================================
+  function nonLinearityTest(rcsResult) {
+    if (!rcsResult || !rcsResult.rcs) {
+      return { wald_chi2: null, df: null, p: null, conclusion: 'inconclusive' };
+    }
+    var nlCoefs = rcsResult.rcs.spline_coefs.slice(1);
+    var nlSEs = rcsResult.rcs.spline_coefs_se.slice(1);
+    var W = 0;
+    for (var d = 0; d < nlCoefs.length; d++) {
+      W += (nlCoefs[d] / nlSEs[d]) * (nlCoefs[d] / nlSEs[d]);
+    }
+    var p = rcsResult.rcs.nonlinearity_wald_p;
+    var conclusion = p < 0.05 ? 'non_linear' : (p > 0.20 ? 'linear' : 'inconclusive');
+    return { wald_chi2: W, df: nlCoefs.length, p: p, conclusion: conclusion };
+  }
+
+  // ===================================================================
+  // Section 3b: fitOneStage(trials, opts, precomputedJson) — JSON reader (Task 15)
+  // One-stage hierarchical is NOT fitted in JS v0.1.  Pass precomputedJson=null
+  // to signal the caller must run R Round-1B.  Pass the JSON object from
+  // outputs/r_validation/doseresp/<REVIEW>.json to read R precomputed coefs.
+  // ===================================================================
+  function fitOneStage(trials, opts, precomputedJson) {
+    if (precomputedJson == null) return null;
+    var os = precomputedJson.one_stage || {};
+    return {
+      layer: 'one_stage',
+      k: (trials && trials.length) || (precomputedJson.k || 0),
+      one_stage: {
+        coef_dose: os.coef_dose,
+        coef_dose_se: os.coef_dose_se,
+        coef_dose_ci_lo: os.coef_dose_ci_lo != null ? os.coef_dose_ci_lo : os.coef_dose - 1.96 * os.coef_dose_se,
+        coef_dose_ci_hi: os.coef_dose_ci_hi != null ? os.coef_dose_ci_hi : os.coef_dose + 1.96 * os.coef_dose_se,
+        converged: os.converged === true,
+        random_effects_var: os.random_effects_var,
+      },
+      pooled_slope_log: os.coef_dose,
+      pooled_slope_log_se: os.coef_dose_se,
+      fallback: null,
+      estimator: 'r_precomputed',
+      ci_method: 'z_1.96',
+      engine_version: API.engine_version,
+    };
+  }
+
+  // ===================================================================
+  // Section 3c: predict / forest / exportResults (Task 16)
+  // ===================================================================
+
+  function predict(result, dose) {
+    if (!result) return null;
+    var maxObserved = isFinite(result.max_observed_dose) ? result.max_observed_dose : null;
+    var banner = (maxObserved != null) && (dose > 1.2 * maxObserved);
+
+    var est, se;
+    if (result.layer === 'rcs' && result.rcs && result.rcs.fit_at_dose) {
+      // Nearest neighbour in fit_at_dose grid.
+      var grid = result.rcs.fit_at_dose;
+      var nearest = grid[0];
+      for (var i = 1; i < grid.length; i++) {
+        if (Math.abs(grid[i].dose - dose) < Math.abs(nearest.dose - dose)) nearest = grid[i];
+      }
+      return { est: nearest.est, ci_lo: nearest.ci_lo, ci_hi: nearest.ci_hi, extrapolation_banner: banner };
+    } else {
+      est = dose * result.pooled_slope_log;
+      se = Math.abs(dose) * result.pooled_slope_log_se;
+      return { est: est, ci_lo: est - 1.96 * se, ci_hi: est + 1.96 * se, extrapolation_banner: banner };
+    }
+  }
+
+  function forest(trials, result) {
+    var rows = (result.per_study || []).map(function (s) {
+      var sl = s.slope_log || 0, ssle = s.slope_log_se || 0;
+      return {
+        label: s.studlab,
+        hr: Math.exp(sl),
+        hr_ci_lo: Math.exp(sl - 1.96 * ssle),
+        hr_ci_hi: Math.exp(sl + 1.96 * ssle),
+        slope_log: sl,
+        slope_log_se: ssle,
+      };
+    });
+    // Weights: 1 / (vi + tau2) — re-derive from result to match pool.
+    var tau2 = result.tau2 || 0;
+    var w = rows.map(function (r) { return 1 / (r.slope_log_se * r.slope_log_se + tau2); });
+    var ws = w.reduce(function (a, b) { return a + b; }, 0);
+    for (var i = 0; i < rows.length; i++) rows[i].weight_pct = 100 * w[i] / ws;
+    return rows;
+  }
+
+  function exportResults(result) {
+    if (!result) return null;
+    var clone = JSON.parse(JSON.stringify(result));
+    delete clone._fitInternal;
+    clone.exported_at = new Date().toISOString();
+    clone.engine_version = API.engine_version;
+    return clone;
+  }
+
   var API = {
     engine_version: 'rapidmeta-dose-response-engine-v1@0.1.0',
     validate: validate,
     fitLinear: fitLinear,
     fitRCS: fitRCS,
-    fitOneStage: function () { throw new Error('Unit 7: not yet implemented'); },
-    nonLinearityTest: function () { throw new Error('Unit 7: not yet implemented'); },
-    predict: function () { throw new Error('Unit 7: not yet implemented'); },
-    forest: function () { throw new Error('Unit 7: not yet implemented'); },
-    exportResults: function () { throw new Error('Unit 7: not yet implemented'); },
+    fitOneStage: fitOneStage,
+    nonLinearityTest: nonLinearityTest,
+    predict: predict,
+    forest: forest,
+    exportResults: exportResults,
     _internal: {},
   };
 

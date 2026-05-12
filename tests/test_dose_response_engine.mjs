@@ -266,6 +266,17 @@ test('fitRCS on k2_identical_doses degenerates to linear', () => {
   assert.equal(res.layer, 'linear');  // because it fell back
 });
 
+// === Task 14: nonLinearityTest() ===
+
+test('nonLinearityTest extracts p, df, chi2 from fitRCS result', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const res = DR.fitRCS(fx.trials, { knots: 3 });
+  const nl = DR.nonLinearityTest(res);
+  assert.ok(['linear','non_linear','inconclusive'].includes(nl.conclusion));
+  near(nl.p, res.rcs.nonlinearity_wald_p, 1e-12, 'p forwarded');
+  assert.equal(nl.df, res.rcs.spline_coefs.length - 1);
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }
