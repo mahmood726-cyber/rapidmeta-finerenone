@@ -126,6 +126,8 @@ one_stage_block <- if (is.null(fit_os)) list(fit_ok = FALSE) else {
   list(
     fit_ok = TRUE,
     lme4_version = as.character(packageVersion("lme4")),
+    dose_scale_sd = dose_sd_pos,
+    coef_dose_on_scaled = as.numeric(coef_sc),
     coef_dose = coef_orig,
     coef_dose_se = se_orig,
     coef_dose_ci_lo = ci_lo_orig,
