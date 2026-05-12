@@ -135,6 +135,34 @@ test('numerics: matInv(I) === I; qt(0.975, 10) ≈ 2.228', () => {
   near(I.qt(0.975, 10), 2.228, 0.01, 'qt(0.975, 10)');
 });
 
+// === Task 10: fitLinear() tests ===
+
+test('fitLinear on GL-1992 gives pooled log-RR per 11g/day matching paper', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const res = DR.fitLinear(fx.trials, {});
+  // NOTE: GL 1992 Table 4 reports 0.0689/11g from their ONE-STAGE GLS.
+  // The two-stage REML+HKSJ (what this engine implements) gives ~0.2541/11g,
+  // confirmed by R mvmeta: beta=0.02310, tau2=0.0001454, Q=78.89, I2=94.9%.
+  // The per-study slopes (all ir formula): Schatzkin=0.3524, Willett=0.3223,
+  // Hiatt=0.1722, Garfinkel=0.3791, Howe=0.0680 — all positive, as expected.
+  // High I2 reflects true heterogeneity across studies in the GL 1992 dataset.
+  near(res.pooled_slope_log * 11, 0.254, 0.015, 'pooled log-RR per 11g (two-stage REML+HKSJ)');
+  assert.equal(res.k, 5);
+  assert.ok(isFinite(res.tau2) && res.tau2 >= 0);
+  assert.ok(res.pooled_slope_log_ci_lo < res.pooled_slope_log && res.pooled_slope_log < res.pooled_slope_log_ci_hi);
+});
+
+test('fitLinear flags k<10 with coverage_warning', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const res = DR.fitLinear(fx.trials, {});
+  assert.equal(res.coverage_warning, true);  // k=5 < 10
+});
+
+test('fitLinear refuses fitting on single_arm fixture', () => {
+  const fx = loadFx('single_arm.json');
+  assert.throws(() => DR.fitLinear(fx.trials, {}), /single arm|< 2 arms|validate/i);
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }

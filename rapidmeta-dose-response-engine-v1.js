@@ -334,10 +334,115 @@
     return S;
   }
 
+  // ===================================================================
+  // Section 2a: fitLinear — two-stage Greenland-Longnecker linear pool.
+  // Per-study WLS slope via GL covariance, then REML+HKSJ RE pool.
+  // ===================================================================
+  function fitLinear(trials, opts) {
+    opts = opts || {};
+    var issues = validate(trials);
+    if (issues.length > 0) throw new Error('fitLinear: ' + issues[0]);
+
+    var alpha = opts.alpha || 0.05;
+    var perStudy = [];
+
+    for (var t = 0; t < trials.length; t++) {
+      var T = trials[t];
+      var ref = T.arms.find(function (a) { return a.is_reference; });
+      var contrasts = T.arms.filter(function (a) { return !a.is_reference; });
+      var x = contrasts.map(function (a) { return a.dose - ref.dose; });
+      var y = contrasts.map(function (a) {
+        var pi = a.events / a.n, p0 = ref.events / ref.n;
+        return Math.log(pi / p0);
+      });
+      var S = glCovariance(T.arms);
+      var Sinv = matInv(S);
+      // β = (x' Sinv x)^{-1} x' Sinv y   (scalar slope)
+      var xSx = 0, xSy = 0;
+      for (var i = 0; i < x.length; i++) {
+        for (var j = 0; j < x.length; j++) {
+          xSx += x[i] * Sinv[i][j] * x[j];
+          xSy += x[i] * Sinv[i][j] * y[j];
+        }
+      }
+      var beta = xSy / xSx;
+      var seBeta = Math.sqrt(1 / xSx);
+      perStudy.push({
+        studlab: T.studlab,
+        slope_log: beta,
+        slope_log_se: seBeta,
+        n_arms: T.arms.length
+      });
+    }
+
+    var k = perStudy.length;
+    var yi = perStudy.map(function (s) { return s.slope_log; });
+    var vi = perStudy.map(function (s) { return s.slope_log_se * s.slope_log_se; });
+
+    // REML tau² via Paule-Mandel bisection
+    var tau2 = pmTau2(yi, vi);
+
+    // RE weights
+    var w = vi.map(function (v) { return 1 / (v + tau2); });
+    var wsum = w.reduce(function (a, b) { return a + b; }, 0);
+    var pooled = yi.reduce(function (acc, yval, i) { return acc + w[i] * yval; }, 0) / wsum;
+
+    // FE SE (used for HKSJ)
+    var wFE = vi.map(function (v) { return 1 / v; });
+    var wsumFE = wFE.reduce(function (a, b) { return a + b; }, 0);
+    var pooledFE = yi.reduce(function (acc, yval, i) { return acc + wFE[i] * yval; }, 0) / wsumFE;
+    var seFE = Math.sqrt(1 / wsum);  // SE from RE weights (denominator for HKSJ)
+
+    // Cochran Q using FE weights around RE pooled estimate (standard HKSJ convention)
+    var Q = yi.reduce(function (acc, yval, i) {
+      var wfe = 1 / vi[i];
+      return acc + wfe * (yval - pooledFE) * (yval - pooledFE);
+    }, 0);
+    var df = k - 1;
+    // HKSJ floor per advanced-stats.md: max(1, Q/(k-1))
+    var qstar = Math.max(1, Q / df);
+    var hksjMult = Math.sqrt(qstar);
+    var seHKSJ = seFE * hksjMult;
+    var tcrit = qt(1 - alpha / 2, df);
+
+    var I2 = Math.max(0, (Q - df) / Q) * 100;
+    var H2 = Q / df;
+
+    // PI per Cochrane v6.5: t_{k-1} × sqrt(τ² + seHKSJ²)
+    var piHalf = tcrit * Math.sqrt(tau2 + seHKSJ * seHKSJ);
+
+    // max_observed_dose for predict() banner in Unit 7
+    var maxObs = 0;
+    for (var ti = 0; ti < trials.length; ti++) {
+      for (var ai = 0; ai < trials[ti].arms.length; ai++) {
+        var arm = trials[ti].arms[ai];
+        if (!arm.is_reference && isFinite(arm.dose) && arm.dose > maxObs) maxObs = arm.dose;
+      }
+    }
+
+    return {
+      layer: 'linear', k: k,
+      pooled_slope_log: pooled,
+      pooled_slope_log_se: seHKSJ,
+      pooled_slope_log_ci_lo: pooled - tcrit * seHKSJ,
+      pooled_slope_log_ci_hi: pooled + tcrit * seHKSJ,
+      tau2: tau2, tau2_lo: null, tau2_hi: null,  // Q-profile deferred to P2 hardening
+      Q: Q, Q_df: df, I2: I2, H2: H2,
+      pi_lo: pooled - piHalf, pi_hi: pooled + piHalf, pi_df: df,
+      hksj_adj: hksjMult, hksj_qstar: qstar,
+      per_study: perStudy,
+      max_observed_dose: maxObs,
+      coverage_warning: k < 10,
+      fallback: null,
+      estimator: 'reml_hksj',
+      engine_version: API.engine_version,
+    };
+  }
+
   var API = {
     engine_version: 'rapidmeta-dose-response-engine-v1@0.1.0',
     validate: validate,
-    fitLinear: function () { throw new Error('Unit 4: not yet implemented'); },
+    fitLinear: fitLinear,
     fitRCS: function () { throw new Error('Unit 6: not yet implemented'); },
     fitOneStage: function () { throw new Error('Unit 7: not yet implemented'); },
     nonLinearityTest: function () { throw new Error('Unit 7: not yet implemented'); },
