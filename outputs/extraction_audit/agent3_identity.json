@@ -1,0 +1,212 @@
+[
+  {
+    "id": 20,
+    "review": "SEVERE_ASTHMA_BIOLOGICS_REVIEW",
+    "nct": "NCT04039113",
+    "severity": "HIGH",
+    "category": "famous-trial-wrong-nct",
+    "reason": "WAYFINDER label paired with NCT04039113 does not match the tezepelumab pediatric/adolescent (6-17y) program; NCT04039113 corresponds to DESTINATION (long-term safety extension), and the pediatric tezepelumab Ph3 is NCT04673630 (FUTURE/COURSE program). PMID 39653044 is also inconsistent with a pediatric efficacy primary publication.",
+    "ground_truth_hint": "Pediatric tezepelumab trial is likely NCT04673630; NCT04039113 is DESTINATION extension, not WAYFINDER.",
+    "confidence": 0.75
+  },
+  {
+    "id": 24,
+    "review": "ACORAMIDIS_ATTR_CM_REVIEW",
+    "nct": "NCT03860935",
+    "severity": "HIGH",
+    "category": "other",
+    "reason": "PMID 41205147 is out of the plausible PubMed range for a 2024 publication (current 2024 PMIDs are ~38xxxxxx-39xxxxxx); ATTRibute-CM (Gillmore et al., NEJM 2024) is PMID 38122639. The cited PMID appears fabricated.",
+    "ground_truth_hint": "ATTRibute-CM primary publication: Gillmore JD et al., NEJM 2024;390:132-142, PMID 38122639.",
+    "confidence": 0.9
+  },
+  {
+    "id": 27,
+    "review": "AML_TARGETED_NEW_REVIEW",
+    "nct": "NCT02668653",
+    "severity": "HIGH",
+    "category": "nct-acronym-mismatch",
+    "reason": "NCT02668653 is QuANTUM-First (newly diagnosed FLT3-ITD AML, quizartinib + 7+3 chemo, Erba Lancet 2023), NOT QuANTUM-R. QuANTUM-R (relapsed/refractory FLT3+ AML, Cortes Lancet Oncol 2019) is NCT02039726. The two trials have been swapped/conflated.",
+    "ground_truth_hint": "QuANTUM-R = NCT02039726 (R/R FLT3+, Cortes 2019, PMID 31175001); QuANTUM-First = NCT02668653 (newly diagnosed, Erba 2023).",
+    "confidence": 0.95
+  },
+  {
+    "id": 29,
+    "review": "ATTR_CM_REVIEW",
+    "nct": "NCT03860935",
+    "severity": "MED",
+    "category": "other",
+    "reason": "PMID 38197816 does not correspond to the ATTRibute-CM primary publication (Gillmore NEJM 2024 = PMID 38122639). The NCT and acronym are correct, but the PMID maps to a different paper. This row also conflicts with id=24 which extracted the same trial with a different (also-wrong) PMID.",
+    "ground_truth_hint": "ATTRibute-CM primary: PMID 38122639 (Gillmore NEJM 2024;390:132).",
+    "confidence": 0.7
+  },
+  {
+    "id": 32,
+    "review": "DEPRESSION_NEW_RAPID_REVIEW",
+    "nct": "NCT02418585",
+    "severity": "HIGH",
+    "category": "nct-acronym-mismatch",
+    "reason": "NCT02418585 is TRANSFORM-2 (esketamine TRD pivotal, Popova 2019), NOT TRANSFORM-1. TRANSFORM-1 is NCT02417064 (Fedgchin 2019). The labels appear swapped with the TRANSFORM-2 row at id=35 (which has correct name but wrong PMID).",
+    "ground_truth_hint": "TRANSFORM-1 = NCT02417064 (Fedgchin 2019, PMID 31039786 area); TRANSFORM-2 = NCT02418585 (Popova 2019, PMID 31039788).",
+    "confidence": 0.95
+  },
+  {
+    "id": 35,
+    "review": "ESKETAMINE_TRD_REVIEW",
+    "nct": "NCT02418585",
+    "severity": "MED",
+    "category": "other",
+    "reason": "NCT02418585 and name 'TRANSFORM-2' are correct, but PMID 36273682 is a 2022 paper unrelated to the TRANSFORM-2 primary publication (Popova et al., Am J Psychiatry 2019, PMID 31039788).",
+    "ground_truth_hint": "TRANSFORM-2 primary publication: Popova V et al., Am J Psychiatry 2019;176:428-438, PMID 31039788.",
+    "confidence": 0.8
+  },
+  {
+    "id": 47,
+    "review": "BLADDER_NMIBC_NEW_NMA_REVIEW",
+    "nct": "NCT04165116",
+    "severity": "HIGH",
+    "category": "famous-trial-wrong-nct",
+    "reason": "QUILT-3032 (N-803/anktiva + BCG, BCG-unresponsive NMIBC, Chamie 2023) is NCT03022825 (originally registered as QUILT-3.032), not NCT04165116. NCT04165116 does not correspond to the published QUILT-3.032 pivotal cohort.",
+    "ground_truth_hint": "QUILT-3.032 = NCT03022825 (Chamie K, NEJM Evid 2023).",
+    "confidence": 0.85
+  },
+  {
+    "id": 58,
+    "review": "T1D_CLOSED_LOOP_NMA_REVIEW",
+    "nct": "NCT04420572",
+    "severity": "HIGH",
+    "category": "famous-trial-wrong-nct",
+    "reason": "PEDAP (Pediatric Artificial Pancreas, Tandem Control-IQ in children 2-5y, Wadwa NEJM 2023) is NCT04796779, not NCT04420572. The NCT does not match the pediatric Control-IQ pivotal.",
+    "ground_truth_hint": "PEDAP = NCT04796779 (Wadwa RP et al., NEJM 2023;388:991-1001, PMID 36920756).",
+    "confidence": 0.85
+  },
+  {
+    "id": 60,
+    "review": "SCLC_IO_REVIEW",
+    "nct": "NCT05012007",
+    "severity": "HIGH",
+    "category": "famous-trial-wrong-nct",
+    "reason": "Serplulimab maintenance ES-SCLC pivotal is ASTRUM-005 (NCT04063163, Cheng JAMA 2022, PMID 36194215), labelled as 'SUPREME' here. SUPREME is not a canonical SCLC trial acronym; the NCT05012007 + year 2024 + PMID 37731137 triple is inconsistent (PMID 37731137 is from 2023 and does not match a 2024 ES-SCLC pivotal).",
+    "ground_truth_hint": "Serplulimab ES-SCLC pivotal = ASTRUM-005, NCT04063163, PMID 36194215.",
+    "confidence": 0.8
+  },
+  {
+    "id": 63,
+    "review": "PAH_SOTATERCEPT_BROAD_REVIEW",
+    "nct": "NCT01568359",
+    "severity": "HIGH",
+    "category": "year-nct-era-mismatch",
+    "reason": "TRITON (triple-combo upfront PAH, Chin et al., 2021/2022) is NCT02558231 (registered 2015). NCT01568359 was registered ~2012, predating the TRITON triple-combo concept, and does not correspond to the published TRITON trial.",
+    "ground_truth_hint": "TRITON (PAH triple-therapy) = NCT02558231 (Chin KM et al., 2022).",
+    "confidence": 0.85
+  },
+  {
+    "id": 67,
+    "review": "ATTR_CM_REVIEW",
+    "nct": "NCT05534659",
+    "severity": "HIGH",
+    "category": "famous-trial-wrong-nct",
+    "reason": "HELIOS-B (vutrisiran ATTR-CM pivotal, Fontana NEJM 2024) is NCT04153149, not NCT05534659. The cited NCT does not correspond to the HELIOS-B pivotal cohort.",
+    "ground_truth_hint": "HELIOS-B = NCT04153149 (Fontana M et al., NEJM 2024, PMID 39213194).",
+    "confidence": 0.9
+  },
+  {
+    "id": 71,
+    "review": "ITP_NEW_AGENTS_REVIEW",
+    "nct": "NCT04278924",
+    "severity": "HIGH",
+    "category": "other",
+    "reason": "PMID 41950473 is far outside the valid PubMed PMID range for any current publication (~39xxxxxx maximum as of 2025); appears fabricated. Trial name 'MEZAGITAMAB-ITP' is also a generic drug-disease label rather than a canonical acronym.",
+    "ground_truth_hint": "Mezagitamab in ITP Phase 2 = Kuter D et al., presented ASH 2023; no PMID in the 4.1e7 range exists.",
+    "confidence": 0.92
+  },
+  {
+    "id": 49,
+    "review": "OUD_NEW_AGENTS_NMA_REVIEW",
+    "nct": "NCT00604682",
+    "severity": "MED",
+    "category": "generic-name",
+    "reason": "'Vivitrol-OUD' is a brand-name-plus-indication construction, not a canonical trial acronym; suggests post-hoc labelling rather than identification of a specific RCT. NCT00604682 should be verified against a named trial (e.g., XBOT/CTN-0051 is NCT02032433; Krupitsky 2011 is a different NCT).",
+    "ground_truth_hint": "If this is the Krupitsky Lancet 2011 extended-release naltrexone RCT, NCT00678418; if XBOT, NCT02032433.",
+    "confidence": 0.6
+  },
+  {
+    "id": 71,
+    "review": "ITP_NEW_AGENTS_REVIEW_b",
+    "nct": "NCT04278924",
+    "severity": "MED",
+    "category": "generic-name",
+    "reason": "'MEZAGITAMAB-ITP' name is drug-plus-indication, not an acronym; combined with the impossible PMID this row is likely a fabricated identity.",
+    "ground_truth_hint": "Mezagitamab Phase 2 ITP: see Kuter ASH 2023 abstract; no Lancet/NEJM primary indexed at this PMID.",
+    "confidence": 0.7
+  },
+  {
+    "id": 50,
+    "review": "HYPERKALEMIA_K_BINDER_NMA_REVIEW",
+    "nct": "NCT03533790",
+    "severity": "MED",
+    "category": "name-drug-mismatch",
+    "reason": "REGAIN is most strongly associated with galcanezumab cluster-headache prophylaxis (NCT02438826), not patiromer + spironolactone. The patiromer-spironolactone HF/CKD pivotal is AMBER (Agarwal Lancet 2019, NCT03071263). The combination of acronym REGAIN with patiromer is non-canonical.",
+    "ground_truth_hint": "Patiromer + spironolactone = AMBER (NCT03071263, PMID 31585797). REGAIN is galcanezumab (cluster headache).",
+    "confidence": 0.7
+  },
+  {
+    "id": 52,
+    "review": "PERIPHERAL_DCB_PAD_NMA_REVIEW",
+    "nct": "NCT01858363",
+    "severity": "MED",
+    "category": "famous-trial-wrong-nct",
+    "reason": "ILLUMENATE EU RCT (Stellarex DCB, Krishnan Circulation 2017) is NCT01927068. NCT01858363 is a different DCB study and does not match the ILLUMENATE EU pivotal cohort.",
+    "ground_truth_hint": "ILLUMENATE EU RCT = NCT01927068 (Krishnan P et al., Circulation 2017).",
+    "confidence": 0.7
+  },
+  {
+    "id": 26,
+    "review": "ADJUVANT_IO_PAN_TUMOR_REVIEW",
+    "nct": "NCT02388906",
+    "severity": "MED",
+    "category": "generic-name",
+    "reason": "Name 'CheckMate-238-ADJ' uses a non-canonical '-ADJ' suffix; CheckMate-238 is already the adjuvant melanoma trial, so the suffix is redundant and not used in the literature. Likely auto-generated label; identity itself (NCT02388906, PMID 28891423) is correct.",
+    "ground_truth_hint": "Standard label is CheckMate-238 (Weber NEJM 2017, PMID 28891423).",
+    "confidence": 0.55
+  },
+  {
+    "id": 48,
+    "review": "ADJUVANT_IO_PAN_TUMOR_REVIEW",
+    "nct": "NCT02743494",
+    "severity": "MED",
+    "category": "generic-name",
+    "reason": "Name 'CheckMate-577-ADJ' uses a non-canonical '-ADJ' suffix; CheckMate-577 is the standard published name. Suggests automated relabelling. Underlying NCT/PMID (NCT02743494, PMID 33789008, Kelly NEJM 2021) is correct.",
+    "ground_truth_hint": "Canonical name: CheckMate-577 (Kelly RJ et al., NEJM 2021;384:1191).",
+    "confidence": 0.55
+  },
+  {
+    "id": 34,
+    "review": "DEPRESSION_PSYCHEDELIC_NMA_REVIEW",
+    "nct": "NCT03775200",
+    "severity": "MED",
+    "category": "generic-name",
+    "reason": "'COMP-001' is a sponsor program code (Compass Pathways protocol code), not a trial acronym. The published trial (Goodwin NEJM 2022) is typically referenced by sponsor + program identifier. NCT03775200 actually corresponds to a different psilocybin study (likely the Davis JAMA Psych 2021 trial, PMID 33999283 shown in id=33), suggesting the NCT-trial pairing is wrong here.",
+    "ground_truth_hint": "Compass COMP360 25mg TRD Ph2b = NCT03775200 might be Davis/Carhart-Harris; the COMP001 Goodwin NEJM 2022 pivotal is NCT03775200 only if cross-checked — verify against Goodwin GM et al., NEJM 2022;387:1637, PMID 36322843.",
+    "confidence": 0.55
+  },
+  {
+    "id": 73,
+    "review": "COVID19_VACCINES_REVIEW",
+    "nct": "NCT04672395",
+    "severity": "LOW",
+    "category": "generic-name",
+    "reason": "'SPECTRA (SCB-2019)' includes a product identifier as the trial name; SPECTRA is the canonical acronym for the Clover SCB-2019 Phase 2/3, so the parenthetical is informational rather than an attribution error. NCT/event counts plausible. Flagged for review consistency only.",
+    "ground_truth_hint": "SPECTRA Phase 2/3 SCB-2019 = NCT04672395 (Bravo L et al., Lancet 2022).",
+    "confidence": 0.3
+  },
+  {
+    "id": 21,
+    "review": "COVID19_VACCINES_REVIEW",
+    "nct": "NCT04368728",
+    "severity": "LOW",
+    "category": "generic-name",
+    "reason": "'C4591001 (BNT162b2)' uses Pfizer's protocol code rather than a canonical acronym; C4591001 is the actual study number for the BNT162b2 Phase 2/3, so this is a labelling style rather than mis-identification. NCT04368728 + PMID 33301246 (Polack NEJM 2020) are correct.",
+    "ground_truth_hint": "C4591001 / BNT162b2 = NCT04368728 (Polack FP et al., NEJM 2020;383:2603, PMID 33301246) — correctly identified.",
+    "confidence": 0.2
+  }
+]
