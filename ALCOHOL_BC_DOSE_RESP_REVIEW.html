@@ -225,7 +225,51 @@ window.addEventListener('DOMContentLoaded', function () {
     ', 95% CI ' + linHR_lo.toFixed(3) + '–' + linHR_hi.toFixed(3) + '). ' +
     'Between-study heterogeneity is high (I² = ' + lin.I2.toFixed(0) + '%); the prediction interval is wider than the confidence interval and is the better summary of expected effect in a future similar study.</p>';
 
-  // Tabs 2-4 populated in subsequent tasks.
+  // === Tab 2: RCS ===
+  var rcs = DR.fitRCS(trials, { knots: 3 });
+
+  var rcsKpis = '<div class="kpi-grid">' +
+    '<div class="kpi"><div class="kpi-label">Knots (g/day)</div><div class="kpi-value">' + rcs.rcs.knots.map(function (k) { return k.toFixed(1); }).join(', ') + '</div></div>' +
+    '<div class="kpi"><div class="kpi-label">spline_coefs[0] (linear)</div><div class="kpi-value">' + rcs.rcs.spline_coefs[0].toFixed(5) + '</div><div>SE ' + rcs.rcs.spline_coefs_se[0].toFixed(5) + '</div></div>' +
+    '<div class="kpi"><div class="kpi-label">spline_coefs[1] (non-linear)</div><div class="kpi-value">' + rcs.rcs.spline_coefs[1].toFixed(5) + '</div><div>SE ' + rcs.rcs.spline_coefs_se[1].toFixed(5) + '</div></div>' +
+    '<div class="kpi"><div class="kpi-label">Wald non-linearity p</div><div class="kpi-value">' + rcs.rcs.nonlinearity_wald_p.toFixed(4) + '</div><div>(diagonal-PM v0.1)</div></div>' +
+    '<div class="kpi"><div class="kpi-label">τ² per dimension</div><div class="kpi-value">[' + rcs.rcs.tau2_per_dim.map(function (t) { return t.toExponential(2); }).join(', ') + ']</div></div>' +
+    '</div>';
+  document.getElementById('rcs-kpis').innerHTML = rcsKpis;
+
+  // RCS curve: use fit_at_dose grid
+  var rcsCurveHtml = '<h3>RCS dose-response curve</h3><table><thead><tr><th>Dose (g/day)</th><th>log-RR</th><th>RR</th><th>95% CI</th></tr></thead><tbody>';
+  rcs.rcs.fit_at_dose.forEach(function (p) {
+    rcsCurveHtml += '<tr><td>' + p.dose.toFixed(2) + '</td>' +
+                 '<td>' + p.est.toFixed(4) + '</td>' +
+                 '<td>' + Math.exp(p.est).toFixed(4) + '</td>' +
+                 '<td>' + Math.exp(p.ci_lo).toFixed(4) + '&ndash;' + Math.exp(p.ci_hi).toFixed(4) + '</td></tr>';
+  });
+  rcsCurveHtml += '</tbody></table>';
+  document.getElementById('rcs-curve').innerHTML = rcsCurveHtml;
+
+  // RCS per-study forest (uses F-3 fix to read tau2_per_dim[0] for RE weights)
+  var rcsForestRows = DR.forest(trials, rcs);
+  var rfHtml = '<h3>Per-study forest (RCS linear-component slopes, RE-weighted)</h3><table><thead><tr><th>Study</th><th>HR per gram</th><th>95% CI</th><th>RE weight</th></tr></thead><tbody>';
+  rcsForestRows.forEach(function (r) {
+    rfHtml += '<tr><td>' + r.label + '</td>' +
+              '<td>' + r.hr.toFixed(4) + '</td>' +
+              '<td>' + r.hr_ci_lo.toFixed(4) + '&ndash;' + r.hr_ci_hi.toFixed(4) + '</td>' +
+              '<td>' + r.weight_pct.toFixed(1) + '%</td></tr>';
+  });
+  rfHtml += '</tbody></table>';
+  document.getElementById('rcs-forest').innerHTML = rfHtml;
+
+  // Non-linearity Wald note (calls out the diagonal-PM v0.1 design tradeoff)
+  document.getElementById('rcs-wald').innerHTML =
+    '<div style="background:#fef8ec; border-left:3px solid #d97706; padding:0.8em; margin:1em 0;">' +
+    '<strong>Wald non-linearity test (diagonal-PM v0.1):</strong> p = ' + rcs.rcs.nonlinearity_wald_p.toFixed(4) +
+    ' (df = ' + (rcs.rcs.spline_coefs.length - 1) + '). ' +
+    'Under the v0.1 diagonal-PM-per-dimension τ² approximation, the engine\'s non-linearity p will differ ' +
+    'from R full multivariate REML (which gives p ≈ 0.7 on this dataset). See the R-parity tab for the ' +
+    'side-by-side comparison. P2 hardening will lift to full multivariate REML and close this gap.</div>';
+
+  // Tabs 3-4 populated in subsequent tasks.
 });
 </script>
 
