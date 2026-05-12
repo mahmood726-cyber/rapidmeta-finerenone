@@ -222,6 +222,26 @@ test('rcsKnots degenerates to empty array for <3 unique doses', () => {
   assert.equal(knots.length, 0, 'should return empty array to signal degeneration');
 });
 
+// === Task 13: fitRCS() tests ===
+
+test('fitRCS on GL-1992 returns 3-knot fit with non-linearity p-value', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const res = DR.fitRCS(fx.trials, { knots: 3 });
+  assert.equal(res.layer, 'rcs');
+  assert.equal(res.rcs.knots.length, 3);
+  assert.equal(res.rcs.spline_coefs.length, 2);  // K-1 = 2
+  assert.ok(isFinite(res.rcs.nonlinearity_wald_p));
+  assert.ok(res.rcs.nonlinearity_wald_p >= 0 && res.rcs.nonlinearity_wald_p <= 1);
+});
+
+test('fitRCS on k2_identical_doses degenerates to linear', () => {
+  const fx = loadFx('k2_identical_doses.json');
+  const res = DR.fitRCS(fx.trials, { knots: 3 });
+  assert.equal(res.fallback, 'degenerate_to_linear');
+  assert.equal(res.rcs, null);
+  assert.equal(res.layer, 'linear');  // because it fell back
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }

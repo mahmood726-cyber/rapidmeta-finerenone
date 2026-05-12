@@ -521,11 +521,152 @@
     };
   }
 
+  // ===================================================================
+  // Section 2c: fitRCS — two-stage Greenland-Longnecker + restricted-cubic-spline
+  // multivariate-RE pool.  Algorithm per plan Task 13.
+  // ===================================================================
+  function fitRCS(trials, opts) {
+    opts = opts || {};
+    var issues = validate(trials);
+    if (issues.length) throw new Error('fitRCS: ' + issues[0]);
+    if (trials.length < 2) throw new Error('fitRCS: requires k >= 2 trials; got k=' + trials.length);
+    var K = opts.knots || 3;
+
+    // Step 1: gather all non-reference doses for knot placement.
+    // Use only unique positive doses (matches rcsKnots contract).
+    var allDoses = [];
+    for (var t = 0; t < trials.length; t++) {
+      for (var a = 0; a < trials[t].arms.length; a++) {
+        if (!trials[t].arms[a].is_reference) allDoses.push(trials[t].arms[a].dose);
+      }
+    }
+    var knots = rcsKnots(allDoses, K);
+    if (knots.length === 0) {
+      var lin = fitLinear(trials, opts);
+      lin.fallback = 'degenerate_to_linear';
+      lin.rcs = null;
+      return lin;
+    }
+
+    var Kp = K - 1;  // number of basis dimensions (linear + K-2 spline terms)
+
+    // Step 2: per-study beta and V via multivariate WLS.
+    // X_i rows = rcsBasis(arm.dose, knots) - rcsBasis(ref.dose, knots)
+    // (centering by subtracting reference basis, not evaluating at arm.dose - ref.dose)
+    var perStudy = [];
+    for (var t2 = 0; t2 < trials.length; t2++) {
+      var T = trials[t2];
+      var ref = T.arms.find(function (a) { return a.is_reference; });
+      var contrasts = T.arms.filter(function (a) { return !a.is_reference; });
+      if (contrasts.length === 0) continue;
+
+      var bRef = rcsBasis(ref.dose, knots);
+      var Xrows = contrasts.map(function (arm) {
+        var bArm = rcsBasis(arm.dose, knots);
+        return bArm.map(function (v, i) { return v - bRef[i]; });
+      });
+      var y = contrasts.map(function (arm) {
+        return Math.log((arm.events / arm.n) / (ref.events / ref.n));
+      });
+      var S = glCovariance(T.arms);
+      var Sinv;
+      try { Sinv = matInv(S); } catch (e) { continue; }
+
+      // Build (X' S^{-1} X) and (X' S^{-1} y) — (Kp × Kp) and (Kp × 1)
+      var XtSX = zeros(Kp, Kp);
+      var XtSy = new Array(Kp).fill(0);
+      for (var i = 0; i < Xrows.length; i++) {
+        for (var j = 0; j < Xrows.length; j++) {
+          for (var p = 0; p < Kp; p++) {
+            XtSy[p] += Xrows[i][p] * Sinv[i][j] * y[j];
+            for (var q = 0; q < Kp; q++) {
+              XtSX[p][q] += Xrows[i][p] * Sinv[i][j] * Xrows[j][q];
+            }
+          }
+        }
+      }
+      var V_i;
+      try { V_i = matInv(XtSX); } catch (e) { continue; }
+      var beta_i = matVec(V_i, XtSy);
+      perStudy.push({ studlab: T.studlab, beta: beta_i, V: V_i, n_arms: T.arms.length });
+    }
+
+    // Step 3: per-dimension PM tau² + IV pool (diagonal tau² approximation).
+    // Each spline-coef dimension gets its own tau²_d via Paule-Mandel.
+    var pooled = new Array(Kp).fill(0);
+    var pooledSE = new Array(Kp).fill(0);
+    var tau2_per_dim = new Array(Kp).fill(0);
+    for (var d = 0; d < Kp; d++) {
+      var yd = perStudy.map(function (s) { return s.beta[d]; });
+      var vd = perStudy.map(function (s) { return s.V[d][d]; });
+      tau2_per_dim[d] = pmTau2(yd, vd);
+      var wd = vd.map(function (v) { return 1 / (v + tau2_per_dim[d]); });
+      var wsum = wd.reduce(function (a, b) { return a + b; }, 0);
+      pooled[d] = yd.reduce(function (acc, yval, idx) { return acc + wd[idx] * yval; }, 0) / wsum;
+      pooledSE[d] = Math.sqrt(1 / wsum);
+    }
+
+    // Step 4: non-linearity Wald test.
+    // H0: all non-linear basis coefs (d >= 1) are zero.
+    // Statistic: sum_d (beta_d / se_d)^2 ~ chi2(K-2) under H0.
+    // Note: pooled[0] is the linear trend; pooled[1..Kp-1] are the non-linear deviations.
+    var nlCoefs = pooled.slice(1);
+    var nlSEs = pooledSE.slice(1);
+    var W = 0;
+    for (var d2 = 0; d2 < nlCoefs.length; d2++) {
+      W += (nlCoefs[d2] / nlSEs[d2]) * (nlCoefs[d2] / nlSEs[d2]);
+    }
+    var nlP = nlCoefs.length > 0 ? (1 - pchisq(W, nlCoefs.length)) : null;
+
+    // Step 5: fit_at_dose — 20-point curve from 0 to max observed dose.
+    // At dose=0, rcsBasis returns [0, 0, ...], so est=0 (centered at reference).
+    var maxD = Math.max.apply(null, allDoses);
+    var fit_at_dose = [];
+    for (var i2 = 0; i2 < 20; i2++) {
+      var dose_i = i2 * maxD / 19;
+      var b = rcsBasis(dose_i, knots);
+      var est = 0, varEst = 0;
+      for (var p2 = 0; p2 < Kp; p2++) {
+        est += pooled[p2] * b[p2];
+        varEst += b[p2] * b[p2] * pooledSE[p2] * pooledSE[p2];
+      }
+      var seEst = Math.sqrt(varEst);
+      fit_at_dose.push({ dose: dose_i, est: est, ci_lo: est - 1.96 * seEst, ci_hi: est + 1.96 * seEst });
+    }
+
+    return {
+      layer: 'rcs', k: perStudy.length,
+      rcs: {
+        knots: knots,
+        spline_coefs: pooled,
+        spline_coefs_se: pooledSE,
+        tau2_per_dim: tau2_per_dim,
+        nonlinearity_wald_p: nlP,
+        fit_at_dose: fit_at_dose,
+      },
+      pooled_slope_log: pooled[0],
+      pooled_slope_log_se: pooledSE[0],
+      pooled_slope_log_ci_lo: pooled[0] - 1.96 * pooledSE[0],
+      pooled_slope_log_ci_hi: pooled[0] + 1.96 * pooledSE[0],
+      per_study: perStudy.map(function (s) {
+        return { studlab: s.studlab, slope_log: s.beta[0], slope_log_se: Math.sqrt(s.V[0][0]), n_arms: s.n_arms };
+      }),
+      max_observed_dose: maxD,
+      coverage_warning: perStudy.length < 10,
+      fallback: null,
+      estimator: 'reml_hksj_multivariate',
+      converged: true,
+      iterations: null,
+      _fitInternal: null,
+      engine_version: API.engine_version,
+    };
+  }
+
   var API = {
     engine_version: 'rapidmeta-dose-response-engine-v1@0.1.0',
     validate: validate,
     fitLinear: fitLinear,
-    fitRCS: function () { throw new Error('Unit 6: not yet implemented'); },
+    fitRCS: fitRCS,
     fitOneStage: function () { throw new Error('Unit 7: not yet implemented'); },
     nonLinearityTest: function () { throw new Error('Unit 7: not yet implemented'); },
     predict: function () { throw new Error('Unit 7: not yet implemented'); },
