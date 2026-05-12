@@ -59,8 +59,8 @@
         e = +t.events; n = +t.n;
       }
       if (e === undefined && Number.isFinite(+t.tE) && Number.isFinite(+t.tN) && +t.tN > 0
-          && (t.cN === undefined || t.cN === null || t.cN === '')
-          && (t.cE === undefined || t.cE === null || t.cE === '')) {
+          && (t.cN === undefined || t.cN === null || t.cN === '' || +t.cN === 0)
+          && (t.cE === undefined || t.cE === null || t.cE === '' || +t.cE === 0)) {
         e = +t.tE; n = +t.tN;
       }
       if (e === undefined || n === undefined) return;
