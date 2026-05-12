@@ -757,7 +757,12 @@
     } else {
       est = dose * result.pooled_slope_log;
       se = Math.abs(dose) * result.pooled_slope_log_se;
-      return { est: est, ci_lo: est - 1.96 * se, ci_hi: est + 1.96 * se, extrapolation_banner: banner };
+      // F-2 fix: use t_{k-1} (matches fitLinear's own CI construction) instead of raw z=1.96.
+      // Falls back to z=1.96 only when pi_df is missing (defensive) or non-positive (k=1 edge,
+      // which fitLinear itself rejects via the k<2 guard).
+      var df = result.pi_df != null ? result.pi_df : (result.k != null ? result.k - 1 : 0);
+      var tcrit = df > 0 ? qt(0.975, df) : 1.96;
+      return { est: est, ci_lo: est - tcrit * se, ci_hi: est + tcrit * se, extrapolation_banner: banner };
     }
   }
 

@@ -370,6 +370,20 @@ test('engine fitRCS linear-component matches R within tolerance', () => {
        'rcs linear-component vs R');
 });
 
+test('predict() linear CI uses t_{k-1} not raw z=1.96 (F-2 fix)', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const res = DR.fitLinear(fx.trials, {});
+  // For k=5, qt(0.975, 4) ≈ 2.776, NOT 1.96. CI half-width at dose=5 should be ~5*se*2.776.
+  const p = DR.predict(res, 5);
+  const halfWidth = p.ci_hi - p.est;
+  const expected = 5 * res.pooled_slope_log_se * I.qt(0.975, res.pi_df);
+  near(halfWidth, expected, 1e-10, 'predict CI half-width = dose * se * t_{k-1}');
+  // Confirm it is NOT the 1.96-based value (sanity: the two are visibly different at k=5)
+  const wrongValue = 5 * res.pooled_slope_log_se * 1.96;
+  assert.ok(Math.abs(halfWidth - wrongValue) > 0.0001,
+    `should not equal z=1.96 width; got ${halfWidth}, z-based was ${wrongValue}`);
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }
