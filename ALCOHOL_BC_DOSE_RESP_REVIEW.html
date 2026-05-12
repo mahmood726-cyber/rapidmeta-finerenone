@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Alcohol intake and breast cancer incidence — dose-response meta-analysis</title>
+<meta name="description" content="Pooled re-analysis of Greenland &amp; Longnecker 1992 alcohol-breast-cancer dataset using two-stage GL linear + RCS + one-stage Poisson hierarchical, with R cross-validation badge.">
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; max-width: 1100px; margin: 1em auto; padding: 0 1em; color: #222; line-height: 1.5; }
+  h1, h2, h3 { color: #1a3a5c; }
+  details > summary { cursor: pointer; font-weight: 600; padding: 0.4em 0; }
+  table { border-collapse: collapse; width: 100%; margin: 0.6em 0; }
+  th, td { border: 1px solid #d0d0d0; padding: 0.4em 0.6em; text-align: left; }
+  th { background: #f2f5f8; }
+  .tab-nav { display: flex; gap: 0.5em; border-bottom: 2px solid #d0d0d0; margin: 1em 0 0.6em; }
+  .tab-nav button { background: #f2f5f8; border: 1px solid #d0d0d0; border-bottom: none; padding: 0.6em 1.2em; cursor: pointer; font-size: 1em; }
+  .tab-nav button.active { background: #1a3a5c; color: white; border-color: #1a3a5c; }
+  .tab-content { display: none; padding: 1em 0; }
+  .tab-content.active { display: block; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.8em; margin: 1em 0; }
+  .kpi { background: #f8f9fb; border-left: 3px solid #1a3a5c; padding: 0.6em 0.8em; }
+  .kpi-label { font-size: 0.85em; color: #555; }
+  .kpi-value { font-size: 1.2em; font-weight: 600; color: #1a3a5c; }
+  .rv-badge { border: 2px solid; border-radius: 4px; padding: 0.6em; margin: 1em 0; }
+  .rv-badge-green { border-color: #2e8540; background: #f0f8f2; }
+  .rv-badge-amber { border-color: #d97706; background: #fef8ec; }
+  .rv-row-green td { background: #f0f8f2; }
+  .rv-row-amber td { background: #fef8ec; }
+  .rv-disclosure { font-size: 0.85em; color: #555; margin-top: 0.6em; }
+  .footnote { font-size: 0.85em; color: #555; border-top: 1px solid #d0d0d0; padding-top: 1em; margin-top: 2em; }
+</style>
+</head>
+<body>
+
+<h1>Alcohol intake and breast cancer incidence — dose-response meta-analysis</h1>
+<p>Pooled re-analysis of Greenland &amp; Longnecker 1992 worked example, <em>Am J Epidemiol</em> 135:1301-9 (<a href="https://pubmed.ncbi.nlm.nih.gov/1626547/" target="_blank">PMID 1626547</a>).</p>
+<p><strong>Engine:</strong> <span id="engine-version">…</span> · <strong>Generated:</strong> <span id="gen-date">…</span></p>
+
+<details>
+  <summary>Methods (click to expand)</summary>
+  <p>This review applies three dose-response meta-analysis fitters in parallel:</p>
+  <ol>
+    <li><strong>Two-stage Greenland-Longnecker linear pool</strong> — per-study log-linear slope via weighted least squares with the GL covariance correction, then REML+HKSJ pool. Prediction interval uses <em>t<sub>k−1</sub></em> df (Cochrane Handbook v6.5 §10.10.4.3). HKSJ floor <code>max(1, Q/(k−1))</code> per advanced-stats.md.</li>
+    <li><strong>Two-stage GL + restricted cubic splines</strong> — 3 knots at Harrell percentiles (25/50/75 of unique non-reference doses); multivariate-RE pool with diagonal-PM τ² approximation; Wald joint non-linearity test.</li>
+    <li><strong>One-stage Poisson hierarchical</strong> — <code>lme4::glmer(events ~ dose + (1 | studlab), offset = log(n), family = poisson)</code> computed by R, surfaced as a precomputed-display layer (no JS fitter).</li>
+  </ol>
+  <p>Engine validation: parity against R <code>dosresmeta::dosresmeta(method="reml")</code> on the linear component (|Δ| &lt; 0.01) and against <code>lme4::glmer</code> on one-stage (precomputed). Non-linearity Wald p diverges from R by design — see the R-parity tab.</p>
+</details>
+
+<details>
+  <summary>Per-study trial summary (click to expand)</summary>
+  <div id="trial-summary"></div>
+</details>
+
+<nav class="tab-nav">
+  <button data-tab="linear" class="active" onclick="showTab('linear')">1. Linear (GL two-stage)</button>
+  <button data-tab="rcs" onclick="showTab('rcs')">2. RCS (3 knots)</button>
+  <button data-tab="onestage" onclick="showTab('onestage')">3. One-stage (Poisson glmer)</button>
+  <button data-tab="parity" onclick="showTab('parity')">4. R-parity badge</button>
+</nav>
+
+<section id="tab-linear" class="tab-content active">
+  <h2>Linear pool — two-stage Greenland-Longnecker</h2>
+  <div id="linear-kpis"></div>
+  <div id="linear-forest"></div>
+  <div id="linear-curve"></div>
+  <div id="linear-summary"></div>
+</section>
+
+<section id="tab-rcs" class="tab-content">
+  <h2>RCS pool — 3 knots at Harrell percentiles</h2>
+  <div id="rcs-kpis"></div>
+  <div id="rcs-curve"></div>
+  <div id="rcs-forest"></div>
+  <div id="rcs-wald"></div>
+</section>
+
+<section id="tab-onestage" class="tab-content">
+  <h2>One-stage Poisson hierarchical (lme4::glmer)</h2>
+  <div id="onestage-kpis"></div>
+  <div id="onestage-methods"></div>
+</section>
+
+<section id="tab-parity" class="tab-content">
+  <h2>Engine vs R — parity badge</h2>
+  <div id="r-parity-doseresp"></div>
+</section>
+
+<div class="footnote">
+  <p><strong>Citation:</strong> Greenland S, Longnecker MP. Methods for trend estimation from summarized dose-response data, with applications to meta-analysis. <em>Am J Epidemiol</em>. 1992;135(11):1301-9. PMID 1626547.</p>
+  <p><strong>Spec:</strong> <code>docs/superpowers/specs/2026-05-12-dose-response-round-1b-design.md</code> · <strong>Plan:</strong> <code>docs/superpowers/plans/2026-05-12-dose-response-round-1b-implementation.md</code></p>
+</div>
+
+<!-- Trial data: embedded JSON, parsed by engine + tab renderers -->
+<script type="application/json" id="doseresp-trials">
+</script>
+
+<!-- Engine + badge -->
+<script src="rapidmeta-dose-response-engine-v1.js" defer></script>
+<script src="vendor/r-validation-badge.js" defer></script>
+<script src="vendor/r-validation-doseresp.js" defer></script>
+
+<!-- Page wiring -->
+<script>
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(function (el) { el.classList.remove('active'); });
+  document.querySelectorAll('.tab-nav button').forEach(function (el) { el.classList.remove('active'); });
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelector('.tab-nav button[data-tab="' + name + '"]').classList.add('active');
+}
+
+window.addEventListener('DOMContentLoaded', function () {
+  // Read embedded trial data (populated in Task 7)
+  var trialsScript = document.getElementById('doseresp-trials');
+  var trialsJson = trialsScript ? trialsScript.textContent.trim() : '';
+  if (!trialsJson) { return; /* scaffold only; tabs populated by Tasks 7-10 */ }
+  // Tabs 1-4 wiring is added in Tasks 7-10.
+});
+</script>
+
+</body>
+</html>
