@@ -49,6 +49,11 @@ test('gl1992 fixture loads with 5 trials and well-formed arms', () => {
   }
 });
 
+test('k2_identical_doses fixture loads', () => {
+  const fx = loadFx('k2_identical_doses.json');
+  assert.equal(fx.trials.length, 2);
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }
