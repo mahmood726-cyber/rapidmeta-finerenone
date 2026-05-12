@@ -106,6 +106,7 @@
       '  <details open>' +
       '    <summary>R-parity badge — engine vs R (' + (r.dosresmeta_version ? 'dosresmeta ' + escapeHtml(r.dosresmeta_version) : 'R dosresmeta') + (r.one_stage && r.one_stage.lme4_version ? ', lme4 ' + escapeHtml(r.one_stage.lme4_version) : '') + ')</summary>' +
       '    <table class="rv-table">' +
+      '      <caption>R-parity comparison: engine vs R validator (4 green-threshold rows + 1 always-amber non-linearity row)</caption>' +
       '      <thead><tr><th>Metric</th><th>Engine</th><th>R</th><th>|Δ|</th><th>Note</th></tr></thead>' +
       '      <tbody>' + rows.join('') + '</tbody>' +
       '    </table>' +
