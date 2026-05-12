@@ -110,6 +110,21 @@ test('validate rejects events > n', () => {
   assert.match(issues.join('|'), /events > n|events exceed/i);
 });
 
+// === Task 9: GL covariance helper ===
+
+test('glCovariance returns symmetric matrix with correct diagonal', () => {
+  const arms = [
+    { dose: 0,  events: 100, n: 10000, is_reference: true },
+    { dose: 10, events: 120, n: 10000, is_reference: false },
+    { dose: 20, events: 150, n: 10000, is_reference: false },
+  ];
+  const S = I.glCovariance(arms);
+  assert.equal(S.length, 2); assert.equal(S[0].length, 2);
+  near(S[0][1], S[1][0], 1e-15, 'symmetry');
+  near(S[0][1], 1/100 - 1/10000, 1e-12, 'cov[0][1]');
+  near(S[0][0], 1/120 + 1/100 - 1/10000 - 1/10000, 1e-12, 'var[0]');
+});
+
 // === Task 8: numerics primitives verification ===
 
 test('numerics: matInv(I) === I; qt(0.975, 10) ≈ 2.228', () => {

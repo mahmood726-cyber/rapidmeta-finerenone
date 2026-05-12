@@ -305,6 +305,31 @@
     return issues;
   }
 
+  // Greenland-Longnecker covariance correction for binary (cohort RR) dose-response.
+  // Returns a k×k covariance matrix for the k contrast log-RRs (vs. reference arm).
+  // Formula: Var[logRR_i] = 1/events_i + 1/events_0 - 1/n_i - 1/n_0
+  //          Cov[logRR_i, logRR_j] = 1/events_0 - 1/n_0   (i≠j)
+  function glCovariance(arms) {
+    var ref = arms.find(function (a) { return a.is_reference; });
+    if (!ref) throw new Error('glCovariance: no reference arm');
+    var contrasts = arms.filter(function (a) { return !a.is_reference; });
+    var k = contrasts.length;
+    var E0 = ref.events, N0 = ref.n;
+    var S = [];
+    for (var i = 0; i < k; i++) {
+      S.push(new Array(k));
+      for (var j = 0; j < k; j++) {
+        if (i === j) {
+          var c = contrasts[i];
+          S[i][j] = 1 / c.events + 1 / E0 - 1 / c.n - 1 / N0;
+        } else {
+          S[i][j] = 1 / E0 - 1 / N0;
+        }
+      }
+    }
+    return S;
+  }
+
   var API = {
     engine_version: 'rapidmeta-dose-response-engine-v1@0.1.0',
     validate: validate,
@@ -323,6 +348,7 @@
     matMul: matMul, matVec: matVec, matvec: matvec, transpose: transpose,
     qchisq: qchisq, qt: qt, pchisq: pchisq, pt: pt,
     pmTau2: pmTau2,
+    glCovariance: glCovariance,
   });
 
   root.RapidMetaDoseResp = API;
