@@ -390,6 +390,21 @@ test('forest() on fitRCS result uses RE weights from tau2_per_dim[0] (F-3 fix)',
   near(rows[0].weight_pct, expectedPct, 1e-6, 'RCS forest uses RE weights from tau2_per_dim[0]');
 });
 
+// === Fix A: fitOneStage fit_ok propagation ===
+
+test('fitOneStage propagates fit_ok: false from precomputed JSON', () => {
+  const failedFit = { one_stage: { fit_ok: false, error: 'glmer did not converge' } };
+  const res = DR.fitOneStage([], {}, failedFit);
+  assert.equal(res.one_stage.fit_ok, false, 'fit_ok=false must propagate');
+});
+
+test('fitOneStage propagates fit_ok: true (default) from precomputed JSON', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const okFit = { one_stage: { coef_dose: 0.011, coef_dose_se: 0.001, converged: true, random_effects_var: 0.001 } };
+  const res = DR.fitOneStage(fx.trials, {}, okFit);
+  assert.equal(res.one_stage.fit_ok, true, 'fit_ok defaults to true when not explicitly false');
+});
+
 test('predict() linear CI uses t_{k-1} not raw z=1.96 (F-2 fix)', () => {
   const fx = loadFx('gl1992_alcohol_bc.json');
   const res = DR.fitLinear(fx.trials, {});

@@ -726,6 +726,8 @@
         coef_dose_ci_hi: os.coef_dose_ci_hi != null ? os.coef_dose_ci_hi : os.coef_dose + 1.96 * os.coef_dose_se,
         converged: os.converged === true,
         random_effects_var: os.random_effects_var,
+        fit_ok: os.fit_ok !== false,  // default true unless explicitly false in input
+        lme4_version: os.lme4_version,
       },
       pooled_slope_log: os.coef_dose,
       pooled_slope_log_se: os.coef_dose_se,
