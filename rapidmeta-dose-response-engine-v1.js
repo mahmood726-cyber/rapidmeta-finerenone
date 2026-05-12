@@ -28,9 +28,58 @@
   // Section 2: validate, fitters, helpers — implemented across later units.
   // ===================================================================
 
+  function validate(trials) {
+    var issues = [];
+    if (!Array.isArray(trials) || trials.length === 0) {
+      return ['no trials provided'];
+    }
+    for (var i = 0; i < trials.length; i++) {
+      var t = trials[i] || {};
+      var lab = t.studlab || ('trial[' + i + ']');
+      var arms = Array.isArray(t.arms) ? t.arms : [];
+      if (arms.length < 2) {
+        // If the sole arm is a reference, give the semantically precise message.
+        if (arms.length === 1 && arms[0] && arms[0].is_reference === true) {
+          issues.push(lab + ': reference-only (no contrast arms)');
+        } else {
+          issues.push(lab + ': single arm or < 2 arms');
+        }
+        continue;
+      }
+      var refs = arms.filter(function (a) { return a && a.is_reference === true; });
+      if (refs.length === 0) {
+        issues.push(lab + ': no reference arm');
+      } else if (refs.length > 1) {
+        issues.push(lab + ': multiple reference arms');
+      }
+      if (refs.length === arms.length) {
+        issues.push(lab + ': reference-only (no contrast)');
+      }
+      for (var j = 0; j < arms.length; j++) {
+        var a = arms[j];
+        if (!a || !isFinite(a.dose) || a.dose < 0) {
+          issues.push(lab + '.arms[' + j + ']: invalid dose');
+          continue;
+        }
+        var hasEvents = isFinite(a.events) && isFinite(a.n);
+        var hasCont   = isFinite(a.mean)   && isFinite(a.sd);
+        if (!hasEvents && !hasCont) {
+          issues.push(lab + '.arms[' + j + ']: needs events+n (binary) or mean+sd (continuous)');
+          continue;
+        }
+        if (hasEvents) {
+          if (a.events < 0 || a.n <= 0) issues.push(lab + '.arms[' + j + ']: events/n out of range');
+          if (a.events > a.n) issues.push(lab + '.arms[' + j + ']: events > n');
+        }
+        if (hasCont && a.sd <= 0) issues.push(lab + '.arms[' + j + ']: sd must be > 0');
+      }
+    }
+    return issues;
+  }
+
   var API = {
     engine_version: 'rapidmeta-dose-response-engine-v1@0.1.0',
-    validate: function () { throw new Error('Unit 3: not yet implemented'); },
+    validate: validate,
     fitLinear: function () { throw new Error('Unit 4: not yet implemented'); },
     fitRCS: function () { throw new Error('Unit 6: not yet implemented'); },
     fitOneStage: function () { throw new Error('Unit 7: not yet implemented'); },

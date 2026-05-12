@@ -79,6 +79,37 @@ test('extrapolation fixture: max_observed_dose field matches computed max', () =
     'top-level max_observed_dose field must equal computed max so predict() banner uses the right threshold');
 });
 
+// === Task 7: validate() tests ===
+
+test('validate accepts gl1992 fixture', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const issues = DR.validate(fx.trials);
+  assert.deepEqual(issues, [], `unexpected issues: ${JSON.stringify(issues)}`);
+});
+
+test('validate rejects single_arm fixture', () => {
+  const fx = loadFx('single_arm.json');
+  const issues = DR.validate(fx.trials);
+  assert.ok(issues.length > 0);
+  assert.match(issues.join('|'), /single arm|< 2 arms/i);
+});
+
+test('validate rejects ref_only fixture', () => {
+  const fx = loadFx('ref_only.json');
+  const issues = DR.validate(fx.trials);
+  assert.ok(issues.length > 0);
+  assert.match(issues.join('|'), /reference-only|no contrast/i);
+});
+
+test('validate rejects events > n', () => {
+  const bad = [{ studlab: 'X', arms: [
+    { dose: 0,  events: 10, n: 100, is_reference: true },
+    { dose: 5,  events: 200, n: 100, is_reference: false },
+  ]}];
+  const issues = DR.validate(bad);
+  assert.match(issues.join('|'), /events > n|events exceed/i);
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }
