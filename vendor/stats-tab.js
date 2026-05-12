@@ -66,6 +66,9 @@
     'prisma-checklist-panel',
     'meta-regression-permutation-panel',
     'grim-benford-panel',
+    'r-validation-singlearm-panel',
+    'r-validation-continuous-panel',
+    'r-validation-nma-panel',
   ];
 
   function buildTabButton(referenceBtn) {
