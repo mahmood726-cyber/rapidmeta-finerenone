@@ -1,10 +1,10 @@
 {
   "app": "ANTI_PD1_GASTRIC_REVIEW.html",
-  "timestamp": "2026-05-13T07:22:29.696Z",
-  "durationMs": 3620,
+  "timestamp": "2026-05-13T08:12:45.465Z",
+  "durationMs": 3853,
   "state": {
-    "k": 10,
-    "or": "0.70",
+    "k": 1,
+    "or": "0.63",
     "i2": "0.0",
     "tau2": 0,
     "remlSensitivity": true,
@@ -18,8 +18,8 @@
     "totalAvailable": 10,
     "includedCount": 10,
     "searchResultCount": 10,
-    "nnt": 14.050793610860628,
-    "absoluteRisk": 0.07117035718374265,
+    "nnt": 95.80730795096572,
+    "absoluteRisk": 0.010437617144109727,
     "patientReportedOutcomes": {
       "count": 0,
       "scales": [],
@@ -29,28 +29,30 @@
   },
   "findings": {
     "editor": {
-      "decision": "Accept with minor revision",
-      "rationale": "All reviewers support publication after minor clarifications."
+      "decision": "Minor revision",
+      "rationale": "Reviewers support publication but want clarifications on reporting completeness and residual uncertainty."
     },
     "reviewers": [
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Publication-bias assessment (Egger / trim-and-fill) absent despite k>=10."
+          "Evidence base is complete but small (k=1 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       },
       {
         "role": "Clinical expert",
         "concerns": [
-          "Pooled 0.70 sits outside published benchmark range (corridor 0.72-0.84); closest Vaduganathan 2022 HR 0.77 [0.72, 0.82]. Discussion should reconcile."
+          "Pooled 0.63 sits outside published benchmark range (corridor 0.72-0.84); closest Vaduganathan 2022 HR 0.77 [0.72, 0.82]. Discussion should reconcile.",
+          "k<3 - NNT ≈ 96 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       },
       {
         "role": "Biostatistician",
         "concerns": [],
-        "recommendation": "Accept"
+        "recommendation": "Accept with minor revision"
       },
       {
         "role": "Patient representative",

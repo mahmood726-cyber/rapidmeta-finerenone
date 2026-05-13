@@ -1,12 +1,12 @@
 {
   "app": "PBC_NEW_AGENTS_REVIEW.html",
-  "timestamp": "2026-05-13T07:44:01.170Z",
-  "durationMs": 3764,
+  "timestamp": "2026-05-13T08:35:52.600Z",
+  "durationMs": 4157,
   "state": {
-    "k": 4,
-    "or": "24.42",
-    "i2": "0.0",
-    "tau2": 0,
+    "k": 2,
+    "or": "37.11",
+    "i2": "44.2",
+    "tau2": 0.9195256083029241,
     "remlSensitivity": true,
     "robSummary": {
       "high": 0,
@@ -18,8 +18,8 @@
     "totalAvailable": 4,
     "includedCount": 4,
     "searchResultCount": 4,
-    "nnt": 1.8651985826395079,
-    "absoluteRisk": -0.536135942471533,
+    "nnt": 5.022007609013754,
+    "absoluteRisk": -0.19912355333853918,
     "patientReportedOutcomes": {
       "count": 0,
       "scales": [],
@@ -36,16 +36,18 @@
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Evidence base is complete but small (k=4 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue."
+          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition."
         ],
         "recommendation": "Minor revision"
       },
       {
         "role": "Clinical expert",
         "concerns": [
-          "Pooled 24.42 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile."
+          "Pooled 37.11 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile.",
+          "k<3 - NNT ≈ 5 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       },
       {
         "role": "Biostatistician",

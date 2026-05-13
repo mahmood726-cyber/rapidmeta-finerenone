@@ -1,12 +1,12 @@
 {
   "app": "PI3K_AKT_BC_REVIEW.html",
-  "timestamp": "2026-05-13T07:45:01.499Z",
-  "durationMs": 4224,
+  "timestamp": "2026-05-13T08:36:59.015Z",
+  "durationMs": 4888,
   "state": {
-    "k": 3,
-    "or": "0.56",
-    "i2": "55.9",
-    "tau2": 0.020661218542180077,
+    "k": 2,
+    "or": "0.52",
+    "i2": "71.6",
+    "tau2": 0.03975101143463583,
     "remlSensitivity": true,
     "robSummary": {
       "high": 0,
@@ -18,8 +18,8 @@
     "totalAvailable": 3,
     "includedCount": 3,
     "searchResultCount": 237,
-    "nnt": 5.656068740712332,
-    "absoluteRisk": 0.17680124585509527,
+    "nnt": 3.5205333333333333,
+    "absoluteRisk": 0.28404787153461597,
     "patientReportedOutcomes": {
       "count": 0,
       "scales": [],
@@ -36,13 +36,16 @@
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Evidence base is complete but small (k=3 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue."
+          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition."
         ],
         "recommendation": "Minor revision"
       },
       {
         "role": "Clinical expert",
-        "concerns": [],
+        "concerns": [
+          "k<3 - NNT ≈ 4 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
+        ],
         "recommendation": "Accept with minor revision"
       },
       {

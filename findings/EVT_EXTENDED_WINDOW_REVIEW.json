@@ -1,12 +1,12 @@
 {
   "app": "EVT_EXTENDED_WINDOW_REVIEW.html",
-  "timestamp": "2026-05-13T07:31:01.846Z",
-  "durationMs": 4210,
+  "timestamp": "2026-05-13T08:21:57.778Z",
+  "durationMs": 4868,
   "state": {
-    "k": 3,
-    "or": "2.30",
-    "i2": "83.0",
-    "tau2": 0.1963203104325579,
+    "k": 2,
+    "or": "2.24",
+    "i2": "89.5",
+    "tau2": 0.3996059845206155,
     "remlSensitivity": true,
     "robSummary": {
       "high": 0,
@@ -18,8 +18,8 @@
     "totalAvailable": 3,
     "includedCount": 3,
     "searchResultCount": 146,
-    "nnt": 4.8406200041704315,
-    "absoluteRisk": -0.2065851066884926,
+    "nnt": 5.375160930392241,
+    "absoluteRisk": -0.18604094146201258,
     "patientReportedOutcomes": {
       "count": 0,
       "scales": [],
@@ -36,17 +36,19 @@
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Evidence base is complete but small (k=3 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition.",
           "RoB 2.0: 0 high-risk + 3 some-concerns domains; add low-RoB sensitivity analysis."
         ],
-        "recommendation": "Minor revision"
+        "recommendation": "Major revision"
       },
       {
         "role": "Clinical expert",
         "concerns": [
-          "I² = 83% (considerable); show subgroup/strata estimates alongside pooled."
+          "k<3 - NNT ≈ 5 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.",
+          "I² = 89.5% (considerable); show subgroup/strata estimates alongside pooled."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       },
       {
         "role": "Biostatistician",

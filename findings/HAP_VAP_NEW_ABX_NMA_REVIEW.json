@@ -1,12 +1,12 @@
 {
   "app": "HAP_VAP_NEW_ABX_NMA_REVIEW.html",
-  "timestamp": "2026-05-13T07:33:23.949Z",
-  "durationMs": 3762,
+  "timestamp": "2026-05-13T08:24:27.563Z",
+  "durationMs": 3981,
   "state": {
-    "k": 6,
-    "or": "0.92",
-    "i2": "71.7",
-    "tau2": 0.167228064223642,
+    "k": 2,
+    "or": "1.43",
+    "i2": "71.5",
+    "tau2": 0.21373589893629333,
     "remlSensitivity": true,
     "robSummary": {
       "high": 0,
@@ -18,8 +18,8 @@
     "totalAvailable": 6,
     "includedCount": 6,
     "searchResultCount": 6,
-    "nnt": 110.96186081551974,
-    "absoluteRisk": 0.009012105534734638,
+    "nnt": 63.73511472553009,
+    "absoluteRisk": -0.01568993802406124,
     "patientReportedOutcomes": {
       "count": 0,
       "scales": [],
@@ -29,26 +29,30 @@
   },
   "findings": {
     "editor": {
-      "decision": "Accept with minor revision",
-      "rationale": "All reviewers support publication after minor clarifications."
+      "decision": "Minor revision",
+      "rationale": "Reviewers support publication but want clarifications on reporting completeness and residual uncertainty."
     },
     "reviewers": [
       {
         "role": "Methodology & PRISMA",
-        "concerns": [],
-        "recommendation": "Accept with minor revision"
+        "concerns": [
+          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition."
+        ],
+        "recommendation": "Minor revision"
       },
       {
         "role": "Clinical expert",
         "concerns": [
-          "Pooled 0.92 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile."
+          "Pooled 1.43 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile.",
+          "k<3 - NNT ≈ 64 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       },
       {
         "role": "Biostatistician",
         "concerns": [],
-        "recommendation": "Accept"
+        "recommendation": "Accept with minor revision"
       },
       {
         "role": "Patient representative",

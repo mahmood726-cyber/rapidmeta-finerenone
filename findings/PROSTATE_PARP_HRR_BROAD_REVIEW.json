@@ -1,10 +1,10 @@
 {
   "app": "PROSTATE_PARP_HRR_BROAD_REVIEW.html",
-  "timestamp": "2026-05-13T07:46:31.637Z",
-  "durationMs": 3544,
+  "timestamp": "2026-05-13T08:38:33.774Z",
+  "durationMs": 3916,
   "state": {
-    "k": 5,
-    "or": "NaN",
+    "k": 2,
+    "or": "0.56",
     "i2": "0.0",
     "tau2": 0,
     "remlSensitivity": true,
@@ -18,8 +18,8 @@
     "totalAvailable": 5,
     "includedCount": 5,
     "searchResultCount": 5,
-    "nnt": 6.208589707733186,
-    "absoluteRisk": 0.16106717420132266,
+    "nnt": 10.430363613938438,
+    "absoluteRisk": 0.0958739346980835,
     "patientReportedOutcomes": {
       "count": 0,
       "scales": [],
@@ -28,6 +28,39 @@
     }
   },
   "findings": {
-    "error": "TypeError: Cannot read properties of null (reading 'citation')"
+    "editor": {
+      "decision": "Minor revision",
+      "rationale": "Reviewers support publication but want clarifications on reporting completeness and residual uncertainty."
+    },
+    "reviewers": [
+      {
+        "role": "Methodology & PRISMA",
+        "concerns": [
+          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition."
+        ],
+        "recommendation": "Minor revision"
+      },
+      {
+        "role": "Clinical expert",
+        "concerns": [
+          "Pooled 0.56 sits outside published benchmark range (corridor 0.72-0.84); closest Vaduganathan 2022 HR 0.77 [0.72, 0.82]. Discussion should reconcile.",
+          "k<3 - NNT ≈ 10 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
+        ],
+        "recommendation": "Minor revision"
+      },
+      {
+        "role": "Biostatistician",
+        "concerns": [],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Patient representative",
+        "concerns": [
+          "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
+        ],
+        "recommendation": "Accept with minor revision"
+      }
+    ]
   }
 }

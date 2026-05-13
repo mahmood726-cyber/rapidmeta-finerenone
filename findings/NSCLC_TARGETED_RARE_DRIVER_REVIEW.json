@@ -1,12 +1,12 @@
 {
   "app": "NSCLC_TARGETED_RARE_DRIVER_REVIEW.html",
-  "timestamp": "2026-05-13T07:42:23.593Z",
-  "durationMs": 3695,
+  "timestamp": "2026-05-13T08:34:08.258Z",
+  "durationMs": 4111,
   "state": {
-    "k": 3,
-    "or": "2.57",
-    "i2": "32.4",
-    "tau2": 0.0334202401836844,
+    "k": 2,
+    "or": "2.88",
+    "i2": "52.2",
+    "tau2": 0.09713747768474434,
     "remlSensitivity": true,
     "robSummary": {
       "high": 0,
@@ -18,8 +18,8 @@
     "totalAvailable": 8,
     "includedCount": 8,
     "searchResultCount": 8,
-    "nnt": 5.9238309247995025,
-    "absoluteRisk": -0.16880967952910403,
+    "nnt": 6.028162642085621,
+    "absoluteRisk": -0.16588802581710377,
     "patientReportedOutcomes": {
       "count": 0,
       "scales": [],
@@ -36,16 +36,18 @@
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Evidence base is complete but small (k=3 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue."
+          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition."
         ],
         "recommendation": "Minor revision"
       },
       {
         "role": "Clinical expert",
         "concerns": [
-          "Pooled 2.57 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile."
+          "Pooled 2.88 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile.",
+          "k<3 - NNT ≈ 6 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       },
       {
         "role": "Biostatistician",

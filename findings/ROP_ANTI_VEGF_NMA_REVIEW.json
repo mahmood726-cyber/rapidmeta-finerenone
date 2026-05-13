@@ -1,12 +1,12 @@
 {
   "app": "ROP_ANTI_VEGF_NMA_REVIEW.html",
-  "timestamp": "2026-05-13T07:47:53.239Z",
-  "durationMs": 3474,
+  "timestamp": "2026-05-13T08:40:00.730Z",
+  "durationMs": 3699,
   "state": {
-    "k": 3,
-    "or": "0.47",
-    "i2": "32.6",
-    "tau2": 0.13641461844911287,
+    "k": 2,
+    "or": "0.65",
+    "i2": "0.0",
+    "tau2": 0,
     "remlSensitivity": true,
     "robSummary": {
       "high": 0,
@@ -18,8 +18,8 @@
     "totalAvailable": 3,
     "includedCount": 3,
     "searchResultCount": 3,
-    "nnt": 9.87633658763366,
-    "absoluteRisk": 0.10125211824515157,
+    "nnt": 29.546592489568848,
+    "absoluteRisk": 0.03384485031067595,
     "patientReportedOutcomes": {
       "count": 0,
       "scales": [],
@@ -36,16 +36,18 @@
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Evidence base is complete but small (k=3 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue."
+          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition."
         ],
         "recommendation": "Minor revision"
       },
       {
         "role": "Clinical expert",
         "concerns": [
-          "Pooled 0.47 sits outside published benchmark range (corridor 0.72-0.84); closest Vaduganathan 2022 HR 0.77 [0.72, 0.82]. Discussion should reconcile."
+          "Pooled 0.65 sits outside published benchmark range (corridor 0.72-0.84); closest Vaduganathan 2022 HR 0.77 [0.72, 0.82]. Discussion should reconcile.",
+          "k<3 - NNT ≈ 30 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       },
       {
         "role": "Biostatistician",

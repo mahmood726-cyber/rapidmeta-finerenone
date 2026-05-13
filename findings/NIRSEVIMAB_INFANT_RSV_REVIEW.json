@@ -1,13 +1,13 @@
 {
   "app": "NIRSEVIMAB_INFANT_RSV_REVIEW.html",
-  "timestamp": "2026-05-13T07:42:01.502Z",
-  "durationMs": 4116,
+  "timestamp": "2026-05-13T08:33:44.006Z",
+  "durationMs": 4695,
   "state": {
-    "k": 2,
-    "or": "0.21",
+    "k": 1,
+    "or": "0.18",
     "i2": "0.0",
     "tau2": 0,
-    "remlSensitivity": true,
+    "remlSensitivity": false,
     "robSummary": {
       "high": 0,
       "someConcerns": 1,
@@ -18,8 +18,8 @@
     "totalAvailable": 2,
     "includedCount": 2,
     "searchResultCount": 138,
-    "nnt": 70.19443449145004,
-    "absoluteRisk": 0.01424614368995029,
+    "nnt": 81.98827712650703,
+    "absoluteRisk": 0.012196865637962007,
     "patientReportedOutcomes": {
       "count": 0,
       "scales": [],
@@ -36,7 +36,7 @@
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Evidence base is complete but small (k=1 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
           "Prediction interval not definable for k<3; flag as boundary condition.",
           "RoB 2.0: 0 high-risk + 1 some-concerns domains; add low-RoB sensitivity analysis."
         ],
@@ -45,13 +45,15 @@
       {
         "role": "Clinical expert",
         "concerns": [
-          "k<3 - NNT ≈ 70 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
+          "k<3 - NNT ≈ 82 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
         ],
         "recommendation": "Accept with minor revision"
       },
       {
         "role": "Biostatistician",
-        "concerns": [],
+        "concerns": [
+          "DL estimator under-estimates τ² for k<10; add REML/Paule-Mandel sensitivity."
+        ],
         "recommendation": "Accept with minor revision"
       },
       {

@@ -1,10 +1,10 @@
 {
   "app": "GASTRIC_FRONTLINE_IO_NMA_REVIEW.html",
-  "timestamp": "2026-05-13T07:31:41.370Z",
-  "durationMs": 3437,
+  "timestamp": "2026-05-13T08:22:42.193Z",
+  "durationMs": 3291,
   "state": {
-    "k": 5,
-    "or": "0.69",
+    "k": 1,
+    "or": "0.76",
     "i2": "0.0",
     "tau2": 0,
     "remlSensitivity": true,
@@ -18,8 +18,8 @@
     "totalAvailable": 5,
     "includedCount": 5,
     "searchResultCount": 5,
-    "nnt": 10.893236573919117,
-    "absoluteRisk": 0.09180008101487735,
+    "nnt": 96.72818514007305,
+    "absoluteRisk": 0.010338248345628423,
     "patientReportedOutcomes": {
       "count": 0,
       "scales": [],
@@ -29,26 +29,29 @@
   },
   "findings": {
     "editor": {
-      "decision": "Accept with minor revision",
-      "rationale": "All reviewers support publication after minor clarifications."
+      "decision": "Minor revision",
+      "rationale": "Reviewers support publication but want clarifications on reporting completeness and residual uncertainty."
     },
     "reviewers": [
       {
         "role": "Methodology & PRISMA",
-        "concerns": [],
-        "recommendation": "Accept with minor revision"
+        "concerns": [
+          "Evidence base is complete but small (k=1 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition."
+        ],
+        "recommendation": "Minor revision"
       },
       {
         "role": "Clinical expert",
         "concerns": [
-          "Pooled 0.69 sits outside published benchmark range (corridor 0.72-0.84); closest Vaduganathan 2022 HR 0.77 [0.72, 0.82]. Discussion should reconcile."
+          "k<3 - NNT ≈ 97 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
         ],
         "recommendation": "Accept with minor revision"
       },
       {
         "role": "Biostatistician",
         "concerns": [],
-        "recommendation": "Accept"
+        "recommendation": "Accept with minor revision"
       },
       {
         "role": "Patient representative",

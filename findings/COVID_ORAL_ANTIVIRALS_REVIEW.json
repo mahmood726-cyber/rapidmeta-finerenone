@@ -1,13 +1,13 @@
 {
   "app": "COVID_ORAL_ANTIVIRALS_REVIEW.html",
-  "timestamp": "2026-05-13T07:27:14.580Z",
-  "durationMs": 4238,
+  "timestamp": "2026-05-13T08:17:55.786Z",
+  "durationMs": 4975,
   "state": {
-    "k": 2,
-    "or": "0.29",
-    "i2": "92.5",
-    "tau2": 1.555508436306786,
-    "remlSensitivity": true,
+    "k": 1,
+    "or": "0.70",
+    "i2": "0.0",
+    "tau2": 0,
+    "remlSensitivity": false,
     "robSummary": {
       "high": 0,
       "someConcerns": 0,
@@ -18,8 +18,8 @@
     "totalAvailable": 2,
     "includedCount": 2,
     "searchResultCount": 170,
-    "nnt": 23.038787835641145,
-    "absoluteRisk": 0.043405061374496186,
+    "nnt": 33.805661664392915,
+    "absoluteRisk": 0.0295808438813457,
     "patientReportedOutcomes": {
       "count": 2,
       "scales": [
@@ -41,7 +41,7 @@
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Evidence base is complete but small (k=1 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
           "Prediction interval not definable for k<3; flag as boundary condition."
         ],
         "recommendation": "Minor revision"
@@ -49,14 +49,15 @@
       {
         "role": "Clinical expert",
         "concerns": [
-          "k<3 - NNT ≈ 23 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.",
-          "I² = 92.5% (considerable); show subgroup/strata estimates alongside pooled."
+          "k<3 - NNT ≈ 34 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
         ],
-        "recommendation": "Minor revision"
+        "recommendation": "Accept with minor revision"
       },
       {
         "role": "Biostatistician",
-        "concerns": [],
+        "concerns": [
+          "DL estimator under-estimates τ² for k<10; add REML/Paule-Mandel sensitivity."
+        ],
         "recommendation": "Accept with minor revision"
       },
       {
