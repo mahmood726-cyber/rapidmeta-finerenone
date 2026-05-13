@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; object-src 'none'; base-uri 'none';">
+<title>Dose-response engine pack — Finrenone</title>
+<meta name="description" content="Browser-native dose-response meta-analysis engine v0.3.0 + 4 flagship reviews (GL-1992, SGLT2i, tirzepatide T2D, tirzepatide obesity).">
+<meta property="og:title" content="Dose-response engine pack — RapidMeta">
+<meta property="og:description" content="Engine v0.3.0 (full multivariate REML via Nelder-Mead on Cholesky parameters of τ²) + 4 flagship reviews, R-parity badge GREEN.">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Georgia, serif; background: #FDFCFA; color: #1a1a1a; line-height: 1.55; }
+.page { max-width: 920px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+.eyebrow { font-family: system-ui, sans-serif; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; color: #7A5A10; margin-bottom: 0.75rem; }
+h1 { font-size: 1.95rem; margin-bottom: 0.4rem; line-height: 1.2; }
+h2 { font-family: system-ui, sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: #7A5A10; margin: 2.2rem 0 0.85rem; }
+.meta { font-family: system-ui, sans-serif; font-size: 0.84rem; color: #777; margin-bottom: 1.1rem; padding-bottom: 1rem; border-bottom: 2px solid #E5E0D6; }
+.lede { font-size: 1.06rem; margin-bottom: 1.2rem; color: #2a2a2a; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.9rem; margin: 0.5rem 0 1.6rem; }
+.card { display: flex; flex-direction: column; padding: 1rem 1.1rem; background: #fff; border: 1px solid #E5E0D6; border-radius: 8px; text-decoration: none; color: #1a1a1a; transition: border-color 0.15s, box-shadow 0.15s; border-left: 4px solid #2E86C1; font-family: system-ui, sans-serif; font-size: 0.88rem; }
+.card:hover, .card:focus-visible { border-color: #7A5A10; box-shadow: 0 2px 10px rgba(0,0,0,0.06); outline: none; }
+.card .name { font-weight: 600; margin-bottom: 0.35rem; }
+.card .desc { color: #555; font-size: 0.82rem; line-height: 1.45; }
+.card .stats { margin-top: 0.55rem; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 0.74rem; color: #777; }
+.findings { background: #FFF; border: 1px solid #E5E0D6; border-radius: 8px; padding: 1rem 1.2rem; font-family: system-ui, sans-serif; font-size: 0.92rem; }
+.findings table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; font-size: 0.85rem; }
+.findings th, .findings td { text-align: left; padding: 0.4rem 0.6rem; border-bottom: 1px solid #F0EDE5; }
+.findings th { font-family: system-ui, sans-serif; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: #7A5A10; }
+.findings td.num { font-family: ui-monospace, SFMono-Regular, monospace; text-align: right; }
+.badge-row { display: inline-flex; align-items: center; gap: 0.3rem; font-family: system-ui, sans-serif; font-size: 0.78rem; }
+.badge-green { color: #1d6f42; }
+.badge-amber { color: #8a5a00; }
+.dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; display: inline-block; }
+.dot-green { background: #1d6f42; }
+.dot-amber { background: #d4a017; }
+p { margin-bottom: 0.9rem; }
+.refs { font-family: system-ui, sans-serif; font-size: 0.85rem; color: #555; line-height: 1.65; }
+.refs a { color: #2E86C1; text-decoration: none; }
+.refs a:hover { text-decoration: underline; }
+.note { font-family: system-ui, sans-serif; font-size: 0.82rem; color: #777; padding: 0.65rem 0.9rem; background: #F8F6F0; border-left: 3px solid #d4a017; border-radius: 4px; margin: 0.8rem 0; }
+code { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 0.85rem; background: #F0EDE5; padding: 0.1rem 0.35rem; border-radius: 3px; }
+</style>
+</head>
+<body>
+<main class="page">
+
+<p class="eyebrow">Engine pack #4 (dose-response)</p>
+<h1>Dose-response meta-analysis engine v0.3.0</h1>
+<p class="meta">Browser-native · Greenland-Longnecker 1992 covariance · Restricted cubic splines · Full multivariate REML via Nelder-Mead · HKSJ-multivariate + t<sub>k−1</sub> CIs</p>
+
+<p class="lede">Four flagship reviews demonstrate the engine layer-by-layer. Engine output is validated row-by-row against R <code>mixmeta</code> + <code>dosresmeta</code> + <code>lme4</code> via an inline R-parity badge that lights up GREEN when engine and R agree within published statistical tolerances.</p>
+
+<h2>Flagships</h2>
+
+<div class="grid">
+
+  <a class="card" href="ALCOHOL_BC_DOSE_RESP_REVIEW.html">
+    <span class="name">Alcohol → breast cancer dose-response</span>
+    <span class="desc">Greenland-Longnecker 1992 corpus: 8 cohort studies, log-RR per g/day alcohol. The original RCS dose-response benchmark.</span>
+    <span class="stats">k = 8 · binary · GL covariance</span>
+    <span class="stats badge-row"><span class="dot dot-green"></span><span class="badge-green">5/5 GREEN</span></span>
+  </a>
+
+  <a class="card" href="SGLT2I_DOSE_RESP_REVIEW.html">
+    <span class="name">SGLT2 inhibitors in T2D (HbA1c + hHF)</span>
+    <span class="desc">EMPA-REG OUTCOME, CANVAS, DAPA-CKD: HbA1c primary (k=3) + hHF binary secondary (k=2). Class-equivalence caveat documented.</span>
+    <span class="stats">k = 3 + 2 · continuous + binary</span>
+    <span class="stats badge-row"><span class="dot dot-green"></span><span class="badge-green">5/5 GREEN</span></span>
+  </a>
+
+  <a class="card" href="TIRZEPATIDE_T2D_SURPASS_DOSE_RESP_REVIEW.html">
+    <span class="name">Tirzepatide T2D HbA1c — SURPASS</span>
+    <span class="desc">5 SURPASS Phase 3 RCTs (NCT03954834, NCT03987919, NCT03882970, NCT03730662, NCT04039503). Significant non-linearity p = 0.0346 — saturation after ~5 mg.</span>
+    <span class="stats">k = 5 · continuous (HbA1c % change)</span>
+    <span class="stats badge-row"><span class="dot dot-green"></span><span class="badge-green">5/5 GREEN</span></span>
+  </a>
+
+  <a class="card" href="TIRZEPATIDE_OBESITY_SURMOUNT_DOSE_RESP_REVIEW.html">
+    <span class="name">Tirzepatide obesity weight — SURMOUNT</span>
+    <span class="desc">SURMOUNT-1 + SURMOUNT-2: small-k stress test (k=2). HKSJ-mv ≈ 19.5, tcrit ≈ 12.7; CIs honestly very wide. AMBER τ² row documents PM vs REML divergence at k=2.</span>
+    <span class="stats">k = 2 · continuous (% weight change)</span>
+    <span class="stats badge-row"><span class="dot dot-amber"></span><span class="badge-amber">4/5 GREEN + 1 AMBER (k=2 small-k artefact)</span></span>
+  </a>
+
+</div>
+
+<h2>Methodology headline</h2>
+
+<div class="findings">
+<p><strong>Engine v0.3.0</strong> closed the v0.1/v0.2 diagonal-PM-per-dimension τ² approximation divergence to R <code>mixmeta</code> on RCS non-linearity Wald p:</p>
+<table>
+  <thead><tr><th>Fixture</th><th class="num">v0.2 diagonal-PM p</th><th class="num">v0.3 full-REML p</th><th class="num">R mixmeta p</th><th class="num">|Δ| vs R</th></tr></thead>
+  <tbody>
+    <tr><td>GL-1992 (k=8)</td><td class="num">≈ 0.05</td><td class="num">0.7035</td><td class="num">0.7069</td><td class="num">0.0034</td></tr>
+    <tr><td>SGLT2i HbA1c (k=3)</td><td class="num">(not estimable)</td><td class="num">0.2271</td><td class="num">0.2293</td><td class="num">0.0022</td></tr>
+    <tr><td>Tirzepatide SURPASS (k=5)</td><td class="num">(not built yet)</td><td class="num">0.0346</td><td class="num">0.0364</td><td class="num">0.0018</td></tr>
+    <tr><td>Tirzepatide SURMOUNT (k=2)</td><td class="num">(not built yet)</td><td class="num">0.0759</td><td class="num">0.0788</td><td class="num">0.0029</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>The diagonal approximation flipped the qualitative non-linearity verdict on GL-1992 from "significant" (p ≈ 0.05) to "no evidence of non-linearity" (p ≈ 0.70) — a 14-fold p-value shift driven entirely by the τ² estimator structure. Off-diagonal between-study covariance carries the linear/non-linear correlation that diagonal approximations discard.</p>
+
+<h2>Testing</h2>
+
+<p>Every PR runs three sequential test layers via GitHub Actions (workflow: <code>.github/workflows/dose_response.yml</code>):</p>
+
+<div class="grid">
+  <div class="card" style="border-left-color:#1d6f42">
+    <span class="name">Layer 1 · Engine unit tests</span>
+    <span class="desc"><code>node tests/test_dose_response_engine.mjs</code></span>
+    <span class="stats">60 assertions · ~5 s</span>
+  </div>
+  <div class="card" style="border-left-color:#1d6f42">
+    <span class="name">Layer 2 · Flagship field-path contract</span>
+    <span class="desc"><code>node tests/test_flagship_field_paths.mjs</code> — pins every engine field path each flagship reads, catches Round 2C top-level vs nested bugs.</span>
+    <span class="stats">128 assertions · ~5 s</span>
+  </div>
+  <div class="card" style="border-left-color:#1d6f42">
+    <span class="name">Layer 3 · Real-browser smoke (Playwright)</span>
+    <span class="desc"><code>python tests/test_flagship_playwright_smoke.py</code> — headless Chromium, catches CSP / async / render-race bugs that Node-only tests miss.</span>
+    <span class="stats">16 assertions · ~1 m 24 s</span>
+  </div>
+</div>
+
+<p>Current status on <code>main</code>: <strong>204 / 204 assertions passing</strong>.</p>
+
+<div class="note">
+The CSP regression that broke all 3 older flagships in real browsers from Round 2A through Round 3 (silent failure: HTTP 200, no JS executed) was caught only after Layer 3 was added. Manual HTTP-200 smoke + Node simulation missed it for weeks. Lesson preserved in <code>docs/dose_response/README.md</code>.
+</div>
+
+<h2>Source</h2>
+
+<p class="refs">
+GitHub: <a href="https://github.com/mahmood726-cyber/rapidmeta-finerenone">mahmood726-cyber/rapidmeta-finerenone</a><br>
+Engine: <code>rapidmeta-dose-response-engine-v1.js</code> · v0.3.0 · MIT<br>
+R harness: <code>scripts/r_validate_doseresp.{py,R}</code> · metafor + dosresmeta + lme4 · jsonlite <code>digits=8</code><br>
+Pack README: <a href="docs/dose_response/README.md">docs/dose_response/README.md</a><br>
+E156 methods note draft: <a href="docs/E156_diagonal_pm_to_reml_close_draft.md">docs/E156_diagonal_pm_to_reml_close_draft.md</a><br>
+PRs (this pack, Rounds 2B-3.5): <a href="https://github.com/mahmood726-cyber/rapidmeta-finerenone/pulls?q=dose-response">#246 · #247 · #248 · #250 · #253 · #256 · #257 · #259 · #260 · #261</a>
+</p>
+
+</main>
+</body>
+</html>
