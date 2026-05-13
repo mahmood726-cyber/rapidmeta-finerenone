@@ -612,6 +612,32 @@ test('sglt2i_hba1c fixture loads with 3-4 trials and continuous arms', () => {
   }
 });
 
+// === Task 10: sglt2i_hhf binary fixture ===
+
+test('sglt2i_hhf fixture loads with 2-3 trials and binary arms', () => {
+  const fx = loadFx('sglt2i_hhf.json');
+  assert.ok(fx.trials.length >= 2 && fx.trials.length <= 3,
+    `expected 2-3 trials (SOLOIST may be omitted per fixed-titration rationale); got ${fx.trials.length}`);
+  assert.equal(fx.outcome_type, 'binary');
+  for (const t of fx.trials) {
+    const refs = t.arms.filter(a => a.is_reference);
+    assert.equal(refs.length, 1);
+    for (const a of t.arms) {
+      assert.ok(Number.isFinite(a.events) && a.events >= 0);
+      assert.ok(Number.isFinite(a.n) && a.n > 0);
+    }
+  }
+});
+
+test('fitLinear handles sglt2i_hhf — produces finite output', () => {
+  const fx = loadFx('sglt2i_hhf.json');
+  const res = DR.fitLinear(fx.trials, {});
+  assert.ok(isFinite(res.pooled_slope_log), 'pooled_slope_log must be finite');
+  assert.ok(isFinite(res.tau2));
+  assert.ok(res.k >= 2);
+  assert.equal(res.coverage_warning, true, 'k<10 triggers coverage warning');
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }
