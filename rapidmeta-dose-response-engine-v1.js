@@ -1222,7 +1222,6 @@
       var y_tQ = perStudy[tQ].y;
       var V_tQ = perStudy[tQ].S;  // NOTE: arm-level cov (S), not Kp×Kp coef cov (V)
       var ki_tQ = X_tQ.length;
-      n_total += ki_tQ;
 
       // Recompute Σ_t = V_t + X τ² X' (same as in the β̂ block above; redundant
       // but kept local for clarity since this is rare-event code at the end of fit).
@@ -1238,6 +1237,7 @@
       }
       var W_tQ;
       try { W_tQ = matInv(Sigma_tQ); } catch (e) { continue; }
+      n_total += ki_tQ;  // only count trials that contribute to Q_mv (defensive — currently unreachable since pooled-β̂ block already proved Sigma_tQ invertible)
 
       var resid_tQ = y_tQ.map(function (yv, idx) {
         var Xb = 0;

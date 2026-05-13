@@ -770,6 +770,18 @@ test('fitRCS uses HKSJ-mv + t_{k-1} for CIs (estimator label updated)', () => {
     'HKSJ multivariate scaling factor visible and ≥ 1');
 });
 
+test('fitRCS HKSJ-mv and tcrit numerical pin on GL-1992 (Round 2B)', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const res = DR.fitRCS(fx.trials, { knots: 3 });
+  // GL-1992 (k=5 trials, Kp=3 basis dims, n_total non-ref arms ~18):
+  // Q_mv ≈ 23.4, df_mv = max(1, n_total - Kp) ≈ 15, hksj_mv ≈ 1.56.
+  // These pin the multivariate Cochran Q computation; a silent regression
+  // in the residual/inverse-cov loop will drop hksj_mv toward 1.0.
+  near(res.hksj_mv, 1.56, 0.10, 'GL-1992 HKSJ-mv ≈ 1.56 (Q_mv ≈ 23.4 / df_mv = 15)');
+  // tcrit for k=5 → qt(0.975, 4) ≈ 2.7764; tcrit is top-level (res.tcrit)
+  near(res.tcrit, 2.776, 0.01, 'GL-1992 tcrit = qt(0.975, k-1=4) ≈ 2.776');
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }
