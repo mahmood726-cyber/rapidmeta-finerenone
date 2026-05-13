@@ -1210,6 +1210,53 @@
     var pooledSE = [];
     for (var pd = 0; pd < Kp; pd++) pooledSE.push(Math.sqrt(covBeta[pd][pd]));
 
+    // Round 2B (Task 9): HKSJ-multivariate scaling. Q_mv = Σ_i (y_i − X_iβ̂)' Σ_i⁻¹ (y_i − X_iβ̂)
+    // is the multivariate Cochran Q at the REML τ²; HKSJ_mv = max(1, Q_mv / (n − p))
+    // generalizes the univariate HKSJ scalar. The max(1, ...) floor is the
+    // lessons.md "HKSJ floor" rule that prevents narrowing CIs below the FE assumption.
+    // CIs everywhere in this fit then use sqrt(HKSJ_mv) × pooledSE × t_{k-1}.
+    var Q_mv = 0;
+    var n_total = 0;
+    for (var tQ = 0; tQ < perStudy.length; tQ++) {
+      var X_tQ = perStudy[tQ].X;
+      var y_tQ = perStudy[tQ].y;
+      var V_tQ = perStudy[tQ].S;  // NOTE: arm-level cov (S), not Kp×Kp coef cov (V)
+      var ki_tQ = X_tQ.length;
+      n_total += ki_tQ;
+
+      // Recompute Σ_t = V_t + X τ² X' (same as in the β̂ block above; redundant
+      // but kept local for clarity since this is rare-event code at the end of fit).
+      var Xt2_tQ = zeros(ki_tQ, ki_tQ);
+      for (var iQ = 0; iQ < ki_tQ; iQ++) for (var jQ = 0; jQ < ki_tQ; jQ++) {
+        for (var pQ = 0; pQ < Kp; pQ++) for (var qQ = 0; qQ < Kp; qQ++) {
+          Xt2_tQ[iQ][jQ] += X_tQ[iQ][pQ] * tau2Matrix[pQ][qQ] * X_tQ[jQ][qQ];
+        }
+      }
+      var Sigma_tQ = zeros(ki_tQ, ki_tQ);
+      for (var iQ2 = 0; iQ2 < ki_tQ; iQ2++) for (var jQ2 = 0; jQ2 < ki_tQ; jQ2++) {
+        Sigma_tQ[iQ2][jQ2] = V_tQ[iQ2][jQ2] + Xt2_tQ[iQ2][jQ2];
+      }
+      var W_tQ;
+      try { W_tQ = matInv(Sigma_tQ); } catch (e) { continue; }
+
+      var resid_tQ = y_tQ.map(function (yv, idx) {
+        var Xb = 0;
+        for (var pp = 0; pp < Kp; pp++) Xb += X_tQ[idx][pp] * pooled[pp];
+        return yv - Xb;
+      });
+      for (var iQ3 = 0; iQ3 < ki_tQ; iQ3++) for (var jQ3 = 0; jQ3 < ki_tQ; jQ3++) {
+        Q_mv += resid_tQ[iQ3] * W_tQ[iQ3][jQ3] * resid_tQ[jQ3];
+      }
+    }
+    var df_mv = Math.max(1, n_total - Kp);
+    var hksj_mv = Math.max(1, Q_mv / df_mv);
+
+    // Inflate pooled SE by sqrt(HKSJ_mv); t_{k-1} replaces z=1.96 for small-k CIs.
+    var k_trials = perStudy.length;
+    var tcrit = k_trials > 1 ? qt(0.975, k_trials - 1) : 1.96;
+    var hksjFactor = Math.sqrt(hksj_mv);
+    var pooledSE_hksj = pooledSE.map(function (s) { return s * hksjFactor; });
+
     // Step 4: non-linearity Wald test using the FULL covariance (not diagonal-sum).
     // H0: all non-linear basis coefs (d >= 1) are zero.
     // Statistic: β_nl' Cov(β_nl)⁻¹ β_nl ~ χ²(Kp-1) under H0.
@@ -1246,6 +1293,8 @@
 
     // Step 5: fit_at_dose — 20-point curve from 0 to max observed dose.
     // At dose=0, rcsBasis returns [0, 0, ...], so est=0 (centered at reference).
+    // Round 2B (Task 9): variance of the linear combination uses the FULL pooled
+    // covBeta (not just its diagonal), scaled by HKSJ_mv, and CIs use t_{k-1}.
     var maxD = Math.max.apply(null, allDoses);
     var fit_at_dose = [];
     for (var i2 = 0; i2 < 20; i2++) {
@@ -1254,20 +1303,27 @@
       var est = 0, varEst = 0;
       for (var p2 = 0; p2 < Kp; p2++) {
         est += pooled[p2] * b[p2];
-        varEst += b[p2] * b[p2] * pooledSE[p2] * pooledSE[p2];
+        for (var q2 = 0; q2 < Kp; q2++) {
+          varEst += b[p2] * covBeta[p2][q2] * b[q2];
+        }
       }
+      varEst *= hksj_mv;  // HKSJ-mv scaling
       var seEst = Math.sqrt(varEst);
-      fit_at_dose.push({ dose: dose_i, est: est, ci_lo: est - 1.96 * seEst, ci_hi: est + 1.96 * seEst });
+      fit_at_dose.push({ dose: dose_i, est: est, ci_lo: est - tcrit * seEst, ci_hi: est + tcrit * seEst });
     }
 
-    // Round 2B (v0.3.0): CI method is currently raw z=1.96 on full-REML pooled SE.
-    // Task 9 lifts this to HKSJ-multivariate + t_{k-1} CIs.
+    // Round 2B (v0.3.0): full multivariate REML τ² + HKSJ-mv × t_{k-1} CIs.
+    // Estimator history: v0.1/v0.2 used 'pm_diagonal_z' (per-dimension PM + raw
+    // z=1.96 on diagonal SE); Task 7 lifted τ² to full multivariate REML;
+    // Task 9 lifts CIs to HKSJ-multivariate + t_{k-1}.
     return {
       layer: 'rcs', k: perStudy.length,
       rcs: {
         knots: knots,
         spline_coefs: pooled,
-        spline_coefs_se: pooledSE,
+        spline_coefs_se: pooledSE_hksj,     // Round 2B Task 9: HKSJ-inflated SE
+        spline_coefs_se_raw: pooledSE,      // pre-HKSJ SE retained for diagnostics
+        cov_beta: covBeta,                  // full Kp×Kp pooled coef covariance (pre-HKSJ)
         tau2_matrix: tau2Matrix,            // Round 2B: full Kp×Kp REML τ² matrix
         tau2_per_dim: tau2_per_dim,         // retained: diagonal of tau2_matrix
         nonlinearity_wald_p: nlP,
@@ -1279,17 +1335,21 @@
         reml_loglik: -optResult.fx,         // positive log-likelihood
       },
       pooled_slope_log: pooled[0],
-      pooled_slope_log_se: pooledSE[0],
-      pooled_slope_log_ci_lo: pooled[0] - 1.96 * pooledSE[0],
-      pooled_slope_log_ci_hi: pooled[0] + 1.96 * pooledSE[0],
+      pooled_slope_log_se: pooledSE_hksj[0],
+      pooled_slope_log_ci_lo: pooled[0] - tcrit * pooledSE_hksj[0],
+      pooled_slope_log_ci_hi: pooled[0] + tcrit * pooledSE_hksj[0],
       per_study: perStudy.map(function (s) {
         return { studlab: s.studlab, slope_log: s.beta[0], slope_log_se: Math.sqrt(s.V[0][0]), n_arms: s.n_arms };
       }),
       max_observed_dose: maxD,
       coverage_warning: perStudy.length < 10,
       fallback: null,
-      estimator: 'pm_diagonal_z',
-      ci_method: 'z_1.96',
+      estimator: 'reml_hksj_multivariate',  // Round 2B Task 9 (was 'pm_diagonal_z' in v0.1/v0.2)
+      ci_method: 'hksj_t_km1',              // Round 2B Task 9 (was 'z_1.96' in v0.1/v0.2)
+      hksj_mv: hksj_mv,                     // HKSJ-multivariate scaling factor (≥ 1)
+      q_mv: Q_mv,                           // raw multivariate Cochran Q (pre-floor)
+      df_mv: df_mv,                         // df = max(1, n_total − Kp)
+      tcrit: tcrit,                         // qt(0.975, k-1) used for CIs (1.96 if k=1)
       converged: optResult.converged,       // Round 2B follow-up Issue 3
       iterations: optResult.iterations,     // surface REML iter count alongside convergence
       _fitInternal: null,
