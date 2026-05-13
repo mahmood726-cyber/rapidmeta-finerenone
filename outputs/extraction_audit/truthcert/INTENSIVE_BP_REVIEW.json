@@ -1,0 +1,72 @@
+{
+  "review": "INTENSIVE_BP_REVIEW",
+  "audit_completed_at": "2026-05-13T10:40:01.484734+00:00",
+  "classification": "OK",
+  "fabrication_risk_score": 0.14,
+  "n_trials": 5,
+  "score_components": {
+    "E_no_evidence": 0.0,
+    "P_null_pmid": 0.2,
+    "N_nulled_nct": 0.6,
+    "A_agent_flag_density": 0.0,
+    "C_cross_review": 0.0,
+    "V_residual_single_arm": 0.0,
+    "X_generic_name": 0.0
+  },
+  "already_quarantined": false,
+  "audit_rounds_touched": [
+    "R22_mesh",
+    "R7c_aact_ok"
+  ],
+  "fixes_applied": [
+    {
+      "round": "R7c_aact_ok",
+      "nct": "NCT00000620",
+      "op": "NULL_KEY",
+      "reason": "triple-signal — drug ['glucose'] not in AACT title/intvs; N=10251 vs 2362+2371"
+    },
+    {
+      "round": "R7c_aact_ok",
+      "nct": "NCT00059306",
+      "op": "NULL_PMID",
+      "reason": "drug ['stroke'] not in AACT intvs ['aspirin', 'clopidogrel', 'Target of Blood Pressure']"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT03015311",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT00059306",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT03015311",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT00059306",
+      "op": "NULL_KEY",
+      "reason": ""
+    }
+  ],
+  "n_fixes_applied": 6,
+  "ground_truth_sources": [
+    "AACT 2026-04-12 (Clinical Trials Transformation Initiative)",
+    "PubMed E-utilities (NCBI)",
+    "PMC OAI full-text (NCBI)",
+    "Multi-agent consensus (≥2-of-3 gate, R1-R3 + R4 + 8-agent)",
+    "Internal cross-consistency (R6abc)",
+    "Published landmark trial values (R5)",
+    "Published reference meta-analyses (R5b)"
+  ],
+  "methodology": "outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md",
+  "truthcert_hmac_sha256": "46d3b3d400609d7c6bbee04c514fc93aad2e5efb6d772c0f5d4d3a0d7cab8052",
+  "truthcert_key_id": "791652a76703ca25"
+}

@@ -1,0 +1,113 @@
+{
+  "review": "BLADDER_NMIBC_NEW_NMA_REVIEW",
+  "audit_completed_at": "2026-05-13T10:40:01.484734+00:00",
+  "classification": "QUARANTINE",
+  "fabrication_risk_score": 0.777,
+  "n_trials": 5,
+  "score_components": {
+    "E_no_evidence": 1.0,
+    "P_null_pmid": 1.0,
+    "N_nulled_nct": 0.6,
+    "A_agent_flag_density": 0.467,
+    "C_cross_review": 0.0,
+    "V_residual_single_arm": 0.2,
+    "X_generic_name": 0.8
+  },
+  "already_quarantined": false,
+  "audit_rounds_touched": [
+    "R19_completion",
+    "R1_multi_agent",
+    "R22_mesh",
+    "R2_multi_agent",
+    "R3_aggressive",
+    "R4_multi_agent",
+    "R8agent_extended"
+  ],
+  "fixes_applied": [
+    {
+      "round": "R1_multi_agent",
+      "nct": "NCT04165116",
+      "op": "NULL_KEY",
+      "reason": "QUILT-3032 N-803+BCG (Chamie 2023) correct NCT is NCT03022825 (originally QUILT-3.0xx); NCT04165116 is a different study"
+    },
+    {
+      "round": "R2_multi_agent",
+      "nct": "NCT02773849",
+      "op": "NULL_PMID",
+      "reason": "R2: trial name field is literally the NCT identifier (extraction-fallback marker); single-arm trial with cE=cN=0 but HR=0.55 reported (fabri"
+    },
+    {
+      "round": "R3_aggressive",
+      "nct": "NCT02625961",
+      "op": "PMID_ALREADY_NULL",
+      "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.41 reported — fabricated comparator."
+    },
+    {
+      "round": "R3_aggressive",
+      "nct": "NCT02449239",
+      "op": "NULLED_PMID",
+      "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.4 reported — fabricated comparator."
+    },
+    {
+      "round": "R3_aggressive",
+      "nct": "NCT03635710",
+      "op": "PMID_ALREADY_NULL",
+      "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.76 reported — fabricated comparator."
+    },
+    {
+      "round": "R4_multi_agent",
+      "nct": null,
+      "op": "PMID_NOT_FOUND_OR_ALREADY_NULL",
+      "reason": "PMID_NOT_FOUND_OR_ALREADY_NULL"
+    },
+    {
+      "round": "R8agent_extended",
+      "nct": "NCT02773849",
+      "op": "NULLED_KEY",
+      "reason": "trial_name_is_nct"
+    },
+    {
+      "round": "R8agent_extended",
+      "nct": "NCT02773849",
+      "op": "NULLED_KEY",
+      "reason": "trial_name_is_nct"
+    },
+    {
+      "round": "R19_completion",
+      "nct": "NCT02625961",
+      "op": "NULL_YEAR",
+      "reason": "NULLED_YEAR"
+    },
+    {
+      "round": "R19_completion",
+      "nct": "NCT02625961",
+      "op": "NULL_YEAR",
+      "reason": ""
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT03635710",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT03635710",
+      "op": "NULL_KEY",
+      "reason": ""
+    }
+  ],
+  "n_fixes_applied": 12,
+  "ground_truth_sources": [
+    "AACT 2026-04-12 (Clinical Trials Transformation Initiative)",
+    "PubMed E-utilities (NCBI)",
+    "PMC OAI full-text (NCBI)",
+    "Multi-agent consensus (≥2-of-3 gate, R1-R3 + R4 + 8-agent)",
+    "Internal cross-consistency (R6abc)",
+    "Published landmark trial values (R5)",
+    "Published reference meta-analyses (R5b)"
+  ],
+  "methodology": "outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md",
+  "truthcert_hmac_sha256": "d546391fffa34e5e6309a75c5ee4d36739f5decd056e847c2a17e4668a06b4d2",
+  "truthcert_key_id": "791652a76703ca25"
+}

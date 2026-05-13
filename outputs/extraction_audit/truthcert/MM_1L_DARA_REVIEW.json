@@ -1,0 +1,129 @@
+{
+  "review": "MM_1L_DARA_REVIEW",
+  "audit_completed_at": "2026-05-13T10:40:01.484734+00:00",
+  "classification": "MANUAL_REVIEW",
+  "fabrication_risk_score": 0.56,
+  "n_trials": 10,
+  "score_components": {
+    "E_no_evidence": 1.0,
+    "P_null_pmid": 0.8,
+    "N_nulled_nct": 0.2,
+    "A_agent_flag_density": 0.0,
+    "C_cross_review": 0.6,
+    "V_residual_single_arm": 0.0,
+    "X_generic_name": 0.0
+  },
+  "already_quarantined": false,
+  "audit_rounds_touched": [
+    "R10_outcomes",
+    "R19_completion",
+    "R23_acronym",
+    "R6b_internal",
+    "R7_aact"
+  ],
+  "fixes_applied": [
+    {
+      "round": "R6b_internal",
+      "nct": "NCT03412565",
+      "op": "NULL_BASELINE_N",
+      "reason": "NULLED_BASELINE_N"
+    },
+    {
+      "round": "R6b_internal",
+      "nct": "NCT03412565",
+      "op": "NULL_BASELINE_N",
+      "reason": ""
+    },
+    {
+      "round": "R7_aact",
+      "nct": "NCT03710603",
+      "op": "NULL_PMID",
+      "reason": "drug ['maintenance'] not in AACT interventions ['Daratumumab', 'Velcade', 'Lenalidomide']"
+    },
+    {
+      "round": "R7_aact",
+      "nct": "NCT01208766",
+      "op": "NULL_KEY",
+      "reason": "intv+enroll(2x)+title mismatch — drug ['transplant', 'timing'] not in AACT title nor any of 3 interventions; AACT N=1503 vs arm-sum=357+365"
+    },
+    {
+      "round": "R7_aact",
+      "nct": "NCT03012880",
+      "op": "NULL_KEY",
+      "reason": "intv+enroll(2x)+title mismatch — drug ['amyloidosis'] not in AACT title nor any of 6 interventions; AACT N=80 vs arm-sum=195+193"
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT02252172",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT02195479",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R19_completion",
+      "nct": "NCT04483739",
+      "op": "NULL_YEAR",
+      "reason": "NULLED_YEAR"
+    },
+    {
+      "round": "R19_completion",
+      "nct": "NCT03224507",
+      "op": "NULL_YEAR",
+      "reason": "NULLED_YEAR"
+    },
+    {
+      "round": "R19_completion",
+      "nct": "NCT04483739",
+      "op": "NULL_YEAR",
+      "reason": ""
+    },
+    {
+      "round": "R19_completion",
+      "nct": "NCT03224507",
+      "op": "NULL_YEAR",
+      "reason": ""
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT02252172",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT02195479",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT02874742",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT03412565",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    }
+  ],
+  "n_fixes_applied": 15,
+  "ground_truth_sources": [
+    "AACT 2026-04-12 (Clinical Trials Transformation Initiative)",
+    "PubMed E-utilities (NCBI)",
+    "PMC OAI full-text (NCBI)",
+    "Multi-agent consensus (≥2-of-3 gate, R1-R3 + R4 + 8-agent)",
+    "Internal cross-consistency (R6abc)",
+    "Published landmark trial values (R5)",
+    "Published reference meta-analyses (R5b)"
+  ],
+  "methodology": "outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md",
+  "truthcert_hmac_sha256": "f9261734cdecd17cea833c78ce38ea58ca0ac568b005a4fa4b1bfa044c41bbce",
+  "truthcert_key_id": "791652a76703ca25"
+}

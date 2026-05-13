@@ -1,0 +1,148 @@
+{
+  "review": "EPILEPSY_NEW_AGENTS_NMA_REVIEW",
+  "audit_completed_at": "2026-05-13T10:40:01.484734+00:00",
+  "classification": "MANUAL_REVIEW",
+  "fabrication_risk_score": 0.533,
+  "n_trials": 9,
+  "score_components": {
+    "E_no_evidence": 0.556,
+    "P_null_pmid": 1.0,
+    "N_nulled_nct": 0.111,
+    "A_agent_flag_density": 0.333,
+    "C_cross_review": 0.222,
+    "V_residual_single_arm": 0.0,
+    "X_generic_name": 0.556
+  },
+  "already_quarantined": true,
+  "audit_rounds_touched": [
+    "R10_outcomes",
+    "R19_completion",
+    "R23_acronym",
+    "R3_aggressive",
+    "R3_multi_agent",
+    "R9_per_arm"
+  ],
+  "fixes_applied": [
+    {
+      "round": "R3_multi_agent",
+      "nct": "NCT02091375",
+      "op": "NULL_KEY",
+      "reason": "R3: NCT02091375 is GWPCARE1 cannabidiol Dravet syndrome (correctly used in CBD_SEIZURE_REVIEW), wrongly reassigned to fenfluramine here"
+    },
+    {
+      "round": "R3_multi_agent",
+      "nct": null,
+      "op": "QUARANTINED",
+      "reason": "QUARANTINED"
+    },
+    {
+      "round": "R3_aggressive",
+      "nct": "NCT01561508",
+      "op": "PMID_ALREADY_NULL",
+      "reason": "Name 'BRIVA-1' is not a published brivaracetam trial acronym; real UCB Phase 3 brivaracetam trials are coded N01252/N01253/N01254/N01358. Pu"
+    },
+    {
+      "round": "R3_aggressive",
+      "nct": "NCT01261325",
+      "op": "PMID_ALREADY_NULL",
+      "reason": "Name 'BRIVA-2' is fabricated acronym; AND the same NCT (NCT01261325) is assigned name 'N01252' in id 2134 of EPILEPSY_NEW_AEDS_REVIEW — same"
+    },
+    {
+      "round": "R9_per_arm",
+      "nct": "NCT01393743",
+      "op": "NULL_ARMS",
+      "reason": ""
+    },
+    {
+      "round": "R9_per_arm",
+      "nct": "NCT02834793",
+      "op": "NULL_ARMS",
+      "reason": ""
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT01866111",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT01261325",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT02224560",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R19_completion",
+      "nct": "NCT01866111",
+      "op": "NULL_YEAR",
+      "reason": "NULLED_YEAR"
+    },
+    {
+      "round": "R19_completion",
+      "nct": "NCT01866111",
+      "op": "NULL_YEAR",
+      "reason": ""
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT01561508",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT01261325",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT01191957",
+      "op": "NULL_NAME",
+      "reason": "NULLED_NAME"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT01393743",
+      "op": "NULL_NAME",
+      "reason": "NULLED_NAME"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT02834793",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT02224560",
+      "op": "NULL_NAME",
+      "reason": "NULLED_NAME"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT01561508",
+      "op": "NULL_PMID",
+      "reason": ""
+    }
+  ],
+  "n_fixes_applied": 18,
+  "ground_truth_sources": [
+    "AACT 2026-04-12 (Clinical Trials Transformation Initiative)",
+    "PubMed E-utilities (NCBI)",
+    "PMC OAI full-text (NCBI)",
+    "Multi-agent consensus (≥2-of-3 gate, R1-R3 + R4 + 8-agent)",
+    "Internal cross-consistency (R6abc)",
+    "Published landmark trial values (R5)",
+    "Published reference meta-analyses (R5b)"
+  ],
+  "methodology": "outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md",
+  "truthcert_hmac_sha256": "7418cdfcd3a061b995db15fb4a80f1935cc93e01106e6b6fcbb3229a805aca01",
+  "truthcert_key_id": "791652a76703ca25"
+}

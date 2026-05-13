@@ -1,0 +1,87 @@
+{
+  "review": "SPONDYLOARTHRITIS_REVIEW",
+  "audit_completed_at": "2026-05-13T10:40:01.484734+00:00",
+  "classification": "OK",
+  "fabrication_risk_score": 0.175,
+  "n_trials": 4,
+  "score_components": {
+    "E_no_evidence": 0.0,
+    "P_null_pmid": 0.5,
+    "N_nulled_nct": 0.0,
+    "A_agent_flag_density": 0.0,
+    "C_cross_review": 1.0,
+    "V_residual_single_arm": 0.0,
+    "X_generic_name": 0.0
+  },
+  "already_quarantined": false,
+  "audit_rounds_touched": [
+    "R10_outcomes",
+    "R23_acronym",
+    "R6b_internal",
+    "R7c_aact_ok",
+    "R9_per_arm"
+  ],
+  "fixes_applied": [
+    {
+      "round": "R6b_internal",
+      "nct": "NCT03928743",
+      "op": "NULL_PMID",
+      "reason": "NULLED_PMID"
+    },
+    {
+      "round": "R6b_internal",
+      "nct": "NCT03928743",
+      "op": "NULL_PMID",
+      "reason": ""
+    },
+    {
+      "round": "R7c_aact_ok",
+      "nct": "NCT02696785",
+      "op": "NULL_PMID",
+      "reason": "drug ['active', 'ankylosing', 'spondylitis'] not in AACT intvs ['Ixekizumab', 'Placebo', 'Adalimumab']"
+    },
+    {
+      "round": "R9_per_arm",
+      "nct": "NCT03928743",
+      "op": "NULL_ARMS",
+      "reason": ""
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT02696785",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT03928704",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT04169373",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT02696785",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    }
+  ],
+  "n_fixes_applied": 8,
+  "ground_truth_sources": [
+    "AACT 2026-04-12 (Clinical Trials Transformation Initiative)",
+    "PubMed E-utilities (NCBI)",
+    "PMC OAI full-text (NCBI)",
+    "Multi-agent consensus (≥2-of-3 gate, R1-R3 + R4 + 8-agent)",
+    "Internal cross-consistency (R6abc)",
+    "Published landmark trial values (R5)",
+    "Published reference meta-analyses (R5b)"
+  ],
+  "methodology": "outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md",
+  "truthcert_hmac_sha256": "141bae85798b92116cc5e2256c7b668d8f9aaf459dacb89dc1b94392078f2f44",
+  "truthcert_key_id": "791652a76703ca25"
+}

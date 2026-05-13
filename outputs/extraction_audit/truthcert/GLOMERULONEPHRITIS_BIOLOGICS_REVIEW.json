@@ -1,0 +1,87 @@
+{
+  "review": "GLOMERULONEPHRITIS_BIOLOGICS_REVIEW",
+  "audit_completed_at": "2026-05-13T10:40:01.484734+00:00",
+  "classification": "MANUAL_REVIEW",
+  "fabrication_risk_score": 0.652,
+  "n_trials": 8,
+  "score_components": {
+    "E_no_evidence": 0.875,
+    "P_null_pmid": 1.0,
+    "N_nulled_nct": 0.25,
+    "A_agent_flag_density": 0.333,
+    "C_cross_review": 0.625,
+    "V_residual_single_arm": 0.0,
+    "X_generic_name": 0.375
+  },
+  "already_quarantined": true,
+  "audit_rounds_touched": [
+    "R10_outcomes",
+    "R19_completion",
+    "R23_acronym",
+    "R3_aggressive",
+    "R3_multi_agent"
+  ],
+  "fixes_applied": [
+    {
+      "round": "R3_multi_agent",
+      "nct": "NCT04557462",
+      "op": "NULL_KEY",
+      "reason": "R3: PEACE sparsentan FSGS NCT doesn't resolve to a real registered trial — fabricated"
+    },
+    {
+      "round": "R3_multi_agent",
+      "nct": "NCT03021499",
+      "op": "NULL_KEY",
+      "reason": "R3: AURORA-2 voclosporin LN extension NCT doesn't match published registrations"
+    },
+    {
+      "round": "R3_aggressive",
+      "nct": "NCT01639339",
+      "op": "PMID_ALREADY_NULL",
+      "reason": "BLISS-LN is real belimumab LN trial (Furie 2020 NEJM, PMID 32937045, DOI 10.1056/NEJMoa2001180) but the real NCT is NCT01639339 — actually t"
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT03643965",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R19_completion",
+      "nct": "NCT04573478",
+      "op": "NULL_YEAR",
+      "reason": "NULLED_YEAR"
+    },
+    {
+      "round": "R19_completion",
+      "nct": "NCT04573478",
+      "op": "NULL_YEAR",
+      "reason": ""
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT03643965",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT02141672",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    }
+  ],
+  "n_fixes_applied": 8,
+  "ground_truth_sources": [
+    "AACT 2026-04-12 (Clinical Trials Transformation Initiative)",
+    "PubMed E-utilities (NCBI)",
+    "PMC OAI full-text (NCBI)",
+    "Multi-agent consensus (≥2-of-3 gate, R1-R3 + R4 + 8-agent)",
+    "Internal cross-consistency (R6abc)",
+    "Published landmark trial values (R5)",
+    "Published reference meta-analyses (R5b)"
+  ],
+  "methodology": "outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md",
+  "truthcert_hmac_sha256": "cc223d8ce9807f3543185ab86b5abdcec7a7e5e0cfe38a276cd05d03f3525df1",
+  "truthcert_key_id": "791652a76703ca25"
+}

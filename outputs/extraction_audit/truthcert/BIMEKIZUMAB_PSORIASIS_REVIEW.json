@@ -1,0 +1,60 @@
+{
+  "review": "BIMEKIZUMAB_PSORIASIS_REVIEW",
+  "audit_completed_at": "2026-05-13T10:40:01.484734+00:00",
+  "classification": "LOW_CONCERN",
+  "fabrication_risk_score": 0.378,
+  "n_trials": 3,
+  "score_components": {
+    "E_no_evidence": 0.0,
+    "P_null_pmid": 1.0,
+    "N_nulled_nct": 0.0,
+    "A_agent_flag_density": 0.778,
+    "C_cross_review": 1.0,
+    "V_residual_single_arm": 0.0,
+    "X_generic_name": 0.0
+  },
+  "already_quarantined": false,
+  "audit_rounds_touched": [
+    "R3_aggressive",
+    "R7c_aact_ok"
+  ],
+  "fixes_applied": [
+    {
+      "round": "R3_aggressive",
+      "nct": "NCT03410992",
+      "op": "NULLED_PMID",
+      "reason": "publishedHR=67.27 with crude OR=305.3, crude RR=67.3 - OR-as-HR mislabel residual (273/349 vs 1/86)."
+    },
+    {
+      "round": "R3_aggressive",
+      "nct": "NCT03370133",
+      "op": "NULLED_PMID",
+      "reason": "publishedHR=17.62 with crude OR=112.3, crude RR=17.6 - OR-as-HR mislabel residual (273/321 vs 4/83)."
+    },
+    {
+      "round": "R7c_aact_ok",
+      "nct": "NCT03370133",
+      "op": "NULL_PMID",
+      "reason": "drug ['moderate', 'severe', 'plaque'] not in AACT intvs ['Bimekizumab', 'Ustekinumab', 'Placebo']"
+    },
+    {
+      "round": "R7c_aact_ok",
+      "nct": "NCT03412747",
+      "op": "NULL_PMID",
+      "reason": "drug ['moderate', 'severe', 'plaque'] not in AACT intvs ['Bimekizumab', 'Adalimumab', 'Placebo']"
+    }
+  ],
+  "n_fixes_applied": 4,
+  "ground_truth_sources": [
+    "AACT 2026-04-12 (Clinical Trials Transformation Initiative)",
+    "PubMed E-utilities (NCBI)",
+    "PMC OAI full-text (NCBI)",
+    "Multi-agent consensus (≥2-of-3 gate, R1-R3 + R4 + 8-agent)",
+    "Internal cross-consistency (R6abc)",
+    "Published landmark trial values (R5)",
+    "Published reference meta-analyses (R5b)"
+  ],
+  "methodology": "outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md",
+  "truthcert_hmac_sha256": "dfba53124e2379d24d3e2e9690b417ce1d29aaa42eb2d15382cb9c3dbbf0a946",
+  "truthcert_key_id": "791652a76703ca25"
+}

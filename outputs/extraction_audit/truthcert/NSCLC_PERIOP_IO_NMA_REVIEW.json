@@ -1,0 +1,129 @@
+{
+  "review": "NSCLC_PERIOP_IO_NMA_REVIEW",
+  "audit_completed_at": "2026-05-13T10:40:01.484734+00:00",
+  "classification": "LOW_CONCERN",
+  "fabrication_risk_score": 0.45,
+  "n_trials": 10,
+  "score_components": {
+    "E_no_evidence": 0.7,
+    "P_null_pmid": 0.7,
+    "N_nulled_nct": 0.1,
+    "A_agent_flag_density": 0.0,
+    "C_cross_review": 0.2,
+    "V_residual_single_arm": 0.0,
+    "X_generic_name": 0.4
+  },
+  "already_quarantined": false,
+  "audit_rounds_touched": [
+    "R10_outcomes",
+    "R19_completion",
+    "R23_acronym",
+    "R6b_internal",
+    "R7_aact"
+  ],
+  "fixes_applied": [
+    {
+      "round": "R6b_internal",
+      "nct": "NCT03158129",
+      "op": "NULL_BASELINE_N",
+      "reason": "NULLED_BASELINE_N"
+    },
+    {
+      "round": "R6b_internal",
+      "nct": "NCT03158129",
+      "op": "NULL_BASELINE_N",
+      "reason": ""
+    },
+    {
+      "round": "R7_aact",
+      "nct": "NCT03838159",
+      "op": "NULL_PMID",
+      "reason": "drug ['neoadjuvant'] not in AACT interventions ['Paclitaxel', 'Carboplatin', 'Nivolumab']"
+    },
+    {
+      "round": "R7_aact",
+      "nct": "NCT03158129",
+      "op": "NULL_KEY",
+      "reason": "intv+enroll(2x)+title mismatch — drug ['neoadjuvant', 'neostar'] not in AACT title nor any of 6 interventions; AACT N=101 vs arm-sum=22+21"
+    },
+    {
+      "round": "R7_aact",
+      "nct": "NCT02486355",
+      "op": "NULL_PMID",
+      "reason": "NCT not in AACT 2026-04-12 snapshot"
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT03425643",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT02998528",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT04025879",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT02504372",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT02486718",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R19_completion",
+      "nct": "NCT02486718",
+      "op": "NULL_YEAR",
+      "reason": "NULLED_YEAR"
+    },
+    {
+      "round": "R19_completion",
+      "nct": "NCT03838159",
+      "op": "NULL_YEAR",
+      "reason": "NULLED_YEAR"
+    },
+    {
+      "round": "R19_completion",
+      "nct": "NCT02486718",
+      "op": "NULL_YEAR",
+      "reason": ""
+    },
+    {
+      "round": "R19_completion",
+      "nct": "NCT03838159",
+      "op": "NULL_YEAR",
+      "reason": ""
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT04025879",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    }
+  ],
+  "n_fixes_applied": 15,
+  "ground_truth_sources": [
+    "AACT 2026-04-12 (Clinical Trials Transformation Initiative)",
+    "PubMed E-utilities (NCBI)",
+    "PMC OAI full-text (NCBI)",
+    "Multi-agent consensus (≥2-of-3 gate, R1-R3 + R4 + 8-agent)",
+    "Internal cross-consistency (R6abc)",
+    "Published landmark trial values (R5)",
+    "Published reference meta-analyses (R5b)"
+  ],
+  "methodology": "outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md",
+  "truthcert_hmac_sha256": "1c4d0b985e1746c60417845411b5893ea90a0e0e1b9bb5f447299ac31f4651e9",
+  "truthcert_key_id": "791652a76703ca25"
+}

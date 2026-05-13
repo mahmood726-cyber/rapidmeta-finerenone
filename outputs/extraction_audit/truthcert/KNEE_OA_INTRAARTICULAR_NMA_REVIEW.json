@@ -1,0 +1,85 @@
+{
+  "review": "KNEE_OA_INTRAARTICULAR_NMA_REVIEW",
+  "audit_completed_at": "2026-05-13T10:40:01.484734+00:00",
+  "classification": "LOW_CONCERN",
+  "fabrication_risk_score": 0.403,
+  "n_trials": 6,
+  "score_components": {
+    "E_no_evidence": 0.167,
+    "P_null_pmid": 1.0,
+    "N_nulled_nct": 0.5,
+    "A_agent_flag_density": 0.111,
+    "C_cross_review": 0.0,
+    "V_residual_single_arm": 0.0,
+    "X_generic_name": 0.167
+  },
+  "already_quarantined": false,
+  "audit_rounds_touched": [
+    "R22_mesh",
+    "R23_acronym",
+    "R2_multi_agent"
+  ],
+  "fixes_applied": [
+    {
+      "round": "R2_multi_agent",
+      "nct": "NCT02061358",
+      "op": "NULL_KEY",
+      "reason": "R2: Tanezumab is SC anti-NGF mAb (systemic), not intra-articular; wrong route for IA-OA NMA. Also schema-MD-with-events"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT02697682",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT02856204",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT02697682",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT02856204",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT02697773",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT02528188",
+      "op": "NULL_PMID",
+      "reason": "NULLED_PMID"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT03227796",
+      "op": "NULL_PMID",
+      "reason": "NULLED_PMID"
+    }
+  ],
+  "n_fixes_applied": 8,
+  "ground_truth_sources": [
+    "AACT 2026-04-12 (Clinical Trials Transformation Initiative)",
+    "PubMed E-utilities (NCBI)",
+    "PMC OAI full-text (NCBI)",
+    "Multi-agent consensus (≥2-of-3 gate, R1-R3 + R4 + 8-agent)",
+    "Internal cross-consistency (R6abc)",
+    "Published landmark trial values (R5)",
+    "Published reference meta-analyses (R5b)"
+  ],
+  "methodology": "outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md",
+  "truthcert_hmac_sha256": "625d7472a10239569e5b461cf669ab985037211db76ab39c9a9c6741d1e26a80",
+  "truthcert_key_id": "791652a76703ca25"
+}

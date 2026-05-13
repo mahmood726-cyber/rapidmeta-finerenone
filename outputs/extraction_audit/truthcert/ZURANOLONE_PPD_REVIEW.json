@@ -1,0 +1,79 @@
+{
+  "review": "ZURANOLONE_PPD_REVIEW",
+  "audit_completed_at": "2026-05-13T10:40:01.484734+00:00",
+  "classification": "LOW_CONCERN",
+  "fabrication_risk_score": 0.4,
+  "n_trials": 2,
+  "score_components": {
+    "E_no_evidence": 0.0,
+    "P_null_pmid": 1.0,
+    "N_nulled_nct": 1.0,
+    "A_agent_flag_density": 0.0,
+    "C_cross_review": 0.0,
+    "V_residual_single_arm": 0.0,
+    "X_generic_name": 0.0
+  },
+  "already_quarantined": false,
+  "audit_rounds_touched": [
+    "R22_mesh",
+    "R6c_internal",
+    "R7c_aact_ok"
+  ],
+  "fixes_applied": [
+    {
+      "round": "R6c_internal",
+      "nct": "NCT04442503",
+      "op": "NULL_PMID",
+      "reason": "NULLED_PMID"
+    },
+    {
+      "round": "R6c_internal",
+      "nct": "NCT04442503",
+      "op": "NULL_PMID",
+      "reason": ""
+    },
+    {
+      "round": "R7c_aact_ok",
+      "nct": "NCT02978326",
+      "op": "NULL_PMID",
+      "reason": "drug ['severe', 'postpartum', 'depression'] not in AACT intvs ['SAGE-217 15/20 mg Oral Solution', 'Placebo', 'SAGE 217 30 mg Capsules']"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT04442503",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT02978326",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT04442503",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT02978326",
+      "op": "NULL_KEY",
+      "reason": ""
+    }
+  ],
+  "n_fixes_applied": 7,
+  "ground_truth_sources": [
+    "AACT 2026-04-12 (Clinical Trials Transformation Initiative)",
+    "PubMed E-utilities (NCBI)",
+    "PMC OAI full-text (NCBI)",
+    "Multi-agent consensus (≥2-of-3 gate, R1-R3 + R4 + 8-agent)",
+    "Internal cross-consistency (R6abc)",
+    "Published landmark trial values (R5)",
+    "Published reference meta-analyses (R5b)"
+  ],
+  "methodology": "outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md",
+  "truthcert_hmac_sha256": "3563741ef2d17ce792b24d0e5f79241e7efcf9e9b9d27af6c875dfd6e090bde7",
+  "truthcert_key_id": "791652a76703ca25"
+}

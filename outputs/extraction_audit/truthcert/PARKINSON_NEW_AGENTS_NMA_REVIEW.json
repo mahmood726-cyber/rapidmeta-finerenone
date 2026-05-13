@@ -1,0 +1,91 @@
+{
+  "review": "PARKINSON_NEW_AGENTS_NMA_REVIEW",
+  "audit_completed_at": "2026-05-13T10:40:01.484734+00:00",
+  "classification": "LOW_CONCERN",
+  "fabrication_risk_score": 0.3,
+  "n_trials": 6,
+  "score_components": {
+    "E_no_evidence": 0.0,
+    "P_null_pmid": 1.0,
+    "N_nulled_nct": 0.0,
+    "A_agent_flag_density": 0.0,
+    "C_cross_review": 0.0,
+    "V_residual_single_arm": 0.0,
+    "X_generic_name": 0.5
+  },
+  "already_quarantined": false,
+  "audit_rounds_touched": [
+    "R23_acronym",
+    "R6b_internal",
+    "R7c_aact_ok"
+  ],
+  "fixes_applied": [
+    {
+      "round": "R6b_internal",
+      "nct": "NCT01568073",
+      "op": "NULL_PMID",
+      "reason": "NULLED_PMID"
+    },
+    {
+      "round": "R6b_internal",
+      "nct": "NCT01568073",
+      "op": "NULL_PMID",
+      "reason": ""
+    },
+    {
+      "round": "R7c_aact_ok",
+      "nct": "NCT01568073",
+      "op": "NULL_PMID",
+      "reason": "drug ['opicapone', 'fluctuating', 'bipark'] not in AACT intvs ['BIA 9-1067', 'Entacapone', 'Placebo']"
+    },
+    {
+      "round": "R7c_aact_ok",
+      "nct": "NCT01227655",
+      "op": "NULL_PMID",
+      "reason": "drug ['opicapone', 'parallel', 'pivotal'] not in AACT intvs ['BIA 9-1067', 'Placebo', 'Levodopa']"
+    },
+    {
+      "round": "R7c_aact_ok",
+      "nct": "NCT03100149",
+      "op": "NULL_PMID",
+      "reason": "drug ['prasinezumab', 'synuclein'] not in AACT intvs ['RO7046015', 'RO7046015', 'Placebo']"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT01568073",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT01227655",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT02610231",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT00335153",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    }
+  ],
+  "n_fixes_applied": 9,
+  "ground_truth_sources": [
+    "AACT 2026-04-12 (Clinical Trials Transformation Initiative)",
+    "PubMed E-utilities (NCBI)",
+    "PMC OAI full-text (NCBI)",
+    "Multi-agent consensus (≥2-of-3 gate, R1-R3 + R4 + 8-agent)",
+    "Internal cross-consistency (R6abc)",
+    "Published landmark trial values (R5)",
+    "Published reference meta-analyses (R5b)"
+  ],
+  "methodology": "outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md",
+  "truthcert_hmac_sha256": "40658e3efa55bda506f8916fe84831ee32e539ebad89bb84de2b9088ba9923ef",
+  "truthcert_key_id": "791652a76703ca25"
+}

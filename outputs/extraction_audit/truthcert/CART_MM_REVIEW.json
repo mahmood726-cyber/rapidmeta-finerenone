@@ -1,0 +1,60 @@
+{
+  "review": "CART_MM_REVIEW",
+  "audit_completed_at": "2026-05-13T10:40:01.484734+00:00",
+  "classification": "LOW_CONCERN",
+  "fabrication_risk_score": 0.367,
+  "n_trials": 2,
+  "score_components": {
+    "E_no_evidence": 0.0,
+    "P_null_pmid": 1.0,
+    "N_nulled_nct": 0.0,
+    "A_agent_flag_density": 0.167,
+    "C_cross_review": 0.0,
+    "V_residual_single_arm": 0.0,
+    "X_generic_name": 1.0
+  },
+  "already_quarantined": false,
+  "audit_rounds_touched": [
+    "R19_completion",
+    "R7c_aact_ok"
+  ],
+  "fixes_applied": [
+    {
+      "round": "R7c_aact_ok",
+      "nct": "NCT04181827",
+      "op": "NULL_PMID",
+      "reason": "drug ['single', 'infusion'] not in AACT intvs ['Cilta-cel', 'Pomalidomide', 'Bortezomib']"
+    },
+    {
+      "round": "R7c_aact_ok",
+      "nct": "NCT03651128",
+      "op": "NULL_PMID",
+      "reason": "drug ['triple', 'exposed'] not in AACT intvs ['bb2121', 'Daratumumab', 'Pomalidomide']"
+    },
+    {
+      "round": "R19_completion",
+      "nct": "NCT03651128",
+      "op": "NULL_YEAR",
+      "reason": "NULLED_YEAR"
+    },
+    {
+      "round": "R19_completion",
+      "nct": "NCT03651128",
+      "op": "NULL_YEAR",
+      "reason": ""
+    }
+  ],
+  "n_fixes_applied": 4,
+  "ground_truth_sources": [
+    "AACT 2026-04-12 (Clinical Trials Transformation Initiative)",
+    "PubMed E-utilities (NCBI)",
+    "PMC OAI full-text (NCBI)",
+    "Multi-agent consensus (≥2-of-3 gate, R1-R3 + R4 + 8-agent)",
+    "Internal cross-consistency (R6abc)",
+    "Published landmark trial values (R5)",
+    "Published reference meta-analyses (R5b)"
+  ],
+  "methodology": "outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md",
+  "truthcert_hmac_sha256": "731cf7883a8df22376489c2e2e4a36f9388282c227dab3c63a560209002feeef",
+  "truthcert_key_id": "791652a76703ca25"
+}

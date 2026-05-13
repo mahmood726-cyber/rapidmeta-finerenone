@@ -1,0 +1,152 @@
+{
+  "review": "PERIPHERAL_DCB_PAD_NMA_REVIEW",
+  "audit_completed_at": "2026-05-13T10:40:01.484734+00:00",
+  "classification": "MANUAL_REVIEW",
+  "fabrication_risk_score": 0.615,
+  "n_trials": 10,
+  "score_components": {
+    "E_no_evidence": 0.8,
+    "P_null_pmid": 0.9,
+    "N_nulled_nct": 0.7,
+    "A_agent_flag_density": 0.3,
+    "C_cross_review": 0.0,
+    "V_residual_single_arm": 0.1,
+    "X_generic_name": 0.1
+  },
+  "already_quarantined": false,
+  "audit_rounds_touched": [
+    "R10_outcomes",
+    "R1_multi_agent",
+    "R22_mesh",
+    "R2_multi_agent",
+    "R3_aggressive",
+    "R3_multi_agent",
+    "R4_multi_agent",
+    "R7_aact",
+    "R8agent_med",
+    "R9_per_arm"
+  ],
+  "fixes_applied": [
+    {
+      "round": "R1_multi_agent",
+      "nct": "NCT01858363",
+      "op": "NULL_KEY",
+      "reason": "ILLUMENATE EU (Stellarex DCB, Krishnan Circulation 2017) correct NCT is NCT01927068; NCT01858363 is a different DCB study"
+    },
+    {
+      "round": "R2_multi_agent",
+      "nct": "NCT01530178",
+      "op": "NULL_KEY",
+      "reason": "R2: MAJESTIC evaluated Eluvia drug-eluting stent (DES), not a drug-coated balloon (DCB); wrong device class for DCB NMA"
+    },
+    {
+      "round": "R3_multi_agent",
+      "nct": "NCT01710033",
+      "op": "NULL_KEY",
+      "reason": "R3: Lutonix-AV is dialysis arteriovenous access DCB (correctly used in AV-access review), wrongly reused for PAD"
+    },
+    {
+      "round": "R3_aggressive",
+      "nct": "NCT04067791",
+      "op": "PMID_ALREADY_NULL",
+      "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.76 reported — fabricated comparator."
+    },
+    {
+      "round": "R3_aggressive",
+      "nct": "NCT01710033",
+      "op": "ALREADY_NULLED",
+      "reason": "Lutonix-AV (NCT01710033) is the dialysis arteriovenous-access DCB pivotal — wrong indication for a peripheral PAD review; the peripheral Lut"
+    },
+    {
+      "round": "R4_multi_agent",
+      "nct": null,
+      "op": "NULLED_PMID",
+      "reason": "PASSEO-LUX PMID is COVID editorial"
+    },
+    {
+      "round": "R7_aact",
+      "nct": "NCT01858350",
+      "op": "NULL_PMID",
+      "reason": "drug ['stellarex', 'pivotal', 'illumenate'] not in AACT interventions ['Active Music Therapy', 'Passive Music Therapy', 'Distraction Therapy"
+    },
+    {
+      "round": "R8agent_med",
+      "nct": "NCT04067791",
+      "op": "NULLED_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R9_per_arm",
+      "nct": "NCT01412541",
+      "op": "NULL_ARMS",
+      "reason": ""
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT01175850",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT01858350",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT02118233",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT02862041",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT04067791",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT01858350",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT02118233",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT02862041",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT04067791",
+      "op": "NULL_KEY",
+      "reason": ""
+    }
+  ],
+  "n_fixes_applied": 18,
+  "ground_truth_sources": [
+    "AACT 2026-04-12 (Clinical Trials Transformation Initiative)",
+    "PubMed E-utilities (NCBI)",
+    "PMC OAI full-text (NCBI)",
+    "Multi-agent consensus (≥2-of-3 gate, R1-R3 + R4 + 8-agent)",
+    "Internal cross-consistency (R6abc)",
+    "Published landmark trial values (R5)",
+    "Published reference meta-analyses (R5b)"
+  ],
+  "methodology": "outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md",
+  "truthcert_hmac_sha256": "e208531158189be4d4904180d5e2411942436caf186f4f0b8d47e39b27064d31",
+  "truthcert_key_id": "791652a76703ca25"
+}

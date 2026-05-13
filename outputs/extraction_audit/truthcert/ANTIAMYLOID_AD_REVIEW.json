@@ -1,0 +1,104 @@
+{
+  "review": "ANTIAMYLOID_AD_REVIEW",
+  "audit_completed_at": "2026-05-13T10:40:01.484734+00:00",
+  "classification": "OK",
+  "fabrication_risk_score": 0.263,
+  "n_trials": 4,
+  "score_components": {
+    "E_no_evidence": 0.0,
+    "P_null_pmid": 0.75,
+    "N_nulled_nct": 0.5,
+    "A_agent_flag_density": 0.0,
+    "C_cross_review": 0.0,
+    "V_residual_single_arm": 0.0,
+    "X_generic_name": 0.0
+  },
+  "already_quarantined": false,
+  "audit_rounds_touched": [
+    "R19_completion",
+    "R22_mesh",
+    "R23_acronym",
+    "R7c_aact_ok"
+  ],
+  "fixes_applied": [
+    {
+      "round": "R7c_aact_ok",
+      "nct": "NCT03887455",
+      "op": "NULL_PMID",
+      "reason": "drug ['dementia', 'amyloid'] not in AACT intvs ['Lecanemab IV', 'Placebo', 'Lecanemab SC']"
+    },
+    {
+      "round": "R19_completion",
+      "nct": "NCT03887455",
+      "op": "NULL_YEAR",
+      "reason": "NULLED_YEAR"
+    },
+    {
+      "round": "R19_completion",
+      "nct": "NCT03887455",
+      "op": "NULL_YEAR",
+      "reason": ""
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT03887455",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT04437511",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT03887455",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT04437511",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT02477800",
+      "op": "NULL_PMID",
+      "reason": "NULLED_PMID"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT02484547",
+      "op": "NULL_PMID",
+      "reason": "NULLED_PMID"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT02477800",
+      "op": "NULL_PMID",
+      "reason": ""
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT02484547",
+      "op": "NULL_PMID",
+      "reason": ""
+    }
+  ],
+  "n_fixes_applied": 11,
+  "ground_truth_sources": [
+    "AACT 2026-04-12 (Clinical Trials Transformation Initiative)",
+    "PubMed E-utilities (NCBI)",
+    "PMC OAI full-text (NCBI)",
+    "Multi-agent consensus (≥2-of-3 gate, R1-R3 + R4 + 8-agent)",
+    "Internal cross-consistency (R6abc)",
+    "Published landmark trial values (R5)",
+    "Published reference meta-analyses (R5b)"
+  ],
+  "methodology": "outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md",
+  "truthcert_hmac_sha256": "8756455833c47cdad8df82b9280bc2c0c7806ccb5ba8933a08c8c025001265dc",
+  "truthcert_key_id": "791652a76703ca25"
+}

@@ -1,0 +1,161 @@
+{
+  "review": "AML_TARGETED_NEW_REVIEW",
+  "audit_completed_at": "2026-05-13T10:40:01.484734+00:00",
+  "classification": "LOW_CONCERN",
+  "fabrication_risk_score": 0.457,
+  "n_trials": 10,
+  "score_components": {
+    "E_no_evidence": 0.6,
+    "P_null_pmid": 0.8,
+    "N_nulled_nct": 0.2,
+    "A_agent_flag_density": 0.167,
+    "C_cross_review": 0.4,
+    "V_residual_single_arm": 0.0,
+    "X_generic_name": 0.1
+  },
+  "already_quarantined": false,
+  "audit_rounds_touched": [
+    "R10_outcomes",
+    "R19_completion",
+    "R1_multi_agent",
+    "R23_acronym",
+    "R2_multi_agent",
+    "R3_aggressive",
+    "R7_aact"
+  ],
+  "fixes_applied": [
+    {
+      "round": "R1_multi_agent",
+      "nct": "NCT02668653",
+      "op": "NULL_KEY",
+      "reason": "QuANTUM-R label on NCT02668653 wrong; NCT belongs to QuANTUM-First (newly diagnosed FLT3+AML, Erba Lancet 2023). QuANTUM-R is a different tr"
+    },
+    {
+      "round": "R2_multi_agent",
+      "nct": "NCT02039726",
+      "op": "NULL_KEY",
+      "reason": "R2: NCT02039726 is QuANTUM-R (Cortes Lancet Oncol 2019, PMID 31606519), not QuANTUM-First (Erba Lancet 2023)"
+    },
+    {
+      "round": "R3_aggressive",
+      "nct": "NCT04065399",
+      "op": "NULLED_PMID",
+      "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.217 reported — fabricated comparator."
+    },
+    {
+      "round": "R7_aact",
+      "nct": "NCT02577406",
+      "op": "NULL_PMID",
+      "reason": "drug ['enasidenib'] not in AACT interventions ['AG-221', 'BSC', 'Azacitidine']"
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT02993523",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT03069352",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT02014558",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT00651261",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT02993523",
+      "op": "NULL_EVENTS",
+      "reason": ""
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT03069352",
+      "op": "NULL_EVENTS",
+      "reason": ""
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT02014558",
+      "op": "NULL_EVENTS",
+      "reason": ""
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT00651261",
+      "op": "NULL_EVENTS",
+      "reason": ""
+    },
+    {
+      "round": "R19_completion",
+      "nct": "NCT04065399",
+      "op": "NULL_YEAR",
+      "reason": "NULLED_YEAR"
+    },
+    {
+      "round": "R19_completion",
+      "nct": "NCT04065399",
+      "op": "NULL_YEAR",
+      "reason": ""
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT03069352",
+      "op": "NULL_PMID",
+      "reason": "NULLED_PMID"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT02014558",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT00651261",
+      "op": "NULL_PMID",
+      "reason": "NULLED_PMID"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT03069352",
+      "op": "NULL_PMID",
+      "reason": ""
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT02014558",
+      "op": "NULL_PMID",
+      "reason": ""
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT00651261",
+      "op": "NULL_PMID",
+      "reason": ""
+    }
+  ],
+  "n_fixes_applied": 20,
+  "ground_truth_sources": [
+    "AACT 2026-04-12 (Clinical Trials Transformation Initiative)",
+    "PubMed E-utilities (NCBI)",
+    "PMC OAI full-text (NCBI)",
+    "Multi-agent consensus (≥2-of-3 gate, R1-R3 + R4 + 8-agent)",
+    "Internal cross-consistency (R6abc)",
+    "Published landmark trial values (R5)",
+    "Published reference meta-analyses (R5b)"
+  ],
+  "methodology": "outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md",
+  "truthcert_hmac_sha256": "8ddb5159d40320a457fa6d2e1224527e4218acc1979b284f5efdb5360a8c988e",
+  "truthcert_key_id": "791652a76703ca25"
+}

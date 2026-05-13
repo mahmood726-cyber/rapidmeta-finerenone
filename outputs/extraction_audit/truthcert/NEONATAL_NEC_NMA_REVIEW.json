@@ -1,0 +1,87 @@
+{
+  "review": "NEONATAL_NEC_NMA_REVIEW",
+  "audit_completed_at": "2026-05-13T10:40:01.484734+00:00",
+  "classification": "MANUAL_REVIEW",
+  "fabrication_risk_score": 0.5,
+  "n_trials": 4,
+  "score_components": {
+    "E_no_evidence": 0.75,
+    "P_null_pmid": 1.0,
+    "N_nulled_nct": 0.0,
+    "A_agent_flag_density": 0.25,
+    "C_cross_review": 0.0,
+    "V_residual_single_arm": 0.0,
+    "X_generic_name": 0.0
+  },
+  "already_quarantined": true,
+  "audit_rounds_touched": [
+    "R23_acronym",
+    "R3_aggressive",
+    "R3_multi_agent",
+    "R6c_internal",
+    "R9_per_arm"
+  ],
+  "fixes_applied": [
+    {
+      "round": "R3_multi_agent",
+      "nct": null,
+      "op": "QUARANTINED",
+      "reason": "QUARANTINED"
+    },
+    {
+      "round": "R3_aggressive",
+      "nct": "NCT01196936",
+      "op": "PMID_ALREADY_NULL",
+      "reason": "Name 'PROPEL' with multi-strain probiotic preterm returns zero PubMed hits. The real Australian multi-strain probiotic preterm trial is ProP"
+    },
+    {
+      "round": "R3_aggressive",
+      "nct": "NCT01441831",
+      "op": "PMID_ALREADY_NULL",
+      "reason": "Name 'AdvanceNEC' for lactobacillus rhamnosus preterm trial is not a recognized acronym in PubMed-indexed literature."
+    },
+    {
+      "round": "R6c_internal",
+      "nct": "NCT01196936",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    },
+    {
+      "round": "R6c_internal",
+      "nct": "NCT01196936",
+      "op": "NULL_PMID",
+      "reason": ""
+    },
+    {
+      "round": "R9_per_arm",
+      "nct": "NCT01196936",
+      "op": "NULL_ARMS",
+      "reason": ""
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT01196936",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT00549523",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    }
+  ],
+  "n_fixes_applied": 8,
+  "ground_truth_sources": [
+    "AACT 2026-04-12 (Clinical Trials Transformation Initiative)",
+    "PubMed E-utilities (NCBI)",
+    "PMC OAI full-text (NCBI)",
+    "Multi-agent consensus (≥2-of-3 gate, R1-R3 + R4 + 8-agent)",
+    "Internal cross-consistency (R6abc)",
+    "Published landmark trial values (R5)",
+    "Published reference meta-analyses (R5b)"
+  ],
+  "methodology": "outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md",
+  "truthcert_hmac_sha256": "600df1d34496775527023ec0952a11a0b12026c91f3d343d7a3e03551a4b5280",
+  "truthcert_key_id": "791652a76703ca25"
+}

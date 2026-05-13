@@ -1,0 +1,98 @@
+{
+  "review": "TT_FIELDS_BROAD_NMA_REVIEW",
+  "audit_completed_at": "2026-05-13T10:40:01.484734+00:00",
+  "classification": "LOW_CONCERN",
+  "fabrication_risk_score": 0.413,
+  "n_trials": 4,
+  "score_components": {
+    "E_no_evidence": 0.5,
+    "P_null_pmid": 0.5,
+    "N_nulled_nct": 0.75,
+    "A_agent_flag_density": 0.0,
+    "C_cross_review": 0.0,
+    "V_residual_single_arm": 0.0,
+    "X_generic_name": 0.25
+  },
+  "already_quarantined": false,
+  "audit_rounds_touched": [
+    "R10_outcomes",
+    "R22_mesh",
+    "R6c_internal",
+    "R7_aact"
+  ],
+  "fixes_applied": [
+    {
+      "round": "R6c_internal",
+      "nct": "NCT02973789",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    },
+    {
+      "round": "R6c_internal",
+      "nct": "NCT03477110",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    },
+    {
+      "round": "R6c_internal",
+      "nct": "NCT02973789",
+      "op": "NULL_PMID",
+      "reason": ""
+    },
+    {
+      "round": "R6c_internal",
+      "nct": "NCT03477110",
+      "op": "NULL_PMID",
+      "reason": ""
+    },
+    {
+      "round": "R7_aact",
+      "nct": "NCT03477110",
+      "op": "NULL_KEY",
+      "reason": "intv+enroll(2x)+title mismatch — drug ['ttfields', 'mesothelioma', 'stellar'] not in AACT title nor any of 4 interventions; AACT N=30 vs arm"
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT02973789",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT00916409",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT01756729",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT00916409",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT01756729",
+      "op": "NULL_KEY",
+      "reason": ""
+    }
+  ],
+  "n_fixes_applied": 10,
+  "ground_truth_sources": [
+    "AACT 2026-04-12 (Clinical Trials Transformation Initiative)",
+    "PubMed E-utilities (NCBI)",
+    "PMC OAI full-text (NCBI)",
+    "Multi-agent consensus (≥2-of-3 gate, R1-R3 + R4 + 8-agent)",
+    "Internal cross-consistency (R6abc)",
+    "Published landmark trial values (R5)",
+    "Published reference meta-analyses (R5b)"
+  ],
+  "methodology": "outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md",
+  "truthcert_hmac_sha256": "656a0560527f1844f5caba2f65a383537590b222df7d4e1f852bd7a7adc78470",
+  "truthcert_key_id": "791652a76703ca25"
+}

@@ -1,0 +1,161 @@
+{
+  "review": "ITP_NEW_AGENTS_REVIEW",
+  "audit_completed_at": "2026-05-13T10:40:01.484734+00:00",
+  "classification": "MANUAL_REVIEW",
+  "fabrication_risk_score": 0.644,
+  "n_trials": 9,
+  "score_components": {
+    "E_no_evidence": 0.778,
+    "P_null_pmid": 1.0,
+    "N_nulled_nct": 0.444,
+    "A_agent_flag_density": 0.333,
+    "C_cross_review": 0.111,
+    "V_residual_single_arm": 0.0,
+    "X_generic_name": 0.556
+  },
+  "already_quarantined": false,
+  "audit_rounds_touched": [
+    "R10_outcomes",
+    "R1_multi_agent",
+    "R22_mesh",
+    "R23_acronym",
+    "R2_multi_agent",
+    "R3_aggressive",
+    "R9_per_arm"
+  ],
+  "fixes_applied": [
+    {
+      "round": "R1_multi_agent",
+      "nct": "NCT04278924",
+      "op": "NULL_PMID",
+      "reason": "PMID 41950473 is >4×10^7, impossible for current PubMed range — fabricated"
+    },
+    {
+      "round": "R2_multi_agent",
+      "nct": "NCT03347396",
+      "op": "NULL_KEY",
+      "reason": "R2: Sutimlimab is anti-C1s for cold agglutinin disease; CADENZA is the CAD pivotal, not an ITP agent"
+    },
+    {
+      "round": "R3_aggressive",
+      "nct": "NCT03395210",
+      "op": "PMID_ALREADY_NULL",
+      "reason": "Comparator arm has cE=0, cN=0 (no comparator) but HR=0.4 reported — fabricated comparator."
+    },
+    {
+      "round": "R3_aggressive",
+      "nct": "NCT02075021",
+      "op": "PMID_ALREADY_NULL",
+      "reason": "publishedHR=12 with crude OR=15.9, crude RR=n/a - OR-as-HR mislabel residual (12/50 vs 0/24)."
+    },
+    {
+      "round": "R3_aggressive",
+      "nct": "NCT02076399",
+      "op": "PMID_ALREADY_NULL",
+      "reason": "publishedHR=13.46 with crude OR=17.9, crude RR=n/a - OR-as-HR mislabel residual (13/51 vs 0/25)."
+    },
+    {
+      "round": "R9_per_arm",
+      "nct": "NCT04188379",
+      "op": "NULL_ARMS",
+      "reason": ""
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT02077192",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT04562766",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT04278924",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT02075021",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT04278924",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT05468411",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT02075021",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT04278924",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT05468411",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT02076399",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT02077192",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT04188379",
+      "op": "NULL_PMID",
+      "reason": "NULLED_PMID"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT03395210",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT04562766",
+      "op": "NULL_PMID",
+      "reason": "NULLED_PMID"
+    }
+  ],
+  "n_fixes_applied": 20,
+  "ground_truth_sources": [
+    "AACT 2026-04-12 (Clinical Trials Transformation Initiative)",
+    "PubMed E-utilities (NCBI)",
+    "PMC OAI full-text (NCBI)",
+    "Multi-agent consensus (≥2-of-3 gate, R1-R3 + R4 + 8-agent)",
+    "Internal cross-consistency (R6abc)",
+    "Published landmark trial values (R5)",
+    "Published reference meta-analyses (R5b)"
+  ],
+  "methodology": "outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md",
+  "truthcert_hmac_sha256": "7ef0f1fd4f660c5f9d988ba71867e73d396d223590f13d2bb458095c6f2ac97b",
+  "truthcert_key_id": "791652a76703ca25"
+}

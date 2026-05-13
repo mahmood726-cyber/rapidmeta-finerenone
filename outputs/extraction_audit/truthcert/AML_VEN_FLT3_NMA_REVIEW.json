@@ -1,0 +1,129 @@
+{
+  "review": "AML_VEN_FLT3_NMA_REVIEW",
+  "audit_completed_at": "2026-05-13T10:40:01.484734+00:00",
+  "classification": "LOW_CONCERN",
+  "fabrication_risk_score": 0.429,
+  "n_trials": 8,
+  "score_components": {
+    "E_no_evidence": 0.5,
+    "P_null_pmid": 0.75,
+    "N_nulled_nct": 0.25,
+    "A_agent_flag_density": 0.167,
+    "C_cross_review": 0.5,
+    "V_residual_single_arm": 0.0,
+    "X_generic_name": 0.125
+  },
+  "already_quarantined": false,
+  "audit_rounds_touched": [
+    "R10_outcomes",
+    "R23_acronym",
+    "R2_multi_agent",
+    "R6_internal",
+    "R7_aact"
+  ],
+  "fixes_applied": [
+    {
+      "round": "R2_multi_agent",
+      "nct": "NCT03839771",
+      "op": "NULL_KEY",
+      "reason": "R2: IDHENTIFY (enasidenib R/R IDH2+ AML) = NCT02577406 (de Botton Blood 2023, PMID 35714312), already at id=1106; NCT03839771 is a different"
+    },
+    {
+      "round": "R6_internal",
+      "nct": "NCT00651261",
+      "op": "NULL_HR_AND_CI",
+      "reason": "NULLED_HR_CI"
+    },
+    {
+      "round": "R6_internal",
+      "nct": "NCT00651261",
+      "op": "NULL_HR_AND_CI",
+      "reason": ""
+    },
+    {
+      "round": "R7_aact",
+      "nct": "NCT03173248",
+      "op": "NULL_PMID",
+      "reason": "drug ['ivosidenib'] not in AACT interventions ['AG-120', 'Placebo', 'Azacitidine']"
+    },
+    {
+      "round": "R7_aact",
+      "nct": "NCT00266136",
+      "op": "NULL_KEY",
+      "reason": "intv+enroll(2x)+title mismatch — drug ['gemtuzumab'] not in AACT title nor any of 7 interventions; AACT N=3500 vs arm-sum=135+136"
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT02993523",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT03069352",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT00651261",
+      "op": "NULL_EVENTS",
+      "reason": "NULLED_EVENTS"
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT02993523",
+      "op": "NULL_EVENTS",
+      "reason": ""
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT03069352",
+      "op": "NULL_EVENTS",
+      "reason": ""
+    },
+    {
+      "round": "R10_outcomes",
+      "nct": "NCT00651261",
+      "op": "NULL_EVENTS",
+      "reason": ""
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT03069352",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT00651261",
+      "op": "NULL_PMID",
+      "reason": "NULLED_PMID"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT03069352",
+      "op": "NULL_PMID",
+      "reason": ""
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT00651261",
+      "op": "NULL_PMID",
+      "reason": ""
+    }
+  ],
+  "n_fixes_applied": 15,
+  "ground_truth_sources": [
+    "AACT 2026-04-12 (Clinical Trials Transformation Initiative)",
+    "PubMed E-utilities (NCBI)",
+    "PMC OAI full-text (NCBI)",
+    "Multi-agent consensus (≥2-of-3 gate, R1-R3 + R4 + 8-agent)",
+    "Internal cross-consistency (R6abc)",
+    "Published landmark trial values (R5)",
+    "Published reference meta-analyses (R5b)"
+  ],
+  "methodology": "outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md",
+  "truthcert_hmac_sha256": "a76ff864e72d0807a104ddf8a486c3972904e607399f81841940112669820928",
+  "truthcert_key_id": "791652a76703ca25"
+}

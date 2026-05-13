@@ -1,0 +1,135 @@
+{
+  "review": "VATS_SUBLOBAR_NSCLC_NMA_REVIEW",
+  "audit_completed_at": "2026-05-13T10:40:01.484734+00:00",
+  "classification": "MANUAL_REVIEW",
+  "fabrication_risk_score": 0.671,
+  "n_trials": 7,
+  "score_components": {
+    "E_no_evidence": 0.857,
+    "P_null_pmid": 1.0,
+    "N_nulled_nct": 0.714,
+    "A_agent_flag_density": 0.0,
+    "C_cross_review": 0.0,
+    "V_residual_single_arm": 0.0,
+    "X_generic_name": 0.571
+  },
+  "already_quarantined": false,
+  "audit_rounds_touched": [
+    "R19_completion",
+    "R22_mesh",
+    "R23_acronym",
+    "R6c_internal",
+    "R7_aact"
+  ],
+  "fixes_applied": [
+    {
+      "round": "R6c_internal",
+      "nct": "NCT02451644",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    },
+    {
+      "round": "R6c_internal",
+      "nct": "NCT02451644",
+      "op": "NULL_PMID",
+      "reason": ""
+    },
+    {
+      "round": "R7_aact",
+      "nct": "NCT00388128",
+      "op": "NULL_PMID",
+      "reason": "PMID 35461558 contains no AACT drug-word (['caffeine']) or condition-word (['claudication', 'intermittent'])"
+    },
+    {
+      "round": "R7_aact",
+      "nct": "NCT00428974",
+      "op": "NULL_KEY",
+      "reason": "intv+enroll(2x)+title mismatch — drug ['brachy', 'lobectomy'] not in AACT title nor any of 4 interventions; AACT N=76 vs arm-sum=122+123"
+    },
+    {
+      "round": "R7_aact",
+      "nct": "NCT01024595",
+      "op": "NULL_PMID",
+      "reason": "PMID 31203144 contains no AACT drug-word ([]) or condition-word (['infection'])"
+    },
+    {
+      "round": "R19_completion",
+      "nct": "NCT00499330",
+      "op": "NULL_YEAR",
+      "reason": "NULLED_YEAR"
+    },
+    {
+      "round": "R19_completion",
+      "nct": "NCT00499330",
+      "op": "NULL_YEAR",
+      "reason": ""
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT02451644",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT00388128",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT01024595",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT04057781",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT02451644",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT00388128",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT01024595",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT04057781",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT00867412",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    }
+  ],
+  "n_fixes_applied": 16,
+  "ground_truth_sources": [
+    "AACT 2026-04-12 (Clinical Trials Transformation Initiative)",
+    "PubMed E-utilities (NCBI)",
+    "PMC OAI full-text (NCBI)",
+    "Multi-agent consensus (≥2-of-3 gate, R1-R3 + R4 + 8-agent)",
+    "Internal cross-consistency (R6abc)",
+    "Published landmark trial values (R5)",
+    "Published reference meta-analyses (R5b)"
+  ],
+  "methodology": "outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md",
+  "truthcert_hmac_sha256": "56d8754c9d819d18ca870597e7a281745b1dbf41ab01a562f3ce68dc52852fc0",
+  "truthcert_key_id": "791652a76703ca25"
+}

@@ -1,0 +1,105 @@
+{
+  "review": "PFO_STROKE_CLOSURE_NMA_REVIEW",
+  "audit_completed_at": "2026-05-13T10:40:01.484734+00:00",
+  "classification": "OK",
+  "fabrication_risk_score": 0.279,
+  "n_trials": 7,
+  "score_components": {
+    "E_no_evidence": 0.429,
+    "P_null_pmid": 0.429,
+    "N_nulled_nct": 0.286,
+    "A_agent_flag_density": 0.0,
+    "C_cross_review": 0.0,
+    "V_residual_single_arm": 0.0,
+    "X_generic_name": 0.0
+  },
+  "already_quarantined": false,
+  "audit_rounds_touched": [
+    "R19_completion",
+    "R6b_internal",
+    "R6c_internal",
+    "R7c_aact_ok",
+    "R8_pmid_year"
+  ],
+  "fixes_applied": [
+    {
+      "round": "R6b_internal",
+      "nct": "NCT00562289",
+      "op": "NULL_BASELINE_N",
+      "reason": "NULLED_BASELINE_N"
+    },
+    {
+      "round": "R6b_internal",
+      "nct": "NCT00562289",
+      "op": "NULL_BASELINE_N",
+      "reason": ""
+    },
+    {
+      "round": "R6c_internal",
+      "nct": "NCT00738894",
+      "op": "NULL_PMID",
+      "reason": "NULLED_PMID"
+    },
+    {
+      "round": "R6c_internal",
+      "nct": "NCT01928485",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    },
+    {
+      "round": "R6c_internal",
+      "nct": "NCT00738894",
+      "op": "NULL_PMID",
+      "reason": ""
+    },
+    {
+      "round": "R6c_internal",
+      "nct": "NCT01928485",
+      "op": "NULL_PMID",
+      "reason": ""
+    },
+    {
+      "round": "R7c_aact_ok",
+      "nct": "NCT00214019",
+      "op": "NULL_KEY",
+      "reason": "triple-signal — drug ['starflex', 'closure', 'medical'] not in AACT title/intvs; N=36 vs 447+462"
+    },
+    {
+      "round": "R7c_aact_ok",
+      "nct": "NCT01928485",
+      "op": "NULL_KEY",
+      "reason": "triple-signal — drug ['closure', 'migraine', 'stroke'] not in AACT title/intvs; N=6 vs 50+50"
+    },
+    {
+      "round": "R8_pmid_year",
+      "nct": "NCT00166257",
+      "op": "NULLED_YEAR",
+      "reason": "NULLED_YEAR"
+    },
+    {
+      "round": "R19_completion",
+      "nct": "NCT01550588",
+      "op": "NULL_YEAR",
+      "reason": "NULLED_YEAR"
+    },
+    {
+      "round": "R19_completion",
+      "nct": "NCT01550588",
+      "op": "NULL_YEAR",
+      "reason": ""
+    }
+  ],
+  "n_fixes_applied": 11,
+  "ground_truth_sources": [
+    "AACT 2026-04-12 (Clinical Trials Transformation Initiative)",
+    "PubMed E-utilities (NCBI)",
+    "PMC OAI full-text (NCBI)",
+    "Multi-agent consensus (≥2-of-3 gate, R1-R3 + R4 + 8-agent)",
+    "Internal cross-consistency (R6abc)",
+    "Published landmark trial values (R5)",
+    "Published reference meta-analyses (R5b)"
+  ],
+  "methodology": "outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md",
+  "truthcert_hmac_sha256": "00b8cf3c302b34d1482b4a842ad3d1bbc08f18bf320268d170ac6f1633953f02",
+  "truthcert_key_id": "791652a76703ca25"
+}

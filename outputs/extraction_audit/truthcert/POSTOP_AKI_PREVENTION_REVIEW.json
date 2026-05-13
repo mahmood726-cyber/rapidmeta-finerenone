@@ -1,0 +1,110 @@
+{
+  "review": "POSTOP_AKI_PREVENTION_REVIEW",
+  "audit_completed_at": "2026-05-13T10:40:01.484734+00:00",
+  "classification": "MANUAL_REVIEW",
+  "fabrication_risk_score": 0.553,
+  "n_trials": 6,
+  "score_components": {
+    "E_no_evidence": 0.833,
+    "P_null_pmid": 0.667,
+    "N_nulled_nct": 0.833,
+    "A_agent_flag_density": 0.111,
+    "C_cross_review": 0.0,
+    "V_residual_single_arm": 0.0,
+    "X_generic_name": 0.0
+  },
+  "already_quarantined": false,
+  "audit_rounds_touched": [
+    "R22_mesh",
+    "R2_multi_agent",
+    "R7_aact",
+    "R8_pmid_year"
+  ],
+  "fixes_applied": [
+    {
+      "round": "R2_multi_agent",
+      "nct": "NCT01200654",
+      "op": "NULL_KEY",
+      "reason": "R2: ACT trial (Berwanger Circulation 2011) is acetylcysteine for contrast-induced AKI at angiography, not postop AKI prevention"
+    },
+    {
+      "round": "R7_aact",
+      "nct": "NCT03471196",
+      "op": "NULL_PMID",
+      "reason": "NCT not in AACT 2026-04-12 snapshot"
+    },
+    {
+      "round": "R7_aact",
+      "nct": "NCT01802112",
+      "op": "NULL_PMID",
+      "reason": "PMID 42092662 contains no AACT drug-word (['maltodextrins']) or condition-word (['constipation'])"
+    },
+    {
+      "round": "R8_pmid_year",
+      "nct": "NCT00355498",
+      "op": "NULLED_YEAR",
+      "reason": "NULLED_YEAR"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT04138173",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT01802112",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT00355498",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT03017482",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT04138173",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT01802112",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT00355498",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT03017482",
+      "op": "NULL_KEY",
+      "reason": ""
+    }
+  ],
+  "n_fixes_applied": 12,
+  "ground_truth_sources": [
+    "AACT 2026-04-12 (Clinical Trials Transformation Initiative)",
+    "PubMed E-utilities (NCBI)",
+    "PMC OAI full-text (NCBI)",
+    "Multi-agent consensus (≥2-of-3 gate, R1-R3 + R4 + 8-agent)",
+    "Internal cross-consistency (R6abc)",
+    "Published landmark trial values (R5)",
+    "Published reference meta-analyses (R5b)"
+  ],
+  "methodology": "outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md",
+  "truthcert_hmac_sha256": "1def3a6868c45bf29342e2cd0e2f3c6ceeca4b5ff0e685e504909f16cc6ccba8",
+  "truthcert_key_id": "791652a76703ca25"
+}

@@ -1,0 +1,140 @@
+{
+  "review": "CABP_NEW_ABX_NMA_REVIEW",
+  "audit_completed_at": "2026-05-13T10:40:01.484734+00:00",
+  "classification": "MANUAL_REVIEW",
+  "fabrication_risk_score": 0.57,
+  "n_trials": 10,
+  "score_components": {
+    "E_no_evidence": 0.8,
+    "P_null_pmid": 0.8,
+    "N_nulled_nct": 0.6,
+    "A_agent_flag_density": 0.0,
+    "C_cross_review": 0.0,
+    "V_residual_single_arm": 0.0,
+    "X_generic_name": 0.4
+  },
+  "already_quarantined": false,
+  "audit_rounds_touched": [
+    "R22_mesh",
+    "R23_acronym",
+    "R7_aact",
+    "R8agent_extended"
+  ],
+  "fixes_applied": [
+    {
+      "round": "R7_aact",
+      "nct": "NCT02551718",
+      "op": "NULL_KEY",
+      "reason": "intv+enroll(2x)+title mismatch — drug ['delafloxacin', 'delaflox'] not in AACT title nor any of 5 interventions; AACT N=34 vs arm-sum=330+33"
+    },
+    {
+      "round": "R8agent_extended",
+      "nct": "NCT02559310",
+      "op": "NULLED_PMID",
+      "reason": "citation_misattribution"
+    },
+    {
+      "round": "R8agent_extended",
+      "nct": "NCT02559310",
+      "op": "NULLED_PMID",
+      "reason": "citation_misattribution"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT02531425",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT02531412",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT01968746",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT02434965",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT02380222",
+      "op": "NULL_KEY",
+      "reason": "NULLED_KEY"
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT02531425",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT02531412",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT01968746",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT02434965",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R22_mesh",
+      "nct": "NCT02380222",
+      "op": "NULL_KEY",
+      "reason": ""
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT02559310",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT02531438",
+      "op": "NULL_PMID",
+      "reason": "PMID_ALREADY_NULL"
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT02559310",
+      "op": "NULL_PMID",
+      "reason": ""
+    },
+    {
+      "round": "R23_acronym",
+      "nct": "NCT02531438",
+      "op": "NULL_PMID",
+      "reason": ""
+    }
+  ],
+  "n_fixes_applied": 17,
+  "ground_truth_sources": [
+    "AACT 2026-04-12 (Clinical Trials Transformation Initiative)",
+    "PubMed E-utilities (NCBI)",
+    "PMC OAI full-text (NCBI)",
+    "Multi-agent consensus (≥2-of-3 gate, R1-R3 + R4 + 8-agent)",
+    "Internal cross-consistency (R6abc)",
+    "Published landmark trial values (R5)",
+    "Published reference meta-analyses (R5b)"
+  ],
+  "methodology": "outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md",
+  "truthcert_hmac_sha256": "3ef11c12a45b6d9c9dcedbefd50ab156d22c34e9a59e333115adc6fa363ab4de",
+  "truthcert_key_id": "791652a76703ca25"
+}
