@@ -710,6 +710,17 @@ test('fitLinear returns finite Q-profile τ² CI bounds on GL-1992', () => {
   assert.ok(res.tau2_hi > 0, 'GL-1992 τ²_hi > 0 (substantial heterogeneity)');
 });
 
+test('remlLogLik returns finite value at zero tau2 matrix for valid per-study X, y, V', () => {
+  // Simple synthetic: 2 trials, 1 basis dimension (linear), zero τ²
+  var perStudy = [
+    { X: [[10], [20]], y: [0.5, 1.0], V: [[0.05, 0.02], [0.02, 0.04]] },
+    { X: [[5], [15]],  y: [0.3, 0.7], V: [[0.06, 0.03], [0.03, 0.05]] },
+  ];
+  var tau2 = [[0]];  // Kp=1, scalar τ²=0
+  var ll = I.remlLogLik(perStudy, tau2);
+  assert.ok(Number.isFinite(ll), 'log-likelihood must be finite at τ²=0');
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }

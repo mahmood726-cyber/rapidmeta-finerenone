@@ -436,6 +436,161 @@
   }
   API._internal.nelderMead = nelderMead;
 
+  // -------------------------------------------------------------------
+  // Task 6: REML log-likelihood evaluator + logDeterminant helper
+  // -------------------------------------------------------------------
+
+  function logDeterminant(M) {
+    // log|M| via LU decomposition (Doolittle) with partial pivoting.
+    // Returns -Infinity if any pivot < 1e-15 (singular / near-singular).
+    // NOTE: operates on a cloned copy — does NOT mutate the input matrix.
+    var n = M.length;
+    var A = M.map(function (row) { return row.slice(); });
+    var logDet = 0;
+    for (var i = 0; i < n; i++) {
+      // Partial pivot: find row with largest absolute value in column i
+      var maxR = i, maxV = Math.abs(A[i][i]);
+      for (var r = i + 1; r < n; r++) {
+        if (Math.abs(A[r][i]) > maxV) { maxR = r; maxV = Math.abs(A[r][i]); }
+      }
+      if (maxV < 1e-15) return -Infinity;   // singular
+      if (maxR !== i) {
+        var tmp = A[i]; A[i] = A[maxR]; A[maxR] = tmp;
+        // Row swap flips sign of det; we take log of |det| so sign is irrelevant.
+        // For PSD Σ (our use case) all pivots > 0, so this is just stability.
+      }
+      var pivot = A[i][i];
+      logDet += Math.log(Math.abs(pivot));
+      for (var r2 = i + 1; r2 < n; r2++) {
+        var factor = A[r2][i] / pivot;
+        for (var c = i; c < n; c++) A[r2][c] -= factor * A[i][c];
+      }
+    }
+    return logDet;
+  }
+  API._internal.logDeterminant = logDeterminant;
+
+  function remlLogLik(perStudy, tau2) {
+    // REML log-likelihood for multivariate dose-response random-effects model.
+    //
+    // perStudy: array of { X: k_i × Kp matrix (row = dose point, col = basis),
+    //                       y: length-k_i vector of log-RR estimates,
+    //                       V: k_i × k_i within-study covariance }
+    // tau2:     Kp × Kp symmetric PSD matrix (between-study covariance of β)
+    //
+    // Formula (profile likelihood after integrating out β):
+    //   Σ_i = V_i + X_i τ² X'_i
+    //   β̂   = (Σ_i X'_i Σ_i⁻¹ X_i)⁻¹ Σ_i X'_i Σ_i⁻¹ y_i
+    //   ℓ(τ²) = −½ Σ_i log|Σ_i|
+    //           − ½ Σ_i (y_i − X_i β̂)' Σ_i⁻¹ (y_i − X_i β̂)
+    //           − ½ log|Σ_i X'_i Σ_i⁻¹ X_i|
+    //
+    // Returns -Infinity on any degenerate/invalid input (never NaN).
+    // Task 7's negREML wrapper inverts sign → +Infinity on bad inputs,
+    // which Nelder-Mead treats as a wall (satisfies NaN-vs-Infinity contract).
+
+    var Kp = tau2.length;
+    if (Kp === 0) return -Infinity;
+
+    // --- Pass 1: accumulate per-study marginal covariances and cross-sums ---
+    var XtSinvX_sum = zeros(Kp, Kp);        // Σ_i X'_i Σ_i⁻¹ X_i
+    var XtSinvy_sum = new Array(Kp).fill(0); // Σ_i X'_i Σ_i⁻¹ y_i
+    var logDetSum = 0;
+    var trialContribs = [];  // stash {X, y, SigmaInv} for quadratic-form pass 2
+
+    for (var t = 0; t < perStudy.length; t++) {
+      var X = perStudy[t].X;   // k_i × Kp
+      var y = perStudy[t].y;   // length k_i
+      var V = perStudy[t].V;   // k_i × k_i
+      var ki = X.length;
+
+      // Build X τ² X'  (k_i × k_i)
+      var Xt2 = zeros(ki, ki);
+      for (var i = 0; i < ki; i++) {
+        for (var j = 0; j < ki; j++) {
+          for (var p = 0; p < Kp; p++) {
+            for (var q = 0; q < Kp; q++) {
+              Xt2[i][j] += X[i][p] * tau2[p][q] * X[j][q];
+            }
+          }
+        }
+      }
+
+      // Σ_i = V_i + X τ² X'
+      var Sigma = zeros(ki, ki);
+      for (var i2 = 0; i2 < ki; i2++) {
+        for (var j2 = 0; j2 < ki; j2++) {
+          Sigma[i2][j2] = V[i2][j2] + Xt2[i2][j2];
+        }
+      }
+
+      // Σ_i⁻¹ and log|Σ_i|
+      // logDeterminant clones Sigma internally so matInv can also receive Sigma safely.
+      var logDet = logDeterminant(Sigma);
+      if (!isFinite(logDet)) return -Infinity;
+      logDetSum += logDet;
+
+      var SigmaInv;
+      try { SigmaInv = matInv(Sigma); }
+      catch (e) { return -Infinity; }
+
+      // Accumulate X'_i Σ_i⁻¹ X_i and X'_i Σ_i⁻¹ y_i
+      // XtSinv[p][j] = Σ_j X[j][p] * SigmaInv[j][i3]  for all p, i3
+      for (var p2 = 0; p2 < Kp; p2++) {
+        for (var i3 = 0; i3 < ki; i3++) {
+          var XtSinv_p_i3 = 0;
+          for (var j3 = 0; j3 < ki; j3++) {
+            XtSinv_p_i3 += X[j3][p2] * SigmaInv[j3][i3];
+          }
+          XtSinvy_sum[p2] += XtSinv_p_i3 * y[i3];
+          for (var q2 = 0; q2 < Kp; q2++) {
+            XtSinvX_sum[p2][q2] += XtSinv_p_i3 * X[i3][q2];
+          }
+        }
+      }
+
+      trialContribs.push({ X: X, y: y, SigmaInv: SigmaInv });
+    }
+
+    // --- Profile out β̂ = (Σ X'Σ⁻¹X)⁻¹ (Σ X'Σ⁻¹y) ---
+    var XtSinvX_inv;
+    try { XtSinvX_inv = matInv(XtSinvX_sum); }
+    catch (e) { return -Infinity; }
+
+    var beta = matVec(XtSinvX_inv, XtSinvy_sum);
+    // Guard against degenerate matInv producing silent NaN/Inf
+    for (var bb = 0; bb < beta.length; bb++) {
+      if (!isFinite(beta[bb])) return -Infinity;
+    }
+
+    // --- Pass 2: quadratic form Σ_i (y_i − X_i β̂)' Σ_i⁻¹ (y_i − X_i β̂) ---
+    // Two-pass design is intentional: β̂ depends on the full cross-study sum
+    // from pass 1, so it cannot be accumulated mid-pass.
+    var quadForm = 0;
+    for (var tt = 0; tt < trialContribs.length; tt++) {
+      var X_tt = trialContribs[tt].X;
+      var y_tt = trialContribs[tt].y;
+      var SI_tt = trialContribs[tt].SigmaInv;
+      var resid = y_tt.map(function (yv, idx) {
+        var Xb = 0;
+        for (var p3 = 0; p3 < Kp; p3++) Xb += X_tt[idx][p3] * beta[p3];
+        return yv - Xb;
+      });
+      for (var i4 = 0; i4 < resid.length; i4++) {
+        for (var j4 = 0; j4 < resid.length; j4++) {
+          quadForm += resid[i4] * SI_tt[i4][j4] * resid[j4];
+        }
+      }
+    }
+
+    // --- REML penalty: log|Σ_i X'_i Σ_i⁻¹ X_i| ---
+    var logDetXtSinvX = logDeterminant(XtSinvX_sum);
+    if (!isFinite(logDetXtSinvX)) return -Infinity;
+
+    return -0.5 * logDetSum - 0.5 * quadForm - 0.5 * logDetXtSinvX;
+  }
+  API._internal.remlLogLik = remlLogLik;
+
   // ===================================================================
   // Section 2: validate, fitters, helpers — implemented across later units.
   // ===================================================================
