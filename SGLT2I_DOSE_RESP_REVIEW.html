@@ -380,7 +380,50 @@ window.addEventListener('DOMContentLoaded', function () {
     '<p><strong>Plain-English summary:</strong> Each additional 10 mg of SGLT2 inhibitor (raw mg across 3 drugs at the pooled-class scale) is associated with a HbA1c reduction of approximately ' + Math.abs(mdPer10mg).toFixed(2) + ' percentage points (95% CI ' + Math.abs(mdPer10mg_hi).toFixed(2) + ' to ' + Math.abs(mdPer10mg_lo).toFixed(2) + '). The estimate combines 3 trials across 3 different SGLT2i drugs at the raw-mg dose scale; see Methods for the class-equivalence caveat.</p>' +
     '<p style="margin-top:0.6em; font-size:0.92em; color:#444;"><strong>Caveat:</strong> The raw-mg cross-drug pool assumes equipotent per-mg effects, which is methodologically debatable. Per-drug analyses or %-of-max-dose harmonization would be defensible alternatives.</p>';
 
-  // Tabs 14-17 populated in subsequent tasks.
+  // === Tab 2: HbA1c RCS ===
+  var hba1cRcs = DR.fitRCS(hba1cTrials, { knots: 3 });
+
+  document.getElementById('hba1c-rcs-kpis').innerHTML =
+    '<div class="kpi-grid">' +
+    '<div class="kpi"><div class="kpi-label">Knots (mg)</div><div class="kpi-value">' + hba1cRcs.rcs.knots.map(function (k) { return k.toFixed(1); }).join(', ') + '</div></div>' +
+    '<div class="kpi"><div class="kpi-label">spline_coefs[0] (linear)</div><div class="kpi-value">' + hba1cRcs.rcs.spline_coefs[0].toFixed(5) + '</div><div>SE ' + hba1cRcs.rcs.spline_coefs_se[0].toFixed(5) + '</div></div>' +
+    '<div class="kpi"><div class="kpi-label">spline_coefs[1] (non-linear)</div><div class="kpi-value">' + hba1cRcs.rcs.spline_coefs[1].toFixed(5) + '</div><div>SE ' + hba1cRcs.rcs.spline_coefs_se[1].toFixed(5) + '</div></div>' +
+    '<div class="kpi"><div class="kpi-label">Wald non-linearity p</div><div class="kpi-value">' + hba1cRcs.rcs.nonlinearity_wald_p.toFixed(4) + '</div><div>(diagonal-PM v0.1)</div></div>' +
+    '<div class="kpi"><div class="kpi-label">τ² per dim</div><div class="kpi-value">[' + hba1cRcs.rcs.tau2_per_dim.map(function (t) { return t.toExponential(2); }).join(', ') + ']</div></div>' +
+    '</div>';
+
+  // RCS curve via fit_at_dose grid
+  var rcsCurveHtml = '<h3>RCS dose-response curve (HbA1c)</h3><div class="table-scroll"><table><caption>RCS dose-response curve via 20-point fit_at_dose grid</caption><thead><tr><th>Dose (mg)</th><th>MD (%)</th><th>95% CI</th></tr></thead><tbody>';
+  hba1cRcs.rcs.fit_at_dose.forEach(function (p) {
+    rcsCurveHtml += '<tr><td>' + p.dose.toFixed(2) + '</td>' +
+                    '<td>' + p.est.toFixed(4) + '</td>' +
+                    '<td>' + p.ci_lo.toFixed(4) + ' to ' + p.ci_hi.toFixed(4) + '</td></tr>';
+  });
+  rcsCurveHtml += '</tbody></table></div>';
+  document.getElementById('hba1c-rcs-curve').innerHTML = rcsCurveHtml;
+
+  // RCS per-study forest (F-3 RE-weighted via tau2_per_dim[0])
+  var rcsForestRows = DR.forest(hba1cTrials, hba1cRcs);
+  var rfHtml = '<h3>Per-study forest (RCS linear-component, RE-weighted)</h3><div class="table-scroll"><table><caption>Per-study HbA1c MD per mg (linear-component slope), RE-weighted via tau2_per_dim[0]</caption><thead><tr><th>Study</th><th>MD per mg</th><th>95% CI</th><th>RE weight</th></tr></thead><tbody>';
+  rcsForestRows.forEach(function (r) {
+    rfHtml += '<tr><td>' + r.label + '</td>' +
+              '<td>' + r.slope_log.toFixed(5) + '</td>' +
+              '<td>' + (r.slope_log - 1.96 * r.slope_log_se).toFixed(5) + ' to ' + (r.slope_log + 1.96 * r.slope_log_se).toFixed(5) + '</td>' +
+              '<td>' + r.weight_pct.toFixed(1) + '%</td></tr>';
+  });
+  rfHtml += '</tbody></table></div>';
+  document.getElementById('hba1c-rcs-forest').innerHTML = rfHtml;
+
+  // Wald note (amber)
+  document.getElementById('hba1c-rcs-wald').innerHTML =
+    '<div class="rv-badge rv-badge-amber">' +
+    '<strong>Wald non-linearity test (diagonal-PM v0.1):</strong> p = ' + hba1cRcs.rcs.nonlinearity_wald_p.toFixed(4) +
+    ' (df = ' + (hba1cRcs.rcs.spline_coefs.length - 1) + '). ' +
+    'Under the v0.1 diagonal-PM-per-dimension τ² approximation, the engine\'s non-linearity p will differ ' +
+    'from R full multivariate REML. See the R-parity tab for the side-by-side comparison. P2 hardening (Round 2B) ' +
+    'will lift to full multivariate REML and close this gap.</div>';
+
+  // Tab 3 (HbA1c One-stage) + Tab 4 + Tab 5 populated in subsequent tasks.
 });
 </script>
 
