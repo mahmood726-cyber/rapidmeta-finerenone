@@ -1,0 +1,88 @@
+name: Dose-response engine + flagships
+
+# Runs the 3-layer dose-response test stack on every PR or push touching
+# any dose-response surface. Catches:
+#   Layer 1 — engine numerics (60 unit tests)
+#   Layer 2 — flagship field-path contract (128 assertions; Round 2C bug class)
+#   Layer 3 — Playwright real-browser smoke (16 assertions; CSP class)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'rapidmeta-dose-response-engine-v1.js'
+      - 'vendor/r-validation-doseresp.js'
+      - 'vendor/r-validation-badge.js'
+      - '*_DOSE_RESP_REVIEW.html'
+      - '*_DOSE_RESP_REVIEW.js'
+      - 'tests/dose_response_fixtures/**'
+      - 'tests/test_dose_response_engine.mjs'
+      - 'tests/test_flagship_field_paths.mjs'
+      - 'tests/test_flagship_playwright_smoke.py'
+      - 'fixtures/dose_response/**'
+      - 'outputs/r_validation/doseresp/**'
+      - 'scripts/r_validate_doseresp.py'
+      - 'scripts/r_validate_doseresp.R'
+      - '.github/workflows/dose_response.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'rapidmeta-dose-response-engine-v1.js'
+      - 'vendor/r-validation-doseresp.js'
+      - 'vendor/r-validation-badge.js'
+      - '*_DOSE_RESP_REVIEW.html'
+      - '*_DOSE_RESP_REVIEW.js'
+      - 'tests/dose_response_fixtures/**'
+      - 'tests/test_dose_response_engine.mjs'
+      - 'tests/test_flagship_field_paths.mjs'
+      - 'tests/test_flagship_playwright_smoke.py'
+      - 'fixtures/dose_response/**'
+      - 'outputs/r_validation/doseresp/**'
+      - 'scripts/r_validate_doseresp.py'
+      - 'scripts/r_validate_doseresp.R'
+      - '.github/workflows/dose_response.yml'
+  workflow_dispatch:
+
+jobs:
+  layer-1-engine:
+    name: Engine unit tests (Node)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run engine test suite
+        run: node tests/test_dose_response_engine.mjs
+
+  layer-2-contract:
+    name: Flagship field-path contract (Node, no browser)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: layer-1-engine
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run contract test
+        run: node tests/test_flagship_field_paths.mjs
+
+  layer-3-playwright:
+    name: Real-browser smoke (Python Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: layer-2-contract
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install Playwright + Chromium
+        run: |
+          pip install playwright
+          playwright install chromium
+          playwright install-deps chromium
+      - name: Run Playwright smoke
+        run: python tests/test_flagship_playwright_smoke.py
