@@ -589,6 +589,29 @@ test('fitRCS binary with zero-event arm applies F-1 and returns finite spline co
     'non-linearity p in [0,1]');
 });
 
+// === Task 9: sglt2i_hba1c continuous fixture ===
+
+test('sglt2i_hba1c fixture loads with 3-4 trials and continuous arms', () => {
+  const fx = loadFx('sglt2i_hba1c.json');
+  assert.ok(fx.trials.length === 3 || fx.trials.length === 4,
+    'fixture should have 3 or 4 trials (4 if SOLOIST-WHF HbA1c was extractable)');
+  assert.equal(fx.outcome_type, 'continuous');
+  for (const t of fx.trials) {
+    const refs = t.arms.filter(a => a.is_reference);
+    assert.equal(refs.length, 1, `${t.studlab} needs exactly 1 reference arm`);
+    for (const a of t.arms) {
+      assert.ok(Number.isFinite(a.dose) && a.dose >= 0,
+        `${t.studlab} arm dose must be finite >= 0`);
+      assert.ok(Number.isFinite(a.mean),
+        `${t.studlab} arm mean must be finite (continuous fixture)`);
+      assert.ok(Number.isFinite(a.sd) && a.sd > 0,
+        `${t.studlab} arm sd must be positive`);
+      assert.ok(Number.isFinite(a.n) && a.n > 0,
+        `${t.studlab} arm n must be positive`);
+    }
+  }
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }
