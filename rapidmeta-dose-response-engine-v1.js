@@ -1193,7 +1193,14 @@
       }
     }
 
-    var covBeta = matInv(XtWX_sum);
+    // Round 2B follow-up (Issue 2): guard pooled β̂ covariance inversion. If every
+    // per-trial Σ⁻¹ failed above (continue at ~1182 fired for all trials), XtWX_sum
+    // is the zero matrix and matInv throws unhelpfully. Surface a descriptive error.
+    var covBeta;
+    try { covBeta = matInv(XtWX_sum); }
+    catch (e) {
+      throw new Error('fitRCS: pooled-β̂ XtWX matrix singular after REML — k_effective=' + perStudy.length + ' (likely all per-trial Σ inversions failed)');
+    }
     var pooled = matVec(covBeta, XtWy_sum);
     var pooledSE = [];
     for (var pd = 0; pd < Kp; pd++) pooledSE.push(Math.sqrt(covBeta[pd][pd]));
@@ -1202,22 +1209,34 @@
     // H0: all non-linear basis coefs (d >= 1) are zero.
     // Statistic: β_nl' Cov(β_nl)⁻¹ β_nl ~ χ²(Kp-1) under H0.
     // Cov(β_nl) is the bottom-right (Kp-1) × (Kp-1) submatrix of covBeta.
+    // Round 2B follow-up (Issue 1): stash chi²/df/p on the returned rcs object so
+    // nonLinearityTest can read a single internally-consistent triple instead of
+    // recomputing from spline_coefs_se (which gives the OLD diagonal-sum chi²).
     var nlBeta = pooled.slice(1);
+    var nlCov = zeros(Kp - 1, Kp - 1);
+    for (var i8 = 0; i8 < Kp - 1; i8++) {
+      for (var j8 = 0; j8 < Kp - 1; j8++) {
+        nlCov[i8][j8] = covBeta[i8 + 1][j8 + 1];
+      }
+    }
     var W = 0;
     if (nlBeta.length > 0) {
-      var nlCov = zeros(Kp - 1, Kp - 1);
-      for (var i8 = 0; i8 < Kp - 1; i8++) {
-        for (var j8 = 0; j8 < Kp - 1; j8++) {
-          nlCov[i8][j8] = covBeta[i8 + 1][j8 + 1];
-        }
+      // Issue 2: guard non-linearity covariance inversion. Extreme cases (near-
+      // collinear knot basis with τ²→0) can make nlCov singular even when
+      // XtWX_sum was invertible.
+      var nlCovInv;
+      try { nlCovInv = matInv(nlCov); }
+      catch (e) {
+        throw new Error('fitRCS: non-linearity covariance matrix is singular (Kp=' + Kp + ')');
       }
-      var nlCovInv = matInv(nlCov);
       for (var i9 = 0; i9 < nlBeta.length; i9++) {
         for (var j9 = 0; j9 < nlBeta.length; j9++) {
           W += nlBeta[i9] * nlCovInv[i9][j9] * nlBeta[j9];
         }
       }
     }
+    var nonlinearity_wald_chi2 = W;
+    var nonlinearity_wald_df = nlBeta.length;
     var nlP = nlBeta.length > 0 ? (1 - pchisq(W, nlBeta.length)) : null;
 
     // Step 5: fit_at_dose — 20-point curve from 0 to max observed dose.
@@ -1250,6 +1269,8 @@
         tau2_matrix: tau2Matrix,            // Round 2B: full Kp×Kp REML τ² matrix
         tau2_per_dim: tau2_per_dim,         // retained: diagonal of tau2_matrix
         nonlinearity_wald_p: nlP,
+        nonlinearity_wald_chi2: nonlinearity_wald_chi2,    // Round 2B follow-up Issue 1
+        nonlinearity_wald_df: nonlinearity_wald_df,        // Round 2B follow-up Issue 1
         fit_at_dose: fit_at_dose,
         reml_converged: optResult.converged,
         reml_iterations: optResult.iterations,
@@ -1267,8 +1288,8 @@
       fallback: null,
       estimator: 'pm_diagonal_z',
       ci_method: 'z_1.96',
-      converged: true,
-      iterations: null,
+      converged: optResult.converged,       // Round 2B follow-up Issue 3
+      iterations: optResult.iterations,     // surface REML iter count alongside convergence
       _fitInternal: null,
       engine_version: API.engine_version,
     };
@@ -1280,21 +1301,22 @@
   // Extracts Wald chi² / df / p from a fitRCS result.
   // ===================================================================
   function nonLinearityTest(rcsResult) {
+    // Round 2B follow-up (Issue 1): read chi², df, and p from the fitRCS result
+    // (computed there using the full post-REML covariance). No re-computation
+    // here — that keeps the chi²/df/p triple internally consistent. Previously
+    // this function recomputed W = sum((coef/se)²) from spline_coefs_se (the
+    // OLD diagonal-sum formula), so callers saw a stale chi² alongside the
+    // correct p, which is exactly the API-drift the reviewer flagged.
     if (!rcsResult || !rcsResult.rcs) {
-      return { wald_chi2: null, df: null, p: null, conclusion: 'inconclusive' };
+      return { chi2: null, wald_chi2: null, df: null, p: null, conclusion: 'inconclusive' };
     }
-    var nlCoefs = rcsResult.rcs.spline_coefs.slice(1);
-    var nlSEs = rcsResult.rcs.spline_coefs_se.slice(1);
-    var W = 0;
-    for (var d = 0; d < nlCoefs.length; d++) {
-      if (nlSEs[d] > 0) {
-        W += (nlCoefs[d] / nlSEs[d]) * (nlCoefs[d] / nlSEs[d]);
-      }
-      // I2 guard: skip terms with zero SE (would produce Infinity); the per-dim Wald is 0 for that dim.
-    }
+    var chi2 = rcsResult.rcs.nonlinearity_wald_chi2;
+    var df = rcsResult.rcs.nonlinearity_wald_df;
     var p = rcsResult.rcs.nonlinearity_wald_p;
-    var conclusion = p < 0.05 ? 'non_linear' : (p > 0.20 ? 'linear' : 'inconclusive');
-    return { wald_chi2: W, df: nlCoefs.length, p: p, conclusion: conclusion };
+    var conclusion = (p != null && p < 0.05) ? 'non_linear' : ((p != null && p > 0.20) ? 'linear' : 'inconclusive');
+    // wald_chi2 is preserved as an alias of chi2 for back-compat with any
+    // pre-Round-2B caller that read the old field name.
+    return { chi2: chi2, wald_chi2: chi2, df: df, p: p, conclusion: conclusion };
   }
   API.nonLinearityTest = nonLinearityTest;
 

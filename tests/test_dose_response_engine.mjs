@@ -277,6 +277,22 @@ test('nonLinearityTest extracts p, df, chi2 from fitRCS result', () => {
   assert.equal(nl.df, res.rcs.spline_coefs.length - 1);
 });
 
+test('fitRCS exposes internally-consistent Wald chi2/df/p triple (Round 2B fix-up)', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const res = DR.fitRCS(fx.trials, { knots: 3 });
+  assert.ok(Number.isFinite(res.rcs.nonlinearity_wald_chi2), 'chi2 must be finite');
+  assert.equal(res.rcs.nonlinearity_wald_df, 1, '3-knot RCS → df = K - 2 = 1');
+  assert.ok(Number.isFinite(res.rcs.nonlinearity_wald_p), 'p must be finite');
+  // Cross-check: the p must match 1 - pchisq(chi2, df) within float epsilon
+  const expectedP = 1 - DR._internal.pchisq(res.rcs.nonlinearity_wald_chi2, res.rcs.nonlinearity_wald_df);
+  near(res.rcs.nonlinearity_wald_p, expectedP, 1e-9, 'p must equal 1 - pchisq(chi2, df)');
+  // And nonLinearityTest reads the same triple
+  const nl = DR.nonLinearityTest(res);
+  assert.equal(nl.chi2, res.rcs.nonlinearity_wald_chi2);
+  assert.equal(nl.df, res.rcs.nonlinearity_wald_df);
+  assert.equal(nl.p, res.rcs.nonlinearity_wald_p);
+});
+
 // === Task 15: fitOneStage() ===
 
 test('fitOneStage returns null when precomputedJson is null', () => {
