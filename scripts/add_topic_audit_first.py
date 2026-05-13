@@ -53,61 +53,61 @@ OUT.mkdir(parents=True, exist_ok=True)
 PMC_CACHE = HERE / "outputs" / "extraction_audit" / "pubmed_cache"
 AACT = Path("D:/AACT-storage/AACT/2026-04-12")
 
-# Candidate topics (pilot)
+# Candidate topics — pilot (Path X + Y + Z, 2026-05-13)
 TOPICS = [
-    {
-        "stem": "TEZEPELUMAB_ASTHMA_REVIEW",
-        "name": "Tezepelumab in severe asthma",
-        "ncts": [
-            "NCT03347279",   # NAVIGATOR (Menzies-Gow NEJM 2021)
-            "NCT04039113",   # WAYFINDER pediatric — uncertain
-            "NCT03406078",   # SOURCE (oral steroid sparing)
-            "NCT03968978",   # DESTINATION extension
-        ],
-        "drug_patterns": ["tezepelumab"],
-        "condition_patterns": ["asthma"],
-    },
-    {
-        "stem": "AVACOPAN_ANCA_REVIEW",
-        "name": "Avacopan in ANCA-associated vasculitis",
-        "ncts": [
-            "NCT02994927",   # ADVOCATE (Jayne NEJM 2021)
-            "NCT02222155",   # CLEAR
-        ],
-        "drug_patterns": ["avacopan"],
-        "condition_patterns": ["anca", "vasculitis", "granulomatosis"],
-    },
-    {
-        "stem": "PIRTOBRUTINIB_CLL_MCL_REVIEW",
-        "name": "Pirtobrutinib in R/R CLL and MCL (BRUIN program)",
-        "ncts": [
-            "NCT03740529",   # BRUIN phase 1/2
-            "NCT04965493",   # BRUIN CLL-321 (vs ibrutinib in R/R CLL)
-            "NCT05023980",   # BRUIN CLL-322 (combo)
-            "NCT04662255",   # BRUIN MCL-321
-        ],
-        "drug_patterns": ["pirtobrutinib", "loxo-305"],
-        "condition_patterns": ["lymphocytic leukemia", "mantle"],
-    },
-    {
-        "stem": "MIRVETUXIMAB_OVARIAN_REVIEW",
-        "name": "Mirvetuximab soravtansine in folate-receptor-alpha ovarian",
-        "ncts": [
-            "NCT04209855",   # MIRASOL (Moore NEJM 2024)
-            "NCT04296890",   # SORAYA
-        ],
-        "drug_patterns": ["mirvetuximab"],
-        "condition_patterns": ["ovarian"],
-    },
-    {
-        "stem": "OLUTASIDENIB_AML_REVIEW",
-        "name": "Olutasidenib in R/R IDH1+ AML",
-        "ncts": [
-            "NCT02719574",   # Phase 1/2 (Watts Blood 2023)
-        ],
-        "drug_patterns": ["olutasidenib"],
-        "condition_patterns": ["myeloid leukemia"],
-    },
+    # Path X — recent landmark trials not yet covered
+    {"stem": "TEZEPELUMAB_ASTHMA_REVIEW", "name": "Tezepelumab in severe asthma",
+     "ncts": ["NCT03347279", "NCT04039113", "NCT03406078", "NCT03968978"],
+     "drug_patterns": ["tezepelumab"], "condition_patterns": ["asthma"]},
+    {"stem": "AVACOPAN_ANCA_REVIEW", "name": "Avacopan in ANCA-associated vasculitis",
+     "ncts": ["NCT02994927", "NCT02222155"],
+     "drug_patterns": ["avacopan"], "condition_patterns": ["anca", "vasculitis", "granulomatosis"]},
+    {"stem": "ZURANOLONE_PPD_MDD_REVIEW", "name": "Zuranolone in MDD and PPD",
+     "ncts": ["NCT04442737", "NCT04476030"],
+     "drug_patterns": ["zuranolone", "sage-217"], "condition_patterns": ["depress"]},
+    {"stem": "TOFERSEN_SOD1_ALS_REVIEW", "name": "Tofersen in SOD1+ ALS",
+     "ncts": ["NCT02623699", "NCT04856982"],
+     "drug_patterns": ["tofersen"], "condition_patterns": ["amyotrophic", "lateral", "sclerosis"]},
+    {"stem": "VAMOROLONE_DMD_REVIEW", "name": "Vamorolone in Duchenne",
+     "ncts": ["NCT03439670", "NCT03038399"],
+     "drug_patterns": ["vamorolone"], "condition_patterns": ["duchenne", "muscular"]},
+
+    # Path Y — modern oncology bispecifics + ADCs
+    {"stem": "TALQUETAMAB_MM_REVIEW", "name": "Talquetamab (GPRC5D bispecific) in R/R MM",
+     "ncts": ["NCT03399799", "NCT04634552", "NCT05012774"],
+     "drug_patterns": ["talquetamab"], "condition_patterns": ["multiple myeloma"]},
+    {"stem": "ELRANATAMAB_MM_REVIEW", "name": "Elranatamab (BCMA bispecific) in R/R MM",
+     "ncts": ["NCT03269136", "NCT04649359", "NCT05020236"],
+     "drug_patterns": ["elranatamab", "pf-06863135"], "condition_patterns": ["multiple myeloma"]},
+    {"stem": "EPCORITAMAB_LYMPHOMA_REVIEW", "name": "Epcoritamab (CD20xCD3) in R/R DLBCL/FL",
+     "ncts": ["NCT03625037", "NCT04628494"],
+     "drug_patterns": ["epcoritamab"], "condition_patterns": ["lymphoma"]},
+    {"stem": "GLOFITAMAB_LYMPHOMA_REVIEW", "name": "Glofitamab (CD20xCD3) in R/R DLBCL",
+     "ncts": ["NCT03075696", "NCT04408638"],
+     "drug_patterns": ["glofitamab", "ro7082859"], "condition_patterns": ["lymphoma"]},
+    {"stem": "MIRVETUXIMAB_OVARIAN_REVIEW", "name": "Mirvetuximab soravtansine FRα+ ovarian",
+     "ncts": ["NCT04209855", "NCT04296890"],
+     "drug_patterns": ["mirvetuximab"], "condition_patterns": ["ovarian"]},
+    {"stem": "OLUTASIDENIB_AML_REVIEW", "name": "Olutasidenib in R/R IDH1+ AML",
+     "ncts": ["NCT02719574"],
+     "drug_patterns": ["olutasidenib"], "condition_patterns": ["myeloid leukemia"]},
+    {"stem": "SELPERCATINIB_RET_REVIEW", "name": "Selpercatinib in RET+ NSCLC/MTC (LIBRETTO)",
+     "ncts": ["NCT03157128", "NCT04194944"],
+     "drug_patterns": ["selpercatinib"], "condition_patterns": ["lung", "thyroid"]},
+
+    # Path Z — underserved areas (pediatric, rare, tropical)
+    {"stem": "MARALIXIBAT_PFIC_REVIEW", "name": "Maralixibat in PFIC (MARCH-PFIC + cohort)",
+     "ncts": ["NCT03905330", "NCT02057692"],
+     "drug_patterns": ["maralixibat"], "condition_patterns": ["cholestasis", "pfic"]},
+    {"stem": "ODEVIXIBAT_PFIC_REVIEW", "name": "Odevixibat in PFIC (PEDFIC-1/2)",
+     "ncts": ["NCT03566238", "NCT03659916"],
+     "drug_patterns": ["odevixibat"], "condition_patterns": ["cholestasis", "pfic"]},
+    {"stem": "SUTIMLIMAB_CAD_REVIEW", "name": "Sutimlimab in cold agglutinin disease",
+     "ncts": ["NCT03347396", "NCT03347422"],
+     "drug_patterns": ["sutimlimab"], "condition_patterns": ["agglutinin"]},
+    {"stem": "NEMOLIZUMAB_PRURIGO_REVIEW", "name": "Nemolizumab in prurigo nodularis (OLYMPIA)",
+     "ncts": ["NCT04501666", "NCT04204616"],
+     "drug_patterns": ["nemolizumab"], "condition_patterns": ["prurigo"]},
 ]
 
 # ─── AACT bulk load (shared across all topics) ───
