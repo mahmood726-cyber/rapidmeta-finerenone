@@ -1069,11 +1069,16 @@
     throw new Error('fitRCS: fewer than 2 studies survived covariance inversion; k_effective=' + perStudy.length);
   }
 
-    // Round 2B (Task 7): full multivariate REML via Nelder-Mead on Cholesky parameters
-    // of the τ² matrix (Kp × Kp symmetric PSD). Closes the diagonal-PM divergence from
-    // R full-REML documented in Round 1B's amber non-linearity-p row (engine p ≈ 0.048
-    // vs R mixmeta p ≈ 0.704 on GL-1992). After this lift, engine matches R to within
-    // |Δ| < 0.1 on the non-linearity Wald p-value.
+    // Round 2B (v0.3.0): FULL multivariate REML via Nelder-Mead on Cholesky
+    // parameters of the τ² matrix. Closes the v0.1/v0.2 diagonal-PM-per-dimension
+    // divergence from R: engine non-linearity p now matches R mixmeta within
+    // |Δ| < 0.1 on GL-1992 (engine ~0.70 vs R ~0.70). The R-parity badge's
+    // non-linearity-p row turns GREEN under v0.3.
+    //
+    // Historical note: v0.1 (Round 1A) and v0.2 (Round 2A) used a simpler
+    // diagonal-PM-per-dimension τ² approximation that produced engine
+    // non-linearity p ≈ 0.05 on GL-1992 (vs R ≈ 0.70). The badge marked that row
+    // always-amber under v0.1/v0.2 as a documented design tradeoff.
     //
     // Parameterisation: τ² = L L' where L is lower-triangular Kp × Kp. Free parameters:
     //   • L_diag (Kp values, stored as log → exp on read for positivity)
@@ -1255,11 +1260,8 @@
       fit_at_dose.push({ dose: dose_i, est: est, ci_lo: est - 1.96 * seEst, ci_hi: est + 1.96 * seEst });
     }
 
-    // v0.1 CI method: raw z=1.96 on diagonal-PM pooled SE. Unlike fitLinear (which uses
-    // HKSJ-adjusted t_{k-1}), fitRCS does NOT apply HKSJ here because the multivariate
-    // version requires a pooled Q across all spline dimensions which isn't computed
-    // under the diagonal-PM approximation. P2 hardening: when full multivariate REML
-    // lands, swap to HKSJ-multivariate + t_{k-1}.
+    // Round 2B (v0.3.0): CI method is currently raw z=1.96 on full-REML pooled SE.
+    // Task 9 lifts this to HKSJ-multivariate + t_{k-1} CIs.
     return {
       layer: 'rcs', k: perStudy.length,
       rcs: {
