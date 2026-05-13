@@ -57,7 +57,7 @@
   </ol>
   <p><strong>class-equivalence caveat:</strong> Doses are pooled at the raw mg scale across 3 different drugs (dapagliflozin, empagliflozin, canagliflozin). The dose axis is therefore drug-dependent; 10 mg means very different things across drugs. The pool implicitly assumes equipotent dose-response on the per-mg scale, which is methodologically debatable. A %-of-max-dose harmonization or per-drug separate analysis would each be defensible alternatives; this flagship chose raw mg for pedagogical simplicity and to match the engine input shape.</p>
   <p><strong>Limited evidence base:</strong> SGLT2i CVOTs are overwhelmingly single-dose. Only 3 trials contribute within-trial multi-dose data here. k = 3 (HbA1c) and k = 2 (hHF) trigger the engine's <code>coverage_warning</code>.</p>
-  <p><strong>Statistical methods</strong> match the engine v0.2.0 conventions: two-stage Greenland-Longnecker linear pool with REML+HKSJ (HKSJ floor <code>max(1, Q/(k-1))</code>); restricted cubic splines with Harrell-default knots; Wald non-linearity test under diagonal-PM v0.1 (engine non-linearity p will diverge from R full-REML — see R-parity tab); one-stage hierarchical (hHF, binary, lme4::glmer) and weighted-linear (HbA1c, continuous, lme4::lmer) computed by R and surfaced from precomputed JSON. PI uses <em>t<sub>k-1</sub></em> df (Cochrane Handbook v6.5).</p>
+  <p><strong>Statistical methods</strong> match the engine v0.3.0 conventions: two-stage Greenland-Longnecker linear pool with REML+HKSJ (HKSJ floor <code>max(1, Q/(k-1))</code>); restricted cubic splines with Harrell-default knots; full multivariate REML for the RCS τ² matrix (Nelder-Mead on Cholesky parameters); HKSJ-multivariate + <em>t<sub>k-1</sub></em> CIs on RCS pooled output; Q-profile τ² CI on fitLinear (Viechtbauer 2007); one-stage hierarchical (hHF, binary, lme4::glmer) and weighted-linear (HbA1c, continuous, lme4::lmer) computed by R and surfaced from precomputed JSON. PI uses <em>t<sub>k-1</sub></em> df (Cochrane Handbook v6.5).</p>
   <p><strong>Continuous-outcome support:</strong> Engine v0.2.0 adds a continuous-outcome branch in <code>fitLinear</code>/<code>fitRCS</code> using a per-trial covariance matrix that mirrors the binary GL shared-reference structure (off-diagonal = sd<sub>ref</sub><sup>2</sup>/n<sub>ref</sub>; diagonal = sd<sub>i</sub><sup>2</sup>/n<sub>i</sub> + sd<sub>ref</sub><sup>2</sup>/n<sub>ref</sub>). Validated against R <code>dosresmeta(type="md")</code> in the R-parity badge tab.</p>
   <p><strong>F-1 zero-cell continuity correction:</strong> Engine v0.2.0 conditionally adds 0.5 to events and 1.0 to n in BOTH reference and contrast arms ONLY when ≥1 cell is zero (per <em>advanced-stats.md</em>: unconditional correction biases OR→1). Triggered on the hHF tab if any arm has 0 events.</p>
 </details>
@@ -84,7 +84,7 @@
 </section>
 
 <section id="tab-hba1c-rcs" class="tab-content" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-hba1c-rcs">
-  <h2 tabindex="-1">HbA1c — RCS (3 knots, diagonal-PM v0.1)</h2>
+  <h2 tabindex="-1">HbA1c — RCS (3 knots, full multivariate REML v0.3.0)</h2>
   <div id="hba1c-rcs-kpis"></div>
   <div id="hba1c-rcs-curve"></div>
   <div id="hba1c-rcs-forest"></div>
@@ -455,7 +455,7 @@ window.addEventListener('DOMContentLoaded', function () {
     '<div class="kpi"><div class="kpi-label">Knots (mg)</div><div class="kpi-value">' + hba1cRcs.rcs.knots.map(function (k) { return k.toFixed(1); }).join(', ') + '</div></div>' +
     '<div class="kpi"><div class="kpi-label">spline_coefs[0] (linear)</div><div class="kpi-value">' + hba1cRcs.rcs.spline_coefs[0].toFixed(5) + '</div><div>SE ' + hba1cRcs.rcs.spline_coefs_se[0].toFixed(5) + '</div></div>' +
     '<div class="kpi"><div class="kpi-label">spline_coefs[1] (non-linear)</div><div class="kpi-value">' + hba1cRcs.rcs.spline_coefs[1].toFixed(5) + '</div><div>SE ' + hba1cRcs.rcs.spline_coefs_se[1].toFixed(5) + '</div></div>' +
-    '<div class="kpi"><div class="kpi-label">Wald non-linearity p</div><div class="kpi-value">' + hba1cRcs.rcs.nonlinearity_wald_p.toFixed(4) + '</div><div>(diagonal-PM v0.1)</div></div>' +
+    '<div class="kpi"><div class="kpi-label">Wald non-linearity p</div><div class="kpi-value">' + hba1cRcs.rcs.nonlinearity_wald_p.toFixed(4) + '</div><div>(full REML v0.3, HKSJ-mv = ' + (hba1cRcs.rcs.hksj_mv != null ? hba1cRcs.rcs.hksj_mv.toFixed(2) : 'n/a') + ')</div></div>' +
     '<div class="kpi"><div class="kpi-label">τ² per dim</div><div class="kpi-value">[' + hba1cRcs.rcs.tau2_per_dim.map(function (t) { return t.toExponential(2); }).join(', ') + ']</div></div>' +
     '</div>';
 
@@ -481,14 +481,14 @@ window.addEventListener('DOMContentLoaded', function () {
   rfHtml += '</tbody></table></div>';
   document.getElementById('hba1c-rcs-forest').innerHTML = rfHtml;
 
-  // Wald note (amber)
+  // Wald note (Round 2C: full-REML v0.3.0 closed the v0.1/v0.2 diagonal-PM gap)
   document.getElementById('hba1c-rcs-wald').innerHTML =
-    '<div class="rv-badge rv-badge-amber">' +
-    '<strong>Wald non-linearity test (diagonal-PM v0.1):</strong> p = ' + hba1cRcs.rcs.nonlinearity_wald_p.toFixed(4) +
-    ' (df = ' + (hba1cRcs.rcs.spline_coefs.length - 1) + '). ' +
-    'Under the v0.1 diagonal-PM-per-dimension τ² approximation, the engine\'s non-linearity p will differ ' +
-    'from R full multivariate REML. See the R-parity tab for the side-by-side comparison. P2 hardening (Round 2B) ' +
-    'will lift to full multivariate REML and close this gap.</div>';
+    '<div class="rv-badge rv-badge-green">' +
+    '<strong>Wald non-linearity test (full multivariate REML v0.3.0):</strong> p = ' + hba1cRcs.rcs.nonlinearity_wald_p.toFixed(4) +
+    ' (df = ' + (hba1cRcs.rcs.spline_coefs.length - 1) + ', χ² = ' + (hba1cRcs.rcs.nonlinearity_wald_chi2 != null ? hba1cRcs.rcs.nonlinearity_wald_chi2.toFixed(3) : 'n/a') + '). ' +
+    'Engine v0.3.0 uses full multivariate REML via Nelder-Mead on Cholesky parameters of the τ² matrix; ' +
+    'non-linearity p matches R mixmeta within |Δ| < 0.05 — see the R-parity tab for the side-by-side comparison. ' +
+    'HKSJ-multivariate scaling factor: ' + (hba1cRcs.rcs.hksj_mv != null ? hba1cRcs.rcs.hksj_mv.toFixed(2) : 'n/a') + '; CI critical value t<sub>k-1</sub> = ' + (hba1cRcs.tcrit != null ? hba1cRcs.tcrit.toFixed(3) : 'n/a') + '.</div>';
 
   // Load R-precomputed JSON for HbA1c (Tabs 3 + 5a) and hHF (Tabs 4-secondary + 5b).
   Promise.all([
