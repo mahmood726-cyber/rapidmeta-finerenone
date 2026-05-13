@@ -423,7 +423,51 @@ window.addEventListener('DOMContentLoaded', function () {
     'from R full multivariate REML. See the R-parity tab for the side-by-side comparison. P2 hardening (Round 2B) ' +
     'will lift to full multivariate REML and close this gap.</div>';
 
-  // Tab 3 (HbA1c One-stage) + Tab 4 + Tab 5 populated in subsequent tasks.
+  // Load R-precomputed JSON for HbA1c (Tabs 3 + 5a) and hHF (Tabs 4-secondary + 5b).
+  Promise.all([
+    fetch('outputs/r_validation/doseresp/sglt2i_hba1c.json').then(function (r) {
+      if (!r.ok) throw new Error('HbA1c R JSON: HTTP ' + r.status);
+      return r.json();
+    }),
+    fetch('outputs/r_validation/doseresp/sglt2i_hhf.json').then(function (r) {
+      if (!r.ok) throw new Error('hHF R JSON: HTTP ' + r.status);
+      return r.json();
+    })
+  ]).then(function (results) {
+    var rHba1c = results[0];
+    var rHhf = results[1];
+
+    // === Tab 3: HbA1c One-stage ===
+    var hba1cOs = DR.fitOneStage(hba1cTrials, {}, rHba1c);
+    if (!hba1cOs || !hba1cOs.one_stage || hba1cOs.one_stage.fit_ok === false) {
+      document.getElementById('hba1c-os-kpis').innerHTML =
+        '<div class="rv-banner rv-banner-error">One-stage R output unavailable. Run <code>python scripts/r_validate_doseresp.py --review sglt2i_hba1c<\/code> to populate.<\/div>';
+    } else {
+      var os = hba1cOs.one_stage;
+      var osMd10 = os.coef_dose * 10;
+      document.getElementById('hba1c-os-kpis').innerHTML =
+        '<div class="kpi-grid">' +
+        '<div class="kpi"><div class="kpi-label">MD per 10 mg dose (one-stage)<\/div><div class="kpi-value">' + osMd10.toFixed(3) + '%<\/div><div>95% CI ' + (os.coef_dose_ci_lo*10).toFixed(3) + ' to ' + (os.coef_dose_ci_hi*10).toFixed(3) + '<\/div><\/div>' +
+        '<div class="kpi"><div class="kpi-label">coef_dose (per mg)<\/div><div class="kpi-value">' + os.coef_dose.toFixed(5) + '<\/div><div>SE ' + os.coef_dose_se.toFixed(5) + '<\/div><\/div>' +
+        '<div class="kpi"><div class="kpi-label">Random-effects variance<\/div><div class="kpi-value">' + (os.random_effects_var != null ? os.random_effects_var.toFixed(5) : 'n\/a') + '<\/div><\/div>' +
+        '<div class="kpi"><div class="kpi-label">Converged<\/div><div class="kpi-value">' + (os.converged ? 'Yes' : 'No') + '<\/div><\/div>' +
+        '<div class="kpi"><div class="kpi-label">Solver<\/div><div class="kpi-value">lme4 ' + (os.lme4_version || rHba1c.one_stage.lme4_version || 'unknown') + '<\/div><\/div>' +
+        (os.dose_scale_sd != null ? '<div class="kpi"><div class="kpi-label">dose_scale_sd (audit)<\/div><div class="kpi-value">' + os.dose_scale_sd.toFixed(3) + '<\/div><\/div>' : '') +
+        '<\/div>';
+      document.getElementById('hba1c-os-methods').innerHTML =
+        '<p><strong>Methodology:<\/strong> One-stage hierarchical model fit by R using <code>lme4::lmer(mean ~ dose + (1 | studlab), data = df, weights = 1\/(sd^2\/n), REML = TRUE)<\/code> with the bobyqa optimizer. Per-arm HbA1c change modelled on the original scale; per-arm precision weights (inverse-variance) reflect within-arm sampling uncertainty. Random study intercept captures between-study baseline-HbA1c variation. Dose rescaling by <code>sd(dose[dose > 0])<\/code> for convergence; coefficient back-transformed to per-mg scale.<\/p>' +
+        '<p style="margin-top:0.6em; font-size:0.92em;"><strong>Why this differs from Tab 1:<\/strong> The one-stage estimate (MD per 10 mg) differs from the two-stage linear pool because the random study intercept absorbs between-study variation in baseline HbA1c, shifting the fixed-effect dose slope. Neither is wrong; they answer subtly different questions about the dose-response relationship.<\/p>';
+    }
+
+    // Tab 4 + Tab 5 populated in Unit 7
+
+  }).catch(function (e) {
+    console.error('[SGLT2I] failed to load R JSON:', e);
+    document.getElementById('hba1c-os-kpis').textContent = 'One-stage tab unavailable: ' + e.message;
+    document.getElementById('r-parity-doseresp-hba1c').textContent = 'HbA1c R-parity unavailable: ' + e.message;
+    document.getElementById('r-parity-doseresp-hhf').textContent = 'hHF R-parity unavailable: ' + e.message;
+  });
+
 });
 </script>
 
