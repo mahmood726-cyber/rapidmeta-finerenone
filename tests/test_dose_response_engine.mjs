@@ -687,6 +687,18 @@ test('qProfileCI returns finite bounds bracketing the point estimate', () => {
   assert.ok(tau2_hat <= ci.hi * 10, 'tau2_hat within Q-profile envelope');
 });
 
+test('qProfileCI exercises bisect-for-lo branch on high-heterogeneity input', () => {
+  // High-heterogeneity 5-trial input: Q(0) > chiUpper, forcing the bisect
+  // call for tau2_lo (not just the short-circuit at 0).
+  var yi = [0.2, 0.3, 0.5, 0.4, 0.1];
+  var vi = [0.003, 0.004, 0.005, 0.003, 0.004];  // much tighter SEs → larger Q(0)
+  var ci = I.qProfileCI(yi, vi, 0.05);
+  assert.ok(Number.isFinite(ci.lo), 'tau2_lo must be finite');
+  assert.ok(Number.isFinite(ci.hi), 'tau2_hi must be finite');
+  assert.ok(ci.lo > 0, 'tau2_lo > 0 (bisect-for-lo branch exercised)');
+  assert.ok(ci.hi > ci.lo, 'tau2_hi strictly greater than tau2_lo');
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }
