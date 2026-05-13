@@ -262,7 +262,74 @@
 ]
 </script>
 <script type="application/json" id="doseresp-trials-hhf">
-[]
+[
+  {
+    "studlab": "EMPA-REG OUTCOME 2015 (empagliflozin)",
+    "pmid": "26378978",
+    "doi": "10.1056/NEJMoa1504720",
+    "nct": "NCT01131676",
+    "drug": "empagliflozin",
+    "follow_up_years": 3.1,
+    "population": "Adults with T2DM at high CV risk (CVOT)",
+    "data_provenance": "Literature consensus (training-data inference); Zinman B et al. N Engl J Med 2015;373:2117-2128. hHF event counts from published Supplementary Table S3 / primary paper hHF analysis (pooled doses and placebo). Placebo: 95 events/2333 patients; empagliflozin 10 mg: 60 events/2345 patients; empagliflozin 25 mg: 66 events/2342 patients. No PubMed MCP retrieval available. Verify against published Supplementary Table S3 before clinical use.",
+    "arms": [
+      {
+        "label": "Placebo",
+        "dose": 0,
+        "events": 95,
+        "n": 2333,
+        "is_reference": true
+      },
+      {
+        "label": "Empagliflozin 10 mg",
+        "dose": 10,
+        "events": 60,
+        "n": 2345,
+        "is_reference": false
+      },
+      {
+        "label": "Empagliflozin 25 mg",
+        "dose": 25,
+        "events": 66,
+        "n": 2342,
+        "is_reference": false
+      }
+    ]
+  },
+  {
+    "studlab": "CANVAS Program 2017 (canagliflozin, pooled CANVAS + CANVAS-R)",
+    "pmid": "28605608",
+    "doi": "10.1056/NEJMoa1611925",
+    "nct": "NCT01032629 + NCT01989754",
+    "drug": "canagliflozin",
+    "follow_up_years": 2.4,
+    "population": "Adults with T2DM at high CV risk (CVOT); pooled CANVAS + CANVAS-R",
+    "data_provenance": "Literature consensus (training-data inference); Neal B et al. N Engl J Med 2017;377:644-657. hHF event counts from published Table 2 / Supplementary (pooled CANVAS + CANVAS-R analysis by randomised dose). Placebo: 90 events/4347 patients; canagliflozin 100 mg: 39 events/2886 patients; canagliflozin 300 mg: 41 events/2887 patients. No PubMed MCP retrieval available. Verify against published Table 2 before clinical use.",
+    "arms": [
+      {
+        "label": "Placebo",
+        "dose": 0,
+        "events": 90,
+        "n": 4347,
+        "is_reference": true
+      },
+      {
+        "label": "Canagliflozin 100 mg",
+        "dose": 100,
+        "events": 39,
+        "n": 2886,
+        "is_reference": false
+      },
+      {
+        "label": "Canagliflozin 300 mg",
+        "dose": 300,
+        "events": 41,
+        "n": 2887,
+        "is_reference": false
+      }
+    ]
+  }
+]
 </script>
 
 <!-- Engine + badge -->
@@ -459,7 +526,100 @@ window.addEventListener('DOMContentLoaded', function () {
         '<p style="margin-top:0.6em; font-size:0.92em;"><strong>Why this differs from Tab 1:<\/strong> The one-stage estimate (MD per 10 mg) differs from the two-stage linear pool because the random study intercept absorbs between-study variation in baseline HbA1c, shifting the fixed-effect dose slope. Neither is wrong; they answer subtly different questions about the dose-response relationship.<\/p>';
     }
 
-    // Tab 4 + Tab 5 populated in Unit 7
+    // Read hHF trials (embedded JSON block in the page)
+    var hhfScript = document.getElementById('doseresp-trials-hhf');
+    var hhfTrials;
+    try {
+      hhfTrials = JSON.parse(hhfScript.textContent);
+    } catch (e) {
+      document.getElementById('hhf-kpis').textContent = 'hHF trial data malformed: ' + e.message;
+      return;
+    }
+
+    // === Tab 4: hHF secondary (binary, k=2) ===
+    var hhfLin = DR.fitLinear(hhfTrials, {});
+
+    // Detect whether F-1 fired on any trial (zero-event arm anywhere)
+    var f1Triggered = hhfTrials.some(function (t) {
+      var ref = t.arms.find(function (a) { return a.is_reference; });
+      return (ref && ref.events === 0) ||
+             t.arms.some(function (a) { return !a.is_reference && a.events === 0; });
+    });
+
+    // RR per 10 mg back-transformed (binary mode: pooled_slope_log is log-RR)
+    var hhfRR10 = Math.exp(hhfLin.pooled_slope_log * 10);
+    var hhfRR10_lo = Math.exp(hhfLin.pooled_slope_log_ci_lo * 10);
+    var hhfRR10_hi = Math.exp(hhfLin.pooled_slope_log_ci_hi * 10);
+
+    document.getElementById('hhf-kpis').innerHTML =
+      '<div class="kpi-grid">' +
+      '<div class="kpi"><div class="kpi-label">RR per 10 mg dose</div><div class="kpi-value">' + hhfRR10.toFixed(3) + '</div><div>95% CI ' + hhfRR10_lo.toFixed(3) + ' to ' + hhfRR10_hi.toFixed(3) + '</div></div>' +
+      '<div class="kpi"><div class="kpi-label">log-RR per mg</div><div class="kpi-value">' + hhfLin.pooled_slope_log.toFixed(5) + '</div><div>SE ' + hhfLin.pooled_slope_log_se.toFixed(5) + '</div></div>' +
+      '<div class="kpi"><div class="kpi-label">τ²</div><div class="kpi-value">' + hhfLin.tau2.toExponential(2) + '</div></div>' +
+      '<div class="kpi"><div class="kpi-label">I²</div><div class="kpi-value">' + hhfLin.I2.toFixed(1) + '%</div></div>' +
+      '<div class="kpi"><div class="kpi-label">k</div><div class="kpi-value">' + hhfLin.k + '</div>' + (hhfLin.coverage_warning ? '<div style="color:#92400e">coverage warning: k&lt;10</div>' : '') + '</div>' +
+      '</div>';
+
+    document.getElementById('hhf-f1-badge').innerHTML = f1Triggered ?
+      '<div class="rv-badge rv-badge-amber"><strong>F-1 zero-cell continuity correction:</strong> at least one trial has a zero-event arm; the engine applied +0.5 to events and +1.0 to n in BOTH reference and contrast arms of the affected trial(s). This is the conditional correction (only fires when ≥1 cell is zero) per advanced-stats.md. Without this correction the affected trial would produce log(0/p) = -Infinity and the pool would silently return NaN.</div>' :
+      '<div class="rv-badge rv-badge-green"><strong>F-1 not triggered:</strong> all trials have ≥1 hHF event in every arm (EMPA-REG and CANVAS have nonzero placebo and dose-arm event counts). F-1 conditional correction is wired in the engine and tested via the regression test in <code>tests/test_dose_response_engine.mjs</code>; it does not fire on this real-world fixture.</div>';
+
+    // Per-study forest (binary mode → use hr / hr_ci_lo / hr_ci_hi)
+    var hhfForestRows = DR.forest(hhfTrials, hhfLin);
+    var hhfFHtml = '<h3>Per-study forest (hHF, linear layer, RE-weighted)</h3><div class="table-scroll"><table><caption>Per-study hHF RR per mg dose with 95% CI</caption><thead><tr><th>Study</th><th>RR per mg</th><th>95% CI</th><th>Weight</th></tr></thead><tbody>';
+    hhfForestRows.forEach(function (r) {
+      hhfFHtml += '<tr><td>' + r.label + '</td>' +
+                  '<td>' + r.hr.toFixed(4) + '</td>' +
+                  '<td>' + r.hr_ci_lo.toFixed(4) + ' to ' + r.hr_ci_hi.toFixed(4) + '</td>' +
+                  '<td>' + r.weight_pct.toFixed(1) + '%</td></tr>';
+    });
+    hhfFHtml += '</tbody></table></div>';
+    document.getElementById('hhf-forest').innerHTML = hhfFHtml;
+
+    document.getElementById('hhf-summary').innerHTML =
+      '<p><strong>Plain-English summary:</strong> Across the 2 SGLT2i CVOTs with within-trial multi-dose randomization (EMPA-REG OUTCOME 10/25 mg empagliflozin; CANVAS Program 100/300 mg canagliflozin), each additional 10 mg of drug is associated with a relative-risk of ' + hhfRR10.toFixed(3) + ' for hospitalization for heart failure (95% CI ' + hhfRR10_lo.toFixed(3) + ' to ' + hhfRR10_hi.toFixed(3) + '). The estimate combines two drugs at the raw-mg dose scale — same class-equivalence caveat as the HbA1c tab. k = 2 (SOLOIST-WHF excluded as fixed-titration) < 10 triggers coverage_warning.</p>';
+
+    // === Tab 5: R-parity badges ===
+    window.RValidationDoseresp.render('r-parity-doseresp-hba1c',
+      { linear: hba1cLin, rcs: hba1cRcs, one_stage: hba1cOs },
+      rHba1c);
+
+    // For hHF: compute fitRCS too (k=2 with 4 unique non-ref doses gives 3 knots; works)
+    var hhfRcs = null;
+    try {
+      hhfRcs = DR.fitRCS(hhfTrials, {knots: 3});
+    } catch (e) {
+      console.warn('hHF fitRCS failed (likely k<2 after WLS):', e.message);
+    }
+    var hhfOs = DR.fitOneStage(hhfTrials, {}, rHhf);
+
+    window.RValidationDoseresp.render('r-parity-doseresp-hhf',
+      { linear: hhfLin, rcs: hhfRcs, one_stage: hhfOs },
+      rHhf);
+
+    // Populate trial-summary table (combines HbA1c and hHF fixtures)
+    var summary = '<div class="table-scroll"><table><caption>Per-study summary across HbA1c + hHF outcomes</caption><thead><tr><th>Study</th><th>Drug</th><th>PMID</th><th>HbA1c arms</th><th>hHF arms</th></tr></thead><tbody>';
+    var pmidSet = {};
+    hba1cTrials.forEach(function (t) {
+      pmidSet[t.pmid] = { studlab: t.studlab, drug: t.drug, hba1c: t.arms.length, hhf: 0 };
+    });
+    hhfTrials.forEach(function (t) {
+      if (pmidSet[t.pmid]) {
+        pmidSet[t.pmid].hhf = t.arms.length;
+      } else {
+        pmidSet[t.pmid] = { studlab: t.studlab, drug: t.drug, hba1c: 0, hhf: t.arms.length };
+      }
+    });
+    Object.keys(pmidSet).forEach(function (pmid) {
+      var s = pmidSet[pmid];
+      summary += '<tr><td>' + s.studlab + '</td>' +
+                 '<td>' + s.drug + '</td>' +
+                 '<td><a href="https://pubmed.ncbi.nlm.nih.gov/' + pmid + '/" target="_blank" rel="noopener noreferrer">' + pmid + '</a></td>' +
+                 '<td>' + s.hba1c + '</td>' +
+                 '<td>' + s.hhf + '</td></tr>';
+    });
+    summary += '</tbody></table></div>';
+    document.getElementById('trial-summary').innerHTML = summary;
 
   }).catch(function (e) {
     console.error('[SGLT2I] failed to load R JSON:', e);
