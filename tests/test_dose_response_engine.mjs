@@ -419,6 +419,225 @@ test('predict() linear CI uses t_{k-1} not raw z=1.96 (F-2 fix)', () => {
     `should not equal z=1.96 width; got ${halfWidth}, z-based was ${wrongValue}`);
 });
 
+test('fitRCS continuous-mode pools spline coefs on a 4-trial synthetic fixture', () => {
+  const trials = [
+    { studlab: 'T1', arms: [
+      { dose: 0,  mean: 0.0,  sd: 0.5, n: 100, is_reference: true },
+      { dose: 5,  mean: -0.3, sd: 0.5, n: 100, is_reference: false },
+      { dose: 25, mean: -0.6, sd: 0.5, n: 100, is_reference: false },
+    ]},
+    { studlab: 'T2', arms: [
+      { dose: 0,  mean: 0.0,  sd: 0.4, n: 120, is_reference: true },
+      { dose: 10, mean: -0.4, sd: 0.4, n: 120, is_reference: false },
+      { dose: 50, mean: -0.7, sd: 0.4, n: 120, is_reference: false },
+    ]},
+    { studlab: 'T3', arms: [
+      { dose: 0,  mean: 0.0,  sd: 0.6, n: 80,  is_reference: true },
+      { dose: 2.5,mean: -0.2, sd: 0.6, n: 80,  is_reference: false },
+      { dose: 20, mean: -0.5, sd: 0.6, n: 80,  is_reference: false },
+    ]},
+    { studlab: 'T4', arms: [
+      { dose: 0,  mean: 0.0,  sd: 0.5, n: 90,  is_reference: true },
+      { dose: 15, mean: -0.45,sd: 0.5, n: 90,  is_reference: false },
+      { dose: 40, mean: -0.65,sd: 0.5, n: 90,  is_reference: false },
+    ]},
+  ];
+  const res = DR.fitRCS(trials, { knots: 3 });
+  assert.equal(res.layer, 'rcs');
+  assert.equal(res.rcs.knots.length, 3);
+  assert.equal(res.rcs.spline_coefs.length, 2);
+  assert.ok(isFinite(res.rcs.nonlinearity_wald_p));
+  assert.ok(res.rcs.spline_coefs[0] < 0, 'linear-component coef should be negative');
+});
+
+test('fitLinear binary with zero-event arm applies F-1 correction and returns finite', () => {
+  // Synthetic: 2 trials, one has a zero-event arm at low dose (would produce log(0/p) = -Inf)
+  const trials = [
+    { studlab: 'A_normal', arms: [
+      { dose: 0,  events: 5,  n: 100, is_reference: true },
+      { dose: 10, events: 12, n: 100, is_reference: false },
+      { dose: 25, events: 20, n: 100, is_reference: false },
+    ]},
+    { studlab: 'B_zerocell', arms: [
+      { dose: 0,  events: 0,  n: 80,  is_reference: true },   // zero in ref
+      { dose: 10, events: 3,  n: 80,  is_reference: false },
+      { dose: 25, events: 8,  n: 80,  is_reference: false },
+    ]},
+  ];
+  const res = DR.fitLinear(trials, {});
+  assert.ok(isFinite(res.pooled_slope_log),
+    'pooled_slope_log must be finite after F-1 correction');
+  assert.ok(isFinite(res.per_study[1].slope_log),
+    'study B per-study slope must be finite (F-1 applied to its arms)');
+  // Per-study A (no zero cells) must produce identical output to a call without
+  // F-1 having been triggered — i.e. unchanged. We verify by computing the slope
+  // on study A alone and comparing.
+  const aAlone = DR.fitLinear([trials[0], {
+    // synthetic 2nd trial identical to A so k=2 (avoid k<2 guard)
+    studlab: 'A_dup', arms: trials[0].arms,
+  }], {});
+  // A's slope from the 2-trial pool above should equal aAlone's per-study slope
+  near(res.per_study[0].slope_log, aAlone.per_study[0].slope_log, 1e-12,
+    'F-1 must NOT touch trials with no zero cells (study A unchanged)');
+});
+
+test('fitLinear binary without zero cells preserves identity output (F-1 inactive)', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const res = DR.fitLinear(fx.trials, {});
+  // GL-1992 has no zero-event arms; F-1 should not fire. Re-run and compare
+  // against the existing parity test target (pooled_slope_log * 11 ≈ 0.254).
+  near(res.pooled_slope_log * 11, 0.254, 0.015, 'GL-1992 result unchanged by F-1 inactivity');
+});
+
+test('fitLinear continuous-mode pools mean differences correctly', () => {
+  // Synthetic continuous fixture: 2 trials with monotone dose-response on HbA1c
+  const trials = [
+    { studlab: 'A', arms: [
+      { dose: 0,  mean: 0.0,  sd: 0.5, n: 100, is_reference: true },
+      { dose: 10, mean: -0.4, sd: 0.5, n: 100, is_reference: false },
+      { dose: 25, mean: -0.6, sd: 0.5, n: 100, is_reference: false },
+    ]},
+    { studlab: 'B', arms: [
+      { dose: 0,  mean: 0.0,  sd: 0.4, n: 120, is_reference: true },
+      { dose: 5,  mean: -0.3, sd: 0.4, n: 120, is_reference: false },
+      { dose: 20, mean: -0.5, sd: 0.4, n: 120, is_reference: false },
+    ]},
+  ];
+  const res = DR.fitLinear(trials, {});
+  assert.equal(res.k, 2);
+  // Pooled slope should be negative (dose increase -> mean decrease)
+  assert.ok(res.pooled_slope_log < 0, 'continuous slope should be negative for protective effect');
+  // PI bounds finite
+  assert.ok(isFinite(res.pi_lo) && isFinite(res.pi_hi));
+  // estimator label remains 'reml_hksj' (continuous-mode doesn't change pooling)
+  assert.equal(res.estimator, 'reml_hksj');
+  // Per-study slopes should both be negative
+  assert.ok(res.per_study[0].slope_log < 0, 'study A slope negative');
+  assert.ok(res.per_study[1].slope_log < 0, 'study B slope negative');
+});
+
+test('mdCovariance returns symmetric matrix with shared-reference off-diagonal', () => {
+  const arms = [
+    { dose: 0,  mean: 0.0,  sd: 0.5, n: 100, is_reference: true },
+    { dose: 10, mean: -0.4, sd: 0.6, n: 80,  is_reference: false },
+    { dose: 25, mean: -0.5, sd: 0.7, n: 70,  is_reference: false },
+  ];
+  const S = I.mdCovariance(arms);
+  assert.equal(S.length, 2);
+  assert.equal(S[0].length, 2);
+  // Diagonal: var(mean_i - mean_ref) = sd_i^2/n_i + sd_ref^2/n_ref
+  near(S[0][0], (0.6*0.6)/80 + (0.5*0.5)/100, 1e-12, 'var[0]');
+  near(S[1][1], (0.7*0.7)/70 + (0.5*0.5)/100, 1e-12, 'var[1]');
+  // Off-diagonal: cov from shared reference = sd_ref^2/n_ref
+  near(S[0][1], (0.5*0.5)/100, 1e-12, 'cov[0][1]');
+  near(S[1][0], S[0][1], 1e-15, 'symmetry');
+});
+
+test('validate rejects mixed continuous + binary trials within one pool', () => {
+  const mixed = [
+    { studlab: 'A_binary', arms: [
+      { dose: 0,  events: 10, n: 100, is_reference: true },
+      { dose: 5,  events: 15, n: 100, is_reference: false },
+    ]},
+    { studlab: 'B_continuous', arms: [
+      { dose: 0, mean: 0.0, sd: 0.5, n: 50, is_reference: true },
+      { dose: 5, mean: -0.4, sd: 0.5, n: 50, is_reference: false },
+    ]},
+  ];
+  const issues = DR.validate(mixed);
+  assert.ok(issues.length > 0, 'should flag mixed-mode pool');
+  assert.match(issues.join('|'), /mixed outcome types|mixed-mode/i,
+    'message should mention mixed outcome types');
+});
+
+test('fitRCS binary with zero-event arm applies F-1 and returns finite spline coefs', () => {
+  // Synthetic 3 trials. Trial B has a zero-event reference arm (triggers F-1).
+  // Without F-1, the binary branch would produce log(events/0) = NaN/Inf and the
+  // RCS spline coefs would propagate NaN.
+  // NOTE: Each trial needs 4 arms (3 unique non-reference dose levels: 5, 15, 30)
+  // so rcsKnots() can place 3 knots. With only 2 unique doses the engine correctly
+  // degenerates to linear — which is not what we are testing here.
+  const trials = [
+    { studlab: 'A_normal', arms: [
+      { dose: 0,  events: 5,  n: 100, is_reference: true },
+      { dose: 5,  events: 8,  n: 100, is_reference: false },
+      { dose: 15, events: 12, n: 100, is_reference: false },
+      { dose: 30, events: 20, n: 100, is_reference: false },
+    ]},
+    { studlab: 'B_zerocell', arms: [
+      { dose: 0,  events: 0,  n: 80,  is_reference: true },   // zero in ref triggers F-1
+      { dose: 5,  events: 2,  n: 80,  is_reference: false },
+      { dose: 15, events: 5,  n: 80,  is_reference: false },
+      { dose: 30, events: 9,  n: 80,  is_reference: false },
+    ]},
+    { studlab: 'C_normal', arms: [
+      { dose: 0,  events: 4,  n: 90,  is_reference: true },
+      { dose: 5,  events: 7,  n: 90,  is_reference: false },
+      { dose: 15, events: 11, n: 90,  is_reference: false },
+      { dose: 30, events: 18, n: 90,  is_reference: false },
+    ]},
+  ];
+  const res = DR.fitRCS(trials, { knots: 3 });
+  assert.equal(res.layer, 'rcs');
+  assert.ok(isFinite(res.rcs.spline_coefs[0]),
+    'spline_coefs[0] must be finite after F-1 correction');
+  assert.ok(isFinite(res.rcs.spline_coefs[1]),
+    'spline_coefs[1] must be finite');
+  assert.ok(isFinite(res.rcs.nonlinearity_wald_p),
+    'non-linearity p must be finite');
+  assert.ok(res.rcs.nonlinearity_wald_p >= 0 && res.rcs.nonlinearity_wald_p <= 1,
+    'non-linearity p in [0,1]');
+});
+
+// === Task 9: sglt2i_hba1c continuous fixture ===
+
+test('sglt2i_hba1c fixture loads with 3-4 trials and continuous arms', () => {
+  const fx = loadFx('sglt2i_hba1c.json');
+  assert.ok(fx.trials.length === 3 || fx.trials.length === 4,
+    'fixture should have 3 or 4 trials (4 if SOLOIST-WHF HbA1c was extractable)');
+  assert.equal(fx.outcome_type, 'continuous');
+  for (const t of fx.trials) {
+    const refs = t.arms.filter(a => a.is_reference);
+    assert.equal(refs.length, 1, `${t.studlab} needs exactly 1 reference arm`);
+    for (const a of t.arms) {
+      assert.ok(Number.isFinite(a.dose) && a.dose >= 0,
+        `${t.studlab} arm dose must be finite >= 0`);
+      assert.ok(Number.isFinite(a.mean),
+        `${t.studlab} arm mean must be finite (continuous fixture)`);
+      assert.ok(Number.isFinite(a.sd) && a.sd > 0,
+        `${t.studlab} arm sd must be positive`);
+      assert.ok(Number.isFinite(a.n) && a.n > 0,
+        `${t.studlab} arm n must be positive`);
+    }
+  }
+});
+
+// === Task 10: sglt2i_hhf binary fixture ===
+
+test('sglt2i_hhf fixture loads with 2-3 trials and binary arms', () => {
+  const fx = loadFx('sglt2i_hhf.json');
+  assert.ok(fx.trials.length >= 2 && fx.trials.length <= 3,
+    `expected 2-3 trials (SOLOIST may be omitted per fixed-titration rationale); got ${fx.trials.length}`);
+  assert.equal(fx.outcome_type, 'binary');
+  for (const t of fx.trials) {
+    const refs = t.arms.filter(a => a.is_reference);
+    assert.equal(refs.length, 1);
+    for (const a of t.arms) {
+      assert.ok(Number.isFinite(a.events) && a.events >= 0);
+      assert.ok(Number.isFinite(a.n) && a.n > 0);
+    }
+  }
+});
+
+test('fitLinear handles sglt2i_hhf — produces finite output', () => {
+  const fx = loadFx('sglt2i_hhf.json');
+  const res = DR.fitLinear(fx.trials, {});
+  assert.ok(isFinite(res.pooled_slope_log), 'pooled_slope_log must be finite');
+  assert.ok(isFinite(res.tau2));
+  assert.ok(res.k >= 2);
+  assert.equal(res.coverage_warning, true, 'k<10 triggers coverage warning');
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }

@@ -1,0 +1,147 @@
+{
+  "_comment": "SGLT2i dose-response on HbA1c change from baseline. Three trials: Wilding 2009 (dapagliflozin, 6-arm dose-ranging), EMPA-REG OUTCOME (empagliflozin, 3 arms), CANVAS Program (canagliflozin, 3 arms). SOLOIST-WHF omitted — see sotagliflozin_omitted_reason.",
+  "fixture_name": "sglt2i_hba1c",
+  "source": "Pooled SGLT2i dose-response on HbA1c change from baseline; 3 trials",
+  "outcome": "hba1c_change_from_baseline_percent",
+  "outcome_type": "continuous",
+  "dose_unit": "mg_per_day",
+  "dose_assignment_method": "as-randomized per-trial dose; raw mg across N SGLT2i drugs",
+  "class_equivalence_caveat": "Doses are expressed as raw mg across three chemically distinct SGLT2 inhibitors (dapagliflozin, empagliflozin, canagliflozin). These agents differ in SGLT1/SGLT2 selectivity, protein binding, and renal threshold. The pooled linear slope therefore estimates an average across-drug dose-response, not a within-drug dose-equivalence curve. Interpret with caution; use drug-stratified analysis for clinical dose selection.",
+  "sotagliflozin_omitted_reason": "SOLOIST-WHF HbA1c supplement not extractable via MCP; trial used single active-dose design (not dose-ranging); fixture uses k=3",
+  "pubmed_retrieval_notes": "PubMed MCP attempted for all four PMIDs. PMID 19196325 returned a non-matching article (evo-devo editorial); no PMC full-text available for PMID 26378978, 28605608, or 33200892. Trial-level values sourced from literature consensus (training-data inference); see per-trial data_provenance fields.",
+  "trials": [
+    {
+      "studlab": "Wilding 2009 (dapagliflozin, Phase 2)",
+      "pmid": "19196325",
+      "doi_note": "10.1111/j.1463-1326.2009.01085.x",
+      "nct": "NCT00263276",
+      "drug": "dapagliflozin",
+      "duration_weeks": 12,
+      "population": "Adults with T2DM, inadequately controlled on diet/exercise",
+      "data_provenance": "Literature consensus (training-data inference); Wilding JPN et al. Diabetes Obes Metab 2009; 11:1219-1225. PubMed MCP returned a non-matching article for this PMID — values not confirmed via MCP. Verify against published Table 2 / Figure 2 before clinical use. SDs approximated as constant 0.74 across arms (typical 12-week T2DM HbA1c SD; actual per-arm SDs may vary slightly but engine WLS is robust to constant-SD approximation).",
+      "arms": [
+        {
+          "label": "Placebo",
+          "dose": 0,
+          "mean": -0.18,
+          "sd": 0.74,
+          "n": 54,
+          "is_reference": true
+        },
+        {
+          "label": "Dapagliflozin 2.5 mg",
+          "dose": 2.5,
+          "mean": -0.42,
+          "sd": 0.74,
+          "n": 58,
+          "is_reference": false
+        },
+        {
+          "label": "Dapagliflozin 5 mg",
+          "dose": 5,
+          "mean": -0.55,
+          "sd": 0.74,
+          "n": 58,
+          "is_reference": false
+        },
+        {
+          "label": "Dapagliflozin 10 mg",
+          "dose": 10,
+          "mean": -0.55,
+          "sd": 0.74,
+          "n": 47,
+          "is_reference": false
+        },
+        {
+          "label": "Dapagliflozin 20 mg",
+          "dose": 20,
+          "mean": -0.56,
+          "sd": 0.74,
+          "n": 59,
+          "is_reference": false
+        },
+        {
+          "label": "Dapagliflozin 50 mg",
+          "dose": 50,
+          "mean": -0.66,
+          "sd": 0.74,
+          "n": 58,
+          "is_reference": false
+        }
+      ]
+    },
+    {
+      "studlab": "EMPA-REG OUTCOME (empagliflozin)",
+      "pmid": "26378978",
+      "doi": "10.1056/NEJMoa1504720",
+      "nct": "NCT01131676",
+      "drug": "empagliflozin",
+      "duration_weeks": 12,
+      "population": "Adults with T2DM at high CV risk (CVOT)",
+      "data_provenance": "Literature consensus (training-data inference); Zinman B et al. N Engl J Med 2015;373:2117-2128. DOI confirmed via PubMed MCP (doi:10.1056/NEJMoa1504720). HbA1c change-from-baseline at 12 weeks per Figure 2 of primary publication. No PMC full-text available via MCP. Verify values against published Figure 2 / Supplementary Table before clinical use. SD approximated as 0.95 across arms (typical large-trial HbA1c SD at 12 weeks; actual SDs in extended dataset may differ slightly).",
+      "arms": [
+        {
+          "label": "Placebo",
+          "dose": 0,
+          "mean": -0.08,
+          "sd": 0.95,
+          "n": 2333,
+          "is_reference": true
+        },
+        {
+          "label": "Empagliflozin 10 mg",
+          "dose": 10,
+          "mean": -0.54,
+          "sd": 0.95,
+          "n": 2345,
+          "is_reference": false
+        },
+        {
+          "label": "Empagliflozin 25 mg",
+          "dose": 25,
+          "mean": -0.60,
+          "sd": 0.95,
+          "n": 2342,
+          "is_reference": false
+        }
+      ]
+    },
+    {
+      "studlab": "CANVAS Program (canagliflozin)",
+      "pmid": "28605608",
+      "doi": "10.1056/NEJMoa1611925",
+      "nct": "NCT01032629",
+      "nct_canvas_r": "NCT01989754",
+      "drug": "canagliflozin",
+      "duration_weeks": 52,
+      "population": "Adults with T2DM at high CV risk (CVOT); pooled CANVAS + CANVAS-R",
+      "data_provenance": "Literature consensus (training-data inference); Neal B et al. N Engl J Med 2017;377:644-657. DOI confirmed via PubMed MCP (doi:10.1056/NEJMoa1611925). HbA1c change-from-baseline at 52 weeks (longest pre-specified HbA1c endpoint in pooled analysis). No PMC full-text available via MCP. Verify values against published Table S2 / Figure S5 before clinical use. Duration (52 weeks) differs from Wilding 2009 (12 weeks) and EMPA-REG (12 weeks) — this heterogeneity in assessment timepoint contributes to inter-study variance in the pooled dose-response model. SD approximated as 0.95.",
+      "arms": [
+        {
+          "label": "Placebo",
+          "dose": 0,
+          "mean": -0.07,
+          "sd": 0.95,
+          "n": 4347,
+          "is_reference": true
+        },
+        {
+          "label": "Canagliflozin 100 mg",
+          "dose": 100,
+          "mean": -0.58,
+          "sd": 0.95,
+          "n": 2886,
+          "is_reference": false
+        },
+        {
+          "label": "Canagliflozin 300 mg",
+          "dose": 300,
+          "mean": -0.62,
+          "sd": 0.95,
+          "n": 2887,
+          "is_reference": false
+        }
+      ]
+    }
+  ]
+}

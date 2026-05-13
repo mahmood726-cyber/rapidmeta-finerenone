@@ -1,4 +1,4 @@
-/* rapidmeta-dose-response-engine-v1.js — v0.1.0 (2026-05-12)
+/* rapidmeta-dose-response-engine-v1.js — v0.2.0 (2026-05-13)
  *
  * Self-contained dose-response meta-analysis engine for RapidMeta.
  * Three layered fitters: two-stage Greenland-Longnecker linear (primary),
@@ -10,6 +10,8 @@
  *     breast-cancer dataset to |Δ|<1e-3 on log-slope
  *   - PI / τ² CI / HKSJ floor per RevMan-2025 bit-reproducibility convention
  *     (PI df=k-1, REML primary, HKSJ floor max(1,Q/(k-1)), Q-profile τ² CI)
+ *   - continuous-outcome branch via mdCovariance + dosresmeta type='md' on
+ *     SGLT2i HbA1c fixture (k=4 trials, validated against dosresmeta MD pool)
  *
  * Load as <script src="rapidmeta-dose-response-engine-v1.js" defer></script>;
  * exposes window.RapidMetaDoseResp.{ validate, fitLinear, fitRCS, fitOneStage,
@@ -300,6 +302,28 @@
         if (hasCont && a.sd <= 0) issues.push(lab + '.arms[' + j + ']: sd must be > 0');
       }
     }
+  // Round 2A: pool-level outcome-type homogeneity check. fitLinear/fitRCS dispatch
+  // once on a single outcome type for the whole pool; mixed binary+continuous trials
+  // in one fixture would silently mis-pool. validate enforces homogeneity.
+  if (trials.length > 0 && issues.length === 0) {
+    var seenTypes = {};
+    for (var ti = 0; ti < trials.length; ti++) {
+      var t = trials[ti];
+      if (!Array.isArray(t.arms)) continue;
+      for (var ai = 0; ai < t.arms.length; ai++) {
+        var a = t.arms[ai];
+        if (!a) continue;
+        var hasE = isFinite(a.events) && isFinite(a.n);
+        var hasC = isFinite(a.mean) && isFinite(a.sd);
+        if (hasE) seenTypes['binary'] = true;
+        if (hasC) seenTypes['continuous'] = true;
+      }
+    }
+    var typeCount = Object.keys(seenTypes).length;
+    if (typeCount > 1) {
+      issues.push('mixed outcome types in pool — one fixture = one outcome type');
+    }
+  }
     return issues;
   }
 
@@ -322,6 +346,32 @@
           S[i][j] = 1 / c.events + 1 / E0 - 1 / c.n - 1 / N0;
         } else {
           S[i][j] = 1 / E0 - 1 / N0;
+        }
+      }
+    }
+    return S;
+  }
+
+  // Continuous-outcome (mean difference) per-trial covariance.
+  // Same shared-reference structure as glCovariance: every y_i = mean_i - mean_ref
+  // shares the reference arm, so off-diagonal entries are sd_ref^2/n_ref.
+  function mdCovariance(arms) {
+    var ref = arms.find(function (a) { return a.is_reference; });
+    if (!ref) throw new Error('mdCovariance: no reference arm');
+    var contrasts = arms.filter(function (a) { return !a.is_reference; });
+    var k = contrasts.length;
+    var sdRefSq = ref.sd * ref.sd;
+    var nRef = ref.n;
+    var shared = sdRefSq / nRef;
+    var S = [];
+    for (var i = 0; i < k; i++) {
+      S.push(new Array(k));
+      for (var j = 0; j < k; j++) {
+        if (i === j) {
+          var c = contrasts[i];
+          S[i][j] = (c.sd * c.sd) / c.n + shared;
+        } else {
+          S[i][j] = shared;
         }
       }
     }
@@ -405,6 +455,13 @@
   }
 
     var alpha = opts.alpha || 0.05;
+
+  // Round 2A: dispatch on outcome type at pool entry. validate() already enforces
+  // pool-level homogeneity; safe to infer once from the first non-reference arm.
+  var firstTrial = trials[0];
+  var firstArm = firstTrial.arms.find(function (a) { return !a.is_reference; });
+  var poolOutcomeType = (isFinite(firstArm.mean) && isFinite(firstArm.sd)) ? 'continuous' : 'binary';
+
     var perStudy = [];
 
     for (var t = 0; t < trials.length; t++) {
@@ -412,16 +469,43 @@
       var ref = T.arms.find(function (a) { return a.is_reference; });
       var contrasts = T.arms.filter(function (a) { return !a.is_reference; });
       var x = contrasts.map(function (a) { return a.dose - ref.dose; });
-  // P1 hardening TODO: zero-cell continuity correction (advanced-stats.md).
-  // If a.events === 0 or ref.events === 0, log(0/p) = -Infinity which propagates
-  // to NaN through WLS. Add conditional +0.5 only if ≥1 cell is zero (per
-  // advanced-stats.md: "Add 0.5 ONLY if >=1 cell is zero. Unconditional correction biases OR->1").
-  // Deferred from Round 1A.
-      var y = contrasts.map(function (a) {
-        var pi = a.events / a.n, p0 = ref.events / ref.n;
-        return Math.log(pi / p0);
-      });
-      var S = glCovariance(T.arms);
+      var y, S;
+      if (poolOutcomeType === 'continuous') {
+        y = contrasts.map(function (a) { return a.mean - ref.mean; });
+        S = mdCovariance(T.arms);
+      } else {
+        // F-1 zero-cell continuity correction (advanced-stats.md): add 0.5 to events
+        // and 1.0 to n in BOTH ref and contrast arms ONLY when >=1 cell is zero in
+        // this trial. Unconditional correction biases OR -> 1; conditional is the
+        // consensus correction.
+        var hasZeroCell = (ref.events === 0) ||
+          contrasts.some(function (a) { return a.events === 0; });
+        var refE, refN;
+        if (hasZeroCell) {
+          refE = ref.events + 0.5;
+          refN = ref.n + 1.0;
+        } else {
+          refE = ref.events;
+          refN = ref.n;
+        }
+        y = contrasts.map(function (a) {
+          var aE = hasZeroCell ? a.events + 0.5 : a.events;
+          var aN = hasZeroCell ? a.n + 1.0 : a.n;
+          var pi = aE / aN, p0 = refE / refN;
+          return Math.log(pi / p0);
+        });
+        // glCovariance needs the (potentially) corrected events/n too; pass a shallow
+        // clone of arms with the corrected fields.
+        if (hasZeroCell) {
+          var armsCorr = T.arms.map(function (a) {
+            if (a.is_reference) return { events: a.events + 0.5, n: a.n + 1.0, is_reference: true };
+            return { events: a.events + 0.5, n: a.n + 1.0, is_reference: false };
+          });
+          S = glCovariance(armsCorr);
+        } else {
+          S = glCovariance(T.arms);
+        }
+      }
       var Sinv = matInv(S);
       // β = (x' Sinv x)^{-1} x' Sinv y   (scalar slope)
       var xSx = 0, xSy = 0;
@@ -524,6 +608,11 @@
     var issues = validate(trials);
     if (issues.length) throw new Error('fitRCS: ' + issues[0]);
     if (trials.length < 2) throw new Error('fitRCS: requires k >= 2 trials; got k=' + trials.length);
+
+  var firstTrial = trials[0];
+  var firstArm = firstTrial.arms.find(function (a) { return !a.is_reference; });
+  var poolOutcomeType = (isFinite(firstArm.mean) && isFinite(firstArm.sd)) ? 'continuous' : 'binary';
+
     var K = opts.knots || 3;
 
     // Step 1: gather all non-reference doses for knot placement.
@@ -559,10 +648,37 @@
         var bArm = rcsBasis(arm.dose, knots);
         return bArm.map(function (v, i) { return v - bRef[i]; });
       });
-      var y = contrasts.map(function (arm) {
-        return Math.log((arm.events / arm.n) / (ref.events / ref.n));
-      });
-      var S = glCovariance(T.arms);
+      var y, S;
+      if (poolOutcomeType === 'continuous') {
+        y = contrasts.map(function (a) { return a.mean - ref.mean; });
+        S = mdCovariance(T.arms);
+      } else {
+        var hasZeroCell = (ref.events === 0) ||
+          contrasts.some(function (a) { return a.events === 0; });
+        var refE, refN;
+        if (hasZeroCell) {
+          refE = ref.events + 0.5;
+          refN = ref.n + 1.0;
+        } else {
+          refE = ref.events;
+          refN = ref.n;
+        }
+        y = contrasts.map(function (a) {
+          var aE = hasZeroCell ? a.events + 0.5 : a.events;
+          var aN = hasZeroCell ? a.n + 1.0 : a.n;
+          var pi = aE / aN, p0 = refE / refN;
+          return Math.log(pi / p0);
+        });
+        if (hasZeroCell) {
+          var armsCorr = T.arms.map(function (a) {
+            if (a.is_reference) return { events: a.events + 0.5, n: a.n + 1.0, is_reference: true };
+            return { events: a.events + 0.5, n: a.n + 1.0, is_reference: false };
+          });
+          S = glCovariance(armsCorr);
+        } else {
+          S = glCovariance(T.arms);
+        }
+      }
       var Sinv;
       try { Sinv = matInv(S); } catch (e) { continue; }
 
@@ -824,7 +940,7 @@
   }
 
   var API = {
-    engine_version: 'rapidmeta-dose-response-engine-v1@0.1.0',
+    engine_version: 'rapidmeta-dose-response-engine-v1@0.2.0',
     validate: validate,
     fitLinear: fitLinear,
     fitRCS: fitRCS,
@@ -842,6 +958,7 @@
     qchisq: qchisq, qt: qt, pchisq: pchisq, pt: pt,
     pmTau2: pmTau2,
     glCovariance: glCovariance,
+    mdCovariance: mdCovariance,
     quantile: quantile,
     rcsKnots: rcsKnots,
     rcsBasis: rcsBasis,

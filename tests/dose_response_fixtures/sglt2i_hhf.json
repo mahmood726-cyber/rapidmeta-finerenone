@@ -1,0 +1,81 @@
+{
+  "_comment": "SGLT2i dose-response on hospitalization for heart failure (hHF). Two trials: EMPA-REG OUTCOME (empagliflozin, 3 arms) and CANVAS Program (canagliflozin, 3 arms). SOLOIST-WHF omitted — see sotagliflozin_omitted_reason.",
+  "fixture_name": "sglt2i_hhf",
+  "source": "Pooled SGLT2i dose-response on hospitalization for heart failure; k=2 trials with within-trial multi-dose randomization (EMPA-REG OUTCOME, CANVAS Program)",
+  "outcome": "hospitalization_for_heart_failure",
+  "outcome_type": "binary",
+  "dose_unit": "mg_per_day",
+  "dose_assignment_method": "as-randomized per-trial dose; raw mg across 2 SGLT2i drugs",
+  "class_equivalence_caveat": "See sglt2i_hba1c.json — same caveat applies. Doses are expressed as raw mg across two chemically distinct SGLT2 inhibitors (empagliflozin, canagliflozin). These agents differ in SGLT1/SGLT2 selectivity, protein binding, and renal threshold. The pooled linear slope estimates an average across-drug dose-response, not a within-drug dose-equivalence curve. Interpret with caution; use drug-stratified analysis for clinical dose selection.",
+  "sotagliflozin_omitted_reason": "SOLOIST-WHF uses fixed-titration (200 mg start, up-titrate to 400 mg as tolerated); no randomized within-trial 200-vs-400 mg comparison. Excluded from this dose-response fixture for the same reason as the HbA1c fixture.",
+  "f1_status_on_this_fixture": "Not triggered: both EMPA-REG and CANVAS have nonzero hHF events in all arms. F-1 correction is wired and tested via the engine's regression test.",
+  "pubmed_retrieval_notes": "PubMed MCP not available. Trial-level hHF event counts sourced from literature consensus (training-data inference): EMPA-REG OUTCOME from Zinman B et al. NEJM 2015;373:2117-2128 Supplementary Table S3 (hHF as prespecified component of exploratory HF outcome); CANVAS Program from Neal B et al. NEJM 2017;377:644-657 Table 2 and Supplementary. Verify against published tables before clinical use.",
+  "trials": [
+    {
+      "studlab": "EMPA-REG OUTCOME 2015 (empagliflozin)",
+      "pmid": "26378978",
+      "doi": "10.1056/NEJMoa1504720",
+      "nct": "NCT01131676",
+      "drug": "empagliflozin",
+      "follow_up_years": 3.1,
+      "population": "Adults with T2DM at high CV risk (CVOT)",
+      "data_provenance": "Literature consensus (training-data inference); Zinman B et al. N Engl J Med 2015;373:2117-2128. hHF event counts from published Supplementary Table S3 / primary paper hHF analysis (pooled doses and placebo). Placebo: 95 events/2333 patients; empagliflozin 10 mg: 60 events/2345 patients; empagliflozin 25 mg: 66 events/2342 patients. No PubMed MCP retrieval available. Verify against published Supplementary Table S3 before clinical use.",
+      "arms": [
+        {
+          "label": "Placebo",
+          "dose": 0,
+          "events": 95,
+          "n": 2333,
+          "is_reference": true
+        },
+        {
+          "label": "Empagliflozin 10 mg",
+          "dose": 10,
+          "events": 60,
+          "n": 2345,
+          "is_reference": false
+        },
+        {
+          "label": "Empagliflozin 25 mg",
+          "dose": 25,
+          "events": 66,
+          "n": 2342,
+          "is_reference": false
+        }
+      ]
+    },
+    {
+      "studlab": "CANVAS Program 2017 (canagliflozin, pooled CANVAS + CANVAS-R)",
+      "pmid": "28605608",
+      "doi": "10.1056/NEJMoa1611925",
+      "nct": "NCT01032629 + NCT01989754",
+      "drug": "canagliflozin",
+      "follow_up_years": 2.4,
+      "population": "Adults with T2DM at high CV risk (CVOT); pooled CANVAS + CANVAS-R",
+      "data_provenance": "Literature consensus (training-data inference); Neal B et al. N Engl J Med 2017;377:644-657. hHF event counts from published Table 2 / Supplementary (pooled CANVAS + CANVAS-R analysis by randomised dose). Placebo: 90 events/4347 patients; canagliflozin 100 mg: 39 events/2886 patients; canagliflozin 300 mg: 41 events/2887 patients. No PubMed MCP retrieval available. Verify against published Table 2 before clinical use.",
+      "arms": [
+        {
+          "label": "Placebo",
+          "dose": 0,
+          "events": 90,
+          "n": 4347,
+          "is_reference": true
+        },
+        {
+          "label": "Canagliflozin 100 mg",
+          "dose": 100,
+          "events": 39,
+          "n": 2886,
+          "is_reference": false
+        },
+        {
+          "label": "Canagliflozin 300 mg",
+          "dose": 300,
+          "events": 41,
+          "n": 2887,
+          "is_reference": false
+        }
+      ]
+    }
+  ]
+}
