@@ -295,7 +295,7 @@ window.addEventListener('DOMContentLoaded', function () {
     '<div class="kpi"><div class="kpi-label">Knots (g/day)</div><div class="kpi-value">' + rcs.rcs.knots.map(function (k) { return k.toFixed(1); }).join(', ') + '</div></div>' +
     '<div class="kpi"><div class="kpi-label">spline_coefs[0] (linear)</div><div class="kpi-value">' + rcs.rcs.spline_coefs[0].toFixed(5) + '</div><div>SE ' + rcs.rcs.spline_coefs_se[0].toFixed(5) + '</div></div>' +
     '<div class="kpi"><div class="kpi-label">spline_coefs[1] (non-linear)</div><div class="kpi-value">' + rcs.rcs.spline_coefs[1].toFixed(5) + '</div><div>SE ' + rcs.rcs.spline_coefs_se[1].toFixed(5) + '</div></div>' +
-    '<div class="kpi"><div class="kpi-label">Wald non-linearity p</div><div class="kpi-value">' + rcs.rcs.nonlinearity_wald_p.toFixed(4) + '</div><div>(full REML v0.3, HKSJ-mv = ' + (rcs.rcs.hksj_mv != null ? rcs.rcs.hksj_mv.toFixed(2) : 'n/a') + ')</div></div>' +
+    '<div class="kpi"><div class="kpi-label">Wald non-linearity p</div><div class="kpi-value">' + rcs.rcs.nonlinearity_wald_p.toFixed(4) + '</div><div>(full REML v0.3, HKSJ-mv = ' + (rcs.hksj_mv != null ? rcs.hksj_mv.toFixed(2) : 'n/a') + ')</div></div>' +
     '<div class="kpi"><div class="kpi-label">τ² per dimension</div><div class="kpi-value">[' + rcs.rcs.tau2_per_dim.map(function (t) { return t.toExponential(2); }).join(', ') + ']</div></div>' +
     '</div>';
   document.getElementById('rcs-kpis').innerHTML = rcsKpis;
@@ -331,7 +331,7 @@ window.addEventListener('DOMContentLoaded', function () {
     'Engine v0.3.0 uses full multivariate REML via Nelder-Mead on Cholesky parameters of the τ² matrix; ' +
     'non-linearity p matches R mixmeta within |Δ| < 0.05 (engine ≈ 0.7035 vs R ≈ 0.704 on GL-1992). ' +
     'See the R-parity tab for the side-by-side comparison. ' +
-    'HKSJ-multivariate scaling factor: ' + (rcs.rcs.hksj_mv != null ? rcs.rcs.hksj_mv.toFixed(2) : 'n/a') + '; CI critical value t<sub>k-1</sub> = ' + (rcs.tcrit != null ? rcs.tcrit.toFixed(3) : 'n/a') + '.</div>';
+    'HKSJ-multivariate scaling factor: ' + (rcs.hksj_mv != null ? rcs.hksj_mv.toFixed(2) : 'n/a') + '; CI critical value t<sub>k-1</sub> = ' + (rcs.tcrit != null ? rcs.tcrit.toFixed(3) : 'n/a') + '.</div>';
 
   // Load R-precomputed JSON for Tabs 3 and 4
   fetch('outputs/r_validation/doseresp/gl1992_alcohol_bc.json')
