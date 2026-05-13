@@ -455,6 +455,13 @@
   }
 
     var alpha = opts.alpha || 0.05;
+
+  // Round 2A: dispatch on outcome type at pool entry. validate() already enforces
+  // pool-level homogeneity; safe to infer once from the first non-reference arm.
+  var firstTrial = trials[0];
+  var firstArm = firstTrial.arms.find(function (a) { return !a.is_reference; });
+  var poolOutcomeType = (isFinite(firstArm.mean) && isFinite(firstArm.sd)) ? 'continuous' : 'binary';
+
     var perStudy = [];
 
     for (var t = 0; t < trials.length; t++) {
@@ -462,16 +469,17 @@
       var ref = T.arms.find(function (a) { return a.is_reference; });
       var contrasts = T.arms.filter(function (a) { return !a.is_reference; });
       var x = contrasts.map(function (a) { return a.dose - ref.dose; });
-  // P1 hardening TODO: zero-cell continuity correction (advanced-stats.md).
-  // If a.events === 0 or ref.events === 0, log(0/p) = -Infinity which propagates
-  // to NaN through WLS. Add conditional +0.5 only if ≥1 cell is zero (per
-  // advanced-stats.md: "Add 0.5 ONLY if >=1 cell is zero. Unconditional correction biases OR->1").
-  // Deferred from Round 1A.
-      var y = contrasts.map(function (a) {
-        var pi = a.events / a.n, p0 = ref.events / ref.n;
-        return Math.log(pi / p0);
-      });
-      var S = glCovariance(T.arms);
+      var y, S;
+      if (poolOutcomeType === 'continuous') {
+        y = contrasts.map(function (a) { return a.mean - ref.mean; });
+        S = mdCovariance(T.arms);
+      } else {
+        y = contrasts.map(function (a) {
+          var pi = a.events / a.n, p0 = ref.events / ref.n;
+          return Math.log(pi / p0);
+        });
+        S = glCovariance(T.arms);
+      }
       var Sinv = matInv(S);
       // β = (x' Sinv x)^{-1} x' Sinv y   (scalar slope)
       var xSx = 0, xSy = 0;

@@ -419,6 +419,33 @@ test('predict() linear CI uses t_{k-1} not raw z=1.96 (F-2 fix)', () => {
     `should not equal z=1.96 width; got ${halfWidth}, z-based was ${wrongValue}`);
 });
 
+test('fitLinear continuous-mode pools mean differences correctly', () => {
+  // Synthetic continuous fixture: 2 trials with monotone dose-response on HbA1c
+  const trials = [
+    { studlab: 'A', arms: [
+      { dose: 0,  mean: 0.0,  sd: 0.5, n: 100, is_reference: true },
+      { dose: 10, mean: -0.4, sd: 0.5, n: 100, is_reference: false },
+      { dose: 25, mean: -0.6, sd: 0.5, n: 100, is_reference: false },
+    ]},
+    { studlab: 'B', arms: [
+      { dose: 0,  mean: 0.0,  sd: 0.4, n: 120, is_reference: true },
+      { dose: 5,  mean: -0.3, sd: 0.4, n: 120, is_reference: false },
+      { dose: 20, mean: -0.5, sd: 0.4, n: 120, is_reference: false },
+    ]},
+  ];
+  const res = DR.fitLinear(trials, {});
+  assert.equal(res.k, 2);
+  // Pooled slope should be negative (dose increase -> mean decrease)
+  assert.ok(res.pooled_slope_log < 0, 'continuous slope should be negative for protective effect');
+  // PI bounds finite
+  assert.ok(isFinite(res.pi_lo) && isFinite(res.pi_hi));
+  // estimator label remains 'reml_hksj' (continuous-mode doesn't change pooling)
+  assert.equal(res.estimator, 'reml_hksj');
+  // Per-study slopes should both be negative
+  assert.ok(res.per_study[0].slope_log < 0, 'study A slope negative');
+  assert.ok(res.per_study[1].slope_log < 0, 'study B slope negative');
+});
+
 test('mdCovariance returns symmetric matrix with shared-reference off-diagonal', () => {
   const arms = [
     { dose: 0,  mean: 0.0,  sd: 0.5, n: 100, is_reference: true },
