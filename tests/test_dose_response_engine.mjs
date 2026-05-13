@@ -419,6 +419,37 @@ test('predict() linear CI uses t_{k-1} not raw z=1.96 (F-2 fix)', () => {
     `should not equal z=1.96 width; got ${halfWidth}, z-based was ${wrongValue}`);
 });
 
+test('fitRCS continuous-mode pools spline coefs on a 4-trial synthetic fixture', () => {
+  const trials = [
+    { studlab: 'T1', arms: [
+      { dose: 0,  mean: 0.0,  sd: 0.5, n: 100, is_reference: true },
+      { dose: 5,  mean: -0.3, sd: 0.5, n: 100, is_reference: false },
+      { dose: 25, mean: -0.6, sd: 0.5, n: 100, is_reference: false },
+    ]},
+    { studlab: 'T2', arms: [
+      { dose: 0,  mean: 0.0,  sd: 0.4, n: 120, is_reference: true },
+      { dose: 10, mean: -0.4, sd: 0.4, n: 120, is_reference: false },
+      { dose: 50, mean: -0.7, sd: 0.4, n: 120, is_reference: false },
+    ]},
+    { studlab: 'T3', arms: [
+      { dose: 0,  mean: 0.0,  sd: 0.6, n: 80,  is_reference: true },
+      { dose: 2.5,mean: -0.2, sd: 0.6, n: 80,  is_reference: false },
+      { dose: 20, mean: -0.5, sd: 0.6, n: 80,  is_reference: false },
+    ]},
+    { studlab: 'T4', arms: [
+      { dose: 0,  mean: 0.0,  sd: 0.5, n: 90,  is_reference: true },
+      { dose: 15, mean: -0.45,sd: 0.5, n: 90,  is_reference: false },
+      { dose: 40, mean: -0.65,sd: 0.5, n: 90,  is_reference: false },
+    ]},
+  ];
+  const res = DR.fitRCS(trials, { knots: 3 });
+  assert.equal(res.layer, 'rcs');
+  assert.equal(res.rcs.knots.length, 3);
+  assert.equal(res.rcs.spline_coefs.length, 2);
+  assert.ok(isFinite(res.rcs.nonlinearity_wald_p));
+  assert.ok(res.rcs.spline_coefs[0] < 0, 'linear-component coef should be negative');
+});
+
 test('fitLinear binary with zero-event arm applies F-1 correction and returns finite', () => {
   // Synthetic: 2 trials, one has a zero-event arm at low dose (would produce log(0/p) = -Inf)
   const trials = [

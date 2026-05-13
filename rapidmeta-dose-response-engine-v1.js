@@ -608,6 +608,11 @@
     var issues = validate(trials);
     if (issues.length) throw new Error('fitRCS: ' + issues[0]);
     if (trials.length < 2) throw new Error('fitRCS: requires k >= 2 trials; got k=' + trials.length);
+
+  var firstTrial = trials[0];
+  var firstArm = firstTrial.arms.find(function (a) { return !a.is_reference; });
+  var poolOutcomeType = (isFinite(firstArm.mean) && isFinite(firstArm.sd)) ? 'continuous' : 'binary';
+
     var K = opts.knots || 3;
 
     // Step 1: gather all non-reference doses for knot placement.
@@ -643,10 +648,37 @@
         var bArm = rcsBasis(arm.dose, knots);
         return bArm.map(function (v, i) { return v - bRef[i]; });
       });
-      var y = contrasts.map(function (arm) {
-        return Math.log((arm.events / arm.n) / (ref.events / ref.n));
-      });
-      var S = glCovariance(T.arms);
+      var y, S;
+      if (poolOutcomeType === 'continuous') {
+        y = contrasts.map(function (a) { return a.mean - ref.mean; });
+        S = mdCovariance(T.arms);
+      } else {
+        var hasZeroCell = (ref.events === 0) ||
+          contrasts.some(function (a) { return a.events === 0; });
+        var refE, refN;
+        if (hasZeroCell) {
+          refE = ref.events + 0.5;
+          refN = ref.n + 1.0;
+        } else {
+          refE = ref.events;
+          refN = ref.n;
+        }
+        y = contrasts.map(function (a) {
+          var aE = hasZeroCell ? a.events + 0.5 : a.events;
+          var aN = hasZeroCell ? a.n + 1.0 : a.n;
+          var pi = aE / aN, p0 = refE / refN;
+          return Math.log(pi / p0);
+        });
+        if (hasZeroCell) {
+          var armsCorr = T.arms.map(function (a) {
+            if (a.is_reference) return { events: a.events + 0.5, n: a.n + 1.0, is_reference: true };
+            return { events: a.events + 0.5, n: a.n + 1.0, is_reference: false };
+          });
+          S = glCovariance(armsCorr);
+        } else {
+          S = glCovariance(T.arms);
+        }
+      }
       var Sinv;
       try { Sinv = matInv(S); } catch (e) { continue; }
 
