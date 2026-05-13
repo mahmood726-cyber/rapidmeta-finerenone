@@ -236,12 +236,12 @@ test('fitRCS on GL-1992 returns 3-knot fit with non-linearity p-value', () => {
 
 test('fitRCS GL-1992 non-linearity p matches R full-REML (Round 2B: ~0.70, was ~0.05 under v0.1 diagonal-PM)', () => {
   // REGRESSION-PIN (Round 2B): the engine now uses full multivariate REML via
-  // Nelder-Mead and matches R mixmeta within |Δ| < 0.1. The prior v0.1
+  // Nelder-Mead and matches R mixmeta within |Δ| < 0.05. The prior v0.1
   // diagonal-PM-per-dimension τ² approximation produced p ≈ 0.05 on this data;
   // the new v0.3 full-REML matches R's p ≈ 0.70.
   const fx = loadFx('gl1992_alcohol_bc.json');
   const res = DR.fitRCS(fx.trials, { knots: 3 });
-  near(res.rcs.nonlinearity_wald_p, 0.70, 0.10,
+  near(res.rcs.nonlinearity_wald_p, 0.70, 0.05,
     'engine non-linearity p matches R full-REML (Round 2B target)');
 });
 
@@ -735,11 +735,11 @@ test('remlLogLik returns finite value at zero tau2 matrix for valid per-study X,
   assert.ok(Number.isFinite(ll), 'log-likelihood must be finite at τ²=0');
 });
 
-test('fitRCS non-linearity p matches R full-REML on GL-1992 within |Δ| < 0.1', () => {
+test('fitRCS non-linearity p matches R full-REML on GL-1992 within |Δ| < 0.05', () => {
   const fx = loadFx('gl1992_alcohol_bc.json');
   const res = DR.fitRCS(fx.trials, { knots: 3 });
   // R mixmeta full-REML on GL-1992 (verified during Round 1B audit): ~0.70
-  near(res.rcs.nonlinearity_wald_p, 0.70, 0.10,
+  near(res.rcs.nonlinearity_wald_p, 0.70, 0.05,
     'engine non-linearity Wald p matches R full-REML (Round 2B target)');
   // tau2_matrix should be present and 2×2 (Kp = K-1 = 2 for 3 knots)
   assert.ok(Array.isArray(res.rcs.tau2_matrix), 'tau2_matrix field present');
