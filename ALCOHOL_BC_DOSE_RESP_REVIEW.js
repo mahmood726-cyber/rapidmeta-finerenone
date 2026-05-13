@@ -1,3 +1,9 @@
+// Wire tab buttons via data-tab → addEventListener (CSP-strict, no inline onclick).
+// The .js loads under `defer`, so DOMContentLoaded has already fired here.
+document.querySelectorAll('.tab-nav button[data-tab]').forEach(function (btn) {
+  btn.addEventListener('click', function () { showTab(btn.getAttribute('data-tab')); });
+});
+
 function showTab(name) {
   document.querySelectorAll('.tab-content').forEach(function (el) { el.classList.remove('active'); });
   document.querySelectorAll('.tab-nav button').forEach(function (el) {
