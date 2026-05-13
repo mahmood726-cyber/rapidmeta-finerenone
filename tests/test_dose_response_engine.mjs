@@ -699,6 +699,17 @@ test('qProfileCI exercises bisect-for-lo branch on high-heterogeneity input', ()
   assert.ok(ci.hi > ci.lo, 'tau2_hi strictly greater than tau2_lo');
 });
 
+test('fitLinear returns finite Q-profile τ² CI bounds on GL-1992', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const res = DR.fitLinear(fx.trials, {});
+  assert.ok(Number.isFinite(res.tau2_lo), 'tau2_lo must be finite (Round 2B)');
+  assert.ok(Number.isFinite(res.tau2_hi), 'tau2_hi must be finite');
+  assert.ok(res.tau2_lo >= 0);
+  assert.ok(res.tau2_lo <= res.tau2_hi);
+  // GL-1992 has high heterogeneity (I² ~ 95%); τ² CI should be a non-trivial range
+  assert.ok(res.tau2_hi > 0, 'GL-1992 τ²_hi > 0 (substantial heterogeneity)');
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }

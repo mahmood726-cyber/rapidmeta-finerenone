@@ -725,6 +725,9 @@
     // REML tau² via Paule-Mandel bisection
     var tau2 = pmTau2(yi, vi);
 
+    // Round 2B: Q-profile τ² CI per Viechtbauer 2007
+    var tau2CI = qProfileCI(yi, vi, alpha);
+
     // RE weights
     var w = vi.map(function (v) { return 1 / (v + tau2); });
     var wsum = w.reduce(function (a, b) { return a + b; }, 0);
@@ -776,7 +779,7 @@
       pooled_slope_log_se: seHKSJ,
       pooled_slope_log_ci_lo: pooled - tcrit * seHKSJ,
       pooled_slope_log_ci_hi: pooled + tcrit * seHKSJ,
-      tau2: tau2, tau2_lo: null, tau2_hi: null,  // Q-profile deferred to P2 hardening
+      tau2: tau2, tau2_lo: tau2CI.lo, tau2_hi: tau2CI.hi,
       Q: Q, Q_df: df, I2: I2, H2: H2,
       pi_lo: pooled - piHalf, pi_hi: pooled + piHalf, pi_df: df,
       hksj_adj: hksjMult, hksj_qstar: qstar,
