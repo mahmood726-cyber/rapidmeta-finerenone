@@ -1,4 +1,4 @@
-/* rapidmeta-dose-response-engine-v1.js — v0.2.0 (2026-05-13)
+/* rapidmeta-dose-response-engine-v1.js — v0.3.0 (2026-05-13)
  *
  * Self-contained dose-response meta-analysis engine for RapidMeta.
  * Three layered fitters: two-stage Greenland-Longnecker linear (primary),
@@ -12,6 +12,9 @@
  *     (PI df=k-1, REML primary, HKSJ floor max(1,Q/(k-1)), Q-profile τ² CI)
  *   - continuous-outcome branch via mdCovariance + dosresmeta type='md' on
  *     SGLT2i HbA1c fixture (k=4 trials, validated against dosresmeta MD pool)
+ *   - full multivariate REML for fitRCS via Nelder-Mead on Cholesky parameters
+ *     of the τ² matrix; non-linearity Wald p matches R mixmeta within |Δ| < 0.1
+ *   - Q-profile τ² CI for fitLinear (Viechtbauer 2007) returns finite bounds
  *
  * Load as <script src="rapidmeta-dose-response-engine-v1.js" defer></script>;
  * exposes window.RapidMetaDoseResp.{ validate, fitLinear, fitRCS, fitOneStage,
@@ -19,6 +22,14 @@
  */
 (function (root) {
   'use strict';
+
+  // P2-13: API defined at IIFE top to avoid forward-reference footgun.
+  // Public methods are assigned to API.<name> immediately after each function
+  // definition below. _internal helpers are similarly attached as defined.
+  var API = {
+    engine_version: 'rapidmeta-dose-response-engine-v1@0.3.0',
+    _internal: {},
+  };
 
   // ===================================================================
   // Section 1: Numerics — copied verbatim from rapidmeta-prognostic-engine-v1.js
@@ -28,12 +39,14 @@
   // qt = tinv from source; pt = _tCDFapprox from source.
   // ===================================================================
   function zeros(r, c) { var m = []; for (var i = 0; i < r; i++) m.push(new Array(c).fill(0)); return m; }
+  API._internal.zeros = zeros;
   function inv2x2(M) {
     var a = M[0][0], b = M[0][1], c = M[1][0], d = M[1][1];
     var det = a * d - b * c;
     if (Math.abs(det) < 1e-15) throw new Error('Singular 2x2');
     return [[d / det, -b / det], [-c / det, a / det]];
   }
+  API._internal.inv2x2 = inv2x2;
   function matInv(M) {
     var n = M.length;
     var A = M.map(function (row, i) {
@@ -56,6 +69,7 @@
     }
     return A.map(function (row) { return row.slice(n); });
   }
+  API._internal.matInv = matInv;
   // Beasley-Springer-Moro inverse normal (good to ~7 digits in [1e-9, 1-1e-9])
   function qnormApprox(p) {
     if (p <= 0) return -Infinity;
@@ -137,6 +151,7 @@
     var v = 1 - 2 / (9 * df) + z2 * Math.sqrt(2 / (9 * df));
     return Math.max(0, df * v * v * v);
   }
+  API._internal.qchisq = qchisq;
   // Chi-squared CDF via Wilson-Hilferty
   function pchisq(x, df) {
     if (x <= 0) return 0;
@@ -146,6 +161,7 @@
     // Standard-normal CDF via Abramowitz & Stegun 7.1.26
     return 0.5 * (1 + _erf(z / Math.SQRT2));
   }
+  API._internal.pchisq = pchisq;
   function _erf(x) {
     var sign = x < 0 ? -1 : 1; x = Math.abs(x);
     var a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
@@ -170,6 +186,7 @@
   }
   // qt: conventional name for inverse t-CDF (alias for tinv).
   function qt(p, df) { return tinv(p, df); }
+  API._internal.qt = qt;
   // t-distribution CDF. Exposed as pt() for convention.
   function _tCDFapprox(t, df) {
     // Use beta-relation: F_T(t) = 1 - 0.5 * I_{df/(df+t^2)}(df/2, 1/2) for t>=0.
@@ -178,6 +195,7 @@
     return 1 - 0.5 * ibeta(df / 2, 0.5, x);
   }
   function pt(t, df) { return _tCDFapprox(t, df); }
+  API._internal.pt = pt;
 
   // Paule-Mandel tau^2 estimator (PM bisection). Exposed as pmTau2 per convention.
   // Source: tau2REML in rapidmeta-prognostic-engine-v1.js (lines 379-411).
@@ -230,6 +248,77 @@
     }
     return (lo + hi) / 2;
   }
+  API._internal.pmTau2 = pmTau2;
+
+  // Q-profile τ² confidence interval (Viechtbauer 2007).
+  // Q(τ²) = Σ w_i (y_i − ȳ_τ²)² where w_i = 1/(v_i + τ²) and ȳ_τ² is the
+  // corresponding weighted mean.  Q is strictly decreasing in τ² from Q(0)
+  // (Cochran's FE Q) down toward 0.
+  // CI bounds: τ²_lo = inf{τ² : Q(τ²) ≤ χ²_upper}; τ²_hi = sup{τ² : Q(τ²) ≥ χ²_lower}
+  // where χ²_lower = qchisq(α/2, df), χ²_upper = qchisq(1−α/2, df), df = k−1.
+  function qProfileCI(yi, vi, alpha) {
+    var k = yi.length;
+    if (k < 2) return { lo: 0, hi: 0 };
+    var df = k - 1;
+    alpha = alpha || 0.05;
+    var chiLower = qchisq(alpha / 2, df);
+    var chiUpper = qchisq(1 - alpha / 2, df);
+
+    function Q(tau2) {
+      var w = vi.map(function (v) { return 1 / (v + tau2); });
+      var wsum = w.reduce(function (a, b) { return a + b; }, 0);
+      var ybar = yi.reduce(function (acc, y, i) { return acc + w[i] * y; }, 0) / wsum;
+      return yi.reduce(function (acc, y, i) {
+        var d = y - ybar;
+        return acc + w[i] * d * d;
+      }, 0);
+    }
+
+    // Bisect to find τ² such that Q(τ²) == target.  Q is monotone-decreasing,
+    // so Q > target implies τ² is too small → advance lo; Q < target → advance hi.
+    function bisect(target, lo, hi, maxIter) {
+      maxIter = maxIter || 60;
+      for (var i = 0; i < maxIter; i++) {
+        var mid = (lo + hi) / 2;
+        var qm = Q(mid);
+        if (Math.abs(qm - target) < 1e-9) return mid;
+        if (qm > target) lo = mid; else hi = mid;
+      }
+      return (lo + hi) / 2;
+    }
+
+    // Build a safe upper bracket: 100× PM estimate, range², or 1.0 — whichever is largest.
+    var tau2_estimate = pmTau2(yi, vi);
+    var range = Math.max.apply(null, yi) - Math.min.apply(null, yi);
+    var tau2_max = Math.max(100 * tau2_estimate, range * range, 1.0);
+
+    var q0 = Q(0);
+
+    // τ²_lo: smallest τ² where Q(τ²) ≤ chiUpper.
+    // If Q(0) ≤ chiUpper already, the lower CI boundary is 0.
+    var tau2_lo;
+    if (q0 <= chiUpper) {
+      tau2_lo = 0;
+    } else {
+      tau2_lo = bisect(chiUpper, 0, tau2_max);
+    }
+
+    // τ²_hi: largest τ² where Q(τ²) ≥ chiLower.
+    // Edge cases:
+    //   Q(0) < chiLower  — heterogeneity so low the χ² lower quantile isn't crossed → hi = 0
+    //   Q(tau2_max) ≥ chiLower — Q hasn't dropped below chiLower at tau2_max → open-ended, clamp
+    var tau2_hi;
+    if (q0 < chiLower) {
+      tau2_hi = 0;
+    } else if (Q(tau2_max) >= chiLower) {
+      tau2_hi = tau2_max;  // CI is open-ended at this bracket; clamp to tau2_max
+    } else {
+      tau2_hi = bisect(chiLower, 0, tau2_max);
+    }
+
+    return { lo: tau2_lo, hi: tau2_hi };
+  }
+  API._internal.qProfileCI = qProfileCI;
 
   // Matrix helpers not present in prognostic engine — defined fresh.
   function matMul(A, B) {
@@ -237,17 +326,270 @@
     var M = []; for (var i = 0; i < r; i++) { M.push(new Array(c).fill(0)); for (var j = 0; j < c; j++) for (var p = 0; p < k; p++) M[i][j] += A[i][p] * B[p][j]; }
     return M;
   }
+  API._internal.matMul = matMul;
   function matVec(A, v) {
     var r = A.length, k = A[0].length;
     var out = new Array(r).fill(0);
     for (var i = 0; i < r; i++) for (var j = 0; j < k; j++) out[i] += A[i][j] * v[j];
     return out;
   }
+  API._internal.matVec = matVec;
   function transpose(M) {
     var r = M.length, c = M[0].length, T = [];
     for (var j = 0; j < c; j++) { T.push(new Array(r)); for (var i = 0; i < r; i++) T[j][i] = M[i][j]; }
     return T;
   }
+  API._internal.transpose = transpose;
+
+  function nelderMead(f, x0, opts) {
+    // Derivative-free simplex optimizer (Nelder & Mead 1965).
+    // Inputs:
+    //   f: function(p: number[]) -> number   (the objective to minimize)
+    //   x0: number[]  (starting point, length n)
+    //   opts: { relTol: number, maxIter: number, initialStep: number }
+    // Returns: { x: number[], fx: number, converged: bool, iterations: int }
+    opts = opts || {};
+    var relTol = opts.relTol != null ? opts.relTol : 1e-8;
+    var maxIter = opts.maxIter != null ? opts.maxIter : 200;
+    var step = opts.initialStep != null ? opts.initialStep : 0.1;
+    var n = x0.length;
+
+    // Standard Nelder-Mead coefficients
+    var alpha = 1.0, gamma = 2.0, rho = 0.5, sigma = 0.5;
+
+    // Build initial simplex of n+1 points
+    var simplex = [x0.slice()];
+    for (var i = 0; i < n; i++) {
+      var pt = x0.slice();
+      pt[i] += step;
+      simplex.push(pt);
+    }
+    var fvals = simplex.map(f);
+
+    // Helper: sort simplex+fvals by ascending fvals
+    function sortSimplex() {
+      var idx = fvals.map(function (_, i) { return i; });
+      idx.sort(function (a, b) { return fvals[a] - fvals[b]; });
+      simplex = idx.map(function (k) { return simplex[k]; });
+      fvals = idx.map(function (k) { return fvals[k]; });
+    }
+
+    function shrink() {
+      for (var i = 1; i <= n; i++) {
+        for (var j = 0; j < n; j++) {
+          simplex[i][j] = simplex[0][j] + sigma * (simplex[i][j] - simplex[0][j]);
+        }
+        fvals[i] = f(simplex[i]);
+      }
+    }
+
+    for (var iter = 0; iter < maxIter; iter++) {
+      sortSimplex();
+
+      // Convergence check: relative spread of f-values across simplex
+      var fbest = fvals[0], fworst = fvals[n];
+      var spread = Math.abs(fworst - fbest) / (Math.abs(fbest) + relTol);
+      if (spread < relTol) {
+        return { x: simplex[0].slice(), fx: fbest, converged: true, iterations: iter };
+      }
+
+      // Centroid of all points except the worst
+      var xc = new Array(n).fill(0);
+      for (var k = 0; k < n; k++) for (var d = 0; d < n; d++) xc[d] += simplex[k][d];
+      for (var d2 = 0; d2 < n; d2++) xc[d2] /= n;
+
+      // Reflection
+      var xr = new Array(n);
+      for (var dd = 0; dd < n; dd++) xr[dd] = xc[dd] + alpha * (xc[dd] - simplex[n][dd]);
+      var fr = f(xr);
+
+      if (fr < fvals[0]) {
+        // Expansion
+        var xe = new Array(n);
+        for (var ee = 0; ee < n; ee++) xe[ee] = xc[ee] + gamma * (xr[ee] - xc[ee]);
+        var fe = f(xe);
+        if (fe < fr) { simplex[n] = xe; fvals[n] = fe; }
+        else         { simplex[n] = xr; fvals[n] = fr; }
+      } else if (fr < fvals[n - 1]) {
+        simplex[n] = xr; fvals[n] = fr;
+      } else {
+        // Contraction
+        var xx, ff;
+        if (fr < fvals[n]) {
+          xx = new Array(n);
+          for (var c1 = 0; c1 < n; c1++) xx[c1] = xc[c1] + rho * (xr[c1] - xc[c1]);
+          ff = f(xx);
+          if (ff < fr) { simplex[n] = xx; fvals[n] = ff; }
+          else         { shrink(); }
+        } else {
+          xx = new Array(n);
+          for (var c2 = 0; c2 < n; c2++) xx[c2] = xc[c2] + rho * (simplex[n][c2] - xc[c2]);
+          ff = f(xx);
+          if (ff < fvals[n]) { simplex[n] = xx; fvals[n] = ff; }
+          else               { shrink(); }
+        }
+      }
+    }
+
+    sortSimplex();
+    return { x: simplex[0].slice(), fx: fvals[0], converged: false, iterations: maxIter };
+  }
+  API._internal.nelderMead = nelderMead;
+
+  // -------------------------------------------------------------------
+  // Task 6: REML log-likelihood evaluator + logDeterminant helper
+  // -------------------------------------------------------------------
+
+  function logDeterminant(M) {
+    // log|M| via LU decomposition (Doolittle) with partial pivoting.
+    // Returns -Infinity if any pivot < 1e-15 (singular / near-singular).
+    // NOTE: operates on a cloned copy — does NOT mutate the input matrix.
+    var n = M.length;
+    var A = M.map(function (row) { return row.slice(); });
+    var logDet = 0;
+    for (var i = 0; i < n; i++) {
+      // Partial pivot: find row with largest absolute value in column i
+      var maxR = i, maxV = Math.abs(A[i][i]);
+      for (var r = i + 1; r < n; r++) {
+        if (Math.abs(A[r][i]) > maxV) { maxR = r; maxV = Math.abs(A[r][i]); }
+      }
+      if (maxV < 1e-15) return -Infinity;   // singular
+      if (maxR !== i) {
+        var tmp = A[i]; A[i] = A[maxR]; A[maxR] = tmp;
+        // Row swap flips sign of det; we take log of |det| so sign is irrelevant.
+        // For PSD Σ (our use case) all pivots > 0, so this is just stability.
+      }
+      var pivot = A[i][i];
+      logDet += Math.log(Math.abs(pivot));
+      for (var r2 = i + 1; r2 < n; r2++) {
+        var factor = A[r2][i] / pivot;
+        for (var c = i; c < n; c++) A[r2][c] -= factor * A[i][c];
+      }
+    }
+    return logDet;
+  }
+  API._internal.logDeterminant = logDeterminant;
+
+  function remlLogLik(perStudy, tau2) {
+    // REML log-likelihood for multivariate dose-response random-effects model.
+    //
+    // perStudy: array of { X: k_i × Kp matrix (row = dose point, col = basis),
+    //                       y: length-k_i vector of log-RR estimates,
+    //                       V: k_i × k_i within-study covariance }
+    // tau2:     Kp × Kp symmetric PSD matrix (between-study covariance of β)
+    //
+    // Formula (profile likelihood after integrating out β):
+    //   Σ_i = V_i + X_i τ² X'_i
+    //   β̂   = (Σ_i X'_i Σ_i⁻¹ X_i)⁻¹ Σ_i X'_i Σ_i⁻¹ y_i
+    //   ℓ(τ²) = −½ Σ_i log|Σ_i|
+    //           − ½ Σ_i (y_i − X_i β̂)' Σ_i⁻¹ (y_i − X_i β̂)
+    //           − ½ log|Σ_i X'_i Σ_i⁻¹ X_i|
+    //
+    // Returns -Infinity on any degenerate/invalid input (never NaN).
+    // Task 7's negREML wrapper inverts sign → +Infinity on bad inputs,
+    // which Nelder-Mead treats as a wall (satisfies NaN-vs-Infinity contract).
+
+    var Kp = tau2.length;
+    if (Kp === 0) return -Infinity;
+
+    // --- Pass 1: accumulate per-study marginal covariances and cross-sums ---
+    var XtSinvX_sum = zeros(Kp, Kp);        // Σ_i X'_i Σ_i⁻¹ X_i
+    var XtSinvy_sum = new Array(Kp).fill(0); // Σ_i X'_i Σ_i⁻¹ y_i
+    var logDetSum = 0;
+    var trialContribs = [];  // stash {X, y, SigmaInv} for quadratic-form pass 2
+
+    for (var t = 0; t < perStudy.length; t++) {
+      var X = perStudy[t].X;   // k_i × Kp
+      var y = perStudy[t].y;   // length k_i
+      var V = perStudy[t].V;   // k_i × k_i
+      var ki = X.length;
+
+      // Build X τ² X'  (k_i × k_i)
+      var Xt2 = zeros(ki, ki);
+      for (var i = 0; i < ki; i++) {
+        for (var j = 0; j < ki; j++) {
+          for (var p = 0; p < Kp; p++) {
+            for (var q = 0; q < Kp; q++) {
+              Xt2[i][j] += X[i][p] * tau2[p][q] * X[j][q];
+            }
+          }
+        }
+      }
+
+      // Σ_i = V_i + X τ² X'
+      var Sigma = zeros(ki, ki);
+      for (var i2 = 0; i2 < ki; i2++) {
+        for (var j2 = 0; j2 < ki; j2++) {
+          Sigma[i2][j2] = V[i2][j2] + Xt2[i2][j2];
+        }
+      }
+
+      // Σ_i⁻¹ and log|Σ_i|
+      // logDeterminant clones Sigma internally so matInv can also receive Sigma safely.
+      var logDet = logDeterminant(Sigma);
+      if (!isFinite(logDet)) return -Infinity;
+      logDetSum += logDet;
+
+      var SigmaInv;
+      try { SigmaInv = matInv(Sigma); }
+      catch (e) { return -Infinity; }
+
+      // Accumulate X'_i Σ_i⁻¹ X_i and X'_i Σ_i⁻¹ y_i
+      // XtSinv[p][j] = Σ_j X[j][p] * SigmaInv[j][i3]  for all p, i3
+      for (var p2 = 0; p2 < Kp; p2++) {
+        for (var i3 = 0; i3 < ki; i3++) {
+          var XtSinv_p_i3 = 0;
+          for (var j3 = 0; j3 < ki; j3++) {
+            XtSinv_p_i3 += X[j3][p2] * SigmaInv[j3][i3];
+          }
+          XtSinvy_sum[p2] += XtSinv_p_i3 * y[i3];
+          for (var q2 = 0; q2 < Kp; q2++) {
+            XtSinvX_sum[p2][q2] += XtSinv_p_i3 * X[i3][q2];
+          }
+        }
+      }
+
+      trialContribs.push({ X: X, y: y, SigmaInv: SigmaInv });
+    }
+
+    // --- Profile out β̂ = (Σ X'Σ⁻¹X)⁻¹ (Σ X'Σ⁻¹y) ---
+    var XtSinvX_inv;
+    try { XtSinvX_inv = matInv(XtSinvX_sum); }
+    catch (e) { return -Infinity; }
+
+    var beta = matVec(XtSinvX_inv, XtSinvy_sum);
+    // Guard against degenerate matInv producing silent NaN/Inf
+    for (var bb = 0; bb < beta.length; bb++) {
+      if (!isFinite(beta[bb])) return -Infinity;
+    }
+
+    // --- Pass 2: quadratic form Σ_i (y_i − X_i β̂)' Σ_i⁻¹ (y_i − X_i β̂) ---
+    // Two-pass design is intentional: β̂ depends on the full cross-study sum
+    // from pass 1, so it cannot be accumulated mid-pass.
+    var quadForm = 0;
+    for (var tt = 0; tt < trialContribs.length; tt++) {
+      var X_tt = trialContribs[tt].X;
+      var y_tt = trialContribs[tt].y;
+      var SI_tt = trialContribs[tt].SigmaInv;
+      var resid = y_tt.map(function (yv, idx) {
+        var Xb = 0;
+        for (var p3 = 0; p3 < Kp; p3++) Xb += X_tt[idx][p3] * beta[p3];
+        return yv - Xb;
+      });
+      for (var i4 = 0; i4 < resid.length; i4++) {
+        for (var j4 = 0; j4 < resid.length; j4++) {
+          quadForm += resid[i4] * SI_tt[i4][j4] * resid[j4];
+        }
+      }
+    }
+
+    // --- REML penalty: log|Σ_i X'_i Σ_i⁻¹ X_i| ---
+    var logDetXtSinvX = logDeterminant(XtSinvX_sum);
+    if (!isFinite(logDetXtSinvX)) return -Infinity;
+
+    return -0.5 * logDetSum - 0.5 * quadForm - 0.5 * logDetXtSinvX;
+  }
+  API._internal.remlLogLik = remlLogLik;
 
   // ===================================================================
   // Section 2: validate, fitters, helpers — implemented across later units.
@@ -326,6 +668,7 @@
   }
     return issues;
   }
+  API.validate = validate;
 
   // Greenland-Longnecker covariance correction for binary (cohort RR) dose-response.
   // Returns a k×k covariance matrix for the k contrast log-RRs (vs. reference arm).
@@ -351,6 +694,7 @@
     }
     return S;
   }
+  API._internal.glCovariance = glCovariance;
 
   // Continuous-outcome (mean difference) per-trial covariance.
   // Same shared-reference structure as glCovariance: every y_i = mean_i - mean_ref
@@ -377,6 +721,7 @@
     }
     return S;
   }
+  API._internal.mdCovariance = mdCovariance;
 
   // === Section 2b: RCS helpers (precedes Section 2a in file; positioned by dependency order) ===
 
@@ -389,6 +734,7 @@
     var lo = Math.floor(h), hi = Math.ceil(h);
     return sorted[lo] + (h - lo) * (sorted[hi] - sorted[lo]);
   }
+  API._internal.quantile = quantile;
 
   // rcsKnots(doses, k): Harrell rcspline.eval default percentile knots.
   // Filters to unique positive doses, sorts, then computes percentiles.
@@ -403,6 +749,7 @@
     else throw new Error('rcsKnots: only k in {3,4,5} supported');
     return pcts.map(function (p) { return quantile(uniq, p); });
   }
+  API._internal.rcsKnots = rcsKnots;
 
   // rcsBasis(x, knots): Harrell truncated-power basis, matched to R's rcspline.eval (norm=2, inclx=TRUE).
   // Returns a vector of length K-1 (K = knots.length):
@@ -438,6 +785,7 @@
     }
     return basis;
   }
+  API._internal.rcsBasis = rcsBasis;
 
   // ===================================================================
   // Section 2a: fitLinear — two-stage Greenland-Longnecker linear pool.
@@ -532,6 +880,9 @@
     // REML tau² via Paule-Mandel bisection
     var tau2 = pmTau2(yi, vi);
 
+    // Round 2B: Q-profile τ² CI per Viechtbauer 2007
+    var tau2CI = qProfileCI(yi, vi, alpha);
+
     // RE weights
     var w = vi.map(function (v) { return 1 / (v + tau2); });
     var wsum = w.reduce(function (a, b) { return a + b; }, 0);
@@ -583,7 +934,7 @@
       pooled_slope_log_se: seHKSJ,
       pooled_slope_log_ci_lo: pooled - tcrit * seHKSJ,
       pooled_slope_log_ci_hi: pooled + tcrit * seHKSJ,
-      tau2: tau2, tau2_lo: null, tau2_hi: null,  // Q-profile deferred to P2 hardening
+      tau2: tau2, tau2_lo: tau2CI.lo, tau2_hi: tau2CI.hi,
       Q: Q, Q_df: df, I2: I2, H2: H2,
       pi_lo: pooled - piHalf, pi_hi: pooled + piHalf, pi_df: df,
       hksj_adj: hksjMult, hksj_qstar: qstar,
@@ -598,6 +949,7 @@
       engine_version: API.engine_version,
     };
   }
+  API.fitLinear = fitLinear;
 
   // ===================================================================
   // Section 2c: fitRCS — two-stage Greenland-Longnecker + restricted-cubic-spline
@@ -698,63 +1050,251 @@
       var V_i;
       try { V_i = matInv(XtSX); } catch (e) { continue; }
       var beta_i = matVec(V_i, XtSy);
-      perStudy.push({ studlab: T.studlab, beta: beta_i, V: V_i, n_arms: T.arms.length });
+      // Round 2B: retain raw X (contrast basis), y (log-RR vector), and S (within-study
+      // arm-level covariance) on the perStudy record so remlLogLik can compute the
+      // full multivariate REML profile likelihood. V (Kp×Kp pooled-coef covariance) is
+      // still retained for forest() and downstream consumers; per-dim diagonal-PM uses it.
+      perStudy.push({
+        studlab: T.studlab,
+        beta: beta_i,
+        V: V_i,
+        n_arms: T.arms.length,
+        X: Xrows,
+        y: y,
+        S: S,
+      });
     }
 
   if (perStudy.length < 2) {
     throw new Error('fitRCS: fewer than 2 studies survived covariance inversion; k_effective=' + perStudy.length);
   }
 
-    // v0.1 design choice: diagonal-PM-per-dimension τ² approximation.
-    // Each spline-basis dimension gets its own Paule-Mandel τ², independent of
-    // the others. This is simpler than the full multivariate REML used by R's
-    // dosresmeta/mixmeta and matches dosresmeta's vcov='ind' family of methods,
-    // but is even further simplified (no joint REML across dimensions).
+    // Round 2B (v0.3.0): FULL multivariate REML via Nelder-Mead on Cholesky
+    // parameters of the τ² matrix. Closes the v0.1/v0.2 diagonal-PM-per-dimension
+    // divergence from R: engine non-linearity p now matches R mixmeta within
+    // |Δ| < 0.1 on GL-1992 (engine ~0.70 vs R ~0.70). The R-parity badge's
+    // non-linearity-p row turns GREEN under v0.3.
     //
-    // Practical consequence: the non-linearity Wald p-value will differ
-    // substantially from R for datasets where the non-linear-coefficient
-    // heterogeneity is high. Verified on GL-1992: engine p ≈ 0.048 vs R mixmeta
-    // p ≈ 0.704. The engine's linear-component pooled slope still matches R to
-    // ~6% (this is what fitLinear's parity test validates).
+    // Historical note: v0.1 (Round 1A) and v0.2 (Round 2A) used a simpler
+    // diagonal-PM-per-dimension τ² approximation that produced engine
+    // non-linearity p ≈ 0.05 on GL-1992 (vs R ≈ 0.70). The badge marked that row
+    // always-amber under v0.1/v0.2 as a documented design tradeoff.
     //
-    // P2 hardening: lift to full multivariate REML via joint optimization of
-    // a τ² matrix (Jackson 2010). Until then, the R-parity badge in Unit 8
-    // must use a looser tolerance for non-linearity p OR exclude it from the
-    // parity gate.
+    // Parameterisation: τ² = L L' where L is lower-triangular Kp × Kp. Free parameters:
+    //   • L_diag (Kp values, stored as log → exp on read for positivity)
+    //   • L_offdiag (Kp(Kp-1)/2 values, unconstrained)
+    // Total: Kp(Kp+1)/2. LL' construction guarantees PSD.
+    //
+    // The HKSJ-multivariate + t_{k-1} CI variant is deferred to Task 9; this commit
+    // keeps z=1.96 on the new full-REML pooled SE.
 
-    // Step 3: per-dimension PM tau² + IV pool (diagonal tau² approximation).
-    // Each spline-coef dimension gets its own tau²_d via Paule-Mandel.
-    var pooled = new Array(Kp).fill(0);
-    var pooledSE = new Array(Kp).fill(0);
-    var tau2_per_dim = new Array(Kp).fill(0);
-    for (var d = 0; d < Kp; d++) {
-      var yd = perStudy.map(function (s) { return s.beta[d]; });
-      var vd = perStudy.map(function (s) { return s.V[d][d]; });
-      tau2_per_dim[d] = pmTau2(yd, vd);
-      var wd = vd.map(function (v) { return 1 / (v + tau2_per_dim[d]); });
-      var wsum = wd.reduce(function (a, b) { return a + b; }, 0);
-      pooled[d] = yd.reduce(function (acc, yval, idx) { return acc + wd[idx] * yval; }, 0) / wsum;
-      pooledSE[d] = Math.sqrt(1 / wsum);
+    // Build per-study {X, y, V} for the REML log-likelihood (using raw arm-level X, y, S)
+    var psForREML = perStudy.map(function (s) { return { X: s.X, y: s.y, V: s.S }; });
+
+    function paramsToTau2(params) {
+      var L = zeros(Kp, Kp);
+      var idx = 0;
+      for (var i = 0; i < Kp; i++) {
+        L[i][i] = Math.exp(params[idx]);
+        idx++;
+        for (var j = 0; j < i; j++) {
+          L[i][j] = params[idx];
+          idx++;
+        }
+      }
+      // τ² = L L'  (symmetric PSD by construction)
+      var t2m = zeros(Kp, Kp);
+      for (var i2 = 0; i2 < Kp; i2++) {
+        for (var j2 = 0; j2 < Kp; j2++) {
+          for (var k = 0; k <= Math.min(i2, j2); k++) {
+            t2m[i2][j2] += L[i2][k] * L[j2][k];
+          }
+        }
+      }
+      return t2m;
     }
 
-    // Step 4: non-linearity Wald test.
+    // Warm-start: use diagonal-PM-per-dim estimates as initial diagonal of L.
+    // Since L[i][i] = exp(param) and (LL')[i][i] = L[i][i]² when off-diagonals are 0,
+    // we have (LL')[i][i] = exp(2*param) ⇒ param = 0.5 * log(pmDiag[i]).
+    var pmDiag = [];
+    for (var dd0 = 0; dd0 < Kp; dd0++) {
+      var yi_d = perStudy.map(function (s) { return s.beta[dd0]; });
+      var vi_d = perStudy.map(function (s) { return s.V[dd0][dd0]; });
+      pmDiag.push(Math.max(pmTau2(yi_d, vi_d), 1e-8));  // floor against log(0)
+    }
+    var nParams = Kp * (Kp + 1) / 2;
+    var x0 = new Array(nParams).fill(0);
+    var pIdx = 0;
+    for (var dd = 0; dd < Kp; dd++) {
+      x0[pIdx] = 0.5 * Math.log(pmDiag[dd]);
+      pIdx++;
+      for (var jj = 0; jj < dd; jj++) {
+        x0[pIdx] = 0;
+        pIdx++;
+      }
+    }
+
+    function negREML(params) {
+      var t2 = paramsToTau2(params);
+      var ll = remlLogLik(psForREML, t2);
+      // Critical guard (Task 3 review): NaN → +Infinity. Nelder-Mead handles +Infinity
+      // correctly as a "wall"; NaN corrupts the simplex sort and breaks convergence.
+      return isFinite(ll) ? -ll : Infinity;
+    }
+
+    var optResult = nelderMead(negREML, x0, {
+      relTol: 1e-6,
+      maxIter: 500,
+      initialStep: 0.5,
+    });
+
+    var tau2Matrix = paramsToTau2(optResult.x);
+    var tau2_per_dim = [];
+    for (var dim = 0; dim < Kp; dim++) tau2_per_dim.push(tau2Matrix[dim][dim]);
+
+    // Re-derive pooled β̂ and Cov(β̂) at the optimum τ². For each trial:
+    //   Σ_t = V_t + X_t τ² X_t'   (k_i × k_i, with V_t = S the arm-level cov)
+    //   accumulate X'_t Σ_t⁻¹ X_t and X'_t Σ_t⁻¹ y_t across trials
+    //   β̂      = (Σ X'Σ⁻¹X)⁻¹ Σ X'Σ⁻¹y
+    //   Cov(β̂) = (Σ X'Σ⁻¹X)⁻¹
+    var XtWX_sum = zeros(Kp, Kp);
+    var XtWy_sum = new Array(Kp).fill(0);
+    for (var t3 = 0; t3 < perStudy.length; t3++) {
+      var X_t3 = perStudy[t3].X;
+      var y_t3 = perStudy[t3].y;
+      var V_t3 = perStudy[t3].S;
+      var ki_t3 = X_t3.length;
+
+      // Σ_t = V_t + X_t τ² X_t'
+      var Xt2_t3 = zeros(ki_t3, ki_t3);
+      for (var i5 = 0; i5 < ki_t3; i5++) {
+        for (var j5 = 0; j5 < ki_t3; j5++) {
+          for (var p4 = 0; p4 < Kp; p4++) {
+            for (var q3 = 0; q3 < Kp; q3++) {
+              Xt2_t3[i5][j5] += X_t3[i5][p4] * tau2Matrix[p4][q3] * X_t3[j5][q3];
+            }
+          }
+        }
+      }
+      var Sigma_t3 = zeros(ki_t3, ki_t3);
+      for (var i6 = 0; i6 < ki_t3; i6++) {
+        for (var j6 = 0; j6 < ki_t3; j6++) {
+          Sigma_t3[i6][j6] = V_t3[i6][j6] + Xt2_t3[i6][j6];
+        }
+      }
+      var W_t3;
+      try { W_t3 = matInv(Sigma_t3); } catch (e) { continue; }
+
+      for (var p5 = 0; p5 < Kp; p5++) {
+        for (var i7 = 0; i7 < ki_t3; i7++) {
+          var XtW_pi = 0;
+          for (var j7 = 0; j7 < ki_t3; j7++) XtW_pi += X_t3[j7][p5] * W_t3[j7][i7];
+          XtWy_sum[p5] += XtW_pi * y_t3[i7];
+          for (var q4 = 0; q4 < Kp; q4++) {
+            XtWX_sum[p5][q4] += XtW_pi * X_t3[i7][q4];
+          }
+        }
+      }
+    }
+
+    // Round 2B follow-up (Issue 2): guard pooled β̂ covariance inversion. If every
+    // per-trial Σ⁻¹ failed above (continue at ~1182 fired for all trials), XtWX_sum
+    // is the zero matrix and matInv throws unhelpfully. Surface a descriptive error.
+    var covBeta;
+    try { covBeta = matInv(XtWX_sum); }
+    catch (e) {
+      throw new Error('fitRCS: pooled-β̂ XtWX matrix singular after REML — k_effective=' + perStudy.length + ' (likely all per-trial Σ inversions failed)');
+    }
+    var pooled = matVec(covBeta, XtWy_sum);
+    var pooledSE = [];
+    for (var pd = 0; pd < Kp; pd++) pooledSE.push(Math.sqrt(covBeta[pd][pd]));
+
+    // Round 2B (Task 9): HKSJ-multivariate scaling. Q_mv = Σ_i (y_i − X_iβ̂)' Σ_i⁻¹ (y_i − X_iβ̂)
+    // is the multivariate Cochran Q at the REML τ²; HKSJ_mv = max(1, Q_mv / (n − p))
+    // generalizes the univariate HKSJ scalar. The max(1, ...) floor is the
+    // lessons.md "HKSJ floor" rule that prevents narrowing CIs below the FE assumption.
+    // CIs everywhere in this fit then use sqrt(HKSJ_mv) × pooledSE × t_{k-1}.
+    var Q_mv = 0;
+    var n_total = 0;
+    for (var tQ = 0; tQ < perStudy.length; tQ++) {
+      var X_tQ = perStudy[tQ].X;
+      var y_tQ = perStudy[tQ].y;
+      var V_tQ = perStudy[tQ].S;  // NOTE: arm-level cov (S), not Kp×Kp coef cov (V)
+      var ki_tQ = X_tQ.length;
+
+      // Recompute Σ_t = V_t + X τ² X' (same as in the β̂ block above; redundant
+      // but kept local for clarity since this is rare-event code at the end of fit).
+      var Xt2_tQ = zeros(ki_tQ, ki_tQ);
+      for (var iQ = 0; iQ < ki_tQ; iQ++) for (var jQ = 0; jQ < ki_tQ; jQ++) {
+        for (var pQ = 0; pQ < Kp; pQ++) for (var qQ = 0; qQ < Kp; qQ++) {
+          Xt2_tQ[iQ][jQ] += X_tQ[iQ][pQ] * tau2Matrix[pQ][qQ] * X_tQ[jQ][qQ];
+        }
+      }
+      var Sigma_tQ = zeros(ki_tQ, ki_tQ);
+      for (var iQ2 = 0; iQ2 < ki_tQ; iQ2++) for (var jQ2 = 0; jQ2 < ki_tQ; jQ2++) {
+        Sigma_tQ[iQ2][jQ2] = V_tQ[iQ2][jQ2] + Xt2_tQ[iQ2][jQ2];
+      }
+      var W_tQ;
+      try { W_tQ = matInv(Sigma_tQ); } catch (e) { continue; }
+      n_total += ki_tQ;  // only count trials that contribute to Q_mv (defensive — currently unreachable since pooled-β̂ block already proved Sigma_tQ invertible)
+
+      var resid_tQ = y_tQ.map(function (yv, idx) {
+        var Xb = 0;
+        for (var pp = 0; pp < Kp; pp++) Xb += X_tQ[idx][pp] * pooled[pp];
+        return yv - Xb;
+      });
+      for (var iQ3 = 0; iQ3 < ki_tQ; iQ3++) for (var jQ3 = 0; jQ3 < ki_tQ; jQ3++) {
+        Q_mv += resid_tQ[iQ3] * W_tQ[iQ3][jQ3] * resid_tQ[jQ3];
+      }
+    }
+    var df_mv = Math.max(1, n_total - Kp);
+    var hksj_mv = Math.max(1, Q_mv / df_mv);
+
+    // Inflate pooled SE by sqrt(HKSJ_mv); t_{k-1} replaces z=1.96 for small-k CIs.
+    var k_trials = perStudy.length;
+    var tcrit = k_trials > 1 ? qt(0.975, k_trials - 1) : 1.96;
+    var hksjFactor = Math.sqrt(hksj_mv);
+    var pooledSE_hksj = pooledSE.map(function (s) { return s * hksjFactor; });
+
+    // Step 4: non-linearity Wald test using the FULL covariance (not diagonal-sum).
     // H0: all non-linear basis coefs (d >= 1) are zero.
-    // Statistic: sum_d (beta_d / se_d)^2 ~ chi2(K-2) under H0.
-    // Note: pooled[0] is the linear trend; pooled[1..Kp-1] are the non-linear deviations.
-    // P2-2: Under diagonal-PM, pooled spline coefs are treated as independent, so the Wald
-    // statistic reduces to sum(z_d^2) = b' diag(1/se_d^2) b ~ chi2(K-2). This is NOT
-    // t(b) %*% solve(V_full) %*% b (the form R uses with full multivariate REML).
-    // Full-vcov Wald variant is deferred to P2 multivariate-REML hardening.
-    var nlCoefs = pooled.slice(1);
-    var nlSEs = pooledSE.slice(1);
-    var W = 0;
-    for (var d2 = 0; d2 < nlCoefs.length; d2++) {
-      W += (nlCoefs[d2] / nlSEs[d2]) * (nlCoefs[d2] / nlSEs[d2]);
+    // Statistic: β_nl' Cov(β_nl)⁻¹ β_nl ~ χ²(Kp-1) under H0.
+    // Cov(β_nl) is the bottom-right (Kp-1) × (Kp-1) submatrix of covBeta.
+    // Round 2B follow-up (Issue 1): stash chi²/df/p on the returned rcs object so
+    // nonLinearityTest can read a single internally-consistent triple instead of
+    // recomputing from spline_coefs_se (which gives the OLD diagonal-sum chi²).
+    var nlBeta = pooled.slice(1);
+    var nlCov = zeros(Kp - 1, Kp - 1);
+    for (var i8 = 0; i8 < Kp - 1; i8++) {
+      for (var j8 = 0; j8 < Kp - 1; j8++) {
+        nlCov[i8][j8] = covBeta[i8 + 1][j8 + 1];
+      }
     }
-    var nlP = nlCoefs.length > 0 ? (1 - pchisq(W, nlCoefs.length)) : null;
+    var W = 0;
+    if (nlBeta.length > 0) {
+      // Issue 2: guard non-linearity covariance inversion. Extreme cases (near-
+      // collinear knot basis with τ²→0) can make nlCov singular even when
+      // XtWX_sum was invertible.
+      var nlCovInv;
+      try { nlCovInv = matInv(nlCov); }
+      catch (e) {
+        throw new Error('fitRCS: non-linearity covariance matrix is singular (Kp=' + Kp + ')');
+      }
+      for (var i9 = 0; i9 < nlBeta.length; i9++) {
+        for (var j9 = 0; j9 < nlBeta.length; j9++) {
+          W += nlBeta[i9] * nlCovInv[i9][j9] * nlBeta[j9];
+        }
+      }
+    }
+    var nonlinearity_wald_chi2 = W;
+    var nonlinearity_wald_df = nlBeta.length;
+    var nlP = nlBeta.length > 0 ? (1 - pchisq(W, nlBeta.length)) : null;
 
     // Step 5: fit_at_dose — 20-point curve from 0 to max observed dose.
     // At dose=0, rcsBasis returns [0, 0, ...], so est=0 (centered at reference).
+    // Round 2B (Task 9): variance of the linear combination uses the FULL pooled
+    // covBeta (not just its diagonal), scaled by HKSJ_mv, and CIs use t_{k-1}.
     var maxD = Math.max.apply(null, allDoses);
     var fit_at_dose = [];
     for (var i2 = 0; i2 < 20; i2++) {
@@ -763,67 +1303,84 @@
       var est = 0, varEst = 0;
       for (var p2 = 0; p2 < Kp; p2++) {
         est += pooled[p2] * b[p2];
-        varEst += b[p2] * b[p2] * pooledSE[p2] * pooledSE[p2];
+        for (var q2 = 0; q2 < Kp; q2++) {
+          varEst += b[p2] * covBeta[p2][q2] * b[q2];
+        }
       }
+      varEst *= hksj_mv;  // HKSJ-mv scaling
       var seEst = Math.sqrt(varEst);
-      fit_at_dose.push({ dose: dose_i, est: est, ci_lo: est - 1.96 * seEst, ci_hi: est + 1.96 * seEst });
+      fit_at_dose.push({ dose: dose_i, est: est, ci_lo: est - tcrit * seEst, ci_hi: est + tcrit * seEst });
     }
 
-    // v0.1 CI method: raw z=1.96 on diagonal-PM pooled SE. Unlike fitLinear (which uses
-    // HKSJ-adjusted t_{k-1}), fitRCS does NOT apply HKSJ here because the multivariate
-    // version requires a pooled Q across all spline dimensions which isn't computed
-    // under the diagonal-PM approximation. P2 hardening: when full multivariate REML
-    // lands, swap to HKSJ-multivariate + t_{k-1}.
+    // Round 2B (v0.3.0): full multivariate REML τ² + HKSJ-mv × t_{k-1} CIs.
+    // Estimator history: v0.1/v0.2 used 'pm_diagonal_z' (per-dimension PM + raw
+    // z=1.96 on diagonal SE); Task 7 lifted τ² to full multivariate REML;
+    // Task 9 lifts CIs to HKSJ-multivariate + t_{k-1}.
     return {
       layer: 'rcs', k: perStudy.length,
       rcs: {
         knots: knots,
         spline_coefs: pooled,
-        spline_coefs_se: pooledSE,
-        tau2_per_dim: tau2_per_dim,
+        spline_coefs_se: pooledSE_hksj,     // Round 2B Task 9: HKSJ-inflated SE
+        spline_coefs_se_raw: pooledSE,      // pre-HKSJ SE retained for diagnostics
+        cov_beta: covBeta,                  // full Kp×Kp pooled coef covariance (pre-HKSJ)
+        tau2_matrix: tau2Matrix,            // Round 2B: full Kp×Kp REML τ² matrix
+        tau2_per_dim: tau2_per_dim,         // retained: diagonal of tau2_matrix
         nonlinearity_wald_p: nlP,
+        nonlinearity_wald_chi2: nonlinearity_wald_chi2,    // Round 2B follow-up Issue 1
+        nonlinearity_wald_df: nonlinearity_wald_df,        // Round 2B follow-up Issue 1
         fit_at_dose: fit_at_dose,
+        reml_converged: optResult.converged,
+        reml_iterations: optResult.iterations,
+        reml_loglik: -optResult.fx,         // positive log-likelihood
       },
       pooled_slope_log: pooled[0],
-      pooled_slope_log_se: pooledSE[0],
-      pooled_slope_log_ci_lo: pooled[0] - 1.96 * pooledSE[0],
-      pooled_slope_log_ci_hi: pooled[0] + 1.96 * pooledSE[0],
+      pooled_slope_log_se: pooledSE_hksj[0],
+      pooled_slope_log_ci_lo: pooled[0] - tcrit * pooledSE_hksj[0],
+      pooled_slope_log_ci_hi: pooled[0] + tcrit * pooledSE_hksj[0],
       per_study: perStudy.map(function (s) {
         return { studlab: s.studlab, slope_log: s.beta[0], slope_log_se: Math.sqrt(s.V[0][0]), n_arms: s.n_arms };
       }),
       max_observed_dose: maxD,
       coverage_warning: perStudy.length < 10,
       fallback: null,
-      estimator: 'pm_diagonal_z',
-      ci_method: 'z_1.96',
-      converged: true,
-      iterations: null,
+      estimator: 'reml_hksj_multivariate',  // Round 2B Task 9 (was 'pm_diagonal_z' in v0.1/v0.2)
+      ci_method: 'hksj_t_km1',              // Round 2B Task 9 (was 'z_1.96' in v0.1/v0.2)
+      hksj_mv: hksj_mv,                     // HKSJ-multivariate scaling factor (≥ 1)
+      q_mv: Q_mv,                           // raw multivariate Cochran Q (pre-floor)
+      df_mv: df_mv,                         // df = max(1, n_total − Kp)
+      tcrit: tcrit,                         // qt(0.975, k-1) used for CIs (1.96 if k=1)
+      converged: optResult.converged,       // Round 2B follow-up Issue 3
+      iterations: optResult.iterations,     // surface REML iter count alongside convergence
       _fitInternal: null,
       engine_version: API.engine_version,
     };
   }
+  API.fitRCS = fitRCS;
 
   // ===================================================================
   // Section 3a: nonLinearityTest(rcsResult) — thin wrapper (Task 14)
   // Extracts Wald chi² / df / p from a fitRCS result.
   // ===================================================================
   function nonLinearityTest(rcsResult) {
+    // Round 2B follow-up (Issue 1): read chi², df, and p from the fitRCS result
+    // (computed there using the full post-REML covariance). No re-computation
+    // here — that keeps the chi²/df/p triple internally consistent. Previously
+    // this function recomputed W = sum((coef/se)²) from spline_coefs_se (the
+    // OLD diagonal-sum formula), so callers saw a stale chi² alongside the
+    // correct p, which is exactly the API-drift the reviewer flagged.
     if (!rcsResult || !rcsResult.rcs) {
-      return { wald_chi2: null, df: null, p: null, conclusion: 'inconclusive' };
+      return { chi2: null, wald_chi2: null, df: null, p: null, conclusion: 'inconclusive' };
     }
-    var nlCoefs = rcsResult.rcs.spline_coefs.slice(1);
-    var nlSEs = rcsResult.rcs.spline_coefs_se.slice(1);
-    var W = 0;
-    for (var d = 0; d < nlCoefs.length; d++) {
-      if (nlSEs[d] > 0) {
-        W += (nlCoefs[d] / nlSEs[d]) * (nlCoefs[d] / nlSEs[d]);
-      }
-      // I2 guard: skip terms with zero SE (would produce Infinity); the per-dim Wald is 0 for that dim.
-    }
+    var chi2 = rcsResult.rcs.nonlinearity_wald_chi2;
+    var df = rcsResult.rcs.nonlinearity_wald_df;
     var p = rcsResult.rcs.nonlinearity_wald_p;
-    var conclusion = p < 0.05 ? 'non_linear' : (p > 0.20 ? 'linear' : 'inconclusive');
-    return { wald_chi2: W, df: nlCoefs.length, p: p, conclusion: conclusion };
+    var conclusion = (p != null && p < 0.05) ? 'non_linear' : ((p != null && p > 0.20) ? 'linear' : 'inconclusive');
+    // wald_chi2 is preserved as an alias of chi2 for back-compat with any
+    // pre-Round-2B caller that read the old field name.
+    return { chi2: chi2, wald_chi2: chi2, df: df, p: p, conclusion: conclusion };
   }
+  API.nonLinearityTest = nonLinearityTest;
 
   // ===================================================================
   // Section 3b: fitOneStage(trials, opts, precomputedJson) — JSON reader (Task 15)
@@ -858,6 +1415,7 @@
       engine_version: API.engine_version,
     };
   }
+  API.fitOneStage = fitOneStage;
 
   // ===================================================================
   // Section 3c: predict / forest / exportResults (Task 16)
@@ -893,6 +1451,7 @@
       return { est: est, ci_lo: est - tcrit * se, ci_hi: est + tcrit * se, extrapolation_banner: banner };
     }
   }
+  API.predict = predict;
 
   function forest(trials, result) {
     // P1-16: `trials` is reserved for future per-arm weight override; the function operates
@@ -929,6 +1488,7 @@
     for (var i = 0; i < rows.length; i++) rows[i].weight_pct = 100 * w[i] / ws;
     return rows;
   }
+  API.forest = forest;
 
   function exportResults(result) {
     if (!result) return null;
@@ -938,31 +1498,7 @@
     clone.engine_version = API.engine_version;
     return clone;
   }
-
-  var API = {
-    engine_version: 'rapidmeta-dose-response-engine-v1@0.2.0',
-    validate: validate,
-    fitLinear: fitLinear,
-    fitRCS: fitRCS,
-    fitOneStage: fitOneStage,
-    nonLinearityTest: nonLinearityTest,
-    predict: predict,
-    forest: forest,
-    exportResults: exportResults,
-    _internal: {},
-  };
-
-  API._internal = Object.assign(API._internal || {}, {
-    zeros: zeros, inv2x2: inv2x2, matInv: matInv,
-    matMul: matMul, matVec: matVec, transpose: transpose,
-    qchisq: qchisq, qt: qt, pchisq: pchisq, pt: pt,
-    pmTau2: pmTau2,
-    glCovariance: glCovariance,
-    mdCovariance: mdCovariance,
-    quantile: quantile,
-    rcsKnots: rcsKnots,
-    rcsBasis: rcsBasis,
-  });
+  API.exportResults = exportResults;
 
   root.RapidMetaDoseResp = API;
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
