@@ -34,13 +34,20 @@ const THRESHOLDS = {
   nonlinearity_p: 0.05,
 };
 
-// The 3 dose-response flagships shipped via Rounds 1B-3:
+// The 4 dose-response flagships shipped via Rounds 1B-3.5:
 //   1. ALCOHOL_BC_DOSE_RESP_REVIEW.html (gl1992_alcohol_bc)
 //   2. SGLT2I_DOSE_RESP_REVIEW.html (sglt2i_hba1c primary + sglt2i_hhf secondary)
 //   3. TIRZEPATIDE_T2D_SURPASS_DOSE_RESP_REVIEW.html (tirzepatide_t2d_surpass)
+//   4. TIRZEPATIDE_OBESITY_SURMOUNT_DOSE_RESP_REVIEW.html (tirzepatide_obesity_surmount, k=2 small-k stress test)
 //
 // Each flagship reads engine field paths from DR.fitLinear / DR.fitRCS results.
 // We codify the contract per flagship.
+//
+// Per-flagship overrides for badge-row expectations: some flagships are
+// intentionally small-k stress tests where one or more rows are expected AMBER
+// (e.g. SURMOUNT k=2 has linear_tau2 AMBER because engine PM vs R REML diverge
+// at k=2). Each contract entry may specify `expectAmberRows: [...]` to mark
+// which row-keys should be allowed to fail the threshold check.
 
 const flagshipContracts = [
   {
@@ -48,18 +55,29 @@ const flagshipContracts = [
     fixture: 'tests/dose_response_fixtures/gl1992_alcohol_bc.json',
     rJson: 'outputs/r_validation/doseresp/gl1992_alcohol_bc.json',
     rcsKnots: 3,
+    expectAmberRows: [],
   },
   {
     flagship: 'SGLT2I_DOSE_RESP_REVIEW.html',
     fixture: 'tests/dose_response_fixtures/sglt2i_hba1c.json',
     rJson: 'outputs/r_validation/doseresp/sglt2i_hba1c.json',
     rcsKnots: 3,
+    expectAmberRows: [],
   },
   {
     flagship: 'TIRZEPATIDE_T2D_SURPASS_DOSE_RESP_REVIEW.html',
     fixture: 'tests/dose_response_fixtures/tirzepatide_t2d_surpass.json',
     rJson: 'outputs/r_validation/doseresp/tirzepatide_t2d_surpass.json',
     rcsKnots: 3,
+    expectAmberRows: [],
+  },
+  {
+    flagship: 'TIRZEPATIDE_OBESITY_SURMOUNT_DOSE_RESP_REVIEW.html',
+    fixture: 'tests/dose_response_fixtures/tirzepatide_obesity_surmount.json',
+    rJson: 'outputs/r_validation/doseresp/tirzepatide_obesity_surmount.json',
+    rcsKnots: 3,
+    // k=2 PM vs REML divergence is real and documented; the 4 other rows must still be GREEN
+    expectAmberRows: ['linear_tau2'],
   },
 ];
 
@@ -158,25 +176,34 @@ for (const c of flagshipContracts) {
   test('fitRCS: hksj_mv ≥ 1 (floor invariant)', () => assert.ok(rcs.hksj_mv >= 1));
 
   // --- R-parity badge state simulation (what the badge JS would emit) ---
-  test('R-parity row: linear_slope GREEN', () => {
-    const d = Math.abs(lin.pooled_slope_log - rJson.linear.pooled_slope_log);
-    assert.ok(d < THRESHOLDS.linear_slope, '|Δ|=' + d.toExponential(2) + ' must be < ' + THRESHOLDS.linear_slope);
+  // Per-row helper: GREEN means |Δ| < threshold; AMBER means |Δ| ≥ threshold.
+  // A row listed in c.expectAmberRows is intentionally allowed to be AMBER
+  // (small-k stress-test cases like SURMOUNT linear_tau2 PM-vs-REML divergence).
+  const expectAmber = new Set(c.expectAmberRows || []);
+  function rowAssert(key, engineVal, rVal) {
+    const d = Math.abs(engineVal - rVal);
+    const thr = THRESHOLDS[key];
+    const isGreen = d < thr;
+    if (expectAmber.has(key)) {
+      assert.ok(!isGreen, key + ': expected AMBER (|Δ|=' + d.toExponential(2) + ' should be >= threshold ' + thr + ' — engine drift would make this GREEN unexpectedly)');
+    } else {
+      assert.ok(isGreen, key + ': |Δ|=' + d.toExponential(2) + ' must be < ' + thr);
+    }
+  }
+  test('R-parity row: linear_slope' + (expectAmber.has('linear_slope') ? ' AMBER (expected)' : ' GREEN'), () => {
+    rowAssert('linear_slope', lin.pooled_slope_log, rJson.linear.pooled_slope_log);
   });
-  test('R-parity row: linear_tau2 GREEN', () => {
-    const d = Math.abs(lin.tau2 - rJson.linear.tau2);
-    assert.ok(d < THRESHOLDS.linear_tau2, '|Δ|=' + d.toExponential(2) + ' must be < ' + THRESHOLDS.linear_tau2);
+  test('R-parity row: linear_tau2' + (expectAmber.has('linear_tau2') ? ' AMBER (expected, k=2 PM-vs-REML divergence)' : ' GREEN'), () => {
+    rowAssert('linear_tau2', lin.tau2, rJson.linear.tau2);
   });
-  test('R-parity row: rcs_coef_0 GREEN', () => {
-    const d = Math.abs(rcs.rcs.spline_coefs[0] - rJson.rcs.spline_coefs[0]);
-    assert.ok(d < THRESHOLDS.rcs_coef_0, '|Δ|=' + d.toExponential(2));
+  test('R-parity row: rcs_coef_0' + (expectAmber.has('rcs_coef_0') ? ' AMBER (expected)' : ' GREEN'), () => {
+    rowAssert('rcs_coef_0', rcs.rcs.spline_coefs[0], rJson.rcs.spline_coefs[0]);
   });
-  test('R-parity row: rcs_coef_1 GREEN', () => {
-    const d = Math.abs(rcs.rcs.spline_coefs[1] - rJson.rcs.spline_coefs[1]);
-    assert.ok(d < THRESHOLDS.rcs_coef_1, '|Δ|=' + d.toExponential(2));
+  test('R-parity row: rcs_coef_1' + (expectAmber.has('rcs_coef_1') ? ' AMBER (expected)' : ' GREEN'), () => {
+    rowAssert('rcs_coef_1', rcs.rcs.spline_coefs[1], rJson.rcs.spline_coefs[1]);
   });
-  test('R-parity row: nonlinearity_p GREEN (Round 2C — was always-amber in v0.1/v0.2)', () => {
-    const d = Math.abs(rcs.rcs.nonlinearity_wald_p - rJson.rcs.nonlinearity_wald_p);
-    assert.ok(d < THRESHOLDS.nonlinearity_p, '|Δ|=' + d.toExponential(2));
+  test('R-parity row: nonlinearity_p' + (expectAmber.has('nonlinearity_p') ? ' AMBER (expected)' : ' GREEN (Round 2C — was always-amber in v0.1/v0.2)'), () => {
+    rowAssert('nonlinearity_p', rcs.rcs.nonlinearity_wald_p, rJson.rcs.nonlinearity_wald_p);
   });
 
   // --- KPI display invariants (what the .toFixed(N) calls produce) ---
