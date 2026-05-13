@@ -474,11 +474,37 @@
         y = contrasts.map(function (a) { return a.mean - ref.mean; });
         S = mdCovariance(T.arms);
       } else {
+        // F-1 zero-cell continuity correction (advanced-stats.md): add 0.5 to events
+        // and 1.0 to n in BOTH ref and contrast arms ONLY when >=1 cell is zero in
+        // this trial. Unconditional correction biases OR -> 1; conditional is the
+        // consensus correction.
+        var hasZeroCell = (ref.events === 0) ||
+          contrasts.some(function (a) { return a.events === 0; });
+        var refE, refN;
+        if (hasZeroCell) {
+          refE = ref.events + 0.5;
+          refN = ref.n + 1.0;
+        } else {
+          refE = ref.events;
+          refN = ref.n;
+        }
         y = contrasts.map(function (a) {
-          var pi = a.events / a.n, p0 = ref.events / ref.n;
+          var aE = hasZeroCell ? a.events + 0.5 : a.events;
+          var aN = hasZeroCell ? a.n + 1.0 : a.n;
+          var pi = aE / aN, p0 = refE / refN;
           return Math.log(pi / p0);
         });
-        S = glCovariance(T.arms);
+        // glCovariance needs the (potentially) corrected events/n too; pass a shallow
+        // clone of arms with the corrected fields.
+        if (hasZeroCell) {
+          var armsCorr = T.arms.map(function (a) {
+            if (a.is_reference) return { events: a.events + 0.5, n: a.n + 1.0, is_reference: true };
+            return { events: a.events + 0.5, n: a.n + 1.0, is_reference: false };
+          });
+          S = glCovariance(armsCorr);
+        } else {
+          S = glCovariance(T.arms);
+        }
       }
       var Sinv = matInv(S);
       // β = (x' Sinv x)^{-1} x' Sinv y   (scalar slope)

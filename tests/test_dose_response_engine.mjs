@@ -419,6 +419,45 @@ test('predict() linear CI uses t_{k-1} not raw z=1.96 (F-2 fix)', () => {
     `should not equal z=1.96 width; got ${halfWidth}, z-based was ${wrongValue}`);
 });
 
+test('fitLinear binary with zero-event arm applies F-1 correction and returns finite', () => {
+  // Synthetic: 2 trials, one has a zero-event arm at low dose (would produce log(0/p) = -Inf)
+  const trials = [
+    { studlab: 'A_normal', arms: [
+      { dose: 0,  events: 5,  n: 100, is_reference: true },
+      { dose: 10, events: 12, n: 100, is_reference: false },
+      { dose: 25, events: 20, n: 100, is_reference: false },
+    ]},
+    { studlab: 'B_zerocell', arms: [
+      { dose: 0,  events: 0,  n: 80,  is_reference: true },   // zero in ref
+      { dose: 10, events: 3,  n: 80,  is_reference: false },
+      { dose: 25, events: 8,  n: 80,  is_reference: false },
+    ]},
+  ];
+  const res = DR.fitLinear(trials, {});
+  assert.ok(isFinite(res.pooled_slope_log),
+    'pooled_slope_log must be finite after F-1 correction');
+  assert.ok(isFinite(res.per_study[1].slope_log),
+    'study B per-study slope must be finite (F-1 applied to its arms)');
+  // Per-study A (no zero cells) must produce identical output to a call without
+  // F-1 having been triggered — i.e. unchanged. We verify by computing the slope
+  // on study A alone and comparing.
+  const aAlone = DR.fitLinear([trials[0], {
+    // synthetic 2nd trial identical to A so k=2 (avoid k<2 guard)
+    studlab: 'A_dup', arms: trials[0].arms,
+  }], {});
+  // A's slope from the 2-trial pool above should equal aAlone's per-study slope
+  near(res.per_study[0].slope_log, aAlone.per_study[0].slope_log, 1e-12,
+    'F-1 must NOT touch trials with no zero cells (study A unchanged)');
+});
+
+test('fitLinear binary without zero cells preserves identity output (F-1 inactive)', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const res = DR.fitLinear(fx.trials, {});
+  // GL-1992 has no zero-event arms; F-1 should not fire. Re-run and compare
+  // against the existing parity test target (pooled_slope_log * 11 ≈ 0.254).
+  near(res.pooled_slope_log * 11, 0.254, 0.015, 'GL-1992 result unchanged by F-1 inactivity');
+});
+
 test('fitLinear continuous-mode pools mean differences correctly', () => {
   // Synthetic continuous fixture: 2 trials with monotone dose-response on HbA1c
   const trials = [
