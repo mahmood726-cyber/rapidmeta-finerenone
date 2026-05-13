@@ -550,6 +550,45 @@ test('validate rejects mixed continuous + binary trials within one pool', () => 
     'message should mention mixed outcome types');
 });
 
+test('fitRCS binary with zero-event arm applies F-1 and returns finite spline coefs', () => {
+  // Synthetic 3 trials. Trial B has a zero-event reference arm (triggers F-1).
+  // Without F-1, the binary branch would produce log(events/0) = NaN/Inf and the
+  // RCS spline coefs would propagate NaN.
+  // NOTE: Each trial needs 4 arms (3 unique non-reference dose levels: 5, 15, 30)
+  // so rcsKnots() can place 3 knots. With only 2 unique doses the engine correctly
+  // degenerates to linear — which is not what we are testing here.
+  const trials = [
+    { studlab: 'A_normal', arms: [
+      { dose: 0,  events: 5,  n: 100, is_reference: true },
+      { dose: 5,  events: 8,  n: 100, is_reference: false },
+      { dose: 15, events: 12, n: 100, is_reference: false },
+      { dose: 30, events: 20, n: 100, is_reference: false },
+    ]},
+    { studlab: 'B_zerocell', arms: [
+      { dose: 0,  events: 0,  n: 80,  is_reference: true },   // zero in ref triggers F-1
+      { dose: 5,  events: 2,  n: 80,  is_reference: false },
+      { dose: 15, events: 5,  n: 80,  is_reference: false },
+      { dose: 30, events: 9,  n: 80,  is_reference: false },
+    ]},
+    { studlab: 'C_normal', arms: [
+      { dose: 0,  events: 4,  n: 90,  is_reference: true },
+      { dose: 5,  events: 7,  n: 90,  is_reference: false },
+      { dose: 15, events: 11, n: 90,  is_reference: false },
+      { dose: 30, events: 18, n: 90,  is_reference: false },
+    ]},
+  ];
+  const res = DR.fitRCS(trials, { knots: 3 });
+  assert.equal(res.layer, 'rcs');
+  assert.ok(isFinite(res.rcs.spline_coefs[0]),
+    'spline_coefs[0] must be finite after F-1 correction');
+  assert.ok(isFinite(res.rcs.spline_coefs[1]),
+    'spline_coefs[1] must be finite');
+  assert.ok(isFinite(res.rcs.nonlinearity_wald_p),
+    'non-linearity p must be finite');
+  assert.ok(res.rcs.nonlinearity_wald_p >= 0 && res.rcs.nonlinearity_wald_p <= 1,
+    'non-linearity p in [0,1]');
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }
