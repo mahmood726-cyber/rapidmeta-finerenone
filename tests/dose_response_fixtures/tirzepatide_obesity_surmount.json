@@ -1,0 +1,55 @@
+{
+  "_comment": "Tirzepatide percent body-weight change dose-response in obesity, 2 SURMOUNT Phase 3 RCTs. Per-arm LSM change-from-baseline + SE extracted from AACT snapshot 2026-04-12 (outcome_measurements.txt, primary outcome only). SE converted to SD via sd = se * sqrt(n) for engine use. Both trials are placebo-controlled and use the SAME molecule (tirzepatide), SAME route (SC once weekly), SAME primary endpoint (% body weight change from baseline at week 72), and SAME background-therapy core (lifestyle/diet/exercise intervention). SURMOUNT-1 enrolled adults WITHOUT T2D (4 arms: placebo / 5 / 10 / 15 mg). SURMOUNT-2 enrolled adults WITH T2D (3 arms: placebo / 10 / 15 mg — the 5 mg arm was deliberately omitted per regulatory choice for the T2D-obesity indication). The trial set is intentionally small (k=2) — this is the real-world reality of the obesity dose-response literature at the time SURMOUNT-3/-4 were not yet posting AACT primary results. Engine HKSJ floor max(1, Q/(k-1)) is at its small-k boundary here. Per-arm analyzed N from outcome_counts.txt (mITT analysis population for primary efficacy estimand). Cross-checked vs published primary publications via PubMed MCP — both trials use the efficacy estimand (on-treatment, excluding data after prematurely stopping study drug) for the AACT-registered primary outcome; SURMOUNT-1 PubMed abstract reports treatment-regimen estimand (-15.0/-19.5/-20.9/-3.1) which DIFFERS from the AACT efficacy estimand (-16.0/-21.4/-22.5/-2.4), and SURMOUNT-2 PubMed abstract similarly reports treatment-regimen estimand (-12.8/-14.7/-3.2) DIFFERING from AACT efficacy (-13.4/-15.7/-3.3). Both estimands are pre-registered FDA-acceptable; AACT efficacy estimand used here for cross-trial uniformity within this fixture (same source-of-truth choice as SURPASS fixture; both fixtures use AACT-primary as the canonical source).",
+  "fixture_name": "tirzepatide_obesity_surmount",
+  "source": "Tirzepatide percent body weight change dose-response, 2 SURMOUNT Phase 3 trials (AACT 2026-04-12)",
+  "outcome": "percent_weight_change_from_baseline",
+  "outcome_type": "continuous",
+  "dose_unit": "mg",
+  "dose_assignment_method": "as-randomized per-trial dose (5/10/15 mg subcutaneous once weekly; SURMOUNT-2 omits 5 mg)",
+  "class_equivalence_caveat": "Both trials use the SAME molecule (tirzepatide) and SAME route (subcutaneous once-weekly), so the pooled slope is a within-drug dose-response curve. Trials differ in population (obesity without T2D vs obesity WITH T2D), and the T2D trial deliberately omits the 5 mg arm — both design differences contribute to between-trial heterogeneity and the dose-response curve in SURMOUNT-2 has no representation at the 5 mg level. k=2 stresses the HKSJ floor max(1, Q/(k-1)) at its small-k boundary.",
+  "active_comparator_handling": "Not applicable: both trials are placebo-controlled. Placebo is the dose=0 reference (is_reference=true) in both trials.",
+  "se_to_sd_conversion": "AACT reports LEAST_SQUARES_MEAN with Standard Error dispersion. Converted to SD via sd = se * sqrt(n) using the per-arm analyzed N from outcome_counts.txt. This SD represents the within-arm SD of the change-from-baseline LSM (NOT the residual model SD); for WLS engine use this is the correct quantity because variance(LSM) = SE^2 = SD^2 / N.",
+  "small_k_caveat": "k=2 trials. Engine HKSJ Q-floor max(1, Q/(k-1)) is at its degenerate small-k boundary: Q/(k-1) = Q (denominator = 1), so any Q < 1 triggers the floor. This fixture is intended as a small-k stress test for the engine's HKSJ implementation. Do not treat the pooled dose-response slope as a definitive obesity-class meta-analytic estimate without additional tirzepatide-obesity trials (SURMOUNT-3 maintenance, SURMOUNT-4 cessation withdrawal, SURMOUNT-MMO outcome trial).",
+  "pubmed_retrieval_notes": "Both PMIDs verified via PubMed MCP get_article_metadata. DOIs cross-checked. Per the user contract spec, the initially-proposed SURMOUNT-2 PMID 37356446 was VERIFIED WRONG (that PMID is GBD 2021 Diabetes burden paper Lancet 2023;402(10397):203-234); the correct SURMOUNT-2 PMID is 37385275 (Garvey et al. Lancet 2023;402(10402):613-626, doi:10.1016/S0140-6736(23)01200-X), confirmed via search by title+author. According to PubMed: SURMOUNT-1 (PMID 35658024, doi:10.1056/NEJMoa2206038, Jastreboff et al. NEJM 2022;387(3):205-216), SURMOUNT-2 (PMID 37385275, doi:10.1016/S0140-6736(23)01200-X, Garvey et al. Lancet 2023;402(10402):613-626).",
+  "trials": [
+    {
+      "studlab": "SURMOUNT-1 (Jastreboff 2022, obesity without T2D)",
+      "pmid": "35658024",
+      "doi": "10.1056/NEJMoa2206038",
+      "nct": "NCT04184622",
+      "year": 2022,
+      "drug": "tirzepatide",
+      "duration_weeks": 72,
+      "comparator": "placebo",
+      "background_therapy": "lifestyle intervention (reduced-calorie diet + increased physical activity)",
+      "population": "Adults with BMI >=30, or BMI >=27 with at least one weight-related complication, excluding T2D; baseline mean weight 104.8 kg, mean BMI 38.0",
+      "aact_outcome_id_primary": 211171518,
+      "data_provenance": "AACT 2026-04-12 outcome_measurements.txt (outcome_id=211171518). All four arms (placebo / 5 / 10 / 15 mg) in same PRIMARY outcome. LSM and SE direct from AACT. N per arm from outcome_counts.txt (mITT). AACT uses the EFFICACY estimand (on-treatment, excluding data after prematurely stopping study drug); PubMed NEJM abstract reports the TREATMENT-REGIMEN estimand (-15.0/-19.5/-20.9/-3.1). Both pre-registered FDA-acceptable. AACT efficacy values used here for source-of-truth uniformity within fixture.",
+      "arms": [
+        {"label": "Placebo", "dose": 0, "mean": -2.4, "sd": 10.080, "n": 635, "is_reference": true, "_aact_se": 0.40},
+        {"label": "Tirzepatide 5 mg", "dose": 5, "mean": -16.0, "sd": 9.734, "n": 623, "is_reference": false, "_aact_se": 0.39},
+        {"label": "Tirzepatide 10 mg", "dose": 10, "mean": -21.4, "sd": 9.781, "n": 629, "is_reference": false, "_aact_se": 0.39},
+        {"label": "Tirzepatide 15 mg", "dose": 15, "mean": -22.5, "sd": 9.750, "n": 625, "is_reference": false, "_aact_se": 0.39}
+      ]
+    },
+    {
+      "studlab": "SURMOUNT-2 (Garvey 2023, obesity with T2D, no 5 mg arm)",
+      "pmid": "37385275",
+      "doi": "10.1016/S0140-6736(23)01200-X",
+      "nct": "NCT04657003",
+      "year": 2023,
+      "drug": "tirzepatide",
+      "duration_weeks": 72,
+      "comparator": "placebo",
+      "background_therapy": "lifestyle intervention (reduced-calorie diet + increased physical activity); existing T2D antihyperglycaemic regimen continued (metformin, SGLT2i, sulfonylureas allowed; insulin excluded)",
+      "population": "Adults with BMI >=27 kg/m^2 AND HbA1c 7.0-10.0% on stable antihyperglycaemic therapy; baseline mean weight 100.7 kg, mean BMI 36.1, mean HbA1c 8.02%; randomized 1:1:1 to tirz 10 / tirz 15 / placebo (NO 5 mg arm)",
+      "aact_outcome_id_primary": 211207789,
+      "data_provenance": "AACT 2026-04-12 outcome_measurements.txt (outcome_id=211207789). All three arms (placebo / 10 / 15 mg; NO 5 mg) in same PRIMARY outcome. LSM and SE direct from AACT. N per arm from outcome_counts.txt (mITT). AACT uses the EFFICACY estimand (on-treatment, only participants with non-missing baseline AND post-baseline values; excludes treatment-discontinuation observations); PubMed Lancet abstract reports the TREATMENT-REGIMEN estimand (-12.8/-14.7/-3.2). Both pre-registered FDA-acceptable. AACT efficacy values used here for source-of-truth uniformity within fixture.",
+      "arms": [
+        {"label": "Placebo", "dose": 0, "mean": -3.3, "sd": 8.641, "n": 311, "is_reference": true, "_aact_se": 0.49},
+        {"label": "Tirzepatide 10 mg", "dose": 10, "mean": -13.4, "sd": 8.438, "n": 309, "is_reference": false, "_aact_se": 0.48},
+        {"label": "Tirzepatide 15 mg", "dose": 15, "mean": -15.7, "sd": 8.613, "n": 309, "is_reference": false, "_aact_se": 0.49}
+      ]
+    }
+  ]
+}

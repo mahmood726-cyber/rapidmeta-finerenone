@@ -50,21 +50,44 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 PORT = 8772  # avoid collision with ad-hoc http.server usage
 
 # (flagship-html, R-parity-mount-id, KPI-area-id) — what each flagship exposes
+# expected_badge: "green" (default) means header GREEN and 0 AMBER rows;
+#                 "amber_with_known_rows" allows header AMBER iff every AMBER row is
+#                 in `allowed_amber_rows` (intended for small-k stress-test flagships
+#                 like SURMOUNT k=2 where linear_tau2 is expected AMBER by design).
 FLAGSHIPS = [
     {
         "html": "ALCOHOL_BC_DOSE_RESP_REVIEW.html",
         "r_parity_mount_id": "r-parity-doseresp",
         "rcs_kpi_id": "rcs-kpis",
+        "expected_badge": "green",
+        "allowed_amber_rows": [],
     },
     {
         "html": "SGLT2I_DOSE_RESP_REVIEW.html",
         "r_parity_mount_id": "r-parity-doseresp-hba1c",
         "rcs_kpi_id": "hba1c-rcs-kpis",
+        "expected_badge": "green",
+        "allowed_amber_rows": [],
     },
     {
         "html": "TIRZEPATIDE_T2D_SURPASS_DOSE_RESP_REVIEW.html",
         "r_parity_mount_id": "r-parity-tirzepatide-hba1c",
         "rcs_kpi_id": "hba1c-rcs-kpis",
+        "expected_badge": "green",
+        "allowed_amber_rows": [],
+    },
+    {
+        # Round 3.5 — intentional k=2 small-k stress test; linear_tau2 row is
+        # expected AMBER (engine PM τ² vs R REML τ² diverge at k=2). The header
+        # will be AMBER because allGreen=false. This is documented behaviour.
+        "html": "TIRZEPATIDE_OBESITY_SURMOUNT_DOSE_RESP_REVIEW.html",
+        "r_parity_mount_id": "r-parity-tirzepatide-obesity",
+        "rcs_kpi_id": "wt-rcs-kpis",
+        "expected_badge": "amber_with_known_rows",
+        # The row labels in the badge come from vendor/r-validation-doseresp.js.
+        # `Linear τ²` is the badge label for linear_tau2. We match the engine
+        # value `Linear &tau;<sup>2</sup>` (or post-HTML-parse `Linear τ²`) below.
+        "allowed_amber_rows": ["Linear τ²"],
     },
 ]
 
@@ -170,6 +193,42 @@ def assert_badge_is_green(badge_html, flagship_name):
     )
 
 
+def assert_badge_amber_with_known_rows(badge_html, allowed_amber_rows, flagship_name):
+    """For small-k stress-test flagships: header may be AMBER, but every AMBER row
+    MUST be one of the documented allowed rows (e.g. linear_tau2 for SURMOUNT k=2).
+
+    The badge HTML structure (from vendor/r-validation-doseresp.js v0.2.0) is:
+        <tr class="rv-row rv-row-{green,amber}"><td class="rv-label">{label}</td>...
+    So we count amber-row labels and assert subset relation against allowed_amber_rows.
+    """
+    import re
+    # Match each <tr class="rv-row rv-row-amber">...<td class="rv-label">LABEL</td>
+    amber_row_pattern = re.compile(
+        r'<tr[^>]*\brv-row-amber\b[^>]*>\s*<td[^>]*\brv-label\b[^>]*>([^<]*)</td>',
+        re.IGNORECASE,
+    )
+    amber_labels_found = [m.strip() for m in amber_row_pattern.findall(badge_html)]
+    extra = [lbl for lbl in amber_labels_found if lbl not in allowed_amber_rows]
+    assert not extra, (
+        f"{flagship_name}: unexpected AMBER row(s) {extra} (allowed: {allowed_amber_rows}). "
+        f"Badge HTML: {badge_html[:1500]}"
+    )
+    # Sanity: at least one of the allowed-amber labels should actually be present
+    # (otherwise the test isn't actually validating anything for the stress-test case).
+    if allowed_amber_rows:
+        present = [lbl for lbl in allowed_amber_rows if lbl in amber_labels_found]
+        assert present, (
+            f"{flagship_name}: expected AMBER row(s) {allowed_amber_rows} not found in badge — "
+            f"engine may have unexpectedly converged with R at k=2 (or label string drifted from "
+            f"vendor/r-validation-doseresp.js). Badge HTML: {badge_html[:1500]}"
+        )
+    # Header should be AMBER (because at least one row is AMBER → allGreen=false)
+    assert "rv-badge-amber" in badge_html, (
+        f"{flagship_name}: badge header should be AMBER (since {allowed_amber_rows} row is "
+        f"expected AMBER), but rv-badge-amber class is missing. Badge HTML: {badge_html[:300]}"
+    )
+
+
 def main():
     print(f"Starting HTTP server on 127.0.0.1:{PORT}...")
     srv = start_server()
@@ -206,10 +265,20 @@ def main():
                             print(f"  ✗ {e}")
                             failed += 1
 
-                        # Test 3: R-parity badge is GREEN (even if hidden on a non-default tab)
+                        # Test 3: R-parity badge state (GREEN by default; AMBER-with-known-rows
+                        # for small-k stress-test flagships like SURMOUNT k=2).
                         try:
-                            assert_badge_is_green(badge, flagship["html"])
-                            print(f"  ✓ R-parity badge GREEN (5/5 rows green)")
+                            expected = flagship.get("expected_badge", "green")
+                            if expected == "amber_with_known_rows":
+                                assert_badge_amber_with_known_rows(
+                                    badge,
+                                    flagship.get("allowed_amber_rows", []),
+                                    flagship["html"],
+                                )
+                                print(f"  ✓ R-parity badge AMBER with known rows: {flagship.get('allowed_amber_rows', [])}")
+                            else:
+                                assert_badge_is_green(badge, flagship["html"])
+                                print(f"  ✓ R-parity badge GREEN (5/5 rows green)")
                             passed += 1
                         except AssertionError as e:
                             print(f"  ✗ {e}")
