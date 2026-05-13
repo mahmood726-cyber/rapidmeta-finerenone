@@ -91,7 +91,8 @@ html = f'''<!doctype html>
 <h1>rapidmeta-finerenone — Data-integrity index</h1>
 <div style="color:#94a3b8;font-size:13px;">
   {len(scores)} meta-analysis reviews · audit-classified across 15 rounds (deterministic + multi-agent + AACT + PubMed + PMC)
-  · final integrity report: <a href="outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md">FINAL_INTEGRITY_REPORT_V2.md</a>
+  · <a href="what_changed.html">what changed →</a>
+  · <a href="outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md">methodology (FINAL_INTEGRITY_REPORT_V2.md)</a>
 </div>
 <div class="summary-row">
   <div class="summary-card" style="border-left:3px solid {BAND_COLORS["OK"]["bg"]};">

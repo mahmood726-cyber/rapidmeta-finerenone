@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>What changed — rapidmeta-finerenone integrity audit</title>
+<style>
+  body { margin:0; padding:0; background:#0f172a; color:#e2e8f0; font-family:system-ui,-apple-system,sans-serif; line-height:1.55; }
+  header { padding:24px; background:#0a0f1f; border-bottom:1px solid #1f2a44; }
+  h1 { margin:0 0 8px 0; font-size:22px; }
+  h2 { font-size:16px; color:#7dd3fc; margin-top:0; }
+  main { padding:24px; max-width:1100px; margin:0 auto; }
+  section { margin-bottom:32px; }
+  .top-stats { display:flex; gap:14px; flex-wrap:wrap; margin:14px 0 0; }
+  .stat { background:#1e293b; padding:12px 16px; border-radius:6px; min-width:140px; }
+  .stat .num { font-size:24px; font-weight:600; color:#7dd3fc; }
+  .stat .lab { font-size:11px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em; }
+  a { color:#7dd3fc; }
+  footer { padding:16px 24px; background:#0a0f1f; border-top:1px solid #1f2a44; color:#94a3b8; font-size:11px; }
+</style>
+</head>
+<body>
+<header>
+<h1>What changed — rapidmeta-finerenone data-integrity audit</h1>
+<div style="color:#94a3b8;font-size:13px;">
+  Per-round summary of the automated integrity sweep · 15+ rounds · 0 human-reviewer hours ·
+  <a href="index.html">← back to review index</a>
+</div>
+<div class="top-stats">
+  <div class="stat"><div class="num">3,450</div><div class="lab">Total fixes</div></div>
+  <div class="stat"><div class="num">25</div><div class="lab">Audit rounds</div></div>
+  <div class="stat"><div class="num">225</div><div class="lab">Flagged (no auto-fix)</div></div>
+  <div class="stat"><div class="num">409</div><div class="lab">Reviews audited</div></div>
+</div>
+</header>
+
+<main>
+<section>
+<h2>Current state by classification band</h2>
+<div class="top-stats">
+  <div class="stat" style="border-left:3px solid #16a34a;">
+    <div class="num">195</div><div class="lab">Trustworthy (&lt;0.30)</div>
+  </div>
+  <div class="stat" style="border-left:3px solid #ca8a04;">
+    <div class="num">113</div><div class="lab">Low concern (0.30-0.50)</div>
+  </div>
+  <div class="stat" style="border-left:3px solid #ea580c;">
+    <div class="num">94</div><div class="lab">Manual review (0.50-0.70)</div>
+  </div>
+  <div class="stat" style="border-left:3px solid #7f1d1d;">
+    <div class="num">7</div><div class="lab">Quarantined (≥0.70)</div>
+  </div>
+</div>
+</section>
+
+<section>
+<h2>Per-trial identity-confidence score (R33 — 1,655 trials)</h2>
+<p style="color:#94a3b8;font-size:12px;">Composite of 25%·NCT-in-AACT + 20%·drug-in-AACT-intvs + 15%·PMID-present + 10%·year + 10%·name + 20%·evidence[]-non-empty.</p>
+<div class="top-stats">
+  <div class="stat" style="border-left:3px solid #16a34a;">
+    <div class="num">718</div><div class="lab">Excellent (80-100)</div>
+  </div>
+  <div class="stat" style="border-left:3px solid #65a30d;">
+    <div class="num">545</div><div class="lab">Good (60-79)</div>
+  </div>
+  <div class="stat" style="border-left:3px solid #ca8a04;">
+    <div class="num">268</div><div class="lab">Caution (40-59)</div>
+  </div>
+  <div class="stat" style="border-left:3px solid #ea580c;">
+    <div class="num">119</div><div class="lab">Poor (20-39)</div>
+  </div>
+  <div class="stat" style="border-left:3px solid #7f1d1d;">
+    <div class="num">5</div><div class="lab">Bad (0-19)</div>
+  </div>
+</div>
+</section>
+
+<section>
+<h2>Audit rounds (chronological)</h2>
+<div style="background:#1e293b;border-left:3px solid #16a34a;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">R1-init</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">Initial 12-method audit + 8-agent scan + deterministic fixes</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#16a34a;color:#fff;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;">768 fixes</span>
+      
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: deterministic, agent</div>
+</div>
+<div style="background:#1e293b;border-left:3px solid #16a34a;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">R1-multi</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">R1 multi-agent (3 lenses, 77 trials)</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#16a34a;color:#fff;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;">11 fixes</span>
+      
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: multi-agent</div>
+</div>
+<div style="background:#1e293b;border-left:3px solid #16a34a;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">R2</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">Multi-agent R2 (249 trials, 3 lenses)</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#16a34a;color:#fff;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;">204 fixes</span>
+      
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: multi-agent</div>
+</div>
+<div style="background:#1e293b;border-left:3px solid #16a34a;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">R3</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">Multi-agent R3 (184 trials, fab-review deep audit)</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#16a34a;color:#fff;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;">230 fixes</span>
+      
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: multi-agent, quarantines</div>
+</div>
+<div style="background:#1e293b;border-left:3px solid #16a34a;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">R4</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">R4 + risk classifier + aggressive cleanup</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#16a34a;color:#fff;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;">38 fixes</span>
+      
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: multi-agent, classifier</div>
+</div>
+<div style="background:#1e293b;border-left:3px solid #16a34a;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">R5</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">R5 fidelity vs published landmark trials (16 NCTs)</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#16a34a;color:#fff;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;">1 fixes</span>
+      
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: landmark trials, calibration</div>
+</div>
+<div style="background:#1e293b;border-left:3px solid #475569;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">R5b</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">R5b pool reproduction vs 20 published reference MAs</span>
+    </div>
+    <div style="text-align:right;">
+      
+      
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: published MAs, calibration</div>
+</div>
+<div style="background:#1e293b;border-left:3px solid #16a34a;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">8-agent</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">8-agent blinded TruthCert audit (157 reviews, 1,100 trials)</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#16a34a;color:#fff;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;">57 fixes</span>
+      
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: 8 blinded agents, TruthCert HMAC</div>
+</div>
+<div style="background:#1e293b;border-left:3px solid #16a34a;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">8-agent-ext</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">8-agent extended fixer + MED + carryforward</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#16a34a;color:#fff;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;">53 fixes</span>
+      
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: multi-agent</div>
+</div>
+<div style="background:#1e293b;border-left:3px solid #16a34a;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">R6abc</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">Internal-consistency suite (9 checks: direction, copy-paste, baseline-N…)</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#16a34a;color:#fff;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;">264 fixes</span>
+      
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: internal</div>
+</div>
+<div style="background:#1e293b;border-left:3px solid #16a34a;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">R7</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">AACT cross-verify (LOW+MANUAL band, 1,063 trials)</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#16a34a;color:#fff;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;">100 fixes</span>
+      
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: AACT 2026-04-12</div>
+</div>
+<div style="background:#1e293b;border-left:3px solid #16a34a;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">R7c</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">AACT verify on OK band (248 trustworthy reviews)</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#16a34a;color:#fff;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;">139 fixes</span>
+      
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: AACT</div>
+</div>
+<div style="background:#1e293b;border-left:3px solid #16a34a;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">R8</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">PMID-year era heuristic (PubMed indexing rate)</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#16a34a;color:#fff;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;">31 fixes</span>
+      
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: PubMed indexing</div>
+</div>
+<div style="background:#1e293b;border-left:3px solid #16a34a;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">R9</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">AACT baseline_counts per-arm enrollment check</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#16a34a;color:#fff;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;">110 fixes</span>
+      
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: AACT baseline_counts</div>
+</div>
+<div style="background:#1e293b;border-left:3px solid #16a34a;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">R10</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">AACT outcome_measurements event-count cross-check</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#16a34a;color:#fff;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;">554 fixes</span>
+      
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: AACT outcome_measurements</div>
+</div>
+<div style="background:#1e293b;border-left:3px solid #16a34a;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">R19</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">AACT primary_completion_date vs extracted year</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#16a34a;color:#fff;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;">197 fixes</span>
+      
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: AACT completion dates</div>
+</div>
+<div style="background:#1e293b;border-left:3px solid #475569;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">R20</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">Stress-test (re-run R5+R5b on cleaned corpus)</span>
+    </div>
+    <div style="text-align:right;">
+      
+      
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: regression test</div>
+</div>
+<div style="background:#1e293b;border-left:3px solid #16a34a;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">R22</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">MeSH-anchored review-topic vs AACT-conditions</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#16a34a;color:#fff;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;">422 fixes</span>
+      
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: AACT, curated MeSH dict</div>
+</div>
+<div style="background:#1e293b;border-left:3px solid #16a34a;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">R23</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">Trial acronym vs AACT brief_title + id_information</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#16a34a;color:#fff;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;">249 fixes</span>
+      
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: AACT id_information</div>
+</div>
+<div style="background:#1e293b;border-left:3px solid #16a34a;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">Path-A</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">PMC OAI full-text evidence injection (29.8% PMC OA hit rate)</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#16a34a;color:#fff;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;">12 fixes</span>
+      
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: PMC OAI, NCBI E-utilities</div>
+</div>
+<div style="background:#1e293b;border-left:3px solid #475569;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">R24</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">AACT design_outcomes type classification (flag-only)</span>
+    </div>
+    <div style="text-align:right;">
+      
+      <span style="background:#ca8a04;color:#fff;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;margin-left:6px;">225 flagged</span>
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: AACT design_outcomes</div>
+</div>
+<div style="background:#1e293b;border-left:3px solid #16a34a;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">R24b</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">PubMed-directed R24 estimand auto-fix (conservative gate)</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#16a34a;color:#fff;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;">10 fixes</span>
+      
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: PubMed abstracts</div>
+</div>
+<div style="background:#1e293b;border-left:3px solid #475569;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">R30</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">Fully-null trial-row cleanup</span>
+    </div>
+    <div style="text-align:right;">
+      
+      
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: internal</div>
+</div>
+<div style="background:#1e293b;border-left:3px solid #475569;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">R31-33</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">Polish suite (Benford after cleanup + decimal precision + confidence score)</span>
+    </div>
+    <div style="text-align:right;">
+      
+      
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: audit metrics</div>
+</div>
+<div style="background:#1e293b;border-left:3px solid #475569;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">R25-RW</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">Retraction Watch DB cross-check (Crossref/GitLab, 70,147 retractions)</span>
+    </div>
+    <div style="text-align:right;">
+      
+      
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: Retraction Watch</div>
+</div>
+</section>
+
+<section>
+<h2>Ground-truth sources</h2>
+<ul style="color:#cbd5e1;font-size:13px;line-height:1.8;">
+  <li><strong>AACT 2026-04-12</strong> — Clinical Trials Transformation Initiative pipe-delimited snapshot (studies, conditions, interventions, baseline_counts, outcome_measurements, design_outcomes, id_information, primary_completion_date)</li>
+  <li><strong>PubMed E-utilities</strong> — NCBI metadata (1,190 cached abstracts) + idconv API (PMID↔PMC mapping)</li>
+  <li><strong>PMC OAI full-text</strong> — NCBI PubMed Central full-text XML (60 papers retrieved, 12 evidence entries injected at ≥3 number matches)</li>
+  <li><strong>Retraction Watch (Crossref/GitLab)</strong> — 70,147 retractions cross-checked; 0 retracted papers in corpus</li>
+  <li><strong>Published landmark trials</strong> — NEJM/Lancet primary publications (16 trials, 34 occurrences, 97% byte-exact)</li>
+  <li><strong>Published reference MAs</strong> — 20 published meta-analyses, REML+HKSJ pool reproduction (93% within Cochrane floor)</li>
+  <li><strong>Multi-agent consensus</strong> — 3-lens ≥2-of-3 consensus (R1-R4) + 8-agent blinded TruthCert HMAC (157 reviews)</li>
+  <li><strong>Internal cross-consistency</strong> — direction-inconsistent, copy-paste arms, NCT-era, PMID-cross-NCT, baseline-N mismatch, CI-outside-HR, year-inconsistent-across-reviews, MeSH-anchored topic matching</li>
+</ul>
+</section>
+
+<section>
+<h2>Files</h2>
+<ul style="color:#cbd5e1;font-size:13px;">
+  <li><a href="outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md">FINAL_INTEGRITY_REPORT_V2.md</a> — 232-line consolidated methodology</li>
+  <li><a href="outputs/extraction_audit/fabrication_risk_table.csv">fabrication_risk_table.csv</a> — per-review classifier scores</li>
+  <li><a href="outputs/extraction_audit/truthcert/">truthcert/</a> — 409 HMAC-SHA256 signed per-review manifests</li>
+  <li><code>scripts/</code> — every round's auto-fix script (replayable)</li>
+</ul>
+</section>
+</main>
+
+<footer>
+Generated by <code>scripts/build_what_changed_page.py</code>. Per AACT attribution: AACT 2026-04-12 (CTTI).
+Per PubMed attribution: NCBI E-utilities + PMC OAI. Per Retraction Watch attribution: Crossref-hosted at gitlab.com/crossref/retraction-watch-data.
+</footer>
+</body>
+</html>
