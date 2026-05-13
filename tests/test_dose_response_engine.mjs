@@ -638,6 +638,21 @@ test('fitLinear handles sglt2i_hhf — produces finite output', () => {
   assert.equal(res.coverage_warning, true, 'k<10 triggers coverage warning');
 });
 
+test('API shape: all public methods + _internal helpers present after IIFE init', () => {
+  const required = ['engine_version','validate','fitLinear','fitRCS','fitOneStage',
+                    'nonLinearityTest','predict','forest','exportResults','_internal'];
+  for (const k of required) {
+    assert.ok(k in DR, `DR.${k} must be defined`);
+  }
+  assert.equal(typeof DR.engine_version, 'string');
+  assert.equal(typeof DR._internal, 'object');
+  const requiredInternal = ['matInv','qt','qchisq','pchisq','glCovariance',
+                            'mdCovariance','pmTau2','rcsKnots','rcsBasis','quantile'];
+  for (const k of requiredInternal) {
+    assert.equal(typeof DR._internal[k], 'function', `DR._internal.${k} must be a function`);
+  }
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }

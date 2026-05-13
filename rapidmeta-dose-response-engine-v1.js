@@ -23,6 +23,14 @@
 (function (root) {
   'use strict';
 
+  // P2-13: API defined at IIFE top to avoid forward-reference footgun.
+  // Public methods are assigned to API.<name> immediately after each function
+  // definition below. _internal helpers are similarly attached as defined.
+  var API = {
+    engine_version: 'rapidmeta-dose-response-engine-v1@0.3.0',
+    _internal: {},
+  };
+
   // ===================================================================
   // Section 1: Numerics — copied verbatim from rapidmeta-prognostic-engine-v1.js
   // (lines 57-202) to keep cross-engine numerical behaviour identical.
@@ -31,12 +39,14 @@
   // qt = tinv from source; pt = _tCDFapprox from source.
   // ===================================================================
   function zeros(r, c) { var m = []; for (var i = 0; i < r; i++) m.push(new Array(c).fill(0)); return m; }
+  API._internal.zeros = zeros;
   function inv2x2(M) {
     var a = M[0][0], b = M[0][1], c = M[1][0], d = M[1][1];
     var det = a * d - b * c;
     if (Math.abs(det) < 1e-15) throw new Error('Singular 2x2');
     return [[d / det, -b / det], [-c / det, a / det]];
   }
+  API._internal.inv2x2 = inv2x2;
   function matInv(M) {
     var n = M.length;
     var A = M.map(function (row, i) {
@@ -59,6 +69,7 @@
     }
     return A.map(function (row) { return row.slice(n); });
   }
+  API._internal.matInv = matInv;
   // Beasley-Springer-Moro inverse normal (good to ~7 digits in [1e-9, 1-1e-9])
   function qnormApprox(p) {
     if (p <= 0) return -Infinity;
@@ -140,6 +151,7 @@
     var v = 1 - 2 / (9 * df) + z2 * Math.sqrt(2 / (9 * df));
     return Math.max(0, df * v * v * v);
   }
+  API._internal.qchisq = qchisq;
   // Chi-squared CDF via Wilson-Hilferty
   function pchisq(x, df) {
     if (x <= 0) return 0;
@@ -149,6 +161,7 @@
     // Standard-normal CDF via Abramowitz & Stegun 7.1.26
     return 0.5 * (1 + _erf(z / Math.SQRT2));
   }
+  API._internal.pchisq = pchisq;
   function _erf(x) {
     var sign = x < 0 ? -1 : 1; x = Math.abs(x);
     var a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
@@ -173,6 +186,7 @@
   }
   // qt: conventional name for inverse t-CDF (alias for tinv).
   function qt(p, df) { return tinv(p, df); }
+  API._internal.qt = qt;
   // t-distribution CDF. Exposed as pt() for convention.
   function _tCDFapprox(t, df) {
     // Use beta-relation: F_T(t) = 1 - 0.5 * I_{df/(df+t^2)}(df/2, 1/2) for t>=0.
@@ -181,6 +195,7 @@
     return 1 - 0.5 * ibeta(df / 2, 0.5, x);
   }
   function pt(t, df) { return _tCDFapprox(t, df); }
+  API._internal.pt = pt;
 
   // Paule-Mandel tau^2 estimator (PM bisection). Exposed as pmTau2 per convention.
   // Source: tau2REML in rapidmeta-prognostic-engine-v1.js (lines 379-411).
@@ -233,6 +248,7 @@
     }
     return (lo + hi) / 2;
   }
+  API._internal.pmTau2 = pmTau2;
 
   // Matrix helpers not present in prognostic engine — defined fresh.
   function matMul(A, B) {
@@ -240,17 +256,20 @@
     var M = []; for (var i = 0; i < r; i++) { M.push(new Array(c).fill(0)); for (var j = 0; j < c; j++) for (var p = 0; p < k; p++) M[i][j] += A[i][p] * B[p][j]; }
     return M;
   }
+  API._internal.matMul = matMul;
   function matVec(A, v) {
     var r = A.length, k = A[0].length;
     var out = new Array(r).fill(0);
     for (var i = 0; i < r; i++) for (var j = 0; j < k; j++) out[i] += A[i][j] * v[j];
     return out;
   }
+  API._internal.matVec = matVec;
   function transpose(M) {
     var r = M.length, c = M[0].length, T = [];
     for (var j = 0; j < c; j++) { T.push(new Array(r)); for (var i = 0; i < r; i++) T[j][i] = M[i][j]; }
     return T;
   }
+  API._internal.transpose = transpose;
 
   // ===================================================================
   // Section 2: validate, fitters, helpers — implemented across later units.
@@ -329,6 +348,7 @@
   }
     return issues;
   }
+  API.validate = validate;
 
   // Greenland-Longnecker covariance correction for binary (cohort RR) dose-response.
   // Returns a k×k covariance matrix for the k contrast log-RRs (vs. reference arm).
@@ -354,6 +374,7 @@
     }
     return S;
   }
+  API._internal.glCovariance = glCovariance;
 
   // Continuous-outcome (mean difference) per-trial covariance.
   // Same shared-reference structure as glCovariance: every y_i = mean_i - mean_ref
@@ -380,6 +401,7 @@
     }
     return S;
   }
+  API._internal.mdCovariance = mdCovariance;
 
   // === Section 2b: RCS helpers (precedes Section 2a in file; positioned by dependency order) ===
 
@@ -392,6 +414,7 @@
     var lo = Math.floor(h), hi = Math.ceil(h);
     return sorted[lo] + (h - lo) * (sorted[hi] - sorted[lo]);
   }
+  API._internal.quantile = quantile;
 
   // rcsKnots(doses, k): Harrell rcspline.eval default percentile knots.
   // Filters to unique positive doses, sorts, then computes percentiles.
@@ -406,6 +429,7 @@
     else throw new Error('rcsKnots: only k in {3,4,5} supported');
     return pcts.map(function (p) { return quantile(uniq, p); });
   }
+  API._internal.rcsKnots = rcsKnots;
 
   // rcsBasis(x, knots): Harrell truncated-power basis, matched to R's rcspline.eval (norm=2, inclx=TRUE).
   // Returns a vector of length K-1 (K = knots.length):
@@ -441,6 +465,7 @@
     }
     return basis;
   }
+  API._internal.rcsBasis = rcsBasis;
 
   // ===================================================================
   // Section 2a: fitLinear — two-stage Greenland-Longnecker linear pool.
@@ -601,6 +626,7 @@
       engine_version: API.engine_version,
     };
   }
+  API.fitLinear = fitLinear;
 
   // ===================================================================
   // Section 2c: fitRCS — two-stage Greenland-Longnecker + restricted-cubic-spline
@@ -805,6 +831,7 @@
       engine_version: API.engine_version,
     };
   }
+  API.fitRCS = fitRCS;
 
   // ===================================================================
   // Section 3a: nonLinearityTest(rcsResult) — thin wrapper (Task 14)
@@ -827,6 +854,7 @@
     var conclusion = p < 0.05 ? 'non_linear' : (p > 0.20 ? 'linear' : 'inconclusive');
     return { wald_chi2: W, df: nlCoefs.length, p: p, conclusion: conclusion };
   }
+  API.nonLinearityTest = nonLinearityTest;
 
   // ===================================================================
   // Section 3b: fitOneStage(trials, opts, precomputedJson) — JSON reader (Task 15)
@@ -861,6 +889,7 @@
       engine_version: API.engine_version,
     };
   }
+  API.fitOneStage = fitOneStage;
 
   // ===================================================================
   // Section 3c: predict / forest / exportResults (Task 16)
@@ -896,6 +925,7 @@
       return { est: est, ci_lo: est - tcrit * se, ci_hi: est + tcrit * se, extrapolation_banner: banner };
     }
   }
+  API.predict = predict;
 
   function forest(trials, result) {
     // P1-16: `trials` is reserved for future per-arm weight override; the function operates
@@ -932,6 +962,7 @@
     for (var i = 0; i < rows.length; i++) rows[i].weight_pct = 100 * w[i] / ws;
     return rows;
   }
+  API.forest = forest;
 
   function exportResults(result) {
     if (!result) return null;
@@ -941,31 +972,7 @@
     clone.engine_version = API.engine_version;
     return clone;
   }
-
-  var API = {
-    engine_version: 'rapidmeta-dose-response-engine-v1@0.3.0',
-    validate: validate,
-    fitLinear: fitLinear,
-    fitRCS: fitRCS,
-    fitOneStage: fitOneStage,
-    nonLinearityTest: nonLinearityTest,
-    predict: predict,
-    forest: forest,
-    exportResults: exportResults,
-    _internal: {},
-  };
-
-  API._internal = Object.assign(API._internal || {}, {
-    zeros: zeros, inv2x2: inv2x2, matInv: matInv,
-    matMul: matMul, matVec: matVec, transpose: transpose,
-    qchisq: qchisq, qt: qt, pchisq: pchisq, pt: pt,
-    pmTau2: pmTau2,
-    glCovariance: glCovariance,
-    mdCovariance: mdCovariance,
-    quantile: quantile,
-    rcsKnots: rcsKnots,
-    rcsBasis: rcsBasis,
-  });
+  API.exportResults = exportResults;
 
   root.RapidMetaDoseResp = API;
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
