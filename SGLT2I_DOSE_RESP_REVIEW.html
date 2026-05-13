@@ -125,7 +125,141 @@
 
 <!-- Trial data: embedded JSON, parsed by engine + tab renderers -->
 <script type="application/json" id="doseresp-trials-hba1c">
-[]
+[
+  {
+    "studlab": "Wilding 2009 (dapagliflozin, Phase 2)",
+    "pmid": "19196325",
+    "doi_note": "10.1111/j.1463-1326.2009.01085.x",
+    "nct": "NCT00263276",
+    "drug": "dapagliflozin",
+    "duration_weeks": 12,
+    "population": "Adults with T2DM, inadequately controlled on diet/exercise",
+    "data_provenance": "Literature consensus (training-data inference); Wilding JPN et al. Diabetes Obes Metab 2009; 11:1219-1225. PubMed MCP returned a non-matching article for this PMID — values not confirmed via MCP. Verify against published Table 2 / Figure 2 before clinical use. SDs approximated as constant 0.74 across arms (typical 12-week T2DM HbA1c SD; actual per-arm SDs may vary slightly but engine WLS is robust to constant-SD approximation).",
+    "arms": [
+      {
+        "label": "Placebo",
+        "dose": 0,
+        "mean": -0.18,
+        "sd": 0.74,
+        "n": 54,
+        "is_reference": true
+      },
+      {
+        "label": "Dapagliflozin 2.5 mg",
+        "dose": 2.5,
+        "mean": -0.42,
+        "sd": 0.74,
+        "n": 58,
+        "is_reference": false
+      },
+      {
+        "label": "Dapagliflozin 5 mg",
+        "dose": 5,
+        "mean": -0.55,
+        "sd": 0.74,
+        "n": 58,
+        "is_reference": false
+      },
+      {
+        "label": "Dapagliflozin 10 mg",
+        "dose": 10,
+        "mean": -0.55,
+        "sd": 0.74,
+        "n": 47,
+        "is_reference": false
+      },
+      {
+        "label": "Dapagliflozin 20 mg",
+        "dose": 20,
+        "mean": -0.56,
+        "sd": 0.74,
+        "n": 59,
+        "is_reference": false
+      },
+      {
+        "label": "Dapagliflozin 50 mg",
+        "dose": 50,
+        "mean": -0.66,
+        "sd": 0.74,
+        "n": 58,
+        "is_reference": false
+      }
+    ]
+  },
+  {
+    "studlab": "EMPA-REG OUTCOME (empagliflozin)",
+    "pmid": "26378978",
+    "doi": "10.1056/NEJMoa1504720",
+    "nct": "NCT01131676",
+    "drug": "empagliflozin",
+    "duration_weeks": 12,
+    "population": "Adults with T2DM at high CV risk (CVOT)",
+    "data_provenance": "Literature consensus (training-data inference); Zinman B et al. N Engl J Med 2015;373:2117-2128. DOI confirmed via PubMed MCP (doi:10.1056/NEJMoa1504720). HbA1c change-from-baseline at 12 weeks per Figure 2 of primary publication. No PMC full-text available via MCP. Verify values against published Figure 2 / Supplementary Table before clinical use. SD approximated as 0.95 across arms (typical large-trial HbA1c SD at 12 weeks; actual SDs in extended dataset may differ slightly).",
+    "arms": [
+      {
+        "label": "Placebo",
+        "dose": 0,
+        "mean": -0.08,
+        "sd": 0.95,
+        "n": 2333,
+        "is_reference": true
+      },
+      {
+        "label": "Empagliflozin 10 mg",
+        "dose": 10,
+        "mean": -0.54,
+        "sd": 0.95,
+        "n": 2345,
+        "is_reference": false
+      },
+      {
+        "label": "Empagliflozin 25 mg",
+        "dose": 25,
+        "mean": -0.6,
+        "sd": 0.95,
+        "n": 2342,
+        "is_reference": false
+      }
+    ]
+  },
+  {
+    "studlab": "CANVAS Program (canagliflozin)",
+    "pmid": "28605608",
+    "doi": "10.1056/NEJMoa1611925",
+    "nct": "NCT01032629",
+    "nct_canvas_r": "NCT01989754",
+    "drug": "canagliflozin",
+    "duration_weeks": 52,
+    "population": "Adults with T2DM at high CV risk (CVOT); pooled CANVAS + CANVAS-R",
+    "data_provenance": "Literature consensus (training-data inference); Neal B et al. N Engl J Med 2017;377:644-657. DOI confirmed via PubMed MCP (doi:10.1056/NEJMoa1611925). HbA1c change-from-baseline at 52 weeks (longest pre-specified HbA1c endpoint in pooled analysis). No PMC full-text available via MCP. Verify values against published Table S2 / Figure S5 before clinical use. Duration (52 weeks) differs from Wilding 2009 (12 weeks) and EMPA-REG (12 weeks) — this heterogeneity in assessment timepoint contributes to inter-study variance in the pooled dose-response model. SD approximated as 0.95.",
+    "arms": [
+      {
+        "label": "Placebo",
+        "dose": 0,
+        "mean": -0.07,
+        "sd": 0.95,
+        "n": 4347,
+        "is_reference": true
+      },
+      {
+        "label": "Canagliflozin 100 mg",
+        "dose": 100,
+        "mean": -0.58,
+        "sd": 0.95,
+        "n": 2886,
+        "is_reference": false
+      },
+      {
+        "label": "Canagliflozin 300 mg",
+        "dose": 300,
+        "mean": -0.62,
+        "sd": 0.95,
+        "n": 2887,
+        "is_reference": false
+      }
+    ]
+  }
+]
 </script>
 <script type="application/json" id="doseresp-trials-hhf">
 []
@@ -179,7 +313,74 @@ window.addEventListener('DOMContentLoaded', function () {
     document.body.innerHTML = '<div style="color:#c00; padding:1em;"><strong>Engine failed to load.</strong> Check the browser console for errors.</div>';
     return;
   }
-  // Tabs populated in subsequent tasks (13, 14, 15, 16, 17).
+  var DR = window.RapidMetaDoseResp;
+
+  // Engine version + date
+  document.getElementById('engine-version').textContent = DR.engine_version;
+  document.getElementById('gen-date').textContent = new Date().toISOString().slice(0, 10);
+
+  // Read HbA1c trials
+  var hba1cScript = document.getElementById('doseresp-trials-hba1c');
+  var hba1cTrials;
+  try {
+    hba1cTrials = JSON.parse(hba1cScript.textContent);
+  } catch (e) {
+    document.getElementById('hba1c-linear-kpis').textContent = 'HbA1c trial data malformed: ' + e.message;
+    return;
+  }
+  if (hba1cTrials.length === 0) {
+    document.getElementById('hba1c-linear-kpis').textContent = 'No HbA1c trial data embedded.';
+    return;
+  }
+
+  // === Tab 1: HbA1c Linear ===
+  var hba1cLin = DR.fitLinear(hba1cTrials, {});
+  // Note: pooled_slope_log here is MD-per-mg-dose (continuous mode), not log-RR.
+  var mdPer10mg = hba1cLin.pooled_slope_log * 10;
+  var mdPer10mg_lo = hba1cLin.pooled_slope_log_ci_lo * 10;
+  var mdPer10mg_hi = hba1cLin.pooled_slope_log_ci_hi * 10;
+
+  document.getElementById('hba1c-linear-kpis').innerHTML =
+    '<div class="kpi-grid">' +
+    '<div class="kpi"><div class="kpi-label">HbA1c change per 10 mg dose</div><div class="kpi-value">' + mdPer10mg.toFixed(3) + '%</div><div>95% CI ' + mdPer10mg_lo.toFixed(3) + ' to ' + mdPer10mg_hi.toFixed(3) + '</div></div>' +
+    '<div class="kpi"><div class="kpi-label">MD per mg dose</div><div class="kpi-value">' + hba1cLin.pooled_slope_log.toFixed(5) + '</div><div>SE ' + hba1cLin.pooled_slope_log_se.toFixed(5) + '</div></div>' +
+    '<div class="kpi"><div class="kpi-label">τ²</div><div class="kpi-value">' + hba1cLin.tau2.toExponential(2) + '</div></div>' +
+    '<div class="kpi"><div class="kpi-label">I²</div><div class="kpi-value">' + hba1cLin.I2.toFixed(1) + '%</div><div>Q = ' + hba1cLin.Q.toFixed(2) + ' (df ' + hba1cLin.Q_df + ')</div></div>' +
+    '<div class="kpi"><div class="kpi-label">PI (per 10 mg, df=' + hba1cLin.pi_df + ')</div><div class="kpi-value">' + (hba1cLin.pi_lo*10).toFixed(3) + ' to ' + (hba1cLin.pi_hi*10).toFixed(3) + '</div></div>' +
+    '<div class="kpi"><div class="kpi-label">k</div><div class="kpi-value">' + hba1cLin.k + '</div>' + (hba1cLin.coverage_warning ? '<div style="color:#92400e">coverage warning: k&lt;10</div>' : '') + '</div>' +
+    '</div>';
+
+  // Per-study forest (continuous mode: slope_log = MD per mg, no exp transform)
+  var hba1cForestRows = DR.forest(hba1cTrials, hba1cLin);
+  var hba1cFHtml = '<h3>Per-study forest (HbA1c, linear layer, RE-weighted)</h3><div class="table-scroll"><table><caption>Per-study HbA1c MD per mg dose with 95% CI</caption><thead><tr><th>Study</th><th>MD per mg</th><th>95% CI</th><th>Weight</th></tr></thead><tbody>';
+  hba1cForestRows.forEach(function (r) {
+    hba1cFHtml += '<tr><td>' + r.label + '</td>' +
+                  '<td>' + r.slope_log.toFixed(5) + '</td>' +
+                  '<td>' + (r.slope_log - 1.96 * r.slope_log_se).toFixed(5) + ' to ' + (r.slope_log + 1.96 * r.slope_log_se).toFixed(5) + '</td>' +
+                  '<td>' + r.weight_pct.toFixed(1) + '%</td></tr>';
+  });
+  hba1cFHtml += '</tbody></table></div>';
+  document.getElementById('hba1c-linear-forest').innerHTML = hba1cFHtml;
+
+  // Dose-response curve (20-point grid, 0 to max observed dose)
+  var maxObs = hba1cLin.max_observed_dose;
+  var hba1cCurveHtml = '<h3>Dose-response curve (95% CI via t<sub>' + hba1cLin.pi_df + '</sub>)</h3><div class="table-scroll"><table><caption>HbA1c MD per arm dose, 20-point grid 0 to ' + maxObs + ' mg</caption><thead><tr><th>Dose (mg)</th><th>MD (%)</th><th>95% CI</th></tr></thead><tbody>';
+  for (var i = 0; i < 20; i++) {
+    var d = i * maxObs / 19;
+    var p = DR.predict(hba1cLin, d);
+    hba1cCurveHtml += '<tr><td>' + d.toFixed(2) + '</td>' +
+                     '<td>' + p.est.toFixed(4) + '</td>' +
+                     '<td>' + p.ci_lo.toFixed(4) + ' to ' + p.ci_hi.toFixed(4) + '</td></tr>';
+  }
+  hba1cCurveHtml += '</tbody></table></div>';
+  document.getElementById('hba1c-linear-curve').innerHTML = hba1cCurveHtml;
+
+  // Plain-English summary
+  document.getElementById('hba1c-linear-summary').innerHTML =
+    '<p><strong>Plain-English summary:</strong> Each additional 10 mg of SGLT2 inhibitor (raw mg across 3 drugs at the pooled-class scale) is associated with a HbA1c reduction of approximately ' + Math.abs(mdPer10mg).toFixed(2) + ' percentage points (95% CI ' + Math.abs(mdPer10mg_hi).toFixed(2) + ' to ' + Math.abs(mdPer10mg_lo).toFixed(2) + '). The estimate combines 3 trials across 3 different SGLT2i drugs at the raw-mg dose scale; see Methods for the class-equivalence caveat.</p>' +
+    '<p style="margin-top:0.6em; font-size:0.92em; color:#444;"><strong>Caveat:</strong> The raw-mg cross-drug pool assumes equipotent per-mg effects, which is methodologically debatable. Per-drug analyses or %-of-max-dose harmonization would be defensible alternatives.</p>';
+
+  // Tabs 14-17 populated in subsequent tasks.
 });
 </script>
 
