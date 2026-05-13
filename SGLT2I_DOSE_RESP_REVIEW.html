@@ -579,7 +579,8 @@ window.addEventListener('DOMContentLoaded', function () {
     document.getElementById('hhf-summary').innerHTML =
       '<p><strong>Plain-English summary:</strong> Across the 2 SGLT2i CVOTs with within-trial multi-dose randomization (EMPA-REG OUTCOME 10/25 mg empagliflozin; CANVAS Program 100/300 mg canagliflozin), each additional 10 mg of drug is associated with a relative-risk of ' + hhfRR10.toFixed(3) + ' for hospitalization for heart failure (95% CI ' + hhfRR10_lo.toFixed(3) + ' to ' + hhfRR10_hi.toFixed(3) + '). The estimate combines two drugs at the raw-mg dose scale — same class-equivalence caveat as the HbA1c tab. k = 2 (SOLOIST-WHF excluded as fixed-titration) < 10 triggers coverage_warning.</p>';
 
-    // === Tab 5: R-parity badges ===
+    // === Tab 5: R-parity badges (Unit 7, Task 17) ===
+    // Two mounts: HbA1c (continuous) + hHF (binary). hhfRcs may be null if fitRCS fails at k=2.
     window.RValidationDoseresp.render('r-parity-doseresp-hba1c',
       { linear: hba1cLin, rcs: hba1cRcs, one_stage: hba1cOs },
       rHba1c);
@@ -597,7 +598,7 @@ window.addEventListener('DOMContentLoaded', function () {
       { linear: hhfLin, rcs: hhfRcs, one_stage: hhfOs },
       rHhf);
 
-    // Populate trial-summary table (combines HbA1c and hHF fixtures)
+    // Populate trial-summary table (combines HbA1c and hHF fixtures; Task 17 Step 2)
     var summary = '<div class="table-scroll"><table><caption>Per-study summary across HbA1c + hHF outcomes</caption><thead><tr><th>Study</th><th>Drug</th><th>PMID</th><th>HbA1c arms</th><th>hHF arms</th></tr></thead><tbody>';
     var pmidSet = {};
     hba1cTrials.forEach(function (t) {
