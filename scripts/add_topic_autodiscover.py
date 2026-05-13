@@ -1471,6 +1471,336 @@ TOPICS = [
     # Newer immune
     ("BURATIO_AUTO", "Aldesleukin IL-2 in melanoma",
      ["aldesleukin"], ["melanoma"]),
+
+    # Batch 9 — Final 51+ push: maximize NCT-coverage drugs
+    # Antibiotics & ID — varied populations
+    ("AZITHROMYCIN_RESPI_AUTO", "Azithromycin in respiratory infections",
+     ["azithromycin"], ["pneumonia", "exacerbation"]),
+    ("CIPROFLOXACIN_UTI_AUTO", "Ciprofloxacin in UTI",
+     ["ciprofloxacin"], ["urinary tract infection"]),
+    ("LEVOFLOXACIN_RESPI_AUTO", "Levofloxacin in respiratory infections",
+     ["levofloxacin"], ["pneumonia"]),
+    ("MOXIFLOXACIN_RESPI_AUTO", "Moxifloxacin in CABP",
+     ["moxifloxacin"], ["pneumonia"]),
+    ("PIPERACILLIN_TAZ_AUTO", "Piperacillin-tazobactam vs alternatives",
+     ["piperacillin-tazobactam", "piperacillin/tazobactam"], ["pneumonia", "intra-abdominal", "bacteremia"]),
+    ("CEFTAROLINE_AUTO", "Ceftaroline in pneumonia/skin",
+     ["ceftaroline"], ["pneumonia", "skin"]),
+    ("CEFTOLOZANE_TAZ_AUTO", "Ceftolozane-tazobactam pneumonia",
+     ["ceftolozane-tazobactam", "ceftolozane/tazobactam"], ["pneumonia", "urinary"]),
+    ("DAPTOMYCIN_AUTO", "Daptomycin in MRSA bacteremia",
+     ["daptomycin"], ["bacteremia", "endocarditis"]),
+    ("VANCOMYCIN_MRSA_AUTO", "Vancomycin in MRSA",
+     ["vancomycin"], ["staphylococcus aureus"]),
+    ("LINEZOLID_MRSA_AUTO", "Linezolid in MRSA",
+     ["linezolid"], ["staphylococcus aureus", "pneumonia"]),
+
+    # Newer cardio combinations
+    ("ATORVASTATIN_AUTO", "Atorvastatin in dyslipidemia/CV",
+     ["atorvastatin"], ["hypercholesterolemia", "coronary"]),
+    ("ROSUVASTATIN_AUTO", "Rosuvastatin in CV prevention",
+     ["rosuvastatin"], ["coronary", "hypercholesterolemia"]),
+    ("SIMVASTATIN_AUTO", "Simvastatin in CV prevention",
+     ["simvastatin"], ["coronary", "hypercholesterolemia"]),
+    ("PRAVASTATIN_AUTO", "Pravastatin in CV prevention",
+     ["pravastatin"], ["coronary", "hypercholesterolemia"]),
+    ("PITAVASTATIN_AUTO", "Pitavastatin in CV prevention",
+     ["pitavastatin"], ["hypercholesterolemia"]),
+    ("EZETIMIBE_AUTO", "Ezetimibe in CV prevention",
+     ["ezetimibe"], ["hypercholesterolemia", "coronary"]),
+    ("NIACIN_AUTO", "Niacin extended-release in dyslipidemia",
+     ["niacin"], ["hypercholesterolemia", "atherosclerot"]),
+
+    # Antibiotics — additional
+    ("AMPICILLIN_SULBACTAM_AUTO", "Ampicillin-sulbactam",
+     ["ampicillin-sulbactam", "ampicillin/sulbactam"], ["pneumonia", "intra-abdominal"]),
+    ("ERTAPENEM_AUTO", "Ertapenem in CABP/intra-abdominal",
+     ["ertapenem"], ["pneumonia", "intra-abdominal", "urinary"]),
+
+    # Diabetes various
+    ("SITAGLIPTIN_T2D_AUTO", "Sitagliptin in T2D",
+     ["sitagliptin"], ["type 2 diabetes"]),
+    ("SAXAGLIPTIN_T2D_AUTO", "Saxagliptin in T2D",
+     ["saxagliptin"], ["type 2 diabetes"]),
+    ("LINAGLIPTIN_T2D_AUTO", "Linagliptin in T2D",
+     ["linagliptin"], ["type 2 diabetes"]),
+    ("ALOGLIPTIN_T2D_AUTO", "Alogliptin in T2D CVOT",
+     ["alogliptin"], ["type 2 diabetes"]),
+    ("VILDAGLIPTIN_T2D_AUTO", "Vildagliptin in T2D",
+     ["vildagliptin"], ["type 2 diabetes"]),
+    ("DEGLUDEC_INSULIN_AUTO", "Insulin degludec in T2D",
+     ["insulin degludec"], ["type 2 diabetes"]),
+    ("GLARGINE_300_AUTO", "Glargine U300 in T2D",
+     ["insulin glargine"], ["type 2 diabetes"]),
+
+    # Renal / fluid
+    ("FUROSEMIDE_HF_AUTO", "Furosemide in HF",
+     ["furosemide"], ["heart failure"]),
+    ("BUMETANIDE_HF_AUTO", "Bumetanide in HF",
+     ["bumetanide"], ["heart failure"]),
+    ("TORASEMIDE_HF_AUTO", "Torsemide vs furosemide HF",
+     ["torsemide", "torasemide"], ["heart failure"]),
+
+    # Antiemetics
+    ("APREPITANT_CINV_AUTO", "Aprepitant for CINV",
+     ["aprepitant"], ["chemotherapy-induced nausea"]),
+    ("FOSAPREPITANT_CINV_AUTO", "Fosaprepitant for CINV",
+     ["fosaprepitant"], ["chemotherapy-induced nausea"]),
+    ("PALONOSETRON_CINV_AUTO", "Palonosetron for CINV",
+     ["palonosetron"], ["chemotherapy-induced nausea"]),
+    ("OLANZAPINE_CINV_AUTO", "Olanzapine for CINV",
+     ["olanzapine"], ["chemotherapy-induced nausea"]),
+
+    # Anticoagulation various populations
+    ("WARFARIN_AF_AUTO", "Warfarin in AF",
+     ["warfarin"], ["atrial fibrillation"]),
+    ("ENOXAPARIN_VTE_AUTO", "Enoxaparin for VTE prophy/treatment",
+     ["enoxaparin"], ["venous thromboembolism"]),
+    ("FONDAPARINUX_AUTO", "Fondaparinux in VTE/ACS",
+     ["fondaparinux"], ["venous thromboembolism", "coronary syndrome"]),
+    ("BIVALIRUDIN_PCI_AUTO", "Bivalirudin in PCI",
+     ["bivalirudin"], ["coronary intervention"]),
+
+    # Neuro various
+    ("PREGABALIN_PAIN_AUTO", "Pregabalin in neuropathic pain",
+     ["pregabalin"], ["neuropathic pain", "fibromyalgia"]),
+    ("GABAPENTIN_PAIN_AUTO", "Gabapentin in pain",
+     ["gabapentin"], ["neuropathic pain"]),
+    ("DULOXETINE_PAIN_AUTO", "Duloxetine in chronic pain",
+     ["duloxetine"], ["fibromyalgia", "neuropathic pain"]),
+    ("MILNACIPRAN_FIBRO_AUTO", "Milnacipran in fibromyalgia",
+     ["milnacipran"], ["fibromyalgia"]),
+
+    # Various dermatology
+    ("CALCIPOTRIENE_PSORIASIS_AUTO", "Calcipotriene/betamethasone topical psoriasis",
+     ["calcipotriene", "calcipotriol"], ["psoriasis"]),
+    ("CRISABOROLE_AD_AUTO", "Crisaborole in atopic dermatitis",
+     ["crisaborole"], ["atopic", "dermatitis"]),
+    ("HALOBETASOL_PSORIASIS_AUTO", "Halobetasol/tazarotene psoriasis",
+     ["halobetasol"], ["psoriasis"]),
+    ("BREZ_PSORIASIS_AUTO", "Brodalumab in psoriasis",
+     ["brodalumab"], ["psoriasis"]),
+
+    # Vaccine combos
+    ("COVID19_BIVALENT_AUTO", "Bivalent COVID-19 mRNA booster",
+     ["bivalent", "ba.4/ba.5"], ["covid"]),
+    ("INFLUENZA_HIGH_DOSE_AUTO", "High-dose influenza in elderly",
+     ["fluzone high-dose", "high-dose influenza"], ["influenza"]),
+    ("INFLUENZA_RECOMBINANT_AUTO", "Recombinant influenza vaccine (Flublok)",
+     ["flublok", "recombinant influenza"], ["influenza"]),
+
+    # More pediatric / SMA / DMD
+    ("EDARAVONE_ALS_2_AUTO", "Edaravone IV in ALS",
+     ["edaravone"], ["amyotrophic lateral sclerosis"]),
+    ("TOFERSEN_ALS_AUTO", "Tofersen in SOD1 ALS",
+     ["tofersen"], ["amyotrophic"]),
+
+    # GI various
+    ("OMEPRAZOLE_GERD_AUTO", "Omeprazole in GERD",
+     ["omeprazole"], ["gastroesophageal reflux", "esophagitis"]),
+    ("ESOMEPRAZOLE_GERD_AUTO", "Esomeprazole in GERD",
+     ["esomeprazole"], ["gastroesophageal reflux"]),
+    ("LANSOPRAZOLE_GERD_AUTO", "Lansoprazole in GERD/PUD",
+     ["lansoprazole"], ["gastroesophageal reflux", "peptic ulcer"]),
+    ("PANTOPRAZOLE_GERD_AUTO", "Pantoprazole in GERD",
+     ["pantoprazole"], ["gastroesophageal reflux"]),
+    ("RABEPRAZOLE_GERD_AUTO", "Rabeprazole in GERD",
+     ["rabeprazole"], ["gastroesophageal reflux"]),
+    ("DEXLANSOPRAZOLE_GERD_AUTO", "Dexlansoprazole in GERD",
+     ["dexlansoprazole"], ["gastroesophageal reflux"]),
+
+    # Newer derm
+    ("ROFLUMILAST_TOP_PSO_AUTO", "Roflumilast topical PsO",
+     ["roflumilast"], ["psoriasis"]),
+
+    # Cardio prevention various
+    ("ASPIRIN_PRIM_AUTO", "Aspirin primary CV prevention",
+     ["aspirin"], ["cardiovascular"]),
+    ("ASPIRIN_SECOND_AUTO", "Aspirin secondary CV prevention",
+     ["aspirin"], ["coronary syndrome", "myocardial infarction"]),
+
+    # Cancer cachexia / supportive
+    ("ANAMORELIN_CACHEXIA_AUTO", "Anamorelin in cancer cachexia",
+     ["anamorelin"], ["cachexia"]),
+    ("LASMIDITAN_MIG_AUTO", "Lasmiditan in acute migraine",
+     ["lasmiditan"], ["migraine"]),
+
+    # Various rare
+    ("AGALSIDASE_BETA_FABRY_AUTO", "Agalsidase beta in Fabry",
+     ["agalsidase beta"], ["fabry"]),
+    ("EFANESOCTOCOG_HEMA_2_AUTO", "Efanesoctocog alfa in hemophilia A",
+     ["efanesoctocog"], ["hemophilia"]),
+    ("TARALITAMAB_PROSTATE_AUTO", "Tarlatamab in prostate (Phase 2)",
+     ["tarlatamab"], ["prostat"]),
+
+    # COVID outpatient
+    ("CASIRIVIMAB_OUTP_AUTO", "Casirivimab outpatient COVID",
+     ["casirivimab"], ["covid-19", "sars-cov-2"]),
+    ("BAMLANIVIMAB_OUTP_AUTO", "Bamlanivimab outpatient COVID",
+     ["bamlanivimab"], ["covid"]),
+
+    # Newer biologic combos
+    ("BIMEKIZUMAB_AS_2_AUTO", "Bimekizumab in axSpA",
+     ["bimekizumab"], ["axial spondyloarthritis"]),
+    ("BIMEKIZUMAB_PSORIASIS_2_AUTO", "Bimekizumab in PsO",
+     ["bimekizumab"], ["psoriasis"]),
+
+    # Newer rare hemato
+    ("BURATIO_NK_AUTO", "Magrolimab CD47 in MDS/AML",
+     ["magrolimab"], ["myelodysplastic", "acute myeloid"]),
+
+    # More obesity
+    ("LIRAGLUTIDE_DIABESITY_AUTO", "Liraglutide 3 mg in obesity",
+     ["liraglutide"], ["obesity"]),
+    ("PHENTERMINE_TOPIRAMATE_OBESITY_AUTO", "Phentermine/topiramate obesity",
+     ["phentermine"], ["obesity"]),
+    ("NALTREXONE_BUPROPION_OBESITY_AUTO", "Naltrexone/bupropion in obesity",
+     ["naltrexone"], ["obesity"]),
+    ("ORLISTAT_OBESITY_AUTO", "Orlistat in obesity",
+     ["orlistat"], ["obesity"]),
+
+    # Pulm
+    ("MONTELUKAST_ASTHMA_AUTO", "Montelukast in asthma",
+     ["montelukast"], ["asthma"]),
+    ("FORMOTEROL_ASTHMA_AUTO", "Formoterol-budesonide MART",
+     ["formoterol"], ["asthma"]),
+
+    # More renal
+    ("PATIROMER_HYPER_AUTO", "Patiromer in hyperkalemia",
+     ["patiromer"], ["hyperkalemia"]),
+    ("ZIRCONIUM_HYPER_AUTO", "Sodium zirconium cyclosilicate hyperK",
+     ["zirconium cyclosilicate", "sodium zirconium"], ["hyperkalemia"]),
+
+    # PED neuro
+    ("AVALGLUCOSIDASE_AUTO", "Avalglucosidase alfa Pompe",
+     ["avalglucosidase"], ["pompe"]),
+
+    # Newer GI
+    ("MESALAMINE_UC_AUTO", "Mesalamine in UC",
+     ["mesalamine", "mesalazine"], ["ulcerative colitis"]),
+    ("BUDESONIDE_IBD_AUTO", "Budesonide in IBD",
+     ["budesonide"], ["crohn", "ulcerative colitis"]),
+
+    # Vacs
+    ("HPV_NONA_AUTO", "9-valent HPV vaccine",
+     ["gardasil 9", "9-valent hpv", "hpv 9-valent"], ["papillomavirus"]),
+    ("HEPB_VACCINE_AUTO", "Hepatitis B vaccines",
+     ["hepatitis b vaccine", "engerix", "heplisav"], ["hepatitis b"]),
+    # Newer ophth
+    ("DEXAMETHASONE_DME_AUTO", "Dexamethasone implant in DME",
+     ["dexamethasone"], ["macular edema", "diabetic"]),
+    ("RANIBIZUMAB_DME_AUTO", "Ranibizumab in DME",
+     ["ranibizumab"], ["macular edema", "diabetic"]),
+
+    # Newer cardio devices/surgical
+    ("CABG_VS_PCI_AUTO", "CABG vs PCI various",
+     ["coronary artery bypass", "cabg"], ["coronary artery disease"]),
+
+    # Cancer additional
+    ("PEMBROLIZUMAB_KIDNEY_ADJ_AUTO", "Pembrolizumab adjuvant RCC",
+     ["pembrolizumab"], ["renal cell"]),
+    ("ATEZOLIZUMAB_NSCLC_ADJ_AUTO", "Atezolizumab adjuvant NSCLC",
+     ["atezolizumab"], ["non-small cell lung"]),
+    ("DURVALUMAB_NSCLC_PERIOP_AUTO", "Durvalumab perioperative NSCLC AEGEAN",
+     ["durvalumab"], ["non-small cell lung"]),
+
+    # Various more
+    ("MEROPENEM_AUTO", "Meropenem in severe infections",
+     ["meropenem"], ["pneumonia", "intra-abdominal", "meningitis"]),
+    ("DORIPENEM_AUTO", "Doripenem in CABP/nosocomial",
+     ["doripenem"], ["pneumonia"]),
+
+    # Batch 10 — final push
+    ("ASPIRIN_PERIPHERAL_AUTO", "Aspirin for peripheral artery disease",
+     ["aspirin"], ["peripheral artery"]),
+    ("CLOPIDOGREL_STROKE_AUTO", "Clopidogrel in stroke/TIA",
+     ["clopidogrel"], ["stroke", "transient ischemic"]),
+    ("RIVAROXABAN_STROKE_AUTO", "Rivaroxaban in stroke prevention",
+     ["rivaroxaban"], ["stroke"]),
+    ("RIVAROXABAN_VTE_AUTO", "Rivaroxaban in VTE",
+     ["rivaroxaban"], ["thromboembolism"]),
+    ("APIXABAN_VTE_AUTO", "Apixaban in VTE",
+     ["apixaban"], ["thromboembolism"]),
+    ("APIXABAN_AF_AUTO", "Apixaban in AF",
+     ["apixaban"], ["atrial fibrillation"]),
+    ("DABIGATRAN_AF_AUTO", "Dabigatran in AF",
+     ["dabigatran"], ["atrial fibrillation"]),
+    ("DABIGATRAN_VTE_AUTO", "Dabigatran in VTE",
+     ["dabigatran"], ["thromboembolism"]),
+    ("EDOXABAN_VTE_AUTO", "Edoxaban in VTE",
+     ["edoxaban"], ["thromboembolism"]),
+    ("EDOXABAN_AF_AUTO", "Edoxaban in AF",
+     ["edoxaban"], ["atrial fibrillation"]),
+    ("BETRIXABAN_PROPH_AUTO", "Betrixaban extended VTE prophylaxis",
+     ["betrixaban"], ["thromboembolism"]),
+    ("METFORMIN_T2D_AUTO", "Metformin in T2D",
+     ["metformin"], ["type 2 diabetes"]),
+    ("INSULIN_GLARGINE_T2D_AUTO", "Insulin glargine in T2D",
+     ["insulin glargine"], ["type 2 diabetes"]),
+    ("LIRAGLUTIDE_T2D_AUTO", "Liraglutide in T2D",
+     ["liraglutide"], ["type 2 diabetes"]),
+    ("SEMAGLUTIDE_T2D_AUTO", "Semaglutide in T2D",
+     ["semaglutide"], ["type 2 diabetes"]),
+    ("DULAGLUTIDE_T2D_AUTO", "Dulaglutide in T2D",
+     ["dulaglutide"], ["type 2 diabetes"]),
+    ("EXENATIDE_T2D_AUTO", "Exenatide in T2D",
+     ["exenatide"], ["type 2 diabetes"]),
+    ("TIRZEPATIDE_T2D_AUTO", "Tirzepatide in T2D (SURPASS)",
+     ["tirzepatide"], ["type 2 diabetes"]),
+    ("LISINOPRIL_HTN_AUTO", "Lisinopril in HTN",
+     ["lisinopril"], ["hypertension"]),
+    ("VALSARTAN_HTN_AUTO", "Valsartan in HTN",
+     ["valsartan"], ["hypertension"]),
+    ("AMLODIPINE_HTN_AUTO", "Amlodipine in HTN",
+     ["amlodipine"], ["hypertension"]),
+    ("HYDROCHLOROTHIAZIDE_HTN_AUTO", "HCTZ in HTN",
+     ["hydrochlorothiazide"], ["hypertension"]),
+    ("ALBUTEROL_ASTHMA_AUTO", "Albuterol/salbutamol in asthma",
+     ["albuterol", "salbutamol"], ["asthma"]),
+    ("FLUTICASONE_ASTHMA_AUTO", "Fluticasone in asthma",
+     ["fluticasone"], ["asthma"]),
+    ("BUDESONIDE_ASTHMA_AUTO", "Budesonide in asthma",
+     ["budesonide"], ["asthma"]),
+    ("MONTELUKAST_RHIN_AUTO", "Montelukast in allergic rhinitis",
+     ["montelukast"], ["rhinitis"]),
+    ("LORATADINE_RHIN_AUTO", "Loratadine in allergic rhinitis",
+     ["loratadine"], ["rhinitis"]),
+    ("CETIRIZINE_RHIN_AUTO", "Cetirizine in allergic rhinitis",
+     ["cetirizine"], ["rhinitis"]),
+    ("DICLOFENAC_OA_AUTO", "Diclofenac in OA",
+     ["diclofenac"], ["osteoarthritis"]),
+    ("CELECOXIB_OA_AUTO", "Celecoxib in OA/RA",
+     ["celecoxib"], ["osteoarthritis", "rheumatoid arthritis"]),
+    ("MELOXICAM_OA_AUTO", "Meloxicam in OA",
+     ["meloxicam"], ["osteoarthritis"]),
+    ("NAPROXEN_PAIN_AUTO", "Naproxen in pain/RA",
+     ["naproxen"], ["osteoarthritis", "rheumatoid arthritis"]),
+    ("IBUPROFEN_PAIN_AUTO", "Ibuprofen in pain",
+     ["ibuprofen"], ["osteoarthritis", "pain"]),
+    ("FENTANYL_PAIN_AUTO", "Fentanyl transdermal in chronic pain",
+     ["fentanyl"], ["chronic pain", "cancer pain"]),
+
+    # Batch 11 — final 2-trustworthy push (post-2010 drugs, broad RCT footprint)
+    ("PEMBROLIZUMAB_LUNG_AUTO", "Pembrolizumab in NSCLC",
+     ["pembrolizumab"], ["lung", "nsclc", "non-small cell"]),
+    ("NIVOLUMAB_LUNG_AUTO", "Nivolumab in NSCLC",
+     ["nivolumab"], ["lung", "nsclc", "non-small cell"]),
+    ("APIXABAN_STROKE_AUTO", "Apixaban for stroke prevention",
+     ["apixaban"], ["stroke"]),
+    ("DABIGATRAN_STROKE_AUTO", "Dabigatran for stroke prevention",
+     ["dabigatran"], ["stroke"]),
+    ("EDOXABAN_STROKE_AUTO", "Edoxaban for stroke prevention",
+     ["edoxaban"], ["stroke"]),
+    ("RIVAROXABAN_AF_AUTO", "Rivaroxaban in AF",
+     ["rivaroxaban"], ["atrial fibrillation"]),
+    ("RIVAROXABAN_ACS_AUTO", "Rivaroxaban in ACS",
+     ["rivaroxaban"], ["acute coronary"]),
+    ("APIXABAN_ACS_AUTO", "Apixaban in ACS",
+     ["apixaban"], ["acute coronary"]),
+    ("EMPAGLIFLOZIN_KIDNEY_AUTO", "Empagliflozin in CKD",
+     ["empagliflozin"], ["kidney", "renal"]),
+    ("DAPAGLIFLOZIN_KIDNEY_AUTO", "Dapagliflozin in CKD",
+     ["dapagliflozin"], ["kidney", "renal"]),
 ]
 
 print(f"Total topics to test: {len(TOPICS)}")
