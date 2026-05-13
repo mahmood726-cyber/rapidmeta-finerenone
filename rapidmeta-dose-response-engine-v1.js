@@ -1,4 +1,4 @@
-/* rapidmeta-dose-response-engine-v1.js — v0.2.0 (2026-05-13)
+/* rapidmeta-dose-response-engine-v1.js — v0.3.0 (2026-05-13)
  *
  * Self-contained dose-response meta-analysis engine for RapidMeta.
  * Three layered fitters: two-stage Greenland-Longnecker linear (primary),
@@ -12,6 +12,9 @@
  *     (PI df=k-1, REML primary, HKSJ floor max(1,Q/(k-1)), Q-profile τ² CI)
  *   - continuous-outcome branch via mdCovariance + dosresmeta type='md' on
  *     SGLT2i HbA1c fixture (k=4 trials, validated against dosresmeta MD pool)
+ *   - full multivariate REML for fitRCS via Nelder-Mead on Cholesky parameters
+ *     of the τ² matrix; non-linearity Wald p matches R mixmeta within |Δ| < 0.1
+ *   - Q-profile τ² CI for fitLinear (Viechtbauer 2007) returns finite bounds
  *
  * Load as <script src="rapidmeta-dose-response-engine-v1.js" defer></script>;
  * exposes window.RapidMetaDoseResp.{ validate, fitLinear, fitRCS, fitOneStage,
@@ -940,7 +943,7 @@
   }
 
   var API = {
-    engine_version: 'rapidmeta-dose-response-engine-v1@0.2.0',
+    engine_version: 'rapidmeta-dose-response-engine-v1@0.3.0',
     validate: validate,
     fitLinear: fitLinear,
     fitRCS: fitRCS,
