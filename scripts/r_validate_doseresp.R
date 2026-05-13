@@ -310,5 +310,10 @@ out <- list(
   },
   one_stage = one_stage_block
 )
-writeLines(toJSON(out, auto_unbox = TRUE, pretty = TRUE, na = "null"), output_path)
+## Round 3.1 (2026-05-13): digits=8 prevents τ²-parity false-positive amber
+## rows in the badge. jsonlite::toJSON defaults to digits=4, which rounded
+## tirzepatide's τ²=0.001644 down to 0.0016 (|Δ| 0.000129 > 0.0001 threshold;
+## true |Δ| was 0.000086, well inside). 8 sig figs match metafor/dosresmeta
+## report-level precision.
+writeLines(toJSON(out, auto_unbox = TRUE, pretty = TRUE, na = "null", digits = 8), output_path)
 cat("Wrote", output_path, "\n")
