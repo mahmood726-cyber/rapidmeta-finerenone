@@ -44,9 +44,10 @@
 #   The package then constructs the full off-diagonal GL covariance from (a)+(b).
 #
 # Implementation notes (continuous path, Round 2A):
-#   dosresmeta type="md" expects:
+#   dosresmeta covariance="md" (NOT type="md") expects:
 #     (a) mean (outcome mean), sd (outcome SD), n (arm sample size) columns,
 #     (b) a reference arm row per trial (dose=0) — same structure as binary.
+#     (c) NO type argument (type is only for covariance="gl"/"h").
 #   The package computes within-trial (k-1)×(k-1) covariance automatically from
 #   the shared-reference variance formula: S[i,i]=sd_i^2/n_i + sd_ref^2/n_ref,
 #   S[i,j]=sd_ref^2/n_ref for i≠j.  This matches the JS engine's mdCovariance().
@@ -131,12 +132,15 @@ df <- do.call(rbind, rows)
 
 # ── Linear pool ───────────────────────────────────────────────────────────────
 # Dispatch on is_continuous (spec §4).
-# Continuous: dosresmeta type="md" — slope is MD per unit dose.
-# Binary:     dosresmeta type="ir" — slope is log-RR per unit dose.
+# Continuous: dosresmeta covariance="md" (Mean Differences) — slope is MD per unit dose.
+#   The type argument is not used for covariance="md"; sd and n are required instead.
+#   dosresmeta constructs the within-trial shared-reference covariance from sd+n
+#   (identical to the JS engine's mdCovariance()).
+# Binary:     dosresmeta type="ir" (cohort incidence rates) — slope is log-RR per unit dose.
 fit_lin <- if (is_continuous) {
   tryCatch(
     dosresmeta(formula = mean ~ dose,
-               type = "md", sd = sd, n = n,
+               covariance = "md", sd = sd, n = n,
                data = df, id = studlab, method = "reml"),
     error = function(e) structure(list(), class = "fitError", .error_msg = conditionMessage(e))
   )
@@ -155,11 +159,12 @@ fit_lin <- if (is_continuous) {
 # covariate values) and eliminates the silent engine-vs-R knot divergence on datasets with
 # dose-level repetition.
 # Dispatch on is_continuous (spec §4); formula changes but knot placement is identical.
+# Continuous RCS uses covariance="md" to match the linear path.
 knots <- quantile(unique(df$dose[df$dose > 0]), c(0.25, 0.50, 0.75))
 fit_rcs <- if (is_continuous) {
   tryCatch(
     dosresmeta(formula = mean ~ rcs(dose, knots),
-               type = "md", sd = sd, n = n,
+               covariance = "md", sd = sd, n = n,
                data = df, id = studlab, method = "reml"),
     error = function(e) structure(list(), class = "fitError", .error_msg = conditionMessage(e))
   )
