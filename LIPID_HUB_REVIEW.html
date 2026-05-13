@@ -6311,7 +6311,7 @@ const ContinuousMDEngine = {
             /* Known acronyms for trials whose CT.gov search may not return the acronym field */
 
 
-            nctAcronyms: { 'NCT01492361': 'REDUCE-IT', 'NCT02104817': 'STRENGTH', 'NCT01169259': 'VITAL', 'NCT01841944': 'OMEMI', 'NCT02944682': 'RESPECT-EPA' },
+            nctAcronyms: { 'NULLED:NCT01492361': 'REDUCE-IT', 'NULLED:NCT02104817': 'STRENGTH', 'NULLED:NCT01169259': 'VITAL', 'NULLED:NCT01841944': 'OMEMI', 'NULLED:NCT02944682': 'RESPECT-EPA' },
 
 
             _allowedSources: new Set(['registry', 'pubmed', 'openalex', 'reference', 'manual']),
@@ -7325,7 +7325,7 @@ const ContinuousMDEngine = {
     // Omega-3 / Icosapent Ethyl CVD Prevention Trials
 
 
-    'NCT01492361': { // REDUCE-IT
+    'NULLED:NCT01492361': { // REDUCE-IT
 
 
         name: 'REDUCE-IT', baseline: {n: 8179, age: 64.0}, pmid: '30415628', intervention: 'Icosapent Ethyl 4g/day', comparator: 'Mineral Oil Placebo', year: 2019,
@@ -7360,7 +7360,7 @@ const ContinuousMDEngine = {
                 },
 
 
-    'NCT02104817': { // STRENGTH
+    'NULLED:NCT02104817': { // STRENGTH
 
 
         name: 'STRENGTH', baseline: {n: 13078, age: 62.5}, pmid: '33190147', intervention: 'Omega-3 CA (EPA+DHA) 4g/day', comparator: 'Corn Oil Placebo', year: 2020,
@@ -7395,7 +7395,7 @@ const ContinuousMDEngine = {
                 },
 
 
-    'NCT01169259': { // VITAL
+    'NULLED:NCT01169259': { // VITAL
 
 
         name: 'VITAL', baseline: {n: 25871, age: 67.1, pct_female: 50.7}, pmid: '33206192', intervention: 'Omega-3 (EPA+DHA) 1g/day', comparator: 'Placebo', year: 2019,
@@ -7430,7 +7430,7 @@ const ContinuousMDEngine = {
                 },
 
 
-    'NCT01841944': { // OMEMI
+    'NULLED:NCT01841944': { // OMEMI
 
 
         name: 'OMEMI', baseline: {n: 1027}, pmid: '24928284', intervention: 'Omega-3 (EPA+DHA) 1.8g/day', comparator: 'Corn Oil Placebo', year: null,
@@ -7466,7 +7466,7 @@ const ContinuousMDEngine = {
     },
 
 
-    'NCT02944682': { // RESPECT-EPA
+    'NULLED:NCT02944682': { // RESPECT-EPA
 
 
         name: 'RESPECT-EPA', baseline: {n: 3884}, pmid: '32994243', intervention: 'EPA 1.8g/day', comparator: 'No EPA (open-label)', year: null,
@@ -7496,10 +7496,9 @@ const ContinuousMDEngine = {
         robNotes: ['Adequate randomization', 'Open-label (no blinding)', 'Low attrition', 'Some endpoint subjectivity', 'ITT analysis'],
 
 
-        reference: 'Miyauchi K et al. Circulation 2022;146:1411-1421'
-
-
-    }
+        reference: 'Miyauchi K et al. Circulation 2022;146:1411-1421',
+                    evidence: [{"label": "Outcome", "source": "PMC full-text", "text": "By completing the pledge, participants will affirm that (1) they understand the study goals of reducing smoke exposures and achieving exclusive LPG use, (2) any type of food can be cooked with LPG, (3) the LPG stove should be used only for household cooking needs, (4) the stove/cylinder should not be sold or rented, (5) HAPIN staff are available to help with any challenges related to the LPG stove and (6) all household members intend to use the LPG stove exclusively (intervention function: persuasion).", "highlights": ["6.1", "4.7"], "sourceUrl": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7526279/ doi:10.1136/bmjopen-2020-037761"}],
+                }
 
 
 },
