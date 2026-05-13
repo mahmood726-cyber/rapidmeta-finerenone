@@ -721,6 +721,26 @@ test('remlLogLik returns finite value at zero tau2 matrix for valid per-study X,
   assert.ok(Number.isFinite(ll), 'log-likelihood must be finite at τ²=0');
 });
 
+test('fitRCS non-linearity p matches R full-REML on GL-1992 within |Δ| < 0.1', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const res = DR.fitRCS(fx.trials, { knots: 3 });
+  // R mixmeta full-REML on GL-1992 (verified during Round 1B audit): ~0.70
+  near(res.rcs.nonlinearity_wald_p, 0.70, 0.10,
+    'engine non-linearity Wald p matches R full-REML (Round 2B target)');
+  // tau2_matrix should be present and 2×2 (Kp = K-1 = 2 for 3 knots)
+  assert.ok(Array.isArray(res.rcs.tau2_matrix), 'tau2_matrix field present');
+  assert.equal(res.rcs.tau2_matrix.length, 2);
+  assert.equal(res.rcs.tau2_matrix[0].length, 2);
+  assert.ok(res.rcs.reml_converged === true, 'REML must converge on GL-1992');
+});
+
+test('fitRCS Round 2A regression-pin at p≈0.05 is now OUTDATED — engine matches R (Round 2B)', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const res = DR.fitRCS(fx.trials, { knots: 3 });
+  assert.ok(res.rcs.nonlinearity_wald_p > 0.4,
+    'engine non-linearity p now > 0.4 (was ~0.05 under diagonal-PM v0.1)');
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }

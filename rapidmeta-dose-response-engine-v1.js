@@ -1050,60 +1050,175 @@
       var V_i;
       try { V_i = matInv(XtSX); } catch (e) { continue; }
       var beta_i = matVec(V_i, XtSy);
-      perStudy.push({ studlab: T.studlab, beta: beta_i, V: V_i, n_arms: T.arms.length });
+      // Round 2B: retain raw X (contrast basis), y (log-RR vector), and S (within-study
+      // arm-level covariance) on the perStudy record so remlLogLik can compute the
+      // full multivariate REML profile likelihood. V (Kp×Kp pooled-coef covariance) is
+      // still retained for forest() and downstream consumers; per-dim diagonal-PM uses it.
+      perStudy.push({
+        studlab: T.studlab,
+        beta: beta_i,
+        V: V_i,
+        n_arms: T.arms.length,
+        X: Xrows,
+        y: y,
+        S: S,
+      });
     }
 
   if (perStudy.length < 2) {
     throw new Error('fitRCS: fewer than 2 studies survived covariance inversion; k_effective=' + perStudy.length);
   }
 
-    // v0.1 design choice: diagonal-PM-per-dimension τ² approximation.
-    // Each spline-basis dimension gets its own Paule-Mandel τ², independent of
-    // the others. This is simpler than the full multivariate REML used by R's
-    // dosresmeta/mixmeta and matches dosresmeta's vcov='ind' family of methods,
-    // but is even further simplified (no joint REML across dimensions).
+    // Round 2B (Task 7): full multivariate REML via Nelder-Mead on Cholesky parameters
+    // of the τ² matrix (Kp × Kp symmetric PSD). Closes the diagonal-PM divergence from
+    // R full-REML documented in Round 1B's amber non-linearity-p row (engine p ≈ 0.048
+    // vs R mixmeta p ≈ 0.704 on GL-1992). After this lift, engine matches R to within
+    // |Δ| < 0.1 on the non-linearity Wald p-value.
     //
-    // Practical consequence: the non-linearity Wald p-value will differ
-    // substantially from R for datasets where the non-linear-coefficient
-    // heterogeneity is high. Verified on GL-1992: engine p ≈ 0.048 vs R mixmeta
-    // p ≈ 0.704. The engine's linear-component pooled slope still matches R to
-    // ~6% (this is what fitLinear's parity test validates).
+    // Parameterisation: τ² = L L' where L is lower-triangular Kp × Kp. Free parameters:
+    //   • L_diag (Kp values, stored as log → exp on read for positivity)
+    //   • L_offdiag (Kp(Kp-1)/2 values, unconstrained)
+    // Total: Kp(Kp+1)/2. LL' construction guarantees PSD.
     //
-    // P2 hardening: lift to full multivariate REML via joint optimization of
-    // a τ² matrix (Jackson 2010). Until then, the R-parity badge in Unit 8
-    // must use a looser tolerance for non-linearity p OR exclude it from the
-    // parity gate.
+    // The HKSJ-multivariate + t_{k-1} CI variant is deferred to Task 9; this commit
+    // keeps z=1.96 on the new full-REML pooled SE.
 
-    // Step 3: per-dimension PM tau² + IV pool (diagonal tau² approximation).
-    // Each spline-coef dimension gets its own tau²_d via Paule-Mandel.
-    var pooled = new Array(Kp).fill(0);
-    var pooledSE = new Array(Kp).fill(0);
-    var tau2_per_dim = new Array(Kp).fill(0);
-    for (var d = 0; d < Kp; d++) {
-      var yd = perStudy.map(function (s) { return s.beta[d]; });
-      var vd = perStudy.map(function (s) { return s.V[d][d]; });
-      tau2_per_dim[d] = pmTau2(yd, vd);
-      var wd = vd.map(function (v) { return 1 / (v + tau2_per_dim[d]); });
-      var wsum = wd.reduce(function (a, b) { return a + b; }, 0);
-      pooled[d] = yd.reduce(function (acc, yval, idx) { return acc + wd[idx] * yval; }, 0) / wsum;
-      pooledSE[d] = Math.sqrt(1 / wsum);
+    // Build per-study {X, y, V} for the REML log-likelihood (using raw arm-level X, y, S)
+    var psForREML = perStudy.map(function (s) { return { X: s.X, y: s.y, V: s.S }; });
+
+    function paramsToTau2(params) {
+      var L = zeros(Kp, Kp);
+      var idx = 0;
+      for (var i = 0; i < Kp; i++) {
+        L[i][i] = Math.exp(params[idx]);
+        idx++;
+        for (var j = 0; j < i; j++) {
+          L[i][j] = params[idx];
+          idx++;
+        }
+      }
+      // τ² = L L'  (symmetric PSD by construction)
+      var t2m = zeros(Kp, Kp);
+      for (var i2 = 0; i2 < Kp; i2++) {
+        for (var j2 = 0; j2 < Kp; j2++) {
+          for (var k = 0; k <= Math.min(i2, j2); k++) {
+            t2m[i2][j2] += L[i2][k] * L[j2][k];
+          }
+        }
+      }
+      return t2m;
     }
 
-    // Step 4: non-linearity Wald test.
+    // Warm-start: use diagonal-PM-per-dim estimates as initial diagonal of L.
+    // Since L[i][i] = exp(param) and (LL')[i][i] = L[i][i]² when off-diagonals are 0,
+    // we have (LL')[i][i] = exp(2*param) ⇒ param = 0.5 * log(pmDiag[i]).
+    var pmDiag = [];
+    for (var dd0 = 0; dd0 < Kp; dd0++) {
+      var yi_d = perStudy.map(function (s) { return s.beta[dd0]; });
+      var vi_d = perStudy.map(function (s) { return s.V[dd0][dd0]; });
+      pmDiag.push(Math.max(pmTau2(yi_d, vi_d), 1e-8));  // floor against log(0)
+    }
+    var nParams = Kp * (Kp + 1) / 2;
+    var x0 = new Array(nParams).fill(0);
+    var pIdx = 0;
+    for (var dd = 0; dd < Kp; dd++) {
+      x0[pIdx] = 0.5 * Math.log(pmDiag[dd]);
+      pIdx++;
+      for (var jj = 0; jj < dd; jj++) {
+        x0[pIdx] = 0;
+        pIdx++;
+      }
+    }
+
+    function negREML(params) {
+      var t2 = paramsToTau2(params);
+      var ll = remlLogLik(psForREML, t2);
+      // Critical guard (Task 3 review): NaN → +Infinity. Nelder-Mead handles +Infinity
+      // correctly as a "wall"; NaN corrupts the simplex sort and breaks convergence.
+      return isFinite(ll) ? -ll : Infinity;
+    }
+
+    var optResult = nelderMead(negREML, x0, {
+      relTol: 1e-6,
+      maxIter: 500,
+      initialStep: 0.5,
+    });
+
+    var tau2Matrix = paramsToTau2(optResult.x);
+    var tau2_per_dim = [];
+    for (var dim = 0; dim < Kp; dim++) tau2_per_dim.push(tau2Matrix[dim][dim]);
+
+    // Re-derive pooled β̂ and Cov(β̂) at the optimum τ². For each trial:
+    //   Σ_t = V_t + X_t τ² X_t'   (k_i × k_i, with V_t = S the arm-level cov)
+    //   accumulate X'_t Σ_t⁻¹ X_t and X'_t Σ_t⁻¹ y_t across trials
+    //   β̂      = (Σ X'Σ⁻¹X)⁻¹ Σ X'Σ⁻¹y
+    //   Cov(β̂) = (Σ X'Σ⁻¹X)⁻¹
+    var XtWX_sum = zeros(Kp, Kp);
+    var XtWy_sum = new Array(Kp).fill(0);
+    for (var t3 = 0; t3 < perStudy.length; t3++) {
+      var X_t3 = perStudy[t3].X;
+      var y_t3 = perStudy[t3].y;
+      var V_t3 = perStudy[t3].S;
+      var ki_t3 = X_t3.length;
+
+      // Σ_t = V_t + X_t τ² X_t'
+      var Xt2_t3 = zeros(ki_t3, ki_t3);
+      for (var i5 = 0; i5 < ki_t3; i5++) {
+        for (var j5 = 0; j5 < ki_t3; j5++) {
+          for (var p4 = 0; p4 < Kp; p4++) {
+            for (var q3 = 0; q3 < Kp; q3++) {
+              Xt2_t3[i5][j5] += X_t3[i5][p4] * tau2Matrix[p4][q3] * X_t3[j5][q3];
+            }
+          }
+        }
+      }
+      var Sigma_t3 = zeros(ki_t3, ki_t3);
+      for (var i6 = 0; i6 < ki_t3; i6++) {
+        for (var j6 = 0; j6 < ki_t3; j6++) {
+          Sigma_t3[i6][j6] = V_t3[i6][j6] + Xt2_t3[i6][j6];
+        }
+      }
+      var W_t3;
+      try { W_t3 = matInv(Sigma_t3); } catch (e) { continue; }
+
+      for (var p5 = 0; p5 < Kp; p5++) {
+        for (var i7 = 0; i7 < ki_t3; i7++) {
+          var XtW_pi = 0;
+          for (var j7 = 0; j7 < ki_t3; j7++) XtW_pi += X_t3[j7][p5] * W_t3[j7][i7];
+          XtWy_sum[p5] += XtW_pi * y_t3[i7];
+          for (var q4 = 0; q4 < Kp; q4++) {
+            XtWX_sum[p5][q4] += XtW_pi * X_t3[i7][q4];
+          }
+        }
+      }
+    }
+
+    var covBeta = matInv(XtWX_sum);
+    var pooled = matVec(covBeta, XtWy_sum);
+    var pooledSE = [];
+    for (var pd = 0; pd < Kp; pd++) pooledSE.push(Math.sqrt(covBeta[pd][pd]));
+
+    // Step 4: non-linearity Wald test using the FULL covariance (not diagonal-sum).
     // H0: all non-linear basis coefs (d >= 1) are zero.
-    // Statistic: sum_d (beta_d / se_d)^2 ~ chi2(K-2) under H0.
-    // Note: pooled[0] is the linear trend; pooled[1..Kp-1] are the non-linear deviations.
-    // P2-2: Under diagonal-PM, pooled spline coefs are treated as independent, so the Wald
-    // statistic reduces to sum(z_d^2) = b' diag(1/se_d^2) b ~ chi2(K-2). This is NOT
-    // t(b) %*% solve(V_full) %*% b (the form R uses with full multivariate REML).
-    // Full-vcov Wald variant is deferred to P2 multivariate-REML hardening.
-    var nlCoefs = pooled.slice(1);
-    var nlSEs = pooledSE.slice(1);
+    // Statistic: β_nl' Cov(β_nl)⁻¹ β_nl ~ χ²(Kp-1) under H0.
+    // Cov(β_nl) is the bottom-right (Kp-1) × (Kp-1) submatrix of covBeta.
+    var nlBeta = pooled.slice(1);
     var W = 0;
-    for (var d2 = 0; d2 < nlCoefs.length; d2++) {
-      W += (nlCoefs[d2] / nlSEs[d2]) * (nlCoefs[d2] / nlSEs[d2]);
+    if (nlBeta.length > 0) {
+      var nlCov = zeros(Kp - 1, Kp - 1);
+      for (var i8 = 0; i8 < Kp - 1; i8++) {
+        for (var j8 = 0; j8 < Kp - 1; j8++) {
+          nlCov[i8][j8] = covBeta[i8 + 1][j8 + 1];
+        }
+      }
+      var nlCovInv = matInv(nlCov);
+      for (var i9 = 0; i9 < nlBeta.length; i9++) {
+        for (var j9 = 0; j9 < nlBeta.length; j9++) {
+          W += nlBeta[i9] * nlCovInv[i9][j9] * nlBeta[j9];
+        }
+      }
     }
-    var nlP = nlCoefs.length > 0 ? (1 - pchisq(W, nlCoefs.length)) : null;
+    var nlP = nlBeta.length > 0 ? (1 - pchisq(W, nlBeta.length)) : null;
 
     // Step 5: fit_at_dose — 20-point curve from 0 to max observed dose.
     // At dose=0, rcsBasis returns [0, 0, ...], so est=0 (centered at reference).
@@ -1132,9 +1247,13 @@
         knots: knots,
         spline_coefs: pooled,
         spline_coefs_se: pooledSE,
-        tau2_per_dim: tau2_per_dim,
+        tau2_matrix: tau2Matrix,            // Round 2B: full Kp×Kp REML τ² matrix
+        tau2_per_dim: tau2_per_dim,         // retained: diagonal of tau2_matrix
         nonlinearity_wald_p: nlP,
         fit_at_dose: fit_at_dose,
+        reml_converged: optResult.converged,
+        reml_iterations: optResult.iterations,
+        reml_loglik: -optResult.fx,         // positive log-likelihood
       },
       pooled_slope_log: pooled[0],
       pooled_slope_log_se: pooledSE[0],
