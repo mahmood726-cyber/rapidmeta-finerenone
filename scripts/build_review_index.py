@@ -185,6 +185,6 @@ filterRows();
 </html>
 '''
 
-(HERE / "index.html").write_text(html, encoding="utf-8")
-print(f"Wrote index.html with {len(scores)} reviews")
+(HERE / "audit_table.html").write_text(html, encoding="utf-8")
+print(f"Wrote audit_table.html with {len(scores)} reviews")
 print(f"Bands: {dict(band_counts)}")
