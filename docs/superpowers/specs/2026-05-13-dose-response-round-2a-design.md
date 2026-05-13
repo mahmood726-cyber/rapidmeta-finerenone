@@ -53,9 +53,12 @@ var outcomeType = (isFinite(firstArm.mean) && isFinite(firstArm.sd)) ? 'continuo
 
 **For continuous (mean+sd arms):**
 - `y = mean_i − mean_ref` per non-reference arm (simple difference of changes from baseline)
-- `se² per arm = sd_i² / n_i + sd_ref² / n_ref` (delta-method variance of the difference)
-- Per-trial covariance `S` is **diagonal** with `se²` on the diagonal (NO shared-denominator GL correction — continuous outcomes don't share a numerator/denominator the way binary RR does)
-- WLS slope: `β_i = (x' S⁻¹ x)⁻¹ x' S⁻¹ y` — same formula as binary, just with the diagonal-S input
+- Per-trial covariance `S` follows the same shared-reference structure as the binary GL case (because every non-reference arm's `y_i` depends on `mean_ref`):
+  - Diagonal `S[i][i] = sd_i²/n_i + sd_ref²/n_ref` (variance of the difference)
+  - Off-diagonal `S[i][j] = sd_ref²/n_ref` for `i ≠ j` (covariance from the shared reference arm)
+  - This matches `dosresmeta`'s `covar.smd` / continuous-mode covariance construction.
+- WLS slope: `β_i = (x' S⁻¹ x)⁻¹ x' S⁻¹ y` — same formula as binary
+- A new helper `mdCovariance(arms)` mirrors the existing `glCovariance(arms)` shape, producing the (k-1)×(k-1) covariance matrix for continuous outcomes. Engine dispatches to `glCovariance` (binary) or `mdCovariance` (continuous) at per-trial loop entry.
 - Rest of pooling (PM τ², HKSJ floor, PI t_{k-1}) is identical
 
 **Backward compatibility:** binary path unchanged. The `if (outcomeType === 'continuous') { ... } else { ... existing binary block ... }` branch.
