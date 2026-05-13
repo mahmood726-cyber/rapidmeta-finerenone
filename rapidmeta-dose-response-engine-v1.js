@@ -352,6 +352,32 @@
     return S;
   }
 
+  // Continuous-outcome (mean difference) per-trial covariance.
+  // Same shared-reference structure as glCovariance: every y_i = mean_i - mean_ref
+  // shares the reference arm, so off-diagonal entries are sd_ref^2/n_ref.
+  function mdCovariance(arms) {
+    var ref = arms.find(function (a) { return a.is_reference; });
+    if (!ref) throw new Error('mdCovariance: no reference arm');
+    var contrasts = arms.filter(function (a) { return !a.is_reference; });
+    var k = contrasts.length;
+    var sdRefSq = ref.sd * ref.sd;
+    var nRef = ref.n;
+    var shared = sdRefSq / nRef;
+    var S = [];
+    for (var i = 0; i < k; i++) {
+      S.push(new Array(k));
+      for (var j = 0; j < k; j++) {
+        if (i === j) {
+          var c = contrasts[i];
+          S[i][j] = (c.sd * c.sd) / c.n + shared;
+        } else {
+          S[i][j] = shared;
+        }
+      }
+    }
+    return S;
+  }
+
   // === Section 2b: RCS helpers (precedes Section 2a in file; positioned by dependency order) ===
 
   // quantile(sorted, p): R type-7 linear interpolation on a pre-sorted array.
@@ -866,6 +892,7 @@
     qchisq: qchisq, qt: qt, pchisq: pchisq, pt: pt,
     pmTau2: pmTau2,
     glCovariance: glCovariance,
+    mdCovariance: mdCovariance,
     quantile: quantile,
     rcsKnots: rcsKnots,
     rcsBasis: rcsBasis,

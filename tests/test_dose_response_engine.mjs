@@ -419,6 +419,23 @@ test('predict() linear CI uses t_{k-1} not raw z=1.96 (F-2 fix)', () => {
     `should not equal z=1.96 width; got ${halfWidth}, z-based was ${wrongValue}`);
 });
 
+test('mdCovariance returns symmetric matrix with shared-reference off-diagonal', () => {
+  const arms = [
+    { dose: 0,  mean: 0.0,  sd: 0.5, n: 100, is_reference: true },
+    { dose: 10, mean: -0.4, sd: 0.6, n: 80,  is_reference: false },
+    { dose: 25, mean: -0.5, sd: 0.7, n: 70,  is_reference: false },
+  ];
+  const S = I.mdCovariance(arms);
+  assert.equal(S.length, 2);
+  assert.equal(S[0].length, 2);
+  // Diagonal: var(mean_i - mean_ref) = sd_i^2/n_i + sd_ref^2/n_ref
+  near(S[0][0], (0.6*0.6)/80 + (0.5*0.5)/100, 1e-12, 'var[0]');
+  near(S[1][1], (0.7*0.7)/70 + (0.5*0.5)/100, 1e-12, 'var[1]');
+  // Off-diagonal: cov from shared reference = sd_ref^2/n_ref
+  near(S[0][1], (0.5*0.5)/100, 1e-12, 'cov[0][1]');
+  near(S[1][0], S[0][1], 1e-15, 'symmetry');
+});
+
 test('validate rejects mixed continuous + binary trials within one pool', () => {
   const mixed = [
     { studlab: 'A_binary', arms: [
