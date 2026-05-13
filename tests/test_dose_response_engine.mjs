@@ -653,6 +653,23 @@ test('API shape: all public methods + _internal helpers present after IIFE init'
   }
 });
 
+// === Task 3: nelderMead simplex helper ===
+
+test('nelderMead minimizes Rosenbrock at (1, 1) within 1e-3', () => {
+  // Rosenbrock function: f(x, y) = (1-x)^2 + 100*(y - x^2)^2; min at (1,1) = 0
+  function rosenbrock(p) {
+    var x = p[0], y = p[1];
+    return (1 - x) * (1 - x) + 100 * (y - x*x) * (y - x*x);
+  }
+  var result = I.nelderMead(rosenbrock, [0, 0], {
+    relTol: 1e-8, maxIter: 1000, initialStep: 0.5
+  });
+  near(result.x[0], 1, 1e-3, 'x converges to 1');
+  near(result.x[1], 1, 1e-3, 'y converges to 1');
+  assert.ok(result.converged, 'must report converged');
+  assert.ok(result.iterations < 1000, 'should converge in < 1000 iterations');
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }

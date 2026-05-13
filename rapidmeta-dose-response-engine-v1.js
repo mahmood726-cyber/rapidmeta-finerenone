@@ -271,6 +271,101 @@
   }
   API._internal.transpose = transpose;
 
+  function nelderMead(f, x0, opts) {
+    // Derivative-free simplex optimizer (Nelder & Mead 1965).
+    // Inputs:
+    //   f: function(p: number[]) -> number   (the objective to minimize)
+    //   x0: number[]  (starting point, length n)
+    //   opts: { relTol: number, maxIter: number, initialStep: number }
+    // Returns: { x: number[], fx: number, converged: bool, iterations: int }
+    opts = opts || {};
+    var relTol = opts.relTol != null ? opts.relTol : 1e-8;
+    var maxIter = opts.maxIter != null ? opts.maxIter : 200;
+    var step = opts.initialStep != null ? opts.initialStep : 0.1;
+    var n = x0.length;
+
+    // Standard Nelder-Mead coefficients
+    var alpha = 1.0, gamma = 2.0, rho = 0.5, sigma = 0.5;
+
+    // Build initial simplex of n+1 points
+    var simplex = [x0.slice()];
+    for (var i = 0; i < n; i++) {
+      var pt = x0.slice();
+      pt[i] += step;
+      simplex.push(pt);
+    }
+    var fvals = simplex.map(f);
+
+    // Helper: sort simplex+fvals by ascending fvals
+    function sortSimplex() {
+      var idx = fvals.map(function (_, i) { return i; });
+      idx.sort(function (a, b) { return fvals[a] - fvals[b]; });
+      simplex = idx.map(function (k) { return simplex[k]; });
+      fvals = idx.map(function (k) { return fvals[k]; });
+    }
+
+    function shrink() {
+      for (var i = 1; i <= n; i++) {
+        for (var j = 0; j < n; j++) {
+          simplex[i][j] = simplex[0][j] + sigma * (simplex[i][j] - simplex[0][j]);
+        }
+        fvals[i] = f(simplex[i]);
+      }
+    }
+
+    for (var iter = 0; iter < maxIter; iter++) {
+      sortSimplex();
+
+      // Convergence check: relative spread of f-values across simplex
+      var fbest = fvals[0], fworst = fvals[n];
+      var spread = Math.abs(fworst - fbest) / (Math.abs(fbest) + relTol);
+      if (spread < relTol) {
+        return { x: simplex[0].slice(), fx: fbest, converged: true, iterations: iter };
+      }
+
+      // Centroid of all points except the worst
+      var xc = new Array(n).fill(0);
+      for (var k = 0; k < n; k++) for (var d = 0; d < n; d++) xc[d] += simplex[k][d];
+      for (var d2 = 0; d2 < n; d2++) xc[d2] /= n;
+
+      // Reflection
+      var xr = new Array(n);
+      for (var dd = 0; dd < n; dd++) xr[dd] = xc[dd] + alpha * (xc[dd] - simplex[n][dd]);
+      var fr = f(xr);
+
+      if (fr < fvals[0]) {
+        // Expansion
+        var xe = new Array(n);
+        for (var ee = 0; ee < n; ee++) xe[ee] = xc[ee] + gamma * (xr[ee] - xc[ee]);
+        var fe = f(xe);
+        if (fe < fr) { simplex[n] = xe; fvals[n] = fe; }
+        else         { simplex[n] = xr; fvals[n] = fr; }
+      } else if (fr < fvals[n - 1]) {
+        simplex[n] = xr; fvals[n] = fr;
+      } else {
+        // Contraction
+        var xx, ff;
+        if (fr < fvals[n]) {
+          xx = new Array(n);
+          for (var c1 = 0; c1 < n; c1++) xx[c1] = xc[c1] + rho * (xr[c1] - xc[c1]);
+          ff = f(xx);
+          if (ff < fr) { simplex[n] = xx; fvals[n] = ff; }
+          else         { shrink(); }
+        } else {
+          xx = new Array(n);
+          for (var c2 = 0; c2 < n; c2++) xx[c2] = xc[c2] + rho * (simplex[n][c2] - xc[c2]);
+          ff = f(xx);
+          if (ff < fvals[n]) { simplex[n] = xx; fvals[n] = ff; }
+          else               { shrink(); }
+        }
+      }
+    }
+
+    sortSimplex();
+    return { x: simplex[0].slice(), fx: fvals[0], converged: false, iterations: maxIter };
+  }
+  API._internal.nelderMead = nelderMead;
+
   // ===================================================================
   // Section 2: validate, fitters, helpers — implemented across later units.
   // ===================================================================
