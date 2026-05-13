@@ -302,6 +302,28 @@
         if (hasCont && a.sd <= 0) issues.push(lab + '.arms[' + j + ']: sd must be > 0');
       }
     }
+  // Round 2A: pool-level outcome-type homogeneity check. fitLinear/fitRCS dispatch
+  // once on a single outcome type for the whole pool; mixed binary+continuous trials
+  // in one fixture would silently mis-pool. validate enforces homogeneity.
+  if (trials.length > 0 && issues.length === 0) {
+    var seenTypes = {};
+    for (var ti = 0; ti < trials.length; ti++) {
+      var t = trials[ti];
+      if (!Array.isArray(t.arms)) continue;
+      for (var ai = 0; ai < t.arms.length; ai++) {
+        var a = t.arms[ai];
+        if (!a) continue;
+        var hasE = isFinite(a.events) && isFinite(a.n);
+        var hasC = isFinite(a.mean) && isFinite(a.sd);
+        if (hasE) seenTypes['binary'] = true;
+        if (hasC) seenTypes['continuous'] = true;
+      }
+    }
+    var typeCount = Object.keys(seenTypes).length;
+    if (typeCount > 1) {
+      issues.push('mixed outcome types in pool — one fixture = one outcome type');
+    }
+  }
     return issues;
   }
 

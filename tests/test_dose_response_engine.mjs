@@ -419,6 +419,23 @@ test('predict() linear CI uses t_{k-1} not raw z=1.96 (F-2 fix)', () => {
     `should not equal z=1.96 width; got ${halfWidth}, z-based was ${wrongValue}`);
 });
 
+test('validate rejects mixed continuous + binary trials within one pool', () => {
+  const mixed = [
+    { studlab: 'A_binary', arms: [
+      { dose: 0,  events: 10, n: 100, is_reference: true },
+      { dose: 5,  events: 15, n: 100, is_reference: false },
+    ]},
+    { studlab: 'B_continuous', arms: [
+      { dose: 0, mean: 0.0, sd: 0.5, n: 50, is_reference: true },
+      { dose: 5, mean: -0.4, sd: 0.5, n: 50, is_reference: false },
+    ]},
+  ];
+  const issues = DR.validate(mixed);
+  assert.ok(issues.length > 0, 'should flag mixed-mode pool');
+  assert.match(issues.join('|'), /mixed outcome types|mixed-mode/i,
+    'message should mention mixed outcome types');
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }
