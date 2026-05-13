@@ -250,6 +250,76 @@
   }
   API._internal.pmTau2 = pmTau2;
 
+  // Q-profile τ² confidence interval (Viechtbauer 2007).
+  // Q(τ²) = Σ w_i (y_i − ȳ_τ²)² where w_i = 1/(v_i + τ²) and ȳ_τ² is the
+  // corresponding weighted mean.  Q is strictly decreasing in τ² from Q(0)
+  // (Cochran's FE Q) down toward 0.
+  // CI bounds: τ²_lo = inf{τ² : Q(τ²) ≤ χ²_upper}; τ²_hi = sup{τ² : Q(τ²) ≥ χ²_lower}
+  // where χ²_lower = qchisq(α/2, df), χ²_upper = qchisq(1−α/2, df), df = k−1.
+  function qProfileCI(yi, vi, alpha) {
+    var k = yi.length;
+    if (k < 2) return { lo: 0, hi: 0 };
+    var df = k - 1;
+    alpha = alpha || 0.05;
+    var chiLower = qchisq(alpha / 2, df);
+    var chiUpper = qchisq(1 - alpha / 2, df);
+
+    function Q(tau2) {
+      var w = vi.map(function (v) { return 1 / (v + tau2); });
+      var wsum = w.reduce(function (a, b) { return a + b; }, 0);
+      var ybar = yi.reduce(function (acc, y, i) { return acc + w[i] * y; }, 0) / wsum;
+      return yi.reduce(function (acc, y, i) {
+        var d = y - ybar;
+        return acc + w[i] * d * d;
+      }, 0);
+    }
+
+    // Bisect to find τ² such that Q(τ²) == target.  Q is monotone-decreasing,
+    // so Q > target implies τ² is too small → advance lo; Q < target → advance hi.
+    function bisect(target, lo, hi, maxIter) {
+      maxIter = maxIter || 60;
+      for (var i = 0; i < maxIter; i++) {
+        var mid = (lo + hi) / 2;
+        var qm = Q(mid);
+        if (Math.abs(qm - target) < 1e-9) return mid;
+        if (qm > target) lo = mid; else hi = mid;
+      }
+      return (lo + hi) / 2;
+    }
+
+    // Build a safe upper bracket: 100× PM estimate, range², or 1.0 — whichever is largest.
+    var tau2_estimate = pmTau2(yi, vi);
+    var range = Math.max.apply(null, yi) - Math.min.apply(null, yi);
+    var tau2_max = Math.max(100 * tau2_estimate, range * range, 1.0);
+
+    var q0 = Q(0);
+
+    // τ²_lo: smallest τ² where Q(τ²) ≤ chiUpper.
+    // If Q(0) ≤ chiUpper already, the lower CI boundary is 0.
+    var tau2_lo;
+    if (q0 <= chiUpper) {
+      tau2_lo = 0;
+    } else {
+      tau2_lo = bisect(chiUpper, 0, tau2_max);
+    }
+
+    // τ²_hi: largest τ² where Q(τ²) ≥ chiLower.
+    // Edge cases:
+    //   Q(0) < chiLower  — heterogeneity so low the χ² lower quantile isn't crossed → hi = 0
+    //   Q(tau2_max) ≥ chiLower — Q hasn't dropped below chiLower at tau2_max → open-ended, clamp
+    var tau2_hi;
+    if (q0 < chiLower) {
+      tau2_hi = 0;
+    } else if (Q(tau2_max) >= chiLower) {
+      tau2_hi = tau2_max;  // CI is open-ended at this bracket; clamp to tau2_max
+    } else {
+      tau2_hi = bisect(chiLower, 0, tau2_max);
+    }
+
+    return { lo: tau2_lo, hi: tau2_hi };
+  }
+  API._internal.qProfileCI = qProfileCI;
+
   // Matrix helpers not present in prognostic engine — defined fresh.
   function matMul(A, B) {
     var r = A.length, k = A[0].length, c = B[0].length;
