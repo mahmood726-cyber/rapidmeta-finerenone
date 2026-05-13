@@ -1,4 +1,4 @@
-/* vendor/r-validation-doseresp.js — v0.1.0 (2026-05-12)
+/* vendor/r-validation-doseresp.js — v0.2.0 (2026-05-13)
  *
  * Collapsible R-parity badge for the dose-response engine. Compares
  * window.RapidMetaDoseResp output against R dosresmeta + lme4::glmer
@@ -9,16 +9,22 @@
  *
  * engineResults must include: { linear: <fitLinear-output>, rcs: <fitRCS-output>, one_stage: <fitOneStage-output> }
  * rResults is the parsed JSON from outputs/r_validation/doseresp/<REVIEW>.json.
+ *
+ * v0.2.0 (Round 2C): non-linearity Wald p row is now threshold-driven (0.05),
+ *   not always-amber. Engine v0.3.0's full multivariate REML closes the v0.1/v0.2
+ *   diagonal-PM divergence to R mixmeta (|Δ| ≈ 0.0006 on GL-1992).
  */
 (function (root) {
   'use strict';
 
-  // Threshold matrix per spec §6
+  // Threshold matrix per spec §6 (Round 2C: nonlinearity_p added at 0.05 —
+  // observed engine-vs-R divergence on GL-1992 ≈ 0.0006, ~80× headroom)
   var THRESHOLDS = {
     linear_slope: 0.01,
     linear_tau2: 0.0001,
     rcs_coef_0: 0.01,
     rcs_coef_1: 0.01,
+    nonlinearity_p: 0.05,
   };
 
   // P1-6 fix: HTML-escape every R-sourced string before innerHTML concat.
@@ -92,15 +98,13 @@
       'RCS non-linearity Wald p',
       eng.rcs && eng.rcs.rcs && eng.rcs.rcs.nonlinearity_wald_p,
       r.rcs && r.rcs.nonlinearity_wald_p,
-      null,
-      { alwaysAmber: true,
-        note: 'Engine uses diagonal-PM v0.1; R uses full multivariate REML — documented design tradeoff' }
+      THRESHOLDS.nonlinearity_p,
+      { note: 'Engine v0.3.0 uses full multivariate REML; matches R within |Δ| < 0.05' }
     ));
 
-    // NOTE: allGreen is structurally false in v0.1 because row 5 (Non-linearity Wald p) is
-    // always amber by design (documented diagonal-PM tradeoff). When P2 hardening lifts to
-    // full multivariate REML, the alwaysAmber flag goes away and allGreen will start producing
-    // a green header for clean parity. See engine fitRCS comment block for the design note.
+    // Round 2C: all 5 rows are threshold-driven. Engine v0.3.0's full multivariate
+    // REML (via Nelder-Mead on Cholesky params of τ²) closes the v0.1/v0.2 diagonal-PM
+    // divergence — non-linearity-p row turns green when engine and R agree within ±0.05.
     // P2-11: allGreen reads structural isGreen flag, not HTML string content.
     var allGreen = rows.every(function (r) { return r.isGreen; });
     var headerStatus = allGreen ? 'green' : 'amber';
@@ -110,11 +114,10 @@
       '  <details open>' +
       '    <summary>R-parity badge — engine vs R (' + (r.dosresmeta_version ? 'dosresmeta ' + escapeHtml(r.dosresmeta_version) : 'R dosresmeta') + (r.one_stage && r.one_stage.lme4_version ? ', lme4 ' + escapeHtml(r.one_stage.lme4_version) : '') + ')</summary>' +
       '    <table class="rv-table">' +
-      '      <caption>R-parity comparison: engine vs R validator (4 green-threshold rows + 1 always-amber non-linearity row)</caption>' +
+      '      <caption>R-parity comparison: engine vs R validator (5 threshold-driven rows)</caption>' +
       '      <thead><tr><th>Metric</th><th>Engine</th><th>R</th><th>|Δ|</th><th>Note</th></tr></thead>' +
       '      <tbody>' + rows.map(function (r) { return r.html; }).join('') + '</tbody>' +
       '    </table>' +
-      '    <p class="rv-disclosure">Non-linearity p divergence is the documented v0.1 diagonal-PM approximation. P2 hardening will lift to full multivariate REML. See engine source comment in <code>fitRCS</code>.</p>' +
       '  </details>' +
       '</div>';
 
