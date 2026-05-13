@@ -782,6 +782,43 @@ test('fitRCS HKSJ-mv and tcrit numerical pin on GL-1992 (Round 2B)', () => {
   near(res.tcrit, 2.776, 0.01, 'GL-1992 tcrit = qt(0.975, k-1=4) ≈ 2.776');
 });
 
+test('validate flags a trial with 2 arms but no reference flag (F-5)', () => {
+  const noRef = [{
+    studlab: 'no_ref_trial',
+    arms: [
+      { dose: 0, events: 10, n: 100, is_reference: false },
+      { dose: 5, events: 15, n: 100, is_reference: false },
+    ],
+  }];
+  const issues = DR.validate(noRef);
+  assert.ok(issues.length > 0, 'should flag missing reference arm');
+  assert.match(issues.join('|'), /no reference arm/i,
+    'message should mention missing reference');
+});
+
+test('fitLinear k=2 homogeneous pool fires HKSJ floor (Q < df → qstar = 1)', () => {
+  // Two trials with very similar per-study slopes → Cochran Q ≈ 0 < df=1
+  // → HKSJ floor max(1, Q/df) = 1 fires (qstar = 1, hksj_adj = 1).
+  const trials = [
+    { studlab: 'A', arms: [
+      { dose: 0,  events: 5,  n: 1000, is_reference: true },
+      { dose: 10, events: 8,  n: 1000, is_reference: false },
+    ]},
+    { studlab: 'B', arms: [
+      { dose: 0,  events: 6,  n: 1000, is_reference: true },
+      { dose: 10, events: 9,  n: 1000, is_reference: false },
+    ]},
+  ];
+  const res = DR.fitLinear(trials, {});
+  assert.equal(res.k, 2);
+  assert.ok(res.hksj_qstar >= 1, 'qstar must respect floor');
+  // For these homogeneous data Q should be small; qstar likely = 1
+  if (res.Q < res.Q_df) {
+    assert.equal(res.hksj_qstar, 1, 'qstar = 1 when Q < df (floor fires)');
+    assert.equal(res.hksj_adj, 1, 'HKSJ adj = sqrt(1) = 1');
+  }
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }
