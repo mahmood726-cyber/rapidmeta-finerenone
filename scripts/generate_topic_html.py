@@ -344,6 +344,146 @@ WHERE lower(name) LIKE '%{esc(cond)}%'</pre>
     {loo_html}
     """
 
+    # -- Statistics tab (Cochrane v6.5 sensitivity diagnostics)
+    # Compute additional stats from the pool
+    stats_panels = []
+
+    # Panel 1: Heterogeneity
+    if pool and pool.get("k", 0) >= 2:
+        I2 = pool.get("I2_pct", 0)
+        tau2 = pool.get("tau2", 0)
+        Q = pool.get("Q", 0)
+        df = pool["k"] - 1
+        # Q-profile bounds for τ² (approximation: ±2*SE_tau2)
+        I2_label = ("low (<25%)" if I2 < 25 else "moderate (25-50%)" if I2 < 50
+                    else "substantial (50-75%)" if I2 < 75 else "considerable (>75%)")
+        stats_panels.append(f"""
+        <div class="stat-panel">
+          <h4>1. Heterogeneity</h4>
+          <table class="kv">
+            <tr><td>τ² (DerSimonian-Laird)</td><td><code>{tau2}</code></td></tr>
+            <tr><td>Q-statistic</td><td><code>{Q}</code> (df={df})</td></tr>
+            <tr><td>I²</td><td><code>{I2}%</code> — {I2_label}</td></tr>
+            <tr><td>Method</td><td>{esc(pool['method'])}</td></tr>
+          </table>
+        </div>""")
+    else:
+        stats_panels.append('<div class="stat-panel"><h4>1. Heterogeneity</h4><p style="color:#94a3b8;font-size:12px;">Requires k≥2 trials with event data.</p></div>')
+
+    # Panel 2: Prediction interval (Cochrane v6.5 t_{k-1})
+    if pool and pool.get("k", 0) >= 3:
+        import math as _m
+        log_yhat = pool["log_yhat"]
+        se_pool = pool["se"]
+        # PI: log_yhat ± t_{k-1} * sqrt(tau² + SE²) — Cochrane v6.5 §10.10.4.3
+        t_pi = {3: 4.303, 4: 3.182, 5: 2.776, 6: 2.571, 7: 2.447, 8: 2.365, 9: 2.306, 10: 2.262}.get(pool["k"]-1, 1.96)
+        pi_se = _m.sqrt(pool["tau2"] + se_pool**2)
+        pi_lo = round(_m.exp(log_yhat - t_pi*pi_se), 3)
+        pi_hi = round(_m.exp(log_yhat + t_pi*pi_se), 3)
+        stats_panels.append(f"""
+        <div class="stat-panel">
+          <h4>2. Prediction interval (Cochrane v6.5)</h4>
+          <p style="font-family:JetBrains Mono,monospace;font-size:14px;color:#cbd5e1;">95% PI: <strong>{pi_lo} – {pi_hi}</strong></p>
+          <p style="color:#94a3b8;font-size:11.5px;">t<sub>k-1</sub> = {t_pi} · √(τ² + SE²) = {round(pi_se,3)} (Cochrane Handbook v6.5, §10.10.4.3).</p>
+        </div>""")
+    else:
+        stats_panels.append('<div class="stat-panel"><h4>2. Prediction interval</h4><p style="color:#94a3b8;font-size:12px;">Requires k≥3 trials (Cochrane v6.5).</p></div>')
+
+    # Panel 3: Egger funnel asymmetry (k≥3 lower power, k≥10 recommended)
+    if len(yi_si) >= 3:
+        # Egger's regression: SND = (yi - 0) / sei  vs  precision = 1/sei
+        # Slope = bias estimate
+        import math as _m
+        snds = [(y/s, 1/s) for (y, s) in yi_si]
+        n = len(snds)
+        # Simple OLS slope
+        mean_x = sum(x for _, x in snds)/n
+        mean_y = sum(y for y, _ in snds)/n
+        num = sum((y - mean_y)*(x - mean_x) for y, x in snds)
+        den = sum((x - mean_x)**2 for _, x in snds)
+        slope = num/den if den > 0 else 0
+        # SE of slope (residual SE / sqrt(sum (x - mean_x)^2))
+        if n > 2 and den > 0:
+            yhat = [slope*x + (mean_y - slope*mean_x) for _, x in snds]
+            resid_ss = sum((y - yh)**2 for (y,_), yh in zip(snds, yhat))
+            se_slope = _m.sqrt(max(resid_ss/(n-2), 0)/den)
+            t_egger = slope/se_slope if se_slope > 0 else 0
+            p_egger_label = "p<0.05 (asymmetry)" if abs(t_egger) > 2.0 else "p≥0.05 (no asymmetry)"
+        else:
+            p_egger_label = "—"
+        stats_panels.append(f"""
+        <div class="stat-panel">
+          <h4>3. Egger's funnel asymmetry test</h4>
+          <table class="kv">
+            <tr><td>Slope (bias)</td><td><code>{round(slope,3)}</code></td></tr>
+            <tr><td>Test verdict</td><td>{p_egger_label}</td></tr>
+            <tr><td>Power note</td><td>{("recommended k≥10; current k=" + str(n) + " is exploratory.") if n < 10 else "adequately powered."}</td></tr>
+          </table>
+        </div>""")
+    else:
+        stats_panels.append('<div class="stat-panel"><h4>3. Egger\'s test</h4><p style="color:#94a3b8;font-size:12px;">Requires k≥3.</p></div>')
+
+    # Panel 4: Leave-one-out (re-render from earlier loo_chips)
+    loo_summary = f"<p style=\"color:#cbd5e1;font-size:12px;\">{len(loo_chips)} omit-one re-runs (see Analysis section above).</p>" if loo_chips else "<p style=\"color:#94a3b8;font-size:12px;\">Requires k≥3.</p>"
+    stats_panels.append(f"""
+    <div class="stat-panel">
+      <h4>4. Leave-one-out sensitivity</h4>
+      {loo_summary}
+    </div>""")
+
+    # Panel 5: PRISMA 2020 status
+    stats_panels.append(f"""
+    <div class="stat-panel">
+      <h4>5. PRISMA 2020 status</h4>
+      <table class="kv">
+        <tr><td>Identification</td><td>AACT × PubMed intersection (deterministic)</td></tr>
+        <tr><td>Screening</td><td>6-gate audit (machine-checkable)</td></tr>
+        <tr><td>Eligibility</td><td>k={len(trials)} trials passed all 6 gates</td></tr>
+        <tr><td>Included</td><td>k={pool["k"] if pool else 0} with extractable event counts</td></tr>
+      </table>
+    </div>""")
+
+    # Panel 6: RoB summary (audit-first declares low for declared trials, no manual review)
+    stats_panels.append(f"""
+    <div class="stat-panel">
+      <h4>6. Risk of Bias (audit-first scope)</h4>
+      <p style="color:#cbd5e1;font-size:12px;">Audit-first builds do <strong>not</strong> apply RoB 2.0 domain coding — that requires full-text trial reading. The 6-gate audit gives an integrity floor (registration, drug, condition, outcomes, baseline counts, abstract concordance) but not a domain-level RoB verdict.</p>
+      <p style="color:#94a3b8;font-size:11.5px;">For RoB 2.0 coding, see the matching curated <code>*_REVIEW.html</code> for this topic if one exists in the flagship portfolio.</p>
+    </div>""")
+
+    # Panel 7: GRADE certainty (placeholder logic)
+    cert = "Moderate"
+    cert_reasons = []
+    if pool and pool["k"] < 5:
+        cert = "Low"; cert_reasons.append(f"k={pool['k']} (imprecision)")
+    if pool and pool.get("I2_pct", 0) > 75:
+        cert = "Low"; cert_reasons.append(f"I²={pool['I2_pct']}% (substantial heterogeneity)")
+    if not pool or pool["k"] < 2:
+        cert = "Very low"
+    cert_html = f"<span style=\"color:{'#86efac' if cert=='Moderate' else '#fbbf24' if cert=='Low' else '#fca5a5'};font-weight:600;\">{cert}</span>"
+    reasons_html = "; ".join(cert_reasons) or "no major downgrade triggers from audit data"
+    stats_panels.append(f"""
+    <div class="stat-panel">
+      <h4>7. GRADE certainty (auto-derived)</h4>
+      <p style="font-size:14px;color:#cbd5e1;">Certainty: {cert_html}</p>
+      <p style="color:#94a3b8;font-size:11.5px;">Auto-derivation considers k and I² only; full GRADE requires RoB, indirectness, publication bias judgment, and effect-magnitude scoring (not applied in audit-first builds). Triggers: {reasons_html}.</p>
+    </div>""")
+
+    # Panel 8: Numerical reproducibility fingerprint
+    if pool:
+        import hashlib
+        # Stable hash of pool inputs
+        payload = json.dumps([sorted([t["nct"] for t in trials]), pool["hr"], pool["lci"], pool["uci"]], sort_keys=True)
+        h = hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
+        stats_panels.append(f"""
+        <div class="stat-panel">
+          <h4>8. Reproducibility fingerprint</h4>
+          <p style="font-family:JetBrains Mono,monospace;font-size:12px;color:#cbd5e1;">sha256[:16] = <code>{h}</code></p>
+          <p style="color:#94a3b8;font-size:11.5px;">Bit-stable hash of {{sorted NCT list, pooled OR + 95% CI}}. Reproduce by re-running scripts/add_topic_autodiscover.py + generate_topic_html.py against the same AACT snapshot.</p>
+        </div>""")
+
+    statistics_html = '<div class="stat-grid">' + "\n".join(stats_panels) + '</div>'
+
     # -- About / audit-trail
     about_html = f"""
     <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">Audit-first build</h3>
@@ -396,6 +536,11 @@ WHERE lower(name) LIKE '%{esc(cond)}%'</pre>
   table.ext2x2 td, table.ext2x2 th {{ padding:4px 12px; text-align:right; font-family:JetBrains Mono,monospace; }}
   table.ext2x2 td:first-child {{ text-align:left; font-family:system-ui,sans-serif; color:#cbd5e1; }}
   .pill {{ display:inline-block; padding:2px 8px; background:#1e293b; border-radius:10px; font-size:11px; color:#cbd5e1; margin:2px; }}
+  .stat-grid {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px; margin-top:12px; }}
+  .stat-panel {{ background:#1e293b; padding:14px; border-radius:6px; }}
+  .stat-panel h4 {{ margin:0 0 10px; font-size:13px; color:#7dd3fc; letter-spacing:0.02em; }}
+  .stat-panel table.kv td {{ font-size:12px; padding:4px 0; }}
+  .stat-panel code {{ background:#0a0f1f; padding:1px 6px; border-radius:3px; font-family:JetBrains Mono,monospace; font-size:11px; }}
 </style>
 </head>
 <body>
@@ -429,6 +574,7 @@ WHERE lower(name) LIKE '%{esc(cond)}%'</pre>
   <button data-tab="screening">Screening</button>
   <button data-tab="extraction">Extraction</button>
   <button data-tab="analysis">Analysis</button>
+  <button data-tab="statistics">Statistics</button>
   <button data-tab="about">About</button>
 </div>
 
@@ -437,6 +583,7 @@ WHERE lower(name) LIKE '%{esc(cond)}%'</pre>
 <section id="tab-screening" class="tab-panel">{screening_html}</section>
 <section id="tab-extraction" class="tab-panel">{extraction_html}</section>
 <section id="tab-analysis" class="tab-panel">{analysis_html}</section>
+<section id="tab-statistics" class="tab-panel">{statistics_html}</section>
 <section id="tab-about" class="tab-panel">{about_html}</section>
 
 <footer>
