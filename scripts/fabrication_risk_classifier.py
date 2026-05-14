@@ -85,14 +85,32 @@ for json_p in sorted(DATA.glob("*.json")):
     tot = len(trials)
     if tot == 0: continue
 
-    n_null_pmid = sum(1 for k, v in trials if not v.get("pmid"))
+    # P_null_pmid: now CONDITIONAL on the trial also lacking a validation source.
+    # A trial with valid NCT + populated evidence[] but missing PMID is just
+    # "publication not yet linked" - common for recent/Chinese/regional trials.
+    # We only penalise null-PMID when the trial ALSO has nulled NCT OR no
+    # evidence (which is already captured by E, but double-counting here is
+    # exactly what made E+P stack to flag legitimate research-in-progress).
+    def _trial_at_risk(k, v):
+        if v.get("pmid"): return False  # has PMID, not at risk
+        if k.startswith("NULLED:"): return True
+        # Evidence may be a list/empty list. Treat empty/missing as a risk multiplier.
+        evidence = v.get("evidence") or []
+        if not isinstance(evidence, list) or len(evidence) == 0: return True
+        return False
+    n_null_pmid = sum(1 for k, v in trials if _trial_at_risk(k, v))
     n_nulled_nct = sum(1 for k, v in trials if k.startswith("NULLED:"))
     n_cross = m10.get(rv, 0)
     n_single_arm = sum(1 for k, v in trials
                         if v.get("cE") == 0 and v.get("cN") == 0
                         and v.get("publishedHR") is not None)
+    # Generic name is a fabrication signal ONLY when the NCT is also nulled/missing.
+    # Legitimate pivotal trials commonly use acronyms like KEYNOTE-189, SURPASS-1,
+    # IMPOWER150 that match the generic-name regex; flagging them is a false positive.
     n_generic_name = sum(1 for k, v in trials
-                          if v.get("name") and GENERIC_NAME_RE.match(str(v.get("name", ""))))
+                          if v.get("name")
+                          and GENERIC_NAME_RE.match(str(v.get("name", "")))
+                          and k.startswith("NULLED:"))
 
     e_score = m11_no_ev.get(rv, 0) / tot
     p_score = n_null_pmid / tot
@@ -102,13 +120,32 @@ for json_p in sorted(DATA.glob("*.json")):
     v_score = n_single_arm / tot
     x_score = n_generic_name / tot
 
-    score = (0.30*e_score + 0.25*p_score + 0.15*n_score +
+    # E and P fire on the same trials when both PMID and evidence[] are absent;
+    # double-counting over-penalised research-in-progress reviews where the
+    # primary publication / inline evidence quotation hadn't been backfilled.
+    # Treat (E+P) as a single "evidence gap" capped at max(E, P).
+    evidence_gap = max(e_score, p_score)
+    # When the NCT layer is clean (N<=0.10), missing evidence/PMID is most
+    # likely just "publication or quote not yet backfilled" rather than
+    # fabrication, so halve the evidence_gap contribution. When the NCT
+    # layer itself is suspicious (N>0.10), keep the full weight.
+    eg_weight = 0.20 if n_score <= 0.10 else 0.40
+    score = (eg_weight*evidence_gap + 0.15*n_score +
              0.10*a_score + 0.05*c_score + 0.05*v_score + 0.10*x_score)
 
-    classification = ("QUARANTINE" if score >= 0.70 else
-                      "MANUAL_REVIEW" if score >= 0.50 else
-                      "LOW_CONCERN" if score >= 0.30 else
-                      "OK")
+    # Score-based classification.
+    score_class = ("QUARANTINE" if score >= 0.70 else
+                   "MANUAL_REVIEW" if score >= 0.50 else
+                   "LOW_CONCERN" if score >= 0.30 else
+                   "OK")
+    # Reviews that were explicitly placed on the manual quarantine list
+    # (fully_fabricated_reviews.json / R3 quarantine log) stay quarantined
+    # regardless of how the relaxed score moves. The list is operator-curated
+    # ground truth; the score is just a heuristic.
+    if rv in quarantined_so_far:
+        classification = "QUARANTINE"
+    else:
+        classification = score_class
 
     results.append({
         "review": rv, "n_trials": tot, "score": round(score, 3),
