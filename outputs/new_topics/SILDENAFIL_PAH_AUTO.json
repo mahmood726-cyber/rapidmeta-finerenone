@@ -6,17 +6,17 @@
       "NCT03364244",
       "NCT00433329",
       "NCT00796510",
+      "NCT01247805",
       "NCT00159874",
       "NCT01642407",
       "NCT01582438",
-      "NCT00483626",
-      "NCT02060487"
+      "NCT00483626"
     ],
     "drug_patterns": [
       "sildenafil"
     ],
     "condition_patterns": [
-      "pulmonary arterial hypertension"
+      "pulmonary arterial"
     ]
   },
   "trials": [
@@ -116,6 +116,35 @@
           "BG001": 0
         },
         "aact_primary_outcome_measure": "Overall Survival",
+        "aact_outcome_count_rows": []
+      }
+    },
+    {
+      "gates": {
+        "A_aact_exists": true,
+        "B_drug_in_intvs": true,
+        "C_condition_in_aact": true,
+        "D_pmid_topic_match": false,
+        "E_two_arms": false,
+        "F_primary_outcome_known": true
+      },
+      "extracted": {
+        "nct": "NCT01247805",
+        "aact_title": "A Pivotal Bioequivalence Study Between The Sildenafil Powder For Oral Suspension (10 Mg/Ml) And The Sildenafil 10 Mg Immediate Release (IR) Tablet Relative To The Revatio 20 Mg IR Tablet In Healthy Volunteers Under Fasting Conditions",
+        "aact_acronym": "",
+        "start_date": "2011-01-31",
+        "primary_completion_date": "2011-02-28",
+        "aact_intvs": [
+          "sildenafil citrate",
+          "sildenafil citrate",
+          "sildenafil citrate"
+        ],
+        "aact_conditions": [
+          "pulmonary arterial hypertention"
+        ],
+        "pmid": null,
+        "aact_per_arm_counts": {},
+        "aact_primary_outcome_measure": "Area under the curve (AUC0-T) of sildenafil plasma concentrations from time zero to the time T of last measurable concentration.",
         "aact_outcome_count_rows": []
       }
     },
@@ -325,70 +354,10 @@
         "aact_primary_outcome_measure": "Arterial pulmonary resistance index",
         "aact_outcome_count_rows": []
       }
-    },
-    {
-      "gates": {
-        "A_aact_exists": true,
-        "B_drug_in_intvs": true,
-        "C_condition_in_aact": true,
-        "D_pmid_topic_match": true,
-        "E_two_arms": true,
-        "F_primary_outcome_known": true
-      },
-      "extracted": {
-        "nct": "NCT02060487",
-        "aact_title": "Effects of Oral Sildenafil on Mortality in Adults With PAH",
-        "aact_acronym": "AFFILIATE",
-        "start_date": "2014-09-22",
-        "primary_completion_date": "2021-02-26",
-        "aact_intvs": [
-          "sildenafil citrate",
-          "sildenafil citrate",
-          "sildenafil citrate"
-        ],
-        "aact_conditions": [
-          "pulmonary arterial hypertension"
-        ],
-        "pmid": "38752352",
-        "pubmed_year": 2024,
-        "pubmed_doi": "10.1161/CIRCULATIONAHA.123.068107",
-        "aact_per_arm_counts": {
-          "BG000": 129,
-          "BG001": 128,
-          "BG002": 128
-        },
-        "aact_primary_outcome_measure": "Overall Survival",
-        "aact_outcome_count_rows": [
-          [
-            "OG000",
-            "34.0"
-          ],
-          [
-            "OG001",
-            "25.0"
-          ],
-          [
-            "OG002",
-            "19.0"
-          ],
-          [
-            "OG000",
-            "52.0"
-          ],
-          [
-            "OG001",
-            "36.0"
-          ],
-          [
-            "OG002",
-            "28.0"
-          ]
-        ]
-      }
     }
   ],
   "n_total": 8,
-  "n_pass_all": 2,
+  "n_pass_all": 1,
   "verdict": "NOT_VIABLE",
-  "pass_rate": 0.25
+  "pass_rate": 0.125
 }

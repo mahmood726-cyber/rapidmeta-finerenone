@@ -42,7 +42,7 @@
 <div id="rapidmeta-integrity-badge" role="status" style="background:#16a34a;color:#fff;padding:12px 20px;font-family:system-ui,sans-serif;font-size:13.5px;border-bottom:3px solid #15803d;line-height:1.55;">
   <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
     <strong style="font-size:14px;letter-spacing:0.04em;">TRUSTWORTHY (audit-first build)</strong>
-    <span style="font-size:11.5px;opacity:0.92;">Trials: <strong>2</strong> · all passed 6-gate audit · k ≥2</span>
+    <span style="font-size:11.5px;opacity:0.92;">Trials: <strong>1</strong> · all passed 6-gate audit · k ≥2</span>
   </div>
   <div style="margin-top:6px;font-size:12.5px;opacity:0.95;">
     Built post-cleanup using the audit-first pipeline. Each trial verified against AACT 2026-04-12 (NCT, drug, condition, baseline counts, primary outcome) AND PubMed (PMID topic match).
@@ -57,7 +57,7 @@
 <main>
 <h1>Sildenafil in PAH</h1>
 <div class="meta">
-  RapidMeta · audit-first build · 2 included trials · Sildenafil in Pulmonary Arterial Hypertension ·
+  RapidMeta · audit-first build · 1 included trials · Sildenafil in Pulmonary Arterial ·
   Data: AACT 2026-04-12 + PubMed E-utilities
 </div>
 
@@ -74,7 +74,7 @@
 <section id="tab-protocol" class="tab-panel active">
     <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">PICO</h3>
     <table class="kv">
-      <tr><td>Population</td><td>Adults randomised in trials registered on ClinicalTrials.gov for <strong>Pulmonary Arterial Hypertension</strong>.</td></tr>
+      <tr><td>Population</td><td>Adults randomised in trials registered on ClinicalTrials.gov for <strong>Pulmonary Arterial</strong>.</td></tr>
       <tr><td>Intervention</td><td><strong>Sildenafil</strong> (AACT-verified intervention name in each trial).</td></tr>
       <tr><td>Comparator</td><td>Active comparator or placebo as registered on AACT.</td></tr>
       <tr><td>Outcomes</td><td>Trial-declared primary outcome (AACT <code>design_outcomes</code>); event counts harvested from AACT <code>outcome_measurements</code>.</td></tr>
@@ -85,7 +85,7 @@
     <ol style="color:#cbd5e1;font-size:12.5px;">
       <li>GATE-A — NCT exists in AACT 2026-04-12 snapshot.</li>
       <li>GATE-B — Drug pattern "sildenafil" present in AACT <code>interventions</code> for the NCT.</li>
-      <li>GATE-C — Condition pattern "pulmonary arterial hypertension" present in AACT <code>conditions</code>.</li>
+      <li>GATE-C — Condition pattern "pulmonary arterial" present in AACT <code>conditions</code>.</li>
       <li>GATE-D — Primary PMID's PubMed title or abstract mentions the drug or condition.</li>
       <li>GATE-E — AACT <code>baseline_counts</code> reports ≥2 per-arm participant rows.</li>
       <li>GATE-F — AACT <code>design_outcomes</code> declares a primary outcome with measure text.</li>
@@ -93,7 +93,7 @@
     <p style="color:#94a3b8;font-size:11.5px;">Audit verdict: <code>VIABLE</code> requires ≥3 trials passing all 6 gates (k≥3 — current standard for new audit-first builds). Older builds use k≥2.</p>
 
     <h3 style="color:#7dd3fc;font-size:14px;">Pre-specified primary outcomes (per trial)</h3>
-    <ul style="color:#cbd5e1;font-size:12.5px;"><li>Number of Participants Reporting at Least One Adverse Event</li><li>Overall Survival</li></ul>
+    <ul style="color:#cbd5e1;font-size:12.5px;"><li>Number of Participants Reporting at Least One Adverse Event</li></ul>
 
     <h3 style="color:#7dd3fc;font-size:14px;">Statistical methods</h3>
     <p style="color:#cbd5e1;font-size:12.5px;">Inverse-variance random-effects pooling on the log-OR scale (Woolf estimator from AACT event counts), DerSimonian-Laird τ² with Hartung-Knapp-Sidik-Jonkman (HKSJ) variance correction and t<sub>k-1</sub> critical value (Cochrane Handbook v6.5 conventions). Single-trial entries report Wald 95% CI on the log scale.</p>
@@ -106,23 +106,23 @@ SELECT nct_id FROM interventions
 WHERE lower(name) LIKE '%sildenafil%'
 INTERSECT
 SELECT nct_id FROM conditions
-WHERE lower(name) LIKE '%pulmonary arterial hypertension%'</pre>
+WHERE lower(name) LIKE '%pulmonary arterial%'</pre>
     <p style="color:#cbd5e1;font-size:12.5px;">PubMed bridge: NCBI E-utilities + idconv API to fetch primary publication PMID and abstract for each NCT.</p>
-    <pre style="background:#0a0f1f;padding:12px;border-radius:6px;color:#bef264;font-size:12px;overflow-x:auto;">https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=sildenafil+AND+pulmonary arterial hypertension+AND+RCT</pre>
+    <pre style="background:#0a0f1f;padding:12px;border-radius:6px;color:#bef264;font-size:12px;overflow-x:auto;">https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=sildenafil+AND+pulmonary arterial+AND+RCT</pre>
     <p style="color:#94a3b8;font-size:11.5px;">Cross-checking: every NCT that survives intersection is verified to have a primary outcome declared in AACT <code>design_outcomes</code> AND a publication whose abstract mentions the drug or condition (GATE-D).</p>
     </section>
 <section id="tab-screening" class="tab-panel">
     <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">PRISMA-style screening</h3>
     <table class="kv">
       <tr><td>Records identified (AACT × PubMed)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;">8</td></tr>
-      <tr><td>Records excluded (gate failure)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;color:#fca5a5;">6</td></tr>
-      <tr><td>Records included (all 6 gates pass)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;color:#86efac;">2</td></tr>
+      <tr><td>Records excluded (gate failure)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;color:#fca5a5;">7</td></tr>
+      <tr><td>Records included (all 6 gates pass)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;color:#86efac;">1</td></tr>
     </table>
 
     <h3 style="color:#7dd3fc;font-size:14px;">Exclusions by first failing gate</h3>
     <table class="kv">
       <tr><th>Gate</th><th>n</th></tr>
-      <tr><td>D_pmid_topic_match</td><td style='text-align:right;'>4</td></tr><tr><td>E_two_arms</td><td style='text-align:right;'>2</td></tr>
+      <tr><td>D_pmid_topic_match</td><td style='text-align:right;'>5</td></tr><tr><td>E_two_arms</td><td style='text-align:right;'>2</td></tr>
     </table>
     <p style="color:#94a3b8;font-size:11.5px;">Screening is fully deterministic: every record is auto-flagged by the gate that first fails. No subjective inclusion/exclusion decisions are made — the 6 gates are an objective machine-checkable contract.</p>
     </section>
@@ -141,50 +141,17 @@ WHERE lower(name) LIKE '%pulmonary arterial hypertension%'</pre>
             <tr><td><strong>Intervention</strong></td><td>41</td><td>1</td><td>42</td></tr>
             <tr><td><strong>Control</strong></td><td>64</td><td>-9</td><td>55</td></tr>
           </table>
-        </div>
-
-        <div style="background:#1e293b;padding:14px;border-radius:6px;margin:0.6rem 0;">
-          <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;">
-            <div>
-              <strong style="font-size:14px;">AFFILIATE</strong>
-              <span style="color:#94a3b8;font-size:11px;margin-left:8px;"><a href="https://clinicaltrials.gov/study/NCT02060487" target="_blank">NCT02060487</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/38752352/" target="_blank">PMID 38752352</a> · 2024</span>
-            </div>
-          </div>
-          <p style="margin:6px 0 4px;color:#cbd5e1;font-size:12px;">Effects of Oral Sildenafil on Mortality in Adults With PAH</p>
-          <p style="margin:0 0 6px;color:#94a3b8;font-size:11px;"><strong>Primary outcome (AACT):</strong> Overall Survival</p>
-          <table class="ext2x2">
-            <tr><th></th><th>Events</th><th>No event</th><th>Total N</th></tr>
-            <tr><td><strong>Intervention</strong></td><td>34</td><td>95</td><td>129</td></tr>
-            <tr><td><strong>Control</strong></td><td>25</td><td>103</td><td>128</td></tr>
-          </table>
         </div></section>
 <section id="tab-analysis" class="tab-panel">
     <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">Forest plot — per-trial OR + pooled estimate</h3>
-    <svg viewBox="0 0 760 136" style="width:100%;max-width:760px;background:#0a0f1f;border-radius:6px;">
+    <svg viewBox="0 0 760 108" style="width:100%;max-width:760px;background:#0a0f1f;border-radius:6px;">
 <text x="20" y="20" fill="#94a3b8" font-size="11">Trial</text>
 <text x="465.0" y="20" fill="#94a3b8" font-size="11" text-anchor="middle">log-OR (95% CI)</text>
-<line x1="465.0" y1="28" x2="465.0" y2="84" stroke="#475569" stroke-dasharray="3,3"/>
+<line x1="465.0" y1="28" x2="465.0" y2="56" stroke="#475569" stroke-dasharray="3,3"/>
 <text x="20" y="46.0" fill="#e2e8f0" font-size="11">NCT00159874</text>
 <text x="465.0" y="46.0" fill="#64748b" font-size="11" text-anchor="middle">(no event data)</text>
-<text x="20" y="74.0" fill="#e2e8f0" font-size="11">AFFILIATE</text>
-<line x1="442.15406435588284" y1="70.0" x2="577.2317753709845" y2="70.0" stroke="#7dd3fc" stroke-width="2"/>
-<rect x="505.69291986343364" y="66.0" width="8" height="8" fill="#7dd3fc"/>
-<text x="734" y="74.0" fill="#cbd5e1" font-size="10">1.47 [0.82, 2.65]</text>
-<text x="20" y="102.0" fill="#fbbf24" font-size="11" font-weight="600">Pooled (k=1)</text>
-<polygon points="442.1606708816849,98.0 509.72988538325814,92.0 577.246982729175,98.0 509.72988538325814,104.0" fill="#fbbf24"/>
-<text x="734" y="102.0" fill="#fbbf24" font-size="10" font-weight="600">OR 1.475 [0.82, 2.652]</text>
 </svg>
-    
-        <div style="background:#1e293b;padding:16px;border-radius:6px;margin:1rem 0;">
-          <h3 style="margin:0 0 8px;font-size:14px;color:#7dd3fc;">Pooled estimate (REML-DL + HKSJ, Cochrane v6.5)</h3>
-          <div style="font-size:24px;font-weight:600;font-family:JetBrains Mono,monospace;">
-            OR 1.475 <span style="font-size:14px;color:#94a3b8;">[0.82, 2.652]</span>
-          </div>
-          <div style="font-size:11px;color:#94a3b8;margin-top:6px;">
-            k = 1 · method = single-trial · τ² = — ·
-            Q = — · I² = —%
-          </div>
-        </div>
+    <p style="color:#94a3b8;font-size:12px;">Insufficient event-count data for pooled estimate.</p>
     
     </section>
 <section id="tab-statistics" class="tab-panel"><div class="stat-grid"><div class="stat-panel"><h4>1. Heterogeneity</h4><p style="color:#94a3b8;font-size:12px;">Requires k≥2 trials with event data.</p></div>
@@ -201,8 +168,8 @@ WHERE lower(name) LIKE '%pulmonary arterial hypertension%'</pre>
       <table class="kv">
         <tr><td>Identification</td><td>AACT × PubMed intersection (deterministic)</td></tr>
         <tr><td>Screening</td><td>6-gate audit (machine-checkable)</td></tr>
-        <tr><td>Eligibility</td><td>k=2 trials passed all 6 gates</td></tr>
-        <tr><td>Included</td><td>k=1 with extractable event counts</td></tr>
+        <tr><td>Eligibility</td><td>k=1 trials passed all 6 gates</td></tr>
+        <tr><td>Included</td><td>k=0 with extractable event counts</td></tr>
       </table>
     </div>
 
@@ -215,14 +182,8 @@ WHERE lower(name) LIKE '%pulmonary arterial hypertension%'</pre>
     <div class="stat-panel">
       <h4>7. GRADE certainty (auto-derived)</h4>
       <p style="font-size:14px;color:#cbd5e1;">Certainty: <span style="color:#fca5a5;font-weight:600;">Very low</span></p>
-      <p style="color:#94a3b8;font-size:11.5px;">Auto-derivation considers k and I² only; full GRADE requires RoB, indirectness, publication bias judgment, and effect-magnitude scoring (not applied in audit-first builds). Triggers: k=1 (imprecision).</p>
-    </div>
-
-        <div class="stat-panel">
-          <h4>8. Reproducibility fingerprint</h4>
-          <p style="font-family:JetBrains Mono,monospace;font-size:12px;color:#cbd5e1;">sha256[:16] = <code>07f4411d414151f1</code></p>
-          <p style="color:#94a3b8;font-size:11.5px;">Bit-stable hash of {sorted NCT list, pooled OR + 95% CI}. Reproduce by re-running scripts/add_topic_autodiscover.py + generate_topic_html.py against the same AACT snapshot.</p>
-        </div></div></section>
+      <p style="color:#94a3b8;font-size:11.5px;">Auto-derivation considers k and I² only; full GRADE requires RoB, indirectness, publication bias judgment, and effect-magnitude scoring (not applied in audit-first builds). Triggers: no major downgrade triggers from audit data.</p>
+    </div></div></section>
 <section id="tab-about" class="tab-panel">
     <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">Audit-first build</h3>
     <p style="color:#cbd5e1;font-size:12.5px;">This review was generated by the 6-gate audit-first pipeline after the 16-round portfolio cleanup. Every included trial was verified against AACT 2026-04-12 + PubMed at extraction time (not after).</p>
@@ -297,32 +258,6 @@ Per PubMed attribution: NCBI E-utilities + idconv API. Generated by
         "source": "AACT 2026-04-12",
         "text": "Number of Participants Reporting at Least One Adverse Event",
         "sourceUrl": "https://clinicaltrials.gov/study/NCT00159874"
-      }
-    ]
-  },
-  "NCT02060487": {
-    "name": "AFFILIATE",
-    "baseline": {
-      "n": 257
-    },
-    "pmid": "38752352",
-    "phase": "III",
-    "year": 2024,
-    "tE": 34,
-    "tN": 129,
-    "cE": 25,
-    "cN": 128,
-    "group": "sildenafil citrate",
-    "estimandType": "OR",
-    "publishedHR": null,
-    "hrLCI": null,
-    "hrUCI": null,
-    "evidence": [
-      {
-        "label": "Primary outcome (AACT)",
-        "source": "AACT 2026-04-12",
-        "text": "Overall Survival",
-        "sourceUrl": "https://clinicaltrials.gov/study/NCT02060487"
       }
     ]
   }

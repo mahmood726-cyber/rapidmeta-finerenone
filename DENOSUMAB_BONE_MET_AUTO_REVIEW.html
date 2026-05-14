@@ -57,7 +57,7 @@
 <main>
 <h1>Denosumab in bone metastases</h1>
 <div class="meta">
-  RapidMeta · audit-first build · 5 included trials · Denosumab in Bone Neoplasm ·
+  RapidMeta · audit-first build · 5 included trials · Denosumab in Bone Metastases ·
   Data: AACT 2026-04-12 + PubMed E-utilities
 </div>
 
@@ -74,7 +74,7 @@
 <section id="tab-protocol" class="tab-panel active">
     <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">PICO</h3>
     <table class="kv">
-      <tr><td>Population</td><td>Adults randomised in trials registered on ClinicalTrials.gov for <strong>Bone Neoplasm</strong>.</td></tr>
+      <tr><td>Population</td><td>Adults randomised in trials registered on ClinicalTrials.gov for <strong>Bone Metastases</strong>.</td></tr>
       <tr><td>Intervention</td><td><strong>Denosumab</strong> (AACT-verified intervention name in each trial).</td></tr>
       <tr><td>Comparator</td><td>Active comparator or placebo as registered on AACT.</td></tr>
       <tr><td>Outcomes</td><td>Trial-declared primary outcome (AACT <code>design_outcomes</code>); event counts harvested from AACT <code>outcome_measurements</code>.</td></tr>
@@ -85,7 +85,7 @@
     <ol style="color:#cbd5e1;font-size:12.5px;">
       <li>GATE-A — NCT exists in AACT 2026-04-12 snapshot.</li>
       <li>GATE-B — Drug pattern "denosumab" present in AACT <code>interventions</code> for the NCT.</li>
-      <li>GATE-C — Condition pattern "bone neoplasm" present in AACT <code>conditions</code>.</li>
+      <li>GATE-C — Condition pattern "bone metastases" present in AACT <code>conditions</code>.</li>
       <li>GATE-D — Primary PMID's PubMed title or abstract mentions the drug or condition.</li>
       <li>GATE-E — AACT <code>baseline_counts</code> reports ≥2 per-arm participant rows.</li>
       <li>GATE-F — AACT <code>design_outcomes</code> declares a primary outcome with measure text.</li>
@@ -106,9 +106,9 @@ SELECT nct_id FROM interventions
 WHERE lower(name) LIKE '%denosumab%'
 INTERSECT
 SELECT nct_id FROM conditions
-WHERE lower(name) LIKE '%bone neoplasm%'</pre>
+WHERE lower(name) LIKE '%bone metastases%'</pre>
     <p style="color:#cbd5e1;font-size:12.5px;">PubMed bridge: NCBI E-utilities + idconv API to fetch primary publication PMID and abstract for each NCT.</p>
-    <pre style="background:#0a0f1f;padding:12px;border-radius:6px;color:#bef264;font-size:12px;overflow-x:auto;">https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=denosumab+AND+bone neoplasm+AND+RCT</pre>
+    <pre style="background:#0a0f1f;padding:12px;border-radius:6px;color:#bef264;font-size:12px;overflow-x:auto;">https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=denosumab+AND+bone metastases+AND+RCT</pre>
     <p style="color:#94a3b8;font-size:11.5px;">Cross-checking: every NCT that survives intersection is verified to have a primary outcome declared in AACT <code>design_outcomes</code> AND a publication whose abstract mentions the drug or condition (GATE-D).</p>
     </section>
 <section id="tab-screening" class="tab-panel">

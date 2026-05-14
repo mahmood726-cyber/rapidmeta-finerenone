@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Aprepitant for CINV — RapidMeta (audit-first)</title>
+<title>Aprepitant in CINV — RapidMeta (audit-first)</title>
 <style>
   body { margin:0; padding:0; background:#0f172a; color:#e2e8f0; font-family:system-ui,-apple-system,sans-serif; line-height:1.55; }
   main { max-width:980px; margin:0 auto; padding:24px; }
@@ -55,9 +55,9 @@
 </div>
 
 <main>
-<h1>Aprepitant for CINV</h1>
+<h1>Aprepitant in CINV</h1>
 <div class="meta">
-  RapidMeta · audit-first build · 3 included trials · Aprepitant in Chemotherapy-Induced Nausea ·
+  RapidMeta · audit-first build · 3 included trials · Aprepitant in Nausea ·
   Data: AACT 2026-04-12 + PubMed E-utilities
 </div>
 
@@ -74,7 +74,7 @@
 <section id="tab-protocol" class="tab-panel active">
     <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">PICO</h3>
     <table class="kv">
-      <tr><td>Population</td><td>Adults randomised in trials registered on ClinicalTrials.gov for <strong>Chemotherapy-Induced Nausea</strong>.</td></tr>
+      <tr><td>Population</td><td>Adults randomised in trials registered on ClinicalTrials.gov for <strong>Nausea</strong>.</td></tr>
       <tr><td>Intervention</td><td><strong>Aprepitant</strong> (AACT-verified intervention name in each trial).</td></tr>
       <tr><td>Comparator</td><td>Active comparator or placebo as registered on AACT.</td></tr>
       <tr><td>Outcomes</td><td>Trial-declared primary outcome (AACT <code>design_outcomes</code>); event counts harvested from AACT <code>outcome_measurements</code>.</td></tr>
@@ -85,7 +85,7 @@
     <ol style="color:#cbd5e1;font-size:12.5px;">
       <li>GATE-A — NCT exists in AACT 2026-04-12 snapshot.</li>
       <li>GATE-B — Drug pattern "aprepitant" present in AACT <code>interventions</code> for the NCT.</li>
-      <li>GATE-C — Condition pattern "chemotherapy-induced nausea" present in AACT <code>conditions</code>.</li>
+      <li>GATE-C — Condition pattern "nausea" present in AACT <code>conditions</code>.</li>
       <li>GATE-D — Primary PMID's PubMed title or abstract mentions the drug or condition.</li>
       <li>GATE-E — AACT <code>baseline_counts</code> reports ≥2 per-arm participant rows.</li>
       <li>GATE-F — AACT <code>design_outcomes</code> declares a primary outcome with measure text.</li>
@@ -93,7 +93,7 @@
     <p style="color:#94a3b8;font-size:11.5px;">Audit verdict: <code>VIABLE</code> requires ≥3 trials passing all 6 gates (k≥3 — current standard for new audit-first builds). Older builds use k≥2.</p>
 
     <h3 style="color:#7dd3fc;font-size:14px;">Pre-specified primary outcomes (per trial)</h3>
-    <ul style="color:#cbd5e1;font-size:12.5px;"><li>Brain NK1-receptor Occupancy at 24 Hours Post Dose</li><li>Maximum Concentration (Cmax) of Aprepitant in Participants 0 to &lt;2 Years of Age</li><li>Proportion of Participants Receiving HEC With Complete Response in Overall Phase</li></ul>
+    <ul style="color:#cbd5e1;font-size:12.5px;"><li>Area Under the Curve From 0-48 (AUC0-48) of Aprepitant Following a Single Oral Dose in Study Part 1</li><li>Brain NK1-receptor Occupancy at 24 Hours Post Dose</li><li>Maximum Concentration (Cmax) of Aprepitant in Participants 0 to &lt;2 Years of Age</li></ul>
 
     <h3 style="color:#7dd3fc;font-size:14px;">Statistical methods</h3>
     <p style="color:#cbd5e1;font-size:12.5px;">Inverse-variance random-effects pooling on the log-OR scale (Woolf estimator from AACT event counts), DerSimonian-Laird τ² with Hartung-Knapp-Sidik-Jonkman (HKSJ) variance correction and t<sub>k-1</sub> critical value (Cochrane Handbook v6.5 conventions). Single-trial entries report Wald 95% CI on the log scale.</p>
@@ -106,9 +106,9 @@ SELECT nct_id FROM interventions
 WHERE lower(name) LIKE '%aprepitant%'
 INTERSECT
 SELECT nct_id FROM conditions
-WHERE lower(name) LIKE '%chemotherapy-induced nausea%'</pre>
+WHERE lower(name) LIKE '%nausea%'</pre>
     <p style="color:#cbd5e1;font-size:12.5px;">PubMed bridge: NCBI E-utilities + idconv API to fetch primary publication PMID and abstract for each NCT.</p>
-    <pre style="background:#0a0f1f;padding:12px;border-radius:6px;color:#bef264;font-size:12px;overflow-x:auto;">https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=aprepitant+AND+chemotherapy-induced nausea+AND+RCT</pre>
+    <pre style="background:#0a0f1f;padding:12px;border-radius:6px;color:#bef264;font-size:12px;overflow-x:auto;">https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=aprepitant+AND+nausea+AND+RCT</pre>
     <p style="color:#94a3b8;font-size:11.5px;">Cross-checking: every NCT that survives intersection is verified to have a primary outcome declared in AACT <code>design_outcomes</code> AND a publication whose abstract mentions the drug or condition (GATE-D).</p>
     </section>
 <section id="tab-screening" class="tab-panel">
@@ -122,11 +122,27 @@ WHERE lower(name) LIKE '%chemotherapy-induced nausea%'</pre>
     <h3 style="color:#7dd3fc;font-size:14px;">Exclusions by first failing gate</h3>
     <table class="kv">
       <tr><th>Gate</th><th>n</th></tr>
-      <tr><td>E_two_arms</td><td style='text-align:right;'>3</td></tr><tr><td>D_pmid_topic_match</td><td style='text-align:right;'>2</td></tr>
+      <tr><td>D_pmid_topic_match</td><td style='text-align:right;'>4</td></tr><tr><td>E_two_arms</td><td style='text-align:right;'>1</td></tr>
     </table>
     <p style="color:#94a3b8;font-size:11.5px;">Screening is fully deterministic: every record is auto-flagged by the gate that first fails. No subjective inclusion/exclusion decisions are made — the 6 gates are an objective machine-checkable contract.</p>
     </section>
 <section id="tab-extraction" class="tab-panel">
+        <div style="background:#1e293b;padding:14px;border-radius:6px;margin:0.6rem 0;">
+          <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;">
+            <div>
+              <strong style="font-size:14px;">NCT00819039</strong>
+              <span style="color:#94a3b8;font-size:11px;margin-left:8px;"><a href="https://clinicaltrials.gov/study/NCT00819039" target="_blank">NCT00819039</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/32839657/" target="_blank">PMID 32839657</a> · 2020</span>
+            </div>
+          </div>
+          <p style="margin:6px 0 4px;color:#cbd5e1;font-size:12px;">A Study of Aprepitant (MK-0869) in Pediatric Participants Undergoing Surgery (MK-0869-148)</p>
+          <p style="margin:0 0 6px;color:#94a3b8;font-size:11px;"><strong>Primary outcome (AACT):</strong> Area Under the Curve From 0-48 (AUC0-48) of Aprepitant Following a Single Oral Dose in Study Part 1</p>
+          <table class="ext2x2">
+            <tr><th></th><th>Events</th><th>No event</th><th>Total N</th></tr>
+            <tr><td><strong>Intervention</strong></td><td>20</td><td>26</td><td>46</td></tr>
+            <tr><td><strong>Control</strong></td><td>12</td><td>15</td><td>27</td></tr>
+          </table>
+        </div>
+
         <div style="background:#1e293b;padding:14px;border-radius:6px;margin:0.6rem 0;">
           <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;">
             <div>
@@ -157,22 +173,6 @@ WHERE lower(name) LIKE '%chemotherapy-induced nausea%'</pre>
             <tr><td><strong>Intervention</strong></td><td>87</td><td>-13</td><td>74</td></tr>
             <tr><td><strong>Control</strong></td><td>83</td><td>-40</td><td>43</td></tr>
           </table>
-        </div>
-
-        <div style="background:#1e293b;padding:14px;border-radius:6px;margin:0.6rem 0;">
-          <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;">
-            <div>
-              <strong style="font-size:14px;">AOPDPCINV</strong>
-              <span style="color:#94a3b8;font-size:11px;margin-left:8px;"><a href="https://clinicaltrials.gov/study/NCT02484911" target="_blank">NCT02484911</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/22024310/" target="_blank">PMID 22024310</a> · 2011</span>
-            </div>
-          </div>
-          <p style="margin:6px 0 4px;color:#cbd5e1;font-size:12px;">Aprepitant ,Olanzapine,Palonosetron and Dexamethasone for the Prevention of Chemotherapy-induced Nausea and Vomiting</p>
-          <p style="margin:0 0 6px;color:#94a3b8;font-size:11px;"><strong>Primary outcome (AACT):</strong> Proportion of Participants Receiving HEC With Complete Response in Overall Phase</p>
-          <table class="ext2x2">
-            <tr><th></th><th>Events</th><th>No event</th><th>Total N</th></tr>
-            <tr><td><strong>Intervention</strong></td><td>20</td><td>36</td><td>56</td></tr>
-            <tr><td><strong>Control</strong></td><td>15</td><td>43</td><td>58</td></tr>
-          </table>
         </div></section>
 <section id="tab-analysis" class="tab-panel">
     <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">Forest plot — per-trial OR + pooled estimate</h3>
@@ -180,23 +180,23 @@ WHERE lower(name) LIKE '%chemotherapy-induced nausea%'</pre>
 <text x="20" y="20" fill="#94a3b8" font-size="11">Trial</text>
 <text x="465.0" y="20" fill="#94a3b8" font-size="11" text-anchor="middle">log-OR (95% CI)</text>
 <line x1="465.0" y1="28" x2="465.0" y2="112" stroke="#475569" stroke-dasharray="3,3"/>
-<text x="20" y="46.0" fill="#e2e8f0" font-size="11">NCT01111851</text>
-<text x="465.0" y="46.0" fill="#64748b" font-size="11" text-anchor="middle">(no event data)</text>
-<text x="20" y="74.0" fill="#e2e8f0" font-size="11">NCT01697579</text>
+<text x="20" y="46.0" fill="#e2e8f0" font-size="11">NCT00819039</text>
+<line x1="350.3333939251198" y1="42.0" x2="570.6389362465267" y2="42.0" stroke="#7dd3fc" stroke-width="2"/>
+<rect x="456.48616508582325" y="38.0" width="8" height="8" fill="#7dd3fc"/>
+<text x="734" y="46.0" fill="#cbd5e1" font-size="10">0.96 [0.37, 2.50]</text>
+<text x="20" y="74.0" fill="#e2e8f0" font-size="11">NCT01111851</text>
 <text x="465.0" y="74.0" fill="#64748b" font-size="11" text-anchor="middle">(no event data)</text>
-<text x="20" y="102.0" fill="#e2e8f0" font-size="11">AOPDPCINV</text>
-<line x1="426.18302588868056" y1="98.0" x2="610.9324605642371" y2="98.0" stroke="#7dd3fc" stroke-width="2"/>
-<rect x="514.5577432264588" y="94.0" width="8" height="8" fill="#7dd3fc"/>
-<text x="734" y="102.0" fill="#cbd5e1" font-size="10">1.59 [0.71, 3.55]</text>
+<text x="20" y="102.0" fill="#e2e8f0" font-size="11">NCT01697579</text>
+<text x="465.0" y="102.0" fill="#64748b" font-size="11" text-anchor="middle">(no event data)</text>
 <text x="20" y="130.0" fill="#fbbf24" font-size="11" font-weight="600">Pooled (k=1)</text>
-<polygon points="426.23002612068626,126.0 518.5871805872998,120.0 610.9401172193599,126.0 518.5871805872998,132.0" fill="#fbbf24"/>
-<text x="734" y="130.0" fill="#fbbf24" font-size="10" font-weight="600">OR 1.593 [0.714, 3.554]</text>
+<polygon points="350.261987032151,126.0 460.5413940900204,120.0 570.6380960026739,126.0 460.5413940900204,132.0" fill="#fbbf24"/>
+<text x="734" y="130.0" fill="#fbbf24" font-size="10" font-weight="600">OR 0.962 [0.369, 2.504]</text>
 </svg>
     
         <div style="background:#1e293b;padding:16px;border-radius:6px;margin:1rem 0;">
           <h3 style="margin:0 0 8px;font-size:14px;color:#7dd3fc;">Pooled estimate (REML-DL + HKSJ, Cochrane v6.5)</h3>
           <div style="font-size:24px;font-weight:600;font-family:JetBrains Mono,monospace;">
-            OR 1.593 <span style="font-size:14px;color:#94a3b8;">[0.714, 3.554]</span>
+            OR 0.962 <span style="font-size:14px;color:#94a3b8;">[0.369, 2.504]</span>
           </div>
           <div style="font-size:11px;color:#94a3b8;margin-top:6px;">
             k = 1 · method = single-trial · τ² = — ·
@@ -238,7 +238,7 @@ WHERE lower(name) LIKE '%chemotherapy-induced nausea%'</pre>
 
         <div class="stat-panel">
           <h4>8. Reproducibility fingerprint</h4>
-          <p style="font-family:JetBrains Mono,monospace;font-size:12px;color:#cbd5e1;">sha256[:16] = <code>149ef66104e839df</code></p>
+          <p style="font-family:JetBrains Mono,monospace;font-size:12px;color:#cbd5e1;">sha256[:16] = <code>44c4504188fc587a</code></p>
           <p style="color:#94a3b8;font-size:11.5px;">Bit-stable hash of {sorted NCT list, pooled OR + 95% CI}. Reproduce by re-running scripts/add_topic_autodiscover.py + generate_topic_html.py against the same AACT snapshot.</p>
         </div></div></section>
 <section id="tab-about" class="tab-panel">
@@ -292,6 +292,32 @@ Per PubMed attribution: NCBI E-utilities + idconv API. Generated by
   window.RAPIDMETA_CONFIG = window.RAPIDMETA_CONFIG || {};
   Object.assign(window.RAPIDMETA_CONFIG, {
     realData: {
+  "NCT00819039": {
+    "name": "NCT00819039",
+    "baseline": {
+      "n": 73
+    },
+    "pmid": "32839657",
+    "phase": "III",
+    "year": 2020,
+    "tE": 20,
+    "tN": 46,
+    "cE": 12,
+    "cN": 27,
+    "group": "aprepitant",
+    "estimandType": "OR",
+    "publishedHR": null,
+    "hrLCI": null,
+    "hrUCI": null,
+    "evidence": [
+      {
+        "label": "Primary outcome (AACT)",
+        "source": "AACT 2026-04-12",
+        "text": "Area Under the Curve From 0-48 (AUC0-48) of Aprepitant Following a Single Oral Dose in Study Part 1",
+        "sourceUrl": "https://clinicaltrials.gov/study/NCT00819039"
+      }
+    ]
+  },
   "NCT01111851": {
     "name": "NCT01111851",
     "baseline": {
@@ -343,36 +369,10 @@ Per PubMed attribution: NCBI E-utilities + idconv API. Generated by
         "sourceUrl": "https://clinicaltrials.gov/study/NCT01697579"
       }
     ]
-  },
-  "NCT02484911": {
-    "name": "AOPDPCINV",
-    "baseline": {
-      "n": 114
-    },
-    "pmid": "22024310",
-    "phase": "III",
-    "year": 2011,
-    "tE": 20,
-    "tN": 56,
-    "cE": 15,
-    "cN": 58,
-    "group": "olanzapine",
-    "estimandType": "OR",
-    "publishedHR": null,
-    "hrLCI": null,
-    "hrUCI": null,
-    "evidence": [
-      {
-        "label": "Primary outcome (AACT)",
-        "source": "AACT 2026-04-12",
-        "text": "Proportion of Participants Receiving HEC With Complete Response in Overall Phase",
-        "sourceUrl": "https://clinicaltrials.gov/study/NCT02484911"
-      }
-    ]
   }
 },
     nctAcronyms: {},
-    reviewTitle: "Aprepitant for CINV",
+    reviewTitle: "Aprepitant in CINV",
     auditFirst: true
   });
 })();
