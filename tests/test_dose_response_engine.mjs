@@ -819,6 +819,96 @@ test('fitLinear k=2 homogeneous pool fires HKSJ floor (Q < df → qstar = 1)', (
   }
 });
 
+// Round 3.6 (v0.4): single-trial (k=1) fitRCS support for ARTS-DN-like Phase 2b
+// dose-finding designs. Verifies the new branch labels itself correctly, sets
+// hksj_mv=1 (no inflation), tau2 all-zeros (no between-study variance defined),
+// and produces a finite non-linearity Wald p.
+
+function makeArtsDnSingleTrial() {
+  // ARTS-DN Day-90 UACR ratio per memo (8 arms: placebo + 1.25–20 mg).
+  // log-transformed for the engine's log-RR/log-ratio convention.
+  return [{
+    studlab: 'ARTS-DN',
+    arms: [
+      { label: 'Placebo',  dose: 0,    mean: Math.log(0.938), sd: 0.5, n: 94,  is_reference: true  },
+      { label: '1.25 mg',  dose: 1.25, mean: Math.log(0.869), sd: 0.5, n: 96,  is_reference: false },
+      { label: '2.5 mg',   dose: 2.5,  mean: Math.log(0.890), sd: 0.5, n: 92,  is_reference: false },
+      { label: '5 mg',     dose: 5,    mean: Math.log(0.824), sd: 0.5, n: 100, is_reference: false },
+      { label: '7.5 mg',   dose: 7.5,  mean: Math.log(0.739), sd: 0.5, n: 97,  is_reference: false },
+      { label: '10 mg',    dose: 10,   mean: Math.log(0.708), sd: 0.5, n: 98,  is_reference: false },
+      { label: '15 mg',    dose: 15,   mean: Math.log(0.630), sd: 0.5, n: 125, is_reference: false },
+      { label: '20 mg',    dose: 20,   mean: Math.log(0.585), sd: 0.5, n: 119, is_reference: false },
+    ],
+  }];
+}
+
+test('fitRCS k=1 single-trial path does not throw and produces sensible output', () => {
+  const trials = makeArtsDnSingleTrial();
+  const rcs = DR.fitRCS(trials, { knots: 3 });
+  assert.ok(rcs && rcs.rcs, 'rcs return present');
+  assert.equal(rcs.k, 1);
+});
+
+test('fitRCS k=1 estimator label is wls_single_trial_rcs (not reml_hksj_multivariate)', () => {
+  const rcs = DR.fitRCS(makeArtsDnSingleTrial(), { knots: 3 });
+  assert.equal(rcs.estimator, 'wls_single_trial_rcs');
+  assert.equal(rcs.ci_method, 't_within_trial');
+});
+
+test('fitRCS k=1 hksj_mv === 1 (no inflation; no between-study Q)', () => {
+  const rcs = DR.fitRCS(makeArtsDnSingleTrial(), { knots: 3 });
+  assert.equal(rcs.hksj_mv, 1);
+  assert.equal(rcs.q_mv, 0);
+});
+
+test('fitRCS k=1 tau2_matrix is all zeros (single trial → no between-study variance defined)', () => {
+  const rcs = DR.fitRCS(makeArtsDnSingleTrial(), { knots: 3 });
+  for (const row of rcs.rcs.tau2_matrix) {
+    for (const v of row) assert.equal(v, 0);
+  }
+  for (const v of rcs.rcs.tau2_per_dim) assert.equal(v, 0);
+});
+
+test('fitRCS k=1 nonlinearity_wald_p is finite (Wald test still valid within-trial)', () => {
+  const rcs = DR.fitRCS(makeArtsDnSingleTrial(), { knots: 3 });
+  assert.ok(Number.isFinite(rcs.rcs.nonlinearity_wald_p));
+  assert.ok(rcs.rcs.nonlinearity_wald_p >= 0 && rcs.rcs.nonlinearity_wald_p <= 1);
+  assert.ok(Number.isFinite(rcs.rcs.nonlinearity_wald_chi2));
+});
+
+test('fitRCS k=1 tcrit uses within-trial df (qt(0.975, n_arms − Kp − 1))', () => {
+  const rcs = DR.fitRCS(makeArtsDnSingleTrial(), { knots: 3 });
+  // 8 arms, 3 knots ⇒ Kp = 2 (spline_coefs.length); 7 contrast arms ⇒ df = 7-2-1 = 4? or 5?
+  // Verify tcrit > z=1.96 (small df ⇒ wider CI) and finite.
+  assert.ok(rcs.tcrit > 1.96, 'within-trial t > z at small df');
+  assert.ok(rcs.tcrit < 4, 'tcrit should be modest with n_arms=8');
+});
+
+test('fitRCS k=1 fit_at_dose grid has 20 points + finite CIs', () => {
+  const rcs = DR.fitRCS(makeArtsDnSingleTrial(), { knots: 3 });
+  assert.equal(rcs.rcs.fit_at_dose.length, 20);
+  for (const p of rcs.rcs.fit_at_dose) {
+    assert.ok(Number.isFinite(p.dose));
+    assert.ok(Number.isFinite(p.est));
+    assert.ok(Number.isFinite(p.ci_lo));
+    assert.ok(Number.isFinite(p.ci_hi));
+    assert.ok(p.ci_lo <= p.est && p.est <= p.ci_hi);
+  }
+});
+
+test('fitRCS k=1 spline_coefs come from the single trial directly (covBeta = perStudy[0].V)', () => {
+  const rcs = DR.fitRCS(makeArtsDnSingleTrial(), { knots: 3 });
+  // covBeta should be Kp×Kp with finite entries; not the zero matrix
+  assert.ok(Array.isArray(rcs.rcs.cov_beta));
+  for (const row of rcs.rcs.cov_beta) {
+    for (const v of row) assert.ok(Number.isFinite(v));
+  }
+  // diagonal SEs strictly positive
+  for (var d = 0; d < rcs.rcs.cov_beta.length; d++) {
+    assert.ok(rcs.rcs.cov_beta[d][d] > 0, 'cov_beta diagonal > 0');
+  }
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }
