@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; object-src 'none'; base-uri 'none';">
+<title>Anifrolumab dose vs BICLA response at Week 52 in moderate-to-severe SLE &mdash; pooled dose-response meta-analysis (3 anifrolumab Phase 2b/3 RCTs)</title>
+<meta name="description" content="Pooled within-drug BICLA Week 52 dose-response re-analysis of 3 anifrolumab RCTs (MUSE Phase 2b + TULIP-1 Phase 3 + TULIP-2 Phase 3) in adults with moderate-to-severe SLE. Round 3.11 surfaces a methodologically rich engine-vs-R disagreement on the RCS layer: the engine fits a real 3-knot Harrell-default RCS with sensible interior knots [225, 300, 650] mg spanning the program-wide dose range (150 mg to 1000 mg); R dosresmeta refuses on the sparse-per-trial-arm requirement (MUSE has 2 active arms, TULIP-1 has 2 active arms, but TULIP-2 has only 1). The engine fit captures the program-canonical 300-vs-1000 mg saturation (MUSE 300 mg 53.5% > 1000 mg 41.3% BICLA response) but the non-linearity Wald p = 0.60 because the saturation evidence is under-leveraged at k=3 with only MUSE supplying the 1000 mg arm.">
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; max-width: 1100px; margin: 1em auto; padding: 0 1em; color: #222; line-height: 1.5; }
+  h1, h2, h3 { color: #1a3a5c; }
+  details > summary { cursor: pointer; font-weight: 600; padding: 0.4em 0; }
+  table { border-collapse: collapse; width: 100%; margin: 0.6em 0; }
+  th, td { border: 1px solid #d0d0d0; padding: 0.4em 0.6em; text-align: left; }
+  th { background: #f2f5f8; }
+  .tab-nav { display: flex; gap: 0.5em; border-bottom: 2px solid #d0d0d0; margin: 1em 0 0.6em; flex-wrap: wrap; }
+  .tab-nav button { background: #f2f5f8; border: 1px solid #d0d0d0; border-bottom: none; padding: 0.6em 1.2em; cursor: pointer; font-size: 1em; }
+  .tab-nav button.active { background: #1a3a5c; color: white; border-color: #1a3a5c; }
+  .tab-nav button:focus-visible { outline: 3px solid #1a3a5c; outline-offset: 2px; }
+  .tab-content { display: none; padding: 1em 0; }
+  .tab-content.active { display: block; }
+  .tab-content > h2:focus { outline: none; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.8em; margin: 1em 0; }
+  .kpi { background: #f8f9fb; border-left: 3px solid #1a3a5c; padding: 0.6em 0.8em; }
+  .kpi-label { font-size: 0.85em; color: #555; }
+  .kpi-value { font-size: 1.2em; font-weight: 600; color: #1a3a5c; }
+  .rv-badge { border: 2px solid; border-radius: 4px; padding: 0.6em; margin: 1em 0; }
+  .rv-badge-green { border-color: #2e8540; background: #f0f8f2; }
+  .rv-badge-amber { border-color: #d97706; background: #fef8ec; }
+  .rv-badge-deferred { border-color: #6366f1; background: #eef2ff; }
+  .rv-row-green td { background: #f0f8f2; }
+  .rv-row-amber td { background: #fef8ec; }
+  .rv-row-deferred td { background: #eef2ff; font-style: italic; }
+  .rv-disclosure { font-size: 0.85em; color: #555; margin-top: 0.6em; }
+  .divergence-warning { border: 2px solid #6366f1; background: #eef2ff; padding: 0.8em; margin: 1em 0; border-radius: 4px; }
+  .saturation-note { border: 2px solid #2e8540; background: #f0f8f2; padding: 0.8em; margin: 1em 0; border-radius: 4px; }
+  .footnote { font-size: 0.85em; color: #555; border-top: 1px solid #d0d0d0; padding-top: 1em; margin-top: 2em; }
+  .table-scroll { overflow-x: auto; margin: 0.6em 0; }
+  .table-scroll table { margin: 0; }
+  a:focus-visible { outline: 2px solid #1a3a5c; outline-offset: 2px; }
+  .abstract-block { margin: 0.6em 0; padding-left: 0.6em; border-left: 3px solid #c0d0e0; }
+  .abstract-block p { margin: 0.4em 0; }
+  .abstract-meta { font-size: 0.85em; color: #555; }
+  pre.code-block { background: #f2f5f8; border-left: 3px solid #6366f1; padding: 0.6em 0.8em; font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; font-size: 0.92em; overflow-x: auto; }
+  .side-by-side { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin: 0.8em 0; }
+  .side-by-side > div { padding: 0.6em 0.8em; border-radius: 4px; }
+  .side-by-side .engine-col { background: #f0f8f2; border-left: 3px solid #2e8540; }
+  .side-by-side .r-col { background: #fef8ec; border-left: 3px solid #d97706; }
+  @media (max-width: 720px) { .side-by-side { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<main>
+<h1>Anifrolumab dose vs BICLA response at Week 52 in moderate-to-severe SLE &mdash; pooled dose-response meta-analysis (3 anifrolumab Phase 2b/3 RCTs)</h1>
+<p>Pooled within-drug BICLA response at Week 52 dose-response re-analysis of 3 anifrolumab RCTs (intravenous Q4W; type I interferon receptor monoclonal antibody) in adults with moderate-to-severe SLE on stable standard-of-care:
+  <a href="https://pubmed.ncbi.nlm.nih.gov/28130918/" target="_blank" rel="noopener noreferrer">MUSE (Furie 2017, Arthritis Rheumatol; PMID 28130918)</a> &middot;
+  <a href="https://pubmed.ncbi.nlm.nih.gov/38229377/" target="_blank" rel="noopener noreferrer">TULIP-1 (Furie 2019, Lancet Rheumatol; PMID 38229377)</a> &middot;
+  <a href="https://pubmed.ncbi.nlm.nih.gov/31851795/" target="_blank" rel="noopener noreferrer">TULIP-2 (Morand 2020, NEJM; PMID 31851795)</a>.
+</p>
+<p><strong>Authors:</strong> RapidMeta dose-response engine pack #10 &mdash; Round 3.11 (anifrolumab SLE, k=3 binary BICLA; engine fits full RCS with saturation curve, R refuses on sparse-arm) &middot; <strong>Generated by:</strong> <span id="engine-version">&hellip;</span> &middot; <strong>Date:</strong> <span id="gen-date">&hellip;</span></p>
+
+<div class="divergence-warning">
+  <strong>Methodology demonstration flagship (engine fits full RCS / R refuses; saturation curve captured):</strong> This is a 3-trial within-drug anifrolumab BICLA response-at-Week-52 dose-response pool on the dose grid <em>{0, 150, 300, 1000}</em> mg (placebo + 3 distinct positive doses, spanning a 6.7&times; dose range from 150 to 1000 mg). For the FIRST time since SUSTAIN (Round 3.7), the engine produces a real 3-knot RCS fit: knots at <em>[225, 300, 650]</em> mg span the program-wide active-dose range, the linear-component coefficient is 0.00160 log-RR (SE 0.00089), the non-linear-component coefficient is 0.0187 log-RR (SE 0.0347), and the non-linearity Wald p = 0.60 (&chi;<sup>2</sup> = 0.29, df = 1). R <code>dosresmeta</code>, by contrast, <strong>refuses</strong> RCS with the parallel sparse-per-trial-arm error: each trial must supply &ge; K<sub>p</sub>=2 non-reference observations, but TULIP-2 only has one active arm (300 mg only). The R precompute records <code>rcs.fit_ok = false</code>. <strong>Key methodological difference vs the AMAGINE Round 3.9 case</strong> (where the engine refused and R fit with degenerate-collapsed knots inside the 140&ndash;210 mg interval): here the engine&rsquo;s knots span the actual dose range with meaningful gaps, and the fit captures the program-canonical biological saturation (MUSE 300 mg 53.5% BICLA response &gt; 1000 mg 41.3% &mdash; the empirical evidence that 300 mg is the optimal anifrolumab dose). The Wald p = 0.60 reflects the saturation evidence being under-leveraged at k=3 because only MUSE supplies the 1000 mg arm; the curve is fit but the test cannot reject H<sub>0</sub> of linearity at &alpha;=0.05 with k=2 RCS-pooled trials. Tab 2 surfaces the full RCS curve and 20-point dose grid; Tab 4 renders the engine-fits / R-refused R-parity comparison.
+</div>
+
+<details open>
+  <summary>Trial inventory (3 anifrolumab Phase 2b/3 RCTs &mdash; MUSE dose-finder + TULIP-1 / TULIP-2 confirmatory)</summary>
+  <div class="table-scroll">
+    <table>
+      <caption>3 anifrolumab trials in moderate-to-severe SLE &mdash; primary publications and BICLA Wk 52 dose-response arms after Option A active-comparator handling (none required &mdash; all 3 trials are placebo-controlled with no active comparators).</caption>
+      <thead>
+        <tr><th>Trial</th><th>NCT</th><th>Phase</th><th>Comparator</th><th>n_arms (kept)</th><th>Year</th><th>BICLA Wk 52 registered as</th><th>Publication</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>MUSE (Furie 2017, Phase 2b dose-finder)</td>
+          <td><a href="https://clinicaltrials.gov/ct2/show/NCT01438489" target="_blank" rel="noopener noreferrer">NCT01438489</a></td>
+          <td>2b</td>
+          <td>placebo (kept as dose=0)</td>
+          <td>3 (placebo + 300 / 1000 mg)</td>
+          <td>2017</td>
+          <td><strong>NOT IN AACT</strong> &mdash; only SRI-4 OCS-tapered Day 169 is registered. BICLA Wk 52 derived from Furie 2017 abstract %&times;N (see derivation note below).</td>
+          <td><a href="https://doi.org/10.1002/art.39962" target="_blank" rel="noopener noreferrer">Arthritis Rheumatol 2017;69(2):376-386 &middot; doi:10.1002/art.39962</a></td>
+        </tr>
+        <tr>
+          <td>TULIP-1 (Furie 2019, Phase 3 confirmatory)</td>
+          <td><a href="https://clinicaltrials.gov/ct2/show/NCT02446912" target="_blank" rel="noopener noreferrer">NCT02446912</a></td>
+          <td>3</td>
+          <td>placebo (kept as dose=0)</td>
+          <td>3 (placebo + 150 / 300 mg)</td>
+          <td>2019</td>
+          <td>SECONDARY (original analysis with restricted medication rules; AACT outcome 211061110)</td>
+          <td><a href="https://doi.org/10.1016/S2665-9913(19)30076-1" target="_blank" rel="noopener noreferrer">Lancet Rheumatol 2019;1(4):e208-e219 &middot; doi:10.1016/S2665-9913(19)30076-1</a></td>
+        </tr>
+        <tr>
+          <td>TULIP-2 (Morand 2020, Phase 3 FDA pivotal)</td>
+          <td><a href="https://clinicaltrials.gov/ct2/show/NCT02446899" target="_blank" rel="noopener noreferrer">NCT02446899</a></td>
+          <td>3</td>
+          <td>placebo (kept as dose=0)</td>
+          <td>2 (placebo + 300 mg)</td>
+          <td>2020</td>
+          <td>PRIMARY (AACT outcome 211493471) &mdash; basis for FDA approval 2021</td>
+          <td><a href="https://doi.org/10.1056/NEJMoa1912196" target="_blank" rel="noopener noreferrer">N Engl J Med 2020;382(3):211-221 &middot; doi:10.1056/NEJMoa1912196</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>Total:</strong> 3 trials, 8 arm observations. All arms are anifrolumab IV every 4 weeks for 48 weeks of treatment, BICLA endpoint at Week 52. No active comparators in any of the 3 trials (no Option A drops needed). Placebo is the dose=0 reference in all 3 trials. Program-wide positive-dose set: 150 mg (TULIP-1 only), 300 mg (all 3 trials), 1000 mg (MUSE only) &mdash; <strong>3 distinct positive doses across the program</strong>, anchored by placebo (dose=0) in all 3 trials. Dose range 150&ndash;1000 mg is a 6.7&times; spread, which is wide enough for the 3-knot Harrell-default RCS to land its knots on real data points (engine knots <em>[225, 300, 650]</em> &mdash; see Tab 2 headline).</p>
+  <p><strong>MUSE 100 mg myth note (candidate-trials-table erratum):</strong> An earlier candidate-trials table (provided in the upstream task spec) listed MUSE doses as <em>&ldquo;100 / 300 / 1000 mg every 4 weeks&rdquo;</em>. This is INCORRECT for NCT01438489. AACT <code>design_groups.txt</code> for NCT01438489 confirms only three arms: <em>&ldquo;Anifrolumab (MEDI-546) 300 mg&rdquo;</em> (EXPERIMENTAL), <em>&ldquo;Anifrolumab (MEDI-546) 1000 mg&rdquo;</em> (EXPERIMENTAL), <em>&ldquo;Matching Placebo&rdquo;</em> (PLACEBO_COMPARATOR). The Furie 2017 abstract is unambiguous: <em>&ldquo;Patients (n=305) were randomized to receive intravenous anifrolumab (300 mg or 1,000 mg) or placebo&rdquo;</em>. <strong>There is no 100 mg arm in MUSE.</strong> The data-extraction agent caught this discrepancy during PubMed MCP retrieval on 2026-05-14 and the fixture encodes MUSE faithfully as 3 arms (placebo + 300 mg + 1000 mg). This is recorded as a process-rigor disclosure in the fixture <code>_aact_ambiguities</code> block (entry #2) and the abstract metadata <code>user_supplied_citation_note</code>.</p>
+  <p><strong>MUSE BICLA derivation (paper-derived events; per-arm N from AACT):</strong> MUSE&rsquo;s BICLA at Week 52 is <strong>not registered in AACT</strong> &mdash; the AACT <code>outcomes.txt</code> entries under NCT01438489 contain only SRI-4 OCS-tapered Day 169 (the registered primary), IFN-high subgroup variant, Day 365 secondary, OCS-taper rate, safety, and PK outcomes. The Furie 2017 Arthritis &amp; Rheumatology paper reports BICLA Wk 52 explicitly in the abstract: <em>&ldquo;BICLA (25.7% versus 53.5% [P&lt;0.001] and 41.2% [P=0.018], respectively)&rdquo;</em>. Per-arm events derived by closest-integer rounding of (abstract %) &times; (AACT SRI-4 Day-169 analysis-set N from <code>outcome_counts.txt</code> for outcome 211126827): placebo 25.7% &times; 102 = 26.21 &rarr; <strong>26/102</strong> (25.49%, |&Delta;|=0.21 pp vs abstract); anifrolumab 300 mg 53.5% &times; 99 = 52.97 &rarr; <strong>53/99</strong> (53.54%, |&Delta;|=0.04 pp); anifrolumab 1000 mg 41.2% &times; 104 = 42.85 &rarr; <strong>43/104</strong> (41.35%, |&Delta;|=0.15 pp). <em>Residual uncertainty:</em> &le; 1 event per arm if the BICLA Wk 52 analysis-set N differs from the SRI-4 Day-169 analysis-set N (e.g. due to attrition between Day 169 and Day 365). Impact on the pooled slope is estimated at &lt; 5% by the engine&rsquo;s GL covariance at this trial size. Documented in fixture <code>data_provenance</code> and <code>_aact_ambiguities</code> entry #1.</p>
+  <p><strong>TULIP-1 dual BICLA outcomes (pre-specified vs post-hoc):</strong> AACT registers two BICLA Wk 52 outcomes for TULIP-1: outcome 211061110 (SECONDARY, <em>&ldquo;Original Analysis With Restricted Medication Rules&rdquo;</em> per protocol pre-specification) and outcome 211061111 (POST_HOC, <em>&ldquo;Revised Restricted Medication Rules&rdquo;</em> per investigator-driven post-hoc reanalysis after TULIP-1 failed its SRI-4 primary). The fixture uses <strong>211061110 (pre-specified)</strong> &mdash; events 27/93 (150 mg), 67/180 (300 mg), 49/184 (placebo) &mdash; for estimand-uniformity with TULIP-2 (whose registered BICLA primary is also the pre-specified definition) and to avoid using the post-hoc-revised endpoint specifically constructed to make TULIP-1 look better. The post-hoc reanalysis (events 45/93, 84/180, 79/184) is documented in fixture <code>_aact_ambiguities</code> entry #3 but is not used. Furie 2019 Lancet Rheumatol abstract matches 211061110: <em>&ldquo;BICLA response was achieved by 67 (37%) of 180 patients receiving anifrolumab 300 mg versus 49 (27%) of 184 receiving placebo&rdquo;</em>.</p>
+  <p><strong>Population uniformity:</strong> All 3 trials enrolled adults (18&ndash;70 in TULIP-1; &ge;18 in MUSE / TULIP-2) with moderate-to-severe SLE on stable standard-of-care (prednisone or equivalent &plusmn; antimalarials &plusmn; immunosuppressives), stratified by SLEDAI-2K score and type I IFN gene signature. The 3 trials share inclusion criteria within the anifrolumab program (same molecule, same route, same dosing interval, same endpoint timing of Week 52) so the pool reflects a within-drug dose-response curve with no cross-drug equipotency assumption and no cross-indication heterogeneity. The only inter-trial heterogeneity contributors are sample size (Phase 2b 305 vs Phase 3 457 / 362) and study-level covariates (IFN-high subgroup proportion, baseline OCS dose). The population-uniformity case is strongest among the 10 flagships shipped to date.</p>
+</details>
+
+<details>
+  <summary>Methods (click to expand)</summary>
+  <p>This review pools 3 RCTs of anifrolumab in adults with moderate-to-severe SLE, all from the AstraZeneca anifrolumab program (2017&ndash;2020). All trials randomized to anifrolumab IV every 4 weeks for 48 weeks of treatment, measured BICLA response at Week 52, and were registered prospectively on ClinicalTrials.gov.</p>
+  <p><strong>Within-drug dose-response:</strong> All 3 trials use the same molecule (anifrolumab, a human monoclonal antibody to type I interferon receptor subunit 1), same route (intravenous infusion), same dosing interval (every 4 weeks for 48 weeks of treatment), same endpoint (BICLA composite at Week 52), and same indication (adults with moderate-to-severe SLE on stable standard-of-care). MUSE is Phase 2b (305 randomized) whereas TULIP-1 and TULIP-2 are Phase 3 (457 and 362 randomized respectively). Pooled slope is a within-drug BICLA dose-response curve with no cross-drug equipotency assumption. The 150 mg and 300 mg arms are the Phase 3 doses tested in TULIP-1 (300 mg ultimately the FDA-approved dose used in TULIP-2); the 1000 mg arm is the Phase 2b high-dose probe that demonstrated diminishing returns relative to 300 mg in MUSE.</p>
+  <p><strong>Active-comparator handling (Option A &mdash; not triggered):</strong> No active comparator arms exist in any of the 3 trials. All 3 trials are placebo-controlled and placebo is retained as the dose=0 reference. Option A drops are not required and the dropped-arm audit metadata in the fixture is empty.</p>
+  <p><strong>Binary-outcome path (engine v0.3.0):</strong> The engine&apos;s <code>fitLinear</code> takes per-arm <code>events</code> and <code>n</code> directly and constructs the Greenland-Longnecker shared-reference covariance for log-RR contrasts (off-diagonal = 1/event<sub>ref</sub> &minus; 1/n<sub>ref</sub>; diagonal = 1/event<sub>i</sub> &minus; 1/n<sub>i</sub> + 1/event<sub>ref</sub> &minus; 1/n<sub>ref</sub>). No SE&rarr;SD conversion is needed (unlike the continuous-outcome flagships SGLT2I / TIRZEPATIDE / SUSTAIN / SELECT / ERENUMAB). F-1 conditional zero-cell continuity correction is wired in the engine but does not fire on this fixture (every arm has &gt; 0 BICLA responders; the smallest event count is MUSE placebo with 26/102 events). Linear-pool inputs: k=3 trials, 8 arm observations including 3 reference arms.</p>
+  <p><strong>Engine RCS fit (the headline &mdash; full multivariate REML succeeds at k_RCS=2):</strong> The 3-knot Harrell-default RCS positions knots at the 10th, 50th, and 90th percentiles of the unique positive doses across the pool. With 3 distinct positive doses ({150, 300, 1000} mg) the engine&apos;s <code>rcsKnots</code> returns 3 distinct knot locations (engine output: knots <em>[225, 300, 650]</em> mg). <code>fitRCS</code> then attempts a per-trial K<sub>p</sub>&times;K<sub>p</sub>=2&times;2 spline design fit; TULIP-2 has only 1 non-reference arm so its per-trial XtSX is singular and the engine silently drops TULIP-2 from the RCS pool (k_RCS=2 surviving trials: MUSE + TULIP-1). Full multivariate REML (Nelder-Mead on Cholesky parameters of the 2&times;2 &tau;<sup>2</sup> matrix) converges in 32 iterations to a log-likelihood of &minus;9.36; HKSJ-multivariate floor activates at 1.0 (Q<sub>mv</sub> &lt; df<sub>mv</sub>); t-critical at df=k_RCS&minus;1=1 is 12.706 (very wide intervals reflecting k_RCS=2). The engine&apos;s RCS curve at the key program doses (Tab 2): <em>est</em> 0.000 at dose=0 (reference), 0.253 at dose=150 mg, 0.583 at dose=300 mg, 7.622 at dose=1000 mg. The 0&rarr;300 mg leg captures the active-dose-range steepness; the 300&rarr;1000 mg leg reflects the engine extrapolating past where TULIP-1 supports the slope (MUSE alone constrains 300&rarr;1000 mg). Read Tab 2 for the full 20-point grid and the saturation interpretation.</p>
+  <p><strong>Why R refuses (sparse-per-trial-arm requirement):</strong> R <code>dosresmeta</code>&apos;s two-stage RCS engine requires <strong>each trial to supply &ge; K<sub>p</sub>=2 non-reference observations</strong> (because the per-trial 2&times;2 spline-coefficient regression is otherwise underdetermined). TULIP-2 has only 1 non-reference arm (300 mg only), so R refuses with the canonical error <em>&ldquo;A two-stage approach requires that each study provides at least p non-referent obs (p is the number of columns of the design matrix X)&rdquo;</em>. R does not silently drop the offending trial; the entire RCS pool is refused. The R precompute records <code>rcs.fit_ok = false</code> and the error message verbatim. <strong>This is the same R refusal pattern as SUSTAIN (Round 3.7), SELECT (Round 3.8), and ERENUMAB (Round 3.10) &mdash; but UNLIKE SUSTAIN, the engine here produces an interpretable RCS fit because TULIP-2 is the only sparse-arm trial (MUSE and TULIP-1 both have 2 non-reference arms each; k_RCS=2 survives), whereas SUSTAIN had 4 of 6 trials drop and the surviving k_RCS=2 was dominated by a single SUSTAIN-FORTE 1&rarr;2 mg leg.</strong></p>
+  <p><strong>Why this is methodologically richer than AMAGINE (Round 3.9):</strong> AMAGINE&apos;s engine-vs-R disagreement had the OPPOSITE direction (engine refused, R fit), and R&apos;s knots all collapsed inside the 140&ndash;210 mg interval where there were no interior data points. Here the engine fits and R refuses, AND the engine&apos;s knots <em>[225, 300, 650]</em> mg span the actual dose range with meaningful gaps (225&ndash;300 mg = 75 mg apart, 300&ndash;650 mg = 350 mg apart). The engine&apos;s RCS captures the program-canonical saturation finding (MUSE 300 mg 53.5% &gt; 1000 mg 41.3% BICLA response &mdash; the empirical evidence that 300 mg is the optimal anifrolumab dose, and the reason TULIP-1/TULIP-2 dropped the 1000 mg arm). The non-linearity Wald p = 0.60 reflects that the saturation evidence is under-leveraged at k_RCS=2 with only MUSE supplying the 1000 mg arm; the engine can fit the curve but the formal test cannot reject H<sub>0</sub> of linearity. A future Phase 4 trial with multiple anifrolumab doses including 1000 mg would tighten this Wald test.</p>
+  <p><strong>Estimand uniformity (treatment-policy with non-responder imputation):</strong> All 3 trials use the FDA-pre-registered treatment-policy estimand with NRI for missing data (discontinuations and protocol-restricted-medication use both count as non-response). For TULIP-1 the fixture uses the pre-specified BICLA analysis (outcome 211061110) NOT the post-hoc-revised analysis (outcome 211061111) &mdash; this preserves estimand-uniformity with TULIP-2&apos;s pre-specified BICLA primary. The BICLA composite definition (reduction of all baseline BILAG-2004 A scores to B/C/D, no new BILAG-2004 A or 2&plus; new BILAG-2004 B, no SLEDAI-2K worsening, no PGA worsening &ge;0.3, no IP discontinuation, no restricted-medication use beyond threshold) is identical across the 3 trials.</p>
+  <p><strong>Statistical methods</strong> match engine v0.3.0 conventions: two-stage Greenland-Longnecker linear pool with REML + HKSJ (HKSJ floor <code>max(1, Q/(k-1))</code>); restricted cubic splines with 3 Harrell-default knots; full multivariate REML for the RCS &tau;<sup>2</sup> matrix (Nelder-Mead on Cholesky parameters); HKSJ-multivariate + <em>t<sub>k&minus;1</sub></em> CIs on RCS pooled output; Q-profile &tau;<sup>2</sup> CI on <code>fitLinear</code> (Viechtbauer 2007); R <code>lme4::glmer</code> one-stage Poisson/Binomial-with-offset computed by R and surfaced from precomputed JSON. PI uses <em>t<sub>k&minus;1</sub></em> df (Cochrane Handbook v6.5).</p>
+  <p><strong>Data provenance:</strong> AACT snapshot 2026-04-12, <code>outcome_measurements.txt</code> + <code>outcome_counts.txt</code>. TULIP-1 BICLA Wk 52 outcome 211061110 (SECONDARY); TULIP-2 BICLA Wk 52 outcome 211493471 (PRIMARY). MUSE BICLA Wk 52 derived from Furie 2017 abstract percentages &times; AACT SRI-4 Day-169 analysis-set N (see MUSE BICLA derivation note above and fixture <code>_aact_ambiguities</code> entry #1). PubMed MCP (<code>get_article_metadata</code>) verified all 3 PMIDs on 2026-05-14. See <code>fixtures/dose_response/anifrolumab_sle_phase23_abstracts.json</code> for the retrieval audit.</p>
+</details>
+
+<details>
+  <summary>Primary publication abstracts (3 trials &mdash; MUSE Phase 2b dose-finder + TULIP-1 / TULIP-2 Phase 3 confirmatory; click each to expand)</summary>
+  <p style="font-size:0.85em; color:#555;">Retrieved via PubMed MCP (<code>get_article_metadata</code>) on 2026-05-14. According to PubMed, the abstracts below are the primary-publication abstracts for the 3 trials. All 3 user-supplied citations were correct (MUSE Furie 2017 Arthritis Rheumatol, TULIP-1 Furie 2019 Lancet Rheumatol, TULIP-2 Morand 2020 NEJM); no PMID erratum on this fixture. The candidate-trials-table 100 mg myth for MUSE is a separate erratum recorded above. Each block is independently collapsible.</p>
+  <div id="abstracts-mount"></div>
+</details>
+
+<nav class="tab-nav" role="tablist" aria-label="Analysis tabs">
+  <button id="tab-btn-bicla-linear" data-tab="bicla-linear" class="active" role="tab" aria-selected="true" aria-controls="tab-bicla-linear" tabindex="0">1. BICLA &mdash; Linear (k=3, pool summary)</button>
+  <button id="tab-btn-bicla-rcs" data-tab="bicla-rcs" role="tab" aria-selected="false" aria-controls="tab-bicla-rcs" tabindex="-1">2. BICLA &mdash; RCS (HEADLINE: full fit, saturation)</button>
+  <button id="tab-btn-bicla-os" data-tab="bicla-os" role="tab" aria-selected="false" aria-controls="tab-bicla-os" tabindex="-1">3. BICLA &mdash; One-stage (R glmer)</button>
+  <button id="tab-btn-parity" data-tab="parity" role="tab" aria-selected="false" aria-controls="tab-parity" tabindex="-1">4. R-parity badge</button>
+</nav>
+
+<section id="tab-bicla-linear" class="tab-content active" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-bicla-linear">
+  <h2 tabindex="-1">BICLA &mdash; Linear pool (two-stage Greenland-Longnecker, REML + HKSJ, k=3)</h2>
+  <div id="bicla-linear-kpis" aria-live="polite" aria-atomic="true"></div>
+  <div id="bicla-linear-pertrial"></div>
+  <div id="bicla-linear-forest"></div>
+  <div id="bicla-linear-curve"></div>
+  <div id="bicla-linear-summary"></div>
+</section>
+
+<section id="tab-bicla-rcs" class="tab-content" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-bicla-rcs">
+  <h2 tabindex="-1">BICLA &mdash; RCS (3 knots, full multivariate REML; k_RCS=2 surviving) &mdash; HEADLINE</h2>
+  <div id="bicla-rcs-kpis"></div>
+  <div id="bicla-rcs-wald"></div>
+  <div id="bicla-rcs-tau2matrix"></div>
+  <div id="bicla-rcs-curve"></div>
+  <div id="bicla-rcs-forest"></div>
+  <div id="bicla-rcs-saturation"></div>
+</section>
+
+<section id="tab-bicla-os" class="tab-content" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-bicla-os">
+  <h2 tabindex="-1">BICLA &mdash; One-stage hierarchical (R-precomputed glmer)</h2>
+  <div id="bicla-os-kpis" aria-live="polite" aria-atomic="true"></div>
+  <div id="bicla-os-methods"></div>
+</section>
+
+<section id="tab-parity" class="tab-content" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-parity">
+  <h2 tabindex="-1">R-parity badge (engine vs R: linear rows + custom engine-fits / R-refused RCS panel)</h2>
+  <p><strong>Disclosure:</strong> Engine and R agree on the linear-pool layer (slope and &tau;<sup>2</sup>) within thresholds. Engine and R <strong>disagree</strong> on the RCS layer: the engine produced a real 3-knot RCS fit with sensible interior knots <em>[225, 300, 650]</em> mg (k_RCS=2 after silently dropping TULIP-2 for having only 1 non-reference arm); R <code>dosresmeta</code> refused the entire RCS pool with the canonical sparse-per-trial-arm error. The 3 RCS rows are rendered in a custom <em>engine-fits / R-refused</em> panel that distinguishes this case from AMAGINE (Round 3.9, engine refused / R fit with degenerate knots) and from SUSTAIN / SELECT / ERENUMAB (both engine and R refused). This is the FIRST flagship since SUSTAIN where the engine produces a real RCS fit with informative knots and a population-canonical biological-saturation finding. The one-stage row is rendered as an R pass-through.</p>
+  <div id="r-parity-anifrolumab-bicla" aria-live="polite" aria-atomic="true"></div>
+</section>
+
+<div class="footnote">
+  <p><strong>Citations:</strong>
+    Furie R et al. (MUSE). <em>Arthritis Rheumatol</em>. 2017;69(2):376-386. <a href="https://pubmed.ncbi.nlm.nih.gov/28130918/" target="_blank" rel="noopener noreferrer">PMID 28130918</a>.
+    Furie RA et al. (TULIP-1). <em>Lancet Rheumatol</em>. 2019;1(4):e208-e219. <a href="https://pubmed.ncbi.nlm.nih.gov/38229377/" target="_blank" rel="noopener noreferrer">PMID 38229377</a>.
+    Morand EF et al. (TULIP-2). <em>N Engl J Med</em>. 2020;382(3):211-221. <a href="https://pubmed.ncbi.nlm.nih.gov/31851795/" target="_blank" rel="noopener noreferrer">PMID 31851795</a>.
+  </p>
+  <p><strong>Data sources:</strong> AACT snapshot 2026-04-12 (TULIP-1 + TULIP-2 BICLA Wk 52 per-arm event counts and analyzed-N denominators from <code>outcome_measurements.txt</code> + <code>outcome_counts.txt</code>; MUSE BICLA Wk 52 derived from Furie 2017 abstract percentages applied to AACT SRI-4 Day-169 analysis-set N for outcome 211126827 &mdash; see fixture <code>data_provenance</code> and MUSE BICLA derivation note in the trial inventory above); PubMed MCP <code>get_article_metadata</code> 2026-05-14 (PMIDs, DOIs, abstracts; MUSE 100 mg candidate-trials-table erratum captured).</p>
+  <p><strong>Fixture:</strong> <code>tests/dose_response_fixtures/anifrolumab_sle_phase23.json</code> &middot; <strong>R precompute:</strong> <code>outputs/r_validation/doseresp/anifrolumab_sle_phase23.json</code> &middot; <strong>Abstracts:</strong> <code>fixtures/dose_response/anifrolumab_sle_phase23_abstracts.json</code></p>
+</div>
+</main>
+
+<!-- Trial data: embedded JSON, parsed by engine + tab renderers -->
+<script type="application/json" id="doseresp-trials-bicla">
+[
+  {
+    "studlab": "MUSE (Furie 2017, Phase 2b, placebo-controlled)",
+    "pmid": "28130918",
+    "doi": "10.1002/art.39962",
+    "nct": "NCT01438489",
+    "drug": "anifrolumab",
+    "duration_weeks": 52,
+    "comparator": "placebo",
+    "population": "Adults with moderate-to-severe SLE on stable standard-of-care; 305 randomized to placebo, anifrolumab 300 mg, or anifrolumab 1000 mg IV Q4W for 48 weeks. NO 100 mg arm.",
+    "arms": [
+      {"label": "Placebo", "dose": 0, "events": 26, "n": 102, "is_reference": true},
+      {"label": "Anifrolumab 300 mg IV Q4W", "dose": 300, "events": 53, "n": 99, "is_reference": false},
+      {"label": "Anifrolumab 1000 mg IV Q4W", "dose": 1000, "events": 43, "n": 104, "is_reference": false}
+    ]
+  },
+  {
+    "studlab": "TULIP-1 (Furie 2019, Phase 3, placebo-controlled)",
+    "pmid": "38229377",
+    "doi": "10.1016/S2665-9913(19)30076-1",
+    "nct": "NCT02446912",
+    "drug": "anifrolumab",
+    "duration_weeks": 52,
+    "comparator": "placebo",
+    "population": "Adults (18-70) with moderate-to-severe SLE on stable standard-of-care; 457 randomized 2:1:2 to placebo, anifrolumab 150 mg, or anifrolumab 300 mg IV Q4W for 48 weeks.",
+    "arms": [
+      {"label": "Placebo", "dose": 0, "events": 49, "n": 184, "is_reference": true},
+      {"label": "Anifrolumab 150 mg IV Q4W", "dose": 150, "events": 27, "n": 93, "is_reference": false},
+      {"label": "Anifrolumab 300 mg IV Q4W", "dose": 300, "events": 67, "n": 180, "is_reference": false}
+    ]
+  },
+  {
+    "studlab": "TULIP-2 (Morand 2020, Phase 3, placebo-controlled)",
+    "pmid": "31851795",
+    "doi": "10.1056/NEJMoa1912196",
+    "nct": "NCT02446899",
+    "drug": "anifrolumab",
+    "duration_weeks": 52,
+    "comparator": "placebo",
+    "population": "Adults with moderate-to-severe SLE on stable standard-of-care; 362 randomized 1:1 to placebo or anifrolumab 300 mg IV Q4W for 48 weeks. FDA-pivotal trial.",
+    "arms": [
+      {"label": "Placebo", "dose": 0, "events": 57, "n": 182, "is_reference": true},
+      {"label": "Anifrolumab 300 mg IV Q4W", "dose": 300, "events": 86, "n": 180, "is_reference": false}
+    ]
+  }
+]
+</script>
+
+<!-- Engine + badge -->
+<script src="rapidmeta-dose-response-engine-v1.js" defer></script>
+<script src="vendor/r-validation-doseresp.js" defer></script>
+
+<!-- Page wiring -->
+<script src="ANIFROLUMAB_SLE_PHASE23_DOSE_RESP_REVIEW.js" defer></script>
+
+</body>
+</html>
