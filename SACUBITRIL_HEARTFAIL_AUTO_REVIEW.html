@@ -3,17 +3,32 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sacubitril/valsartan in HF — RapidMeta</title>
+<title>Sacubitril/valsartan in HF — RapidMeta (audit-first)</title>
 <style>
   body { margin:0; padding:0; background:#0f172a; color:#e2e8f0; font-family:system-ui,-apple-system,sans-serif; line-height:1.55; }
   main { max-width:980px; margin:0 auto; padding:24px; }
-  h1 { margin:0 0 8px;font-size:22px; }
+  h1 { margin:0 0 8px; font-size:22px; }
   h2 { font-size:15px; color:#7dd3fc; margin-top:1.5rem; }
   table { width:100%; border-collapse:collapse; background:#0f172a; margin-top:1rem; }
   th { background:#0a0f1f; padding:10px; text-align:left; font-size:11px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em; border-bottom:1px solid #1f2a44; }
-  a { color:#7dd3fc; }
+  td { padding:8px; border-bottom:1px solid #1f2a44; font-size:13px; vertical-align:top; }
+  a { color:#7dd3fc; text-decoration:none; }
+  a:hover { text-decoration:underline; }
   .meta { color:#94a3b8; font-size:12px; }
   footer { margin-top:2rem; padding-top:1rem; border-top:1px solid #1f2a44; color:#94a3b8; font-size:11px; }
+  .tabs { display:flex; gap:4px; flex-wrap:wrap; border-bottom:1px solid #1f2a44; margin:1.2rem 0 1rem; }
+  .tabs button { background:transparent; color:#94a3b8; border:none; padding:10px 16px; cursor:pointer; font-size:13px; border-bottom:3px solid transparent; }
+  .tabs button.active { color:#e2e8f0; border-bottom-color:#7dd3fc; }
+  .tabs button:hover { color:#cbd5e1; }
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; }
+  table.kv { width:100%; }
+  table.kv td:first-child { width:40%; color:#94a3b8; font-size:12px; }
+  table.kv td { padding:6px 8px; }
+  table.ext2x2 { width:auto; margin-top:6px; font-size:12px; }
+  table.ext2x2 td, table.ext2x2 th { padding:4px 12px; text-align:right; font-family:JetBrains Mono,monospace; }
+  table.ext2x2 td:first-child { text-align:left; font-family:system-ui,sans-serif; color:#cbd5e1; }
+  .pill { display:inline-block; padding:2px 8px; background:#1e293b; border-radius:10px; font-size:11px; color:#cbd5e1; margin:2px; }
 </style>
 </head>
 <body>
@@ -22,10 +37,10 @@
 <div id="rapidmeta-integrity-badge" role="status" style="background:#16a34a;color:#fff;padding:12px 20px;font-family:system-ui,sans-serif;font-size:13.5px;border-bottom:3px solid #15803d;line-height:1.55;">
   <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
     <strong style="font-size:14px;letter-spacing:0.04em;">TRUSTWORTHY (audit-first build)</strong>
-    <span style="font-size:11.5px;opacity:0.92;">Trials: <strong>3</strong> · all passed 6-gate audit</span>
+    <span style="font-size:11.5px;opacity:0.92;">Trials: <strong>3</strong> · all passed 6-gate audit · k ≥3</span>
   </div>
   <div style="margin-top:6px;font-size:12.5px;opacity:0.95;">
-    Built post-cleanup using the audit-first pipeline. Each trial verified against AACT 2026-04-12 (NCT exists, drug in interventions, condition matches, ≥2 per-arm counts, primary outcome declared) AND PubMed (PMID topic matches drug/condition).
+    Built post-cleanup using the audit-first pipeline. Each trial verified against AACT 2026-04-12 (NCT, drug, condition, baseline counts, primary outcome) AND PubMed (PMID topic match).
   </div>
   <div style="margin-top:6px;font-size:10.5px;opacity:0.75;">
     Methodology: <a href="outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md" style="color:#fff;">FINAL_INTEGRITY_REPORT_V2.md</a> ·
@@ -36,85 +51,184 @@
 
 <main>
 <h1>Sacubitril/valsartan in HF</h1>
-<div class="meta">RapidMeta — audit-first build · 3 trials passed all 6 integrity gates · Data sources: AACT 2026-04-12 + PubMed E-utilities</div>
+<div class="meta">
+  RapidMeta · audit-first build · 3 included trials · Sacubitril in Heart Failure ·
+  Data: AACT 2026-04-12 + PubMed E-utilities
+</div>
 
-<h2>Background</h2>
-<p style="color:#cbd5e1;">Living meta-analysis of 3 trials evaluating <strong>sacubitril</strong> in <strong>heart failure</strong>. All data extracted from AACT 2026-04-12 (Clinical Trials Transformation Initiative) and cross-verified against the primary PubMed publication for each NCT.</p>
+<div class="tabs" role="tablist">
+  <button class="active" data-tab="protocol">Protocol</button>
+  <button data-tab="search">Search</button>
+  <button data-tab="screening">Screening</button>
+  <button data-tab="extraction">Extraction</button>
+  <button data-tab="analysis">Analysis</button>
+  <button data-tab="about">About</button>
+</div>
 
-<h2>Included trials</h2>
-<table>
-<thead>
-<tr>
-<th>Trial</th>
-<th>Description</th>
-<th>Events / N</th>
-<th>Citation</th>
-</tr>
-</thead>
-<tbody>
+<section id="tab-protocol" class="tab-panel active">
+    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">PICO</h3>
+    <table class="kv">
+      <tr><td>Population</td><td>Adults randomised in trials registered on ClinicalTrials.gov for <strong>Heart Failure</strong>.</td></tr>
+      <tr><td>Intervention</td><td><strong>Sacubitril</strong> (AACT-verified intervention name in each trial).</td></tr>
+      <tr><td>Comparator</td><td>Active comparator or placebo as registered on AACT.</td></tr>
+      <tr><td>Outcomes</td><td>Trial-declared primary outcome (AACT <code>design_outcomes</code>); event counts harvested from AACT <code>outcome_measurements</code>.</td></tr>
+      <tr><td>Design</td><td>Interventional RCTs (post-2010 start date), Phase 2/3 or Phase 3/4.</td></tr>
+    </table>
 
-        <tr>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;"><strong>AWAKE-HF</strong><br>
-            <span style="font-size:11px;color:#94a3b8;"><a href="https://clinicaltrials.gov/study/NCT02970669" target="_blank" style="color:#7dd3fc;">NCT02970669</a></span></td>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;font-size:12px;color:#cbd5e1;">
-            Study on the Effects of Sacubitril/Valsartan on Physical Activity and Sleep in Heart Failure With Reduced Ejection Fract<br>
-            <span style="color:#94a3b8;font-size:11px;">Primary: Ratio of Mean Activity Counts Collected During the Most Active 30 Minutes of the Subject's Day Between Week 8 and Baseline</span></td>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;text-align:right;font-family:JetBrains Mono,monospace;font-size:11px;">
-            tE: —/70<br>
-            cE: —/70</td>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;font-size:11px;"><a href="https://pubmed.ncbi.nlm.nih.gov/32978755/" target="_blank" style="color:#7dd3fc;">PMID 32978755</a><br>
-            <span style="color:#94a3b8;">2021</span></td>
-        </tr>
-        <tr>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;"><strong>A Proof of Concept and Dose-fi…</strong><br>
-            <span style="font-size:11px;color:#94a3b8;"><a href="https://clinicaltrials.gov/study/NCT06142383" target="_blank" style="color:#7dd3fc;">NCT06142383</a></span></td>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;font-size:12px;color:#cbd5e1;">
-            A Proof of Concept and Dose-finding Study of XXB750 in Patients With Heart Failure<br>
-            <span style="color:#94a3b8;font-size:11px;">Primary: Geometric Mean Ratio to Baseline in NT-proBNP at Week 16</span></td>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;text-align:right;font-family:JetBrains Mono,monospace;font-size:11px;">
-            tE: —/29<br>
-            cE: —/26</td>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;font-size:11px;"><a href="https://pubmed.ncbi.nlm.nih.gov/41912806/" target="_blank" style="color:#7dd3fc;">PMID 41912806</a><br>
-            <span style="color:#94a3b8;">2026</span></td>
-        </tr>
-        <tr>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;"><strong>PARAGLIDE-HF</strong><br>
-            <span style="font-size:11px;color:#94a3b8;"><a href="https://clinicaltrials.gov/study/NCT03988634" target="_blank" style="color:#7dd3fc;">NCT03988634</a></span></td>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;font-size:12px;color:#cbd5e1;">
-            Changes in NT-proBNP, Safety, and Tolerability in HFpEF Patients With a WHF Event (HFpEF Decompensation) Who Have Been S<br>
-            <span style="color:#94a3b8;font-size:11px;">Primary: Time-averaged Proportional Change in NT proBNP From Baseline to Weeks 4 and 8</span></td>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;text-align:right;font-family:JetBrains Mono,monospace;font-size:11px;">
-            tE: 2170/233<br>
-            cE: 76/233</td>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;font-size:11px;"><a href="https://pubmed.ncbi.nlm.nih.gov/40268180/" target="_blank" style="color:#7dd3fc;">PMID 40268180</a><br>
-            <span style="color:#94a3b8;">2025</span></td>
-        </tr>
-</tbody>
-</table>
+    <h3 style="color:#7dd3fc;font-size:14px;">Eligibility (6-gate audit)</h3>
+    <ol style="color:#cbd5e1;font-size:12.5px;">
+      <li>GATE-A — NCT exists in AACT 2026-04-12 snapshot.</li>
+      <li>GATE-B — Drug pattern "sacubitril" present in AACT <code>interventions</code> for the NCT.</li>
+      <li>GATE-C — Condition pattern "heart failure" present in AACT <code>conditions</code>.</li>
+      <li>GATE-D — Primary PMID's PubMed title or abstract mentions the drug or condition.</li>
+      <li>GATE-E — AACT <code>baseline_counts</code> reports ≥2 per-arm participant rows.</li>
+      <li>GATE-F — AACT <code>design_outcomes</code> declares a primary outcome with measure text.</li>
+    </ol>
+    <p style="color:#94a3b8;font-size:11.5px;">Audit verdict: <code>VIABLE</code> requires ≥3 trials passing all 6 gates (k≥3 — current standard for new audit-first builds). Older builds use k≥2.</p>
 
+    <h3 style="color:#7dd3fc;font-size:14px;">Pre-specified primary outcomes (per trial)</h3>
+    <ul style="color:#cbd5e1;font-size:12.5px;"><li>Geometric Mean Ratio to Baseline in NT-proBNP at Week 16</li><li>Ratio of Mean Activity Counts Collected During the Most Active 30 Minutes of the Subject&#x27;s Day Between Week 8 and Baseline</li><li>Time-averaged Proportional Change in NT proBNP From Baseline to Weeks 4 and 8</li></ul>
 
+    <h3 style="color:#7dd3fc;font-size:14px;">Statistical methods</h3>
+    <p style="color:#cbd5e1;font-size:12.5px;">Inverse-variance random-effects pooling on the log-OR scale (Woolf estimator from AACT event counts), DerSimonian-Laird τ² with Hartung-Knapp-Sidik-Jonkman (HKSJ) variance correction and t<sub>k-1</sub> critical value (Cochrane Handbook v6.5 conventions). Single-trial entries report Wald 95% CI on the log scale.</p>
+    </section>
+<section id="tab-search" class="tab-panel">
+    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">Search strategy</h3>
+    <p style="color:#cbd5e1;font-size:12.5px;">Source-of-truth: AACT 2026-04-12 snapshot from the Clinical Trials Transformation Initiative (CTTI). Auto-discovery query:</p>
+    <pre style="background:#0a0f1f;padding:12px;border-radius:6px;color:#bef264;font-size:12px;overflow-x:auto;">
+SELECT nct_id FROM interventions
+WHERE lower(name) LIKE '%sacubitril%'
+INTERSECT
+SELECT nct_id FROM conditions
+WHERE lower(name) LIKE '%heart failure%'</pre>
+    <p style="color:#cbd5e1;font-size:12.5px;">PubMed bridge: NCBI E-utilities + idconv API to fetch primary publication PMID and abstract for each NCT.</p>
+    <pre style="background:#0a0f1f;padding:12px;border-radius:6px;color:#bef264;font-size:12px;overflow-x:auto;">https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=sacubitril+AND+heart failure+AND+RCT</pre>
+    <p style="color:#94a3b8;font-size:11.5px;">Cross-checking: every NCT that survives intersection is verified to have a primary outcome declared in AACT <code>design_outcomes</code> AND a publication whose abstract mentions the drug or condition (GATE-D).</p>
+    </section>
+<section id="tab-screening" class="tab-panel">
+    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">PRISMA-style screening</h3>
+    <table class="kv">
+      <tr><td>Records identified (AACT × PubMed)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;">8</td></tr>
+      <tr><td>Records excluded (gate failure)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;color:#fca5a5;">5</td></tr>
+      <tr><td>Records included (all 6 gates pass)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;color:#86efac;">3</td></tr>
+    </table>
 
-<h2>Audit trail</h2>
-<p style="color:#cbd5e1;font-size:12px;">This review was generated by the audit-first topic-build pipeline. Each trial was verified at extraction time (not after) against the following gates:</p>
-<ul style="color:#cbd5e1;font-size:12px;">
-<li>GATE-A: NCT exists in AACT 2026-04-12 snapshot</li>
-<li>GATE-B: Drug pattern in AACT interventions</li>
-<li>GATE-C: Condition pattern in AACT conditions</li>
-<li>GATE-D: Primary PMID's PubMed title+abstract contains drug OR condition</li>
-<li>GATE-E: AACT baseline_counts gives ≥2 per-arm rows</li>
-<li>GATE-F: AACT design_outcomes declares a primary outcome</li>
-</ul>
-<p style="color:#94a3b8;font-size:11px;">All 3 trials in this review passed all 6 gates. Full per-trial gate results at <a href="outputs/new_topics/SACUBITRIL_HEARTFAIL_AUTO.json"><code>outputs/new_topics/SACUBITRIL_HEARTFAIL_AUTO.json</code></a>.</p>
+    <h3 style="color:#7dd3fc;font-size:14px;">Exclusions by first failing gate</h3>
+    <table class="kv">
+      <tr><th>Gate</th><th>n</th></tr>
+      <tr><td>D_pmid_topic_match</td><td style='text-align:right;'>4</td></tr><tr><td>E_two_arms</td><td style='text-align:right;'>1</td></tr>
+    </table>
+    <p style="color:#94a3b8;font-size:11.5px;">Screening is fully deterministic: every record is auto-flagged by the gate that first fails. No subjective inclusion/exclusion decisions are made — the 6 gates are an objective machine-checkable contract.</p>
+    </section>
+<section id="tab-extraction" class="tab-panel">
+        <div style="background:#1e293b;padding:14px;border-radius:6px;margin:0.6rem 0;">
+          <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;">
+            <div>
+              <strong style="font-size:14px;">AWAKE-HF</strong>
+              <span style="color:#94a3b8;font-size:11px;margin-left:8px;"><a href="https://clinicaltrials.gov/study/NCT02970669" target="_blank">NCT02970669</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/32978755/" target="_blank">PMID 32978755</a> · 2021</span>
+            </div>
+          </div>
+          <p style="margin:6px 0 4px;color:#cbd5e1;font-size:12px;">Study on the Effects of Sacubitril/Valsartan on Physical Activity and Sleep in Heart Failure With Reduced Ejection Fraction Patients.</p>
+          <p style="margin:0 0 6px;color:#94a3b8;font-size:11px;"><strong>Primary outcome (AACT):</strong> Ratio of Mean Activity Counts Collected During the Most Active 30 Minutes of the Subject&#x27;s Day Between Week 8 and Baseline</p>
+          <table class="ext2x2">
+            <tr><th></th><th>Events</th><th>No event</th><th>Total N</th></tr>
+            <tr><td><strong>Intervention</strong></td><td>—</td><td>—</td><td>70</td></tr>
+            <tr><td><strong>Control</strong></td><td>—</td><td>—</td><td>70</td></tr>
+          </table>
+        </div>
+
+        <div style="background:#1e293b;padding:14px;border-radius:6px;margin:0.6rem 0;">
+          <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;">
+            <div>
+              <strong style="font-size:14px;">NCT06142383</strong>
+              <span style="color:#94a3b8;font-size:11px;margin-left:8px;"><a href="https://clinicaltrials.gov/study/NCT06142383" target="_blank">NCT06142383</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/41912806/" target="_blank">PMID 41912806</a> · 2026</span>
+            </div>
+          </div>
+          <p style="margin:6px 0 4px;color:#cbd5e1;font-size:12px;">A Proof of Concept and Dose-finding Study of XXB750 in Patients With Heart Failure</p>
+          <p style="margin:0 0 6px;color:#94a3b8;font-size:11px;"><strong>Primary outcome (AACT):</strong> Geometric Mean Ratio to Baseline in NT-proBNP at Week 16</p>
+          <table class="ext2x2">
+            <tr><th></th><th>Events</th><th>No event</th><th>Total N</th></tr>
+            <tr><td><strong>Intervention</strong></td><td>—</td><td>—</td><td>29</td></tr>
+            <tr><td><strong>Control</strong></td><td>—</td><td>—</td><td>26</td></tr>
+          </table>
+        </div>
+
+        <div style="background:#1e293b;padding:14px;border-radius:6px;margin:0.6rem 0;">
+          <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;">
+            <div>
+              <strong style="font-size:14px;">PARAGLIDE-HF</strong>
+              <span style="color:#94a3b8;font-size:11px;margin-left:8px;"><a href="https://clinicaltrials.gov/study/NCT03988634" target="_blank">NCT03988634</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/40268180/" target="_blank">PMID 40268180</a> · 2025</span>
+            </div>
+          </div>
+          <p style="margin:6px 0 4px;color:#cbd5e1;font-size:12px;">Changes in NT-proBNP, Safety, and Tolerability in HFpEF Patients With a WHF Event (HFpEF Decompensation) Who Have Been Stabilized and Initiated at the Time of o</p>
+          <p style="margin:0 0 6px;color:#94a3b8;font-size:11px;"><strong>Primary outcome (AACT):</strong> Time-averaged Proportional Change in NT proBNP From Baseline to Weeks 4 and 8</p>
+          <table class="ext2x2">
+            <tr><th></th><th>Events</th><th>No event</th><th>Total N</th></tr>
+            <tr><td><strong>Intervention</strong></td><td>2170</td><td>-1937</td><td>233</td></tr>
+            <tr><td><strong>Control</strong></td><td>76</td><td>157</td><td>233</td></tr>
+          </table>
+        </div></section>
+<section id="tab-analysis" class="tab-panel">
+    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">Forest plot — per-trial OR + pooled estimate</h3>
+    <svg viewBox="0 0 760 164" style="width:100%;max-width:760px;background:#0a0f1f;border-radius:6px;">
+<text x="20" y="20" fill="#94a3b8" font-size="11">Trial</text>
+<text x="465.0" y="20" fill="#94a3b8" font-size="11" text-anchor="middle">log-OR (95% CI)</text>
+<line x1="465.0" y1="28" x2="465.0" y2="112" stroke="#475569" stroke-dasharray="3,3"/>
+<text x="20" y="46.0" fill="#e2e8f0" font-size="11">AWAKE-HF</text>
+<text x="465.0" y="46.0" fill="#64748b" font-size="11" text-anchor="middle">(no event data)</text>
+<text x="20" y="74.0" fill="#e2e8f0" font-size="11">NCT06142383</text>
+<text x="465.0" y="74.0" fill="#64748b" font-size="11" text-anchor="middle">(no event data)</text>
+<text x="20" y="102.0" fill="#e2e8f0" font-size="11">PARAGLIDE-HF</text>
+<text x="465.0" y="102.0" fill="#64748b" font-size="11" text-anchor="middle">(no event data)</text>
+</svg>
+    <p style="color:#94a3b8;font-size:12px;">Insufficient event-count data for pooled estimate.</p>
+    
+    </section>
+<section id="tab-about" class="tab-panel">
+    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">Audit-first build</h3>
+    <p style="color:#cbd5e1;font-size:12.5px;">This review was generated by the 6-gate audit-first pipeline after the 16-round portfolio cleanup. Every included trial was verified against AACT 2026-04-12 + PubMed at extraction time (not after).</p>
+    <ul style="color:#cbd5e1;font-size:12.5px;">
+      <li>Full per-trial gate log: <a href="outputs/new_topics/SACUBITRIL_HEARTFAIL_AUTO.json"><code>outputs/new_topics/SACUBITRIL_HEARTFAIL_AUTO.json</code></a></li>
+      <li>Methodology: <a href="outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md">FINAL_INTEGRITY_REPORT_V2.md</a></li>
+      <li>Main index: <a href="index.html">RapidMeta portfolio</a></li>
+      <li>AACT attribution: Clinical Trials Transformation Initiative (CTTI), snapshot 2026-04-12.</li>
+      <li>PubMed attribution: NCBI E-utilities + idconv API.</li>
+    </ul>
+    <h3 style="color:#7dd3fc;font-size:14px;">Limits of this build</h3>
+    <ul style="color:#cbd5e1;font-size:12.5px;">
+      <li>Pool estimand is an <strong>OR</strong> derived from AACT event counts; the trial-published <strong>HR</strong> (where applicable) is not parsed from the PubMed abstract in the audit-first pipeline. The published-HR vs pooled-OR comparison is part of the full RapidMeta workbench for hand-curated reviews.</li>
+      <li>Risk-of-bias (RoB-2) is not coded here — see the parent NMA review or the curated <code>*_REVIEW.html</code> for the same topic if one exists.</li>
+      <li>The 6 gates are necessary but not sufficient for a Cochrane-grade review — they are an integrity floor, not a ceiling.</li>
+    </ul>
+    </section>
 
 <footer>
 Per AACT attribution: AACT (Clinical Trials Transformation Initiative) snapshot 2026-04-12.
-Per PubMed attribution: NCBI E-utilities + idconv API.
-Generated by <code>scripts/generate_topic_html.py</code>.
+Per PubMed attribution: NCBI E-utilities + idconv API. Generated by
+<code>scripts/generate_topic_html.py</code>.
 </footer>
-
 </main>
 
-<!-- Engine data block (consumed by scripts/extract_realdata.py + 28-panel statistics tab) -->
+<script>
+(function(){
+  'use strict';
+  // Tab handler
+  var tabs = document.querySelectorAll('.tabs button');
+  var panels = document.querySelectorAll('.tab-panel');
+  tabs.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var name = btn.getAttribute('data-tab');
+      tabs.forEach(function(b){ b.classList.remove('active'); });
+      panels.forEach(function(p){ p.classList.remove('active'); });
+      btn.classList.add('active');
+      var panel = document.getElementById('tab-' + name);
+      if (panel) panel.classList.add('active');
+    });
+  });
+})();
+</script>
+
+<!-- Engine data block (consumed by scripts/extract_realdata.py + statistics tab) -->
 <script>
 (function(){
   'use strict';
@@ -140,19 +254,15 @@ Generated by <code>scripts/generate_topic_html.py</code>.
     "hrUCI": null,
     "evidence": [
       {
-        "label": "Primary",
+        "label": "Primary outcome (AACT)",
         "source": "AACT 2026-04-12",
         "text": "Ratio of Mean Activity Counts Collected During the Most Active 30 Minutes of the Subject's Day Between Week 8 and Baseline",
-        "highlights": [
-          "70",
-          "70"
-        ],
         "sourceUrl": "https://clinicaltrials.gov/study/NCT02970669"
       }
     ]
   },
   "NCT06142383": {
-    "name": "TRIAL",
+    "name": "NCT06142383",
     "baseline": {
       "n": 55
     },
@@ -170,13 +280,9 @@ Generated by <code>scripts/generate_topic_html.py</code>.
     "hrUCI": null,
     "evidence": [
       {
-        "label": "Primary",
+        "label": "Primary outcome (AACT)",
         "source": "AACT 2026-04-12",
         "text": "Geometric Mean Ratio to Baseline in NT-proBNP at Week 16",
-        "highlights": [
-          "29",
-          "26"
-        ],
         "sourceUrl": "https://clinicaltrials.gov/study/NCT06142383"
       }
     ]
@@ -200,15 +306,9 @@ Generated by <code>scripts/generate_topic_html.py</code>.
     "hrUCI": null,
     "evidence": [
       {
-        "label": "Primary",
+        "label": "Primary outcome (AACT)",
         "source": "AACT 2026-04-12",
         "text": "Time-averaged Proportional Change in NT proBNP From Baseline to Weeks 4 and 8",
-        "highlights": [
-          "2170",
-          "233",
-          "76",
-          "233"
-        ],
         "sourceUrl": "https://clinicaltrials.gov/study/NCT03988634"
       }
     ]

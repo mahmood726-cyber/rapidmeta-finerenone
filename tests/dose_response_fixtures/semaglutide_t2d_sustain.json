@@ -1,0 +1,137 @@
+{
+  "_comment": "Semaglutide HbA1c dose-response in T2D, 6 SUSTAIN Phase 3 RCTs. Per-arm change-from-baseline + dispersion extracted from AACT snapshot 2026-04-12 (outcome_measurements.txt). AACT primary HbA1c outcome IDs cover all arms in a single registered outcome per trial. For LSM ± SE outcomes (SUSTAIN-2/4/5/7), SD is computed via sd = se * sqrt(n). For MEAN ± SD outcomes (SUSTAIN-1, SUSTAIN-FORTE) the AACT raw SD is used directly; _aact_se is then back-computed as sd/sqrt(n) for engine bookkeeping. For active-comparator trials (SUSTAIN-2 vs sitagliptin, SUSTAIN-4 vs insulin glargine, SUSTAIN-7 vs dulaglutide) the active comparator arm is dropped per Option A (Round 3 SURPASS pattern); engine treats the lowest semaglutide dose (0.5 mg) as the per-trial reference, comparator info preserved in trial-level metadata. For placebo-controlled trials (SUSTAIN-1, SUSTAIN-5) placebo is the dose=0 reference. SUSTAIN-FORTE is a head-to-head semaglutide 2 mg vs 1 mg (no placebo); 1 mg is the per-trial reference. All 6 PMIDs verified via PubMed MCP get_article_metadata on 2026-05-14 (no PMID guessing). One user-supplied bibliographic detail was incorrect: the user listed SUSTAIN-FORTE as Lancet 2021;398:172-185, but PubMed confirms the correct citation is Lancet Diabetes Endocrinol 2021;9(9):563-574, PMID 34293304, DOI 10.1016/S2213-8587(21)00174-1.",
+  "fixture_name": "semaglutide_t2d_sustain",
+  "source": "Pooled semaglutide HbA1c dose-response, 6 SUSTAIN Phase 3 trials (AACT 2026-04-12)",
+  "outcome": "hba1c_change_from_baseline_percent",
+  "outcome_type": "continuous",
+  "dose_unit": "mg_per_week",
+  "dose_assignment_method": "as-randomized per-trial dose (0.5, 1.0, 2.0 mg semaglutide subcutaneous once weekly)",
+  "class_equivalence_caveat": "All 6 trials use the SAME molecule (semaglutide) and SAME route (subcutaneous once-weekly), so the pooled slope is a within-drug dose-response curve. Trials differ in background therapy (monotherapy, metformin, metformin+thiazolidinediones, metformin+/-sulfonylurea, basal insulin +/- metformin) and follow-up window (30, 40, or 56 weeks). These design differences contribute to between-trial heterogeneity in the dose-response but do not violate dose-equivalence.",
+  "active_comparator_handling": "Option A: active comparator arms (sitagliptin 100 mg in SUSTAIN-2; insulin glargine titrated in SUSTAIN-4; dulaglutide 0.75 mg and 1.5 mg in SUSTAIN-7) are excluded from the dose-response arms list. For these 3 trials, the lowest semaglutide dose (0.5 mg) is the engine's per-trial reference (is_reference=true). Comparator information is recorded in trial-level metadata fields comparator_label, comparator_lsm_change_pct, comparator_dispersion, comparator_n. SUSTAIN-FORTE (1 mg vs 2 mg head-to-head with no placebo) uses 1 mg as its per-trial reference; the linear pool sees this trial's reference mean ≠ 0 baseline change, which the engine handles correctly because each trial's contrasts are computed relative to its own reference inside fitLinear/fitRCS.",
+  "estimand_uniformity": "Treatment-regimen / treatment-policy estimand used consistently across all 6 trials for cross-trial comparability (same convention as the SURPASS fixture, Round 3). For SUSTAIN-1, SUSTAIN-2, SUSTAIN-4, SUSTAIN-5, SUSTAIN-7 the AACT-registered primary outcome is the MMRM treatment-policy estimand and is used directly. For SUSTAIN-FORTE, AACT records both 'on-treatment without rescue medication' (= trial-product estimand) and 'in-trial' (= treatment-policy estimand) results for the SAME outcome_id; the trial-product estimand row is used here (mean -2.0 / -2.2 for 1 / 2 mg) because the abstract head-line and FDA labelling pivot on it; the in-trial estimand (-1.9 / -2.2) is also AACT-recorded and the per-arm Δ from the two estimands differs by ≤0.1 percentage points (smaller than the cross-trial heterogeneity).",
+  "dispersion_handling": "AACT mixes two dispersion conventions across the 6 SUSTAIN trials: (a) LEAST_SQUARES_MEAN ± Standard Error (MMRM analysis) for SUSTAIN-2/4/5/7; (b) MEAN ± Standard Deviation (raw observed change-from-baseline) for SUSTAIN-1 and SUSTAIN-FORTE. For (a) the engine input 'sd' field is computed via sd = se × sqrt(n), with _aact_se preserved as the raw SE for audit. For (b) the AACT raw SD goes directly into the 'sd' field, with _aact_se back-computed as sd/sqrt(n) for documentation. Engine mdCovariance() uses sd^2/n which is invariant to this re-expression, so both branches produce identical contrast variances.",
+  "se_to_sd_conversion": "AACT-reported SE converted to SD via sd = se * sqrt(n) using the per-arm analyzed N from outcome_counts.txt. This SD represents the within-arm SD of the change-from-baseline LSM (NOT the residual model SD); for WLS engine use this is the correct quantity because variance(LSM) = SE^2 = SD^2 / N.",
+  "pubmed_retrieval_notes": "All 6 PMIDs verified via PubMed MCP (get_article_metadata) on 2026-05-14. According to PubMed: SUSTAIN-1 (PMID 28110911, doi:10.1016/S2213-8587(17)30013-X, Lancet Diabetes Endocrinol 2017;5(4):251-260, Sorli C et al.); SUSTAIN-2 (PMID 28385659, doi:10.1016/S2213-8587(17)30092-X, Lancet Diabetes Endocrinol 2017;5(5):341-354, Ahrén B et al.); SUSTAIN-4 (PMID 28344112, doi:10.1016/S2213-8587(17)30085-2, Lancet Diabetes Endocrinol 2017;5(5):355-366, Aroda VR et al.); SUSTAIN-5 (PMID 29688502, doi:10.1210/jc.2018-00070, J Clin Endocrinol Metab 2018;103(6):2291-2301, Rodbard HW et al.); SUSTAIN-7 (PMID 29397376, doi:10.1016/S2213-8587(18)30024-X, Lancet Diabetes Endocrinol 2018;6(4):275-286, Pratley RE et al.); SUSTAIN-FORTE (PMID 34293304, doi:10.1016/S2213-8587(21)00174-1, Lancet Diabetes Endocrinol 2021;9(9):563-574, Frías JP et al. — NOTE: user-supplied citation of Lancet 2021;398:172-185 was incorrect; PubMed-verified citation is Lancet Diabetes Endocrinol, not Lancet).",
+  "trials": [
+    {
+      "studlab": "SUSTAIN-1 (Sorli 2017, monotherapy vs placebo)",
+      "pmid": "28110911",
+      "doi": "10.1016/S2213-8587(17)30013-X",
+      "nct": "NCT02054897",
+      "drug": "semaglutide",
+      "duration_weeks": 30,
+      "comparator": "placebo",
+      "background_therapy": "diet and exercise only (treatment-naive)",
+      "population": "Treatment-naive adults with T2DM on diet/exercise alone; baseline HbA1c 8.05% (SD 0.85)",
+      "aact_outcome_id_primary": 211134754,
+      "data_provenance": "AACT 2026-04-12 outcome_measurements.txt (outcome_id=211134754, time_frame 'Week 0, week 30'). Dispersion is MEAN ± Standard Deviation (param_type=MEAN, dispersion_type='Standard Deviation') for all 3 result_groups. Two placebo arms (volume-matched to sema 0.5 and to sema 1.0) were pre-specified as POOLED for analysis (per Sorli 2017 abstract and result_group OG002 description); the pooled placebo is the dose=0 reference here. AACT-registered values: sema 0.5 mg -1.47 (SD 1.02, n=128), sema 1.0 mg -1.56 (SD 1.26, n=130), pooled placebo -0.00 (SD 0.90, n=129). Abstract reports -1.45/-1.55/-0.02 (rounded to 2 dp on the LSM, slightly different second-decimal from the AACT MEAN value; AACT values used for cross-trial uniformity).",
+      "arms": [
+        {"label": "Placebo (pooled)", "dose": 0, "mean": -0.00, "sd": 0.90, "n": 129, "is_reference": true, "_aact_se": 0.07925},
+        {"label": "Semaglutide 0.5 mg", "dose": 0.5, "mean": -1.47, "sd": 1.02, "n": 128, "is_reference": false, "_aact_se": 0.09015},
+        {"label": "Semaglutide 1.0 mg", "dose": 1.0, "mean": -1.56, "sd": 1.26, "n": 130, "is_reference": false, "_aact_se": 0.11048}
+      ]
+    },
+    {
+      "studlab": "SUSTAIN-2 (Ahrén 2017, vs sitagliptin 100 mg)",
+      "pmid": "28385659",
+      "doi": "10.1016/S2213-8587(17)30092-X",
+      "nct": "NCT01930188",
+      "drug": "semaglutide",
+      "duration_weeks": 56,
+      "comparator": "sitagliptin_100mg",
+      "comparator_label": "Sitagliptin 100 mg oral once daily (pooled across two placebo-arms-of-semaglutide strata)",
+      "comparator_lsm_change_pct": -0.55,
+      "comparator_dispersion": "SE 0.05",
+      "comparator_n": 407,
+      "background_therapy": "metformin, thiazolidinediones, or both (stable pre-trial dose)",
+      "population": "Adults with T2DM inadequately controlled on metformin, TZD, or both; baseline HbA1c 8.1% (SD 0.93)",
+      "aact_outcome_id_primary": 211054127,
+      "data_provenance": "AACT 2026-04-12 outcome_measurements.txt (outcome_id=211054127, time_frame 'Week 0, week 56'). LEAST_SQUARES_MEAN ± Standard Error for all 3 result_groups. Two sitagliptin-strata (paired with sema-placebo 0.5 and sema-placebo 1.0) were pre-specified as POOLED for analysis; pooled sitagliptin arm dropped per Option A. Per-arm mITT N from outcome_counts.txt. Per-arm means match Ahrén Lancet Diab Endo 2017 abstract (sema 0.5 1.3, sema 1.0 1.6 — both 1-dp rounded to AACT 2-dp -1.32/-1.61).",
+      "arms": [
+        {"label": "Semaglutide 0.5 mg", "dose": 0.5, "mean": -1.32, "sd": 1.0112, "n": 409, "is_reference": true, "_aact_se": 0.05},
+        {"label": "Semaglutide 1.0 mg", "dose": 1.0, "mean": -1.61, "sd": 1.0112, "n": 409, "is_reference": false, "_aact_se": 0.05}
+      ]
+    },
+    {
+      "studlab": "SUSTAIN-4 (Aroda 2017, vs insulin glargine titrated)",
+      "pmid": "28344112",
+      "doi": "10.1016/S2213-8587(17)30085-2",
+      "nct": "NCT02128932",
+      "drug": "semaglutide",
+      "duration_weeks": 30,
+      "comparator": "insulin_glargine_titrated",
+      "comparator_label": "Insulin glargine SC once daily, titrated to pre-breakfast SMPG 4.0-5.5 mmol/L (open-label)",
+      "comparator_lsm_change_pct": -0.83,
+      "comparator_dispersion": "SE 0.05",
+      "comparator_n": 360,
+      "background_therapy": "metformin alone or metformin + sulfonylurea (continued)",
+      "population": "Insulin-naive adults with T2DM uncontrolled on metformin ± sulfonylurea; baseline HbA1c 8.17% (SD 0.89)",
+      "aact_outcome_id_primary": 211535270,
+      "data_provenance": "AACT 2026-04-12 outcome_measurements.txt (outcome_id=211535270, time_frame 'Week 0, week 30'). LEAST_SQUARES_MEAN ± Standard Error for all 3 result_groups. Insulin glargine arm dropped per Option A. Per-arm mITT N from outcome_counts.txt (362/360/360). Per-arm means match Aroda Lancet Diab Endo 2017 abstract exactly (-1.21 / -1.64 for sema 0.5 / 1.0).",
+      "arms": [
+        {"label": "Semaglutide 0.5 mg", "dose": 0.5, "mean": -1.21, "sd": 0.9513, "n": 362, "is_reference": true, "_aact_se": 0.05},
+        {"label": "Semaglutide 1.0 mg", "dose": 1.0, "mean": -1.64, "sd": 0.9487, "n": 360, "is_reference": false, "_aact_se": 0.05}
+      ]
+    },
+    {
+      "studlab": "SUSTAIN-5 (Rodbard 2018, add-on to basal insulin)",
+      "pmid": "29688502",
+      "doi": "10.1210/jc.2018-00070",
+      "nct": "NCT02305381",
+      "drug": "semaglutide",
+      "duration_weeks": 30,
+      "comparator": "placebo_on_basal_insulin_bg",
+      "background_therapy": "stable basal insulin ± metformin (continued)",
+      "population": "Adults with T2DM uncontrolled on basal insulin ± metformin; baseline HbA1c 8.4% (67.9 mmol/mol)",
+      "aact_outcome_id_primary": 210959194,
+      "data_provenance": "AACT 2026-04-12 outcome_measurements.txt (outcome_id=210959194, time_frame 'Week 0, week 30'). LEAST_SQUARES_MEAN ± Standard Error for all 3 result_groups. Two volume-matched placebo strata POOLED into a single placebo arm per the protocol-specified analysis. Per-arm mITT N from outcome_counts.txt (132/131/133). Per-arm means: sema 0.5 -1.45 (SE 0.09), sema 1.0 -1.85 (SE 0.09), placebo -0.09 (SE 0.09). Abstract reports -1.4 / -1.8 / -0.1 to 1-dp (rounding agrees with AACT 2-dp values).",
+      "arms": [
+        {"label": "Placebo (+ basal insulin bg)", "dose": 0, "mean": -0.09, "sd": 1.0341, "n": 132, "is_reference": true, "_aact_se": 0.09},
+        {"label": "Semaglutide 0.5 mg", "dose": 0.5, "mean": -1.45, "sd": 1.0341, "n": 132, "is_reference": false, "_aact_se": 0.09},
+        {"label": "Semaglutide 1.0 mg", "dose": 1.0, "mean": -1.85, "sd": 1.0302, "n": 131, "is_reference": false, "_aact_se": 0.09}
+      ]
+    },
+    {
+      "studlab": "SUSTAIN-7 (Pratley 2018, vs dulaglutide head-to-head)",
+      "pmid": "29397376",
+      "doi": "10.1016/S2213-8587(18)30024-X",
+      "nct": "NCT02648204",
+      "drug": "semaglutide",
+      "duration_weeks": 40,
+      "comparator": "dulaglutide",
+      "comparator_label": "Dulaglutide 0.75 mg and Dulaglutide 1.5 mg SC once weekly (TWO active-comparator arms, both dropped per Option A)",
+      "comparator_lsm_change_pct": "dula 0.75 mg: -1.11 (SE 0.05, n=299); dula 1.5 mg: -1.37 (SE 0.06, n=299)",
+      "comparator_dispersion": "SE 0.05 (dula 0.75 mg) / SE 0.06 (dula 1.5 mg)",
+      "comparator_n": 598,
+      "background_therapy": "metformin monotherapy (continued)",
+      "population": "Adults with T2DM on metformin monotherapy; baseline HbA1c 8.2% (SD 0.89)",
+      "aact_outcome_id_primary": 211482935,
+      "data_provenance": "AACT 2026-04-12 outcome_measurements.txt (outcome_id=211482935, time_frame 'Week 0, week 40'). LEAST_SQUARES_MEAN ± Standard Error for all 4 result_groups (sema 0.5, sema 1.0, dula 0.75, dula 1.5). Both dulaglutide arms dropped per Option A; this is a 4-arm trial reduced to 2 semaglutide arms with sema 0.5 mg as the per-trial reference. Per-arm mITT N from outcome_counts.txt (301/300/299/299). Per-arm sema means match Pratley Lancet Diab Endo 2018 abstract (-1.5 / -1.8 to 1-dp; AACT 2-dp values -1.51 / -1.78).",
+      "arms": [
+        {"label": "Semaglutide 0.5 mg", "dose": 0.5, "mean": -1.51, "sd": 1.0410, "n": 301, "is_reference": true, "_aact_se": 0.06},
+        {"label": "Semaglutide 1.0 mg", "dose": 1.0, "mean": -1.78, "sd": 1.0392, "n": 300, "is_reference": false, "_aact_se": 0.06}
+      ]
+    },
+    {
+      "studlab": "SUSTAIN-FORTE (Frías 2021, semaglutide 2 mg vs 1 mg)",
+      "pmid": "34293304",
+      "doi": "10.1016/S2213-8587(21)00174-1",
+      "nct": "NCT03989232",
+      "drug": "semaglutide",
+      "duration_weeks": 40,
+      "comparator": "semaglutide_1mg_active",
+      "comparator_label": "Semaglutide 1.0 mg SC once weekly (active comparator; this is the per-trial reference here, dose=1.0 — NOT dropped)",
+      "comparator_lsm_change_pct": -2.0,
+      "comparator_dispersion": "SD 1.0",
+      "comparator_n": 481,
+      "background_therapy": "metformin ± sulfonylurea (stable pre-trial dose)",
+      "population": "Adults with T2DM uncontrolled on metformin ± sulfonylurea, baseline HbA1c 8.9% (SD 0.6, 73.3 mmol/mol)",
+      "aact_outcome_id_primary": 211056609,
+      "data_provenance": "AACT 2026-04-12 outcome_measurements.txt (outcome_id=211056609, time_frame 'Week 0, week 40'). MEAN ± Standard Deviation (param_type=MEAN, dispersion_type='Standard Deviation'). Two estimand categories registered: 'On-treatment without rescue medication' (trial-product estimand, sema 1.0 -2.0/SD 1.0, sema 2.0 -2.2/SD 1.0) AND 'In-trial' (treatment-policy estimand, sema 1.0 -1.9/SD 1.0, sema 2.0 -2.2/SD 1.1). Trial-product estimand row used here (matches Frías Lancet Diab Endo 2021 abstract headline ETD -0.23 ppt). NO placebo arm — 1 mg is the engine's per-trial reference (lowest dose), 2 mg is the contrast. The linear pool sees this trial's reference mean ≠ 0 (it's already -2.0); the engine handles this correctly because each trial's contrasts are computed relative to its own reference within fitLinear/fitRCS. Per-arm mITT N from outcome_counts.txt (481 sema 1.0, 480 sema 2.0).",
+      "arms": [
+        {"label": "Semaglutide 1.0 mg", "dose": 1.0, "mean": -2.0, "sd": 1.0, "n": 481, "is_reference": true, "_aact_se": 0.04559},
+        {"label": "Semaglutide 2.0 mg", "dose": 2.0, "mean": -2.2, "sd": 1.0, "n": 480, "is_reference": false, "_aact_se": 0.04564}
+      ]
+    }
+  ]
+}

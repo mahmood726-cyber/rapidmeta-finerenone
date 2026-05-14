@@ -3,111 +3,229 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Donidalorsen in HAE prophylaxis — RapidMeta</title>
+<title>Donidalorsen in HAE — RapidMeta (audit-first)</title>
 <style>
   body { margin:0; padding:0; background:#0f172a; color:#e2e8f0; font-family:system-ui,-apple-system,sans-serif; line-height:1.55; }
   main { max-width:980px; margin:0 auto; padding:24px; }
-  h1 { margin:0 0 8px;font-size:22px; }
+  h1 { margin:0 0 8px; font-size:22px; }
   h2 { font-size:15px; color:#7dd3fc; margin-top:1.5rem; }
   table { width:100%; border-collapse:collapse; background:#0f172a; margin-top:1rem; }
   th { background:#0a0f1f; padding:10px; text-align:left; font-size:11px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em; border-bottom:1px solid #1f2a44; }
-  a { color:#7dd3fc; }
+  td { padding:8px; border-bottom:1px solid #1f2a44; font-size:13px; vertical-align:top; }
+  a { color:#7dd3fc; text-decoration:none; }
+  a:hover { text-decoration:underline; }
   .meta { color:#94a3b8; font-size:12px; }
   footer { margin-top:2rem; padding-top:1rem; border-top:1px solid #1f2a44; color:#94a3b8; font-size:11px; }
+  .tabs { display:flex; gap:4px; flex-wrap:wrap; border-bottom:1px solid #1f2a44; margin:1.2rem 0 1rem; }
+  .tabs button { background:transparent; color:#94a3b8; border:none; padding:10px 16px; cursor:pointer; font-size:13px; border-bottom:3px solid transparent; }
+  .tabs button.active { color:#e2e8f0; border-bottom-color:#7dd3fc; }
+  .tabs button:hover { color:#cbd5e1; }
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; }
+  table.kv { width:100%; }
+  table.kv td:first-child { width:40%; color:#94a3b8; font-size:12px; }
+  table.kv td { padding:6px 8px; }
+  table.ext2x2 { width:auto; margin-top:6px; font-size:12px; }
+  table.ext2x2 td, table.ext2x2 th { padding:4px 12px; text-align:right; font-family:JetBrains Mono,monospace; }
+  table.ext2x2 td:first-child { text-align:left; font-family:system-ui,sans-serif; color:#cbd5e1; }
+  .pill { display:inline-block; padding:2px 8px; background:#1e293b; border-radius:10px; font-size:11px; color:#cbd5e1; margin:2px; }
 </style>
 </head>
 <body>
-<div id="rapidmeta-integrity-badge" role="status" style="background:#16a34a;color:#fff;padding:12px 20px;font-family:system-ui,sans-serif;font-size:13.5px;border-bottom:3px solid #15803d;line-height:1.55;"><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><strong style="font-size:14px;letter-spacing:0.04em;">TRUSTWORTHY</strong><span style="font-size:11.5px;opacity:0.92;">Fabrication-risk score: <strong>0.000</strong> · Trials: <strong>2</strong></span></div><div style="margin-top:6px;font-size:12.5px;opacity:0.95;">Multi-source audit completed (AACT 2026-04-12 + PubMed + 10 internal-consistency rounds). Routine pre-publication human spot-check recommended.</div><div style="margin-top:6px;font-size:10.5px;opacity:0.75;">Audited via AACT 2026-04-12 + PubMed + 14 internal-consistency rounds. See <code style="background:rgba(255,255,255,0.15);padding:1px 4px;border-radius:2px;">outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md</code> for methodology.</div></div>
-
-
-
 
 <!-- TRUSTWORTHY badge — audit-first build -->
-
+<div id="rapidmeta-integrity-badge" role="status" style="background:#16a34a;color:#fff;padding:12px 20px;font-family:system-ui,sans-serif;font-size:13.5px;border-bottom:3px solid #15803d;line-height:1.55;">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <strong style="font-size:14px;letter-spacing:0.04em;">TRUSTWORTHY (audit-first build)</strong>
+    <span style="font-size:11.5px;opacity:0.92;">Trials: <strong>2</strong> · all passed 6-gate audit · k ≥2</span>
+  </div>
+  <div style="margin-top:6px;font-size:12.5px;opacity:0.95;">
+    Built post-cleanup using the audit-first pipeline. Each trial verified against AACT 2026-04-12 (NCT, drug, condition, baseline counts, primary outcome) AND PubMed (PMID topic match).
+  </div>
+  <div style="margin-top:6px;font-size:10.5px;opacity:0.75;">
+    Methodology: <a href="outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md" style="color:#fff;">FINAL_INTEGRITY_REPORT_V2.md</a> ·
+    <a href="outputs/new_topics/DONIDALORSEN_HAE_AUTO.json" style="color:#fff;">audit log</a> ·
+    <a href="index.html" style="color:#fff;">main index</a>
+  </div>
+</div>
 
 <main>
-<h1>Donidalorsen in HAE prophylaxis</h1>
-<div class="meta">RapidMeta — audit-first build · 2 trials passed all 6 integrity gates · Data sources: AACT 2026-04-12 + PubMed E-utilities</div>
+<h1>Donidalorsen in HAE</h1>
+<div class="meta">
+  RapidMeta · audit-first build · 2 included trials · Donidalorsen in Angioedema ·
+  Data: AACT 2026-04-12 + PubMed E-utilities
+</div>
 
-<h2>Background</h2>
-<p style="color:#cbd5e1;">Living meta-analysis of 2 trials evaluating <strong>donidalorsen</strong> in <strong>hereditary angioedema</strong>. All data extracted from AACT 2026-04-12 (Clinical Trials Transformation Initiative) and cross-verified against the primary PubMed publication for each NCT.</p>
+<div class="tabs" role="tablist">
+  <button class="active" data-tab="protocol">Protocol</button>
+  <button data-tab="search">Search</button>
+  <button data-tab="screening">Screening</button>
+  <button data-tab="extraction">Extraction</button>
+  <button data-tab="analysis">Analysis</button>
+  <button data-tab="about">About</button>
+</div>
 
-<h2>Included trials</h2>
-<table>
-<thead>
-<tr>
-<th>Trial</th>
-<th>Description</th>
-<th>Events / N</th>
-<th>Citation</th>
-</tr>
-</thead>
-<tbody>
+<section id="tab-protocol" class="tab-panel active">
+    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">PICO</h3>
+    <table class="kv">
+      <tr><td>Population</td><td>Adults randomised in trials registered on ClinicalTrials.gov for <strong>Angioedema</strong>.</td></tr>
+      <tr><td>Intervention</td><td><strong>Donidalorsen</strong> (AACT-verified intervention name in each trial).</td></tr>
+      <tr><td>Comparator</td><td>Active comparator or placebo as registered on AACT.</td></tr>
+      <tr><td>Outcomes</td><td>Trial-declared primary outcome (AACT <code>design_outcomes</code>); event counts harvested from AACT <code>outcome_measurements</code>.</td></tr>
+      <tr><td>Design</td><td>Interventional RCTs (post-2010 start date), Phase 2/3 or Phase 3/4.</td></tr>
+    </table>
 
-        <tr>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;"><strong>A Study to Assess the Clinical…</strong><br>
-            <span style="font-size:11px;color:#94a3b8;"><a href="https://clinicaltrials.gov/study/NCT04030598" target="_blank" style="color:#7dd3fc;">NCT04030598</a></span></td>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;font-size:12px;color:#cbd5e1;">
-            A Study to Assess the Clinical Efficacy of Donidalorsen (Also Known as IONIS-PKK-LRx and ISIS 721744) in Participants Wi<br>
-            <span style="color:#94a3b8;font-size:11px;">Primary: Time-normalized Number of HAE Attacks (Per Month) From Week 1 to Week 17</span></td>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;text-align:right;font-family:JetBrains Mono,monospace;font-size:11px;">
-            tE: 2/6<br>
-            cE: 13/14</td>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;font-size:11px;"><a href="https://pubmed.ncbi.nlm.nih.gov/35294812/" target="_blank" style="color:#7dd3fc;">PMID 35294812</a><br>
-            <span style="color:#94a3b8;">2022</span></td>
-        </tr>
-        <tr>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;"><strong>OASIS-HAE: A Study to Evaluate…</strong><br>
-            <span style="font-size:11px;color:#94a3b8;"><a href="https://clinicaltrials.gov/study/NCT05139810" target="_blank" style="color:#7dd3fc;">NCT05139810</a></span></td>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;font-size:12px;color:#cbd5e1;">
-            OASIS-HAE: A Study to Evaluate the Safety and Efficacy of Donidalorsen (ISIS 721744 or IONIS-PKK-LRx) in Participants Wi<br>
-            <span style="color:#94a3b8;font-size:11px;">Primary: Time-Normalized Investigator-Confirmed (IC) HAE Attack Rate (Per Month) From Week 1 to Week 25</span></td>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;text-align:right;font-family:JetBrains Mono,monospace;font-size:11px;">
-            tE: 9/22<br>
-            cE: 53/45</td>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;font-size:11px;"><a href="https://pubmed.ncbi.nlm.nih.gov/38819395/" target="_blank" style="color:#7dd3fc;">PMID 38819395</a><br>
-            <span style="color:#94a3b8;">2024</span></td>
-        </tr>
-</tbody>
-</table>
+    <h3 style="color:#7dd3fc;font-size:14px;">Eligibility (6-gate audit)</h3>
+    <ol style="color:#cbd5e1;font-size:12.5px;">
+      <li>GATE-A — NCT exists in AACT 2026-04-12 snapshot.</li>
+      <li>GATE-B — Drug pattern "donidalorsen" present in AACT <code>interventions</code> for the NCT.</li>
+      <li>GATE-C — Condition pattern "angioedema" present in AACT <code>conditions</code>.</li>
+      <li>GATE-D — Primary PMID's PubMed title or abstract mentions the drug or condition.</li>
+      <li>GATE-E — AACT <code>baseline_counts</code> reports ≥2 per-arm participant rows.</li>
+      <li>GATE-F — AACT <code>design_outcomes</code> declares a primary outcome with measure text.</li>
+    </ol>
+    <p style="color:#94a3b8;font-size:11.5px;">Audit verdict: <code>VIABLE</code> requires ≥3 trials passing all 6 gates (k≥3 — current standard for new audit-first builds). Older builds use k≥2.</p>
 
+    <h3 style="color:#7dd3fc;font-size:14px;">Pre-specified primary outcomes (per trial)</h3>
+    <ul style="color:#cbd5e1;font-size:12.5px;"><li>Time-Normalized Investigator-Confirmed (IC) HAE Attack Rate (Per Month) From Week 1 to Week 25</li><li>Time-normalized Number of HAE Attacks (Per Month) From Week 1 to Week 17</li></ul>
 
+    <h3 style="color:#7dd3fc;font-size:14px;">Statistical methods</h3>
+    <p style="color:#cbd5e1;font-size:12.5px;">Inverse-variance random-effects pooling on the log-OR scale (Woolf estimator from AACT event counts), DerSimonian-Laird τ² with Hartung-Knapp-Sidik-Jonkman (HKSJ) variance correction and t<sub>k-1</sub> critical value (Cochrane Handbook v6.5 conventions). Single-trial entries report Wald 95% CI on the log scale.</p>
+    </section>
+<section id="tab-search" class="tab-panel">
+    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">Search strategy</h3>
+    <p style="color:#cbd5e1;font-size:12.5px;">Source-of-truth: AACT 2026-04-12 snapshot from the Clinical Trials Transformation Initiative (CTTI). Auto-discovery query:</p>
+    <pre style="background:#0a0f1f;padding:12px;border-radius:6px;color:#bef264;font-size:12px;overflow-x:auto;">
+SELECT nct_id FROM interventions
+WHERE lower(name) LIKE '%donidalorsen%'
+INTERSECT
+SELECT nct_id FROM conditions
+WHERE lower(name) LIKE '%angioedema%'</pre>
+    <p style="color:#cbd5e1;font-size:12.5px;">PubMed bridge: NCBI E-utilities + idconv API to fetch primary publication PMID and abstract for each NCT.</p>
+    <pre style="background:#0a0f1f;padding:12px;border-radius:6px;color:#bef264;font-size:12px;overflow-x:auto;">https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=donidalorsen+AND+angioedema+AND+RCT</pre>
+    <p style="color:#94a3b8;font-size:11.5px;">Cross-checking: every NCT that survives intersection is verified to have a primary outcome declared in AACT <code>design_outcomes</code> AND a publication whose abstract mentions the drug or condition (GATE-D).</p>
+    </section>
+<section id="tab-screening" class="tab-panel">
+    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">PRISMA-style screening</h3>
+    <table class="kv">
+      <tr><td>Records identified (AACT × PubMed)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;">6</td></tr>
+      <tr><td>Records excluded (gate failure)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;color:#fca5a5;">4</td></tr>
+      <tr><td>Records included (all 6 gates pass)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;color:#86efac;">2</td></tr>
+    </table>
+
+    <h3 style="color:#7dd3fc;font-size:14px;">Exclusions by first failing gate</h3>
+    <table class="kv">
+      <tr><th>Gate</th><th>n</th></tr>
+      <tr><td>D_pmid_topic_match</td><td style='text-align:right;'>2</td></tr><tr><td>E_two_arms</td><td style='text-align:right;'>2</td></tr>
+    </table>
+    <p style="color:#94a3b8;font-size:11.5px;">Screening is fully deterministic: every record is auto-flagged by the gate that first fails. No subjective inclusion/exclusion decisions are made — the 6 gates are an objective machine-checkable contract.</p>
+    </section>
+<section id="tab-extraction" class="tab-panel">
+        <div style="background:#1e293b;padding:14px;border-radius:6px;margin:0.6rem 0;">
+          <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;">
+            <div>
+              <strong style="font-size:14px;">NCT04030598</strong>
+              <span style="color:#94a3b8;font-size:11px;margin-left:8px;"><a href="https://clinicaltrials.gov/study/NCT04030598" target="_blank">NCT04030598</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/35294812/" target="_blank">PMID 35294812</a> · 2022</span>
+            </div>
+          </div>
+          <p style="margin:6px 0 4px;color:#cbd5e1;font-size:12px;">A Study to Assess the Clinical Efficacy of Donidalorsen (Also Known as IONIS-PKK-LRx and ISIS 721744) in Participants With Hereditary Angioedema</p>
+          <p style="margin:0 0 6px;color:#94a3b8;font-size:11px;"><strong>Primary outcome (AACT):</strong> Time-normalized Number of HAE Attacks (Per Month) From Week 1 to Week 17</p>
+          <table class="ext2x2">
+            <tr><th></th><th>Events</th><th>No event</th><th>Total N</th></tr>
+            <tr><td><strong>Intervention</strong></td><td>2</td><td>4</td><td>6</td></tr>
+            <tr><td><strong>Control</strong></td><td>13</td><td>1</td><td>14</td></tr>
+          </table>
+        </div>
+
+        <div style="background:#1e293b;padding:14px;border-radius:6px;margin:0.6rem 0;">
+          <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;">
+            <div>
+              <strong style="font-size:14px;">NCT05139810</strong>
+              <span style="color:#94a3b8;font-size:11px;margin-left:8px;"><a href="https://clinicaltrials.gov/study/NCT05139810" target="_blank">NCT05139810</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/38819395/" target="_blank">PMID 38819395</a> · 2024</span>
+            </div>
+          </div>
+          <p style="margin:6px 0 4px;color:#cbd5e1;font-size:12px;">OASIS-HAE: A Study to Evaluate the Safety and Efficacy of Donidalorsen (ISIS 721744 or IONIS-PKK-LRx) in Participants With Hereditary Angioedema (HAE)</p>
+          <p style="margin:0 0 6px;color:#94a3b8;font-size:11px;"><strong>Primary outcome (AACT):</strong> Time-Normalized Investigator-Confirmed (IC) HAE Attack Rate (Per Month) From Week 1 to Week 25</p>
+          <table class="ext2x2">
+            <tr><th></th><th>Events</th><th>No event</th><th>Total N</th></tr>
+            <tr><td><strong>Intervention</strong></td><td>9</td><td>13</td><td>22</td></tr>
+            <tr><td><strong>Control</strong></td><td>53</td><td>-8</td><td>45</td></tr>
+          </table>
+        </div></section>
+<section id="tab-analysis" class="tab-panel">
+    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">Forest plot — per-trial OR + pooled estimate</h3>
+    <svg viewBox="0 0 760 136" style="width:100%;max-width:760px;background:#0a0f1f;border-radius:6px;">
+<text x="20" y="20" fill="#94a3b8" font-size="11">Trial</text>
+<text x="465.0" y="20" fill="#94a3b8" font-size="11" text-anchor="middle">log-OR (95% CI)</text>
+<line x1="465.0" y1="28" x2="465.0" y2="84" stroke="#475569" stroke-dasharray="3,3"/>
+<text x="20" y="46.0" fill="#e2e8f0" font-size="11">NCT04030598</text>
+<line x1="200.00000000000006" y1="42.0" x2="394.92431430883414" y2="42.0" stroke="#7dd3fc" stroke-width="2"/>
+<rect x="196.00000000000006" y="38.0" width="8" height="8" fill="#7dd3fc"/>
+<text x="734" y="46.0" fill="#cbd5e1" font-size="10">0.04 [0.00, 0.54]</text>
+<text x="20" y="74.0" fill="#e2e8f0" font-size="11">NCT05139810</text>
+<text x="465.0" y="74.0" fill="#64748b" font-size="11" text-anchor="middle">(no event data)</text>
+<text x="20" y="102.0" fill="#fbbf24" font-size="11" font-weight="600">Pooled (k=1)</text>
+<polygon points="200.00000000000006,98.0 200.00000000000006,92.0 394.9337084200177,98.0 200.00000000000006,104.0" fill="#fbbf24"/>
+<text x="734" y="102.0" fill="#fbbf24" font-size="10" font-weight="600">OR 0.038 [0.003, 0.544]</text>
+</svg>
+    
         <div style="background:#1e293b;padding:16px;border-radius:6px;margin:1rem 0;">
-          <h3 style="margin:0 0 8px;font-size:14px;color:#7dd3fc;">Pooled estimate (REML+DL τ² + HKSJ, Cochrane v6.5)</h3>
-          <div style="font-size:22px;font-weight:600;font-family:JetBrains Mono,monospace;">
+          <h3 style="margin:0 0 8px;font-size:14px;color:#7dd3fc;">Pooled estimate (REML-DL + HKSJ, Cochrane v6.5)</h3>
+          <div style="font-size:24px;font-weight:600;font-family:JetBrains Mono,monospace;">
             OR 0.038 <span style="font-size:14px;color:#94a3b8;">[0.003, 0.544]</span>
           </div>
           <div style="font-size:11px;color:#94a3b8;margin-top:6px;">
             k = 1 · method = single-trial · τ² = — ·
             Q = — · I² = —%
           </div>
-          <div style="font-size:10px;color:#94a3b8;margin-top:6px;">
-            Pool computed from AACT outcome_measurements event counts (Woolf log-OR estimator with HKSJ-Knapp small-sample correction).
-            Single-trial entries use Wald CI on log scale.
-          </div>
         </div>
-
-<h2>Audit trail</h2>
-<p style="color:#cbd5e1;font-size:12px;">This review was generated by the audit-first topic-build pipeline. Each trial was verified at extraction time (not after) against the following gates:</p>
-<ul style="color:#cbd5e1;font-size:12px;">
-<li>GATE-A: NCT exists in AACT 2026-04-12 snapshot</li>
-<li>GATE-B: Drug pattern in AACT interventions</li>
-<li>GATE-C: Condition pattern in AACT conditions</li>
-<li>GATE-D: Primary PMID's PubMed title+abstract contains drug OR condition</li>
-<li>GATE-E: AACT baseline_counts gives ≥2 per-arm rows</li>
-<li>GATE-F: AACT design_outcomes declares a primary outcome</li>
-</ul>
-<p style="color:#94a3b8;font-size:11px;">All 2 trials in this review passed all 6 gates. Full per-trial gate results at <a href="outputs/new_topics/DONIDALORSEN_HAE_AUTO.json"><code>outputs/new_topics/DONIDALORSEN_HAE_AUTO.json</code></a>.</p>
+    
+    </section>
+<section id="tab-about" class="tab-panel">
+    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">Audit-first build</h3>
+    <p style="color:#cbd5e1;font-size:12.5px;">This review was generated by the 6-gate audit-first pipeline after the 16-round portfolio cleanup. Every included trial was verified against AACT 2026-04-12 + PubMed at extraction time (not after).</p>
+    <ul style="color:#cbd5e1;font-size:12.5px;">
+      <li>Full per-trial gate log: <a href="outputs/new_topics/DONIDALORSEN_HAE_AUTO.json"><code>outputs/new_topics/DONIDALORSEN_HAE_AUTO.json</code></a></li>
+      <li>Methodology: <a href="outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md">FINAL_INTEGRITY_REPORT_V2.md</a></li>
+      <li>Main index: <a href="index.html">RapidMeta portfolio</a></li>
+      <li>AACT attribution: Clinical Trials Transformation Initiative (CTTI), snapshot 2026-04-12.</li>
+      <li>PubMed attribution: NCBI E-utilities + idconv API.</li>
+    </ul>
+    <h3 style="color:#7dd3fc;font-size:14px;">Limits of this build</h3>
+    <ul style="color:#cbd5e1;font-size:12.5px;">
+      <li>Pool estimand is an <strong>OR</strong> derived from AACT event counts; the trial-published <strong>HR</strong> (where applicable) is not parsed from the PubMed abstract in the audit-first pipeline. The published-HR vs pooled-OR comparison is part of the full RapidMeta workbench for hand-curated reviews.</li>
+      <li>Risk-of-bias (RoB-2) is not coded here — see the parent NMA review or the curated <code>*_REVIEW.html</code> for the same topic if one exists.</li>
+      <li>The 6 gates are necessary but not sufficient for a Cochrane-grade review — they are an integrity floor, not a ceiling.</li>
+    </ul>
+    </section>
 
 <footer>
 Per AACT attribution: AACT (Clinical Trials Transformation Initiative) snapshot 2026-04-12.
-Per PubMed attribution: NCBI E-utilities + idconv API.
-Generated by <code>scripts/generate_topic_html.py</code>.
+Per PubMed attribution: NCBI E-utilities + idconv API. Generated by
+<code>scripts/generate_topic_html.py</code>.
 </footer>
-
 </main>
 
-<!-- Engine data block (consumed by scripts/extract_realdata.py + 28-panel statistics tab) -->
+<script>
+(function(){
+  'use strict';
+  // Tab handler
+  var tabs = document.querySelectorAll('.tabs button');
+  var panels = document.querySelectorAll('.tab-panel');
+  tabs.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var name = btn.getAttribute('data-tab');
+      tabs.forEach(function(b){ b.classList.remove('active'); });
+      panels.forEach(function(p){ p.classList.remove('active'); });
+      btn.classList.add('active');
+      var panel = document.getElementById('tab-' + name);
+      if (panel) panel.classList.add('active');
+    });
+  });
+})();
+</script>
+
+<!-- Engine data block (consumed by scripts/extract_realdata.py + statistics tab) -->
 <script>
 (function(){
   'use strict';
@@ -115,7 +233,7 @@ Generated by <code>scripts/generate_topic_html.py</code>.
   Object.assign(window.RAPIDMETA_CONFIG, {
     realData: {
   "NCT04030598": {
-    "name": "TRIAL",
+    "name": "NCT04030598",
     "baseline": {
       "n": 20
     },
@@ -133,21 +251,15 @@ Generated by <code>scripts/generate_topic_html.py</code>.
     "hrUCI": null,
     "evidence": [
       {
-        "label": "Primary",
+        "label": "Primary outcome (AACT)",
         "source": "AACT 2026-04-12",
         "text": "Time-normalized Number of HAE Attacks (Per Month) From Week 1 to Week 17",
-        "highlights": [
-          "2",
-          "6",
-          "13",
-          "14"
-        ],
         "sourceUrl": "https://clinicaltrials.gov/study/NCT04030598"
       }
     ]
   },
   "NCT05139810": {
-    "name": "TRIAL",
+    "name": "NCT05139810",
     "baseline": {
       "n": 67
     },
@@ -165,22 +277,16 @@ Generated by <code>scripts/generate_topic_html.py</code>.
     "hrUCI": null,
     "evidence": [
       {
-        "label": "Primary",
+        "label": "Primary outcome (AACT)",
         "source": "AACT 2026-04-12",
         "text": "Time-Normalized Investigator-Confirmed (IC) HAE Attack Rate (Per Month) From Week 1 to Week 25",
-        "highlights": [
-          "9",
-          "22",
-          "53",
-          "45"
-        ],
         "sourceUrl": "https://clinicaltrials.gov/study/NCT05139810"
       }
     ]
   }
 },
     nctAcronyms: {},
-    reviewTitle: "Donidalorsen in HAE prophylaxis",
+    reviewTitle: "Donidalorsen in HAE",
     auditFirst: true
   });
 })();

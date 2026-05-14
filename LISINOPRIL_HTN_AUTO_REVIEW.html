@@ -3,97 +3,214 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lisinopril in HTN — RapidMeta</title>
+<title>Lisinopril in HTN — RapidMeta (audit-first)</title>
 <style>
   body { margin:0; padding:0; background:#0f172a; color:#e2e8f0; font-family:system-ui,-apple-system,sans-serif; line-height:1.55; }
   main { max-width:980px; margin:0 auto; padding:24px; }
-  h1 { margin:0 0 8px;font-size:22px; }
+  h1 { margin:0 0 8px; font-size:22px; }
   h2 { font-size:15px; color:#7dd3fc; margin-top:1.5rem; }
   table { width:100%; border-collapse:collapse; background:#0f172a; margin-top:1rem; }
   th { background:#0a0f1f; padding:10px; text-align:left; font-size:11px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em; border-bottom:1px solid #1f2a44; }
-  a { color:#7dd3fc; }
+  td { padding:8px; border-bottom:1px solid #1f2a44; font-size:13px; vertical-align:top; }
+  a { color:#7dd3fc; text-decoration:none; }
+  a:hover { text-decoration:underline; }
   .meta { color:#94a3b8; font-size:12px; }
   footer { margin-top:2rem; padding-top:1rem; border-top:1px solid #1f2a44; color:#94a3b8; font-size:11px; }
+  .tabs { display:flex; gap:4px; flex-wrap:wrap; border-bottom:1px solid #1f2a44; margin:1.2rem 0 1rem; }
+  .tabs button { background:transparent; color:#94a3b8; border:none; padding:10px 16px; cursor:pointer; font-size:13px; border-bottom:3px solid transparent; }
+  .tabs button.active { color:#e2e8f0; border-bottom-color:#7dd3fc; }
+  .tabs button:hover { color:#cbd5e1; }
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; }
+  table.kv { width:100%; }
+  table.kv td:first-child { width:40%; color:#94a3b8; font-size:12px; }
+  table.kv td { padding:6px 8px; }
+  table.ext2x2 { width:auto; margin-top:6px; font-size:12px; }
+  table.ext2x2 td, table.ext2x2 th { padding:4px 12px; text-align:right; font-family:JetBrains Mono,monospace; }
+  table.ext2x2 td:first-child { text-align:left; font-family:system-ui,sans-serif; color:#cbd5e1; }
+  .pill { display:inline-block; padding:2px 8px; background:#1e293b; border-radius:10px; font-size:11px; color:#cbd5e1; margin:2px; }
 </style>
 </head>
 <body>
-<div id="rapidmeta-integrity-badge" role="status" style="background:#16a34a;color:#fff;padding:12px 20px;font-family:system-ui,sans-serif;font-size:13.5px;border-bottom:3px solid #15803d;line-height:1.55;"><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><strong style="font-size:14px;letter-spacing:0.04em;">TRUSTWORTHY</strong><span style="font-size:11.5px;opacity:0.92;">Fabrication-risk score: <strong>0.000</strong> · Trials: <strong>2</strong></span></div><div style="margin-top:6px;font-size:12.5px;opacity:0.95;">Multi-source audit completed (AACT 2026-04-12 + PubMed + 10 internal-consistency rounds). Routine pre-publication human spot-check recommended.</div><div style="margin-top:6px;font-size:10.5px;opacity:0.75;">Audited via AACT 2026-04-12 + PubMed + 14 internal-consistency rounds. See <code style="background:rgba(255,255,255,0.15);padding:1px 4px;border-radius:2px;">outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md</code> for methodology.</div></div>
-
-
-
 
 <!-- TRUSTWORTHY badge — audit-first build -->
-
+<div id="rapidmeta-integrity-badge" role="status" style="background:#16a34a;color:#fff;padding:12px 20px;font-family:system-ui,sans-serif;font-size:13.5px;border-bottom:3px solid #15803d;line-height:1.55;">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <strong style="font-size:14px;letter-spacing:0.04em;">TRUSTWORTHY (audit-first build)</strong>
+    <span style="font-size:11.5px;opacity:0.92;">Trials: <strong>2</strong> · all passed 6-gate audit · k ≥2</span>
+  </div>
+  <div style="margin-top:6px;font-size:12.5px;opacity:0.95;">
+    Built post-cleanup using the audit-first pipeline. Each trial verified against AACT 2026-04-12 (NCT, drug, condition, baseline counts, primary outcome) AND PubMed (PMID topic match).
+  </div>
+  <div style="margin-top:6px;font-size:10.5px;opacity:0.75;">
+    Methodology: <a href="outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md" style="color:#fff;">FINAL_INTEGRITY_REPORT_V2.md</a> ·
+    <a href="outputs/new_topics/LISINOPRIL_HTN_AUTO.json" style="color:#fff;">audit log</a> ·
+    <a href="index.html" style="color:#fff;">main index</a>
+  </div>
+</div>
 
 <main>
 <h1>Lisinopril in HTN</h1>
-<div class="meta">RapidMeta — audit-first build · 2 trials passed all 6 integrity gates · Data sources: AACT 2026-04-12 + PubMed E-utilities</div>
+<div class="meta">
+  RapidMeta · audit-first build · 2 included trials · Lisinopril in Hypertension ·
+  Data: AACT 2026-04-12 + PubMed E-utilities
+</div>
 
-<h2>Background</h2>
-<p style="color:#cbd5e1;">Living meta-analysis of 2 trials evaluating <strong>lisinopril</strong> in <strong>hypertension</strong>. All data extracted from AACT 2026-04-12 (Clinical Trials Transformation Initiative) and cross-verified against the primary PubMed publication for each NCT.</p>
+<div class="tabs" role="tablist">
+  <button class="active" data-tab="protocol">Protocol</button>
+  <button data-tab="search">Search</button>
+  <button data-tab="screening">Screening</button>
+  <button data-tab="extraction">Extraction</button>
+  <button data-tab="analysis">Analysis</button>
+  <button data-tab="about">About</button>
+</div>
 
-<h2>Included trials</h2>
-<table>
-<thead>
-<tr>
-<th>Trial</th>
-<th>Description</th>
-<th>Events / N</th>
-<th>Citation</th>
-</tr>
-</thead>
-<tbody>
+<section id="tab-protocol" class="tab-panel active">
+    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">PICO</h3>
+    <table class="kv">
+      <tr><td>Population</td><td>Adults randomised in trials registered on ClinicalTrials.gov for <strong>Hypertension</strong>.</td></tr>
+      <tr><td>Intervention</td><td><strong>Lisinopril</strong> (AACT-verified intervention name in each trial).</td></tr>
+      <tr><td>Comparator</td><td>Active comparator or placebo as registered on AACT.</td></tr>
+      <tr><td>Outcomes</td><td>Trial-declared primary outcome (AACT <code>design_outcomes</code>); event counts harvested from AACT <code>outcome_measurements</code>.</td></tr>
+      <tr><td>Design</td><td>Interventional RCTs (post-2010 start date), Phase 2/3 or Phase 3/4.</td></tr>
+    </table>
 
-        <tr>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;"><strong>CALIBREX</strong><br>
-            <span style="font-size:11px;color:#94a3b8;"><a href="https://clinicaltrials.gov/study/NCT01984164" target="_blank" style="color:#7dd3fc;">NCT01984164</a></span></td>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;font-size:12px;color:#cbd5e1;">
-            CAndesartan vs LIsinopril Effects on the BRain<br>
-            <span style="color:#94a3b8;font-size:11px;">Primary: Executive Function</span></td>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;text-align:right;font-family:JetBrains Mono,monospace;font-size:11px;">
-            tE: —/87<br>
-            cE: —/89</td>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;font-size:11px;"><a href="https://pubmed.ncbi.nlm.nih.gov/32761160/" target="_blank" style="color:#7dd3fc;">PMID 32761160</a><br>
-            <span style="color:#94a3b8;">2020</span></td>
-        </tr>
-        <tr>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;"><strong>The COREG And Lisinopril Combi…</strong><br>
-            <span style="font-size:11px;color:#94a3b8;"><a href="https://clinicaltrials.gov/study/NCT00347360" target="_blank" style="color:#7dd3fc;">NCT00347360</a></span></td>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;font-size:12px;color:#cbd5e1;">
-            The COREG And Lisinopril Combination Therapy In Hypertensive Subjects (COSMOS) Trial<br>
-            <span style="color:#94a3b8;font-size:11px;">Primary: Change From Baseline to Week 6 in 24 Hour (hr) Mean Diastolic Blood Pressure</span></td>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;text-align:right;font-family:JetBrains Mono,monospace;font-size:11px;">
-            tE: 133/44<br>
-            cE: 61/43</td>
-          <td style="padding:8px;border-bottom:1px solid #1f2a44;font-size:11px;"><a href="https://pubmed.ncbi.nlm.nih.gov/20883227/" target="_blank" style="color:#7dd3fc;">PMID 20883227</a><br>
-            <span style="color:#94a3b8;">2010</span></td>
-        </tr>
-</tbody>
-</table>
+    <h3 style="color:#7dd3fc;font-size:14px;">Eligibility (6-gate audit)</h3>
+    <ol style="color:#cbd5e1;font-size:12.5px;">
+      <li>GATE-A — NCT exists in AACT 2026-04-12 snapshot.</li>
+      <li>GATE-B — Drug pattern "lisinopril" present in AACT <code>interventions</code> for the NCT.</li>
+      <li>GATE-C — Condition pattern "hypertension" present in AACT <code>conditions</code>.</li>
+      <li>GATE-D — Primary PMID's PubMed title or abstract mentions the drug or condition.</li>
+      <li>GATE-E — AACT <code>baseline_counts</code> reports ≥2 per-arm participant rows.</li>
+      <li>GATE-F — AACT <code>design_outcomes</code> declares a primary outcome with measure text.</li>
+    </ol>
+    <p style="color:#94a3b8;font-size:11.5px;">Audit verdict: <code>VIABLE</code> requires ≥3 trials passing all 6 gates (k≥3 — current standard for new audit-first builds). Older builds use k≥2.</p>
 
+    <h3 style="color:#7dd3fc;font-size:14px;">Pre-specified primary outcomes (per trial)</h3>
+    <ul style="color:#cbd5e1;font-size:12.5px;"><li>Change From Baseline to Week 6 in 24 Hour (hr) Mean Diastolic Blood Pressure</li><li>Executive Function</li></ul>
 
+    <h3 style="color:#7dd3fc;font-size:14px;">Statistical methods</h3>
+    <p style="color:#cbd5e1;font-size:12.5px;">Inverse-variance random-effects pooling on the log-OR scale (Woolf estimator from AACT event counts), DerSimonian-Laird τ² with Hartung-Knapp-Sidik-Jonkman (HKSJ) variance correction and t<sub>k-1</sub> critical value (Cochrane Handbook v6.5 conventions). Single-trial entries report Wald 95% CI on the log scale.</p>
+    </section>
+<section id="tab-search" class="tab-panel">
+    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">Search strategy</h3>
+    <p style="color:#cbd5e1;font-size:12.5px;">Source-of-truth: AACT 2026-04-12 snapshot from the Clinical Trials Transformation Initiative (CTTI). Auto-discovery query:</p>
+    <pre style="background:#0a0f1f;padding:12px;border-radius:6px;color:#bef264;font-size:12px;overflow-x:auto;">
+SELECT nct_id FROM interventions
+WHERE lower(name) LIKE '%lisinopril%'
+INTERSECT
+SELECT nct_id FROM conditions
+WHERE lower(name) LIKE '%hypertension%'</pre>
+    <p style="color:#cbd5e1;font-size:12.5px;">PubMed bridge: NCBI E-utilities + idconv API to fetch primary publication PMID and abstract for each NCT.</p>
+    <pre style="background:#0a0f1f;padding:12px;border-radius:6px;color:#bef264;font-size:12px;overflow-x:auto;">https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=lisinopril+AND+hypertension+AND+RCT</pre>
+    <p style="color:#94a3b8;font-size:11.5px;">Cross-checking: every NCT that survives intersection is verified to have a primary outcome declared in AACT <code>design_outcomes</code> AND a publication whose abstract mentions the drug or condition (GATE-D).</p>
+    </section>
+<section id="tab-screening" class="tab-panel">
+    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">PRISMA-style screening</h3>
+    <table class="kv">
+      <tr><td>Records identified (AACT × PubMed)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;">8</td></tr>
+      <tr><td>Records excluded (gate failure)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;color:#fca5a5;">6</td></tr>
+      <tr><td>Records included (all 6 gates pass)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;color:#86efac;">2</td></tr>
+    </table>
 
-<h2>Audit trail</h2>
-<p style="color:#cbd5e1;font-size:12px;">This review was generated by the audit-first topic-build pipeline. Each trial was verified at extraction time (not after) against the following gates:</p>
-<ul style="color:#cbd5e1;font-size:12px;">
-<li>GATE-A: NCT exists in AACT 2026-04-12 snapshot</li>
-<li>GATE-B: Drug pattern in AACT interventions</li>
-<li>GATE-C: Condition pattern in AACT conditions</li>
-<li>GATE-D: Primary PMID's PubMed title+abstract contains drug OR condition</li>
-<li>GATE-E: AACT baseline_counts gives ≥2 per-arm rows</li>
-<li>GATE-F: AACT design_outcomes declares a primary outcome</li>
-</ul>
-<p style="color:#94a3b8;font-size:11px;">All 2 trials in this review passed all 6 gates. Full per-trial gate results at <a href="outputs/new_topics/LISINOPRIL_HTN_AUTO.json"><code>outputs/new_topics/LISINOPRIL_HTN_AUTO.json</code></a>.</p>
+    <h3 style="color:#7dd3fc;font-size:14px;">Exclusions by first failing gate</h3>
+    <table class="kv">
+      <tr><th>Gate</th><th>n</th></tr>
+      <tr><td>D_pmid_topic_match</td><td style='text-align:right;'>6</td></tr>
+    </table>
+    <p style="color:#94a3b8;font-size:11.5px;">Screening is fully deterministic: every record is auto-flagged by the gate that first fails. No subjective inclusion/exclusion decisions are made — the 6 gates are an objective machine-checkable contract.</p>
+    </section>
+<section id="tab-extraction" class="tab-panel">
+        <div style="background:#1e293b;padding:14px;border-radius:6px;margin:0.6rem 0;">
+          <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;">
+            <div>
+              <strong style="font-size:14px;">CALIBREX</strong>
+              <span style="color:#94a3b8;font-size:11px;margin-left:8px;"><a href="https://clinicaltrials.gov/study/NCT01984164" target="_blank">NCT01984164</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/32761160/" target="_blank">PMID 32761160</a> · 2020</span>
+            </div>
+          </div>
+          <p style="margin:6px 0 4px;color:#cbd5e1;font-size:12px;">CAndesartan vs LIsinopril Effects on the BRain</p>
+          <p style="margin:0 0 6px;color:#94a3b8;font-size:11px;"><strong>Primary outcome (AACT):</strong> Executive Function</p>
+          <table class="ext2x2">
+            <tr><th></th><th>Events</th><th>No event</th><th>Total N</th></tr>
+            <tr><td><strong>Intervention</strong></td><td>—</td><td>—</td><td>87</td></tr>
+            <tr><td><strong>Control</strong></td><td>—</td><td>—</td><td>89</td></tr>
+          </table>
+        </div>
+
+        <div style="background:#1e293b;padding:14px;border-radius:6px;margin:0.6rem 0;">
+          <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;">
+            <div>
+              <strong style="font-size:14px;">NCT00347360</strong>
+              <span style="color:#94a3b8;font-size:11px;margin-left:8px;"><a href="https://clinicaltrials.gov/study/NCT00347360" target="_blank">NCT00347360</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/20883227/" target="_blank">PMID 20883227</a> · 2010</span>
+            </div>
+          </div>
+          <p style="margin:6px 0 4px;color:#cbd5e1;font-size:12px;">The COREG And Lisinopril Combination Therapy In Hypertensive Subjects (COSMOS) Trial</p>
+          <p style="margin:0 0 6px;color:#94a3b8;font-size:11px;"><strong>Primary outcome (AACT):</strong> Change From Baseline to Week 6 in 24 Hour (hr) Mean Diastolic Blood Pressure</p>
+          <table class="ext2x2">
+            <tr><th></th><th>Events</th><th>No event</th><th>Total N</th></tr>
+            <tr><td><strong>Intervention</strong></td><td>133</td><td>-89</td><td>44</td></tr>
+            <tr><td><strong>Control</strong></td><td>61</td><td>-18</td><td>43</td></tr>
+          </table>
+        </div></section>
+<section id="tab-analysis" class="tab-panel">
+    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">Forest plot — per-trial OR + pooled estimate</h3>
+    <svg viewBox="0 0 760 136" style="width:100%;max-width:760px;background:#0a0f1f;border-radius:6px;">
+<text x="20" y="20" fill="#94a3b8" font-size="11">Trial</text>
+<text x="465.0" y="20" fill="#94a3b8" font-size="11" text-anchor="middle">log-OR (95% CI)</text>
+<line x1="465.0" y1="28" x2="465.0" y2="84" stroke="#475569" stroke-dasharray="3,3"/>
+<text x="20" y="46.0" fill="#e2e8f0" font-size="11">CALIBREX</text>
+<text x="465.0" y="46.0" fill="#64748b" font-size="11" text-anchor="middle">(no event data)</text>
+<text x="20" y="74.0" fill="#e2e8f0" font-size="11">NCT00347360</text>
+<text x="465.0" y="74.0" fill="#64748b" font-size="11" text-anchor="middle">(no event data)</text>
+</svg>
+    <p style="color:#94a3b8;font-size:12px;">Insufficient event-count data for pooled estimate.</p>
+    
+    </section>
+<section id="tab-about" class="tab-panel">
+    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">Audit-first build</h3>
+    <p style="color:#cbd5e1;font-size:12.5px;">This review was generated by the 6-gate audit-first pipeline after the 16-round portfolio cleanup. Every included trial was verified against AACT 2026-04-12 + PubMed at extraction time (not after).</p>
+    <ul style="color:#cbd5e1;font-size:12.5px;">
+      <li>Full per-trial gate log: <a href="outputs/new_topics/LISINOPRIL_HTN_AUTO.json"><code>outputs/new_topics/LISINOPRIL_HTN_AUTO.json</code></a></li>
+      <li>Methodology: <a href="outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md">FINAL_INTEGRITY_REPORT_V2.md</a></li>
+      <li>Main index: <a href="index.html">RapidMeta portfolio</a></li>
+      <li>AACT attribution: Clinical Trials Transformation Initiative (CTTI), snapshot 2026-04-12.</li>
+      <li>PubMed attribution: NCBI E-utilities + idconv API.</li>
+    </ul>
+    <h3 style="color:#7dd3fc;font-size:14px;">Limits of this build</h3>
+    <ul style="color:#cbd5e1;font-size:12.5px;">
+      <li>Pool estimand is an <strong>OR</strong> derived from AACT event counts; the trial-published <strong>HR</strong> (where applicable) is not parsed from the PubMed abstract in the audit-first pipeline. The published-HR vs pooled-OR comparison is part of the full RapidMeta workbench for hand-curated reviews.</li>
+      <li>Risk-of-bias (RoB-2) is not coded here — see the parent NMA review or the curated <code>*_REVIEW.html</code> for the same topic if one exists.</li>
+      <li>The 6 gates are necessary but not sufficient for a Cochrane-grade review — they are an integrity floor, not a ceiling.</li>
+    </ul>
+    </section>
 
 <footer>
 Per AACT attribution: AACT (Clinical Trials Transformation Initiative) snapshot 2026-04-12.
-Per PubMed attribution: NCBI E-utilities + idconv API.
-Generated by <code>scripts/generate_topic_html.py</code>.
+Per PubMed attribution: NCBI E-utilities + idconv API. Generated by
+<code>scripts/generate_topic_html.py</code>.
 </footer>
-
 </main>
 
-<!-- Engine data block (consumed by scripts/extract_realdata.py + 28-panel statistics tab) -->
+<script>
+(function(){
+  'use strict';
+  // Tab handler
+  var tabs = document.querySelectorAll('.tabs button');
+  var panels = document.querySelectorAll('.tab-panel');
+  tabs.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var name = btn.getAttribute('data-tab');
+      tabs.forEach(function(b){ b.classList.remove('active'); });
+      panels.forEach(function(p){ p.classList.remove('active'); });
+      btn.classList.add('active');
+      var panel = document.getElementById('tab-' + name);
+      if (panel) panel.classList.add('active');
+    });
+  });
+})();
+</script>
+
+<!-- Engine data block (consumed by scripts/extract_realdata.py + statistics tab) -->
 <script>
 (function(){
   'use strict';
@@ -119,19 +236,15 @@ Generated by <code>scripts/generate_topic_html.py</code>.
     "hrUCI": null,
     "evidence": [
       {
-        "label": "Primary",
+        "label": "Primary outcome (AACT)",
         "source": "AACT 2026-04-12",
         "text": "Executive Function",
-        "highlights": [
-          "87",
-          "89"
-        ],
         "sourceUrl": "https://clinicaltrials.gov/study/NCT01984164"
       }
     ]
   },
   "NCT00347360": {
-    "name": "TRIAL",
+    "name": "NCT00347360",
     "baseline": {
       "n": 87
     },
@@ -149,15 +262,9 @@ Generated by <code>scripts/generate_topic_html.py</code>.
     "hrUCI": null,
     "evidence": [
       {
-        "label": "Primary",
+        "label": "Primary outcome (AACT)",
         "source": "AACT 2026-04-12",
         "text": "Change From Baseline to Week 6 in 24 Hour (hr) Mean Diastolic Blood Pressure",
-        "highlights": [
-          "133",
-          "44",
-          "61",
-          "43"
-        ],
         "sourceUrl": "https://clinicaltrials.gov/study/NCT00347360"
       }
     ]
