@@ -334,4 +334,22 @@ def main():
                                 f"engine_version span text {engine_version!r} does not contain '0.3.0'"
                             )
                             print(f"  ✓ engine v0.3.0 label rendered: {engine_version!r}")
-              
+                            passed += 1
+                        except AssertionError as e:
+                            print(f"  ✗ {e}")
+                            failed += 1
+                    finally:
+                        page.close()
+            finally:
+                browser.close()
+    finally:
+        srv.shutdown()
+        srv.server_close()
+        print(f"\nHTTP server stopped.")
+
+    print(f"\n{'=' * 60}\n{passed} passed, {failed} failed")
+    sys.exit(0 if failed == 0 else 1)
+
+
+if __name__ == "__main__":
+    main()
