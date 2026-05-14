@@ -341,14 +341,21 @@ for (const c of flagshipContracts) {
   console.log('Fixture: ' + c.flagship + '  ←  ' + path.basename(c.fixture));
   const fx = JSON.parse(fs.readFileSync(path.join(repoRoot, c.fixture), 'utf8'));
   const rJson = JSON.parse(fs.readFileSync(path.join(repoRoot, c.rJson), 'utf8'));
-  // At k=1 (singleTrial), fitLinear throws — only fitRCS runs.
+  // v0.6.0: fitLinear at k=1 now dispatches to single-trial branch (was: throw).
+  // For c.singleTrial fixtures we run fitLinear and assert the single-trial
+  // estimator label; the standard k>=2 pooled-slope contract block below is
+  // skipped since the RCS layer carries the linear-basis summary for these
+  // flagships.
   let lin = null;
   if (!c.singleTrial) {
     lin = DR.fitLinear(fx.trials, {});
   } else {
-    // Confirm the engine actually rejects k=1 for fitLinear (regression-pin the contract).
-    test('fitLinear: throws at k=1 (k=1 fitLinear path intentionally rejected — RCS layer carries the linear-basis summary)', () => {
-      assert.throws(() => DR.fitLinear(fx.trials, {}), /k\s*>=?\s*2|k=1|requires k/i);
+    test('fitLinear: k=1 single-trial path produces wls_single_trial_linear estimator (v0.6.0)', () => {
+      const linK1 = DR.fitLinear(fx.trials, {});
+      assert.equal(linK1.k, 1);
+      assert.equal(linK1.estimator, 'wls_single_trial_linear');
+      assert.equal(linK1.ci_method, 't_within_trial');
+      assert.ok(Number.isFinite(linK1.pooled_slope_log));
     });
   }
   const rcs = DR.fitRCS(fx.trials, { knots: c.rcsKnots });
@@ -736,16 +743,16 @@ for (const c of flagshipContracts) {
 // assertions pin the engine-vs-flagship contract for the new tab so a
 // future engine refactor that renames or moves fitLOO breaks the test
 // (matching the pattern of the Round 2C field-path regression).
-console.log('SURPASS LOO-tab contract (engine v0.5.0 — DR._internal.fitLOO)');
+console.log('SURPASS LOO-tab contract (engine v0.6.0 — DR._internal.fitLOO)');
 
-test('engine v0.5: DR.engine_version label is @0.5.0', () => {
-  assert.ok(/@0\.5\.0$/.test(DR.engine_version),
-    'engine_version label should end with @0.5.0; got ' + DR.engine_version);
+test('engine v0.6: DR.engine_version label is @0.6.0', () => {
+  assert.ok(/@0\.6\.0$/.test(DR.engine_version),
+    'engine_version label should end with @0.6.0; got ' + DR.engine_version);
 });
 
-test('engine v0.5: DR._internal.fitLOO is a function', () => {
+test('engine v0.6: DR._internal.fitLOO is a function', () => {
   assert.equal(typeof DR._internal.fitLOO, 'function',
-    'DR._internal.fitLOO must be a function on the engine v0.5.0 API');
+    'DR._internal.fitLOO must be a function on the engine v0.6.0 API');
 });
 
 test('SURPASS LOO: fitLOO(SURPASS, layer=rcs, knots=3) returns full_pool + 5 LOO entries', () => {
@@ -876,7 +883,13 @@ const looRollout = [
     expectedKFull: 2,
     expectedKLoo: 1,
     everyNlPFinite: false,  // some LOO subsets are k=1 with sparse arms → degenerated, nlP=null
-    expectedMostInfluential: 'SURMOUNT-2',
+    // v0.6.0: most-influential flipped from SURMOUNT-2 to SURMOUNT-1. Cause:
+    // previously (v0.5) dropping SURMOUNT-1 yielded a k=1 subset whose RCS fit
+    // degenerated to fitLinear, which then threw on k<2, producing NaN delta
+    // (degenerated=true, abs_delta=∞ ignored, not counted). v0.6's fitLinear
+    // k=1 branch returns a finite slope for that subset, so the larger absolute
+    // delta (SURMOUNT-1 drop |Δ|=0.67 > SURMOUNT-2 drop |Δ|=0.49) wins.
+    expectedMostInfluential: 'SURMOUNT-1',
   },
   {
     name: 'FINERENONE_ARTS_DN (k=1, explanatory panel)',

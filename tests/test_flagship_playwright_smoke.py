@@ -619,16 +619,16 @@ def main():
                             print(f"  ✗ {e}")
                             failed += 1
 
-                        # Test 4: engine_version span has been populated and contains 0.5.0.
-                        # Engine v0.5.0 (this PR) bumps the version label; all 10 flagships
-                        # read DR.engine_version directly from the loaded engine, so every
-                        # flagship now renders v0.5.0 even though only SURPASS surfaces the
-                        # new LOO sensitivity tab.
+                        # Test 4: engine_version span has been populated and contains 0.6.0.
+                        # Engine v0.6.0 (this PR) bumps the version label for the fitLinear
+                        # k=1 single-trial branch addition; all 10 flagships read
+                        # DR.engine_version directly from the loaded engine, so every
+                        # flagship now renders v0.6.0.
                         try:
-                            assert "0.5.0" in engine_version, (
-                                f"engine_version span text {engine_version!r} does not contain '0.5.0'"
+                            assert "0.6.0" in engine_version, (
+                                f"engine_version span text {engine_version!r} does not contain '0.6.0'"
                             )
-                            print(f"  ✓ engine v0.5.0 label rendered: {engine_version!r}")
+                            print(f"  ✓ engine v0.6.0 label rendered: {engine_version!r}")
                             passed += 1
                         except AssertionError as e:
                             print(f"  ✗ {e}")
@@ -671,7 +671,7 @@ def main():
                                 btn_count = page.locator(f"#{loo_btn_id}").count()
                                 assert btn_count == 1, (
                                     f"LOO tab button #{loo_btn_id} not found in DOM (count={btn_count}). "
-                                    f"Engine v0.5.0 LOO sensitivity tab must be rendered."
+                                    f"Engine v0.6.0 LOO sensitivity tab must be rendered."
                                 )
                                 panel_id = flagship.get("loo_tab_panel_id")
                                 panel_text = page.locator(f"#{panel_id}").text_content() or ""
@@ -699,7 +699,7 @@ def main():
                                     f"LOO KPI mount #{kpi_id} contains forbidden display(s): "
                                     f"{hits}. KPI text: {kpi_text[:500]}"
                                 )
-                                print(f"  ✓ LOO sensitivity tab renders (engine v0.5.0 demonstrator)")
+                                print(f"  ✓ LOO sensitivity tab renders (engine v0.6.0 demonstrator)")
                                 passed += 1
                             except AssertionError as e:
                                 print(f"  ✗ LOO sensitivity tab: {e}")

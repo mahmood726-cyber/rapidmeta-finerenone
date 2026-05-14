@@ -1,4 +1,4 @@
-/* rapidmeta-dose-response-engine-v1.js — v0.5.0 (2026-05-14)
+/* rapidmeta-dose-response-engine-v1.js — v0.6.0 (2026-05-14)
  *
  * Self-contained dose-response meta-analysis engine for RapidMeta.
  * Three layered fitters: two-stage Greenland-Longnecker linear (primary),
@@ -22,6 +22,11 @@
  *     the engine's existing k=1 fitRCS branch; demonstrated on the TIRZEPATIDE
  *     SURPASS flagship (k=5; nonlin Wald p = 0.0346 full pool — most influential
  *     LOO subset surfaced in the flagship's LOO sensitivity tab)
+ *   - v0.6.0: fitLinear k=1 single-trial branch — closes the asymmetry with
+ *     fitRCS (v0.4). Returns the per-trial GL/WLS slope estimate with tau2=0,
+ *     Q=0, hksj_qstar=1, PI degenerated to CI, tcrit=qt(0.975, n_arms-2)
+ *     within-trial df. estimator='wls_single_trial_linear',
+ *     ci_method='t_within_trial'. fitLinear at k>=2 is byte-identical to v0.5.
  *
  * Load as <script src="rapidmeta-dose-response-engine-v1.js" defer></script>;
  * exposes window.RapidMetaDoseResp.{ validate, fitLinear, fitRCS, fitOneStage,
@@ -34,7 +39,7 @@
   // Public methods are assigned to API.<name> immediately after each function
   // definition below. _internal helpers are similarly attached as defined.
   var API = {
-    engine_version: 'rapidmeta-dose-response-engine-v1@0.5.0',
+    engine_version: 'rapidmeta-dose-response-engine-v1@0.6.0',
     _internal: {},
   };
 
@@ -1062,10 +1067,12 @@
     var issues = validate(trials);
     if (issues.length > 0) throw new Error('fitLinear: ' + issues[0]);
 
-  // I-1 fix: validate() is a data-shape checker, not a statistical-feasibility
-  // checker. k<2 produces NaN downstream (qt(0.975, 0) is undefined).
-  if (trials.length < 2) {
-    throw new Error('fitLinear: requires k >= 2 trials; got k=' + trials.length);
+  // I-1 / v0.6.0: validate() is a data-shape checker, not a statistical-feasibility
+  // checker. k<1 is impossible (no trials → no engine work); k=1 dispatches to the
+  // single-trial branch below (matches fitRCS v0.4.0 k=1 behaviour). k>=2 falls
+  // through to the canonical REML + HKSJ pool.
+  if (trials.length < 1) {
+    throw new Error('fitLinear: requires k >= 1 trial; got k=' + trials.length);
   }
 
     var alpha = opts.alpha || 0.05;
@@ -1137,6 +1144,52 @@
         slope_log_se: seBeta,
         n_arms: T.arms.length
       });
+    }
+
+    // v0.6.0: fitLinear k=1 single-trial branch.
+    // Mirror of fitRCS v0.4.0 k=1 logic. With only one trial there is no
+    // between-study τ² to estimate and Cochran Q is undefined; we surface the
+    // trial's own GL/WLS slope (already computed above in perStudy[0]) with a
+    // within-trial t-CI on df = n_arms - 2. PI degenerates to CI (no
+    // between-study spread). HKSJ inactive (qstar=1, adj=1); estimator and
+    // ci_method labels are distinct from the k>=2 REML+HKSJ path so downstream
+    // consumers can detect single-trial mode.
+    if (trials.length === 1) {
+      var ps = perStudy[0];
+      var single_slope = ps.slope_log;
+      var single_se = ps.slope_log_se;
+      var n_arms_single = ps.n_arms;
+      var df_within = Math.max(1, n_arms_single - 2);
+      var tcrit_single = df_within >= 1 ? qt(1 - (opts.alpha || 0.05) / 2, df_within) : 1.96;
+      var maxObsSingle = 0;
+      for (var ai_s = 0; ai_s < trials[0].arms.length; ai_s++) {
+        var arm_s = trials[0].arms[ai_s];
+        if (!arm_s.is_reference && isFinite(arm_s.dose) && arm_s.dose > maxObsSingle) maxObsSingle = arm_s.dose;
+      }
+      return {
+        layer: 'linear', k: 1,
+        pooled_slope_log: single_slope,
+        pooled_slope_log_se: single_se,
+        pooled_slope_log_ci_lo: single_slope - tcrit_single * single_se,
+        pooled_slope_log_ci_hi: single_slope + tcrit_single * single_se,
+        tau2: 0, tau2_lo: 0, tau2_hi: 0,
+        Q: 0, Q_df: 0, I2: 0, H2: 1,
+        // PI degenerates to CI at k=1 (no between-study spread defined)
+        pi_lo: single_slope - tcrit_single * single_se,
+        pi_hi: single_slope + tcrit_single * single_se,
+        pi_df: df_within,
+        hksj_adj: 1, hksj_qstar: 1,
+        per_study: perStudy,
+        max_observed_dose: maxObsSingle,
+        coverage_warning: true,
+        fallback: null,
+        estimator: 'wls_single_trial_linear',
+        ci_method: 't_within_trial',
+        converged: true,
+        iterations: null,
+        _fitInternal: null,
+        engine_version: API.engine_version,
+      };
     }
 
     var k = perStudy.length;

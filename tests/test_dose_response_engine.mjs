@@ -163,10 +163,14 @@ test('fitLinear refuses fitting on single_arm fixture', () => {
   assert.throws(() => DR.fitLinear(fx.trials, {}), /single arm|< 2 arms|validate/i);
 });
 
-test('fitLinear throws on k=1 (single trial)', () => {
+test('fitLinear on k=1 (single trial) no longer throws (v0.6.0)', () => {
+  // v0.5.0 threw with "k >= 2 trials"; v0.6.0 dispatches to single-trial branch.
+  // Detailed contract assertions for the k=1 branch live in the v0.6.0 block below.
   const fx = loadFx('gl1992_alcohol_bc.json');
   const oneTrial = [fx.trials[0]];
-  assert.throws(() => DR.fitLinear(oneTrial, {}), /k >= 2|requires k/i);
+  const res = DR.fitLinear(oneTrial, {});
+  assert.equal(res.k, 1);
+  assert.ok(Number.isFinite(res.pooled_slope_log));
 });
 
 // === Task 12: rcsBasis (RCS truncated power basis) ===
@@ -913,9 +917,9 @@ test('fitRCS k=1 spline_coefs come from the single trial directly (covBeta = per
 // fitLOO orchestrates fitLinear / fitRCS over each k-1 subset.  We test
 // orchestration, contract shape, and the k=2 single-trial fallback path.
 
-test('fitLOO is exposed on DR._internal and DR.engine_version is v0.5.0', () => {
+test('fitLOO is exposed on DR._internal and DR.engine_version is v0.6.0', () => {
   assert.equal(typeof I.fitLOO, 'function', 'DR._internal.fitLOO must be a function');
-  assert.ok(/v?0\.5\.0$/.test(DR.engine_version), 'engine_version should end with v0.5.0; got: ' + DR.engine_version);
+  assert.ok(/v?0\.6\.0$/.test(DR.engine_version), 'engine_version should end with v0.6.0; got: ' + DR.engine_version);
 });
 
 test('fitLOO on SURPASS (k=5) returns full_pool + 5 LOO entries (default RCS layer)', () => {
@@ -1085,6 +1089,85 @@ test('fitLOO on SURMOUNT (k=2) drops to k=1 each time; engine handles both paths
     assert.equal(e.degenerated, true,
       'k=2 → k=1 linear-layer LOO entry must be marked degenerated=true (single-trial fallback)');
   }
+});
+
+// === v0.6.0 fitLinear k=1 single-trial path tests (mirror of fitRCS v0.4) ===
+// Closes the asymmetry from v0.4 where fitRCS got k=1 support but fitLinear
+// still threw. Re-uses the ARTS-DN-derived 8-arm fixture from the fitRCS k=1
+// tests above (makeArtsDnSingleTrial).
+
+test('fitLinear k=1 single-trial path does not throw and produces sensible output', () => {
+  const trials = makeArtsDnSingleTrial();
+  const lin = DR.fitLinear(trials, {});
+  assert.equal(lin.k, 1);
+  assert.ok(Number.isFinite(lin.pooled_slope_log));
+  assert.ok(Number.isFinite(lin.pooled_slope_log_se));
+  assert.ok(lin.pooled_slope_log_se > 0);
+  assert.ok(Number.isFinite(lin.pooled_slope_log_ci_lo));
+  assert.ok(Number.isFinite(lin.pooled_slope_log_ci_hi));
+  assert.ok(lin.pooled_slope_log_ci_lo < lin.pooled_slope_log_ci_hi);
+});
+
+test('fitLinear k=1 estimator label is wls_single_trial_linear (not reml_hksj)', () => {
+  const lin = DR.fitLinear(makeArtsDnSingleTrial(), {});
+  assert.equal(lin.estimator, 'wls_single_trial_linear');
+});
+
+test('fitLinear k=1 ci_method is t_within_trial', () => {
+  const lin = DR.fitLinear(makeArtsDnSingleTrial(), {});
+  assert.equal(lin.ci_method, 't_within_trial');
+});
+
+test('fitLinear k=1 tau2=0, Q=0, I2=0 (no between-study heterogeneity defined)', () => {
+  const lin = DR.fitLinear(makeArtsDnSingleTrial(), {});
+  assert.equal(lin.tau2, 0);
+  assert.equal(lin.tau2_lo, 0);
+  assert.equal(lin.tau2_hi, 0);
+  assert.equal(lin.Q, 0);
+  assert.equal(lin.Q_df, 0);
+  assert.equal(lin.I2, 0);
+  assert.equal(lin.H2, 1);
+});
+
+test('fitLinear k=1 hksj_qstar=1, hksj_adj=1 (no Q-floor activation)', () => {
+  const lin = DR.fitLinear(makeArtsDnSingleTrial(), {});
+  assert.equal(lin.hksj_qstar, 1);
+  assert.equal(lin.hksj_adj, 1);
+});
+
+test('fitLinear k=1 tcrit = qt(0.975, n_arms-2) within-trial df', () => {
+  const trials = makeArtsDnSingleTrial();
+  const lin = DR.fitLinear(trials, {});
+  // ARTS-DN fixture has 8 arms → df_within = 8 - 2 = 6.
+  // qt(0.975, 6) ≈ 2.4469.
+  // tcrit isn't surfaced directly on the return; reconstruct from CI half-width.
+  const ciHalf = lin.pooled_slope_log_ci_hi - lin.pooled_slope_log;
+  const tcrit_recovered = ciHalf / lin.pooled_slope_log_se;
+  const tcrit_expected = I.qt(0.975, 6);
+  near(tcrit_recovered, tcrit_expected, 1e-10, 'tcrit reconstructed from CI matches qt(0.975, 6)');
+  // Sanity: t > z=1.96 at small df, < ~4
+  assert.ok(tcrit_recovered > 1.96, 'within-trial t > z at small df');
+  assert.ok(tcrit_recovered < 4, 'tcrit modest at n_arms=8');
+});
+
+test('fitLinear k=1 PI degenerates to CI (pi_lo = ci_lo, pi_hi = ci_hi)', () => {
+  const lin = DR.fitLinear(makeArtsDnSingleTrial(), {});
+  near(lin.pi_lo, lin.pooled_slope_log_ci_lo, 1e-12, 'pi_lo == ci_lo at k=1');
+  near(lin.pi_hi, lin.pooled_slope_log_ci_hi, 1e-12, 'pi_hi == ci_hi at k=1');
+});
+
+test('fitLinear k>=2 fixture (SURPASS, k=5) unchanged: pooled_slope_log regression-pin from v0.5', () => {
+  // Regression pin: v0.5.0 baseline values captured BEFORE v0.6.0 engine edit.
+  // If this fails, the k>=2 fitLinear path was perturbed by the v0.6 k=1 branch
+  // (which should be impossible — the k=1 branch returns before the REML pool).
+  const fx = loadFx('tirzepatide_t2d_surpass.json');
+  const lin = DR.fitLinear(fx.trials, {});
+  assert.equal(lin.k, 5);
+  assert.equal(lin.estimator, 'reml_hksj');
+  near(lin.pooled_slope_log, -0.06882512687116353, 1e-12,
+    'SURPASS pooled_slope_log regression pin from v0.5 baseline');
+  near(lin.pooled_slope_log_se, 0.10285426601824053, 1e-12,
+    'SURPASS pooled_slope_log_se regression pin from v0.5 baseline');
 });
 
 let pass = 0, fail = 0;
