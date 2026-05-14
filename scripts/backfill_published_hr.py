@@ -10,7 +10,7 @@ For each VIABLE audit-first topic:
     to the trial's `extracted` block in outputs/new_topics/<STEM>.json.
 """
 from __future__ import annotations
-import json, sys, io, time, urllib.request, urllib.parse
+import json, sys, io, time, re, urllib.request, urllib.parse
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -26,6 +26,71 @@ PUBMED_CACHE = HERE / "outputs" / "extraction_audit" / "pubmed_cache"
 
 # Preferred effect types in order
 PREFERRED_TYPES = ("HR", "OR", "RR", "IRR", "ARD", "MD", "SMD")
+
+
+# ─── Loose-match fallback ────────────────────────────────────────────────────
+# Runs only when V2 EnhancedExtractor returns nothing. Picks up MD/ARD patterns
+# that V2 misses: percentage-point differences, treatment-difference with units,
+# least-squares mean differences, mean-difference-with-units-and-brackets.
+#
+# Pattern targets a number followed by a 95% CI range, then walks ~80 chars
+# back to classify the effect type from a keyword window.
+_LOOSE_CI_RE = re.compile(
+    r"(?P<es>-?\d+\.?\d*)\s*"                              # effect size
+    r"(?:percentage\s+points?|points?|mm2|mmHg|beats?/min|"
+    r"%|months?|years?|days?|weeks?|kg|g|mL|mmol/L|"
+    r"L/min|ng/dL|nmol/L|mL/min)?"                          # optional unit
+    r"\s*[\[\(]\s*(?:95|97\.5)%?\s*"                        # ( 95%
+    r"(?:CI|confidence\s*interval)\s*[,:]?\s*\[?\s*"        # CI[, :]
+    r"(?P<lci>-?\d+\.?\d*)"                                 # LCI
+    r"\s*(?:to|-|–|—)\s*"                                   # to / -
+    r"(?P<uci>-?\d+\.?\d*)",
+    re.IGNORECASE,
+)
+
+
+def _classify_loose(window_text):
+    """Classify a loose-CI match from the ~80 chars preceding it."""
+    w = window_text.lower()
+    if "hazard ratio" in w or re.search(r"\bhr\b", w): return "HR"
+    if "odds ratio" in w or re.search(r"\bor\b", w): return "OR"
+    if "risk ratio" in w or "relative risk" in w or re.search(r"\brr\b", w): return "RR"
+    if "rate ratio" in w or "incidence rate" in w: return "IRR"
+    if ("percentage point" in w or "percentage-point" in w
+        or "absolute difference" in w or "absolute risk" in w
+        or "risk difference" in w): return "ARD"
+    if ("least-squares mean difference" in w or "lsmd" in w
+        or "mean difference" in w or "between-group difference" in w
+        or "treatment difference" in w or "between-arm difference" in w
+        or "between-group difference" in w
+        or re.search(r"\bdifference\b", w)): return "MD"
+    return None
+
+
+def loose_match(text):
+    """Yield (type, es, lci, uci, snippet) tuples for every loose match."""
+    results = []
+    for m in _LOOSE_CI_RE.finditer(text):
+        es = m.group("es"); lci = m.group("lci"); uci = m.group("uci")
+        try:
+            es_v = float(es); lci_v = float(lci); uci_v = float(uci)
+        except ValueError:
+            continue
+        # Sanity: CI bounds should bracket the point (allow some tolerance)
+        if not (min(lci_v, uci_v) - 0.5 <= es_v <= max(lci_v, uci_v) + 0.5):
+            continue
+        # Walk 80 chars back for the type keyword
+        start = max(0, m.start() - 90)
+        window = text[start:m.start()]
+        etype = _classify_loose(window)
+        if not etype: continue
+        # Ratios should be positive
+        if etype in ("HR","OR","RR","IRR") and (es_v <= 0 or es_v > 50): continue
+        snippet = text[max(0, m.start()-50):m.end()+10]
+        results.append({"type": etype, "effect_size": es_v,
+                          "ci_lower": lci_v, "ci_upper": uci_v,
+                          "source_text": snippet.strip()})
+    return results
 
 
 def pick_best_extraction(extractions):
@@ -179,15 +244,30 @@ def main():
             # Allow re-runs to overwrite (e.g. when regex coverage improves)
 
             extractions = ext.extract(text)
-            if not extractions:
-                continue
             best = pick_best_extraction(extractions)
+            source = "v2"
+            if not best:
+                # Loose-match fallback
+                loose = loose_match(text)
+                if loose:
+                    # Pick first by preferred type order, then first by position
+                    by_t = {}
+                    for x in loose:
+                        if x["type"] not in by_t:
+                            by_t[x["type"]] = x
+                    for pt in PREFERRED_TYPES:
+                        if pt in by_t:
+                            best = by_t[pt]
+                            source = "loose"
+                            break
             if not best:
                 continue
 
             stats["extractions_made"] += 1
             t = best["type"]
             stats["by_type"][t] = stats["by_type"].get(t, 0) + 1
+            stats["by_source"] = stats.get("by_source", {})
+            stats["by_source"][source] = stats["by_source"].get(source, 0) + 1
 
             # Snippet around the extraction
             src_text = best.get("source_text") or ""
@@ -196,7 +276,7 @@ def main():
             ex["published_ci_lower"] = best.get("ci_lower")
             ex["published_ci_upper"] = best.get("ci_upper")
             ex["published_source_snippet"] = src_text[:240] if src_text else ""
-            ex["published_extractor"] = "rct-extractor-v2"
+            ex["published_extractor"] = "rct-extractor-v2" if source == "v2" else "loose-regex-fallback"
             any_change = True
 
         if any_change:
@@ -210,6 +290,7 @@ def main():
     print(f"Extractions made: {stats['extractions_made']} "
           f"({100*stats['extractions_made']/max(stats['trials_with_cache'],1):.1f}% of cached)")
     print(f"By type: {stats['by_type']}")
+    print(f"By source: {stats.get('by_source', {})}")
 
 
 if __name__ == "__main__":

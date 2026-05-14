@@ -112,6 +112,23 @@ for json_p in sorted(DATA.glob("*.json")):
                           and GENERIC_NAME_RE.match(str(v.get("name", "")))
                           and k.startswith("NULLED:"))
 
+    # M_unverifiable: trial has a valid PMID + cached PubMed abstract but
+    # neither the V2 RCT extractor nor the loose-match fallback was able to
+    # extract a published effect-with-CI from the abstract. Means the
+    # published-vs-pooled integrity cross-check cannot be performed for this
+    # trial — important for flagship reviews that look complete on metadata
+    # but whose claims are unverifiable from the abstract.
+    PUBMED_CACHE_DIR = HERE / "outputs" / "extraction_audit" / "pubmed_cache"
+    n_unverifiable = 0
+    n_with_abstract = 0
+    for k, v in trials:
+        pmid = v.get("pmid")
+        if not pmid: continue
+        if not (PUBMED_CACHE_DIR / f"{pmid}.json").exists(): continue
+        n_with_abstract += 1
+        if v.get("publishedHR") is None:
+            n_unverifiable += 1
+
     e_score = m11_no_ev.get(rv, 0) / tot
     p_score = n_null_pmid / tot
     n_score = n_nulled_nct / tot
@@ -119,6 +136,9 @@ for json_p in sorted(DATA.glob("*.json")):
     c_score = min(1.0, n_cross / tot)
     v_score = n_single_arm / tot
     x_score = n_generic_name / tot
+    # M_unverifiable normalised by trials that HAD a cached abstract to extract
+    # from. If no trials had abstracts, the signal is 0 (not penalised).
+    m_score = (n_unverifiable / n_with_abstract) if n_with_abstract > 0 else 0.0
 
     # E and P fire on the same trials when both PMID and evidence[] are absent;
     # double-counting over-penalised research-in-progress reviews where the
@@ -131,7 +151,8 @@ for json_p in sorted(DATA.glob("*.json")):
     # layer itself is suspicious (N>0.10), keep the full weight.
     eg_weight = 0.20 if n_score <= 0.10 else 0.40
     score = (eg_weight*evidence_gap + 0.15*n_score +
-             0.10*a_score + 0.05*c_score + 0.05*v_score + 0.10*x_score)
+             0.10*a_score + 0.05*c_score + 0.05*v_score + 0.10*x_score
+             + 0.05*m_score)
 
     # Score-based classification.
     score_class = ("QUARANTINE" if score >= 0.70 else
@@ -159,6 +180,7 @@ for json_p in sorted(DATA.glob("*.json")):
             "C_cross_review": round(c_score, 3),
             "V_residual_single_arm": round(v_score, 3),
             "X_generic_name": round(x_score, 3),
+            "M_unverifiable_published": round(m_score, 3),
         },
         "raw_counts": {
             "m11_no_ev": m11_no_ev.get(rv, 0),
@@ -168,6 +190,8 @@ for json_p in sorted(DATA.glob("*.json")):
             "single_arm_with_HR": n_single_arm,
             "generic_names": n_generic_name,
             "agent_flag_weight": agent_flags.get(rv, 0),
+            "trials_with_abstract": n_with_abstract,
+            "unverifiable_with_abstract": n_unverifiable,
         },
     })
 
