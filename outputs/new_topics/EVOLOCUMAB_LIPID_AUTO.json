@@ -1,23 +1,23 @@
 {
   "topic": {
     "stem": "EVOLOCUMAB_LIPID_AUTO",
-    "name": "Evolocumab for hyperlipidaemia/CV prevention",
+    "name": "Evolocumab in hyperlipidemia",
     "ncts": [
       "NCT05430828",
       "NCT03429998",
-      "NCT05284747",
       "NCT02739984",
       "NCT01849497",
       "NCT03403374",
       "NCT03689946",
-      "NCT04034485"
+      "NCT04034485",
+      "NCT02634580"
     ],
     "drug_patterns": [
       "evolocumab"
     ],
     "condition_patterns": [
-      "hypercholesterol",
-      "cardiovascular"
+      "hyperlipidemia",
+      "hypercholesterol"
     ]
   },
   "trials": [
@@ -74,36 +74,6 @@
         "pmid": null,
         "aact_per_arm_counts": {},
         "aact_primary_outcome_measure": "decrease in LDL-cholesterol (mg/dl)",
-        "aact_outcome_count_rows": []
-      }
-    },
-    {
-      "gates": {
-        "A_aact_exists": true,
-        "B_drug_in_intvs": true,
-        "C_condition_in_aact": true,
-        "D_pmid_topic_match": false,
-        "E_two_arms": false,
-        "F_primary_outcome_known": true
-      },
-      "extracted": {
-        "nct": "NCT05284747",
-        "aact_title": "EVOLVE-MI: EVOLocumab Very Early After Myocardial Infarction",
-        "aact_acronym": "EVOLVE-MI",
-        "start_date": "2022-10-26",
-        "primary_completion_date": "2027-05-29",
-        "aact_intvs": [
-          "evolocumab",
-          "routine lipid management"
-        ],
-        "aact_conditions": [
-          "cardiovascular disease",
-          "coronary revascularization",
-          "myocardial infarction"
-        ],
-        "pmid": null,
-        "aact_per_arm_counts": {},
-        "aact_primary_outcome_measure": "Total (first and subsequent) composite of myocardial infarction, ischemic stroke, any arterial revascularization procedure, and all-cause death",
         "aact_outcome_count_rows": []
       }
     },
@@ -180,7 +150,7 @@
         "A_aact_exists": true,
         "B_drug_in_intvs": true,
         "C_condition_in_aact": true,
-        "D_pmid_topic_match": true,
+        "D_pmid_topic_match": false,
         "E_two_arms": true,
         "F_primary_outcome_known": true
       },
@@ -316,6 +286,59 @@
         "aact_per_arm_counts": {},
         "aact_primary_outcome_measure": "Percent reduction in Low Density Lipoprotein Cholesterol (LDL-C) at week 24",
         "aact_outcome_count_rows": []
+      }
+    },
+    {
+      "gates": {
+        "A_aact_exists": true,
+        "B_drug_in_intvs": true,
+        "C_condition_in_aact": true,
+        "D_pmid_topic_match": true,
+        "E_two_arms": true,
+        "F_primary_outcome_known": true
+      },
+      "extracted": {
+        "nct": "NCT02634580",
+        "aact_title": "Goal Achievement After Utilizing an Anti-PCSK9 Antibody in Statin Intolerant Subjects-4",
+        "aact_acronym": "GAUSS-4",
+        "start_date": "2016-02-27",
+        "primary_completion_date": "2017-08-10",
+        "aact_intvs": [
+          "evolocumab",
+          "ezetimibe",
+          "placebo to evolocumab"
+        ],
+        "aact_conditions": [
+          "hypercholesterolemia"
+        ],
+        "pmid": "31748467",
+        "pubmed_year": 2020,
+        "pubmed_doi": "10.5551/jat.50963",
+        "aact_per_arm_counts": {
+          "BG000": 10,
+          "BG001": 11,
+          "BG002": 19,
+          "BG003": 21
+        },
+        "aact_primary_outcome_measure": "Percent Change From Baseline in Low-Density Lipoprotein Cholesterol (LDL-C) at the Mean of Weeks 10 and 12",
+        "aact_outcome_count_rows": [
+          [
+            "OG000",
+            "0.0"
+          ],
+          [
+            "OG001",
+            "56.41"
+          ],
+          [
+            "OG000",
+            "0.0"
+          ],
+          [
+            "OG001",
+            "52.63"
+          ]
+        ]
       }
     }
   ],

@@ -1,0 +1,133 @@
+{
+  "_comment": "ARTS-DN (NCT01874431) Day-90 UACR ratio dose-response. Single-trial k=1 fixture. Source: AACT 2026-04-12 outcome_id 211099820. SE on log-scale derived from 90% CI half-width / 1.6449; SD = SE * sqrt(n). Engine convention: log-RR/log-ratio outcomes pooled on log scale, back-transform downstream. Reference = placebo (dose=0).",
+  "fixture_name": "finerenone_arts_dn",
+  "source": "AACT 2026-04-12; NCT01874431 (ARTS-DN; Bakris GL et al. JAMA 2015;314(9):884-894; PMID 26325557)",
+  "outcome": "log_ratio_UACR_day90_to_baseline",
+  "outcome_type": "continuous",
+  "dose_unit": "mg",
+  "dose_assignment_method": "fixed parallel-arm randomization (7 finerenone doses + placebo); not titrated",
+  "design": "single-trial Phase 2b parallel-arm dose-finder (k=1)",
+  "small_k_caveat": "k=1 demonstrates the engine on single-trial within-design dose-response. No between-study τ² is defined (tau2_matrix returns all zeros); hksj_mv=1 (no Q heterogeneity inflation); tcrit uses within-trial df = n_arms - Kp - 1. Engine label: estimator=wls_single_trial_rcs, ci_method=t_within_trial.",
+  "pubmed_retrieval_notes": "PMID 26325557 cited from the Round 3.6 fixture-feasibility memo; verify via PubMed MCP at flagship-build time.",
+  "trials": [
+    {
+      "studlab": "ARTS-DN",
+      "pmid": "26325557",
+      "doi": "10.1001/jama.2015.10081",
+      "nct": "NCT01874431",
+      "drug": "finerenone",
+      "duration_weeks": 12,
+      "comparator": "placebo",
+      "background_therapy": "ACEi or ARB (per inclusion criteria; both arms)",
+      "population": "T2D with diabetic nephropathy (UACR 30-3000 mg/g, eGFR ≥ 30)",
+      "aact_outcome_id_primary": 211099820,
+      "data_provenance": "AACT 2026-04-12 outcome_id 211099820 (LSM Day-90 UACR / baseline ratio, 90% CI). SE on log scale = (log_CI_hi - log_CI_lo) / (2 * 1.6449); SD = SE × sqrt(n). FDA-pre-registered primary endpoint per Bayer FIDELIO/FIGARO program lineage.",
+      "arms": [
+        {
+          "label": "Placebo",
+          "dose": 0.0,
+          "mean": -0.064005,
+          "sd": 0.727187,
+          "n": 94,
+          "is_reference": true,
+          "_aact_se_log": 0.075004,
+          "_aact_lsm_ratio": 0.938,
+          "_aact_ci_lo_ratio": 0.829,
+          "_aact_ci_hi_ratio": 1.061,
+          "_aact_arm_label": "Placebo (OG007)"
+        },
+        {
+          "label": "1.25 mg",
+          "dose": 1.25,
+          "mean": -0.140412,
+          "sd": 0.707483,
+          "n": 96,
+          "is_reference": false,
+          "_aact_se_log": 0.072207,
+          "_aact_lsm_ratio": 0.869,
+          "_aact_ci_lo_ratio": 0.772,
+          "_aact_ci_hi_ratio": 0.979,
+          "_aact_arm_label": "Finerenone 1.25 mg (OG000)"
+        },
+        {
+          "label": "2.5 mg",
+          "dose": 2.5,
+          "mean": -0.116534,
+          "sd": 0.728189,
+          "n": 92,
+          "is_reference": false,
+          "_aact_se_log": 0.075919,
+          "_aact_lsm_ratio": 0.89,
+          "_aact_ci_lo_ratio": 0.786,
+          "_aact_ci_hi_ratio": 1.009,
+          "_aact_arm_label": "Finerenone 2.5 mg (OG001)"
+        },
+        {
+          "label": "5 mg",
+          "dose": 5.0,
+          "mean": -0.193585,
+          "sd": 0.732762,
+          "n": 100,
+          "is_reference": false,
+          "_aact_se_log": 0.073276,
+          "_aact_lsm_ratio": 0.824,
+          "_aact_ci_lo_ratio": 0.73,
+          "_aact_ci_hi_ratio": 0.929,
+          "_aact_arm_label": "Finerenone 5 mg (OG002)"
+        },
+        {
+          "label": "7.5 mg",
+          "dose": 7.5,
+          "mean": -0.302457,
+          "sd": 0.736029,
+          "n": 97,
+          "is_reference": false,
+          "_aact_se_log": 0.074732,
+          "_aact_lsm_ratio": 0.739,
+          "_aact_ci_lo_ratio": 0.653,
+          "_aact_ci_hi_ratio": 0.835,
+          "_aact_arm_label": "Finerenone 7.5 mg (OG003)"
+        },
+        {
+          "label": "10 mg",
+          "dose": 10.0,
+          "mean": -0.345311,
+          "sd": 0.733225,
+          "n": 98,
+          "is_reference": false,
+          "_aact_se_log": 0.074067,
+          "_aact_lsm_ratio": 0.708,
+          "_aact_ci_lo_ratio": 0.627,
+          "_aact_ci_hi_ratio": 0.8,
+          "_aact_arm_label": "Finerenone 10 mg (OG004)"
+        },
+        {
+          "label": "15 mg",
+          "dose": 15.0,
+          "mean": -0.462035,
+          "sd": 0.764381,
+          "n": 125,
+          "is_reference": false,
+          "_aact_se_log": 0.068368,
+          "_aact_lsm_ratio": 0.63,
+          "_aact_ci_lo_ratio": 0.563,
+          "_aact_ci_hi_ratio": 0.705,
+          "_aact_arm_label": "Finerenone 15 mg (OG005)"
+        },
+        {
+          "label": "20 mg",
+          "dose": 20.0,
+          "mean": -0.536143,
+          "sd": 0.741194,
+          "n": 119,
+          "is_reference": false,
+          "_aact_se_log": 0.067945,
+          "_aact_lsm_ratio": 0.585,
+          "_aact_ci_lo_ratio": 0.523,
+          "_aact_ci_hi_ratio": 0.654,
+          "_aact_arm_label": "Finerenone 20 mg (OG006)"
+        }
+      ]
+    }
+  ]
+}

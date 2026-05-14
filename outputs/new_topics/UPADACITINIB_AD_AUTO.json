@@ -1,22 +1,22 @@
 {
   "topic": {
     "stem": "UPADACITINIB_AD_AUTO",
-    "name": "Upadacitinib in atopic dermatitis",
+    "name": "Upadacitinib in AD",
     "ncts": [
       "NCT03646604",
       "NCT05989932",
       "NCT03358693",
       "NCT04195698",
-      "NCT06684522",
       "NCT04666675",
       "NCT05601882",
-      "NCT02925117"
+      "NCT02925117",
+      "NCT03607422"
     ],
     "drug_patterns": [
       "upadacitinib"
     ],
     "condition_patterns": [
-      "dermatitis"
+      "atopic dermatitis"
     ]
   },
   "trials": [
@@ -175,33 +175,6 @@
             "1.3"
           ]
         ]
-      }
-    },
-    {
-      "gates": {
-        "A_aact_exists": true,
-        "B_drug_in_intvs": true,
-        "C_condition_in_aact": true,
-        "D_pmid_topic_match": false,
-        "E_two_arms": false,
-        "F_primary_outcome_known": true
-      },
-      "extracted": {
-        "nct": "NCT06684522",
-        "aact_title": "Upadacitinib As a Novel Treatment for Refractory Eyelid Dermatitis",
-        "aact_acronym": "",
-        "start_date": "2024-12-31",
-        "primary_completion_date": "2026-03-31",
-        "aact_intvs": [
-          "upadacitinib 15 mg"
-        ],
-        "aact_conditions": [
-          "eyelid dermatitis"
-        ],
-        "pmid": null,
-        "aact_per_arm_counts": {},
-        "aact_primary_outcome_measure": "Reduction in Investigator Global Assessment (IGA)",
-        "aact_outcome_count_rows": []
       }
     },
     {
@@ -381,10 +354,88 @@
           ]
         ]
       }
+    },
+    {
+      "gates": {
+        "A_aact_exists": true,
+        "B_drug_in_intvs": true,
+        "C_condition_in_aact": true,
+        "D_pmid_topic_match": true,
+        "E_two_arms": true,
+        "F_primary_outcome_known": true
+      },
+      "extracted": {
+        "nct": "NCT03607422",
+        "aact_title": "A Study to Evaluate Upadacitinib in Adolescents and Adults With Moderate to Severe Atopic Dermatitis (Measure Up 2)",
+        "aact_acronym": "",
+        "start_date": "2018-07-27",
+        "primary_completion_date": "2021-03-11",
+        "aact_intvs": [
+          "placebo for upadacitinib",
+          "upadacitinib"
+        ],
+        "aact_conditions": [
+          "atopic dermatitis"
+        ],
+        "pmid": "40900410",
+        "pubmed_year": 2025,
+        "pubmed_doi": "10.1007/s40257-025-00975-3",
+        "aact_per_arm_counts": {
+          "BG000": 242,
+          "BG001": 243,
+          "BG002": 247,
+          "BG003": 60,
+          "BG004": 58,
+          "BG005": 62
+        },
+        "aact_primary_outcome_measure": "Main Study: Percentage of Participants Achieving at Least a 75% Reduction in Eczema Area and Severity Index Score (EASI 75) From Baseline at Week 16",
+        "aact_outcome_count_rows": [
+          [
+            "OG000",
+            "3.0"
+          ],
+          [
+            "OG001",
+            "11.5"
+          ],
+          [
+            "OG002",
+            "17.3"
+          ],
+          [
+            "OG000",
+            "24.5"
+          ],
+          [
+            "OG001",
+            "2.2"
+          ],
+          [
+            "OG002",
+            "56.1"
+          ],
+          [
+            "OG001",
+            "44.8"
+          ],
+          [
+            "OG000",
+            "3.4"
+          ],
+          [
+            "OG002",
+            "50.0"
+          ],
+          [
+            "OG002",
+            "72.0"
+          ]
+        ]
+      }
     }
   ],
   "n_total": 8,
-  "n_pass_all": 2,
+  "n_pass_all": 3,
   "verdict": "VIABLE",
-  "pass_rate": 0.25
+  "pass_rate": 0.375
 }

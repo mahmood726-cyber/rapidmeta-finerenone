@@ -1,25 +1,101 @@
 {
   "topic": {
     "stem": "GILTERITINIB_AML_AUTO",
-    "name": "Gilteritinib in FLT3+ R/R AML",
+    "name": "Gilteritinib in FLT3+ AML",
     "ncts": [
+      "NCT02421939",
       "NCT05955261",
       "NCT04293562",
       "NCT02181660",
       "NCT04027309",
       "NCT06734585",
       "NCT05010122",
-      "NCT06667973",
-      "NCT05312112"
+      "NCT06667973"
     ],
     "drug_patterns": [
       "gilteritinib"
     ],
     "condition_patterns": [
-      "acute myeloid leukemia"
+      "leukemia",
+      "leukaemia"
     ]
   },
   "trials": [
+    {
+      "gates": {
+        "A_aact_exists": true,
+        "B_drug_in_intvs": true,
+        "C_condition_in_aact": true,
+        "D_pmid_topic_match": true,
+        "E_two_arms": true,
+        "F_primary_outcome_known": true
+      },
+      "extracted": {
+        "nct": "NCT02421939",
+        "aact_title": "A Study of ASP2215 Versus Salvage Chemotherapy in Patients With Relapsed or Refractory Acute Myeloid Leukemia (AML) With FMS-like Tyrosine Kinase (FLT3) Mutation",
+        "aact_acronym": "",
+        "start_date": "2015-10-20",
+        "primary_completion_date": "2018-09-17",
+        "aact_intvs": [
+          "gilteritinib",
+          "lodac (low dose cytarabine)",
+          "azacitidine"
+        ],
+        "aact_conditions": [
+          "leukemia, acute myeloid (aml)"
+        ],
+        "pmid": "37019445",
+        "pubmed_year": 2023,
+        "pubmed_doi": "10.1080/10428194.2023.2186731",
+        "aact_per_arm_counts": {
+          "BG000": 247,
+          "BG001": 124
+        },
+        "aact_primary_outcome_measure": "Duration of Overall Survival (OS)",
+        "aact_outcome_count_rows": [
+          [
+            "OG000",
+            "21.1"
+          ],
+          [
+            "OG000",
+            "25.5"
+          ],
+          [
+            "OG000",
+            "28.2"
+          ],
+          [
+            "OG000",
+            "19.0"
+          ],
+          [
+            "OG000",
+            "9.2"
+          ],
+          [
+            "OG001",
+            "10.5"
+          ],
+          [
+            "OG000",
+            "54.3"
+          ],
+          [
+            "OG001",
+            "21.8"
+          ],
+          [
+            "OG001",
+            "15.3"
+          ],
+          [
+            "OG000",
+            "34.0"
+          ]
+        ]
+      }
+    },
     {
       "gates": {
         "A_aact_exists": true,
@@ -222,38 +298,10 @@
         "aact_primary_outcome_measure": "Complete remission rate after induction",
         "aact_outcome_count_rows": []
       }
-    },
-    {
-      "gates": {
-        "A_aact_exists": true,
-        "B_drug_in_intvs": true,
-        "C_condition_in_aact": true,
-        "D_pmid_topic_match": false,
-        "E_two_arms": false,
-        "F_primary_outcome_known": true
-      },
-      "extracted": {
-        "nct": "NCT05312112",
-        "aact_title": "Real World Outcomes Using Novel Agents for AML in the UK",
-        "aact_acronym": "",
-        "start_date": "2022-05-01",
-        "primary_completion_date": "2023-10-01",
-        "aact_intvs": [
-          "venetoclax",
-          "gilteritinib"
-        ],
-        "aact_conditions": [
-          "acute myeloid leukemia"
-        ],
-        "pmid": null,
-        "aact_per_arm_counts": {},
-        "aact_primary_outcome_measure": "Overall survival",
-        "aact_outcome_count_rows": []
-      }
     }
   ],
   "n_total": 8,
-  "n_pass_all": 0,
+  "n_pass_all": 1,
   "verdict": "NOT_VIABLE",
-  "pass_rate": 0.0
+  "pass_rate": 0.125
 }

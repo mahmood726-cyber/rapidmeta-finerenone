@@ -34,11 +34,12 @@ const THRESHOLDS = {
   nonlinearity_p: 0.05,
 };
 
-// The 4 dose-response flagships shipped via Rounds 1B-3.5:
+// The 5 dose-response flagships shipped via Rounds 1B-3.6:
 //   1. ALCOHOL_BC_DOSE_RESP_REVIEW.html (gl1992_alcohol_bc)
 //   2. SGLT2I_DOSE_RESP_REVIEW.html (sglt2i_hba1c primary + sglt2i_hhf secondary)
 //   3. TIRZEPATIDE_T2D_SURPASS_DOSE_RESP_REVIEW.html (tirzepatide_t2d_surpass)
 //   4. TIRZEPATIDE_OBESITY_SURMOUNT_DOSE_RESP_REVIEW.html (tirzepatide_obesity_surmount, k=2 small-k stress test)
+//   5. FINERENONE_ARTS_DN_DOSE_RESP_REVIEW.html (finerenone_arts_dn, k=1 single-trial path — Round 3.6, v0.4 PR #270)
 //
 // Each flagship reads engine field paths from DR.fitLinear / DR.fitRCS results.
 // We codify the contract per flagship.
@@ -48,6 +49,13 @@ const THRESHOLDS = {
 // (e.g. SURMOUNT k=2 has linear_tau2 AMBER because engine PM vs R REML diverge
 // at k=2). Each contract entry may specify `expectAmberRows: [...]` to mark
 // which row-keys should be allowed to fail the threshold check.
+//
+// For k=1 single-trial flagships:
+//   - `singleTrial: true` skips fitLinear assertions (engine throws on k=1) and
+//     redirects the R-parity badge check to the abbreviated 2-row RCS-only contract.
+//   - The flagship's badge is rendered with class `rv-badge-deferred` (custom panel)
+//     rather than the standard 5-row badge, so allGreen/allAmber assertions are
+//     replaced with finite-coef + invariant-shape assertions.
 
 const flagshipContracts = [
   {
@@ -79,6 +87,20 @@ const flagshipContracts = [
     // k=2 PM vs REML divergence is real and documented; the 4 other rows must still be GREEN
     expectAmberRows: ['linear_tau2'],
   },
+  {
+    flagship: 'FINERENONE_ARTS_DN_DOSE_RESP_REVIEW.html',
+    fixture: 'tests/dose_response_fixtures/finerenone_arts_dn.json',
+    rJson: 'outputs/r_validation/doseresp/finerenone_arts_dn.json',
+    rcsKnots: 3,
+    expectAmberRows: [],
+    // Round 3.6 (v0.4 PR #270): k=1 single-trial path. fitLinear throws on k=1; the
+    // R-parity badge runs in deferred mode (custom 2-row RCS-only panel, no linear
+    // or one-stage rows). This contract entry exercises the fitRCS k=1 branch
+    // (estimator=wls_single_trial_rcs, ci_method=t_within_trial, hksj_mv=1,
+    // tau2_matrix all zeros, tcrit=within-trial t). See test_dose_response_engine.mjs
+    // for the 8 dedicated k=1 unit tests.
+    singleTrial: true,
+  },
 ];
 
 let passed = 0, failed = 0;
@@ -93,18 +115,29 @@ for (const c of flagshipContracts) {
   console.log('Fixture: ' + c.flagship + '  ←  ' + path.basename(c.fixture));
   const fx = JSON.parse(fs.readFileSync(path.join(repoRoot, c.fixture), 'utf8'));
   const rJson = JSON.parse(fs.readFileSync(path.join(repoRoot, c.rJson), 'utf8'));
-  const lin = DR.fitLinear(fx.trials, {});
+  // At k=1 (singleTrial), fitLinear throws — only fitRCS runs.
+  let lin = null;
+  if (!c.singleTrial) {
+    lin = DR.fitLinear(fx.trials, {});
+  } else {
+    // Confirm the engine actually rejects k=1 for fitLinear (regression-pin the contract).
+    test('fitLinear: throws at k=1 (k=1 fitLinear path intentionally rejected — RCS layer carries the linear-basis summary)', () => {
+      assert.throws(() => DR.fitLinear(fx.trials, {}), /k\s*>=?\s*2|k=1|requires k/i);
+    });
+  }
   const rcs = DR.fitRCS(fx.trials, { knots: c.rcsKnots });
 
-  // --- fitLinear top-level contract (what KPI displays read) ---
-  test('fitLinear: pooled_slope_log defined', () => assert.ok(Number.isFinite(lin.pooled_slope_log)));
-  test('fitLinear: pooled_slope_log_se defined', () => assert.ok(Number.isFinite(lin.pooled_slope_log_se)));
-  test('fitLinear: pooled_slope_log_ci_lo defined', () => assert.ok(Number.isFinite(lin.pooled_slope_log_ci_lo)));
-  test('fitLinear: pooled_slope_log_ci_hi defined', () => assert.ok(Number.isFinite(lin.pooled_slope_log_ci_hi)));
-  test('fitLinear: k > 0', () => assert.ok(lin.k > 0));
-  test('fitLinear: tau2 defined', () => assert.ok(Number.isFinite(lin.tau2)));
-  test('fitLinear: tau2_lo defined (Q-profile, Round 2B)', () => assert.ok(Number.isFinite(lin.tau2_lo)));
-  test('fitLinear: tau2_hi defined (Q-profile, Round 2B)', () => assert.ok(Number.isFinite(lin.tau2_hi)));
+  // --- fitLinear top-level contract (what KPI displays read) — only at k >= 2 ---
+  if (!c.singleTrial) {
+    test('fitLinear: pooled_slope_log defined', () => assert.ok(Number.isFinite(lin.pooled_slope_log)));
+    test('fitLinear: pooled_slope_log_se defined', () => assert.ok(Number.isFinite(lin.pooled_slope_log_se)));
+    test('fitLinear: pooled_slope_log_ci_lo defined', () => assert.ok(Number.isFinite(lin.pooled_slope_log_ci_lo)));
+    test('fitLinear: pooled_slope_log_ci_hi defined', () => assert.ok(Number.isFinite(lin.pooled_slope_log_ci_hi)));
+    test('fitLinear: k > 0', () => assert.ok(lin.k > 0));
+    test('fitLinear: tau2 defined', () => assert.ok(Number.isFinite(lin.tau2)));
+    test('fitLinear: tau2_lo defined (Q-profile, Round 2B)', () => assert.ok(Number.isFinite(lin.tau2_lo)));
+    test('fitLinear: tau2_hi defined (Q-profile, Round 2B)', () => assert.ok(Number.isFinite(lin.tau2_hi)));
+  }
 
   // --- fitRCS TOP-LEVEL contract (Round 2C hotfix #250 — these MUST be top-level not nested) ---
   test('fitRCS: hksj_mv at TOP level (NOT nested under .rcs — Round 2C bug class)', () => {
@@ -119,11 +152,19 @@ for (const c of flagshipContracts) {
     assert.ok(Number.isFinite(rcs.q_mv));
     assert.ok(Number.isFinite(rcs.df_mv));
   });
-  test('fitRCS: estimator string is reml_hksj_multivariate (Round 2B Task 9)', () => {
-    assert.equal(rcs.estimator, 'reml_hksj_multivariate');
+  test('fitRCS: estimator string matches expected for ' + (c.singleTrial ? 'k=1 (wls_single_trial_rcs)' : 'k>=2 (reml_hksj_multivariate)'), () => {
+    if (c.singleTrial) {
+      assert.equal(rcs.estimator, 'wls_single_trial_rcs');
+    } else {
+      assert.equal(rcs.estimator, 'reml_hksj_multivariate');
+    }
   });
-  test('fitRCS: ci_method string is hksj_t_km1 (Round 2B Task 9)', () => {
-    assert.equal(rcs.ci_method, 'hksj_t_km1');
+  test('fitRCS: ci_method string matches expected for ' + (c.singleTrial ? 'k=1 (t_within_trial)' : 'k>=2 (hksj_t_km1)'), () => {
+    if (c.singleTrial) {
+      assert.equal(rcs.ci_method, 't_within_trial');
+    } else {
+      assert.equal(rcs.ci_method, 'hksj_t_km1');
+    }
   });
   test('fitRCS: converged at TOP level (Round 2B Task 7 follow-up)', () => {
     assert.equal(typeof rcs.converged, 'boolean');
@@ -175,10 +216,42 @@ for (const c of flagshipContracts) {
   // --- HKSJ-mv floor invariant (lessons.md HKSJ floor rule) ---
   test('fitRCS: hksj_mv ≥ 1 (floor invariant)', () => assert.ok(rcs.hksj_mv >= 1));
 
+  // --- k=1 invariants (Round 3.6 / v0.4): hksj_mv exactly 1, tau2 exactly zero,
+  //     reml_iterations exactly 0 (no REML to run on a single trial). ---
+  if (c.singleTrial) {
+    test('k=1 invariant: hksj_mv === 1 (no Q heterogeneity at k=1)', () => {
+      assert.equal(rcs.hksj_mv, 1);
+      assert.equal(rcs.q_mv, 0);
+    });
+    test('k=1 invariant: tau2_matrix all zeros + tau2_per_dim all zeros', () => {
+      for (const row of rcs.rcs.tau2_matrix) for (const v of row) assert.equal(v, 0);
+      for (const v of rcs.rcs.tau2_per_dim) assert.equal(v, 0);
+    });
+    test('k=1 invariant: reml_iterations === 0 (no REML on single trial)', () => {
+      assert.equal(rcs.rcs.reml_iterations, 0);
+      assert.equal(rcs.rcs.reml_converged, true);
+    });
+    test('k=1 invariant: tcrit > 1.96 (within-trial t at small df > z_0.975)', () => {
+      assert.ok(rcs.tcrit > 1.96, 'within-trial t at df ' + rcs.df_mv + ' = ' + rcs.tcrit + ' should exceed z=1.96');
+    });
+    test('k=1 invariant: cov_beta is finite Kp×Kp with positive diagonal (= trial.V)', () => {
+      assert.ok(Array.isArray(rcs.rcs.cov_beta));
+      for (let d = 0; d < rcs.rcs.cov_beta.length; d++) {
+        assert.ok(rcs.rcs.cov_beta[d][d] > 0, 'cov_beta diagonal at dim ' + d + ' must be > 0');
+        for (let dd = 0; dd < rcs.rcs.cov_beta.length; dd++) {
+          assert.ok(Number.isFinite(rcs.rcs.cov_beta[d][dd]), 'cov_beta[' + d + '][' + dd + '] must be finite');
+        }
+      }
+    });
+  }
+
   // --- R-parity badge state simulation (what the badge JS would emit) ---
   // Per-row helper: GREEN means |Δ| < threshold; AMBER means |Δ| ≥ threshold.
   // A row listed in c.expectAmberRows is intentionally allowed to be AMBER
   // (small-k stress-test cases like SURMOUNT linear_tau2 PM-vs-REML divergence).
+  // For k=1 (singleTrial) flagships, the standard 5-row badge does not apply
+  // because the engine has no `linear` output; only RCS rows (engine vs R) are
+  // testable, and the badge is rendered as a custom 2-row deferred panel.
   const expectAmber = new Set(c.expectAmberRows || []);
   function rowAssert(key, engineVal, rVal) {
     const d = Math.abs(engineVal - rVal);
@@ -190,19 +263,21 @@ for (const c of flagshipContracts) {
       assert.ok(isGreen, key + ': |Δ|=' + d.toExponential(2) + ' must be < ' + thr);
     }
   }
-  test('R-parity row: linear_slope' + (expectAmber.has('linear_slope') ? ' AMBER (expected)' : ' GREEN'), () => {
-    rowAssert('linear_slope', lin.pooled_slope_log, rJson.linear.pooled_slope_log);
-  });
-  test('R-parity row: linear_tau2' + (expectAmber.has('linear_tau2') ? ' AMBER (expected, k=2 PM-vs-REML divergence)' : ' GREEN'), () => {
-    rowAssert('linear_tau2', lin.tau2, rJson.linear.tau2);
-  });
-  test('R-parity row: rcs_coef_0' + (expectAmber.has('rcs_coef_0') ? ' AMBER (expected)' : ' GREEN'), () => {
+  if (!c.singleTrial) {
+    test('R-parity row: linear_slope' + (expectAmber.has('linear_slope') ? ' AMBER (expected)' : ' GREEN'), () => {
+      rowAssert('linear_slope', lin.pooled_slope_log, rJson.linear.pooled_slope_log);
+    });
+    test('R-parity row: linear_tau2' + (expectAmber.has('linear_tau2') ? ' AMBER (expected, k=2 PM-vs-REML divergence)' : ' GREEN'), () => {
+      rowAssert('linear_tau2', lin.tau2, rJson.linear.tau2);
+    });
+  }
+  test('R-parity row: rcs_coef_0' + (expectAmber.has('rcs_coef_0') ? ' AMBER (expected)' : ' GREEN') + (c.singleTrial ? ' (k=1 abbreviated badge)' : ''), () => {
     rowAssert('rcs_coef_0', rcs.rcs.spline_coefs[0], rJson.rcs.spline_coefs[0]);
   });
-  test('R-parity row: rcs_coef_1' + (expectAmber.has('rcs_coef_1') ? ' AMBER (expected)' : ' GREEN'), () => {
+  test('R-parity row: rcs_coef_1' + (expectAmber.has('rcs_coef_1') ? ' AMBER (expected)' : ' GREEN') + (c.singleTrial ? ' (k=1 abbreviated badge)' : ''), () => {
     rowAssert('rcs_coef_1', rcs.rcs.spline_coefs[1], rJson.rcs.spline_coefs[1]);
   });
-  test('R-parity row: nonlinearity_p' + (expectAmber.has('nonlinearity_p') ? ' AMBER (expected)' : ' GREEN (Round 2C — was always-amber in v0.1/v0.2)'), () => {
+  test('R-parity row: nonlinearity_p' + (expectAmber.has('nonlinearity_p') ? ' AMBER (expected)' : ' GREEN (Round 2C — was always-amber in v0.1/v0.2)') + (c.singleTrial ? ' (k=1 abbreviated badge)' : ''), () => {
     rowAssert('nonlinearity_p', rcs.rcs.nonlinearity_wald_p, rJson.rcs.nonlinearity_wald_p);
   });
 

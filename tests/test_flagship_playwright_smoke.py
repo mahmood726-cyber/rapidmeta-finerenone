@@ -1,6 +1,6 @@
 """tests/test_flagship_playwright_smoke.py
 
-Playwright headless-Chromium smoke test for the 3 dose-response flagships.
+Playwright headless-Chromium smoke test for the 5 dose-response flagships.
 Complements `tests/test_flagship_field_paths.mjs` (Node-only contract test)
 by catching bugs that only manifest in a real browser runtime:
 
@@ -53,7 +53,10 @@ PORT = 8772  # avoid collision with ad-hoc http.server usage
 # expected_badge: "green" (default) means header GREEN and 0 AMBER rows;
 #                 "amber_with_known_rows" allows header AMBER iff every AMBER row is
 #                 in `allowed_amber_rows` (intended for small-k stress-test flagships
-#                 like SURMOUNT k=2 where linear_tau2 is expected AMBER by design).
+#                 like SURMOUNT k=2 where linear_tau2 is expected AMBER by design);
+#                 "deferred" allows header `rv-badge-deferred` (k=1 single-trial flagships
+#                 where the standard 5-row badge cannot run because the engine has no
+#                 `linear` or `one_stage` output at k=1; FINERENONE_ARTS_DN is the case).
 FLAGSHIPS = [
     {
         "html": "ALCOHOL_BC_DOSE_RESP_REVIEW.html",
@@ -88,6 +91,22 @@ FLAGSHIPS = [
         # `Linear τ²` is the badge label for linear_tau2. We match the engine
         # value `Linear &tau;<sup>2</sup>` (or post-HTML-parse `Linear τ²`) below.
         "allowed_amber_rows": ["Linear τ²"],
+    },
+    {
+        # Round 3.6 — intentional k=1 single-trial flagship (ARTS-DN finerenone
+        # Phase 2b dose-finder, NCT01874431). The standard 5-row R-parity badge
+        # cannot run at k=1 because:
+        #   - engine fitLinear requires k >= 2 (no engine linear output)
+        #   - R lme4::lmer requires >= 2 sampled grouping levels (no R one-stage output)
+        # The flagship renders a custom 2-row RCS-only badge with class
+        # `rv-badge-deferred`. The deferral note must be visible.
+        "html": "FINERENONE_ARTS_DN_DOSE_RESP_REVIEW.html",
+        "r_parity_mount_id": "r-parity-finerenone-arts-dn",
+        "rcs_kpi_id": "uacr-rcs-kpis",
+        "expected_badge": "deferred",
+        "allowed_amber_rows": [],
+        # Phrase in the deferral note that must be present in the badge HTML.
+        "deferral_must_contain": "deferred to engine v0.5",
     },
 ]
 
@@ -193,6 +212,23 @@ def assert_badge_is_green(badge_html, flagship_name):
     )
 
 
+def assert_badge_is_deferred(badge_html, deferral_must_contain, flagship_name):
+    """For k=1 single-trial flagships: the standard 5-row badge can't run; the
+    flagship renders a custom panel with class `rv-badge-deferred` and a
+    deferral note that must contain the documented phrase (default:
+    "deferred to engine v0.5").
+    """
+    assert "rv-badge-deferred" in badge_html, (
+        f"{flagship_name}: expected `rv-badge-deferred` class on the R-parity badge "
+        f"(k=1 single-trial flagship; standard 5-row badge can't run). "
+        f"Badge HTML head: {badge_html[:300]}"
+    )
+    assert deferral_must_contain in badge_html, (
+        f"{flagship_name}: deferral note must contain {deferral_must_contain!r} but "
+        f"badge HTML did not include it. Badge HTML: {badge_html[:800]}"
+    )
+
+
 def assert_badge_amber_with_known_rows(badge_html, allowed_amber_rows, flagship_name):
     """For small-k stress-test flagships: header may be AMBER, but every AMBER row
     MUST be one of the documented allowed rows (e.g. linear_tau2 for SURMOUNT k=2).
@@ -266,7 +302,8 @@ def main():
                             failed += 1
 
                         # Test 3: R-parity badge state (GREEN by default; AMBER-with-known-rows
-                        # for small-k stress-test flagships like SURMOUNT k=2).
+                        # for small-k stress-test flagships like SURMOUNT k=2; DEFERRED for
+                        # k=1 single-trial flagships like FINERENONE_ARTS_DN).
                         try:
                             expected = flagship.get("expected_badge", "green")
                             if expected == "amber_with_known_rows":
@@ -276,6 +313,13 @@ def main():
                                     flagship["html"],
                                 )
                                 print(f"  ✓ R-parity badge AMBER with known rows: {flagship.get('allowed_amber_rows', [])}")
+                            elif expected == "deferred":
+                                assert_badge_is_deferred(
+                                    badge,
+                                    flagship.get("deferral_must_contain", "deferred to engine v0.5"),
+                                    flagship["html"],
+                                )
+                                print(f"  ✓ R-parity badge DEFERRED (k=1; deferral note present)")
                             else:
                                 assert_badge_is_green(badge, flagship["html"])
                                 print(f"  ✓ R-parity badge GREEN (5/5 rows green)")
@@ -290,22 +334,4 @@ def main():
                                 f"engine_version span text {engine_version!r} does not contain '0.3.0'"
                             )
                             print(f"  ✓ engine v0.3.0 label rendered: {engine_version!r}")
-                            passed += 1
-                        except AssertionError as e:
-                            print(f"  ✗ {e}")
-                            failed += 1
-                    finally:
-                        page.close()
-            finally:
-                browser.close()
-    finally:
-        srv.shutdown()
-        srv.server_close()
-        print(f"\nHTTP server stopped.")
-
-    print(f"\n{'=' * 60}\n{passed} passed, {failed} failed")
-    sys.exit(0 if failed == 0 else 1)
-
-
-if __name__ == "__main__":
-    main()
+              
