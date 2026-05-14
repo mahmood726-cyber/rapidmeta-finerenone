@@ -4298,6 +4298,290 @@ TOPICS = [
      ["ragweed"], ["allergic rhinitis"]),
     ("HDM_AIT_AUTO", "HDM immunotherapy (Acarizax)",
      ["house dust mite"], ["allergic rhinitis", "asthma"]),
+
+    # Batch 19 — long-tail post-2010 INNs (mostly Chinese-approved or niche)
+    ("GEFITINIB_LUNG_AUTO", "Gefitinib in EGFR NSCLC (modern era)",
+     ["gefitinib"], ["lung"]),
+    ("ERLOTINIB_LUNG_AUTO", "Erlotinib in EGFR NSCLC",
+     ["erlotinib"], ["lung"]),
+    ("AFATINIB_LUNG_AUTO", "Afatinib in EGFR NSCLC",
+     ["afatinib"], ["lung"]),
+    ("DACOMITINIB_LUNG_AUTO_2", "Dacomitinib in EGFR NSCLC (broader)",
+     ["dacomitinib"], ["lung"]),
+    ("OSIMERTINIB_ADJUVANT_AUTO", "Osimertinib adjuvant in EGFR NSCLC (ADAURA)",
+     ["osimertinib"], ["lung"]),
+    ("AUMOLERTINIB_LUNG_AUTO", "Aumolertinib in EGFR NSCLC",
+     ["aumolertinib"], ["lung"]),
+    ("ALMONERTINIB_PERIOP_AUTO", "Almonertinib perioperative NSCLC",
+     ["almonertinib"], ["lung"]),
+    ("NIMOTUZUMAB_HEADNECK_AUTO", "Nimotuzumab in HNSCC/glioma",
+     ["nimotuzumab"], ["head and neck", "glioma"]),
+    ("ELOTUZUMAB_MYELOMA_AUTO", "Elotuzumab in myeloma",
+     ["elotuzumab"], ["myeloma"]),
+    ("TRAMETINIB_MELANOMA_AUTO", "Trametinib in BRAF+ melanoma",
+     ["trametinib"], ["melanoma"]),
+    ("COBIMETINIB_MELANOMA_AUTO", "Cobimetinib in BRAF+ melanoma",
+     ["cobimetinib"], ["melanoma"]),
+    ("BINIMETINIB_MELANOMA_AUTO", "Binimetinib + encorafenib in melanoma",
+     ["binimetinib"], ["melanoma"]),
+    ("SELUMETINIB_NF1_AUTO", "Selumetinib in NF1 plexiform NF",
+     ["selumetinib"], ["neurofibromatosis"]),
+    ("MIRDAMETINIB_NF1_AUTO", "Mirdametinib in NF1 plexiform",
+     ["mirdametinib"], ["neurofibromatosis"]),
+    ("CAPMATINIB_LUNG_AUTO", "Capmatinib in MET-exon14 NSCLC",
+     ["capmatinib"], ["lung"]),
+    ("TEPOTINIB_LUNG_AUTO", "Tepotinib in MET-exon14 NSCLC",
+     ["tepotinib"], ["lung"]),
+    ("SAVOLITINIB_LUNG_AUTO", "Savolitinib in MET+ NSCLC",
+     ["savolitinib"], ["lung"]),
+    ("VOROLANIB_AUTO", "Vorolanib in solid tumours",
+     ["vorolanib"], ["solid tumor"]),
+    ("DONAFENIB_LIVER_AUTO", "Donafenib in HCC",
+     ["donafenib"], ["hepatocellular"]),
+    ("OLVEREMBATINIB_CML_AUTO", "Olverembatinib in T315I CML",
+     ["olverembatinib"], ["leukemia"]),
+    ("VOXELOTOR_SCD_AUTO_2", "Voxelotor in SCD (broader)",
+     ["voxelotor"], ["sickle"]),
+
+    # Novel novel-INN mAbs / fusions
+    ("VIBOSTOLIMAB_LUNG_AUTO", "Vibostolimab (TIGIT) in NSCLC",
+     ["vibostolimab"], ["lung"]),
+    ("RETIFANLIMAB_SKIN_AUTO", "Retifanlimab in Merkel/cervical/anal",
+     ["retifanlimab"], ["merkel", "anal", "cervical"]),
+    ("FIANLIMAB_MELANOMA_AUTO", "Fianlimab + cemiplimab in melanoma",
+     ["fianlimab"], ["melanoma"]),
+    ("BALSTILIMAB_CERVICAL_AUTO", "Balstilimab in cervical",
+     ["balstilimab"], ["cervical"]),
+    ("MEPLAZUMAB_COVID_AUTO", "Meplazumab in COVID-19",
+     ["meplazumab"], ["covid"]),
+    ("ZANIDATAMAB_BREAST_AUTO", "Zanidatamab in HER2+ biliary/gastric",
+     ["zanidatamab"], ["biliary", "gastric"]),
+    ("LINVOSELTAMAB_MM_AUTO", "Linvoseltamab in R/R myeloma",
+     ["linvoseltamab"], ["myeloma"]),
+    ("EMAPALUMAB_HLH_AUTO", "Emapalumab in primary HLH/Still",
+     ["emapalumab"], ["hemophagocytic", "still"]),
+    ("FREXALIMAB_MS_AUTO", "Frexalimab in MS",
+     ["frexalimab"], ["multiple sclerosis"]),
+    ("CAFRAGLUTIDE_OBESITY_AUTO", "Cafraglutide in obesity",
+     ["cafraglutide"], ["obesity"]),
+    ("GLEPAGLUTIDE_SBS_AUTO", "Glepaglutide in short bowel",
+     ["glepaglutide"], ["short bowel"]),
+    ("EFPEGLENATIDE_T2D_AUTO", "Efpeglenatide in T2D",
+     ["efpeglenatide"], ["type 2 diabetes"]),
+    ("ELORALINTIDE_OBESITY_AUTO", "Eloralintide (amylin) in obesity",
+     ["eloralintide"], ["obesity"]),
+    ("CONBERCEPT_AMD_AUTO", "Conbercept in nAMD",
+     ["conbercept"], ["macular degeneration"]),
+    ("FASINUMAB_OA_AUTO", "Fasinumab (anti-NGF) in OA pain",
+     ["fasinumab"], ["osteoarthritis"]),
+    ("BOCOCIZUMAB_LIPID_AUTO", "Bococizumab in hyperlipidemia (SPIRE)",
+     ["bococizumab"], ["hyperlipidemia"]),
+    ("TOZORAKIMAB_COPD_AUTO", "Tozorakimab in COPD",
+     ["tozorakimab"], ["copd"]),
+    ("GEVOKIZUMAB_BEHCET_AUTO", "Gevokizumab in Behcet uveitis",
+     ["gevokizumab"], ["behcet", "uveitis"]),
+
+    # Novel JAKi
+    ("GOLIDOCITINIB_PTCL_AUTO", "Golidocitinib in PTCL",
+     ["golidocitinib"], ["t-cell lymphoma"]),
+    ("ZASOCITINIB_PSORIASIS_AUTO", "Zasocitinib in psoriasis",
+     ["zasocitinib"], ["psoriasis"]),
+    ("OPRINICITINIB_AUTO", "Opzelura (topical ruxolitinib expansions)",
+     ["opzelura"], ["vitiligo", "atopic dermatitis"]),
+
+    # Other long-tail novel
+    ("PYROXAMINE_AUTO", "Sotagliflozin in T1D",
+     ["sotagliflozin"], ["type 1 diabetes"]),
+    ("EPRENETAPOPT_AML_AUTO", "Eprenetapopt in TP53+ AML/MDS",
+     ["eprenetapopt"], ["myelodysplastic", "leukemia"]),
+    ("MAGROLIMAB_AML_AUTO", "Magrolimab (anti-CD47) in AML/MDS",
+     ["magrolimab"], ["leukemia", "myelodysplastic"]),
+    ("LEMZOPARLIMAB_AUTO", "Lemzoparlimab (anti-CD47) in AML/MDS",
+     ["lemzoparlimab"], ["leukemia", "myelodysplastic"]),
+    ("FERROCITINIB_AUTO", "Filgotinib in PsA",
+     ["filgotinib"], ["psoriatic arthritis"]),
+    ("DEUCRA_UC_AUTO", "Deucravacitinib in UC",
+     ["deucravacitinib"], ["ulcerative colitis"]),
+
+    # Hep B HBV cure pipeline
+    ("VEBICORVIR_HBV_AUTO", "Vebicorvir in chronic HBV",
+     ["vebicorvir"], ["hepatitis b"]),
+    ("BERSAGLIPRON_AUTO", "Bersacapavir in HBV",
+     ["bersacapavir"], ["hepatitis b"]),
+    ("XALNESIRAN_HBV_AUTO", "Xalnesiran in HBV",
+     ["xalnesiran"], ["hepatitis b"]),
+    ("ELEBSIRAN_HBV_AUTO", "Elebsiran (HBV siRNA)",
+     ["elebsiran"], ["hepatitis b"]),
+    ("BARASIRAN_AUTO", "Daplusiran/tomligisiran HBV",
+     ["daplusiran"], ["hepatitis b"]),
+    ("IMDUSIRAN_HBV_AUTO", "Imdusiran in HBV",
+     ["imdusiran"], ["hepatitis b"]),
+
+    # GLP-1 / obesity / diabetes pipeline
+    ("ALDAFERMIN_MASH_AUTO", "Aldafermin in MASH",
+     ["aldafermin"], ["nash"]),
+    ("ICOFEXAMIDE_AUTO", "Icosabutate in MASH",
+     ["icosabutate"], ["nash"]),
+    ("ARAMCHOL_NAFLD_AUTO", "Aramchol in NAFLD/MASH",
+     ["aramchol"], ["nafld"]),
+
+    # Pulmonary
+    ("PA101_PROGRESSIVE_FIB_AUTO", "Nerandomilast in PPF",
+     ["nerandomilast"], ["progressive pulmonary fibrosis", "idiopathic pulmonary"]),
+    ("INHALED_INTERFERON_AUTO", "Inhaled interferon-β in COPD/asthma",
+     ["interferon beta"], ["copd"]),
+
+    # ID
+    ("FOSFOMYCIN_UTI_AUTO", "Fosfomycin in cUTI",
+     ["fosfomycin"], ["urinary tract"]),
+    ("DELAFLOXACIN_INFECTION_AUTO", "Delafloxacin in ABSSSI/CAP",
+     ["delafloxacin"], ["skin infection", "pneumonia"]),
+    ("PLAZOMICIN_INFECTION_AUTO", "Plazomicin in CRE",
+     ["plazomicin"], ["cre", "urinary tract"]),
+    ("ERAVACYCLINE_INFECTION_AUTO", "Eravacycline in cIAI",
+     ["eravacycline"], ["intra-abdominal"]),
+    ("SECNIDAZOLE_BV_AUTO", "Secnidazole in BV/trich",
+     ["secnidazole"], ["bacterial vaginosis", "trichomonia"]),
+
+    # CV/specialty
+    ("APIXABAN_CANCER_VTE_AUTO", "Apixaban in cancer-associated VTE",
+     ["apixaban"], ["cancer", "thromboembolism"]),
+    ("EDOXABAN_CANCER_VTE_AUTO", "Edoxaban in cancer VTE",
+     ["edoxaban"], ["cancer", "thromboembolism"]),
+    ("DALTEPARIN_CANCER_VTE_AUTO", "Dalteparin in cancer VTE",
+     ["dalteparin"], ["cancer", "thromboembolism"]),
+    ("ENOXAPARIN_VTE_AUTO", "Enoxaparin in VTE prevention",
+     ["enoxaparin"], ["thromboembolism"]),
+    ("FONDAPARINUX_VTE_AUTO", "Fondaparinux in VTE",
+     ["fondaparinux"], ["thromboembolism"]),
+
+    # Hep C niches
+    ("RIBAVIRIN_HCV_AUTO", "Ribavirin in HCV (modern era combos)",
+     ["ribavirin"], ["hepatitis c"]),
+
+    # Insomnia/sleep
+    ("RAMELTEON_INSOMNIA_AUTO", "Ramelteon in insomnia",
+     ["ramelteon"], ["insomnia"]),
+    ("DOXEPIN_INSOMNIA_AUTO", "Low-dose doxepin in insomnia",
+     ["doxepin"], ["insomnia"]),
+
+    # Gout
+    ("FEBUXOSTAT_GOUT_AUTO", "Febuxostat in gout",
+     ["febuxostat"], ["gout", "hyperuricemia"]),
+    ("PEGLOTICASE_GOUT_AUTO", "Pegloticase in refractory gout",
+     ["pegloticase"], ["gout"]),
+    ("LESINURAD_GOUT_AUTO", "Lesinurad in gout",
+     ["lesinurad"], ["gout"]),
+    ("ALLOPURINOL_GOUT_AUTO", "Allopurinol in gout/uric acid",
+     ["allopurinol"], ["gout", "hyperuricemia"]),
+
+    # IBS / GERD niches
+    ("LINACLOTIDE_CIC_AUTO", "Linaclotide in CIC (broader)",
+     ["linaclotide"], ["constipation"]),
+    ("LUBIPROSTONE_CIC_AUTO", "Lubiprostone in CIC/IBS-C",
+     ["lubiprostone"], ["constipation", "irritable bowel"]),
+
+    # PNH/aHUS additional
+    ("CROVALIMAB_PNH_AUTO_2", "Crovalimab in PNH (broader)",
+     ["crovalimab"], ["paroxysmal nocturnal"]),
+
+    # Anti-emetics extra
+    ("FOSAPREPITANT_CINV_AUTO", "Fosaprepitant IV in CINV",
+     ["fosaprepitant"], ["nausea"]),
+
+    # Renal
+    ("BARDOXOLONE_CKD_AUTO", "Bardoxolone in Alport/CKD",
+     ["bardoxolone"], ["alport", "kidney"]),
+    ("ASSOC_DAPRO_AUTO", "Daprodustat in CKD anaemia (broader)",
+     ["daprodustat"], ["anemia"]),
+
+    # Bone marrow rescue
+    ("LEFAMULIN_CABP_AUTO", "Lefamulin in CABP (broader)",
+     ["lefamulin"], ["pneumonia"]),
+
+    # Dermatology — niches
+    ("TRIFAROTENE_AUTO", "Trifarotene in acne",
+     ["trifarotene"], ["acne"]),
+    ("PIMECROLIMUS_AD_AUTO", "Pimecrolimus in AD",
+     ["pimecrolimus"], ["atopic dermatitis"]),
+    ("TACROLIMUS_TOPICAL_AD_AUTO", "Topical tacrolimus in AD",
+     ["tacrolimus"], ["atopic dermatitis"]),
+
+    # GU
+    ("DUTASTERIDE_BPH_AUTO", "Dutasteride in BPH",
+     ["dutasteride"], ["benign prostatic"]),
+    ("TADALAFIL_BPH_AUTO", "Tadalafil daily in BPH/ED",
+     ["tadalafil"], ["benign prostatic", "erectile"]),
+
+    # Bone
+    ("TERIPARATIDE_OSTEO_AUTO", "Teriparatide in osteoporosis",
+     ["teriparatide"], ["osteoporosis"]),
+
+    # Misc
+    ("FUROSEMIDE_HF_AUTO", "Furosemide IV in acute HF (modern RCTs)",
+     ["furosemide"], ["heart failure"]),
+    ("BUMETANIDE_HF_AUTO", "Bumetanide in acute HF",
+     ["bumetanide"], ["heart failure"]),
+    ("TORSEMIDE_HF_AUTO", "Torsemide vs furosemide in HF",
+     ["torsemide"], ["heart failure"]),
+    ("SPIRONOLACTONE_HF_AUTO", "Spironolactone in HFpEF/HFrEF",
+     ["spironolactone"], ["heart failure"]),
+    ("EPLERENONE_HF_AUTO", "Eplerenone in HFrEF",
+     ["eplerenone"], ["heart failure"]),
+
+    # Cytotoxic - newer use cases
+    ("CISPLATIN_NEO_BREAST_AUTO", "Cisplatin in TNBC neoadjuvant",
+     ["cisplatin"], ["breast"]),
+
+    # Ophthalmology — modern
+    ("OMIDENEPAG_GLAUCOMA_AUTO", "Omidenepag isopropyl in glaucoma",
+     ["omidenepag"], ["glaucoma"]),
+    ("TAFLUPROST_GLAUCOMA_AUTO", "Tafluprost in glaucoma",
+     ["tafluprost"], ["glaucoma"]),
+
+    # Mental / behavioural
+    ("PSILOCYBIN_DEPRESSION_AUTO", "Psilocybin in TRD",
+     ["psilocybin"], ["depress"]),
+    ("MDMA_PTSD_AUTO", "MDMA-assisted in PTSD",
+     ["mdma"], ["post-traumatic"]),
+    ("KETAMINE_DEPRESSION_AUTO", "Ketamine in TRD",
+     ["ketamine"], ["depress"]),
+
+    # Antitussives
+    ("GEFAPIXANT_COUGH_AUTO", "Gefapixant in refractory chronic cough",
+     ["gefapixant"], ["cough"]),
+    ("CAMLIPIXANT_COUGH_AUTO", "Camlipixant in refractory cough",
+     ["camlipixant"], ["cough"]),
+    ("SIVOPIXANT_COUGH_AUTO", "Sivopixant in chronic cough",
+     ["sivopixant"], ["cough"]),
+
+    # COPD/Asthma additions
+    ("FLUTICASONE_UMECLIDINIUM_VILANTEROL_AUTO", "FF/UMEC/VI single inhaler triple",
+     ["fluticasone furoate"], ["copd"]),
+    ("INDACATEROL_GLYCOPYR_COPD_AUTO", "Indacaterol/glycopyrronium in COPD",
+     ["indacaterol"], ["copd"]),
+    ("UMECLIDINIUM_VILANTEROL_AUTO", "UMEC/VI in COPD",
+     ["umeclidinium"], ["copd"]),
+
+    # CKD/diabetes
+    ("DAPAGLIFLOZIN_T2D_CV_AUTO", "Dapagliflozin CVOT in T2D",
+     ["dapagliflozin"], ["cardiovascular"]),
+
+    # Migraine
+    ("VAZEGEPANT_MIGRAINE_AUTO", "Zavegepant nasal in migraine",
+     ["zavegepant"], ["migraine"]),
+
+    # Cardiology / heart failure
+    ("AMIODARONE_AF_AUTO", "Amiodarone in AF (modern era)",
+     ["amiodarone"], ["atrial fibrillation"]),
+
+    # Hyperphosphatemia
+    ("SEVELAMER_HYPERPHOS_AUTO", "Sevelamer in hyperphosphatemia",
+     ["sevelamer"], ["hyperphosphatemia"]),
+    ("LANTHANUM_HYPERPHOS_AUTO", "Lanthanum carbonate in hyperphosphatemia",
+     ["lanthanum"], ["hyperphosphatemia"]),
+    ("TENAPANOR_HYPERPHOS_AUTO", "Tenapanor in hyperphosphatemia (ESRD)",
+     ["tenapanor"], ["hyperphosphatemia"]),
 ]
 
 print(f"Total topics to test: {len(TOPICS)}")

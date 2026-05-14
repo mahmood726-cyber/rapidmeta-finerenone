@@ -4,19 +4,20 @@
     "name": "Lubiprostone in CIC/IBS-C",
     "ncts": [
       "NCT01674530",
+      "NCT02544152",
       "NCT03720613",
       "NCT01993875",
       "NCT00934479",
       "NCT00380250",
       "NCT01469819",
-      "NCT00844831",
-      "NCT02042183"
+      "NCT00844831"
     ],
     "drug_patterns": [
       "lubiprostone"
     ],
     "condition_patterns": [
-      "constipation"
+      "constipation",
+      "irritable bowel"
     ]
   },
   "trials": [
@@ -47,6 +48,78 @@
         "aact_per_arm_counts": {},
         "aact_primary_outcome_measure": "Primary Analysis",
         "aact_outcome_count_rows": []
+      }
+    },
+    {
+      "gates": {
+        "A_aact_exists": true,
+        "B_drug_in_intvs": true,
+        "C_condition_in_aact": true,
+        "D_pmid_topic_match": false,
+        "E_two_arms": true,
+        "F_primary_outcome_known": true
+      },
+      "extracted": {
+        "nct": "NCT02544152",
+        "aact_title": "Evaluation of the Efficacy and Safety of Lubiprostone in Adults With Mixed or Unsubtyped Irritable Bowel Syndrome",
+        "aact_acronym": "",
+        "start_date": "2015-02-28",
+        "primary_completion_date": "2016-12-31",
+        "aact_intvs": [
+          "lubiprostone",
+          "placebo"
+        ],
+        "aact_conditions": [
+          "irritable bowel syndrome"
+        ],
+        "pmid": null,
+        "aact_per_arm_counts": {
+          "BG000": 34,
+          "BG001": 37
+        },
+        "aact_primary_outcome_measure": "Number of Participants Classified as an Overall Responder for Abdominal Pain",
+        "aact_outcome_count_rows": [
+          [
+            "OG000",
+            "10.0"
+          ],
+          [
+            "OG001",
+            "7.0"
+          ],
+          [
+            "OG000",
+            "13.0"
+          ],
+          [
+            "OG001",
+            "8.0"
+          ],
+          [
+            "OG000",
+            "11.0"
+          ],
+          [
+            "OG001",
+            "12.0"
+          ],
+          [
+            "OG000",
+            "13.0"
+          ],
+          [
+            "OG000",
+            "11.0"
+          ],
+          [
+            "OG001",
+            "18.0"
+          ],
+          [
+            "OG000",
+            "13.0"
+          ]
+        ]
       }
     },
     {
@@ -294,52 +367,10 @@
           ]
         ]
       }
-    },
-    {
-      "gates": {
-        "A_aact_exists": true,
-        "B_drug_in_intvs": true,
-        "C_condition_in_aact": true,
-        "D_pmid_topic_match": true,
-        "E_two_arms": true,
-        "F_primary_outcome_known": true
-      },
-      "extracted": {
-        "nct": "NCT02042183",
-        "aact_title": "Lubiprostone in Children With Functional Constipation",
-        "aact_acronym": "",
-        "start_date": "2013-12-13",
-        "primary_completion_date": "2016-07-27",
-        "aact_intvs": [
-          "lubiprostone",
-          "placebo"
-        ],
-        "aact_conditions": [
-          "constipation - functional"
-        ],
-        "pmid": "33838349",
-        "pubmed_year": 2022,
-        "pubmed_doi": "10.1016/j.cgh.2021.04.005",
-        "aact_per_arm_counts": {
-          "BG000": 404,
-          "BG001": 202
-        },
-        "aact_primary_outcome_measure": "Number of Participants Classified as Overall Responders at Week 12",
-        "aact_outcome_count_rows": [
-          [
-            "OG000",
-            "76.0"
-          ],
-          [
-            "OG001",
-            "28.0"
-          ]
-        ]
-      }
     }
   ],
   "n_total": 8,
-  "n_pass_all": 2,
+  "n_pass_all": 1,
   "verdict": "NOT_VIABLE",
-  "pass_rate": 0.25
+  "pass_rate": 0.125
 }

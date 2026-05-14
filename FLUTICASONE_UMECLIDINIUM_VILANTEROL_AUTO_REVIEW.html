@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Triple therapy FF/UMEC/VI COPD — RapidMeta (audit-first)</title>
+<title>FF/UMEC/VI single inhaler triple — RapidMeta (audit-first)</title>
 <style>
   body { margin:0; padding:0; background:#0f172a; color:#e2e8f0; font-family:system-ui,-apple-system,sans-serif; line-height:1.55; }
   main { max-width:980px; margin:0 auto; padding:24px; }
@@ -42,7 +42,7 @@
 <div id="rapidmeta-integrity-badge" role="status" style="background:#16a34a;color:#fff;padding:12px 20px;font-family:system-ui,sans-serif;font-size:13.5px;border-bottom:3px solid #15803d;line-height:1.55;">
   <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
     <strong style="font-size:14px;letter-spacing:0.04em;">TRUSTWORTHY (audit-first build)</strong>
-    <span style="font-size:11.5px;opacity:0.92;">Trials: <strong>5</strong> · all passed 6-gate audit · k ≥3</span>
+    <span style="font-size:11.5px;opacity:0.92;">Trials: <strong>0</strong> · all passed 6-gate audit · k ≥2</span>
   </div>
   <div style="margin-top:6px;font-size:12.5px;opacity:0.95;">
     Built post-cleanup using the audit-first pipeline. Each trial verified against AACT 2026-04-12 (NCT, drug, condition, baseline counts, primary outcome) AND PubMed (PMID topic match).
@@ -55,9 +55,9 @@
 </div>
 
 <main>
-<h1>Triple therapy FF/UMEC/VI COPD</h1>
+<h1>FF/UMEC/VI single inhaler triple</h1>
 <div class="meta">
-  RapidMeta · audit-first build · 5 included trials · Fluticasone Furoate in Pulmonary Disease ·
+  RapidMeta · audit-first build · 0 included trials · Fluticasone Furoate in Copd ·
   Data: AACT 2026-04-12 + PubMed E-utilities
 </div>
 
@@ -74,7 +74,7 @@
 <section id="tab-protocol" class="tab-panel active">
     <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">PICO</h3>
     <table class="kv">
-      <tr><td>Population</td><td>Adults randomised in trials registered on ClinicalTrials.gov for <strong>Pulmonary Disease</strong>.</td></tr>
+      <tr><td>Population</td><td>Adults randomised in trials registered on ClinicalTrials.gov for <strong>Copd</strong>.</td></tr>
       <tr><td>Intervention</td><td><strong>Fluticasone Furoate</strong> (AACT-verified intervention name in each trial).</td></tr>
       <tr><td>Comparator</td><td>Active comparator or placebo as registered on AACT.</td></tr>
       <tr><td>Outcomes</td><td>Trial-declared primary outcome (AACT <code>design_outcomes</code>); event counts harvested from AACT <code>outcome_measurements</code>.</td></tr>
@@ -85,7 +85,7 @@
     <ol style="color:#cbd5e1;font-size:12.5px;">
       <li>GATE-A — NCT exists in AACT 2026-04-12 snapshot.</li>
       <li>GATE-B — Drug pattern "fluticasone furoate" present in AACT <code>interventions</code> for the NCT.</li>
-      <li>GATE-C — Condition pattern "pulmonary disease" present in AACT <code>conditions</code>.</li>
+      <li>GATE-C — Condition pattern "copd" present in AACT <code>conditions</code>.</li>
       <li>GATE-D — Primary PMID's PubMed title or abstract mentions the drug or condition.</li>
       <li>GATE-E — AACT <code>baseline_counts</code> reports ≥2 per-arm participant rows.</li>
       <li>GATE-F — AACT <code>design_outcomes</code> declares a primary outcome with measure text.</li>
@@ -93,7 +93,7 @@
     <p style="color:#94a3b8;font-size:11.5px;">Audit verdict: <code>VIABLE</code> requires ≥3 trials passing all 6 gates (k≥3 — current standard for new audit-first builds). Older builds use k≥2.</p>
 
     <h3 style="color:#7dd3fc;font-size:14px;">Pre-specified primary outcomes (per trial)</h3>
-    <ul style="color:#cbd5e1;font-size:12.5px;"><li>Annual Rate of On-treatment Moderate/Severe Exacerbations Comparing FF/UMEC/VI With UMEC/VI and FF/VI</li><li>Change From Baseline Trough in 24-hour Weighted-mean FEV1 on Treatment Day 84</li><li>Change From Baseline in 0 to 4 Hours Post-dose Weighted Mean Heart Rate at Day 42, Derived From Electrocardiograms (ECGs)</li><li>Mean Change From Baseline (BL) in Aortic Pulse Wave Velocity (aPWV) at the End of the 12-week Treatment Period (Day 84)</li><li>Number of Participants With Death (Both on and Off Treatment) Due to Any Cause, Time up to or on the Pre-determined Common End Date</li></ul>
+    <ul style="color:#cbd5e1;font-size:12.5px;"><li>Per-trial primary outcomes (see Extraction tab)</li></ul>
 
     <h3 style="color:#7dd3fc;font-size:14px;">Statistical methods</h3>
     <p style="color:#cbd5e1;font-size:12.5px;">Inverse-variance random-effects pooling on the log-OR scale (Woolf estimator from AACT event counts), DerSimonian-Laird τ² with Hartung-Knapp-Sidik-Jonkman (HKSJ) variance correction and t<sub>k-1</sub> critical value (Cochrane Handbook v6.5 conventions). Single-trial entries report Wald 95% CI on the log scale.</p>
@@ -106,153 +106,34 @@ SELECT nct_id FROM interventions
 WHERE lower(name) LIKE '%fluticasone furoate%'
 INTERSECT
 SELECT nct_id FROM conditions
-WHERE lower(name) LIKE '%pulmonary disease%'</pre>
+WHERE lower(name) LIKE '%copd%'</pre>
     <p style="color:#cbd5e1;font-size:12.5px;">PubMed bridge: NCBI E-utilities + idconv API to fetch primary publication PMID and abstract for each NCT.</p>
-    <pre style="background:#0a0f1f;padding:12px;border-radius:6px;color:#bef264;font-size:12px;overflow-x:auto;">https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=fluticasone furoate+AND+pulmonary disease+AND+RCT</pre>
+    <pre style="background:#0a0f1f;padding:12px;border-radius:6px;color:#bef264;font-size:12px;overflow-x:auto;">https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=fluticasone furoate+AND+copd+AND+RCT</pre>
     <p style="color:#94a3b8;font-size:11.5px;">Cross-checking: every NCT that survives intersection is verified to have a primary outcome declared in AACT <code>design_outcomes</code> AND a publication whose abstract mentions the drug or condition (GATE-D).</p>
     </section>
 <section id="tab-screening" class="tab-panel">
     <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">PRISMA-style screening</h3>
     <table class="kv">
-      <tr><td>Records identified (AACT × PubMed)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;">8</td></tr>
-      <tr><td>Records excluded (gate failure)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;color:#fca5a5;">3</td></tr>
-      <tr><td>Records included (all 6 gates pass)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;color:#86efac;">5</td></tr>
+      <tr><td>Records identified (AACT × PubMed)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;">5</td></tr>
+      <tr><td>Records excluded (gate failure)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;color:#fca5a5;">5</td></tr>
+      <tr><td>Records included (all 6 gates pass)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;color:#86efac;">0</td></tr>
     </table>
 
     <h3 style="color:#7dd3fc;font-size:14px;">Exclusions by first failing gate</h3>
     <table class="kv">
       <tr><th>Gate</th><th>n</th></tr>
-      <tr><td>D_pmid_topic_match</td><td style='text-align:right;'>2</td></tr><tr><td>E_two_arms</td><td style='text-align:right;'>1</td></tr>
+      <tr><td>D_pmid_topic_match</td><td style='text-align:right;'>3</td></tr><tr><td>E_two_arms</td><td style='text-align:right;'>2</td></tr>
     </table>
     <p style="color:#94a3b8;font-size:11.5px;">Screening is fully deterministic: every record is auto-flagged by the gate that first fails. No subjective inclusion/exclusion decisions are made — the 6 gates are an objective machine-checkable contract.</p>
     </section>
-<section id="tab-extraction" class="tab-panel">
-        <div style="background:#1e293b;padding:14px;border-radius:6px;margin:0.6rem 0;">
-          <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;">
-            <div>
-              <strong style="font-size:14px;">NCT02573870</strong>
-              <span style="color:#94a3b8;font-size:11px;margin-left:8px;"><a href="https://clinicaltrials.gov/study/NCT02573870" target="_blank">NCT02573870</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/32366249/" target="_blank">PMID 32366249</a> · 2020</span>
-            </div>
-          </div>
-          <p style="margin:6px 0 4px;color:#cbd5e1;font-size:12px;">Batefenterol/Fluticasone Furoate in Treatment of Chronic Obstructive Pulmonary Disease</p>
-          <p style="margin:0 0 6px;color:#94a3b8;font-size:11px;"><strong>Primary outcome (AACT):</strong> Change From Baseline in 0 to 4 Hours Post-dose Weighted Mean Heart Rate at Day 42, Derived From Electrocardiograms (ECGs)</p>
-          <table class="ext2x2">
-            <tr><th></th><th>Events</th><th>No event</th><th>Total N</th></tr>
-            <tr><td><strong>Intervention</strong></td><td>—</td><td>—</td><td>20</td></tr>
-            <tr><td><strong>Control</strong></td><td>—</td><td>—</td><td>42</td></tr>
-          </table>
-        </div>
-
-        <div style="background:#1e293b;padding:14px;border-radius:6px;margin:0.6rem 0;">
-          <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;">
-            <div>
-              <strong style="font-size:14px;">NCT01313676</strong>
-              <span style="color:#94a3b8;font-size:11px;margin-left:8px;"><a href="https://clinicaltrials.gov/study/NCT01313676" target="_blank">NCT01313676</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/37012070/" target="_blank">PMID 37012070</a> · 2023</span>
-            </div>
-          </div>
-          <p style="margin:6px 0 4px;color:#cbd5e1;font-size:12px;">Study to Evaluate the Effect of Fluticasone Furoate/Vilanterol on Survival in Subjects With Chronic Obstructive Pulmonary Disease</p>
-          <p style="margin:0 0 6px;color:#94a3b8;font-size:11px;"><strong>Primary outcome (AACT):</strong> Number of Participants With Death (Both on and Off Treatment) Due to Any Cause, Time up to or on the Pre-determined Common End Date</p>
-          <table class="ext2x2">
-            <tr><th></th><th>Events</th><th>No event</th><th>Total N</th></tr>
-            <tr><td><strong>Intervention</strong></td><td>275</td><td>3856</td><td>4131</td></tr>
-            <tr><td><strong>Control</strong></td><td>251</td><td>3906</td><td>4157</td></tr>
-          </table>
-        </div>
-
-        <div style="background:#1e293b;padding:14px;border-radius:6px;margin:0.6rem 0;">
-          <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;">
-            <div>
-              <strong style="font-size:14px;">NCT01395888</strong>
-              <span style="color:#94a3b8;font-size:11px;margin-left:8px;"><a href="https://clinicaltrials.gov/study/NCT01395888" target="_blank">NCT01395888</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/25058845/" target="_blank">PMID 25058845</a> · 2014</span>
-            </div>
-          </div>
-          <p style="margin:6px 0 4px;color:#cbd5e1;font-size:12px;">A Study to Compare the Impact of Fulticasone Furoate/Vilanterol vs. Tiotropium on Arterial Stiffness in COPD</p>
-          <p style="margin:0 0 6px;color:#94a3b8;font-size:11px;"><strong>Primary outcome (AACT):</strong> Mean Change From Baseline (BL) in Aortic Pulse Wave Velocity (aPWV) at the End of the 12-week Treatment Period (Day 84)</p>
-          <table class="ext2x2">
-            <tr><th></th><th>Events</th><th>No event</th><th>Total N</th></tr>
-            <tr><td><strong>Intervention</strong></td><td>—</td><td>—</td><td>127</td></tr>
-            <tr><td><strong>Control</strong></td><td>—</td><td>—</td><td>130</td></tr>
-          </table>
-        </div>
-
-        <div style="background:#1e293b;padding:14px;border-radius:6px;margin:0.6rem 0;">
-          <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;">
-            <div>
-              <strong style="font-size:14px;">NCT02164513</strong>
-              <span style="color:#94a3b8;font-size:11px;margin-left:8px;"><a href="https://clinicaltrials.gov/study/NCT02164513" target="_blank">NCT02164513</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/38844004/" target="_blank">PMID 38844004</a> · 2024</span>
-            </div>
-          </div>
-          <p style="margin:6px 0 4px;color:#cbd5e1;font-size:12px;">A Study Comparing the Efficacy, Safety and Tolerability of Fixed Dose Combination (FDC) of FF/UMEC/VI With the FDC of FF/VI and UMEC/VI; Administered Once-daily</p>
-          <p style="margin:0 0 6px;color:#94a3b8;font-size:11px;"><strong>Primary outcome (AACT):</strong> Annual Rate of On-treatment Moderate/Severe Exacerbations Comparing FF/UMEC/VI With UMEC/VI and FF/VI</p>
-          <table class="ext2x2">
-            <tr><th></th><th>Events</th><th>No event</th><th>Total N</th></tr>
-            <tr><td><strong>Intervention</strong></td><td>112</td><td>4039</td><td>4151</td></tr>
-            <tr><td><strong>Control</strong></td><td>81</td><td>4053</td><td>4134</td></tr>
-          </table>
-        </div>
-
-        <div style="background:#1e293b;padding:14px;border-radius:6px;margin:0.6rem 0;">
-          <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;">
-            <div>
-              <strong style="font-size:14px;">NCT01323634</strong>
-              <span style="color:#94a3b8;font-size:11px;margin-left:8px;"><a href="https://clinicaltrials.gov/study/NCT01323634" target="_blank">NCT01323634</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/24998880/" target="_blank">PMID 24998880</a> · 2014</span>
-            </div>
-          </div>
-          <p style="margin:6px 0 4px;color:#cbd5e1;font-size:12px;">Study to Evaluate the 24-Hour Pulmonary Function Profile of Fluticasone Furoate (FF) /GW642444 (Vilanterol) (VI) Inhalation Powder 100/25mcg Once Daily Compared</p>
-          <p style="margin:0 0 6px;color:#94a3b8;font-size:11px;"><strong>Primary outcome (AACT):</strong> Change From Baseline Trough in 24-hour Weighted-mean FEV1 on Treatment Day 84</p>
-          <table class="ext2x2">
-            <tr><th></th><th>Events</th><th>No event</th><th>Total N</th></tr>
-            <tr><td><strong>Intervention</strong></td><td>—</td><td>—</td><td>259</td></tr>
-            <tr><td><strong>Control</strong></td><td>—</td><td>—</td><td>260</td></tr>
-          </table>
-        </div></section>
+<section id="tab-extraction" class="tab-panel"><p style="color:#94a3b8;">No trials included.</p></section>
 <section id="tab-analysis" class="tab-panel">
     <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">Forest plot — per-trial OR + pooled estimate</h3>
-    <svg viewBox="0 0 760 220" style="width:100%;max-width:760px;background:#0a0f1f;border-radius:6px;">
-<text x="20" y="20" fill="#94a3b8" font-size="11">Trial</text>
-<text x="465.0" y="20" fill="#94a3b8" font-size="11" text-anchor="middle">log-OR (95% CI)</text>
-<line x1="465.0" y1="28" x2="465.0" y2="168" stroke="#475569" stroke-dasharray="3,3"/>
-<text x="20" y="46.0" fill="#e2e8f0" font-size="11">NCT02573870</text>
-<text x="465.0" y="46.0" fill="#64748b" font-size="11" text-anchor="middle">(no event data)</text>
-<text x="20" y="74.0" fill="#e2e8f0" font-size="11">NCT01313676</text>
-<line x1="456.6460402214913" y1="70.0" x2="497.33867839575026" y2="70.0" stroke="#7dd3fc" stroke-width="2"/>
-<rect x="472.9923593086208" y="66.0" width="8" height="8" fill="#7dd3fc"/>
-<text x="734" y="74.0" fill="#cbd5e1" font-size="10">1.11 [0.93, 1.32]</text>
-<text x="20" y="102.0" fill="#e2e8f0" font-size="11">NCT01395888</text>
-<text x="465.0" y="102.0" fill="#64748b" font-size="11" text-anchor="middle">(no event data)</text>
-<text x="20" y="130.0" fill="#e2e8f0" font-size="11">NCT02164513</text>
-<line x1="469.4111060863861" y1="126.0" x2="535.9738437261293" y2="126.0" stroke="#7dd3fc" stroke-width="2"/>
-<rect x="498.6924749062577" y="122.0" width="8" height="8" fill="#7dd3fc"/>
-<text x="734" y="130.0" fill="#cbd5e1" font-size="10">1.39 [1.04, 1.85]</text>
-<text x="20" y="158.0" fill="#e2e8f0" font-size="11">NCT01323634</text>
-<text x="465.0" y="158.0" fill="#64748b" font-size="11" text-anchor="middle">(no event data)</text>
-<text x="20" y="186.0" fill="#fbbf24" font-size="11" font-weight="600">Pooled (k=2)</text>
-<polygon points="462.08622316011224,182.0 486.36601903427857,176.0 510.5849844975075,182.0 486.36601903427857,188.0" fill="#fbbf24"/>
-<text x="734" y="186.0" fill="#fbbf24" font-size="10" font-weight="600">OR 1.204 [0.975, 1.486]</text>
-</svg>
-    
-        <div style="background:#1e293b;padding:16px;border-radius:6px;margin:1rem 0;">
-          <h3 style="margin:0 0 8px;font-size:14px;color:#7dd3fc;">Pooled estimate (REML-DL + HKSJ, Cochrane v6.5)</h3>
-          <div style="font-size:24px;font-weight:600;font-family:JetBrains Mono,monospace;">
-            OR 1.204 <span style="font-size:14px;color:#94a3b8;">[0.975, 1.486]</span>
-          </div>
-          <div style="font-size:11px;color:#94a3b8;margin-top:6px;">
-            k = 2 · method = DL (k<3) · τ² = 0.01 ·
-            Q = 1.668 · I² = 40.0%
-          </div>
-        </div>
+    <div style="color:#94a3b8;font-size:12px;">No event-count data for forest plot.</div>
+    <p style="color:#94a3b8;font-size:12px;">Insufficient event-count data for pooled estimate.</p>
     
     </section>
-<section id="tab-statistics" class="tab-panel"><div class="stat-grid">
-        <div class="stat-panel">
-          <h4>1. Heterogeneity</h4>
-          <table class="kv">
-            <tr><td>τ² (DerSimonian-Laird)</td><td><code>0.01</code></td></tr>
-            <tr><td>Q-statistic</td><td><code>1.668</code> (df=1)</td></tr>
-            <tr><td>I²</td><td><code>40.0%</code> — moderate (25-50%)</td></tr>
-            <tr><td>Method</td><td>DL (k&lt;3)</td></tr>
-          </table>
-        </div>
+<section id="tab-statistics" class="tab-panel"><div class="stat-grid"><div class="stat-panel"><h4>1. Heterogeneity</h4><p style="color:#94a3b8;font-size:12px;">Requires k≥2 trials with event data.</p></div>
 <div class="stat-panel"><h4>2. Prediction interval</h4><p style="color:#94a3b8;font-size:12px;">Requires k≥3 trials (Cochrane v6.5).</p></div>
 <div class="stat-panel"><h4>3. Egger's test</h4><p style="color:#94a3b8;font-size:12px;">Requires k≥3.</p></div>
 
@@ -266,8 +147,8 @@ WHERE lower(name) LIKE '%pulmonary disease%'</pre>
       <table class="kv">
         <tr><td>Identification</td><td>AACT × PubMed intersection (deterministic)</td></tr>
         <tr><td>Screening</td><td>6-gate audit (machine-checkable)</td></tr>
-        <tr><td>Eligibility</td><td>k=5 trials passed all 6 gates</td></tr>
-        <tr><td>Included</td><td>k=2 with extractable event counts</td></tr>
+        <tr><td>Eligibility</td><td>k=0 trials passed all 6 gates</td></tr>
+        <tr><td>Included</td><td>k=0 with extractable event counts</td></tr>
       </table>
     </div>
 
@@ -279,15 +160,9 @@ WHERE lower(name) LIKE '%pulmonary disease%'</pre>
 
     <div class="stat-panel">
       <h4>7. GRADE certainty (auto-derived)</h4>
-      <p style="font-size:14px;color:#cbd5e1;">Certainty: <span style="color:#fbbf24;font-weight:600;">Low</span></p>
-      <p style="color:#94a3b8;font-size:11.5px;">Auto-derivation considers k and I² only; full GRADE requires RoB, indirectness, publication bias judgment, and effect-magnitude scoring (not applied in audit-first builds). Triggers: k=2 (imprecision).</p>
-    </div>
-
-        <div class="stat-panel">
-          <h4>8. Reproducibility fingerprint</h4>
-          <p style="font-family:JetBrains Mono,monospace;font-size:12px;color:#cbd5e1;">sha256[:16] = <code>81b48b48a1c3afa4</code></p>
-          <p style="color:#94a3b8;font-size:11.5px;">Bit-stable hash of {sorted NCT list, pooled OR + 95% CI}. Reproduce by re-running scripts/add_topic_autodiscover.py + generate_topic_html.py against the same AACT snapshot.</p>
-        </div></div></section>
+      <p style="font-size:14px;color:#cbd5e1;">Certainty: <span style="color:#fca5a5;font-weight:600;">Very low</span></p>
+      <p style="color:#94a3b8;font-size:11.5px;">Auto-derivation considers k and I² only; full GRADE requires RoB, indirectness, publication bias judgment, and effect-magnitude scoring (not applied in audit-first builds). Triggers: no major downgrade triggers from audit data.</p>
+    </div></div></section>
 <section id="tab-about" class="tab-panel">
     <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">Audit-first build</h3>
     <p style="color:#cbd5e1;font-size:12.5px;">This review was generated by the 6-gate audit-first pipeline after the 16-round portfolio cleanup. Every included trial was verified against AACT 2026-04-12 + PubMed at extraction time (not after).</p>
@@ -338,140 +213,9 @@ Per PubMed attribution: NCBI E-utilities + idconv API. Generated by
   'use strict';
   window.RAPIDMETA_CONFIG = window.RAPIDMETA_CONFIG || {};
   Object.assign(window.RAPIDMETA_CONFIG, {
-    realData: {
-  "NCT02573870": {
-    "name": "NCT02573870",
-    "baseline": {
-      "n": 62
-    },
-    "pmid": "32366249",
-    "phase": "III",
-    "year": 2020,
-    "tE": null,
-    "tN": 20,
-    "cE": null,
-    "cN": 42,
-    "group": "batefenterol + fluticasone furoate",
-    "estimandType": "OR",
-    "publishedHR": null,
-    "hrLCI": null,
-    "hrUCI": null,
-    "evidence": [
-      {
-        "label": "Primary outcome (AACT)",
-        "source": "AACT 2026-04-12",
-        "text": "Change From Baseline in 0 to 4 Hours Post-dose Weighted Mean Heart Rate at Day 42, Derived From Electrocardiograms (ECGs)",
-        "sourceUrl": "https://clinicaltrials.gov/study/NCT02573870"
-      }
-    ]
-  },
-  "NCT01313676": {
-    "name": "NCT01313676",
-    "baseline": {
-      "n": 8288
-    },
-    "pmid": "37012070",
-    "phase": "III",
-    "year": 2023,
-    "tE": 275,
-    "tN": 4131,
-    "cE": 251,
-    "cN": 4157,
-    "group": "fluticasone furoate/vilanterol",
-    "estimandType": "OR",
-    "publishedHR": null,
-    "hrLCI": null,
-    "hrUCI": null,
-    "evidence": [
-      {
-        "label": "Primary outcome (AACT)",
-        "source": "AACT 2026-04-12",
-        "text": "Number of Participants With Death (Both on and Off Treatment) Due to Any Cause, Time up to or on the Pre-determined Common End Date",
-        "sourceUrl": "https://clinicaltrials.gov/study/NCT01313676"
-      }
-    ]
-  },
-  "NCT01395888": {
-    "name": "NCT01395888",
-    "baseline": {
-      "n": 257
-    },
-    "pmid": "25058845",
-    "phase": "III",
-    "year": 2014,
-    "tE": null,
-    "tN": 127,
-    "cE": null,
-    "cN": 130,
-    "group": "fluticasone furoate (ff, gw685698)/vilanterol (vi, gw642444) 100/25 mcg novel dry powder inhaler (ndpi)",
-    "estimandType": "OR",
-    "publishedHR": null,
-    "hrLCI": null,
-    "hrUCI": null,
-    "evidence": [
-      {
-        "label": "Primary outcome (AACT)",
-        "source": "AACT 2026-04-12",
-        "text": "Mean Change From Baseline (BL) in Aortic Pulse Wave Velocity (aPWV) at the End of the 12-week Treatment Period (Day 84)",
-        "sourceUrl": "https://clinicaltrials.gov/study/NCT01395888"
-      }
-    ]
-  },
-  "NCT02164513": {
-    "name": "NCT02164513",
-    "baseline": {
-      "n": 8285
-    },
-    "pmid": "38844004",
-    "phase": "III",
-    "year": 2024,
-    "tE": 112,
-    "tN": 4151,
-    "cE": 81,
-    "cN": 4134,
-    "group": "fluticasone furoate (ff)",
-    "estimandType": "OR",
-    "publishedHR": null,
-    "hrLCI": null,
-    "hrUCI": null,
-    "evidence": [
-      {
-        "label": "Primary outcome (AACT)",
-        "source": "AACT 2026-04-12",
-        "text": "Annual Rate of On-treatment Moderate/Severe Exacerbations Comparing FF/UMEC/VI With UMEC/VI and FF/VI",
-        "sourceUrl": "https://clinicaltrials.gov/study/NCT02164513"
-      }
-    ]
-  },
-  "NCT01323634": {
-    "name": "NCT01323634",
-    "baseline": {
-      "n": 519
-    },
-    "pmid": "24998880",
-    "phase": "III",
-    "year": 2014,
-    "tE": null,
-    "tN": 259,
-    "cE": null,
-    "cN": 260,
-    "group": "fluticasone furoate 100mcg / gw642444 (vilanterol) 25mcg",
-    "estimandType": "OR",
-    "publishedHR": null,
-    "hrLCI": null,
-    "hrUCI": null,
-    "evidence": [
-      {
-        "label": "Primary outcome (AACT)",
-        "source": "AACT 2026-04-12",
-        "text": "Change From Baseline Trough in 24-hour Weighted-mean FEV1 on Treatment Day 84",
-        "sourceUrl": "https://clinicaltrials.gov/study/NCT01323634"
-      }
-    ]
-  }
-},
+    realData: {},
     nctAcronyms: {},
-    reviewTitle: "Triple therapy FF/UMEC/VI COPD",
+    reviewTitle: "FF/UMEC/VI single inhaler triple",
     auditFirst: true
   });
 })();

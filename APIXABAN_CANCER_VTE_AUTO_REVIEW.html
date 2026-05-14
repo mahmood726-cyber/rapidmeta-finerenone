@@ -42,7 +42,7 @@
 <div id="rapidmeta-integrity-badge" role="status" style="background:#16a34a;color:#fff;padding:12px 20px;font-family:system-ui,sans-serif;font-size:13.5px;border-bottom:3px solid #15803d;line-height:1.55;">
   <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
     <strong style="font-size:14px;letter-spacing:0.04em;">TRUSTWORTHY (audit-first build)</strong>
-    <span style="font-size:11.5px;opacity:0.92;">Trials: <strong>3</strong> · all passed 6-gate audit · k ≥3</span>
+    <span style="font-size:11.5px;opacity:0.92;">Trials: <strong>1</strong> · all passed 6-gate audit · k ≥2</span>
   </div>
   <div style="margin-top:6px;font-size:12.5px;opacity:0.95;">
     Built post-cleanup using the audit-first pipeline. Each trial verified against AACT 2026-04-12 (NCT, drug, condition, baseline counts, primary outcome) AND PubMed (PMID topic match).
@@ -57,7 +57,7 @@
 <main>
 <h1>Apixaban in cancer-associated VTE</h1>
 <div class="meta">
-  RapidMeta · audit-first build · 3 included trials · Apixaban in Venous Thromboembolism ·
+  RapidMeta · audit-first build · 1 included trials · Apixaban in Cancer ·
   Data: AACT 2026-04-12 + PubMed E-utilities
 </div>
 
@@ -74,7 +74,7 @@
 <section id="tab-protocol" class="tab-panel active">
     <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">PICO</h3>
     <table class="kv">
-      <tr><td>Population</td><td>Adults randomised in trials registered on ClinicalTrials.gov for <strong>Venous Thromboembolism</strong>.</td></tr>
+      <tr><td>Population</td><td>Adults randomised in trials registered on ClinicalTrials.gov for <strong>Cancer</strong>.</td></tr>
       <tr><td>Intervention</td><td><strong>Apixaban</strong> (AACT-verified intervention name in each trial).</td></tr>
       <tr><td>Comparator</td><td>Active comparator or placebo as registered on AACT.</td></tr>
       <tr><td>Outcomes</td><td>Trial-declared primary outcome (AACT <code>design_outcomes</code>); event counts harvested from AACT <code>outcome_measurements</code>.</td></tr>
@@ -85,7 +85,7 @@
     <ol style="color:#cbd5e1;font-size:12.5px;">
       <li>GATE-A — NCT exists in AACT 2026-04-12 snapshot.</li>
       <li>GATE-B — Drug pattern "apixaban" present in AACT <code>interventions</code> for the NCT.</li>
-      <li>GATE-C — Condition pattern "venous thromboembolism" present in AACT <code>conditions</code>.</li>
+      <li>GATE-C — Condition pattern "cancer" present in AACT <code>conditions</code>.</li>
       <li>GATE-D — Primary PMID's PubMed title or abstract mentions the drug or condition.</li>
       <li>GATE-E — AACT <code>baseline_counts</code> reports ≥2 per-arm participant rows.</li>
       <li>GATE-F — AACT <code>design_outcomes</code> declares a primary outcome with measure text.</li>
@@ -93,7 +93,7 @@
     <p style="color:#94a3b8;font-size:11.5px;">Audit verdict: <code>VIABLE</code> requires ≥3 trials passing all 6 gates (k≥3 — current standard for new audit-first builds). Older builds use k≥2.</p>
 
     <h3 style="color:#7dd3fc;font-size:14px;">Pre-specified primary outcomes (per trial)</h3>
-    <ul style="color:#cbd5e1;font-size:12.5px;"><li>CIF of Major or Clinically Relevant Non-major Bleeding Combined With Death as Competing Risk</li><li>Number of Participants With Incidence of Major Bleeding</li><li>PBAC Scores</li></ul>
+    <ul style="color:#cbd5e1;font-size:12.5px;"><li>Number of Participants With Incidence of Major Bleeding</li></ul>
 
     <h3 style="color:#7dd3fc;font-size:14px;">Statistical methods</h3>
     <p style="color:#cbd5e1;font-size:12.5px;">Inverse-variance random-effects pooling on the log-OR scale (Woolf estimator from AACT event counts), DerSimonian-Laird τ² with Hartung-Knapp-Sidik-Jonkman (HKSJ) variance correction and t<sub>k-1</sub> critical value (Cochrane Handbook v6.5 conventions). Single-trial entries report Wald 95% CI on the log scale.</p>
@@ -106,23 +106,23 @@ SELECT nct_id FROM interventions
 WHERE lower(name) LIKE '%apixaban%'
 INTERSECT
 SELECT nct_id FROM conditions
-WHERE lower(name) LIKE '%venous thromboembolism%'</pre>
+WHERE lower(name) LIKE '%cancer%'</pre>
     <p style="color:#cbd5e1;font-size:12.5px;">PubMed bridge: NCBI E-utilities + idconv API to fetch primary publication PMID and abstract for each NCT.</p>
-    <pre style="background:#0a0f1f;padding:12px;border-radius:6px;color:#bef264;font-size:12px;overflow-x:auto;">https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=apixaban+AND+venous thromboembolism+AND+RCT</pre>
+    <pre style="background:#0a0f1f;padding:12px;border-radius:6px;color:#bef264;font-size:12px;overflow-x:auto;">https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=apixaban+AND+cancer+AND+RCT</pre>
     <p style="color:#94a3b8;font-size:11.5px;">Cross-checking: every NCT that survives intersection is verified to have a primary outcome declared in AACT <code>design_outcomes</code> AND a publication whose abstract mentions the drug or condition (GATE-D).</p>
     </section>
 <section id="tab-screening" class="tab-panel">
     <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">PRISMA-style screening</h3>
     <table class="kv">
       <tr><td>Records identified (AACT × PubMed)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;">8</td></tr>
-      <tr><td>Records excluded (gate failure)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;color:#fca5a5;">5</td></tr>
-      <tr><td>Records included (all 6 gates pass)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;color:#86efac;">3</td></tr>
+      <tr><td>Records excluded (gate failure)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;color:#fca5a5;">7</td></tr>
+      <tr><td>Records included (all 6 gates pass)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;color:#86efac;">1</td></tr>
     </table>
 
     <h3 style="color:#7dd3fc;font-size:14px;">Exclusions by first failing gate</h3>
     <table class="kv">
       <tr><th>Gate</th><th>n</th></tr>
-      <tr><td>D_pmid_topic_match</td><td style='text-align:right;'>3</td></tr><tr><td>E_two_arms</td><td style='text-align:right;'>2</td></tr>
+      <tr><td>E_two_arms</td><td style='text-align:right;'>4</td></tr><tr><td>D_pmid_topic_match</td><td style='text-align:right;'>3</td></tr>
     </table>
     <p style="color:#94a3b8;font-size:11.5px;">Screening is fully deterministic: every record is auto-flagged by the gate that first fails. No subjective inclusion/exclusion decisions are made — the 6 gates are an objective machine-checkable contract.</p>
     </section>
@@ -141,103 +141,41 @@ WHERE lower(name) LIKE '%venous thromboembolism%'</pre>
             <tr><td><strong>Intervention</strong></td><td>1</td><td>203</td><td>204</td></tr>
             <tr><td><strong>Control</strong></td><td>1</td><td>195</td><td>196</td></tr>
           </table>
-        </div>
-
-        <div style="background:#1e293b;padding:14px;border-radius:6px;margin:0.6rem 0;">
-          <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;">
-            <div>
-              <strong style="font-size:14px;">NCT03080883</strong>
-              <span style="color:#94a3b8;font-size:11px;margin-left:8px;"><a href="https://clinicaltrials.gov/study/NCT03080883" target="_blank">NCT03080883</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/38537780/" target="_blank">PMID 38537780</a> · 2024</span>
-            </div>
-          </div>
-          <p style="margin:6px 0 4px;color:#cbd5e1;font-size:12px;">Apixaban in Preventing Secondary Cancer Related Venous Thrombosis in Cancer Patients Who Have Completed Anticoagulation Therapy</p>
-          <p style="margin:0 0 6px;color:#94a3b8;font-size:11px;"><strong>Primary outcome (AACT):</strong> CIF of Major or Clinically Relevant Non-major Bleeding Combined With Death as Competing Risk</p>
-          <table class="ext2x2">
-            <tr><th></th><th>Events</th><th>No event</th><th>Total N</th></tr>
-            <tr><td><strong>Intervention</strong></td><td>9</td><td>170</td><td>179</td></tr>
-            <tr><td><strong>Control</strong></td><td>13</td><td>168</td><td>181</td></tr>
-          </table>
-        </div>
-
-        <div style="background:#1e293b;padding:14px;border-radius:6px;margin:0.6rem 0;">
-          <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;">
-            <div>
-              <strong style="font-size:14px;">(RAMBLE)</strong>
-              <span style="color:#94a3b8;font-size:11px;margin-left:8px;"><a href="https://clinicaltrials.gov/study/NCT02829957" target="_blank">NCT02829957</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/26272306/" target="_blank">PMID 26272306</a> · 2015</span>
-            </div>
-          </div>
-          <p style="margin:6px 0 4px;color:#cbd5e1;font-size:12px;">RAMBLE - Rivaroxaban vs. Apixaban for Heavy Menstrual Bleeding</p>
-          <p style="margin:0 0 6px;color:#94a3b8;font-size:11px;"><strong>Primary outcome (AACT):</strong> PBAC Scores</p>
-          <table class="ext2x2">
-            <tr><th></th><th>Events</th><th>No event</th><th>Total N</th></tr>
-            <tr><td><strong>Intervention</strong></td><td>3</td><td>5</td><td>8</td></tr>
-            <tr><td><strong>Control</strong></td><td>1</td><td>10</td><td>11</td></tr>
-          </table>
         </div></section>
 <section id="tab-analysis" class="tab-panel">
     <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">Forest plot — per-trial OR + pooled estimate</h3>
-    <svg viewBox="0 0 760 164" style="width:100%;max-width:760px;background:#0a0f1f;border-radius:6px;">
+    <svg viewBox="0 0 760 108" style="width:100%;max-width:760px;background:#0a0f1f;border-radius:6px;">
 <text x="20" y="20" fill="#94a3b8" font-size="11">Trial</text>
 <text x="465.0" y="20" fill="#94a3b8" font-size="11" text-anchor="middle">log-OR (95% CI)</text>
-<line x1="465.0" y1="28" x2="465.0" y2="112" stroke="#475569" stroke-dasharray="3,3"/>
+<line x1="465.0" y1="28" x2="465.0" y2="56" stroke="#475569" stroke-dasharray="3,3"/>
 <text x="20" y="46.0" fill="#e2e8f0" font-size="11">NCT02366871</text>
 <line x1="200.00000000000006" y1="42.0" x2="730.0" y2="42.0" stroke="#7dd3fc" stroke-width="2"/>
 <rect x="456.3727219640659" y="38.0" width="8" height="8" fill="#7dd3fc"/>
 <text x="734" y="46.0" fill="#cbd5e1" font-size="10">0.96 [0.06, 15.47]</text>
-<text x="20" y="74.0" fill="#e2e8f0" font-size="11">NCT03080883</text>
-<line x1="320.4712222735478" y1="70.0" x2="522.1633219908931" y2="70.0" stroke="#7dd3fc" stroke-width="2"/>
-<rect x="417.3172721322204" y="66.0" width="8" height="8" fill="#7dd3fc"/>
-<text x="734" y="74.0" fill="#cbd5e1" font-size="10">0.68 [0.28, 1.64]</text>
-<text x="20" y="102.0" fill="#e2e8f0" font-size="11">(RAMBLE)</text>
-<line x1="382.9240037257774" y1="98.0" x2="730.0" y2="98.0" stroke="#7dd3fc" stroke-width="2"/>
-<rect x="667.2100813516656" y="94.0" width="8" height="8" fill="#7dd3fc"/>
-<text x="734" y="102.0" fill="#cbd5e1" font-size="10">6.00 [0.49, 73.46]</text>
-<text x="20" y="130.0" fill="#fbbf24" font-size="11" font-weight="600">Pooled (k=3)</text>
-<polygon points="200.00000000000006,126.0 470.943518364154,120.0 730.0,126.0 470.943518364154,132.0" fill="#fbbf24"/>
-<text x="734" y="130.0" fill="#fbbf24" font-size="10" font-weight="600">OR 1.053 [0.001, 1725.416]</text>
+<text x="20" y="74.0" fill="#fbbf24" font-size="11" font-weight="600">Pooled (k=1)</text>
+<polygon points="200.00000000000006,70.0 460.4216977321645,64.0 730.0,70.0 460.4216977321645,76.0" fill="#fbbf24"/>
+<text x="734" y="74.0" fill="#fbbf24" font-size="10" font-weight="600">OR 0.961 [0.06, 15.465]</text>
 </svg>
     
         <div style="background:#1e293b;padding:16px;border-radius:6px;margin:1rem 0;">
           <h3 style="margin:0 0 8px;font-size:14px;color:#7dd3fc;">Pooled estimate (REML-DL + HKSJ, Cochrane v6.5)</h3>
           <div style="font-size:24px;font-weight:600;font-family:JetBrains Mono,monospace;">
-            OR 1.053 <span style="font-size:14px;color:#94a3b8;">[0.001, 1725.416]</span>
+            OR 0.961 <span style="font-size:14px;color:#94a3b8;">[0.06, 15.465]</span>
           </div>
           <div style="font-size:11px;color:#94a3b8;margin-top:6px;">
-            k = 3 · method = REML-DL-HKSJ · τ² = 0.3009 ·
-            Q = 2.577 · I² = 22.4%
+            k = 1 · method = single-trial · τ² = — ·
+            Q = — · I² = —%
           </div>
         </div>
-    <h3 style="color:#7dd3fc;font-size:14px;">Leave-one-out</h3><div><div style="display:inline-block;padding:6px 10px;margin:3px;background:#1e293b;border-radius:14px;font-size:11px;color:#cbd5e1;">omit <strong>NCT02366871</strong>: OR 1.456 [0.192, 11.058]</div><div style="display:inline-block;padding:6px 10px;margin:3px;background:#1e293b;border-radius:14px;font-size:11px;color:#cbd5e1;">omit <strong>NCT03080883</strong>: OR 2.639 [0.411, 16.963]</div><div style="display:inline-block;padding:6px 10px;margin:3px;background:#1e293b;border-radius:14px;font-size:11px;color:#cbd5e1;">omit <strong>(RAMBLE)</strong>: OR 0.705 [0.306, 1.627]</div></div>
+    
     </section>
-<section id="tab-statistics" class="tab-panel"><div class="stat-grid">
-        <div class="stat-panel">
-          <h4>1. Heterogeneity</h4>
-          <table class="kv">
-            <tr><td>τ² (DerSimonian-Laird)</td><td><code>0.3009</code></td></tr>
-            <tr><td>Q-statistic</td><td><code>2.577</code> (df=2)</td></tr>
-            <tr><td>I²</td><td><code>22.4%</code> — low (<25%)</td></tr>
-            <tr><td>Method</td><td>REML-DL-HKSJ</td></tr>
-          </table>
-        </div>
-
-        <div class="stat-panel">
-          <h4>2. Prediction interval (Cochrane v6.5)</h4>
-          <p style="font-family:JetBrains Mono,monospace;font-size:14px;color:#cbd5e1;">95% PI: <strong>0.219 – 5.051</strong></p>
-          <p style="color:#94a3b8;font-size:11.5px;">t<sub>k-1</sub> = 1.96 · √(τ² + SE²) = 0.8 (Cochrane Handbook v6.5, §10.10.4.3).</p>
-        </div>
-
-        <div class="stat-panel">
-          <h4>3. Egger's funnel asymmetry test</h4>
-          <table class="kv">
-            <tr><td>Slope (bias)</td><td><code>-0.99</code></td></tr>
-            <tr><td>Test verdict</td><td>p≥0.05 (no asymmetry)</td></tr>
-            <tr><td>Power note</td><td>recommended k≥10; current k=3 is exploratory.</td></tr>
-          </table>
-        </div>
+<section id="tab-statistics" class="tab-panel"><div class="stat-grid"><div class="stat-panel"><h4>1. Heterogeneity</h4><p style="color:#94a3b8;font-size:12px;">Requires k≥2 trials with event data.</p></div>
+<div class="stat-panel"><h4>2. Prediction interval</h4><p style="color:#94a3b8;font-size:12px;">Requires k≥3 trials (Cochrane v6.5).</p></div>
+<div class="stat-panel"><h4>3. Egger's test</h4><p style="color:#94a3b8;font-size:12px;">Requires k≥3.</p></div>
 
     <div class="stat-panel">
       <h4>4. Leave-one-out sensitivity</h4>
-      <p style="color:#cbd5e1;font-size:12px;">3 omit-one re-runs (see Analysis section above).</p>
+      <p style="color:#94a3b8;font-size:12px;">Requires k≥3.</p>
     </div>
 
     <div class="stat-panel">
@@ -245,8 +183,8 @@ WHERE lower(name) LIKE '%venous thromboembolism%'</pre>
       <table class="kv">
         <tr><td>Identification</td><td>AACT × PubMed intersection (deterministic)</td></tr>
         <tr><td>Screening</td><td>6-gate audit (machine-checkable)</td></tr>
-        <tr><td>Eligibility</td><td>k=3 trials passed all 6 gates</td></tr>
-        <tr><td>Included</td><td>k=3 with extractable event counts</td></tr>
+        <tr><td>Eligibility</td><td>k=1 trials passed all 6 gates</td></tr>
+        <tr><td>Included</td><td>k=1 with extractable event counts</td></tr>
       </table>
     </div>
 
@@ -258,13 +196,13 @@ WHERE lower(name) LIKE '%venous thromboembolism%'</pre>
 
     <div class="stat-panel">
       <h4>7. GRADE certainty (auto-derived)</h4>
-      <p style="font-size:14px;color:#cbd5e1;">Certainty: <span style="color:#fbbf24;font-weight:600;">Low</span></p>
-      <p style="color:#94a3b8;font-size:11.5px;">Auto-derivation considers k and I² only; full GRADE requires RoB, indirectness, publication bias judgment, and effect-magnitude scoring (not applied in audit-first builds). Triggers: k=3 (imprecision).</p>
+      <p style="font-size:14px;color:#cbd5e1;">Certainty: <span style="color:#fca5a5;font-weight:600;">Very low</span></p>
+      <p style="color:#94a3b8;font-size:11.5px;">Auto-derivation considers k and I² only; full GRADE requires RoB, indirectness, publication bias judgment, and effect-magnitude scoring (not applied in audit-first builds). Triggers: k=1 (imprecision).</p>
     </div>
 
         <div class="stat-panel">
           <h4>8. Reproducibility fingerprint</h4>
-          <p style="font-family:JetBrains Mono,monospace;font-size:12px;color:#cbd5e1;">sha256[:16] = <code>516cf640990ea282</code></p>
+          <p style="font-family:JetBrains Mono,monospace;font-size:12px;color:#cbd5e1;">sha256[:16] = <code>f16da19c8d83e9a0</code></p>
           <p style="color:#94a3b8;font-size:11.5px;">Bit-stable hash of {sorted NCT list, pooled OR + 95% CI}. Reproduce by re-running scripts/add_topic_autodiscover.py + generate_topic_html.py against the same AACT snapshot.</p>
         </div></div></section>
 <section id="tab-about" class="tab-panel">
@@ -341,58 +279,6 @@ Per PubMed attribution: NCBI E-utilities + idconv API. Generated by
         "source": "AACT 2026-04-12",
         "text": "Number of Participants With Incidence of Major Bleeding",
         "sourceUrl": "https://clinicaltrials.gov/study/NCT02366871"
-      }
-    ]
-  },
-  "NCT03080883": {
-    "name": "NCT03080883",
-    "baseline": {
-      "n": 360
-    },
-    "pmid": "38537780",
-    "phase": "III",
-    "year": 2024,
-    "tE": 9,
-    "tN": 179,
-    "cE": 13,
-    "cN": 181,
-    "group": "apixaban",
-    "estimandType": "OR",
-    "publishedHR": null,
-    "hrLCI": null,
-    "hrUCI": null,
-    "evidence": [
-      {
-        "label": "Primary outcome (AACT)",
-        "source": "AACT 2026-04-12",
-        "text": "CIF of Major or Clinically Relevant Non-major Bleeding Combined With Death as Competing Risk",
-        "sourceUrl": "https://clinicaltrials.gov/study/NCT03080883"
-      }
-    ]
-  },
-  "NCT02829957": {
-    "name": "(RAMBLE)",
-    "baseline": {
-      "n": 19
-    },
-    "pmid": "26272306",
-    "phase": "III",
-    "year": 2015,
-    "tE": 3,
-    "tN": 8,
-    "cE": 1,
-    "cN": 11,
-    "group": "apixaban",
-    "estimandType": "OR",
-    "publishedHR": null,
-    "hrLCI": null,
-    "hrUCI": null,
-    "evidence": [
-      {
-        "label": "Primary outcome (AACT)",
-        "source": "AACT 2026-04-12",
-        "text": "PBAC Scores",
-        "sourceUrl": "https://clinicaltrials.gov/study/NCT02829957"
       }
     ]
   }

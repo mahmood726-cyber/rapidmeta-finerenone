@@ -1,22 +1,22 @@
 {
   "topic": {
     "stem": "FOSFOMYCIN_UTI_AUTO",
-    "name": "Fosfomycin in UTI",
+    "name": "Fosfomycin in cUTI",
     "ncts": [
       "NCT06518291",
       "NCT04209192",
       "NCT05254808",
       "NCT03151603",
+      "NCT05260554",
       "NCT01488955",
       "NCT04959331",
-      "NCT01966653",
-      "NCT00976963"
+      "NCT01966653"
     ],
     "drug_patterns": [
       "fosfomycin"
     ],
     "condition_patterns": [
-      "urinary tract infection"
+      "urinary tract"
     ]
   },
   "trials": [
@@ -149,6 +149,38 @@
         "F_primary_outcome_known": true
       },
       "extracted": {
+        "nct": "NCT05260554",
+        "aact_title": "Effect of Cranberry Extract on the Urinary System",
+        "aact_acronym": "",
+        "start_date": "2022-01-26",
+        "primary_completion_date": "2022-02-18",
+        "aact_intvs": [
+          "fosfomycin",
+          "cranberry"
+        ],
+        "aact_conditions": [
+          "antibiotic reaction",
+          "cystitis",
+          "urinary tract disease"
+        ],
+        "pmid": "12011903",
+        "pubmed_year": 2002,
+        "pubmed_doi": "10.1067/mjw.2002.124016",
+        "aact_per_arm_counts": {},
+        "aact_primary_outcome_measure": "Treatment time",
+        "aact_outcome_count_rows": []
+      }
+    },
+    {
+      "gates": {
+        "A_aact_exists": true,
+        "B_drug_in_intvs": true,
+        "C_condition_in_aact": true,
+        "D_pmid_topic_match": true,
+        "E_two_arms": false,
+        "F_primary_outcome_known": true
+      },
+      "extracted": {
         "nct": "NCT01488955",
         "aact_title": "Immediate vs. Conditional Use of Antibiotics in Uncomplicated Urinary Tract Infection (UTI) - ICUTI",
         "aact_acronym": "",
@@ -229,46 +261,6 @@
         "aact_per_arm_counts": {},
         "aact_primary_outcome_measure": "Number of participants with clinical cure, clinical failure, or indeterminate clinical response (see description below)",
         "aact_outcome_count_rows": []
-      }
-    },
-    {
-      "gates": {
-        "A_aact_exists": true,
-        "B_drug_in_intvs": true,
-        "C_condition_in_aact": true,
-        "D_pmid_topic_match": false,
-        "E_two_arms": true,
-        "F_primary_outcome_known": true
-      },
-      "extracted": {
-        "nct": "NCT00976963",
-        "aact_title": "Single Dose Monurol for Treatment of Acute Cystitis",
-        "aact_acronym": "",
-        "start_date": "2009-09-17",
-        "primary_completion_date": "2016-12-27",
-        "aact_intvs": [
-          "tmp/smx",
-          "fosfomycin"
-        ],
-        "aact_conditions": [
-          "urinary tract infection"
-        ],
-        "pmid": null,
-        "aact_per_arm_counts": {
-          "BG000": 147,
-          "BG001": 150
-        },
-        "aact_primary_outcome_measure": "Number of Participants Who Were Cured",
-        "aact_outcome_count_rows": [
-          [
-            "OG000",
-            "120.0"
-          ],
-          [
-            "OG001",
-            "130.0"
-          ]
-        ]
       }
     }
   ],
