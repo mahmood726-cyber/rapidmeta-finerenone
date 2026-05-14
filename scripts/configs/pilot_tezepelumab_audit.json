@@ -1,0 +1,80 @@
+{
+  "base": "C:\\Projects\\Finrenone\\DUPILUMAB_COPD_REVIEW.html",
+  "out":  "C:\\Projects\\Finrenone\\TEZEPELUMAB_ASTHMA_FULL_REVIEW.html",
+  "title": "RapidMeta | Tezepelumab in Severe Asthma (audit-first, full-functionality)",
+  "hero_h2": "Tezepelumab in Severe Asthma",
+  "nyt_headline": "The Tezepelumab Evidence",
+  "auto_include_ncts": ["NCT03347279", "NCT03406078", "NCT03968978"],
+  "nct_acronyms": {
+    "NCT03347279": "NAVIGATOR",
+    "NCT03406078": "SOURCE",
+    "NCT03968978": "PATH-HOME"
+  },
+  "localstorage_old": "rapid_meta_dupi_copd_v1_0",
+  "localstorage_new": "rapid_meta_tezepelumab_asthma_audit_v1_0",
+  "pico": {
+    "pop": "Adults and adolescents with severe uncontrolled asthma on background ICS/LABA controller therapy",
+    "int": "Tezepelumab (anti-TSLP monoclonal antibody, 210 mg SC every 4 weeks)",
+    "comp": "Placebo or comparator on top of background controller",
+    "out": "Annualised asthma exacerbation rate (primary) and trial-declared primary endpoint per NCT",
+    "subgroup": "Eosinophil count, FeNO, prior biologic exposure, OCS dependence"
+  },
+  "real_data_entries": [
+    {
+      "nct": "NCT03347279",
+      "name": "NAVIGATOR",
+      "pmid": "41072729",
+      "phase": "III",
+      "year": 2026,
+      "tE": null, "tN": 528, "cE": null, "cN": 531,
+      "group": "Severe uncontrolled asthma; tezepelumab 210 mg q4w vs placebo on background ICS/LABA; AAER primary",
+      "publishedHR": null, "hrLCI": null, "hrUCI": null,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "Annualised asthma exacerbation rate (primary; AAER)", "type": "PRIMARY", "matchScore": 95, "estimandType": "RR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: NAVIGATOR pivotal RCT (NCT03347279); AACT primary outcome = Annual Asthma Exacerbation Rate. Published HR/CI not parsed from cached abstract.",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41072729/",
+      "evidence": []
+    },
+    {
+      "nct": "NCT03406078",
+      "name": "SOURCE",
+      "pmid": "36702146",
+      "phase": "III",
+      "year": 2023,
+      "tE": null, "tN": 74, "cE": null, "cN": 76,
+      "group": "OCS-dependent severe asthma; tezepelumab 210 mg q4w vs placebo; reduction in OCS daily dose primary",
+      "publishedHR": -13.04, "hrLCI": null, "hrUCI": null,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "Categorised reduction from baseline in daily OCS dose (primary)", "type": "PRIMARY", "matchScore": 90, "md": -13.04, "estimandType": "MD"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: SOURCE pivotal RCT (NCT03406078); AACT primary = categorised OCS-dose reduction; published MD -13.04 from V2 extractor.",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/36702146/",
+      "evidence": []
+    },
+    {
+      "nct": "NCT03968978",
+      "name": "PATH-HOME",
+      "pmid": "33907423",
+      "phase": "III",
+      "year": 2021,
+      "tE": null, "tN": 111, "cE": null, "cN": 105,
+      "group": "Severe asthma; tezepelumab home-administration usability (PATH-HOME); proportions of successful administrations",
+      "publishedHR": null, "hrLCI": null, "hrUCI": null,
+      "allOutcomes": [
+        {"shortLabel": "MACE", "title": "Proportion of HCPs/subjects successfully administering tezepelumab (primary)", "type": "PRIMARY", "matchScore": 85, "estimandType": "OR"}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "snippet": "Source: PATH-HOME RCT (NCT03968978); usability study of home administration.",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/33907423/",
+      "evidence": []
+    }
+  ],
+  "extra_replaces": [
+    ["The Dupilumab Evidence in COPD", "The Tezepelumab Evidence in Severe Asthma"],
+    ["Dupilumab (anti-IL-4Ra biologic)", "Tezepelumab (anti-TSLP biologic, 210 mg SC q4w)"],
+    ["dupilumab", "tezepelumab"]
+  ]
+}
