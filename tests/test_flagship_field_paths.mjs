@@ -75,6 +75,28 @@ const THRESHOLDS = {
 //      R fit RCS. Linear pool succeeds k=3 with τ² ≈ 0 (Q=0.34 < df=2 means
 //      HKSJ floor activates at 1.0); engine slope -0.01313 vs R slope -0.01312,
 //      |Δ| ≈ 1e-5 — far inside threshold.)
+//  10. ANIFROLUMAB_SLE_PHASE23_DOSE_RESP_REVIEW.html (anifrolumab_sle_phase23 —
+//      Round 3.11; 3-trial BICLA Week 52 binary fixture on the {0, 150, 300, 1000} mg
+//      dose grid with sparse per-trial coverage (MUSE 0/300/1000, TULIP-1 0/150/300,
+//      TULIP-2 0/300 only). The pool has 3 distinct POSITIVE doses (150, 300, 1000) —
+//      sufficient for the 3-knot Harrell basis. The engine produces a REAL 3-knot
+//      RCS fit at k_RCS=2 (TULIP-2 silently dropped for singular per-trial design;
+//      MUSE and TULIP-1 surviving). Engine knots [225, 300, 650] mg span the actual
+//      active-dose range with meaningful gaps (NOT collapsed inside a tiny interval
+//      like AMAGINE's R fit). R dosresmeta refuses with the parallel sparse-per-
+//      trial-arm error (TULIP-2 has only 1 non-reference arm vs K_p=2 required);
+//      the R precompute records rcs.fit_ok=false. NEW contract combination
+//      (rRefusedRcs: true + engineFitsRcsRRefuses: true) — the OPPOSITE of AMAGINE
+//      (Round 3.9, rcsDegenerate + rEngineDisagreesOnRcs: engine refused / R fit
+//      with degenerate knots). This is the FIRST flagship since SUSTAIN where the
+//      engine produces a real RCS fit and the FIRST EVER where engine fits with
+//      informative knots while R refuses. The engineFitsRcsRRefuses flag asserts
+//      the engine knots are NOT degenerate (every knot strictly between the min
+//      and max positive dose with no two knots collinear). rcsKEffectiveLessThanFixture
+//      also fires (engine k_RCS=2 < input k=3 due to TULIP-2 silent drop). Linear
+//      pool succeeds k=3 with engine slope 0.00077 vs R slope 0.00081 (|Δ|≈4e-5,
+//      far inside the 0.01 threshold) and engine τ²=3.90e-7 vs R τ²=3.67e-7
+//      (|Δ|≈2e-8, far inside the 0.0001 threshold) — both linear rows GREEN.)
 //
 // Each flagship reads engine field paths from DR.fitLinear / DR.fitRCS results.
 // We codify the contract per flagship.
@@ -265,6 +287,45 @@ const flagshipContracts = [
     // (rcsDegenerate + rRefusedRcs) — engine and R agree to refuse.
     rcsDegenerate: true,
     rRefusedRcs: true,
+  },
+  {
+    flagship: 'ANIFROLUMAB_SLE_PHASE23_DOSE_RESP_REVIEW.html',
+    fixture: 'tests/dose_response_fixtures/anifrolumab_sle_phase23.json',
+    rJson: 'outputs/r_validation/doseresp/anifrolumab_sle_phase23.json',
+    rcsKnots: 3,
+    expectAmberRows: [],
+    // Round 3.11: 3-trial BICLA Wk 52 binary fixture on the {0, 150, 300, 1000} mg
+    // dose grid with sparse per-trial coverage (MUSE 0/300/1000, TULIP-1 0/150/300,
+    // TULIP-2 0/300 only). UNLIKE the prior 4 degeneracy flagships, the pool has
+    // 3 distinct POSITIVE doses {150, 300, 1000} — sufficient for the 3-knot
+    // Harrell basis. Engine fitRCS PROCEEDS (does NOT short-circuit to
+    // degenerate-to-linear): rcsKnots(allDoses, 3) returns 3 distinct knot
+    // locations [225, 300, 650] mg. The per-trial 2×2 spline-coef regression
+    // succeeds for MUSE and TULIP-1 (both have 2 non-reference arms ≥ K_p=2);
+    // TULIP-2's per-trial XtSX is singular (only 1 non-reference arm), so the
+    // engine silently drops TULIP-2 and pools k_RCS=2 (rcsKEffectiveLessThanFixture
+    // fires). Full multivariate REML converges in ~32 iterations, HKSJ-mv floor
+    // activates at 1.0, tcrit=12.706 at df=1.
+    //
+    // R dosresmeta refuses the ENTIRE RCS pool with the sparse-per-trial-arm
+    // error (TULIP-2 fails the K_p=2 requirement). The R precompute JSON has
+    // rcs.fit_ok=false; spline_coefs and nonlinearity_wald_p are absent.
+    //
+    // NEW contract combination (rRefusedRcs + engineFitsRcsRRefuses) — the
+    // OPPOSITE of AMAGINE Round 3.9 (rcsDegenerate + rEngineDisagreesOnRcs).
+    // SUSTAIN Round 3.7 had the same combination (rRefusedRcs + engine
+    // pooled surviving) but with k_RCS=2 dropping 4 of 6 trials; here only
+    // 1 of 3 trials is dropped. The engineFitsRcsRRefuses flag asserts the
+    // KNOT-INFORMATIVENESS invariant: not all knots collapsed inside a small
+    // interval (the AMAGINE failure mode), but distributed across the actual
+    // dose range. We verify this by asserting that the spread of engine knots
+    // (max-min) exceeds the min-knot-spacing of the program-wide unique
+    // positive-dose set — a structural check that the engine's percentile
+    // placement actually used real dose levels.
+    rRefusedRcs: true,
+    engineFitsRcsRRefuses: true,
+    // Engine drops TULIP-2 (only 1 non-ref arm vs K_p=2) → k_RCS=2 from input k=3.
+    rcsKEffectiveLessThanFixture: true,
   },
 ];
 
@@ -494,13 +555,67 @@ for (const c of flagshipContracts) {
       assert.ok(rJson.rcs && typeof rJson.rcs.error_msg === 'string' && rJson.rcs.error_msg.length > 0, 'R precompute must record an error_msg explaining why R refused');
     });
     if (!c.rcsDegenerate) {
-      // SUSTAIN-style: R refused but the engine successfully pooled the surviving
-      // trials (k_RCS=2). Engine RCS coefs are finite.
+      // SUSTAIN-style / ANIFROLUMAB-style: R refused but the engine successfully
+      // pooled the surviving trials (k_RCS=2). Engine RCS coefs are finite.
       test('Engine RCS coefs finite even though R refused (engine pooled surviving trials)', () => {
         assert.ok(Number.isFinite(rcs.rcs.spline_coefs[0]));
         assert.ok(Number.isFinite(rcs.rcs.spline_coefs[1]));
         assert.ok(Number.isFinite(rcs.rcs.nonlinearity_wald_p));
       });
+      if (c.engineFitsRcsRRefuses) {
+        // Round 3.11 (ANIFROLUMAB): engine FIT a real RCS with INFORMATIVE knots
+        // (NOT collapsed inside a tiny dose-grid gap like AMAGINE's R fit). The
+        // pool has ≥ 3 distinct positive doses, so rcsKnots returns 3 distinct
+        // knot locations spanning the actual dose range. Assert the engine
+        // knot-informativeness invariant: every knot strictly inside the
+        // (min_positive_dose, max_positive_dose) range AND the knot spread
+        // (max-knot − min-knot) must exceed at least one full inter-dose gap
+        // of the program's unique positive-dose set (otherwise the knots are
+        // degenerate-collapsed like AMAGINE).
+        test('engineFitsRcsRRefuses: engine knots are INFORMATIVE (distributed across actual dose range, not collapsed)', () => {
+          assert.equal(rcs.layer, 'rcs', 'engine layer must be rcs (full fit), not the degenerate-to-linear fallback');
+          assert.equal(rcs.rcs == null, false, 'engine must produce a non-null rcs block when it fits');
+          assert.ok(Array.isArray(rcs.rcs.knots) && rcs.rcs.knots.length === 3, 'engine must report 3 RCS knots');
+
+          // Compute the program-wide unique positive-dose set.
+          var positiveDoses = [];
+          fx.trials.forEach(function (t) {
+            t.arms.forEach(function (a) { if (a.dose > 0) positiveDoses.push(a.dose); });
+          });
+          var uniquePos = Array.from(new Set(positiveDoses)).sort(function (a, b) { return a - b; });
+          assert.ok(uniquePos.length >= 3, 'engineFitsRcsRRefuses contract requires >= 3 distinct positive doses across the pool; this fixture has ' + uniquePos.length);
+          var minPos = uniquePos[0];
+          var maxPos = uniquePos[uniquePos.length - 1];
+
+          // Each knot must be strictly inside (0, maxPos] — knots can be at or
+          // below the smallest active dose if that's where the 10th percentile
+          // lands; we assert > 0 (reference dose) and <= maxPos (no extrapolation
+          // beyond the program's maximum dose).
+          rcs.rcs.knots.forEach(function (k, i) {
+            assert.ok(k > 0, 'engine knot[' + i + '] = ' + k + ' must be > 0 (reference dose excluded from knot percentile basis)');
+            assert.ok(k <= maxPos, 'engine knot[' + i + '] = ' + k + ' must be <= max positive dose ' + maxPos);
+          });
+
+          // Knot spread > min inter-dose gap — catches the AMAGINE failure mode
+          // (all 3 knots collapsed inside one 70 mg gap). Compute the smallest
+          // gap between consecutive UNIQUE positive doses; the knot spread
+          // (max_knot − min_knot) must be at least one such gap.
+          var minInterDoseGap = Infinity;
+          for (var i = 1; i < uniquePos.length; i++) {
+            var g = uniquePos[i] - uniquePos[i - 1];
+            if (g < minInterDoseGap) minInterDoseGap = g;
+          }
+          var knotSpread = Math.max.apply(null, rcs.rcs.knots) - Math.min.apply(null, rcs.rcs.knots);
+          assert.ok(knotSpread >= minInterDoseGap,
+            'engine knot spread (' + knotSpread + ') must be >= the smallest inter-dose gap in the pool (' + minInterDoseGap + '); otherwise knots are collapsed inside a single gap like the AMAGINE Round 3.9 failure mode');
+
+          // Distinct positive-dose count must be >= 3 (the engine's cross-trial
+          // knot-count check would have short-circuited otherwise; this is the
+          // structural condition that lets the engine fit when AMAGINE could not).
+          assert.ok(uniquePos.length >= 3,
+            'engineFitsRcsRRefuses requires >= 3 distinct positive doses; this fixture has ' + uniquePos.length + ' (the ANIFROLUMAB-vs-AMAGINE distinguishing characteristic)');
+        });
+      }
     } else {
       // SELECT-style: engine also refused RCS (degenerate-to-linear fallback).
       // Both engine and R agree the dose grid cannot support a 3-knot RCS.

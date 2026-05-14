@@ -206,6 +206,52 @@ FLAGSHIPS = [
         ],
     },
     {
+        # Round 3.11 — 3-trial anifrolumab SLE BICLA Wk 52 dose-response flagship.
+        # FIRST flagship since SUSTAIN where the engine produces a real RCS fit
+        # AND the FIRST EVER where engine fits with informative knots while R
+        # refuses. The 3 trials use a {0, 150, 300, 1000} mg dose grid with 3
+        # distinct positive doses — sufficient for the 3-knot Harrell basis.
+        # Engine fitRCS proceeds: rcsKnots returns 3 distinct knot locations
+        # [225, 300, 650] mg spanning the actual active-dose range. Per-trial
+        # fit succeeds for MUSE and TULIP-1 (both have 2 non-reference arms);
+        # TULIP-2's per-trial XtSX is singular (only 1 non-reference arm), so
+        # the engine silently drops TULIP-2 and pools k_RCS=2. R dosresmeta
+        # refuses the entire pool with the sparse-per-trial-arm error
+        # (rcs.fit_ok=false in the R precompute JSON).
+        # Badge characteristics (custom panel, NOT the standard 5-row badge):
+        #   - header class `rv-badge-deferred` (purple) — overall flag for the
+        #     engine-vs-R disagreement
+        #   - linear-slope row GREEN (engine 0.000774 vs R 0.000810, |Δ| ≈ 4e-5
+        #     well within the 0.01 threshold)
+        #   - linear-τ² row GREEN (engine PM 3.90e-7 vs R REML 3.67e-7,
+        #     |Δ| ≈ 2e-8 well within the 0.0001 threshold)
+        #   - 3 RCS rows custom "ENGINE-FIT / R-REFUSED" status (rv-row-deferred
+        #     styling; status cell explicitly contains "ENGINE-FIT / R-REFUSED")
+        #   - one-stage row PASS-THROUGH (R glmer converged=true)
+        # KPI scope here is Tab 2's `bicla-rcs-kpis` mount (which contains the
+        # full RCS KPI grid: knots, spline_coefs, Wald p, etc) — distinct from
+        # AMAGINE/SELECT/ERENUMAB where the RCS tab is a methodological note
+        # because the engine refused. Here Tab 2 is a real KPI grid.
+        "html": "ANIFROLUMAB_SLE_PHASE23_DOSE_RESP_REVIEW.html",
+        "r_parity_mount_id": "r-parity-anifrolumab-bicla",
+        "rcs_kpi_id": "bicla-rcs-kpis",
+        "expected_badge": "deferred",
+        "allowed_amber_rows": [],
+        "deferral_must_contain": "deferred to engine v0.5",
+        # ANIFROLUMAB-specific: badge must surface the "ENGINE-FIT / R-REFUSED"
+        # status explicitly. Distinct from the AMAGINE phrase ("ENGINE-DECLINED
+        # / R-FIT"), the SUSTAIN/SELECT/ERENUMAB phrase ("DEFERRED"), and the
+        # standard threshold-driven case. Without this, readers cannot tell
+        # whether the deferral is the SUSTAIN case (both refused, engine k_RCS=2
+        # surviving) or the ANIFROLUMAB case (engine fit with informative knots,
+        # R refused).
+        "must_contain_phrases": [
+            "ENGINE-FIT / R-REFUSED",
+            "informative",   # part of "informative knots span dose range"
+            "225",           # the engine's first knot, distinguishes ANIFROLUMAB
+        ],
+    },
+    {
         # Round 3.10 — 3-trial erenumab Phase 3 Δ MMD dose-response flagship.
         # SAME methodological pattern as Round 3.8 SELECT (both engine and R
         # refuse RCS). The 3 trials use a {0, 70, 140} mg dose grid with sparse
