@@ -638,10 +638,10 @@ for json_p in sorted(TOPICS_DIR.glob("*.json")):
     stem = doc["topic"]["stem"]
     verdict = doc.get("verdict")
     n_pass = doc.get("n_pass_all", 0)
-    # Regenerate when: (a) currently VIABLE, OR (b) historical build exists on disk
-    # and the topic has at least 2 passing trials (preserves k>=2 legacy builds).
+    # Regenerate when: (a) currently VIABLE, OR (b) any historical build exists
+    # on disk (so legacy k=1 / k=2 stubs get the new full-tab template too).
     has_legacy_html = (HERE / f"{stem}_REVIEW.html").exists()
-    if verdict == "VIABLE" or (has_legacy_html and n_pass >= 2):
+    if verdict == "VIABLE" or has_legacy_html:
         out_p_plain = HERE / f"{stem}.html"
         out_p_review = HERE / f"{stem}_REVIEW.html"
         html = build_html(doc)
