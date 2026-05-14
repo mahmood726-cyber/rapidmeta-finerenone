@@ -1,4 +1,4 @@
-/* rapidmeta-dose-response-engine-v1.js — v0.6.0 (2026-05-14)
+/* rapidmeta-dose-response-engine-v1.js — v0.7.0 (2026-05-14)
  *
  * Self-contained dose-response meta-analysis engine for RapidMeta.
  * Three layered fitters: two-stage Greenland-Longnecker linear (primary),
@@ -27,6 +27,16 @@
  *     Q=0, hksj_qstar=1, PI degenerated to CI, tcrit=qt(0.975, n_arms-2)
  *     within-trial df. estimator='wls_single_trial_linear',
  *     ci_method='t_within_trial'. fitLinear at k>=2 is byte-identical to v0.5.
+ *   - v0.7.0: non-parametric trial-bootstrap CI via _internal.fitBootstrap as a
+ *     sensitivity check on the analytical HKSJ-multivariate CIs. Resamples
+ *     trials with replacement (size=k_full), refits fitLinear/fitRCS per
+ *     bootstrap sample, returns percentile CI on pooled_slope_log plus the
+ *     analytical CI for comparison and a coverage_warning flag when k_full<4
+ *     or >5 percent of bootstrap samples fail. Determinism via tiny seeded LCG
+ *     (no external PRNG dep). RCS layer also returns bootstrap_nonlin_ps and
+ *     the fraction below 0.05. Demonstrated on the SUSTAIN flagship (I^2=97
+ *     percent — analytical-vs-bootstrap comparison most informative there).
+ *     fitLinear/fitRCS are byte-identical to v0.6 at all k.
  *
  * Load as <script src="rapidmeta-dose-response-engine-v1.js" defer></script>;
  * exposes window.RapidMetaDoseResp.{ validate, fitLinear, fitRCS, fitOneStage,
@@ -39,7 +49,7 @@
   // Public methods are assigned to API.<name> immediately after each function
   // definition below. _internal helpers are similarly attached as defined.
   var API = {
-    engine_version: 'rapidmeta-dose-response-engine-v1@0.6.0',
+    engine_version: 'rapidmeta-dose-response-engine-v1@0.7.0',
     _internal: {},
   };
 
@@ -1845,6 +1855,219 @@
     };
   }
   API._internal.fitLOO = fitLOO;
+
+  // ===================================================================
+  // Section: makeSeededRng — tiny LCG (Linear Congruential Generator).
+  //
+  // Numerical Recipes "minstd_rand"-style constants (Park-Miller 1988):
+  //   X_{n+1} = (a * X_n) mod m   with a = 48271, m = 2^31 - 1 = 2147483647.
+  //
+  // This is NOT a cryptographic PRNG and not the best choice for high-D
+  // Monte Carlo, but it is:
+  //   - deterministic (same seed → identical sequence; required for the
+  //     test 'fitBootstrap seed determinism' below)
+  //   - cycle ≈ 2.1e9 (more than enough for our n_boot ≤ 10000 use)
+  //   - no external dependency (works in browser + Node)
+  //   - cheap (no Math.random branching, no entropy probe)
+  //
+  // Seed is forced into (0, m) — seed=0 maps to 1 to avoid the LCG fixed
+  // point at 0. Returns a closure rng() → uniform on (0, 1).
+  // ===================================================================
+  function makeSeededRng(seed) {
+    var m = 2147483647;  // 2^31 - 1
+    var a = 48271;
+    var s = (seed | 0) % m;
+    if (s <= 0) s += m - 1;  // avoid s = 0 fixed point; map 0 → m-1
+    return function () {
+      s = (a * s) % m;
+      return s / m;
+    };
+  }
+  API._internal.makeSeededRng = makeSeededRng;
+
+  // ===================================================================
+  // Section: fitBootstrap (engine v0.7.0)
+  //
+  // Non-parametric trial-bootstrap CI as a sensitivity check on the
+  // analytical HKSJ-multivariate CIs returned by fitLinear / fitRCS.
+  // Especially informative at extreme I² (e.g. SUSTAIN's 97%) where the
+  // analytical CI's normal-theory assumptions are stressed.
+  //
+  // Algorithm: for each of n_boot bootstrap samples:
+  //   1. Sample k_full trial indices uniformly with replacement from
+  //      trials[0..k_full-1] using the seeded LCG.
+  //   2. Refit fitLinear (or fitRCS) on the resampled trial list.
+  //   3. Record pooled_slope_log; for RCS also record nonlinearity_wald_p.
+  //   4. On exception (singular per-trial design after resampling, RCS
+  //      knot degeneration, REML non-convergence on a duplicate-only
+  //      sample), tally n_failed and continue.
+  //
+  // Returns (top-level fields, no .rcs nesting — meta-summary):
+  //   layer, k_full, n_boot, seed, alpha,
+  //   bootstrap_slopes, n_failed,
+  //   bootstrap_ci_lo, bootstrap_ci_hi, bootstrap_median, bootstrap_se,
+  //   analytical_ci_lo, analytical_ci_hi,
+  //   ci_lo_delta, ci_hi_delta,
+  //   coverage_warning  (true if k_full<4 or n_failed > 5% of n_boot)
+  // RCS layer also:
+  //   bootstrap_nonlin_ps, bootstrap_nonlin_p_median,
+  //   nonlin_p_fraction_below_005
+  // ===================================================================
+  function fitBootstrap(trials, opts) {
+    opts = opts || {};
+    var layer = (opts.layer === 'linear') ? 'linear' : 'rcs';
+    var knots = (opts.knots != null) ? opts.knots : 3;
+    var n_boot = (opts.n_boot != null) ? opts.n_boot : 1000;
+    var seed = (opts.seed != null) ? opts.seed : 12345;
+    var alpha = (opts.alpha != null) ? opts.alpha : 0.05;
+
+    if (!Array.isArray(trials) || trials.length < 1) {
+      throw new Error('fitBootstrap: requires k >= 1 trial; got k=' + (trials && trials.length));
+    }
+    // validate() on the full pool first; bootstrap of an invalid pool is
+    // meaningless.  fitLinear / fitRCS will re-validate per sample.
+    var issues = validate(trials);
+    if (issues.length) throw new Error('fitBootstrap: ' + issues[0]);
+
+    var k_full = trials.length;
+
+    // Build opts pass-through for the inner fits (drop our own keys so we
+    // don't recurse / over-pass).
+    var innerOpts = {};
+    for (var key in opts) {
+      if (!Object.prototype.hasOwnProperty.call(opts, key)) continue;
+      if (key === 'layer' || key === 'n_boot' || key === 'seed') continue;
+      innerOpts[key] = opts[key];
+    }
+
+    // Analytical baseline (computed once on the full pool for the
+    // comparison fields).  If this throws, the bootstrap can still run
+    // (we just won't have analytical baselines to delta against).
+    var analytical_ci_lo = NaN, analytical_ci_hi = NaN;
+    try {
+      var fullFit = (layer === 'rcs')
+        ? fitRCS(trials, Object.assign({}, innerOpts, { knots: knots }))
+        : fitLinear(trials, innerOpts);
+      analytical_ci_lo = fullFit.pooled_slope_log_ci_lo;
+      analytical_ci_hi = fullFit.pooled_slope_log_ci_hi;
+    } catch (e) {
+      // analytical baseline failed; leave NaN, surface via deltas below.
+    }
+
+    var rng = makeSeededRng(seed);
+    var bootstrap_slopes = [];
+    var bootstrap_nonlin_ps = [];
+    var n_failed = 0;
+
+    for (var b = 0; b < n_boot; b++) {
+      // Sample k_full trial indices with replacement.
+      var sampled = new Array(k_full);
+      for (var i = 0; i < k_full; i++) {
+        // floor(rng() * k_full) — rng is uniform on (0, 1), so this is
+        // uniform on {0, 1, ..., k_full-1}.
+        var idx = Math.floor(rng() * k_full);
+        if (idx >= k_full) idx = k_full - 1;  // safety against rare boundary
+        sampled[i] = trials[idx];
+      }
+      try {
+        var fit = (layer === 'linear')
+          ? fitLinear(sampled, innerOpts)
+          : fitRCS(sampled, Object.assign({}, innerOpts, { knots: knots }));
+        var slope = fit.pooled_slope_log;
+        if (!isFinite(slope)) {
+          n_failed++;
+          continue;
+        }
+        bootstrap_slopes.push(slope);
+        if (layer === 'rcs' && fit.rcs && fit.rcs.nonlinearity_wald_p != null
+            && isFinite(fit.rcs.nonlinearity_wald_p)) {
+          bootstrap_nonlin_ps.push(fit.rcs.nonlinearity_wald_p);
+        }
+      } catch (e) {
+        n_failed++;
+      }
+    }
+
+    // Percentile CI: sort the surviving slopes and pull alpha/2 and 1-alpha/2
+    // indices. Use linear interpolation between order statistics so the
+    // result is continuous in n_boot (matches numpy.quantile default).
+    function percentile(sortedArr, p) {
+      var n = sortedArr.length;
+      if (n === 0) return NaN;
+      if (n === 1) return sortedArr[0];
+      var idx = p * (n - 1);
+      var lo = Math.floor(idx), hi = Math.ceil(idx);
+      if (lo === hi) return sortedArr[lo];
+      var frac = idx - lo;
+      return sortedArr[lo] * (1 - frac) + sortedArr[hi] * frac;
+    }
+
+    var sorted = bootstrap_slopes.slice().sort(function (a, b) { return a - b; });
+    var bootstrap_ci_lo = percentile(sorted, alpha / 2);
+    var bootstrap_ci_hi = percentile(sorted, 1 - alpha / 2);
+    var bootstrap_median = percentile(sorted, 0.5);
+
+    // SD across bootstrap_slopes
+    var nb = bootstrap_slopes.length;
+    var bootstrap_se = NaN;
+    if (nb >= 2) {
+      var mean = 0;
+      for (var mi = 0; mi < nb; mi++) mean += bootstrap_slopes[mi];
+      mean /= nb;
+      var ssq = 0;
+      for (var si = 0; si < nb; si++) {
+        var d = bootstrap_slopes[si] - mean;
+        ssq += d * d;
+      }
+      bootstrap_se = Math.sqrt(ssq / (nb - 1));
+    } else if (nb === 1) {
+      bootstrap_se = 0;
+    }
+
+    var ci_lo_delta = (isFinite(bootstrap_ci_lo) && isFinite(analytical_ci_lo))
+      ? (bootstrap_ci_lo - analytical_ci_lo) : NaN;
+    var ci_hi_delta = (isFinite(bootstrap_ci_hi) && isFinite(analytical_ci_hi))
+      ? (bootstrap_ci_hi - analytical_ci_hi) : NaN;
+
+    var failure_rate = n_failed / Math.max(1, n_boot);
+    var coverage_warning = (k_full < 4) || (failure_rate > 0.05);
+
+    var out = {
+      layer: layer,
+      k_full: k_full,
+      n_boot: n_boot,
+      seed: seed,
+      alpha: alpha,
+      bootstrap_slopes: bootstrap_slopes,
+      n_failed: n_failed,
+      bootstrap_ci_lo: bootstrap_ci_lo,
+      bootstrap_ci_hi: bootstrap_ci_hi,
+      bootstrap_median: bootstrap_median,
+      bootstrap_se: bootstrap_se,
+      analytical_ci_lo: analytical_ci_lo,
+      analytical_ci_hi: analytical_ci_hi,
+      ci_lo_delta: ci_lo_delta,
+      ci_hi_delta: ci_hi_delta,
+      coverage_warning: coverage_warning,
+      engine_version: API.engine_version,
+    };
+
+    if (layer === 'rcs') {
+      var sortedP = bootstrap_nonlin_ps.slice().sort(function (a, b) { return a - b; });
+      out.bootstrap_nonlin_ps = bootstrap_nonlin_ps;
+      out.bootstrap_nonlin_p_median = percentile(sortedP, 0.5);
+      var n_below = 0;
+      for (var pi = 0; pi < bootstrap_nonlin_ps.length; pi++) {
+        if (bootstrap_nonlin_ps[pi] < 0.05) n_below++;
+      }
+      out.nonlin_p_fraction_below_005 = (bootstrap_nonlin_ps.length > 0)
+        ? (n_below / bootstrap_nonlin_ps.length)
+        : NaN;
+    }
+
+    return out;
+  }
+  API._internal.fitBootstrap = fitBootstrap;
 
   root.RapidMetaDoseResp = API;
   if (typeof module !== 'undefined' && module.exports) module.exports = API;

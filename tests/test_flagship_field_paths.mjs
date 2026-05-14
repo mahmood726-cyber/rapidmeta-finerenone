@@ -743,16 +743,16 @@ for (const c of flagshipContracts) {
 // assertions pin the engine-vs-flagship contract for the new tab so a
 // future engine refactor that renames or moves fitLOO breaks the test
 // (matching the pattern of the Round 2C field-path regression).
-console.log('SURPASS LOO-tab contract (engine v0.6.0 — DR._internal.fitLOO)');
+console.log('SURPASS LOO-tab contract (engine v0.7.0 — DR._internal.fitLOO; engine bumped from v0.6 by v0.7 fitBootstrap addition)');
 
-test('engine v0.6: DR.engine_version label is @0.6.0', () => {
-  assert.ok(/@0\.6\.0$/.test(DR.engine_version),
-    'engine_version label should end with @0.6.0; got ' + DR.engine_version);
+test('engine v0.7: DR.engine_version label is @0.7.0', () => {
+  assert.ok(/@0\.7\.0$/.test(DR.engine_version),
+    'engine_version label should end with @0.7.0; got ' + DR.engine_version);
 });
 
-test('engine v0.6: DR._internal.fitLOO is a function', () => {
+test('engine v0.7: DR._internal.fitLOO is a function (preserved from v0.5)', () => {
   assert.equal(typeof DR._internal.fitLOO, 'function',
-    'DR._internal.fitLOO must be a function on the engine v0.6.0 API');
+    'DR._internal.fitLOO must be a function on the engine v0.7.0 API');
 });
 
 test('SURPASS LOO: fitLOO(SURPASS, layer=rcs, knots=3) returns full_pool + 5 LOO entries', () => {
@@ -1083,6 +1083,87 @@ for (const c of looRollout) {
 
   console.log('');
 }
+
+// === v0.7.0 SUSTAIN bootstrap-tab contract (engine v0.7 demonstrator) ===
+// The SUSTAIN flagship adds a 4th tab "Bootstrap CI sensitivity" between the
+// LOO tab (slot 3) and the One-stage tab (slot 5). The new tab calls
+// DR._internal.fitBootstrap on the embedded HbA1c trials and renders KPI
+// bars + histogram + RCS nonlin-p panel. These assertions pin the
+// engine-vs-flagship contract so a future engine refactor that renames or
+// moves fitBootstrap breaks the test (matching the LOO-tab pattern above).
+console.log('SUSTAIN bootstrap-tab contract (engine v0.7.0 — DR._internal.fitBootstrap)');
+
+test('engine v0.7: DR._internal.fitBootstrap is a function', () => {
+  assert.equal(typeof DR._internal.fitBootstrap, 'function',
+    'DR._internal.fitBootstrap must be a function on the engine v0.7.0 API');
+});
+
+test('engine v0.7: DR._internal.makeSeededRng is a function (deterministic PRNG helper)', () => {
+  assert.equal(typeof DR._internal.makeSeededRng, 'function',
+    'DR._internal.makeSeededRng must be exposed for tests / debugging');
+});
+
+test('SUSTAIN bootstrap-tab: HTML contains bootstrap tab button + mount ids', () => {
+  const html = fs.readFileSync(path.join(repoRoot, 'SEMAGLUTIDE_T2D_SUSTAIN_DOSE_RESP_REVIEW.html'), 'utf8');
+  assert.ok(html.includes('id="tab-btn-hba1c-bootstrap"'),
+    'SUSTAIN HTML must contain the bootstrap tab button id tab-btn-hba1c-bootstrap');
+  assert.ok(html.includes('id="tab-hba1c-bootstrap"'),
+    'SUSTAIN HTML must contain the bootstrap tab panel id tab-hba1c-bootstrap');
+  const mountIds = [
+    'hba1c-bootstrap-kpis',
+    'hba1c-bootstrap-headline',
+    'hba1c-bootstrap-distribution',
+    'hba1c-bootstrap-nonlin',
+    'hba1c-bootstrap-methods',
+  ];
+  mountIds.forEach(id => {
+    assert.ok(html.includes('id="' + id + '"'),
+      'SUSTAIN HTML must contain the bootstrap mount id ' + id);
+  });
+});
+
+test('SUSTAIN bootstrap-tab: flagship JS calls DR._internal.fitBootstrap with rcs/knots:3 opts', () => {
+  const js = fs.readFileSync(path.join(repoRoot, 'SEMAGLUTIDE_T2D_SUSTAIN_DOSE_RESP_REVIEW.js'), 'utf8');
+  assert.ok(/DR\._internal\.fitBootstrap\s*\(/.test(js),
+    'SUSTAIN JS must call DR._internal.fitBootstrap');
+  assert.ok(js.includes("layer: 'rcs'") || js.includes('layer: "rcs"'),
+    'SUSTAIN JS must request layer=rcs for the bootstrap call');
+  assert.ok(js.includes('knots: 3'),
+    'SUSTAIN JS must request knots=3 to match Tab 2 RCS parameterization');
+});
+
+test('SUSTAIN bootstrap engine call: fitBootstrap(SUSTAIN, layer=rcs, knots=3, n_boot=500, seed=12345) returns expected shape', () => {
+  const fx = JSON.parse(fs.readFileSync(path.join(repoRoot, 'tests/dose_response_fixtures/semaglutide_t2d_sustain.json'), 'utf8'));
+  // Use the exact n_boot=500/seed=12345 the flagship JS uses (same regression-pin
+  // anchor as the LOO tab uses for SURPASS's fitLOO).
+  const r = DR._internal.fitBootstrap(fx.trials, { layer: 'rcs', knots: 3, n_boot: 500, seed: 12345 });
+  assert.equal(r.layer, 'rcs');
+  assert.equal(r.k_full, 6);
+  assert.equal(r.n_boot, 500);
+  assert.equal(r.seed, 12345);
+  assert.ok(Array.isArray(r.bootstrap_slopes));
+  assert.equal(r.bootstrap_slopes.length + r.n_failed, 500,
+    'invariant: bootstrap_slopes.length + n_failed must equal n_boot');
+  assert.ok(Number.isFinite(r.bootstrap_ci_lo));
+  assert.ok(Number.isFinite(r.bootstrap_ci_hi));
+  assert.ok(Number.isFinite(r.analytical_ci_lo));
+  assert.ok(Number.isFinite(r.analytical_ci_hi));
+  assert.ok(Number.isFinite(r.bootstrap_median));
+  assert.ok(Number.isFinite(r.bootstrap_se));
+  assert.equal(typeof r.coverage_warning, 'boolean');
+  assert.ok(Array.isArray(r.bootstrap_nonlin_ps),
+    'RCS-layer bootstrap must expose bootstrap_nonlin_ps array');
+  assert.ok(Number.isFinite(r.nonlin_p_fraction_below_005),
+    'nonlin_p_fraction_below_005 must be finite on SUSTAIN (some bootstrap replicates fit RCS)');
+});
+
+test('SUSTAIN bootstrap-tab: methodology paragraph mentions trial-bootstrap + engine v0.7', () => {
+  const js = fs.readFileSync(path.join(repoRoot, 'SEMAGLUTIDE_T2D_SUSTAIN_DOSE_RESP_REVIEW.js'), 'utf8');
+  assert.ok(/trial-bootstrap/i.test(js),
+    'SUSTAIN JS must describe the method as a trial-bootstrap in the methodology copy');
+  assert.ok(js.includes('v0.7'),
+    'SUSTAIN JS must reference engine v0.7 in the bootstrap methodology copy');
+});
 
 console.log('-'.repeat(60));
 console.log(passed + ' passed, ' + failed + ' failed');

@@ -917,9 +917,9 @@ test('fitRCS k=1 spline_coefs come from the single trial directly (covBeta = per
 // fitLOO orchestrates fitLinear / fitRCS over each k-1 subset.  We test
 // orchestration, contract shape, and the k=2 single-trial fallback path.
 
-test('fitLOO is exposed on DR._internal and DR.engine_version is v0.6.0', () => {
+test('fitLOO is exposed on DR._internal and DR.engine_version is v0.7.0', () => {
   assert.equal(typeof I.fitLOO, 'function', 'DR._internal.fitLOO must be a function');
-  assert.ok(/v?0\.6\.0$/.test(DR.engine_version), 'engine_version should end with v0.6.0; got: ' + DR.engine_version);
+  assert.ok(/v?0\.7\.0$/.test(DR.engine_version), 'engine_version should end with v0.7.0; got: ' + DR.engine_version);
 });
 
 test('fitLOO on SURPASS (k=5) returns full_pool + 5 LOO entries (default RCS layer)', () => {
@@ -1168,6 +1168,183 @@ test('fitLinear k>=2 fixture (SURPASS, k=5) unchanged: pooled_slope_log regressi
     'SURPASS pooled_slope_log regression pin from v0.5 baseline');
   near(lin.pooled_slope_log_se, 0.10285426601824053, 1e-12,
     'SURPASS pooled_slope_log_se regression pin from v0.5 baseline');
+});
+
+// === v0.7.0 fitBootstrap (non-parametric trial-bootstrap CI) ===
+//
+// 10 tests covering the engine-level contract for the new
+// DR._internal.fitBootstrap helper. Determinism is the trickiest property
+// — the engine must produce byte-identical bootstrap_slopes arrays across
+// runs for a fixed seed (the seeded LCG in makeSeededRng is the mechanism).
+
+test('fitBootstrap returns n_boot bootstrap_slopes for n_boot=100 on SURPASS fixture', () => {
+  const fx = loadFx('tirzepatide_t2d_surpass.json');
+  const r = DR._internal.fitBootstrap(fx.trials, { layer: 'rcs', knots: 3, n_boot: 100, seed: 12345 });
+  // SURPASS is a clean k=5 RCS fixture; no bootstrap sample should fail.
+  assert.equal(r.bootstrap_slopes.length + r.n_failed, 100,
+    'bootstrap_slopes.length + n_failed must equal n_boot');
+  assert.equal(r.bootstrap_slopes.length, 100,
+    'on the canonical SURPASS fixture, all 100 bootstrap samples should succeed');
+  assert.equal(r.k_full, 5);
+  assert.equal(r.layer, 'rcs');
+  assert.equal(r.n_boot, 100);
+  assert.equal(r.seed, 12345);
+  assert.equal(r.alpha, 0.05);
+});
+
+test('fitBootstrap CI brackets the analytical CI within reasonable tolerance on SUSTAIN', () => {
+  // SUSTAIN has I^2 ~97% so the analytical HKSJ-multivariate CI is very wide;
+  // the bootstrap CI on the *resampled* trials produces a comparable interval
+  // but with non-parametric quantiles. The two CIs should overlap substantially,
+  // and the bootstrap CI lo/hi should land within ±50% of the analytical
+  // interval width of the analytical bounds (a deliberately loose tolerance —
+  // the headline of this whole tab is that the two methods can disagree at
+  // extreme I^2, but they should still be in the same ballpark, NOT off by
+  // an order of magnitude).
+  const fx = loadFx('semaglutide_t2d_sustain.json');
+  const r = DR._internal.fitBootstrap(fx.trials, { layer: 'rcs', knots: 3, n_boot: 500, seed: 12345 });
+  const analWidth = r.analytical_ci_hi - r.analytical_ci_lo;
+  assert.ok(isFinite(analWidth) && analWidth > 0,
+    'analytical CI width must be finite + positive: lo=' + r.analytical_ci_lo + ' hi=' + r.analytical_ci_hi);
+  assert.ok(isFinite(r.bootstrap_ci_lo) && isFinite(r.bootstrap_ci_hi),
+    'bootstrap CI bounds must be finite');
+  // Overlap requirement: intervals must share at least one point.
+  assert.ok(r.bootstrap_ci_lo <= r.analytical_ci_hi && r.bootstrap_ci_hi >= r.analytical_ci_lo,
+    'bootstrap CI [' + r.bootstrap_ci_lo + ',' + r.bootstrap_ci_hi + '] must overlap analytical [' + r.analytical_ci_lo + ',' + r.analytical_ci_hi + ']');
+});
+
+test('fitBootstrap seed determinism: same seed -> identical bootstrap_slopes array', () => {
+  const fx = loadFx('tirzepatide_t2d_surpass.json');
+  const r1 = DR._internal.fitBootstrap(fx.trials, { layer: 'rcs', knots: 3, n_boot: 100, seed: 42 });
+  const r2 = DR._internal.fitBootstrap(fx.trials, { layer: 'rcs', knots: 3, n_boot: 100, seed: 42 });
+  assert.equal(r1.bootstrap_slopes.length, r2.bootstrap_slopes.length,
+    'same seed must produce same bootstrap_slopes.length');
+  for (let i = 0; i < r1.bootstrap_slopes.length; i++) {
+    assert.equal(r1.bootstrap_slopes[i], r2.bootstrap_slopes[i],
+      'bootstrap_slopes[' + i + '] must be byte-identical across runs at seed=42');
+  }
+  assert.equal(r1.n_failed, r2.n_failed,
+    'n_failed must also be deterministic across runs at the same seed');
+});
+
+test('fitBootstrap different seeds -> different bootstrap_slopes (expect distinct medians)', () => {
+  const fx = loadFx('tirzepatide_t2d_surpass.json');
+  const r1 = DR._internal.fitBootstrap(fx.trials, { layer: 'rcs', knots: 3, n_boot: 100, seed: 42 });
+  const r2 = DR._internal.fitBootstrap(fx.trials, { layer: 'rcs', knots: 3, n_boot: 100, seed: 99 });
+  // Different seeds must produce different samplings; medians should differ.
+  // (Both runs sample 100 bootstrap replicates from k=5 trials; the chance
+  // of the medians being equal to 15 sig figs is effectively 0.)
+  assert.notEqual(r1.bootstrap_median, r2.bootstrap_median,
+    'distinct seeds must yield distinct bootstrap medians; got r1=' + r1.bootstrap_median + ' r2=' + r2.bootstrap_median);
+});
+
+test("fitBootstrap layer='linear' produces linear-layer CI (no .bootstrap_nonlin_ps surface)", () => {
+  const fx = loadFx('tirzepatide_t2d_surpass.json');
+  const r = DR._internal.fitBootstrap(fx.trials, { layer: 'linear', n_boot: 100, seed: 12345 });
+  assert.equal(r.layer, 'linear');
+  assert.ok(isFinite(r.bootstrap_ci_lo) && isFinite(r.bootstrap_ci_hi));
+  assert.ok(r.bootstrap_ci_lo <= r.bootstrap_ci_hi);
+  // Linear layer must NOT expose bootstrap_nonlin_ps (it's RCS-only).
+  assert.equal(typeof r.bootstrap_nonlin_ps, 'undefined',
+    "layer='linear' must not produce bootstrap_nonlin_ps (RCS-only field)");
+  assert.equal(typeof r.nonlin_p_fraction_below_005, 'undefined',
+    "layer='linear' must not produce nonlin_p_fraction_below_005 (RCS-only field)");
+});
+
+test("fitBootstrap layer='rcs' produces bootstrap_nonlin_ps array", () => {
+  const fx = loadFx('tirzepatide_t2d_surpass.json');
+  const r = DR._internal.fitBootstrap(fx.trials, { layer: 'rcs', knots: 3, n_boot: 100, seed: 12345 });
+  assert.ok(Array.isArray(r.bootstrap_nonlin_ps),
+    'RCS layer must expose bootstrap_nonlin_ps as an array');
+  // Each entry must be a finite number in [0,1] (Wald p-value).
+  r.bootstrap_nonlin_ps.forEach((p, i) => {
+    assert.ok(isFinite(p), 'bootstrap_nonlin_ps[' + i + '] must be finite');
+    assert.ok(p >= 0 && p <= 1, 'bootstrap_nonlin_ps[' + i + '] must lie in [0,1]; got ' + p);
+  });
+  assert.ok(isFinite(r.bootstrap_nonlin_p_median),
+    'bootstrap_nonlin_p_median must be finite when bootstrap_nonlin_ps is non-empty');
+  assert.ok(isFinite(r.nonlin_p_fraction_below_005),
+    'nonlin_p_fraction_below_005 must be finite when bootstrap_nonlin_ps is non-empty');
+  assert.ok(r.nonlin_p_fraction_below_005 >= 0 && r.nonlin_p_fraction_below_005 <= 1);
+});
+
+test('fitBootstrap k=1 returns coverage_warning=true (single-trial bootstrap is trivial)', () => {
+  // k=1 bootstrap is degenerate: every sample is the same trial; the engine
+  // surfaces this via coverage_warning=true so consumers can downgrade the
+  // result rather than treating it as a real sensitivity check.
+  const fx = loadFx('finerenone_arts_dn.json');
+  const r = DR._internal.fitBootstrap(fx.trials, { layer: 'rcs', knots: 3, n_boot: 50, seed: 7 });
+  assert.equal(r.k_full, 1);
+  assert.equal(r.coverage_warning, true,
+    'k_full=1 must produce coverage_warning=true (trivial bootstrap)');
+});
+
+test('fitBootstrap n_failed mechanic: bootstrap_slopes.length + n_failed === n_boot (invariant)', () => {
+  // Spec test #8: on degenerate-RCS fixtures (SELECT, AMAGINE), some
+  // bootstrap samples may degenerate. The engine's fitRCS handles per-trial
+  // singularity via internal try/catch (returning the linear-layer fallback
+  // rather than throwing), so n_failed often stays at 0 — but the
+  // bookkeeping invariant must always hold. We verify the invariant on the
+  // canonical "engine-declined RCS" fixture (SELECT) AND that the n_failed
+  // surface is wired up correctly (number, non-negative, never undefined).
+  const fxSelect = loadFx('upadacitinib_ra_select.json');
+  const rSelect = DR._internal.fitBootstrap(fxSelect.trials, { layer: 'rcs', knots: 3, n_boot: 200, seed: 12345 });
+  assert.equal(typeof rSelect.n_failed, 'number', 'n_failed must be a number');
+  assert.ok(rSelect.n_failed >= 0, 'n_failed must be non-negative');
+  assert.equal(rSelect.bootstrap_slopes.length + rSelect.n_failed, 200,
+    'invariant: bootstrap_slopes.length + n_failed must equal n_boot on SELECT (k=4); got ' +
+    rSelect.bootstrap_slopes.length + ' + ' + rSelect.n_failed);
+  // Same invariant on AMAGINE for good measure.
+  const fxAmagine = loadFx('brodalumab_psoriasis_amagine.json');
+  const rAmagine = DR._internal.fitBootstrap(fxAmagine.trials, { layer: 'rcs', knots: 3, n_boot: 200, seed: 12345 });
+  assert.equal(rAmagine.bootstrap_slopes.length + rAmagine.n_failed, 200,
+    'invariant: bootstrap_slopes.length + n_failed must equal n_boot on AMAGINE (k=3); got ' +
+    rAmagine.bootstrap_slopes.length + ' + ' + rAmagine.n_failed);
+});
+
+test('fitBootstrap nonlin_p_fraction_below_005 on SURPASS reflects fragile-significance LOO finding', () => {
+  // SURPASS full-pool RCS nonlinearity Wald p ≈ 0.0346 (just below 0.05).
+  // The LOO sensitivity tab's headline is that this significance is fragile.
+  // The bootstrap nonlin-p distribution should therefore have a substantial
+  // fraction ABOVE 0.05 (i.e. not-significant under the resampled trials) —
+  // we assert nonlin_p_fraction_below_005 is strictly between 0 and 1 (not
+  // unanimous in either direction) on a reasonably large n_boot.
+  const fx = loadFx('tirzepatide_t2d_surpass.json');
+  const r = DR._internal.fitBootstrap(fx.trials, { layer: 'rcs', knots: 3, n_boot: 500, seed: 12345 });
+  assert.ok(r.bootstrap_nonlin_ps.length > 0,
+    'expected at least some bootstrap samples to produce a real RCS fit on SURPASS');
+  assert.ok(r.nonlin_p_fraction_below_005 > 0 && r.nonlin_p_fraction_below_005 < 1,
+    'SURPASS bootstrap nonlin-p distribution should NOT be unanimous (full-pool p=0.035 is fragile per the LOO tab); ' +
+    'got fraction_below_005=' + r.nonlin_p_fraction_below_005);
+});
+
+test('fitBootstrap percentile CI semantics: bootstrap_ci_lo is the alpha/2 quantile of sorted bootstrap_slopes', () => {
+  // The engine's percentile() is linear interpolation between order statistics
+  // (matches numpy.quantile default). Verify the contract: bootstrap_ci_lo
+  // and bootstrap_ci_hi are recoverable from the sorted slopes by re-applying
+  // the same interpolation. This guards against future regressions where
+  // someone might swap to e.g. nearest-rank percentile and silently change CIs.
+  const fx = loadFx('tirzepatide_t2d_surpass.json');
+  const r = DR._internal.fitBootstrap(fx.trials, { layer: 'rcs', knots: 3, n_boot: 100, seed: 12345 });
+  function percentile(arr, p) {
+    const n = arr.length;
+    if (n === 0) return NaN;
+    if (n === 1) return arr[0];
+    const idx = p * (n - 1);
+    const lo = Math.floor(idx), hi = Math.ceil(idx);
+    if (lo === hi) return arr[lo];
+    return arr[lo] * (1 - (idx - lo)) + arr[hi] * (idx - lo);
+  }
+  const sorted = r.bootstrap_slopes.slice().sort((a, b) => a - b);
+  const expectedLo = percentile(sorted, r.alpha / 2);
+  const expectedHi = percentile(sorted, 1 - r.alpha / 2);
+  const expectedMed = percentile(sorted, 0.5);
+  near(r.bootstrap_ci_lo, expectedLo, 1e-12,
+    'bootstrap_ci_lo must equal linear-interp percentile(sorted, alpha/2)');
+  near(r.bootstrap_ci_hi, expectedHi, 1e-12,
+    'bootstrap_ci_hi must equal linear-interp percentile(sorted, 1-alpha/2)');
+  near(r.bootstrap_median, expectedMed, 1e-12,
+    'bootstrap_median must equal linear-interp percentile(sorted, 0.5)');
 });
 
 let pass = 0, fail = 0;

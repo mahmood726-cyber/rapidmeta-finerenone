@@ -194,6 +194,18 @@ FLAGSHIPS = [
             "Most influential",
             "SUSTAIN-FORTE",
         ],
+        # v0.7 Bootstrap CI rollout: SUSTAIN is the demonstration flagship.
+        # n_boot=500 keeps page load <2s; 95% CI shown via percentile method.
+        # Tab 4 in the renumbered tab strip (LOO=3, Bootstrap=4, OS=5, Parity=6).
+        "bootstrap_tab_button_id": "tab-btn-hba1c-bootstrap",
+        "bootstrap_tab_panel_id": "tab-hba1c-bootstrap",
+        "bootstrap_kpis_id": "hba1c-bootstrap-kpis",
+        "bootstrap_headline_id": "hba1c-bootstrap-headline",
+        "bootstrap_must_contain_phrases": [
+            "Bootstrap 95% CI",
+            "Analytical 95% CI",
+            "engine v0.7",
+        ],
     },
     {
         # Round 3.8 — 4-trial SELECT upadacitinib DAS28-CRP dose-response flagship.
@@ -619,16 +631,16 @@ def main():
                             print(f"  ✗ {e}")
                             failed += 1
 
-                        # Test 4: engine_version span has been populated and contains 0.6.0.
-                        # Engine v0.6.0 (this PR) bumps the version label for the fitLinear
-                        # k=1 single-trial branch addition; all 10 flagships read
-                        # DR.engine_version directly from the loaded engine, so every
-                        # flagship now renders v0.6.0.
+                        # Test 4: engine_version span has been populated and contains 0.7.0.
+                        # Engine v0.7.0 (this PR) bumps the version label for the
+                        # fitBootstrap trial-bootstrap CI addition; all 10 flagships
+                        # read DR.engine_version directly from the loaded engine, so
+                        # every flagship now renders v0.7.0.
                         try:
-                            assert "0.6.0" in engine_version, (
-                                f"engine_version span text {engine_version!r} does not contain '0.6.0'"
+                            assert "0.7.0" in engine_version, (
+                                f"engine_version span text {engine_version!r} does not contain '0.7.0'"
                             )
-                            print(f"  ✓ engine v0.6.0 label rendered: {engine_version!r}")
+                            print(f"  ✓ engine v0.7.0 label rendered: {engine_version!r}")
                             passed += 1
                         except AssertionError as e:
                             print(f"  ✗ {e}")
@@ -703,6 +715,52 @@ def main():
                                 passed += 1
                             except AssertionError as e:
                                 print(f"  ✗ LOO sensitivity tab: {e}")
+                                failed += 1
+
+                        # Test 7 (v0.7.0): Bootstrap CI sensitivity tab smoke.
+                        # Only SUSTAIN currently surfaces the engine v0.7 fitBootstrap
+                        # tab; flagships without the bootstrap_tab_button_id key
+                        # skip silently. Assertions:
+                        #  - tab button exists in the DOM
+                        #  - tab panel mount contains the documented phrases
+                        #    (e.g. "Bootstrap 95% CI")
+                        #  - bootstrap KPI mount contains no "= n/a" patterns that
+                        #    would indicate a fitBootstrap contract bug
+                        boot_btn_id = flagship.get("bootstrap_tab_button_id")
+                        if boot_btn_id:
+                            try:
+                                btn_count = page.locator(f"#{boot_btn_id}").count()
+                                assert btn_count == 1, (
+                                    f"Bootstrap tab button #{boot_btn_id} not found in DOM (count={btn_count}). "
+                                    f"Engine v0.7.0 Bootstrap CI sensitivity tab must be rendered."
+                                )
+                                # Click the bootstrap tab so its inner content paints
+                                # (the n_boot=500 call runs synchronously inside the
+                                # DOMContentLoaded handler so it's actually already
+                                # rendered, but clicking makes the panel visible).
+                                page.locator(f"#{boot_btn_id}").click()
+                                panel_id = flagship.get("bootstrap_tab_panel_id")
+                                panel_text = page.locator(f"#{panel_id}").text_content() or ""
+                                kpi_id = flagship.get("bootstrap_kpis_id")
+                                kpi_text = page.locator(f"#{kpi_id}").text_content() or ""
+                                must_phrases = flagship.get("bootstrap_must_contain_phrases", [])
+                                missing = [p for p in must_phrases if p not in panel_text]
+                                assert not missing, (
+                                    f"Bootstrap tab panel #{panel_id} missing required phrases "
+                                    f"{missing}. Panel text (first 800 chars): {panel_text[:800]}"
+                                )
+                                # No "= n/a" in KPI scope (would indicate a missing
+                                # field on the fitBootstrap return).
+                                forbidden_boot = ["= n/a", "NaN"]
+                                hits = [f for f in forbidden_boot if f in kpi_text]
+                                assert not hits, (
+                                    f"Bootstrap KPI mount #{kpi_id} contains forbidden display(s): "
+                                    f"{hits}. KPI text: {kpi_text[:500]}"
+                                )
+                                print(f"  ✓ Bootstrap CI sensitivity tab renders (engine v0.7.0 demonstrator)")
+                                passed += 1
+                            except AssertionError as e:
+                                print(f"  ✗ Bootstrap CI sensitivity tab: {e}")
                                 failed += 1
                     finally:
                         page.close()
