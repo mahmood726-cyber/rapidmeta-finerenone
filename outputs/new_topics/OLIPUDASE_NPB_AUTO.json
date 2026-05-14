@@ -1,8 +1,9 @@
 {
   "topic": {
     "stem": "OLIPUDASE_NPB_AUTO",
-    "name": "Olipudase alfa in Niemann-Pick B",
+    "name": "Olipudase alfa in ASMD/Niemann-Pick B",
     "ncts": [
+      "NCT05359276",
       "NCT06949358",
       "NCT06192576"
     ],
@@ -10,10 +11,39 @@
       "olipudase"
     ],
     "condition_patterns": [
-      "niemann-pick"
+      "niemann-pick",
+      "asmd",
+      "acid sphingomyelinase"
     ]
   },
   "trials": [
+    {
+      "gates": {
+        "A_aact_exists": true,
+        "B_drug_in_intvs": true,
+        "C_condition_in_aact": true,
+        "D_pmid_topic_match": false,
+        "E_two_arms": false,
+        "F_primary_outcome_known": true
+      },
+      "extracted": {
+        "nct": "NCT05359276",
+        "aact_title": "Data Analysis of Adult and Pediatric Participants With Acid Sphingomyelinase Deficiency (ASMD) on Early Access to Olipudase Alfa in France",
+        "aact_acronym": "OPERA",
+        "start_date": "2022-06-10",
+        "primary_completion_date": "2024-12-31",
+        "aact_intvs": [
+          "olipudase alfa"
+        ],
+        "aact_conditions": [
+          "acid sphingomyelinase deficiency (asmd)"
+        ],
+        "pmid": null,
+        "aact_per_arm_counts": {},
+        "aact_primary_outcome_measure": "Change in pulmonary function diffusion capacity of lung for carbon monoxide (DLco)",
+        "aact_outcome_count_rows": []
+      }
+    },
     {
       "gates": {
         "A_aact_exists": true,
@@ -70,7 +100,7 @@
       }
     }
   ],
-  "n_total": 2,
+  "n_total": 3,
   "n_pass_all": 0,
   "verdict": "NOT_VIABLE",
   "pass_rate": 0.0
