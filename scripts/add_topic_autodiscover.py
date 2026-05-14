@@ -4582,6 +4582,409 @@ TOPICS = [
      ["lanthanum"], ["hyperphosphatemia"]),
     ("TENAPANOR_HYPERPHOS_AUTO", "Tenapanor in hyperphosphatemia (ESRD)",
      ["tenapanor"], ["hyperphosphatemia"]),
+
+    # Batch 20 — niche specialty + reduced k>=2 gate
+    # Antimicrobials niche
+    ("DAPTOMYCIN_BACTEREMIA_AUTO", "Daptomycin in bacteraemia/endocarditis",
+     ["daptomycin"], ["bacteremia", "endocarditis"]),
+    ("TIGECYCLINE_INFECTION_AUTO", "Tigecycline in cIAI/cSSTI",
+     ["tigecycline"], ["intra-abdominal", "skin infection"]),
+    ("RIFAXIMIN_DIARRHEA_AUTO", "Rifaximin in traveller's diarrhoea",
+     ["rifaximin"], ["diarrhea"]),
+    ("NITAZOXANIDE_GIARDIA_AUTO", "Nitazoxanide in giardia/crypto",
+     ["nitazoxanide"], ["giardia", "cryptosporidium"]),
+    ("PRAZIQUANTEL_SCHISTO_AUTO", "Praziquantel in schistosomiasis",
+     ["praziquantel"], ["schistosomiasis"]),
+    ("ALBENDAZOLE_NEUROCYST_AUTO", "Albendazole in neurocysticercosis",
+     ["albendazole"], ["neurocysticercosis", "echinococcosis"]),
+    ("MEFLOQUINE_PEDS_AUTO", "Mefloquine in pediatric malaria",
+     ["mefloquine"], ["malaria"]),
+    ("CLINDAMYCIN_INFECTION_AUTO", "Clindamycin in skin/soft tissue",
+     ["clindamycin"], ["skin infection"]),
+    ("LINEZOLID_MRSA_AUTO", "Linezolid in MRSA/VRE",
+     ["linezolid"], ["mrsa", "vancomycin-resistant"]),
+    ("CEFTAROLINE_AUTO", "Ceftaroline in MRSA/CAP",
+     ["ceftaroline"], ["mrsa", "pneumonia"]),
+
+    # Heart failure / acute
+    ("NESIRITIDE_HF_AUTO", "Nesiritide in acute decompensated HF",
+     ["nesiritide"], ["heart failure"]),
+    ("LEVOSIMENDAN_HF_AUTO", "Levosimendan in acute HF/cardiogenic shock",
+     ["levosimendan"], ["heart failure", "cardiogenic shock"]),
+    ("MILRINONE_HF_AUTO", "Milrinone in advanced HF",
+     ["milrinone"], ["heart failure"]),
+    ("DOBUTAMINE_HF_AUTO", "Dobutamine in cardiogenic shock",
+     ["dobutamine"], ["cardiogenic shock"]),
+    ("NOREPINEPHRINE_SHOCK_AUTO", "Norepinephrine in septic shock",
+     ["norepinephrine"], ["shock"]),
+
+    # Cardio specialty
+    ("ALIROCUMAB_HOFH_AUTO", "Alirocumab in HoFH",
+     ["alirocumab"], ["homozygous familial"]),
+    ("EVOLOCUMAB_HOFH_AUTO", "Evolocumab in HoFH",
+     ["evolocumab"], ["homozygous familial"]),
+    ("ICAGEN_AUTO", "Edoxaban TIMI 48 cancer-VTE",
+     ["edoxaban"], ["cancer", "thromboembolism"]),
+
+    # Diabetes adjuncts
+    ("PIOGLITAZONE_NASH_AUTO", "Pioglitazone in NASH",
+     ["pioglitazone"], ["nash"]),
+    ("FENOFIBRATE_DR_AUTO", "Fenofibrate in diabetic retinopathy",
+     ["fenofibrate"], ["diabetic retinopathy"]),
+
+    # Pulm
+    ("AZACITIDINE_MDS_AUTO", "Azacitidine in MDS/AML",
+     ["azacitidine"], ["myelodysplastic", "leukemia"]),
+    ("DECITABINE_MDS_AUTO", "Decitabine in MDS/AML",
+     ["decitabine"], ["myelodysplastic", "leukemia"]),
+    ("VENETOCLAX_MDS_AUTO", "Venetoclax + AZA in MDS-EB/AML",
+     ["venetoclax"], ["myelodysplastic"]),
+
+    # GI rare
+    ("PRADER_HUMAN_GH_AUTO", "Somatropin in PWS",
+     ["somatropin"], ["prader-willi", "growth hormone"]),
+    ("LONAFARNIB_PROGERIA_AUTO", "Lonafarnib in HGPS progeria",
+     ["lonafarnib"], ["progeria"]),
+    ("TRIENTINE_WILSON_AUTO", "Trientine in Wilson disease",
+     ["trientine"], ["wilson"]),
+    ("ZINC_WILSON_AUTO", "Zinc in Wilson disease",
+     ["zinc acetate"], ["wilson"]),
+    ("PENICILLAMINE_WILSON_AUTO", "Penicillamine in Wilson",
+     ["penicillamine"], ["wilson"]),
+
+    # OB/GYN
+    ("RU486_PREGNANCY_AUTO", "Mifepristone + misoprostol medical abortion",
+     ["mifepristone"], ["abortion"]),
+    ("ELLA_CONTRA_AUTO", "Ulipristal emergency contraception",
+     ["ulipristal"], ["emergency contraception", "contraception"]),
+
+    # ID — antifungals niche
+    ("FLUCONAZOLE_FUNGAL_AUTO", "Fluconazole in candidiasis (modern)",
+     ["fluconazole"], ["candidiasis"]),
+    ("ITRACONAZOLE_FUNGAL_AUTO", "Itraconazole in fungal/histoplasmosis",
+     ["itraconazole"], ["fungal", "histoplasmosis"]),
+    ("AMPHOTERICIN_LIPOSOMAL_AUTO", "Liposomal amphotericin B",
+     ["liposomal amphotericin"], ["fungal", "leishmaniasis"]),
+    ("FLUCYTOSINE_CRYPTO_AUTO", "Flucytosine in cryptococcal",
+     ["flucytosine"], ["cryptococcal"]),
+
+    # CV — old drugs still trialed in modern era
+    ("ASPIRIN_ASCVD_AUTO", "Aspirin in primary/secondary ASCVD",
+     ["aspirin"], ["cardiovascular", "ischemic stroke"]),
+    ("STATIN_CVD_AUTO", "Statin in CV prevention (modern post-2014)",
+     ["statin"], ["cardiovascular"]),
+
+    # Anti-coagulants — niche
+    ("HEPARIN_BLEEDING_AUTO", "Unfractionated heparin in DVT/PE/PCI",
+     ["heparin"], ["thromboembolism", "percutaneous coronary"]),
+    ("PROTAMINE_REVERSAL_AUTO", "Protamine sulfate reversal",
+     ["protamine"], ["bleeding"]),
+
+    # Antifibrinolytics in trauma
+    ("TRANEXAMIC_TRAUMA_AUTO", "Tranexamic acid in trauma (CRASH-2/3)",
+     ["tranexamic"], ["trauma", "bleeding"]),
+
+    # Antihypertensives
+    ("LOSARTAN_HTN_AUTO", "Losartan in HTN (modern)",
+     ["losartan"], ["hypertension"]),
+    ("CANDESARTAN_HF_AUTO", "Candesartan in HF",
+     ["candesartan"], ["heart failure"]),
+    ("TELMISARTAN_HTN_AUTO", "Telmisartan in HTN",
+     ["telmisartan"], ["hypertension"]),
+    ("OLMESARTAN_HTN_AUTO", "Olmesartan in HTN",
+     ["olmesartan"], ["hypertension"]),
+    ("AZILSARTAN_HTN_AUTO", "Azilsartan in HTN",
+     ["azilsartan"], ["hypertension"]),
+
+    # T1D specifically
+    ("SOTAGLIFLOZIN_T1D_AUTO", "Sotagliflozin in T1D",
+     ["sotagliflozin"], ["type 1 diabetes"]),
+    ("DAPAGLIFLOZIN_T1D_AUTO", "Dapagliflozin in T1D (DEPICT)",
+     ["dapagliflozin"], ["type 1 diabetes"]),
+    ("CLOSED_LOOP_AID_AUTO", "Closed-loop hybrid AID in T1D",
+     ["closed-loop"], ["type 1 diabetes"]),
+
+    # Insulin niches
+    ("DEGLUDEC_INSULIN_AUTO", "Insulin degludec in T1D/T2D",
+     ["insulin degludec"], ["type 1 diabetes", "type 2 diabetes"]),
+    ("LIXISENATIDE_T2D_AUTO", "Lixisenatide in T2D",
+     ["lixisenatide"], ["type 2 diabetes"]),
+
+    # Renal niche
+    ("FERRIC_CITRATE_HYPERPHOS_AUTO", "Ferric citrate hyperphosphatemia",
+     ["ferric citrate"], ["hyperphosphatemia"]),
+
+    # CV — heart failure 2L
+    ("EMPAGLIFLOZIN_HFPEF_AUTO", "Empagliflozin in HFpEF (EMPEROR-Preserved)",
+     ["empagliflozin"], ["heart failure"]),
+    ("DAPAGLIFLOZIN_HFPEF_AUTO", "Dapagliflozin in HFpEF (DELIVER)",
+     ["dapagliflozin"], ["heart failure"]),
+
+    # Acute oncology emergencies / TLS
+    ("RASBURICASE_TLS_AUTO", "Rasburicase in TLS",
+     ["rasburicase"], ["tumor lysis"]),
+
+    # Pediatrics — additional
+    ("VEDOLIZUMAB_PEDS_IBD_AUTO", "Vedolizumab in paediatric IBD",
+     ["vedolizumab"], ["ulcerative colitis", "crohn"]),
+
+    # Specialty NMOSD additional
+    ("UPLIZNA_NMOSD_AUTO", "Inebilizumab in NMOSD (broader)",
+     ["inebilizumab"], ["neuromyelitis"]),
+
+    # Cardiac structural / valve / arrhythmia
+    ("ANTICOAG_PCI_AUTO", "Rivaroxaban in post-PCI",
+     ["rivaroxaban"], ["percutaneous coronary"]),
+
+    # Migraine — botox
+    ("ABOBOTULINUM_MIGRAINE_AUTO", "Abobotulinum toxin in chronic migraine",
+     ["abobotulinumtoxin"], ["migraine"]),
+
+    # Allergy/asthma omalizumab
+    ("OMALIZUMAB_PEDS_ASTHMA_AUTO", "Omalizumab in paediatric asthma",
+     ["omalizumab"], ["asthma"]),
+
+    # Hemato MM extensions
+    ("FUMA_DUTAS_MM_AUTO", "Daratumumab Faspro SC",
+     ["daratumumab"], ["myeloma"]),
+
+    # Anti-emetic CINV ph3 broader
+    ("NEPA_CINV_AUTO", "NEPA (netupitant+palonosetron) CINV",
+     ["netupitant"], ["nausea"]),
+
+    # Sleep / circadian rare
+    ("MELATONIN_INSOMNIA_AUTO", "Melatonin prolonged-release insomnia",
+     ["melatonin"], ["insomnia"]),
+
+    # Anti-inflammatory periop / surgery
+    ("DEXMEDETOMIDINE_PED_AUTO", "Dexmedetomidine in paediatric sedation",
+     ["dexmedetomidine"], ["sedation"]),
+
+    # Specialty mental
+    ("OLANZAPINE_BIPOLAR_AUTO", "Olanzapine in bipolar",
+     ["olanzapine"], ["bipolar"]),
+    ("QUETIAPINE_BIPOLAR_AUTO", "Quetiapine in bipolar",
+     ["quetiapine"], ["bipolar"]),
+    ("LITHIUM_BIPOLAR_AUTO", "Lithium in bipolar (modern era)",
+     ["lithium"], ["bipolar"]),
+    ("VALPROATE_BIPOLAR_AUTO", "Valproate in bipolar",
+     ["valproic", "divalproex"], ["bipolar"]),
+
+    # OAB / urology
+    ("FESOTERODINE_OAB_AUTO", "Fesoterodine in OAB",
+     ["fesoterodine"], ["overactive bladder"]),
+    ("DARIFENACIN_OAB_AUTO", "Darifenacin in OAB",
+     ["darifenacin"], ["overactive bladder"]),
+    ("SOLIFENACIN_OAB_AUTO", "Solifenacin in OAB",
+     ["solifenacin"], ["overactive bladder"]),
+    ("TOLTERODINE_OAB_AUTO", "Tolterodine in OAB",
+     ["tolterodine"], ["overactive bladder"]),
+
+    # Erectile dysfunction
+    ("SILDENAFIL_ED_AUTO", "Sildenafil in ED",
+     ["sildenafil"], ["erectile"]),
+    ("TADALAFIL_ED_AUTO", "Tadalafil in ED",
+     ["tadalafil"], ["erectile"]),
+    ("AVANAFIL_ED_AUTO", "Avanafil in ED",
+     ["avanafil"], ["erectile"]),
+
+    # Gastric / GI motility
+    ("METOCLOPRAMIDE_GASTRO_AUTO", "Metoclopramide in gastroparesis",
+     ["metoclopramide"], ["gastroparesis"]),
+    ("DOMPERIDONE_GASTRO_AUTO", "Domperidone in gastroparesis",
+     ["domperidone"], ["gastroparesis"]),
+    ("PRUCALOPRIDE_GASTRO_AUTO", "Prucalopride in gastroparesis",
+     ["prucalopride"], ["gastroparesis"]),
+
+    # ARDS / lung injury
+    ("CISATRACURIUM_ARDS_AUTO", "Cisatracurium in ARDS (ACURASYS)",
+     ["cisatracurium"], ["ards", "acute respiratory distress"]),
+
+    # CV — Atrial fibrillation cardioversion
+    ("AMIO_RHYTHM_AUTO", "Amiodarone in VT/VF/AF",
+     ["amiodarone"], ["ventricular tachycardia", "atrial fibrillation"]),
+
+    # Cardiomyopathy advanced
+    ("MILRINONE_PAH_AUTO", "Milrinone in PH/HF",
+     ["milrinone"], ["pulmonary hypertension"]),
+
+    # Bone marrow / oncology supportive
+    ("EPOETIN_CANCER_AUTO", "Epoetin in chemo-induced anaemia",
+     ["epoetin"], ["anemia"]),
+    ("DARBEPOETIN_CANCER_AUTO", "Darbepoetin in chemo-induced anaemia",
+     ["darbepoetin"], ["anemia"]),
+
+    # Migraine acute - butalbital/triptans
+    ("SUMATRIPTAN_MIG_AUTO", "Sumatriptan in acute migraine",
+     ["sumatriptan"], ["migraine"]),
+    ("RIZATRIPTAN_MIG_AUTO", "Rizatriptan in acute migraine",
+     ["rizatriptan"], ["migraine"]),
+    ("ZOLMITRIPTAN_MIG_AUTO", "Zolmitriptan in acute migraine",
+     ["zolmitriptan"], ["migraine"]),
+    ("LASMIDITAN_MIG_AUTO", "Lasmiditan in acute migraine (broader)",
+     ["lasmiditan"], ["migraine"]),
+
+    # Otology
+    ("CIPROFLOXACIN_OE_AUTO", "Ciprofloxacin otic in otitis externa",
+     ["ciprofloxacin"], ["otitis externa"]),
+
+    # Dermatology — pediatric eczema
+    ("DUPILUMAB_PED_AD_AUTO", "Dupilumab in paediatric AD",
+     ["dupilumab"], ["atopic dermatitis"]),
+
+    # Stroke neuroprotection
+    ("EDARAVONE_STROKE_AUTO", "Edaravone in acute stroke",
+     ["edaravone"], ["stroke"]),
+    ("CITICOLINE_STROKE_AUTO", "Citicoline in acute stroke",
+     ["citicoline"], ["stroke"]),
+
+    # OB anesthesia
+    ("ROPIVACAINE_EPI_AUTO", "Ropivacaine epidural in labor",
+     ["ropivacaine"], ["labor pain"]),
+    ("BUPIVACAINE_LABOR_AUTO", "Bupivacaine epidural labor",
+     ["bupivacaine"], ["labor pain"]),
+
+    # ID - serious
+    ("OSELTAMIVIR_FLU_AUTO", "Oseltamivir in influenza",
+     ["oseltamivir"], ["influenza"]),
+    ("ZANAMIVIR_FLU_AUTO", "Zanamivir in influenza",
+     ["zanamivir"], ["influenza"]),
+
+    # Hospital-onset
+    ("ZOLEDRONATE_HYPERCALC_AUTO", "Zoledronate in hypercalcemia of malignancy",
+     ["zoledronic"], ["hypercalcemia"]),
+    ("CALCITONIN_HYPERCALC_AUTO", "Calcitonin in hypercalcemia",
+     ["calcitonin"], ["hypercalcemia"]),
+
+    # Rare endocrine
+    ("OCTREOTIDE_DUMP_AUTO", "Octreotide in dumping/VIPoma",
+     ["octreotide"], ["dumping", "vipoma"]),
+
+    # ICU broad
+    ("THIAMINE_SEPSIS_AUTO", "Thiamine in sepsis/Wernicke",
+     ["thiamine"], ["sepsis", "wernicke"]),
+    ("ASCORBIC_ACID_SEPSIS_AUTO", "Ascorbic acid in sepsis",
+     ["ascorbic acid"], ["sepsis"]),
+
+    # Oncology — adjuvant
+    ("PEMBROLIZUMAB_MELANOMA_ADJ_AUTO", "Pembrolizumab adjuvant melanoma",
+     ["pembrolizumab"], ["melanoma"]),
+    ("NIVOLUMAB_MELANOMA_ADJ_AUTO", "Nivolumab adjuvant melanoma",
+     ["nivolumab"], ["melanoma"]),
+    ("PEMBROLIZUMAB_KIDNEY_ADJ_AUTO_2", "Pembrolizumab adjuvant RCC (KEYNOTE-564)",
+     ["pembrolizumab"], ["renal cell"]),
+
+    # Pediatric IDM
+    ("BUDESONIDE_IBD_AUTO", "Budesonide in pediatric IBD",
+     ["budesonide"], ["crohn", "ulcerative colitis"]),
+
+    # COPD broader
+    ("REVEFENACIN_COPD_AUTO", "Revefenacin in COPD",
+     ["revefenacin"], ["copd"]),
+
+    # Special migraine
+    ("OXCARBAZEPINE_NPP_AUTO", "Oxcarbazepine in trigeminal neuralgia",
+     ["oxcarbazepine"], ["trigeminal neuralgia"]),
+    ("CARBAMAZEPINE_NPP_AUTO", "Carbamazepine in trigeminal neuralgia",
+     ["carbamazepine"], ["trigeminal neuralgia"]),
+
+    # Misc orphans
+    ("STEM_CELL_GVHD_AUTO", "MSC therapy in GVHD",
+     ["mesenchymal stem cell"], ["graft versus host"]),
+
+    # Lipid niche
+    ("OMEGA3_HTGN_AUTO", "Omega-3 carboxylic acid in HTGM",
+     ["omega-3"], ["hypertriglyceridemia"]),
+
+    # Movement disorders
+    ("AMANTADINE_DYSKINESIA_AUTO", "Amantadine in PD dyskinesia",
+     ["amantadine"], ["parkinson", "dyskinesia"]),
+
+    # GP additional
+    ("LIRAGLUTIDE_PEDS_OBESITY_AUTO", "Liraglutide in adolescent obesity",
+     ["liraglutide"], ["obesity"]),
+    ("SEMAGLUTIDE_PEDS_OBESITY_AUTO", "Semaglutide in adolescent obesity",
+     ["semaglutide"], ["obesity"]),
+
+    # Antivirals niche - hep B/C
+    ("ELBASVIR_PED_HCV_AUTO", "Elbasvir/grazoprevir in paediatric HCV",
+     ["elbasvir"], ["hepatitis c"]),
+
+    # Specialty mAb
+    ("RITUXIMAB_MG_AUTO", "Rituximab in MG",
+     ["rituximab"], ["myasthenia"]),
+
+    # Schizophrenia
+    ("ARIPIPRAZOLE_SCHIZO_AUTO", "Aripiprazole in schizophrenia",
+     ["aripiprazole"], ["schizo"]),
+    ("RISPERIDONE_SCHIZO_AUTO", "Risperidone in schizophrenia",
+     ["risperidone"], ["schizo"]),
+    ("PALIPERIDONE_SCHIZO_AUTO", "Paliperidone LAI in schizophrenia",
+     ["paliperidone"], ["schizo"]),
+    ("BREXPIPRAZOLE_AGITATION_AUTO", "Brexpiprazole agitation in AD",
+     ["brexpiprazole"], ["alzheimer"]),
+
+    # Anti-emetic peds
+    ("ONDANSETRON_GASTRO_AUTO", "Ondansetron in pediatric gastro",
+     ["ondansetron"], ["gastroenteritis"]),
+
+    # Sodium oxybate idiopathic hypersomnia
+    ("XYREM_IH_AUTO", "Low-Na oxybate in idiopathic hypersomnia",
+     ["sodium oxybate"], ["hypersomnia"]),
+
+    # Cardio acute care
+    ("LANDIOLOL_ACUTE_AUTO", "Landiolol IV for acute tachyarrhythmia",
+     ["landiolol"], ["tachyarrhythmia", "atrial fibrillation"]),
+
+    # Niches
+    ("TASIMELTEON_AUTO", "Tasimelteon in N24SWD (broader)",
+     ["tasimelteon"], ["circadian", "blind"]),
+
+    # Bone - special
+    ("BURATIO_NK_AUTO", "Burosumab in TIO/XLH (broader)",
+     ["burosumab"], ["tumor-induced", "hypophosphatemia"]),
+
+    # T2D specialty
+    ("SAXAGLIPTIN_T2D_AUTO", "Saxagliptin in T2D",
+     ["saxagliptin"], ["type 2 diabetes"]),
+    ("SITAGLIPTIN_T2D_AUTO", "Sitagliptin in T2D",
+     ["sitagliptin"], ["type 2 diabetes"]),
+
+    # Cancer rare
+    ("INOTUZUMAB_BALL_AUTO", "Inotuzumab in B-ALL (broader)",
+     ["inotuzumab"], ["leukemia"]),
+    ("DINUTUXIMAB_NEUROBLASTOMA_AUTO", "Dinutuximab in neuroblastoma",
+     ["dinutuximab"], ["neuroblastoma"]),
+    ("NAXITAMAB_NEUROBLASTOMA_AUTO", "Naxitamab in HRNB",
+     ["naxitamab"], ["neuroblastoma"]),
+
+    # GA / Retina
+    ("AVACINCAPTAD_GA_AUTO_2", "Avacincaptad pegol in GA (broader)",
+     ["avacincaptad"], ["geographic atrophy"]),
+
+    # GI specialty
+    ("ELAGOLIX_HMB_AUTO", "Elagolix in HMB",
+     ["elagolix"], ["heavy menstrual bleeding"]),
+
+    # Misc
+    ("AGGRASTAT_PCI_AUTO", "Tirofiban in PCI",
+     ["tirofiban"], ["percutaneous coronary"]),
+    ("EPTIFIBATIDE_PCI_AUTO", "Eptifibatide in PCI",
+     ["eptifibatide"], ["percutaneous coronary"]),
+
+    # Hemato
+    ("ROMIPLOSTIM_ITP_PED_AUTO", "Romiplostim in paediatric ITP",
+     ["romiplostim"], ["thrombocytopenia"]),
+    ("ELTROMBOPAG_ITP_AUTO_2", "Eltrombopag in ITP (broader)",
+     ["eltrombopag"], ["thrombocytopenia"]),
+
+    # Sleep apnea / OSA niche
+    ("MANDIBULAR_OSA_AUTO", "Mandibular advancement device OSA",
+     ["mandibular advancement"], ["sleep apnea"]),
+
+    # Anti-platelet adjunctive
+    ("CILOSTAZOL_PAD_AUTO", "Cilostazol in PAD claudication",
+     ["cilostazol"], ["peripheral artery"]),
 ]
 
 print(f"Total topics to test: {len(TOPICS)}")
@@ -4789,7 +5192,7 @@ for topic in topic_specs:
             topic_audit["n_pass_all"] += 1
     # k>=2 gate for new reviews per Mahmood 2026-05-13: single-trial reviews
     # display fine but provide no pooling. Require ≥2 trials passing all gates.
-    topic_audit["verdict"] = "VIABLE" if topic_audit["n_pass_all"] >= 3 else "NOT_VIABLE"
+    topic_audit["verdict"] = "VIABLE" if topic_audit["n_pass_all"] >= 2 else "NOT_VIABLE"
     topic_audit["pass_rate"] = topic_audit["n_pass_all"] / max(topic_audit["n_total"], 1)
     out_p = OUT / f"{topic['stem']}.json"
     out_p.write_text(json.dumps(topic_audit, indent=2, ensure_ascii=False, default=str),

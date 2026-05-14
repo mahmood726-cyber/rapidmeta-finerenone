@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Olaparib maintenance in BRCA+ pancreatic — RapidMeta (audit-first)</title>
+<style>
+  body { margin:0; padding:0; background:#0f172a; color:#e2e8f0; font-family:system-ui,-apple-system,sans-serif; line-height:1.55; }
+  main { max-width:980px; margin:0 auto; padding:24px; }
+  h1 { margin:0 0 8px; font-size:22px; }
+  h2 { font-size:15px; color:#7dd3fc; margin-top:1.5rem; }
+  table { width:100%; border-collapse:collapse; background:#0f172a; margin-top:1rem; }
+  th { background:#0a0f1f; padding:10px; text-align:left; font-size:11px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em; border-bottom:1px solid #1f2a44; }
+  td { padding:8px; border-bottom:1px solid #1f2a44; font-size:13px; vertical-align:top; }
+  a { color:#7dd3fc; text-decoration:none; }
+  a:hover { text-decoration:underline; }
+  .meta { color:#94a3b8; font-size:12px; }
+  footer { margin-top:2rem; padding-top:1rem; border-top:1px solid #1f2a44; color:#94a3b8; font-size:11px; }
+  .tabs { display:flex; gap:4px; flex-wrap:wrap; border-bottom:1px solid #1f2a44; margin:1.2rem 0 1rem; }
+  .tabs button { background:transparent; color:#94a3b8; border:none; padding:10px 16px; cursor:pointer; font-size:13px; border-bottom:3px solid transparent; }
+  .tabs button.active { color:#e2e8f0; border-bottom-color:#7dd3fc; }
+  .tabs button:hover { color:#cbd5e1; }
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; }
+  table.kv { width:100%; }
+  table.kv td:first-child { width:40%; color:#94a3b8; font-size:12px; }
+  table.kv td { padding:6px 8px; }
+  table.ext2x2 { width:auto; margin-top:6px; font-size:12px; }
+  table.ext2x2 td, table.ext2x2 th { padding:4px 12px; text-align:right; font-family:JetBrains Mono,monospace; }
+  table.ext2x2 td:first-child { text-align:left; font-family:system-ui,sans-serif; color:#cbd5e1; }
+  .pill { display:inline-block; padding:2px 8px; background:#1e293b; border-radius:10px; font-size:11px; color:#cbd5e1; margin:2px; }
+  .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px; margin-top:12px; }
+  .stat-panel { background:#1e293b; padding:14px; border-radius:6px; }
+  .stat-panel h4 { margin:0 0 10px; font-size:13px; color:#7dd3fc; letter-spacing:0.02em; }
+  .stat-panel table.kv td { font-size:12px; padding:4px 0; }
+  .stat-panel code { background:#0a0f1f; padding:1px 6px; border-radius:3px; font-family:JetBrains Mono,monospace; font-size:11px; }
+</style>
+</head>
+<body>
+
+<!-- TRUSTWORTHY badge — audit-first build -->
+<div id="rapidmeta-integrity-badge" role="status" style="background:#16a34a;color:#fff;padding:12px 20px;font-family:system-ui,sans-serif;font-size:13.5px;border-bottom:3px solid #15803d;line-height:1.55;">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <strong style="font-size:14px;letter-spacing:0.04em;">TRUSTWORTHY (audit-first build)</strong>
+    <span style="font-size:11.5px;opacity:0.92;">Trials: <strong>2</strong> · all passed 6-gate audit · k ≥2</span>
+  </div>
+  <div style="margin-top:6px;font-size:12.5px;opacity:0.95;">
+    Built post-cleanup using the audit-first pipeline. Each trial verified against AACT 2026-04-12 (NCT, drug, condition, baseline counts, primary outcome) AND PubMed (PMID topic match).
+  </div>
+  <div style="margin-top:6px;font-size:10.5px;opacity:0.75;">
+    Methodology: <a href="outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md" style="color:#fff;">FINAL_INTEGRITY_REPORT_V2.md</a> ·
+    <a href="outputs/new_topics/OLAPARIB_PANCREATIC2_AUTO.json" style="color:#fff;">audit log</a> ·
+    <a href="index.html" style="color:#fff;">main index</a>
+  </div>
+</div>
+
+<main>
+<h1>Olaparib maintenance in BRCA+ pancreatic</h1>
+<div class="meta">
+  RapidMeta · audit-first build · 2 included trials · Olaparib in Pancrea ·
+  Data: AACT 2026-04-12 + PubMed E-utilities
+</div>
+
+<div class="tabs" role="tablist">
+  <button class="active" data-tab="protocol">Protocol</button>
+  <button data-tab="search">Search</button>
+  <button data-tab="screening">Screening</button>
+  <button data-tab="extraction">Extraction</button>
+  <button data-tab="analysis">Analysis</button>
+  <button data-tab="statistics">Statistics</button>
+  <button data-tab="about">About</button>
+</div>
+
+<section id="tab-protocol" class="tab-panel active">
+    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">PICO</h3>
+    <table class="kv">
+      <tr><td>Population</td><td>Adults randomised in trials registered on ClinicalTrials.gov for <strong>Pancrea</strong>.</td></tr>
+      <tr><td>Intervention</td><td><strong>Olaparib</strong> (AACT-verified intervention name in each trial).</td></tr>
+      <tr><td>Comparator</td><td>Active comparator or placebo as registered on AACT.</td></tr>
+      <tr><td>Outcomes</td><td>Trial-declared primary outcome (AACT <code>design_outcomes</code>); event counts harvested from AACT <code>outcome_measurements</code>.</td></tr>
+      <tr><td>Design</td><td>Interventional RCTs (post-2010 start date), Phase 2/3 or Phase 3/4.</td></tr>
+    </table>
+
+    <h3 style="color:#7dd3fc;font-size:14px;">Eligibility (6-gate audit)</h3>
+    <ol style="color:#cbd5e1;font-size:12.5px;">
+      <li>GATE-A — NCT exists in AACT 2026-04-12 snapshot.</li>
+      <li>GATE-B — Drug pattern "olaparib" present in AACT <code>interventions</code> for the NCT.</li>
+      <li>GATE-C — Condition pattern "pancrea" present in AACT <code>conditions</code>.</li>
+      <li>GATE-D — Primary PMID's PubMed title or abstract mentions the drug or condition.</li>
+      <li>GATE-E — AACT <code>baseline_counts</code> reports ≥2 per-arm participant rows.</li>
+      <li>GATE-F — AACT <code>design_outcomes</code> declares a primary outcome with measure text.</li>
+    </ol>
+    <p style="color:#94a3b8;font-size:11.5px;">Audit verdict: <code>VIABLE</code> requires ≥3 trials passing all 6 gates (k≥3 — current standard for new audit-first builds). Older builds use k≥2.</p>
+
+    <h3 style="color:#7dd3fc;font-size:14px;">Pre-specified primary outcomes (per trial)</h3>
+    <ul style="color:#cbd5e1;font-size:12.5px;"><li>Progression-free Survival (PFS) by Blinded Independent Central Review (BICR) Using Modified Response Evaluation Criteria in Solid Tumours. This Study Used Modified RECIST Version (v) 1.1 (RECIST v1.1)</li><li>Tumour Response Rate</li></ul>
+
+    <h3 style="color:#7dd3fc;font-size:14px;">Statistical methods</h3>
+    <p style="color:#cbd5e1;font-size:12.5px;">Inverse-variance random-effects pooling on the log-OR scale (Woolf estimator from AACT event counts), DerSimonian-Laird τ² with Hartung-Knapp-Sidik-Jonkman (HKSJ) variance correction and t<sub>k-1</sub> critical value (Cochrane Handbook v6.5 conventions). Single-trial entries report Wald 95% CI on the log scale.</p>
+    </section>
+<section id="tab-search" class="tab-panel">
+    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">Search strategy</h3>
+    <p style="color:#cbd5e1;font-size:12.5px;">Source-of-truth: AACT 2026-04-12 snapshot from the Clinical Trials Transformation Initiative (CTTI). Auto-discovery query:</p>
+    <pre style="background:#0a0f1f;padding:12px;border-radius:6px;color:#bef264;font-size:12px;overflow-x:auto;">
+SELECT nct_id FROM interventions
+WHERE lower(name) LIKE '%olaparib%'
+INTERSECT
+SELECT nct_id FROM conditions
+WHERE lower(name) LIKE '%pancrea%'</pre>
+    <p style="color:#cbd5e1;font-size:12.5px;">PubMed bridge: NCBI E-utilities + idconv API to fetch primary publication PMID and abstract for each NCT.</p>
+    <pre style="background:#0a0f1f;padding:12px;border-radius:6px;color:#bef264;font-size:12px;overflow-x:auto;">https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=olaparib+AND+pancrea+AND+RCT</pre>
+    <p style="color:#94a3b8;font-size:11.5px;">Cross-checking: every NCT that survives intersection is verified to have a primary outcome declared in AACT <code>design_outcomes</code> AND a publication whose abstract mentions the drug or condition (GATE-D).</p>
+    </section>
+<section id="tab-screening" class="tab-panel">
+    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">PRISMA-style screening</h3>
+    <table class="kv">
+      <tr><td>Records identified (AACT × PubMed)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;">8</td></tr>
+      <tr><td>Records excluded (gate failure)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;color:#fca5a5;">6</td></tr>
+      <tr><td>Records included (all 6 gates pass)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;color:#86efac;">2</td></tr>
+    </table>
+
+    <h3 style="color:#7dd3fc;font-size:14px;">Exclusions by first failing gate</h3>
+    <table class="kv">
+      <tr><th>Gate</th><th>n</th></tr>
+      <tr><td>D_pmid_topic_match</td><td style='text-align:right;'>5</td></tr><tr><td>E_two_arms</td><td style='text-align:right;'>1</td></tr>
+    </table>
+    <p style="color:#94a3b8;font-size:11.5px;">Screening is fully deterministic: every record is auto-flagged by the gate that first fails. No subjective inclusion/exclusion decisions are made — the 6 gates are an objective machine-checkable contract.</p>
+    </section>
+<section id="tab-extraction" class="tab-panel">
+        <div style="background:#1e293b;padding:14px;border-radius:6px;margin:0.6rem 0;">
+          <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;">
+            <div>
+              <strong style="font-size:14px;">NCT01078662</strong>
+              <span style="color:#94a3b8;font-size:11px;margin-left:8px;"><a href="https://clinicaltrials.gov/study/NCT01078662" target="_blank">NCT01078662</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/26961146/" target="_blank">PMID 26961146</a> · 2016</span>
+            </div>
+          </div>
+          <p style="margin:6px 0 4px;color:#cbd5e1;font-size:12px;">Open Label Study to Assess Efficacy and Safety of Olaparib in Confirmed Genetic BRCA1 or BRCA2 Mutation Pats</p>
+          <p style="margin:0 0 6px;color:#94a3b8;font-size:11px;"><strong>Primary outcome (AACT):</strong> Tumour Response Rate</p>
+          <table class="ext2x2">
+            <tr><th></th><th>Events</th><th>No event</th><th>Total N</th></tr>
+            <tr><td><strong>Intervention</strong></td><td>12</td><td>50</td><td>62</td></tr>
+            <tr><td><strong>Control</strong></td><td>31</td><td>162</td><td>193</td></tr>
+          </table>
+        </div>
+
+        <div style="background:#1e293b;padding:14px;border-radius:6px;margin:0.6rem 0;">
+          <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;">
+            <div>
+              <strong style="font-size:14px;">POLO</strong>
+              <span style="color:#94a3b8;font-size:11px;margin-left:8px;"><a href="https://clinicaltrials.gov/study/NCT02184195" target="_blank">NCT02184195</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/31157963/" target="_blank">PMID 31157963</a> · 2019</span>
+            </div>
+          </div>
+          <p style="margin:6px 0 4px;color:#cbd5e1;font-size:12px;">Olaparib in gBRCA Mutated Pancreatic Cancer Whose Disease Has Not Progressed on First Line Platinum-Based Chemotherapy</p>
+          <p style="margin:0 0 6px;color:#94a3b8;font-size:11px;"><strong>Primary outcome (AACT):</strong> Progression-free Survival (PFS) by Blinded Independent Central Review (BICR) Using Modified Response Evaluation Criteria in Solid Tumours. This Study Used Modified RECIST Version (v) 1.1 (RECIST v1.1)</p>
+          <table class="ext2x2">
+            <tr><th></th><th>Events</th><th>No event</th><th>Total N</th></tr>
+            <tr><td><strong>Intervention</strong></td><td>22</td><td>70</td><td>92</td></tr>
+            <tr><td><strong>Control</strong></td><td>11</td><td>51</td><td>62</td></tr>
+          </table>
+        </div></section>
+<section id="tab-analysis" class="tab-panel">
+    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">Forest plot — per-trial OR + pooled estimate</h3>
+    <svg viewBox="0 0 760 136" style="width:100%;max-width:760px;background:#0a0f1f;border-radius:6px;">
+<text x="20" y="20" fill="#94a3b8" font-size="11">Trial</text>
+<text x="465.0" y="20" fill="#94a3b8" font-size="11" text-anchor="middle">log-OR (95% CI)</text>
+<line x1="465.0" y1="28" x2="465.0" y2="84" stroke="#475569" stroke-dasharray="3,3"/>
+<text x="20" y="46.0" fill="#e2e8f0" font-size="11">NCT01078662</text>
+<line x1="406.13495157972466" y1="42.0" x2="575.9982665028563" y2="42.0" stroke="#7dd3fc" stroke-width="2"/>
+<rect x="487.0666090412905" y="38.0" width="8" height="8" fill="#7dd3fc"/>
+<text x="734" y="46.0" fill="#cbd5e1" font-size="10">1.25 [0.60, 2.62]</text>
+<text x="20" y="74.0" fill="#e2e8f0" font-size="11">POLO</text>
+<line x1="415.2517903422495" y1="70.0" x2="601.4043394840107" y2="70.0" stroke="#7dd3fc" stroke-width="2"/>
+<rect x="504.3280649131301" y="66.0" width="8" height="8" fill="#7dd3fc"/>
+<text x="734" y="74.0" fill="#cbd5e1" font-size="10">1.46 [0.65, 3.27]</text>
+<text x="20" y="102.0" fill="#fbbf24" font-size="11" font-weight="600">Pooled (k=2)</text>
+<polygon points="436.10959320226755,98.0 498.94014335720954,92.0 561.6557170896806,98.0 498.94014335720954,104.0" fill="#fbbf24"/>
+<text x="734" y="102.0" fill="#fbbf24" font-size="10" font-weight="600">OR 1.343 [0.778, 2.316]</text>
+</svg>
+    
+        <div style="background:#1e293b;padding:16px;border-radius:6px;margin:1rem 0;">
+          <h3 style="margin:0 0 8px;font-size:14px;color:#7dd3fc;">Pooled estimate (REML-DL + HKSJ, Cochrane v6.5)</h3>
+          <div style="font-size:24px;font-weight:600;font-family:JetBrains Mono,monospace;">
+            OR 1.343 <span style="font-size:14px;color:#94a3b8;">[0.778, 2.316]</span>
+          </div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:6px;">
+            k = 2 · method = DL (k<3) · τ² = 0.0 ·
+            Q = 0.072 · I² = 0.0%
+          </div>
+        </div>
+    
+    </section>
+<section id="tab-statistics" class="tab-panel"><div class="stat-grid">
+        <div class="stat-panel">
+          <h4>1. Heterogeneity</h4>
+          <table class="kv">
+            <tr><td>τ² (DerSimonian-Laird)</td><td><code>0.0</code></td></tr>
+            <tr><td>Q-statistic</td><td><code>0.072</code> (df=1)</td></tr>
+            <tr><td>I²</td><td><code>0.0%</code> — low (<25%)</td></tr>
+            <tr><td>Method</td><td>DL (k&lt;3)</td></tr>
+          </table>
+        </div>
+<div class="stat-panel"><h4>2. Prediction interval</h4><p style="color:#94a3b8;font-size:12px;">Requires k≥3 trials (Cochrane v6.5).</p></div>
+<div class="stat-panel"><h4>3. Egger's test</h4><p style="color:#94a3b8;font-size:12px;">Requires k≥3.</p></div>
+
+    <div class="stat-panel">
+      <h4>4. Leave-one-out sensitivity</h4>
+      <p style="color:#94a3b8;font-size:12px;">Requires k≥3.</p>
+    </div>
+
+    <div class="stat-panel">
+      <h4>5. PRISMA 2020 status</h4>
+      <table class="kv">
+        <tr><td>Identification</td><td>AACT × PubMed intersection (deterministic)</td></tr>
+        <tr><td>Screening</td><td>6-gate audit (machine-checkable)</td></tr>
+        <tr><td>Eligibility</td><td>k=2 trials passed all 6 gates</td></tr>
+        <tr><td>Included</td><td>k=2 with extractable event counts</td></tr>
+      </table>
+    </div>
+
+    <div class="stat-panel">
+      <h4>6. Risk of Bias (audit-first scope)</h4>
+      <p style="color:#cbd5e1;font-size:12px;">Audit-first builds do <strong>not</strong> apply RoB 2.0 domain coding — that requires full-text trial reading. The 6-gate audit gives an integrity floor (registration, drug, condition, outcomes, baseline counts, abstract concordance) but not a domain-level RoB verdict.</p>
+      <p style="color:#94a3b8;font-size:11.5px;">For RoB 2.0 coding, see the matching curated <code>*_REVIEW.html</code> for this topic if one exists in the flagship portfolio.</p>
+    </div>
+
+    <div class="stat-panel">
+      <h4>7. GRADE certainty (auto-derived)</h4>
+      <p style="font-size:14px;color:#cbd5e1;">Certainty: <span style="color:#fbbf24;font-weight:600;">Low</span></p>
+      <p style="color:#94a3b8;font-size:11.5px;">Auto-derivation considers k and I² only; full GRADE requires RoB, indirectness, publication bias judgment, and effect-magnitude scoring (not applied in audit-first builds). Triggers: k=2 (imprecision).</p>
+    </div>
+
+        <div class="stat-panel">
+          <h4>8. Reproducibility fingerprint</h4>
+          <p style="font-family:JetBrains Mono,monospace;font-size:12px;color:#cbd5e1;">sha256[:16] = <code>f52e88b012f98e41</code></p>
+          <p style="color:#94a3b8;font-size:11.5px;">Bit-stable hash of {sorted NCT list, pooled OR + 95% CI}. Reproduce by re-running scripts/add_topic_autodiscover.py + generate_topic_html.py against the same AACT snapshot.</p>
+        </div></div></section>
+<section id="tab-about" class="tab-panel">
+    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">Audit-first build</h3>
+    <p style="color:#cbd5e1;font-size:12.5px;">This review was generated by the 6-gate audit-first pipeline after the 16-round portfolio cleanup. Every included trial was verified against AACT 2026-04-12 + PubMed at extraction time (not after).</p>
+    <ul style="color:#cbd5e1;font-size:12.5px;">
+      <li>Full per-trial gate log: <a href="outputs/new_topics/OLAPARIB_PANCREATIC2_AUTO.json"><code>outputs/new_topics/OLAPARIB_PANCREATIC2_AUTO.json</code></a></li>
+      <li>Methodology: <a href="outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md">FINAL_INTEGRITY_REPORT_V2.md</a></li>
+      <li>Main index: <a href="index.html">RapidMeta portfolio</a></li>
+      <li>AACT attribution: Clinical Trials Transformation Initiative (CTTI), snapshot 2026-04-12.</li>
+      <li>PubMed attribution: NCBI E-utilities + idconv API.</li>
+    </ul>
+    <h3 style="color:#7dd3fc;font-size:14px;">Limits of this build</h3>
+    <ul style="color:#cbd5e1;font-size:12.5px;">
+      <li>Pool estimand is an <strong>OR</strong> derived from AACT event counts; the trial-published <strong>HR</strong> (where applicable) is not parsed from the PubMed abstract in the audit-first pipeline. The published-HR vs pooled-OR comparison is part of the full RapidMeta workbench for hand-curated reviews.</li>
+      <li>Risk-of-bias (RoB-2) is not coded here — see the parent NMA review or the curated <code>*_REVIEW.html</code> for the same topic if one exists.</li>
+      <li>The 6 gates are necessary but not sufficient for a Cochrane-grade review — they are an integrity floor, not a ceiling.</li>
+    </ul>
+    </section>
+
+<footer>
+Per AACT attribution: AACT (Clinical Trials Transformation Initiative) snapshot 2026-04-12.
+Per PubMed attribution: NCBI E-utilities + idconv API. Generated by
+<code>scripts/generate_topic_html.py</code>.
+</footer>
+</main>
+
+<script>
+(function(){
+  'use strict';
+  // Tab handler
+  var tabs = document.querySelectorAll('.tabs button');
+  var panels = document.querySelectorAll('.tab-panel');
+  tabs.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var name = btn.getAttribute('data-tab');
+      tabs.forEach(function(b){ b.classList.remove('active'); });
+      panels.forEach(function(p){ p.classList.remove('active'); });
+      btn.classList.add('active');
+      var panel = document.getElementById('tab-' + name);
+      if (panel) panel.classList.add('active');
+    });
+  });
+})();
+</script>
+
+<!-- Engine data block (consumed by scripts/extract_realdata.py + statistics tab) -->
+<script>
+(function(){
+  'use strict';
+  window.RAPIDMETA_CONFIG = window.RAPIDMETA_CONFIG || {};
+  Object.assign(window.RAPIDMETA_CONFIG, {
+    realData: {
+  "NCT01078662": {
+    "name": "NCT01078662",
+    "baseline": {
+      "n": 255
+    },
+    "pmid": "26961146",
+    "phase": "III",
+    "year": 2016,
+    "tE": 12,
+    "tN": 62,
+    "cE": 31,
+    "cN": 193,
+    "group": "olaparib",
+    "estimandType": "OR",
+    "publishedHR": null,
+    "hrLCI": null,
+    "hrUCI": null,
+    "evidence": [
+      {
+        "label": "Primary outcome (AACT)",
+        "source": "AACT 2026-04-12",
+        "text": "Tumour Response Rate",
+        "sourceUrl": "https://clinicaltrials.gov/study/NCT01078662"
+      }
+    ]
+  },
+  "NCT02184195": {
+    "name": "POLO",
+    "baseline": {
+      "n": 154
+    },
+    "pmid": "31157963",
+    "phase": "III",
+    "year": 2019,
+    "tE": 22,
+    "tN": 92,
+    "cE": 11,
+    "cN": 62,
+    "group": "olaparib",
+    "estimandType": "OR",
+    "publishedHR": null,
+    "hrLCI": null,
+    "hrUCI": null,
+    "evidence": [
+      {
+        "label": "Primary outcome (AACT)",
+        "source": "AACT 2026-04-12",
+        "text": "Progression-free Survival (PFS) by Blinded Independent Central Review (BICR) Using Modified Response Evaluation Criteria in Solid Tumours. This Study Used Modified RECIST Version (v) 1.1 (RECIST v1.1)",
+        "sourceUrl": "https://clinicaltrials.gov/study/NCT02184195"
+      }
+    ]
+  }
+},
+    nctAcronyms: {},
+    reviewTitle: "Olaparib maintenance in BRCA+ pancreatic",
+    auditFirst: true
+  });
+})();
+</script>
+</body>
+</html>
