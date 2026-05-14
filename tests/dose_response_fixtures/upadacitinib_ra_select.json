@@ -1,0 +1,99 @@
+{
+  "_comment": "Upadacitinib DAS28-CRP change-from-baseline dose-response in moderate-to-severe rheumatoid arthritis, 4 SELECT Phase 3 RCTs (SELECT-NEXT, SELECT-BEYOND, SELECT-MONOTHERAPY, SELECT-EARLY). Per-arm LSM change + 95% CI extracted from AACT snapshot 2026-04-12 (outcome_measurements.txt). IMPORTANT REGISTERED-PRIMARY NOTE: in all 4 SELECT trials the continuous outcome 'Change From Baseline in DAS28(CRP)' is registered in AACT as a SECONDARY outcome — the regulatory primaries are binary (ACR20 at Week 12 for FDA; LDA-DAS28<=3.2 / Clinical Remission DAS28<2.6 for EMA; ACR50 at Week 12 + DAS28<2.6 at Week 24 in SELECT-EARLY's publication). The continuous DAS28-CRP LSM change is the standard endpoint used for upadacitinib dose-response meta-analysis because the binary primaries are uninformative for slope estimation; this is documented per trial. AACT reports dispersion as 95% CI (NOT SE), so we back-compute SE = (upper-lower)/(2*1.96) and then SD = SE*sqrt(n); the raw 95% CI is preserved in _aact_ci_lower / _aact_ci_upper for audit. For active-comparator trials (SELECT-MONOTHERAPY and SELECT-EARLY, both vs methotrexate) the active comparator arm is dropped per Option A (Round 3 SURPASS pattern); engine treats the lowest upadacitinib dose (15 mg) as the per-trial reference (is_reference=true), comparator info preserved in trial-level metadata. For placebo-controlled trials (SELECT-NEXT, SELECT-BEYOND) placebo is the dose=0 reference. SELECT-EARLY's 7.5 mg Japan-only arm is correctly absent from this fixture — it is excluded by AACT itself from the 'Global Analysis' outcome (id 211133035), which contains only MTX/U15/U30 result_groups. The 7.5 mg result lives in a separate 'Japan Sub-study' outcome (id 211133051) that is not used here per the user constraint. All 4 PMIDs verified via PubMed MCP get_article_metadata on 2026-05-14 (no PMID guessing). All 4 user-supplied citations were correct (no errata, unlike the SUSTAIN-FORTE Round 3.7 case). SELECT-BEYOND shows a known DAS28-CRP plateau at 30 mg (-2.29) vs 15 mg (-2.31) — flag below — this is the published bDMARD-IR result, not an extraction error.",
+  "fixture_name": "upadacitinib_ra_select",
+  "source": "Pooled upadacitinib DAS28-CRP change-from-baseline dose-response, 4 SELECT Phase 3 trials (AACT 2026-04-12)",
+  "outcome": "das28_crp_change_from_baseline",
+  "outcome_type": "continuous",
+  "dose_unit": "mg_per_day",
+  "dose_assignment_method": "as-randomized per-trial dose (15 mg and 30 mg upadacitinib extended-release oral once daily; placebo arms encoded as dose=0)",
+  "class_equivalence_caveat": "All 4 trials use the SAME molecule (upadacitinib) and SAME route (extended-release oral once daily), so the pooled slope is a within-drug DAS28-CRP dose-response curve. Trials differ substantially in background therapy and prior-failure population (csDMARD-IR for SELECT-NEXT; bDMARD-IR for SELECT-BEYOND; MTX-IR monotherapy switch for SELECT-MONOTHERAPY; MTX-naive for SELECT-EARLY) and in baseline DAS28(CRP) (~5.4-5.7 in NEXT/MONOTHERAPY/EARLY vs ~5.8-6.0 in BEYOND). These population-level differences contribute to between-trial heterogeneity in the dose-response (especially the BEYOND plateau described below) but do not violate dose-equivalence. Two trials are Week-12 primary (NEXT, BEYOND, EARLY) and one is Week-14 (MONOTHERAPY) — minor endpoint-time mismatch documented per trial.",
+  "active_comparator_handling": "Option A: active comparator (methotrexate) in SELECT-MONOTHERAPY and SELECT-EARLY is excluded from the dose-response arms list. For these 2 trials, the lowest upadacitinib dose (15 mg) is the engine's per-trial reference (is_reference=true). MTX info is recorded in trial-level metadata fields comparator_label, comparator_lsm_change, comparator_ci, comparator_n, _dropped_comparator_arm. SELECT-NEXT and SELECT-BEYOND retain placebo as the dose=0 reference.",
+  "estimand_uniformity": "FDA-pre-registered primary estimand (treatment-policy / treatment-regimen, MMRM with multiple imputation per protocol-specified statistical analysis plan) used consistently across all 4 trials for cross-trial comparability. AACT does not register split treatment-regimen vs trial-product estimands for these SELECT continuous outcomes — only one estimand row per result_group per outcome_id. The 'Full Analysis Set with multiple imputation' population is used in all 4 trials (the description of each outcome explicitly states 'Full analysis set participants with available data at Baseline; multiple imputation was used for missing data' or equivalent).",
+  "dispersion_handling": "AACT reports LEAST_SQUARES_MEAN with dispersion_type='95% Confidence Interval' (NOT Standard Error) for all 4 SELECT DAS28-CRP outcomes. The engine input 'sd' field is computed via the chain SE = (CI_upper - CI_lower) / (2 * 1.96), then SD = SE * sqrt(n). Raw CI bounds preserved as _aact_ci_lower / _aact_ci_upper for audit. _aact_se is the back-computed SE for documentation. Engine mdCovariance() uses sd^2/n which equals SE^2 — invariant to this re-expression.",
+  "se_to_sd_conversion": "AACT-reported 95% CI converted to SE via SE = (upper-lower)/(2*1.96), then SD via sd = se*sqrt(n) using the per-arm analyzed N from outcome_counts.txt. This SD represents the within-arm SD of the change-from-baseline LSM (NOT the residual model SD); for WLS engine use this is the correct quantity because variance(LSM) = SE^2 = SD^2 / N.",
+  "monotonicity_audit_2026_05_14": "Per-trial dose-response monotonicity check (more negative DAS28-CRP at higher upa dose): (1) SELECT-NEXT: placebo -1.02 -> upa15 -2.20 -> upa30 -2.34 — MONOTONIC; (2) SELECT-BEYOND: placebo -1.02 -> upa15 -2.31 -> upa30 -2.29 — NON-MONOTONIC (30 mg 0.02 ppt less negative than 15 mg, well within overlapping 95% CIs [-2.52,-2.10] vs [-2.50,-2.09]). This bDMARD-IR plateau matches the Genovese 2018 Lancet abstract: 'rapid and significant improvements' described for both doses without a 30 mg margin over 15 mg — clinically interpreted as 15 mg being on the plateau in heavily pre-treated patients. NOT an extraction error; reproduced byte-for-byte from AACT outcome_id 211073905 OG001/OG002 rows. (3) SELECT-MONOTHERAPY (MTX dropped): upa15 -2.29 -> upa30 -2.61 — MONOTONIC. (4) SELECT-EARLY (MTX dropped): upa15 -2.73 -> upa30 -2.85 — MONOTONIC. Result: 3/4 strictly monotonic, 1/4 non-monotonic by 0.02 ppt at the dose-response plateau. Engine fitLinear/fitRCS handles non-monotonic per-trial contrasts correctly — the slope is identified from across-trial covariation, not from within-trial monotonicity.",
+  "pubmed_retrieval_notes": "All 4 PMIDs verified via PubMed MCP (get_article_metadata) on 2026-05-14. According to PubMed: SELECT-NEXT (PMID 29908669, doi:10.1016/S0140-6736(18)31115-2, Lancet 2018;391(10139):2503-2512, Burmester GR et al.); SELECT-BEYOND (PMID 29908670, doi:10.1016/S0140-6736(18)31116-4, Lancet 2018;391(10139):2513-2524, Genovese MC et al.); SELECT-MONOTHERAPY (PMID 31130260, doi:10.1016/S0140-6736(19)30419-2, Lancet 2019;393(10188):2303-2311, Smolen JS et al.); SELECT-EARLY (PMID 32638504, doi:10.1002/art.41384, Arthritis Rheumatol 2020;72(10):1607-1620, van Vollenhoven R et al.). All 4 user-supplied citations were correct — no errata.",
+  "trials": [
+    {
+      "studlab": "SELECT-NEXT (Burmester 2018, csDMARD-IR vs placebo)",
+      "pmid": "29908669",
+      "doi": "10.1016/S0140-6736(18)31115-2",
+      "nct": "NCT02675426",
+      "drug": "upadacitinib",
+      "duration_weeks": 12,
+      "comparator": "placebo",
+      "background_therapy": "stable csDMARD background (methotrexate, sulfasalazine, or leflunomide; stable dose for at least 4 weeks before study entry)",
+      "population": "Adults with active rheumatoid arthritis (3+ months) and inadequate response to at least one csDMARD; baseline DAS28-CRP ~5.6 (csDMARD-IR moderate-to-severe RA, 35 countries, 150 sites)",
+      "aact_outcome_id_primary": 211232557,
+      "data_provenance": "AACT 2026-04-12 outcome_measurements.txt (outcome_id=211232557, registered as SECONDARY in AACT; the registered PRIMARY endpoints for FDA/EMA are ACR20 at Week 12 [outcome_id 211232555, binary] and LDA-DAS28<=3.2 at Week 12 [outcome_id 211232556, binary]). time_frame 'Baseline and Week 12'. param_type=LEAST_SQUARES_MEAN; dispersion_type='95% Confidence Interval' for all 3 result_groups. Full Analysis Set with multiple imputation per outcome description. Per-arm mITT N from outcome_counts.txt (220/217/219). Per-arm LSM: placebo -1.02 (95% CI -1.22, -0.82); upa 15 mg -2.20 (-2.40, -2.00); upa 30 mg -2.34 (-2.54, -2.14). Engine SD = SE*sqrt(n); SE = (upper-lower)/(2*1.96) = 0.10204 for all 3 arms (CIs all 0.40 wide).",
+      "arms": [
+        {"label": "Placebo", "dose": 0, "mean": -1.02, "sd": 1.5135, "n": 220, "is_reference": true, "_aact_se": 0.10204, "_aact_ci_lower": -1.22, "_aact_ci_upper": -0.82},
+        {"label": "Upadacitinib 15 mg", "dose": 15, "mean": -2.20, "sd": 1.5032, "n": 217, "is_reference": false, "_aact_se": 0.10204, "_aact_ci_lower": -2.40, "_aact_ci_upper": -2.00},
+        {"label": "Upadacitinib 30 mg", "dose": 30, "mean": -2.34, "sd": 1.5101, "n": 219, "is_reference": false, "_aact_se": 0.10204, "_aact_ci_lower": -2.54, "_aact_ci_upper": -2.14}
+      ]
+    },
+    {
+      "studlab": "SELECT-BEYOND (Genovese 2018, bDMARD-IR vs placebo)",
+      "pmid": "29908670",
+      "doi": "10.1016/S0140-6736(18)31116-4",
+      "nct": "NCT02706847",
+      "drug": "upadacitinib",
+      "duration_weeks": 12,
+      "comparator": "placebo",
+      "background_therapy": "stable csDMARD background (continued); patients had previous inadequate response or intolerance to bDMARDs",
+      "population": "Adults with active rheumatoid arthritis and previous inadequate response or intolerance to bDMARDs (47% one prior bDMARD, 28% two, 25% three or more); mean disease duration 13.2 years (SD 9.5); baseline DAS28-CRP ~5.8-6.0 (bDMARD-IR refractory population, 26 countries, 153 sites)",
+      "aact_outcome_id_primary": 211073905,
+      "data_provenance": "AACT 2026-04-12 outcome_measurements.txt (outcome_id=211073905, registered as SECONDARY in AACT; registered PRIMARY endpoints are ACR20 at Week 12 [outcome_id 211073903] and LDA-DAS28<=3.2 at Week 12 [outcome_id 211073904], both binary). time_frame 'Baseline and Week 12'. param_type=LEAST_SQUARES_MEAN; dispersion_type='95% Confidence Interval'. Full Analysis Set with multiple imputation. Per-arm mITT N from outcome_counts.txt (165/163/161). Per-arm LSM: placebo -1.02 (95% CI -1.23, -0.80); upa 15 mg -2.31 (-2.52, -2.10); upa 30 mg -2.29 (-2.50, -2.09). Note: upa 30 mg is 0.02 ppt LESS negative than upa 15 mg (overlapping CIs) — this is the published bDMARD-IR plateau (Genovese 2018 Lancet), NOT an extraction error.",
+      "arms": [
+        {"label": "Placebo", "dose": 0, "mean": -1.02, "sd": 1.4090, "n": 165, "is_reference": true, "_aact_se": 0.10969, "_aact_ci_lower": -1.23, "_aact_ci_upper": -0.80},
+        {"label": "Upadacitinib 15 mg", "dose": 15, "mean": -2.31, "sd": 1.3679, "n": 163, "is_reference": false, "_aact_se": 0.10714, "_aact_ci_lower": -2.52, "_aact_ci_upper": -2.10},
+        {"label": "Upadacitinib 30 mg", "dose": 30, "mean": -2.29, "sd": 1.3271, "n": 161, "is_reference": false, "_aact_se": 0.10459, "_aact_ci_lower": -2.50, "_aact_ci_upper": -2.09}
+      ]
+    },
+    {
+      "studlab": "SELECT-MONOTHERAPY (Smolen 2019, MTX-IR switch monotherapy vs continued MTX)",
+      "pmid": "31130260",
+      "doi": "10.1016/S0140-6736(19)30419-2",
+      "nct": "NCT02706951",
+      "drug": "upadacitinib",
+      "duration_weeks": 14,
+      "comparator": "methotrexate_continued",
+      "comparator_label": "Methotrexate up to 25 mg orally once weekly (continued at existing dose; active comparator, dropped per Option A)",
+      "comparator_lsm_change": -1.20,
+      "comparator_ci": "95% CI -1.39 to -1.01",
+      "comparator_n": 215,
+      "_dropped_comparator_arm": {"ctgov_group_code": "OG000", "result_group_id": 681147824, "title": "Methotrexate", "rationale": "Active comparator dropped per Option A; upa 15 mg becomes the per-trial reference for the dose-response pool."},
+      "background_therapy": "monotherapy (no concomitant csDMARDs; patients switched FROM stable MTX TO upadacitinib monotherapy at randomization)",
+      "population": "Adults with active rheumatoid arthritis despite stable methotrexate (MTX-IR); baseline DAS28-CRP ~5.4-5.5 (MTX-IR monotherapy-switch population, 24 countries, 138 sites)",
+      "aact_outcome_id_primary": 211077167,
+      "data_provenance": "AACT 2026-04-12 outcome_measurements.txt (outcome_id=211077167, registered as SECONDARY in AACT; registered PRIMARIES are ACR20 at Week 14 [outcome_id 211077165] and LDA-DAS28<=3.2 at Week 14 [outcome_id 211077166], both binary). time_frame 'Baseline to week 14' (NOTE: 14 weeks, not 12 — registered primary endpoint of this trial because the upadacitinib lead-in schedule pushed the primary to Week 14 vs Weeks 12 for the other 3 SELECT trials in this fixture). param_type=LEAST_SQUARES_MEAN; dispersion_type='95% Confidence Interval'. Full Analysis Set with multiple imputation. Per-arm mITT N from outcome_counts.txt (215 MTX [dropped] / 215 upa 15 mg / 213 upa 30 mg). Per-arm LSM: MTX -1.20 (95% CI -1.39, -1.01) [DROPPED]; upa 15 mg -2.29 (-2.48, -2.10); upa 30 mg -2.61 (-2.80, -2.41).",
+      "arms": [
+        {"label": "Upadacitinib 15 mg", "dose": 15, "mean": -2.29, "sd": 1.4214, "n": 215, "is_reference": true, "_aact_se": 0.09694, "_aact_ci_lower": -2.48, "_aact_ci_upper": -2.10},
+        {"label": "Upadacitinib 30 mg", "dose": 30, "mean": -2.61, "sd": 1.4520, "n": 213, "is_reference": false, "_aact_se": 0.09949, "_aact_ci_lower": -2.80, "_aact_ci_upper": -2.41}
+      ]
+    },
+    {
+      "studlab": "SELECT-EARLY (van Vollenhoven 2020, MTX-naive vs MTX monotherapy)",
+      "pmid": "32638504",
+      "doi": "10.1002/art.41384",
+      "nct": "NCT02706873",
+      "drug": "upadacitinib",
+      "duration_weeks": 12,
+      "comparator": "methotrexate_active",
+      "comparator_label": "Methotrexate 7.5 to 20 mg orally weekly (active comparator; dropped per Option A)",
+      "comparator_lsm_change": -1.85,
+      "comparator_ci": "95% CI -2.00 to -1.69",
+      "comparator_n": 312,
+      "_dropped_comparator_arm": {"ctgov_group_code": "OG000", "result_group_id": 681336608, "title": "Methotrexate", "rationale": "Active comparator dropped per Option A; upa 15 mg becomes the per-trial reference for the dose-response pool."},
+      "_excluded_japan_arm": {"ctgov_group_code_in_design_groups": "EXPERIMENTAL Upadacitinib 7.5 mg (Japan-only)", "design_group_id": 355485939, "rationale": "7.5 mg Japan-only ethnic-bridging arm is NOT in outcome_id 211133035 'Global Analysis' result_groups (AACT itself excludes it from the Global rows); its DAS28-CRP results are registered separately under outcome_id 211133051 'Japan Sub-study' which is NOT used in this fixture per the user constraint (population heterogeneity / ethnic-bridging dose)."},
+      "background_therapy": "monotherapy (no concomitant csDMARDs; MTX-naive or with limited prior MTX exposure)",
+      "population": "Methotrexate-naive adults with moderate-to-severe rheumatoid arthritis (or limited prior MTX); median disease duration 0.5 years (range 0-44); baseline DAS28-CRP ~5.7 (MTX-naive early-RA population, multicenter multi-country)",
+      "aact_outcome_id_primary": 211133035,
+      "data_provenance": "AACT 2026-04-12 outcome_measurements.txt (outcome_id=211133035, registered as SECONDARY in AACT; registered PRIMARIES per AACT are mTSS change at Week 24 [outcome_id 211133034] + ACR20 at Week 12 [outcome_id 211133033] + Clinical Remission DAS28<2.6 at Week 24 [outcome_id 211133032]. Publication-headline primaries per van Vollenhoven 2020 Arthritis Rheumatol abstract are ACR50 at Week 12 + DAS28<2.6 at Week 24, which differ from AACT registration in the ACR threshold — this is well-documented in the abstract. The continuous DAS28-CRP change at Week 12 [outcome_id 211133035] used here is the secondary endpoint comparable to SELECT-NEXT/BEYOND). time_frame 'Baseline to Week 12'. param_type=LEAST_SQUARES_MEAN; dispersion_type='95% Confidence Interval'. Title contains '- Global Analysis' (the 7.5 mg Japan-only result_group is on a separate outcome_id 211133051 'Japan Sub-study' and is not included here). Full Analysis Set with multiple imputation. Per-arm mITT N from outcome_counts.txt (312 MTX [dropped] / 317 upa 15 mg / 310 upa 30 mg). Per-arm LSM: MTX -1.85 (95% CI -2.00, -1.69) [DROPPED]; upa 15 mg -2.73 (-2.87, -2.58); upa 30 mg -2.85 (-3.00, -2.70).",
+      "arms": [
+        {"label": "Upadacitinib 15 mg", "dose": 15, "mean": -2.73, "sd": 1.3172, "n": 317, "is_reference": true, "_aact_se": 0.07398, "_aact_ci_lower": -2.87, "_aact_ci_upper": -2.58},
+        {"label": "Upadacitinib 30 mg", "dose": 30, "mean": -2.85, "sd": 1.3475, "n": 310, "is_reference": false, "_aact_se": 0.07653, "_aact_ci_lower": -3.00, "_aact_ci_upper": -2.70}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "fixture_id": "upadacitinib_ra_select_abstracts",
+  "description": "Primary-publication abstracts for the 4 SELECT Phase 3 trials of upadacitinib in moderate-to-severe rheumatoid arthritis selected for the dose-response fixture (SELECT-NEXT, SELECT-BEYOND, SELECT-MONOTHERAPY, SELECT-EARLY). The two single-dose SELECT trials (SELECT-COMPARE NCT02629159 and SELECT-CHOICE NCT03086343, both upa 15 mg only vs adalimumab/abatacept) are EXCLUDED from this fixture per the user constraint — their within-trial dose contrast is empty so they cannot contribute to a within-drug dose-response slope. The 7.5 mg Japan-only arm of SELECT-EARLY is also excluded (population heterogeneity / ethnic-bridging dose, AACT segregates it into a separate 'Japan Sub-study' outcome). All 4 PMIDs retrieved via PubMed MCP get_article_metadata on 2026-05-14; no PMID guessing. Source: PubMed (https://pubmed.ncbi.nlm.nih.gov/). DOI links included per PubMed attribution requirement. All 4 user-supplied citations were correct (no errata required, unlike the SUSTAIN-FORTE Round 3.7 case).",
+  "retrieval_date": "2026-05-14",
+  "retrieval_method": "mcp__claude_ai_PubMed__search_articles to confirm a unique PMID per trial (each SELECT trial returns a single phase-3 hit by trial acronym + lead author + 'rheumatoid arthritis'), then mcp__claude_ai_PubMed__get_article_metadata batch lookup. NCT-IDs cross-referenced against the registered-trial section of each abstract.",
+  "attribution": "According to PubMed",
+  "publications": [
+    {
+      "trial_label": "SELECT-NEXT",
+      "nct_id": "NCT02675426",
+      "pmid": "29908669",
+      "doi": "10.1016/S0140-6736(18)31115-2",
+      "doi_link": "https://doi.org/10.1016/S0140-6736(18)31115-2",
+      "title": "Safety and efficacy of upadacitinib in patients with rheumatoid arthritis and inadequate response to conventional synthetic disease-modifying anti-rheumatic drugs (SELECT-NEXT): a randomised, double-blind, placebo-controlled phase 3 trial.",
+      "journal": "Lancet",
+      "year": 2018,
+      "volume": "391",
+      "issue": "10139",
+      "pages": "2503-2512",
+      "publication_date": "2018-06-18",
+      "authors_short": "Burmester GR et al.",
+      "first_author": "Burmester GR",
+      "abstract": "Upadacitinib is a selective inhibitor of Janus kinase 1 and was efficacious in phase 2 studies in patients with moderate-to-severe rheumatoid arthritis. We aimed to assess the efficacy of upadacitinib in patients with inadequate response to conventional synthetic disease-modifying anti-rheumatic drugs (csDMARDs). This study is a double-blind, placebo-controlled trial at 150 sites in 35 countries. We enrolled patients aged 18 years or older with active rheumatoid arthritis for 3 months or longer, who had received csDMARDs for at least 3 months with a stable dose for at least 4 weeks before study entry, and had an inadequate response to at least one of the following csDMARDs: methotrexate, sulfasalazine, or leflunomide. Using interactive response technology, we randomly assigned patients receiving stable background csDMARDs (2:2:1:1) to receive a once-daily extended-release formulation of upadacitinib 15 mg or 30 mg, or placebo, for 12 weeks. Patients, investigators, and the funder were masked to allocation. After 12 weeks, patients taking placebo received 15 mg or 30 mg of upadacitinib once daily, according to the prespecified randomisation assignment. The primary endpoints were the proportion of patients at week 12 who achieved 20% improvement in American College of Rheumatology criteria (ACR20), and a 28-joint disease activity score using C-reactive protein (DAS28[CRP]) of 3.2 or less. We did efficacy analyses in the full analysis set of all randomly assigned patients who received at least one dose of study drug, and used non-responder imputation for assessment of the primary outcomes. This study is registered with ClinicalTrials.gov, number NCT02675426. Between Dec 17, 2015, and Dec 22, 2016, 1083 patients were assessed for eligibility, of whom 661 were recruited and randomly assigned to receive upadacitinib 15 mg (n=221), upadacitinib 30 mg (n=219), or placebo (n=221). All patients received at least one dose of study drug, and 618 (93%) completed 12 weeks of treatment. At week 12, ACR20 was achieved by 141 (64%; 95% CI 58-70) of 221 patients receiving upadacitinib 15 mg and 145 (66%; 60-73) of 219 patients receiving upadacitinib 30 mg, compared with 79 (36%; 29-42) of 221 patients receiving placebo (p<0.0001 for each dose vs placebo). DAS28(CRP) of 3.2 or less was met by 107 (48%; 95% CI 42-55) patients receiving upadacitinib 15 mg and 105 (48%; 41-55) patients receiving upadacitinib 30 mg, compared with 38 (17%; 12-22) patients receiving placebo (p<0.0001 for each dose vs placebo). Patients with moderately to severely active rheumatoid arthritis who received upadacitinib (15 mg or 30 mg) in combination with csDMARDs showed significant improvements in clinical signs and symptoms.",
+      "primary_endpoint_text": "Registered FDA/EMA co-primaries (binary): ACR20 at Week 12 (upa15 64%, upa30 66%, pbo 36%, both p<0.0001 vs pbo) and DAS28(CRP)<=3.2 LDA at Week 12 (upa15 48%, upa30 48%, pbo 17%, both p<0.0001). Continuous DAS28(CRP) change-from-baseline at Week 12 used in this dose-response fixture is registered as SECONDARY in AACT (outcome_id 211232557): LSM -1.02 / -2.20 / -2.34 (pbo / upa15 / upa30); 95% CI half-width 0.20 ppt; SE 0.10204 all 3 arms; engine SD = SE*sqrt(n)."
+    },
+    {
+      "trial_label": "SELECT-BEYOND",
+      "nct_id": "NCT02706847",
+      "pmid": "29908670",
+      "doi": "10.1016/S0140-6736(18)31116-4",
+      "doi_link": "https://doi.org/10.1016/S0140-6736(18)31116-4",
+      "title": "Safety and efficacy of upadacitinib in patients with active rheumatoid arthritis refractory to biologic disease-modifying anti-rheumatic drugs (SELECT-BEYOND): a double-blind, randomised controlled phase 3 trial.",
+      "journal": "Lancet",
+      "year": 2018,
+      "volume": "391",
+      "issue": "10139",
+      "pages": "2513-2524",
+      "publication_date": "2018-06-18",
+      "authors_short": "Genovese MC et al.",
+      "first_author": "Genovese MC",
+      "abstract": "Phase 2 studies with upadacitinib, a selective Janus kinase 1 (JAK1) inhibitor, have shown safety and efficacy in the treatment of patients with active rheumatoid arthritis. We did this study to further assess the safety and efficacy of upadacitinib in patients with an inadequate response to biologic disease-modifying anti-rheumatic drugs (bDMARDs). We did this double-blind, randomised controlled phase 3 trial at 153 sites in 26 countries. Patients were aged 18 years or older, had active rheumatoid arthritis and previous inadequate response or intolerance to bDMARDs, and were receiving concomitant background conventional synthetic DMARDS (csDMARDs). We randomly assigned patients (2:2:1:1) by interactive response technology to receive once-daily oral extended-release upadacitinib 15 mg or 30 mg or placebo for 12 weeks, followed by upadacitinib 15 mg or 30 mg from week 12 onwards. The two separate primary endpoints were the proportions of patients achieving a 20% improvement in American College of Rheumatology criteria (ACR20) at week 12 and the proportion of patients achieving a 28-joint disease activity score using C-reactive protein (DAS28[CRP]) of 3.2 or less at week 12. Efficacy and safety analyses were done in the modified intention-to-treat population of all patients who received at least one dose of study drug. The trial is registered with ClinicalTrials.gov (NCT02706847). Between March 15, 2016, and Jan 10, 2017, 499 patients were randomly assigned (n=165 upadacitinib 15 mg; n=165 upadacitinib 30 mg; n=85 placebo then upadacitinib 15 mg; and n=84 placebo then upadacitinib 30 mg). Mean disease duration was 13.2 years (SD 9.5); 235 (47%) of 498 patients had received one previous bDMARD, 137 (28%) had received two, and 125 (25%) had received at least three. At week 12, ACR20 was achieved by 106 (65%; 95% CI 57-72) of 164 patients receiving upadacitinib 15 mg and 93 (56%; 49-64) of 165 patients receiving upadacitinib 30 mg compared with 48 (28%; 22-35) of 169 patients receiving placebo (p<0.0001 for each dose vs placebo). DAS28(CRP) of 3.2 or less was achieved by 71 (43%; 95% CI 36-51) of 164 patients receiving upadacitinib 15 mg and 70 (42%; 35-50) of 165 patients receiving upadacitinib 30 mg versus 24 (14%; 9-20) of 169 patients receiving placebo (p<0.0001 for each dose vs placebo). Both doses of upadacitinib led to rapid and significant improvements compared with placebo over 12 weeks in patients with refractory rheumatoid arthritis.",
+      "primary_endpoint_text": "Registered FDA/EMA co-primaries (binary): ACR20 at Week 12 (upa15 65%, upa30 56%, pbo 28%) and DAS28(CRP)<=3.2 LDA at Week 12 (upa15 43%, upa30 42%, pbo 14%). Note: in the bDMARD-IR refractory population, 30 mg showed no margin over 15 mg on either primary (62 vs 56% ACR20; 43 vs 42% LDA-DAS28). Continuous DAS28(CRP) change at Week 12 (AACT secondary outcome_id 211073905) used here mirrors this plateau: LSM -1.02 / -2.31 / -2.29 (pbo / upa15 / upa30) — 30 mg is 0.02 ppt LESS negative than 15 mg, well within overlapping 95% CIs. Published, not an extraction error."
+    },
+    {
+      "trial_label": "SELECT-MONOTHERAPY",
+      "nct_id": "NCT02706951",
+      "pmid": "31130260",
+      "doi": "10.1016/S0140-6736(19)30419-2",
+      "doi_link": "https://doi.org/10.1016/S0140-6736(19)30419-2",
+      "title": "Upadacitinib as monotherapy in patients with active rheumatoid arthritis and inadequate response to methotrexate (SELECT-MONOTHERAPY): a randomised, placebo-controlled, double-blind phase 3 study.",
+      "journal": "Lancet",
+      "year": 2019,
+      "volume": "393",
+      "issue": "10188",
+      "pages": "2303-2311",
+      "publication_date": "2019-05-23",
+      "authors_short": "Smolen JS et al.",
+      "first_author": "Smolen JS",
+      "abstract": "Upadacitinib, an oral Janus kinase (JAK)1-selective inhibitor, showed efficacy in combination with stable background conventional synthetic disease-modifying antirheumatic drugs (csDMARDs) in patients with rheumatoid arthritis who had an inadequate response to DMARDs. We aimed to evaluate the safety and efficacy of upadacitinib monotherapy after switching from methotrexate versus continuing methotrexate in patients with inadequate response to methotrexate. SELECT-MONOTHERAPY was conducted at 138 sites in 24 countries. The study enrolled adults (>=18 years) who fulfilled the 2010 American College of Rheumatology (ACR)-European League Against Rheumatism (EULAR) classification criteria for rheumatoid arthritis. Patients with active rheumatoid arthritis despite stable methotrexate were randomly assigned 2:2:1:1 to switch to once-daily monotherapy of upadacitinib or to continue methotrexate at their existing dose as blinded study drug; starting from week 14, patients assigned to continue methotrexate were switched to 15 mg or 30 mg once-daily upadacitinib per prespecified random assignment at baseline. The primary endpoints in this report are proportion of patients achieving 20% improvement in the ACR criteria (ACR20) at week 14, and proportion achieving low disease activity defined as 28-joint Disease Activity Score using C-reactive protein (DAS28[CRP]) of 3.2 or lower, both with non-responder imputation at week 14. This study is active but not recruiting and is registered with ClinicalTrials.gov, number NCT02706951. Patients were screened between Feb 23, 2016, and May 19, 2017 and 648 were randomly assigned to treatment. 598 (92%) completed week 14. At week 14, an ACR20 response was achieved by 89 (41%) of 216 patients (95% CI 35-48) in the continued methotrexate group, 147 (68%) of 217 patients (62-74) receiving upadacitinib 15 mg, and 153 (71%) of 215 patients (65-77) receiving upadacitinib 30 mg (p<0.0001 for both doses vs continued methotrexate). DAS28(CRP) 3.2 or lower was met by 42 (19%) of 216 (95% CI 14-25) in the continued methotrexate group, 97 (45%) of 217 (38-51) receiving upadacitinib 15 mg, and 114 (53%) of 215 (46-60) receiving upadacitinib 30 mg (p<0.0001 for both doses vs continued methotrexate). Upadacitinib monotherapy showed statistically significant improvements in clinical and functional outcomes versus continuing methotrexate in this methotrexate inadequate-responder population.",
+      "primary_endpoint_text": "Registered FDA/EMA co-primaries (binary, Week 14): ACR20 (MTX 41%, upa15 68%, upa30 71%, p<0.0001 both doses vs MTX) and LDA-DAS28<=3.2 (MTX 19%, upa15 45%, upa30 53%). NOTE: SELECT-MONOTHERAPY primary endpoint is Week 14 (not Week 12 like NEXT/BEYOND/EARLY) — minor endpoint-time mismatch documented in fixture. Continuous DAS28(CRP) change at Week 14 (AACT secondary outcome_id 211077167) used here: LSM -1.20 / -2.29 / -2.61 (MTX [dropped] / upa15 / upa30). MTX dropped per Option A; upa 15 mg is per-trial reference."
+    },
+    {
+      "trial_label": "SELECT-EARLY",
+      "nct_id": "NCT02706873",
+      "pmid": "32638504",
+      "doi": "10.1002/art.41384",
+      "doi_link": "https://doi.org/10.1002/art.41384",
+      "title": "Efficacy and Safety of Upadacitinib Monotherapy in Methotrexate-Naive Patients With Moderately-to-Severely Active Rheumatoid Arthritis (SELECT-EARLY): A Multicenter, Multi-Country, Randomized, Double-Blind, Active Comparator-Controlled Trial.",
+      "journal": "Arthritis Rheumatol",
+      "year": 2020,
+      "volume": "72",
+      "issue": "10",
+      "pages": "1607-1620",
+      "publication_date": "2020-09-08",
+      "authors_short": "van Vollenhoven R et al.",
+      "first_author": "van Vollenhoven R",
+      "abstract": "The SELECT-EARLY trial was undertaken to study the effect of upadacitinib, an oral, reversible Janus kinase 1-selective inhibitor, as monotherapy in patients with predominantly early rheumatoid arthritis who were naive for or had limited exposure to methotrexate (MTX). Patients (n = 947) were randomized 1:1:1 to receive once-daily doses of upadacitinib 15 mg or 30 mg or weekly MTX (7.5-20 mg/week) for 24 weeks. The primary end points were the proportion of patients who met the American College of Rheumatology 50% (ACR50) improvement criteria at week 12, and the proportion in whom a Disease Activity Score in 28 joints using the C-reactive protein level (DAS28-CRP) of <2.6 was achieved at week 24. Data are presented through week 24. At baseline, the median disease duration was 0.5 years (range 0-44 years). A total of 840 patients (89%) completed 24 weeks of treatment. The study met both primary end points for upadacitinib 15 mg and 30 mg versus MTX (ACR50 was achieved at week 12 in 52% and 56% of patients, respectively, versus 28% [P < 0.001], and DAS28-CRP <2.6 was achieved at week 24 in 48% and 50% of patients, respectively, versus 19% [P < 0.001]). Statistically significant and clinically meaningful improvements in multiple patient-reported outcomes (PROs) were recorded for both upadacitinib doses versus MTX. Overall, 88% of patients receiving upadacitinib 15 mg and 89% of patients receiving 30 mg, respectively, had no radiographic progression (modified total Sharp score <=0) compared to 78% of those receiving MTX (P < 0.01). Six deaths were reported (2 in the upadacitinib 15 mg arm, 3 in the upadacitinib 30 mg arm, and 1 in the MTX arm). Our findings indicate that patients receiving either dose of upadacitinib monotherapy experienced significant improvements in clinical, radiographic, and PROs compared to patients receiving MTX.",
+      "primary_endpoint_text": "Publication co-primaries: ACR50 at Week 12 (MTX 28%, upa15 52%, upa30 56%) and DAS28-CRP<2.6 at Week 24 (MTX 19%, upa15 48%, upa30 50%). NOTE: the publication's ACR50 primary differs from AACT registration, which has ACR20 at Week 12 (outcome_id 211133033) + mTSS at Week 24 + Clinical Remission DAS28<2.6 at Week 24 as primaries. The 'Change From Baseline in DAS28(CRP) at Week 12 - Global Analysis' (AACT secondary outcome_id 211133035) used here as the dose-response endpoint matches NEXT/BEYOND's Week-12 timing: LSM -1.85 / -2.73 / -2.85 (MTX [dropped] / upa15 / upa30). MTX dropped per Option A; upa 15 mg is per-trial reference. The 7.5 mg Japan-only arm (design_groups EXPERIMENTAL Upadacitinib 7.5 mg) is on a SEPARATE outcome_id 211133051 'Japan Sub-study' and is excluded from this fixture per the user constraint (population-heterogeneity / ethnic-bridging dose)."
+    }
+  ],
+  "excluded_trials": [
+    {
+      "trial_label": "SELECT-COMPARE",
+      "nct_id": "NCT02629159",
+      "exclusion_reason": "Single upadacitinib dose (15 mg only) head-to-head against adalimumab and placebo. Within-trial dose contrast is empty (no second upadacitinib dose level), so the trial contributes zero information to a within-drug dose-response slope. Excluded per user constraint."
+    },
+    {
+      "trial_label": "SELECT-CHOICE",
+      "nct_id": "NCT03086343",
+      "exclusion_reason": "Single upadacitinib dose (15 mg only) head-to-head against abatacept in bDMARD-IR. Within-trial dose contrast is empty. Excluded per user constraint."
+    },
+    {
+      "trial_label": "SELECT-EARLY Japan-only 7.5 mg arm",
+      "nct_id": "NCT02706873",
+      "design_group_id": 355485939,
+      "exclusion_reason": "Ethnic-bridging Japan-only arm with population heterogeneity vs the global cohort. AACT itself segregates this arm from the global cohort by placing its DAS28-CRP results in a separate 'Japan Sub-study' outcome (id 211133051), distinct from the 'Global Analysis' outcome (id 211133035) used here. The 15 mg and 30 mg arms in the Global Analysis are the global program's dose-response per the user constraint."
+    }
+  ]
+}

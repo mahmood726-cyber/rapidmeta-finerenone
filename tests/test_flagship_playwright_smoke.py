@@ -129,6 +129,38 @@ FLAGSHIPS = [
         "allowed_amber_rows": [],
         "deferral_must_contain": "deferred to engine v0.5",
     },
+    {
+        # Round 3.8 — 4-trial SELECT upadacitinib DAS28-CRP dose-response flagship.
+        # First flagship to exercise the engine's documented RCS-fallback in
+        # production. The 4 trials use a {0, 15, 30} mg dose grid that cannot
+        # support a 3-knot Harrell-default RCS under two-stage pooling (only 3
+        # distinct doses; engine needs ≥ K = 3 distinct knot locations across
+        # the pool with sufficient per-trial non-reference observations).
+        # Engine `fitRCS` short-circuits to `fitLinear` and decorates the
+        # result with `layer='linear'`, `fallback='degenerate_to_linear'`,
+        # `rcs=null`. R `dosresmeta` refuses RCS with the parallel sparse-arm
+        # error in the R precompute JSON. The flagship's RCS tab is REPLACED
+        # with a methodological note (Tab 2) rather than a KPI grid; the
+        # R-parity tab (Tab 3) renders the linear-only audit panel.
+        # Badge characteristics:
+        #   - header class `rv-badge-deferred` (overall RCS deferred)
+        #   - linear-slope row GREEN (engine -0.0296 vs R -0.0296, |Δ| ≈ 0)
+        #   - linear-τ² row GREEN (engine PM 0.000254 vs R REML 0.000258, |Δ| ≈ 4e-6
+        #     well within the 0.0001 threshold)
+        #   - 3 RCS rows DEFERRED (rv-row-deferred)
+        #   - one-stage row PASS-THROUGH
+        # The KPI scope here is Tab 2's `rcs-note-body` (which contains the
+        # verbatim engine-output code block); we re-use the standard 'no n/a
+        # in KPI' check but point it at the RCS-note body rather than a KPI
+        # grid (the standard 'hba1c-rcs-kpis' mount does not exist on this
+        # flagship — Tab 2 is the methodological note).
+        "html": "UPADACITINIB_RA_SELECT_DOSE_RESP_REVIEW.html",
+        "r_parity_mount_id": "r-parity-select-das28",
+        "rcs_kpi_id": "rcs-note-body",
+        "expected_badge": "deferred",
+        "allowed_amber_rows": [],
+        "deferral_must_contain": "deferred to engine v0.5",
+    },
 ]
 
 
