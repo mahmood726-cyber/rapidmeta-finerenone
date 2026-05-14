@@ -205,6 +205,46 @@ FLAGSHIPS = [
             "knots inside 140",  # part of "knots inside 140–210 mg gap"
         ],
     },
+    {
+        # Round 3.10 — 3-trial erenumab Phase 3 Δ MMD dose-response flagship.
+        # SAME methodological pattern as Round 3.8 SELECT (both engine and R
+        # refuse RCS). The 3 trials use a {0, 70, 140} mg dose grid with sparse
+        # per-trial coverage: STRIVE has all 3 arms (placebo + 70 + 140), but
+        # ARISE has only placebo + 70 mg and LIBERTY has only placebo + 140 mg.
+        # Engine fitRCS sees only 2 distinct POSITIVE doses (70, 140) → rcsKnots
+        # returns < K=3 distinct knot locations → engine short-circuits to
+        # fitLinear with layer='linear', fallback='degenerate_to_linear',
+        # rcs=null. R dosresmeta refuses with the parallel sparse-arm error
+        # because ARISE and LIBERTY each have only 1 non-reference arm vs
+        # K_p=2 spline coefficients required.
+        # Distinctive feature: LIBERTY's population is treatment-refractory
+        # (prior failure of 2-4 oral preventives) vs STRIVE/ARISE which are
+        # treatment-naive. The placebo arm in LIBERTY reduces MMD by only
+        # -0.16 days vs -1.83/-1.84 in STRIVE/ARISE — a 10x smaller placebo
+        # response by population. Tab 1 includes a population-heterogeneity
+        # panel documenting this.
+        # Badge characteristics (SAME as SELECT, Round 3.8):
+        #   - header class `rv-badge-deferred` (overall RCS deferred)
+        #   - linear-slope row GREEN (engine -0.01313 vs R -0.01312, |Δ| ≈ 1e-5
+        #     well within the 0.01 threshold)
+        #   - linear-τ² row GREEN (both essentially zero; engine PM 0 vs
+        #     R REML 1.3e-20, |Δ| ≈ 1.3e-20 well within the 0.0001 threshold)
+        #   - 3 RCS rows DEFERRED (rv-row-deferred)
+        #   - one-stage row PASS-THROUGH (R lme4::lmer converged=true)
+        # KPI scope here is Tab 2's `rcs-note-body` (same as SELECT — the
+        # standard 'rcs-kpis' mount does not exist on this flagship).
+        # PubMed citation erratum (3rd in this autonomous block): LIBERTY's
+        # correct PMID is 30360965 (not 30360966 which is an unrelated Lancet
+        # kinase-inhibition comment article in the same issue). Round 3.7
+        # caught SUSTAIN-FORTE journal name; Round 3.9 caught AMAGINE-1
+        # journal name; Round 3.10 caught LIBERTY PMID off-by-one.
+        "html": "ERENUMAB_MIGRAINE_PHASE3_DOSE_RESP_REVIEW.html",
+        "r_parity_mount_id": "r-parity-erenumab-mmd",
+        "rcs_kpi_id": "rcs-note-body",
+        "expected_badge": "deferred",
+        "allowed_amber_rows": [],
+        "deferral_must_contain": "deferred to engine v0.5",
+    },
 ]
 
 

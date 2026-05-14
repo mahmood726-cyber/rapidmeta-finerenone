@@ -34,7 +34,7 @@ const THRESHOLDS = {
   nonlinearity_p: 0.05,
 };
 
-// The 8 dose-response flagships shipped via Rounds 1B-3.9:
+// The 9 dose-response flagships shipped via Rounds 1B-3.10:
 //   1. ALCOHOL_BC_DOSE_RESP_REVIEW.html (gl1992_alcohol_bc)
 //   2. SGLT2I_DOSE_RESP_REVIEW.html (sglt2i_hba1c primary + sglt2i_hhf secondary)
 //   3. TIRZEPATIDE_T2D_SURPASS_DOSE_RESP_REVIEW.html (tirzepatide_t2d_surpass)
@@ -62,6 +62,19 @@ const THRESHOLDS = {
 //      DECLINES and R FITS — a new contract combination (rcsDegenerate: true +
 //      rRefusedRcs: false + new rEngineDisagreesOnRcs: true assertion on R rcs.fit_ok===true).
 //      Linear pool succeeds k=3 and matches R within thresholds.)
+//   9. ERENUMAB_MIGRAINE_PHASE3_DOSE_RESP_REVIEW.html (erenumab_migraine_phase3 —
+//      Round 3.10; 3-trial Δ MMD continuous fixture on the {0, 70, 140} mg dose
+//      grid with sparse per-trial coverage (STRIVE 0/70/140, ARISE 0/70 only,
+//      LIBERTY 0/140 only). Engine returns the documented RCS-fallback
+//      (layer='linear', fallback='degenerate_to_linear', rcs=null) because only
+//      2 distinct positive doses exist across the pool — fewer than the K=3
+//      required Harrell-knot locations. R dosresmeta refuses with the parallel
+//      sparse-arm error (ARISE/LIBERTY each have 1 non-reference arm vs K_p=2
+//      required). SAME contract pattern as SELECT (Round 3.8): rcsDegenerate +
+//      rRefusedRcs, distinct from AMAGINE (Round 3.9) where engine declined but
+//      R fit RCS. Linear pool succeeds k=3 with τ² ≈ 0 (Q=0.34 < df=2 means
+//      HKSJ floor activates at 1.0); engine slope -0.01313 vs R slope -0.01312,
+//      |Δ| ≈ 1e-5 — far inside threshold.)
 //
 // Each flagship reads engine field paths from DR.fitLinear / DR.fitRCS results.
 // We codify the contract per flagship.
@@ -228,6 +241,30 @@ const flagshipContracts = [
     // range of the original dose grid — i.e. knots fit on percentile placeholders,
     // not on real interior dose levels).
     rEngineDisagreesOnRcs: true,
+  },
+  {
+    flagship: 'ERENUMAB_MIGRAINE_PHASE3_DOSE_RESP_REVIEW.html',
+    fixture: 'tests/dose_response_fixtures/erenumab_migraine_phase3.json',
+    rJson: 'outputs/r_validation/doseresp/erenumab_migraine_phase3.json',
+    rcsKnots: 3,
+    expectAmberRows: [],
+    // Round 3.10: 3-trial Δ MMD continuous fixture on the {0, 70, 140} mg dose
+    // grid with sparse per-trial coverage. STRIVE alone has both 70 mg and
+    // 140 mg arms; ARISE has only 70 mg, LIBERTY has only 140 mg. The pool has
+    // only 2 distinct POSITIVE doses (70, 140). Engine fitRCS calls
+    // rcsKnots(allDoses, 3) → fewer than the required K=3 distinct knot
+    // locations → engine short-circuits to fitLinear with
+    // layer='linear', fallback='degenerate_to_linear', rcs=null.
+    // R dosresmeta refuses with the parallel sparse-arm error (ARISE/LIBERTY
+    // each have only 1 non-reference arm vs K_p=2 required); the R precompute
+    // JSON has rcs.fit_ok=false. SAME contract pattern as SELECT (Round 3.8):
+    // both rcsDegenerate (engine refused) and rRefusedRcs (R refused) flags.
+    // Distinct from AMAGINE (Round 3.9) which used rcsDegenerate +
+    // rEngineDisagreesOnRcs (engine refused but R fit RCS). This is the
+    // SECOND flagship to exercise the SELECT-pattern combination
+    // (rcsDegenerate + rRefusedRcs) — engine and R agree to refuse.
+    rcsDegenerate: true,
+    rRefusedRcs: true,
   },
 ];
 

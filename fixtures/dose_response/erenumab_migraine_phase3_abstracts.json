@@ -1,0 +1,73 @@
+{
+  "fixture_id": "erenumab_migraine_phase3_abstracts",
+  "description": "Primary-publication abstracts for the 3 Phase 3 trials of erenumab in episodic migraine selected for the dose-response fixture (STRIVE, ARISE, LIBERTY). All 3 PMIDs retrieved via PubMed MCP search_articles + get_article_metadata on 2026-05-14; no PMID guessing. Source: PubMed (https://pubmed.ncbi.nlm.nih.gov/). DOI links included per PubMed attribution requirement. User-supplied citations: STRIVE (Goadsby PJ et al. NEJM 2017;377(22):2123-2132) and ARISE (Dodick DW et al. Cephalalgia 2018;38(6):1026-1037) were verified correct. LIBERTY: user-supplied bibliographic citation 'Reuter U et al. Lancet 2018;392(10161):2280-2287' is correct, but a single-record-off PMID guess of 30360966 lands on a Lancet kinase-inhibition COMMENT article by McInnes/Siebert (NOT LIBERTY). The correct LIBERTY PMID is 30360965, verified via PubMed search 'LIBERTY erenumab Reuter Lancet 2018' returning a unique hit with NCT03096834 in the abstract. Erratum documented; this fixture uses PMID 30360965. CROSS-TRIAL OUTCOME NOTE: only STRIVE tests 2 erenumab doses (70 mg + 140 mg vs placebo); ARISE tests 70 mg only; LIBERTY tests 140 mg only. The dose-response fixture pools on Δ monthly migraine days (continuous), which is the registered PRIMARY endpoint in STRIVE and ARISE and a registered SECONDARY in LIBERTY (whose primary is the binary >=50% responder rate). All 3 trials have AACT-registered Δ MMD data so the cross-trial pooling endpoint is consistent.",
+  "retrieval_date": "2026-05-14",
+  "retrieval_method": "mcp__claude_ai_PubMed__search_articles to confirm a unique PMID per trial (each trial returned a single Phase 3 hit by trial acronym + lead author + 'erenumab'), then mcp__claude_ai_PubMed__get_article_metadata batch lookup. NCT-IDs cross-referenced against the registered-trial section of each abstract. LIBERTY required a specific 'LIBERTY erenumab Reuter Lancet 2018' search because the bibliographic page-range guess landed on a same-journal-issue comment article.",
+  "attribution": "According to PubMed",
+  "publications": [
+    {
+      "trial_label": "STRIVE",
+      "nct_id": "NCT02456740",
+      "pmid": "29171821",
+      "doi": "10.1056/NEJMoa1705848",
+      "doi_link": "https://doi.org/10.1056/NEJMoa1705848",
+      "title": "A Controlled Trial of Erenumab for Episodic Migraine.",
+      "journal": "N Engl J Med",
+      "year": 2017,
+      "volume": "377",
+      "issue": "22",
+      "pages": "2123-2132",
+      "publication_date": "2017-11-30",
+      "authors_short": "Goadsby PJ et al.",
+      "first_author": "Goadsby PJ",
+      "abstract": "We tested erenumab, a fully human monoclonal antibody that inhibits the calcitonin gene-related peptide receptor, for the prevention of episodic migraine. We randomly assigned patients to receive a subcutaneous injection of either erenumab, at a dose of 70 mg or 140 mg, or placebo monthly for 6 months. The primary end point was the change from baseline to months 4 through 6 in the mean number of migraine days per month. Secondary end points were a 50% or greater reduction in mean migraine days per month, change in the number of days of use of acute migraine-specific medication, and change in scores on the physical-impairment and everyday-activities domains of the Migraine Physical Function Impact Diary (scale transformed to 0 to 100, with higher scores representing greater migraine burden on functioning). A total of 955 patients underwent randomization: 317 were assigned to the 70-mg erenumab group, 319 to the 140-mg erenumab group, and 319 to the placebo group. The mean number of migraine days per month at baseline was 8.3 in the overall population; by months 4 through 6, the number of days was reduced by 3.2 in the 70-mg erenumab group and by 3.7 in the 140-mg erenumab group, as compared with 1.8 days in the placebo group (P<0.001 for each dose vs. placebo). A 50% or greater reduction in the mean number of migraine days per month was achieved for 43.3% of patients in the 70-mg erenumab group and 50.0% of patients in the 140-mg erenumab group, as compared with 26.6% in the placebo group (P<0.001 for each dose vs. placebo), and the number of days of use of acute migraine-specific medication was reduced by 1.1 days in the 70-mg erenumab group and by 1.6 days in the 140-mg erenumab group, as compared with 0.2 days in the placebo group (P<0.001 for each dose vs. placebo). Erenumab administered subcutaneously at a monthly dose of 70 mg or 140 mg significantly reduced migraine frequency, the effects of migraines on daily activities, and the use of acute migraine-specific medication over a period of 6 months.",
+      "primary_endpoint_text": "Registered PRIMARY (continuous): Δ monthly migraine days, baseline to months 4-6 of 24-week DB phase (AACT outcome_id 211326868, LSM ± SE): pbo -1.83 (SE 0.18, n=316), erenumab 70 mg QM -3.23 (SE 0.18, n=312), erenumab 140 mg QM -3.67 (SE 0.18, n=318), p<0.001 each dose vs placebo. Secondary: >=50% responder rate 26.6%/43.3%/50.0% (pbo/70/140). This trial is the only one of the 3 erenumab Phase 3 RCTs to test both doses vs placebo within the same trial — STRIVE alone supplies the within-trial 70-vs-140 contrast that anchors the dose-response slope estimate."
+    },
+    {
+      "trial_label": "ARISE",
+      "nct_id": "NCT02483585",
+      "pmid": "29471679",
+      "doi": "10.1177/0333102418759786",
+      "doi_link": "https://doi.org/10.1177/0333102418759786",
+      "title": "ARISE: A Phase 3 randomized trial of erenumab for episodic migraine.",
+      "journal": "Cephalalgia",
+      "year": 2018,
+      "volume": "38",
+      "issue": "6",
+      "pages": "1026-1037",
+      "publication_date": "2018-02-22",
+      "authors_short": "Dodick DW et al.",
+      "first_author": "Dodick DW",
+      "abstract": "Calcitonin gene-related peptide plays an important role in migraine pathophysiology. Erenumab, a human monoclonal antibody that inhibits the calcitonin gene-related peptide receptor, is being evaluated for migraine prevention. In this randomized, double-blind, placebo-controlled, phase 3 study, 577 adults with episodic migraine were randomized to placebo or 70 mg erenumab; 570 patients were included in efficacy analyses. Primary endpoint was change in monthly migraine days. Secondary endpoints were >=50% reduction in monthly migraine days, change in acute migraine-specific medication treatment days, and >=5-point reduction in Physical Impairment and Impact on Everyday Activities domain scores measured by the Migraine Physical Function Impact Diary. All endpoints assessed change from baseline at month 3. Patients receiving erenumab experienced -2.9 days change in monthly migraine days, compared with -1.8 days for placebo, least-squares mean (95% CI) treatment difference of -1.0 (-1.6, -0.5) (p<0.001). A >=50% reduction in monthly migraine days was achieved by 39.7% (erenumab) and 29.5% (placebo) of patients (OR:1.59 (95% CI: 1.12, 2.27)) (p=0.010). Migraine-specific medication treatment days were reduced by -1.2 (erenumab) and -0.6 (placebo) days, a treatment difference of -0.6 (-1.0, -0.2) (p=0.002). Safety and adverse event profiles of erenumab were similar to placebo. As a preventive treatment of episodic migraine, erenumab at a dosage of 70 mg monthly significantly reduced migraine frequency and acute migraine-specific medication use.",
+      "primary_endpoint_text": "Registered PRIMARY (continuous): Δ monthly migraine days at Week 12 (AACT outcome_id 211102571, LSM ± SE): pbo -1.84 (SE 0.21, n=288), erenumab 70 mg QM -2.88 (SE 0.21, n=282); LSM treatment difference -1.0 [95% CI -1.6, -0.5], p<0.001. Secondary: >=50% responder rate 29.5% vs 39.7% (OR 1.59, p=0.010). Only the 70 mg dose was tested vs placebo in this trial — no 140 mg arm; ARISE contributes a single 70-mg-vs-placebo contrast to the dose-response pool."
+    },
+    {
+      "trial_label": "LIBERTY",
+      "nct_id": "NCT03096834",
+      "pmid": "30360965",
+      "doi": "10.1016/S0140-6736(18)32534-0",
+      "doi_link": "https://doi.org/10.1016/S0140-6736(18)32534-0",
+      "title": "Efficacy and tolerability of erenumab in patients with episodic migraine in whom two-to-four previous preventive treatments were unsuccessful: a randomised, double-blind, placebo-controlled, phase 3b study.",
+      "journal": "Lancet",
+      "year": 2018,
+      "volume": "392",
+      "issue": "10161",
+      "pages": "2280-2287",
+      "publication_date": "2018-10-22",
+      "authors_short": "Reuter U et al.",
+      "first_author": "Reuter U",
+      "abstract": "A substantial proportion of patients with migraine does not respond to, or cannot tolerate, oral preventive treatments. Erenumab is a novel CGRP-receptor antibody with preventive efficacy in migraine. We assessed its efficacy and tolerability in patients with episodic migraine in whom previous treatment with two-to-four migraine preventives had been unsuccessful. LIBERTY was a 12-week, double-blind, placebo-controlled randomised study at 59 sites in 16 countries. Eligible patients were aged 18-65 years and had a history of episodic migraine with or without aura for at least 12 months, had migraine for an average of 4-14 days per month during the 3 months before screening, and had been treated unsuccessfully (in terms of either efficacy or tolerability, or both) with between two and four preventive treatments. Eligible participants were randomly assigned (1:1) to receive either erenumab 140 mg (via two 70 mg injections) or placebo every 4 weeks subcutaneously for 12 weeks. The primary endpoint was the proportion of patients achieving a 50% or greater reduction in the mean number of monthly migraine days during weeks 9-12. Between March 20, 2017, and Oct 27, 2017, 246 participants were randomly assigned, 121 to the erenumab group and 125 to the placebo group. 95 of 246 (39%) participants had previously unsuccessfully tried two preventive drugs, 93 (38%) had tried three, and 56 (23%) had tried four. At week 12, 36 (30%) patients in the erenumab had a 50% or greater reduction from baseline in the mean number of monthly migraine days, compared with 17 (14%) in the placebo group (odds ratio 2.7 [95% CI 1.4-5.2]; p=0.002). The tolerability and safety profiles of erenumab and placebo were similar. Compared with placebo, erenumab was efficacious in patients with episodic migraine who previously did not respond to or tolerate between two and four previous migraine preventive treatments. Erenumab might be an option for patients with difficult-to-treat migraine who have high unmet needs and few treatment options.",
+      "primary_endpoint_text": "Registered PRIMARY (binary): >=50% MMD responder rate at weeks 9-12 (AACT outcome_id 211478875): erenumab 140 mg 30.3% (36/119), placebo 13.7% (17/124); OR 2.7 [95% CI 1.4-5.2], p=0.002. SECONDARY (continuous) used here: Δ monthly migraine days at month 3 (AACT outcome_id 211478876, MEAN ± SE): erenumab 140 mg -1.75 (SE 0.43, n=118), placebo -0.16 (SE 0.41, n=120); treatment difference -1.61 [95% CI -2.70, -0.52] (per abstract). NOTE: LIBERTY is the only trial in this dose-response fixture whose primary is the binary responder rate — STRIVE and ARISE use Δ MMD as primary. We pool on Δ MMD because it is registered in all 3 trials and is more informative than the dichotomized responder rate. POPULATION DIFFERENCE: LIBERTY enrolled prior-failure patients (2-4 preventives) — fundamentally different from STRIVE/ARISE's treatment-naive population; LIBERTY's placebo arm reduces MMD by only -0.16 days vs -1.83/-1.84 in STRIVE/ARISE."
+    }
+  ],
+  "excluded_trials": [],
+  "round_3_10_citation_erratum": {
+    "trial": "LIBERTY",
+    "user_supplied_pmid_implied_by_lookup": "30360966 (off-by-one from PubMed search by Lancet 2018;392 erenumab)",
+    "actual_pmid": "30360965",
+    "wrong_record_identity": "Lancet 2018;392(10162):2328-2331 — McInnes IB, Siebert S. 'The extending scope of kinase inhibition in immune diseases' — a comment article in the same Lancet issue, unrelated to erenumab",
+    "correct_record_identity": "Lancet 2018;392(10161):2280-2287 — Reuter U et al. LIBERTY phase 3b trial of erenumab in prior-preventive-failure episodic migraine",
+    "discovery_method": "PubMed MCP search_articles with 'LIBERTY erenumab Reuter Lancet 2018' returned a unique hit (PMID 30360965) with NCT03096834 in the abstract; the initial 30360966 lookup returned a different paper. Verified by reading both abstracts and confirming NCT-ID provenance.",
+    "rule_reinforced": "ALWAYS verify Phase 3 PMID lookups via PubMed MCP — never trust bibliographic-page-range guesses. Round 3.7 caught SUSTAIN-FORTE journal name (Lancet vs Lancet Diabetes Endocrinol); Round 3.9 caught AMAGINE-1 journal name (NEJM vs Br J Dermatol); Round 3.10 caught LIBERTY PMID off-by-one."
+  }
+}

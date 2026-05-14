@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; object-src 'none'; base-uri 'none';">
+<title>Erenumab dose vs &Delta; monthly migraine days in episodic migraine &mdash; pooled dose-response meta-analysis (3 Phase 3 RCTs)</title>
+<meta name="description" content="Pooled within-drug dose-response re-analysis of 3 Phase 3 RCTs of erenumab (70 mg and 140 mg subcutaneous once-monthly) for &Delta; monthly migraine days (MMD) change-from-baseline in adults with episodic migraine. Round 3.10 mirrors Round 3.8 (SELECT upadacitinib): the dose grid {0, 70, 140} mg has only 2 distinct positive doses with sparse per-trial coverage (STRIVE 0/70/140, ARISE 0/70 only, LIBERTY 0/140 only), so the engine returns layer='linear', fallback='degenerate_to_linear', no .rcs block. R dosresmeta refuses RCS with the parallel sparse-arm error. Linear two-stage pool succeeds at k=3 with engine-vs-R |Delta| within threshold. LIBERTY's treatment-refractory population (prior failure of 2-4 preventives) shows a much smaller placebo response than STRIVE/ARISE (treatment-naive); this is documented as a population-heterogeneity caveat.">
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; max-width: 1100px; margin: 1em auto; padding: 0 1em; color: #222; line-height: 1.5; }
+  h1, h2, h3 { color: #1a3a5c; }
+  details > summary { cursor: pointer; font-weight: 600; padding: 0.4em 0; }
+  table { border-collapse: collapse; width: 100%; margin: 0.6em 0; }
+  th, td { border: 1px solid #d0d0d0; padding: 0.4em 0.6em; text-align: left; }
+  th { background: #f2f5f8; }
+  .tab-nav { display: flex; gap: 0.5em; border-bottom: 2px solid #d0d0d0; margin: 1em 0 0.6em; flex-wrap: wrap; }
+  .tab-nav button { background: #f2f5f8; border: 1px solid #d0d0d0; border-bottom: none; padding: 0.6em 1.2em; cursor: pointer; font-size: 1em; }
+  .tab-nav button.active { background: #1a3a5c; color: white; border-color: #1a3a5c; }
+  .tab-nav button:focus-visible { outline: 3px solid #1a3a5c; outline-offset: 2px; }
+  .tab-content { display: none; padding: 1em 0; }
+  .tab-content.active { display: block; }
+  .tab-content > h2:focus { outline: none; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.8em; margin: 1em 0; }
+  .kpi { background: #f8f9fb; border-left: 3px solid #1a3a5c; padding: 0.6em 0.8em; }
+  .kpi-label { font-size: 0.85em; color: #555; }
+  .kpi-value { font-size: 1.2em; font-weight: 600; color: #1a3a5c; }
+  .rv-badge { border: 2px solid; border-radius: 4px; padding: 0.6em; margin: 1em 0; }
+  .rv-badge-green { border-color: #2e8540; background: #f0f8f2; }
+  .rv-badge-amber { border-color: #d97706; background: #fef8ec; }
+  .rv-badge-deferred { border-color: #6366f1; background: #eef2ff; }
+  .rv-row-green td { background: #f0f8f2; }
+  .rv-row-amber td { background: #fef8ec; }
+  .rv-row-deferred td { background: #eef2ff; font-style: italic; }
+  .rv-disclosure { font-size: 0.85em; color: #555; margin-top: 0.6em; }
+  .divergence-warning { border: 2px solid #6366f1; background: #eef2ff; padding: 0.8em; margin: 1em 0; border-radius: 4px; }
+  .population-note { border: 2px solid #d97706; background: #fef8ec; padding: 0.8em; margin: 1em 0; border-radius: 4px; }
+  .footnote { font-size: 0.85em; color: #555; border-top: 1px solid #d0d0d0; padding-top: 1em; margin-top: 2em; }
+  .table-scroll { overflow-x: auto; margin: 0.6em 0; }
+  .table-scroll table { margin: 0; }
+  a:focus-visible { outline: 2px solid #1a3a5c; outline-offset: 2px; }
+  .abstract-block { margin: 0.6em 0; padding-left: 0.6em; border-left: 3px solid #c0d0e0; }
+  .abstract-block p { margin: 0.4em 0; }
+  .abstract-meta { font-size: 0.85em; color: #555; }
+  pre.code-block { background: #f2f5f8; border-left: 3px solid #6366f1; padding: 0.6em 0.8em; font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; font-size: 0.92em; overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<main>
+<h1>Erenumab dose vs &Delta; monthly migraine days in episodic migraine &mdash; pooled dose-response meta-analysis (3 Phase 3 RCTs)</h1>
+<p>Pooled within-drug dose-response re-analysis of 3 Phase 3 RCTs of erenumab (70 mg and 140 mg subcutaneous once-monthly):
+  <a href="https://pubmed.ncbi.nlm.nih.gov/29171821/" target="_blank" rel="noopener noreferrer">STRIVE (PMID 29171821)</a> &middot;
+  <a href="https://pubmed.ncbi.nlm.nih.gov/29471679/" target="_blank" rel="noopener noreferrer">ARISE (PMID 29471679)</a> &middot;
+  <a href="https://pubmed.ncbi.nlm.nih.gov/30360965/" target="_blank" rel="noopener noreferrer">LIBERTY (PMID 30360965)</a>.
+</p>
+<p><strong>Authors:</strong> RapidMeta dose-response engine pack #6 &mdash; Round 3.10 (erenumab CGRP-receptor migraine prevention, k=3, engine RCS-degeneration demo) &middot; <strong>Generated by:</strong> <span id="engine-version">&hellip;</span> &middot; <strong>Date:</strong> <span id="gen-date">&hellip;</span></p>
+
+<div class="divergence-warning">
+  <strong>Methodology demonstration flagship (Round 3.10 mirrors Round 3.8 SELECT &mdash; both engine and R refuse RCS):</strong> This is a 3-trial within-drug erenumab &Delta; MMD dose-response pool on the dose grid <em>{0, 70, 140}</em> mg with sparse per-trial coverage. STRIVE alone tests both 70 mg and 140 mg vs placebo; ARISE tests only 70 mg vs placebo; LIBERTY tests only 140 mg vs placebo. The pool therefore has only 2 distinct <em>positive</em> doses ({70, 140} mg) and only 1 of the 3 trials (STRIVE) contributes both doses. The 3-knot Harrell-default restricted cubic spline basis needs &ge; K = 3 distinct knot locations across the unique positive doses for the design matrix to be non-singular under two-stage pooling; only 2 distinct positive doses exist. The engine returns <code>layer='linear'</code>, <code>fallback='degenerate_to_linear'</code>, with no <code>.rcs</code> block &mdash; this is the engine's documented safety net for coarse dose grids, not a bug. R <code>dosresmeta</code> refuses RCS on the same fixture with the parallel error (<em>&ldquo;each study provides at least p non-referent obs&rdquo;</em>) because ARISE and LIBERTY each have only 1 non-reference arm versus K<sub>p</sub> = 2 spline coefficients required. <strong>Engine and R agree</strong> &mdash; the dose grid does not support a 3-knot RCS in two-stage form. The linear pool succeeds at k=3 and matches R within |&Delta;|&nbsp;&lt;&nbsp;threshold. Tab 2 surfaces the degeneration explicitly; Tab 3's R-parity badge therefore reduces to the linear-pool rows only.
+</div>
+
+<div class="population-note">
+  <strong>Population heterogeneity caveat (treatment-refractory vs treatment-naive):</strong> STRIVE and ARISE enrolled treatment-naive adults with episodic migraine (4&ndash;14 MMD; no prior failure of multiple classes of preventives). LIBERTY enrolled a treatment-refractory population &mdash; adults with episodic migraine AND prior failure of <em>2 to 4 oral preventive treatments</em> (39% had failed 2 preventives, 38% had failed 3, 23% had failed 4). This produces a striking baseline-population effect: <strong>LIBERTY's placebo arm reduces &Delta; MMD by only &minus;0.16 days</strong> vs &minus;1.83 / &minus;1.84 days in STRIVE / ARISE. The dose-equivalence assumption (same molecule, same SC route, same once-monthly schedule) is NOT violated &mdash; the dose-response axis remains valid &mdash; but the placebo-arm response is a function of the prior-failure population and is the dominant source of LIBERTY's smaller absolute treatment effect on this endpoint. Per-trial monotonicity is preserved in all 3 trials (STRIVE pbo &rarr; 70 &rarr; 140 = &minus;1.83 &rarr; &minus;3.23 &rarr; &minus;3.67; ARISE pbo &rarr; 70 = &minus;1.84 &rarr; &minus;2.88; LIBERTY pbo &rarr; 140 = &minus;0.16 &rarr; &minus;1.75). Each individual trial is internally consistent on the dose-response axis.
+</div>
+
+<details open>
+  <summary>Trial inventory (3 Phase 3 RCTs)</summary>
+  <div class="table-scroll">
+    <table>
+      <caption>3 Phase 3 placebo-controlled trials of erenumab in episodic migraine &mdash; primary publications and dose-response arms</caption>
+      <thead>
+        <tr><th>Trial</th><th>NCT</th><th>Population</th><th>Comparator</th><th>Erenumab dose(s)</th><th>n_arms</th><th>Year</th><th>DB duration</th><th>&Delta; MMD endpoint status</th><th>Publication</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>STRIVE (Goadsby 2017, treatment-naive)</td>
+          <td><a href="https://clinicaltrials.gov/ct2/show/NCT02456740" target="_blank" rel="noopener noreferrer">NCT02456740</a></td>
+          <td>Adults 18&ndash;65 with episodic migraine (4&ndash;14 MMD), <em>treatment-naive</em> (no prior failure of &gt;2 classes)</td>
+          <td>Placebo (kept as dose=0)</td>
+          <td>70 mg + 140 mg QM SC</td>
+          <td>3 (pbo + 70 + 140 mg)</td>
+          <td>2017</td>
+          <td>24 weeks</td>
+          <td>PRIMARY (AACT outcome_id 211326868, LSM &plusmn; SE)</td>
+          <td><a href="https://doi.org/10.1056/NEJMoa1705848" target="_blank" rel="noopener noreferrer">N Engl J Med 2017;377(22):2123-2132 &middot; doi:10.1056/NEJMoa1705848</a></td>
+        </tr>
+        <tr>
+          <td>ARISE (Dodick 2018, treatment-naive)</td>
+          <td><a href="https://clinicaltrials.gov/ct2/show/NCT02483585" target="_blank" rel="noopener noreferrer">NCT02483585</a></td>
+          <td>Adults 18&ndash;65 with episodic migraine (4&ndash;14 MMD), <em>treatment-naive</em></td>
+          <td>Placebo (kept as dose=0)</td>
+          <td>70 mg QM SC only</td>
+          <td>2 (pbo + 70 mg)</td>
+          <td>2018</td>
+          <td>12 weeks</td>
+          <td>PRIMARY (AACT outcome_id 211102571, LSM &plusmn; SE)</td>
+          <td><a href="https://doi.org/10.1177/0333102418759786" target="_blank" rel="noopener noreferrer">Cephalalgia 2018;38(6):1026-1037 &middot; doi:10.1177/0333102418759786</a></td>
+        </tr>
+        <tr>
+          <td>LIBERTY (Reuter 2018, <em>prior-preventive-failure</em>)</td>
+          <td><a href="https://clinicaltrials.gov/ct2/show/NCT03096834" target="_blank" rel="noopener noreferrer">NCT03096834</a></td>
+          <td>Adults 18&ndash;65 with episodic migraine (4&ndash;14 MMD) AND <em>prior failure of 2&ndash;4 oral migraine preventive treatments</em> (treatment-refractory)</td>
+          <td>Placebo (kept as dose=0)</td>
+          <td>140 mg QM SC only</td>
+          <td>2 (pbo + 140 mg)</td>
+          <td>2018</td>
+          <td>12 weeks</td>
+          <td>SECONDARY in AACT (registered PRIMARY is binary &ge;50% responder rate, outcome_id 211478875); continuous &Delta; MMD MEAN &plusmn; SE on outcome_id 211478876</td>
+          <td><a href="https://doi.org/10.1016/S0140-6736(18)32534-0" target="_blank" rel="noopener noreferrer">Lancet 2018;392(10161):2280-2287 &middot; doi:10.1016/S0140-6736(18)32534-0</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>Total:</strong> 3 trials, 7 arm observations (3 + 2 + 2). All arms are erenumab subcutaneous once-monthly. STRIVE alone supplies the within-trial 70-vs-140 mg contrast that anchors the dose-response slope's interior structure; ARISE and LIBERTY each contribute a single dose-vs-placebo contrast that pins one end of the dose grid only.</p>
+  <p><strong>Registered-primary disclosure:</strong> &Delta; MMD is the registered PRIMARY endpoint in STRIVE (continuous, LSM via MMRM) and ARISE (continuous, LSM via MMRM). LIBERTY's registered PRIMARY is binary (&ge;50% responder rate at weeks 9&ndash;12, OR 2.7); &Delta; MMD is a registered SECONDARY in LIBERTY (continuous, MEAN via MMRM). The cross-trial pool uses &Delta; MMD because (a) it is registered in all 3 trials, (b) it is primary in 2 of 3 trials, and (c) the continuous endpoint preserves more information than the dichotomized responder rate for dose-response slope estimation. The trade-off is that LIBERTY contributes secondary-outcome data; the per-trial provenance is documented in the fixture's <code>data_provenance</code> field.</p>
+  <p><strong>PubMed citation erratum (Round 3.10):</strong> The user-supplied bibliographic citation for LIBERTY (Reuter U et al. Lancet 2018;392(10161):2280-2287) is correct, but a naive page-range PMID lookup landed on PMID 30360966 &mdash; a Lancet kinase-inhibition COMMENT article by McInnes &amp; Siebert in the same Lancet issue, NOT LIBERTY. The correct LIBERTY PMID is <strong>30360965</strong>, verified via PubMed MCP search <em>&ldquo;LIBERTY erenumab Reuter Lancet 2018&rdquo;</em> returning a unique hit with NCT03096834 in the abstract. This is the third PMID / journal citation erratum caught in this autonomous block: Round 3.7 caught SUSTAIN-FORTE's journal name (Lancet vs Lancet Diabetes Endocrinol); Round 3.9 caught AMAGINE-1's journal name (NEJM vs Br J Dermatol); Round 3.10 caught LIBERTY's PMID off-by-one. The abstracts fixture and all in-document links use the verified PMID 30360965.</p>
+  <p><strong>Per-trial RCS feasibility (drives the degeneration):</strong> A 3-knot Harrell-default RCS needs &ge; 3 distinct interior knot locations across the unique positive doses with each trial contributing at least K<sub>p</sub> = 2 non-reference observations. This fixture has only 2 distinct positive doses ({70, 140} mg). ARISE contributes only 1 non-reference arm (70 mg) and LIBERTY contributes only 1 non-reference arm (140 mg); only STRIVE has 2 non-reference arms. The engine's <code>fitRCS</code> calls <code>rcsKnots</code> on the unique positive doses, finds fewer than the K = 3 required distinct knot locations, and short-circuits to <code>fitLinear</code> with <code>fallback='degenerate_to_linear'</code> and <code>rcs=null</code>. R <code>dosresmeta</code> refuses with the parallel sparse-arm error because 2 of the 3 trials fail the per-trial-arm requirement. Engine and R agree.</p>
+</details>
+
+<details>
+  <summary>Methods (click to expand)</summary>
+  <p>This review pools 3 Phase 3 RCTs of erenumab (AMG334, a fully human IgG2 monoclonal antibody against the calcitonin gene-related peptide receptor) in adults with episodic migraine. All 3 trials randomised participants to once-monthly subcutaneous erenumab vs placebo and measured &Delta; monthly migraine days (MMD) change-from-baseline at the end of the double-blind treatment phase.</p>
+  <p><strong>Within-drug dose-response:</strong> All 3 trials use the same molecule (erenumab), same route (subcutaneous once-monthly injection), and the same FDA-evaluated dose range (70 mg and 140 mg). The pooled slope is therefore a within-drug &Delta; MMD dose-response curve and has no cross-drug equipotency assumption. STRIVE contributes the only within-trial 70-vs-140 mg contrast; ARISE pins the placebo &harr; 70 mg leg in a separate trial, and LIBERTY pins the placebo &harr; 140 mg leg in a separate trial. The cross-trial 70-vs-140 mg comparison therefore depends on assuming dose-equivalence across the 3 trials (same molecule, same route, comparable double-blind windows of 12&ndash;24 weeks).</p>
+  <p><strong>Active-comparator handling:</strong> Not applicable. All 3 trials are placebo-controlled with no active-comparator arms; placebo is the dose=0 reference in all 3 trials. Unlike SUSTAIN / SURPASS / SELECT / AMAGINE fixtures, no Option A active-comparator-drop is required here.</p>
+  <p><strong>Engine RCS-fallback (the headline methodological story):</strong> The 3-knot Harrell-default RCS positions knots at the 10th, 50th, and 90th percentiles of the unique positive doses. With only 2 distinct positive doses in the pool ({70, 140} mg), <code>rcsKnots(allDoses, 3)</code> returns fewer than the K = 3 required distinct knot locations and <code>fitRCS</code> short-circuits to <code>fitLinear</code>, decorating the result with <code>layer='linear'</code>, <code>fallback='degenerate_to_linear'</code>, and <code>rcs=null</code>. R <code>dosresmeta</code> refuses to fit RCS on the same fixture with the parallel error <em>&ldquo;A two-stage approach requires that each study provides at least p non-referent obs&rdquo;</em> &mdash; ARISE has only 1 non-reference arm (70 mg) and LIBERTY has only 1 non-reference arm (140 mg) versus K<sub>p</sub> = 2 spline coefficients required. Engine and R agree the dose grid does not support a 3-knot RCS in two-stage form. The linear two-stage layer (k=3) is unaffected and is the methodologically primary result for this fixture.</p>
+  <p><strong>Estimand uniformity:</strong> MMRM (mixed-effects model for repeated measures) with multiple imputation per protocol-specified statistical analysis plan, treatment-policy primary estimand, used consistently across all 3 trials. STRIVE and ARISE register the continuous &Delta; MMD as <code>param_type=LEAST_SQUARES_MEAN</code> (LSM) reflecting the MMRM analysis. LIBERTY registers the continuous secondary &Delta; MMD as <code>param_type=MEAN</code> (the registered primary on the binary &ge;50% responder rate uses logistic regression; the secondary &Delta; MMD MEAN is the MMRM-derived estimate labelled MEAN in AACT). AACT registers a single estimand row per result_group per outcome_id in all 3 trials (no on-treatment vs in-trial split).</p>
+  <p><strong>Dispersion-convention note:</strong> All 3 trials report &plusmn; Standard Error in AACT (STRIVE and ARISE as LSM &plusmn; SE; LIBERTY as MEAN &plusmn; SE). The fixture computes <code>sd = se &times; &radic;n</code> using the per-arm analysed N from <code>outcome_counts.txt</code> Measure-scope rows. Raw SE preserved per arm as <code>_aact_se</code> for audit. The engine's <code>mdCovariance()</code> uses <code>sd<sup>2</sup>/n</code> which equals <code>SE<sup>2</sup></code> &mdash; invariant to MEAN-vs-LSM labelling at the variance level.</p>
+  <p><strong>Population heterogeneity (treatment-refractory placebo response):</strong> LIBERTY's placebo arm reduces &Delta; MMD by &minus;0.16 days (vs &minus;1.83 / &minus;1.84 in STRIVE / ARISE) because the LIBERTY population had failed 2&ndash;4 prior oral preventives &mdash; a known feature of treatment-refractory cohorts, not an extraction artefact. The dose-response axis is unaffected: each trial is internally monotonic and the pooled slope is identified from the within-trial dose-vs-placebo contrasts. The cross-trial heterogeneity from the placebo-response shift is absorbed into the per-trial intercept (the dose-vs-placebo contrast) by construction in the GL two-stage formulation.</p>
+  <p><strong>Statistical methods</strong> match the engine v0.4 conventions: two-stage Greenland-Longnecker linear pool with REML+HKSJ (HKSJ floor <code>max(1, Q/(k-1))</code>); Q-profile &tau;<sup>2</sup> CI (Viechtbauer 2007); PI uses <em>t<sub>k-1</sub></em> df (Cochrane Handbook v6.5). The RCS layer is requested but the engine returns the documented fallback (<code>layer='linear'</code>, <code>fallback='degenerate_to_linear'</code>, no <code>.rcs</code> block) because the 2-distinct-positive-dose grid does not support a 3-knot Harrell basis under two-stage pooling. R <code>dosresmeta</code> linear layer matches the engine within |&Delta;|&nbsp;&lt;&nbsp;threshold; R RCS refused with a parallel sparse-arm error; the R-parity badge therefore reduces to the linear-pool rows only.</p>
+  <p><strong>Data provenance:</strong> AACT snapshot 2026-04-12, <code>outcome_measurements.txt</code> + <code>outcome_counts.txt</code>. STRIVE outcome_id 211326868 (registered PRIMARY, LSM &plusmn; SE), ARISE outcome_id 211102571 (registered PRIMARY, LSM &plusmn; SE), LIBERTY outcome_id 211478876 (registered SECONDARY, MEAN &plusmn; SE; primary 211478875 is the binary &ge;50% responder rate). All per-arm values match published abstracts to 1 decimal place. PubMed MCP <code>get_article_metadata</code> + <code>search_articles</code> verified all 3 PMIDs and DOIs on 2026-05-14. See <code>fixtures/dose_response/erenumab_migraine_phase3_abstracts.json</code> for the retrieval audit and the LIBERTY PMID erratum trace.</p>
+</details>
+
+<details>
+  <summary>Primary publication abstracts (3 Phase 3 trials, click each to expand)</summary>
+  <p style="font-size:0.85em; color:#555;">Retrieved via PubMed MCP (<code>get_article_metadata</code> + <code>search_articles</code>) on 2026-05-14. According to PubMed, the abstracts below are the primary-publication abstracts for the 3 trials. Each block is independently collapsible. <strong>LIBERTY citation erratum:</strong> the user-supplied bibliographic citation was correct, but the naive page-range PMID lookup landed on PMID 30360966 (a Lancet kinase-inhibition comment article in the same issue). The correct LIBERTY PMID is 30360965; verified via a dedicated PubMed search returning a unique hit with NCT03096834.</p>
+  <div id="abstracts-mount"></div>
+</details>
+
+<nav class="tab-nav" role="tablist" aria-label="Analysis tabs">
+  <button id="tab-btn-mmd-linear" data-tab="mmd-linear" class="active" role="tab" aria-selected="true" aria-controls="tab-mmd-linear" tabindex="0">1. &Delta; MMD &mdash; Linear (k=3, HEADLINE)</button>
+  <button id="tab-btn-rcs-note" data-tab="rcs-note" role="tab" aria-selected="false" aria-controls="tab-rcs-note" tabindex="-1">2. RCS degeneration &mdash; methodological note</button>
+  <button id="tab-btn-parity" data-tab="parity" role="tab" aria-selected="false" aria-controls="tab-parity" tabindex="-1">3. R-parity badge (linear-only)</button>
+</nav>
+
+<section id="tab-mmd-linear" class="tab-content active" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-mmd-linear">
+  <h2 tabindex="-1">&Delta; MMD &mdash; Linear pool (two-stage Greenland-Longnecker, REML + HKSJ, k=3)</h2>
+  <div id="mmd-linear-kpis" aria-live="polite" aria-atomic="true"></div>
+  <div id="mmd-linear-pertrial"></div>
+  <div id="mmd-linear-forest"></div>
+  <div id="mmd-linear-pophet"></div>
+  <div id="mmd-linear-curve"></div>
+  <div id="mmd-linear-summary"></div>
+</section>
+
+<section id="tab-rcs-note" class="tab-content" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-rcs-note">
+  <h2 tabindex="-1">RCS degeneration &mdash; methodological note (no spline fit returned)</h2>
+  <div id="rcs-note-body"></div>
+</section>
+
+<section id="tab-parity" class="tab-content" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-parity">
+  <h2 tabindex="-1">R-parity badge (engine vs R, linear-pool rows only)</h2>
+  <p><strong>Disclosure:</strong> Both the engine and R <code>dosresmeta</code> refused to fit a 3-knot RCS on this dose grid &mdash; the engine via the documented <code>fallback='degenerate_to_linear'</code> short-circuit (no <code>.rcs</code> block), R via the parallel sparse-arm error. The R-parity audit therefore reduces to the linear-pool rows (pooled log-slope and &tau;<sup>2</sup>). The 3 RCS rows are <strong>DEFERRED</strong> with the engine-and-R agreement note; the one-stage row is rendered as a reference pass-through.</p>
+  <div id="r-parity-erenumab-mmd" aria-live="polite" aria-atomic="true"></div>
+</section>
+
+<div class="footnote">
+  <p><strong>Citations:</strong>
+    Goadsby PJ et al. (STRIVE). <em>N Engl J Med</em>. 2017;377(22):2123-2132. <a href="https://pubmed.ncbi.nlm.nih.gov/29171821/" target="_blank" rel="noopener noreferrer">PMID 29171821</a>.
+    Dodick DW et al. (ARISE). <em>Cephalalgia</em>. 2018;38(6):1026-1037. <a href="https://pubmed.ncbi.nlm.nih.gov/29471679/" target="_blank" rel="noopener noreferrer">PMID 29471679</a>.
+    Reuter U et al. (LIBERTY). <em>Lancet</em>. 2018;392(10161):2280-2287. <a href="https://pubmed.ncbi.nlm.nih.gov/30360965/" target="_blank" rel="noopener noreferrer">PMID 30360965</a> (verified; the naive page-range guess of PMID 30360966 lands on an unrelated comment article in the same Lancet issue).
+  </p>
+  <p><strong>Data sources:</strong> AACT snapshot 2026-04-12 (per-arm &Delta; MMD LSM/MEAN + 95% SE + analysed N); PubMed MCP <code>get_article_metadata</code> + <code>search_articles</code> 2026-05-14 (PMIDs, DOIs, abstracts).</p>
+  <p><strong>Fixture:</strong> <code>tests/dose_response_fixtures/erenumab_migraine_phase3.json</code> &middot; <strong>R precompute:</strong> <code>outputs/r_validation/doseresp/erenumab_migraine_phase3.json</code> &middot; <strong>Abstracts:</strong> <code>fixtures/dose_response/erenumab_migraine_phase3_abstracts.json</code></p>
+</div>
+</main>
+
+<!-- Trial data: embedded JSON, parsed by engine + tab renderers -->
+<script type="application/json" id="doseresp-trials-mmd">
+[
+  {
+    "studlab": "STRIVE (Goadsby 2017, placebo-controlled, 6-month DB)",
+    "pmid": "29171821",
+    "doi": "10.1056/NEJMoa1705848",
+    "nct": "NCT02456740",
+    "drug": "erenumab",
+    "duration_weeks": 24,
+    "comparator": "placebo",
+    "population": "Treatment-naive adults (18-65) with episodic migraine (4-14 MMD); baseline mean MMD 8.3; STRIVE was the pivotal FDA/EMA Phase 3 trial for erenumab.",
+    "arms": [
+      {"label": "Placebo", "dose": 0, "mean": -1.83, "sd": 3.1997, "n": 316, "is_reference": true, "_aact_se": 0.18},
+      {"label": "Erenumab 70 mg QM", "dose": 70, "mean": -3.23, "sd": 3.1794, "n": 312, "is_reference": false, "_aact_se": 0.18},
+      {"label": "Erenumab 140 mg QM", "dose": 140, "mean": -3.67, "sd": 3.2099, "n": 318, "is_reference": false, "_aact_se": 0.18}
+    ]
+  },
+  {
+    "studlab": "ARISE (Dodick 2018, placebo-controlled, 12-week DB)",
+    "pmid": "29471679",
+    "doi": "10.1177/0333102418759786",
+    "nct": "NCT02483585",
+    "drug": "erenumab",
+    "duration_weeks": 12,
+    "comparator": "placebo",
+    "population": "Treatment-naive adults (18-65) with episodic migraine (4-14 MMD); 70 mg only (no 140 mg arm).",
+    "arms": [
+      {"label": "Placebo", "dose": 0, "mean": -1.84, "sd": 3.5638, "n": 288, "is_reference": true, "_aact_se": 0.21},
+      {"label": "Erenumab 70 mg QM", "dose": 70, "mean": -2.88, "sd": 3.5265, "n": 282, "is_reference": false, "_aact_se": 0.21}
+    ]
+  },
+  {
+    "studlab": "LIBERTY (Reuter 2018, prior-preventive-failure population, 12-week DB)",
+    "pmid": "30360965",
+    "doi": "10.1016/S0140-6736(18)32534-0",
+    "nct": "NCT03096834",
+    "drug": "erenumab",
+    "duration_weeks": 12,
+    "comparator": "placebo",
+    "population": "Treatment-refractory adults (18-65) with episodic migraine (4-14 MMD) AND prior failure of 2-4 oral migraine preventives; 140 mg only (no 70 mg arm).",
+    "arms": [
+      {"label": "Placebo", "dose": 0, "mean": -0.16, "sd": 4.4913, "n": 120, "is_reference": true, "_aact_se": 0.41},
+      {"label": "Erenumab 140 mg QM", "dose": 140, "mean": -1.75, "sd": 4.6710, "n": 118, "is_reference": false, "_aact_se": 0.43}
+    ]
+  }
+]
+</script>
+
+<!-- Engine + badge -->
+<script src="rapidmeta-dose-response-engine-v1.js" defer></script>
+<script src="vendor/r-validation-doseresp.js" defer></script>
+
+<!-- Page wiring -->
+<script src="ERENUMAB_MIGRAINE_PHASE3_DOSE_RESP_REVIEW.js" defer></script>
+
+</body>
+</html>
