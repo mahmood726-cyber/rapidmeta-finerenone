@@ -196,7 +196,81 @@ window.addEventListener('DOMContentLoaded', function () {
     '<p style="margin-top:0.6em; font-size:0.92em; color:#92400e;"><strong>Caveat &mdash; the absolute PASI 75 gap is larger than the linear RR model suggests:</strong> The trials report absolute PASI 75 response rates of 2.7&ndash;8.1 % on placebo and 83.3&ndash;86.3 % on brodalumab 210 mg &mdash; an absolute gap of 75&ndash;80 percentage points. The linear log-RR model predicts RR ~ 3 at 210 mg, which on a 5 % placebo base gives ~ 15 % absolute &mdash; clearly underestimating the actual response. This is the canonical &ldquo;log-RR-linear-in-dose&rdquo; mis-specification for a saturating biological response: the model captures the slope identification consistently across trials (homogeneous &tau;<sup>2</sup>) but is the wrong functional form for forecasting absolute response. An RCS layer would help here, but the AMAGINE dose grid (only 2 distinct positive doses) is too coarse to support one &mdash; read Tab 2 next.</p>' +
     '<p style="margin-top:0.6em; font-size:0.92em; color:#92400e;"><strong>Caveat &mdash; read Tab 2 next:</strong> The dose grid is too coarse to fit a 3-knot Harrell-default RCS. The engine returns <code>layer=&#39;linear&#39;</code>, <code>fallback=&#39;degenerate_to_linear&#39;</code>, with NO <code>.rcs</code> block. R <code>dosresmeta</code> DOES return an RCS fit on this fixture &mdash; but its 3 percentile knots all land inside the 140&ndash;210 mg interval where there are no data points to support curvature. The engine&apos;s refusal is the methodologically conservative call; R&apos;s fit is technically valid arithmetic but interpretively dubious. Tab 4 surfaces this disagreement in a custom &ldquo;engine-declined / R-fit&rdquo; R-parity panel.</p>';
 
-  // === Tab 2: RCS methodological note — engine refuses, R fits with degenerate knots ===
+  // === Tab 2: LOO sensitivity (engine v0.5.0) — linear layer ===
+  // RCS is unavailable on this dose grid (engine and R disagree; engine refuses).
+  // We run LOO on the linear layer where the engine has a real k>=2 pool. Each
+  // LOO subset is k_loo=2 (still >= 2 for fitLinear).
+  var pasiLoo;
+  try {
+    pasiLoo = DR._internal.fitLOO(pasiTrials, { layer: 'linear' });
+  } catch (e) {
+    console.error('[AMAGINE] fitLOO failed:', e);
+    document.getElementById('pasi-loo-kpis').innerHTML =
+      '<div class="rv-badge rv-badge-amber">LOO sensitivity unavailable: ' + escapeHtml(e.message) + '</div>';
+    pasiLoo = null;
+  }
+  if (pasiLoo) {
+    var fullSlope = pasiLoo.full_pool.pooled_slope_log;
+
+    document.getElementById('pasi-loo-kpis').innerHTML =
+      '<div class="kpi-grid">' +
+      '<div class="kpi"><div class="kpi-label">Full-pool linear log-RR slope</div><div class="kpi-value">' + (Number.isFinite(fullSlope) ? fullSlope.toFixed(5) : 'n/a') + '</div><div>headline linear slope (k=' + pasiLoo.k_full + ')</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Most influential trial</div><div class="kpi-value">' + (pasiLoo.summary.most_influential_trial ? escapeHtml(String(pasiLoo.summary.most_influential_trial).split(' ')[0]) : 'n/a') + '</div><div>max |Δslope| = ' + pasiLoo.summary.max_abs_delta_slope.toFixed(5) + '</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Sign flips</div><div class="kpi-value">' + (pasiLoo.summary.any_sign_flip ? 'YES' : 'No') + '</div><div>any subset flips slope CI sign</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Sig flips</div><div class="kpi-value">n/a</div><div>RCS unavailable on this grid; no nonlin p</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Degenerated subsets</div><div class="kpi-value">' + pasiLoo.summary.n_degenerated + ' / ' + pasiLoo.loo.length + '</div><div>linear fallback fires (none expected at k=3)</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Engine layer</div><div class="kpi-value">linear</div><div>RCS short-circuits on this dose grid</div></div>' +
+      '</div>';
+
+    var hlClass = pasiLoo.summary.any_sign_flip ? 'rv-badge-amber' : 'rv-badge-green';
+    var hlText = pasiLoo.summary.any_sign_flip
+      ? 'AMBER — at least one LOO subset flips the slope CI-sign relative to the full pool. Headline linear-slope is sensitive to dropping the indicated trial(s). On AMAGINE this is expected: each LOO subset is k=2 and the per-trial homogeneity (τ²≈0) means LOO CIs can swing to include zero at the lower end.'
+      : 'GREEN — no LOO subset flips the slope CI-sign; headline linear-slope is robust.';
+    document.getElementById('pasi-loo-headline').innerHTML =
+      '<div class="rv-badge ' + hlClass + '">' +
+      '<strong>LOO headline (linear layer):</strong> Most influential: <em>' + escapeHtml(String(pasiLoo.summary.most_influential_trial || 'n/a')) + '</em> (max |Δslope| = ' + pasiLoo.summary.max_abs_delta_slope.toFixed(5) + '). ' + hlText + '<br>' +
+      '<span class="rv-disclosure">Each row below drops one AMAGINE trial and re-fits the two-stage GL linear pool on the remaining k-1=2 trials. The full-pool linear slope is ' + (Number.isFinite(fullSlope) ? fullSlope.toFixed(5) : 'n/a') + ' (Tab 1 headline). RCS-layer LOO is not run because the engine&apos;s RCS layer degenerates on this dose grid (Tab 3). Engine: ' + escapeHtml(DR.engine_version) + '; LOO via <code>DR._internal.fitLOO({layer:&#39;linear&#39;})</code>.</span></div>';
+
+    var looTblHtml = '<h3>Per-trial leave-one-out re-fit (linear layer)</h3>' +
+      '<div class="table-scroll"><table>' +
+      '<caption>Each row drops one AMAGINE trial and re-fits on the remaining 2 trials. Δslope = LOO pooled_slope_log − full-pool pooled_slope_log.</caption>' +
+      '<thead><tr><th>Dropped trial</th><th>k<sub>loo</sub></th><th>Pooled slope (log)</th><th>95% CI</th><th>Δslope</th><th>Sign flip</th><th>Degenerated</th></tr></thead><tbody>';
+    pasiLoo.loo.forEach(function (e) {
+      var rowCls = e.sign_flip ? ' class="rv-row-amber"' : '';
+      looTblHtml += '<tr' + rowCls + '>' +
+        '<td>' + escapeHtml(String(e.dropped_studlab)) + '</td>' +
+        '<td>' + e.k_loo + '</td>' +
+        '<td>' + (Number.isFinite(e.pooled_slope_log) ? e.pooled_slope_log.toFixed(5) : 'n/a') + '</td>' +
+        '<td>' + (Number.isFinite(e.pooled_slope_log_ci_lo) ? e.pooled_slope_log_ci_lo.toFixed(5) : 'n/a') + ' to ' + (Number.isFinite(e.pooled_slope_log_ci_hi) ? e.pooled_slope_log_ci_hi.toFixed(5) : 'n/a') + '</td>' +
+        '<td>' + (Number.isFinite(e.delta_slope) ? e.delta_slope.toFixed(5) : 'n/a') + '</td>' +
+        '<td>' + (e.sign_flip ? 'YES' : 'no') + '</td>' +
+        '<td>' + (e.degenerated ? 'YES' : 'no') + '</td>' +
+        '</tr>';
+    });
+    looTblHtml += '</tbody></table></div>';
+    document.getElementById('pasi-loo-table').innerHTML = looTblHtml;
+
+    var maxAbs = pasiLoo.summary.max_abs_delta_slope || 1e-12;
+    var barHtml = '<h3>Δslope visual (per LOO subset)</h3>' +
+      '<div class="table-scroll"><table><caption>Bar chart: width proportional to |Δslope| relative to max swing.</caption>' +
+      '<thead><tr><th>Dropped trial</th><th>Δslope</th><th>Bar</th></tr></thead><tbody>';
+    pasiLoo.loo.forEach(function (e) {
+      var d = e.delta_slope;
+      var w = Number.isFinite(d) ? Math.round(40 * Math.abs(d) / maxAbs) : 0;
+      var bar = (d < 0 ? '▲ ' : '▼ ') + '█'.repeat(Math.max(0, w));
+      barHtml += '<tr><td>' + escapeHtml(String(e.dropped_studlab)) + '</td>' +
+        '<td>' + (Number.isFinite(d) ? d.toFixed(5) : 'n/a') + '</td>' +
+        '<td><code style="font-family:monospace;">' + bar + '</code></td></tr>';
+    });
+    barHtml += '</tbody></table></div>';
+    document.getElementById('pasi-loo-deltabar').innerHTML = barHtml;
+
+    document.getElementById('pasi-loo-methods').innerHTML =
+      '<p><strong>Methodology:</strong> Leave-one-out (LOO) sensitivity re-fits the pooled model k times, each time leaving out one trial. Engine v0.5.0 adds <code>DR._internal.fitLOO(trials, {layer})</code> which orchestrates the k re-fits using the same fitLinear primitive that produces the full-pool fit; no new statistical machinery is introduced. <code>layer=&#39;linear&#39;</code> is used here because the dose grid does not support a 3-knot RCS (Tab 3 methodological note).</p>' +
+      '<p style="margin-top:0.6em; font-size:0.92em; color:#444;"><strong>Interpretation for AMAGINE:</strong> The 3 AMAGINE trials share an essentially homogeneous per-trial slope (τ²≈0 on the log-RR scale). Dropping any single trial leaves a 2-trial pool that converges to a very similar pooled slope; max |Δslope| is tiny across the LOO subsets. Any_sign_flip can fire because LOO at k=2 widens the CI mechanically (tcrit goes from t_2≈4.30 to t_1=12.71) and the CI lower bound may cross zero even when the point estimate barely moves. The LOO output is a sensitivity check for the Tab 1 linear-pool headline.</p>';
+  }
+
+  // === Tab 3: RCS methodological note — engine refuses, R fits with degenerate knots ===
   var pasiRcs = DR.fitRCS(pasiTrials, { knots: 3 });
   // pasiRcs.layer === 'linear', pasiRcs.fallback === 'degenerate_to_linear', pasiRcs.rcs === null
   // The R fit values are read from the R precompute JSON later; we'll surface them

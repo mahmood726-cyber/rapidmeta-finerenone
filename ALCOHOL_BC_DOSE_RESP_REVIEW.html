@@ -74,8 +74,9 @@
 <nav class="tab-nav" role="tablist" aria-label="Analysis tabs">
   <button id="tab-btn-linear" data-tab="linear" class="active" role="tab" aria-selected="true" aria-controls="tab-linear" tabindex="0">1. Linear (GL two-stage)</button>
   <button id="tab-btn-rcs" data-tab="rcs" role="tab" aria-selected="false" aria-controls="tab-rcs" tabindex="-1">2. RCS (3 knots)</button>
-  <button id="tab-btn-onestage" data-tab="onestage" role="tab" aria-selected="false" aria-controls="tab-onestage" tabindex="-1">3. One-stage (Poisson glmer)</button>
-  <button id="tab-btn-parity" data-tab="parity" role="tab" aria-selected="false" aria-controls="tab-parity" tabindex="-1">4. R-parity badge</button>
+  <button id="tab-btn-loo" data-tab="loo" role="tab" aria-selected="false" aria-controls="tab-loo" tabindex="-1">3. LOO sensitivity (v0.5)</button>
+  <button id="tab-btn-onestage" data-tab="onestage" role="tab" aria-selected="false" aria-controls="tab-onestage" tabindex="-1">4. One-stage (Poisson glmer)</button>
+  <button id="tab-btn-parity" data-tab="parity" role="tab" aria-selected="false" aria-controls="tab-parity" tabindex="-1">5. R-parity badge</button>
 </nav>
 
 <section id="tab-linear" class="tab-content active" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-linear">
@@ -92,6 +93,15 @@
   <div id="rcs-curve"></div>
   <div id="rcs-forest"></div>
   <div id="rcs-wald"></div>
+</section>
+
+<section id="tab-loo" class="tab-content" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-loo">
+  <h2 tabindex="-1">Leave-one-out (LOO) sensitivity &mdash; RCS layer (engine v0.5.0)</h2>
+  <div id="loo-kpis" aria-live="polite" aria-atomic="true"></div>
+  <div id="loo-headline"></div>
+  <div id="loo-table"></div>
+  <div id="loo-deltabar"></div>
+  <div id="loo-methods"></div>
 </section>
 
 <section id="tab-onestage" class="tab-content" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-onestage">

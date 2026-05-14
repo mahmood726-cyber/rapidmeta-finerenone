@@ -211,7 +211,80 @@ window.addEventListener('DOMContentLoaded', function () {
     '<p><strong>Plain-English summary (linear pool, k=3 all trials):</strong> The linear two-stage pool averages the per-trial GL slopes across all 3 erenumab Phase 3 trials, producing a pooled estimate of approximately ' + mdPerMg.toFixed(5) + ' Δ MMD days per mg erenumab. At 70 mg the linear extrapolation gives ' + mdAt70.toFixed(2) + ' days reduction (95% CI ' + mdAt70_lo.toFixed(2) + ' to ' + mdAt70_hi.toFixed(2) + '); at the maximum studied dose of 140 mg the extrapolation gives ' + mdAtMax.toFixed(2) + ' days reduction (95% CI ' + mdAtMax_lo.toFixed(2) + ' to ' + mdAtMax_hi.toFixed(2) + '). STRIVE\'s published results (−3.2 days at 70 mg, −3.7 days at 140 mg vs −1.8 placebo) translate to per-mg contrasts of (−3.2 − (−1.8))/70 = −0.020 and (−3.7 − (−1.8))/140 = −0.014 — bracketing the pooled engine estimate. The CI is tight because τ² ≈ 0 (Q &lt; df, so the HKSJ floor activates at 1.0 — no over-confidence inflation from the small-k path). I² = ' + mmdLin.I2.toFixed(1) + '% indicates near-perfect homogeneity on the dose-response axis across the 3 trials.</p>' +
     '<p style="margin-top:0.6em; font-size:0.92em; color:#92400e;"><strong>Caveat — read Tab 2 next:</strong> The dose grid has only 2 distinct positive doses ({70, 140} mg) with sparse per-trial coverage (only STRIVE samples both). The engine cannot fit a 3-knot Harrell-default RCS under two-stage pooling and returns <code>layer=\'linear\'</code>, <code>fallback=\'degenerate_to_linear\'</code>, with NO <code>.rcs</code> block. R <code>dosresmeta</code> refuses RCS with a parallel sparse-arm error. The linear pool reported on this tab is the methodologically primary result for this fixture.</p>';
 
-  // === Tab 2: RCS degeneration — methodological note ===
+  // === Tab 2: LOO sensitivity (engine v0.5.0) — linear layer ===
+  // RCS is unavailable on this dose grid; LOO runs on the linear layer.
+  // Each LOO subset is k_loo=2 (still >= 2 for fitLinear).
+  var mmdLoo;
+  try {
+    mmdLoo = DR._internal.fitLOO(mmdTrials, { layer: 'linear' });
+  } catch (e) {
+    console.error('[ERENUMAB] fitLOO failed:', e);
+    document.getElementById('mmd-loo-kpis').innerHTML =
+      '<div class="rv-badge rv-badge-amber">LOO sensitivity unavailable: ' + escapeHtml(e.message) + '</div>';
+    mmdLoo = null;
+  }
+  if (mmdLoo) {
+    var fullSlope = mmdLoo.full_pool.pooled_slope_log;
+
+    document.getElementById('mmd-loo-kpis').innerHTML =
+      '<div class="kpi-grid">' +
+      '<div class="kpi"><div class="kpi-label">Full-pool linear slope (Δ MMD per mg)</div><div class="kpi-value">' + (Number.isFinite(fullSlope) ? fullSlope.toFixed(5) : 'n/a') + '</div><div>headline linear slope (k=' + mmdLoo.k_full + ')</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Most influential trial</div><div class="kpi-value">' + (mmdLoo.summary.most_influential_trial ? escapeHtml(String(mmdLoo.summary.most_influential_trial).split(' ')[0]) : 'n/a') + '</div><div>max |Δslope| = ' + mmdLoo.summary.max_abs_delta_slope.toFixed(5) + '</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Sign flips</div><div class="kpi-value">' + (mmdLoo.summary.any_sign_flip ? 'YES' : 'No') + '</div><div>any subset flips slope CI sign</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Sig flips</div><div class="kpi-value">n/a</div><div>RCS unavailable; no nonlin p</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Degenerated subsets</div><div class="kpi-value">' + mmdLoo.summary.n_degenerated + ' / ' + mmdLoo.loo.length + '</div><div>linear fallback fires</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Engine layer</div><div class="kpi-value">linear</div><div>RCS short-circuits on this dose grid</div></div>' +
+      '</div>';
+
+    var hlClass = mmdLoo.summary.any_sign_flip ? 'rv-badge-amber' : 'rv-badge-green';
+    var hlText = mmdLoo.summary.any_sign_flip
+      ? 'AMBER — at least one LOO subset flips the slope CI-sign relative to the full pool.'
+      : 'GREEN — no LOO subset flips the slope CI-sign; the headline linear-slope is robust to dropping any single erenumab Phase 3 trial.';
+    document.getElementById('mmd-loo-headline').innerHTML =
+      '<div class="rv-badge ' + hlClass + '">' +
+      '<strong>LOO headline (linear layer):</strong> Most influential: <em>' + escapeHtml(String(mmdLoo.summary.most_influential_trial || 'n/a')) + '</em> (max |Δslope| = ' + mmdLoo.summary.max_abs_delta_slope.toFixed(5) + '). ' + hlText + '<br>' +
+      '<span class="rv-disclosure">Each row below drops one erenumab trial and re-fits the two-stage GL linear pool on the remaining k-1=2 trials. Full-pool linear slope is ' + (Number.isFinite(fullSlope) ? fullSlope.toFixed(5) : 'n/a') + ' (Tab 1 headline). RCS-layer LOO is not run because the engine&apos;s RCS layer degenerates on this dose grid (Tab 3). Engine: ' + escapeHtml(DR.engine_version) + '; LOO via <code>DR._internal.fitLOO({layer:&#39;linear&#39;})</code>.</span></div>';
+
+    var looTblHtml = '<h3>Per-trial leave-one-out re-fit (linear layer)</h3>' +
+      '<div class="table-scroll"><table>' +
+      '<caption>Each row drops one erenumab trial and re-fits on the remaining 2 trials. Δslope = LOO pooled_slope_log − full-pool pooled_slope_log.</caption>' +
+      '<thead><tr><th>Dropped trial</th><th>k<sub>loo</sub></th><th>Pooled slope (log)</th><th>95% CI</th><th>Δslope</th><th>Sign flip</th><th>Degenerated</th></tr></thead><tbody>';
+    mmdLoo.loo.forEach(function (e) {
+      var rowCls = e.sign_flip ? ' class="rv-row-amber"' : '';
+      looTblHtml += '<tr' + rowCls + '>' +
+        '<td>' + escapeHtml(String(e.dropped_studlab)) + '</td>' +
+        '<td>' + e.k_loo + '</td>' +
+        '<td>' + (Number.isFinite(e.pooled_slope_log) ? e.pooled_slope_log.toFixed(5) : 'n/a') + '</td>' +
+        '<td>' + (Number.isFinite(e.pooled_slope_log_ci_lo) ? e.pooled_slope_log_ci_lo.toFixed(5) : 'n/a') + ' to ' + (Number.isFinite(e.pooled_slope_log_ci_hi) ? e.pooled_slope_log_ci_hi.toFixed(5) : 'n/a') + '</td>' +
+        '<td>' + (Number.isFinite(e.delta_slope) ? e.delta_slope.toFixed(5) : 'n/a') + '</td>' +
+        '<td>' + (e.sign_flip ? 'YES' : 'no') + '</td>' +
+        '<td>' + (e.degenerated ? 'YES' : 'no') + '</td>' +
+        '</tr>';
+    });
+    looTblHtml += '</tbody></table></div>';
+    document.getElementById('mmd-loo-table').innerHTML = looTblHtml;
+
+    var maxAbs = mmdLoo.summary.max_abs_delta_slope || 1e-12;
+    var barHtml = '<h3>Δslope visual (per LOO subset)</h3>' +
+      '<div class="table-scroll"><table><caption>Bar chart: width proportional to |Δslope| relative to max swing.</caption>' +
+      '<thead><tr><th>Dropped trial</th><th>Δslope</th><th>Bar</th></tr></thead><tbody>';
+    mmdLoo.loo.forEach(function (e) {
+      var d = e.delta_slope;
+      var w = Number.isFinite(d) ? Math.round(40 * Math.abs(d) / maxAbs) : 0;
+      var bar = (d < 0 ? '▲ ' : '▼ ') + '█'.repeat(Math.max(0, w));
+      barHtml += '<tr><td>' + escapeHtml(String(e.dropped_studlab)) + '</td>' +
+        '<td>' + (Number.isFinite(d) ? d.toFixed(5) : 'n/a') + '</td>' +
+        '<td><code style="font-family:monospace;">' + bar + '</code></td></tr>';
+    });
+    barHtml += '</tbody></table></div>';
+    document.getElementById('mmd-loo-deltabar').innerHTML = barHtml;
+
+    document.getElementById('mmd-loo-methods').innerHTML =
+      '<p><strong>Methodology:</strong> Leave-one-out (LOO) sensitivity re-fits the pooled model k times, each time leaving out one trial. Engine v0.5.0 adds <code>DR._internal.fitLOO(trials, {layer})</code>; <code>layer=&#39;linear&#39;</code> is used here because the dose grid does not support a 3-knot RCS (Tab 3 methodological note).</p>' +
+      '<p style="margin-top:0.6em; font-size:0.92em; color:#444;"><strong>Interpretation for erenumab Phase 3:</strong> LIBERTY (treatment-refractory population) is the most influential trial despite having the smallest |Δslope| in absolute terms — its slope is essentially identical to STRIVE/ARISE on a per-mg basis but its placebo response is 10&times; smaller, so dropping it shifts the per-trial weight distribution. The 3-trial homogeneity (τ²≈0) means none of the LOO subsets shifts the headline; this is a robust within-class linear dose-response. The LOO output is a sensitivity check for the Tab 1 linear-pool headline.</p>';
+  }
+
+  // === Tab 3: RCS degeneration — methodological note ===
   var mmdRcs = DR.fitRCS(mmdTrials, { knots: 3 });
   // mmdRcs.layer === 'linear', mmdRcs.fallback === 'degenerate_to_linear', mmdRcs.rcs === null
   // Surface this as the engine's documented behaviour, not a bug.

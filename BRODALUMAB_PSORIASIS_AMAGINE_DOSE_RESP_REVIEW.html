@@ -133,9 +133,10 @@
 
 <nav class="tab-nav" role="tablist" aria-label="Analysis tabs">
   <button id="tab-btn-pasi-linear" data-tab="pasi-linear" class="active" role="tab" aria-selected="true" aria-controls="tab-pasi-linear" tabindex="0">1. PASI 75 &mdash; Linear (k=3, HEADLINE)</button>
-  <button id="tab-btn-rcs-note" data-tab="rcs-note" role="tab" aria-selected="false" aria-controls="tab-rcs-note" tabindex="-1">2. RCS &mdash; engine refuses / R fits (methodology)</button>
-  <button id="tab-btn-pasi-os" data-tab="pasi-os" role="tab" aria-selected="false" aria-controls="tab-pasi-os" tabindex="-1">3. PASI 75 &mdash; One-stage (R glmer)</button>
-  <button id="tab-btn-parity" data-tab="parity" role="tab" aria-selected="false" aria-controls="tab-parity" tabindex="-1">4. R-parity badge</button>
+  <button id="tab-btn-pasi-loo" data-tab="pasi-loo" role="tab" aria-selected="false" aria-controls="tab-pasi-loo" tabindex="-1">2. LOO sensitivity (v0.5)</button>
+  <button id="tab-btn-rcs-note" data-tab="rcs-note" role="tab" aria-selected="false" aria-controls="tab-rcs-note" tabindex="-1">3. RCS &mdash; engine refuses / R fits (methodology)</button>
+  <button id="tab-btn-pasi-os" data-tab="pasi-os" role="tab" aria-selected="false" aria-controls="tab-pasi-os" tabindex="-1">4. PASI 75 &mdash; One-stage (R glmer)</button>
+  <button id="tab-btn-parity" data-tab="parity" role="tab" aria-selected="false" aria-controls="tab-parity" tabindex="-1">5. R-parity badge</button>
 </nav>
 
 <section id="tab-pasi-linear" class="tab-content active" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-pasi-linear">
@@ -145,6 +146,15 @@
   <div id="pasi-linear-forest"></div>
   <div id="pasi-linear-curve"></div>
   <div id="pasi-linear-summary"></div>
+</section>
+
+<section id="tab-pasi-loo" class="tab-content" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-pasi-loo">
+  <h2 tabindex="-1">Leave-one-out (LOO) sensitivity &mdash; linear layer (engine v0.5.0; RCS unavailable on this dose grid)</h2>
+  <div id="pasi-loo-kpis" aria-live="polite" aria-atomic="true"></div>
+  <div id="pasi-loo-headline"></div>
+  <div id="pasi-loo-table"></div>
+  <div id="pasi-loo-deltabar"></div>
+  <div id="pasi-loo-methods"></div>
 </section>
 
 <section id="tab-rcs-note" class="tab-content" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-rcs-note">

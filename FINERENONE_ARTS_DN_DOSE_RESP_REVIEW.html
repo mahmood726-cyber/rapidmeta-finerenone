@@ -103,8 +103,9 @@
 
 <nav class="tab-nav" role="tablist" aria-label="Analysis tabs">
   <button id="tab-btn-uacr-rcs" data-tab="uacr-rcs" class="active" role="tab" aria-selected="true" aria-controls="tab-uacr-rcs" tabindex="0">1. UACR &mdash; RCS dose-response (HEADLINE, k=1)</button>
-  <button id="tab-btn-aact" data-tab="aact" role="tab" aria-selected="false" aria-controls="tab-aact" tabindex="-1">2. AACT data audit</button>
-  <button id="tab-btn-parity" data-tab="parity" role="tab" aria-selected="false" aria-controls="tab-parity" tabindex="-1">3. R-parity badge (k=1 deferral)</button>
+  <button id="tab-btn-loo" data-tab="loo" role="tab" aria-selected="false" aria-controls="tab-loo" tabindex="-1">2. LOO sensitivity (n/a at k=1)</button>
+  <button id="tab-btn-aact" data-tab="aact" role="tab" aria-selected="false" aria-controls="tab-aact" tabindex="-1">3. AACT data audit</button>
+  <button id="tab-btn-parity" data-tab="parity" role="tab" aria-selected="false" aria-controls="tab-parity" tabindex="-1">4. R-parity badge (k=1 deferral)</button>
 </nav>
 
 <section id="tab-uacr-rcs" class="tab-content active" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-uacr-rcs">
@@ -115,6 +116,13 @@
   <div id="uacr-rcs-forest"></div>
   <div id="uacr-rcs-curve"></div>
   <div id="uacr-rcs-summary"></div>
+</section>
+
+<section id="tab-loo" class="tab-content" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-loo">
+  <h2 tabindex="-1">Leave-one-out (LOO) sensitivity &mdash; not applicable at k=1 (engine v0.5.0)</h2>
+  <div id="loo-kpis" aria-live="polite" aria-atomic="true"></div>
+  <div id="loo-headline"></div>
+  <div id="loo-methods"></div>
 </section>
 
 <section id="tab-aact" class="tab-content" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-aact">
