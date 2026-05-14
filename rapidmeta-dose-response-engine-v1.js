@@ -470,6 +470,265 @@
   }
   API._internal.logDeterminant = logDeterminant;
 
+  // Cholesky parameterization of a Kp × Kp symmetric PSD τ² matrix.
+  // Free parameters: Kp log-diagonals (positivity by exp) + Kp(Kp−1)/2
+  // unconstrained off-diagonals, packed row-major (diag-then-offdiag per row).
+  // Total nParams = Kp * (Kp + 1) / 2. Returns τ² = L L'.
+  // Extracted from fitRCS in the v0.4 refactor; closure over Kp is now explicit.
+  function paramsToTau2(params, Kp) {
+    var L = zeros(Kp, Kp);
+    var idx = 0;
+    for (var i = 0; i < Kp; i++) {
+      L[i][i] = Math.exp(params[idx]);
+      idx++;
+      for (var j = 0; j < i; j++) {
+        L[i][j] = params[idx];
+        idx++;
+      }
+    }
+    var t2m = zeros(Kp, Kp);
+    for (var i2 = 0; i2 < Kp; i2++) {
+      for (var j2 = 0; j2 < Kp; j2++) {
+        for (var k = 0; k <= Math.min(i2, j2); k++) {
+          t2m[i2][j2] += L[i2][k] * L[j2][k];
+        }
+      }
+    }
+    return t2m;
+  }
+  API._internal.paramsToTau2 = paramsToTau2;
+
+  // Diagonal-PM warm-start vector for the Cholesky-parameterized REML
+  // optimizer. Computes pmTau2 per dimension from the per-study beta + V,
+  // floors at 1e-8 (guards Math.log(0)), then sets the Cholesky log-diagonals
+  // to 0.5 * log(pmDiag[d]) (so L[i][i]² = pmDiag[i]). Off-diagonals start at 0.
+  // Returns the parameter vector of length Kp * (Kp + 1) / 2.
+  // Extracted from fitRCS in the v0.4 refactor.
+  function fitRCSWarmStart(perStudy, Kp) {
+    var pmDiag = [];
+    for (var d = 0; d < Kp; d++) {
+      var yi_d = perStudy.map(function (s) { return s.beta[d]; });
+      var vi_d = perStudy.map(function (s) { return s.V[d][d]; });
+      pmDiag.push(Math.max(pmTau2(yi_d, vi_d), 1e-8));
+    }
+    var nParams = Kp * (Kp + 1) / 2;
+    var x0 = new Array(nParams).fill(0);
+    var pIdx = 0;
+    for (var dd = 0; dd < Kp; dd++) {
+      x0[pIdx] = 0.5 * Math.log(pmDiag[dd]);
+      pIdx++;
+      for (var jj = 0; jj < dd; jj++) {
+        x0[pIdx] = 0;
+        pIdx++;
+      }
+    }
+    return x0;
+  }
+  API._internal.fitRCSWarmStart = fitRCSWarmStart;
+
+  // Full multivariate REML estimation of the Kp × Kp τ² matrix via Nelder-Mead
+  // on the Cholesky parameterization. Returns {tau2Matrix, optResult}.
+  //   - perStudy[i] must carry: .beta (Kp-vector, for warm-start), .V (Kp×Kp coef
+  //     cov, for warm-start diagonal), .X (arm × Kp basis), .y (arm-vector
+  //     contrast), .S (arm × arm arm-level cov)
+  //   - opts: { relTol, maxIter, initialStep } passed through to nelderMead;
+  //     defaults match Round 2B Task 7 (1e-6, 500, 0.5)
+  // Critical guard preserved: NaN → +Infinity in negREML wrapper (Nelder-Mead
+  // handles +Infinity as a "wall"; NaN corrupts the simplex sort).
+  // Extracted from fitRCS in the v0.4 refactor.
+  function fitRCSReml(perStudy, Kp, opts) {
+    opts = opts || {};
+    var psForREML = perStudy.map(function (s) { return { X: s.X, y: s.y, V: s.S }; });
+    var x0 = fitRCSWarmStart(perStudy, Kp);
+    function negREML(params) {
+      var t2 = paramsToTau2(params, Kp);
+      var ll = remlLogLik(psForREML, t2);
+      return isFinite(ll) ? -ll : Infinity;
+    }
+    var optResult = nelderMead(negREML, x0, {
+      relTol: opts.relTol != null ? opts.relTol : 1e-6,
+      maxIter: opts.maxIter != null ? opts.maxIter : 500,
+      initialStep: opts.initialStep != null ? opts.initialStep : 0.5,
+    });
+    var tau2Matrix = paramsToTau2(optResult.x, Kp);
+    return { tau2Matrix: tau2Matrix, optResult: optResult };
+  }
+  API._internal.fitRCSReml = fitRCSReml;
+
+  // Re-derive pooled β̂ and Cov(β̂) at the optimum τ² matrix.
+  // For each trial:
+  //   Σ_t = V_t + X_t τ² X_t'         (k_i × k_i arm-level marginal cov)
+  //   accumulate X'_t Σ_t⁻¹ X_t  and  X'_t Σ_t⁻¹ y_t  across trials
+  // Then:
+  //   β̂      = (Σ_t X'_t Σ_t⁻¹ X_t)⁻¹ Σ_t X'_t Σ_t⁻¹ y_t
+  //   Cov(β̂) = (Σ_t X'_t Σ_t⁻¹ X_t)⁻¹
+  //   pooledSE = diag(Cov(β̂))^(1/2)  (pre-HKSJ inflation)
+  // perStudy[t] must carry .X (arm × Kp), .y (arm), .S (arm × arm cov).
+  // Throws descriptive Error if every per-trial Σ inversion failed (XtWX is zero).
+  // Extracted from fitRCS in the v0.4 refactor.
+  function fitRCSPooled(perStudy, Kp, tau2Matrix) {
+    var XtWX_sum = zeros(Kp, Kp);
+    var XtWy_sum = new Array(Kp).fill(0);
+    for (var t = 0; t < perStudy.length; t++) {
+      var X = perStudy[t].X;
+      var y = perStudy[t].y;
+      var V = perStudy[t].S;
+      var ki = X.length;
+      var Xt2 = zeros(ki, ki);
+      for (var i = 0; i < ki; i++) for (var j = 0; j < ki; j++) {
+        for (var p = 0; p < Kp; p++) for (var q = 0; q < Kp; q++) {
+          Xt2[i][j] += X[i][p] * tau2Matrix[p][q] * X[j][q];
+        }
+      }
+      var Sigma = zeros(ki, ki);
+      for (var i2 = 0; i2 < ki; i2++) for (var j2 = 0; j2 < ki; j2++) {
+        Sigma[i2][j2] = V[i2][j2] + Xt2[i2][j2];
+      }
+      var W;
+      try { W = matInv(Sigma); } catch (e) { continue; }
+      for (var pp = 0; pp < Kp; pp++) {
+        for (var i3 = 0; i3 < ki; i3++) {
+          var XtW_pi = 0;
+          for (var j3 = 0; j3 < ki; j3++) XtW_pi += X[j3][pp] * W[j3][i3];
+          XtWy_sum[pp] += XtW_pi * y[i3];
+          for (var qq = 0; qq < Kp; qq++) {
+            XtWX_sum[pp][qq] += XtW_pi * X[i3][qq];
+          }
+        }
+      }
+    }
+    var covBeta;
+    try { covBeta = matInv(XtWX_sum); }
+    catch (e) {
+      throw new Error('fitRCS: pooled-β̂ XtWX matrix singular after REML — k_effective=' + perStudy.length + ' (likely all per-trial Σ inversions failed)');
+    }
+    var pooledBeta = matVec(covBeta, XtWy_sum);
+    var pooledSE_raw = [];
+    for (var d = 0; d < Kp; d++) pooledSE_raw.push(Math.sqrt(covBeta[d][d]));
+    return { pooledBeta: pooledBeta, covBeta: covBeta, pooledSE_raw: pooledSE_raw };
+  }
+  API._internal.fitRCSPooled = fitRCSPooled;
+
+  // HKSJ-multivariate scaling + t_{k−1} CI critical value.
+  //   Q_mv = Σ_i (y_i − X_i β̂)' Σ_i⁻¹ (y_i − X_i β̂)       (multivariate Cochran Q)
+  //   df_mv = max(1, n_total − Kp)                          (residual df)
+  //   hksj_mv = max(1, Q_mv / df_mv)                        (lessons.md floor)
+  //   tcrit = qt(0.975, k_trials − 1)  (1.96 fallback at k=1)
+  //   pooledSE_hksj = pooledSE_raw × √hksj_mv
+  // n_total is incremented AFTER successful Σ⁻¹ (defensive — unreachable in practice
+  // since fitRCSPooled already proved invertibility on the same matrices).
+  // Extracted from fitRCS in the v0.4 refactor.
+  function fitRCSHksjMv(perStudy, Kp, tau2Matrix, pooledBeta, pooledSE_raw) {
+    var Q_mv = 0;
+    var n_total = 0;
+    for (var t = 0; t < perStudy.length; t++) {
+      var X = perStudy[t].X;
+      var y = perStudy[t].y;
+      var V = perStudy[t].S;
+      var ki = X.length;
+      var Xt2 = zeros(ki, ki);
+      for (var i = 0; i < ki; i++) for (var j = 0; j < ki; j++) {
+        for (var p = 0; p < Kp; p++) for (var q = 0; q < Kp; q++) {
+          Xt2[i][j] += X[i][p] * tau2Matrix[p][q] * X[j][q];
+        }
+      }
+      var Sigma = zeros(ki, ki);
+      for (var i2 = 0; i2 < ki; i2++) for (var j2 = 0; j2 < ki; j2++) {
+        Sigma[i2][j2] = V[i2][j2] + Xt2[i2][j2];
+      }
+      var W;
+      try { W = matInv(Sigma); } catch (e) { continue; }
+      n_total += ki;
+      var resid = y.map(function (yv, idx) {
+        var Xb = 0;
+        for (var pp = 0; pp < Kp; pp++) Xb += X[idx][pp] * pooledBeta[pp];
+        return yv - Xb;
+      });
+      for (var i3 = 0; i3 < ki; i3++) for (var j3 = 0; j3 < ki; j3++) {
+        Q_mv += resid[i3] * W[i3][j3] * resid[j3];
+      }
+    }
+    var df_mv = Math.max(1, n_total - Kp);
+    var hksj_mv = Math.max(1, Q_mv / df_mv);
+    var k_trials = perStudy.length;
+    var tcrit = k_trials > 1 ? qt(0.975, k_trials - 1) : 1.96;
+    var hksjFactor = Math.sqrt(hksj_mv);
+    var pooledSE_hksj = pooledSE_raw.map(function (s) { return s * hksjFactor; });
+    return {
+      q_mv: Q_mv,
+      df_mv: df_mv,
+      hksj_mv: hksj_mv,
+      k_trials: k_trials,
+      tcrit: tcrit,
+      pooledSE_hksj: pooledSE_hksj,
+      n_total: n_total,
+    };
+  }
+  API._internal.fitRCSHksjMv = fitRCSHksjMv;
+
+  // Wald non-linearity test on the full post-REML covariance.
+  //   H0: all non-linear basis coefs (d ≥ 1) are zero
+  //   chi2 = β_nl' Cov(β_nl)⁻¹ β_nl ~ χ²(Kp − 1) under H0
+  //   Cov(β_nl) is the bottom-right (Kp − 1) × (Kp − 1) submatrix of covBeta
+  // Returns {chi2, df, p}. Throws on singular nlCov (rare; near-collinear knots).
+  // Extracted from fitRCS in the v0.4 refactor.
+  function fitRCSWaldNonlinearity(pooledBeta, covBeta, Kp) {
+    var nlBeta = pooledBeta.slice(1);
+    var nlCov = zeros(Kp - 1, Kp - 1);
+    for (var i = 0; i < Kp - 1; i++) {
+      for (var j = 0; j < Kp - 1; j++) {
+        nlCov[i][j] = covBeta[i + 1][j + 1];
+      }
+    }
+    var W = 0;
+    if (nlBeta.length > 0) {
+      var nlCovInv;
+      try { nlCovInv = matInv(nlCov); }
+      catch (e) {
+        throw new Error('fitRCS: non-linearity covariance matrix is singular (Kp=' + Kp + ')');
+      }
+      for (var i2 = 0; i2 < nlBeta.length; i2++) {
+        for (var j2 = 0; j2 < nlBeta.length; j2++) {
+          W += nlBeta[i2] * nlCovInv[i2][j2] * nlBeta[j2];
+        }
+      }
+    }
+    return {
+      chi2: W,
+      df: nlBeta.length,
+      p: nlBeta.length > 0 ? (1 - pchisq(W, nlBeta.length)) : null,
+    };
+  }
+  API._internal.fitRCSWaldNonlinearity = fitRCSWaldNonlinearity;
+
+  // 20-point dose-response curve grid from 0 to maxD.
+  //   est(dose)   = b' β̂      where b = rcsBasis(dose, knots)
+  //   var(est)    = b' Cov(β̂) b × hksj_mv  (HKSJ-multivariate inflation)
+  //   CI          = est ± tcrit × √var(est)
+  // Returns array of {dose, est, ci_lo, ci_hi}, length 20.
+  // Variance uses the FULL quadratic form (off-diagonals included, not diagonal-sum
+  // — pre-Round 2C this was lossy whenever basis coefs were correlated).
+  // Extracted from fitRCS in the v0.4 refactor.
+  function fitRCSFitAtDose(pooledBeta, covBeta, hksj_mv, tcrit, knots, Kp, maxD) {
+    var fit_at_dose = [];
+    for (var i = 0; i < 20; i++) {
+      var dose_i = i * maxD / 19;
+      var b = rcsBasis(dose_i, knots);
+      var est = 0, varEst = 0;
+      for (var p = 0; p < Kp; p++) {
+        est += pooledBeta[p] * b[p];
+        for (var q = 0; q < Kp; q++) {
+          varEst += b[p] * covBeta[p][q] * b[q];
+        }
+      }
+      varEst *= hksj_mv;
+      var seEst = Math.sqrt(varEst);
+      fit_at_dose.push({ dose: dose_i, est: est, ci_lo: est - tcrit * seEst, ci_hi: est + tcrit * seEst });
+    }
+    return fit_at_dose;
+  }
+  API._internal.fitRCSFitAtDose = fitRCSFitAtDose;
+
   function remlLogLik(perStudy, tau2) {
     // REML log-likelihood for multivariate dose-response random-effects model.
     //
@@ -1088,229 +1347,39 @@
     // The HKSJ-multivariate + t_{k-1} CI variant is deferred to Task 9; this commit
     // keeps z=1.96 on the new full-REML pooled SE.
 
-    // Build per-study {X, y, V} for the REML log-likelihood (using raw arm-level X, y, S)
+    // Full multivariate REML extracted to API._internal.fitRCSReml in v0.4 refactor.
+    // Build psForREML inline only for the HKSJ-mv block below (which needs s.X, s.y, s.S).
     var psForREML = perStudy.map(function (s) { return { X: s.X, y: s.y, V: s.S }; });
-
-    function paramsToTau2(params) {
-      var L = zeros(Kp, Kp);
-      var idx = 0;
-      for (var i = 0; i < Kp; i++) {
-        L[i][i] = Math.exp(params[idx]);
-        idx++;
-        for (var j = 0; j < i; j++) {
-          L[i][j] = params[idx];
-          idx++;
-        }
-      }
-      // τ² = L L'  (symmetric PSD by construction)
-      var t2m = zeros(Kp, Kp);
-      for (var i2 = 0; i2 < Kp; i2++) {
-        for (var j2 = 0; j2 < Kp; j2++) {
-          for (var k = 0; k <= Math.min(i2, j2); k++) {
-            t2m[i2][j2] += L[i2][k] * L[j2][k];
-          }
-        }
-      }
-      return t2m;
-    }
-
-    // Warm-start: use diagonal-PM-per-dim estimates as initial diagonal of L.
-    // Since L[i][i] = exp(param) and (LL')[i][i] = L[i][i]² when off-diagonals are 0,
-    // we have (LL')[i][i] = exp(2*param) ⇒ param = 0.5 * log(pmDiag[i]).
-    var pmDiag = [];
-    for (var dd0 = 0; dd0 < Kp; dd0++) {
-      var yi_d = perStudy.map(function (s) { return s.beta[dd0]; });
-      var vi_d = perStudy.map(function (s) { return s.V[dd0][dd0]; });
-      pmDiag.push(Math.max(pmTau2(yi_d, vi_d), 1e-8));  // floor against log(0)
-    }
-    var nParams = Kp * (Kp + 1) / 2;
-    var x0 = new Array(nParams).fill(0);
-    var pIdx = 0;
-    for (var dd = 0; dd < Kp; dd++) {
-      x0[pIdx] = 0.5 * Math.log(pmDiag[dd]);
-      pIdx++;
-      for (var jj = 0; jj < dd; jj++) {
-        x0[pIdx] = 0;
-        pIdx++;
-      }
-    }
-
-    function negREML(params) {
-      var t2 = paramsToTau2(params);
-      var ll = remlLogLik(psForREML, t2);
-      // Critical guard (Task 3 review): NaN → +Infinity. Nelder-Mead handles +Infinity
-      // correctly as a "wall"; NaN corrupts the simplex sort and breaks convergence.
-      return isFinite(ll) ? -ll : Infinity;
-    }
-
-    var optResult = nelderMead(negREML, x0, {
-      relTol: 1e-6,
-      maxIter: 500,
-      initialStep: 0.5,
-    });
-
-    var tau2Matrix = paramsToTau2(optResult.x);
+    var _reml = fitRCSReml(perStudy, Kp);
+    var optResult = _reml.optResult;
+    var tau2Matrix = _reml.tau2Matrix;
     var tau2_per_dim = [];
     for (var dim = 0; dim < Kp; dim++) tau2_per_dim.push(tau2Matrix[dim][dim]);
 
-    // Re-derive pooled β̂ and Cov(β̂) at the optimum τ². For each trial:
-    //   Σ_t = V_t + X_t τ² X_t'   (k_i × k_i, with V_t = S the arm-level cov)
-    //   accumulate X'_t Σ_t⁻¹ X_t and X'_t Σ_t⁻¹ y_t across trials
-    //   β̂      = (Σ X'Σ⁻¹X)⁻¹ Σ X'Σ⁻¹y
-    //   Cov(β̂) = (Σ X'Σ⁻¹X)⁻¹
-    var XtWX_sum = zeros(Kp, Kp);
-    var XtWy_sum = new Array(Kp).fill(0);
-    for (var t3 = 0; t3 < perStudy.length; t3++) {
-      var X_t3 = perStudy[t3].X;
-      var y_t3 = perStudy[t3].y;
-      var V_t3 = perStudy[t3].S;
-      var ki_t3 = X_t3.length;
+    // Pooled β̂ + Cov(β̂) re-derivation extracted to API._internal.fitRCSPooled in v0.4.
+    var _pooled = fitRCSPooled(perStudy, Kp, tau2Matrix);
+    var pooled = _pooled.pooledBeta;
+    var covBeta = _pooled.covBeta;
+    var pooledSE = _pooled.pooledSE_raw;
 
-      // Σ_t = V_t + X_t τ² X_t'
-      var Xt2_t3 = zeros(ki_t3, ki_t3);
-      for (var i5 = 0; i5 < ki_t3; i5++) {
-        for (var j5 = 0; j5 < ki_t3; j5++) {
-          for (var p4 = 0; p4 < Kp; p4++) {
-            for (var q3 = 0; q3 < Kp; q3++) {
-              Xt2_t3[i5][j5] += X_t3[i5][p4] * tau2Matrix[p4][q3] * X_t3[j5][q3];
-            }
-          }
-        }
-      }
-      var Sigma_t3 = zeros(ki_t3, ki_t3);
-      for (var i6 = 0; i6 < ki_t3; i6++) {
-        for (var j6 = 0; j6 < ki_t3; j6++) {
-          Sigma_t3[i6][j6] = V_t3[i6][j6] + Xt2_t3[i6][j6];
-        }
-      }
-      var W_t3;
-      try { W_t3 = matInv(Sigma_t3); } catch (e) { continue; }
+    // HKSJ-multivariate + tcrit extracted to API._internal.fitRCSHksjMv in v0.4.
+    var _hksj = fitRCSHksjMv(perStudy, Kp, tau2Matrix, pooled, pooledSE);
+    var Q_mv = _hksj.q_mv;
+    var df_mv = _hksj.df_mv;
+    var hksj_mv = _hksj.hksj_mv;
+    var k_trials = _hksj.k_trials;
+    var tcrit = _hksj.tcrit;
+    var pooledSE_hksj = _hksj.pooledSE_hksj;
 
-      for (var p5 = 0; p5 < Kp; p5++) {
-        for (var i7 = 0; i7 < ki_t3; i7++) {
-          var XtW_pi = 0;
-          for (var j7 = 0; j7 < ki_t3; j7++) XtW_pi += X_t3[j7][p5] * W_t3[j7][i7];
-          XtWy_sum[p5] += XtW_pi * y_t3[i7];
-          for (var q4 = 0; q4 < Kp; q4++) {
-            XtWX_sum[p5][q4] += XtW_pi * X_t3[i7][q4];
-          }
-        }
-      }
-    }
+    // Wald non-linearity extracted to API._internal.fitRCSWaldNonlinearity in v0.4.
+    var _wald = fitRCSWaldNonlinearity(pooled, covBeta, Kp);
+    var nonlinearity_wald_chi2 = _wald.chi2;
+    var nonlinearity_wald_df = _wald.df;
+    var nlP = _wald.p;
 
-    // Round 2B follow-up (Issue 2): guard pooled β̂ covariance inversion. If every
-    // per-trial Σ⁻¹ failed above (continue at ~1182 fired for all trials), XtWX_sum
-    // is the zero matrix and matInv throws unhelpfully. Surface a descriptive error.
-    var covBeta;
-    try { covBeta = matInv(XtWX_sum); }
-    catch (e) {
-      throw new Error('fitRCS: pooled-β̂ XtWX matrix singular after REML — k_effective=' + perStudy.length + ' (likely all per-trial Σ inversions failed)');
-    }
-    var pooled = matVec(covBeta, XtWy_sum);
-    var pooledSE = [];
-    for (var pd = 0; pd < Kp; pd++) pooledSE.push(Math.sqrt(covBeta[pd][pd]));
-
-    // Round 2B (Task 9): HKSJ-multivariate scaling. Q_mv = Σ_i (y_i − X_iβ̂)' Σ_i⁻¹ (y_i − X_iβ̂)
-    // is the multivariate Cochran Q at the REML τ²; HKSJ_mv = max(1, Q_mv / (n − p))
-    // generalizes the univariate HKSJ scalar. The max(1, ...) floor is the
-    // lessons.md "HKSJ floor" rule that prevents narrowing CIs below the FE assumption.
-    // CIs everywhere in this fit then use sqrt(HKSJ_mv) × pooledSE × t_{k-1}.
-    var Q_mv = 0;
-    var n_total = 0;
-    for (var tQ = 0; tQ < perStudy.length; tQ++) {
-      var X_tQ = perStudy[tQ].X;
-      var y_tQ = perStudy[tQ].y;
-      var V_tQ = perStudy[tQ].S;  // NOTE: arm-level cov (S), not Kp×Kp coef cov (V)
-      var ki_tQ = X_tQ.length;
-
-      // Recompute Σ_t = V_t + X τ² X' (same as in the β̂ block above; redundant
-      // but kept local for clarity since this is rare-event code at the end of fit).
-      var Xt2_tQ = zeros(ki_tQ, ki_tQ);
-      for (var iQ = 0; iQ < ki_tQ; iQ++) for (var jQ = 0; jQ < ki_tQ; jQ++) {
-        for (var pQ = 0; pQ < Kp; pQ++) for (var qQ = 0; qQ < Kp; qQ++) {
-          Xt2_tQ[iQ][jQ] += X_tQ[iQ][pQ] * tau2Matrix[pQ][qQ] * X_tQ[jQ][qQ];
-        }
-      }
-      var Sigma_tQ = zeros(ki_tQ, ki_tQ);
-      for (var iQ2 = 0; iQ2 < ki_tQ; iQ2++) for (var jQ2 = 0; jQ2 < ki_tQ; jQ2++) {
-        Sigma_tQ[iQ2][jQ2] = V_tQ[iQ2][jQ2] + Xt2_tQ[iQ2][jQ2];
-      }
-      var W_tQ;
-      try { W_tQ = matInv(Sigma_tQ); } catch (e) { continue; }
-      n_total += ki_tQ;  // only count trials that contribute to Q_mv (defensive — currently unreachable since pooled-β̂ block already proved Sigma_tQ invertible)
-
-      var resid_tQ = y_tQ.map(function (yv, idx) {
-        var Xb = 0;
-        for (var pp = 0; pp < Kp; pp++) Xb += X_tQ[idx][pp] * pooled[pp];
-        return yv - Xb;
-      });
-      for (var iQ3 = 0; iQ3 < ki_tQ; iQ3++) for (var jQ3 = 0; jQ3 < ki_tQ; jQ3++) {
-        Q_mv += resid_tQ[iQ3] * W_tQ[iQ3][jQ3] * resid_tQ[jQ3];
-      }
-    }
-    var df_mv = Math.max(1, n_total - Kp);
-    var hksj_mv = Math.max(1, Q_mv / df_mv);
-
-    // Inflate pooled SE by sqrt(HKSJ_mv); t_{k-1} replaces z=1.96 for small-k CIs.
-    var k_trials = perStudy.length;
-    var tcrit = k_trials > 1 ? qt(0.975, k_trials - 1) : 1.96;
-    var hksjFactor = Math.sqrt(hksj_mv);
-    var pooledSE_hksj = pooledSE.map(function (s) { return s * hksjFactor; });
-
-    // Step 4: non-linearity Wald test using the FULL covariance (not diagonal-sum).
-    // H0: all non-linear basis coefs (d >= 1) are zero.
-    // Statistic: β_nl' Cov(β_nl)⁻¹ β_nl ~ χ²(Kp-1) under H0.
-    // Cov(β_nl) is the bottom-right (Kp-1) × (Kp-1) submatrix of covBeta.
-    // Round 2B follow-up (Issue 1): stash chi²/df/p on the returned rcs object so
-    // nonLinearityTest can read a single internally-consistent triple instead of
-    // recomputing from spline_coefs_se (which gives the OLD diagonal-sum chi²).
-    var nlBeta = pooled.slice(1);
-    var nlCov = zeros(Kp - 1, Kp - 1);
-    for (var i8 = 0; i8 < Kp - 1; i8++) {
-      for (var j8 = 0; j8 < Kp - 1; j8++) {
-        nlCov[i8][j8] = covBeta[i8 + 1][j8 + 1];
-      }
-    }
-    var W = 0;
-    if (nlBeta.length > 0) {
-      // Issue 2: guard non-linearity covariance inversion. Extreme cases (near-
-      // collinear knot basis with τ²→0) can make nlCov singular even when
-      // XtWX_sum was invertible.
-      var nlCovInv;
-      try { nlCovInv = matInv(nlCov); }
-      catch (e) {
-        throw new Error('fitRCS: non-linearity covariance matrix is singular (Kp=' + Kp + ')');
-      }
-      for (var i9 = 0; i9 < nlBeta.length; i9++) {
-        for (var j9 = 0; j9 < nlBeta.length; j9++) {
-          W += nlBeta[i9] * nlCovInv[i9][j9] * nlBeta[j9];
-        }
-      }
-    }
-    var nonlinearity_wald_chi2 = W;
-    var nonlinearity_wald_df = nlBeta.length;
-    var nlP = nlBeta.length > 0 ? (1 - pchisq(W, nlBeta.length)) : null;
-
-    // Step 5: fit_at_dose — 20-point curve from 0 to max observed dose.
-    // At dose=0, rcsBasis returns [0, 0, ...], so est=0 (centered at reference).
-    // Round 2B (Task 9): variance of the linear combination uses the FULL pooled
-    // covBeta (not just its diagonal), scaled by HKSJ_mv, and CIs use t_{k-1}.
+    // fit_at_dose grid extracted to API._internal.fitRCSFitAtDose in v0.4.
     var maxD = Math.max.apply(null, allDoses);
-    var fit_at_dose = [];
-    for (var i2 = 0; i2 < 20; i2++) {
-      var dose_i = i2 * maxD / 19;
-      var b = rcsBasis(dose_i, knots);
-      var est = 0, varEst = 0;
-      for (var p2 = 0; p2 < Kp; p2++) {
-        est += pooled[p2] * b[p2];
-        for (var q2 = 0; q2 < Kp; q2++) {
-          varEst += b[p2] * covBeta[p2][q2] * b[q2];
-        }
-      }
-      varEst *= hksj_mv;  // HKSJ-mv scaling
-      var seEst = Math.sqrt(varEst);
-      fit_at_dose.push({ dose: dose_i, est: est, ci_lo: est - tcrit * seEst, ci_hi: est + tcrit * seEst });
-    }
+    var fit_at_dose = fitRCSFitAtDose(pooled, covBeta, hksj_mv, tcrit, knots, Kp, maxD);
 
     // Round 2B (v0.3.0): full multivariate REML τ² + HKSJ-mv × t_{k-1} CIs.
     // Estimator history: v0.1/v0.2 used 'pm_diagonal_z' (per-dimension PM + raw
