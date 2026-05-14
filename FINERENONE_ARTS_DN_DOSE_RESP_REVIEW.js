@@ -231,7 +231,26 @@ window.addEventListener('DOMContentLoaded', function () {
     '<p><strong>Plain-English summary (RCS, single-trial k=1):</strong> The within-trial dose-response in ARTS-DN is monotonic and approximately log-linear over the 1.25 to 20 mg dose range. Each 1 mg of finerenone is associated with a UACR-ratio reduction of approximately ' + ((1 - Math.exp(sc0)) * 100).toFixed(1) + '% per mg (log-slope = ' + sc0.toFixed(3) + ', SE ' + sc0_se.toFixed(3) + '). At 20 mg the model-fit Day-90 UACR ratio is ' + ratio20.toFixed(3) + ' (95% CI ' + ratio20_lo.toFixed(3) + ' to ' + ratio20_hi.toFixed(3) + '), corresponding to a placebo-corrected UACR reduction of ' + ((1 - ratio20) * 100).toFixed(1) + '%. The non-linear spline component (' + sc1.toFixed(3) + ', SE ' + sc1_se.toFixed(3) + ', Wald p = ' + nlP.toFixed(4) + ') is small and not statistically significant &mdash; consistent with the published primary outcome reporting all dose groups individually vs placebo and showing a smooth dose-graded UACR reduction.</p>' +
     '<p style="margin-top:0.6em; font-size:0.92em; color:#92400e;"><strong>k=1 caveat (read first):</strong> This is a <em>single-trial</em> dose-response analysis. Between-study heterogeneity cannot be assessed (no second trial to compare against). The CIs reflect within-trial sampling uncertainty only, computed on the trial&apos;s own coefficient covariance <code>V</code>; <code>tcrit = qt(0.975, n_arms &minus; K<sub>p</sub> &minus; 1) = qt(0.975, 5) = 2.571</code> (within-trial residual t). External generalizability to a pooled finerenone class effect requires additional Phase 2b dose-finders, which do not exist for finerenone (FIDELIO-DKD, FIGARO-DKD, FINEARTS-HF tested only the 10-20 mg dose schedule). The within-trial monotonicity and the regulatory dose-selection (10-20 mg) are robust within ARTS-DN.</p>';
 
-  // === Tab 2: AACT data audit ===
+  // === Tab 2: LOO sensitivity — not applicable at k=1 (engine v0.5.0) ===
+  // fitLOO requires k_full >= 2 to drop a trial; at k=1 there is no LOO subset.
+  // Render an explanatory panel rather than calling DR._internal.fitLOO (which
+  // would either throw or return an empty .loo array per spec).
+  document.getElementById('loo-kpis').innerHTML =
+    '<div class="kpi-grid">' +
+    '<div class="kpi"><div class="kpi-label">k (input)</div><div class="kpi-value">1</div><div>single-trial fixture (ARTS-DN)</div></div>' +
+    '<div class="kpi"><div class="kpi-label">k_loo possible</div><div class="kpi-value">0</div><div>cannot drop a trial below k=1</div></div>' +
+    '<div class="kpi"><div class="kpi-label">Engine helper</div><div class="kpi-value" style="font-size:0.9em;">DR._internal.fitLOO</div><div>v0.5.0 (introduced PR #283)</div></div>' +
+    '<div class="kpi"><div class="kpi-label">Applicable?</div><div class="kpi-value" style="color:#92400e;">No</div><div>k_full &lt; 2</div></div>' +
+    '</div>';
+  document.getElementById('loo-headline').innerHTML =
+    '<div class="rv-badge rv-badge-amber">' +
+    '<strong>LOO sensitivity not applicable at k=1.</strong> Leave-one-out (LOO) sensitivity is a between-study robustness check: re-fit the pooled model k times, each time dropping one trial, and inspect how the headline quantity moves. At k=1 there is no second trial to compare against and no LOO subset to fit. This flagship&apos;s headline (Tab 1 RCS within-trial fit on 8 ARTS-DN arms) is therefore already presented at the smallest possible subset; there is nothing to leave out. The within-trial reliability check is the standard residual-t CI on the 7 dose-vs-reference contrasts (Tab 1), not a LOO sensitivity.<br>' +
+    '<span class="rv-disclosure">For the methodological story of LOO at small k, see the SURMOUNT k=2 flagship (each LOO drops to k=1 and the engine&apos;s single-trial RCS branch activates) and the SUSTAIN k=6 flagship (one LOO subset hits the engine&apos;s sparse-arm degeneration path). Engine: ' + escapeHtml(DR.engine_version) + '.</span></div>';
+  document.getElementById('loo-methods').innerHTML =
+    '<p><strong>Why no LOO at k=1:</strong> <code>DR._internal.fitLOO(trials, opts)</code> validates the input pool and iterates k times, each time leaving one trial out. At k_full=1 the loop body would execute on an empty subset; the spec exits early and returns an empty <code>loo[]</code> array with <code>summary.skipped_reason = &#39;k_full &lt; 2 &mdash; cannot drop a trial&#39;</code>. Rather than render an empty table the flagship surfaces this explanatory panel so the reader knows the engine output is intentional, not a bug.</p>' +
+    '<p style="margin-top:0.6em; font-size:0.92em; color:#444;"><strong>What WOULD a Phase 3 finerenone dose-response LOO look like?</strong> A multi-Phase-2b finerenone evidence base does not exist — FIDELIO-DKD, FIGARO-DKD, and FINEARTS-HF all use the 10-20 mg titrated schedule chosen FROM ARTS-DN, so they share the dose-finding decision rather than re-test it. A future second Phase 2b dose-finder of finerenone (or a sibling MR antagonist with comparable dose grid like esaxerenone) would unlock the standard k&gt;=2 LOO sensitivity check.</p>';
+
+  // === Tab 3: AACT data audit ===
   var trialMetaHtml = '<h3>Trial metadata (NCT01874431)</h3>' +
     '<table><caption>ARTS-DN registered trial metadata and publication details</caption>' +
     '<tbody>' +

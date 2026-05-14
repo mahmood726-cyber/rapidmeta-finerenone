@@ -41,6 +41,81 @@ document.querySelectorAll('.tab-nav button[role="tab"]').forEach(function (btn) 
   });
 });
 
+function escapeHtmlSglt(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// Render an LOO KPI bar + headline banner + per-trial table (and optional Δslope bar).
+// loo = result of DR._internal.fitLOO; kpiId/headId/tableId are DOM mount ids;
+// barId (optional) renders the unicode delta-bar visual; layerLabel is a short
+// human-readable layer descriptor used in the headline disclosure.
+function renderLooBlock(loo, kpiId, headId, tableId, barId, layerLabel, engineVersion) {
+  var fullNlP = loo.full_pool.rcs ? loo.full_pool.rcs.nonlinearity_wald_p : null;
+  var maxSwingP = null, maxSwingTrial = null, maxSwingDelta = 0;
+  loo.loo.forEach(function (e) {
+    if (e.nonlinearity_wald_p != null && fullNlP != null) {
+      var d = Math.abs(e.nonlinearity_wald_p - fullNlP);
+      if (d > maxSwingDelta) { maxSwingDelta = d; maxSwingP = e.nonlinearity_wald_p; maxSwingTrial = e.dropped_studlab; }
+    }
+  });
+  document.getElementById(kpiId).innerHTML =
+    '<div class="kpi-grid">' +
+    '<div class="kpi"><div class="kpi-label">Full-pool nonlin Wald p</div><div class="kpi-value">' + (fullNlP != null ? fullNlP.toFixed(4) : 'n/a') + '</div><div>headline (' + loo.k_full + ' trials)</div></div>' +
+    '<div class="kpi"><div class="kpi-label">Max-swing nonlin p (LOO)</div><div class="kpi-value">' + (maxSwingP != null ? maxSwingP.toFixed(4) : 'n/a') + '</div><div>when dropping ' + (maxSwingTrial ? escapeHtmlSglt(String(maxSwingTrial).split(' ')[0]) : 'n/a') + '</div></div>' +
+    '<div class="kpi"><div class="kpi-label">Most influential trial</div><div class="kpi-value">' + (loo.summary.most_influential_trial ? escapeHtmlSglt(String(loo.summary.most_influential_trial).split(' ')[0]) : 'n/a') + '</div><div>max |Δslope| = ' + loo.summary.max_abs_delta_slope.toFixed(5) + '</div></div>' +
+    '<div class="kpi"><div class="kpi-label">Significance flips</div><div class="kpi-value">' + (loo.summary.any_significance_flip ? 'YES' : 'No') + '</div><div>any subset crosses p=0.05</div></div>' +
+    '<div class="kpi"><div class="kpi-label">Sign flips</div><div class="kpi-value">' + (loo.summary.any_sign_flip ? 'YES' : 'No') + '</div><div>any subset flips slope CI sign</div></div>' +
+    '<div class="kpi"><div class="kpi-label">Degenerated subsets</div><div class="kpi-value">' + loo.summary.n_degenerated + ' / ' + loo.loo.length + '</div><div>RCS/linear fallback fires</div></div>' +
+    '</div>';
+
+  var hlClass = loo.summary.any_significance_flip ? 'rv-badge-amber' : (loo.summary.any_sign_flip ? 'rv-badge-amber' : 'rv-badge-green');
+  var hlText = loo.summary.any_significance_flip
+    ? 'AMBER — at least one LOO subset crosses the p=0.05 boundary. Headline non-linearity verdict is sensitive to dropping the indicated trial(s).'
+    : (loo.summary.any_sign_flip ? 'AMBER — at least one LOO subset flips the slope CI-sign relative to the full pool.' : 'GREEN — no LOO subset flips the significance or sign verdict; headline is robust to dropping any single trial.');
+  document.getElementById(headId).innerHTML =
+    '<div class="rv-badge ' + hlClass + '">' +
+    '<strong>LOO headline (' + escapeHtmlSglt(layerLabel) + '):</strong> Most influential: <em>' + escapeHtmlSglt(String(loo.summary.most_influential_trial || 'n/a')) + '</em> (max |Δslope| = ' + loo.summary.max_abs_delta_slope.toFixed(5) + '). ' + hlText + '<br>' +
+    '<span class="rv-disclosure">Engine: ' + escapeHtmlSglt(engineVersion) + '; LOO via <code>DR._internal.fitLOO({layer:&#39;' + escapeHtmlSglt(loo.layer) + '&#39;, knots:3})</code>.</span></div>';
+
+  var looTblHtml = '<div class="table-scroll"><table>' +
+    '<caption>Each row drops one trial and re-fits on the remaining k-1 trials. Δslope = LOO pooled_slope_log − full-pool pooled_slope_log.</caption>' +
+    '<thead><tr><th>Dropped trial</th><th>k<sub>loo</sub></th><th>Pooled slope (log)</th><th>95% CI</th><th>Nonlin p</th><th>Δslope</th><th>Sign flip</th><th>Sig flip</th><th>Degenerated</th></tr></thead><tbody>';
+  loo.loo.forEach(function (e) {
+    var rowCls = (e.significance_flip || e.sign_flip) ? ' class="rv-row-amber"' : '';
+    looTblHtml += '<tr' + rowCls + '>' +
+      '<td>' + escapeHtmlSglt(String(e.dropped_studlab)) + '</td>' +
+      '<td>' + e.k_loo + '</td>' +
+      '<td>' + (Number.isFinite(e.pooled_slope_log) ? e.pooled_slope_log.toFixed(5) : 'n/a') + '</td>' +
+      '<td>' + (Number.isFinite(e.pooled_slope_log_ci_lo) ? e.pooled_slope_log_ci_lo.toFixed(5) : 'n/a') + ' to ' + (Number.isFinite(e.pooled_slope_log_ci_hi) ? e.pooled_slope_log_ci_hi.toFixed(5) : 'n/a') + '</td>' +
+      '<td>' + (e.nonlinearity_wald_p != null ? e.nonlinearity_wald_p.toFixed(4) : 'n/a') + '</td>' +
+      '<td>' + (Number.isFinite(e.delta_slope) ? e.delta_slope.toFixed(5) : 'n/a') + '</td>' +
+      '<td>' + (e.sign_flip ? 'YES' : 'no') + '</td>' +
+      '<td>' + (e.significance_flip ? 'YES' : 'no') + '</td>' +
+      '<td>' + (e.degenerated ? 'YES' : 'no') + '</td>' +
+      '</tr>';
+  });
+  looTblHtml += '</tbody></table></div>';
+  document.getElementById(tableId).innerHTML = looTblHtml;
+
+  if (barId) {
+    var maxAbs = loo.summary.max_abs_delta_slope || 1e-12;
+    var barHtml = '<div class="table-scroll"><table><caption>Bar chart: width proportional to |Δslope| relative to max swing. ▲ = LOO slope steeper than full pool; ▼ = LOO slope flatter.</caption>' +
+      '<thead><tr><th>Dropped trial</th><th>Δslope</th><th>Bar</th></tr></thead><tbody>';
+    loo.loo.forEach(function (e) {
+      var d = e.delta_slope;
+      var w = Number.isFinite(d) ? Math.round(40 * Math.abs(d) / maxAbs) : 0;
+      var bar = (d < 0 ? '▲ ' : '▼ ') + '█'.repeat(Math.max(0, w));
+      barHtml += '<tr><td>' + escapeHtmlSglt(String(e.dropped_studlab)) + '</td>' +
+        '<td>' + (Number.isFinite(d) ? d.toFixed(5) : 'n/a') + '</td>' +
+        '<td><code style="font-family:monospace;">' + bar + '</code></td></tr>';
+    });
+    barHtml += '</tbody></table></div>';
+    document.getElementById(barId).innerHTML = barHtml;
+  }
+}
+
 window.addEventListener('DOMContentLoaded', function () {
   if (!window.RapidMetaDoseResp || typeof window.RapidMetaDoseResp.engine_version !== 'string') {
     document.body.innerHTML = '<div style="color:#c00; padding:1em;"><strong>Engine failed to load.</strong> Check the browser console for errors.</div>';
@@ -156,6 +231,23 @@ window.addEventListener('DOMContentLoaded', function () {
     'non-linearity p matches R mixmeta within |Δ| < 0.05 — see the R-parity tab for the side-by-side comparison. ' +
     'HKSJ-multivariate scaling factor: ' + (hba1cRcs.hksj_mv != null ? hba1cRcs.hksj_mv.toFixed(2) : 'n/a') + '; CI critical value t<sub>k-1</sub> = ' + (hba1cRcs.tcrit != null ? hba1cRcs.tcrit.toFixed(3) : 'n/a') + '.</div>';
 
+  // === Tab 3a: HbA1c LOO sensitivity (engine v0.5.0) ===
+  // RCS-layer LOO over the 3-trial HbA1c pool.
+  var hba1cLoo;
+  try {
+    hba1cLoo = DR._internal.fitLOO(hba1cTrials, { layer: 'rcs', knots: 3 });
+  } catch (e) {
+    console.error('[SGLT2I-hba1c] fitLOO failed:', e);
+    document.getElementById('hba1c-loo-kpis').innerHTML =
+      '<div class="rv-badge rv-badge-amber">HbA1c LOO sensitivity unavailable: ' + escapeHtmlSglt(e.message) + '</div>';
+    hba1cLoo = null;
+  }
+  if (hba1cLoo) {
+    renderLooBlock(hba1cLoo, 'hba1c-loo-kpis', 'hba1c-loo-headline', 'hba1c-loo-table', null,
+      'HbA1c RCS layer (k=' + hba1cLoo.k_full + ', cross-drug pool at raw mg scale)', DR.engine_version);
+  }
+
+
   // Load R-precomputed JSON for HbA1c (Tabs 3 + 5a) and hHF (Tabs 4-secondary + 5b).
   Promise.all([
     fetch('outputs/r_validation/doseresp/sglt2i_hba1c.json').then(function (r) {
@@ -244,6 +336,25 @@ window.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('hhf-summary').innerHTML =
       '<p><strong>Plain-English summary:</strong> Across the 2 SGLT2i CVOTs with within-trial multi-dose randomization (EMPA-REG OUTCOME 10/25 mg empagliflozin; CANVAS Program 100/300 mg canagliflozin), each additional 10 mg of drug is associated with a relative-risk of ' + hhfRR10.toFixed(3) + ' for hospitalization for heart failure (95% CI ' + hhfRR10_lo.toFixed(3) + ' to ' + hhfRR10_hi.toFixed(3) + '). The estimate combines two drugs at the raw-mg dose scale — same class-equivalence caveat as the HbA1c tab. k = 2 (SOLOIST-WHF excluded as fixed-titration) < 10 triggers coverage_warning.</p>';
+
+    // === Tab 3b: hHF LOO sensitivity (engine v0.5.0) — linear layer, k=2 ===
+    // Each LOO subset drops to k=1; engine surfaces the surviving trial slope
+    // with degenerated=true (no RCS layer at this layer).
+    var hhfLoo;
+    try {
+      hhfLoo = DR._internal.fitLOO(hhfTrials, { layer: 'linear' });
+    } catch (e) {
+      console.error('[SGLT2I-hhf] fitLOO failed:', e);
+      document.getElementById('hhf-loo-kpis').innerHTML =
+        '<div class="rv-badge rv-badge-amber">hHF LOO sensitivity unavailable: ' + escapeHtmlSglt(e.message) + '</div>';
+      hhfLoo = null;
+    }
+    if (hhfLoo) {
+      renderLooBlock(hhfLoo, 'hhf-loo-kpis', 'hhf-loo-headline', 'hhf-loo-table', null,
+        'hHF linear layer (k=' + hhfLoo.k_full + ', each LOO drops to k=1; engine single-trial fallback)', DR.engine_version);
+      document.getElementById('loo-methods').innerHTML =
+        '<p style="margin-top:1.6em;"><strong>Methodology:</strong> Leave-one-out (LOO) sensitivity re-fits the pooled model k times, each time leaving out one trial, and inspects how the headline quantity moves. The HbA1c block uses the RCS layer (3 knots, 3 trials); the hHF block uses the linear layer (k=2). At k=2, each LOO subset is k=1 and the engine reports the surviving trial&apos;s own slope with <code>degenerated=true</code>. Engine v0.5.0 helper: <code>DR._internal.fitLOO(trials, {layer, knots})</code>.</p>';
+    }
 
     // === Tab 5: R-parity badges (Unit 7, Task 17) ===
     // Two mounts: HbA1c (continuous) + hHF (binary). hhfRcs may be null if fitRCS fails at k=2.

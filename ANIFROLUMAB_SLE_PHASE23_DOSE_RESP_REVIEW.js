@@ -313,7 +313,92 @@ window.addEventListener('DOMContentLoaded', function () {
     '<p><strong>Clinical implication:</strong> Despite the formal Wald non-significance, the curve provides the methodologically correct functional form for predicting BICLA response at any dose between 150 and 1000 mg. The RCS-predicted RR at 300 mg (' + Math.exp(keyDoseRows[1].est).toFixed(2) + ') is the per-dose estimate that respects the saturation; the linear-pool extrapolation at 300 mg (' + rrAt300.toFixed(2) + ' with CI crossing 1) is artefactually attenuated by the inclusion of MUSE&apos;s 1000 mg arm in the per-trial GL slope. The RCS framing is consistent with the program&apos;s decision to advance 300 mg, not 1000 mg.</p>' +
     '</div>';
 
-  // Promise.all-style fetch for R precompute (drives Tab 3 + Tab 4)
+  // === Tab 3: LOO sensitivity (engine v0.5.0) — RCS layer ===
+  // Engine full-pool: k_RCS=2 (TULIP-2 dropped for sparse arms). LOO subsets at
+  // k_full=3 each produce a k=2 input subset; depending on which trial is dropped
+  // the surviving k_RCS may be 1 (engine v0.4 single-trial RCS branch activates,
+  // degenerated=true) or remain 2. The summary captures which trial drives
+  // the headline.
+  var biclaLoo;
+  try {
+    biclaLoo = DR._internal.fitLOO(biclaTrials, { layer: 'rcs', knots: 3 });
+  } catch (e) {
+    console.error('[ANIFROLUMAB] fitLOO failed:', e);
+    document.getElementById('bicla-loo-kpis').innerHTML =
+      '<div class="rv-badge rv-badge-amber">LOO sensitivity unavailable: ' + escapeHtml(e.message) + '</div>';
+    biclaLoo = null;
+  }
+  if (biclaLoo) {
+    var fullNlP = biclaLoo.full_pool.rcs ? biclaLoo.full_pool.rcs.nonlinearity_wald_p : null;
+    var maxSwingP = null, maxSwingTrial = null, maxSwingDelta = 0;
+    biclaLoo.loo.forEach(function (e) {
+      if (e.nonlinearity_wald_p != null && fullNlP != null) {
+        var d = Math.abs(e.nonlinearity_wald_p - fullNlP);
+        if (d > maxSwingDelta) { maxSwingDelta = d; maxSwingP = e.nonlinearity_wald_p; maxSwingTrial = e.dropped_studlab; }
+      }
+    });
+
+    document.getElementById('bicla-loo-kpis').innerHTML =
+      '<div class="kpi-grid">' +
+      '<div class="kpi"><div class="kpi-label">Full-pool nonlin Wald p</div><div class="kpi-value">' + (fullNlP != null ? fullNlP.toFixed(4) : 'n/a') + '</div><div>headline RCS finding (k_RCS=' + (biclaLoo.full_pool.k || 'n/a') + ' surviving)</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Max-swing nonlin p (LOO)</div><div class="kpi-value">' + (maxSwingP != null ? maxSwingP.toFixed(4) : 'n/a') + '</div><div>when dropping ' + (maxSwingTrial ? escapeHtml(String(maxSwingTrial).split(' ')[0]) : 'n/a') + '</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Most influential trial</div><div class="kpi-value">' + (biclaLoo.summary.most_influential_trial ? escapeHtml(String(biclaLoo.summary.most_influential_trial).split(' ')[0]) : 'n/a') + '</div><div>max |Δslope| = ' + biclaLoo.summary.max_abs_delta_slope.toFixed(5) + '</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Significance flips</div><div class="kpi-value">' + (biclaLoo.summary.any_significance_flip ? 'YES' : 'No') + '</div><div>any subset crosses p=0.05</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Sign flips</div><div class="kpi-value">' + (biclaLoo.summary.any_sign_flip ? 'YES' : 'No') + '</div><div>any subset flips slope CI sign</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Degenerated subsets</div><div class="kpi-value">' + biclaLoo.summary.n_degenerated + ' / ' + biclaLoo.loo.length + '</div><div>sparse-arm / single-trial fallback fires</div></div>' +
+      '</div>';
+
+    var hlClass = biclaLoo.summary.any_significance_flip ? 'rv-badge-amber' : 'rv-badge-green';
+    var hlText = biclaLoo.summary.any_significance_flip
+      ? 'AMBER — at least one LOO subset crosses the p=0.05 boundary. The headline non-linearity verdict is sensitive to dropping the indicated trial(s).'
+      : 'GREEN — no LOO subset flips the significance verdict; the headline non-linearity finding (Wald p=' + (fullNlP != null ? fullNlP.toFixed(4) : 'n/a') + ', non-significant at α=0.05) is stable across subsets.';
+    document.getElementById('bicla-loo-headline').innerHTML =
+      '<div class="rv-badge ' + hlClass + '">' +
+      '<strong>LOO headline (k_input=' + biclaLoo.k_full + ', k_RCS=' + (biclaLoo.full_pool.k || 'n/a') + ' for full pool):</strong> Most influential: <em>' + escapeHtml(String(biclaLoo.summary.most_influential_trial || 'n/a')) + '</em> (max |Δslope| = ' + biclaLoo.summary.max_abs_delta_slope.toFixed(5) + '). ' + hlText + '<br>' +
+      '<span class="rv-disclosure">Each row below drops one anifrolumab trial and re-fits on the surviving 2 trials (some LOO subsets further degenerate to k_RCS=1 via the engine&apos;s single-trial RCS path). Full-pool RCS Wald p = ' + (fullNlP != null ? fullNlP.toFixed(4) : 'n/a') + ' (Tab 2 headline). Engine: ' + escapeHtml(DR.engine_version) + '; LOO via <code>DR._internal.fitLOO({layer:&#39;rcs&#39;, knots:3})</code>.</span></div>';
+
+    var looTblHtml = '<h3>Per-trial leave-one-out re-fit (RCS layer)</h3>' +
+      '<div class="table-scroll"><table>' +
+      '<caption>Each row drops one anifrolumab trial and re-fits on the remaining 2 trials. Δslope = LOO pooled_slope_log − full-pool pooled_slope_log.</caption>' +
+      '<thead><tr><th>Dropped trial</th><th>k<sub>loo</sub></th><th>Pooled slope (log)</th><th>95% CI</th><th>Nonlin p</th><th>Δslope</th><th>Sign flip</th><th>Sig flip</th><th>Degenerated</th></tr></thead><tbody>';
+    biclaLoo.loo.forEach(function (e) {
+      var rowCls = (e.significance_flip || e.sign_flip) ? ' class="rv-row-amber"' : '';
+      looTblHtml += '<tr' + rowCls + '>' +
+        '<td>' + escapeHtml(String(e.dropped_studlab)) + '</td>' +
+        '<td>' + e.k_loo + '</td>' +
+        '<td>' + (Number.isFinite(e.pooled_slope_log) ? e.pooled_slope_log.toFixed(5) : 'n/a') + '</td>' +
+        '<td>' + (Number.isFinite(e.pooled_slope_log_ci_lo) ? e.pooled_slope_log_ci_lo.toFixed(5) : 'n/a') + ' to ' + (Number.isFinite(e.pooled_slope_log_ci_hi) ? e.pooled_slope_log_ci_hi.toFixed(5) : 'n/a') + '</td>' +
+        '<td>' + (e.nonlinearity_wald_p != null ? e.nonlinearity_wald_p.toFixed(4) : 'n/a') + '</td>' +
+        '<td>' + (Number.isFinite(e.delta_slope) ? e.delta_slope.toFixed(5) : 'n/a') + '</td>' +
+        '<td>' + (e.sign_flip ? 'YES' : 'no') + '</td>' +
+        '<td>' + (e.significance_flip ? 'YES' : 'no') + '</td>' +
+        '<td>' + (e.degenerated ? 'YES' : 'no') + '</td>' +
+        '</tr>';
+    });
+    looTblHtml += '</tbody></table></div>';
+    document.getElementById('bicla-loo-table').innerHTML = looTblHtml;
+
+    var maxAbs = biclaLoo.summary.max_abs_delta_slope || 1e-12;
+    var barHtml = '<h3>Δslope visual (per LOO subset)</h3>' +
+      '<div class="table-scroll"><table><caption>Bar chart: width proportional to |Δslope| relative to max swing.</caption>' +
+      '<thead><tr><th>Dropped trial</th><th>Δslope</th><th>Bar</th></tr></thead><tbody>';
+    biclaLoo.loo.forEach(function (e) {
+      var d = e.delta_slope;
+      var w = Number.isFinite(d) ? Math.round(40 * Math.abs(d) / maxAbs) : 0;
+      var bar = (d < 0 ? '▲ ' : '▼ ') + '█'.repeat(Math.max(0, w));
+      barHtml += '<tr><td>' + escapeHtml(String(e.dropped_studlab)) + '</td>' +
+        '<td>' + (Number.isFinite(d) ? d.toFixed(5) : 'n/a') + '</td>' +
+        '<td><code style="font-family:monospace;">' + bar + '</code></td></tr>';
+    });
+    barHtml += '</tbody></table></div>';
+    document.getElementById('bicla-loo-deltabar').innerHTML = barHtml;
+
+    document.getElementById('bicla-loo-methods').innerHTML =
+      '<p><strong>Methodology:</strong> Leave-one-out (LOO) sensitivity re-fits the pooled model k times, each time leaving out one trial. Engine v0.5.0 adds <code>DR._internal.fitLOO(trials, {layer, knots})</code>; the layer=rcs branch orchestrates fitRCS over each k-1 subset.</p>' +
+      '<p style="margin-top:0.6em; font-size:0.92em; color:#444;"><strong>Interpretation for anifrolumab SLE Phase 2/3:</strong> The full-pool engine RCS fit uses k_RCS=2 surviving (TULIP-2 dropped). Dropping TULIP-2 leaves the full-pool fit unchanged (Δslope=0); this is the only non-degenerated LOO subset because dropping MUSE or TULIP-1 collapses the pool to k_RCS=1 (the engine&apos;s v0.4 single-trial RCS branch activates and degenerated=true). The most informative LOO row is therefore the one dropping TULIP-1 — when only MUSE remains the engine fits a real 3-knot RCS on the 0/300/1000 mg arms of MUSE alone, capturing the saturation observation directly. The LOO output is a sensitivity check for the Tab 2 RCS headline.</p>';
+  }
+
+  // Promise.all-style fetch for R precompute (drives Tab 4 + Tab 5)
   var rJsonPromise = fetch('outputs/r_validation/doseresp/anifrolumab_sle_phase23.json').then(function (r) {
     if (!r.ok) throw new Error('R JSON: HTTP ' + r.status);
     return r.json();

@@ -218,6 +218,92 @@ window.addEventListener('DOMContentLoaded', function () {
   rfHtml += '</tbody></table></div>';
   document.getElementById('hba1c-rcs-forest').innerHTML = rfHtml;
 
+  // === Tab 3: LOO sensitivity (engine v0.5.0) — RCS layer, k_full=6 ===
+  // SUSTAIN has 6 input trials but engine fitRCS drops 4 with singular per-trial
+  // design (1 non-ref arm vs K_p=2 spline coefs needed). k_RCS=2 for the full
+  // pool; LOO subsets may further degenerate. Each LOO entry surfaces the
+  // engine's pooling on the surviving k-1 trials; the SUSTAIN-FORTE drop is
+  // expected to degenerate because SUSTAIN-FORTE is the highest-dose trial
+  // and the engine's per-trial RCS branch needs at least K_p non-ref arms.
+  var hba1cLoo;
+  try {
+    hba1cLoo = DR._internal.fitLOO(hba1cTrials, { layer: 'rcs', knots: 3 });
+  } catch (e) {
+    console.error('[SUSTAIN] fitLOO failed:', e);
+    document.getElementById('hba1c-loo-kpis').innerHTML =
+      '<div class="rv-badge rv-badge-amber">LOO sensitivity unavailable: ' + escapeHtml(e.message) + '</div>';
+    hba1cLoo = null;
+  }
+  if (hba1cLoo) {
+    var fullNlP = hba1cLoo.full_pool.rcs ? hba1cLoo.full_pool.rcs.nonlinearity_wald_p : null;
+    var maxSwingP = null, maxSwingTrial = null, maxSwingDelta = 0;
+    hba1cLoo.loo.forEach(function (e) {
+      if (e.nonlinearity_wald_p != null && fullNlP != null) {
+        var d = Math.abs(e.nonlinearity_wald_p - fullNlP);
+        if (d > maxSwingDelta) { maxSwingDelta = d; maxSwingP = e.nonlinearity_wald_p; maxSwingTrial = e.dropped_studlab; }
+      }
+    });
+
+    document.getElementById('hba1c-loo-kpis').innerHTML =
+      '<div class="kpi-grid">' +
+      '<div class="kpi"><div class="kpi-label">Full-pool nonlin Wald p</div><div class="kpi-value">' + (fullNlP != null ? fullNlP.toFixed(4) : 'n/a') + '</div><div>headline (k_input=' + hba1cLoo.k_full + ', k_RCS=' + (hba1cLoo.full_pool.k || 'n/a') + ')</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Max-swing nonlin p (LOO)</div><div class="kpi-value">' + (maxSwingP != null ? maxSwingP.toFixed(4) : 'n/a') + '</div><div>when dropping ' + (maxSwingTrial ? escapeHtml(String(maxSwingTrial).split(' ')[0]) : 'n/a') + '</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Most influential trial</div><div class="kpi-value">' + (hba1cLoo.summary.most_influential_trial ? escapeHtml(String(hba1cLoo.summary.most_influential_trial).split(' ')[0]) : 'n/a') + '</div><div>max |Δslope| = ' + hba1cLoo.summary.max_abs_delta_slope.toFixed(5) + '</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Significance flips</div><div class="kpi-value">' + (hba1cLoo.summary.any_significance_flip ? 'YES' : 'No') + '</div><div>any subset crosses p=0.05</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Sign flips</div><div class="kpi-value">' + (hba1cLoo.summary.any_sign_flip ? 'YES' : 'No') + '</div><div>any subset flips slope CI sign</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Degenerated subsets</div><div class="kpi-value">' + hba1cLoo.summary.n_degenerated + ' / ' + hba1cLoo.loo.length + '</div><div>sparse-arm fallback fires</div></div>' +
+      '</div>';
+
+    var hlClass = hba1cLoo.summary.any_significance_flip ? 'rv-badge-amber' : 'rv-badge-green';
+    var hlText = hba1cLoo.summary.any_significance_flip
+      ? 'AMBER — at least one LOO subset crosses the p=0.05 boundary. Headline non-linearity verdict is sensitive to dropping the indicated trial(s).'
+      : 'GREEN — no LOO subset flips the significance verdict; headline non-linearity finding is robust to dropping any single SUSTAIN trial.';
+    document.getElementById('hba1c-loo-headline').innerHTML =
+      '<div class="rv-badge ' + hlClass + '">' +
+      '<strong>LOO headline (k_input=' + hba1cLoo.k_full + ', engine pools k_RCS=' + (hba1cLoo.full_pool.k || 'n/a') + ' after sparse-arm drops):</strong> Most influential: <em>' + escapeHtml(String(hba1cLoo.summary.most_influential_trial || 'n/a')) + '</em> (max |Δslope| = ' + hba1cLoo.summary.max_abs_delta_slope.toFixed(5) + '). ' + hlText + '<br>' +
+      '<span class="rv-disclosure">Each row below drops one SUSTAIN trial and re-fits on the remaining 5 trials. Full-pool RCS nonlin Wald p = ' + (fullNlP != null ? fullNlP.toFixed(4) : 'n/a') + ' (Tab 2 headline). Engine: ' + escapeHtml(DR.engine_version) + '; LOO via <code>DR._internal.fitLOO({layer:&#39;rcs&#39;, knots:3})</code>. Subsets where dropping a trial leaves no trial with K_p=2 non-ref arms degenerate to the engine&apos;s sparse-arm fallback.</span></div>';
+
+    var looTblHtml = '<h3>Per-trial leave-one-out re-fit (RCS layer)</h3>' +
+      '<div class="table-scroll"><table>' +
+      '<caption>Each row drops one SUSTAIN trial and re-fits on the remaining 5 trials. Δslope = LOO pooled_slope_log − full-pool pooled_slope_log.</caption>' +
+      '<thead><tr><th>Dropped trial</th><th>k<sub>loo</sub></th><th>Pooled slope (log)</th><th>95% CI</th><th>Nonlin p</th><th>Δslope</th><th>Sign flip</th><th>Sig flip</th><th>Degenerated</th></tr></thead><tbody>';
+    hba1cLoo.loo.forEach(function (e) {
+      var rowCls = (e.significance_flip || e.sign_flip) ? ' class="rv-row-amber"' : '';
+      looTblHtml += '<tr' + rowCls + '>' +
+        '<td>' + escapeHtml(String(e.dropped_studlab)) + '</td>' +
+        '<td>' + e.k_loo + '</td>' +
+        '<td>' + (Number.isFinite(e.pooled_slope_log) ? e.pooled_slope_log.toFixed(5) : 'n/a') + '</td>' +
+        '<td>' + (Number.isFinite(e.pooled_slope_log_ci_lo) ? e.pooled_slope_log_ci_lo.toFixed(5) : 'n/a') + ' to ' + (Number.isFinite(e.pooled_slope_log_ci_hi) ? e.pooled_slope_log_ci_hi.toFixed(5) : 'n/a') + '</td>' +
+        '<td>' + (e.nonlinearity_wald_p != null ? e.nonlinearity_wald_p.toFixed(4) : 'n/a') + '</td>' +
+        '<td>' + (Number.isFinite(e.delta_slope) ? e.delta_slope.toFixed(5) : 'n/a') + '</td>' +
+        '<td>' + (e.sign_flip ? 'YES' : 'no') + '</td>' +
+        '<td>' + (e.significance_flip ? 'YES' : 'no') + '</td>' +
+        '<td>' + (e.degenerated ? 'YES' : 'no') + '</td>' +
+        '</tr>';
+    });
+    looTblHtml += '</tbody></table></div>';
+    document.getElementById('hba1c-loo-table').innerHTML = looTblHtml;
+
+    var maxAbs = hba1cLoo.summary.max_abs_delta_slope || 1e-12;
+    var barHtml = '<h3>Δslope visual (per LOO subset)</h3>' +
+      '<div class="table-scroll"><table><caption>Bar chart: width proportional to |Δslope| relative to max swing.</caption>' +
+      '<thead><tr><th>Dropped trial</th><th>Δslope</th><th>Bar</th></tr></thead><tbody>';
+    hba1cLoo.loo.forEach(function (e) {
+      var d = e.delta_slope;
+      var w = Number.isFinite(d) ? Math.round(40 * Math.abs(d) / maxAbs) : 0;
+      var bar = (d < 0 ? '▲ ' : '▼ ') + '█'.repeat(Math.max(0, w));
+      barHtml += '<tr><td>' + escapeHtml(String(e.dropped_studlab)) + '</td>' +
+        '<td>' + (Number.isFinite(d) ? d.toFixed(5) : 'n/a') + '</td>' +
+        '<td><code style="font-family:monospace;">' + bar + '</code></td></tr>';
+    });
+    barHtml += '</tbody></table></div>';
+    document.getElementById('hba1c-loo-deltabar').innerHTML = barHtml;
+
+    document.getElementById('hba1c-loo-methods').innerHTML =
+      '<p><strong>Methodology:</strong> Leave-one-out (LOO) sensitivity re-fits the pooled model k times, each time leaving out one trial. Engine v0.5.0 adds <code>DR._internal.fitLOO(trials, {layer, knots})</code> which orchestrates the k re-fits using the same fitRCS / fitLinear primitives that produce the full-pool fit; no new statistical machinery is introduced.</p>' +
+      '<p style="margin-top:0.6em; font-size:0.92em; color:#444;"><strong>Interpretation for SUSTAIN:</strong> SUSTAIN-FORTE is the only trial with a 1&rarr;2 mg contrast (all other SUSTAIN trials sample 0&rarr;1 mg or 0.5&rarr;1 mg). Dropping SUSTAIN-FORTE leaves the engine without any 1&rarr;2 mg information; the LOO subset can no longer fit the upper-dose part of the RCS curve and the engine&apos;s sparse-arm fallback fires (degenerated=YES). The other 5 LOO subsets retain SUSTAIN-FORTE and converge to a similar pooled slope; max |Δslope| at the upper end of the LOO range is therefore dominated by the SUSTAIN-FORTE drop. The LOO output is a sensitivity check for the Tab 2 RCS headline, not a replacement primary analysis.</p>';
+  }
+
   // Render abstracts inline
   fetch('fixtures/dose_response/semaglutide_t2d_sustain_abstracts.json').then(function (r) {
     if (!r.ok) throw new Error('abstracts JSON: HTTP ' + r.status);

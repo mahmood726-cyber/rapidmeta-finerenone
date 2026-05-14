@@ -153,8 +153,9 @@
 <nav class="tab-nav" role="tablist" aria-label="Analysis tabs">
   <button id="tab-btn-hba1c-linear" data-tab="hba1c-linear" class="active" role="tab" aria-selected="true" aria-controls="tab-hba1c-linear" tabindex="0">1. HbA1c &mdash; Linear (k=6)</button>
   <button id="tab-btn-hba1c-rcs" data-tab="hba1c-rcs" role="tab" aria-selected="false" aria-controls="tab-hba1c-rcs" tabindex="-1">2. HbA1c &mdash; RCS (headline)</button>
-  <button id="tab-btn-hba1c-os" data-tab="hba1c-os" role="tab" aria-selected="false" aria-controls="tab-hba1c-os" tabindex="-1">3. HbA1c &mdash; One-stage</button>
-  <button id="tab-btn-parity" data-tab="parity" role="tab" aria-selected="false" aria-controls="tab-parity" tabindex="-1">4. R-parity badge</button>
+  <button id="tab-btn-hba1c-loo" data-tab="hba1c-loo" role="tab" aria-selected="false" aria-controls="tab-hba1c-loo" tabindex="-1">3. LOO sensitivity (v0.5)</button>
+  <button id="tab-btn-hba1c-os" data-tab="hba1c-os" role="tab" aria-selected="false" aria-controls="tab-hba1c-os" tabindex="-1">4. HbA1c &mdash; One-stage</button>
+  <button id="tab-btn-parity" data-tab="parity" role="tab" aria-selected="false" aria-controls="tab-parity" tabindex="-1">5. R-parity badge</button>
 </nav>
 
 <section id="tab-hba1c-linear" class="tab-content active" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-hba1c-linear">
@@ -172,6 +173,15 @@
   <div id="hba1c-rcs-tau2matrix"></div>
   <div id="hba1c-rcs-curve"></div>
   <div id="hba1c-rcs-forest"></div>
+</section>
+
+<section id="tab-hba1c-loo" class="tab-content" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-hba1c-loo">
+  <h2 tabindex="-1">Leave-one-out (LOO) sensitivity &mdash; RCS layer (engine v0.5.0, k=6 input)</h2>
+  <div id="hba1c-loo-kpis" aria-live="polite" aria-atomic="true"></div>
+  <div id="hba1c-loo-headline"></div>
+  <div id="hba1c-loo-table"></div>
+  <div id="hba1c-loo-deltabar"></div>
+  <div id="hba1c-loo-methods"></div>
 </section>
 
 <section id="tab-hba1c-os" class="tab-content" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-hba1c-os">

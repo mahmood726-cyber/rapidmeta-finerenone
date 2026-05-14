@@ -173,6 +173,89 @@ window.addEventListener('DOMContentLoaded', function () {
   rfHtml += '</tbody></table></div>';
   document.getElementById('wt-rcs-forest').innerHTML = rfHtml;
 
+  // === Tab 3: LOO sensitivity (engine v0.5.0) ===
+  // At k_full=2, each LOO subset is k=1; the engine's RCS single-trial path
+  // (v0.4, estimator wls_single_trial_rcs) handles this and surfaces a real
+  // RCS fit on the surviving trial. degenerated=true is informational.
+  var wtLoo;
+  try {
+    wtLoo = DR._internal.fitLOO(wtTrials, { layer: 'rcs', knots: 3 });
+  } catch (e) {
+    console.error('[tirz-obesity] fitLOO failed:', e);
+    document.getElementById('wt-loo-kpis').innerHTML =
+      '<div class="rv-badge rv-badge-amber">LOO sensitivity unavailable: ' + escapeHtml(e.message) + '</div>';
+    wtLoo = null;
+  }
+  if (wtLoo) {
+    var fullNlP = wtLoo.full_pool.rcs ? wtLoo.full_pool.rcs.nonlinearity_wald_p : null;
+    var maxSwingP = null, maxSwingTrial = null, maxSwingDelta = 0;
+    wtLoo.loo.forEach(function (e) {
+      if (e.nonlinearity_wald_p != null && fullNlP != null) {
+        var d = Math.abs(e.nonlinearity_wald_p - fullNlP);
+        if (d > maxSwingDelta) { maxSwingDelta = d; maxSwingP = e.nonlinearity_wald_p; maxSwingTrial = e.dropped_studlab; }
+      }
+    });
+
+    document.getElementById('wt-loo-kpis').innerHTML =
+      '<div class="kpi-grid">' +
+      '<div class="kpi"><div class="kpi-label">Full-pool nonlin Wald p</div><div class="kpi-value">' + (fullNlP != null ? fullNlP.toFixed(4) : 'n/a') + '</div><div>headline (k=' + wtLoo.k_full + ', borderline)</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Max-swing nonlin p (LOO)</div><div class="kpi-value">' + (maxSwingP != null ? maxSwingP.toFixed(4) : 'n/a') + '</div><div>when dropping ' + (maxSwingTrial ? escapeHtml(String(maxSwingTrial).split(' ')[0]) : 'n/a') + '</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Most influential trial</div><div class="kpi-value">' + (wtLoo.summary.most_influential_trial ? escapeHtml(String(wtLoo.summary.most_influential_trial).split(' ')[0]) : 'n/a') + '</div><div>max |Δslope| = ' + wtLoo.summary.max_abs_delta_slope.toFixed(5) + '</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Significance flips</div><div class="kpi-value">' + (wtLoo.summary.any_significance_flip ? 'YES' : 'No') + '</div><div>any subset crosses p=0.05</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Sign flips</div><div class="kpi-value">' + (wtLoo.summary.any_sign_flip ? 'YES' : 'No') + '</div><div>any subset flips slope CI sign</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Degenerated subsets</div><div class="kpi-value">' + wtLoo.summary.n_degenerated + ' / ' + wtLoo.loo.length + '</div><div>k=1 single-trial path</div></div>' +
+      '</div>';
+
+    var hlClass = wtLoo.summary.any_significance_flip ? 'rv-badge-amber' : 'rv-badge-green';
+    var hlText = wtLoo.summary.any_significance_flip
+      ? 'AMBER — at least one LOO subset crosses the p=0.05 boundary. With k=2, each LOO drops to a single SURMOUNT trial and the engine reports the trial&apos;s own single-trial RCS (estimator wls_single_trial_rcs).'
+      : 'GREEN — no LOO subset flips the significance verdict.';
+    document.getElementById('wt-loo-headline').innerHTML =
+      '<div class="rv-badge ' + hlClass + '">' +
+      '<strong>LOO headline (k=2 stress test):</strong> Most influential: <em>' + escapeHtml(String(wtLoo.summary.most_influential_trial || 'n/a')) + '</em> (max |Δslope| = ' + wtLoo.summary.max_abs_delta_slope.toFixed(5) + '). ' + hlText + '<br>' +
+      '<span class="rv-disclosure">At k_full=2 each LOO subset is k=1; the engine&apos;s v0.4 single-trial RCS path activates. Full-pool RCS nonlin Wald p = ' + (fullNlP != null ? fullNlP.toFixed(4) : 'n/a') + ' (Tab 2 borderline finding). Engine: ' + escapeHtml(DR.engine_version) + '; LOO via <code>DR._internal.fitLOO({layer:&#39;rcs&#39;, knots:3})</code>.</span></div>';
+
+    var looTblHtml = '<h3>Per-trial leave-one-out re-fit (RCS layer)</h3>' +
+      '<div class="table-scroll"><table>' +
+      '<caption>Each row drops one SURMOUNT trial and re-fits on the surviving trial (k=1, engine single-trial RCS branch). Δslope = LOO pooled_slope_log − full-pool pooled_slope_log.</caption>' +
+      '<thead><tr><th>Dropped trial</th><th>k<sub>loo</sub></th><th>Pooled slope (log)</th><th>95% CI</th><th>Nonlin p</th><th>Δslope</th><th>Sign flip</th><th>Sig flip</th><th>Degenerated</th></tr></thead><tbody>';
+    wtLoo.loo.forEach(function (e) {
+      var rowCls = (e.significance_flip || e.sign_flip) ? ' class="rv-row-amber"' : '';
+      looTblHtml += '<tr' + rowCls + '>' +
+        '<td>' + escapeHtml(String(e.dropped_studlab)) + '</td>' +
+        '<td>' + e.k_loo + '</td>' +
+        '<td>' + (Number.isFinite(e.pooled_slope_log) ? e.pooled_slope_log.toFixed(5) : 'n/a') + '</td>' +
+        '<td>' + (Number.isFinite(e.pooled_slope_log_ci_lo) ? e.pooled_slope_log_ci_lo.toFixed(5) : 'n/a') + ' to ' + (Number.isFinite(e.pooled_slope_log_ci_hi) ? e.pooled_slope_log_ci_hi.toFixed(5) : 'n/a') + '</td>' +
+        '<td>' + (e.nonlinearity_wald_p != null ? e.nonlinearity_wald_p.toFixed(4) : 'n/a') + '</td>' +
+        '<td>' + (Number.isFinite(e.delta_slope) ? e.delta_slope.toFixed(5) : 'n/a') + '</td>' +
+        '<td>' + (e.sign_flip ? 'YES' : 'no') + '</td>' +
+        '<td>' + (e.significance_flip ? 'YES' : 'no') + '</td>' +
+        '<td>' + (e.degenerated ? 'YES' : 'no') + '</td>' +
+        '</tr>';
+    });
+    looTblHtml += '</tbody></table></div>';
+    document.getElementById('wt-loo-table').innerHTML = looTblHtml;
+
+    var maxAbs = wtLoo.summary.max_abs_delta_slope || 1e-12;
+    var barHtml = '<h3>Δslope visual (per LOO subset)</h3>' +
+      '<div class="table-scroll"><table><caption>Bar chart: width proportional to |Δslope| relative to max swing.</caption>' +
+      '<thead><tr><th>Dropped trial</th><th>Δslope</th><th>Bar</th></tr></thead><tbody>';
+    wtLoo.loo.forEach(function (e) {
+      var d = e.delta_slope;
+      var w = Number.isFinite(d) ? Math.round(40 * Math.abs(d) / maxAbs) : 0;
+      var bar = (d < 0 ? '▲ ' : '▼ ') + '█'.repeat(Math.max(0, w));
+      barHtml += '<tr><td>' + escapeHtml(String(e.dropped_studlab)) + '</td>' +
+        '<td>' + (Number.isFinite(d) ? d.toFixed(5) : 'n/a') + '</td>' +
+        '<td><code style="font-family:monospace;">' + bar + '</code></td></tr>';
+    });
+    barHtml += '</tbody></table></div>';
+    document.getElementById('wt-loo-deltabar').innerHTML = barHtml;
+
+    document.getElementById('wt-loo-methods').innerHTML =
+      '<p><strong>Methodology:</strong> Leave-one-out (LOO) sensitivity re-fits the pooled model k times, each time leaving out one trial. At k_full=2 each LOO subset is k=1; engine v0.5.0 routes those through the v0.4 single-trial RCS branch (estimator wls_single_trial_rcs) and marks the LOO entry <code>degenerated=true</code> for accounting purposes. The full-pool finding (Tab 2 p = ' + (fullNlP != null ? fullNlP.toFixed(4) : 'n/a') + ') is borderline at k=2; LOO surfaces which SURMOUNT trial drives that borderline-significant verdict and how the slope shifts if the surviving trial is the only data source.</p>' +
+      '<p style="margin-top:0.6em; font-size:0.92em; color:#444;"><strong>Interpretation for SURMOUNT:</strong> SURMOUNT-1 (obesity without T2D, all 4 dose levels including 5 mg) and SURMOUNT-2 (obesity with T2D, 10/15 mg only, no 5 mg arm) sample DIFFERENT parts of the dose-response curve. Dropping SURMOUNT-2 leaves only SURMOUNT-1 (which has the 5 mg arm — the engine fits a real 3-knot RCS and the saturation is highly significant). Dropping SURMOUNT-1 leaves only SURMOUNT-2 (no 5 mg arm — the engine RCS branch reports degenerated). This LOO output is a sensitivity check for the Tab 2 borderline headline, not a replacement primary analysis.</p>';
+  }
+
   // Render abstracts inline
   fetch('fixtures/dose_response/tirzepatide_obesity_surmount_abstracts.json').then(function (r) {
     if (!r.ok) throw new Error('abstracts JSON: HTTP ' + r.status);

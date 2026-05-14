@@ -41,6 +41,12 @@ document.querySelectorAll('.tab-nav button[role="tab"]').forEach(function (btn) 
   });
 });
 
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 window.addEventListener('DOMContentLoaded', function () {
   if (!window.RapidMetaDoseResp || typeof window.RapidMetaDoseResp.engine_version !== 'string') {
     document.body.innerHTML = '<div style="color:#c00; padding:1em;"><strong>Engine failed to load.</strong> Check the browser console for errors.</div>';
@@ -166,6 +172,93 @@ window.addEventListener('DOMContentLoaded', function () {
     'non-linearity p matches R mixmeta within |Δ| < 0.05 (engine ≈ 0.7035 vs R ≈ 0.704 on GL-1992). ' +
     'See the R-parity tab for the side-by-side comparison. ' +
     'HKSJ-multivariate scaling factor: ' + (rcs.hksj_mv != null ? rcs.hksj_mv.toFixed(2) : 'n/a') + '; CI critical value t<sub>k-1</sub> = ' + (rcs.tcrit != null ? rcs.tcrit.toFixed(3) : 'n/a') + '.</div>';
+
+  // === Tab 3: LOO sensitivity (engine v0.5.0) ===
+  // Run leave-one-out RCS sensitivity over the 5-trial GL-1992 pool. fitLOO
+  // orchestrates fitRCS(subset) for each k-1=4 subset and computes per-trial
+  // delta vs the full pool.
+  var loo;
+  try {
+    loo = DR._internal.fitLOO(trials, { layer: 'rcs', knots: 3 });
+  } catch (e) {
+    console.error('[ALCOHOL_BC] fitLOO failed:', e);
+    document.getElementById('loo-kpis').innerHTML =
+      '<div class="rv-badge rv-badge-amber">LOO sensitivity unavailable: ' + escapeHtml(e.message) + '</div>';
+    loo = null;
+  }
+  if (loo) {
+    var fullNlP = loo.full_pool.rcs ? loo.full_pool.rcs.nonlinearity_wald_p : null;
+    var maxSwingP = null, maxSwingTrial = null, maxSwingDelta = 0;
+    loo.loo.forEach(function (e) {
+      if (e.nonlinearity_wald_p != null && fullNlP != null) {
+        var d = Math.abs(e.nonlinearity_wald_p - fullNlP);
+        if (d > maxSwingDelta) {
+          maxSwingDelta = d;
+          maxSwingP = e.nonlinearity_wald_p;
+          maxSwingTrial = e.dropped_studlab;
+        }
+      }
+    });
+
+    document.getElementById('loo-kpis').innerHTML =
+      '<div class="kpi-grid">' +
+      '<div class="kpi"><div class="kpi-label">Full-pool nonlin Wald p</div><div class="kpi-value">' + (fullNlP != null ? fullNlP.toFixed(4) : 'n/a') + '</div><div>headline (' + loo.k_full + ' trials)</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Max-swing nonlin p (LOO)</div><div class="kpi-value">' + (maxSwingP != null ? maxSwingP.toFixed(4) : 'n/a') + '</div><div>when dropping ' + (maxSwingTrial ? escapeHtml(String(maxSwingTrial).split(' ')[0]) : 'n/a') + '</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Most influential trial</div><div class="kpi-value">' + (loo.summary.most_influential_trial ? escapeHtml(String(loo.summary.most_influential_trial).split(' ')[0]) : 'n/a') + '</div><div>max |Δslope| = ' + loo.summary.max_abs_delta_slope.toFixed(5) + '</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Significance flips</div><div class="kpi-value">' + (loo.summary.any_significance_flip ? 'YES' : 'No') + '</div><div>any subset crosses p=0.05</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Sign flips</div><div class="kpi-value">' + (loo.summary.any_sign_flip ? 'YES' : 'No') + '</div><div>any subset flips slope CI sign</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Degenerated subsets</div><div class="kpi-value">' + loo.summary.n_degenerated + ' / ' + loo.loo.length + '</div><div>RCS-fallback fires</div></div>' +
+      '</div>';
+
+    var hlClass = loo.summary.any_significance_flip ? 'rv-badge-amber' : 'rv-badge-green';
+    var hlText = loo.summary.any_significance_flip
+      ? 'AMBER — at least one LOO subset crosses the p=0.05 boundary. The headline non-linearity finding is sensitive to dropping the indicated trial(s); read the per-trial delta table below.'
+      : 'GREEN — no LOO subset flips the significance verdict; the headline non-linearity finding is robust to dropping any single trial.';
+    document.getElementById('loo-headline').innerHTML =
+      '<div class="rv-badge ' + hlClass + '">' +
+      '<strong>LOO headline:</strong> Most influential trial: <em>' + escapeHtml(String(loo.summary.most_influential_trial || 'n/a')) + '</em> (max |Δslope| = ' + loo.summary.max_abs_delta_slope.toFixed(5) + '). ' + hlText + '<br>' +
+      '<span class="rv-disclosure">Each row below drops one cohort study and re-fits the RCS pool on the remaining k-1 trials. Full-pool RCS nonlin Wald p = ' + (fullNlP != null ? fullNlP.toFixed(4) : 'n/a') + ' (Tab 2 headline). Engine: ' + escapeHtml(DR.engine_version) + '; LOO orchestrated by <code>DR._internal.fitLOO({layer:&#39;rcs&#39;, knots:3})</code>.</span></div>';
+
+    var looTblHtml = '<h3>Per-trial leave-one-out re-fit (RCS layer)</h3>' +
+      '<div class="table-scroll"><table>' +
+      '<caption>Each row drops one cohort study and re-fits the RCS pool on the remaining k-1 trials. Δslope = LOO pooled_slope_log − full-pool pooled_slope_log.</caption>' +
+      '<thead><tr><th>Dropped trial</th><th>k<sub>loo</sub></th><th>Pooled slope (log)</th><th>95% CI</th><th>Nonlin p</th><th>Δslope</th><th>Sign flip</th><th>Sig flip</th><th>Degenerated</th></tr></thead><tbody>';
+    loo.loo.forEach(function (e) {
+      var rowCls = e.significance_flip ? ' class="rv-row-amber"' : (e.sign_flip ? ' class="rv-row-amber"' : '');
+      looTblHtml += '<tr' + rowCls + '>' +
+        '<td>' + escapeHtml(String(e.dropped_studlab)) + '</td>' +
+        '<td>' + e.k_loo + '</td>' +
+        '<td>' + (Number.isFinite(e.pooled_slope_log) ? e.pooled_slope_log.toFixed(5) : 'n/a') + '</td>' +
+        '<td>' + (Number.isFinite(e.pooled_slope_log_ci_lo) ? e.pooled_slope_log_ci_lo.toFixed(5) : 'n/a') + ' to ' + (Number.isFinite(e.pooled_slope_log_ci_hi) ? e.pooled_slope_log_ci_hi.toFixed(5) : 'n/a') + '</td>' +
+        '<td>' + (e.nonlinearity_wald_p != null ? e.nonlinearity_wald_p.toFixed(4) : 'n/a') + '</td>' +
+        '<td>' + (Number.isFinite(e.delta_slope) ? e.delta_slope.toFixed(5) : 'n/a') + '</td>' +
+        '<td>' + (e.sign_flip ? 'YES' : 'no') + '</td>' +
+        '<td>' + (e.significance_flip ? 'YES' : 'no') + '</td>' +
+        '<td>' + (e.degenerated ? 'YES' : 'no') + '</td>' +
+        '</tr>';
+    });
+    looTblHtml += '</tbody></table></div>';
+    document.getElementById('loo-table').innerHTML = looTblHtml;
+
+    var maxAbs = loo.summary.max_abs_delta_slope || 1e-12;
+    var barHtml = '<h3>Δslope visual (per LOO subset)</h3>' +
+      '<div class="table-scroll"><table><caption>Bar chart: width proportional to |Δslope| relative to max swing. ▲ = LOO slope steeper than full pool; ▼ = LOO slope flatter than full pool.</caption>' +
+      '<thead><tr><th>Dropped trial</th><th>Δslope</th><th>Bar</th></tr></thead><tbody>';
+    loo.loo.forEach(function (e) {
+      var d = e.delta_slope;
+      var w = Number.isFinite(d) ? Math.round(40 * Math.abs(d) / maxAbs) : 0;
+      var bar = (d < 0 ? '▲ ' : '▼ ') + '█'.repeat(Math.max(0, w));
+      barHtml += '<tr><td>' + escapeHtml(String(e.dropped_studlab)) + '</td>' +
+        '<td>' + (Number.isFinite(d) ? d.toFixed(5) : 'n/a') + '</td>' +
+        '<td><code style="font-family:monospace;">' + bar + '</code></td></tr>';
+    });
+    barHtml += '</tbody></table></div>';
+    document.getElementById('loo-deltabar').innerHTML = barHtml;
+
+    document.getElementById('loo-methods').innerHTML =
+      '<p><strong>Methodology:</strong> Leave-one-out (LOO) sensitivity re-fits the pooled model k times, each time leaving out one trial, and inspects how the headline quantity moves. Here the headline is the RCS non-linearity Wald p-value (full pool: ' + (fullNlP != null ? fullNlP.toFixed(4) : 'n/a') + '). Engine v0.5.0 adds <code>DR._internal.fitLOO(trials, {layer, knots})</code> which orchestrates the k re-fits using the same fitRCS / fitLinear primitives that produce the full-pool fit; no new statistical machinery is introduced. Per-trial delta = LOO_pooled_slope − full_pool_slope; sign_flip fires when the LOO CI-lower-bound sign differs from the full-pool sign; significance_flip fires when the LOO nonlin Wald p crosses 0.05.</p>' +
+      '<p style="margin-top:0.6em; font-size:0.92em; color:#444;"><strong>Interpretation for GL-1992 alcohol-BC:</strong> With k=5 cohort studies and high between-study heterogeneity (I² &asymp; 95%), the LOO sensitivity quantifies which study drives the headline non-linearity verdict. Howe 1991 (mixed case-control reanalysed as cohort-equivalent) contributes a notably steeper per-study slope than the other 4 cohorts; the LOO row dropping Howe 1991 is the most informative single sensitivity check. The LOO output is shown as a sensitivity check for the Tab 2 RCS headline, not as a replacement primary analysis.</p>';
+  }
 
   // Load R-precomputed JSON for Tabs 3 and 4
   fetch('outputs/r_validation/doseresp/gl1992_alcohol_bc.json')

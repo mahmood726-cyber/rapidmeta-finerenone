@@ -809,6 +809,268 @@ test('SURPASS LOO-tab per-row contract: every LOO entry has all displayed fields
   });
 });
 
+// === v0.5.0 LOO-tab rollout (9 additional flagships) ===
+// Each flagship asserts: (a) DOM mount ids the page expects exist in the .html
+// source (we read the static HTML and grep for the documented ids), (b) the
+// engine's fitLOO call on the fixture returns the documented shape, (c) the
+// summary fields the KPI bar reads are populated (no n/a in displayable slots).
+// For ARTS-DN (k=1) we assert the EXPLANATORY PANEL contract: HTML mounts
+// exist, but DR._internal.fitLOO is NOT called by the flagship; instead the
+// flagship renders an explanatory note.
+console.log('LOO-tab rollout contract (9 additional flagships)');
+
+function readFlagshipHtml(name) {
+  return fs.readFileSync(path.join(repoRoot, name), 'utf8');
+}
+
+const looRollout = [
+  {
+    name: 'ALCOHOL_BC',
+    html: 'ALCOHOL_BC_DOSE_RESP_REVIEW.html',
+    fixture: 'tests/dose_response_fixtures/gl1992_alcohol_bc.json',
+    layer: 'rcs',
+    knots: 3,
+    mountIds: ['loo-kpis', 'loo-headline', 'loo-table', 'loo-deltabar', 'loo-methods'],
+    tabButtonId: 'tab-btn-loo',
+    tabPanelId: 'tab-loo',
+    expectedKFull: 5,
+    expectedKLoo: 4,
+    everyNlPFinite: true,
+    expectedMostInfluential: 'Howe',  // substring match
+  },
+  {
+    name: 'SGLT2I (HbA1c block)',
+    html: 'SGLT2I_DOSE_RESP_REVIEW.html',
+    fixture: 'tests/dose_response_fixtures/sglt2i_hba1c.json',
+    layer: 'rcs',
+    knots: 3,
+    mountIds: ['hba1c-loo-kpis', 'hba1c-loo-headline', 'hba1c-loo-table', 'hhf-loo-kpis', 'hhf-loo-headline', 'hhf-loo-table', 'loo-methods'],
+    tabButtonId: 'tab-btn-loo',
+    tabPanelId: 'tab-loo',
+    expectedKFull: 3,
+    expectedKLoo: 2,
+    everyNlPFinite: true,
+    expectedMostInfluential: 'EMPA-REG',
+  },
+  {
+    name: 'SGLT2I (hHF block — secondary)',
+    html: 'SGLT2I_DOSE_RESP_REVIEW.html',
+    fixture: 'tests/dose_response_fixtures/sglt2i_hhf.json',
+    layer: 'linear',
+    skipHtmlAssertions: true,  // SGLT2I HTML already asserted above
+    expectedKFull: 2,
+    expectedKLoo: 1,
+    everyNlPFinite: false,  // linear layer at k=2 → all subsets are k=1 single-trial fallback, no RCS, nlP=null
+    expectAllDegenerated: true,
+    expectedMostInfluential: 'CANVAS',
+  },
+  {
+    name: 'TIRZEPATIDE_OBESITY_SURMOUNT',
+    html: 'TIRZEPATIDE_OBESITY_SURMOUNT_DOSE_RESP_REVIEW.html',
+    fixture: 'tests/dose_response_fixtures/tirzepatide_obesity_surmount.json',
+    layer: 'rcs',
+    knots: 3,
+    mountIds: ['wt-loo-kpis', 'wt-loo-headline', 'wt-loo-table', 'wt-loo-deltabar', 'wt-loo-methods'],
+    tabButtonId: 'tab-btn-wt-loo',
+    tabPanelId: 'tab-wt-loo',
+    expectedKFull: 2,
+    expectedKLoo: 1,
+    everyNlPFinite: false,  // some LOO subsets are k=1 with sparse arms → degenerated, nlP=null
+    expectedMostInfluential: 'SURMOUNT-2',
+  },
+  {
+    name: 'FINERENONE_ARTS_DN (k=1, explanatory panel)',
+    html: 'FINERENONE_ARTS_DN_DOSE_RESP_REVIEW.html',
+    explanatoryPanelOnly: true,
+    fixture: 'tests/dose_response_fixtures/finerenone_arts_dn.json',
+    mountIds: ['loo-kpis', 'loo-headline', 'loo-methods'],
+    tabButtonId: 'tab-btn-loo',
+    tabPanelId: 'tab-loo',
+    expectedKFull: 1,
+    expectedExplanatoryPhrase: 'LOO sensitivity not applicable at k=1',
+  },
+  {
+    name: 'SEMAGLUTIDE_T2D_SUSTAIN',
+    html: 'SEMAGLUTIDE_T2D_SUSTAIN_DOSE_RESP_REVIEW.html',
+    fixture: 'tests/dose_response_fixtures/semaglutide_t2d_sustain.json',
+    layer: 'rcs',
+    knots: 3,
+    mountIds: ['hba1c-loo-kpis', 'hba1c-loo-headline', 'hba1c-loo-table', 'hba1c-loo-deltabar', 'hba1c-loo-methods'],
+    tabButtonId: 'tab-btn-hba1c-loo',
+    tabPanelId: 'tab-hba1c-loo',
+    expectedKFull: 6,
+    expectedKLoo: 5,
+    everyNlPFinite: false,  // SUSTAIN-FORTE drop → k_RCS degeneration on remaining 5
+    expectedMostInfluential: 'SUSTAIN-FORTE',
+  },
+  {
+    name: 'UPADACITINIB_RA_SELECT',
+    html: 'UPADACITINIB_RA_SELECT_DOSE_RESP_REVIEW.html',
+    fixture: 'tests/dose_response_fixtures/upadacitinib_ra_select.json',
+    layer: 'linear',
+    mountIds: ['das28-loo-kpis', 'das28-loo-headline', 'das28-loo-table', 'das28-loo-deltabar', 'das28-loo-methods'],
+    tabButtonId: 'tab-btn-das28-loo',
+    tabPanelId: 'tab-das28-loo',
+    expectedKFull: 4,
+    expectedKLoo: 3,
+    everyNlPFinite: false,  // linear layer; nlP=null for all LOO entries
+    expectedMostInfluential: 'SELECT-EARLY',
+  },
+  {
+    name: 'BRODALUMAB_PSORIASIS_AMAGINE',
+    html: 'BRODALUMAB_PSORIASIS_AMAGINE_DOSE_RESP_REVIEW.html',
+    fixture: 'tests/dose_response_fixtures/brodalumab_psoriasis_amagine.json',
+    layer: 'linear',
+    mountIds: ['pasi-loo-kpis', 'pasi-loo-headline', 'pasi-loo-table', 'pasi-loo-deltabar', 'pasi-loo-methods'],
+    tabButtonId: 'tab-btn-pasi-loo',
+    tabPanelId: 'tab-pasi-loo',
+    expectedKFull: 3,
+    expectedKLoo: 2,
+    everyNlPFinite: false,
+    expectedMostInfluential: 'AMAGINE-3',
+  },
+  {
+    name: 'ERENUMAB_MIGRAINE_PHASE3',
+    html: 'ERENUMAB_MIGRAINE_PHASE3_DOSE_RESP_REVIEW.html',
+    fixture: 'tests/dose_response_fixtures/erenumab_migraine_phase3.json',
+    layer: 'linear',
+    mountIds: ['mmd-loo-kpis', 'mmd-loo-headline', 'mmd-loo-table', 'mmd-loo-deltabar', 'mmd-loo-methods'],
+    tabButtonId: 'tab-btn-mmd-loo',
+    tabPanelId: 'tab-mmd-loo',
+    expectedKFull: 3,
+    expectedKLoo: 2,
+    everyNlPFinite: false,
+    expectedMostInfluential: 'LIBERTY',
+  },
+  {
+    name: 'ANIFROLUMAB_SLE_PHASE23',
+    html: 'ANIFROLUMAB_SLE_PHASE23_DOSE_RESP_REVIEW.html',
+    fixture: 'tests/dose_response_fixtures/anifrolumab_sle_phase23.json',
+    layer: 'rcs',
+    knots: 3,
+    mountIds: ['bicla-loo-kpis', 'bicla-loo-headline', 'bicla-loo-table', 'bicla-loo-deltabar', 'bicla-loo-methods'],
+    tabButtonId: 'tab-btn-bicla-loo',
+    tabPanelId: 'tab-bicla-loo',
+    expectedKFull: 3,
+    expectedKLoo: 2,
+    everyNlPFinite: false,  // 2/3 LOO subsets are single-trial RCS path, nlP=null
+    expectedMostInfluential: 'TULIP-1',
+  },
+];
+
+for (const c of looRollout) {
+  console.log('LOO rollout: ' + c.name);
+  if (!c.skipHtmlAssertions) {
+    const html = readFlagshipHtml(c.html);
+    test(c.name + ': LOO tab button #' + c.tabButtonId + ' present in HTML', () => {
+      assert.ok(html.includes('id="' + c.tabButtonId + '"'),
+        'flagship HTML must contain the LOO tab button id ' + c.tabButtonId);
+    });
+    test(c.name + ': LOO tab panel #' + c.tabPanelId + ' present in HTML', () => {
+      assert.ok(html.includes('id="' + c.tabPanelId + '"'),
+        'flagship HTML must contain the LOO tab panel id ' + c.tabPanelId);
+    });
+    c.mountIds.forEach(id => {
+      test(c.name + ': mount #' + id + ' present in HTML', () => {
+        assert.ok(html.includes('id="' + id + '"'),
+          'flagship HTML must contain the LOO mount id ' + id);
+      });
+    });
+  }
+
+  if (c.explanatoryPanelOnly) {
+    // ARTS-DN k=1 case: assert the HTML contains the explanatory phrase the
+    // flagship JS renders rather than calling fitLOO.
+    test(c.name + ': flagship JS contains the documented k=1 explanatory phrase', () => {
+      const js = fs.readFileSync(path.join(repoRoot, c.html.replace('.html', '.js')), 'utf8');
+      assert.ok(js.includes(c.expectedExplanatoryPhrase),
+        'flagship JS must render the documented explanatory phrase: ' + c.expectedExplanatoryPhrase);
+      // And the JS must NOT actually invoke DR._internal.fitLOO at k=1.
+      // We strip string literals AND // line comments before scanning so that
+      // references inside the methodology copy and inline comments
+      // ("<code>DR._internal.fitLOO(...)</code>", "// Render an explanatory
+      // panel rather than calling DR._internal.fitLOO") do not count as
+      // invocations.
+      const stripped = js
+        .replace(/'(?:\\.|[^'\\])*'/g, "''")     // single-quoted strings
+        .replace(/"(?:\\.|[^"\\])*"/g, '""')     // double-quoted strings
+        .replace(/`(?:\\.|[^`\\])*`/g, '``')     // template literals
+        .replace(/\/\/[^\n]*/g, '')              // // line comments
+        .replace(/\/\*[\s\S]*?\*\//g, '');       // /* block comments */
+      assert.ok(!/DR\._internal\.fitLOO\s*\(/.test(stripped),
+        'flagship JS must NOT invoke DR._internal.fitLOO at k=1 (would return empty); only string-literal and comment references in the explanatory copy are allowed');
+    });
+    continue;
+  }
+
+  // Engine-side contract: fitLOO call must succeed and produce the documented shape.
+  const fx = JSON.parse(fs.readFileSync(path.join(repoRoot, c.fixture), 'utf8'));
+  let r;
+  try {
+    r = DR._internal.fitLOO(fx.trials, c.layer === 'rcs' ? { layer: 'rcs', knots: c.knots } : { layer: 'linear' });
+  } catch (e) {
+    test(c.name + ': fitLOO call should not throw (got: ' + e.message + ')', () => { throw e; });
+    continue;
+  }
+
+  test(c.name + ': fitLOO returns layer=' + c.layer + ', k_full=' + c.expectedKFull + ', loo.length=' + c.expectedKFull, () => {
+    assert.equal(r.layer, c.layer);
+    assert.equal(r.k_full, c.expectedKFull);
+    assert.equal(r.loo.length, c.expectedKFull);
+  });
+
+  test(c.name + ': summary fields populate (most_influential_trial, max_abs_delta_slope, booleans)', () => {
+    assert.ok(typeof r.summary.most_influential_trial === 'string' && r.summary.most_influential_trial.length > 0,
+      'summary.most_influential_trial must be a non-empty string so KPI does not display n/a');
+    assert.ok(Number.isFinite(r.summary.max_abs_delta_slope),
+      'summary.max_abs_delta_slope must be finite (KPI displays via .toFixed(5))');
+    assert.equal(typeof r.summary.any_significance_flip, 'boolean');
+    assert.equal(typeof r.summary.any_sign_flip, 'boolean');
+    assert.equal(typeof r.summary.n_degenerated, 'number');
+  });
+
+  test(c.name + ': summary.most_influential_trial matches expected (' + c.expectedMostInfluential + ')', () => {
+    assert.ok(String(r.summary.most_influential_trial).includes(c.expectedMostInfluential),
+      'expected most_influential_trial to include "' + c.expectedMostInfluential + '"; got: ' + r.summary.most_influential_trial);
+  });
+
+  test(c.name + ': per-row k_loo === ' + c.expectedKLoo + ' for every entry', () => {
+    r.loo.forEach(e => assert.equal(e.k_loo, c.expectedKLoo,
+      'expected k_loo=' + c.expectedKLoo + ' for entry dropping ' + e.dropped_studlab + '; got ' + e.k_loo));
+  });
+
+  test(c.name + ': per-row shape contract (dropped_studlab, slope, CI, delta, booleans)', () => {
+    r.loo.forEach(e => {
+      assert.ok(typeof e.dropped_studlab === 'string' && e.dropped_studlab.length > 0);
+      assert.equal(typeof e.sign_flip, 'boolean');
+      assert.equal(typeof e.significance_flip, 'boolean');
+      assert.equal(typeof e.degenerated, 'boolean');
+      // pooled_slope_log can be NaN on degenerated subsets (e.g. SURMOUNT-1 LOO).
+      // The flagship's row render checks Number.isFinite; we only require the
+      // field to be a number (finite OR NaN).
+      assert.equal(typeof e.pooled_slope_log, 'number');
+    });
+  });
+
+  if (c.everyNlPFinite) {
+    test(c.name + ': every LOO entry has finite nonlinearity_wald_p (no degenerations on this fixture)', () => {
+      r.loo.forEach(e => {
+        assert.ok(Number.isFinite(e.nonlinearity_wald_p),
+          'expected finite nlP for entry dropping ' + e.dropped_studlab + '; got ' + e.nonlinearity_wald_p);
+      });
+    });
+  }
+
+  if (c.expectAllDegenerated) {
+    test(c.name + ': all LOO subsets are degenerated (k_full=2 linear layer → each LOO is k=1)', () => {
+      assert.equal(r.summary.n_degenerated, r.loo.length,
+        'expected all ' + r.loo.length + ' LOO entries to be degenerated; got ' + r.summary.n_degenerated);
+    });
+  }
+
+  console.log('');
+}
+
 console.log('-'.repeat(60));
 console.log(passed + ' passed, ' + failed + ' failed');
 process.exit(failed === 0 ? 0 : 1);

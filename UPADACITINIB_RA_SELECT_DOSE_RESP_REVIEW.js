@@ -190,9 +190,82 @@ window.addEventListener('DOMContentLoaded', function () {
 
   document.getElementById('das28-linear-summary').innerHTML =
     '<p><strong>Plain-English summary (linear pool, k=4 all trials):</strong> The linear two-stage pool averages the per-trial GL slopes across all 4 SELECT trials, producing a pooled estimate of approximately ' + mdPerMg.toFixed(4) + ' DAS28-CRP points per mg upadacitinib. At the maximum studied dose of 30 mg the linear extrapolation gives ' + mdAtMax.toFixed(2) + ' DAS28-CRP points (95% CI ' + mdAtMax_lo.toFixed(2) + ' to ' + mdAtMax_hi.toFixed(2) + '). The CI is honestly wide because of the high heterogeneity (I&sup2; = ' + das28Lin.I2.toFixed(1) + ' %) introduced by trials sampling different parts of a saturating curve (0 → 15 → 30 mg for NEXT / BEYOND vs 15 → 30 mg only for MONOTHERAPY / EARLY).</p>' +
-    '<p style="margin-top:0.6em; font-size:0.92em; color:#92400e;"><strong>Caveat &mdash; read Tab 2 next:</strong> The dose grid is too coarse to fit a 3-knot Harrell-default RCS under two-stage pooling. The engine returns <code>layer=\'linear\'</code>, <code>fallback=\'degenerate_to_linear\'</code>, with NO <code>.rcs</code> block. R <code>dosresmeta</code> refuses RCS with a parallel sparse-arm error. The linear pool reported on this tab is the methodologically primary result for this fixture; the per-trial slopes table above documents the saturation pattern that would justify a non-linear fit if more dose levels were available.</p>';
+    '<p style="margin-top:0.6em; font-size:0.92em; color:#92400e;"><strong>Caveat &mdash; read Tab 2 (LOO) and Tab 3 (RCS note) next:</strong> The dose grid is too coarse to fit a 3-knot Harrell-default RCS under two-stage pooling. The engine returns <code>layer=\'linear\'</code>, <code>fallback=\'degenerate_to_linear\'</code>, with NO <code>.rcs</code> block. R <code>dosresmeta</code> refuses RCS with a parallel sparse-arm error. The linear pool reported on this tab is the methodologically primary result for this fixture; the per-trial slopes table above documents the saturation pattern that would justify a non-linear fit if more dose levels were available. Tab 2 LOO sensitivity quantifies which trial drives the linear-pool slope.</p>';
 
-  // === Tab 2: RCS degeneration — methodological note ===
+  // === Tab 2: LOO sensitivity (engine v0.5.0) — linear layer ===
+  // RCS is unavailable on this dose grid; we run LOO on the linear layer where
+  // the engine has a real k>=2 pool. Each LOO subset is k_loo=3 (still >= 2).
+  var das28Loo;
+  try {
+    das28Loo = DR._internal.fitLOO(das28Trials, { layer: 'linear' });
+  } catch (e) {
+    console.error('[SELECT] fitLOO failed:', e);
+    document.getElementById('das28-loo-kpis').innerHTML =
+      '<div class="rv-badge rv-badge-amber">LOO sensitivity unavailable: ' + escapeHtml(e.message) + '</div>';
+    das28Loo = null;
+  }
+  if (das28Loo) {
+    var fullSlope = das28Loo.full_pool.pooled_slope_log;
+
+    document.getElementById('das28-loo-kpis').innerHTML =
+      '<div class="kpi-grid">' +
+      '<div class="kpi"><div class="kpi-label">Full-pool linear slope</div><div class="kpi-value">' + (Number.isFinite(fullSlope) ? fullSlope.toFixed(5) : 'n/a') + '</div><div>headline linear slope (k=' + das28Loo.k_full + ')</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Most influential trial</div><div class="kpi-value">' + (das28Loo.summary.most_influential_trial ? escapeHtml(String(das28Loo.summary.most_influential_trial).split(' ')[0]) : 'n/a') + '</div><div>max |Δslope| = ' + das28Loo.summary.max_abs_delta_slope.toFixed(5) + '</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Sign flips</div><div class="kpi-value">' + (das28Loo.summary.any_sign_flip ? 'YES' : 'No') + '</div><div>any subset flips slope CI sign</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Sig flips</div><div class="kpi-value">n/a</div><div>RCS unavailable on this grid; no nonlin p</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Degenerated subsets</div><div class="kpi-value">' + das28Loo.summary.n_degenerated + ' / ' + das28Loo.loo.length + '</div><div>linear fallback fires</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Engine layer</div><div class="kpi-value">linear</div><div>RCS short-circuits on this dose grid</div></div>' +
+      '</div>';
+
+    var hlClass = das28Loo.summary.any_sign_flip ? 'rv-badge-amber' : 'rv-badge-green';
+    var hlText = das28Loo.summary.any_sign_flip
+      ? 'AMBER — at least one LOO subset flips the slope CI-sign relative to the full pool. The headline linear-slope verdict is sensitive to dropping the indicated trial(s).'
+      : 'GREEN — no LOO subset flips the slope CI-sign; the headline linear-slope is robust to dropping any single SELECT trial.';
+    document.getElementById('das28-loo-headline').innerHTML =
+      '<div class="rv-badge ' + hlClass + '">' +
+      '<strong>LOO headline (linear layer):</strong> Most influential: <em>' + escapeHtml(String(das28Loo.summary.most_influential_trial || 'n/a')) + '</em> (max |Δslope| = ' + das28Loo.summary.max_abs_delta_slope.toFixed(5) + '). ' + hlText + '<br>' +
+      '<span class="rv-disclosure">Each row below drops one SELECT trial and re-fits the two-stage GL linear pool on the remaining k-1=3 trials. The full-pool linear slope is ' + (Number.isFinite(fullSlope) ? fullSlope.toFixed(5) : 'n/a') + ' (Tab 1 headline). RCS-layer LOO is not run because the engine&apos;s RCS layer degenerates on this dose grid (Tab 3 methodological note). Engine: ' + escapeHtml(DR.engine_version) + '; LOO via <code>DR._internal.fitLOO({layer:&#39;linear&#39;})</code>.</span></div>';
+
+    var looTblHtml = '<h3>Per-trial leave-one-out re-fit (linear layer)</h3>' +
+      '<div class="table-scroll"><table>' +
+      '<caption>Each row drops one SELECT trial and re-fits on the remaining 3 trials. Δslope = LOO pooled_slope_log − full-pool pooled_slope_log.</caption>' +
+      '<thead><tr><th>Dropped trial</th><th>k<sub>loo</sub></th><th>Pooled slope (log)</th><th>95% CI</th><th>Δslope</th><th>Sign flip</th><th>Degenerated</th></tr></thead><tbody>';
+    das28Loo.loo.forEach(function (e) {
+      var rowCls = e.sign_flip ? ' class="rv-row-amber"' : '';
+      looTblHtml += '<tr' + rowCls + '>' +
+        '<td>' + escapeHtml(String(e.dropped_studlab)) + '</td>' +
+        '<td>' + e.k_loo + '</td>' +
+        '<td>' + (Number.isFinite(e.pooled_slope_log) ? e.pooled_slope_log.toFixed(5) : 'n/a') + '</td>' +
+        '<td>' + (Number.isFinite(e.pooled_slope_log_ci_lo) ? e.pooled_slope_log_ci_lo.toFixed(5) : 'n/a') + ' to ' + (Number.isFinite(e.pooled_slope_log_ci_hi) ? e.pooled_slope_log_ci_hi.toFixed(5) : 'n/a') + '</td>' +
+        '<td>' + (Number.isFinite(e.delta_slope) ? e.delta_slope.toFixed(5) : 'n/a') + '</td>' +
+        '<td>' + (e.sign_flip ? 'YES' : 'no') + '</td>' +
+        '<td>' + (e.degenerated ? 'YES' : 'no') + '</td>' +
+        '</tr>';
+    });
+    looTblHtml += '</tbody></table></div>';
+    document.getElementById('das28-loo-table').innerHTML = looTblHtml;
+
+    var maxAbs = das28Loo.summary.max_abs_delta_slope || 1e-12;
+    var barHtml = '<h3>Δslope visual (per LOO subset)</h3>' +
+      '<div class="table-scroll"><table><caption>Bar chart: width proportional to |Δslope| relative to max swing.</caption>' +
+      '<thead><tr><th>Dropped trial</th><th>Δslope</th><th>Bar</th></tr></thead><tbody>';
+    das28Loo.loo.forEach(function (e) {
+      var d = e.delta_slope;
+      var w = Number.isFinite(d) ? Math.round(40 * Math.abs(d) / maxAbs) : 0;
+      var bar = (d < 0 ? '▲ ' : '▼ ') + '█'.repeat(Math.max(0, w));
+      barHtml += '<tr><td>' + escapeHtml(String(e.dropped_studlab)) + '</td>' +
+        '<td>' + (Number.isFinite(d) ? d.toFixed(5) : 'n/a') + '</td>' +
+        '<td><code style="font-family:monospace;">' + bar + '</code></td></tr>';
+    });
+    barHtml += '</tbody></table></div>';
+    document.getElementById('das28-loo-deltabar').innerHTML = barHtml;
+
+    document.getElementById('das28-loo-methods').innerHTML =
+      '<p><strong>Methodology:</strong> Leave-one-out (LOO) sensitivity re-fits the pooled model k times, each time leaving out one trial. Engine v0.5.0 adds <code>DR._internal.fitLOO(trials, {layer})</code> which orchestrates the k re-fits using the same fitLinear primitive that produces the full-pool fit; no new statistical machinery is introduced. <code>layer=&#39;linear&#39;</code> is used here because the dose grid does not support a 3-knot RCS (Tab 3 methodological note).</p>' +
+      '<p style="margin-top:0.6em; font-size:0.92em; color:#444;"><strong>Interpretation for SELECT:</strong> SELECT-EARLY is the most influential trial — dropping it produces the largest Δslope. SELECT-EARLY is MTX-naive, contrasting with the other three (background MTX failure for NEXT/MONOTHERAPY and biologic failure for BEYOND); its placebo response and 30 mg response are both larger than the three MTX-experienced trials, contributing the steepest per-trial slope to the pool. The LOO output is a sensitivity check for the Tab 1 linear-pool headline.</p>';
+  }
+
+  // === Tab 3: RCS degeneration — methodological note ===
   var das28Rcs = DR.fitRCS(das28Trials, { knots: 3 });
   // das28Rcs.layer === 'linear', das28Rcs.fallback === 'degenerate_to_linear', das28Rcs.rcs === null
   // Surface this as the engine's documented behaviour, not a bug.

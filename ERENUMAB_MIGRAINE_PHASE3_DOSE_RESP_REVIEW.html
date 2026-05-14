@@ -138,8 +138,9 @@
 
 <nav class="tab-nav" role="tablist" aria-label="Analysis tabs">
   <button id="tab-btn-mmd-linear" data-tab="mmd-linear" class="active" role="tab" aria-selected="true" aria-controls="tab-mmd-linear" tabindex="0">1. &Delta; MMD &mdash; Linear (k=3, HEADLINE)</button>
-  <button id="tab-btn-rcs-note" data-tab="rcs-note" role="tab" aria-selected="false" aria-controls="tab-rcs-note" tabindex="-1">2. RCS degeneration &mdash; methodological note</button>
-  <button id="tab-btn-parity" data-tab="parity" role="tab" aria-selected="false" aria-controls="tab-parity" tabindex="-1">3. R-parity badge (linear-only)</button>
+  <button id="tab-btn-mmd-loo" data-tab="mmd-loo" role="tab" aria-selected="false" aria-controls="tab-mmd-loo" tabindex="-1">2. LOO sensitivity (v0.5)</button>
+  <button id="tab-btn-rcs-note" data-tab="rcs-note" role="tab" aria-selected="false" aria-controls="tab-rcs-note" tabindex="-1">3. RCS degeneration &mdash; methodological note</button>
+  <button id="tab-btn-parity" data-tab="parity" role="tab" aria-selected="false" aria-controls="tab-parity" tabindex="-1">4. R-parity badge (linear-only)</button>
 </nav>
 
 <section id="tab-mmd-linear" class="tab-content active" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-mmd-linear">
@@ -150,6 +151,15 @@
   <div id="mmd-linear-pophet"></div>
   <div id="mmd-linear-curve"></div>
   <div id="mmd-linear-summary"></div>
+</section>
+
+<section id="tab-mmd-loo" class="tab-content" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-mmd-loo">
+  <h2 tabindex="-1">Leave-one-out (LOO) sensitivity &mdash; linear layer (engine v0.5.0; RCS unavailable on this dose grid)</h2>
+  <div id="mmd-loo-kpis" aria-live="polite" aria-atomic="true"></div>
+  <div id="mmd-loo-headline"></div>
+  <div id="mmd-loo-table"></div>
+  <div id="mmd-loo-deltabar"></div>
+  <div id="mmd-loo-methods"></div>
 </section>
 
 <section id="tab-rcs-note" class="tab-content" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-rcs-note">
