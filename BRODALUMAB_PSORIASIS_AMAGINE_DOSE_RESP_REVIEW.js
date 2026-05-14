@@ -12,7 +12,7 @@
  *     gap in the underlying trials is 60-80pp because the response curve
  *     is non-linear and saturating, see Tab 2 caveat).
  *     τ² ≈ 8.6e-7 (effectively zero); Q ≈ 6.56 (df 2); I² ≈ 70%;
- *     HKSJ adj ≈ 1.81 (HKSJ inflates the SE moderately because Q*/df > 1).
+ *     HKSJ adj ≈ 1.81 (HKSJ inflates the SE moderately because Q-star over df is greater than 1).
  *
  *   RCS layer: ENGINE REFUSES, returns layer='linear', fallback='degenerate_to_linear',
  *     rcs=null. The cross-trial dose grid has only 2 distinct positive doses

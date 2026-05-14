@@ -161,6 +161,50 @@ FLAGSHIPS = [
         "allowed_amber_rows": [],
         "deferral_must_contain": "deferred to engine v0.5",
     },
+    {
+        # Round 3.9 — 3-trial AMAGINE brodalumab PASI 75 binary dose-response flagship.
+        # FIRST flagship where engine declines RCS but R FITS RCS (the prior
+        # degeneracy flagships SUSTAIN and SELECT had both engines refusing via
+        # different paths). The 3 trials use a {0, 140, 210} mg dose grid that
+        # has only 2 distinct positive doses; the engine's `rcsKnots` returns
+        # fewer than K=3 distinct knot locations and `fitRCS` short-circuits to
+        # `fitLinear` with `fallback='degenerate_to_linear'`, `rcs=null`. R
+        # `dosresmeta` does NOT short-circuit — each trial has 2 non-reference
+        # arms after Option A active-comparator dropping (>= K_p=2 required),
+        # so R's sparse-per-trial-arm guard does not fire. R proceeds and fits
+        # a 3-knot RCS with all 3 percentile knots inside the 140–210 mg
+        # interval (knots [157.5, 175, 192.5], spline_coefs [0.01763, -0.01875],
+        # nonlinearity_wald_p 1.64e-13). The R fit is technically valid arithmetic
+        # but uses degenerate (uninformative) knots.
+        # Badge characteristics (custom panel, NOT the standard 5-row badge):
+        #   - header class `rv-badge-deferred` (purple) — overall flag for the
+        #     engine-vs-R disagreement
+        #   - linear-slope row GREEN (engine 0.00523 vs R 0.00735, |Δ| ≈ 0.0021
+        #     well within the 0.01 threshold)
+        #   - linear-τ² row GREEN (both essentially zero; engine PM 8.6e-7 vs
+        #     R REML 4.6e-19, |Δ| ≈ 8.6e-7 well within the 0.0001 threshold)
+        #   - 3 RCS rows custom "ENGINE-DECLINED / R-FIT" status (rv-row-deferred
+        #     styling; status cell explicitly contains "ENGINE-DECLINED / R-FIT")
+        #   - one-stage row PASS-THROUGH (R glmer converged=false)
+        # KPI scope here is Tab 2's `rcs-note-body` (containing the side-by-side
+        # engine-output / R-output code blocks); we re-use the standard 'no n/a
+        # in KPI' check (the standard 'pasi-rcs-kpis' mount does not exist on
+        # this flagship — Tab 2 is the methodological note).
+        "html": "BRODALUMAB_PSORIASIS_AMAGINE_DOSE_RESP_REVIEW.html",
+        "r_parity_mount_id": "r-parity-brodalumab-pasi",
+        "rcs_kpi_id": "rcs-note-body",
+        "expected_badge": "deferred",
+        "allowed_amber_rows": [],
+        "deferral_must_contain": "deferred to engine v0.5",
+        # AMAGINE-specific check: the badge must explicitly surface the
+        # "engine-declined / R-fit" disagreement in the RCS rows. Without this,
+        # readers cannot tell whether the deferral is the SUSTAIN/SELECT
+        # case (both refused) or the AMAGINE case (engine refused, R fit).
+        "must_contain_phrases": [
+            "ENGINE-DECLINED / R-FIT",
+            "knots inside 140",  # part of "knots inside 140–210 mg gap"
+        ],
+    },
 ]
 
 
@@ -391,6 +435,28 @@ def main():
                         except AssertionError as e:
                             print(f"  ✗ {e}")
                             failed += 1
+
+                        # Test 5 (Round 3.9, AMAGINE-specific): if the flagship
+                        # specifies must_contain_phrases, each phrase must appear
+                        # in the rendered badge HTML. Round 3.9 uses this to
+                        # assert that the badge surfaces the "ENGINE-DECLINED /
+                        # R-FIT" disagreement explicitly (distinguishing it from
+                        # the SUSTAIN/SELECT case where both engines refused).
+                        # Flagships without this key skip the test silently
+                        # (back-compat with the 7 prior flagships).
+                        must_contain = flagship.get("must_contain_phrases")
+                        if must_contain:
+                            try:
+                                missing = [phrase for phrase in must_contain if phrase not in badge]
+                                assert not missing, (
+                                    f"{flagship['html']}: badge HTML missing required phrases "
+                                    f"{missing}. Badge HTML (first 2000 chars): {badge[:2000]}"
+                                )
+                                print(f"  ✓ badge contains required phrases: {must_contain}")
+                                passed += 1
+                            except AssertionError as e:
+                                print(f"  ✗ {e}")
+                                failed += 1
                     finally:
                         page.close()
             finally:
