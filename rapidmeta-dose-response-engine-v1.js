@@ -1218,7 +1218,7 @@
     opts = opts || {};
     var issues = validate(trials);
     if (issues.length) throw new Error('fitRCS: ' + issues[0]);
-    if (trials.length < 2) throw new Error('fitRCS: requires k >= 2 trials; got k=' + trials.length);
+    if (trials.length < 1) throw new Error('fitRCS: requires k >= 1 trial; got k=' + trials.length);
 
   var firstTrial = trials[0];
   var firstArm = firstTrial.arms.find(function (a) { return !a.is_reference; });
@@ -1324,46 +1324,61 @@
       });
     }
 
-  if (perStudy.length < 2) {
-    throw new Error('fitRCS: fewer than 2 studies survived covariance inversion; k_effective=' + perStudy.length);
+  if (perStudy.length < 1) {
+    throw new Error('fitRCS: 0 studies survived covariance inversion');
   }
 
-    // Round 2B (v0.3.0): FULL multivariate REML via Nelder-Mead on Cholesky
-    // parameters of the τ² matrix. Closes the v0.1/v0.2 diagonal-PM-per-dimension
-    // divergence from R: engine non-linearity p now matches R mixmeta within
-    // |Δ| < 0.1 on GL-1992 (engine ~0.70 vs R ~0.70). The R-parity badge's
-    // non-linearity-p row turns GREEN under v0.3.
+    // Round 3.6 (v0.4): k=1 single-trial branch. ARTS-DN-like Phase 2b designs are
+    // single-trial multi-dose RCTs (one study, many parallel dose arms). There's no
+    // between-study τ² to estimate (single trial → between-study variance is undefined),
+    // no Q heterogeneity statistic, no HKSJ inflation. Just the trial's own RCS coefs
+    // + Kp×Kp coef covariance V, with z=1.96 or within-trial t_{df_within} for CIs.
     //
-    // Historical note: v0.1 (Round 1A) and v0.2 (Round 2A) used a simpler
-    // diagonal-PM-per-dimension τ² approximation that produced engine
-    // non-linearity p ≈ 0.05 on GL-1992 (vs R ≈ 0.70). The badge marked that row
-    // always-amber under v0.1/v0.2 as a documented design tradeoff.
-    //
-    // Parameterisation: τ² = L L' where L is lower-triangular Kp × Kp. Free parameters:
-    //   • L_diag (Kp values, stored as log → exp on read for positivity)
-    //   • L_offdiag (Kp(Kp-1)/2 values, unconstrained)
-    // Total: Kp(Kp+1)/2. LL' construction guarantees PSD.
-    //
-    // The HKSJ-multivariate + t_{k-1} CI variant is deferred to Task 9; this commit
-    // keeps z=1.96 on the new full-REML pooled SE.
+    // Multi-trial branch (k ≥ 2) uses full multivariate REML via Nelder-Mead on the
+    // Cholesky parameterization of the τ² matrix — same as Round 2B v0.3.
+    var psForREML, optResult, tau2Matrix, tau2_per_dim, pooled, covBeta, pooledSE;
+    var isSingleTrial = perStudy.length < 2;
+    if (isSingleTrial) {
+      // Single-trial path: τ² = 0 by construction. Use the trial's own β̂ and V directly.
+      tau2Matrix = zeros(Kp, Kp);
+      tau2_per_dim = new Array(Kp).fill(0);
+      optResult = { converged: true, iterations: 0, fx: 0, x: new Array(Kp * (Kp + 1) / 2).fill(0) };
+      pooled = perStudy[0].beta.slice();
+      covBeta = perStudy[0].V.map(function (row) { return row.slice(); });
+      pooledSE = [];
+      for (var ds = 0; ds < Kp; ds++) pooledSE.push(Math.sqrt(covBeta[ds][ds]));
+      psForREML = null;  // no REML to run
+    } else {
+      psForREML = perStudy.map(function (s) { return { X: s.X, y: s.y, V: s.S }; });
+      var _reml = fitRCSReml(perStudy, Kp);
+      optResult = _reml.optResult;
+      tau2Matrix = _reml.tau2Matrix;
+      tau2_per_dim = [];
+      for (var dim = 0; dim < Kp; dim++) tau2_per_dim.push(tau2Matrix[dim][dim]);
+      var _pooled = fitRCSPooled(perStudy, Kp, tau2Matrix);
+      pooled = _pooled.pooledBeta;
+      covBeta = _pooled.covBeta;
+      pooledSE = _pooled.pooledSE_raw;
+    }
 
-    // Full multivariate REML extracted to API._internal.fitRCSReml in v0.4 refactor.
-    // Build psForREML inline only for the HKSJ-mv block below (which needs s.X, s.y, s.S).
-    var psForREML = perStudy.map(function (s) { return { X: s.X, y: s.y, V: s.S }; });
-    var _reml = fitRCSReml(perStudy, Kp);
-    var optResult = _reml.optResult;
-    var tau2Matrix = _reml.tau2Matrix;
-    var tau2_per_dim = [];
-    for (var dim = 0; dim < Kp; dim++) tau2_per_dim.push(tau2Matrix[dim][dim]);
-
-    // Pooled β̂ + Cov(β̂) re-derivation extracted to API._internal.fitRCSPooled in v0.4.
-    var _pooled = fitRCSPooled(perStudy, Kp, tau2Matrix);
-    var pooled = _pooled.pooledBeta;
-    var covBeta = _pooled.covBeta;
-    var pooledSE = _pooled.pooledSE_raw;
-
-    // HKSJ-multivariate + tcrit extracted to API._internal.fitRCSHksjMv in v0.4.
-    var _hksj = fitRCSHksjMv(perStudy, Kp, tau2Matrix, pooled, pooledSE);
+    // HKSJ-multivariate + tcrit. For k=1 single-trial: no Q heterogeneity (hksj_mv=1),
+    // df from within-trial residuals (n_arms − Kp), tcrit = qt(0.975, df_within) or z=1.96.
+    var _hksj = isSingleTrial
+      ? (function () {
+          // Within-trial residual df: count arms across the single trial (= k_i)
+          var k_arms_single = perStudy[0].n_arms || (perStudy[0].X ? perStudy[0].X.length + 1 : Kp + 2);
+          var dfWithin = Math.max(1, k_arms_single - Kp - 1);
+          return {
+            q_mv: 0,
+            df_mv: dfWithin,
+            hksj_mv: 1,
+            k_trials: 1,
+            tcrit: dfWithin >= 1 ? qt(0.975, dfWithin) : 1.96,
+            pooledSE_hksj: pooledSE.slice(),  // no inflation at k=1
+            n_total: perStudy[0].X ? perStudy[0].X.length : 0,
+          };
+        })()
+      : fitRCSHksjMv(perStudy, Kp, tau2Matrix, pooled, pooledSE);
     var Q_mv = _hksj.q_mv;
     var df_mv = _hksj.df_mv;
     var hksj_mv = _hksj.hksj_mv;
@@ -1413,8 +1428,8 @@
       max_observed_dose: maxD,
       coverage_warning: perStudy.length < 10,
       fallback: null,
-      estimator: 'reml_hksj_multivariate',  // Round 2B Task 9 (was 'pm_diagonal_z' in v0.1/v0.2)
-      ci_method: 'hksj_t_km1',              // Round 2B Task 9 (was 'z_1.96' in v0.1/v0.2)
+      estimator: isSingleTrial ? 'wls_single_trial_rcs' : 'reml_hksj_multivariate',
+      ci_method: isSingleTrial ? 't_within_trial' : 'hksj_t_km1',
       hksj_mv: hksj_mv,                     // HKSJ-multivariate scaling factor (≥ 1)
       q_mv: Q_mv,                           // raw multivariate Cochran Q (pre-floor)
       df_mv: df_mv,                         // df = max(1, n_total − Kp)
