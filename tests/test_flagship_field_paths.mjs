@@ -34,12 +34,15 @@ const THRESHOLDS = {
   nonlinearity_p: 0.05,
 };
 
-// The 5 dose-response flagships shipped via Rounds 1B-3.6:
+// The 6 dose-response flagships shipped via Rounds 1B-3.7:
 //   1. ALCOHOL_BC_DOSE_RESP_REVIEW.html (gl1992_alcohol_bc)
 //   2. SGLT2I_DOSE_RESP_REVIEW.html (sglt2i_hba1c primary + sglt2i_hhf secondary)
 //   3. TIRZEPATIDE_T2D_SURPASS_DOSE_RESP_REVIEW.html (tirzepatide_t2d_surpass)
 //   4. TIRZEPATIDE_OBESITY_SURMOUNT_DOSE_RESP_REVIEW.html (tirzepatide_obesity_surmount, k=2 small-k stress test)
 //   5. FINERENONE_ARTS_DN_DOSE_RESP_REVIEW.html (finerenone_arts_dn, k=1 single-trial path — Round 3.6, v0.4 PR #270)
+//   6. SEMAGLUTIDE_T2D_SUSTAIN_DOSE_RESP_REVIEW.html (semaglutide_t2d_sustain — Round 3.7;
+//      6-trial fixture but engine fitRCS drops 4 singular-design trials, R dosresmeta refuses
+//      RCS entirely on sparse-arm requirement; linear-layer pool succeeds k=6)
 //
 // Each flagship reads engine field paths from DR.fitLinear / DR.fitRCS results.
 // We codify the contract per flagship.
@@ -56,6 +59,18 @@ const THRESHOLDS = {
 //   - The flagship's badge is rendered with class `rv-badge-deferred` (custom panel)
 //     rather than the standard 5-row badge, so allGreen/allAmber assertions are
 //     replaced with finite-coef + invariant-shape assertions.
+//
+// For flagships where R refused to fit RCS entirely (sparse-arm requirement,
+// e.g. SUSTAIN where 4 of 6 trials have only 1 non-reference arm):
+//   - `rRefusedRcs: true` skips the 3 RCS R-parity row assertions
+//     (rcs_coef_0, rcs_coef_1, nonlinearity_p) because the R precompute JSON
+//     has no rcs.spline_coefs or rcs.nonlinearity_wald_p fields. The engine's
+//     RCS output is still field-path-asserted and the engine-only assertions
+//     (finite coefs, valid Wald, invariant shape) still run.
+//   - `rcsKEffectiveLessThanFixture: true` documents that the engine's fitRCS
+//     reduces to k_RCS < input k because some trials have singular per-trial
+//     design matrices. The contract enforces hksj_mv >= 1 (still holds at the
+//     reduced k_RCS) and finite-coef invariants.
 
 const flagshipContracts = [
   {
@@ -100,6 +115,35 @@ const flagshipContracts = [
     // tau2_matrix all zeros, tcrit=within-trial t). See test_dose_response_engine.mjs
     // for the 8 dedicated k=1 unit tests.
     singleTrial: true,
+  },
+  {
+    flagship: 'SEMAGLUTIDE_T2D_SUSTAIN_DOSE_RESP_REVIEW.html',
+    fixture: 'tests/dose_response_fixtures/semaglutide_t2d_sustain.json',
+    rJson: 'outputs/r_validation/doseresp/semaglutide_t2d_sustain.json',
+    rcsKnots: 3,
+    // linear_tau2 AMBER: engine fitLinear uses Paule-Mandel (per lessons.md "Never
+    // use DL for k<10 — use REML or PM"), R dosresmeta uses REML. On SUSTAIN with
+    // I²=97.4% and dose-range mismatch (SUSTAIN-1/5 0→1 mg vs SUSTAIN-FORTE 1→2 mg),
+    // PM and REML diverge by |Δ|=0.0113 (PM 0.4104, REML 0.3992) — far above the
+    // 0.0001 threshold. Both estimators are valid; this is an expected estimator
+    // divergence at the I²~97% boundary, not a bug. Documented in the flagship's
+    // R-parity badge disclosure as the linear-row engine-vs-R caveat.
+    expectAmberRows: ['linear_tau2'],
+    // Round 3.7: 6-trial fixture but per-trial sparse-arm design causes 4 of 6 to
+    // have singular K_p×K_p RCS design matrices (only 1 non-reference arm after
+    // Option A dropping vs K_p=2 spline coefs required). Engine's fitRCS drops
+    // them inside its try/catch and pools the surviving k_RCS=2 (SUSTAIN-1 +
+    // SUSTAIN-5). R dosresmeta refuses RCS entirely with the sparse-arm error;
+    // the R precompute JSON has rcs.fit_ok=false and lacks rcs.spline_coefs /
+    // rcs.nonlinearity_wald_p fields. The 3 RCS R-parity rows are deferred in
+    // the flagship's custom badge panel; we skip the threshold assertions for
+    // those rows here.
+    rRefusedRcs: true,
+    // The engine reduces k_RCS from input k=6 to k=2 via silent drop of singular
+    // per-trial designs. tcrit at the RCS layer = qt(0.975, 1) = 12.706 reflects
+    // the surviving k_RCS, not the input fixture k. The hksj_mv >= 1 floor still
+    // holds (q_mv/df_mv < 1 → hksj_mv = 1 by floor).
+    rcsKEffectiveLessThanFixture: true,
   },
 ];
 
@@ -271,15 +315,38 @@ for (const c of flagshipContracts) {
       rowAssert('linear_tau2', lin.tau2, rJson.linear.tau2);
     });
   }
-  test('R-parity row: rcs_coef_0' + (expectAmber.has('rcs_coef_0') ? ' AMBER (expected)' : ' GREEN') + (c.singleTrial ? ' (k=1 abbreviated badge)' : ''), () => {
-    rowAssert('rcs_coef_0', rcs.rcs.spline_coefs[0], rJson.rcs.spline_coefs[0]);
-  });
-  test('R-parity row: rcs_coef_1' + (expectAmber.has('rcs_coef_1') ? ' AMBER (expected)' : ' GREEN') + (c.singleTrial ? ' (k=1 abbreviated badge)' : ''), () => {
-    rowAssert('rcs_coef_1', rcs.rcs.spline_coefs[1], rJson.rcs.spline_coefs[1]);
-  });
-  test('R-parity row: nonlinearity_p' + (expectAmber.has('nonlinearity_p') ? ' AMBER (expected)' : ' GREEN (Round 2C — was always-amber in v0.1/v0.2)') + (c.singleTrial ? ' (k=1 abbreviated badge)' : ''), () => {
-    rowAssert('nonlinearity_p', rcs.rcs.nonlinearity_wald_p, rJson.rcs.nonlinearity_wald_p);
-  });
+  if (c.rRefusedRcs) {
+    // R refused to fit RCS entirely on this fixture (sparse-arm requirement).
+    // The R precompute JSON has rcs.fit_ok=false; spline_coefs and nonlinearity_p
+    // are absent. The flagship renders a DEFERRED panel for those rows. We still
+    // verify the R precompute correctly marks the failure rather than silently
+    // omitting the field, and that the engine output has finite RCS coefficients.
+    test('R precompute: rcs.fit_ok === false (R refused, sparse-arm requirement)', () => {
+      assert.equal(rJson.rcs && rJson.rcs.fit_ok, false, 'R precompute must explicitly mark rcs.fit_ok=false when R dosresmeta refuses the RCS fit (catches silent omissions)');
+      assert.ok(rJson.rcs && typeof rJson.rcs.error_msg === 'string' && rJson.rcs.error_msg.length > 0, 'R precompute must record an error_msg explaining why R refused');
+    });
+    test('Engine RCS coefs finite even though R refused (engine pooled surviving trials)', () => {
+      assert.ok(Number.isFinite(rcs.rcs.spline_coefs[0]));
+      assert.ok(Number.isFinite(rcs.rcs.spline_coefs[1]));
+      assert.ok(Number.isFinite(rcs.rcs.nonlinearity_wald_p));
+    });
+  } else {
+    test('R-parity row: rcs_coef_0' + (expectAmber.has('rcs_coef_0') ? ' AMBER (expected)' : ' GREEN') + (c.singleTrial ? ' (k=1 abbreviated badge)' : ''), () => {
+      rowAssert('rcs_coef_0', rcs.rcs.spline_coefs[0], rJson.rcs.spline_coefs[0]);
+    });
+    test('R-parity row: rcs_coef_1' + (expectAmber.has('rcs_coef_1') ? ' AMBER (expected)' : ' GREEN') + (c.singleTrial ? ' (k=1 abbreviated badge)' : ''), () => {
+      rowAssert('rcs_coef_1', rcs.rcs.spline_coefs[1], rJson.rcs.spline_coefs[1]);
+    });
+    test('R-parity row: nonlinearity_p' + (expectAmber.has('nonlinearity_p') ? ' AMBER (expected)' : ' GREEN (Round 2C — was always-amber in v0.1/v0.2)') + (c.singleTrial ? ' (k=1 abbreviated badge)' : ''), () => {
+      rowAssert('nonlinearity_p', rcs.rcs.nonlinearity_wald_p, rJson.rcs.nonlinearity_wald_p);
+    });
+  }
+  if (c.rcsKEffectiveLessThanFixture) {
+    test('rcsKEffectiveLessThanFixture: engine fitRCS k < input fixture k (silent singular-design drop)', () => {
+      assert.ok(rcs.k < fx.trials.length, 'expected rcs.k=' + rcs.k + ' < input fixture k=' + fx.trials.length + ' (4 of 6 SUSTAIN trials have only 1 non-ref arm vs K_p=2 spline → singular per-trial XtSX)');
+      assert.ok(rcs.k >= 2, 'engine fitRCS k_RCS must remain >= 2 even after drop (else fitRCS would have thrown at the k>=2 boundary)');
+    });
+  }
 
   // --- KPI display invariants (what the .toFixed(N) calls produce) ---
   // The bug pattern: accessing `.rcs.hksj_mv` (undefined) → `undefined.toFixed(2)` throws,

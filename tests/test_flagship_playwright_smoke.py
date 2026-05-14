@@ -108,6 +108,27 @@ FLAGSHIPS = [
         # Phrase in the deferral note that must be present in the badge HTML.
         "deferral_must_contain": "deferred to engine v0.5",
     },
+    {
+        # Round 3.7 — 6-trial semaglutide SUSTAIN HbA1c dose-response flagship.
+        # R dosresmeta refuses RCS entirely on the sparse-arm requirement (4 of 6
+        # trials have only 1 non-reference arm after Option A active-comparator
+        # dropping vs K_p=2 spline coefs required). The engine handles this by
+        # silently dropping singular per-trial designs and pooling k_RCS=2.
+        # The flagship renders a custom hybrid panel:
+        #   - header class `rv-badge-deferred` (overall RCS deferred)
+        #   - linear-slope row GREEN (engine -0.94 vs R -0.93, |Δ| < 0.01)
+        #   - linear-τ² row AMBER (engine PM 0.41 vs R REML 0.40, |Δ| 0.011 —
+        #     expected estimator divergence at I² = 97.4 %; PM and REML both valid)
+        #   - 3 RCS rows DEFERRED (rv-row-deferred)
+        #   - one-stage row PASS-THROUGH (engine fitOneStage just reads R JSON)
+        # Use "deferred" check + the deferral note must be present.
+        "html": "SEMAGLUTIDE_T2D_SUSTAIN_DOSE_RESP_REVIEW.html",
+        "r_parity_mount_id": "r-parity-sustain-hba1c",
+        "rcs_kpi_id": "hba1c-rcs-kpis",
+        "expected_badge": "deferred",
+        "allowed_amber_rows": [],
+        "deferral_must_contain": "deferred to engine v0.5",
+    },
 ]
 
 
