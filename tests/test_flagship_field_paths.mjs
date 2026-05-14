@@ -34,7 +34,7 @@ const THRESHOLDS = {
   nonlinearity_p: 0.05,
 };
 
-// The 7 dose-response flagships shipped via Rounds 1B-3.8:
+// The 8 dose-response flagships shipped via Rounds 1B-3.9:
 //   1. ALCOHOL_BC_DOSE_RESP_REVIEW.html (gl1992_alcohol_bc)
 //   2. SGLT2I_DOSE_RESP_REVIEW.html (sglt2i_hba1c primary + sglt2i_hhf secondary)
 //   3. TIRZEPATIDE_T2D_SURPASS_DOSE_RESP_REVIEW.html (tirzepatide_t2d_surpass)
@@ -49,6 +49,19 @@ const THRESHOLDS = {
 //      the 3-distinct-dose grid does not support a 3-knot Harrell basis under two-stage
 //      pooling. R dosresmeta refuses with the parallel sparse-arm error. Linear pool
 //      succeeds k=4 and matches R within thresholds.)
+//   8. BRODALUMAB_PSORIASIS_AMAGINE_DOSE_RESP_REVIEW.html (brodalumab_psoriasis_amagine —
+//      Round 3.9; 3-trial binary PASI 75 fixture on the {0, 140, 210} mg dose grid.
+//      Engine returns the documented RCS-fallback (layer='linear',
+//      fallback='degenerate_to_linear', rcs=null) because only 2 distinct positive doses
+//      (140, 210) exist across the pool — fewer than the K=3 required Harrell-knot
+//      locations. UNLIKE SUSTAIN/SELECT, R dosresmeta DOES fit RCS on this fixture
+//      because each trial has 2 non-reference arms (R's sparse-per-trial-arm guard
+//      does not fire). R places all 3 percentile knots inside the 140–210 mg interval
+//      (knots [157.5, 175, 192.5], spline_coefs [0.01763, -0.01875]); R rcs.fit_ok=true
+//      with nonlinearity_wald_p ≈ 1.64e-13. This is the FIRST flagship where engine
+//      DECLINES and R FITS — a new contract combination (rcsDegenerate: true +
+//      rRefusedRcs: false + new rEngineDisagreesOnRcs: true assertion on R rcs.fit_ok===true).
+//      Linear pool succeeds k=3 and matches R within thresholds.)
 //
 // Each flagship reads engine field paths from DR.fitLinear / DR.fitRCS results.
 // We codify the contract per flagship.
@@ -187,6 +200,34 @@ const flagshipContracts = [
     // the RCS multivariate estimator shape.
     rcsDegenerate: true,
     rRefusedRcs: true,
+  },
+  {
+    flagship: 'BRODALUMAB_PSORIASIS_AMAGINE_DOSE_RESP_REVIEW.html',
+    fixture: 'tests/dose_response_fixtures/brodalumab_psoriasis_amagine.json',
+    rJson: 'outputs/r_validation/doseresp/brodalumab_psoriasis_amagine.json',
+    rcsKnots: 3,
+    expectAmberRows: [],
+    // Round 3.9: 3-trial binary PASI 75 fixture on the {0, 140, 210} mg dose grid.
+    // Engine fitRCS sees only 2 distinct POSITIVE doses (140, 210) — rcsKnots
+    // returns < K=3 distinct knot locations → engine short-circuits to
+    // fitLinear with layer='linear', fallback='degenerate_to_linear', rcs=null
+    // (same engine-side behavior as SELECT in Round 3.8). The standard nested-.rcs
+    // assertions and the standard top-level RCS-only fields are SKIPPED via the
+    // rcsDegenerate flag.
+    rcsDegenerate: true,
+    // Round 3.9 is the FIRST flagship where engine declines and R FITS RCS.
+    // R's sparse-per-trial-arm guard does not fire (each AMAGINE trial has 2
+    // non-reference arms after Option A → 2 >= K_p=2 required). R proceeds to
+    // fit a 3-knot RCS with percentile knots all jammed inside the 140–210 mg
+    // interval (knots [157.5, 175, 192.5]). The R precompute JSON therefore has
+    // rcs.fit_ok = TRUE with spline_coefs and nonlinearity_wald_p populated —
+    // the OPPOSITE of SUSTAIN/SELECT where rcs.fit_ok = false. We explicitly
+    // do NOT set rRefusedRcs here; instead we add a dedicated
+    // rEngineDisagreesOnRcs flag that asserts r.rcs.fit_ok === true plus
+    // the knot-degeneracy invariant (all knots inside the [min_pos, max_pos]
+    // range of the original dose grid — i.e. knots fit on percentile placeholders,
+    // not on real interior dose levels).
+    rEngineDisagreesOnRcs: true,
   },
 ];
 
@@ -433,6 +474,52 @@ for (const c of flagshipContracts) {
         assert.equal(rJson.rcs.fit_ok, false);
       });
     }
+  } else if (c.rEngineDisagreesOnRcs) {
+    // Round 3.9 (AMAGINE brodalumab): engine DECLINED via degenerate-to-linear
+    // fallback, but R DID fit RCS — the new flagship-shape combination. Assert:
+    //  (1) engine returned the degenerate-to-linear fallback (rcs.layer='linear',
+    //      rcs.fallback='degenerate_to_linear', rcs.rcs=null);
+    //  (2) R rcs.fit_ok === true (the OPPOSITE of the rRefusedRcs case);
+    //  (3) R reports spline_coefs and a nonlinearity_wald_p that are FINITE NUMBERS;
+    //  (4) the knot-degeneracy invariant: every R knot location lies STRICTLY
+    //      inside (min_positive_dose, max_positive_dose) — i.e. all knots are on
+    //      percentile placeholders inside the 140–210 mg gap, not on real dose
+    //      observations. This is what distinguishes the AMAGINE case from a
+    //      "real" RCS fit where knots would land on or near the 10th / 50th /
+    //      90th percentiles of the unique dose vector.
+    test('R precompute: rcs.fit_ok === true (R fit RCS even though engine declined)', () => {
+      assert.equal(rJson.rcs && rJson.rcs.fit_ok, true,
+        'R precompute must mark rcs.fit_ok=true when R dosresmeta proceeds to fit RCS — this is the Round 3.9 distinguishing characteristic vs SUSTAIN/SELECT (both rRefusedRcs)');
+      assert.ok(Array.isArray(rJson.rcs.spline_coefs) && rJson.rcs.spline_coefs.length >= 2,
+        'R precompute must record spline_coefs[] with length >= 2 when fit_ok=true');
+      assert.ok(Number.isFinite(rJson.rcs.spline_coefs[0]) && Number.isFinite(rJson.rcs.spline_coefs[1]),
+        'R precompute spline_coefs[0] and spline_coefs[1] must be finite numbers');
+      assert.ok(Number.isFinite(rJson.rcs.nonlinearity_wald_p),
+        'R precompute must record a finite nonlinearity_wald_p when fit_ok=true');
+    });
+    test('Engine + R DISAGREE on RCS — engine degenerate-to-linear, R fit with knots inside dose-grid gap', () => {
+      assert.equal(rcs.layer, 'linear');
+      assert.equal(rcs.fallback, 'degenerate_to_linear');
+      assert.equal(rcs.rcs, null);
+      assert.equal(rJson.rcs.fit_ok, true, 'R must report fit_ok=true on this AMAGINE-style fixture');
+      // Knot-degeneracy invariant: compute the positive-dose range from the
+      // fixture's per-arm dose values and assert every R knot is strictly inside.
+      const positiveDoses = [];
+      fx.trials.forEach(t => t.arms.forEach(a => { if (a.dose > 0) positiveDoses.push(a.dose); }));
+      const minPos = Math.min(...positiveDoses);
+      const maxPos = Math.max(...positiveDoses);
+      assert.ok(Array.isArray(rJson.rcs.knots) && rJson.rcs.knots.length === 3,
+        'R must report 3 RCS knots');
+      rJson.rcs.knots.forEach((k, i) => {
+        assert.ok(k > minPos && k < maxPos,
+          'R knot[' + i + '] = ' + k + ' must lie strictly INSIDE (min_pos=' + minPos + ', max_pos=' + maxPos + '); the knot-degeneracy invariant — R fit knots inside a gap where there are no interior data points');
+      });
+      // Sanity: distinct positive doses must be < 3 (the cross-trial constraint
+      // the engine actually checks). Without this, the engine would have proceeded.
+      const distinctPos = new Set(positiveDoses);
+      assert.ok(distinctPos.size < 3,
+        'Engine declined because distinct positive doses (' + distinctPos.size + ') < K=3; the test fixture must satisfy this invariant for the engine-declined branch to fire');
+    });
   } else {
     test('R-parity row: rcs_coef_0' + (expectAmber.has('rcs_coef_0') ? ' AMBER (expected)' : ' GREEN') + (c.singleTrial ? ' (k=1 abbreviated badge)' : ''), () => {
       rowAssert('rcs_coef_0', rcs.rcs.spline_coefs[0], rJson.rcs.spline_coefs[0]);

@@ -1,0 +1,85 @@
+{
+  "_comment": "Brodalumab PASI 75 dose-response in moderate-to-severe plaque psoriasis, 3 AMAGINE Phase 3 RCTs (AMAGINE-1, AMAGINE-2, AMAGINE-3). Per-arm events/n extracted from AACT snapshot 2026-04-12 (outcome_measurements.txt + outcome_counts.txt). REGISTERED-PRIMARY: PASI 75 at Week 12 is registered as a co-primary outcome in all 3 trials (alongside sPGA score 0/1 at Week 12). PASI 75 was chosen over sPGA-0/1 as the dose-response endpoint per the standard dermatology dose-response literature convention (PASI 75 is more granular than sPGA's 5-category collapse). For active-comparator trials AMAGINE-2 and AMAGINE-3 (vs placebo + ustekinumab) the ustekinumab arm is dropped per Option A — engine retains placebo as the dose=0 reference. AMAGINE-1 is placebo-only (no active comparator). All 3 trials are strictly monotonic (events% rises with dose: placebo < 140 mg < 210 mg in all 3 trials). AMAGINE-2 and AMAGINE-3 SHARE one primary publication (Lebwohl 2015 NEJM 373(14):1318-28, PMID 26422722) — do NOT assign separate PMIDs per trial. AMAGINE-1 primary is Papp 2016 (Br J Dermatol, PMID 26914406) — NOTE the user-supplied citation 'Papp KA et al. NEJM 2016;375(4):339-348' was INCORRECT; the AMAGINE-1 primary is Br J Dermatol 2016;175(2):273-86 (NOT NEJM), verified via PubMed MCP get_article_metadata on 2026-05-14. The NEJM 375(4) citation refers to a different brodalumab paper (likely safety/long-term combined or a different trial). Erratum documented; abstracts fixture uses verified PMIDs.",
+  "fixture_name": "brodalumab_psoriasis_amagine",
+  "source": "Pooled brodalumab PASI 75 dose-response, 3 AMAGINE Phase 3 trials (AACT 2026-04-12)",
+  "outcome": "pasi_75_at_week_12",
+  "outcome_type": "binary",
+  "dose_unit": "mg_per_2weeks",
+  "dose_assignment_method": "as-randomized per-trial dose (140 mg and 210 mg brodalumab subcutaneous Q2W with loading dose at week 1; placebo arms encoded as dose=0)",
+  "class_equivalence_caveat": "All 3 trials use the SAME molecule (brodalumab), SAME route (subcutaneous Q2W with loading dose at week 1), SAME duration (12-week induction phase), and SAME population (adults with moderate-to-severe plaque psoriasis, eligible for systemic therapy or phototherapy). Pooled slope is therefore a within-drug PASI 75 dose-response curve. The 3 trials differ slightly in geography (AMAGINE-1: US/Canada/Europe; AMAGINE-2/3: global) but use a common protocol per the AMAGINE program design. AMAGINE-2 and AMAGINE-3 share an active comparator (ustekinumab) that AMAGINE-1 does not have, but the placebo arm is preserved as dose=0 reference in all 3.",
+  "active_comparator_handling": "Option A: ustekinumab arm in AMAGINE-2 and AMAGINE-3 is excluded from the dose-response arms list. Placebo is retained as the dose=0 reference in all 3 trials. Ustekinumab arm info preserved in trial-level _dropped_comparator_arm fields (events 210/300 in AMAGINE-2 outcome 211384603 OG003 and 217/313 in AMAGINE-3 outcome 211300770 OG003). AMAGINE-1 has no active comparator.",
+  "estimand_uniformity": "FDA-pre-registered primary estimand (treatment-policy with non-responder imputation for missing data) used consistently across all 3 trials. Per AACT outcome titles all 3 are 'Percentage of Participants With PASI 75 at Week 12' with COUNT_OF_PARTICIPANTS as param_type — direct event-count extraction is appropriate. Denominators are the analyzed-N at Week 12 from outcome_counts.txt (per-arm Measure rows), which reflect the modified intention-to-treat set with non-responder imputation per the protocol.",
+  "outcome_selection_rationale": "PASI 75 (registered co-primary) chosen over sPGA-0/1 (also co-primary): (a) PASI 75 is the standard dose-response endpoint in psoriasis literature, (b) PASI 75 is a more granular 75%-improvement threshold than sPGA's 5-category clear/almost-clear collapse, (c) PASI 75 events are larger numbers than sPGA-success events, giving better small-sample stability of the GL covariance. Both endpoints would yield the same monotonic dose-response signal — picked PASI 75 for cross-trial pooling consistency.",
+  "monotonicity_audit_2026_05_14": "Per-trial PASI 75 dose-response monotonicity check (more responders at higher brodalumab dose): (1) AMAGINE-1: placebo 6/220 = 2.7% -> brod140 132/219 = 60.3% -> brod210 185/222 = 83.3% — STRICTLY MONOTONIC; (2) AMAGINE-2: placebo 25/309 = 8.1% -> brod140 406/610 = 66.6% -> brod210 528/612 = 86.3% — STRICTLY MONOTONIC; (3) AMAGINE-3: placebo 19/315 = 6.0% -> brod140 435/629 = 69.2% -> brod210 531/624 = 85.1% — STRICTLY MONOTONIC. Result: 3/3 strictly monotonic. All event-rate increments at 140 mg and 210 mg are 60-80 percentage points above placebo. Expected pooled log-RR slope per mg is large (~0.025-0.030).",
+  "pubmed_retrieval_notes": "PMIDs verified via PubMed MCP get_article_metadata on 2026-05-14. According to PubMed: (a) AMAGINE-2 and AMAGINE-3 share one primary publication — Lebwohl M et al. 'Phase 3 Studies Comparing Brodalumab with Ustekinumab in Psoriasis.' N Engl J Med. 2015 Oct;373(14):1318-28. PMID 26422722. DOI: 10.1056/NEJMoa1503824. The Lebwohl abstract reports both AMAGINE-2 and AMAGINE-3 head-to-head against ustekinumab with PASI 75 at week 12 — 86% / 67% vs 8% (AMAGINE-2) and 85% / 69% vs 6% (AMAGINE-3) — matching this fixture's extracted percentages 86.3 / 66.6 / 8.1 and 85.1 / 69.2 / 6.0. (b) AMAGINE-1 primary is Papp KA et al. 'A prospective phase III, randomized, double-blind, placebo-controlled study of brodalumab in patients with moderate-to-severe plaque psoriasis.' Br J Dermatol. 2016 Aug;175(2):273-86. PMID 26914406. DOI: 10.1111/bjd.14493. ERRATUM: the user-supplied citation 'Papp KA et al. NEJM 2016;375(4):339-348' is INCORRECT — the AMAGINE-1 primary is Br J Dermatol, not NEJM. Verified via PubMed search with NCT01708590 in the Papp abstract; AMAGINE-1 PASI 75 abstract numbers 60% (140 mg), 83% (210 mg), 3% (placebo) match this fixture's 60.3% / 83.3% / 2.7%.",
+  "data_provenance_summary": "AACT 2026-04-12 outcome_measurements.txt (COUNT_OF_PARTICIPANTS) + outcome_counts.txt (Measure scope, denominators). Outcome IDs: AMAGINE-1=211299522 (NCT01708590), AMAGINE-2=211384603 (NCT01708603), AMAGINE-3=211300770 (NCT01708629). Event counts (not percentages) extracted directly from param_value_num; denominators from outcome_counts.txt Measure-scope rows. Cross-checked against Lebwohl 2015 (AMAGINE-2/3) and Papp 2016 (AMAGINE-1) published abstracts — all 9 arm-level percentages match to 1 decimal place.",
+  "trials": [
+    {
+      "studlab": "AMAGINE-1 (Papp 2016, placebo-controlled)",
+      "pmid": "26914406",
+      "doi": "10.1111/bjd.14493",
+      "nct": "NCT01708590",
+      "drug": "brodalumab",
+      "duration_weeks": 12,
+      "comparator": "placebo",
+      "population": "Adults (>=18) with moderate-to-severe plaque psoriasis (BSA >=10%, sPGA >=3, PASI >=12), candidates for systemic therapy or phototherapy; US, Canada, Europe (no active comparator). 661 randomized.",
+      "aact_outcome_id_primary": 211299522,
+      "data_provenance": "AACT 2026-04-12 outcome_measurements.txt (outcome_id=211299522, registered PRIMARY; co-primary alongside sPGA-0/1 outcome_id 211299523). time_frame '0-12 weeks'. param_type=COUNT_OF_PARTICIPANTS (direct event-count, not percentage). units='Participants'. result_group OG000=210mg (rg 681884776, 185 events / 222 N), OG001=140mg (rg 681884777, 132/219), OG002=placebo (rg 681884778, 6/220). Denominators from outcome_counts.txt Measure-scope rows. Matches Papp 2016 Br J Dermatol abstract (PASI 75: 60% 140mg, 83% 210mg, 3% placebo).",
+      "arms": [
+        {"label": "Placebo", "dose": 0, "events": 6, "n": 220, "is_reference": true},
+        {"label": "Brodalumab 140 mg Q2W", "dose": 140, "events": 132, "n": 219, "is_reference": false},
+        {"label": "Brodalumab 210 mg Q2W", "dose": 210, "events": 185, "n": 222, "is_reference": false}
+      ]
+    },
+    {
+      "studlab": "AMAGINE-2 (Lebwohl 2015, vs placebo + ustekinumab)",
+      "pmid": "26422722",
+      "doi": "10.1056/NEJMoa1503824",
+      "nct": "NCT01708603",
+      "drug": "brodalumab",
+      "duration_weeks": 12,
+      "comparator": "placebo (with ustekinumab arm dropped via Option A)",
+      "population": "Adults with moderate-to-severe plaque psoriasis (BSA >=10%, sPGA >=3, PASI >=12), candidates for systemic therapy or phototherapy; global program (Lebwohl 2015 NEJM head-to-head vs ustekinumab); 1831 randomized in 4-arm 2:2:1:1 (210mg : 140mg : placebo : ustekinumab).",
+      "aact_outcome_id_primary": 211384603,
+      "data_provenance": "AACT 2026-04-12 outcome_measurements.txt (outcome_id=211384603, registered PRIMARY; co-primary alongside sPGA-0/1 outcome_id 211384602 and PASI 100 outcome_id 211384604). time_frame '12 weeks'. param_type=COUNT_OF_PARTICIPANTS (direct event-count). units='Participants'. result_group OG000=210mg (rg 682171532, 528 events / 612 N), OG001=140mg (rg 682171533, 406/610), OG002=placebo (rg 682171534, 25/309), OG003=ustekinumab (rg 682171535, 210/300 — DROPPED per Option A). Denominators from outcome_counts.txt Measure-scope rows. Matches Lebwohl 2015 NEJM abstract (PASI 75 AMAGINE-2: 86% 210mg, 67% 140mg, 8% placebo).",
+      "_dropped_comparator_arm": {
+        "label": "Ustekinumab 45 mg or 90 mg (weight-based, every 12 weeks)",
+        "events": 210,
+        "n": 300,
+        "ctgov_group_code": "OG003",
+        "result_group_id": 682171535,
+        "reason": "Active comparator dropped per Option A; engine retains placebo as dose=0 reference."
+      },
+      "arms": [
+        {"label": "Placebo", "dose": 0, "events": 25, "n": 309, "is_reference": true},
+        {"label": "Brodalumab 140 mg Q2W", "dose": 140, "events": 406, "n": 610, "is_reference": false},
+        {"label": "Brodalumab 210 mg Q2W", "dose": 210, "events": 528, "n": 612, "is_reference": false}
+      ]
+    },
+    {
+      "studlab": "AMAGINE-3 (Lebwohl 2015, vs placebo + ustekinumab)",
+      "pmid": "26422722",
+      "doi": "10.1056/NEJMoa1503824",
+      "nct": "NCT01708629",
+      "drug": "brodalumab",
+      "duration_weeks": 12,
+      "comparator": "placebo (with ustekinumab arm dropped via Option A)",
+      "population": "Adults with moderate-to-severe plaque psoriasis (BSA >=10%, sPGA >=3, PASI >=12), candidates for systemic therapy or phototherapy; global program (Lebwohl 2015 NEJM head-to-head vs ustekinumab); ~1881 randomized in 4-arm 2:2:1:1 (210mg : 140mg : placebo : ustekinumab).",
+      "aact_outcome_id_primary": 211300770,
+      "data_provenance": "AACT 2026-04-12 outcome_measurements.txt (outcome_id=211300770, registered PRIMARY; co-primary alongside sPGA-0/1 outcome_id 211300771). time_frame '12 weeks'. param_type=COUNT_OF_PARTICIPANTS (direct event-count). units='Participants'. result_group OG000=210mg (rg 681888811, 531 events / 624 N), OG001=140mg (rg 681888812, 435/629), OG002=placebo (rg 681888813, 19/315), OG003=ustekinumab (rg 681888814, 217/313 — DROPPED per Option A). Denominators from outcome_counts.txt Measure-scope rows. Matches Lebwohl 2015 NEJM abstract (PASI 75 AMAGINE-3: 85% 210mg, 69% 140mg, 6% placebo).",
+      "_dropped_comparator_arm": {
+        "label": "Ustekinumab 45 mg or 90 mg (weight-based, every 12 weeks)",
+        "events": 217,
+        "n": 313,
+        "ctgov_group_code": "OG003",
+        "result_group_id": 681888814,
+        "reason": "Active comparator dropped per Option A; engine retains placebo as dose=0 reference."
+      },
+      "arms": [
+        {"label": "Placebo", "dose": 0, "events": 19, "n": 315, "is_reference": true},
+        {"label": "Brodalumab 140 mg Q2W", "dose": 140, "events": 435, "n": 629, "is_reference": false},
+        {"label": "Brodalumab 210 mg Q2W", "dose": 210, "events": 531, "n": 624, "is_reference": false}
+      ]
+    }
+  ]
+}

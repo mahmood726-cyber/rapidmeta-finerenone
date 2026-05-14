@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; object-src 'none'; base-uri 'none';">
+<title>Brodalumab dose vs PASI 75 response in moderate-to-severe plaque psoriasis &mdash; pooled dose-response meta-analysis (3 AMAGINE Phase 3 RCTs)</title>
+<meta name="description" content="Pooled within-drug PASI 75 dose-response re-analysis of 3 AMAGINE Phase 3 RCTs of brodalumab (140 and 210 mg subcutaneous Q2W with loading dose at week 1) in adults with moderate-to-severe plaque psoriasis. Round 3.9 surfaces a methodological engine-vs-R disagreement on the RCS layer: the engine refuses to fit a 3-knot RCS on a dose grid with only 2 distinct non-zero doses (140 and 210 mg) and returns layer='linear', fallback='degenerate_to_linear', rcs=null; R dosresmeta fits an RCS with all 3 percentile knots jammed inside the 140-210 mg range (knots [157.5, 175, 192.5], spline_coefs [0.01763, -0.01875], nonlinearity_wald_p 1.64e-13) where there is no interior dose data to support curvature. The engine's refusal is the methodologically conservative call; R's fit is technically a fit but interpretively dubious. Linear two-stage pool succeeds at k=3 with engine-vs-R |Delta slope| within threshold.">
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; max-width: 1100px; margin: 1em auto; padding: 0 1em; color: #222; line-height: 1.5; }
+  h1, h2, h3 { color: #1a3a5c; }
+  details > summary { cursor: pointer; font-weight: 600; padding: 0.4em 0; }
+  table { border-collapse: collapse; width: 100%; margin: 0.6em 0; }
+  th, td { border: 1px solid #d0d0d0; padding: 0.4em 0.6em; text-align: left; }
+  th { background: #f2f5f8; }
+  .tab-nav { display: flex; gap: 0.5em; border-bottom: 2px solid #d0d0d0; margin: 1em 0 0.6em; flex-wrap: wrap; }
+  .tab-nav button { background: #f2f5f8; border: 1px solid #d0d0d0; border-bottom: none; padding: 0.6em 1.2em; cursor: pointer; font-size: 1em; }
+  .tab-nav button.active { background: #1a3a5c; color: white; border-color: #1a3a5c; }
+  .tab-nav button:focus-visible { outline: 3px solid #1a3a5c; outline-offset: 2px; }
+  .tab-content { display: none; padding: 1em 0; }
+  .tab-content.active { display: block; }
+  .tab-content > h2:focus { outline: none; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.8em; margin: 1em 0; }
+  .kpi { background: #f8f9fb; border-left: 3px solid #1a3a5c; padding: 0.6em 0.8em; }
+  .kpi-label { font-size: 0.85em; color: #555; }
+  .kpi-value { font-size: 1.2em; font-weight: 600; color: #1a3a5c; }
+  .rv-badge { border: 2px solid; border-radius: 4px; padding: 0.6em; margin: 1em 0; }
+  .rv-badge-green { border-color: #2e8540; background: #f0f8f2; }
+  .rv-badge-amber { border-color: #d97706; background: #fef8ec; }
+  .rv-badge-deferred { border-color: #6366f1; background: #eef2ff; }
+  .rv-row-green td { background: #f0f8f2; }
+  .rv-row-amber td { background: #fef8ec; }
+  .rv-row-deferred td { background: #eef2ff; font-style: italic; }
+  .rv-disclosure { font-size: 0.85em; color: #555; margin-top: 0.6em; }
+  .divergence-warning { border: 2px solid #6366f1; background: #eef2ff; padding: 0.8em; margin: 1em 0; border-radius: 4px; }
+  .footnote { font-size: 0.85em; color: #555; border-top: 1px solid #d0d0d0; padding-top: 1em; margin-top: 2em; }
+  .table-scroll { overflow-x: auto; margin: 0.6em 0; }
+  .table-scroll table { margin: 0; }
+  a:focus-visible { outline: 2px solid #1a3a5c; outline-offset: 2px; }
+  .abstract-block { margin: 0.6em 0; padding-left: 0.6em; border-left: 3px solid #c0d0e0; }
+  .abstract-block p { margin: 0.4em 0; }
+  .abstract-meta { font-size: 0.85em; color: #555; }
+  pre.code-block { background: #f2f5f8; border-left: 3px solid #6366f1; padding: 0.6em 0.8em; font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; font-size: 0.92em; overflow-x: auto; }
+  .side-by-side { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin: 0.8em 0; }
+  .side-by-side > div { padding: 0.6em 0.8em; border-radius: 4px; }
+  .side-by-side .engine-col { background: #f0f8f2; border-left: 3px solid #2e8540; }
+  .side-by-side .r-col { background: #fef8ec; border-left: 3px solid #d97706; }
+  @media (max-width: 720px) { .side-by-side { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<main>
+<h1>Brodalumab dose vs PASI 75 response in moderate-to-severe plaque psoriasis &mdash; pooled dose-response meta-analysis (3 AMAGINE Phase 3 RCTs)</h1>
+<p>Pooled within-drug PASI 75 dose-response re-analysis of 3 AMAGINE Phase 3 RCTs of brodalumab (140 mg and 210 mg subcutaneous Q2W with loading dose at week 1):
+  <a href="https://pubmed.ncbi.nlm.nih.gov/26914406/" target="_blank" rel="noopener noreferrer">AMAGINE-1 (Papp 2016, Br J Dermatol; PMID 26914406)</a> &middot;
+  <a href="https://pubmed.ncbi.nlm.nih.gov/26422722/" target="_blank" rel="noopener noreferrer">AMAGINE-2 + AMAGINE-3 (Lebwohl 2015, NEJM; shared PMID 26422722)</a>.
+</p>
+<p><strong>Authors:</strong> RapidMeta dose-response engine pack #8 &mdash; Round 3.9 (AMAGINE brodalumab, k=3 binary PASI 75; engine refuses RCS where R fits with degenerate knots) &middot; <strong>Generated by:</strong> <span id="engine-version">&hellip;</span> &middot; <strong>Date:</strong> <span id="gen-date">&hellip;</span></p>
+
+<div class="divergence-warning">
+  <strong>Methodology demonstration flagship (engine-vs-R disagreement on RCS layer):</strong> This is a 3-trial within-drug brodalumab PASI 75 dose-response pool on the dose grid <em>{0, 140, 210}</em> mg. All 3 trials retain placebo as dose=0; AMAGINE-2 and AMAGINE-3 drop the ustekinumab active-comparator arm per Option A. The 3-knot Harrell-default restricted cubic spline basis places knots at the 10th, 50th, and 90th percentiles of the unique positive doses. With only 2 distinct non-zero doses (140 mg and 210 mg), the engine&apos;s <code>rcsKnots</code> helper returns fewer than the required K = 3 distinct knot locations and <code>fitRCS</code> short-circuits to <code>fitLinear</code>, decorating the result with <code>layer='linear'</code>, <code>fallback='degenerate_to_linear'</code>, and <code>rcs=null</code>. <strong>R <code>dosresmeta</code>, by contrast, fits an RCS</strong> &mdash; but every percentile knot lands inside the 140&ndash;210 mg interval (R reports knots <code>[157.5, 175, 192.5]</code>), so the resulting <code>nonlinearity_wald_p = 1.64e-13</code> reflects curvature being fit where there are no interior dose-points to support it. This is the FIRST flagship in the dose-response pack where the engine declines and R fits; previous degeneracy cases (SUSTAIN Round 3.7, SELECT Round 3.8) had both engines refusing. Tab 2 surfaces this disagreement explicitly; Tab 4&apos;s R-parity badge uses a custom &ldquo;engine-declined / R-fit&rdquo; panel for the 3 RCS rows.
+</div>
+
+<details open>
+  <summary>Trial inventory (3 AMAGINE Phase 3 RCTs &mdash; note shared publication for AMAGINE-2 + AMAGINE-3)</summary>
+  <div class="table-scroll">
+    <table>
+      <caption>3 AMAGINE Phase 3 trials of brodalumab in moderate-to-severe plaque psoriasis &mdash; primary publications and dose-response arms after Option A active-comparator handling. AMAGINE-2 and AMAGINE-3 share ONE primary publication (Lebwohl 2015 NEJM).</caption>
+      <thead>
+        <tr><th>Trial</th><th>NCT</th><th>Comparator (kept / dropped)</th><th>n_arms (kept)</th><th>Year</th><th>Endpoint week</th><th>PASI 75 registered as</th><th>Publication</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>AMAGINE-1 (Papp 2016, placebo-controlled)</td>
+          <td><a href="https://clinicaltrials.gov/ct2/show/NCT01708590" target="_blank" rel="noopener noreferrer">NCT01708590</a></td>
+          <td>placebo (kept as dose=0)</td>
+          <td>3 (placebo + 140 / 210 mg)</td>
+          <td>2016</td>
+          <td>12</td>
+          <td>CO-PRIMARY in AACT (alongside sPGA 0/1 at Week 12)</td>
+          <td><a href="https://doi.org/10.1111/bjd.14493" target="_blank" rel="noopener noreferrer">Br J Dermatol 2016;175(2):273-286 &middot; doi:10.1111/bjd.14493</a></td>
+        </tr>
+        <tr>
+          <td>AMAGINE-2 (Lebwohl 2015, vs placebo + ustekinumab)</td>
+          <td><a href="https://clinicaltrials.gov/ct2/show/NCT01708603" target="_blank" rel="noopener noreferrer">NCT01708603</a></td>
+          <td>placebo (kept as dose=0); ustekinumab <em>(dropped per Option A)</em></td>
+          <td>3 (placebo + 140 / 210 mg)</td>
+          <td>2015</td>
+          <td>12</td>
+          <td>CO-PRIMARY in AACT (alongside sPGA 0/1 + PASI 100 at Week 12)</td>
+          <td><a href="https://doi.org/10.1056/NEJMoa1503824" target="_blank" rel="noopener noreferrer">N Engl J Med 2015;373(14):1318-1328 &middot; doi:10.1056/NEJMoa1503824</a> <em>(shared with AMAGINE-3)</em></td>
+        </tr>
+        <tr>
+          <td>AMAGINE-3 (Lebwohl 2015, vs placebo + ustekinumab)</td>
+          <td><a href="https://clinicaltrials.gov/ct2/show/NCT01708629" target="_blank" rel="noopener noreferrer">NCT01708629</a></td>
+          <td>placebo (kept as dose=0); ustekinumab <em>(dropped per Option A)</em></td>
+          <td>3 (placebo + 140 / 210 mg)</td>
+          <td>2015</td>
+          <td>12</td>
+          <td>CO-PRIMARY in AACT (alongside sPGA 0/1 at Week 12)</td>
+          <td><a href="https://doi.org/10.1056/NEJMoa1503824" target="_blank" rel="noopener noreferrer">N Engl J Med 2015;373(14):1318-1328 &middot; doi:10.1056/NEJMoa1503824</a> <em>(shared with AMAGINE-2)</em></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>Total:</strong> 3 trials, 9 arm observations after Option A active-comparator exclusion (placebo + 140 mg + 210 mg in each trial). All arms are brodalumab subcutaneous Q2W with a loading dose at Week 1. AMAGINE-1 was placebo-controlled (no active comparator); AMAGINE-2 and AMAGINE-3 randomized 2:2:1:1 to brod 210 mg : brod 140 mg : placebo : ustekinumab. Per Option A the ustekinumab arms are dropped (preserved as <code>_dropped_comparator_arm</code> audit metadata in the fixture); placebo is retained as the dose=0 reference in all 3 trials.</p>
+  <p><strong>Shared-publication disclosure:</strong> AMAGINE-2 and AMAGINE-3 share <em>one</em> primary publication (Lebwohl 2015 NEJM head-to-head vs ustekinumab); both NCTs (NCT01708603 and NCT01708629) appear together in the abstract&apos;s final-sentence registration line. The trial inventory above lists each NCT as a separate row but both rows point to the same PMID 26422722 / DOI 10.1056/NEJMoa1503824.</p>
+  <p><strong>Citation erratum (AMAGINE-1):</strong> The user-supplied citation for AMAGINE-1 was &ldquo;Papp KA et al. NEJM 2016;375(4):339-348&rdquo; &mdash; INCORRECT. PubMed MCP (<code>get_article_metadata</code>, retrieved 2026-05-14) confirms the unique Phase 3 publication whose abstract contains <code>NCT01708590; AMAGINE-1</code> is Papp KA et al. <em>Br J Dermatol</em> 2016;175(2):273-286 (PMID 26914406, DOI 10.1111/bjd.14493). The NEJM 375(4) entry refers to a different brodalumab paper. Erratum recorded in the fixture (<code>pubmed_retrieval_notes</code>) and abstract metadata (<code>user_supplied_citation_note</code>); corrected citation used everywhere on this page.</p>
+  <p><strong>Outcome selection (PASI 75 over sPGA 0/1):</strong> PASI 75 and sPGA 0/1 are both registered AACT co-primaries in all 3 trials. PASI 75 was chosen for dose-response slope estimation because (a) it is the standard dose-response endpoint in psoriasis literature, (b) PASI 75 is a more granular 75 %-improvement threshold than sPGA&apos;s 5-category clear/almost-clear collapse, (c) PASI 75 events are larger numbers, giving better small-sample stability of the GL covariance. Both endpoints would yield the same monotonic signal &mdash; per-trial PASI 75 event-rates rise strictly with dose in all 3 trials (AMAGINE-1: 2.7 % &rarr; 60.3 % &rarr; 83.3 %; AMAGINE-2: 8.1 % &rarr; 66.6 % &rarr; 86.3 %; AMAGINE-3: 6.0 % &rarr; 69.2 % &rarr; 85.1 %).</p>
+  <p><strong>Per-trial RCS feasibility (drives the engine-vs-R disagreement):</strong> The 3-knot Harrell-default RCS needs &ge; 3 distinct non-zero dose levels across the pool for the percentile knots to land on real data. This fixture has only 2 distinct non-zero doses ({140, 210} mg) and 3 distinct doses in total ({0, 140, 210} mg). The engine&apos;s <code>fitRCS</code> calls <code>rcsKnots</code> on the unique positive doses, finds fewer than K = 3 distinct knot locations, and short-circuits to <code>fitLinear</code> with <code>fallback='degenerate_to_linear'</code> and <code>rcs=null</code>. R <code>dosresmeta</code> proceeds anyway and places its 3 percentile knots <em>inside</em> the 140&ndash;210 mg range (<code>knots = [157.5, 175, 192.5]</code>) &mdash; no interior data, but a fit is returned. Tab 2 surfaces this disagreement and explains why the engine&apos;s refusal is the methodologically conservative call.</p>
+</details>
+
+<details>
+  <summary>Methods (click to expand)</summary>
+  <p>This review pools 3 Phase 3 RCTs of brodalumab in adults with moderate-to-severe plaque psoriasis, all from the Amgen AMAGINE programme (2015&ndash;2016). All trials randomized to brodalumab 140 mg or 210 mg subcutaneous Q2W with a loading dose at Week 1, measured PASI 75 response at Week 12, and were registered prospectively on ClinicalTrials.gov.</p>
+  <p><strong>Within-drug dose-response:</strong> All 3 trials use the same molecule (brodalumab), same route (subcutaneous Q2W with loading dose at Week 1), same duration (12-week induction phase), and same population (adults with moderate-to-severe plaque psoriasis, BSA &ge; 10 %, sPGA &ge; 3, PASI &ge; 12, eligible for systemic therapy or phototherapy). The pooled slope is therefore a within-drug PASI 75 dose-response curve with no cross-drug equipotency assumption. The 140 mg and 210 mg dose levels are the two Phase 3 induction doses; the 210 mg arm is the FDA-approved psoriasis dose. AMAGINE-2 and AMAGINE-3 differ from AMAGINE-1 only in having an additional ustekinumab active-comparator arm (dropped per Option A), so the kept per-trial structure is identical 3-arm placebo + 140 + 210 mg across all 3 trials.</p>
+  <p><strong>Binary-outcome path (engine v0.4):</strong> The engine&apos;s <code>fitLinear</code> takes per-arm <code>events</code> and <code>n</code> directly and constructs the Greenland-Longnecker shared-reference covariance for log-RR contrasts (off-diagonal = 1/event<sub>ref</sub> &minus; 1/n<sub>ref</sub>; diagonal = 1/event<sub>i</sub> &minus; 1/n<sub>i</sub> + 1/event<sub>ref</sub> &minus; 1/n<sub>ref</sub>). No SE&rarr;SD conversion is needed (unlike the continuous-outcome flagships SGLT2I / TIRZEPATIDE / SUSTAIN / SELECT). The pooled slope is log-RR per mg, back-transformed to RR per mg for KPI display. F-1 conditional zero-cell continuity correction is wired in the engine but does not fire on this fixture (every trial has &gt; 0 events in every arm: AMAGINE-1 placebo has 6 events out of 220; the smallest event count is well above zero).</p>
+  <p><strong>Active-comparator handling (Option A &mdash; drop, do not down-code as dose=0):</strong> AMAGINE-2 and AMAGINE-3 randomized brodalumab vs placebo vs ustekinumab. The ustekinumab arms are DROPPED from the dose-response arms list (210/300 events in AMAGINE-2 OG003 = 70 %, 217/313 in AMAGINE-3 OG003 = 69 %; preserved as <code>_dropped_comparator_arm</code> audit metadata in the fixture). Placebo is the dose=0 reference in all 3 trials. AMAGINE-1 had no active comparator, so its 3-arm structure is unchanged.</p>
+  <p><strong>Engine RCS refusal (the methodological story, expanded in Tab 2):</strong> The 3-knot Harrell-default RCS positions knots at the 10th, 50th, and 90th percentiles of the unique positive doses (per <code>rcsKnots(allDoses, 3)</code> with the default Harrell percentile placement). With only 2 distinct positive doses (140 and 210 mg), the engine&apos;s <code>rcsKnots</code> returns fewer than K = 3 distinct knot locations, and <code>fitRCS</code> short-circuits with <code>layer='linear'</code>, <code>fallback='degenerate_to_linear'</code>, <code>rcs=null</code>. R <code>dosresmeta</code> does NOT short-circuit on this case &mdash; it proceeds to compute percentile knots from the design matrix and returns <code>knots = [157.5, 175, 192.5]</code> (the 10th, 50th, 90th percentiles of {140, 210}-based design points), <code>spline_coefs = [0.01763, -0.01875]</code>, and a highly significant <code>nonlinearity_wald_p = 1.64e-13</code>. The R fit is technically valid arithmetic but interpretively dubious: there are no data points between 140 and 210 mg to support the within-range curvature the spline encodes. The engine&apos;s refusal is the methodologically conservative call.</p>
+  <p><strong>Why both engines refused on prior flagships but disagree here:</strong> The SUSTAIN flagship (Round 3.7, 6 trials) had R refuse RCS via the sparse-per-trial-arm requirement (4 of 6 trials had only 1 non-reference arm). The SELECT flagship (Round 3.8, 4 trials) had R refuse RCS via the same sparse-per-trial-arm error. On AMAGINE all 3 trials have 2 non-reference arms (140 and 210 mg), so R&apos;s sparse-arm guard does not fire &mdash; but the cross-trial dose grid still has only 2 distinct positive doses. The engine checks the cross-trial knot count (the constraint the spline actually needs); R checks the per-trial arm count (a related but distinct constraint that does not catch this case). Engine v0.4 is therefore more conservative than R <code>dosresmeta</code> 2.2.0 on this specific dose-grid topology.</p>
+  <p><strong>Estimand uniformity:</strong> All 3 trials use the FDA-pre-registered primary estimand (treatment-policy with non-responder imputation for missing data). Per-arm denominators reflect the modified intention-to-treat set with NRI per protocol. AACT registers <code>COUNT_OF_PARTICIPANTS</code> with <code>units='Participants'</code> for all 3 PASI 75 outcomes &mdash; direct event-count extraction is appropriate, with denominators from <code>outcome_counts.txt</code> Measure-scope rows.</p>
+  <p><strong>Statistical methods</strong> match the engine v0.4 conventions: two-stage Greenland-Longnecker linear pool with REML + HKSJ (HKSJ floor <code>max(1, Q/(k-1))</code>); Q-profile &tau;<sup>2</sup> CI (Viechtbauer 2007); PI uses <em>t<sub>k-1</sub></em> df (Cochrane Handbook v6.5). The RCS layer is requested but the engine returns the documented fallback (<code>layer='linear'</code>, <code>fallback='degenerate_to_linear'</code>, no <code>.rcs</code> block) because the 2-distinct-positive-dose grid does not support a 3-knot Harrell basis. R <code>dosresmeta</code> linear layer matches the engine within |&Delta;|&nbsp;&lt;&nbsp;threshold (linear-slope row GREEN). R <code>dosresmeta</code> RCS fits but uses degenerate knots; the R-parity badge (Tab 4) renders those 3 RCS rows in a custom &ldquo;engine-declined / R-fit (uninformative knots)&rdquo; panel rather than as GREEN / AMBER / DEFERRED. R <code>lme4::glmer</code> one-stage Poisson-with-offset on the per-arm event counts is reported as a sensitivity (Tab 3) &mdash; R reports the fit as <code>converged=false</code> (random-effects variance pinned at the boundary), reflecting that between-trial variance of the dose coefficient is too small to identify a positive random-effects variance on a strictly-monotonic 3-trial pool.</p>
+  <p><strong>Data provenance:</strong> AACT snapshot 2026-04-12, <code>outcome_measurements.txt</code> + <code>outcome_counts.txt</code>. All per-arm PASI 75 event counts and analyzed-N denominators are direct from the AACT registry-deposited result for each trial&apos;s registered PRIMARY outcome (per-trial <code>aact_outcome_id_primary</code>). PubMed MCP (<code>get_article_metadata</code>) verified all 2 PMIDs and the citation erratum on 2026-05-14. See <code>fixtures/dose_response/brodalumab_psoriasis_amagine_abstracts.json</code> for the retrieval audit.</p>
+  <p><strong>Future-extension note (AMAGINE-1 Phase 2b):</strong> An earlier Phase 2b dose-finding study of brodalumab in psoriasis randomized to 70 / 140 / 210 / 280 mg + placebo (n ~ 198), which would provide 4 distinct positive doses and unblock the 3-knot RCS. That study is not part of the AMAGINE Phase 3 programme indexed in AACT under these three NCTs and is excluded from this fixture. A future review pooling AMAGINE Phase 3 + Phase 2b would let the engine fit a real RCS; on the current 3-trial Phase 3 pool the engine&apos;s refusal is the right call.</p>
+</details>
+
+<details>
+  <summary>Primary publication abstracts (3 trials &mdash; AMAGINE-2 and AMAGINE-3 share one publication; click each to expand)</summary>
+  <p style="font-size:0.85em; color:#555;">Retrieved via PubMed MCP (<code>get_article_metadata</code>) on 2026-05-14. According to PubMed, the abstracts below are the primary-publication abstracts for the 3 trials. AMAGINE-1 has its own publication (Papp 2016 Br J Dermatol); AMAGINE-2 and AMAGINE-3 share Lebwohl 2015 NEJM. The user-supplied AMAGINE-1 citation was incorrect (NEJM 375(4):339-348) and has been corrected to Br J Dermatol 175(2):273-286 (PMID 26914406) per the retrieval audit. Each block is independently collapsible.</p>
+  <div id="abstracts-mount"></div>
+</details>
+
+<nav class="tab-nav" role="tablist" aria-label="Analysis tabs">
+  <button id="tab-btn-pasi-linear" data-tab="pasi-linear" class="active" role="tab" aria-selected="true" aria-controls="tab-pasi-linear" tabindex="0">1. PASI 75 &mdash; Linear (k=3, HEADLINE)</button>
+  <button id="tab-btn-rcs-note" data-tab="rcs-note" role="tab" aria-selected="false" aria-controls="tab-rcs-note" tabindex="-1">2. RCS &mdash; engine refuses / R fits (methodology)</button>
+  <button id="tab-btn-pasi-os" data-tab="pasi-os" role="tab" aria-selected="false" aria-controls="tab-pasi-os" tabindex="-1">3. PASI 75 &mdash; One-stage (R glmer)</button>
+  <button id="tab-btn-parity" data-tab="parity" role="tab" aria-selected="false" aria-controls="tab-parity" tabindex="-1">4. R-parity badge</button>
+</nav>
+
+<section id="tab-pasi-linear" class="tab-content active" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-pasi-linear">
+  <h2 tabindex="-1">PASI 75 &mdash; Linear pool (two-stage Greenland-Longnecker, REML + HKSJ, k=3)</h2>
+  <div id="pasi-linear-kpis" aria-live="polite" aria-atomic="true"></div>
+  <div id="pasi-linear-pertrial"></div>
+  <div id="pasi-linear-forest"></div>
+  <div id="pasi-linear-curve"></div>
+  <div id="pasi-linear-summary"></div>
+</section>
+
+<section id="tab-rcs-note" class="tab-content" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-rcs-note">
+  <h2 tabindex="-1">RCS &mdash; engine refuses, R fits with degenerate knots (methodological note)</h2>
+  <div id="rcs-note-body"></div>
+</section>
+
+<section id="tab-pasi-os" class="tab-content" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-pasi-os">
+  <h2 tabindex="-1">PASI 75 &mdash; One-stage hierarchical (R-precomputed glmer)</h2>
+  <div id="pasi-os-kpis" aria-live="polite" aria-atomic="true"></div>
+  <div id="pasi-os-methods"></div>
+</section>
+
+<section id="tab-parity" class="tab-content" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-parity">
+  <h2 tabindex="-1">R-parity badge (engine vs R: linear rows + custom engine-declined / R-fit RCS panel)</h2>
+  <p><strong>Disclosure:</strong> Engine and R agree on the linear-pool layer (slope and &tau;<sup>2</sup>) within thresholds. Engine and R <strong>disagree</strong> on the RCS layer: the engine returned the documented <code>fallback='degenerate_to_linear'</code> short-circuit (no <code>.rcs</code> block) because the cross-trial dose grid has only 2 distinct positive doses; R <code>dosresmeta</code> proceeded to fit a 3-knot RCS but placed all 3 percentile knots inside the 140&ndash;210 mg interval where there are no interior data points. The 3 RCS rows are rendered in a custom <em>engine-declined / R-fit</em> panel that distinguishes this case from prior flagships (SUSTAIN, SELECT) where both engine and R refused RCS. The one-stage row is rendered as an R pass-through.</p>
+  <div id="r-parity-brodalumab-pasi" aria-live="polite" aria-atomic="true"></div>
+</section>
+
+<div class="footnote">
+  <p><strong>Citations:</strong>
+    Papp KA et al. (AMAGINE-1). <em>Br J Dermatol</em>. 2016;175(2):273-286. <a href="https://pubmed.ncbi.nlm.nih.gov/26914406/" target="_blank" rel="noopener noreferrer">PMID 26914406</a>.
+    Lebwohl M et al. (AMAGINE-2 + AMAGINE-3). <em>N Engl J Med</em>. 2015;373(14):1318-1328. <a href="https://pubmed.ncbi.nlm.nih.gov/26422722/" target="_blank" rel="noopener noreferrer">PMID 26422722</a>.
+  </p>
+  <p><strong>Data sources:</strong> AACT snapshot 2026-04-12 (per-arm PASI 75 event counts and analyzed-N denominators from <code>outcome_measurements.txt</code> + <code>outcome_counts.txt</code>); PubMed MCP <code>get_article_metadata</code> 2026-05-14 (PMIDs, DOIs, abstracts; AMAGINE-1 citation erratum captured).</p>
+  <p><strong>Fixture:</strong> <code>tests/dose_response_fixtures/brodalumab_psoriasis_amagine.json</code> &middot; <strong>R precompute:</strong> <code>outputs/r_validation/doseresp/brodalumab_psoriasis_amagine.json</code> &middot; <strong>Abstracts:</strong> <code>fixtures/dose_response/brodalumab_psoriasis_amagine_abstracts.json</code></p>
+</div>
+</main>
+
+<!-- Trial data: embedded JSON, parsed by engine + tab renderers -->
+<script type="application/json" id="doseresp-trials-pasi">
+[
+  {
+    "studlab": "AMAGINE-1 (Papp 2016, placebo-controlled)",
+    "pmid": "26914406",
+    "doi": "10.1111/bjd.14493",
+    "nct": "NCT01708590",
+    "drug": "brodalumab",
+    "duration_weeks": 12,
+    "comparator": "placebo",
+    "population": "Adults (>=18) with moderate-to-severe plaque psoriasis (BSA >=10%, sPGA >=3, PASI >=12); US/Canada/Europe; 661 randomized.",
+    "arms": [
+      {"label": "Placebo", "dose": 0, "events": 6, "n": 220, "is_reference": true},
+      {"label": "Brodalumab 140 mg Q2W", "dose": 140, "events": 132, "n": 219, "is_reference": false},
+      {"label": "Brodalumab 210 mg Q2W", "dose": 210, "events": 185, "n": 222, "is_reference": false}
+    ]
+  },
+  {
+    "studlab": "AMAGINE-2 (Lebwohl 2015, vs placebo + ustekinumab)",
+    "pmid": "26422722",
+    "doi": "10.1056/NEJMoa1503824",
+    "nct": "NCT01708603",
+    "drug": "brodalumab",
+    "duration_weeks": 12,
+    "comparator": "placebo (with ustekinumab arm dropped via Option A)",
+    "population": "Adults with moderate-to-severe plaque psoriasis (global program); 1831 randomized 2:2:1:1 to brod 210mg : brod 140mg : placebo : ustekinumab.",
+    "arms": [
+      {"label": "Placebo", "dose": 0, "events": 25, "n": 309, "is_reference": true},
+      {"label": "Brodalumab 140 mg Q2W", "dose": 140, "events": 406, "n": 610, "is_reference": false},
+      {"label": "Brodalumab 210 mg Q2W", "dose": 210, "events": 528, "n": 612, "is_reference": false}
+    ]
+  },
+  {
+    "studlab": "AMAGINE-3 (Lebwohl 2015, vs placebo + ustekinumab)",
+    "pmid": "26422722",
+    "doi": "10.1056/NEJMoa1503824",
+    "nct": "NCT01708629",
+    "drug": "brodalumab",
+    "duration_weeks": 12,
+    "comparator": "placebo (with ustekinumab arm dropped via Option A)",
+    "population": "Adults with moderate-to-severe plaque psoriasis (global program); ~1881 randomized 2:2:1:1 to brod 210mg : brod 140mg : placebo : ustekinumab.",
+    "arms": [
+      {"label": "Placebo", "dose": 0, "events": 19, "n": 315, "is_reference": true},
+      {"label": "Brodalumab 140 mg Q2W", "dose": 140, "events": 435, "n": 629, "is_reference": false},
+      {"label": "Brodalumab 210 mg Q2W", "dose": 210, "events": 531, "n": 624, "is_reference": false}
+    ]
+  }
+]
+</script>
+
+<!-- Engine + badge -->
+<script src="rapidmeta-dose-response-engine-v1.js" defer></script>
+<script src="vendor/r-validation-doseresp.js" defer></script>
+
+<!-- Page wiring -->
+<script src="BRODALUMAB_PSORIASIS_AMAGINE_DOSE_RESP_REVIEW.js" defer></script>
+
+</body>
+</html>

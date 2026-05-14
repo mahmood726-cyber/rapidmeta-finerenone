@@ -1,0 +1,66 @@
+{
+  "fixture_id": "brodalumab_psoriasis_amagine_abstracts",
+  "description": "Primary-publication abstracts for the 3 AMAGINE Phase 3 trials of brodalumab in moderate-to-severe plaque psoriasis (AMAGINE-1, AMAGINE-2, AMAGINE-3). AMAGINE-2 and AMAGINE-3 SHARE ONE primary publication (Lebwohl 2015 NEJM head-to-head vs ustekinumab) — there is no separate PMID per trial in the public record; both NCTs (NCT01708603 + NCT01708629) appear together in the Lebwohl abstract's registration line. AMAGINE-1 has its own primary publication (Papp 2016 Br J Dermatol). IMPORTANT ERRATUM: the user-supplied citation 'Papp KA et al. NEJM 2016;375(4):339-348' for AMAGINE-1 is INCORRECT — the AMAGINE-1 primary is Br J Dermatol 2016;175(2):273-86 (NOT NEJM), PMID 26914406, DOI 10.1111/bjd.14493. Verified via PubMed MCP search_articles + get_article_metadata on 2026-05-14 (only article matching NCT01708590 + Papp + brodalumab + phase 3 is the Br J Dermatol paper). Source: PubMed (https://pubmed.ncbi.nlm.nih.gov/). DOI links included per PubMed attribution requirement.",
+  "retrieval_date": "2026-05-14",
+  "retrieval_method": "mcp__claude_ai_PubMed__search_articles to locate primary publication for each NCT (AMAGINE-2/3 are confirmed by the abstract's 'ClinicalTrials.gov numbers, NCT01708603 and NCT01708629' line; AMAGINE-1 by the abstract's 'NCT01708590; AMAGINE-1' line), then mcp__claude_ai_PubMed__get_article_metadata batch lookup. PMID errata note: user-supplied AMAGINE-1 NEJM 375(4):339-348 citation does not exist for this trial; the actual primary is Br J Dermatol 175(2):273-86.",
+  "attribution": "According to PubMed",
+  "shared_publication_note": "AMAGINE-2 and AMAGINE-3 share ONE primary publication (Lebwohl 2015 NEJM 373:1318-28). This is reflected in the publications array as a single entry whose trial_label is 'AMAGINE-2 + AMAGINE-3 (shared)' and whose nct_ids field is an array of two NCTs. Both trials in the fixture point to the same PMID (26422722) and DOI (10.1056/NEJMoa1503824).",
+  "publications": [
+    {
+      "trial_label": "AMAGINE-1",
+      "nct_id": "NCT01708590",
+      "pmid": "26914406",
+      "doi": "10.1111/bjd.14493",
+      "doi_link": "https://doi.org/10.1111/bjd.14493",
+      "title": "A prospective phase III, randomized, double-blind, placebo-controlled study of brodalumab in patients with moderate-to-severe plaque psoriasis.",
+      "journal": "British Journal of Dermatology",
+      "year": 2016,
+      "volume": "175",
+      "issue": "2",
+      "pages": "273-286",
+      "publication_date": "2016-06-23",
+      "authors_short": "Papp KA et al.",
+      "first_author": "Papp KA",
+      "abstract": "The interleukin-17 cytokine family plays a central role in psoriasis pathogenesis. To evaluate the efficacy and safety of brodalumab, a human anti-interleukin-17 receptor antibody, in treating patients with moderate-to-severe plaque psoriasis. In this phase III, double-blind, placebo-controlled study (NCT01708590; AMAGINE-1), adult patients in the U.S.A., Canada and Europe were randomized to brodalumab (140 or 210 mg) or placebo every 2 weeks (Q2W), with an additional dose at week 1, for a 12-week induction phase. At week 12, patients receiving brodalumab who achieved static Physician's Global Assessment 0 or 1 (sPGA success) were rerandomized to the placebo or induction dose. After week 16, patients with sPGA >= 3 were re-treated with the induction dose. After >= 12 weeks of retreatment, patients with sPGA 2 for >= 4 weeks or sPGA >= 3 were rescued with brodalumab 210 mg Q2W. At week 12, patients randomized to brodalumab with sPGA >= 2 or placebo received brodalumab 210 mg Q2W. Coprimary end points were the percentage of patients with >= 75% improvement in Psoriasis Area and Severity Index score (PASI 75) and sPGA success at week 12. There were 661 patients randomized: 220 placebo, 219 brodalumab 140 mg and 222 brodalumab 210 mg. At week 12, 60% (140 mg) and 83% (210 mg) vs. 3% (placebo) achieved PASI 75, and 54% (140 mg) and 76% (210 mg) vs. 1% (placebo) achieved sPGA success. The safety profile was considered acceptable. Brodalumab therapy resulted in significant clinical benefit and an acceptable safety profile in patients with moderate-to-severe plaque psoriasis.",
+      "primary_endpoint_text": "Registered FDA/EMA co-primaries (binary, Week 12): PASI 75 (placebo 3%, brod 140 mg 60%, brod 210 mg 83%) and sPGA success score 0 or 1 (placebo 1%, brod 140 mg 54%, brod 210 mg 76%). PASI 75 is used in this dose-response fixture (AACT outcome_id 211299522). Per-arm event counts from AACT param_value_num: placebo 6/220 (2.7%), brod 140 mg 132/219 (60.3%), brod 210 mg 185/222 (83.3%) — matches abstract percentages to 1 decimal place.",
+      "user_supplied_citation_note": "ERRATUM: user-supplied citation 'Papp KA et al. NEJM 2016;375(4):339-348' is INCORRECT. The actual AMAGINE-1 primary is Br J Dermatol 2016;175(2):273-86 (PMID 26914406, DOI 10.1111/bjd.14493). Verified via PubMed MCP — the NEJM 375(4) entry refers to a different brodalumab paper, not AMAGINE-1. The Br J Dermatol paper is the unique phase-3 publication whose abstract contains 'NCT01708590; AMAGINE-1' and reports the 661-patient 3-arm randomization with the exact PASI 75 numbers 60%/83%/3%."
+    },
+    {
+      "trial_label": "AMAGINE-2 + AMAGINE-3 (shared primary publication)",
+      "nct_ids": ["NCT01708603", "NCT01708629"],
+      "pmid": "26422722",
+      "doi": "10.1056/NEJMoa1503824",
+      "doi_link": "https://doi.org/10.1056/NEJMoa1503824",
+      "title": "Phase 3 Studies Comparing Brodalumab with Ustekinumab in Psoriasis.",
+      "journal": "New England Journal of Medicine",
+      "year": 2015,
+      "volume": "373",
+      "issue": "14",
+      "pages": "1318-1328",
+      "publication_date": "2015-10",
+      "authors_short": "Lebwohl M et al.",
+      "first_author": "Lebwohl M",
+      "abstract": "Early clinical studies suggested that the anti-interleukin-17 receptor A monoclonal antibody brodalumab has efficacy in the treatment of psoriasis. In two phase 3 studies (AMAGINE-2 and AMAGINE-3), patients with moderate-to-severe psoriasis were randomly assigned to receive brodalumab (210 mg or 140 mg every 2 weeks), ustekinumab (45 mg for patients with a body weight <=100 kg and 90 mg for patients >100 kg), or placebo. At week 12, patients receiving brodalumab were randomly assigned again to receive a brodalumab maintenance dose of 210 mg every 2 weeks or 140 mg every 2 weeks, every 4 weeks, or every 8 weeks; patients receiving ustekinumab continued to receive ustekinumab every 12 weeks, and patients receiving placebo received 210 mg of brodalumab every 2 weeks. The primary aims were to evaluate the superiority of brodalumab over placebo at week 12 with respect to at least a 75% reduction in the psoriasis area-and-severity index score (PASI 75) and a static physician's global assessment (sPGA) score of 0 or 1 (clear or almost clear skin), as well as the superiority of brodalumab over ustekinumab at week 12 with respect to a 100% reduction in PASI score (PASI 100). At week 12, the PASI 75 response rates were higher with brodalumab at the 210-mg and 140-mg doses than with placebo (86% and 67%, respectively, vs. 8% [AMAGINE-2] and 85% and 69%, respectively, vs. 6% [AMAGINE-3]; P<0.001); the rates of sPGA scores of 0 or 1 were also higher with brodalumab (P<0.001). The week 12 PASI 100 response rates were significantly higher with 210 mg of brodalumab than with ustekinumab (44% vs. 22% [AMAGINE-2] and 37% vs. 19% [AMAGINE-3], P<0.001). The PASI 100 response rates with 140 mg of brodalumab were 26% in AMAGINE-2 (P=0.08 for the comparison with ustekinumab) and 27% in AMAGINE-3 (P=0.007). Rates of neutropenia were higher with brodalumab and with ustekinumab than with placebo. Mild or moderate candida infections were more frequent with brodalumab than with ustekinumab or placebo. Through week 52, the rates of serious infectious episodes were 1.0 (AMAGINE-2) and 1.3 (AMAGINE-3) per 100 patient-years of exposure to brodalumab. Brodalumab treatment resulted in significant clinical improvements in patients with moderate-to-severe psoriasis. (Funded by Amgen; AMAGINE-2 and AMAGINE-3 ClinicalTrials.gov numbers, NCT01708603 and NCT01708629.).",
+      "primary_endpoint_text": "Registered FDA/EMA co-primaries (binary, Week 12): PASI 75 (vs placebo) and sPGA 0/1 (vs placebo); plus PASI 100 superiority vs ustekinumab (separate primary aim). AMAGINE-2 PASI 75: brod 210 mg 86%, brod 140 mg 67%, placebo 8%, ustekinumab 70% (dropped per Option A); AMAGINE-3 PASI 75: brod 210 mg 85%, brod 140 mg 69%, placebo 6%, ustekinumab 69% (dropped per Option A). AACT outcome IDs: AMAGINE-2 PASI 75 = 211384603; AMAGINE-3 PASI 75 = 211300770. Per-arm event counts from AACT param_value_num: AMAGINE-2 528/612 + 406/610 + 25/309 (matches 86.3%/66.6%/8.1%); AMAGINE-3 531/624 + 435/629 + 19/315 (matches 85.1%/69.2%/6.0%). All match the Lebwohl abstract percentages to 1 decimal place.",
+      "user_supplied_citation_note": "User-supplied citation 'Lebwohl M et al. NEJM 2015;373(14):1318-1328' is CORRECT. Verified via PubMed MCP get_article_metadata on 2026-05-14 (PMID 26422722). Note that PubMed's citation field reports pages as '1318-28' (NEJM shorthand for 1318-1328); both notations refer to the same physical page range. AMAGINE-2 and AMAGINE-3 share this single publication; the abstract's final sentence explicitly registers both NCTs together."
+    }
+  ],
+  "excluded_arms": [
+    {
+      "trial_label": "AMAGINE-2 ustekinumab arm",
+      "nct_id": "NCT01708603",
+      "ctgov_group_code": "OG003",
+      "result_group_id": 682171535,
+      "events_n": "210/300",
+      "exclusion_reason": "Active comparator (ustekinumab) dropped per Option A. Engine retains placebo (OG002, 25/309) as the dose=0 reference."
+    },
+    {
+      "trial_label": "AMAGINE-3 ustekinumab arm",
+      "nct_id": "NCT01708629",
+      "ctgov_group_code": "OG003",
+      "result_group_id": 681888814,
+      "events_n": "217/313",
+      "exclusion_reason": "Active comparator (ustekinumab) dropped per Option A. Engine retains placebo (OG002, 19/315) as the dose=0 reference."
+    }
+  ]
+}
