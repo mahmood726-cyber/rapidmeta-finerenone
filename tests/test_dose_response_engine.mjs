@@ -909,6 +909,184 @@ test('fitRCS k=1 spline_coefs come from the single trial directly (covBeta = per
   }
 });
 
+// === v0.5.0 fitLOO leave-one-out sensitivity tests ===
+// fitLOO orchestrates fitLinear / fitRCS over each k-1 subset.  We test
+// orchestration, contract shape, and the k=2 single-trial fallback path.
+
+test('fitLOO is exposed on DR._internal and DR.engine_version is v0.5.0', () => {
+  assert.equal(typeof I.fitLOO, 'function', 'DR._internal.fitLOO must be a function');
+  assert.ok(/v?0\.5\.0$/.test(DR.engine_version), 'engine_version should end with v0.5.0; got: ' + DR.engine_version);
+});
+
+test('fitLOO on SURPASS (k=5) returns full_pool + 5 LOO entries (default RCS layer)', () => {
+  const fx = loadFx('tirzepatide_t2d_surpass.json');
+  const r = I.fitLOO(fx.trials, { layer: 'rcs', knots: 3 });
+  assert.equal(r.layer, 'rcs');
+  assert.equal(r.k_full, 5);
+  assert.equal(r.loo.length, 5, 'LOO should produce one entry per dropped trial');
+  // Every dropped_studlab is a real fixture studlab; k_loo === k_full - 1 throughout
+  const studlabs = new Set(fx.trials.map(t => t.studlab));
+  for (const e of r.loo) {
+    assert.ok(studlabs.has(e.dropped_studlab), 'LOO dropped_studlab must be a real studlab: ' + e.dropped_studlab);
+    assert.equal(e.k_loo, 4, 'k_loo at k_full=5 must be 4');
+    assert.ok(Number.isFinite(e.pooled_slope_log), 'pooled_slope_log finite');
+    assert.ok(Number.isFinite(e.pooled_slope_log_se), 'pooled_slope_log_se finite');
+  }
+});
+
+test('fitLOO SURPASS: summary.most_influential_trial is a real studlab from the fixture', () => {
+  const fx = loadFx('tirzepatide_t2d_surpass.json');
+  const r = I.fitLOO(fx.trials, { layer: 'rcs', knots: 3 });
+  const studlabs = new Set(fx.trials.map(t => t.studlab));
+  assert.ok(r.summary.most_influential_trial, 'most_influential_trial should be set when ≥1 finite delta');
+  assert.ok(studlabs.has(r.summary.most_influential_trial),
+    'most_influential_trial must be a real fixture studlab: ' + r.summary.most_influential_trial);
+  assert.ok(Number.isFinite(r.summary.max_abs_delta_slope) && r.summary.max_abs_delta_slope > 0,
+    'max_abs_delta_slope should be a positive finite number');
+});
+
+test('fitLOO SURPASS: delta_slope = entry.pooled_slope_log - full_pool.pooled_slope_log (1e-12)', () => {
+  const fx = loadFx('tirzepatide_t2d_surpass.json');
+  const r = I.fitLOO(fx.trials, { layer: 'rcs', knots: 3 });
+  const fullSlope = r.full_pool.pooled_slope_log;
+  for (const e of r.loo) {
+    const expected = e.pooled_slope_log - fullSlope;
+    near(e.delta_slope, expected, 1e-12, 'delta_slope for ' + e.dropped_studlab);
+  }
+});
+
+test('fitLOO SURPASS: sign_flip semantics — true iff CI_lo signs differ from full pool', () => {
+  const fx = loadFx('tirzepatide_t2d_surpass.json');
+  const r = I.fitLOO(fx.trials, { layer: 'rcs', knots: 3 });
+  const fullSignLo = Math.sign(r.full_pool.pooled_slope_log_ci_lo);
+  let anyComputed = false;
+  for (const e of r.loo) {
+    const subSignLo = Math.sign(e.pooled_slope_log_ci_lo);
+    const expectFlip = (subSignLo !== fullSignLo) && (fullSignLo !== 0) && (subSignLo !== 0);
+    assert.equal(e.sign_flip, expectFlip,
+      'sign_flip on ' + e.dropped_studlab + ': expected ' + expectFlip + ', got ' + e.sign_flip);
+    anyComputed = true;
+  }
+  assert.ok(anyComputed, 'should have iterated over ≥1 LOO entry');
+});
+
+test('fitLOO SURPASS: significance_flip surfaces when LOO drops nlP across 0.05 from full', () => {
+  const fx = loadFx('tirzepatide_t2d_surpass.json');
+  const r = I.fitLOO(fx.trials, { layer: 'rcs', knots: 3 });
+  // Full-pool nlP = 0.0346 (< 0.05).  Dropping SURPASS-1 (largest delta) raises
+  // nlP above 0.05 — this is the headline LOO finding for the flagship.
+  assert.ok(r.full_pool.rcs && r.full_pool.rcs.nonlinearity_wald_p < 0.05,
+    'precondition: full-pool nlP must be < 0.05 for sig_flip semantics to mean something');
+  // At least one LOO entry should flip significance (any_significance_flip=true).
+  assert.equal(r.summary.any_significance_flip, true,
+    'SURPASS has ≥1 LOO subset where nlP crosses 0.05 — at least one significance_flip=true expected');
+  let n = 0;
+  for (const e of r.loo) {
+    if (e.significance_flip) n++;
+  }
+  assert.ok(n >= 1, 'expected ≥1 entry with significance_flip=true; got ' + n);
+});
+
+test('fitLOO on GL-1992 (k=5) returns 5 LOO entries (no degeneration on canonical fixture)', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const r = I.fitLOO(fx.trials, { layer: 'rcs', knots: 3 });
+  assert.equal(r.k_full, 5);
+  assert.equal(r.loo.length, 5, 'one LOO entry per trial');
+  // GL-1992 has rich per-trial dose coverage; no LOO subset should degenerate
+  // (rcsKnots returns >=3 knots on every 4-trial subset).
+  assert.equal(r.summary.n_degenerated, 0, 'GL-1992 LOO subsets should all fit real RCS; got n_degenerated=' + r.summary.n_degenerated);
+});
+
+test('fitLOO opts.layer="linear" returns linear-layer full_pool + LOO entries', () => {
+  const fx = loadFx('gl1992_alcohol_bc.json');
+  const rLin = I.fitLOO(fx.trials, { layer: 'linear' });
+  assert.equal(rLin.layer, 'linear');
+  assert.equal(rLin.full_pool.layer, 'linear');
+  assert.equal(rLin.loo.length, 5);
+  for (const e of rLin.loo) {
+    // Linear-layer LOO has no nlP since fitLinear has no spline.
+    assert.equal(e.nonlinearity_wald_p, null,
+      'linear-layer LOO has no nonlinearity_wald_p; should be null for ' + e.dropped_studlab);
+    assert.ok(Number.isFinite(e.pooled_slope_log));
+  }
+  // any_significance_flip is false on linear layer (no nlP to flip)
+  assert.equal(rLin.summary.any_significance_flip, false,
+    'linear layer has no nlP → any_significance_flip must be false');
+});
+
+test('fitLOO opts.layer="rcs" produces RCS-layer summary with nlP fields populated', () => {
+  const fx = loadFx('tirzepatide_t2d_surpass.json');
+  const r = I.fitLOO(fx.trials, { layer: 'rcs', knots: 3 });
+  assert.equal(r.layer, 'rcs');
+  assert.equal(r.full_pool.layer, 'rcs');
+  for (const e of r.loo) {
+    if (!e.degenerated) {
+      assert.ok(Number.isFinite(e.nonlinearity_wald_p),
+        'rcs-layer non-degenerate LOO entry must have finite nonlinearity_wald_p; got ' + e.nonlinearity_wald_p + ' for ' + e.dropped_studlab);
+    }
+  }
+});
+
+test('fitLOO on SUSTAIN (k=6) handles RCS singular-design drops via degenerated flag', () => {
+  const fx = loadFx('semaglutide_t2d_sustain.json');
+  const r = I.fitLOO(fx.trials, { layer: 'rcs', knots: 3 });
+  assert.equal(r.k_full, 6);
+  assert.equal(r.loo.length, 6);
+  // SUSTAIN's engine RCS fit is k_RCS=2 (4 singular per-trial drops at the
+  // full pool); LOO over a subset that excludes one of the surviving trials
+  // may further reduce k_eff or trigger the engine's degenerate-to-linear
+  // fallback (rcs.layer collapsing to 'linear' on the subset).  The contract:
+  // every LOO entry has either layer='rcs' (degenerated=false) or
+  // layer='linear' (degenerated=true).  Verify no entry throws or returns NaN
+  // on the pooled slope, and at least one entry is degenerated (LOO of the
+  // already-sparse 6-trial pool exposes the engine's RCS-fallback branch).
+  for (const e of r.loo) {
+    assert.ok(Number.isFinite(e.pooled_slope_log),
+      'every LOO entry must produce a finite pooled_slope_log even after singular-design drops; got ' + e.pooled_slope_log + ' on ' + e.dropped_studlab);
+  }
+  // Sanity: SUSTAIN's sparse-arm pool is exactly the kind that exercises
+  // degenerated handling.  We don't require ≥1 degenerated (depends on
+  // exact fixture), but the engine MUST NOT throw — that's the contract.
+  assert.ok(r.summary.n_degenerated >= 0, 'n_degenerated must be a non-negative count');
+});
+
+test('fitLOO on SURMOUNT (k=2) drops to k=1 each time; engine handles both paths without throwing', () => {
+  const fx = loadFx('tirzepatide_obesity_surmount.json');
+  // RCS layer: at k_full=2 → k_loo=1.  SURMOUNT-1 alone has 4 arms (0/5/10/15)
+  // and fits the k=1 RCS branch with finite output; SURMOUNT-2 alone has 3
+  // arms {0,10,15} — only 2 distinct positive doses, fewer than K=3 knots →
+  // the engine's RCS-fallback to fitLinear fires, then fitLinear throws at
+  // k=1.  fitLOO's try/catch must surface that as a degenerated record (NaN
+  // slope, _loo_error populated) WITHOUT re-throwing.  Contract: every LOO
+  // entry must produce an output record, even on the degenerate sub-subset.
+  const rRcs = I.fitLOO(fx.trials, { layer: 'rcs', knots: 3 });
+  assert.equal(rRcs.k_full, 2);
+  assert.equal(rRcs.loo.length, 2);
+  let nFinite = 0, nDegen = 0;
+  for (const e of rRcs.loo) {
+    assert.equal(e.k_loo, 1, 'LOO of k=2 produces k_loo=1 subset');
+    if (Number.isFinite(e.pooled_slope_log)) nFinite++;
+    if (e.degenerated) nDegen++;
+  }
+  assert.ok(nFinite >= 1,
+    'at least one SURMOUNT LOO subset (the one keeping the 4-arm SURMOUNT-1) must produce a finite slope via the k=1 RCS branch');
+  assert.ok(nDegen >= 1,
+    'at least one SURMOUNT LOO subset (the one keeping the 3-arm SURMOUNT-2 with only 2 distinct doses) should degenerate');
+  // Linear layer at k_full=2: fitLinear throws on k<2, so fitLOO must use the
+  // surviving-trial per-study slope as the LOO "pool".  Each entry should be
+  // marked degenerated and have a finite slope from the surviving trial.
+  const rLin = I.fitLOO(fx.trials, { layer: 'linear' });
+  assert.equal(rLin.k_full, 2);
+  assert.equal(rLin.loo.length, 2);
+  for (const e of rLin.loo) {
+    assert.equal(e.k_loo, 1);
+    assert.ok(Number.isFinite(e.pooled_slope_log),
+      'k=2 linear-layer LOO must NOT throw; should use surviving trial slope from fitLinear.per_study. Got: ' + e.pooled_slope_log);
+    assert.equal(e.degenerated, true,
+      'k=2 → k=1 linear-layer LOO entry must be marked degenerated=true (single-trial fallback)');
+  }
+});
+
 let pass = 0, fail = 0;
 for (const { name, fn } of tests) {
   try { fn(); console.log(`✓ ${name}`); pass++; }

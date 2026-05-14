@@ -1,4 +1,4 @@
-/* rapidmeta-dose-response-engine-v1.js — v0.3.0 (2026-05-13)
+/* rapidmeta-dose-response-engine-v1.js — v0.5.0 (2026-05-14)
  *
  * Self-contained dose-response meta-analysis engine for RapidMeta.
  * Three layered fitters: two-stage Greenland-Longnecker linear (primary),
@@ -15,6 +15,13 @@
  *   - full multivariate REML for fitRCS via Nelder-Mead on Cholesky parameters
  *     of the τ² matrix; non-linearity Wald p matches R mixmeta within |Δ| < 0.1
  *   - Q-profile τ² CI for fitLinear (Viechtbauer 2007) returns finite bounds
+ *   - v0.4.0: k=1 single-trial branch (fitRCS) via within-trial t df + tau2=0
+ *   - v0.5.0: leave-one-out (LOO) sensitivity via _internal.fitLOO; orchestrates
+ *     fitLinear / fitRCS over each k-1 subset, handles k_full=2 (LOO drops to
+ *     single surviving trial) via the per-study slope cached by fitLinear and
+ *     the engine's existing k=1 fitRCS branch; demonstrated on the TIRZEPATIDE
+ *     SURPASS flagship (k=5; nonlin Wald p = 0.0346 full pool — most influential
+ *     LOO subset surfaced in the flagship's LOO sensitivity tab)
  *
  * Load as <script src="rapidmeta-dose-response-engine-v1.js" defer></script>;
  * exposes window.RapidMetaDoseResp.{ validate, fitLinear, fitRCS, fitOneStage,
@@ -27,7 +34,7 @@
   // Public methods are assigned to API.<name> immediately after each function
   // definition below. _internal helpers are similarly attached as defined.
   var API = {
-    engine_version: 'rapidmeta-dose-response-engine-v1@0.3.0',
+    engine_version: 'rapidmeta-dose-response-engine-v1@0.5.0',
     _internal: {},
   };
 
@@ -1583,6 +1590,208 @@
     return clone;
   }
   API.exportResults = exportResults;
+
+  // ===================================================================
+  // Section 4: fitLOO — leave-one-out sensitivity (v0.5.0)
+  // Orchestrates fitLinear / fitRCS over each k-1 subset and returns the
+  // per-trial delta vs the full pool. See engine header comment for
+  // semantics.  No new statistical machinery — only calls the existing
+  // layer fitters and assembles a per-trial delta record.
+  //
+  // k_full=2 special case:  fitLinear throws on k<2, and the LOO of a
+  // k=2 pool drops to k=1.  In that case we fall back to the surviving
+  // trial's own slope (from its per-study record, which fitLinear
+  // already computed for the full-pool fit) and mark degenerated=true.
+  // For RCS at k=1 the engine has a real single-trial path since v0.4
+  // (estimator wls_single_trial_rcs); we still mark degenerated when
+  // the LOO result's layer collapsed from rcs to linear (rcsKnots
+  // returned fewer than K distinct locations on the LOO subset).
+  // ===================================================================
+  function fitLOO(trials, opts) {
+    opts = opts || {};
+    var layer = opts.layer === 'linear' ? 'linear' : 'rcs';
+    var knots = (opts.knots != null) ? opts.knots : 3;
+    var fitOpts = {};
+    for (var k in opts) {
+      if (k !== 'layer' && Object.prototype.hasOwnProperty.call(opts, k)) {
+        fitOpts[k] = opts[k];
+      }
+    }
+
+    // Validate the full pool first; LOO is meaningless on an invalid pool.
+    var issues = validate(trials);
+    if (issues.length) throw new Error('fitLOO: ' + issues[0]);
+
+    var kFull = trials.length;
+    if (kFull < 2) {
+      // LOO over a k=1 pool would leave an empty subset; degenerate by spec.
+      // We still return a full_pool fit (RCS k=1 path) so downstream KPI
+      // code can read the headline without a null check.
+      var solo = (layer === 'rcs')
+        ? fitRCS(trials, fitOpts)
+        : (function () { throw new Error('fitLOO: cannot LOO a k=1 pool at layer=linear (fitLinear requires k>=2)'); })();
+      return {
+        layer: layer,
+        k_full: kFull,
+        full_pool: solo,
+        loo: [],
+        summary: {
+          max_abs_delta_slope: 0,
+          most_influential_trial: null,
+          any_sign_flip: false,
+          any_significance_flip: false,
+          n_degenerated: 0,
+          skipped_reason: 'k_full < 2 — cannot drop a trial'
+        }
+      };
+    }
+
+    // Full-pool fit at the chosen layer.
+    var fullPool;
+    if (layer === 'rcs') {
+      fullPool = fitRCS(trials, Object.assign({}, fitOpts, { knots: knots }));
+    } else {
+      fullPool = fitLinear(trials, fitOpts);
+    }
+    var fullSlope = fullPool.pooled_slope_log;
+    var fullNlP = (fullPool.rcs && fullPool.rcs.nonlinearity_wald_p != null) ? fullPool.rcs.nonlinearity_wald_p : null;
+    var fullCiLo = fullPool.pooled_slope_log_ci_lo;
+    var fullCiHi = fullPool.pooled_slope_log_ci_hi;
+    var fullSignLo = (fullCiLo == null || !isFinite(fullCiLo)) ? 0 : Math.sign(fullCiLo);
+    var fullNlSig = (fullNlP != null && isFinite(fullNlP)) ? (fullNlP < 0.05) : null;
+
+    // For the k_full=2 → k_loo=1 special case at the linear layer, we need a
+    // per-trial slope.  fitLinear populated full_pool.per_study with the
+    // GL-covariance-derived single-trial slope + SE; we lift it directly so
+    // the LOO "pool" is the surviving trial's own slope.
+    // For RCS k=2 → k=1, the engine's k=1 fitRCS branch is the real fit and
+    // we don't need this fallback — fitRCS(subset) returns the right thing.
+    var linearPerStudy = null;
+    if (layer === 'linear' && kFull === 2 && fullPool.per_study) {
+      linearPerStudy = fullPool.per_study;
+    }
+
+    var loo = [];
+    var maxAbsDelta = -Infinity;
+    var mostInflTrial = null;
+    var anySignFlip = false;
+    var anySigFlip = false;
+    var nDegen = 0;
+
+    for (var i = 0; i < kFull; i++) {
+      var dropped = trials[i];
+      var subset = trials.slice(0, i).concat(trials.slice(i + 1));
+      var sub, degenerated = false;
+
+      try {
+        if (layer === 'rcs') {
+          sub = fitRCS(subset, Object.assign({}, fitOpts, { knots: knots }));
+          // engine's RCS fallback flips layer to 'linear' when rcsKnots returns
+          // < K distinct knot locations on the LOO subset — that's degeneration
+          // for our purposes.
+          if (sub.layer === 'linear') degenerated = true;
+        } else {
+          // layer === 'linear'
+          if (subset.length < 2) {
+            // k_full=2 → k_loo=1: fall back to the surviving trial's per-study slope.
+            if (linearPerStudy == null || linearPerStudy.length !== 2) {
+              throw new Error('fitLOO: k_full=2 LOO requires fitLinear.per_study; got ' + (linearPerStudy && linearPerStudy.length));
+            }
+            // surviving idx is (1 - i); per_study is in trial order
+            var surv = linearPerStudy[1 - i];
+            var sloLo = surv.slope_log - 1.96 * surv.slope_log_se;
+            var sloHi = surv.slope_log + 1.96 * surv.slope_log_se;
+            sub = {
+              layer: 'linear',
+              k: 1,
+              pooled_slope_log: surv.slope_log,
+              pooled_slope_log_se: surv.slope_log_se,
+              pooled_slope_log_ci_lo: sloLo,
+              pooled_slope_log_ci_hi: sloHi,
+              hksj_mv: null,
+              tcrit: 1.96,
+              rcs: null,
+              _loo_single_trial_fallback: true
+            };
+            degenerated = true;
+          } else {
+            sub = fitLinear(subset, fitOpts);
+          }
+        }
+      } catch (e) {
+        // Even a fit failure produces a record so the caller can see which
+        // LOO subset broke and why.  No silent-failure sentinel: we surface
+        // the error message and mark degenerated.
+        sub = {
+          layer: layer,
+          k: subset.length,
+          pooled_slope_log: NaN,
+          pooled_slope_log_se: NaN,
+          pooled_slope_log_ci_lo: NaN,
+          pooled_slope_log_ci_hi: NaN,
+          hksj_mv: null,
+          tcrit: null,
+          rcs: null,
+          _loo_error: String(e && e.message || e)
+        };
+        degenerated = true;
+      }
+
+      var nlPSub = (sub.rcs && sub.rcs.nonlinearity_wald_p != null) ? sub.rcs.nonlinearity_wald_p : null;
+      var delta = isFinite(sub.pooled_slope_log) && isFinite(fullSlope)
+        ? (sub.pooled_slope_log - fullSlope) : NaN;
+      var subSignLo = (sub.pooled_slope_log_ci_lo == null || !isFinite(sub.pooled_slope_log_ci_lo))
+        ? 0 : Math.sign(sub.pooled_slope_log_ci_lo);
+      var signFlip = (subSignLo !== fullSignLo) && (fullSignLo !== 0) && (subSignLo !== 0);
+      var sigFlip = false;
+      if (fullNlSig !== null && nlPSub != null && isFinite(nlPSub)) {
+        var subSig = (nlPSub < 0.05);
+        sigFlip = (subSig !== fullNlSig);
+      }
+
+      if (degenerated) nDegen++;
+      if (signFlip) anySignFlip = true;
+      if (sigFlip) anySigFlip = true;
+      if (isFinite(delta) && Math.abs(delta) > maxAbsDelta) {
+        maxAbsDelta = Math.abs(delta);
+        mostInflTrial = dropped.studlab;
+      }
+
+      loo.push({
+        dropped_studlab: dropped.studlab,
+        dropped_idx: i,
+        k_loo: subset.length,
+        pooled_slope_log: sub.pooled_slope_log,
+        pooled_slope_log_se: sub.pooled_slope_log_se,
+        pooled_slope_log_ci_lo: sub.pooled_slope_log_ci_lo,
+        pooled_slope_log_ci_hi: sub.pooled_slope_log_ci_hi,
+        nonlinearity_wald_p: nlPSub,
+        hksj_mv: (sub.hksj_mv != null) ? sub.hksj_mv : null,
+        tcrit: (sub.tcrit != null) ? sub.tcrit : null,
+        delta_slope: delta,
+        sign_flip: signFlip,
+        significance_flip: sigFlip,
+        degenerated: degenerated
+      });
+    }
+
+    if (!isFinite(maxAbsDelta)) maxAbsDelta = 0;
+
+    return {
+      layer: layer,
+      k_full: kFull,
+      full_pool: fullPool,
+      loo: loo,
+      summary: {
+        max_abs_delta_slope: maxAbsDelta,
+        most_influential_trial: mostInflTrial,
+        any_sign_flip: anySignFlip,
+        any_significance_flip: anySigFlip,
+        n_degenerated: nDegen
+      }
+    };
+  }
+  API._internal.fitLOO = fitLOO;
 
   root.RapidMetaDoseResp = API;
   if (typeof module !== 'undefined' && module.exports) module.exports = API;

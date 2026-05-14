@@ -78,6 +78,19 @@ FLAGSHIPS = [
         "rcs_kpi_id": "hba1c-rcs-kpis",
         "expected_badge": "green",
         "allowed_amber_rows": [],
+        # v0.5.0: SURPASS gets the engine-v0.5 LOO sensitivity tab demonstrator.
+        # The new tab is in slot 3 (Tab 3 — between RCS headline and One-stage).
+        # We assert (a) the tab button is in the DOM, (b) the tab panel mount
+        # contains the LOO headline phrase "Most influential trial" + a non-empty
+        # studlab from the fixture, and (c) the KPI bar populates without "n/a".
+        "loo_tab_button_id": "tab-btn-hba1c-loo",
+        "loo_tab_panel_id": "tab-hba1c-loo",
+        "loo_kpis_id": "hba1c-loo-kpis",
+        "loo_headline_id": "hba1c-loo-headline",
+        "loo_must_contain_phrases": [
+            "Most influential trial",
+            "LOO sensitivity",
+        ],
     },
     {
         # Round 3.5 — intentional k=2 small-k stress test; linear_tau2 row is
@@ -511,12 +524,16 @@ def main():
                             print(f"  ✗ {e}")
                             failed += 1
 
-                        # Test 4: engine_version span has been populated and contains 0.3.0
+                        # Test 4: engine_version span has been populated and contains 0.5.0.
+                        # Engine v0.5.0 (this PR) bumps the version label; all 10 flagships
+                        # read DR.engine_version directly from the loaded engine, so every
+                        # flagship now renders v0.5.0 even though only SURPASS surfaces the
+                        # new LOO sensitivity tab.
                         try:
-                            assert "0.3.0" in engine_version, (
-                                f"engine_version span text {engine_version!r} does not contain '0.3.0'"
+                            assert "0.5.0" in engine_version, (
+                                f"engine_version span text {engine_version!r} does not contain '0.5.0'"
                             )
-                            print(f"  ✓ engine v0.3.0 label rendered: {engine_version!r}")
+                            print(f"  ✓ engine v0.5.0 label rendered: {engine_version!r}")
                             passed += 1
                         except AssertionError as e:
                             print(f"  ✗ {e}")
@@ -542,6 +559,51 @@ def main():
                                 passed += 1
                             except AssertionError as e:
                                 print(f"  ✗ {e}")
+                                failed += 1
+
+                        # Test 6 (v0.5.0): SURPASS LOO-tab smoke. Only SURPASS
+                        # currently surfaces the engine v0.5 LOO sensitivity
+                        # tab; flagships without the loo_tab_button_id key
+                        # skip silently. Assertions:
+                        #  - tab button exists in the DOM
+                        #  - tab panel mount contains the documented headline
+                        #    phrases (e.g. "Most influential trial")
+                        #  - LOO KPI mount contains no forbidden "n/a" patterns
+                        #    that would indicate a fitLOO contract bug
+                        loo_btn_id = flagship.get("loo_tab_button_id")
+                        if loo_btn_id:
+                            try:
+                                btn_count = page.locator(f"#{loo_btn_id}").count()
+                                assert btn_count == 1, (
+                                    f"LOO tab button #{loo_btn_id} not found in DOM (count={btn_count}). "
+                                    f"Engine v0.5.0 LOO sensitivity tab must be rendered."
+                                )
+                                panel_id = flagship.get("loo_tab_panel_id")
+                                panel_text = page.locator(f"#{panel_id}").text_content() or ""
+                                kpi_id = flagship.get("loo_kpis_id")
+                                kpi_text = page.locator(f"#{kpi_id}").text_content() or ""
+                                must_phrases = flagship.get("loo_must_contain_phrases", [])
+                                missing = [p for p in must_phrases if p not in panel_text]
+                                assert not missing, (
+                                    f"LOO tab panel #{panel_id} missing required phrases "
+                                    f"{missing}. Panel text (first 800 chars): {panel_text[:800]}"
+                                )
+                                # Forbidden "n/a" patterns: any KPI value displayed as
+                                # literal "n/a" would indicate a missing field.
+                                forbidden_loo = ["max |Δslope| = n/a", "= n/a", "NaN"]
+                                hits = [f for f in forbidden_loo if f in kpi_text]
+                                # Note "= n/a" is broad on purpose; the LOO KPI bar
+                                # has 6 KPIs and any of them showing "= n/a" is a
+                                # contract failure.  If this triggers on a benign
+                                # disclaimer in the future, narrow the substring.
+                                assert not hits, (
+                                    f"LOO KPI mount #{kpi_id} contains forbidden 'n/a' display(s): "
+                                    f"{hits}. KPI text: {kpi_text[:500]}"
+                                )
+                                print(f"  ✓ LOO sensitivity tab renders (engine v0.5.0 demonstrator)")
+                                passed += 1
+                            except AssertionError as e:
+                                print(f"  ✗ LOO sensitivity tab: {e}")
                                 failed += 1
                     finally:
                         page.close()

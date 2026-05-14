@@ -730,6 +730,85 @@ for (const c of flagshipContracts) {
   console.log('');
 }
 
+// === v0.5.0 SURPASS LOO-tab contract (engine v0.5 demonstrator) ===
+// The SURPASS flagship reads DR._internal.fitLOO from the loaded engine and
+// renders a 5-tab page with the LOO sensitivity tab in slot 3.  These
+// assertions pin the engine-vs-flagship contract for the new tab so a
+// future engine refactor that renames or moves fitLOO breaks the test
+// (matching the pattern of the Round 2C field-path regression).
+console.log('SURPASS LOO-tab contract (engine v0.5.0 — DR._internal.fitLOO)');
+
+test('engine v0.5: DR.engine_version label is @0.5.0', () => {
+  assert.ok(/@0\.5\.0$/.test(DR.engine_version),
+    'engine_version label should end with @0.5.0; got ' + DR.engine_version);
+});
+
+test('engine v0.5: DR._internal.fitLOO is a function', () => {
+  assert.equal(typeof DR._internal.fitLOO, 'function',
+    'DR._internal.fitLOO must be a function on the engine v0.5.0 API');
+});
+
+test('SURPASS LOO: fitLOO(SURPASS, layer=rcs, knots=3) returns full_pool + 5 LOO entries', () => {
+  const fx = JSON.parse(fs.readFileSync(path.join(repoRoot, 'tests/dose_response_fixtures/tirzepatide_t2d_surpass.json'), 'utf8'));
+  const r = DR._internal.fitLOO(fx.trials, { layer: 'rcs', knots: 3 });
+  assert.equal(r.layer, 'rcs');
+  assert.equal(r.k_full, 5);
+  assert.equal(r.loo.length, 5);
+  assert.equal(r.full_pool.layer, 'rcs');
+  assert.ok(Number.isFinite(r.full_pool.rcs.nonlinearity_wald_p),
+    'full_pool.rcs.nonlinearity_wald_p must be finite (the SURPASS headline finding the LOO tab supports)');
+});
+
+test('SURPASS LOO-tab KPI fields populate without "n/a" — most_influential_trial, max_abs_delta_slope, full nlP', () => {
+  const fx = JSON.parse(fs.readFileSync(path.join(repoRoot, 'tests/dose_response_fixtures/tirzepatide_t2d_surpass.json'), 'utf8'));
+  const r = DR._internal.fitLOO(fx.trials, { layer: 'rcs', knots: 3 });
+  // KPI bar reads: full-pool nlP, most_influential_trial, max_abs_delta_slope.
+  // Each must produce a non-empty display string.
+  const fullNlP = r.full_pool.rcs.nonlinearity_wald_p;
+  assert.ok(Number.isFinite(fullNlP), 'full-pool nlP must be finite');
+  assert.ok(/^\d+\.\d{4}$/.test(fullNlP.toFixed(4)), 'fullNlP.toFixed(4) display: ' + fullNlP.toFixed(4));
+
+  assert.ok(r.summary.most_influential_trial,
+    'summary.most_influential_trial must be set (non-null/empty) so the KPI does not display "n/a"');
+  assert.equal(typeof r.summary.most_influential_trial, 'string');
+
+  assert.ok(Number.isFinite(r.summary.max_abs_delta_slope),
+    'summary.max_abs_delta_slope must be finite (KPI displays via .toFixed(5))');
+  assert.ok(/^\d+\.\d{5}$/.test(r.summary.max_abs_delta_slope.toFixed(5)),
+    'max_abs_delta_slope.toFixed(5) display: ' + r.summary.max_abs_delta_slope.toFixed(5));
+
+  // any_significance_flip / any_sign_flip — booleans (KPI displays YES/No).
+  assert.equal(typeof r.summary.any_significance_flip, 'boolean');
+  assert.equal(typeof r.summary.any_sign_flip, 'boolean');
+  assert.equal(typeof r.summary.n_degenerated, 'number');
+});
+
+test('SURPASS LOO-tab per-row contract: every LOO entry has all displayed fields finite', () => {
+  const fx = JSON.parse(fs.readFileSync(path.join(repoRoot, 'tests/dose_response_fixtures/tirzepatide_t2d_surpass.json'), 'utf8'));
+  const r = DR._internal.fitLOO(fx.trials, { layer: 'rcs', knots: 3 });
+  // The flagship's LOO table renders one row per entry; each row reads:
+  // dropped_studlab, k_loo, pooled_slope_log, pooled_slope_log_ci_lo/hi,
+  // nonlinearity_wald_p, delta_slope, sign_flip, significance_flip, degenerated.
+  // The on-page render gates each numeric on Number.isFinite, so we only
+  // need the engine to populate the right shape (NOT to guarantee every
+  // value is finite on a hypothetical future degenerate subset).  But for
+  // the canonical SURPASS k=5 fixture, every numeric SHOULD be finite.
+  r.loo.forEach(e => {
+    assert.ok(typeof e.dropped_studlab === 'string' && e.dropped_studlab.length > 0);
+    assert.equal(e.k_loo, 4, 'SURPASS LOO k_loo === 4 for every entry (k_full=5)');
+    assert.ok(Number.isFinite(e.pooled_slope_log));
+    assert.ok(Number.isFinite(e.pooled_slope_log_se));
+    assert.ok(Number.isFinite(e.pooled_slope_log_ci_lo));
+    assert.ok(Number.isFinite(e.pooled_slope_log_ci_hi));
+    assert.ok(Number.isFinite(e.nonlinearity_wald_p),
+      'SURPASS canonical fixture: every LOO subset fits real RCS; nlP must be finite');
+    assert.ok(Number.isFinite(e.delta_slope));
+    assert.equal(typeof e.sign_flip, 'boolean');
+    assert.equal(typeof e.significance_flip, 'boolean');
+    assert.equal(typeof e.degenerated, 'boolean');
+  });
+});
+
 console.log('-'.repeat(60));
 console.log(passed + ' passed, ' + failed + ' failed');
 process.exit(failed === 0 ? 0 : 1);
