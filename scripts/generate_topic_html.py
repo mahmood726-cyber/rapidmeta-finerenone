@@ -104,6 +104,11 @@ def collect_trials(topic_audit):
             "primary_outcome": (ex.get("aact_primary_outcome_measure") or "")[:200],
             "pubmed_title": (ex.get("pubmed_title") or "")[:200],
             "tN": tN, "cN": cN, "tE": tE, "cE": cE,
+            "published_effect_type": ex.get("published_effect_type"),
+            "published_effect_size": ex.get("published_effect_size"),
+            "published_ci_lower": ex.get("published_ci_lower"),
+            "published_ci_upper": ex.get("published_ci_upper"),
+            "published_source_snippet": ex.get("published_source_snippet"),
         })
     return trials
 
@@ -111,20 +116,35 @@ def collect_trials(topic_audit):
 def realdata_for_engine(trials):
     rd = {}
     for t in trials:
+        # When V2 extracted a published effect from the abstract, surface it
+        # in the engine block so the existing classifier and dashboards see it.
+        pub_es = t.get("published_effect_size")
+        pub_t = t.get("published_effect_type")
+        evidence = [{
+            "label": "Primary outcome (AACT)",
+            "source": "AACT 2026-04-12",
+            "text": t["primary_outcome"],
+            "sourceUrl": f"https://clinicaltrials.gov/study/{t['nct']}",
+        }]
+        if pub_es is not None:
+            snippet = t.get("published_source_snippet") or ""
+            evidence.append({
+                "label": f"Published {pub_t} (PubMed abstract)",
+                "source": f"PubMed PMID {t['pmid']} (V2 RCT extractor)",
+                "text": snippet,
+                "sourceUrl": f"https://pubmed.ncbi.nlm.nih.gov/{t['pmid']}/",
+            })
         rd[t["nct"]] = {
             "name": t["acronym"],
             "baseline": {"n": (t.get("tN") or 0) + (t.get("cN") or 0)},
             "pmid": t["pmid"], "phase": "III", "year": t["year"],
             "tE": t["tE"], "tN": t["tN"], "cE": t["cE"], "cN": t["cN"],
             "group": t["interventions"][0] if t["interventions"] else "",
-            "estimandType": "OR",
-            "publishedHR": None, "hrLCI": None, "hrUCI": None,
-            "evidence": [{
-                "label": "Primary outcome (AACT)",
-                "source": "AACT 2026-04-12",
-                "text": t["primary_outcome"],
-                "sourceUrl": f"https://clinicaltrials.gov/study/{t['nct']}",
-            }],
+            "estimandType": pub_t or "OR",
+            "publishedHR": pub_es,
+            "hrLCI": t.get("published_ci_lower"),
+            "hrUCI": t.get("published_ci_upper"),
+            "evidence": evidence,
         }
     return rd
 
@@ -302,6 +322,12 @@ WHERE lower(name) LIKE '%{esc(cond)}%'</pre>
             <tr><td><strong>Intervention</strong></td><td>{t["tE"] if t["tE"] is not None else "—"}</td><td>{(t["tN"]-t["tE"]) if (t["tN"] is not None and t["tE"] is not None) else "—"}</td><td>{t["tN"] if t["tN"] is not None else "—"}</td></tr>
             <tr><td><strong>Control</strong></td><td>{t["cE"] if t["cE"] is not None else "—"}</td><td>{(t["cN"]-t["cE"]) if (t["cN"] is not None and t["cE"] is not None) else "—"}</td><td>{t["cN"] if t["cN"] is not None else "—"}</td></tr>
           </table>
+          {(f'<p style="margin:8px 0 0;color:#bef264;font-size:12px;"><strong>Published {esc(t["published_effect_type"])}:</strong> '
+              f'<span style="font-family:JetBrains Mono,monospace;">{t["published_effect_size"]} '
+              f'[{t["published_ci_lower"]}, {t["published_ci_upper"]}]</span> '
+              f'<span style="color:#94a3b8;font-size:11px;">(V2 RCT extractor on PubMed abstract)</span></p>'
+              f'<p style="margin:4px 0 0;color:#94a3b8;font-size:10.5px;font-style:italic;">"{esc(t.get("published_source_snippet") or "")[:200]}"</p>')
+              if t.get("published_effect_size") is not None else ''}
         </div>""")
     extraction_html = "\n".join(ext_rows) or '<p style="color:#94a3b8;">No trials included.</p>'
 
@@ -347,6 +373,39 @@ WHERE lower(name) LIKE '%{esc(cond)}%'</pre>
     # -- Statistics tab (Cochrane v6.5 sensitivity diagnostics)
     # Compute additional stats from the pool
     stats_panels = []
+
+    # Panel 0: Published vs Pooled (cross-check against trial-published abstracts)
+    pub_trials = [t for t in trials if t.get("published_effect_size") is not None]
+    if pub_trials:
+        rows = []
+        for t in pub_trials:
+            pet = t["published_effect_type"]
+            rows.append(
+                f'<tr><td>{esc(t["acronym"])}</td>'
+                f'<td>{esc(pet)}</td>'
+                f'<td style="font-family:JetBrains Mono,monospace;text-align:right;">'
+                f'{t["published_effect_size"]} [{t["published_ci_lower"]}, {t["published_ci_upper"]}]</td>'
+                f'<td style="text-align:right;font-size:10px;color:#94a3b8;">PMID '
+                f'<a href="https://pubmed.ncbi.nlm.nih.gov/{esc(t["pmid"])}/" target="_blank">{esc(t["pmid"])}</a></td></tr>'
+            )
+        pool_str = (f'<strong>Pooled (from AACT event counts): OR {pool["hr"]} '
+                     f'[{pool["lci"]}, {pool["uci"]}]</strong>') if pool else ""
+        stats_panels.append(f"""
+        <div class="stat-panel" style="grid-column:1/-1;">
+          <h4>0. Published vs Pooled cross-check</h4>
+          <p style="color:#cbd5e1;font-size:12px;">
+            {len(pub_trials)} of {len(trials)} trials had an extractable published
+            effect estimate in their PubMed abstract (V2 RCT extractor; HR/OR/RR/MD).
+            The pooled estimate is from AACT event counts (Woolf log-OR) and is
+            therefore a different estimand from the trial-published HR — agreement
+            at the rank/direction level is the integrity check.
+          </p>
+          <table style="width:100%;font-size:12px;">
+            <tr><th>Trial</th><th>Type</th><th>Published effect (95% CI)</th><th>Source</th></tr>
+            {"".join(rows)}
+          </table>
+          {f'<p style="margin-top:10px;color:#fbbf24;font-size:12px;">{pool_str}</p>' if pool_str else ''}
+        </div>""")
 
     # Panel 1: Heterogeneity
     if pool and pool.get("k", 0) >= 2:

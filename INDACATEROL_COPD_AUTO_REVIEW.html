@@ -141,6 +141,7 @@ WHERE lower(name) LIKE '%copd%'</pre>
             <tr><td><strong>Intervention</strong></td><td>—</td><td>—</td><td>130</td></tr>
             <tr><td><strong>Control</strong></td><td>—</td><td>—</td><td>387</td></tr>
           </table>
+          <p style="margin:8px 0 0;color:#bef264;font-size:12px;"><strong>Published OR:</strong> <span style="font-family:JetBrains Mono,monospace;">0.41 [0.31, 0.55]</span> <span style="color:#94a3b8;font-size:11px;">(V2 RCT extractor on PubMed abstract)</span></p><p style="margin:4px 0 0;color:#94a3b8;font-size:10.5px;font-style:italic;">"OR 0.41 [95% CI: 0.31-0.55]"</p>
         </div>
 
         <div style="background:#1e293b;padding:14px;border-radius:6px;margin:0.6rem 0;">
@@ -157,6 +158,7 @@ WHERE lower(name) LIKE '%copd%'</pre>
             <tr><td><strong>Intervention</strong></td><td>—</td><td>—</td><td>114</td></tr>
             <tr><td><strong>Control</strong></td><td>—</td><td>—</td><td>116</td></tr>
           </table>
+          
         </div>
 
         <div style="background:#1e293b;padding:14px;border-radius:6px;margin:0.6rem 0;">
@@ -173,6 +175,7 @@ WHERE lower(name) LIKE '%copd%'</pre>
             <tr><td><strong>Intervention</strong></td><td>143</td><td>115</td><td>258</td></tr>
             <tr><td><strong>Control</strong></td><td>159</td><td>105</td><td>264</td></tr>
           </table>
+          <p style="margin:8px 0 0;color:#bef264;font-size:12px;"><strong>Published MD:</strong> <span style="font-family:JetBrains Mono,monospace;">0.138 [0.1, 0.176]</span> <span style="color:#94a3b8;font-size:11px;">(V2 RCT extractor on PubMed abstract)</span></p><p style="margin:4px 0 0;color:#94a3b8;font-size:10.5px;font-style:italic;">"difference 0.138 L; 95% CI 0.100-0.176"</p>
         </div>
 
         <div style="background:#1e293b;padding:14px;border-radius:6px;margin:0.6rem 0;">
@@ -189,6 +192,7 @@ WHERE lower(name) LIKE '%copd%'</pre>
             <tr><td><strong>Intervention</strong></td><td>—</td><td>—</td><td>559</td></tr>
             <tr><td><strong>Control</strong></td><td>—</td><td>—</td><td>562</td></tr>
           </table>
+          <p style="margin:8px 0 0;color:#bef264;font-size:12px;"><strong>Published MD:</strong> <span style="font-family:JetBrains Mono,monospace;">0.63 [0.3, 0.97]</span> <span style="color:#94a3b8;font-size:11px;">(V2 RCT extractor on PubMed abstract)</span></p><p style="margin:4px 0 0;color:#94a3b8;font-size:10.5px;font-style:italic;">"difference 0.63 [0.30, 0.97]"</p>
         </div></section>
 <section id="tab-analysis" class="tab-panel">
     <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">Forest plot — per-trial OR + pooled estimate</h3>
@@ -223,7 +227,23 @@ WHERE lower(name) LIKE '%copd%'</pre>
         </div>
     
     </section>
-<section id="tab-statistics" class="tab-panel"><div class="stat-grid"><div class="stat-panel"><h4>1. Heterogeneity</h4><p style="color:#94a3b8;font-size:12px;">Requires k≥2 trials with event data.</p></div>
+<section id="tab-statistics" class="tab-panel"><div class="stat-grid">
+        <div class="stat-panel" style="grid-column:1/-1;">
+          <h4>0. Published vs Pooled cross-check</h4>
+          <p style="color:#cbd5e1;font-size:12px;">
+            3 of 4 trials had an extractable published
+            effect estimate in their PubMed abstract (V2 RCT extractor; HR/OR/RR/MD).
+            The pooled estimate is from AACT event counts (Woolf log-OR) and is
+            therefore a different estimand from the trial-published HR — agreement
+            at the rank/direction level is the integrity check.
+          </p>
+          <table style="width:100%;font-size:12px;">
+            <tr><th>Trial</th><th>Type</th><th>Published effect (95% CI)</th><th>Source</th></tr>
+            <tr><td>NCT01985334</td><td>OR</td><td style="font-family:JetBrains Mono,monospace;text-align:right;">0.41 [0.31, 0.55]</td><td style="text-align:right;font-size:10px;color:#94a3b8;">PMID <a href="https://pubmed.ncbi.nlm.nih.gov/29713156/" target="_blank">29713156</a></td></tr><tr><td>ILLUMINATE</td><td>MD</td><td style="font-family:JetBrains Mono,monospace;text-align:right;">0.138 [0.1, 0.176]</td><td style="text-align:right;font-size:10px;color:#94a3b8;">PMID <a href="https://pubmed.ncbi.nlm.nih.gov/24321804/" target="_blank">24321804</a></td></tr><tr><td>INSIST</td><td>MD</td><td style="font-family:JetBrains Mono,monospace;text-align:right;">0.63 [0.3, 0.97]</td><td style="text-align:right;font-size:10px;color:#94a3b8;">PMID <a href="https://pubmed.ncbi.nlm.nih.gov/21367594/" target="_blank">21367594</a></td></tr>
+          </table>
+          <p style="margin-top:10px;color:#fbbf24;font-size:12px;"><strong>Pooled (from AACT event counts): OR 0.821 [0.58, 1.163]</strong></p>
+        </div>
+<div class="stat-panel"><h4>1. Heterogeneity</h4><p style="color:#94a3b8;font-size:12px;">Requires k≥2 trials with event data.</p></div>
 <div class="stat-panel"><h4>2. Prediction interval</h4><p style="color:#94a3b8;font-size:12px;">Requires k≥3 trials (Cochrane v6.5).</p></div>
 <div class="stat-panel"><h4>3. Egger's test</h4><p style="color:#94a3b8;font-size:12px;">Requires k≥3.</p></div>
 
@@ -324,15 +344,21 @@ Per PubMed attribution: NCBI E-utilities + idconv API. Generated by
     "cN": 387,
     "group": "glycopyrronium",
     "estimandType": "OR",
-    "publishedHR": null,
-    "hrLCI": null,
-    "hrUCI": null,
+    "publishedHR": 0.41,
+    "hrLCI": 0.31,
+    "hrUCI": 0.55,
     "evidence": [
       {
         "label": "Primary outcome (AACT)",
         "source": "AACT 2026-04-12",
         "text": "Trough FEV1 at Week 12 for Group: Glycopyrronium vs. Short-acting Bronchodilators (SABA and/or SAMA as Monotherapy or in Free or FDC)",
         "sourceUrl": "https://clinicaltrials.gov/study/NCT01985334"
+      },
+      {
+        "label": "Published OR (PubMed abstract)",
+        "source": "PubMed PMID 29713156 (V2 RCT extractor)",
+        "text": "OR 0.41 [95% CI: 0.31-0.55]",
+        "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29713156/"
       }
     ]
   },
@@ -375,16 +401,22 @@ Per PubMed attribution: NCBI E-utilities + idconv API. Generated by
     "cE": 159,
     "cN": 264,
     "group": "indacaterol and glycopyrronium (qva149)",
-    "estimandType": "OR",
-    "publishedHR": null,
-    "hrLCI": null,
-    "hrUCI": null,
+    "estimandType": "MD",
+    "publishedHR": 0.138,
+    "hrLCI": 0.1,
+    "hrUCI": 0.176,
     "evidence": [
       {
         "label": "Primary outcome (AACT)",
         "source": "AACT 2026-04-12",
         "text": "Forced Expiratory Volume in 1 Second Area Under the Curve (FEV1 AUC) 0-12",
         "sourceUrl": "https://clinicaltrials.gov/study/NCT01315249"
+      },
+      {
+        "label": "Published MD (PubMed abstract)",
+        "source": "PubMed PMID 24321804 (V2 RCT extractor)",
+        "text": "difference 0.138 L; 95% CI 0.100-0.176",
+        "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24321804/"
       }
     ]
   },
@@ -401,16 +433,22 @@ Per PubMed attribution: NCBI E-utilities + idconv API. Generated by
     "cE": null,
     "cN": 562,
     "group": "indacaterol 150 µg",
-    "estimandType": "OR",
-    "publishedHR": null,
-    "hrLCI": null,
-    "hrUCI": null,
+    "estimandType": "MD",
+    "publishedHR": 0.63,
+    "hrLCI": 0.3,
+    "hrUCI": 0.97,
     "evidence": [
       {
         "label": "Primary outcome (AACT)",
         "source": "AACT 2026-04-12",
         "text": "Forced Expiratory Volume in 1 Second (FEV1) Standardized (With Respect to Time) Area Under the Curve (AUC) From 5 Minutes to 11 Hours 45 Minutes Post-dose at the End of the Study (Week 12, Day 84)",
         "sourceUrl": "https://clinicaltrials.gov/study/NCT00821093"
+      },
+      {
+        "label": "Published MD (PubMed abstract)",
+        "source": "PubMed PMID 21367594 (V2 RCT extractor)",
+        "text": "difference 0.63 [0.30, 0.97]",
+        "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/21367594/"
       }
     ]
   }
