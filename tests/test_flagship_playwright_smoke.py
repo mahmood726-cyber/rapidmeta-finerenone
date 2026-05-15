@@ -631,16 +631,16 @@ def main():
                             print(f"  ✗ {e}")
                             failed += 1
 
-                        # Test 4: engine_version span has been populated and contains 0.7.0.
-                        # Engine v0.7.0 (this PR) bumps the version label for the
-                        # fitBootstrap trial-bootstrap CI addition; all 10 flagships
-                        # read DR.engine_version directly from the loaded engine, so
-                        # every flagship now renders v0.7.0.
+                        # Test 4: engine_version span has been populated and contains 0.8.0.
+                        # Engine v0.8.0 (this PR) bumps the version label for the
+                        # pure-JS one-stage hierarchical REML addition (fitOneStage);
+                        # all 10 flagships read DR.engine_version directly from the
+                        # loaded engine, so every flagship now renders v0.8.0.
                         try:
-                            assert "0.7.0" in engine_version, (
-                                f"engine_version span text {engine_version!r} does not contain '0.7.0'"
+                            assert "0.8.0" in engine_version, (
+                                f"engine_version span text {engine_version!r} does not contain '0.8.0'"
                             )
-                            print(f"  ✓ engine v0.7.0 label rendered: {engine_version!r}")
+                            print(f"  ✓ engine v0.8.0 label rendered: {engine_version!r}")
                             passed += 1
                         except AssertionError as e:
                             print(f"  ✗ {e}")

@@ -298,7 +298,11 @@ test('fitRCS exposes internally-consistent Wald chi2/df/p triple (Round 2B fix-u
 
 // === Task 15: fitOneStage() ===
 
-test('fitOneStage returns null when precomputedJson is null', () => {
+test('fitOneStage returns null when precomputedJson is null (binary fixture — v0.9 deferral)', () => {
+  // gl1992_alcohol_bc is a BINARY fixture (events+n). The v0.8 pure-JS
+  // REML fitter only covers the continuous (Gaussian lmer) case; binary
+  // one-stage (glmer-Poisson) is deferred to v0.9, so the legacy
+  // null-on-binary contract is intentionally preserved here.
   const fx = loadFx('gl1992_alcohol_bc.json');
   const res = DR.fitOneStage(fx.trials, {}, null);
   assert.equal(res, null);
@@ -917,9 +921,9 @@ test('fitRCS k=1 spline_coefs come from the single trial directly (covBeta = per
 // fitLOO orchestrates fitLinear / fitRCS over each k-1 subset.  We test
 // orchestration, contract shape, and the k=2 single-trial fallback path.
 
-test('fitLOO is exposed on DR._internal and DR.engine_version is v0.7.0', () => {
+test('fitLOO is exposed on DR._internal and DR.engine_version is v0.8.0', () => {
   assert.equal(typeof I.fitLOO, 'function', 'DR._internal.fitLOO must be a function');
-  assert.ok(/v?0\.7\.0$/.test(DR.engine_version), 'engine_version should end with v0.7.0; got: ' + DR.engine_version);
+  assert.ok(/v?0\.8\.0$/.test(DR.engine_version), 'engine_version should end with v0.8.0; got: ' + DR.engine_version);
 });
 
 test('fitLOO on SURPASS (k=5) returns full_pool + 5 LOO entries (default RCS layer)', () => {
@@ -1345,6 +1349,249 @@ test('fitBootstrap percentile CI semantics: bootstrap_ci_lo is the alpha/2 quant
     'bootstrap_ci_hi must equal linear-interp percentile(sorted, 1-alpha/2)');
   near(r.bootstrap_median, expectedMed, 1e-12,
     'bootstrap_median must equal linear-interp percentile(sorted, 0.5)');
+});
+
+// ===================================================================
+// === v0.8.0: fitOneStage pure-JS one-stage hierarchical REML ===
+// ===================================================================
+// v0.8 replaces the JSON-reader-only fitOneStage with a real pure-JS
+// profiled-REML fitter for the CONTINUOUS random-intercept-only one-stage
+// model:  lmer(mean ~ dose_scaled + (1|studlab), weights = n/sd², REML=TRUE).
+//
+// Validation targets: the R/lme4 `one_stage` blocks cached under
+// outputs/r_validation/doseresp/<review>.json, with the per-trial model
+// input in the sibling <review>.input.json.  Of the 11 flagship fixtures,
+// 5 are BINARY (R uses glmer-Poisson — explicit v0.9 deferral, JS must
+// fail closed) and 6 are CONTINUOUS (R uses lmer-REML — the v0.8 must-ship).
+// One continuous fixture (finerenone_arts_dn, k=1) is itself a fail-closed
+// case in R (lme4: "grouping factors must have > 1 sampled level"); the JS
+// fitter must mirror that fail-closed outcome, not fabricate a value.
+//
+// TOLERANCE (documented per project norm — REML is iterative; lme4 uses
+// bobyqa, the JS engine uses golden-section on the profiled 1-D REML
+// criterion, so bit-identity is impossible and 1e-6 is too tight):
+//   - coef_dose          : relative tol 1e-4  (prototype worst |Δ_rel|≈4e-7,
+//                           ~3 orders of margin; still catches real drift)
+//   - coef_dose_se       : relative tol 1e-3  (second-order quantity derived
+//                           from the variance ratio θ; prototype ≈2e-6)
+//   - random_effects_var : relative tol 5e-3 OR abs tol 1e-5 (loosest — the
+//                           variance component is most sensitive to the θ
+//                           optimum, esp. near the singular-fit boundary
+//                           where lme4 reports converged:false)
+// Justification: the prototype profiled-REML solver (validated offline
+// against all 6 fittable continuous fixtures) hit |Δ_rel|≤4.4e-7 on
+// coef_dose, ≤2.4e-6 on se, and ≤3.9e-6 abs on re_var. The tolerances
+// above sit ~3 orders looser than observed agreement, so a real
+// methodological regression (wrong weights, wrong scaling, wrong REML
+// criterion) is still caught while iterative-optimizer noise is tolerated.
+
+// R ground-truth blocks live in outputs/r_validation/doseresp/<name>.json
+// (git-tracked). The matching per-trial model INPUT is read from the
+// git-tracked tests/dose_response_fixtures/<name>.json (loadFx) — NOT from
+// outputs/r_validation/doseresp/<name>.input.json, which is .gitignore'd
+// "plumbing" (.gitignore line 47: outputs/r_validation/**/*.input.json) and
+// therefore absent on CI runners. The two carry byte-identical trials/arms
+// data (verified: all 10 flagship fixtures MATCH), so loadFx is the correct
+// CI-safe source for the model input.
+const RVAL_DIR = join(__dirname, '..', 'outputs', 'r_validation', 'doseresp');
+function loadRval(name) {
+  return JSON.parse(readFileSync(join(RVAL_DIR, name + '.json'), 'utf-8'));
+}
+function loadRvalInput(name) {
+  // Per-trial input from the tracked test fixture (CI-safe), not .input.json.
+  return loadFx(name + '.json');
+}
+function relNear(actual, expected, relTol, absTol, label) {
+  const denom = Math.abs(expected);
+  const ok = denom > absTol
+    ? Math.abs(actual - expected) / denom <= relTol
+    : Math.abs(actual - expected) <= absTol;
+  assert.ok(ok, `${label}: actual=${actual} expected=${expected} relTol=${relTol} absTol=${absTol}`);
+}
+
+// The 6 continuous fixtures that lme4 fit successfully (excludes k=1
+// finerenone_arts_dn, which is a fail-closed case in R itself).
+const V08_CONT_OK = [
+  'erenumab_migraine_phase3',
+  'semaglutide_t2d_sustain',
+  'sglt2i_hba1c',
+  'tirzepatide_obesity_surmount',
+  'tirzepatide_t2d_surpass',
+  'upadacitinib_ra_select',
+];
+const V08_BINARY = [
+  'anifrolumab_sle_phase23',
+  'brodalumab_psoriasis_amagine',
+  'gl1992_alcohol_bc',
+  'sglt2i_hhf',
+];
+
+for (const fxName of V08_CONT_OK) {
+  test(`v0.8 fitOneStage pure-JS REML matches R/lme4 on ${fxName} (continuous)`, () => {
+    const inp = loadRvalInput(fxName);
+    const r = loadRval(fxName).one_stage;
+    assert.equal(r.fit_ok, true, `${fxName} R fixture should be fit_ok`);
+
+    const res = DR.fitOneStage(inp.trials, {}, null);
+    assert.ok(res != null, `${fxName}: continuous + precomputedJson=null must fit in JS, not return null`);
+    assert.equal(res.layer, 'one_stage');
+    assert.equal(res.estimator, 'js_reml_onestage',
+      `${fxName}: pure-JS path must label estimator js_reml_onestage`);
+    assert.equal(res.one_stage.fit_ok, true, `${fxName}: JS fit_ok`);
+
+    // dose_scale_sd is deterministic (sample SD of positive doses). The R
+    // fixture serializes it at digits=8 (r_validate_doseresp.R Round 3.1),
+    // so the pin is 8-sig-fig-aware: relTol 1e-7 (NOT bit-identity — the JS
+    // value is full double precision; the fixture is the rounded one).
+    relNear(res.one_stage.dose_scale_sd, r.dose_scale_sd, 1e-7, 1e-12,
+      `${fxName} dose_scale_sd`);
+    relNear(res.one_stage.coef_dose_on_scaled, r.coef_dose_on_scaled, 1e-4, 1e-9,
+      `${fxName} coef_dose_on_scaled`);
+    relNear(res.one_stage.coef_dose, r.coef_dose, 1e-4, 1e-9,
+      `${fxName} coef_dose`);
+    relNear(res.one_stage.coef_dose_se, r.coef_dose_se, 1e-3, 1e-9,
+      `${fxName} coef_dose_se`);
+    relNear(res.one_stage.random_effects_var, r.random_effects_var, 5e-3, 1e-5,
+      `${fxName} random_effects_var`);
+
+    // pooled_slope_log mirrors coef_dose for back-compat with predict()/forest().
+    near(res.pooled_slope_log, res.one_stage.coef_dose, 1e-12,
+      `${fxName} pooled_slope_log echoes coef_dose`);
+    near(res.pooled_slope_log_se, res.one_stage.coef_dose_se, 1e-12,
+      `${fxName} pooled_slope_log_se echoes coef_dose_se`);
+  });
+}
+
+test('v0.8 fitOneStage mirrors lme4 converged flag on singular-fit boundary fixtures', () => {
+  // semaglutide_t2d_sustain (k=6) and tirzepatide_t2d_surpass (k=5) both
+  // drive σ²_u → 0 (the pooled-OLS limit). lme4 reports converged:false
+  // (boundary / singular fit) while still returning usable fixed effects
+  // with fit_ok:true. The JS fitter must reproduce that semantic: fit_ok
+  // true (β̂ is well-defined), converged false (variance on boundary).
+  for (const fxName of ['semaglutide_t2d_sustain', 'tirzepatide_t2d_surpass']) {
+    const inp = loadRvalInput(fxName);
+    const r = loadRval(fxName).one_stage;
+    assert.equal(r.fit_ok, true);
+    assert.equal(r.converged, false, `${fxName} R baseline is a boundary (converged:false) fit`);
+    const res = DR.fitOneStage(inp.trials, {}, null);
+    assert.equal(res.one_stage.fit_ok, true, `${fxName}: β̂ is well-defined → fit_ok true`);
+    assert.equal(res.one_stage.converged, false,
+      `${fxName}: σ²_u on boundary → JS must mirror lme4 converged:false`);
+    assert.ok(res.one_stage.random_effects_var >= 0 && res.one_stage.random_effects_var < 1e-3,
+      `${fxName}: re_var collapses to ~0 at the OLS limit; got ${res.one_stage.random_effects_var}`);
+  }
+});
+
+test('v0.8 fitOneStage k=2 continuous edge (tirzepatide_obesity_surmount)', () => {
+  // k=2 is the minimum k at which the random-intercept variance is
+  // identifiable (R/lme4 fit it: converged:true). Verify the JS fitter
+  // produces a finite, R-matching estimate at the k=2 boundary.
+  const fxName = 'tirzepatide_obesity_surmount';
+  const inp = loadRvalInput(fxName);
+  const r = loadRval(fxName).one_stage;
+  assert.equal(loadRval(fxName).k, 2);
+  assert.equal(r.fit_ok, true);
+  const res = DR.fitOneStage(inp.trials, {}, null);
+  assert.equal(res.one_stage.fit_ok, true);
+  relNear(res.one_stage.coef_dose, r.coef_dose, 1e-4, 1e-9, `${fxName} k=2 coef_dose`);
+  relNear(res.one_stage.coef_dose_se, r.coef_dose_se, 1e-3, 1e-9, `${fxName} k=2 se`);
+  relNear(res.one_stage.random_effects_var, r.random_effects_var, 5e-3, 1e-5,
+    `${fxName} k=2 re_var`);
+});
+
+test('v0.8 fitOneStage k=1 continuous fails closed (finerenone_arts_dn) — matches lme4', () => {
+  // finerenone_arts_dn is k=1 continuous. lme4 itself refuses
+  // ("grouping factors must have > 1 sampled level") because the
+  // between-study variance is unidentifiable with a single study.
+  // The JS fitter must NOT fabricate a value — it must fail closed with
+  // fit_ok:false and a clear error string, mirroring R.
+  const fxName = 'finerenone_arts_dn';
+  const inp = loadRvalInput(fxName);
+  const r = loadRval(fxName).one_stage;
+  assert.equal(loadRval(fxName).k, 1);
+  assert.equal(r.fit_ok, false, 'R baseline: lme4 fails closed for k=1');
+  const res = DR.fitOneStage(inp.trials, {}, null);
+  assert.ok(res != null, 'k=1 must return a structured fail-closed object, not null');
+  assert.equal(res.one_stage.fit_ok, false,
+    'k=1 continuous: JS must fail closed (single study → re-var unidentifiable)');
+  assert.ok(typeof res.one_stage.error === 'string' && res.one_stage.error.length > 0,
+    'fail-closed object must carry a non-empty error string');
+  assert.equal(res.one_stage.coef_dose, null,
+    'no fabricated coefficient on a fail-closed k=1 fit');
+});
+
+for (const fxName of V08_BINARY) {
+  test(`v0.8 fitOneStage returns null for BINARY fixture ${fxName} (glmer-Poisson deferred to v0.9)`, () => {
+    // Binary one-stage in R is glmer(events ~ dose_scaled + (1|studlab),
+    // offset=log(n), family=poisson) — a GLMM, explicitly deferred to v0.9.
+    // The pure-JS REML fitter only covers the Gaussian (continuous) case;
+    // for binary input + precomputedJson=null it must preserve the legacy
+    // null contract (fail closed — caller must run R Round-1B), NOT
+    // attempt a wrong Gaussian fit on log-RR contrasts.
+    const inp = loadRvalInput(fxName);
+    const res = DR.fitOneStage(inp.trials, {}, null);
+    assert.equal(res, null,
+      `${fxName}: binary + precomputedJson=null must still return null (glmer-Poisson is a v0.9 deferral)`);
+  });
+}
+
+test('v0.8 fitOneStage R-precomputed path is byte-identical to v0.7 (no silent change)', () => {
+  // Backward-compat: when precomputedJson IS supplied, the legacy reader
+  // path must be preserved exactly (estimator r_precomputed, ci_method
+  // z_1.96, same field shape) so existing review .js files that pass an
+  // R fixture see no value change across the v0.7 → v0.8 bump.
+  const synthetic = { one_stage: { coef_dose: 0.05, coef_dose_se: 0.01, converged: true, random_effects_var: 0.003 } };
+  const res = DR.fitOneStage([], {}, synthetic);
+  assert.equal(res.estimator, 'r_precomputed', 'legacy R-read path unchanged');
+  assert.equal(res.ci_method, 'z_1.96', 'legacy z=1.96 CI semantics preserved');
+  near(res.one_stage.coef_dose, 0.05, 1e-12, 'R coef passthrough unchanged');
+  near(res.one_stage.coef_dose_ci_lo, 0.05 - 1.96 * 0.01, 1e-12, 'R-derived CI lo unchanged');
+  near(res.one_stage.coef_dose_ci_hi, 0.05 + 1.96 * 0.01, 1e-12, 'R-derived CI hi unchanged');
+});
+
+test('v0.8 fitOneStage JS path CI uses z=1.96 consistent with the one-stage ci_method contract', () => {
+  // The one-stage layer's documented ci_method is z_1.96 (predict() at
+  // ~line 1599 special-cases result.ci_method === 'z_1.96' for the
+  // one-stage layer). The pure-JS path keeps this convention so predict()
+  // / downstream consumers behave identically whether the coefficients
+  // came from R or from JS. CI = coef ± 1.96 * se on the original scale.
+  const inp = loadRvalInput('sglt2i_hba1c');
+  const res = DR.fitOneStage(inp.trials, {}, null);
+  assert.equal(res.ci_method, 'z_1.96',
+    'JS one-stage must keep z_1.96 ci_method (predict() depends on this sentinel)');
+  near(res.one_stage.coef_dose_ci_lo,
+    res.one_stage.coef_dose - 1.96 * res.one_stage.coef_dose_se, 1e-12,
+    'JS CI lo = coef - 1.96*se');
+  near(res.one_stage.coef_dose_ci_hi,
+    res.one_stage.coef_dose + 1.96 * res.one_stage.coef_dose_se, 1e-12,
+    'JS CI hi = coef + 1.96*se');
+});
+
+test('v0.8 fitOneStage fails closed (does NOT fabricate) on missing required arm fields', () => {
+  // Silent-corruption guard (lessons.md substitution-on-missing-required):
+  // a continuous trial missing sd on a non-reference arm must fail closed,
+  // never default sd to 1.0 / 0 / "unknown".
+  const broken = [{
+    studlab: 'A', arms: [
+      { dose: 0, mean: -0.1, sd: 0.5, n: 50, is_reference: true },
+      { dose: 10, mean: -0.4, n: 50, is_reference: false }, // sd missing
+    ],
+  }, {
+    studlab: 'B', arms: [
+      { dose: 0, mean: -0.1, sd: 0.5, n: 50, is_reference: true },
+      { dose: 10, mean: -0.4, sd: 0.5, n: 50, is_reference: false },
+    ],
+  }];
+  const res = DR.fitOneStage(broken, {}, null);
+  assert.ok(res != null && res.one_stage.fit_ok === false,
+    'missing sd must fail closed (fit_ok:false), not fabricate a default');
+  assert.ok(/sd|mean|n|required|finite/i.test(res.one_stage.error || ''),
+    'error must name the missing/invalid field; got: ' + (res.one_stage.error || ''));
+});
+
+test('v0.8 engine_version label is @0.8.0 (header + constant bumped)', () => {
+  assert.ok(/@0\.8\.0$/.test(DR.engine_version),
+    'engine_version label should end with @0.8.0; got ' + DR.engine_version);
 });
 
 let pass = 0, fail = 0;
