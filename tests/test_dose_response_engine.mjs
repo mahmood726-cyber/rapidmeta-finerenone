@@ -1385,12 +1385,21 @@ test('fitBootstrap percentile CI semantics: bootstrap_ci_lo is the alpha/2 quant
 // methodological regression (wrong weights, wrong scaling, wrong REML
 // criterion) is still caught while iterative-optimizer noise is tolerated.
 
+// R ground-truth blocks live in outputs/r_validation/doseresp/<name>.json
+// (git-tracked). The matching per-trial model INPUT is read from the
+// git-tracked tests/dose_response_fixtures/<name>.json (loadFx) — NOT from
+// outputs/r_validation/doseresp/<name>.input.json, which is .gitignore'd
+// "plumbing" (.gitignore line 47: outputs/r_validation/**/*.input.json) and
+// therefore absent on CI runners. The two carry byte-identical trials/arms
+// data (verified: all 10 flagship fixtures MATCH), so loadFx is the correct
+// CI-safe source for the model input.
 const RVAL_DIR = join(__dirname, '..', 'outputs', 'r_validation', 'doseresp');
 function loadRval(name) {
   return JSON.parse(readFileSync(join(RVAL_DIR, name + '.json'), 'utf-8'));
 }
 function loadRvalInput(name) {
-  return JSON.parse(readFileSync(join(RVAL_DIR, name + '.input.json'), 'utf-8'));
+  // Per-trial input from the tracked test fixture (CI-safe), not .input.json.
+  return loadFx(name + '.json');
 }
 function relNear(actual, expected, relTol, absTol, label) {
   const denom = Math.abs(expected);
