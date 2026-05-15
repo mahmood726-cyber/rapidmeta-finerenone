@@ -219,9 +219,40 @@ def clone(config, dry=False):
         src = src[:brace] + new_block + src[end+1:]
         log.append(f'  [APPLIED:{len(config["real_data_entries"])}]        realData entries')
 
-    # Free-form replaces
+    # Blank hardcoded external benchmarks (e.g. PUBLISHED_META_BENCHMARKS with
+    # 'BOREAS dupilumab vs placebo' estimate 0.7) — a false reference for any
+    # other topic. Per-topic benchmarks are not available for audit-first
+    # builds, so the honest value is an empty object.
+    if config.get('blank_benchmarks'):
+        new_src, n = re.subn(
+            r"(const\s+PUBLISHED_META_BENCHMARKS\s*=\s*)\{.*?\n\s*\};",
+            r"\1{};", src, count=1, flags=re.DOTALL)
+        if n:
+            src = new_src
+            log.append('  [APPLIED]          blank_benchmarks (PUBLISHED_META_BENCHMARKS={})')
+        else:
+            log.append('  [SKIP_NOT_FOUND]   blank_benchmarks')
+
+    # Free-form replaces (precise, single-occurrence claim neutralizers).
+    # These run BEFORE global_replaces so claim-bearing strings (mechanism,
+    # phenotype) are neutralized to data-driven text rather than token-swapped
+    # into a false claim (e.g. "tezepelumab (IL-4Ralpha ...)").
     for old, new in config.get('extra_replaces', []):
         src = replace_one(src, old, new, f'extra_replace [{old[:40]}...]', log)
+
+    # Global replaces — unconditional replace-ALL. This is the fix for the
+    # n>1 SKIP_AMBIGUOUS bug: residual base tokens (dupilumab, COPD, base
+    # localStorage key, export filenames, base trial acronyms) appear many
+    # times in JS string literals and MUST all be swapped. Order matters:
+    # longest/compound tokens first so 'dupilumab' inside 'dupilumab_copd'
+    # or 'rapid_meta_dupilumab_copd' is not partially clobbered.
+    for old, new in config.get('global_replaces', []):
+        n = src.count(old)
+        if n == 0:
+            log.append(f'  [SKIP_NOT_FOUND]   global [{old[:40]}]')
+            continue
+        src = src.replace(old, new)
+        log.append(f'  [APPLIED:{n}]        global [{old[:40]} -> {new[:30]}]')
 
     if not dry:
         open(out, 'w', encoding='utf-8').write(src)

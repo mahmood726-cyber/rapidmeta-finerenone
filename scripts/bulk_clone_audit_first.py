@@ -30,12 +30,35 @@ BASE_TEMPLATE = HERE / "DUPILUMAB_COPD_REVIEW.html"
 SKIP_IF_EXISTS = True
 
 
+# Chars that are JS string delimiters or HTML-breaking. Injected drug/
+# condition names land in BOTH HTML text nodes and single/double-quoted JS
+# string literals, so the only universally safe form swaps the delimiter
+# characters for typographic look-alikes (render fine in HTML, inert in JS).
+# Without this, a condition like "Crohn's Disease" -> '...CROHN'S...' is a
+# JS SyntaxError that the leftover scanner would still pass (lessons.md
+# apostrophe-in-single-quoted-JS-string, 2026-04-30).
+_SAFE_MAP = {
+    "'": "’",   # ' -> right single quote
+    '"': "”",   # " -> right double quote
+    "`": "ʼ",   # backtick -> modifier letter apostrophe
+    "\\": "/",
+    "<": "‹",   # < -> single left-pointing angle quote
+    ">": "›",
+    "\r": " ", "\n": " ", "\t": " ",
+}
+
+
+def safe(s: str) -> str:
+    """Make a string safe to inject into HTML text AND quoted JS literals."""
+    return "".join(_SAFE_MAP.get(ch, ch) for ch in str(s))
+
+
 def build_config(topic_doc):
     topic = topic_doc["topic"]
-    stem = topic["stem"]
-    name = topic["name"]
-    drug = (topic["drug_patterns"] or ["intervention"])[0].title()
-    cond = (topic["condition_patterns"] or ["condition"])[0].title()
+    stem = safe(topic["stem"])
+    name = safe(topic["name"])
+    drug = safe((topic["drug_patterns"] or ["intervention"])[0].title())
+    cond = safe((topic["condition_patterns"] or ["condition"])[0].title())
 
     trials = []
     ncts = []
@@ -111,7 +134,15 @@ def build_config(topic_doc):
     if not trials:
         return None
 
-    return {
+    drug_l = drug.lower()
+    cond_u = cond.upper()
+    stem_l = stem.lower()
+    pop_txt = f"Adults randomised in trials registered on ClinicalTrials.gov for {cond}"
+
+    def attr(s):  # safe inside an HTML value="..." attribute
+        return s.replace('"', "&quot;").replace("<", "&lt;").replace(">", "&gt;")
+
+    cfg = {
         "base": str(BASE_TEMPLATE),
         "out":  str(HERE / f"{stem}_FULL_REVIEW.html"),
         "title": f"RapidMeta | {name} (audit-first, full-functionality)",
@@ -119,66 +150,165 @@ def build_config(topic_doc):
         "nyt_headline": f"The {drug} Evidence",
         "auto_include_ncts": ncts,
         "nct_acronyms": acrs,
-        "localstorage_old": "rapid_meta_dupi_copd_v1_0",
-        "localstorage_new": f"rapid_meta_{stem.lower()}_audit_v1",
+        "blank_benchmarks": True,
         "pico": {
-            "pop":      f"Adults randomised in trials registered on ClinicalTrials.gov for {cond}",
+            "pop":      pop_txt,
             "int":      f"{drug} (AACT-verified intervention name)",
             "comp":     "Active comparator or placebo as registered on AACT",
             "out":      "Trial-declared primary outcome (AACT design_outcomes); event counts from AACT outcome_measurements",
             "subgroup": "Subgroup analyses per parent trial protocol",
         },
         "real_data_entries": trials,
+        # --- Precise, single-occurrence claim neutralizers (run first) ---
+        # Replace claim-bearing prose with data-only text so the swap can
+        # never produce a false mechanism/phenotype claim.
         "extra_replaces": [
-            ["dupilumab", drug.lower()],
+            ["Dupilumab (IL-4Ralpha Monoclonal Antibody) for Moderate-to-Severe "
+             "COPD with Type 2 Inflammation (Blood Eosinophils >=300/uL): A Living "
+             "Systematic Review and Meta-Analysis of Phase 3 RCTs",
+             f"{drug} for {cond}: A Living Systematic Review and Meta-Analysis of "
+             f"Registered RCTs (audit-first; trial data verified against "
+             f"ClinicalTrials.gov / AACT)"],
+            ['value="Adults with COPD and type-2 inflammation"',
+             f'value="{attr(pop_txt)}"'],
+            ['value="Dupilumab"', f'value="{attr(drug)}"'],
+            ["COPD + T2 inflammation", cond],
+        ],
+        # --- Global replace-ALL (fixes the n>1 SKIP bug). Longest/compound
+        # tokens FIRST so substrings are not partially clobbered. ---
+        "global_replaces": [
+            ["rapid_meta_dupilumab_copd", f"rapid_meta_{stem_l}"],
+            ["dupilumab_copd", stem_l],
+            ["IL-4Ralpha Monoclonal Antibody",
+             "intervention as registered on ClinicalTrials.gov"],
+            ["Type 2 Inflammation", "the registered population"],
+            ["type-2 inflammation", "the registered population"],
+            ["T2 inflammation", "the registered population"],
+            ["Blood Eosinophils >=300/uL", "per the registered eligibility"],
             ["Dupilumab", drug],
-            ["COPD", cond.upper()],
+            ["dupilumab", drug_l],
+            ["BOREAS", "the registered pivotal trial"],
+            ["NOTUS", "the registered confirmatory trial"],
         ],
     }
+    # COPD is a base-template leftover ONLY when this topic is not itself a
+    # COPD topic. If the topic IS about COPD, leave 'COPD' untouched.
+    if "copd" not in (cond.lower() + " " + name.lower() + " " + stem_l):
+        cfg["global_replaces"].append(["COPD", cond_u])
+    return cfg
+
+
+def _load(mod):
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(mod, str(HERE / "scripts" / f"{mod}.py"))
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+QUARANTINE = HERE / "outputs" / "quarantine_full_review"
 
 
 def main():
-    ok = 0; skip = 0; fail = 0
-    clone_script = HERE / "scripts" / "clone_dashboard.py"
+    import argparse, time
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--limit", type=int, default=0, help="cap topics (0=all)")
+    ap.add_argument("--no-gate", action="store_true",
+                    help="DEBUG ONLY: skip scanner/jscheck gates")
+    args = ap.parse_args()
 
-    for json_p in sorted(TOPICS.glob("*.json")):
+    clone = _load("clone_dashboard")
+    scanner = _load("scan_narrative_leftover")
+    jscheck = _load("jscheck")
+    QUARANTINE.mkdir(parents=True, exist_ok=True)
+
+    # Force-regenerate: a stale broken *_FULL_REVIEW.html must never survive
+    # via SKIP_IF_EXISTS. Every shipped file must come from this fixed run.
+    for stale in HERE.glob("*_FULL_REVIEW.html"):
+        stale.unlink()
+    for stale in QUARANTINE.glob("*.html"):
+        stale.unlink()
+
+    topics = [p for p in sorted(TOPICS.glob("*.json"))]
+    ok = qfail = build_none = err = 0
+    quarantined = []
+    t0 = time.time()
+    processed = 0
+
+    for json_p in topics:
         try:
-            doc = json.loads(json_p.read_text(encoding="utf-8"))
+            doc = json.loads(json_p.read_text(encoding="utf-8", errors="replace"))
         except Exception:
             continue
         if doc.get("verdict") != "VIABLE":
             continue
+        if args.limit and processed >= args.limit:
+            break
+        processed += 1
         stem = doc["topic"]["stem"]
         out_html = HERE / f"{stem}_FULL_REVIEW.html"
-        if SKIP_IF_EXISTS and out_html.exists():
-            skip += 1
-            continue
 
         cfg = build_config(doc)
         if not cfg:
+            build_none += 1
             continue
         cfg_p = CONFIGS / f"_audit_{stem.lower()}.json"
         cfg_p.write_text(json.dumps(cfg, indent=2, ensure_ascii=False),
                           encoding="utf-8")
 
-        # Run clone_dashboard.py
         try:
-            r = subprocess.run([sys.executable, str(clone_script),
-                                  "--config", str(cfg_p)],
-                                 capture_output=True, text=True, timeout=90,
-                                 encoding="utf-8")
-            if r.returncode == 0 and out_html.exists():
-                ok += 1
-                if ok <= 5 or ok % 25 == 0:
-                    print(f"  [{ok}]  {stem}: {out_html.stat().st_size:,} bytes")
-            else:
-                fail += 1
-                print(f"  FAIL {stem}: {r.stderr[:200] if r.stderr else r.stdout[-200:]}")
+            clone.clone(cfg, dry=False)
         except Exception as e:
-            fail += 1
-            print(f"  FAIL {stem}: {e}")
+            err += 1
+            print(f"  ERR  {stem}: clone raised {e}")
+            continue
+        if not out_html.exists() or out_html.stat().st_size < 200_000:
+            err += 1
+            print(f"  ERR  {stem}: clone produced no/short output")
+            continue
 
-    print(f"\nDone. Cloned: {ok}, Skipped (existed): {skip}, Failed: {fail}")
+        if args.no_gate:
+            ok += 1
+            continue
+
+        # --- Dual ship-gate ---
+        reason = None
+        v = scanner.scan(str(out_html), str(json_p))
+        if v:
+            seen = {}
+            for tok, _o, _c in v:
+                seen[tok] = seen.get(tok, 0) + 1
+            reason = "leftover " + ",".join(f"{k}x{n}" for k, n in sorted(seen.items()))
+        else:
+            jp = jscheck.check(str(out_html))
+            if jp:
+                reason = f"js-broken block#{jp[0][0]} {jp[0][1][:80]}"
+
+        if reason:
+            qfail += 1
+            dest = QUARANTINE / out_html.name
+            out_html.replace(dest)
+            quarantined.append((stem, reason))
+            print(f"  QUARANTINE {stem}: {reason}")
+        else:
+            ok += 1
+            if ok <= 5 or ok % 50 == 0:
+                dt = time.time() - t0
+                print(f"  [{ok}] {stem}: {out_html.stat().st_size:,}B  ({dt:.0f}s)")
+
+    print(f"\n=== Bulk-clone Summary ===")
+    print(f"Shipped (both gates green): {ok}")
+    print(f"Quarantined (gate fail)   : {qfail}")
+    print(f"Build returned None       : {build_none}")
+    print(f"Clone errors              : {err}")
+    print(f"Elapsed                   : {time.time()-t0:.0f}s")
+    if quarantined:
+        qlog = HERE / "outputs" / "bulk_clone_quarantine.log"
+        qlog.write_text("\n".join(f"{s}\t{r}" for s, r in quarantined),
+                         encoding="utf-8")
+        print(f"Quarantine reasons logged -> {qlog}")
+        for s, r in quarantined[:20]:
+            print(f"   - {s}: {r}")
 
 
 if __name__ == "__main__":
