@@ -743,16 +743,21 @@ for (const c of flagshipContracts) {
 // assertions pin the engine-vs-flagship contract for the new tab so a
 // future engine refactor that renames or moves fitLOO breaks the test
 // (matching the pattern of the Round 2C field-path regression).
-console.log('SURPASS LOO-tab contract (engine v0.7.0 — DR._internal.fitLOO; engine bumped from v0.6 by v0.7 fitBootstrap addition)');
+console.log('SURPASS LOO-tab contract (engine v0.8.0 — DR._internal.fitLOO; engine bumped from v0.7 by v0.8 pure-JS one-stage REML addition)');
 
-test('engine v0.7: DR.engine_version label is @0.7.0', () => {
-  assert.ok(/@0\.7\.0$/.test(DR.engine_version),
-    'engine_version label should end with @0.7.0; got ' + DR.engine_version);
+test('engine v0.8: DR.engine_version label is @0.8.0', () => {
+  assert.ok(/@0\.8\.0$/.test(DR.engine_version),
+    'engine_version label should end with @0.8.0; got ' + DR.engine_version);
 });
 
-test('engine v0.7: DR._internal.fitLOO is a function (preserved from v0.5)', () => {
+test('engine v0.8: DR._internal.fitLOO is a function (preserved from v0.5)', () => {
   assert.equal(typeof DR._internal.fitLOO, 'function',
-    'DR._internal.fitLOO must be a function on the engine v0.7.0 API');
+    'DR._internal.fitLOO must be a function on the engine v0.8.0 API');
+});
+
+test('engine v0.8: DR._internal.remlRandIntercept is a function (new pure-JS one-stage core)', () => {
+  assert.equal(typeof DR._internal.remlRandIntercept, 'function',
+    'DR._internal.remlRandIntercept must be exposed on the engine v0.8.0 API');
 });
 
 test('SURPASS LOO: fitLOO(SURPASS, layer=rcs, knots=3) returns full_pool + 5 LOO entries', () => {

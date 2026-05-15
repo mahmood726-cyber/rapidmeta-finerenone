@@ -1,9 +1,10 @@
-/* rapidmeta-dose-response-engine-v1.js — v0.7.0 (2026-05-14)
+/* rapidmeta-dose-response-engine-v1.js — v0.8.0 (2026-05-15)
  *
  * Self-contained dose-response meta-analysis engine for RapidMeta.
  * Three layered fitters: two-stage Greenland-Longnecker linear (primary),
- * two-stage GL + RCS (Harrell defaults), one-stage hierarchical (read from
- * R-precomputed JSON; no JS fitter for this layer).
+ * two-stage GL + RCS (Harrell defaults), one-stage hierarchical (pure-JS
+ * profiled-REML for the continuous random-intercept-only model; binary
+ * one-stage still reads R-precomputed JSON — glmer-Poisson deferred to v0.9).
  *
  * Validated by:
  *   - parity vs dosresmeta::dosresmeta() on the canonical GL-1992 alcohol-
@@ -37,6 +38,27 @@
  *     the fraction below 0.05. Demonstrated on the SUSTAIN flagship (I^2=97
  *     percent — analytical-vs-bootstrap comparison most informative there).
  *     fitLinear/fitRCS are byte-identical to v0.6 at all k.
+ *   - v0.8.0: fitOneStage gains a pure-JS profiled-REML fitter for the
+ *     CONTINUOUS random-intercept-only one-stage model
+ *     lmer(mean ~ dose_scaled + (1|studlab), weights=n/sd^2, REML). When
+ *     precomputedJson==null and the pool is continuous, the layer is fitted
+ *     in JS (estimator='js_reml_onestage') instead of returning null:
+ *     reparameterize by the variance ratio theta=sigma2_u/sigma2_e, profile
+ *     out the fixed effects (GLS) and sigma2_e analytically using a
+ *     Sherman-Morrison per-study block inverse (rank-1 random intercept +
+ *     diagonal IV weights), golden-section minimize the 1-D profiled-REML
+ *     deviance over theta>=0, snap to the singular boundary (theta=0,
+ *     converged:false to mirror lme4) when it dominates. Back-transform
+ *     coef_dose=beta_scaled/dose_scale_sd; random_effects_var=theta*sigma2_e
+ *     on the original response scale. Validated vs R/lme4 1.1.37 on the 6
+ *     fittable continuous flagships to |rel-delta|<1e-4 (coef), <1e-3 (se),
+ *     <5e-3 (re-var). ci_method stays 'z_1.96' (predict() one-stage
+ *     sentinel). Fails closed (no fabricated defaults) on k<2, missing
+ *     required arm fields, or binary input. Binary one-stage (glmer-Poisson)
+ *     is an explicit v0.9 deferral: binary + precomputedJson==null still
+ *     returns null (legacy contract). The R-read path (precomputedJson!=null)
+ *     and fitLinear/fitRCS/fitLOO/fitBootstrap are byte-identical to v0.7 at
+ *     all k.
  *
  * Load as <script src="rapidmeta-dose-response-engine-v1.js" defer></script>;
  * exposes window.RapidMetaDoseResp.{ validate, fitLinear, fitRCS, fitOneStage,
@@ -49,7 +71,7 @@
   // Public methods are assigned to API.<name> immediately after each function
   // definition below. _internal helpers are similarly attached as defined.
   var API = {
-    engine_version: 'rapidmeta-dose-response-engine-v1@0.7.0',
+    engine_version: 'rapidmeta-dose-response-engine-v1@0.8.0',
     _internal: {},
   };
 
@@ -1537,34 +1559,353 @@
   API.nonLinearityTest = nonLinearityTest;
 
   // ===================================================================
-  // Section 3b: fitOneStage(trials, opts, precomputedJson) — JSON reader (Task 15)
-  // One-stage hierarchical is NOT fitted in JS v0.1.  Pass precomputedJson=null
-  // to signal the caller must run R Round-1B.  Pass the JSON object from
-  // outputs/r_validation/doseresp/<REVIEW>.json to read R precomputed coefs.
+  // Section 3b: fitOneStage(trials, opts, precomputedJson)
+  //   v0.1 (Task 15): JSON reader only — returned null when precomputedJson
+  //                    was null; echoed R coefs when supplied.
+  //   v0.8.0:          pure-JS profiled-REML fitter for the CONTINUOUS
+  //                    random-intercept-only one-stage model. Binary one-stage
+  //                    (glmer-Poisson) remains a JSON-reader / fail-closed
+  //                    path and is deferred to v0.9.
+  //
+  // Model (continuous), identical to scripts/r_validate_doseresp.R:
+  //   lmer(mean ~ dose_scaled + (1 | studlab), weights = n/sd², REML = TRUE)
+  //   dose_scaled = dose / dose_scale_sd, dose_scale_sd = sample SD (n-1
+  //   denominator) of all positive doses across all arms of all trials.
+  //   Per-arm weight w = n / sd²  (= 1 / Var(arm mean) = inverse of sd²/n).
+  //
+  // Profiled-REML solution (random-intercept-only is the one LMM case with a
+  // tractable 1-D profile):
+  //   Marginal per study j (n_j arms): V_j = σ²_u 1 1' + σ²_ε diag(1/w_i).
+  //   Reparameterize θ = σ²_u / σ²_ε.  Σ_j = θ 1 1' + diag(1/w_i) so
+  //   V_j = σ²_ε Σ_j.  Per block (Sherman–Morrison, rank-1 + diagonal):
+  //     Σ_j^{-1} = diag(w) − θ (w wᵀ) / (1 + θ Σ w)
+  //     log|Σ_j| = −Σ log(w_i) + log(1 + θ Σ w_i)
+  //   GLS β̂(θ) and profiled σ̂²_ε(θ)=r²/(N−p) are closed-form; the profiled
+  //   REML deviance is 1-D in θ:
+  //     d(θ) = log|Σ| + (N−p)[1+log(2π r²/(N−p))] + log|XᵀΣ⁻¹X|
+  //   Golden-section minimize over θ ≥ 0 (no new deps; reuses vendored
+  //   numerics).  Back-transform: coef_dose = β̂_scaled / dose_scale_sd;
+  //   se_dose = se_scaled / dose_scale_sd.  random_effects_var = σ̂²_u =
+  //   θ̂ · σ̂²_ε on the original response scale (response is NOT scaled — only
+  //   the dose covariate is — so this maps directly to lme4 VarCorr).
+  //
+  // ci_method stays 'z_1.96' (predict() at ~line 1599 special-cases the
+  // one-stage layer on this exact sentinel); the JS path keeps the same CI
+  // convention as the R-read path so downstream consumers are agnostic to
+  // whether coefficients came from R or JS.
+  //
+  // Fail-closed (no fabricated defaults — lessons.md substitution-on-missing):
+  //   - binary input + precomputedJson==null  -> return null (legacy contract;
+  //     glmer-Poisson is the v0.9 deferral)
+  //   - continuous k<2                         -> {fit_ok:false, error:...}
+  //     (between-study variance unidentifiable with one study; mirrors lme4
+  //     "grouping factors must have > 1 sampled level")
+  //   - missing/non-finite required arm field  -> {fit_ok:false, error:...}
   // ===================================================================
+
+  // Profiled-REML core for the continuous random-intercept-only one-stage
+  // model. `obs` = [{ s: studyIdx, y, x, w }], g = #studies, returns
+  // { fit_ok, coef_scaled, se_scaled, sigma2_u, converged } or
+  // { fit_ok:false, error }.
+  function _remlRandIntercept(obs, g) {
+    var N = obs.length, p = 2;  // intercept + dose_scaled
+    if (g < 2) {
+      return { fit_ok: false, error: 'one-stage REML requires >= 2 studies; ' +
+        'got ' + g + ' (between-study variance unidentifiable with a single study)' };
+    }
+    if (N - p < 1) {
+      return { fit_ok: false, error: 'one-stage REML requires N - p >= 1 residual df; got N=' +
+        N + ', p=' + p };
+    }
+    // Group observation indices by study.
+    var blocks = {};
+    for (var i = 0; i < N; i++) {
+      (blocks[obs[i].s] || (blocks[obs[i].s] = [])).push(obs[i]);
+    }
+    var blockList = Object.keys(blocks).map(function (k) { return blocks[k]; });
+
+    // Profiled-REML evaluation at variance ratio theta (= sigma2_u/sigma2_e).
+    function evalTheta(theta) {
+      var XtX = [[0, 0], [0, 0]], Xty = [0, 0], yty = 0, logdetS = 0;
+      for (var b = 0; b < blockList.length; b++) {
+        var blk = blockList[b];
+        var sw = 0;
+        for (var q = 0; q < blk.length; q++) sw += blk[q].w;
+        var denom = 1 + theta * sw;
+        // log|Sigma_j| = -sum log(w_i) + log(1 + theta * sum w_i)
+        for (var q2 = 0; q2 < blk.length; q2++) logdetS -= Math.log(blk[q2].w);
+        logdetS += Math.log(denom);
+        // Sigma_j^{-1} = diag(w) - theta (w wT)/denom  (Sherman-Morrison)
+        for (var ii = 0; ii < blk.length; ii++) {
+          var bi = blk[ii], xi0 = 1, xi1 = bi.x, yi = bi.y;
+          for (var jj = 0; jj < blk.length; jj++) {
+            var bj = blk[jj], xj0 = 1, xj1 = bj.x, yj = bj.y;
+            var sij = (ii === jj)
+              ? bi.w - theta * bi.w * bi.w / denom
+              : -theta * bi.w * bj.w / denom;
+            XtX[0][0] += xi0 * sij * xj0;
+            XtX[0][1] += xi0 * sij * xj1;
+            XtX[1][0] += xi1 * sij * xj0;
+            XtX[1][1] += xi1 * sij * xj1;
+            Xty[0] += xi0 * sij * yj;
+            Xty[1] += xi1 * sij * yj;
+            yty += yi * sij * yj;
+          }
+        }
+      }
+      var det = XtX[0][0] * XtX[1][1] - XtX[0][1] * XtX[1][0];
+      if (!(Math.abs(det) > 1e-300)) {
+        return { dev: Infinity };
+      }
+      var inv = [
+        [XtX[1][1] / det, -XtX[0][1] / det],
+        [-XtX[1][0] / det, XtX[0][0] / det],
+      ];
+      var beta0 = inv[0][0] * Xty[0] + inv[0][1] * Xty[1];
+      var beta1 = inv[1][0] * Xty[0] + inv[1][1] * Xty[1];
+      var r2 = yty - (beta0 * Xty[0] + beta1 * Xty[1]);
+      if (!(r2 > 0)) r2 = 1e-300;  // guard log of non-positive residual SS
+      var dev = logdetS + (N - p) * (1 + Math.log(2 * Math.PI * r2 / (N - p))) +
+        Math.log(det);
+      return { dev: dev, beta1: beta1, inv: inv, r2: r2 };
+    }
+
+    // Golden-section minimization of the profiled REML deviance over
+    // theta in [0, hi].  theta=0 is the pooled-WLS (sigma2_u -> 0) limit;
+    // lme4 reports converged:false on that boundary but still returns a
+    // well-defined beta-hat, so we mirror that semantic below.
+    var GR = (Math.sqrt(5) - 1) / 2;
+    var lo = 0, hi = 1e3;
+    // Expand hi until the deviance stops improving past it (bounded).
+    var fHi = evalTheta(hi).dev, fMid = evalTheta(hi / 2).dev;
+    for (var ex = 0; ex < 40 && fHi < fMid && hi < 1e12; ex++) {
+      hi *= 4; fMid = fHi; fHi = evalTheta(hi).dev;
+    }
+    var a = lo, c = hi;
+    var x1 = c - GR * (c - a), x2 = a + GR * (c - a);
+    var f1 = evalTheta(x1).dev, f2 = evalTheta(x2).dev;
+    for (var it = 0; it < 300; it++) {
+      if (f1 < f2) { c = x2; x2 = x1; f2 = f1; x1 = c - GR * (c - a); f1 = evalTheta(x1).dev; }
+      else { a = x1; x1 = x2; f1 = f2; x2 = a + GR * (c - a); f2 = evalTheta(x2).dev; }
+      if (Math.abs(c - a) < 1e-12) break;
+    }
+    var thetaHat = (a + c) / 2;
+    // Compare against the theta=0 boundary (singular / pooled-OLS fit). If
+    // the boundary deviance is within optimizer tolerance of (or below) the
+    // interior optimum, snap to 0 and flag converged:false (matches lme4's
+    // boundary (singular) fit reporting).
+    var f0 = evalTheta(0);
+    var fHat = evalTheta(thetaHat);
+    var atBoundary = false;
+    if (f0.dev <= fHat.dev + 1e-7 || thetaHat < 1e-8) {
+      thetaHat = 0; fHat = f0; atBoundary = true;
+    }
+    if (!isFinite(fHat.dev) || fHat.beta1 == null) {
+      return { fit_ok: false, error: 'profiled-REML optimization failed to produce a finite fit' };
+    }
+    var sigma2_e = fHat.r2 / (N - p);
+    var sigma2_u = thetaHat * sigma2_e;
+    var var_beta1 = sigma2_e * fHat.inv[1][1];
+    if (!(var_beta1 >= 0)) {
+      return { fit_ok: false, error: 'non-positive variance for the dose coefficient' };
+    }
+    return {
+      fit_ok: true,
+      coef_scaled: fHat.beta1,
+      se_scaled: Math.sqrt(var_beta1),
+      sigma2_u: sigma2_u,
+      // lme4 flags converged:false on the singular (boundary) fit even though
+      // the fixed effects are well-defined; mirror that exactly.
+      converged: !atBoundary,
+    };
+  }
+  API._internal.remlRandIntercept = _remlRandIntercept;
+
   function fitOneStage(trials, opts, precomputedJson) {
     // P2-9: opts is reserved for future use (currently ignored).
-    if (precomputedJson == null) return null;
-    var os = precomputedJson.one_stage || {};
+
+    // ---- Legacy R-read path (byte-identical to v0.7) ---------------------
+    if (precomputedJson != null) {
+      var os = precomputedJson.one_stage || {};
+      return {
+        layer: 'one_stage',
+        k: (trials && trials.length) || (precomputedJson.k || 0),
+        one_stage: {
+          coef_dose: os.coef_dose,
+          coef_dose_se: os.coef_dose_se,
+          coef_dose_ci_lo: os.coef_dose_ci_lo != null ? os.coef_dose_ci_lo : os.coef_dose - 1.96 * os.coef_dose_se,
+          coef_dose_ci_hi: os.coef_dose_ci_hi != null ? os.coef_dose_ci_hi : os.coef_dose + 1.96 * os.coef_dose_se,
+          converged: os.converged === true,
+          random_effects_var: os.random_effects_var,
+          fit_ok: os.fit_ok !== false,  // default true unless explicitly false in input
+          lme4_version: os.lme4_version,
+          dose_scale_sd: os.dose_scale_sd,
+          coef_dose_on_scaled: os.coef_dose_on_scaled,
+        },
+        pooled_slope_log: os.coef_dose,
+        pooled_slope_log_se: os.coef_dose_se,
+        fallback: null,
+        estimator: 'r_precomputed',
+        ci_method: 'z_1.96',
+        engine_version: API.engine_version,
+      };
+    }
+
+    // ---- v0.8 pure-JS path (precomputedJson == null) ---------------------
+    if (!Array.isArray(trials) || trials.length === 0) return null;
+
+    // Outcome-type probe — EXACTLY R's r_validate_doseresp.R convention:
+    //   is_continuous <- !is.null(trials[[1]]$arms[[1]]$mean) &&
+    //                    !is.null(trials[[1]]$arms[[1]]$sd)
+    // i.e. probe the FIRST arm of the FIRST trial (typically the reference
+    // arm, which carries mean+sd in continuous pools) by FIELD PRESENCE,
+    // not validity. A present-but-invalid sd on some OTHER arm is then
+    // caught by the strict per-arm fail-closed validation below — so a
+    // missing/0 sd fails closed instead of being silently misclassified as
+    // binary. This matches the R script's flatten+validate ordering.
+    var probeArms = trials[0].arms || [];
+    var probeArm = probeArms[0];
+    if (probeArm == null) return null;
+    // Continuous iff mean+sd fields are PRESENT (R's !is.null). Binary
+    // otherwise (events+n) — preserves the legacy null-on-binary contract;
+    // v0.9 will own the glmer-Poisson binary one-stage.
+    var isContinuous = (probeArm.mean != null) && (probeArm.sd != null);
+
+    // Binary one-stage = glmer-Poisson GLMM — explicit v0.9 deferral.
+    // Preserve the legacy null contract (caller must run R Round-1B); do NOT
+    // attempt a wrong Gaussian fit on log-RR contrasts.
+    if (!isContinuous) return null;
+
+    var k = trials.length;
+
+    function failClosed(msg) {
+      return {
+        layer: 'one_stage',
+        k: k,
+        one_stage: {
+          coef_dose: null,
+          coef_dose_se: null,
+          coef_dose_ci_lo: null,
+          coef_dose_ci_hi: null,
+          converged: false,
+          random_effects_var: null,
+          fit_ok: false,
+          error: msg,
+          lme4_version: null,
+          dose_scale_sd: null,
+          coef_dose_on_scaled: null,
+        },
+        pooled_slope_log: null,
+        pooled_slope_log_se: null,
+        fallback: null,
+        estimator: 'js_reml_onestage',
+        ci_method: 'z_1.96',
+        engine_version: API.engine_version,
+      };
+    }
+
+    if (k < 2) {
+      return failClosed('one-stage REML requires >= 2 studies; got k=' + k +
+        ' (between-study variance unidentifiable with a single study — ' +
+        'matches lme4 "grouping factors must have > 1 sampled level")');
+    }
+
+    // Collect all positive doses (every arm, every trial) for dose scaling.
+    // dose_scale_sd = sample SD (n-1 denominator) of positive doses — exactly
+    // R's sd(df$dose[df$dose > 0]).
+    var posDoses = [];
+    for (var t0 = 0; t0 < trials.length; t0++) {
+      var arms0 = trials[t0].arms || [];
+      for (var a0 = 0; a0 < arms0.length; a0++) {
+        var d0 = arms0[a0].dose;
+        if (!isFinite(d0)) {
+          return failClosed('trial "' + (trials[t0].studlab || ('#' + t0)) +
+            '": non-finite dose on an arm (required field)');
+        }
+        if (d0 > 0) posDoses.push(d0);
+      }
+    }
+    if (posDoses.length < 2) {
+      return failClosed('need >= 2 positive doses across all arms to compute ' +
+        'dose_scale_sd (sample SD); got ' + posDoses.length);
+    }
+    var meanD = 0;
+    for (var pd = 0; pd < posDoses.length; pd++) meanD += posDoses[pd];
+    meanD /= posDoses.length;
+    var ssD = 0;
+    for (var pd2 = 0; pd2 < posDoses.length; pd2++) {
+      var dv = posDoses[pd2] - meanD; ssD += dv * dv;
+    }
+    var doseScaleSd = Math.sqrt(ssD / (posDoses.length - 1));
+    if (!(doseScaleSd > 0)) {
+      return failClosed('dose_scale_sd is non-positive (all positive doses identical)');
+    }
+
+    // Flatten ALL arms (incl. reference) into model observations:
+    //   y = arm mean, x = dose / dose_scale_sd, w = n / sd² (= 1 / Var(mean)).
+    // Fail closed on any missing/invalid required field — never fabricate.
+    var obs = [];
+    for (var t = 0; t < trials.length; t++) {
+      var T = trials[t];
+      var lab = T.studlab || ('#' + t);
+      var arms = T.arms || [];
+      if (arms.length === 0) {
+        return failClosed('trial "' + lab + '": no arms');
+      }
+      for (var a = 0; a < arms.length; a++) {
+        var arm = arms[a];
+        if (!isFinite(arm.mean)) {
+          return failClosed('trial "' + lab + '" arm ' + a + ': missing/invalid required field "mean"');
+        }
+        if (!isFinite(arm.sd) || arm.sd <= 0) {
+          return failClosed('trial "' + lab + '" arm ' + a + ': missing/invalid required field "sd" (must be finite > 0)');
+        }
+        if (!isFinite(arm.n) || arm.n <= 0) {
+          return failClosed('trial "' + lab + '" arm ' + a + ': missing/invalid required field "n" (must be finite > 0)');
+        }
+        if (!isFinite(arm.dose)) {
+          return failClosed('trial "' + lab + '" arm ' + a + ': missing/invalid required field "dose"');
+        }
+        obs.push({
+          s: t,
+          y: arm.mean,
+          x: arm.dose / doseScaleSd,
+          w: arm.n / (arm.sd * arm.sd),
+        });
+      }
+    }
+
+    var fit = _remlRandIntercept(obs, trials.length);
+    if (!fit.fit_ok) {
+      return failClosed(fit.error || 'one-stage REML fit failed');
+    }
+
+    var coefScaled = fit.coef_scaled;
+    var seScaled = fit.se_scaled;
+    var coefDose = coefScaled / doseScaleSd;
+    var seDose = seScaled / doseScaleSd;
+    var ciLo = coefDose - 1.96 * seDose;
+    var ciHi = coefDose + 1.96 * seDose;
+
     return {
       layer: 'one_stage',
-      k: (trials && trials.length) || (precomputedJson.k || 0),
+      k: k,
       one_stage: {
-        coef_dose: os.coef_dose,
-        coef_dose_se: os.coef_dose_se,
-        coef_dose_ci_lo: os.coef_dose_ci_lo != null ? os.coef_dose_ci_lo : os.coef_dose - 1.96 * os.coef_dose_se,
-        coef_dose_ci_hi: os.coef_dose_ci_hi != null ? os.coef_dose_ci_hi : os.coef_dose + 1.96 * os.coef_dose_se,
-        converged: os.converged === true,
-        random_effects_var: os.random_effects_var,
-        fit_ok: os.fit_ok !== false,  // default true unless explicitly false in input
-        lme4_version: os.lme4_version,
-        dose_scale_sd: os.dose_scale_sd,
-        coef_dose_on_scaled: os.coef_dose_on_scaled,
+        coef_dose: coefDose,
+        coef_dose_se: seDose,
+        coef_dose_ci_lo: ciLo,
+        coef_dose_ci_hi: ciHi,
+        converged: fit.converged === true,
+        random_effects_var: fit.sigma2_u,
+        fit_ok: true,
+        lme4_version: null,           // not an lme4 fit — pure JS
+        dose_scale_sd: doseScaleSd,
+        coef_dose_on_scaled: coefScaled,
       },
-      pooled_slope_log: os.coef_dose,
-      pooled_slope_log_se: os.coef_dose_se,
+      pooled_slope_log: coefDose,
+      pooled_slope_log_se: seDose,
       fallback: null,
-      estimator: 'r_precomputed',
+      estimator: 'js_reml_onestage',
       ci_method: 'z_1.96',
       engine_version: API.engine_version,
     };
