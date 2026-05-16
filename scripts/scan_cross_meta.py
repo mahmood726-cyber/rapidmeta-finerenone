@@ -80,9 +80,11 @@ def main():
             doc = json.loads(io.open(p, encoding="utf-8", errors="replace").read())
         except Exception:
             continue
-        if doc.get("verdict") != "VIABLE":
+        # Reference set for EVERY topic with >=1 gate-passing trial (bulk now
+        # builds NON_VIABLE-with-data too). _expected() is verdict-agnostic.
+        stem = doc.get("topic", {}).get("stem")
+        if not stem:
             continue
-        stem = doc["topic"]["stem"]
         exp = _expected(doc)
         expected_by_stem[stem] = exp
         for n in exp:
@@ -95,8 +97,8 @@ def main():
         stem = os.path.basename(h)[:-len("_FULL_REVIEW.html")]
         exp = expected_by_stem.get(stem)
         if exp is None:
-            # No matching VIABLE topic -> orphan; can't bound its NCTs.
-            violations.append((stem, "ORPHAN", "no matching VIABLE topic JSON"))
+            # No matching topic JSON at all -> genuine orphan.
+            violations.append((stem, "ORPHAN", "no matching topic JSON"))
             bad += 1
             continue
         src = io.open(h, encoding="utf-8", errors="replace").read()

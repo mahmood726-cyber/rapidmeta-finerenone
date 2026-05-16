@@ -215,6 +215,9 @@ def main():
     ap.add_argument("--limit", type=int, default=0, help="cap topics (0=all)")
     ap.add_argument("--no-gate", action="store_true",
                     help="DEBUG ONLY: skip scanner/jscheck gates")
+    ap.add_argument("--all-topics", action="store_true",
+                    help="also build NON_VIABLE topics that have >=1 "
+                         "gate-passing trial (build_config filters no-data ones)")
     args = ap.parse_args()
 
     clone = _load("clone_dashboard")
@@ -240,7 +243,11 @@ def main():
             doc = json.loads(json_p.read_text(encoding="utf-8", errors="replace"))
         except Exception:
             continue
-        if doc.get("verdict") != "VIABLE":
+        # Default: VIABLE (k>=3) only. With --all-topics: also build
+        # NON_VIABLE topics that still have >=1 gate-passing trial — build_config
+        # returns None when there is no usable trial data, so it is the natural
+        # filter (no-data topics are skipped as build_none, not stubbed).
+        if not args.all_topics and doc.get("verdict") != "VIABLE":
             continue
         if args.limit and processed >= args.limit:
             break
