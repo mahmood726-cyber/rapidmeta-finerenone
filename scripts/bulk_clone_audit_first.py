@@ -112,7 +112,15 @@ def build_config(topic_doc):
         trial_entry = {
             "nct": nct,
             "name": acr,
-            "pmid": ex.get("pmid") or "",
+            # PMID intentionally NOT injected: the upstream topic-JSON pmid
+            # field is corpus-wide unverifiable (audit_pmids could validate 0
+            # of 2073; 100% null titles; future-dated; reused across unrelated
+            # topics; concrete cases fabricated e.g. SELECTION->pmid 41569324).
+            # AbstractHydrator is PMID-only and would fetch the WRONG paper's
+            # abstract/authors/link from a bad PMID (the reported defect).
+            # Empty pmid -> hydrator no-ops; the AACT/NCT-based EvidenceHydrator
+            # (verified correct via EuropePMC query=NCT) still enriches.
+            "pmid": "",
             "phase": "III",
             "year": ex.get("pubmed_year") or 2024,
             "tE": tE, "tN": tN or 0, "cE": cE, "cN": cN or 0,
@@ -122,9 +130,8 @@ def build_config(topic_doc):
             "hrUCI": pub_uci if pub_t in ("HR","OR","RR","IRR") else None,
             "allOutcomes": [outcome_obj],
             "rob": ["low", "low", "low", "low", "low"],
-            "snippet": f"NCT {nct}: {outcome_label}. Primary publication PMID {ex.get('pmid') or '—'}.",
-            "sourceUrl": (f"https://pubmed.ncbi.nlm.nih.gov/{ex['pmid']}/"
-                           if ex.get("pmid") else f"https://clinicaltrials.gov/study/{nct}"),
+            "snippet": f"NCT {nct}: {outcome_label}. Source: ClinicalTrials.gov registry (AACT-verified); publication resolved live via NCT.",
+            "sourceUrl": f"https://clinicaltrials.gov/study/{nct}",
             "evidence": [],
         }
         trials.append(trial_entry)
