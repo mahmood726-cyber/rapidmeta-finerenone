@@ -236,7 +236,7 @@ def validate_one_app(driver, filename, gold):
             print(f'    JS errors: {len(errors)}')
             for e in errors[:2]:
                 print(f'      {e["message"][:120]}')
-    except:
+    except Exception:
         pass
 
     # All apps except ATTR_CM use the v12 RapidMeta pattern
@@ -302,9 +302,9 @@ def main():
                     print(f'  Expected: HR {gold["hr"]:.2f} ({gold["lo"]:.2f}-{gold["hi"]:.2f})')
 
                 try:
-                    status, detail, raw = validate_one_app(driver, filename, gold)
+                    status, detail, _ = validate_one_app(driver, filename, gold)
                 except Exception as e:
-                    status, detail, raw = 'ERROR', str(e), None
+                    status, detail = 'ERROR', str(e)
 
                 marker = {'MATCH': 'OK', 'CLOSE': '~OK', 'WITHIN_CI': 'CI',
                           'MISMATCH': '!!', 'ERROR': 'ERR', 'SKIP': '--', 'INFO': 'i'}.get(status, '??')

@@ -75,7 +75,6 @@ def dl_pool(estimates):
     weights = [1 / (se ** 2) for _, se in estimates]
     sum_w = sum(weights)
     sum_wy = sum(w * y for w, (y, _) in zip(weights, estimates))
-    sum_wy2 = sum(w * y * y for w, (y, _) in zip(weights, estimates))
     sum_w2 = sum(w * w for w in weights)
 
     mean_fe = sum_wy / sum_w

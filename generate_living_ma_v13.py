@@ -136,7 +136,8 @@ def transform_template(template_html, cfg):
     # 0. Inline Tailwind CSS (single-file requirement)
     css_path = os.path.join(os.path.dirname(TEMPLATE_PATH), 'FINERENONE_REVIEW.tailwind.css')
     if os.path.exists(css_path):
-        css_content = open(css_path, 'r', encoding='utf-8').read()
+        with open(css_path, encoding='utf-8') as f:
+            css_content = f.read()
         html = re.sub(
             r'<link rel="stylesheet" href="[^"]*\.tailwind\.css">',
             f'<style>/* Tailwind v3.4.17 (inlined for single-file) */\n{css_content}\n    </style>',

@@ -1630,7 +1630,8 @@ if __name__ == '__main__':
                 results.append({**app, 'trials': [], 'pool': None, 'max_year': None})
                 continue
 
-            html_content = open(path, encoding='utf-8').read()
+            with open(path, encoding='utf-8') as f:
+                html_content = f.read()
             trials = parse_acm_outcomes(html_content, app['name'])
             # Merge any CT.gov augmentations for this app
             trials = merge_ctgov_augmentations(trials, app['name'])

@@ -136,7 +136,7 @@ def main():
     # Save report
     with open("cross_validation_report.json", "w") as f:
         json.dump({"generated": time.strftime("%Y-%m-%d %H:%M"), "results": results}, f, indent=2)
-    print(f"\nReport saved to cross_validation_report.json")
+    print("\nReport saved to cross_validation_report.json")
 
 if __name__ == "__main__":
     main()
