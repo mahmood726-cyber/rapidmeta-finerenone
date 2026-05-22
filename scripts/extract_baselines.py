@@ -1,4 +1,4 @@
-"""Extract trial baseline characteristics via regex from the `group:` field
+r"""Extract trial baseline characteristics via regex from the `group:` field
 text and inject as `baseline: {n, age, pct_female, followup}` on each
 realData entry. Idempotent.
 

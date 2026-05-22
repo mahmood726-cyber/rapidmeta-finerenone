@@ -246,7 +246,7 @@ def _validate_ctgov_augmentations():
             try:
                 hr, lo, hi = float(a['hr']), float(a['lo']), float(a['hi'])
             except (KeyError, TypeError, ValueError) as e:
-                raise ValueError(f'CTGOV_AUGMENTATIONS[{app_name!r}] {nct}: missing/invalid hr/lo/hi ({e})')
+                raise ValueError(f'CTGOV_AUGMENTATIONS[{app_name!r}] {nct}: missing/invalid hr/lo/hi ({e})') from e
             if not (0 < lo <= hr <= hi):
                 raise ValueError(
                     f'CTGOV_AUGMENTATIONS[{app_name!r}] {nct}: requires 0 < lo <= hr <= hi '
@@ -281,7 +281,6 @@ def assess_concordance(guideline_class, pool):
     if guideline_class not in CLASS_EXPECTATIONS:
         return 'no_data'
 
-    exp = CLASS_EXPECTATIONS[guideline_class]
     sig = pool['pooled_hi'] < 1.0  # CI excludes 1 (statistically significant benefit)
 
     if guideline_class == 'I':
@@ -930,9 +929,6 @@ def trial_sequential_analysis(trials, hr_pool, alpha=0.05, beta=0.20):
     # Current accumulated
     current_n = sum((t.get('tN') or 0) + (t.get('cN') or 0) for t in trials)
 
-    # Current events (approximate with observed)
-    events_per_n = sum((t.get('tE') or 0) + (t.get('cE') or 0) for t in trials) / current_n if current_n > 0 else 0
-
     return {
         'ris': round(ris_adjusted),
         'current_n': current_n,
@@ -968,7 +964,6 @@ def dl_pool(estimates):
     weights = [1 / (se ** 2) for _, se in estimates]
     sum_w = sum(weights)
     sum_wy = sum(w * y for w, (y, _) in zip(weights, estimates))
-    sum_wy2 = sum(w * y * y for w, (y, _) in zip(weights, estimates))
     sum_w2 = sum(w * w for w in weights)
     mean_fe = sum_wy / sum_w
     Q = sum(w * (y - mean_fe) ** 2 for w, (y, _) in zip(weights, estimates))
@@ -1002,7 +997,6 @@ def build_forest_svg(rows, width=900, row_height=28):
     margin_top = 50
     margin_bot = 40
     label_width = 280
-    n_width = 60
     plot_left = label_width + 20
     plot_right = width - 220
     plot_width = plot_right - plot_left

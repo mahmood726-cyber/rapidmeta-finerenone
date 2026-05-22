@@ -112,7 +112,7 @@ def main():
         results.append(result)
 
         status = "OK" if hr_match in ("EXACT", "CLOSE") else "CHECK"
-        print(f"  {curated['id']:20} HR: ours={our_hr}, CTG={ctg_hr}, {hr_match} | N: ours={our_n}, CTG={ctg_n}, {n_match}")
+        print(f"  [{status}] {curated['id']:20} HR: ours={our_hr}, CTG={ctg_hr}, {hr_match} | N: ours={our_n}, CTG={ctg_n}, {n_match}")
 
     print()
     print("=" * 80)

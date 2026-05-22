@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # sentinel:skip-file — developer tool; hardcoded ROOT is intentional (local Finrenone checkout only)
-"""Pass 1: structural integrity audit across all 99 _REVIEW.html apps.
+r"""Pass 1: structural integrity audit across all 99 _REVIEW.html apps.
 
 Checks:
   - Div balance (`<div[\s>]` opens vs `</div>` closes); CFTR baseline is +1
