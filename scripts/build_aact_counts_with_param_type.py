@@ -1,0 +1,224 @@
+"""Build NCT -> primary-outcome event counts with proper AACT param_type +
+units discrimination.
+
+Why this exists:
+  bulk_clone_audit_first.py blindly cast every AACT outcome_measurements
+  param_value via `int(float(v))` and stored it as a binary event count.
+  AACT actually stores measurements with a `param_type` enum
+  (NUMBER, COUNT_OF_PARTICIPANTS, MEAN, MEDIAN, LEAST_SQUARES_MEAN, ...)
+  and a `units` column. Without checking those, percentages came through as
+  inflated counts and continuous outcomes (means, BP, weight) got stored as
+  if they were event counts. fix_event_counts_safe.py papered over the worst
+  cases (tE > tN -> null) but a ~100% event rate that happens to NOT exceed
+  N (e.g. tE=82 / tN=120 from a percentage param_value 82.4) slipped through.
+
+The right discrimination:
+
+  param_type=COUNT_OF_PARTICIPANTS or COUNT_OF_UNITS    -> raw count, use as-is
+  param_type=NUMBER + units~"participants|subjects|     -> raw count
+                              patients|events|cases"
+  param_type=NUMBER + units~"percent|proportion"        -> percentage,
+                                                           tE=round(v/100*N)
+  param_type=NUMBER + units other (mg/L, minutes, ...)  -> continuous, skip
+  param_type in MEAN/MEDIAN/etc                         -> continuous, skip
+  unknown                                               -> skip
+
+For each NCT we read the first measurement row per (outcome_id, group_id),
+group rows by outcome_id, then for the FIRST outcome that has >=2 numeric arms
+of compatible kind, emit:
+    {tE, tN, cE, cN, source: 'count'|'pct', primary_outcome_id}
+
+Pulls per-arm N from baseline_counts.txt (more reliable than result_groups
+size, and consistent with what bulk_clone already used).
+
+Output: outputs/pmid_resolver/nct_counts.json
+"""
+from __future__ import annotations
+import csv
+import json
+import re
+import sys
+import io
+from pathlib import Path
+from collections import defaultdict
+
+if hasattr(sys.stdout, "buffer"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+csv.field_size_limit(50_000_000)
+
+HERE = Path(__file__).resolve().parent.parent
+AACT = Path(r"F:\AACT-storage\AACT\2026-04-12")
+OUT = HERE / "outputs" / "pmid_resolver"
+OUT.mkdir(parents=True, exist_ok=True)
+
+
+# Limit to portfolio NCTs to keep memory and runtime bounded.
+def portfolio_ncts() -> set[str]:
+    nct_re = re.compile(r"NCT\d{7,8}")
+    ncts: set[str] = set()
+    for p in HERE.glob("*.html"):
+        if not p.is_file():
+            continue
+        ncts |= set(nct_re.findall(p.read_text(encoding="utf-8", errors="replace")))
+    return ncts
+
+
+def classify(param_type: str, units: str) -> str:
+    pt = param_type.strip().upper()
+    u = units.strip().lower()
+    if pt in ("COUNT_OF_PARTICIPANTS", "COUNT_OF_UNITS"):
+        return "count"
+    if pt == "NUMBER":
+        if any(w in u for w in ("percent", "proportion")):
+            return "pct"
+        if any(w in u for w in ("participant", "subject", "patient", "event", "case", "responder", "resolution")):
+            return "count"
+        return "skip"
+    # All averages are continuous outcomes.
+    if pt in (
+        "MEAN", "MEDIAN", "GEOMETRIC_MEAN", "LEAST_SQUARES_MEAN",
+        "GEOMETRIC_LEAST_SQUARES_MEAN", "LOG_MEAN",
+    ):
+        return "continuous"
+    return "skip"
+
+
+def load_baseline_n(ncts: set[str]) -> dict[str, dict[str, int]]:
+    """Return {nct: {group_code: n}} from baseline_counts.txt."""
+    path = AACT / "baseline_counts.txt"
+    out: dict[str, dict[str, int]] = defaultdict(dict)
+    with path.open(encoding="utf-8", errors="replace") as f:
+        rd = csv.DictReader(f, delimiter="|")
+        for row in rd:
+            nct = (row.get("nct_id") or "").strip()
+            if nct not in ncts:
+                continue
+            scope = (row.get("scope") or "").strip().lower()
+            if scope and scope != "overall":
+                continue
+            group = (row.get("ctgov_group_code") or "").strip()
+            try:
+                n = int(float((row.get("count") or "").strip()))
+            except (TypeError, ValueError):
+                continue
+            if group and n > 0:
+                out[nct][group] = n
+    return out
+
+
+def load_outcome_rows(ncts: set[str]) -> dict[str, list[dict]]:
+    """Return {nct: [{outcome_id, group, value, kind}, ...]} for outcomes whose
+    rows can be classified as count or pct (skips MEAN/MEDIAN/etc)."""
+    path = AACT / "outcome_measurements.txt"
+    out: dict[str, list[dict]] = defaultdict(list)
+    with path.open(encoding="utf-8", errors="replace") as f:
+        rd = csv.DictReader(f, delimiter="|")
+        for row in rd:
+            nct = (row.get("nct_id") or "").strip()
+            if nct not in ncts:
+                continue
+            kind = classify(row.get("param_type", ""), row.get("units", ""))
+            if kind not in ("count", "pct"):
+                continue
+            try:
+                val = float((row.get("param_value") or "").strip())
+            except (TypeError, ValueError):
+                continue
+            out[nct].append({
+                "outcome_id": (row.get("outcome_id") or "").strip(),
+                "group": (row.get("ctgov_group_code") or "").strip(),
+                "value": val,
+                "kind": kind,
+            })
+    return out
+
+
+def build_per_nct(baseline: dict, outcomes: dict) -> dict[str, dict]:
+    result: dict[str, dict] = {}
+    for nct, rows in outcomes.items():
+        if not rows:
+            continue
+        # Group by outcome_id, preserving first-encounter order.
+        per_oc: dict[str, list[dict]] = {}
+        order: list[str] = []
+        for r in rows:
+            if r["outcome_id"] not in per_oc:
+                per_oc[r["outcome_id"]] = []
+                order.append(r["outcome_id"])
+            per_oc[r["outcome_id"]].append(r)
+
+        bn = baseline.get(nct, {})
+
+        # First outcome with >=2 distinct compatible-kind group rows wins.
+        for oc_id in order:
+            entries = per_oc[oc_id]
+            # Dedup by group: keep first per group_code.
+            seen: dict[str, dict] = {}
+            for e in entries:
+                if e["group"] and e["group"] not in seen:
+                    seen[e["group"]] = e
+            if len(seen) < 2:
+                continue
+            # Pick two arms sorted by group code (matches the bulk_clone
+            # sorted-ogs behavior so we stay aligned with what the page expects).
+            groups = sorted(seen.keys())
+            kinds = {seen[g]["kind"] for g in groups[:2]}
+            if len(kinds) > 1:
+                # Mixed count+pct in same outcome — refuse to interpret
+                continue
+            kind = next(iter(kinds))
+            tg, cg = groups[0], groups[1]
+            tval, cval = seen[tg]["value"], seen[cg]["value"]
+            tN = bn.get(tg) or bn.get(tg.replace("OG", "BG"))
+            cN = bn.get(cg) or bn.get(cg.replace("OG", "BG"))
+            # group codes from outcome_measurements are OG###; baseline_counts
+            # uses BG### for arms. Map by sorted position.
+            if tN is None or cN is None:
+                # Fallback: pick the first two BG counts in this nct, in code order
+                bg_groups = sorted(bn.keys())
+                if len(bg_groups) >= 2:
+                    tN = tN or bn[bg_groups[0]]
+                    cN = cN or bn[bg_groups[1]]
+            if tN is None or cN is None or tN <= 0 or cN <= 0:
+                continue
+            if kind == "count":
+                tE = int(round(tval))
+                cE = int(round(cval))
+            else:  # pct
+                tE = int(round(tval / 100 * tN))
+                cE = int(round(cval / 100 * cN))
+            # Sanity: tE/cE must not exceed N
+            if tE > tN or cE > cN or tE < 0 or cE < 0:
+                continue
+            result[nct] = {
+                "tE": tE, "tN": tN, "cE": cE, "cN": cN,
+                "source": kind,
+                "outcome_id": oc_id,
+            }
+            break
+    return result
+
+
+def main():
+    ncts = portfolio_ncts()
+    print(f"Portfolio NCTs: {len(ncts):,}")
+    print("Loading baseline_counts.txt...")
+    baseline = load_baseline_n(ncts)
+    print(f"  baseline N entries: {len(baseline):,}")
+    print("Loading outcome_measurements.txt (filter to portfolio NCTs)...")
+    outcomes = load_outcome_rows(ncts)
+    print(f"  outcomes loaded for: {len(outcomes):,} NCTs")
+    print("Building per-NCT primary counts...")
+    counts = build_per_nct(baseline, outcomes)
+    from collections import Counter
+    src = Counter(v["source"] for v in counts.values())
+    print(f"  NCTs with proper counts: {len(counts):,}")
+    print(f"  by source: {dict(src)}")
+
+    out_path = OUT / "nct_counts.json"
+    out_path.write_text(json.dumps(counts), encoding="utf-8")
+    print(f"wrote {out_path} ({out_path.stat().st_size:,} bytes)")
+
+
+if __name__ == "__main__":
+    main()

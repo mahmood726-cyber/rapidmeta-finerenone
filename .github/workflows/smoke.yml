@@ -1,0 +1,168 @@
+name: smoke
+
+# Runs sentinel + puppeteer smoke against the portfolio.
+#   - on PR: scope to changed *.html files (fast — under a minute typical)
+#   - on push to main: full portfolio (capped at 10 min wall-clock)
+# Fails the build on any sentinel rule violation OR puppeteer pageerror.
+#
+# Required tools: python 3.11+, node 20+, chrome (preinstalled on
+# ubuntu-latest runners).
+
+on:
+  pull_request:
+    paths:
+      - '**.html'
+      - 'scripts/sentinel_check.py'
+      - 'scripts/full_portfolio_smoke.mjs'
+      - '.github/workflows/smoke.yml'
+  push:
+    branches: [main]
+    paths:
+      - '**.html'
+      - 'scripts/sentinel_check.py'
+      - 'scripts/full_portfolio_smoke.mjs'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  sentinel:
+    name: sentinel (R1..R6 static rules)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # need history to diff PR vs base
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Pick files to scan
+        id: pick
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch origin ${{ github.base_ref }}
+            files=$(git diff --name-only origin/${{ github.base_ref }}..HEAD -- '*.html' | tr '\n' ' ')
+            echo "scope=pr" >> "$GITHUB_OUTPUT"
+            echo "files=$files" >> "$GITHUB_OUTPUT"
+          else
+            echo "scope=push-main" >> "$GITHUB_OUTPUT"
+            echo "files=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run sentinel
+        run: |
+          if [ -n "${{ steps.pick.outputs.files }}" ]; then
+            echo "Scanning PR-changed files: ${{ steps.pick.outputs.files }}"
+            python scripts/sentinel_check.py ${{ steps.pick.outputs.files }}
+          else
+            echo "Scanning full portfolio"
+            python scripts/sentinel_check.py
+          fi
+
+  smoke:
+    name: puppeteer smoke (page-level JS)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: sentinel
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install puppeteer-core
+        run: |
+          mkdir -p /tmp/smoke
+          cd /tmp/smoke
+          npm init -y > /dev/null
+          npm install --silent puppeteer-core
+
+      - name: Find Chrome
+        id: chrome
+        run: |
+          chrome=$(command -v google-chrome || command -v chromium || command -v chromium-browser || echo "")
+          if [ -z "$chrome" ]; then
+            sudo apt-get update -qq && sudo apt-get install -yqq chromium-browser
+            chrome=$(command -v chromium-browser)
+          fi
+          echo "path=$chrome" >> "$GITHUB_OUTPUT"
+
+      - name: Start local HTTP server
+        run: |
+          python3 -m http.server 8766 &
+          sleep 2
+
+      - name: Pick scope
+        id: scope
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch origin ${{ github.base_ref }}
+            git diff --name-only origin/${{ github.base_ref }}..HEAD -- '*.html' > /tmp/files.txt
+            echo "mode=pr" >> "$GITHUB_OUTPUT"
+          else
+            echo "mode=full" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run smoke
+        env:
+          CHROME_PATH: ${{ steps.chrome.outputs.path }}
+        run: |
+          cat > /tmp/smoke/ci.mjs <<'EOF'
+          import pup from 'puppeteer-core';
+          import { readdirSync, readFileSync, existsSync } from 'node:fs';
+          const BASE = 'http://localhost:8766/';
+          const TARGET = process.env.GITHUB_WORKSPACE;
+          let apps;
+          if (process.env.MODE === 'pr' && existsSync('/tmp/files.txt')) {
+            const changed = readFileSync('/tmp/files.txt', 'utf8')
+              .split('\n').filter(s => s.endsWith('.html'));
+            apps = changed.filter(f => existsSync(`${TARGET}/${f}`));
+          } else {
+            apps = readdirSync(TARGET).filter(f => f.endsWith('_REVIEW.html'));
+          }
+          console.log(`Smoke-testing ${apps.length} app(s)`);
+          if (!apps.length) process.exit(0);
+          const browser = await pup.launch({
+            executablePath: process.env.CHROME_PATH,
+            headless: 'new',
+            protocolTimeout: 60000,
+            args: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
+          });
+          const IGNORE = [
+            /\/outputs\/r_validation\//, /eutils\.ncbi\.nlm\.nih\.gov/, /ebi\.ac\.uk/,
+            /clinicaltrials\.gov\/api/, /openalex\.org/, /\/favicon\.ico$/, /r_validation_log/,
+          ];
+          let fail = 0, ok = 0;
+          for (let i = 0; i < apps.length; i++) {
+            const app = apps[i];
+            const page = await browser.newPage();
+            const errs = [];
+            page.on('pageerror', e => errs.push(e.message.split('\n')[0]));
+            page.on('response', r => {
+              if (r.status() >= 400 && !IGNORE.some(rx => rx.test(r.url())))
+                errs.push(`HTTP ${r.status()}: ${r.url()}`);
+            });
+            try {
+              await page.goto(BASE + app, { waitUntil: 'domcontentloaded', timeout: 20000 });
+              await new Promise(r => setTimeout(r, 1500));
+            } catch (e) { errs.push(`load: ${e.message}`); }
+            await page.close();
+            if (errs.length) { fail++; console.log(`  FAIL ${app}\n    ${errs.slice(0,3).join('\n    ')}`); }
+            else ok++;
+          }
+          await browser.close();
+          console.log(`\nOK: ${ok}  FAIL: ${fail}  total: ${apps.length}`);
+          process.exit(fail ? 1 : 0);
+          EOF
+          MODE=${{ steps.scope.outputs.mode }} node /tmp/smoke/ci.mjs
