@@ -6149,10 +6149,6 @@ const DoseResponseEngine = {
         Plotly.newPlot(el, traces, layout, { displayModeBar: false, responsive: true });
         return fits;
     },
-};        return [...byDose.entries()]
-            .map(([dose, agg]) => ({ dose, effect: agg.sumWX / agg.sumW, se: Math.sqrt(1 / agg.sumW) }))
-            .sort((a, b) => a.dose - b.dose);
-    },
     fitLinear(series) {
         const n = series.length;
         if (n < 2) return null;
