@@ -257,7 +257,16 @@ def main():
     else:
         files = sorted(p for p in HERE.glob("*.html") if p.is_file())
 
-    print(f"Sentinel scanning {len(files)} files with {len(RULES)} rules...")
+    # R6 is a per-file Node subprocess (~0.4s each) which is fine for small
+    # changesets but slow on the full 2,178-file portfolio. When SENTINEL_FAST
+    # is set OR we're scanning >300 files, drop R6 and rely on the smoke test
+    # to catch realData parse failures at runtime.
+    rules = list(RULES)
+    if os.environ.get("SENTINEL_FAST") == "1" or len(files) > 300:
+        rules = [(n, r) for n, r in rules if n != "R6_realdata_parses"]
+        print(f"Sentinel: large/fast mode — R6 (Node parse-check) skipped, will run at smoke step")
+
+    print(f"Sentinel scanning {len(files)} files with {len(rules)} rules...")
 
     total_findings = 0
     findings_by_file: dict[str, list[str]] = {}
@@ -269,7 +278,7 @@ def main():
             total_findings += 1
             continue
         file_hits = []
-        for name, rule in RULES:
+        for name, rule in rules:
             try:
                 hits = rule(p, txt) or []
             except Exception as e:
