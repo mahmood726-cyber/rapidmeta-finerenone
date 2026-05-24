@@ -7129,7 +7129,7 @@ const ContinuousMDEngine = {
                 'NCT01185288': {
 
 
-                    name: 'MUSICA', pmid: '', phase: 'III', year: 2018, tE: 45, tN: 154, cE: 52, cN: 155, group: 'Adalimumab vs comparator in Rheumatoid Arthritis (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'MUSICA', pmid: '27214046', phase: 'III', year: 2018, tE: 45, tN: 154, cE: 52, cN: 155, group: 'Adalimumab vs comparator in Rheumatoid Arthritis (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7158,7 +7158,7 @@ const ContinuousMDEngine = {
                 'NCT02629159': {
 
 
-                    name: 'SELECT-COMPARE', pmid: '', phase: 'III', year: 2019, tE: 14, tN: 651, cE: 29, cN: 327, group: 'Adalimumab vs comparator in Rheumatoid Arthritis (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'SELECT-COMPARE', pmid: '31362993', phase: 'III', year: 2019, tE: 14, tN: 651, cE: 29, cN: 327, group: 'Adalimumab vs comparator in Rheumatoid Arthritis (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -16722,7 +16722,7 @@ const ContinuousMDEngine = {
                                 <span class="${srcColor} text-white text-[7px] font-bold px-2 py-0.5 rounded-full uppercase">${escapeHtml(srcLabel)}</span>
 
 
-                                <span class="font-mono text-[9px] text-slate-500 font-bold">${t.data?.ctgovUrl ? `<a href="${escapeHtml(t.data.ctgovUrl)}" target="_blank" rel="noopener" class="underline decoration-dotted hover:text-blue-400" title="Open CT.gov record (verify extraction against source)" onclick="event.stopPropagation();">${escapeHtml(t.id.length > 20 ? t.id.slice(0, 20) + '...' : t.id)} ↗</a>` : escapeHtml(t.id.length > 20 ? t.id.slice(0, 20) + '...' : t.id)}</span>
+                                <span class="font-mono text-[9px] text-slate-500 font-bold">${(function(){var u = t.data && t.data.ctgovUrl ? t.data.ctgovUrl : (typeof t.id === 'string' && /^NCT\d{7,8}/.test(t.id) ? 'https://clinicaltrials.gov/study/' + t.id.match(/^NCT\d{7,8}/)[0] : null);var label = escapeHtml(t.id && t.id.length > 20 ? t.id.slice(0, 20) + '...' : (t.id || ''));return u ? '<a href="' + escapeHtml(u) + '" target="_blank" rel="noopener" class="underline decoration-dotted hover:text-blue-400" title="Open CT.gov record (verify extraction against source)" onclick="event.stopPropagation();">' + label + ' ↗</a>' : label;})()}</span>
 
 
                                 ${scoreChip}

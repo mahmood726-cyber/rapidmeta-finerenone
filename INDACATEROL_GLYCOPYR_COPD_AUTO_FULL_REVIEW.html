@@ -7129,7 +7129,7 @@ const ContinuousMDEngine = {
                 'NCT01985334': {
 
 
-                    name: 'NCT01985334', pmid: '', phase: 'III', year: 2018, tE: null, tN: 130, cE: null, cN: 387, group: 'Indacaterol vs comparator in Copd (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT01985334', pmid: '28720132', phase: 'III', year: 2018, tE: null, tN: 130, cE: null, cN: 387, group: 'Indacaterol vs comparator in Copd (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7158,7 +7158,7 @@ const ContinuousMDEngine = {
                 'NCT00794157': {
 
 
-                    name: 'NCT00794157', pmid: '', phase: 'III', year: 2012, tE: null, tN: 114, cE: null, cN: 116, group: 'Indacaterol vs comparator in Copd (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT00794157', pmid: '23040786', phase: 'III', year: 2012, tE: null, tN: 114, cE: null, cN: 116, group: 'Indacaterol vs comparator in Copd (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7187,7 +7187,7 @@ const ContinuousMDEngine = {
                 'NCT01315249': {
 
 
-                    name: 'ILLUMINATE', pmid: '', phase: 'III', year: 2013, tE: 143, tN: 258, cE: 159, cN: 264, group: 'Indacaterol vs comparator in Copd (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'ILLUMINATE', pmid: '24321804', phase: 'III', year: 2013, tE: 143, tN: 258, cE: 159, cN: 264, group: 'Indacaterol vs comparator in Copd (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7216,7 +7216,7 @@ const ContinuousMDEngine = {
                 'NCT00821093': {
 
 
-                    name: 'INSIST', pmid: '', phase: 'III', year: 2011, tE: null, tN: 559, cE: null, cN: 562, group: 'Indacaterol vs comparator in Copd (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'INSIST', pmid: '21367594', phase: 'III', year: 2011, tE: null, tN: 559, cE: null, cN: 562, group: 'Indacaterol vs comparator in Copd (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -16780,7 +16780,7 @@ const ContinuousMDEngine = {
                                 <span class="${srcColor} text-white text-[7px] font-bold px-2 py-0.5 rounded-full uppercase">${escapeHtml(srcLabel)}</span>
 
 
-                                <span class="font-mono text-[9px] text-slate-500 font-bold">${t.data?.ctgovUrl ? `<a href="${escapeHtml(t.data.ctgovUrl)}" target="_blank" rel="noopener" class="underline decoration-dotted hover:text-blue-400" title="Open CT.gov record (verify extraction against source)" onclick="event.stopPropagation();">${escapeHtml(t.id.length > 20 ? t.id.slice(0, 20) + '...' : t.id)} ↗</a>` : escapeHtml(t.id.length > 20 ? t.id.slice(0, 20) + '...' : t.id)}</span>
+                                <span class="font-mono text-[9px] text-slate-500 font-bold">${(function(){var u = t.data && t.data.ctgovUrl ? t.data.ctgovUrl : (typeof t.id === 'string' && /^NCT\d{7,8}/.test(t.id) ? 'https://clinicaltrials.gov/study/' + t.id.match(/^NCT\d{7,8}/)[0] : null);var label = escapeHtml(t.id && t.id.length > 20 ? t.id.slice(0, 20) + '...' : (t.id || ''));return u ? '<a href="' + escapeHtml(u) + '" target="_blank" rel="noopener" class="underline decoration-dotted hover:text-blue-400" title="Open CT.gov record (verify extraction against source)" onclick="event.stopPropagation();">' + label + ' ↗</a>' : label;})()}</span>
 
 
                                 ${scoreChip}

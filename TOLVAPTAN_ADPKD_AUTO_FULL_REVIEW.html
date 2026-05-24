@@ -7129,7 +7129,7 @@ const ContinuousMDEngine = {
                 'NCT02251275': {
 
 
-                    name: 'NCT02251275', pmid: '', phase: 'III', year: 2023, tE: 473, tN: 506, cE: 531, cN: 570, group: 'Tolvaptan vs comparator in Polycystic Kidney (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT02251275', pmid: '33376102', phase: 'III', year: 2023, tE: 473, tN: 506, cE: 531, cN: 570, group: 'Tolvaptan vs comparator in Polycystic Kidney (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7158,7 +7158,7 @@ const ContinuousMDEngine = {
                 'NCT01336972': {
 
 
-                    name: 'NCT01336972', pmid: '', phase: 'III', year: 2013, tE: null, tN: 10, cE: null, cN: 10, group: 'Tolvaptan vs comparator in Polycystic Kidney (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT01336972', pmid: '37250503', phase: 'III', year: 2013, tE: null, tN: 10, cE: null, cN: 10, group: 'Tolvaptan vs comparator in Polycystic Kidney (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7187,7 +7187,7 @@ const ContinuousMDEngine = {
                 'NCT01214421': {
 
 
-                    name: 'TEMPO 4/4', pmid: '', phase: 'III', year: 2023, tE: -3, tN: 557, cE: 4, cN: 314, group: 'Tolvaptan vs comparator in Polycystic Kidney (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'TEMPO 4/4', pmid: '21757630', phase: 'III', year: 2023, tE: -3, tN: 557, cE: 4, cN: 314, group: 'Tolvaptan vs comparator in Polycystic Kidney (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -16751,7 +16751,7 @@ const ContinuousMDEngine = {
                                 <span class="${srcColor} text-white text-[7px] font-bold px-2 py-0.5 rounded-full uppercase">${escapeHtml(srcLabel)}</span>
 
 
-                                <span class="font-mono text-[9px] text-slate-500 font-bold">${t.data?.ctgovUrl ? `<a href="${escapeHtml(t.data.ctgovUrl)}" target="_blank" rel="noopener" class="underline decoration-dotted hover:text-blue-400" title="Open CT.gov record (verify extraction against source)" onclick="event.stopPropagation();">${escapeHtml(t.id.length > 20 ? t.id.slice(0, 20) + '...' : t.id)} ↗</a>` : escapeHtml(t.id.length > 20 ? t.id.slice(0, 20) + '...' : t.id)}</span>
+                                <span class="font-mono text-[9px] text-slate-500 font-bold">${(function(){var u = t.data && t.data.ctgovUrl ? t.data.ctgovUrl : (typeof t.id === 'string' && /^NCT\d{7,8}/.test(t.id) ? 'https://clinicaltrials.gov/study/' + t.id.match(/^NCT\d{7,8}/)[0] : null);var label = escapeHtml(t.id && t.id.length > 20 ? t.id.slice(0, 20) + '...' : (t.id || ''));return u ? '<a href="' + escapeHtml(u) + '" target="_blank" rel="noopener" class="underline decoration-dotted hover:text-blue-400" title="Open CT.gov record (verify extraction against source)" onclick="event.stopPropagation();">' + label + ' ↗</a>' : label;})()}</span>
 
 
                                 ${scoreChip}

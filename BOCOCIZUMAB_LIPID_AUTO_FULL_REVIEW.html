@@ -7129,7 +7129,7 @@ const ContinuousMDEngine = {
                 'NCT01968967': {
 
 
-                    name: 'SPIRE-LDL', pmid: '', phase: 'III', year: 2023, tE: 45, tN: 1071, cE: 90, cN: 1068, group: 'Bococizumab vs comparator in Hyperlipidemia (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'SPIRE-LDL', pmid: '28304227', phase: 'III', year: 2023, tE: 45, tN: 1071, cE: 90, cN: 1068, group: 'Bococizumab vs comparator in Hyperlipidemia (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7158,7 +7158,7 @@ const ContinuousMDEngine = {
                 'NCT02100514': {
 
 
-                    name: 'SPIRE-LL', pmid: '', phase: 'III', year: 2023, tE: 10, tN: 247, cE: 72, cN: 499, group: 'Bococizumab vs comparator in Hyperlipidemia (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'SPIRE-LL', pmid: '28304227', phase: 'III', year: 2023, tE: 10, tN: 247, cE: 72, cN: 499, group: 'Bococizumab vs comparator in Hyperlipidemia (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7187,7 +7187,7 @@ const ContinuousMDEngine = {
                 'NCT01968954': {
 
 
-                    name: 'SPIRE-HR', pmid: '', phase: 'III', year: 2023, tE: 41, tN: 354, cE: 82, cN: 357, group: 'Bococizumab vs comparator in Hyperlipidemia (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'SPIRE-HR', pmid: '28304227', phase: 'III', year: 2023, tE: 41, tN: 354, cE: 82, cN: 357, group: 'Bococizumab vs comparator in Hyperlipidemia (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7216,7 +7216,7 @@ const ContinuousMDEngine = {
                 'NCT02458287': {
 
 
-                    name: 'SPIRE-AI', pmid: '', phase: 'III', year: 2017, tE: 98, tN: 50, cE: 97, cN: 100, group: 'Bococizumab vs comparator in Hyperlipidemia (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'SPIRE-AI', pmid: '28304227', phase: 'III', year: 2017, tE: 98, tN: 50, cE: 97, cN: 100, group: 'Bococizumab vs comparator in Hyperlipidemia (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7245,7 +7245,7 @@ const ContinuousMDEngine = {
                 'NCT02135029': {
 
 
-                    name: 'SPIRE-SI', pmid: '', phase: 'III', year: 2023, tE: 1, tN: 73, cE: 71, cN: 74, group: 'Bococizumab vs comparator in Hyperlipidemia (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'SPIRE-SI', pmid: '28304227', phase: 'III', year: 2023, tE: 1, tN: 73, cE: 71, cN: 74, group: 'Bococizumab vs comparator in Hyperlipidemia (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -16809,7 +16809,7 @@ const ContinuousMDEngine = {
                                 <span class="${srcColor} text-white text-[7px] font-bold px-2 py-0.5 rounded-full uppercase">${escapeHtml(srcLabel)}</span>
 
 
-                                <span class="font-mono text-[9px] text-slate-500 font-bold">${t.data?.ctgovUrl ? `<a href="${escapeHtml(t.data.ctgovUrl)}" target="_blank" rel="noopener" class="underline decoration-dotted hover:text-blue-400" title="Open CT.gov record (verify extraction against source)" onclick="event.stopPropagation();">${escapeHtml(t.id.length > 20 ? t.id.slice(0, 20) + '...' : t.id)} ↗</a>` : escapeHtml(t.id.length > 20 ? t.id.slice(0, 20) + '...' : t.id)}</span>
+                                <span class="font-mono text-[9px] text-slate-500 font-bold">${(function(){var u = t.data && t.data.ctgovUrl ? t.data.ctgovUrl : (typeof t.id === 'string' && /^NCT\d{7,8}/.test(t.id) ? 'https://clinicaltrials.gov/study/' + t.id.match(/^NCT\d{7,8}/)[0] : null);var label = escapeHtml(t.id && t.id.length > 20 ? t.id.slice(0, 20) + '...' : (t.id || ''));return u ? '<a href="' + escapeHtml(u) + '" target="_blank" rel="noopener" class="underline decoration-dotted hover:text-blue-400" title="Open CT.gov record (verify extraction against source)" onclick="event.stopPropagation();">' + label + ' ↗</a>' : label;})()}</span>
 
 
                                 ${scoreChip}

@@ -7129,7 +7129,7 @@ const ContinuousMDEngine = {
                 'NCT02307513': {
 
 
-                    name: 'NCT02307513', pmid: '', phase: 'III', year: 2023, tE: 74, tN: 103, cE: 82, cN: 104, group: 'Apremilast vs comparator in Behcet (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT02307513', pmid: '31722152', phase: 'III', year: 2023, tE: 74, tN: 103, cE: 82, cN: 104, group: 'Apremilast vs comparator in Behcet (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7158,7 +7158,7 @@ const ContinuousMDEngine = {
                 'NCT00866359': {
 
 
-                    name: 'NCT00866359', pmid: '', phase: 'III', year: 2023, tE: 50, tN: 56, cE: 100, cN: 55, group: 'Apremilast vs comparator in Behcet (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT00866359', pmid: '25875256', phase: 'III', year: 2023, tE: 50, tN: 56, cE: 100, cN: 55, group: 'Apremilast vs comparator in Behcet (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -16722,7 +16722,7 @@ const ContinuousMDEngine = {
                                 <span class="${srcColor} text-white text-[7px] font-bold px-2 py-0.5 rounded-full uppercase">${escapeHtml(srcLabel)}</span>
 
 
-                                <span class="font-mono text-[9px] text-slate-500 font-bold">${t.data?.ctgovUrl ? `<a href="${escapeHtml(t.data.ctgovUrl)}" target="_blank" rel="noopener" class="underline decoration-dotted hover:text-blue-400" title="Open CT.gov record (verify extraction against source)" onclick="event.stopPropagation();">${escapeHtml(t.id.length > 20 ? t.id.slice(0, 20) + '...' : t.id)} ↗</a>` : escapeHtml(t.id.length > 20 ? t.id.slice(0, 20) + '...' : t.id)}</span>
+                                <span class="font-mono text-[9px] text-slate-500 font-bold">${(function(){var u = t.data && t.data.ctgovUrl ? t.data.ctgovUrl : (typeof t.id === 'string' && /^NCT\d{7,8}/.test(t.id) ? 'https://clinicaltrials.gov/study/' + t.id.match(/^NCT\d{7,8}/)[0] : null);var label = escapeHtml(t.id && t.id.length > 20 ? t.id.slice(0, 20) + '...' : (t.id || ''));return u ? '<a href="' + escapeHtml(u) + '" target="_blank" rel="noopener" class="underline decoration-dotted hover:text-blue-400" title="Open CT.gov record (verify extraction against source)" onclick="event.stopPropagation();">' + label + ' ↗</a>' : label;})()}</span>
 
 
                                 ${scoreChip}

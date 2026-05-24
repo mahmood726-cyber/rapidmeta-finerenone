@@ -7129,7 +7129,7 @@ const ContinuousMDEngine = {
                 'NCT00313300': {
 
 
-                    name: 'NCT00313300', pmid: '', phase: 'III', year: 2009, tE: 3, tN: 611, cE: 5, cN: 317, group: 'Apixaban vs comparator in Acute Coronary (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT00313300', pmid: '19470889', phase: 'III', year: 2009, tE: 3, tN: 611, cE: 5, cN: 317, group: 'Apixaban vs comparator in Acute Coronary (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7158,7 +7158,7 @@ const ContinuousMDEngine = {
                 'NCT00831441': {
 
 
-                    name: 'APPRAISE-2', pmid: '', phase: 'III', year: 2019, tE: 13, tN: 3687, cE: 13, cN: 3705, group: 'Apixaban vs comparator in Acute Coronary (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'APPRAISE-2', pmid: '21780946', phase: 'III', year: 2019, tE: 13, tN: 3687, cE: 13, cN: 3705, group: 'Apixaban vs comparator in Acute Coronary (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7187,7 +7187,7 @@ const ContinuousMDEngine = {
                 'NCT00852397': {
 
 
-                    name: 'NCT00852397', pmid: '', phase: 'III', year: 2013, tE: 0, tN: 52, cE: 44, cN: 49, group: 'Apixaban vs comparator in Acute Coronary (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT00852397', pmid: '23748920', phase: 'III', year: 2013, tE: 0, tN: 52, cE: 44, cN: 49, group: 'Apixaban vs comparator in Acute Coronary (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7216,7 +7216,7 @@ const ContinuousMDEngine = {
                 'NCT02415400': {
 
 
-                    name: 'NCT02415400', pmid: '', phase: 'III', year: 2025, tE: 24, tN: 1153, cE: 35, cN: 1153, group: 'Apixaban vs comparator in Acute Coronary (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT02415400', pmid: '29898844', phase: 'III', year: 2025, tE: 24, tN: 1153, cE: 35, cN: 1153, group: 'Apixaban vs comparator in Acute Coronary (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -16780,7 +16780,7 @@ const ContinuousMDEngine = {
                                 <span class="${srcColor} text-white text-[7px] font-bold px-2 py-0.5 rounded-full uppercase">${escapeHtml(srcLabel)}</span>
 
 
-                                <span class="font-mono text-[9px] text-slate-500 font-bold">${t.data?.ctgovUrl ? `<a href="${escapeHtml(t.data.ctgovUrl)}" target="_blank" rel="noopener" class="underline decoration-dotted hover:text-blue-400" title="Open CT.gov record (verify extraction against source)" onclick="event.stopPropagation();">${escapeHtml(t.id.length > 20 ? t.id.slice(0, 20) + '...' : t.id)} ↗</a>` : escapeHtml(t.id.length > 20 ? t.id.slice(0, 20) + '...' : t.id)}</span>
+                                <span class="font-mono text-[9px] text-slate-500 font-bold">${(function(){var u = t.data && t.data.ctgovUrl ? t.data.ctgovUrl : (typeof t.id === 'string' && /^NCT\d{7,8}/.test(t.id) ? 'https://clinicaltrials.gov/study/' + t.id.match(/^NCT\d{7,8}/)[0] : null);var label = escapeHtml(t.id && t.id.length > 20 ? t.id.slice(0, 20) + '...' : (t.id || ''));return u ? '<a href="' + escapeHtml(u) + '" target="_blank" rel="noopener" class="underline decoration-dotted hover:text-blue-400" title="Open CT.gov record (verify extraction against source)" onclick="event.stopPropagation();">' + label + ' ↗</a>' : label;})()}</span>
 
 
                                 ${scoreChip}

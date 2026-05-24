@@ -7129,7 +7129,7 @@ const ContinuousMDEngine = {
                 'NCT02356562': {
 
 
-                    name: 'NCT02356562', pmid: '', phase: 'III', year: 2016, tE: 95, tN: 22, cE: 14, cN: 7, group: 'Dasabuvir vs comparator in Chronic Hepatitis C Infection (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT02356562', pmid: '26596948', phase: 'III', year: 2016, tE: 95, tN: 22, cE: 14, cN: 7, group: 'Dasabuvir vs comparator in Chronic Hepatitis C Infection (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7158,7 +7158,7 @@ const ContinuousMDEngine = {
                 'NCT01782495': {
 
 
-                    name: 'CORAL-I', pmid: '', phase: 'III', year: 2014, tE: 97, tN: 34, cE: 96, cN: 27, group: 'Dasabuvir vs comparator in Chronic Hepatitis C Infection (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'CORAL-I', pmid: '25386767', phase: 'III', year: 2014, tE: 97, tN: 34, cE: 96, cN: 27, group: 'Dasabuvir vs comparator in Chronic Hepatitis C Infection (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7187,7 +7187,7 @@ const ContinuousMDEngine = {
                 'NCT02486406': {
 
 
-                    name: 'ZIRCON', pmid: '', phase: 'III', year: 2020, tE: 98, tN: 12, cE: 80, cN: 26, group: 'Dasabuvir vs comparator in Chronic Hepatitis C Infection (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'ZIRCON', pmid: '32451952', phase: 'III', year: 2020, tE: 98, tN: 12, cE: 80, cN: 26, group: 'Dasabuvir vs comparator in Chronic Hepatitis C Infection (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -16751,7 +16751,7 @@ const ContinuousMDEngine = {
                                 <span class="${srcColor} text-white text-[7px] font-bold px-2 py-0.5 rounded-full uppercase">${escapeHtml(srcLabel)}</span>
 
 
-                                <span class="font-mono text-[9px] text-slate-500 font-bold">${t.data?.ctgovUrl ? `<a href="${escapeHtml(t.data.ctgovUrl)}" target="_blank" rel="noopener" class="underline decoration-dotted hover:text-blue-400" title="Open CT.gov record (verify extraction against source)" onclick="event.stopPropagation();">${escapeHtml(t.id.length > 20 ? t.id.slice(0, 20) + '...' : t.id)} ↗</a>` : escapeHtml(t.id.length > 20 ? t.id.slice(0, 20) + '...' : t.id)}</span>
+                                <span class="font-mono text-[9px] text-slate-500 font-bold">${(function(){var u = t.data && t.data.ctgovUrl ? t.data.ctgovUrl : (typeof t.id === 'string' && /^NCT\d{7,8}/.test(t.id) ? 'https://clinicaltrials.gov/study/' + t.id.match(/^NCT\d{7,8}/)[0] : null);var label = escapeHtml(t.id && t.id.length > 20 ? t.id.slice(0, 20) + '...' : (t.id || ''));return u ? '<a href="' + escapeHtml(u) + '" target="_blank" rel="noopener" class="underline decoration-dotted hover:text-blue-400" title="Open CT.gov record (verify extraction against source)" onclick="event.stopPropagation();">' + label + ' ↗</a>' : label;})()}</span>
 
 
                                 ${scoreChip}

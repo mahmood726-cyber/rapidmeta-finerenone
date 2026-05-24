@@ -7129,7 +7129,7 @@ const ContinuousMDEngine = {
                 'NCT02220725': {
 
 
-                    name: 'NCT02220725', pmid: '', phase: 'III', year: 2015, tE: 1, tN: 14, cE: 26, cN: 27, group: 'Andexanet vs comparator in Bleeding (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT02220725', pmid: '26559317', phase: 'III', year: 2015, tE: 1, tN: 14, cE: 26, cN: 27, group: 'Andexanet vs comparator in Bleeding (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7158,7 +7158,7 @@ const ContinuousMDEngine = {
                 'NCT02207725': {
 
 
-                    name: 'NCT02207725', pmid: '', phase: 'III', year: 2015, tE: 0, tN: 9, cE: 24, cN: 24, group: 'Andexanet vs comparator in Bleeding (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT02207725', pmid: '26559317', phase: 'III', year: 2015, tE: 0, tN: 9, cE: 24, cN: 24, group: 'Andexanet vs comparator in Bleeding (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7187,7 +7187,7 @@ const ContinuousMDEngine = {
                 'NCT02329327': {
 
 
-                    name: 'NCT02329327', pmid: '', phase: 'III', year: 2019, tE: 2, tN: 477, cE: 13, cN: 2, group: 'Andexanet vs comparator in Bleeding (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT02329327', pmid: '27573206', phase: 'III', year: 2019, tE: 2, tN: 477, cE: 13, cN: 2, group: 'Andexanet vs comparator in Bleeding (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -16751,7 +16751,7 @@ const ContinuousMDEngine = {
                                 <span class="${srcColor} text-white text-[7px] font-bold px-2 py-0.5 rounded-full uppercase">${escapeHtml(srcLabel)}</span>
 
 
-                                <span class="font-mono text-[9px] text-slate-500 font-bold">${t.data?.ctgovUrl ? `<a href="${escapeHtml(t.data.ctgovUrl)}" target="_blank" rel="noopener" class="underline decoration-dotted hover:text-blue-400" title="Open CT.gov record (verify extraction against source)" onclick="event.stopPropagation();">${escapeHtml(t.id.length > 20 ? t.id.slice(0, 20) + '...' : t.id)} ↗</a>` : escapeHtml(t.id.length > 20 ? t.id.slice(0, 20) + '...' : t.id)}</span>
+                                <span class="font-mono text-[9px] text-slate-500 font-bold">${(function(){var u = t.data && t.data.ctgovUrl ? t.data.ctgovUrl : (typeof t.id === 'string' && /^NCT\d{7,8}/.test(t.id) ? 'https://clinicaltrials.gov/study/' + t.id.match(/^NCT\d{7,8}/)[0] : null);var label = escapeHtml(t.id && t.id.length > 20 ? t.id.slice(0, 20) + '...' : (t.id || ''));return u ? '<a href="' + escapeHtml(u) + '" target="_blank" rel="noopener" class="underline decoration-dotted hover:text-blue-400" title="Open CT.gov record (verify extraction against source)" onclick="event.stopPropagation();">' + label + ' ↗</a>' : label;})()}</span>
 
 
                                 ${scoreChip}

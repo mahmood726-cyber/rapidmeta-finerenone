@@ -7158,7 +7158,7 @@ const ContinuousMDEngine = {
                 'NCT02466958': {
 
 
-                    name: 'LMIL', pmid: '', phase: 'III', year: 2020, tE: null, tN: 17, cE: null, cN: 12, group: 'Levomilnacipran vs comparator in Depress (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'LMIL', pmid: '31332902', phase: 'III', year: 2020, tE: null, tN: 17, cE: null, cN: 12, group: 'Levomilnacipran vs comparator in Depress (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7187,7 +7187,7 @@ const ContinuousMDEngine = {
                 'NCT03569475': {
 
 
-                    name: 'NCT03569475', pmid: '', phase: 'III', year: 2024, tE: null, tN: 160, cE: null, cN: 166, group: 'Levomilnacipran vs comparator in Depress (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT03569475', pmid: '38700708', phase: 'III', year: 2024, tE: null, tN: 160, cE: null, cN: 166, group: 'Levomilnacipran vs comparator in Depress (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7216,7 +7216,7 @@ const ContinuousMDEngine = {
                 'NCT01034462': {
 
 
-                    name: 'NCT01034462', pmid: '', phase: 'III', year: 2017, tE: null, tN: 217, cE: null, cN: 217, group: 'Levomilnacipran vs comparator in Depress (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT01034462', pmid: '24172209', phase: 'III', year: 2017, tE: null, tN: 217, cE: null, cN: 217, group: 'Levomilnacipran vs comparator in Depress (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7245,7 +7245,7 @@ const ContinuousMDEngine = {
                 'NCT00969150': {
 
 
-                    name: 'NCT00969150', pmid: '', phase: 'III', year: 2014, tE: null, tN: 182, cE: null, cN: 175, group: 'Levomilnacipran vs comparator in Depress (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT00969150', pmid: '26644957', phase: 'III', year: 2014, tE: null, tN: 182, cE: null, cN: 175, group: 'Levomilnacipran vs comparator in Depress (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7274,7 +7274,7 @@ const ContinuousMDEngine = {
                 'NCT00969709': {
 
 
-                    name: 'NCT00969709', pmid: '', phase: 'III', year: 2015, tE: null, tN: 176, cE: null, cN: 178, group: 'Levomilnacipran vs comparator in Depress (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT00969709', pmid: '23561229', phase: 'III', year: 2015, tE: null, tN: 176, cE: null, cN: 178, group: 'Levomilnacipran vs comparator in Depress (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -16838,7 +16838,7 @@ const ContinuousMDEngine = {
                                 <span class="${srcColor} text-white text-[7px] font-bold px-2 py-0.5 rounded-full uppercase">${escapeHtml(srcLabel)}</span>
 
 
-                                <span class="font-mono text-[9px] text-slate-500 font-bold">${t.data?.ctgovUrl ? `<a href="${escapeHtml(t.data.ctgovUrl)}" target="_blank" rel="noopener" class="underline decoration-dotted hover:text-blue-400" title="Open CT.gov record (verify extraction against source)" onclick="event.stopPropagation();">${escapeHtml(t.id.length > 20 ? t.id.slice(0, 20) + '...' : t.id)} ↗</a>` : escapeHtml(t.id.length > 20 ? t.id.slice(0, 20) + '...' : t.id)}</span>
+                                <span class="font-mono text-[9px] text-slate-500 font-bold">${(function(){var u = t.data && t.data.ctgovUrl ? t.data.ctgovUrl : (typeof t.id === 'string' && /^NCT\d{7,8}/.test(t.id) ? 'https://clinicaltrials.gov/study/' + t.id.match(/^NCT\d{7,8}/)[0] : null);var label = escapeHtml(t.id && t.id.length > 20 ? t.id.slice(0, 20) + '...' : (t.id || ''));return u ? '<a href="' + escapeHtml(u) + '" target="_blank" rel="noopener" class="underline decoration-dotted hover:text-blue-400" title="Open CT.gov record (verify extraction against source)" onclick="event.stopPropagation();">' + label + ' ↗</a>' : label;})()}</span>
 
 
                                 ${scoreChip}

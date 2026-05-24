@@ -7129,7 +7129,7 @@ const ContinuousMDEngine = {
                 'NCT03367403': {
 
 
-                    name: 'NCT03367403', pmid: '', phase: 'III', year: 2026, tE: null, tN: 131, cE: null, cN: 126, group: 'Donanemab vs comparator in Alzheimer (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT03367403', pmid: '33720637', phase: 'III', year: 2026, tE: null, tN: 131, cE: null, cN: 126, group: 'Donanemab vs comparator in Alzheimer (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7158,7 +7158,7 @@ const ContinuousMDEngine = {
                 'NCT05108922': {
 
 
-                    name: 'NCT05108922', pmid: '', phase: 'III', year: 2026, tE: 3, tN: 69, cE: 72, cN: 71, group: 'Donanemab vs comparator in Alzheimer (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT05108922', pmid: '40390253', phase: 'III', year: 2026, tE: 3, tN: 69, cE: 72, cN: 71, group: 'Donanemab vs comparator in Alzheimer (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7187,7 +7187,7 @@ const ContinuousMDEngine = {
                 'NCT05738486': {
 
 
-                    name: 'NCT05738486', pmid: '', phase: 'III', year: 2025, tE: 23, tN: 207, cE: 18, cN: 210, group: 'Donanemab vs comparator in Alzheimer (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT05738486', pmid: '40619285', phase: 'III', year: 2025, tE: 23, tN: 207, cE: 18, cN: 210, group: 'Donanemab vs comparator in Alzheimer (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7216,7 +7216,7 @@ const ContinuousMDEngine = {
                 'NCT04437511': {
 
 
-                    name: 'NCT04437511', pmid: '', phase: 'III', year: 2026, tE: 693, tN: 860, cE: 48, cN: 876, group: 'Donanemab vs comparator in Alzheimer (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT04437511', pmid: '36934371', phase: 'III', year: 2026, tE: 693, tN: 860, cE: 48, cN: 876, group: 'Donanemab vs comparator in Alzheimer (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -16780,7 +16780,7 @@ const ContinuousMDEngine = {
                                 <span class="${srcColor} text-white text-[7px] font-bold px-2 py-0.5 rounded-full uppercase">${escapeHtml(srcLabel)}</span>
 
 
-                                <span class="font-mono text-[9px] text-slate-500 font-bold">${t.data?.ctgovUrl ? `<a href="${escapeHtml(t.data.ctgovUrl)}" target="_blank" rel="noopener" class="underline decoration-dotted hover:text-blue-400" title="Open CT.gov record (verify extraction against source)" onclick="event.stopPropagation();">${escapeHtml(t.id.length > 20 ? t.id.slice(0, 20) + '...' : t.id)} ↗</a>` : escapeHtml(t.id.length > 20 ? t.id.slice(0, 20) + '...' : t.id)}</span>
+                                <span class="font-mono text-[9px] text-slate-500 font-bold">${(function(){var u = t.data && t.data.ctgovUrl ? t.data.ctgovUrl : (typeof t.id === 'string' && /^NCT\d{7,8}/.test(t.id) ? 'https://clinicaltrials.gov/study/' + t.id.match(/^NCT\d{7,8}/)[0] : null);var label = escapeHtml(t.id && t.id.length > 20 ? t.id.slice(0, 20) + '...' : (t.id || ''));return u ? '<a href="' + escapeHtml(u) + '" target="_blank" rel="noopener" class="underline decoration-dotted hover:text-blue-400" title="Open CT.gov record (verify extraction against source)" onclick="event.stopPropagation();">' + label + ' ↗</a>' : label;})()}</span>
 
 
                                 ${scoreChip}

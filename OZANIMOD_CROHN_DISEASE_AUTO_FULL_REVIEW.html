@@ -7129,7 +7129,7 @@ const ContinuousMDEngine = {
                 'NCT03440385': {
 
 
-                    name: 'NCT03440385', pmid: '', phase: 'III', year: 2022, tE: 29, tN: 403, cE: 30, cN: 203, group: 'Ozanimod vs comparator in Crohn Disease (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT03440385', pmid: '36208720', phase: 'III', year: 2022, tE: 29, tN: 403, cE: 30, cN: 203, group: 'Ozanimod vs comparator in Crohn Disease (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7158,7 +7158,7 @@ const ContinuousMDEngine = {
                 'NCT03467958': {
 
 
-                    name: 'NCT03467958', pmid: '', phase: 'III', year: 2022, tE: 22, tN: 179, cE: 58, cN: 329, group: 'Ozanimod vs comparator in Crohn Disease (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT03467958', pmid: '36208720', phase: 'III', year: 2022, tE: 22, tN: 179, cE: 58, cN: 329, group: 'Ozanimod vs comparator in Crohn Disease (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7187,7 +7187,7 @@ const ContinuousMDEngine = {
                 'NCT03464097': {
 
 
-                    name: 'NCT03464097', pmid: '', phase: 'III', year: 2022, tE: 44, tN: 188, cE: 33, cN: 188, group: 'Ozanimod vs comparator in Crohn Disease (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT03464097', pmid: '36208720', phase: 'III', year: 2022, tE: 44, tN: 188, cE: 33, cN: 188, group: 'Ozanimod vs comparator in Crohn Disease (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7216,7 +7216,7 @@ const ContinuousMDEngine = {
                 'NCT03440372': {
 
 
-                    name: 'NCT03440372', pmid: '', phase: 'III', year: 2022, tE: 31, tN: 417, cE: 2, cN: 208, group: 'Ozanimod vs comparator in Crohn Disease (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT03440372', pmid: '36208720', phase: 'III', year: 2022, tE: 31, tN: 417, cE: 2, cN: 208, group: 'Ozanimod vs comparator in Crohn Disease (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -16780,7 +16780,7 @@ const ContinuousMDEngine = {
                                 <span class="${srcColor} text-white text-[7px] font-bold px-2 py-0.5 rounded-full uppercase">${escapeHtml(srcLabel)}</span>
 
 
-                                <span class="font-mono text-[9px] text-slate-500 font-bold">${t.data?.ctgovUrl ? `<a href="${escapeHtml(t.data.ctgovUrl)}" target="_blank" rel="noopener" class="underline decoration-dotted hover:text-blue-400" title="Open CT.gov record (verify extraction against source)" onclick="event.stopPropagation();">${escapeHtml(t.id.length > 20 ? t.id.slice(0, 20) + '...' : t.id)} ↗</a>` : escapeHtml(t.id.length > 20 ? t.id.slice(0, 20) + '...' : t.id)}</span>
+                                <span class="font-mono text-[9px] text-slate-500 font-bold">${(function(){var u = t.data && t.data.ctgovUrl ? t.data.ctgovUrl : (typeof t.id === 'string' && /^NCT\d{7,8}/.test(t.id) ? 'https://clinicaltrials.gov/study/' + t.id.match(/^NCT\d{7,8}/)[0] : null);var label = escapeHtml(t.id && t.id.length > 20 ? t.id.slice(0, 20) + '...' : (t.id || ''));return u ? '<a href="' + escapeHtml(u) + '" target="_blank" rel="noopener" class="underline decoration-dotted hover:text-blue-400" title="Open CT.gov record (verify extraction against source)" onclick="event.stopPropagation();">' + label + ' ↗</a>' : label;})()}</span>
 
 
                                 ${scoreChip}

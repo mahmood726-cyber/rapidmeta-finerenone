@@ -7129,7 +7129,7 @@ const ContinuousMDEngine = {
                 'NCT04626297': {
 
 
-                    name: 'NCT04626297', pmid: '', phase: 'III', year: 2024, tE: 18, tN: 127, cE: 73, cN: 127, group: 'Lebrikizumab vs comparator in Atopic Dermatitis (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT04626297', pmid: '39009804', phase: 'III', year: 2024, tE: 18, tN: 127, cE: 73, cN: 127, group: 'Lebrikizumab vs comparator in Atopic Dermatitis (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7158,7 +7158,7 @@ const ContinuousMDEngine = {
                 'NCT04392154': {
 
 
-                    name: 'ADjoin', pmid: '', phase: 'III', year: 2025, tE: 2, tN: 141, cE: 4, cN: 1012, group: 'Lebrikizumab vs comparator in Atopic Dermatitis (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'ADjoin', pmid: '40549127', phase: 'III', year: 2025, tE: 2, tN: 141, cE: 4, cN: 1012, group: 'Lebrikizumab vs comparator in Atopic Dermatitis (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -7187,7 +7187,7 @@ const ContinuousMDEngine = {
                 'NCT03443024': {
 
 
-                    name: 'NCT03443024', pmid: '', phase: 'III', year: 2024, tE: 41, tN: 73, cE: 56, cN: 80, group: 'Lebrikizumab vs comparator in Atopic Dermatitis (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
+                    name: 'NCT03443024', pmid: '32101256', phase: 'III', year: 2024, tE: 41, tN: 73, cE: 56, cN: 80, group: 'Lebrikizumab vs comparator in Atopic Dermatitis (AACT-verified primary)', publishedHR: null, hrLCI: null, hrUCI: null, pubHR: null, pubHR_LCI: null, pubHR_UCI: null,
 
 
                     allOutcomes: [
@@ -16751,7 +16751,7 @@ const ContinuousMDEngine = {
                                 <span class="${srcColor} text-white text-[7px] font-bold px-2 py-0.5 rounded-full uppercase">${escapeHtml(srcLabel)}</span>
 
 
-                                <span class="font-mono text-[9px] text-slate-500 font-bold">${t.data?.ctgovUrl ? `<a href="${escapeHtml(t.data.ctgovUrl)}" target="_blank" rel="noopener" class="underline decoration-dotted hover:text-blue-400" title="Open CT.gov record (verify extraction against source)" onclick="event.stopPropagation();">${escapeHtml(t.id.length > 20 ? t.id.slice(0, 20) + '...' : t.id)} ↗</a>` : escapeHtml(t.id.length > 20 ? t.id.slice(0, 20) + '...' : t.id)}</span>
+                                <span class="font-mono text-[9px] text-slate-500 font-bold">${(function(){var u = t.data && t.data.ctgovUrl ? t.data.ctgovUrl : (typeof t.id === 'string' && /^NCT\d{7,8}/.test(t.id) ? 'https://clinicaltrials.gov/study/' + t.id.match(/^NCT\d{7,8}/)[0] : null);var label = escapeHtml(t.id && t.id.length > 20 ? t.id.slice(0, 20) + '...' : (t.id || ''));return u ? '<a href="' + escapeHtml(u) + '" target="_blank" rel="noopener" class="underline decoration-dotted hover:text-blue-400" title="Open CT.gov record (verify extraction against source)" onclick="event.stopPropagation();">' + label + ' ↗</a>' : label;})()}</span>
 
 
                                 ${scoreChip}
