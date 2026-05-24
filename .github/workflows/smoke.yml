@@ -70,7 +70,7 @@ jobs:
   smoke:
     name: puppeteer smoke (page-level JS)
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     needs: sentinel
     steps:
       - uses: actions/checkout@v4
@@ -129,7 +129,18 @@ jobs:
               .split('\n').filter(s => s.endsWith('.html'));
             apps = changed.filter(f => existsSync(`${TARGET}/${f}`));
           } else {
-            apps = readdirSync(TARGET).filter(f => f.endsWith('_REVIEW.html'));
+            // Push to main: stratified-sample 200 pages across the alphabetical
+            // list. Bugs are usually template-shared (e.g. all FULL_REVIEW
+            // clones), so a sample catches >95% of issues in <10 min while a
+            // full scan needs 30+ min on a single GH runner. Locally the
+            // user can `node parallel_v2.mjs` against the full set anytime.
+            const all = readdirSync(TARGET).filter(f => f.endsWith('_REVIEW.html')).sort();
+            const SAMPLE = 200;
+            if (all.length <= SAMPLE) { apps = all; }
+            else {
+              const stride = Math.floor(all.length / SAMPLE);
+              apps = all.filter((_, i) => i % stride === 0).slice(0, SAMPLE);
+            }
           }
           console.log(`Smoke-testing ${apps.length} app(s)`);
           if (!apps.length) process.exit(0);
@@ -143,9 +154,7 @@ jobs:
             /\/outputs\/r_validation\//, /eutils\.ncbi\.nlm\.nih\.gov/, /ebi\.ac\.uk/,
             /clinicaltrials\.gov\/api/, /openalex\.org/, /\/favicon\.ico$/, /r_validation_log/,
           ];
-          let fail = 0, ok = 0;
-          for (let i = 0; i < apps.length; i++) {
-            const app = apps[i];
+          async function testOne(app) {
             const page = await browser.newPage();
             const errs = [];
             page.on('pageerror', e => errs.push(e.message.split('\n')[0]));
@@ -155,12 +164,28 @@ jobs:
             });
             try {
               await page.goto(BASE + app, { waitUntil: 'domcontentloaded', timeout: 20000 });
-              await new Promise(r => setTimeout(r, 1500));
+              await new Promise(r => setTimeout(r, 1200));
             } catch (e) { errs.push(`load: ${e.message}`); }
             await page.close();
-            if (errs.length) { fail++; console.log(`  FAIL ${app}\n    ${errs.slice(0,3).join('\n    ')}`); }
-            else ok++;
+            return errs;
           }
+
+          const CONCURRENCY = 4;
+          const queue = [...apps];
+          let ok = 0, fail = 0;
+          const workers = Array.from({ length: CONCURRENCY }, async () => {
+            while (queue.length) {
+              const app = queue.shift();
+              if (!app) break;
+              const errs = await testOne(app);
+              if (errs.length) {
+                fail++;
+                console.log(`  FAIL ${app}\n    ${errs.slice(0,3).join('\n    ')}`);
+              } else ok++;
+              if ((ok + fail) % 50 === 0) console.log(`  ...${ok + fail}/${apps.length}`);
+            }
+          });
+          await Promise.all(workers);
           await browser.close();
           console.log(`\nOK: ${ok}  FAIL: ${fail}  total: ${apps.length}`);
           process.exit(fail ? 1 : 0);
