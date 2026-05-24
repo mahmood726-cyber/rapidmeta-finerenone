@@ -86,12 +86,18 @@ def build_outcomes_js(outcomes):
         parts = [f"shortLabel: {js_val(o.get('shortLabel'))}",
                  f"title: {js_val(o.get('title'))}"]
         if o.get('tE') is not None:
-            parts.append(f"tE: {o['tE']}")
+            parts.append(f"tE: {js_val(o['tE'])}")
         if o.get('cE') is not None:
-            parts.append(f"cE: {o['cE']}")
+            parts.append(f"cE: {js_val(o['cE'])}")
         parts.append(f"type: {js_val(o.get('type', 'PRIMARY'))}")
         if o.get('pubHR') is not None:
-            parts.extend([f"pubHR: {o['pubHR']}", f"pubHR_LCI: {o.get('pubHR_LCI')}", f"pubHR_UCI: {o.get('pubHR_UCI')}"])
+            # 2026-05-24: wrap LCI/UCI in js_val() so a missing key becomes
+            # JS `null` instead of leaking Python's literal `None` into JS.
+            parts.extend([
+                f"pubHR: {js_val(o['pubHR'])}",
+                f"pubHR_LCI: {js_val(o.get('pubHR_LCI'))}",
+                f"pubHR_UCI: {js_val(o.get('pubHR_UCI'))}",
+            ])
         entries.append('{ ' + ', '.join(parts) + ' }')
     return '[\n                        ' + ',\n                        '.join(entries) + '\n                    ]'
 
@@ -100,10 +106,30 @@ def build_trial_js(nct_id, trial):
     """Build JS object literal for a single trial in realData."""
     lines = []
     lines.append(f"                '{nct_id}': {{")
-    lines.append(f"                    name: {js_val(trial['name'])}, phase: {js_val(trial.get('phase', 'III'))}, year: {trial.get('year', 2024)},")
-    lines.append(f"                    tE: {trial.get('tE', 0)}, tN: {trial.get('tN', 0)}, cE: {trial.get('cE', 0)}, cN: {trial.get('cN', 0)}, group: {js_val(trial.get('group', '--'))},")
+    # 2026-05-24: wrap all field interpolations with js_val() so a None value
+    # (vs. a missing key) becomes JS `null` instead of leaking Python's `None`.
+    lines.append(
+        f"                    name: {js_val(trial['name'])}, "
+        f"phase: {js_val(trial.get('phase', 'III'))}, "
+        f"year: {js_val(trial.get('year', 2024))},"
+    )
+    lines.append(
+        f"                    tE: {js_val(trial.get('tE', 0))}, "
+        f"tN: {js_val(trial.get('tN', 0))}, "
+        f"cE: {js_val(trial.get('cE', 0))}, "
+        f"cN: {js_val(trial.get('cN', 0))}, "
+        f"group: {js_val(trial.get('group', '--'))},"
+    )
     if trial.get('publishedHR') is not None:
-        lines.append(f"                    publishedHR: {trial['publishedHR']}, hrLCI: {trial.get('hrLCI')}, hrUCI: {trial.get('hrUCI')},")
+        # 2026-05-24: wrap hrLCI/hrUCI in js_val() so missing CI bounds become
+        # JS `null` instead of leaking Python's literal `None` into JS.
+        # This was the root cause of the 1110-file None-leak repair in commit
+        # b54e1ac — without this fix that repair regresses on the next regen.
+        lines.append(
+            f"                    publishedHR: {js_val(trial['publishedHR'])}, "
+            f"hrLCI: {js_val(trial.get('hrLCI'))}, "
+            f"hrUCI: {js_val(trial.get('hrUCI'))},"
+        )
     if trial.get('allOutcomes'):
         lines.append(f"                    allOutcomes: {build_outcomes_js(trial['allOutcomes'])},")
     lines.append(f"                    rob: {js_val(trial.get('rob', ['low','low','low','low','low']))},")
