@@ -21,6 +21,79 @@ TOPICS = HERE / "outputs" / "new_topics"
 CONFIGS = HERE / "scripts" / "configs"
 CONFIGS.mkdir(parents=True, exist_ok=True)
 
+# ----------------------------------------------------------------------------
+# AACT-derived enrichment maps. Built upstream by
+# `scripts/audit_40_checks.py` workflow (or any equivalent NCT loader). Used to
+# (a) inject a verified primary PMID per NCT (prevents the "wrong abstract"
+#     defect produced by the topic_doc.pmid field, which was historically
+#     unverifiable -- see commit 4917069b8); and
+# (b) produce a defensible RoB-2 heuristic from registry design metadata,
+#     replacing the all-'low' stub that previously shipped on every trial.
+# Files may be missing on a fresh clone; we degrade gracefully.
+# ----------------------------------------------------------------------------
+_PMID_PATH = HERE / "outputs" / "pmid_resolver" / "nct_to_pmid.json"
+_DESIGN_PATH = HERE / "outputs" / "pmid_resolver" / "nct_design.json"
+NCT_PMID = json.loads(_PMID_PATH.read_text(encoding="utf-8")) if _PMID_PATH.exists() else {}
+NCT_DESIGN = json.loads(_DESIGN_PATH.read_text(encoding="utf-8")) if _DESIGN_PATH.exists() else {}
+
+
+def _rob_from_aact(nct: str) -> tuple[list[str], str]:
+    """Return (5-domain RoB-2 list, source-attribution string).
+
+    See scripts/enrich_trials_with_aact_design.py for the same logic; we
+    inline it here so a fresh portfolio regeneration produces correctly-coded
+    RoB from the start.
+    """
+    d = NCT_DESIGN.get(nct)
+    if not d:
+        return ["some-concerns"] * 5, "no AACT design record"
+    alloc = d.get("allocation") or ""
+    masking = d.get("masking") or ""
+    assess = (d.get("outcomes_assessor_masked") or "").lower()
+    d1 = "low" if alloc == "RANDOMIZED" else ("high" if alloc == "NON_RANDOMIZED" else "some-concerns")
+    if masking in ("QUADRUPLE", "TRIPLE", "DOUBLE"):
+        d2 = "low"
+    elif masking == "SINGLE":
+        d2 = "some-concerns"
+    elif masking == "NONE":
+        d2 = "high"
+    else:
+        d2 = "some-concerns"
+    d3 = "some-concerns"  # missing data can't be judged from the registry alone
+    if assess == "true" or masking in ("QUADRUPLE", "TRIPLE", "DOUBLE"):
+        d4 = "low"
+    elif masking == "SINGLE":
+        d4 = "some-concerns"
+    elif masking == "NONE":
+        d4 = "high"
+    else:
+        d4 = "some-concerns"
+    d5 = "some-concerns"  # selective-reporting needs cross-check against the publication
+    src = f"AACT designs: alloc={alloc or '∅'}, masking={masking or '∅'}, assessor_masked={assess or '∅'}"
+    return [d1, d2, d3, d4, d5], src
+
+
+def _safe_event_count(raw: int | None, N: int | None) -> int | None:
+    """Sanity-check an AACT-derived event count.
+
+    The upstream `outputs/new_topics/<STEM>.json` files store the AACT
+    outcome_measurements `param_value` cast via `int(float(v))`. That's fine
+    when the value is genuinely a count, but AACT also stores percentages and
+    continuous-outcome values in the same column. We have no `param_type` to
+    discriminate at this layer, so we use a value-vs-N sanity check:
+        raw <= N           -> keep (real count)
+        N < raw <= 100     -> AACT stored a percentage; recover round(raw/100*N)
+        raw > 100          -> not a percentage either; null and the analysis
+                              engine will drop the trial from pooling
+    """
+    if raw is None or N is None or N <= 0:
+        return raw
+    if raw <= N:
+        return raw
+    if 0 < raw <= 100:
+        return round(raw / 100 * N)
+    return None
+
 # A small, stable, simple base — DUPILUMAB_COPD is 1.2 MB with 2-trial pairwise
 # structure. Re-used as the base for audit-first clones; per-topic data
 # replaces all per-trial content via clone_dashboard.py's existing logic.
@@ -81,8 +154,14 @@ def build_config(topic_doc):
                 except: pass
             if len(og_vals) >= 2: break
         ogs = sorted(og_vals.keys())
-        tE = og_vals.get(ogs[0]) if ogs else None
-        cE = og_vals.get(ogs[1]) if len(ogs) > 1 else None
+        tE_raw = og_vals.get(ogs[0]) if ogs else None
+        cE_raw = og_vals.get(ogs[1]) if len(ogs) > 1 else None
+        # Apply the percentage-vs-count sanity check at GENERATION time so the
+        # shipped page never carries impossible counts (tE > tN). This is the
+        # root-cause fix for the bug repaired downstream by
+        # `scripts/fix_event_counts_safe.py` -- see commit 4d8476d5d.
+        tE = _safe_event_count(tE_raw, tN)
+        cE = _safe_event_count(cE_raw, cN)
 
         pub_es = ex.get("published_effect_size")
         pub_t = ex.get("published_effect_type")
@@ -109,18 +188,19 @@ def build_config(topic_doc):
             if tE is not None: outcome_obj["tE"] = tE
             if cE is not None: outcome_obj["cE"] = cE
 
+        # Resolve a verified primary PMID from the AACT study_references map.
+        # Picking the smallest RESULT/DERIVED PMID per NCT yields the trial's
+        # original primary publication (oldest = first to be PubMed-indexed).
+        # The topic_doc.pmid field is corpus-wide unreliable and is NOT used.
+        pmid_info = NCT_PMID.get(nct) or {}
+        pmid_val = pmid_info.get("pmid", "")
+
+        rob5, rob_src = _rob_from_aact(nct)
+
         trial_entry = {
             "nct": nct,
             "name": acr,
-            # PMID intentionally NOT injected: the upstream topic-JSON pmid
-            # field is corpus-wide unverifiable (audit_pmids could validate 0
-            # of 2073; 100% null titles; future-dated; reused across unrelated
-            # topics; concrete cases fabricated e.g. SELECTION->pmid 41569324).
-            # AbstractHydrator is PMID-only and would fetch the WRONG paper's
-            # abstract/authors/link from a bad PMID (the reported defect).
-            # Empty pmid -> hydrator no-ops; the AACT/NCT-based EvidenceHydrator
-            # (verified correct via EuropePMC query=NCT) still enriches.
-            "pmid": "",
+            "pmid": pmid_val,
             "phase": "III",
             "year": ex.get("pubmed_year") or 2024,
             "tE": tE, "tN": tN or 0, "cE": cE, "cN": cN or 0,
@@ -129,7 +209,8 @@ def build_config(topic_doc):
             "hrLCI": pub_lci if pub_t in ("HR","OR","RR","IRR") else None,
             "hrUCI": pub_uci if pub_t in ("HR","OR","RR","IRR") else None,
             "allOutcomes": [outcome_obj],
-            "rob": ["low", "low", "low", "low", "low"],
+            "rob": rob5,
+            "robSource": rob_src,
             "snippet": f"NCT {nct}: {outcome_label}. Source: ClinicalTrials.gov registry (AACT-verified); publication resolved live via NCT.",
             "sourceUrl": f"https://clinicaltrials.gov/study/{nct}",
             "evidence": [],

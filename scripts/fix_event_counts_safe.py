@@ -122,8 +122,8 @@ def patch_file(p: Path) -> tuple[int, int]:
 
 
 def main():
-    targets = sorted(p for p in HERE.glob("*_FULL_REVIEW.html") if p.is_file())
-    print(f"Targets: {len(targets):,} FULL_REVIEW files")
+    targets = sorted(p for p in HERE.glob("*.html") if p.is_file())
+    print(f"Targets: {len(targets):,} HTML files (FULL_REVIEW + REVIEW + AUTO_REVIEW lite)")
     pct_total = null_total = files_changed = 0
     for i, p in enumerate(targets, 1):
         pct, n = patch_file(p)
