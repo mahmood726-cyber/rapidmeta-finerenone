@@ -26367,7 +26367,7 @@
                 const piSE = Math.sqrt(tau2 + pSE * pSE);
 
 
-                const tCritPI = (k >= 3) ? tQuantile(1 - (1 - confLevel) / 2, k - 2) : NaN;
+                const tCritPI = (k >= 3) ? tQuantile(1 - (1 - confLevel) / 2, k - 1) : NaN;
 
 
                 const piLCI = (k >= 3) ? Math.exp(pLogOR - tCritPI * piSE) : NaN;

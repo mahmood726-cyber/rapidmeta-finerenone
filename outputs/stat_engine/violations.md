@@ -1,0 +1,1678 @@
+# Stat-engine violations
+Reference: `FINERENONE_REVIEW.html` (all rules pass).
+Scanned: 427 curated REVIEW files.
+Violating: 396.
+
+## Per-file
+### ABLATION_AF_REVIEW.html
+- `R-RoB-ME-wired`
+
+### ACALABRUTINIB_CLL_REVIEW.html
+- `R-RoB-ME-wired`
+
+### ACORAMIDIS_ATTR_CM_REVIEW.html
+- `R-RoB-ME-wired`
+
+### ACS_ANTIPLATELET_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### ACUTE_HF_DIURESIS_NEW_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### ADC_HER2_ADJUVANT_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### ADC_HER2_LOW_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### ADC_HER2_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### ADHD_NEW_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### ADJUVANT_IO_MELANOMA_REVIEW.html
+- `R-RoB-ME-wired`
+
+### ADJUVANT_IO_PAN_TUMOR_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### AD_PEDIATRIC_BIOLOGIC_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### AFICAMTEN_HCM_REVIEW.html
+- `R-RoB-ME-wired`
+
+### AFLIBERCEPT_HD_REVIEW.html
+- `R-RoB-ME-wired`
+
+### AGYW_HIV_PREP_REVIEW.html
+- `R-RoB-ME-wired`
+
+### ALDO_SYNTHASE_REVIEW.html
+- `R-RoB-ME-wired`
+
+### ALK_NSCLC_REVIEW.html
+- `R-RoB-ME-wired`
+
+### ALOPECIA_JAKI_REVIEW.html
+- `R-RoB-ME-wired`
+
+### ALS_NEW_AGENTS_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### AML_TARGETED_NEW_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### AML_VEN_FLT3_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### ANCA_VASCULITIS_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### ANIFROLUMAB_SLE_REVIEW.html
+- `R-RoB-ME-wired`
+
+### ANTIAMYLOID_AD_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### ANTIAMYLOID_AD_REVIEW.html
+- `R-RoB-ME-wired`
+
+### ANTIFUNGAL_NEWER_RESISTANT_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### ANTIPSYCHOTICS_SCHIZO_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### ANTIVEGF_NAMD_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### ANTI_CD20_MS_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### ANTI_PD1_GASTRIC_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### ANTI_PDL1_BLADDER_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### ANTI_TIGIT_TUMORS_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### ARDS_PRONE_POSITIONING_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### ARNI_HF_REVIEW.html
+- `R-RoB-ME-wired`
+
+### ARPI_NMCRPC_REVIEW.html
+- `R-RoB-ME-wired`
+
+### ARPI_mHSPC_REVIEW.html
+- `R-RoB-ME-wired`
+
+### ATOPIC_DERM_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### ATTR_CM_REVIEW.html
+- `R-RoB-ME-wired`
+
+### ATTR_PN_REVIEW.html
+- `R-RoB-ME-wired`
+
+### AVACINCAPTAD_GA_REVIEW.html
+- `R-RoB-ME-wired`
+
+### AXSPA_BIOLOGICS_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### AZITHROMYCIN_CHILD_MORTALITY_REVIEW.html
+- `R-RoB-ME-wired`
+
+### BARIATRIC_RYGB_VS_SG_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### BELIMUMAB_SLE_REVIEW.html
+- `R-RoB-ME-wired`
+
+### BEMPEDOIC_ACID_REVIEW.html
+- `R-RoB-ME-wired`
+
+### BIMEKIZUMAB_PSORIASIS_REVIEW.html
+- `R-RoB-ME-wired`
+
+### BIOLOGIC_ASTHMA_REVIEW.html
+- `R-RoB-ME-wired`
+
+### BIPOLAR_DEPRESSION_NEW_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### BISPECIFIC_LYMPHOMA_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### BLADDER_NMIBC_NEW_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### BLADDER_UROTHEL_FRONTLINE_IO_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### BPAL_MDRTB_REVIEW.html
+- `R-RoB-ME-wired`
+
+### BPH_PROCEDURAL_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### BRONCHIECTASIS_BROAD_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### BTKI_CLL_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### CABG_VS_PCI_LEFT_MAIN_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### CABOTEGRAVIR_HIV_ART_REVIEW.html
+- `R-RoB-ME-wired`
+
+### CABP_NEW_ABX_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### CAB_PREP_HIV_REVIEW.html
+- `R-RoB-ME-wired`
+
+### CANGRELOR_PCI_REVIEW.html
+- `R-RoB-ME-wired`
+
+### CAPIVASERTIB_BC_REVIEW.html
+- `R-RoB-ME-wired`
+
+### CARBAPENEM_RESISTANT_ABX_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### CARDIAC_CONTRACTILITY_MOD_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### CARDIORENAL_DKD_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### CART_B_CELL_LYMPHOMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### CART_DLBCL_REVIEW.html
+- `R-RoB-ME-wired`
+
+### CART_MM_REVIEW.html
+- `R-RoB-ME-wired`
+
+### CAR_T_LBCL_BROAD_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### CBD_SEIZURE_REVIEW.html
+- `R-RoB-ME-wired`
+
+### CDK46_BREAST_CANCER_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### CDK46_MBC_REVIEW.html
+- `R-RoB-ME-wired`
+
+### CD_BIOLOGICS_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### CERVICAL_CANCER_IO_BROAD_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### CFTR_CF_REVIEW.html
+- `R-RoB-ME-wired`
+
+### CFTR_MODULATORS_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### CGRP_MIGRAINE_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### CGRP_MIGRAINE_PREVENT_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### CGRP_MIGRAINE_REVIEW.html
+- `R-RoB-ME-wired`
+
+### CHECKPOINT_ESOPHAGEAL_SCC_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### CHECKPOINT_MELANOMA_1L_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### CHOLANGIO_TARGETED_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### CHOLERA_OCV_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### CHRONIC_COUGH_REFRACTORY_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### CHRONIC_URTICARIA_BIOLOGICS_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### CML_TFR_TKI_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### CMV_HCT_LETERMOVIR_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### COLCHICINE_CVD_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### COMPLEMENT_C5_BROAD_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### CONGENITAL_ADRENAL_HYPER_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### COPD_BIOLOGICS_BROAD_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### COPD_TRIPLE_REVIEW.html
+- `R-RoB-ME-wired`
+
+### COVID19_HOSPITALIZED_TX_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### COVID19_VACCINES_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### COVID_ORAL_ANTIVIRALS_REVIEW.html
+- `R-RoB-ME-wired`
+
+### CRC_TARGETED_BROAD_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### CRSWNP_BIOLOGIC_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### CRYO_AF_ABLATION_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### CRYPTOCOCCAL_MENINGITIS_AFRICA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### CTEPH_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### DAPT_DE_ESCALATION_PCI_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### DCD_HEART_TRANSPLANT_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### DELANDISTROGENE_DMD_REVIEW.html
+- `R-RoB-ME-wired`
+
+### DENGUE_VACCINE_NEW_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### DEPRESSION_NEW_RAPID_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### DEPRESSION_PSYCHEDELIC_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### DERMATOMYOSITIS_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### DIABETIC_MACULAR_EDEMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### DIABETIC_RETINOPATHY_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### DOAC_AF_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### DOAC_AF_REVIEW.html
+- `R-RoB-ME-wired`
+
+### DOAC_CANCER_VTE_REVIEW.html
+- `R-RoB-ME-wired`
+
+### DOAC_VTE_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### DOLUTEGRAVIR_ART_SSA_REVIEW.html
+- `R-RoB-ME-wired`
+
+### DONANEMAB_AD_SOLO_REVIEW.html
+- `R-RoB-ME-wired`
+
+### DORAVIRINE_HIV_REVIEW.html
+- `R-RoB-ME-wired`
+
+### DRUG_RESISTANT_HTN_NEW_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### DRY_AMD_GA_BROAD_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### DRY_EYE_NEW_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### DUCHENNE_GENE_THERAPY_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### DUPILUMAB_AD_REVIEW.html
+- `R-RoB-ME-wired`
+
+### DUPILUMAB_COPD_REVIEW.html
+- `R-RoB-ME-wired`
+
+### EBOLA_VACCINE_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### ELACESTRANT_BC_REVIEW.html
+- `R-RoB-ME-wired`
+
+### ENDOMETRIAL_IO_PARP_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### ENDOMETRIOSIS_NEW_GNRH_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### ENSIFENTRINE_COPD_REVIEW.html
+- `R-RoB-ME-wired`
+
+### EOE_BIOLOGIC_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### EOSINOPHILIC_DISEASES_BROAD_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### EPILEPSY_NEW_AEDS_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### EPILEPSY_NEW_AGENTS_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### ESKETAMINE_TRD_REVIEW.html
+- `R-RoB-ME-wired`
+
+### ESOPHAGEAL_PERIOP_IO_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### ETRASIMOD_UC_REVIEW.html
+- `R-RoB-ME-wired`
+
+### EVT_BASILAR_REVIEW.html
+- `R-RoB-ME-wired`
+
+### EVT_EXTENDED_WINDOW_REVIEW.html
+- `R-RoB-ME-wired`
+
+### EVT_LARGECORE_REVIEW.html
+- `R-RoB-ME-wired`
+
+### FARICIMAB_NAMD_REVIEW.html
+- `R-RoB-ME-wired`
+
+### FCM_HF_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### FCRN_AGONIST_BROAD_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### FENFLURAMINE_SEIZURE_REVIEW.html
+- `R-RoB-ME-wired`
+
+### FEZOLINETANT_VMS_REVIEW.html
+- `R-RoB-ME-wired`
+
+### FGFR_INHIBITORS_SOLID_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### FINERENONE_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### FRAGILITY_FRACTURE_REVIEW.html
+- `R-RoB-ME-wired`
+
+### GASTRIC_FRONTLINE_IO_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### GENICULAR_RFA_KNEE_OA_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### GERD_PCAB_NEW_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### GLAUCOMA_NEW_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### GLOMERULONEPHRITIS_BIOLOGICS_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### GLP1_CVOT_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### GLP1_CVOT_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### GLP1_MASH_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### GVHD_NEW_AGENTS_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### HAE_PROPHYLAXIS_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### HAP_VAP_NEW_ABX_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### HBV_FUNCTIONAL_CURE_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### HBV_NEW_AGENTS_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### HCC_1L_REVIEW.html
+- `R-RoB-ME-wired`
+
+### HCC_LOCAL_THERAPY_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### HCV_DAA_NEW_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### HEAD_NECK_CRT_NEW_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### HEAD_NECK_IO_BROAD_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### HEMODIALYSIS_AV_ACCESS_DCB_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### HEMOPHILIA_FACTOR_PROPHYLAXIS_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### HEMOPHILIA_GENE_THERAPY_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### HEMOPHILIA_NEW_AGENTS_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### HEPATITIS_B_TAF_TDF_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### HEPATITIS_HCV_DAA_REVIEW.html
+- `R-RoB-ME-wired`
+
+### HEP_D_BULEVIRTIDE_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### HER2_LOW_ADC_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### HFNC_NIV_RESP_FAILURE_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### HF_QUADRUPLE_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### HFpEF_DRUGS_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### HIDRADENITIS_SUPPURATIVA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### HIFPH_CKD_ANEMIA_REVIEW.html
+- `R-RoB-ME-wired`
+
+### HIGH_EFFICACY_MS_REVIEW.html
+- `R-RoB-ME-wired`
+
+### HIPEC_PERITONEAL_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### HIV_ART_FIRSTLINE_REVIEW.html
+- `R-RoB-ME-wired`
+
+### HIV_LA_PREP_REVIEW.html
+- `R-RoB-ME-wired`
+
+### HIV_NEXTGEN_ART_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### HIV_PREP_INJECTABLE_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### HIV_TB_COINFECTION_ART_TIMING_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### HOT_FLASH_NK3R_BROAD_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### HPV_DOSE_REDUCTION_REVIEW.html
+- `R-RoB-ME-wired`
+
+### HPV_VACCINE_SCHEDULES_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### HYDROCORTISONE_SEPTIC_SHOCK_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### HYPERKALEMIA_K_BINDER_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### HYPOFRAC_BREAST_RT_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### HoFH_LIPID_NEW_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### IBD_BIOLOGICS_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### ICH_MIS_HEMATOMA_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### ICU_SEDATION_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### IGAN_TARGETED_BROAD_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### IL23_PSA_REVIEW.html
+- `R-RoB-ME-wired`
+
+### IL23_PSORIASIS_REVIEW.html
+- `R-RoB-ME-wired`
+
+### IL_PSORIASIS_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### INAVOLISIB_BC_REVIEW.html
+- `R-RoB-ME-wired`
+
+### INCLISIRAN_REVIEW.html
+- `R-RoB-ME-wired`
+
+### INCRETINS_T2D_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### INCRETIN_HFpEF_REVIEW.html
+- `R-RoB-ME-wired`
+
+### INSOMNIA_DORA_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### INSULIN_ICODEC_REVIEW.html
+- `R-RoB-ME-wired`
+
+### INTENSIVE_BP_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### INTRAVASCULAR_LITHOTRIPSY_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### IO_CHEMO_NSCLC_1L_REVIEW.html
+- `R-RoB-ME-wired`
+
+### IPF_ANTIFIBROTICS_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### IPTACOPAN_IGAN_REVIEW.html
+- `R-RoB-ME-wired`
+
+### ITP_NEW_AGENTS_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### ITP_NEW_THERAPY_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### IV_IRON_HF_REVIEW.html
+- `R-RoB-ME-wired`
+
+### JAKI_AD_REVIEW.html
+- `R-RoB-ME-wired`
+
+### JAKI_RA_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### JAK_RA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### JAK_UC_REVIEW.html
+- `R-RoB-ME-wired`
+
+### KARXT_SCZ_REVIEW.html
+- `R-RoB-ME-wired`
+
+### KNEE_OA_INTRAARTICULAR_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### KRAS_G12C_REVIEW.html
+- `R-RoB-ME-wired`
+
+### LEBRIKIZUMAB_AD_REVIEW.html
+- `R-RoB-ME-wired`
+
+### LENACAPAVIR_PREP_REVIEW.html
+- `R-RoB-ME-wired`
+
+### LIVER_TRANSPLANT_HCV_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### LUPUS_NEW_BIOLOGICS_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### LU_PSMA_MCRPC_REVIEW.html
+- `R-RoB-ME-wired`
+
+### LYMPHOMA_BISPECIFIC_CD20_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### MALARIA_ACT_REVIEW.html
+- `R-RoB-ME-wired`
+
+### MALARIA_VACCINES_REVIEW.html
+- `R-RoB-ME-wired`
+
+### MALARIA_VACCINE_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### MASH_DRUGS_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### MASTOCYTOSIS_NEW_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### MAVACAMTEN_HCM_REVIEW.html
+- `R-RoB-ME-wired`
+
+### MDRTB_BPAL_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### MDR_TB_SHORTENED_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### MDS_NEW_AGENTS_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### MEDITERRANEAN_DIET_CV_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### MELANOMA_NEOADJUVANT_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### MENTAL_HEALTH_FRIENDSHIP_BENCH_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### MHEALTH_ART_ADHERENCE_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### MIGRAINE_ACUTE_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### MIRIKIZUMAB_UC_REVIEW.html
+- `R-RoB-ME-wired`
+
+### MIS_COLECTOMY_VS_OPEN_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### MIS_GASTRECTOMY_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### MIS_PANCREATIC_WHIPPLE_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### MITAPIVAT_THALASSEMIA_REVIEW.html
+- `R-RoB-ME-wired`
+
+### MITRACLIP_TEER_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### MITRAL_FUNCMR_REVIEW.html
+- `R-RoB-ME-wired`
+
+### MM_1L_DARA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### MM_1L_REVIEW.html
+- `R-RoB-ME-wired`
+
+### MM_BISPECIFIC_BROAD_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### MM_BISPECIFIC_TRISPECIFIC_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### MM_NDMM_QUAD_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### MPOX_VACCINE_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### MR_FUS_TREMOR_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### MS_ANTI_CD20_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### MS_BTKI_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### MS_BTK_INHIB_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### MS_S1P_BROAD_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### MYASTHENIA_GRAVIS_BIOLOGICS_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### MYELOFIBROSIS_NEW_JAKI_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### MYOPIA_PROGRESSION_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### NEOADJUVANT_IO_BREAST_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### NEOADJUVANT_IO_NSCLC_REVIEW.html
+- `R-RoB-ME-wired`
+
+### NEONATAL_NEC_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### NEUROENDOCRINE_PITUITARY_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### NF1_MEKi_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### NICOTINE_CYTISINICLINE_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### NIRSEVIMAB_INFANT_RSV_REVIEW.html
+- `R-RoB-ME-wired`
+
+### NMOSD_BIOLOGICS_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### NORMOTHERMIC_TRANSPLANT_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### NPC_NASOPHARYNGEAL_IO_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### NSCLC_PD1_1L_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### NSCLC_PERIOP_IO_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### NSCLC_TARGETED_RARE_DRIVER_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### OAB_BETA3_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### OBESITY_DRUGS_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### OBESITY_DUAL_TRIPLE_AGONIST_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### OBESITY_ENDOSCOPIC_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### OBESITY_NEXT_GEN_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### OMEGA3_HIGHDOSE_CV_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### OSA_BROAD_NEW_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### OSIMERTINIB_EGFR_NSCLC_REVIEW.html
+- `R-RoB-ME-wired`
+
+### OSTEOPOROSIS_BROAD_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### OUD_NEW_AGENTS_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### OVARIAN_PARP_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### PAH_SOTATERCEPT_BROAD_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### PAH_THERAPY_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### PARKINSON_NEW_AGENTS_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### PARP_ARPI_MCRPC_REVIEW.html
+- `R-RoB-ME-wired`
+
+### PARP_OVARIAN_REVIEW.html
+- `R-RoB-ME-wired`
+
+### PATISIRAN_POLYNEUROPATHY_REVIEW.html
+- `R-RoB-ME-wired`
+
+### PBC_NEW_AGENTS_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### PBC_PPAR_REVIEW.html
+- `R-RoB-ME-wired`
+
+### PCSK9_INHIBITORS_CV_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### PCSK9_LIPID_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### PCSK9_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### PD1_RCC_1L_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### PEDIATRIC_HF_DAPA_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### PEDIATRIC_HIV_ART_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### PEDIATRIC_OBESITY_GLP1_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### PEDIATRIC_PSORIASIS_BIOLOGIC_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### PEGCETACOPLAN_GA_REVIEW.html
+- `R-RoB-ME-wired`
+
+### PERIPHERAL_DCB_PAD_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### PFA_AF_PULSED_FIELD_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### PFIC_CHOLESTATIC_PRURITUS_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### PFO_STROKE_CLOSURE_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### PHYSICAL_REHAB_OLDER_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### PI3K_AKT_BC_REVIEW.html
+- `R-RoB-ME-wired`
+
+### PNEUMONIA_AMOXICILLIN_DURATION_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### PNH_NEW_COMPLEMENT_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### POEM_ACHALASIA_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### POLYCYTHEMIA_VERA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### POSTOP_AKI_PREVENTION_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### POSTPARTUM_HEMORRHAGE_NEW_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### POSTPARTUM_HEMORRHAGE_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### PPH_BUNDLE_REVIEW.html
+- `R-RoB-ME-wired`
+
+### PREGNANCY_IRON_FCM_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### PRESBYOPIA_NEW_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### PRIMAQUINE_GAMETOCYTE_DR_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### PROSTATE_AR_NEXT_GEN_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### PROSTATE_MRI_PSMA_DIAG_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### PROSTATE_PARP_HRR_BROAD_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### PROSTATE_RADIOLIGAND_BROAD_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### PROTON_RADIOTHERAPY_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### PRURIGO_NODULARIS_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### PSA_BIOLOGICS_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### RCC_1L_REVIEW.html
+- `R-RoB-ME-wired`
+
+### RECURRENT_PERICARDITIS_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### RENAL_DENERV_REVIEW.html
+- `R-RoB-ME-wired`
+
+### RESMETIROM_MASH_REVIEW.html
+- `R-RoB-ME-wired`
+
+### RISANKIZUMAB_CD_REVIEW.html
+- `R-RoB-ME-wired`
+
+### RIVAROXABAN_VASC_REVIEW.html
+- `R-RoB-ME-wired`
+
+### RNA_INTERFERENCE_BROAD_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### ROMOSOZUMAB_OP_REVIEW.html
+- `R-RoB-ME-wired`
+
+### ROP_ANTI_VEGF_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### ROTAVIRUS_VACCINE_AFRICA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### RSV_PROPHY_INFANT_BROAD_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### RSV_VACCINE_OLDER_REVIEW.html
+- `R-RoB-ME-wired`
+
+### RUSFERTIDE_PV_REVIEW.html
+- `R-RoB-ME-wired`
+
+### SAM_SIMPLIFIED_PROTOCOL_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### SBRT_OLIGOMETS_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### SBRT_PROSTATE_LOCAL_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### SCD_DISEASE_MOD_REVIEW.html
+- `R-RoB-ME-wired`
+
+### SCD_NEW_THERAPY_BROAD_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### SCHISTOSOMIASIS_ARPRAZIQUANTEL_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### SCLC_IO_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### SEMAGLUTIDE_OBESITY_REVIEW.html
+- `R-RoB-ME-wired`
+
+### SEPSIS_RESUSCITATION_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### SEVERE_ASTHMA_BIOLOGICS_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### SEVERE_ASTHMA_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### SEVERE_PEDIATRIC_FEBRILE_AFRICA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### SGLT2I_HF_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### SGLT2_BROAD_OUTCOMES_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### SGLT2_CKD_REVIEW.html
+- `R-RoB-ME-wired`
+
+### SGLT2_HF_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### SGLT2_MACE_CVOT_REVIEW.html
+- `R-RoB-ME-wired`
+
+### SMA_TREATMENTS_BROAD_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### SOTAGLIFLOZIN_HF_REVIEW.html
+- `R-RoB-ME-wired`
+
+### SOTATERCEPT_PAH_REVIEW.html
+- `R-RoB-ME-wired`
+
+### SPARSENTAN_IGAN_REVIEW.html
+- `R-RoB-ME-wired`
+
+### SPONDYLOARTHRITIS_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### STROKE_THROMBECTOMY_BROAD_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### STROKE_THROMBECTOMY_LATE_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### T1D_CLOSED_LOOP_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### TARLATAMAB_SCLC_REVIEW.html
+- `R-RoB-ME-wired`
+
+### TAVR_LOWRISK_REVIEW.html
+- `R-RoB-ME-wired`
+
+### TAVR_LOW_RISK_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### TB_BPaL_NEW_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### TB_DRUG_SUSCEPTIBLE_4MO_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### TB_PREVENTION_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### TEPLIZUMAB_T1D_REVIEW.html
+- `R-RoB-ME-wired`
+
+### TIRZEPATIDE_OBESITY_REVIEW.html
+- `R-RoB-ME-wired`
+
+### TIRZEPATIDE_T2D_REVIEW.html
+- `R-RoB-ME-wired`
+
+### TNK_VS_TPA_STROKE_REVIEW.html
+- `R-RoB-ME-wired`
+
+### TOFACITINIB_UC_REVIEW.html
+- `R-RoB-ME-wired`
+
+### TOTAL_NEOADJ_RECTAL_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### TRICUSPID_TEER_TMVR_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### TRIPLE_THERAPY_COPD_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### TROP2_ADC_BROAD_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### TTP_NEW_AGENTS_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### TT_FIELDS_BROAD_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### TXA_NONCARDIAC_SURGERY_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### TYVAC_TYPHOID_REVIEW.html
+- `R-RoB-ME-wired`
+
+### UC_BIOLOGICS_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### UPADACITINIB_CD_REVIEW.html
+- `R-RoB-ME-wired`
+
+### VATS_SUBLOBAR_NSCLC_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### VENETOCLAX_AML_REVIEW.html
+- `R-RoB-ME-wired`
+
+### VENETOCLAX_CLL_REVIEW.html
+- `R-RoB-ME-wired`
+
+### VITAMIN_C_THIAMINE_SEPSIS_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### VITAMIN_D_FRACTURE_FALL_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### VITILIGO_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-RoB-ME-wired`
+
+### VOCLOSPORIN_LN_REVIEW.html
+- `R-RoB-ME-wired`
+
+### VORASIDENIB_GLIOMA_REVIEW.html
+- `R-RoB-ME-wired`
+
+### VT_ABLATION_NEW_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### VUTRISIRAN_ATTR_REVIEW.html
+- `R-RoB-ME-wired`
+
+### WATCHMAN_LAAO_NMA_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### WEEKLY_INSULIN_BROAD_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### YELLOW_FEVER_FRACTIONAL_REVIEW.html
+- `R-Qprofile-tau2`
+- `R-PI-k-1`
+- `R-RoB-ME-wired`
+
+### ZOLBETUXIMAB_GASTRIC_REVIEW.html
+- `R-RoB-ME-wired`
+
