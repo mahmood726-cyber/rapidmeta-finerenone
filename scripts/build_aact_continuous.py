@@ -1,0 +1,286 @@
+"""A2: build a per-NCT map of continuous-outcome effect sizes from AACT.
+
+For each portfolio NCT, find the primary outcome and extract either:
+
+  (a) A pre-computed effect from outcome_analyses.txt
+      (param_type in MEAN DIFFERENCE family, HAZARD RATIO, ODDS RATIO, RR,
+      RISK DIFFERENCE, SLOPE) + ci_lower_limit + ci_upper_limit. This is
+      the trial's own published headline number, which is the right value
+      to display.
+
+  (b) Falling back to per-arm Mean+SD from outcome_measurements.txt with
+      param_type in (MEAN, MEDIAN, LEAST_SQUARES_MEAN, GEOMETRIC_MEAN). When
+      both arms have a numeric Mean and a dispersion (StdDev/StdErr), we
+      compute MD = tMean - cMean and varMD = sdT^2/nT + sdC^2/nC.
+
+The output enables retroactive injection of `estimandType: 'MD'/'HR'/'OR'/
+'RR'/'RD'` with the published effect + CI, and per-arm Mean/SD for the
+trial cards. Trials that previously had `tE: null, cE: null` because the
+outcome was continuous (and got skipped by A1) become poolable as MD/SMD.
+
+Output: outputs/pmid_resolver/nct_continuous.json
+    {nct: {kind, effect, lci, uci, tMean?, tSD?, cMean?, cSD?, source}}
+"""
+from __future__ import annotations
+import csv
+import json
+import re
+import sys
+import io
+from pathlib import Path
+from collections import defaultdict
+
+if hasattr(sys.stdout, "buffer"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+csv.field_size_limit(50_000_000)
+
+HERE = Path(__file__).resolve().parent.parent
+AACT = Path(r"F:\AACT-storage\AACT\2026-04-12")
+OUT = HERE / "outputs" / "pmid_resolver"
+OUT.mkdir(parents=True, exist_ok=True)
+
+NCT_RE = re.compile(r"NCT\d{7,8}")
+
+# Map AACT analysis param_type -> our estimandType, with the convention that
+# MD-family is on the absolute scale (model on raw effect) while ratio types
+# (HR/OR/RR) are on the log scale (the engine handles the back-transform).
+ANALYSIS_KIND_MAP = {
+    "MEAN DIFFERENCE (FINAL VALUES)": "MD",
+    "MEAN DIFFERENCE (NET)": "MD",
+    "LS MEAN DIFFERENCE": "MD",
+    "LEAST SQUARES MEAN DIFFERENCE": "MD",
+    "ADJUSTED MEAN DIFFERENCE": "MD",
+    "HAZARD RATIO (HR)": "HR",
+    "ODDS RATIO (OR)": "OR",
+    "RISK RATIO (RR)": "RR",
+    "RISK DIFFERENCE (RD)": "RD",
+    "DIFFERENCE IN PERCENTAGE": "MD",  # treat as absolute %-point difference
+    "SLOPE": "MD",
+}
+
+MEAN_PARAM_TYPES = {
+    "MEAN", "MEDIAN", "GEOMETRIC_MEAN", "LEAST_SQUARES_MEAN",
+    "GEOMETRIC_LEAST_SQUARES_MEAN", "LOG_MEAN",
+}
+
+
+def portfolio_ncts() -> set[str]:
+    ncts: set[str] = set()
+    for p in HERE.glob("*.html"):
+        if not p.is_file():
+            continue
+        ncts |= set(NCT_RE.findall(p.read_text(encoding="utf-8", errors="replace")))
+    return ncts
+
+
+def load_primary_outcome_ids(ncts: set[str]) -> dict[str, str]:
+    """Return {nct: outcome_id_of_first_primary} from outcomes.txt."""
+    path = AACT / "outcomes.txt"
+    out: dict[str, str] = {}
+    with path.open(encoding="utf-8", errors="replace") as f:
+        rd = csv.DictReader(f, delimiter="|")
+        for row in rd:
+            nct = (row.get("nct_id") or "").strip()
+            if nct not in ncts or nct in out:
+                continue
+            if (row.get("outcome_type") or "").strip().lower() != "primary":
+                continue
+            oid = (row.get("id") or "").strip()
+            if oid:
+                out[nct] = oid
+    return out
+
+
+def load_pre_computed_analyses(ncts: set[str], primary_outcome: dict[str, str]) -> dict[str, dict]:
+    """For each NCT primary outcome, pick the first analyses row whose
+    param_type is in ANALYSIS_KIND_MAP."""
+    path = AACT / "outcome_analyses.txt"
+    out: dict[str, dict] = {}
+    with path.open(encoding="utf-8", errors="replace") as f:
+        rd = csv.DictReader(f, delimiter="|")
+        for row in rd:
+            nct = (row.get("nct_id") or "").strip()
+            if nct not in ncts or nct in out:
+                continue
+            oid = (row.get("outcome_id") or "").strip()
+            # Restrict to the primary outcome when we have one.
+            if primary_outcome.get(nct) and oid != primary_outcome[nct]:
+                continue
+            kind = ANALYSIS_KIND_MAP.get((row.get("param_type") or "").strip().upper())
+            if not kind:
+                continue
+            try:
+                eff = float((row.get("param_value") or "").strip())
+            except (TypeError, ValueError):
+                continue
+            try:
+                lci = float((row.get("ci_lower_limit") or "").strip())
+                uci = float((row.get("ci_upper_limit") or "").strip())
+            except (TypeError, ValueError):
+                lci = uci = None
+            out[nct] = {
+                "kind": kind,
+                "effect": eff,
+                "lci": lci,
+                "uci": uci,
+                "source": "outcome_analyses",
+                "param_type": (row.get("param_type") or "").strip(),
+            }
+    return out
+
+
+def load_per_arm_means(ncts: set[str], primary_outcome: dict[str, str]) -> dict[str, list[dict]]:
+    """For each NCT, return the per-arm Mean+dispersion rows on the primary outcome."""
+    path = AACT / "outcome_measurements.txt"
+    out: dict[str, list[dict]] = defaultdict(list)
+    with path.open(encoding="utf-8", errors="replace") as f:
+        rd = csv.DictReader(f, delimiter="|")
+        for row in rd:
+            nct = (row.get("nct_id") or "").strip()
+            if nct not in ncts:
+                continue
+            oid = (row.get("outcome_id") or "").strip()
+            if primary_outcome.get(nct) and oid != primary_outcome[nct]:
+                continue
+            pt = (row.get("param_type") or "").strip().upper()
+            if pt not in MEAN_PARAM_TYPES:
+                continue
+            try:
+                val = float((row.get("param_value") or "").strip())
+            except (TypeError, ValueError):
+                continue
+            dt = (row.get("dispersion_type") or "").strip().upper()
+            try:
+                disp = float((row.get("dispersion_value") or "").strip())
+            except (TypeError, ValueError):
+                disp = None
+            out[nct].append({
+                "group": (row.get("ctgov_group_code") or "").strip(),
+                "mean": val,
+                "disp": disp,
+                "disp_type": dt,
+                "outcome_id": oid,
+            })
+    return out
+
+
+def load_baseline_n(ncts: set[str]) -> dict[str, dict[str, int]]:
+    path = AACT / "baseline_counts.txt"
+    out: dict[str, dict[str, int]] = defaultdict(dict)
+    with path.open(encoding="utf-8", errors="replace") as f:
+        rd = csv.DictReader(f, delimiter="|")
+        for row in rd:
+            nct = (row.get("nct_id") or "").strip()
+            if nct not in ncts:
+                continue
+            scope = (row.get("scope") or "").strip().lower()
+            if scope and scope != "overall":
+                continue
+            group = (row.get("ctgov_group_code") or "").strip()
+            try:
+                n = int(float((row.get("count") or "").strip()))
+            except (TypeError, ValueError):
+                continue
+            if group and n > 0:
+                out[nct][group] = n
+    return out
+
+
+def compute_md_from_arms(
+    arms: list[dict], baseline: dict[str, int]
+) -> dict | None:
+    """Two-arm MD = tMean - cMean, var = sdT^2/nT + sdC^2/nC."""
+    # First-occurrence per group, sorted by group code.
+    seen: dict[str, dict] = {}
+    for a in arms:
+        if a["group"] and a["group"] not in seen:
+            seen[a["group"]] = a
+    if len(seen) < 2:
+        return None
+    groups = sorted(seen.keys())
+    tg, cg = groups[0], groups[1]
+    tArm, cArm = seen[tg], seen[cg]
+
+    def to_sd(disp, disp_type, n):
+        if disp is None or n is None or n <= 0:
+            return None
+        if disp_type == "STANDARD_DEVIATION":
+            return disp
+        if disp_type == "STANDARD_ERROR":
+            return disp * (n ** 0.5)
+        return None  # 95% CI / IQR / etc — needs more work
+
+    # Match baseline N to the corresponding BG group (sorted alignment).
+    bg_groups = sorted(baseline.keys())
+    tN = baseline.get(bg_groups[0]) if bg_groups else None
+    cN = baseline.get(bg_groups[1]) if len(bg_groups) > 1 else None
+    if tN is None or cN is None:
+        return None
+
+    tSD = to_sd(tArm["disp"], tArm["disp_type"], tN)
+    cSD = to_sd(cArm["disp"], cArm["disp_type"], cN)
+    if tSD is None or cSD is None or tSD <= 0 or cSD <= 0:
+        return None
+
+    md = tArm["mean"] - cArm["mean"]
+    var_md = (tSD ** 2) / tN + (cSD ** 2) / cN
+    se_md = var_md ** 0.5
+    lci = md - 1.96 * se_md
+    uci = md + 1.96 * se_md
+    return {
+        "kind": "MD",
+        "effect": round(md, 4),
+        "lci": round(lci, 4),
+        "uci": round(uci, 4),
+        "tMean": round(tArm["mean"], 4),
+        "tSD": round(tSD, 4),
+        "tN": tN,
+        "cMean": round(cArm["mean"], 4),
+        "cSD": round(cSD, 4),
+        "cN": cN,
+        "source": "outcome_measurements_mean_arms",
+    }
+
+
+def main():
+    ncts = portfolio_ncts()
+    print(f"Portfolio NCTs: {len(ncts):,}")
+    print("Loading outcomes.txt for primary-outcome ids...")
+    primary = load_primary_outcome_ids(ncts)
+    print(f"  primary outcome_id known for: {len(primary):,} NCTs")
+    print("Loading outcome_analyses.txt (pre-computed effects)...")
+    pre = load_pre_computed_analyses(ncts, primary)
+    print(f"  pre-computed analyses: {len(pre):,}")
+    print("Loading outcome_measurements.txt (per-arm means)...")
+    arms = load_per_arm_means(ncts, primary)
+    print(f"  per-arm Mean rows for: {len(arms):,} NCTs")
+    print("Loading baseline_counts.txt...")
+    bn = load_baseline_n(ncts)
+    print(f"  baseline N for: {len(bn):,} NCTs")
+
+    final: dict[str, dict] = {}
+    # 1. Use pre-computed analyses where available.
+    final.update(pre)
+    # 2. Fall back to per-arm Mean+SD compute.
+    n_md_from_arms = 0
+    for nct, rows in arms.items():
+        if nct in final:
+            continue
+        md = compute_md_from_arms(rows, bn.get(nct, {}))
+        if md:
+            final[nct] = md
+            n_md_from_arms += 1
+
+    print(f"\nFinal continuous-outcome NCTs: {len(final):,}")
+    print(f"  from outcome_analyses : {sum(1 for v in final.values() if v['source']=='outcome_analyses'):,}")
+    print(f"  from arm Mean+SD      : {n_md_from_arms:,}")
+    from collections import Counter
+    print(f"  estimandType breakdown: {Counter(v['kind'] for v in final.values())}")
+
+    out_path = OUT / "nct_continuous.json"
+    out_path.write_text(json.dumps(final), encoding="utf-8")
+    print(f"wrote {out_path} ({out_path.stat().st_size:,} bytes)")
+
+
+if __name__ == "__main__":
+    main()
