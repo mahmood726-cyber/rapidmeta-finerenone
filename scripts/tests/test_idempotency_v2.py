@@ -154,3 +154,24 @@ def test_fix_heading_order_lite_idempotent(tmp_html):
     assert a == b
     assert "<h2 style=" in a or "<h2>" in a
     assert "<h3" not in a
+
+
+def test_fix_mojibake_em_dash_idempotent(tmp_html):
+    """cp1252-roundtrip em-dash mojibake should be replaced on pass 1 and no-op on pass 2."""
+    # Construct the mojibake byte sequence directly in the file.
+    moji = b"\xc3\xa2\xe2\x82\xac\xe2\x80\x9d"   # cp1252 em-dash mojibake
+    pre = b"library(metafor)  # validation (DL + HKSJ + Bayesian) "
+    post = b" HR\r\nlibrary(meta)\r\n"
+    tmp_html.write_bytes(pre + moji + post)
+    mod = _load("fix_mojibake_em_dash")
+    changed1, n1 = mod.patch_file(tmp_html)
+    bytes_after_first = tmp_html.read_bytes()
+    changed2, n2 = mod.patch_file(tmp_html)
+    bytes_after_second = tmp_html.read_bytes()
+    assert changed1 is True and n1 == 1
+    assert changed2 is False and n2 == 0
+    assert bytes_after_first == bytes_after_second
+    # The em-dash UTF-8 (\xe2\x80\x94) should be present once.
+    assert b"\xe2\x80\x94" in bytes_after_first
+    # The mojibake should be gone.
+    assert moji not in bytes_after_first
