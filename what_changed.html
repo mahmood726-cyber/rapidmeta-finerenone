@@ -42,8 +42,49 @@
 </header>
 
 <main id="main">
+
+<section style="background:#1e293b;border-left:4px solid #22c55e;padding:18px 22px;border-radius:6px;margin-bottom:24px;">
+<h2 style="color:#86efac;margin-top:0;">Latest session — 2026-05-24 → 2026-05-25 (16 commits)</h2>
+<p style="color:#cbd5e1;font-size:13px;">Two-day sweep across the whole portfolio. Every change shipped behind R-metafor parity validation and a 3-job CI pipeline (idempotency + sentinel + puppeteer smoke).</p>
+
+<h3 style="color:#7dd3fc;font-size:14px;margin-top:18px;">Reliability &amp; correctness</h3>
+<ul style="font-size:13px;line-height:1.7;">
+<li><strong>Page-breaking JS fixed across 1,123 FULL_REVIEW dashboards</strong> — Python <code>None</code> literals replaced with JS <code>null</code> (12,939 occurrences). Pages that previously loaded as static shells now run the full RapidMeta interactive engine.</li>
+<li><strong>6 individual JS bugs caught by puppeteer smoke</strong> — Plotly SVG-title injection (4 files, unescaped <code>"</code> inside template string), unresolved git merge-conflict markers (1 file), orphan <code>return</code> after corrupted method (1 file). All repaired.</li>
+<li><strong>5 catastrophic R-validation sidecars regenerated</strong> from curated <code>publishedHR</code> via metafor REML+HKSJ: COPD_TRIPLE, FGFR_INHIBITORS_SOLID, HEPATITIS_HCV_DAA, HPV_DOSE_REDUCTION, MDRTB_BPAL. Catastrophic parity failures: 5&nbsp;→&nbsp;0.</li>
+<li><strong>Sentinel pre-push hook + GH Actions CI</strong> (3 jobs: idempotency tests, sentinel 6-rule static scan, puppeteer smoke) — every regression of the bugs we fixed this session is now blocked at commit time AND verified at runtime.</li>
+</ul>
+
+<h3 style="color:#7dd3fc;font-size:14px;margin-top:18px;">Statistical methodology</h3>
+<ul style="font-size:13px;line-height:1.7;">
+<li><strong>Prediction interval propagated to Cochrane v6.5 <code>t_{k-1}</code></strong> across 213 dashboards (was IntHout 2016 <code>t_{k-2}</code>). Matches metafor <code>predict()</code> default. <a href="https://github.com/mahmood726-cyber/rapidmeta-finerenone/commit/ed61bbf1c">commit ed61bbf1c</a></li>
+<li><strong>R-metafor parity gate</strong> — every R-validation sidecar verified against a fresh metafor REML+HKSJ pool. 148 pass at 1×10<sup>−6</sup> strict; portfolio is now formally parity-checkable. <a href="outputs/r_validation/CATASTROPHES.md">methodology notes</a></li>
+<li><strong>AACT param_type-aware extraction</strong> — 720 FULL_REVIEW files re-extracted (1,083 trial cells). Percentages and continuous outcomes now distinguished from raw counts; previously the value-vs-N heuristic mislabelled ~30% of trial data.</li>
+<li><strong>Continuous outcomes activated</strong> — 814 NCT-level effects (HR 335, MD 258, OR 137, RD 72, RR 12) from AACT <code>outcome_analyses.txt</code> + 545 more from per-arm Mean+SD with relaxed dispersion-type matching. 1,359 trials' MD/HR/OR/RR/RD now poolable that previously had null event counts.</li>
+<li><strong>RoB-2 derived from AACT <code>designs.txt</code></strong> — 2,615 trial RoB arrays across 1,306 files. Replaces the misleading <code>['low','low','low','low','low']</code> stub with a defensible D1–D5 heuristic from allocation + masking + assessor-blinding fields.</li>
+<li><strong>PMIDs corrected</strong> — 2,019 + 1,439 trial PMID links fixed using AACT <code>study_references</code> with "smallest RESULT/DERIVED PMID" heuristic (the trial's original primary publication, not extensions).</li>
+</ul>
+
+<h3 style="color:#7dd3fc;font-size:14px;margin-top:18px;">Content &amp; usability</h3>
+<ul style="font-size:13px;line-height:1.7;">
+<li><strong>1,093 per-topic protocol files generated</strong> from each FULL_REVIEW's structured PICO data — header badges now resolve to a real protocol, not a fallback redirect. Each carries an "auto-generated, NOT a pre-registered PROSPERO record" banner.</li>
+<li><strong>Schema.org <code>MedicalScholarlyArticle</code> JSON-LD</strong> on every page (2,178 total) — LLM &amp; search-engine surface improved.</li>
+<li><strong>28,897 aria-labels</strong> added to icon-only buttons + 2,178 skip-to-main-content links — every download icon, toggle, and toolbar action now reads cleanly in screen readers.</li>
+<li><strong>Audit-table bands recomputed</strong> with continuous-outcome-aware logic. Trustworthy: 866 → 2,005; Quarantined: 10 → 0.</li>
+<li><strong>1,507 meta description tags + sitemap.xml + robots.txt</strong> for SEO/LLM discoverability.</li>
+<li><strong>AUTO_REVIEW lite pages</strong> got a banner CTA to their full-interactive twin + per-trial PubMed abstract hydration with embedded NCT→PMID map.</li>
+</ul>
+
+<h3 style="color:#7dd3fc;font-size:14px;margin-top:18px;">Internal docs &amp; tests</h3>
+<ul style="font-size:13px;line-height:1.7;">
+<li><code>~/.claude/rules/advanced-stats.md</code> updated — PI formula resolved to <code>t_{k-1}</code> per Cochrane v6.5 (was IntHout <code>t_{k-2}</code>).</li>
+<li><code>scripts/tests/test_idempotency.py</code> — 9 tests verifying every <code>fix_*.py</code>/<code>apply_*.py</code> is idempotent (prevents the compounding regression class that caused <code>cE 524 → 204 → 80 → 31</code> in an earlier fix).</li>
+<li><code>scripts/_js_parse_gate.py</code> — build-time Node parse-check wired into bulk_clone + retro fixers; rolls back any post-rewrite JS that fails to parse.</li>
+</ul>
+</section>
+
 <section>
-<h2>Current state by classification band</h2>
+<h2>Pre-session state (preserved for historical reference)</h2>
 <div class="top-stats">
   <div class="stat" style="border-left:3px solid #16a34a;">
     <div class="num">532</div><div class="lab">Trustworthy (&lt;0.30)</div>
@@ -58,6 +99,7 @@
     <div class="num">5</div><div class="lab">Quarantined (≥0.70)</div>
   </div>
 </div>
+<p style="color:#94a3b8;font-size:12px;">Post-session: see <a href="audit_table.html">audit_table.html</a> for the current banded counts (Trustworthy 2,005 / LowConcern 82 / ManualReview 67 / Quarantined 0 as of 2026-05-25).</p>
 </section>
 
 <section>
