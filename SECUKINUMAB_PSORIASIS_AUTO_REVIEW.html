@@ -89,7 +89,7 @@
 </div>
 
 <section id="tab-protocol" class="tab-panel active">
-    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">PICO</h3>
+    <h2 style="color:#7dd3fc;font-size:14px;margin-top:0;">PICO</h2>
     <table class="kv">
       <tr><td>Population</td><td>Adults randomised in trials registered on ClinicalTrials.gov for <strong>Psoriasis</strong>.</td></tr>
       <tr><td>Intervention</td><td><strong>Secukinumab</strong> (AACT-verified intervention name in each trial).</td></tr>
@@ -98,7 +98,7 @@
       <tr><td>Design</td><td>Interventional RCTs (post-2010 start date), Phase 2/3 or Phase 3/4.</td></tr>
     </table>
 
-    <h3 style="color:#7dd3fc;font-size:14px;">Eligibility (6-gate audit)</h3>
+    <h2 style="color:#7dd3fc;font-size:14px;">Eligibility (6-gate audit)</h2>
     <ol style="color:#cbd5e1;font-size:12.5px;">
       <li>GATE-A — NCT exists in AACT 2026-04-12 snapshot.</li>
       <li>GATE-B — Drug pattern "secukinumab" present in AACT <code>interventions</code> for the NCT.</li>
@@ -109,14 +109,14 @@
     </ol>
     <p style="color:#94a3b8;font-size:11.5px;">Audit verdict: <code>VIABLE</code> requires ≥3 trials passing all 6 gates (k≥3 — current standard for new audit-first builds). Older builds use k≥2.</p>
 
-    <h3 style="color:#7dd3fc;font-size:14px;">Pre-specified primary outcomes (per trial)</h3>
+    <h2 style="color:#7dd3fc;font-size:14px;">Pre-specified primary outcomes (per trial)</h2>
     <ul style="color:#cbd5e1;font-size:12.5px;"><li>Participants Who Achieved Psoriasis Area and Severity Index (PASI) 90 Response at Week 12</li><li>Percentage of Participants With a Dermatology Life Quality Index 0/1 (DLQI 0/1) Response at Week 16</li><li>Percentage of Participants With a Psoriasis Area and Severity Index 100 (PASI100) Response at Week 16</li><li>Percentage of Subjects Who Achieve 90% or Greater Reduction in Psoriasis Area and Severity Index (PASI) Score - Week 16 (Full Analysis Set)</li><li>Psoriasis Area and Severity Index (PASI) 75 Response and Investigators&#x27; Global Assessment (IGA) Mod 2011 0 or 1 Response</li></ul>
 
-    <h3 style="color:#7dd3fc;font-size:14px;">Statistical methods</h3>
+    <h2 style="color:#7dd3fc;font-size:14px;">Statistical methods</h2>
     <p style="color:#cbd5e1;font-size:12.5px;">Inverse-variance random-effects pooling on the log-OR scale (Woolf estimator from AACT event counts), DerSimonian-Laird τ² with Hartung-Knapp-Sidik-Jonkman (HKSJ) variance correction and t<sub>k-1</sub> critical value (Cochrane Handbook v6.5 conventions). Single-trial entries report Wald 95% CI on the log scale.</p>
     </section>
 <section id="tab-search" class="tab-panel">
-    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">Search strategy</h3>
+    <h2 style="color:#7dd3fc;font-size:14px;margin-top:0;">Search strategy</h2>
     <p style="color:#cbd5e1;font-size:12.5px;">Source-of-truth: AACT 2026-04-12 snapshot from the Clinical Trials Transformation Initiative (CTTI). Auto-discovery query:</p>
     <pre style="background:#0a0f1f;padding:12px;border-radius:6px;color:#bef264;font-size:12px;overflow-x:auto;">
 SELECT nct_id FROM interventions
@@ -129,14 +129,14 @@ WHERE lower(name) LIKE '%psoriasis%'</pre>
     <p style="color:#94a3b8;font-size:11.5px;">Cross-checking: every NCT that survives intersection is verified to have a primary outcome declared in AACT <code>design_outcomes</code> AND a publication whose abstract mentions the drug or condition (GATE-D).</p>
     </section>
 <section id="tab-screening" class="tab-panel">
-    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">PRISMA-style screening</h3>
+    <h2 style="color:#7dd3fc;font-size:14px;margin-top:0;">PRISMA-style screening</h2>
     <table class="kv">
       <tr><td>Records identified (AACT × PubMed)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;">8</td></tr>
       <tr><td>Records excluded (gate failure)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;color:#fca5a5;">3</td></tr>
       <tr><td>Records included (all 6 gates pass)</td><td style="text-align:right;font-family:JetBrains Mono,monospace;color:#86efac;">5</td></tr>
     </table>
 
-    <h3 style="color:#7dd3fc;font-size:14px;">Exclusions by first failing gate</h3>
+    <h2 style="color:#7dd3fc;font-size:14px;">Exclusions by first failing gate</h2>
     <table class="kv">
       <tr><th>Gate</th><th>n</th></tr>
       <tr><td>D_pmid_topic_match</td><td style='text-align:right;'>2</td></tr><tr><td>E_two_arms</td><td style='text-align:right;'>1</td></tr>
@@ -229,7 +229,7 @@ WHERE lower(name) LIKE '%psoriasis%'</pre>
           
         </div></section>
 <section id="tab-analysis" class="tab-panel">
-    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">Forest plot — per-trial OR + pooled estimate</h3>
+    <h2 style="color:#7dd3fc;font-size:14px;margin-top:0;">Forest plot — per-trial OR + pooled estimate</h2>
     <svg viewBox="0 0 760 220" style="width:100%;max-width:760px;background:#0a0f1f;border-radius:6px;">
 <text x="20" y="20" fill="#94a3b8" font-size="11">Trial</text>
 <text x="465.0" y="20" fill="#94a3b8" font-size="11" text-anchor="middle">log-OR (95% CI)</text>
@@ -258,7 +258,7 @@ WHERE lower(name) LIKE '%psoriasis%'</pre>
 </svg>
     
         <div style="background:#1e293b;padding:16px;border-radius:6px;margin:1rem 0;">
-          <h3 style="margin:0 0 8px;font-size:14px;color:#7dd3fc;">Pooled estimate (REML-DL + HKSJ, Cochrane v6.5)</h3>
+          <h2 style="margin:0 0 8px;font-size:14px;color:#7dd3fc;">Pooled estimate (REML-DL + HKSJ, Cochrane v6.5)</h2>
           <div style="font-size:24px;font-weight:600;font-family:JetBrains Mono,monospace;">
             OR 1.955 <span style="font-size:14px;color:#94a3b8;">[0.19, 20.166]</span>
           </div>
@@ -267,7 +267,7 @@ WHERE lower(name) LIKE '%psoriasis%'</pre>
             Q = 94.193 · I² = 96.8%
           </div>
         </div>
-    <h3 style="color:#7dd3fc;font-size:14px;">Leave-one-out</h3><div><div style="display:inline-block;padding:6px 10px;margin:3px;background:#1e293b;border-radius:14px;font-size:11px;color:#cbd5e1;">omit <strong>PROSE</strong>: OR 2.396 [0.0, 11624.825]</div><div style="display:inline-block;padding:6px 10px;margin:3px;background:#1e293b;border-radius:14px;font-size:11px;color:#cbd5e1;">omit <strong>CLARITY</strong>: OR 1.187 [0.262, 5.385]</div><div style="display:inline-block;padding:6px 10px;margin:3px;background:#1e293b;border-radius:14px;font-size:11px;color:#cbd5e1;">omit <strong>NCT03504852</strong>: OR 2.238 [0.0, 13219.393]</div><div style="display:inline-block;padding:6px 10px;margin:3px;background:#1e293b;border-radius:14px;font-size:11px;color:#cbd5e1;">omit <strong>BE RADIANT</strong>: OR 2.229 [0.0, 19056.062]</div><div style="display:inline-block;padding:6px 10px;margin:3px;background:#1e293b;border-radius:14px;font-size:11px;color:#cbd5e1;">omit <strong>JUNCTURE</strong>: OR 1.955 [0.19, 20.166]</div></div>
+    <h2 style="color:#7dd3fc;font-size:14px;">Leave-one-out</h2><div><div style="display:inline-block;padding:6px 10px;margin:3px;background:#1e293b;border-radius:14px;font-size:11px;color:#cbd5e1;">omit <strong>PROSE</strong>: OR 2.396 [0.0, 11624.825]</div><div style="display:inline-block;padding:6px 10px;margin:3px;background:#1e293b;border-radius:14px;font-size:11px;color:#cbd5e1;">omit <strong>CLARITY</strong>: OR 1.187 [0.262, 5.385]</div><div style="display:inline-block;padding:6px 10px;margin:3px;background:#1e293b;border-radius:14px;font-size:11px;color:#cbd5e1;">omit <strong>NCT03504852</strong>: OR 2.238 [0.0, 13219.393]</div><div style="display:inline-block;padding:6px 10px;margin:3px;background:#1e293b;border-radius:14px;font-size:11px;color:#cbd5e1;">omit <strong>BE RADIANT</strong>: OR 2.229 [0.0, 19056.062]</div><div style="display:inline-block;padding:6px 10px;margin:3px;background:#1e293b;border-radius:14px;font-size:11px;color:#cbd5e1;">omit <strong>JUNCTURE</strong>: OR 1.955 [0.19, 20.166]</div></div>
     </section>
 <section id="tab-statistics" class="tab-panel"><div class="stat-grid">
         <div class="stat-panel">
@@ -328,7 +328,7 @@ WHERE lower(name) LIKE '%psoriasis%'</pre>
           <p style="color:#94a3b8;font-size:11.5px;">Bit-stable hash of {sorted NCT list, pooled OR + 95% CI}. Reproduce by re-running scripts/add_topic_autodiscover.py + generate_topic_html.py against the same AACT snapshot.</p>
         </div></div></section>
 <section id="tab-about" class="tab-panel">
-    <h3 style="color:#7dd3fc;font-size:14px;margin-top:0;">Audit-first build</h3>
+    <h2 style="color:#7dd3fc;font-size:14px;margin-top:0;">Audit-first build</h2>
     <p style="color:#cbd5e1;font-size:12.5px;">This review was generated by the 6-gate audit-first pipeline after the 16-round portfolio cleanup. Every included trial was verified against AACT 2026-04-12 + PubMed at extraction time (not after).</p>
     <ul style="color:#cbd5e1;font-size:12.5px;">
       <li>Full per-trial gate log: <a href="outputs/new_topics/SECUKINUMAB_PSORIASIS_AUTO.json"><code>outputs/new_topics/SECUKINUMAB_PSORIASIS_AUTO.json</code></a></li>
@@ -337,7 +337,7 @@ WHERE lower(name) LIKE '%psoriasis%'</pre>
       <li>AACT attribution: Clinical Trials Transformation Initiative (CTTI), snapshot 2026-04-12.</li>
       <li>PubMed attribution: NCBI E-utilities + idconv API.</li>
     </ul>
-    <h3 style="color:#7dd3fc;font-size:14px;">Limits of this build</h3>
+    <h2 style="color:#7dd3fc;font-size:14px;">Limits of this build</h2>
     <ul style="color:#cbd5e1;font-size:12.5px;">
       <li>Pool estimand is an <strong>OR</strong> derived from AACT event counts; the trial-published <strong>HR</strong> (where applicable) is not parsed from the PubMed abstract in the audit-first pipeline. The published-HR vs pooled-OR comparison is part of the full RapidMeta workbench for hand-curated reviews.</li>
       <li>Risk-of-bias (RoB-2) is not coded here — see the parent NMA review or the curated <code>*_REVIEW.html</code> for the same topic if one exists.</li>
