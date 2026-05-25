@@ -27,10 +27,28 @@ permissions:
   contents: read
 
 jobs:
+  idempotency:
+    name: idempotency tests (E1)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install pytest
+        run: pip install pytest
+      - name: Run idempotency tests
+        run: python -m pytest scripts/tests/test_idempotency.py -v
+
   sentinel:
     name: sentinel (R1..R6 static rules)
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    needs: idempotency
     steps:
       - uses: actions/checkout@v4
         with:

@@ -31,7 +31,7 @@ import io
 from pathlib import Path
 from collections import Counter
 
-if hasattr(sys.stdout, "buffer"):
+if "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 HERE = Path(__file__).resolve().parent.parent
@@ -61,7 +61,7 @@ def classify(p: Path) -> tuple[str, dict]:
     n_trials = len(trials)
     n_empty_pmid = 0
     n_impossible = 0
-    n_null_count = 0
+    n_missing_effect = 0
     for m in trials:
         body = m.group("body")
         pm = PMID_RE.search(body)
@@ -69,30 +69,46 @@ def classify(p: Path) -> tuple[str, dict]:
             n_empty_pmid += 1
 
         def get(field):
-            mm = re.search(rf"\b{field}:\s*(-?\d+|null|None)", body)
+            mm = re.search(rf"\b{field}:\s*(-?[\d.eE+-]+|null|None)", body)
             v = mm.group(1) if mm else None
-            return int(v) if v and v not in ("null", "None") else None
+            if v is None or v in ("null", "None"):
+                return None
+            try:
+                return float(v) if "." in v or "e" in v.lower() else int(v)
+            except ValueError:
+                return None
 
         tE, tN, cE, cN = get("tE"), get("tN"), get("cE"), get("cN")
-        if tE is None or cE is None:
-            n_null_count += 1
+        pub_hr = get("publishedHR")
+        # Has analyzable data if EITHER (a) binary counts present with tE<=tN
+        # and cE<=cN, OR (b) a non-null publishedHR (MD/HR/OR/RR/RD continuous
+        # effect from outcome_analyses or per-arm Mean+SD).
+        has_counts = (
+            tE is not None and cE is not None
+            and tN is not None and cN is not None
+            and tN > 0 and cN > 0
+        )
+        has_pub_effect = pub_hr is not None
+        if not has_counts and not has_pub_effect:
+            n_missing_effect += 1
         if tE is not None and tN is not None and tE > tN:
             n_impossible += 1
         if cE is not None and cN is not None and cE > cN:
             n_impossible += 1
 
     pct_empty = n_empty_pmid / n_trials if n_trials else 0
+    pct_missing_effect = n_missing_effect / n_trials if n_trials else 0
     notes = {
         "trials": n_trials,
         "empty_pmid": n_empty_pmid,
-        "null_count": n_null_count,
+        "missing_effect": n_missing_effect,
         "impossible": n_impossible,
     }
     if n_impossible:
         return "QUARANTINE", notes  # should never happen post-fix
-    if pct_empty > 0.5:
+    if pct_missing_effect > 0.5 or pct_empty > 0.5:
         return "MANUAL_REVIEW", notes
-    if n_empty_pmid or n_null_count:
+    if n_missing_effect or n_empty_pmid:
         return "LOW_CONCERN", notes
     return "OK", notes
 

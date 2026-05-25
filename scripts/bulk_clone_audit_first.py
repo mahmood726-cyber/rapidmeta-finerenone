@@ -366,7 +366,7 @@ def main():
             ok += 1
             continue
 
-        # --- Dual ship-gate ---
+        # --- Triple ship-gate ---
         reason = None
         v = scanner.scan(str(out_html), str(json_p))
         if v:
@@ -378,6 +378,17 @@ def main():
             jp = jscheck.check(str(out_html))
             if jp:
                 reason = f"js-broken block#{jp[0][0]} {jp[0][1][:80]}"
+            else:
+                # Build-time JS parse gate (E2). Catches None-in-JS,
+                # apostrophe-in-string, Plotly title-injection, etc. at the
+                # point of file creation so a regression can never persist to
+                # the shipped portfolio.
+                try:
+                    from _js_parse_gate import js_parse_ok
+                except ImportError:
+                    js_parse_ok = lambda _p: True
+                if not js_parse_ok(out_html):
+                    reason = "js-parse-gate: realData literal failed V8 parse"
 
         if reason:
             qfail += 1

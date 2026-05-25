@@ -42,7 +42,7 @@ import io
 from pathlib import Path
 from collections import defaultdict
 
-if hasattr(sys.stdout, "buffer"):
+if "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 csv.field_size_limit(50_000_000)
 

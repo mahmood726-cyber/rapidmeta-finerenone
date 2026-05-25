@@ -30,7 +30,7 @@ import io
 from pathlib import Path
 from collections import defaultdict
 
-if hasattr(sys.stdout, "buffer"):
+if "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 csv.field_size_limit(50_000_000)
 
@@ -130,7 +130,11 @@ def load_pre_computed_analyses(ncts: set[str], primary_outcome: dict[str, str]) 
 
 
 def load_per_arm_means(ncts: set[str], primary_outcome: dict[str, str]) -> dict[str, list[dict]]:
-    """For each NCT, return the per-arm Mean+dispersion rows on the primary outcome."""
+    """For each NCT, return the per-arm Mean+dispersion rows on the primary outcome.
+
+    Captures dispersion_type AND the dispersion_lower_limit/upper_limit columns
+    so we can convert CI-based dispersion into SD downstream.
+    """
     path = AACT / "outcome_measurements.txt"
     out: dict[str, list[dict]] = defaultdict(list)
     with path.open(encoding="utf-8", errors="replace") as f:
@@ -154,11 +158,21 @@ def load_per_arm_means(ncts: set[str], primary_outcome: dict[str, str]) -> dict[
                 disp = float((row.get("dispersion_value") or "").strip())
             except (TypeError, ValueError):
                 disp = None
+            try:
+                lo = float((row.get("dispersion_lower_limit") or "").strip())
+            except (TypeError, ValueError):
+                lo = None
+            try:
+                hi = float((row.get("dispersion_upper_limit") or "").strip())
+            except (TypeError, ValueError):
+                hi = None
             out[nct].append({
                 "group": (row.get("ctgov_group_code") or "").strip(),
                 "mean": val,
                 "disp": disp,
                 "disp_type": dt,
+                "disp_lo": lo,
+                "disp_hi": hi,
                 "outcome_id": oid,
             })
     return out
@@ -189,7 +203,20 @@ def load_baseline_n(ncts: set[str]) -> dict[str, dict[str, int]]:
 def compute_md_from_arms(
     arms: list[dict], baseline: dict[str, int]
 ) -> dict | None:
-    """Two-arm MD = tMean - cMean, var = sdT^2/nT + sdC^2/nC."""
+    """Two-arm MD = tMean - cMean, var = sdT^2/nT + sdC^2/nC.
+
+    Handles every AACT dispersion_type that can be converted to a usable SD:
+      STANDARD DEVIATION                  -> use as-is
+      STANDARD ERROR                      -> SD = SE * sqrt(N)
+      95% / 90% / 99% / ... CONFIDENCE    -> SD = (upper-lower)*sqrt(N) / (2*z)
+      INTER-QUARTILE RANGE                -> SD ≈ IQR / 1.349 (Higgins+Green
+                                              JBI conversion for symmetric data)
+      anything else (FULL RANGE, GEOMETRIC
+        COEFFICIENT OF VARIATION)         -> None (refuse, too lossy)
+    Note: AACT stores the dispersion_type with SPACES (e.g. "STANDARD DEVIATION"),
+    NOT underscores. The original matcher used underscores and silently
+    returned 0 rows.
+    """
     # First-occurrence per group, sorted by group code.
     seen: dict[str, dict] = {}
     for a in arms:
@@ -201,14 +228,40 @@ def compute_md_from_arms(
     tg, cg = groups[0], groups[1]
     tArm, cArm = seen[tg], seen[cg]
 
-    def to_sd(disp, disp_type, n):
-        if disp is None or n is None or n <= 0:
+    # z-score for common CI levels.
+    Z_FOR_CI = {
+        "50% CONFIDENCE INTERVAL": 0.6745,
+        "60% CONFIDENCE INTERVAL": 0.8416,
+        "70% CONFIDENCE INTERVAL": 1.0364,
+        "80% CONFIDENCE INTERVAL": 1.2816,
+        "90% CONFIDENCE INTERVAL": 1.6449,
+        "95% CONFIDENCE INTERVAL": 1.96,
+        "96% CONFIDENCE INTERVAL": 2.0537,
+        "97.5% CONFIDENCE INTERVAL": 2.2414,
+        "98% CONFIDENCE INTERVAL": 2.3263,
+        "99% CONFIDENCE INTERVAL": 2.5758,
+        "99.5% CONFIDENCE INTERVAL": 2.8070,
+        "99.9% CONFIDENCE INTERVAL": 3.2905,
+    }
+
+    def to_sd(arm, n):
+        disp = arm["disp"]
+        dtype = (arm["disp_type"] or "").upper()
+        lo = arm.get("disp_lo")
+        hi = arm.get("disp_hi")
+        if n is None or n <= 0:
             return None
-        if disp_type == "STANDARD_DEVIATION":
+        if dtype == "STANDARD DEVIATION":
             return disp
-        if disp_type == "STANDARD_ERROR":
+        if dtype == "STANDARD ERROR" and disp is not None and disp > 0:
             return disp * (n ** 0.5)
-        return None  # 95% CI / IQR / etc — needs more work
+        if dtype in Z_FOR_CI and lo is not None and hi is not None and hi > lo:
+            z = Z_FOR_CI[dtype]
+            # SE = (hi - lo) / (2*z); SD = SE * sqrt(N)
+            return ((hi - lo) / (2 * z)) * (n ** 0.5)
+        if dtype == "INTER-QUARTILE RANGE" and disp is not None and disp > 0:
+            return disp / 1.349
+        return None
 
     # Match baseline N to the corresponding BG group (sorted alignment).
     bg_groups = sorted(baseline.keys())
@@ -217,8 +270,8 @@ def compute_md_from_arms(
     if tN is None or cN is None:
         return None
 
-    tSD = to_sd(tArm["disp"], tArm["disp_type"], tN)
-    cSD = to_sd(cArm["disp"], cArm["disp_type"], cN)
+    tSD = to_sd(tArm, tN)
+    cSD = to_sd(cArm, cN)
     if tSD is None or cSD is None or tSD <= 0 or cSD <= 0:
         return None
 

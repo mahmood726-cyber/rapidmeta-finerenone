@@ -16,7 +16,7 @@ import sys
 import io
 from pathlib import Path
 
-if hasattr(sys.stdout, "buffer"):
+if "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 HERE = Path(__file__).resolve().parent.parent
@@ -103,6 +103,15 @@ def patch_file(p: Path) -> int:
     out_parts.append(txt[last:])
     new_txt = "".join(out_parts)
     if new_txt != orig:
+        # E2 build-time JS parse gate: roll back if the new realData literal
+        # fails V8 parse so a regression can't persist.
+        try:
+            from _js_parse_gate import js_parse_ok
+        except ImportError:
+            js_parse_ok = lambda _t: True
+        if not js_parse_ok(new_txt):
+            print(f"  ROLLBACK {p.name}: JS parse gate failed; original kept")
+            return 0
         p.write_text(new_txt, encoding="utf-8")
     return n
 
