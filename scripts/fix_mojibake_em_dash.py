@@ -46,7 +46,13 @@ def patch_file(p: Path) -> tuple[bool, int]:
 
 
 def main():
+    # Root-level dashboards AND e156-submission/assets mirrors. Don't touch
+    # scripts/audit_40_checks.py — its mojibake byte literals are the auditor's
+    # own detection patterns and must be preserved.
     targets = sorted(p for p in HERE.glob("*.html") if p.is_file())
+    submission_assets = HERE / "e156-submission" / "assets"
+    if submission_assets.exists():
+        targets += sorted(p for p in submission_assets.glob("*.html") if p.is_file())
     total_files = 0
     total_replacements = 0
     for i, p in enumerate(targets, 1):

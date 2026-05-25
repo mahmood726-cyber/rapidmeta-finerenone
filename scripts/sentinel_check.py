@@ -183,6 +183,22 @@ def r5_plotly_title_injection(path: Path, txt: str) -> list[str]:
     return []
 
 
+# R7: cp1252-roundtrip em-dash mojibake. The 3-char unicode sequence
+# 'â€"' (U+00E2 U+20AC U+201D) is the UTF-8 decode of the 8-byte mojibake
+# c3 a2 e2 82 ac e2 80 9d that crept into 1,320 generated dashboards via
+# a one-time cp1252-default editor save of the base template. Fixed
+# portfolio-wide in commit 406804dea; this rule blocks regression.
+MOJIBAKE_EM_DASH = "â€”"
+
+
+def r7_mojibake_em_dash(path: Path, txt: str) -> list[str]:
+    if MOJIBAKE_EM_DASH in txt:
+        i = txt.find(MOJIBAKE_EM_DASH)
+        ctx = txt[max(0, i - 30): i + 10].replace("\n", " ")
+        return [f"R7 cp1252-roundtrip em-dash mojibake near offset {i}: ...{ctx}..."]
+    return []
+
+
 def r6_realdata_parses(path: Path, txt: str) -> list[str]:
     """Use Node to validate the realData object literal. Skipped if Node missing."""
     # Cheap presence check first.
@@ -247,6 +263,7 @@ RULES: list[tuple[str, Callable[[Path, str], list[str]]]] = [
     ("R4_event_counts", r4_impossible_event_counts),
     ("R5_plotly_title", r5_plotly_title_injection),
     ("R6_realdata_parses", r6_realdata_parses),
+    ("R7_mojibake_em_dash", r7_mojibake_em_dash),
 ]
 
 
