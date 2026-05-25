@@ -41413,7 +41413,94 @@ print(res_sub)`;
                     + '<p style="text-align:center;font-size:10px;color:#64748b;margin-top:2rem">This summary is for general understanding. Discuss with your healthcare provider.</p>'
 
 
-                    + '</body></html>';
+                    + '<!-- robme-engine:begin -->
+<script>
+(function () {
+  'use strict';
+  // RoB-ME (Cochrane Ch.13) minimal engine. See
+  // scripts/propagate_robme_engine.py for the methodology.
+  function judge(p) {
+    if (p == null || isNaN(p)) return 'some-concerns';
+    if (p > 0.10) return 'low';
+    if (p >= 0.05) return 'some-concerns';
+    return 'high';
+  }
+  function worst(judgments) {
+    var rank = { 'low': 0, 'some-concerns': 1, 'high': 2 };
+    var w = 0;
+    judgments.forEach(function (j) { if (rank[j] > w) w = rank[j]; });
+    return Object.keys(rank).find(function (k) { return rank[k] === w; });
+  }
+  window.RobMeEngine = {
+    assess: function (ctx) {
+      ctx = ctx || {};
+      var k = (typeof ctx.k === 'number') ? ctx.k : null;
+      var eggerP = (ctx.eggerResult && typeof ctx.eggerResult.pValue === 'number')
+                   ? ctx.eggerResult.pValue
+                   : (typeof ctx.eggerP === 'number' ? ctx.eggerP : null);
+      var q1 = 'low'; // AACT+PubMed intersection contract is the search definition
+      var q2 = 'low'; // every AACT-passing trial is included; missing = audit-flagged
+      var q3 = 'some-concerns'; // registry can't judge selective outcome reporting
+      // Q4: Egger's small-study-effects, only when k >= 10 (underpowered otherwise)
+      var q4 = (k != null && k >= 10) ? judge(eggerP) : 'some-concerns';
+      var overall = worst([q1, q2, q3, q4]);
+      return { q1: q1, q2: q2, q3: q3, q4: q4, overall: overall, k: k, eggerP: eggerP };
+    },
+    formatChip: function (verdict) {
+      var label = (verdict.overall || 'unclear').toUpperCase().replace('-', ' ');
+      var color = verdict.overall === 'low' ? '#16a34a'
+                : verdict.overall === 'high' ? '#dc2626'
+                : '#eab308';
+      return '<i class="fa-solid fa-eye-slash" style="font-size:10px"></i> RoB-ME: '
+             + '<span style="color:' + color + ';font-weight:600">' + label + '</span>';
+    },
+    updateChip: function (ctx) {
+      var el = document.getElementById('chip-robme');
+      if (!el) return null;
+      var v = this.assess(ctx);
+      el.innerHTML = this.formatChip(v);
+      el.title = 'RoB-ME (Cochrane Ch.13): Q1 search=' + v.q1
+               + '; Q2 missing studies=' + v.q2
+               + '; Q3 selective reporting=' + v.q3
+               + '; Q4 small-study effects=' + v.q4
+               + ' (Egger p=' + (v.eggerP != null ? v.eggerP.toFixed(3) : 'N/A')
+               + ', k=' + (v.k != null ? v.k : 'N/A') + ')';
+      return v;
+    }
+  };
+
+  // Auto-trigger on pool recomputation. Most engines expose RapidMeta.state
+  // and call AnalysisEngine.run() to produce a pool; we hook a MutationObserver
+  // on #chip-egger (which always exists and updates on pool re-run) and pull
+  // the latest context from the global accumulator if present.
+  function pickCtx() {
+    try {
+      // Common patterns in the engines:
+      if (window.RapidMeta && window.RapidMeta.state && window.RapidMeta.state.latestPool) {
+        return window.RapidMeta.state.latestPool;
+      }
+      if (window.AnalysisEngine && window.AnalysisEngine.latestCtx) {
+        return window.AnalysisEngine.latestCtx;
+      }
+    } catch (e) {}
+    return null;
+  }
+  function tryUpdate() {
+    var ctx = pickCtx();
+    if (ctx) window.RobMeEngine.updateChip(ctx);
+  }
+  document.addEventListener('DOMContentLoaded', function () {
+    setTimeout(tryUpdate, 1500);
+    setInterval(tryUpdate, 5000);
+    var eggerChip = document.getElementById('chip-egger');
+    if (eggerChip && 'MutationObserver' in window) {
+      new MutationObserver(tryUpdate).observe(eggerChip, { childList: true, subtree: true });
+    }
+  });
+})();
+</script>
+<!-- robme-engine:end -->
+</body></html>';
 
 
                 const printBlob = new Blob([printHtml], { type: 'text/html' });
