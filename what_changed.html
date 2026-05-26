@@ -20,7 +20,7 @@
 </style>
 <meta name="description" content="What changed — rapidmeta-finerenone data-integrity audit">
 <!-- jsonld:begin -->
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"MedicalScholarlyArticle","headline":"What changed — rapidmeta-finerenone integrity audit","name":"What changed — rapidmeta-finerenone integrity audit","url":"https://mahmood726-cyber.github.io/rapidmeta-finerenone/what_changed.html","datePublished":"2026-05-24","dateModified":"2026-05-24","inLanguage":"en","author":{"@type":"Person","name":"Mahmood Ahmad","identifier":"https://orcid.org/"},"publisher":{"@type":"Organization","name":"RapidMeta","url":"https://mahmood726-cyber.github.io/rapidmeta-finerenone/"},"isAccessibleForFree":true,"keywords":"meta-analysis, living review, RapidMeta","description":"What changed — rapidmeta-finerenone data-integrity audit"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"MedicalScholarlyArticle","headline":"What changed — rapidmeta-finerenone integrity audit","name":"What changed — rapidmeta-finerenone integrity audit","url":"https://mahmood726-cyber.github.io/rapidmeta-finerenone/what_changed.html","datePublished":"2026-05-24","dateModified":"2026-05-26","inLanguage":"en","author":{"@type":"Person","name":"Mahmood Ahmad","identifier":"https://orcid.org/"},"publisher":{"@type":"Organization","name":"RapidMeta","url":"https://mahmood726-cyber.github.io/rapidmeta-finerenone/"},"isAccessibleForFree":true,"keywords":"meta-analysis, living review, RapidMeta","description":"What changed — rapidmeta-finerenone data-integrity audit"}</script>
 <!-- jsonld:end -->
 </head>
 <body>
@@ -34,8 +34,8 @@
   <a href="index.html">← back to review index</a>
 </div>
 <div class="top-stats">
-  <div class="stat"><div class="num">3,450</div><div class="lab">Total fixes</div></div>
-  <div class="stat"><div class="num">25</div><div class="lab">Audit rounds</div></div>
+  <div class="stat"><div class="num">6,295</div><div class="lab">Total fixes</div></div>
+  <div class="stat"><div class="num">26</div><div class="lab">Audit rounds</div></div>
   <div class="stat"><div class="num">225</div><div class="lab">Flagged (no auto-fix)</div></div>
   <div class="stat"><div class="num">735</div><div class="lab">Reviews audited</div></div>
 </div>
@@ -44,7 +44,38 @@
 <main id="main">
 
 <section style="background:#1e293b;border-left:4px solid #22c55e;padding:18px 22px;border-radius:6px;margin-bottom:24px;">
-<h2 style="color:#86efac;margin-top:0;">Latest session — 2026-05-24 → 2026-05-25 (16 commits)</h2>
+<h2 style="color:#86efac;margin-top:0;">Latest sweep — 2026-05-25 → 2026-05-26 (4 commits)</h2>
+<p style="color:#cbd5e1;font-size:13px;">Performance + encoding-correctness pass. Every change went through the existing CI pipeline (idempotency + sentinel + puppeteer smoke).</p>
+
+<h3 style="color:#7dd3fc;font-size:14px;margin-top:18px;">Performance</h3>
+<ul style="font-size:13px;line-height:1.7;">
+<li><strong>Inline RapidMeta engine minified in 1,524 review pages</strong> — terser pass (mangle disabled to preserve the global <code>RapidMeta</code> API) cut each engine block from ~970 KB to ~585 KB. Total: 1.46 GB → 889 MB across the portfolio; <strong>569 MB saved (39.1%)</strong>. Lighthouse "total byte weight" audit moves from CRITICAL to MEDIUM on every FULL_REVIEW. <a href="https://github.com/mahmood726-cyber/rapidmeta-finerenone/commit/88e7b07e1">commit 88e7b07e1</a></li>
+<li><strong>Auto-minify hook in <code>clone_dashboard.py</code></strong> — freshly cloned pages now go through terser on write, so the engine never re-inflates between bulk-clone runs.</li>
+<li><strong>Sentinel R8 (un-minified engine guard)</strong> — pre-push hook now BLOCKs any <code>*_REVIEW.html</code> whose largest inline <code>&lt;script&gt;</code> body is ≥ 800 KB (post-minification typical is ~585 KB; anything larger means the engine was reintroduced unminified).</li>
+</ul>
+
+<h3 style="color:#7dd3fc;font-size:14px;margin-top:18px;">Encoding correctness</h3>
+<ul style="font-size:13px;line-height:1.7;">
+<li><strong>1,321 dashboards repaired</strong> from cp1252-roundtrip em-dash mojibake (1,306 in repo root + 15 mirrors in <code>e156-submission/assets/</code>). The R-Validation comment "RapidMeta v11.0 R-Validation (DL + HKSJ + Bayesian) — HR" had its em-dash mis-decoded as <code>â€"</code> by a one-time editor save; byte-level repair restored UTF-8 <code>e2 80 94</code>.</li>
+<li><strong>Sentinel R7 (mojibake guard)</strong> — BLOCKs any reintroduction of the 3-char mojibake sequence <code>â€"</code>. Verified to fire on synthetic input and stay silent on the cleaned corpus.</li>
+<li><strong>Generator-level safety verified</strong>: <code>clone_dashboard.py</code> reads/writes <code>encoding='utf-8'</code> throughout and uses <code>DUPILUMAB_COPD_REVIEW.html</code> (now mojibake-free) as its base template. Future clones inherit the clean bytes.</li>
+</ul>
+
+<h3 style="color:#7dd3fc;font-size:14px;margin-top:18px;">Idempotency + tests</h3>
+<ul style="font-size:13px;line-height:1.7;">
+<li><strong>17 idempotency tests</strong> total (was 9 last session) — every fix script in <code>scripts/</code> verified to be a no-op on its own output. New tests cover: PI propagation, the 4 a11y contrast fixers, PICO input labels, heading-order lite, Plotly externalisation, em-dash mojibake repair, and the terser minifier itself.</li>
+<li><strong>8 Sentinel rules</strong> (was 6 last session) — R7 mojibake + R8 un-minified engine.</li>
+</ul>
+
+<h3 style="color:#7dd3fc;font-size:14px;margin-top:18px;">Honest deferrals</h3>
+<ul style="font-size:13px;line-height:1.7;">
+<li><strong>FULL_REVIEW engine externalisation to <code>vendor/</code></strong> would yield a bigger Lighthouse win (browser caches one engine across many pages) but the engine has 138 hardcoded drug/slug references across 95 lines interleaved inside JS string literals, regex literals, and Python-code-in-template-literals blocks. A clean externalisation requires an AST-aware refactor (acorn/esprima walking only safe StringLiteral nodes) — not feasible in one session. Minification is the safest one-session win on the same byte cost.</li>
+<li><strong>One file untracked</strong>: <code>HIV_NEXTGEN_ART_REVIEW.html</code> has a pre-existing JS syntax bug (unterminated string at engine line 37638; <code>propagate_robme_engine.py</code> appears to have injected raw JS where escaped string concatenation was needed). Excluded via <code>.gitignore</code> so it doesn't poison <code>git add *.html</code>; Sentinel R8 surfaces it as a persistent warning until repaired.</li>
+</ul>
+</section>
+
+<section style="background:#1e293b;border-left:4px solid #22c55e;padding:18px 22px;border-radius:6px;margin-bottom:24px;">
+<h2 style="color:#86efac;margin-top:0;">Prior sweep — 2026-05-24 → 2026-05-25 (16 commits)</h2>
 <p style="color:#cbd5e1;font-size:13px;">Two-day sweep across the whole portfolio. Every change shipped behind R-metafor parity validation and a 3-job CI pipeline (idempotency + sentinel + puppeteer smoke).</p>
 
 <h3 style="color:#7dd3fc;font-size:14px;margin-top:18px;">Reliability &amp; correctness</h3>
@@ -445,11 +476,24 @@
       <span style="color:#e2e8f0;margin-left:8px;">Retraction Watch DB cross-check (Crossref/GitLab, 70,147 retractions)</span>
     </div>
     <div style="text-align:right;">
-      
-      
+
+
     </div>
   </div>
   <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: Retraction Watch</div>
+</div>
+
+<div style="background:#1e293b;border-left:3px solid #22c55e;padding:12px 16px;margin-bottom:10px;border-radius:0 6px 6px 0;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="color:#7dd3fc;font-family:JetBrains Mono,monospace;font-size:13px;">R26-perf</strong>
+      <span style="color:#e2e8f0;margin-left:8px;">terser engine minification (1,524 pages, 569 MB saved) + em-dash mojibake repair (1,321 pages) + Sentinel R7/R8 + clone_dashboard auto-minify hook</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#16a34a;color:#fff;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;">2,845 fixes</span>
+    </div>
+  </div>
+  <div style="margin-top:6px;color:#94a3b8;font-size:11px;">Sources: terser CLI (mangle disabled) · UTF-8 byte-level repair · per-rule WCAG validation</div>
 </div>
 </section>
 
