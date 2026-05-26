@@ -38,11 +38,21 @@ import threading
 import time
 import urllib.request
 from pathlib import Path
+import pytest
+
+# pytest-collection skip: this is a one-shot Playwright CLI smoke script, not a
+# pytest test. Skip before any stream rewiring so pytest capture stays intact.
+if "pytest" in sys.modules and __name__ != "__main__":
+    pytest.skip(
+        "Playwright CLI smoke script - run with `python <file>`, not pytest",
+        allow_module_level=True,
+    )
 
 # Windows cp1252 console can't print non-ASCII (lessons.md gotcha).
 # Wrap stdout in UTF-8 with replace fallback before any print().
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace", line_buffering=True)
-sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace", line_buffering=True)
+if "pytest" not in sys.modules:
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace", line_buffering=True)
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace", line_buffering=True)
 
 from playwright.sync_api import sync_playwright
 

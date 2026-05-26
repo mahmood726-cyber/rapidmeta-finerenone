@@ -5,7 +5,13 @@ and compares point estimates + tau² to the committed R JSON to 1e-3.
 """
 import json
 from pathlib import Path
-from playwright.sync_api import sync_playwright
+
+import pytest
+
+sync_playwright = pytest.importorskip(
+    "playwright.sync_api",
+    reason="playwright is not installed in this environment",
+).sync_playwright
 
 DATASETS = [
     ('btki_cll_nma',       'BR',              'HR',  False),  # HR; lower=better
