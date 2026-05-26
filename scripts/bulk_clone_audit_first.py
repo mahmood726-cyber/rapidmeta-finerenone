@@ -265,8 +265,13 @@ def build_config(topic_doc):
         # --- Global replace-ALL (fixes the n>1 SKIP bug). Longest/compound
         # tokens FIRST so substrings are not partially clobbered. ---
         "global_replaces": [
+            ["DUPILUMAB_COPD_REVIEW.html", f"{stem}_FULL_REVIEW.html"],
+            ["DUPILUMAB_COPD_REVIEW", f"{stem}_FULL_REVIEW"],
+            ["DUPILUMAB_AD_REVIEW.html", f"{stem}_FULL_REVIEW.html"],
+            ["DUPILUMAB_AD_REVIEW", f"{stem}_FULL_REVIEW"],
             ["rapid_meta_dupilumab_copd", f"rapid_meta_{stem_l}"],
             ["dupilumab_copd", stem_l],
+            ["DUPILUMAB", drug.upper()],
             ["IL-4Ralpha Monoclonal Antibody",
              "intervention as registered on ClinicalTrials.gov"],
             ["Type 2 Inflammation", "the registered population"],
