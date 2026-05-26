@@ -256,7 +256,41 @@ def clone(config, dry=False):
 
     if not dry:
         open(out, 'w', encoding='utf-8').write(src)
+        # Auto-minify the inline engine block. Without this, freshly cloned
+        # pages ship the ~1 MB unminified engine and accumulate Lighthouse
+        # debt until a follow-up minify pass runs. Soft-fail if Node/terser
+        # isn't available so the clone itself still succeeds.
+        _minify_engine_in_place(out, log)
     return log
+
+
+def _minify_engine_in_place(path, log):
+    """Best-effort terser pass on the inline engine block of a cloned page.
+    Mirrors what scripts/minify_all_engines.mjs does for the bulk-portfolio
+    case. Logs success or skip; does not raise.
+    """
+    import subprocess
+    script = os.path.join(ROOT, 'scripts', 'minify_engine_block.mjs')
+    if not os.path.exists(script):
+        log.append('  [SKIP_MINIFY]      minify_engine_block.mjs not present')
+        return
+    node = 'node.exe' if os.name == 'nt' else 'node'
+    try:
+        proc = subprocess.run(
+            [node, script, path, path],  # read and write same file
+            capture_output=True, text=True, timeout=120,
+            encoding='utf-8', errors='replace',
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired) as e:
+        log.append(f'  [SKIP_MINIFY]      {type(e).__name__}')
+        return
+    if proc.returncode == 0:
+        # terser writes its stats to stderr (see minify_engine_block.mjs)
+        last = (proc.stderr or '').strip().splitlines()
+        savings = last[-2] if len(last) >= 2 else (last[0] if last else 'minified')
+        log.append(f'  [APPLIED]          terser: {savings[:80]}')
+    else:
+        log.append(f'  [SKIP_MINIFY]      terser rc={proc.returncode}: {(proc.stderr or "")[:100]}')
 
 
 def main():

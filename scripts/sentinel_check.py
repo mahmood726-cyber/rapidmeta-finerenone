@@ -199,6 +199,35 @@ def r7_mojibake_em_dash(path: Path, txt: str) -> list[str]:
     return []
 
 
+# R8: un-minified large engine block. After commit (this work),
+# scripts/minify_all_engines.mjs runs terser on every FULL_REVIEW inline
+# engine; post-minification the engine block is ~580 KB. Anything
+# substantially larger (>= 800 KB) signals the engine was reintroduced
+# unminified (e.g. a generator emitted a fresh page without re-running
+# the minifier, or a manual edit blew up the body). The rule WARNs
+# rather than BLOCKs because some legitimate edits can briefly inflate
+# the block while authoring; the fix is to run the minifier.
+ENGINE_SCRIPT_RE = re.compile(
+    r"<script\b[^>]*>([\s\S]*?)</script>", re.DOTALL
+)
+UNMINIFIED_THRESHOLD_BYTES = 800_000
+
+
+def r8_unminified_engine(path: Path, txt: str) -> list[str]:
+    # Only applies to *_REVIEW.html pages (the FULL_REVIEW family).
+    if "_REVIEW" not in path.name:
+        return []
+    for m in ENGINE_SCRIPT_RE.finditer(txt):
+        body = m.group(1)
+        if len(body) >= UNMINIFIED_THRESHOLD_BYTES:
+            return [
+                f"R8 inline engine block is {len(body):,} bytes "
+                f"(>= {UNMINIFIED_THRESHOLD_BYTES:,}); run "
+                "`node scripts/minify_all_engines.mjs` to compress."
+            ]
+    return []
+
+
 def r6_realdata_parses(path: Path, txt: str) -> list[str]:
     """Use Node to validate the realData object literal. Skipped if Node missing."""
     # Cheap presence check first.
@@ -264,6 +293,7 @@ RULES: list[tuple[str, Callable[[Path, str], list[str]]]] = [
     ("R5_plotly_title", r5_plotly_title_injection),
     ("R6_realdata_parses", r6_realdata_parses),
     ("R7_mojibake_em_dash", r7_mojibake_em_dash),
+    ("R8_unminified_engine", r8_unminified_engine),
 ]
 
 

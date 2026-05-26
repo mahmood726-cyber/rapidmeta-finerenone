@@ -156,6 +156,58 @@ def test_fix_heading_order_lite_idempotent(tmp_html):
     assert "<h3" not in a
 
 
+def test_minify_engine_block_idempotent(tmp_path):
+    """Running minify_all_engines.mjs twice on the same page produces
+    identical output the second time. We invoke it on a synthetic minimal
+    HTML fixture so the test stays fast and offline."""
+    import shutil
+    import subprocess
+    # HERE = tests parent dir's parent dir = repo root. (see top of file)
+    repo = HERE
+
+    fixture = tmp_path / "FIXTURE_REVIEW.html"
+    # Build a synthetic page with a ~100+ KB engine block of redundant JS
+    # that terser will compress significantly on pass 1 and ~not at all on pass 2.
+    big_body = ("\n".join(
+        f"  var __unused_{i} = 1 + 1; // comment {i}" for i in range(8000)
+    )) + "\n  window.RapidMeta = { hello: function() { return 'hi'; } };\n"
+    html = (
+        "<!doctype html><html><head><title>fx</title></head><body>\n"
+        f"<script>{big_body}</script>\n"
+        "</body></html>\n"
+    )
+    fixture.write_text(html, encoding="utf-8")
+
+    # Run minify_one_in_place via node — the script's batch entry point
+    # only handles repo-root files. Use a one-shot wrapper instead.
+    NODE = shutil.which("node") or "node.exe"
+    one_shot = repo / "scripts" / "minify_engine_block.mjs"
+    if not one_shot.exists():
+        pytest.skip("minify_engine_block.mjs not present (terser not installed?)")
+    out1 = tmp_path / "FIXTURE_REVIEW.pass1.html"
+    out2 = tmp_path / "FIXTURE_REVIEW.pass2.html"
+    p1 = subprocess.run(
+        [NODE, str(one_shot), str(fixture), str(out1)],
+        capture_output=True, text=True, timeout=60,
+        cwd=str(repo),
+    )
+    if p1.returncode != 0:
+        if "Cannot find package 'terser'" in p1.stderr:
+            pytest.skip("terser not installed")
+        raise AssertionError(f"pass-1 failed: {p1.stderr[:200]}")
+    p2 = subprocess.run(
+        [NODE, str(one_shot), str(out1), str(out2)],
+        capture_output=True, text=True, timeout=60,
+        cwd=str(repo),
+    )
+    assert p2.returncode == 0, f"pass-2 failed: {p2.stderr[:200]}"
+    # Output bytes should be identical (or within a handful of bytes —
+    # terser's behaviour is deterministic given fixed input).
+    assert out1.read_bytes() == out2.read_bytes(), (
+        "second minify pass changed the output — not idempotent"
+    )
+
+
 def test_fix_mojibake_em_dash_idempotent(tmp_html):
     """cp1252-roundtrip em-dash mojibake should be replaced on pass 1 and no-op on pass 2."""
     # Construct the mojibake byte sequence directly in the file.

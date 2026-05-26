@@ -54,3 +54,27 @@ outputs/r_validation/**/*.error.log
 scripts/configs/_audit_*.json
 outputs/_bulk*.log
 outputs/_jscheck_all.log
+
+# Node toolchain (terser pulled in by scripts/minify_*.mjs)
+node_modules/
+package-lock.json
+
+# JS parse-gate state
+.js_parse_failures.log
+.sentinel_bypass.log
+
+# Scratch / one-shot diagnostic helpers (everything in scripts/ that
+# starts with _ is a probe; production tools have plain names)
+scripts/_*.py
+scripts/_*.mjs
+
+# .git commit-message drafts
+.git/COMMIT_EDITMSG_v*
+.git/staged.txt
+
+# Lighthouse audit dumps (regenerated per session)
+outputs/lighthouse/
+
+# Pre-existing broken file with a JS syntax bug (untracked since inception).
+# Sentinel R8 will warn until it's repaired or removed.
+HIV_NEXTGEN_ART_REVIEW.html
