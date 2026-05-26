@@ -208,6 +208,42 @@ def test_minify_engine_block_idempotent(tmp_path):
     )
 
 
+def test_build_binary_sidecar_idempotent(tmp_path):
+    """Running the sidecar generator twice should be a no-op on pass 2
+    because emit_sidecar() skips if the JSON already exists."""
+    import shutil
+    mod = _load("build_binary_sidecar")
+
+    # Build a minimal page with two trials worth pooling.
+    page = tmp_path / "FIXTURE_FULL_REVIEW.html"
+    page.write_text(
+        "<html><body><script>"
+        "const realData = {"
+        "  NCT00000001: { name: 'A', tE: 10, tN: 100, cE: 20, cN: 100 },"
+        "  NCT00000002: { name: 'B', tE: 5,  tN: 50,  cE: 8,  cN: 50  }"
+        "};"
+        "</script></body></html>",
+        encoding="utf-8",
+    )
+    # Point the script at our tmp dir
+    sidecar_dir = tmp_path / "outputs" / "r_validation"
+    sidecar_dir.mkdir(parents=True)
+    mod.SIDECAR_DIR = sidecar_dir
+    mod.HERE = tmp_path
+
+    r1 = mod.emit_sidecar(page)
+    r2 = mod.emit_sidecar(page)
+    assert r1["status"] == "generated"
+    assert r2["status"] == "exists"
+    # Force-overwrite should be idempotent: same bytes out.
+    r3 = mod.emit_sidecar(page, force=True)
+    body_after_3 = (sidecar_dir / f"{mod.sidecar_stem(page.name)}.json").read_bytes()
+    r4 = mod.emit_sidecar(page, force=True)
+    body_after_4 = (sidecar_dir / f"{mod.sidecar_stem(page.name)}.json").read_bytes()
+    assert r3["status"] == "generated"
+    assert body_after_3 == body_after_4
+
+
 def test_backfill_lite_event_counts_idempotent(tmp_path):
     """Backfill from a full page should run once and then no-op on rerun."""
     lite = tmp_path / "WIDGET_AUTO_REVIEW.html"
