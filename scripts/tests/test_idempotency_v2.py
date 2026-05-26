@@ -208,6 +208,45 @@ def test_minify_engine_block_idempotent(tmp_path):
     )
 
 
+def test_backfill_lite_event_counts_idempotent(tmp_path):
+    """Backfill from a full page should run once and then no-op on rerun."""
+    lite = tmp_path / "WIDGET_AUTO_REVIEW.html"
+    full = tmp_path / "WIDGET_AUTO_FULL_REVIEW.html"
+    # Lite has impossible counts (events > sample size).
+    lite.write_text(
+        '<html><body><script type="application/json">'
+        '{"NCT00000001": {'
+        '  "name": "NCT00000001",'
+        '  "tE": 95,'
+        '  "tN": 22,'
+        '  "cE": 14,'
+        '  "cN": 7,'
+        '  "publishedHR": null'
+        '}}</script></body></html>',
+        encoding="utf-8",
+    )
+    # Full has the corrected values.
+    full.write_text(
+        '<html><body><script>'
+        "const realData = { 'NCT00000001': { name: 'NCT00000001', tE: 0, tN: 22, cE: 1, cN: 7, publishedHR: null } };"
+        '</script></body></html>',
+        encoding="utf-8",
+    )
+    mod = _load("backfill_lite_event_counts")
+    r1 = mod.patch_lite_page(lite)
+    body_after_1 = lite.read_text(encoding="utf-8")
+    r2 = mod.patch_lite_page(lite)
+    body_after_2 = lite.read_text(encoding="utf-8")
+
+    assert r1["status"] == "patched"
+    assert r2["status"] == "no-impossible"   # no more impossibility after pass 1
+    assert body_after_1 == body_after_2
+    # Lite now has corrected values.
+    assert '"tE": 0' in body_after_1
+    assert '"cE": 1' in body_after_1
+    assert '"tE": 95' not in body_after_1
+
+
 def test_fix_mojibake_em_dash_idempotent(tmp_html):
     """cp1252-roundtrip em-dash mojibake should be replaced on pass 1 and no-op on pass 2."""
     # Construct the mojibake byte sequence directly in the file.

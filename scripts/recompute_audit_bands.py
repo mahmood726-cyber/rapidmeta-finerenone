@@ -37,10 +37,21 @@ if "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
 HERE = Path(__file__).resolve().parent.parent
 
 TRIAL_BLOCK_RE = re.compile(
-    r"'(NCT\d{7,8})':\s*\{(?P<body>(?:[^{}]|\{[^{}]*\}){0,4000})\}",
+    # Terser minification strips quotes from object keys that are valid JS
+    # identifiers. NCT00042289 is a valid identifier (starts with a letter,
+    # only letters/digits), so the original `'NCT00042289':` becomes
+    # `NCT00042289:` in minified output. We match all three quoted forms:
+    #   'NCT00042289':         (original single-quoted)
+    #   "NCT00042289":         (terser default double-quote conversion)
+    #   NCT00042289:           (terser bare-identifier key)
+    r"(?:'(NCT\d{7,8})'|\"(NCT\d{7,8})\"|\b(NCT\d{7,8}))\s*:\s*\{"
+    r"(?P<body>(?:[^{}]|\{[^{}]*\}){0,4000})\}",
     re.DOTALL,
 )
-PMID_RE = re.compile(r"pmid:\s*['\"](\d*)['\"]")
+# pmid may appear as JS object key `pmid: '12345'` (full pages) or as
+# JSON-quoted key `"pmid": "12345"` (lite *_AUTO_REVIEW pages). Both
+# forms must match.
+PMID_RE = re.compile(r"['\"]?pmid['\"]?\s*:\s*['\"](\d*)['\"]")
 PLOTLY_BAD = '${escapeHtml(document.title || "RapidMeta'
 CONFLICT_RE = re.compile(r"^(<<<<<<< |=======$|>>>>>>> )", re.MULTILINE)
 
@@ -69,7 +80,12 @@ def classify(p: Path) -> tuple[str, dict]:
             n_empty_pmid += 1
 
         def get(field):
-            mm = re.search(rf"\b{field}:\s*(-?[\d.eE+-]+|null|None)", body)
+            # Match BOTH `tE: 5` (JS object literal, full pages) AND
+            # `"tE": 5` / `'tE': 5` (JSON-quoted keys, lite pages).
+            mm = re.search(
+                rf"['\"]?{field}['\"]?\s*:\s*(-?[\d.eE+-]+|null|None)",
+                body,
+            )
             v = mm.group(1) if mm else None
             if v is None or v in ("null", "None"):
                 return None
