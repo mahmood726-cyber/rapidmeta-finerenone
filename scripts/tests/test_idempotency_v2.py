@@ -208,6 +208,36 @@ def test_minify_engine_block_idempotent(tmp_path):
     )
 
 
+def test_build_continuous_sidecar_idempotent(tmp_path):
+    """Continuous sidecar generation must be idempotent (exists check)."""
+    mod = _load("build_continuous_sidecar")
+
+    page = tmp_path / "FIXTURE_REVIEW.html"
+    page.write_text(
+        "<html><body><script>"
+        "const realData = {"
+        "  NCT00000001: { name: 'A', publishedHR: 0.85, hrLCI: 0.72, hrUCI: 0.99, estimandType: 'HR' },"
+        "  NCT00000002: { name: 'B', publishedHR: 0.78, hrLCI: 0.65, hrUCI: 0.93, estimandType: 'HR' }"
+        "};"
+        "</script></body></html>",
+        encoding="utf-8",
+    )
+    sidecar_dir = tmp_path / "outputs" / "r_validation" / "continuous"
+    sidecar_dir.mkdir(parents=True)
+    mod.SIDECAR_DIR = sidecar_dir
+    mod.HERE = tmp_path
+
+    r1 = mod.emit_sidecar(page)
+    r2 = mod.emit_sidecar(page)
+    assert r1["status"] == "generated"
+    assert r2["status"] == "exists"
+    # Force run twice — bytes identical
+    bytes_3 = (sidecar_dir / "FIXTURE_REVIEW.json").read_bytes()
+    mod.emit_sidecar(page, force=True)
+    bytes_4 = (sidecar_dir / "FIXTURE_REVIEW.json").read_bytes()
+    assert bytes_3 == bytes_4
+
+
 def test_build_binary_sidecar_idempotent(tmp_path):
     """Running the sidecar generator twice should be a no-op on pass 2
     because emit_sidecar() skips if the JSON already exists."""
