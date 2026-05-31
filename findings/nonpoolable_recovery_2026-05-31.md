@@ -48,3 +48,43 @@ fallback); zero benchmark regressions.
 
 These three are now *visible* because the parser can finally read the apps;
 each needs its per-trial counts checked against the source paper.
+
+### Resolution (source-checked 2026-05-31)
+
+- **CANGRELOR_PCI** — DATA VALID. Real CHAMPION-PCI/PLATFORM/PHOENIX counts; the
+  per-trial 48 h primary endpoints pool to 0.89, while the 0.81 benchmark is
+  Steg 2013's patient-level pooled mITT primary. Fix = clarify the benchmark
+  note, not the data.
+- **TEZEPELUMAB_ASTHMA** — INVALID POOL. NAVIGATOR carries exacerbation-rate
+  counts (4/528 vs 18/531, OR≈0.22, correct) but SOURCE (71/74) and PATH-HOME
+  (110/111) carry *responder/completer* counts (OR≫1); SOURCE also has a
+  negative "publishedHR" (−13.04 = the MD-in-HR bug). Three incompatible
+  outcomes pooled → 2.01. Needs outcome harmonisation or trial exclusion.
+- **BIMEKIZUMAB_PSO** — INVALID POOL. BE RADIANT is vs *secukinumab* (active
+  comparator); the other arms are placebo. Benchmark 25.69 is placebo PASI90.
+  Mixed comparators → meaningless 0.58.
+
+## SYSTEMIC DATA-INTEGRITY FINDING (escalation — needs a decision)
+
+The benchmark probe led to a portfolio-wide scan. Beyond the 8 Sentinel
+`P0-denominator-logic` BLOCKs, **154 apps have arithmetically impossible counts
+(tE>tN or cE>cN)** in their source realData, e.g. ABATACEPT_PSA NCT00534313
+tE=57 > tN=43. A further 165 apps carry implausible N≤5 denominators. These are
+pre-existing extraction corruptions (NOT introduced by the parser fix; the
+parser merely made them visible).
+
+Worse, several Sentinel-flagged trials are the **wrong trial type** — ctgov
+confirms they are single-arm phase I/II studies, not the RCTs the apps claim:
+  - NCT01959698 (CARFILZOMIB_REL) — single-arm phase 1, N=29
+  - NCT01902173 (DABRAFENIB + TRAMETINIB melanoma, 2 apps) — single-arm ph1/2, N=27
+  - NCT03332498 (PEMBROLIZUMAB CRC, 2 apps) — pembro+ibrutinib single-arm ph1/2, N=40
+  - NCT01761292 (GIVINOSTAT_DMD) — single-arm ph1/2, N=20
+The 6-gate "audit-first" pipeline was meant to exclude non-RCTs; these slipped
+through and the FULL clones fabricated 2-arm counts on top.
+
+These cannot be repaired by patching numbers (no control arm exists to patch
+to) and there is no local AACT snapshot. Recommended remediation (pending
+decision): quarantine the single-arm/wrong-trial apps; null the impossible
+counts on the remainder so they read as honestly data-unavailable rather than
+wrongly poolable; schedule a source-backed re-extraction (AACT or ctgov API)
+for the salvageable RCTs.
