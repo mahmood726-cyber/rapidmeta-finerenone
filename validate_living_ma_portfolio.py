@@ -361,16 +361,21 @@ def extract_real_data(html):
     js = _trials_from_json(html)
     if js:
         return js
-    # Find the realData block
-    m = re.search(r'realData:\s*\{(.*?)\n\s{8,12}\},', html, re.DOTALL)
-    if not m:
-        return {}
-    block = m.group(1)
+    # Find the realData block (brace-matched, indent-agnostic; falls back to the
+    # legacy fixed-indent regex only if brace matching somehow fails).
+    block = _brace_extract(html, "realData:")
+    if block is None:
+        m = re.search(r'realData:\s*\{(.*?)\n\s{8,12}\},', html, re.DOTALL)
+        if not m:
+            return {}
+        block = m.group(1)
     trials = {}
 
-    # Match NCT, ACTRN, ISRCTN, ChiCTR, EUCTR, JPRN registry IDs with optional suffix.
-    # Suffixes like _SENIOR/_CKD/_ON/_OFF appear for stratified subgroups of a single parent trial.
-    trial_id_pattern = r"'((?:NCT|ACTRN|ISRCTN|ChiCTR|EUCTR|JPRN)[A-Z0-9_-]+)':\s*\{"
+    # Match NCT, ACTRN, ISRCTN, ChiCTR, EUCTR, JPRN registry IDs with optional
+    # suffix. Quote-agnostic: flagship apps single-quote the key ('NCT…':),
+    # hybrid JSON/JS apps double-quote it ("NCT…":). Suffixes like
+    # _SENIOR/_CKD/_ON/_OFF mark stratified subgroups of a single parent trial.
+    trial_id_pattern = r"""["']((?:NCT|ACTRN|ISRCTN|ChiCTR|EUCTR|JPRN)[A-Z0-9_-]+)["']\s*:\s*\{"""
     nct_starts = [(tm.start(), tm.group(1)) for tm in re.finditer(trial_id_pattern, block)]
     if not nct_starts:
         return {}
@@ -394,7 +399,7 @@ def extract_real_data(html):
         }
         for canonical, names in field_aliases.items():
             for name_alias in names:
-                fm = re.search(rf'\b{name_alias}:\s*([-\d.]+|null)', body)
+                fm = re.search(rf'["\']?{name_alias}["\']?\s*:\s*([-\d.]+|null)', body)
                 if fm and fm.group(1) != 'null':
                     try:
                         d[canonical] = float(fm.group(1))
