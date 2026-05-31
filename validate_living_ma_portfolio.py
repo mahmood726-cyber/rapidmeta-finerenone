@@ -283,8 +283,84 @@ def classify_pooled_outcome(short_label, title):
 # PARSING & POOLING
 # ═══════════════════════════════════════════════════════════
 
+def _brace_extract(html, key="realData:"):
+    """Return the balanced {...} object string that follows `key`, or None.
+
+    Robust to nested braces and arbitrary indentation -- unlike a regex that
+    keys off a fixed closing-indent, which silently misses any block whose
+    delimiter doesn't match (the bug that hid 794 lite *_AUTO_REVIEW apps)."""
+    i = html.find(key)
+    if i < 0:
+        return None
+    j = html.find("{", i)
+    if j < 0:
+        return None
+    depth = 0
+    for k in range(j, len(html)):
+        c = html[k]
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+            if depth == 0:
+                return html[j:k + 1]
+    return None
+
+
+_TRIAL_ID_RE = re.compile(r'(?:NCT|ACTRN|ISRCTN|ChiCTR|EUCTR|JPRN)[A-Z0-9_-]+')
+
+
+def _trials_from_json(html):
+    """Parse the lite *_AUTO_REVIEW format, where realData is emitted as
+    standard JSON (double-quoted keys, e.g. "NCT…": {"tE": 313, …}). Returns a
+    normalised {id: fields} dict, or None if the block is not valid JSON (in
+    which case the caller falls back to the single-quoted JS-object parser)."""
+    blk = _brace_extract(html, "realData:")
+    if not blk:
+        return None
+    try:
+        obj = json.loads(blk)
+    except (ValueError, TypeError):
+        return None
+    if not isinstance(obj, dict):
+        return None
+    out = {}
+    for tid, body in obj.items():
+        if not isinstance(body, dict):
+            continue
+        # Keep registry-ID keys, or any entry carrying trial-shaped fields.
+        if not (_TRIAL_ID_RE.fullmatch(str(tid)) or 'tN' in body or 'publishedHR' in body):
+            continue
+        d = {}
+        for canonical, names in (('tE', ('tE',)), ('tN', ('tN',)), ('cE', ('cE',)),
+                                 ('cN', ('cN',)), ('publishedHR', ('publishedHR',)),
+                                 ('hrLCI', ('hrLCI', 'publishedHRLCI')),
+                                 ('hrUCI', ('hrUCI', 'publishedHRUCI'))):
+            for nm in names:
+                v = body.get(nm)
+                if v is not None:
+                    try:
+                        d[canonical] = float(v)
+                        break
+                    except (ValueError, TypeError):
+                        pass
+        if body.get('name'):
+            d['name'] = str(body['name'])
+        if body.get('hrSource'):
+            d['hrSource'] = str(body['hrSource'])
+        out[str(tid)] = d
+    return out or None
+
+
 def extract_real_data(html):
-    """Extract realData JS object from HTML. Handles both v16 multi-line and original single-line formats."""
+    """Extract realData object from HTML. Handles three formats: lite JSON
+    (*_AUTO_REVIEW, double-quoted), and flagship single-quoted JS-object
+    (multi-line + single-line)."""
+    # Lite JSON format first (cheap, valid-JSON gate; flagship single-quoted
+    # blocks fail json.loads and fall through to the regex parser below).
+    js = _trials_from_json(html)
+    if js:
+        return js
     # Find the realData block
     m = re.search(r'realData:\s*\{(.*?)\n\s{8,12}\},', html, re.DOTALL)
     if not m:
