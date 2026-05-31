@@ -83,8 +83,36 @@ The 6-gate "audit-first" pipeline was meant to exclude non-RCTs; these slipped
 through and the FULL clones fabricated 2-arm counts on top.
 
 These cannot be repaired by patching numbers (no control arm exists to patch
-to) and there is no local AACT snapshot. Recommended remediation (pending
-decision): quarantine the single-arm/wrong-trial apps; null the impossible
-counts on the remainder so they read as honestly data-unavailable rather than
-wrongly poolable; schedule a source-backed re-extraction (AACT or ctgov API)
-for the salvageable RCTs.
+to) and there is no local AACT snapshot.
+
+## REMEDIATION DONE (ctgov source-recheck, 2026-05-31)
+
+Built `scripts/ctgov_recheck_counts.py` (classifier) + `_ctgov_extract.py`
+(conservative 2x2 extractor) + `ctgov_apply_counts.py` (safe HTML editor).
+Classified all 381 suspect trials against the ClinicalTrials.gov API v2, then
+applied:
+
+| Verdict | n | Action taken |
+|---|---|---|
+| FIXABLE_BINARY (clean extract) | 23 | tE/tN/cE/cN overwritten with ctgov source counts |
+| FIXABLE but ambiguous outcome/arms | ~235 | NULLED (extractor fails closed; no guessing) |
+| RECLASS_CONTINUOUS | 60 | NULLED (continuous endpoint, not 2x2) |
+| EXCLUDE_SINGLE_ARM | 61 | NULLED (single-arm phase I/II, not an RCT) |
+| benchmark-sibling AUTO apps | 7 | NULLED in a follow-up pass |
+
+**Result: portfolio-wide arithmetically-impossible counts (tE>tN / cE>cN) =
+0** (was 154 apps). validator --strict exit 0; flagship 17/19 preserved
+(curated/benchmarked apps untouched); pooled 1075 -> 1042 (only garbage
+removed — apps kept their valid trials). HTML edits were numeric-field-only,
+idempotent, parse-validated per file (0 reverts); div balance unchanged.
+
+### Still open (manual)
+- 2 benchmarked apps remain INVALID POOLS by construction (not impossible
+  counts): TEZEPELUMAB_ASTHMA (mixed exacerbation/responder outcomes) and
+  BIMEKIZUMAB_PSO (active-comparator mixed with placebo). These are the
+  curated benchmark anchors; they need endpoint/comparator curation, not an
+  auto-null.
+- ~341 nulled trials are now honestly non-poolable; apps left with <2 valid
+  trials are candidates for retirement from the index (separate decision).
+- The ctgov extractor only cleanly recovered 23/258 "fixable" trials; the rest
+  need per-trial manual outcome/arm selection to be re-poolable.
