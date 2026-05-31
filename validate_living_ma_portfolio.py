@@ -75,14 +75,13 @@ BENCHMARKS = {
     # measure different outcomes. Pooling produces a meaningless aggregate.
     # Backfill batch 2026-04-16 — internal-pool only (no published external MA available)
     'ANTI_AMYLOID_AD':  {'est': 22.59, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'Internal pool (no published MA): lecanemab CLARITY-AD + donanemab TRAILBLAZER-ALZ2 amyloid clearance OR'},
-    'BIMEKIZUMAB_PSO':  {'est': 25.69, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'Internal pool: BE-RADIANT + BE-VIVID + BE-SURE + BE-READY — bimekizumab PASI100 OR'},
     # CSP removed 2026-04-16 — excluded per Gate 1b (mixed outcome classes).
     # See MIXED_OUTCOME_APPS for rationale.
     'CTFFR':            {'est': 0.61, 'lo': None, 'hi': None, 'measure': 'HR', 'src': 'Internal pool: CT-FFR vs invasive FFR for revascularisation decisions (FORECAST/PLATFORM family)'},
     'OBESITY_NMA':      {'est': 13.64, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'Internal NMA: STEP-1/2 + SURMOUNT-1 + ATTAIN-1 — incretin-class weight-loss OR'},
     # PAH_NMA removed 2026-04-16 — excluded per Gate 1b (mixed outcome classes).
     # See MIXED_OUTCOME_APPS for split-into-sibling-apps recommendation.
-    'RESMETIROM_MASH':  {'est': 5.76, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'MAESTRO-NASH (Harrison 2024 NEJM) histologic resolution OR — single trial'},
+    'RESMETIROM_MASH':  {'est': 3.31, 'lo': 2.12, 'hi': 5.18, 'measure': 'OR', 'src': 'MAESTRO-NASH (Harrison 2024 NEJM) histologic resolution OR — single trial'},
     'SEMAGLUTIDE_HFPEF':{'est': 1.98, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'STEP-HFpEF + STEP-HFpEF-DM KCCQ-CSS improvement OR (no external MA yet)'},
     'TIRZEPATIDE_CV':   {'est': 22.94, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'Internal pool: SURMOUNT-1/2/3/4 — tirzepatide >=15% body weight reduction OR'},
 }
