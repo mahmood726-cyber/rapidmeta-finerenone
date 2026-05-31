@@ -116,3 +116,33 @@ idempotent, parse-validated per file (0 reverts); div balance unchanged.
   trials are candidates for retirement from the index (separate decision).
 - The ctgov extractor only cleanly recovered 23/258 "fixable" trials; the rest
   need per-trial manual outcome/arm selection to be re-poolable.
+
+## Multi-agent recovery round (2026-05-31, follow-up)
+
+Ran a 2-stage workflow (extract -> adversarial verify, 164 agents) over the 124
+FIXABLE-but-ambiguous trials the regex extractor could not resolve, plus a
+scripted continuous-MD extraction.
+
+- Binary: **39/124 CONFIRMED** with source 2x2 (85 rejected, fail-closed) ->
+  applied to 99 files -> pooled 1042 -> 1066, impossible counts still 0.
+- Continuous: **13/30** cleanly extracted MD+SE from ctgov analyses/dispersions ->
+  injected `type:'CONTINUOUS', md, se` into allOutcomes (canonical RENAL format)
+  so the JS mean-difference engine pools them (not visible to the ratio-only
+  Python validator).
+- Guard: `tests/test_no_impossible_counts.py` scans the whole portfolio and
+  fails the build if any tE>tN/cE>cN reappears.
+
+Net: 52 of 154 corrupt trials recovered with verified source data; remainder
+honestly nulled. flagship 17/19 preserved throughout.
+
+## Remaining (needs human/clinical judgment — not auto-edited)
+1. **2 benchmark anchors still invalid pools**: TEZEPELUMAB_ASTHMA (benchmark
+   0.44 is an exacerbation RATE ratio; app uses binary counts and mixes
+   responder trials) and BIMEKIZUMAB_PSO (benchmark 25.69 is placebo PASI90;
+   app mixes the active-comparator BE RADIANT). Fixing requires curating which
+   trials/outcomes belong + source-verified published values; high-stakes since
+   they anchor the benchmark set.
+2. **Empty shells**: apps left with <2 valid trials after nulling are retirement
+   candidates (portfolio-index decision).
+3. **README** still claims 44/57 apps & 766 trials vs the real 2,151 generated /
+   1,066 pooling — needs a positioning decision (curated-product vs full-portfolio).
