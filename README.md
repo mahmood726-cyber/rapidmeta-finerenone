@@ -1,15 +1,15 @@
 # RapidMeta Living Evidence Portfolio (v16)
 
-Browser-native, single-file living meta-analysis platform spanning **44 cardiovascular, oncology, nephrology, pulmonology, and metabolic apps**, plus a network of **27 sibling apps** in independent repositories. Each app is a self-contained ~14,000-line HTML file with 31 inlined analytic engines, validated against published meta-analyses and the R `metafor` package.
+Browser-native, single-file living meta-analysis platform. The repository contains **2,151 auto-generated single-file topic apps** built from a ClinicalTrials.gov/AACT + PubMed audit pipeline, around a **curated flagship set** of cardiovascular/nephrology apps validated against published meta-analyses and the R `metafor` package. **1,065 apps currently produce a pooled estimate** (≥2 trials); the rest are single-trial or continuous-outcome topics. Each app is a self-contained HTML file with inlined analytic engines.
 
 [![Validate Living MA Portfolio](https://github.com/mahmood726-cyber/rapidmeta-finerenone/actions/workflows/validate.yml/badge.svg)](https://github.com/mahmood726-cyber/rapidmeta-finerenone/actions/workflows/validate.yml)
 
 ## Highlights
 
-- **57 living MA apps** total across 12 specialties (18 in this repo + 39 in sibling repos)
-- **17/17 in-repo apps** within 10% of published benchmarks under `--strict` (1 app, RENAL_DENERV, uses MD outcome handled by HTML JS engine and skipped by Python validator)
+- **19/19 benchmarked apps** within 10% of published meta-analysis benchmarks under `--strict` (exit 0)
+- **Data integrity (verified 2026-05-31):** a ClinicalTrials.gov source-recheck removed all arithmetically-impossible 2x2 counts (was 154 apps), source-recovered 52 trials, and a portfolio-wide regression test (`tests/test_no_impossible_counts.py`) blocks reintroduction. See `findings/nonpoolable_recovery_2026-05-31.md`.
 - **31 analytic engines** per app: DL/REML pooling, HKSJ adjustment, GRADE, NMA, dose-response Emax, cross-validation, provenance hashing, 18 automated QA checks
-- **766 trials** indexed across the portfolio
+- **Trial-level data** parsed from each app's `realData` block (registry-ID keyed, ctgov-verified where re-extracted)
 - **7 dose-response apps** with Emax curve fitting
 - **4 NMA apps** with Bucher indirect comparisons
 - **Zero external dependencies at runtime** — every app is one HTML file, opens locally, no server, no CDN
@@ -58,7 +58,7 @@ No server, no installation, no data leaves your machine.
 
 ## Apps in this repo (18)
 
-Values reflect live `validate_living_ma_portfolio.py --local --strict` output as of 2026-04-16 (17/17 within 10%, exit 0). k = trials contributing to live pool (Peto-derived HRs counted; null-HR trials with usable event counts contribute via OR).
+Values reflect live `validate_living_ma_portfolio.py --local --strict` output as of 2026-05-31 (19/19 benchmarked within 10%, exit 0; portfolio-wide impossible counts = 0 after the ctgov source-recheck). k = trials contributing to live pool (Peto-derived HRs counted; null-HR trials with usable event counts contribute via OR).
 
 | App | k | Live pool | Benchmark | Outcome | Notes |
 |-----|---|-----------|-----------|---------|-------|
