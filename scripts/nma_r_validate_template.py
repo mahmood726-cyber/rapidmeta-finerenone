@@ -17,7 +17,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='repla
 import os
 import shutil
 RSCRIPT = os.environ.get("RSCRIPT") or shutil.which("Rscript") or \
-    os.environ.get("RAPIDMETA_RSCRIPT", "C:/Program Files/R/R-4.5.2/bin/Rscript.exe")
+    os.environ.get("RAPIDMETA_RSCRIPT") or shutil.which("Rscript") or shutil.which("Rscript.exe")
 ROOT = Path(os.environ.get("RAPIDMETA_ROOT") or Path(__file__).resolve().parents[1])
 VALIDATION_DIR = ROOT / "nma" / "validation"
 

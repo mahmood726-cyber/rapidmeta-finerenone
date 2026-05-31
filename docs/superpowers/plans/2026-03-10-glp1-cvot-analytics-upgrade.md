@@ -1,3 +1,4 @@
+<!-- sentinel:skip-file — historical/auto-generated doc; the local paths below are descriptive data (where artifacts lived when authored), not hardcoded code. -->
 # GLP-1 RA CVOT Analytics Upgrade — Implementation Plan
 
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.

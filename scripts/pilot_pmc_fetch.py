@@ -15,10 +15,12 @@ from pathlib import Path
 if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-sys.path.insert(0, str(Path("C:/Projects/rct-extractor-v2/src").resolve()))
-from core.enhanced_extractor_v3 import EnhancedExtractor, to_dict  # noqa: E402
 sys.path.insert(0, str(Path(__file__).parent))
-from backfill_published_hr import loose_match, pick_best_extraction, PREFERRED_TYPES  # noqa: E402
+from backfill_published_hr import (  # noqa: E402
+    _resolve_extractor_src, loose_match, pick_best_extraction, PREFERRED_TYPES,
+)
+sys.path.insert(0, str(_resolve_extractor_src().resolve()))
+from core.enhanced_extractor_v3 import EnhancedExtractor, to_dict  # noqa: E402
 
 HERE = Path(__file__).resolve().parent.parent
 PMC_CACHE = HERE / "outputs" / "extraction_audit" / "pmc_cache"

@@ -30,7 +30,7 @@ R_SCRIPT = REPO / "scripts" / "r_validate_singlearm.R"
 RSCRIPT_EXE = (
     os.environ.get("RSCRIPT_EXE")
     or shutil.which("Rscript")
-    or r"C:\Program Files\R\R-4.5.2\bin\Rscript.exe"
+    or shutil.which("Rscript.exe")
 )
 
 # P1-7 fix: path-traversal guard. stem comes from _index.json; refuse any

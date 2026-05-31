@@ -24,7 +24,18 @@ EXTRA_LANDING_PAGES = [
     REPO / "META_DASHBOARD.html",
     REPO / "AutoManuscript.html",
 ]
-STUDENTS = Path(r"C:\E156\students.html")
+def _resolve_e156_students():
+    import os
+    env = os.environ.get("E156_STUDENTS")
+    if env:
+        return Path(env)
+    for drive in ("C:", "D:", "E:", "F:"):
+        p = Path(f"{drive}/E156/students.html")
+        if p.exists():
+            return p
+    raise SystemExit("E156 students.html not found. Set E156_STUDENTS to its path.")
+
+STUDENTS = _resolve_e156_students()
 E156_BASE = "https://mahmood726-cyber.github.io/e156/students.html"
 RAPIDMETA_REPO_URL = "rapidmeta-finerenone"  # match against e.code_url
 

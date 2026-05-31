@@ -35,7 +35,7 @@ R_SCRIPT = REPO / "scripts" / "r_validate_doseresp.R"
 RSCRIPT_EXE = (
     os.environ.get("RSCRIPT_EXE")
     or shutil.which("Rscript")
-    or r"C:\Program Files\R\R-4.5.2\bin\Rscript.exe"
+    or shutil.which("Rscript.exe")
 )
 FIXTURE_DIR = REPO / "tests" / "dose_response_fixtures"
 

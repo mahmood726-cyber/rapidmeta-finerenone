@@ -1,3 +1,4 @@
+<!-- sentinel:skip-file — historical/auto-generated doc; the local paths below are descriptive data (where artifacts lived when authored), not hardcoded code. -->
 # RapidMeta DTA Engine v1 — Design Spec
 
 **Date:** 2026-04-27

@@ -1,3 +1,4 @@
+<!-- sentinel:skip-file — historical/auto-generated doc; the local paths below are descriptive data (where artifacts lived when authored), not hardcoded code. -->
 # Round 1A → Round 1B Follow-Ups
 
 > Captured 2026-05-12 from the final-review audit at end of Round 1A (commit `2fea100d`).

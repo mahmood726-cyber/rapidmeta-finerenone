@@ -36,7 +36,7 @@ if (sys.platform == "win32"
 RSCRIPT_EXE = (
     os.environ.get("RSCRIPT_EXE")
     or shutil.which("Rscript")
-    or r"C:\Program Files\R\R-4.5.2\bin\Rscript.exe"
+    or shutil.which("Rscript.exe")
 )
 
 _STEM_OK = re.compile(r"^[A-Za-z0-9_.-]+$")

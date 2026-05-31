@@ -31,7 +31,7 @@ import os as _os, shutil as _shutil
 RSCRIPT_EXE = (
     _os.environ.get("RSCRIPT_EXE")
     or _shutil.which("Rscript")
-    or r"C:\Program Files\R\R-4.5.2\bin\Rscript.exe"
+    or _shutil.which("Rscript.exe")
 )
 
 DTA_JSON_RE = re.compile(

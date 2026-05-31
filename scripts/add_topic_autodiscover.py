@@ -24,7 +24,19 @@ if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower()
 HERE = Path(__file__).resolve().parent.parent
 OUT = HERE / "outputs" / "new_topics"
 OUT.mkdir(parents=True, exist_ok=True)
-AACT = Path("C:/Users/user/AACT/2026-04-12")
+def _resolve_aact_root():
+    import os
+    env = os.environ.get("AACT_ROOT")
+    if env:
+        return Path(env)
+    for drive in ("C:", "D:", "E:", "F:"):
+        for base in (f"{drive}/Users/user/AACT/2026-04-12", f"{drive}/AACT/2026-04-12", f"{drive}/Data/AACT/2026-04-12"):
+            p = Path(base)
+            if p.exists():
+                return p
+    raise SystemExit("AACT snapshot not found. Set AACT_ROOT to the AACT flat-file directory.")
+
+AACT = _resolve_aact_root()
 
 # Topic specs (drug + disease patterns; NCTs auto-discovered from AACT)
 # Format: (stem, display name, drug_patterns, condition_patterns, [phase_min=2])

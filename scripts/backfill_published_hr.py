@@ -17,7 +17,18 @@ from pathlib import Path
 if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-sys.path.insert(0, str(Path("C:/Projects/rct-extractor-v2/src").resolve()))
+def _resolve_extractor_src():
+    import os
+    env = os.environ.get("RCT_EXTRACTOR_SRC")
+    if env:
+        return Path(env)
+    for drive in ("C:", "D:", "E:", "F:"):
+        p = Path(f"{drive}/Projects/rct-extractor-v2/src")
+        if p.exists():
+            return p
+    raise SystemExit("rct-extractor-v2 not found. Set RCT_EXTRACTOR_SRC to its src directory.")
+
+sys.path.insert(0, str(_resolve_extractor_src().resolve()))
 from core.enhanced_extractor_v3 import EnhancedExtractor, to_dict  # noqa: E402
 
 HERE = Path(__file__).resolve().parent.parent

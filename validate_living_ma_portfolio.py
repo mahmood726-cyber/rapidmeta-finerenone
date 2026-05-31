@@ -341,14 +341,20 @@ def pool_dl(trials):
     """DerSimonian-Laird pooling on log scale. Returns dict or None."""
     data = []
     for nct, t in trials.items():
-        if t.get('publishedHR') and t.get('hrLCI') and t.get('hrUCI'):
-            hr, lo, hi = t['publishedHR'], t['hrLCI'], t['hrUCI']
-            if hr > 0 and lo > 0 and hi > 0:
-                logHR = math.log(hr)
-                se = (math.log(hi) - math.log(lo)) / (2 * 1.96)
-                if se > 0:
-                    data.append((logHR, se, t.get('name', nct)))
-        elif t.get('tE') is not None and t.get('tN') and t.get('cN'):
+        appended = False
+        # Prefer a usable ratio-scale HR with CI. NOTE: a present-but-unusable
+        # publishedHR (<=0, e.g. a mislabelled mean difference, or a missing/
+        # non-positive CI bound) must NOT shadow the event-count fallback -- so
+        # this is a fall-through, not an if/elif. (Fixed 2026-05-31: negative
+        # "HR" values were leaving count-poolable trials counted as non-poolable.)
+        hr, lo, hi = t.get('publishedHR'), t.get('hrLCI'), t.get('hrUCI')
+        if hr and lo and hi and hr > 0 and lo > 0 and hi > 0:
+            logHR = math.log(hr)
+            se = (math.log(hi) - math.log(lo)) / (2 * 1.96)
+            if se > 0:
+                data.append((logHR, se, t.get('name', nct)))
+                appended = True
+        if not appended and t.get('tE') is not None and t.get('tN') and t.get('cN'):
             tE = int(t.get('tE', 0))
             tN = int(t.get('tN', 0))
             cE = int(t.get('cE', 0))

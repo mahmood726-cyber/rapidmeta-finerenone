@@ -1,3 +1,4 @@
+<!-- sentinel:skip-file — historical/auto-generated doc; the local paths below are descriptive data (where artifacts lived when authored), not hardcoded code. -->
 # Dose-Response Pack — Round 1A Implementation Plan (Engine + R Validator + Tests)
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

@@ -17,13 +17,14 @@ Usage:
   python scripts/r_validate.py FILE1 ...  # subset
 """
 from __future__ import annotations
-import sys, io, re, json, csv, subprocess
+import sys, io, re, json, csv, os, shutil, subprocess
 from pathlib import Path
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 REPO = Path(__file__).resolve().parent.parent
-RSCRIPT = r"C:\Program Files\R\R-4.5.2\bin\Rscript.exe"
+RSCRIPT = (os.environ.get("RSCRIPT_EXE") or shutil.which("Rscript")
+           or shutil.which("Rscript.exe"))
 OUTDIR = REPO / "outputs/r_validation"
 CSVDIR = OUTDIR / "csv"
 JSONDIR = OUTDIR
