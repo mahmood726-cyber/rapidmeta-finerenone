@@ -75,14 +75,13 @@ BENCHMARKS = {
     # measure different outcomes. Pooling produces a meaningless aggregate.
     # Backfill batch 2026-04-16 — internal-pool only (no published external MA available)
     'ANTI_AMYLOID_AD':  {'est': 22.59, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'Internal pool (no published MA): lecanemab CLARITY-AD + donanemab TRAILBLAZER-ALZ2 amyloid clearance OR'},
-    'BIMEKIZUMAB_PSO':  {'est': 25.69, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'Internal pool: BE-RADIANT + BE-VIVID + BE-SURE + BE-READY — bimekizumab PASI100 OR'},
     # CSP removed 2026-04-16 — excluded per Gate 1b (mixed outcome classes).
     # See MIXED_OUTCOME_APPS for rationale.
     'CTFFR':            {'est': 0.61, 'lo': None, 'hi': None, 'measure': 'HR', 'src': 'Internal pool: CT-FFR vs invasive FFR for revascularisation decisions (FORECAST/PLATFORM family)'},
     'OBESITY_NMA':      {'est': 13.64, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'Internal NMA: STEP-1/2 + SURMOUNT-1 + ATTAIN-1 — incretin-class weight-loss OR'},
     # PAH_NMA removed 2026-04-16 — excluded per Gate 1b (mixed outcome classes).
     # See MIXED_OUTCOME_APPS for split-into-sibling-apps recommendation.
-    'RESMETIROM_MASH':  {'est': 5.76, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'MAESTRO-NASH (Harrison 2024 NEJM) histologic resolution OR — single trial'},
+    'RESMETIROM_MASH':  {'est': 3.31, 'lo': 2.12, 'hi': 5.18, 'measure': 'OR', 'src': 'MAESTRO-NASH (Harrison 2024 NEJM) histologic resolution OR — single trial'},
     'SEMAGLUTIDE_HFPEF':{'est': 1.98, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'STEP-HFpEF + STEP-HFpEF-DM KCCQ-CSS improvement OR (no external MA yet)'},
     'TIRZEPATIDE_CV':   {'est': 22.94, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'Internal pool: SURMOUNT-1/2/3/4 — tirzepatide >=15% body weight reduction OR'},
 }
@@ -283,18 +282,119 @@ def classify_pooled_outcome(short_label, title):
 # PARSING & POOLING
 # ═══════════════════════════════════════════════════════════
 
+_REALDATA_OPEN_RE = re.compile(r'realData\s*:\s*\{')
+_AFTER_OPEN_ID_RE = re.compile(r'\s*["\']?(?:NCT|ACTRN|ISRCTN|ChiCTR|EUCTR|JPRN)')
+
+
+def _brace_extract(html, key="realData:"):
+    """Return the balanced {...} object that is the realData DATA block.
+
+    In minified single-file apps the token `realData` appears dozens of times
+    as JS property references (`realData?.[id]`, `realData[id]`, `realData??{}`)
+    BEFORE the actual data literal `realData:{NCT…:{…}}`. A naive first-match
+    grabs a JS reference and parses 0 trials. So we scan every `realData:{`
+    occurrence and pick the first whose contents open with a registry trial id
+    (quoted or unquoted), then brace-match it. Falls back to first `{` after the
+    key for non-realData callers."""
+    if key == "realData:":
+        candidates = [m.end() - 1 for m in _REALDATA_OPEN_RE.finditer(html)]
+        for j in candidates:
+            if _AFTER_OPEN_ID_RE.match(html, j + 1):
+                blk = _match_braces(html, j)
+                if blk:
+                    return blk
+        # no id-led block found; fall through to first occurrence
+    i = html.find(key)
+    if i < 0:
+        return None
+    j = html.find("{", i)
+    if j < 0:
+        return None
+    return _match_braces(html, j)
+
+
+def _match_braces(html, j):
+    depth = 0
+    for k in range(j, len(html)):
+        c = html[k]
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+            if depth == 0:
+                return html[j:k + 1]
+    return None
+
+
+_TRIAL_ID_RE = re.compile(r'(?:NCT|ACTRN|ISRCTN|ChiCTR|EUCTR|JPRN)[A-Z0-9_-]+')
+
+
+def _trials_from_json(html):
+    """Parse the lite *_AUTO_REVIEW format, where realData is emitted as
+    standard JSON (double-quoted keys, e.g. "NCT…": {"tE": 313, …}). Returns a
+    normalised {id: fields} dict, or None if the block is not valid JSON (in
+    which case the caller falls back to the single-quoted JS-object parser)."""
+    blk = _brace_extract(html, "realData:")
+    if not blk:
+        return None
+    try:
+        obj = json.loads(blk)
+    except (ValueError, TypeError):
+        return None
+    if not isinstance(obj, dict):
+        return None
+    out = {}
+    for tid, body in obj.items():
+        if not isinstance(body, dict):
+            continue
+        # Keep registry-ID keys, or any entry carrying trial-shaped fields.
+        if not (_TRIAL_ID_RE.fullmatch(str(tid)) or 'tN' in body or 'publishedHR' in body):
+            continue
+        d = {}
+        for canonical, names in (('tE', ('tE',)), ('tN', ('tN',)), ('cE', ('cE',)),
+                                 ('cN', ('cN',)), ('publishedHR', ('publishedHR',)),
+                                 ('hrLCI', ('hrLCI', 'publishedHRLCI')),
+                                 ('hrUCI', ('hrUCI', 'publishedHRUCI'))):
+            for nm in names:
+                v = body.get(nm)
+                if v is not None:
+                    try:
+                        d[canonical] = float(v)
+                        break
+                    except (ValueError, TypeError):
+                        pass
+        if body.get('name'):
+            d['name'] = str(body['name'])
+        if body.get('hrSource'):
+            d['hrSource'] = str(body['hrSource'])
+        out[str(tid)] = d
+    return out or None
+
+
 def extract_real_data(html):
-    """Extract realData JS object from HTML. Handles both v16 multi-line and original single-line formats."""
-    # Find the realData block
-    m = re.search(r'realData:\s*\{(.*?)\n\s{8,12}\},', html, re.DOTALL)
-    if not m:
-        return {}
-    block = m.group(1)
+    """Extract realData object from HTML. Handles three formats: lite JSON
+    (*_AUTO_REVIEW, double-quoted), and flagship single-quoted JS-object
+    (multi-line + single-line)."""
+    # Lite JSON format first (cheap, valid-JSON gate; flagship single-quoted
+    # blocks fail json.loads and fall through to the regex parser below).
+    js = _trials_from_json(html)
+    if js:
+        return js
+    # Find the realData block (brace-matched, indent-agnostic; falls back to the
+    # legacy fixed-indent regex only if brace matching somehow fails).
+    block = _brace_extract(html, "realData:")
+    if block is None:
+        m = re.search(r'realData:\s*\{(.*?)\n\s{8,12}\},', html, re.DOTALL)
+        if not m:
+            return {}
+        block = m.group(1)
     trials = {}
 
-    # Match NCT, ACTRN, ISRCTN, ChiCTR, EUCTR, JPRN registry IDs with optional suffix.
-    # Suffixes like _SENIOR/_CKD/_ON/_OFF appear for stratified subgroups of a single parent trial.
-    trial_id_pattern = r"'((?:NCT|ACTRN|ISRCTN|ChiCTR|EUCTR|JPRN)[A-Z0-9_-]+)':\s*\{"
+    # Match NCT, ACTRN, ISRCTN, ChiCTR, EUCTR, JPRN registry IDs with optional
+    # suffix. Quote-agnostic: flagship apps single-quote the key ('NCT…':),
+    # hybrid JSON/JS apps double-quote it ("NCT…":). Suffixes like
+    # _SENIOR/_CKD/_ON/_OFF mark stratified subgroups of a single parent trial.
+    trial_id_pattern = r"""["']?((?:NCT|ACTRN|ISRCTN|ChiCTR|EUCTR|JPRN)[A-Z0-9_-]+)["']?\s*:\s*\{"""
     nct_starts = [(tm.start(), tm.group(1)) for tm in re.finditer(trial_id_pattern, block)]
     if not nct_starts:
         return {}
@@ -318,7 +418,7 @@ def extract_real_data(html):
         }
         for canonical, names in field_aliases.items():
             for name_alias in names:
-                fm = re.search(rf'\b{name_alias}:\s*([-\d.]+|null)', body)
+                fm = re.search(rf'["\']?{name_alias}["\']?\s*:\s*([-\d.]+|null)', body)
                 if fm and fm.group(1) != 'null':
                     try:
                         d[canonical] = float(fm.group(1))
@@ -341,14 +441,20 @@ def pool_dl(trials):
     """DerSimonian-Laird pooling on log scale. Returns dict or None."""
     data = []
     for nct, t in trials.items():
-        if t.get('publishedHR') and t.get('hrLCI') and t.get('hrUCI'):
-            hr, lo, hi = t['publishedHR'], t['hrLCI'], t['hrUCI']
-            if hr > 0 and lo > 0 and hi > 0:
-                logHR = math.log(hr)
-                se = (math.log(hi) - math.log(lo)) / (2 * 1.96)
-                if se > 0:
-                    data.append((logHR, se, t.get('name', nct)))
-        elif t.get('tE') is not None and t.get('tN') and t.get('cN'):
+        appended = False
+        # Prefer a usable ratio-scale HR with CI. NOTE: a present-but-unusable
+        # publishedHR (<=0, e.g. a mislabelled mean difference, or a missing/
+        # non-positive CI bound) must NOT shadow the event-count fallback -- so
+        # this is a fall-through, not an if/elif. (Fixed 2026-05-31: negative
+        # "HR" values were leaving count-poolable trials counted as non-poolable.)
+        hr, lo, hi = t.get('publishedHR'), t.get('hrLCI'), t.get('hrUCI')
+        if hr and lo and hi and hr > 0 and lo > 0 and hi > 0:
+            logHR = math.log(hr)
+            se = (math.log(hi) - math.log(lo)) / (2 * 1.96)
+            if se > 0:
+                data.append((logHR, se, t.get('name', nct)))
+                appended = True
+        if not appended and t.get('tE') is not None and t.get('tN') and t.get('cN'):
             tE = int(t.get('tE', 0))
             tN = int(t.get('tN', 0))
             cE = int(t.get('cE', 0))
