@@ -1,0 +1,20 @@
+{
+  "_doc": "App pooled estimate vs source-verified published meta-analysis (k + estimate + inclusion-criteria assessment). Extends the 19 strict BENCHMARKS. Each entry MUST cite a real meta (PMID/DOI) and assess outcome/population match.",
+  "verified": [
+    {
+      "app": "SGLT2_BROAD_OUTCOMES_NMA_REVIEW.html",
+      "app_est": 0.78, "app_k": 10, "app_outcome": "3P-MACE (label)",
+      "published_est": "0.84-0.91", "published_k": "5-18", "published_outcome": "3P-MACE",
+      "sources": ["Zhang 2022 Cardiovasc Diabetol RR 0.84 (0.78-0.90) DOI 10.1186/s12933-022-01676-5",
+                  "Marilly 2022 Diabetologia IRR 0.91 (0.86-0.96) DOI 10.1007/s00125-022-05773-8"],
+      "verdict": "FLAG_INCLUSION", "note": "App pools 0.78 (I2=67%) -- lower than published MACE because it mixes HF/renal-primary trials (DAPA-HF, EMPEROR, DAPA-CKD, EMPA-KIDNEY) into a MACE-labelled pool."
+    },
+    {
+      "app": "OVARIAN_PARP_REVIEW.html",
+      "app_est": 0.45, "app_k": 10, "app_outcome": "1L BRCAmut PFS (label)",
+      "published_est": "0.53 (overall); ~0.30-0.45 (BRCAmut 1L)", "published_k": 7, "published_outcome": "PARPi maintenance 1L ovarian PFS",
+      "sources": ["Lee 2023 PLoS One HR 0.53 (0.41-0.68), 7 RCTs DOI 10.1371/journal.pone.0294647"],
+      "verdict": "FLAG_INCLUSION", "note": "App k=10 mixes 1L trials (SOLO1, PRIMA, PAOLA) with recurrent-disease trials (NOVA, ARIEL3, OReO) under a 1L label; 0.45 plausible for BRCAmut 1L but the trial set is heterogeneous vs the published 1L meta."
+    }
+  ]
+}
