@@ -1,0 +1,90 @@
+{
+  "meta": {
+    "timestamp": "2026-06-01T18:45:21Z",
+    "r_version": "4.6.0",
+    "metafor_version": "5.0.1",
+    "method": "REML",
+    "ci_test": "knha",
+    "pi_df_convention": "k-1 (Cochrane v6.5 §10.10.4.3 default)",
+    "k": 9
+  },
+  "pool_reml_knha": {
+    "mu_logHR": -0.16768321,
+    "se_logHR": 0.02273706,
+    "pooled_HR": 0.84562168,
+    "ci_logHR_lo": -0.22011497,
+    "ci_logHR_hi": -0.11525145,
+    "ci_HR_lo": 0.80242654,
+    "ci_HR_hi": 0.89114203
+  },
+  "heterogeneity": {
+    "tau2": 0.00045213,
+    "tau2_lo": 0,
+    "tau2_hi": 0.01508301,
+    "Q": 8.27149079,
+    "Q_df": 8,
+    "Q_pval": 0.40740956,
+    "I2": 8.99519969,
+    "H2": 1.09884313
+  },
+  "prediction_interval": {
+    "pi_logHR_lo": -0.23947019,
+    "pi_logHR_hi": -0.09589623,
+    "pi_HR_lo": 0.78704474,
+    "pi_HR_hi": 0.90855829,
+    "df": 8
+  },
+  "sensitivity_estimators": [
+    {
+      "method": "REML",
+      "tau2": 0.00045213,
+      "pool_HR": 0.84562168,
+      "ci_HR_lo": 0.80242654,
+      "ci_HR_hi": 0.89114203
+    },
+    {
+      "method": "DL",
+      "tau2": 0.00015523,
+      "pool_HR": 0.84685284,
+      "ci_HR_lo": 0.8039746,
+      "ci_HR_hi": 0.8920179
+    },
+    {
+      "method": "ML",
+      "tau2": 0,
+      "pool_HR": 0.8475601,
+      "ci_HR_lo": 0.80486079,
+      "ci_HR_hi": 0.89252468
+    },
+    {
+      "method": "PM",
+      "tau2": 0.0001481,
+      "pool_HR": 0.84688428,
+      "ci_HR_lo": 0.80401405,
+      "ci_HR_hi": 0.89204037
+    }
+  ],
+  "loo": {
+    "max_shift_HR": 0.01441196,
+    "max_shift_trial": "EXSCEL 2017",
+    "estimates_HR": [0.83785398, 0.85019416, 0.83120971, 0.85498716, 0.83698432, 0.84660994, 0.85158321, 0.85624038, 0.83946841],
+    "studlab": ["LEADER 2016", "SUSTAIN-6 2016", "EXSCEL 2017", "HARMONY 2018", "REWIND 2019", "PIONEER-6 2019", "AMPLITUDE-O 2021", "SELECT 2023", "SOUL 2025"]
+  },
+  "publication_bias": {
+    "egger_z": -2.6285881,
+    "egger_p": 0.03398227,
+    "note": "Low power at k=9; interpret conservatively per Cochrane v6.5"
+  },
+  "nonph": {
+    "flag": false,
+    "n_flagged": 0,
+    "schoenfeld_p_min": 0.07,
+    "note": "Two-criterion: Schoenfeld p<0.05 OR curve_crosses"
+  },
+  "expected_engine_match": {
+    "primary_quantities": ["mu_logHR", "se_logHR", "tau2", "Q", "ci_logHR_lo", "ci_logHR_hi"],
+    "tolerance_log_scale": 0.001,
+    "tolerance_I2_percentage_points": 1,
+    "pi_tolerance_log_scale": 0.01
+  }
+}
