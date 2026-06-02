@@ -259,37 +259,44 @@
       return Math.max(0, (Q_FE - df) / cConst);
     }
     function tau2_REML() {
-      // Start from DL, iterate Jackson-Riley profile
-      var tau2 = tau2_DL();
-      for (var iter=0; iter<50; iter++) {
-        var Winv = v.map(function(vi){ return 1/(vi+tau2); });
-        var BtWB = zeros(T-1,T-1);
-        for(var a=0;a<T-1;a++)for(var b=0;b<T-1;b++){ var s=0; for(var i=0;i<k;i++) s+=B[i][a]*Winv[i]*B[i][b]; BtWB[a][b]=s; }
-        var BtWBinv = inverse(BtWB);
-        var BtWy = new Array(T-1).fill(0);
-        for(var a2=0;a2<T-1;a2++){ var s2=0; for(var i2=0;i2<k;i2++) s2+=B[i2][a2]*Winv[i2]*y[i2]; BtWy[a2]=s2; }
-        var beta = matvec(BtWBinv, BtWy);
-        var Q=0, sumW=0;
-        for(var i3=0;i3<k;i3++){
-          var yhat=0; for(var a3=0;a3<T-1;a3++) yhat += B[i3][a3]*beta[a3];
-          Q += Winv[i3]*Math.pow(y[i3]-yhat,2);
-          sumW += Winv[i3];
+      // True REML via Fisher scoring (matches netmeta method.tau="REML"). The
+      // earlier Jackson/DL-moment fixed-point underestimated tau2 on
+      // heterogeneous networks. For the contrast model y = B*beta + e,
+      // e ~ N(0, diag(v_i + tau2)), with W = diag(w_i), w_i = 1/(v_i+tau2),
+      // A = B'WB, H = B A^{-1} B', the REML projection matrix is
+      //   P = W - W H W  (symmetric).
+      // dV/dtau2 = I, so the REML score and Fisher information are
+      //   dl/dtau2 = (y'PPy - tr(P)) / 2,   I(tau2) = tr(PP) / 2,
+      // giving the update  tau2 += (y'PPy - tr(P)) / tr(PP), clamped at 0.
+      var df = k - (T - 1);
+      if (df <= 0) return 0;
+      var tau2 = Math.max(0, tau2_DL());
+      for (var iter = 0; iter < 200; iter++) {
+        var w = v.map(function (vi) { return 1 / (vi + tau2); });
+        var A = zeros(T - 1, T - 1);
+        for (var a = 0; a < T - 1; a++) for (var b = 0; b < T - 1; b++) {
+          var s = 0; for (var i = 0; i < k; i++) s += B[i][a] * w[i] * B[i][b]; A[a][b] = s;
         }
-        // Hedges estimator on contrast residuals:
-        //   tau2_new = max(0, (Q − (k − (T−1))) / (Σw − tr(B'WBB'WB)^{-1} ..))
-        // Use DL-in-network update (Jackson 2014 approximation):
-        var df = k - (T-1);
-        if (df <= 0) return 0;
-        var cConst = 0;
-        // Hat matrix diag for network: h_i = Winv[i] * (B_i (B'WB)^-1 B_i')
-        for (var i4=0;i4<k;i4++){
-          var bi = B[i4];
-          var vh = 0;
-          for (var a4=0;a4<T-1;a4++) for(var b4=0;b4<T-1;b4++) vh += bi[a4]*BtWBinv[a4][b4]*bi[b4];
-          cConst += Winv[i4] * (1 - Winv[i4]*vh);
+        var Ainv = inverse(A);
+        // beta_hat (WLS) -> residuals -> Py = W*resid
+        var g = new Array(T - 1).fill(0);
+        for (var a2 = 0; a2 < T - 1; a2++) { var s2 = 0; for (var i2 = 0; i2 < k; i2++) s2 += B[i2][a2] * w[i2] * y[i2]; g[a2] = s2; }
+        var beta = matvec(Ainv, g);
+        var Py = new Array(k);
+        for (var i3 = 0; i3 < k; i3++) { var yh = 0; for (var a3 = 0; a3 < T - 1; a3++) yh += B[i3][a3] * beta[a3]; Py[i3] = w[i3] * (y[i3] - yh); }
+        // H_ij = B_i Ainv B_j' ; cache H rows as needed.
+        function Hval(ii, jj) { var bi = B[ii], bj = B[jj], hh = 0; for (var ah = 0; ah < T - 1; ah++) for (var bh = 0; bh < T - 1; bh++) hh += bi[ah] * Ainv[ah][bh] * bj[bh]; return hh; }
+        var yPPy = 0; for (var i4 = 0; i4 < k; i4++) yPPy += Py[i4] * Py[i4]; // (Py)'(Py) = y'PPy (P symmetric)
+        var trP = 0; for (var i5 = 0; i5 < k; i5++) trP += w[i5] - w[i5] * w[i5] * Hval(i5, i5);
+        var trPP = 0;
+        for (var i6 = 0; i6 < k; i6++) for (var j6 = 0; j6 < k; j6++) {
+          var Pij = (i6 === j6 ? w[i6] : 0) - w[i6] * w[j6] * Hval(i6, j6);
+          trPP += Pij * Pij;
         }
-        var tau2_new = cConst > 0 ? Math.max(0, (Q - df) / cConst) : 0;
-        if (Math.abs(tau2_new - tau2) < 1e-8) { tau2 = tau2_new; break; }
+        if (!(trPP > 0)) break;
+        var step = (yPPy - trP) / trPP;
+        var tau2_new = Math.max(0, tau2 + step);
+        if (Math.abs(tau2_new - tau2) < 1e-10) { tau2 = tau2_new; break; }
         tau2 = tau2_new;
       }
       return tau2;

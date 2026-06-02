@@ -43,21 +43,17 @@ const TOL_CONTRAST = 5e-3;
 const TOL_TAU2     = 5e-3;
 const TOL_SUCRA    = 0.04;
 
-// Documented KNOWN divergences (characterization, not a free pass). The engine's
-// network tau2 is a Jackson-2014 profile-likelihood approximation, not full
-// REML; on heterogeneous networks it underestimates netmeta's REML tau2, and the
-// random-effects contrasts drift in proportion to that tau2 gap. These datasets
-// are recorded with their reason so the gate still catches REGRESSIONS (a new
-// divergence, or one of these getting worse) while not red-failing CI on the
-// documented approximation limit. Removing the engine's tau2 approximation
-// (matching netmeta REML) is the follow-up that would let these be gated; it
-// needs R/netmeta to iterate against. See VAL-6 / NMA tau2 note.
+// Documented KNOWN divergences (characterization, not a free pass). The gate
+// still catches REGRESSIONS (a new divergence, or one of these getting worse)
+// AND a stale entry that no longer diverges, so the list stays honest.
+//
+// History: the engine's network tau2 was a Jackson-2014 profile approximation
+// that underestimated netmeta's REML tau2 on heterogeneous networks, causing
+// contrast drift on 5 datasets. Replacing it with true REML Fisher-scoring
+// (rapidmeta-nma-engine-v2.js tau2_REML) closed 4 of those 5. The remaining one
+// is a genuine netmeta-side degeneracy, not an engine issue:
 const KNOWN_DIVERGENCE = {
-  'antiamyloid_ad_nma_netmeta': 'tau2 engine 0 vs netmeta 2.8e-2 (REML approx underestimate)',
-  'il_psoriasis_nma_netmeta': 'tau2 engine 1.2e-1 vs netmeta 2.1e-1; contrast drift <=0.15',
-  'incretins_t2d_nma_netmeta': 'tau2 engine 0 vs netmeta 9.7e-2; contrast drift <=0.26',
-  'incretins_t2d_nma_stratumA_netmeta': 'tau2 engine 1.1e-2 vs netmeta 2.4e-2; contrast drift <=8e-3',
-  'incretins_t2d_nma_stratumB_netmeta': 'netmeta tau2 is NaN (degenerate); engine returns 0',
+  'incretins_t2d_nma_stratumB_netmeta': 'netmeta tau2 is NaN (degenerate fit); engine returns a finite 0',
 };
 
 // --- minimal R-vector extraction ----------------------------------------
