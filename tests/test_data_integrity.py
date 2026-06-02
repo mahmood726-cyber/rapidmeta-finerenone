@@ -18,10 +18,16 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# Classes that must always be zero.
-HARD_ZERO = ("impossible_2x2", "none_leak", "inverted_ci", "bad_nct", "bad_pmid", "bad_doi")
-# Known-defect baselines (2026-06-02 audit). Lower is better; must not increase.
-BASELINE_MAX = {"additive_ratio_ci": 123, "implausible_ratio": 54}
+# Classes that must always be zero. ratio_on_continuous / additive_ratio_ci were
+# the 175-trial "continuous-as-ratio" defect (a ratio value on an MD outcome);
+# they were nulled portfolio-wide via scripts/fix_continuous_as_ratio.py and must
+# never come back.
+HARD_ZERO = ("impossible_2x2", "none_leak", "inverted_ci", "bad_nct", "bad_pmid",
+             "bad_doi", "ratio_on_continuous", "additive_ratio_ci")
+# Known-defect baselines. Lower is better; must not increase. The single residual
+# implausible_ratio is the EBOLA ring-vaccine RR=0 (a genuine zero-cell, not
+# corruption); locked so a regeneration can't add new ones.
+BASELINE_MAX = {"implausible_ratio": 1}
 
 
 def _audit_counts():

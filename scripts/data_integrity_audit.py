@@ -166,8 +166,26 @@ def audit_app(path: str):
             if is_bad_token(tok):
                 add("none_leak", key, f"{fld}={tok}")
         hrv, lciv, uciv = as_num(hr), as_num(lci), as_num(uci)
-        est = (str_field(obj, "estimandType") or "HR").upper()
+        # Resolve the measure from the OUTCOME's estimandType first (the real
+        # measure), falling back to the trial-level field, then HR. Reading only
+        # the trial-level field (often absent -> defaulting to HR) mislabels
+        # legitimate OR/RR/RD outcomes as hazard ratios.
+        ao_tail = obj.split("allOutcomes", 1)
+        ao_est = None
+        if len(ao_tail) > 1:
+            am = re.search(r'estimandType:"([^"]+)"', ao_tail[1])
+            ao_est = am.group(1) if am else None
+        est = (ao_est or str_field(obj, "estimandType") or "HR").upper()
         is_ratio = est in ("HR", "OR", "RR", "IRR", "DOR")
+        is_continuous = est in ("MD", "SMD", "WMD")
+
+        # A ratio value cannot exist for a continuous (MD) endpoint. This is the
+        # root "continuous-as-ratio" defect (the publishedHR and any trial-level
+        # 2x2 are fabricated for a continuous outcome).
+        if is_continuous and hrv is not None:
+            add("ratio_on_continuous", key,
+                f"{est} outcome carries a ratio publishedHR={hrv}"
+                + (f" CI [{lciv},{uciv}]" if lciv is not None else ""))
         if lciv is not None and uciv is not None and lciv > uciv:
             add("inverted_ci", key, f"lci={lciv} > uci={uciv}")
         if hrv is not None and lciv is not None and uciv is not None:
