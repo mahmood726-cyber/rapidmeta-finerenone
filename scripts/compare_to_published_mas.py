@@ -15,7 +15,7 @@ true pooled comparison, we'd need to re-run the random-effects model on each top
 that's a separate analysis using the existing meta-engine in the apps.
 """
 from __future__ import annotations
-import sys, io, csv, re
+import sys, io, os, csv, re
 from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
@@ -262,19 +262,34 @@ def parse_num(s: str) -> float | None:
         return None
 
 
+# Robust realData extractor shared with the data-integrity audit (the old
+# TRIAL_BLOCK_RE matched 0 rows against the current minified app format).
+import importlib.util as _ilu
+_dia_spec = _ilu.spec_from_file_location(
+    "dia", os.path.join(os.path.dirname(os.path.abspath(__file__)), "data_integrity_audit.py"))
+_dia = _ilu.module_from_spec(_dia_spec)
+_dia_spec.loader.exec_module(_dia)
+
+
 def main():
-    review_files = sorted(REPO_DIR.glob("*_REVIEW.html"))
+    review_files = sorted(REPO_DIR.glob("*_REVIEW*.html"))
     print(f"Scanning {len(review_files)} review HTMLs ...")
 
     findings = []
     for hp in review_files:
         text = hp.read_text(encoding="utf-8", errors="replace")
-        for m in TRIAL_BLOCK_RE.finditer(text):
-            key = m.group(1)
-            name = m.group(2)
-            our_point = parse_num(m.group(3))
-            our_lci = parse_num(m.group(4))
-            our_uci = parse_num(m.group(5))
+        for key, obj in _dia.find_trial_objects(text):
+            # Prefer publishedHR/hrLCI/hrUCI; fall back to pubHR* (the field the
+            # runtime actually pools from when the legacy field is null).
+            def _pick(*names):
+                for nm in names:
+                    v = _dia.as_num(_dia.field(obj, nm))
+                    if v is not None:
+                        return v
+                return None
+            our_point = _pick("publishedHR", "pubHR")
+            our_lci = _pick("hrLCI", "pubHR_LCI")
+            our_uci = _pick("hrUCI", "pubHR_UCI")
 
             base_nct = re.match(r"NCT\d+", key)
             if not base_nct:
