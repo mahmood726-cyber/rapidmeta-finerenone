@@ -33,10 +33,37 @@ OUTPUT_BASE = os.environ.get(
 # ═══════════════════════════════════════════════════════════
 
 def escape_js(s):
-    """Escape a string for use inside JS single-quoted strings."""
+    """Escape a string for embedding inside a JS single-quoted string literal
+    that itself lives inside an HTML <script> block.
+
+    Besides the JS-string escapes, `<` and `>` are escaped to \\x3c / \\x3e so a
+    literal `</script>` in any extracted text (abstract, trial name, snippet)
+    cannot break out of the <script> element when the file is served as HTML.
+    The runtime's own _jsArgEscape already does this; the build-time escaper
+    must not be weaker.
+    """
     if s is None:
         return ''
-    return str(s).replace("\\", "\\\\").replace("'", "\\'").replace("\n", "\\n").replace("\r", "")
+    return (str(s)
+            .replace("\\", "\\\\")
+            .replace("'", "\\'")
+            .replace("<", "\\x3c")
+            .replace(">", "\\x3e")
+            .replace("\n", "\\n")
+            .replace("\r", ""))
+
+
+def escape_html(s):
+    """Escape a string for safe interpolation into HTML text or a double-quoted
+    attribute value (& < > " ')."""
+    if s is None:
+        return ''
+    return (str(s)
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace('"', "&quot;")
+            .replace("'", "&#39;"))
 
 
 def js_val(v):
@@ -113,11 +140,17 @@ def build_trial_js(nct_id, trial):
         f"phase: {js_val(trial.get('phase', 'III'))}, "
         f"year: {js_val(trial.get('year', 2024))},"
     )
+    # 2026-06-02: emit JS `null` (not a fabricated 0) for a genuinely-missing
+    # 2x2 cell. `trial.get('tE', 0)` previously turned an absent count into a
+    # real zero — schema-valid but semantically wrong (a zero-event arm), and
+    # inconsistent with build_outcomes_js which omits absent cells. A trial that
+    # reports only a published HR (no arm-level counts) must not gain a fake
+    # all-zero 2x2.
     lines.append(
-        f"                    tE: {js_val(trial.get('tE', 0))}, "
-        f"tN: {js_val(trial.get('tN', 0))}, "
-        f"cE: {js_val(trial.get('cE', 0))}, "
-        f"cN: {js_val(trial.get('cN', 0))}, "
+        f"                    tE: {js_val(trial.get('tE'))}, "
+        f"tN: {js_val(trial.get('tN'))}, "
+        f"cE: {js_val(trial.get('cE'))}, "
+        f"cN: {js_val(trial.get('cN'))}, "
         f"group: {js_val(trial.get('group', '--'))},"
     )
     if trial.get('publishedHR') is not None:
@@ -169,45 +202,63 @@ def transform_template(template_html, cfg):
             html
         )
 
+    # HTML-escape config-supplied display strings (defense-in-depth: these are
+    # author-controlled today, but must not be able to inject markup if a topic
+    # config ever carries an angle bracket or quote).
+    title_short = escape_html(cfg["title_short"])
+    title_long = escape_html(cfg["title_long"])
+
     # 1. Title
     html = re.sub(
         r'<title>.*?</title>',
-        f'<title>RapidMeta Cardiology | {cfg["title_short"]} v16.0</title>',
+        f'<title>RapidMeta Cardiology | {title_short} v16.0</title>',
         html
     )
 
     # 2. Header h1 — replace the full header span
     html = re.sub(
         r'Finerenone Ultra-Precision',
-        cfg["title_short"],
+        title_short,
         html
     )
 
     # 3. Review title in protocol table
     html = re.sub(
         r'Finerenone for .*?: A Living Systematic Review.*?Trials',
-        cfg["title_long"],
+        title_long,
         html,
         count=1
     )
 
-    # 4. Protocol state defaults
+    # 4. Protocol state defaults — use a callable replacement so the escaped JS
+    # (which now contains backslash sequences like \x3c) is inserted literally
+    # and not reinterpreted as a re backreference/escape.
+    protocol_js = (
+        f"protocol: {{ pop: '{escape_js(proto['pop'])}', "
+        f"int: '{escape_js(proto['int'])}', "
+        f"comp: '{escape_js(proto['comp'])}', "
+        f"out: '{escape_js(proto['out'])}', "
+        f"subgroup: '{escape_js(proto.get('subgroup', '--'))}'"
+    )
     html = re.sub(
         r"protocol: \{ pop: '.*?', int: '.*?', comp: '.*?', out: '.*?', subgroup: '.*?'",
-        f"protocol: {{ pop: '{escape_js(proto['pop'])}', int: '{escape_js(proto['int'])}', comp: '{escape_js(proto['comp'])}', out: '{escape_js(proto['out'])}', subgroup: '{escape_js(proto.get('subgroup', '--'))}'",
+        lambda _m: protocol_js,
         html,
         count=1
     )
 
-    # 5. PICO table inputs (value= attributes in protocol form)
+    # 5. PICO table inputs (value= attributes in protocol form).
+    # HTML-escape the value so a `"` cannot close the attribute and inject
+    # markup/handlers; callable replacement keeps the escaped text literal.
     pico_replacements = [
-        (r'value="Heart Failure or CKD[^"]*"', f'value="{proto["pop"]}"'),
-        (r'value="Finerenone[^"]*"', f'value="{proto["int"]}"'),
-        (r'value="Placebo[^"]*"', f'value="{proto["comp"]}"'),
-        (r'value="MACE Composite[^"]*"', f'value="{proto["out"]}"'),
+        (r'value="Heart Failure or CKD[^"]*"', proto["pop"]),
+        (r'value="Finerenone[^"]*"', proto["int"]),
+        (r'value="Placebo[^"]*"', proto["comp"]),
+        (r'value="MACE Composite[^"]*"', proto["out"]),
     ]
-    for pattern, replacement in pico_replacements:
-        html = re.sub(pattern, replacement, html, count=1)
+    for pattern, raw_value in pico_replacements:
+        replacement = f'value="{escape_html(raw_value)}"'
+        html = re.sub(pattern, lambda _m, r=replacement: r, html, count=1)
 
     # 6. localStorage keys — replace finerenone-specific keys
     for ver in ['v16_0', 'v15_0', 'v14_0', 'v13_0', 'v12_0', 'v11_0', 'v10_0', 'v9_3']:

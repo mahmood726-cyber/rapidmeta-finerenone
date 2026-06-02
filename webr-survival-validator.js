@@ -84,6 +84,9 @@
       }
       return { webR: webR, pkg: packageInstalled };
     })();
+    // STATS-4: clear the cached promise on failure so a transient boot error
+    // can be retried without a full page reload.
+    bootPromise.catch(function () { bootPromise = null; });
     return bootPromise;
   }
 

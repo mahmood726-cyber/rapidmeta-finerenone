@@ -172,6 +172,34 @@
     var trtIdx = {}; treatments.forEach(function(t,i){ trtIdx[t]=i; });
     var T = treatments.length;
 
+    // Multi-arm detection. This engine treats every input row as an independent
+    // 2-arm contrast and uses a strictly diagonal weight matrix (1/(v_i+tau2)).
+    // A multi-arm trial contributes several contrasts that share a common arm,
+    // so they are correlated: the within-trial off-diagonal covariance is
+    // tau2/2 on the random-effects scale (plus the shared-arm sampling
+    // covariance). Ignoring that correlation gives wrong contrast SEs, league
+    // CIs, the HKSJ multiplier, and the inconsistency Q. Rather than ship those
+    // silently-wrong numbers we fail closed: a study (studlab) that contributes
+    // more than one edge is multi-arm. Pass opts.allowMultiArm=true to override
+    // ONLY if the caller has already collapsed/decorrelated the multi-arm
+    // contrasts upstream (e.g. via netmeta); otherwise route such networks to
+    // netmeta. (See review finding NMA-1.)
+    var _edgesPerStudy = {};
+    trials.forEach(function(t){
+      var sl = (t.studlab != null) ? t.studlab : (t.treat1 + '|' + t.treat2);
+      _edgesPerStudy[sl] = (_edgesPerStudy[sl] || 0) + 1;
+    });
+    var multiArmStudies = Object.keys(_edgesPerStudy).filter(function(sl){ return _edgesPerStudy[sl] > 1; });
+    if (multiArmStudies.length && !opts.allowMultiArm) {
+      throw new Error(
+        'rapidmeta-nma-engine: multi-arm trial(s) detected [' + multiArmStudies.join(', ') +
+        ']. This engine assumes independent 2-arm contrasts (diagonal weights) and does ' +
+        'not model the shared-control tau2/2 covariance, so its SEs/CIs would be wrong. ' +
+        'Use netmeta for this network, or pass {allowMultiArm:true} only if the contrasts ' +
+        'were decorrelated upstream.'
+      );
+    }
+
     // Design matrix B: rows = trials (edges), cols = non-ref treatments (T-1)
     // Row i, trial = treat1 - treat2 (coded against reference)
     // If treat1==ref: row = -e_{treat2}; if treat2==ref: row = +e_{treat1}; else: +e_{t1} - e_{t2}
@@ -189,7 +217,10 @@
 
     // Fixed-effect fit: β = (B'W B)^{-1} B'W y, W=diag(1/v)
     function fitGivenTau2(tau2) {
-      // Inflation: edge variance = v_i + tau2  (assumes 2-arm; multi-arm would need B*B'*tau2 scaling)
+      // Inflation: edge variance = v_i + tau2. STRICTLY 2-arm: this diagonal
+      // weighting is only valid because multi-arm inputs are rejected upstream
+      // in fit() (see NMA-1). Multi-arm support would require the full block
+      // covariance with off-diagonal tau2/2, not this diagonal form.
       var Winv = v.map(function(vi){ return 1 / (vi + tau2); });
       // Compute B'WB (T-1 x T-1)
       var BtWB = zeros(T-1, T-1);
@@ -338,6 +369,8 @@
     return {
       engine_version: '2.0',
       method: 'contrast-basis multivariate meta-regression; White 2012; REML Jackson 2014',
+      multi_arm_studies: multiArmStudies,
+      multi_arm_handled: false,
       treatments: treatments,
       reference: reference,
       k: k,

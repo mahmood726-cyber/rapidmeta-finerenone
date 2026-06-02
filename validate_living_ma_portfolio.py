@@ -440,15 +440,19 @@ def extract_real_data(html):
 _T975 = {1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571, 6: 2.447, 7: 2.365,
          8: 2.306, 9: 2.262, 10: 2.228, 11: 2.201, 12: 2.179, 13: 2.160,
          14: 2.145, 15: 2.131, 16: 2.120, 17: 2.110, 18: 2.101, 19: 2.093,
-         20: 2.086, 25: 2.060, 30: 2.042, 40: 2.021, 60: 2.000}
+         20: 2.086, 25: 2.060, 30: 2.042, 40: 2.021, 60: 2.000, 120: 1.980}
 
 
 def _t_crit(df):
+    # Nearest-lower-key lookup. The previous version short-circuited every df>60
+    # to 1.96 (the asymptotic z), so df=61 understated the CI width by ~2%.
+    # Falling through to the table is conservative (never narrower than the true
+    # t), and 1.96 is used only past the largest tabulated df (120).
     if df in _T975:
         return _T975[df]
-    if df > 60:
-        return 1.96
     keys = sorted(_T975)
+    if df > keys[-1]:
+        return 1.960
     lo = max(k for k in keys if k <= df)
     return _T975[lo]
 

@@ -89,7 +89,7 @@ te_end = None
 for i, line in enumerate(source_lines):
     if 'const TextExtractor = (() => {' in line:
         te_start = i
-    if te_start and 'const AutoExtractEngine = {' in line:
+    if te_start is not None and 'const AutoExtractEngine = {' in line:
         te_end = i
         break
 
@@ -106,7 +106,7 @@ helpers_end = None
 for i, line in enumerate(source_lines):
     if 'const normalizedEffectMeasure' in line:
         helpers_start = i
-    if helpers_start and 'const summarizeAbsoluteEffect' in line:
+    if helpers_start is not None and 'const summarizeAbsoluteEffect' in line:
         helpers_end = i
         break
 
@@ -123,7 +123,7 @@ cga_end = None
 for i, line in enumerate(source_lines):
     if 'const computeGradeAssessment = (c, included' in line:
         cga_start = i
-    if cga_start and line.strip() == '};' and i > cga_start + 10:
+    if cga_start is not None and line.strip() == '};' and i > cga_start + 10:
         cga_end = i + 1
         break
 
@@ -170,7 +170,7 @@ ms_end = None
 for i, line in enumerate(source_lines):
     if '/* ═══ Auto-Generated Manuscript Text ═══ */' in line:
         ms_start = i
-    if ms_start and 'function copyManuscriptText()' in line:
+    if ms_start is not None and 'function copyManuscriptText()' in line:
         # Find end of copyManuscriptText
         for j in range(i, min(i+10, len(source_lines))):
             if source_lines[j].strip() == '}':
