@@ -1,0 +1,156 @@
+#!/usr/bin/env python
+"""Propagate the PI-1 and CSV-1 review fixes to every generated app.
+
+The template FINERENONE_REVIEW.html was fixed in fix/review-defects-25, but the
+~1,046 already-generated *_AUTO_FULL_REVIEW.html apps still carry the old
+minified JS. This applies the SAME four byte-exact patches to each app:
+
+  PI-1  : prediction-interval gate k>=2 -> k>=3 (compute + res-pi display).
+  CSV-1 : spreadsheet formula-injection guard on the _esc / _gesc CSV cell
+          escapers (prefix ' to cells starting = + @ TAB CR; NOT '-').
+
+Safety properties (per the repo's codemod lessons):
+  * Binary mode  -> each file's own line endings (LF or CRLF) are preserved.
+  * Per-file assert -> each anchor must appear exactly once, else the file is
+    logged as 'anchor-missing' and SKIPPED (never partially patched).
+  * Idempotent  -> a file already carrying the patched form is 'already' (skip).
+  * --dry-run   -> reports counts, writes nothing.
+  * Per-file outcome counts are printed so the change is reviewable.
+
+Usage:
+  python scripts/propagate_pi_csv_fixes.py --dry-run
+  python scripts/propagate_pi_csv_fixes.py
+  python scripts/propagate_pi_csv_fixes.py --glob "*_AUTO_FULL_REVIEW.html"
+"""
+import argparse
+import glob
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# (label, old, new) — identical to the template patch in _io_utils history.
+PATCHES = [
+    (
+        'PI-compute',
+        'tCritPI=k>=2?tQuantile(1-(1-confLevel)/2,k-1):NaN,'
+        'piLCI=k>=2?Math.exp(pLogOR-tCritPI*piSE):NaN,'
+        'piUCI=k>=2?Math.exp(pLogOR+tCritPI*piSE):NaN,',
+        'tCritPI=k>=3?tQuantile(1-(1-confLevel)/2,k-1):NaN,'
+        'piLCI=k>=3?Math.exp(pLogOR-tCritPI*piSE):NaN,'
+        'piUCI=k>=3?Math.exp(pLogOR+tCritPI*piSE):NaN,',
+    ),
+    (
+        # Older apps carry a SECOND, MD/continuous-outcome PI-compute block that
+        # the current template lacks (it uses pMD instead of Math.exp(pLogOR)).
+        # n/a on the template; applied on the apps. NOTE: the unrelated headline
+        # CONFIDENCE-interval crit `tCrit=k>=2` (no `PI`) is correct at k>=2 and
+        # is deliberately NOT matched here.
+        'PI-compute-MD',
+        'tCritPI=k>=2?tQuantile(1-(1-confLevel)/2,k-1):NaN,'
+        'piLCI=k>=2?pMD-tCritPI*piSE:NaN,piUCI=k>=2?pMD+tCritPI*piSE:NaN',
+        'tCritPI=k>=3?tQuantile(1-(1-confLevel)/2,k-1):NaN,'
+        'piLCI=k>=3?pMD-tCritPI*piSE:NaN,piUCI=k>=3?pMD+tCritPI*piSE:NaN',
+    ),
+    (
+        'PI-display',
+        'innerText=c.k>=2&&Number.isFinite(c.piLCI)?',
+        'innerText=c.k>=3&&Number.isFinite(c.piLCI)?',
+    ),
+    (
+        'CSV-_esc',
+        '_esc=s=>\'"\'+String(s).replace(/"/g,\'""\')+\'"\'',
+        '_esc=s=>{let v=String(s);if(/^[=+@\\t\\r]/.test(v))v="\'"+v;'
+        'return \'"\'+v.replace(/"/g,\'""\')+\'"\'}',
+    ),
+    (
+        'CSV-_gesc',
+        '_gesc=s=>\'"\'+String(s).replace(/"/g,\'""\')+\'"\'',
+        '_gesc=s=>{let v=String(s);if(/^[=+@\\t\\r]/.test(v))v="\'"+v;'
+        'return \'"\'+v.replace(/"/g,\'""\')+\'"\'}',
+    ),
+]
+
+
+def patch_file(path, dry_run):
+    """Apply each patch independently. Per-patch outcome is one of:
+      applied   - exactly one occurrence of `old`, replaced
+      already   - patched form already present (`new` in, `old` out)
+      n/a       - neither form present (construct absent from this app)
+      ambiguous - `old` appears more than once (do NOT touch -> hard failure)
+    A file is written only if no patch is 'ambiguous'.
+    """
+    with open(path, 'rb') as f:
+        data = f.read()
+    outcomes = {}
+    applied_any = False
+    ambiguous = []
+    for label, old, new in PATCHES:
+        old_b, new_b = old.encode('utf-8'), new.encode('utf-8')
+        has_old, n_old = old_b in data, data.count(old_b)
+        has_new = new_b in data
+        if n_old > 1:
+            outcomes[label] = 'ambiguous'
+            ambiguous.append(f'{label}(n={n_old})')
+        elif has_new and not has_old:
+            outcomes[label] = 'already'
+        elif n_old == 1:
+            data = data.replace(old_b, new_b)
+            outcomes[label] = 'applied'
+            applied_any = True
+        else:
+            outcomes[label] = 'n/a'
+    if ambiguous:
+        return 'ambiguous', outcomes, ambiguous
+    if applied_any and not dry_run:
+        with open(path, 'wb') as f:
+            f.write(data)
+    status = 'patched' if applied_any else 'unchanged'
+    return status, outcomes, []
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--dry-run', action='store_true')
+    ap.add_argument('--glob', default='*_AUTO_FULL_REVIEW.html')
+    args = ap.parse_args()
+
+    files = sorted(glob.glob(os.path.join(REPO, args.glob)))
+    if not files:
+        print(f'No files matched {args.glob!r}')
+        return 1
+
+    file_counts = {'patched': 0, 'unchanged': 0, 'ambiguous': 0}
+    per_patch = {label: {'applied': 0, 'already': 0, 'n/a': 0, 'ambiguous': 0}
+                 for label, _, _ in PATCHES}
+    problem_files = []
+    for path in files:
+        status, outcomes, ambiguous = patch_file(path, args.dry_run)
+        file_counts[status] += 1
+        for label, oc in outcomes.items():
+            per_patch[label][oc] += 1
+        if ambiguous:
+            problem_files.append((os.path.basename(path), ambiguous))
+
+    verb = 'WOULD patch' if args.dry_run else 'patched'
+    print(f'Files scanned      : {len(files)}')
+    print(f'{verb:<18} : {file_counts["patched"]}')
+    print(f'unchanged          : {file_counts["unchanged"]}')
+    print(f'ambiguous (skipped): {file_counts["ambiguous"]}')
+    print('\nPer-patch breakdown (applied / already / n-a / ambiguous):')
+    for label, _, _ in PATCHES:
+        c = per_patch[label]
+        print(f'  {label:<12} {c["applied"]:>5} / {c["already"]:>5} / '
+              f'{c["n/a"]:>5} / {c["ambiguous"]:>5}')
+    if problem_files:
+        print('\nFiles with ambiguous anchors (SKIPPED, not written):')
+        for name, ambiguous in problem_files[:25]:
+            print(f'  {name}: {", ".join(ambiguous)}')
+        if len(problem_files) > 25:
+            print(f'  ... and {len(problem_files) - 25} more')
+    # Fail closed only on ambiguous anchors (a real, investigable problem).
+    return 1 if file_counts['ambiguous'] else 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())
