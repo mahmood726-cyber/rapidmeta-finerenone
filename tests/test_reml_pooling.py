@@ -26,7 +26,7 @@ def test_reml_tau2_matches_metafor():
 
 def test_reml_pooled_estimate_matches_metafor():
     tau2 = vv._reml_tau2(YI, VI)
-    w = [1.0 / (v + tau2) for v in zip(VI) for v in [v[0]]] if False else [1.0 / (v + tau2) for v in VI]
+    w = [1.0 / (v + tau2) for v in VI]
     mu = sum(x * y for x, y in zip(w, YI)) / sum(w)
     assert abs(math.exp(mu) - 0.771883) < 1e-3, math.exp(mu)
 

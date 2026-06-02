@@ -122,6 +122,18 @@ if (n_fail_gate > length(catastrophes)) {
   if (length(failures) > 15) cat("  ... and", length(failures) - 15, "more\n")
 }
 
-# Exit nonzero only if there are catastrophes — those are real divergences
-# worth investigating. Sub-catastrophic drifts are logged but don't block CI.
-quit(status = if (length(catastrophes) > 0) 1 else 0)
+# VAL-1: gate at TOL_GATE (1e-4), not only on catastrophes. n_fail_gate already
+# includes both catastrophes (>=1.0) and sub-catastrophic gate failures
+# (1e-4..1.0); exiting only on catastrophes contradicted this script's own
+# header ("exit 1 = any sidecar fails parity") and let a wrong-method or
+# stale-sidecar drift of e.g. 5e-3 pass silently. Sub-1e-4 drift is still only
+# logged (n_fail_strict), not gated.
+#
+# NOTE (VAL-1, documented honestly): this compares a fresh metafor REML+HKSJ run
+# on the sidecar's yi/vi against the sidecar's STORED metafor numbers. It proves
+# the published sidecars are not stale/corrupted and reproduce under metafor —
+# it does NOT independently validate the JS engine (the yi/vi and the stored
+# pool both originate from the engine/metafor pipeline). True engine-vs-metafor
+# parity requires running the JS engine here (see webr-validator.js for the
+# in-browser cross-check) and is tracked as follow-up work.
+quit(status = if (n_fail_gate > 0) 1 else 0)

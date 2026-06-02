@@ -28,7 +28,7 @@ import re
 import sys
 import time
 
-from _io_utils import ensure_utf8_stdout
+from _io_utils import ensure_utf8_stdout, t_quantile
 
 ensure_utf8_stdout()
 
@@ -487,28 +487,10 @@ def normal_cdf(z):
     return 0.5 * (1 + math.erf(z / math.sqrt(2)))
 
 
-def t_quantile(p, df):
-    """Approximate Student t quantile via Cornish-Fisher."""
-    if df <= 0:
-        return 1.96
-    # Use Beasley-Springer-Moro for normal quantile
-    if p <= 0 or p >= 1:
-        return float('nan')
-    a = [-39.6968302866538, 220.946098424521, -275.928510446969,
-         138.357751867269, -30.6647980661472, 2.50662827745924]
-    b = [-54.4760987982241, 161.585836858041, -155.698979859887,
-         66.8013118877197, -13.2806815528857]
-    if p < 0.5:
-        q = math.sqrt(-2 * math.log(p))
-        z = -(((((a[5]*q + a[4])*q + a[3])*q + a[2])*q + a[1])*q + a[0]) / \
-            ((((b[4]*q + b[3])*q + b[2])*q + b[1])*q + 1)
-    else:
-        q = math.sqrt(-2 * math.log(1 - p))
-        z = (((((a[5]*q + a[4])*q + a[3])*q + a[2])*q + a[1])*q + a[0]) / \
-            ((((b[4]*q + b[3])*q + b[2])*q + b[1])*q + 1)
-    g1 = (z ** 3 + z) / 4
-    g2 = (5 * z ** 5 + 16 * z ** 3 + 3 * z) / 96
-    return z + g1 / df + g2 / (df ** 2)
+# t_quantile is imported from _io_utils (exact incomplete-beta inversion).
+# The previous local Cornish-Fisher version fed the tail argument into the
+# central-region BSM polynomials and returned ~0.013 for z_0.975, corrupting
+# every prediction interval. See _io_utils.t_quantile.
 
 
 # ─── 1. Prediction intervals (Higgins 2009) ───
@@ -952,13 +934,23 @@ def log_se(est, lo, hi):
 
 
 def dl_pool(estimates):
-    """DerSimonian-Laird random-effects pool."""
+    """DerSimonian-Laird random-effects pool with an HKSJ + t_{k-1} confidence
+    interval (Hartung-Knapp-Sidik-Jonkman), floored at max(1, Q/(k-1)).
+
+    STATS-7: the CI was previously a naive `1.96 * SE` normal interval for every
+    k, which is anti-conservative at the small k (3-5) typical of the atlas. The
+    point estimate and tau2 remain DL (documented choice — DL is biased for
+    k<10 but the bias on the point estimate is small); only the interval is
+    upgraded to the HKSJ t-interval, which strictly widens it in the correct
+    direction. `pooled_se` retains the classic RE SE for backward compatibility;
+    `pooled_se_hksj` exposes the adjusted SE.
+    """
     if len(estimates) < 1:
         return None
     if len(estimates) == 1:
         y, se = estimates[0]
         return {
-            'k': 1, 'pooled_log': y, 'pooled_se': se,
+            'k': 1, 'pooled_log': y, 'pooled_se': se, 'pooled_se_hksj': se,
             'pooled_est': math.exp(y),
             'pooled_lo': math.exp(y - 1.96 * se),
             'pooled_hi': math.exp(y + 1.96 * se),
@@ -968,7 +960,6 @@ def dl_pool(estimates):
     weights = [1 / (se ** 2) for _, se in estimates]
     sum_w = sum(weights)
     sum_wy = sum(w * y for w, (y, _) in zip(weights, estimates))
-    sum_wy2 = sum(w * y * y for w, (y, _) in zip(weights, estimates))
     sum_w2 = sum(w * w for w in weights)
     mean_fe = sum_wy / sum_w
     Q = sum(w * (y - mean_fe) ** 2 for w, (y, _) in zip(weights, estimates))
@@ -979,12 +970,19 @@ def dl_pool(estimates):
     sum_rwy = sum(w * y for w, (y, _) in zip(re_weights, estimates))
     pooled_log = sum_rwy / sum_rw
     pooled_se = math.sqrt(1 / sum_rw)
+    # HKSJ variance multiplier q = (1/(k-1)) Σ w_i (y_i - μ)^2, floored at 1 so a
+    # Q < k-1 cannot narrow the CI below the classic RE interval.
+    q_hksj = sum(w * (y - pooled_log) ** 2 for w, (y, _) in zip(re_weights, estimates)) / df
+    mult = max(1.0, q_hksj)
+    pooled_se_hksj = math.sqrt(mult / sum_rw)
+    tcrit = t_quantile(0.975, df)
     I2 = max(0, (Q - df) / Q * 100) if Q > 0 else 0
     return {
         'k': k, 'pooled_log': pooled_log, 'pooled_se': pooled_se,
+        'pooled_se_hksj': pooled_se_hksj,
         'pooled_est': math.exp(pooled_log),
-        'pooled_lo': math.exp(pooled_log - 1.96 * pooled_se),
-        'pooled_hi': math.exp(pooled_log + 1.96 * pooled_se),
+        'pooled_lo': math.exp(pooled_log - tcrit * pooled_se_hksj),
+        'pooled_hi': math.exp(pooled_log + tcrit * pooled_se_hksj),
         'tau2': tau2, 'I2': I2, 'Q': Q, 'df': df,
     }
 

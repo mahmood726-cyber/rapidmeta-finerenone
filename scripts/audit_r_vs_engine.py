@@ -1,13 +1,16 @@
-"""Audit existing pairwise R-validation files vs engine-recomputed pool.
+"""Coarse DL-vs-DL divergence SCREEN: engine pool vs the stored R metafor pool.
 
-For each outputs/r_validation/<REVIEW>.json (271 files), recompute the
-DerSimonian-Laird random-effects log-OR pool from the realData in
-outputs/extraction_audit/data/<REVIEW>_REVIEW.json and compare to the
-R metafor pool. Flag any |Δ log-OR| ≥ 0.10 (≈10% relative on OR scale)
-or any sign-flip.
+For each outputs/r_validation/<REVIEW>.json, recompute the DerSimonian-Laird
+random-effects log-OR pool from the realData in
+outputs/extraction_audit/data/<REVIEW>_REVIEW.json and compare to the R metafor
+`pooled_logOR`. Both sides are DerSimonian-Laird, so this is a like-for-like
+internal-consistency screen — NOT a REML parity check and NOT a substitute for
+metafor parity at 1e-6. It flags only gross divergence: |Δ log-OR| ≥ 0.10
+(≈10% on the OR scale) or a sign-flip.
 
-This is the same internal-consistency check the audit agents did, but
-now applied portfolio-wide to the pre-existing R-validation outputs.
+VAL-5: this now GATES. main() returns the mismatch count and the process exits
+non-zero when any review diverges, so CI can fail on it instead of a human
+having to read the printout. Pass --report-only to print without gating.
 """
 from __future__ import annotations
 import io, json, math, sys
@@ -111,7 +114,14 @@ def main():
             "missing_data": missing_data,
         }, indent=2), encoding="utf-8")
         print(f"\nFull report: {out.relative_to(REPO)}")
+    return len(mismatches)
 
 
 if __name__ == "__main__":
-    main()
+    report_only = "--report-only" in sys.argv
+    n_mismatch = main()
+    if n_mismatch and not report_only:
+        print(f"\nFAIL: {n_mismatch} review(s) diverge from the stored R DL pool "
+              f"(|Δlog|≥0.10 or sign-flip). Re-run with --report-only to suppress the gate.")
+        sys.exit(1)
+    sys.exit(0)

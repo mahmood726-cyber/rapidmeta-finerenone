@@ -17,7 +17,12 @@ Run: python umbrella_review.py [--json] [--md]
 """
 import sys, io, os, math, json, re
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+from _io_utils import ensure_utf8_stdout, t_quantile, normal_quantile
+
+# Idempotent + import-safe: a bare module-level sys.stdout reassignment raises
+# ValueError under pytest's capture and corrupts collection. ensure_utf8_stdout
+# no-ops when stdout is already UTF-8 or a capture buffer.
+ensure_utf8_stdout()
 
 
 # ═══════════════════════════════════════════════════════════
@@ -140,30 +145,10 @@ def normal_cdf(z):
     return 0.5 * (1 + math.erf(z / math.sqrt(2)))
 
 
-def t_quantile(p, df):
-    """Approximate t-distribution quantile (Cornish-Fisher)."""
-    z = normal_quantile(p)
-    g1 = (z ** 3 + z) / 4
-    g2 = (5 * z ** 5 + 16 * z ** 3 + 3 * z) / 96
-    return z + g1 / df + g2 / (df ** 2)
-
-
-def normal_quantile(p):
-    """Standard normal inverse CDF (Beasley-Springer-Moro)."""
-    if p <= 0 or p >= 1:
-        return float('nan')
-    a = [-39.6968302866538, 220.946098424521, -275.928510446969,
-         138.357751867269, -30.6647980661472, 2.50662827745924]
-    b = [-54.4760987982241, 161.585836858041, -155.698979859887,
-         66.8013118877197, -13.2806815528857]
-    if p < 0.5:
-        q = math.sqrt(-2 * math.log(p))
-        return -(((((a[5]*q + a[4])*q + a[3])*q + a[2])*q + a[1])*q + a[0]) / \
-               ((((b[4]*q + b[3])*q + b[2])*q + b[1])*q + 1)
-    else:
-        q = math.sqrt(-2 * math.log(1 - p))
-        return (((((a[5]*q + a[4])*q + a[3])*q + a[2])*q + a[1])*q + a[0]) / \
-               ((((b[4]*q + b[3])*q + b[2])*q + b[1])*q + 1)
+# t_quantile and normal_quantile are imported from _io_utils. The previous
+# local copies fed the tail argument into the central-region BSM polynomials,
+# so every umbrella prediction interval was wrong by ~150x. See
+# _io_utils.t_quantile / _io_utils.norm_ppf.
 
 
 def egger_test(estimates):
