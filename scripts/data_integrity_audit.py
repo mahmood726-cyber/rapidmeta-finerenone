@@ -177,15 +177,11 @@ def audit_app(path: str):
             ao_est = am.group(1) if am else None
         est = (ao_est or str_field(obj, "estimandType") or "HR").upper()
         is_ratio = est in ("HR", "OR", "RR", "IRR", "DOR")
-        is_continuous = est in ("MD", "SMD", "WMD")
-
-        # A ratio value cannot exist for a continuous (MD) endpoint. This is the
-        # root "continuous-as-ratio" defect (the publishedHR and any trial-level
-        # 2x2 are fabricated for a continuous outcome).
-        if is_continuous and hrv is not None:
-            add("ratio_on_continuous", key,
-                f"{est} outcome carries a ratio publishedHR={hrv}"
-                + (f" CI [{lciv},{uciv}]" if lciv is not None else ""))
+        # NOTE: publishedHR is a GENERIC effect field -- the engine reads
+        # MD/SMD/RD/HR/OR/RR from it uniformly, and MD/RD CIs are correctly
+        # additive. So a value on a continuous outcome is NOT a defect; do not
+        # flag it. (An earlier "ratio_on_continuous" check did, and wrongly
+        # nulled 156 legitimate mean-differences -- never reintroduce it.)
         if lciv is not None and uciv is not None and lciv > uciv:
             add("inverted_ci", key, f"lci={lciv} > uci={uciv}")
         if hrv is not None and lciv is not None and uciv is not None:
@@ -213,7 +209,10 @@ def audit_app(path: str):
                 add_gap = abs((uciv - hrv) - (hrv - lciv)) / max(hrv, 1e-9)
                 import math as _m
                 mult_gap = abs(_m.log(uciv / hrv) - _m.log(hrv / lciv))
-                if add_gap < 0.02 and mult_gap > 0.05:
+                # Require CLEARLY non-log-symmetric (mult_gap > 0.15): a real
+                # ratio CI for a small effect (e.g. OR 1.5 [1.1,1.9]) is nearly
+                # additive too, so a tight threshold would false-flag it.
+                if add_gap < 0.02 and mult_gap > 0.15:
                     add("additive_ratio_ci", key,
                         f"{est}={hrv} CI [{lciv},{uciv}] is additively symmetric "
                         f"(impossible for a ratio; likely a proportion/absolute mislabeled)")
