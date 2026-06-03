@@ -60,8 +60,25 @@ def set_null_field(obj_head: str, name: str, value):
     return new, n > 0
 
 
+def outcome_estimand(obj: str):
+    tail = obj.split("allOutcomes", 1)
+    if len(tail) < 2:
+        return None
+    mt = re.search(r'estimandType:"([^"]+)"', tail[1])
+    return mt.group(1).upper() if mt else None
+
+
 def backfill_trial(obj: str, info: dict):
     if info.get("effect") is None:
+        return obj, []
+    # Measure-consistency guard: the CT.gov source `kind` must match the trial's
+    # outcome estimandType exactly. This prevents landing an OR/HR value in a
+    # continuous (MD) outcome (or vice-versa) -- the failure mode behind the
+    # earlier mistaken null. If the outcome has no estimandType we cannot verify
+    # the measure, so we skip (conservative).
+    oe = outcome_estimand(obj)
+    src_kind = str(info.get("kind", "")).upper()
+    if oe is None or oe != src_kind:
         return obj, []
     head, sep, tail = obj.partition("allOutcomes")
     changed = []
