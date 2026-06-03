@@ -8,10 +8,23 @@ source-verified value (outputs/pmid_resolver/nct_continuous.json) within
 tolerance, but another app disagrees by >REL. The source-matching value is the
 corroborated reference; the disagreeing app(s) are flagged as likely-wrong.
 
-This reliably surfaces the "dedicated single-drug app is right, broad/NMA app is
-wrong" pattern (e.g. RAISE, SIRIUS, EMBARK) without a per-trial literature
-lookup -- the agreement of an independent app AND the registry is strong
-evidence. Still verify against the primary before correcting.
+This surfaces cross-app value inconsistencies, but a "mismatch" is NOT
+necessarily an error and the "reference" (the source-matching value) is NOT
+authoritative. Two distinct cases produce flags:
+
+  * GENUINE ERROR -- one app has a wrong value for the SAME outcome (SIRIUS
+    OCS-OR, EMBARK NSAA-MD, RAISE MG-ADL: the broad app was wrong, the dedicated
+    app + registry right).
+  * DIFFERENT OUTCOME -- the trial has multiple primaries and different apps
+    report different ones, each correct. Verified example: ECZTRA-1 tralokinumab
+    (NCT03131648, BJD 10.1111/bjd.19574) has dual primaries; the broad app
+    reports EASI-75 as OR 2.28 (published 25.0% vs 12.7% => OR ~2.29) and the
+    dedicated app reports IGA 0/1 as RD 8.6 pts (published difference 8.6 pts) --
+    BOTH correct, just different endpoints. The cross-check still flags it.
+
+So this is a TRIAGE aid only. ALWAYS verify against the primary publication's
+stated outcome -- including WHICH endpoint each app is reporting -- before
+changing anything, and never bulk-apply the reference value.
 
 Usage: python scripts/cross_app_value_check.py [--rel 0.05]
 """
