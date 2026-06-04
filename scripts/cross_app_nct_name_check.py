@@ -30,6 +30,15 @@ def trial_name(obj: str):
     return m.group(1) if m else None
 
 
+def is_nulled(html: str, nct: str, obj: str):
+    """True if this trial object is keyed under a NULLED:<nct> prefix.
+    The key '"NULLED:NCTxxxxxxxx":' sits immediately before the object's '{'."""
+    idx = html.find(obj)
+    if idx < 0:
+        return False
+    return ("NULLED:" + nct) in html[max(0, idx - 40):idx]
+
+
 def norm(name: str):
     s = name.lower()
     s = re.sub(r"[^a-z0-9]+", "", s)  # drop spaces/punctuation/hyphens
@@ -49,9 +58,12 @@ def main():
             nm = trial_name(obj)
             if not nm:
                 continue
+            nulled = is_nulled(html, nct, obj)
             d = by_nct.setdefault(nct, {})
-            slot = d.setdefault(norm(nm), [nm, []])
+            slot = d.setdefault(norm(nm), [nm, [], True])
             slot[1].append(os.path.basename(p)[:34])
+            if not nulled:
+                slot[2] = False  # at least one LIVE record with this name
 
     conflicts = {n: d for n, d in by_nct.items() if len(d) > 1}
     real = {}
@@ -67,12 +79,25 @@ def main():
             continue
         real[nct] = names
 
-    print(f"{len(conflicts)} NCTs with >1 distinct name; "
-          f"{len(real)} after dropping substring/alias pairs:\n")
-    for nct, d in sorted(real.items()):
+    # a conflict is LIVE-vs-LIVE (can corrupt a meta-analysis) only if >=2
+    # distinct names each have at least one non-NULLED record.
+    live_conf = {nct: d for nct, d in real.items()
+                 if sum(0 if v[2] else 1 for v in d.values()) >= 2}
+
+    print(f"{len(conflicts)} NCTs with >1 distinct name; {len(real)} real "
+          f"(non-alias); {len(live_conf)} are LIVE-vs-LIVE (the serious set):\n")
+    print("=== LIVE-vs-LIVE (different names, both contributing to a pooled MA) ===")
+    for nct, d in sorted(live_conf.items()):
         print(f"{nct}:")
-        for _, (raw, apps) in sorted(d.items()):
-            print(f'    "{raw[:34]}"  x{len(apps)}  {sorted(set(apps))[:2]}')
+        for _, (raw, apps, nulled) in sorted(d.items()):
+            tag = "NULLED" if nulled else "LIVE"
+            print(f'    [{tag:6}] "{raw[:32]}"  x{len(apps)}  {sorted(set(apps))[:2]}')
+    print("\n=== remaining (>=1 side already NULLED/inert -- metadata only) ===")
+    for nct, d in sorted(real.items()):
+        if nct in live_conf:
+            continue
+        names = " | ".join(f'{v[0][:20]}({"N" if v[2] else "L"})' for v in d.values())
+        print(f"  {nct}: {names}")
     return 0
 
 
