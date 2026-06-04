@@ -1,0 +1,124 @@
+#!/usr/bin/env python
+"""Add baricitinib BREEZE-AD1 & BREEZE-AD2 to JAKI_AD_REVIEW.html.
+
+Baricitinib (an approved AD JAK inhibitor) was entirely missing from the JAK-
+inhibitor-in-AD monotherapy review. Both trials are placebo-controlled
+monotherapy with the same vIGA-AD 0/1 (>=2-grade) week-16 primary as the existing
+upadacitinib/abrocitinib records.
+
+Counts are from ClinicalTrials.gov results (the source AACT mirrors), primary
+outcome "Percentage Achieving IGA 0 or 1", 4 mg arm vs placebo:
+  BREEZE-AD1 (NCT03334396): 4 mg 21/125 (16.8%) vs placebo 12/249 (4.8%)
+  BREEZE-AD2 (NCT03334422): 4 mg 17/123 (13.8%) vs placebo 11/244 (4.5%)
+matching the published percentages (Simpson EL et al, Br J Dermatol 2020;183:242-
+255, PMID 31995838, DOI 10.1111/bjd.18898). Effect = count-derived RR with Wald
+log-RR 95% CI (same convention as the existing JADE/MEASURE-UP records, whose
+publishedHR equals the count-derived RR).
+
+Keyed with clean NCT keys (this app has no NULLED-filter; clean keys pool
+correctly, like the MEASURE-UP records). Inserted into realData after MEASURE-UP
+2, plus nctAcronyms entries. Binary-safe, asserting, idempotent. Verifies brace
+balance after insert.
+"""
+from __future__ import annotations
+import importlib.util
+import math
+import os
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PATH = os.path.join(REPO, "JAKI_AD_REVIEW.html")
+_spec = importlib.util.spec_from_file_location(
+    "dia", os.path.join(REPO, "scripts", "data_integrity_audit.py"))
+dia = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(dia)
+
+
+def rr_ci(tE, tN, cE, cN):
+    rr = (tE / tN) / (cE / cN)
+    se = math.sqrt(1 / tE - 1 / tN + 1 / cE - 1 / cN)
+    lo = math.exp(math.log(rr) - 1.96 * se)
+    hi = math.exp(math.log(rr) + 1.96 * se)
+    return round(rr, 2), round(lo, 2), round(hi, 2)
+
+
+def record(nct, name, year, tE, tN, cE, cN, pct_t, pct_c, lancet_pages, pii):
+    rr, lo, hi = rr_ci(tE, tN, cE, cN)
+    n = tN + cN
+    grp = (f"Moderate-severe AD monotherapy, baricitinib 4 mg daily vs placebo "
+           f"(wk 16, vIGA-AD 0/1 RR)")
+    title = ("IGA 0/1 with >=2-grade improvement at week 16 (primary, "
+             "baricitinib 4 mg arm) (RR)")
+    enroll = (f"{name} ({nct}): adults with moderate-to-severe atopic dermatitis "
+              f"(vIGA-AD >=3, EASI >=16, BSA >=10%) randomized 2:1:1:1 double-blind "
+              f"to placebo, baricitinib 1 mg, 2 mg, or 4 mg once daily for 16 weeks "
+              f"as monotherapy. This app analyses the 4 mg vs placebo comparison "
+              f"(n={tN} vs n={cN}).")
+    prim = (f"vIGA-AD 0/1 with >=2-grade improvement at week 16: baricitinib 4 mg "
+            f"{pct_t}% ({tE}/{tN}) vs placebo {pct_c}% ({cE}/{cN}); count-derived "
+            f"risk ratio {rr} (95% CI {lo}-{hi}). Source: ClinicalTrials.gov "
+            f"results, primary outcome.")
+    src = (f"Source: Simpson EL et al. Br J Dermatol 2020;183:{lancet_pages} "
+           f"(BREEZE-AD1 and BREEZE-AD2); counts from ClinicalTrials.gov results.")
+    return (
+        '{name:"' + name + '",baseline:{n:' + str(n) + ',followup:3.7},'
+        'pmid:"31995838",phase:"III",year:' + str(year) + ','
+        f'tE:{tE},tN:{tN},cE:{cE},cN:{cN},'
+        'group:"' + grp + '",'
+        f'publishedHR:{rr},hrLCI:{lo},hrUCI:{hi},'
+        'allOutcomes:[{shortLabel:"MACE",title:"' + title + '",'
+        f'tE:{tE},cE:{cE},type:"PRIMARY",matchScore:95,'
+        f'effect:{rr},lci:{lo},uci:{hi},estimandType:"RR"}}],'
+        'rob:["low","low","low","low","low"],'
+        'snippet:"' + src + '",'
+        'sourceUrl:"https://doi.org/10.1111/bjd.18898",'
+        'ctgovUrl:"https://clinicaltrials.gov/study/' + nct + '",'
+        'evidence:[{label:"Enrollment",source:"ClinicalTrials.gov",text:"' + enroll + '",highlights:["' + str(tN) + '","' + str(cN) + '","baricitinib 4 mg","monotherapy"]},'
+        '{label:"Primary - vIGA-AD 0/1 at Week 16",source:"ClinicalTrials.gov results",text:"' + prim + '",highlights:["' + f'{pct_t}%' + '","' + f'{pct_c}%' + '","RR ' + str(rr) + '"]}]}'
+    )
+
+
+def main():
+    data = open(PATH, "rb").read().decode("utf-8", "replace")
+
+    if '"NCT03334396":{name:"BREEZE-AD1"' in data:
+        print("already added (idempotent no-op)")
+        return 0
+
+    ad1 = record("NCT03334396", "BREEZE-AD1", 2020, 21, 125, 12, 249, 16.8, 4.8,
+                 "242-255", "")
+    ad2 = record("NCT03334422", "BREEZE-AD2", 2020, 17, 123, 11, 244, 13.8, 4.5,
+                 "242-255", "")
+    new_entries = ',"NCT03334396":' + ad1 + ',"NCT03334422":' + ad2
+
+    # insert immediately after the MEASURE-UP 2 (NCT03607422) record object
+    anchor = None
+    for key, obj in dia.find_trial_objects(data):
+        if key.split("_")[0] == "NCT03607422":
+            anchor = obj
+            break
+    assert anchor is not None, "MEASURE-UP 2 record not found"
+    assert data.count(anchor) == 1, "anchor object not unique"
+    pos = data.find(anchor) + len(anchor)
+    data2 = data[:pos] + new_entries + data[pos:]
+
+    # nctAcronyms entries
+    acr_anchor = 'nctAcronyms:{'
+    assert data2.count(acr_anchor) == 1, "nctAcronyms not unique"
+    ai = data2.find(acr_anchor) + len(acr_anchor)
+    data3 = (data2[:ai] + '"NCT03334396":"BREEZE-AD1","NCT03334422":"BREEZE-AD2",'
+             + data2[ai:])
+
+    # brace balance must be unchanged net (we inserted balanced objects)
+    if data.count("{") - data.count("}") != data3.count("{") - data3.count("}"):
+        raise SystemExit("brace balance changed -- aborting")
+    assert data3.count('"NCT03334396":{name:"BREEZE-AD1"') == 1
+    assert data3.count('"NCT03334422":{name:"BREEZE-AD2"') == 1
+
+    open(PATH, "wb").write(data3.encode("utf-8"))
+    print("added BREEZE-AD1 (RR", rr_ci(21, 125, 12, 249), ") and BREEZE-AD2 (RR",
+          rr_ci(17, 123, 11, 244), ")")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
