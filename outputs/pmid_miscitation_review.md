@@ -109,15 +109,29 @@ verified (title + NCT-in-abstract + primary outcome matching the app):
   paper (27939400, actually registered under NCT02108652) and a COVID-vaccine
   comment (32861315). NOT a wrong-NCT problem after value cross-check.
 
-## Still deferred — true NCT/identity mismatch (NOT a citation swap)
+## Round 5 — nirsevimab/MEDLEY node DROPPED (Option B, user-approved)
 
-- **nirsevimab/MEDLEY (NCT02878330)** — the NMA record is name="MEDLEY" with a
-  MEDLEY-specific effect (0.33 [0.14-0.81]) but assigned the nirsevimab Phase-2b
-  NCT (NCT02878330, whose real primary value is 0.30 [0.19-0.48], correctly held
-  by the dedicated app citing 32726528). The garbage physics PMID 35687449 can't
-  simply become 32726528, because the record IS MEDLEY data. Correct fix: change
-  the NCT to MEDLEY's NCT03959488 and cite the MEDLEY paper — a data/identity
-  repair, deferred for explicit review. This is the ONLY remaining open item.
+`scripts/drop_medley_nma_node.py`. The NMA record keyed "NULLED:NCT02878330"
+(name="MEDLEY", n=925, RR 0.33 [0.14-0.81], pmid 35687449 = a carbon-chain
+physics comment) was removed from both the NCT->label map and the realData object
+in RSV_PROPHY_INFANT_BROAD_NMA_REVIEW.html.
+
+Investigation (PubMed): MEDLEY (NCT03959488; Domachowske, NEJM 2022,
+10.1056/NEJMc2112186) is a **palivizumab-controlled SAFETY trial** with no
+placebo-controlled MA-RSV-LRTI efficacy RR — so the 0.33 value was unsourced and
+the node did not belong as a placebo-efficacy comparison (the real placebo
+efficacy is Phase-2b RR~0.30 [0.19-0.48] and the pooled Phase-2b+MELODY RRR 79.5%
+=> RR~0.20, Simoes 2023 10.1016/S2352-4642(22)00321-2). The entry was already
+NULLED (inert) by the 2026-05-10 audit; dropping it removes the dead node and its
+garbage PMID entirely. Validator: RSV NMA now pools 4 trials, totals unchanged
+(2033 apps, 19/19 benchmarks). NO live effect values changed.
+
+## Open items: NONE
+
+All 66 cross-app PMID conflicts are now resolved (81 citation fixes + this node
+drop) or documented as genuine dual-publications. Note: the residual NULLED RSV
+cluster (MELODY mis-keyed under NCT03959488, HARMONIE, GSK-MAT-006, Suptavumab)
+is pre-existing and inert; not part of this citation audit.
 
 ## Genuine dual-publications (left as-is, not errors)
 
