@@ -48,9 +48,55 @@ primary-results PMID looked up and added.
 - **NCT01969838 (SIMPLIFY-1 momelotinib)** — 37042865 is a long-term integrated
   analysis; primary-results PMID needs confirming.
 
-## Not investigated
+## Round 2 — wrong-trial / wrong-topic / design citations (33 NCTs, 46 records)
 
-The remaining ~47 cross-app PMID conflicts (of 66 total) had no DESIGN/SUB tag on
-any member — i.e. both are plausibly primary/results papers (a trial can have a
-main paper plus a co-primary or pivotal sibling). These were not adjudicated and
-may be legitimate. `outputs/pmid_conflicts.json` lists all 66.
+`scripts/fix_pmid_miscitations_round2.py`. The DESIGN/SUB heuristic missed a
+worse class: records citing a paper on an ENTIRELY UNRELATED topic. Detected by
+resolving every untagged-conflict PMID's title. Examples of what was being cited:
+RA-BEAM → "U.S. Blood Supply and Men Who Have Sex with Men"; ENDEAR (nusinersen)
+→ "Nutritional Management of CKD"; nirsevimab → a carbon-chain physics comment;
+KEYNOTE-407 → "WHO classification of adrenal gland tumours"; donanemab →
+"preparedness for Alzheimer therapies in Australia"; inclisiran → "Facing
+Covid-19 in Italy"; fitusiran → "2021 ASH annual meeting"; STELLAR (sotatercept)
+→ "Optimizing One-Lung Ventilation in Thoracic Surgery".
+
+All targets are the trial primary-results paper, title-verified. For DELIVER
+(36027570) and SELECT-EARLY (32638504) no app cited the primary, so it was
+verified by direct PubMed lookup. ALTA-1L had cited the J-ALEX *alectinib* paper
+(28501139) for a *brigatinib* trial → 30280657; ZUMA-7 had cited an ofatumumab
+mobilization paper (33288485) → 34891224.
+
+Trials fixed: TOPCAT, GRIPHON, RA-BEAM, ENDEAR, Nix-TB, TB-PRACTECAL, EVOLVE-1,
+SELECT-COMPARE, SELECT-EARLY, ALTA-1L, KEYNOTE-407, LEAP, HOPE, POSEIDON,
+IMpassion031, SCORED, NAVIGATOR, ZUMA-7, ATLAS, KEYNOTE-671, DELIVER, KEEPsAKE,
+HELIOS-A, BE OPTIMAL, SKYLIGHT, VALOR-HCM, FINEARTS-HF, TRAILBLAZER-ALZ2,
+ONWARDS-1, STELLAR, MagnetisMM-3, ONWARDS-2, N-MOmentum, SUMMIT.
+
+### IMPORTANT lesson reinforced
+Of 5 primary PMIDs guessed from memory for the deferred cases, only 2 were
+correct; the other 3 resolved to a physics paper, a COVID-plasma trial, and a
+healthcare-worker essay. Identifiers were verified against PubMed, never trusted
+from memory.
+
+## Still deferred — need a verified primary (do NOT guess)
+
+No app cites the true primary and a memory guess was wrong/unverified:
+- **SIMPLIFY-1 momelotinib (NCT01969838)** — cites a long-term integrated
+  analysis + an UNRESOLVED PMID 28430594.
+- **RHAPSODY rilonacept pericarditis (NCT03737110)** — cites a stroke-correction
+  paper (33370206) + the design paper; true primary not yet identified.
+- **SEQUOIA-HCM aficamten (NCT05186818)** — both cited PMIDs are non-primary.
+- **BREEZE-AD baricitinib (NCT03334396)** — cites a review + a PRO sub-paper.
+- **IMvigor (NCT02807636)** and **nirsevimab/MEDLEY (NCT02878330)** — the NMA
+  app's outcome label names a DIFFERENT trial than the NCT; needs the NCT/label
+  mismatch resolved, not just a PMID swap.
+
+## Genuine dual-publications (left as-is, not errors)
+
+Same trial, two valid papers, each app citing the one matching its shown outcome:
+tofersen phase-1-2 vs phase-3 (NCT02623699), BEACON safety-lead-in vs primary
+(NCT02928224), ALPINE interim-ORR vs final-PFS (NCT03734016), capivasertib
+3-paper set (NCT04305496), COMMODORE-2 safety vs efficacy companion (NCT04434092),
+ARAMIS primary vs OS-update (NCT02200614).
+
+`outputs/pmid_conflicts.json` lists all 66 original conflicts.
