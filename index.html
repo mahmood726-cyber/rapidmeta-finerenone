@@ -8,33 +8,54 @@
 <meta property="og:description" content="1038 browser-based living meta-analysis apps (901 pairwise + 144 network meta-analyses) across 15 clinical specialties, validated against published pools.">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Georgia,serif;background:#FDFCFA;color:#1a1a1a;line-height:1.6}
-/* WCAG 2.5.5: bump in-table anchor tap targets to >=24px tall */
+html{scroll-behavior:smooth}
+body{font-family:Georgia,'Times New Roman',serif;background:#fff;color:#121212;line-height:1.5;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:#326891}
+.page{max-width:1120px;margin:0 auto;padding:0 28px 64px}
 tbody tr td a{display:inline-block;padding:4px 0;min-height:24px;line-height:1.5}
-.page{max-width:880px;margin:0 auto;padding:3rem 1.5rem}
-.badge{font-family:system-ui,sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:#7A5A10;margin-bottom:1rem}
-h1{font-size:1.9rem;margin-bottom:.5rem;line-height:1.25}
-h2{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#7A5A10;margin:2rem 0 .8rem}
-.meta{font-family:system-ui,sans-serif;font-size:.85rem;color:#777;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:2px solid #E5E0D6}
-.summary{font-size:1.05rem;margin-bottom:1.5rem;color:#444}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.7rem;margin-bottom:1.5rem}
-.card{display:block;padding:.85rem 1rem;background:#fff;border:1px solid #E5E0D6;border-radius:8px;text-decoration:none;color:#1a1a1a;font-family:system-ui,sans-serif;font-size:.86rem;transition:border-color .15s,box-shadow .15s;border-left:4px solid #2E86C1}
-.card:hover{border-color:#7A5A10;box-shadow:0 2px 10px rgba(0,0,0,.06)}
-.card .name{font-weight:600;display:block;margin-bottom:.15rem}
-.card .pub{font-size:.7rem;color:#666;font-family:ui-monospace,monospace}
-.card.hf{border-left-color:#D97706}
-.card.ckd{border-left-color:#059669}
-.card.lipid{border-left-color:#7C3AED}
-.card.cad{border-left-color:#DC2626}
-.card.rhythm{border-left-color:#DB2777}
-.card.dm{border-left-color:#0891B2}
-.card.bp{border-left-color:#EA580C}
-.card.vte{border-left-color:#475569}
-.card.util{border-left-color:#2E86C1;background:#F8FAFC}
+/* ---- masthead ---- */
+.masthead{text-align:center;padding:72px 0 30px;border-bottom:1px solid #121212}
+.kicker{font-family:system-ui,-apple-system,sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#9a6a00;margin-bottom:20px}
+h1.title{font-family:Georgia,serif;font-weight:700;font-size:clamp(2.1rem,5.2vw,3.5rem);line-height:1.07;letter-spacing:-.015em;max-width:18ch;margin:0 auto 20px}
+.standfirst{font-family:Georgia,serif;font-size:clamp(1.05rem,2vw,1.28rem);line-height:1.5;color:#333;max-width:64ch;margin:0 auto 24px}
+.byline{font-family:system-ui,sans-serif;font-size:.74rem;letter-spacing:.04em;color:#666;text-transform:uppercase}
+.byline a{color:#326891;text-decoration:none}
+.byline a:hover{text-decoration:underline}
+/* ---- concept strip ---- */
+.concept{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;max-width:1000px;margin:38px auto 8px;font-family:system-ui,sans-serif}
+.concept .c{padding-top:14px;border-top:3px solid #121212}
+.concept .c h3{font-family:Georgia,serif;font-size:1.05rem;font-weight:700;margin:0 0 6px}
+.concept .c p{font-size:.86rem;line-height:1.5;color:#555}
+@media(max-width:720px){.concept{grid-template-columns:1fr;gap:18px}}
+/* ---- integrity banner ---- */
+.integrity-banner{font-family:system-ui,sans-serif;font-size:.78rem;color:#444;display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;justify-content:center;margin:30px auto 0;max-width:1000px;padding:14px 18px;background:#FAFAF7;border:1px solid #ECECE4;border-radius:8px}
+.integrity-banner .stat{display:inline-flex;align-items:center;gap:6px}
+.integrity-banner .links{display:inline-flex;gap:14px;flex-wrap:wrap}
+.integrity-banner .links a{color:#326891;text-decoration:none}
+.integrity-banner .links a:hover{text-decoration:underline}
+.tier-dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.tier-OK{background:#1a8d4b}.tier-LOW_CONCERN{background:#caa300}.tier-MANUAL_REVIEW{background:#d97706}.tier-QUARANTINE{background:#c0392b}
+/* ---- sticky specialty nav ---- */
+.specnav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:saturate(160%) blur(6px);border-bottom:1px solid #e4e4e4;margin:34px -28px 0;padding:11px 28px;font-family:system-ui,sans-serif;font-size:.76rem;line-height:2}
+.specnav b{color:#9a6a00;text-transform:uppercase;letter-spacing:.12em;font-size:.66rem;margin-right:10px}
+.specnav a{color:#333;text-decoration:none;margin-right:15px;white-space:nowrap}
+.specnav a:hover{color:#9a6a00;text-decoration:underline}
+/* ---- sections ---- */
+h2{font-family:system-ui,sans-serif;font-size:.74rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#121212;margin:52px 0 0;padding-bottom:9px;border-bottom:2px solid #121212;scroll-margin-top:60px}
+.summary{font-size:1.05rem;margin:1.2rem 0;color:#444}
+.note{font-family:system-ui,sans-serif;font-size:.8rem;color:#555;background:#FAFAF7;border:1px solid #ECECE4;padding:.8rem 1rem;border-radius:8px;margin:1rem 0}
+/* ---- card grid ---- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:0;border-top:1px solid #e6e6e6;margin:0 0 10px}
+.card{display:block;padding:15px 16px 16px;background:#fff;text-decoration:none;color:#121212;border-bottom:1px solid #ececec;border-right:1px solid #ececec;transition:background .12s}
+.card:hover{background:#FAFAF7}
+.card .name{font-family:Georgia,serif;font-weight:700;font-size:1rem;line-height:1.22;display:block;margin-bottom:6px;color:#121212}
+.card:hover .name{color:#9a6a00}
+.card .pub{font-family:system-ui,sans-serif;font-size:.72rem;color:#6a6a6a;line-height:1.4;display:block}
+.card.util{background:#FBFBF8}
 .links{display:grid;gap:.6rem}
-.footer{font-family:system-ui,sans-serif;font-size:.72rem;color:#aaa;padding-top:1rem;border-top:1px solid #E5E0D6;margin-top:2rem}
-.footer a{color:#2E6B8A}
-.note{font-family:system-ui,sans-serif;font-size:.78rem;color:#666;background:#FFF8E7;border:1px solid #F0E0B0;padding:.7rem .9rem;border-radius:6px;margin-bottom:1rem}
+.footer{font-family:system-ui,sans-serif;font-size:.74rem;color:#999;padding-top:1.2rem;border-top:1px solid #e4e4e4;margin-top:2.5rem;line-height:1.7}
+.footer a{color:#326891}
+.badge{display:none}
 </style>
 
 
@@ -128,9 +149,12 @@ h2{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:700;letter-spac
 <!-- a11y-skiplink:end -->
 <main id="main">
 <div class="page">
-  <div class="badge">RapidMeta Cardiology Portfolio</div>
-  <h1>Living meta-analysis apps &mdash; 404 therapeutic topics, R-metafor cross-validated</h1>
-  <div class="meta">Mahmood Ahmad &middot; 901 pairwise + 144 NMA &middot; Updated 2026-05-14 &middot; <a href="dashboard.html" style="color:#2E6B8A;font-weight:bold;">📊 Analytical dashboard (filterable, all 1038) &rarr;</a></div>
+  <div class="masthead">
+  <div class="kicker">RapidMeta &middot; Living Evidence Synthesis</div>
+  <h1 class="title">Meta-analyses, generated from the trial record.</h1>
+  <p class="standfirst">Each tile below is a self-contained, continuously updated meta-analysis &mdash; built directly from clinical-trial registries (ClinicalTrials.gov / AACT) and published primary reports, <em>not</em> from mining PDFs. Every one runs a full Cochrane&nbsp;Handbook&nbsp;v6.5 statistics suite in the browser and is cross-validated against R&nbsp;<code>metafor</code> and the published meta-analytic literature.</p>
+  <div class="byline">Mahmood&nbsp;Ahmad &nbsp;&middot;&nbsp; 685+ syntheses across 18&nbsp;specialties &nbsp;&middot;&nbsp; <a href="dashboard.html">Filterable dashboard &rarr;</a></div>
+</div>
 
   <!-- integrity-banner:begin -->
   <div class="integrity-banner">
@@ -147,18 +171,25 @@ h2{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:700;letter-spac
     </span>
   </div>
   <!-- integrity-banner:end -->
-  <p class="summary">Browser-based living meta-analysis apps spanning <strong>404 therapeutic topics</strong> (274 pairwise + 144 network meta-analyses) across cardiology, oncology, neurology, gastroenterology, infectious disease, vaccinology, rheumatology, dermatology, endocrinology, ophthalmology, psychiatry, women's health, and renal/CKD. Each app ships the standard Protocol &rarr; Search &rarr; Screening &rarr; Extraction &rarr; Analysis &rarr; Scientific Output pipeline plus a <strong>28-panel Statistics tab</strong> implementing Cochrane Handbook v6.5 sensitivity diagnostics: R metafor cross-validation (271/404 reviews), GRADE Summary of Findings with reviewer attestation, NNT, leave-one-out, Baujat, cumulative MA, Trial Sequential Analysis, NMA league table + per-comparison forest + SUCRA, Bayesian sensitivity, INSPECT-SR trustworthiness, AACT-derived pre-registration concordance heuristics, RR-vs-OR collapsibility check, subgroup interaction tests, meta-regression with permutation null, funnel diagnostics (Egger + Peters + trim-and-fill), influence diagnostics, &tau;&sup2; Q-profile CI, prediction-interval convention badge (Cochrane v6.5 t<sub>k-1</sub>), GRADE-NMA per-comparison certainty, PRISMA 2020 27-item checklist, GRIM + Benford data integrity, Fagan nomogram (DTA), restricted-cubic-spline dose-response. Pooled estimates cross-checked against published meta-analyses. Specialty-grouped cards below show the original cardiology-led portfolio; the analytical dashboard above is the filterable view of the full 411-review fleet.</p>
+  
+  <div class="concept">
+    <div class="c"><h3>Built from registries, not PDFs</h3><p>Trials, arms, and outcomes are read from structured registry data and published primaries &mdash; so each review can be refreshed as the evidence base grows.</p></div>
+    <div class="c"><h3>Cochrane-grade statistics, in the browser</h3><p>REML &amp; HKSJ pooling, prediction intervals, network meta-analysis, trial sequential analysis, GRADE, and a 28-panel diagnostics suite &mdash; no install.</p></div>
+    <div class="c"><h3>Audited &amp; reproducible</h3><p>Every pooled estimate is cross-checked against R&nbsp;<code>metafor</code> and the published literature, with a transparent data-integrity audit.</p></div>
+  </div>
 
-  <div class="note">Every app tile below opens the full RapidMeta workbench &mdash; click into Screening to see Included / Excluded decisions, Extraction for 2&times;2 tables, and Analysis Suite for forest plots, Bayesian posterior, and PRISMA 2020 flow. Each app links to its frozen PROSPERO-style <a href="protocols/INDEX.md" style="color:#047857;font-weight:bold">protocol (v1.0, frozen 2026-04-19)</a> in the header toolbar.</div>
+  
 
-  <h2>Allergy & Immunology</h2>
+  <div class="specnav"><b>Browse</b><a href="#sp-allergy-immunology">Allergy &amp; Immunology</a><a href="#sp-cardiology">Cardiology</a><a href="#sp-dermatology">Dermatology</a><a href="#sp-endocrinology">Endocrinology</a><a href="#sp-gastroenterology">Gastroenterology</a><a href="#sp-hematology">Hematology</a><a href="#sp-hepatology">Hepatology</a><a href="#sp-infectious-disease">Infectious Disease</a><a href="#sp-nephrology">Nephrology</a><a href="#sp-neurology">Neurology</a><a href="#sp-oncology">Oncology</a><a href="#sp-ophthalmology">Ophthalmology</a><a href="#sp-psychiatry">Psychiatry</a><a href="#sp-respiratory">Respiratory</a><a href="#sp-rheumatology">Rheumatology</a><a href="#sp-urology">Urology</a><a href="#sp-vaccines-global-health">Vaccines &amp; Global Health</a><a href="#sp-women-s-health">Women's Health</a></div>
+
+  <h2 id="sp-allergy-immunology">Allergy & Immunology</h2>
   <div class="grid">
     <a href="OMALIZUMAB_FOOD_ALLERGY_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Omalizumab in food allergy</span><span class="pub">Audit-first build · 4 trials · AACT-verified · k>=3</span></a>
     <a href="PALFORZIA_PEANUT_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Palforzia OIT in peanut allergy</span><span class="pub">Audit-first build · 3 trials · AACT-verified · k>=3</span></a>
     <a href="VIASKIN_PEANUT_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Viaskin Peanut patch immunotherapy</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
   </div>
 
-  <h2>Cardiology</h2>
+  <h2 id="sp-cardiology">Cardiology</h2>
   <div class="grid">
     <a href="ARNI_HF_REVIEW.html" class="card hf"><span class="name">ARNI in HFrEF/HFpEF</span><span class="pub">Published: HR 0.84 (0.77&ndash;0.91), k=3</span></a>
     <a href="SGLT2_HF_REVIEW.html" class="card hf"><span class="name">SGLT2i in Heart Failure</span><span class="pub">Published: HR 0.77 (0.71&ndash;0.84), k=2</span></a>
@@ -225,11 +256,11 @@ h2{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:700;letter-spac
     <a href="SILDENAFIL_PAH_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Sildenafil Pah</span><span class="pub">Audit-first build · AACT-verified</span></a>
   </div>
 
-  <h2>Dermatology</h2>
+  <h2 id="sp-dermatology">Dermatology</h2>
   <div class="grid">
-    <a href="IL23_PSORIASIS_REVIEW.html" class="card util" style="border-left-color:#F43F5E"><span class="name">IL-23 Inhibitors in Plaque Psoriasis</span><span class="pub">Published: PASI 90 OR 20.9 (11.7&ndash;37.3), k=3</span></a>
-    <a href="DUPILUMAB_AD_REVIEW.html" class="card util" style="border-left-color:#F43F5E"><span class="name">Dupilumab in Atopic Dermatitis</span><span class="pub">Published: IGA 0/1 OR 3.55 (2.84&ndash;4.44), k=3</span></a>
-    <a href="JAKI_AD_REVIEW.html" class="card util" style="border-left-color:#F43F5E"><span class="name">JAKi (Abrocitinib + Upadacitinib) in AD (JADE MONO + MEASURE-UP)</span><span class="pub">Published: IGA 0/1 RR 7.10 (4.86&ndash;10.40), k=4 (class-level)</span></a>
+    <a href="IL23_PSORIASIS_REVIEW.html" class="card util"><span class="name">IL-23 Inhibitors in Plaque Psoriasis</span><span class="pub">Published: PASI 90 OR 20.9 (11.7&ndash;37.3), k=3</span></a>
+    <a href="DUPILUMAB_AD_REVIEW.html" class="card util"><span class="name">Dupilumab in Atopic Dermatitis</span><span class="pub">Published: IGA 0/1 OR 3.55 (2.84&ndash;4.44), k=3</span></a>
+    <a href="JAKI_AD_REVIEW.html" class="card util"><span class="name">JAKi (Abrocitinib + Upadacitinib) in AD (JADE MONO + MEASURE-UP)</span><span class="pub">Published: IGA 0/1 RR 7.10 (4.86&ndash;10.40), k=4 (class-level)</span></a>
     <a href="ADALIMUMAB_PSO_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Adalimumab in plaque psoriasis</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
     <a href="BARICITINIB_AA_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Baricitinib in alopecia areata</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
     <a href="BARICITINIB_AD_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Baricitinib in atopic dermatitis</span><span class="pub">Audit-first build · 4 trials · AACT-verified · k>=3</span></a>
@@ -272,7 +303,7 @@ h2{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:700;letter-spac
     <a href="UPADACITINIB_AS_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Upadacitinib As</span><span class="pub">Audit-first build · AACT-verified</span></a>
   </div>
 
-  <h2>Endocrinology</h2>
+  <h2 id="sp-endocrinology">Endocrinology</h2>
   <div class="grid">
     <a href="GLP1_CVOT_REVIEW.html" class="card dm"><span class="name">GLP-1 RA CVOTs</span><span class="pub">Published: HR 0.88 (0.84&ndash;0.94), k=8</span></a>
     <a href="SGLT2_MACE_CVOT_REVIEW.html" class="card dm"><span class="name">SGLT2i CVOT 3P-MACE Class Pool (EMPA-REG + CANVAS + DECLARE + VERTIS)</span><span class="pub">Published: HR 0.91 (0.85&ndash;0.98), k=4</span></a>
@@ -281,7 +312,7 @@ h2{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:700;letter-spac
     <a href="SEMAGLUTIDE_OBESITY_REVIEW.html" class="card dm"><span class="name">Semaglutide 2.4 mg in Obesity (STEP)</span><span class="pub">Published: weight MD &minus;11.8% (&minus;13.2 to &minus;10.5), k=3</span></a>
     <a href="ROMOSOZUMAB_OP_REVIEW.html" class="card dm"><span class="name">Romosozumab in Osteoporosis</span><span class="pub">Published: vertebral fx RR 0.32 (0.16&ndash;0.68), k=3</span></a>
     <a href="TIRZEPATIDE_OBESITY_REVIEW.html" class="card dm"><span class="name">Tirzepatide 15 mg for Obesity (SURMOUNT-1 + 2 + 3)</span><span class="pub">Published: weight MD &minus;16.7% (&minus;21.9 to &minus;11.5), k=3</span></a>
-    <a href="VITAMIN_D_FRACTURE_FALL_REVIEW.html" class="card util" style="border-left-color:#10B981"><span class="name">Vitamin D Mega-Trials NMA — VITAL + D-Health + ViDA (3 mega-trials)</span><span class="pub">Published: VITAL (US n=25,871) HR 1.04 cancer NULL; D-Health (Australia n=21,315) HR 0.93 mortality borderline; ViDA (NZ n=5,110) RR 0.99 falls NULL, k=3 (post-2010 nutrition NMA)</span></a>
+    <a href="VITAMIN_D_FRACTURE_FALL_REVIEW.html" class="card util"><span class="name">Vitamin D Mega-Trials NMA — VITAL + D-Health + ViDA (3 mega-trials)</span><span class="pub">Published: VITAL (US n=25,871) HR 1.04 cancer NULL; D-Health (Australia n=21,315) HR 0.93 mortality borderline; ViDA (NZ n=5,110) RR 0.99 falls NULL, k=3 (post-2010 nutrition NMA)</span></a>
     <a href="ABALOPARATIDE_OSTEO_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Abaloparatide in osteoporosis</span><span class="pub">Audit-first build · 3 trials · AACT-verified · k>=3</span></a>
     <a href="AGALSIDASE_BETA_FABRY_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Agalsidase beta in Fabry</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
     <a href="AGALSIDASE_FABRY_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Agalsidase alfa/beta in Fabry</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
@@ -324,12 +355,12 @@ h2{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:700;letter-spac
     <a href="LIRAGLUTIDE_OBESITY_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Liraglutide Obesity</span><span class="pub">Audit-first build · AACT-verified</span></a>
   </div>
 
-  <h2>Gastroenterology</h2>
+  <h2 id="sp-gastroenterology">Gastroenterology</h2>
   <div class="grid">
-    <a href="JAK_UC_REVIEW.html" class="card util" style="border-left-color:#10B981"><span class="name">JAK Inhibitors for UC Induction</span><span class="pub">Published: OR ~3.2 (2.4&ndash;4.3), k=3</span></a>
-    <a href="RISANKIZUMAB_CD_REVIEW.html" class="card util" style="border-left-color:#10B981"><span class="name">Risankizumab in Crohn's Disease</span><span class="pub">Published: clinical remission OR 1.73 (1.15&ndash;2.60), k=3</span></a>
-    <a href="UPADACITINIB_CD_REVIEW.html" class="card util" style="border-left-color:#10B981"><span class="name">Upadacitinib in Crohn Disease (U-EXCEL / U-EXCEED / U-ENDURE)</span><span class="pub">Published: remission RR 1.99 (1.53&ndash;2.60), k=3</span></a>
-    <a href="MIRIKIZUMAB_UC_REVIEW.html" class="card util" style="border-left-color:#10B981"><span class="name">Mirikizumab for Ulcerative Colitis (LUCENT)</span><span class="pub">Published: remission RR 1.91 (1.56&ndash;2.35), k=2</span></a>
+    <a href="JAK_UC_REVIEW.html" class="card util"><span class="name">JAK Inhibitors for UC Induction</span><span class="pub">Published: OR ~3.2 (2.4&ndash;4.3), k=3</span></a>
+    <a href="RISANKIZUMAB_CD_REVIEW.html" class="card util"><span class="name">Risankizumab in Crohn's Disease</span><span class="pub">Published: clinical remission OR 1.73 (1.15&ndash;2.60), k=3</span></a>
+    <a href="UPADACITINIB_CD_REVIEW.html" class="card util"><span class="name">Upadacitinib in Crohn Disease (U-EXCEL / U-EXCEED / U-ENDURE)</span><span class="pub">Published: remission RR 1.99 (1.53&ndash;2.60), k=3</span></a>
+    <a href="MIRIKIZUMAB_UC_REVIEW.html" class="card util"><span class="name">Mirikizumab for Ulcerative Colitis (LUCENT)</span><span class="pub">Published: remission RR 1.91 (1.56&ndash;2.35), k=2</span></a>
     <a href="BUDESONIDE_IBD_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Budesonide in pediatric IBD</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
     <a href="ELUXADOLINE_IBSD_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Eluxadoline in IBS-D</span><span class="pub">Audit-first build · 3 trials · AACT-verified · k>=3</span></a>
     <a href="ETRASIMOD_UC_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Etrasimod in UC</span><span class="pub">Audit-first build · 3 trials · AACT-verified · k>=3</span></a>
@@ -355,9 +386,9 @@ h2{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:700;letter-spac
     <a href="LUBIPROSTONE_CIC_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Lubiprostone Cic</span><span class="pub">Audit-first build · AACT-verified</span></a>
   </div>
 
-  <h2>Hematology</h2>
+  <h2 id="sp-hematology">Hematology</h2>
   <div class="grid">
-    <a href="SCD_DISEASE_MOD_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">SCD Disease-Modifying Therapy NMA (REACH + L-glutamine + CTX001)</span><span class="pub">Published: hydroxyurea VOC RR 0.43 (0.34&ndash;0.55), CTX001 VF12 93.5% (78.5&ndash;99.1)</span></a>
+    <a href="SCD_DISEASE_MOD_REVIEW.html" class="card util"><span class="name">SCD Disease-Modifying Therapy NMA (REACH + L-glutamine + CTX001)</span><span class="pub">Published: hydroxyurea VOC RR 0.43 (0.34&ndash;0.55), CTX001 VF12 93.5% (78.5&ndash;99.1)</span></a>
     <a href="AGRYLIN_ET_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Anagrelide in essential thrombocythemia</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
     <a href="ANDEXANET_BLEEDING_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Andexanet alfa in FXa bleeding</span><span class="pub">Audit-first build · 3 trials · AACT-verified · k>=3</span></a>
     <a href="ARGATROBAN_HIT_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Argatroban in HIT</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
@@ -392,11 +423,11 @@ h2{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:700;letter-spac
     <a href="ROMIPLOSTIM_ITP_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Romiplostim Itp</span><span class="pub">Audit-first build · AACT-verified</span></a>
   </div>
 
-  <h2>Hepatology</h2>
+  <h2 id="sp-hepatology">Hepatology</h2>
   <div class="grid">
-    <a href="HEPATITIS_HCV_DAA_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">Pan-Genotypic HCV DAA Therapy NMA (ASTRAL-1 + ASTRAL-3 + EXPEDITION-1)</span><span class="pub">Published: SVR12 99% across genotypes, k=3 (basis for WHO 2018 simplified regimen)</span></a>
-    <a href="HEPATITIS_B_TAF_TDF_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">TAF vs TDF for Chronic Hepatitis B (Buti 2016 + Chan 2016 pivotal pair)</span><span class="pub">Published: HBV-DNA &lt;29 IU/mL pooled RR ~0.99 NI; renal/bone advantage TAF, k=2 (sub-Saharan Africa: 6.1% prevalence, highest WHO region)</span></a>
-    <a href="PBC_PPAR_REVIEW.html" class="card util" style="border-left-color:#78350F"><span class="name">PPAR Modulators in PBC 2L (ELATIVE + RESPONSE)</span><span class="pub">Published: biochemical response RR 5.55 (1.32&ndash;23.37), k=2 (class-level)</span></a>
+    <a href="HEPATITIS_HCV_DAA_REVIEW.html" class="card util"><span class="name">Pan-Genotypic HCV DAA Therapy NMA (ASTRAL-1 + ASTRAL-3 + EXPEDITION-1)</span><span class="pub">Published: SVR12 99% across genotypes, k=3 (basis for WHO 2018 simplified regimen)</span></a>
+    <a href="HEPATITIS_B_TAF_TDF_REVIEW.html" class="card util"><span class="name">TAF vs TDF for Chronic Hepatitis B (Buti 2016 + Chan 2016 pivotal pair)</span><span class="pub">Published: HBV-DNA &lt;29 IU/mL pooled RR ~0.99 NI; renal/bone advantage TAF, k=2 (sub-Saharan Africa: 6.1% prevalence, highest WHO region)</span></a>
+    <a href="PBC_PPAR_REVIEW.html" class="card util"><span class="name">PPAR Modulators in PBC 2L (ELATIVE + RESPONSE)</span><span class="pub">Published: biochemical response RR 5.55 (1.32&ndash;23.37), k=2 (class-level)</span></a>
     <a href="CILOFEXOR_FXR_PSC_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Cilofexor in primary sclerosing cholangitis</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
     <a href="DACLATASVIR_HCV_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Daclatasvir + sofosbuvir in HCV</span><span class="pub">Audit-first build · 3 trials · AACT-verified · k>=3</span></a>
     <a href="DASABUVIR_CHRONIC_HEPATITIS_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Dasabuvir in Chronic Hepatitis C Infection</span><span class="pub">Audit-first build · 3 trials · AACT-verified · k>=3</span></a>
@@ -421,28 +452,28 @@ h2{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:700;letter-spac
     <a href="TIRZEPATIDE_NASH_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Tirzepatide Nash</span><span class="pub">Audit-first build · AACT-verified</span></a>
   </div>
 
-  <h2>Infectious Disease</h2>
+  <h2 id="sp-infectious-disease">Infectious Disease</h2>
   <div class="grid">
-    <a href="CAB_PREP_HIV_REVIEW.html" class="card util" style="border-left-color:#14B8A6"><span class="name">Cabotegravir LA for HIV PrEP</span><span class="pub">Published: HIV-incidence HR 0.22 (0.11&ndash;0.45), k=2</span></a>
-    <a href="LENACAPAVIR_PREP_REVIEW.html" class="card util" style="border-left-color:#14B8A6"><span class="name">Lenacapavir Q6M Injection for HIV PrEP (PURPOSE)</span><span class="pub">Published: HIV-incidence RR 0.07 (0.01&ndash;0.32), k=2</span></a>
-    <a href="COVID_ORAL_ANTIVIRALS_REVIEW.html" class="card util" style="border-left-color:#14B8A6"><span class="name">Oral Antivirals for Non-Hospitalised COVID-19</span><span class="pub">Published: hospitalisation/death RR 0.30 (0.06&ndash;1.45), k=2 (class-level)</span></a>
-    <a href="NIRSEVIMAB_INFANT_RSV_REVIEW.html" class="card util" style="border-left-color:#14B8A6"><span class="name">Nirsevimab for Infant RSV Prevention</span><span class="pub">Published: RSV-LRTI RR 0.21 (0.13&ndash;0.33), k=3</span></a>
-    <a href="MDRTB_BPAL_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">BPaL / BPaLM for MDR-TB (Nix-TB + ZeNix + TB-PRACTECAL)</span><span class="pub">Published: BPaLM vs SOC unfavorable RR 0.23 (0.15&ndash;0.36), k=3 (S Africa-heavy)</span></a>
-    <a href="MALARIA_ACT_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">ACT NMA for Uncomplicated Falciparum Malaria (Africa)</span><span class="pub">Published: 5 head-to-head ACT trials, 2012-2024 (Guinea-Bissau, DRC, Cameroon, Nigeria, Kenya)</span></a>
-    <a href="PRIMAQUINE_GAMETOCYTE_DR_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">Single-Low-Dose Primaquine Gametocyte Clearance (Dose-Response)</span><span class="pub">Published: 0.4 mg/kg vs AL-only RR 0.157 (0.090&ndash;0.273), k=2 (Uganda + Burkina Faso)</span></a>
-    <a href="HIV_ART_FIRSTLINE_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">DTG- vs EFV-Based First-Line ART (ADVANCE, South Africa)</span><span class="pub">Published: VL suppression DTG/TDF 90% vs EFV 79%, k=1 (3-arm)</span></a>
-    <a href="TB_PREVENTION_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">1HP vs 9H for Latent TB in HIV+ Adults (BRIEF-TB)</span><span class="pub">Published: HR 0.97 (0.59&ndash;1.61) non-inferior, completion 97% vs 90%, k=1 (~64% sub-Saharan Africa)</span></a>
-    <a href="MHEALTH_ART_ADHERENCE_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">mHealth SMS for ART Adherence (WelTel Kenya 1)</span><span class="pub">Published: adherence RR 1.23 (1.06&ndash;1.43), VL suppression 78% vs 67%, k=1 (Kenya)</span></a>
-    <a href="AGYW_HIV_PREP_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">HIV PrEP for AGYW in sub-Saharan Africa (HPTN 082 + FACTS-001)</span><span class="pub">Published: oral PrEP high adherence 23% vs 12%; vaginal TFV gel HR 0.98 NULL, k=2</span></a>
-    <a href="TB_DRUG_SUSCEPTIBLE_4MO_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">4-Month Rifapentine-Moxifloxacin for Drug-Susceptible TB (Study 31 / A5349)</span><span class="pub">Published: unfavorable RR 1.22 (0.81&ndash;1.84); NI met for regimen-3 (rifapentine+moxifloxacin), k=1 (~50% sub-Saharan Africa)</span></a>
-    <a href="PNEUMONIA_AMOXICILLIN_DURATION_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">Lower-Dose, 3-Day Amoxicillin for Pediatric CAP (CAP-IT 2x2 factorial)</span><span class="pub">Published: dose-NI diff +0.2pp (1-sided 95% CI &minus;inf to +4.0%); duration-NI +0.1pp (&minus;inf to +3.9%); BOTH NI met, k=1 (UK+Ireland)</span></a>
-    <a href="SCHISTOSOMIASIS_ARPRAZIQUANTEL_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">L-PZQ ODT (Arpraziquantel) for Preschool Schistosomiasis (NCT03845140)</span><span class="pub">Published: cure 73/96 (76%) L-PZQ vs 38/49 (77.5%) Biltricide, k=1 (C&ocirc;te d'Ivoire + Kenya; WHO 2024 PQ basis)</span></a>
-    <a href="HIV_PREP_INJECTABLE_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">HIV PrEP NMA — Injectable CAB-LA + Oral F/TAF/F/TDF (HPTN 083 + 084 + DISCOVER)</span><span class="pub">Published: HPTN 083 HR 0.34 (0.18&ndash;0.62) MSM/TGW; HPTN 084 HR 0.12 (0.05&ndash;0.31) SSA women; DISCOVER F/TAF NI, k=3 (post-2016 PrEP NMA)</span></a>
-    <a href="MALARIA_VACCINE_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">Malaria Vaccine NMA — RTS,S/AS01 vs R21/Matrix-M (3 African pivotal trials)</span><span class="pub">Published: RTS,S Phase 3 VE 36% over 4y; R21 Phase 2b VE 77% Burkina Faso; R21 Phase 3 VE 75% standard / 68% seasonal, k=3 (WHO 2021/2023 PQ basis)</span></a>
-    <a href="MDR_TB_SHORTENED_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">MDR-TB Shortened-Regimen NMA — BPaLM + BPaL (TB-PRACTECAL + Nix-TB + ZeNix)</span><span class="pub">Published: TB-PRACTECAL BPaLM RR 0.22 (0.12&ndash;0.39) vs SOC; Nix-TB 90% favourable single-arm XDR; ZeNix Lzd 600mg/26w NI, k=3 (WHO 2022 BPaLM guideline basis)</span></a>
-    <a href="PEDIATRIC_HIV_ART_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">Pediatric HIV First-line ART Simplification NMA — ODYSSEY + CHAPAS-3 + ARROW</span><span class="pub">Published: ODYSSEY DTG HR 0.61 (0.42&ndash;0.87) vs SOC; CHAPAS-3 ABC&plus;3TC NRTI backbone preferred; ARROW clinical-monitoring NI, k=3 (WHO 2021/2023 paeds ART basis)</span></a>
-    <a href="CRYPTOCOCCAL_MENINGITIS_AFRICA_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">Cryptococcal Meningitis NMA in African HIV+ Adults — ACTA + AMBITION-cm + COAT</span><span class="pub">Published: ACTA 1w-amB+5FC HR 0.77 NI; AMBITION-cm single-dose L-amB NI; COAT early-ART HR 1.73 (HARM, DSMB-stopped), k=3 (WHO 2018+2022 guideline basis)</span></a>
-    <a href="HIV_TB_COINFECTION_ART_TIMING_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">HIV-TB Co-infection ART Timing NMA — SAPiT + STRIDE + CAMELIA</span><span class="pub">Published: SAPiT integrated-vs-sequential HR 0.56 (Durban SA); STRIDE/A5221 immediate-vs-deferred HR 0.81 multi-country; CAMELIA HR 0.62 (Cambodia), k=3 (WHO 2012 basis)</span></a>
+    <a href="CAB_PREP_HIV_REVIEW.html" class="card util"><span class="name">Cabotegravir LA for HIV PrEP</span><span class="pub">Published: HIV-incidence HR 0.22 (0.11&ndash;0.45), k=2</span></a>
+    <a href="LENACAPAVIR_PREP_REVIEW.html" class="card util"><span class="name">Lenacapavir Q6M Injection for HIV PrEP (PURPOSE)</span><span class="pub">Published: HIV-incidence RR 0.07 (0.01&ndash;0.32), k=2</span></a>
+    <a href="COVID_ORAL_ANTIVIRALS_REVIEW.html" class="card util"><span class="name">Oral Antivirals for Non-Hospitalised COVID-19</span><span class="pub">Published: hospitalisation/death RR 0.30 (0.06&ndash;1.45), k=2 (class-level)</span></a>
+    <a href="NIRSEVIMAB_INFANT_RSV_REVIEW.html" class="card util"><span class="name">Nirsevimab for Infant RSV Prevention</span><span class="pub">Published: RSV-LRTI RR 0.21 (0.13&ndash;0.33), k=3</span></a>
+    <a href="MDRTB_BPAL_REVIEW.html" class="card util"><span class="name">BPaL / BPaLM for MDR-TB (Nix-TB + ZeNix + TB-PRACTECAL)</span><span class="pub">Published: BPaLM vs SOC unfavorable RR 0.23 (0.15&ndash;0.36), k=3 (S Africa-heavy)</span></a>
+    <a href="MALARIA_ACT_REVIEW.html" class="card util"><span class="name">ACT NMA for Uncomplicated Falciparum Malaria (Africa)</span><span class="pub">Published: 5 head-to-head ACT trials, 2012-2024 (Guinea-Bissau, DRC, Cameroon, Nigeria, Kenya)</span></a>
+    <a href="PRIMAQUINE_GAMETOCYTE_DR_REVIEW.html" class="card util"><span class="name">Single-Low-Dose Primaquine Gametocyte Clearance (Dose-Response)</span><span class="pub">Published: 0.4 mg/kg vs AL-only RR 0.157 (0.090&ndash;0.273), k=2 (Uganda + Burkina Faso)</span></a>
+    <a href="HIV_ART_FIRSTLINE_REVIEW.html" class="card util"><span class="name">DTG- vs EFV-Based First-Line ART (ADVANCE, South Africa)</span><span class="pub">Published: VL suppression DTG/TDF 90% vs EFV 79%, k=1 (3-arm)</span></a>
+    <a href="TB_PREVENTION_REVIEW.html" class="card util"><span class="name">1HP vs 9H for Latent TB in HIV+ Adults (BRIEF-TB)</span><span class="pub">Published: HR 0.97 (0.59&ndash;1.61) non-inferior, completion 97% vs 90%, k=1 (~64% sub-Saharan Africa)</span></a>
+    <a href="MHEALTH_ART_ADHERENCE_REVIEW.html" class="card util"><span class="name">mHealth SMS for ART Adherence (WelTel Kenya 1)</span><span class="pub">Published: adherence RR 1.23 (1.06&ndash;1.43), VL suppression 78% vs 67%, k=1 (Kenya)</span></a>
+    <a href="AGYW_HIV_PREP_REVIEW.html" class="card util"><span class="name">HIV PrEP for AGYW in sub-Saharan Africa (HPTN 082 + FACTS-001)</span><span class="pub">Published: oral PrEP high adherence 23% vs 12%; vaginal TFV gel HR 0.98 NULL, k=2</span></a>
+    <a href="TB_DRUG_SUSCEPTIBLE_4MO_REVIEW.html" class="card util"><span class="name">4-Month Rifapentine-Moxifloxacin for Drug-Susceptible TB (Study 31 / A5349)</span><span class="pub">Published: unfavorable RR 1.22 (0.81&ndash;1.84); NI met for regimen-3 (rifapentine+moxifloxacin), k=1 (~50% sub-Saharan Africa)</span></a>
+    <a href="PNEUMONIA_AMOXICILLIN_DURATION_REVIEW.html" class="card util"><span class="name">Lower-Dose, 3-Day Amoxicillin for Pediatric CAP (CAP-IT 2x2 factorial)</span><span class="pub">Published: dose-NI diff +0.2pp (1-sided 95% CI &minus;inf to +4.0%); duration-NI +0.1pp (&minus;inf to +3.9%); BOTH NI met, k=1 (UK+Ireland)</span></a>
+    <a href="SCHISTOSOMIASIS_ARPRAZIQUANTEL_REVIEW.html" class="card util"><span class="name">L-PZQ ODT (Arpraziquantel) for Preschool Schistosomiasis (NCT03845140)</span><span class="pub">Published: cure 73/96 (76%) L-PZQ vs 38/49 (77.5%) Biltricide, k=1 (C&ocirc;te d'Ivoire + Kenya; WHO 2024 PQ basis)</span></a>
+    <a href="HIV_PREP_INJECTABLE_REVIEW.html" class="card util"><span class="name">HIV PrEP NMA — Injectable CAB-LA + Oral F/TAF/F/TDF (HPTN 083 + 084 + DISCOVER)</span><span class="pub">Published: HPTN 083 HR 0.34 (0.18&ndash;0.62) MSM/TGW; HPTN 084 HR 0.12 (0.05&ndash;0.31) SSA women; DISCOVER F/TAF NI, k=3 (post-2016 PrEP NMA)</span></a>
+    <a href="MALARIA_VACCINE_REVIEW.html" class="card util"><span class="name">Malaria Vaccine NMA — RTS,S/AS01 vs R21/Matrix-M (3 African pivotal trials)</span><span class="pub">Published: RTS,S Phase 3 VE 36% over 4y; R21 Phase 2b VE 77% Burkina Faso; R21 Phase 3 VE 75% standard / 68% seasonal, k=3 (WHO 2021/2023 PQ basis)</span></a>
+    <a href="MDR_TB_SHORTENED_REVIEW.html" class="card util"><span class="name">MDR-TB Shortened-Regimen NMA — BPaLM + BPaL (TB-PRACTECAL + Nix-TB + ZeNix)</span><span class="pub">Published: TB-PRACTECAL BPaLM RR 0.22 (0.12&ndash;0.39) vs SOC; Nix-TB 90% favourable single-arm XDR; ZeNix Lzd 600mg/26w NI, k=3 (WHO 2022 BPaLM guideline basis)</span></a>
+    <a href="PEDIATRIC_HIV_ART_REVIEW.html" class="card util"><span class="name">Pediatric HIV First-line ART Simplification NMA — ODYSSEY + CHAPAS-3 + ARROW</span><span class="pub">Published: ODYSSEY DTG HR 0.61 (0.42&ndash;0.87) vs SOC; CHAPAS-3 ABC&plus;3TC NRTI backbone preferred; ARROW clinical-monitoring NI, k=3 (WHO 2021/2023 paeds ART basis)</span></a>
+    <a href="CRYPTOCOCCAL_MENINGITIS_AFRICA_REVIEW.html" class="card util"><span class="name">Cryptococcal Meningitis NMA in African HIV+ Adults — ACTA + AMBITION-cm + COAT</span><span class="pub">Published: ACTA 1w-amB+5FC HR 0.77 NI; AMBITION-cm single-dose L-amB NI; COAT early-ART HR 1.73 (HARM, DSMB-stopped), k=3 (WHO 2018+2022 guideline basis)</span></a>
+    <a href="HIV_TB_COINFECTION_ART_TIMING_REVIEW.html" class="card util"><span class="name">HIV-TB Co-infection ART Timing NMA — SAPiT + STRIDE + CAMELIA</span><span class="pub">Published: SAPiT integrated-vs-sequential HR 0.56 (Durban SA); STRIDE/A5221 immediate-vs-deferred HR 0.81 multi-country; CAMELIA HR 0.62 (Cambodia), k=3 (WHO 2012 basis)</span></a>
     <a href="AMOXICILLIN_AOM_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Amoxicillin-clavulanate in AOM</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
     <a href="ANIDULAFUNGIN_CANDIDA_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Anidulafungin in candidemia</span><span class="pub">Audit-first build · 3 trials · AACT-verified · k>=3</span></a>
     <a href="ANIDULAFUNGIN_FUNGAL_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Anidulafungin in candidiasis</span><span class="pub">Audit-first build · 3 trials · AACT-verified · k>=3</span></a>
@@ -511,7 +542,7 @@ h2{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:700;letter-spac
     <a href="TOCILIZUMAB_COVID_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Tocilizumab Covid</span><span class="pub">Audit-first build · AACT-verified</span></a>
   </div>
 
-  <h2>Nephrology</h2>
+  <h2 id="sp-nephrology">Nephrology</h2>
   <div class="grid">
     <a href="FINERENONE_REVIEW.html" class="card ckd"><span class="name">Finerenone (FIDELITY)</span><span class="pub">Published: HR 0.86 (0.78&ndash;0.95), k=2</span></a>
     <a href="SGLT2_CKD_REVIEW.html" class="card ckd"><span class="name">SGLT2i in CKD</span><span class="pub">Published: HR 0.68 (0.60&ndash;0.77), k=3</span></a>
@@ -530,18 +561,18 @@ h2{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:700;letter-spac
     <a href="DAPAGLIFLOZIN_CKD_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Dapagliflozin Ckd</span><span class="pub">Audit-first build · AACT-verified</span></a>
   </div>
 
-  <h2>Neurology</h2>
+  <h2 id="sp-neurology">Neurology</h2>
   <div class="grid">
-    <a href="ANTIAMYLOID_AD_REVIEW.html" class="card util" style="border-left-color:#8B5CF6"><span class="name">Anti-Amyloid Antibodies in Alzheimer</span><span class="pub">Published: CDR-SB MD &minus;0.45 (&minus;0.65 to &minus;0.25), k=3</span></a>
-    <a href="CGRP_MIGRAINE_REVIEW.html" class="card util" style="border-left-color:#8B5CF6"><span class="name">CGRP mAbs in Episodic Migraine</span><span class="pub">Published: MD &minus;1.7 MMD (&minus;2.0 to &minus;1.4), k=3</span></a>
-    <a href="HIGH_EFFICACY_MS_REVIEW.html" class="card util" style="border-left-color:#8B5CF6"><span class="name">Anti-CD20 mAbs in Relapsing MS</span><span class="pub">Published: ARR RR 0.49 (0.42&ndash;0.58), k=4</span></a>
-    <a href="PATISIRAN_POLYNEUROPATHY_REVIEW.html" class="card util" style="border-left-color:#8B5CF6"><span class="name">Patisiran &amp; Vutrisiran (siRNA) for hATTR Polyneuropathy (APOLLO + HELIOS-A)</span><span class="pub">Published: mNIS+7 MD &minus;31.3 (&minus;36.7 to &minus;26.0), k=2 (class-level)</span></a>
-    <a href="EVT_EXTENDED_WINDOW_REVIEW.html" class="card util" style="border-left-color:#8B5CF6"><span class="name">EVT in 6-24h Extended-Window Stroke (DAWN + DEFUSE 3 + MR CLEAN-LATE)</span><span class="pub">Published: mRS 0-2 RR 2.31 (1.28&ndash;4.19), k=3</span></a>
-    <a href="TNK_VS_TPA_STROKE_REVIEW.html" class="card util" style="border-left-color:#8B5CF6"><span class="name">Tenecteplase vs Alteplase in AIS (NOR-TEST + AcT + TRACE-2)</span><span class="pub">Published: mRS 0-1 RR 1.06 (1.00&ndash;1.12), k=3 (non-inferior)</span></a>
-    <a href="EVT_BASILAR_REVIEW.html" class="card util" style="border-left-color:#8B5CF6"><span class="name">Thrombectomy in Basilar Artery Occlusion (ATTENTION + BAOCHE + BASICS)</span><span class="pub">Published: mRS 0-3 RR 1.62 (1.12&ndash;2.35), k=3</span></a>
-    <a href="EVT_LARGECORE_REVIEW.html" class="card util" style="border-left-color:#8B5CF6"><span class="name">Thrombectomy in Large-Core Infarct (RESCUE-Japan + ANGEL-ASPECT + SELECT2)</span><span class="pub">Published: mRS 0-2 RR 2.45 (1.79&ndash;3.35), k=3</span></a>
-    <a href="CBD_SEIZURE_REVIEW.html" class="card util" style="border-left-color:#8B5CF6"><span class="name">Cannabidiol for Dravet/LGS (GWPCARE 1/2/3/4)</span><span class="pub">Published: &ge;50% responder RR 1.88 (1.46&ndash;2.42), k=4 (class-level)</span></a>
-    <a href="FENFLURAMINE_SEIZURE_REVIEW.html" class="card util" style="border-left-color:#8B5CF6"><span class="name">Fenfluramine for Dravet/LGS (Study 1 + Study 2 + LGS)</span><span class="pub">Published: &ge;50% responder RR 4.64 (2.03&ndash;10.58), k=3 (class-level)</span></a>
+    <a href="ANTIAMYLOID_AD_REVIEW.html" class="card util"><span class="name">Anti-Amyloid Antibodies in Alzheimer</span><span class="pub">Published: CDR-SB MD &minus;0.45 (&minus;0.65 to &minus;0.25), k=3</span></a>
+    <a href="CGRP_MIGRAINE_REVIEW.html" class="card util"><span class="name">CGRP mAbs in Episodic Migraine</span><span class="pub">Published: MD &minus;1.7 MMD (&minus;2.0 to &minus;1.4), k=3</span></a>
+    <a href="HIGH_EFFICACY_MS_REVIEW.html" class="card util"><span class="name">Anti-CD20 mAbs in Relapsing MS</span><span class="pub">Published: ARR RR 0.49 (0.42&ndash;0.58), k=4</span></a>
+    <a href="PATISIRAN_POLYNEUROPATHY_REVIEW.html" class="card util"><span class="name">Patisiran &amp; Vutrisiran (siRNA) for hATTR Polyneuropathy (APOLLO + HELIOS-A)</span><span class="pub">Published: mNIS+7 MD &minus;31.3 (&minus;36.7 to &minus;26.0), k=2 (class-level)</span></a>
+    <a href="EVT_EXTENDED_WINDOW_REVIEW.html" class="card util"><span class="name">EVT in 6-24h Extended-Window Stroke (DAWN + DEFUSE 3 + MR CLEAN-LATE)</span><span class="pub">Published: mRS 0-2 RR 2.31 (1.28&ndash;4.19), k=3</span></a>
+    <a href="TNK_VS_TPA_STROKE_REVIEW.html" class="card util"><span class="name">Tenecteplase vs Alteplase in AIS (NOR-TEST + AcT + TRACE-2)</span><span class="pub">Published: mRS 0-1 RR 1.06 (1.00&ndash;1.12), k=3 (non-inferior)</span></a>
+    <a href="EVT_BASILAR_REVIEW.html" class="card util"><span class="name">Thrombectomy in Basilar Artery Occlusion (ATTENTION + BAOCHE + BASICS)</span><span class="pub">Published: mRS 0-3 RR 1.62 (1.12&ndash;2.35), k=3</span></a>
+    <a href="EVT_LARGECORE_REVIEW.html" class="card util"><span class="name">Thrombectomy in Large-Core Infarct (RESCUE-Japan + ANGEL-ASPECT + SELECT2)</span><span class="pub">Published: mRS 0-2 RR 2.45 (1.79&ndash;3.35), k=3</span></a>
+    <a href="CBD_SEIZURE_REVIEW.html" class="card util"><span class="name">Cannabidiol for Dravet/LGS (GWPCARE 1/2/3/4)</span><span class="pub">Published: &ge;50% responder RR 1.88 (1.46&ndash;2.42), k=4 (class-level)</span></a>
+    <a href="FENFLURAMINE_SEIZURE_REVIEW.html" class="card util"><span class="name">Fenfluramine for Dravet/LGS (Study 1 + Study 2 + LGS)</span><span class="pub">Published: &ge;50% responder RR 4.64 (2.03&ndash;10.58), k=3 (class-level)</span></a>
     <a href="ADUCANUMAB_AD_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Aducanumab in Alzheimer</span><span class="pub">Audit-first build · 3 trials · AACT-verified · k>=3</span></a>
     <a href="ATALUREN_DMD_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Ataluren in nonsense-mutation DMD</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
     <a href="ATOGEPANT_MIGRAINE_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Atogepant in migraine</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
@@ -603,24 +634,24 @@ h2{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:700;letter-spac
     <a href="ZAVEGEPANT_MIGRAINE_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Zavegepant Migraine</span><span class="pub">Audit-first build · AACT-verified</span></a>
   </div>
 
-  <h2>Oncology</h2>
+  <h2 id="sp-oncology">Oncology</h2>
   <div class="grid">
-    <a href="CDK46_MBC_REVIEW.html" class="card util" style="border-left-color:#EC4899"><span class="name">CDK4/6 Inhibitors in HR+/HER2&minus; mBC (1st line)</span><span class="pub">Published: PFS HR 0.56 (0.48&ndash;0.64), k=3</span></a>
-    <a href="ARPI_mHSPC_REVIEW.html" class="card util" style="border-left-color:#EC4899"><span class="name">AR Pathway Inhibitors in mHSPC</span><span class="pub">Published: OS HR 0.67 (0.61&ndash;0.74), k=4</span></a>
-    <a href="PARP_OVARIAN_REVIEW.html" class="card util" style="border-left-color:#EC4899"><span class="name">PARP Maintenance in 1st-Line Ovarian Cancer</span><span class="pub">Published: PFS HR 0.52 (0.42&ndash;0.64), k=3</span></a>
-    <a href="CART_MM_REVIEW.html" class="card util" style="border-left-color:#EC4899"><span class="name">BCMA CAR-T in Relapsed/Refractory Myeloma</span><span class="pub">Published: PFS HR 0.55 (0.35&ndash;0.84), k=2</span></a>
-    <a href="VENETOCLAX_AML_REVIEW.html" class="card util" style="border-left-color:#EC4899"><span class="name">Venetoclax in Untreated AML (VIALE)</span><span class="pub">Published: OS HR 0.77 (0.68&ndash;0.87), k=2</span></a>
-    <a href="ACALABRUTINIB_CLL_REVIEW.html" class="card util" style="border-left-color:#EC4899"><span class="name">Acalabrutinib in CLL (ELEVATE-TN + ASCEND)</span><span class="pub">Published: PFS HR 0.25 (0.19&ndash;0.33), k=2 (class-level)</span></a>
-    <a href="BTKI_CLL_NMA_REVIEW.html" class="card util" style="border-left-color:#EC4899;border-style:double;border-left-width:6px"><span class="name">BTKi Class <strong>NMA</strong> in CLL v1.2 (ELEVATE-TN + ELEVATE-RR + ALPINE + RESONATE-2 + SEQUOIA)</span><span class="pub"><strong>Network meta-analysis</strong> &mdash; Acala / Ibru / Zanu vs chemoimmunotherapy, 5 trials, 2 closed loops + honest inconsistency reporting</span></a>
-    <a href="ANTIAMYLOID_AD_NMA_REVIEW.html" class="card util" style="border-left-color:#8B5CF6;border-style:double;border-left-width:6px"><span class="name">Anti-Amyloid mAb <strong>NMA</strong> in Early AD (Clarity AD + TRAILBLAZER-ALZ 2 + EMERGE)</span><span class="pub"><strong>Network meta-analysis</strong> &mdash; Lecanemab / Donanemab / Aducanumab vs placebo, 3 pivotals, star network</span></a>
-    <a href="ANTIVEGF_NAMD_NMA_REVIEW.html" class="card util" style="border-left-color:#F59E0B;border-style:double;border-left-width:6px"><span class="name">Anti-VEGF Class <strong>NMA</strong> in Neovascular AMD (ANCHOR + TENAYA + PULSAR + HAWK)</span><span class="pub"><strong>Network meta-analysis</strong> &mdash; Ranibizumab / Faricimab / Aflib 8mg / Brolucizumab vs Aflib 2mg, 4 non-inferiority pivotals</span></a>
-    <a href="IL_PSORIASIS_NMA_REVIEW.html" class="card util" style="border-left-color:#F43F5E;border-style:double;border-left-width:6px"><span class="name">IL-17 / IL-23 Biologics <strong>NMA</strong> in Plaque Psoriasis v1.2 (VOYAGE + UltIMMa + UNCOVER 1/2/3 + ERASURE + FIXTURE + BE RADIANT + BE VIVID + BE SURE)</span><span class="pub"><strong>Network meta-analysis</strong> &mdash; 5 biologics + Ada/Eta active comparators, <strong>10 trials on OR scale</strong>, matches Sbidian 2023 Cochrane</span></a>
-    <a href="INCRETINS_T2D_NMA_REVIEW.html" class="card util" style="border-left-color:#10B981;border-style:double;border-left-width:6px"><span class="name">Incretin Class <strong>NMA</strong> in T2D (SURPASS + SUSTAIN + LEAD + AWARD)</span><span class="pub"><strong>Network meta-analysis</strong> &mdash; Tirz / Sema / Dula / Lira / Exenatide, 7 trials, closed-loop consistency, Tirz SUCRA 1.00 rank-1 prob 100% on HbA1c</span></a>
-    <a href="JAKI_RA_NMA_REVIEW.html" class="card util" style="border-left-color:#A855F7;border-style:double;border-left-width:6px"><span class="name">JAKi <strong>NMA</strong> in MTX-IR RA (ORAL-Standard + RA-BEAM + SELECT-Compare + FINCH-1)</span><span class="pub"><strong>Network meta-analysis</strong> &mdash; Tofa / Bari / Upa / Fil + Ada anchor vs Placebo, ACR20 OR; Upa rank-1 prob 80%, class-level boxed warning declared</span></a>
-    <a href="CART_DLBCL_REVIEW.html" class="card util" style="border-left-color:#EC4899"><span class="name">CAR-T 2L in R/R Aggressive B-Cell Lymphoma</span><span class="pub">Published: EFS HR 0.76 (0.58&ndash;0.99), k=3 (class-level)</span></a>
-    <a href="LU_PSMA_MCRPC_REVIEW.html" class="card util" style="border-left-color:#EC4899"><span class="name">177Lu-PSMA-617 in mCRPC (VISION + PSMAfore)</span><span class="pub">Published: rPFS HR 0.42 (0.34&ndash;0.51), k=2 (class-level)</span></a>
-    <a href="IO_CHEMO_NSCLC_1L_REVIEW.html" class="card util" style="border-left-color:#EC4899"><span class="name">IO + Chemotherapy in 1L NSCLC (KEYNOTE-189 + 407 + IMpower150 + POSEIDON)</span><span class="pub">Published: OS HR 0.81 (0.74&ndash;0.89), k=4 (class-level)</span></a>
-    <a href="PARP_ARPI_MCRPC_REVIEW.html" class="card util" style="border-left-color:#EC4899"><span class="name">PARP + ARPI in 1L mCRPC (PROpel + MAGNITUDE + TALAPRO-2)</span><span class="pub">Published: rPFS HR 0.66 (0.58&ndash;0.76), k=3 (class-level)</span></a>
+    <a href="CDK46_MBC_REVIEW.html" class="card util"><span class="name">CDK4/6 Inhibitors in HR+/HER2&minus; mBC (1st line)</span><span class="pub">Published: PFS HR 0.56 (0.48&ndash;0.64), k=3</span></a>
+    <a href="ARPI_mHSPC_REVIEW.html" class="card util"><span class="name">AR Pathway Inhibitors in mHSPC</span><span class="pub">Published: OS HR 0.67 (0.61&ndash;0.74), k=4</span></a>
+    <a href="PARP_OVARIAN_REVIEW.html" class="card util"><span class="name">PARP Maintenance in 1st-Line Ovarian Cancer</span><span class="pub">Published: PFS HR 0.52 (0.42&ndash;0.64), k=3</span></a>
+    <a href="CART_MM_REVIEW.html" class="card util"><span class="name">BCMA CAR-T in Relapsed/Refractory Myeloma</span><span class="pub">Published: PFS HR 0.55 (0.35&ndash;0.84), k=2</span></a>
+    <a href="VENETOCLAX_AML_REVIEW.html" class="card util"><span class="name">Venetoclax in Untreated AML (VIALE)</span><span class="pub">Published: OS HR 0.77 (0.68&ndash;0.87), k=2</span></a>
+    <a href="ACALABRUTINIB_CLL_REVIEW.html" class="card util"><span class="name">Acalabrutinib in CLL (ELEVATE-TN + ASCEND)</span><span class="pub">Published: PFS HR 0.25 (0.19&ndash;0.33), k=2 (class-level)</span></a>
+    <a href="BTKI_CLL_NMA_REVIEW.html" class="card util"><span class="name">BTKi Class <strong>NMA</strong> in CLL v1.2 (ELEVATE-TN + ELEVATE-RR + ALPINE + RESONATE-2 + SEQUOIA)</span><span class="pub"><strong>Network meta-analysis</strong> &mdash; Acala / Ibru / Zanu vs chemoimmunotherapy, 5 trials, 2 closed loops + honest inconsistency reporting</span></a>
+    <a href="ANTIAMYLOID_AD_NMA_REVIEW.html" class="card util"><span class="name">Anti-Amyloid mAb <strong>NMA</strong> in Early AD (Clarity AD + TRAILBLAZER-ALZ 2 + EMERGE)</span><span class="pub"><strong>Network meta-analysis</strong> &mdash; Lecanemab / Donanemab / Aducanumab vs placebo, 3 pivotals, star network</span></a>
+    <a href="ANTIVEGF_NAMD_NMA_REVIEW.html" class="card util"><span class="name">Anti-VEGF Class <strong>NMA</strong> in Neovascular AMD (ANCHOR + TENAYA + PULSAR + HAWK)</span><span class="pub"><strong>Network meta-analysis</strong> &mdash; Ranibizumab / Faricimab / Aflib 8mg / Brolucizumab vs Aflib 2mg, 4 non-inferiority pivotals</span></a>
+    <a href="IL_PSORIASIS_NMA_REVIEW.html" class="card util"><span class="name">IL-17 / IL-23 Biologics <strong>NMA</strong> in Plaque Psoriasis v1.2 (VOYAGE + UltIMMa + UNCOVER 1/2/3 + ERASURE + FIXTURE + BE RADIANT + BE VIVID + BE SURE)</span><span class="pub"><strong>Network meta-analysis</strong> &mdash; 5 biologics + Ada/Eta active comparators, <strong>10 trials on OR scale</strong>, matches Sbidian 2023 Cochrane</span></a>
+    <a href="INCRETINS_T2D_NMA_REVIEW.html" class="card util"><span class="name">Incretin Class <strong>NMA</strong> in T2D (SURPASS + SUSTAIN + LEAD + AWARD)</span><span class="pub"><strong>Network meta-analysis</strong> &mdash; Tirz / Sema / Dula / Lira / Exenatide, 7 trials, closed-loop consistency, Tirz SUCRA 1.00 rank-1 prob 100% on HbA1c</span></a>
+    <a href="JAKI_RA_NMA_REVIEW.html" class="card util"><span class="name">JAKi <strong>NMA</strong> in MTX-IR RA (ORAL-Standard + RA-BEAM + SELECT-Compare + FINCH-1)</span><span class="pub"><strong>Network meta-analysis</strong> &mdash; Tofa / Bari / Upa / Fil + Ada anchor vs Placebo, ACR20 OR; Upa rank-1 prob 80%, class-level boxed warning declared</span></a>
+    <a href="CART_DLBCL_REVIEW.html" class="card util"><span class="name">CAR-T 2L in R/R Aggressive B-Cell Lymphoma</span><span class="pub">Published: EFS HR 0.76 (0.58&ndash;0.99), k=3 (class-level)</span></a>
+    <a href="LU_PSMA_MCRPC_REVIEW.html" class="card util"><span class="name">177Lu-PSMA-617 in mCRPC (VISION + PSMAfore)</span><span class="pub">Published: rPFS HR 0.42 (0.34&ndash;0.51), k=2 (class-level)</span></a>
+    <a href="IO_CHEMO_NSCLC_1L_REVIEW.html" class="card util"><span class="name">IO + Chemotherapy in 1L NSCLC (KEYNOTE-189 + 407 + IMpower150 + POSEIDON)</span><span class="pub">Published: OS HR 0.81 (0.74&ndash;0.89), k=4 (class-level)</span></a>
+    <a href="PARP_ARPI_MCRPC_REVIEW.html" class="card util"><span class="name">PARP + ARPI in 1L mCRPC (PROpel + MAGNITUDE + TALAPRO-2)</span><span class="pub">Published: rPFS HR 0.66 (0.58&ndash;0.76), k=3 (class-level)</span></a>
     <a href="ABEMACICLIB_BREAST_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Abemaciclib in HR+/HER2− breast</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
     <a href="ALECTINIB_ALK_NSCLC_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Alectinib in ALK+ NSCLC</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
     <a href="ALPELISIB_BREAST_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Alpelisib in PIK3CA-mutant breast</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
@@ -747,11 +778,11 @@ h2{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:700;letter-spac
     <a href="ZANUBRUTINIB_LYMPHOMA_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Zanubrutinib Lymphoma</span><span class="pub">Audit-first build · AACT-verified</span></a>
   </div>
 
-  <h2>Ophthalmology</h2>
+  <h2 id="sp-ophthalmology">Ophthalmology</h2>
   <div class="grid">
-    <a href="FARICIMAB_NAMD_REVIEW.html" class="card util" style="border-left-color:#F59E0B"><span class="name">Faricimab in Neovascular AMD (TENAYA + LUCERNE)</span><span class="pub">Published: BCVA MD +0.37 letters (&minus;0.65 to +1.39), k=2 (non-inferior to aflibercept)</span></a>
-    <a href="PEGCETACOPLAN_GA_REVIEW.html" class="card util" style="border-left-color:#F59E0B"><span class="name">Pegcetacoplan for Geographic Atrophy (OAKS + DERBY)</span><span class="pub">Published: GA lesion MD &minus;0.38 mm (&minus;0.62 to &minus;0.14), k=2</span></a>
-    <a href="AFLIBERCEPT_HD_REVIEW.html" class="card util" style="border-left-color:#F59E0B"><span class="name">Aflibercept 8 mg HD for nAMD &amp; DME (PULSAR + PHOTON)</span><span class="pub">Published: BCVA MD +0.75 letters (&minus;0.24 to +1.74), k=2 (non-inferior)</span></a>
+    <a href="FARICIMAB_NAMD_REVIEW.html" class="card util"><span class="name">Faricimab in Neovascular AMD (TENAYA + LUCERNE)</span><span class="pub">Published: BCVA MD +0.37 letters (&minus;0.65 to +1.39), k=2 (non-inferior to aflibercept)</span></a>
+    <a href="PEGCETACOPLAN_GA_REVIEW.html" class="card util"><span class="name">Pegcetacoplan for Geographic Atrophy (OAKS + DERBY)</span><span class="pub">Published: GA lesion MD &minus;0.38 mm (&minus;0.62 to &minus;0.14), k=2</span></a>
+    <a href="AFLIBERCEPT_HD_REVIEW.html" class="card util"><span class="name">Aflibercept 8 mg HD for nAMD &amp; DME (PULSAR + PHOTON)</span><span class="pub">Published: BCVA MD +0.75 letters (&minus;0.24 to +1.74), k=2 (non-inferior)</span></a>
     <a href="AFLIBERCEPT_DME_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Aflibercept in DME</span><span class="pub">Audit-first build · 3 trials · AACT-verified · k>=3</span></a>
     <a href="AFLIBERCEPT_RVO_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Aflibercept in RVO macular oedema</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
     <a href="AVACINCAPTAD_GA_AUTO_2.html" class="card util"><span class="name">Avacincaptad pegol in GA (broader)</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
@@ -763,10 +794,10 @@ h2{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:700;letter-spac
     <a href="RANIBIZUMAB_DR_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Ranibizumab in DR</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
   </div>
 
-  <h2>Psychiatry</h2>
+  <h2 id="sp-psychiatry">Psychiatry</h2>
   <div class="grid">
-    <a href="KARXT_SCZ_REVIEW.html" class="card util" style="border-left-color:#6366F1"><span class="name">KarXT (Xanomeline-Trospium) for Schizophrenia (EMERGENT-2 + EMERGENT-3)</span><span class="pub">Published: PANSS total MD &minus;8.95 (&minus;11.9 to &minus;6.0), k=2</span></a>
-    <a href="ESKETAMINE_TRD_REVIEW.html" class="card util" style="border-left-color:#6366F1"><span class="name">Intranasal Esketamine for Treatment-Resistant Depression (TRANSFORM-2 + TRANSFORM-3)</span><span class="pub">Published: MADRS MD &minus;3.82 (&minus;6.28 to &minus;1.35), k=2</span></a>
+    <a href="KARXT_SCZ_REVIEW.html" class="card util"><span class="name">KarXT (Xanomeline-Trospium) for Schizophrenia (EMERGENT-2 + EMERGENT-3)</span><span class="pub">Published: PANSS total MD &minus;8.95 (&minus;11.9 to &minus;6.0), k=2</span></a>
+    <a href="ESKETAMINE_TRD_REVIEW.html" class="card util"><span class="name">Intranasal Esketamine for Treatment-Resistant Depression (TRANSFORM-2 + TRANSFORM-3)</span><span class="pub">Published: MADRS MD &minus;3.82 (&minus;6.28 to &minus;1.35), k=2</span></a>
     <a href="ARIPIPRAZOLE_SCHIZO_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Aripiprazole in schizophrenia</span><span class="pub">Audit-first build · 4 trials · AACT-verified · k>=3</span></a>
     <a href="BREXPIPRAZOLE_AGITATION_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Brexpiprazole agitation in AD</span><span class="pub">Audit-first build · 6 trials · AACT-verified · k>=3</span></a>
     <a href="BREXPIPRAZOLE_SCHIZ_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Brexpiprazole in schizophrenia</span><span class="pub">Audit-first build · 4 trials · AACT-verified · k>=3</span></a>
@@ -793,13 +824,13 @@ h2{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:700;letter-spac
     <a href="ZURANOLONE_PPD_MDD_REVIEW.html" class="card util"><span class="name">Zuranolone in MDD and PPD</span><span class="pub">Audit-first build · 1 trial · AACT-verified · k>=3</span></a>
   </div>
 
-  <h2>Respiratory</h2>
+  <h2 id="sp-respiratory">Respiratory</h2>
   <div class="grid">
-    <a href="BIOLOGIC_ASTHMA_REVIEW.html" class="card util" style="border-left-color:#0EA5E9"><span class="name">Biologics in Severe Asthma</span><span class="pub">Published: RR 0.52 (0.44&ndash;0.61) exacerbations, k=4</span></a>
-    <a href="CFTR_CF_REVIEW.html" class="card util" style="border-left-color:#0EA5E9"><span class="name">CFTR Modulators in Cystic Fibrosis</span><span class="pub">Published: ppFEV1 MD +11.5 pp (9.5&ndash;13.5), k=3</span></a>
-    <a href="COPD_TRIPLE_REVIEW.html" class="card util" style="border-left-color:#0EA5E9"><span class="name">Single-Inhaler Triple Therapy in COPD</span><span class="pub">Published: exacerbation RR 0.76 (0.65&ndash;0.88), k=3</span></a>
-    <a href="DUPILUMAB_COPD_REVIEW.html" class="card util" style="border-left-color:#0EA5E9"><span class="name">Dupilumab in Eosinophilic COPD (BOREAS + NOTUS)</span><span class="pub">Published: exacerbation RR 0.68 (0.59&ndash;0.78), k=2</span></a>
-    <a href="RSV_VACCINE_OLDER_REVIEW.html" class="card util" style="border-left-color:#0EA5E9"><span class="name">RSV Vaccines in Adults &ge;60</span><span class="pub">Published: RSV-LRTD RR 0.20 (0.14&ndash;0.29), k=3</span></a>
+    <a href="BIOLOGIC_ASTHMA_REVIEW.html" class="card util"><span class="name">Biologics in Severe Asthma</span><span class="pub">Published: RR 0.52 (0.44&ndash;0.61) exacerbations, k=4</span></a>
+    <a href="CFTR_CF_REVIEW.html" class="card util"><span class="name">CFTR Modulators in Cystic Fibrosis</span><span class="pub">Published: ppFEV1 MD +11.5 pp (9.5&ndash;13.5), k=3</span></a>
+    <a href="COPD_TRIPLE_REVIEW.html" class="card util"><span class="name">Single-Inhaler Triple Therapy in COPD</span><span class="pub">Published: exacerbation RR 0.76 (0.65&ndash;0.88), k=3</span></a>
+    <a href="DUPILUMAB_COPD_REVIEW.html" class="card util"><span class="name">Dupilumab in Eosinophilic COPD (BOREAS + NOTUS)</span><span class="pub">Published: exacerbation RR 0.68 (0.59&ndash;0.78), k=2</span></a>
+    <a href="RSV_VACCINE_OLDER_REVIEW.html" class="card util"><span class="name">RSV Vaccines in Adults &ge;60</span><span class="pub">Published: RSV-LRTD RR 0.20 (0.14&ndash;0.29), k=3</span></a>
     <a href="ACLIDINIUM_COPD_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Aclidinium in COPD</span><span class="pub">Audit-first build · 3 trials · AACT-verified · k>=3</span></a>
     <a href="BENRALIZUMAB_ASTHMA_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Benralizumab in eosinophilic asthma</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
     <a href="BENRALIZUMAB_CRSWNP_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Benralizumab in CRSwNP</span><span class="pub">Audit-first build · 3 trials · AACT-verified · k>=3</span></a>
@@ -819,11 +850,11 @@ h2{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:700;letter-spac
     <a href="UMECLIDINIUM_VILANTEROL_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Umeclidinium Vilanterol</span><span class="pub">Audit-first build · AACT-verified</span></a>
   </div>
 
-  <h2>Rheumatology</h2>
+  <h2 id="sp-rheumatology">Rheumatology</h2>
   <div class="grid">
-    <a href="JAK_RA_REVIEW.html" class="card util" style="border-left-color:#A855F7"><span class="name">JAK Inhibitors in MTX-IR Rheumatoid Arthritis</span><span class="pub">Published: ACR20 RR 1.66 (1.53&ndash;1.81), k=3 (class-level)</span></a>
-    <a href="ANIFROLUMAB_SLE_REVIEW.html" class="card util" style="border-left-color:#A855F7"><span class="name">Anifrolumab in Moderate-Severe SLE (TULIP)</span><span class="pub">Published: BICLA RR 1.41 (1.21&ndash;1.63), k=2</span></a>
-    <a href="BELIMUMAB_SLE_REVIEW.html" class="card util" style="border-left-color:#A855F7"><span class="name">Belimumab in SLE (BLISS-52 + BLISS-76 + BLISS-SC + BLISS-LN)</span><span class="pub">Published: composite response RR 1.29 (1.17&ndash;1.42), k=4</span></a>
+    <a href="JAK_RA_REVIEW.html" class="card util"><span class="name">JAK Inhibitors in MTX-IR Rheumatoid Arthritis</span><span class="pub">Published: ACR20 RR 1.66 (1.53&ndash;1.81), k=3 (class-level)</span></a>
+    <a href="ANIFROLUMAB_SLE_REVIEW.html" class="card util"><span class="name">Anifrolumab in Moderate-Severe SLE (TULIP)</span><span class="pub">Published: BICLA RR 1.41 (1.21&ndash;1.63), k=2</span></a>
+    <a href="BELIMUMAB_SLE_REVIEW.html" class="card util"><span class="name">Belimumab in SLE (BLISS-52 + BLISS-76 + BLISS-SC + BLISS-LN)</span><span class="pub">Published: composite response RR 1.29 (1.17&ndash;1.42), k=4</span></a>
     <a href="ABATACEPT_PSA_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Abatacept in PsA</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
     <a href="ABATACEPT_RA_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Abatacept in RA</span><span class="pub">Audit-first build · 3 trials · AACT-verified · k>=3</span></a>
     <a href="ADALIMUMAB_PSA_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Adalimumab in PsA</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
@@ -867,22 +898,22 @@ h2{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:700;letter-spac
     <a href="UPADACITINIB_RA_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Upadacitinib in RA</span><span class="pub">Audit-first build · 5 trials · AACT-verified · k>=3</span></a>
   </div>
 
-  <h2>Urology</h2>
+  <h2 id="sp-urology">Urology</h2>
   <div class="grid">
     <a href="FESOTERODINE_OAB_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Fesoterodine in OAB</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
     <a href="TADALAFIL_BPH_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Tadalafil daily in BPH/ED</span><span class="pub">Audit-first build · 3 trials · AACT-verified · k>=3</span></a>
     <a href="VIBEGRON_OAB_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Vibegron in OAB</span><span class="pub">Audit-first build · 3 trials · AACT-verified · k>=3</span></a>
   </div>
 
-  <h2>Vaccines & Global Health</h2>
+  <h2 id="sp-vaccines-global-health">Vaccines & Global Health</h2>
   <div class="grid">
-    <a href="HPV_DOSE_REDUCTION_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">Single-Dose HPV Vaccination NMA (KEN-SHE + DoRIS)</span><span class="pub">Published: bivalent VE 97.5% (81.7&ndash;99.7), k=2 (Kenya + Tanzania)</span></a>
-    <a href="CHOLERA_OCV_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">Single-Dose Oral Cholera Vaccine (Shanchol Bangladesh)</span><span class="pub">Published: 24-mo VE 39% (23&ndash;52), k=1 (n=204,438; basis for WHO stockpile)</span></a>
-    <a href="EBOLA_VACCINE_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">rVSV-ZEBOV Ebola Vaccine (STRIVE Sierra Leone + Guinea Ring)</span><span class="pub">Published: VE 100% &gt;=10d post-vacc Guinea (95% CI 79.3&ndash;100); STRIVE 0/0 cases (outbreak waned), k=2 (Ervebo basis)</span></a>
-    <a href="SAM_SIMPLIFIED_PROTOCOL_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">OptiMA/ComPAS Simplified Protocol for Childhood Acute Malnutrition (Niger 3-arm)</span><span class="pub">Published: ComPAS 51.9% vs Standard 50.9% success at 6mo (diff +1.0pp, 97.5% CI &minus;5.5 to +7.6); NI met ITT+PP; 50% less RUTF, k=1 (Niger Sahel)</span></a>
-    <a href="ROTAVIRUS_VACCINE_AFRICA_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">African Rotavirus Vaccine NMA — Rotarix + RotaTeq + Rotasiil (3 LMIC pivotal trials)</span><span class="pub">Published: Rotarix Madhi VE 61% (44&ndash;73) SA+Malawi; RotaTeq Armah VE 39% (19&ndash;55) Ghana/Kenya/Mali; Rotasiil ROSE VE 67% (50&ndash;78) Niger, k=3 (WHO 2009+2018 PQ basis)</span></a>
-    <a href="HPV_VACCINE_SCHEDULES_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">HPV Vaccine Schedules NMA — PATRICIA + FUTURE II + KEN SHE single-dose Kenya</span><span class="pub">Published: PATRICIA Cervarix VE 93% CIN2+; FUTURE II Gardasil-4 VE 98% CIN2+; KEN SHE single-dose VE 97.5% (81.7&ndash;100) at 18mo, k=3 (WHO 2022 alt-schedule basis)</span></a>
-    <a href="SEVERE_PEDIATRIC_FEBRILE_AFRICA_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">Severe African Pediatric Febrile Illness NMA — AQUAMAT + FEAST + TRACT</span><span class="pub">Published: AQUAMAT IV artesunate RR 0.78 mortality vs quinine; FEAST fluid-bolus RR 1.45 mortality (harm); TRACT 30 vs 20 mL/kg HR 0.99 NS, k=3 (3 WHO guideline reversals)</span></a>
+    <a href="HPV_DOSE_REDUCTION_REVIEW.html" class="card util"><span class="name">Single-Dose HPV Vaccination NMA (KEN-SHE + DoRIS)</span><span class="pub">Published: bivalent VE 97.5% (81.7&ndash;99.7), k=2 (Kenya + Tanzania)</span></a>
+    <a href="CHOLERA_OCV_REVIEW.html" class="card util"><span class="name">Single-Dose Oral Cholera Vaccine (Shanchol Bangladesh)</span><span class="pub">Published: 24-mo VE 39% (23&ndash;52), k=1 (n=204,438; basis for WHO stockpile)</span></a>
+    <a href="EBOLA_VACCINE_REVIEW.html" class="card util"><span class="name">rVSV-ZEBOV Ebola Vaccine (STRIVE Sierra Leone + Guinea Ring)</span><span class="pub">Published: VE 100% &gt;=10d post-vacc Guinea (95% CI 79.3&ndash;100); STRIVE 0/0 cases (outbreak waned), k=2 (Ervebo basis)</span></a>
+    <a href="SAM_SIMPLIFIED_PROTOCOL_REVIEW.html" class="card util"><span class="name">OptiMA/ComPAS Simplified Protocol for Childhood Acute Malnutrition (Niger 3-arm)</span><span class="pub">Published: ComPAS 51.9% vs Standard 50.9% success at 6mo (diff +1.0pp, 97.5% CI &minus;5.5 to +7.6); NI met ITT+PP; 50% less RUTF, k=1 (Niger Sahel)</span></a>
+    <a href="ROTAVIRUS_VACCINE_AFRICA_REVIEW.html" class="card util"><span class="name">African Rotavirus Vaccine NMA — Rotarix + RotaTeq + Rotasiil (3 LMIC pivotal trials)</span><span class="pub">Published: Rotarix Madhi VE 61% (44&ndash;73) SA+Malawi; RotaTeq Armah VE 39% (19&ndash;55) Ghana/Kenya/Mali; Rotasiil ROSE VE 67% (50&ndash;78) Niger, k=3 (WHO 2009+2018 PQ basis)</span></a>
+    <a href="HPV_VACCINE_SCHEDULES_REVIEW.html" class="card util"><span class="name">HPV Vaccine Schedules NMA — PATRICIA + FUTURE II + KEN SHE single-dose Kenya</span><span class="pub">Published: PATRICIA Cervarix VE 93% CIN2+; FUTURE II Gardasil-4 VE 98% CIN2+; KEN SHE single-dose VE 97.5% (81.7&ndash;100) at 18mo, k=3 (WHO 2022 alt-schedule basis)</span></a>
+    <a href="SEVERE_PEDIATRIC_FEBRILE_AFRICA_REVIEW.html" class="card util"><span class="name">Severe African Pediatric Febrile Illness NMA — AQUAMAT + FEAST + TRACT</span><span class="pub">Published: AQUAMAT IV artesunate RR 0.78 mortality vs quinine; FEAST fluid-bolus RR 1.45 mortality (harm); TRACT 30 vs 20 mL/kg HR 0.99 NS, k=3 (3 WHO guideline reversals)</span></a>
     <a href="HZV_LIVE_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Live attenuated HZV (Zostavax)</span><span class="pub">Audit-first build · 4 trials · AACT-verified · k>=3</span></a>
     <a href="MENVEO_MEN_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Quadrivalent meningococcal vaccines</span><span class="pub">Audit-first build · 4 trials · AACT-verified · k>=3</span></a>
     <a href="MRNA1273_VACCINE_AUTO_FULL_REVIEW.html" class="card util"><span class="name">mRNA-1273 (elasomeran) vaccine</span><span class="pub">Audit-first build · 3 trials · AACT-verified · k>=3</span></a>
@@ -895,11 +926,11 @@ h2{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:700;letter-spac
     <a href="RSV_VACCINE_AREXVY_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Rsv Vaccine Arexvy</span><span class="pub">Audit-first build · AACT-verified</span></a>
   </div>
 
-  <h2>Women's Health</h2>
+  <h2 id="sp-women-s-health">Women's Health</h2>
   <div class="grid">
-    <a href="PPH_BUNDLE_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">PPH Prevention &amp; Treatment NMA (WOMAN + WOMAN-2 + E-MOTIVE)</span><span class="pub">Published: E-MOTIVE bundle RR 0.40 (0.32&ndash;0.50) for severe-PPH composite, k=3</span></a>
-    <a href="POSTPARTUM_HEMORRHAGE_REVIEW.html" class="card util" style="border-left-color:#DC2626"><span class="name">Postpartum Hemorrhage NMA — E-MOTIVE + WOMAN + CHAMPION (3 phase 3 trials)</span><span class="pub">Published: E-MOTIVE bundle RR 0.40 (0.32&ndash;0.50) cluster RCT; WOMAN TXA RR 0.81 death from bleeding; CHAMPION heat-stable carbetocin NI, k=3 (WHO 2018+2023 guideline basis)</span></a>
-    <a href="FEZOLINETANT_VMS_REVIEW.html" class="card util" style="border-left-color:#DB2777"><span class="name">Fezolinetant for Menopausal Vasomotor Symptoms</span><span class="pub">Published: VMS MD &minus;2.15/day (&minus;2.71 to &minus;1.59), k=2</span></a>
+    <a href="PPH_BUNDLE_REVIEW.html" class="card util"><span class="name">PPH Prevention &amp; Treatment NMA (WOMAN + WOMAN-2 + E-MOTIVE)</span><span class="pub">Published: E-MOTIVE bundle RR 0.40 (0.32&ndash;0.50) for severe-PPH composite, k=3</span></a>
+    <a href="POSTPARTUM_HEMORRHAGE_REVIEW.html" class="card util"><span class="name">Postpartum Hemorrhage NMA — E-MOTIVE + WOMAN + CHAMPION (3 phase 3 trials)</span><span class="pub">Published: E-MOTIVE bundle RR 0.40 (0.32&ndash;0.50) cluster RCT; WOMAN TXA RR 0.81 death from bleeding; CHAMPION heat-stable carbetocin NI, k=3 (WHO 2018+2023 guideline basis)</span></a>
+    <a href="FEZOLINETANT_VMS_REVIEW.html" class="card util"><span class="name">Fezolinetant for Menopausal Vasomotor Symptoms</span><span class="pub">Published: VMS MD &minus;2.15/day (&minus;2.71 to &minus;1.59), k=2</span></a>
     <a href="ELAGOLIX_ENDO_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Elagolix in endometriosis (broader)</span><span class="pub">Audit-first build · 3 trials · AACT-verified · k>=3</span></a>
     <a href="ELAGOLIX_ENDOMETRIOSIS_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Elagolix in endometriosis</span><span class="pub">Audit-first build · 3 trials · AACT-verified · k>=3</span></a>
     <a href="ELAGOLIX_FIBROIDS_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Elagolix in fibroids</span><span class="pub">Audit-first build · 6 trials · AACT-verified · k>=3</span></a>
@@ -912,9 +943,9 @@ h2{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:700;letter-spac
     <a href="RELUGOLIX_HEAVY_MENSTRUAL_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Relugolix in Heavy Menstrual Bleeding</span><span class="pub">Audit-first build · 3 trials · AACT-verified · k>=3</span></a>
   </div>
 
-  <h2>Other / Cross-Specialty</h2>
+  <h2 id="sp-other-cross-specialty">Other / Cross-Specialty</h2>
   <div class="grid">
-    <a href="PHYSICAL_REHAB_OLDER_REVIEW.html" class="card util" style="border-left-color:#10B981"><span class="name">Physical Rehabilitation in Older Adults NMA — REHAB-HF + LIFE + ICARE</span><span class="pub">Published: REHAB-HF SPPB +1.5 in older HF; LIFE HR 0.82 mobility disability sedentary elders; ICARE WMFT non-superior post-stroke, k=3 (post-2010 physiotherapy NMA)</span></a>
+    <a href="PHYSICAL_REHAB_OLDER_REVIEW.html" class="card util"><span class="name">Physical Rehabilitation in Older Adults NMA — REHAB-HF + LIFE + ICARE</span><span class="pub">Published: REHAB-HF SPPB +1.5 in older HF; LIFE HR 0.82 mobility disability sedentary elders; ICARE WMFT non-superior post-stroke, k=3 (post-2010 physiotherapy NMA)</span></a>
     <a href="ALEMTUZUMAB_TX_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Alemtuzumab induction in transplant</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
     <a href="APREPITANT_PONV_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Aprepitant in PONV</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
     <a href="BURADIRAGAB_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Rituximab in AAV / IgG4-RD</span><span class="pub">Audit-first build · 2 trials · AACT-verified · k>=3</span></a>
@@ -922,7 +953,7 @@ h2{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:700;letter-spac
     <a href="BURATIO_NK_AUTO_FULL_REVIEW.html" class="card util"><span class="name">Buratio Nk</span><span class="pub">Audit-first build · AACT-verified</span></a>
   </div>
 
-  <h2>Utilities &amp; Cross-Portfolio Tools</h2>
+  <h2 id="sp-utilities-cross-portfolio-tools">Utilities &amp; Cross-Portfolio Tools</h2>
   <div class="grid">
     <a href="cardiology_mortality_atlas.html" class="card util"><span class="name">Mortality Atlas</span><span class="pub">25-class pooled ACM / CV-death HRs</span></a>
     <a href="LivingMeta.html" class="card util"><span class="name">LivingMeta shell</span><span class="pub">Generic browser MA</span></a>
@@ -933,7 +964,7 @@ h2{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:700;letter-spac
     <a href="TrialRadar.html" class="card util"><span class="name">TrialRadar</span><span class="pub">CT.gov trial surveillance</span></a>
   </div>
 
-  <h2>E156 submission (Finerenone micro-paper)</h2>
+  <h2 id="sp-e156-submission-finerenone-micro-paper">E156 submission (Finerenone micro-paper)</h2>
   <div class="links">
     <a href="e156-submission/index.html" class="card util"><span class="name">E156 micro-paper &mdash; interactive reader</span></a>
     <a href="e156-submission/paper.md" class="card util"><span class="name">Paper (markdown)</span></a>
@@ -941,7 +972,7 @@ h2{font-family:system-ui,sans-serif;font-size:.78rem;font-weight:700;letter-spac
     <a href="PUBLISHED_META_BENCHMARKS.json" class="card util"><span class="name">Published-meta benchmark JSON</span><span class="pub">Source for cross-validation chips</span></a>
   </div>
 
-  <h2>All 77 pooled results — quick portfolio scan</h2>
+  <h2 id="sp-all-77-pooled-results-quick-portfolio-scan">All 77 pooled results — quick portfolio scan</h2>
   <div style="overflow-x:auto;margin-bottom:1.5rem">
     <table style="width:100%;border-collapse:collapse;font-family:system-ui,sans-serif;font-size:.8rem;background:#fff;border:1px solid #E5E0D6;border-radius:8px;overflow:hidden">
       <thead style="background:#F5F1E8">
