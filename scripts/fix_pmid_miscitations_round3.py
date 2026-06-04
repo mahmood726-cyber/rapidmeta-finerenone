@@ -1,0 +1,93 @@
+#!/usr/bin/env python
+"""Round 3: three deferred trials whose primary-results PMID was found by
+targeted PubMed search and verified (title + NCT-in-abstract + primary outcome).
+
+  SIMPLIFY-1 momelotinib (NCT01969838) -> 28930494
+    "SIMPLIFY-1: A Phase III Randomized Trial of Momelotinib Versus Ruxolitinib"
+    (JCO 2017, 10.1200/JCO.2017.73.4418); primary >=35% SVR at 24 wk -> matches
+    the app's "Splenic Response Rate at Week 24 (primary)". Was citing a
+    long-term integrated analysis (37042865) and an unresolved PMID (28430594).
+  RHAPSODY rilonacept pericarditis (NCT03737110) -> 33200890
+    "Phase 3 Trial of Interleukin-1 Trap Rilonacept in Recurrent Pericarditis"
+    (NEJM 2020, 10.1056/NEJMoa2027892); NCT03737110 confirmed in abstract. Was
+    citing an acute-ischemic-stroke correction (33370206) and the design paper.
+  SEQUOIA-HCM aficamten (NCT05186818) -> 38739079
+    "Aficamten for Symptomatic Obstructive Hypertrophic Cardiomyopathy"
+    (NEJM 2024, 10.1056/NEJMoa2401424); NCT05186818 confirmed, primary dpVO2 at
+    wk 24. Was citing an earlier exercise-capacity paper (38032573) and a
+    dosing/safety paper (39056349).
+
+BREEZE-AD baricitinib (NCT03334396) remains DEFERRED: its primary-results paper
+could not be located via PubMed search (all hits were pooled-safety / PRO /
+predictor sub-analyses). Not guessed.
+
+Object-scoped, idempotent, binary-safe, dry-run-first, asserting.
+"""
+from __future__ import annotations
+import argparse
+import glob
+import importlib.util
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_spec = importlib.util.spec_from_file_location(
+    "dia", os.path.join(REPO, "scripts", "data_integrity_audit.py"))
+dia = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(dia)
+
+FIXES = {
+    "NCT01969838": {"37042865": "28930494", "28430594": "28930494"},  # SIMPLIFY-1
+    "NCT03737110": {"33370206": "33200890", "32866928": "33200890"},  # RHAPSODY
+    "NCT05186818": {"38032573": "38739079", "39056349": "38739079"},  # SEQUOIA-HCM
+}
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--dry-run", action="store_true")
+    args = ap.parse_args()
+
+    changes = []
+    apps_changed = 0
+    for path in sorted(glob.glob(os.path.join(REPO, "*_REVIEW*.html"))):
+        if "backup" in path:
+            continue
+        data = open(path, "rb").read().decode("utf-8", "replace")
+        new_data = data
+        app_changed = False
+        for key, obj in dia.find_trial_objects(new_data):
+            nct = key.split("_")[0]
+            fixmap = FIXES.get(nct)
+            if not fixmap:
+                continue
+            cur = str(dia.str_field(obj, "pmid"))
+            if cur not in fixmap:
+                continue
+            new_pmid = fixmap[cur]
+            new_obj = re.sub(r'(pmid"?\s*:\s*")' + re.escape(cur) + r'(")',
+                             r"\g<1>" + new_pmid + r"\g<2>", obj, count=1)
+            assert new_obj != obj, f"{os.path.basename(path)}:{key} pmid not matched"
+            assert new_data.count(obj) == 1, f"{os.path.basename(path)}:{key} not unique"
+            new_data = new_data.replace(obj, new_obj, 1)
+            changes.append((os.path.basename(path), nct, cur, new_pmid))
+            app_changed = True
+        if app_changed:
+            apps_changed += 1
+            if not args.dry_run:
+                open(path, "wb").write(new_data.encode("utf-8"))
+
+    verb = "WOULD fix" if args.dry_run else "fixed"
+    print(f"{verb} {len(changes)} pmid miscitations across {apps_changed} apps:\n")
+    for app, nct, old, new in sorted(changes):
+        print(f"  {nct}  {old} -> {new}  {app}")
+    hit = {c[1] for c in changes}
+    miss = set(FIXES) - hit
+    if miss:
+        print(f"\nNOTE: no matching record for {sorted(miss)}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

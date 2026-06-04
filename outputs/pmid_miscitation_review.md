@@ -78,15 +78,25 @@ correct; the other 3 resolved to a physics paper, a COVID-plasma trial, and a
 healthcare-worker essay. Identifiers were verified against PubMed, never trusted
 from memory.
 
+## Round 3 — three deferred trials resolved by targeted PubMed search (8 records)
+
+`scripts/fix_pmid_miscitations_round3.py`. Each primary located by search and
+verified (title + NCT-in-abstract + primary outcome matching the app):
+- **SIMPLIFY-1 momelotinib (NCT01969838)** → **28930494** (JCO 2017,
+  10.1200/JCO.2017.73.4418); primary >=35% SVR at 24 wk. Was citing a long-term
+  integrated analysis (37042865) + an unresolved PMID (28430594).
+- **RHAPSODY rilonacept pericarditis (NCT03737110)** → **33200890** (NEJM 2020,
+  10.1056/NEJMoa2027892); NCT confirmed in abstract. Was citing an
+  acute-ischemic-stroke *correction* (33370206) + the design paper.
+- **SEQUOIA-HCM aficamten (NCT05186818)** → **38739079** (NEJM 2024,
+  10.1056/NEJMoa2401424); NCT confirmed, primary dpVO2 at wk 24. Was citing an
+  earlier exercise-capacity paper (38032573) + a dosing/safety paper (39056349).
+
 ## Still deferred — need a verified primary (do NOT guess)
 
-No app cites the true primary and a memory guess was wrong/unverified:
-- **SIMPLIFY-1 momelotinib (NCT01969838)** — cites a long-term integrated
-  analysis + an UNRESOLVED PMID 28430594.
-- **RHAPSODY rilonacept pericarditis (NCT03737110)** — cites a stroke-correction
-  paper (33370206) + the design paper; true primary not yet identified.
-- **SEQUOIA-HCM aficamten (NCT05186818)** — both cited PMIDs are non-primary.
-- **BREEZE-AD baricitinib (NCT03334396)** — cites a review + a PRO sub-paper.
+- **BREEZE-AD baricitinib (NCT03334396)** — cites a review + a PRO sub-paper. The
+  BREEZE-AD1/AD2 primary-results paper could not be located via PubMed search
+  (every hit was a pooled-safety / PRO / predictor sub-analysis). NOT guessed.
 - **IMvigor (NCT02807636)** and **nirsevimab/MEDLEY (NCT02878330)** — the NMA
   app's outcome label names a DIFFERENT trial than the NCT; needs the NCT/label
   mismatch resolved, not just a PMID swap.
