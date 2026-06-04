@@ -1,0 +1,53 @@
+#!/usr/bin/env python
+"""Swap the masthead copy to a parable-spine opening: lead with the concrete
+finerenone origin story, then widen to the general method. Keeps the design;
+only words change. Uses concrete-exemplar-first, economy, antithesis, a single
+direct-address shift, and a parallel triad in the concept strip.
+"""
+from __future__ import annotations
+import os
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PATH = os.path.join(REPO, "index.html")
+
+REPL = [
+    # headline: concrete parable opening (true -- the project began with finerenone)
+    ('<h1 class="title">Meta-analyses, generated from the trial record.</h1>',
+     '<h1 class="title">It began with one molecule.</h1>'),
+    # standfirst: parable -> general, economy, antithesis, direct address
+    ('<p class="standfirst">Each tile below is a self-contained, continuously updated meta-analysis &mdash; built directly from clinical-trial registries (ClinicalTrials.gov / AACT) and published primary reports, <em>not</em> from mining PDFs. Every one runs a full Cochrane&nbsp;Handbook&nbsp;v6.5 statistics suite in the browser and is cross-validated against R&nbsp;<code>metafor</code> and the published meta-analytic literature.</p>',
+     '<p class="standfirst">The question was narrow &mdash; does '
+     '<a href="FINERENONE_REVIEW.html">finerenone</a> protect the failing kidney? '
+     '&mdash; and the answer was built not by mining PDFs, but by reading the trial '
+     'registry itself, then rebuilt each time the evidence moved. That one living '
+     'review became a method. It now runs <strong>685&nbsp;times over</strong>, across '
+     '18&nbsp;specialties &mdash; and every tile is auditable down to the trial it came '
+     'from. Open any one, and follow the evidence to its source.</p>'),
+    # concept triad: parallel, tighter, with contrast
+    ('<h3>Built from registries, not PDFs</h3><p>Trials, arms, and outcomes are read from structured registry data and published primaries &mdash; so each review can be refreshed as the evidence base grows.</p>',
+     '<h3>From registries, not PDFs</h3><p>Trials, arms and outcomes are read from '
+     'structured registry data &mdash; so a review is refreshed as the evidence grows, '
+     'not frozen at the date of publication.</p>'),
+    ('<h3>Cochrane-grade statistics, in the browser</h3><p>REML &amp; HKSJ pooling, prediction intervals, network meta-analysis, trial sequential analysis, GRADE, and a 28-panel diagnostics suite &mdash; no install.</p>',
+     '<h3>Cochrane-grade, in the browser</h3><p>REML and HKSJ pooling, prediction '
+     'intervals, network meta-analysis, GRADE &mdash; the full Cochrane&nbsp;v6.5 '
+     'apparatus, with nothing to install.</p>'),
+    ('<h3>Audited &amp; reproducible</h3><p>Every pooled estimate is cross-checked against R&nbsp;<code>metafor</code> and the published literature, with a transparent data-integrity audit.</p>',
+     '<h3>Auditable to the trial</h3><p>Every estimate is cross-checked against '
+     'R&nbsp;<code>metafor</code> and the published record &mdash; and every number '
+     'traces back to the registration it came from.</p>'),
+]
+
+
+def main():
+    data = open(PATH, "rb").read().decode("utf-8", "replace")
+    for old, new in REPL:
+        assert data.count(old) == 1, f"anchor not unique/found: {old[:50]!r} -> {data.count(old)}"
+        data = data.replace(old, new, 1)
+    open(PATH, "wb").write(data.encode("utf-8"))
+    print("parable copy applied (5 blocks)")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
