@@ -92,14 +92,32 @@ verified (title + NCT-in-abstract + primary outcome matching the app):
   10.1056/NEJMoa2401424); NCT confirmed, primary dpVO2 at wk 24. Was citing an
   earlier exercise-capacity paper (38032573) + a dosing/safety paper (39056349).
 
-## Still deferred — need a verified primary (do NOT guess)
+## Round 4 — BREEZE-AD + IMvigor130 resolved (4 records)
 
-- **BREEZE-AD baricitinib (NCT03334396)** — cites a review + a PRO sub-paper. The
-  BREEZE-AD1/AD2 primary-results paper could not be located via PubMed search
-  (every hit was a pooled-safety / PRO / predictor sub-analysis). NOT guessed.
-- **IMvigor (NCT02807636)** and **nirsevimab/MEDLEY (NCT02878330)** — the NMA
-  app's outcome label names a DIFFERENT trial than the NCT; needs the NCT/label
-  mismatch resolved, not just a PMID swap.
+`scripts/fix_pmid_miscitations_round4.py`.
+- **BREEZE-AD1/AD2 baricitinib (NCT03334396)** → **31995838** (Simpson, Br J
+  Dermatol 2020, 10.1111/bjd.18898); primary vIGA-AD (0,1) wk 16 (BREEZE-AD1 4 mg
+  16.8% vs placebo 4.8%) matches the app. Found via `lookup_article_by_citation`
+  after keyword search failed — the paper's PubMed record is NOT tagged with the
+  NCT, so it never surfaced in NCT/keyword searches. Was citing a PRO sub-paper
+  (33222559) + a review (34437922).
+- **IMvigor130 atezolizumab (NCT02807636)** → **32416780** (Galsky, Lancet 2020,
+  10.1016/S0140-6736(20)30230-0; NCT confirmed in abstract). Cross-checked: the
+  dedicated app's record is name="IMvigor130", PFS HR 0.82 [0.70-0.96] == the
+  paper; the NMA app is name="IMvigor-130", OS HR 0.83 [0.69-1.00] == the paper.
+  Both genuine IMvigor130 records that cited the wrong paper — the IMvigor210
+  paper (27939400, actually registered under NCT02108652) and a COVID-vaccine
+  comment (32861315). NOT a wrong-NCT problem after value cross-check.
+
+## Still deferred — true NCT/identity mismatch (NOT a citation swap)
+
+- **nirsevimab/MEDLEY (NCT02878330)** — the NMA record is name="MEDLEY" with a
+  MEDLEY-specific effect (0.33 [0.14-0.81]) but assigned the nirsevimab Phase-2b
+  NCT (NCT02878330, whose real primary value is 0.30 [0.19-0.48], correctly held
+  by the dedicated app citing 32726528). The garbage physics PMID 35687449 can't
+  simply become 32726528, because the record IS MEDLEY data. Correct fix: change
+  the NCT to MEDLEY's NCT03959488 and cite the MEDLEY paper — a data/identity
+  repair, deferred for explicit review. This is the ONLY remaining open item.
 
 ## Genuine dual-publications (left as-is, not errors)
 
