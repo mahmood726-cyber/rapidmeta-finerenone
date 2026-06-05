@@ -14,8 +14,10 @@ import os
 import re
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BASE = (r"C:\Users\mahmo\.claude\projects\C--Users-mahmo"
-        r"\0d6d5732-9472-4bc6-bd2d-347320148ab2\tool-results")
+# One-off input: the PubMed metadata dumps. Point PMID_METADATA_DIR at the dir
+# holding mcp-claude_ai_PubMed-get_article_metadata-*.txt; default in-repo.
+BASE = os.environ.get(
+    "PMID_METADATA_DIR", os.path.join(REPO, "outputs", "extraction_audit", "pmid_metadata"))
 import glob
 
 M = {}

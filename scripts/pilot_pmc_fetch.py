@@ -8,14 +8,17 @@ For each PMID:
   5. Report whether full text yields a HR/OR/RR/MD that the abstract didn't.
 """
 from __future__ import annotations
-import json, sys, io, time, urllib.request, urllib.parse, re
+import os, json, sys, io, time, urllib.request, urllib.parse, re
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
 if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-sys.path.insert(0, str(Path("C:/Projects/rct-extractor-v2/src").resolve()))
+# rct-extractor-v2 is a sibling repo; set RCT_EXTRACTOR_SRC to override.
+_rct_src = os.environ.get("RCT_EXTRACTOR_SRC") or str(
+    Path(__file__).resolve().parents[2] / "rct-extractor-v2" / "src")
+sys.path.insert(0, _rct_src)
 from core.enhanced_extractor_v3 import EnhancedExtractor, to_dict  # noqa: E402
 sys.path.insert(0, str(Path(__file__).parent))
 from backfill_published_hr import loose_match, pick_best_extraction, PREFERRED_TYPES  # noqa: E402

@@ -13,7 +13,7 @@ Auto-fills NCTs from AACT.
 Output: outputs/new_topics/<STEM>.json with the same shape as before.
 """
 from __future__ import annotations
-import json, csv, re, sys, io, time, urllib.request, urllib.parse
+import os, json, csv, re, sys, io, time, urllib.request, urllib.parse
 from pathlib import Path
 from collections import defaultdict
 import xml.etree.ElementTree as ET
@@ -24,7 +24,9 @@ if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower()
 HERE = Path(__file__).resolve().parent.parent
 OUT = HERE / "outputs" / "new_topics"
 OUT.mkdir(parents=True, exist_ok=True)
-AACT = Path("C:/Users/user/AACT/2026-04-12")
+# AACT snapshot dir: set AACT_DIR to your local AACT snapshot (e.g.
+# .../AACT/2026-04-12). Falls back to ~/AACT. No hardcoded drive.
+AACT = Path(os.environ.get("AACT_DIR") or (Path.home() / "AACT"))
 
 # Topic specs (drug + disease patterns; NCTs auto-discovered from AACT)
 # Format: (stem, display name, drug_patterns, condition_patterns, [phase_min=2])

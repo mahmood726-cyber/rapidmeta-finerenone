@@ -19,8 +19,9 @@ import math
 from pathlib import Path
 from collections import Counter, defaultdict
 
-INPUT = Path(r"C:/Projects/Finrenone/outputs/extraction_audit/multi_agent_sample_r3.json")
-OUTPUT = Path(r"C:/Projects/Finrenone/outputs/extraction_audit/agent2_plausibility_r3.json")
+_HERE = Path(__file__).resolve().parent
+INPUT = _HERE / "multi_agent_sample_r3.json"
+OUTPUT = _HERE / "agent2_plausibility_r3.json"
 
 rows = json.loads(INPUT.read_text(encoding="utf-8"))
 

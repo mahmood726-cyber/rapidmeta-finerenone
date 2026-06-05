@@ -3,11 +3,14 @@ import json
 import math
 import sys
 import io
+from pathlib import Path
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
-INPUT = "C:/Projects/Finrenone/outputs/extraction_audit/multi_agent_sample_r2.json"
-OUTPUT = "C:/Projects/Finrenone/outputs/extraction_audit/agent2_plausibility_r2.json"
+# Inputs/outputs live alongside this script; resolve relative to it (no drive).
+_HERE = Path(__file__).resolve().parent
+INPUT = str(_HERE / "multi_agent_sample_r2.json")
+OUTPUT = str(_HERE / "agent2_plausibility_r2.json")
 
 with open(INPUT, "r", encoding="utf-8") as f:
     trials = json.load(f)
