@@ -3,7 +3,7 @@
 **Status:** DONE_WITH_RECOMMENDATION (no buildable k≥2 fixture)
 **Round:** 3.6 of the Finrenone dose-response pack
 **Engine:** `rapidmeta-dose-response-engine-v1.js` (v0.3.0, k≥2 hard requirement at `fitRCS`/`fitLinear`)
-**AACT snapshot:** `C:/Users/user/AACT/2026-04-12/`
+**AACT snapshot:** `$AACT_DIR/` (the 2026-04-12 snapshot used for this run)
 **Author:** automated agent run, 2026-05-14
 **Companion data:** none — fixture build was stopped after Phase B per the brief's "do not build broken data" rule.
 
@@ -253,10 +253,10 @@ cardio-renal.
 
 ## Files referenced
 
-- Engine: `C:/Projects/Finrenone/rapidmeta-dose-response-engine-v1.js` (line 1124-1126
+- Engine: `<repo>/rapidmeta-dose-response-engine-v1.js` (line 1124-1126
   is the `fitRCS: fewer than 2 studies...` throw).
-- Existing fixtures (schema reference): `C:/Projects/Finrenone/tests/dose_response_fixtures/tirzepatide_obesity_surmount.json`, `tirzepatide_t2d_surpass.json`.
-- AACT snapshot: `C:/Users/user/AACT/2026-04-12/` (studies.txt, design_groups.txt,
+- Existing fixtures (schema reference): `<repo>/tests/dose_response_fixtures/tirzepatide_obesity_surmount.json`, `tirzepatide_t2d_surpass.json`.
+- AACT snapshot: `$AACT_DIR/` (the 2026-04-12 snapshot; studies.txt, design_groups.txt,
   outcomes.txt, outcome_measurements.txt, result_groups.txt, baseline_counts.txt).
 - Authoritative source for ARTS-DN dose-response: Bakris GL et al. JAMA
   2015;314(9):884-894 (PMID lookup deferred per the brief — Phase D was skipped
