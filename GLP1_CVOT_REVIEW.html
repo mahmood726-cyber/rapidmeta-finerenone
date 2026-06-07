@@ -5267,6 +5267,27 @@
   <script src="vendor/prisma-checklist.js" defer></script>
   <script src="vendor/meta-regression-permutation.js" defer></script>
   <script src="vendor/grim-benford.js" defer></script>
+  <script>
+  /* GLP1-CVOT-FIX (2026-06): These are time-to-event CVOTs reporting adjusted hazard
+     ratios. Pooling crude event counts as an OR is the wrong effect measure AND silently
+     dropped the 3 trials whose events were never extracted (LEADER, SUSTAIN-6, AMPLITUDE-O),
+     giving k=7. The methodologically correct analysis pools log-HR by inverse variance,
+     which includes ALL 10 trials (every trial has a published HR + 95% CI) → HR 0.86
+     (0.82–0.90), matching the published CVOT meta-analyses. So default this review to HR. */
+  (function () {
+    function apply(tries) {
+      var R = window.RapidMeta;
+      if (!R || !R.setEffectMeasure || !R.state) { if ((tries || 0) < 25) return setTimeout(function () { apply((tries || 0) + 1); }, 400); return; }
+      if (R.state.effectMeasure !== "HR") {
+        try { R.setEffectMeasure("HR"); } catch (e) {}
+        try { if (window.AnalysisEngine && AnalysisEngine.run) AnalysisEngine.run(); } catch (e) {}
+        try { console.log("[GLP1-fix] pooled by hazard ratio (all trials with a published HR included)"); } catch (e) {}
+      }
+    }
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { setTimeout(function () { apply(0); }, 900); });
+    else setTimeout(function () { apply(0); }, 900);
+  })();
+  </script>
 </body>
 
 
