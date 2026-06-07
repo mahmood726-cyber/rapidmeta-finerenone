@@ -181,29 +181,43 @@ def clone(config, dry=False):
         src = src.replace(config['localstorage_old'], config['localstorage_new'])
         log.append(f'  [APPLIED:{n}]        localStorage keys')
 
-    # PICO state.protocol
+    # PICO state.protocol. Tolerant of single- OR double-quoted values: the
+    # original base used single quotes (pop:'...'), the minified base uses
+    # double quotes (pop:"..."). Each field's quote char is captured and the
+    # replacement value is escaped for that exact delimiter.
     if 'pico' in config:
         p = config['pico']
+        # field-value: opening quote (group), then any escaped char or
+        # non-delimiter char, then the matching closing quote (backref).
+        def fld(key, qgrp):
+            return rf"(\s*,?\s*{key}:\s*)(['\"])(?:\\.|(?!\{qgrp}).)*\{qgrp}"
         proto_re = re.compile(
-            r"(protocol:\s*\{\s*pop:\s*')(?:\\'|[^'])*(',\s*int:\s*')(?:\\'|[^'])*(',\s*comp:\s*')(?:\\'|[^'])*(',\s*out:\s*')(?:\\'|[^'])*(',\s*subgroup:\s*')(?:\\'|[^'])*('.*?)\}",
+            r"(protocol:\s*\{\s*pop:\s*)(['\"])(?:\\.|(?!\2).)*\2"
+            + fld("int", 4) + fld("comp", 6) + fld("out", 8) + fld("subgroup", 10),
             re.DOTALL,
         )
+
+        def _esc(val, q):
+            return val.replace('\\', '\\\\').replace(q, '\\' + q)
+
         def repl(m):
-            return (m.group(1) + js_escape(p['pop']) +
-                    m.group(2) + js_escape(p['int']) +
-                    m.group(3) + js_escape(p['comp']) +
-                    m.group(4) + js_escape(p['out']) +
-                    m.group(5) + js_escape(p['subgroup']) +
-                    m.group(6) + '}')
+            pre = [m.group(1), m.group(3), m.group(5), m.group(7), m.group(9)]
+            q = [m.group(2), m.group(4), m.group(6), m.group(8), m.group(10)]
+            vals = [p['pop'], p['int'], p['comp'], p['out'], p['subgroup']]
+            return ''.join(
+                pre[i] + q[i] + _esc(vals[i], q[i]) + q[i] for i in range(5)
+            )
         src, n = proto_re.subn(repl, src, count=1)
         log.append(f'  [APPLIED:{n}]        protocol.pico')
 
-    # realData entries — replace the entire `realData: { ... }` block
+    # realData entries — replace the entire `realData: { ... }` block.
+    # Tolerant of a minified base (`realData:{`) as well as the original
+    # pretty-printed form (`realData: {`).
     if 'real_data_entries' in config:
-        i = src.find('realData: {')
-        if i < 0:
+        m = re.search(r'realData\s*:\s*\{', src)
+        if not m:
             raise SystemExit('realData block not found in base')
-        brace = src.find('{', i)
+        brace = src.index('{', m.start())
         depth = 0
         started = False
         end = -1
@@ -224,12 +238,26 @@ def clone(config, dry=False):
     # other topic. Per-topic benchmarks are not available for audit-first
     # builds, so the honest value is an empty object.
     if config.get('blank_benchmarks'):
-        new_src, n = re.subn(
-            r"(const\s+PUBLISHED_META_BENCHMARKS\s*=\s*)\{.*?\n\s*\};",
-            r"\1{};", src, count=1, flags=re.DOTALL)
-        if n:
-            src = new_src
-            log.append('  [APPLIED]          blank_benchmarks (PUBLISHED_META_BENCHMARKS={})')
+        # Tolerant of both the original (`const PUBLISHED_META_BENCHMARKS = {
+        # ...\n};`) and the minified (`,PUBLISHED_META_BENCHMARKS={...}`) forms:
+        # locate the identifier, then brace-scan its object literal and blank it.
+        bm = re.search(r"PUBLISHED_META_BENCHMARKS\s*[:=]\s*\{", src)
+        if bm:
+            obrace = src.index('{', bm.start())
+            depth, end = 0, -1
+            for j in range(obrace, len(src)):
+                if src[j] == '{':
+                    depth += 1
+                elif src[j] == '}':
+                    depth -= 1
+                    if depth == 0:
+                        end = j
+                        break
+            if end > 0:
+                src = src[:obrace] + '{}' + src[end + 1:]
+                log.append('  [APPLIED]          blank_benchmarks (PUBLISHED_META_BENCHMARKS={})')
+            else:
+                log.append('  [SKIP_NOT_FOUND]   blank_benchmarks (unbalanced braces)')
         else:
             log.append('  [SKIP_NOT_FOUND]   blank_benchmarks')
 

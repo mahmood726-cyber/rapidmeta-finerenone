@@ -226,6 +226,15 @@ def build_config(topic_doc):
     cond_u = cond.upper()
     stem_l = stem.lower()
     pop_txt = f"Adults randomised in trials registered on ClinicalTrials.gov for {cond}"
+    # PICO outcome shown in the editable `#p-out` field + meta strings. Derive
+    # from the first included trial's primary-outcome title (strip the
+    # " (primary)" suffix) so a clone never displays the base's COPD outcome
+    # ("Annual moderate-severe exacerbation rate"). This reproduces the P0-2
+    # codemod at source so a future regeneration ships clean.
+    pico_out = trials[0]["allOutcomes"][0]["title"]
+    if pico_out.endswith(" (primary)"):
+        pico_out = pico_out[:-len(" (primary)")]
+    pico_out = safe(pico_out) or "Trial-declared primary outcome"
 
     def attr(s):  # safe inside an HTML value="..." attribute
         return s.replace('"', "&quot;").replace("<", "&lt;").replace(">", "&gt;")
@@ -265,6 +274,11 @@ def build_config(topic_doc):
         # --- Global replace-ALL (fixes the n>1 SKIP bug). Longest/compound
         # tokens FIRST so substrings are not partially clobbered. ---
         "global_replaces": [
+            # Retarget the base's self-referential canonical URL / OG filename
+            # to this clone's real output name BEFORE the COPD->cond and
+            # DUPILUMAB->drug swaps mangle it into a non-existent path. Must be
+            # first: longest compound token wins.
+            ["DUPILUMAB_COPD_REVIEW.html", f"{stem}_FULL_REVIEW.html"],
             ["rapid_meta_dupilumab_copd", f"rapid_meta_{stem_l}"],
             ["dupilumab_copd", stem_l],
             ["IL-4Ralpha Monoclonal Antibody",
@@ -275,8 +289,17 @@ def build_config(topic_doc):
             ["Blood Eosinophils >=300/uL", "per the registered eligibility"],
             ["Dupilumab", drug],
             ["dupilumab", drug_l],
+            ["DUPILUMAB", drug.upper()],
             ["BOREAS", "the registered pivotal trial"],
             ["NOTUS", "the registered confirmatory trial"],
+            # PICO outcome leftover: the COPD primary outcome appears in the
+            # editable `#p-out` value plus 2 hardcoded meta/description strings.
+            # protocol.out is already swapped upstream by clone_dashboard.
+            ["Annual moderate-severe exacerbation rate", pico_out],
+            # NMA indirect-comparison label is hardcoded HF-specific in the
+            # base ("ARNI vs Other HF Therapies"); neutralize to a generic one.
+            ["ARNI vs Other HF Therapies (Indirect)",
+             "Intervention vs comparators (Indirect)"],
         ],
     }
     # COPD is a base-template leftover ONLY when this topic is not itself a
