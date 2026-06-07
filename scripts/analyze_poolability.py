@@ -27,11 +27,50 @@ STOP = set("the of in a an and or to for with at from by on as is was were be be
            "year years number percent participants patients subjects time score mean "
            "rate ratio total least dose last".split())
 
+# Canonicalize common endpoint phrases to a single token so spelled-out and
+# abbreviated forms match (e.g. "American College of Rheumatology" vs "ACR 20").
+SYNONYMS = {
+    "american college of rheumatology": " acr ",
+    "progression free survival": " pfs ",
+    "progression-free survival": " pfs ",
+    "overall survival": " os ",
+    "forced expiratory volume in one second": " fev1 ",
+    "forced expiratory volume in 1 second": " fev1 ",
+    "forced expiratory volume": " fev1 ",
+    "estimated glomerular filtration rate": " egfr ",
+    "glycated hemoglobin": " hba1c ",
+    "glycosylated hemoglobin": " hba1c ",
+    "hemoglobin a1c": " hba1c ",
+    "psoriasis area and severity index": " pasi ",
+    "eczema area and severity index": " easi ",
+    "disease activity score": " das28 ",
+    "major adverse cardiovascular events": " mace ",
+    "major adverse cardiac events": " mace ",
+    "lean body mass": " leanbodymass ",
+    "bone mineral density": " bmd ",
+    "american college of cardiology": " acc ",
+    "investigator-assessed": " ",
+    "investigator assessed": " ",
+}
+_ACRO_RE = re.compile(r"\(([A-Za-z]{2,6}\s?\d{0,3})\)")
+
+
+def _acronyms(title):
+    out = set()
+    for m in _ACRO_RE.finditer(title):
+        a = re.sub(r"\s+", "", m.group(1)).lower()
+        if a and not a.isdigit():
+            out.add(a)
+    return out
+
 
 def normalize_tokens(title):
     t = re.sub(r"\(primary\)\s*$", "", title.lower())
+    for phrase, repl in SYNONYMS.items():
+        t = t.replace(phrase, repl)
+    acro = _acronyms(title)
     t = re.sub(r"[^a-z0-9\s]", " ", t)
-    toks = set()
+    toks = set(acro)
     for w in t.split():
         if w in STOP or w.isdigit() or len(w) <= 2:
             continue
@@ -52,9 +91,19 @@ def jaccard(a, b):
     return len(a & b) / len(a | b)
 
 
+# Distinctive endpoint identifiers: sharing one is strong evidence of the same
+# endpoint even when surrounding wording differs (spelled-out vs abbreviated).
+CANON = {"acr", "pfs", "os", "fev1", "egfr", "hba1c", "pasi", "easi",
+         "das28", "mace", "bmd", "leanbodymass", "acc"}
+
+
+def salient_tokens(title):
+    return _acronyms(title) | (normalize_tokens(title) & CANON)
+
+
 def cluster_outcomes(outcomes, thresh):
-    """Greedy union-find: group outcomes with same effect class and
-    token-Jaccard >= thresh. Returns list of clusters (each a list of indices)."""
+    """Greedy union-find: group outcomes with the same effect class when their
+    token-Jaccard >= thresh OR they share a distinctive endpoint acronym."""
     n = len(outcomes)
     parent = list(range(n))
 
@@ -68,10 +117,13 @@ def cluster_outcomes(outcomes, thresh):
         parent[find(x)] = find(y)
 
     toks = [normalize_tokens(o["title"]) for o in outcomes]
+    sal = [salient_tokens(o["title"]) for o in outcomes]
     cls = [effect_class(o) for o in outcomes]
     for i in range(n):
         for j in range(i + 1, n):
-            if cls[i] == cls[j] and jaccard(toks[i], toks[j]) >= thresh:
+            if cls[i] != cls[j]:
+                continue
+            if jaccard(toks[i], toks[j]) >= thresh or (sal[i] & sal[j]):
                 union(i, j)
     groups = {}
     for i in range(n):
@@ -159,11 +211,16 @@ def selftest():
             {"title": "Fracture incidence (primary)", "estimandType": "OR"},
             {"title": "Fracture incidence change (primary)", "estimandType": "MD", "md": True},
         ],
+        "ACR spelled-out vs abbreviated (poolable via synonym)": [
+            {"title": "Percentage of Participants Achieving an American College of Rheumatology 20 response (primary)", "estimandType": "OR"},
+            {"title": "Number of American College of Rheumatology 20 (ACR 20) Responders (primary)", "estimandType": "OR"},
+        ],
     }
     print("=== selftest (thresh=0.5) ===")
     ok = True
     expect = {"OMALIZUMAB (4 distinct)": False, "Shared PFS x3 (poolable)": True,
-              "Mixed type same words (not poolable - type differs)": False}
+              "Mixed type same words (not poolable - type differs)": False,
+              "ACR spelled-out vs abbreviated (poolable via synonym)": True}
     for name, outs in cases.items():
         cl = cluster_outcomes(outs, 0.5)
         biggest = max(len(c) for c in cl)
