@@ -1,5 +1,68 @@
 {
   "app": "DROTRECOGIN_SEPSIS_AUTO_REVIEW.html",
-  "error": "TimeoutError: page.waitForFunction: Timeout 30000ms exceeded.",
-  "timestamp": "2026-05-15T08:17:59.871Z"
+  "timestamp": "2026-06-07T17:23:29.908Z",
+  "durationMs": 4505,
+  "state": {
+    "k": 2,
+    "or": "0.59",
+    "i2": "96.2",
+    "tau2": 0.6853454161394621,
+    "remlSensitivity": true,
+    "robSummary": {
+      "high": 0,
+      "someConcerns": 4,
+      "low": 6,
+      "unclear": 0
+    },
+    "isCompleteUniverse": true,
+    "totalAvailable": 2,
+    "includedCount": 2,
+    "searchResultCount": 127,
+    "nnt": 28.529146627049073,
+    "absoluteRisk": 0.0350518721457963,
+    "patientReportedOutcomes": {
+      "count": 0,
+      "scales": [],
+      "trials": [],
+      "inHeadlineAnalysis": false
+    }
+  },
+  "findings": {
+    "editor": {
+      "decision": "Major revision",
+      "rationale": "Substantive concerns across reviewer roles; expect a second review round."
+    },
+    "reviewers": [
+      {
+        "role": "Methodology & PRISMA",
+        "concerns": [
+          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition.",
+          "RoB 2.0: 0 high-risk + 4 some-concerns domains; add low-RoB sensitivity analysis."
+        ],
+        "recommendation": "Major revision"
+      },
+      {
+        "role": "Clinical expert",
+        "concerns": [
+          "No endpoint-matched published benchmark wired to this outcome.",
+          "k<3 - NNT ≈ 29 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.",
+          "I² = 96.2% (considerable); show subgroup/strata estimates alongside pooled."
+        ],
+        "recommendation": "Major revision"
+      },
+      {
+        "role": "Biostatistician",
+        "concerns": [],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Patient representative",
+        "concerns": [
+          "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
+        ],
+        "recommendation": "Accept with minor revision"
+      }
+    ]
+  }
 }

@@ -1,5 +1,71 @@
 {
   "app": "CIPROFLOXACIN_UTI_AUTO_REVIEW.html",
-  "error": "TimeoutError: page.waitForFunction: Timeout 30000ms exceeded.",
-  "timestamp": "2026-05-15T07:48:29.942Z"
+  "timestamp": "2026-06-07T17:10:10.520Z",
+  "durationMs": 4595,
+  "state": {
+    "k": 2,
+    "or": "0.97",
+    "i2": "18.6",
+    "tau2": 0.000901401418983401,
+    "remlSensitivity": true,
+    "robSummary": {
+      "high": 0,
+      "someConcerns": 4,
+      "low": 6,
+      "unclear": 0
+    },
+    "isCompleteUniverse": true,
+    "totalAvailable": 2,
+    "includedCount": 2,
+    "searchResultCount": 172,
+    "nnt": 100.24704618689583,
+    "absoluteRisk": -0.009975356262723667,
+    "patientReportedOutcomes": {
+      "count": 1,
+      "scales": [
+        "PRO (generic)"
+      ],
+      "trials": [
+        "NCT01595438"
+      ],
+      "inHeadlineAnalysis": false
+    }
+  },
+  "findings": {
+    "editor": {
+      "decision": "Minor revision",
+      "rationale": "Reviewers support publication but want clarifications on reporting completeness and residual uncertainty."
+    },
+    "reviewers": [
+      {
+        "role": "Methodology & PRISMA",
+        "concerns": [
+          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition.",
+          "RoB 2.0: 0 high-risk + 4 some-concerns domains; add low-RoB sensitivity analysis."
+        ],
+        "recommendation": "Major revision"
+      },
+      {
+        "role": "Clinical expert",
+        "concerns": [
+          "No endpoint-matched published benchmark wired to this outcome.",
+          "k<3 - NNT ≈ 100 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
+        ],
+        "recommendation": "Minor revision"
+      },
+      {
+        "role": "Biostatistician",
+        "concerns": [],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Patient representative",
+        "concerns": [
+          "QoL / PROs reported in 1 trial(s) (PRO (generic)) but not in headline pool; consider adding as a secondary analysis rather than omitting."
+        ],
+        "recommendation": "Accept with minor revision"
+      }
+    ]
+  }
 }

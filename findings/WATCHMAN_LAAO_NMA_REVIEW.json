@@ -1,31 +1,21 @@
 {
   "app": "WATCHMAN_LAAO_NMA_REVIEW.html",
-  "timestamp": "2026-05-15T12:26:16.577Z",
-  "durationMs": 3402,
+  "timestamp": "2026-06-07T19:21:16.892Z",
+  "durationMs": 3339,
   "state": {
-    "k": 2,
-    "or": "0.76",
+    "k": 5,
+    "or": "0.84",
     "i2": "0.0",
     "tau2": 0,
-    "remlSensitivity": true,
-    "robSummary": {
-      "high": 0,
-      "someConcerns": 0,
-      "low": 0,
-      "unclear": 0
-    },
-    "isCompleteUniverse": true,
-    "totalAvailable": 5,
-    "includedCount": 5,
-    "searchResultCount": 5,
-    "nnt": 60.79820996104033,
-    "absoluteRisk": 0.016447852669359886,
-    "patientReportedOutcomes": {
-      "count": 0,
-      "scales": [],
-      "trials": [],
-      "inHeadlineAnalysis": false
-    }
+    "remlSensitivity": false,
+    "robSummary": null,
+    "isCompleteUniverse": false,
+    "totalAvailable": null,
+    "includedCount": null,
+    "searchResultCount": null,
+    "nnt": null,
+    "absoluteRisk": null,
+    "patientReportedOutcomes": null
   },
   "findings": {
     "editor": {
@@ -36,29 +26,29 @@
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
-          "Prediction interval not definable for k<3; flag as boundary condition."
-        ],
-        "recommendation": "Minor revision"
-      },
-      {
-        "role": "Clinical expert",
-        "concerns": [
-          "k<3 - NNT ≈ 61 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
+          "Per-domain RoB 2.0 summary not attached to the included-trials table."
         ],
         "recommendation": "Accept with minor revision"
       },
       {
-        "role": "Biostatistician",
+        "role": "Clinical expert",
         "concerns": [],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Biostatistician",
+        "concerns": [
+          "DL estimator under-estimates τ² for k<10; add REML/Paule-Mandel sensitivity."
+        ],
         "recommendation": "Accept with minor revision"
       },
       {
         "role": "Patient representative",
         "concerns": [
+          "Effect not translated into absolute-risk difference / NNT for shared decision.",
           "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       }
     ]
   }

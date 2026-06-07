@@ -1,5 +1,72 @@
 {
   "app": "LEVOMILNACIPRAN_DEPRESSION_AUTO_REVIEW.html",
-  "error": "TimeoutError: page.waitForFunction: Timeout 30000ms exceeded.",
-  "timestamp": "2026-05-15T09:41:00.387Z"
+  "timestamp": "2026-06-07T18:01:25.861Z",
+  "durationMs": 4352,
+  "state": {
+    "k": 6,
+    "or": "NaN",
+    "i2": "0.0",
+    "tau2": 0,
+    "remlSensitivity": false,
+    "robSummary": {
+      "high": 0,
+      "someConcerns": 12,
+      "low": 18,
+      "unclear": 0
+    },
+    "isCompleteUniverse": true,
+    "totalAvailable": 6,
+    "includedCount": 6,
+    "searchResultCount": 73,
+    "nnt": 4.166666666666667,
+    "absoluteRisk": -0.24,
+    "patientReportedOutcomes": {
+      "count": 3,
+      "scales": [
+        "MADRS"
+      ],
+      "trials": [
+        "NCT01034462",
+        "NCT00969709",
+        "NCT00969150"
+      ],
+      "inHeadlineAnalysis": false
+    }
+  },
+  "findings": {
+    "editor": {
+      "decision": "Minor revision",
+      "rationale": "Reviewers support publication but want clarifications on reporting completeness and residual uncertainty."
+    },
+    "reviewers": [
+      {
+        "role": "Methodology & PRISMA",
+        "concerns": [
+          "RoB 2.0: 0 high-risk + 12 some-concerns domains; add low-RoB sensitivity analysis."
+        ],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Clinical expert",
+        "concerns": [
+          "No endpoint-matched published benchmark wired to this outcome."
+        ],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Biostatistician",
+        "concerns": [
+          "DL estimator under-estimates τ² for k<10; add REML/Paule-Mandel sensitivity."
+        ],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Patient representative",
+        "concerns": [
+          "QoL / PROs reported in 3 trial(s) (MADRS) but not in headline pool; consider adding as a secondary analysis rather than omitting."
+        ],
+        "recommendation": "Accept with minor revision"
+      }
+    ]
+  }
 }

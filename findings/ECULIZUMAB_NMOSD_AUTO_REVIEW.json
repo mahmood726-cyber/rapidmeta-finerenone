@@ -1,5 +1,68 @@
 {
   "app": "ECULIZUMAB_NMOSD_AUTO_REVIEW.html",
-  "error": "TimeoutError: page.waitForFunction: Timeout 30000ms exceeded.",
-  "timestamp": "2026-05-15T08:24:32.904Z"
+  "timestamp": "2026-06-07T17:26:00.919Z",
+  "durationMs": 4234,
+  "state": {
+    "k": 2,
+    "or": "0.30",
+    "i2": "95.2",
+    "tau2": 3.5039450198347084,
+    "remlSensitivity": true,
+    "robSummary": {
+      "high": 2,
+      "someConcerns": 5,
+      "low": 3,
+      "unclear": 0
+    },
+    "isCompleteUniverse": true,
+    "totalAvailable": 2,
+    "includedCount": 2,
+    "searchResultCount": 132,
+    "nnt": 2.507320644216691,
+    "absoluteRisk": 0.39883211678832114,
+    "patientReportedOutcomes": {
+      "count": 0,
+      "scales": [],
+      "trials": [],
+      "inHeadlineAnalysis": false
+    }
+  },
+  "findings": {
+    "editor": {
+      "decision": "Major revision",
+      "rationale": "Substantive concerns across reviewer roles; expect a second review round."
+    },
+    "reviewers": [
+      {
+        "role": "Methodology & PRISMA",
+        "concerns": [
+          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition.",
+          "RoB 2.0: 2 high-risk + 5 some-concerns domains; add low-RoB sensitivity analysis."
+        ],
+        "recommendation": "Major revision"
+      },
+      {
+        "role": "Clinical expert",
+        "concerns": [
+          "No endpoint-matched published benchmark wired to this outcome.",
+          "k<3 - NNT ≈ 3 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only.",
+          "I² = 95.2% (considerable); show subgroup/strata estimates alongside pooled."
+        ],
+        "recommendation": "Major revision"
+      },
+      {
+        "role": "Biostatistician",
+        "concerns": [],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Patient representative",
+        "concerns": [
+          "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
+        ],
+        "recommendation": "Accept with minor revision"
+      }
+    ]
+  }
 }

@@ -1,12 +1,12 @@
 {
   "app": "MYASTHENIA_GRAVIS_BIOLOGICS_REVIEW.html",
-  "timestamp": "2026-05-15T10:07:36.032Z",
-  "durationMs": 3562,
+  "timestamp": "2026-06-07T18:14:52.320Z",
+  "durationMs": 3833,
   "state": {
-    "k": 7,
-    "or": "NaN",
-    "i2": "0.0",
-    "tau2": 0,
+    "k": 10,
+    "or": "1.81",
+    "i2": "65.6",
+    "tau2": 0.059141980711749455,
     "remlSensitivity": true,
     "robSummary": {
       "high": 0,
@@ -28,6 +28,37 @@
     }
   },
   "findings": {
-    "error": "TypeError: Cannot read properties of null (reading 'citation')"
+    "editor": {
+      "decision": "Accept with minor revision",
+      "rationale": "All reviewers support publication after minor clarifications."
+    },
+    "reviewers": [
+      {
+        "role": "Methodology & PRISMA",
+        "concerns": [
+          "Publication-bias assessment (Egger / trim-and-fill) absent despite k>=10."
+        ],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Clinical expert",
+        "concerns": [
+          "Pooled 1.81 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile."
+        ],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Biostatistician",
+        "concerns": [],
+        "recommendation": "Accept"
+      },
+      {
+        "role": "Patient representative",
+        "concerns": [
+          "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
+        ],
+        "recommendation": "Accept with minor revision"
+      }
+    ]
   }
 }

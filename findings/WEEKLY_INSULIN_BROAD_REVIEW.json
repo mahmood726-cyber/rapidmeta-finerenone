@@ -1,31 +1,21 @@
 {
   "app": "WEEKLY_INSULIN_BROAD_REVIEW.html",
-  "timestamp": "2026-05-15T12:26:20.096Z",
-  "durationMs": 3487,
+  "timestamp": "2026-06-07T19:21:25.744Z",
+  "durationMs": 3778,
   "state": {
-    "k": 2,
-    "or": "1.14",
+    "k": 9,
+    "or": "1.04",
     "i2": "0.0",
-    "tau2": 0,
-    "remlSensitivity": true,
-    "robSummary": {
-      "high": 0,
-      "someConcerns": 0,
-      "low": 0,
-      "unclear": 0
-    },
-    "isCompleteUniverse": true,
-    "totalAvailable": 9,
-    "includedCount": 9,
-    "searchResultCount": 9,
-    "nnt": 149.27777777777777,
-    "absoluteRisk": -0.006698920729438035,
-    "patientReportedOutcomes": {
-      "count": 0,
-      "scales": [],
-      "trials": [],
-      "inHeadlineAnalysis": false
-    }
+    "tau2": 0.0006379475837844659,
+    "remlSensitivity": false,
+    "robSummary": null,
+    "isCompleteUniverse": false,
+    "totalAvailable": null,
+    "includedCount": null,
+    "searchResultCount": null,
+    "nnt": null,
+    "absoluteRisk": null,
+    "patientReportedOutcomes": null
   },
   "findings": {
     "editor": {
@@ -36,30 +26,31 @@
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
-          "Prediction interval not definable for k<3; flag as boundary condition."
+          "Per-domain RoB 2.0 summary not attached to the included-trials table."
         ],
-        "recommendation": "Minor revision"
+        "recommendation": "Accept with minor revision"
       },
       {
         "role": "Clinical expert",
         "concerns": [
-          "Pooled 1.14 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile.",
-          "k<3 - NNT ≈ 149 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
+          "Pooled 1.04 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile."
         ],
-        "recommendation": "Minor revision"
+        "recommendation": "Accept with minor revision"
       },
       {
         "role": "Biostatistician",
-        "concerns": [],
+        "concerns": [
+          "DL estimator under-estimates τ² for k<10; add REML/Paule-Mandel sensitivity."
+        ],
         "recommendation": "Accept with minor revision"
       },
       {
         "role": "Patient representative",
         "concerns": [
+          "Effect not translated into absolute-risk difference / NNT for shared decision.",
           "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       }
     ]
   }

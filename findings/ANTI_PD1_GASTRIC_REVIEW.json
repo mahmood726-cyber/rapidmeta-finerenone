@@ -1,31 +1,21 @@
 {
   "app": "ANTI_PD1_GASTRIC_REVIEW.html",
-  "timestamp": "2026-05-15T06:54:28.813Z",
-  "durationMs": 3422,
+  "timestamp": "2026-06-07T16:44:52.954Z",
+  "durationMs": 3564,
   "state": {
-    "k": 1,
-    "or": "0.63",
+    "k": 10,
+    "or": "0.77",
     "i2": "0.0",
     "tau2": 0,
-    "remlSensitivity": true,
-    "robSummary": {
-      "high": 0,
-      "someConcerns": 0,
-      "low": 0,
-      "unclear": 0
-    },
-    "isCompleteUniverse": true,
-    "totalAvailable": 10,
-    "includedCount": 10,
-    "searchResultCount": 10,
-    "nnt": 95.80730795096572,
-    "absoluteRisk": 0.010437617144109727,
-    "patientReportedOutcomes": {
-      "count": 0,
-      "scales": [],
-      "trials": [],
-      "inHeadlineAnalysis": false
-    }
+    "remlSensitivity": false,
+    "robSummary": null,
+    "isCompleteUniverse": false,
+    "totalAvailable": null,
+    "includedCount": null,
+    "searchResultCount": null,
+    "nnt": null,
+    "absoluteRisk": null,
+    "patientReportedOutcomes": null
   },
   "findings": {
     "editor": {
@@ -36,30 +26,28 @@
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Evidence base is complete but small (k=1 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
-          "Prediction interval not definable for k<3; flag as boundary condition."
+          "Per-domain RoB 2.0 summary not attached to the included-trials table.",
+          "Publication-bias assessment (Egger / trim-and-fill) absent despite k>=10."
         ],
         "recommendation": "Minor revision"
       },
       {
         "role": "Clinical expert",
-        "concerns": [
-          "Pooled 0.63 sits outside published benchmark range (corridor 0.72-0.84); closest Vaduganathan 2022 HR 0.77 [0.72, 0.82]. Discussion should reconcile.",
-          "k<3 - NNT ≈ 96 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
-        ],
-        "recommendation": "Minor revision"
-      },
-      {
-        "role": "Biostatistician",
         "concerns": [],
         "recommendation": "Accept with minor revision"
       },
       {
+        "role": "Biostatistician",
+        "concerns": [],
+        "recommendation": "Accept"
+      },
+      {
         "role": "Patient representative",
         "concerns": [
+          "Effect not translated into absolute-risk difference / NNT for shared decision.",
           "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       }
     ]
   }

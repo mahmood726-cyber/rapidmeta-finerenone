@@ -1,0 +1,74 @@
+{
+  "app": "LURASIDONE_SCHIZ_AUTO_FULL_REVIEW.html",
+  "timestamp": "2026-06-07T18:04:10.290Z",
+  "durationMs": 4507,
+  "state": {
+    "k": 2,
+    "or": "NaN",
+    "i2": "0.0",
+    "tau2": null,
+    "remlSensitivity": false,
+    "robSummary": {
+      "high": 0,
+      "someConcerns": 4,
+      "low": 6,
+      "unclear": 0
+    },
+    "isCompleteUniverse": true,
+    "totalAvailable": 2,
+    "includedCount": 2,
+    "searchResultCount": 100,
+    "nnt": null,
+    "absoluteRisk": null,
+    "patientReportedOutcomes": {
+      "count": 1,
+      "scales": [
+        "PANSS"
+      ],
+      "trials": [
+        "NCT00549718"
+      ],
+      "inHeadlineAnalysis": false
+    }
+  },
+  "findings": {
+    "editor": {
+      "decision": "Major revision",
+      "rationale": "Substantive concerns across reviewer roles; expect a second review round."
+    },
+    "reviewers": [
+      {
+        "role": "Methodology & PRISMA",
+        "concerns": [
+          "Evidence base is complete but small (k=2 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition.",
+          "RoB 2.0: 0 high-risk + 4 some-concerns domains; add low-RoB sensitivity analysis."
+        ],
+        "recommendation": "Major revision"
+      },
+      {
+        "role": "Clinical expert",
+        "concerns": [
+          "No endpoint-matched published benchmark wired to this outcome.",
+          "k<3 - clinical meaningfulness (MCID, NNT) cannot be grounded in pooled evidence."
+        ],
+        "recommendation": "Minor revision"
+      },
+      {
+        "role": "Biostatistician",
+        "concerns": [
+          "DL estimator under-estimates τ² for k<10; add REML/Paule-Mandel sensitivity."
+        ],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Patient representative",
+        "concerns": [
+          "Effect not translated into absolute-risk difference / NNT for shared decision.",
+          "QoL / PROs reported in 1 trial(s) (PANSS) but not in headline pool; consider adding as a secondary analysis rather than omitting."
+        ],
+        "recommendation": "Minor revision"
+      }
+    ]
+  }
+}

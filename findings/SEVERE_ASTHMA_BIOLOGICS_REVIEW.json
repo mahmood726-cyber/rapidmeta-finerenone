@@ -1,31 +1,21 @@
 {
   "app": "SEVERE_ASTHMA_BIOLOGICS_REVIEW.html",
-  "timestamp": "2026-05-15T11:37:43.424Z",
-  "durationMs": 4111,
+  "timestamp": "2026-06-07T18:57:26.804Z",
+  "durationMs": 3833,
   "state": {
-    "k": 6,
-    "or": "1.41",
-    "i2": "95.8",
-    "tau2": 1.138819713563842,
-    "remlSensitivity": true,
-    "robSummary": {
-      "high": 0,
-      "someConcerns": 0,
-      "low": 0,
-      "unclear": 0
-    },
-    "isCompleteUniverse": true,
-    "totalAvailable": 12,
-    "includedCount": 12,
-    "searchResultCount": 12,
-    "nnt": 17.97888996764996,
-    "absoluteRisk": 0.05562078647788238,
-    "patientReportedOutcomes": {
-      "count": 0,
-      "scales": [],
-      "trials": [],
-      "inHeadlineAnalysis": false
-    }
+    "k": 12,
+    "or": "0.77",
+    "i2": "88.5",
+    "tau2": 0.6611242450482933,
+    "remlSensitivity": false,
+    "robSummary": null,
+    "isCompleteUniverse": false,
+    "totalAvailable": null,
+    "includedCount": null,
+    "searchResultCount": null,
+    "nnt": null,
+    "absoluteRisk": null,
+    "patientReportedOutcomes": null
   },
   "findings": {
     "editor": {
@@ -35,28 +25,33 @@
     "reviewers": [
       {
         "role": "Methodology & PRISMA",
-        "concerns": [],
-        "recommendation": "Accept with minor revision"
-      },
-      {
-        "role": "Clinical expert",
         "concerns": [
-          "Pooled 1.41 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile.",
-          "I² = 95.8% (considerable); show subgroup/strata estimates alongside pooled."
+          "Per-domain RoB 2.0 summary not attached to the included-trials table.",
+          "Publication-bias assessment (Egger / trim-and-fill) absent despite k>=10."
         ],
         "recommendation": "Minor revision"
       },
       {
+        "role": "Clinical expert",
+        "concerns": [
+          "I² = 88.5% (considerable); show subgroup/strata estimates alongside pooled."
+        ],
+        "recommendation": "Accept with minor revision"
+      },
+      {
         "role": "Biostatistician",
-        "concerns": [],
-        "recommendation": "Accept"
+        "concerns": [
+          "I²=88.5% without meta-regression / subgroup exploration; τ²=0.661 left un-partitioned."
+        ],
+        "recommendation": "Accept with minor revision"
       },
       {
         "role": "Patient representative",
         "concerns": [
+          "Effect not translated into absolute-risk difference / NNT for shared decision.",
           "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       }
     ]
   }

@@ -1,0 +1,73 @@
+{
+  "app": "PALIPERIDONE_SCHIZO_AUTO_FULL_REVIEW.html",
+  "timestamp": "2026-06-07T18:29:21.570Z",
+  "durationMs": 5303,
+  "state": {
+    "k": 1,
+    "or": "0.69",
+    "i2": "0.0",
+    "tau2": 0,
+    "remlSensitivity": false,
+    "robSummary": {
+      "high": 0,
+      "someConcerns": 2,
+      "low": 3,
+      "unclear": 0
+    },
+    "isCompleteUniverse": true,
+    "totalAvailable": 1,
+    "includedCount": 1,
+    "searchResultCount": 86,
+    "nnt": 5.9162717219589265,
+    "absoluteRisk": 0.16902536715620825,
+    "patientReportedOutcomes": {
+      "count": 1,
+      "scales": [
+        "PANSS"
+      ],
+      "trials": [
+        "NCT00397033"
+      ],
+      "inHeadlineAnalysis": false
+    }
+  },
+  "findings": {
+    "editor": {
+      "decision": "Minor revision",
+      "rationale": "Reviewers support publication but want clarifications on reporting completeness and residual uncertainty."
+    },
+    "reviewers": [
+      {
+        "role": "Methodology & PRISMA",
+        "concerns": [
+          "Evidence base is complete but small (k=1 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "Prediction interval not definable for k<3; flag as boundary condition.",
+          "RoB 2.0: 0 high-risk + 2 some-concerns domains; add low-RoB sensitivity analysis."
+        ],
+        "recommendation": "Major revision"
+      },
+      {
+        "role": "Clinical expert",
+        "concerns": [
+          "No endpoint-matched published benchmark wired to this outcome.",
+          "k<3 - NNT ≈ 6 (computed from current trial pool); cannot project to future populations without k>=3 (prediction interval undefined). Interpret MCID against trial-specific populations only."
+        ],
+        "recommendation": "Minor revision"
+      },
+      {
+        "role": "Biostatistician",
+        "concerns": [
+          "DL estimator under-estimates τ² for k<10; add REML/Paule-Mandel sensitivity."
+        ],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Patient representative",
+        "concerns": [
+          "QoL / PROs reported in 1 trial(s) (PANSS) but not in headline pool; consider adding as a secondary analysis rather than omitting."
+        ],
+        "recommendation": "Accept with minor revision"
+      }
+    ]
+  }
+}

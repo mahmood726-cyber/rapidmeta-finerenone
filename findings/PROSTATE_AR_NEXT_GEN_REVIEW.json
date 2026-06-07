@@ -1,31 +1,21 @@
 {
   "app": "PROSTATE_AR_NEXT_GEN_REVIEW.html",
-  "timestamp": "2026-05-15T11:01:35.930Z",
-  "durationMs": 4281,
+  "timestamp": "2026-06-07T18:40:20.967Z",
+  "durationMs": 3798,
   "state": {
-    "k": 7,
+    "k": 11,
     "or": "0.50",
-    "i2": "84.5",
-    "tau2": 0.08452446468556385,
-    "remlSensitivity": true,
-    "robSummary": {
-      "high": 0,
-      "someConcerns": 0,
-      "low": 0,
-      "unclear": 0
-    },
-    "isCompleteUniverse": true,
-    "totalAvailable": 11,
-    "includedCount": 11,
-    "searchResultCount": 11,
-    "nnt": 8.757326668013752,
-    "absoluteRisk": 0.1141900990918282,
-    "patientReportedOutcomes": {
-      "count": 0,
-      "scales": [],
-      "trials": [],
-      "inHeadlineAnalysis": false
-    }
+    "i2": "91.6",
+    "tau2": 0.11107018992997046,
+    "remlSensitivity": false,
+    "robSummary": null,
+    "isCompleteUniverse": false,
+    "totalAvailable": null,
+    "includedCount": null,
+    "searchResultCount": null,
+    "nnt": null,
+    "absoluteRisk": null,
+    "patientReportedOutcomes": null
   },
   "findings": {
     "editor": {
@@ -35,28 +25,34 @@
     "reviewers": [
       {
         "role": "Methodology & PRISMA",
-        "concerns": [],
-        "recommendation": "Accept with minor revision"
+        "concerns": [
+          "Per-domain RoB 2.0 summary not attached to the included-trials table.",
+          "Publication-bias assessment (Egger / trim-and-fill) absent despite k>=10."
+        ],
+        "recommendation": "Minor revision"
       },
       {
         "role": "Clinical expert",
         "concerns": [
           "Pooled 0.50 sits outside published benchmark range (corridor 0.72-0.84); closest Vaduganathan 2022 HR 0.77 [0.72, 0.82]. Discussion should reconcile.",
-          "I² = 84.5% (considerable); show subgroup/strata estimates alongside pooled."
+          "I² = 91.6% (considerable); show subgroup/strata estimates alongside pooled."
         ],
         "recommendation": "Minor revision"
       },
       {
         "role": "Biostatistician",
-        "concerns": [],
-        "recommendation": "Accept"
+        "concerns": [
+          "I²=91.6% without meta-regression / subgroup exploration; τ²=0.111 left un-partitioned."
+        ],
+        "recommendation": "Accept with minor revision"
       },
       {
         "role": "Patient representative",
         "concerns": [
+          "Effect not translated into absolute-risk difference / NNT for shared decision.",
           "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       }
     ]
   }

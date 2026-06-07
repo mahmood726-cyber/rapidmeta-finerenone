@@ -1,31 +1,21 @@
 {
   "app": "CHECKPOINT_ESOPHAGEAL_SCC_REVIEW.html",
-  "timestamp": "2026-05-15T07:46:41.725Z",
-  "durationMs": 3577,
+  "timestamp": "2026-06-07T17:09:14.679Z",
+  "durationMs": 3926,
   "state": {
-    "k": 4,
-    "or": "0.55",
-    "i2": "53.5",
-    "tau2": 0.04539452753419566,
-    "remlSensitivity": true,
-    "robSummary": {
-      "high": 0,
-      "someConcerns": 0,
-      "low": 0,
-      "unclear": 0
-    },
-    "isCompleteUniverse": true,
-    "totalAvailable": 10,
-    "includedCount": 10,
-    "searchResultCount": 10,
-    "nnt": 13.998337666354171,
-    "absoluteRisk": 0.07143705372985529,
-    "patientReportedOutcomes": {
-      "count": 0,
-      "scales": [],
-      "trials": [],
-      "inHeadlineAnalysis": false
-    }
+    "k": 10,
+    "or": "0.69",
+    "i2": "0.0",
+    "tau2": 0,
+    "remlSensitivity": false,
+    "robSummary": null,
+    "isCompleteUniverse": false,
+    "totalAvailable": null,
+    "includedCount": null,
+    "searchResultCount": null,
+    "nnt": null,
+    "absoluteRisk": null,
+    "patientReportedOutcomes": null
   },
   "findings": {
     "editor": {
@@ -36,28 +26,30 @@
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Evidence base is complete but small (k=4 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue."
+          "Per-domain RoB 2.0 summary not attached to the included-trials table.",
+          "Publication-bias assessment (Egger / trim-and-fill) absent despite k>=10."
         ],
         "recommendation": "Minor revision"
       },
       {
         "role": "Clinical expert",
         "concerns": [
-          "Pooled 0.55 sits outside published benchmark range (corridor 0.72-0.84); closest Vaduganathan 2022 HR 0.77 [0.72, 0.82]. Discussion should reconcile."
+          "Pooled 0.69 sits outside published benchmark range (corridor 0.72-0.84); closest Vaduganathan 2022 HR 0.77 [0.72, 0.82]. Discussion should reconcile."
         ],
         "recommendation": "Accept with minor revision"
       },
       {
         "role": "Biostatistician",
         "concerns": [],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Accept"
       },
       {
         "role": "Patient representative",
         "concerns": [
+          "Effect not translated into absolute-risk difference / NNT for shared decision.",
           "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       }
     ]
   }

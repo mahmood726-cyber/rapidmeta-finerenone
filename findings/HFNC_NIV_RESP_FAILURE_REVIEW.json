@@ -1,61 +1,54 @@
 {
   "app": "HFNC_NIV_RESP_FAILURE_REVIEW.html",
-  "timestamp": "2026-05-15T09:13:42.297Z",
-  "durationMs": 3442,
+  "timestamp": "2026-06-07T17:48:41.935Z",
+  "durationMs": 3835,
   "state": {
-    "k": 7,
-    "or": "0.66",
-    "i2": "37.8",
-    "tau2": 0.024590505012817603,
-    "remlSensitivity": true,
-    "robSummary": {
-      "high": 0,
-      "someConcerns": 0,
-      "low": 0,
-      "unclear": 0
-    },
-    "isCompleteUniverse": true,
-    "totalAvailable": 9,
-    "includedCount": 9,
-    "searchResultCount": 9,
-    "nnt": 14.52751058099268,
-    "absoluteRisk": 0.0688349180284451,
-    "patientReportedOutcomes": {
-      "count": 0,
-      "scales": [],
-      "trials": [],
-      "inHeadlineAnalysis": false
-    }
+    "k": 9,
+    "or": "0.81",
+    "i2": "35.8",
+    "tau2": 0.004708133454925377,
+    "remlSensitivity": false,
+    "robSummary": null,
+    "isCompleteUniverse": false,
+    "totalAvailable": null,
+    "includedCount": null,
+    "searchResultCount": null,
+    "nnt": null,
+    "absoluteRisk": null,
+    "patientReportedOutcomes": null
   },
   "findings": {
     "editor": {
-      "decision": "Accept with minor revision",
-      "rationale": "All reviewers support publication after minor clarifications."
+      "decision": "Minor revision",
+      "rationale": "Reviewers support publication but want clarifications on reporting completeness and residual uncertainty."
     },
     "reviewers": [
       {
         "role": "Methodology & PRISMA",
-        "concerns": [],
+        "concerns": [
+          "Per-domain RoB 2.0 summary not attached to the included-trials table."
+        ],
         "recommendation": "Accept with minor revision"
       },
       {
         "role": "Clinical expert",
-        "concerns": [
-          "Pooled 0.66 sits outside published benchmark range (corridor 0.72-0.84); closest Vaduganathan 2022 HR 0.77 [0.72, 0.82]. Discussion should reconcile."
-        ],
+        "concerns": [],
         "recommendation": "Accept with minor revision"
       },
       {
         "role": "Biostatistician",
-        "concerns": [],
-        "recommendation": "Accept"
+        "concerns": [
+          "DL estimator under-estimates τ² for k<10; add REML/Paule-Mandel sensitivity."
+        ],
+        "recommendation": "Accept with minor revision"
       },
       {
         "role": "Patient representative",
         "concerns": [
+          "Effect not translated into absolute-risk difference / NNT for shared decision.",
           "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       }
     ]
   }

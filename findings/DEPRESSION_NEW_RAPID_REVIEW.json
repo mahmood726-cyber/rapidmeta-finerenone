@@ -1,38 +1,21 @@
 {
   "app": "DEPRESSION_NEW_RAPID_REVIEW.html",
-  "timestamp": "2026-05-15T08:10:06.779Z",
-  "durationMs": 3547,
+  "timestamp": "2026-06-07T17:19:59.597Z",
+  "durationMs": 3417,
   "state": {
-    "k": 7,
-    "or": "1.73",
-    "i2": "83.9",
-    "tau2": 0.49735139691907815,
-    "remlSensitivity": true,
-    "robSummary": {
-      "high": 0,
-      "someConcerns": 0,
-      "low": 0,
-      "unclear": 0
-    },
-    "isCompleteUniverse": true,
-    "totalAvailable": 9,
-    "includedCount": 9,
-    "searchResultCount": 9,
-    "nnt": 13.336389616575376,
-    "absoluteRisk": -0.07498281234653881,
-    "patientReportedOutcomes": {
-      "count": 4,
-      "scales": [
-        "MADRS"
-      ],
-      "trials": [
-        "NULLED:NCT02418585",
-        "NCT02422186",
-        "NCT03039192",
-        "NCT03097133"
-      ],
-      "inHeadlineAnalysis": false
-    }
+    "k": 9,
+    "or": "1.43",
+    "i2": "68.0",
+    "tau2": 0.09276991511707558,
+    "remlSensitivity": false,
+    "robSummary": null,
+    "isCompleteUniverse": false,
+    "totalAvailable": null,
+    "includedCount": null,
+    "searchResultCount": null,
+    "nnt": null,
+    "absoluteRisk": null,
+    "patientReportedOutcomes": null
   },
   "findings": {
     "editor": {
@@ -42,28 +25,33 @@
     "reviewers": [
       {
         "role": "Methodology & PRISMA",
-        "concerns": [],
+        "concerns": [
+          "Per-domain RoB 2.0 summary not attached to the included-trials table."
+        ],
         "recommendation": "Accept with minor revision"
       },
       {
         "role": "Clinical expert",
         "concerns": [
-          "Pooled 1.73 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile.",
-          "I² = 83.9% (considerable); show subgroup/strata estimates alongside pooled."
+          "Pooled 1.43 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile."
+        ],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Biostatistician",
+        "concerns": [
+          "DL estimator under-estimates τ² for k<10; add REML/Paule-Mandel sensitivity.",
+          "I²=68% without meta-regression / subgroup exploration; τ²=0.093 left un-partitioned."
         ],
         "recommendation": "Minor revision"
       },
       {
-        "role": "Biostatistician",
-        "concerns": [],
-        "recommendation": "Accept"
-      },
-      {
         "role": "Patient representative",
         "concerns": [
-          "QoL / PROs reported in 4 trial(s) (MADRS) but not in headline pool; consider adding as a secondary analysis rather than omitting."
+          "Effect not translated into absolute-risk difference / NNT for shared decision.",
+          "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       }
     ]
   }

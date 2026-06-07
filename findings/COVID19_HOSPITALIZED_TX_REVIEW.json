@@ -1,31 +1,21 @@
 {
   "app": "COVID19_HOSPITALIZED_TX_REVIEW.html",
-  "timestamp": "2026-05-15T07:50:00.004Z",
-  "durationMs": 3797,
+  "timestamp": "2026-06-07T17:11:21.678Z",
+  "durationMs": 4153,
   "state": {
-    "k": 9,
-    "or": "0.71",
-    "i2": "86.6",
-    "tau2": 0.04731907773538744,
-    "remlSensitivity": true,
-    "robSummary": {
-      "high": 0,
-      "someConcerns": 0,
-      "low": 0,
-      "unclear": 0
-    },
-    "isCompleteUniverse": true,
-    "totalAvailable": 12,
-    "includedCount": 12,
-    "searchResultCount": 12,
-    "nnt": 27.503446291516894,
-    "absoluteRisk": 0.036359079854964865,
-    "patientReportedOutcomes": {
-      "count": 0,
-      "scales": [],
-      "trials": [],
-      "inHeadlineAnalysis": false
-    }
+    "k": 12,
+    "or": "0.57",
+    "i2": "88.2",
+    "tau2": 0.6014007052075286,
+    "remlSensitivity": false,
+    "robSummary": null,
+    "isCompleteUniverse": false,
+    "totalAvailable": null,
+    "includedCount": null,
+    "searchResultCount": null,
+    "nnt": null,
+    "absoluteRisk": null,
+    "patientReportedOutcomes": null
   },
   "findings": {
     "editor": {
@@ -35,28 +25,34 @@
     "reviewers": [
       {
         "role": "Methodology & PRISMA",
-        "concerns": [],
-        "recommendation": "Accept with minor revision"
+        "concerns": [
+          "Per-domain RoB 2.0 summary not attached to the included-trials table.",
+          "Publication-bias assessment (Egger / trim-and-fill) absent despite k>=10."
+        ],
+        "recommendation": "Minor revision"
       },
       {
         "role": "Clinical expert",
         "concerns": [
-          "Pooled 0.71 sits outside published benchmark range (corridor 0.72-0.84); closest Vaduganathan 2022 HR 0.77 [0.72, 0.82]. Discussion should reconcile.",
-          "I² = 86.6% (considerable); show subgroup/strata estimates alongside pooled."
+          "Pooled 0.57 sits outside published benchmark range (corridor 0.72-0.84); closest Vaduganathan 2022 HR 0.77 [0.72, 0.82]. Discussion should reconcile.",
+          "I² = 88.2% (considerable); show subgroup/strata estimates alongside pooled."
         ],
         "recommendation": "Minor revision"
       },
       {
         "role": "Biostatistician",
-        "concerns": [],
-        "recommendation": "Accept"
+        "concerns": [
+          "I²=88.2% without meta-regression / subgroup exploration; τ²=0.601 left un-partitioned."
+        ],
+        "recommendation": "Accept with minor revision"
       },
       {
         "role": "Patient representative",
         "concerns": [
+          "Effect not translated into absolute-risk difference / NNT for shared decision.",
           "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       }
     ]
   }

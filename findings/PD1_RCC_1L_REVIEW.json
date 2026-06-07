@@ -1,31 +1,21 @@
 {
   "app": "PD1_RCC_1L_REVIEW.html",
-  "timestamp": "2026-05-15T10:44:21.456Z",
-  "durationMs": 4166,
+  "timestamp": "2026-06-07T18:31:56.276Z",
+  "durationMs": 4138,
   "state": {
-    "k": 4,
-    "or": "0.67",
-    "i2": "87.0",
-    "tau2": 0.15623422086649366,
-    "remlSensitivity": true,
-    "robSummary": {
-      "high": 0,
-      "someConcerns": 0,
-      "low": 0,
-      "unclear": 0
-    },
-    "isCompleteUniverse": true,
-    "totalAvailable": 9,
-    "includedCount": 9,
-    "searchResultCount": 9,
-    "nnt": 22.673544106885828,
-    "absoluteRisk": 0.044104265097943185,
-    "patientReportedOutcomes": {
-      "count": 0,
-      "scales": [],
-      "trials": [],
-      "inHeadlineAnalysis": false
-    }
+    "k": 9,
+    "or": "0.69",
+    "i2": "87.3",
+    "tau2": 0.08062626477813069,
+    "remlSensitivity": false,
+    "robSummary": null,
+    "isCompleteUniverse": false,
+    "totalAvailable": null,
+    "includedCount": null,
+    "searchResultCount": null,
+    "nnt": null,
+    "absoluteRisk": null,
+    "patientReportedOutcomes": null
   },
   "findings": {
     "editor": {
@@ -36,29 +26,33 @@
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Evidence base is complete but small (k=4 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue."
+          "Per-domain RoB 2.0 summary not attached to the included-trials table."
         ],
-        "recommendation": "Minor revision"
+        "recommendation": "Accept with minor revision"
       },
       {
         "role": "Clinical expert",
         "concerns": [
-          "Pooled 0.67 sits outside published benchmark range (corridor 0.72-0.84); closest Vaduganathan 2022 HR 0.77 [0.72, 0.82]. Discussion should reconcile.",
-          "I² = 87% (considerable); show subgroup/strata estimates alongside pooled."
+          "Pooled 0.69 sits outside published benchmark range (corridor 0.72-0.84); closest Vaduganathan 2022 HR 0.77 [0.72, 0.82]. Discussion should reconcile.",
+          "I² = 87.3% (considerable); show subgroup/strata estimates alongside pooled."
         ],
         "recommendation": "Minor revision"
       },
       {
         "role": "Biostatistician",
-        "concerns": [],
-        "recommendation": "Accept with minor revision"
+        "concerns": [
+          "DL estimator under-estimates τ² for k<10; add REML/Paule-Mandel sensitivity.",
+          "I²=87.3% without meta-regression / subgroup exploration; τ²=0.081 left un-partitioned."
+        ],
+        "recommendation": "Minor revision"
       },
       {
         "role": "Patient representative",
         "concerns": [
+          "Effect not translated into absolute-risk difference / NNT for shared decision.",
           "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       }
     ]
   }

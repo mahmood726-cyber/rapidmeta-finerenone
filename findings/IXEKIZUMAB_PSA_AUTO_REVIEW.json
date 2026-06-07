@@ -1,5 +1,66 @@
 {
   "app": "IXEKIZUMAB_PSA_AUTO_REVIEW.html",
-  "error": "TimeoutError: page.waitForFunction: Timeout 30000ms exceeded.",
-  "timestamp": "2026-05-15T09:32:37.029Z"
+  "timestamp": "2026-06-07T17:57:33.288Z",
+  "durationMs": 4558,
+  "state": {
+    "k": 3,
+    "or": "0.72",
+    "i2": "92.5",
+    "tau2": 0.29397033650069604,
+    "remlSensitivity": true,
+    "robSummary": {
+      "high": 2,
+      "someConcerns": 8,
+      "low": 5,
+      "unclear": 0
+    },
+    "isCompleteUniverse": true,
+    "totalAvailable": 3,
+    "includedCount": 3,
+    "searchResultCount": 141,
+    "nnt": 33.17408906882591,
+    "absoluteRisk": 0.03014400781059312,
+    "patientReportedOutcomes": {
+      "count": 0,
+      "scales": [],
+      "trials": [],
+      "inHeadlineAnalysis": false
+    }
+  },
+  "findings": {
+    "editor": {
+      "decision": "Minor revision",
+      "rationale": "Reviewers support publication but want clarifications on reporting completeness and residual uncertainty."
+    },
+    "reviewers": [
+      {
+        "role": "Methodology & PRISMA",
+        "concerns": [
+          "Evidence base is complete but small (k=3 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue.",
+          "RoB 2.0: 2 high-risk + 8 some-concerns domains; add low-RoB sensitivity analysis."
+        ],
+        "recommendation": "Minor revision"
+      },
+      {
+        "role": "Clinical expert",
+        "concerns": [
+          "No endpoint-matched published benchmark wired to this outcome.",
+          "I² = 92.5% (considerable); show subgroup/strata estimates alongside pooled."
+        ],
+        "recommendation": "Minor revision"
+      },
+      {
+        "role": "Biostatistician",
+        "concerns": [],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Patient representative",
+        "concerns": [
+          "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
+        ],
+        "recommendation": "Accept with minor revision"
+      }
+    ]
+  }
 }

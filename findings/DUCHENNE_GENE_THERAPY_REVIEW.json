@@ -1,31 +1,21 @@
 {
   "app": "DUCHENNE_GENE_THERAPY_REVIEW.html",
-  "timestamp": "2026-05-15T08:18:13.499Z",
-  "durationMs": 3928,
+  "timestamp": "2026-06-07T17:23:42.483Z",
+  "durationMs": 3781,
   "state": {
-    "k": 3,
-    "or": "1.73",
-    "i2": "78.8",
-    "tau2": 1.7089984784104912,
-    "remlSensitivity": true,
-    "robSummary": {
-      "high": 0,
-      "someConcerns": 0,
-      "low": 0,
-      "unclear": 0
-    },
-    "isCompleteUniverse": true,
-    "totalAvailable": 8,
-    "includedCount": 8,
-    "searchResultCount": 8,
-    "nnt": 19.82918149466193,
-    "absoluteRisk": 0.05043072505384061,
-    "patientReportedOutcomes": {
-      "count": 0,
-      "scales": [],
-      "trials": [],
-      "inHeadlineAnalysis": false
-    }
+    "k": 8,
+    "or": "0.89",
+    "i2": "67.6",
+    "tau2": 0.11857347309536535,
+    "remlSensitivity": false,
+    "robSummary": null,
+    "isCompleteUniverse": false,
+    "totalAvailable": null,
+    "includedCount": null,
+    "searchResultCount": null,
+    "nnt": null,
+    "absoluteRisk": null,
+    "patientReportedOutcomes": null
   },
   "findings": {
     "editor": {
@@ -36,29 +26,32 @@
       {
         "role": "Methodology & PRISMA",
         "concerns": [
-          "Evidence base is complete but small (k=3 exhausts the full trial universe); heterogeneity and publication-bias diagnostics are structurally underpowered. Treat as a boundary condition; flag for living-review update when new trials accrue."
+          "Per-domain RoB 2.0 summary not attached to the included-trials table."
         ],
-        "recommendation": "Minor revision"
+        "recommendation": "Accept with minor revision"
       },
       {
         "role": "Clinical expert",
         "concerns": [
-          "Pooled 1.73 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile.",
-          "I² = 78.8% (considerable); show subgroup/strata estimates alongside pooled."
+          "Pooled 0.89 sits outside published benchmark range (corridor 0.72-0.84); closest Jhund 2022 HR 0.78 [0.72, 0.84]. Discussion should reconcile."
+        ],
+        "recommendation": "Accept with minor revision"
+      },
+      {
+        "role": "Biostatistician",
+        "concerns": [
+          "DL estimator under-estimates τ² for k<10; add REML/Paule-Mandel sensitivity.",
+          "I²=67.6% without meta-regression / subgroup exploration; τ²=0.119 left un-partitioned."
         ],
         "recommendation": "Minor revision"
       },
       {
-        "role": "Biostatistician",
-        "concerns": [],
-        "recommendation": "Accept with minor revision"
-      },
-      {
         "role": "Patient representative",
         "concerns": [
+          "Effect not translated into absolute-risk difference / NNT for shared decision.",
           "QoL / PROs not reported by any included trial; add a PRO secondary outcome where source-trial data permits."
         ],
-        "recommendation": "Accept with minor revision"
+        "recommendation": "Minor revision"
       }
     ]
   }
