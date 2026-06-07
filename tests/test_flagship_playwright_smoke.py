@@ -39,12 +39,24 @@ import time
 import urllib.request
 from pathlib import Path
 
-# Windows cp1252 console can't print non-ASCII (lessons.md gotcha).
-# Wrap stdout in UTF-8 with replace fallback before any print().
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace", line_buffering=True)
-sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace", line_buffering=True)
+# Windows cp1252 console can't print non-ASCII (lessons.md gotcha). Wrap stdout
+# in UTF-8 — but ONLY when run directly. Rewriting stdio at import time corrupts
+# pytest's capture machinery (lessons.md: "Module-level sys.stdout reassignment
+# kills pytest capture"), which is exactly why bare `pytest` failed here.
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace", line_buffering=True)
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace", line_buffering=True)
 
-from playwright.sync_api import sync_playwright
+# Playwright is an optional dependency. Import lazily so pytest can COLLECT this
+# file (and skip it cleanly) when playwright is not installed, instead of erroring
+# out the whole collection run.
+try:
+    from playwright.sync_api import sync_playwright
+except ImportError:
+    if __name__ == "__main__":
+        raise
+    import pytest
+    pytest.skip("playwright not installed (pip install playwright)", allow_module_level=True)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PORT = 8772  # avoid collision with ad-hoc http.server usage

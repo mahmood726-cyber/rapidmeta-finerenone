@@ -1,2 +1,11 @@
-# RapidMeta Cardiology browser validation dependencies
+# RapidMeta portfolio validation dependencies
+#
+# Runtime validation (Python pooling validator, Selenium browser checks):
 selenium>=4.15.0
+
+# Test runner + browser smoke tests. pytest collects the repo's test_*.py;
+# the Playwright smoke tests (tests/test_flagship_playwright_smoke.py,
+# scripts/test_rapidmeta_nma_engine.py) import playwright lazily and skip
+# cleanly when it is not installed, so playwright is optional for a quick run.
+pytest>=7.0
+playwright>=1.40  # optional: `pip install playwright && playwright install chromium`

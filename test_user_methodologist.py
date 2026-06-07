@@ -34,6 +34,13 @@ def get_opts():
     return opts
 
 def kill_orphan():
+    # A global `taskkill /f /im chrome.exe` also kills the user's own browser
+    # (repo browser-testing rule + lessons.md: "Do not use global taskkill/pkill
+    # for browsers unless the user explicitly asks"). Each test wraps its driver in
+    # try/finally driver.quit(), so this is normally unnecessary. Opt in explicitly
+    # via RAPIDMETA_KILL_BROWSERS=1 for emergency cleanup only.
+    if os.environ.get('RAPIDMETA_KILL_BROWSERS') != '1':
+        return
     for proc in ['chromedriver.exe', 'chrome.exe']:
         try:
             subprocess.run(['taskkill', '/f', '/im', proc],

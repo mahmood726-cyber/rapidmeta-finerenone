@@ -1,28 +1,55 @@
-# RapidMeta Living Evidence Portfolio (v16)
+# RapidMeta Living Evidence Portfolio
 
-Browser-native, single-file living meta-analysis platform spanning **44 cardiovascular, oncology, nephrology, pulmonology, and metabolic apps**, plus a network of **27 sibling apps** in independent repositories. Each app is a self-contained ~14,000-line HTML file with 31 inlined analytic engines, validated against published meta-analyses and the R `metafor` package.
+Browser-native living meta-analysis dashboards. This repo holds **~2,035
+`*_REVIEW.html` files in two tiers**:
+
+1. **Curated / benchmarked apps** — hand-built rapid meta-analyses (FINERENONE,
+   GLP1_CVOT, SGLT2_HF, ARNI_HF, …) validated against published meta-analyses and
+   the R `metafor` package. **Only these carry external benchmarks** (see the
+   reference table below).
+2. **Auto-generated topic dashboards** (`*_AUTO_FULL_REVIEW.html`, ~1,046) — one
+   per ClinicalTrials.gov topic, produced from a shared template. They are **not
+   individually curated or benchmarked**, and some still contain template-derived
+   placeholder text that has not been topic-corrected (e.g. an outcome label
+   carried over from the prototype). Treat them as scaffolds, not validated
+   evidence. A further **561 `*_AUTO_REVIEW.html`** are thin redirects to their
+   full sibling.
 
 [![Validate Living MA Portfolio](https://github.com/mahmood726-cyber/rapidmeta-finerenone/actions/workflows/validate.yml/badge.svg)](https://github.com/mahmood726-cyber/rapidmeta-finerenone/actions/workflows/validate.yml)
 
 ## Highlights
 
-- **57 living MA apps** total across 12 specialties (18 in this repo + 39 in sibling repos)
-- **17/17 in-repo apps** within 10% of published benchmarks under `--strict` (1 app, RENAL_DENERV, uses MD outcome handled by HTML JS engine and skipped by Python validator)
-- **31 analytic engines** per app: DL/REML pooling, HKSJ adjustment, GRADE, NMA, dose-response Emax, cross-validation, provenance hashing, 18 automated QA checks
-- **766 trials** indexed across the portfolio
-- **7 dose-response apps** with Emax curve fitting
-- **4 NMA apps** with Bucher indirect comparisons
-- **Zero external dependencies at runtime** — every app is one HTML file, opens locally, no server, no CDN
+- **~2,035 `*_REVIEW.html` files** in this repo (≈1,046 auto-generated full apps,
+  561 redirect stubs, and the rest curated/topic apps), plus sibling apps in
+  independent repositories.
+- **A small set of curated apps are benchmarked** within 10% of published
+  meta-analyses under `validate_living_ma_portfolio.py --strict`; the **large
+  majority of apps are UNVALIDATED** (no external reference). `--strict` now
+  prints benchmark **coverage** so a green run is not mistaken for portfolio-wide
+  correctness, and `--require-coverage PCT` can enforce a minimum.
+- **31 analytic engines** per app: DL/REML pooling, HKSJ adjustment, GRADE, NMA,
+  dose-response Emax, cross-validation, provenance hashing, 18 automated QA checks
+- **7 dose-response apps** with Emax curve fitting; **4 NMA apps** with Bucher
+  indirect comparisons
+- **Runtime dependencies (NOT fully offline):** most apps load **Plotly from
+  `https://cdn.plot.ly`** and reference a separate `*.tailwind.css` file, so they
+  need network access (or a vendored Plotly) on first load. CSP `<meta>` tags also
+  allow clinicaltrials.gov / OpenAlex / webR for the live-update and R-parity
+  features. (Earlier copy claiming "zero external dependencies / no CDN / one HTML
+  file" described an earlier curated-only state and was inaccurate for the current
+  portfolio.)
 
 ## Architecture
 
-### Single-file HTML apps
-Each `*_REVIEW.html` is a complete app:
-- Inlined Tailwind CSS (v3.4.17, single-file requirement)
+### HTML app structure
+Each `*_REVIEW.html` is a near-complete app:
+- Tailwind CSS via a sibling `*.tailwind.css` file (NOT inlined; the app is not a
+  single self-contained file)
 - 31 JavaScript engines (~14,000 lines)
 - Embedded `realData` for all trials
 - localStorage-backed state with versioned migration keys
-- Plotly for forest plots, network graphs, dose-response curves
+- Plotly (loaded from `https://cdn.plot.ly`) for forest plots, network graphs,
+  dose-response curves — needs network access or a vendored copy on first load
 
 ### Engine catalogue (v16)
 
@@ -56,9 +83,13 @@ Rscript validate_finerenone.R
 
 No server, no installation, no data leaves your machine.
 
-## Apps in this repo (18)
+## Benchmarked reference apps
 
-Values reflect live `validate_living_ma_portfolio.py --local --strict` output as of 2026-04-16 (17/17 within 10%, exit 0). k = trials contributing to live pool (Peto-derived HRs counted; null-HR trials with usable event counts contribute via OR).
+These are the **curated apps that carry an external benchmark**. They are a small
+fraction of the ~2,035 files in the repo; everything not listed here (including all
+`*_AUTO_FULL_REVIEW.html`) is unvalidated. Values reflect `validate_living_ma_portfolio.py
+--local --strict` for the benchmarked set. k = trials contributing to live pool
+(Peto-derived HRs counted; null-HR trials with usable event counts contribute via OR).
 
 | App | k | Live pool | Benchmark | Outcome | Notes |
 |-----|---|-----------|-----------|---------|-------|

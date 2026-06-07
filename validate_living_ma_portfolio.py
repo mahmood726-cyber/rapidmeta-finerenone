@@ -610,6 +610,14 @@ if __name__ == '__main__':
     local_only = '--local' in sys.argv
     gate = '--gate' in sys.argv or '--gate-strict' in sys.argv
     gate_strict = '--gate-strict' in sys.argv
+    # Optional: fail --strict when benchmark coverage drops below PCT percent.
+    require_coverage = None
+    for _i, _a in enumerate(sys.argv):
+        if _a == '--require-coverage' and _i + 1 < len(sys.argv):
+            try:
+                require_coverage = float(sys.argv[_i + 1])
+            except ValueError:
+                pass
 
     apps = find_all_apps(local_only=local_only)
     results = []
@@ -732,6 +740,14 @@ if __name__ == '__main__':
         print(f"  Dose-response:       {sum(1 for r in results if r.get('dose_response'))}")
         print(f"  Benchmarked:         {benchmarked}")
         print(f"  Within 10%:          {matched}/{benchmarked}")
+        # Benchmark coverage: exit 0 under --strict means only that every
+        # BENCHMARKED app matched — NOT that the whole portfolio is validated.
+        # Surface that explicitly so a green run is not mistaken for portfolio-
+        # wide correctness (the generated apps have no external reference).
+        unvalidated = len(results) - benchmarked
+        cov_pct = (benchmarked / len(results) * 100) if results else 0.0
+        print(f"  Benchmark coverage:  {benchmarked}/{len(results)} apps ({cov_pct:.1f}%)")
+        print(f"  UNVALIDATED apps:    {unvalidated}  (no external benchmark — NOT checked for correctness)")
 
         if gate:
             print(f"\n{'=' * 60}")
@@ -782,5 +798,20 @@ if __name__ == '__main__':
             if gate_strict and total_fails > 0:
                 sys.exit(1)
 
-        if strict and matched < benchmarked:
-            sys.exit(1)
+        if strict:
+            # Fail if any benchmarked app regressed, OR if a run validated
+            # nothing at all (an empty/over-filtered run must not pass silently).
+            # We do NOT fail merely because unbenchmarked apps exist — most
+            # generated apps have no external reference by design; use
+            # --require-coverage PCT to enforce a minimum-coverage gate.
+            if benchmarked == 0:
+                print("\n[STRICT] No benchmarked apps in this run — nothing was validated. FAIL.")
+                sys.exit(1)
+            if matched < benchmarked:
+                print(f"\n[STRICT] {benchmarked - matched}/{benchmarked} benchmarked app(s) outside 10%. FAIL.")
+                sys.exit(1)
+            if require_coverage is not None and cov_pct < require_coverage:
+                print(f"\n[STRICT] Benchmark coverage {cov_pct:.1f}% < required {require_coverage:.1f}%. FAIL.")
+                sys.exit(1)
+            print(f"\n[STRICT] PASS: {matched}/{benchmarked} benchmarked apps within 10%; "
+                  f"{unvalidated} of {len(results)} apps are UNVALIDATED (no benchmark).")
