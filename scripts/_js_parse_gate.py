@@ -123,14 +123,37 @@ def assert_js_parse_ok(text_or_path: str | Path) -> None:
 
 
 if __name__ == "__main__":
-    # CLI mode: gate every path passed on the command line.
-    failures = []
-    for arg in sys.argv[1:]:
-        if not js_parse_ok(arg):
-            failures.append(arg)
+    # CLI mode: gate every FILE passed on the command line. FAIL CLOSED — a gate
+    # that checks nothing must not report success. Past no-op shapes this guards:
+    #   * zero args                    -> exit 2 (nothing to check)
+    #   * an unexpanded shell glob      -> PowerShell passes `*_REVIEW.html` as a
+    #     literal; without a matching file js_parse_ok() would treat it as inline
+    #     text, find no realData, and return True. We glob-expand here and fail if
+    #     a pattern/path matches zero files.
+    import glob as _glob
+    args = sys.argv[1:]
+    if not args:
+        print("PARSE GATE: no files given — a gate that checks nothing fails closed.",
+              file=sys.stderr)
+        sys.exit(2)
+    paths: list[str] = []
+    for a in args:
+        matched = _glob.glob(a)
+        if matched:
+            paths.extend(matched)
+        elif Path(a).exists():
+            paths.append(a)
+        else:
+            print(f"PARSE GATE: path/glob matched no files: {a!r} — fail closed.",
+                  file=sys.stderr)
+            sys.exit(2)
+    if not paths:
+        print("PARSE GATE: arguments matched zero files — fail closed.", file=sys.stderr)
+        sys.exit(2)
+    failures = [p for p in paths if not js_parse_ok(p)]
     if failures:
         print(f"PARSE GATE FAILED for {len(failures)} files:", file=sys.stderr)
         for f in failures:
             print(f"  {f}", file=sys.stderr)
         sys.exit(1)
-    print(f"OK — {len(sys.argv) - 1} files parsed cleanly.")
+    print(f"OK — {len(paths)} files parsed cleanly.")

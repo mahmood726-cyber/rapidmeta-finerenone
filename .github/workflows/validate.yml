@@ -20,15 +20,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2   # need HEAD~1 to diff changed review apps
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Run portfolio validation (local mode, strict)
+      # NOTE: this is a BENCHMARK-REGRESSION gate, not portfolio-wide validation.
+      # --strict checks that every externally-benchmarked app (~17 of ~1518) still
+      # pools k>=2 trials AND matches its published reference within 10% with the
+      # benchmark inside the pooled CI. The other ~1500 apps have no external
+      # reference and are reported as UNVALIDATED. --require-coverage 1.0 floors
+      # the benchmarked set so a regression that deletes benchmarks can't make the
+      # gate trivially pass. Portfolio-wide k>=2 enforcement (--gate-strict) is
+      # intentionally NOT used here: the portfolio keeps single-trial evidence
+      # cards by design, so that gate would fail on hundreds of by-design apps.
+      - name: Benchmark-regression gate (k>=2 + CI, ~17 benchmarked apps)
         run: |
-          python validate_living_ma_portfolio.py --local --strict
+          python validate_living_ma_portfolio.py --local --strict --require-coverage 1.0
 
       - name: Validate generator script (no errors)
         run: |
@@ -38,6 +49,19 @@ jobs:
               ast.parse(f.read())
           print('generate_living_ma_v13.py: syntax OK')
           "
+
+      # Wire the real inline-JS checker into CI (previously unwired). A full-corpus
+      # run spawns `node --check` per <script> block across ~1500 apps and is too
+      # slow for CI, so gate the review apps CHANGED in this push/PR. _js_parse_gate
+      # fails closed: zero matched files or an unparseable realData block -> non-zero.
+      - name: JS parse gate on changed review apps
+        run: |
+          BASE="${{ github.event.pull_request.base.sha }}"
+          if [ -z "$BASE" ]; then BASE="HEAD~1"; fi
+          CHANGED=$(git diff --name-only "$BASE" HEAD -- '*_REVIEW.html' 'LivingMeta.html' || true)
+          if [ -z "$CHANGED" ]; then echo "No review apps changed — skipping JS parse gate."; exit 0; fi
+          echo "Gating changed review apps:"; echo "$CHANGED"
+          python scripts/_js_parse_gate.py $CHANGED
 
       - name: Validate published Pages links
         run: |

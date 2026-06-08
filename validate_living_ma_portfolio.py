@@ -45,7 +45,13 @@ BENCHMARKS = {
     # See MIXED_OUTCOME_APPS for rationale. Re-admit by restricting to clinical-only
     # trials with publishedHR (currently GALACTIC-HF alone, k=1).
     'SOTAGLIFLOZIN':    {'est': 0.72, 'lo': 0.62, 'hi': 0.83, 'measure': 'HR', 'src': 'SOLOIST+SCORED'},
-    'TEZEPELUMAB_ASTHMA': {'est': 0.44, 'lo': 0.36, 'hi': 0.54, 'measure': 'RR', 'src': 'NAVIGATOR+PATHWAY+SOURCE'},
+    # TEZEPELUMAB_ASTHMA benchmark removed 2026-06-08: the app currently pools
+    # k=1 (only NAVIGATOR carries an effect; SOURCE/PATH-HOME have null effects,
+    # and PATH-HOME is the self-administration trial, not PATHWAY). The k>=2 +
+    # CI-containment gate correctly fails it, so the benchmark assertion was
+    # false. Re-add once PATHWAY-2 210mg (Corren 2017 NEJM, NCT02054130; rate
+    # ratio ~0.29) is added with a verified rate-ratio CI from full text so the
+    # pool genuinely reaches k>=2. (NAVIGATOR+PATHWAY+SOURCE = RR 0.44 ref.)
     # SOTATERCEPT_PAH removed 2026-04-16 — excluded per Gate 1b (mixed outcome classes).
     # See MIXED_OUTCOME_APPS for rationale. Re-admit as SOTATERCEPT_PAH_CLINICAL
     # (HYPERION+ZENITH, k=2 clinical) after splitting.
@@ -82,7 +88,12 @@ BENCHMARKS = {
     'OBESITY_NMA':      {'est': 13.64, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'Internal NMA: STEP-1/2 + SURMOUNT-1 + ATTAIN-1 — incretin-class weight-loss OR'},
     # PAH_NMA removed 2026-04-16 — excluded per Gate 1b (mixed outcome classes).
     # See MIXED_OUTCOME_APPS for split-into-sibling-apps recommendation.
-    'RESMETIROM_MASH':  {'est': 3.31, 'lo': 2.12, 'hi': 5.18, 'measure': 'OR', 'src': 'MAESTRO-NASH (Harrison 2024 NEJM) histologic resolution OR — single trial'},
+    # RESMETIROM_MASH benchmark removed 2026-06-08: the src itself is "single
+    # trial" (MAESTRO-NASH, Harrison 2024 NEJM, OR 3.31) -- benchmarking a k=1
+    # app against its own lone trial is circular, not pooled-MA validation. No
+    # second efficacy RCT exists, so this is not a meta-analysis; the k>=2 gate
+    # correctly fails it. The app may stay as a single-trial evidence card, but
+    # must not claim benchmark-validated pooling.
     'SEMAGLUTIDE_HFPEF':{'est': 1.98, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'STEP-HFpEF + STEP-HFpEF-DM KCCQ-CSS improvement OR (no external MA yet)'},
     'TIRZEPATIDE_CV':   {'est': 22.94, 'lo': None, 'hi': None, 'measure': 'OR', 'src': 'Internal pool: SURMOUNT-1/2/3/4 — tirzepatide >=15% body weight reduction OR'},
 }
@@ -653,10 +664,25 @@ if __name__ == '__main__':
 
             if bench:
                 diff = abs(pool['est'] - bench['est']) / bench['est'] * 100
-                ok = diff <= 10.01  # inclusive threshold with float tolerance
+                # A benchmark "match" must be a genuine POOLED meta-analysis, not
+                # a single trial echoing the reference. Require (a) k>=2 trials
+                # actually contributing to the pool and (b) the benchmark point
+                # estimate to fall within the app's pooled CI (real interval
+                # agreement, not point coincidence). P0 fix 2026-06-08: a k=1 app
+                # whose lone trial happened to land within 10% of a multi-trial
+                # benchmark (e.g. TEZEPELUMAB_ASTHMA, RESMETIROM_MASH) previously
+                # counted as "validated".
+                k_ok = pool['k'] >= 2
+                ci_ok = (pool.get('lo') is not None and pool.get('hi') is not None
+                         and pool['lo'] <= bench['est'] <= pool['hi'])
+                point_ok = diff <= 10.01  # inclusive threshold with float tolerance
+                ok = point_ok and k_ok and ci_ok
                 entry['benchmark'] = bench['est']
                 entry['diff_pct'] = round(diff, 1)
                 entry['match'] = ok
+                entry['match_point_ok'] = point_ok
+                entry['match_k_ok'] = k_ok
+                entry['match_ci_ok'] = ci_ok
                 benchmarked += 1
                 if ok:
                     matched += 1
@@ -809,7 +835,17 @@ if __name__ == '__main__':
                 print("\n[STRICT] No benchmarked apps in this run — nothing was validated. FAIL.")
                 sys.exit(1)
             if matched < benchmarked:
-                print(f"\n[STRICT] {benchmarked - matched}/{benchmarked} benchmarked app(s) outside 10%. FAIL.")
+                fails = [r for r in results if r.get('benchmark') is not None and not r.get('match')]
+                print(f"\n[STRICT] {benchmarked - matched}/{benchmarked} benchmarked app(s) failed validation. FAIL.")
+                for r in fails:
+                    reasons = []
+                    if not r.get('match_k_ok', True):
+                        reasons.append(f"k={r.get('k', 0)}<2 (not a pooled meta-analysis)")
+                    if not r.get('match_ci_ok', True):
+                        reasons.append("benchmark outside pooled CI")
+                    if not r.get('match_point_ok', True):
+                        reasons.append(f"point diff {r.get('diff_pct', '?')}%>10%")
+                    print(f"    FAIL  {r['name']:30s}  {'; '.join(reasons) or 'unmatched'}")
                 sys.exit(1)
             if require_coverage is not None and cov_pct < require_coverage:
                 print(f"\n[STRICT] Benchmark coverage {cov_pct:.1f}% < required {require_coverage:.1f}%. FAIL.")

@@ -29,11 +29,15 @@ Browser-native living meta-analysis dashboards. This repo holds **~1,516
   stubs; and the rest curated/topic apps), plus sibling apps in independent
   repositories. (519 single-trial auto apps were removed in the 2026-06
   poolability pass.)
-- **A small set of curated apps are benchmarked** within 10% of published
-  meta-analyses under `validate_living_ma_portfolio.py --strict`; the **large
-  majority of apps are UNVALIDATED** (no external reference). `--strict` now
-  prints benchmark **coverage** so a green run is not mistaken for portfolio-wide
-  correctness, and `--require-coverage PCT` can enforce a minimum.
+- **A small set of curated apps (~17) are benchmark-validated** under
+  `validate_living_ma_portfolio.py --strict` — this is a **benchmark-regression
+  gate, not portfolio-wide validation**. A benchmarked app passes only if it
+  actually pools **k>=2 trials**, lands within 10% of the published reference,
+  **and** the reference falls inside the app's pooled CI (a k=1 app echoing one
+  trial no longer counts). The **large majority of apps are UNVALIDATED** (no
+  external reference); `--strict` prints benchmark **coverage** so a green run is
+  not mistaken for portfolio-wide correctness, and `--require-coverage PCT`
+  floors the benchmarked set so a regression can't silently empty it.
 - **31 analytic engines** per app: DL/REML pooling, HKSJ adjustment, GRADE, NMA,
   dose-response Emax, cross-validation, provenance hashing, 18 automated QA checks
 - **7 dose-response apps** with Emax curve fitting; **4 NMA apps** with Bucher
@@ -78,8 +82,8 @@ Each `*_REVIEW.html` is a near-complete app:
 start FINERENONE_REVIEW.html  # Windows
 open FINERENONE_REVIEW.html   # macOS
 
-# Run portfolio validation
-python validate_living_ma_portfolio.py --local
+# Benchmark-regression gate (~17 benchmarked apps; NOT portfolio-wide validation)
+python validate_living_ma_portfolio.py --local --strict --require-coverage 1.0
 
 # Generate a new app from config
 python generate_living_ma_v13.py NEW_TOPIC
