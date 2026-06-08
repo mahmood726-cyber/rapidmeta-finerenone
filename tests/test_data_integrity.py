@@ -53,6 +53,37 @@ def test_no_hard_data_corruption():
             f"Hard data-corruption reintroduced: {offenders}\n{detail}")
 
 
+def _load_dia():
+    spec = importlib.util.spec_from_file_location(
+        "dia", ROOT / "scripts" / "data_integrity_audit.py")
+    dia = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(dia)
+    return dia
+
+
+def test_detects_nulle_exponent_corruption(tmp_path):
+    # Regression: `tN:nulle4` (a `null` fused with an exponent) must be caught,
+    # not silently read as a valid `null`. The extraction alternation used to put
+    # `null` before the `nulle<digits>` token, so the `e4` was never seen.
+    dia = _load_dia()
+    html = ('<script>const x={realData:{"NCT02048007":{name:"M",tE:null,'
+            'tN:nulle4,cE:null,cN:nulle4,publishedHR:null}}};</script>')
+    f = tmp_path / "BROKEN_REVIEW.html"
+    f.write_text(html, encoding="utf-8")
+    findings = dia.audit_app(str(f))
+    leaks = [x for x in findings if x["class"] == "none_leak"]
+    assert leaks, f"nulle4 corruption not detected; findings={findings}"
+    assert any("nulle4" in x["detail"] for x in leaks)
+
+
+def test_plain_null_and_minified_var_not_flagged(tmp_path):
+    # `null` is valid; the minified variable name `null0` (no `e`) is not corruption.
+    dia = _load_dia()
+    assert dia.is_bad_token("null") is False
+    assert dia.is_bad_token("null0") is False
+    assert dia.is_bad_token("nulle4") is True
+
+
 def test_known_defects_do_not_grow():
     counts, _ = _audit_counts()
     grown = {c: (counts.get(c, 0), mx) for c, mx in BASELINE_MAX.items()

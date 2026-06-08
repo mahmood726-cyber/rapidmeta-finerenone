@@ -754,6 +754,12 @@ if __name__ == '__main__':
 
         results.append(entry)
 
+    # Aggregates computed UNCONDITIONALLY so the gate/strict enforcement below
+    # runs identically in --json and human modes (a CI gate must not be silently
+    # disabled by adding --json).
+    unvalidated = len(results) - benchmarked
+    cov_pct = (benchmarked / len(results) * 100) if results else 0.0
+
     if output_json:
         print(json.dumps(results, indent=2))
     else:
@@ -769,10 +775,6 @@ if __name__ == '__main__':
         print(f"  Within 10%:          {matched}/{benchmarked}")
         # Benchmark coverage: exit 0 under --strict means only that every
         # BENCHMARKED app matched — NOT that the whole portfolio is validated.
-        # Surface that explicitly so a green run is not mistaken for portfolio-
-        # wide correctness (the generated apps have no external reference).
-        unvalidated = len(results) - benchmarked
-        cov_pct = (benchmarked / len(results) * 100) if results else 0.0
         print(f"  Benchmark coverage:  {benchmarked}/{len(results)} apps ({cov_pct:.1f}%)")
         print(f"  UNVALIDATED apps:    {unvalidated}  (no external benchmark — NOT checked for correctness)")
 
@@ -822,33 +824,44 @@ if __name__ == '__main__':
                 print(f"    (Add to MIXED_OUTCOME_APPS if confirmed mixed; otherwise leave — common false-positive shape is shortLabel='MACE'+title='KCCQ-CSS' where pool uses event counts.)")
 
             print(f"\n  Total gate violations: {total_fails}")
-            if gate_strict and total_fails > 0:
-                sys.exit(1)
 
-        if strict:
-            # Fail if any benchmarked app regressed, OR if a run validated
-            # nothing at all (an empty/over-filtered run must not pass silently).
-            # We do NOT fail merely because unbenchmarked apps exist — most
-            # generated apps have no external reference by design; use
-            # --require-coverage PCT to enforce a minimum-coverage gate.
-            if benchmarked == 0:
-                print("\n[STRICT] No benchmarked apps in this run — nothing was validated. FAIL.")
-                sys.exit(1)
-            if matched < benchmarked:
-                fails = [r for r in results if r.get('benchmark') is not None and not r.get('match')]
-                print(f"\n[STRICT] {benchmarked - matched}/{benchmarked} benchmarked app(s) failed validation. FAIL.")
-                for r in fails:
-                    reasons = []
-                    if not r.get('match_k_ok', True):
-                        reasons.append(f"k={r.get('k', 0)}<2 (not a pooled meta-analysis)")
-                    if not r.get('match_ci_ok', True):
-                        reasons.append("benchmark outside pooled CI")
-                    if not r.get('match_point_ok', True):
-                        reasons.append(f"point diff {r.get('diff_pct', '?')}%>10%")
-                    print(f"    FAIL  {r['name']:30s}  {'; '.join(reasons) or 'unmatched'}")
-                sys.exit(1)
-            if require_coverage is not None and cov_pct < require_coverage:
-                print(f"\n[STRICT] Benchmark coverage {cov_pct:.1f}% < required {require_coverage:.1f}%. FAIL.")
-                sys.exit(1)
+    # ---- ENFORCEMENT (runs in BOTH --json and human modes) ----------------
+    # Failure diagnostics go to stderr so --json keeps a clean, parseable stdout.
+    # Previously these checks lived inside the `else` (human) branch, so adding
+    # --json silently disabled the gate and exited 0 even on a hard failure.
+    def _fail(msg):
+        print(msg, file=sys.stderr)
+
+    if gate and gate_strict:
+        total_fails = (len([r for r in results if r.get('gate1_pass') is False])
+                       + len([r for r in results if r.get('gate2_pass') is False])
+                       + len([r for r in results if r.get('gate4_pass') is False]))
+        if total_fails > 0:
+            _fail(f"[GATE-STRICT] {total_fails} gate violation(s). FAIL.")
+            sys.exit(1)
+
+    if strict:
+        # Fail if any benchmarked app regressed, OR if a run validated nothing at
+        # all. We do NOT fail merely because unbenchmarked apps exist (most
+        # generated apps have no external reference); use --require-coverage PCT.
+        if benchmarked == 0:
+            _fail("[STRICT] No benchmarked apps in this run — nothing was validated. FAIL.")
+            sys.exit(1)
+        if matched < benchmarked:
+            _fail(f"[STRICT] {benchmarked - matched}/{benchmarked} benchmarked app(s) failed validation. FAIL.")
+            for r in [x for x in results if x.get('benchmark') is not None and not x.get('match')]:
+                reasons = []
+                if not r.get('match_k_ok', True):
+                    reasons.append(f"k={r.get('k', 0)}<2 (not a pooled meta-analysis)")
+                if not r.get('match_ci_ok', True):
+                    reasons.append("benchmark outside pooled CI")
+                if not r.get('match_point_ok', True):
+                    reasons.append(f"point diff {r.get('diff_pct', '?')}%>10%")
+                _fail(f"    FAIL  {r['name']:30s}  {'; '.join(reasons) or 'unmatched'}")
+            sys.exit(1)
+        if require_coverage is not None and cov_pct < require_coverage:
+            _fail(f"[STRICT] Benchmark coverage {cov_pct:.1f}% < required {require_coverage:.1f}%. FAIL.")
+            sys.exit(1)
+        if not output_json:
             print(f"\n[STRICT] PASS: {matched}/{benchmarked} benchmarked apps within 10%; "
                   f"{unvalidated} of {len(results)} apps are UNVALIDATED (no benchmark).")

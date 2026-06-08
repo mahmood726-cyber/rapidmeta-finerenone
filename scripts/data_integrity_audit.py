@@ -49,8 +49,13 @@ if (__name__ == "__main__" and "pytest" not in sys.modules
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 NCT_KEY_RE = re.compile(r"""["']?(NCT\d{8}|LEGACY-[A-Za-z0-9_-]+)["']?\s*:\s*\{""")
-# JS number, or a corrupted/None token we want to catch.
-NUM_OR_BAD = r"(-?\d*\.?\d+(?:[eE][-+]?\d+)?|null|None|NaN|nulle?-?\d*)"
+# JS number, or a corrupted/None token we want to catch. ORDER MATTERS: the
+# corruption token `nulle<digits>` (e.g. `tN:nulle4`, a `null` fused with an
+# exponent) MUST precede the plain `null` alternative, or the engine grabs `null`
+# first and never sees the `e4` -> the corruption is silently classified valid.
+# `nulle` requires the literal `e` so it never clashes with the benign minified
+# variable name `null0` (`null` + digit, no `e`).
+NUM_OR_BAD = r"(-?\d*\.?\d+(?:[eE][-+]?\d+)?|nulle-?\d+|null|None|NaN)"
 
 
 def _match_brace(s: str, open_idx: int):
