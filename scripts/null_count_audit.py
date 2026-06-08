@@ -71,17 +71,35 @@ def main():
             elif (not isnull(tE) and not isnull(cE)
                   and dia.as_num(tE) == 0 and dia.as_num(cE) == 0):
                 flag = "ZERO_EVENTS"
-            if flag:
-                by_app.setdefault(os.path.basename(p), []).append(
-                    (key.split("_")[0], name_of(obj)[:22], flag,
-                     f"{tE}/{tN} vs {cE}/{cN}", est, eff))
+            if not flag:
+                continue
+            # A degenerate 2x2 is NOT a defect when the trial carries a published
+            # effect + CI: the engine pools it via generic inverse-variance on the
+            # log-effect with SE derived from the CI (and shows Mantel-Haenszel OR
+            # as "N/A - missing event counts"). Only a missing CI -> no derivable
+            # SE -> genuinely unpoolable.
+            lci = dia.as_num(dia.field(obj, "hrLCI"))
+            uci = dia.as_num(dia.field(obj, "hrUCI"))
+            poolable = lci is not None and uci is not None
+            bucket = "valid_IV" if poolable else "unpoolable"
+            by_app.setdefault(os.path.basename(p), []).append(
+                (key.split("_")[0], name_of(obj)[:22], flag, bucket,
+                 f"{tE}/{tN} vs {cE}/{cN}", est, eff))
 
     total = sum(len(v) for v in by_app.values())
-    print(f"{total} flagged records across {len(by_app)} apps "
-          f"(count-measure effect present, 2x2 degenerate):\n")
+    valid = sum(1 for v in by_app.values() for r in v if r[3] == "valid_IV")
+    bad = total - valid
+    print(f"{total} trials with a degenerate 2x2 across {len(by_app)} apps.")
+    print(f"  valid_IV   (published effect + CI -> generic-IV poolable): {valid}")
+    print(f"  unpoolable (no CI -> no derivable SE, engine skips):       {bad}\n")
+    print("GENUINELY UNPOOLABLE (no CI) -- verify these are intended placeholder "
+          "nodes for registered-but-unreported trials, not extraction gaps:\n")
     for app in sorted(by_app):
+        rows = [r for r in by_app[app] if r[3] == "unpoolable"]
+        if not rows:
+            continue
         print(app)
-        for nct, nm, flag, twoby2, est, eff in by_app[app]:
+        for nct, nm, flag, bucket, twoby2, est, eff in rows:
             print(f"   [{flag:15}] {nct} {nm:22} {est:3} eff={eff}  2x2={twoby2}")
     return 0
 

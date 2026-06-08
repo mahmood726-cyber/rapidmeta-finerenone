@@ -17,7 +17,11 @@ import io
 from pathlib import Path
 from collections import Counter, defaultdict
 
-if "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
+# Only rewrap stdout when run as a script. Importing this module (e.g. to reuse
+# an individual check) must NOT reassign the caller's stdout -- doing so GC-closes
+# the inherited buffer and breaks the importer (lessons.md: module-level stdout
+# reassignment trap).
+if __name__ == "__main__" and "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 HERE = Path(__file__).resolve().parent.parent
@@ -70,15 +74,37 @@ def check_02_python_True_False_in_js(p, txt, ctx):
 
 
 def check_03_unmatched_script_tag(p, txt, ctx):
-    """P0: stray `</script>` inside a template literal that closes the parent."""
+    """P0: a `<script>` element left unclosed at EOF (page never finishes parsing).
+
+    Uses browser-accurate <script> semantics rather than a naive open/close count:
+    once inside a script element the parser ignores further `<script` substrings
+    (they are JS/string content) and closes ONLY on a literal `</script>`. An
+    escaped `<\\/script>` (the deliberate safe pattern used by sanitization
+    regexes such as `new RegExp("<script...<\\/script>")`) is NOT a real close,
+    so it no longer produces a phantom imbalance. We flag only the unambiguous
+    page-breaking case: a script that is still open when the document ends.
+    """
     out = []
-    masked = mask_strings(txt, keep_template_strings=False)
-    # Count <script> opens and </script> closes outside of strings.
-    opens = len(re.findall(r"<script\b[^>]*>", masked, re.IGNORECASE))
-    closes = len(re.findall(r"</script\s*>", masked, re.IGNORECASE))
-    if opens != closes:
-        out.append({"check": "03_unbalanced_script", "severity": "P0", "file": p.name,
-                    "detail": f"open={opens} close={closes}"})
+    open_re = re.compile(r"<script\b[^>]*>", re.IGNORECASE)
+    close_re = re.compile(r"</script\s*>", re.IGNORECASE)
+    i, n = 0, len(txt)
+    in_script = False
+    while i < n:
+        if not in_script:
+            m = open_re.search(txt, i)
+            if not m:
+                break
+            in_script = True
+            i = m.end()
+        else:
+            m = close_re.search(txt, i)
+            if not m:
+                # script opened but never closed before EOF -> genuinely broken
+                out.append({"check": "03_unbalanced_script", "severity": "P0",
+                            "file": p.name, "detail": "unclosed <script> at EOF"})
+                break
+            in_script = False
+            i = m.end()
     return out
 
 
