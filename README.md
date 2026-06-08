@@ -93,7 +93,7 @@ No server, no installation, no data leaves your machine.
 ## Benchmarked reference apps
 
 These are the **curated apps that carry an external benchmark**. They are a small
-fraction of the ~2,035 files in the repo; everything not listed here (including all
+fraction of the ~1,516 files in the repo; everything not listed here (including all
 `*_AUTO_FULL_REVIEW.html`) is unvalidated. Values reflect `validate_living_ma_portfolio.py
 --local --strict` for the benchmarked set. k = trials contributing to live pool
 (Peto-derived HRs counted; null-HR trials with usable event counts contribute via OR).
@@ -141,8 +141,8 @@ GitHub Actions runs `validate_living_ma_portfolio.py --local --strict` on every 
 
 ### Local validation
 ```bash
-python validate_living_ma_portfolio.py            # all 57 apps (requires sibling *_LivingMeta dirs; override roots via LIVINGMA_PORTFOLIO_ROOT env var)
-python validate_living_ma_portfolio.py --local    # only this repo's 18 apps
+python validate_living_ma_portfolio.py            # this repo + sibling *_LivingMeta dirs (override roots via LIVINGMA_PORTFOLIO_ROOT env var)
+python validate_living_ma_portfolio.py --local    # only this repo's apps (~1,516 scanned; ~19 carry a benchmark)
 python validate_living_ma_portfolio.py --json     # machine-readable output
 python validate_living_ma_portfolio.py --strict   # exit non-zero if any benchmark fails
 ```
