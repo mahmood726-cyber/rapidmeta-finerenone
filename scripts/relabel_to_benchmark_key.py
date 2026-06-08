@@ -43,11 +43,49 @@ def benchmark_keys(html):
     return re.findall(r"([A-Za-z_][A-Za-z0-9_]*)\s*:\s*\[", seg)
 
 
+_GENERIC = {"response", "rate", "change", "score", "freq", "primary", "composite",
+            "index", "total", "mean", "time", "free", "pct", "ratio", "annualized"}
+
+
+def _expand_key(K):
+    """Split a benchmark key (UPPER_SNAKE / CamelCase) into distinctive,
+    non-generic word tokens used to test whether an outcome IS that endpoint."""
+    parts = re.split(r"[_\s]+", K)
+    toks = []
+    for part in parts:
+        for w in re.findall(r"[A-Z]+(?=[A-Z][a-z])|[A-Z]?[a-z]+|[A-Z]+|\d+", part):
+            toks.append(w.lower())
+    return [t for t in toks if len(t) >= 3 and not t.isdigit() and t not in _GENERIC]
+
+
+def _all_share_key_token(outs, distinctive):
+    """True iff EVERY outcome's normalized text contains >=1 distinctive key
+    token (prefix match), i.e. all outcomes are the benchmark endpoint."""
+    if not distinctive:
+        return False
+    for o in outs:
+        toks = ap.normalize_tokens(o["title"])
+        text = " ".join(toks)
+        if not any(d in text for d in distinctive):
+            return False
+    return True
+
+
+# Finerenone-template outcome CLASS labels — all wrong for a non-CV topic.
+# Only these are rewritten to the benchmark key; already-harmonized keys
+# (slugs/real acronyms) are left untouched so we never clobber correct labels.
+TEMPLATE_LABELS = {"MACE", "CVD", "ACM", "ACH", "Renal", "Renal40", "Renal57",
+                   "Safety", "RecurrentHF", "Hyperkalemia", "HF_CV_First",
+                   "KidneyComp"}
+_TEMPLATE_RE = re.compile(
+    r'(\{shortLabel:(["\']))(' + "|".join(sorted(TEMPLATE_LABELS, key=len, reverse=True)) + r')\2')
+
+
 def process(html):
-    if 'shortLabel:"MACE"' not in html and "shortLabel:'MACE'" not in html:
-        return html, "no-mace"
     if "_outcomeAvailabilityCount(" in html:
         return html, "newer-engine"
+    if not _TEMPLATE_RE.search(html):
+        return html, "no-template-label"
     bks = benchmark_keys(html)
     nonmace = [k for k in bks if k != "MACE"]
     if not nonmace:
@@ -60,13 +98,22 @@ def process(html):
         return html, "no-outcomes"
     clusters = ap.cluster_outcomes(outs, THRESH)
     if len(clusters) != 1:
-        return html, f"heterogeneous({len(clusters)} clusters)"
-    # homogeneous + single benchmark key -> relabel all MACE shortLabels to K
-    new = re.sub(r'(\{shortLabel:(["\']))MACE\2', lambda m: m.group(1) + K + m.group(2), html)
-    new = new.replace('selectedOutcome:"MACE"', 'selectedOutcome:"default"')
+        # Multiple clusters: only safe if EVERY outcome demonstrably shares a
+        # distinctive token from the benchmark key (a false-split of one
+        # endpoint, e.g. all "NASH resolution"). Truly multi-endpoint apps
+        # (PFS+ORR, VTE+bleeding) fail this and are deferred.
+        if not _all_share_key_token(outs, _expand_key(K)):
+            return html, f"heterogeneous({len(clusters)} clusters)"
+    # homogeneous (or benchmark-token-homogeneous): every outcome IS endpoint K
+    # -> rewrite ALL template-class shortLabels to K (preserves the pool).
+    new = _TEMPLATE_RE.sub(lambda m: m.group(1) + K + m.group(2), html)
+    new = re.sub(r'selectedOutcome:"(?:' + "|".join(TEMPLATE_LABELS) + r')"',
+                 'selectedOutcome:"default"', new)
     new = new.replace("Primary MACE Result", "Primary Result")
     new = new.replace(" (MACE)", "")
     new = new.replace("prevent 1 MACE event", "prevent 1 event")
+    if new == html:
+        return html, "no-change"
     return new, f"relabeled->{K}"
 
 
