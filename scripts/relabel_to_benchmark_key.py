@@ -97,16 +97,44 @@ def process(html):
     if len(outs) < 1:
         return html, "no-outcomes"
     clusters = ap.cluster_outcomes(outs, THRESH)
-    if len(clusters) != 1:
-        # Multiple clusters: only safe if EVERY outcome demonstrably shares a
-        # distinctive token from the benchmark key (a false-split of one
-        # endpoint, e.g. all "NASH resolution"). Truly multi-endpoint apps
-        # (PFS+ORR, VTE+bleeding) fail this and are deferred.
-        if not _all_share_key_token(outs, _expand_key(K)):
-            return html, f"heterogeneous({len(clusters)} clusters)"
-    # homogeneous (or benchmark-token-homogeneous): every outcome IS endpoint K
-    # -> rewrite ALL template-class shortLabels to K (preserves the pool).
-    new = _TEMPLATE_RE.sub(lambda m: m.group(1) + K + m.group(2), html)
+    distinctive = _expand_key(K)
+    if len(clusters) == 1 or _all_share_key_token(outs, distinctive):
+        # homogeneous (or benchmark-token-homogeneous): every outcome IS
+        # endpoint K -> rewrite ALL template-class shortLabels to K.
+        new = _TEMPLATE_RE.sub(lambda m: m.group(1) + K + m.group(2), html)
+        tag = f"relabeled->{K}"
+    else:
+        # truly multi-endpoint: assign the benchmark key K to the cluster that
+        # matches it, harmonized keys to the rest; rewrite template labels by
+        # the outcome's title -> cluster key.
+        titles = [o["title"] for o in outs]
+        used, title_key = set(), {}
+        for cl in clusters:
+            cl_titles = [titles[i] for i in cl]
+            cl_matches = (distinctive and K not in used and all(
+                any(d in " ".join(ap.normalize_tokens(titles[i])) for d in distinctive)
+                for i in cl))
+            if cl_matches:
+                key = K
+            else:
+                key = ho.assign_keys([outs[i] for i in cl], [list(range(len(cl)))])[cl_titles[0]]
+            n = 2
+            base = key
+            while key in used and key != K:
+                key = f"{base}{n}"; n += 1
+            used.add(key)
+            for t in cl_titles:
+                title_key[t] = key
+
+        def _repl(m):
+            key = title_key.get(m.group("title"), m.group(3))
+            return (m.group(1) + key + m.group(2) + ",title:"
+                    + m.group(4) + m.group("title") + m.group(4))
+        relabel_re = re.compile(
+            r'(\{shortLabel:(["\']))(' + "|".join(sorted(TEMPLATE_LABELS, key=len, reverse=True))
+            + r')\2,title:(["\'])(?P<title>(?:\\.|(?!\4).)*)\4')
+        new = relabel_re.sub(_repl, html)
+        tag = f"hetero-split->{K}+{len(clusters)-1}"
     new = re.sub(r'selectedOutcome:"(?:' + "|".join(TEMPLATE_LABELS) + r')"',
                  'selectedOutcome:"default"', new)
     new = new.replace("Primary MACE Result", "Primary Result")
@@ -114,7 +142,7 @@ def process(html):
     new = new.replace("prevent 1 MACE event", "prevent 1 event")
     if new == html:
         return html, "no-change"
-    return new, f"relabeled->{K}"
+    return new, tag
 
 
 def main():
@@ -138,9 +166,10 @@ def main():
             continue
         html = io.open(f, encoding="utf-8", errors="replace").read()
         new, reason = process(html)
-        key = reason.split("->")[0] if reason.startswith("relabeled") else reason
+        is_change = "->" in reason
+        key = reason.split("->")[0] if is_change else reason
         outcome[key] += 1
-        if not reason.startswith("relabeled"):
+        if not is_change:
             continue
         if args.dry_run:
             done += 1
