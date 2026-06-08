@@ -1,5 +1,15 @@
 """Coarse DL-vs-DL divergence SCREEN: engine pool vs the stored R metafor pool.
 
+CAVEAT (2026-06): the stored r_validation/*.json baselines are STALE -- computed
+by r_validate.py on a superseded data version, and r_validate.py can no longer
+regenerate them (its HTML extractor does not parse the current minified engine,
+so it now skips every app as k<2). This screen therefore reports ~77 spurious
+mismatches, many with k_r != k_e (the two sides pool different trial sets). The
+ENGINE MATH is correct: scripts/verify_engine_metafor_parity.py runs metafor on
+the SAME current snapshots pool_dl() uses and gets 265/265 parity to <1e-4. Trust
+the parity verifier over this screen until the baselines are regenerated (needs
+r_validate.py's extractor fixed for the minified format).
+
 For each outputs/r_validation/<REVIEW>.json, recompute the DerSimonian-Laird
 random-effects log-OR pool from the realData in
 outputs/extraction_audit/data/<REVIEW>_REVIEW.json and compare to the R metafor
