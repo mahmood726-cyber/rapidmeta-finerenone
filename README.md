@@ -1,34 +1,36 @@
 # RapidMeta Living Evidence Portfolio
 
-Browser-native living meta-analysis dashboards. This repo holds **~1,516
-`*_REVIEW.html` files in two tiers**:
+Browser-native living meta-analysis dashboards. The repo holds 1,521
+`*_REVIEW.html` files, but **561 are thin redirect stubs** (pointing to their
+`*_AUTO_FULL` sibling), so there are **~960 real dashboards**. A 2026-06
+provenance pass partitioned them objectively (`scripts/partition_corpus.py`)
+into three honestly-labelled tiers:
 
-1. **Curated / benchmarked apps** — hand-built rapid meta-analyses (FINERENONE,
-   GLP1_CVOT, SGLT2_HF, ARNI_HF, …) validated against published meta-analyses and
-   the R `metafor` package. **Only these carry external benchmarks** (see the
-   reference table below).
-2. **Auto-generated topic dashboards** (`*_AUTO_FULL_REVIEW.html`, ~544) — one
-   per ClinicalTrials.gov topic, produced from a shared template. They are **not
-   individually curated or benchmarked**. A 2026-06 poolability pass cleaned this
-   tier: **519 single-trial (k=1) apps were removed** (a meta-analysis needs ≥2
-   trials), every app's outcomes were **harmonized** so trials sharing an endpoint
-   pool and distinct endpoints separate (replacing a template `MACE` label that
-   had been pooling heterogeneous outcomes), and the **340 apps whose trials report
-   no shared endpoint now carry an in-app banner** flagging them as single-trial
-   summaries, not pooled meta-analyses. The remaining **204** have ≥1 outcome with
-   ≥2 poolable trials. Still treat the whole tier as scaffolds, not validated
-   evidence. A further **561 `*_AUTO_REVIEW.html`** are thin redirects to their
-   full sibling.
+1. **Validated portfolio (~617, ≈64% of real apps)** — indexed + in the sitemap.
+   Each one either is **benchmark-validated** against a published meta-analysis +
+   R `metafor` (the 17 in the reference table: FINERENONE, GLP1_CVOT, SGLT2_HF …),
+   **or** pools **k≥2 trials where every pooled trial carries a PMID and a
+   resolvable registry ID** (PMIDs back-filled only from a DataBankList-derived
+   NCT→PMID resolver, spot-verified against PubMed — never guessed).
+2. **Pooled-but-partially-provenanced** — still indexed and honestly labelled.
+   These pool ≥2 trials but a trial is missing a PMID, or they are NMA / diagnostic
+   (DTA) apps that pool via non-pairwise methods. Treated as scaffolds, not
+   validated evidence.
+3. **Quarantined (`auto-gallery.html`, de-indexed)** — **166 single-trial or
+   empty pages that are NOT meta-analyses** (a meta-analysis needs ≥2 trials with
+   poolable data). Each carries an in-page "AUTOMATED OUTPUT — not a validated
+   meta-analysis" banner and is removed from the index and sitemap. (This is on
+   top of 519 single-trial apps removed in the earlier poolability pass.)
 
 [![Validate Living MA Portfolio](https://github.com/mahmood726-cyber/rapidmeta-finerenone/actions/workflows/validate.yml/badge.svg)](https://github.com/mahmood726-cyber/rapidmeta-finerenone/actions/workflows/validate.yml)
 
 ## Highlights
 
-- **~1,516 `*_REVIEW.html` files** in this repo (≈544 auto-generated full apps —
-  204 with ≥2 poolable trials, 340 single-endpoint banner-flagged; 561 redirect
-  stubs; and the rest curated/topic apps), plus sibling apps in independent
-  repositories. (519 single-trial auto apps were removed in the 2026-06
-  poolability pass.)
+- **1,521 `*_REVIEW.html` files** (561 redirect stubs → ~960 real dashboards),
+  partitioned into **~617 validated-portfolio** (benchmark- or PMID+registry-
+  backed), a pooled-but-partially-provenanced middle tier, and **166 quarantined**
+  single-trial/empty pages (de-indexed to `auto-gallery.html`). Full per-app lists:
+  `outputs/corpus_partition.json`; re-run `python scripts/partition_corpus.py`.
 - **A small set of curated apps (~17) are benchmark-validated** under
   `validate_living_ma_portfolio.py --strict` — this is a **benchmark-regression
   gate, not portfolio-wide validation**. A benchmarked app passes only if it

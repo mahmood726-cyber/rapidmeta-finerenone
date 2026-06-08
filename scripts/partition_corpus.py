@@ -1,0 +1,125 @@
+"""Read-only partition of the 1,521-app corpus into:
+  TIER-1 BENCHMARK  : app is externally benchmarked AND matches (k>=2 + within-CI).
+  TIER-2 PROVENANCE : pools k>=2 contributing trials AND every contributing trial
+                      has a real PMID AND a resolvable registry ID (NCT/ISRCTN/
+                      ACTRN) or an explicit sourceUrl.
+  QUARANTINE        : everything else (with a sub-reason).
+
+"Contributing trial" = one the engine actually pools: a non-null publishedHR
+(generic-IV path) OR a valid 2x2 with >=1 event (counts path). Trials that don't
+contribute (null effect + null/zero counts) are ignored for provenance.
+
+Writes nothing except a report file under outputs/. Nothing is moved or deleted.
+"""
+import re, glob, io, sys, os, json, subprocess
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import importlib.util
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+spec = importlib.util.spec_from_file_location("dia", os.path.join(os.path.dirname(__file__), "data_integrity_audit.py"))
+dia = importlib.util.module_from_spec(spec); spec.loader.exec_module(dia)
+val = importlib.util.module_from_spec(
+    importlib.util.spec_from_file_location("val", os.path.join(REPO, "validate_living_ma_portfolio.py")))
+
+
+def _num(v):
+    if v is None: return None
+    s = str(v).strip().lower()
+    if s in ("null", "none", "nan", ""): return None
+    try: return float(v)
+    except Exception: return None
+
+
+def sfield(obj, name):
+    """Extract a quoted-string field value (pmid, sourceUrl) or None."""
+    m = re.search(rf'{name}\s*:\s*["\']([^"\']*)["\']', obj)
+    return m.group(1) if m and m.group(1) else None
+
+
+REG_RE = re.compile(r"^(NCT\d{8}|ISRCTN\d{8}|ACTRN\d{14}|EUCTR[\d-]+|ChiCTR[-\w]+|KCT\d+|DRKS\d+|PACTR\d+|jRCT\w+)$")
+
+
+def contributing(obj):
+    hr = _num(dia.field(obj, "publishedHR"))
+    if hr is not None and hr > 0:
+        return True
+    tE, tN, cE, cN = (_num(dia.field(obj, k)) for k in ("tE", "tN", "cE", "cN"))
+    if None not in (tE, tN, cE, cN) and tN > 0 and cN > 0 and 0 <= tE <= tN and 0 <= cE <= cN and (tE > 0 or cE > 0):
+        return True
+    return False
+
+
+def trial_has_provenance(key, obj):
+    pmid = sfield(obj, "pmid")
+    has_pmid = bool(pmid) and re.fullmatch(r"\d{6,8}", pmid) is not None
+    src = sfield(obj, "sourceUrl")
+    reg_ok = bool(REG_RE.match(str(key))) or bool(src and src.startswith("http"))
+    return has_pmid and reg_ok, has_pmid, reg_ok
+
+
+def main():
+    # Tier-1: benchmark tier from the validator's own JSON (k>=2 + within-CI).
+    bench_ok = set()
+    try:
+        out = subprocess.run([sys.executable, os.path.join(REPO, "validate_living_ma_portfolio.py"),
+                              "--local", "--json"], capture_output=True, text=True, cwd=REPO)
+        data = json.loads(out.stdout)
+        for r in data:
+            if r.get("benchmark") is not None and r.get("match"):
+                bench_ok.add(r["name"])
+    except Exception as e:
+        print("WARN: could not load validator JSON:", e)
+
+    def app_name(fn):
+        return os.path.basename(fn)[:-len("_REVIEW.html")] if fn.endswith("_REVIEW.html") else os.path.basename(fn)
+
+    tiers = {"BENCHMARK": [], "PROVENANCE": []}
+    quarantine = {"no_contributing_trials": [], "k<2": [], "missing_pmid": [],
+                  "missing_registry": []}
+    for fn in sorted(glob.glob(os.path.join(REPO, "*_REVIEW.html"))):
+        nm = app_name(fn)
+        html = open(fn, encoding="utf-8", errors="replace").read()
+        if nm in bench_ok:
+            tiers["BENCHMARK"].append(nm); continue
+        contrib = []
+        miss_pmid = miss_reg = False
+        for key, obj in dia.find_trial_objects(html):
+            if not contributing(obj):
+                continue
+            ok, hp, rg = trial_has_provenance(key, obj)
+            contrib.append(ok)
+            if not hp: miss_pmid = True
+            if not rg: miss_reg = True
+        k = len(contrib)
+        if k == 0:
+            quarantine["no_contributing_trials"].append(nm)
+        elif k < 2:
+            quarantine["k<2"].append(nm)
+        elif not all(contrib):
+            (quarantine["missing_pmid"] if miss_pmid else quarantine["missing_registry"]).append(nm)
+        else:
+            tiers["PROVENANCE"].append(nm)
+
+    total = sum(len(v) for v in tiers.values()) + sum(len(v) for v in quarantine.values())
+    keep = len(tiers["BENCHMARK"]) + len(tiers["PROVENANCE"])
+    quar = sum(len(v) for v in quarantine.values())
+    print(f"=== CORPUS PARTITION ({total} apps) ===\n")
+    print(f"KEEP (portfolio):            {keep}  ({keep*100//total}%)")
+    print(f"  Tier-1 BENCHMARK-backed:   {len(tiers['BENCHMARK'])}")
+    print(f"  Tier-2 PROVENANCE-backed:  {len(tiers['PROVENANCE'])}  (k>=2, every trial PMID + registry)")
+    print(f"\nQUARANTINE (auto/unreviewed): {quar}  ({quar*100//total}%)")
+    for r, lst in sorted(quarantine.items(), key=lambda x: -len(x[1])):
+        print(f"  {r:28} {len(lst)}")
+
+    rep = os.path.join(REPO, "outputs", "corpus_partition.json")
+    os.makedirs(os.path.dirname(rep), exist_ok=True)
+    json.dump({"keep": keep, "quarantine": quar, "tiers": tiers, "quarantine_reasons": quarantine},
+              open(rep, "w", encoding="utf-8"), indent=1)
+    print(f"\nFull lists -> outputs/corpus_partition.json")
+    print("\nsample PROVENANCE-backed:", tiers["PROVENANCE"][:8])
+    print("sample missing_pmid:", quarantine["missing_pmid"][:8])
+
+
+if __name__ == "__main__":
+    main()
