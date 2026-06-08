@@ -45,7 +45,8 @@ def check(html_path: str):
             tmp = fh.name
         try:
             r = subprocess.run(["node", "--check", tmp],
-                                capture_output=True, text=True, timeout=60)
+                                capture_output=True, text=True, timeout=60,
+                                encoding="utf-8", errors="replace")
             if r.returncode != 0:
                 err = (r.stderr or r.stdout or "").strip().splitlines()
                 first = next((ln for ln in err if "SyntaxError" in ln
