@@ -98,24 +98,59 @@ def harmonize(html):
 
 
 def main():
+    import glob
     p = argparse.ArgumentParser()
-    p.add_argument("files", nargs="+")
+    p.add_argument("files", nargs="*")
+    p.add_argument("--glob", help="process all files matching this glob (repo root)")
     p.add_argument("--dry-run", action="store_true")
+    p.add_argument("--limit", type=int, default=0)
+    p.add_argument("--quiet", action="store_true", help="one line per app")
     args = p.parse_args()
-    for f in args.files:
-        html = io.open(f, encoding="utf-8", errors="replace").read()
-        new, rep = harmonize(html)
+
+    try:
+        import jscheck
+    except Exception:
+        jscheck = None
+
+    files = list(args.files)
+    if args.glob:
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        files += sorted(glob.glob(os.path.join(root, args.glob)))
+    if args.limit:
+        files = files[:args.limit]
+
+    done = skipped = failed = 0
+    for f in files:
         name = os.path.basename(f)
+        html = io.open(f, encoding="utf-8", errors="replace").read()
+        # Idempotency: nothing to do if no template MACE shortLabel remains.
+        if 'shortLabel:"MACE"' not in html and "shortLabel:'MACE'" not in html:
+            skipped += 1
+            continue
+        new, rep = harmonize(html)
         if not rep["changed"]:
-            print(f"[skip] {name}: {rep.get('reason','no change')}")
+            skipped += 1
             continue
         maxk = max(rep["pooled_k"].values()) if rep["pooled_k"] else 0
-        print(f"[{'DRY' if args.dry_run else 'OK'}] {name}: relabeled {rep['relabeled']} "
-              f"outcomes -> {len(rep['pooled_k'])} keys, max pooled k={maxk}")
-        for k, n in sorted(rep["pooled_k"].items(), key=lambda x: -x[1]):
-            print(f"       k={n}  {k}")
-        if not args.dry_run:
-            io.open(f, "w", encoding="utf-8", newline="").write(new)
+        if args.dry_run:
+            print(f"[DRY] {name}: {rep['relabeled']} outcomes -> {len(rep['pooled_k'])} keys, max k={maxk}")
+            done += 1
+            continue
+        io.open(f, "w", encoding="utf-8", newline="").write(new)
+        # jscheck gate: auto-revert on V8 parse failure
+        if jscheck is not None:
+            problems = jscheck.check(f)
+            if problems:
+                io.open(f, "w", encoding="utf-8", newline="").write(html)  # restore
+                print(f"[REVERT] {name}: jscheck failed -> {problems[0][1][:70]}")
+                failed += 1
+                continue
+        done += 1
+        if not args.quiet:
+            print(f"[OK] {name}: {rep['relabeled']} outcomes -> {len(rep['pooled_k'])} keys, max k={maxk}")
+
+    print(f"\n=== Harmonize summary ===")
+    print(f"{'planned' if args.dry_run else 'done'}={done}  skipped(idempotent/no-change)={skipped}  reverted(jscheck)={failed}")
 
 
 if __name__ == "__main__":
