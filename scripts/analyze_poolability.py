@@ -64,6 +64,12 @@ def _acronyms(title):
     return out
 
 
+# Distinctive endpoint identifiers (incl. short ones like "os"): sharing one is
+# strong evidence of the same endpoint even when surrounding wording differs.
+CANON = {"acr", "pfs", "os", "fev1", "egfr", "hba1c", "pasi", "easi",
+         "das28", "mace", "bmd", "leanbodymass", "acc"}
+
+
 def normalize_tokens(title):
     t = re.sub(r"\(primary\)\s*$", "", title.lower())
     for phrase, repl in SYNONYMS.items():
@@ -72,7 +78,9 @@ def normalize_tokens(title):
     t = re.sub(r"[^a-z0-9\s]", " ", t)
     toks = set(acro)
     for w in t.split():
-        if w in STOP or w.isdigit() or len(w) <= 2:
+        # keep CANON tokens even when short (e.g. "os") — the length filter
+        # would otherwise drop them and break OS/2-char-endpoint clustering.
+        if w in STOP or w.isdigit() or (len(w) <= 2 and w not in CANON):
             continue
         toks.add(w)
     return toks
@@ -89,12 +97,6 @@ def jaccard(a, b):
     if not a or not b:
         return 0.0
     return len(a & b) / len(a | b)
-
-
-# Distinctive endpoint identifiers: sharing one is strong evidence of the same
-# endpoint even when surrounding wording differs (spelled-out vs abbreviated).
-CANON = {"acr", "pfs", "os", "fev1", "egfr", "hba1c", "pasi", "easi",
-         "das28", "mace", "bmd", "leanbodymass", "acc"}
 
 
 def salient_tokens(title):
