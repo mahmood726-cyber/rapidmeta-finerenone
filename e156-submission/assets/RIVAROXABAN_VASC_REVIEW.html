@@ -553,9 +553,9 @@
                     <table class="w-full text-left text-xs"><thead class="bg-slate-900/50"><tr><th class="p-3 text-[10px] font-bold uppercase text-slate-500 tracking-widest w-1/4">Method</th><th class="p-3 text-[10px] font-bold uppercase text-slate-500 tracking-widest">Specification</th><th class="p-3 text-[10px] font-bold uppercase text-slate-500 tracking-widest w-1/5">App Location</th></tr></thead>
                     <tbody class="divide-y divide-slate-800/50">
                         <tr><td class="p-3 font-bold text-slate-400">Effect Measure</td><td id="protocol-em-desc" class="p-3 text-slate-300">Primary analysis uses published hazard ratios when available; otherwise risk ratios from 2x2 counts. Odds ratios are retained for sensitivity analysis.</td><td class="p-3 text-slate-500">Analysis &rarr; Stats</td></tr>
-                        <tr><td class="p-3 font-bold text-slate-400">Pooling Model</td><td class="p-3 text-slate-300">DerSimonian-Laird random-effects (inverse-variance weighting)</td><td class="p-3 text-slate-500">Analysis &rarr; Forest (#1)</td></tr>
+                        <tr><td class="p-3 font-bold text-slate-400">Pooling Model</td><td class="p-3 text-slate-300">REML random-effects, HKSJ-adjusted (inverse-variance weighting)</td><td class="p-3 text-slate-500">Analysis &rarr; Forest (#1)</td></tr>
                         <tr><td class="p-3 font-bold text-slate-400">CI Adjustment</td><td class="p-3 text-slate-300">Hartung-Knapp-Sidik-Jonkman (HKSJ); t-distribution with df = k&minus;1</td><td class="p-3 text-slate-500">Analysis &rarr; Stats</td></tr>
-                        <tr><td class="p-3 font-bold text-slate-400">Prediction Interval</td><td class="p-3 text-slate-300">t-distribution, df = k&minus;2 (Higgins 2009)</td><td class="p-3 text-slate-500">Analysis &rarr; Stats</td></tr>
+                        <tr><td class="p-3 font-bold text-slate-400">Prediction Interval</td><td class="p-3 text-slate-300">t-distribution, df = k&minus;1 (Cochrane Handbook v6.5)</td><td class="p-3 text-slate-500">Analysis &rarr; Stats</td></tr>
                         <tr><td class="p-3 font-bold text-slate-400">Heterogeneity</td><td class="p-3 text-slate-300">Cochran Q (p-value), I&sup2; (%), &tau;&sup2; (DL estimator)</td><td class="p-3 text-slate-500">Analysis &rarr; Stats</td></tr>
                         <tr><td class="p-3 font-bold text-slate-400">Subgroup Analysis</td><td class="p-3 text-slate-300">By indication (HF vs CKD); Q-between test for interaction</td><td class="p-3 text-slate-500">Analysis &rarr; Subgroup (#2)</td></tr>
                         <tr><td class="p-3 font-bold text-slate-400">Cumulative MA</td><td class="p-3 text-slate-300">Sequential addition by year; monitoring evidence accrual</td><td class="p-3 text-slate-500">Analysis &rarr; Cumulative (#3)</td></tr>
@@ -4108,7 +4108,7 @@ const ContinuousMDEngine = {
 
                 // Protocol table row content (long strings for key sections)
                 'Odds Ratio (OR) computed on log scale; 0.5 continuity correction for zero cells': 'نسبة الأرجحية (OR) محسوبة على مقياس لوغاريتمي؛ تصحيح الاستمرارية 0.5 للخلايا الصفرية',
-                'DerSimonian-Laird random-effects (inverse-variance weighting)': 'التأثيرات العشوائية DerSimonian-Laird (توزين التباين العكسي)',
+                'REML random-effects, HKSJ-adjusted (inverse-variance weighting)': 'التأثيرات العشوائية DerSimonian-Laird (توزين التباين العكسي)',
                 'Hartung-Knapp-Sidik-Jonkman (HKSJ); t-distribution with df = k': 'Hartung-Knapp-Sidik-Jonkman (HKSJ)؛ توزيع t مع درجات حرية = k',
                 't-distribution, df = k': 'توزيع t، درجات حرية = k',
                 'By indication (HF vs CKD); Q-between test for interaction': 'حسب الاستطباب (قصور القلب مقابل أمراض الكلى)؛ اختبار Q للتفاعل',
@@ -4534,7 +4534,7 @@ const ContinuousMDEngine = {
                 'patients to prevent one additional event.': 'مرضى لمنع حدث إضافي واحد.',
 
                 // Narrative annotation
-                'Analysis performed using DerSimonian-Laird random-effects model with': 'التحليل أُجري باستخدام نموذج DerSimonian-Laird للتأثيرات العشوائية مع',
+                'Analysis performed using a REML random-effects model (HKSJ-adjusted) with': 'التحليل أُجري باستخدام نموذج DerSimonian-Laird للتأثيرات العشوائية مع',
                 'confidence intervals.': 'فترات ثقة.',
                 'HKSJ correction applied with max(1, q*) safeguard.': 'تصحيح HKSJ مُطبّق مع حماية max(1, q*).',
                 'Prediction intervals computed with k\u22122 degrees of freedom per Higgins et al. (2009).': 'فترات التنبؤ محسوبة بـ k−2 درجات حرية وفق Higgins وآخرون (2009).',
@@ -11978,7 +11978,7 @@ print(res_sub)`;
                 const narrative = `Rivaroxaban (Low-Dose), a non-steroidal mineralocorticoid receptor antagonist, ${effectClause} compared with placebo across <span class="nyt-stat-inline">${_e(r.k)}</span> trials enrolling <span class="nyt-stat-inline">${_e(r.n)}</span> patients. The pooled ${_e(emLong)} was <span class="nyt-stat-inline">${_e(r.or)}</span> (${_e(ciPct)}% CI: <span class="nyt-stat-inline">${_e(r.lci)}\u2013${_e(r.uci)}</span>), ${sigText}.${hksjNote}${piNote} Heterogeneity was ${_e(i2Interp)} (I\u00B2 = <span class="nyt-stat-inline">${_e(r.i2)}%</span>), indicating ${parseFloat(r.i2) < 50 ? 'consistent treatment effects across the included studies' : 'moderate variability in treatment effects across studies'}.${eggerNote}${fragNote}${absoluteRiskSentence}`;
 
                 document.getElementById('nyt-narrative').innerHTML = narrative;
-                document.getElementById('nyt-annotation').textContent = `Analysis performed using DerSimonian-Laird random-effects model with ${ciPct}% confidence intervals. HKSJ correction applied with max(1, q*) safeguard. Prediction intervals computed with k\u22122 degrees of freedom per Higgins et al. (2009).`;
+                document.getElementById('nyt-annotation').textContent = `Analysis performed using a REML random-effects model (HKSJ-adjusted) with ${ciPct}% confidence intervals. HKSJ correction applied with max(1, q*) safeguard. Prediction intervals computed with k\u22122 degrees of freedom per Higgins et al. (2009).`;
             },
             renderCIComparison(r) {
                 const or = parseFloat(r.or);

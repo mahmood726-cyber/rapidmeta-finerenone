@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 """
 Automated validation of all Living MA apps against published benchmarks.
-Parses HTML files directly (no browser), extracts realData, pools via DL,
-and compares against known published meta-analysis results.
+Parses HTML files directly (no browser), extracts realData, pools via REML
+tau^2 + Hartung-Knapp-Sidik-Jonkman (t_{k-1} interval), and compares against
+known published meta-analysis results.
 
 Run: python validate_living_ma_portfolio.py [--json] [--strict]
 """

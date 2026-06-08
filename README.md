@@ -178,7 +178,7 @@ The generator uses `FINERENONE_REVIEW.html` as the v16 reference template and ap
 | `LivingMeta.html` | Multi-topic shell |
 | `generate_living_ma_v13.py` | v16 app generator (26 APPS) |
 | `propagate_v16_features.py` | v16 engine propagator |
-| `validate_living_ma_portfolio.py` | DL pooling + benchmark checker (57 apps) |
+| `validate_living_ma_portfolio.py` | REML+HKSJ pooling + benchmark checker (57 apps) |
 | `generate_portfolio.py` | Builds the LivingMA portfolio page |
 | `cross_validate.py` | CT.gov HR concordance check |
 | `test_all_apps_comprehensive.py` | Selenium test suite (8 categories) |
