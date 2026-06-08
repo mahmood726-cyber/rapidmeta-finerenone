@@ -81,60 +81,85 @@ _TEMPLATE_RE = re.compile(
     r'(\{shortLabel:(["\']))(' + "|".join(sorted(TEMPLATE_LABELS, key=len, reverse=True)) + r')\2')
 
 
+_CV_RE = re.compile(
+    r"cardiovascular|\bmace\b|myocardial|\bstroke\b|heart failure|cv death|"
+    r"hf hospitali|worsening hf|composite of (?:cv|cardiovascular)", re.I)
+
+
+def _outcomes_are_cv(outs):
+    cv = sum(1 for o in outs if _CV_RE.search(o["title"]))
+    return cv >= max(1, (len(outs) + 1) // 2)  # majority of outcome titles are CV
+
+
+_RELABEL_TEMPLATE_RE = re.compile(
+    r'(\{shortLabel:(["\']))(' + "|".join(sorted(TEMPLATE_LABELS, key=len, reverse=True))
+    + r')\2,title:(["\'])(?P<title>(?:\\.|(?!\4).)*)\4')
+
+
+def _relabel_by_cluster(html, outs, clusters, K=None):
+    """Assign K to the cluster matching the benchmark endpoint (if K given) +
+    harmonized keys to the rest; rewrite all template-label shortLabels by the
+    outcome's title -> cluster key."""
+    titles = [o["title"] for o in outs]
+    distinctive = _expand_key(K) if K else []
+    used, title_key = set(), {}
+    for cl in clusters:
+        cl_titles = [titles[i] for i in cl]
+        cl_matches = (distinctive and K not in used and all(
+            any(d in " ".join(ap.normalize_tokens(titles[i])) for d in distinctive)
+            for i in cl))
+        if cl_matches:
+            key = K
+        else:
+            key = ho.assign_keys([outs[i] for i in cl], [list(range(len(cl)))])[cl_titles[0]]
+        base, n = key, 2
+        while key in used and key != K:
+            key = f"{base}{n}"; n += 1
+        used.add(key)
+        for t in cl_titles:
+            title_key[t] = key
+
+    def _repl(m):
+        key = title_key.get(m.group("title"), m.group(3))
+        return (m.group(1) + key + m.group(2) + ",title:"
+                + m.group(4) + m.group("title") + m.group(4))
+    return _RELABEL_TEMPLATE_RE.sub(_repl, html)
+
+
 def process(html):
     if "_outcomeAvailabilityCount(" in html:
         return html, "newer-engine"
     if not _TEMPLATE_RE.search(html):
         return html, "no-template-label"
-    bks = benchmark_keys(html)
-    nonmace = [k for k in bks if k != "MACE"]
-    if not nonmace:
-        return html, "mace-or-no-benchmark"
-    if len(set(nonmace)) != 1:
-        return html, f"multi-key({len(set(nonmace))})"
-    K = nonmace[0]
     outs = [o for _, o in ap.extract_trial_outcomes(html)]
     if len(outs) < 1:
         return html, "no-outcomes"
     clusters = ap.cluster_outcomes(outs, THRESH)
-    distinctive = _expand_key(K)
-    if len(clusters) == 1 or _all_share_key_token(outs, distinctive):
-        # homogeneous (or benchmark-token-homogeneous): every outcome IS
-        # endpoint K -> rewrite ALL template-class shortLabels to K.
-        new = _TEMPLATE_RE.sub(lambda m: m.group(1) + K + m.group(2), html)
-        tag = f"relabeled->{K}"
+    bks = benchmark_keys(html)
+    nonmace = [k for k in bks if k != "MACE"]
+    if not nonmace:
+        # benchmark key is "MACE" (a leftover) or absent. If the outcomes are
+        # genuinely cardiovascular, MACE is correct -> leave. Otherwise the
+        # template labels mislabel real endpoints (HIV-RNA/OS/BCVA/weight) ->
+        # harmonize from the outcome titles.
+        if _outcomes_are_cv(outs):
+            return html, "genuine-cv"
+        new = _relabel_by_cluster(html, outs, clusters, K=None)
+        tag = f"mace-harmonize({len(clusters)})"
+    elif len(set(nonmace)) != 1:
+        # >1 distinct benchmark key: harmonize from titles (each endpoint its
+        # own key); standard-acronym endpoints align to their benchmark key.
+        new = _relabel_by_cluster(html, outs, clusters, K=None)
+        tag = f"multi-key-split({len(set(nonmace))})"
     else:
-        # truly multi-endpoint: assign the benchmark key K to the cluster that
-        # matches it, harmonized keys to the rest; rewrite template labels by
-        # the outcome's title -> cluster key.
-        titles = [o["title"] for o in outs]
-        used, title_key = set(), {}
-        for cl in clusters:
-            cl_titles = [titles[i] for i in cl]
-            cl_matches = (distinctive and K not in used and all(
-                any(d in " ".join(ap.normalize_tokens(titles[i])) for d in distinctive)
-                for i in cl))
-            if cl_matches:
-                key = K
-            else:
-                key = ho.assign_keys([outs[i] for i in cl], [list(range(len(cl)))])[cl_titles[0]]
-            n = 2
-            base = key
-            while key in used and key != K:
-                key = f"{base}{n}"; n += 1
-            used.add(key)
-            for t in cl_titles:
-                title_key[t] = key
-
-        def _repl(m):
-            key = title_key.get(m.group("title"), m.group(3))
-            return (m.group(1) + key + m.group(2) + ",title:"
-                    + m.group(4) + m.group("title") + m.group(4))
-        relabel_re = re.compile(
-            r'(\{shortLabel:(["\']))(' + "|".join(sorted(TEMPLATE_LABELS, key=len, reverse=True))
-            + r')\2,title:(["\'])(?P<title>(?:\\.|(?!\4).)*)\4')
-        new = relabel_re.sub(_repl, html)
-        tag = f"hetero-split->{K}+{len(clusters)-1}"
+        K = nonmace[0]
+        distinctive = _expand_key(K)
+        if len(clusters) == 1 or _all_share_key_token(outs, distinctive):
+            new = _TEMPLATE_RE.sub(lambda m: m.group(1) + K + m.group(2), html)
+            tag = f"relabeled->{K}"
+        else:
+            new = _relabel_by_cluster(html, outs, clusters, K=K)
+            tag = f"hetero-split->{K}+{len(clusters)-1}"
     new = re.sub(r'selectedOutcome:"(?:' + "|".join(TEMPLATE_LABELS) + r')"',
                  'selectedOutcome:"default"', new)
     new = new.replace("Primary MACE Result", "Primary Result")
@@ -166,8 +191,9 @@ def main():
             continue
         html = io.open(f, encoding="utf-8", errors="replace").read()
         new, reason = process(html)
-        is_change = "->" in reason
-        key = reason.split("->")[0] if is_change else reason
+        is_change = reason.startswith(("relabeled", "hetero-split", "mace-harmonize",
+                                       "multi-key-split"))
+        key = reason.split("->")[0].split("(")[0] if is_change else reason
         outcome[key] += 1
         if not is_change:
             continue
