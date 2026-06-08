@@ -1,17 +1,22 @@
 # RapidMeta Living Evidence Portfolio
 
-Browser-native living meta-analysis dashboards. This repo holds **~2,035
+Browser-native living meta-analysis dashboards. This repo holds **~1,516
 `*_REVIEW.html` files in two tiers**:
 
 1. **Curated / benchmarked apps** — hand-built rapid meta-analyses (FINERENONE,
    GLP1_CVOT, SGLT2_HF, ARNI_HF, …) validated against published meta-analyses and
    the R `metafor` package. **Only these carry external benchmarks** (see the
    reference table below).
-2. **Auto-generated topic dashboards** (`*_AUTO_FULL_REVIEW.html`, ~1,046) — one
+2. **Auto-generated topic dashboards** (`*_AUTO_FULL_REVIEW.html`, ~544) — one
    per ClinicalTrials.gov topic, produced from a shared template. They are **not
-   individually curated or benchmarked**, and some still contain template-derived
-   placeholder text that has not been topic-corrected (e.g. an outcome label
-   carried over from the prototype). Treat them as scaffolds, not validated
+   individually curated or benchmarked**. A 2026-06 poolability pass cleaned this
+   tier: **519 single-trial (k=1) apps were removed** (a meta-analysis needs ≥2
+   trials), every app's outcomes were **harmonized** so trials sharing an endpoint
+   pool and distinct endpoints separate (replacing a template `MACE` label that
+   had been pooling heterogeneous outcomes), and the **340 apps whose trials report
+   no shared endpoint now carry an in-app banner** flagging them as single-trial
+   summaries, not pooled meta-analyses. The remaining **204** have ≥1 outcome with
+   ≥2 poolable trials. Still treat the whole tier as scaffolds, not validated
    evidence. A further **561 `*_AUTO_REVIEW.html`** are thin redirects to their
    full sibling.
 
@@ -19,9 +24,11 @@ Browser-native living meta-analysis dashboards. This repo holds **~2,035
 
 ## Highlights
 
-- **~2,035 `*_REVIEW.html` files** in this repo (≈1,046 auto-generated full apps,
-  561 redirect stubs, and the rest curated/topic apps), plus sibling apps in
-  independent repositories.
+- **~1,516 `*_REVIEW.html` files** in this repo (≈544 auto-generated full apps —
+  204 with ≥2 poolable trials, 340 single-endpoint banner-flagged; 561 redirect
+  stubs; and the rest curated/topic apps), plus sibling apps in independent
+  repositories. (519 single-trial auto apps were removed in the 2026-06
+  poolability pass.)
 - **A small set of curated apps are benchmarked** within 10% of published
   meta-analyses under `validate_living_ma_portfolio.py --strict`; the **large
   majority of apps are UNVALIDATED** (no external reference). `--strict` now
