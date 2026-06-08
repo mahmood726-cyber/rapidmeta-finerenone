@@ -865,3 +865,8 @@ if __name__ == '__main__':
         if not output_json:
             print(f"\n[STRICT] PASS: {matched}/{benchmarked} benchmarked apps within 10%; "
                   f"{unvalidated} of {len(results)} apps are UNVALIDATED (no benchmark).")
+            print("[STRICT] NOTE: this is a benchmark-REGRESSION gate, not portfolio "
+                  "readiness. --gate-strict (full k>=2 + provenance) is EXPECTED to fail "
+                  "on the corpus by design (it includes unvalidated scaffolds + the "
+                  "quarantined gallery). The validated portfolio is the provenance-backed "
+                  "tier in outputs/corpus_partition.json (run scripts/partition_corpus.py).")
