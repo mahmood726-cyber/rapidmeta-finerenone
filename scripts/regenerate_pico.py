@@ -23,7 +23,6 @@ from __future__ import annotations
 import argparse, io, os, re, sys, glob
 from collections import Counter
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Method / marketing tokens to strip when isolating the condition from a title topic.
@@ -309,4 +308,5 @@ def main():
 
 
 if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     main()
