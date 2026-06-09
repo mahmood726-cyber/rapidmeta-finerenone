@@ -6,8 +6,10 @@ Browser-native living meta-analysis dashboards. The repo holds 1,521
 provenance pass partitioned them objectively (`scripts/partition_corpus.py`)
 into three honestly-labelled tiers:
 
-1. **Validated portfolio (~617, ≈64% of real apps)** — indexed + in the sitemap.
-   Each one either is **benchmark-validated** against a published meta-analysis +
+1. **Provenance-backed portfolio (~617, ≈64% of real apps)** — indexed + in the
+   sitemap. Only the **17 benchmark apps** are externally *validated*; the rest are
+   provenance-backed (PMID+registry), **not validated**. Each one either is
+   **benchmark-validated** against a published meta-analysis +
    R `metafor` (the 17 in the reference table: FINERENONE, GLP1_CVOT, SGLT2_HF …),
    **or** pools **k≥2 trials where every pooled trial carries a PMID and a
    resolvable registry ID** (PMIDs back-filled only from a DataBankList-derived
@@ -27,8 +29,8 @@ into three honestly-labelled tiers:
 ## Highlights
 
 - **1,521 `*_REVIEW.html` files** (561 redirect stubs → ~960 real dashboards),
-  partitioned into **~617 validated-portfolio** (benchmark- or PMID+registry-
-  backed), a pooled-but-partially-provenanced middle tier, and **166 quarantined**
+  partitioned into **~617 provenance-backed** (benchmark- or PMID+registry-backed;
+  only 17 externally validated), a pooled-but-partially-provenanced middle tier, and **166 quarantined**
   single-trial/empty pages (de-indexed to `auto-gallery.html`). Full per-app lists:
   `outputs/corpus_partition.json`; re-run `python scripts/partition_corpus.py`.
 - **A small set of curated apps (~17) are benchmark-validated** under
