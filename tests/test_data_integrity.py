@@ -18,16 +18,22 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# Classes that must always be zero (genuine hard corruption).
+# Classes that must always be zero (genuine hard corruption + the two
+# clinical-data defects that were previously baseline-locked and are now
+# source-remediated to zero portfolio-wide):
+#   implausible_ratio: was EBOLA ring-vaccine RR=0 -- that trial now carries the
+#     real zero-cell 2x2 (tE:0,tN:2119,cE:16,cN:2041) with publishedHR:null, so
+#     the pooled RR is computed with continuity correction, not a hardcoded 0.
+#   additive_ratio_ci: was OUD NCT00604682 HR 7.0 [3,11] -- the impossible
+#     additive ratio CI has been nulled (publishedHR/CI:null).
+# Both verified 0 across all *_REVIEW*.html; the gate now ENFORCES zero rather
+# than permitting a known defect. (A ratio value on a CONTINUOUS outcome is NOT
+# flagged -- publishedHR is a generic effect field and MD/RD CIs are additive.)
 HARD_ZERO = ("impossible_2x2", "none_leak", "inverted_ci", "bad_nct", "bad_pmid",
-             "bad_doi")
-# Known-defect baselines. Lower is better; must not increase.
-#   additive_ratio_ci: 1 = OUD HR 7.0 [3,11] (ratio outcome, additive CI, no
-#     CT.gov source to verify against) -- left flagged, not auto-"fixed".
-#   implausible_ratio: 1 = EBOLA ring-vaccine RR=0 (a genuine zero-cell).
-# (A ratio value on a CONTINUOUS outcome is NOT flagged -- publishedHR is a
-# generic effect field and MD/RD CIs are legitimately additive.)
-BASELINE_MAX = {"additive_ratio_ci": 1, "implausible_ratio": 1}
+             "bad_doi", "implausible_ratio", "additive_ratio_ci")
+# No known-permitted defects remain. Kept as a forward guard: any future
+# tracked-but-not-yet-remediated class can be added here with a max count.
+BASELINE_MAX = {}
 
 
 def _audit_counts():
