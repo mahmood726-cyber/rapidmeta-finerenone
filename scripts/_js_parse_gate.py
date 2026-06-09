@@ -108,9 +108,9 @@ def js_parse_ok(text_or_path: str | Path) -> bool:
         msg = (proc.stderr.strip()[:200] if proc else "timeout")
         # Append to log
         log = HERE / ".js_parse_failures.log"
-        from datetime import datetime
+        from datetime import datetime, timezone
         with log.open("a", encoding="utf-8") as f:
-            f.write(f"{datetime.utcnow().isoformat()}Z\t{fname}\t{msg}\n")
+            f.write(f"{datetime.now(timezone.utc).isoformat()}\t{fname}\t{msg}\n")
         return False
     return True
 
