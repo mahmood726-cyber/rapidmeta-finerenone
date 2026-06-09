@@ -10,14 +10,42 @@ Aggregation: weighted by number_analyzed across arms (BG001, BG002, ...).
 The 'B000' / 'BG000' code is usually overall; if present, prefer it.
 """
 from __future__ import annotations
-import sys, io, json, csv
+import os, sys, io, json, csv
 from pathlib import Path
 from collections import defaultdict
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 REPO = Path(__file__).resolve().parent.parent
-AACT = Path("D:/AACT-storage/AACT/2026-04-12")
+
+
+def _resolve_aact_root() -> Path:
+    """Locate the AACT snapshot dir without hardcoding one drive.
+
+    Order: $AACT_ROOT env var, then known candidate roots on C:/D:/F:.
+    Fails closed with an explicit message if no snapshot is found.
+    """
+    env = os.environ.get("AACT_ROOT")
+    candidates = []
+    if env:
+        candidates.append(Path(env))
+    candidates += [
+        Path("D:/AACT-storage/AACT/2026-04-12"),
+        Path("C:/AACT-storage/AACT/2026-04-12"),
+        Path("F:/AACT-storage/AACT/2026-04-12"),
+    ]
+    for c in candidates:
+        if (c / "baseline_measurements.txt").exists():
+            return c
+    raise SystemExit(
+        "AACT snapshot not found. Set AACT_ROOT to the snapshot dir "
+        "(containing baseline_measurements.txt), e.g. "
+        "AACT_ROOT=D:/AACT-storage/AACT/2026-04-12. Tried: "
+        + ", ".join(str(c) for c in candidates)
+    )
+
+
+AACT = _resolve_aact_root()
 
 ncts = set((REPO / "outputs/corpus_ncts.txt").read_text().split())
 print(f"Loaded {len(ncts)} NCTs from corpus.")
