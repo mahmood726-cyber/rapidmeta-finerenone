@@ -77,6 +77,18 @@
         }
     }
 
+    /**
+     * Normalise a CT.gov date of precision YYYY | YYYY-MM | YYYY-MM-DD to a
+     * full YYYY-MM-DD string (missing month/day -> 01) so string comparison is
+     * well-defined across precisions. Non-date input is returned unchanged.
+     */
+    function normalizeDateLower(d) {
+        if (!d || typeof d !== 'string') return d;
+        const m = /^(\d{4})(?:-(\d{2}))?(?:-(\d{2}))?/.exec(d.trim());
+        if (!m) return d;
+        return `${m[1]}-${m[2] || '01'}-${m[3] || '01'}`;
+    }
+
     // ---- API helpers ----
 
     /**
@@ -147,11 +159,16 @@
         });
 
         // Client-side date filter on startDate.
+        // CT.gov returns mixed-precision dates: "YYYY-MM-DD", "YYYY-MM", or bare
+        // "YYYY". A raw string compare mis-handles the partial forms (e.g. the
+        // boundary case "2015" < "2015-01-01" would WRONGLY drop a valid 2015
+        // study). Normalise both sides to YYYY-MM-DD (missing parts -> 01) so the
+        // comparison is well-defined and inclusive at the lower bound.
         const filtered = studies.filter(s => {
             if (!dateFrom) return true;
             const sd = s.startDate || '';
-            // accept any startDate >= dateFrom (string compare works for ISO dates)
-            return sd >= dateFrom;
+            if (!sd) return true; // unknown start date -> don't silently drop
+            return normalizeDateLower(sd) >= normalizeDateLower(dateFrom);
         });
         cacheSet(cacheKey, filtered);
         return filtered.filter(c => !excludeNcts.has(c.nct));
@@ -249,15 +266,16 @@
                 // Match achievements to groups by groupId
                 const byId = {};
                 for (const ach of startedMs.achievements) {
-                    byId[ach.groupId] = parseInt(ach.numSubjects, 10);
+                    const n = parseInt(ach.numSubjects, 10);
+                    if (Number.isFinite(n)) byId[ach.groupId] = n; // never store NaN as a count
                 }
                 // Heuristic: first non-placebo group = treatment, first placebo = control
                 const tGroup = flowGroups.find(g => /experimental|treatment|active/i.test(g.title || ''));
                 const cGroup = flowGroups.find(g => /placebo|sham|control/i.test(g.title || ''));
-                if (tGroup && byId[tGroup.id] != null) {
+                if (tGroup && Number.isFinite(byId[tGroup.id])) {
                     out.tN = { value: byId[tGroup.id], confidence: 'HIGH', source: `CT.gov participantFlow ${tGroup.title}` };
                 }
-                if (cGroup && byId[cGroup.id] != null) {
+                if (cGroup && Number.isFinite(byId[cGroup.id])) {
                     out.cN = { value: byId[cGroup.id], confidence: 'HIGH', source: `CT.gov participantFlow ${cGroup.title}` };
                 }
             }
@@ -268,10 +286,20 @@
         const primary = outcomes.find(o => /primary/i.test(o.type || ''));
         if (primary) {
             out.primaryOutcome = { value: primary.title || '', confidence: 'HIGH', source: 'CT.gov outcomeMeasures (PRIMARY)' };
-            // Try to read per-group event counts from the first measurement
+            // Try to read per-group event counts from the first measurement.
+            // CRITICAL anti-fabrication guard: a CT.gov outcome measurement is
+            // only an EVENT COUNT when the outcome's paramType is a count type.
+            // For MEAN / MEDIAN / LEAST_SQUARES_MEAN / a "%" unit the value is a
+            // mean or a percentage, and Math.round-ing it into tE/cE would
+            // fabricate an event count. When it is NOT a count, leave tE/cE NONE
+            // so the modal asks the user instead of guessing.
             const grps = primary.groups || [];
             const cls = primary.classes || [];
-            if (cls.length > 0 && cls[0].categories && cls[0].categories.length > 0) {
+            const ptype = (primary.paramType || '').toUpperCase();
+            const unit = (primary.unitOfMeasure || '').toLowerCase();
+            const isCountOutcome = /(COUNT|NUMBER|PARTICIPANTS)/.test(ptype) &&
+                                   !/%|percent|proportion|rate|mean|median/.test(unit);
+            if (isCountOutcome && cls.length > 0 && cls[0].categories && cls[0].categories.length > 0) {
                 const cat = cls[0].categories[0];
                 const measByGroup = {};
                 for (const m of (cat.measurements || [])) {
@@ -310,7 +338,7 @@
     }
 
     // ---- public API ----
-    const api = { searchByPico, fetchStudy, extractStructured };
+    const api = { searchByPico, fetchStudy, extractStructured, normalizeDateLower };
     if (typeof module !== 'undefined' && module.exports) {
         module.exports = api;
     } else {

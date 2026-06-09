@@ -73,6 +73,8 @@ const fixture = {
             outcomeMeasures: [{
                 type: 'PRIMARY',
                 title: 'Composite of MACE at 24 weeks',
+                paramType: 'COUNT_OF_PARTICIPANTS',
+                unitOfMeasure: 'Participants',
                 groups: [
                     { id: 'OG000', title: 'Experimental TestDrug 100mg' },
                     { id: 'OG001', title: 'Placebo' },
@@ -181,6 +183,73 @@ test('extractStructured: skips unknown analysis paramType (no false fill)', () =
     f.resultsSection.outcomeMeasuresModule.outcomeMeasures[0].analyses[0].paramType = 'NUMBER';
     const r = CTG.extractStructured(f);
     assert.strictEqual(r.publishedHR.confidence, 'NONE');
+});
+
+// ============================================================================
+// HARDENING (2026-06-09): anti-fabrication guards on the structured extractor
+// ============================================================================
+
+test('extractStructured: MEAN outcome does NOT fabricate event counts (tE/cE stay NONE)', () => {
+    // A mean change-from-baseline outcome value (e.g. -2.3) must never be
+    // Math.round-ed into an event count. Contract: leave tE/cE NONE so the modal
+    // asks the user, rather than store a fabricated count.
+    const f = JSON.parse(JSON.stringify(fixture));
+    const om = f.resultsSection.outcomeMeasuresModule.outcomeMeasures[0];
+    om.title = 'Mean change in 6-minute walk distance';
+    om.paramType = 'MEAN';
+    om.unitOfMeasure = 'meters';
+    om.classes[0].categories[0].measurements = [
+        { groupId: 'OG000', value: '34.7' },
+        { groupId: 'OG001', value: '12.1' },
+    ];
+    const r = CTG.extractStructured(f);
+    assert.strictEqual(r.tE.confidence, 'NONE', 'mean outcome must not yield a tE count');
+    assert.strictEqual(r.tE.value, null);
+    assert.strictEqual(r.cE.confidence, 'NONE');
+    // primary outcome label + N still extracted (those are legitimate)
+    assert.strictEqual(r.tN.value, 203);
+});
+
+test('extractStructured: percentage-unit count outcome does NOT fabricate tE/cE', () => {
+    const f = JSON.parse(JSON.stringify(fixture));
+    const om = f.resultsSection.outcomeMeasuresModule.outcomeMeasures[0];
+    om.paramType = 'NUMBER';
+    om.unitOfMeasure = 'percentage of participants';
+    om.classes[0].categories[0].measurements = [
+        { groupId: 'OG000', value: '12.5' },
+        { groupId: 'OG001', value: '20.0' },
+    ];
+    const r = CTG.extractStructured(f);
+    assert.strictEqual(r.tE.confidence, 'NONE', 'a "%" unit must not be stored as an event count');
+    assert.strictEqual(r.cE.confidence, 'NONE');
+});
+
+test('extractStructured: non-finite numSubjects does not store NaN as a count', () => {
+    const f = JSON.parse(JSON.stringify(fixture));
+    f.resultsSection.participantFlowModule.periods[0].milestones[0].achievements = [
+        { groupId: 'FG000', numSubjects: 'NA' },
+        { groupId: 'FG001', numSubjects: '198' },
+    ];
+    const r = CTG.extractStructured(f);
+    assert.strictEqual(r.tN.confidence, 'NONE', 'NaN numSubjects must leave tN NONE, not NaN');
+    assert.strictEqual(r.cN.value, 198);
+});
+
+// ---- normalizeDateLower (the dateFrom-format guard the pilot debrief flagged) ----
+
+test('normalizeDateLower: pads partial precisions to YYYY-MM-DD', () => {
+    assert.strictEqual(CTG.normalizeDateLower('2015'), '2015-01-01');
+    assert.strictEqual(CTG.normalizeDateLower('2015-06'), '2015-06-01');
+    assert.strictEqual(CTG.normalizeDateLower('2015-06-15'), '2015-06-15');
+});
+
+test('normalizeDateLower: boundary year-only date is NOT wrongly dropped', () => {
+    // The debrief bug: bare "2015" < "2015-01-01" under raw string compare would
+    // drop a valid 2015 study. After normalisation it is >= the bound.
+    const sd = CTG.normalizeDateLower('2015');
+    const bound = CTG.normalizeDateLower('2015-01-01');
+    assert.ok(sd >= bound, '2015 study must pass a 2015-01-01 lower bound');
+    assert.ok(CTG.normalizeDateLower('2014') < bound, '2014 study must still be dropped');
 });
 
 console.log(`\n${passed} passed, ${failed} failed`);

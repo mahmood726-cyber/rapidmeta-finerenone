@@ -186,5 +186,87 @@ test('screenForApostrophe: REJECTS unescaped apostrophe (the trap)', () => {
 });
 
 // ============================================================================
+// HARDENING (2026-06-09): anti-fabrication guards on the text->trial contract
+// ============================================================================
+
+test('extractCount: LEAP-OVER guard — never grabs an upstream number', () => {
+    // The gap between number and keyword must not contain another digit, so a
+    // match can never leap over an intervening count to grab the wrong one.
+    const r = RX.extractCount('1234 screened then 567 randomized to arms', 'randomized');
+    assert.ok(r, 'expected a match');
+    assert.strictEqual(r.value, 567, 'must return the keyword-adjacent 567, never the upstream 1234');
+});
+
+test('extractCount: leap-over across multiple upstream numbers', () => {
+    const r = RX.extractCount('Assessed 4096 then 2474 randomized.', 'randomized');
+    assert.ok(r);
+    assert.strictEqual(r.value, 2474, 'must not pick the upstream 4096');
+});
+
+test('extractCount: negation + comma stays fail-closed (no leapt wrong value)', () => {
+    // "excluded 1622, 2474 randomized": the negation word is within range and a
+    // comma is NOT treated as a clause boundary, so the contract fail-closes to
+    // null (user enters) rather than risk the wrong number. It must NEVER return
+    // an upstream count.
+    const r = RX.extractCount('Assessed 4096, excluded 1622, 2474 randomized.', 'randomized');
+    if (r) assert.ok(r.value !== 4096 && r.value !== 1622, 'must never return a leapt-over upstream number');
+});
+
+test('extractCount: empty / whitespace abstract -> null (no fabrication)', () => {
+    assert.strictEqual(RX.extractCount('', 'randomized'), null);
+    assert.strictEqual(RX.extractCount('   \n  ', 'randomized'), null);
+    assert.strictEqual(RX.extractCount(null, 'randomized'), null);
+});
+
+test('extractCount: keyword absent from abstract -> null', () => {
+    assert.strictEqual(RX.extractCount('1500 patients were enrolled and followed.', 'randomized'), null);
+});
+
+test('extractCount: year-range + temporal preposition -> LOW (yearAmbiguous)', () => {
+    const r = RX.extractCount('In 2021 the trial randomized patients', 'randomized');
+    assert.ok(r);
+    assert.strictEqual(r.value, 2021);
+    assert.strictEqual(r.confidence, 'LOW', 'year-like count must be LOW so the user verifies');
+    assert.strictEqual(r.yearAmbiguous, true);
+});
+
+test('extractCount: real count near year range still extracted (n= stays tight)', () => {
+    const r = RX.extractCount('n=2008 randomized across sites', 'randomized');
+    assert.ok(r);
+    assert.strictEqual(r.value, 2008);
+});
+
+test('extractCount: long multi-word gap downgrades to LOW (looseGap)', () => {
+    const r = RX.extractCount('500 older adults were finally randomized', 'randomized');
+    assert.ok(r);
+    assert.strictEqual(r.value, 500);
+    assert.strictEqual(r.confidence, 'LOW');
+    assert.strictEqual(r.looseGap, true);
+});
+
+test('extractCount: zero / negative not emitted', () => {
+    assert.strictEqual(RX.extractCount('0 randomized', 'randomized'), null);
+});
+
+test('extractEffectAndCI: rejects degenerate zero-width CI', () => {
+    assert.strictEqual(RX.extractEffectAndCI('HR 1.00 (95% CI 1.00-1.00)'), null,
+        'a zero-width CI is degenerate and must not be auto-accepted');
+});
+
+test('extractEffectAndCI: rejects inverted CI (lci>uci)', () => {
+    assert.strictEqual(RX.extractEffectAndCI('HR 0.50 (95% CI 0.90-0.10)'), null);
+});
+
+test('extractEffectAndCI: empty abstract -> null', () => {
+    assert.strictEqual(RX.extractEffectAndCI(''), null);
+    assert.strictEqual(RX.extractEffectAndCI(null), null);
+});
+
+test('extractEffectAndCI: no number is fabricated from prose without a CI', () => {
+    // A bare "HR was significantly reduced" with no numbers must yield nothing.
+    assert.strictEqual(RX.extractEffectAndCI('The hazard ratio was significantly reduced.'), null);
+});
+
+// ============================================================================
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed === 0 ? 0 : 1);
