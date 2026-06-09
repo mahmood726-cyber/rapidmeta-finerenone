@@ -90,6 +90,56 @@ The full per-dashboard list is in `outputs/citation_audit.csv`.
    verification cards (NCT, dashboard claim, PubMed reality, propose
    correct PMID). Cohort users (Makerere, etc.) verify in parallel.
 
+## Update 2026-06-09 — re-run after minification + 15 fixes applied
+
+Two audit-tool bugs were fixed before this run (dashboards had been
+minified to **double-quoted** field literals, e.g. `name:"CASTLE-AF",pmid:"…"`):
+
+1. **Quote-agnostic extraction.** The field/anchor regexes only matched
+   single quotes, so extraction returned **0 triples** on the minified
+   portfolio. Now backreference the opening quote (value = group `val`).
+2. **High-precision AUTHOR_MISMATCH.** `has_any_author_pattern` matched
+   journal abbreviations ("N Engl **J** Med" → looked like "Surname I"),
+   firing AUTHOR_MISMATCH on ~93% of rows (1408 false positives) against
+   the *correct* PMID's real first author. Now requires a genuine author
+   list ("et al", "Source: Surname AB", or two "Surname AB, Surname CD").
+
+Also discovered the bulk live run's **44 PMID_NOT_FOUND were all false**
+— NCBI rate-limited during the 1101-PMID burst and the script cached the
+empty results as null. Purged + refetched slowly → 0 genuine not-found.
+
+Clean numbers (1521 dashboards, 1508 trial-citation rows):
+
+```
+                 before fixes   after 15 fixes
+rows with issue        31              17
+HIGH-CONFIDENCE        20               7
+```
+
+**15 wrong-PMID corrections applied** (`scripts/fix_wrong_pmids.py`,
+name-anchored + idempotent; each NEW pmid verified against PubMed by
+journal+volume+pages+author+title). Several were transposition typos
+(ACTA 29539276→29539274, SPYRAL-ON 29803590→29803589). Notably
+`29803590` is the *correct* pmid for RADIANCE-HTN SOLO but had been
+copied onto SPYRAL HTN-ON MED in the same file — name-anchoring fixed
+only the SPYRAL block. Full list with sources is in the codemod's `FIXES`.
+
+**2 genuinely-wrong PMIDs flagged for manual review (NOT auto-fixed):**
+- `MEDITERRANEAN_DIET_CV / PREDIMED-Plus` (pmid 38924767 → a perinatal-
+  medicine paper). The dashboard DOI `10.1016/S0140-6736(24)00822-0`
+  does **not resolve to any PubMed PMID** — possibly a fabricated cite.
+- `SEVERE_PEDIATRIC_FEBRILE_AFRICA / TRACT` (pmid 31314969 → unrelated).
+  Two TRACT companion papers exist (transfusion *threshold* 31365799 vs
+  *volume*); trial label and snippet disagree — confirm against the
+  dashboard's event counts before editing.
+
+**5 remaining high-confidence rows are PMID-correct / snippet-wrong**
+(the pmid resolves to the right trial; only the descriptive snippet text
+or page string is off): PARAGLIDE-HF, HEART-FID, VALOR-HCM, MAVA-LTE,
+RADIANCE II. These are snippet-text fixes, not wrong-PMID fixes.
+
+## Suggested next steps (original)
+
 The audit script is now part of the regular reverification pass.
 Run after any new dashboard or any PMID edit:
 

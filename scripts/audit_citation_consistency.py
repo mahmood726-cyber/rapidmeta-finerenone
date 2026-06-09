@@ -52,14 +52,30 @@ def strip_accents(s: str) -> str:
 
 
 def has_any_author_pattern(snippet: str) -> bool:
-    """Detect whether the snippet appears to name AT LEAST ONE author.
-    If False, the AUTHOR_MISMATCH check is meaningless (just journal+year)."""
+    """Detect whether the snippet actually carries an author CITATION.
+
+    Must be high-precision: a bare journal citation like
+    'N Engl J Med 2018; 378:417-427' contains NO author, yet the old
+    heuristic 'Surname Initial' matched the journal abbreviation
+    'Engl J' and produced a false AUTHOR_MISMATCH against the correct
+    PMID's real first author (this over-fired on ~93% of rows). NCT
+    outcome-measure snippets ('NCT...: Number of Participants...')
+    likewise have no author.
+
+    Only the following count as a genuine author list:
+      - 'et al' anywhere,
+      - 'Source: Surname AB' (explicit author-led citation), or
+      - two comma-separated 'Surname AB, Surname CD' author tokens.
+    """
     if not snippet:
         return False
-    # Heuristics: 'Surname et al', 'Surname I[I] et al', or 'Surname Initial,'
-    return bool(
-        re.search(r"\b[A-Z][a-zA-Z]{2,}\s+(?:[A-Z]{1,3}|et\s+al)", snippet)
-    )
+    if re.search(r"\bet\s+al\b", snippet):
+        return True
+    if re.search(r"\bSource:\s*[A-Z][a-zA-Z]+(?:-[A-Z][a-zA-Z]+)?\s+[A-Z]{1,3}\b", snippet):
+        return True
+    if re.search(r"\b[A-Z][a-zA-Z]{2,}\s+[A-Z]{1,3},\s*[A-Z][a-zA-Z]{2,}\s+[A-Z]{1,3}\b", snippet):
+        return True
+    return False
 
 
 def journal_url_token(url: str) -> str | None:
@@ -102,13 +118,21 @@ CACHE_TTL_SEC = 24 * 60 * 60
 
 ESUMMARY = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
 
-PMID_RE = re.compile(r"\bpmid:\s*'(\d+)'")
-NAME_RE = re.compile(r"\bname:\s*'([^']+)'")
-SNIPPET_RE = re.compile(r"\bsnippet:\s*'((?:[^'\\]|\\.)*)'")
-SOURCE_URL_RE = re.compile(r"\bsourceUrl:\s*'((?:[^'\\]|\\.)*)'")
+# Quote-agnostic: dashboards are emitted minified with EITHER single or
+# double quotes (e.g. name:'CASTLE-AF' vs name:"CASTLE-AF"). Each pattern
+# captures the opening quote and backreferences it for the close, so a value
+# may freely contain the OTHER quote char. The value is always group 'val'.
+def _qpat(name: str) -> re.Pattern:
+    return re.compile(r"\b" + name + r":\s*(['\"])(?P<val>(?:\\.|(?!\1).)*)\1")
+
+PMID_RE = re.compile(r"\bpmid:\s*['\"](?P<val>\d+)['\"]")
+NAME_RE = _qpat("name")
+SNIPPET_RE = _qpat("snippet")
+SOURCE_URL_RE = _qpat("sourceUrl")
 
 # Match surrounding object literal so we can pair pmid with snippet/sourceUrl
-NAME_PMID_ANCHOR = re.compile(r"\bname:\s*'[^']+'\s*,\s*pmid:\s*'\d+'")
+NAME_PMID_ANCHOR = re.compile(
+    r"\bname:\s*(['\"])(?:\\.|(?!\1).)*\1\s*,\s*pmid:\s*['\"]\d+['\"]")
 
 
 def find_trial_blocks(text: str) -> list[str]:
@@ -149,7 +173,7 @@ def find_trial_blocks(text: str) -> list[str]:
 
 def field(rx: re.Pattern, blob: str) -> str | None:
     m = rx.search(blob)
-    return m.group(1) if m else None
+    return m.group("val") if m else None
 
 
 def load_cache() -> dict:
