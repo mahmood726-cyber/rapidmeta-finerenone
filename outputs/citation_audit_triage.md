@@ -146,9 +146,13 @@ only the SPYRAL block. Full list with sources is in the codemod's `FIXES`.
   counts for this arm (`tE:295/tN:3438, cE:354/cN:3436`) therefore have no source
   and are very likely fabricated too — this is a poolable row in the
   MEDITERRANEAN_DIET_CV NMA, so removing vs. nulling it CHANGES the analysis.
-  **Decision pending (user):** remove the trial row, or null pmid/DOI + tag the
-  arm "UNVERIFIED — citation not found in PubMed" and exclude from pooling. Do NOT
-  invent a replacement PMID.
+  **RESOLVED 2026-06-09: REMOVED** the trial row entirely (user decision) via
+  `scripts/remove_predimedplus_fabricated.py` — deleted the realData entry, the
+  canonical AL_IDS id, the nctAcronyms pair, and the cosmetic title strings. The
+  MEDITERRANEAN_DIET_CV NMA now pools the 2 real arms (PREDIMED reanalysis +
+  CORDIOPREV). JS re-parses clean; 0 residual PREDIMEDPLUS/38924767/00822-0 tokens.
+  See outputs/citation_doi_sweep_findings.md for the portfolio-wide sweep this
+  triggered.
 
 **5 remaining high-confidence rows are PMID-correct / snippet-wrong**
 (the pmid resolves to the right trial; only the descriptive snippet text
