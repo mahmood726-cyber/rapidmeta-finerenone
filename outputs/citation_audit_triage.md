@@ -124,14 +124,31 @@ journal+volume+pages+author+title). Several were transposition typos
 copied onto SPYRAL HTN-ON MED in the same file — name-anchoring fixed
 only the SPYRAL block. Full list with sources is in the codemod's `FIXES`.
 
-**2 genuinely-wrong PMIDs flagged for manual review (NOT auto-fixed):**
-- `MEDITERRANEAN_DIET_CV / PREDIMED-Plus` (pmid 38924767 → a perinatal-
-  medicine paper). The dashboard DOI `10.1016/S0140-6736(24)00822-0`
-  does **not resolve to any PubMed PMID** — possibly a fabricated cite.
-- `SEVERE_PEDIATRIC_FEBRILE_AFRICA / TRACT` (pmid 31314969 → unrelated).
-  Two TRACT companion papers exist (transfusion *threshold* 31365799 vs
-  *volume*); trial label and snippet disagree — confirm against the
-  dashboard's event counts before editing.
+**2 genuinely-wrong PMIDs flagged for manual review — RESOLVED 2026-06-09 (PubMed-verified):**
+- `SEVERE_PEDIATRIC_FEBRILE_AFRICA / TRACT` — **FIXED** (`fix_wrong_pmids.py`,
+  `31314969 → 31365799`). The old pmid was Song Z, *Health Care Spending… Global
+  Payment*, NEJM 2019;381:252-263 (DOI 10.1056/NEJMsa1813621) — unrelated. The
+  correct paper is Maitland K et al., *Immediate Transfusion in African Children
+  with Uncomplicated Severe Anemia* (TRACT), NEJM 2019;381(5):407-419, DOI
+  10.1056/NEJMoa1900105, ISRCTN84086586 — which **matches the dashboard's existing
+  snippet (pages/DOI/author/registry) exactly**; only the pmid field was wrong.
+  Verified two ways: DOI→PMID conversion and citation lookup (page 407 + author
+  Maitland) both returned 31365799. JS re-parses clean.
+- `MEDITERRANEAN_DIET_CV / PREDIMED-Plus` — **CONFIRMED FABRICATED; NOT auto-fixed
+  (needs a data-integrity decision).** The cited paper does not exist in PubMed:
+  (a) pmid `38924767` → a perinatal paper (*Accidental uterine extensions…*, J
+  Perinat Med 2024, DOI 10.1515/jpm-2024-0077); (b) the cited DOI
+  `10.1016/S0140-6736(24)00822-0` resolves to **no** PubMed record; (c) a citation
+  lookup for *Lancet 2024;404:1247-1257, Salas-Salvadó* is **NOT_FOUND**; (d) a
+  PubMed search returns **zero** PREDIMED-Plus papers in *Lancet* and zero
+  Salas-Salvadó PREDIMED-Plus CVD-events papers (2023–2026). PREDIMED-Plus primary
+  hard-CVD-endpoint results were not published as cited. The dashboard's event
+  counts for this arm (`tE:295/tN:3438, cE:354/cN:3436`) therefore have no source
+  and are very likely fabricated too — this is a poolable row in the
+  MEDITERRANEAN_DIET_CV NMA, so removing vs. nulling it CHANGES the analysis.
+  **Decision pending (user):** remove the trial row, or null pmid/DOI + tag the
+  arm "UNVERIFIED — citation not found in PubMed" and exclude from pooling. Do NOT
+  invent a replacement PMID.
 
 **5 remaining high-confidence rows are PMID-correct / snippet-wrong**
 (the pmid resolves to the right trial; only the descriptive snippet text

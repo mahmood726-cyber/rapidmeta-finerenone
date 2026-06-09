@@ -51,6 +51,11 @@ FIXES = [
      "Qadri F Lancet 2021;398:675-684 TyVAC Bangladesh"),
     ("PEDIATRIC_HIV_ART_REVIEW.html", "CHAPAS-3 (NRTI backbone in paeds)", "26718098", "26481928",
      "Mulenga V Lancet Infect Dis 2015;16:169-79 CHAPAS-3"),
+    ("SEVERE_PEDIATRIC_FEBRILE_AFRICA_REVIEW.html", "TRACT (transfusion threshold anaemic)", "31314969", "31365799",
+     "Maitland K NEJM 2019;381:407-419 Immediate Transfusion in African Children with Uncomplicated "
+     "Severe Anemia (TRACT, ISRCTN84086586; DOI 10.1056/NEJMoa1900105 -- matches dashboard snippet "
+     "exactly). Old 31314969 was Song Z NEJM 2019;381:252-263 health-policy paper. Verified via PubMed "
+     "DOI->PMID + citation lookup (page 407 + author Maitland)."),
 ]
 
 
