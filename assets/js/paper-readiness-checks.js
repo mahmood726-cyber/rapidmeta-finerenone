@@ -93,6 +93,20 @@
     var el = document.querySelector('#paperCanvas .use-example[data-target="' + path + '"]');
     return el ? (el.getAttribute("data-starter") || "") : "";
   }
+  // A human-readable name for a field: the required-fields label, else the box's own task
+  // label from the DOM, else the last path segment.
+  function fieldLabel(path) {
+    for (var i = 0; i < REQUIRED_STUDENT_FIELDS.length; i++) if (REQUIRED_STUDENT_FIELDS[i][0] === path) return REQUIRED_STUDENT_FIELDS[i][1];
+    var box = document.querySelector('#paperCanvas [data-field="' + path + '"]');
+    if (box) {
+      var p = box.previousElementSibling, hops = 0;
+      while (p && hops < 6) {
+        if (p.classList && p.classList.contains("student-task-label")) return p.textContent.replace("?", "").trim();
+        p = p.previousElementSibling; hops++;
+      }
+    }
+    return path.split(".").pop();
+  }
   function num(v) { var n = Number(v); return isFinite(n) ? n : null; }
   var OVERCLAIM_RE = reAlt(OVERCLAIM_PHRASES);
   var GENERIC_RE = reAlt(GENERIC_PHRASES);
@@ -174,12 +188,16 @@
     });
 
     // 4. SUBSTANTIVE GATE (Phase 2b) — teach, do not templatise.
-    // 4a. Anti-duplication: an essentially-unedited example starter is not your own writing.
-    REQUIRED_STUDENT_FIELDS.forEach(function (f) {
-      var v = (get(f[0]) || "").trim(); if (!v) return;
-      var st = starterFor(f[0]); if (!st) return;
+    // 4a. Anti-duplication: an essentially-unedited example starter is NOT the student's own
+    //     writing and must not be accepted. Covers EVERY box that offers a "use this example"
+    //     button (not only the required fields), so a canned example pasted verbatim into ANY
+    //     section — required or optional — blocks the clean PDF until the student rewrites it.
+    document.querySelectorAll('#paperCanvas .use-example[data-target]').forEach(function (btn) {
+      var path = btn.getAttribute("data-target");
+      var v = (get(path) || "").trim(); if (!v) return;
+      var st = btn.getAttribute("data-starter") || ""; if (!st) return;
       if (similarity(v, st) >= 0.9) {
-        issues.push({ level: "error", field: f[0], msg: "Write it in your own words — \"" + f[1] + "\" is still almost identical to the example. Change it to describe YOUR study." });
+        issues.push({ level: "error", field: path, msg: "Write it in your own words — \"" + fieldLabel(path) + "\" is still the example text. Edit it to describe YOUR study (or clear the box)." });
       }
     });
     // 4b. Significance vs the no-effect line: cannot claim "significant" when the CI crosses null.
