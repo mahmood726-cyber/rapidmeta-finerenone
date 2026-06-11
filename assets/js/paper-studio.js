@@ -401,6 +401,29 @@
     return t;
   }
 
+  // Human names for the dashboard's analysis charts. Used to declare which auto-generated
+  // analyses live in the Supplementary Appendix. Forest/funnel/RoB are in the paper, so they're
+  // deliberately absent here — only the EXTRA analyses are listed.
+  var SUPP_PLOT_NAMES = {
+    "plot-subgroup": "subgroup analysis", "plot-cumulative": "cumulative meta-analysis",
+    "plot-loo": "leave-one-out sensitivity analysis", "plot-tsa": "trial-sequential / cumulative Z-curve analysis",
+    "plot-labbe": "L’Abbé plot", "plot-baujat": "Baujat heterogeneity-contribution plot",
+    "plot-copas": "Copas selection-model sensitivity", "plot-egger": "Egger’s test for small-study effects",
+    "plot-galbraith": "Galbraith (radial) plot", "plot-influence": "influence diagnostics",
+    "plot-metareg": "meta-regression", "plot-nnt": "number-needed-to-treat",
+    "plot-posterior": "Bayesian posterior distribution", "plot-power": "statistical power / information size",
+    "plot-sensitivity": "sensitivity analysis", "plot-ci-compare": "confidence-interval method comparison"
+  };
+  PS.supplementaryAnalysesList = function () {
+    var out = [], seen = {};
+    document.querySelectorAll(".js-plotly-plot").forEach(function (gd) {
+      var id = (gd && gd.id) || (gd && gd.parentElement && gd.parentElement.id) || "";
+      var nm = SUPP_PLOT_NAMES[id];
+      if (nm && !seen[nm]) { seen[nm] = 1; out.push(nm); }
+    });
+    return out;
+  };
+
   PS.render = function () {
     var a = PS.state.analysis, p = PS.state.pico;
     var emEst = (a.effectMeasure ? a.effectMeasure + " " : "") + auto("analysis.effectEstimate");
@@ -652,6 +675,17 @@
       "This work received no specific funding from any agency.") + '</p>';
     html += '<p><strong>Competing interests.</strong> ' + box("studentText.coi", "State any competing interests", "The author declares no competing interests. / The author declares...", "1 sentence", "Declare any competing interests, or state there are none.",
       "The author declares no competing interests.") + '</p>';
+
+    /* Supplementary material — declared pointer to the auto-generated appendix. Stays in the
+       clean PDF (it is a real, citable part of the paper); the list of analyses is auto-filled. */
+    html += '<h2>Supplementary material</h2>';
+    (function () {
+      var extras = PS.supplementaryAnalysesList();
+      html += '<p>The analyses in this paper are accompanied by an auto-generated <strong>Supplementary Appendix</strong>, available from the toolbar (Download ▾ → “Supplementary material — all analyses &amp; plots”, and also folded into the submission bundle). It contains the additional analyses RapidMeta produced that are not shown in the main paper'
+        + (extras.length ? ' — ' + esc(extras.join(', ')) : '')
+        + ' — together with every screened record (with abstract and link), the complete per-study statistics, the R code to reproduce the analysis, the GRADE tables, and the PRISMA 2020 / AMSTAR-2 / search-strategy supplements.</p>';
+      html += '<p class="supp-note"><em>These supplementary materials were generated automatically from the author’s analysis and were not individually written or checked; any value cited from them should be verified against the source publications.</em></p>';
+    })();
 
     /* references */
     html += '<h2>References</h2>';
