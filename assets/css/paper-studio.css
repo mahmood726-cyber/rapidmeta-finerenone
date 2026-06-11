@@ -316,11 +316,16 @@ body.ps-focus-mode .ps-provenance { display: inline; font-size: 0.72rem; color: 
    student then edits. Hidden in every export (.no-clean-pdf) and skipped by the word
    counter (it is not a .student-writing-box). Hidden once the box has content. */
 .use-example {
-  display: inline-block; margin: 0.1rem 0 0.4rem; font-size: 0.74rem; font-weight: 700;
-  padding: 0.25rem 0.7rem; border-radius: 999px; cursor: pointer;
-  background: var(--paper-soft-blue); color: var(--paper-accent); border: 1px solid #cfe3fb;
+  display: inline-flex; align-items: center; gap: 0.4rem; margin: 0.35rem 0 0.6rem;
+  font-size: 0.92rem; font-weight: 700; line-height: 1.2;
+  padding: 0.6rem 1.15rem; border-radius: 0.8rem; cursor: pointer; min-height: 44px;
+  background: linear-gradient(180deg, #f0f6ff 0%, var(--paper-soft-blue) 100%);
+  color: var(--paper-accent); border: 1.5px solid #bcd6f7;
+  box-shadow: 0 6px 16px -10px rgba(37, 99, 196, 0.55);
+  transition: background .12s ease, transform .12s ease, box-shadow .12s ease;
 }
-.use-example:hover { background: #dceafb; }
+.use-example:hover { background: #dceafb; transform: translateY(-1px); box-shadow: 0 10px 20px -10px rgba(37, 99, 196, 0.6); }
+.use-example:active { transform: translateY(0); }
 .use-example[hidden] { display: none; }
 /* "Open protocol page" link — shown only when the protocol-link field holds a real URL. */
 .protocol-open { display: inline-block; margin: 0.1rem 0 0.4rem; font-size: 0.82rem; font-weight: 700; color: var(--paper-accent); text-decoration: underline; }

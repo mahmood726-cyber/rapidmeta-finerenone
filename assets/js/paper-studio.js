@@ -409,7 +409,7 @@
       ' compared with ' + auto("pico.comparator", "[comparator]") + ' improve ' + auto("pico.primaryOutcome", "[primary outcome]") + '?</p>';
     html += '<p><strong>Main finding.</strong> ' + box("studentText.coverFinding", "Write your one-sentence headline (plain words)", "After combining the studies, the overall result suggests...", "1 sentence",
       "Put the grey numbers above into one plain sentence a patient could understand. Find your rating in the grey “Certainty” line on this card, then use the matching word: High = “reduces”, Moderate = “probably reduces”, Low = “may reduce”, Very low = “the evidence is very uncertain about whether it reduces”. Never write “proves”.",
-      "After combining the studies, the overall result suggests the intervention may improve this outcome, though how sure we can be depends on the certainty of the evidence.") + '</p>';
+      "After pooling the trials, the treatment probably reduced the main outcome compared with the comparator — a modest but fairly consistent benefit — although, with only moderate certainty, the exact size of the effect remains uncertain.") + '</p>';
     html += helper("The “pooled estimate” (or “combined result”) is the single result you get after combining all the studies together. " + learnChip("pooling"));
     html += '<p><strong>Evidence base.</strong> ' + auto("analysis.kStudies") + ' studies · ' + auto("analysis.totalParticipants") + ' participants · ' + esc(a.model) + ' meta-analysis</p>';
     html += '<p><strong>Primary result.</strong> ' + esc(emEst) + ', ' + ciTxt + ' ' + learnChip("confidence_interval") + '</p>';
