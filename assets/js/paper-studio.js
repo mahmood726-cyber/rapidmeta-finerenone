@@ -134,6 +134,14 @@
       if (!PS.state.studentText.protocolLink) {
         var purl = (RM && RM.state && (RM.state.protocolUrl || (RM.state.protocol && RM.state.protocol.url))) || "";
         if (!purl) { var mt = document.querySelector('meta[name="protocol-url"]'); if (mt) purl = mt.getAttribute("content") || ""; }
+        // The host header carries a frozen, timestamped GitHub-hosted protocol link
+        // (<a data-protocol-version href="protocols/…">). Resolve that relative href to an
+        // absolute URL so the published paper's Protocol statement self-fills on Pages.
+        if (!purl) {
+          var pa = document.querySelector('a[data-protocol-version][href]') ||
+                   document.querySelector('header a[href^="protocols/"], a[href*="/protocols/"]');
+          if (pa) { try { purl = new URL(pa.getAttribute("href"), location.href).href; } catch (e) {} }
+        }
         if (/^https?:\/\/\S+$/i.test(purl)) PS.state.studentText.protocolLink = purl;
       }
 

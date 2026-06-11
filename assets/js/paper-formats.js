@@ -170,7 +170,7 @@
     secs.push({ para: [
       "Use of automated tools. The structured numerical results, the figures, the Methods and Results summary text, the GRADE certainty summary and the reference identifiers were generated automatically by the RapidMeta Evidence Paper Studio from the author's own meta-analysis. The introduction, all interpretation, the discussion and the conclusions are the author's own work.",
       "Data availability. The analysis was based on data the author extracted from the included trials" + (srch.databases ? " (sources searched: " + srch.databases + (srch.searchDate ? ", last searched " + srch.searchDate : "") + ")" : "") + ".",
-      "Protocol and registration. " + g("studentText.registration"),
+      "Protocol and registration. " + g("studentText.registration") + (g("studentText.protocolLink") ? " The full protocol is available at " + g("studentText.protocolLink") + "." : ""),
       "Funding. " + g("studentText.funding"),
       "Competing interests. " + g("studentText.coi")
     ].filter(nonblank) });
