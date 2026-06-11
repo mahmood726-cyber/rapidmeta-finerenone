@@ -13,6 +13,7 @@
     ["studentText.title", "Title", 4],
     ["studentText.coverFinding", "Cover: main finding", 8],
     ["studentText.abstractBackground", "Abstract background", 12],
+    ["studentText.abstractObjective", "Abstract objective", 8],
     ["studentText.abstractConclusion", "Abstract conclusion", 20],
     ["studentText.introductionClinicalProblem", "Introduction: clinical problem", 50],
     ["studentText.introductionWhyReviewNeeded", "Introduction: why the review was needed", 20],
@@ -24,9 +25,9 @@
     ["studentText.discussionLimitations", "Main limitation", 50],
     ["studentText.discussionConclusion", "Balanced conclusion", 40],
     ["studentText.reflectionLeastConfident", "Reflection: where you are least confident", 12],
-    ["studentText.registration", "Disclosure: protocol/registration", 3],
-    ["studentText.funding", "Disclosure: funding", 3],
-    ["studentText.coi", "Disclosure: competing interests", 3],
+    ["studentText.registration", "Disclosure: protocol/registration", 6],
+    ["studentText.funding", "Disclosure: funding", 6],
+    ["studentText.coi", "Disclosure: competing interests", 6],
     ["studentText.references", "References (build them, then verify each)", 3]
   ];
 
@@ -92,6 +93,20 @@
   function starterFor(path) {
     var el = document.querySelector('#paperCanvas .use-example[data-target="' + path + '"]');
     return el ? (el.getAttribute("data-starter") || "") : "";
+  }
+  // A human-readable name for a field: the required-fields label, else the box's own task
+  // label from the DOM, else the last path segment.
+  function fieldLabel(path) {
+    for (var i = 0; i < REQUIRED_STUDENT_FIELDS.length; i++) if (REQUIRED_STUDENT_FIELDS[i][0] === path) return REQUIRED_STUDENT_FIELDS[i][1];
+    var box = document.querySelector('#paperCanvas [data-field="' + path + '"]');
+    if (box) {
+      var p = box.previousElementSibling, hops = 0;
+      while (p && hops < 6) {
+        if (p.classList && p.classList.contains("student-task-label")) return p.textContent.replace("?", "").trim();
+        p = p.previousElementSibling; hops++;
+      }
+    }
+    return path.split(".").pop();
   }
   function num(v) { var n = Number(v); return isFinite(n) ? n : null; }
   var OVERCLAIM_RE = reAlt(OVERCLAIM_PHRASES);
@@ -174,14 +189,26 @@
     });
 
     // 4. SUBSTANTIVE GATE (Phase 2b) — teach, do not templatise.
-    // 4a. Anti-duplication: an essentially-unedited example starter is not your own writing.
-    REQUIRED_STUDENT_FIELDS.forEach(function (f) {
-      var v = (get(f[0]) || "").trim(); if (!v) return;
-      var st = starterFor(f[0]); if (!st) return;
+    // 4a. Anti-duplication: an essentially-unedited example starter is NOT the student's own
+    //     writing and must not be accepted. Covers EVERY box that offers a "use this example"
+    //     button (not only the required fields), so a canned example pasted verbatim into ANY
+    //     section — required or optional — blocks the clean PDF until the student rewrites it.
+    document.querySelectorAll('#paperCanvas .use-example[data-target]').forEach(function (btn) {
+      var path = btn.getAttribute("data-target");
+      var v = (get(path) || "").trim(); if (!v) return;
+      var st = btn.getAttribute("data-starter") || ""; if (!st) return;
       if (similarity(v, st) >= 0.9) {
-        issues.push({ level: "error", field: f[0], msg: "Write it in your own words — \"" + f[1] + "\" is still almost identical to the example. Change it to describe YOUR study." });
+        issues.push({ level: "error", field: path, msg: "Write it in your own words — \"" + fieldLabel(path) + "\" is still the example text. Edit it to describe YOUR study (or clear the box)." });
       }
     });
+    // 4a-bis. The pooled result must actually have loaded — otherwise the auto Abstract/Results
+    // export a "result" made entirely of em-dashes ("— (— to —, 95% CI), I² = —%"). The student
+    // fields can all be complete while the numbers never computed, so guard it explicitly.
+    var an = (PS.state && PS.state.analysis) || {};
+    var blank = function (val) { var t = String(val == null ? "" : val).trim(); return t === "" || t === "—" || t === "-"; };
+    if (blank(an.effectEstimate) || (blank(an.ciLower) && blank(an.ciUpper))) {
+      issues.push({ level: "error", field: "studentText.forestInterpretation", msg: "Your pooled result has not loaded (the effect/CI are blank) — open the Analysis tab and run/refresh the analysis before exporting, so the paper doesn't show a result made of dashes." });
+    }
     // 4b. Significance vs the no-effect line: cannot claim "significant" when the CI crosses null.
     var a = (PS.state && PS.state.analysis) || {};
     var lci = num(a.ciLower), uci = num(a.ciUpper);

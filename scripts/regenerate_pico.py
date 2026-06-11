@@ -1,0 +1,312 @@
+"""Regenerate PICO + clinical scaffold for apps that drifted to the SGLT2-HF base template.
+
+Problem: ~204 cloned RapidMeta dashboards kept the SGLT2 / heart-failure PICO,
+search strategy, figure captions, JSON-LD description and screening labels from
+the base template they were cloned from, even though their curated <title> and
+realData (trial evidence) are the CORRECT topic.
+
+Fix: for each drifted app, DERIVE an accurate PICO from the app's OWN curated
+data (title + realData group labels + primary outcomes) and replace the
+SGLT2-HF leftover strings. This is a faithful summary of in-app curated data,
+not fabrication from titles.
+
+Usage:
+    python scripts/regenerate_pico.py --dry-run     # writes review log, no edits
+    python scripts/regenerate_pico.py --apply        # edits files in place
+
+Source of truth per app (all curated, already in the file):
+    <title>            -> specialty + condition (Population)
+    realData group:"…" -> Interventions / Comparators (NOT subgroup:"…")
+    allOutcomes PRIMARY-> Outcome
+"""
+from __future__ import annotations
+import argparse, io, os, re, sys, glob
+from collections import Counter
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Method / marketing tokens to strip when isolating the condition from a title topic.
+TOPIC_NOISE = re.compile(
+    r"\b(NMA|Ultra-Precision|Living|Broad|New Agents|Newer|Frontline|1L|2L|"
+    r"Pan[- ]Tumor|Targeted|Phase\s*\d(?:/\d)?|v\d+(?:\.\d+)?|Review|Dashboard|"
+    r"Prevention|Prophylaxis|Therapy|Treatment|Management)\b",
+    re.I,
+)
+
+# Exact SGLT2-HF base-template literals -> replaced with a per-app derived value.
+# Values filled in build_replacements(); keys are the constant contaminated strings.
+LITERALS = {
+    "Adults with heart failure across ejection fraction spectrum": "pop",
+    "SGLT2 or dual SGLT1/2 inhibitor therapy (dapagliflozin, empagliflozin, or sotagliflozin)": "int",
+    "Placebo + guideline-directed therapy": "comp",
+    "CV Death or Worsening Heart Failure Composite": "out",
+    "EF phenotype (HFrEF vs HFpEF), drug class member, diabetes status": "subgroup",
+    "SGLT2i as primary experimental drug": "int_short",
+    "SGLT2i dose/regimen, trial phase, treatment duration": "ext_form",
+    "SGLT2 inhibitor therapy vs placebo for CV death or worsening HF": "fig_caption",
+    "Forest plot of SGLT2 inhibitor therapy": "fig_forest",
+    "canonical SGLT2-HF landmark trial": "landmark",
+    "cardiovascular death or worsening heart failure": "out_lc",
+}
+
+
+def title_topic(t: str):
+    m = re.search(r"<title>(.*?)</title>", t, re.S)
+    if not m:
+        return None, None
+    raw = re.sub(r"\s+", " ", m.group(1)).strip()
+    # Format: "RapidMeta <Specialty> | <Topic> Ultra-Precision vNN"
+    spec, topic = None, raw
+    mm = re.match(r"RapidMeta\s+([^|]+)\|\s*(.+)", raw)
+    if mm:
+        spec = mm.group(1).strip()
+        topic = mm.group(2).strip()
+    topic = re.sub(r"\s+(Ultra-Precision.*|v\d+(\.\d+)?.*)$", "", topic).strip()
+    return spec, topic
+
+
+def condition_from_topic(topic: str) -> str:
+    """Strip intervention/method noise to isolate the disease label; fall back to topic."""
+    c = TOPIC_NOISE.sub(" ", topic)
+    c = re.sub(r"\bvs\b.*", "", c, flags=re.I)  # "RYGB vs SG" -> drop comparison tail
+    c = re.sub(r"\s+", " ", c).strip(" -|,")
+    return c if len(c) >= 3 else topic
+
+
+def _obj_span(t: str, key: str):
+    """String-aware brace match for `<key>:{…}` -> the inner object text, or ''."""
+    m = re.search(re.escape(key) + r":\{", t)
+    if not m:
+        return ""
+    i = m.end() - 1  # at the '{'
+    depth = 0
+    in_str = False
+    quote = ""
+    esc = False
+    for j in range(i, len(t)):
+        ch = t[j]
+        if in_str:
+            if esc:
+                esc = False
+            elif ch == "\\":
+                esc = True
+            elif ch == quote:
+                in_str = False
+            continue
+        if ch in "\"'":
+            in_str = True
+            quote = ch
+        elif ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return t[i + 1 : j]
+    return ""
+
+
+def real_groups(t: str):
+    # Scope strictly to the realData:{…} object so we never grab i18n/translation
+    # dictionaries (which contain Arabic "subgroup" strings and stray group: keys).
+    span = _obj_span(t, "realData")
+    return [g.strip() for g in re.findall(r'(?<!sub)group:"(.*?)"', span) if g.strip()]
+
+
+def clean_arm(label: str) -> str:
+    """Drug/intervention name from a trial group label."""
+    a = re.split(r"\bvs\b", label, flags=re.I)[0]
+    a = re.sub(r"\([^)]*\)", "", a)              # drop "(1L unfit)", "(VALOR)"
+    a = re.sub(r"\b\d+\s*(mg|mcg|µg|μg|g|IU|kg|%)\b.*", "", a, flags=re.I)  # drop dosing tail
+    a = re.sub(r"\b(SC|IV|PO|monthly|quarterly|weekly|daily|once|×\d+|x\d+)\b.*", "", a, flags=re.I)
+    return re.sub(r"\s+", " ", a).strip(" +,-")
+
+
+def _clean_outcome(title: str) -> str:
+    ti = re.sub(r"\([^)]*\)", "", title)                 # drop "(VALOR)", "(NEGATIVE)"
+    # Drop a trailing BARE trial acronym (pure A-Z, 3-8 chars) e.g. "... VALOR";
+    # the (?<![A-Z0-9-]) guard preserves COVID-19, IDH2+, HFpEF-style tokens.
+    ti = re.sub(r"(?<![A-Za-z0-9-])[A-Z]{3,8}\s*$", "", ti)
+    ti = re.sub(r"\s+", " ", ti).strip()
+    ti = re.sub(r"\s+(at|in|for|by|of|after|the|with|vs)$", "", ti, flags=re.I).strip(" -,")
+    return ti
+
+
+def primary_outcomes(t: str):
+    span = _obj_span(t, "realData")
+    outs = re.findall(r'shortLabel:"(.*?)",title:"(.*?)"[^}]*?type:"PRIMARY"', span)
+    if not outs:
+        return []
+    by_label = {}
+    for sl, title in outs:
+        c = _clean_outcome(title)
+        if c:
+            by_label.setdefault(sl, []).append(c)
+    if not by_label:
+        return []
+    best_label = max(by_label, key=lambda k: len(by_label[k]))
+    titles = by_label[best_label]
+    # Most frequent title, tie-broken by the longest (most complete) form.
+    ranked = sorted(set(titles), key=lambda x: (-titles.count(x), -len(x)))
+    return ranked
+
+
+# An arm label is unusable as an Intervention if it is actually citation /
+# evidence prose (a different template variant stores those in group:"…").
+_BAD_ARM = re.compile(r"et al|NEJM|Lancet|JAMA|\bdoi\b|20\d\d[;:]|randomized phase", re.I)
+
+
+def arm_is_clean(a: str) -> bool:
+    return bool(a) and len(a) <= 55 and not _BAD_ARM.search(a)
+
+
+# Some template variants store the POPULATION phenotype in group:"…" instead of
+# the intervention (e.g. heart-failure apps: "HFrEF", "Chronic HF", "Post-MI").
+# Detect that family so we never present a population label as an Intervention.
+_PHENOTYPE = re.compile(
+    r"^(HF[rmp]{0,2}EF|chronic HF|acute HF|decompensated|post-?MI|NYHA|"
+    r"stage\s+[0-9IV]+|on GDMT)", re.I)
+
+
+def looks_population_template(groups) -> bool:
+    return sum(1 for g in groups if _PHENOTYPE.match(g.strip())) >= 2
+
+
+def derive(t: str):
+    spec, topic = title_topic(t)
+    if not topic:
+        return None
+    cond = condition_from_topic(topic)
+    groups = real_groups(t)
+    arms = []
+    for g in groups:
+        a = clean_arm(g)
+        if arm_is_clean(a) and a.lower() not in (x.lower() for x in arms):
+            arms.append(a)
+    arms = arms[:6]
+    outs = primary_outcomes(t)
+    out_main = outs[0] if outs else None
+
+    # Confidence: we can only honestly regenerate I/C/O when the app exposes clean
+    # arm labels and a primary outcome. Non-standard templates (citation-in-group)
+    # are excluded rather than fed derived garbage.
+    low_conf = len(arms) < 1 or out_main is None or looks_population_template(groups)
+    if out_main is None:
+        out_main = "primary trial endpoint"
+
+    # Comparator: look for explicit "vs <X>" or control keywords in group labels.
+    comp = None
+    for g in groups:
+        m = re.search(r"\bvs\s+(.+)", g, re.I)
+        if m:
+            comp = re.sub(r"\([^)]*\)", "", m.group(1)).strip()
+            comp = re.sub(r"\b\d+.*", "", comp).strip(" -+,")
+            if comp:
+                break
+    if not comp:
+        if any(re.search(r"placebo", g, re.I) for g in groups):
+            comp = "Placebo / standard of care (per included trial)"
+        else:
+            comp = "Active comparator, standard of care, or placebo (per included trial)"
+
+    int_full = "; ".join(arms) if arms else cond + " agents under study"
+    int_short = (arms[0] if arms else cond) + (" and related agents" if len(arms) > 1 else "")
+
+    # Population is NOT reliably derivable from a title (an intervention-led title
+    # like "RYGB vs Sleeve Gastrectomy" yields no disease). To avoid fabricating a
+    # wrong indication across 200+ files, P is stated truthfully as the trial-scoped
+    # population; the evidence table carries each trial's exact eligibility.
+    pico = {
+        "pop": f"Participants of the included randomized trials for {topic} "
+               f"(see evidence table for trial-specific eligibility)",
+        "int": int_full,
+        "comp": comp,
+        "out": out_main,
+        "subgroup": "By intervention, trial, and population subgroup (see evidence table)",
+        "int_short": int_short,
+        "ext_form": "Intervention dose/regimen, trial phase, treatment duration",
+        "fig_caption": f"{int_short} vs comparator for {out_main.lower()}",
+        "fig_forest": f"Forest plot of {int_short}",
+        "landmark": "canonical landmark trial for this topic",
+        "out_lc": out_main.lower(),
+        "_topic": topic, "_spec": spec, "_cond": cond,
+        "_arms": arms, "_outs": outs[:3], "_low_conf": low_conf,
+    }
+    return pico
+
+
+def apply_to(t: str, pico: dict):
+    changed = 0
+    for lit, key in LITERALS.items():
+        repl = pico[key]
+        if lit in t:
+            t = t.replace(lit, repl)
+            changed += 1
+    # JSON-LD / meta description (mirrors original "int; pop; out" format)
+    desc_old = re.search(r'"description":"([^"]*?(?:SGLT2|heart failure)[^"]*?)"', t, re.I)
+    if desc_old:
+        new_desc = f'{pico["int_short"]}; {pico["pop"]}; {pico["out"]}'.replace('"', "'")
+        t = t.replace(f'"description":"{desc_old.group(1)}"', f'"description":"{new_desc}"')
+        changed += 1
+    # Search-strategy literal
+    sq = re.search(r'\(dapagliflozin OR empagliflozin OR sotagliflozin OR "?sglt2"?\)[^"\\]*', t, re.I)
+    if sq:
+        terms = " OR ".join(re.sub(r"\s*\+.*", "", a) for a in pico["_arms"][:5]) or pico["_cond"]
+        cond = pico["_cond"]
+        new_q = f'({terms}) AND "{cond}" AND (randomized OR "randomized controlled trial")'
+        t = t.replace(sq.group(0), new_q)
+        changed += 1
+    return t, changed
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--apply", action="store_true")
+    ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--list", default=os.path.join(ROOT, "outputs", "_pico_drift_list.txt"))
+    args = ap.parse_args()
+    if not (args.apply or args.dry_run):
+        args.dry_run = True
+
+    files = [f for f in open(args.list, encoding="utf-8").read().split() if f]
+    log = ["# PICO regeneration review\n", f"{len(files)} drifted apps\n"]
+    n_ok = n_skip = total_changed = 0
+    excluded = []
+    for f in files:
+        path = os.path.join(ROOT, f)
+        t = open(path, encoding="utf-8", errors="replace").read()
+        pico = derive(t)
+        if not pico:
+            n_skip += 1
+            excluded.append(f)
+            log.append(f"\n## SKIP {f} — could not derive (no title)")
+            continue
+        if pico["_low_conf"]:
+            n_skip += 1
+            excluded.append(f)
+            log.append(f"\n## EXCLUDE {f} — non-standard template "
+                       f"(arms={pico['_arms']}, outcome derivable={pico['_outs'][:1]}); "
+                       f"left for separate handling")
+            continue
+        new_t, changed = apply_to(t, pico)
+        total_changed += changed
+        n_ok += 1
+        log.append(
+            f"\n## {f}  ({changed} edits)\n"
+            f"- **P**: {pico['pop']}\n- **I**: {pico['int']}\n"
+            f"- **C**: {pico['comp']}\n- **O**: {pico['out']}\n"
+            f"- topic=`{pico['_topic']}` cond=`{pico['_cond']}` arms={pico['_arms']}"
+        )
+        if args.apply and new_t != t:
+            open(path, "w", encoding="utf-8").write(new_t)
+
+    open(os.path.join(ROOT, "outputs", "_pico_regen_review.md"), "w", encoding="utf-8").write("\n".join(log))
+    open(os.path.join(ROOT, "outputs", "_pico_excluded_nonstandard.txt"), "w", encoding="utf-8").write("\n".join(excluded))
+    mode = "APPLIED" if args.apply else "DRY-RUN"
+    print(f"[{mode}] regenerated={n_ok} excluded={n_skip} total_edits={total_changed}")
+    print(f"excluded (non-standard template) -> outputs/_pico_excluded_nonstandard.txt ({len(excluded)})")
+    print("review: outputs/_pico_regen_review.md")
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    main()

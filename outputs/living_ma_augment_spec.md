@@ -128,6 +128,25 @@ Plus ~200 lines of Playwright smoke tests.
 | LSMD/MMRM tag | continuous endpoints | scan for `LSMD`, `least-squares mean`, `MMRM`, `ANCOVA`, `mixed model`; tag the auto-fill with the detected method |
 | Apostrophe-in-string | every string write to JS | screen for `'` before any string literal injection; mandatory escape (lessons.md 2026-04-30 trap) |
 
+### Hardening 2026-06-09 (added anti-fabrication guards + tests)
+
+The "extractor text→trial contract" was tightened so the contract NEVER emits a
+confidently-wrong number; when binding is weak or ambiguous it fail-closes to
+`null`/`NONE` (→ `[NONE]` badge → user hand-enters). New guards:
+
+| Guard | Where | Action |
+|-------|-------|--------|
+| Leap-over guard | `extractCount` | the number↔keyword gap class is `[^\d,.;:\n]` — it may not contain another **digit** (can't jump over an intervening count, e.g. "1234 screened then 567 randomized" → 567 not 1234), nor cross a comma/clause boundary (preserves the VICTORIA negation case) |
+| Year-ambiguity | `extractCount` | a value in 1900–2100 preceded by a temporal preposition (`in/by/since/during/year/of`) → confidence **LOW** + `yearAmbiguous` (don't drop; user confirms) |
+| Loose-gap | `extractCount` | a distance-matched count with a >3-word gap → **LOW** + `looseGap` |
+| Zero/positive | `extractCount` | non-finite or ≤0 counts are never emitted |
+| Degenerate CI | `extractEffectAndCI` | require `lci < uci`; rejects zero-width (`1.00-1.00`) and inverted CIs in addition to the existing bracket check |
+| Count-type gate | `ctgov extractStructured` | `tE`/`cE` filled ONLY when the outcome `paramType` is a count (`COUNT/NUMBER/PARTICIPANTS`) **and** its unit is not `%`/percent/proportion/rate/mean/median — a MEAN/% measurement is never `Math.round`-ed into an event count |
+| Finite-N | `ctgov extractStructured` | `tN`/`cN` only set when `parseInt(numSubjects)` is finite (never stores `NaN`) |
+| Partial-date | `ctgov searchByPico` | `normalizeDateLower` pads `YYYY`/`YYYY-MM` to `YYYY-MM-DD` before the lower-bound compare (fixes the debrief's boundary-year drop bug) |
+
+Tests: `test_regex_helpers.js` 38 pass, `test_ctgov_fetch.js` 15 pass, `test_pubmed_fetch.js` 5 pass (58 total, +18). No new dashboards installed — NEW-TOPIC FREEZE respected.
+
 ## Dual-sign contract
 
 User-added trials require BOTH reviewers to sign before entering the

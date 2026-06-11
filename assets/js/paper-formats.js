@@ -118,7 +118,7 @@
     var x = a(), pic = p(), secs = [];
     secs.push({ h: g("studentText.title") || "Untitled evidence paper", lvl: 1 });
     if (PS.state.meta && PS.state.meta.studentName) secs.push({ para: [PS.state.meta.studentName], lvl: 0 });
-    secs.push({ para: ["Clinical question. In " + (pic.population || "[population]") + ", does " + (pic.intervention || "[intervention]") + " compared with " + (pic.comparator || "[comparator]") + " improve " + (pic.primaryOutcome || "[primary outcome]") + "?"] });
+    secs.push({ para: ["Clinical question. In " + (pic.population || "(not stated)") + ", does " + (pic.intervention || "(not stated)") + " compared with " + (pic.comparator || "(not stated)") + " improve " + (pic.primaryOutcome || "(not stated)") + "?"] });
 
     secs.push({ h: "Abstract", lvl: 2 });
     secs.push({ para: [
@@ -134,7 +134,7 @@
 
     secs.push({ h: "Methods", lvl: 2 });
     secs.push({ para: [
-      "This short evidence paper used a rapid systematic review and meta-analysis workflow. The review question was structured using the PICO framework (Population, Intervention, Comparator, Outcome): the population was " + (pic.population || "[population]") + ", the intervention was " + (pic.intervention || "[intervention]") + ", the comparator was " + (pic.comparator || "[comparator]") + ", and the primary outcome was " + (pic.primaryOutcome || "[primary outcome]") + ".",
+      "This short evidence paper used a rapid systematic review and meta-analysis workflow. The review question was structured using the PICO framework (Population, Intervention, Comparator, Outcome): the population was " + (pic.population || "(not stated)") + ", the intervention was " + (pic.intervention || "(not stated)") + ", the comparator was " + (pic.comparator || "(not stated)") + ", and the primary outcome was " + (pic.primaryOutcome || "(not stated)") + ".",
       "Treatment effects were summarized using the " + (x.effectMeasure || "chosen effect measure") + ". A " + String(x.model || "random-effects").toLowerCase() + " meta-analysis was performed. Heterogeneity was assessed using I² and τ², and certainty of evidence was summarized using a GRADE-style approach.",
       g("studentText.methodsStudentLimitation")
     ].filter(nonblank) });
@@ -158,9 +158,31 @@
     secs.push({ h: "Discussion", lvl: 2 });
     secs.push({ para: [
       g("studentText.discussionPrincipalFinding"), g("studentText.discussionClinicalMeaning"),
-      g("studentText.discussionComparison"), g("studentText.discussionStrengths"),
-      g("studentText.discussionLimitations"), g("studentText.discussionConclusion")
+      g("studentText.discussionComparison"), g("studentText.discussionTransportability"),
+      g("studentText.discussionStrengths"), g("studentText.discussionLimitations"),
+      g("studentText.discussionConclusion")
     ].filter(nonblank) });
+
+    // Declarations — the readiness gate FORCES these statements ("journals require them"), so the
+    // exported manuscript (Word/.zip/.md/.txt/.html) must carry them too or it desk-rejects.
+    var srch = PS.state.search || {};
+    secs.push({ h: "Declarations", lvl: 2 });
+    secs.push({ para: [
+      "Use of automated tools. The structured numerical results, the figures, the Methods and Results summary text, the GRADE certainty summary and the reference identifiers were generated automatically by the RapidMeta Evidence Paper Studio from the author's own meta-analysis. The introduction, all interpretation, the discussion and the conclusions are the author's own work.",
+      "Data availability. The analysis was based on data the author extracted from the included trials" + (srch.databases ? " (sources searched: " + srch.databases + (srch.searchDate ? ", last searched " + srch.searchDate : "") + ")" : "") + ".",
+      "Protocol and registration. " + g("studentText.registration"),
+      "Funding. " + g("studentText.funding"),
+      "Competing interests. " + g("studentText.coi")
+    ].filter(nonblank) });
+
+    // Supplementary material — a declared pointer to the auto-generated appendix (all the extra
+    // RapidMeta analyses/plots not shown in the paper). Auto text, no student writing.
+    var extras = (PS.supplementaryAnalysesList ? PS.supplementaryAnalysesList() : []);
+    secs.push({ h: "Supplementary material", lvl: 2 });
+    secs.push({ para: [
+      "An auto-generated Supplementary Appendix accompanies this paper" + (extras.length ? ", containing additional analyses not shown above (" + extras.join("; ") + ")" : "") + ", together with every screened record (with abstract and link), the complete per-study statistics, the R code to reproduce the analysis, the GRADE tables, and the PRISMA 2020, AMSTAR-2 and search-strategy supplements.",
+      "These supplementary materials were generated automatically by RapidMeta from the author's analysis and were not individually written or checked; any value cited from them should be verified against the source publications."
+    ] });
 
     var refs = g("studentText.references");
     if (nonblank(refs)) { secs.push({ h: "References", lvl: 2 }); secs.push({ pre: refs }); }
@@ -234,10 +256,15 @@
     })).then(function (figFiles) {
       figFiles.filter(Boolean).forEach(function (f) { files.push(f); });
       files.push({ name: "figure-legends.txt", data: strU8(legends.join("\n\n") + "\n") });
-      // include the submittable supplementary checklists if available
-      if (PS._supplementaryFiles) PS._supplementaryFiles().forEach(function (s) { files.push({ name: s.name, data: strU8(s.text) }); });
-      dl(slug(m) + "-submission.zip", zipStore(files));
-      if (PS.toast) PS.toast("Submission bundle downloaded: manuscript + " + figFiles.filter(Boolean).length + " figure(s) + legends.");
+      // Fold the FULL auto-generated supplement (every dashboard chart + records + statistics + R
+      // code + GRADE tables + PRISMA/AMSTAR/search) into the same zip, under supplementary/, so a
+      // hand-in is a single file. The supplement is declared auto-generated in its own README.
+      var nFig = figFiles.filter(Boolean).length;
+      PS._supplementPackage(figFormat, "supplementary/").then(function (supp) {
+        supp.forEach(function (f) { files.push(f); });
+        dl(slug(m) + "-submission.zip", zipStore(files));
+        if (PS.toast) PS.toast("Submission bundle: manuscript + " + nFig + " figure(s) + legends + full supplementary material.");
+      });
     });
   };
 
@@ -333,33 +360,54 @@
   // test/diagnostics hook
   PS._transparencyDocs = function () { return { records: recordsMd(), statistics: statisticsMd(), r: rValidationMd() }; };
 
+  // GRADE / other tables as an HTML body, or an HONEST stub so the promised file always exists
+  // (the README lists tables.html unconditionally).
+  function tablesHtmlBody() {
+    var tables = [tableHtml("#sof-body", "GRADE Summary of Findings"), tableHtml("#grade-profile-container", "GRADE profile")].filter(Boolean).join("\n<hr>\n");
+    var body = tables || "<p><em>No GRADE Summary of Findings table was generated in this session. Open the GRADE / Certainty of evidence step in the analysis and re-export to include it.</em></p>";
+    return "<!DOCTYPE html><meta charset='utf-8'><body>" + body + "</body>";
+  }
+
+  // Everything RapidMeta produced that is NOT the paper itself — every screened record, the full
+  // per-study statistics, the R code, the GRADE tables, the PRISMA/AMSTAR/search supplements, and
+  // EVERY chart in the dashboard (not just the paper's ~5). Returned as a flat file array under
+  // `prefix`, so it can ship as a standalone zip OR be folded into the submission bundle. It is
+  // auto-generated and declared as such in its README.
+  PS._supplementPackage = function (figFormat, prefix) {
+    figFormat = figFormat || "png"; prefix = prefix == null ? "supplementary/" : prefix;
+    var files = [
+      { name: prefix + "records.md", data: strU8(recordsMd()) },
+      { name: prefix + "statistics.md", data: strU8(statisticsMd()) },
+      { name: prefix + "R-validation.md", data: strU8(rValidationMd()) },
+      { name: prefix + "tables.html", data: strU8(tablesHtmlBody()) }
+    ];
+    // _supplementaryFiles names already carry a "supplementary/" prefix — push as-is.
+    if (PS._supplementaryFiles) PS._supplementaryFiles().forEach(function (s) { files.push({ name: s.name, data: strU8(s.text) }); });
+    return PS.harvestAllFigures(figFormat).then(function (figFiles) {
+      figFiles.forEach(function (f) { files.push({ name: prefix + f.name, data: f.data }); });
+      var readme = ["# Supplementary material (auto-generated)", "",
+        "These materials were generated AUTOMATICALLY by RapidMeta from the author's analysis. They",
+        "are NOT part of the peer-written paper and were not individually checked — verify any value",
+        "against the source publications before citing it.", "",
+        "- `records.md` — every screened study with its full abstract and a link",
+        "- `statistics.md` — the complete pooled results and per-study data",
+        "- `R-validation.md` — the R code (and output) to reproduce the analysis",
+        "- `tables.html` — GRADE Summary of Findings and other tables",
+        "- `figures/` — every chart in the dashboard (" + figFormat.toUpperCase() + ", " + figFiles.length + " chart(s))",
+        "- PRISMA 2020, AMSTAR-2 and the search strategy"].join("\n");
+      files.push({ name: prefix + "README.md", data: strU8(readme) });
+      files.push({ name: prefix + "figures/INDEX.txt", data: strU8("Charts: " + figFiles.length + "\n" + figFiles.map(function (f) { return f.name; }).join("\n")) });
+      return files;
+    });
+  };
+
   PS.exportTransparency = function (figFormat) {
     figFormat = figFormat || "png";
-    if (PS.toast) PS.toast("Building full transparency appendix… (harvesting every chart and record)");
+    if (PS.toast) PS.toast("Building supplementary material… (harvesting every chart and record)");
     var m = PS.buildManuscript();
-    var readme = ["# Transparency appendix", "",
-      "This package contains everything the analysis produced, for full transparency:",
-      "- `records.md` — every screened study with its full abstract and a link",
-      "- `statistics.md` — the complete pooled results and per-study data",
-      "- `R-validation.md` — the R code (and output) to reproduce the analysis",
-      "- `tables.html` — GRADE Summary of Findings and other tables",
-      "- `figures/` — every chart in the dashboard (" + figFormat.toUpperCase() + ")",
-      "- `supplementary/` — PRISMA 2020, AMSTAR-2 and the search strategy", "",
-      "Generated by RapidMeta Evidence Paper Studio. Verify all extracted values against the source publications."].join("\n");
-    var files = [
-      { name: "README.md", data: strU8(readme) },
-      { name: "records.md", data: strU8(recordsMd()) },
-      { name: "statistics.md", data: strU8(statisticsMd()) },
-      { name: "R-validation.md", data: strU8(rValidationMd()) }
-    ];
-    var tables = [tableHtml("#sof-body", "GRADE Summary of Findings"), tableHtml("#grade-profile-container", "GRADE profile")].filter(Boolean).join("\n<hr>\n");
-    if (tables) files.push({ name: "tables.html", data: strU8("<!DOCTYPE html><meta charset='utf-8'><body>" + tables + "</body>") });
-    if (PS._supplementaryFiles) PS._supplementaryFiles().forEach(function (s) { files.push({ name: s.name, data: strU8(s.text) }); });
-    PS.harvestAllFigures(figFormat).then(function (figFiles) {
-      figFiles.forEach(function (f) { files.push(f); });
-      files.push({ name: "figures/INDEX.txt", data: strU8("Charts exported: " + figFiles.length + "\n" + figFiles.map(function (f) { return f.name; }).join("\n")) });
-      dl(slug(m) + "-transparency-appendix.zip", zipStore(files));
-      if (PS.toast) PS.toast("Transparency appendix downloaded: " + figFiles.length + " chart(s) + records + R + statistics.");
+    PS._supplementPackage(figFormat, "").then(function (files) {
+      dl(slug(m) + "-supplementary-material.zip", zipStore(files));
+      if (PS.toast) PS.toast("Supplementary material downloaded: every dashboard chart + records + R + statistics.");
     });
   };
 })();

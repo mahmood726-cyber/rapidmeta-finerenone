@@ -1120,7 +1120,59 @@
 <!-- jsonld:begin -->
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"MedicalScholarlyArticle","headline":"RapidMeta | Maralixibat in PFIC (MARCH-PFIC + cohort) (audit-first, full-functionality)","name":"RapidMeta | Maralixibat in PFIC (MARCH-PFIC + cohort) (audit-first, full-functionality)","url":"https://mahmood726-cyber.github.io/rapidmeta-finerenone/MARALIXIBAT_PFIC_REVIEW_FULL_REVIEW.html","datePublished":"2026-05-24","dateModified":"2026-05-24","inLanguage":"en","author":{"@type":"Person","name":"Mahmood Ahmad","identifier":"https://orcid.org/"},"publisher":{"@type":"Organization","name":"RapidMeta","url":"https://mahmood726-cyber.github.io/rapidmeta-finerenone/"},"isAccessibleForFree":true,"keywords":"meta-analysis, living review, RapidMeta, Maralixibat","description":"Maralixibat (AACT-verified intervention name); Adults randomised in trials registered on ClinicalTrials.gov for Cholestasis; Trial-declared primary outcome (AAC","mentions":{"@type":"Drug","name":"Maralixibat"}}</script>
 <!-- jsonld:end -->
-  <link rel="stylesheet" href="assets/css/paper-studio.css">
+  <link rel="stylesheet" href="assets/css/paper-studio.css?v=513b7748">
+  <style>
+    /* ===== RapidMeta wide layout + Paper Studio zen (full-screen-by-default) ===== */
+    /* Wide by default: boxed panels fill the whole laptop width */
+    #main .max-w-5xl,
+    #main .max-w-6xl { max-width: 100% !important; padding-left: 1.5rem; padding-right: 1.5rem; }
+    #rm-fullscreen-btn.is-on, #rm-fs-float.is-on { background: rgba(245,158,11,0.28); }
+
+    /* Paper Studio: full-width sheet, sidebar hidden at ALL widths
+       (the Step-X-of-16 wizard lives inside the canvas, so no nav is lost). */
+    #tab-paper .paper-studio-layout { padding: 1rem; gap: 1rem; }
+    #tab-paper .paper-canvas { max-width: none !important; min-height: calc(100vh - 9rem); }
+    #tab-paper .paper-sidebar { display: none !important; }
+
+    /* ZEN: when the Paper tab is open, collapse the app chrome so the sheet fills the
+       screen by default. The nav tab-bar stays so you can leave Paper Studio. */
+    body.rm-paper-zen #rapidmeta-integrity-badge,
+    body.rm-paper-zen > header,
+    body.rm-paper-zen #scope-badge,
+    body.rm-paper-zen #stale-banner { display: none !important; }
+    body.rm-paper-zen #tab-paper .paper-studio-layout { padding: 0.6rem 1rem; }
+    body.rm-paper-zen #tab-paper .paper-canvas { min-height: calc(100vh - 3.5rem); }
+
+    /* Floating full-screen toggle, pinned top-right of the sheet — always visible,
+       never clipped (the old header button was getting cut off on laptops). */
+    #rm-fs-float { position: fixed; top: 0.6rem; right: 0.95rem; z-index: 70; display: none;
+      align-items: center; gap: 0.35rem; font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 0.4rem 0.7rem; border-radius: 9999px; cursor: pointer;
+      color: #fcd34d; background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.45);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.25); }
+    #rm-fs-float:hover { background: rgba(245,158,11,0.28); }
+    body.rm-paper-zen #rm-fs-float { display: inline-flex; }
+
+    /* True browser full screen: strip every bit of chrome but the sheet. */
+    :fullscreen #rapidmeta-integrity-badge, :-webkit-full-screen #rapidmeta-integrity-badge,
+    :fullscreen > header, :-webkit-full-screen > header,
+    :fullscreen #scope-badge, :-webkit-full-screen #scope-badge,
+    :fullscreen #tab-paper .paper-sidebar, :-webkit-full-screen #tab-paper .paper-sidebar { display: none !important; }
+    :fullscreen #tab-paper .paper-studio-layout,
+    :-webkit-full-screen #tab-paper .paper-studio-layout { padding: 0.6rem 1.2rem; }
+    :fullscreen #tab-paper .paper-canvas,
+    :-webkit-full-screen #tab-paper .paper-canvas { min-height: calc(100vh - 1rem); }
+
+    /* Laptop: keep the 7 nav tabs on one row */
+    @media (max-width: 1366px) {
+      nav[role="tablist"] { gap: 0.6rem !important; padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+      nav[role="tablist"] .tab-btn { font-size: 0.74rem; white-space: nowrap; }
+    }
+    @media (max-width: 1024px) {
+      nav[role="tablist"] { gap: 0.3rem !important; }
+      nav[role="tablist"] .tab-btn { font-size: 0.66rem; }
+    }
+  </style>
 </head>
 
 
@@ -1128,7 +1180,7 @@
 <!-- a11y-skiplink:begin -->
 <a href="#main" class="rm-a11y-skiplink" style="position:absolute;left:-999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:9999;background:#0b1220;color:#fff;padding:8px 12px;border-radius:0 0 6px 0;text-decoration:none;font-family:system-ui,-apple-system,sans-serif;font-size:14px;" onfocus="this.style.left='0';this.style.top='0';this.style.width='auto';this.style.height='auto';" onblur="this.style.left='-999px';">Skip to main content</a>
 <!-- a11y-skiplink:end -->
-<div id="rapidmeta-integrity-badge" role="status" style="background:#15803d;color:#fff;padding:12px 20px;font-family:system-ui,sans-serif;font-size:13.5px;border-bottom:3px solid #14532d;line-height:1.55;"><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><strong style="font-size:14px;letter-spacing:0.04em;">TRUSTWORTHY</strong><span style="font-size:11.5px;">Fabrication-risk score: <strong>0.275</strong> · Trials: <strong>2</strong></span></div><div style="margin-top:6px;font-size:12.5px;">Multi-source audit completed (AACT 2026-04-12 + PubMed + 10 internal-consistency rounds). Routine pre-publication human spot-check recommended.</div><div style="margin-top:8px;"><span style="background:rgba(255,255,255,0.32);padding:2px 6px;border-radius:3px;font-size:10.5px;margin-right:6px;">null-PMID: 100%</span></div><div style="margin-top:6px;font-size:10.5px;">Audited via AACT 2026-04-12 + PubMed + 14 internal-consistency rounds. See <code style="background:rgba(255,255,255,0.28);padding:1px 4px;border-radius:2px;">outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md</code> for methodology.</div></div>
+<div id="rapidmeta-integrity-badge" role="status" style="background:#15803d;color:#fff;padding:12px 20px;font-family:system-ui,sans-serif;font-size:13.5px;border-bottom:3px solid #14532d;line-height:1.55;"><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><strong style="font-size:14px;letter-spacing:0.04em;">INTERNAL CHECKS PASSED</strong><span style="font-size:11.5px;">Fabrication-risk score: <strong>0.275</strong> · Trials: <strong>2</strong></span></div><div style="margin-top:6px;font-size:12.5px;">Multi-source audit completed (AACT 2026-04-12 + PubMed + 10 internal-consistency rounds). Routine pre-publication human spot-check recommended.</div><div style="margin-top:8px;"><span style="background:rgba(255,255,255,0.32);padding:2px 6px;border-radius:3px;font-size:10.5px;margin-right:6px;">null-PMID: 100%</span></div><div style="margin-top:6px;font-size:10.5px;">Audited via AACT 2026-04-12 + PubMed + 14 internal-consistency rounds. See <code style="background:rgba(255,255,255,0.28);padding:1px 4px;border-radius:2px;">outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md</code> for methodology.</div></div>
 
 
 
@@ -1340,6 +1392,8 @@
 
             <a href="protocols/INDEX.md" target="_blank" rel="noopener" class="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border border-emerald-500/40 text-emerald-300 bg-emerald-500/5 hover:bg-emerald-500/15 transition-all" title="Frozen protocol v1.0 (2026-04-19), GitHub-hosted permalink" data-protocol-version="1.0" data-protocol-date="2026-04-19">📑 Protocol v1.0 (2026-04-19)</a> <a href="protocols/INDEX.md" target="_blank" rel="noopener" class="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border border-sky-500/40 text-sky-300 bg-sky-500/5 hover:bg-sky-500/15 transition-all ml-1" data-availability-link="1" title="Data availability statement and protocols index on GitHub">📊 Data</a>
 
+
+                        <button id="rm-fullscreen-btn" onclick="rmToggleFullView()" class="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border border-amber-500/40 text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 transition-all mr-3" title="Toggle browser full screen (Esc or F to exit)" aria-label="Toggle full screen"><span id="rm-fs-label">&#9206; Full screen</span></button>
 
                         <button onclick="RapidMeta.reset()" class="text-slate-500 hover:text-red-400 transition-colors" title="Full Reset" aria-label="Reset all data and start fresh"><i class="fa-solid fa-rotate-left"></i></button>
 
@@ -4700,8 +4754,8 @@
                         <button type="button" data-export="amstar">AMSTAR-2 appraisal</button>
                         <button type="button" data-export="search">Search strategy</button>
                         <hr>
-                        <strong>Full transparency</strong>
-                        <button type="button" data-export="transparency" title="Everything RapidMeta produced: all charts, full results, R code, every record with abstract + link.">Transparency appendix (.zip)</button>
+                        <strong>Supplementary material (auto-generated)</strong>
+                        <button type="button" data-export="transparency" title="Everything RapidMeta produced: all charts, full results, R code, every record with abstract + link.">Supplementary material — all analyses &amp; plots (.zip)</button>
                     </div>
                 </details>
                 <span id="paperSaveStatus" class="ps-save-status">Saved</span>
@@ -5869,16 +5923,77 @@
 </div>
 <div id="paperToast" class="paper-toast no-print" role="status" aria-live="polite"></div>
 
-<script src="assets/js/paper-learning-links.js" defer></script>
-<script src="assets/js/paper-readiness-checks.js" defer></script>
-<script src="assets/js/paper-figures.js" defer></script>
-<script src="assets/js/paper-formats.js" defer></script>
-<script src="assets/js/paper-supplementary.js" defer></script>
-<script src="assets/js/paper-export.js" defer></script>
-<script src="assets/js/paper-studio.js" defer></script>
+<script src="assets/js/paper-learning-links.js?v=8964c539" defer></script>
+<script src="assets/js/paper-readiness-checks.js?v=7ffbe964" defer></script>
+<script src="assets/js/paper-figures.js?v=d3460b7f" defer></script>
+<script src="assets/js/paper-formats.js?v=79e6e923" defer></script>
+<script src="assets/js/paper-supplementary.js?v=ba820b6a" defer></script>
+<script src="assets/js/paper-export.js?v=16aa97f4" defer></script>
+<script src="assets/js/paper-studio.js?v=b095035f" defer></script>
 <script src="assets/js/pseudo-ipd.js" defer></script>
 <script src="assets/js/wide-gap-methods.js" defer></script>
 
+<script>
+/* Full-screen view: wide layout + native browser fullscreen, one toggle */
+function rmToggleFullView(){
+  var fsOn=!!(document.fullscreenElement||document.webkitFullscreenElement);
+  if(!fsOn){
+    var el=document.documentElement;
+    var req=el.requestFullscreen||el.webkitRequestFullscreen;
+    if(req){ try{ var p=req.call(el); if(p&&p.catch) p.catch(function(){}); }catch(e){} }
+  }else{
+    var exit=document.exitFullscreen||document.webkitExitFullscreen;
+    if(exit){ try{ exit.call(document); }catch(e){} }
+  }
+  rmSyncFullView();
+}
+function rmSyncFullView(){
+  var on=!!(document.fullscreenElement||document.webkitFullscreenElement);
+  var btn=document.getElementById('rm-fullscreen-btn');
+  if(btn){
+    var lbl=document.getElementById('rm-fs-label'); if(lbl) lbl.innerHTML = on ? '&#10717; Exit full screen' : '&#9206; Full screen';
+    btn.classList.toggle('is-on', on);
+  }
+  var flt=document.getElementById('rm-fs-float');
+  if(flt){ flt.classList.toggle('is-on', on); flt.innerHTML = on ? '&#10717; Exit full screen' : '&#9206; Full screen'; }
+}
+document.addEventListener('fullscreenchange', rmSyncFullView);
+document.addEventListener('webkitfullscreenchange', rmSyncFullView);
+/* Keyboard: press "f" to toggle (ignore when typing in a field) */
+document.addEventListener('keydown', function(e){
+  if(e.key==='f' && !e.ctrlKey && !e.metaKey && !e.altKey){
+    var t=e.target, tag=(t&&t.tagName||'').toLowerCase();
+    if(tag==='input'||tag==='textarea'||tag==='select'||(t&&t.isContentEditable)) return;
+    e.preventDefault(); rmToggleFullView();
+  }
+});
+/* Paper Studio = full-screen by default: when the Paper tab is the visible panel,
+   add body.rm-paper-zen (CSS collapses the app chrome + shows the floating toggle).
+   Driven by the #tab-paper .hidden class so it works regardless of how switchTab is wired. */
+(function(){
+  function ensureFloat(){
+    if(document.getElementById('rm-fs-float')) return;
+    var b=document.createElement('button');
+    b.id='rm-fs-float'; b.type='button';
+    b.title='Toggle browser full screen (Esc or F to exit)';
+    b.setAttribute('aria-label','Toggle full screen');
+    b.innerHTML='&#9206; Full screen';
+    b.addEventListener('click', rmToggleFullView);
+    document.body.appendChild(b);
+  }
+  function sync(){
+    var panel=document.getElementById('tab-paper');
+    var on = panel && !panel.classList.contains('hidden');
+    document.body.classList.toggle('rm-paper-zen', !!on);
+  }
+  ensureFloat();
+  sync();
+  var panel=document.getElementById('tab-paper');
+  if(panel && window.MutationObserver){
+    new MutationObserver(sync).observe(panel, {attributes:true, attributeFilter:['class']});
+  }
+})();
+</script>
 </body>
 
 

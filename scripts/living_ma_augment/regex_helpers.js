@@ -96,33 +96,59 @@
     function extractCount(text, keyword) {
         if (!text) return null;
         const kw = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        // Build patterns. /g flag so we can iterate over multiple
-        // candidates; first that passes the negation guard wins.
-        // Patterns tolerate up to ~3 short words between number and
-        // keyword (e.g. "5,050 patients randomized") via [\w\s]{0,40}?.
+        // GAP CLASS = [^\d,.;:\n] (NOT [\w\s]). This is the key anti-fabrication
+        // guard: the run of text between the number and the keyword may NOT
+        // contain another DIGIT (so a match can never leap OVER an intervening
+        // number to grab an unrelated one — "1234 screened then 567 randomized"
+        // must yield 567, never 1234), and may not cross a comma or a
+        // sentence/clause boundary (`. ; :` newline) — which preserves the
+        // Verquvo VICTORIA negation behaviour ("Of 7,061 enrolled, Not
+        // Randomized 1,807 ... 5,050 randomized" -> 5,050, the comma after
+        // "enrolled" blocks 7,061 from pairing with the keyword).
+        const GAP = '[^\\d,.;:\\n]{0,40}?';
+        // number is capture group 1 in every pattern. `gapGroup` (when present)
+        // is the inter-token gap, used for confidence calibration.
         const patterns = [
-            // n = 5050 [optional words] randomized
-            new RegExp(`\\b(n\\s*=\\s*)([\\d,]+)[\\w\\s]{0,40}?${kw}`, 'gi'),
-            // 5050 [optional words] randomized
-            new RegExp(`([\\d,]+)[\\w\\s]{0,40}?${kw}`, 'gi'),
-            // randomized: 5050  |  randomized 5050
-            new RegExp(`${kw}\\s*[:=]?\\s*([\\d,]+)`, 'gi'),
+            // n = 5050 [words] randomized        (tight: explicit n= anchor)
+            { re: new RegExp(`\\bn\\s*=\\s*([\\d,]+)${GAP}${kw}`, 'gi'), tight: true },
+            // 5050 [words] randomized            (loose: distance-based)
+            { re: new RegExp(`([\\d,]+)(${GAP})${kw}`, 'gi'), tight: false, gapGroup: 2 },
+            // randomized: 5050  |  randomized 5050 (tight: keyword-adjacent)
+            { re: new RegExp(`${kw}\\s*[:=]?\\s*([\\d,]+)`, 'gi'), tight: true },
         ];
-        for (const re of patterns) {
+        for (const p of patterns) {
             let m;
-            while ((m = re.exec(text)) !== null) {
-                const numStr = m[m.length - 1];
-                const numPos = text.indexOf(numStr, m.index);
+            while ((m = p.re.exec(text)) !== null) {
+                const numStr = m[1];
+                const numPos = m.index + m[0].indexOf(numStr);
                 if (!negationGuard(text, numPos)) continue;
                 const value = parseInt(numStr.replace(/,/g, ''), 10);
-                if (!Number.isFinite(value)) continue;
+                if (!Number.isFinite(value) || value <= 0) continue;
+                let confidence = 'MEDIUM';
+                const flags = { negationChecked: true };
+                // A long, multi-word gap means the number is only loosely bound
+                // to the keyword -> downgrade so the user reviews the pick.
+                if (p.gapGroup) {
+                    const gapWords = ((m[p.gapGroup] || '').match(/\b\w+\b/g) || []).length;
+                    if (gapWords > 3) { confidence = 'LOW'; flags.looseGap = true; }
+                }
+                // Year-range number preceded by a temporal preposition is more
+                // likely a publication/start YEAR than a patient count -> LOW
+                // (don't drop it; let the user confirm — "better to ask").
+                if (value >= 1900 && value <= 2100) {
+                    const before = text.slice(Math.max(0, numPos - 12), numPos);
+                    if (/\b(in|by|since|during|year|of)\s*$/i.test(before)) {
+                        confidence = 'LOW';
+                        flags.yearAmbiguous = true;
+                    }
+                }
                 const sourceStart = Math.max(0, numPos - 40);
                 const sourceEnd = Math.min(text.length, numPos + 60);
                 return {
                     value,
-                    confidence: 'MEDIUM',
+                    confidence,
                     source: text.slice(sourceStart, sourceEnd).trim(),
-                    negationChecked: true,
+                    ...flags,
                 };
             }
         }
@@ -155,6 +181,7 @@
             const uci = parseFloat(m[4]);
             if (!Number.isFinite(eff) || !Number.isFinite(lci) || !Number.isFinite(uci)) continue;
             if (lci > eff || uci < eff) continue; // sanity: CI must bracket point estimate
+            if (!(lci < uci)) continue;           // reject degenerate/zero-width or inverted CI (lci must be < uci)
             matches.push({
                 kind: m[1],
                 value: eff,
