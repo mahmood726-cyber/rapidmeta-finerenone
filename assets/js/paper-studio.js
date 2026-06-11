@@ -60,7 +60,15 @@
   };
 
   /* ---------------- persistence ---------------- */
-  PS.save = function () { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(PS.state)); } catch (e) {} };
+  PS.save = function () {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(PS.state)); PS._saveOk = true; }
+    catch (e) {
+      // Silent failure here = silent data loss (esp. localStorage quota on long papers). Warn once
+      // and stop showing "Autosaved", so the student knows to download their data instead.
+      PS._saveOk = false;
+      if (!PS._saveWarned) { PS._saveWarned = true; if (PS.toast) PS.toast("Could not auto-save — your paper may be too large for this browser. Use More ▾ → download your work to keep it safe."); }
+    }
+  };
   PS.restore = function () {
     try { var s = localStorage.getItem(STORAGE_KEY); if (s) deepMerge(PS.state, JSON.parse(s)); } catch (e) {}
   };
@@ -361,7 +369,13 @@
     if (len !== "concise") search += W ? " Two review authors independently screened records and extracted data, resolving disagreements by discussion." : " Records were screened against predefined eligibility criteria, with study selection and data extraction performed in duplicate.";
     if (len === "detailed") search += " Reporting followed the PRISMA 2020 guidance, and the review methods were specified before data collection.";
     var synth = "Treatment effects were summarized using the " + c.measure + ", and a " + c.model + " meta-analysis was performed; heterogeneity was quantified with I² and τ². Risk of bias was assessed using " + c.rob + ", and certainty of evidence using GRADE.";
-    if (len !== "concise") synth += " Between-study variance (τ²) was estimated using a random-effects (DerSimonian–Laird) model, and a prediction interval was calculated when at least three studies contributed.";
+    if (len !== "concise") {
+      // Name the ACTUAL estimator the engine used (REML / Paule–Mandel), not a hard-coded DL —
+      // DL is discouraged for the few-study reviews this tool targets and would contradict the app.
+      var est = (window.RapidMeta && RapidMeta.state && RapidMeta.state.results && RapidMeta.state.results.estimator) || "";
+      var estName = /reml/i.test(est) ? "restricted maximum likelihood (REML)" : /pm|paule/i.test(est) ? "Paule–Mandel" : "restricted maximum likelihood (REML)";
+      synth += " Between-study variance (τ²) was estimated using a " + estName + " random-effects model, and a prediction interval was calculated when at least three studies contributed.";
+    }
     if (len === "detailed") synth += " Prespecified sensitivity analyses (such as leave-one-out and fixed-effect re-analysis) and small-study-effect checks (a funnel plot, with Egger's test where at least 10 studies contributed) may be reported. Analyses were performed in the RapidMeta browser engine (validated against R’s metafor). <em class=\"confirm-note no-clean-pdf\">(These statistical details follow common defaults — please confirm they match the settings you actually used, and delete any analysis you did not run.)</em>";
     if (j === "jama") { // structured subheadings
       paras.push({ label: "Data Sources", text: search });
@@ -408,7 +422,7 @@
     html += '<p><strong>Clinical question.</strong> In ' + auto("pico.population", "[population]") + ', does ' + auto("pico.intervention", "[intervention]") +
       ' compared with ' + auto("pico.comparator", "[comparator]") + ' improve ' + auto("pico.primaryOutcome", "[primary outcome]") + '?</p>';
     html += '<p><strong>Main finding.</strong> ' + box("studentText.coverFinding", "Write your one-sentence headline (plain words)", "After combining the studies, the overall result suggests...", "1 sentence",
-      "Put the grey numbers above into one plain sentence a patient could understand. Find your rating in the grey “Certainty” line on this card, then use the matching word: High = “reduces”, Moderate = “probably reduces”, Low = “may reduce”, Very low = “the evidence is very uncertain about whether it reduces”. Never write “proves”.",
+      "Put the grey numbers above into one plain sentence a patient could understand. Match the verb to BOTH your certainty AND the direction your estimate points. If the treatment looks better, use reduces / probably reduces / may reduce by your certainty (grey “Certainty” line); if it looks worse, swap to increases / probably increases / may increase; if the confidence interval crosses the no-effect line, write “the evidence is uncertain whether it changes”. Very low certainty → “the evidence is very uncertain”. Never write “proves”.",
       "After combining the studies, the treatment appeared to change the main outcome compared with the comparator.") + '</p>';
     html += helper("The “pooled estimate” (or “combined result”) is the single result you get after combining all the studies together. " + learnChip("pooling"));
     html += '<p><strong>Evidence base.</strong> ' + auto("analysis.kStudies") + ' studies · ' + auto("analysis.totalParticipants") + ' participants · ' + esc(a.model) + ' meta-analysis</p>';
@@ -1314,7 +1328,8 @@
       PS.save();
       var d = new Date();
       var hh = String(d.getHours()).padStart(2, "0"), mm = String(d.getMinutes()).padStart(2, "0");
-      var s = document.getElementById("paperSaveStatus"); if (s) s.textContent = "Autosaved " + hh + ":" + mm;
+      var s = document.getElementById("paperSaveStatus");
+      if (s) s.textContent = PS._saveOk === false ? "⚠ Not saved — too large" : "Autosaved " + hh + ":" + mm;
     }, 500);
   }
 
@@ -1454,6 +1469,19 @@
       var b = e.target.closest("[data-export]"); if (!b) return;
       var fmt = (document.getElementById("figFormatSelect") || {}).value || "png";
       var what = b.dataset.export;
+      // The clean PDF is not the only submission-shaped artifact: the Word/.zip/.md/.txt/.html
+      // manuscripts must clear the SAME readiness gate, or a student who can't unlock the PDF
+      // just hands in the .doc with unfilled placeholders. (Figure-only / supplementary /
+      // transparency exports are NOT manuscripts and stay ungated.)
+      if (/^(word|html|md|txt|bundle)$/.test(what)) {
+        var rc = PS.runReadinessCheck ? PS.runReadinessCheck("clean") : { ready: true };
+        if (rc && !rc.ready) {
+          if (PS.showReadinessModal) PS.showReadinessModal(rc);
+          if (PS.toast) PS.toast("Finish the required sections first — see the checklist (this applies to Word and the submission bundle too).");
+          dlMenu.removeAttribute("open");
+          return;
+        }
+      }
       if (what === "clean-pdf") PS.downloadPaperPdf({ clean: true });
       else if (what === "word") PS.exportWord && PS.exportWord();
       else if (what === "html") PS.exportHTML && PS.exportHTML();
@@ -1537,6 +1565,17 @@
 
     var canvas = document.getElementById("paperCanvas");
     if (canvas) {
+      // Force plain-text paste into the editable boxes: stops pasted markup (e.g.
+      // <img onerror=...>) from landing in the live DOM that window.print() captures, and
+      // keeps the printed PDF identical to the saved text-only state.
+      canvas.addEventListener("paste", function (e) {
+        var el = e.target.closest && e.target.closest('[contenteditable="true"]');
+        if (!el) return;
+        e.preventDefault();
+        var t = ((e.clipboardData || window.clipboardData) || { getData: function () { return ""; } }).getData("text/plain") || "";
+        try { document.execCommand("insertText", false, t); }
+        catch (err) { el.textContent = (el.textContent || "") + t; }
+      });
       canvas.addEventListener("input", function (e) {
         var el = e.target.closest("[data-field]");
         if (!el) return;

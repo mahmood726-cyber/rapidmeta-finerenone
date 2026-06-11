@@ -118,7 +118,7 @@
     var x = a(), pic = p(), secs = [];
     secs.push({ h: g("studentText.title") || "Untitled evidence paper", lvl: 1 });
     if (PS.state.meta && PS.state.meta.studentName) secs.push({ para: [PS.state.meta.studentName], lvl: 0 });
-    secs.push({ para: ["Clinical question. In " + (pic.population || "[population]") + ", does " + (pic.intervention || "[intervention]") + " compared with " + (pic.comparator || "[comparator]") + " improve " + (pic.primaryOutcome || "[primary outcome]") + "?"] });
+    secs.push({ para: ["Clinical question. In " + (pic.population || "(not stated)") + ", does " + (pic.intervention || "(not stated)") + " compared with " + (pic.comparator || "(not stated)") + " improve " + (pic.primaryOutcome || "(not stated)") + "?"] });
 
     secs.push({ h: "Abstract", lvl: 2 });
     secs.push({ para: [
@@ -134,7 +134,7 @@
 
     secs.push({ h: "Methods", lvl: 2 });
     secs.push({ para: [
-      "This short evidence paper used a rapid systematic review and meta-analysis workflow. The review question was structured using the PICO framework (Population, Intervention, Comparator, Outcome): the population was " + (pic.population || "[population]") + ", the intervention was " + (pic.intervention || "[intervention]") + ", the comparator was " + (pic.comparator || "[comparator]") + ", and the primary outcome was " + (pic.primaryOutcome || "[primary outcome]") + ".",
+      "This short evidence paper used a rapid systematic review and meta-analysis workflow. The review question was structured using the PICO framework (Population, Intervention, Comparator, Outcome): the population was " + (pic.population || "(not stated)") + ", the intervention was " + (pic.intervention || "(not stated)") + ", the comparator was " + (pic.comparator || "(not stated)") + ", and the primary outcome was " + (pic.primaryOutcome || "(not stated)") + ".",
       "Treatment effects were summarized using the " + (x.effectMeasure || "chosen effect measure") + ". A " + String(x.model || "random-effects").toLowerCase() + " meta-analysis was performed. Heterogeneity was assessed using I² and τ², and certainty of evidence was summarized using a GRADE-style approach.",
       g("studentText.methodsStudentLimitation")
     ].filter(nonblank) });
@@ -158,8 +158,21 @@
     secs.push({ h: "Discussion", lvl: 2 });
     secs.push({ para: [
       g("studentText.discussionPrincipalFinding"), g("studentText.discussionClinicalMeaning"),
-      g("studentText.discussionComparison"), g("studentText.discussionStrengths"),
-      g("studentText.discussionLimitations"), g("studentText.discussionConclusion")
+      g("studentText.discussionComparison"), g("studentText.discussionTransportability"),
+      g("studentText.discussionStrengths"), g("studentText.discussionLimitations"),
+      g("studentText.discussionConclusion")
+    ].filter(nonblank) });
+
+    // Declarations — the readiness gate FORCES these statements ("journals require them"), so the
+    // exported manuscript (Word/.zip/.md/.txt/.html) must carry them too or it desk-rejects.
+    var srch = PS.state.search || {};
+    secs.push({ h: "Declarations", lvl: 2 });
+    secs.push({ para: [
+      "Use of automated tools. The structured numerical results, the figures, the Methods and Results summary text, the GRADE certainty summary and the reference identifiers were generated automatically by the RapidMeta Evidence Paper Studio from the author's own meta-analysis. The introduction, all interpretation, the discussion and the conclusions are the author's own work.",
+      "Data availability. The analysis was based on data the author extracted from the included trials" + (srch.databases ? " (sources searched: " + srch.databases + (srch.searchDate ? ", last searched " + srch.searchDate : "") + ")" : "") + ".",
+      "Protocol and registration. " + g("studentText.registration"),
+      "Funding. " + g("studentText.funding"),
+      "Competing interests. " + g("studentText.coi")
     ].filter(nonblank) });
 
     var refs = g("studentText.references");
