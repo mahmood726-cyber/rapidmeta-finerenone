@@ -4,24 +4,32 @@
    on the dark bench. */
 
 #tab-paper {
-  --paper-bg: #1e2530;            /* bench behind the sheet (matches dark UI) */
+  --paper-bg: #161d29;            /* bench behind the sheet (matches dark UI) */
   --paper-surface: #ffffff;
-  --paper-ink: #1f2933;
-  --paper-muted: #667085;
-  --paper-border: #e5e7eb;
-  --paper-soft-blue: #eef6ff;
-  --paper-soft-yellow: #fff8df;
-  --paper-soft-green: #eefaf2;
-  --paper-soft-red: #fff1f1;
-  --paper-accent: #2454a6;
-  --paper-radius-lg: 22px;
+  --paper-ink: #1a2230;
+  --paper-muted: #64748b;
+  --paper-border: #e8ecf2;
+  --paper-hairline: #eef1f6;
+  --paper-soft-blue: #eff6ff;
+  --paper-soft-yellow: #fdf6e3;
+  --paper-soft-green: #effaf3;
+  --paper-soft-red: #fff1f2;
+  --paper-accent: #2563c4;
+  --paper-accent-deep: #1d4ed8;
+  --paper-accent-soft: #dbe8fd;
+  --paper-warm: #d4a634;          /* amber used for the writing boxes / wizard accent */
+  --paper-radius-lg: 26px;
   --paper-radius-md: 14px;
-  --paper-shadow: 0 18px 50px rgba(15, 23, 42, 0.45);
+  --paper-shadow: 0 1px 0 rgba(255,255,255,0.6) inset, 0 24px 60px -12px rgba(12, 19, 33, 0.55), 0 8px 22px -10px rgba(12, 19, 33, 0.45);
   /* Desktop writing width. The studio shows the paper PLUS yellow writing boxes, tips
      and figures, so it should fill the screen. The flex canvas grows to fill the whole
      track (no cap) on screen; print/clean export is re-capped to A4 below. */
   --paper-max-width: none;
-  background: var(--paper-bg);
+  /* Soft, layered bench so the white sheet reads as floating paper, not a flat block. */
+  background:
+    radial-gradient(1200px 600px at 18% -8%, rgba(37, 99, 196, 0.16), transparent 60%),
+    radial-gradient(1000px 700px at 100% 0%, rgba(212, 166, 52, 0.10), transparent 55%),
+    linear-gradient(180deg, #1b2430 0%, #141b26 100%);
 }
 
 /* ---- toolbar ---- */
@@ -33,10 +41,11 @@
   flex-wrap: wrap;
   gap: 0.5rem;
   align-items: center;
-  padding: 0.85rem 1.25rem;
-  background: #131c2b;   /* opaque (no backdrop-filter: it would make a containing block
-                            that traps the position:fixed dropdown menus) */
-  border-bottom: 1px solid #334155;
+  padding: 0.85rem 1.4rem;
+  background: linear-gradient(180deg, #18222f 0%, #121a26 100%);   /* opaque (no backdrop-filter:
+                            it would make a containing block that traps position:fixed menus) */
+  border-bottom: 1px solid #2b3849;
+  box-shadow: 0 6px 18px -12px rgba(0,0,0,0.7);
 }
 .paper-toolbar .ps-title {
   font-weight: 800;
@@ -48,17 +57,21 @@
 .paper-toolbar button {
   font-size: 0.78rem;
   font-weight: 700;
-  padding: 0.5rem 0.9rem;
+  padding: 0.55rem 0.95rem;
   border-radius: 0.7rem;
-  background: #334155;
-  color: #e2e8f0;
-  border: 1px solid #475569;
+  background: #2c3a4d;
+  color: #e6edf6;
+  border: 1px solid #3d4d63;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background .15s ease, transform .12s ease, box-shadow .15s ease;
 }
-.paper-toolbar button:hover { background: #475569; }
-.paper-toolbar button.primary { background: var(--paper-accent); border-color: var(--paper-accent); color: #fff; }
-.paper-toolbar button.primary:hover { background: #1d4486; }
+.paper-toolbar button:hover { background: #3a4a60; transform: translateY(-1px); }
+.paper-toolbar button.primary {
+  background: linear-gradient(180deg, #2f70d6 0%, var(--paper-accent) 100%);
+  border-color: transparent; color: #fff;
+  box-shadow: 0 8px 18px -8px rgba(37, 99, 196, 0.8);
+}
+.paper-toolbar button.primary:hover { filter: brightness(1.05); box-shadow: 0 12px 24px -10px rgba(37, 99, 196, 0.85); }
 .paper-toolbar .ps-save-status { font-size: 0.72rem; color: #94a3b8; margin-left: 0.4rem; }
 .paper-toolbar button#btnFocusMode[aria-pressed="true"] { background: var(--paper-accent); border-color: var(--paper-accent); color: #fff; }
 
@@ -170,19 +183,45 @@ body.ps-focus-mode .ps-provenance { display: inline; font-size: 0.72rem; color: 
 .nav-item:focus-visible { outline: 3px solid var(--paper-accent) !important; outline-offset: 1px; }
 
 /* ---- one-section wizard (Feature C) ---- */
-.ps-wizard-bar { background: #f8fafc; border: 1px solid var(--paper-border); border-radius: var(--paper-radius-md); padding: 0.7rem 0.9rem; margin: 0 0 1.4rem; }
-.ps-wizard-bar.ps-wizard-bottom { margin: 1.6rem 0 0; }
-.ps-wizard-row { display: flex; align-items: center; gap: 0.9rem; }
+.ps-wizard-bar {
+  background: linear-gradient(180deg, #ffffff 0%, #f4f8ff 100%);
+  border: 1px solid var(--paper-accent-soft);
+  border-radius: 18px; padding: 1rem 1.15rem; margin: 0 0 1.7rem;
+  box-shadow: 0 10px 26px -16px rgba(37, 99, 196, 0.55), 0 1px 0 rgba(255,255,255,0.8) inset;
+}
+.ps-wizard-bar.ps-wizard-bottom { margin: 1.9rem 0 0; background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%); }
+/* Persistent grey/yellow key shown above every wizard step */
+.ps-step-legend { display: flex; flex-wrap: wrap; gap: 0.5rem 0.9rem; align-items: center; margin: 0 0 0.75rem; }
+.ps-leg { font-size: 0.74rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 999px; display: inline-flex; align-items: center; gap: 0.35rem; }
+.ps-leg::before { content: ""; width: 0.7rem; height: 0.7rem; border-radius: 3px; }
+.ps-leg-grey { color: #475569; background: #eef1f6; border: 1px solid #e2e8f0; }
+.ps-leg-grey::before { background: #cbd5e1; }
+.ps-leg-yellow { color: #835e0c; background: var(--paper-soft-yellow); border: 1px solid #e3c976; }
+.ps-leg-yellow::before { background: #f1d27a; border: 1px dashed #d9b85e; }
+.ps-wizard-row { display: flex; align-items: center; gap: 1rem; }
 .ps-wizard-mid { flex: 1 1 auto; }
-.ps-step-label { font-weight: 800; font-size: 0.95rem; color: var(--paper-ink); }
-.ps-progress-wrap { height: 8px; background: #e5e7eb; border-radius: 999px; overflow: hidden; margin-top: 0.45rem; }
-.ps-progress-bar { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #3b82f6, #22c55e); transition: width 0.3s; }
-.ps-wiz-btn { font-size: 0.85rem; font-weight: 700; padding: 0.5rem 1.1rem; border-radius: 0.7rem; border: 1px solid var(--paper-accent); background: var(--paper-accent); color: #fff; cursor: pointer; min-height: 42px; }
-.ps-wiz-btn.ps-prev { background: #fff; color: var(--paper-accent); }
-.ps-wiz-btn:hover { filter: brightness(1.05); }
-.ps-wiz-btn:disabled { opacity: 0.4; cursor: default; }
+.ps-step-label { font-weight: 800; font-size: 1rem; color: #16203a; letter-spacing: -0.01em; }
+.ps-progress-wrap { height: 10px; background: #e6ecf5; border-radius: 999px; overflow: hidden; margin-top: 0.55rem; box-shadow: 0 1px 2px rgba(15,23,42,0.08) inset; }
+.ps-progress-bar { display: block; height: 100%; width: 0; border-radius: 999px;
+  background: linear-gradient(90deg, var(--paper-accent) 0%, #4f86e0 55%, var(--paper-warm) 100%);
+  box-shadow: 0 0 10px rgba(37, 99, 196, 0.45); transition: width 0.45s cubic-bezier(.4,0,.2,1); }
+.ps-wiz-btn {
+  font-size: 0.88rem; font-weight: 700; padding: 0.6rem 1.3rem; border-radius: 0.85rem;
+  border: 1px solid transparent; cursor: pointer; min-height: 44px;
+  background: linear-gradient(180deg, #2f70d6 0%, var(--paper-accent) 100%); color: #fff;
+  box-shadow: 0 8px 18px -8px rgba(37, 99, 196, 0.7); transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+}
+.ps-wiz-btn.ps-prev { background: #fff; color: var(--paper-accent); border-color: var(--paper-accent-soft); box-shadow: 0 4px 12px -8px rgba(15,23,42,0.4); }
+.ps-wiz-btn:hover { filter: brightness(1.04); transform: translateY(-1px); box-shadow: 0 12px 22px -10px rgba(37, 99, 196, 0.7); }
+.ps-wiz-btn:active { transform: translateY(0); }
+.ps-wiz-btn:disabled { opacity: 0.4; cursor: default; box-shadow: none; transform: none; }
 .ps-wiz-btn:focus-visible { outline: 3px solid var(--paper-accent) !important; outline-offset: 2px; }
-.ps-showall { margin-top: 0.6rem; font-size: 0.8rem; font-weight: 700; background: transparent; border: none; color: var(--paper-accent); cursor: pointer; text-decoration: underline; padding: 0.3rem 0; min-height: 32px; }
+.ps-showall {
+  margin-top: 0.75rem; font-size: 0.8rem; font-weight: 700; cursor: pointer; padding: 0.35rem 0.85rem;
+  background: #fff; border: 1px solid var(--paper-accent-soft); border-radius: 999px; color: var(--paper-accent);
+  min-height: 34px; transition: background .12s ease; display: inline-block;
+}
+.ps-showall:hover { background: var(--paper-soft-blue); }
 /* visibility: one step at a time unless "show all" */
 #paperCanvas:not(.ps-show-all) .ps-step { display: none; }
 #paperCanvas:not(.ps-show-all) .ps-step.ps-current { display: block; }
@@ -203,37 +242,51 @@ body.ps-focus-mode .ps-provenance { display: inline; font-size: 0.72rem; color: 
   flex: 1 1 auto;
   max-width: var(--paper-max-width);
   margin: 0 auto;
-  background: var(--paper-surface);
+  background:
+    linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
   color: var(--paper-ink);
+  border: 1px solid rgba(255, 255, 255, 0.7);
   border-radius: var(--paper-radius-lg);
   box-shadow: var(--paper-shadow);
-  padding: 3rem;
-  line-height: 1.65;
-  font-size: 17px;
+  padding: 3.4rem clamp(2rem, 4vw, 4rem);
+  line-height: 1.72;
+  font-size: 17.5px;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
-.paper-canvas h1 { font-size: 2.2rem; line-height: 1.32; letter-spacing: -0.03em; margin-bottom: 0.5rem; color: var(--paper-ink); }
+.paper-canvas h1 {
+  font-size: clamp(2rem, 3.2vw, 2.6rem); line-height: 1.22; letter-spacing: -0.035em;
+  margin-bottom: 0.6rem; font-weight: 800; color: #131a27;
+}
 /* Give the wrapped editable title breathing room so highlighted lines never collide. */
 .paper-canvas h1 .student-editable { line-height: 1.4; }
 .paper-canvas h2 {
-  margin-top: 2.5rem; font-size: 1.35rem; letter-spacing: -0.015em;
-  border-bottom: 1px solid var(--paper-border); padding-bottom: 0.4rem; color: var(--paper-ink); font-weight: 700;
+  position: relative;
+  margin-top: 2.8rem; margin-bottom: 0.4rem; font-size: 1.45rem; letter-spacing: -0.02em;
+  padding-bottom: 0.5rem; color: #16203a; font-weight: 800;
+  border-bottom: 1px solid var(--paper-hairline);
 }
-.paper-canvas h3 { font-size: 1.05rem; font-weight: 700; color: var(--paper-ink); }
-.paper-canvas p { margin: 0.8rem 0; }
-.paper-kicker { text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.75rem; font-weight: 800; color: var(--paper-accent); }
+/* a slim accent tick under each section heading */
+.paper-canvas h2::after {
+  content: ""; position: absolute; left: 0; bottom: -1px; width: 2.4rem; height: 3px;
+  border-radius: 999px; background: linear-gradient(90deg, var(--paper-accent), var(--paper-warm));
+}
+.paper-canvas h3 { font-size: 1.12rem; font-weight: 700; color: #243149; margin-top: 1.6rem; }
+.paper-canvas p { margin: 0.85rem 0; }
+.paper-kicker { text-transform: uppercase; letter-spacing: 0.14em; font-size: 0.72rem; font-weight: 800; color: var(--paper-accent); }
 
 /* ---- editable fields ---- */
 .student-writing-box, .student-editable {
   display: block;
-  background: var(--paper-soft-yellow);
-  border: 1px dashed #e0c768;
-  border-radius: 8px;
-  padding: 0.6rem 0.8rem;
-  margin: 0.4rem 0;
+  background: linear-gradient(180deg, #fefaf0 0%, var(--paper-soft-yellow) 100%);
+  border: 1.5px dashed #e3c976;
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+  margin: 0.45rem 0;
   min-height: 2.4em;
   outline: none;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
 }
 /* Inline editables (title, captions): small vertical padding + per-line-fragment
    background so a wrapped multi-line value doesn't overlap the line above/below. */
@@ -244,7 +297,7 @@ body.ps-focus-mode .ps-provenance { display: inline; font-size: 0.72rem; color: 
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }
-.student-writing-box:focus, .student-editable:focus { background: #fffdf3; border-color: var(--paper-accent); }
+.student-writing-box:focus, .student-editable:focus { background: #fffdf3; border-color: var(--paper-accent); border-style: solid; box-shadow: 0 0 0 4px rgba(37, 99, 196, 0.12); }
 .student-writing-box:empty::before, .student-editable:empty::before { content: attr(data-placeholder); color: #7a6411; } /* AA contrast on the yellow box */
 /* An EMPTY inline editable (title, figure captions) has no intrinsic width, so it
    collapses to ~12px when its placeholder text is short/absent — clicks then land on
@@ -358,14 +411,15 @@ body.tips-hidden .section-example { display: none !important; }
 
 /* ---- cards ---- */
 .clinical-question-card, .evidence-summary-card, .cover-summary-card {
-  background: var(--paper-soft-blue);
-  border: 1px solid #cfe3fb;
+  background: linear-gradient(180deg, #f5f9ff 0%, var(--paper-soft-blue) 100%);
+  border: 1px solid var(--paper-accent-soft);
   border-radius: var(--paper-radius-md);
-  padding: 1.25rem 1.5rem;
-  margin: 1.25rem 0;
+  padding: 1.3rem 1.6rem;
+  margin: 1.35rem 0;
+  box-shadow: 0 10px 26px -18px rgba(37, 99, 196, 0.5);
 }
-.cover-summary-card { background: #f8fafc; border-color: var(--paper-border); }
-.evidence-summary-card { background: #fff; border-color: var(--paper-border); }
+.cover-summary-card { background: linear-gradient(180deg, #fcfdff 0%, #f6f8fc 100%); border-color: var(--paper-border); }
+.evidence-summary-card { background: #fff; border-color: var(--paper-border); box-shadow: 0 10px 26px -20px rgba(15, 23, 42, 0.5); }
 
 .evidence-chip {
   display: inline-flex; gap: 0.35rem; align-items: center;

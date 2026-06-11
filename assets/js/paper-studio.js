@@ -300,7 +300,10 @@
       '<div class="figure-card-header"><span class="figure-label">Figure ' + num + '</span><h3>' + esc(title) + '</h3></div>' +
       (learn ? '<div class="figure-learning-row no-clean-pdf">' + learn + '</div>' : '') +
       '<div class="figure-visual" id="' + slotId + '"></div>' +
-      '<figcaption><strong>Caption / interpretation:</strong> ' +
+      '<figcaption>' +
+      '<div class="student-task-label no-clean-pdf">Write the caption — describe what this figure shows <span class="help-dot" aria-hidden="true">?</span></div>' +
+      '<div class="field-help no-clean-pdf">Read the figure above and replace each “___” with the real number you can see in it. One or two plain sentences. Example: “This figure shows that 412 records were identified, 28 full texts were assessed, and 3 studies were included.”</div>' +
+      '<strong class="caption-lead">Caption. </strong>' +
       inlineBox(captionPath, captionPlaceholder) + '</figcaption></figure>';
   }
 
@@ -396,16 +399,16 @@
     /* title block + cover */
     html += '<section class="paper-title-block">';
     html += '<p class="paper-kicker">Short Evidence Paper</p>';
-    html += '<div class="student-task-label no-clean-pdf">Title (15–20 words)</div>';
-    html += helper("Click the highlighted title to edit it. A strong title says <em>what</em> was studied, <em>in whom</em>, and <em>how</em> (a meta-analysis). Words in [square brackets] are placeholders — replace each one with the real intervention or condition from your analysis.");
+    html += '<div class="student-task-label no-clean-pdf">Write the title (15–20 words)</div>';
+    html += helper("<strong>Your job:</strong> click the big title below and rewrite it in your own words. Replace every word in [square brackets] with your real intervention and condition. A strong title says <em>what</em> was studied, <em>in whom</em>, and <em>how</em> (a meta-analysis).");
     html += '<h1>' + inlineBox("studentText.title", (auto("pico.intervention", "[intervention]")) + " for " + auto("pico.population", "[condition]") + ": a short systematic review and meta-analysis") + '</h1>';
     html += exampleBtn("studentText.title", "The intervention for this condition: a short systematic review and meta-analysis");
 
     html += '<div class="cover-summary-card">';
     html += '<p><strong>Clinical question.</strong> In ' + auto("pico.population", "[population]") + ', does ' + auto("pico.intervention", "[intervention]") +
       ' compared with ' + auto("pico.comparator", "[comparator]") + ' improve ' + auto("pico.primaryOutcome", "[primary outcome]") + '?</p>';
-    html += '<p><strong>Main finding.</strong> ' + box("studentText.coverFinding", "Your one-sentence headline", "After combining the studies, the overall result suggests...", "1 sentence",
-      "In one plain sentence, say what the study found and how sure we are. Match the verb to your GRADE certainty: High = “reduces”, Moderate = “probably reduces”, Low = “may reduce”, Very low = “the evidence is very uncertain about whether it reduces”. Avoid the word “proves”.",
+    html += '<p><strong>Main finding.</strong> ' + box("studentText.coverFinding", "Write your one-sentence headline (plain words)", "After combining the studies, the overall result suggests...", "1 sentence",
+      "Put the grey numbers above into one plain sentence a patient could understand. Find your rating in the grey “Certainty” line on this card, then use the matching word: High = “reduces”, Moderate = “probably reduces”, Low = “may reduce”, Very low = “the evidence is very uncertain about whether it reduces”. Never write “proves”.",
       "After combining the studies, the overall result suggests the intervention may improve this outcome, though how sure we can be depends on the certainty of the evidence.") + '</p>';
     html += helper("The “pooled estimate” (or “combined result”) is the single result you get after combining all the studies together. " + learnChip("pooling"));
     html += '<p><strong>Evidence base.</strong> ' + auto("analysis.kStudies") + ' studies · ' + auto("analysis.totalParticipants") + ' participants · ' + esc(a.model) + ' meta-analysis</p>';
@@ -419,13 +422,13 @@
 
     /* abstract */
     html += '<h2>Abstract</h2>';
-    html += helper("The abstract is a short summary (about 150 words) of the whole paper. Write it <em>last</em>: the Methods and Results sentences here are already filled from your analysis; you add the Background and the Conclusion.");
-    html += box("studentText.abstractBackground", "Background", "[Condition] is important because...", "~2-3 sentences",
+    html += helper("It is easiest to write this Abstract <em>last</em>. Click <strong>Next</strong> to do the Introduction first, then come back here at the end. The abstract is a short summary (about 150 words) of the whole paper — the Methods and Results sentences below are already filled in for you; you only write the yellow <em>Background</em> and <em>Conclusion</em> boxes.");
+    html += box("studentText.abstractBackground", "Write the background", "[Condition] is important because...", "~2-3 sentences",
       "One or two sentences on why this health problem matters — who it affects and what can go wrong for these patients.",
       "This condition affects many people and can lead to serious harm over time. Current treatments help some patients, but important questions about benefit remain, which is why this question matters.");
     html += example("Chronic kidney disease in adults with type 2 diabetes is common and progressive; many patients develop heart failure or die from cardiovascular causes despite standard care.",
       "This disease is very common and serious.");
-    html += box("studentText.abstractObjective", "Objective", "This short review aimed to assess whether...", "1 sentence",
+    html += box("studentText.abstractObjective", "Write the objective", "This short review aimed to assess whether...", "1 sentence",
       "State the question in one sentence: did the intervention help, for this outcome, in this population?",
       "This short review aimed to assess whether the intervention improves the main outcome compared with the comparator in this population.");
     html += example("We assessed whether finerenone reduces cardiovascular events compared with placebo in adults with CKD and type 2 diabetes.",
@@ -433,7 +436,7 @@
     html += '<p><strong>Methods.</strong> A rapid systematic review and ' + esc(a.model).toLowerCase() +
       ' meta-analysis combined ' + auto("analysis.kStudies") + ' studies (' + auto("analysis.totalParticipants") + ' participants) for ' + auto("pico.primaryOutcome", "the primary outcome") + '.</p>';
     html += '<p><strong>Results.</strong> ' + abstractResultsProse() + '</p>';
-    html += box("studentText.abstractConclusion", "Conclusion", "In patients with... the findings suggest... however this should be interpreted cautiously because...", "~2-3 sentences",
+    html += box("studentText.abstractConclusion", "Write the conclusion", "In patients with... the findings suggest... however this should be interpreted cautiously because...", "~2-3 sentences",
       "Answer your question in 1–2 sentences, then add a caution. Match the verb to your GRADE certainty and avoid “proves”.",
       "Taken together, the findings suggest the intervention may offer a modest benefit for this outcome. This should be read with caution because the certainty of the evidence is limited and only a small number of studies contributed.");
     html += example("In adults with CKD and type 2 diabetes, finerenone probably reduces cardiovascular events by a modest amount; certainty is moderate, so the size of the benefit remains uncertain.",
@@ -442,17 +445,17 @@
     /* introduction */
     html += '<h2>Introduction</h2>';
     html += helper("The introduction answers “why does this question matter?” Three short paragraphs: the problem, the intervention, and why combining studies helps. Write for a reader who knows medicine but not this exact topic.");
-    html += box("studentText.introductionClinicalProblem", "Why this condition matters", "[Condition] is clinically important because... Patients with [condition] are at risk of...", "~3-4 sentences",
+    html += box("studentText.introductionClinicalProblem", "Write why this condition matters", "[Condition] is clinically important because... Patients with [condition] are at risk of...", "~3-4 sentences",
       "Describe the condition and its consequences. Use the population shown in the clinical question above.",
       "This condition is clinically important because it is common and tends to worsen over time. Patients affected by it are at risk of serious complications, and their quality of life can decline. Even with current standard treatment, many still experience poor outcomes. This combination of high risk and limited options is what makes better treatment worthwhile and is the reason this review question matters.");
     html += example("Chronic kidney disease in adults with type 2 diabetes is common and tends to get worse over time. Even when patients take the usual treatments, many still go on to develop heart failure or die from cardiovascular causes, and their kidney function keeps declining. This combination of high risk and limited options is why better treatments are needed and why this question matters.",
       "CKD is a serious disease that affects many people.");
-    html += box("studentText.introductionInterventionRationale", "Why this intervention might help", auto("pico.intervention", "[Intervention]") + " may improve outcomes by... However, uncertainty remained because...", "~2-3 sentences",
+    html += box("studentText.introductionInterventionRationale", "Write why this intervention might help", auto("pico.intervention", "[Intervention]") + " may improve outcomes by... However, uncertainty remained because...", "~2-3 sentences",
       "Say how the treatment could work, then note what was still unknown before this review.",
       "The intervention may improve outcomes by acting on a mechanism relevant to this condition. Before this review, however, it was unclear how large and how reliable that benefit was across different patients.");
     html += example("Finerenone blocks mineralocorticoid receptors, which may reduce the inflammation and scarring that drive heart and kidney damage; how much that helps across trials was unclear before this review.",
       "The drug might help the heart.");
-    html += box("studentText.introductionWhyReviewNeeded", "Why combining studies is useful here", "Combining studies is useful here because... Therefore, this short paper asks whether...", "~2-3 sentences",
+    html += box("studentText.introductionWhyReviewNeeded", "Write why combining studies is useful here", "Combining studies is useful here because... Therefore, this short paper asks whether...", "~2-3 sentences",
       "Explain that combining trials gives a more precise answer than any single trial, then state your question.",
       "Combining the available studies is useful here because each single study on its own is too small to give a precise answer. Pooling them gives a clearer estimate, so this short paper asks whether the intervention improves the main outcome.");
     html += example("No single trial was large enough to settle the question precisely, so pooling the major trials gives a more reliable estimate of whether the drug helps.",
@@ -461,22 +464,22 @@
     /* methods */
     html += '<h2>Methods</h2>';
     html += styleControl();
-    html += helper("This section is written for you from your analysis. Use the <strong>format selector</strong> above to make it longer or match a journal’s style — it changes only the grey auto-text. A <em>rapid review</em> is a faster, lighter systematic review. You add the eligibility criteria and one honest limitation; the τ² estimator and confidence-interval method are stated for you in the longer formats.");
+    html += helper("Your job on this page: fill the two yellow boxes — (1) who you included (eligibility) and (2) one honest limitation. Everything else here is written for you from your analysis. You can ignore the <strong>format selector</strong> above — if unsure, leave it as it is (it only changes the wording of the grey auto-text). A <em>rapid review</em> is a faster, lighter systematic review.");
     // Eligibility is STUDENT-stated, not asserted by the tool (it cannot know your actual design).
-    html += '<p><strong>Eligibility.</strong> ' + box("studentText.methodsEligibility", "Eligibility criteria",
+    html += '<p><strong>Eligibility.</strong> ' + box("studentText.methodsEligibility", "Write who you included (eligibility)",
       "We included [study design] of " + auto("pico.intervention", "[intervention]") + " versus " + auto("pico.comparator", "[comparator]") + " in " + auto("pico.population", "[population]") + " reporting " + auto("pico.primaryOutcome", "[primary outcome]") + ". We excluded...", "1-2 sentences",
-      "State the ACTUAL study designs you included and your main inclusion/exclusion rules — do not leave the default if it is not what you did. The tool cannot know this for you.",
+      "Your job: say which study designs you included and your main include / exclude rules. For [study design], write “randomised controlled trials” unless you included other designs. Tip: click “✍️ Use this example to start” below for a clean sentence you can edit — don’t keep the long grey preview if it doesn’t match what you actually did.",
       "We included randomised controlled trials comparing the intervention with the comparator in this population and reporting the main outcome. We excluded studies that were not randomised or did not report the outcome of interest.") + '</p>';
     html += example("We included randomised controlled trials of finerenone versus placebo in adults with CKD and type 2 diabetes that reported cardiovascular events; we excluded non-randomised studies and trials without that outcome.",
       "We included all the relevant studies about the drug.");
     methodsProse().forEach(function (par) { html += '<p>' + (par.label ? '<strong>' + esc(par.label) + '.</strong> ' : '') + par.text + '</p>'; });
-    html += box("studentText.methodsStudentLimitation", "One limitation of this rapid workflow", "One limitation of this rapid workflow is...", "1-2 sentences",
+    html += box("studentText.methodsStudentLimitation", "Write one honest limitation of this rapid review", "One limitation of this rapid workflow is...", "1-2 sentences",
       "Name one shortcut a rapid review takes (e.g. fewer databases, faster screening) and say how it could affect the result.",
       "One limitation of this rapid workflow is that the search covered fewer databases than a full systematic review, so a relevant study could have been missed, which may affect the result.");
 
     /* results */
     html += '<h2>Results</h2>';
-    html += helper("Results = <em>what you found</em>, not what it means (that comes in the Discussion). Each figure has a “Caption / interpretation” line right below it — describe what the reader is looking at, plainly.");
+    html += helper("Nothing to write on this screen — it just introduces the results. Click <strong>Next</strong> to caption each figure in turn. Results = <em>what you found</em>, not what it means (that comes in the Discussion); under each figure you describe, plainly, what the reader is looking at.");
     html += renderOutcomeManager();
 
     html += '<h3>Study selection</h3>';
@@ -496,7 +499,7 @@
     html += figureCard(3, "Forest plot for the primary outcome", ["forest_plot", "confidence_interval", "effect_size"], "forestPlotPaperSlot", "figures.forestPlot.caption",
       "The overall result points toward... The confidence interval (the range of likely true effects) is narrow/wide, which means... The size of the effect is / is not large enough to matter because...");
     html += box("studentText.forestInterpretation", "Interpret the forest plot", "The overall result points toward... The confidence interval means... This result is / is not clinically important because...", "~3-4 sentences",
-      "Cover three separate things. (1) Direction: which treatment looks better? (2) Precision: is the confidence interval narrow (confident) or wide (uncertain)? A confidence interval is the range of effects compatible with your data; whether it crosses the no-effect line (1 for ratios, 0 for differences) is about direction, not precision. (3) Size: even if the effect is real, is it big enough to change care? New to forest plots? Click “What is a forest plot?” above.",
+      "Write one sentence for EACH of these three things. (1) Direction — which treatment looks better? Your no-effect line is 1 for a ratio (OR, RR, HR) or 0 for a difference (MD, SMD); does your confidence interval cross it? (2) Precision — is the confidence interval narrow (confident) or wide (uncertain)? (3) Size — even if the effect is real, is it big enough to change care? New to forest plots? Click “What is a forest plot?” above.",
       "The pooled result points toward one of the two groups rather than showing no difference. Because the confidence interval is fairly narrow, the estimate is reasonably precise. Whether an effect of this size is large enough to change care depends on the outcome, so it should be judged against what matters clinically.");
     html += example("The overall result favoured finerenone: its confidence interval stayed entirely below 1 (the no-effect line for a ratio), so a benefit in this direction is statistically supported. The interval was also fairly narrow, which means the result is reasonably precise. Given the moderate GRADE certainty, a reduction of this size would probably be worthwhile for high-risk patients, although the exact size is uncertain.",
       "The result was significant and shows the drug works.");
@@ -539,7 +542,7 @@
     html += figureCard(5, "GRADE summary of findings", ["grade"], "gradePaperSlot", "figures.gradeTable.caption",
       "The certainty of evidence was judged as ___. It was downgraded mainly for ___ (risk of bias / inconsistency / indirectness / imprecision / publication bias) because ___.");
     html += box("studentText.certaintyInterpretation", "Interpret the certainty", "The certainty of evidence was rated as... This was mainly because... This affects how strongly I can word the conclusion because...", "~2-3 sentences",
-      "State the GRADE rating, the main reason(s) it is not “High” (one of the five GRADE domains), and what that means for how strongly you can word your conclusion.",
+      "Write: (1) the GRADE rating (High / Moderate / Low / Very low); (2) the main reason it is not “High” — choose from: risk of bias, inconsistency (results disagree), indirectness (patients or outcome not an exact match), imprecision (too few patients), or publication bias (missing studies); and (3) what that rating means for how strongly you can word your conclusion.",
       "The certainty of evidence was rated below the highest level, mainly because of limitations such as the small number of studies or imprecision. This means the conclusion should be worded carefully rather than definitively.");
     html += example("Certainty was Moderate, downgraded for imprecision because only three small trials contributed; the conclusion is therefore worded cautiously rather than definitively.",
       "The evidence was good quality.");
@@ -556,38 +559,38 @@
 
     /* discussion */
     html += '<h2>Discussion</h2>';
-    html += helper("The discussion is where you say what it all <em>means</em>. Work through it in order: (1) the main finding, (2) why it matters, (3) how it fits other evidence, (4) strengths, (5) limitations, (6) a careful conclusion. One short paragraph each.");
-    html += box("studentText.discussionPrincipalFinding", "Main finding", "The main finding of this short review is...", "1-2 sentences",
+    html += helper("The discussion is where you say what it all <em>means</em>. Work through the yellow boxes in order: (1) main finding, (2) why it matters clinically, (3) how it fits other evidence, (4) who the result applies to, (5) strengths, (6) the main limitation, (7) a careful conclusion. One short paragraph each.");
+    html += box("studentText.discussionPrincipalFinding", "Write your main finding", "The main finding of this short review is...", "1-2 sentences",
       "Restate your main result in plain words — no statistics needed here.",
       "The main finding of this short review is that the intervention appears to affect the outcome in one direction, though the size of that effect should be read alongside how certain the evidence is.");
     html += example("Across the pooled trials, finerenone was associated with fewer cardiovascular events than placebo — a modest but consistent benefit.",
       "The drug works for heart problems.");
-    html += box("studentText.discussionClinicalMeaning", "Clinical meaning", "This would matter clinically if... For a doctor or patient it would / might / would not change practice because...", "~2-3 sentences",
+    html += box("studentText.discussionClinicalMeaning", "Write what it means clinically", "This would matter clinically if... For a doctor or patient it would / might / would not change practice because...", "~2-3 sentences",
       "This matters only if the effect is real and big enough. Look at the estimate AND the certainty, then say whether it would change what a doctor or patient does.",
       "This would matter clinically only if the effect is both real and large enough to notice. Considering the estimate together with the certainty, it may or may not be enough to change what a doctor or patient decides.");
     html += example("If the benefit is real, preventing cardiovascular events in such high-risk patients would matter to doctors and patients; but the moderate certainty means it should inform practice rather than dictate it.",
       "This could be useful for patients.");
-    html += box("studentText.discussionComparison", "Comparison with other evidence", "These findings are consistent with / differ from...", "1-2 sentences",
+    html += box("studentText.discussionComparison", "Write how it compares with other evidence", "These findings are consistent with / differ from...", "1-2 sentences",
       "Do your results agree with guidelines or other reviews you know of? Say so.",
       "These findings appear broadly consistent with what other reviews and guidelines report, although direct comparison is limited by differences in the patients and outcomes studied.");
     html += example("These results agree with the direction of the individual trial reports and current guideline signals for this drug class.",
       "Other studies found similar things.");
-    html += box("studentText.discussionTransportability", "Who the result applies to (generalisability / transportability)", "The pooled effect applies most directly to patients like those in the trials... In a real-world population that is more/less... the effect might be...", "~2-3 sentences",
-      "Use the Transportability panel in the Analysis tab. First say how representative the trials are of the real-world patients you care about (the representativeness map: age, sex, BMI, diabetes, etc.). Then, IF you set an effect-modifier slope, report the transported estimate as a SENSITIVITY analysis — never as the primary real-world effect. Be explicit that without individual patient data this is an external-validity check, not a definitive real-world number.",
+    html += box("studentText.discussionTransportability", "Write who the result applies to", "The pooled effect applies most directly to patients like those in the trials... In a real-world population that is more/less... the effect might be...", "~2-3 sentences",
+      "If you did NOT use the Transportability panel, just write one sentence: “The results apply most directly to patients like those in the included trials.” That is enough. (Optional, advanced: if you DID set an effect-modifier slope in the Analysis tab, also report that transported number as a labelled SENSITIVITY check — never as the primary real-world effect — and say that without individual patient data it is an external-validity check, not a definitive real-world number.)",
       "The pooled effect applies most directly to patients similar to those enrolled in the trials. The representativeness map shows the trials were broadly similar to the target population on age, sex and BMI, but under-represented people with diabetes. As a labelled sensitivity analysis, transporting the effect to a more diabetic real-world population shifted it modestly in the expected direction; because this rests on aggregate (not individual-patient) data, it is an external-validity check rather than a definitive real-world estimate.");
     html += example("The trials were reasonably representative of the target population on age, sex and BMI but enrolled fewer people with diabetes; a labelled transportability sensitivity analysis shifted the pooled effect by only a small amount toward a more diabetic population, so the headline result is likely to generalise, with that caveat.",
       "The result applies to everyone.");
-    html += box("studentText.discussionStrengths", "Strengths", "A strength of this review is...", "1-2 sentences",
+    html += box("studentText.discussionStrengths", "Write one strength", "A strength of this review is...", "1-2 sentences",
       "What did this review do well — e.g. combining all major trials, large total sample, consistent results?",
       "A strength of this review is that it brings together the main available trials into a single estimate, giving a clearer overall picture than any one study alone.");
     html += example("A strength is that the review pools the major randomised trials into one estimate, giving more precision than any single trial alone.",
       "This review has several strengths.");
-    html += box("studentText.discussionLimitations", "Main limitation", "The main limitation is...", "~3-4 sentences",
+    html += box("studentText.discussionLimitations", "Write the main limitation", "The main limitation is...", "~3-4 sentences",
       "Be honest about the biggest weakness (few studies, risk of bias, short follow-up, indirect population) and how it affects trust in the result.",
       "The main limitation is that only a small number of trials contributed, so the pooled estimate is imprecise and the confidence interval is fairly wide. The included trials may also differ from everyday patients in important ways, which limits how widely the result applies. Finally, as a rapid review the search was lighter than a full systematic review, so a relevant study could have been missed.");
     html += example("The main limitation is that only three trials contributed, so the pooled estimate is imprecise (a fairly wide confidence interval), and this is one reason the certainty of evidence was rated moderate rather than high. The included trials also enrolled relatively few patients with advanced kidney disease, so the finding may not apply well to that group. Finally, as a rapid review, the search was lighter than a full systematic review, so a relevant study could have been missed.",
       "This study has some limitations like all studies do.");
-    html += box("studentText.discussionConclusion", "Balanced conclusion", "The safest interpretation is... Future research should...", "~2-3 sentences",
+    html += box("studentText.discussionConclusion", "Write a balanced conclusion", "The safest interpretation is... Future research should...", "~2-3 sentences",
       "Answer the question without overclaiming, matched to your certainty rating, then suggest one useful next study. Avoid “proves” and “definitely”.",
       "The safest interpretation is that the intervention may improve the outcome by a modest amount, but the certainty of the evidence means this is not definitive. The result is most applicable to patients similar to those in the included trials. A larger, well-conducted trial would help confirm whether the benefit holds.");
     html += example("In adults with chronic kidney disease and type 2 diabetes, finerenone probably reduces cardiovascular events by a modest amount compared with placebo, although the certainty of evidence is moderate and the exact size of the benefit remains uncertain. The findings are most applicable to high-risk patients like those in the included trials. A larger trial focusing on people with advanced kidney disease would help confirm whether the benefit holds in that group.",
@@ -598,17 +601,17 @@
     html += '<h2 class="no-clean-pdf">Reflection (learning log)</h2>';
     html += '<div class="no-clean-pdf">';
     html += helper("This part is for your learning, not the final paper (it stays out of the Clean PDF). You cannot get this part wrong — just answer honestly. Reflecting like this is how you build judgement.");
-    html += box("studentText.reflectionLearning", "The most important thing I learned", "The most important thing I learned was...", "1-2 sentences",
+    html += box("studentText.reflectionLearning", "Write the most important thing you learned", "The most important thing I learned was...", "1-2 sentences",
       "Write one thing you understand now that you did not before you started.",
       "The most important thing I learned was how much the certainty of the evidence matters, not just the size of the effect, when deciding how strongly to state a conclusion.");
     html += example("I learned that the certainty rating, not just the effect size, decides how strongly I can word a conclusion.",
       "I learned a lot about meta-analysis.");
-    html += box("studentText.reflectionMostTrusted", "The evidence I trust most", "The part of the evidence I trust most is...", "1-2 sentences",
+    html += box("studentText.reflectionMostTrusted", "Write which evidence you trust most", "The part of the evidence I trust most is...", "1-2 sentences",
       "Name the part of your evidence you believe most, and say why (e.g. many studies, consistent results, low risk of bias).",
       "The part of the evidence I trust most is the pooled estimate for the main outcome, because it draws on the largest trials and their results pointed in a similar direction.");
     html += example("I trust the pooled primary-outcome estimate most, because it draws on the largest trials and they pointed the same way.",
       "I trust the results.");
-    html += box("studentText.reflectionLeastConfident", "Where I am least confident", "The part I am least confident about is...", "1-2 sentences",
+    html += box("studentText.reflectionLeastConfident", "Write where you are least confident", "The part I am least confident about is...", "1-2 sentences",
       "Naming what you are unsure about is a sign of good scientific judgement — it is required, and it is one of the most valuable lines you will write.",
       "The part I am least confident about is whether the result applies to patients who were underrepresented in the trials, because there were few of them and the follow-up was relatively short.");
     html += example("I am least sure whether the benefit holds in people with advanced kidney disease, because few such patients were included and follow-up was short.",
@@ -622,18 +625,18 @@
 
     /* Disclosures — these stay in the Clean PDF (the submittable artifact) */
     html += '<h2>Disclosures</h2>';
-    html += helper("These statements stay in the final PDF — journals and integrity policies require them. The first two are written for you; complete funding, competing interests and registration.");
+    html += helper("These statements stay in the final PDF — journals and integrity policies require them. The Use-of-tools and Data-availability statements are written for you. You MUST personally check the other four — registration, protocol link, funding and competing interests: each box shows a common default, so change it if it is not true for your work. Leaving an untrue default is an integrity problem, not a shortcut.");
     html += '<p><strong>Use of automated tools.</strong> The structured numerical results, the Methods and Results summary text, the figures, the GRADE certainty summary, and the reference identifiers were generated automatically by the RapidMeta Evidence Paper Studio from the author’s own meta-analysis. The introduction, figure captions, all interpretation, the discussion and the conclusions are the author’s own work. Because the auto-generated sections come from a shared template, their wording may be similar to other papers produced with the same tool.</p>';
     html += '<p><strong>Data availability and provenance.</strong> The analysis was based on data the author extracted from the included trials. Sources searched: ' + esc(PS.state.search.databases || "(state databases)") + (PS.state.search.searchDate ? ', last searched ' + esc(PS.state.search.searchDate) : '') + '. Underlying trial data and the analysis project are available from the author on request.</p>';
-    html += '<p><strong>Protocol and registration.</strong> ' + box("studentText.registration", "Protocol / registration", "This review was registered as... / This review was not registered.", "1 sentence", "State the registration (e.g. PROSPERO number) or say it was not registered.",
+    html += '<p><strong>Protocol and registration.</strong> ' + box("studentText.registration", "State the protocol / registration", "This review was registered as... / This review was not registered.", "1 sentence", "State the registration (e.g. PROSPERO number) or say it was not registered.",
       "This review was not formally registered before it was carried out.") + '</p>';
     html += '<p class="protocol-link-row"><strong>Protocol link.</strong> ' +
       box("studentText.protocolLink", "Protocol link (optional)", "https://… link to your timestamped or registered protocol", null,
         "If your protocol is published online (for example a timestamped GitHub Pages page, an OSF record, or a PROSPERO registration), paste its web address here so readers can open and verify it. RapidMeta fills this in automatically when it knows the published address.") +
       '<a class="protocol-open no-clean-pdf" id="protocolOpenLink" target="_blank" rel="noopener noreferrer" hidden>↗ Open protocol page</a></p>';
-    html += '<p><strong>Funding.</strong> ' + box("studentText.funding", "Funding", "This work received no specific funding. / Funded by...", "1 sentence", "Name any funding source, or state there was none.",
+    html += '<p><strong>Funding.</strong> ' + box("studentText.funding", "State the funding", "This work received no specific funding. / Funded by...", "1 sentence", "Name any funding source, or state there was none.",
       "This work received no specific funding from any agency.") + '</p>';
-    html += '<p><strong>Competing interests.</strong> ' + box("studentText.coi", "Competing interests", "The author declares no competing interests. / The author declares...", "1 sentence", "Declare any competing interests, or state there are none.",
+    html += '<p><strong>Competing interests.</strong> ' + box("studentText.coi", "State any competing interests", "The author declares no competing interests. / The author declares...", "1 sentence", "Declare any competing interests, or state there are none.",
       "The author declares no competing interests.") + '</p>';
 
     /* references */
@@ -644,7 +647,7 @@
       '<span class="refs-note">These references are a <strong>draft</strong> assembled from data stored in your analysis, and can be incomplete or wrong. ' +
       'Open each PMID/DOI on PubMed or Crossref and confirm the title, authors, journal and year match that paper before submission — a reference that looks complete is not the same as a correct one.</span></div>';
     html += box("studentText.references", "References (one per line; edit freely)", "1. Author. Title. Journal. Year. PMID: …", null,
-      "After clicking the button, check each line against PubMed/Crossref and fix anything that does not match.");
+      "First click “Build references from included studies” above — it fills this box from your included trials. Then check each line against PubMed/Crossref and fix anything that does not match. Keep one reference per line.");
 
     var canvas = document.getElementById("paperCanvas");
     if (canvas) canvas.innerHTML = html;
@@ -1170,7 +1173,9 @@
     });
     if (!steps.length) return;
     var ui = PS.state.ui = PS.state.ui || {};
-    if (ui.view == null) ui.view = isFirstTimer() ? "wizard" : "all";
+    // Section-by-section ("wizard") is the default for EVERYONE — a full paper shown all at
+    // once intimidates first-time writers. "Show all sections at once" stays a persisted opt-in.
+    if (ui.view == null) ui.view = "wizard";
     steps.forEach(function (s, i) {
       var wrap = document.createElement("div");
       wrap.className = "ps-step"; wrap.setAttribute("role", "group");
@@ -1188,6 +1193,9 @@
     var bar = document.createElement("div");
     bar.className = "ps-wizard-bar no-clean-pdf" + (bottom ? " ps-wizard-bottom" : "");
     bar.innerHTML =
+      // Persistent grey/yellow key on the TOP bar — visible above EVERY step, so the
+      // "what is mine to write vs auto-filled" orientation is never lost in the wizard.
+      (bottom ? '' : '<div class="ps-step-legend"><span class="ps-leg ps-leg-grey">Grey = filled in from your analysis — leave it</span><span class="ps-leg ps-leg-yellow">Yellow = your job to write</span></div>') +
       '<div class="ps-wizard-row">' +
       '<button type="button" class="ps-wiz-btn ps-prev" data-wiz="prev">← Back</button>' +
       (bottom ? '' : '<div class="ps-wizard-mid"><div class="ps-step-label" aria-live="polite"></div>' +
