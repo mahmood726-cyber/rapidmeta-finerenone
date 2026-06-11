@@ -1218,7 +1218,11 @@
     var pct = Math.round(((i + 1) / total) * 100);
     canvas.querySelectorAll(".ps-step-label").forEach(function (l) { l.textContent = "Step " + (i + 1) + " of " + total + " — " + title; });
     canvas.querySelectorAll(".ps-progress-bar").forEach(function (b) { b.style.width = pct + "%"; });
-    canvas.querySelectorAll(".ps-progress-wrap").forEach(function (w) { w.setAttribute("aria-valuenow", pct); });
+    canvas.querySelectorAll(".ps-progress-wrap").forEach(function (w) {
+      w.setAttribute("aria-valuenow", pct);
+      w.setAttribute("aria-label", "Paper progress");
+      w.setAttribute("aria-valuetext", "Step " + (i + 1) + " of " + total + " — " + title + " (" + pct + "%)");
+    });
     canvas.querySelectorAll(".ps-prev").forEach(function (b) { b.disabled = (i === 0); });
     canvas.querySelectorAll(".ps-next").forEach(function (b) { b.textContent = (i === total - 1) ? "Finish ✓" : "Next →"; });
     var toggle = canvas.querySelector(".ps-showall");
@@ -1269,8 +1273,10 @@
     // Show the lock state on the primary download button so it never looks "broken".
     var dlBtn = document.getElementById("btnDownloadCleanPdf");
     if (dlBtn) {
+      // Even when locked the button stays clickable — a click opens the readiness checklist —
+      // so it must NOT announce as disabled; the lock is carried by the label text.
       if (c.blockingCount === 0) { dlBtn.textContent = "⬇ Download my paper (PDF)"; dlBtn.classList.remove("locked"); dlBtn.setAttribute("aria-disabled", "false"); }
-      else { dlBtn.textContent = "🔒 Download my paper (" + c.blockingCount + " to finish)"; dlBtn.classList.add("locked"); dlBtn.setAttribute("aria-disabled", "true"); }
+      else { dlBtn.textContent = "🔒 Download my paper (" + c.blockingCount + " to finish)"; dlBtn.classList.add("locked"); dlBtn.setAttribute("aria-disabled", "false"); }
     }
     // Refresh the left section navigator's done-states/progress (unless focus is inside it).
     var np = document.getElementById("paperNavPanel");

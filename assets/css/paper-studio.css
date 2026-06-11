@@ -7,7 +7,7 @@
   --paper-bg: #161d29;            /* bench behind the sheet (matches dark UI) */
   --paper-surface: #ffffff;
   --paper-ink: #1a2230;
-  --paper-muted: #64748b;
+  --paper-muted: #57647a;   /* AA (>=4.5:1) on the soft-blue/grey tinted cards */
   --paper-border: #e8ecf2;
   --paper-hairline: #eef1f6;
   --paper-soft-blue: #eff6ff;
@@ -42,10 +42,11 @@
   gap: 0.5rem;
   align-items: center;
   padding: 0.85rem 1.4rem;
-  background: linear-gradient(180deg, #18222f 0%, #121a26 100%);   /* opaque (no backdrop-filter:
-                            it would make a containing block that traps position:fixed menus) */
-  border-bottom: 1px solid #2b3849;
-  box-shadow: 0 6px 18px -12px rgba(0,0,0,0.7);
+  background: linear-gradient(180deg, #202b3a 0%, #1a2433 100%);   /* lighter utility strip so the
+                            white sheet — not the chrome — is the hero (no backdrop-filter: it
+                            would make a containing block that traps position:fixed menus) */
+  border-bottom: 1px solid #26313f;
+  box-shadow: 0 2px 10px -8px rgba(0,0,0,0.6);
 }
 .paper-toolbar .ps-title {
   font-weight: 800;
@@ -59,13 +60,14 @@
   font-weight: 700;
   padding: 0.55rem 0.95rem;
   border-radius: 0.7rem;
-  background: #2c3a4d;
-  color: #e6edf6;
-  border: 1px solid #3d4d63;
+  background: transparent;            /* ghost: secondary controls recede so the one filled
+                                          Download button is the unambiguous primary action */
+  color: #cbd6e4;
+  border: 1px solid #38475c;
   cursor: pointer;
-  transition: background .15s ease, transform .12s ease, box-shadow .15s ease;
+  transition: background .15s ease, transform .12s ease, box-shadow .15s ease, color .15s ease;
 }
-.paper-toolbar button:hover { background: #3a4a60; transform: translateY(-1px); }
+.paper-toolbar button:hover { background: rgba(255,255,255,0.06); color: #eef3fa; transform: translateY(-1px); }
 .paper-toolbar button.primary {
   background: linear-gradient(180deg, #2f70d6 0%, var(--paper-accent) 100%);
   border-color: transparent; color: #fff;
@@ -86,9 +88,9 @@ body.ps-focus-mode .ps-provenance { display: inline; font-size: 0.72rem; color: 
 
 /* "More" overflow + download menus */
 .toolbar-more, .download-menu { position: relative; }
-.toolbar-more > summary { list-style: none; cursor: pointer; font-size: 0.78rem; font-weight: 700; padding: 0.5rem 0.9rem; border-radius: 0.7rem; background: #334155; color: #e2e8f0; border: 1px solid #475569; }
+.toolbar-more > summary { list-style: none; cursor: pointer; font-size: 0.78rem; font-weight: 700; padding: 0.5rem 0.9rem; border-radius: 0.7rem; background: transparent; color: #cbd6e4; border: 1px solid #38475c; }
 .toolbar-more > summary::-webkit-details-marker { display: none; }
-.toolbar-more[open] > summary { background: #475569; }
+.toolbar-more[open] > summary { background: rgba(255,255,255,0.08); color: #eef3fa; }
 /* Fixed-position (viewport-anchored) so they escape the tab's overflow:auto scroll
    container and never clip; internal scroll handles long menus. */
 .toolbar-more-body { position: fixed; left: 14px; top: 54px; z-index: 60; width: 230px; max-height: calc(100vh - 70px); overflow-y: auto; background: #0f172a; border: 1px solid #334155; border-radius: 0.8rem; padding: 0.5rem; box-shadow: 0 18px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 0.3rem; }
@@ -99,9 +101,9 @@ body.ps-focus-mode .ps-provenance { display: inline; font-size: 0.72rem; color: 
 
 /* download menu */
 .download-menu { position: relative; }
-.download-menu > summary { list-style: none; cursor: pointer; font-size: 0.78rem; font-weight: 700; padding: 0.5rem 0.9rem; border-radius: 0.7rem; background: #334155; color: #e2e8f0; border: 1px solid #475569; }
+.download-menu > summary { list-style: none; cursor: pointer; font-size: 0.78rem; font-weight: 700; padding: 0.5rem 0.9rem; border-radius: 0.7rem; background: transparent; color: #cbd6e4; border: 1px solid #38475c; }
 .download-menu > summary::-webkit-details-marker { display: none; }
-.download-menu[open] > summary { background: #475569; }
+.download-menu[open] > summary { background: rgba(255,255,255,0.08); color: #eef3fa; }
 .download-menu-body { position: fixed; right: 14px; top: 54px; z-index: 60; width: 260px; max-height: calc(100vh - 70px); overflow-y: auto; background: #0f172a; border: 1px solid #334155; border-radius: 0.8rem; padding: 0.6rem; box-shadow: 0 18px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 0.3rem; }
 /* Tall menus (esp. Advanced formats) overflow on short screens. Make the scroll obvious
    and keep the wheel inside the menu so it never feels stuck:
@@ -184,12 +186,13 @@ body.ps-focus-mode .ps-provenance { display: inline; font-size: 0.72rem; color: 
 
 /* ---- one-section wizard (Feature C) ---- */
 .ps-wizard-bar {
-  background: linear-gradient(180deg, #ffffff 0%, #f4f8ff 100%);
-  border: 1px solid var(--paper-accent-soft);
-  border-radius: 18px; padding: 1rem 1.15rem; margin: 0 0 1.7rem;
-  box-shadow: 0 10px 26px -16px rgba(37, 99, 196, 0.55), 0 1px 0 rgba(255,255,255,0.8) inset;
+  background: #ffffff;                         /* flat white control strip — visually distinct
+                                                  from the blue info cards so nav != content */
+  border: 1px solid var(--paper-border);
+  border-radius: 14px; padding: 1rem 1.15rem; margin: 0 0 1.7rem;
+  box-shadow: 0 2px 10px -7px rgba(12, 19, 33, 0.4);
 }
-.ps-wizard-bar.ps-wizard-bottom { margin: 1.9rem 0 0; background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%); }
+.ps-wizard-bar.ps-wizard-bottom { margin: 1.9rem 0 0; }
 /* Persistent grey/yellow key shown above every wizard step */
 .ps-step-legend { display: flex; flex-wrap: wrap; gap: 0.5rem 0.9rem; align-items: center; margin: 0 0 0.75rem; }
 .ps-leg { font-size: 0.74rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 999px; display: inline-flex; align-items: center; gap: 0.35rem; }
@@ -198,18 +201,19 @@ body.ps-focus-mode .ps-provenance { display: inline; font-size: 0.72rem; color: 
 .ps-leg-grey::before { background: #cbd5e1; }
 .ps-leg-yellow { color: #835e0c; background: var(--paper-soft-yellow); border: 1px solid #e3c976; }
 .ps-leg-yellow::before { background: #f1d27a; border: 1px dashed #d9b85e; }
-.ps-wizard-row { display: flex; align-items: center; gap: 1rem; }
+.ps-wizard-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
 .ps-wizard-mid { flex: 1 1 auto; }
 .ps-step-label { font-weight: 800; font-size: 1rem; color: #16203a; letter-spacing: -0.01em; }
 .ps-progress-wrap { height: 10px; background: #e6ecf5; border-radius: 999px; overflow: hidden; margin-top: 0.55rem; box-shadow: 0 1px 2px rgba(15,23,42,0.08) inset; }
 .ps-progress-bar { display: block; height: 100%; width: 0; border-radius: 999px;
-  background: linear-gradient(90deg, var(--paper-accent) 0%, #4f86e0 55%, var(--paper-warm) 100%);
-  box-shadow: 0 0 10px rgba(37, 99, 196, 0.45); transition: width 0.45s cubic-bezier(.4,0,.2,1); }
+  background: linear-gradient(90deg, var(--paper-accent) 0%, #4f86e0 100%);
+  box-shadow: 0 0 8px rgba(37, 99, 196, 0.35); transition: width 0.45s cubic-bezier(.4,0,.2,1); }
 .ps-wiz-btn {
   font-size: 0.88rem; font-weight: 700; padding: 0.6rem 1.3rem; border-radius: 0.85rem;
   border: 1px solid transparent; cursor: pointer; min-height: 44px;
-  background: linear-gradient(180deg, #2f70d6 0%, var(--paper-accent) 100%); color: #fff;
-  box-shadow: 0 8px 18px -8px rgba(37, 99, 196, 0.7); transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+  background: var(--paper-accent); color: #fff;   /* flat accent — the loud gradient is reserved
+                                                      for the toolbar Download CTA only */
+  box-shadow: 0 4px 12px -8px rgba(37, 99, 196, 0.5); transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
 }
 .ps-wiz-btn.ps-prev { background: #fff; color: var(--paper-accent); border-color: var(--paper-accent-soft); box-shadow: 0 4px 12px -8px rgba(15,23,42,0.4); }
 .ps-wiz-btn:hover { filter: brightness(1.04); transform: translateY(-1px); box-shadow: 0 12px 22px -10px rgba(37, 99, 196, 0.7); }
@@ -234,8 +238,16 @@ body.ps-focus-mode .ps-provenance { display: inline; font-size: 0.72rem; color: 
 .export-clean-pdf .ps-step,
 #paperCanvas.paper-mode-preview .ps-step { display: block !important; }
 @media print { #paperCanvas .ps-step { display: block !important; } }
-@media (prefers-reduced-motion: reduce) { .ps-progress-bar { transition: none; } }
-@media (max-width: 700px) { .ps-wiz-btn { min-height: 44px; flex: 1 1 auto; } }
+@media (prefers-reduced-motion: reduce) {
+  .ps-progress-bar { transition: none; }
+  .ps-wiz-btn, .paper-toolbar button, .use-example, .paper-toolbar button.primary { transition: none; }
+  .ps-wiz-btn:hover, .paper-toolbar button:hover, .use-example:hover { transform: none; }
+}
+@media (max-width: 700px) {
+  /* stack: the step label + progress take the full top line, Back/Next split the row beneath */
+  .ps-wizard-mid { order: -1; flex: 1 1 100%; }
+  .ps-wiz-btn { min-height: 44px; flex: 1 1 0; }
+}
 
 /* ---- canvas ---- */
 .paper-canvas {
@@ -270,7 +282,7 @@ body.ps-focus-mode .ps-provenance { display: inline; font-size: 0.72rem; color: 
 /* a slim accent tick under each section heading */
 .paper-canvas h2::after {
   content: ""; position: absolute; left: 0; bottom: -1px; width: 2.4rem; height: 3px;
-  border-radius: 999px; background: linear-gradient(90deg, var(--paper-accent), var(--paper-warm));
+  border-radius: 999px; background: var(--paper-accent);
 }
 .paper-canvas h3 { font-size: 1.12rem; font-weight: 700; color: #243149; margin-top: 1.6rem; }
 .paper-canvas p { margin: 0.85rem 0; }
@@ -317,14 +329,13 @@ body.ps-focus-mode .ps-provenance { display: inline; font-size: 0.72rem; color: 
    counter (it is not a .student-writing-box). Hidden once the box has content. */
 .use-example {
   display: inline-flex; align-items: center; gap: 0.4rem; margin: 0.35rem 0 0.6rem;
-  font-size: 0.92rem; font-weight: 700; line-height: 1.2;
-  padding: 0.6rem 1.15rem; border-radius: 0.8rem; cursor: pointer; min-height: 44px;
-  background: linear-gradient(180deg, #f0f6ff 0%, var(--paper-soft-blue) 100%);
-  color: var(--paper-accent); border: 1.5px solid #bcd6f7;
-  box-shadow: 0 6px 16px -10px rgba(37, 99, 196, 0.55);
+  font-size: 0.9rem; font-weight: 700; line-height: 1.2;
+  padding: 0.55rem 1.05rem; border-radius: 0.8rem; cursor: pointer; min-height: 44px;
+  background: #fff; color: var(--paper-accent); border: 1.5px solid #bcd6f7;   /* big + tappable
+                          but a clearly SECONDARY (outlined) helper, not a loud filled button */
   transition: background .12s ease, transform .12s ease, box-shadow .12s ease;
 }
-.use-example:hover { background: #dceafb; transform: translateY(-1px); box-shadow: 0 10px 20px -10px rgba(37, 99, 196, 0.6); }
+.use-example:hover { background: var(--paper-soft-blue); transform: translateY(-1px); box-shadow: 0 6px 14px -10px rgba(37, 99, 196, 0.4); }
 .use-example:active { transform: translateY(0); }
 .use-example[hidden] { display: none; }
 /* "Open protocol page" link — shown only when the protocol-link field holds a real URL. */
@@ -335,8 +346,10 @@ body.ps-focus-mode .ps-provenance { display: inline; font-size: 0.72rem; color: 
 .live-wc.wc-low { color: #b45309; }
 .live-wc.wc-ok { color: #15803d; }
 .confirm-note { color: var(--paper-muted); }
-.paper-toolbar button.primary.locked { background: #51607a; opacity: 0.85; }
-.paper-toolbar button.primary.locked:hover { background: #5b6b87; }
+/* Locked = not yet ready, but still the bright hero CTA and still clickable (a click opens the
+   readiness checklist). The lock is signalled by the 🔒 label, not by a dead grey colour. */
+.paper-toolbar button.primary.locked { background: linear-gradient(180deg, #4f7fd0 0%, #3f6bbf 100%); box-shadow: 0 6px 16px -9px rgba(37,99,196,0.6); }
+.paper-toolbar button.primary.locked:hover { filter: brightness(1.05); }
 
 /* ---- instructional guidance (novice writers) ---- */
 .onboard-card {
@@ -370,8 +383,9 @@ body.ps-focus-mode .ps-provenance { display: inline; font-size: 0.72rem; color: 
 /* Decorative marker only — the actual guidance is shown as visible .field-help text. */
 .help-dot {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 1.05em; height: 1.05em; border-radius: 999px; background: var(--paper-accent);
-  color: #fff; font-size: 0.7rem; font-weight: 700; vertical-align: middle; margin-left: 0.2rem;
+  width: 1.05em; height: 1.05em; border-radius: 999px; background: transparent;
+  border: 1px solid #c2cad6; color: #8a93a3; font-size: 0.66rem; font-weight: 700;
+  vertical-align: middle; margin-left: 0.2rem;   /* quiet, decorative — not a clickable control */
 }
 
 /* The toggle collapses the EXTRA guidance (onboarding, section notes, examples) but
@@ -629,6 +643,11 @@ figcaption { font-size: 0.95rem; color: var(--paper-muted); border-top: 1px soli
   .nav-item, .nav-skip { min-height: 44px; }
   .nav-item { font-size: 0.85rem; }
   .paper-canvas { padding: 1.1rem; }
+  /* Toolbar: drop the title and give Download its own full-width row so it never wraps
+     mid-label and the sticky band stays shallow. */
+  .paper-toolbar { padding: 0.6rem 0.9rem; gap: 0.4rem; }
+  .paper-toolbar .ps-title { display: none; }
+  .paper-toolbar button.primary { flex: 1 1 100%; order: -1; justify-content: center; }
 }
 
 /* ---- print / PDF export ---- */
