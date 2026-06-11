@@ -302,7 +302,7 @@
       '<div class="figure-visual" id="' + slotId + '"></div>' +
       '<figcaption>' +
       '<div class="student-task-label no-clean-pdf">Write the caption — describe what this figure shows <span class="help-dot" aria-hidden="true">?</span></div>' +
-      '<div class="field-help no-clean-pdf">Read the figure above and replace each “___” with the real number you can see in it. One or two plain sentences. Example: “This figure shows that 412 records were identified, 28 full texts were assessed, and 3 studies were included.”</div>' +
+      '<div class="field-help no-clean-pdf">Read the figure above and write one or two plain sentences. Where the caption shows “___”, replace it with the real number you can see (e.g. “…412 records were identified, 28 full texts assessed, 3 studies included”); otherwise describe what the figure shows.</div>' +
       '<strong class="caption-lead">Caption. </strong>' +
       inlineBox(captionPath, captionPlaceholder) + '</figcaption></figure>';
   }
@@ -402,14 +402,14 @@
     html += '<div class="student-task-label no-clean-pdf">Write the title (15–20 words)</div>';
     html += helper("<strong>Your job:</strong> click the big title below and rewrite it in your own words. Replace every word in [square brackets] with your real intervention and condition. A strong title says <em>what</em> was studied, <em>in whom</em>, and <em>how</em> (a meta-analysis).");
     html += '<h1>' + inlineBox("studentText.title", (auto("pico.intervention", "[intervention]")) + " for " + auto("pico.population", "[condition]") + ": a short systematic review and meta-analysis") + '</h1>';
-    html += exampleBtn("studentText.title", "The intervention for this condition: a short systematic review and meta-analysis");
+    html += exampleBtn("studentText.title", "A treatment for this condition: a short systematic review and meta-analysis of its effect on the main outcome");
 
     html += '<div class="cover-summary-card">';
     html += '<p><strong>Clinical question.</strong> In ' + auto("pico.population", "[population]") + ', does ' + auto("pico.intervention", "[intervention]") +
       ' compared with ' + auto("pico.comparator", "[comparator]") + ' improve ' + auto("pico.primaryOutcome", "[primary outcome]") + '?</p>';
     html += '<p><strong>Main finding.</strong> ' + box("studentText.coverFinding", "Write your one-sentence headline (plain words)", "After combining the studies, the overall result suggests...", "1 sentence",
       "Put the grey numbers above into one plain sentence a patient could understand. Find your rating in the grey “Certainty” line on this card, then use the matching word: High = “reduces”, Moderate = “probably reduces”, Low = “may reduce”, Very low = “the evidence is very uncertain about whether it reduces”. Never write “proves”.",
-      "After pooling the trials, the treatment probably reduced the main outcome compared with the comparator — a modest but fairly consistent benefit — although, with only moderate certainty, the exact size of the effect remains uncertain.") + '</p>';
+      "After combining the studies, the treatment appeared to change the main outcome compared with the comparator.") + '</p>';
     html += helper("The “pooled estimate” (or “combined result”) is the single result you get after combining all the studies together. " + learnChip("pooling"));
     html += '<p><strong>Evidence base.</strong> ' + auto("analysis.kStudies") + ' studies · ' + auto("analysis.totalParticipants") + ' participants · ' + esc(a.model) + ' meta-analysis</p>';
     html += '<p><strong>Primary result.</strong> ' + esc(emEst) + ', ' + ciTxt + ' ' + learnChip("confidence_interval") + '</p>';
@@ -425,7 +425,7 @@
     html += helper("It is easiest to write this Abstract <em>last</em>. Click <strong>Next</strong> to do the Introduction first, then come back here at the end. The abstract is a short summary (about 150 words) of the whole paper — the Methods and Results sentences below are already filled in for you; you only write the yellow <em>Background</em> and <em>Conclusion</em> boxes.");
     html += box("studentText.abstractBackground", "Write the background", "[Condition] is important because...", "~2-3 sentences",
       "One or two sentences on why this health problem matters — who it affects and what can go wrong for these patients.",
-      "This condition affects many people and can lead to serious harm over time. Current treatments help some patients, but important questions about benefit remain, which is why this question matters.");
+      "This condition is common and tends to worsen over time, putting affected patients at risk of serious complications despite current care. Existing treatments help some patients but leave important questions about benefit unanswered, which is the gap this review addresses.");
     html += example("Chronic kidney disease in adults with type 2 diabetes is common and progressive; many patients develop heart failure or die from cardiovascular causes despite standard care.",
       "This disease is very common and serious.");
     html += box("studentText.abstractObjective", "Write the objective", "This short review aimed to assess whether...", "1 sentence",
@@ -438,7 +438,7 @@
     html += '<p><strong>Results.</strong> ' + abstractResultsProse() + '</p>';
     html += box("studentText.abstractConclusion", "Write the conclusion", "In patients with... the findings suggest... however this should be interpreted cautiously because...", "~2-3 sentences",
       "Answer your question in 1–2 sentences, then add a caution. Match the verb to your GRADE certainty and avoid “proves”.",
-      "Taken together, the findings suggest the intervention may offer a modest benefit for this outcome. This should be read with caution because the certainty of the evidence is limited and only a small number of studies contributed.");
+      "Taken together, the evidence suggests the intervention changes this outcome compared with the comparator, with the strength of that statement matched to the certainty rating. This should be read with caution because only a small number of studies contributed and the certainty of the evidence is limited.");
     html += example("In adults with CKD and type 2 diabetes, finerenone probably reduces cardiovascular events by a modest amount; certainty is moderate, so the size of the benefit remains uncertain.",
       "Finerenone works and reduces heart problems.");
 
@@ -452,12 +452,12 @@
       "CKD is a serious disease that affects many people.");
     html += box("studentText.introductionInterventionRationale", "Write why this intervention might help", auto("pico.intervention", "[Intervention]") + " may improve outcomes by... However, uncertainty remained because...", "~2-3 sentences",
       "Say how the treatment could work, then note what was still unknown before this review.",
-      "The intervention may improve outcomes by acting on a mechanism relevant to this condition. Before this review, however, it was unclear how large and how reliable that benefit was across different patients.");
+      "The intervention is thought to act on a biological mechanism relevant to this condition, which is the rationale for testing it here. Before this review, it was unclear how large any such benefit was and how consistently it held across different patients.");
     html += example("Finerenone blocks mineralocorticoid receptors, which may reduce the inflammation and scarring that drive heart and kidney damage; how much that helps across trials was unclear before this review.",
       "The drug might help the heart.");
     html += box("studentText.introductionWhyReviewNeeded", "Write why combining studies is useful here", "Combining studies is useful here because... Therefore, this short paper asks whether...", "~2-3 sentences",
       "Explain that combining trials gives a more precise answer than any single trial, then state your question.",
-      "Combining the available studies is useful here because each single study on its own is too small to give a precise answer. Pooling them gives a clearer estimate, so this short paper asks whether the intervention improves the main outcome.");
+      "Combining the available studies is useful here because each single study is too small to give a precise answer; pooling them gives a clearer estimate, so this paper asks whether the intervention improves the main outcome.");
     html += example("No single trial was large enough to settle the question precisely, so pooling the major trials gives a more reliable estimate of whether the drug helps.",
       "Combining studies is useful and important.");
 
@@ -469,13 +469,13 @@
     html += '<p><strong>Eligibility.</strong> ' + box("studentText.methodsEligibility", "Write who you included (eligibility)",
       "We included [study design] of " + auto("pico.intervention", "[intervention]") + " versus " + auto("pico.comparator", "[comparator]") + " in " + auto("pico.population", "[population]") + " reporting " + auto("pico.primaryOutcome", "[primary outcome]") + ". We excluded...", "1-2 sentences",
       "Your job: say which study designs you included and your main include / exclude rules. For [study design], write “randomised controlled trials” unless you included other designs. Tip: click “✍️ Use this example to start” below for a clean sentence you can edit — don’t keep the long grey preview if it doesn’t match what you actually did.",
-      "We included randomised controlled trials comparing the intervention with the comparator in this population and reporting the main outcome. We excluded studies that were not randomised or did not report the outcome of interest.") + '</p>';
+      "We included randomised controlled trials comparing the intervention with the comparator in this population and reporting the main outcome. We excluded non-randomised studies and trials that did not report the outcome of interest.") + '</p>';
     html += example("We included randomised controlled trials of finerenone versus placebo in adults with CKD and type 2 diabetes that reported cardiovascular events; we excluded non-randomised studies and trials without that outcome.",
       "We included all the relevant studies about the drug.");
     methodsProse().forEach(function (par) { html += '<p>' + (par.label ? '<strong>' + esc(par.label) + '.</strong> ' : '') + par.text + '</p>'; });
     html += box("studentText.methodsStudentLimitation", "Write one honest limitation of this rapid review", "One limitation of this rapid workflow is...", "1-2 sentences",
       "Name one shortcut a rapid review takes (e.g. fewer databases, faster screening) and say how it could affect the result.",
-      "One limitation of this rapid workflow is that the search covered fewer databases than a full systematic review, so a relevant study could have been missed, which may affect the result.");
+      "One limitation of this rapid workflow is that the search covered fewer databases than a full systematic review. A relevant study could therefore have been missed, which would most likely bias the pooled estimate toward the trials that were easiest to find.");
 
     /* results */
     html += '<h2>Results</h2>';
@@ -500,7 +500,7 @@
       "The overall result points toward... The confidence interval (the range of likely true effects) is narrow/wide, which means... The size of the effect is / is not large enough to matter because...");
     html += box("studentText.forestInterpretation", "Interpret the forest plot", "The overall result points toward... The confidence interval means... This result is / is not clinically important because...", "~3-4 sentences",
       "Write one sentence for EACH of these three things. (1) Direction — which treatment looks better? Your no-effect line is 1 for a ratio (OR, RR, HR) or 0 for a difference (MD, SMD); does your confidence interval cross it? (2) Precision — is the confidence interval narrow (confident) or wide (uncertain)? (3) Size — even if the effect is real, is it big enough to change care? New to forest plots? Click “What is a forest plot?” above.",
-      "The pooled result points toward one of the two groups rather than showing no difference. Because the confidence interval is fairly narrow, the estimate is reasonably precise. Whether an effect of this size is large enough to change care depends on the outcome, so it should be judged against what matters clinically.");
+      "The pooled estimate points toward one group rather than sitting on the no-effect line, and whether its confidence interval crosses that line determines how confident the direction is. The interval here is fairly narrow, so the estimate is reasonably precise. Whether an effect of this size is large enough to change care depends on the outcome and should be judged against an agreed clinical threshold.");
     html += example("The overall result favoured finerenone: its confidence interval stayed entirely below 1 (the no-effect line for a ratio), so a benefit in this direction is statistically supported. The interval was also fairly narrow, which means the result is reasonably precise. Given the moderate GRADE certainty, a reduction of this size would probably be worthwhile for high-risk patients, although the exact size is uncertain.",
       "The result was significant and shows the drug works.");
     html += '<div class="section-example no-clean-pdf"><span class="ex-good">✓ If your CI crosses the line:</span> The estimate pointed toward the intervention, but the confidence interval crossed the no-effect line, so the data are also compatible with no real difference; the result is uncertain rather than clearly positive.</div>';
@@ -523,7 +523,7 @@
     html += helper("Heterogeneity = how much the studies’ results differ beyond chance. I² estimates the share of that variation that is real difference rather than chance: a high I² means results vary a lot; a low or 0% I² is consistent with agreement, but with only a few studies it can simply mean there were too few to detect a difference — so do not state it as proof the studies agree. τ² is the actual spread of true effects between studies; look at it and the prediction interval too.");
     html += box("studentText.heterogeneityInterpretation", "Interpret the heterogeneity", "The studies’ results varied a little / a lot, which suggests... Combining them still makes sense / is questionable because...", "~2-3 sentences",
       "Is the I² low, moderate or high? If high, why might the studies differ (different patients, doses, follow-up)? Is combining them still reasonable? Remember a low I² with few studies is not proof of agreement.",
-      "The results across the studies varied only a little, which suggests they are broadly consistent. With only a few studies this agreement should be read cautiously rather than as proof, but combining them still seems reasonable.");
+      "The results across the studies were broadly consistent or meaningfully different depending on the I-squared and tau-squared values shown above; either way, with only a few studies any apparent agreement should be read cautiously rather than treated as proof, and combining them still seems reasonable only if the trials are alike enough.");
     html += example("I² was low and τ² close to zero, so the three trials gave broadly consistent results; with only three studies this agreement should be read cautiously rather than as proof.",
       "There was no heterogeneity so the studies all agree.");
     html += story("A traveller crossing a wide land does not trust a single well. She drinks from many. If every well runs sweet, she grows confident the water is good. If some run sweet and some run bitter, she asks why — different ground, different depth — before she trusts any. Your studies are the wells. Agreement across many is reassuring; disagreement is a question to answer, not a flaw to hide. And with only two or three wells, even sweet water proves little — there were simply too few to know.");
@@ -543,7 +543,7 @@
       "The certainty of evidence was judged as ___. It was downgraded mainly for ___ (risk of bias / inconsistency / indirectness / imprecision / publication bias) because ___.");
     html += box("studentText.certaintyInterpretation", "Interpret the certainty", "The certainty of evidence was rated as... This was mainly because... This affects how strongly I can word the conclusion because...", "~2-3 sentences",
       "Write: (1) the GRADE rating (High / Moderate / Low / Very low); (2) the main reason it is not “High” — choose from: risk of bias, inconsistency (results disagree), indirectness (patients or outcome not an exact match), imprecision (too few patients), or publication bias (missing studies); and (3) what that rating means for how strongly you can word your conclusion.",
-      "The certainty of evidence was rated below the highest level, mainly because of limitations such as the small number of studies or imprecision. This means the conclusion should be worded carefully rather than definitively.");
+      "The certainty of evidence for this outcome was rated as moderate, downgraded mainly for imprecision because only a small number of trials contributed. Because the evidence is not high-certainty, the conclusion is worded cautiously rather than definitively.");
     html += example("Certainty was Moderate, downgraded for imprecision because only three small trials contributed; the conclusion is therefore worded cautiously rather than definitively.",
       "The evidence was good quality.");
     html += story("Two maps lie before you, both pointing the same way. One was drawn by many careful surveyors who walked every mile; the other sketched in haste by a single hand. You might follow either — but you would trust the careful map further, and you would say so out loud. GRADE certainty is how carefully the map was drawn. It is not where the road leads (that is the effect); it is how much to trust the drawing. Match the strength of your words to the strength of your map.");
@@ -562,27 +562,27 @@
     html += helper("The discussion is where you say what it all <em>means</em>. Work through the yellow boxes in order: (1) main finding, (2) why it matters clinically, (3) how it fits other evidence, (4) who the result applies to, (5) strengths, (6) the main limitation, (7) a careful conclusion. One short paragraph each.");
     html += box("studentText.discussionPrincipalFinding", "Write your main finding", "The main finding of this short review is...", "1-2 sentences",
       "Restate your main result in plain words — no statistics needed here.",
-      "The main finding of this short review is that the intervention appears to affect the outcome in one direction, though the size of that effect should be read alongside how certain the evidence is.");
+      "The main finding of this short review is that, across the pooled trials, the intervention was associated with a change in the main outcome compared with the comparator; the size of that change is best read alongside the certainty of the evidence, discussed below.");
     html += example("Across the pooled trials, finerenone was associated with fewer cardiovascular events than placebo — a modest but consistent benefit.",
       "The drug works for heart problems.");
     html += box("studentText.discussionClinicalMeaning", "Write what it means clinically", "This would matter clinically if... For a doctor or patient it would / might / would not change practice because...", "~2-3 sentences",
       "This matters only if the effect is real and big enough. Look at the estimate AND the certainty, then say whether it would change what a doctor or patient does.",
-      "This would matter clinically only if the effect is both real and large enough to notice. Considering the estimate together with the certainty, it may or may not be enough to change what a doctor or patient decides.");
+      "Whether this changes care depends on two things together: how large the effect is and how certain the evidence is. A clear, reasonably certain benefit would support a change in practice, whereas a small or uncertain one would more likely inform a shared decision than dictate it.");
     html += example("If the benefit is real, preventing cardiovascular events in such high-risk patients would matter to doctors and patients; but the moderate certainty means it should inform practice rather than dictate it.",
       "This could be useful for patients.");
     html += box("studentText.discussionComparison", "Write how it compares with other evidence", "These findings are consistent with / differ from...", "1-2 sentences",
       "Do your results agree with guidelines or other reviews you know of? Say so.",
-      "These findings appear broadly consistent with what other reviews and guidelines report, although direct comparison is limited by differences in the patients and outcomes studied.");
+      "Where comparison is possible, these findings sit in the same direction as related reviews and current guidance, though differences in the patients, doses and outcomes studied limit how closely they can be compared.");
     html += example("These results agree with the direction of the individual trial reports and current guideline signals for this drug class.",
       "Other studies found similar things.");
     html += box("studentText.discussionTransportability", "Write who the result applies to", "The pooled effect applies most directly to patients like those in the trials... In a real-world population that is more/less... the effect might be...", "~2-3 sentences",
       "If you did NOT use the Transportability panel, just write one sentence: “The results apply most directly to patients like those in the included trials.” That is enough. (Optional, advanced: if you DID set an effect-modifier slope in the Analysis tab, also report that transported number as a labelled SENSITIVITY check — never as the primary real-world effect — and say that without individual patient data it is an external-validity check, not a definitive real-world number.)",
-      "The pooled effect applies most directly to patients similar to those enrolled in the trials. The representativeness map shows the trials were broadly similar to the target population on age, sex and BMI, but under-represented people with diabetes. As a labelled sensitivity analysis, transporting the effect to a more diabetic real-world population shifted it modestly in the expected direction; because this rests on aggregate (not individual-patient) data, it is an external-validity check rather than a definitive real-world estimate.");
+      "The pooled effect applies most directly to patients similar to those enrolled in the included trials. Applying it to populations that differ substantially in age, comorbidity or disease severity should be done with caution, because the trials may not represent those groups well.");
     html += example("The trials were reasonably representative of the target population on age, sex and BMI but enrolled fewer people with diabetes; a labelled transportability sensitivity analysis shifted the pooled effect by only a small amount toward a more diabetic population, so the headline result is likely to generalise, with that caveat.",
       "The result applies to everyone.");
     html += box("studentText.discussionStrengths", "Write one strength", "A strength of this review is...", "1-2 sentences",
       "What did this review do well — e.g. combining all major trials, large total sample, consistent results?",
-      "A strength of this review is that it brings together the main available trials into a single estimate, giving a clearer overall picture than any one study alone.");
+      "A strength of this review is that it pools the major randomised trials on this question and pairs the pooled estimate with a formal certainty (GRADE) rating, so the result is reported with its reliability rather than as a bare number.");
     html += example("A strength is that the review pools the major randomised trials into one estimate, giving more precision than any single trial alone.",
       "This review has several strengths.");
     html += box("studentText.discussionLimitations", "Write the main limitation", "The main limitation is...", "~3-4 sentences",
@@ -592,7 +592,7 @@
       "This study has some limitations like all studies do.");
     html += box("studentText.discussionConclusion", "Write a balanced conclusion", "The safest interpretation is... Future research should...", "~2-3 sentences",
       "Answer the question without overclaiming, matched to your certainty rating, then suggest one useful next study. Avoid “proves” and “definitely”.",
-      "The safest interpretation is that the intervention may improve the outcome by a modest amount, but the certainty of the evidence means this is not definitive. The result is most applicable to patients similar to those in the included trials. A larger, well-conducted trial would help confirm whether the benefit holds.");
+      "The safest interpretation is that the treatment affects this outcome by a modest amount, worded to match the certainty rating, but the evidence is not strong enough to be treated as definitive. The result applies most directly to patients similar to those in the included trials, and a larger, well-conducted trial would help confirm whether the effect holds.");
     html += example("In adults with chronic kidney disease and type 2 diabetes, finerenone probably reduces cardiovascular events by a modest amount compared with placebo, although the certainty of evidence is moderate and the exact size of the benefit remains uncertain. The findings are most applicable to high-risk patients like those in the included trials. A larger trial focusing on people with advanced kidney disease would help confirm whether the benefit holds in that group.",
       "Finerenone works and should be given to all patients.");
     html += story("A witness stands before the court. She is asked only one thing: what did you see? Not what you hoped, not what would please the room — what you saw, and how clearly. If the light was dim, she says so. Your conclusion is your testimony. Report what the evidence shows and how clearly you saw it. “Probably reduces, with moderate certainty” is the testimony of an honest witness. “Proves it works for everyone” is the testimony of one who has already left the room.");
@@ -613,7 +613,7 @@
       "I trust the results.");
     html += box("studentText.reflectionLeastConfident", "Write where you are least confident", "The part I am least confident about is...", "1-2 sentences",
       "Naming what you are unsure about is a sign of good scientific judgement — it is required, and it is one of the most valuable lines you will write.",
-      "The part I am least confident about is whether the result applies to patients who were underrepresented in the trials, because there were few of them and the follow-up was relatively short.");
+      "The part I am least confident about is whether the result applies to patients who were under-represented in the included trials, because too few of them were studied to be sure.");
     html += example("I am least sure whether the benefit holds in people with advanced kidney disease, because few such patients were included and follow-up was short.",
       "I am not confident about some parts of this.");
     html += '</div>';

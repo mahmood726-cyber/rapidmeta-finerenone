@@ -24,9 +24,9 @@
     ["studentText.discussionLimitations", "Main limitation", 50],
     ["studentText.discussionConclusion", "Balanced conclusion", 40],
     ["studentText.reflectionLeastConfident", "Reflection: where you are least confident", 12],
-    ["studentText.registration", "Disclosure: protocol/registration", 3],
-    ["studentText.funding", "Disclosure: funding", 3],
-    ["studentText.coi", "Disclosure: competing interests", 3],
+    ["studentText.registration", "Disclosure: protocol/registration", 6],
+    ["studentText.funding", "Disclosure: funding", 6],
+    ["studentText.coi", "Disclosure: competing interests", 6],
     ["studentText.references", "References (build them, then verify each)", 3]
   ];
 
