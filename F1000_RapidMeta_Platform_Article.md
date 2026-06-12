@@ -97,7 +97,7 @@ Each data point carries an evidence record documenting: (a) source citation with
 
 ### Clinical configurations
 
-Table 1 summarises the 18 therapeutic areas pre-configured in the platform. Each configuration contains pre-verified trial data, outcome definitions, and provenance documentation.
+Table 1 summarises the 18 therapeutic areas pre-configured in the platform. Each configuration contains provenance-tracked trial data (benchmark- or PMID/registry-backed, with external validation for a subset; see the repository audit for per-area status), outcome definitions, and provenance documentation.
 
 **Table 1. Clinical configurations**
 
@@ -309,7 +309,7 @@ Users should interpret pooled estimates alongside the following diagnostics:
 
 RapidMeta Cardiology occupies a distinct niche in the meta-analysis software landscape. Unlike command-line tools (metafor, metan), it requires no programming expertise. Unlike desktop applications (CMA, RevMan), it requires no installation. Unlike server-based web tools (MetaInsight, CRSU apps), it operates entirely offline with no data privacy concerns.
 
-The closest comparators are MetaInsight [6] and the CRSU Shiny apps [7], which provide web-based meta-analysis without requiring local R installation. However, these tools depend on server infrastructure (which can fail or become unavailable), do not include REML estimation or HKSJ adjustment, do not offer evidence provenance tracking, and do not provide in-application validation against reference R packages. RapidMeta's key differentiators are: (1) the zero-dependency architecture (one file, no server, no account), (2) embedded R validation via WebR, (3) the evidence provenance chain linking every data point to its open-access source, (4) 18 pre-configured therapeutic areas with verified trial data, and (5) the GRADE certainty assessment integrated into the analysis workflow.
+The closest comparators are MetaInsight [6] and the CRSU Shiny apps [7], which provide web-based meta-analysis without requiring local R installation. However, these tools depend on server infrastructure (which can fail or become unavailable), do not include REML estimation or HKSJ adjustment, do not offer evidence provenance tracking, and do not provide in-application validation against reference R packages. RapidMeta's key differentiators are: (1) the zero-dependency architecture (one file, no server, no account), (2) embedded R validation via WebR, (3) the evidence provenance chain linking every data point to its open-access source, (4) 18 pre-configured therapeutic areas with provenance-tracked trial data (external validation for a subset), and (5) the GRADE certainty assessment integrated into the analysis workflow.
 
 Compared with R metafor — the gold standard for methodological flexibility — RapidMeta necessarily implements a subset of metafor's capabilities. The purpose is not to replace metafor for expert statisticians but to make a validated subset of metafor's methods accessible to clinical reviewers who need to conduct or verify meta-analyses without programming. The included R export function bridges this gap: any analysis performed in RapidMeta can be reproduced in metafor for additional sensitivity analyses or methods not implemented in the browser.
 
