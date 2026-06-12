@@ -15,13 +15,18 @@ pooled logOR to pool_dl()'s. Both are DL on identical current data -> a true
 like-for-like parity check. NON-DESTRUCTIVE: it writes nothing into the tracked
 baselines (sidecar/dashboard consumers depend on their REML+HKSJ schema).
 """
-import json, io, sys, glob, os, subprocess, tempfile
+import json, io, sys, glob, os, shutil, subprocess, tempfile
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(REPO, "outputs", "extraction_audit", "data")
 RDIR = os.path.join(REPO, "outputs", "r_validation")
-RSCRIPT = r"C:\Program Files\R\R-4.6.0\bin\Rscript.exe"
+# Rscript location: $RSCRIPT_EXE, then PATH, then the common Windows install dir.
+RSCRIPT = (
+    os.environ.get("RSCRIPT_EXE")
+    or shutil.which("Rscript")
+    or r"C:\Program Files\R\R-4.6.0\bin\Rscript.exe"
+)
 
 
 def num(v):

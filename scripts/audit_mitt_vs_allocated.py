@@ -1,7 +1,7 @@
 """
 Portfolio audit: mITT vs allocated denominators.
 
-Scans every *_REVIEW.html dashboard in C:\\Projects\\Finrenone\\ for trial entries
+Scans every *_REVIEW.html dashboard under the repo root (--root) for trial entries
 with binary event counts (tE, tN, cE, cN). Emits a CSV the user can spot-check
 to decide whether tN/cN match the published primary analysis (mITT) or were
 inadvertently filled with randomized-allocation counts.

@@ -1,14 +1,14 @@
 """Inject "Claim on E156" chips into rapidmeta-finerenone/index.html.
 
 For each <a href="X_REVIEW.html"> on the landing page, look up whether that
-review has an E156 paper (parsed from C:/E156/students.html ENTRIES) and
-add a small green chip linking to
+review has an E156 paper (parsed from the local e156 students.html, set via
+$E156_STUDENTS_HTML) and add a small green chip linking to
   https://mahmood726-cyber.github.io/e156/students.html?focus=NNN
 
 Idempotent. Safe to re-run.
 """
 from __future__ import annotations
-import io, json, re, sys
+import io, json, os, re, sys
 from pathlib import Path
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -24,7 +24,9 @@ EXTRA_LANDING_PAGES = [
     REPO / "META_DASHBOARD.html",
     REPO / "AutoManuscript.html",
 ]
-STUDENTS = Path(r"C:\E156\students.html")
+# Local e156 students.html: set $E156_STUDENTS_HTML to your checkout (the chip
+# links always point at the public Pages URL below regardless).
+STUDENTS = Path(os.environ.get("E156_STUDENTS_HTML") or (Path.home() / "e156" / "students.html"))
 E156_BASE = "https://mahmood726-cyber.github.io/e156/students.html"
 RAPIDMETA_REPO_URL = "rapidmeta-finerenone"  # match against e.code_url
 
