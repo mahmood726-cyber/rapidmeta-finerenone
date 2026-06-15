@@ -4978,8 +4978,8 @@
              ══════════════════════════════════════════════════════════════════ */
           const N = '(\\d+\\.?\\d*)';
           const SN = '(-?\\d+\\.?\\d*)';
-          const SEP = '[-\\u2013\\u2014,]';
-          const TO = '(?:to|[-\\u2013\\u2014])';
+          const SEP = '(?:to|[-\\u2013\\u2014,])';   // CI bound separator: "to", hyphen/en/em dash, or comma
+          const TO = '(?:to|[-\\u2013\\u2014,])';   // unified with SEP so to/dash/comma all parse
           const CI_LABEL = '(?:95%?[\\s-]*)?(?:CI|KI|IC|BI|CrI|CL)?';
 
           const RANGE = {
@@ -5009,24 +5009,24 @@
             { rx: new RegExp('hazard\\s*ratio[,;:\\s=]+(?:was\\s+|of\\s+)?' + N + '\\s*\\(\\s*' + CI_LABEL + '[,:\\s]*' + N + '\\s*' + TO + '\\s*' + N, 'i'), type: 'HR' },
             { rx: new RegExp('hazard\\s*ratio\\s+for\\s+[\\w\\s\\-\\/(),]{1,120}?,\\s*' + N + '[;,]\\s*(?:95%?\\s*)?(?:confidence\\s+interval(?:\\s*\\[CI\\])?|CI)\\s*[,:\\s]+' + N + '\\s*' + TO + '\\s*' + N, 'i'), type: 'HR' },
             { rx: new RegExp('\\(HR[,;]\\s*' + N + '[;,]\\s*(?:95%?\\s*)?CI[,:\\s]+' + N + '\\s*' + TO + '\\s*' + N + '\\)', 'i'), type: 'HR' },
-            { rx: new RegExp('\\bHR\\b\\s+' + N + '\\s*\\(\\s*' + N + '\\s*[-\\u2013\\u2014]\\s*' + N + '\\s*\\)', 'i'), type: 'HR' },
+            { rx: new RegExp('\\bHR\\b\\s+' + N + '\\s*\\(\\s*' + N + '\\s*' + SEP + '\\s*' + N + '\\s*\\)', 'i'), type: 'HR' },
             /* Adjusted / aHR */
-            { rx: new RegExp('[Aa]djusted\\s+(?:HR|hazard\\s*ratio)[,;:\\s=]+' + N + '\\s*\\(\\s*' + CI_LABEL + '[,:\\s]*' + N + '\\s*[-\\u2013\\u2014]\\s*' + N, ''), type: 'HR' },
+            { rx: new RegExp('[Aa]djusted\\s+(?:HR|hazard\\s*ratio)[,;:\\s=]+' + N + '\\s*\\(\\s*' + CI_LABEL + '[,:\\s]*' + N + '\\s*' + SEP + '\\s*' + N, ''), type: 'HR' },
             { rx: new RegExp('\\baHR\\b[,;:\\s=]+' + N + '\\s*[\\(\\[]\\s*' + CI_LABEL + '[,:\\s]*' + N + '\\s*' + SEP + '\\s*' + N + '\\s*[\\)\\]]', 'i'), type: 'HR' },
             { rx: new RegExp('\\baHR\\b[,;:\\s=]+' + N + '[;,]\\s*(?:95%?\\s*)?CI[,:\\s]+' + N + '\\s*' + TO + '\\s*' + N, 'i'), type: 'HR' },
 
             /* -- OR -- */
             { rx: new RegExp('\\bOR\\b[,;:\\s=]+' + N + '\\s*[\\(\\[]\\s*' + CI_LABEL + '[,:\\s]*' + N + '\\s*' + SEP + '\\s*' + N + '\\s*[\\)\\]]', 'i'), type: 'OR' },
-            { rx: new RegExp('\\bOR\\b\\s+' + N + '\\s*,\\s*(?:95%?\\s*)?CI\\s+' + N + '\\s*[-\\u2013\\u2014]\\s*' + N, 'i'), type: 'OR' },
+            { rx: new RegExp('\\bOR\\b\\s+' + N + '\\s*,\\s*(?:95%?\\s*)?CI\\s+' + N + '\\s*' + SEP + '\\s*' + N, 'i'), type: 'OR' },
             { rx: new RegExp('\\bOR\\b\\s+' + N + '\\s*;\\s*(?:95%?\\s*)?CI[:\\s]+' + N + '\\s*' + TO + '\\s*' + N, 'i'), type: 'OR' },
             { rx: new RegExp('odds\\s*ratio[,;:\\s=]+(?:was\\s+|of\\s+)?' + N + '\\s*\\(\\s*' + CI_LABEL + '[,:\\s]*' + N + '\\s*' + TO + '\\s*' + N, 'i'), type: 'OR' },
-            { rx: new RegExp('\\bOR\\b\\s+' + N + '\\s*\\(\\s*' + N + '\\s*[-\\u2013\\u2014]\\s*' + N + '\\s*\\)', 'i'), type: 'OR' },
+            { rx: new RegExp('\\bOR\\b\\s+' + N + '\\s*\\(\\s*' + N + '\\s*' + SEP + '\\s*' + N + '\\s*\\)', 'i'), type: 'OR' },
             /* aOR */
-            { rx: new RegExp('[Aa]djusted\\s+(?:OR|odds\\s*ratio)[,;:\\s=]+' + N + '\\s*\\(\\s*' + CI_LABEL + '[,:\\s]*' + N + '\\s*[-\\u2013\\u2014]\\s*' + N, 'i'), type: 'OR' },
+            { rx: new RegExp('[Aa]djusted\\s+(?:OR|odds\\s*ratio)[,;:\\s=]+' + N + '\\s*\\(\\s*' + CI_LABEL + '[,:\\s]*' + N + '\\s*' + SEP + '\\s*' + N, 'i'), type: 'OR' },
             { rx: new RegExp('\\baOR\\b[,;:\\s=]+' + N + '\\s*[\\(\\[]\\s*' + CI_LABEL + '[,:\\s]*' + N + '\\s*' + SEP + '\\s*' + N + '\\s*[\\)\\]]', 'i'), type: 'OR' },
 
             /* -- IRR / Rate Ratio -- */
-            { rx: new RegExp('(?:incidence\\s+)?rate\\s*ratio[,;:\\s=]+' + N + '\\s*\\(\\s*' + CI_LABEL + '[,:\\s]*' + N + '\\s*[-\\u2013\\u2014]\\s*' + N, 'i'), type: 'IRR' },
+            { rx: new RegExp('(?:incidence\\s+)?rate\\s*ratio[,;:\\s=]+' + N + '\\s*\\(\\s*' + CI_LABEL + '[,:\\s]*' + N + '\\s*' + SEP + '\\s*' + N, 'i'), type: 'IRR' },
             { rx: new RegExp('\\bIRR\\b[,;:\\s=]+' + N + '\\s*[\\(\\[]\\s*' + CI_LABEL + '[,:\\s]*' + N + '\\s*' + SEP + '\\s*' + N + '\\s*[\\)\\]]', 'i'), type: 'IRR' },
             { rx: new RegExp('rate\\s*ratio\\s+' + N + '\\s*[;,]\\s*(?:95%?\\s*)?CI[,:\\s]+' + N + '\\s+to\\s+' + N, 'i'), type: 'IRR' },
 
@@ -5034,7 +5034,7 @@
             { rx: new RegExp('\\bRR\\b[,;:\\s=]+' + N + '\\s*[\\(\\[]\\s*' + CI_LABEL + '[,:\\s]*' + N + '\\s*' + SEP + '\\s*' + N + '\\s*[\\)\\]]', 'i'), type: 'RR' },
             { rx: new RegExp('relative\\s+risk[,;:\\s=]+(?:was\\s+|of\\s+)?' + N + '[;,]\\s*(?:95%?\\s*)?(?:CI|confidence)[,:\\s]+' + N + '\\s*' + TO + '\\s*' + N, 'i'), type: 'RR' },
             { rx: new RegExp('risk\\s+ratio[,;:\\s]+' + N + '\\s*[;,]\\s*(?:95%?\\s*)?CI[,:\\s]+' + N + '\\s*' + TO + '\\s*' + N, 'i'), type: 'RR' },
-            { rx: new RegExp('\\bRR\\b\\s+' + N + '\\s*\\(\\s*' + N + '\\s*[-\\u2013\\u2014]\\s*' + N + '\\s*\\)', 'i'), type: 'RR' },
+            { rx: new RegExp('\\bRR\\b\\s+' + N + '\\s*\\(\\s*' + N + '\\s*' + SEP + '\\s*' + N + '\\s*\\)', 'i'), type: 'RR' },
             /* aRR */
             { rx: new RegExp('\\baRR\\b[,;:\\s=]+' + N + '\\s*[\\(\\[]\\s*' + CI_LABEL + '[,:\\s]*' + N + '\\s*' + SEP + '\\s*' + N + '\\s*[\\)\\]]', 'i'), type: 'RR' },
 
@@ -5054,13 +5054,13 @@
             /* -- NNT / NNH -- */
             { rx: new RegExp('\\bNNT\\b[,;:\\s=]+' + N + '\\s*[\\(\\[]\\s*' + CI_LABEL + '[,:\\s]*' + N + '\\s*' + SEP + '\\s*' + N + '\\s*[\\)\\]]', 'i'), type: 'NNT' },
             { rx: new RegExp('\\bNNH\\b[,;:\\s=]+' + N + '\\s*[\\(\\[]\\s*' + CI_LABEL + '[,:\\s]*' + N + '\\s*' + SEP + '\\s*' + N + '\\s*[\\)\\]]', 'i'), type: 'NNH' },
-            { rx: new RegExp('number\\s+needed\\s+to\\s+treat[,;:\\s=]+' + N + '\\s*\\(\\s*' + CI_LABEL + '[,:\\s]*' + N + '\\s*[-\\u2013\\u2014]\\s*' + N, 'i'), type: 'NNT' },
+            { rx: new RegExp('number\\s+needed\\s+to\\s+treat[,;:\\s=]+' + N + '\\s*\\(\\s*' + CI_LABEL + '[,:\\s]*' + N + '\\s*' + SEP + '\\s*' + N, 'i'), type: 'NNT' },
 
             /* -- SMD (before MD) -- */
             { rx: new RegExp('\\bSMD\\b[,;:\\s=]+' + SN + '\\s*[\\(\\[]\\s*' + CI_LABEL + '[,:\\s]*' + SN + '\\s+to\\s+' + SN + '\\s*[\\)\\]]', 'i'), type: 'SMD' },
             { rx: new RegExp('\\bSMD\\b[,;:\\s=]+' + SN + '\\s*[\\(\\[]\\s*' + CI_LABEL + '[,:\\s]*' + SN + '\\s*,\\s*' + SN + '\\s*[\\)\\]]', 'i'), type: 'SMD' },
-            { rx: new RegExp("Cohen'?s?\\s+d[,;:\\s=]+" + SN + '\\s*\\(\\s*' + CI_LABEL + '[,:\\s]*' + SN + '\\s*[-\\u2013\\u2014]\\s*' + SN, 'i'), type: 'SMD' },
-            { rx: new RegExp("[Hh]edges'?\\s*g[,;:\\s=]+" + SN + '\\s*\\(\\s*' + CI_LABEL + '[,:\\s]*' + SN + '\\s*[-\\u2013\\u2014]\\s*' + SN, 'i'), type: 'SMD' },
+            { rx: new RegExp("Cohen'?s?\\s+d[,;:\\s=]+" + SN + '\\s*\\(\\s*' + CI_LABEL + '[,:\\s]*' + SN + '\\s*' + SEP + '\\s*' + SN, 'i'), type: 'SMD' },
+            { rx: new RegExp("[Hh]edges'?\\s*g[,;:\\s=]+" + SN + '\\s*\\(\\s*' + CI_LABEL + '[,:\\s]*' + SN + '\\s*' + SEP + '\\s*' + SN, 'i'), type: 'SMD' },
 
             /* -- MD (expanded with clinical-specific patterns) -- */
             { rx: new RegExp('\\bMD\\b[,;:\\s=]+' + SN + '\\s*[\\(\\[]\\s*' + CI_LABEL + '[,:\\s]*' + SN + '\\s+to\\s+' + SN + '\\s*[\\)\\]]', 'i'), type: 'MD' },
