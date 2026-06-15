@@ -2224,6 +2224,10 @@
             trialPublishedRatio(trial) {
                 const d = trial?.data;
                 if (!d) return null;
+                // A mean difference is NOT a ratio: never pool it on the log scale. Reject
+                // anything carrying a mean-difference value or a difference-type estimand,
+                // so a positive MD (e.g. +83 mL) is not mis-pooled as "Risk Ratio 83".
+                if (d.md != null || /^(MD|SMD|WMD|MEAN_DIFFERENCE)$/i.test(String(d.estimandType || ''))) return null;
                 const est = d.pubHR ?? d.publishedHR ?? d.effect ?? null;
                 const lci = d.pubHR_LCI ?? d.hrLCI ?? d.lci ?? null;
                 const uci = d.pubHR_UCI ?? d.hrUCI ?? d.uci ?? null;
@@ -2233,6 +2237,18 @@
 
             trialHasPublishedRatio(trial) {
                 return this.trialPublishedRatio(trial) != null;
+            },
+
+            // An outcome is CONTINUOUS (mean difference / SMD — LINEAR scale, null = 0) if
+            // its type or estimand says so, or it carries a mean-difference value (md). Used
+            // to route to ContinuousMDEngine and to keep mean differences OUT of the
+            // published-ratio (log-scale) pooling path.
+            isContinuousOutcome(o) {
+                if (!o) return false;
+                if (/^(CONTINUOUS|MD|SMD|WMD|MEAN_DIFFERENCE)$/i.test(String(o.type || ''))) return true;
+                if (/^(MD|SMD|WMD|MEAN_DIFFERENCE)$/i.test(String(o.estimandType || ''))) return true;
+                if (o.md != null && o.tE == null && o.cE == null) return true;
+                return false;
             },
             resolveEffectMeasure(opts = {}) {
                 const requested = this.sanitizeEffectMeasure(opts.effectMeasure ?? this.state.effectMeasure);
@@ -10118,7 +10134,7 @@ const AnalysisEngine = {
                 const outcomeKey = RapidMeta.state.selectedOutcome || 'default';
                 const isContinuous = trials.some(t => {
                     const o = t.data?.allOutcomes?.find(x => x.shortLabel === outcomeKey);
-                    return o && o.type === 'CONTINUOUS';
+                    return RapidMeta.isContinuousOutcome(o);
                 });
                 if (isContinuous && typeof ContinuousMDEngine !== 'undefined') {
                      const contResult = ContinuousMDEngine.pool(outcomeKey, trials);
