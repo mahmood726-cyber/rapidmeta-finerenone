@@ -204,6 +204,8 @@ body.ps-focus-mode .ps-provenance { display: inline; font-size: 0.72rem; color: 
 .ps-wizard-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
 .ps-wizard-mid { flex: 1 1 auto; }
 .ps-step-label { font-weight: 800; font-size: 1rem; color: #16203a; letter-spacing: -0.01em; }
+.ps-jump { margin-top: 0.4rem; max-width: 100%; font-size: 0.82rem; padding: 0.25rem 0.45rem; border: 1px solid var(--paper-border); border-radius: 7px; background: #fff; color: var(--paper-ink); cursor: pointer; }
+.ps-jump:focus-visible { outline: 2px solid var(--paper-accent); outline-offset: 1px; }
 .ps-progress-wrap { height: 10px; background: #e6ecf5; border-radius: 999px; overflow: hidden; margin-top: 0.55rem; box-shadow: 0 1px 2px rgba(15,23,42,0.08) inset; }
 .ps-progress-bar { display: block; height: 100%; width: 0; border-radius: 999px;
   background: linear-gradient(90deg, var(--paper-accent) 0%, #4f86e0 100%);
@@ -356,7 +358,9 @@ body.ps-focus-mode .ps-provenance { display: inline; font-size: 0.72rem; color: 
   position: relative; background: var(--paper-soft-blue); border: 1px solid #cfe3fb;
   border-radius: var(--paper-radius-md); padding: 1.1rem 1.4rem; margin: 0 0 1.5rem;
 }
-.onboard-card h3 { margin: 0 0 0.5rem; font-size: 1.1rem; color: var(--paper-accent); }
+.onboard-card > summary { margin: 0 0 0.5rem; font-size: 1.1rem; font-weight: 700; color: var(--paper-accent); cursor: pointer; list-style: none; }
+.onboard-card > summary::-webkit-details-marker { display: none; }
+.onboard-card:not([open]) { padding-bottom: 0.7rem; }
 .onboard-card ol { margin: 0.3rem 0 0.3rem 1.1rem; padding: 0; }
 .onboard-card li { margin: 0.3rem 0; font-size: 0.9rem; line-height: 1.5; }
 .onboard-card .onboard-tip { font-size: 0.82rem; color: var(--paper-muted); margin: 0.6rem 0 0; }

@@ -217,13 +217,16 @@
       '</div></details>';
   }
 
-  // First-time "Start here" card. Dismissible; stays dismissed via localStorage.
+  // First-time "Start here" card. Expanded for a brand-new writer (no text written yet), then
+  // collapsed by default once they have started — still one click away — so returning writers are
+  // not re-walled by the full guide. Keying off isFirstTimer() is idempotent across re-renders
+  // (no eager "seen" flag that the double initial render would trip). ✕ hides it permanently.
   function onboardingCard() {
     var off = false; try { off = localStorage.getItem("rapidmeta.paperOnboard") === "off"; } catch (e) {}
     if (off) return "";
-    return '<div class="onboard-card no-clean-pdf" role="note">' +
+    return '<details class="onboard-card no-clean-pdf"' + (isFirstTimer() ? " open" : "") + ' role="note">' +
+      '<summary>👋 New to writing a paper? Start here</summary>' +
       '<button class="onboard-dismiss" data-action="dismiss-onboard" aria-label="Hide the start-here guide" title="Hide — you can reopen it with the “Start-here guide” button">✕</button>' +
-      '<h3>👋 New to writing a paper? Start here</h3>' +
       '<ol>' +
       '<li><strong>Where to start.</strong> Write the sections in this order: <em>Introduction</em> first, then read the <em>Methods</em> and <em>Results</em> we filled in, write each figure caption, then the <em>Discussion</em>. Write the <em>Abstract last</em> — it summarises everything, so it is easiest at the end.</li>' +
       '<li><strong>The numbers are already done.</strong> Grey text (effect sizes, counts, methods) is filled in from your analysis — you do not calculate anything.</li>' +
@@ -234,7 +237,7 @@
       '</ol>' +
       '<p class="onboard-tip">Tip: write a rough version first — you can always improve it. You cannot “submit” anything here, and your work saves automatically.</p>' +
       '<p class="onboard-privacy">🔒 Your work is saved only in this browser, on this computer (nothing is uploaded). Do not paste identifiable patient details. On a shared or public computer, click <strong>Clear all (shared PC)</strong> before you leave.</p>' +
-      '</div>';
+      '</details>';
   }
 
   // "Key terms" glossary — reuses the learning cards; each chip opens the drawer.
@@ -1393,6 +1396,7 @@
       '<div class="ps-wizard-row">' +
       '<button type="button" class="ps-wiz-btn ps-prev" data-wiz="prev">← Back</button>' +
       (bottom ? '' : '<div class="ps-wizard-mid"><div class="ps-step-label" aria-live="polite"></div>' +
+        '<select class="ps-jump no-clean-pdf" aria-label="Jump to a section"></select>' +
         '<div class="ps-progress-wrap" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="ps-progress-bar"></span></div></div>') +
       '<button type="button" class="ps-wiz-btn ps-next" data-wiz="next">Next →</button></div>' +
       (bottom ? '' : '<button type="button" class="ps-showall" data-wiz="toggle"></button>');
@@ -1411,6 +1415,18 @@
     var total = steps.length, title = (PS._wizardTitles && PS._wizardTitles[i]) || "";
     var pct = Math.round(((i + 1) / total) * 100);
     canvas.querySelectorAll(".ps-step-label").forEach(function (l) { l.textContent = "Step " + (i + 1) + " of " + total + " — " + title; });
+    // Jump-to-section map: rebuild options when the step count changes, keep the current step
+    // selected, and wire the change handler once. Restores navigation when the sidebar nav is
+    // hidden (zen / full-screen).
+    canvas.querySelectorAll(".ps-jump").forEach(function (sel) {
+      if (PS._wizardTitles && sel.options.length !== total) {
+        sel.innerHTML = PS._wizardTitles.map(function (t, k) {
+          return '<option value="' + k + '">' + (k + 1) + ". " + esc(t || "") + "</option>";
+        }).join("");
+      }
+      sel.value = i;
+      if (!sel._wired) { sel._wired = true; sel.addEventListener("change", function () { applyWizard(parseInt(sel.value, 10) || 0, true); }); }
+    });
     canvas.querySelectorAll(".ps-progress-bar").forEach(function (b) { b.style.width = pct + "%"; });
     canvas.querySelectorAll(".ps-progress-wrap").forEach(function (w) { w.setAttribute("aria-valuenow", pct); });
     canvas.querySelectorAll(".ps-prev").forEach(function (b) { b.disabled = (i === 0); });
