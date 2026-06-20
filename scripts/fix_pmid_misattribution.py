@@ -38,6 +38,10 @@ FIXES = [
      "Roxadustat for anaemia in non-dialysis CKD (DOLOMITES, NDT 2021)"),
     ("ROXADUSTAT_RENAL_ANEMIA_AUTO_FULL_REVIEW.html", "Dolomites", "36005278", "34077510",
      "Roxadustat for anaemia in non-dialysis CKD (DOLOMITES, NDT 2021)"),
+    ("ROXADUSTAT_ANEMIA_CKD_AUTO_FULL_REVIEW.html", "Pyrenees", "36005278", "34537926",
+     "Roxadustat maintenance anaemia ESKD on dialysis (PYRENEES, Adv Ther 2021; n 415/421 match)"),
+    ("ROXADUSTAT_RENAL_ANEMIA_AUTO_FULL_REVIEW.html", "Pyrenees", "36005278", "34537926",
+     "Roxadustat maintenance anaemia ESKD on dialysis (PYRENEES, Adv Ther 2021; n 415/421 match)"),
 ]
 
 WINDOW = 800  # chars after the name anchor in which the row's pmid must appear

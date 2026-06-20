@@ -66,7 +66,7 @@ correctness. Each repeated PMID's title was checked against the app's drug/trial
   comment; `35693867` = an unrelated phototherapy paper). KEN-SHE is one 3-arm RCT; both
   now cite the verified efficacy paper **PMID 38049621** (Barnabas RV et al., Nat Med 2023,
   DOI 10.1038/s41591-023-02658-0, NCT03675256).
-- **10 row-level PMIDs corrected** after PubMed verification (each app had one wrong PMID on
+- **12 row-level PMIDs corrected** after PubMed verification (each app had one wrong PMID on
   two different trials → each row given its own confirmed primary publication). Tool:
   `scripts/fix_pmid_misattribution.py` (name-anchored, idempotent). Every new PMID was
   validated by fetching its title and matching trial+drug:
