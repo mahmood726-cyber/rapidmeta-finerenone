@@ -66,14 +66,27 @@ correctness. Each repeated PMID's title was checked against the app's drug/trial
   comment; `35693867` = an unrelated phototherapy paper). KEN-SHE is one 3-arm RCT; both
   now cite the verified efficacy paper **PMID 38049621** (Barnabas RV et al., Nat Med 2023,
   DOI 10.1038/s41591-023-02658-0, NCT03675256).
-- **6 flagged, NOT auto-fixed** (the true source paper must be confirmed before any edit —
-  guessing a PMID would be fabrication). `findings/pmid_mismatches.json`:
-  - clear wrong-paper: `CART_B_CELL_LYMPHOMA` (PMID 33288485 = an ofatumumab mobilization
-    regimen), `DELGOCITINIB_AD` (38485862 = a PRO-instrument validation paper),
-    `OBINUTUZUMAB_LN` (33693991 = a letter reply "Response to Majeranowski").
-  - on-topic but cited as a trial when it's a review/commentary: `HCC_LOCAL_THERAPY_NMA`
-    (32557715), `HIV_PREP_INJECTABLE` (32497490, a cabotegravir commentary),
-    `ROXADUSTAT_*` (36005278, a HIF-stabiliser review).
+- **9 row-level PMIDs corrected** after PubMed verification (each app had one wrong PMID on
+  two different trials → each row given its own confirmed primary publication). Tool:
+  `scripts/fix_pmid_misattribution.py` (name-anchored, idempotent). Every new PMID was
+  validated by fetching its title and matching trial+drug:
+  - `CART_B_CELL_LYMPHOMA`: BELINDA→**34904798**, TRANSFORM→**35717989**
+  - `HCC_LOCAL_THERAPY_NMA`: EMERALD-1→**39798579**, TACTICS→**31801872**
+  - `OBINUTUZUMAB_LN`: REGENCY→**39927615**
+  - `HIV_PREP_INJECTABLE`: HPTN 083→**34379922**, HPTN 084→**35594553** (correct PMIDs were
+    already present in the app's own evidence text)
+  - `ROXADUSTAT_ANEMIA_CKD` + `ROXADUSTAT_RENAL_ANEMIA`: DOLOMITES→**34077510** (the app's
+    DOLOMITES arm Ns 323/293 exactly match the trial — a good integrity signal)
+- **Verification caught 2 bad candidates** that search ranking offered: PMID 35314445
+  ("Stalled progress on reconciliation in health care") and 40088884 (an HCC commentary) —
+  both rejected after title check. Confirms: never write a PMID from search rank or memory.
+- **Still unresolved → flagged, NOT guessed** (PubMed returned 0 hits; writing a PMID would
+  be fabrication):
+  - `OBINUTUZUMAB_LN`: NOBILITY (NCT02550652) — left as the known-wrong 33693991, flagged.
+  - `ROXADUSTAT_*`: PYRENEES — left as the known-wrong 36005278, flagged.
+  - `DELGOCITINIB_AD_AUTO_FULL`: not touched — its "DELTA 1" row is a chronic **hand-eczema**
+    trial mis-mapped into an **atopic-dermatitis** review (a data-integrity error beyond the
+    citation); needs re-extraction, not a PMID swap.
 
 ## NOT fixed — flagged for re-extraction (cannot fix without fabricating)
 
