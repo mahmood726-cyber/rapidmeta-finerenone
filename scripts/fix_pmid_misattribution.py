@@ -28,6 +28,8 @@ FIXES = [
      "TACE plus sorafenib (TACTICS, Gut 2020, Kudo)"),
     ("OBINUTUZUMAB_LN_AUTO_FULL_REVIEW.html", "REGENCY", "33693991", "39927615",
      "Efficacy and Safety of Obinutuzumab in Active Lupus Nephritis (REGENCY, NEJM 2025)"),
+    ("OBINUTUZUMAB_LN_AUTO_FULL_REVIEW.html", "NCT02550652", "33693991", "34615636",
+     "Obinutuzumab for proliferative lupus nephritis (NOBILITY, NCT02550652, Ann Rheum Dis 2022)"),
     ("HIV_PREP_INJECTABLE_REVIEW.html", "HPTN 083", "32497490", "34379922",
      "Cabotegravir for HIV PrEP in cisgender men/transgender women (HPTN 083, NEJM 2021)"),
     ("HIV_PREP_INJECTABLE_REVIEW.html", "HPTN 084", "32497490", "35594553",

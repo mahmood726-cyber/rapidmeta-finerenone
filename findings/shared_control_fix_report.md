@@ -66,13 +66,13 @@ correctness. Each repeated PMID's title was checked against the app's drug/trial
   comment; `35693867` = an unrelated phototherapy paper). KEN-SHE is one 3-arm RCT; both
   now cite the verified efficacy paper **PMID 38049621** (Barnabas RV et al., Nat Med 2023,
   DOI 10.1038/s41591-023-02658-0, NCT03675256).
-- **9 row-level PMIDs corrected** after PubMed verification (each app had one wrong PMID on
+- **10 row-level PMIDs corrected** after PubMed verification (each app had one wrong PMID on
   two different trials → each row given its own confirmed primary publication). Tool:
   `scripts/fix_pmid_misattribution.py` (name-anchored, idempotent). Every new PMID was
   validated by fetching its title and matching trial+drug:
   - `CART_B_CELL_LYMPHOMA`: BELINDA→**34904798**, TRANSFORM→**35717989**
   - `HCC_LOCAL_THERAPY_NMA`: EMERALD-1→**39798579**, TACTICS→**31801872**
-  - `OBINUTUZUMAB_LN`: REGENCY→**39927615**
+  - `OBINUTUZUMAB_LN`: REGENCY→**39927615**, NOBILITY/NCT02550652→**34615636**
   - `HIV_PREP_INJECTABLE`: HPTN 083→**34379922**, HPTN 084→**35594553** (correct PMIDs were
     already present in the app's own evidence text)
   - `ROXADUSTAT_ANEMIA_CKD` + `ROXADUSTAT_RENAL_ANEMIA`: DOLOMITES→**34077510** (the app's
@@ -80,13 +80,17 @@ correctness. Each repeated PMID's title was checked against the app's drug/trial
 - **Verification caught 2 bad candidates** that search ranking offered: PMID 35314445
   ("Stalled progress on reconciliation in health care") and 40088884 (an HCC commentary) —
   both rejected after title check. Confirms: never write a PMID from search rank or memory.
-- **Still unresolved → flagged, NOT guessed** (PubMed returned 0 hits; writing a PMID would
-  be fabrication):
-  - `OBINUTUZUMAB_LN`: NOBILITY (NCT02550652) — left as the known-wrong 33693991, flagged.
-  - `ROXADUSTAT_*`: PYRENEES — left as the known-wrong 36005278, flagged.
-  - `DELGOCITINIB_AD_AUTO_FULL`: not touched — its "DELTA 1" row is a chronic **hand-eczema**
-    trial mis-mapped into an **atopic-dermatitis** review (a data-integrity error beyond the
-    citation); needs re-extraction, not a PMID swap.
+- **Still unresolved → flagged, NOT guessed** (the trial's *primary* paper is not retrievable
+  from the PubMed index; writing a PMID would be fabrication):
+  - `ROXADUSTAT_*`: PYRENEES — the index returns only the ROCKIES trial and 4-study *pooled*
+    analyses (which list Csiky as an author), never the standalone PYRENEES primary. Left as
+    the known-wrong 36005278, flagged. (Substituting a pooled paper for the trial = wrong.)
+  - `DELGOCITINIB_AD_AUTO_FULL`: not touched — confirmed via PMID 35084738 that its rows are
+    **chronic hand-eczema** phase 2b trials (delgocitinib cream, Worm Br J Dermatol 2022),
+    mis-scoped into an **atopic-dermatitis** review. A PMID swap would entrench the error;
+    needs re-extraction/re-scoping of the whole app.
+  - `VAMOROLONE_DMD2_AUTO_FULL`: degraded data (4 garbled NCTs, placeholder n, a future PMID);
+    doesn't match the real VISION-DMD trial → full re-extraction, not a PMID patch.
 
 ## NOT fixed — flagged for re-extraction (cannot fix without fabricating)
 
