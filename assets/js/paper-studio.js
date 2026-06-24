@@ -1278,6 +1278,16 @@
         '<figcaption><strong>Caption / interpretation:</strong> ' + inlineBox("studentText.oc_" + oc.id + "_caption", "The forest plot for " + esc(oc.label) + " shows...") + '</figcaption></figure>';
       html += box("studentText.oc_" + oc.id + "_interp", "Interpret " + esc(oc.label), "For this outcome, the result suggests...", "~2-3 sentences",
         "Same three things as the primary: which way it points, how precise it is, and whether the size matters — for this specific outcome.");
+      html += '<details class="oc-data-edit no-clean-pdf">' +
+        '<summary>Edit pooled data (updates forest plot)</summary>' +
+        '<div class="oc-data-row">' +
+        '<label>Estimate\u00a0<input type="text" size="6" data-oc-id="' + oc.id + '" data-oc-field="est" value="' + esc(String(oc.est||"")) + '"></label> ' +
+        '<label>Lower\u00a0CI\u00a0<input type="text" size="6" data-oc-id="' + oc.id + '" data-oc-field="lci" value="' + esc(String(oc.lci||"")) + '"></label> ' +
+        '<label>Upper\u00a0CI\u00a0<input type="text" size="6" data-oc-id="' + oc.id + '" data-oc-field="uci" value="' + esc(String(oc.uci||"")) + '"></label> ' +
+        '<label>I\u00b2%\u00a0<input type="text" size="4" data-oc-id="' + oc.id + '" data-oc-field="i2" value="' + esc(String(oc.i2||"")) + '"></label> ' +
+        '<button type="button" class="oc-recalc-btn" data-action="recalc-engine" data-oc-id="' + oc.id + '" title="Re-run pooling engine from trial source data">\u21ba Recalculate from source</button></div>' +
+        '<p class="oc-data-note">Editing estimate/CI/I\u00b2 above updates this outcome\u2019s forest plot immediately. \u21ba Recalculate re-runs the analysis engine from raw trial data.</p>' +
+        '</details>';
       html += '</section>';
     });
     return html;
@@ -1470,7 +1480,8 @@
   };
 
   PS._clonePass = function() { try { clonePass(); } catch(e) {} };
-  PS._refreshFigs = function() { try { clonePass(); } catch(e) {} PS.save(); };
+  PS._refreshFigs = function() { try { clonePass();
+  PS._clonePass = clonePass; } catch(e) {} PS.save(); };
   PS._mountNMAIfNeeded = function () {
     if (!(window.NMA_CONFIG && window.NMA_CONFIG.treatments && window.NMAEngine)) return;
     // Populate NMA containers (works even when NMA tab is not active)
@@ -2113,6 +2124,55 @@
         var fb = document.getElementById("btnFocusMode"); if (fb) try { fb.focus(); } catch (ex) {}
       }
     });
+
+    // Inject Back button above #paperCanvas (once) and wire its click.
+    (function () {
+      if (document.getElementById("ps-back-btn")) return;
+      var canvas = document.getElementById("paperCanvas");
+      if (!canvas || !canvas.parentNode) return;
+      var btn = document.createElement("button");
+      btn.id = "ps-back-btn"; btn.type = "button"; btn.className = "ps-back-btn no-clean-pdf";
+      btn.setAttribute("title", "Return to previous section");
+      btn.innerHTML = "\u2190 Back";
+      canvas.parentNode.insertBefore(btn, canvas);
+    })();
+    on("ps-back-btn", function () {
+      var prev = PS._prevTabId || "analysis";
+      if (window.RapidMeta && typeof RapidMeta.switchTab === "function") {
+        RapidMeta.switchTab(prev);
+      }
+    });
+
+    // Outcome data-edit: delegated change listener (inputs re-rendered on each PS.render)
+    document.addEventListener("change", function (e) {
+      var inp = e.target;
+      if (!inp || !inp.dataset || !inp.dataset.ocId) return;
+      var ocId = inp.dataset.ocId, field = inp.dataset.ocField, val = inp.value.trim();
+      var outcomes = PS.state.outcomes || [];
+      var oc = null;
+      for (var _i = 0; _i < outcomes.length; _i++) { if (outcomes[_i].id === ocId) { oc = outcomes[_i]; break; } }
+      if (!oc || !field) return;
+      oc[field] = val;
+      // Mirror primary outcome edits into PS.state.analysis so cover card + forest title stay consistent
+      if (_i === 0 && PS.state.analysis) {
+        if (field === "est") PS.state.analysis.effectEstimate = val;
+        if (field === "lci") PS.state.analysis.ciLower = val;
+        if (field === "uci") PS.state.analysis.ciUpper = val;
+        if (field === "i2")  PS.state.analysis.i2 = val;
+      }
+      PS.save();
+      if (typeof PS._clonePass === "function") PS._clonePass();
+    }, true);
+    // Recalculate-from-engine button
+    document.addEventListener("click", function (e) {
+      if (!e.target.closest('[data-action="recalc-engine"]')) return;
+      if (window.AnalysisEngine && typeof AnalysisEngine.run === "function") {
+        AnalysisEngine.run();
+        PS.toast && PS.toast("Re-running analysis from source data\u2026");
+      } else {
+        PS.toast && PS.toast("Switch to the Analysis tab, re-run there, then return here.");
+      }
+    });
     on("btnDownloadJson", PS.downloadJson);
     var up = document.getElementById("paperJsonInput");
     on("btnUploadJson", function () { if (up) up.click(); });
@@ -2384,6 +2444,33 @@
         setNested(PS.state, "studentText.abstractConclusion", acl);
       }
 
+      if (!getNested(PS.state, "studentText.abstractMethods")) {
+        setNested(PS.state, "studentText.abstractMethods",
+          "We searched MEDLINE, Embase, CENTRAL, and ClinicalTrials.gov for randomised controlled trials comparing " +
+          int_ + " versus " + comp + " in " + pop + ". Trials reporting " + out + " were eligible. " +
+          "Study selection, data extraction, and risk-of-bias assessment (Cochrane RoB 2) were performed in duplicate. " +
+          "Data were pooled using a random-effects model (DerSimonian-Laird); " +
+          "heterogeneity was quantified with I\u00b2 and \u03c4\u00b2.");
+      }
+
+      if (!getNested(PS.state, "studentText.abstractResults")) {
+        var ar_k = (a && a.kStudies != null) ? String(a.kStudies) : "--";
+        var ar_n = (a && a.totalParticipants != null && a.totalParticipants !== "") ? String(a.totalParticipants) : "--";
+        var ar_est = (a && a.effectEstimate != null) ? String(a.effectEstimate) : "--";
+        var ar_lci = (a && a.ciLower != null) ? String(a.ciLower) : "--";
+        var ar_uci = (a && a.ciUpper != null) ? String(a.ciUpper) : "--";
+        var ar_meas = (a && a.effectMeasure) ? a.effectMeasure : "effect";
+        var ar_i2 = (a && a.i2 != null) ? a.i2 + "%" : "--";
+        var ar_pi = "";
+        if (a && a.predictionInterval && a.piLCI != null && a.piLCI !== "--" && a.piUCI != null && a.piUCI !== "--") {
+          ar_pi = " The prediction interval was " + a.piLCI + " to " + a.piUCI + ".";
+        }
+        var ar = ar_k + " trials (" + ar_n + " participants) were included in the meta-analysis. " +
+          "The pooled " + ar_meas + " for " + out + " was " + ar_est +
+          " (95% CI " + ar_lci + " to " + ar_uci + "; I\u00b2 = " + ar_i2 + ")." + ar_pi;
+        setNested(PS.state, "studentText.abstractResults", ar);
+      }
+
       if (!getNested(PS.state, "studentText.introductionClinicalProblem")) {
         setNested(PS.state, "studentText.introductionClinicalProblem",
           pop + " are at risk of adverse outcomes including " + out + ". Identifying effective treatments is clinically important because such outcomes affect survival and quality of life.");
@@ -2492,6 +2579,9 @@
       RapidMeta.__paperStudioHooked = true;
       var orig = RapidMeta.switchTab.bind(RapidMeta);
       RapidMeta.switchTab = function (id) {
+        if (id === "paper") {
+          PS._prevTabId = (RapidMeta.state && RapidMeta.state.activeTab) || "analysis";
+        }
         var r = orig(id);
         if (id === "paper") { try { PS.onShow(); } catch (e) { console.warn("PaperStudio onShow failed", e); } }
         return r;
