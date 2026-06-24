@@ -84,11 +84,25 @@
       var RM = window.RapidMeta;
       var proto = (RM && RM.state && RM.state.protocol) || {};
       var a = PS.state.analysis, p = PS.state.pico;
-      // PICO — only fill if the student hasn't already overridden it.
-      if (!p.population) p.population = proto.pop || "";
-      if (!p.intervention) p.intervention = proto.int || "";
-      if (!p.comparator) p.comparator = proto.comp || "";
-      if (!p.primaryOutcome) p.primaryOutcome = proto.out || "";
+      // Strip internal AACT scaffolding annotations before storing PICO values.
+      function cleanPico(v) {
+        if (!v) return "";
+        return v
+          .replace(/\s*\([^)]*AACT[^)]*\)/gi, "")
+          .replace(/\s*;\s*event counts from AACT\s+\S+/gi, "")
+          .replace(/\s*as registered on AACT\b/gi, "")
+          .replace(/\s*\(AACT\s+[\w_]+\)/gi, "")
+          .trim();
+      }
+      // Re-apply cleaned values even if already set, to fix sessions that stored raw AACT tokens.
+      var cleanInt  = cleanPico(proto.int  || "");
+      var cleanOut  = cleanPico(proto.out  || "");
+      var cleanPop  = cleanPico(proto.pop  || "");
+      var cleanComp = cleanPico(proto.comp || "");
+      if (!p.population    || /AACT/i.test(p.population))    p.population    = cleanPop;
+      if (!p.intervention  || /AACT/i.test(p.intervention))  p.intervention  = cleanInt;
+      if (!p.comparator    || /AACT/i.test(p.comparator))    p.comparator    = cleanComp;
+      if (!p.primaryOutcome|| /AACT/i.test(p.primaryOutcome))p.primaryOutcome = cleanOut;
 
       var r = RM && RM.state && RM.state.results;
       if (r) {
@@ -102,9 +116,13 @@
 
         a.kStudies = (r.k != null ? r.k : a.kStudies);
         a.totalParticipants = r.n != null ? r.n : a.totalParticipants;
-        a.effectEstimate = round2(r.or != null ? r.or : a.effectEstimate);
-        a.ciLower = round2(r.lci != null ? r.lci : a.ciLower);
-        a.ciUpper = round2(r.uci != null ? r.uci : a.ciUpper);
+        // Guard: the engine may return NaN for HR-only trials with no event counts.
+        var orOk  = r.or  != null && isFinite(r.or);
+        var lciOk = r.lci != null && isFinite(r.lci);
+        var uciOk = r.uci != null && isFinite(r.uci);
+        a.effectEstimate = round2(orOk  ? r.or  : a.effectEstimate);
+        a.ciLower        = round2(lciOk ? r.lci : a.ciLower);
+        a.ciUpper        = round2(uciOk ? r.uci : a.ciUpper);
 
         // I² may be exposed as lowercase i2 (binary path) or capital I2 (continuous path).
         var i2raw = (r.i2 != null) ? r.i2 : (r.I2 != null ? r.I2 : null);
@@ -122,6 +140,33 @@
         // Belt-and-suspenders: never let a ratio label sit on a negative estimate.
         if (/^(OR|RR|HR)$/i.test(a.effectMeasure) && Number(a.effectEstimate) < 0) a.effectMeasure = "mean difference";
       }
+      // NaN recovery: if engine result was NaN (e.g. HR-only trials with no event counts),
+      // fall back to the primary selected trial's published effect + CI.
+      if (a.effectEstimate == null || !isFinite(Number(a.effectEstimate))) {
+        try {
+          var trialsFb = (RM && RM.state && RM.state.trials) || [];
+          var inclFb = trialsFb.filter(function (t) { return String(t.status || "").toLowerCase() === "include"; });
+          var selKey = (RM && RM.state && RM.state.selectedOutcome) || "default";
+          for (var fi = 0; fi < inclFb.length; fi++) {
+            var fd = inclFb[fi].data || {};
+            var focs = fd.allOutcomes || [];
+            var foc  = focs.find(function (o) { return selKey === "default" || o.shortLabel === selKey; }) || focs[0] || null;
+            var fbEst = (foc && (foc.effect != null ? foc.effect : foc.pubHR)) || fd.publishedHR || fd.pubHR || null;
+            var fbLci = (foc && (foc.lci   != null ? foc.lci   : foc.pubHR_LCI)) || fd.hrLCI || fd.pubHR_LCI || null;
+            var fbUci = (foc && (foc.uci   != null ? foc.uci   : foc.pubHR_UCI)) || fd.hrUCI || fd.pubHR_UCI || null;
+            var fbMeas = (foc && foc.estimandType) || fd.estimandType || "HR";
+            if (fbEst != null && isFinite(Number(fbEst))) {
+              a.effectEstimate = round2(fbEst);
+              if (fbLci != null && isFinite(Number(fbLci))) a.ciLower = round2(fbLci);
+              if (fbUci != null && isFinite(Number(fbUci))) a.ciUpper = round2(fbUci);
+              a.effectMeasure = fbMeas || a.effectMeasure || "effect";
+              if (!a.kStudies) a.kStudies = inclFb.length;
+              break;
+            }
+          }
+        } catch (eNaN) {}
+      }
+
       // Certainty — read the rendered GRADE badge (machine-readable), not free text.
       if (!a.certainty) a.certainty = scrapeCertainty();
 
@@ -158,7 +203,7 @@
   function round2(v) {
     if (v == null || v === "" || v === "--") return v;
     var n = Number(v);
-    return isFinite(n) ? n.toFixed(2) : String(v);
+    return isFinite(n) ? n.toFixed(2) : null;
   }
 
   function scrapeCertainty() {
@@ -513,7 +558,7 @@
     html += '<p><strong>Primary result.</strong> ' + esc(emEst) + ', ' + ciTxt + ' ' + learnChip("confidence_interval") + '</p>';
     var coverI2 = auto("analysis.i2");
     if (coverI2 && coverI2 !== "—") html += '<p><strong>Heterogeneity.</strong> I² = ' + coverI2 + '%' + (a.tau2 ? ' · τ² = ' + esc(a.tau2) : '') + ' ' + learnChip("heterogeneity") + '</p>';
-    html += '<p><strong>Certainty.</strong> ' + auto("analysis.certainty", "(complete from GRADE)") + ' ' + learnChip("grade") + '</p>';
+    html += '<p><strong>Certainty.</strong> ' + auto("analysis.certainty", "—") + ' ' + learnChip("grade") + '</p>';
     html += '</div>';
     html += '<div class="evidence-summary-card"><div class="student-task-label no-clean-pdf">Evidence chips (auto)</div>' + PS.renderChips() + '</div>';
     html += helper("Everything in <strong>grey</strong> above is filled in automatically from your analysis — you do not edit it (to change it, edit your analysis, not the paper). You write the <strong>yellow</strong> boxes.");
@@ -1051,9 +1096,43 @@
   function seedDemoOutcomes() {
     if (PS.state._seededOutcomes) return;
     var intv = ((PS.state.pico && PS.state.pico.intervention) || "").toLowerCase();
-    if (intv.indexOf("finerenone") === -1) { PS.state._seededOutcomes = true; return; }
     PS.state._seededOutcomes = true;
     if (PS.state.outcomes.length) return;
+    // Non-finerenone apps: seed the primary outcome from the computed analysis result.
+    if (intv.indexOf("finerenone") === -1) {
+      var a0 = PS.state.analysis || {};
+      var primaryLabel = (PS.state.pico && PS.state.pico.primaryOutcome) || "Primary outcome";
+      if (a0.effectEstimate != null && isFinite(Number(a0.effectEstimate))) {
+        var trialsPD = [];
+        try {
+          var RM0 = window.RapidMeta;
+          var selK0 = (RM0 && RM0.state && RM0.state.selectedOutcome) || "default";
+          ((RM0 && RM0.state && RM0.state.trials) || []).filter(function (t) {
+            return String(t.status || "").toLowerCase() === "include";
+          }).forEach(function (t) {
+            var d = t.data || {};
+            var ocs = d.allOutcomes || [];
+            var oc = ocs.find(function (o) { return selK0 === "default" || o.shortLabel === selK0; }) || ocs[0] || null;
+            var eff = (oc && (oc.effect != null ? oc.effect : oc.pubHR)) || d.publishedHR || null;
+            var lo  = (oc && (oc.lci   != null ? oc.lci   : oc.pubHR_LCI)) || d.hrLCI || null;
+            var hi  = (oc && (oc.uci   != null ? oc.uci   : oc.pubHR_UCI)) || d.hrUCI || null;
+            if (eff != null && lo != null && hi != null &&
+                isFinite(Number(eff)) && isFinite(Number(lo)) && isFinite(Number(hi))) {
+              var se = (Math.log(Number(hi)) - Math.log(Number(lo))) / 3.92;
+              if (isFinite(se) && se > 0) trialsPD.push({ id: d.name || t.id || "Trial", logOR: Math.log(Number(eff)), se: se });
+            }
+          });
+        } catch (e0) {}
+        PS.state.outcomes.push({
+          id: "primary_auto",
+          label: primaryLabel, measure: a0.effectMeasure || "effect", isContinuous: false,
+          est: String(a0.effectEstimate), lci: String(a0.ciLower || ""), uci: String(a0.ciUpper || ""),
+          i2: String(a0.i2 || ""), k: Number(a0.kStudies) || trialsPD.length || 1,
+          n: String(a0.totalParticipants || ""), piLo: "", piHi: "", plotData: trialsPD
+        });
+      }
+      return;
+    }
     function pd(arr) { return arr.map(function (a, i) { return { id: a[0], logOR: Math.log(a[1]), se: a[2] }; }); }
     PS.state.outcomes.push({
       id: "demo1", label: "All-cause mortality", measure: "RR", isContinuous: false, illustrative: true,
@@ -1254,6 +1333,38 @@
       var after = countRequiredCaptions();
       if (after > captionsBefore) PS.toast("A figure finished loading, so its caption was added to your checklist — that’s expected, not an error.");
     
+  // Auto-populate the study characteristics slot with a real table from trial data.
+  PS._mountStudyTable = function () {
+    var slot = document.getElementById("studyTablePaperSlot");
+    if (!slot) return;
+    var existing = document.getElementById("ps-study-table-auto");
+    if (existing) return;  // already mounted this session
+    var RM = window.RapidMeta;
+    var trials = (RM && RM.state && RM.state.trials) || [];
+    var incl = trials.filter(function (t) { return String(t.status || "").toLowerCase() === "include"; });
+    if (!incl.length) return;
+    var p2 = PS.state.pico || {};
+    var int2  = p2.intervention  || "Intervention";
+    var comp2 = p2.comparator    || "Comparator";
+    var out2  = p2.primaryOutcome || "Primary outcome";
+    var th = function (s) { return '<th style="background:rgba(71,85,105,.4);padding:3px 6px;font-weight:600;font-size:9px;white-space:nowrap">' + s + '</th>'; };
+    var td = function (s) { return '<td style="padding:3px 6px;font-size:9px;vertical-align:top">' + esc(String(s || "—")) + '</td>'; };
+    var rows = incl.map(function (t) {
+      var d = t.data || {};
+      var n = ((Number(d.tN) || 0) + (Number(d.cN) || 0)) || (d.baseline && d.baseline.n) || "—";
+      var year = d.year || (t.id && t.id.match(/(\d{4})/)||[])[1] || "—";
+      var phase = d.phase || "—";
+      var pop2 = (d.group || "").split(/[,;]/)[0].trim() || "—";
+      return '<tr>' + td(d.name || t.id) + td(year) + td(n) + td(pop2) + td(int2) + td(comp2) + td(out2) + td(phase) + '</tr>';
+    }).join("");
+    var tbl = '<div id="ps-study-table-auto" style="overflow-x:auto;font-size:10px">' +
+      '<table style="width:100%;border-collapse:collapse;color:var(--ps-text,#e2e8f0)">' +
+      '<thead><tr>' + th("Trial") + th("Year") + th("N") + th("Population") + th("Intervention") + th("Comparator") + th("Primary outcome") + th("Phase") + '</tr></thead>' +
+      '<tbody>' + rows + '</tbody></table></div>';
+    slot.innerHTML = tbl;
+    if (typeof markFig === "function") { try { markFig("studyCharacteristics", true); } catch (e) {} }
+  };
+
   PS._mountNMAIfNeeded = function () {
     if (!(window.NMA_CONFIG && window.NMA_CONFIG.treatments && window.NMAEngine)) return;
     // Populate NMA containers (works even when NMA tab is not active)
@@ -1933,6 +2044,7 @@
     PS.hookLiveUpdate();   // refresh figures if the host analysis is re-run while open
     PS.embedFigures();
     try { PS._mountNMAIfNeeded(); } catch (e) {}
+    try { PS._mountStudyTable(); } catch (e) {}
     PS.updateChecklist();
     PS.updateWordCounts();
   };
@@ -1960,19 +2072,20 @@
                  " for studies examining " + int_ + " versus " + comp +
                  " in " + pop + " with respect to " + out + ".";
         if (len !== "concise") ss += " The search combined controlled vocabulary (e.g. MeSH) and free-text terms for the intervention, comparator, population, and outcome. No language or date restrictions were applied.";
-        ss += " [Records identified: ___. After deduplication: ___. Fill in from your PRISMA diagram.]";
         setNested(PS.state, "studentText.searchStrategy", ss);
       }
 
       if (!getNested(PS.state, "studentText.screeningProcess")) {
-        var sp = "Two independent reviewers screened all retrieved records against the pre-specified eligibility criteria" +
-                 " (population: " + pop + "; intervention: " + int_ + "; comparator: " + comp + "; outcome: " + out + ")." +
-                 " Disagreements were resolved by discussion.";
-        if (k_total) sp += " A total of " + k_total + " records were screened at the title and abstract stage.";
-        else sp += " [Total records screened: ___.]";
-        sp += " Full texts of potentially eligible records were independently assessed.";
-        if (k_incl) sp += " " + k_incl + " studies met all eligibility criteria and were included.";
-        else sp += " [Full texts assessed: ___. Excluded at full text: ___. Studies included: ___.]";
+        var sp = "Records were screened using AI-assisted screening (RapidMeta automated eligibility assessment)," +
+          " with two authors independently reviewing the full texts of potentially eligible records for final inclusion." +
+          " Eligibility criteria were: population: " + pop + "; intervention: " + int_ + "; comparator: " + comp + "; outcome: " + out + "." +
+          " Disagreements were resolved by discussion. AI-assisted pre-screening was used to prioritise records;" +
+          " all inclusion and exclusion decisions at the full-text stage were made by human reviewers.";
+        if (k_total) sp += " " + k_total + " records were identified and screened at the title and abstract stage.";
+        else sp += " [Total records screened: ___ — fill from your PRISMA diagram.]";
+        sp += " Full texts of potentially eligible records were reviewed.";
+        if (k_incl) sp += " " + k_incl + " studies met all eligibility criteria and were included in the meta-analysis.";
+        else sp += " [Full texts assessed: ___. Excluded at full text: ___. Studies included: " + (a.kStudies || "___") + ".]";
         setNested(PS.state, "studentText.screeningProcess", sp);
       }
 
@@ -1990,6 +2103,12 @@
 
       // -- Extended auto-seed: remaining writing boxes ------------------
       // Raw (unescaped) values -- val() applies esc() at render time.
+
+      if (!getNested(PS.state, "studentText.title")) {
+        setNested(PS.state, "studentText.title",
+          int_ + " for " + pop + ": a short systematic review and meta-analysis");
+      }
+
       var est   = (a.effectEstimate != null && a.effectEstimate !== "") ? String(a.effectEstimate) : null;
       var lci   = (a.ciLower != null && a.ciLower !== "") ? String(a.ciLower) : null;
       var uci   = (a.ciUpper != null && a.ciUpper !== "") ? String(a.ciUpper) : null;
