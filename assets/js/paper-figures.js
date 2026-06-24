@@ -34,8 +34,10 @@
   var OPTS = { displayModeBar: false, responsive: true };
 
   // Build per-study natural-scale points and CI bounds.
-  function studyPoints(res) {
+  // opts.studyLabels: keyed by raw id — overrides display name in forest plot.
+  function studyPoints(res, opts) {
     var z = zFor(res), cont = !!res.isContinuous, pd = res.plotData || [];
+    var labels = (opts && opts.studyLabels) || {};
     var rows = [];
     pd.forEach(function (d) {
       var se = num(d.se); if (se == null) return;
@@ -44,18 +46,20 @@
       var lo, hi, eff;
       if (cont) { eff = center; lo = center - z * se; hi = center + z * se; }
       else { eff = Math.exp(center); lo = Math.exp(center - z * se); hi = Math.exp(center + z * se); }
-      rows.push({ name: d.id || d.name || "Study", eff: eff, lo: lo, hi: hi });
+      var rawName = d.id || d.name || "Study";
+      var displayName = labels[rawName] || rawName;
+      rows.push({ name: displayName, eff: eff, lo: lo, hi: hi });
     });
     return rows;
   }
 
   // res: results-like {plotData, isContinuous, confLevel, or, lci, uci, piLCI, piUCI, k, effectMeasure}
-  // opts: {xMin, xMax, label}
+  // opts: {xMin, xMax, label, studyLabels, favoursLeft, favoursRight}
   PS.renderForest = function (el, res, opts) {
     opts = opts || {};
     if (!window.Plotly || !el || !res) return false;
     var cont = !!res.isContinuous;
-    var rows = studyPoints(res);
+    var rows = studyPoints(res, opts);
     // Pooled-only is allowed (e.g. a manually-added outcome with no per-study rows).
     if (!rows.length && num(res.or) == null) return false;
 
@@ -64,7 +68,7 @@
     var piLo = (res.piLCI && res.piLCI !== "--") ? num(res.piLCI) : null;
     var piHi = (res.piUCI && res.piUCI !== "--") ? num(res.piUCI) : null;
 
-    // y categories: studies (top→bottom), then a gap, pooled, then PI label
+    // y categories: studies (top to bottom), then pooled, then PI label
     var yStudies = names.slice();
     var yPooled = "◆ Pooled (" + clPct(res) + "% CI)";
     var yPI = piLo != null ? "Prediction interval" : null;
@@ -82,7 +86,7 @@
       },
       hovertemplate: "%{y}: %{x:.2f}<extra></extra>", name: "Studies", showlegend: false
     });
-    // prediction interval bar (drawn first/behind, lighter & wider)
+    // prediction interval bar (lighter & wider, drawn behind the pooled diamond)
     if (piLo != null && piHi != null && pooledEff != null) {
       traces.push({
         x: [pooledEff], y: [yPI], mode: "markers", type: "scatter",
@@ -103,6 +107,8 @@
 
     var nullX = cont ? 0 : 1;
     var measure = res.effectMeasure || (cont ? "mean difference" : "effect");
+    var hasFavours = !!(opts.favoursLeft || opts.favoursRight);
+    var marginB = hasFavours ? 72 : 48;
     var layout = Object.assign({}, LIGHT, {
       title: { text: opts.label ? "Forest plot — " + opts.label : "Forest plot", font: { size: 13 } },
       xaxis: {
@@ -112,8 +118,15 @@
       },
       yaxis: { type: "category", categoryarray: yCats.slice().reverse(), autorange: true, tickfont: { color: "#1f2933" }, automargin: true },
       shapes: [{ type: "line", x0: nullX, x1: nullX, y0: 0, y1: 1, yref: "paper", line: { color: "#94a3b8", dash: "dash", width: 1 } }],
+      margin: { l: 150, r: 30, t: 30, b: marginB },
       height: Math.max(240, 70 + yCats.length * 34)
     });
+    if (hasFavours) {
+      layout.annotations = [
+        { x: 0.2, xref: "paper", y: -0.12, yref: "paper", text: "← " + (opts.favoursLeft || ""), showarrow: false, font: { size: 10, color: "#64748b" }, xanchor: "center" },
+        { x: 0.8, xref: "paper", y: -0.12, yref: "paper", text: (opts.favoursRight || "") + " →", showarrow: false, font: { size: 10, color: "#64748b" }, xanchor: "center" }
+      ];
+    }
     applyXRange(layout.xaxis, opts, cont);
     window.Plotly.react(el, traces, layout, OPTS);
     return true;
@@ -142,7 +155,7 @@
       var logCenter = cont ? pooledEff : Math.log(pooledEff);
       var baseSE = maxSE * 1.06;
       var lim = function (se, z, sign) { var v = logCenter + sign * z * se; return cont ? v : Math.exp(v); };
-      [{ z: 1.96, dash: "dot" }, { z: 2.58, dash: "dash" }].forEach(function (b, i) {   // 95% + 99% (z=2.58); z=3.29 is 99.9%, not 99%
+      [{ z: 1.96, dash: "dot" }, { z: 2.58, dash: "dash" }].forEach(function (b, i) {
         ["L", "R"].forEach(function (side) {
           var sign = side === "L" ? -1 : 1;
           traces.push({
@@ -175,7 +188,7 @@
     var lo = num(opts.xMin), hi = num(opts.xMax);
     if (lo == null || hi == null || lo >= hi) return;
     if (cont) xaxis.range = [lo, hi];
-    else if (lo > 0 && hi > 0) xaxis.range = [Math.log10(lo), Math.log10(hi)]; // log axis wants log10
+    else if (lo > 0 && hi > 0) xaxis.range = [Math.log10(lo), Math.log10(hi)];
     xaxis.autorange = false;
   }
 })();

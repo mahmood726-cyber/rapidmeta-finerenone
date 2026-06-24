@@ -33,6 +33,7 @@
       subgroupPlot: { available: false, caption: "" }
     },
     outcomes: [],        // additional (secondary) outcomes the student writes on
+    studyLabels: {},     // user-assigned display labels for forest plot rows; keyed by raw study id
     _seededOutcomes: false,
     style: { methodsLength: "concise", resultsLength: "concise", journal: "generic", reportLength: "full" },
     studentText: {}
@@ -79,6 +80,18 @@
   }
 
   /* ---------------- autofill from RapidMeta ---------------- */
+  function tQuantile95(df) {
+    var t = {1:12.706,2:4.303,3:3.182,4:2.776,5:2.571,6:2.447,7:2.365,8:2.306,9:2.262,10:2.228,
+             11:2.201,12:2.179,13:2.160,14:2.145,15:2.131,20:2.086,25:2.060,30:2.042,40:2.021,
+             50:2.009,60:2.000,80:1.990,100:1.984,120:1.980};
+    if (t[df]) return t[df];
+    if (!isFinite(df) || df < 1) return 12.706;
+    if (df > 120) return 1.96;
+    var keys = Object.keys(t).map(Number).sort(function(a,b){return a-b;});
+    var lo = keys.filter(function(k){return k<=df;}).pop() || 1;
+    var hi = keys.filter(function(k){return k>df;})[0] || 120;
+    return t[lo] + (df-lo)/(hi-lo) * ((t[hi]||1.96)-(t[lo]||12.706));
+  }
   PS.loadRapidMetaData = function () {
     try {
       var RM = window.RapidMeta;
@@ -167,6 +180,32 @@
         } catch (eNaN) {}
       }
 
+      // Compute prediction interval from tau^2 when engine did not supply one (k>=2)
+      if (!a.predictionInterval && a.tau2 !== "" && a.kStudies && Number(a.kStudies) >= 2) {
+        try {
+          var k_pi = Number(a.kStudies), tau2_pi = Number(a.tau2);
+          var est_pi = Number(a.effectEstimate), lci_pi = Number(a.ciLower), uci_pi = Number(a.ciUpper);
+          var isCont_pi = /^(MD|SMD|WMD)/i.test(a.effectMeasure || "");
+          var canPI = isFinite(k_pi) && isFinite(tau2_pi) && isFinite(est_pi) && isFinite(lci_pi) &&
+                      isFinite(uci_pi) && (isCont_pi || (est_pi > 0 && lci_pi > 0 && uci_pi > 0));
+          if (canPI) {
+            var t_df = tQuantile95(k_pi - 1), se_pi_val, pi_lo, pi_hi;
+            if (isCont_pi) {
+              var se_mu_c = (uci_pi - lci_pi) / (2 * 1.96);
+              se_pi_val = Math.sqrt(tau2_pi + se_mu_c * se_mu_c);
+              pi_lo = est_pi - t_df * se_pi_val; pi_hi = est_pi + t_df * se_pi_val;
+            } else {
+              var log_e = Math.log(est_pi), se_mu_l = (Math.log(uci_pi) - Math.log(lci_pi)) / (2 * 1.96);
+              se_pi_val = Math.sqrt(tau2_pi + se_mu_l * se_mu_l);
+              pi_lo = Math.exp(log_e - t_df * se_pi_val); pi_hi = Math.exp(log_e + t_df * se_pi_val);
+            }
+            if (isFinite(pi_lo) && isFinite(pi_hi)) {
+              a.predictionInterval = round2(pi_lo) + " to " + round2(pi_hi);
+              a.piLCI = String(round2(pi_lo)); a.piUCI = String(round2(pi_hi));
+            }
+          }
+        } catch (ePI) {}
+      }
       // Certainty — read the rendered GRADE badge (machine-readable), not free text.
       if (!a.certainty) a.certainty = scrapeCertainty();
 
@@ -556,6 +595,11 @@
     html += helper("The “pooled estimate” (or “combined result”) is the single result you get after combining all the studies together. " + learnChip("pooling"));
     html += '<p><strong>Evidence base.</strong> ' + auto("analysis.kStudies") + ' studies · ' + auto("analysis.totalParticipants") + ' participants · ' + esc(a.model) + ' meta-analysis</p>';
     html += '<p><strong>Primary result.</strong> ' + esc(emEst) + ', ' + ciTxt + ' ' + learnChip("confidence_interval") + '</p>';
+    if (a.predictionInterval && a.predictionInterval !== "--") {
+      html += '<p><strong>Prediction interval.</strong> The 95% PI was ' + esc(a.predictionInterval) + ' ' + learnChip("prediction_interval") + '</p>';
+    } else if (Number(a.kStudies) < 2) {
+      html += '<p><strong>Prediction interval.</strong> Not estimable (single-study review).</p>';
+    }
     var coverI2 = auto("analysis.i2");
     if (coverI2 && coverI2 !== "—") html += '<p><strong>Heterogeneity.</strong> I² = ' + coverI2 + '%' + (a.tau2 ? ' · τ² = ' + esc(a.tau2) : '') + ' ' + learnChip("heterogeneity") + '</p>';
     html += '<p><strong>Certainty.</strong> ' + auto("analysis.certainty", "—") + ' ' + learnChip("grade") + '</p>';
@@ -1028,6 +1072,15 @@
         '<button type="button" data-figaction="apply" data-figid="' + figId + '">Apply</button>' +
         '</div>'
       : '';
+    var favoursRow = (kind === "forest")
+      ? '<div class="fig-controls fig-favours-controls">' +
+        '<span class="fig-controls-label">Favours labels</span>' +
+        '<input type="text" class="fig-favl" data-figid="' + figId + '" placeholder="Favours [intervention]" value="' + esc(v(figState.favoursLeft || "")) + '" style="width:140px">' +
+        '<span style="padding:0 6px;opacity:.7">vs</span>' +
+        '<input type="text" class="fig-favr" data-figid="' + figId + '" placeholder="Favours [comparator]" value="' + esc(v(figState.favoursRight || "")) + '" style="width:140px">' +
+        '<button type="button" data-figaction="apply" data-figid="' + figId + '">Apply</button>' +
+        '</div>'
+      : '';
     slot.innerHTML =
       '<details class="fig-controls-wrap no-clean-pdf"><summary>Adjust plot ▾ <span class="fig-opt">optional</span></summary>' +
       '<div class="fig-controls">' +
@@ -1037,10 +1090,11 @@
       '<button type="button" data-figaction="apply" data-figid="' + figId + '">Apply</button>' +
       '<button type="button" data-figaction="reset" data-figid="' + figId + '">Auto</button>' +
       '<span class="fig-controls-note">Leave on Auto unless the plot looks squashed.</span>' +
-      '</div>' + annRow + '</details>' +
+      '</div>' + annRow + favoursRow + '</details>' +
       '<div class="ps-figbox" id="' + slotId + '-box" data-figid="' + figId + '"></div>';
     var box = document.getElementById(slotId + "-box");
-    var ok = rendererFor(kind)(box, res, { xMin: num(figState.xMin), xMax: num(figState.xMax), label: label, annotation: annOpt(figState) });
+    var ok = rendererFor(kind)(box, res, { xMin: num(figState.xMin), xMax: num(figState.xMax), label: label, annotation: annOpt(figState),
+      favoursLeft: figState.favoursLeft || "", favoursRight: figState.favoursRight || "", studyLabels: PS.state.studyLabels || {} });
     PS._figs[figId] = { kind: kind, box: box, res: res, figState: figState, label: label || "" };
     return ok;
   };
@@ -1069,8 +1123,15 @@
     var offEl = document.querySelector('.fig-ann-off[data-figid="' + figId + '"]');
     if (annEl) fs.annotation = annEl.value;
     if (offEl) fs.annOff = !!offEl.checked;
+    if (!reset) {
+      var favLEl = document.querySelector('.fig-favl[data-figid="' + figId + '"]');
+      var favREl = document.querySelector('.fig-favr[data-figid="' + figId + '"]');
+      if (favLEl) fs.favoursLeft = favLEl.value;
+      if (favREl) fs.favoursRight = favREl.value;
+    }
     PS.save();
-    rendererFor(f.kind)(f.box, f.res, { xMin: num(fs.xMin), xMax: num(fs.xMax), label: f.label, annotation: annOpt(fs) });
+    rendererFor(f.kind)(f.box, f.res, { xMin: num(fs.xMin), xMax: num(fs.xMax), label: f.label, annotation: annOpt(fs),
+      favoursLeft: fs.favoursLeft || "", favoursRight: fs.favoursRight || "", studyLabels: PS.state.studyLabels || {} });
     if (reset) { var a = document.querySelector('.fig-x[data-figid="' + figId + '"][data-b="min"]'), b = document.querySelector('.fig-x[data-figid="' + figId + '"][data-b="max"]'); if (a) a.value = ""; if (b) b.value = ""; }
   };
 
@@ -1259,6 +1320,22 @@
       } catch (e2) {}
     }
     var primaryLabel = (PS.state.pico && PS.state.pico.primaryOutcome) || "primary outcome";
+    // Apply user study-label overrides and inject PI into res before rendering
+    if (res && res.plotData && PS.state.studyLabels && Object.keys(PS.state.studyLabels).length) {
+      res = Object.assign({}, res, {
+        plotData: res.plotData.map(function(d) {
+          var rawId = d.id || d.name || "";
+          return PS.state.studyLabels[rawId] ? Object.assign({}, d, { id: PS.state.studyLabels[rawId] }) : d;
+        })
+      });
+    }
+    if (res && !res.piLCI && PS.state.analysis && PS.state.analysis.predictionInterval) {
+      var piParts = String(PS.state.analysis.predictionInterval).split(" to ");
+      if (piParts.length === 2) {
+        res = Object.assign({}, res, { piLCI: piParts[0], piUCI: piParts[1] });
+        PS._lastResults = res;
+      }
+    }
     var forestOk = PS.renderOwnFig("forest", "forestPlotPaperSlot", res, primaryLabel);
     if (!forestOk) ensurePlaceholder("#forestPlotPaperSlot", "forestPlot", "The forest plot appears here once your analysis has results. Open the Analysis Suite, then click “Refresh figures”.");
     var funnelOk = PS.renderOwnFig("funnel", "funnelPaperSlot", res, primaryLabel);
@@ -1355,16 +1432,32 @@
       var year = d.year || (t.id && t.id.match(/(\d{4})/)||[])[1] || "—";
       var phase = d.phase || "—";
       var pop2 = (d.group || "").split(/[,;]/)[0].trim() || "—";
-      return '<tr>' + td(d.name || t.id) + td(year) + td(n) + td(pop2) + td(int2) + td(comp2) + td(out2) + td(phase) + '</tr>';
+      var rawId = t.id || d.name || "";
+      var curLabel = (PS.state.studyLabels && PS.state.studyLabels[rawId]) || "";
+      var labelInp = '<td style="padding:3px 6px;font-size:9px;vertical-align:top">' +
+        '<input type="text" class="ps-study-label-input" data-trialid="' + esc(rawId) + '" value="' + esc(curLabel) + '"' +
+        ' placeholder="' + esc(rawId) + '" style="width:110px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:3px;color:inherit;padding:1px 4px;font-size:9px">' +
+        '</td>';
+      return '<tr>' + td(d.name || t.id) + td(year) + td(n) + td(pop2) + td(int2) + td(comp2) + td(out2) + td(phase) + labelInp + '</tr>';
     }).join("");
     var tbl = '<div id="ps-study-table-auto" style="overflow-x:auto;font-size:10px">' +
       '<table style="width:100%;border-collapse:collapse;color:var(--ps-text,#e2e8f0)">' +
-      '<thead><tr>' + th("Trial") + th("Year") + th("N") + th("Population") + th("Intervention") + th("Comparator") + th("Primary outcome") + th("Phase") + '</tr></thead>' +
+      '<thead><tr>' + th("Trial") + th("Year") + th("N") + th("Population") + th("Intervention") + th("Comparator") + th("Primary outcome") + th("Phase") + th("Forest label (editable)") + '</tr></thead>' +
       '<tbody>' + rows + '</tbody></table></div>';
     slot.innerHTML = tbl;
+    slot.querySelectorAll('.ps-study-label-input').forEach(function(inp) {
+      inp.addEventListener('blur', function() {
+        var tid = inp.getAttribute('data-trialid');
+        if (!PS.state.studyLabels) PS.state.studyLabels = {};
+        PS.state.studyLabels[tid] = inp.value;
+        PS._refreshFigs();
+      });
+    });
     if (typeof markFig === "function") { try { markFig("studyCharacteristics", true); } catch (e) {} }
   };
 
+  PS._clonePass = function() { try { clonePass(); } catch(e) {} };
+  PS._refreshFigs = function() { try { clonePass(); } catch(e) {} PS.save(); };
   PS._mountNMAIfNeeded = function () {
     if (!(window.NMA_CONFIG && window.NMA_CONFIG.treatments && window.NMAEngine)) return;
     // Populate NMA containers (works even when NMA tab is not active)
@@ -2021,11 +2114,9 @@
     // Compute the analysis BEFORE autofill so the numbers (effect, CI, I², GRADE) populate too,
     // not just the plots — without needing the Analysis tab visit or the extraction tick.
     PS.ensureAnalysisReady();
-    if (!(window.RapidMeta && RapidMeta.state && RapidMeta.state.results)) {
-      PS.__selfRun = true;
-      try { if (window.AnalysisEngine && AnalysisEngine.run) AnalysisEngine.run(); } catch (e) {}
-      PS.__selfRun = false;
-    }
+    PS.__selfRun = true;
+    try { if (window.AnalysisEngine && AnalysisEngine.run) AnalysisEngine.run(); } catch (e) {}
+    PS.__selfRun = false;
     PS.loadRapidMetaData();
     seedDemoOutcomes();     // demo only: illustrative secondary outcomes
     seedAutoText();         // pre-populate Search/Screening/PRISMA if still empty
@@ -2130,11 +2221,12 @@
         : null;
 
       if (!getNested(PS.state, "studentText.coverFinding")) {
+        var pi_cf = a.predictionInterval ? " The 95% prediction interval was " + a.predictionInterval + "." : "";
         var cf = statStr
           ? "In patients with " + pop + ", " + int_ + " " + verb + " " + out +
-            " compared with " + comp + " (" + statStr + ")."
+            " compared with " + comp + " (" + statStr + ")." + pi_cf
           : "After combining the available studies, " + int_ + " " + verb + " " + out +
-            " compared with " + comp + " in patients with " + pop + ".";
+            " compared with " + comp + " in patients with " + pop + "." + pi_cf;
         setNested(PS.state, "studentText.coverFinding", cf);
       }
 
