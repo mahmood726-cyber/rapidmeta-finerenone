@@ -20,6 +20,15 @@
   }
 
   function trialLogOR(t) {
+    // NMA trials have tE:null — fall back to published HR with CI-derived SE
+    if (t.tE === null || t.tE === undefined) {
+      if (t.publishedHR && t.hrLCI && t.hrUCI && t.hrLCI > 0 && t.hrUCI > 0) {
+        const yi = Math.log(t.publishedHR);
+        const se = (Math.log(t.hrUCI) - Math.log(t.hrLCI)) / 3.92;
+        return { yi, vi: se * se };
+      }
+      return null;
+    }
     let ai = +t.tE, ci = +t.cE, n1 = +t.tN, n2 = +t.cN;
     if (!isFinite(ai) || !isFinite(ci) || !isFinite(n1) || !isFinite(n2) || n1 <= 0 || n2 <= 0) return null;
     if (ai === 0 || ci === 0 || ai === n1 || ci === n2) {

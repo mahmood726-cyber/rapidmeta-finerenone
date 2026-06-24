@@ -1253,7 +1253,49 @@
       // checklist/lock changing doesn't read as "I broke it" (round-3 review, Sam).
       var after = countRequiredCaptions();
       if (after > captionsBefore) PS.toast("A figure finished loading, so its caption was added to your checklist — that’s expected, not an error.");
-    })();
+    
+  PS._mountNMAIfNeeded = function () {
+    if (!(window.NMA_CONFIG && window.NMA_CONFIG.treatments && window.NMAEngine)) return;
+    // Populate NMA containers (works even when NMA tab is not active)
+    try {
+      if (typeof NMAEngine.renderLeagueTable === 'function') NMAEngine.renderLeagueTable();
+      if (typeof NMAEngine.renderRankings === 'function') NMAEngine.renderRankings();
+    } catch (e) {}
+    var forestSlot = document.getElementById('forestPlotPaperSlot');
+    if (!forestSlot) return;
+    var existing = document.getElementById('nma-paper-inline');
+    if (existing) existing.remove();
+    var leagueEl = document.getElementById('nma-league-container');
+    var rankEl   = document.getElementById('nma-ranking-container');
+    var leagueHtml = (leagueEl && leagueEl.innerHTML.trim()) ? leagueEl.innerHTML : '';
+    var rankHtml   = (rankEl   && rankEl.innerHTML.trim())   ? rankEl.innerHTML   : '';
+    if (!leagueHtml && !rankHtml) return;
+    var cfg = window.NMA_CONFIG;
+    var outcomeLabel = cfg.outcome_label || cfg.outcome || 'primary outcome';
+    var txList = (cfg.treatments || []).join(' · ');
+    var html = '<div class="nma-paper-panel" style="margin:16px 0;padding:12px 16px;' +
+      'background:rgba(30,41,59,0.5);border-radius:8px;border:1px solid rgba(71,85,105,0.4)">';
+    html += '<div style="font-size:10px;font-weight:700;color:#818cf8;text-transform:uppercase;' +
+      'letter-spacing:.1em;margin-bottom:6px">Network Meta-Analysis — ' + outcomeLabel + '</div>';
+    html += '<div style="font-size:10px;color:#94a3b8;margin-bottom:10px">Treatments: ' + txList + '</div>';
+    if (leagueHtml) {
+      html += '<div style="font-size:10px;font-weight:600;color:#94a3b8;text-transform:uppercase;' +
+        'letter-spacing:.05em;margin-bottom:4px">League Table (row vs col)</div>';
+      html += '<div style="overflow-x:auto">' + leagueHtml + '</div>';
+    }
+    if (rankHtml) {
+      html += '<div style="font-size:10px;font-weight:600;color:#94a3b8;text-transform:uppercase;' +
+        'letter-spacing:.05em;margin:10px 0 4px">Treatment Rankings (P-score)</div>';
+      html += rankHtml;
+    }
+    html += '</div>';
+    var wrapper = document.createElement('div');
+    wrapper.id = 'nma-paper-inline';
+    wrapper.innerHTML = html;
+    forestSlot.parentNode.insertBefore(wrapper, forestSlot.nextSibling);
+  };
+
+})();
   };
   function countRequiredCaptions() {
     var n = 0; ["prisma", "forestPlot", "gradeTable"].forEach(function (k) { if (PS.state.figures[k] && PS.state.figures[k].available) n++; });
@@ -1890,6 +1932,7 @@
     PS.setFocusMode(!focusOff, { silent: true });
     PS.hookLiveUpdate();   // refresh figures if the host analysis is re-run while open
     PS.embedFigures();
+    try { PS._mountNMAIfNeeded(); } catch (e) {}
     PS.updateChecklist();
     PS.updateWordCounts();
   };
