@@ -1172,17 +1172,17 @@
         var pd = [];
         tls.forEach(function (t) {
           if (t.effect && isFinite(t.effect.est) && t.effect.se > 0) {
-            pd.push({ id: t.title || t.id || “Study”, name: t.title || t.id || “Study”,
+            pd.push({ id: t.title || t.id || "Study", name: t.title || t.id || "Study",
                       logOR: t.effect.est, md: (res && (res.isContinuous || res.continuous)) ? t.effect.est : undefined, se: t.effect.se });
           }
         });
         if (pd.length >= 2) { res = Object.assign({}, res, { plotData: pd }); PS._lastResults = res; }
       } catch (e2) {}
     }
-    var primaryLabel = (PS.state.pico && PS.state.pico.primaryOutcome) || “primary outcome”;
-    var forestOk = PS.renderOwnFig(“forest”, “forestPlotPaperSlot”, res, primaryLabel);
-    if (!forestOk) ensurePlaceholder(“#forestPlotPaperSlot”, “forestPlot”, “The forest plot appears here once your analysis has results. Open the Analysis Suite, then click “Refresh figures”.”);
-    var funnelOk = PS.renderOwnFig(“funnel”, “funnelPaperSlot”, res, primaryLabel);
+    var primaryLabel = (PS.state.pico && PS.state.pico.primaryOutcome) || "primary outcome";
+    var forestOk = PS.renderOwnFig("forest", "forestPlotPaperSlot", res, primaryLabel);
+    if (!forestOk) ensurePlaceholder("#forestPlotPaperSlot", "forestPlot", "The forest plot appears here once your analysis has results. Open the Analysis Suite, then click “Refresh figures”.");
+    var funnelOk = PS.renderOwnFig("funnel", "funnelPaperSlot", res, primaryLabel);
     if (!funnelOk) ensurePlaceholder("#funnelPaperSlot", "funnelPlot", "The funnel plot appears here once your analysis has ≥2 studies with standard errors.");
     mountOutcomeFigures();   // forest per secondary outcome
     var sof = document.querySelector("#sof-body");
