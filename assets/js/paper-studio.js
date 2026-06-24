@@ -2301,6 +2301,7 @@
   // Idempotent: safe to call from switchTab('paper'), the button click, reload
   // restore, or keyboard nav — and safe if those fire together.
   PS.onShow = function () {
+    if (!PS._prevTabId) PS._prevTabId = "analysis";
     if (!booted) { PS.restore(); booted = true; }
     PS.hookLiveUpdate();
     // Compute the analysis BEFORE autofill so the numbers (effect, CI, I², GRADE) populate too,
