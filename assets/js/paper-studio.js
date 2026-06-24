@@ -625,7 +625,7 @@
     html += box("studentText.searchStrategy", "Search strategy",
       "Searches were performed in [databases] on [date] for studies of " + auto("pico.intervention", "[intervention]") +
       " versus " + auto("pico.comparator", "[comparator]") + " in " + auto("pico.population", "[population]") +
-      " reporting " + auto("pico.primaryOutcome", "[primary outcome]") + ". [Records identified: ___. After deduplication: ___.]",
+      " reporting " + auto("pico.primaryOutcome", "[primary outcome]") + ". State total records identified and included.",
       "2–3 sentences",
       "Name the databases, the date, and the main search terms. Fill every [___] from your PRISMA diagram before submitting.",
       null);
