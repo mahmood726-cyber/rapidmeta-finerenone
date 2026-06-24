@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RapidMeta Portfolio Dashboard — 794 living meta-analyses</title>
+<title>RapidMeta Portfolio Dashboard — 947 living meta-analyses</title>
 <meta property="og:title" content="RapidMeta Portfolio Dashboard">
-<meta property="og:description" content="Filterable analytical view of 794 living meta-analyses (681 pairwise + 113 NMA), 617 provenance-verified, with R metafor cross-validation, GRADE certainty, integrity flags, and Cochrane v6.5 sensitivity diagnostics.">
+<meta property="og:description" content="Filterable analytical view of 947 living meta-analyses (781 pairwise + 166 NMA), 617 provenance-verified, with R metafor cross-validation, GRADE certainty, integrity flags, and Cochrane v6.5 sensitivity diagnostics.">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -79,6 +79,7 @@ tbody td { padding: 6px 9px; vertical-align: middle; }
 }
 .tag.nma { background: #312e81; color: #c4b5fd; }
 .tag.pairwise { background: #1e3a5f; color: #7dd3fc; }
+.tag.pending { background: #422006; color: #fdba74; font-weight: 400; }
 .col-numeric, .col-or {
   text-align: right; font-family: 'JetBrains Mono', monospace; color: #cbd5e1;
 }
@@ -162,9 +163,9 @@ footer a { color: #7dd3fc; text-decoration: none; }
 }
 </style>
 <!-- e156-claim-chips-style:end -->
-<meta name="description" content="RapidMeta Portfolio Dashboard — 794 living meta-analyses — RapidMeta living meta-analysis (dashboard).">
+<meta name="description" content="RapidMeta Portfolio Dashboard — 947 living meta-analyses — RapidMeta living meta-analysis (dashboard).">
 <!-- jsonld:begin -->
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"MedicalScholarlyArticle","headline":"RapidMeta Portfolio Dashboard — 794 living meta-analyses","name":"RapidMeta Portfolio Dashboard — 794 living meta-analyses","url":"https://mahmood726-cyber.github.io/rapidmeta-finerenone/dashboard.html","datePublished":"2026-05-24","dateModified":"2026-05-24","inLanguage":"en","author":{"@type":"Person","name":"Mahmood Ahmad","identifier":"https://orcid.org/"},"publisher":{"@type":"Organization","name":"RapidMeta","url":"https://mahmood726-cyber.github.io/rapidmeta-finerenone/"},"isAccessibleForFree":true,"keywords":"meta-analysis, living review, RapidMeta","description":"RapidMeta Portfolio Dashboard — 794 living meta-analyses — RapidMeta living meta-analysis (dashboard)."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"MedicalScholarlyArticle","headline":"RapidMeta Portfolio Dashboard — 947 living meta-analyses","name":"RapidMeta Portfolio Dashboard — 947 living meta-analyses","url":"https://mahmood726-cyber.github.io/rapidmeta-finerenone/dashboard.html","datePublished":"2026-05-24","dateModified":"2026-05-24","inLanguage":"en","author":{"@type":"Person","name":"Mahmood Ahmad","identifier":"https://orcid.org/"},"publisher":{"@type":"Organization","name":"RapidMeta","url":"https://mahmood726-cyber.github.io/rapidmeta-finerenone/"},"isAccessibleForFree":true,"keywords":"meta-analysis, living review, RapidMeta","description":"RapidMeta Portfolio Dashboard — 947 living meta-analyses — RapidMeta living meta-analysis (dashboard)."}</script>
 <!-- jsonld:end -->
 </head>
 <body>
@@ -252,10 +253,11 @@ function renderSummary() {
   const el = document.getElementById('summary');
   const stats = [
     { label: 'Reviews shipped', value: DATA.n_total, sub: DATA.n_pairwise + ' pairwise · ' + DATA.n_nma + ' NMA' },
+    { label: 'Provenance verified', value: DATA.n_validated_provenance, sub: (DATA.n_stats_pending || 0) + ' provenance-pending (no pooled estimate)' },
     { label: 'R metafor validated', value: DATA.n_with_r_validation, sub: 'cross-validated against JS engine' },
     { label: 'With integrity flag', value: DATA.rows.filter(r => r.integrity_flags > 0).length, sub: 'concordance heuristics from AACT' },
     { label: 'With AACT baselines', value: DATA.rows.filter(r => r.n_with_baseline > 0).length, sub: 'age + female% auto-injected' },
-    { label: 'Total trials referenced', value: DATA.rows.reduce((s, r) => s + r.n_trials, 0).toLocaleString() },
+    { label: 'Total trials referenced', value: DATA.rows.reduce((s, r) => s + (r.n_trials || 0), 0).toLocaleString() },
   ];
   el.innerHTML = stats.map(s =>
     '<div class="stat">' +
@@ -287,7 +289,7 @@ function applyFilters() {
 
   if (q) {
     rows = rows.filter(r => {
-      const hay = (r.display_name + ' ' + r.topic + ' ' + (r.ncts || []).join(' ') + ' ' + r.bucket).toLowerCase();
+      const hay = (r.display_name + ' ' + (r.title || '') + ' ' + r.topic + ' ' + (r.ncts || []).join(' ') + ' ' + r.bucket).toLowerCase();
       return hay.includes(q);
     });
   }
@@ -344,10 +346,10 @@ function renderRows(rows) {
     const date = (r.last_modified || '').split('T')[0] || '—';
 
     return '<tr>' +
-      '<td class="col-name"><a href="' + r.file + '" target="_blank">' + r.display_name + '</a></td>' +
+      '<td class="col-name"><a href="' + r.file + '" target="_blank">' + r.display_name + '</a>' + (r.stats_pending ? ' <span class="tag pending" title="App is live; trial provenance (PMID + registry) not yet verified, so no pooled estimate is shown.">provenance pending</span>' : '') + '</td>' +
       '<td><span class="tag ' + (r.type === 'NMA' ? 'nma' : 'pairwise') + '">' + r.type + (r.type === 'NMA' && r.n_treatments ? ' · ' + r.n_treatments + ' tx' : '') + '</span></td>' +
       '<td class="col-bucket">' + r.bucket + '</td>' +
-      '<td class="col-numeric">' + r.n_trials + '</td>' +
+      '<td class="col-numeric">' + (r.n_trials != null ? r.n_trials : '—') + '</td>' +
       '<td class="col-or">' + orHtml + '</td>' +
       '<td class="col-numeric">' + (r.I2 != null ? fmt(r.I2, 0) + '%' : '—') + '</td>' +
       '<td class="col-numeric">' + (r.tau2 != null ? fmt(r.tau2, 3) : '—') + '</td>' +
