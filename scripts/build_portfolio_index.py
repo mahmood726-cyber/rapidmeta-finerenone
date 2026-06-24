@@ -26,6 +26,8 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="repla
 REPO = Path(__file__).resolve().parent.parent
 
 NCT_RE = re.compile(r"'(NCT\d{8})'\s*:")
+TITLE_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.IGNORECASE | re.DOTALL)
+REDIRECT_RE = re.compile(r'http-equiv=.{0,10}refresh', re.IGNORECASE)
 TREATMENTS_RE = re.compile(r"treatments\s*:\s*\[([^\]]+)\]", re.DOTALL)
 
 
@@ -72,8 +74,22 @@ def main():
     n_with_r = 0
     for hp in files:
         text = hp.read_text(encoding="utf-8", errors="replace")
+        # Skip redirect stubs (short files that redirect to _FULL_REVIEW)
+        if len(text) < 2048 or REDIRECT_RE.search(text[:1024]):
+            continue
         topic = hp.stem.replace("_REVIEW", "")
         ncts = sorted(set(NCT_RE.findall(text)))
+        title_m = TITLE_RE.search(text)
+        title_html = title_m.group(1).strip() if title_m else ""
+        # Derive a clean display_name from HTML title if available
+        # "RapidMeta Cardiology | Finerenone in DKD (NMA) v1.0" -> "Finerenone in DKD (NMA)"
+        if " | " in title_html:
+            clean_title = title_html.split(" | ", 1)[1].strip()
+        else:
+            clean_title = title_html
+        # strip trailing version tag " v1.0", " v2.3" etc.
+        import re as _re
+        clean_title = _re.sub(r'\s+v\d+\.\d+$', '', clean_title).strip()
         # Treatment count for NMA
         treat_match = TREATMENTS_RE.search(text)
         n_treatments = 0
@@ -86,7 +102,8 @@ def main():
         row = {
             "file": hp.name,
             "topic": topic,
-            "display_name": display_from_topic(topic),
+            "display_name": clean_title if clean_title else display_from_topic(topic),
+            "title": title_html,
             "type": rtype,
             "n_trials": len(ncts),
             "n_treatments": n_treatments if rtype == "NMA" else None,
@@ -121,6 +138,7 @@ def main():
 
         # Has baseline data
         row["n_with_baseline"] = sum(1 for nct in ncts if aact_baselines.get(nct))
+        row["stats_pending"] = row.get("pooled_OR") is None
 
         # Last modified
         row["last_modified"] = git_last_modified(hp)
@@ -162,6 +180,8 @@ def main():
         "n_pairwise": sum(1 for r in rows if r["type"] == "Pairwise"),
         "n_nma": sum(1 for r in rows if r["type"] == "NMA"),
         "n_with_r_validation": n_with_r,
+        "n_validated_provenance": sum(1 for r in rows if r.get("pooled_OR") is not None),
+        "n_stats_pending": sum(1 for r in rows if r.get("stats_pending")),
         "rows": rows,
     }, indent=2))
 
