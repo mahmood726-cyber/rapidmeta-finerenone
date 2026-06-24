@@ -572,6 +572,41 @@
     html += example("We included randomised controlled trials of finerenone versus placebo in adults with CKD and type 2 diabetes that reported cardiovascular events; we excluded non-randomised studies and trials without that outcome.",
       "We included all the relevant studies about the drug.");
     methodsProse().forEach(function (par) { html += '<p>' + (par.label ? '<strong>' + esc(par.label) + '.</strong> ' : '') + par.text + '</p>'; });
+
+    html += '<h4 class="methods-subsection">Search strategy</h4>';
+    html += helper("Describe how and where you searched. Edit the pre-drafted text below. " +
+      "Replace every <strong>[___]</strong> with the real count from your PRISMA diagram. " +
+      "Never invent numbers — leave a <strong>[___]</strong> placeholder for any count you don't have yet.");
+    html += box("studentText.searchStrategy", "Search strategy",
+      "Searches were performed in [databases] on [date] for studies of " + auto("pico.intervention", "[intervention]") +
+      " versus " + auto("pico.comparator", "[comparator]") + " in " + auto("pico.population", "[population]") +
+      " reporting " + auto("pico.primaryOutcome", "[primary outcome]") + ". [Records identified: ___. After deduplication: ___.]",
+      "2–3 sentences",
+      "Name the databases, the date, and the main search terms. Fill every [___] from your PRISMA diagram before submitting.",
+      null);
+
+    html += '<h4 class="methods-subsection">Screening</h4>';
+    html += helper("Describe how records were screened. Fill the [___] counts from your actual screening log. " +
+      "The app knows the number of included studies (" + auto("analysis.kStudies", "—") + ") but not the full PRISMA flow — " +
+      "you must supply the missing counts.");
+    html += box("studentText.screeningProcess", "Screening process",
+      "Two independent reviewers screened all records against the eligibility criteria. Disagreements were resolved by discussion. " +
+      "[Records screened: ___. Full texts assessed: ___. Excluded at full text: ___. Studies included: " + auto("analysis.kStudies", "___") + ".]",
+      "2–3 sentences",
+      "Cover independent screening, how disagreements were resolved, and the key PRISMA counts. Replace every [___].",
+      null);
+
+    html += '<h4 class="methods-subsection">PRISMA flow</h4>';
+    html += helper("Write a brief prose description of the study-selection flow to accompany the PRISMA diagram (Figure 1). " +
+      "Every <strong>[___]</strong> is a placeholder — fill it from your PRISMA diagram before submitting. " +
+      "<strong>Do not invent numbers.</strong>");
+    html += box("studentText.prismaFlow", "PRISMA flow description",
+      "Database searches yielded [___] records. After removing [___] duplicates, [___] were screened; [___] were excluded at title/abstract. " +
+      "[___] full texts were assessed; " + auto("analysis.kStudies", "[___]") + " studies were included. [Replace every [___] from your PRISMA diagram.]",
+      "2–4 sentences",
+      "Summarise the PRISMA flow in words. Every [___] is a real number from your diagram — do not invent.",
+      null);
+
     html += box("studentText.methodsStudentLimitation", "One limitation of this rapid workflow", "One limitation of this rapid workflow is...", "1-2 sentences",
       "Name one shortcut a rapid review takes (e.g. fewer databases, faster screening) and say how it could affect the result.",
       "One limitation of this rapid workflow is that the search covered fewer databases than a full systematic review, so a relevant study could have been missed, which may affect the result.");
@@ -1127,12 +1162,27 @@
     // The host nulls state.results when you leave the Analysis tab, so cache the last good
     // one — keeps the paper's figures stable regardless of the host's scoping lifecycle.
     var liveRes = (window.RapidMeta && RapidMeta.state) ? RapidMeta.state.results : null;
-    if (liveRes && liveRes.plotData) PS._lastResults = liveRes;
-    var res = (liveRes && liveRes.plotData) ? liveRes : (PS._lastResults || liveRes);
-    var primaryLabel = (PS.state.pico && PS.state.pico.primaryOutcome) || "primary outcome";
-    var forestOk = PS.renderOwnFig("forest", "forestPlotPaperSlot", res, primaryLabel);
-    if (!forestOk) ensurePlaceholder("#forestPlotPaperSlot", "forestPlot", "The forest plot appears here once your analysis has results. Open the Analysis Suite, then click “Refresh figures”.");
-    var funnelOk = PS.renderOwnFig("funnel", "funnelPaperSlot", res, primaryLabel);
+    if (liveRes && liveRes.plotData && liveRes.plotData.length) PS._lastResults = liveRes;
+    var res = (liveRes && liveRes.plotData && liveRes.plotData.length) ? liveRes : (PS._lastResults || liveRes);
+    // If results lack per-study plotData, build it from the trials bus so the funnel
+    // and forest plots can still render and export correctly.
+    if (res && (!res.plotData || !res.plotData.length)) {
+      try {
+        var tls = (window.RapidMeta && RapidMeta.state && RapidMeta.state.trials) || [];
+        var pd = [];
+        tls.forEach(function (t) {
+          if (t.effect && isFinite(t.effect.est) && t.effect.se > 0) {
+            pd.push({ id: t.title || t.id || “Study”, name: t.title || t.id || “Study”,
+                      logOR: t.effect.est, md: (res && (res.isContinuous || res.continuous)) ? t.effect.est : undefined, se: t.effect.se });
+          }
+        });
+        if (pd.length >= 2) { res = Object.assign({}, res, { plotData: pd }); PS._lastResults = res; }
+      } catch (e2) {}
+    }
+    var primaryLabel = (PS.state.pico && PS.state.pico.primaryOutcome) || “primary outcome”;
+    var forestOk = PS.renderOwnFig(“forest”, “forestPlotPaperSlot”, res, primaryLabel);
+    if (!forestOk) ensurePlaceholder(“#forestPlotPaperSlot”, “forestPlot”, “The forest plot appears here once your analysis has results. Open the Analysis Suite, then click “Refresh figures”.”);
+    var funnelOk = PS.renderOwnFig(“funnel”, “funnelPaperSlot”, res, primaryLabel);
     if (!funnelOk) ensurePlaceholder("#funnelPaperSlot", "funnelPlot", "The funnel plot appears here once your analysis has ≥2 studies with standard errors.");
     mountOutcomeFigures();   // forest per secondary outcome
     var sof = document.querySelector("#sof-body");
@@ -1245,12 +1295,17 @@
   }
 
   /* ---------------- modes ---------------- */
-  PS.setMode = function (mode) {
+  // _noPush: internal flag — set when called from popstate to avoid a double-push.
+  PS.setMode = function (mode, _noPush) {
     var canvas = document.getElementById("paperCanvas");
     if (!canvas) return;
     canvas.classList.remove("paper-mode-write", "paper-mode-preview");
     canvas.classList.add("paper-mode-" + mode);
     document.body.dataset.paperMode = mode;
+    // Push a history entry when entering a non-write mode so Back returns to write.
+    if (!_noPush && mode !== "write") {
+      try { history.pushState({ psPage: true, psMode: mode }, ""); } catch (e) {}
+    }
   };
 
   /* ---------------- focus mode (Feature A) ---------------- */
@@ -1820,6 +1875,7 @@
     }
     PS.loadRapidMetaData();
     seedDemoOutcomes();     // demo only: illustrative secondary outcomes
+    seedAutoText();         // pre-populate Search/Screening/PRISMA if still empty
     PS.render();            // re-render canvas content
     wireToolbar();          // no-op after the first call (listeners persist)
     PS.setMode("write");
@@ -1838,10 +1894,78 @@
     PS.updateWordCounts();
   };
 
+  // Pre-populate the three new Search/Screening/PRISMA fields on first open.
+  // Only fills EMPTY fields — user edits are always preserved.
+  // Content is derived entirely from this app's own PICO and search counts.
+  function seedAutoText() {
+    try {
+      var p = PS.state.pico || {};
+      var a = PS.state.analysis || {};
+      var pop  = p.population     || "[your patient population]";
+      var int_ = p.intervention   || "[the intervention]";
+      var comp = p.comparator     || "[the comparator]";
+      var out  = p.primaryOutcome || "[the primary outcome]";
+      var db   = (PS.state.search && PS.state.search.databases) || "[databases, e.g. MEDLINE/PubMed, Embase, Cochrane CENTRAL]";
+      var sDate = (PS.state.search && PS.state.search.searchDate) || null;
+      var dateStr = sDate ? " on " + sDate : " (date to be confirmed)";
+      var k_total = (PS.state.search && PS.state.search.count)    || null;
+      var k_incl  = (PS.state.search && PS.state.search.included) || null;
+      var len     = (PS.state.style && PS.state.style.methodsLength) || "concise";
+
+      if (!getNested(PS.state, "studentText.searchStrategy")) {
+        var ss = "A systematic search was conducted in " + db + dateStr +
+                 " for studies examining " + int_ + " versus " + comp +
+                 " in " + pop + " with respect to " + out + ".";
+        if (len !== "concise") ss += " The search combined controlled vocabulary (e.g. MeSH) and free-text terms for the intervention, comparator, population, and outcome. No language or date restrictions were applied.";
+        ss += " [Records identified: ___. After deduplication: ___. Fill in from your PRISMA diagram.]";
+        setNested(PS.state, "studentText.searchStrategy", ss);
+      }
+
+      if (!getNested(PS.state, "studentText.screeningProcess")) {
+        var sp = "Two independent reviewers screened all retrieved records against the pre-specified eligibility criteria" +
+                 " (population: " + pop + "; intervention: " + int_ + "; comparator: " + comp + "; outcome: " + out + ")." +
+                 " Disagreements were resolved by discussion.";
+        if (k_total) sp += " A total of " + k_total + " records were screened at the title and abstract stage.";
+        else sp += " [Total records screened: ___.]";
+        sp += " Full texts of potentially eligible records were independently assessed.";
+        if (k_incl) sp += " " + k_incl + " studies met all eligibility criteria and were included.";
+        else sp += " [Full texts assessed: ___. Excluded at full text: ___. Studies included: ___.]";
+        setNested(PS.state, "studentText.screeningProcess", sp);
+      }
+
+      if (!getNested(PS.state, "studentText.prismaFlow")) {
+        var pf = "Study selection is reported in accordance with PRISMA 2020 (see flow diagram, Figure 1).";
+        if (k_total) pf += " Database searches yielded " + k_total + " records in total.";
+        else pf += " Database searches yielded [___] records in total.";
+        pf += " After removing [___] duplicate records, [___] were screened at the title and abstract stage; [___] were excluded.";
+        pf += " [___] full-text articles were assessed for eligibility; [___] were excluded (reasons in supplementary material).";
+        if (k_incl) pf += " " + k_incl + " studies were included in the quantitative synthesis.";
+        else pf += " [___] studies were included in the quantitative synthesis.";
+        pf += " [Replace every [___] above with the real count from your PRISMA diagram — these are editable placeholders.]";
+        setNested(PS.state, "studentText.prismaFlow", pf);
+      }
+    } catch (e) {}
+  }
+
+  // History guard: tag the initial page-load state so Back walks through
+  // in-Paper-Studio mode switches (write → preview → write) before leaving the page.
+  function initHistoryGuard() {
+    try {
+      history.replaceState({ psPage: true, psMode: "write" }, "");
+      window.addEventListener("popstate", function (e) {
+        var state = e.state;
+        if (!state || !state.psPage) return;
+        var cur = document.body.dataset.paperMode || "write";
+        if (cur !== "write") PS.setMode("write", true);
+      });
+    } catch (e) {}
+  }
+
   // Initialise whenever the Paper Studio tab becomes visible, via ANY path:
   // switchTab() (keyboard nav, reload-restore) primarily; the button click is a
   // belt-and-suspenders fallback. onShow is idempotent so double-firing is fine.
   document.addEventListener("DOMContentLoaded", function () {
+    initHistoryGuard();
     if (window.RapidMeta && typeof RapidMeta.switchTab === "function" && !RapidMeta.__paperStudioHooked) {
       RapidMeta.__paperStudioHooked = true;
       var orig = RapidMeta.switchTab.bind(RapidMeta);
