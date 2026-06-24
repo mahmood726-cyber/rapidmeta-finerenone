@@ -1987,6 +1987,141 @@
         pf += " [Replace every [___] above with the real count from your PRISMA diagram — these are editable placeholders.]";
         setNested(PS.state, "studentText.prismaFlow", pf);
       }
+
+      // -- Extended auto-seed: remaining writing boxes ------------------
+      // Raw (unescaped) values -- val() applies esc() at render time.
+      var est   = (a.effectEstimate != null && a.effectEstimate !== "") ? String(a.effectEstimate) : null;
+      var lci   = (a.ciLower != null && a.ciLower !== "") ? String(a.ciLower) : null;
+      var uci   = (a.ciUpper != null && a.ciUpper !== "") ? String(a.ciUpper) : null;
+      var k_s   = k_incl || ((a.kStudies != null && a.kStudies !== "") ? String(a.kStudies) : null);
+      var n_s   = (a.totalParticipants != null && a.totalParticipants !== "") ? String(a.totalParticipants) : null;
+      var i2_s  = (a.i2 != null && a.i2 !== "") ? String(a.i2) : null;
+      var cert  = (a.certainty != null && a.certainty !== "") ? String(a.certainty) : null;
+      var meas  = a.effectMeasure || "pooled effect";
+      var cl_s  = a.confLevel || "95";
+      var i2num = i2_s ? parseFloat(i2_s) : NaN;
+      var verb  = !cert ? "appears to affect" :
+                  /high/i.test(cert) ? "reduces" :
+                  /moderate/i.test(cert) ? "probably reduces" :
+                  /very low/i.test(cert) ? "may or may not reduce" :
+                  /^low/i.test(cert) ? "may reduce" : "appears to affect";
+      var statStr = (est && lci && uci)
+        ? (meas + " " + est + ", " + cl_s + "% CI " + lci + " to " + uci + (cert ? "; " + cert + " certainty" : ""))
+        : null;
+
+      if (!getNested(PS.state, "studentText.coverFinding")) {
+        var cf = statStr
+          ? "In patients with " + pop + ", " + int_ + " " + verb + " " + out +
+            " compared with " + comp + " (" + statStr + ")."
+          : "After combining the available studies, " + int_ + " " + verb + " " + out +
+            " compared with " + comp + " in patients with " + pop + ".";
+        setNested(PS.state, "studentText.coverFinding", cf);
+      }
+
+      if (!getNested(PS.state, "studentText.abstractBackground")) {
+        setNested(PS.state, "studentText.abstractBackground",
+          pop + " face risks related to " + out + ". " + int_ +
+          " has been evaluated versus " + comp + " in randomised controlled trials." +
+          " This short systematic review synthesises the randomised evidence.");
+      }
+
+      if (!getNested(PS.state, "studentText.abstractObjective")) {
+        setNested(PS.state, "studentText.abstractObjective",
+          "To assess whether " + int_ + " reduces " + out + " compared with " + comp + " in " + pop + ".");
+      }
+
+      if (!getNested(PS.state, "studentText.abstractConclusion")) {
+        var acl = statStr
+          ? "In " + pop + ", " + int_ + " " + verb + " " + out + " compared with " + comp +
+            " (" + statStr + "). These results should be interpreted cautiously" +
+            (cert ? " given " + cert + " certainty of evidence" : " given the certainty of the evidence") + "."
+          : "In " + pop + ", the evidence on whether " + int_ + " reduces " + out +
+            " compared with " + comp + " should be interpreted cautiously given the current evidence base.";
+        setNested(PS.state, "studentText.abstractConclusion", acl);
+      }
+
+      if (!getNested(PS.state, "studentText.introductionClinicalProblem")) {
+        setNested(PS.state, "studentText.introductionClinicalProblem",
+          pop + " are at risk of adverse outcomes including " + out + ". Identifying effective treatments is clinically important because such outcomes affect survival and quality of life.");
+      }
+
+      if (!getNested(PS.state, "studentText.introductionInterventionRationale")) {
+        setNested(PS.state, "studentText.introductionInterventionRationale",
+          int_ + " has been studied versus " + comp + " in " + pop + ". Its rationale is based on its mechanism of action and signals of benefit from early-phase studies.");
+      }
+
+      if (!getNested(PS.state, "studentText.introductionWhyReviewNeeded")) {
+        setNested(PS.state, "studentText.introductionWhyReviewNeeded",
+          "Combining results across trials using meta-analysis increases statistical power and gives a more precise estimate of the treatment effect than any single study. Therefore, this short review asks whether " + int_ + " reduces " + out + " compared with " + comp + " in " + pop + ".");
+      }
+
+      if (!getNested(PS.state, "studentText.methodsEligibility")) {
+        setNested(PS.state, "studentText.methodsEligibility",
+          "We included randomised controlled trials of " + int_ + " versus " + comp +
+          " in " + pop + " that reported " + out +
+          ". We excluded observational studies, non-randomised trials, and studies not reporting the specified outcome.");
+      }
+
+      if (!getNested(PS.state, "studentText.methodsStudentLimitation")) {
+        setNested(PS.state, "studentText.methodsStudentLimitation",
+          "One limitation of this rapid workflow is that it relies on pre-extracted summary data rather than independent full-text extraction, which may miss nuances in individual trial reporting.");
+      }
+
+      if (!getNested(PS.state, "studentText.heterogeneityInterpretation")) {
+        var hetLevel = isNaN(i2num) ? null : i2num < 25 ? "low" : i2num < 50 ? "moderate" : i2num < 75 ? "substantial" : "considerable";
+        var hi2 = hetLevel
+          ? "Statistical heterogeneity was " + hetLevel + " (I\u00B2 = " + i2_s + "%)" +
+            (i2num < 40 ? ", suggesting the trials were broadly consistent and pooling is appropriate."
+                        : ", indicating the trials varied more than expected by chance. The pooled estimate should be interpreted cautiously.")
+          : "The degree of heterogeneity across the included studies should be interpreted in the context of clinical and methodological differences between trials.";
+        setNested(PS.state, "studentText.heterogeneityInterpretation", hi2);
+      }
+
+      if (!getNested(PS.state, "studentText.certaintyInterpretation")) {
+        var ci2x = cert
+          ? "The certainty of evidence was rated as " + cert + ". This reflects confidence that the true effect lies close to the estimated effect, and determines how strongly the conclusion can be worded."
+          : "Rate the certainty using GRADE (risk of bias, inconsistency, indirectness, imprecision, publication bias). Document the rating in the GRADE table above.";
+        setNested(PS.state, "studentText.certaintyInterpretation", ci2x);
+      }
+
+      if (!getNested(PS.state, "studentText.discussionPrincipalFinding")) {
+        var dpf = statStr
+          ? "The main finding of this short review is that " + int_ + " " + verb + " " + out +
+            " compared with " + comp + " in " + pop + " (" + statStr +
+            (k_s ? "; " + k_s + " trials" : "") + ")."
+          : "The main finding of this short review is that the effect of " + int_ + " on " + out +
+            " compared with " + comp + " in " + pop + " is shown in the meta-analysis above.";
+        setNested(PS.state, "studentText.discussionPrincipalFinding", dpf);
+      }
+
+      if (!getNested(PS.state, "studentText.discussionClinicalMeaning")) {
+        setNested(PS.state, "studentText.discussionClinicalMeaning",
+          "This finding would matter clinically if the absolute risk reduction translates to a meaningful benefit. Consider the number needed to treat alongside the confidence interval when advising on practice.");
+      }
+
+      if (!getNested(PS.state, "studentText.discussionStrengths")) {
+        var ds2 = "A strength of this review is that it combines " +
+          (k_s ? k_s + " randomised" : "multiple") + " trials" +
+          (n_s ? " with " + n_s + " participants" : "") +
+          ", increasing statistical power and the precision of the effect estimate compared with individual studies.";
+        setNested(PS.state, "studentText.discussionStrengths", ds2);
+      }
+
+      if (!getNested(PS.state, "studentText.discussionLimitations")) {
+        var dl2x = (!isNaN(i2num) && i2num >= 50)
+          ? "The main limitation is substantial heterogeneity (I\u00B2 = " + i2_s + "%) across included trials, which reduces confidence in the pooled estimate and limits generalisability."
+          : "The main limitation is the scope of this rapid review: it did not include an independent risk-of-bias assessment or a comprehensive grey literature search, which may introduce bias.";
+        setNested(PS.state, "studentText.discussionLimitations", dl2x);
+      }
+
+      if (!getNested(PS.state, "studentText.discussionConclusion")) {
+        var dc2 = (statStr && cert)
+          ? "The safest interpretation is that " + int_ + " " + verb + " " + out +
+            " in " + pop + " with " + cert + " certainty (" + statStr + "). Future research should focus on longer-term follow-up and reduction of heterogeneity."
+          : "The safest interpretation requires weighing the pooled estimate against the certainty of the underlying evidence. Future research should focus on trials with pre-specified outcome reporting.";
+        setNested(PS.state, "studentText.discussionConclusion", dc2);
+      }
+
     } catch (e) {}
   }
 
