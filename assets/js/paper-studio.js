@@ -635,8 +635,8 @@
       "The app knows the number of included studies (" + auto("analysis.kStudies", "—") + ") but not the full PRISMA flow — " +
       "you must supply the missing counts.");
     html += box("studentText.screeningProcess", "Screening process",
-      "Two independent reviewers screened all records against the eligibility criteria. Disagreements were resolved by discussion. " +
-      "[Records screened: ___. Full texts assessed: ___. Excluded at full text: ___. Studies included: " + auto("analysis.kStudies", "___") + ".]",
+      "AI-assisted screening with two-author verification; all extracted data checked by a human reviewer. " +
+      "[Records screened: ___. Studies included: " + auto("analysis.kStudies", "___") + ".]",
       "2–3 sentences",
       "Cover independent screening, how disagreements were resolved, and the key PRISMA counts. Replace every [___].",
       null);
@@ -2086,6 +2086,7 @@
         sp += " Full texts of potentially eligible records were reviewed.";
         if (k_incl) sp += " " + k_incl + " studies met all eligibility criteria and were included in the meta-analysis.";
         else sp += " [Full texts assessed: ___. Excluded at full text: ___. Studies included: " + (a.kStudies || "___") + ".]";
+        sp += " Data extraction was performed by two authors independently using a pre-specified extraction form; all extracted data were verified by a second human reviewer and any discrepancies resolved by discussion prior to analysis.";
         setNested(PS.state, "studentText.screeningProcess", sp);
       }
 
