@@ -1311,9 +1311,16 @@
         var tls = (window.RapidMeta && RapidMeta.state && RapidMeta.state.trials) || [];
         var pd = [];
         tls.forEach(function (t) {
-          if (t.effect && isFinite(t.effect.est) && t.effect.se > 0) {
-            pd.push({ id: t.title || t.id || "Study", name: t.title || t.id || "Study",
-                      logOR: t.effect.est, md: (res && (res.isContinuous || res.continuous)) ? t.effect.est : undefined, se: t.effect.se });
+          if (t.effect && isFinite(t.effect.est)) {
+            var se_fd = t.effect.se;
+            // Derive SE from per-study CI if se not provided (log scale: (log(uci)-log(lci))/(2*1.96))
+            if (!(se_fd > 0) && t.effect.lci > 0 && t.effect.uci > 0) {
+              se_fd = (Math.log(t.effect.uci) - Math.log(t.effect.lci)) / (2 * 1.96);
+            }
+            if (se_fd > 0) {
+              pd.push({ id: t.title || t.id || "Study", name: t.title || t.id || "Study",
+                        logOR: t.effect.est, md: (res && (res.isContinuous || res.continuous)) ? t.effect.est : undefined, se: se_fd });
+            }
           }
         });
         if (pd.length >= 2) { res = Object.assign({}, res, { plotData: pd }); PS._lastResults = res; }
@@ -1339,7 +1346,13 @@
     var forestOk = PS.renderOwnFig("forest", "forestPlotPaperSlot", res, primaryLabel);
     if (!forestOk) ensurePlaceholder("#forestPlotPaperSlot", "forestPlot", "The forest plot appears here once your analysis has results. Open the Analysis Suite, then click “Refresh figures”.");
     var funnelOk = PS.renderOwnFig("funnel", "funnelPaperSlot", res, primaryLabel);
-    if (!funnelOk) ensurePlaceholder("#funnelPaperSlot", "funnelPlot", "The funnel plot appears here once your analysis has ≥2 studies with standard errors.");
+    if (!funnelOk) {
+      var k_fn = (res && res.plotData && res.plotData.length) || Number(PS.state.analysis.kStudies) || 0;
+      var funnelMsg = k_fn < 3
+        ? "Funnel plots require at least 3 studies to be interpretable. This review has " + (k_fn <= 1 ? "only 1 study" : k_fn + " studies") + " — no funnel is shown."
+        : "The funnel plot appears here once the analysis has returned per-study standard errors.";
+      ensurePlaceholder("#funnelPaperSlot", "funnelPlot", funnelMsg);
+    }
     mountOutcomeFigures();   // forest per secondary outcome
     var sof = document.querySelector("#sof-body");
     if (sof && sof.closest("table") && nonEmpty("#sof-body")) fallbackClone(sof.closest("table"), document.querySelector("#gradePaperSlot"), "gradeTable");
@@ -1823,6 +1836,125 @@
     }, 500);
   }
 
+  PS.exportWord = function () {
+    PS.save();
+    var st = PS.state, a = st.analysis || {}, txt = st.studentText || {};
+    var meta = st.meta || {}, pico = st.pico || {}, figsSt = st.figures || {};
+    function hesc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n\n/g,"</p><p>").replace(/\n/g,"<br>"); }
+    function para(s) { s=String(s||"").trim(); return s?"<p>"+hesc(s)+"</p>":""; }
+    function h2(s)  { return "<h2>"+hesc(s)+"</h2>"; }
+    function h3(s)  { return "<h3>"+hesc(s)+"</h3>"; }
+    // Collect all figures (forest, funnel, any NMA key in PS._figs)
+    var figRegistry = PS._figs || {};
+    var figIds = Object.keys(figRegistry).filter(function(k) { return figRegistry[k] && figRegistry[k].box; });
+    PS.toast && PS.toast("Capturing figures…");
+    var fPromises = figIds.map(function(k) {
+      var f = figRegistry[k];
+      if (!window.Plotly) return Promise.resolve(null);
+      return window.Plotly.toImage(f.box, {format:"png", width:640, height:340})
+        .then(function(url){return {key:k, url:url, label:f.label||k};})
+        .catch(function(){return null;});
+    });
+    Promise.all(fPromises).then(function(captured) {
+      var figMap = {};
+      captured.forEach(function(c){ if(c) figMap[c.key]=c; });
+      function figBlock(key, fallbackCaption) {
+        var c = figMap[key]; if (!c) return "";
+        var capKey = key+"Plot"; var cap = (figsSt[capKey]&&figsSt[capKey].caption) || fallbackCaption || c.label || key;
+        return '<div class="fig"><img src="'+c.url+'" width="540"><p class="figcap"><em>'+hesc(cap)+'</em></p></div>';
+      }
+      // Characteristics table from DOM (remove edit inputs, keep text)
+      function charsTable() {
+        var el = document.getElementById("ps-study-table-auto"); if (!el) return "";
+        var clone = el.cloneNode(true);
+        clone.querySelectorAll("input").forEach(function(inp) {
+          var t = document.createTextNode(inp.value || inp.getAttribute("placeholder") || ""); inp.parentNode.replaceChild(t, inp);
+        });
+        clone.querySelectorAll("button,details,.no-clean-pdf,style").forEach(function(e){e.remove();});
+        clone.removeAttribute("style"); return clone.outerHTML;
+      }
+      // Outcomes table from PS.state
+      function outcomesTable() {
+        var rows = st.outcomes || []; if (!rows.length) return "";
+        var h='<table><thead><tr><th>Outcome</th><th>Measure</th><th>Estimate</th><th>95% CI</th><th>I\xb2</th><th>95% PI</th><th>k</th><th>n</th></tr></thead><tbody>';
+        rows.forEach(function(oc) {
+          h+='<tr><td>'+hesc(oc.label||"")+'</td><td>'+hesc(oc.measure||"")+'</td><td>'+hesc(oc.est||"")+'</td>'+
+            '<td>'+hesc((oc.lci||"")+"–"+(oc.uci||""))+'</td>'+
+            '<td>'+hesc(oc.i2?oc.i2+"%":"")+'</td>'+
+            '<td>'+hesc(oc.piLo&&oc.piHi?oc.piLo+"–"+oc.piHi:"")+'</td>'+
+            '<td>'+hesc(oc.k||"")+'</td><td>'+hesc(oc.n||"")+'</td></tr>';
+        });
+        return h+'</tbody></table>';
+      }
+      var title = txt.title || (pico.intervention||"Intervention")+" for "+(pico.population||"patients")+": a systematic review and meta-analysis";
+      var body="";
+      body+='<h1>'+hesc(title)+'</h1>';
+      body+='<p><em>Evidence Paper Studio — RapidMeta — generated '+new Date().toLocaleDateString()+'</em></p><hr>';
+      if (txt.coverFinding) body+='<p class="cover">'+hesc(txt.coverFinding)+'</p>';
+      // Abstract
+      body+=h2("Abstract");
+      body+=para(txt.abstractBackground); body+=para(txt.abstractObjective); body+=para(txt.abstractConclusion);
+      // Introduction
+      body+=h2("Introduction");
+      body+=para(txt.introductionClinicalProblem); body+=para(txt.introductionInterventionRationale); body+=para(txt.introductionWhyReviewNeeded);
+      // Methods
+      body+=h2("Methods");
+      body+=para(txt.methodsEligibility);
+      body+=h3("Search strategy"); body+=para(txt.searchStrategy);
+      body+=h3("Screening and data extraction"); body+=para(txt.screeningProcess); body+=para(txt.prismaFlow);
+      if (txt.methodsStudentLimitation) body+=para(txt.methodsStudentLimitation);
+      // Results
+      body+=h2("Results");
+      body+=h3("Characteristics of included studies");
+      var ct=charsTable(); body+=ct||'<p><em>[Open Paper Studio to generate the study characteristics table.]</em></p>';
+      body+=h3("Primary outcome");
+      body+=para(txt.coverFinding);
+      body+=figBlock("forest","Forest plot — "+(pico.primaryOutcome||"primary outcome")+" — with 95% CI and prediction interval.");
+      body+=para(txt.forestInterpretation);
+      var ot=outcomesTable(); if (ot) { body+=h3("Summary of findings"); body+=ot; }
+      body+=h3("Heterogeneity"); body+=para(txt.heterogeneityInterpretation);
+      if (txt.certaintyInterpretation) { body+=h3("Certainty of evidence"); body+=para(txt.certaintyInterpretation); }
+      if (txt.survivalReconstruction)  { body+=h3("Survival / time-to-event"); body+=para(txt.survivalReconstruction); }
+      if (txt.subgroupInterpretation)  { body+=h3("Subgroup analysis"); body+=para(txt.subgroupInterpretation); }
+      body+=h3("Publication bias");
+      body+=figBlock("funnel","Funnel plot — "+(pico.primaryOutcome||"primary outcome")+".");
+      if (figsSt.funnelPlot&&figsSt.funnelPlot.caption) body+=para(figsSt.funnelPlot.caption);
+      // NMA figures (any key beyond forest/funnel)
+      Object.keys(figMap).forEach(function(k){
+        if (k!=="forest"&&k!=="funnel") { body+=h3("Network meta-analysis: "+k.replace(/^nma[-_]?/i,"")); body+=figBlock(k); }
+      });
+      // Discussion
+      body+=h2("Discussion");
+      body+=para(txt.discussionPrincipalFinding); body+=para(txt.discussionClinicalMeaning);
+      body+=para(txt.discussionComparison); body+=para(txt.discussionTransportability);
+      body+=h3("Strengths"); body+=para(txt.discussionStrengths);
+      body+=h3("Limitations"); body+=para(txt.discussionLimitations);
+      body+=h3("Conclusion"); body+=para(txt.discussionConclusion);
+      // Disclosures
+      body+=h2("Disclosures");
+      if (txt.registration) body+=para("Registration: "+txt.registration);
+      if (txt.funding)      body+=para("Funding: "+txt.funding);
+      if (txt.coi)          body+=para("Competing interests: "+txt.coi);
+      // References
+      if (txt.references) { body+=h2("References"); body+=para(txt.references); }
+      var css='body{font-family:Calibri,Arial,sans-serif;font-size:11pt;line-height:1.5;margin:2.54cm}'+
+        'h1{font-size:16pt;font-weight:bold;margin-top:0}h2{font-size:13pt;border-bottom:1pt solid #bbb;margin-top:18pt;padding-bottom:2pt}'+
+        'h3{font-size:11pt;font-style:italic;margin-top:12pt}p{margin:5pt 0}'+
+        '.cover{font-size:12pt;font-weight:bold;border-left:3pt solid #2454a6;padding-left:8pt;margin:12pt 0}'+
+        'table{border-collapse:collapse;width:100%;font-size:9pt;margin:8pt 0}th,td{border:1pt solid #aaa;padding:3pt 6pt}th{background:#e8e8e8;font-weight:bold}'+
+        '.fig{text-align:center;margin:14pt 0;page-break-inside:avoid}.figcap{font-size:9pt;color:#555;margin-top:4pt}'+
+        'hr{border:none;border-top:1pt solid #ccc;margin:10pt 0}';
+      var doc='<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">'+
+        '<head><meta charset="utf-8"><title>'+hesc(title)+'</title><style>'+css+'</style></head><body>'+body+'</body></html>';
+      var fname=title.replace(/[^a-zA-Z0-9 ]/g,"").trim().substring(0,60)||"rapidmeta-paper";
+      var blob=new Blob([doc],{type:"application/msword"});
+      var burl=URL.createObjectURL(blob);
+      var aEl=document.createElement("a"); aEl.href=burl; aEl.download=fname+".doc";
+      document.body.appendChild(aEl); aEl.click(); aEl.remove();
+      setTimeout(function(){URL.revokeObjectURL(burl);},2000);
+      PS.toast && PS.toast("Word document downloaded.");
+    });
+  };
   /* ---------------- JSON export / import / reset ---------------- */
   PS.downloadJson = function () {
     PS.save();
