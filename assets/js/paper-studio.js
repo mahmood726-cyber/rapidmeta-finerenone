@@ -2351,6 +2351,27 @@
       var k_incl  = (PS.state.search && PS.state.search.included) || null;
       var len     = (PS.state.style && PS.state.style.methodsLength) || "concise";
 
+      // Strip AACT scaffolding tokens from any already-stored student text
+      // (idempotent; only rewrites when a match is found).
+      (function () {
+        var AACT_RX = [
+          /\s*\([^)]{0,120}AACT[^)]{0,120}\)/gi,
+          /\s*;\s*event\s+counts\s+from\s+AACT\s+\S+/gi,
+          /\bAACT-verified\s[\w\s]{1,40}name\b/gi,
+          /\bAACT\s+design_outcomes\b/gi,
+          /\bAACT\s+outcome_measurements\b/gi,
+          /\bas\s+registered\s+on\s+AACT\b/gi
+        ];
+        var stTxt = PS.state.studentText || {};
+        Object.keys(stTxt).forEach(function (k) {
+          if (typeof stTxt[k] !== "string") return;
+          var v = stTxt[k];
+          AACT_RX.forEach(function (rx) { v = v.replace(rx, ""); });
+          v = v.replace(/[ \t]{2,}/g, " ").trim();
+          if (v !== stTxt[k]) stTxt[k] = v;
+        });
+      }());
+
       if (!getNested(PS.state, "studentText.searchStrategy")) {
         var ss = "A systematic search was conducted in " + db + dateStr +
                  " for studies examining " + int_ + " versus " + comp +
@@ -2394,9 +2415,9 @@
           int_ + " for " + pop + ": a short systematic review and meta-analysis");
       }
 
-      var est   = (a.effectEstimate != null && a.effectEstimate !== "") ? String(a.effectEstimate) : null;
-      var lci   = (a.ciLower != null && a.ciLower !== "") ? String(a.ciLower) : null;
-      var uci   = (a.ciUpper != null && a.ciUpper !== "") ? String(a.ciUpper) : null;
+      var est   = (a.effectEstimate != null && a.effectEstimate !== "" && isFinite(Number(a.effectEstimate))) ? String(a.effectEstimate) : null;
+      var lci   = (a.ciLower != null && a.ciLower !== "" && isFinite(Number(a.ciLower))) ? String(a.ciLower) : null;
+      var uci   = (a.ciUpper != null && a.ciUpper !== "" && isFinite(Number(a.ciUpper))) ? String(a.ciUpper) : null;
       var k_s   = k_incl || ((a.kStudies != null && a.kStudies !== "") ? String(a.kStudies) : null);
       var n_s   = (a.totalParticipants != null && a.totalParticipants !== "") ? String(a.totalParticipants) : null;
       var i2_s  = (a.i2 != null && a.i2 !== "") ? String(a.i2) : null;
@@ -2457,11 +2478,11 @@
       if (!getNested(PS.state, "studentText.abstractResults")) {
         var ar_k = (a && a.kStudies != null) ? String(a.kStudies) : "--";
         var ar_n = (a && a.totalParticipants != null && a.totalParticipants !== "") ? String(a.totalParticipants) : "--";
-        var ar_est = (a && a.effectEstimate != null) ? String(a.effectEstimate) : "--";
-        var ar_lci = (a && a.ciLower != null) ? String(a.ciLower) : "--";
-        var ar_uci = (a && a.ciUpper != null) ? String(a.ciUpper) : "--";
+        var ar_est = (a && a.effectEstimate != null && isFinite(Number(a.effectEstimate))) ? String(a.effectEstimate) : "not estimable";
+        var ar_lci = (a && a.ciLower != null && isFinite(Number(a.ciLower))) ? String(a.ciLower) : "not estimable";
+        var ar_uci = (a && a.ciUpper != null && isFinite(Number(a.ciUpper))) ? String(a.ciUpper) : "not estimable";
         var ar_meas = (a && a.effectMeasure) ? a.effectMeasure : "effect";
-        var ar_i2 = (a && a.i2 != null) ? a.i2 + "%" : "--";
+        var ar_i2 = (a && a.i2 != null && isFinite(Number(a.i2))) ? a.i2 + "%" : "not estimable";
         var ar_pi = "";
         if (a && a.predictionInterval && a.piLCI != null && a.piLCI !== "--" && a.piUCI != null && a.piUCI !== "--") {
           ar_pi = " The prediction interval was " + a.piLCI + " to " + a.piUCI + ".";
@@ -2552,6 +2573,47 @@
             " in " + pop + " with " + cert + " certainty (" + statStr + "). Future research should focus on longer-term follow-up and reduction of heterogeneity."
           : "The safest interpretation requires weighing the pooled estimate against the certainty of the underlying evidence. Future research should focus on trials with pre-specified outcome reporting.";
         setNested(PS.state, "studentText.discussionConclusion", dc2);
+      }
+
+      if (!getNested(PS.state, "studentText.forestInterpretation")) {
+        var isCont3 = /^(MD|SMD|WMD|mean.?diff)/i.test(meas);
+        var neLine3 = isCont3 ? "0 (mean difference)" : "1 (the no-effect line for ratios)";
+        var fi3 = statStr
+          ? "The pooled " + meas + " was " + est + " (" + cl_s + "% CI " + lci + " to " + uci + ")." +
+            (i2_s ? " Statistical heterogeneity was I² = " + i2_s + "%." : "") +
+            " Whether the confidence interval crosses " + neLine3 + " indicates whether the data are compatible with no difference." +
+            (cert ? " Given " + cert + " certainty, this result should be interpreted cautiously for " + pop + "."
+                  : " This result should be interpreted in the clinical context of " + pop + ".")
+          : "The overall result points toward one treatment over the other. Write whether the confidence interval crosses the no-effect line (1 for ratios, 0 for mean differences) and whether this effect size is clinically meaningful for " + pop + ".";
+        setNested(PS.state, "studentText.forestInterpretation", fi3);
+      }
+
+      if (!getNested(PS.state, "studentText.discussionComparison")) {
+        setNested(PS.state, "studentText.discussionComparison",
+          "These findings are broadly consistent with what existing guidelines and published data suggest for " + int_ + " in " + pop +
+          ". The direction of effect aligns with prior trial reports" +
+          (k_s ? " and the pooled estimate across " + k_s + " trials offers more precision than any single study" : "") + ".");
+      }
+
+      if (!getNested(PS.state, "studentText.discussionTransportability")) {
+        setNested(PS.state, "studentText.discussionTransportability",
+          "The pooled effect applies most directly to patients similar to those enrolled in the included trials (" + pop + "). " +
+          "Generalisability to patients with different comorbidity profiles, disease severity, or treatment backgrounds is uncertain and should be addressed in future research.");
+      }
+
+      if (!getNested(PS.state, "studentText.registration")) {
+        setNested(PS.state, "studentText.registration",
+          "This review was not formally registered before it was carried out.");
+      }
+
+      if (!getNested(PS.state, "studentText.funding")) {
+        setNested(PS.state, "studentText.funding",
+          "This work received no specific funding from any agency.");
+      }
+
+      if (!getNested(PS.state, "studentText.coi")) {
+        setNested(PS.state, "studentText.coi",
+          "The author declares no competing interests.");
       }
 
     } catch (e) {}
