@@ -329,6 +329,30 @@ def transform_template(template_html, cfg):
     # Catches _finerenone suffix in download filenames (e.g. prisma_2020_checklist_finerenone.csv)
     html = re.sub(r"_finerenone(?=[.'\"])", f"_{slug}", html, flags=re.IGNORECASE)
 
+    # 12c. Per-topic subgroup — replace finerenone/HF-CKD specific text with
+    #      per-config value so non-finerenone apps don't display wrong subgroup.
+    _subgroup_val = (proto.get('subgroup', '') or '') if isinstance(proto, dict) else (cfg.get('protocol', {}).get('subgroup', '') or '')
+    _subgroup_display = _subgroup_val if (_subgroup_val and _subgroup_val != '--') else 'pre-specified subgroup'
+    # JS hardcoded init (overwrites state.protocol.subgroup on startup)
+    html = html.replace(
+        'this.state.protocol.subgroup="Indication (HF vs CKD), Phase (III vs IV), Baseline eGFR"',
+        f'this.state.protocol.subgroup="{escape_js(_subgroup_display)}"'
+    )
+    # HTML table display text
+    html = html.replace(
+        'By indication (HF vs CKD); Q-between test for interaction',
+        f'By {escape_html(_subgroup_display)}; Q-between test for interaction'
+    )
+    # Chart subgroup header
+    html = html.replace('2. Subgroup Synthesis (HF vs CKD)', '2. Subgroup Synthesis')
+    # Safety net: arni_hf_ download prefix (residual from a prior template epoch)
+    html = re.sub(r"arni_hf_(?=[\w'])", f"{slug}_", html, flags=re.IGNORECASE)
+    # Safety net: null-PMID: 100% badge (hardcoded wrong value — truth-first: absent > wrong)
+    html = html.replace(
+        '<div style="margin-top:8px;"><span style="background:rgba(255,255,255,0.32);padding:2px 6px;border-radius:3px;font-size:10.5px;margin-right:6px;">null-PMID: 100%</span></div>',
+        ''
+    )
+
     # 13. Effect measure defaults
     em = cfg.get("effect_measure", "AUTO")
     if em != "AUTO":
@@ -642,6 +666,30 @@ def generate_app(cfg, output_dir=None):
     with open(TEMPLATE_PATH, 'r', encoding='utf-8') as f:
         template = f.read()
 
+
+    # Staging-profile hook — load verified per-topic data from parallel swarm
+    _staging_dir = Path(r"C:\Projects\rapidmeta-staging\profiles")
+    _storage_key = cfg.get('storage_key', cfg.get('filename', '').replace('_AUTO_FULL_REVIEW.html', '').lower())
+    _profile_path = _staging_dir / f"{_storage_key}.json"
+    if _profile_path.exists():
+        try:
+            _profile = json.loads(_profile_path.read_text(encoding='utf-8'))
+            print(f"  [staging] profile found: {_profile_path.name}")
+            # Override protocol PICO fields if present
+            if 'pico' in _profile:
+                cfg.setdefault('protocol', {}).update(_profile['pico'])
+            # Override auto_include_ids if present
+            if 'auto_include_ids' in _profile:
+                cfg['auto_include_ids'] = _profile['auto_include_ids']
+            # Merge supplemental trial data
+            if 'trials_supplement' in _profile:
+                cfg.setdefault('trials', {}).update(_profile['trials_supplement'])
+            # Override effect measure if present
+            if 'effect_measure' in _profile:
+                cfg['effect_measure'] = _profile['effect_measure']
+        except Exception as _e:
+            print(f"  [staging] WARN: could not load profile {_profile_path}: {_e}")
+    
     html = transform_template(template, cfg)
     errors = validate_html(html, cfg['filename'], cfg)
 
