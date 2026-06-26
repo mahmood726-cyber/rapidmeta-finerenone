@@ -674,6 +674,7 @@ def generate_app(cfg, output_dir=None):
     if _profile_path.exists():
         try:
             _profile = json.loads(_profile_path.read_text(encoding='utf-8'))
+            cfg['_staging_profile'] = _profile
             print(f"  [staging] profile found: {_profile_path.name}")
             # Override protocol PICO fields if present
             if 'pico' in _profile:
@@ -691,6 +692,55 @@ def generate_app(cfg, output_dir=None):
             print(f"  [staging] WARN: could not load profile {_profile_path}: {_e}")
     
     html = transform_template(template, cfg)
+
+    # PATCH 3: inject per-app SPECIALTY_PROFILE plain JS
+    _sp_js = 'window.SPECIALTY_PROFILE=null;\n'
+    _sp_profile = cfg.get('_staging_profile')
+    if _sp_profile and isinstance(_sp_profile, dict):
+        import json as _json
+        def _js_str(v):
+            if v is None: return 'null'
+            if isinstance(v, bool): return 'true' if v else 'false'
+            if isinstance(v, (int, float)): return str(v)
+            if isinstance(v, str): return _json.dumps(v)
+            if isinstance(v, list): return '[' + ','.join(_js_str(x) for x in v) + ']'
+            return _json.dumps(v)
+        _sp_specialty = _sp_profile.get('specialty', _sp_profile.get('Specialty', 'Unknown'))
+        _sp_area = _sp_profile.get('area', _sp_profile.get('Area', ''))
+        _sp_em = 'HR'
+        _em_raw = _sp_profile.get('effect_measure', _sp_profile.get('default_effect_measure', ''))
+        if isinstance(_em_raw, str):
+            _em_lower = _em_raw.lower()
+            if 'rr' in _em_lower or 'risk ratio' in _em_lower: _sp_em = 'RR'
+            elif 'or' in _em_lower and 'hr' not in _em_lower: _sp_em = 'OR'
+            elif 'rd' in _em_lower or 'risk diff' in _em_lower: _sp_em = 'RD'
+            elif 'md' in _em_lower or 'mean diff' in _em_lower: _sp_em = 'MD'
+            elif 'smd' in _em_lower: _sp_em = 'SMD'
+        _sp_invs = []
+        for _k in ['special_considerations', 'analysis_notes', 'invariants', 'pooling_notes']:
+            _sv = _sp_profile.get(_k)
+            if isinstance(_sv, str): _sp_invs.append(_sv[:120])
+            elif isinstance(_sv, list): _sp_invs.extend([str(x)[:120] for x in _sv[:3]])
+        _sp_ncts = [t.get('nct_id','') for t in _sp_profile.get('landmark_trials',[]) if isinstance(t,dict) and t.get('nct_id')][:5]
+        _sp_types = _sp_profile.get('outcome_types', [])
+        _sp_ptype = 'binary'
+        if _sp_types and isinstance(_sp_types, list) and len(_sp_types) > 0:
+            _ftype = _sp_types[0]
+            if isinstance(_ftype, dict): _sp_ptype = _ftype.get('type', 'binary')
+            elif isinstance(_ftype, str): _sp_ptype = _ftype
+        _sp_js = (
+            f'window.SPECIALTY_PROFILE={{'
+            f'specialty:{_js_str(_sp_specialty)},'
+            f'area:{_js_str(_sp_area)},'
+            f'effectMeasure:{_js_str(_sp_em)},'
+            f'primaryOutcomeType:{_js_str(_sp_ptype)},'
+            f'landmark:{_js_str(_sp_ncts)},'
+            f'invariants:{_js_str(_sp_invs[:4])}'
+            f'}};\n'
+        )
+    _sp_marker = 'window.onload=()=>RapidMeta.init()'
+    if _sp_marker in html:
+        html = html.replace(_sp_marker, _sp_js + _sp_marker, 1)
     errors = validate_html(html, cfg['filename'], cfg)
 
     if errors:
