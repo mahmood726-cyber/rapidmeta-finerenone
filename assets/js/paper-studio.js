@@ -605,6 +605,12 @@
     html += '<p><strong>Certainty.</strong> ' + auto("analysis.certainty", "—") + ' ' + learnChip("grade") + '</p>';
     html += '</div>';
     html += '<div class="evidence-summary-card"><div class="student-task-label no-clean-pdf">Evidence chips (auto)</div>' + PS.renderChips() + '</div>';
+    html += '<div class="ps-refresh-row no-clean-pdf" style="margin:4px 0 8px">'
+      + '<button type="button" data-action="refresh-outcome-seeds"'
+      + ' title="Re-seed auto-text from the current analysis outcome"'
+      + ' style="font-size:0.8em;padding:3px 8px">&#x21ba; Refresh seeded text from analysis</button>'
+      + '<span style="font-size:0.8em;color:#888;margin-left:8px">Updates grey auto-text and forest caption from your current analysis.</span>'
+      + '</div>';
     html += helper("Everything in <strong>grey</strong> above is filled in automatically from your analysis — you do not edit it (to change it, edit your analysis, not the paper). You write the <strong>yellow</strong> boxes.");
     html += '</section>';
 
@@ -745,6 +751,7 @@
       "RECOVERY Collaborative Group, New England Journal of Medicine 2021;384:693-704.");
 
     html += renderOutcomeSections();   // one section per secondary outcome
+    html += renderOutcomesSummaryTable(); // batch3: outcomes at a glance
 
     html += '<h3>Heterogeneity</h3>';
     var kNum = Number(a.kStudies);
@@ -906,6 +913,13 @@
     html += helper("These statements stay in the final PDF — journals and integrity policies require them. The first two are written for you; complete funding, competing interests and registration.");
     html += '<p><strong>Use of automated tools.</strong> The structured numerical results, the Methods and Results summary text, the figures, the GRADE certainty summary, and the reference identifiers were generated automatically by the RapidMeta Evidence Paper Studio from the author’s own meta-analysis. The introduction, figure captions, all interpretation, the discussion and the conclusions are the author’s own work. Because the auto-generated sections come from a shared template, their wording may be similar to other papers produced with the same tool.</p>';
     html += '<p><strong>Generative-AI declaration.</strong> Generative AI (the RapidMeta Evidence Paper Studio) was used only to draft the templated Methods and Results summary text and the figure scaffolding from the author’s own analysis. It was not used to write the introduction, interpretation, discussion or conclusions, which are the author’s own. All AI-assisted text was reviewed by the author, who takes full responsibility for the content of this paper.</p>';
+    html += '<p><strong>Author contributions.</strong> '
+      + box("studentText.creditStatement", "Author contributions (CRediT)",
+        "MA: Conceptualization, Data curation, Formal analysis, Methodology, Software, "
+        + "Visualization, Writing \u2013 original draft. All authors reviewed and approved the final manuscript.",
+        "CRediT roles",
+        "List the CRediT roles that apply. Minimum: Conceptualization, Formal analysis, Writing \u2013 original draft.",
+        null) + '</p>';
     html += '<p><strong>Data availability and provenance.</strong> The analysis was based on data the author extracted from the included trials. Sources searched: ' + esc(PS.state.search.databases || "(state databases)") + (PS.state.search.searchDate ? ', last searched ' + esc(PS.state.search.searchDate) : '') + '. Underlying trial data and the analysis project are available from the author on request.</p>';
     html += '<p><strong>Ethics.</strong> This review used only previously published, aggregate trial data; no individual patient data were accessed, so approval from a research-ethics committee was not required.</p>';
     html += '<p><strong>Protocol and registration.</strong> ' + box("studentText.registration", "Protocol / registration", "This review was registered as... / This review was not registered.", "1 sentence", "State the registration (e.g. PROSPERO number) or say it was not registered.",
@@ -1291,6 +1305,42 @@
       html += '</section>';
     });
     return html;
+  }
+
+  // Batch 3: all-outcomes summary table (excluded from Clean PDF).
+  function renderOutcomesSummaryTable() {
+    var a = PS.state.analysis;
+    var p = PS.state.pico;
+    if (!a || (!a.effectEstimate && !PS.state.outcomes.length)) return "";
+    var primaryOut = (p && p.primaryOutcome) ? p.primaryOutcome : "Primary outcome";
+    var primaryEffect = (a.effectEstimate && a.ciLower && a.ciUpper)
+      ? ((a.effectMeasure ? a.effectMeasure + " " : "") + a.effectEstimate + " (" + a.ciLower + "–" + a.ciUpper + ")")
+      : (a.effectEstimate || "–");
+    var trows = "<tr><td><strong>" + esc(primaryOut) + "</strong><br><small>(primary)</small></td>"
+      + "<td>" + esc(String(a.kStudies || "–")) + "</td>"
+      + "<td>" + esc(String(a.totalParticipants || "–")) + "</td>"
+      + "<td>" + esc(primaryEffect) + "</td>"
+      + "<td>" + (a.i2 ? a.i2 + "%" : "–") + "</td>"
+      + "<td>" + esc(a.certainty || "–") + "</td></tr>";
+    PS.state.outcomes.forEach(function (oc) {
+      var ocEff = (oc.est && oc.lci && oc.uci)
+        ? ((oc.measure || "effect") + " " + oc.est + " (" + oc.lci + "–" + oc.uci + ")")
+        : (oc.est || "–");
+      trows += "<tr><td>" + esc(oc.label) + (oc.illustrative ? " <em>(demo)</em>" : "") + "</td>"
+        + "<td>" + (oc.k || "–") + "</td><td>" + (oc.n || "–") + "</td>"
+        + "<td>" + esc(ocEff) + "</td>"
+        + "<td>" + (oc.i2 ? oc.i2 + "%" : "–") + "</td>"
+        + "<td>" + esc(oc.certainty || "–") + "</td></tr>";
+    });
+    return "<details class=\"oc-summary-details no-clean-pdf\" open>"
+      + "<summary><strong>Outcomes at a glance</strong> (all pooled results)</summary>"
+      + "<div class=\"oc-summary-wrap\"><table class=\"oc-summary-table\">"
+      + "<thead><tr><th>Outcome</th><th>k</th><th>N</th>"
+      + "<th>Effect (95 CI)</th><th>I²</th><th>Certainty</th></tr></thead>"
+      + "<tbody>" + trows + "</tbody></table>"
+      + "<button type=\"button\" data-action=\"copy-oc-md\" class=\"oc-md-btn\" style=\"margin-top:6px\">Copy as Markdown</button>"
+      + "<p style=\"font-size:0.85em;color:#666;margin-top:4px\">Auto-generated from analysis. Not in Clean PDF.</p>"
+      + "</div></details>";
   }
 
   // Mount each outcome's forest plot (called during the figure-embed pass).
@@ -2273,6 +2323,53 @@
           return;
         }
         if (act.dataset.action === "build-refs") { e.preventDefault(); PS.buildReferences(); }
+        // Batch 6a: copy outcomes summary as Markdown
+        if (act.dataset.action === "copy-oc-md") {
+          e.preventDefault();
+          var a2 = PS.state.analysis, p2 = PS.state.pico;
+          var pout = (p2 && p2.primaryOutcome) ? p2.primaryOutcome : "Primary";
+          var pef = (a2.effectEstimate && a2.ciLower && a2.ciUpper)
+            ? ((a2.effectMeasure ? a2.effectMeasure + " " : "") + a2.effectEstimate
+               + " (" + a2.ciLower + "\u2013" + a2.ciUpper + ")")
+            : (a2.effectEstimate || "\u2013");
+          var md2 = "| Outcome | k | N | Effect (95\u202fCI) | I\u00b2 | Certainty |\n"
+            + "|---|---|---|---|---|---|\n";
+          md2 += "| **" + pout + "** (primary) | " + (a2.kStudies || "\u2013") + " | "
+            + (a2.totalParticipants || "\u2013") + " | " + pef + " | "
+            + (a2.i2 ? a2.i2 + "%" : "\u2013") + " | " + (a2.certainty || "\u2013") + " |\n";
+          PS.state.outcomes.forEach(function (oc2) {
+            var ef2 = (oc2.est && oc2.lci && oc2.uci)
+              ? ((oc2.measure || "effect") + " " + oc2.est + " (" + oc2.lci + "\u2013" + oc2.uci + ")")
+              : (oc2.est || "\u2013");
+            md2 += "| " + oc2.label + " | " + (oc2.k || "\u2013") + " | "
+              + (oc2.n || "\u2013") + " | " + ef2 + " | "
+              + (oc2.i2 ? oc2.i2 + "%" : "\u2013") + " | " + (oc2.certainty || "\u2013") + " |\n";
+          });
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(md2).then(function () {
+              act.textContent = "Copied!";
+              setTimeout(function () { act.textContent = "Copy as Markdown"; }, 2000);
+            }).catch(function () { alert(md2); });
+          } else { alert(md2); }
+          return;
+        }
+        // Batch 6b: refresh outcome-specific seeded text from current analysis
+        if (act.dataset.action === "refresh-outcome-seeds") {
+          e.preventDefault();
+          var toReset = [
+            "studentText.abstractResults", "studentText.forestInterpretation",
+            "studentText.discussionPrincipalFinding", "studentText.discussionConclusion",
+            "studentText.coverFinding", "studentText.abstractConclusion",
+            "studentText.abstractObjective", "studentText.creditStatement",
+            "figures.forestPlot.caption"
+          ];
+          toReset.forEach(function (k2) { setNested(PS.state, k2, ""); });
+          PS.loadRapidMetaData();
+          PS.seed();
+          PS.render();
+          PS.embedFigures();
+          return;
+        }
         else if (act.dataset.action === "use-example") {
           e.preventDefault();
           var target = act.dataset.target, starter = act.dataset.starter || "";
@@ -2614,6 +2711,30 @@
       if (!getNested(PS.state, "studentText.coi")) {
         setNested(PS.state, "studentText.coi",
           "The author declares no competing interests.");
+      }
+
+      // Batch 4: CRediT author contributions
+      if (!getNested(PS.state, "studentText.creditStatement")) {
+        setNested(PS.state, "studentText.creditStatement",
+          "MA: Conceptualization, Data curation, Formal analysis, Methodology, Software,"
+          + " Visualization, Writing \u2013 original draft."
+          + " All authors reviewed and approved the final manuscript.");
+      }
+
+      // Batch 5: forest caption auto-seed
+      var fcap = getNested(PS.state, "figures.forestPlot.caption");
+      var fcapDefault = "The overall result points toward... The confidence interval "
+        + "(the range of likely true effects) is narrow/wide, which means... "
+        + "The size of the effect is / is not large enough to matter because...";
+      if (!fcap || fcap === fcapDefault) {
+        var fc = "Forest plot of " + out + " for " + int_ + " versus " + comp;
+        if (k_s) { fc += " (" + k_s + (Number(k_s) === 1 ? " study" : " studies")
+          + (n_s ? "; " + n_s + " participants" : "") + ")"; }
+        fc += ". Random-effects model (REML).";
+        if (est && lci && uci) fc += " Pooled " + meas + " " + est
+          + " (" + cl_s + "% CI " + lci + " to " + uci + ").";
+        if (a.predictionInterval) fc += " 95% PI: " + a.predictionInterval + ".";
+        setNested(PS.state, "figures.forestPlot.caption", fc);
       }
 
     } catch (e) {}
