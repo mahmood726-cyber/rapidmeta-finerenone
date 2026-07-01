@@ -1,0 +1,84 @@
+{
+  "base": "C:\\Users\\mahmo\\rmf-live-fix\\OMECAMTIV_HF_AUTO_FULL_REVIEW.html",
+  "out":  "C:\\Users\\mahmo\\rmf-live-fix\\EMPAGLIFLOZIN_HF_AUTO_FULL_REVIEW.html",
+
+  "title": "RapidMeta Cardiology | Empagliflozin in Heart Failure (EMPEROR-Reduced + EMPEROR-Preserved) v1.0",
+  "hero_h2": "Empagliflozin in Heart Failure Across the Ejection Fraction Spectrum",
+  "nyt_headline": "The Empagliflozin Heart-Failure Evidence",
+
+  "auto_include_ncts": ["NCT03057977", "NCT03057951"],
+  "nct_acronyms": {
+    "NCT03057977": "EMPEROR-Reduced",
+    "NCT03057951": "EMPEROR-Preserved"
+  },
+
+  "localstorage_old": "rapid_meta_omecamtiv_hf_auto",
+  "localstorage_new": "rapid_meta_empagliflozin_hf_auto",
+
+  "pico": {
+    "pop": "Adults with chronic heart failure across the ejection fraction spectrum (HFrEF LVEF <=40% in EMPEROR-Reduced; LVEF >40% in EMPEROR-Preserved), NYHA class II-IV with elevated NT-proBNP, on guideline-directed medical therapy",
+    "int": "Empagliflozin 10 mg orally once daily added to standard heart failure therapy",
+    "comp": "Placebo added to guideline-directed medical therapy",
+    "out": "Composite of adjudicated cardiovascular death or hospitalisation for heart failure (hazard ratio vs placebo)",
+    "subgroup": "Ejection fraction stratum (HFrEF vs HFpEF), type 2 diabetes status, baseline eGFR, NYHA class, age, sex"
+  },
+
+  "blank_benchmarks": true,
+
+  "real_data_entries": [
+    {
+      "nct": "NCT03057977",
+      "name": "EMPEROR-Reduced",
+      "pmid": "32865377",
+      "phase": "III",
+      "year": 2020,
+      "tE": 361, "tN": 1863, "cE": 462, "cN": 1867,
+      "group": "Empagliflozin 10 mg vs placebo in HFrEF (LVEF <=40%), NYHA II-IV; primary CV death or hospitalisation for heart failure (Packer NEJM 2020)",
+      "publishedHR": 0.75, "hrLCI": 0.65, "hrUCI": 0.86,
+      "pubHR": 0.75, "pubHR_LCI": 0.65, "pubHR_UCI": 0.86,
+      "allOutcomes": [
+        {"shortLabel": "CV death/HHF", "title": "Cardiovascular death or hospitalisation for heart failure (primary composite)", "type": "PRIMARY", "tE": 361, "cE": 462, "tN": 1863, "cN": 1867, "matchScore": 100, "estimandType": "HR", "pubHR": 0.75, "pubHR_LCI": 0.65, "pubHR_UCI": 0.86}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "robSource": "Packer 2020 NEJM: randomised, double-blind, placebo-controlled, independent blinded event adjudication",
+      "snippet": "EMPEROR-Reduced NCT03057977: Packer M et al. NEJM 2020;383:1413-1424. 3,730 HFrEF patients (LVEF <=40%), empagliflozin 10mg (n=1863) vs placebo (n=1867). Primary CV death or HHF: 361 vs 462 (HR 0.75 [0.65-0.86], p<0.001). Arm sizes AACT-verified.",
+      "sourceUrl": "https://clinicaltrials.gov/study/NCT03057977",
+      "ctgovUrl": "https://clinicaltrials.gov/study/NCT03057977",
+      "evidence": [
+        {"label": "Enrollment & Design", "source": "Packer NEJM 2020, Fig 1", "text": "3,730 patients with HFrEF (LVEF <=40%), NYHA II-IV, elevated NT-proBNP randomised 1:1. Empagliflozin 10mg QD (n=1863) vs placebo (n=1867). Median follow-up 16 months.", "highlights": ["3,730", "1,863", "1,867", "LVEF <=40%"]},
+        {"label": "Primary: CV death or HHF", "source": "Packer NEJM 2020, Table 2", "text": "Cardiovascular death or hospitalisation for heart failure: 361/1863 empagliflozin vs 462/1867 placebo. HR 0.75 (95% CI 0.65-0.86), p<0.001.", "highlights": ["361/1863", "462/1867", "HR 0.75", "p<0.001"]}
+      ]
+    },
+    {
+      "nct": "NCT03057951",
+      "name": "EMPEROR-Preserved",
+      "pmid": "34449189",
+      "phase": "III",
+      "year": 2021,
+      "tE": 415, "tN": 2997, "cE": 511, "cN": 2991,
+      "group": "Empagliflozin 10 mg vs placebo in HF with LVEF >40% (HFpEF/HFmrEF), NYHA II-IV; primary CV death or hospitalisation for heart failure (Anker NEJM 2021)",
+      "publishedHR": 0.79, "hrLCI": 0.69, "hrUCI": 0.90,
+      "pubHR": 0.79, "pubHR_LCI": 0.69, "pubHR_UCI": 0.90,
+      "allOutcomes": [
+        {"shortLabel": "CV death/HHF", "title": "Cardiovascular death or hospitalisation for heart failure (primary composite)", "type": "PRIMARY", "tE": 415, "cE": 511, "tN": 2997, "cN": 2991, "matchScore": 100, "estimandType": "HR", "pubHR": 0.79, "pubHR_LCI": 0.69, "pubHR_UCI": 0.90}
+      ],
+      "rob": ["low", "low", "low", "low", "low"],
+      "robSource": "Anker 2021 NEJM: randomised, double-blind, placebo-controlled, independent blinded event adjudication",
+      "snippet": "EMPEROR-Preserved NCT03057951: Anker SD et al. NEJM 2021;385:1451-1461. 5,988 HF patients with LVEF >40%, empagliflozin 10mg (n=2997) vs placebo (n=2991). Primary CV death or HHF: 415 vs 511 (HR 0.79 [0.69-0.90], p<0.001). Values AACT-verified.",
+      "sourceUrl": "https://clinicaltrials.gov/study/NCT03057951",
+      "ctgovUrl": "https://clinicaltrials.gov/study/NCT03057951",
+      "evidence": [
+        {"label": "Enrollment & Design", "source": "Anker NEJM 2021, Fig 1", "text": "5,988 patients with HF and LVEF >40%, NYHA II-IV, elevated NT-proBNP randomised 1:1. Empagliflozin 10mg QD (n=2997) vs placebo (n=2991). Median follow-up 26 months.", "highlights": ["5,988", "2,997", "2,991", "LVEF >40%"]},
+        {"label": "Primary: CV death or HHF", "source": "Anker NEJM 2021, Table 1", "text": "Cardiovascular death or hospitalisation for heart failure: 415/2997 empagliflozin vs 511/2991 placebo. HR 0.79 (95% CI 0.69-0.90), p<0.001.", "highlights": ["415/2997", "511/2991", "HR 0.79", "p<0.001"]}
+      ]
+    }
+  ],
+
+  "global_replaces": [
+    ["Omecamtiv mecarbil", "Empagliflozin"],
+    ["omecamtiv mecarbil", "empagliflozin"],
+    ["OMECAMTIV", "EMPAGLIFLOZIN"],
+    ["Omecamtiv", "Empagliflozin"],
+    ["omecamtiv", "empagliflozin"]
+  ]
+}
