@@ -5280,19 +5280,124 @@ with open(AACT / "conditions.txt", "r", encoding="utf-8", errors="replace") as f
             cond_by_nct[nct].append(cond)
 print(f"  NCTs with conditions: {len(cond_by_nct):,}")
 
-# For each topic, find candidate NCTs
-def find_ncts(drug_patterns, condition_patterns, max_per_topic=8):
-    """Return list of NCTs whose interventions contain a drug pattern
-    AND whose conditions contain a condition pattern."""
+# ─── Index study_type + enrollment + phase + results for candidate RANKING ───
+# Consolidated extraction fix (2026-07-01). The previous find_ncts() returned
+# the FIRST `max_per_topic` matches in arbitrary interventions.txt file order
+# and then break-ed, with NO ranking, NO study-type filter, and a raw-substring
+# gate. Against 39 pivotal trials of 13 published meta-analyses it captured
+# only 3%. Three composed layers lift it to 90% (see
+# rapidmeta-staging/PUBLISHED_META_GROUNDTRUTH.md):
+#   Fix A  interventional filter + enrollment ranking
+#   Fix B  synonym / normalization-aware matching at the substring gate
+#   Fix C  pivotal-aware ranking (late-phase + posted-results tier, then size)
+print("Indexing studies.txt for study_type / enrollment / phase / results...")
+study_type_by_nct = {}
+enroll_by_nct = {}
+phase_by_nct = {}
+results_posted_by_nct = {}
+with open(AACT / "studies.txt", "r", encoding="utf-8", errors="replace") as f:
+    reader = csv.DictReader(f, delimiter="|")
+    for row in reader:
+        nct = (row.get("nct_id") or "").strip().upper()
+        if not nct:
+            continue
+        study_type_by_nct[nct] = (row.get("study_type") or "").strip().lower()
+        e = (row.get("enrollment") or "").strip()
+        enroll_by_nct[nct] = int(e) if e.isdigit() else 0
+        phase_by_nct[nct] = (row.get("phase") or "").strip().lower()
+        results_posted_by_nct[nct] = bool(
+            (row.get("results_first_posted_date") or "").strip())
+print(f"  NCTs with study metadata: {len(study_type_by_nct):,}")
+
+# ── Fix B: synonym tables + normalization-aware matching ──────────────────
+# PRODUCTION should source drug synonyms from RxNorm/ChEMBL cross-refs and
+# condition synonyms from MeSH entry terms — do NOT hand-maintain. This seed
+# covers the dev-code / spelled-out-acronym classes the benchmark exposes.
+DRUG_SYNS = {
+    "tofacitinib":  ["cp-690,550", "cp 690,550", "cp690550"],
+    "olaparib":     ["azd2281", "azd 2281"],
+    "baricitinib":  ["ly3009104", "incb028050"],
+    "upadacitinib": ["abt-494"],
+    "filgotinib":   ["glpg0634"],
+}
+COND_SYNS = {
+    "hiv": ["human immunodeficiency virus"],
+}
+# Fix C: phases treated as "late" (pivotal-capable). AACT stores no spaces.
+LATE_PHASES = frozenset({"phase3", "phase4", "phase2/phase3"})
+
+
+def _norm(s):
+    """Lowercase; hyphen/comma/slash -> space; collapse whitespace."""
+    return re.sub(r"\s+", " ", re.sub(r"[-,/]", " ", s.lower())).strip()
+
+
+def _expand_syns(patterns, synmap):
+    out = []
+    for p in patterns:
+        out.append(p)
+        if synmap:
+            out.extend(synmap.get(p, []))
+    return out
+
+
+def _match_blob(patterns, blob, token_subset=False, synmap=None):
+    """True if any (synonym-expanded, normalized) pattern matches `blob`.
+    token_subset=True also matches when a pattern's word tokens are a subset of
+    the blob's tokens (MeSH inversion). Use token_subset ONLY for conditions."""
+    nblob = _norm(blob)
+    ntokens = set(nblob.split())
+    for p in _expand_syns(patterns, synmap):
+        np = _norm(p)
+        if not np:
+            continue
+        if np in nblob:
+            return True
+        if token_subset:
+            pt = set(np.split())
+            if pt and pt <= ntokens:
+                return True
+    return False
+
+
+def _pivotal_score(nct):
+    """Fix C pivotal-likelihood signal in {0,1,2,3}. Higher = more pivotal:
+    +2 late-phase (registrational-capable), +1 results posted (completed)."""
+    score = 0
+    if phase_by_nct.get(nct, "") in LATE_PHASES:
+        score += 2
+    if results_posted_by_nct.get(nct, False):
+        score += 1
+    return score
+
+
+# For each topic, find candidate NCTs (consolidated Fix A + B + C + cap 20)
+def find_ncts(drug_patterns, condition_patterns, max_per_topic=20):
+    """Return the top `max_per_topic` candidate NCTs whose interventions match a
+    drug pattern AND whose conditions match a condition pattern (synonym- and
+    normalization-aware, Fix B), dropping explicitly non-interventional studies
+    (Fix A), ranked by pivotal_score then enrollment (Fix C). Deterministic:
+    NCT id is the final tie-break."""
     matches = []
     for nct, intvs in intv_by_nct.items():
         intv_blob = " | ".join(intvs)
-        if not any(p in intv_blob for p in drug_patterns): continue
+        # Fix B: drug synonym-aware, punctuation-normalized (dev-codes/brands).
+        if not _match_blob(drug_patterns, intv_blob, token_subset=False,
+                          synmap=DRUG_SYNS):
+            continue
         cond_blob = " | ".join(cond_by_nct.get(nct, []))
-        if not any(p in cond_blob for p in condition_patterns): continue
+        # Fix B: condition synonym + token-subset (MeSH inversion) + hyphen norm.
+        if not _match_blob(condition_patterns, cond_blob, token_subset=True,
+                          synmap=COND_SYNS):
+            continue
+        # Fix A: drop explicit observational / expanded-access (keep blank/unknown).
+        stype = study_type_by_nct.get(nct, "")
+        if stype and not stype.startswith("interv"):
+            continue
         matches.append(nct)
-        if len(matches) >= max_per_topic: break
-    return matches
+    # Fix C then A: pivotal score first, enrollment within tier, NCT tie-break.
+    matches.sort(key=lambda n: (-_pivotal_score(n), -enroll_by_nct.get(n, 0), n))
+    return matches[:max_per_topic]
 
 
 topic_specs = []
@@ -5411,8 +5516,13 @@ def audit_nct(nct, topic):
     extracted["primary_completion_date"] = aact.get("primary_completion_date", "")
     intv_text = " | ".join(intv_by_nct.get(nct, []))
     cond_text = " | ".join(cond_by_nct.get(nct, []))
-    gates["B_drug_in_intvs"] = any(p in intv_text for p in topic["drug_patterns"])
-    gates["C_condition_in_aact"] = any(p in cond_text for p in topic["condition_patterns"])
+    # Fix B: gates use the SAME synonym/normalization-aware matching as
+    # find_ncts, otherwise a candidate captured via a dev-code / MeSH-inversion
+    # / hyphen-normalized match would be silently dropped again here.
+    gates["B_drug_in_intvs"] = _match_blob(topic["drug_patterns"], intv_text,
+                                           token_subset=False, synmap=DRUG_SYNS)
+    gates["C_condition_in_aact"] = _match_blob(topic["condition_patterns"], cond_text,
+                                               token_subset=True, synmap=COND_SYNS)
     extracted["aact_intvs"] = intv_by_nct.get(nct, [])[:3]
     extracted["aact_conditions"] = sorted(set(cond_by_nct.get(nct, [])))[:3]
     primary_pmid = nct_pmids.get(nct, [None])[0]
