@@ -47,30 +47,62 @@
     return { lo: Math.max(0, center - halfw), hi: Math.min(1, center + halfw) };
   }
 
+  // Generalized Q at tau^2 (w_i = 1/(v_i+tau2)); strictly decreasing in tau^2.
+  // Shared by the Paule-Mandel solver. Ported from vendor/pairwise-pool.js.
+  function genQ(yi, vi, t2) {
+    let sw = 0, swy = 0;
+    for (let i = 0; i < yi.length; i++) { const w = 1 / (vi[i] + t2); sw += w; swy += w * yi[i]; }
+    const mu = swy / sw;
+    let F = 0;
+    for (let i = 0; i < yi.length; i++) F += (yi[i] - mu) * (yi[i] - mu) / (vi[i] + t2);
+    return F;
+  }
+
+  // Paule-Mandel tau^2: solve genQ(tau2) = df by bisection (genQ monotone-
+  // decreasing, root unique when genQ(0) > df). Robust for small k -- unlike
+  // DerSimonian-Laird, which is downward-biased for small k (Veroniki 2016;
+  // Cochrane Handbook v6.5). This is the small-k guard: PM stands in for DL at
+  // every k, matching the vendor/pairwise-pool.js sibling.
+  function tau2PM(yi, vi, df) {
+    if (df < 1 || genQ(yi, vi, 0) <= df) return 0;
+    let lo = 0, hi = 1, guard = 0;
+    while (genQ(yi, vi, hi) > df && guard++ < 200) hi *= 2;
+    for (let it = 0; it < 200; it++) {
+      const mid = 0.5 * (lo + hi);
+      if (genQ(yi, vi, mid) > df) lo = mid; else hi = mid;
+      if (hi - lo < 1e-12) break;
+    }
+    return 0.5 * (lo + hi);
+  }
+
   function logitPool(trials) {
-    // Same as single-arm-proportion.js
+    // Logit-scale random-effects pool. tau^2 by Paule-Mandel (small-k robust),
+    // aligning with vendor/pairwise-pool.js. Was DerSimonian-Laird at any k>=2,
+    // which is downward-biased for small k and narrows the summary CI.
     const points = trials.map(t => {
       let e = t.e, n = t.n;
       if (e === 0 || e === n) { e += 0.5; n += 1; }
       const p = e / n;
       return { yi: Math.log(p / (1 - p)), vi: 1/e + 1/(n - e) };
     });
+    const yiA = points.map(p => p.yi);
+    const viA = points.map(p => p.vi);
+    const df = points.length - 1;
+    // fixed-effect summary (drives Q / I2 display only)
     let W = 0, WY = 0;
     points.forEach(p => { const w = 1/p.vi; W += w; WY += w * p.yi; });
     const yFE = WY / W;
     let Q = 0;
     points.forEach(p => { const w = 1/p.vi; Q += w * Math.pow(p.yi - yFE, 2); });
-    const df = points.length - 1;
-    const sumW2 = points.reduce((s, p) => s + Math.pow(1/p.vi, 2), 0);
-    const c = W - sumW2 / W;
-    const tau2 = Math.max(0, (Q - df) / c);
+    const tau2 = tau2PM(yiA, viA, df);
     let W2 = 0, WY2 = 0;
     points.forEach(p => { const w = 1/(p.vi + tau2); W2 += w; WY2 += w * p.yi; });
     const yRE = WY2 / W2;
     const seRE = Math.sqrt(1/W2);
+    const I2 = (df > 0 && Q > df) ? Math.max(0, 100 * (Q - df) / Q) : 0;
     return {
       yi: yRE, ci_low: yRE - 1.96*seRE, ci_high: yRE + 1.96*seRE,
-      tau2, k: points.length,
+      tau2, Q, I2, k: points.length,
     };
   }
 
@@ -109,7 +141,7 @@
     const sP = invLogit(summary.yi);
     const sLo = invLogit(summary.ci_low), sHi = invLogit(summary.ci_high);
     const xC = nameCol + sP * axCol, xL = nameCol + sLo * axCol, xH = nameCol + sHi * axCol;
-    svg += '<text x="6" y="' + (sumY + 4) + '" fill="#fbbf24" font-size="10.5" font-weight="600">Pooled (DL+RE logit)</text>';
+    svg += '<text x="6" y="' + (sumY + 4) + '" fill="#fbbf24" font-size="10.5" font-weight="600">Pooled (PM+RE logit)</text>';
     svg += '<polygon points="' + xL + ',' + sumY + ' ' + xC + ',' + (sumY-6) + ' ' + xH + ',' + sumY + ' ' + xC + ',' + (sumY+6) + '" fill="#fbbf24" stroke="#0b1220" stroke-width="0.5" />';
     svg += '</svg>';
     return svg;
@@ -129,7 +161,7 @@
     const summaryStr = 'Pooled ' + P.fmt(sP*100, 1) + '% [' + P.fmt(sLo*100, 1) + '–' + P.fmt(sHi*100, 1) + '%] · k=' + summary.k;
     const svg = buildForest(trials, summary);
     const note = '<div style="font-size:10.5px;color:#64748b;margin-top:8px;line-height:1.5;">'
-               + 'Per-trial proportion with Wilson 1927 95% CIs. Summary (gold diamond) is the DerSimonian–Laird random-effects '
+               + 'Per-trial proportion with Wilson 1927 95% CIs. Summary (gold diamond) is the Paule–Mandel random-effects '
                + 'pool on the logit scale, back-transformed. Box area ∝ √n (weight proxy).'
                + '</div>';
     const panel = P.buildCollapsiblePanel({

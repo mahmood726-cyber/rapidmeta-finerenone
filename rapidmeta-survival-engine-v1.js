@@ -530,7 +530,11 @@
         fallback: 'single_study'
       };
     }
-    var pool = poolLogHR(yi, vi, { tau2_method: yi.length >= 5 ? 'reml' : 'dl' });
+    // REML tau^2 at every k>=2 (never DL for small k -- DL is downward-biased and
+    // narrows the interval; Veroniki 2016). Random-effects throughout: the k<5
+    // fallback is a small-k advisory, NOT a fixed-effect pool (the old label said
+    // 'fixed_effect' while still using a random-effects tau^2).
+    var pool = poolLogHR(yi, vi, { tau2_method: 'reml' });
     return {
       k: pool.k, pooled_diff: pool.mu, se: pool.se,
       ci_lo: pool.mu - Z975 * pool.se,
@@ -538,7 +542,7 @@
       tau2: pool.tau2, Q: pool.Q, I2: pool.I2,
       tau_star: tau,
       per_study: per_study,
-      fallback: yi.length < 5 ? 'fixed_effect_k_lt_5' : null
+      fallback: yi.length < 5 ? 'reml_small_k' : null
     };
   }
 
@@ -586,14 +590,16 @@
         });
         continue;
       }
-      var pool = poolLogHR(yi, vi, { tau2_method: yi.length >= 5 ? 'reml' : 'dl' });
+      // REML tau^2 at every k>=2 (never DL for small k); the k<5 fallback is a
+      // small-k random-effects advisory, not a fixed-effect pool.
+      var pool = poolLogHR(yi, vi, { tau2_method: 'reml' });
       out_intervals.push({
         label: t0 + '-' + t1 + 'm', t0: t0, t1: t1,
         HR: Math.exp(pool.mu),
         HR_ci_lo: Math.exp(pool.mu - Z975 * pool.se),
         HR_ci_hi: Math.exp(pool.mu + Z975 * pool.se),
         k: pool.k, tau2: pool.tau2, I2: pool.I2,
-        fallback: pool.k < 5 ? 'fixed_effect_k_lt_5' : null
+        fallback: pool.k < 5 ? 'reml_small_k' : null
       });
     }
     return out_intervals.length > 0 ? { intervals: out_intervals } : null;
