@@ -21,7 +21,10 @@ import sys
 import io
 from pathlib import Path
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+# Force UTF-8 stdout only when run as a script; reassigning sys.stdout at IMPORT
+# time breaks pytest's output capture for any test that imports this module.
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 OUT_DIR = Path(__file__).parent
 RAW = OUT_DIR / "hf_outcomes_raw.json"
@@ -47,13 +50,24 @@ def jaccard(a: set[str], b: set[str]) -> float:
     return len(a & b) / len(a | b)
 
 
-def best_match(target: dict, candidates: list[dict], target_field: str, cand_field: str) -> tuple[int, float]:
-    """Find best-matching candidate by Jaccard token overlap. Returns (idx, score)."""
+def best_match(target: dict, candidates: list[dict], target_field: str,
+               cand_field: str, exclude: set | None = None) -> tuple[int, float]:
+    """Find best-matching candidate by Jaccard token overlap. Returns (idx, score).
+
+    *exclude* is a set of candidate indices already claimed by a previous match;
+    they are skipped so the matching is one-to-one. Without it, two registered
+    primaries with similar/duplicate titles both matched the SAME reported
+    primary, leaving the OTHER reported primary unmatched and falsely flagged as
+    an addition/promotion.
+    """
     target_tokens = tokens(target.get(target_field, ""))
     if not target_tokens:
         return (-1, 0.0)
+    exclude = exclude or set()
     best_idx, best_score = -1, 0.0
     for i, c in enumerate(candidates):
+        if i in exclude:
+            continue
         cand_tokens = tokens(c.get(cand_field, ""))
         s = jaccard(target_tokens, cand_tokens)
         if s > best_score:
@@ -96,7 +110,9 @@ def compute_trial_diff(trial: dict) -> dict:
     # Match each registered primary to a reported primary (silent_drop if no match)
     matched_reported_idx = set()
     for r in rp:
-        idx, score = best_match(r, pp, "measure", "title")
+        # one-to-one: a reported primary already matched cannot be reused
+        idx, score = best_match(r, pp, "measure", "title",
+                                exclude=matched_reported_idx)
         if score >= MATCH_THRESHOLD:
             matched_reported_idx.add(idx)
             # Within matched pair: check timeframe
