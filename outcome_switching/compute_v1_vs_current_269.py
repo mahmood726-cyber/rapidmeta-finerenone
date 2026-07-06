@@ -14,7 +14,26 @@ import sys
 import io
 from pathlib import Path
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+# Force UTF-8 stdout only when run as a script; reassigning sys.stdout at IMPORT
+# time breaks pytest's output capture for any test that imports this module.
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+
+def count_v1_primaries(block: str) -> int:
+    """Count the primary outcomes in a v1 'primary_outcome_block'.
+
+    The block lists each primary as a measure + description + '[Time Frame: ...]'
+    under a 'Primary Outcome Measures' header; a later 'Secondary'/'Other Outcome
+    Measures' header (if the block bleeds into it) delimits the primary section.
+    The number of '[Time Frame:' markers in that primary section is the primary
+    count. Needed because primary_count_change previously ASSUMED v1 had exactly
+    one primary (it only read v1_lines[1]) and flagged every current trial with
+    !=1 primary — a false positive whenever v1 also had that many primaries.
+    """
+    primary_section = re.split(
+        r"\n(?:Secondary|Other)\s+Outcome\s+Measures", block, maxsplit=1)[0]
+    return len(re.findall(r"\[Time Frame:", primary_section))
 
 OUT_DIR = Path(__file__).parent
 V1 = OUT_DIR / "hf_history_v1_198.json"
@@ -109,7 +128,12 @@ def main() -> int:
             flags.append("statistical_framework_change")
         if 0 < title_score < 0.85:
             flags.append("title_rewrite")
-        if len(cur_primaries) != 1 and v1_measure:
+        # Compare the ACTUAL v1 primary count to the current count. The old
+        # test (len(cur_primaries) != 1) assumed v1 had exactly one primary, so
+        # it false-flagged every multi-primary trial (even when v1 had the same
+        # number) and MISSED real reductions to a single primary.
+        v1_primary_count = count_v1_primaries(v1_block)
+        if v1_primary_count and len(cur_primaries) != v1_primary_count:
             flags.append("primary_count_change")
 
         tf_pct = round((cur_tf_months - v1_tf_months) / v1_tf_months * 100, 1) if (v1_tf_months and cur_tf_months) else None

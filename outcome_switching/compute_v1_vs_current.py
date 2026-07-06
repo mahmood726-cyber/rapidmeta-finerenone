@@ -18,7 +18,20 @@ import sys
 import io
 from pathlib import Path
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+# Force UTF-8 stdout only when run as a script; reassigning sys.stdout at IMPORT
+# time breaks pytest's output capture for any test that imports this module.
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+
+def count_v1_primaries(block: str) -> int:
+    """Count primary outcomes in a v1 'primary_outcome_block' (one '[Time Frame:'
+    marker per primary, within the primary section before any Secondary/Other
+    header). primary_count_change previously ASSUMED v1 had exactly one primary
+    and false-flagged every current trial with != 1 primary."""
+    primary_section = re.split(
+        r"\n(?:Secondary|Other)\s+Outcome\s+Measures", block, maxsplit=1)[0]
+    return len(re.findall(r"\[Time Frame:", primary_section))
 
 OUT_DIR = Path(__file__).parent
 V1 = OUT_DIR / "hf_history_v1_full.json"
@@ -142,8 +155,11 @@ def main() -> int:
             flags.append("statistical_framework_change")
         if 0 < title_score < 0.85:
             flags.append("title_rewrite")
-        if len(cur_primaries) != 1 and v1_measure:
-            # v1 typically has a single primary; flag count change
+        # Compare the ACTUAL v1 primary count to the current count (do NOT assume
+        # v1 had a single primary — that false-flagged every multi-primary trial
+        # and missed real reductions to one primary).
+        v1_primary_count = count_v1_primaries(v1_block)
+        if v1_primary_count and len(cur_primaries) != v1_primary_count:
             flags.append("primary_count_change")
 
         rows.append({
