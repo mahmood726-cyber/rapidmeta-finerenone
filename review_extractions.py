@@ -19,7 +19,10 @@ Run: python review_extractions.py [--auto-approve-extracted]
 """
 import sys, io, os, json
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+# Force UTF-8 stdout only when run as a script; reassigning sys.stdout at IMPORT
+# time breaks pytest's output capture for any test that imports this module.
+if __name__ == '__main__':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
 
 PROPOSAL_FILE = 'extraction_proposals.json'
@@ -72,7 +75,10 @@ def print_extraction(p):
     print()
     print(f'  Measure:  {e["measure"]}')
     print(f'  Estimate: {e["estimate"]}  (95% CI {e["lci"]}-{e["uci"]})')
-    if e.get('pValue'):
+    if e.get('pValue') is not None:
+        # `is not None` (not truthiness) so a legitimate p-value of 0.0 — e.g. a
+        # highly significant result reported as p<0.0001 stored as 0.0 — is still
+        # shown rather than silently hidden.
         print(f'  p-value:  {e["pValue"]}')
     if e.get('method'):
         print(f'  Method:   {e["method"]}')
