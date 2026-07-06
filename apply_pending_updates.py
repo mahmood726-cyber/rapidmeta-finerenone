@@ -121,16 +121,31 @@ def update_generator(approved_proposals, dry_run=False):
 
     if not changes:
         print('No matches found in generator.')
-        return False
+        return []
 
     if dry_run:
         print(f'\nDRY RUN: would apply {len(changes)} updates. Re-run without --dry-run.')
-        return False
+        return []
 
     with open(gen_path, 'w', encoding='utf-8') as f:
         f.write(content)
     print(f'\nApplied {len(changes)} updates to {GENERATOR_FILE}')
-    return True
+    # Return the NCTs actually patched so the caller marks ONLY those applied
+    # (a proposal whose NCT was not found / was skipped must NOT be recorded
+    # applied — it stays in 'approved' for attention).
+    return [c['nct'] for c in changes]
+
+
+def _partition_by_applied(approved, applied_ncts):
+    """Split approved proposals into (newly_applied, still_pending) by which
+    NCTs were ACTUALLY patched. main() previously marked ALL approved as
+    'applied' whenever update_generator wrote anything, so a proposal whose NCT
+    was not found in the generator (or was skipped by the estimand guard) was
+    silently recorded as applied and lost."""
+    applied_set = set(applied_ncts)
+    newly_applied = [p for p in approved if p.get('nctId') in applied_set]
+    still_pending = [p for p in approved if p.get('nctId') not in applied_set]
+    return newly_applied, still_pending
 
 
 def main():
@@ -146,16 +161,22 @@ def main():
     print(f'Found {len(approved)} approved proposals.')
     dry_run = '--dry-run' in sys.argv
 
-    success = update_generator(approved, dry_run=dry_run)
+    applied_ncts = update_generator(approved, dry_run=dry_run)
 
-    if success and not dry_run:
-        # Mark approved as applied (move to a different bucket)
-        pending['applied'] = pending.get('applied', []) + approved
-        pending['approved'] = []
+    if applied_ncts and not dry_run:
+        # Mark ONLY the proposals actually patched as applied; keep the rest in
+        # 'approved' so an unmatched/skipped NCT is never silently lost.
+        newly_applied, still_pending = _partition_by_applied(approved, applied_ncts)
+        pending['applied'] = pending.get('applied', []) + newly_applied
+        pending['approved'] = still_pending
         with open(pending_path, 'w', encoding='utf-8') as f:
             json.dump(pending, f, indent=2)
+        if still_pending:
+            print(f'\nWARNING: {len(still_pending)} approved proposal(s) NOT applied '
+                  f'(NCT not found in generator or skipped): '
+                  f'{[p.get("nctId") for p in still_pending]} — left in approved.')
         print(f'\nNext: regenerate the affected apps and re-validate:')
-        for p in approved:
+        for p in newly_applied:
             print(f'  python generate_living_ma_v13.py <APPNAME>  # for {p["nctId"]}')
         print(f'  python validate_living_ma_portfolio.py')
 
