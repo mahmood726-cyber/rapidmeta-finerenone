@@ -16,7 +16,10 @@ import sys
 import io
 from pathlib import Path
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+# Force UTF-8 stdout only when run as a script; reassigning sys.stdout at IMPORT
+# time breaks pytest's output capture for any test that imports this module.
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 OUT_DIR = Path(__file__).parent
 V1 = OUT_DIR / "hf_history_v1_198.json"
@@ -66,6 +69,24 @@ def jaccard(A: set[str], B: set[str]) -> float:
     return len(A & B) / len(A | B)
 
 
+def best_primary_scores(v1_measure, cur_measures):
+    """Best (title_jac, content_jac) of *v1_measure* against ANY current primary,
+    plus the best-content-matching current measure.
+
+    Comparing against the best match (not cur_measures[0]) avoids spurious
+    content-change flags when multi-primary outcomes are merely REORDERED: a v1
+    primary that reappears as current primary #2 must not read as a change just
+    because it no longer sits first.
+    """
+    title_jac = max(jaccard(tokens_raw(v1_measure), tokens_raw(m))
+                    for m in cur_measures)
+    content_jac = max(jaccard(tokens_content(v1_measure), tokens_content(m))
+                      for m in cur_measures)
+    best = max(cur_measures,
+               key=lambda m: jaccard(tokens_content(v1_measure), tokens_content(m)))
+    return title_jac, content_jac, best
+
+
 def main() -> int:
     v1 = json.load(open(V1, "r", encoding="utf-8"))
     cur = json.load(open(CURRENT, "r", encoding="utf-8"))
@@ -81,12 +102,14 @@ def main() -> int:
         v1_lines = [l.strip() for l in v1_block.splitlines() if l.strip()]
         v1_measure = v1_lines[1] if len(v1_lines) > 1 else None
         cur_primaries = c.get("registered_primary", []) or []
-        cur_measure = cur_primaries[0]["measure"] if cur_primaries else None
-        if not v1_measure or not cur_measure:
+        cur_measures = [p.get("measure") for p in cur_primaries if p.get("measure")]
+        if not v1_measure or not cur_measures:
             continue
 
-        title_jac = jaccard(tokens_raw(v1_measure), tokens_raw(cur_measure))
-        content_jac = jaccard(tokens_content(v1_measure), tokens_content(cur_measure))
+        # Match the v1 primary against its BEST current primary, not blindly
+        # against cur_primaries[0] (reordering-robust; see best_primary_scores).
+        title_jac, content_jac, cur_measure = best_primary_scores(
+            v1_measure, cur_measures)
 
         # If both score low, it's a content-change candidate
         is_candidate = content_jac < 0.30 and title_jac < 0.50
