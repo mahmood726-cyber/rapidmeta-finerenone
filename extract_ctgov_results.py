@@ -22,7 +22,10 @@ from urllib.parse import urlencode
 from urllib.request import urlopen, Request
 from urllib.error import URLError, HTTPError
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+# Force UTF-8 stdout only when run as a script; reassigning sys.stdout at IMPORT
+# time breaks pytest's output capture for any test that imports this module.
+if __name__ == '__main__':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
 CT_GOV_API_STUDY = 'https://clinicaltrials.gov/api/v2/studies/'
 USER_AGENT = 'RapidMeta-AutoExtractor/1.0'
@@ -67,6 +70,29 @@ def normalize_param_type(s):
     if not s:
         return None
     return EFFECT_PARAM_MAP.get(s.lower().strip())
+
+
+def _to_int(v, default=0):
+    """Parse an integer COUNT that may carry a thousands separator ('1,807' ->
+    1807) or arrive already numeric. CT.gov count fields occasionally include a
+    comma; a bare int('1,807') raises ValueError and aborts the whole
+    extraction of that trial. Only thousands separators are stripped (counts are
+    integers, so a comma is never a decimal here). Non-numeric -> default.
+    """
+    if v is None or isinstance(v, bool):   # bool is an int subclass; exclude it
+        return default
+    if isinstance(v, (int, float)):
+        return int(v)
+    s = str(v).strip().replace(',', '')
+    if not s:
+        return default
+    try:
+        return int(s)
+    except ValueError:
+        try:
+            return int(float(s))
+        except ValueError:
+            return default
 
 
 def extract_primary_outcome(study):
@@ -145,7 +171,7 @@ def extract_primary_outcome(study):
     denoms = primary.get('denoms', [])
     if denoms:
         denom = denoms[0]  # first denomination block
-        out['n_per_group'] = {c.get('groupId'): int(c.get('value', 0))
+        out['n_per_group'] = {c.get('groupId'): _to_int(c.get('value', 0))
                               for c in denom.get('counts', [])}
 
     # Try to get event counts from class measurements
