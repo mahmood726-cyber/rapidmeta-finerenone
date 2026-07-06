@@ -23,11 +23,26 @@ After applying, run:
 """
 import sys, io, os, json, re
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+# Force UTF-8 stdout only when run as a script; reassigning sys.stdout at IMPORT
+# time breaks pytest's output capture for any test that imports this module.
+if __name__ == '__main__':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
 
 PENDING_FILE = 'pending_config_updates.json'
 GENERATOR_FILE = 'generate_living_ma_v13.py'
+
+
+def _is_hr_measure(measure) -> bool:
+    """True iff *measure* is a hazard ratio (the estimand publishedHR represents).
+
+    publishedHR/hrLCI/hrUCI are HAZARD-RATIO fields; extract_ctgov_results.py
+    also emits RR and OR estimates. Storing an RR/OR in these fields silently
+    mislabels the estimand downstream (it is pooled/displayed as an HR). Only an
+    HR-type measure may be applied. Missing measure defaults to HR (the historic
+    contract) but a present non-HR measure must be rejected.
+    """
+    return str(measure).strip().upper() == 'HR'
 
 
 def load_pending(path):
@@ -55,6 +70,14 @@ def update_generator(approved_proposals, dry_run=False):
         lo = e['lci']
         hi = e['uci']
         measure = e.get('measure', 'HR')
+
+        # Estimand guard: publishedHR/hrLCI/hrUCI are hazard-ratio fields. An
+        # approved RR/OR must NOT be written there (it would be pooled/labelled
+        # as an HR downstream). Skip a non-HR measure rather than corrupt it.
+        if not _is_hr_measure(measure):
+            print(f'  SKIP {nct}: measure is {measure!r}, not HR — refusing to '
+                  f'store a non-HR estimate in publishedHR fields')
+            continue
 
         # Find the publishedHR=None line within the trial's block
         # Pattern: scope-narrowed match for the trial's NCT id followed by null HR fields

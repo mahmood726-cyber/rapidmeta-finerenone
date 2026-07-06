@@ -19,7 +19,10 @@ import urllib.request
 import urllib.parse
 from pathlib import Path
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+# Force UTF-8 stdout only when run as a script; reassigning sys.stdout at IMPORT
+# time breaks pytest's output capture for any test that imports this module.
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 OUT_DIR = Path(__file__).parent
 RAW = OUT_DIR / "hf_outcomes_raw.json"
@@ -114,9 +117,49 @@ def is_primary(meta: dict) -> bool:
     return True
 
 
+_MONTHS = {m: i for i, m in enumerate(
+    ["jan", "feb", "mar", "apr", "may", "jun",
+     "jul", "aug", "sep", "oct", "nov", "dec"], start=1)}
+
+
+def _pubdate_key(meta: dict) -> tuple[int, int, int]:
+    """Sortable (year, month, day) from a PubMed ``pubdate`` string.
+
+    Formats vary ("2022", "2022 Feb", "2022 Feb 28", "2022 Jan-Feb"). Missing
+    fields sort LAST (9999/13/32) so an unparseable/absent date never wins the
+    'earliest primary-results paper' comparison spuriously.
+    """
+    parts = (meta.get("pubdate") or "").strip().split()
+    year, month, day = 9999, 13, 32
+    if parts:
+        try:
+            year = int(parts[0])
+        except ValueError:
+            pass
+    if len(parts) > 1:
+        month = _MONTHS.get(parts[1][:3].lower(), 13)
+    if len(parts) > 2:
+        try:
+            day = int(parts[2])
+        except ValueError:
+            pass
+    return (year, month, day)
+
+
 def pick_primary_publication(meta: list[dict]) -> dict | None:
-    """Score by flagship-journal rank, exclude non-primary types. NO fallback to
-    first result if all filtered — returns None instead."""
+    """Pick the trial's PRIMARY-RESULTS paper. NO fallback to first result if all
+    filtered — returns None instead.
+
+    Selection is by EARLIEST publication date among ``is_primary`` candidates,
+    NOT by journal prestige. The primary-results paper is a trial's first full
+    publication; later secondary analyses (quality-of-life / KCCQ, biomarker,
+    subgroup papers) often appear in equally- or MORE-prestigious journals and
+    pass the pub-type/title filters. Ranking by prestige therefore selected the
+    wrong PMID — e.g. EMPULSE (NCT04157751): the Circulation KCCQ/QoL analysis
+    (rank 3, 2022-04) outranked the actual Nat Med primary-results paper
+    (rank 6, 2022-02). Prestige is kept only as a deterministic same-date
+    tiebreaker.
+    """
     candidates = []
     for m in meta:
         if not is_primary(m):
@@ -125,11 +168,11 @@ def pick_primary_publication(meta: list[dict]) -> dict | None:
             rank = FLAGSHIP_JOURNALS.index(m.get("journal", ""))
         except ValueError:
             rank = 99
-        candidates.append((rank, m))
+        candidates.append((_pubdate_key(m), rank, m))
     if not candidates:
         return None  # primary publication not yet PubMed-indexed
-    candidates.sort(key=lambda x: x[0])
-    return candidates[0][1]
+    candidates.sort(key=lambda x: (x[0], x[1]))  # earliest date, prestige tiebreak
+    return candidates[0][2]
 
 
 def main() -> int:
