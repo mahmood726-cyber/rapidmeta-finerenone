@@ -6089,6 +6089,31 @@ document.addEventListener('keydown', function(e){
 })();
 </script>
 <script src="rapidmeta-auth.js?v=1" defer></script>
+
+<!-- /*RM-OPENDATA-PROVENANCE v1*/ ADDITIVE open-data provenance panel (staged; app content untouched) -->
+<style id="odi-prov-style">.odi-panel{position:fixed;right:14px;bottom:14px;z-index:9991;max-width:min(440px,92vw);font:12px/1.45 -apple-system,Segoe UI,Roboto,sans-serif;color:#0f172a;background:#fff !important;border:1px solid #6366f1;border-radius:10px;box-shadow:0 6px 24px rgba(15,23,42,.18) !important;overflow:hidden}.odi-panel>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:8px 12px;background:#eef2ff !important;user-select:none}.odi-panel>summary::-webkit-details-marker{display:none}.odi-ic{color:#4f46e5;font-size:14px}.odi-title{font-weight:600}.odi-pill{margin-left:auto;background:#4f46e5;color:#fff !important;border-radius:999px;padding:1px 9px;font-size:11px;font-weight:600}.odi-chev{transform:rotate(180deg);transition:.2s;color:#64748b}.odi-panel[open] .odi-chev{transform:rotate(0)}.odi-body{padding:10px 12px;max-height:60vh;overflow:auto}.odi-pool,.odi-tierline{margin:2px 0 6px}.odi-sec{font-weight:600;margin:8px 0 4px;color:#334155}.odi-tbl{width:100%;border-collapse:collapse;font-size:11px}.odi-tbl th{text-align:left;color:#64748b;border-bottom:1px solid #e2e8f0;padding:3px 4px}.odi-tbl td{padding:3px 4px;vertical-align:top;border-bottom:1px solid #f1f5f9}.odi-m{font-weight:600;white-space:nowrap}.odi-q td{border-bottom:1px solid #e2e8f0}.odi-quote{color:#475569;font-style:italic}.odi-tag{border-radius:4px;padding:0 5px;font-size:10px;font-weight:600}.odi-high{background:#dcfce7;color:#166534 !important}.odi-medium{background:#fef9c3;color:#854d0e !important}.odi-low,.odi-deterministic{background:#e2e8f0;color:#334155 !important}.odi-flagged{margin-top:8px;border:1px dashed #f59e0b;border-radius:8px;padding:6px 8px;background:#fffbeb !important}.odi-flag-h{font-weight:600;color:#92400e;font-size:11px;margin-bottom:2px}.odi-flist{margin:0;padding-left:16px}.odi-flist li{margin:2px 0}.odi-tier{border-radius:4px;padding:0 6px;font-weight:600;font-size:11px}.odi-t-certified{background:#dcfce7;color:#166534 !important}.odi-t-fragile{background:#fee2e2;color:#991b1b !important}.odi-t-historicalinsufficient{background:#e2e8f0;color:#334155 !important}.odi-t-unverified{background:#f1f5f9;color:#475569 !important}.odi-correct{margin:2px 0 8px;border:1px solid #6366f1;border-radius:8px;padding:6px 8px;background:#eef2ff !important}.odi-correct-h{font-weight:600;color:#3730a3;font-size:11px;margin-bottom:2px}.odi-correct-b{color:#334155;font-size:11px}.odi-strike{text-decoration:line-through;color:#94a3b8}.odi-none{color:#64748b}.odi-adv{background:#fef3c7;color:#92400e !important;border-radius:4px;padding:0 5px;font-size:10px;font-weight:600}.odi-foot{margin-top:8px;color:#94a3b8;font-size:10px}@media print{.odi-panel{position:static;box-shadow:none !important;page-break-inside:avoid}}</style>
+<details class="odi-panel">
+  <summary>
+    <span class="odi-ic">◈</span>
+    <span class="odi-title">Open-data enrichment</span>
+    <span class="odi-pill">measure corrected → HR</span>
+    <span class="odi-chev">▲</span>
+  </summary>
+  <div class="odi-body">
+    <div class='odi-correct'><div class='odi-correct-h'>Measure correction (native, from open data)</div><div class='odi-correct-b'>The app stores this outcome (<b>MACE</b>) as <span class='odi-strike'>OR 0.67 (0.36 to 1.25)</span> — but the endpoint is naturally a <b>HR</b>, not a <b>OR</b>. Corrected native pool from membrane-verified open data: <b>HR 0.84 (0.72 to 0.97)</b>, k=1 (single-trial). The app's original display is unchanged — this corrected measure is ADDED, not substituted.</div></div>
+    
+    <div class='odi-tierline'>Sufficiency tier (staged recompute): <span class='odi-tier odi-t-historicalinsufficient'>HISTORICAL/INSUFFICIENT</span> · <span class='odi-tier odi-t-historicalinsufficient'>HISTORICAL/INSUFFICIENT</span></div>
+    <div class="odi-sec">Added peer-reviewed poolable evidence (membrane-verified)</div>
+    <table class='odi-tbl'><thead><tr><th>Effect (95% CI)</th><th>Outcome</th><th>Conf.</th><th>Source</th></tr></thead><tbody><tr><td class='odi-m'>HR 0.84 (0.72 to 0.97)</td><td>The Percentage of Patients With the Composite Endpoint of Cardiovascular Death, Myocardial Infarction, or Stroke</td><td><span class='odi-tag odi-deterministic'>deterministic</span></td><td><a href='https://clinicaltrials.gov/study/NCT00809965?tab=table#outcome-measures' target='_blank' rel='noopener'>NCT00809965(results:ctgov_v2; retrieved 2026-07-09)</a></td></tr><tr class='odi-q'><td colspan='4'><span class='odi-quote'>&ldquo;Statistical Analysis: Hazard Ratio (HR) = 0.84, 95% CI 0.72 to 0.97, p=0.020; method: Log Rank; Contrast: Placebo vs Rivaroxaban 2.5 mg Bid&rdquo;</span></td></tr></tbody></table>
+    
+    <div class="odi-foot">
+      Additive &amp; staged: the app's own analysis is unchanged; every number above
+      is verbatim-sourced, drug-relevance-checked and membrane-gated.
+      
+      pool cross-check overmind↔cert Δ=0.00e+00 (agree)
+    </div>
+  </div>
+</details>
 </body>
 
 
