@@ -1,0 +1,29 @@
+{
+  "review_id": "FINERENONE_CKD",
+  "title": "Finerenone in chronic kidney disease and type 2 diabetes: a living meta-analysis of cardiovascular and kidney outcomes",
+  "pico": {
+    "population": "Adults with type 2 diabetes and chronic kidney disease (albuminuria)",
+    "intervention": "Finerenone (nonsteroidal mineralocorticoid receptor antagonist)",
+    "comparator": "Placebo on standard of care (RAS blockade)",
+    "outcomes": [
+      "Primary: composite of CV death, nonfatal MI, nonfatal stroke, or hospitalization for heart failure",
+      "Secondary: kidney composite (kidney failure, >=40% eGFR decline, renal death)",
+      "Secondary: all-cause mortality"
+    ]
+  },
+  "eligibility": {
+    "inclusion": ["RCT", "type 2 diabetes with CKD", ">=100 participants", "finerenone vs placebo"],
+    "exclusion": ["single-arm", "non-randomized", "steroidal MRA comparator"]
+  },
+  "primary_outcome": "Composite of CV death, nonfatal MI, nonfatal stroke, or hospitalization for heart failure",
+  "planned_analysis": {
+    "model": "random-effects (REML) with Hartung-Knapp",
+    "effect_measure": "RR",
+    "subgroups": ["baseline eGFR", "albuminuria category"]
+  },
+  "search": {
+    "databases": ["ClinicalTrials.gov / ICTRP", "Europe PMC open access"],
+    "date_run": null,
+    "strategy": "finerenone AND (chronic kidney disease OR diabetic nephropathy) — registry frame then OA full text"
+  }
+}
