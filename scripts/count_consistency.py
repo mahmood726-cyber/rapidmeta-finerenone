@@ -31,14 +31,24 @@ def _num(x):
 
 
 def implied_rr(tE, tN, cE, cN):
-    """Empirical risk ratio (tE/tN)/(cE/cN); None if not computable."""
+    """Empirical risk ratio (tE/tN)/(cE/cN); None if not computable.
+
+    A zero event cell is NOT a reason to give up on DIRECTION (that let a
+    contradicting zero-cell trial slip the gate — cross-vendor objection
+    2026-07-12). When exactly one arm has zero events we apply a Haldane-Anscombe
+    0.5 continuity correction so the direction is still assessable; genuine
+    double-zero (no events either arm) stays None (no direction)."""
     tE, tN, cE, cN = _num(tE), _num(tN), _num(cE), _num(cN)
     if None in (tE, tN, cE, cN):
         return None
-    if tN <= 0 or cN <= 0 or cE <= 0 or tE <= 0:
+    if tN <= 0 or cN <= 0:
         return None
-    if tE > tN or cE > cN:
+    if tE > tN or cE > cN or tE < 0 or cE < 0:
         return None
+    if tE == 0 and cE == 0:
+        return None
+    if tE == 0 or cE == 0:
+        return ((tE + 0.5) / (tN + 1)) / ((cE + 0.5) / (cN + 1))
     return (tE / tN) / (cE / cN)
 
 
