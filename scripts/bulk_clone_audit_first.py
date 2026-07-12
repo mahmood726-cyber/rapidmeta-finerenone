@@ -460,6 +460,18 @@ def main():
                         reason = (f"count/effect contradiction x{len(_viol)} "
                                   f"(e.g. {_viol[0]['nct']} impliedRR={_viol[0]['impliedRR']} "
                                   f"vs effect {_viol[0]['effect']})")
+                    else:
+                        # ADVISORY (non-blocking): commensurability / measure
+                        # provenance smells (surrogate-pooled, mixed-estimand,
+                        # additive ratio CI). Logged for review, does not quarantine.
+                        try:
+                            import commensurability_gate as _cg
+                            _adv = _cg.check_file(str(out_html))
+                            if _adv:
+                                print(f"  ADVISORY {stem}: commensurability x{len(_adv)} "
+                                      f"({','.join(sorted(set(a[2] for a in _adv)))})")
+                        except Exception:
+                            pass
 
         if reason:
             qfail += 1
