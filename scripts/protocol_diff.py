@@ -70,6 +70,21 @@ def analysis_as_run(app_path):
     return out
 
 
+def _group_labels(app_path):
+    """Return the trial name/group label strings from the app (for PICO checks)."""
+    txt = open(app_path, encoding='utf-8', errors='replace').read()
+    m = re.search(r'realData\s*:\s*\{', txt)
+    if not m:
+        return []
+    out = []
+    for key, o in _top_entries(_objbody(txt, m.end()-1)):
+        for k in ('name', 'group'):
+            v = _sval(o, k)
+            if v:
+                out.append(v)
+    return out
+
+
 def diff(protocol_path, app_path):
     proto = json.load(open(protocol_path, encoding='utf-8'))
     run = analysis_as_run(app_path)
@@ -88,11 +103,30 @@ def diff(protocol_path, app_path):
                          'detail': ('registered primary was DEMOTED to a secondary in the run analysis'
                                     if demoted else
                                     'the registered primary outcome does not appear among the analysed primary outcomes')})
+    # 1b. underspecified primary — a vague/short primary ("clinical efficacy")
+    # matches almost anything and can never "drift" (Codex 2026-07-12). Token
+    # overlap is not an outcome ontology; flag vagueness so it can't be gamed.
+    if reg_primary and len(_tokens(reg_primary)) < 3:
+        findings.append({'code': 'underspecified_primary', 'severity': 'MEDIUM',
+                         'registered': reg_primary,
+                         'detail': 'registered primary outcome is too vague to be a real pre-commitment '
+                                   '(<3 content tokens) — it will match almost any run outcome'})
     # 2. effect-measure change
     if reg_measure and run['measures'] and reg_measure not in run['measures']:
         findings.append({'code': 'effect_measure_change', 'severity': 'MEDIUM',
                          'registered': reg_measure, 'run': sorted(run['measures']),
                          'detail': 'planned effect measure not among those used'})
+    # 2b. comparator drift — the registered comparator should be discernible in
+    # the app's trial group labels; if none of its content tokens appear, the
+    # comparator may have changed (partial PICO-drift check).
+    comp = (proto.get('pico') or {}).get('comparator', '')
+    comp_tokens = _tokens(comp) - {'placebo', 'standard', 'care', 'usual', 'active'}
+    if comp_tokens:
+        groups_blob = _norm(' '.join(_group_labels(app_path)))
+        if not any(t in groups_blob for t in comp_tokens):
+            findings.append({'code': 'comparator_drift', 'severity': 'LOW',
+                             'registered_comparator': comp,
+                             'detail': 'registered comparator not evident in any trial group label — verify PICO'})
     # 3. registration status (was the protocol locked before the run?)
     lockpath = os.path.join(os.path.dirname(protocol_path), proto.get('review_id', '') + '.LOCK.json')
     lock = json.load(open(lockpath, encoding='utf-8')) if os.path.exists(lockpath) else None

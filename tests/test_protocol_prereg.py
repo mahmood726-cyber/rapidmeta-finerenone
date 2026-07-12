@@ -65,6 +65,26 @@ def test_diff_concordant_on_matching_primary(tmp_path):
     assert not any(f['code'] == 'primary_outcome_switch' for f in d['findings'])
 
 
+def test_underspecified_primary_flagged(tmp_path):
+    # a vague primary ("clinical efficacy") must be flagged as ungameable-drift
+    app = tmp_path / "APP4_REVIEW.html"
+    app.write_text('<html><script>const a={realData:{"NCT1":{name:"T",'
+                   'allOutcomes:[{title:"Overall survival (primary)",type:"PRIMARY",'
+                   'estimandType:"HR"}]}}};</script></html>', encoding='utf-8')
+    vague = dict(GOOD); vague['primary_outcome'] = "clinical efficacy"
+    p = tmp_path / "TEST_RV.json"
+    p.write_text(json.dumps(vague), encoding='utf-8')
+    pre.lock(str(p), now_utc="2026-07-12T00:00:00Z")
+    d = pdiff.diff(str(p), str(app))
+    assert any(f['code'] == 'underspecified_primary' for f in d['findings'])
+
+def test_committed_before_search_requires_head_content(tmp_path):
+    # a protocol outside the repo (or not at HEAD) must NOT be marked committed
+    p = tmp_path / "TEST_RV.json"
+    p.write_text(json.dumps(GOOD), encoding='utf-8')
+    r = pre.lock(str(p), now_utc="2026-07-12T00:00:00Z")
+    assert r['lock']['committed_before_search'] is False
+
 def test_badge_injects_idempotently(tmp_path):
     app = tmp_path / "APP3_REVIEW.html"
     app.write_text('<html><body><h1>x</h1></body></html>', encoding='utf-8')

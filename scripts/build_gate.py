@@ -72,26 +72,54 @@ def _nonpositive_ratio(path):
     return out
 
 
-HARD_CODES = {'direction', 'coverage', 'additive_ratio_ci', 'nonpositive_ratio',
-              'year_contradicts_pubmed'}
+def _magnitude_findings(path):
+    """Split counts-vs-effect magnitude gaps into HARD (internally inconsistent —
+    the displayed effect and the counts cannot both be right) and WARN (a large
+    but explicable OR/RR/HR divergence). HARD when the effect is ~null but the
+    counts imply a strong effect (the neutral-band contradiction Codex flagged),
+    or when the fold-gap is beyond any legitimate OR/RR/HR difference (>=10x)."""
+    txt = open(path, encoding='utf-8', errors='replace').read()
+    m = re.search(r'realData\s*:\s*\{', txt)
+    if not m: return [], []
+    body = ceg._objbody(txt, m.end()-1); fn = os.path.basename(path)
+    hard, warn = [], []
+    for key, o in ceg._top_entries(body):
+        tE, tN, cE, cN = ceg._num(o,'tE'), ceg._num(o,'tN'), ceg._num(o,'cE'), ceg._num(o,'cN')
+        eff = ceg._num(o, 'publishedHR')
+        if None in (tE, tN, cE, cN, eff) or eff <= 0: continue
+        rr = cc.implied_rr(tE, tN, cE, cN)
+        if rr is None or rr <= 0: continue
+        fold = max(rr/eff, eff/rr)
+        eff_neutral = 0.90 <= eff <= 1.11
+        counts_strong = rr >= 1.5 or rr <= 0.67
+        if (eff_neutral and counts_strong) or fold >= 10.0:
+            hard.append((fn, key, 'magnitude_extreme',
+                         f'counts imply {rr:.2f} but displayed effect is {eff} '
+                         f'({fold:.1f}x gap; effect ~null while counts strong)' if eff_neutral
+                         else f'counts imply {rr:.2f} but displayed effect is {eff} ({fold:.1f}x gap)'))
+        elif fold >= 5.0:
+            warn.append((fn, key, 'magnitude_divergence',
+                         f'counts imply {rr:.2f} but displayed effect is {eff} ({fold:.1f}x gap)'))
+    return hard, warn
 
 
 def gate_file(path):
     hard, warn = [], []
-    # direction + coverage (from the count gate)
+    # direction + coverage (from the count gate) — HARD, internal-consistency only
     for v in ceg.check_file(path):
         code = 'coverage' if v.get('measure') == 'COVERAGE' else 'direction'
         hard.append((v['file'], v['nct'], code,
                      v.get('coverage_failure') or f"counts imply {v['impliedRR']} vs effect {v['effect']}"))
-    # additive-ratio-CI (objective, from commensurability check_file)
+    hard += _nonpositive_ratio(path)        # a ratio <=0 is impossible -> HARD
+    mh, mw = _magnitude_findings(path)
+    hard += mh; warn += mw
+    # additive_ratio_ci + year are NOT false-positive-free (a legit rounded ratio
+    # CI can look additive; `year` semantics vary trial/completion/epub/print) ->
+    # WARN, not HARD, to keep the HARD set genuinely blockable (Codex 2026-07-12).
     for f in comg.check_file(path):
-        if f[2] == 'additive_ratio_ci':
-            hard.append(f)
-        elif f[2] in ('surrogate_pooled', 'mixed_estimand_pool'):
+        if f[2] in ('additive_ratio_ci', 'surrogate_pooled', 'mixed_estimand_pool'):
             warn.append(f)
-    hard += _nonpositive_ratio(path)
-    hard += _year_findings(path)
-    warn += comg.check_magnitude(path)
+    warn += _year_findings(path)
     return hard, warn
 
 

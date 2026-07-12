@@ -97,12 +97,14 @@ def _top_entries(body):
             i = _skip_value(body, j)
 
 def _num(o, k):
-    m = re.search(r'(?<![A-Za-z_])'+k+r':\s*(-?\d+\.?\d*|null)', o)
+    # match both unquoted (tE:4) and quoted ("tE":4 / 'tE':4) JS/JSON keys so a
+    # formatter change can't silently bypass the checks (cross-vendor 2026-07-12)
+    m = re.search(r'''(?<![A-Za-z_])["']?''' + k + r'''["']?\s*:\s*(-?\d+\.?\d*|null)''', o)
     if not m: return None
     return None if m.group(1) == 'null' else float(m.group(1))
 
 def _sval(o, k):
-    m = re.search(k+r'''\s*:\s*(?:"([^"]*)"|'([^']*)')''', o)
+    m = re.search(r'''(?<![A-Za-z_])["']?''' + k + r'''["']?\s*:\s*(?:"([^"]*)"|'([^']*)')''', o)
     if not m: return None
     return m.group(1) if m.group(1) is not None else m.group(2)
 

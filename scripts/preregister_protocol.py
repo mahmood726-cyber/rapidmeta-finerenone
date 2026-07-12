@@ -66,16 +66,28 @@ def lock(path, now_utc=None):
     if errs:
         return {'ok': False, 'errors': errs}
     sha = _sha256_canonical(doc)
-    # git status of the protocol file: is it committed? (guard cross-drive relpath
-    # on Windows — a protocol outside the repo drive is simply "not committed here")
-    tracked = ''
+    # Is the CURRENT protocol content actually committed at HEAD? `git ls-files`
+    # only proves the path is tracked — a tracked file can be edited after the
+    # results and still look "committed". So we compare the working-copy content
+    # hash to the HEAD blob's content hash (Codex objection 2026-07-12).
+    committed = False
     top = _git('rev-parse', '--show-toplevel')
+    rel = None
     try:
         rel = os.path.relpath(path, top) if top else path
-        if not rel.startswith('..'):
-            tracked = _git('ls-files', '--error-unmatch', rel)
+        if rel.startswith('..'):
+            rel = None
     except ValueError:
-        tracked = ''
+        rel = None
+    if rel:
+        rel_posix = rel.replace(os.sep, '/')
+        head_content = _git('show', f'HEAD:{rel_posix}')
+        if head_content:
+            try:
+                head_doc = json.loads(head_content)
+                committed = (_sha256_canonical(head_doc) == sha)
+            except Exception:
+                committed = False
     head = _git('rev-parse', 'HEAD') or 'UNCOMMITTED'
     now = now_utc or datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
     lockdoc = {
@@ -84,7 +96,7 @@ def lock(path, now_utc=None):
         'protocol_sha256': sha,
         'git_commit_at_lock': head,
         'locked_utc': now,
-        'committed_before_search': bool(tracked),
+        'committed_before_search': committed,   # current content IS at HEAD, not merely tracked
         'external_anchor': None,   # fill with Zenodo DOI / OpenTimestamps proof
         'note': ('Commit protocol/<REVIEW>.json to git BEFORE running the search. '
                  'The commit hash + timestamp is the registration; anchor it '

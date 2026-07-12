@@ -1,0 +1,49 @@
+**Mechanism 1**
+Strongest objection: the HARD/WARN split lets a known wrong-number class ship. `magnitude_divergence` explicitly catches cases where displayed counts imply one ratio and the displayed effect is >=5x away, including percentage-as-count and neutral-band failures, but [build_gate.py](F:/rapidmeta-finerenone/scripts/build_gate.py:94) only logs it as WARN and [build_gate.py](F:/rapidmeta-finerenone/scripts/build_gate.py:118) blocks on WARN only with `--warn-as-error`. That means an app can say, for example, arm counts imply RR 6.0 while the plotted/displayed ratio is HR 1.05, and the mandatory gate still exits 0. For an output-layer app, that is not “incomplete”; it is an internally inconsistent displayed result.
+
+Other objections:
+
+- Trivial parser bypass: field extraction only matches unquoted JS keys like `tE:` and `publishedHR:`. Valid JSON keys like `"tE": 4` are not parsed by `_num()` / `_sval()` in [assert_count_effect_consistency.py](F:/rapidmeta-finerenone/scripts/assert_count_effect_consistency.py:99), so entries parse but the hard checks silently skip the fields. A formatter change can bypass direction, year, nonpositive-ratio, and additive-CI checks without removing `realData`.
+
+- `realData` absence is a clean pass. [assert_count_effect_consistency.py](F:/rapidmeta-finerenone/scripts/assert_count_effect_consistency.py:114) returns `[]` if it cannot find `realData\s*:\s*\{`. Moving data to another variable, embedding JSON as a string, or hydrating from another inline block bypasses the gate unless another contract requires that exact shape.
+
+- `additive_ratio_ci` is not false-positive-free. Rounded legitimate ratios can display additive-looking intervals, e.g. `RR 2.0 [1.0, 3.0]`, and exact/profile/bootstrapped ratio intervals are not guaranteed to be log-symmetric. Treating additive symmetry as “impossible for a real ratio” is too strong for a HARD block.
+
+- `year_contradicts_pubmed` can block legitimate apps if the app’s `year` means trial year, completion year, conference year, first online year, or print year while PubMed cache stores another publication year. The >=2-year tolerance reduces noise but does not make it objective unless the field semantics are locked to PubMed publication year.
+
+- Unit tests prove crafted failures can block; they do not prove the corpus has no wrong numbers. They test one contradiction, one year mismatch, one additive-CI fixture, and one clean app in [test_count_effect_consistency.py](F:/rapidmeta-finerenone/tests/test_count_effect_consistency.py:93). They do not test parser-format bypass, quoted JSON keys, moved data, or same-direction magnitude errors.
+
+**Mechanism 2**
+Strongest objection: this is not anti-backdating without an external anchor. It is only a self-asserted content hash plus a self-asserted git history. A reviewer can run the analysis, edit `protocol.json` to match the result, lock it, commit it with backdated author/committer dates or rewritten history, and `--check` still passes because [preregister_protocol.py](F:/rapidmeta-finerenone/scripts/preregister_protocol.py:98) only rehashes the current protocol against the lock. There is no neutral timestamp.
+
+Worse: the implementation does not even prove the locked protocol content is in the recorded commit. `committed_before_search` is set by `git ls-files` in [preregister_protocol.py](F:/rapidmeta-finerenone/scripts/preregister_protocol.py:71), which only proves the path is tracked, not that the current modified content is committed at `HEAD`. A tracked `protocol.json` can be edited after results, locked, and marked `committed_before_search: true`.
+
+Other objections:
+
+- Re-lock attack is trivial. Edit protocol to match the app, run `preregister_protocol.py`, commit the new lock. The diff then compares the app against the post-hoc protocol and can report `CONCORDANT`.
+
+- The diff is staged and non-blocking by design. [protocol_diff.py](F:/rapidmeta-finerenone/scripts/protocol_diff.py:2) says staged, and [protocol_diff.py](F:/rapidmeta-finerenone/scripts/protocol_diff.py:11) says it flags for human review and does not auto-fail.
+
+- Outcome matching is gameable because it uses `shared / min(token counts) >= 0.6` in [protocol_diff.py](F:/rapidmeta-finerenone/scripts/protocol_diff.py:43). Registered primary `"mortality"` will match `"cardiovascular mortality at 30 days"` with score 1.0. `"hospitalization"` can match `"heart failure hospitalization"`. A vague short protocol wins by being underspecified.
+
+- The matcher can also miss real distinctions: all-cause mortality vs cardiovascular mortality, any hospitalization vs HF hospitalization, 30-day vs 12-month outcomes, safety vs efficacy composites. Token overlap is not an outcome ontology.
+
+- PICO/search drift is mostly not checked. The protocol requires `pico` and `search`, but [protocol_diff.py](F:/rapidmeta-finerenone/scripts/protocol_diff.py:73) only checks primary outcome, effect measure, and lock status. A reviewer can widen eligibility, change databases, change date limits, or alter comparators without a drift finding.
+
+- Nothing prevents vague/all-encompassing protocols. Validation in [preregister_protocol.py](F:/rapidmeta-finerenone/scripts/preregister_protocol.py:39) only checks non-empty fields. `"primary_outcome": "clinical efficacy"`, broad PICO outcomes, or omnibus eligibility can be “registered” and later match almost anything.
+tokens used
+67,987
+**Mechanism 1**
+Strongest objection: the HARD/WARN split lets a known wrong-number class ship. `magnitude_divergence` explicitly catches cases where displayed counts imply one ratio and the displayed effect is >=5x away, including percentage-as-count and neutral-band failures, but [build_gate.py](F:/rapidmeta-finerenone/scripts/build_gate.py:94) only logs it as WARN and [build_gate.py](F:/rapidmeta-finerenone/scripts/build_gate.py:118) blocks on WARN only with `--warn-as-error`. That means an app can say, for example, arm counts imply RR 6.0 while the plotted/displayed ratio is HR 1.05, and the mandatory gate still exits 0. For an output-layer app, that is not “incomplete”; it is an internally inconsistent displayed result.
+
+Other objections:
+
+- Trivial parser bypass: field extraction only matches unquoted JS keys like `tE:` and `publishedHR:`. Valid JSON keys like `"tE": 4` are not parsed by `_num()` / `_sval()` in [assert_count_effect_consistency.py](F:/rapidmeta-finerenone/scripts/assert_count_effect_consistency.py:99), so entries parse but the hard checks silently skip the fields. A formatter change can bypass direction, year, nonpositive-ratio, and additive-CI checks without removing `realData`.
+
+- `realData` absence is a clean pass. [assert_count_effect_consistency.py](F:/rapidmeta-finerenone/scripts/assert_count_effect_consistency.py:114) returns `[]` if it cannot find `realData\s*:\s*\{`. Moving data to another variable, embedding JSON as a string, or hydrating from another inline block bypasses the gate unless another contract requires that exact shape.
+
+- `additive_ratio_ci` is not false-positive-free. Rounded legitimate ratios can display additive-looking intervals, e.g. `RR 2.0 [1.0, 3.0]`, and exact/profile/bootstrapped ratio intervals are not guaranteed to be log-symmetric. Treating additive symmetry as “impossible for a real ratio” is too strong for a HARD block.
+
+- `year_contradicts_pubmed` can block legitimate apps if the app’s `year` means trial year, completion year, conference year, first online year, or print year while PubMed cache stores another publication year. The >=2-year tolerance reduces noise but does not make it objective unless the field semantics are locked to PubMed publication year.
+
+- Unit tests prove crafted failures can block; they do not prove the corpus has no wrong numbers. They test one contradiction, one year mismatch, one additive-CI fixture, and one clean app in [test_count_effect_consistency.py](F:/rapidmeta-finerenone/tests/test_count_effect_consistency.py:93). They do not test p
