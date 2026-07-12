@@ -1,0 +1,49 @@
+Here is the row-by-row audit of the dashboard data, followed by the overall verdict on the systematic problem.
+
+### Row-by-Row Audit
+
+**1. BARICITINIB / BRAVE-AA2**
+*   **Displayed counts:** Treatment 4/173 (2.3%), Placebo 19/174 (10.9%)
+*   **What is wrong:** The displayed counts imply the treatment is significantly *worse* than placebo (implied OR ~ 0.19). This mathematically contradicts the displayed OR of 7.86, which suggests a massive benefit. Clinically, baricitinib is highly effective for alopecia areata, meaning the treatment group should have more responders. The dashboard has likely swapped the treatment and placebo counts.
+
+**2. CANAGLIFLOZIN / CREDENCE**
+*   **Displayed counts:** Treatment 35/2199 (1.59%), Placebo 29/2202 (1.31%)
+*   **What is wrong:** The primary outcome here (renal/CV events) is a bad event. The counts show a higher event rate in the treatment arm (implied Relative Risk ~ 1.21), implying the drug is harmful. This contradicts the displayed HR of 0.70, which implies a 30% risk reduction. Given the known success of the CREDENCE trial, the dashboard has swapped the arm counts.
+
+**3. CAPLACIZUMAB / HERCULES**
+*   **Displayed counts:** Treatment 9/72 (12.5%), Comparator 36/73 (49.3%)
+*   **What is wrong:** Platelet response is a good event. The counts show a much lower response rate in the treatment arm (implied RR ~ 0.25). This contradicts the displayed HR of 1.55, which implies the treatment yields a faster/higher response rate. The counts are swapped.
+
+**4. BIMEKIZUMAB / BE READY**
+*   **Displayed counts:** Treatment 14/86 (16.2%), Comparator 318/349 (91.1%)
+*   **What is wrong:** Bimekizumab is profoundly effective at clearing psoriasis. The 91.1% response rate belongs to the active treatment, while the 16.2% rate belongs to the placebo. By displaying the reverse, the implied OR is ~ 0.019, which wildly contradicts the displayed OR of 496.3. The arm counts are completely swapped.
+
+**5. CYTISINICLINE / ORCA-2**
+*   **Displayed counts:** Treatment 12/271 (4.4%), Comparator 68/269 (25.2%)
+*   **What is wrong:** Abstinence is a positive outcome. The counts show a much lower abstinence rate for the treatment arm (implied OR ~ 0.14), directly contradicting the displayed OR of 8.0. Cytisinicline is effective; the dashboard has swapped the counts.
+
+**6. LESINURAD / LIGHT**
+*   **Displayed counts:** Treatment 32/107 (29.9%), Comparator 2/107 (1.8%)
+*   **What is wrong:** Reaching the serum urate target is a positive outcome. The counts show treatment is vastly superior (implied RR = 16.0), which accurately reflects the real trial data. However, the *displayed effect* is RR 0.28. For a positive outcome, an RR < 1 implies the treatment is worse. Here, the counts are in the correct columns, but the summary effect ratio has been erroneously inverted.
+
+**7. DONANEMAB (NCT05108922)**
+*   **Displayed counts:** Treatment 3/69 (4.3%), Comparator 27/71 (38.0%)
+*   **What is wrong:** Donanemab achieves profound amyloid clearance compared to placebo. The counts show a near-zero clearance rate for the treatment (implied OR ~ 0.07), mathematically contradicting the displayed OR of 29.26. The counts are swapped.
+
+**8. ELAGOLIX / (NCT02654054)**
+*   **Displayed counts:** Treatment 9/102 (8.8%), Comparator 87/104 (83.6%)
+*   **What is wrong:** Elagolix heavily reduces menstrual bleeding. The counts display a terrible response rate for the drug (implied OR ~ 0.019), contradicting the massive displayed OR of 56.79. The counts are swapped.
+
+***
+
+### Overall Verdict
+
+Yes, there is a severe, 100% systematic problem with the dashboard's data integrity. 
+
+**The pattern:** In every single row, the arm counts and the summary effect measure point in **mathematically opposite directions relative to the null (1.0).** 
+
+*   When the displayed effect shows a benefit $> 1$ (Rows 1, 3, 4, 5, 7, 8), the raw counts show fewer positive events in the treatment group (yielding an implied effect $< 1$).
+*   When the displayed effect shows a benefit $< 1$ (Row 2, negative outcome), the raw counts show more negative events in the treatment group (yielding an implied effect $> 1$).
+*   When the raw counts show a benefit $> 1$ (Row 6, positive outcome with implied RR 16.0), the displayed effect shows a value $< 1$ (RR 0.28).
+
+**Conclusion:** The dashboard is systematically divorcing the summary statistics from the raw data. For seven of the eight trials, the dashboard is rendering the `Comparator` counts under the `Treatment` header (and vice versa) while keeping the effect estimate correct. In the single case where the counts are assigned to the correct arms (Lesinurad), the dashboard inverted the effect estimate instead. As a result, the displayed counts mathematically contradict the displayed effect size 100% of the time.

@@ -1,0 +1,37 @@
+**1. STRONGEST OBJECTION: The re-derivation algorithm (Point A) completely destroys data independence by "p-hacking" the extraction to cover up errors.**
+
+By actively searching CT.gov for *any* outcome and *any* arm orientation that reproduces the previously extracted `displayed effect`, you have guaranteed that if the displayed effect is wrong, the system will actively fabricate "matching" counts to hide the error. 
+
+If an extractor originally entered an OR backwards (e.g., entered 2.0 instead of 0.5), the old system at least exposed this via the contradiction. Your new algorithm will see the 2.0, find the correct data, **swap the treatment and placebo arms** so the recomputed OR matches the erroneous 2.0, and present the swapped counts to the user. A human reviewing the app will see perfectly aligned counts and effects, falsely concluding the data is verified. You have automated the laundering of extraction errors. Counts are no longer an independent verification layer; they are mathematically coerced to agree with the effect, rendering the display dangerously misleading.
+
+***
+
+**2. The "Neutral Band" Loophole (Point C) silently passes extreme contradictions.**
+
+Your invariant logic is fatally flawed: `consistent(...) = False iff side(implied_rr) and side(effect) are both nonzero and opposite`. Because of the `both nonzero` requirement, any trial whose displayed effect falls in the neutral band (`side = 0`) is immune to contradiction checking.
+
+*   **Constructed Case:** A trial's displayed effect is incorrectly extracted as **RR 1.10** (slightly harmful/null, `side = 0`). The raw counts are 5/100 (Treatment) vs 50/100 (Control), an implied **RR of 0.10** (highly protective, `side = -1`). 
+*   **Result:** `side(effect)` is 0. They are not *both* nonzero. The gate returns `None` or `True` (not `False`) and the gate PASSES. You will publish a trial claiming a null effect alongside a table showing a 90% absolute risk reduction, and your gate will completely ignore it.
+
+**3. The direction-only gate ignores massive magnitude distortions (Point D).**
+
+A direction-only gate allows extreme absolute-count distortions to pass as long as the ratio stays on the same side of 1.0. Given the root cause of extracting percentages as counts (e.g., 17.3% becoming "17 events"), consider a trial with a 50% vs 20% event rate in arms of N=1000.
+
+*   **Reality:** 500/1000 vs 200/1000 (OR = 4.0).
+*   **Bug extraction:** 50/1000 vs 20/1000 (OR = 2.57).
+*   **Result:** Both implied and displayed OR > 1.15. The gate passes.
+
+You are publishing a 10x undercount of actual events. For a living meta-analysis, absolute counts are often summed or meta-analyzed elsewhere. Publishing a count of 50 when the reality is 500 destroys the weighting, event-rate baseline, and variance estimates of any downstream analysis that relies on the count table.
+
+**4. Reconstructing events guarantees ITT vs. Per-Protocol denominator mismatch (Point E).**
+
+Multiplying an outcome-specific percentage by the top-level `COUNT_OF_PARTICIPANTS` is epidemiologically invalid. `COUNT_OF_PARTICIPANTS` is the randomized (ITT) population. Outcome percentages in CT.gov are calculated against the *number of participants analyzed for that specific outcome* (which excludes dropouts, loss-to-follow-up, or protocol violators).
+
+*   **Case:** 1000 patients randomized (`COUNT_OF_PARTICIPANTS`). 800 analyzed for the primary outcome. 200 events (25%).
+*   **Your algorithm:** 25% * 1000 = 250 events.
+
+You have hallucinated 50 phantom events. If the dropout rate is high enough, this mathematical hallucination will push the recomputed ratio outside your 12% tolerance, causing the algorithm to spuriously fail and BLANK a perfectly valid trial.
+
+**5. Blanking HR trials hides sample size and signals false precision (Point B).**
+
+While you cannot apply a naive `(tE/tN)/(cE/cN)` ratio check to an HR, blanking the cells entirely is an overcorrection that harms the app's utility. The denominator (N) is absolute, and total events (numerator) are usually known even if person-years aren't. By blanking the counts but keeping the HR, you present the effect in a vacuum, masking whether the HR of 0.70 comes from a trial of 10 people or 10,000. A meta-analysis app must show the weight/size of the trial visually. Exempt HRs from the strict `implied_rr` mathematical invariant, but do not delete their foundational count data from the UI.

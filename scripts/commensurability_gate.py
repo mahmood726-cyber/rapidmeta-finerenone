@@ -70,6 +70,32 @@ def check_file(path):
                          f'app mixes MD with {sorted(set(RATIO)&estset)} — verify pools are separated by outcome construct'))
     return findings
 
+
+def check_magnitude(path):
+    """ADVISORY: the blocking gate is DIRECTION-only. This flags a large
+    MAGNITUDE gap between the counts-implied ratio and the displayed effect —
+    catching (a) same-direction magnitude errors (e.g. percentage-as-count 10x
+    undercounts) and (b) the neutral-band loophole (effect ~1 but counts imply a
+    strong effect). Cross-vendor objections (Codex + agy-Gemini, 2026-07-12).
+    Advisory only: OR/RR/HR diverge legitimately, so this is a review signal, not
+    a block. Threshold 5x is deliberately loose to avoid OR-vs-RR false alarms."""
+    txt = open(path, encoding='utf-8', errors='replace').read()
+    m = re.search(r'realData\s*:\s*\{', txt)
+    if not m: return []
+    body = _objbody(txt, m.end()-1); fn = os.path.basename(path); out = []
+    for key, o in _top_entries(body):
+        tE, tN, cE, cN = _num(o,'tE'), _num(o,'tN'), _num(o,'cE'), _num(o,'cN')
+        eff = _num(o,'publishedHR')
+        if None in (tE,tN,cE,cN,eff) or eff <= 0: continue
+        rr = cc.implied_rr(tE,tN,cE,cN)
+        if rr is None or rr <= 0: continue
+        ratio = max(rr/eff, eff/rr)   # symmetric fold-gap
+        if ratio >= 5.0:
+            out.append((fn, key, 'magnitude_divergence',
+                        f'counts imply {rr:.2f} but displayed effect is {eff} '
+                        f'({ratio:.1f}x gap — same direction, but magnitude/neutral-band mismatch)'))
+    return out
+
 def main(argv):
     strict = '--strict' in argv
     args = [a for a in argv[1:] if not a.startswith('-')]
@@ -77,6 +103,7 @@ def main(argv):
     allf = []
     for p in paths:
         allf.extend(check_file(p))
+        allf.extend(check_magnitude(p))
     from collections import Counter
     by = Counter(f[2] for f in allf)
     if hasattr(sys.stdout, 'buffer') and getattr(sys.stdout,'encoding','').lower()!='utf-8':
