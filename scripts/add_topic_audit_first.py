@@ -135,7 +135,7 @@ baseline = load_aact("baseline_counts.txt", "nct_id",
                       ["ctgov_group_code", "count", "scope", "units"], nct_set)
 outcomes = load_aact("outcome_measurements.txt", "nct_id",
                       ["ctgov_group_code", "title", "param_type", "param_value_num",
-                       "param_value", "dispersion_value"], nct_set)
+                       "param_value", "dispersion_value", "units"], nct_set)
 design_outs = load_aact("design_outcomes.txt", "nct_id",
                         ["outcome_type", "measure"], nct_set)
 print(f"  studies: {len(studies)}  conds: {len(conds)}  intvs: {len(intvs)}")
@@ -305,11 +305,28 @@ def audit_nct_in_topic(nct, topic):
     gates["F_primary_outcome_known"] = bool(primary_outs)
     extracted["aact_primary_outcome_measure"] = primary_outs[0]["measure"][:200] if primary_outs else ""
 
-    # Extract event counts if possible
+    # Extract event counts for the PRIMARY outcome only, and only genuine
+    # participant counts. param_type='NUMBER' is how AACT stores percentages /
+    # rates / means -- including it turned a 17.3% responder rate into "17
+    # events" (count-provenance bug, 2026-07-12). Carry param_type+units so the
+    # generator can validate. This aligns the code with this file's own Stage-4
+    # docstring ("use the COUNT_OF_PARTICIPANTS rows for the primary outcome").
     om = outcomes.get(nct, [])
-    om_counts = [(o["ctgov_group_code"], o.get("param_value_num") or o.get("param_value", ""))
-                  for o in om
-                  if (o.get("param_type") or "").upper() in ("COUNT_OF_PARTICIPANTS", "NUMBER", "COUNT")]
+    _pmeasure = (primary_outs[0]["measure"].strip().lower() if primary_outs else "")
+    def _is_count_row(o):
+        pt = (o.get("param_type") or "").upper()
+        un = (o.get("units") or "").lower()
+        if pt != "COUNT_OF_PARTICIPANTS":
+            return False
+        return not ("percent" in un or "%" in un or "rate" in un or "mean" in un)
+    _prim_rows = [o for o in om
+                  if _pmeasure and (o.get("title") or "").strip().lower() == _pmeasure]
+    if not _prim_rows:
+        _prim_rows = om
+    om_counts = [(o["ctgov_group_code"],
+                  o.get("param_value_num") or o.get("param_value", ""),
+                  (o.get("param_type") or ""), (o.get("units") or ""))
+                 for o in _prim_rows if _is_count_row(o)]
     extracted["aact_outcome_count_rows"] = om_counts[:10]
 
     return {"gates": gates, "extracted": extracted}

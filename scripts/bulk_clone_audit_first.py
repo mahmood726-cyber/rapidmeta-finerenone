@@ -12,6 +12,8 @@ all 28 statistics panels.
 from __future__ import annotations
 import json, sys, io, subprocess, re
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # ensure scripts/ importable
+import count_consistency as _cc
 
 if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -146,27 +148,59 @@ def build_config(topic_doc):
         arms = sorted(per_arm.keys())
         tN = per_arm.get(arms[0]) if arms else 0
         cN = per_arm.get(arms[1]) if len(arms) > 1 else 0
+        # aact_outcome_count_rows is now (group, value[, param_type, units])
+        # scoped to the PRIMARY outcome and restricted to genuine
+        # COUNT_OF_PARTICIPANTS rows by the extractor (add_topic_autodiscover.py /
+        # add_topic_audit_first.py). Older topic-json files carry the lossy
+        # 2-tuple form; unpack defensively and treat those as unverifiable.
         outcome_rows = ex.get("aact_outcome_count_rows") or []
         og_vals = {}
-        for og, v in outcome_rows:
-            if og not in og_vals:
-                try: og_vals[og] = int(float(v))
-                except: pass
-            if len(og_vals) >= 2: break
+        row_is_count = {}
+        for row in outcome_rows:
+            og = row[0]
+            v = row[1] if len(row) > 1 else None
+            ptype = (row[2] if len(row) > 2 else "").upper()
+            units = (row[3] if len(row) > 3 else "").lower()
+            if og in og_vals:
+                continue
+            try:
+                og_vals[og] = int(float(v))
+            except (TypeError, ValueError):
+                continue
+            # A row is trustworthy as an event count only when the extractor
+            # tagged it COUNT_OF_PARTICIPANTS with participant units. Percentages
+            # (param_type NUMBER) and rates must never become counts.
+            row_is_count[og] = (ptype == "COUNT_OF_PARTICIPANTS"
+                                and "percent" not in units and "%" not in units
+                                and "rate" not in units and "mean" not in units)
+            if len(og_vals) >= 2:
+                break
         ogs = sorted(og_vals.keys())
         tE_raw = og_vals.get(ogs[0]) if ogs else None
         cE_raw = og_vals.get(ogs[1]) if len(ogs) > 1 else None
-        # Apply the percentage-vs-count sanity check at GENERATION time so the
-        # shipped page never carries impossible counts (tE > tN). This is the
-        # root-cause fix for the bug repaired downstream by
-        # `scripts/fix_event_counts_safe.py` -- see commit 4d8476d5d.
+        counts_trustworthy = bool(ogs) and all(row_is_count.get(g, False) for g in ogs[:2])
+        # Legacy safety net (percentage-vs-count sanity check). Retained but no
+        # longer the primary defence -- the extractor now excludes percentages.
         tE = _safe_event_count(tE_raw, tN)
         cE = _safe_event_count(cE_raw, cN)
+        # If the rows are not provably participant counts, do NOT ship them as
+        # counts -- blank rather than risk a percentage-as-count.
+        if not counts_trustworthy:
+            tE = cE = None
 
         pub_es = ex.get("published_effect_size")
         pub_t = ex.get("published_effect_type")
         pub_lci = ex.get("published_ci_lower")
         pub_uci = ex.get("published_ci_upper")
+
+        # BUILD-TIME COUNT/EFFECT RECONCILIATION (root-cause gate). The counts
+        # and the effect were historically sourced independently and never
+        # reconciled. Orient the arms so the counts imply the effect direction;
+        # if they cannot be reconciled, blank the counts (keep the effect).
+        if pub_es is not None and pub_t in ("HR", "OR", "RR", "IRR") \
+           and None not in (tE, cE, tN, cN):
+            tE, tN, cE, cN, _status = _cc.orient_to_effect(
+                tE, tN, cE, cN, pub_t, pub_es)
 
         outcome_label = (ex.get("aact_primary_outcome_measure") or "Primary outcome")[:120]
         outcome_obj = {
@@ -412,6 +446,20 @@ def main():
                     js_parse_ok = lambda _p: True
                 if not js_parse_ok(out_html):
                     reason = "js-parse-gate: realData literal failed V8 parse"
+                else:
+                    # Count/effect consistency gate (root-cause class #1). A
+                    # shipped app must never display arm counts that imply the
+                    # opposite direction to its plotted effect. Non-negotiable.
+                    try:
+                        import assert_count_effect_consistency as _acec
+                        _viol = _acec.check_file(str(out_html))
+                    except Exception as _e:
+                        _viol = []
+                        print(f"  WARN {stem}: count-consistency gate errored: {_e}")
+                    if _viol:
+                        reason = (f"count/effect contradiction x{len(_viol)} "
+                                  f"(e.g. {_viol[0]['nct']} impliedRR={_viol[0]['impliedRR']} "
+                                  f"vs effect {_viol[0]['effect']})")
 
         if reason:
             qfail += 1

@@ -46,6 +46,21 @@ def js_escape(s):
     return s.replace('\\', '\\\\').replace("'", "\\'")
 
 
+def _jsnum(v):
+    """Render a numeric field as a JS literal. None/''/non-finite -> 'null' so a
+    Python None can never leak into the realData literal as the identifier
+    `None` (ReferenceError -> silent stub render). See lessons.md placeholder-leak."""
+    if v is None or v == '':
+        return 'null'
+    try:
+        f = float(v)
+        if f != f:  # NaN
+            return 'null'
+    except (TypeError, ValueError):
+        return 'null'
+    return str(v)
+
+
 def render_outcome(o):
     """Render one allOutcomes entry as a single-line JS object literal."""
     parts = []
@@ -76,13 +91,13 @@ def render_trial_entry(t):
     head = (
         f"name: '{js_escape(t['name'])}', pmid: '{t.get('pmid','')}', "
         f"phase: '{t.get('phase','III')}', year: {t.get('year',2024)}, "
-        f"tE: {t.get('tE','null')}, tN: {t['tN']}, cE: {t.get('cE','null')}, cN: {t['cN']}, "
+        f"tE: {_jsnum(t.get('tE'))}, tN: {_jsnum(t.get('tN'))}, cE: {_jsnum(t.get('cE'))}, cN: {_jsnum(t.get('cN'))}, "
         f"group: '{js_escape(t.get('group',''))}', "
-        f"publishedHR: {t.get('publishedHR','null')}, "
-        f"hrLCI: {t.get('hrLCI','null')}, hrUCI: {t.get('hrUCI','null')}, "
-        f"pubHR: {t.get('pubHR', t.get('publishedHR','null'))}, "
-        f"pubHR_LCI: {t.get('pubHR_LCI', t.get('hrLCI','null'))}, "
-        f"pubHR_UCI: {t.get('pubHR_UCI', t.get('hrUCI','null'))}"
+        f"publishedHR: {_jsnum(t.get('publishedHR'))}, "
+        f"hrLCI: {_jsnum(t.get('hrLCI'))}, hrUCI: {_jsnum(t.get('hrUCI'))}, "
+        f"pubHR: {_jsnum(t.get('pubHR', t.get('publishedHR')))}, "
+        f"pubHR_LCI: {_jsnum(t.get('pubHR_LCI', t.get('hrLCI')))}, "
+        f"pubHR_UCI: {_jsnum(t.get('pubHR_UCI', t.get('hrUCI')))}"
     )
     outcomes_str = ',\n                        '.join(render_outcome(o) for o in t.get('allOutcomes', []))
     rob = t.get('rob', ['low', 'low', 'low', 'low', 'low'])

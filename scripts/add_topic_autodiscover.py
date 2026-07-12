@@ -5440,7 +5440,7 @@ baseline = load_aact_filtered("baseline_counts.txt", "nct_id",
                                ["ctgov_group_code", "count", "scope", "units"], nct_set)
 outcomes = load_aact_filtered("outcome_measurements.txt", "nct_id",
                                ["ctgov_group_code", "title", "param_type",
-                                "param_value_num", "param_value"], nct_set)
+                                "param_value_num", "param_value", "units"], nct_set)
 design_outs = load_aact_filtered("design_outcomes.txt", "nct_id",
                                   ["outcome_type", "measure"], nct_set)
 
@@ -5549,9 +5549,28 @@ def audit_nct(nct, topic):
                      if o["outcome_type"].lower() == "primary"]
     gates["F_primary_outcome_known"] = bool(primary_outs)
     extracted["aact_primary_outcome_measure"] = primary_outs[0]["measure"][:200] if primary_outs else ""
-    om_counts = [(o["ctgov_group_code"], o.get("param_value_num") or o.get("param_value", ""))
-                  for o in outcomes.get(nct, [])
-                  if (o.get("param_type") or "").upper() in ("COUNT_OF_PARTICIPANTS", "NUMBER", "COUNT")]
+    # Count rows must (a) belong to the PRIMARY outcome and (b) be genuine
+    # participant counts. Historically this included param_type='NUMBER', but
+    # AACT stores *percentages* / rates / means that way (a 17.3% responder rate
+    # became "17 events") and rows were taken across ALL outcomes, not the
+    # primary -> the count-provenance bug (2026-07-12). Restrict to the primary
+    # measure title and COUNT_OF_PARTICIPANTS only, and carry param_type+units so
+    # the generator can never re-misuse them.
+    _pmeasure = (primary_outs[0]["measure"].strip().lower() if primary_outs else "")
+    def _is_count_row(o):
+        pt = (o.get("param_type") or "").upper()
+        un = (o.get("units") or "").lower()
+        if pt != "COUNT_OF_PARTICIPANTS":
+            return False
+        return not ("percent" in un or "%" in un or "rate" in un or "mean" in un)
+    _prim_rows = [o for o in outcomes.get(nct, [])
+                  if _pmeasure and (o.get("title") or "").strip().lower() == _pmeasure]
+    if not _prim_rows:            # title mismatch -> fall back to all rows but still count-only
+        _prim_rows = outcomes.get(nct, [])
+    om_counts = [(o["ctgov_group_code"],
+                  o.get("param_value_num") or o.get("param_value", ""),
+                  (o.get("param_type") or ""), (o.get("units") or ""))
+                 for o in _prim_rows if _is_count_row(o)]
     extracted["aact_outcome_count_rows"] = om_counts[:10]
     return {"gates": gates, "extracted": extracted}
 
