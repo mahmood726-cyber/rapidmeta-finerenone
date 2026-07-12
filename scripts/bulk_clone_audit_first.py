@@ -447,31 +447,23 @@ def main():
                 if not js_parse_ok(out_html):
                     reason = "js-parse-gate: realData literal failed V8 parse"
                 else:
-                    # Count/effect consistency gate (root-cause class #1). A
-                    # shipped app must never display arm counts that imply the
-                    # opposite direction to its plotted effect. Non-negotiable.
+                    # MANDATORY build gate. RapidMeta is the pipeline's output
+                    # layer, so an app with an objectively-wrong number MUST NOT
+                    # ship. HARD findings (count/effect contradiction, coverage
+                    # failure, additive-ratio-CI, non-positive ratio, year vs
+                    # PubMed) QUARANTINE the app; WARN findings only log.
                     try:
-                        import assert_count_effect_consistency as _acec
-                        _viol = _acec.check_file(str(out_html))
+                        import build_gate as _bg
+                        _hard, _warn = _bg.gate_file(str(out_html))
                     except Exception as _e:
-                        _viol = []
-                        print(f"  WARN {stem}: count-consistency gate errored: {_e}")
-                    if _viol:
-                        reason = (f"count/effect contradiction x{len(_viol)} "
-                                  f"(e.g. {_viol[0]['nct']} impliedRR={_viol[0]['impliedRR']} "
-                                  f"vs effect {_viol[0]['effect']})")
-                    else:
-                        # ADVISORY (non-blocking): commensurability / measure
-                        # provenance smells (surrogate-pooled, mixed-estimand,
-                        # additive ratio CI). Logged for review, does not quarantine.
-                        try:
-                            import commensurability_gate as _cg
-                            _adv = _cg.check_file(str(out_html))
-                            if _adv:
-                                print(f"  ADVISORY {stem}: commensurability x{len(_adv)} "
-                                      f"({','.join(sorted(set(a[2] for a in _adv)))})")
-                        except Exception:
-                            pass
+                        _hard, _warn = [], []
+                        print(f"  WARN {stem}: build gate errored: {_e}")
+                    if _hard:
+                        codes = ",".join(sorted(set(f[2] for f in _hard)))
+                        reason = f"build-gate HARD x{len(_hard)} ({codes}); e.g. {_hard[0][1]}: {_hard[0][3][:60]}"
+                    elif _warn:
+                        print(f"  ADVISORY {stem}: {len(_warn)} "
+                              f"({','.join(sorted(set(a[2] for a in _warn)))})")
 
         if reason:
             qfail += 1

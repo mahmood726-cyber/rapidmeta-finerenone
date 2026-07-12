@@ -13,6 +13,7 @@ REPO = os.path.dirname(HERE)
 sys.path.insert(0, os.path.join(REPO, 'scripts'))
 import count_consistency as cc
 import assert_count_effect_consistency as gate
+import build_gate as bg
 
 
 # ---- the shared contract ---------------------------------------------------
@@ -82,6 +83,45 @@ def test_baricitinib_brave_aa2_matches_source():
     e = _entry('BARICITINIB_ALOPECIA_AUTO_FULL_REVIEW.html', 'NCT03899259')
     # 2mg baricitinib 17.3% x156 = 27 ; placebo 2.6% x156 = 4 ; OR ~7.95 ~= 7.86
     assert 'tE:27' in e and 'cE:4' in e and 'tN:156' in e and 'cN:156' in e
+
+def _write(tmp_path, name, body):
+    p = tmp_path / name
+    p.write_text(f'<html><script>const a={{realData:{{{body}}}}};</script></html>',
+                 encoding='utf-8')
+    return str(p)
+
+# ---- the MANDATORY gate MUST be able to fail (a gate that can't block is theater)
+def test_build_gate_blocks_count_contradiction(tmp_path):
+    f = _write(tmp_path, 'BAD_REVIEW.html',
+               '"NCT99999999":{name:"B",pmid:"99999999",year:2020,tE:4,tN:173,'
+               'cE:19,cN:174,publishedHR:7.86,hrLCI:2.79,hrUCI:22.17,estimandType:"OR"}')
+    hard, warn = bg.gate_file(f)
+    assert any(h[2] == 'direction' for h in hard)
+    assert bg.main(['build_gate', f]) == 1   # exit 1 => build blocked
+
+def test_build_gate_blocks_year_contradiction(tmp_path):
+    # PMID 30625070 is 2019 in the committed cache; displayed 2005 -> gap 14
+    f = _write(tmp_path, 'BADYEAR_REVIEW.html',
+               '"NCT02553317":{name:"X",pmid:"30625070",year:2005,tE:9,tN:72,cE:36,'
+               'cN:73,publishedHR:0.5,hrLCI:0.3,hrUCI:0.8,estimandType:"HR"}')
+    hard, _ = bg.gate_file(f)
+    assert any(h[2] == 'year_contradicts_pubmed' for h in hard)
+
+def test_build_gate_blocks_additive_ratio_ci(tmp_path):
+    # an RD (0.085, CI additively symmetric) mislabeled OR must be blocked
+    f = _write(tmp_path, 'BADCI_REVIEW.html',
+               '"NCT01345929":{name:"R",pmid:"25931244",year:2015,tE:306,tN:398,'
+               'cE:275,cN:402,publishedHR:0.085,hrLCI:0.023,hrUCI:0.146,estimandType:"OR"}')
+    hard, _ = bg.gate_file(f)
+    assert any(h[2] == 'additive_ratio_ci' for h in hard)
+
+def test_build_gate_passes_clean_app(tmp_path):
+    f = _write(tmp_path, 'GOOD_REVIEW.html',
+               '"NCT03899259":{name:"G",pmid:"35334197",year:2022,tE:27,tN:156,cE:4,'
+               'cN:156,publishedHR:7.86,hrLCI:2.79,hrUCI:22.17,estimandType:"OR"}')
+    hard, _ = bg.gate_file(f)
+    assert hard == []
+    assert bg.main(['build_gate', f]) == 0
 
 def test_canagliflozin_credence_blanked_not_contradictory():
     e = _entry('CANAGLIFLOZIN_DKD_AUTO_FULL_REVIEW.html', 'NCT02065791')
