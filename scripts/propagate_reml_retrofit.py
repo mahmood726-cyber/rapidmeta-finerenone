@@ -144,7 +144,7 @@ REML_SCRIPT = r"""<script>/*REML-RETROFIT-v1*/
             var slope = 0;
             for (var m = 0; m < k; m++) { var dm = y[m] - yBar; slope += -w[m] * w[m] * dm * dm; }
             if (!Number.isFinite(slope) || Math.abs(slope) < 1e-14) break;
-            var t2new = Math.max(0, tau2 + diff / slope);
+            var t2new = Math.max(0, tau2 - diff / slope);  // Newton step: tau2 - f/f' (f'=slope<0). '+' here under-estimated tau2 (->0) and DIVERGED (runaway tau2) in low-heterogeneity data — caught by the bundle plausibility gate 2026-07-13.
             if (!Number.isFinite(t2new)) break;
             if (Math.abs(t2new - tau2) < 1e-9) { tau2 = t2new; break; }
             tau2 = t2new;
