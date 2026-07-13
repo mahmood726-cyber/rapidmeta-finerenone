@@ -22,10 +22,14 @@
  */
 (function (global) {
   var CFG = {
-    CLIENT_ID: '__GITHUB_CLIENT_ID__',      // <- Mahmood sends this (public, safe to embed)
-    BROKER: '',                              // <- (i) CORS token-broker URL, or '' to use PAT mode
+    // Mahmood's RapidMeta OAuth App (owner mahmood726-cyber, app id 3726712).
+    // Well-formed: the 'Ov23li' prefix is GitHub's standard OAuth-App client-id
+    // format, so the read is very likely correct. Public by design — safe here.
+    // ⚠️ Device Flow must be ENABLED on the app (see deliverable) before this works.
+    CLIENT_ID: 'Ov23li18tGWQtcqx4VcP',
+    BROKER: '',                              // (i) CORS token-broker URL, or '' to use PAT mode
     MODE: 'device',                          // 'device' | 'pat'
-    SCOPES: 'public_repo',                   // least privilege: create issues/forks/PRs on public repos
+    SCOPES: 'public_repo',                   // least privilege; reviews should be public
   };
 
   async function startDeviceFlow() {
