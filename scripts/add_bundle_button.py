@@ -247,15 +247,19 @@ def inject(app_path, apply=False):
             return False, 'no <body>'
         pos = b.end()
     new = txt[:pos] + '\n' + js + '\n' + txt[pos:]
-    if apply:
-        open(app_path, 'w', encoding='utf-8').write(new)
-    # jscheck if available
+    k = files['data/result.json'].count('"id"')
+    if not apply:
+        return True, f"k={k}"
+    open(app_path, 'w', encoding='utf-8').write(new)
+    # SAFETY: jscheck after writing; if the injection broke the app's JS, REVERT
+    # (the app's printBlob literal-<script> region can make placement fragile).
     jc = os.path.join(REPO, 'scripts', 'jscheck.py')
-    if apply and os.path.exists(jc):
+    if os.path.exists(jc):
         r = subprocess.run([sys.executable, jc, app_path], capture_output=True, text=True)
         if '[JS-OK]' not in (r.stdout + r.stderr):
-            return True, 'WARN jscheck-not-ok'
-    return True, f"k={files['data/result.json'].count('\"id\"')}"
+            open(app_path, 'w', encoding='utf-8').write(txt)   # revert to original
+            return False, 'REVERTED (jscheck broke) — left unchanged'
+    return True, f"k={k}"
 
 
 def main():
