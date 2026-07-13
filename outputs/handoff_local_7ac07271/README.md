@@ -37,10 +37,10 @@ Feed these to `inject_cochrane_panel.py` for the demo lane's DTA dashboards. Num
 
 **Malaria HRP-2 RDT DTA** — RESOLVED 2026-07-13 with source-READ 2×2s (see `C:\Projects\DEMO-RDT-DTA-RESOLVED-2026-07-13.md`). The three 2×2s below are read from each paper's directly-reported Se/Sp/N/prevalence/PPV (PubMed), NOT PPV-reconstructed. Rwanda + the reconstructed SD-Bioline are DROPPED.
 
-Source-verified 2×2s (TP/FP/FN/TN):
-- Orimadegun 2021 SD-Bioline, ref=microscopy, PMID 33851670: **87/27/2/74** (Se 97.8% / Sp 73.3%)
-- Batwala 2010 Paracheck, ref=**PCR**, PMID 21126328: **81/29/8/182** (Se 91.0% / Sp 86.3%)
-- Adebisi 2018 CareStart, ref=microscopy, PMID 30574261: **53/27/3/287** (Se 94.6% / Sp 91.4%)
+Source-verified 2×2s (TP/FP/FN/TN) — provenance tier noted:
+- Orimadegun 2021 SD-Bioline, ref=microscopy, PMID 33851670: **87/27/2/74** (Se 97.8% / Sp 73.3%) — *abstract-reported Se/Sp/N; paper NOT in PMC (no full-text table); NOT a PPV reconstruction*
+- Batwala 2010 Paracheck, ref=**PCR**, PMID 21126328: **81/29/8/182** (Se 91.0% / Sp 86.3%) — *FULL-TEXT confirmed: Se=81/89, Sp=182/211*
+- Adebisi 2018 CareStart, ref=microscopy, PMID 30574261: **53/27/3/287** (Se 94.6% / Sp 91.4%) — *FULL-TEXT confirmed: 80/370 RDT+, 56/370 micro+, PPV=53/80*
 
 Re-pool (DL logit): Se **94.3%** (88.2–97.4) I²=41%; Sp **85.1%** (72.9–92.4) **I²=90%**. Cross-vendor (Codex-A + Codex-B): show pooled Se (reproduces Cochrane ~94.8%); show Sp **per-study, NOT pooled** (I²=90% + mixed reference standards make a single Sp indefensible as a headline).
 ```
