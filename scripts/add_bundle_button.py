@@ -158,7 +158,15 @@ def build_bundle(app_path):
         f"- Every trial's displayed 2x2 counts imply the same direction as its effect.\n"
         f"- The data has not been tampered with (SHA-256 manifest).\n"
         + ("- The analysis still matches the **pre-registered protocol** hash.\n" if prot_hash else "")
-        + f"\nOnly Python 3.8+ standard library is required. Nothing here calls out to the network.\n")
+        + f"\n## What this proves (and what it doesn't)\n"
+        f"It proves the review is **internally consistent** and **reproduces from its own raw data**, "
+        f"offline. Changing any trial's counts changes the recomputed pool, so a tampered number cannot "
+        f"silently survive. The SHA-256 manifest is *inside* the bundle, so it detects casual edits but not "
+        f"an attacker who rewrites both data and manifest — for **authenticity** (that this is the unmodified "
+        f"RapidMeta review), compare the pooled value above / the manifest hash against the published "
+        f"RapidMeta corpus.\n\n"
+        f"`reproduce.py` is short, auditable, non-mutating (it only reads local JSON) and uses only the "
+        f"Python 3.8+ standard library. Nothing here calls out to the network.\n")
     return files, None
 
 
@@ -189,10 +197,10 @@ def button_js(app, files):
   var chunks=[],central=[],offset=0;
   Object.keys(files).sort().forEach(function(name){{
    var data=b64(files[name]),crc=crc32(data),nb=strb(name);
-   var lh=[].concat(u32(0x04034b50),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(data.length),u32(data.length),u16(nb.length),u16(0),nb);
+   var lh=[].concat(u32(0x04034b50),u16(20),u16(0),u16(0),u16(0),u16(0x21),u32(crc),u32(data.length),u32(data.length),u16(nb.length),u16(0),nb);
    var lhb=new Uint8Array(lh.length+data.length);lhb.set(lh,0);lhb.set(data,lh.length);
    chunks.push(lhb);
-   central.push([].concat(u32(0x02014b50),u16(20),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(data.length),u32(data.length),u16(nb.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(offset),nb));
+   central.push([].concat(u32(0x02014b50),u16(20),u16(20),u16(0),u16(0),u16(0),u16(0x21),u32(crc),u32(data.length),u32(data.length),u16(nb.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(offset),nb));
    offset+=lhb.length;
   }});
   var cd=[],cdlen=0;central.forEach(function(c){{cd.push(new Uint8Array(c));cdlen+=c.length;}});

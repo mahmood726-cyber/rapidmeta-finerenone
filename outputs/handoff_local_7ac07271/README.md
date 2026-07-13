@@ -35,19 +35,26 @@ Feed these to `inject_cochrane_panel.py` for the demo lane's DTA dashboards. Num
   "note":"Cross-vendor unanimous (Codex + agy-Gemini): defensible study-set difference, not an error." }
 ```
 
-**Malaria HRP-2 RDT DTA** (a real finding — show WITH the mechanism):
+**Malaria HRP-2 RDT DTA** — RESOLVED 2026-07-13 with source-READ 2×2s (see `C:\Projects\DEMO-RDT-DTA-RESOLVED-2026-07-13.md`). The three 2×2s below are read from each paper's directly-reported Se/Sp/N/prevalence/PPV (PubMed), NOT PPV-reconstructed. Rwanda + the reconstructed SD-Bioline are DROPPED.
+
+Source-verified 2×2s (TP/FP/FN/TN):
+- Orimadegun 2021 SD-Bioline, ref=microscopy, PMID 33851670: **87/27/2/74** (Se 97.8% / Sp 73.3%)
+- Batwala 2010 Paracheck, ref=**PCR**, PMID 21126328: **81/29/8/182** (Se 91.0% / Sp 86.3%)
+- Adebisi 2018 CareStart, ref=microscopy, PMID 30574261: **53/27/3/287** (Se 94.6% / Sp 91.4%)
+
+Re-pool (DL logit): Se **94.3%** (88.2–97.4) I²=41%; Sp **85.1%** (72.9–92.4) **I²=90%**. Cross-vendor (Codex-A + Codex-B): show pooled Se (reproduces Cochrane ~94.8%); show Sp **per-study, NOT pooled** (I²=90% + mixed reference standards make a single Sp indefensible as a headline).
 ```
 { "app":"<MALARIA_RDT_APP>.html",
-  "question":"HRP-2 malaria RDT vs microscopy",
-  "measure_label":"Sensitivity / Specificity",
-  "published":[{"ref":"Cochrane Abba 2011 (CD008122.pub2), HRP-2 type","doi":"10.1002/14651858.CD008122.pub2",
-                "their":"94.8% / 95.2%","their_ci":"(93.1-96.1) / (93.2-96.7)","k_theirs":71}],
-  "ours":"93.7% / 84.9%","ours_ci":"(88.0-96.8) / (72.7-92.2)","k_ours":3,
+  "question":"HRP-2 malaria RDT — sensitivity reproduces Cochrane; specificity is heterogeneous",
+  "measure_label":"Sensitivity (pooled) / Specificity (per-study)",
+  "published":[{"ref":"Cochrane Abba 2011 (CD008122.pub2), HRP-2 — RE-VERIFY vs review","doi":"10.1002/14651858.CD008122.pub2",
+                "their":"Se ~94.8% / Sp ~95.2%","their_ci":"(93.1-96.1) / (93.2-96.7)","k_theirs":71}],
+  "ours":"Se 94.3% / Sp 73-91% (per-study)","ours_ci":"Se (88.2-97.4); Sp I2=90%","k_ours":3,
   "they_have_we_dont":"68 more studies, many older / mixed settings",
-  "we_have_they_dont":"3 recent high-transmission African studies, all 2x2s read DIRECTLY",
-  "verdict":"Se MATCHES. Sp ~10pp lower — a REAL finding, not an artifact: HRP-2 antigen persists after treatment + asymptomatic parasitaemia in high-transmission Africa lowers specificity.",
+  "we_have_they_dont":"3 recent high-transmission African studies, all 2x2s read DIRECTLY from source",
+  "verdict":"Se MATCHES Cochrane. Specificity is HETEROGENEOUS (73-91%, I2=90%) and setting-dependent, sometimes well below Cochrane's ~95% — consistent with HRP-2 persistence + submicroscopic parasitaemia, but NOT a uniform effect (k=3, mixed reference standards). Show Sp per-study, not as one pooled number.",
   "verdict_color":"#b8860b",
-  "note":"Cross-vendor unanimous: show WITH the antigen-persistence explanation and a strong small-n caveat (k=3). REQUIRED: drop the non-indexed Rwanda study; use the DIRECTLY-READ SD-Bioline 2x2 (Orimadegun 2021, PMID 33851670, TP87/FP27/FN2/TN74) — never a PPV-reconstructed 2x2." }
+  "note":"Cross-vendor (Codex-A+B) confirmed. REQUIRED: drop Rwanda + the PPV-reconstructed SD-Bioline; use the three source-read 2x2s above; add the reference-standard column (Batwala=PCR); RE-VERIFY the Cochrane Abba 2011 numbers against the actual review before demo." }
 ```
 
 ## The one rule
