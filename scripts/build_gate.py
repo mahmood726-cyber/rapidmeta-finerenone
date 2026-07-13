@@ -86,6 +86,20 @@ def _magnitude_findings(path):
     for key, o in ceg._top_entries(body):
         tE, tN, cE, cN = ceg._num(o,'tE'), ceg._num(o,'tN'), ceg._num(o,'cE'), ceg._num(o,'cN')
         eff = ceg._num(o, 'publishedHR')
+        # MISSING GATE the FIRST user report caught (GLP1_CVOT/LEADER, 2026-06-01):
+        # a trial with a real displayed effect but BLANK or double-zero event
+        # cells while the arms are clearly populated (N>=20). The old gate silently
+        # skipped these (used the HR, left the 2x2 blank), so the user saw wrong
+        # cells our gate never flagged. WARN (display-completeness, not a direction
+        # contradiction; the pool isn't biased since pooling uses the effect).
+        if eff is not None and eff > 0 and tN is not None and cN is not None \
+                and tN >= 20 and cN >= 20:
+            blank = (tE is None or cE is None) or (tE == 0 and cE == 0)
+            if blank:
+                warn.append((fn, key, 'blank_counts_with_effect',
+                             f'trial has a displayed effect ({eff}) and populated arms '
+                             f'(N={int(tN)}/{int(cN)}) but BLANK/zero event cells '
+                             f'(tE={tE}, cE={cE}) — displayed 2x2 is incomplete/likely wrong'))
         if None in (tE, tN, cE, cN, eff) or eff <= 0: continue
         rr = cc.implied_rr(tE, tN, cE, cN)
         if rr is None or rr <= 0: continue
