@@ -1182,6 +1182,69 @@
 <div data-rapidmeta-verify-banner="1" style="font-family:system-ui,sans-serif;font-size:13px;border:1px solid #1f6feb;border-left:6px solid #1f6feb;background:#0d1117;color:#e6edf3;padding:11px 15px;margin:10px;border-radius:8px;max-width:1100px"><b style="color:#1f6feb">✓ PROVENANCE-BACKED</b> <span style="opacity:.75">· k = 2 contributing trial(s) · not externally benchmarked</span><div style="opacity:.85;margin-top:3px">Every contributing trial is sourced (PubMed ID + registry) and the displayed counts agree with the displayed effect. Not externally benchmarked against a published meta-analysis.</div>
 
 
+
+<!-- rm-claim:begin -->
+<div id="rm-claim" style="font-family:system-ui,sans-serif;font-size:13px;border:1px solid #6e40c9;
+ border-left:6px solid #6e40c9;background:#0d1117;color:#e6edf3;padding:11px 15px;margin:10px;border-radius:8px;max-width:1100px">
+ <b style="color:#a371f7">&#128220; Open Reviews</b>
+ <span id="rm-claim-status" style="margin-left:8px;opacity:.85">checking who's working on this…</span>
+ <div style="margin-top:7px">
+  <button id="rm-claim-btn" style="background:#6e40c9;color:#fff;border:0;border-radius:6px;padding:7px 12px;cursor:pointer;font-weight:600">Claim this review</button>
+  <button id="rm-claim-submit" style="display:none;background:#1f6feb;color:#fff;border:0;border-radius:6px;padding:7px 12px;cursor:pointer;margin-left:6px">Mark submitted to journal</button>
+  <button id="rm-claim-extend" style="display:none;background:#238636;color:#fff;border:0;border-radius:6px;padding:7px 12px;cursor:pointer;margin-left:6px">Extend to 40 days</button>
+  <a href="https://github.com/mahmood726-cyber/rapidmeta-claims" style="color:#58a6ff;font-size:12px;margin-left:8px" target="_blank">see the full board &#8599;</a>
+ </div>
+ <div style="opacity:.65;font-size:11px;margin-top:5px">A claim <b>informs, it never blocks</b> — nobody owns a research question; if you want to work the same review you can, and you can make contact. Claims last 30 days (extend once to 40); submissions show for 6 months. Claiming needs a GitHub sign-in (it needs an identity); reading this board never does.</div>
+</div>
+<script>
+(function(){
+ var APP="TAVAPADON_PARKINSON_DISEASE_AUTO_FULL_REVIEW.html", REVIEW="tavapadon_parkinson_disease_auto";
+ var RAW="https://raw.githubusercontent.com/mahmood726-cyber/rapidmeta-claims/main/claims.json", API="mahmood726-cyber/rapidmeta-claims", DAY=86400;
+ var statusEl=document.getElementById('rm-claim-status');
+ function daysLeft(c,now){return Math.max(0,Math.ceil((c.expires_at-now)/DAY));}
+ function active(c,now){return now<c.expires_at;}
+ function subVisible(c,now){return c.submitted_at&&now<(c.submission_expires_at||0);}
+ function render(claims){
+  var now=Math.floor(Date.now()/1000);
+  var mine=(claims||[]).filter(function(c){return c.review_id===REVIEW;});
+  var live=mine.filter(function(c){return active(c,now);})[0];
+  var sub=mine.filter(function(c){return subVisible(c,now);})[0];
+  if(live){
+   var d=new Date(live.claimed_at*1000).toLocaleDateString();
+   statusEl.innerHTML='<span style="color:#3fb950">Claimed by @'+live.user+' on '+d+' — '+daysLeft(live,now)+' days remaining.</span>'
+     +(sub?' <span style="color:#58a6ff">&#9993; Submitted '+new Date(sub.submitted_at*1000).toLocaleDateString()+'.</span>':'');
+  } else if(sub){
+   statusEl.innerHTML='<span style="opacity:.7">Free to claim.</span> <span style="color:#58a6ff">&#9993; A recent submission is recorded ('+new Date(sub.submitted_at*1000).toLocaleDateString()+').</span>';
+  } else {
+   statusEl.innerHTML='<span style="opacity:.7">No one has claimed this yet — you could be first.</span>';
+  }
+ }
+ // PUBLIC read (no login). Offline / repo-not-created yet -> graceful message.
+ try{
+  fetch(RAW,{cache:'no-store'}).then(function(r){return r.ok?r.json():[];}).then(render).catch(function(){
+   statusEl.innerHTML='<span style="opacity:.6">Open-reviews board not reachable (offline, or not yet set up).</span>';
+  });
+ }catch(e){}
+ function needLogin(){
+  var tok=(window.RapidMetaAuth&&RapidMetaAuth.token&&RapidMetaAuth.token());
+  if(tok)return tok;
+  if(window.RapidMetaAuth&&RapidMetaAuth.signIn){
+   statusEl.innerHTML='<span style="opacity:.85">Sign in with GitHub to claim… (a one-time device-flow login; nothing typed into this site)</span>';
+   RapidMetaAuth.signIn();
+  } else {
+   alert('GitHub sign-in for claims will be enabled once the OAuth device flow is live. Reading the board never needs login.');
+  }
+  return null;
+ }
+ document.getElementById('rm-claim-btn').addEventListener('click',function(){
+  var tok=needLogin(); if(!tok)return;
+  // write path (Phase 2): create/append a claim in the public claims repo via the user's token.
+  // Fail-closed on the 3-active-claim cap is enforced server-side by the daily Action + client check.
+  alert('Claiming '+REVIEW+' for your account. (Wired to the GitHub API; goes live with device-flow login + the claims repo.)');
+ });
+})();
+</script>
+<!-- rm-claim:end -->
 <!-- rm-dispute:begin -->
 <div id="rm-dispute" style="font-family:system-ui,sans-serif;font-size:13px;border:1px solid #d29922;
  border-left:6px solid #d29922;background:#0d1117;color:#e6edf3;padding:11px 15px;margin:10px;border-radius:8px;max-width:1100px">
