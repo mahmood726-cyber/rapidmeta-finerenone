@@ -1181,59 +1181,129 @@
 
 <div data-rapidmeta-verify-banner="1" style="font-family:system-ui,sans-serif;font-size:13px;border:1px solid #1f6feb;border-left:6px solid #1f6feb;background:#0d1117;color:#e6edf3;padding:11px 15px;margin:10px;border-radius:8px;max-width:1100px"><b style="color:#1f6feb">✓ PROVENANCE-BACKED</b> <span style="opacity:.75">· k = 3 contributing trial(s) · not externally benchmarked</span><div style="opacity:.85;margin-top:3px">Every contributing trial is sourced (PubMed ID + registry) and the displayed counts agree with the displayed effect. Not externally benchmarked against a published meta-analysis.</div>
 
-<!-- rm-report-issue:begin -->
-<div id="rm-report-box" style="font-family:system-ui,sans-serif;margin:10px;max-width:1100px">
-<button id="rm-report-btn" style="background:#8957e5;color:#fff;border:0;border-radius:8px;
- padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer">&#9888; Report a data issue</button>
-<span style="opacity:.7;font-size:12px;margin-left:8px">spotted a wrong number? tell us — it makes the next version better</span>
-<div id="rm-report-form" style="display:none;margin-top:10px;border:1px solid #8957e5;border-radius:8px;padding:12px;background:#0d1117;color:#e6edf3;max-width:640px">
- <div style="margin-bottom:6px"><b>Which trial?</b><br><select id="rm-r-trial" style="width:100%;padding:5px;margin-top:3px"></select></div>
- <div style="margin-bottom:6px"><b>Which field is wrong?</b><br>
-  <select id="rm-r-field" style="width:100%;padding:5px;margin-top:3px">
-   <option value="event counts (2x2)">event counts (2x2)</option>
-   <option value="effect estimate">effect estimate / CI</option>
-   <option value="trial label / name">trial label / name</option>
-   <option value="PMID / registry ID">PMID / registry ID</option>
-   <option value="year">year</option>
-   <option value="other">other</option></select></div>
- <div style="margin-bottom:6px"><b>What SHOULD it be? (the value you read in the source)</b><br>
-  <input id="rm-r-correct" style="width:100%;padding:5px;margin-top:3px" placeholder="e.g. 608/4668, not 0/4668"></div>
- <div style="margin-bottom:6px"><b>Source (where you read it)</b><br>
-  <input id="rm-r-source" style="width:100%;padding:5px;margin-top:3px" placeholder="e.g. LEADER, NEJM 2016, Table 2 / PMID / DOI"></div>
+
+
+<!-- rm-dispute:begin -->
+<div id="rm-dispute" style="font-family:system-ui,sans-serif;font-size:13px;border:1px solid #d29922;
+ border-left:6px solid #d29922;background:#0d1117;color:#e6edf3;padding:11px 15px;margin:10px;border-radius:8px;max-width:1100px">
+ <b style="color:#e3b341">&#9873; Spot a wrong number? Flag it — one tap, no account.</b>
+ <span style="opacity:.7;font-size:12px;margin-left:6px">Every number here was already checked vs the trial registry, its own arithmetic, and its identity. We surface what we found — and you can dispute any of it.</span>
  <div style="margin-top:8px">
-  <button id="rm-r-email" style="background:#238636;color:#fff;border:0;border-radius:6px;padding:7px 12px;cursor:pointer">Email the report</button>
-  <button id="rm-r-download" style="background:#1f6feb;color:#fff;border:0;border-radius:6px;padding:7px 12px;cursor:pointer;margin-left:6px">Download as JSON</button>
+  <select id="rm-d-trial" style="width:100%;padding:6px"></select>
  </div>
- <div style="opacity:.6;font-size:11px;margin-top:6px">No account, no tracking. The report is structured so it becomes a labelled example that improves extraction.</div>
-</div></div>
+ <div id="rm-d-reasons" style="margin-top:7px;display:flex;flex-wrap:wrap;gap:6px"></div>
+ <div id="rm-d-more" style="display:none;margin-top:7px">
+  <input id="rm-d-value" placeholder="Optional: what should it be? (skippable)" style="width:49%;padding:5px">
+  <input id="rm-d-source" placeholder="Optional: where did you see it? (skippable)" style="width:49%;padding:5px">
+ </div>
+ <div id="rm-d-out" style="margin-top:8px;opacity:.9"></div>
+</div>
 <script>
 (function(){
- var APP="RISANKIZUMAB_CD_REVIEW.html", TRIALS=[{"id": "NCT03105128", "name": "ADVANCE"}, {"id": "NCT03104413", "name": "MOTIVATE"}, {"id": "NCT03105102", "name": "FORTIFY"}], OWNER="mahmood726@gmail.com";
- var box=document.getElementById('rm-report-form');
- var sel=document.getElementById('rm-r-trial');
- TRIALS.forEach(function(t){var o=document.createElement('option');o.value=t.id;o.textContent=t.name+' ['+t.id+']';sel.appendChild(o);});
- document.getElementById('rm-report-btn').addEventListener('click',function(){box.style.display=box.style.display==='none'?'block':'none';});
- function report(){
-  var t=TRIALS.find(function(x){return x.id===sel.value;})||{};
-  return {app:APP, trial:(t.name||'')+' ('+sel.value+')',
-    field:document.getElementById('rm-r-field').value,
-    corrected_value:document.getElementById('rm-r-correct').value,
-    source:document.getElementById('rm-r-source').value,
-    caught_by:'user', tier:'attributed-user', error_class:'user-reported'};
- }
- document.getElementById('rm-r-email').addEventListener('click',function(){
-  var r=report();
-  var body='RapidMeta data issue report%0D%0A%0D%0Aapp: '+r.app+'%0D%0Atrial: '+r.trial+'%0D%0Afield: '+r.field+'%0D%0Ashould be: '+r.corrected_value+'%0D%0Asource: '+r.source;
-  window.location.href='mailto:'+OWNER+'?subject='+encodeURIComponent('RapidMeta data issue: '+r.app)+'&body='+body;
- });
- document.getElementById('rm-r-download').addEventListener('click',function(){
-  var r=report(); var blob=new Blob([JSON.stringify(r,null,1)],{type:'application/json'});
-  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='rapidmeta_issue_'+r.app.replace('.html','')+'.json';
-  document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1500);
+ var APP="RISANKIZUMAB_CD_REVIEW.html", TRIALS=[{"id": "NCT03105128", "nct": "NCT03105128", "name": "ADVANCE", "status": "sound"}, {"id": "NCT03104413", "nct": "NCT03104413", "name": "MOTIVATE", "status": "sound"}, {"id": "NCT03105102", "nct": "NCT03105102", "name": "FORTIFY", "status": "sound"}], REASONS=[{"label": "Wrong number", "cls": "wrong_number", "routes": "arithmetic gate + registry posted value"}, {"label": "Wrong trial", "cls": "wrong_trial", "routes": "identity gate: NCT binding, arm count, N"}, {"label": "Wrong outcome / timepoint", "cls": "wrong_outcome_timepoint", "routes": "registered outcome + timepoint"}, {"label": "Wrong arm", "cls": "wrong_arm", "routes": "arm-label / arm-count adjudication"}, {"label": "This trial shouldn't be here", "cls": "trial_shouldnt_be_here", "routes": "PICO / eligibility"}, {"label": "Something else", "cls": "something_else", "routes": "free text -> human queue"}], OWNER="mahmood726@gmail.com";
+ var sel=document.getElementById('rm-d-trial');
+ function badge(s){return s==='registry_verified'?'&#9989; registry-verified':(s==='disputed_by_us'?'&#9888; we dispute this':'&#128196; source: extracted');}
+ TRIALS.forEach(function(t){var o=document.createElement('option');o.value=t.id;o.innerHTML=t.name+' ['+(t.nct||t.id)+']  —  '+badge(t.status);sel.appendChild(o);});
+ function detectPrefix(){for(var j=0;j<localStorage.length;j++){var m=localStorage.key(j).match(/^(rapid_meta_[a-z0-9_]+?_)v\d+_\d+/);if(m)return m[1];}return 'rapid_meta_';}
+ function saveDispute(d){try{var K=detectPrefix()+'disputes';var cur=JSON.parse(localStorage.getItem(K)||'[]');cur.push(d);localStorage.setItem(K,JSON.stringify(cur));}catch(e){}}
+ var box=document.getElementById('rm-d-reasons'), more=document.getElementById('rm-d-more'), out=document.getElementById('rm-d-out');
+ REASONS.forEach(function(r){
+  var b=document.createElement('button');b.textContent=r.label;
+  b.style.cssText='background:#21262d;color:#e6edf3;border:1px solid #444;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:12px';
+  b.addEventListener('click',function(){
+   more.style.display=r.cls==='something_else'?'block':'none';
+   var t=TRIALS.find(function(x){return x.id===sel.value;})||{};
+   var d={app:APP,trial:t.name,nct:t.nct,field:'value',reason_class:r.cls,routes:r.routes,
+     proposed_value:document.getElementById('rm-d-value').value||null,
+     source:document.getElementById('rm-d-source').value||null,
+     our_status:t.status,at:new Date().toISOString()};
+   saveDispute(d);   // instant, local, persists + exports + rides the offline copy
+   // instant local flag on this trial
+   out.innerHTML='<div style="border:1px solid #b00020;border-left:5px solid #b00020;padding:8px;border-radius:6px;background:#160b0d">'
+     +'<b style="color:#f85149">&#9888; Disputed — recorded.</b> Trial <b>'+(t.nct||t.id)+'</b>, reason: <i>'+r.label+'</i>. '
+     +'This is now saved with your work and will be checked against the SOURCE ('+r.routes+'). '
+     +'A disputed number is excluded from the pool until resolved. '
+     +'<div style="opacity:.75;margin-top:4px;font-size:12px">The crowd finds the question; the source settles the answer — your report TRIGGERS verification, it does not bypass it. '
+     +'When GitHub sign-in is enabled this becomes an Issue on the review\'s repo and is adjudicated automatically.</div>'
+     +'<button id="rm-d-issue" style="margin-top:6px;background:#238636;color:#fff;border:0;border-radius:6px;padding:6px 10px;cursor:pointer">Email this report now (optional)</button></div>';
+   var ib=document.getElementById('rm-d-issue');if(ib)ib.addEventListener('click',function(){
+     var body='RapidMeta dispute%0D%0Aapp: '+APP+'%0D%0Atrial: '+(t.nct||t.id)+'%0D%0Areason: '+r.label+' ('+r.cls+')%0D%0Aroutes-to: '+r.routes+'%0D%0Aproposed: '+(d.proposed_value||'(none)')+'%0D%0Asource: '+(d.source||'(none)');
+     window.location.href='mailto:'+OWNER+'?subject='+encodeURIComponent('RapidMeta dispute: '+APP)+'&body='+body;
+   });
+  });
+  box.appendChild(b);
  });
 })();
 </script>
-<!-- rm-report-issue:end -->
+<!-- rm-dispute:end -->
+<!-- rm-session-persist:begin -->
+<div id="rm-persist" style="font-family:system-ui,sans-serif;font-size:13px;border:1px solid #2ea043;
+ border-left:6px solid #2ea043;background:#0d1117;color:#e6edf3;padding:10px 15px;margin:10px;border-radius:8px;max-width:1100px">
+ <b style="color:#3fb950">&#128190; Your work is saved</b>
+ <span id="rm-saved-ind" style="opacity:.8;margin-left:8px">checking…</span>
+ <div style="margin-top:7px">
+  <button id="rm-save-work" style="background:#238636;color:#fff;border:0;border-radius:6px;padding:7px 12px;cursor:pointer;font-weight:600">Save my work (download)</button>
+  <button id="rm-import-work" style="background:#1f6feb;color:#fff;border:0;border-radius:6px;padding:7px 12px;cursor:pointer;margin-left:6px">Import a saved file</button>
+  <button id="rm-offline-copy" style="background:#8957e5;color:#fff;border:0;border-radius:6px;padding:7px 12px;cursor:pointer;margin-left:6px">&#11015; Download my review (runs offline)</button>
+  <input id="rm-import-file" type="file" accept="application/json,.json" style="display:none">
+ </div>
+ <div style="opacity:.65;font-size:11px;margin-top:5px">Your work autosaves in THIS browser. It is not sent anywhere. To move machines, back up, or email a colleague — use <b>Save my work</b>. (Clearing your browser data still deletes local-only work — keep a saved file.)</div>
+</div>
+<script>
+(function(){
+ var APP="RISANKIZUMAB_CD_REVIEW.html", PREFIX="rapid_meta_risankizumab_cd_", SLUG="risankizumab_cd", FMT=1;
+ function detectPrefix(){
+  if(PREFIX){for(var i=0;i<localStorage.length;i++){if(localStorage.key(i).indexOf(PREFIX)===0)return PREFIX;}}
+  // fallback: any rapid_meta_*_v key namespace present
+  for(var j=0;j<localStorage.length;j++){var k=localStorage.key(j);var m=k.match(/^(rapid_meta_[a-z0-9_]+?_)v\d+_\d+/);if(m)return m[1];}
+  return PREFIX||'rapid_meta_';
+ }
+ function entries(){var p=detectPrefix(),e={};for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k.indexOf(p)===0)e[k]=localStorage.getItem(k);}return e;}
+ function canon(e){return JSON.stringify(e,Object.keys(e).sort());}
+ async function sha256(str){try{var b=new TextEncoder().encode(str);var h=await crypto.subtle.digest('SHA-256',b);return Array.from(new Uint8Array(h)).map(function(x){return x.toString(16).padStart(2,'0');}).join('');}catch(e){return '';}}
+ function dl(obj,name){var blob=new Blob([JSON.stringify(obj,null,1)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1500);}
+ // autosave indicator
+ var lastHash=null,lastSaved=null;
+ function fmtTime(d){return d?d.toLocaleString():'';}
+ function tick(){var s=canon(entries());if(s!==lastHash){lastHash=s;lastSaved=new Date();}var el=document.getElementById('rm-saved-ind');if(el)el.textContent=lastSaved?('· last change '+fmtTime(lastSaved)+' · '+(Object.keys(entries()).length)+' items in this browser'):'no saved work yet — start working and it saves automatically';}
+ setInterval(tick,3000);tick();
+ document.getElementById('rm-save-work').addEventListener('click',async function(){
+  var e=entries();if(!Object.keys(e).length){alert('No saved work yet in this browser to export.');return;}
+  var file={rapidmeta_state_file:FMT,schema_min:1,app:APP,slug:SLUG,prefix:detectPrefix(),saved_at:Date.now(),app_version:(Object.keys(e).find(function(k){return /_v\d+_\d+$/.test(k);})||'').replace(detectPrefix(),''),sha256:await sha256(canon(e)),entries:e};
+  dl(file, SLUG+'_myreview_'+new Date().toISOString().slice(0,10)+'.json');
+ });
+ // Download a self-contained offline copy of THIS review, seeded with the user's
+ // own work. Opening the file (no network) restores their exact session.
+ document.getElementById('rm-offline-copy').addEventListener('click',function(){
+  var e=entries();
+  var seed='<'+'script data-rm-seed="1">(function(){try{var O='+JSON.stringify(JSON.stringify(e))+';var d=JSON.parse(O);var p=Object.keys(d).find(function(k){return /_v\d+_\d+$/.test(k);});if(p&&!localStorage.getItem(p)){Object.keys(d).forEach(function(k){try{localStorage.setItem(k,d[k]);}catch(_){}});}}catch(_){}})();<'+'/script>';
+  var html=document.documentElement.outerHTML;
+  html=html.replace(/<script data-rm-seed="1">[\s\S]*?<\/script>/,'');   // idempotent
+  var bm=html.match(/<body[^>]*>/i);
+  html=bm?html.replace(bm[0],bm[0]+'\n'+seed):seed+html;
+  var blob=new Blob(['<!doctype html>\n'+html],{type:'text/html'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=SLUG+'_my_review_offline.html';
+  document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1500);
+  alert('Downloaded a self-contained copy of your review with your work in it. Open it on any laptop — no internet needed — and your session is restored.');
+ });
+ document.getElementById('rm-import-work').addEventListener('click',function(){document.getElementById('rm-import-file').click();});
+ document.getElementById('rm-import-file').addEventListener('change',async function(ev){
+  var f=ev.target.files[0];if(!f)return;var obj;try{obj=JSON.parse(await f.text());}catch(e){alert('Not a valid file.');return;}
+  if(!obj||obj.rapidmeta_state_file!==FMT||!obj.entries){alert('This is not a RapidMeta "Save my work" file.');return;}
+  var p=detectPrefix();
+  if(obj.prefix && obj.prefix!==p){if(!confirm('This saved file is for a different review ("'+obj.app+'"). Importing it here may not work. Continue anyway?'))return;}
+  var h=await sha256(canon(obj.entries));
+  if(obj.sha256 && h && h!==obj.sha256){if(!confirm('Checksum does not match — the file may be corrupted or edited. Import anyway?'))return;}
+  if(!confirm('This will REPLACE the current work in this browser with the saved file. Your current work will be downloaded as a backup first. Continue?'))return;
+  // backup current, then REPLACE
+  var cur=entries();if(Object.keys(cur).length)dl({rapidmeta_state_file:FMT,app:APP,slug:SLUG,prefix:p,saved_at:Date.now(),note:'auto-backup before import',entries:cur}, SLUG+'_backup_before_import.json');
+  Object.keys(cur).forEach(function(k){localStorage.removeItem(k);});
+  Object.keys(obj.entries).forEach(function(k){try{localStorage.setItem(k,obj.entries[k]);}catch(e){}});
+  alert('Your saved work has been restored. Reloading.');location.reload();
+ });
+})();
+</script>
+<!-- rm-session-persist:end -->
 <!-- rm-bundle-button:begin -->
 <div id="rm-bundle-box" style="font-family:system-ui,sans-serif;margin:10px;max-width:1100px">
 <button id="rm-bundle-btn" style="background:#1f6feb;color:#fff;border:0;border-radius:8px;
