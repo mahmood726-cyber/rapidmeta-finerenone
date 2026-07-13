@@ -1177,7 +1177,61 @@
 
 
 <body class="h-screen flex flex-col overflow-hidden">
-<div data-rapidmeta-verify-banner="1" style="font-family:system-ui,sans-serif;font-size:13px;border:1px solid #b8860b;border-left:6px solid #b8860b;background:#0d1117;color:#e6edf3;padding:11px 15px;margin:10px;border-radius:8px;max-width:1100px"><b style="color:#b8860b">⚠ UNVERIFIED — see notes</b> <span style="opacity:.75">· k = 2 contributing trial(s) · not externally benchmarked</span><div style="opacity:.85;margin-top:3px">This app stays up so you can check it. Some displayed data has NOT been fully verified:</div><ul style="margin:6px 0 0 18px;padding:0"><li>displayed counts contradict displayed effect (magnitude_extreme)</li></ul></div>
+<div data-rapidmeta-verify-banner="1" style="font-family:system-ui,sans-serif;font-size:13px;border:1px solid #b8860b;border-left:6px solid #b8860b;background:#0d1117;color:#e6edf3;padding:11px 15px;margin:10px;border-radius:8px;max-width:1100px"><b style="color:#b8860b">⚠ UNVERIFIED — see notes</b> <span style="opacity:.75">· k = 2 contributing trial(s) · not externally benchmarked</span><div style="opacity:.85;margin-top:3px">This app stays up so you can check it. Some displayed data has NOT been fully verified:</div>
+<!-- rm-report-issue:begin -->
+<div id="rm-report-box" style="font-family:system-ui,sans-serif;margin:10px;max-width:1100px">
+<button id="rm-report-btn" style="background:#8957e5;color:#fff;border:0;border-radius:8px;
+ padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer">&#9888; Report a data issue</button>
+<span style="opacity:.7;font-size:12px;margin-left:8px">spotted a wrong number? tell us — it makes the next version better</span>
+<div id="rm-report-form" style="display:none;margin-top:10px;border:1px solid #8957e5;border-radius:8px;padding:12px;background:#0d1117;color:#e6edf3;max-width:640px">
+ <div style="margin-bottom:6px"><b>Which trial?</b><br><select id="rm-r-trial" style="width:100%;padding:5px;margin-top:3px"></select></div>
+ <div style="margin-bottom:6px"><b>Which field is wrong?</b><br>
+  <select id="rm-r-field" style="width:100%;padding:5px;margin-top:3px">
+   <option value="event counts (2x2)">event counts (2x2)</option>
+   <option value="effect estimate">effect estimate / CI</option>
+   <option value="trial label / name">trial label / name</option>
+   <option value="PMID / registry ID">PMID / registry ID</option>
+   <option value="year">year</option>
+   <option value="other">other</option></select></div>
+ <div style="margin-bottom:6px"><b>What SHOULD it be? (the value you read in the source)</b><br>
+  <input id="rm-r-correct" style="width:100%;padding:5px;margin-top:3px" placeholder="e.g. 608/4668, not 0/4668"></div>
+ <div style="margin-bottom:6px"><b>Source (where you read it)</b><br>
+  <input id="rm-r-source" style="width:100%;padding:5px;margin-top:3px" placeholder="e.g. LEADER, NEJM 2016, Table 2 / PMID / DOI"></div>
+ <div style="margin-top:8px">
+  <button id="rm-r-email" style="background:#238636;color:#fff;border:0;border-radius:6px;padding:7px 12px;cursor:pointer">Email the report</button>
+  <button id="rm-r-download" style="background:#1f6feb;color:#fff;border:0;border-radius:6px;padding:7px 12px;cursor:pointer;margin-left:6px">Download as JSON</button>
+ </div>
+ <div style="opacity:.6;font-size:11px;margin-top:6px">No account, no tracking. The report is structured so it becomes a labelled example that improves extraction.</div>
+</div></div>
+<script>
+(function(){
+ var APP="DALFAMPRIDINE_MULTIPLE_SCLEROSIS_AUTO_FULL_REVIEW.html", TRIALS=[{"id": "NCT02006160", "name": "Satchidanand 2020"}, {"id": "NCT01337986", "name": "NCT01337986"}], OWNER="mahmood726@gmail.com";
+ var box=document.getElementById('rm-report-form');
+ var sel=document.getElementById('rm-r-trial');
+ TRIALS.forEach(function(t){var o=document.createElement('option');o.value=t.id;o.textContent=t.name+' ['+t.id+']';sel.appendChild(o);});
+ document.getElementById('rm-report-btn').addEventListener('click',function(){box.style.display=box.style.display==='none'?'block':'none';});
+ function report(){
+  var t=TRIALS.find(function(x){return x.id===sel.value;})||{};
+  return {app:APP, trial:(t.name||'')+' ('+sel.value+')',
+    field:document.getElementById('rm-r-field').value,
+    corrected_value:document.getElementById('rm-r-correct').value,
+    source:document.getElementById('rm-r-source').value,
+    caught_by:'user', tier:'attributed-user', error_class:'user-reported'};
+ }
+ document.getElementById('rm-r-email').addEventListener('click',function(){
+  var r=report();
+  var body='RapidMeta data issue report%0D%0A%0D%0Aapp: '+r.app+'%0D%0Atrial: '+r.trial+'%0D%0Afield: '+r.field+'%0D%0Ashould be: '+r.corrected_value+'%0D%0Asource: '+r.source;
+  window.location.href='mailto:'+OWNER+'?subject='+encodeURIComponent('RapidMeta data issue: '+r.app)+'&body='+body;
+ });
+ document.getElementById('rm-r-download').addEventListener('click',function(){
+  var r=report(); var blob=new Blob([JSON.stringify(r,null,1)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='rapidmeta_issue_'+r.app.replace('.html','')+'.json';
+  document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1500);
+ });
+})();
+</script>
+<!-- rm-report-issue:end -->
+<ul style="margin:6px 0 0 18px;padding:0"><li>displayed counts contradict displayed effect (magnitude_extreme)</li></ul></div>
 
 <ul style="margin:6px 0 0 18px;padding:0"><li>displayed counts contradict displayed effect (magnitude_extreme)</li></ul></div>
 
