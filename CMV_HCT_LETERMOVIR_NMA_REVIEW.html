@@ -1132,6 +1132,75 @@
 <div data-rapidmeta-grade-badge="1" style="font-family:system-ui,sans-serif;font-size:13px;border:1px solid #b8860b;border-left:6px solid #b8860b;background:#0d1117;color:#e6edf3;padding:9px 14px;margin:10px;border-radius:8px;max-width:1100px"><b style="color:#b8860b">EVIDENCE GRADE: WEAK</b><div style="opacity:.85;margin-top:2px">a gap remains (missing PMID/registry, blank cells) resting on a single unverified source</div><div style="opacity:.6;margin-top:3px;font-size:11px">Grades are deterministic, from the published gate outputs. VERIFIED &gt; REGISTRY-CONCORDANT &gt; SOUND &gt; WEAK &gt; REJECTED. The standard is published and applied uniformly.</div></div>
 
 <div data-rapidmeta-verify-banner="1" style="font-family:system-ui,sans-serif;font-size:13px;border:1px solid #b8860b;border-left:6px solid #b8860b;background:#0d1117;color:#e6edf3;padding:11px 15px;margin:10px;border-radius:8px;max-width:1100px"><b style="color:#b8860b">⚠ UNVERIFIED — see notes</b> <span style="opacity:.75">· k = 2 contributing trial(s) · not externally benchmarked</span><div style="opacity:.85;margin-top:3px">This app stays up so you can check it. Some displayed data has NOT been fully verified:</div>
+
+<!-- rm-session-persist:begin -->
+<div id="rm-persist" style="font-family:system-ui,sans-serif;font-size:13px;border:1px solid #2ea043;
+ border-left:6px solid #2ea043;background:#0d1117;color:#e6edf3;padding:10px 15px;margin:10px;border-radius:8px;max-width:1100px">
+ <b style="color:#3fb950">&#128190; Your work is saved</b>
+ <span id="rm-saved-ind" style="opacity:.8;margin-left:8px">checking…</span>
+ <div style="margin-top:7px">
+  <button id="rm-save-work" style="background:#238636;color:#fff;border:0;border-radius:6px;padding:7px 12px;cursor:pointer;font-weight:600">Save my work (download)</button>
+  <button id="rm-import-work" style="background:#1f6feb;color:#fff;border:0;border-radius:6px;padding:7px 12px;cursor:pointer;margin-left:6px">Import a saved file</button>
+  <button id="rm-offline-copy" style="background:#8957e5;color:#fff;border:0;border-radius:6px;padding:7px 12px;cursor:pointer;margin-left:6px">&#11015; Download my review (runs offline)</button>
+  <input id="rm-import-file" type="file" accept="application/json,.json" style="display:none">
+ </div>
+ <div style="opacity:.65;font-size:11px;margin-top:5px">Your work autosaves in THIS browser. It is not sent anywhere. To move machines, back up, or email a colleague — use <b>Save my work</b>. (Clearing your browser data still deletes local-only work — keep a saved file.)</div>
+</div>
+<script>
+(function(){
+ var APP="CMV_HCT_LETERMOVIR_NMA_REVIEW.html", PREFIX="rapid_meta_cmv_hct_letermovir_nma_", SLUG="cmv_hct_letermovir_nma", FMT=1;
+ function detectPrefix(){
+  if(PREFIX){for(var i=0;i<localStorage.length;i++){if(localStorage.key(i).indexOf(PREFIX)===0)return PREFIX;}}
+  // fallback: any rapid_meta_*_v key namespace present
+  for(var j=0;j<localStorage.length;j++){var k=localStorage.key(j);var m=k.match(/^(rapid_meta_[a-z0-9_]+?_)v\d+_\d+/);if(m)return m[1];}
+  return PREFIX||'rapid_meta_';
+ }
+ function entries(){var p=detectPrefix(),e={};for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k.indexOf(p)===0)e[k]=localStorage.getItem(k);}return e;}
+ function canon(e){return JSON.stringify(e,Object.keys(e).sort());}
+ async function sha256(str){try{var b=new TextEncoder().encode(str);var h=await crypto.subtle.digest('SHA-256',b);return Array.from(new Uint8Array(h)).map(function(x){return x.toString(16).padStart(2,'0');}).join('');}catch(e){return '';}}
+ function dl(obj,name){var blob=new Blob([JSON.stringify(obj,null,1)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1500);}
+ // autosave indicator
+ var lastHash=null,lastSaved=null;
+ function fmtTime(d){return d?d.toLocaleString():'';}
+ function tick(){var s=canon(entries());if(s!==lastHash){lastHash=s;lastSaved=new Date();}var el=document.getElementById('rm-saved-ind');if(el)el.textContent=lastSaved?('· last change '+fmtTime(lastSaved)+' · '+(Object.keys(entries()).length)+' items in this browser'):'no saved work yet — start working and it saves automatically';}
+ setInterval(tick,3000);tick();
+ document.getElementById('rm-save-work').addEventListener('click',async function(){
+  var e=entries();if(!Object.keys(e).length){alert('No saved work yet in this browser to export.');return;}
+  var file={rapidmeta_state_file:FMT,schema_min:1,app:APP,slug:SLUG,prefix:detectPrefix(),saved_at:Date.now(),app_version:(Object.keys(e).find(function(k){return /_v\d+_\d+$/.test(k);})||'').replace(detectPrefix(),''),sha256:await sha256(canon(e)),entries:e};
+  dl(file, SLUG+'_myreview_'+new Date().toISOString().slice(0,10)+'.json');
+ });
+ // Download a self-contained offline copy of THIS review, seeded with the user's
+ // own work. Opening the file (no network) restores their exact session.
+ document.getElementById('rm-offline-copy').addEventListener('click',function(){
+  var e=entries();
+  var seed='<'+'script data-rm-seed="1">(function(){try{var O='+JSON.stringify(JSON.stringify(e))+';var d=JSON.parse(O);var p=Object.keys(d).find(function(k){return /_v\d+_\d+$/.test(k);});if(p&&!localStorage.getItem(p)){Object.keys(d).forEach(function(k){try{localStorage.setItem(k,d[k]);}catch(_){}});}}catch(_){}})();<'+'/script>';
+  var html=document.documentElement.outerHTML;
+  html=html.replace(/<script data-rm-seed="1">[\s\S]*?<\/script>/,'');   // idempotent
+  var bm=html.match(/<body[^>]*>/i);
+  html=bm?html.replace(bm[0],bm[0]+'\n'+seed):seed+html;
+  var blob=new Blob(['<!doctype html>\n'+html],{type:'text/html'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=SLUG+'_my_review_offline.html';
+  document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1500);
+  alert('Downloaded a self-contained copy of your review with your work in it. Open it on any laptop — no internet needed — and your session is restored.');
+ });
+ document.getElementById('rm-import-work').addEventListener('click',function(){document.getElementById('rm-import-file').click();});
+ document.getElementById('rm-import-file').addEventListener('change',async function(ev){
+  var f=ev.target.files[0];if(!f)return;var obj;try{obj=JSON.parse(await f.text());}catch(e){alert('Not a valid file.');return;}
+  if(!obj||obj.rapidmeta_state_file!==FMT||!obj.entries){alert('This is not a RapidMeta "Save my work" file.');return;}
+  var p=detectPrefix();
+  if(obj.prefix && obj.prefix!==p){if(!confirm('This saved file is for a different review ("'+obj.app+'"). Importing it here may not work. Continue anyway?'))return;}
+  var h=await sha256(canon(obj.entries));
+  if(obj.sha256 && h && h!==obj.sha256){if(!confirm('Checksum does not match — the file may be corrupted or edited. Import anyway?'))return;}
+  if(!confirm('This will REPLACE the current work in this browser with the saved file. Your current work will be downloaded as a backup first. Continue?'))return;
+  // backup current, then REPLACE
+  var cur=entries();if(Object.keys(cur).length)dl({rapidmeta_state_file:FMT,app:APP,slug:SLUG,prefix:p,saved_at:Date.now(),note:'auto-backup before import',entries:cur}, SLUG+'_backup_before_import.json');
+  Object.keys(cur).forEach(function(k){localStorage.removeItem(k);});
+  Object.keys(obj.entries).forEach(function(k){try{localStorage.setItem(k,obj.entries[k]);}catch(e){}});
+  alert('Your saved work has been restored. Reloading.');location.reload();
+ });
+})();
+</script>
+<!-- rm-session-persist:end -->
 <!-- rm-report-issue:begin -->
 <div id="rm-report-box" style="font-family:system-ui,sans-serif;margin:10px;max-width:1100px">
 <button id="rm-report-btn" style="background:#8957e5;color:#fff;border:0;border-radius:8px;
