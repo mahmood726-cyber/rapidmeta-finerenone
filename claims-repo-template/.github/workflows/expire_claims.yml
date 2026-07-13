@@ -1,0 +1,44 @@
+# Daily claim-expiry + board rebuild — runs on the PUBLIC claims repo.
+# No server, no database, no moderation, no human in the loop: the Action clears
+# lapsed claims (30/40-day) and expired submission badges (6-month) once a day and
+# regenerates the static board. Zero cost (GitHub Actions free tier).
+name: expire-claims
+on:
+  schedule:
+    - cron: '17 3 * * *'      # daily, 03:17 UTC
+  workflow_dispatch: {}        # manual run button
+permissions:
+  contents: write              # to commit pruned claims + rebuilt board
+jobs:
+  expire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Prune lapsed claims + rebuild the board
+        run: |
+          python - <<'PY'
+          import json, time, os, sys
+          sys.path.insert(0, 'scripts')
+          import claims as C, build_claims_board as B
+          store = 'claims.json'; arch_p = 'submissions_archive.json'
+          data = json.load(open(store)) if os.path.exists(store) else []
+          archive = json.load(open(arch_p)) if os.path.exists(arch_p) else []
+          now = int(time.time())
+          # 1) REAL cap enforcement (Codex-A: client is advisory) — revert >3 active/user
+          data, reverted = C.enforce_cap(data, now)
+          # 2) prune lapsed from the active board, appending submissions to the immutable archive
+          kept, dropped = C.prune_lapsed(data, now, archive=archive)
+          json.dump(kept, open(store, 'w'), indent=1)
+          json.dump(archive, open(arch_p, 'w'), indent=1)   # never erased (Codex-A)
+          B.build(kept, now, 'index.html')      # the public board is the repo's front page
+          print(f"cap-reverted {reverted}; pruned {dropped} lapsed; {len(kept)} live; archive={len(archive)}; board rebuilt")
+          PY
+      - name: Commit if changed
+        run: |
+          git config user.name  "rapidmeta-claims-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "chore: daily claim expiry + board rebuild [skip ci]"
+          git push || true
