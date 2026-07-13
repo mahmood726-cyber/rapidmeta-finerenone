@@ -40,43 +40,49 @@ def _woolf_or(tE, tN, cE, cN):
     return y, v
 
 
-def _extract(entries):
-    """Return (measure, trials[]) where each trial has y, v and (if 2x2) counts.
-    Chooses ONE measure for the pool: OR if any 2x2 present, else HR (from CI),
-    else MD (from se)."""
-    have_counts = have_hr = have_md = False
-    for _k, o in entries:
-        tE, tN, cE, cN = _num(o,'tE'), _num(o,'tN'), _num(o,'cE'), _num(o,'cN')
+def _trial_for(measure, k, o):
+    """Extract one trial's (y, v) for a given measure, or None if unsupported.
+    Kept separate so we can try EVERY measure and pick the best — never assume
+    'any counts -> OR' (that greedily drops HR/MD pools with a stray count row)."""
+    tE, tN, cE, cN = _num(o,'tE'), _num(o,'tN'), _num(o,'cE'), _num(o,'cN')
+    rec = {'id': str(k)}
+    if measure == 'OR':
         if None not in (tE, tN, cE, cN) and tN > 0 and cN > 0 and 0 <= tE <= tN and 0 <= cE <= cN:
-            have_counts = True
-        if _num(o, 'publishedHR') and _num(o, 'hrLCI') and _num(o, 'hrUCI'):
-            have_hr = True
-        if _num(o, 'md') is not None and _num(o, 'se') is not None and _num(o, 'se') > 0:
-            have_md = True
-    measure = 'OR' if have_counts else ('HR' if have_hr else ('MD' if have_md else None))
-    trials = []
-    for k, o in entries:
-        tE, tN, cE, cN = _num(o,'tE'), _num(o,'tN'), _num(o,'cE'), _num(o,'cN')
-        rec = {'id': str(k)}
-        if measure == 'OR' and None not in (tE, tN, cE, cN) and tN > 0 and cN > 0 \
-                and 0 <= tE <= tN and 0 <= cE <= cN and not (tE == 0 and cE == 0 and False):
             y, v = _woolf_or(tE, tN, cE, cN)
             rec.update({'y': y, 'v': v, 'tE': tE, 'tN': tN, 'cE': cE, 'cN': cN})
-            trials.append(rec)
-        elif measure == 'HR' and _num(o,'publishedHR') and _num(o,'hrLCI') and _num(o,'hrUCI'):
-            hr, lo, hi = _num(o,'publishedHR'), _num(o,'hrLCI'), _num(o,'hrUCI')
-            if hr > 0 and lo > 0 and hi > 0:
-                se = (math.log(hi) - math.log(lo)) / (2 * Z)
-                if se > 0:
-                    rec.update({'y': math.log(hr), 'v': se * se,
-                                'tE': tE, 'tN': tN, 'cE': cE, 'cN': cN})
-                    trials.append(rec)
-        elif measure == 'MD' and _num(o,'md') is not None and _num(o,'se'):
-            se = _num(o, 'se')
-            rec.update({'y': _num(o,'md'), 'v': se * se,
-                        'tE': None, 'tN': None, 'cE': None, 'cN': None})
-            trials.append(rec)
-    return measure, trials
+            return rec
+    elif measure == 'HR':
+        hr, lo, hi = _num(o,'publishedHR'), _num(o,'hrLCI'), _num(o,'hrUCI')
+        if hr and lo and hi and hr > 0 and lo > 0 and hi > 0:
+            se = (math.log(hi) - math.log(lo)) / (2 * Z)
+            if se > 0:
+                rec.update({'y': math.log(hr), 'v': se * se,
+                            'tE': tE, 'tN': tN, 'cE': cE, 'cN': cN})
+                return rec
+    elif measure == 'MD':
+        md, se = _num(o, 'md'), _num(o, 'se')
+        if md is not None and se and se > 0:
+            rec.update({'y': md, 'v': se * se, 'tE': None, 'tN': None, 'cE': None, 'cN': None})
+            return rec
+    return None
+
+
+def _extract(entries):
+    """Return (measure, trials[]). Try EVERY measure (OR / HR / MD) and pick the
+    one that yields the MOST poolable trials (>=2). Assume the parser is wrong
+    before assuming the data is un-poolable — an app with 2 HR+CI trials plus one
+    stray count row must NOT be forced to OR (k=1) and skipped."""
+    entries = list(entries)
+    cands = {}
+    for measure in ('OR', 'HR', 'MD'):
+        trials = [r for r in (_trial_for(measure, k, o) for k, o in entries) if r]
+        if len(trials) >= 2:
+            cands[measure] = trials
+    if not cands:
+        return None, []
+    pref = {'OR': 3, 'HR': 2, 'MD': 1}   # tie-break: prefer OR > HR > MD
+    best = max(cands, key=lambda m: (len(cands[m]), pref[m]))
+    return best, cands[best]
 
 
 def _dl(trials):
@@ -268,6 +274,8 @@ def main():
     ap.add_argument('--from-classification')
     ap.add_argument('--apply', action='store_true')
     ap.add_argument('--limit', type=int)
+    ap.add_argument('--add-only', action='store_true',
+                    help='skip apps that already carry a bundle button (purely additive)')
     a = ap.parse_args()
     targets = list(a.files)
     if a.from_classification:
@@ -283,6 +291,8 @@ def main():
         p = t if os.path.isabs(t) else os.path.join(REPO, t)
         if not os.path.exists(p):
             print(f"  MISS {t}"); continue
+        if a.add_only and MARKER in open(p, encoding='utf-8', errors='replace').read():
+            continue                      # already seeded — leave untouched
         ok, msg = inject(p, a.apply)
         if ok:
             done += 1
