@@ -11,6 +11,7 @@ MARK = 'data-rapidmeta-grade-badge'
 STYLE = {
     'VERIFIED': ('#0a7d33', 'VERIFIED', 'externally validated vs a published meta-analysis; passes all gates'),
     'AACT_CONCORDANT': ('#1a7f8c', 'REGISTRY-CONCORDANT', 'the pooled effect matches the value the sponsor posted to the trial registry (numeric match; outcome identity not machine-verified)'),
+    'REGISTRY-BACKED': ('#0f6e57', 'REGISTRY-BACKED', 'at least one contributing trial\'s event counts were CONFIRMED against the sponsor-posted registry results (both arms match a single posted outcome) — the number came from, or matches, the registry, not extraction alone'),
     'SOUND': ('#1f6feb', 'SOUND', 'every trial sourced (PMID+registry); passes the arithmetic + identity gates; numbers extracted, not registry-posted'),
     'WEAK': ('#b8860b', 'WEAK', 'a gap remains (missing PMID/registry, blank cells) resting on a single unverified source'),
     'REJECTED': ('#b00020', 'REJECTED', 'fails a HARD arithmetic gate (count<->effect) or a high-confidence identity gate (fabricated control / wrong-NCT) — flagged, logged, never silently dropped'),
