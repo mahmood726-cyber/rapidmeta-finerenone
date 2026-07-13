@@ -216,9 +216,18 @@ def button_js(app, files):
   cd.forEach(function(c){{out.set(c,p);p+=c.length;}});
   out.set(eocd,p);return out;
  }}
+ function userState(){{  // the user's OWN work, captured live from this browser
+  var pfx=null;for(var j=0;j<localStorage.length;j++){{var mk=localStorage.key(j).match(/^(rapid_meta_[a-z0-9_]+?_)v\\d+_\\d+/);if(mk){{pfx=mk[1];break;}}}}
+  var e={{}};if(pfx){{for(var i=0;i<localStorage.length;i++){{var k=localStorage.key(i);if(k.indexOf(pfx)===0)e[k]=localStorage.getItem(k);}}}}
+  return {{prefix:pfx,saved_at:Date.now(),entries:e}};
+ }}
+ function b64enc(str){{return btoa(unescape(encodeURIComponent(str)));}}
  document.getElementById('rm-bundle-btn').addEventListener('click',function(){{
   try{{
-   var zip=buildZip(FILES);
+   var F=Object.assign({{}},FILES);
+   var st=userState();                       // carry the user's own screening/edits/draft
+   if(Object.keys(st.entries).length) F['data/user_state.json']=b64enc(JSON.stringify(st,null,1));
+   var zip=buildZip(F);
    var blob=new Blob([zip],{{type:'application/zip'}});
    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download={json.dumps(zipname)};
    document.body.appendChild(a);a.click();setTimeout(function(){{URL.revokeObjectURL(a.href);a.remove();}},1500);
