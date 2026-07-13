@@ -19,6 +19,10 @@ ROOT = os.environ.get('RAPIDMETA_REPO_ROOT',
                       os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 _MARK = 'data-rapidmeta-verify-banner'
 
+# Apps carrying HAND-AUTHORED banners (specific source wording + Cochrane panels)
+# that the generic auto-banner must not overwrite. Demo-critical.
+_SKIP_HANDCRAFTED = {'MALARIA_ACT_REVIEW.html', 'MALARIA_VACCINE_REVIEW.html'}
+
 _STYLE = {
     'verified':      ('#0a7d33', '✓ VERIFIED',
                       'Pooled estimate matches a published meta-analysis (within CI) and every displayed number was checked against its source.'),
@@ -68,8 +72,10 @@ def main(argv):
     recs = json.load(open(os.path.join(ROOT, 'outputs', 'corpus_classification.json'), encoding='utf-8'))
     done = miss = 0
     for r in recs:
-        if r['status'].startswith('delist'):
-            continue                      # de-listed apps get their own notice, not this banner
+        if r['status'].startswith('delist') or r['status'] == 'redirect':
+            continue                      # de-listed apps get their own notice; redirects just forward to their full app (which gets a banner)
+        if r['app'] in _SKIP_HANDCRAFTED:
+            continue                      # hand-authored banner + Cochrane panel — do not clobber
         p = os.path.join(ROOT, r['app'])
         if not os.path.exists(p):
             miss += 1; continue

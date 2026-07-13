@@ -51,12 +51,40 @@ def _benchmark_set():
 
 def _contributes(o):
     hr = _num(o, 'publishedHR')
-    if hr is not None and hr > 0:
+    if hr is not None:
+        # A displayed effect estimate contributes. The >0 rule is valid ONLY for
+        # RATIO estimands (HR/OR/RR/IRR) — for a continuous outcome, publishedHR
+        # holds a MEAN DIFFERENCE that is legitimately negative or zero (e.g. LDL
+        # % change -61.9). Requiring >0 wrongly drops every continuous-outcome MA.
+        est = (_sval(o, 'estimandType') or '').upper()
+        is_ratio = est in ('HR', 'OR', 'RR', 'IRR') or (est == '' and hr > 0)
+        return (hr > 0) if is_ratio else True
+    # Continuous outcome stored as mean-difference + SE (publishedHR null): a
+    # finite md with a positive SE is directly poolable by inverse variance.
+    md, se = _num(o, 'md'), _num(o, 'se')
+    if md is not None and se is not None and se > 0:
         return True
     tE, tN, cE, cN = _num(o,'tE'), _num(o,'tN'), _num(o,'cE'), _num(o,'cN')
     if None not in (tE, tN, cE, cN) and tN > 0 and cN > 0 and 0 <= tE <= tN and 0 <= cE <= cN and (tE > 0 or cE > 0):
         return True
     return False
+
+
+_DTA_TP = re.compile(r'"?TP"?\s*:\s*\d+')
+
+
+def _dta_trials(txt):
+    """DTA meta-analyses store 2x2 data (TP/FP/FN/TN) as a JSON array, NOT a
+    realData:{} ratio object. Count each object carrying a full numeric 2x2 as a
+    contributing diagnostic study so a DTA MA isn't mistaken for 'no data'."""
+    out = []
+    for m in _DTA_TP.finditer(txt):
+        w = txt[m.start():m.start()+400]
+        if (re.search(r'"?FP"?\s*:\s*\d+', w) and re.search(r'"?FN"?\s*:\s*\d+', w)
+                and re.search(r'"?TN"?\s*:\s*\d+', w)):
+            pm = re.search(r'"?(?:pmid|PMID)"?\s*:\s*"?(\d{6,8})', w)
+            out.append(pm.group(1) if pm else f'dta_study_{len(out)+1}')
+    return out
 
 
 def _trial_provenance(key, o):
@@ -91,17 +119,29 @@ def classify_file(path, bench):
     fn = os.path.basename(path)
     name = fn[:-len('_REVIEW.html')] if fn.endswith('_REVIEW.html') else fn
     txt = open(path, encoding='utf-8', errors='replace').read()
+    # Redirect stubs (*_AUTO_REVIEW.html) carry no realData and just forward to
+    # the *_AUTO_FULL_REVIEW.html dashboard — they are navigation, not failed
+    # apps. Mark them 'redirect' (they follow their FULL app's fate); never
+    # de-list them as "no-source".
     m = re.search(r'realData\s*:\s*\{', txt)
+    if m is None and (re.search(r'http-equiv=["\']refresh', txt, re.I)
+                      or '_FULL_REVIEW.html' in txt or len(txt) < 40000):
+        return {'app': fn, 'name': name, 'status': 'redirect', 'k': 0,
+                'n_trials': 0, 'contributing': [], 'externally_validated': False,
+                'count_effect_hard': [], 'warn': [], 'reasons': ['redirect stub → its full dashboard']}
     trials, contrib = [], []
     miss_pmid = miss_reg = False
     count_effect_hard = []
     warn = []
+    n_hasdata = 0   # entries carrying ANY numeric outcome (incl. single-arm proportions)
     if m:
         body = _objbody(txt, m.end()-1)
         n_entries = 0
         for key, o in _top_entries(body):
             n_entries += 1
             trials.append(key)
+            if any(_num(o, f) is not None for f in ('tE', 'tN', 'publishedHR', 'md', 'se')):
+                n_hasdata += 1
             if _contributes(o):
                 hp, rg = _trial_provenance(key, o)
                 contrib.append(key)
@@ -113,13 +153,49 @@ def classify_file(path, bench):
             count_effect_hard.append([fn, '-', 'coverage', 'realData present but 0 entries parsed'])
     k = len(contrib)
 
+    # DTA fallback: no ratio-object contributors, but the app may be a diagnostic
+    # (2x2) meta-analysis. Count those studies so we don't false-de-list a real MA.
+    is_dta = False
+    if k == 0:
+        dta = _dta_trials(txt)
+        if dta:
+            is_dta = True
+            contrib = dta
+            trials = trials or dta
+            k = len(contrib)
+            if any(str(d).startswith('dta_study_') for d in dta):
+                miss_pmid = True   # a 2x2 study without a resolvable PMID → flag, don't bless
+
     reasons = []
     if k == 0:
-        status = 'delist:no-source' if not trials else 'delist:non-poolable'
-        reasons.append('no contributing trial with a poolable estimate' if trials else 'no trial data')
+        # A k=0 app is only DE-LISTED when it is TRULY EMPTY — no trial entries and
+        # no numeric effect/count/2x2 signal anywhere. If ANY data structure is
+        # present (NMA network/contrasts, arm-based, or a structure our pairwise
+        # parser can't pool), we do NOT de-list — we FLAG it for manual review and
+        # leave it up. "non-poolable" cannot be reliably told apart from
+        # "parser missed the structure", and de-listing a real synthesis is the
+        # exact false-negative this whole exercise guards against.
+        has_signal = bool(trials) or bool(re.search(
+            r'"?(?:tE|tN|se|md|smd|logHR|TP|FP|FN|TN)"?\s*:\s*[-.\d]', txt))
+        if has_signal:
+            status = 'flagged'
+            reasons.append('synthesis data present but no estimate could be auto-pooled '
+                           '(e.g. network/arm-based structure) — verify manually')
+        else:
+            status = 'delist:no-source'
+            reasons.append('no trial data of any kind')
     elif k == 1:
-        status = 'delist:k1'
-        reasons.append(f'single contributing trial ({contrib[0]}) — a forest plot around one trial is not a synthesis')
+        # Only de-list when there is genuinely ONE trial's worth of data. If >=2
+        # trials carry numeric outcomes (e.g. single-arm proportion studies that
+        # don't form a pairwise comparison but ARE a legitimate proportion MA), do
+        # NOT de-list — flag for manual review and leave it up.
+        if n_hasdata >= 2:
+            status = 'flagged'
+            reasons.append(f'{n_hasdata} trials carry data but only one forms a poolable comparison '
+                           f'(likely single-arm/proportion evidence) — verify; not auto-pooled as a comparison')
+        else:
+            status = 'delist:k1'
+            reasons.append(f'single contributing trial ({contrib[0]}) — a forest plot around one trial is not a synthesis')
     else:
         if count_effect_hard:
             status = 'flagged'; reasons.append('displayed counts contradict displayed effect (' +
@@ -145,7 +221,7 @@ def main(argv):
     paths = sorted(glob.glob(os.path.join(ROOT, '*_REVIEW.html')))
     recs = [classify_file(p, bench) for p in paths]
     out = os.path.join(ROOT, 'outputs', 'corpus_classification.json')
-    json.dump(recs, open(out, 'w'), indent=1)
+    json.dump(recs, open(out, 'w', encoding='utf-8'), indent=1, ensure_ascii=True)
     from collections import Counter
     c = Counter(r['status'] for r in recs)
     if hasattr(sys.stdout, 'buffer') and getattr(sys.stdout, 'encoding', '').lower() != 'utf-8':
