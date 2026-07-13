@@ -98,8 +98,10 @@ def _top_entries(body):
 
 def _num(o, k):
     # match both unquoted (tE:4) and quoted ("tE":4 / 'tE':4) JS/JSON keys so a
-    # formatter change can't silently bypass the checks (cross-vendor 2026-07-12)
-    m = re.search(r'''(?<![A-Za-z_])["']?''' + k + r'''["']?\s*:\s*(-?\d+\.?\d*|null)''', o)
+    # formatter change can't silently bypass the checks (cross-vendor 2026-07-12).
+    # Also match leading-dot decimals (publishedHR:.25) — missing these silently
+    # skipped the count/effect check for HR/VE trials written that way (2026-07-13).
+    m = re.search(r'''(?<![A-Za-z_])["']?''' + k + r'''["']?\s*:\s*(-?(?:\d+\.?\d*|\.\d+)|null)''', o)
     if not m: return None
     return None if m.group(1) == 'null' else float(m.group(1))
 
