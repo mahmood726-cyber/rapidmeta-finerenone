@@ -1,0 +1,68 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TB Preventive Therapy — Openly-Sourced Evidence Synthesis</title>
+<meta property="og:title" content="TB Preventive Therapy: shorter rifamycin regimens vs 9-month isoniazid">
+<meta property="og:description" content="A comparison-matched, count-backed meta-analysis built entirely from openly-accessible sources (ClinicalTrials.gov + PubMed).">
+<style>
+:root{--bg:#ffffff;--fg:#1a1f24;--muted:#5a6673;--line:#e2e8f0;--accent:#0b6b5e;--warn:#8a5a00;--card:#f7fafc}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--muted:#9aa7b4;--line:#243040;--accent:#3fb9a6;--warn:#e3b341;--card:#111823}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:28px 18px 60px}
+h1{font-size:1.5rem;line-height:1.25;margin:0 0 4px}h2{font-size:1.05rem;margin:26px 0 8px;color:var(--accent)}
+.sub{color:var(--muted);font-size:.92rem;margin-bottom:18px}
+.pooled{border:1px solid var(--line);border-left:5px solid var(--accent);background:var(--card);border-radius:10px;padding:14px 16px;margin:14px 0}
+.rr{font-size:1.7rem;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:.9rem;margin:8px 0}
+.scroll{overflow-x:auto}th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:600;white-space:nowrap}
+.tier{display:inline-block;font-size:.72rem;padding:1px 7px;border-radius:10px;background:rgba(11,107,94,.12);color:var(--accent);border:1px solid var(--line)}
+a{color:var(--accent)}.warn{border-left-color:var(--warn)}.warn h2{color:var(--warn)}
+.note{color:var(--muted);font-size:.85rem}code{background:var(--card);padding:1px 5px;border-radius:5px}
+.map td:first-child{font-weight:600}
+</style></head><body><div class="wrap">
+
+<h1>Tuberculosis Preventive Therapy: shorter rifamycin-based regimens vs 9 months of isoniazid</h1>
+<div class="sub">A comparison-matched, count-backed evidence synthesis built <strong>entirely from openly-accessible sources</strong> — ClinicalTrials.gov and PubMed abstracts. No paywalled journals, no Embase. Generated 2026-07-14.</div>
+
+<div class="pooled">
+<div>Pooled risk ratio (active tuberculosis), random-effects</div>
+<div class="rr">RR 0.90 &nbsp;<span style="font-size:1rem;font-weight:400">95% CI 0.58–1.39</span></div>
+<div class="note">k = 3 trials · I² = 0% · τ² = 0 · consistent with <strong>non-inferiority</strong> of shorter rifamycin-based regimens vs 9 months isoniazid. This reproduces current WHO / Cochrane guidance using open sources only.</div>
+</div>
+
+<h2>Included trials (comparison-matched: shorter rifamycin regimen vs 9-month isoniazid; outcome = active TB)</h2>
+<div class="scroll"><table>
+<tr><th>Trial (regimen)</th><th>Experimental<br>events/N</th><th>Isoniazid 9mo<br>events/N</th><th>RR [95% CI]</th><th>Source & locator</th></tr>
+<tr><td>BRIEF-TB / A5279 — 1 month rifapentine+INH (HIV+)</td><td>32 / 1488</td><td>33 / 1498</td><td>0.98 [0.60, 1.58]</td>
+<td><span class="tier">PubMed abstract</span><br>NCT01404312 · <a href="https://doi.org/10.1056/NEJMoa1806808">DOI</a> (abstract, Results)</td></tr>
+<tr><td>PREVENT-TB (HIV substudy) — 3 months weekly rifapentine+INH</td><td>2 / 206</td><td>6 / 193</td><td>0.31 [0.06, 1.53]</td>
+<td><span class="tier">PubMed abstract</span><br>NCT00057122 · <a href="https://doi.org/10.1097/QAD.0000000000001098">DOI</a> (abstract, Results)</td></tr>
+<tr><td>P4v9 / Menzies — 4 months rifampin (mostly HIV-negative adults)</td><td>4 / 3443</td><td>4 / 3416</td><td>0.99 [0.25, 3.96]</td>
+<td><span class="tier">PubMed abstract</span><br>NCT00170209 · <a href="https://doi.org/10.1056/NEJMoa1714283">DOI</a> (abstract, Results)</td></tr>
+</table></div>
+<div class="note">Attribution: trial results retrieved from <strong>PubMed</strong>; registry structure from ClinicalTrials.gov. Counts are drawn from the published abstracts (a value shown here without a locator would be a guess — every value above has one).</div>
+
+<h2>Method (stated on screen)</h2>
+<p>DerSimonian–Laird random-effects meta-analysis on the log risk ratio (inverse-variance). <strong>Hartung-Knapp-Sidik-Jonkman was deliberately NOT used:</strong> at k = 2–3 the HKSJ t-interval (1–2 degrees of freedom) is pathologically wide and would manufacture false precision in the opposite direction. With k = 3 the confidence interval is genuinely wide and should be read as <em>uncertain</em>, not as a precise estimate.</p>
+
+<h2 class="warn">Honest limitations — read before citing</h2>
+<ul class="note">
+<li><strong>Outcome heterogeneity:</strong> BRIEF-TB's primary endpoint is a composite (TB <em>or</em> death from TB/unknown cause); the other two report confirmed active TB. The pure-TB count for BRIEF-TB is in its open-access table (PMC6563914) and would refine this slightly.</li>
+<li><strong>Population heterogeneity:</strong> BRIEF-TB and the PREVENT-TB substudy are HIV-positive; P4v9 is mostly HIV-negative. Random-effects accounts for this only partially (I²=0% here reflects the few, concordant trials).</li>
+<li><strong>Small k:</strong> three trials. This is a demonstration that a defensible synthesis is reachable from open sources — not a replacement for a full systematic review.</li>
+<li><strong>Source tier:</strong> counts are abstract-level. Full-text OA tables (JATS) would upgrade the provenance tier for each cell.</li>
+</ul>
+
+<h2>Evidence map — why only 3 of 8 registered trials are pooled here</h2>
+<p class="note">A researcher deciding whether to invest six months in a review needs to know the shape of the evidence. The broad "TB prevention" question has ≥8 registered interventional RCTs, but they test <strong>different comparisons</strong> and cannot honestly be pooled into one number:</p>
+<div class="scroll"><table class="map">
+<tr><th>Comparison</th><th>Registered RCTs</th><th>Usable counts?</th></tr>
+<tr><td>Shorter rifamycin regimen vs 9-mo INH (active TB) — <em>pooled above</em></td><td>NCT01404312, NCT00057122, NCT00170209</td><td>Yes (abstracts)</td></tr>
+<tr><td>INH/RPT vs no preventive treatment</td><td>NCT02430259</td><td>Abstract needed</td></tr>
+<tr><td>INH vs placebo</td><td>NCT00080119, NCT00330304</td><td>Partial / abstract needed</td></tr>
+<tr><td>Continuous vs limited-duration INH</td><td>NCT00164281</td><td>Yes (registry: 20/1006 vs 34/989)</td></tr>
+</table></div>
+<p class="note"><strong>This map is itself the finding:</strong> the single-trial app that previously showed this question was not "one trial's worth" of evidence — it was a search failure. But the additional trials answer <em>different</em> questions, and only the comparison-matched subset above forms a valid pool. Showing this honestly is more useful than a spuriously large forest plot.</p>
+
+<p class="note" style="margin-top:26px;border-top:1px solid var(--line);padding-top:12px">Built by the RapidMeta open-evidence pipeline for low-resource settings. Every number is traceable to a public registry entry or a PubMed abstract. Corrections welcome.</p>
+</div></body></html>
