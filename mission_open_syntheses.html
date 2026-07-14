@@ -1,0 +1,71 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Malaria &amp; HIV — Openly-Sourced Evidence Syntheses</title>
+<meta property="og:title" content="Malaria & HIV evidence syntheses from openly-accessible sources">
+<style>
+:root{--bg:#fff;--fg:#1a1f24;--muted:#5a6673;--line:#e2e8f0;--accent:#0b6b5e;--warn:#8a5a00;--card:#f7fafc}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--muted:#9aa7b4;--line:#243040;--accent:#3fb9a6;--warn:#e3b341;--card:#111823}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:26px 18px 60px}h1{font-size:1.45rem;margin:0 0 4px}
+h2{font-size:1.12rem;margin:30px 0 6px;color:var(--accent);border-top:1px solid var(--line);padding-top:18px}
+.sub{color:var(--muted);font-size:.92rem;margin-bottom:12px}
+.type{display:inline-block;font-size:.74rem;font-weight:700;letter-spacing:.03em;padding:2px 9px;border-radius:11px;border:1px solid var(--accent);color:var(--accent)}
+.type.map{border-color:var(--warn);color:var(--warn)}
+.pooled{border:1px solid var(--line);border-left:5px solid var(--accent);background:var(--card);border-radius:9px;padding:11px 14px;margin:8px 0}
+.rr{font-size:1.35rem;font-weight:700}.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.88rem;margin:6px 0}th,td{text-align:left;padding:6px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:600;white-space:nowrap}.tier{font-size:.72rem;color:var(--accent)}
+a{color:var(--accent)}.note{color:var(--muted);font-size:.85rem}.warn{color:var(--warn)}
+</style></head><body><div class="wrap">
+<h1>Malaria &amp; HIV: evidence syntheses from openly-accessible sources</h1>
+<div class="sub">Trial sets from the verified extraction ledger (not HTML-scraped); each trial's identity &amp; comparison confirmed against ClinicalTrials.gov. Counts shown are the extracted per-arm events with a source tier. Random-effects (DerSimonian–Laird); at k=2–3 the CI is wide and <strong>HKSJ is deliberately not used</strong> (pathological at small k). Generated 2026-07-14.</div>
+
+<h2>HIV pre-exposure prophylaxis — long-acting injectable vs oral TDF/FTC <span class="type">PAIRWISE</span></h2>
+<div class="pooled"><div>Cabotegravir long-acting (CAB-LA) vs daily oral TDF/FTC — HIV infection</div>
+<div class="rr">RR 0.21 <span style="font-size:.95rem;font-weight:400">95% CI 0.07–0.61 · k=2 · I²=69% ⚠</span></div>
+<div class="note">Injectable CAB-LA markedly reduces HIV acquisition vs oral PrEP. I²=69% — the two trials agree in direction but differ in magnitude (populations differ: MSM/TGW vs cisgender women); read the CI as uncertain.</div></div>
+<div class="scroll"><table>
+<tr><th>Trial</th><th>Comparison</th><th>CAB-LA / events</th><th>Oral / events</th><th>RR [95% CI]</th><th>Source</th></tr>
+<tr><td>HPTN 083</td><td>CAB-LA vs TDF/FTC (MSM, TGW)</td><td>13/2282</td><td>39/2284</td><td>0.33 [0.18,0.62]</td><td class="tier">NCT02720094 · extracted, CT.gov-verified</td></tr>
+<tr><td>HPTN 084</td><td>CAB-LA vs TDF/FTC (women)</td><td>4/1614</td><td>36/1610</td><td>0.11 [0.04,0.31]</td><td class="tier">NCT03164564 · extracted, CT.gov-verified</td></tr>
+</table></div>
+<div class="note">A third injectable, <strong>lenacapavir</strong> (PURPOSE-1, NCT04994509), reported <strong>0/2134 vs 39/2136</strong> (RR ≈ 0.01) — even stronger, but a different agent, so it is shown separately rather than lumped into the CAB-LA pool. Together these establish injectable PrEP as substantially superior to oral for prevention.</div>
+
+<h2>Dolutegravir-based ART vs efavirenz-based — viral suppression <span class="type">PAIRWISE</span></h2>
+<div class="pooled"><div>DTG-based regimen vs comparator — virologic suppression (higher = better)</div>
+<div class="rr">RR 1.10 <span style="font-size:.95rem;font-weight:400">95% CI 1.03–1.17 · k=2 · I²=0%</span></div>
+<div class="note">DTG-based ART modestly increases viral suppression vs efavirenz-based regimens. Homogeneous (I²=0%); relevant to first-line ART in sub-Saharan Africa.</div></div>
+<div class="scroll"><table>
+<tr><th>Trial</th><th>Comparison</th><th>DTG / suppressed</th><th>Comparator / suppressed</th><th>Source</th></tr>
+<tr><td>ADVANCE</td><td>DTG vs Atripla (EFV/TDF/FTC)</td><td>285/351</td><td>257/351</td><td class="tier">NCT03122262 · extracted, CT.gov-verified</td></tr>
+<tr><td>NCT02777229</td><td>DTG vs efavirenz</td><td>231/310</td><td>209/303</td><td class="tier">NCT02777229 · extracted, CT.gov-verified</td></tr>
+</table></div>
+
+<h2>Malaria vaccine (R21/Matrix-M) vs control — clinical malaria <span class="type">PAIRWISE</span></h2>
+<div class="pooled"><div>R21/Matrix-M vaccine vs control — clinical malaria episodes</div>
+<div class="rr">RR 0.34 <span style="font-size:.95rem;font-weight:400">95% CI 0.31–0.37 · k=2 · I²=0%</span></div>
+<div class="note">≈66% reduction in clinical malaria — consistent with published R21 efficacy. Both trials evaluate the same vaccine (phase 2b + phase 3), so this pool is coherent and homogeneous.</div></div>
+<div class="scroll"><table>
+<tr><th>Trial</th><th>Comparison</th><th>Vaccine / cases</th><th>Control / cases</th><th>Source</th></tr>
+<tr><td>R21 phase 2b (Burkina Faso)</td><td>R21/Matrix-M vs control</td><td>38/150</td><td>105/150</td><td class="tier">NCT03896724 · extracted, CT.gov-verified</td></tr>
+<tr><td>R21 phase 3 (multi-country)</td><td>R21/Matrix-M vs control</td><td>400/1601</td><td>1199/1599</td><td class="tier">NCT04704830 · extracted, CT.gov-verified</td></tr>
+</table></div>
+
+<h2>Malaria ACT treatment — EVIDENCE MAP (not a single pool) <span class="type map">EVIDENCE MAP</span></h2>
+<div class="note">The three ACT-treatment trials test <strong>different head-to-head ACT comparisons</strong> (artemether-lumefantrine is the common comparator). Pooling them into one risk ratio would mix distinct questions — the same error we avoided in TB. This is a <strong>network of ACTs</strong>, not a pairwise pool. Honest map:</div>
+<div class="scroll"><table>
+<tr><th>Trial</th><th>Comparison</th><th>Events (arm A vs B)</th><th>Source</th></tr>
+<tr><td>Guinea-Bissau</td><td>Artemether-lumefantrine vs DHA-piperaquine</td><td>0/136 vs 7/135</td><td class="tier">NCT01704508</td></tr>
+<tr><td>NCT04565184</td><td>Artesunate-amodiaquine vs artemether-lumefantrine</td><td>3/98 vs 5/115</td><td class="tier">NCT04565184</td></tr>
+<tr><td>NCT05192265</td><td>Pyronaridine-artesunate vs artemether-lumefantrine</td><td>2/78 vs 8/67</td><td class="tier">NCT05192265</td></tr>
+</table></div>
+<div class="note">All ACTs perform well (few treatment failures); the trials differ in <em>which</em> ACTs they compare. A valid synthesis here is a network meta-analysis anchored on artemether-lumefantrine — <strong>and, per the star-shape caveat, it would need a closed loop to test consistency.</strong> Presented as a map until that is built, rather than as a false pooled number.</div>
+
+<h2>Method &amp; honesty notes</h2>
+<ul class="note">
+<li><strong>Analysis type</strong> is declared per section and derived from the data (3 pairwise pools; 1 evidence map). None is dressed up as something it is not.</li>
+<li><strong>Counts</strong> come from the verified extraction ledger and each trial's identity/comparison was confirmed against ClinicalTrials.gov. Effects match the published landmark results (R21 ≈66%, CAB-LA large reduction, DTG superiority) — a strong external check. <strong>Next tier:</strong> upgrade each count to a PubMed-abstract / OA-table locator.</li>
+<li><strong>k=2–3:</strong> CIs are wide and uncertain; flagged, not trumpeted. HKSJ avoided (pathological at small k).</li>
+<li>Built for low-resource settings — every value traceable to a public registry entry, no paywalled source.</li>
+</ul>
+</div></body></html>
