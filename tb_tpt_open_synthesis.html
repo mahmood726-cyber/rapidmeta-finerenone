@@ -21,8 +21,13 @@ a{color:var(--accent)}.warn{border-left-color:var(--warn)}.warn h2{color:var(--w
 .map td:first-child{font-weight:600}
 </style></head><body><div class="wrap">
 
-<h1>Tuberculosis Preventive Therapy: shorter rifamycin-based regimens vs 9 months of isoniazid</h1>
+<h1>Tuberculosis Preventive Therapy: rifamycin-based regimens vs 9 months of isoniazid</h1>
 <div class="sub">A comparison-matched, count-backed evidence synthesis built <strong>entirely from openly-accessible sources</strong> — ClinicalTrials.gov and PubMed abstracts. No paywalled journals, no Embase. Generated 2026-07-14.</div>
+
+<div style="border:2px solid var(--accent);border-radius:10px;padding:12px 15px;margin:6px 0 4px;background:rgba(11,107,94,.08)">
+<div style="font-size:1.05rem;font-weight:700;color:var(--accent);letter-spacing:.02em">NETWORK META-ANALYSIS · indirect + direct evidence</div>
+<div class="note" style="margin-top:3px">This question is a <strong>network</strong>: three shorter regimens (1HP, 3HP, 4R) each compared to a common comparator (9 months isoniazid). The regimen-vs-regimen estimates are <strong>INDIRECT</strong> — no head-to-head trial exists. This is <strong>NOT</strong> a single pairwise pool; read the league table, not one diamond.</div>
+</div>
 
 <div class="pooled">
 <div>Pooled risk ratio (active tuberculosis), random-effects</div>
@@ -41,6 +46,19 @@ a{color:var(--accent)}.warn{border-left-color:var(--warn)}.warn h2{color:var(--w
 <td><span class="tier">PubMed abstract</span><br>NCT00170209 · <a href="https://doi.org/10.1056/NEJMoa1714283">DOI</a> (abstract, Results)</td></tr>
 </table></div>
 <div class="note">Attribution: trial results retrieved from <strong>PubMed</strong>; registry structure from ClinicalTrials.gov. Counts are drawn from the published abstracts (a value shown here without a locator would be a guess — every value above has one).</div>
+
+<h2>Network geometry &amp; league table (the analysis actually run)</h2>
+<div class="note">Nodes = 4 (9-month INH + 1HP + 3HP + 4R). Edges = 3, <strong>all to the common comparator 9INH</strong> → a <strong>STAR</strong> network, no closed loops. <strong>k per edge = 1</strong> — every edge rests on a single trial (flagged ⚠ below). Connected: yes. <strong>Inconsistency: NOT assessable</strong> (a star has no loops to test); node-splitting / design-by-treatment cannot run. <strong>Transitivity is assumed</strong> via the shared 9-month-INH comparator and is only partly defensible — BRIEF-TB and the PREVENT-TB substudy are HIV-positive, P4v9 is mostly HIV-negative.</div>
+<div class="scroll"><table>
+<tr><th>Comparison</th><th>Evidence type</th><th>RR [95% CI]</th><th>Rests on</th></tr>
+<tr><td>1HP vs 9INH</td><td><span class="tier">DIRECT · k=1 ⚠</span></td><td>0.98 [0.60, 1.58]</td><td>BRIEF-TB (composite endpoint)</td></tr>
+<tr><td>3HP vs 9INH</td><td><span class="tier">DIRECT · k=1 ⚠</span></td><td>0.31 [0.06, 1.53]</td><td>PREVENT-TB HIV substudy</td></tr>
+<tr><td>4R vs 9INH</td><td><span class="tier">DIRECT · k=1 ⚠</span></td><td>0.99 [0.25, 3.96]</td><td>P4v9</td></tr>
+<tr><td>1HP vs 3HP</td><td><span class="tier" style="background:rgba(138,90,0,.15);color:var(--warn)">INDIRECT · 0 direct trials</span></td><td>3.13 [0.59, 16.4]</td><td>via 9INH anchor only</td></tr>
+<tr><td>1HP vs 4R</td><td><span class="tier" style="background:rgba(138,90,0,.15);color:var(--warn)">INDIRECT · 0 direct trials</span></td><td>0.98 [0.23, 4.26]</td><td>via 9INH anchor only</td></tr>
+<tr><td>3HP vs 4R</td><td><span class="tier" style="background:rgba(138,90,0,.15);color:var(--warn)">INDIRECT · 0 direct trials</span></td><td>0.31 [0.04, 2.59]</td><td>via 9INH anchor only</td></tr>
+</table></div>
+<div class="note"><strong>Pairwise-vs-network, measured:</strong> the three regimen-vs-regimen comparisons are <strong>not estimable at all pairwise</strong> (zero head-to-head trials). The network makes them estimable by anchoring on 9INH — its value here is <strong>completing the comparison set</strong>, not tightening CIs. A star with k=1 edges borrows no strength across loops (there are none), so the indirect intervals are as fragile as their single source trials. The lumped RR 0.90 shown above treats the three regimens as one exchangeable "shorter rifamycin" node — a defensible simplification, but the league table is the honest, fuller picture.</div>
 
 <h2>Method (stated on screen)</h2>
 <p>DerSimonian–Laird random-effects meta-analysis on the log risk ratio (inverse-variance). <strong>Hartung-Knapp-Sidik-Jonkman was deliberately NOT used:</strong> at k = 2–3 the HKSJ t-interval (1–2 degrees of freedom) is pathologically wide and would manufacture false precision in the opposite direction. With k = 3 the confidence interval is genuinely wide and should be read as <em>uncertain</em>, not as a precise estimate.</p>
