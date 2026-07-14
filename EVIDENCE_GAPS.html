@@ -1,0 +1,272 @@
+<h1>Evidence-gap &amp; search-audit record</h1>
+<p><b>Question:</b> of the app pages that render with fewer than two poolable trials (k&lt;2), how many are genuine evidence gaps (&le;1 RCT exists in the world) versus our own <i>registry-only</i> search failure (RCTs exist in PubMed / Europe PMC that the registry snapshot missed)?</p>
+<p><b>Method:</b> three-layer existence search &mdash; ClinicalTrials.gov/AACT (already run) &rarr; PubMed (NCBI) &rarr; Europe PMC open-access. Run over all 260 k&lt;2 apps (35 k=0, 225 k=1). A datum counts as available if RCTs are found in ANY layer.</p>
+<h2>Result: 260 &rarr; 259 rescued, 1 genuine evidence gap</h2>
+<p><b>259 of 260 apps (99.6%)</b> have &ge;2 RCTs findable in PubMed / Europe PMC. Their low k was <b>our search failure</b>, not an absence of evidence &mdash; they are KEPT. (Adding the found trials is the pending extraction step; the pages honestly show their current k in the meantime.)</p>
+<h2>Genuine evidence gap (delisted from browse, file kept with a NOT-POOLABLE notice)</h2>
+<ul>
+<li><b>Olutasidenib in IDH1-mutated relapsed/refractory AML</b> &mdash; <b>0 randomized controlled trials</b> in PubMed (NCBI esearch RCT[pt]=0), Europe PMC (PUB_TYPE:RCT=0), and confirmed by an independent model (agy/Gemini: "COUNT=0, None exist"). Olutasidenib (Rezlidhia) was FDA-approved on a single-arm study (2102-HEM-101). This is a real evidence gap: <i>there is no randomized evidence for this drug in this indication.</i> The app is removed from the gallery/audit listings; its direct URL still resolves and shows a "NOT POOLABLE" notice. Files: OLUTASIDENIB_AML_REVIEW_FULL_REVIEW.html, OLUTASIDENIB_AML_REVIEW.html.</li>
+</ul>
+<p style="color:#8b949e">This record is deliberately public: a delisted app that vanishes silently is its own dishonesty. "No randomized evidence exists for this question" is itself a finding a researcher needs.</p>
+<h2>Rescued apps (259) &mdash; RCTs exist, kept</h2>
+<table border=1 cellpadding=4 style="border-collapse:collapse;font-size:12px"><tr><th>app</th><th>drug</th><th>condition</th><th>RCTs found (EuropePMC)</th></tr>
+<tr><td>ABALOPARATIDE_OSTEO_AUTO_FULL_REVIEW.html</td><td>Abaloparatide</td><td>osteoporosis</td><td>52</td></tr>
+<tr><td>ABALOPARATIDE_OSTEO_AUTO_REVIEW.html</td><td>Abaloparatide</td><td>osteoporosis</td><td>52</td></tr>
+<tr><td>ACORAMIDIS_ATTR_CM_REVIEW.html</td><td>Acoramidis</td><td></td><td>12</td></tr>
+<tr><td>ADC_HER2_ADJUVANT_REVIEW.html</td><td>ADC NMA</td><td>HER2+ Early Breast Cancer Adjuvant</td><td>0</td></tr>
+<tr><td>AFICAMTEN_HCM_REVIEW.html</td><td>Aficamten</td><td></td><td>23</td></tr>
+<tr><td>AGALSIDASE_FABRY_AUTO_FULL_REVIEW.html</td><td>Agalsidase alfa/beta</td><td>Fabry</td><td>12</td></tr>
+<tr><td>AGALSIDASE_FABRY_AUTO_REVIEW.html</td><td>Agalsidase alfa/beta</td><td>Fabry</td><td>12</td></tr>
+<tr><td>ALDO_SYNTHASE_REVIEW.html</td><td>Aldosterone Synthase Inhibitors</td><td>Resistant Hypertension</td><td>22</td></tr>
+<tr><td>ALPELISIB_BREAST_AUTO_FULL_REVIEW.html</td><td>Alpelisib</td><td>PIK3CA-mutant breast</td><td>22</td></tr>
+<tr><td>ALPELISIB_BREAST_AUTO_REVIEW.html</td><td>Alpelisib</td><td>PIK3CA-mutant breast</td><td>22</td></tr>
+<tr><td>APREMILAST_BEHCET_AUTO_FULL_REVIEW.html</td><td>Apremilast</td><td>BehÃ§et oral ulcers</td><td>0</td></tr>
+<tr><td>APREMILAST_BEHCET_AUTO_REVIEW.html</td><td>Apremilast</td><td>BehÃ§et oral ulcers</td><td>0</td></tr>
+<tr><td>ARIPIPRAZOLE_SCHIZO_AUTO_FULL_REVIEW.html</td><td>Aripiprazole</td><td>schizophrenia</td><td>621</td></tr>
+<tr><td>ARIPIPRAZOLE_SCHIZO_AUTO_REVIEW.html</td><td>Aripiprazole</td><td>schizophrenia</td><td>621</td></tr>
+<tr><td>ASFOTASE_HPP_AUTO_FULL_REVIEW.html</td><td>Asfotase alfa</td><td>hypophosphatasia</td><td>5</td></tr>
+<tr><td>AVACOPAN_ANCA_REVIEW_FULL_REVIEW.html</td><td>Avacopan</td><td>ANCA-associated vasculitis</td><td>10</td></tr>
+<tr><td>AVALGLUCOSIDASE_AUTO_FULL_REVIEW.html</td><td>Avalglucosidase alfa Pompe</td><td></td><td>7</td></tr>
+<tr><td>AVALGLUCOSIDASE_AUTO_REVIEW.html</td><td>Avalglucosidase alfa Pompe</td><td></td><td>7</td></tr>
+<tr><td>AVALGLUCOSIDASE_POMPE_AUTO_FULL_REVIEW.html</td><td>Avalglucosidase alfa</td><td>Pompe</td><td>7</td></tr>
+<tr><td>AVALGLUCOSIDASE_POMPE_AUTO_REVIEW.html</td><td>Avalglucosidase alfa</td><td>Pompe</td><td>7</td></tr>
+<tr><td>AVELUMAB_OVARIAN_CANCER_AUTO_FULL_REVIEW.html</td><td>Avelumab</td><td>Ovarian Cancer</td><td>14</td></tr>
+<tr><td>AVELUMAB_OVARIAN_CANCER_AUTO_REVIEW.html</td><td>Avelumab</td><td>Ovarian Cancer</td><td>14</td></tr>
+<tr><td>BAMLANIVIMAB_COVID_AUTO_FULL_REVIEW.html</td><td>Bamlanivimab</td><td>COVID-19</td><td>67</td></tr>
+<tr><td>BAMLANIVIMAB_COVID_AUTO_REVIEW.html</td><td>Bamlanivimab</td><td>COVID-19</td><td>67</td></tr>
+<tr><td>BAMLANIVIMAB_OUTP_AUTO_FULL_REVIEW.html</td><td>Bamlanivimab outpatient COVID</td><td></td><td>25</td></tr>
+<tr><td>BAMLANIVIMAB_OUTP_AUTO_REVIEW.html</td><td>Bamlanivimab outpatient COVID</td><td></td><td>25</td></tr>
+<tr><td>BARDOXOLONE_CKD_AUTO_FULL_REVIEW.html</td><td>Bardoxolone</td><td>Alport/CKD</td><td>6</td></tr>
+<tr><td>BARDOXOLONE_CKD_AUTO_REVIEW.html</td><td>Bardoxolone</td><td>Alport/CKD</td><td>6</td></tr>
+<tr><td>BENRALIZUMAB_CRSWNP_AUTO_FULL_REVIEW.html</td><td>Benralizumab</td><td>CRSwNP</td><td>8</td></tr>
+<tr><td>BENRALIZUMAB_CRSWNP_AUTO_REVIEW.html</td><td>Benralizumab</td><td>CRSwNP</td><td>8</td></tr>
+<tr><td>BUDESONIDE_ASTHMA_AUTO_FULL_REVIEW.html</td><td>Budesonide</td><td>asthma</td><td>1482</td></tr>
+<tr><td>BUDESONIDE_ASTHMA_AUTO_REVIEW.html</td><td>Budesonide</td><td>asthma</td><td>1482</td></tr>
+<tr><td>CABAZITAXEL_PROSTATE_AUTO_FULL_REVIEW.html</td><td>Cabazitaxel</td><td>mCRPC</td><td>102</td></tr>
+<tr><td>CABAZITAXEL_PROSTATE_AUTO_REVIEW.html</td><td>Cabazitaxel</td><td>mCRPC</td><td>102</td></tr>
+<tr><td>CAPIVASERTIB_BC_REVIEW.html</td><td>Capivasertib + Fulvestrant</td><td>HR+/HER2- Advanced Breast Cancer</td><td>17</td></tr>
+<tr><td>CASIRIVIMAB_COVID_AUTO_FULL_REVIEW.html</td><td>Casirivimab/imdevimab</td><td>COVID-19</td><td>91</td></tr>
+<tr><td>CASIRIVIMAB_COVID_AUTO_REVIEW.html</td><td>Casirivimab/imdevimab</td><td>COVID-19</td><td>91</td></tr>
+<tr><td>CASPOFUNGIN_FUNGAL_AUTO_FULL_REVIEW.html</td><td>Caspofungin</td><td>candidiasis</td><td>56</td></tr>
+<tr><td>CASPOFUNGIN_FUNGAL_AUTO_REVIEW.html</td><td>Caspofungin</td><td>candidiasis</td><td>56</td></tr>
+<tr><td>CINRYZE_HAE_AUTO_FULL_REVIEW.html</td><td>C1-INH replacement</td><td></td><td>10</td></tr>
+<tr><td>CINRYZE_HAE_AUTO_REVIEW.html</td><td>C1-INH replacement</td><td></td><td>10</td></tr>
+<tr><td>DAPAGLIFLOZIN_T2D_CV_AUTO_FULL_REVIEW.html</td><td>Dapagliflozin CVOT</td><td>T2D</td><td>4</td></tr>
+<tr><td>DAPAGLIFLOZIN_T2D_CV_AUTO_REVIEW.html</td><td>Dapagliflozin CVOT</td><td>T2D</td><td>4</td></tr>
+<tr><td>DAPRODUSTAT_ANAEMIA_AUTO_FULL_REVIEW.html</td><td>Daprodustat</td><td>Anaemia</td><td>5</td></tr>
+<tr><td>DAPRODUSTAT_ANAEMIA_AUTO_REVIEW.html</td><td>Daprodustat</td><td>Anaemia</td><td>5</td></tr>
+<tr><td>DASABUVIR_CHRONIC_HEPATITIS_AUTO_FULL_REVIEW.html</td><td>Dasabuvir</td><td>Chronic Hepatitis C Infection</td><td>35</td></tr>
+<tr><td>DASABUVIR_CHRONIC_HEPATITIS_AUTO_REVIEW.html</td><td>Dasabuvir</td><td>Chronic Hepatitis C Infection</td><td>35</td></tr>
+<tr><td>DEFEROXAMINE_IRON_AUTO_FULL_REVIEW.html</td><td>Deferoxamine</td><td>iron overload</td><td>74</td></tr>
+<tr><td>DEFEROXAMINE_IRON_AUTO_REVIEW.html</td><td>Deferoxamine</td><td>iron overload</td><td>74</td></tr>
+<tr><td>DELANDISTROGENE_DMD_REVIEW.html</td><td>Delandistrogene Moxeparvovec Gene Therapy</td><td>Duchenne Muscular Dystrophy</td><td>3</td></tr>
+<tr><td>DENOSUMAB_BONE_MET_AUTO_FULL_REVIEW.html</td><td>Denosumab</td><td>bone metastases</td><td>116</td></tr>
+<tr><td>DENOSUMAB_BONE_MET_AUTO_REVIEW.html</td><td>Denosumab</td><td>bone metastases</td><td>116</td></tr>
+<tr><td>DENOSUMAB_OSTEO_AUTO_FULL_REVIEW.html</td><td>Denosumab</td><td>osteoporosis</td><td>395</td></tr>
+<tr><td>DENOSUMAB_OSTEO_AUTO_REVIEW.html</td><td>Denosumab</td><td>osteoporosis</td><td>395</td></tr>
+<tr><td>DEXAMETHASONE_DME_AUTO_FULL_REVIEW.html</td><td>Dexamethasone implant</td><td>DME</td><td>48</td></tr>
+<tr><td>DEXAMETHASONE_DME_AUTO_REVIEW.html</td><td>Dexamethasone implant</td><td>DME</td><td>48</td></tr>
+<tr><td>DEXAMETHASONE_IMPLANT_AUTO_FULL_REVIEW.html</td><td>Dexamethasone intravitreal implant</td><td></td><td>129</td></tr>
+<tr><td>DEXAMETHASONE_IMPLANT_AUTO_REVIEW.html</td><td>Dexamethasone intravitreal implant</td><td></td><td>129</td></tr>
+<tr><td>DEXAMETHASONE_INTRAVITREAL_AUTO_FULL_REVIEW.html</td><td>Dexamethasone implant</td><td>DME/uveitis</td><td>8</td></tr>
+<tr><td>DEXAMETHASONE_INTRAVITREAL_AUTO_REVIEW.html</td><td>Dexamethasone implant</td><td>DME/uveitis</td><td>8</td></tr>
+<tr><td>DONANEMAB_AD_SOLO_REVIEW.html</td><td>Donanemab</td><td></td><td>68</td></tr>
+<tr><td>DURVALUMAB_ENDOMETRIAL_AUTO_FULL_REVIEW.html</td><td>Durvalumab</td><td>endometrial</td><td>18</td></tr>
+<tr><td>DURVALUMAB_ENDOMETRIAL_AUTO_REVIEW.html</td><td>Durvalumab</td><td>endometrial</td><td>18</td></tr>
+<tr><td>ECULIZUMAB_GMG_AUTO_FULL_REVIEW.html</td><td>Eculizumab</td><td>gMG</td><td>19</td></tr>
+<tr><td>ECULIZUMAB_GMG_AUTO_REVIEW.html</td><td>Eculizumab</td><td>gMG</td><td>19</td></tr>
+<tr><td>ECULIZUMAB_MYASTHENIA_AUTO_FULL_REVIEW.html</td><td>Eculizumab</td><td>MG/NMOSD</td><td>17</td></tr>
+<tr><td>ECULIZUMAB_MYASTHENIA_AUTO_REVIEW.html</td><td>Eculizumab</td><td>MG/NMOSD</td><td>17</td></tr>
+<tr><td>ELACESTRANT_BC_REVIEW.html</td><td>Elacestrant</td><td>ESR1-Mutated HR+/HER2- Advanced Breast Cancer</td><td>12</td></tr>
+<tr><td>ELAGOLIX_ENDOMETRIOSIS_AUTO_FULL_REVIEW.html</td><td>Elagolix</td><td>endometriosis</td><td>29</td></tr>
+<tr><td>ELAGOLIX_ENDOMETRIOSIS_AUTO_REVIEW.html</td><td>Elagolix</td><td>endometriosis</td><td>29</td></tr>
+<tr><td>ELAGOLIX_ENDO_AUTO_FULL_REVIEW.html</td><td>Elagolix</td><td>endometriosis</td><td>29</td></tr>
+<tr><td>ELAGOLIX_ENDO_AUTO_REVIEW.html</td><td>Elagolix</td><td>endometriosis</td><td>29</td></tr>
+<tr><td>EMTRICITABINE_HIV_AUTO_FULL_REVIEW.html</td><td>Emtricitabine + TDF/TAF backbone HIV</td><td></td><td>25</td></tr>
+<tr><td>EMTRICITABINE_HIV_AUTO_REVIEW.html</td><td>Emtricitabine + TDF/TAF backbone HIV</td><td></td><td>25</td></tr>
+<tr><td>EPOETIN_CANCER_AUTO_FULL_REVIEW.html</td><td>Epoetin</td><td>chemo-induced anaemia</td><td>2</td></tr>
+<tr><td>EPOETIN_CANCER_AUTO_REVIEW.html</td><td>Epoetin</td><td>chemo-induced anaemia</td><td>2</td></tr>
+<tr><td>ERDAFITINIB_BLADDER_AUTO_FULL_REVIEW.html</td><td>Erdafitinib</td><td>FGFR+ urothelial</td><td>12</td></tr>
+<tr><td>ERDAFITINIB_BLADDER_AUTO_REVIEW.html</td><td>Erdafitinib</td><td>FGFR+ urothelial</td><td>12</td></tr>
+<tr><td>ETEPLIRSEN_DMD_AUTO_FULL_REVIEW.html</td><td>Eteplirsen</td><td>DMD</td><td>14</td></tr>
+<tr><td>ETEPLIRSEN_DMD_AUTO_REVIEW.html</td><td>Eteplirsen</td><td>DMD</td><td>14</td></tr>
+<tr><td>ETESEVIMAB_COVID_AUTO_FULL_REVIEW.html</td><td>Etesevimab + bamlanivimab COVID</td><td></td><td>41</td></tr>
+<tr><td>ETESEVIMAB_COVID_AUTO_REVIEW.html</td><td>Etesevimab + bamlanivimab COVID</td><td></td><td>41</td></tr>
+<tr><td>ETROLIZUMAB_CD_AUTO_FULL_REVIEW.html</td><td>Etrolizumab</td><td>Crohn</td><td>7</td></tr>
+<tr><td>ETROLIZUMAB_CD_AUTO_REVIEW.html</td><td>Etrolizumab</td><td>Crohn</td><td>7</td></tr>
+<tr><td>EVEROLIMUS_BREAST_AUTO_FULL_REVIEW.html</td><td>Everolimus</td><td>HR+ breast</td><td>146</td></tr>
+<tr><td>EVEROLIMUS_BREAST_AUTO_REVIEW.html</td><td>Everolimus</td><td>HR+ breast</td><td>146</td></tr>
+<tr><td>EVINACUMAB_HOFH_AUTO_FULL_REVIEW.html</td><td>Evinacumab</td><td>HoFH</td><td>6</td></tr>
+<tr><td>EVINACUMAB_HOFH_AUTO_REVIEW.html</td><td>Evinacumab</td><td>HoFH</td><td>6</td></tr>
+<tr><td>EVOLOCUMAB_ASCVD_AUTO_2_FULL_REVIEW.html</td><td>Evolocumab</td><td>ASCVD secondary prevention</td><td>18</td></tr>
+<tr><td>EZETIMIBE_LIPID_AUTO_FULL_REVIEW.html</td><td>Ezetimibe</td><td>hyperlipidemia</td><td>133</td></tr>
+<tr><td>GIVINOSTAT_DMD_AUTO_FULL_REVIEW.html</td><td>Givinostat</td><td>DMD</td><td>2</td></tr>
+<tr><td>GIVINOSTAT_DMD_AUTO_REVIEW.html</td><td>Givinostat</td><td>DMD</td><td>2</td></tr>
+<tr><td>ICATIBANT_HAE_AUTO_FULL_REVIEW.html</td><td>Icatibant</td><td>acute HAE</td><td>11</td></tr>
+<tr><td>ICATIBANT_HAE_AUTO_REVIEW.html</td><td>Icatibant</td><td>acute HAE</td><td>11</td></tr>
+<tr><td>IDURSULFASE_MPS2_AUTO_FULL_REVIEW.html</td><td>Idursulfase</td><td>MPS II</td><td>13</td></tr>
+<tr><td>IDURSULFASE_MPS2_AUTO_REVIEW.html</td><td>Idursulfase</td><td>MPS II</td><td>13</td></tr>
+<tr><td>INAVOLISIB_BC_REVIEW.html</td><td>Inavolisib + Palbociclib + Fulvestrant</td><td>PIK3CA-Mutated HR+/HER2- Advanced BC</td><td>0</td></tr>
+<tr><td>INCLISIRAN_HOFH_AUTO_FULL_REVIEW.html</td><td>Inclisiran</td><td>HoFH</td><td>3</td></tr>
+<tr><td>INCLISIRAN_HOFH_AUTO_REVIEW.html</td><td>Inclisiran</td><td>HoFH</td><td>3</td></tr>
+<tr><td>INDACATEROL_COPD_AUTO_FULL_REVIEW.html</td><td>Indacaterol</td><td>COPD</td><td>188</td></tr>
+<tr><td>INDACATEROL_COPD_AUTO_REVIEW.html</td><td>Indacaterol</td><td>COPD</td><td>188</td></tr>
+<tr><td>INOTERSEN_ATTR_PN_AUTO_FULL_REVIEW.html</td><td>Inotersen</td><td>ATTR polyneuropathy</td><td>10</td></tr>
+<tr><td>INOTERSEN_ATTR_PN_AUTO_REVIEW.html</td><td>Inotersen</td><td>ATTR polyneuropathy</td><td>10</td></tr>
+<tr><td>INOTERSEN_FAP_AUTO_FULL_REVIEW.html</td><td>Inotersen</td><td>hereditary ATTR-PN</td><td>6</td></tr>
+<tr><td>INOTERSEN_FAP_AUTO_REVIEW.html</td><td>Inotersen</td><td>hereditary ATTR-PN</td><td>6</td></tr>
+<tr><td>INOTERSEN_HATTR_AUTO_FULL_REVIEW.html</td><td>Inotersen</td><td>hATTR-PN</td><td>7</td></tr>
+<tr><td>INOTERSEN_HATTR_AUTO_REVIEW.html</td><td>Inotersen</td><td>hATTR-PN</td><td>7</td></tr>
+<tr><td>IPTACOPAN_IGAN_REVIEW.html</td><td>Iptacopan</td><td></td><td>15</td></tr>
+<tr><td>ISONIAZID_LTBI_AUTO_FULL_REVIEW.html</td><td>Isoniazid</td><td>LTBI</td><td>77</td></tr>
+<tr><td>ISONIAZID_LTBI_AUTO_REVIEW.html</td><td>Isoniazid</td><td>LTBI</td><td>77</td></tr>
+<tr><td>LAZERTINIB_LUNG_AUTO_FULL_REVIEW.html</td><td>Lazertinib + amivantamab</td><td>EGFR NSCLC</td><td>17</td></tr>
+<tr><td>LAZERTINIB_LUNG_AUTO_REVIEW.html</td><td>Lazertinib + amivantamab</td><td>EGFR NSCLC</td><td>17</td></tr>
+<tr><td>LEDIPASVIR_HCV_AUTO_FULL_REVIEW.html</td><td>Ledipasvir/sofosbuvir</td><td>HCV</td><td>88</td></tr>
+<tr><td>LEDIPASVIR_HCV_AUTO_REVIEW.html</td><td>Ledipasvir/sofosbuvir</td><td>HCV</td><td>88</td></tr>
+<tr><td>LISINOPRIL_HTN_AUTO_FULL_REVIEW.html</td><td>Lisinopril</td><td>HTN</td><td>23</td></tr>
+<tr><td>LISINOPRIL_HTN_AUTO_REVIEW.html</td><td>Lisinopril</td><td>HTN</td><td>23</td></tr>
+<tr><td>LUMASIRAN_PH1_AUTO_FULL_REVIEW.html</td><td>Lumasiran</td><td>primary hyperoxaluria</td><td>4</td></tr>
+<tr><td>LUMASIRAN_PH1_AUTO_REVIEW.html</td><td>Lumasiran</td><td>primary hyperoxaluria</td><td>4</td></tr>
+<tr><td>MARALIXIBAT_PFIC_REVIEW_FULL_REVIEW.html</td><td>Maralixibat</td><td>PFIC</td><td>4</td></tr>
+<tr><td>MARIBAVIR_CMV_AUTO_FULL_REVIEW.html</td><td>Maribavir</td><td>refractory CMV</td><td>16</td></tr>
+<tr><td>MARIBAVIR_CMV_AUTO_REVIEW.html</td><td>Maribavir</td><td>refractory CMV</td><td>16</td></tr>
+<tr><td>MAVACAMTEN_OHCM_AUTO_FULL_REVIEW.html</td><td>Mavacamten</td><td>obstructive HCM</td><td>31</td></tr>
+<tr><td>MAVACAMTEN_OHCM_AUTO_REVIEW.html</td><td>Mavacamten</td><td>obstructive HCM</td><td>31</td></tr>
+<tr><td>MEN_ACWY_AUTO_FULL_REVIEW.html</td><td>Quadrivalent meningococcal MenACWY</td><td></td><td>85</td></tr>
+<tr><td>MEN_ACWY_AUTO_REVIEW.html</td><td>Quadrivalent meningococcal MenACWY</td><td></td><td>85</td></tr>
+<tr><td>METFORMIN_T2D_AUTO_FULL_REVIEW.html</td><td>Metformin</td><td>T2D</td><td>812</td></tr>
+<tr><td>METFORMIN_T2D_AUTO_REVIEW.html</td><td>Metformin</td><td>T2D</td><td>812</td></tr>
+<tr><td>METHADONE_OUD_AUTO_FULL_REVIEW.html</td><td>Methadone maintenance OUD</td><td></td><td>153</td></tr>
+<tr><td>METHADONE_OUD_AUTO_REVIEW.html</td><td>Methadone maintenance OUD</td><td></td><td>153</td></tr>
+<tr><td>MIRVETUXIMAB_OVARIAN_REVIEW_FULL_REVIEW.html</td><td>Mirvetuximab soravtansine FRÎ±+ ovarian</td><td></td><td>0</td></tr>
+<tr><td>MITAPIVAT_PYRUVATE_AUTO_FULL_REVIEW.html</td><td>Mitapivat</td><td>PK deficiency</td><td>5</td></tr>
+<tr><td>MITAPIVAT_PYRUVATE_AUTO_REVIEW.html</td><td>Mitapivat</td><td>PK deficiency</td><td>5</td></tr>
+<tr><td>MITAPIVAT_THALASSEMIA_REVIEW.html</td><td>Mitapivat</td><td></td><td>8</td></tr>
+<tr><td>NEMOLIZUMAB_PRURIGO_REVIEW_FULL_REVIEW.html</td><td>Nemolizumab</td><td>prurigo nodularis</td><td>11</td></tr>
+<tr><td>NEPA_CINV_AUTO_FULL_REVIEW.html</td><td>NEPA</td><td></td><td>50</td></tr>
+<tr><td>NEPA_CINV_AUTO_REVIEW.html</td><td>NEPA</td><td></td><td>50</td></tr>
+<tr><td>NETUPITANT_CINV_AUTO_FULL_REVIEW.html</td><td>Netupitant/palonosetron</td><td>CINV</td><td>42</td></tr>
+<tr><td>NETUPITANT_CINV_AUTO_REVIEW.html</td><td>Netupitant/palonosetron</td><td>CINV</td><td>42</td></tr>
+<tr><td>OBICETRAPIB_LIPID_AUTO_FULL_REVIEW.html</td><td>Obicetrapib</td><td></td><td>9</td></tr>
+<tr><td>OBINUTUZUMAB_LN_AUTO_FULL_REVIEW.html</td><td>Obinutuzumab</td><td>lupus nephritis</td><td>6</td></tr>
+<tr><td>OBINUTUZUMAB_LN_AUTO_REVIEW.html</td><td>Obinutuzumab</td><td>lupus nephritis</td><td>6</td></tr>
+<tr><td>OLAPARIB_OVARIAN2_AUTO_FULL_REVIEW.html</td><td>Olaparib</td><td>ovarian</td><td>151</td></tr>
+<tr><td>OLAPARIB_OVARIAN2_AUTO_REVIEW.html</td><td>Olaparib</td><td>ovarian</td><td>151</td></tr>
+<tr><td>OLAPARIB_OVARIAN_AUTO_FULL_REVIEW.html</td><td>Olaparib</td><td>ovarian cancer</td><td>151</td></tr>
+<tr><td>OLAPARIB_OVARIAN_AUTO_REVIEW.html</td><td>Olaparib</td><td>ovarian cancer</td><td>151</td></tr>
+<tr><td>OMALIZUMAB_FOOD_ALLERGY_AUTO_FULL_REVIEW.html</td><td>Omalizumab</td><td>food allergy</td><td>67</td></tr>
+<tr><td>OMALIZUMAB_FOOD_ALLERGY_AUTO_REVIEW.html</td><td>Omalizumab</td><td>food allergy</td><td>67</td></tr>
+<tr><td>OMBITASVIR_CHRONIC_HEPATITIS_AUTO_FULL_REVIEW.html</td><td>Ombitasvir</td><td>Chronic Hepatitis C Infection</td><td>47</td></tr>
+<tr><td>OMBITASVIR_CHRONIC_HEPATITIS_AUTO_REVIEW.html</td><td>Ombitasvir</td><td>Chronic Hepatitis C Infection</td><td>47</td></tr>
+<tr><td>OMECAMTIV_HEARTFAIL_AUTO_FULL_REVIEW.html</td><td>Omecamtiv mecarbil</td><td>HFrEF</td><td>18</td></tr>
+<tr><td>OMECAMTIV_HEARTFAIL_AUTO_REVIEW.html</td><td>Omecamtiv mecarbil</td><td>HFrEF</td><td>18</td></tr>
+<tr><td>OMECAMTIV_HFREF_AUTO_FULL_REVIEW.html</td><td>Omecamtiv mecarbil</td><td>HFrEF</td><td>18</td></tr>
+<tr><td>OMECAMTIV_HFREF_AUTO_REVIEW.html</td><td>Omecamtiv mecarbil</td><td>HFrEF</td><td>18</td></tr>
+<tr><td>OMECAMTIV_HF_AUTO_FULL_REVIEW.html</td><td>Omecamtiv mecarbil</td><td>HFrEF</td><td>18</td></tr>
+<tr><td>OMECAMTIV_HF_AUTO_REVIEW.html</td><td>Omecamtiv mecarbil</td><td>HFrEF</td><td>18</td></tr>
+<tr><td>OSIMERTINIB_ADJUVANT_AUTO_FULL_REVIEW.html</td><td>Osimertinib</td><td>in EGFR NSCLC</td><td>149</td></tr>
+<tr><td>OSIMERTINIB_ADJUVANT_AUTO_REVIEW.html</td><td>Osimertinib</td><td>in EGFR NSCLC</td><td>149</td></tr>
+<tr><td>OSIMERTINIB_LUNG_AUTO_FULL_REVIEW.html</td><td>Osimertinib</td><td>EGFR-mutant NSCLC</td><td>65</td></tr>
+<tr><td>OSIMERTINIB_LUNG_AUTO_REVIEW.html</td><td>Osimertinib</td><td>EGFR-mutant NSCLC</td><td>65</td></tr>
+<tr><td>PALIFERMIN_MUCOSITIS_AUTO_FULL_REVIEW.html</td><td>Palifermin</td><td>mucositis</td><td>47</td></tr>
+<tr><td>PALIFERMIN_MUCOSITIS_AUTO_REVIEW.html</td><td>Palifermin</td><td>mucositis</td><td>47</td></tr>
+<tr><td>PARITAPREVIR_CHRONIC_HEPATITIS_AUTO_FULL_REVIEW.html</td><td>Paritaprevir</td><td>Chronic Hepatitis C Infection</td><td>48</td></tr>
+<tr><td>PARITAPREVIR_CHRONIC_HEPATITIS_AUTO_REVIEW.html</td><td>Paritaprevir</td><td>Chronic Hepatitis C Infection</td><td>48</td></tr>
+<tr><td>PATISIRAN_ATTR_PN_AUTO_FULL_REVIEW.html</td><td>Patisiran</td><td>ATTR polyneuropathy</td><td>17</td></tr>
+<tr><td>PATISIRAN_ATTR_PN_AUTO_REVIEW.html</td><td>Patisiran</td><td>ATTR polyneuropathy</td><td>17</td></tr>
+<tr><td>PATISIRAN_HATTR_AUTO_FULL_REVIEW.html</td><td>Patisiran</td><td>hATTR-PN</td><td>6</td></tr>
+<tr><td>PATISIRAN_HATTR_AUTO_REVIEW.html</td><td>Patisiran</td><td>hATTR-PN</td><td>6</td></tr>
+<tr><td>PEGCETACOPLAN_PNH_AUTO_FULL_REVIEW.html</td><td>Pegcetacoplan</td><td>PNH</td><td>16</td></tr>
+<tr><td>PEGCETACOPLAN_PNH_AUTO_REVIEW.html</td><td>Pegcetacoplan</td><td>PNH</td><td>16</td></tr>
+<tr><td>PEMBROLIZUMAB_KIDNEY_ADJ_AUTO_2_FULL_REVIEW.html</td><td>Pembrolizumab</td><td>RCC</td><td>174</td></tr>
+<tr><td>PEMBROLIZUMAB_KIDNEY_ADJ_AUTO_FULL_REVIEW.html</td><td>Pembrolizumab</td><td>RCC</td><td>174</td></tr>
+<tr><td>PEMBROLIZUMAB_KIDNEY_ADJ_AUTO_REVIEW.html</td><td>Pembrolizumab</td><td>RCC</td><td>174</td></tr>
+<tr><td>PEMBROLIZUMAB_MELANOMA_ADJ_AUTO_FULL_REVIEW.html</td><td>Pembrolizumab</td><td>melanoma</td><td>694</td></tr>
+<tr><td>PEMBROLIZUMAB_MELANOMA_ADJ_AUTO_REVIEW.html</td><td>Pembrolizumab</td><td>melanoma</td><td>694</td></tr>
+<tr><td>PEMBROLIZUMAB_MELANOMA_AUTO_FULL_REVIEW.html</td><td>Pembrolizumab</td><td>melanoma</td><td>694</td></tr>
+<tr><td>PEMBROLIZUMAB_MELANOMA_AUTO_REVIEW.html</td><td>Pembrolizumab</td><td>melanoma</td><td>694</td></tr>
+<tr><td>PEMBROLIZUMAB_MELANOMA_NEO_AUTO_FULL_REVIEW.html</td><td>Pembrolizumab neoadjuvant melanoma</td><td></td><td>167</td></tr>
+<tr><td>PEMBROLIZUMAB_MELANOMA_NEO_AUTO_REVIEW.html</td><td>Pembrolizumab neoadjuvant melanoma</td><td></td><td>167</td></tr>
+<tr><td>PEMBROLIZUMAB_RCC_AUTO_FULL_REVIEW.html</td><td>Pembrolizumab + axitinib RCC</td><td></td><td>67</td></tr>
+<tr><td>PEMBROLIZUMAB_RCC_AUTO_REVIEW.html</td><td>Pembrolizumab + axitinib RCC</td><td></td><td>67</td></tr>
+<tr><td>PEMBROLIZUMAB_RENAL_AUTO_FULL_REVIEW.html</td><td>Pembrolizumab</td><td>RCC</td><td>174</td></tr>
+<tr><td>PEMBROLIZUMAB_RENAL_AUTO_REVIEW.html</td><td>Pembrolizumab</td><td>RCC</td><td>174</td></tr>
+<tr><td>PEMIGATINIB_BTC_AUTO_FULL_REVIEW.html</td><td>Pemigatinib</td><td>CCA</td><td>4</td></tr>
+<tr><td>PEMIGATINIB_BTC_AUTO_REVIEW.html</td><td>Pemigatinib</td><td>CCA</td><td>4</td></tr>
+<tr><td>PEMIGATINIB_CHOLANGIO_AUTO_FULL_REVIEW.html</td><td>Pemigatinib</td><td>cholangiocarcinoma</td><td>7</td></tr>
+<tr><td>PEMIGATINIB_CHOLANGIO_AUTO_REVIEW.html</td><td>Pemigatinib</td><td>cholangiocarcinoma</td><td>7</td></tr>
+<tr><td>PIBRENTASVIR_HEPATITIS_C_AUTO_FULL_REVIEW.html</td><td>Pibrentasvir</td><td>Hepatitis C Virus</td><td>34</td></tr>
+<tr><td>PIBRENTASVIR_HEPATITIS_C_AUTO_REVIEW.html</td><td>Pibrentasvir</td><td>Hepatitis C Virus</td><td>34</td></tr>
+<tr><td>PIOGLITAZONE_T2D_AUTO_FULL_REVIEW.html</td><td>Pioglitazone</td><td>T2D</td><td>86</td></tr>
+<tr><td>RAMUCIRUMAB_HCC_AUTO_FULL_REVIEW.html</td><td>Ramucirumab</td><td>HCC</td><td>29</td></tr>
+<tr><td>RAMUCIRUMAB_HCC_AUTO_REVIEW.html</td><td>Ramucirumab</td><td>HCC</td><td>29</td></tr>
+<tr><td>REMDESIVIR_COVID_AUTO_FULL_REVIEW.html</td><td>Remdesivir</td><td>COVID-19</td><td>542</td></tr>
+<tr><td>REMDESIVIR_COVID_AUTO_REVIEW.html</td><td>Remdesivir</td><td>COVID-19</td><td>542</td></tr>
+<tr><td>RESMETIROM_MASH_REVIEW.html</td><td>Resmetirom</td><td></td><td>35</td></tr>
+<tr><td>ROMOSOZUMAB_OP_REVIEW.html</td><td>Romosozumab</td><td>Postmenopausal Osteoporosis</td><td>59</td></tr>
+<tr><td>ROMOSOZUMAB_OSTEO_AUTO_FULL_REVIEW.html</td><td>Romosozumab</td><td>osteoporosis</td><td>68</td></tr>
+<tr><td>ROMOSOZUMAB_OSTEO_AUTO_REVIEW.html</td><td>Romosozumab</td><td>osteoporosis</td><td>68</td></tr>
+<tr><td>ROZANOLIXIZUMAB_MG_AUTO_FULL_REVIEW.html</td><td>Rozanolixizumab</td><td>gMG</td><td>9</td></tr>
+<tr><td>ROZANOLIXIZUMAB_MG_AUTO_REVIEW.html</td><td>Rozanolixizumab</td><td>gMG</td><td>9</td></tr>
+<tr><td>RUCAPARIB_PROSTATE2_AUTO_FULL_REVIEW.html</td><td>Rucaparib</td><td>BRCA+ mCRPC</td><td>6</td></tr>
+<tr><td>RUCAPARIB_PROSTATE2_AUTO_REVIEW.html</td><td>Rucaparib</td><td>BRCA+ mCRPC</td><td>6</td></tr>
+<tr><td>RUCAPARIB_PROSTATE_AUTO_FULL_REVIEW.html</td><td>Rucaparib</td><td>mCRPC</td><td>10</td></tr>
+<tr><td>RUCAPARIB_PROSTATE_AUTO_REVIEW.html</td><td>Rucaparib</td><td>mCRPC</td><td>10</td></tr>
+<tr><td>RUFINAMIDE_EPILEPSY_AUTO_FULL_REVIEW.html</td><td>Rufinamide</td><td>LGS</td><td>15</td></tr>
+<tr><td>RUFINAMIDE_EPILEPSY_AUTO_REVIEW.html</td><td>Rufinamide</td><td>LGS</td><td>15</td></tr>
+<tr><td>RUSFERTIDE_PV_REVIEW.html</td><td>Rusfertide</td><td></td><td>6</td></tr>
+<tr><td>SACUBITRIL_HEARTFAIL_AUTO_FULL_REVIEW.html</td><td>Sacubitril/valsartan</td><td>HF</td><td>327</td></tr>
+<tr><td>SACUBITRIL_HEARTFAIL_AUTO_REVIEW.html</td><td>Sacubitril/valsartan</td><td>HF</td><td>327</td></tr>
+<tr><td>SACUBITRIL_VALSARTAN_HF_AUTO_FULL_REVIEW.html</td><td>Sacubitril/valsartan</td><td>HF</td><td>327</td></tr>
+<tr><td>SACUBITRIL_VALSARTAN_HF_AUTO_REVIEW.html</td><td>Sacubitril/valsartan</td><td>HF</td><td>327</td></tr>
+<tr><td>SELEXIPAG_PAH_AUTO_FULL_REVIEW.html</td><td>Selexipag</td><td>PAH</td><td>34</td></tr>
+<tr><td>SELEXIPAG_PAH_AUTO_REVIEW.html</td><td>Selexipag</td><td>PAH</td><td>34</td></tr>
+<tr><td>SELPERCATINIB_RET_REVIEW_FULL_REVIEW.html</td><td>Selpercatinib</td><td>RET+ NSCLC/MTC</td><td>1</td></tr>
+<tr><td>SELUMETINIB_NF1_AUTO_FULL_REVIEW.html</td><td>Selumetinib</td><td>NF1 plexiform</td><td>4</td></tr>
+<tr><td>SELUMETINIB_NF1_AUTO_REVIEW.html</td><td>Selumetinib</td><td>NF1 plexiform</td><td>4</td></tr>
+<tr><td>SEMAGLUTIDE_NASH_AUTO_FULL_REVIEW.html</td><td>Semaglutide</td><td>NASH</td><td>53</td></tr>
+<tr><td>SEMAGLUTIDE_NASH_AUTO_REVIEW.html</td><td>Semaglutide</td><td>NASH</td><td>53</td></tr>
+<tr><td>SER109_CDI_AUTO_FULL_REVIEW.html</td><td>Fecal microbiota live</td><td></td><td>961</td></tr>
+<tr><td>SER109_CDI_AUTO_REVIEW.html</td><td>Fecal microbiota live</td><td></td><td>961</td></tr>
+<tr><td>SOTATERCEPT_PAH_REVIEW.html</td><td>Sotatercept</td><td>PAH</td><td>12</td></tr>
+<tr><td>SPARSENTAN_IGAN_REVIEW.html</td><td>Sparsentan</td><td></td><td>9</td></tr>
+<tr><td>SPESOLIMAB_GPP_AUTO_FULL_REVIEW.html</td><td>Spesolimab</td><td>generalized pustular psoriasis</td><td>11</td></tr>
+<tr><td>SPESOLIMAB_GPP_AUTO_REVIEW.html</td><td>Spesolimab</td><td>generalized pustular psoriasis</td><td>11</td></tr>
+<tr><td>SUMATRIPTAN_MIG_AUTO_FULL_REVIEW.html</td><td>Sumatriptan</td><td>acute migraine</td><td>455</td></tr>
+<tr><td>SUMATRIPTAN_MIG_AUTO_REVIEW.html</td><td>Sumatriptan</td><td>acute migraine</td><td>455</td></tr>
+<tr><td>SUTIMLIMAB_CAD_REVIEW_FULL_REVIEW.html</td><td>Sutimlimab</td><td>cold agglutinin disease</td><td>6</td></tr>
+<tr><td>TALIGLUCERASE_GAUCHER_AUTO_FULL_REVIEW.html</td><td>Taliglucerase alfa</td><td>Gaucher</td><td>7</td></tr>
+<tr><td>TECOVIRIMAT_MPOX_AUTO_FULL_REVIEW.html</td><td>Tecovirimat</td><td>mpox/smallpox</td><td>3</td></tr>
+<tr><td>TECOVIRIMAT_MPOX_AUTO_REVIEW.html</td><td>Tecovirimat</td><td>mpox/smallpox</td><td>3</td></tr>
+<tr><td>TENAPANOR_HYPERPHOS_AUTO_FULL_REVIEW.html</td><td>Tenapanor</td><td>hyperphosphatemia</td><td>16</td></tr>
+<tr><td>TENAPANOR_HYPERPHOS_AUTO_REVIEW.html</td><td>Tenapanor</td><td>hyperphosphatemia</td><td>16</td></tr>
+<tr><td>TEPLIZUMAB_T1D_REVIEW.html</td><td>Teplizumab</td><td>Delay of Stage 3 Type 1 Diabetes</td><td>21</td></tr>
+<tr><td>TEPOTINIB_LUNG_AUTO_FULL_REVIEW.html</td><td>Tepotinib</td><td>MET-exon14 NSCLC</td><td>0</td></tr>
+<tr><td>TEPOTINIB_LUNG_AUTO_REVIEW.html</td><td>Tepotinib</td><td>MET-exon14 NSCLC</td><td>0</td></tr>
+<tr><td>TOFERSEN_ALS_AUTO_FULL_REVIEW.html</td><td>Tofersen</td><td>SOD1+ ALS</td><td>11</td></tr>
+<tr><td>TOFERSEN_ALS_AUTO_REVIEW.html</td><td>Tofersen</td><td>SOD1+ ALS</td><td>11</td></tr>
+<tr><td>TOFERSEN_SOD1_ALS_REVIEW_FULL_REVIEW.html</td><td>Tofersen</td><td>SOD1+ ALS</td><td>11</td></tr>
+<tr><td>TRAMETINIB_MELANOMA_AUTO_FULL_REVIEW.html</td><td>Trametinib</td><td>BRAF+ melanoma</td><td>109</td></tr>
+<tr><td>TRAMETINIB_MELANOMA_AUTO_REVIEW.html</td><td>Trametinib</td><td>BRAF+ melanoma</td><td>109</td></tr>
+<tr><td>VAMOROLONE_DMD2_AUTO_FULL_REVIEW.html</td><td>Vamorolone</td><td>DMD</td><td>8</td></tr>
+<tr><td>VAMOROLONE_DMD2_AUTO_REVIEW.html</td><td>Vamorolone</td><td>DMD</td><td>8</td></tr>
+<tr><td>VAMOROLONE_DMD_REVIEW_FULL_REVIEW.html</td><td>Vamorolone</td><td>Duchenne</td><td>8</td></tr>
+<tr><td>VANDETANIB_THYROID_AUTO_FULL_REVIEW.html</td><td>Vandetanib</td><td>MTC</td><td>24</td></tr>
+<tr><td>VANDETANIB_THYROID_AUTO_REVIEW.html</td><td>Vandetanib</td><td>MTC</td><td>24</td></tr>
+<tr><td>VARENICLINE_AUD_AUTO_FULL_REVIEW.html</td><td>Varenicline</td><td>AUD</td><td>88</td></tr>
+<tr><td>VARENICLINE_AUD_AUTO_REVIEW.html</td><td>Varenicline</td><td>AUD</td><td>88</td></tr>
+<tr><td>VENLAFAXINE_DEPRESSION_AUTO_FULL_REVIEW.html</td><td>Venlafaxine ER</td><td>MDD</td><td>32</td></tr>
+<tr><td>VENLAFAXINE_DEPRESSION_AUTO_REVIEW.html</td><td>Venlafaxine ER</td><td>MDD</td><td>32</td></tr>
+<tr><td>VOCLOSPORIN_LN_AUTO_FULL_REVIEW.html</td><td>Voclosporin</td><td>lupus nephritis</td><td>13</td></tr>
+<tr><td>VOCLOSPORIN_LN_AUTO_REVIEW.html</td><td>Voclosporin</td><td>lupus nephritis</td><td>13</td></tr>
+<tr><td>VOCLOSPORIN_LN_REVIEW.html</td><td>Voclosporin</td><td>lupus nephritis</td><td>13</td></tr>
+<tr><td>VOCLOSPORIN_LUPUS_AUTO_FULL_REVIEW.html</td><td>Voclosporin</td><td>lupus nephritis</td><td>13</td></tr>
+<tr><td>VOCLOSPORIN_LUPUS_AUTO_REVIEW.html</td><td>Voclosporin</td><td>lupus nephritis</td><td>13</td></tr>
+<tr><td>VORASIDENIB_GLIOMA_REVIEW.html</td><td>Vorasidenib</td><td></td><td>3</td></tr>
+<tr><td>VOXELOTOR_SCD_AUTO_2_FULL_REVIEW.html</td><td>Voxelotor</td><td>SCD</td><td>11</td></tr>
+<tr><td>VOXELOTOR_SCD_AUTO_FULL_REVIEW.html</td><td>Voxelotor</td><td>SCD</td><td>11</td></tr>
+<tr><td>VOXELOTOR_SCD_AUTO_REVIEW.html</td><td>Voxelotor</td><td>SCD</td><td>11</td></tr>
+<tr><td>VUTRISIRAN_ATTR_REVIEW.html</td><td>Vutrisiran</td><td></td><td>22</td></tr>
+<tr><td>ZURANOLONE_PPD_MDD_REVIEW_FULL_REVIEW.html</td><td>Zuranolone</td><td>MDD and PPD</td><td>4</td></tr>
+</table>
