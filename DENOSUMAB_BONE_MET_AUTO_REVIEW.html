@@ -14,5 +14,67 @@
 <p>If it does not open automatically, <a href="DENOSUMAB_BONE_MET_AUTO_FULL_REVIEW.html">open the full Denosumab Bone Met RapidMeta here</a>.</p>
 <script>location.replace('DENOSUMAB_BONE_MET_AUTO_FULL_REVIEW.html');</script>
 <script src="rapidmeta-auth.js?v=1" defer></script>
-</body>
+<script data-om-poolgate="1">
+/* Overmind poolability gate -- self-contained, fail-safe, injected once per app.
+   Truth-on-page fix for the k<2 "lie of presentation": a forest DIAMOND drawn over a
+   single trial is not a meta-analysis. This computes the TRUE included-trial count k from
+   the app's OWN function (outcome-dependent, recomputed on every re-render), and when k<2
+   it (a) removes the pooled diamond trace and (b) shows an unmissable fixed notice saying
+   WHY we declined to pool. k>=2 is left untouched. Everything is wrapped in try/catch so a
+   failure can never break the app (fail toward the app's existing behaviour, never worse).
+   Idempotent. No external dependencies. */
+(function(){
+  if (window.__omPoolGate) return; window.__omPoolGate = true;
+  var NOTE_ID = "om-poolability-notice";
+  function trueK(){ try { return window.RapidMeta.getScopedIncludedTrials({requireData:true}).length; } catch(e){ return null; } }
+  function showNotice(k){
+    var el = document.getElementById(NOTE_ID);
+    if (!el){ el = document.createElement("div"); el.id = NOTE_ID; (document.body||document.documentElement).appendChild(el); }
+    el.setAttribute("style","position:fixed;top:0;left:0;right:0;z-index:2147483646;"+
+      "font:600 13px system-ui,Segoe UI,Arial,sans-serif;line-height:1.4;background:#2b1416;"+
+      "color:#ffd7d5;border-bottom:3px solid #f85149;padding:8px 14px;box-shadow:0 2px 10px rgba(0,0,0,.5)");
+    el.innerHTML = (k===0)
+      ? '&#9940; <b>NOT POOLABLE</b> &mdash; no trials with usable outcome data for this endpoint. '+
+        'No pooled estimate is shown; there is nothing to meta-analyse.'
+      : '&#9888; <b>SINGLE TRIAL (k=1)</b> &mdash; this is <b>not a meta-analysis</b>. The one study is '+
+        'shown as a single estimate; the pooled &#9670; diamond has been removed because pooling one '+
+        'trial is a false-precision claim. Read this as single-trial evidence, not synthesised evidence.';
+  }
+  function hideNotice(){ var el=document.getElementById(NOTE_ID); if(el) el.remove(); }
+  function gate(){
+    try{
+      var fp = document.getElementById("plot-forest") || document.querySelector('[id*="forest"]');
+      var k = trueK();
+      if (k===null) return;
+      if (k<2){
+        if (fp && fp.data && window.Plotly){
+          var idx = fp.data.findIndex(function(t){ return t.marker && t.marker.symbol==="diamond"; });
+          if (idx>=0) window.Plotly.deleteTraces(fp, idx);
+        }
+        showNotice(k);
+      } else { hideNotice(); }
+    }catch(e){}
+  }
+  function hookPlotly(){
+    if (!window.Plotly) return false;
+    ["newPlot","react"].forEach(function(m){
+      var orig = window.Plotly[m];
+      if (orig && !orig.__omWrapped){
+        var w = function(){ var r = orig.apply(this, arguments); try{
+          var a0 = arguments[0];
+          if (a0==="plot-forest" || (a0 && a0.id==="plot-forest")){ setTimeout(gate,0); }
+        }catch(e){} return r; };
+        w.__omWrapped = true; window.Plotly[m] = w;
+      }
+    });
+    return true;
+  }
+  function boot(){ hookPlotly(); gate(); }
+  if (document.readyState==="loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+  // catch late first-render (Plotly loaded / forest drawn after our script)
+  [250,800,2000,4000].forEach(function(ms){ setTimeout(function(){ hookPlotly(); gate(); }, ms); });
+})();
+
+</script></body>
 </html>
