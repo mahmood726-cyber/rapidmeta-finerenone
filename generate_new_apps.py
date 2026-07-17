@@ -1158,17 +1158,34 @@ def transform_template(template_html, app_config):
     search = cfg["search_term"]
     search_ctgov = cfg.get("search_term_ctgov", search)
 
-    # CT.gov API URL
-    html = re.sub(
+    # CT.gov API URL.
+    #
+    # These needles are bound to the *template's literal value* ("bempedoic
+    # acid"). re.sub returns its input unchanged and raises nothing when the
+    # needle is absent, so if the template is ever swapped for a non-bempedoic
+    # seed -- or its CT.gov query is edited -- these match nothing, the seed's
+    # own disease survives into every generated app, and nothing reports it.
+    # That silent no-op is the mechanism behind the 249 contaminated apps
+    # measured on 2026-07-17. Count the substitutions and fail closed.
+    n_ct = 0
+    html, n = re.subn(
         r"query\.intr=bempedoic\+?acid",
         f"query.intr={search_ctgov.replace(' ', '+')}",
         html
     )
-    html = re.sub(
+    n_ct += n
+    html, n = re.subn(
         r"query\.intr=bempedoic acid",
         f"query.intr={search_ctgov}",
         html
     )
+    n_ct += n
+    if n_ct == 0 and "query.intr=" in html:
+        raise RuntimeError(
+            "CT.gov lane: template has a query.intr= but neither bempedoic needle "
+            "matched, so it still holds the seed template's disease. Template drifted "
+            f"from {TEMPLATE_PATH}; update the needle before generating."
+        )
 
     # PubMed / Europe PMC query
     html = re.sub(

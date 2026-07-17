@@ -28,6 +28,35 @@ Config structure (JSON file path):
 import json
 import re
 import sys
+
+
+class LaneSubstitutionError(RuntimeError):
+    """A required acquisition-lane rewrite matched nothing."""
+
+
+def subn_or_die(pattern, repl, text, lane, count=0):
+    """re.sub that refuses to silently no-op.
+
+    The contamination measured on 2026-07-17 (249 apps acquiring trials for a
+    disease they are not about) came from plain re.sub: it returns its input
+    unchanged and raises nothing when the needle is absent. The CT.gov needle
+    below bound to `const r = await fetch('...')`, a shape that ZERO of the 1240
+    apps still have after the 3-database Promise.allSettled refactor -- so every
+    clone since then kept the HFrEF seed's cardio query while the sibling lanes,
+    whose needles still matched, got the real topic.
+
+    A lane rewrite that matches nothing means the template drifted out from under
+    this script. That is never benign: the output silently keeps the seed's
+    disease. Fail closed instead.
+    """
+    new, n = re.subn(pattern, repl, text, count=count)
+    if n == 0:
+        raise LaneSubstitutionError(
+            "acquisition lane %r: pattern matched nothing, so the seed template's "
+            "value would survive into the clone.\n  pattern: %s\n"
+            "The template shape changed; update this needle before generating." % (lane, pattern)
+        )
+    return new
 import io
 from pathlib import Path
 
@@ -125,7 +154,18 @@ def clone(config):
     t = t.replace("rapid_meta_hfref_nma_theme", f"rapid_meta_{slug}_theme")
 
     # H. Drug-class propagation (same as pairwise cloner)
+    #
+    # `ctgov_intr` is REQUIRED. It used to be optional (`if intr_val:`), which
+    # meant a config that omitted it skipped this whole block in silence and
+    # shipped a clone still carrying the HFrEF seed's cardio acquisition queries.
+    # An app with no drug-class of its own is not a valid app; fail closed.
     intr_val = config.get("ctgov_intr")
+    if not intr_val:
+        raise LaneSubstitutionError(
+            "config %r has no 'ctgov_intr': every acquisition lane would keep the "
+            "HFrEF seed template's cardio query. Set ctgov_intr to this app's drug class."
+            % config.get("filename", "<unnamed>")
+        )
     if intr_val:
         parts = re.split(r"\s+AND\s+", intr_val, maxsplit=1)
         drug_terms = parts[0].strip()
@@ -134,28 +174,31 @@ def clone(config):
         drug_space = " ".join(drug_list)
 
         # OpenAlex
-        t = re.sub(
+        t = subn_or_die(
             r"const oaUrl = 'https://api\.openalex\.org/works\?search=[^&']+(&per_page=50[^']*)';",
             "const oaUrl = 'https://api.openalex.org/works?search=" + drug_space + r"\1';",
-            t, count=1,
+            t, "openalex", count=1,
         )
         # Europe PMC main
-        t = re.sub(
+        t = subn_or_die(
             r"const epmcQuery = encodeURIComponent\('[^']*? AND \(TITLE:randomized",
             "const epmcQuery = encodeURIComponent('" + drug_terms + " AND (TITLE:randomized",
-            t, count=1,
+            t, "epmc", count=1,
         )
         # Europe PMC fallback
-        t = re.sub(
+        t = subn_or_die(
             r"const fbQ = encodeURIComponent\('[^']*? AND SRC:MED'\);",
             "const fbQ = encodeURIComponent('" + drug_terms + " AND SRC:MED');",
-            t, count=1,
+            t, "epmc-fallback", count=1,
         )
-        # CT.gov fetch
-        t = re.sub(
-            r"const r = await fetch\('https://clinicaltrials\.gov/api/v2/studies\?query\.intr=[^']+'\);",
-            "const r = await fetch('https://clinicaltrials.gov/api/v2/studies?query.intr=" + intr_val + "&pageSize=50&filter.overallStatus=COMPLETED');",
-            t, count=1,
+        # CT.gov fetch. Needle is shape-agnostic on purpose: it matches BOTH the
+        # legacy `const r = await fetch('...')` form and the current
+        # `const ctgovUrl="..."` 3-database form. The old needle only knew the
+        # legacy shape and silently no-opped on every modern template.
+        t = subn_or_die(
+            r"query\.intr=[^&\"']+",
+            "query.intr=" + intr_val.replace(" ", "+"),
+            t, "ctgov",
         )
 
     # I. Protocol title cell (optional)
