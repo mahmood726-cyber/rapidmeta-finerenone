@@ -119,6 +119,17 @@ def main() -> None:
             n_fail += 1
     print(f"\nOK: {n_ok}  skipped: {n_skip}  failed: {n_fail}")
 
+    # This script prints [FAIL] and counts n_fail, but until 2026-07-18 always
+    # returned 0 — so a caller piping it into CI saw success while R fits were
+    # failing. Skips are reported but not treated as failures: a skip means the
+    # app had no DTA data to validate, which is not a defect.
+    if n_fail:
+        print(f"[BLOCK] {n_fail} DTA validation failure(s)")
+        return 1
+    print(f"[OK] {n_ok} DTA fit(s) validated against R/mada "
+          f"({n_skip} app(s) had no DTA data and were skipped)")
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

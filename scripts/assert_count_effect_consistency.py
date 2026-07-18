@@ -14,7 +14,7 @@ Usage:
   python scripts/assert_count_effect_consistency.py FILE ...        # given files
 """
 from __future__ import annotations
-import sys, io, os, re, glob
+import sys, io, os, re, glob, argparse, collections
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import count_consistency as cc
 
@@ -110,8 +110,32 @@ def _sval(o, k):
     if not m: return None
     return m.group(1) if m.group(1) is not None else m.group(2)
 
-def check_file(path):
-    """Return list of violation dicts for one app file."""
+def _new_stats():
+    """Trial-level accounting. The gate used to report only len(paths) -- the
+    FILE denominator -- which reads as full coverage. It is not: most trials
+    are skipped, and `cc.consistent` returns None ("cannot verify") far more
+    often than False. count_consistency.py:69-74 states explicitly that callers
+    must NOT treat None as a pass; this accounting is what makes that possible.
+    """
+    return {
+        'trials': 0,
+        'checked_pass': 0,
+        'checked_violation': 0,
+        'skipped_missing_field': 0,
+        'skipped_undetermined': 0,
+        'missing_by_field': collections.Counter(),
+    }
+
+
+def check_file(path, stats=None):
+    """Return list of violation dicts for one app file.
+
+    If `stats` is given, trial-level counters are accumulated into it so the
+    caller can report what was actually adjudicated rather than how many files
+    were opened.
+    """
+    if stats is None:
+        stats = _new_stats()
     txt = open(path, encoding='utf-8', errors='replace').read()
     # Tolerate a space after the colon (realData: {) so a formatter change can't
     # silently drop coverage (cross-vendor objection 2026-07-12).
@@ -129,41 +153,110 @@ def check_file(path):
                  'measure': 'COVERAGE', 'impliedRR': None,
                  'coverage_failure': f'realData present ({len(body)} chars) but 0 entries parsed'}]
     for key, o in entries:
+        stats['trials'] += 1
         tE, tN, cE, cN = _num(o,'tE'), _num(o,'tN'), _num(o,'cE'), _num(o,'cN')
         pubHR = _num(o,'publishedHR')
         est = _sval(o,'estimandType') or ('HR' if pubHR is not None else '')
-        if None in (tE,tN,cE,cN,pubHR): continue
-        if cc.consistent(tE,tN,cE,cN, est or 'OR', pubHR) is False:
+        if None in (tE,tN,cE,cN,pubHR):
+            # NOT a pass -- this trial carries no adjudicable count/effect pair.
+            stats['skipped_missing_field'] += 1
+            for fname, fval in (('tE',tE),('tN',tN),('cE',cE),('cN',cN),
+                                ('publishedHR',pubHR)):
+                if fval is None:
+                    stats['missing_by_field'][fname] += 1
+            continue
+        verdict = cc.consistent(tE,tN,cE,cN, est or 'OR', pubHR)
+        if verdict is None:
+            # Contract (count_consistency.py:69-74): None is "cannot verify",
+            # NOT a pass. Typically one side lands in the neutral band
+            # (0.87-1.15) or the measure is non-ratio.
+            stats['skipped_undetermined'] += 1
+            continue
+        if verdict is not False:
+            stats['checked_pass'] += 1
+        else:
+            stats['checked_violation'] += 1
+        if verdict is False:
             viol.append({'file': os.path.basename(path), 'nct': key,
                          'name': _sval(o,'name'), 'tE':tE,'tN':tN,'cE':cE,'cN':cN,
                          'effect': pubHR, 'measure': est,
                          'impliedRR': round(cc.implied_rr(tE,tN,cE,cN),3)})
     return viol
 
-def scan(paths):
+def scan(paths, stats=None):
+    """Return the list of violations.
+
+    Returns a plain list, NOT a tuple -- `tests/test_count_effect_consistency.py`
+    and any other caller does `viol = gate.scan(...)` and indexes the result.
+    Trial-level accounting is returned via the optional `stats` out-parameter
+    instead, so adding coverage reporting cannot break existing callers.
+    """
+    if stats is None:
+        stats = _new_stats()
     all_v = []
     for p in paths:
-        all_v.extend(check_file(p))
+        all_v.extend(check_file(p, stats))
     return all_v
 
+
+def _report_coverage(stats, n_files):
+    adjudicated = stats['checked_pass'] + stats['checked_violation']
+    trials = stats['trials']
+    pct = (100.0 * adjudicated / trials) if trials else 0.0
+    print(f"  files scanned            {n_files}")
+    print(f"  trials found             {trials}")
+    print(f"    ADJUDICATED            {adjudicated}  ({pct:.1f}% of trials)")
+    print(f"      pass                 {stats['checked_pass']}")
+    print(f"      violation            {stats['checked_violation']}")
+    print(f"    NOT ADJUDICATED        {trials - adjudicated}  "
+          f"({100.0 - pct:.1f}%)  <- NOT a pass")
+    print(f"      missing field        {stats['skipped_missing_field']}")
+    if stats['missing_by_field']:
+        detail = ', '.join(f"{k} {v}" for k, v in
+                           stats['missing_by_field'].most_common())
+        print(f"        by field:          {detail}")
+    print(f"      undetermined (None)  {stats['skipped_undetermined']}")
+    return pct
+
+
 def main(argv):
-    args = [a for a in argv[1:] if not a.startswith('-')]
-    if args:
-        paths = args
-    else:
-        paths = sorted(glob.glob(os.path.join(ROOT, '*_REVIEW.html')))
-    viol = scan(paths)
-    checked = len(paths)
+    ap = argparse.ArgumentParser(
+        description="Assert stored per-arm counts do not contradict the stored "
+                    "effect direction. Reports the TRIAL-level denominator.")
+    ap.add_argument('paths', nargs='*',
+                    help="app files to check (default: all *_REVIEW.html)")
+    ap.add_argument('--min-coverage', type=float, default=None, metavar='PCT',
+                    help="fail (exit 1) if fewer than PCT%% of trials were "
+                         "actually adjudicated. Without this the gate can only "
+                         "fail on a positive contradiction, never on blindness.")
+    args = ap.parse_args(argv[1:])
+
+    paths = args.paths or sorted(glob.glob(os.path.join(ROOT, '*_REVIEW.html')))
+    stats = _new_stats()
+    viol = scan(paths, stats)
+
     if viol:
         print(f"[BLOCK] count/effect direction contradictions: {len(viol)} "
-              f"trial(s) in {len(set(v['file'] for v in viol))} app(s) "
-              f"across {checked} file(s) scanned")
+              f"trial(s) in {len(set(v['file'] for v in viol))} app(s)")
         for v in viol[:40]:
             print(f"   {v['file']}  {v['nct']} {str(v['name'])[:14]:14} "
                   f"tE{v['tE']:.0f}/{v['tN']:.0f} cE{v['cE']:.0f}/{v['cN']:.0f} "
                   f"effect={v['effect']}({v['measure']}) impliedRR={v['impliedRR']}")
+        print()
+        _report_coverage(stats, len(paths))
         return 1
-    print(f"[OK] no count/effect contradictions across {checked} file(s) scanned")
+
+    print("[OK] no count/effect contradiction found among the trials this gate "
+          "was ABLE to adjudicate.")
+    print("     This is NOT a clean-corpus claim -- see the denominator below.")
+    print()
+    pct = _report_coverage(stats, len(paths))
+
+    if args.min_coverage is not None and pct < args.min_coverage:
+        print()
+        print(f"[BLOCK] adjudicated only {pct:.1f}% of trials, "
+              f"below --min-coverage {args.min_coverage:.1f}%")
+        return 1
     return 0
 
 if __name__ == '__main__':

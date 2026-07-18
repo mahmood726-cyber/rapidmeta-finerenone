@@ -491,6 +491,18 @@ def main():
         for s, r in quarantined[:20]:
             print(f"   - {s}: {r}")
 
+    # The per-clone triple ship-gate DOES act — a failing clone is physically
+    # moved to QUARANTINE, so this was never fully decorative. But the process
+    # always returned 0, so a CI step invoking it could not tell that N clones
+    # had been quarantined or that builds had errored. Surface it in the exit
+    # code as well as the log.
+    if qfail or err or build_none:
+        print(f"\n[BLOCK] {qfail} quarantined, {build_none} build-returned-None, "
+              f"{err} clone error(s) — not a clean bulk clone")
+        return 1
+    print(f"\n[OK] {ok} clone(s) shipped, none quarantined")
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

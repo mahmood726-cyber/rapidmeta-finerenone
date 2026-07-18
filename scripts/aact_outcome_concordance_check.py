@@ -205,6 +205,18 @@ def main():
         print(f"     {r['notes']}")
     print(f"\nWritten: {OUT_CSV}")
 
+    # Line 1 calls this a ship-gate. Until 2026-07-18 it could only ever
+    # return 0, so a caller could not distinguish "no defects" from "defects
+    # found and printed". A gate that cannot fail is not a gate.
+    if real:
+        print(f"\n[BLOCK] {len(real)} outcome-direction DEFECT(s): AACT effect "
+              f"sign/magnitude contradicts our stored publishedHR")
+        return 1
+    print(f"\n[OK] no outcome-direction defects among the {len(findings)} "
+          f"trial-row(s) this gate was able to compare "
+          f"(NOT a claim about rows it could not compare)")
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
