@@ -101,7 +101,15 @@ def _num(o, k):
     # formatter change can't silently bypass the checks (cross-vendor 2026-07-12).
     # Also match leading-dot decimals (publishedHR:.25) — missing these silently
     # skipped the count/effect check for HR/VE trials written that way (2026-07-13).
-    m = re.search(r'''(?<![A-Za-z_])["']?''' + k + r'''["']?\s*:\s*(-?(?:\d+\.?\d*|\.\d+)|null)''', o)
+    # Scientific notation MUST be matched (2026-07-18). Without the exponent
+    # group this pattern matched the MANTISSA ONLY and silently returned a
+    # value off by orders of magnitude, with no error anywhere:
+    #     cN:1e3   -> 1      (TIRZEPATIDE_T2D, true 1000)
+    #     tN:95e3  -> 95     (AZITHROMYCIN_CHILD_MORTALITY, true 95000)
+    # A 1000-fold denominator error makes implied RR meaningless, so the guard
+    # was adjudicating those trials against fabricated arithmetic.
+    m = re.search(r'''(?<![A-Za-z_])["']?''' + k +
+                  r'''["']?\s*:\s*(-?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?|null)''', o)
     if not m: return None
     return None if m.group(1) == 'null' else float(m.group(1))
 
