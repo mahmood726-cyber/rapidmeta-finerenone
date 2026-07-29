@@ -1,0 +1,552 @@
+{
+ "gates": {
+  "G1_per_arm_count_plausibility": {
+   "status": "RAN",
+   "applies": true,
+   "checked_arms": 57,
+   "findings": []
+  },
+  "G1b_contrast_vs_ledger_and_recompute": {
+   "status": "RAN",
+   "applies": true,
+   "checked_contrasts": 30,
+   "findings": []
+  },
+  "G2_GRIM_GRIMMER": {
+   "status": "NOT_APPLICABLE",
+   "applies": false,
+   "reason": "GRIM/GRIMMER test whether a reported MEAN of a bounded integer-scale item is reconstructible as X/N. This network's only outcome is all-cause mortality, a binary per-arm event count. No means, SDs or Likert-scale items are extracted or fitted, so there is nothing for GRIM to test. Replaced by G1 (per-arm count plausibility: integer, 0 <= events <= N, denominators agree with the fitted contrasts).",
+   "findings": []
+  },
+  "G3_benford_first_digit": {
+   "status": "RAN",
+   "applies": true,
+   "advisory": true,
+   "n_values": 114,
+   "chi2": 14.383,
+   "df": 8,
+   "crit_0.05": 15.507,
+   "signal": "no fabrication signal",
+   "findings": []
+  },
+  "G4_arm_balance_ratio": {
+   "status": "RAN",
+   "applies": true,
+   "advisory": true,
+   "threshold": "max(N)/min(N) > 2.0",
+   "findings": [
+    {
+     "trial": "REPLACE",
+     "arm_Ns": [
+      77,
+      301
+     ],
+     "ratio": 3.909,
+     "note": "randomisation ratio >2:1 - verify against source"
+    },
+    {
+     "trial": "He 2015",
+     "arm_Ns": [
+      198,
+      96
+     ],
+     "ratio": 2.062,
+     "note": "randomisation ratio >2:1 - verify against source"
+    }
+   ]
+  },
+  "G5_identifier_format": {
+   "status": "RAN",
+   "applies": true,
+   "findings": [
+    {
+     "trial": "SPICE",
+     "issue": "no PMID in ledger",
+     "ledger_note": "NO verified primary report: the only PubMed-indexed SPICE paper is the observational SPICE Registry (n=9580), not this 270-patient randomised comparison"
+    }
+   ],
+   "registry_split": {
+    "ctgov": [
+     {
+      "trial": "He 2015",
+      "nct": "NCT01917149"
+     },
+     {
+      "trial": "EMPHASIS-HF",
+      "nct": "NCT00232180"
+     },
+     {
+      "trial": "J-EMPHASIS-HF",
+      "nct": "NCT01115855"
+     },
+     {
+      "trial": "PARADIGM-HF",
+      "nct": "NCT01035255"
+     },
+     {
+      "trial": "PARACHUTE-HF",
+      "nct": "NCT04023227"
+     },
+     {
+      "trial": "DAPA-HF",
+      "nct": "NCT03036124"
+     },
+     {
+      "trial": "EMPEROR-Reduced",
+      "nct": "NCT03057977"
+     },
+     {
+      "trial": "GALACTIC-HF",
+      "nct": "NCT02929329"
+     },
+     {
+      "trial": "VICTOR",
+      "nct": "NCT05093933"
+     }
+    ],
+    "other_registry": [
+     {
+      "trial": "DIGIT-HF",
+      "id": "EudraCT 2013-005326-38"
+     },
+     {
+      "trial": "QUEST",
+      "id": "ChiCTR1900021929"
+     }
+    ],
+    "none": [
+     "SOLVD-Treatment",
+     "SPICE",
+     "ELITE",
+     "ELITE-II",
+     "REPLACE",
+     "CIBIS-I",
+     "CIBIS-II",
+     "MERIT-HF",
+     "COPERNICUS",
+     "BEST",
+     "US-Carvedilol",
+     "RESOLVD",
+     "CARMEN",
+     "RALES",
+     "Vizzardi 2014",
+     "Val-HeFT",
+     "CHARM-Added"
+    ]
+   }
+  },
+  "G7_fragility_index": {
+   "status": "RAN",
+   "applies": true,
+   "method": "Walsh 2014, Fisher exact two-sided; FI<=1 FAIL, FI<=3 WARN, else OK",
+   "rows": [
+    {
+     "trial": "SOLVD-Treatment",
+     "contrast": "ACEI vs Placebo",
+     "e1": 452,
+     "n1": 1285,
+     "e2": 510,
+     "n2": 1284,
+     "verdict": "OK",
+     "FI": 10,
+     "p0": 0.01808,
+     "p_flipped": 0.0509,
+     "flip_target": "treatment"
+    },
+    {
+     "trial": "SPICE",
+     "contrast": "ARB vs Placebo",
+     "e1": 6,
+     "n1": 179,
+     "e2": 3,
+     "n2": 91,
+     "verdict": "NOT_SIGNIFICANT",
+     "FI": null,
+     "p0": 1.0,
+     "p_flipped": null,
+     "flip_target": null
+    },
+    {
+     "trial": "ELITE",
+     "contrast": "ARB vs ACEI",
+     "e1": 17,
+     "n1": 352,
+     "e2": 32,
+     "n2": 370,
+     "verdict": "NOT_SIGNIFICANT",
+     "FI": null,
+     "p0": 0.05349,
+     "p_flipped": null,
+     "flip_target": null
+    },
+    {
+     "trial": "ELITE-II",
+     "contrast": "ARB vs ACEI",
+     "e1": 280,
+     "n1": 1578,
+     "e2": 250,
+     "n2": 1574,
+     "verdict": "NOT_SIGNIFICANT",
+     "FI": null,
+     "p0": 0.16741,
+     "p_flipped": null,
+     "flip_target": null
+    },
+    {
+     "trial": "REPLACE",
+     "contrast": "ARB vs ACEI",
+     "e1": 4,
+     "n1": 301,
+     "e2": 2,
+     "n2": 77,
+     "verdict": "NOT_SIGNIFICANT",
+     "FI": null,
+     "p0": 0.3538,
+     "p_flipped": null,
+     "flip_target": null
+    },
+    {
+     "trial": "CIBIS-I",
+     "contrast": "ACEI+BB vs ACEI",
+     "e1": 53,
+     "n1": 320,
+     "e2": 67,
+     "n2": 321,
+     "verdict": "NOT_SIGNIFICANT",
+     "FI": null,
+     "p0": 0.188,
+     "p_flipped": null,
+     "flip_target": null
+    },
+    {
+     "trial": "CIBIS-II",
+     "contrast": "ACEI+BB vs ACEI",
+     "e1": 156,
+     "n1": 1327,
+     "e2": 228,
+     "n2": 1320,
+     "verdict": "OK",
+     "FI": 37,
+     "p0": 6e-05,
+     "p_flipped": 0.05589,
+     "flip_target": "treatment"
+    },
+    {
+     "trial": "MERIT-HF",
+     "contrast": "ACEI+BB vs ACEI",
+     "e1": 145,
+     "n1": 1990,
+     "e2": 217,
+     "n2": 2001,
+     "verdict": "OK",
+     "FI": 34,
+     "p0": 9e-05,
+     "p_flipped": 0.05653,
+     "flip_target": "treatment"
+    },
+    {
+     "trial": "COPERNICUS",
+     "contrast": "ACEI+BB vs ACEI",
+     "e1": 130,
+     "n1": 1156,
+     "e2": 190,
+     "n2": 1133,
+     "verdict": "OK",
+     "FI": 30,
+     "p0": 0.00014,
+     "p_flipped": 0.05527,
+     "flip_target": "treatment"
+    },
+    {
+     "trial": "BEST",
+     "contrast": "ACEI+BB vs ACEI",
+     "e1": 411,
+     "n1": 1354,
+     "e2": 449,
+     "n2": 1354,
+     "verdict": "NOT_SIGNIFICANT",
+     "FI": null,
+     "p0": 0.12666,
+     "p_flipped": null,
+     "flip_target": null
+    },
+    {
+     "trial": "US-Carvedilol",
+     "contrast": "ACEI+BB vs ACEI",
+     "e1": 22,
+     "n1": 696,
+     "e2": 31,
+     "n2": 398,
+     "verdict": "OK",
+     "FI": 12,
+     "p0": 0.00108,
+     "p_flipped": 0.06212,
+     "flip_target": "treatment"
+    },
+    {
+     "trial": "RESOLVD",
+     "contrast": "ACEI+BB vs ACEI",
+     "e1": 8,
+     "n1": 214,
+     "e2": 17,
+     "n2": 212,
+     "verdict": "NOT_SIGNIFICANT",
+     "FI": null,
+     "p0": 0.0661,
+     "p_flipped": null,
+     "flip_target": null
+    },
+    {
+     "trial": "He 2015",
+     "contrast": "BB vs ACEI",
+     "e1": 14,
+     "n1": 96,
+     "e2": 19,
+     "n2": 198,
+     "verdict": "NOT_SIGNIFICANT",
+     "FI": null,
+     "p0": 0.23779,
+     "p_flipped": null,
+     "flip_target": null
+    },
+    {
+     "trial": "CARMEN",
+     "contrast": "ACEI+BB vs ACEI",
+     "e1": 14,
+     "n1": 191,
+     "e2": 14,
+     "n2": 190,
+     "verdict": "NOT_SIGNIFICANT",
+     "FI": null,
+     "p0": 1.0,
+     "p_flipped": null,
+     "flip_target": null
+    },
+    {
+     "trial": "CARMEN",
+     "contrast": "BB vs ACEI",
+     "e1": 14,
+     "n1": 191,
+     "e2": 14,
+     "n2": 190,
+     "verdict": "NOT_SIGNIFICANT",
+     "FI": null,
+     "p0": 1.0,
+     "p_flipped": null,
+     "flip_target": null
+    },
+    {
+     "trial": "CARMEN",
+     "contrast": "BB vs ACEI+BB",
+     "e1": 14,
+     "n1": 191,
+     "e2": 14,
+     "n2": 191,
+     "verdict": "NOT_SIGNIFICANT",
+     "FI": null,
+     "p0": 1.0,
+     "p_flipped": null,
+     "flip_target": null
+    },
+    {
+     "trial": "RALES",
+     "contrast": "ACEI+MRA vs ACEI",
+     "e1": 284,
+     "n1": 822,
+     "e2": 386,
+     "n2": 841,
+     "verdict": "OK",
+     "FI": 54,
+     "p0": 0.0,
+     "p_flipped": 0.05371,
+     "flip_target": "treatment"
+    },
+    {
+     "trial": "EMPHASIS-HF",
+     "contrast": "ACEI+BB+MRA vs ACEI+BB",
+     "e1": 171,
+     "n1": 1364,
+     "e2": 213,
+     "n2": 1373,
+     "verdict": "OK",
+     "FI": 5,
+     "p0": 0.02762,
+     "p_flipped": 0.0553,
+     "flip_target": "treatment"
+    },
+    {
+     "trial": "J-EMPHASIS-HF",
+     "contrast": "ACEI+BB+MRA vs ACEI+BB",
+     "e1": 17,
+     "n1": 111,
+     "e2": 10,
+     "n2": 110,
+     "verdict": "NOT_SIGNIFICANT",
+     "FI": null,
+     "p0": 0.21742,
+     "p_flipped": null,
+     "flip_target": null
+    },
+    {
+     "trial": "Vizzardi 2014",
+     "contrast": "ACEI+BB+MRA vs ACEI+BB",
+     "e1": 8,
+     "n1": 65,
+     "e2": 8,
+     "n2": 65,
+     "verdict": "NOT_SIGNIFICANT",
+     "FI": null,
+     "p0": 1.0,
+     "p_flipped": null,
+     "flip_target": null
+    },
+    {
+     "trial": "Val-HeFT",
+     "contrast": "ACEI+ARB vs ACEI",
+     "e1": 495,
+     "n1": 2511,
+     "e2": 484,
+     "n2": 2499,
+     "verdict": "NOT_SIGNIFICANT",
+     "FI": null,
+     "p0": 0.77564,
+     "p_flipped": null,
+     "flip_target": null
+    },
+    {
+     "trial": "CHARM-Added",
+     "contrast": "ACEI+BB+ARB vs ACEI+BB",
+     "e1": 377,
+     "n1": 1276,
+     "e2": 412,
+     "n2": 1272,
+     "verdict": "NOT_SIGNIFICANT",
+     "FI": null,
+     "p0": 0.12312,
+     "p_flipped": null,
+     "flip_target": null
+    },
+    {
+     "trial": "PARADIGM-HF",
+     "contrast": "ARNI+BB vs ACEI+BB",
+     "e1": 711,
+     "n1": 4187,
+     "e2": 835,
+     "n2": 4212,
+     "verdict": "OK",
+     "FI": 49,
+     "p0": 0.0008,
+     "p_flipped": 0.05152,
+     "flip_target": "treatment"
+    },
+    {
+     "trial": "PARACHUTE-HF",
+     "contrast": "ARNI+BB vs ACEI+BB",
+     "e1": 129,
+     "n1": 462,
+     "e2": 134,
+     "n2": 460,
+     "verdict": "NOT_SIGNIFICANT",
+     "FI": null,
+     "p0": 0.71552,
+     "p_flipped": null,
+     "flip_target": null
+    },
+    {
+     "trial": "DAPA-HF",
+     "contrast": "+SGLT2i vs ACEI+BB+MRA",
+     "e1": 276,
+     "n1": 2373,
+     "e2": 329,
+     "n2": 2371,
+     "verdict": "OK",
+     "FI": 8,
+     "p0": 0.02107,
+     "p_flipped": 0.0515,
+     "flip_target": "treatment"
+    },
+    {
+     "trial": "EMPEROR-Reduced",
+     "contrast": "+SGLT2i vs ACEI+BB+MRA",
+     "e1": 249,
+     "n1": 1863,
+     "e2": 266,
+     "n2": 1867,
+     "verdict": "NOT_SIGNIFICANT",
+     "FI": null,
+     "p0": 0.44778,
+     "p_flipped": null,
+     "flip_target": null
+    },
+    {
+     "trial": "GALACTIC-HF",
+     "contrast": "+Omecamtiv vs ACEI+BB+MRA",
+     "e1": 1078,
+     "n1": 4120,
+     "e2": 1078,
+     "n2": 4112,
+     "verdict": "NOT_SIGNIFICANT",
+     "FI": null,
+     "p0": 0.96003,
+     "p_flipped": null,
+     "flip_target": null
+    },
+    {
+     "trial": "VICTOR",
+     "contrast": "+Vericiguat vs ACEI+BB+MRA",
+     "e1": 377,
+     "n1": 3053,
+     "e2": 440,
+     "n2": 3052,
+     "verdict": "OK",
+     "FI": 11,
+     "p0": 0.01789,
+     "p_flipped": 0.052,
+     "flip_target": "treatment"
+    },
+    {
+     "trial": "DIGIT-HF",
+     "contrast": "+Digitoxin vs ACEI+BB+MRA",
+     "e1": 167,
+     "n1": 613,
+     "e2": 177,
+     "n2": 599,
+     "verdict": "NOT_SIGNIFICANT",
+     "FI": null,
+     "p0": 0.40752,
+     "p_flipped": null,
+     "flip_target": null
+    },
+    {
+     "trial": "QUEST",
+     "contrast": "+QLQX vs ACEI+BB+MRA",
+     "e1": 221,
+     "n1": 1555,
+     "e2": 262,
+     "n2": 1555,
+     "verdict": "FAIL",
+     "FI": 1,
+     "p0": 0.04255,
+     "p_flipped": 0.05363,
+     "flip_target": "treatment"
+    }
+   ],
+   "n_significant": 11
+  }
+ },
+ "per_trial": {},
+ "meta": {
+  "n_trials": 28,
+  "n_study_contrasts": 30,
+  "coverage": {
+   "network_trials": 28,
+   "extraction_substantiated": 28,
+   "arm_rows": 57,
+   "study_contrasts": 30,
+   "pmid_verified": 27,
+   "pmid_missing": 1
+  },
+  "engine": "R 4.6.0 / netmeta 3.6.1",
+  "nma_pairwise_key_found": false
+ }
+}
