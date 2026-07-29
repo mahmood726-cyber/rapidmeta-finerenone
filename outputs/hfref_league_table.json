@@ -1,0 +1,1526 @@
+{
+ "schema": "hfref-league-table/v1",
+ "generated_by": "scripts/hfref_league_table.py",
+ "source_bundle": "outputs/hfref_nma_bundle.json",
+ "engine": "R 4.6.0 / netmeta 3.6.1",
+ "cell": {
+  "cell_id": "OURS-STRICT",
+  "label": "7a. OURS-STRICT",
+  "tier": "PRIMARY",
+  "coords": {
+   "estimand": "reml",
+   "ef": "le40",
+   "atype": "nma-network",
+   "elig": "L2",
+   "pop": "chronic",
+   "dupes": "once",
+   "outcome": "acm",
+   "hksj": true,
+   "emperor": "rr"
+  },
+  "scale": "RR"
+ },
+ "outcome": "all-cause mortality",
+ "reference": "Placebo",
+ "ci_multiplier": 2.275358446283,
+ "ci_basis": "HKSJ variance inflation q=1.139592 with the max(1,.) floor, times the t critical value on df=15 (t=2.131450). Not a normal quantile.",
+ "variance_formula": "Var(A-B) = Cov[A,A] + Cov[B,B] - 2*Cov[A,B]",
+ "anchor": {
+  "pass": true,
+  "rows": [
+   {
+    "node": "ACEI+BB+MRA",
+    "expected": [
+     0.59333495,
+     0.348,
+     1.011
+    ],
+    "observed": [
+     0.593334945638826,
+     0.3482651989222234,
+     1.0108571249889649
+    ],
+    "pass": true
+   },
+   {
+    "node": "ACEI+BB",
+    "expected": [
+     0.64459765,
+     0.433,
+     0.959
+    ],
+    "observed": [
+     0.6445976533923753,
+     0.4331138350092218,
+     0.9593462530470999
+    ],
+    "pass": true
+   },
+   {
+    "node": "tau2",
+    "expected": [
+     0.02323609
+    ],
+    "observed": [
+     0.02323608954607
+    ],
+    "pass": true
+   }
+  ]
+ },
+ "counts": {
+  "nodes": 15,
+  "all_unordered_pairs": 105,
+  "estimable": 105,
+  "estimable_with_direct_evidence": 16,
+  "estimable_indirect_only": 89,
+  "non_estimable": 0,
+  "intervals_excluding_null": 12,
+  "note": "Counted from the fitted network, not asserted. Every estimable contrast carries a point estimate and an interval computed from the covariance; none is a placeholder."
+ },
+ "nodes": [
+  "+Digitoxin",
+  "+Omecamtiv",
+  "+QLQX",
+  "+SGLT2i",
+  "+Vericiguat",
+  "ACEI",
+  "ACEI+ARB",
+  "ACEI+BB",
+  "ACEI+BB+ARB",
+  "ACEI+BB+MRA",
+  "ACEI+MRA",
+  "ARB",
+  "ARNI+BB",
+  "BB",
+  "Placebo"
+ ],
+ "node_vs_reference": [
+  {
+   "node": "+Digitoxin",
+   "rr": 0.5470279040478044,
+   "lo": 0.2802468678080577,
+   "hi": 1.0677711767036924
+  },
+  {
+   "node": "+Omecamtiv",
+   "rr": 0.5921828389482481,
+   "lo": 0.3118494550177271,
+   "hi": 1.1245186069825654
+  },
+  {
+   "node": "+QLQX",
+   "rr": 0.500484820557913,
+   "lo": 0.25768209420675475,
+   "hi": 0.9720700865148444
+  },
+  {
+   "node": "+SGLT2i",
+   "rr": 0.5256925462359898,
+   "lo": 0.2884554769438257,
+   "hi": 0.9580426625835767
+  },
+  {
+   "node": "+Vericiguat",
+   "rr": 0.5082136510971575,
+   "lo": 0.2645428649252562,
+   "hi": 0.9763299238271954
+  },
+  {
+   "node": "ACEI",
+   "rr": 0.8936775114022105,
+   "lo": 0.6252306751575764,
+   "hi": 1.2773837339071097
+  },
+  {
+   "node": "ACEI+ARB",
+   "rr": 0.9096204386584119,
+   "lo": 0.5436540827500022,
+   "hi": 1.5219408235468062
+  },
+  {
+   "node": "ACEI+BB",
+   "rr": 0.6445976533923753,
+   "lo": 0.4331138350092218,
+   "hi": 0.9593462530470999
+  },
+  {
+   "node": "ACEI+BB+ARB",
+   "rr": 0.587989121607304,
+   "lo": 0.34108094688666574,
+   "hi": 1.0136338903838225
+  },
+  {
+   "node": "ACEI+BB+MRA",
+   "rr": 0.593334945638826,
+   "lo": 0.3482651989222234,
+   "hi": 1.0108571249889649
+  },
+  {
+   "node": "ACEI+MRA",
+   "rr": 0.6727226388731525,
+   "lo": 0.4012238476558982,
+   "hi": 1.127938310487924
+  },
+  {
+   "node": "ARB",
+   "rr": 0.8507300224696314,
+   "lo": 0.5274621496785653,
+   "hi": 1.3721203911450832
+  },
+  {
+   "node": "ARNI+BB",
+   "rr": 0.5792712681671814,
+   "lo": 0.35732067941009726,
+   "hi": 0.9390869923285285
+  },
+  {
+   "node": "BB",
+   "rr": 0.9961097970172826,
+   "lo": 0.5092049985662868,
+   "hi": 1.9485958121140592
+  }
+ ],
+ "contrasts": [
+  {
+   "treat1": "+Digitoxin",
+   "treat2": "+Omecamtiv",
+   "log_rr": -0.07931562276920001,
+   "se": 0.23702010161112919,
+   "rr": 0.9237483224258212,
+   "lo": 0.538686606138032,
+   "hi": 1.5840582510526877,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Digitoxin",
+   "treat2": "+QLQX",
+   "log_rr": 0.08892254426559998,
+   "se": 0.2487260686855521,
+   "rr": 1.0929959942401604,
+   "lo": 0.6206310990693975,
+   "hi": 1.924879763866707,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Digitoxin",
+   "treat2": "+SGLT2i",
+   "log_rr": 0.03978328502119999,
+   "se": 0.2152172134649782,
+   "rr": 1.0405852393467967,
+   "lo": 0.6376836152991555,
+   "hi": 1.6980483963641586,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Digitoxin",
+   "treat2": "+Vericiguat",
+   "log_rr": 0.073597881817,
+   "se": 0.2430621249806312,
+   "rr": 1.0763738889477932,
+   "lo": 0.6191203632940019,
+   "hi": 1.8713336170117547,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Digitoxin",
+   "treat2": "ACEI",
+   "log_rr": -0.49084517059020005,
+   "se": 0.24850610480527432,
+   "rr": 0.6121088391152407,
+   "lo": 0.3477450665289806,
+   "hi": 1.0774480128872876,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Digitoxin",
+   "treat2": "ACEI+ARB",
+   "log_rr": -0.50852759811963,
+   "se": 0.29711829903279263,
+   "rr": 0.6013804008786447,
+   "lo": 0.30587516145621296,
+   "hi": 1.1823725236111795,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Digitoxin",
+   "treat2": "ACEI+BB",
+   "log_rr": -0.16412651496040004,
+   "se": 0.23635716637400694,
+   "rr": 0.8486346501091296,
+   "lo": 0.4956308963786497,
+   "hi": 1.4530586664953282,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Digitoxin",
+   "treat2": "ACEI+BB+ARB",
+   "log_rr": -0.07220863305430003,
+   "se": 0.2874206697869344,
+   "rr": 0.9303367765588425,
+   "lo": 0.48374678449919817,
+   "hi": 1.7892139969755856,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Digitoxin",
+   "treat2": "ACEI+BB+MRA",
+   "log_rr": -0.08125925797780009,
+   "se": 0.17768809909552183,
+   "rr": 0.9219546363628317,
+   "lo": 0.6153504260100446,
+   "hi": 1.3813273146203142,
+   "evidence": "direct+indirect",
+   "direct_trials": [
+    "DIGIT-HF"
+   ],
+   "k_direct": 1
+  },
+  {
+   "treat1": "+Digitoxin",
+   "treat2": "ACEI+MRA",
+   "log_rr": -0.20683330420330004,
+   "se": 0.2978213698729492,
+   "rr": 0.8131551882423732,
+   "lo": 0.4129273235139139,
+   "hi": 1.6013020270459506,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Digitoxin",
+   "treat2": "ARB",
+   "log_rr": -0.4415950168427001,
+   "se": 0.28868389666382505,
+   "rr": 0.6430099909484877,
+   "lo": 0.33338598057232216,
+   "hi": 1.2401896676932433,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Digitoxin",
+   "treat2": "ARNI+BB",
+   "log_rr": -0.05727106536540005,
+   "se": 0.2653527121642814,
+   "rr": 0.9443380573295216,
+   "lo": 0.5163122296727415,
+   "hi": 1.727199774226025,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Digitoxin",
+   "treat2": "BB",
+   "log_rr": -0.599357675472662,
+   "se": 0.3477790702275512,
+   "rr": 0.5491642645075937,
+   "lo": 0.24890606060291207,
+   "hi": 1.2116273451986725,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Digitoxin",
+   "treat2": "Placebo",
+   "log_rr": -0.6032554649768,
+   "se": 0.29394442428574824,
+   "rr": 0.5470279040478044,
+   "lo": 0.2802468678080577,
+   "hi": 1.0677711767036924,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Omecamtiv",
+   "treat2": "+QLQX",
+   "log_rr": 0.1682381670348,
+   "se": 0.23430122639704642,
+   "rr": 1.1832183807055627,
+   "lo": 0.694279190613896,
+   "hi": 2.016488115107671,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Omecamtiv",
+   "treat2": "+SGLT2i",
+   "log_rr": 0.1190989077904,
+   "se": 0.19837050289551617,
+   "rr": 1.1264813305578236,
+   "lo": 0.7172971482959024,
+   "hi": 1.769085784196995,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Omecamtiv",
+   "treat2": "+Vericiguat",
+   "log_rr": 0.1529135045862,
+   "se": 0.22827966192258559,
+   "rr": 1.1652241880355112,
+   "lo": 0.6931529810461594,
+   "hi": 1.9587990609717936,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Omecamtiv",
+   "treat2": "ACEI",
+   "log_rr": -0.41152954782100004,
+   "se": 0.23406770724061876,
+   "rr": 0.6626359412570346,
+   "lo": 0.3890227388312522,
+   "hi": 1.128690811145773,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Omecamtiv",
+   "treat2": "ACEI+ARB",
+   "log_rr": -0.42921197535043004,
+   "se": 0.28515204903266955,
+   "rr": 0.6510219139552881,
+   "lo": 0.3402634533626508,
+   "hi": 1.245592285217571,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Omecamtiv",
+   "treat2": "ACEI+BB",
+   "log_rr": -0.08481089219120003,
+   "se": 0.221126926320021,
+   "rr": 0.9186859986717612,
+   "lo": 0.5554626484405698,
+   "hi": 1.5194252332266964,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Omecamtiv",
+   "treat2": "ACEI+BB+ARB",
+   "log_rr": 0.0071069897148999805,
+   "se": 0.27503281416616454,
+   "rr": 1.0071323043009373,
+   "lo": 0.5386489348954805,
+   "hi": 1.883073394665365,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Omecamtiv",
+   "treat2": "ACEI+BB+MRA",
+   "log_rr": -0.0019436352086000808,
+   "se": 0.15686130181650923,
+   "rr": 0.9980582524271555,
+   "lo": 0.6984726033370173,
+   "hi": 1.426140797046142,
+   "evidence": "direct+indirect",
+   "direct_trials": [
+    "GALACTIC-HF"
+   ],
+   "k_direct": 1
+  },
+  {
+   "treat1": "+Omecamtiv",
+   "treat2": "ACEI+MRA",
+   "log_rr": -0.12751768143410003,
+   "se": 0.28588454977558686,
+   "rr": 0.880277851121804,
+   "lo": 0.45932029288381676,
+   "hi": 1.6870343139218236,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Omecamtiv",
+   "treat2": "ARB",
+   "log_rr": -0.36227939407350007,
+   "se": 0.2763526725769085,
+   "rr": 0.6960878578484484,
+   "lo": 0.3711753146458595,
+   "hi": 1.3054162998591174,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Omecamtiv",
+   "treat2": "ARNI+BB",
+   "log_rr": 0.022044557403799958,
+   "se": 0.2518818558378709,
+   "rr": 1.022289334014302,
+   "lo": 0.5763287983136316,
+   "hi": 1.8133320519421396,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Omecamtiv",
+   "treat2": "BB",
+   "log_rr": -0.520042052703462,
+   "se": 0.3376132241718769,
+   "rr": 0.594495547299565,
+   "lo": 0.2757575741151354,
+   "hi": 1.2816509461003813,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Omecamtiv",
+   "treat2": "Placebo",
+   "log_rr": -0.5239398422076,
+   "se": 0.281843453030348,
+   "rr": 0.5921828389482481,
+   "lo": 0.3118494550177271,
+   "hi": 1.1245186069825654,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+QLQX",
+   "treat2": "+SGLT2i",
+   "log_rr": -0.04913925924439999,
+   "se": 0.21221919115631366,
+   "rr": 0.9520485389063121,
+   "lo": 0.5874207190867147,
+   "hi": 1.5430106412365787,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+QLQX",
+   "treat2": "+Vericiguat",
+   "log_rr": -0.01532466244859998,
+   "se": 0.240411590243711,
+   "rr": 0.9847921626611974,
+   "lo": 0.5698698914095619,
+   "hi": 1.701819342025771,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+QLQX",
+   "treat2": "ACEI",
+   "log_rr": -0.5797677148558,
+   "se": 0.2459142538546719,
+   "rr": 0.5600284377444334,
+   "lo": 0.3200395204443597,
+   "hi": 0.9799785059264177,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+QLQX",
+   "treat2": "ACEI+ARB",
+   "log_rr": -0.5974501423852301,
+   "se": 0.29495392817107896,
+   "rr": 0.5502128132653571,
+   "lo": 0.28123179565632667,
+   "hi": 1.07645772831223,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+QLQX",
+   "treat2": "ACEI+BB",
+   "log_rr": -0.253049059226,
+   "se": 0.23363057638023324,
+   "rr": 0.7764297898448308,
+   "lo": 0.456282855555053,
+   "hi": 1.3212050622089433,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+QLQX",
+   "treat2": "ACEI+BB+ARB",
+   "log_rr": -0.1611311773199,
+   "se": 0.2851827090554054,
+   "rr": 0.8511804082187905,
+   "lo": 0.44484736168627304,
+   "hi": 1.6286667062363371,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+QLQX",
+   "treat2": "ACEI+BB+MRA",
+   "log_rr": -0.17018180224340007,
+   "se": 0.17404481228577315,
+   "rr": 0.8435114503816321,
+   "lo": 0.5676807172024851,
+   "hi": 1.2533657483228142,
+   "evidence": "direct+indirect",
+   "direct_trials": [
+    "QUEST"
+   ],
+   "k_direct": 1
+  },
+  {
+   "treat1": "+QLQX",
+   "treat2": "ACEI+MRA",
+   "log_rr": -0.2957558484689,
+   "se": 0.29566214582934014,
+   "rr": 0.7439690470299211,
+   "lo": 0.37965466748187654,
+   "hi": 1.4578773563083633,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+QLQX",
+   "treat2": "ARB",
+   "log_rr": -0.5305175611083001,
+   "se": 0.28645580517144353,
+   "rr": 0.5883004094589585,
+   "lo": 0.3065706032684166,
+   "hi": 1.1289320244007675,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+QLQX",
+   "treat2": "ARNI+BB",
+   "log_rr": -0.14619360963100003,
+   "se": 0.2629269822143593,
+   "rr": 0.8639904101258996,
+   "lo": 0.474997024409513,
+   "hi": 1.571545484348028,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+QLQX",
+   "treat2": "BB",
+   "log_rr": -0.688280219738262,
+   "se": 0.3459318109277463,
+   "rr": 0.5024394118565522,
+   "lo": 0.22868744251529413,
+   "hi": 1.1038881707283732,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+QLQX",
+   "treat2": "Placebo",
+   "log_rr": -0.6921780092424,
+   "se": 0.2917565092540182,
+   "rr": 0.500484820557913,
+   "lo": 0.25768209420675475,
+   "hi": 0.9720700865148444,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+SGLT2i",
+   "treat2": "+Vericiguat",
+   "log_rr": 0.03381459679580001,
+   "se": 0.20555175613788845,
+   "rr": 1.0343928092075014,
+   "lo": 0.6479839654053505,
+   "hi": 1.6512267908834142,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+SGLT2i",
+   "treat2": "ACEI",
+   "log_rr": -0.5306284556114,
+   "se": 0.21196134547780168,
+   "rr": 0.5882351737945831,
+   "lo": 0.36315828485339224,
+   "hi": 0.9528093785023591,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+SGLT2i",
+   "treat2": "ACEI+ARB",
+   "log_rr": -0.5483108831408301,
+   "se": 0.26730434241031326,
+   "rr": 0.577925169548001,
+   "lo": 0.314577730878904,
+   "hi": 1.0617328208958865,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+SGLT2i",
+   "treat2": "ACEI+BB",
+   "log_rr": -0.20390979998160003,
+   "se": 0.19757792879676614,
+   "rr": 0.8155359292255966,
+   "lo": 0.5202372044213011,
+   "hi": 1.2784530714170985,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+SGLT2i",
+   "treat2": "ACEI+BB+ARB",
+   "log_rr": -0.11199191807550002,
+   "se": 0.25648190827432643,
+   "rr": 0.8940514831277445,
+   "lo": 0.49878497177644004,
+   "hi": 1.6025503968896353,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+SGLT2i",
+   "treat2": "ACEI+BB+MRA",
+   "log_rr": -0.12104254299900008,
+   "se": 0.12143059092111014,
+   "rr": 0.8859962658528266,
+   "lo": 0.672105024851932,
+   "hi": 1.1679564265690314,
+   "evidence": "direct+indirect",
+   "direct_trials": [
+    "DAPA-HF",
+    "EMPEROR-Reduced"
+   ],
+   "k_direct": 2
+  },
+  {
+   "treat1": "+SGLT2i",
+   "treat2": "ACEI+MRA",
+   "log_rr": -0.24661658922450003,
+   "se": 0.26808561357198935,
+   "rr": 0.7814402487131306,
+   "lo": 0.4246001169010982,
+   "hi": 1.4381740324651802,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+SGLT2i",
+   "treat2": "ARB",
+   "log_rr": -0.48137830186390007,
+   "se": 0.2578967236012897,
+   "rr": 0.6179311089902855,
+   "lo": 0.3436313716630679,
+   "hi": 1.1111874146123037,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+SGLT2i",
+   "treat2": "ARNI+BB",
+   "log_rr": -0.09705435038660004,
+   "se": 0.2314830224967049,
+   "rr": 0.907506681453898,
+   "lo": 0.5359249208328124,
+   "hi": 1.53672341939924,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+SGLT2i",
+   "treat2": "BB",
+   "log_rr": -0.639140960493862,
+   "se": 0.3226803519578005,
+   "rr": 0.5277455836797367,
+   "lo": 0.25325600490289235,
+   "hi": 1.099738587443401,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+SGLT2i",
+   "treat2": "Placebo",
+   "log_rr": -0.643038749998,
+   "se": 0.2637719704971512,
+   "rr": 0.5256925462359898,
+   "lo": 0.2884554769438257,
+   "hi": 0.9580426625835767,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Vericiguat",
+   "treat2": "ACEI",
+   "log_rr": -0.5644430524072,
+   "se": 0.2401840119683864,
+   "rr": 0.5686767817394812,
+   "lo": 0.3292467620585353,
+   "hi": 0.9822216020216439,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Vericiguat",
+   "treat2": "ACEI+ARB",
+   "log_rr": -0.58212547993663,
+   "se": 0.2901936579249795,
+   "rr": 0.5587095776417642,
+   "lo": 0.28868473445550835,
+   "hi": 1.081305503518918,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Vericiguat",
+   "treat2": "ACEI+BB",
+   "log_rr": -0.23772439677740004,
+   "se": 0.2275912686727898,
+   "rr": 0.7884199522330577,
+   "lo": 0.4697399138412193,
+   "hi": 1.3232982822262174,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Vericiguat",
+   "treat2": "ACEI+BB+ARB",
+   "log_rr": -0.14580651487130003,
+   "se": 0.28025651981802313,
+   "rr": 0.8643249210256215,
+   "lo": 0.45680870955754904,
+   "hi": 1.635383812689395,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Vericiguat",
+   "treat2": "ACEI+BB+MRA",
+   "log_rr": -0.1548571397948001,
+   "se": 0.16584973934233357,
+   "rr": 0.8565375338713264,
+   "lo": 0.587296929270306,
+   "hi": 1.2492088930924836,
+   "evidence": "direct+indirect",
+   "direct_trials": [
+    "VICTOR"
+   ],
+   "k_direct": 1
+  },
+  {
+   "treat1": "+Vericiguat",
+   "treat2": "ACEI+MRA",
+   "log_rr": -0.28043118602030004,
+   "se": 0.2909134645091904,
+   "rr": 0.7554579283201224,
+   "lo": 0.3897056397826143,
+   "hi": 1.4644814526679377,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Vericiguat",
+   "treat2": "ARB",
+   "log_rr": -0.5151928986597001,
+   "se": 0.2815518916163591,
+   "rr": 0.5973853486701175,
+   "lo": 0.3147979189027837,
+   "hi": 1.1336455337747215,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Vericiguat",
+   "treat2": "ARNI+BB",
+   "log_rr": -0.13086894718240005,
+   "se": 0.2575754983158918,
+   "rr": 0.8773327437853933,
+   "lo": 0.4882412977020858,
+   "hi": 1.576500691237447,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Vericiguat",
+   "treat2": "BB",
+   "log_rr": -0.672955557289662,
+   "se": 0.34188208079406557,
+   "rr": 0.5101984265378529,
+   "lo": 0.2343686824601962,
+   "hi": 1.1106536577723396,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "+Vericiguat",
+   "treat2": "Placebo",
+   "log_rr": -0.6768533467938,
+   "se": 0.28694320003864876,
+   "rr": 0.5082136510971575,
+   "lo": 0.2645428649252562,
+   "hi": 0.9763299238271954,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI",
+   "treat2": "ACEI+ARB",
+   "log_rr": -0.01768242752943,
+   "se": 0.1628619031408205,
+   "rr": 0.9824729891956743,
+   "lo": 0.6782416528452152,
+   "hi": 1.4231700020927034,
+   "evidence": "direct+indirect",
+   "direct_trials": [
+    "Val-HeFT"
+   ],
+   "k_direct": 1
+  },
+  {
+   "treat1": "ACEI",
+   "treat2": "ACEI+BB",
+   "log_rr": 0.3267186556298,
+   "se": 0.07675007510836715,
+   "rr": 1.3864113632728614,
+   "lo": 1.1642588728980565,
+   "hi": 1.6509528189616107,
+   "evidence": "direct+indirect",
+   "direct_trials": [
+    "BEST",
+    "CARMEN",
+    "CIBIS-I",
+    "CIBIS-II",
+    "COPERNICUS",
+    "MERIT-HF",
+    "RESOLVD",
+    "US-Carvedilol"
+   ],
+   "k_direct": 8
+  },
+  {
+   "treat1": "ACEI",
+   "treat2": "ACEI+BB+ARB",
+   "log_rr": 0.4186365375359,
+   "se": 0.1806557647947056,
+   "rr": 1.519887832209019,
+   "lo": 1.0076087175352006,
+   "hi": 2.292615161317647,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI",
+   "treat2": "ACEI+BB+MRA",
+   "log_rr": 0.40958591261239996,
+   "se": 0.17373031849769344,
+   "rr": 1.506193960040588,
+   "lo": 1.0143897143834901,
+   "hi": 2.236438533529034,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI",
+   "treat2": "ACEI+MRA",
+   "log_rr": 0.2840118663869,
+   "se": 0.1641410497941024,
+   "rr": 1.3284486945454512,
+   "lo": 0.9144176561899103,
+   "hi": 1.9299451646556975,
+   "evidence": "direct+indirect",
+   "direct_trials": [
+    "RALES"
+   ],
+   "k_direct": 1
+  },
+  {
+   "treat1": "ACEI",
+   "treat2": "ARB",
+   "log_rr": 0.0492501537475,
+   "se": 0.14691190580589447,
+   "rr": 1.0504831001589723,
+   "lo": 0.7519938810346015,
+   "hi": 1.4674517593166814,
+   "evidence": "direct+indirect",
+   "direct_trials": [
+    "ELITE",
+    "ELITE-II",
+    "REPLACE"
+   ],
+   "k_direct": 3
+  },
+  {
+   "treat1": "ACEI",
+   "treat2": "ARNI+BB",
+   "log_rr": 0.4335741052248,
+   "se": 0.14296127372729298,
+   "rr": 1.5427616740423062,
+   "lo": 1.114366367998608,
+   "hi": 2.1358447735357284,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI",
+   "treat2": "BB",
+   "log_rr": -0.108512504882462,
+   "se": 0.24963754296645765,
+   "rr": 0.8971676757704905,
+   "lo": 0.5083793303435878,
+   "hi": 1.5832859253019318,
+   "evidence": "direct+indirect",
+   "direct_trials": [
+    "CARMEN",
+    "He 2015"
+   ],
+   "k_direct": 2
+  },
+  {
+   "treat1": "ACEI",
+   "treat2": "Placebo",
+   "log_rr": -0.1124102943866,
+   "se": 0.156996944056851,
+   "rr": 0.8936775114022105,
+   "lo": 0.6252306751575764,
+   "hi": 1.2773837339071097,
+   "evidence": "direct+indirect",
+   "direct_trials": [
+    "SOLVD-Treatment"
+   ],
+   "k_direct": 1
+  },
+  {
+   "treat1": "ACEI+ARB",
+   "treat2": "ACEI+BB",
+   "log_rr": 0.34440108315923,
+   "se": 0.180040477459348,
+   "rr": 1.4111445083165912,
+   "lo": 0.9368280377174456,
+   "hi": 2.1256076282728356,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+ARB",
+   "treat2": "ACEI+BB+ARB",
+   "log_rr": 0.43631896506533,
+   "se": 0.24322932563367022,
+   "rr": 1.5470021557064002,
+   "lo": 0.8894829542098764,
+   "hi": 2.690569457720673,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+ARB",
+   "treat2": "ACEI+BB+MRA",
+   "log_rr": 0.42726834014182996,
+   "se": 0.23813068483494518,
+   "rr": 1.5330639891420026,
+   "lo": 0.8917545745346204,
+   "hi": 2.63557402666595,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+ARB",
+   "treat2": "ACEI+MRA",
+   "log_rr": 0.30169429391633,
+   "se": 0.23122777454743623,
+   "rr": 1.3521478037101238,
+   "lo": 0.7989700838431435,
+   "hi": 2.28832558321051,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+ARB",
+   "treat2": "ARB",
+   "log_rr": 0.06693258127693,
+   "se": 0.21933332524304194,
+   "rr": 1.0692233900689485,
+   "lo": 0.6491254050226387,
+   "hi": 1.7611984510614918,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+ARB",
+   "treat2": "ARNI+BB",
+   "log_rr": 0.45125653275423,
+   "se": 0.2167070033025698,
+   "rr": 1.5702840597229304,
+   "lo": 0.9590332074073641,
+   "hi": 2.571122677686952,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+ARB",
+   "treat2": "BB",
+   "log_rr": -0.090830077353032,
+   "se": 0.29806526525742644,
+   "rr": 0.9131728664672796,
+   "lo": 0.46345990795328545,
+   "hi": 1.799259590186859,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+ARB",
+   "treat2": "Placebo",
+   "log_rr": -0.09472786685717,
+   "se": 0.22621237795010246,
+   "rr": 0.9096204386584119,
+   "lo": 0.5436540827500022,
+   "hi": 1.5219408235468062,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+BB",
+   "treat2": "ACEI+BB+ARB",
+   "log_rr": 0.09191788190610001,
+   "se": 0.16354183356077426,
+   "rr": 1.0962747943879105,
+   "lo": 0.755633800971335,
+   "hi": 1.5904773228319977,
+   "evidence": "direct+indirect",
+   "direct_trials": [
+    "CHARM-Added"
+   ],
+   "k_direct": 1
+  },
+  {
+   "treat1": "ACEI+BB",
+   "treat2": "ACEI+BB+MRA",
+   "log_rr": 0.08286725698259995,
+   "se": 0.1558577862545532,
+   "rr": 1.0863975872824347,
+   "lo": 0.76203326195341,
+   "hi": 1.548829659518531,
+   "evidence": "direct+indirect",
+   "direct_trials": [
+    "EMPHASIS-HF",
+    "J-EMPHASIS-HF",
+    "Vizzardi 2014"
+   ],
+   "k_direct": 3
+  },
+  {
+   "treat1": "ACEI+BB",
+   "treat2": "ACEI+MRA",
+   "log_rr": -0.0427067892429,
+   "se": 0.18119839474081992,
+   "rr": 0.9581923011720133,
+   "lo": 0.6344491815409105,
+   "hi": 1.447133218448506,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+BB",
+   "treat2": "ARB",
+   "log_rr": -0.2774685018823,
+   "se": 0.16575186905932618,
+   "rr": 0.7576994303329475,
+   "lo": 0.5196429088078679,
+   "hi": 1.1048133573956713,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+BB",
+   "treat2": "ARNI+BB",
+   "log_rr": 0.10685544959499998,
+   "se": 0.12061240299649949,
+   "rr": 1.1127733910088222,
+   "lo": 0.8457081119124438,
+   "hi": 1.464174934939575,
+   "evidence": "direct+indirect",
+   "direct_trials": [
+    "PARACHUTE-HF",
+    "PARADIGM-HF"
+   ],
+   "k_direct": 2
+  },
+  {
+   "treat1": "ACEI+BB",
+   "treat2": "BB",
+   "log_rr": -0.435231160512262,
+   "se": 0.2551187401818808,
+   "rr": 0.6471150623380441,
+   "lo": 0.3621424121499491,
+   "hi": 1.1563348833369436,
+   "evidence": "direct+indirect",
+   "direct_trials": [
+    "CARMEN"
+   ],
+   "k_direct": 1
+  },
+  {
+   "treat1": "ACEI+BB",
+   "treat2": "Placebo",
+   "log_rr": -0.4391289500164,
+   "se": 0.17475300990921444,
+   "rr": 0.6445976533923753,
+   "lo": 0.4331138350092218,
+   "hi": 0.9593462530470999,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+BB+ARB",
+   "treat2": "ACEI+BB+MRA",
+   "log_rr": -0.009050624923500061,
+   "se": 0.22591498591414869,
+   "rr": 0.9909902086994616,
+   "lo": 0.592687383876544,
+   "hi": 1.6569638910059281,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+BB+ARB",
+   "treat2": "ACEI+MRA",
+   "log_rr": -0.134624671149,
+   "se": 0.244087667818491,
+   "rr": 0.8740439040259119,
+   "lo": 0.5015702469285642,
+   "hi": 1.5231221366160161,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+BB+ARB",
+   "treat2": "ARB",
+   "log_rr": -0.36938638378840005,
+   "se": 0.23285105415496835,
+   "rr": 0.6911583064864665,
+   "lo": 0.4068926056316437,
+   "hi": 1.1740193800860015,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+BB+ARB",
+   "treat2": "ARNI+BB",
+   "log_rr": 0.014937567688899978,
+   "se": 0.20320748775822703,
+   "rr": 1.0150496907393765,
+   "lo": 0.6392674894039936,
+   "hi": 1.6117288799258425,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+BB+ARB",
+   "treat2": "BB",
+   "log_rr": -0.527149042418362,
+   "se": 0.3030371312502974,
+   "rr": 0.5902854518326781,
+   "lo": 0.2962157696937883,
+   "hi": 1.1762942769910731,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+BB+ARB",
+   "treat2": "Placebo",
+   "log_rr": -0.5310468319225,
+   "se": 0.23934190146472473,
+   "rr": 0.587989121607304,
+   "lo": 0.34108094688666574,
+   "hi": 1.0136338903838225,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+BB+MRA",
+   "treat2": "ACEI+MRA",
+   "log_rr": -0.12557404622549995,
+   "se": 0.23900733836604265,
+   "rr": 0.8819904539450237,
+   "lo": 0.5120149719397766,
+   "hi": 1.519305495897973,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+BB+MRA",
+   "treat2": "ARB",
+   "log_rr": -0.3603357588649,
+   "se": 0.22751995875709455,
+   "rr": 0.6974421143812477,
+   "lo": 0.415602826520277,
+   "hi": 1.1704095157034573,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+BB+MRA",
+   "treat2": "ARNI+BB",
+   "log_rr": 0.02398819261240004,
+   "se": 0.19707613070273122,
+   "rr": 1.0242782237692234,
+   "lo": 0.6541421175939063,
+   "hi": 1.6038500678519967,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+BB+MRA",
+   "treat2": "BB",
+   "log_rr": -0.518098417494862,
+   "se": 0.29896023335580935,
+   "rr": 0.5956521534227333,
+   "lo": 0.3016945764642943,
+   "hi": 1.1760287242655496,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+BB+MRA",
+   "treat2": "Placebo",
+   "log_rr": -0.521996206999,
+   "se": 0.23415863001072584,
+   "rr": 0.593334945638826,
+   "lo": 0.3482651989222234,
+   "hi": 1.0108571249889649,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+MRA",
+   "treat2": "ARB",
+   "log_rr": -0.23476171263940002,
+   "se": 0.22028479814782953,
+   "rr": 0.7907592551162925,
+   "lo": 0.4790316595349828,
+   "hi": 1.3053421148804243,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+MRA",
+   "treat2": "ARNI+BB",
+   "log_rr": 0.14956223883789999,
+   "se": 0.21766995661606586,
+   "rr": 1.1613257481277328,
+   "lo": 0.7077142025844904,
+   "hi": 1.905680977348235,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+MRA",
+   "treat2": "BB",
+   "log_rr": -0.392524371269362,
+   "se": 0.29876610765921896,
+   "rr": 0.6753498870180078,
+   "lo": 0.3422121687556836,
+   "hi": 1.33279150052919,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ACEI+MRA",
+   "treat2": "Placebo",
+   "log_rr": -0.3964221607735,
+   "se": 0.22713503620247583,
+   "rr": 0.6727226388731525,
+   "lo": 0.4012238476558982,
+   "hi": 1.127938310487924,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ARB",
+   "treat2": "ARNI+BB",
+   "log_rr": 0.38432395147730003,
+   "se": 0.20499032624309374,
+   "rr": 1.4686211266119713,
+   "lo": 0.921177515891367,
+   "hi": 2.3414032326266305,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ARB",
+   "treat2": "BB",
+   "log_rr": -0.157762658629962,
+   "se": 0.28965843838191563,
+   "rr": 0.8540524598965179,
+   "lo": 0.4418258703814735,
+   "hi": 1.6508893053852254,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ARB",
+   "treat2": "Placebo",
+   "log_rr": -0.1616604481341,
+   "se": 0.21008457942835787,
+   "rr": 0.8507300224696314,
+   "lo": 0.5274621496785653,
+   "hi": 1.3721203911450832,
+   "evidence": "direct+indirect",
+   "direct_trials": [
+    "SPICE"
+   ],
+   "k_direct": 1
+  },
+  {
+   "treat1": "ARNI+BB",
+   "treat2": "BB",
+   "log_rr": -0.542086610107262,
+   "se": 0.28219306041889125,
+   "rr": 0.5815335517246509,
+   "lo": 0.30599792025233946,
+   "hi": 1.1051750662311952,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "ARNI+BB",
+   "treat2": "Placebo",
+   "log_rr": -0.5459843996114,
+   "se": 0.21233456202163603,
+   "rr": 0.5792712681671814,
+   "lo": 0.35732067941009726,
+   "hi": 0.9390869923285285,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  },
+  {
+   "treat1": "BB",
+   "treat2": "Placebo",
+   "log_rr": -0.003897789504138,
+   "se": 0.2949015823991455,
+   "rr": 0.9961097970172826,
+   "lo": 0.5092049985662868,
+   "hi": 1.9485958121140592,
+   "evidence": "indirect only",
+   "direct_trials": [],
+   "k_direct": 0
+  }
+ ],
+ "non_estimable": [],
+ "trials": {
+  "n_included": 28,
+  "included_names": [
+   "BEST",
+   "CARMEN",
+   "CHARM-Added",
+   "CIBIS-I",
+   "CIBIS-II",
+   "COPERNICUS",
+   "DAPA-HF",
+   "DIGIT-HF",
+   "ELITE",
+   "ELITE-II",
+   "EMPEROR-Reduced",
+   "EMPHASIS-HF",
+   "GALACTIC-HF",
+   "He 2015",
+   "J-EMPHASIS-HF",
+   "MERIT-HF",
+   "PARACHUTE-HF",
+   "PARADIGM-HF",
+   "QUEST",
+   "RALES",
+   "REPLACE",
+   "RESOLVD",
+   "SOLVD-Treatment",
+   "SPICE",
+   "US-Carvedilol",
+   "Val-HeFT",
+   "VICTOR",
+   "Vizzardi 2014"
+  ]
+ }
+}
