@@ -1,0 +1,149 @@
+{
+ "_schema": "hfref-source-verification/1",
+ "_date": "2026-07-30",
+ "_scope": "28-trial HFrEF GDMT network, settled OURS-STRICT cell",
+ "_method": "Per-trial lookup against the cited primary publication (PubMed E-utilities via MCP) and, for the registered subset, against ClinicalTrials.gov API v2. NOTHING here is from recall: every status is backed by a quoted field from the retrieved record. Where the source does not state a value, status is UNVERIFIED - never inferred.",
+ "_status_legend": {
+  "VERIFIED_FULL": "Both per-arm denominators AND per-arm death counts confirmed against the cited source (either stated verbatim or exactly recoverable from stated percentages).",
+  "VERIFIED_DENOM_ONLY": "Per-arm denominators confirmed against the source; the per-arm death counts are NOT stated in the accessible record (abstract / registry). Counts neither confirmed nor contradicted.",
+  "FINDING": "A discrepancy, wrong identifier, or unlocatable source was found."
+ },
+ "trials": [
+  {"id": "HF-001", "name": "SOLVD-Treatment", "pmid": "2057034", "doi": "10.1056/NEJM199108013250501",
+   "status": "VERIFIED_FULL",
+   "evidence": "Abstract: 'placebo (n = 1284) or enalapril (n = 1285)'; '510 deaths in the placebo group (39.7 percent), as compared with 452 in the enalapril group (35.2 percent)'. Ledger Placebo 510/1284, ACEI 452/1285 - exact."},
+
+  {"id": "HF-008", "name": "SPICE", "pmid": null, "doi": null,
+   "status": "FINDING", "finding_class": "no_primary_source",
+   "evidence": "Ledger carries no PMID and no DOI. Ledger's own note: the only PubMed-indexed SPICE paper is the observational SPICE Registry (n=9580), not this 270-patient randomised comparison. Counts 3/91 and 6/179 therefore have NO locatable primary source and are UNVERIFIED. Not fabricated-by-us as far as can be determined, but unsubstantiated."},
+
+  {"id": "HF-010", "name": "ELITE", "pmid": "9074572", "doi": "10.1016/s0140-6736(97)01187-2",
+   "status": "VERIFIED_FULL",
+   "evidence": "Abstract: 'losartan (n = 352) or captopril (n = 370)'; all-cause mortality '4.8% vs 8.7%'. 17/352=4.83%, 32/370=8.65% - recovers ledger exactly."},
+
+  {"id": "HF-011", "name": "ELITE-II", "pmid": "10821361", "doi": "10.1016/s0140-6736(00)02213-3",
+   "status": "VERIFIED_DENOM_ONLY",
+   "evidence": "Abstract confirms 'losartan (n=1578) or captopril (n=1574)'. Abstract reports only average ANNUAL mortality rates (11.7 vs 10.4%), not raw per-arm death counts, so 280/250 are not confirmable from this record."},
+
+  {"id": "HF-012", "name": "REPLACE", "pmid": "11182175", "doi": "10.1016/s0167-5273(00)00426-5",
+   "status": "VERIFIED_DENOM_ONLY",
+   "evidence": "Abstract: 'Multicenter, double-blind, parallel-group trial in 378 patients' across four telmisartan doses plus enalapril continuation. Ledger 77 + 301 = 378 - total exact; the 301 is the four pooled telmisartan dose arms, which also EXPLAINS the 3.9:1 arm-imbalance flag. Primary endpoint is 12-week bicycle exercise duration; no deaths are reported in the abstract, so 2/4 are unverified.",
+   "design_note": "12-week exercise-tolerance dose-ranging trial, not a mortality trial."},
+
+  {"id": "HF-013", "name": "CIBIS-I", "pmid": "7923660", "doi": "10.1161/01.cir.90.4.1765",
+   "status": "VERIFIED_FULL",
+   "evidence": "Abstract: '320 patients was randomized to bisoprolol and 321 to placebo'; '67 patients died on placebo, 53 on bisoprolol'. Exact."},
+
+  {"id": "HF-014", "name": "CIBIS-II", "pmid": "10023943", "doi": null,
+   "status": "VERIFIED_FULL",
+   "evidence": "Abstract: 'bisoprolol 1.25 mg (n=1327) or placebo (n=1320)'; 'All-cause mortality ... 156 [11.8%] vs 228 [17.3%] deaths'. Exact."},
+
+  {"id": "HF-015", "name": "MERIT-HF", "pmid": "10376614", "doi": null,
+   "status": "VERIFIED_FULL",
+   "evidence": "Abstract: '1990 patients were randomly assigned metoprolol CR/XL ... and 2001 were assigned placebo'; '145 [7.2%] vs 217 deaths [11.0%]'. Exact."},
+
+  {"id": "HF-016", "name": "COPERNICUS", "pmid": "11386263", "doi": "10.1056/NEJM200105313442201",
+   "status": "VERIFIED_FULL",
+   "evidence": "Abstract: '1133 patients to placebo and 1156 patients to ... carvedilol'; '190 deaths in the placebo group and 130 deaths in the carvedilol group'. Exact."},
+
+  {"id": "HF-017", "name": "BEST", "pmid": "11386264", "doi": "10.1056/NEJM200105313442202",
+   "status": "VERIFIED_FULL",
+   "evidence": "Abstract: 'bucindolol (1354 patients) or placebo (1354 patients)'; '449 deaths in the placebo group (33 percent) and 411 deaths in the bucindolol group (30 percent)'. Exact."},
+
+  {"id": "HF-018", "name": "US-Carvedilol", "pmid": "8614419", "doi": "10.1056/NEJM199605233342101",
+   "status": "VERIFIED_FULL",
+   "evidence": "Abstract: 'placebo (n = 398) or the beta-blocker carvedilol (n = 696)'; 'overall mortality rate was 7.8 percent in the placebo group and 3.2 percent in the carvedilol group'. 31/398=7.79%, 22/696=3.16% - recovers ledger exactly."},
+
+  {"id": "HF-019", "name": "RESOLVD", "pmid_in_ledger": "10477530", "pmid_correct": "10653828",
+   "doi_correct": "10.1161/01.cir.101.4.378",
+   "status": "FINDING", "finding_class": "wrong_pmid_cited_source_lacks_the_data",
+   "evidence": "The ledger cites PMID 10477530 = McKelvie, Circulation 1999;100:1056-64, the candesartan / enalapril / combination comparison in 768 patients. That paper contains NO metoprolol randomisation and no 212/214 arms, so it cannot substantiate the extracted ACEI-vs-ACEI+BB contrast. The data actually come from the RESOLVD METOPROLOL sub-study: PMID 10653828, Circulation 2000;101(4):378-84, which states 'Four hundred twenty-six patients ... randomized to receive metoprolol CR or placebo' - 212+214 = 426, exact.",
+   "residual_discrepancy": "That sub-study reports deaths as '3.4% versus 8.1%'. Placebo 17/212 = 8.02% matches 8.1%. Metoprolol 8/214 = 3.74% does NOT match 3.4% (7/214 = 3.27% does not either). The metoprolol-arm death count cannot be reconciled to the published percentage from the abstract alone - flagged UNRESOLVED, needs full text.",
+   "proposed_fix": "Replace pmid 10477530 with 10653828 and doi with 10.1161/01.cir.101.4.378; retain the residual count discrepancy as an open flag."},
+
+  {"id": "HF-020", "name": "He 2015", "pmid": "28834619", "doi": "10.1002/ehf2.12042", "nct": "NCT01917149",
+   "status": "FINDING", "finding_class": "per_arm_denominators_unverified_plus_arm_pooling",
+   "evidence": "Publication and registry agree on total enrolment 480 and on the FIVE randomised arms (extended-release metoprolol; low- and high-dose benazepril; low- and high-dose valsartan). Registry NCT01917149 confirmed, enrolment 480, interventions Benazepril/Valsartan/Metoprolol. NEITHER source states per-arm N, so the ledger's 198 (ACEI) and 96 (BB) are UNVERIFIED; an equal 5-way split would give 96 per arm and 192 for two pooled benazepril arms, not 198.",
+   "method_note": "The ledger maps two benazepril dose arms onto a single ACEI node. The trial itself found high-dose vs low-dose benazepril significantly different (41% risk reduction, P=0.042), so this pooling merges arms the source reports as non-equivalent. The two valsartan arms are dropped entirely.",
+   "population_note": "Idiopathic dilated cardiomyopathy only; registry exclusion criteria explicitly exclude coronary artery disease and diabetes."},
+
+  {"id": "HF-021", "name": "CARMEN", "pmid": "15115904", "doi": "10.1023/B:CARD.0000025756.32499.6f",
+   "status": "FINDING", "finding_class": "event_counts_have_no_located_source",
+   "evidence": "Abstract confirms the three arms exactly: 'carvedilol (N = 191), enalapril (N = 190) or their combination (N = 191)' - denominators match the ledger. But CARMEN's primary endpoint is left-ventricular end-systolic volume index; the abstract reports NO deaths. The ledger nevertheless carries an identical 14 deaths in all three arms.",
+   "corroborating_internal_evidence": "The fit script's own branch 7c (hfref_eightcell_fit.R:377) annotates CARMEN as 'inadmissible (its primary reports LVESVI and no deaths)' - the project's own code asserts this trial reports no deaths, contradicting the 14/14/14 the ledger fits.",
+   "severity": "HIGHEST - this is the only trial whose event counts are both unlocatable in the source AND internally contradicted by the project's own annotation. CARMEN is also the only multi-arm trial and the one that closes the network's single internal loop."},
+
+  {"id": "HF-022", "name": "RALES", "pmid": "10471456", "doi": "10.1056/NEJM199909023411001",
+   "status": "VERIFIED_FULL",
+   "evidence": "Abstract: '822 patients were randomly assigned to receive 25 mg of spironolactone daily, and 841 to receive placebo'; '386 deaths in the placebo group (46 percent) and 284 in the spironolactone group (35 percent)'. Exact."},
+
+  {"id": "HF-023", "name": "EMPHASIS-HF", "pmid": "21073363", "doi": "10.1056/NEJMoa1009492", "nct": "NCT00232180",
+   "status": "VERIFIED_FULL",
+   "evidence": "Abstract: 2737 randomised; 'A total of 12.5% of patients receiving eplerenone and 15.5% of those receiving placebo died'. 171/1364=12.54%, 213/1373=15.51%; 1364+1373=2737. Registry NCT00232180 confirmed (acronym EMPHASIS-HF, eplerenone, enrolment 2743 - registry figure differs from the published randomised 2737 by 6, 0.2%, a routine registry/publication difference)."},
+
+  {"id": "HF-024", "name": "J-EMPHASIS-HF", "pmid": "28824029", "doi": "10.1253/circj.CJ-17-0323", "nct": "NCT01115855",
+   "status": "VERIFIED_FULL",
+   "evidence": "Abstract: 'eplerenone (n=111) or placebo (n=110)'; '17 patients (15.3%) in the eplerenone group and 10 patients (9.1%) in the placebo group died'. Exact. Registry NCT01115855 confirmed, enrolment 221 = 110+111 exact."},
+
+  {"id": "HF-025", "name": "Vizzardi 2014", "pmid": "24196866", "doi": "10.1097/MAJ.0b013e31829dd6b1",
+   "status": "VERIFIED_DENOM_ONLY",
+   "evidence": "Abstract: '130 patients were randomized to spironolactone (n = 65) or placebo (n = 65)' - denominators exact. Abstract reports only composite event-free survival, no per-arm death counts, so 8/8 is unverified.",
+   "design_note": "Single-blind (all other trials in the network are double-blind or, for PARACHUTE-HF, open-label)."},
+
+  {"id": "HF-028", "name": "Val-HeFT", "pmid": "11759645", "doi": "10.1056/NEJMoa010713",
+   "status": "VERIFIED_DENOM_ONLY",
+   "evidence": "Abstract: 'A total of 5010 patients ... randomly assigned to receive 160 mg of valsartan or placebo'; 2499+2511 = 5010 exact. Abstract states only that 'Overall mortality was similar in the two groups' with no per-arm counts, so 484/495 unverified."},
+
+  {"id": "HF-029", "name": "CHARM-Added", "pmid": "13678869", "doi": "10.1016/S0140-6736(03)14283-3",
+   "status": "VERIFIED_DENOM_ONLY",
+   "evidence": "Abstract: 'candesartan (n=1276 ...) or placebo (n=1272)' - denominators exact. Per-arm all-cause death counts not present in the retrieved abstract, so 412/377 unverified."},
+
+  {"id": "HF-030", "name": "PARADIGM-HF", "pmid": "25176015", "doi": "10.1056/NEJMoa1409077", "nct": "NCT01035255",
+   "status": "VERIFIED_FULL",
+   "evidence": "Abstract: 'A total of 711 patients (17.0%) receiving LCZ696 and 835 patients (19.8%) receiving enalapril died'. 711/4187=16.98%, 835/4212=19.82% - both counts AND denominators recovered exactly. Registry NCT01035255 confirmed (PARADIGM-HF, LCZ696 vs enalapril, HFrEF). Registry enrolment 8442 vs ledger total 8399 is the randomised-vs-analysis-set difference and is reconciled by the published percentages."},
+
+  {"id": "HF-031", "name": "PARACHUTE-HF", "pmid": "41335448", "doi": "10.1001/jama.2025.19808", "nct": "NCT04023227",
+   "status": "VERIFIED_DENOM_ONLY",
+   "evidence": "Abstract: '462 participants were randomized to receive sacubitril/valsartan and 460 to receive enalapril' - denominators exact; NCT04023227 stated in the abstract. The abstract reports CARDIOVASCULAR death (110 vs 117), not all-cause; the ledger's 129/134 are all-cause and are not stated, so unverified.",
+   "population_note": "CRITICAL: this is a Chagas-disease cardiomyopathy trial. It is the only trial in the network restricted to a single non-ischaemic aetiology, and the only OPEN-LABEL trial in an otherwise blinded network. Both facts bear on whether it belongs in a general chronic-HFrEF node."},
+
+  {"id": "HF-032", "name": "DAPA-HF", "pmid": "31535829", "doi": "10.1056/NEJMoa1911303", "nct": "NCT03036124",
+   "status": "VERIFIED_FULL",
+   "evidence": "Abstract: '276 patients (11.6%) and 329 patients (13.9%), respectively, died from any cause'. 276/2373=11.63%, 329/2371=13.88%; 2371+2373=4744. Registry NCT03036124 confirmed, enrolment 4744 exact."},
+
+  {"id": "HF-033", "name": "EMPEROR-Reduced", "pmid": "32865377", "doi": "10.1056/NEJMoa2022190", "nct": "NCT03057977",
+   "status": "VERIFIED_DENOM_ONLY",
+   "evidence": "Abstract states the denominators verbatim - '361 of 1863 patients ... in the empagliflozin group and in 462 of 1867 patients ... in the placebo group' - matching the ledger exactly; registry NCT03057977 enrolment 3730 = 1863+1867 exact. But those 361/462 are the PRIMARY COMPOSITE (CV death or HF hospitalisation), not all-cause death. The ledger's all-cause 249/266 are not stated in the abstract and are unverified."},
+
+  {"id": "HF-034", "name": "GALACTIC-HF", "pmid": "33185990", "doi": "10.1056/NEJMoa2025797", "nct": "NCT02929329",
+   "status": "VERIFIED_DENOM_ONLY",
+   "evidence": "Abstract reports CARDIOVASCULAR death '808 patients (19.6%) and 798 patients (19.4%)'; 808/4120=19.61% and 798/4112=19.41% recover the ledger's denominators exactly. Registry NCT02929329 confirmed, enrolment 8256 (randomised) vs ledger total 8232 (analysis set). The ledger's all-cause 1078/1078 are not stated in the abstract - unverified.",
+   "note": "The identical 1078/1078 is striking but is not, on this evidence, an error; it simply could not be confirmed from the accessible record."},
+
+  {"id": "HF-036", "name": "VICTOR", "pmid": "40897189", "doi": "10.1016/S0140-6736(25)01665-4", "nct": "NCT05093933",
+   "status": "VERIFIED_FULL",
+   "evidence": "Abstract: '6105 were randomly assigned: 3053 to vericiguat and 3052 to placebo'; 'All-cause death occurred in 377 (12.3%) patients in the vericiguat group and 440 (14.4%) patients in the placebo group'. Both denominators and both counts exact. NCT05093933 stated in the abstract."},
+
+  {"id": "HF-037", "name": "DIGIT-HF", "pmid": "40879434", "doi": "10.1056/NEJMoa2415471", "registry": "EudraCT 2013-005326-38",
+   "status": "VERIFIED_FULL",
+   "evidence": "Abstract: '1212 fulfilled the criteria for inclusion in the modified intention-to-treat population: 613 patients in the digitoxin group and 599 in the placebo group'; 'Death from any cause occurred in 167 patients (27.2%) in the digitoxin group and 177 (29.5%) in the placebo group'. Both denominators and both counts exact. Registry id 'DIGIT-HF EudraCT number, 2013-005326-38' stated in the abstract, matching the ledger exactly."},
+
+  {"id": "HF-038", "name": "QUEST", "pmid": "39095596", "doi": "10.1038/s41591-024-03169-2", "registry": "ChiCTR1900021929",
+   "status": "FINDING", "finding_class": "significance_discordance_with_published_analysis",
+   "evidence": "Abstract: 3110 patients enrolled; ledger 1555+1555 = 3110 exact; ChiCTR1900021929 stated in the abstract, matching the ledger. All-cause death counts are NOT stated, so 221/262 are unverified as counts - though the implied RR 0.8435 is consistent with the published HR 0.84.",
+   "finding": "The publication states plainly: 'All-cause mortality did not differ significantly between the two groups (HR, 0.84; 95% CI, 0.70-1.01; P = 0.058).' Fisher's exact on the extracted 2x2 (221/1555 vs 262/1555) gives p = 0.0426 - NOMINALLY SIGNIFICANT - with a fragility index of 1. So the network's QUEST contrast is significance-discordant with the trial's own published all-cause-mortality analysis, and the discordance turns on a single patient.",
+   "interpretation": "Not necessarily an extraction error: the published analysis is a time-to-event Cox model that accounts for follow-up and censoring, whereas Fisher's exact on crude counts does not. But it means every QLQX contrast in the league table that 'excludes 1' rests on a crude-count significance the source trial did not itself claim."}
+ ],
+
+ "registry_concordance_summary": {
+  "ctgov_subset": 9,
+  "ctgov_verified": ["NCT01035255 PARADIGM-HF", "NCT03036124 DAPA-HF", "NCT03057977 EMPEROR-Reduced",
+                     "NCT02929329 GALACTIC-HF", "NCT00232180 EMPHASIS-HF", "NCT01115855 J-EMPHASIS-HF",
+                     "NCT01917149 He 2015"],
+  "ctgov_verified_via_publication_only": ["NCT04023227 PARACHUTE-HF", "NCT05093933 VICTOR"],
+  "non_ctgov_registry": ["DIGIT-HF EudraCT 2013-005326-38 (confirmed in publication)",
+                         "QUEST ChiCTR1900021929 (confirmed in publication)"],
+  "no_registry_record": 17,
+  "no_registry_note": "17 trials predate trial registration (SOLVD-Treatment 1991 through CHARM-Added 2003, plus Vizzardi 2014 which was never registered). AACT / ClinicalTrials.gov concordance is NOT APPLICABLE to these - there is no registry record to concord with. No concordance status is asserted for them."
+ }
+}
