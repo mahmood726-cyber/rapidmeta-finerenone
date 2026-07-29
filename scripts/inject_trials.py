@@ -9,9 +9,9 @@ Mechanism:
   1. Read the app HTML as UTF-8 with newline='' (CRLF preserved byte-for-byte).
   2. Locate the `realData: { ... }` object via regex + depth-balanced brace scan
      (same delimiter logic as scripts/clone_dashboard.py).
-  3. Brace-scan the top-level `NCTxxxx: { ... }` entries; record keys + spans and
+  3. Brace-scan the top-level `<key>: { ... }` entries; record keys + spans and
      the exact inter-entry separator string actually used in this file.
-  4. For each addition whose NCT is NOT already present, render a minified JS
+  4. For each addition whose KEY is NOT already present, render a minified JS
      entry matching the app's existing schema and insert it immediately after the
      last existing entry using the observed separator.
   5. Write back with newline='' so only the inserted bytes differ.
@@ -56,11 +56,59 @@ def locate_realdata(src: str):
     return brace, end
 
 
+# A realData key. Registry trials are keyed by NCT id; PRE-REGISTRY trials
+# (CONSENSUS 1987, SOLVD, MERIT-HF, RALES, CIBIS, COPERNICUS, EMPHASIS, CARMEN)
+# predate ClinicalTrials.gov and have no NCT. They are keyed by their published
+# trial acronym instead. Keys may be bare or quoted (the AUTO template emits
+# `"NCT01035255":{`, the older template emits `NCT01035255:{`).
+ENTRY_KEY = re.compile(r'["\']?([A-Za-z][A-Za-z0-9_\-]{2,39})["\']?\s*:\s*\{')
+
+
+
+_NCT_RE = re.compile(r"^NCT\d{8}$")
+_NAME_KEY_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_\-]{2,39}$")
+
+
+def entry_key(t: dict) -> str:
+    """The realData key for one trial - IDENTIFIERS BY LOOKUP, NEVER RECALL.
+
+    Registry-era trials keep their NCT id. Pre-registry trials (CONSENSUS 1987,
+    SOLVD, MERIT-HF, RALES, CIBIS, COPERNICUS, EMPHASIS, CARMEN ...) have no NCT
+    and are keyed by their published acronym, which MUST be backed by a PMID so
+    the identity is checkable against the literature.
+
+    Fails closed on the dangerous case: a key that merely LOOKS like a registry
+    id but was not supplied as a real `nct` field is refused outright, so a
+    fabricated NCT can never enter realData through this path.
+    """
+    nct = (t.get("nct") or "").strip()
+    key = (t.get("key") or "").strip()
+    if nct:
+        if not _NCT_RE.match(nct):
+            raise SystemExit(f"malformed NCT id {nct!r} for {t.get('name')!r} "
+                             f"- expected NCT + 8 digits")
+        if key and key != nct:
+            raise SystemExit(f"conflicting key {key!r} vs nct {nct!r}")
+        return nct
+    if not key:
+        raise SystemExit(f"trial {t.get('name')!r} has neither `nct` nor `key`")
+    if key.upper().startswith("NCT"):
+        raise SystemExit(f"key {key!r} imitates a registry id but no verified "
+                         f"`nct` was supplied - refusing to invent an NCT")
+    if not _NAME_KEY_RE.match(key):
+        raise SystemExit(f"key {key!r} is not a usable trial acronym")
+    pmid = str(t.get("pmid") or "").strip()
+    if not pmid.isdigit():
+        raise SystemExit(f"pre-registry trial {key!r} needs a numeric `pmid` so "
+                         f"its identity is checkable (got {t.get('pmid')!r})")
+    return key
+
+
 def scan_entries(src: str, brace: int, end: int):
-    """Return list of (key, start_idx, close_idx) for each top-level NCT entry."""
+    """Return list of (key, start_idx, close_idx) for each top-level entry."""
     entries = []
     i = brace + 1
-    for mk in re.finditer(r'(NCT\d{8})\s*:\s*\{', src[brace:end + 1]):
+    for mk in ENTRY_KEY.finditer(src[brace:end + 1]):
         key = mk.group(1)
         abs_open = brace + mk.end() - 1          # index of that entry's '{'
         close = _brace_span(src, abs_open)
@@ -124,7 +172,7 @@ def render_entry(t: dict) -> str:
         f'ctgovUrl:{js_str(t.get("ctgovUrl", t["sourceUrl"]))}',
         f'evidence:[{evs}]',
     ]
-    return f'{t["nct"]}:{{' + ','.join(fields) + '}'
+    return f'"{entry_key(t)}":{{' + ','.join(fields) + '}'
 
 
 def main():
@@ -155,14 +203,16 @@ def main():
     # Whitespace between last entry's '}' and the block-closing '}' (preserved).
     last_close = entries[-1][2]
 
-    to_add = [t for t in adds if t["nct"] not in existing]
-    skipped = [t["nct"] for t in adds if t["nct"] in existing]
+    for t in adds:
+        entry_key(t)                       # validate every key up-front
+    to_add = [t for t in adds if entry_key(t) not in existing]
+    skipped = [entry_key(t) for t in adds if entry_key(t) in existing]
     if skipped:
         print(f"  already present, skipping: {skipped}")
     if not to_add:
         print("  nothing to add.")
         return
-    print(f"  adding: {[t['nct'] for t in to_add]}")
+    print(f"  adding: {[entry_key(t) for t in to_add]}")
 
     rendered = sep.join(render_entry(t) for t in to_add)
     insertion = sep + rendered
@@ -181,15 +231,15 @@ def main():
     print(f"  insertion length: {len(insertion)} chars; "
           f"file {len(src)} -> {len(new_src)} (+{len(new_src)-len(src)})")
 
-    # --- Also add the new NCTs to AUTO_INCLUDE_TRIAL_IDS so they are actually
+    # --- Also add the new trial KEYS to AUTO_INCLUDE_TRIAL_IDS so they are actually
     #     pooled by default (a trial in realData but absent from this Set is
     #     catalogued but not auto-included). Purely additive: append before ']'.
     sm = re.search(r'AUTO_INCLUDE_TRIAL_IDS\s*=\s*new\s+Set\(\[([^\]]*)\]\)', new_src)
     if not sm:
         raise SystemExit("AUTO_INCLUDE_TRIAL_IDS Set not found — aborting")
     set_body = sm.group(1)
-    present_ids = set(re.findall(r'NCT\d{8}', set_body))
-    set_adds = [t["nct"] for t in to_add if t["nct"] not in present_ids]
+    present_ids = set(re.findall(r'["\']([A-Za-z][A-Za-z0-9_\-]{2,39})["\']', set_body))
+    set_adds = [entry_key(t) for t in to_add if entry_key(t) not in present_ids]
     if set_adds:
         add_str = "".join(f',"{n}"' for n in set_adds)
         insert_at = sm.start(1) + len(set_body)          # just before the ']'

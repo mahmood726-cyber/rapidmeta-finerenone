@@ -71,8 +71,32 @@ def render_evidence(e):
     return '{ ' + ', '.join(parts) + ' }'
 
 
+def trial_key(t):
+    """realData key for one trial. Registry trials use their NCT id; PRE-REGISTRY
+    trials (CONSENSUS 1987, SOLVD, MERIT-HF, RALES, CIBIS, COPERNICUS, EMPHASIS,
+    CARMEN ...) have no NCT and are keyed by published acronym + a PMID so the
+    identity stays checkable. A key that imitates an NCT without a verified
+    `nct` field is refused - never invent a registry id."""
+    nct = (t.get('nct') or '').strip()
+    key = (t.get('key') or '').strip()
+    if nct:
+        if not re.match(r'^NCT\d{8}$', nct):
+            raise SystemExit(f"malformed NCT id {nct!r} for {t.get('name')!r}")
+        return nct
+    if not key:
+        raise SystemExit(f"trial {t.get('name')!r} has neither `nct` nor `key`")
+    if key.upper().startswith('NCT'):
+        raise SystemExit(f"key {key!r} imitates a registry id but no verified "
+                         f"`nct` was supplied - refusing to invent an NCT")
+    if not re.match(r'^[A-Za-z][A-Za-z0-9_\-]{2,39}$', key):
+        raise SystemExit(f"key {key!r} is not a usable trial acronym")
+    if not str(t.get('pmid') or '').strip().isdigit():
+        raise SystemExit(f"pre-registry trial {key!r} needs a numeric `pmid`")
+    return key
+
+
 def render_trial_entry(t):
-    """Render one realData NCT-keyed entry."""
+    """Render one realData entry (NCT- or acronym-keyed)."""
     head = (
         f"name: '{js_escape(t['name'])}', pmid: '{t.get('pmid','')}', "
         f"phase: '{t.get('phase','III')}', year: {t.get('year',2024)}, "
@@ -92,7 +116,7 @@ def render_trial_entry(t):
         ev_str = '[\n                        ' + ',\n                        '.join(render_evidence(e) for e in evidence) + '\n                    ]'
     else:
         ev_str = '[]'
-    return f"""'{t['nct']}': {{
+    return f"""'{trial_key(t)}': {{
 
 
                     {head},
@@ -112,7 +136,7 @@ def render_trial_entry(t):
                     sourceUrl: '{js_escape(t.get('sourceUrl',''))}',
 
 
-                    ctgovUrl: 'https://clinicaltrials.gov/study/{t['nct']}',
+                    ctgovUrl: '{("https://clinicaltrials.gov/study/" + t['nct']) if t.get('nct') else js_escape(t.get('sourceUrl',''))}',
 
 
                     evidence: {ev_str}
