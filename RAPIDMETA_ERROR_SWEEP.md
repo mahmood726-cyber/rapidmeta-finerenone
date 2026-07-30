@@ -15,7 +15,7 @@ Every STATIC detector in the registry applied to every `*_REVIEW.html` in the re
 | Redirect stubs skipped (< 20 KB) | 571 |
 | Apps with **zero** static findings | 0 (0.0%) |
 | Apps with >= 1 finding | 1088 (100.0%) |
-| Detectors run | 36 |
+| Detectors run | 52 |
 | Files where a detector raised | 0 |
 | **Apps whose `realData` ledger did not parse** (ledger detectors blind there) | **19** |
 
@@ -29,6 +29,7 @@ Every STATIC detector in the registry applied to every `*_REVIEW.html` in the re
 | `RM-I01` | Direction inversion risk (no explicit polarity) | P1 | 1053 | 96.8% | 2059 |
 | `RM-H01` | k-inappropriate machinery | P1 | 1049 | 96.4% | 7045 |
 | `RM-E01` | Cross-topic template contamination | P0 | 1035 | 95.1% | 4158 |
+| `RM-J07` | Integrity gate passes over a fail-closed condition | P0 | 1030 | 94.7% | 1030 |
 | `RM-B03` | Silent endpoint fallback | P0 | 1024 | 94.1% | 1024 |
 | `RM-B02` | Stale outcome-state leakage | P0 | 1010 | 92.8% | 1754 |
 | `RM-G01` | safeRob unknown -> low | P0 | 1006 | 92.5% | 2012 |
@@ -42,24 +43,39 @@ Every STATIC detector in the registry applied to every `*_REVIEW.html` in the re
 | `RM-H05` | External-validation claim vs a different-scope benchmark | P1 | 807 | 74.2% | 807 |
 | `RM-F01` | False-green verdict badge | P0 | 802 | 73.7% | 1668 |
 | `RM-F03` | Badge self-contradiction | P0 | 802 | 73.7% | 802 |
+| `RM-D08` | False registry-status claim | P1 | 767 | 70.5% | 767 |
 | `RM-A05` | Continuous outcome in a ratio model | P0 | 748 | 68.8% | 748 |
+| `RM-A14` | escalc(measure=RR) over rows the ledger tags as different endpoints | P0 | 744 | 68.4% | 784 |
 | `RM-E02` | Foreign trial-alias registry | P1 | 716 | 65.8% | 716 |
+| `RM-G03` | RoB chip contradicts the trial's own extraction evidence | P1 | 701 | 64.4% | 1023 |
 | `RM-F02` | Verdict-surface disagreement | P0 | 596 | 54.8% | 1146 |
+| `RM-D10` | Duplicate, NULLED or ghost trial rows | P0 | 512 | 47.1% | 813 |
 | `RM-D05` | Fabricated / imported analysis row | P1 | 351 | 32.3% | 1909 |
 | `RM-A07` | Non-ratio quantity in a ratio field | P0 | 315 | 29.0% | 2449 |
 | `RM-J05` | COMPLETED-only registry filter | P2 | 216 | 19.9% | 216 |
 | `RM-H03` | Fragility index where undefined | P1 | 207 | 19.0% | 207 |
+| `RM-D07` | False claim that no external benchmark exists | P2 | 171 | 15.7% | 171 |
 | `RM-G02` | RoB asserted from design fields alone | P2 | 169 | 15.5% | 169 |
 | `RM-A03` | Wrong effect-measure label | P1 | 168 | 15.4% | 736 |
 | `RM-A08` | Component counts paired with a composite effect | P1 | 165 | 15.2% | 198 |
+| `RM-A12` | Effect estimate contradicts its own 2x2 | P0 | 134 | 12.3% | 166 |
 | `RM-D02` | Wrong or cross-topic citation | P1 | 132 | 12.1% | 156 |
+| `RM-E03` | Registry/monitoring watchlist tracks the wrong drug class | P0 | 56 | 5.1% | 56 |
+| `RM-B08` | Search under-inclusion vs a known external synthesis | P1 | 33 | 3.0% | 33 |
 | `RM-C01` | Randomised vs analysed denominator unlabelled | P2 | 30 | 2.8% | 42 |
+| `RM-D09` | Phase label inapplicable to a device or behavioural trial | P1 | 23 | 2.1% | 59 |
 | `RM-D06` | App identity mismatch | P1 | 21 | 1.9% | 21 |
+| `RM-D11` | Published pooled estimate presented as a trial-level effect | P1 | 21 | 1.9% | 29 |
 | `RM-F07` | Unearned confidence on unsourced fields | P1 | 17 | 1.6% | 17 |
 | `RM-D01` | Wrong NCT / registry-concordance failure | P1 | 10 | 0.9% | 17 |
+| `RM-A13` | Estimand-granularity mismatch: composite component sets differ | P0 | 9 | 0.8% | 9 |
 | `RM-A01` | Recurrent-event coercion | P0 | 8 | 0.7% | 19 |
+| `RM-A10` | Kaplan-Meier risk rendered as a crude event count | P0 | 5 | 0.5% | 9 |
+| `RM-C04` | Arm reversal: intervention and control denominators swapped | P0 | 4 | 0.4% | 4 |
 | `RM-A04` | Peto output labelled HR | P1 | 3 | 0.3% | 5 |
 | `RM-A09` | Win-ratio estimate paired with an HR | P1 | 3 | 0.3% | 3 |
+| `RM-V01` | Displayed value contradicts the source-verified fixture | P0 | 3 | 0.3% | 5 |
+| `RM-D12` | Citation volume/issue/page metadata mismatch | P1 | 0 | 0.0% | 0 |
 | `RM-F06` | Impossible PRISMA zeros | P1 | 0 | 0.0% | 0 |
 
 ### 2a. P0 types, by prevalence
@@ -67,6 +83,7 @@ Every STATIC detector in the registry applied to every `*_REVIEW.html` in the re
 | id | error type | apps | % |
 |---|---|---:|---:|
 | `RM-E01` | Cross-topic template contamination | 1035 | 95.1% |
+| `RM-J07` | Integrity gate passes over a fail-closed condition | 1030 | 94.7% |
 | `RM-B03` | Silent endpoint fallback | 1024 | 94.1% |
 | `RM-B02` | Stale outcome-state leakage | 1010 | 92.8% |
 | `RM-G01` | safeRob unknown -> low | 1006 | 92.5% |
@@ -76,9 +93,17 @@ Every STATIC detector in the registry applied to every `*_REVIEW.html` in the re
 | `RM-F01` | False-green verdict badge | 802 | 73.7% |
 | `RM-F03` | Badge self-contradiction | 802 | 73.7% |
 | `RM-A05` | Continuous outcome in a ratio model | 748 | 68.8% |
+| `RM-A14` | escalc(measure=RR) over rows the ledger tags as different endpoints | 744 | 68.4% |
 | `RM-F02` | Verdict-surface disagreement | 596 | 54.8% |
+| `RM-D10` | Duplicate, NULLED or ghost trial rows | 512 | 47.1% |
 | `RM-A07` | Non-ratio quantity in a ratio field | 315 | 29.0% |
+| `RM-A12` | Effect estimate contradicts its own 2x2 | 134 | 12.3% |
+| `RM-E03` | Registry/monitoring watchlist tracks the wrong drug class | 56 | 5.1% |
+| `RM-A13` | Estimand-granularity mismatch: composite component sets differ | 9 | 0.8% |
 | `RM-A01` | Recurrent-event coercion | 8 | 0.7% |
+| `RM-A10` | Kaplan-Meier risk rendered as a crude event count | 5 | 0.5% |
+| `RM-C04` | Arm reversal: intervention and control denominators swapped | 4 | 0.4% |
+| `RM-V01` | Displayed value contradicts the source-verified fixture | 3 | 0.3% |
 
 ## 3. Worst offenders per type
 
@@ -153,6 +178,19 @@ Every STATIC detector in the registry applied to every `*_REVIEW.html` in the re
 - **ADC_HER2_NMA_REVIEW.html** (6 items)
   - sglt2/dapagliflozin [residue]: ...px] text-slate-400 font-mono break-all">https://clinicaltrials.gov/api/v2/studies?query.intr=empagliflozin+OR+dapagliflozin+OR+sacubitril+AND+heart+failure+reduced&amp;pageSize=100&amp;filter.overallS...
   - sglt2/empagliflozin [residue]: ...e class="text-[10px] text-slate-400 font-mono break-all">https://clinicaltrials.gov/api/v2/studies?query.intr=empagliflozin+OR+dapagliflozin+OR+sacubitril+AND+heart+failure+reduced&amp;pageSize=100&am...
+
+### `RM-J07` — Integrity gate passes over a fail-closed condition (1030 apps, P0)
+
+- **ABALOPARATIDE_OSTEO_AUTO_FULL_REVIEW.html** (1 item)
+  - the visible gate asserts a pass while these fail-closed conditions hold: a rendered NaN; trial counts disagreeing across surfaces [1, 2]
+- **ABATACEPT_PSA_AUTO_FULL_REVIEW.html** (1 item)
+  - the visible gate asserts a pass while these fail-closed conditions hold: a rendered NaN
+- **ABATACEPT_RA_AUTO_FULL_REVIEW.html** (1 item)
+  - the visible gate asserts a pass while these fail-closed conditions hold: a rendered NaN
+- **ABEMACICLIB_BREAST_AUTO_FULL_REVIEW.html** (1 item)
+  - the visible gate asserts a pass while these fail-closed conditions hold: a rendered NaN
+- **ABLATION_AF_REVIEW.html** (1 item)
+  - the visible gate asserts a pass while these fail-closed conditions hold: a rendered NaN; trial counts disagreeing across surfaces [0, 4]
 
 ### `RM-B03` — Silent endpoint fallback (1024 apps, P0)
 
@@ -358,6 +396,19 @@ Every STATIC detector in the registry applied to every `*_REVIEW.html` in the re
 - **ABLATION_AF_REVIEW.html** (1 item)
   - two internal-consistency rounds values in one badge: 10 vs 14
 
+### `RM-D08` — False registry-status claim (767 apps, P1)
+
+- **ABALOPARATIDE_OSTEO_AUTO_FULL_REVIEW.html** (1 item)
+  - asserts 'no linked publications' while the ledger itself carries 1 PMID(s)
+- **ABATACEPT_PSA_AUTO_FULL_REVIEW.html** (1 item)
+  - asserts 'no linked publications' while the ledger itself carries 2 PMID(s)
+- **ABATACEPT_RA_AUTO_FULL_REVIEW.html** (1 item)
+  - asserts 'no linked publications' while the ledger itself carries 2 PMID(s)
+- **ABEMACICLIB_BREAST_AUTO_FULL_REVIEW.html** (1 item)
+  - asserts 'no linked publications' while the ledger itself carries 2 PMID(s)
+- **ABLATION_AF_REVIEW.html** (1 item)
+  - asserts 'no linked publications' while the ledger itself carries 4 PMID(s)
+
 ### `RM-A05` — Continuous outcome in a ratio model (748 apps, P0)
 
 - **ABALOPARATIDE_OSTEO_AUTO_FULL_REVIEW.html** (1 item)
@@ -371,6 +422,24 @@ Every STATIC detector in the registry applied to every `*_REVIEW.html` in the re
 - **ABLATION_AF_REVIEW.html** (1 item)
   - `|| {md: t.data.md, se: t.data.se}` fallback substitutes a different estimand for trials lacking the selected continuous outcome
 
+### `RM-A14` — escalc(measure=RR) over rows the ledger tags as different endpoints (744 apps, P0)
+
+- **ANCA_VASCULITIS_NMA_REVIEW.html** (2 items)
+  - the generated R builds `ai = c(${trials.map(t=>t.data.tE)})` and pools it with escalc(measure=RR) across primaries that are NOT the same construct: ADVOCATE: "Sustained remission at week 52 (avacopan)" (tE=120, cE=115) | RAVE: "Remission at 6 months (RAVE)" (tE=64, cE=53) | RITUXVAS: "Sustained remi
+  - timepoints mixed in one binary pool: at 28 month, at 6 month, unstated
+- **ANTIAMYLOID_AD_NMA_REVIEW.html** (2 items)
+  - the generated R builds `ai = c(${trials.map(t=>t.data.tE)})` and pools it with escalc(measure=RR) across primaries that are NOT the same construct: Clarity AD: "CDR-SB change at 18 months lecanemab vs placebo (MD, points)" (tE=None, cE=None) | TRAILBLAZER-ALZ 2: "CDR-SB change at 76 weeks donanemab 
+  - timepoints mixed in one binary pool: at 18 month, at 76 week, at 78 week, unstated
+- **AZITHROMYCIN_CHILD_MORTALITY_REVIEW.html** (2 items)
+  - the generated R builds `ai = c(${trials.map(t=>t.data.tE)})` and pools it with escalc(measure=RR) across primaries that are NOT the same construct: MORDOR-I: "All-cause under-5 mortality at 2 years (primary, IRR pooled across cou" (tE=None, cE=None) | MORDOR-II: "All-cause under-5 mortality at year 
+  - timepoints mixed in one binary pool: at 2 year, unstated
+- **BARIATRIC_RYGB_VS_SG_REVIEW.html** (2 items)
+  - the generated R builds `ai = c(${trials.map(t=>t.data.tE)})` and pools it with escalc(measure=RR) across primaries that are NOT the same construct: SM-BOSS: "Excess BMI loss ≥50% at 5 years" (tE=45, cE=39) | SLEEVEPASS: "%EWL at 5 years (RYGB superior at 10y)" (tE=56, cE=53) | STAMPEDE: "Diabetes re
+  - timepoints mixed in one binary pool: at 1 year, at 12 month, at 2 year, at 3 year, at 5 year, unstated
+- **BOSUTINIB_LEUKEMIA_AUTO_FULL_REVIEW.html** (2 items)
+  - the generated R builds `ai = c(${trials.map(t=>t.data.tE)})` and pools it with escalc(measure=RR) across primaries that are NOT the same construct: NCT01903733: "Number of Participants With Treatment-Emergent Adverse Events (AEs) an" (tE=241, cE=283) | NCT02130557: "Percentage of Participants With M
+  - timepoints mixed in one binary pool: at 24 week, unstated
+
 ### `RM-E02` — Foreign trial-alias registry (716 apps, P1)
 
 - **ABALOPARATIDE_OSTEO_AUTO_FULL_REVIEW.html** (1 item)
@@ -383,6 +452,24 @@ Every STATIC detector in the registry applied to every `*_REVIEW.html` in the re
   - sacubitril/valsartan alias table baked into a non-ARNI app: ['NCT01035255', 'NCT01920711', 'NCT02924727']
 - **ACALABRUTINIB_CLL_REVIEW.html** (1 item)
   - sacubitril/valsartan alias table baked into a non-ARNI app: ['NCT01035255', 'NCT01920711', 'NCT02924727']
+
+### `RM-G03` — RoB chip contradicts the trial's own extraction evidence (701 apps, P1)
+
+- **MALARIA_ACT_REVIEW.html** (19 items)
+  - Bandim AL-vs-DP: evidence says D2 = 'SOME concerns' but the chart chip shows 'high'
+  - Bandim AL-vs-DP: evidence says D3 = 'LOW' but the chart chip shows 'some-concerns'
+- **IO_CHEMO_NSCLC_1L_REVIEW.html** (13 items)
+  - KEYNOTE-189: evidence says D3 = 'LOW' but the chart chip shows 'some-concerns'
+  - KEYNOTE-189: evidence says D5 = 'LOW' but the chart chip shows 'some-concerns'
+- **TNK_VS_TPA_STROKE_REVIEW.html** (12 items)
+  - NOR-TEST: evidence says D2 = 'SOME CONCERNS' but the chart chip shows 'low'
+  - NOR-TEST: evidence says D3 = 'LOW' but the chart chip shows 'some-concerns'
+- **EVT_BASILAR_REVIEW.html** (11 items)
+  - ATTENTION: evidence says D3 = 'LOW' but the chart chip shows 'some-concerns'
+  - ATTENTION: evidence says D4 = 'LOW' but the chart chip shows 'some-concerns'
+- **INSULIN_ICODEC_REVIEW.html** (11 items)
+  - ONWARDS-1: evidence says D2 = 'SOME CONCERNS' but the chart chip shows 'high'
+  - ONWARDS-1: evidence says D3 = 'LOW' but the chart chip shows 'some-concerns'
 
 ### `RM-F02` — Verdict-surface disagreement (596 apps, P0)
 
@@ -401,6 +488,24 @@ Every STATIC detector in the registry applied to every `*_REVIEW.html` in the re
 - **ACUTE_HF_DIURESIS_NEW_REVIEW.html** (2 items)
   - __verdict.n_trials_seen=5 vs realData k=10
   - badge 'Trials: 10' vs __verdict.n_trials_seen=5
+
+### `RM-D10` — Duplicate, NULLED or ghost trial rows (512 apps, P0)
+
+- **COVID19_VACCINES_REVIEW.html** (9 items)
+  - row key 'NULLED:NCT04368728' is a NULLED placeholder
+  - row key 'NULLED:NCT04470427' is a NULLED placeholder
+- **MIS_GASTRECTOMY_NMA_REVIEW.html** (8 items)
+  - row key 'NULLED:NCT01102452' is a NULLED placeholder
+  - row key 'NULLED:NCT01692457' is a NULLED placeholder
+- **ARDS_PRONE_POSITIONING_REVIEW.html** (7 items)
+  - row key 'NULLED:NCT04356508' is a NULLED placeholder
+  - row key 'NULLED:NCT04376255' is a NULLED placeholder
+- **BARIATRIC_RYGB_VS_SG_REVIEW.html** (7 items)
+  - row key 'NULLED:NCT02788513' is a NULLED placeholder
+  - row key 'NULLED:NCT01435902' is a NULLED placeholder
+- **PERIPHERAL_DCB_PAD_NMA_REVIEW.html** (7 items)
+  - row key 'NULLED:NCT01858363' is a NULLED placeholder
+  - row key 'NULLED:NCT01858350' is a NULLED placeholder
 
 ### `RM-D05` — Fabricated / imported analysis row (351 apps, P1)
 
@@ -464,6 +569,19 @@ Every STATIC detector in the registry applied to every `*_REVIEW.html` in the re
 - **ADC_HER2_LOW_REVIEW.html** (1 item)
   - a fragility index is rendered where no trial carries an observed 2x2
 
+### `RM-D07` — False claim that no external benchmark exists (171 apps, P2)
+
+- **ABLATION_AF_REVIEW.html** (1 item)
+  - a 'No published benchmark available' fallback ships while PUBLISHED_META_BENCHMARKS is populated — RENDER-confirm which scopes hit the fallback
+- **ACALABRUTINIB_CLL_REVIEW.html** (1 item)
+  - a 'No published benchmark available' fallback ships while PUBLISHED_META_BENCHMARKS is populated — RENDER-confirm which scopes hit the fallback
+- **ACORAMIDIS_ATTR_CM_REVIEW.html** (1 item)
+  - a 'No published benchmark available' fallback ships while PUBLISHED_META_BENCHMARKS is populated — RENDER-confirm which scopes hit the fallback
+- **ACS_ANTIPLATELET_REVIEW.html** (1 item)
+  - a 'No published benchmark available' fallback ships while PUBLISHED_META_BENCHMARKS is populated — RENDER-confirm which scopes hit the fallback; scopes absent from BENCHMARK_OUTCOME_MAP: ['CompositeOfDeathMiOrStro', 'CompositeOfDeathMiOrStro2']
+- **ADC_HER2_ADJUVANT_REVIEW.html** (1 item)
+  - a 'No published benchmark available' fallback ships while PUBLISHED_META_BENCHMARKS is populated — RENDER-confirm which scopes hit the fallback
+
 ### `RM-G02` — RoB asserted from design fields alone (169 apps, P2)
 
 - **ABALOPARATIDE_OSTEO_AUTO_FULL_REVIEW.html** (1 item)
@@ -513,6 +631,24 @@ Every STATIC detector in the registry applied to every `*_REVIEW.html` in the re
   - QuANTUM-R: crude RR 1.052 vs published effect 0.776 — opposite directions
   - IDHENTIFY: crude RR 1.091 vs published effect 0.92 — opposite directions
 
+### `RM-A12` — Effect estimate contradicts its own 2x2 (134 apps, P0)
+
+- **IXEKIZUMAB_AXIAL_AUTO_FULL_REVIEW.html** (4 items)
+  - COAST-W: displayed effect 2.41 vs crude ratio 0.000 from ledger counts — opposite sides of 1
+  - COAST-X: displayed effect 2.36 vs crude ratio 0.440 from ledger counts — opposite sides of 1
+- **BIMEKIZUMAB_PSORIATIC_AUTO_FULL_REVIEW.html** (3 items)
+  - BE OPTIMAL: displayed effect 7.082 vs crude ratio 0.227 from ledger counts — opposite sides of 1
+  - BE COMPLETE: displayed effect 11.139 vs crude ratio 0.156 from ledger counts — opposite sides of 1
+- **BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW.html** (3 items)
+  - SPIRE-LL: displayed effect 50.0 vs crude ratio 0.139 from ledger counts — opposite sides of 1
+  - SPIRE-HR: displayed effect 56.6 vs crude ratio 0.506 from ledger counts — opposite sides of 1
+- **MIS_COLECTOMY_VS_OPEN_NMA_REVIEW.html** (3 items)
+  - COLOR-II: displayed effect 1.06 vs crude ratio 0.790 from ledger counts — opposite sides of 1
+  - ALaCaRT: displayed effect 0.82 vs crude ratio 1.078 from ledger counts — opposite sides of 1
+- **AML_TARGETED_NEW_REVIEW.html** (2 items)
+  - QuANTUM-R: displayed effect 0.776 vs crude ratio 1.052 from ledger counts — opposite sides of 1
+  - IDHENTIFY: displayed effect 0.92 vs crude ratio 1.091 from ledger counts — opposite sides of 1
+
 ### `RM-D02` — Wrong or cross-topic citation (132 apps, P1)
 
 - **ANTI_CD20_MS_REVIEW.html** (3 items)
@@ -530,6 +666,32 @@ Every STATIC detector in the registry applied to every `*_REVIEW.html` in the re
 - **IL_PSORIASIS_NMA_REVIEW.html** (3 items)
   - PMID 26072109 cited for 2 different trials: ['UNCOVER-2', 'UNCOVER-3']
   - PMID 25007392 cited for 2 different trials: ['ERASURE', 'FIXTURE']
+
+### `RM-E03` — Registry/monitoring watchlist tracks the wrong drug class (56 apps, P0)
+
+- **ACS_ANTIPLATELET_REVIEW.html** (1 item)
+  - the monitored registry watchlist tracks FINERENONE trials ['FIDELIO-DKD', 'FIGARO-DKD', 'FINEARTS-HF', 'ARTS-DN', 'FINE-ONE', 'CONFIDENCE'] in an app about 'RapidMeta Cardio | ACS Antiplatelet NMA (Clopidogrel / Ticag' — full watchlist: ['FIDELIO-DKD', 'FIGARO-DKD', 'FINEARTS-HF', 'ARTS-DN', 'CONFID
+- **ADC_HER2_ADJUVANT_REVIEW.html** (1 item)
+  - the monitored registry watchlist tracks FINERENONE trials ['FIDELIO-DKD', 'FIGARO-DKD', 'FINEARTS-HF', 'ARTS-DN', 'FINE-ONE', 'CONFIDENCE'] in an app about 'RapidMeta Oncology | ADC NMA in HER2+ Early Breast Cancer Ad' — full watchlist: ['FIDELIO-DKD', 'FIGARO-DKD', 'FINEARTS-HF', 'ARTS-DN', 'CONFID
+- **ADC_HER2_LOW_REVIEW.html** (1 item)
+  - the monitored registry watchlist tracks FINERENONE trials ['FIDELIO-DKD', 'FIGARO-DKD', 'FINEARTS-HF', 'ARTS-DN', 'FINE-ONE', 'CONFIDENCE'] in an app about 'RapidMeta Oncology | ADC NMA in HER2-Low Metastatic Breast C' — full watchlist: ['FIDELIO-DKD', 'FIGARO-DKD', 'FINEARTS-HF', 'ARTS-DN', 'CONFID
+- **ADC_HER2_NMA_REVIEW.html** (1 item)
+  - the monitored registry watchlist tracks FINERENONE trials ['FIDELIO-DKD', 'FIGARO-DKD', 'FINEARTS-HF', 'ARTS-DN', 'FINE-ONE', 'CONFIDENCE'] in an app about 'RapidMeta Oncology | ADC NMA in HER2+ MBC 2L+ PFS v1.2 (spli' — full watchlist: ['FIDELIO-DKD', 'FIGARO-DKD', 'FINEARTS-HF', 'ARTS-DN', 'CONFID
+- **ANTI_CD20_MS_REVIEW.html** (1 item)
+  - the monitored registry watchlist tracks FINERENONE trials ['FIDELIO-DKD', 'FIGARO-DKD', 'FINEARTS-HF', 'ARTS-DN', 'FINE-ONE', 'CONFIDENCE'] in an app about 'RapidMeta Neurology | Anti-CD20 Therapies in Relapsing MS — ' — full watchlist: ['FIDELIO-DKD', 'FIGARO-DKD', 'FINEARTS-HF', 'ARTS-DN', 'CONFID
+
+### `RM-B08` — Search under-inclusion vs a known external synthesis (33 apps, P1)
+
+- **ARPI_NMCRPC_REVIEW.html** (1 item)
+  - the app pools k=3 while a benchmark record in the same file declares k=6 — verify the search, and record an explicit include/exclude decision for every eligible trial (omitting one silently is selection bias)
+- **ATOPIC_DERM_NMA_REVIEW.html** (1 item)
+  - the app pools k=7 while a benchmark record in the same file declares k=97 — verify the search, and record an explicit include/exclude decision for every eligible trial (omitting one silently is selection bias)
+- **BIMEKIZUMAB_PSORIASIS_REVIEW.html** (1 item)
+  - the app pools k=3 while a benchmark record in the same file declares k=179 — verify the search, and record an explicit include/exclude decision for every eligible trial (omitting one silently is selection bias)
+- **BIOLOGIC_ASTHMA_REVIEW.html** (1 item)
+  - the app pools k=4 while a benchmark record in the same file declares k=8 — verify the search, and record an explicit include/exclude decision for every eligible trial (omitting one silently is selection bias)
+- **CARDIORENAL_DKD_NMA_REVIEW.html** (1 item)
+  - the app pools k=6 while a benchmark record in the same file declares k=13 — verify the search, and record an explicit include/exclude decision for every eligible trial (omitting one silently is selection bias)
 
 ### `RM-C01` — Randomised vs analysed denominator unlabelled (30 apps, P2)
 
@@ -549,6 +711,24 @@ Every STATIC detector in the registry applied to every `*_REVIEW.html` in the re
   - ADVANCE DTG/TAF: baseline n=702 vs arms 351+176=527 (24.9% gap) with no randomised/analysed label
   - ADVANCE DTG/TDF: baseline n=702 vs arms 351+175=526 (25.1% gap) with no randomised/analysed label
 
+### `RM-D09` — Phase label inapplicable to a device or behavioural trial (23 apps, P1)
+
+- **CRYO_AF_ABLATION_NMA_REVIEW.html** (7 items)
+  - CRYO-FIRST: ledger phase 'III' on a device trial — ClinicalTrials.gov records these as phase Not Applicable; a phase-III/IV eligibility rule would wrongly exclude it
+  - STOP-AF-First: ledger phase 'III' on a device trial — ClinicalTrials.gov records these as phase Not Applicable; a phase-III/IV eligibility rule would wrongly exclude it
+- **MITRACLIP_TEER_REVIEW.html** (6 items)
+  - COAPT: ledger phase 'III' on a device trial — ClinicalTrials.gov records these as phase Not Applicable; a phase-III/IV eligibility rule would wrongly exclude it
+  - MITRA-FR: ledger phase 'III' on a device trial — ClinicalTrials.gov records these as phase Not Applicable; a phase-III/IV eligibility rule would wrongly exclude it
+- **TRICUSPID_TEER_TMVR_NMA_REVIEW.html** (6 items)
+  - TRILUMINATE-Pivotal: ledger phase 'III' on a device trial — ClinicalTrials.gov records these as phase Not Applicable; a phase-III/IV eligibility rule would wrongly exclude it
+  - TRISCEND-II: ledger phase 'III' on a device trial — ClinicalTrials.gov records these as phase Not Applicable; a phase-III/IV eligibility rule would wrongly exclude it
+- **ABLATION_AF_REVIEW.html** (4 items)
+  - CASTLE-AF: ledger phase 'III' on a device trial — ClinicalTrials.gov records these as phase Not Applicable; a phase-III/IV eligibility rule would wrongly exclude it
+  - CABANA: ledger phase 'III' on a device trial — ClinicalTrials.gov records these as phase Not Applicable; a phase-III/IV eligibility rule would wrongly exclude it
+- **PFA_AF_PULSED_FIELD_REVIEW.html** (4 items)
+  - PULSED-AF: ledger phase 'III' on a device trial — ClinicalTrials.gov records these as phase Not Applicable; a phase-III/IV eligibility rule would wrongly exclude it
+  - ADVENT: ledger phase 'III' on a device trial — ClinicalTrials.gov records these as phase Not Applicable; a phase-III/IV eligibility rule would wrongly exclude it
+
 ### `RM-D06` — App identity mismatch (21 apps, P1)
 
 - **AGRYLIN_ET_AUTO_FULL_REVIEW.html** (1 item)
@@ -561,6 +741,23 @@ Every STATIC detector in the registry applied to every `*_REVIEW.html` in the re
   - filename tokens ['doac'] appear in neither the title ('RapidMeta Cardiology | Direct Oral Anticoagulants vs Warfarin in Non-Valvular At') nor any ledger group
 - **HEPATITIS_HCV_DAA_REVIEW.html** (1 item)
   - filename tokens ['hepatitis'] appear in neither the title ('RapidMeta Hepatology | Pan-Genotypic HCV DAA Therapy NMA v0.1 (post-2014)') nor any ledger group
+
+### `RM-D11` — Published pooled estimate presented as a trial-level effect (21 apps, P1)
+
+- **HIGH_EFFICACY_MS_REVIEW.html** (4 items)
+  - OPERA-I: its own evidence prose describes a pooled/meta analysis while 0.54 is displayed as this trial's effect
+  - OPERA-II: trial-level effect 0.53 equals a stored benchmark POOLED estimate 0.53 (0.4-0.71)
+- **GLP1_CVOT_REVIEW.html** (3 items)
+  - ELIXA: its own evidence prose describes a pooled/meta analysis while 1.02 is displayed as this trial's effect
+  - SUSTAIN-6: its own evidence prose describes a pooled/meta analysis while 0.74 is displayed as this trial's effect
+- **e156-submission/assets/GLP1_CVOT_REVIEW.html** (3 items)
+  - ELIXA: its own evidence prose describes a pooled/meta analysis while 1.02 is displayed as this trial's effect
+  - SUSTAIN-6: its own evidence prose describes a pooled/meta analysis while 0.74 is displayed as this trial's effect
+- **e156-submission/assets/PCSK9_REVIEW.html** (2 items)
+  - FOURIER: trial-level effect 0.85 equals a stored benchmark POOLED estimate 0.85 (0.78-0.93)
+  - ODYSSEY OUTCOMES: trial-level effect 0.85 equals a stored benchmark POOLED estimate 0.85 (0.78-0.93)
+- **ANTI_CD20_MS_REVIEW.html** (1 item)
+  - OPERA II: trial-level effect 0.53 equals a stored benchmark POOLED estimate 0.53 (0.4-0.71)
 
 ### `RM-F07` — Unearned confidence on unsourced fields (17 apps, P1)
 
@@ -593,6 +790,19 @@ Every STATIC detector in the registry applied to every `*_REVIEW.html` in the re
   - malformed registry identifier: NCT01206062_SENIOR
   - malformed registry identifier: NCT01206062_CKD
 
+### `RM-A13` — Estimand-granularity mismatch: composite component sets differ (9 apps, P0)
+
+- **COLCHICINE_CVD_REVIEW.html** (1 item)
+  - primary composites with DIFFERENT component sets are pooled under one scope: [core-3] COLCOT: "Composite (CV Death, Cardiac Arrest, MI, Stroke, Urgent Revasc)"; LoDoCo2: "Composite (CV Death, Spontaneous MI, Ischaemic Stroke, Ischaemia-Driven Revasc)" || [unstable-angina] CONVINCE: "Composite (Recur
+- **EVOLOCUMAB_DYSLIPIDEMIA_AUTO_FULL_REVIEW.html** (1 item)
+  - primary composites with DIFFERENT component sets are pooled under one scope: [revasc+unstable-angina] FOURIER: "Time to Cardiovascular Death, Myocardial Infarction, Hospitalization for Unstable Angina, " || [core-3] OSLER-2: "Number of Participants With Adverse Events (primary)"
+- **OMEGA3_HIGHDOSE_CV_REVIEW.html** (1 item)
+  - primary composites with DIFFERENT component sets are pooled under one scope: [revasc+unstable-angina] REDUCE-IT: "Composite CV death, MI, stroke, revascularization, unstable angina (5-component MACE)"; STRENGTH: "Composite CV death, MI, stroke, revascularization, unstable angina" || [core-3] VITAL: 
+- **PCSK9_INHIBITORS_CV_REVIEW.html** (1 item)
+  - primary composites with DIFFERENT component sets are pooled under one scope: [unstable-angina] FOURIER: "Composite CV death/MI/stroke/unstable angina/revasc (5-pt MACE)" || [unstable-angina+CHD-death] ODYSSEY OUTCOMES: "Composite CHD death/MI/stroke/unstable angina (4-pt MACE)"
+- **PCSK9_LIPID_NMA_REVIEW.html** (1 item)
+  - primary composites with DIFFERENT component sets are pooled under one scope: [core-3] IMPROVE-IT: "Primary composite (CV death/MI/UA hosp/coronary revasc/stroke) ezetimibe+simva vs simva (I"; FOURIER: "CV death/MI/stroke/UA hosp/coronary revasc evolocumab vs placebo (FOURIER primary; median " || [CH
+
 ### `RM-A01` — Recurrent-event coercion (8 apps, P0)
 
 - **FCM_HF_REVIEW.html** (4 items)
@@ -610,6 +820,32 @@ Every STATIC detector in the registry applied to every `*_REVIEW.html` in the re
 - **e156-submission/assets/ARNI_HF_REVIEW.html** (2 items)
   - PARAGON-HF (NCT01920711) carries tE=526 cE=557 with estimandType=ABSENT — 894 vs 1009 TOTAL events; rate ratio 0.87, not a hazard ratio
   - PARAGON-HF primary row 'CV death or total HF hospitalizations' has per-arm counts under estimandType=ABSENT
+
+### `RM-A10` — Kaplan-Meier risk rendered as a crude event count (5 apps, P0)
+
+- **GLP1_CVOT_REVIEW.html** (3 items)
+  - LEADER: treatment 608/4668 = 13.0% reproduces the 13.0% figure, and the source states it as a per-patient-year rate — "ts (5.7%) in the liraglutide group (1.5 per 100 patient-years) vs 337 patients (7.2%) in the placebo group (1.9 per 100 patient-ye"
+  - AMPLITUDE-O: treatment 189/2717 = 7.0% reproduces the 7.0% figure, and the source states it as a per-patient-year rate — "in the pooled efpeglenatide group (3.9 per 100 person-years) and 125 of 1,359 patients (9.2%) in the placebo group (5.3 per 100 p"
+- **e156-submission/assets/GLP1_CVOT_REVIEW.html** (3 items)
+  - LEADER: treatment 608/4668 = 13.0% reproduces the 13.0% figure, and the source states it as a per-patient-year rate — "ts (5.7%) in the liraglutide group (1.5 per 100 patient-years) vs 337 patients (7.2%) in the placebo group (1.9 per 100 patient-ye"
+  - AMPLITUDE-O: treatment 189/2717 = 7.0% reproduces the 7.0% figure, and the source states it as a per-patient-year rate — "in the pooled efpeglenatide group (3.9 per 100 person-years) and 125 of 1,359 patients (9.2%) in the placebo group (5.3 per 100 p"
+- **MITRAL_FUNCMR_REVIEW.html** (1 item)
+  - COAPT: control 212/312 = 67.9% reproduces the 67.9% figure, and the source states it as a per-patient-year rate — "one (n=312). Enrollment & Randomization Annualized rate of HF hospitalizations at 24 months: 35.8% per patient-year with MitraClip"
+- **OSTEOPOROSIS_BROAD_NMA_REVIEW.html** (1 item)
+  - FREEDOM: treatment 86/3886 = 2.2% reproduces the 2.3% figure, and the source states it as a Kaplan-Meier estimate — "radiographic vertebral fracture, with a cumulative incidence of 2.3% in the denosumab group, versus 7.2% in the placebo group (ris"
+- **removed/TAVR_LOWRISK_REVIEW.html** (1 item)
+  - PARTNER 3: treatment 42/496 = 8.5% reproduces the 8.5% figure, and the source states it as a Kaplan-Meier estimate — "CI 0.37-0.79; P<0.001 for superiority). Kaplan-Meier curves separate at 30 days and remain divergent through 12 months. Primary —"
+
+### `RM-C04` — Arm reversal: intervention and control denominators swapped (4 apps, P0)
+
+- **COVID19_HOSPITALIZED_TX_REVIEW.html** (1 item)
+  - ACTT-2: evidence names the intervention arm as n=518, which is the ledger's CONTROL denominator (tN=515, cN=518) — "treatment and 518"
+- **VITAMIN_C_THIAMINE_SEPSIS_REVIEW.html** (1 item)
+  - VITAMINS: evidence names the intervention arm as n=109, which is the ledger's CONTROL denominator (tN=107, cN=109) — "INTERVENTIONS: Patients were randomized to the intervention group (n = 109"
+- **removed/STROKE_THROMBECTOMY_LATE_NMA_REVIEW.html** (1 item)
+  - MR-CLEAN: evidence names the intervention arm as n=267, which is the ledger's CONTROL denominator (tN=233, cN=267) — "treatment and 267"
+- **retired/MENTAL_HEALTH_FRIENDSHIP_BENCH_REVIEW.html** (1 item)
+  - Friendship Bench Zimbabwe: evidence names the intervention arm as n=287, which is the ledger's CONTROL denominator (tN=286, cN=287) — "intervention, 287"
 
 ### `RM-A04` — Peto output labelled HR (3 apps, P1)
 
@@ -630,35 +866,46 @@ Every STATIC detector in the registry applied to every `*_REVIEW.html` in the re
 - **e156-submission/assets/IV_IRON_HF_REVIEW.html** (1 item)
   - HEART-FID: a win-ratio trial carries publishedHR=0.93
 
+### `RM-V01` — Displayed value contradicts the source-verified fixture (3 apps, P0)
+
+- **BEMPEDOIC_ACID_REVIEW.html** (2 items)
+  - CLEAR Wisdom: ledger carries NCT02973841, the verified identifier is NCT02991118 — NCT02973841 = 'Sono-ease Device for Internal Jaguar Vein Cannulation', Mansoura University, n=40, ages 18-45, INTERVENTIONAL, phase NA, has_results false. Its e
+  - CLEAR Wisdom: displays "JAMA. 2019;322(14):1380-1388"; verified citation is "JAMA 2019;322(18):1780-1788, PMID 31714986"
+- **e156-submission/assets/BEMPEDOIC_ACID_REVIEW.html** (2 items)
+  - fixture trial 'NULLED:NCT02666664' (CLEAR Harmony) is absent from the ledger
+  - fixture trial 'NULLED:NCT02973841' (CLEAR Wisdom) is absent from the ledger
+- **MITRAL_FUNCMR_REVIEW.html** (1 item)
+  - RESHAPE-HF2: ARM REVERSAL — tN=255 is the CONTROL n (255); the device arm is 250 [verified: Textbook multi-error instance: scope-lock, arm reversal, recurrent-event coercion, KM-as-crude-count, cross-endpoint escalc pooling, RoB self-contradiction, false registry-status, device phase mislabel.]
+
 ## 4. Worst offenders overall — apps by distinct error types
 
 | app | distinct error types | k | ids |
 |---|---:|---:|---|
-| `ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html` | 24 | 6 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G02`, `RM-H01`, `RM-H02`, `RM-H03`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
-| `INCLISIRAN_LIPID_KIDNEY_AUTO_FULL_REVIEW.html` | 24 | 3 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G02`, `RM-H01`, `RM-H02`, `RM-H03`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
-| `INDACATEROL_GLYCOPYR_COPD_AUTO_FULL_REVIEW.html` | 24 | 3 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G02`, `RM-H01`, `RM-H02`, `RM-H03`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
-| `TIRZEPATIDE_ARDS_AUTO_FULL_REVIEW.html` | 24 | 3 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-A08`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-D06`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
-| `VADADUSTAT_ANEMIA_AUTO_FULL_REVIEW.html` | 24 | 4 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G02`, `RM-H01`, `RM-H02`, `RM-H03`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
-| `VADADUSTAT_RENAL_ANEMIA_AUTO_FULL_REVIEW.html` | 24 | 4 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G02`, `RM-H01`, `RM-H02`, `RM-H03`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
-| `ADUCANUMAB_AD_AUTO_FULL_REVIEW.html` | 23 | 2 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G02`, `RM-H01`, `RM-H02`, `RM-H03`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
-| `ALOGLIPTIN_T2D_AUTO_FULL_REVIEW.html` | 23 | 4 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G02`, `RM-H01`, `RM-H02`, `RM-H03`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
-| `ANDEXANET_BLEEDING_AUTO_FULL_REVIEW.html` | 23 | 3 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-A08`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
-| `ANIDULAFUNGIN_CANDIDA_AUTO_FULL_REVIEW.html` | 23 | 3 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-A08`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
-| `AVALGLUCOSIDASE_AUTO_FULL_REVIEW.html` | 23 | 1 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G02`, `RM-H01`, `RM-H02`, `RM-H03`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
-| `AVALGLUCOSIDASE_POMPE_AUTO_FULL_REVIEW.html` | 23 | 1 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G02`, `RM-H01`, `RM-H02`, `RM-H03`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
-| `BARDOXOLONE_CKD_AUTO_FULL_REVIEW.html` | 23 | 1 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G02`, `RM-H01`, `RM-H02`, `RM-H03`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
-| `BIMEKIZUMAB_AXIAL_AUTO_FULL_REVIEW.html` | 23 | 4 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-A08`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
-| `BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW.html` | 23 | 5 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-A08`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
-| `BREXPIPRAZOLE_AGITATION_AUTO_FULL_REVIEW.html` | 23 | 3 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-H01`, `RM-H02`, `RM-H03`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
-| `BUDESONIDE_ASTHMA_AUTO_FULL_REVIEW.html` | 23 | 1 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G02`, `RM-H01`, `RM-H02`, `RM-H03`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
-| `DARIDOREXANT_INSOMNIA_AUTO_FULL_REVIEW.html` | 23 | 2 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G02`, `RM-H01`, `RM-H02`, `RM-H03`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
-| `DERISOMALTOSE_IRON_DEFICIENCY_AUTO_FULL_REVIEW.html` | 23 | 4 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-A08`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
-| `ECULIZUMAB_GMG_AUTO_FULL_REVIEW.html` | 23 | 1 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G02`, `RM-H01`, `RM-H02`, `RM-H03`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
-| `ECULIZUMAB_MYASTHENIA_AUTO_FULL_REVIEW.html` | 23 | 1 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G02`, `RM-H01`, `RM-H02`, `RM-H03`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
-| `EFSITORA_TYPE_2_AUTO_FULL_REVIEW.html` | 23 | 4 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G02`, `RM-H01`, `RM-H02`, `RM-H03`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
-| `ELAGOLIX_HMB_AUTO_FULL_REVIEW.html` | 23 | 3 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-A08`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
-| `ERTUGLIFLOZIN_T2D_AUTO_FULL_REVIEW.html` | 23 | 3 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G02`, `RM-H01`, `RM-H02`, `RM-H03`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
-| `EVINACUMAB_HOFH_AUTO_FULL_REVIEW.html` | 23 | 1 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G02`, `RM-H01`, `RM-H02`, `RM-H03`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02` |
+| `BIMEKIZUMAB_AXIAL_AUTO_FULL_REVIEW.html` | 29 | 4 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-A08`, `RM-A12`, `RM-A14`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-D08`, `RM-D10`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G03`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07` |
+| `BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW.html` | 29 | 5 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-A08`, `RM-A12`, `RM-A14`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-D08`, `RM-D10`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G03`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07` |
+| `ELAGOLIX_HMB_AUTO_FULL_REVIEW.html` | 29 | 3 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-A08`, `RM-A12`, `RM-A14`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-D08`, `RM-D10`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G03`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07` |
+| `HPV_DOSE_REDUCTION_REVIEW.html` | 29 | 3 | `RM-A02`, `RM-A03`, `RM-A05`, `RM-A14`, `RM-B02`, `RM-B03`, `RM-C01`, `RM-D01`, `RM-D02`, `RM-D05`, `RM-D07`, `RM-D08`, `RM-D10`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G03`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07` |
+| `JAKI_AD_REVIEW.html` | 29 | 6 | `RM-A02`, `RM-A05`, `RM-A14`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-D05`, `RM-D07`, `RM-D08`, `RM-D10`, `RM-D11`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G03`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07` |
+| `LIGELIZUMAB_URTICARIA_AUTO_2_FULL_REVIEW.html` | 29 | 3 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-A08`, `RM-A12`, `RM-A14`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-D08`, `RM-D10`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G03`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07` |
+| `LIGELIZUMAB_URTICARIA_AUTO_FULL_REVIEW.html` | 29 | 3 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-A08`, `RM-A12`, `RM-A14`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-D08`, `RM-D10`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G03`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07` |
+| `MAGROLIMAB_AML_AUTO_FULL_REVIEW.html` | 29 | 3 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-A08`, `RM-A12`, `RM-A14`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-D08`, `RM-D10`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G03`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07` |
+| `MIPOMERSEN_HOFH_AUTO_FULL_REVIEW.html` | 29 | 4 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-A08`, `RM-A12`, `RM-A14`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-D08`, `RM-D10`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G03`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07` |
+| `MITRAL_FUNCMR_REVIEW.html` | 29 | 3 | `RM-A02`, `RM-A05`, `RM-A10`, `RM-A14`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D05`, `RM-D07`, `RM-D08`, `RM-D09`, `RM-D10`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G03`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07`, `RM-V01` |
+| `OMALIZUMAB_URTICARIA_AUTO_FULL_REVIEW.html` | 29 | 3 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-A08`, `RM-A12`, `RM-A14`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-D08`, `RM-D10`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G03`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07` |
+| `TIRZEPATIDE_ARDS_AUTO_FULL_REVIEW.html` | 29 | 3 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-A08`, `RM-A12`, `RM-A14`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-D06`, `RM-D08`, `RM-D10`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07` |
+| `ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html` | 28 | 6 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-D08`, `RM-D10`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G02`, `RM-G03`, `RM-H01`, `RM-H02`, `RM-H03`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07` |
+| `ANDEXANET_BLEEDING_AUTO_FULL_REVIEW.html` | 28 | 3 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-A08`, `RM-A12`, `RM-A14`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-D08`, `RM-D10`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07` |
+| `ANIDULAFUNGIN_CANDIDA_AUTO_FULL_REVIEW.html` | 28 | 3 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-A08`, `RM-A12`, `RM-A14`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-D08`, `RM-D10`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07` |
+| `BARICITINIB_AD_AUTO_FULL_REVIEW.html` | 28 | 4 | `RM-A02`, `RM-A05`, `RM-A08`, `RM-A12`, `RM-A14`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-D08`, `RM-D10`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G03`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07` |
+| `BARICITINIB_SLE_AUTO_FULL_REVIEW.html` | 28 | 3 | `RM-A02`, `RM-A05`, `RM-A08`, `RM-A12`, `RM-A14`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-D08`, `RM-D10`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G03`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07` |
+| `BIMEKIZUMAB_PSORIATIC_AUTO_FULL_REVIEW.html` | 28 | 3 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-A08`, `RM-A12`, `RM-A14`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D08`, `RM-D10`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G03`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07` |
+| `CART_DLBCL_REVIEW.html` | 28 | 3 | `RM-A02`, `RM-A05`, `RM-A08`, `RM-A12`, `RM-A14`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D05`, `RM-D07`, `RM-D08`, `RM-D10`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G03`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07` |
+| `CEFTOLOZANE_INFECTION_AUTO_FULL_REVIEW.html` | 28 | 3 | `RM-A02`, `RM-A05`, `RM-A08`, `RM-A12`, `RM-A14`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D08`, `RM-D10`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G02`, `RM-G03`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07` |
+| `CEFTOLOZANE_TAZ_AUTO_FULL_REVIEW.html` | 28 | 3 | `RM-A02`, `RM-A05`, `RM-A08`, `RM-A12`, `RM-A14`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D08`, `RM-D10`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G02`, `RM-G03`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07` |
+| `DERISOMALTOSE_IRON_DEFICIENCY_AUTO_FULL_REVIEW.html` | 28 | 4 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-A08`, `RM-A14`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-D08`, `RM-D10`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G03`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07` |
+| `DONANEMAB_AD_AUTO_FULL_REVIEW.html` | 28 | 4 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-A08`, `RM-A12`, `RM-A14`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D08`, `RM-D10`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G03`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07` |
+| `EVOBRUTINIB_MS_AUTO_FULL_REVIEW.html` | 28 | 3 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-A08`, `RM-A14`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-D08`, `RM-D10`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-G03`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07` |
+| `FARICIMAB_DME_AUTO_FULL_REVIEW.html` | 28 | 3 | `RM-A02`, `RM-A05`, `RM-A07`, `RM-A08`, `RM-A12`, `RM-A14`, `RM-B01`, `RM-B02`, `RM-B03`, `RM-D02`, `RM-D08`, `RM-D10`, `RM-E01`, `RM-E02`, `RM-F01`, `RM-F02`, `RM-F03`, `RM-F04`, `RM-F05`, `RM-G01`, `RM-H01`, `RM-H02`, `RM-H04`, `RM-H05`, `RM-I01`, `RM-J01`, `RM-J02`, `RM-J07` |
 
 ## 6. What this sweep cannot see
 

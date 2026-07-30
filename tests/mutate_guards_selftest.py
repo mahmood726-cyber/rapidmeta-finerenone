@@ -93,6 +93,33 @@ SEEDS = [
         "RIFA §2.3 (P0)",
         "if (keys.length > 1) {\n      block(G, \"MIXED_POLARITY_POOL\",",
         "if (false) {\n      block(G, \"MIXED_POLARITY_POOL\",",
+    ),    (
+        "S11-negative-hr",
+        "a negative or out-of-range ratio is accepted into an HR/OR/RR field",
+        "bempedoic LDL-C selector: 'Pooled Hazard Ratio = -19.50'",
+        'if (n <= 0) block(G, "RATIO_FIELD_NON_POSITIVE",',
+        'if (false) block(G, "RATIO_FIELD_NON_POSITIVE",',
+    ),
+    (
+        "S12-integrity-gate-warns",
+        "the fail-closed integrity gate warns instead of blocking",
+        "bempedoic reviewer recommendation #9",
+        'if (fails.length) {\n      block(G, "INTEGRITY_GATE_FAILED", fails.join("; "));\n    }',
+        'if (false) {\n      block(G, "INTEGRITY_GATE_FAILED", fails.join("; "));\n    }',
+    ),
+    (
+        "S13-composite-mismatch",
+        "MACE-3 may be pooled with MACE-4",
+        "PCSK9 FOURIER (revasc) vs ODYSSEY (CHD death); bempedoic Wisdom vs CLEAR Outcomes",
+        'block(G, "COMPONENT_SET_MISMATCH",',
+        'return { ok: true }; block(G, "COMPONENT_SET_MISMATCH",',
+    ),
+    (
+        "S14-watchlist-off-topic",
+        "a wholly off-topic monitoring watchlist is accepted",
+        "PCSK9 + bempedoic both tracking the finerenone programme",
+        'block(G, "WATCHLIST_WRONG_TOPIC",',
+        'return { ok: true }; block(G, "WATCHLIST_WRONG_TOPIC",',
     ),
 ]
 

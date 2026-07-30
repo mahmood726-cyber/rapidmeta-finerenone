@@ -726,3 +726,125 @@ describe("G17 — direction is derived from an explicit polarity", () => {
     blocks(() => G.G17_directionWord(-0.5509, "benefit"), "EFFECT_NOT_A_RATIO");
   });
 });
+
+/* ============================================ G18/G19/G20 — added 2026-07-30 calibration pass */
+
+describe("G01 (strengthened) — the ratio range", () => {
+  test("BLOCK: a NEGATIVE pooled 'hazard ratio' of -19.50 [bempedoic LDL-C selector]", () => {
+    blocks(() => G.G01_assertRatioModelInput({ estimandType: "HR", publishedHR: -19.5 }, "HR"),
+      "RATIO_FIELD_NON_POSITIVE");
+  });
+  test("BLOCK: outside the hard [0.01, 100] bound", () => {
+    blocks(() => G.G01_assertRatioModelInput({ estimandType: "HR", publishedHR: 2050 }, "HR"),
+      "RATIO_FIELD_IMPOSSIBLE");
+    blocks(() => G.G01_assertRatioModelInput({ estimandType: "HR", publishedHR: 0.001 }, "HR"),
+      "RATIO_FIELD_IMPOSSIBLE");
+  });
+  test("BLOCK: inside the hard bound but outside any reported range (pubHR 73.83)", () => {
+    blocks(() => G.G01_assertRatioModelInput({ estimandType: "HR", publishedHR: 73.83 }, "HR"),
+      "RATIO_FIELD_IMPLAUSIBLE");
+  });
+  test("PASS: an ordinary effect", () => {
+    assert.equal(G.G01_assertRatioModelInput({ estimandType: "HR", publishedHR: 0.62 }, "HR").ok, true);
+  });
+});
+
+describe("G18 — the fail-closed integrity gate", () => {
+  test("BLOCK: a NULLED trial id [bempedoic NULLED:NCT02666664]", () => {
+    blocks(() => G.G18_assertIntegrityGate({ trialIds: ["NCT02993406", "NULLED:NCT02666664"] }),
+      "INTEGRITY_GATE_FAILED");
+  });
+  test("BLOCK: a null trial id", () => {
+    blocks(() => G.G18_assertIntegrityGate({ trialIds: ["NCT02993406", null] }), "INTEGRITY_GATE_FAILED");
+  });
+  test("BLOCK: composite component sets differ across pooled rows [PCSK9 FOURIER vs ODYSSEY]", () => {
+    const e = blocks(() => G.G18_assertIntegrityGate({
+      trialIds: ["NCT01764633", "NCT01663402"],
+      pooledRows: [
+        { trial: "FOURIER", components: ["CV death", "MI", "stroke", "UA hosp", "revascularisation"] },
+        { trial: "ODYSSEY OUTCOMES", components: ["CHD death", "nonfatal MI", "ischaemic stroke", "UA hosp"] }
+      ]
+    }), "INTEGRITY_GATE_FAILED");
+    assert.match(e.message, /component sets differ/);
+  });
+  test("BLOCK: a NaN output and a leave-one-out NaN interval", () => {
+    blocks(() => G.G18_assertIntegrityGate({
+      trialIds: ["NCT1"], outputs: [{ name: "pooled", value: NaN }]
+    }), "INTEGRITY_GATE_FAILED");
+    blocks(() => G.G18_assertIntegrityGate({
+      trialIds: ["NCT1"], outputs: [{ name: "leave-one-out", value: 0.9, interval: [null, null] }]
+    }), "INTEGRITY_GATE_FAILED");
+  });
+  test("BLOCK: an impossible ratio output [-19.50]", () => {
+    blocks(() => G.G18_assertIntegrityGate({
+      trialIds: ["NCT1"], outputs: [{ name: "Pooled Hazard Ratio", value: -19.5, isRatio: true }]
+    }), "INTEGRITY_GATE_FAILED");
+  });
+  test("BLOCK: trial counts disagreeing across surfaces [bempedoic 4 vs 5 vs 2]", () => {
+    const e = blocks(() => G.G18_assertIntegrityGate({
+      trialIds: ["NCT1"], trialCounts: [4, 5, 2]
+    }), "INTEGRITY_GATE_FAILED");
+    assert.match(e.message, /disagree across surfaces/);
+  });
+  test("BLOCK: a pass claimed without having run", () => {
+    blocks(() => G.G18_assertIntegrityGate({
+      trialIds: ["NCT1"], claimsPass: true, untested: "per-trial source verification"
+    }), "UNEARNED_PASS");
+  });
+  test("PASS: a coherent state", () => {
+    assert.equal(G.G18_assertIntegrityGate({
+      trialIds: ["NCT01764633", "NCT01663402"],
+      pooledRows: [
+        { trial: "A", components: ["CV death", "MI", "stroke"] },
+        { trial: "B", components: ["stroke", "CV death", "MI"] }
+      ],
+      outputs: [{ name: "pooled", value: 0.85, isRatio: true, interval: [0.78, 0.93] }],
+      trialCounts: [2, 2, 2], participantCounts: [23246, 23246]
+    }).ok, true);
+  });
+});
+
+describe("G19 — composite component sets must match before pooling", () => {
+  test("BLOCK: MACE-3 pooled with MACE-4 [bempedoic Wisdom vs CLEAR Outcomes]", () => {
+    blocks(() => G.G19_assertCompositeComponentsMatch([
+      { trial: "CLEAR Wisdom", components: ["CV death", "nonfatal MI", "nonfatal stroke"] },
+      { trial: "CLEAR Outcomes", components: ["CV death", "nonfatal MI", "nonfatal stroke", "coronary revascularisation"] }
+    ]), "COMPONENT_SET_MISMATCH");
+  });
+  test("BLOCK: an undeclared component set", () => {
+    blocks(() => G.G19_assertCompositeComponentsMatch([
+      { trial: "A", components: ["CV death", "MI"] }, { trial: "B" }
+    ]), "COMPONENTS_UNDECLARED");
+  });
+  test("PASS: identical sets in any order", () => {
+    assert.equal(G.G19_assertCompositeComponentsMatch([
+      { trial: "A", components: ["CV death", "MI", "stroke"] },
+      { trial: "B", components: ["stroke", "MI", "CV death"] }
+    ]).checked, true);
+  });
+});
+
+describe("G20 — the monitored watchlist must be the app's own topic", () => {
+  const finerenoneWatchlist = [
+    { label: "FIDELIO-DKD" }, { label: "FIGARO-DKD" }, { label: "FINEARTS-HF" },
+    { label: "ARTS-DN" }, { label: "FINE-ONE" }, { label: "CONFIDENCE" }
+  ];
+  test("BLOCK: a PCSK9 app monitoring the finerenone programme [PCSK9_REVIEW.html]", () => {
+    const e = blocks(() => G.G20_assertWatchlistOnTopic(finerenoneWatchlist,
+      ["pcsk9", "evolocumab", "alirocumab", "lipid"]), "WATCHLIST_WRONG_TOPIC");
+    assert.match(e.message, /FIDELIO-DKD/);
+  });
+  test("BLOCK: a bempedoic app monitoring the same list [BEMPEDOIC_ACID_REVIEW.html]", () => {
+    blocks(() => G.G20_assertWatchlistOnTopic(finerenoneWatchlist, ["bempedoic", "acid"]),
+      "WATCHLIST_WRONG_TOPIC");
+  });
+  test("PASS: the app that owns the watchlist", () => {
+    assert.equal(G.G20_assertWatchlistOnTopic(finerenoneWatchlist,
+      ["finerenone", "fidelio", "figaro", "fineartsef", "arts", "fine", "confidence"]).checked, true);
+  });
+  test("BLOCK: a partially foreign watchlist", () => {
+    blocks(() => G.G20_assertWatchlistOnTopic(
+      [{ label: "FOURIER" }, { label: "FIDELIO-DKD" }], ["fourier", "evolocumab"]),
+      "WATCHLIST_PARTIALLY_FOREIGN");
+  });
+});

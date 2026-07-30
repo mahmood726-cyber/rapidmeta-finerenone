@@ -76,6 +76,10 @@
   /** Models that consume a ratio-of-risks scale. A continuous or hierarchical estimate may never enter one. */
   var RATIO_MODELS = Object.freeze(["HR", "OR", "RR"]);
 
+  /** Plausible bounds for any reported ratio effect. Outside this, the value is not a ratio. */
+  var RATIO_MIN = 0.01, RATIO_MAX = 100;          // hard: outside this it is not a ratio
+  var RATIO_IMPLAUSIBLE_LO = 0.02, RATIO_IMPLAUSIBLE_HI = 25;   // soft: outside this no trial reports it
+
   var ESTIMAND_ALIASES = Object.freeze({
     "hazard ratio": "HR", "hr": "HR",
     "odds ratio": "OR", "or": "OR", "peto": "OR", "peto or": "OR",
@@ -133,8 +137,24 @@
       if (!isPresent(v)) continue;
       var n = Number(v);
       if (!Number.isFinite(n)) block(G, "RATIO_FIELD_NOT_FINITE", fields[i] + "=" + v);
+      // A ratio of positive rates is strictly positive, and no reported clinical effect sits
+      // outside ~0.01-100. The bempedoic LDL-C panel rendered "Pooled Hazard Ratio = -19.50 /
+      // 2050% lower hazard" - a continuous mean difference forced through the HR template.
       if (n <= 0) block(G, "RATIO_FIELD_NON_POSITIVE", fields[i] + "=" + n + " — a ratio of positive rates cannot be <= 0");
-      if (n > 20) block(G, "RATIO_FIELD_IMPLAUSIBLE", fields[i] + "=" + n + " — outside any reported ratio range");
+      // Two tiers, because they fail differently. IMPOSSIBLE is the hard bound Mahmood specified
+      // (~0.01-100): nothing outside it is a ratio at all. IMPLAUSIBLE is the softer bound that
+      // catches a percent-change (73.83) sitting inside the hard bound but far outside any
+      // reported effect.
+      if (n < RATIO_MIN || n > RATIO_MAX) {
+        block(G, "RATIO_FIELD_IMPOSSIBLE",
+          fields[i] + "=" + n + " — outside [" + RATIO_MIN + ", " + RATIO_MAX +
+          "]; a value this size is a different quantity wearing a ratio label");
+      }
+      if (n < RATIO_IMPLAUSIBLE_LO || n > RATIO_IMPLAUSIBLE_HI) {
+        block(G, "RATIO_FIELD_IMPLAUSIBLE",
+          fields[i] + "=" + n + " — outside any reported ratio range [" + RATIO_IMPLAUSIBLE_LO +
+          ", " + RATIO_IMPLAUSIBLE_HI + "]");
+      }
     }
     var title = (trial && (trial.title || trial.outcomeTitle)) || "";
     if (CHANGE_FROM_BASELINE_RE.test(title) && isPresent(trial && (trial.publishedHR || trial.pubHR))) {
@@ -890,6 +910,130 @@
     return { ok: true, polarity: keys[0] || "neutral" };
   }
 
+  /* ============================ G18 · FAIL-CLOSED INTEGRITY GATE ==============================
+   * Registry: RM-J07, RM-D10.
+   * Adopted verbatim from the bempedoic reviewer's recommendation #9. The gate must FAIL, not
+   * warn, whenever any of these hold. A "checks passed / 100-100 integrity / fabrication-risk
+   * 0.200" rendered over any of them is itself the bug.
+   */
+  function assertIntegrityGate(state) {
+    var G = "G18";
+    var s = state || {};
+    var fails = [];
+
+    // 1. any trial id null, empty or NULLED
+    (s.trialIds || []).forEach(function (id) {
+      var v = String(id === null || id === undefined ? "" : id).trim();
+      if (!v) fails.push("a trial id is null/empty");
+      else if (/^NULLED/i.test(v)) fails.push("trial id '" + v + "' is a NULLED placeholder");
+    });
+
+    // 2. a composite endpoint mismatched across pooled rows
+    if (Array.isArray(s.pooledRows) && s.pooledRows.length > 1) {
+      var sets = {};
+      s.pooledRows.forEach(function (r) {
+        var comps = (r && r.components) || null;
+        var key = Array.isArray(comps) ? comps.map(norm).slice().sort().join("|") : "(undeclared)";
+        (sets[key] = sets[key] || []).push((r && r.trial) || "(unnamed)");
+      });
+      var keys = Object.keys(sets);
+      if (keys.indexOf("(undeclared)") !== -1) {
+        fails.push("a pooled row declares no composite component set");
+      }
+      if (keys.length > 1) {
+        fails.push("composite component sets differ across pooled rows: " +
+          keys.map(function (k) { return "[" + k + "] " + sets[k].join(","); }).join(" vs "));
+      }
+    }
+
+    // 3. any analysis output NaN or an impossible value
+    (s.outputs || []).forEach(function (o) {
+      var name = (o && o.name) || "(unnamed)";
+      var v = o && o.value;
+      if (v === null || v === undefined || (typeof v === "number" && !Number.isFinite(v))) {
+        fails.push(name + " is NaN/undefined");
+        return;
+      }
+      if (o && o.isRatio) {
+        var n = Number(v);
+        if (!Number.isFinite(n) || n <= 0 || n < RATIO_MIN || n > RATIO_MAX) {
+          fails.push(name + " = " + v + " is not a possible ratio");
+        }
+      }
+      if (o && Array.isArray(o.interval) &&
+          o.interval.some(function (x) { return x === null || !Number.isFinite(Number(x)); })) {
+        fails.push(name + " interval contains NaN");
+      }
+    });
+
+    // 4. trial counts or N disagreeing across surfaces
+    ["trialCounts", "participantCounts"].forEach(function (field) {
+      var vals = (s[field] || []).filter(isPresent).map(Number);
+      var uniq = vals.filter(function (v, i) { return vals.indexOf(v) === i; });
+      if (uniq.length > 1) {
+        fails.push(field + " disagree across surfaces: " + uniq.join(" vs "));
+      }
+    });
+
+    if (fails.length) {
+      block(G, "INTEGRITY_GATE_FAILED", fails.join("; "));
+    }
+    if (s.claimsPass && s.untested) {
+      block(G, "UNEARNED_PASS", "the gate claims a pass without having run: " + s.untested);
+    }
+    return { ok: true, checked: 4 };
+  }
+
+  /* ============================ G19 · composite component sets must match ====================
+   * Registry: RM-A13. MACE-3 and MACE-4 are different constructs; so are CV-death and CHD-death
+   * composites. Each pooled row must DECLARE its components, and they must be identical.
+   */
+  function assertCompositeComponentsMatch(rows) {
+    var G = "G19";
+    if (!Array.isArray(rows) || rows.length < 2) return { ok: true, checked: false };
+    var first = null, firstTrial = "";
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i] || {};
+      if (!Array.isArray(r.components) || !r.components.length) {
+        block(G, "COMPONENTS_UNDECLARED",
+          (r.trial || "row " + i) + " does not declare its composite component set; " +
+          "an undeclared composite cannot be shown to match another");
+      }
+      var key = r.components.map(norm).slice().sort().join("|");
+      if (first === null) { first = key; firstTrial = r.trial || ("row " + i); }
+      else if (key !== first) {
+        block(G, "COMPONENT_SET_MISMATCH",
+          (r.trial || "row " + i) + " [" + key + "] vs " + firstTrial + " [" + first + "]");
+      }
+    }
+    return { ok: true, checked: true, components: first.split("|") };
+  }
+
+  /* ============================ G20 · the watchlist must be the app's own topic ===============
+   * Registry: RM-E03. Distinct from G14: this is the LIVE monitoring surface — the trials the
+   * app says it is watching for new evidence — not prose residue.
+   */
+  function assertWatchlistOnTopic(watchlist, topicTokens) {
+    var G = "G20";
+    if (!Array.isArray(watchlist) || !watchlist.length) return { ok: true, checked: false };
+    var topic = (Array.isArray(topicTokens) ? topicTokens : []).map(norm);
+    if (!topic.length) block(G, "TOPIC_UNKNOWN", "cannot check a watchlist without the app's topic");
+    var foreign = watchlist.filter(function (w) {
+      var hay = norm((w && (w.label || w.name)) || w) + " " + norm((w && w.drug) || "");
+      return !topic.some(function (t) { return hay.indexOf(t) !== -1 || t.indexOf(hay) !== -1; });
+    });
+    if (foreign.length === watchlist.length) {
+      block(G, "WATCHLIST_WRONG_TOPIC",
+        "every monitored trial is off-topic: " +
+        foreign.map(function (w) { return (w && (w.label || w.name)) || w; }).slice(0, 8).join(", "));
+    }
+    if (foreign.length) {
+      block(G, "WATCHLIST_PARTIALLY_FOREIGN",
+        foreign.length + " of " + watchlist.length + " monitored trials are off-topic: " +
+        foreign.map(function (w) { return (w && (w.label || w.name)) || w; }).slice(0, 6).join(", "));
+    }
+    return { ok: true, checked: true };
+  }
   /* ------------------------------------------------------------------ export */
 
   return {
@@ -929,6 +1073,9 @@
     G17_assertPolarity: assertPolarity,
     G17_directionWord: directionWord,
     G17_assertNntNnhLabel: assertNntNnhLabel,
-    G17_assertPoolPolarityConsistent: assertPoolPolarityConsistent
+    G17_assertPoolPolarityConsistent: assertPoolPolarityConsistent,
+    G18_assertIntegrityGate: assertIntegrityGate,
+    G19_assertCompositeComponentsMatch: assertCompositeComponentsMatch,
+    G20_assertWatchlistOnTopic: assertWatchlistOnTopic
   };
 });

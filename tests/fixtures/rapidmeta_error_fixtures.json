@@ -1,0 +1,183 @@
+{
+  "_about": {
+    "purpose": "Labelled test cases: for each app, what the app DISPLAYS vs what the source SAYS, with the registry error id each discrepancy belongs to. Consumed by scripts/rapidmeta_error_sweep.py detector RM-V01 (value contradicts verified truth) and by the batch-remediation runs as the acceptance target.",
+    "rule": "Nothing in `truth` is from recall. Each entry carries `source` and, where a lookup was performed in this session, `verified_by`.",
+    "version": "1.0",
+    "date": "2026-07-30",
+    "registry": "RAPIDMETA_ERROR_REGISTRY.md"
+  },
+
+  "MITRAL_FUNCMR_REVIEW.html": {
+    "topic": "Transcatheter edge-to-edge repair (TEER) for functional mitral regurgitation",
+    "priority": "BATCH-1",
+    "why": "Textbook multi-error instance: scope-lock, arm reversal, recurrent-event coercion, KM-as-crude-count, cross-endpoint escalc pooling, RoB self-contradiction, false registry-status, device phase mislabel.",
+    "scope_declared_by_app": "All-cause mortality at 24 months",
+    "scope_actually_bound": "each trial's own PRIMARY composite, at three different timepoints",
+    "smoking_gun": {
+      "id": "RM-A14",
+      "generator": "ai = c(${trials.map(t=>t.data.tE).join(\",\")}), ci = c(${trials.map(t=>t.data.cE).join(\",\")}) ... escalc(measure=\"${emR}\", ...)",
+      "renders_as": "ai=c(83,139,151); ci=c(78,170,212); escalc(measure=\"RR\")",
+      "why_wrong": "83/78 is MITRA-FR's 12-month composite, 139/170 is RESHAPE-HF2's 24-month RECURRENT composite (and its arms are reversed), 151/212 is COAPT's 24-month composite. Three different constructs at three timepoints pooled as one binary risk ratio."
+    },
+    "trials": {
+      "NCT01920698": {
+        "name": "MITRA-FR",
+        "displayed": { "tE": 83, "tN": 152, "cE": 78, "cN": 155, "publishedHR": 1.13, "hrLCI": 0.86, "hrUCI": 1.47, "phase": "III" },
+        "truth": {
+          "all_cause_mortality_24mo": { "tE": 53, "tN": 152, "cE": 52, "cN": 152, "effect": 1.02, "lci": 0.70, "uci": 1.50, "estimandType": "HR", "type": "SECONDARY", "polarity": "benefit" },
+          "composite_24mo": { "tE": 97, "tN": 152, "cE": 102, "cN": 152, "effect": 1.01, "estimandType": "HR", "note": "distinct from both the 12-month 83/78 the app displays and the 53/52 mortality" },
+          "composite_12mo": { "tE": 83, "tN": 152, "cE": 78, "cN": 155, "note": "what the app displays under a mortality scope label" },
+          "denominators": { "randomised": [152, 155], "evaluable": [152, 152], "rule": "label both; do not use one silently for the other" },
+          "phase_ctgov": "NA"
+        },
+        "errors": ["RM-B01", "RM-C01", "RM-D09", "RM-D10"]
+      },
+      "NCT02444338": {
+        "name": "RESHAPE-HF2",
+        "displayed": { "tE": 139, "tN": 255, "cE": 170, "cN": 250, "publishedHR": 0.64, "hrLCI": 0.48, "hrUCI": 0.85, "estimandType": "HR", "phase": "IV" },
+        "truth": {
+          "ARM_REVERSAL": { "device_n": 250, "control_n": 255, "displayed_as": "tN=255 (device), cN=250 (control)", "verdict": "REVERSED" },
+          "primary": { "estimandType": "RATE_RATIO", "effect": 0.64, "lci": 0.48, "uci": 0.85, "construct": "RECURRENT HF hospitalisation or CV death", "note": "a recurrent-event rate ratio, NOT a hazard ratio" },
+          "all_cause_mortality_24mo": { "tE": 51, "tN": 250, "cE": 67, "cN": 255, "effect": 0.73, "lci": 0.51, "uci": 1.05, "p": 0.09, "type": "SECONDARY", "significant": false },
+          "over_claim": "\"Confirms the COAPT pattern\" is over-strong for MORTALITY: the mortality result is non-significant (p=0.09).",
+          "phase_ctgov": "NA"
+        },
+        "errors": ["RM-C03", "RM-C04", "RM-A01", "RM-A03", "RM-D09"]
+      },
+      "NCT01626079": {
+        "name": "COAPT",
+        "displayed": { "tE": 151, "tN": 302, "cE": 212, "cN": 312, "publishedHR": 0.57, "hrLCI": 0.45, "hrUCI": 0.71, "phase": "III" },
+        "truth": {
+          "all_cause_mortality_24mo": { "km_treatment_pct": 29.1, "km_control_pct": 46.1, "effect": 0.62, "lci": 0.46, "uci": 0.82, "estimandType": "HR", "type": "SECONDARY", "PROHIBITED": "Do NOT multiply the KM % by N to make crude counts. A KM estimate is a model-based cumulative incidence under censoring." },
+          "composite_24mo": { "tE": 151, "tN": 302, "cE": 212, "cN": 312, "effect": 0.57, "note": "what the app displays under a mortality scope label" },
+          "hf_hospitalisation": { "treatment": 35.8, "control": 67.9, "unit": "annualised events per 100 patient-years", "PROHIBITED": "not a patient percentage; 212/312 = 67.9% is a coincidence of the same number on a different scale" },
+          "phase_ctgov": "NA"
+        },
+        "errors": ["RM-A10", "RM-B01", "RM-D09", "RM-D10", "RM-G03"]
+      }
+    },
+    "correct_analysis": {
+      "method": "generic inverse-variance on the three PUBLISHED mortality hazard ratios",
+      "PROHIBITED": "never pool the displayed binary counts",
+      "inputs": [
+        { "trial": "MITRA-FR", "hr": 1.02, "lci": 0.70, "uci": 1.50 },
+        { "trial": "RESHAPE-HF2", "hr": 0.73, "lci": 0.51, "uci": 1.05 },
+        { "trial": "COAPT", "hr": 0.62, "lci": 0.46, "uci": 0.82 }
+      ]
+    },
+    "external_benchmark_that_EXISTS": {
+      "claim_by_app": "no external benchmark",
+      "reality": "published 3-trial synthesis",
+      "all_cause_mortality": { "hr": 0.76, "lci": 0.57, "uci": 1.01 },
+      "cv_mortality": { "hr": 0.77, "lci": 0.56, "uci": 1.06 },
+      "errors": ["RM-D07"]
+    },
+    "other_confirmed_errors": {
+      "RM-G03": "COAPT extraction evidence says D2 some-concerns / D4 low; the chart chip shows D2 high / D4 high. GRADE text says 'majority high on D1/D4' while its own table shows D1 low in all three.",
+      "RM-D08": "app asserts '0/3 posted CT.gov results', 'no linked publications', and 'all endpoints match the registered primary' — COAPT and MITRA-FR both have posted results and publications, and all-cause mortality is NOT the registered primary.",
+      "RM-H01": "TSA/RIS incoherence: RIS 1365 < N 1426 while reporting 36% / 7%.",
+      "RM-I01": "NNT inconsistency: 67 vs 11 vs a pictogram showing 9/100.",
+      "RM-F06": "PRISMA does not reconcile: 123 assessed - 34 excluded != 3 included.",
+      "RM-E01": "template contamination: 'across CKD trials', 'compared with placebo' (comparator is GDMT), the storage key mitral_funcmr, 'MACE'.",
+      "RM-F07": "'100% confidence' rendered over 'No source'.",
+      "RM-F04": "version and audit-round contradictions."
+    }
+  },
+
+  "PCSK9_REVIEW.html": {
+    "topic": "PCSK9 inhibitors for cardiovascular outcomes",
+    "priority": "BATCH-1",
+    "why": "Detector-validation case. The two trial rows are CORRECT to source; every defect is structural — scope, contamination, machinery, completeness. Records that a clean extraction does not make a sound review.",
+    "trials": {
+      "NCT01764633": {
+        "name": "FOURIER",
+        "displayed": { "tE": 1344, "tN": 13784, "cE": 1563, "cN": 13780, "publishedHR": 0.85, "hrLCI": 0.79, "hrUCI": 0.92 },
+        "truth": { "tE": 1344, "tN": 13784, "cE": 1563, "cN": 13780, "effect": 0.85, "lci": 0.79, "uci": 0.92, "verdict": "VERIFIED_FULL — matches exactly" },
+        "source": "Sabatine MS et al. Evolocumab and Clinical Outcomes in Patients with Cardiovascular Disease. N Engl J Med 2017. DOI 10.1056/NEJMoa1615664",
+        "verified_by": "PubMed abstract, 2026-07-30: \"1344 patients [9.8%] vs. 1563 patients [11.3%]; hazard ratio, 0.85; 95% confidence interval [CI], 0.79 to 0.92\"",
+        "composite_components": ["CV death", "MI", "stroke", "UA hospitalisation", "coronary revascularisation"],
+        "errors": []
+      },
+      "NCT01663402": {
+        "name": "ODYSSEY OUTCOMES",
+        "displayed": { "tE": 903, "tN": 9462, "cE": 1052, "cN": 9462, "publishedHR": 0.85, "hrLCI": 0.78, "hrUCI": 0.93 },
+        "truth": { "tE": 903, "tN": 9462, "cE": 1052, "cN": 9462, "effect": 0.85, "lci": 0.78, "uci": 0.93, "verdict": "VERIFIED_FULL — matches exactly" },
+        "source": "Schwartz GG et al. Alirocumab and Cardiovascular Outcomes after Acute Coronary Syndrome. N Engl J Med 2018. DOI 10.1056/NEJMoa1801174",
+        "verified_by": "PubMed abstract, 2026-07-30: \"903 patients (9.5%) ... 1052 patients (11.1%) ... hazard ratio, 0.85; 95% confidence interval [CI], 0.78 to 0.93\"",
+        "composite_components": ["CHD death", "nonfatal MI", "ischaemic stroke", "UA requiring hospitalisation"],
+        "errors": []
+      }
+    },
+    "confirmed_errors": {
+      "RM-A13": "FOURIER's composite includes coronary REVASCULARISATION; ODYSSEY's does not and uses CHD death rather than CV death. Different constructs pooled under one scope label.",
+      "RM-E03": "the monitored registry watchlist (CTGOV_EVIDENCE_REGISTRY) tracks FINERENONE trials — FIDELIO-DKD, FIGARO-DKD, FINEARTS-HF, ARTS-DN, FINE-ONE, CONFIDENCE. The entire live-monitoring surface is the wrong drug class.",
+      "RM-B08": "k=2 (FOURIER + ODYSSEY only). A prior published synthesis found 38 RCTs (MACE OR 0.83, 0.78-0.88). SPIRE-1/2, OSLER-1/2 and ODYSSEY LONG TERM are absent — the strings SPIRE and OSLER do not occur anywhere in the file. SPIRE is a NEGATIVE agent (bococizumab, stopped for immunogenicity); omitting it while retaining positive agents is selection bias, the same class as the omitted-trial finding in ATTR-CM.",
+      "RM-B01": "the mortality / MI / stroke selectors all resolve to the MACE counts: the ACM, MI and Stroke rows carry tE:null, cE:null, so the scope falls back to the primary.",
+      "RM-F01": "green badge over __verdict = UNCERTAIN with n_trials_seen = 0.",
+      "RM-F02": "badge 'Trials: 2' vs __verdict.n_trials_seen = 0 vs realData k = 2.",
+      "RM-E01": "FINERENONE_REVIEW.tailwind.css stylesheet link; FIDELIO/FIGARO in the evidence registry; uacr/albuminuria in the screening relevance scorer.",
+      "RM-G01": "safeRob present with the low-fallback; ODYSSEY stores some-concerns on D3 and D5 and renders Low.",
+      "RM-H01": "funnel / Egger / trim-fill at k=2; Copas at k=2 (needs 15).",
+      "RM-J07": "trial counts disagree across surfaces [0, 2] and a NaN renders, while the gate asserts a pass."
+    }
+  },
+
+  "BEMPEDOIC_ACID_REVIEW.html": {
+    "topic": "Bempedoic acid (CLEAR programme)",
+    "priority": "BATCH-1",
+    "why": "Carries the wrong-NCT foreign-eligibility defect with a fully verified counter-example, plus a self-contradicting effect estimate and NULLED ghost rows.",
+    "trials": {
+      "NCT02993406": {
+        "name": "CLEAR Outcomes",
+        "displayed": { "tE": 819, "tN": 6992, "cE": 927, "cN": 6978, "publishedHR": 0.87, "hrLCI": 0.79, "hrUCI": 0.96, "acm": { "tE": 434, "cE": 434 }, "stroke": { "tE": 133, "cE": 156 } },
+        "truth": {
+          "all_cause_mortality": { "tE": 434, "cE": 420, "effect": 1.03, "lci": 0.90, "uci": 1.18, "note": "app shows 434/434 and HR 1.00" },
+          "stroke": { "tE": 135, "cE": 158, "effect": 0.85, "lci": 0.67, "uci": 1.07, "note": "app shows 133/156" },
+          "mi": { "effect": 0.77, "lci": 0.66, "uci": 0.91 },
+          "composite_components": ["CV death", "nonfatal MI", "nonfatal stroke", "coronary revascularisation"],
+          "attribution": "Nissen SE et al. 2023 N Engl J Med is the CVOT publication. A 2022/2026 post-hoc is not the trial report."
+        },
+        "errors": ["RM-D12", "RM-A13"]
+      },
+      "NULLED:NCT02666664": {
+        "name": "CLEAR Harmony",
+        "displayed": { "tE": null, "tN": 1488, "cE": null, "cN": 742, "publishedHR": 0.75, "hrLCI": 0.56, "hrUCI": 1, "evidence_counts": "108 patients (7.3%) bempedoic vs 40 patients (5.4%) placebo" },
+        "truth": {
+          "internally_impossible": "108/1488 vs 40/742 gives a crude RR of 1.346 — the displayed HR 0.75 is on the OPPOSITE side of 1 from the app's own counts.",
+          "misattributed_pooled": "REPORTED but NOT REPRODUCED in this file: the reviewer states 0.75 (0.56-1.00) reproduces an earlier published TWO-TRIAL POOLED RR 0.75 (0.56-0.99) over ~3008 participants, i.e. a pooled estimate displayed as a trial-level HR. The file's own PUBLISHED_META_BENCHMARKS does not contain that record, so this remains a source-verification task, not a confirmed static finding.",
+          "row_state": "NULLED placeholder key while the bare NCT02666664 is still referenced in AUTO_INCLUDE_TRIAL_IDS and bempedoicIds"
+        },
+        "errors": ["RM-A12", "RM-D10", "RM-D11", "RM-F05", "RM-J07"]
+      },
+      "NULLED:NCT02973841": {
+        "name": "CLEAR Wisdom",
+        "displayed": { "nct": "NCT02973841", "tE": 54, "tN": 522, "cE": 18, "cN": 257, "baseline_n": 779, "citation": "JAMA. 2019;322(14):1380-1388" },
+        "truth": {
+          "correct_nct": "NCT02991118",
+          "wrong_nct_resolves_to": "NCT02973841 = 'Sono-ease Device for Internal Jaguar Vein Cannulation', Mansoura University, n=40, ages 18-45, INTERVENTIONAL, phase NA, has_results false. Its eligibility text — 'all patients indicated for IJV catheterization' / 'neck deformities-coagulopathy' — is what the app displays as CLEAR Wisdom's eligibility.",
+          "correct_citation": "JAMA 2019;322(18):1780-1788, PMID 31714986",
+          "corroboration": "the app's own baseline n=779 matches NCT02991118's enrolment of 779, so the row is CLEAR Wisdom carrying another study's identifier.",
+          "composite_components": ["CV death", "nonfatal MI", "nonfatal stroke"]
+        },
+        "verified_by": "ClinicalTrials.gov API v2, 2026-07-30: NCT02991118 acronym 'CLEAR Wisdom', enrolment 779, PHASE3, has_results true; NCT02973841 brief_title 'Sono-ease Device for Internal Jaguar Vein Cannulation', enrolment 40. PubMed esummary 2026-07-30: PMID 31714986, JAMA vol 322 iss 18 pp 1780-1788.",
+        "errors": ["RM-D01", "RM-D10", "RM-D12", "RM-A13"]
+      },
+      "NCT02988115": {
+        "name": "CLEAR Serenity",
+        "displayed": { "tE": 5, "tN": 234, "cE": 2, "cN": 111 },
+        "truth": { "note": "not source-verified in this pass" },
+        "errors": []
+      }
+    },
+    "confirmed_errors": {
+      "RM-A07": "REPORTED: the LDL-C selector renders 'Pooled Hazard Ratio = -19.50 / 2050% lower hazard' — a negative HR is mathematically impossible; -19.50 is a continuous mean difference forced through the HR reporting template. RENDER-class: the string is computed at runtime and is not present statically. The static precondition IS present: CONTINUOUS LDL-C rows (md -17.4 etc.) reachable by the HR reporting path, which RM-A05 detects.",
+      "RM-D10": "two NULLED: rows, both still referenced by their bare NCT in AUTO_INCLUDE_TRIAL_IDS; badge claims 'Trials: 4'.",
+      "RM-E01": "'Bempedoic Acid in Cardio-Kidney-Metabolic Disease' title; FINERENONE_REVIEW.tailwind.css; Arabic i18n maps the app's own title to 'finerenone in cardio-kidney-metabolic disease'.",
+      "RM-E03": "registry watchlist tracks FIDELIO-DKD, FIGARO-DKD, FINEARTS-HF, ARTS-DN, FINE-ONE, CONFIDENCE.",
+      "RM-J07": "a NULLED trial id, a rendered NaN, and trial counts disagreeing across surfaces [0, 4], while the gate asserts a pass.",
+      "RM-H01": "funnel / Egger / trim-fill / Copas at k=4.",
+      "RM-D07": "'No published benchmark available' fallback ships while PUBLISHED_META_BENCHMARKS is populated.",
+      "REPORTED_NOT_REPRODUCED": "The reviewer's wrong-author/year finding (CLEAR Outcomes attributed to a Spiazzi/Brennan/Zingano post-hoc rather than Nissen 2023) does NOT appear in this file: 'Nissen 2023' is the stored benchmark citation and none of those three surnames occurs. Recorded as reported-but-not-reproduced rather than asserted."
+    }
+  }
+}

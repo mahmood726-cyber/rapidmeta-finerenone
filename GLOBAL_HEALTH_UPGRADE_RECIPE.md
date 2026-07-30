@@ -20,9 +20,9 @@ registry ids has not run the checklist.**
 
 | Artifact | What it is |
 |---|---|
-| `RAPIDMETA_ERROR_REGISTRY.md` | 51 error types; id · root cause · detector · fix · example apps · base-engine flag |
+| `RAPIDMETA_ERROR_REGISTRY.md` | **67** error types; id · root cause · detector · fix · example apps · base-engine flag |
 | `scripts/rapidmeta_error_sweep.py` | every STATIC detector, per app or corpus-wide; `--selftest` proves they fire |
-| `assets/js/rapidmeta-guards.js` | 17 fail-closed guards, G01–G17 |
+| `assets/js/rapidmeta-guards.js` | **20** fail-closed guards, G01–G20 (G18 = the fail-closed integrity gate) |
 | `tests/mutate_guards_selftest.py` | re-seeds the shipped defects; a guard that survives its seed is theatre |
 | `RAPIDMETA_ERROR_SWEEP.{md,json}` | corpus prevalence matrix, including the global-health scope set |
 | `F:\E156\GOVERNING-RULES-ADDENDUM-ERROR-REGISTRY-2026-07-30.md` | §18, the governing rules for all of the above |
@@ -34,7 +34,7 @@ python scripts/rapidmeta_error_sweep.py --selftest        # every seeded defect 
 
 **R.1** Run the static detectors on the app **before** touching it and again on the **final** file.
 **R.2** Disposition every firing **by id**, using the five dispositions in §0.1 / the cardio Phase 4.1.
-**R.3** Where the registry marks a type **base-engine-shared** (35 of 51), a per-app fix is a
+**R.3** Where the registry marks a type **base-engine-shared** (35 of 67), a per-app fix is a
 **workaround** and must be labelled one. State the corpus denominator in the commit message.
 **R.4** A firing is a **hypothesis**. The HFrEF pass withdrew three of its five findings.
 

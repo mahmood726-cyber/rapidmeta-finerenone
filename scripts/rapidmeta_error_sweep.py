@@ -24,7 +24,16 @@ import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+# Idempotent: this module can be imported a second time under a different name (as __main__ plus
+# as `rapidmeta_error_sweep` via the v2 pack). Re-wrapping closes the first wrapper's buffer and
+# every later print raises "I/O operation on closed file" - the exact module-level-sys.stdout trap
+# in rules/lessons.md. Wrap once, and mark it.
+if not getattr(sys.stdout, "_rm_wrapped", False):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    try:
+        sys.stdout._rm_wrapped = True
+    except AttributeError:
+        pass
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -1019,6 +1028,15 @@ def d_j05(c: Ctx):
             out.append("the stored registry query filters to COMPLETED with no TERMINATED/WITHDRAWN "
                        "— a trial stopped early for harm would be excluded")
     return out
+
+
+# ============================================================== v2 detector pack
+# Detectors added after the mitral-TEER / PCSK9 / bempedoic-acid calibration cases live in their
+# own module. Imported for its side effects: each @detector call registers into DETECTORS/META.
+try:
+    import rapidmeta_error_sweep_v2  # noqa: F401,E402
+except ImportError as _e:            # fail loud - a missing pack means a silently smaller sweep
+    raise SystemExit("v2 detector pack failed to import: " + str(_e))
 
 
 # ============================================================== runner

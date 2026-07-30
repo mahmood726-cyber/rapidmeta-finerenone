@@ -1,0 +1,1121 @@
+{
+ "generated_from": "RAPIDMETA_ERROR_SWEEP.json",
+ "corpus": {
+  "files_matched": 1659,
+  "apps_scanned": 1088,
+  "stubs_skipped": 571,
+  "detector_errors": 0,
+  "apps_with_unparsable_ledger": 19
+ },
+ "apps_with_data_errors": 1088,
+ "apps_scheduled": 192,
+ "batch_size": 8,
+ "phase1_structural_types": [
+  "RM-A02",
+  "RM-A05",
+  "RM-A14",
+  "RM-B01",
+  "RM-B02",
+  "RM-B03",
+  "RM-D07",
+  "RM-D08",
+  "RM-F01",
+  "RM-F02",
+  "RM-F03",
+  "RM-F04",
+  "RM-F05",
+  "RM-F06",
+  "RM-F07",
+  "RM-G01",
+  "RM-G03",
+  "RM-H01",
+  "RM-H02",
+  "RM-H03",
+  "RM-H04",
+  "RM-H05",
+  "RM-I01",
+  "RM-J01",
+  "RM-J02",
+  "RM-J05",
+  "RM-J07"
+ ],
+ "priority_lanes": [
+  {
+   "lane": "L1-live-harm",
+   "ids": [
+    "RM-I01",
+    "RM-I02",
+    "RM-A12",
+    "RM-A10",
+    "RM-C03",
+    "RM-C04",
+    "RM-V01"
+   ],
+   "why": "direction inversion, an effect that contradicts its own 2x2, a KM risk rendered as a count, arm reversal, or a fixture-verified value error. A reader acting on these acts wrongly."
+  },
+  {
+   "lane": "L2-contamination",
+   "ids": [
+    "RM-E03",
+    "RM-E02",
+    "RM-E01"
+   ],
+   "why": "a live monitoring watchlist or claim-bearing slot carrying another drug class."
+  },
+  {
+   "lane": "L3-wrong-identity",
+   "ids": [
+    "RM-D01",
+    "RM-D06",
+    "RM-D10",
+    "RM-D02",
+    "RM-D12"
+   ],
+   "why": "a wrong NCT importing foreign eligibility text, a duplicate/NULLED ghost row, a wrong citation, or a filename that names a different subject."
+  },
+  {
+   "lane": "L4-completeness",
+   "ids": [
+    "RM-B08",
+    "RM-B05",
+    "RM-A13",
+    "RM-A01",
+    "RM-A03"
+   ],
+   "why": "an omitted eligible trial, k far below a known synthesis, or composites pooled across different component sets."
+  }
+ ],
+ "batches": [
+  {
+   "batch": 1,
+   "apps": [
+    "BEMPEDOIC_ACID_REVIEW.html",
+    "BEMPEDOIC_ACID_REVIEW.html",
+    "MITRAL_FUNCMR_REVIEW.html",
+    "PCSK9_REVIEW.html",
+    "PCSK9_REVIEW.html",
+    "COVID19_HOSPITALIZED_TX_REVIEW.html",
+    "HEMOPHILIA_GENE_THERAPY_REVIEW.html",
+    "TIRZEPATIDE_ARDS_AUTO_FULL_REVIEW.html"
+   ],
+   "paths": [
+    "e156-submission/assets/BEMPEDOIC_ACID_REVIEW.html",
+    "BEMPEDOIC_ACID_REVIEW.html",
+    "MITRAL_FUNCMR_REVIEW.html",
+    "e156-submission/assets/PCSK9_REVIEW.html",
+    "PCSK9_REVIEW.html",
+    "COVID19_HOSPITALIZED_TX_REVIEW.html",
+    "HEMOPHILIA_GENE_THERAPY_REVIEW.html",
+    "TIRZEPATIDE_ARDS_AUTO_FULL_REVIEW.html"
+   ],
+   "lanes": [
+    "L1-live-harm",
+    "L2-contamination",
+    "L3-wrong-identity",
+    "L4-completeness"
+   ],
+   "dominant_error_types": [
+    "RM-E01 (8)",
+    "RM-A12 (5)",
+    "RM-E03 (5)",
+    "RM-D10 (4)",
+    "RM-A08 (3)",
+    "RM-V01 (3)"
+   ],
+   "source_needs": [
+    "CT.gov armGroups + the publication's own arm sizes",
+    "ClinicalTrials.gov API v2 (resolve every NCT; compare title/condition/phase/arms)",
+    "PubMed (resolve every PMID; confirm it reports THIS randomisation)",
+    "already source-verified: tests/fixtures/rapidmeta_error_fixtures.json",
+    "each trial's registered primary endpoint component set",
+    "the benchmark synthesis's own trial list",
+    "the primary publication: is the % a KM estimate or events/N?"
+   ],
+   "has_verified_fixture": [
+    "BEMPEDOIC_ACID_REVIEW.html",
+    "BEMPEDOIC_ACID_REVIEW.html",
+    "MITRAL_FUNCMR_REVIEW.html",
+    "PCSK9_REVIEW.html",
+    "PCSK9_REVIEW.html"
+   ],
+   "mean_k": 4.1,
+   "est_hours": 27.8
+  },
+  {
+   "batch": 2,
+   "apps": [
+    "PCSK9_LIPID_NMA_REVIEW.html",
+    "IL_PSORIASIS_NMA_REVIEW.html",
+    "JAKI_RA_NMA_REVIEW.html",
+    "MELPHALAN_FLUFENAMIDE_AUTO_FULL_REVIEW.html",
+    "ANDEXANET_BLEEDING_AUTO_FULL_REVIEW.html",
+    "ANIDULAFUNGIN_CANDIDA_AUTO_FULL_REVIEW.html",
+    "BIMEKIZUMAB_AXIAL_AUTO_FULL_REVIEW.html",
+    "BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW.html"
+   ],
+   "paths": [
+    "PCSK9_LIPID_NMA_REVIEW.html",
+    "IL_PSORIASIS_NMA_REVIEW.html",
+    "JAKI_RA_NMA_REVIEW.html",
+    "MELPHALAN_FLUFENAMIDE_AUTO_FULL_REVIEW.html",
+    "ANDEXANET_BLEEDING_AUTO_FULL_REVIEW.html",
+    "ANIDULAFUNGIN_CANDIDA_AUTO_FULL_REVIEW.html",
+    "BIMEKIZUMAB_AXIAL_AUTO_FULL_REVIEW.html",
+    "BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW.html"
+   ],
+   "lanes": [
+    "L1-live-harm",
+    "L2-contamination",
+    "L3-wrong-identity",
+    "L4-completeness"
+   ],
+   "dominant_error_types": [
+    "RM-E01 (8)",
+    "RM-D10 (7)",
+    "RM-A07 (6)",
+    "RM-D02 (5)",
+    "RM-A08 (5)",
+    "RM-A12 (5)"
+   ],
+   "source_needs": [
+    "ClinicalTrials.gov API v2 (resolve every NCT; compare title/condition/phase/arms)",
+    "PubMed (resolve every PMID; confirm it reports THIS randomisation)",
+    "each trial's registered primary endpoint component set",
+    "the benchmark synthesis's own trial list"
+   ],
+   "has_verified_fixture": [],
+   "mean_k": 5.6,
+   "est_hours": 32.1
+  },
+  {
+   "batch": 3,
+   "apps": [
+    "ELAGOLIX_HMB_AUTO_FULL_REVIEW.html",
+    "FARICIMAB_DME_AUTO_FULL_REVIEW.html",
+    "LIGELIZUMAB_URTICARIA_AUTO_2_FULL_REVIEW.html",
+    "LIGELIZUMAB_URTICARIA_AUTO_FULL_REVIEW.html",
+    "MAGROLIMAB_AML_AUTO_FULL_REVIEW.html",
+    "MIPOMERSEN_HOFH_AUTO_FULL_REVIEW.html",
+    "MIRIKIZUMAB_PSO_AUTO_FULL_REVIEW.html",
+    "OMALIZUMAB_NASAL_AUTO_FULL_REVIEW.html"
+   ],
+   "paths": [
+    "ELAGOLIX_HMB_AUTO_FULL_REVIEW.html",
+    "FARICIMAB_DME_AUTO_FULL_REVIEW.html",
+    "LIGELIZUMAB_URTICARIA_AUTO_2_FULL_REVIEW.html",
+    "LIGELIZUMAB_URTICARIA_AUTO_FULL_REVIEW.html",
+    "MAGROLIMAB_AML_AUTO_FULL_REVIEW.html",
+    "MIPOMERSEN_HOFH_AUTO_FULL_REVIEW.html",
+    "MIRIKIZUMAB_PSO_AUTO_FULL_REVIEW.html",
+    "OMALIZUMAB_NASAL_AUTO_FULL_REVIEW.html"
+   ],
+   "lanes": [
+    "L1-live-harm",
+    "L2-contamination",
+    "L3-wrong-identity"
+   ],
+   "dominant_error_types": [
+    "RM-A07 (8)",
+    "RM-A08 (8)",
+    "RM-A12 (8)",
+    "RM-D02 (8)",
+    "RM-D10 (8)",
+    "RM-E01 (8)"
+   ],
+   "source_needs": [
+    "PubMed (resolve every PMID; confirm it reports THIS randomisation)"
+   ],
+   "has_verified_fixture": [],
+   "mean_k": 3.2,
+   "est_hours": 25.9
+  },
+  {
+   "batch": 4,
+   "apps": [
+    "OMALIZUMAB_URTICARIA_AUTO_FULL_REVIEW.html",
+    "ANTIVEGF_NAMD_NMA_REVIEW.html",
+    "INCRETINS_T2D_NMA_REVIEW.html",
+    "BIMEKIZUMAB_PSORIATIC_AUTO_FULL_REVIEW.html",
+    "CEFTAROLINE_AUTO_FULL_REVIEW.html",
+    "DONANEMAB_AD_AUTO_FULL_REVIEW.html",
+    "GALCANEZUMAB_MIGRAINE_AUTO_FULL_REVIEW.html",
+    "GEFAPIXANT_COUGH_AUTO_FULL_REVIEW.html"
+   ],
+   "paths": [
+    "OMALIZUMAB_URTICARIA_AUTO_FULL_REVIEW.html",
+    "ANTIVEGF_NAMD_NMA_REVIEW.html",
+    "INCRETINS_T2D_NMA_REVIEW.html",
+    "BIMEKIZUMAB_PSORIATIC_AUTO_FULL_REVIEW.html",
+    "CEFTAROLINE_AUTO_FULL_REVIEW.html",
+    "DONANEMAB_AD_AUTO_FULL_REVIEW.html",
+    "GALCANEZUMAB_MIGRAINE_AUTO_FULL_REVIEW.html",
+    "GEFAPIXANT_COUGH_AUTO_FULL_REVIEW.html"
+   ],
+   "lanes": [
+    "L1-live-harm",
+    "L2-contamination",
+    "L3-wrong-identity",
+    "L4-completeness"
+   ],
+   "dominant_error_types": [
+    "RM-A07 (8)",
+    "RM-E01 (8)",
+    "RM-D10 (7)",
+    "RM-A08 (6)",
+    "RM-A12 (6)",
+    "RM-E02 (6)"
+   ],
+   "source_needs": [
+    "PubMed (resolve every PMID; confirm it reports THIS randomisation)",
+    "the benchmark synthesis's own trial list"
+   ],
+   "has_verified_fixture": [],
+   "mean_k": 6.4,
+   "est_hours": 33.6
+  },
+  {
+   "batch": 5,
+   "apps": [
+    "ICODEC_DIABETES_MELLITUS_AUTO_FULL_REVIEW.html",
+    "IXEKIZUMAB_AXIAL_AUTO_FULL_REVIEW.html",
+    "LEBRIKIZUMAB_AD_AUTO_FULL_REVIEW.html",
+    "NALDEMEDINE_OIC_AUTO_FULL_REVIEW.html",
+    "SECUKINUMAB_PSORIASIS_AUTO_FULL_REVIEW.html",
+    "TEPROTUMUMAB_TED_AUTO_FULL_REVIEW.html",
+    "USTEKINUMAB_PSORIASIS_AUTO_FULL_REVIEW.html",
+    "USTEKINUMAB_PSO_AUTO_FULL_REVIEW.html"
+   ],
+   "paths": [
+    "ICODEC_DIABETES_MELLITUS_AUTO_FULL_REVIEW.html",
+    "IXEKIZUMAB_AXIAL_AUTO_FULL_REVIEW.html",
+    "LEBRIKIZUMAB_AD_AUTO_FULL_REVIEW.html",
+    "NALDEMEDINE_OIC_AUTO_FULL_REVIEW.html",
+    "SECUKINUMAB_PSORIASIS_AUTO_FULL_REVIEW.html",
+    "TEPROTUMUMAB_TED_AUTO_FULL_REVIEW.html",
+    "USTEKINUMAB_PSORIASIS_AUTO_FULL_REVIEW.html",
+    "USTEKINUMAB_PSO_AUTO_FULL_REVIEW.html"
+   ],
+   "lanes": [
+    "L1-live-harm",
+    "L2-contamination",
+    "L3-wrong-identity"
+   ],
+   "dominant_error_types": [
+    "RM-A07 (8)",
+    "RM-A08 (8)",
+    "RM-A12 (8)",
+    "RM-D10 (8)",
+    "RM-E01 (8)",
+    "RM-E02 (8)"
+   ],
+   "source_needs": [],
+   "has_verified_fixture": [],
+   "mean_k": 3.8,
+   "est_hours": 26.5
+  },
+  {
+   "batch": 6,
+   "apps": [
+    "ZIRCONIUM_HYPERKALEMIA_AUTO_FULL_REVIEW.html",
+    "COLCHICINE_CVD_REVIEW.html",
+    "NMOSD_BIOLOGICS_REVIEW.html",
+    "HIV_PREP_INJECTABLE_REVIEW.html",
+    "AGRYLIN_ET_AUTO_FULL_REVIEW.html",
+    "MIS_COLECTOMY_VS_OPEN_NMA_REVIEW.html",
+    "BARICITINIB_AA_AUTO_FULL_REVIEW.html",
+    "BARICITINIB_ALOPECIA_AUTO_FULL_REVIEW.html"
+   ],
+   "paths": [
+    "removed/ZIRCONIUM_HYPERKALEMIA_AUTO_FULL_REVIEW.html",
+    "COLCHICINE_CVD_REVIEW.html",
+    "NMOSD_BIOLOGICS_REVIEW.html",
+    "HIV_PREP_INJECTABLE_REVIEW.html",
+    "AGRYLIN_ET_AUTO_FULL_REVIEW.html",
+    "MIS_COLECTOMY_VS_OPEN_NMA_REVIEW.html",
+    "BARICITINIB_AA_AUTO_FULL_REVIEW.html",
+    "BARICITINIB_ALOPECIA_AUTO_FULL_REVIEW.html"
+   ],
+   "lanes": [
+    "L1-live-harm",
+    "L2-contamination",
+    "L3-wrong-identity",
+    "L4-completeness"
+   ],
+   "dominant_error_types": [
+    "RM-E01 (8)",
+    "RM-A07 (6)",
+    "RM-A12 (6)",
+    "RM-A08 (5)",
+    "RM-D10 (5)",
+    "RM-E02 (4)"
+   ],
+   "source_needs": [
+    "PubMed (resolve every PMID; confirm it reports THIS randomisation)",
+    "each trial's registered primary endpoint component set"
+   ],
+   "has_verified_fixture": [],
+   "mean_k": 3.8,
+   "est_hours": 26.5
+  },
+  {
+   "batch": 7,
+   "apps": [
+    "ATOPIC_DERM_NMA_REVIEW.html",
+    "AML_TARGETED_NEW_REVIEW.html",
+    "EVOLOCUMAB_DYSLIPIDEMIA_AUTO_FULL_REVIEW.html",
+    "ANTIAMYLOID_AD_NMA_REVIEW.html",
+    "DIABETIC_MACULAR_EDEMA_REVIEW.html",
+    "DIABETIC_RETINOPATHY_REVIEW.html",
+    "GLP1_MASH_REVIEW.html",
+    "OBESITY_DRUGS_REVIEW.html"
+   ],
+   "paths": [
+    "ATOPIC_DERM_NMA_REVIEW.html",
+    "AML_TARGETED_NEW_REVIEW.html",
+    "EVOLOCUMAB_DYSLIPIDEMIA_AUTO_FULL_REVIEW.html",
+    "ANTIAMYLOID_AD_NMA_REVIEW.html",
+    "DIABETIC_MACULAR_EDEMA_REVIEW.html",
+    "DIABETIC_RETINOPATHY_REVIEW.html",
+    "GLP1_MASH_REVIEW.html",
+    "OBESITY_DRUGS_REVIEW.html"
+   ],
+   "lanes": [
+    "L1-live-harm",
+    "L2-contamination",
+    "L3-wrong-identity",
+    "L4-completeness"
+   ],
+   "dominant_error_types": [
+    "RM-E01 (8)",
+    "RM-A07 (6)",
+    "RM-E03 (6)",
+    "RM-D05 (6)",
+    "RM-A03 (4)",
+    "RM-D02 (3)"
+   ],
+   "source_needs": [
+    "PubMed (resolve every PMID; confirm it reports THIS randomisation)",
+    "each trial's registered primary endpoint component set",
+    "the benchmark synthesis's own trial list"
+   ],
+   "has_verified_fixture": [],
+   "mean_k": 4.8,
+   "est_hours": 28.6
+  },
+  {
+   "batch": 8,
+   "apps": [
+    "POLYCYTHEMIA_VERA_REVIEW.html",
+    "BARICITINIB_AD_AUTO_FULL_REVIEW.html",
+    "BARICITINIB_SLE_AUTO_FULL_REVIEW.html",
+    "OTILIMAB_ARTHRITIS_RHEUMATOID_AUTO_FULL_REVIEW.html",
+    "CD_BIOLOGICS_NMA_REVIEW.html",
+    "ITP_NEW_AGENTS_REVIEW.html",
+    "CART_DLBCL_REVIEW.html",
+    "SELPERCATINIB_RET_REVIEW_FULL_REVIEW.html"
+   ],
+   "paths": [
+    "POLYCYTHEMIA_VERA_REVIEW.html",
+    "BARICITINIB_AD_AUTO_FULL_REVIEW.html",
+    "BARICITINIB_SLE_AUTO_FULL_REVIEW.html",
+    "OTILIMAB_ARTHRITIS_RHEUMATOID_AUTO_FULL_REVIEW.html",
+    "CD_BIOLOGICS_NMA_REVIEW.html",
+    "ITP_NEW_AGENTS_REVIEW.html",
+    "CART_DLBCL_REVIEW.html",
+    "SELPERCATINIB_RET_REVIEW_FULL_REVIEW.html"
+   ],
+   "lanes": [
+    "L1-live-harm",
+    "L2-contamination",
+    "L3-wrong-identity",
+    "L4-completeness"
+   ],
+   "dominant_error_types": [
+    "RM-E01 (8)",
+    "RM-D10 (7)",
+    "RM-A08 (5)",
+    "RM-A12 (5)",
+    "RM-E02 (5)",
+    "RM-D05 (4)"
+   ],
+   "source_needs": [
+    "PubMed (resolve every PMID; confirm it reports THIS randomisation)",
+    "the benchmark synthesis's own trial list"
+   ],
+   "has_verified_fixture": [],
+   "mean_k": 4.2,
+   "est_hours": 27.7
+  },
+  {
+   "batch": 9,
+   "apps": [
+    "GLP1_CVOT_REVIEW.html",
+    "STROKE_THROMBECTOMY_LATE_NMA_REVIEW.html",
+    "VITAMIN_C_THIAMINE_SEPSIS_REVIEW.html",
+    "OSTEOPOROSIS_BROAD_NMA_REVIEW.html",
+    "HPV_DOSE_REDUCTION_REVIEW.html",
+    "TEZEPELUMAB_ASTHMA_REVIEW_FULL_REVIEW.html",
+    "CRYPTOCOCCAL_MENINGITIS_AFRICA_REVIEW.html",
+    "PEDIATRIC_HIV_ART_REVIEW.html"
+   ],
+   "paths": [
+    "GLP1_CVOT_REVIEW.html",
+    "removed/STROKE_THROMBECTOMY_LATE_NMA_REVIEW.html",
+    "VITAMIN_C_THIAMINE_SEPSIS_REVIEW.html",
+    "OSTEOPOROSIS_BROAD_NMA_REVIEW.html",
+    "HPV_DOSE_REDUCTION_REVIEW.html",
+    "TEZEPELUMAB_ASTHMA_REVIEW_FULL_REVIEW.html",
+    "CRYPTOCOCCAL_MENINGITIS_AFRICA_REVIEW.html",
+    "PEDIATRIC_HIV_ART_REVIEW.html"
+   ],
+   "lanes": [
+    "L1-live-harm",
+    "L2-contamination",
+    "L3-wrong-identity",
+    "L4-completeness"
+   ],
+   "dominant_error_types": [
+    "RM-E01 (8)",
+    "RM-D05 (7)",
+    "RM-D10 (7)",
+    "RM-A03 (6)",
+    "RM-A10 (2)",
+    "RM-C04 (2)"
+   ],
+   "source_needs": [
+    "CT.gov armGroups + the publication's own arm sizes",
+    "ClinicalTrials.gov API v2 (resolve every NCT; compare title/condition/phase/arms)",
+    "PubMed (resolve every PMID; confirm it reports THIS randomisation)",
+    "the primary publication: is the % a KM estimate or events/N?"
+   ],
+   "has_verified_fixture": [],
+   "mean_k": 5.9,
+   "est_hours": 31.9
+  },
+  {
+   "batch": 10,
+   "apps": [
+    "POSTPARTUM_HEMORRHAGE_REVIEW.html",
+    "SEPSIS_RESUSCITATION_REVIEW.html",
+    "VITAMIN_D_FRACTURE_FALL_REVIEW.html",
+    "DELGOCITINIB_AD_AUTO_FULL_REVIEW.html",
+    "DELGOCITINIB_HAND_AUTO_FULL_REVIEW.html",
+    "DERISOMALTOSE_IRON_DEFICIENCY_AUTO_FULL_REVIEW.html",
+    "EVOBRUTINIB_MS_AUTO_FULL_REVIEW.html",
+    "ISOMALTOSIDE_IRON_DEFICIENCY_AUTO_FULL_REVIEW.html"
+   ],
+   "paths": [
+    "POSTPARTUM_HEMORRHAGE_REVIEW.html",
+    "removed/SEPSIS_RESUSCITATION_REVIEW.html",
+    "VITAMIN_D_FRACTURE_FALL_REVIEW.html",
+    "removed/DELGOCITINIB_AD_AUTO_FULL_REVIEW.html",
+    "removed/DELGOCITINIB_HAND_AUTO_FULL_REVIEW.html",
+    "DERISOMALTOSE_IRON_DEFICIENCY_AUTO_FULL_REVIEW.html",
+    "EVOBRUTINIB_MS_AUTO_FULL_REVIEW.html",
+    "ISOMALTOSIDE_IRON_DEFICIENCY_AUTO_FULL_REVIEW.html"
+   ],
+   "lanes": [
+    "L1-live-harm",
+    "L2-contamination",
+    "L3-wrong-identity",
+    "L4-completeness"
+   ],
+   "dominant_error_types": [
+    "RM-D10 (8)",
+    "RM-E01 (8)",
+    "RM-A07 (5)",
+    "RM-A08 (5)",
+    "RM-D02 (5)",
+    "RM-E02 (5)"
+   ],
+   "source_needs": [
+    "PubMed (resolve every PMID; confirm it reports THIS randomisation)"
+   ],
+   "has_verified_fixture": [],
+   "mean_k": 3.5,
+   "est_hours": 25.6
+  },
+  {
+   "batch": 11,
+   "apps": [
+    "BENRALIZUMAB_ASTHMA_AUTO_FULL_REVIEW.html",
+    "BEVACIZUMAB_LUNG_AUTO_FULL_REVIEW.html",
+    "CLADRIBINE_MS_AUTO_FULL_REVIEW.html",
+    "DELANDISTROGENE_DMD_AUTO_FULL_REVIEW.html",
+    "DROTRECOGIN_SEPSIS_AUTO_FULL_REVIEW.html",
+    "ETELCALCETIDE_HYPERPARATHYROIDISM_SECO_AUTO_FULL_REVIEW.html",
+    "FASINUMAB_OA_AUTO_FULL_REVIEW.html",
+    "MIRIKIZUMAB_CROHN_AUTO_FULL_REVIEW.html"
+   ],
+   "paths": [
+    "BENRALIZUMAB_ASTHMA_AUTO_FULL_REVIEW.html",
+    "BEVACIZUMAB_LUNG_AUTO_FULL_REVIEW.html",
+    "CLADRIBINE_MS_AUTO_FULL_REVIEW.html",
+    "DELANDISTROGENE_DMD_AUTO_FULL_REVIEW.html",
+    "DROTRECOGIN_SEPSIS_AUTO_FULL_REVIEW.html",
+    "ETELCALCETIDE_HYPERPARATHYROIDISM_SECO_AUTO_FULL_REVIEW.html",
+    "FASINUMAB_OA_AUTO_FULL_REVIEW.html",
+    "MIRIKIZUMAB_CROHN_AUTO_FULL_REVIEW.html"
+   ],
+   "lanes": [
+    "L1-live-harm",
+    "L2-contamination"
+   ],
+   "dominant_error_types": [
+    "RM-A07 (8)",
+    "RM-A08 (8)",
+    "RM-A12 (8)",
+    "RM-E01 (8)",
+    "RM-E02 (8)"
+   ],
+   "source_needs": [],
+   "has_verified_fixture": [],
+   "mean_k": 2.0,
+   "est_hours": 21.3
+  },
+  {
+   "batch": 12,
+   "apps": [
+    "OSILODROSTAT_CUSHING_AUTO_FULL_REVIEW.html",
+    "PONESIMOD_MS_AUTO_FULL_REVIEW.html",
+    "RAMUCIRUMAB_GASTRIC_AUTO_FULL_REVIEW.html",
+    "ROXADUSTAT_ANEMIA_CKD_AUTO_FULL_REVIEW.html",
+    "ROXADUSTAT_RENAL_ANEMIA_AUTO_FULL_REVIEW.html",
+    "RUXOLITINIB_AD_AUTO_FULL_REVIEW.html",
+    "SARILUMAB_COVID_AUTO_FULL_REVIEW.html",
+    "SELADELPAR_PBC_AUTO_FULL_REVIEW.html"
+   ],
+   "paths": [
+    "OSILODROSTAT_CUSHING_AUTO_FULL_REVIEW.html",
+    "PONESIMOD_MS_AUTO_FULL_REVIEW.html",
+    "RAMUCIRUMAB_GASTRIC_AUTO_FULL_REVIEW.html",
+    "removed/ROXADUSTAT_ANEMIA_CKD_AUTO_FULL_REVIEW.html",
+    "removed/ROXADUSTAT_RENAL_ANEMIA_AUTO_FULL_REVIEW.html",
+    "RUXOLITINIB_AD_AUTO_FULL_REVIEW.html",
+    "SARILUMAB_COVID_AUTO_FULL_REVIEW.html",
+    "SELADELPAR_PBC_AUTO_FULL_REVIEW.html"
+   ],
+   "lanes": [
+    "L1-live-harm",
+    "L2-contamination"
+   ],
+   "dominant_error_types": [
+    "RM-A07 (8)",
+    "RM-A08 (8)",
+    "RM-A12 (8)",
+    "RM-E01 (8)",
+    "RM-E02 (8)"
+   ],
+   "source_needs": [],
+   "has_verified_fixture": [],
+   "mean_k": 2.0,
+   "est_hours": 21.3
+  },
+  {
+   "batch": 13,
+   "apps": [
+    "SOTATERCEPT_PAH_AUTO_2_FULL_REVIEW.html",
+    "SOTATERCEPT_PAH_AUTO_FULL_REVIEW.html",
+    "TAVAPADON_PARKINSON_DISEASE_AUTO_FULL_REVIEW.html",
+    "TOFACITINIB_AS_AUTO_FULL_REVIEW.html",
+    "ANTIPSYCHOTICS_SCHIZO_REVIEW.html",
+    "TRICUSPID_TEER_TMVR_NMA_REVIEW.html",
+    "HEAD_NECK_CRT_NEW_NMA_REVIEW.html",
+    "NSCLC_TARGETED_RARE_DRIVER_REVIEW.html"
+   ],
+   "paths": [
+    "SOTATERCEPT_PAH_AUTO_2_FULL_REVIEW.html",
+    "SOTATERCEPT_PAH_AUTO_FULL_REVIEW.html",
+    "TAVAPADON_PARKINSON_DISEASE_AUTO_FULL_REVIEW.html",
+    "TOFACITINIB_AS_AUTO_FULL_REVIEW.html",
+    "retired/ANTIPSYCHOTICS_SCHIZO_REVIEW.html",
+    "TRICUSPID_TEER_TMVR_NMA_REVIEW.html",
+    "HEAD_NECK_CRT_NEW_NMA_REVIEW.html",
+    "NSCLC_TARGETED_RARE_DRIVER_REVIEW.html"
+   ],
+   "lanes": [
+    "L1-live-harm",
+    "L2-contamination",
+    "L3-wrong-identity",
+    "L4-completeness"
+   ],
+   "dominant_error_types": [
+    "RM-E01 (8)",
+    "RM-A08 (6)",
+    "RM-A12 (6)",
+    "RM-A07 (5)",
+    "RM-E02 (4)",
+    "RM-D05 (3)"
+   ],
+   "source_needs": [
+    "the benchmark synthesis's own trial list"
+   ],
+   "has_verified_fixture": [],
+   "mean_k": 5.2,
+   "est_hours": 29.9
+  },
+  {
+   "batch": 14,
+   "apps": [
+    "SBRT_OLIGOMETS_NMA_REVIEW.html",
+    "HFpEF_DRUGS_NMA_REVIEW.html",
+    "TRIPLE_THERAPY_COPD_REVIEW.html",
+    "MENTAL_HEALTH_FRIENDSHIP_BENCH_REVIEW.html",
+    "CEFTOLOZANE_INFECTION_AUTO_FULL_REVIEW.html",
+    "CEFTOLOZANE_TAZ_AUTO_FULL_REVIEW.html",
+    "ETROLIZUMAB_CD_AUTO_FULL_REVIEW.html",
+    "ANTI_CD20_MS_REVIEW.html"
+   ],
+   "paths": [
+    "removed/SBRT_OLIGOMETS_NMA_REVIEW.html",
+    "removed/HFpEF_DRUGS_NMA_REVIEW.html",
+    "TRIPLE_THERAPY_COPD_REVIEW.html",
+    "retired/MENTAL_HEALTH_FRIENDSHIP_BENCH_REVIEW.html",
+    "CEFTOLOZANE_INFECTION_AUTO_FULL_REVIEW.html",
+    "CEFTOLOZANE_TAZ_AUTO_FULL_REVIEW.html",
+    "ETROLIZUMAB_CD_AUTO_FULL_REVIEW.html",
+    "ANTI_CD20_MS_REVIEW.html"
+   ],
+   "lanes": [
+    "L1-live-harm",
+    "L2-contamination",
+    "L3-wrong-identity",
+    "L4-completeness"
+   ],
+   "dominant_error_types": [
+    "RM-E01 (8)",
+    "RM-A12 (6)",
+    "RM-D10 (6)",
+    "RM-D05 (5)",
+    "RM-A08 (4)",
+    "RM-A03 (3)"
+   ],
+   "source_needs": [
+    "CT.gov armGroups + the publication's own arm sizes",
+    "PubMed (resolve every PMID; confirm it reports THIS randomisation)",
+    "the benchmark synthesis's own trial list"
+   ],
+   "has_verified_fixture": [],
+   "mean_k": 5.4,
+   "est_hours": 30.4
+  },
+  {
+   "batch": 15,
+   "apps": [
+    "COMPLEMENT_C5_BROAD_NMA_REVIEW.html",
+    "SGLT2I_HF_NMA_REVIEW.html",
+    "PHYSICAL_REHAB_OLDER_REVIEW.html",
+    "HIDRADENITIS_SUPPURATIVA_REVIEW.html",
+    "VITILIGO_REVIEW.html",
+    "DRY_AMD_GA_BROAD_NMA_REVIEW.html",
+    "ALPELISIB_BREAST_AUTO_FULL_REVIEW.html",
+    "APIXABAN_ACS_AUTO_FULL_REVIEW.html"
+   ],
+   "paths": [
+    "COMPLEMENT_C5_BROAD_NMA_REVIEW.html",
+    "SGLT2I_HF_NMA_REVIEW.html",
+    "PHYSICAL_REHAB_OLDER_REVIEW.html",
+    "HIDRADENITIS_SUPPURATIVA_REVIEW.html",
+    "VITILIGO_REVIEW.html",
+    "retired/DRY_AMD_GA_BROAD_NMA_REVIEW.html",
+    "ALPELISIB_BREAST_AUTO_FULL_REVIEW.html",
+    "APIXABAN_ACS_AUTO_FULL_REVIEW.html"
+   ],
+   "lanes": [
+    "L1-live-harm",
+    "L2-contamination",
+    "L3-wrong-identity",
+    "L4-completeness"
+   ],
+   "dominant_error_types": [
+    "RM-E01 (8)",
+    "RM-D05 (5)",
+    "RM-D10 (4)",
+    "RM-E03 (4)",
+    "RM-A03 (3)",
+    "RM-A07 (3)"
+   ],
+   "source_needs": [
+    "PubMed (resolve every PMID; confirm it reports THIS randomisation)"
+   ],
+   "has_verified_fixture": [],
+   "mean_k": 4.4,
+   "est_hours": 27.4
+  },
+  {
+   "batch": 16,
+   "apps": [
+    "BELIMUMAB_LUPUS_AUTO_FULL_REVIEW.html",
+    "CAPLACIZUMAB_TTP_AUTO_FULL_REVIEW.html",
+    "CERITINIB_ALK_AUTO_FULL_REVIEW.html",
+    "DENOSUMAB_BONE_MET_AUTO_FULL_REVIEW.html",
+    "ERDAFITINIB_BLADDER_AUTO_FULL_REVIEW.html",
+    "FIDAXOMICIN_CDIFF_AUTO_FULL_REVIEW.html",
+    "FIDAXOMICIN_CDI_AUTO_FULL_REVIEW.html",
+    "GLASDEGIB_AML_AUTO_FULL_REVIEW.html"
+   ],
+   "paths": [
+    "BELIMUMAB_LUPUS_AUTO_FULL_REVIEW.html",
+    "CAPLACIZUMAB_TTP_AUTO_FULL_REVIEW.html",
+    "CERITINIB_ALK_AUTO_FULL_REVIEW.html",
+    "DENOSUMAB_BONE_MET_AUTO_FULL_REVIEW.html",
+    "ERDAFITINIB_BLADDER_AUTO_FULL_REVIEW.html",
+    "FIDAXOMICIN_CDIFF_AUTO_FULL_REVIEW.html",
+    "FIDAXOMICIN_CDI_AUTO_FULL_REVIEW.html",
+    "GLASDEGIB_AML_AUTO_FULL_REVIEW.html"
+   ],
+   "lanes": [
+    "L1-live-harm",
+    "L2-contamination",
+    "L3-wrong-identity"
+   ],
+   "dominant_error_types": [
+    "RM-A08 (8)",
+    "RM-A12 (8)",
+    "RM-D10 (8)",
+    "RM-E01 (8)",
+    "RM-E02 (8)"
+   ],
+   "source_needs": [],
+   "has_verified_fixture": [],
+   "mean_k": 2.5,
+   "est_hours": 22.6
+  },
+  {
+   "batch": 17,
+   "apps": [
+    "IDELALISIB_LEUKEMIA_AUTO_FULL_REVIEW.html",
+    "IXEKIZUMAB_PSA_AUTO_FULL_REVIEW.html",
+    "MS_S1P_BROAD_REVIEW.html",
+    "NERATINIB_BREAST_AUTO_FULL_REVIEW.html",
+    "OLOKIZUMAB_RA_AUTO_FULL_REVIEW.html",
+    "PEMBROLIZUMAB_PROSTATIC_NEOPLASMS_AUTO_FULL_REVIEW.html",
+    "RAMUCIRUMAB_HCC_AUTO_FULL_REVIEW.html",
+    "SORAFENIB_HCC_AUTO_FULL_REVIEW.html"
+   ],
+   "paths": [
+    "IDELALISIB_LEUKEMIA_AUTO_FULL_REVIEW.html",
+    "IXEKIZUMAB_PSA_AUTO_FULL_REVIEW.html",
+    "MS_S1P_BROAD_REVIEW.html",
+    "NERATINIB_BREAST_AUTO_FULL_REVIEW.html",
+    "OLOKIZUMAB_RA_AUTO_FULL_REVIEW.html",
+    "PEMBROLIZUMAB_PROSTATIC_NEOPLASMS_AUTO_FULL_REVIEW.html",
+    "RAMUCIRUMAB_HCC_AUTO_FULL_REVIEW.html",
+    "SORAFENIB_HCC_AUTO_FULL_REVIEW.html"
+   ],
+   "lanes": [
+    "L1-live-harm",
+    "L2-contamination",
+    "L3-wrong-identity",
+    "L4-completeness"
+   ],
+   "dominant_error_types": [
+    "RM-D10 (8)",
+    "RM-E01 (8)",
+    "RM-A08 (7)",
+    "RM-A12 (7)",
+    "RM-E02 (7)",
+    "RM-A03 (1)"
+   ],
+   "source_needs": [
+    "PubMed (resolve every PMID; confirm it reports THIS randomisation)"
+   ],
+   "has_verified_fixture": [],
+   "mean_k": 3.4,
+   "est_hours": 25.0
+  },
+  {
+   "batch": 18,
+   "apps": [
+    "SORAFENIB_LIVER_AUTO_FULL_REVIEW.html",
+    "SUNITINIB_RCC_AUTO_FULL_REVIEW.html",
+    "RNA_INTERFERENCE_BROAD_NMA_REVIEW.html",
+    "EOE_BIOLOGIC_NMA_REVIEW.html",
+    "HBV_FUNCTIONAL_CURE_REVIEW.html",
+    "HBV_NEW_AGENTS_NMA_REVIEW.html",
+    "HEPATITIS_HCV_DAA_REVIEW.html",
+    "HEP_D_BULEVIRTIDE_NMA_REVIEW.html"
+   ],
+   "paths": [
+    "SORAFENIB_LIVER_AUTO_FULL_REVIEW.html",
+    "SUNITINIB_RCC_AUTO_FULL_REVIEW.html",
+    "removed/RNA_INTERFERENCE_BROAD_NMA_REVIEW.html",
+    "EOE_BIOLOGIC_NMA_REVIEW.html",
+    "HBV_FUNCTIONAL_CURE_REVIEW.html",
+    "HBV_NEW_AGENTS_NMA_REVIEW.html",
+    "HEPATITIS_HCV_DAA_REVIEW.html",
+    "HEP_D_BULEVIRTIDE_NMA_REVIEW.html"
+   ],
+   "lanes": [
+    "L1-live-harm",
+    "L2-contamination",
+    "L3-wrong-identity",
+    "L4-completeness"
+   ],
+   "dominant_error_types": [
+    "RM-E01 (8)",
+    "RM-D10 (7)",
+    "RM-A07 (6)",
+    "RM-D05 (6)",
+    "RM-A03 (5)",
+    "RM-E02 (3)"
+   ],
+   "source_needs": [
+    "PubMed (resolve every PMID; confirm it reports THIS randomisation)"
+   ],
+   "has_verified_fixture": [],
+   "mean_k": 5.2,
+   "est_hours": 29.9
+  },
+  {
+   "batch": 19,
+   "apps": [
+    "HYPERKALEMIA_K_BINDER_NMA_REVIEW.html",
+    "ITP_NEW_THERAPY_NMA_REVIEW.html",
+    "MELANOMA_NEOADJUVANT_REVIEW.html",
+    "MPOX_VACCINE_NMA_REVIEW.html",
+    "MYASTHENIA_GRAVIS_BIOLOGICS_REVIEW.html",
+    "NEUROENDOCRINE_PITUITARY_NMA_REVIEW.html",
+    "NF1_MEKi_NMA_REVIEW.html",
+    "PBC_NEW_AGENTS_REVIEW.html"
+   ],
+   "paths": [
+    "HYPERKALEMIA_K_BINDER_NMA_REVIEW.html",
+    "ITP_NEW_THERAPY_NMA_REVIEW.html",
+    "removed/MELANOMA_NEOADJUVANT_REVIEW.html",
+    "MPOX_VACCINE_NMA_REVIEW.html",
+    "MYASTHENIA_GRAVIS_BIOLOGICS_REVIEW.html",
+    "NEUROENDOCRINE_PITUITARY_NMA_REVIEW.html",
+    "NF1_MEKi_NMA_REVIEW.html",
+    "removed/PBC_NEW_AGENTS_REVIEW.html"
+   ],
+   "lanes": [
+    "L1-live-harm",
+    "L2-contamination",
+    "L3-wrong-identity",
+    "L4-completeness"
+   ],
+   "dominant_error_types": [
+    "RM-A03 (8)",
+    "RM-A07 (8)",
+    "RM-D05 (8)",
+    "RM-D10 (8)",
+    "RM-E01 (8)"
+   ],
+   "source_needs": [],
+   "has_verified_fixture": [],
+   "mean_k": 7.5,
+   "est_hours": 35.8
+  },
+  {
+   "batch": 20,
+   "apps": [
+    "PEDIATRIC_OBESITY_GLP1_NMA_REVIEW.html",
+    "PEDIATRIC_PSORIASIS_BIOLOGIC_NMA_REVIEW.html",
+    "DCD_HEART_TRANSPLANT_NMA_REVIEW.html",
+    "NIRSEVIMAB_INFANT_RSV_REVIEW.html",
+    "ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html",
+    "INCLISIRAN_LIPID_KIDNEY_AUTO_FULL_REVIEW.html",
+    "INDACATEROL_GLYCOPYR_COPD_AUTO_FULL_REVIEW.html",
+    "VADADUSTAT_ANEMIA_AUTO_FULL_REVIEW.html"
+   ],
+   "paths": [
+    "PEDIATRIC_OBESITY_GLP1_NMA_REVIEW.html",
+    "PEDIATRIC_PSORIASIS_BIOLOGIC_NMA_REVIEW.html",
+    "DCD_HEART_TRANSPLANT_NMA_REVIEW.html",
+    "NIRSEVIMAB_INFANT_RSV_REVIEW.html",
+    "ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html",
+    "INCLISIRAN_LIPID_KIDNEY_AUTO_FULL_REVIEW.html",
+    "INDACATEROL_GLYCOPYR_COPD_AUTO_FULL_REVIEW.html",
+    "VADADUSTAT_ANEMIA_AUTO_FULL_REVIEW.html"
+   ],
+   "lanes": [
+    "L1-live-harm",
+    "L2-contamination",
+    "L3-wrong-identity",
+    "L4-completeness"
+   ],
+   "dominant_error_types": [
+    "RM-E01 (8)",
+    "RM-D10 (7)",
+    "RM-A07 (6)",
+    "RM-E02 (5)",
+    "RM-D05 (4)",
+    "RM-D02 (4)"
+   ],
+   "source_needs": [
+    "PubMed (resolve every PMID; confirm it reports THIS randomisation)"
+   ],
+   "has_verified_fixture": [],
+   "mean_k": 3.6,
+   "est_hours": 25.9
+  },
+  {
+   "batch": 21,
+   "apps": [
+    "VADADUSTAT_RENAL_ANEMIA_AUTO_FULL_REVIEW.html",
+    "TAVR_LOWRISK_REVIEW.html",
+    "OMEGA3_HIGHDOSE_CV_REVIEW.html",
+    "PCSK9_INHIBITORS_CV_REVIEW.html",
+    "HIV_ART_FIRSTLINE_REVIEW.html",
+    "MENVEO_MEN_AUTO_FULL_REVIEW.html",
+    "PYROXAMINE_AUTO_FULL_REVIEW.html",
+    "MEDITERRANEAN_DIET_CV_REVIEW.html"
+   ],
+   "paths": [
+    "VADADUSTAT_RENAL_ANEMIA_AUTO_FULL_REVIEW.html",
+    "removed/TAVR_LOWRISK_REVIEW.html",
+    "OMEGA3_HIGHDOSE_CV_REVIEW.html",
+    "PCSK9_INHIBITORS_CV_REVIEW.html",
+    "HIV_ART_FIRSTLINE_REVIEW.html",
+    "MENVEO_MEN_AUTO_FULL_REVIEW.html",
+    "PYROXAMINE_AUTO_FULL_REVIEW.html",
+    "MEDITERRANEAN_DIET_CV_REVIEW.html"
+   ],
+   "lanes": [
+    "L1-live-harm",
+    "L2-contamination",
+    "L3-wrong-identity",
+    "L4-completeness"
+   ],
+   "dominant_error_types": [
+    "RM-E01 (8)",
+    "RM-D10 (7)",
+    "RM-E02 (5)",
+    "RM-D05 (5)",
+    "RM-A07 (3)",
+    "RM-A13 (2)"
+   ],
+   "source_needs": [
+    "ClinicalTrials.gov API v2 (resolve every NCT; compare title/condition/phase/arms)",
+    "PubMed (resolve every PMID; confirm it reports THIS randomisation)",
+    "each trial's registered primary endpoint component set",
+    "the primary publication: is the % a KM estimate or events/N?"
+   ],
+   "has_verified_fixture": [],
+   "mean_k": 3.2,
+   "est_hours": 24.6
+  },
+  {
+   "batch": 22,
+   "apps": [
+    "BREXPIPRAZOLE_AGITATION_AUTO_FULL_REVIEW.html",
+    "CARIPRAZINE_BIPOLAR_AUTO_FULL_REVIEW.html",
+    "HDM_AIT_AUTO_FULL_REVIEW.html",
+    "ICLEPERTIN_SCHIZOPHRENIA_AUTO_FULL_REVIEW.html",
+    "IDALOPIRDINE_ALZHEIMERS_DISEASE_AUTO_FULL_REVIEW.html",
+    "RELUGOLIX_FIBROIDS_AUTO_2_FULL_REVIEW.html",
+    "VRAYLAR_BIPOLAR_DEPRESSION_AUTO_FULL_REVIEW.html",
+    "ACLIDINIUM_COPD_AUTO_FULL_REVIEW.html"
+   ],
+   "paths": [
+    "BREXPIPRAZOLE_AGITATION_AUTO_FULL_REVIEW.html",
+    "retired/CARIPRAZINE_BIPOLAR_AUTO_FULL_REVIEW.html",
+    "HDM_AIT_AUTO_FULL_REVIEW.html",
+    "ICLEPERTIN_SCHIZOPHRENIA_AUTO_FULL_REVIEW.html",
+    "IDALOPIRDINE_ALZHEIMERS_DISEASE_AUTO_FULL_REVIEW.html",
+    "RELUGOLIX_FIBROIDS_AUTO_2_FULL_REVIEW.html",
+    "retired/VRAYLAR_BIPOLAR_DEPRESSION_AUTO_FULL_REVIEW.html",
+    "ACLIDINIUM_COPD_AUTO_FULL_REVIEW.html"
+   ],
+   "lanes": [
+    "L1-live-harm",
+    "L2-contamination",
+    "L3-wrong-identity"
+   ],
+   "dominant_error_types": [
+    "RM-A07 (8)",
+    "RM-D10 (8)",
+    "RM-E01 (8)",
+    "RM-E02 (8)",
+    "RM-D02 (7)",
+    "RM-A08 (1)"
+   ],
+   "source_needs": [
+    "PubMed (resolve every PMID; confirm it reports THIS randomisation)"
+   ],
+   "has_verified_fixture": [],
+   "mean_k": 3.6,
+   "est_hours": 25.6
+  },
+  {
+   "batch": 23,
+   "apps": [
+    "ANIFROLUMAB_LUPUS_2_AUTO_FULL_REVIEW.html",
+    "ANIFROLUMAB_LUPUS_AUTO_FULL_REVIEW.html",
+    "ANIFROLUMAB_SLE_AUTO_FULL_REVIEW.html",
+    "AZILSARTAN_HTN_AUTO_FULL_REVIEW.html",
+    "BEVACIZUMAB_RENAL_AUTO_FULL_REVIEW.html",
+    "EPTINEZUMAB_CHRONIC_AUTO_FULL_REVIEW.html",
+    "EPTINEZUMAB_MIGRAINE_AUTO_FULL_REVIEW.html",
+    "GANTENERUMAB_AD_AUTO_FULL_REVIEW.html"
+   ],
+   "paths": [
+    "ANIFROLUMAB_LUPUS_2_AUTO_FULL_REVIEW.html",
+    "ANIFROLUMAB_LUPUS_AUTO_FULL_REVIEW.html",
+    "removed/ANIFROLUMAB_SLE_AUTO_FULL_REVIEW.html",
+    "AZILSARTAN_HTN_AUTO_FULL_REVIEW.html",
+    "BEVACIZUMAB_RENAL_AUTO_FULL_REVIEW.html",
+    "EPTINEZUMAB_CHRONIC_AUTO_FULL_REVIEW.html",
+    "EPTINEZUMAB_MIGRAINE_AUTO_FULL_REVIEW.html",
+    "GANTENERUMAB_AD_AUTO_FULL_REVIEW.html"
+   ],
+   "lanes": [
+    "L1-live-harm",
+    "L2-contamination",
+    "L3-wrong-identity"
+   ],
+   "dominant_error_types": [
+    "RM-A07 (8)",
+    "RM-A08 (8)",
+    "RM-D10 (8)",
+    "RM-E01 (8)",
+    "RM-E02 (8)"
+   ],
+   "source_needs": [],
+   "has_verified_fixture": [],
+   "mean_k": 3.4,
+   "est_hours": 24.9
+  },
+  {
+   "batch": 24,
+   "apps": [
+    "LORATADINE_RHIN_AUTO_FULL_REVIEW.html",
+    "MARALIXIBAT_PFIC_REVIEW_FULL_REVIEW.html",
+    "OLMESARTAN_HTN_AUTO_FULL_REVIEW.html",
+    "PCV13_VACCINE_AUTO_FULL_REVIEW.html",
+    "PREVNAR15_PNEUMO_AUTO_FULL_REVIEW.html",
+    "RESLIZUMAB_ASTHMA_AUTO_FULL_REVIEW.html",
+    "TRALOKINUMAB_AD_2_AUTO_FULL_REVIEW.html",
+    "TRALOKINUMAB_AD_AUTO_FULL_REVIEW.html"
+   ],
+   "paths": [
+    "removed/LORATADINE_RHIN_AUTO_FULL_REVIEW.html",
+    "MARALIXIBAT_PFIC_REVIEW_FULL_REVIEW.html",
+    "OLMESARTAN_HTN_AUTO_FULL_REVIEW.html",
+    "PCV13_VACCINE_AUTO_FULL_REVIEW.html",
+    "PREVNAR15_PNEUMO_AUTO_FULL_REVIEW.html",
+    "RESLIZUMAB_ASTHMA_AUTO_FULL_REVIEW.html",
+    "TRALOKINUMAB_AD_2_AUTO_FULL_REVIEW.html",
+    "TRALOKINUMAB_AD_AUTO_FULL_REVIEW.html"
+   ],
+   "lanes": [
+    "L1-live-harm",
+    "L2-contamination",
+    "L3-wrong-identity"
+   ],
+   "dominant_error_types": [
+    "RM-A07 (8)",
+    "RM-A08 (8)",
+    "RM-D10 (8)",
+    "RM-E01 (8)",
+    "RM-E02 (8)"
+   ],
+   "source_needs": [],
+   "has_verified_fixture": [],
+   "mean_k": 3.6,
+   "est_hours": 25.6
+  }
+ ],
+ "unscheduled_backlog": 896
+}

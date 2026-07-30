@@ -25,11 +25,13 @@ longer sufficient: **a per-app report that names no registry ids has not run the
 
 | Artifact | What it is |
 |---|---|
-| `RAPIDMETA_ERROR_REGISTRY.md` | 51 error types; id · root cause · detector · fix · example apps · base-engine flag |
+| `RAPIDMETA_ERROR_REGISTRY.md` | **67** error types; id · root cause · detector · fix · example apps · base-engine flag |
 | `scripts/rapidmeta_error_sweep.py` | every STATIC detector, per app or corpus-wide; `--selftest` proves they fire |
-| `assets/js/rapidmeta-guards.js` | 17 fail-closed guards, G01–G17 |
+| `assets/js/rapidmeta-guards.js` | **20** fail-closed guards, G01–G20 (G18 = the fail-closed integrity gate) |
 | `tests/mutate_guards_selftest.py` | re-seeds the shipped defects; a guard that survives its seed is theatre |
 | `RAPIDMETA_ERROR_SWEEP.{md,json}` | corpus prevalence matrix — read it to know whether your defect is corpus-wide |
+| `RAPIDMETA_BATCH_PLAN.md` | Phase-1 engine patch + the 24 gated Phase-2 data batches |
+| `tests/fixtures/rapidmeta_error_fixtures.json` | the 3 source-verified worked examples (mitral-TEER, PCSK9, bempedoic) |
 | `F:\E156\GOVERNING-RULES-ADDENDUM-ERROR-REGISTRY-2026-07-30.md` | §18, the governing rules for all of the above |
 
 **R.1 Run the static detectors BEFORE touching the app, and again on the final file.**
@@ -43,7 +45,7 @@ python scripts/rapidmeta_error_sweep.py --selftest        # every seeded defect 
 `RM-F01: no finding` is a disposition; "looks clean" is not.
 
 **R.3 Check the corpus scope before fixing.** Where the registry marks a type
-**base-engine-shared** (35 of the 51 are), a per-app fix is a **workaround** and must be labelled
+**base-engine-shared** (35 of the 67 are), a per-app fix is a **workaround** and must be labelled
 one. State the denominator in the commit message.
 
 **R.4 A firing is a HYPOTHESIS, not a defect.** HFrEF withdrew three of its five findings on

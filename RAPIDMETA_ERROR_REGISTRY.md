@@ -1,6 +1,6 @@
 # RAPIDMETA ERROR REGISTRY
 
-**Version:** 1.0 · **Date:** 2026-07-30 · **Branch:** `build/error-registry-2026-07-30`
+**Version:** 2.0 · **Date:** 2026-07-30 · **Branch:** `build/error-registry-2026-07-30`
 **Status:** STAGED, committed on branch, **NOT PUSHED**. `main` is the deploy ref; this branch deploys nothing.
 
 The canonical list of every error TYPE observed in the RapidMeta corpus across the reviews of
@@ -12,13 +12,20 @@ The canonical list of every error TYPE observed in the RapidMeta corpus across t
 named by a branch name but no commit landed, that is stated as such and the type is corroborated
 from another app rather than asserted from the branch alone.
 
-**51 error types · 35 base-engine-shared · 36 STATIC detectors · 17 fail-closed guards.**
+**67 error types · 52 STATIC detectors · 20 fail-closed guards · 3 source-verified fixtures.**
+
+**v2.0 (2026-07-30)** adds 16 types from three calibration cases — the mitral-TEER app
+(`MITRAL_FUNCMR_REVIEW.html`), `PCSK9_REVIEW.html` and `BEMPEDOIC_ACID_REVIEW.html`. All three are
+**priority batch targets** and their source-verified extraction truth is recorded as a labelled test
+case in `tests/fixtures/rapidmeta_error_fixtures.json`. See §14.
 
 | Companion artifact | What it does |
 |---|---|
 | `assets/js/rapidmeta-guards.js` | the 17 guards, G01–G17. Fail closed: a guard that cannot decide BLOCKS |
 | `tests/test_rapidmeta_guards.mjs` | `node --test` — every BLOCK case seeded with the value that actually shipped |
-| `tests/mutate_guards_selftest.py` | re-seeds 10 shipped defects into the guards; each must be caught |
+| `tests/mutate_guards_selftest.py` | re-seeds **14** shipped defects into the guards; each must be caught (14/14) |
+| `tests/fixtures/rapidmeta_error_fixtures.json` | the 3 worked examples: what each app DISPLAYS vs what the source SAYS, per error id |
+| `RAPIDMETA_BATCH_PLAN.md` | Phase-1 engine patch (909 root apps) + the 24 gated Phase-2 data batches |
 | `scripts/rapidmeta_error_sweep.py` | every STATIC detector, per app or corpus-wide; `--selftest` proves they fire |
 | `RAPIDMETA_ERROR_SWEEP.{md,json}` | the corpus prevalence matrix this registry drives |
 | `F:\E156\GOVERNING-RULES-ADDENDUM-ERROR-REGISTRY-2026-07-30.md` | §18 — the governing rules that make all of it mandatory |
@@ -1608,3 +1615,300 @@ with `CRLF 6341 / bare LF 0`, byte-identical endings to HEAD.
 Registry data: **ClinicalTrials.gov API v2**. Bibliographic data: **PubMed** (NCBI E-utilities).
 Fragility index per Walsh M et al., *J Clin Epidemiol* 2014;67:622-628. Statistical admissibility
 thresholds per `rules/advanced-stats.md`. Harness failure modes per `F:\E156\HARNESS-FAILURE-MODES-2026-07-30.md`.
+
+---
+
+# 14. ADDENDUM v2.0 — types added by the 2026-07-30 calibration cases
+
+Three apps were run through the full detector suite as calibration. Each defect below was written
+against a **real offending string** in one of them; the prevalence figures are from the 52-detector
+sweep of 1,088 apps. Their corrected extraction truth is a labelled test case in
+`tests/fixtures/rapidmeta_error_fixtures.json`, consumed by detector `RM-V01` and by the batch runs
+as the acceptance target.
+
+**All three are priority batch targets — Batch 1 in `RAPIDMETA_BATCH_PLAN.md`.**
+
+## 14.0 INDEX — the 16 new types
+
+| id | name | detector | guard | apps | % |
+|---|---|---|---|---:|---:|
+| RM-A10 | Kaplan-Meier risk rendered as a crude event count | STATIC | G15 | 5 | 0.5% |
+| RM-A12 | Effect estimate contradicts its own 2×2 | STATIC | G18 | 134 | 12.3% |
+| RM-A13 | Estimand-granularity mismatch (composite components differ) | STATIC | **G19** | 9 | 0.8% |
+| RM-A14 | `escalc(measure="RR")` over rows tagged as different endpoints | STATIC | G06 | 744 | 68.4% |
+| RM-C04 | Arm reversal (device/control denominators swapped) | STATIC+SOURCE | G15 | 4 | 0.4% |
+| RM-D07 | False "no external benchmark exists" | STATIC | G11 | 171 | 15.7% |
+| RM-D08 | False registry-status claim | STATIC+SOURCE | G09 | 767 | 70.5% |
+| RM-D09 | Phase label inapplicable to a device/behavioural trial | STATIC | G09 | 23 | 2.1% |
+| RM-D10 | Duplicate, NULLED or ghost trial rows | STATIC | **G18** | 512 | 47.1% |
+| RM-D11 | Published pooled estimate shown as a trial-level effect | STATIC | — | 21 | 1.9% |
+| RM-D12 | Citation volume/issue/page metadata mismatch | STATIC+SOURCE | — | 0 | 0.0% |
+| RM-E03 | Registry/monitoring watchlist tracks the wrong drug class | STATIC | **G20** | 56 | 5.1% |
+| RM-B08 | Search under-inclusion vs a known external synthesis | STATIC+SOURCE | — | 33 | 3.0% |
+| RM-G03 | RoB chip contradicts the trial's own extraction evidence | STATIC | G08 | 701 | 64.4% |
+| RM-J07 | Integrity gate passes over a fail-closed condition | STATIC | **G18** | 1030 | 94.7% |
+| RM-V01 | Displayed value contradicts the source-verified fixture | STATIC | — | 3 | 0.3% |
+
+---
+
+## 14.1 · RM-A14 — the smoking gun for estimand-mixing + scope-lock
+
+**One line.** The generated R code pools every trial's `tE`/`cE` as one binary risk ratio, whatever
+endpoint or timepoint each row actually is.
+
+**Root cause — quoted from the app, not paraphrased.** The R generator is:
+
+```js
+ai = c(${trials.map(t=>t.data.tE).join(",")}), n1i = c(${trials.map(t=>t.data.tN).join(",")}),
+ci = c(${trials.map(t=>t.data.cE).join(",")}), n2i = c(${trials.map(t=>t.data.cN).join(",")})
+dat <- escalc(measure="${emR}", ai=ai, n1i=n1i, ci=ci, n2i=n2i, data=dat)
+```
+
+It maps across **every included trial** with no estimand or timepoint test. Rendered on the
+mitral-TEER app it emits, literally:
+
+```r
+ai = c(83,139,151); ci = c(78,170,212); escalc(measure="RR")
+```
+
+- **83 / 78** is MITRA-FR's **12-month** composite
+- **139 / 170** is RESHAPE-HF2's **24-month RECURRENT** composite — *and its arms are reversed*
+- **151 / 212** is COAPT's **24-month** composite
+
+Three different constructs at three timepoints pooled as one binary risk ratio, under a selector
+labelled *"All-cause mortality at 24 months"*.
+
+**Detector (STATIC).** Fires when `escalc(measure=` is present **and** the `ai = c(${trials.map(...)})`
+generator is present **and** the ledger's PRIMARY rows are not the same construct or not the same
+timepoint.
+```
+python scripts/rapidmeta_error_sweep.py --only RM-A14
+```
+
+**Fix.** Guard **G06** — build the vector from one estimand stratum only, and name the held-out
+trials with their estimand. **Base engine: YES — 744 apps (68.4%).**
+
+---
+
+## 14.2 · RM-A10 — a Kaplan-Meier risk rendered as a crude event count
+
+**One line.** A KM % (or a per-100-patient-year rate) is multiplied by N to manufacture per-arm counts.
+
+**Why it is not a rounding issue.** A KM estimate is a **model-based cumulative incidence under
+censoring**. `events = KM% × N` is not a count of anything: the true numerator is smaller, and the
+denominator is not the number at risk at that time.
+
+**Observed in.** `MITRAL_FUNCMR_REVIEW.html` — COAPT's all-cause mortality is published as
+**KM 29.1% vs 46.1%, HR 0.62 (0.46–0.82)**; the app displays the *composite* 151/302 vs 212/312.
+The detector's own evidence line: *"COAPT: control 212/312 = 67.9% reproduces the 67.9% figure, and
+the source states it as a per-patient-year rate"* — COAPT's HF-hospitalisation figures **35.8 / 67.9**
+are **annualised events per 100 patient-years**, not patient percentages.
+
+**Fix.** Carry the KM estimate as a KM estimate with its HR. Guard **G15** refuses to derive a count
+from a rate; **G05** renders NA rather than a manufactured integer.
+
+---
+
+## 14.3 · RM-A12 — an effect that contradicts its own 2×2
+
+**One line.** The displayed effect sits on the opposite side of 1 from the crude ratio of the counts
+displayed beside it.
+
+**Distinct from RM-A08**, which is a wrong count/effect *pairing*. Here the effect is simply **not
+derivable from these counts at all**.
+
+**Observed in.** `BEMPEDOIC_ACID_REVIEW.html` — CLEAR Harmony's own evidence prose reads
+*"Adjudicated cardiovascular events occurred in **108 patients (7.3%)** in the bempedoic acid group
+and in **40 patients (5.4%)** in the placebo group"*, i.e. crude RR **1.346**, beside a displayed
+**HR 0.75 (0.56–1.00)**. **134 apps (12.3%).**
+
+**Reported but not reproduced, recorded as such.** The reviewer states that 0.75 (0.56–1.00)
+reproduces an earlier published **two-trial pooled RR 0.75 (0.56–0.99)** over ~3,008 participants —
+a pooled estimate displayed as a trial-level HR (RM-D11). The file's own `PUBLISHED_META_BENCHMARKS`
+does **not** contain that record, so it remains a source-verification task, not a confirmed static
+finding.
+
+**Fix.** Guard **G18** blocks the analysis; the row is re-sourced or quarantined.
+
+---
+
+## 14.4 · RM-C04 — arm reversal
+
+**One line.** The intervention and control denominators are swapped.
+
+RM-C03 is the registry-verified form (bind by title, not index). **RM-C04 is the same defect stated
+as an app-level fact** and is the form the fixture verifies.
+
+**Observed in.** `MITRAL_FUNCMR_REVIEW.html` — RESHAPE-HF2 ships `tN: 255, cN: 250`. The trial
+randomised **device 250, control 255**. The detector fires from the fixture:
+*"RESHAPE-HF2: ARM REVERSAL — tN=255 is the CONTROL n; the device arm is 250."*
+
+**Consequence.** The reversal feeds RM-A14's `ai=c(...,139,...)` vector, so the wrong arm enters the
+pooled estimate as well as the trial card.
+
+---
+
+## 14.5 · RM-D01 (2nd fully-verified instance) — a wrong NCT importing foreign eligibility text
+
+`BEMPEDOIC_ACID_REVIEW.html` carries **NCT02973841** for CLEAR Wisdom. Resolved live against
+ClinicalTrials.gov API v2 on 2026-07-30:
+
+> **NCT02973841** — *"Sono-ease Device for Internal Jaguar Vein Cannulation"*, Mansoura University,
+> **n = 40**, ages **18–45**, phase **NA**, `has_results: false`. Eligibility: *"all patients
+> indicated for IJV catheterization"* / *"neck deformities-coagulopathy"*.
+
+**That eligibility text is what the app displays as CLEAR Wisdom's.** The correct identifier is
+**NCT02991118** (acronym *CLEAR Wisdom*, enrolment **779**, PHASE3, `has_results: true`) — and the
+app's own `baseline.n: 779` matches it, which is what proves the row *is* CLEAR Wisdom wearing
+another study's id.
+
+This is the second instance of the class after ATTR-CM's HELIOS-B → a cerebrospinal-fluid shunt
+study. **A wrong identifier does not mislabel a row; it imports another trial's text into the app.**
+
+---
+
+## 14.6 · RM-D12 — citation metadata mismatch
+
+`BEMPEDOIC_ACID_REVIEW.html` displays *"JAMA. 2019;322(**14**):**1380-1388**"* for CLEAR Wisdom.
+Verified via PubMed esummary, 2026-07-30: **PMID 31714986, JAMA 2019;322(18):1780-1788**.
+
+**The static detector returns 0 across the corpus** — its static form only catches two *different*
+citations for one trial inside one app. The bempedoic mismatch is caught by **RM-V01** against the
+fixture. Recorded so the zero is not read as a clean result.
+
+---
+
+## 14.7 · RM-E03 — the monitoring watchlist is the wrong drug class
+
+**One line.** The app's live registry/monitoring surface tracks another drug programme entirely.
+
+**Distinct from RM-E01** (prose residue) and **RM-E02** (trial-alias table): this is the surface the
+app uses to say *what it is watching for new evidence*.
+
+**Observed in.** `PCSK9_REVIEW.html` **and** `BEMPEDOIC_ACID_REVIEW.html`, both carrying
+`CTGOV_EVIDENCE_REGISTRY` populated with the **finerenone** programme —
+**FIDELIO-DKD, FIGARO-DKD, FINEARTS-HF, ARTS-DN, FINE-ONE, CONFIDENCE** — with per-trial
+`registeredPrimary` labels like *"Renal Composite (eGFR ≥57% decline)"*. **56 apps (5.1%).**
+
+**Fix.** Guard **G20** blocks a watchlist that is wholly or partly off the app's own topic.
+
+---
+
+## 14.8 · RM-B08 — search under-inclusion vs a known synthesis
+
+**One line.** k far below a synthesis the app itself cites, with no include/exclude record for the
+missing trials.
+
+**Observed in.** `PCSK9_REVIEW.html` pools **k = 2** — FOURIER and ODYSSEY OUTCOMES. A prior
+published synthesis found **38 RCTs** (MACE OR 0.83, 0.78–0.88). The strings **SPIRE** and **OSLER**
+do not occur anywhere in the file.
+
+**Why it is selection bias, not just incompleteness.** SPIRE-1/2 studied **bococizumab**, a
+**negative** agent stopped for immunogenicity. Omitting it while retaining the positive agents is the
+same class as the omitted-trial finding recorded in ATTR-CM.
+
+**Detector honesty.** A string-grep **cannot find an absent trial**. The detector's only static
+handle is the benchmark's own declared `k`, so it flags "k far below a known synthesis" and hands off
+to the source lane. **33 apps (3.0%).**
+
+---
+
+## 14.9 · RM-A13 — composite component sets differ across pooled rows
+
+**Observed in.** `PCSK9_REVIEW.html` — FOURIER's primary is *"CV death, MI, stroke, UA
+hospitalization, **or coronary revascularization**"*; ODYSSEY OUTCOMES' is *"**CHD death**, nonfatal
+MI, ischemic stroke, or UA requiring hospitalization"*. **Different constructs, one scope label.**
+`BEMPEDOIC_ACID_REVIEW.html` — CLEAR Wisdom's MACE-3 pooled with CLEAR Outcomes' MACE-4 and with
+"all adjudicated events".
+
+**Fix.** Guard **G19**: every pooled row must **declare** its component set, and the sets must be
+identical. **An undeclared composite cannot be shown to match another** — so undeclared blocks too.
+
+---
+
+## 14.10 · RM-D09 — phase label inapplicable to a device or behavioural trial
+
+ClinicalTrials.gov records device and behavioural RCTs as phase **Not Applicable**. The mitral-TEER
+app asserts **COAPT III, MITRA-FR III, RESHAPE-HF2 IV**.
+
+**Two harms, not one.** The label is wrong; **and** a phase-III/IV eligibility rule — which several
+apps in this corpus apply — would **wrongly exclude every device trial in the topic**.
+
+---
+
+## 14.11 · RM-G03 — the RoB chip contradicts its own extraction evidence
+
+**Observed in.** `MITRAL_FUNCMR_REVIEW.html` — COAPT's extraction evidence states **D2
+some-concerns / D4 low**; the chart chips show **D2 high / D4 high**; and the GRADE text claims
+*"majority high on D1/D4"* while its own table shows **D1 low in all three trials**.
+**701 apps (64.4%).**
+
+**Detector.** Two independent checks: a `D<n> = <level>` claim in the evidence prose vs the `rob[]`
+array chip at that index; and a GRADE downgrade reason vs the RoB table it cites.
+
+---
+
+## 14.12 · RM-D10 / RM-J07 — ghost rows, and a gate that passes over them
+
+**RM-D10.** `BEMPEDOIC_ACID_REVIEW.html` carries `NULLED:NCT02666664` and `NULLED:NCT02973841` as
+ledger keys, while the **bare** ids are still referenced in `AUTO_INCLUDE_TRIAL_IDS` and
+`bempedoicIds` — and the badge claims **"Trials: 4"**. **512 apps (47.1%).**
+
+**RM-J07.** The integrity gate asserts a pass while a fail-closed condition holds. **1,030 apps
+(94.7%)** — the highest-prevalence P0 in the registry.
+
+**Guard G18 — adopted verbatim from the bempedoic reviewer's recommendation #9.** The gate must
+**FAIL**, not warn, whenever:
+1. any trial id is **null / empty / NULLED**;
+2. a **composite endpoint is mismatched** across pooled rows;
+3. an analysis yields **NaN or an impossible value** — a negative HR, a leave-one-out `NaN–NaN`;
+4. **trial counts or N disagree across surfaces** (bempedoic: 4 vs 5 vs 2).
+
+> A *"checks passed / 100-100 integrity / fabrication-risk 0.200"* rendered over any of those **is
+> itself the bug.**
+
+---
+
+## 14.13 · RM-A07 strengthened — the impossible ratio
+
+The bempedoic LDL-C selector renders **"Pooled Hazard Ratio = −19.50 / 2050% lower hazard"**. A
+negative hazard ratio is mathematically impossible; **−19.50 is a continuous mean difference forced
+through the HR reporting template**.
+
+**RENDER-class, and stated as such:** the string is computed at runtime and is **not present
+statically**. What *is* statically present — and what RM-A05 detects — is the precondition:
+`CONTINUOUS` LDL-C rows (`md: -17.4`, `se: 1.1`) reachable by the HR reporting path.
+
+**Guard G01 now enforces two tiers**, because they fail differently:
+- **IMPOSSIBLE** — outside `[0.01, 100]`: not a ratio at all. Catches −19.50 and 2050.
+- **IMPLAUSIBLE** — outside `[0.02, 25]`: inside the hard bound but outside any reported effect.
+  Catches the andexanet `pubHR 73.83`.
+
+---
+
+## 14.14 · What these three cases proved about the detectors themselves
+
+1. **A clean extraction does not make a sound review.** `PCSK9_REVIEW.html`'s two trial rows verify
+   **exactly** to source — FOURIER *"1344 patients [9.8%] vs. 1563 patients [11.3%]; hazard ratio,
+   0.85; 95% CI 0.79 to 0.92"*, ODYSSEY *"903 patients (9.5%) ... 1052 patients (11.1%) ... hazard
+   ratio, 0.85; 95% CI 0.78 to 0.93"*. **Every defect in that app is structural.** An audit that
+   only checks numbers would have passed it.
+2. **Two of the new detectors over-fired and one under-fired on first run**, and were fixed at
+   source before the numbers were used: `RM-D08` treated *0 PMIDs* as a contradiction of "no linked
+   publications" (it is not — that is RM-D02); `RM-D11` matched **k = 1** benchmark records, which
+   *are* the trial; `RM-D07` matched a render-time **fallback string** rather than a rendered claim,
+   and is now P2 with an explicit RENDER-confirm.
+3. **The sweep's own bug class recurred.** Wiring the v2 pack re-imported the base module under a
+   second name, re-running its module-level `sys.stdout` wrap and closing the buffer — the exact
+   trap recorded in `rules/lessons.md`. Fixed at **both** layers: the wrap is now idempotent, and
+   the v2 pack binds to the already-loaded module instead of importing a second copy.
+
+---
+
+## 15. Attribution — v2.0 calibration pass
+
+Registry data: **ClinicalTrials.gov API v2** (live, 2026-07-30) — NCT02991118, NCT02973841.
+Bibliographic data: **PubMed** (NCBI E-utilities / esummary, 2026-07-30) — PMIDs 28304224
+(Sabatine MS et al., *N Engl J Med* 2017, [DOI](https://doi.org/10.1056/NEJMoa1615664)), 30403574
+(Schwartz GG et al., *N Engl J Med* 2018, [DOI](https://doi.org/10.1056/NEJMoa1801174)), 31714986
+(*JAMA* 2019;322(18):1780-1788).
