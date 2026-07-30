@@ -43,6 +43,9 @@ from another app rather than asserted from the branch alone.
 | `[CARDIO-MIS]` | `outputs/CARDIO_MISLABELLED_APPS_2026-07-30.md` |
 | `[ACS-GATE]` | Commits `cb876d805 e55235fe8 acc656de0` (APIXABAN_ACS cross-family gate rounds 1–3) |
 | `[VIVAX]` | Commits `5c8a8c5b8 1c0c0bb6d 5544d4260 1daa80c2e 9b739aa65` |
+| `[ATTR]` | Commit `9e658033f` (ATTR-CM / HELIOS-B wrong-NCT repair) |
+| `[INCRETIN]` | Commits `788156034 494cf2631 ac777b130` (incretin-HFpEF scope lock, provenance, Tier 1) |
+| `[MAVA]` | Commits `ecd1aba43 155bb96c1 a399133aa` (mavacamten HCM Tiers 1–3) |
 
 **Detector class:**
 `STATIC` = implemented in `scripts/rapidmeta_error_sweep.py`, runs on the file alone ·
@@ -486,9 +489,15 @@ classes**, not per-trial labels; a scope admits only rows whose `scopeClass` mat
 matching row is **excluded with a stated reason**, never shown carrying another endpoint's numbers.
 Guard **G03**. `[IRON]` §2.
 
-**Observed in.** `IV_IRON_HF_REVIEW.html` (confirmed and reproduced), `INCRETIN_HFPEF` /
-`GLP1_HFPEF` (branch `fix/incretin-hfpef-kccq-scope-lock` — **branch reserved, no commits landed**;
-the type is corroborated by the IRON reproduction, not asserted from the branch name).
+**Observed in.** `IV_IRON_HF_REVIEW.html` (confirmed and reproduced) and
+`INCRETIN_HFpEF_REVIEW.html` (`[INCRETIN]` 788156034), which is the **same two-resolver root cause,
+independently found**: the app declared a *"KCCQ-CSS change at 52 weeks"* scope while all three
+trials pooled cardiovascular-event outcomes, because `outcomeLabel()` resolved the label by
+frequency across trials (→ KCCQ, present in all 3) while `applyOutcomeScope()` resolved the payload
+positionally as `allOutcomes[0]` (→ the CV-event outcome). **The UI advertised KCCQ; the engine
+consumed CV events.** Fixed with a single canonical resolver plus defence in depth: a scope miss
+**hard-excludes** the trial instead of falling back, and event counts are **nulled** when the scoped
+outcome has none, so CV counts cannot reach a continuous-scope pool.
 
 **Base engine: YES.**
 
@@ -738,9 +747,13 @@ resolve every NCT against API v2 and compare `briefTitle`, `phases`, `enrollment
 **Fix.** Guard **G09**: block rendering of an NCT-linked row whose registry title does not match the
 trial name, and whose registry condition does not match the review topic.
 
-**Observed in.** `ATTR_CM` / HELIOS-B (branch `fix/attr-cm-helios-nct` — **branch reserved, no
-commits landed**; type corroborated by the ICAGEN and RIFAPENTINE instances below rather than asserted
-from the branch name). `ICAGEN_AUTO_FULL_REVIEW.html` — all three NCTs resolve to trials matching
+**Observed in.** `ATTR_CM_REVIEW.html` — **the cleanest instance in the registry** (`[ATTR]`
+9e658033f): the app carried **NCT05534659** for HELIOS-B, which is a Chang Gung Memorial Hospital
+**observational study of programmable vs non-programmable cerebrospinal-fluid ventricular shunts in
+adult hydrocephalus** — and that record was the source of the **foreign eligibility criteria
+displayed on the trial card**. Re-bound to NCT04153149. This is the failure mode in its pure form:
+a wrong identifier does not merely mislabel a row, it imports another trial's text into the app.
+`ICAGEN_AUTO_FULL_REVIEW.html` — all three NCTs resolve to trials matching
 neither the title nor each other (`[CARDIO-MIS]` §2). `RIFAPENTINE_TB` — NCT00814671 resolves to an
 active-TB treatment trial (`[RIFA]` §2.1). `[RECIPE-C]` §3.1: registry concordance is **N/A, not
 passed**, for unregistered trials — state the covered fraction.
@@ -880,7 +893,15 @@ excluding the legitimate `rapidmeta-finerenone` repo/asset URL. A hit in a **cla
 
 **Fix.** Guard **G14** blocklist + the existing decontamination scripts.
 
-**Observed in.** 148 clones + 7 main-only apps fixed at `619512b4d` / `ad1f6968d` / `d11d9f167`
+**Observed in.** `MAVACAMTEN_HCM_REVIEW.html` shows how deep it reaches (`[MAVA]` ecd1aba43): the
+donor's *"non-steroidal mineralocorticoid receptor antagonist"* described a **cardiac myosin
+inhibitor**; the **Arabic UI translated the word "mavacamten" to "finerenone"** (21 other
+contaminated pairs removed alongside it); and CKD/MACE/eGFR carryover survived in **both verdict
+generators**, the outcome and endpoint vocabulary maps, the auto-extractor's endpoint bridges,
+keyword catalogues, the short-label deriver, the scoring heuristics, the **screening relevance
+scorer** (which awarded points to CKD/HFpEF papers) and the arm-matching regexes. A blocklist over
+prose alone would have missed most of these slots.
+Corpus history: 148 clones + 7 main-only apps fixed at `619512b4d` / `ad1f6968d` / `d11d9f167`
 (SGLT2i adverse-event profile); 154 clones at `a233968b0` (PICO rows, SOLOIST button, protocol badge,
 baked benchmarks); registry search queries repointed at `21efe48aa`.
 
@@ -1371,6 +1392,26 @@ was terminated. `cb876d805`. The sign flip is the headline of `[APIXABAN]` §4, 
 value is **OR 1.9748 (1.0411–3.7458), p = 0.0372, k = 2** with `preliminary: true`.
 `[HFREF]` — direction flag corrected at `c0627f56f` / `2acab11aa`.
 
+> **MAVACAMTEN_HCM_REVIEW.html is this registry's defect chain in a single app** (`[MAVA]` ecd1aba43),
+> and it is worth reading as one causal sequence rather than six findings:
+> 1. `realData` stored published **odds ratios** (EXPLORER-HCM 2.8, EXPLORER-CN 6.9) and a raw event
+>    **percentage** (VALOR 17.9%) in a field named `publishedHR` — RM-A03, RM-A07.
+> 2. `estimandType` **defaulted to "HR"** whenever `pubHR` was present — RM-A02.
+> 3. `COMPLETE-POOLING-REPAIR` force-switched the effect measure to `"HR"` whenever every included
+>    trial carried a `publishedHR`, **purely to maximise k** — RM-B02.
+> 4. Inverse-variance pooling of those three mislabelled values gave **5.05** fixed and **6.63**
+>    random, which the label layer then relabelled **"RR"** — RM-A02, RM-A03.
+> 5. `interpretRelativeEffect` saw `lci > 1` and returned **"harm"** — on an outcome where a higher
+>    response rate is **good** — RM-I01, RM-I02.
+> 6. The narrative templates were the **finerenone donor's, unedited** — RM-E01.
+>
+> The fix is the same shape as guard **G17**: an **estimand registry declares whether higher or lower
+> is better for each endpoint**, and benefit/harm is derived from it; where polarity is not
+> established the direction is reported as **undetermined** and no benefit or harm is claimed.
+> Withdrawn: *"significant harm"*, the NNH, *"33 out of 100 patients may be harmed"*, and the L'Abbé
+> *"below the line = benefit"* note — **both** NNT/NNH computations, because Patient Mode and the
+> Scientific Output narrative each had their own.
+
 > **The mandatory framing, from `[RECIPE-C]` §5.3:** *"this is a provenance correction, not a result
 > that got worse. The evidence did not change. The app was wrong."*
 
@@ -1553,6 +1594,12 @@ with `CRLF 6341 / bare LF 0`, byte-identical endings to HEAD.
    two are only counted** — `[RECIPE-C]` §0.3 states four exist; `[CARDIO-MIS]` documents two.
 4. **Whether any of this is *fixed*.** This is a detection registry. Remediation runs as separate
    gated batches.
+5. **Findings that did not survive verification are not in the prevalence counts** — deliberately.
+   `[ATTR]` 9e658033f flagged two of its own review points as unconfirmed rather than acting on them:
+   APOLLO-B's *"10/181 vs 10/179"* had **no primary source** and a 404 citation, so the registry
+   values (4/181 vs 8/178) were used with both disclosed; and HELIOS-B's recurrent-CV rate-ratio CI
+   could not be confirmed, so it is marked `ciVerification:"UNCONFIRMED"` and **excluded from
+   pooling**. That is the RM-D04 disposition working as intended.
 
 ---
 
