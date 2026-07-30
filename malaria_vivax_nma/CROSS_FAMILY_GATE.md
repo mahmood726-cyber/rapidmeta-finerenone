@@ -6,6 +6,52 @@
 **Rule:** three independent model families. Do not route the adversary passes to
 another Anthropic model — a homogeneous panel is the weak configuration.
 
+## Round 2 — re-gate after fixes (current state)
+
+Round 1 (Codex gpt-5.5 + an independent re-derivation from counts) found the
+arithmetic clean, confirmed the robust-core claim three ways, and kept EXPOSED.
+Six items were raised; **all six are fixed** (commit `1daa80c`). Every round-1
+claim was re-derived locally in `verify_gate_findings.R` before being acted on —
+all six confirmed, including that F1 was a genuine error of mine.
+
+| # | Finding | Status |
+|---|---|---|
+| F1 | Q-decomposition causal attribution backwards and non-invariant | **fixed** — attribution moved to the P3 multiverse split; page states the earlier version was wrong |
+| F2 | Focal edge labelled with network-wide I² | **fixed** — I² 76.1% (Q 16.75, df 4, p 0.0022) |
+| F3 | No edge-specific τ² | **fixed** — Paule-Mandel 1.067 (0.516, 2.210) |
+| F4 | N was randomised, not analysed | **fixed** — 2,153 randomised / 2,071 evaluable, 82 (3.81%) shown by trial |
+| F5 | GATHER 1.141 vs forest 1.125 | **fixed** — FDA Table 41 retrieved; all three ORs shown with derivations |
+| F6 | JSON leaked an estimate for a NOT-ESTIMABLE cell | **fixed** — nulled at source |
+
+### Gemini lane — MUST be re-run on 3.1 Pro
+
+Round 1's Gemini lane ran on **Flash tier (3.6 Flash), not the pinned 3.1 Pro**, and
+it **ratified and forged** — so its statistical check did not count and must not be
+treated as a passed lane. The re-gate must force Pro.
+
+`agy --print` **ignores `--model`**. Set the model in
+`C:\Users\mahmo\.gemini\antigravity-cli\settings.json` (`"model": "Gemini 3.1 Pro (High)"`)
+or via the interactive `/model` picker, then confirm with a **real exec that echoes
+its own model family** — `agy --print "Reply OK + your model+family"` must come back
+naming Gemini 3.1 Pro. A lane that can only report "alive" is not a check. Do not use
+`--dangerously-skip-permissions`; give the model its evidence inline so it needs no
+file tools.
+
+### What round 2 should attack first
+
+1. **The rewritten F1 passage.** Is the new attribution — partner drug shows in the
+   P3 multiverse split, not in between-design Q — itself correct? Verify that
+   INSPECTOR and DETECTIVE Part 2 really do share a design, and that dropping the
+   single-trial nodes really does reverse the split.
+2. **F3's implication.** If the edge-specific interval (0.516, 2.210) is the honest
+   one, should the *network* estimate be the headline at all, or should the artifact
+   lead with the pairwise edge?
+3. **F5's three ORs.** Confirm 1.125 and 1.157 from the counts, and confirm 1.141
+   cannot be reproduced as a cross-product from any GATHER count pair.
+4. **Whether EXPOSED is still right** now that the strongest-sounding reason
+   (between-design inconsistency) has been withdrawn as unsupported. The reason list
+   changed; the tier did not. Argue it.
+
 ---
 
 ## What the artifact claims

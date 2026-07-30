@@ -28,7 +28,7 @@ VERDICT = {
         "P0_arithmetic": 0,
         "P0_provenance": 0,
         "P1_structural_fragility": 1,
-        "P1_between_design_inconsistency": 1,
+        "P1_focal_edge_heterogeneity": 1,
         "P1_ph_violation": 1,
         "P1_two_source_only": 1,
         "P1_estimand_loss": 1,
