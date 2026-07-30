@@ -23,7 +23,8 @@
     "rule": "A trial is quarantined when BOTH hold: (a) its per-arm all-cause death counts are UNVERIFIED against the accessible primary record, AND (b) those counts are IDENTICAL across the trial's arms.",
     "why_both": "Either alone is common and benign. Unverified-but-distinct counts are the ordinary state of an abstract-only extraction (13 trials in this network). Identical-but-verified counts are a legitimate coincidence. The conjunction is the signature of a placeholder: a value that was never read, filled in identically because nothing distinguished the arms.",
     "symmetry_requirement": "The rule is a property of the data, not of the trial. It MUST be applied to every trial that meets it. The 2026-07-30 first pass applied it to CARMEN alone while GALACTIC-HF and Vizzardi 2014 met it equally; that asymmetry is corrected here.",
-    "scan_performed": "All 87 arm rows / 43 trials in F:/E156/hfref_eightcell_fit.R were scanned for identical across-arm event counts. Four trials matched: HF-021, HF-025, HF-034, and HF-055 Cohn 1997 (2/35, 2/70). HF-055 is dupe-excluded by select_trials() from all four app cells (OURS-STRICT, OURS-INCLUSIVE, 7b, 7c), so it enters no fit and needs no disposition; it is recorded here so the scan is auditable rather than asserted.",
+    "reversibility_requirement": "Symmetry has a second half that the first two passes did not exercise: the rule must be RELEASED as readily as it is applied. Limb (a) is a statement about what has been looked for, not about the data, so it is defeasible -- locating the source clears it without changing a single count. Every quarantine therefore carries a reinstatement_condition, and when that condition is met the trial returns to the fit and the transition is recorded in its disposition_history. HF-034 GALACTIC-HF is the first trial to complete that round trip (quarantined and reinstated on 2026-07-30). A rule that could only ever remove trials would be a ratchet, not an integrity check.",
+    "scan_performed": "All 87 arm rows / 43 trials in F:/E156/hfref_eightcell_fit.R were scanned for identical across-arm event counts. Four trials matched: HF-021, HF-025, HF-034, and HF-055 Cohn 1997 (2/35, 2/70). HF-055 is dupe-excluded by select_trials() from all four app cells (OURS-STRICT, OURS-INCLUSIVE, 7b, 7c), so it enters no fit and needs no disposition; it is recorded here so the scan is auditable rather than asserted. HF-034 tripped the scan and was quarantined, then cleared limb (a) against the ClinicalTrials.gov posted results and was reinstated; its counts remain identical, which is precisely why the rule needs both limbs.",
     "presentation_consequence": "Because the rule removes trials from a fitted network, the quarantined fit is presented as a CO-PRIMARY PROVENANCE SENSITIVITY beside the full network, never as a replacement for it. See outputs/hfref_coprimary_fit.json."
   },
 
@@ -58,28 +59,48 @@
     {
       "id": "HF-034",
       "trial": "GALACTIC-HF",
-      "finding_ref": "G1 (symmetric-quarantine pass, 2026-07-30)",
-      "disposition": "QUARANTINED",
-      "violation": "unverified per-arm all-cause deaths (1078/1078) identical across both arms; the source states CARDIOVASCULAR death (808/798), not all-cause",
-      "evidence_tier": "PRIMARY_ABSTRACT",
-      "count_provenance_tier": "UNVERIFIED",
-      "source": {"pmid": "33185990", "doi": "10.1056/NEJMoa2025797", "nct": "NCT02929329",
-                 "citation": "Teerlink JR et al. Cardiac Myosin Activation with Omecamtiv Mecarbil in Systolic Heart Failure. N Engl J Med 2021;384(2):105-116."},
-      "quoted_evidence": "Abstract: 'We randomly assigned 8256 patients ... to receive omecamtiv mecarbil ... or placebo'. 'a primary-outcome event occurred in 1523 of 4120 patients (37.0%) in the omecamtiv mecarbil group and in 1607 of 4112 patients (39.1%) in the placebo group'. 'A total of 808 patients (19.6%) and 798 patients (19.4%), respectively, died from CARDIOVASCULAR causes (hazard ratio, 1.01; 95% CI, 0.92 to 1.11).' All-cause death is not reported in the accessible record.",
-      "what_was_wrong": "Denominators are confirmed exactly -- 4120 (omecamtiv) and 4112 (placebo), summing to the ledger's 8232. The DEATH COUNTS are not: the ledger carries an identical 1078 all-cause deaths in both arms. The only per-arm mortality the source states is CARDIOVASCULAR death, 808 vs 798 -- which is neither 1078/1078 nor identical. The all-cause figure is therefore unverified against the primary, and it is identical across arms, which is the quarantine rule exactly.",
-      "why_the_first_pass_missed_it": "outputs/hfref_source_verification.json HF-034 recorded the identical 1078/1078 as 'striking but ... not, on this evidence, an error; it simply could not be confirmed'. That is the same evidentiary state as CARMEN -- unverified AND identical -- and it should have produced the same disposition. Recording the observation without applying the rule is the asymmetry the cross-family gate caught.",
-      "rule_check": {
-        "unverified_per_arm_all_cause_deaths": true,
-        "identical_across_arm_counts": true,
-        "meets_quarantine_rule": true,
-        "verified_by_me_this_pass": "PubMed E-utilities, PMID 33185990 abstract, read 2026-07-30."
-      },
-      "quarantined_rows": [
-        {"treat": "ACEI+BB+MRA",  "event": 1078, "n": 4112, "status": "UNSOURCED - withheld from the quarantined fit; retained in the full co-primary"},
-        {"treat": "+Omecamtiv",   "event": 1078, "n": 4120, "status": "UNSOURCED - withheld from the quarantined fit; retained in the full co-primary"}
+      "finding_ref": "G1 (symmetric-quarantine pass, 2026-07-30) -> REINSTATED (registry-recovery pass, 2026-07-30)",
+      "disposition": "REINSTATED - VERIFIED",
+      "disposition_history": [
+        {"date": "2026-07-30", "disposition": "QUARANTINED", "basis": "per-arm all-cause deaths UNVERIFIED and identical across arms (1078/1078); the publication states CARDIOVASCULAR death only (808/798)"},
+        {"date": "2026-07-30", "disposition": "REINSTATED - VERIFIED", "basis": "ClinicalTrials.gov NCT02929329 posted results state per-arm ALL-CAUSE deaths as verbatim integers, matching the extraction exactly in both arms"}
       ],
-      "reinstatement_condition": "Locate the all-cause mortality figures for GALACTIC-HF -- the NEJM full text, a supplementary appendix, or the ClinicalTrials.gov NCT02929329 posted results. If per-arm all-cause deaths are stated, the rows are restored and the fit re-run. This is the most likely of the three to be reinstatable: GALACTIC-HF is a large registered trial with posted results, and this pass did not exhaust that route.",
-      "structural_cost": "SEVERE. GALACTIC-HF is the ONLY trial supplying the +Omecamtiv node, so quarantining it DELETES that node from the network: V 15 -> 14, and 14 league pairs cease to be estimable. None of those 14 pairs excluded 1 in the full fit, so the significance count is unaffected, but a whole treatment comparison disappears. This is the single strongest argument for presenting the full network as a co-primary rather than replacing it."
+      "violation": "NONE OUTSTANDING. The quarantine rule requires unverified per-arm all-cause deaths AND identical across-arm counts. The counts are still identical (1078/1078) but they are no longer unverified, so the rule no longer applies and the trial is retained in both co-primary fits.",
+      "violation_when_quarantined": "unverified per-arm all-cause deaths (1078/1078) identical across both arms; the publication states CARDIOVASCULAR death (808/798), not all-cause",
+      "evidence_tier": "PRIMARY_DIRECT",
+      "count_provenance_tier": "VERBATIM_COUNT",
+      "count_provenance_note": "UNVERIFIED -> VERBATIM_COUNT. The integers are printed as integers in the registry's FDAAA All-Cause Mortality table; nothing was recovered from a percentage and nothing was inferred from CV death. No extracted count was altered.",
+      "source": {"pmid": "33185990", "doi": "10.1056/NEJMoa2025797", "nct": "NCT02929329",
+                 "citation": "Teerlink JR et al. Cardiac Myosin Activation with Omecamtiv Mecarbil in Systolic Heart Failure. N Engl J Med 2021;384(2):105-116.",
+                 "count_source": "ClinicalTrials.gov NCT02929329 posted results, resultsSection.adverseEventsModule (FDAAA 'All-Cause Mortality' table), retrieved via CT.gov API v2 on 2026-07-30",
+                 "count_source_api": "https://clinicaltrials.gov/api/v2/studies/NCT02929329",
+                 "count_source_note": "The publication remains the citation of record for the trial; the registry is the source of record for the ALL-CAUSE per-arm counts, which the publication does not state."},
+      "quoted_evidence": "Publication abstract (PMID 33185990): 'We randomly assigned 8256 patients ... to receive omecamtiv mecarbil ... or placebo'. 'a primary-outcome event occurred in 1523 of 4120 patients (37.0%) in the omecamtiv mecarbil group and in 1607 of 4112 patients (39.1%) in the placebo group'. 'A total of 808 patients (19.6%) and 798 patients (19.4%), respectively, died from CARDIOVASCULAR causes (hazard ratio, 1.01; 95% CI, 0.92 to 1.11).' All-cause death is NOT reported in the publication's accessible record -- which is why the registry route was required.",
+      "quoted_evidence_registry": "CT.gov NCT02929329 posted results, adverse-events module. Verbatim integers: Placebo deathsNumAffected 1078 / deathsNumAtRisk 4112; Omecamtiv Mecarbil deathsNumAffected 1078 / deathsNumAtRisk 4120. Module description: 'All-cause mortality is reported for all participants randomized in the study, excluding 24 participants due to GCP violations. All-cause mortality includes all deaths that occurred during the study including any that occurred after the efficacy analysis cut-off date.' Module time frame: 'All-cause mortality is reported from randomization until end of study (27 August 2020); median (min, max) time on study was 21.8 (0, 42) months.'",
+      "what_was_wrong": "Nothing was wrong with the extraction. The 2026-07-30 quarantine pass read the publication only, and the publication states CV death (808/798) rather than all-cause; on that record the identical 1078/1078 could not be confirmed and the trial met the rule. The registry does state the all-cause figure, and it is exactly 1078/1078 on exactly 4112/4120. The identical count across arms is a genuine coincidence in a trial where all-cause mortality was 26.216% vs 26.165%.",
+      "why_the_first_pass_missed_it": "outputs/hfref_source_verification.json HF-034 recorded the identical 1078/1078 as 'striking but ... not, on this evidence, an error; it simply could not be confirmed'. That is the same evidentiary state as CARMEN -- unverified AND identical -- and it should have produced the same disposition. Recording the observation without applying the rule is the asymmetry the cross-family gate caught. The quarantine was therefore CORRECT on the evidence then available; what was missing was the registry route, which the quarantine pass explicitly flagged as unexhausted.",
+      "rule_check": {
+        "unverified_per_arm_all_cause_deaths": false,
+        "identical_across_arm_counts": true,
+        "meets_quarantine_rule": false,
+        "why_not": "The rule is a conjunction. Only the identical-counts limb still holds. Identical-but-verified counts are not a violation -- that distinction is the whole point of requiring both limbs.",
+        "verified_by_me_this_pass": "ClinicalTrials.gov API v2, NCT02929329 results module, retrieved and reconciled 2026-07-30 by scripts/hfref_recover_galactic_allcause.py (re-runnable; fails closed if the registry stops reconciling)."
+      },
+      "reinstated_rows": [
+        {"treat": "ACEI+BB+MRA",  "event": 1078, "n": 4112, "status": "VERIFIED (registry verbatim, placebo arm) - retained in BOTH co-primary fits"},
+        {"treat": "+Omecamtiv",   "event": 1078, "n": 4120, "status": "VERIFIED (registry verbatim, omecamtiv arm) - retained in BOTH co-primary fits"}
+      ],
+      "corroboration_and_frames": {
+        "note": "Three all-cause-adjacent per-arm figures are posted under DIFFERENT follow-up windows. They are recorded separately rather than reconciled into one number, because conflating them is exactly how a wrong count would enter.",
+        "count_used": "AE module All-Cause Mortality table, 1078/4112 and 1078/4120 -- randomization to END OF STUDY (27 Aug 2020), explicitly including deaths after the efficacy cut-off. This is the ledger's figure.",
+        "corroborating": "Secondary outcome measure 'Time to All-cause Death', 25.9% of 4112 and 25.9% of 4120 -- censored at the EFFICACY CUT-OFF (07 Aug 2020), hence necessarily smaller. Its integer is NON-UNIQUELY recoverable in both arms ([1063,1067] placebo, [1066,1069] omecamtiv), so it corroborates but could not itself have supplied a count.",
+        "not_used": "Participant-flow 'Death' dropout row, 1054 placebo / 1051 omecamtiv -- deaths as the REASON FOR NOT COMPLETING the study, a third and narrower frame. Explicitly not used.",
+        "plausibility_checks_passed": "All-cause (1078) exceeds published CV death in both arms (798, 808); CV death is 74.0% / 74.9% of all-cause, ordinary for HFrEF; all-cause (26.2%) sits between CV death (19.4/19.6%) and the primary composite (39.1/37.0%); the registry denominators 4112/4120 equal the publication's own primary-outcome denominators and sum to 8232 = 8256 randomized minus the 24 GCP-violation exclusions the registry names.",
+        "routes_that_did_NOT_yield_the_counts": "PMC full text of PMID 33185990 is not open-access (only citing articles link). No FDA approval-package review exists -- omecamtiv mecarbil was never approved (CRL 28 Feb 2023) and openFDA drugsfda has no application record; the Dec 2022 advisory-committee briefing PDF was not retrievable this pass. A Europe PMC full-text search over the secondary GALACTIC-HF literature found no publication reporting the per-arm all-cause counts. The registry is, on this pass, the ONLY source that states them."
+      },
+      "reinstatement_condition": "SATISFIED 2026-07-30. The condition as written was: 'Locate the all-cause mortality figures for GALACTIC-HF -- the NEJM full text, a supplementary appendix, or the ClinicalTrials.gov NCT02929329 posted results. If per-arm all-cause deaths are stated, the rows are restored and the fit re-run.' The registry route stated them; the rows are restored and both co-primary fits were re-run under the anchor gate.",
+      "structural_consequence": "The quarantine pass recorded this cost as SEVERE: GALACTIC-HF is the ONLY trial supplying the +Omecamtiv node, so withholding it DELETED that node (V 15 -> 14) and 14 league pairs ceased to be estimable. Reinstatement REVERSES that: +Omecamtiv is restored to the quarantined network, V returns to 15, and the 14 pairs are estimable again. See outputs/hfref_coprimary_fit.json for the measured post-reinstatement figures.",
+      "evidence_artifacts": ["scripts/hfref_recover_galactic_allcause.py", "outputs/hfref_galactic_allcause_recovery.json"]
     },
 
     {
@@ -242,8 +263,10 @@
   ],
 
   "summary": {
-    "quarantined": 3,
-    "quarantined_ids": ["HF-021 CARMEN", "HF-034 GALACTIC-HF", "HF-025 Vizzardi 2014"],
+    "quarantined": 2,
+    "quarantined_ids": ["HF-021 CARMEN", "HF-025 Vizzardi 2014"],
+    "reinstated": 1,
+    "reinstated_ids": ["HF-034 GALACTIC-HF"],
     "quarantine_rule_applied_symmetrically": true,
     "identical_count_scan": {
       "arm_rows_scanned": 87,
@@ -251,19 +274,29 @@
       "trials_with_identical_across_arm_counts": 4,
       "matched": ["HF-021 CARMEN (14/14/14)", "HF-034 GALACTIC-HF (1078/1078)",
                   "HF-025 Vizzardi 2014 (8/8)", "HF-055 Cohn 1997 (2/2)"],
-      "quarantined_of_those": 3,
-      "not_quarantined_and_why": "HF-055 Cohn 1997 is dupe-excluded by select_trials() from all four app cells, so it enters no fit and there is nothing to withhold."
+      "quarantined_of_those": 2,
+      "not_quarantined_and_why": "TWO of the four matches are not quarantined, for different reasons. HF-055 Cohn 1997 is dupe-excluded by select_trials() from all four app cells, so it enters no fit and there is nothing to withhold. HF-034 GALACTIC-HF has identical counts that are VERIFIED against the ClinicalTrials.gov NCT02929329 posted results, so it fails the rule's first limb (unverified) and is retained.",
+      "identical_counts_alone_is_not_a_violation": "This scan is a screen, not a verdict. Identical across-arm counts are the trigger for checking provenance, never the finding itself. Of the four trials that tripped the screen, one was quarantined and later cleared purely by locating the source -- no count changed. A screen that auto-condemned its matches would have deleted a verified 8232-patient trial and a whole treatment node from the network."
     },
-    "superseded_first_pass": {
-      "was": "quarantined 1 (CARMEN only); the quarantined fit replaced the primary",
-      "now": "quarantined 3, applied symmetrically; both fits presented as CO-PRIMARY",
-      "why": "The cross-family gate found the rule had been applied to one of the three trials that meet it, and that the app shipped only the CARMEN-removed fit with no full-network comparator."
+    "superseded_passes": {
+      "first_pass": {
+        "was": "quarantined 1 (CARMEN only); the quarantined fit replaced the primary",
+        "then": "quarantined 3, applied symmetrically; both fits presented as CO-PRIMARY",
+        "why": "The cross-family gate found the rule had been applied to one of the three trials that meet it, and that the app shipped only the CARMEN-removed fit with no full-network comparator."
+      },
+      "second_pass": {
+        "was": "quarantined 3 (CARMEN + GALACTIC-HF + Vizzardi 2014); the +Omecamtiv node was deleted from the quarantined network",
+        "now": "quarantined 2 (CARMEN + Vizzardi 2014); +Omecamtiv is RESTORED",
+        "why": "GALACTIC-HF's quarantine rested on its all-cause counts being unverified, and the pass recorded the registry route as unexhausted. Walking that route recovered per-arm ALL-CAUSE deaths as verbatim integers from the NCT02929329 posted results, matching the extraction exactly. The counts are still identical across arms but no longer unverified, so the conjunctive rule no longer fires.",
+        "what_this_says_about_the_rule": "The rule behaved correctly in both directions: it withheld a trial whose counts could not be sourced, and it released that trial the moment they could. Nothing was silently deleted and nothing was silently restored -- both transitions are recorded in the HF-034 disposition_history."
+      }
     },
     "count_provenance_re_tier": {
       "SPICE": "VERIFIED_FULL -> RECOVERED_FROM_PERCENTAGE_UNIQUE (retained in network; labelling only)",
       "US-Carvedilol": "VERIFIED_FULL -> RECOVERED_FROM_PERCENTAGE_UNIQUE",
       "EMPHASIS-HF": "VERIFIED_FULL -> RECOVERED_FROM_PERCENTAGE_NON_UNIQUE",
       "ELITE": "VERIFIED_FULL -> split: losartan RECOVERED_FROM_PERCENTAGE_UNIQUE, captopril NOT_RECOVERABLE_FROM_PERCENTAGE (new finding)",
+      "GALACTIC-HF": "UNVERIFIED -> VERBATIM_COUNT (reinstatement pass). The registry prints the integers as integers in the FDAAA All-Cause Mortality table; nothing was recovered from a percentage. Note the percentage route would NOT have sufficed: the posted secondary outcome 'Time to All-cause Death' gives 25.9% in both arms, which is NON-UNIQUELY recoverable ([1063,1067] placebo, [1066,1069] omecamtiv) and belongs to a shorter follow-up window than the verbatim table.",
       "unchanged_VERBATIM_COUNT": "SOLVD-Treatment, CIBIS-I, CIBIS-II, MERIT-HF, COPERNICUS, BEST, RALES, J-EMPHASIS-HF, PARADIGM-HF, DAPA-HF, VICTOR, DIGIT-HF, He 2015, QUEST",
       "counts_changed_by_the_re_tier": 0
     },
@@ -274,22 +307,28 @@
     "resolved_by_full_text_verification": 2,
     "resolved_by_full_text_verification_ids": ["HF-020 He 2015", "HF-038 QUEST"],
     "count_values_changed": 0,
-    "count_values_changed_note": "No extracted count was altered in either pass. Four findings resolved to 'the extraction was right, the provenance record was wrong'; three trials resolved to 'the extraction has no source' and were quarantined rather than corrected, because there is no sourced value to correct them to.",
+    "count_values_changed_note": "No extracted count was altered in ANY of the three passes. Four findings resolved to 'the extraction was right, the provenance record was wrong'; two trials resolved to 'the extraction has no source' and were quarantined rather than corrected, because there is no sourced value to correct them to; one trial (GALACTIC-HF) resolved to 'the extraction was right and the source was simply somewhere else' and was reinstated. Every disposition change in this ledger is a provenance finding, never a data edit.",
     "co_primary": {
-      "full_network": {"trials": 28, "arm_rows": 57, "contrasts": 25,
-        "_contrasts_note": "30 fitted contrasts; see outputs/hfref_coprimary_fit.json for the authoritative figure",
+      "full_network": {"trials": 28, "arm_rows": 57, "contrasts": 30,
         "acei_bb": 0.64459765, "acei_bb_mra": 0.59333495, "tau2": 0.02323609,
-        "role": "CONSERVATIVE CO-PRIMARY"},
-      "quarantined_network": {"trials": 25, "arm_rows": 50, "contrasts": 25,
-        "acei_bb": 0.63084425, "acei_bb_mra": 0.57803875, "tau2": 0.02513470,
-        "role": "PROVENANCE SENSITIVITY"},
-      "arm_rows": "57 -> 50 (CARMEN 3 rows + GALACTIC-HF 2 + Vizzardi 2014 2 = 7 withheld)",
-      "node_lost": "+Omecamtiv (GALACTIC-HF was its only trial)",
-      "direction": "Point estimates move AWAY from the null on every retained treatment node (median -2.13%), which must not be read as benefit. But interval significance FALLS: on the 91 pairs both fits estimate, CI-excludes-1 goes 12 -> 9 (0 gain, 3 lose), because tau2 rises 8.2%, I2 goes 57.3% -> 63.8% and HKSJ df falls 15 -> 12. Neither reading makes the quarantined fit stronger evidence."
+        "V": 15, "E": 16,
+        "role": "CONSERVATIVE CO-PRIMARY",
+        "_note": "Unchanged by the reinstatement pass -- GALACTIC-HF was always retained in the full fit. Anchor re-reproduced to <1e-8 against the settled primary."},
+      "quarantined_network": {"trials": 26, "arm_rows": 52, "contrasts": 26,
+        "acei_bb": 0.63084425, "acei_bb_mra": 0.57803877, "tau2": 0.02513471,
+        "V": 15, "E": 15,
+        "role": "PROVENANCE SENSITIVITY",
+        "_note": "Re-fit after the GALACTIC-HF reinstatement. Supersedes the 3-trial figures (trials 25, arm_rows 50, contrasts 25, V 14, acei_bb 0.63084425, acei_bb_mra 0.57803875, tau2 0.02513470)."},
+      "arm_rows": "57 -> 52 (CARMEN 3 rows + Vizzardi 2014 2 rows = 5 withheld; GALACTIC-HF's 2 rows are RESTORED)",
+      "node_lost": "(none) -- +Omecamtiv is RESTORED by the GALACTIC-HF reinstatement. Both co-primary networks now carry all 15 nodes, and all 105 league pairs are estimable in both.",
+      "node_lost_history": "The 3-trial pass lost +Omecamtiv (V 15 -> 14) and with it 14 league pairs, because GALACTIC-HF was that node's only trial. That was recorded as the single strongest argument for co-primary presentation; the reinstatement removes the cost entirely.",
+      "why_the_anchors_barely_moved": "GALACTIC-HF contributes a PENDANT edge (+Omecamtiv vs ACEI+BB+MRA) -- the only trial on the only edge to a leaf node. A pendant edge carries no information about any other contrast, so restoring it changes the rest of the network only through tau^2, and its residual is near zero (RR 1078/4120 vs 1078/4112). Hence acei_bb is identical to 8dp and acei_bb_mra moves by 2e-8, while the +Omecamtiv node goes from NOT ESTIMABLE to 0.577 (0.288-1.154). The structural gain is large; the numerical perturbation is not. Both facts are reported.",
+      "direction": "Point estimates mostly move AWAY from the null: 10 of 14 retained treatment nodes fall (median -2.13%), 4 rise (largest BB +36.47%, which gains a wide CI once CARMEN's ACEI+BB vs BB edge is withheld). That majority direction must not be read as benefit. But interval significance FALLS: on all 105 league pairs (both fits now estimate every pair), CI-excludes-1 goes 12 -> 9 (0 gain, 3 lose), because tau2 rises 8.2%, I2 goes 57.3% -> 63.8%, HKSJ df falls 15 -> 12 and CIs widen (median +9.4%). Neither reading makes the quarantined fit stronger evidence.",
+      "direction_claim_corrected": "Earlier passes stated that point estimates move away from the null on EVERY retained node. That was never true -- 4 of 14 move the other way -- and the figure is now counted by scripts/hfref_coprimary_fit.R rather than asserted. Overstating the unfavourable direction is still misreporting."
     },
     "trials_in_primary_before": 28,
-    "trials_in_primary_after": 25,
-    "trials_in_primary_after_note": "The first pass recorded 27 under the CARMEN-only quarantine. Under the symmetric rule it is 25. Both fits remain available; 28 is the full co-primary.",
+    "trials_in_primary_after": 26,
+    "trials_in_primary_after_note": "Three successive figures, all recorded so the trail is auditable: 27 under the first (CARMEN-only) quarantine, 25 under the symmetric 3-trial quarantine, 26 after the GALACTIC-HF reinstatement. Both fits remain available; 28 is the full co-primary.",
     "audit_claims_withdrawn": [
       "F3 'SPICE has no primary source at all' - withdrawn; the primary is PMID 10740141.",
       "F4 'He 2015 per-arm denominators unverified' - withdrawn; PMC5746969 Tables 1 and 2 verify them exactly.",
