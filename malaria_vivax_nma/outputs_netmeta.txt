@@ -1,0 +1,105 @@
+arm-level data (event = recurrence by 180 d, evaluable denominator)
+           studlab              treat event   n
+1  DETECTIVE_PART1 no_hypnozoiticidal    31  52
+2  DETECTIVE_PART1              TQ_50    22  51
+3  DETECTIVE_PART1             TQ_100    25  54
+4  DETECTIVE_PART1             TQ_300     6  54
+5  DETECTIVE_PART1             TQ_600     4  47
+6  DETECTIVE_PART1     PQ_14d_low_3.5    12  46
+7  DETECTIVE_PART2 no_hypnozoiticidal    88 123
+8  DETECTIVE_PART2             TQ_300    85 240
+9  DETECTIVE_PART2     PQ_14d_low_3.5    36 119
+10          GATHER             TQ_300    42 154
+11          GATHER     PQ_14d_low_3.5    20  80
+12       INSPECTOR no_hypnozoiticidal    44  50
+13       INSPECTOR             TQ_300    39  50
+14       INSPECTOR     PQ_14d_low_3.5    24  50
+15          EFFORT       PQ_7d_high_7    34 295
+16          EFFORT             TQ_300    35 305
+17          EFFORT     PQ_14d_low_3.5    49 301
+
+=== netmeta FIXED effect: log-OR vs no_hypnozoiticidal ===
+no_hypnozoiticidal     PQ_14d_low_3.5       PQ_7d_high_7             TQ_100 
+         0.0000000         -1.6542858         -1.8667876         -0.4431381 
+            TQ_300              TQ_50             TQ_600 
+        -1.6227185         -0.5709715         -2.6696239 
+
+=== netmeta FIXED effect SE ===
+no_hypnozoiticidal     PQ_14d_low_3.5       PQ_7d_high_7             TQ_100 
+         0.0000000          0.1989432          0.2844755          0.3486436 
+            TQ_300              TQ_50             TQ_600 
+         0.1915573          0.3563803          0.5659730 
+
+=== netmeta RANDOM effects: OR vs no_hypnozoiticidal ===
+no_hypnozoiticidal     PQ_14d_low_3.5       PQ_7d_high_7             TQ_100 
+          1.000000           0.183092           0.154425           0.660636 
+            TQ_300              TQ_50             TQ_600 
+          0.196144           0.581360           0.071287 
+
+=== heterogeneity ===
+tau2 (netmeta, DL-type) = 0.215241 
+Q = 17.04129  df = 6  p = 0.009133 
+I2 = 64.7914 %
+
+=== decomposition of Q (within vs between design) ===
+                        Q df        pval
+Total           17.041286  6 0.009132705
+Within designs   4.995111  2 0.082285919
+Between designs 12.046175  4 0.017011177
+
+=== per-trial TQ_300 vs PQ_14d_low_3.5 (direct) ===
+  DETECTIVE_PART1    OR = 0.3542
+  DETECTIVE_PART2    OR = 1.2643
+  GATHER             OR = 1.1250
+  INSPECTOR          OR = 3.8409
+  EFFORT             OR = 0.6667
+
+=== netsplit: direct vs indirect (inconsistency) ===
+Separate indirect from direct evidence (SIDE) using back-calculation method
+
+Common effects model: 
+
+                        comparison k prop    nma direct  indir.    RoR     z p-value
+ PQ_14d_low_3.5:no_hypnozoiticidal 3 0.85 0.1912 0.1768  0.2969 0.5954 -0.93  0.3502
+         TQ_100:no_hypnozoiticidal 1 0.79 0.6420 0.5840  0.9120 0.6403 -0.52  0.6009
+         TQ_300:no_hypnozoiticidal 3 0.89 0.1974 0.2098  0.1213 1.7295  0.90  0.3675
+          TQ_50:no_hypnozoiticidal 1 0.79 0.5650 0.5139  0.8153 0.6303 -0.52  0.6009
+         TQ_600:no_hypnozoiticidal 1 0.91 0.0693 0.0630  0.1747 0.3607 -0.52  0.6009
+       PQ_14d_low_3.5:PQ_7d_high_7 1 0.88 1.2368 1.4926  0.3216 4.6416  2.24  0.0252
+             PQ_14d_low_3.5:TQ_100 1 0.66 0.2979 0.4094  0.1612 2.5399  1.26  0.2082
+             PQ_14d_low_3.5:TQ_300 5 0.99 0.9689 0.9731  0.6675 1.4578  0.29  0.7682
+              PQ_14d_low_3.5:TQ_50 1 0.67 0.3385 0.4652  0.1783 2.6099  1.26  0.2082
+             PQ_14d_low_3.5:TQ_600 1 0.83 2.7603 3.7941  0.5553 6.8330  1.26  0.2082
+               PQ_7d_high_7:TQ_300 1 0.81 0.7834 1.0049  0.2689 3.7371  2.24  0.0252
+                     TQ_100:TQ_300 1 0.47 3.2530 6.8966  1.6484 4.1838  2.03  0.0428
+                      TQ_300:TQ_50 1 0.49 0.3493 0.1648  0.7102 0.2320 -2.03  0.0428
+                     TQ_300:TQ_600 1 0.70 2.8488 1.3438 16.6530 0.0807 -2.03  0.0428
+
+Random effects model: 
+
+                        comparison k prop    nma direct  indir.    RoR     z p-value
+ PQ_14d_low_3.5:no_hypnozoiticidal 3 0.89 0.1831 0.1758  0.2537 0.6931 -0.34  0.7317
+         TQ_100:no_hypnozoiticidal 1 0.79 0.6606 0.5840  1.0522 0.5550 -0.44  0.6576
+         TQ_300:no_hypnozoiticidal 3 0.88 0.1961 0.2061  0.1381 1.4922  0.39  0.6970
+          TQ_50:no_hypnozoiticidal 1 0.79 0.5814 0.5139  0.9340 0.5502 -0.44  0.6576
+         TQ_600:no_hypnozoiticidal 1 0.86 0.0713 0.0630  0.1558 0.4044 -0.44  0.6576
+       PQ_14d_low_3.5:PQ_7d_high_7 1 0.82 1.1856 1.4926  0.4061 3.6752  1.05  0.2946
+             PQ_14d_low_3.5:TQ_100 1 0.71 0.2771 0.4094  0.1053 3.8863  1.15  0.2513
+             PQ_14d_low_3.5:TQ_300 5 1.00 0.9335 0.9354  0.2983 3.1360  0.19  0.8526
+              PQ_14d_low_3.5:TQ_50 1 0.72 0.3149 0.4652  0.1175 3.9585  1.15  0.2513
+             PQ_14d_low_3.5:TQ_600 1 0.81 2.5684 3.7941  0.4994 7.5981  1.15  0.2513
+               PQ_7d_high_7:TQ_300 1 0.81 0.7873 1.0049  0.2840 3.5384  1.05  0.2946
+                     TQ_100:TQ_300 1 0.61 3.3681 6.8966  1.0727 6.4289  1.67  0.0946
+                      TQ_300:TQ_50 1 0.62 0.3374 0.1648  1.0821 0.1523 -1.67  0.0946
+                     TQ_300:TQ_600 1 0.73 2.7515 1.3438 18.7527 0.0717 -1.67  0.0946
+
+Legend:
+ comparison - Treatment comparison
+ k          - Number of studies providing direct evidence
+ prop       - Direct evidence proportion
+ nma        - Estimated treatment effect (OR) in network meta-analysis
+ direct     - Estimated treatment effect (OR) derived from direct evidence
+ indir.     - Estimated treatment effect (OR) derived from indirect evidence
+ RoR        - Ratio of Ratios (direct versus indirect)
+ z          - z-value of test for disagreement (direct versus indirect)
+ p-value    - p-value of test for disagreement (direct versus indirect)
