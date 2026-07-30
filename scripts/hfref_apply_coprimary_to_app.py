@@ -612,12 +612,35 @@ f_ex, q_ex = (DD["ci_excludes_null_common"]["full"],
               DD["ci_excludes_null_common"]["quarantined"])
 n_gain, n_lose = len(DD["gained_significance"]), len(DD["lost_significance"])
 NPC = DD["node_point_estimate_pct_change"]
-node_med = NPC["median"]
+# Direction is keyed on |ln RR| (distance from the null), never on the sign of
+# the RR change -- BB crosses RR=1, so the sign test books its 79x move AWAY
+# from the null as a move toward it. The percentage change survives only as a
+# descriptive.
+node_dabs_med = NPC["median_abs_log_rr_change"]
+node_med = NPC["rel_change_pct_descriptive_only"]["median"]
 node_total = NPC["retained_nodes"]
 node_away = NPC["moved_away_from_null"]
 node_toward = NPC["moved_toward_null"]
-node_worst = NPC["largest_move_toward_null"]
+node_toward_names = NPC["nodes_moving_toward_null"]
+node_worst = NPC["largest_move_away_from_null"]
+node_cross = NPC["nodes_crossing_null"]
+if node_worst is None:
+    sys.exit("FAIL: no largest_move_away_from_null in the fit; refusing to write "
+             "a direction flag with no measured worst case")
 wid_med = DD["pair_ci_width_pct_change"]["median"]
+
+
+def worst_away_phrase():
+    """The worst move away from the null, stated in full. Never softened: if it
+    crosses RR=1 the flag says so, because that is the harm side."""
+    w = node_worst
+    s = ("%s, RR %.6f → %.6f (|ln RR| %.6f → %.6f, %.1f× further "
+         "from the null)" % (w["node"], w["rr_full"], w["rr_quarantined"],
+                             w["abs_log_rr_full"], w["abs_log_rr_quarantined"],
+                             w["fold_further_from_null"]))
+    if w.get("crosses_null"):
+        s += ", and it CROSSES THE NULL onto the HARM side"
+    return s
 
 verdict = {
     "verdict": "UNCERTAIN",
@@ -690,17 +713,22 @@ verdict = {
          "<1e-8 -- and the quarantined fit is emitted only after that gate "
          "passes. Quarantined anchors: ACEI+BB %.8f, ACEI+BB+MRA %.8f."
          % (node(QU, "ACEI+BB")["rr"], node(QU, "ACEI+BB+MRA")["rr"])),
-        ("HONEST DIRECTION FLAG, PART 1 -- POINT ESTIMATES MOSTLY MOVE AWAY "
-         "FROM THE NULL. %d of %d retained treatment nodes fall (median "
-         "%+.2f%%) when the unverified identical-count trials are withheld, "
-         "because identical counts are RR=1.00 on every edge they touch and act "
-         "as a null-pulling weight. %d move the other way (largest %s %+.2f%%). "
-         "The majority direction is real and it must NOT be read as evidence of "
-         "benefit; it is why the quarantined fit is labelled a provenance "
-         "sensitivity. The split is COUNTED, not asserted: earlier passes of "
-         "this app claimed EVERY retained node fell, which was never true."
-         % (node_away, node_total, node_med, node_toward,
-            node_worst["node"], node_worst["pct"])),
+        ("HONEST DIRECTION FLAG, PART 1 -- POINT ESTIMATES MOSTLY MOVE FURTHER "
+         "FROM THE NULL. %d of %d retained treatment nodes move AWAY from RR=1 "
+         "(median change in |ln RR| %+.4f) when the unverified identical-count "
+         "trials are withheld, because identical counts are RR=1.00 on every "
+         "edge they touch and act as a null-pulling weight. Only %d move toward "
+         "it (%s). Largest move away: %s. The direction is real and must NOT be "
+         "read as evidence of benefit; it is why the quarantined fit is labelled "
+         "a provenance sensitivity. DIRECTION IS MEASURED AS |ln RR| -- distance "
+         "from the null -- NOT as the sign of the RR change. A node that crosses "
+         "RR=1 rises in RR while moving FURTHER from the null, so the sign test "
+         "books it as moving toward the null and understates exactly the "
+         "unfavourable direction this flag exists to surface.%s"
+         % (node_away, node_total, node_dabs_med, node_toward,
+            ", ".join(node_toward_names) or "none", worst_away_phrase(),
+            (" Nodes crossing the null: %s." % ", ".join(node_cross))
+            if node_cross else "")),
         ("HONEST DIRECTION FLAG, PART 2 -- INTERVAL SIGNIFICANCE FALLS, IT "
          "DOES NOT RISE. On the %d pairs BOTH fits estimate, the number whose "
          "CI excludes 1 goes %d -> %d: %d gain significance, %d lose it. tau^2 "
@@ -820,10 +848,13 @@ badge_body = (
     'Quarantined: ACEI+BB <b>%s</b>, ACEI+BB+MRA <b>%s</b>.'
     '<br><b style="color:#fdba74">Honest direction flag &mdash; two parts, neither favourable.</b> '
     '<b>(1)</b> Withholding these null-pulling unverified trials moves <b>%d of %d</b> retained '
-    'nodes&rsquo; <b>point estimates away from the null</b> (median %+.2f%%); %d move the other way '
-    '(largest %s %+.2f%%). Identical counts are RR=1.00 on every edge they touch. The majority '
-    'direction must <b>not</b> be read as evidence of benefit. This split is <b>counted, not '
-    'asserted</b> &mdash; earlier passes claimed <i>every</i> retained node fell, which was never true. '
+    'nodes&rsquo; <b>point estimates FURTHER from the null</b> (median change in |ln RR| %+.4f); '
+    'only %d move toward it (%s). Identical counts are RR=1.00 on every edge they touch. '
+    '<b>Largest move away:</b> %s. This must <b>not</b> be read as evidence of benefit. '
+    'Direction is measured as <b>|ln RR|, distance from the null</b> &mdash; not the sign of the RR '
+    'change: a node crossing RR=1 <i>rises</i> in RR while moving <i>further</i> from the null, so '
+    'a sign test would book it as moving toward the null and understate the unfavourable '
+    'direction. This split is <b>counted, not asserted</b>. '
     '<b>(2)</b> But <b>interval significance falls, it does not rise</b>: on the %d pairs both '
     'fits estimate, CI-excludes-1 goes <b>%d &rarr; %d</b> (%d gain, %d lose), because &tau;&sup2; '
     'rises %.1f%%, I&sup2; goes %.1f%% &rarr; %.1f%%, HKSJ df falls %d &rarr; %d and CIs widen by '
@@ -875,8 +906,8 @@ badge_body = (
      f3(node(QU, "ACEI+BB+MRA")["rr"]),
      len(QUAR),
      f3(node(QU, "ACEI+BB")["rr"]), f3(node(QU, "ACEI+BB+MRA")["rr"]),
-     node_away, node_total, node_med, node_toward,
-     node_worst["node"], node_worst["pct"],
+     node_away, node_total, node_dabs_med, node_toward,
+     ", ".join(node_toward_names) or "none", worst_away_phrase(),
      common, f_ex, q_ex, n_gain, n_lose,
      100 * (QU["tau2"] / FU["tau2"] - 1), 100 * FU["i2"], 100 * QU["i2"],
      FU["hksj"]["df"], QU["hksj"]["df"], wid_med,

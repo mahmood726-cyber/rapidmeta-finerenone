@@ -36,6 +36,10 @@
 #      significance FALLS (tau^2 rises, HKSJ df drops, CIs widen). Neither half
 #      makes the quarantined fit stronger.
 #
+#      Direction is measured as |ln RR| (distance from the null), never as
+#      sign(rel_change_pct). BB is why: RR 0.996110 -> 1.359354 CROSSES RR=1, so
+#      the sign test books a 79x move AWAY from the null as a move toward it.
+#
 # Same discipline as the scripts it supersedes: evaluates lines 1..587 of the
 # settled fit (up to and including fit_cell(), nothing from RUN or EMIT), so
 # ARMS, META, CELLS, select_trials() and mk_contrasts() are the settled
@@ -186,7 +190,8 @@ cat(sprintf("edges lost: %s\n",
     if (length(L)) paste(L,collapse=", ") else "(none)" }))
 
 cat("\n=== NODE vs Placebo: FULL -> QUARANTINED ===\n")
-cat(sprintf("%-14s %24s %24s %9s\n","node","FULL RR (95% CI)","QUARANTINED RR (95% CI)","d(RR)%"))
+cat(sprintf("%-14s %24s %24s %9s %8s %-14s\n","node","FULL RR (95% CI)",
+            "QUARANTINED RR (95% CI)","d(RR)%","d|lnRR|","direction"))
 nd <- list()
 for (nm in sapply(FULL$nodes, function(x) x$node)) {
   b <- g(FULL,nm); a <- g(QUAR,nm)
@@ -196,10 +201,24 @@ for (nm in sapply(FULL$nodes, function(x) x$node)) {
     nd[[length(nd)+1]] <- list(node=nm, full=b, quarantined=NULL, node_lost=TRUE); next
   }
   d <- 100*(a$rr-b$rr)/b$rr
-  cat(sprintf("%-14s %24s %24s %+8.2f%%\n", nm,
+  # DIRECTION IS DISTANCE FROM THE NULL, NOT THE SIGN OF THE RR CHANGE.
+  # sign(rel_change_pct) is only a valid direction test while RR stays on one
+  # side of 1. BB does not: 0.996110 -> 1.359354 crosses to the HARM side, so a
+  # +36.47% "rise" is a move 79x FURTHER from the null, not a move toward it.
+  # Keying on |ln RR| is sign-agnostic and handles the crossing correctly.
+  afl <- abs(log(b$rr)); aql <- abs(log(a$rr)); dabs <- aql - afl
+  crosses <- (b$rr - 1) * (a$rr - 1) < 0
+  dirn <- if (dabs > 0) "away_from_null" else
+          if (dabs < 0) "toward_null" else "unchanged"
+  cat(sprintf("%-14s %24s %24s %+8.2f%% %+8.4f %-14s%s\n", nm,
     sprintf("%.3f (%.3f-%.3f)",b$rr,b$lo,b$hi),
-    sprintf("%.3f (%.3f-%.3f)",a$rr,a$lo,a$hi), d))
+    sprintf("%.3f (%.3f-%.3f)",a$rr,a$lo,a$hi), d, dabs, dirn,
+    if (crosses) "  CROSSES THE NULL" else ""))
   nd[[length(nd)+1]] <- list(node=nm, full=b, quarantined=a, rel_change_pct=d,
+                             abs_log_rr_full=afl, abs_log_rr_quarantined=aql,
+                             abs_log_rr_change=dabs, direction=dirn,
+                             crosses_null=crosses,
+                             fold_further_from_null=if (afl > 0) aql/afl else NA_real_,
                              node_lost=FALSE)
 }
 cat(sprintf("\nleague pairs %d -> %d | CI excludes 1: %d -> %d | with direct: %d -> %d\n",
@@ -227,16 +246,44 @@ wid_chg <- sapply(common, function(k)
 # node-level point-estimate move, retained nodes only
 retained <- Filter(function(x) !x$node_lost, nd)
 node_rr_chg <- sapply(retained, function(x) x$rel_change_pct)
-# COUNT the direction rather than asserting it. Earlier passes of this script
-# claimed "every retained treatment node falls"; that was never true -- the
-# nodes supplied only by pendant edges off the quarantined trials move the other
-# way, and BB moves sharply up when CARMEN's ACEI+BB vs BB edge is withheld.
-# Overstating the unfavourable direction is still misreporting, so the flag now
-# reports the split it actually measures.
-n_node_down <- sum(node_rr_chg < 0); n_node_up <- sum(node_rr_chg > 0)
-n_node_flat <- sum(node_rr_chg == 0)
-node_up_names <- sapply(retained, function(x) x$node)[node_rr_chg > 0]
-node_worst_up <- if (n_node_up) retained[[which.max(node_rr_chg)]]$node else NA_character_
+# COUNT the direction rather than asserting it, and count it on the RIGHT
+# quantity. Two successive errors are corrected here:
+#
+#   (i)  Earlier passes claimed "every retained treatment node falls". Never true.
+#   (ii) The fix for (i) keyed direction on sign(rel_change_pct), which is only
+#        valid while RR stays on one side of 1. BB does not: 0.996110 ->
+#        1.359354 CROSSES to the harm side, so its +36.47% was booked as a move
+#        TOWARD the null when it is in fact the LARGEST move AWAY from it
+#        (|ln RR| 0.003898 -> 0.307010, ~79x further). That understated exactly
+#        the unfavourable direction this flag exists to surface.
+#
+# Direction is therefore distance from the null, |ln RR|, which is sign-agnostic
+# and handles null-crossing correctly. rel_change_pct is retained as a
+# descriptive only; it never decides direction.
+node_dabs   <- sapply(retained, function(x) x$abs_log_rr_change)
+node_names  <- sapply(retained, function(x) x$node)
+node_cross  <- sapply(retained, function(x) isTRUE(x$crosses_null))
+n_node_away <- sum(node_dabs > 0)
+n_node_tow  <- sum(node_dabs < 0)
+n_node_flat <- sum(node_dabs == 0)
+node_away_names <- node_names[node_dabs > 0]
+node_tow_names  <- node_names[node_dabs < 0]
+cross_names <- node_names[node_cross]
+mk_worst <- function(idx) {
+  if (!length(idx)) return(NULL)
+  x <- retained[[idx]]
+  list(node=x$node, rr_full=x$full$rr, rr_quarantined=x$quarantined$rr,
+       abs_log_rr_full=x$abs_log_rr_full,
+       abs_log_rr_quarantined=x$abs_log_rr_quarantined,
+       abs_log_rr_change=x$abs_log_rr_change,
+       fold_further_from_null=x$fold_further_from_null,
+       rel_change_pct=x$rel_change_pct, crosses_null=x$crosses_null)
+}
+worst_away <- mk_worst(if (n_node_away) which.max(node_dabs) else integer(0))
+worst_tow  <- mk_worst(if (n_node_tow)  which.min(node_dabs) else integer(0))
+# Legacy alias kept so nothing silently reads a stale meaning: it now points at
+# the genuine largest toward-null move, and BB is no longer in that set.
+node_worst_up <- if (!is.null(worst_tow)) worst_tow$node else NA_character_
 
 cat("\n=== DIRECTION (like-for-like on the ", length(common),
     " pairs BOTH fits estimate) ===\n", sep="")
@@ -249,15 +296,30 @@ cat(sprintf("CI-width ratio change:    median %+.2f%% (min %+.2f%%, max %+.2f%%)
 cat(sprintf("league pairs dropped entirely: %d%s\n", length(lostpairs),
   if (length(lostpairs)) " (all involve a lost node)" else
     " -- every league pair the full fit estimates is still estimable"))
+cat(sprintf("node distance from the null (|ln RR|): %d of %d move AWAY, %d move TOWARD\n",
+  n_node_away, length(node_dabs), n_node_tow))
+cat(sprintf("  toward-null nodes: %s\n",
+  if (n_node_tow) paste(node_tow_names, collapse=", ") else "(none)"))
+if (length(cross_names))
+  cat(sprintf("  CROSSES THE NULL: %s\n", paste(cross_names, collapse=", ")))
 cat("\nHONEST DIRECTION FLAG -- two parts, both true, neither favourable:\n")
 cat(sprintf("  (1) POINT ESTIMATES mostly move AWAY from the null: %d of %d retained\n",
-  n_node_down, length(node_rr_chg)))
-cat(sprintf("      treatment nodes fall (median %+.2f%%); %d rise%s. This is the\n",
-  median(node_rr_chg), n_node_up,
-  if (n_node_up) paste0(" (largest ", node_worst_up, " ",
-                        sprintf("%+.2f%%", max(node_rr_chg)), ")") else ""))
-cat("      direction the gate warned about and it is real for the majority of\n")
-cat("      nodes. It must NOT be read as benefit.\n")
+  n_node_away, length(node_dabs)))
+cat(sprintf("      treatment nodes move FURTHER from RR=1 (median d|lnRR| %+.4f);\n",
+  median(node_dabs)))
+cat(sprintf("      only %d move toward it%s.\n", n_node_tow,
+  if (n_node_tow) paste0(" (", paste(node_tow_names, collapse=", "), ")") else ""))
+if (!is.null(worst_away))
+  cat(sprintf("      Largest move AWAY: %s, RR %.6f -> %.6f (|lnRR| %.6f -> %.6f,\n      %.1fx further from the null)%s\n",
+    worst_away$node, worst_away$rr_full, worst_away$rr_quarantined,
+    worst_away$abs_log_rr_full, worst_away$abs_log_rr_quarantined,
+    worst_away$fold_further_from_null,
+    if (isTRUE(worst_away$crosses_null))
+      " -- and it CROSSES THE NULL onto the HARM side." else "."))
+cat("      Direction is measured as |ln RR|, NOT the sign of the RR change: a\n")
+cat("      node crossing RR=1 rises in RR while moving FURTHER from the null.\n")
+cat("      This is the direction the gate warned about. It must NOT be read as\n")
+cat("      benefit, and it must not be softened.\n")
 cat(sprintf("  (2) INTERVAL significance FALLS: %d -> %d of the common pairs exclude 1.\n",
   f_ex, q_ex))
 cat(sprintf("      tau2 rises %+.1f%%, I2 %.1f%% -> %.1f%%, HKSJ df %d -> %d, so CIs\n",
@@ -290,12 +352,26 @@ write(toJSON(list(schema="hfref-coprimary-fit/v1",
     sensitivity="quarantined",
     direction_flag=paste0(
       "Removing these unverified identical-count trials moves MOST retained ",
-      "treatment nodes' POINT ESTIMATES away from the null -- ", n_node_down,
-      " of ", length(node_rr_chg), " fall (median ",
-      sprintf("%+.2f%%", median(node_rr_chg)), "), ", n_node_up, " rise",
-      if (n_node_up) paste0(" (largest ", node_worst_up, " ",
-                            sprintf("%+.2f%%", max(node_rr_chg)), ")") else "",
-      ". That is the direction the ",
+      "treatment nodes' POINT ESTIMATES FURTHER FROM THE NULL -- ", n_node_away,
+      " of ", length(node_dabs), " move away (median d|lnRR| ",
+      sprintf("%+.4f", median(node_dabs)), "), only ", n_node_tow, " move toward it",
+      if (n_node_tow) paste0(" (", paste(node_tow_names, collapse=", "), ")") else "",
+      ". ",
+      if (!is.null(worst_away)) paste0(
+        "The largest move away is ", worst_away$node, ", RR ",
+        sprintf("%.6f", worst_away$rr_full), " -> ",
+        sprintf("%.6f", worst_away$rr_quarantined), " (|lnRR| ",
+        sprintf("%.6f", worst_away$abs_log_rr_full), " -> ",
+        sprintf("%.6f", worst_away$abs_log_rr_quarantined), ", ",
+        sprintf("%.1f", worst_away$fold_further_from_null),
+        "x further from the null)",
+        if (isTRUE(worst_away$crosses_null))
+          ", and it CROSSES THE NULL onto the HARM side" else "", ". ") else "",
+      "Direction is measured as distance from the null, |ln RR|, NOT the sign of ",
+      "the RR change: a node that crosses RR=1 RISES in RR while moving FURTHER ",
+      "from the null, and keying on the sign books that as a move toward the ",
+      "null -- understating exactly the unfavourable direction this flag exists ",
+      "to surface. That is the direction the ",
       "gate warned about and it is real for the majority of nodes: it must not ",
       "be read as benefit. But ",
       "INTERVAL significance FALLS, not rises -- on the ", length(common),
@@ -315,19 +391,34 @@ write(toJSON(list(schema="hfref-coprimary-fit/v1",
       gained_significance=as.list(gained),
       lost_significance=as.list(lost_sg),
       node_point_estimate_pct_change=list(
-        median=median(node_rr_chg), min=min(node_rr_chg), max=max(node_rr_chg),
-        retained_nodes=length(node_rr_chg),
-        moved_away_from_null=n_node_down, moved_toward_null=n_node_up,
+        direction_basis=paste0(
+          "|ln RR| -- distance from the null. Sign-agnostic, so a node crossing ",
+          "RR=1 is classified by how far it ends up from 1, not by whether RR ",
+          "went up or down. rel_change_pct is carried per node as a DESCRIPTIVE ",
+          "ONLY and never decides direction."),
+        median_abs_log_rr_change=median(node_dabs),
+        min_abs_log_rr_change=min(node_dabs),
+        max_abs_log_rr_change=max(node_dabs),
+        rel_change_pct_descriptive_only=list(
+          median=median(node_rr_chg), min=min(node_rr_chg), max=max(node_rr_chg)),
+        retained_nodes=length(node_dabs),
+        moved_away_from_null=n_node_away, moved_toward_null=n_node_tow,
         unchanged=n_node_flat,
-        nodes_moving_toward_null=as.list(node_up_names),
-        largest_move_toward_null=list(node=node_worst_up, pct=max(node_rr_chg)),
+        nodes_moving_away_from_null=as.list(node_away_names),
+        nodes_moving_toward_null=as.list(node_tow_names),
+        nodes_crossing_null=as.list(cross_names),
+        largest_move_away_from_null=worst_away,
+        largest_move_toward_null=worst_tow,
         counted_not_asserted=paste0(
-          "Earlier passes of this script claimed EVERY retained node moves away ",
-          "from the null. That was never true and is now measured instead: the ",
-          "nodes supplied only by pendant edges are unaffected in the other ",
-          "direction, and BB moves sharply toward/past the null when CARMEN's ",
-          "ACEI+BB vs BB edge is withheld. Overstating the unfavourable ",
-          "direction is still misreporting.")),
+          "Two errors are corrected here, in order. (1) Earlier passes claimed ",
+          "EVERY retained node moves away from the null; never true. (2) The fix ",
+          "for (1) keyed direction on sign(rel_change_pct), which is only valid ",
+          "while RR stays on one side of 1. BB does not: RR 0.996110 -> 1.359354 ",
+          "CROSSES to the harm side, so its +36.47% was booked as a move TOWARD ",
+          "the null when it is the LARGEST move AWAY from it (|ln RR| 0.003898 ",
+          "-> 0.307010, ~79x further). That understated exactly the unfavourable ",
+          "direction this flag exists to surface. Overstating the unfavourable ",
+          "direction is misreporting; understating it is worse.")),
       pair_ci_width_pct_change=list(
         median=median(wid_chg), min=min(wid_chg), max=max(wid_chg)),
       note=paste0(
