@@ -44,13 +44,23 @@ publications.
 
 Run: `python scripts/hfref_integrity_gates.py` → `outputs/hfref_integrity_gates.json`
 
+> **Superseded in part, 2026-07-30 (symmetric-quarantine pass).** The gate counts below are
+> for the **full 28-trial network**, which is now presented as the **conservative co-primary**
+> and is still fitted and still displayed. A second co-primary withholds the three trials that
+> meet the quarantine rule (CARMEN, GALACTIC-HF, Vizzardi 2014): **arm rows 57 → 50**
+> (7 withheld: CARMEN 3, GALACTIC-HF 2, Vizzardi 2014 2), **fitted contrasts 30 → 25**,
+> **trials 28 → 25**, **nodes 15 → 14** (+Omecamtiv lost). See
+> `outputs/hfref_coprimary_fit.json` and `outputs/hfref_quarantine_ledger.json`.
+> An earlier single-trial pass recorded "57 → 54"; that figure was for the CARMEN-only
+> quarantine and is superseded.
+
 | Gate | Result |
 |---|---|
 | G1 per-arm count plausibility | **0 findings** across 57 arm rows — every count is a non-negative integer, every `events ≤ N`, and every trial's `total_n` / `total_events` / `n_arms` agree with its arm rows |
 | G1b contrast-vs-ledger + recompute | **0 findings** across 30 fitted contrasts — every `logRR` and `seLogRR` recomputes from the counts to <1e-8 |
 | G3 Benford | χ²=14.38 on 8 df (crit 15.51) → **no fabrication signal** |
-| G4 arm balance | 2 advisories: REPLACE 3.91:1, He 2015 2.06:1 — **both explained** (see §3), neither is an error |
-| G5 identifiers | **1 finding**: SPICE has no PMID |
+| G4 arm balance | 2 advisories: REPLACE 3.91:1, He 2015 2.06:1 — **both explained** (REPLACE: `outputs/hfref_source_verification.json` → `HF-012.evidence`; He 2015: `HF-020.method_note` and §4 F4 below), neither is an error |
+| G5 identifiers | **1 finding**: SPICE has no PMID — **CLOSED 2026-07-30**: PMID **10740141**, DOI **10.1016/s0002-8703(00)90037-1** (Granger CB et al, *Am Heart J* 2000;139(4):609-17). All 28 trials now carry an identifier. See §4 F3. |
 | G7 fragility | 30 contrasts: 19 not significant, 10 OK, **1 FAIL** |
 
 **The arithmetic layer is clean.** No count violates its denominator, and the fitted
@@ -139,12 +149,43 @@ closes the network's single internal loop.** Its counts are load-bearing for the
 topology. I have **not** altered them — the correct disposition (locate a source, or drop
 to branch 7c) is a human call.
 
-### F3 — SPICE has no primary source at all — **MEDIUM**
+### F3 — SPICE has no primary source at all — **MEDIUM** → **WITHDRAWN, and the trial is now RE-TIERED**
 
-No PMID, no DOI. The ledger's own note states the only PubMed-indexed SPICE paper is the
-**observational SPICE Registry (n=9580)**, not this 270-patient randomised comparison.
-Counts 3/91 and 6/179 are therefore **unsubstantiated**. SPICE contributes the sole
-Placebo–ARB edge, so it is not redundant in the network.
+> **This finding is WITHDRAWN as wrong.** The primary exists and was located on 2026-07-30:
+> **PMID 10740141**, **DOI [10.1016/s0002-8703(00)90037-1](https://doi.org/10.1016/s0002-8703(00)90037-1)**
+> — Granger CB, Ertl G, Kuch J, Maggioni AP, McMurray J, Rouleau JL, et al. *Randomized trial
+> of candesartan cilexetil in the treatment of patients with congestive heart failure and a
+> history of intolerance to angiotensin-converting enzyme inhibitors.* **Am Heart J**
+> 2000;139(4):609-17. SPICE = **S**tudy of **P**atients **I**ntolerant of **C**onverting
+> **E**nzyme inhibitors; the acronym never appears in the PubMed record, which is why an
+> acronym-keyed search returned only the observational SPICE Registry and this audit concluded
+> no source existed.
+>
+> **But the counts are not verbatim, and that is a real and separate finding.** The abstract
+> states `candesartan (n = 179) or a placebo (n = 91)` and `death 3.4% and 3.3%` — percentages
+> only, **no integer death counts anywhere**. The ledger's 6 and 3 are *recovered* from those
+> percentages, and each is uniquely determined: 6/179 = 3.352% is the only integer rounding to
+> 3.4% at n=179, and 3/91 = 3.297% the only one rounding to 3.3% at n=91.
+>
+> SPICE is therefore **re-tiered from `VERIFIED_FULL` to `RECOVERED_FROM_PERCENTAGE_UNIQUE`**
+> — a sound derivation, but *not* a verbatim-reported count, unlike CIBIS-II or MERIT-HF which
+> print their integers. **It stays in the network, fully sourced.** No count changed, no fit
+> changed. This matters because SPICE contributes the sole Placebo–ARB edge and therefore the
+> network's only between-trial loop, so a reader weighing that loop is entitled to know its
+> counts were derived rather than read.
+>
+> Applied symmetrically, the same tier moves **US-Carvedilol** (unique), **EMPHASIS-HF**
+> (non-unique — eplerenone 12.5% at n=1364 admits *both* 170 and 171), and **ELITE**, which
+> raises a **new finding**: captopril 8.7% at n=370 admits **no** integer (32 → 8.6%,
+> 33 → 8.9%), so its 32 is not derivable from the published percentage — most likely the
+> published figures are Kaplan–Meier estimates at 48 weeks, not crude proportions. Not a
+> quarantine trigger and no count changed; raised for the next gate. Full detail:
+> `outputs/hfref_quarantine_ledger.json` → `entries[HF-008].symmetry_check_on_this_tier`.
+
+*Original finding, retained for the record:* No PMID, no DOI. The ledger's own note states the
+only PubMed-indexed SPICE paper is the **observational SPICE Registry (n=9580)**, not this
+270-patient randomised comparison. Counts 3/91 and 6/179 are therefore **unsubstantiated**.
+SPICE contributes the sole Placebo–ARB edge, so it is not redundant in the network.
 
 ### F4 — He 2015: per-arm denominators unverified + arm pooling merges non-equivalent doses — **MEDIUM**
 
