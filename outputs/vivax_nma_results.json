@@ -1,0 +1,796 @@
+{
+  "generated": "2026-07-30",
+  "estimand": "P. vivax recurrence by 180 days (recurrence, NOT relapse)",
+  "measure": "odds ratio of recurrence; OR < 1 favours the listed node",
+  "reference": "no_hypnozoiticidal",
+  "full": {
+    "n_trials": 5,
+    "N": 2153,
+    "nodes": [
+      {
+        "node": "no_hypnozoiticidal",
+        "label": "No hypnozoiticidal therapy (blood-stage drug alone)",
+        "OR": 1.0,
+        "lo": null,
+        "hi": null,
+        "reference": true
+      },
+      {
+        "node": "PQ_14d_low_3.5",
+        "label": "Primaquine 14 d low dose",
+        "OR": 0.183,
+        "lo": 0.092,
+        "hi": 0.363,
+        "reference": false
+      },
+      {
+        "node": "PQ_7d_high_7",
+        "label": "Primaquine 7 d high dose",
+        "OR": 0.154,
+        "lo": 0.049,
+        "hi": 0.483,
+        "reference": false
+      },
+      {
+        "node": "TQ_50",
+        "label": "Tafenoquine 50 mg single",
+        "OR": 0.583,
+        "lo": 0.192,
+        "hi": 1.776,
+        "reference": false
+      },
+      {
+        "node": "TQ_100",
+        "label": "Tafenoquine 100 mg single",
+        "OR": 0.663,
+        "lo": 0.22,
+        "hi": 1.999,
+        "reference": false
+      },
+      {
+        "node": "TQ_300",
+        "label": "Tafenoquine 300 mg single",
+        "OR": 0.196,
+        "lo": 0.098,
+        "hi": 0.392,
+        "reference": false
+      },
+      {
+        "node": "TQ_600",
+        "label": "Tafenoquine 600 mg single",
+        "OR": 0.072,
+        "lo": 0.018,
+        "hi": 0.292,
+        "reference": false
+      }
+    ],
+    "tau2": 0.2471,
+    "I2": 64.8,
+    "Q": 17.041,
+    "df": 6,
+    "pQ": 0.0091
+  },
+  "core": {
+    "n_trials": 5,
+    "N": 1690,
+    "nodes": [
+      {
+        "node": "no_hypnozoiticidal",
+        "label": "No hypnozoiticidal therapy (blood-stage drug alone)",
+        "OR": 1.0,
+        "lo": null,
+        "hi": null,
+        "reference": true
+      },
+      {
+        "node": "PQ_14d_low_3.5",
+        "label": "Primaquine 14 d low dose",
+        "OR": 0.183,
+        "lo": 0.092,
+        "hi": 0.363,
+        "reference": false
+      },
+      {
+        "node": "TQ_300",
+        "label": "Tafenoquine 300 mg single",
+        "OR": 0.196,
+        "lo": 0.098,
+        "hi": 0.392,
+        "reference": false
+      }
+    ],
+    "tau2": 0.2471,
+    "I2": 64.8,
+    "Q": 17.041,
+    "df": 6,
+    "pQ": 0.0091
+  },
+  "focal": {
+    "contrast": "TQ 300 mg vs PQ 14 d low dose (3.5 mg/kg)",
+    "per_trial": [
+      {
+        "trial": "DETECTIVE_PART1",
+        "partner": "chloroquine",
+        "blind": true,
+        "tq_events": 6,
+        "tq_n": 54,
+        "pq_events": 12,
+        "pq_n": 46,
+        "OR": 0.3542
+      },
+      {
+        "trial": "DETECTIVE_PART2",
+        "partner": "chloroquine",
+        "blind": true,
+        "tq_events": 85,
+        "tq_n": 240,
+        "pq_events": 36,
+        "pq_n": 119,
+        "OR": 1.2643
+      },
+      {
+        "trial": "GATHER",
+        "partner": "chloroquine",
+        "blind": true,
+        "tq_events": 42,
+        "tq_n": 154,
+        "pq_events": 20,
+        "pq_n": 80,
+        "OR": 1.125
+      },
+      {
+        "trial": "INSPECTOR",
+        "partner": "DHA-piperaquine",
+        "blind": true,
+        "tq_events": 39,
+        "tq_n": 50,
+        "pq_events": 24,
+        "pq_n": 50,
+        "OR": 3.8409
+      },
+      {
+        "trial": "EFFORT",
+        "partner": "mixed",
+        "blind": false,
+        "tq_events": 35,
+        "tq_n": 305,
+        "pq_events": 49,
+        "pq_n": 301,
+        "OR": 0.6667
+      }
+    ]
+  },
+  "multiverse": [
+    {
+      "cell": "P1a",
+      "axis": "P1 follow-up horizon",
+      "level": "180 d only (PRIMARY)",
+      "note": "the pre-declared primary cell",
+      "rule": "observed",
+      "n_trials": 5,
+      "nodes": [
+        "no_hypnozoiticidal",
+        "PQ_14d_low_3.5",
+        "PQ_7d_high_7",
+        "TQ_50",
+        "TQ_100",
+        "TQ_300",
+        "TQ_600"
+      ],
+      "N": 2153,
+      "trial_ids": [
+        "DETECTIVE_PART1",
+        "DETECTIVE_PART2",
+        "GATHER",
+        "INSPECTOR",
+        "EFFORT"
+      ],
+      "estimable": true,
+      "tau2": 0.2471,
+      "I2": 64.8,
+      "tau2_estimable": true,
+      "Q": 17.041,
+      "df": 6,
+      "OR": 1.072,
+      "lo": 0.629,
+      "hi": 1.825
+    },
+    {
+      "cell": "P1b",
+      "axis": "P1 follow-up horizon",
+      "level": "nearby horizons admitted",
+      "note": "NCT03610399 (168 d) and NCT04706130 (3 mo) have no 180-d row; they cannot be added without changing the estimand, so this cell is declared NOT ESTIMABLE rather than approximated",
+      "rule": "observed",
+      "n_trials": 5,
+      "nodes": [
+        "no_hypnozoiticidal",
+        "PQ_14d_low_3.5",
+        "PQ_7d_high_7",
+        "TQ_50",
+        "TQ_100",
+        "TQ_300",
+        "TQ_600"
+      ],
+      "N": 2153,
+      "trial_ids": [
+        "DETECTIVE_PART1",
+        "DETECTIVE_PART2",
+        "GATHER",
+        "INSPECTOR",
+        "EFFORT"
+      ],
+      "estimable": false,
+      "tau2": 0.2471,
+      "I2": 64.8,
+      "tau2_estimable": true,
+      "Q": 17.041,
+      "df": 6,
+      "OR": 1.072,
+      "lo": 0.629,
+      "hi": 1.825,
+      "reason": "off-horizon trials lack a 180-day count"
+    },
+    {
+      "cell": "P2a",
+      "axis": "P2 relapse periodicity",
+      "level": "tropical-only sites",
+      "note": "",
+      "rule": "observed",
+      "n_trials": 2,
+      "nodes": [
+        "no_hypnozoiticidal",
+        "PQ_14d_low_3.5",
+        "PQ_7d_high_7",
+        "TQ_300"
+      ],
+      "N": 1051,
+      "trial_ids": [
+        "INSPECTOR",
+        "EFFORT"
+      ],
+      "estimable": true,
+      "tau2": 1.4066,
+      "I2": 91.7,
+      "tau2_estimable": true,
+      "Q": 12.105,
+      "df": 1,
+      "OR": 1.537,
+      "lo": 0.277,
+      "hi": 8.538
+    },
+    {
+      "cell": "P2b",
+      "axis": "P2 relapse periodicity",
+      "level": "all regions pooled",
+      "note": "",
+      "rule": "observed",
+      "n_trials": 5,
+      "nodes": [
+        "no_hypnozoiticidal",
+        "PQ_14d_low_3.5",
+        "PQ_7d_high_7",
+        "TQ_50",
+        "TQ_100",
+        "TQ_300",
+        "TQ_600"
+      ],
+      "N": 2153,
+      "trial_ids": [
+        "DETECTIVE_PART1",
+        "DETECTIVE_PART2",
+        "GATHER",
+        "INSPECTOR",
+        "EFFORT"
+      ],
+      "estimable": true,
+      "tau2": 0.2471,
+      "I2": 64.8,
+      "tau2_estimable": true,
+      "Q": 17.041,
+      "df": 6,
+      "OR": 1.072,
+      "lo": 0.629,
+      "hi": 1.825
+    },
+    {
+      "cell": "P3a",
+      "axis": "P3 partner blood-stage drug",
+      "level": "chloroquine partner only",
+      "note": "",
+      "rule": "observed",
+      "n_trials": 3,
+      "nodes": [
+        "no_hypnozoiticidal",
+        "PQ_14d_low_3.5",
+        "TQ_50",
+        "TQ_100",
+        "TQ_300",
+        "TQ_600"
+      ],
+      "N": 1102,
+      "trial_ids": [
+        "DETECTIVE_PART1",
+        "DETECTIVE_PART2",
+        "GATHER"
+      ],
+      "estimable": true,
+      "tau2": 0.0,
+      "I2": 37.2,
+      "tau2_estimable": true,
+      "Q": 4.781,
+      "df": 3,
+      "OR": 1.07,
+      "lo": 0.753,
+      "hi": 1.521
+    },
+    {
+      "cell": "P3b",
+      "axis": "P3 partner blood-stage drug",
+      "level": "DHA-piperaquine partner only",
+      "note": "",
+      "rule": "observed",
+      "n_trials": 1,
+      "nodes": [
+        "no_hypnozoiticidal",
+        "PQ_14d_low_3.5",
+        "TQ_300"
+      ],
+      "N": 150,
+      "trial_ids": [
+        "INSPECTOR"
+      ],
+      "estimable": true,
+      "tau2": 0.0,
+      "I2": 0.0,
+      "tau2_estimable": false,
+      "Q": 0.0,
+      "df": 0,
+      "OR": 3.841,
+      "lo": 1.61,
+      "hi": 9.161
+    },
+    {
+      "cell": "P3c",
+      "axis": "P3 partner blood-stage drug",
+      "level": "any partner pooled",
+      "note": "",
+      "rule": "observed",
+      "n_trials": 5,
+      "nodes": [
+        "no_hypnozoiticidal",
+        "PQ_14d_low_3.5",
+        "PQ_7d_high_7",
+        "TQ_50",
+        "TQ_100",
+        "TQ_300",
+        "TQ_600"
+      ],
+      "N": 2153,
+      "trial_ids": [
+        "DETECTIVE_PART1",
+        "DETECTIVE_PART2",
+        "GATHER",
+        "INSPECTOR",
+        "EFFORT"
+      ],
+      "estimable": true,
+      "tau2": 0.2471,
+      "I2": 64.8,
+      "tau2_estimable": true,
+      "Q": 17.041,
+      "df": 6,
+      "OR": 1.072,
+      "lo": 0.629,
+      "hi": 1.825
+    },
+    {
+      "cell": "P4a",
+      "axis": "P4 G6PD eligibility",
+      "level": "strictly screened only",
+      "note": "",
+      "rule": "observed",
+      "n_trials": 4,
+      "nodes": [
+        "no_hypnozoiticidal",
+        "PQ_14d_low_3.5",
+        "PQ_7d_high_7",
+        "TQ_50",
+        "TQ_100",
+        "TQ_300",
+        "TQ_600"
+      ],
+      "N": 1902,
+      "trial_ids": [
+        "DETECTIVE_PART1",
+        "DETECTIVE_PART2",
+        "INSPECTOR",
+        "EFFORT"
+      ],
+      "estimable": true,
+      "tau2": 0.3644,
+      "I2": 70.5,
+      "tau2_estimable": true,
+      "Q": 16.949,
+      "df": 5,
+      "OR": 1.057,
+      "lo": 0.53,
+      "hi": 2.11
+    },
+    {
+      "cell": "P4b",
+      "axis": "P4 G6PD eligibility",
+      "level": "incl. moderate-deficient females",
+      "note": "",
+      "rule": "observed",
+      "n_trials": 5,
+      "nodes": [
+        "no_hypnozoiticidal",
+        "PQ_14d_low_3.5",
+        "PQ_7d_high_7",
+        "TQ_50",
+        "TQ_100",
+        "TQ_300",
+        "TQ_600"
+      ],
+      "N": 2153,
+      "trial_ids": [
+        "DETECTIVE_PART1",
+        "DETECTIVE_PART2",
+        "GATHER",
+        "INSPECTOR",
+        "EFFORT"
+      ],
+      "estimable": true,
+      "tau2": 0.2471,
+      "I2": 64.8,
+      "tau2_estimable": true,
+      "Q": 17.041,
+      "df": 6,
+      "OR": 1.072,
+      "lo": 0.629,
+      "hi": 1.825
+    },
+    {
+      "cell": "P5a",
+      "axis": "P5 node scheme",
+      "level": "total mg/kg (PRIMARY)",
+      "note": "PQ 7 d @1.0 and PQ 14 d @0.5 would merge at 7 mg/kg -- but no 14 d high-dose arm exists at 180 d, so the merge is untested",
+      "rule": "observed",
+      "n_trials": 5,
+      "nodes": [
+        "no_hypnozoiticidal",
+        "PQ_14d_low_3.5",
+        "PQ_7d_high_7",
+        "TQ_50",
+        "TQ_100",
+        "TQ_300",
+        "TQ_600"
+      ],
+      "N": 2153,
+      "trial_ids": [
+        "DETECTIVE_PART1",
+        "DETECTIVE_PART2",
+        "GATHER",
+        "INSPECTOR",
+        "EFFORT"
+      ],
+      "estimable": true,
+      "tau2": 0.2471,
+      "I2": 64.8,
+      "tau2_estimable": true,
+      "Q": 17.041,
+      "df": 6,
+      "OR": 1.072,
+      "lo": 0.629,
+      "hi": 1.825
+    },
+    {
+      "cell": "P5b",
+      "axis": "P5 node scheme",
+      "level": "daily dose x duration kept distinct",
+      "note": "identical to P5a in this evidence base: the only 7 mg/kg node present is the 7-day regimen",
+      "rule": "observed",
+      "n_trials": 5,
+      "nodes": [
+        "no_hypnozoiticidal",
+        "PQ_14d_low_3.5",
+        "PQ_7d_high_7",
+        "TQ_50",
+        "TQ_100",
+        "TQ_300",
+        "TQ_600"
+      ],
+      "N": 2153,
+      "trial_ids": [
+        "DETECTIVE_PART1",
+        "DETECTIVE_PART2",
+        "GATHER",
+        "INSPECTOR",
+        "EFFORT"
+      ],
+      "estimable": true,
+      "tau2": 0.2471,
+      "I2": 64.8,
+      "tau2_estimable": true,
+      "Q": 17.041,
+      "df": 6,
+      "OR": 1.072,
+      "lo": 0.629,
+      "hi": 1.825
+    },
+    {
+      "cell": "P6a",
+      "axis": "P6 administration",
+      "level": "supervised (efficacy) only",
+      "note": "",
+      "rule": "observed",
+      "n_trials": 4,
+      "nodes": [
+        "no_hypnozoiticidal",
+        "PQ_14d_low_3.5",
+        "TQ_50",
+        "TQ_100",
+        "TQ_300",
+        "TQ_600"
+      ],
+      "N": 1252,
+      "trial_ids": [
+        "DETECTIVE_PART1",
+        "DETECTIVE_PART2",
+        "GATHER",
+        "INSPECTOR"
+      ],
+      "estimable": true,
+      "tau2": 0.2363,
+      "I2": 58.4,
+      "tau2_estimable": true,
+      "Q": 12.031,
+      "df": 5,
+      "OR": 1.249,
+      "lo": 0.684,
+      "hi": 2.282
+    },
+    {
+      "cell": "P6b",
+      "axis": "P6 administration",
+      "level": "unsupervised (effectiveness) only",
+      "note": "",
+      "rule": "observed",
+      "n_trials": 1,
+      "nodes": [
+        "PQ_14d_low_3.5",
+        "PQ_7d_high_7",
+        "TQ_300"
+      ],
+      "N": 901,
+      "trial_ids": [
+        "EFFORT"
+      ],
+      "estimable": true,
+      "tau2": 0.0,
+      "I2": 0.0,
+      "tau2_estimable": false,
+      "Q": 0.0,
+      "df": 0,
+      "OR": 0.667,
+      "lo": 0.418,
+      "hi": 1.063
+    },
+    {
+      "cell": "P7a",
+      "axis": "P7 single-edge nodes",
+      "level": "retained (full 7-node network)",
+      "note": "",
+      "rule": "observed",
+      "n_trials": 5,
+      "nodes": [
+        "no_hypnozoiticidal",
+        "PQ_14d_low_3.5",
+        "PQ_7d_high_7",
+        "TQ_50",
+        "TQ_100",
+        "TQ_300",
+        "TQ_600"
+      ],
+      "N": 2153,
+      "trial_ids": [
+        "DETECTIVE_PART1",
+        "DETECTIVE_PART2",
+        "GATHER",
+        "INSPECTOR",
+        "EFFORT"
+      ],
+      "estimable": true,
+      "tau2": 0.2471,
+      "I2": 64.8,
+      "tau2_estimable": true,
+      "Q": 17.041,
+      "df": 6,
+      "OR": 1.072,
+      "lo": 0.629,
+      "hi": 1.825
+    },
+    {
+      "cell": "P7b",
+      "axis": "P7 single-edge nodes",
+      "level": "dropped -> 3-node robust core",
+      "note": "",
+      "rule": "observed",
+      "n_trials": 5,
+      "nodes": [
+        "no_hypnozoiticidal",
+        "PQ_14d_low_3.5",
+        "TQ_300"
+      ],
+      "N": 1690,
+      "trial_ids": [
+        "DETECTIVE_PART1",
+        "DETECTIVE_PART2",
+        "GATHER",
+        "INSPECTOR",
+        "EFFORT"
+      ],
+      "estimable": true,
+      "tau2": 0.2471,
+      "I2": 64.8,
+      "tau2_estimable": true,
+      "Q": 17.041,
+      "df": 6,
+      "OR": 1.072,
+      "lo": 0.629,
+      "hi": 1.825
+    },
+    {
+      "cell": "P8a",
+      "axis": "P8 censoring rule",
+      "level": "observed recurrence (PRIMARY)",
+      "note": "",
+      "rule": "observed",
+      "n_trials": 5,
+      "nodes": [
+        "no_hypnozoiticidal",
+        "PQ_14d_low_3.5",
+        "PQ_7d_high_7",
+        "TQ_50",
+        "TQ_100",
+        "TQ_300",
+        "TQ_600"
+      ],
+      "N": 2153,
+      "trial_ids": [
+        "DETECTIVE_PART1",
+        "DETECTIVE_PART2",
+        "GATHER",
+        "INSPECTOR",
+        "EFFORT"
+      ],
+      "estimable": true,
+      "tau2": 0.2471,
+      "I2": 64.8,
+      "tau2_estimable": true,
+      "Q": 17.041,
+      "df": 6,
+      "OR": 1.072,
+      "lo": 0.629,
+      "hi": 1.825
+    },
+    {
+      "cell": "P8b",
+      "axis": "P8 censoring rule",
+      "level": "missing = failure",
+      "note": "",
+      "rule": "missing_failure",
+      "n_trials": 5,
+      "nodes": [
+        "no_hypnozoiticidal",
+        "PQ_14d_low_3.5",
+        "PQ_7d_high_7",
+        "TQ_50",
+        "TQ_100",
+        "TQ_300",
+        "TQ_600"
+      ],
+      "N": 2153,
+      "trial_ids": [
+        "DETECTIVE_PART1",
+        "DETECTIVE_PART2",
+        "GATHER",
+        "INSPECTOR",
+        "EFFORT"
+      ],
+      "estimable": true,
+      "tau2": 0.2311,
+      "I2": 64.7,
+      "tau2_estimable": true,
+      "Q": 16.973,
+      "df": 6,
+      "OR": 1.063,
+      "lo": 0.638,
+      "hi": 1.77
+    },
+    {
+      "cell": "P8c",
+      "axis": "P8 censoring rule",
+      "level": "censored = success",
+      "note": "",
+      "rule": "censored_success",
+      "n_trials": 5,
+      "nodes": [
+        "no_hypnozoiticidal",
+        "PQ_14d_low_3.5",
+        "PQ_7d_high_7",
+        "TQ_50",
+        "TQ_100",
+        "TQ_300",
+        "TQ_600"
+      ],
+      "N": 2153,
+      "trial_ids": [
+        "DETECTIVE_PART1",
+        "DETECTIVE_PART2",
+        "GATHER",
+        "INSPECTOR",
+        "EFFORT"
+      ],
+      "estimable": true,
+      "tau2": 0.2398,
+      "I2": 64.7,
+      "tau2_estimable": true,
+      "Q": 17.007,
+      "df": 6,
+      "OR": 1.073,
+      "lo": 0.635,
+      "hi": 1.816
+    },
+    {
+      "cell": "RoB",
+      "axis": "risk of bias",
+      "level": "double-blind trials only",
+      "note": "drops EFFORT, the only open-label trial",
+      "rule": "observed",
+      "n_trials": 4,
+      "nodes": [
+        "no_hypnozoiticidal",
+        "PQ_14d_low_3.5",
+        "TQ_50",
+        "TQ_100",
+        "TQ_300",
+        "TQ_600"
+      ],
+      "N": 1252,
+      "trial_ids": [
+        "DETECTIVE_PART1",
+        "DETECTIVE_PART2",
+        "GATHER",
+        "INSPECTOR"
+      ],
+      "estimable": true,
+      "tau2": 0.2363,
+      "I2": 58.4,
+      "tau2_estimable": true,
+      "Q": 12.031,
+      "df": 5,
+      "OR": 1.249,
+      "lo": 0.684,
+      "hi": 2.282
+    }
+  ],
+  "q_decomposition": {
+    "total": 17.041286,
+    "total_df": 6,
+    "total_p": 0.009133,
+    "within_design": 4.995111,
+    "within_df": 2,
+    "within_p": 0.082286,
+    "between_design": 12.046175,
+    "between_df": 4,
+    "between_p": 0.017011,
+    "source": "R netmeta decomp.design()"
+  },
+  "validation": {
+    "tool": "R netmeta",
+    "max_abs_diff_fixed_effect": 4.83e-08,
+    "tolerance": 1e-06,
+    "passed": true
+  }
+}

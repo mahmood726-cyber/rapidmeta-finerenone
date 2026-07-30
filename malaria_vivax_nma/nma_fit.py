@@ -150,11 +150,21 @@ def _neg_reml(tau2, rows, nodes):
 
 def fit(trials, nodes, rule='observed'):
     rows = build_contrasts(trials, rule)
-    opt = minimize_scalar(_neg_reml, bounds=(0.0, 4.0), args=(rows, nodes),
-                          method='bounded', options={'xatol': 1e-10})
-    tau2 = max(0.0, float(opt.x))
-    if _neg_reml(0.0, rows, nodes) <= _neg_reml(tau2, rows, nodes):
+    # Heterogeneity is only identified when the number of contrasts exceeds the
+    # number of basic parameters. With a single trial (or a saturated design)
+    # tau^2 is not estimable; forcing it to 0 and flagging it is honest, whereas
+    # letting the optimiser wander over a flat likelihood returns a meaningless
+    # number and emits NaN warnings.
+    n_contrasts = sum(r['S'].shape[0] for r in rows)
+    tau2_estimable = len(rows) > 1 and n_contrasts > (len(nodes) - 1)
+    if not tau2_estimable:
         tau2 = 0.0
+    else:
+        opt = minimize_scalar(_neg_reml, bounds=(0.0, 4.0), args=(rows, nodes),
+                              method='bounded', options={'xatol': 1e-10})
+        tau2 = max(0.0, float(opt.x))
+        if _neg_reml(0.0, rows, nodes) <= _neg_reml(tau2, rows, nodes):
+            tau2 = 0.0
     beta, cov, pos = gls(rows, nodes, tau2)
     # Q for heterogeneity/inconsistency, from the fixed-effect fit
     b0, _, _ = gls(rows, nodes, 0.0)
@@ -167,7 +177,7 @@ def fit(trials, nodes, rule='observed'):
         res = yi - Xi @ b0
         Q += float(res @ np.linalg.inv(r['S']) @ res)
     dfQ = max(0, len(y) - (len(nodes) - 1))
-    return {'tau2': tau2, 'tau': tau2 ** 0.5, 'beta': beta, 'cov': cov, 'pos': pos,
+    return {'tau2': tau2, 'tau': tau2 ** 0.5, 'tau2_estimable': tau2_estimable, 'beta': beta, 'cov': cov, 'pos': pos,
             'rows': rows, 'Q': Q, 'df': dfQ,
             'pQ': float(1 - stats.chi2.cdf(Q, dfQ)) if dfQ > 0 else None,
             'I2': max(0.0, (Q - dfQ) / Q * 100) if Q > 0 and dfQ > 0 else 0.0,
