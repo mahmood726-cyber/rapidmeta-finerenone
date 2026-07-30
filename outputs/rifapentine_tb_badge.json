@@ -1,0 +1,89 @@
+{
+ "headline": "VERDICT: FABRICATED EXTRACTION - DO NOT CITE THIS POOLED ESTIMATE",
+ "bg": "#991b1b",
+ "border": "#450a0a",
+ "facts": {
+  "Trials in fit": 0,
+  "Quarantined": 2,
+  "Registry concordance": "2 of 2 checked, 2 of 2 FAIL",
+  "Source-verified": "0 full, 0 denominator-only, 2 unsourced",
+  "Counts changed": 0
+ },
+ "body": [
+  "Source verification on 2026-07-30 (ClinicalTrials.gov API v2 + PubMed, every identifier by lookup) found that NEITHER fitted trial's 2x2 table exists in its cited source. The previously displayed pooled OR 0.389 (95% CI 0.134-1.124) has no evidentiary basis and has been withdrawn.",
+  "NCT00814671 - QUARANTINED: wrong population and fabricated cells. This is a Phase 2 ACTIVE smear-positive pulmonary TB TREATMENT trial (Cape Town, n=153), not a latent-TB trial. Its extracted events 46 and 45 are not events at all: they are the ANALYSIS-SET DENOMINATORS of two arms in a secondary median-days outcome (time to conversion on liquid MGIT media), paired with participant-flow randomisation counts from two DIFFERENT arms (54 and 48) as denominators. The trial's actual primary outcome is 85% of 41, 94% of 36, 96% of 45 with negative culture at week 8 - and it randomised three arms, of which the app fits two.",
+  "NCT01582711 (iAdhere, TBTC Study 33) - QUARANTINED: wrong outcome. Denominators 337/337 are correct, but the numerators 2 and 5 are the category 'Not advisable to continue study drugs' - one of EIGHT reasons-for-failure-to-complete, a clinician-judgement administrative reason. The trial's primary outcome is treatment completion: 294/337 (87.2%) directly observed vs 248/335 (74.0%) self-administered (Belknap R et al, Ann Intern Med 2017;167:689-697, PMID 29114781). iAdhere is a NON-INFERIORITY trial with a 15% margin; that frame was discarded.",
+  "SIGN CONFLICT: the withdrawn pooled estimate combined a GOOD outcome (negative culture, where OR<1 means WORSE) with a BAD outcome (failure-to-complete reason, where OR<1 means BETTER) on one odds-ratio scale with no sign reconciliation. The app's own machine verdict had already recorded '2 AACT outcome-direction divergence(s)' while this badge displayed a green INTERNAL CHECKS PASSED.",
+  "EVIDENCE BASE ABSENT: the landmark rifapentine-LTBI efficacy trial, PREVENT TB / TBTC Study 26 (NCT00023452; Sterling TR et al, N Engl J Med 2011;365:2155-66, PMID 22150035 - TB in 7 of 3986 with 3HP vs 15 of 3745 with 9H) does not appear anywhere in this app.",
+  "GATES RUN, AND WHAT THEY COULD NOT SEE: per-arm count plausibility 0 findings and contrast recompute exact to 0.00e+00 - the arithmetic layer is clean because fabricated cells can still be valid integers. GRIM/GRIMMER N/A (binary outcome, no means). Benford N/A (8 digits total, far below a meaningful chi-square). Fragility index N/A (neither contrast is significant: Fisher p=0.2098 and p=0.4507 - and FI on a fabricated 2x2 measures nothing). Identifiers: ZERO PMIDs and ZERO DOIs anywhere in this app. Registry concordance was the only gate that could catch this, and it failed 2 of 2.",
+  "ALSO FLAGGED: this app embeds a heart-failure trial alias table (PARADIGM-HF, PARAGON-HF, PARADISE-MI, PARAGLIDE-HF) inherited from the base engine; scripts/clone_contamination_gate.py blocks on it. The SGLT2i adverse-event profile is clean here.",
+  "AMSTAR-2 confidence: CRITICALLY LOW. Both trial rows are RETAINED in the ledger and flagged, not deleted. No count was altered - there is no sourced value to correct them to."
+ ],
+ "footer": "Full per-cell provenance, quoted registry fields and the reinstatement conditions: outputs/rifapentine_tb_source_verification.json and outputs/RIFAPENTINE_TB_INTEGRITY_GATES_2026-07-30.md. Verified 2026-07-30 against ClinicalTrials.gov API v2 (live) and PubMed. STAGED, not pushed; pending cross-family gate.",
+ "verdict_patch": {
+  "verdict": "FABRICATED",
+  "p0_total": 2,
+  "counts": {
+   "P0_internal": 0,
+   "P0_aact_nct_missing": 0,
+   "P0_grim": 0,
+   "P0_source_verification_fail": 2,
+   "P1_aact_concord": 2,
+   "P1_fi_critical": 0,
+   "P1_fi_warn": 0,
+   "P1_pi_gap": 0,
+   "P1_wrong_population": 1,
+   "P1_wrong_outcome": 1,
+   "P1_arm_collapse": 2,
+   "P1_dl_smallk": 1,
+   "P2_evidence_incomplete": 2,
+   "P2_no_identifier": 2,
+   "P2_aact_advisory": 2,
+   "n_trials_seen": 2,
+   "n_trials_quarantined": 2,
+   "n_trials_in_fit": 0
+  },
+  "reasons": [
+   "NCT00814671: wrong population (active pulmonary TB treatment trial in a latent-TB review)",
+   "NCT00814671: all four 2x2 cells fabricated - secondary-outcome analysis-set denominators used as event counts, paired with participant-flow counts from different arms",
+   "NCT00814671: 3 randomised arms collapsed to 2; RPT600 (best-performing) silently dropped",
+   "NCT01582711: wrong outcome - 'Not advisable to continue study drugs' (1 of 8 failure-reason classes) extracted instead of the primary treatment-completion outcome 294/337 vs 248/335",
+   "NCT01582711: non-inferiority design (15% margin) pooled into a superiority odds ratio",
+   "NCT01582711: 3 randomised arms collapsed to 2; SAT+SMS arm silently dropped",
+   "Sign conflict: a beneficial outcome and a harmful outcome pooled on one OR scale without reconciliation",
+   "Zero PMIDs and zero DOIs anywhere in the app",
+   "DerSimonian-Laird pooling at k=2 (biased for k<10; REML or Paule-Mandel required)",
+   "PREVENT TB (NCT00023452, PMID 22150035), the landmark efficacy trial for this question, is absent",
+   "Blocking clone contamination: heart-failure trial alias table (PARADIGM-HF/PARAGON-HF/PARADISE-MI/PARAGLIDE-HF)"
+  ],
+  "source_verification": {
+   "date": "2026-07-30",
+   "lanes": [
+    "ClinicalTrials.gov API v2 (live)",
+    "PubMed E-utilities"
+   ],
+   "lanes_not_run": [
+    "WHO prequalification / TB preventive-treatment guideline tables",
+    "Cochrane / prior synthesis",
+    "full text"
+   ],
+   "ledger": "outputs/rifapentine_tb_source_verification.json"
+  }
+ },
+ "quarantined_trials": [
+  {
+   "id": "NCT00814671",
+   "violation": "wrong population and fabricated cells"
+  },
+  {
+   "id": "NCT01582711",
+   "violation": "wrong outcome"
+  }
+ ],
+ "stale_forbidden": [
+  "INTERNAL CHECKS PASSED",
+  "Fabrication-risk score",
+  "0.275",
+  "pooled OR 0.389"
+ ]
+}

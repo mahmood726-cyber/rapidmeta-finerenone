@@ -1,0 +1,198 @@
+{
+ "app": "RIFAPENTINE_TB_AUTO_FULL_REVIEW.html",
+ "declared_subject": "Rifapentine in latent TB (LTBI)",
+ "audit_date": "2026-07-30",
+ "branch": "upgrade/tb-prevention-rifapentine-2026-07-30",
+ "status": "STAGED - NOT PUSHED. Pending cross-family gate.",
+ "method": "Every identifier and count resolved by lookup against ClinicalTrials.gov API v2 (live, 2026-07-30) and PubMed E-utilities. Nothing from recall.",
+ "verdict": "FABRICATED_EXTRACTION",
+ "headline": "Both fitted trials fail source verification. Neither 2x2 exists in its cited source. The pooled estimate has no evidentiary basis and the app's landmark evidence base (PREVENT TB) is absent entirely.",
+
+ "trials": [
+  {
+   "id": "NCT00814671",
+   "registry_title": "A Phase 2 Randomized, Open-label Trial of Daily Rifapentine 450mg or 600mg in Place of Rifampicin 600mg for Intensive Phase Treatment of Smear-positive Pulmonary Tuberculosis",
+   "registry_source": "https://clinicaltrials.gov/study/NCT00814671",
+   "sponsor": "Johns Hopkins University",
+   "site": "University of Cape Town Lung Institute, Cape Town, South Africa",
+   "enrollment_registered": 153,
+   "phase": "PHASE2",
+   "condition": "Tuberculosis (ACTIVE smear-positive pulmonary)",
+   "pmid_in_app": null,
+   "doi_in_app": null,
+   "verification_tier": "UNSOURCED",
+   "findings": ["P1-POPULATION", "P0-FABRICATED-CELLS", "P1-ARM-COLLAPSE", "P2-NO-IDENTIFIER"],
+
+   "app_extracted_2x2": {"tE": 46, "tN": 54, "cE": 45, "cN": 48,
+                         "y_logOR": -0.958850346292951, "v": 0.5022946859903381},
+
+   "registry_posted_results": {
+    "participant_flow_started":   {"RPT450": 54, "RIF600": 48, "RPT600": 51},
+    "participant_flow_completed": {"RPT450": 47, "RIF600": 44, "RPT600": 49},
+    "primary_1_negative_LJ_culture_wk8": {
+      "unit": "percentage of participants", "param": "NUMBER",
+      "denominators": {"RPT450": 41, "RIF600": 36, "RPT600": 45},
+      "values_pct":   {"RPT450": 85,  "RIF600": 94, "RPT600": 96}
+    },
+    "primary_2_tolerability": {
+      "unit": "percentage of participants",
+      "denominators": {"RPT450": 54, "RIF600": 48, "RPT600": 51},
+      "values_pct":   {"RPT450": 2.0, "RIF600": 8.3, "RPT600": 2.0}
+    },
+    "secondary_time_to_conversion_MGIT": {
+      "unit": "days", "param": "MEDIAN",
+      "denominators": {"RPT450": 31, "RIF600": 46, "RPT600": 45},
+      "values":       {"RPT450": 50, "RIF600": 59, "RPT600": 57}
+    }
+   },
+
+   "cell_by_cell_provenance": {
+    "tE=46": "NOT an event count. 46 is the DENOMINATOR of the RIF600 arm in the SECONDARY outcome 'Time to Stable Culture Conversion on Liquid MGIT Media' (a median-days outcome).",
+    "cE=45": "NOT an event count. 45 is the DENOMINATOR of the RPT600 arm in the same MGIT secondary outcome (and of RPT600 in the primary culture outcome).",
+    "tN=54": "Participant-flow STARTED count for RPT450.",
+    "cN=48": "Participant-flow STARTED count for RIF600.",
+    "conclusion": "All four cells are wrong and mutually inconsistent. Two analysis-set sizes from a median-days secondary outcome were used as EVENT COUNTS, paired with randomisation counts from two DIFFERENT arms as denominators. No arm pairing in this trial yields 46/54 or 45/48 for any outcome."
+   },
+
+   "what_the_source_actually_supports": "If this trial belonged in an LTBI review at all (it does not), the primary outcome is 85% of 41 (RPT450), 94% of 36 (RIF600), 96% of 45 (RPT600) with negative LJ culture at week 8 - a GOOD outcome, so an OR<1 denotes rifapentine WORSE. The app's pooled OR 0.389 is presented as benefit.",
+
+   "population_finding": "This is an ACTIVE smear-positive pulmonary tuberculosis TREATMENT trial (intensive-phase regimen substitution). The app is titled 'Rifapentine in latent TB'. Latent TB is an explicit EXCLUSION-adjacent population here: the trial requires 'acid-fast bacilli in a stained smear of expectorated sputum'. Population mismatch is total, not marginal.",
+
+   "arm_collapse_finding": "The trial randomised THREE arms (RPT450 n=54, RIF600 n=48, RPT600 n=51). The app fits a two-arm contrast, silently discarding RPT600 - the arm that performed best (96%). Rifapentine dose is the trial's own experimental variable and the two doses are not interchangeable."
+  },
+
+  {
+   "id": "NCT01582711",
+   "registry_title": "TBTC Study 33. An Evaluation of Adherence to Latent Tuberculosis Infection (LTBI) Treatment With 12 Doses of Once Weekly Rifapentine (RPT) and Isoniazid (INH) Given as Self-administered (SAT) Versus Directly-observed Therapy (DOT): iAdhere.",
+   "acronym": "iAdhere",
+   "registry_source": "https://clinicaltrials.gov/study/NCT01582711",
+   "publication": {
+     "pmid": "29114781",
+     "doi": "10.7326/M17-1150",
+     "pmc": "PMC5766341",
+     "citation": "Belknap R, Holland D, Feng PJ, et al. Self-administered Versus Directly Observed Once-Weekly Isoniazid and Rifapentine Treatment of Latent Tuberculosis Infection: A Randomized Trial. Ann Intern Med. 2017;167(10):689-697.",
+     "source": "PubMed"
+   },
+   "sponsor": "Centers for Disease Control and Prevention",
+   "enrollment_registered": 1002,
+   "phase": "PHASE3",
+   "condition": "Latent Tuberculosis Infection",
+   "pmid_in_app": null,
+   "doi_in_app": null,
+   "verification_tier": "UNSOURCED",
+   "findings": ["P0-WRONG-OUTCOME", "P1-ARM-COLLAPSE", "P1-OUTCOME-DIRECTION", "P2-NO-IDENTIFIER"],
+
+   "app_extracted_2x2": {"tE": 2, "tN": 337, "cE": 5, "cN": 337,
+                         "y_logOR": -0.9252862947827329, "v": 0.7059971228196369},
+
+   "registry_posted_results": {
+    "participant_flow_started": {"DOT": 337, "SAT": 337, "SAT_SMS": 328},
+    "primary_treatment_completion": {
+      "unit": "Participants",
+      "denominators": {"DOT": 337, "SAT": 335, "SAT_SMS": 326},
+      "counts":       {"DOT": 294, "SAT": 248, "SAT_SMS": 250}
+    },
+    "secondary_reason_for_failure_to_complete_8_classes": {
+      "Study therapy not started":                        {"DOT": 3,  "SAT": 7,  "SAT_SMS": 4},
+      "Drug toxicities causing permanent discontinuation":{"DOT": 12, "SAT": 18, "SAT_SMS": 14},
+      "Failure to complete minimum number of PP doses":   {"DOT": 4,  "SAT": 7,  "SAT_SMS": 9},
+      "Not advisable to continue study drugs":            {"DOT": 2,  "SAT": 5,  "SAT_SMS": 2},
+      "Refused further study therapy":                    {"DOT": 6,  "SAT": 7,  "SAT_SMS": 11},
+      "Patient became pregnant":                          {"DOT": 2,  "SAT": 1,  "SAT_SMS": 2},
+      "Other":                                            {"DOT": 9,  "SAT": 12, "SAT_SMS": 11},
+      "Unknown/Missing":                                  {"DOT": 2,  "SAT": 6,  "SAT_SMS": 6}
+    },
+    "secondary_grade34_drug_related_AE_or_death": {"DOT": 23, "SAT": 23, "SAT_SMS": 29}
+   },
+
+   "cell_by_cell_provenance": {
+    "tE=2, cE=5": "EXACT MATCH to the secondary-outcome class 'Not advisable to continue study drugs' (DOT 2, SAT 5). This is ONE of EIGHT reasons-for-failure-to-complete categories, and it is a clinician-judgement administrative reason - not TB disease, not treatment completion, not a safety endpoint.",
+    "tN=337, cN=337": "Participant-flow STARTED counts for DOT and SAT. Correct as denominators for the failure-reason table (which uses 337/337/328), so the denominators are right and the numerators are the wrong quantity.",
+    "conclusion": "The denominators are verified exactly. The numerators are a real number from the source, but from the wrong outcome. The app's headline claim rests on how often a clinician judged it 'not advisable to continue study drugs'."
+   },
+
+   "what_the_source_actually_supports": "Primary outcome, treatment completion: 294/337 (87.2%, 95% CI 83.1-90.5) DOT vs 248/335 (74.0%, 68.9-78.6) SAT vs 250/326 (76.4%, 71.3-80.8) SAT+SMS. Published as a NON-INFERIORITY trial with a 15% margin; self-administered therapy without reminders was noninferior to DOT in the US subgroup only, and no other comparison met noninferiority.",
+
+   "design_finding": "iAdhere is a NON-INFERIORITY adherence trial. Pooling it into a superiority-framed odds-ratio meta-analysis discards the margin and reverses the inferential frame the source used.",
+
+   "arm_collapse_finding": "Three arms (DOT 337, SAT 337, SAT+SMS 328). The app fits DOT vs SAT and silently drops the SMS arm.",
+
+   "direction_finding": "Combining this with NCT00814671 pools a GOOD outcome (negative culture) with a BAD outcome (reason for failure to complete) on the same OR scale without sign reconciliation. The app's own window.__verdict already recorded '2 AACT outcome-direction divergence(s)' - and the visible badge still said INTERNAL CHECKS PASSED."
+  }
+ ],
+
+ "absent_evidence_base": {
+  "finding": "The landmark rifapentine-LTBI efficacy trial is not present in the app at all.",
+  "source": "PubMed",
+  "trials": [
+   {"name": "PREVENT TB (TBTC Study 26)", "nct": "NCT00023452", "pmid": "22150035",
+    "doi": "10.1056/NEJMoa1104875",
+    "citation": "Sterling TR, Villarino ME, Borisov AS, et al. Three months of rifapentine and isoniazid for latent tuberculosis infection. N Engl J Med. 2011;365(23):2155-66.",
+    "key_result": "Tuberculosis developed in 7 of 3986 (0.19%) with 3HP vs 15 of 3745 (0.43%) with 9H; treatment completion 82.1% vs 69.0% (P<0.001).",
+    "why_it_matters": "This is the trial that establishes 3HP efficacy and underpins the WHO recommendation. It is the single most important study for this app's declared question, and it is absent."},
+   {"name": "PREVENT TB systemic drug reactions analysis", "nct": "NCT00023452", "pmid": "25904367",
+    "doi": "10.1093/cid/civ323",
+    "citation": "Sterling TR, Moro RN, Borisov AS, et al. Flu-like and Other Systemic Drug Reactions Among Persons Receiving Weekly Rifapentine Plus Isoniazid or Daily Isoniazid... Clin Infect Dis. 2015;61(4):527-35.",
+    "key_result": "153/7552 had a systemic drug reaction: 138/3893 (3.5%) with 3HP vs 15/3659 (0.4%) with 9H (P<.001)."},
+   {"name": "Taiwan 3HP vs 9H", "nct": "NCT02208427", "pmid": "30029896",
+    "doi": "10.1016/j.tube.2018.05.013",
+    "citation": "Sun HY, Huang YW, Huang WC, et al. Twelve-dose weekly rifapentine plus isoniazid for latent tuberculosis infection: A multicentre randomised controlled trial in Taiwan. Tuberculosis (Edinb). 2018;111:121-126.",
+    "key_result": "263 randomised (3HP n=132, 9H n=131); discontinuation 14 (10.6%) vs 29 (22.1%), p=0.011."},
+   {"name": "1HP vs 3HP non-HIV", "nct": "NCT04094012", "pmid": "38996972",
+    "doi": "10.1016/j.cmi.2024.06.024",
+    "citation": "Huang HL, Lee MR, Lee CH, et al. One-month daily and three-month weekly rifapentine plus isoniazid are comparable in completion rate and safety for latent tuberculosis infection in non-HIV Population. Clin Microbiol Infect. 2024;30(11):1410-1417.",
+    "key_result": "251 (1HP) vs 239 (3HP); completion 82.9% (208/251) vs 84.5% (202/239)."}
+  ],
+  "note": "This list is what a lookup-based search surfaced on 2026-07-30; it is a starting set for the rebuild, NOT a completed systematic search. BRIEF-TB/A5279, WHIP3TB, V-QUIN and ASTERoiD were not verified in this pass and must be resolved by lookup before any rebuild claims completeness."
+ },
+
+ "contamination": {
+  "finding": "foreign_trial_registry_rendered (HARD, blocking)",
+  "detail": "The app embeds KNOWN_TRIAL_ALIASES={NCT01035255:['paradigm-hf','paradigm'], NCT01920711:['paragon-hf','paragon'], NCT02924727:['paradise-mi','paradise'], NCT03988634:['paraglide-hf','paraglide']} - four sacubitril/valsartan HEART FAILURE trials baked into a tuberculosis app.",
+  "gate": "scripts/clone_contamination_gate.py RIFAPENTINE_TB_AUTO_FULL_REVIEW.html -> exit 1, BLOCKING",
+  "corpus_scope": "526 apps corpus-wide carry this alias table; 56 of them are in the global-health scope set.",
+  "class": "Base-engine survivor, same family as the SGLT2i AE-profile contamination fixed in d11d9f167, but a DIFFERENT slot (trial-alias resolution) that the drug-class blocklist does not cover.",
+  "sglt2_ae_profile": "CLEAN - no SGLT2/Fournier/DKA/genital-mycotic/DAPA-HF strings survive in this app."
+ },
+
+ "gates": {
+  "G1_per_arm_count_plausibility": {"result": "0 findings", "note": "All cells non-negative integers with e<=N. THIS GATE CANNOT SEE THE DEFECT - the fabricated cells are arithmetically valid."},
+  "G1b_contrast_recompute":        {"result": "0 findings", "note": "logOR and variance recompute from the stored 2x2 to delta = 0.00e+00 (exact). The pipeline is faithful; its input is not."},
+  "G2_GRIM_GRIMMER":               {"result": "N/A", "reason": "Binary per-arm counts only; no mean of a bounded integer scale is reported. Replaced by G1."},
+  "G3_Benford":                    {"result": "N/A", "reason": "8 digits total (2 trials x 4 cells). Far below the ~30-digit minimum for a meaningful chi-square. Reporting a Benford verdict here would be noise presented as evidence."},
+  "G4_arm_balance":                {"result": "2 advisories", "detail": "NCT00814671 54:48 = 1.125:1 and NCT01582711 337:337 = 1.000:1 are both benign AS RATIOS - but both mask a silent 3-arm-to-2-arm collapse, which the ratio test cannot detect."},
+  "G5_identifiers":                {"result": "2 findings", "detail": "ZERO PMIDs and ZERO DOIs anywhere in the app. Neither fitted trial carries a publication identifier. Both NCT IDs are well-formed and resolve."},
+  "G6_registry_concordance":       {"result": "2 of 2 covered, 2 of 2 FAIL", "detail": "Full coverage - and this is the gate that catches it. Both extractions are contradicted by their own posted registry results."},
+  "G7_fragility_index":            {"result": "N/A for both", "detail": "NCT00814671 Fisher p=0.2098; NCT01582711 Fisher p=0.4507. Neither is significant, so FI is undefined. It would be undefined anyway: FI on a fabricated 2x2 measures nothing."},
+  "G8_clone_contamination":        {"result": "BLOCKING", "detail": "see contamination above"},
+  "G9_self_contradiction":         {"result": "FAIL (pre-fix)", "detail": "Visible badge #15803d green 'INTERNAL CHECKS PASSED / Fabrication-risk score 0.275 / Trials: 2' sits above a window.__verdict recording P1_aact_concord=2, P2_evidence_incomplete=2 of 2 trials, and reasons ['2 AACT title/registry advisory','2 AACT outcome-direction divergence(s)','2 trial(s) missing evidence rows']."},
+  "G10_anchor":                    {"result": "N/A", "reason": "No re-fit performed. No count was altered - the disposition is quarantine of the whole fit, not correction."}
+ },
+
+ "statistical_findings": [
+  {"id": "S1", "severity": "P1",
+   "finding": "pooled_DL with k=2. DerSimonian-Laird is biased for k<10; REML or Paule-Mandel is required. tau2 estimated as 0.0 from Q=0.00093 on df=1 is uninformative, and the reported I2=0.0% is an artefact of k=2, not evidence of homogeneity.",
+   "source": "data/result.json embedded in the app"},
+  {"id": "S2", "severity": "P0",
+   "finding": "Pooled OR 0.389 (95% CI 0.134-1.124) is presented as a rifapentine benefit. It pools a GOOD outcome (negative culture at wk8, where OR<1 means WORSE) with a BAD outcome ('not advisable to continue study drugs', where OR<1 means BETTER). The two components have opposite sign conventions and were never reconciled.",
+   "note": "Recomputed independently: fixed-effect logOR -0.944898, matching the app's stored -0.944897553936862."}
+ ],
+
+ "disposition": {
+  "action": "QUARANTINE THE ENTIRE FIT",
+  "rationale": "Under the 'quarantine, never silent deletion' principle, both trial rows are RETAINED in the ledger and flagged. Neither is deleted. No count was altered - there is no sourced value to correct them to, because neither extraction corresponds to any outcome its source reports.",
+  "reinstatement_condition": "NCT00814671: not reinstatable in an LTBI review at any count - wrong population; it belongs in an active-TB-treatment review if anywhere. NCT01582711: reinstatable if re-extracted against its PRIMARY outcome (294/337 vs 248/335 treatment completion, PMID 29114781), with the non-inferiority margin carried and the SMS arm handled explicitly.",
+  "counts_changed": 0,
+  "trials_quarantined": 2,
+  "trials_remaining_in_fit": 0,
+  "verdict_after": "FABRICATED - NO ADMISSIBLE EVIDENCE"
+ },
+
+ "not_done": [
+  "No rebuild. Locating and extracting PREVENT TB, BRIEF-TB/A5279, WHIP3TB, V-QUIN, ASTERoiD and the Taiwan/1HP trials is a build task, not an audit task, and is out of scope for this pilot.",
+  "No full-text verification - all checks are against ClinicalTrials.gov posted results and PubMed abstracts.",
+  "WHO lane (Prequalification / consolidated TB preventive-treatment guideline evidence tables) not consulted in this pass.",
+  "Cochrane / prior-synthesis lane (L3) not consulted in this pass.",
+  "The 526-app KNOWN_TRIAL_ALIASES contamination is reported, not fixed - corpus-wide remediation is a separate batch."
+ ]
+}
