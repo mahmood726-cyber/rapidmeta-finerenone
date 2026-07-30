@@ -1,0 +1,88 @@
+{
+  "_meta": {
+    "estimand": "P. vivax recurrence by 180 days (recurrence, NOT relapse)",
+    "preset": "P1(a) strict 180-day horizon",
+    "generated": "2026-07-30",
+    "node_key": "total mg/kg of hypnozoiticidal drug (primaquine) or single tafenoquine dose"
+  },
+  "nodes": [
+    {"id": "no_hypnozoiticidal", "label": "No hypnozoiticidal therapy (blood-stage drug alone)", "total_mg_per_kg": 0},
+    {"id": "PQ_14d_low_3.5",     "label": "Primaquine 14 d low dose",  "total_mg_per_kg": 3.5},
+    {"id": "PQ_7d_high_7",       "label": "Primaquine 7 d high dose",  "total_mg_per_kg": 7.0},
+    {"id": "TQ_50",              "label": "Tafenoquine 50 mg single",  "total_mg_per_kg": null},
+    {"id": "TQ_100",             "label": "Tafenoquine 100 mg single", "total_mg_per_kg": null},
+    {"id": "TQ_300",             "label": "Tafenoquine 300 mg single", "total_mg_per_kg": null},
+    {"id": "TQ_600",             "label": "Tafenoquine 600 mg single", "total_mg_per_kg": null}
+  ],
+  "trials": [
+    {
+      "id": "DETECTIVE_PART1", "n": 329, "partner": "chloroquine", "blinding": "double-blind",
+      "population": "ITT", "provenance_tier": "T2",
+      "sources": {"registry_results": false, "publication": "PMID 24360369", "fda": "NDA 210795 Table 22/23"},
+      "arms": [
+        {"node": "no_hypnozoiticidal", "n": 54, "recurrence_free": 21, "recurrence": 31, "censored": 2, "km_pct": 37.5},
+        {"node": "TQ_50",              "n": 55, "recurrence_free": 29, "recurrence": 22, "censored": 4, "km_pct": 57.7},
+        {"node": "TQ_100",             "n": 57, "recurrence_free": 29, "recurrence": 25, "censored": 3, "km_pct": 54.1},
+        {"node": "TQ_300",             "n": 57, "recurrence_free": 48, "recurrence": 6,  "censored": 3, "km_pct": 89.2},
+        {"node": "TQ_600",             "n": 56, "recurrence_free": 43, "recurrence": 4,  "censored": 9, "km_pct": 91.9},
+        {"node": "PQ_14d_low_3.5",     "n": 50, "recurrence_free": 34, "recurrence": 12, "censored": 4, "km_pct": 77.3}
+      ]
+    },
+    {
+      "id": "DETECTIVE_PART2", "n": 522, "partner": "chloroquine", "blinding": "double-blind",
+      "population": "micro-ITT", "provenance_tier": "T1",
+      "sources": {"registry_results": true, "publication": "PMID 30650322", "fda": "NDA 210795 Table 30"},
+      "arms": [
+        {"node": "no_hypnozoiticidal", "n": 133, "recurrence_free": 35,  "recurrence": 88, "censored": 10, "km_pct": 27.7},
+        {"node": "TQ_300",             "n": 260, "recurrence_free": 155, "recurrence": 85, "censored": 20, "km_pct": 62.4},
+        {"node": "PQ_14d_low_3.5",     "n": 129, "recurrence_free": 83,  "recurrence": 36, "censored": 10, "km_pct": 69.6}
+      ]
+    },
+    {
+      "id": "GATHER", "n": 251, "partner": "chloroquine", "blinding": "double-blind",
+      "population": "micro-ITT", "provenance_tier": "T2",
+      "sources": {"registry_results": true, "publication": "PMID 30650326", "fda": "NDA 210795 Table 40/41"},
+      "arms": [
+        {"node": "TQ_300",         "n": 166, "recurrence_free": 112, "recurrence": 42, "censored": 12, "km_pct": 72.7, "recurrence_missing_eq_failure": 54},
+        {"node": "PQ_14d_low_3.5", "n": 85,  "recurrence_free": 60,  "recurrence": 20, "censored": 5,  "km_pct": 75.1, "recurrence_missing_eq_failure": 25}
+      ]
+    },
+    {
+      "id": "INSPECTOR", "n": 150, "partner": "dihydroartemisinin-piperaquine", "blinding": "double-blind",
+      "population": "micro-ITT", "provenance_tier": "T2",
+      "sources": {"registry_results": true, "publication": "PMID 37236221", "fda": null},
+      "ph_violated": true,
+      "arms": [
+        {"node": "no_hypnozoiticidal", "n": 50, "recurrence_free": 6,  "recurrence": 44, "censored": 0, "km_pct": 11.2},
+        {"node": "TQ_300",             "n": 50, "recurrence_free": 11, "recurrence": 39, "censored": 0, "km_pct": 21.0},
+        {"node": "PQ_14d_low_3.5",     "n": 50, "recurrence_free": 26, "recurrence": 24, "censored": 0, "km_pct": 52.0}
+      ]
+    },
+    {
+      "id": "EFFORT", "n": 901, "partner": "mixed (chloroquine / DHA-piperaquine / artesunate-pyronaridine)",
+      "blinding": "open-label", "population": "modified ITT", "provenance_tier": "T3",
+      "sources": {"registry_results": false, "publication": "PMID 41690325", "fda": null},
+      "ci_level": 97.55,
+      "supervision": "unsupervised (effectiveness)",
+      "arms": [
+        {"node": "PQ_7d_high_7",   "n": 295, "recurrence": 34, "recurrence_free": 261, "censored": 0, "km_pct": 87.0, "km_cum_incidence_pct": 13.0},
+        {"node": "TQ_300",         "n": 305, "recurrence": 35, "recurrence_free": 270, "censored": 0, "km_pct": 87.4, "km_cum_incidence_pct": 12.6},
+        {"node": "PQ_14d_low_3.5", "n": 301, "recurrence": 49, "recurrence_free": 252, "censored": 0, "km_pct": 81.5, "km_cum_incidence_pct": 18.5}
+      ]
+    }
+  ],
+  "excluded": [
+    {"id": "IMPROV",            "nct": "NCT01814683", "reason": "no 180-day time point exists; reports day 28, day 42 and 1 year only. Rate not back-converted."},
+    {"id": "ENG_CAMBODIA_2025", "nct": "NCT04706130", "reason": "3-month horizon"},
+    {"id": "CRUZEIRO_3REG",     "nct": "NCT03610399", "reason": "168-day horizon, not 180; enters P1(b) cell only"},
+    {"id": "CURAVIVAX",         "nct": "NCT03208907", "reason": "day-42 primary outcome"},
+    {"id": "TQ_PAEDIATRIC",     "nct": "NCT02563496", "reason": "single-arm, 4-month, 50 mg band enrolled zero"},
+    {"id": "PVET_BRAZIL",       "nct": "NCT02043652", "reason": "single-arm, no contrast"},
+    {"id": "TES_PHILIPPINES",   "nct": "NCT04222088", "reason": "observational, 28-day ACPR"}
+  ],
+  "absent_nodes": [
+    {"node": "PQ_14d_high_7",  "reason": "only NCT04706130 (3 mo) and NCT03610399 (168 d); no 180-day evidence"},
+    {"node": "PQ_weekly_8wk",  "reason": "no eligible trial found at any horizon"},
+    {"node": "TQ_paediatric",  "reason": "single-arm only"}
+  ]
+}
