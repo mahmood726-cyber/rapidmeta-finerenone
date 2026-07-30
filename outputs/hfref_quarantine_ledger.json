@@ -10,6 +10,23 @@
     "SECONDARY_CORROBORATED": "Not read by me directly (publisher blocked automated retrieval); the value is reported concordantly by two or more independent retrievals of the publisher's page. Labelled as such and never presented as a direct read."
   },
 
+  "_count_provenance_tiers": {
+    "_added": "2026-07-30, symmetric-quarantine pass. Verification status alone conflated two materially different things: a count the source PRINTS, and a count we BACK-COMPUTED from a rounded percentage. These are now separate tiers.",
+    "VERBATIM_COUNT": "The per-arm death count is printed as an integer in the source (e.g. CIBIS-II 'All-cause mortality ... 156 [11.8%] vs 228 [17.3%] deaths'). Nothing is inferred.",
+    "RECOVERED_FROM_PERCENTAGE_UNIQUE": "The source prints only a rounded percentage. The integer count is UNIQUELY recoverable from that percentage against the stated denominator -- exactly one integer rounds to the published figure, so the recovery carries no discretion. This is a sound derivation but it is NOT a verbatim-reported count, and it inherits any error in the published percentage.",
+    "RECOVERED_FROM_PERCENTAGE_NON_UNIQUE": "The source prints only a rounded percentage and MORE THAN ONE integer rounds to it. The ledger value is one of several admissible integers.",
+    "NOT_RECOVERABLE_FROM_PERCENTAGE": "The source prints only a rounded percentage and NO integer count over the stated denominator reproduces it. The ledger value cannot be derived from the accessible record and its origin is unexplained.",
+    "UNVERIFIED": "The accessible record states neither the count nor a percentage from which it could be derived."
+  },
+
+  "_quarantine_rule": {
+    "rule": "A trial is quarantined when BOTH hold: (a) its per-arm all-cause death counts are UNVERIFIED against the accessible primary record, AND (b) those counts are IDENTICAL across the trial's arms.",
+    "why_both": "Either alone is common and benign. Unverified-but-distinct counts are the ordinary state of an abstract-only extraction (13 trials in this network). Identical-but-verified counts are a legitimate coincidence. The conjunction is the signature of a placeholder: a value that was never read, filled in identically because nothing distinguished the arms.",
+    "symmetry_requirement": "The rule is a property of the data, not of the trial. It MUST be applied to every trial that meets it. The 2026-07-30 first pass applied it to CARMEN alone while GALACTIC-HF and Vizzardi 2014 met it equally; that asymmetry is corrected here.",
+    "scan_performed": "All 87 arm rows / 43 trials in F:/E156/hfref_eightcell_fit.R were scanned for identical across-arm event counts. Four trials matched: HF-021, HF-025, HF-034, and HF-055 Cohn 1997 (2/35, 2/70). HF-055 is dupe-excluded by select_trials() from all four app cells (OURS-STRICT, OURS-INCLUSIVE, 7b, 7c), so it enters no fit and needs no disposition; it is recorded here so the scan is auditable rather than asserted.",
+    "presentation_consequence": "Because the rule removes trials from a fitted network, the quarantined fit is presented as a CO-PRIMARY PROVENANCE SENSITIVITY beside the full network, never as a replacement for it. See outputs/hfref_coprimary_fit.json."
+  },
+
   "entries": [
     {
       "id": "HF-021",
@@ -29,7 +46,78 @@
         {"treat": "BB",      "event": 14, "n": 191, "status": "UNSOURCED - withheld from the fit"}
       ],
       "reinstatement_condition": "Locate a primary or a CARMEN-authored secondary report that states per-arm all-cause deaths. If found, the rows above are restored and the fit re-run.",
-      "structural_cost": "CARMEN was the network's only multi-arm trial and the only trial closing an internal loop. See outputs/hfref_quarantine_refit.json for the measured consequence."
+      "structural_cost": "CARMEN was the network's only multi-arm trial and the only trial closing an internal loop. See outputs/hfref_coprimary_fit.json for the measured consequence.",
+      "rule_check": {
+        "unverified_per_arm_all_cause_deaths": true,
+        "identical_across_arm_counts": true,
+        "meets_quarantine_rule": true,
+        "verified_by_me_this_pass": "PubMed E-utilities, PMID 15115904 abstract, read 2026-07-30. Confirms 572 patients, carvedilol N=191, enalapril N=190, combination N=191; primary comparison is change in LVESVI; the only safety statement is 'All three arms showed similar safety profiles and withdrawal rates.' No per-arm death count appears anywhere in the record."
+      }
+    },
+
+    {
+      "id": "HF-034",
+      "trial": "GALACTIC-HF",
+      "finding_ref": "G1 (symmetric-quarantine pass, 2026-07-30)",
+      "disposition": "QUARANTINED",
+      "violation": "unverified per-arm all-cause deaths (1078/1078) identical across both arms; the source states CARDIOVASCULAR death (808/798), not all-cause",
+      "evidence_tier": "PRIMARY_ABSTRACT",
+      "count_provenance_tier": "UNVERIFIED",
+      "source": {"pmid": "33185990", "doi": "10.1056/NEJMoa2025797", "nct": "NCT02929329",
+                 "citation": "Teerlink JR et al. Cardiac Myosin Activation with Omecamtiv Mecarbil in Systolic Heart Failure. N Engl J Med 2021;384(2):105-116."},
+      "quoted_evidence": "Abstract: 'We randomly assigned 8256 patients ... to receive omecamtiv mecarbil ... or placebo'. 'a primary-outcome event occurred in 1523 of 4120 patients (37.0%) in the omecamtiv mecarbil group and in 1607 of 4112 patients (39.1%) in the placebo group'. 'A total of 808 patients (19.6%) and 798 patients (19.4%), respectively, died from CARDIOVASCULAR causes (hazard ratio, 1.01; 95% CI, 0.92 to 1.11).' All-cause death is not reported in the accessible record.",
+      "what_was_wrong": "Denominators are confirmed exactly -- 4120 (omecamtiv) and 4112 (placebo), summing to the ledger's 8232. The DEATH COUNTS are not: the ledger carries an identical 1078 all-cause deaths in both arms. The only per-arm mortality the source states is CARDIOVASCULAR death, 808 vs 798 -- which is neither 1078/1078 nor identical. The all-cause figure is therefore unverified against the primary, and it is identical across arms, which is the quarantine rule exactly.",
+      "why_the_first_pass_missed_it": "outputs/hfref_source_verification.json HF-034 recorded the identical 1078/1078 as 'striking but ... not, on this evidence, an error; it simply could not be confirmed'. That is the same evidentiary state as CARMEN -- unverified AND identical -- and it should have produced the same disposition. Recording the observation without applying the rule is the asymmetry the cross-family gate caught.",
+      "rule_check": {
+        "unverified_per_arm_all_cause_deaths": true,
+        "identical_across_arm_counts": true,
+        "meets_quarantine_rule": true,
+        "verified_by_me_this_pass": "PubMed E-utilities, PMID 33185990 abstract, read 2026-07-30."
+      },
+      "quarantined_rows": [
+        {"treat": "ACEI+BB+MRA",  "event": 1078, "n": 4112, "status": "UNSOURCED - withheld from the quarantined fit; retained in the full co-primary"},
+        {"treat": "+Omecamtiv",   "event": 1078, "n": 4120, "status": "UNSOURCED - withheld from the quarantined fit; retained in the full co-primary"}
+      ],
+      "reinstatement_condition": "Locate the all-cause mortality figures for GALACTIC-HF -- the NEJM full text, a supplementary appendix, or the ClinicalTrials.gov NCT02929329 posted results. If per-arm all-cause deaths are stated, the rows are restored and the fit re-run. This is the most likely of the three to be reinstatable: GALACTIC-HF is a large registered trial with posted results, and this pass did not exhaust that route.",
+      "structural_cost": "SEVERE. GALACTIC-HF is the ONLY trial supplying the +Omecamtiv node, so quarantining it DELETES that node from the network: V 15 -> 14, and 14 league pairs cease to be estimable. None of those 14 pairs excluded 1 in the full fit, so the significance count is unaffected, but a whole treatment comparison disappears. This is the single strongest argument for presenting the full network as a co-primary rather than replacing it."
+    },
+
+    {
+      "id": "HF-025",
+      "trial": "Vizzardi 2014",
+      "finding_ref": "G2 (symmetric-quarantine pass, 2026-07-30)",
+      "disposition": "QUARANTINED",
+      "violation": "unverified per-arm all-cause deaths (8/8) identical across both arms; the source reports only composite event-free survival",
+      "evidence_tier": "PRIMARY_ABSTRACT",
+      "count_provenance_tier": "UNVERIFIED",
+      "source": {"pmid": "24196866", "doi": "10.1097/MAJ.0b013e31829dd6b1",
+                 "citation": "Vizzardi E et al. Effects of spironolactone on long-term mortality and morbidity in patients with heart failure and mild or no symptoms. Am J Med Sci 2014;347(4):271-6."},
+      "quoted_evidence": "Abstract: 'A total of 130 patients were randomized to spironolactone (n = 65) or placebo (n = 65).' 'The primary endpoint was the composite of death from any cause or cardiovascular hospitalization.' 'Patients on spironolactone had a better event-free survival for cardiovascular death or cardiovascular hospitalizations and for cardiovascular hospitalizations alone.' No per-arm all-cause death count is stated; the only reported outcomes are composites and multivariable model results.",
+      "what_was_wrong": "Denominators are confirmed exactly (65 and 65, total 130). The DEATH COUNTS are not: the ledger carries an identical 8 all-cause deaths in both arms, a figure absent from the accessible record. Unverified AND identical -- the quarantine rule.",
+      "why_the_first_pass_missed_it": "outputs/hfref_source_verification.json HF-025 correctly recorded 'no per-arm death counts, so 8/8 is unverified', but did not flag the identity across arms and so did not trigger the rule.",
+      "rule_check": {
+        "unverified_per_arm_all_cause_deaths": true,
+        "identical_across_arm_counts": true,
+        "meets_quarantine_rule": true,
+        "verified_by_me_this_pass": "PubMed E-utilities, PMID 24196866 abstract, read 2026-07-30."
+      },
+      "quarantined_rows": [
+        {"treat": "ACEI+BB",     "event": 8, "n": 65, "status": "UNSOURCED - withheld from the quarantined fit; retained in the full co-primary"},
+        {"treat": "ACEI+BB+MRA", "event": 8, "n": 65, "status": "UNSOURCED - withheld from the quarantined fit; retained in the full co-primary"}
+      ],
+      "reinstatement_condition": "Locate the Am J Med Sci full text and read the per-arm all-cause death counts. If stated, the rows are restored and the fit re-run. The trial was never registered, so there is no registry route.",
+      "structural_cost": "Low in structure, non-trivial in weight. No node is lost -- ACEI+BB and ACEI+BB+MRA are both supplied by other trials -- but the direct ACEI+BB vs ACEI+BB+MRA leg loses a contributing trial. Vizzardi is also the network's only SINGLE-BLIND trial, so its withdrawal marginally improves design homogeneity; that is a side effect, not a reason, and it is not offered as a justification.",
+      "design_note": "Single-blind, placebo-controlled, blinded-endpoint. Every other trial in the network is double-blind, except PARACHUTE-HF (open-label)."
+    },
+
+    {
+      "id": "HF-055",
+      "trial": "Cohn 1997",
+      "finding_ref": "G3 (symmetric-quarantine scan, 2026-07-30)",
+      "disposition": "NO DISPOSITION REQUIRED - NOT IN ANY FITTED CELL",
+      "violation": null,
+      "note": "The identical-count scan over all 87 arm rows flagged a fourth trial: Cohn 1997 carries 2/35 (ACEI) and 2/70 (ACEI+BB) -- identical event counts across arms. It is recorded here for completeness of the scan, NOT quarantined, because select_trials() marks it a duplicate (dupe = TRUE) and it is therefore excluded from all four app cells (OURS-STRICT, OURS-INCLUSIVE, OURS-STRICT-7b, OURS-STRICT-7c). It enters no fit, so there is nothing to withhold. Confirmed by direct evaluation of select_trials() against each cell's coordinates.",
+      "action_if_ever_included": "If a future cell admits duplicates, Cohn 1997 must be source-checked for per-arm all-cause deaths BEFORE it is fitted, and quarantined under the same rule if those counts prove unverified."
     },
 
     {
@@ -44,9 +132,30 @@
                  "citation": "Granger CB, Ertl G, Kuch J, Maggioni AP, McMurray J, Rouleau JL, et al. Randomized trial of candesartan cilexetil in the treatment of patients with congestive heart failure and a history of intolerance to angiotensin-converting enzyme inhibitors. Am Heart J 2000;139(4):609-17.",
                  "acronym_note": "SPICE = Study of Patients Intolerant of Converting Enzyme inhibitors. The acronym does not appear in the PubMed title/abstract, which is why an acronym-keyed search returned only the observational SPICE Registry and the audit concluded no source existed."},
       "quoted_evidence": "Abstract: 'Patients with CHF, left ventricular ejection fraction less than 35%, and history of discontinuing an ACE inhibitor because of intolerance underwent double-blind randomization in a 2:1 ratio to receive candesartan (n = 179) or a placebo (n = 91).' and 'Frequencies of death and morbidity were not significantly different between the candesartan and placebo groups (death 3.4% and 3.3% ...)'.",
-      "reconciliation": "Denominators exact: 179 + 91 = 270, matching the ledger's ARB 179 and Placebo 91. Counts recover exactly from the published percentages: 6/179 = 3.35% -> 3.4% (candesartan) and 3/91 = 3.30% -> 3.3% (placebo). The ledger's 6/179 and 3/91 are the only integer pairs consistent with both stated percentages.",
-      "status_change": "UNVERIFIED / proposed-for-quarantine  ->  VERIFIED_FULL",
-      "ledger_fix_required": "Add pmid 10740141 and doi 10.1016/s0002-8703(00)90037-1 to HF-008, which previously carried null for both."
+      "reconciliation": "Denominators exact: 179 + 91 = 270, matching the ledger's ARB 179 and Placebo 91. The source states NO integer death counts -- only percentages. The ledger's integers are recovered from those percentages: candesartan 3.4% over n=179 admits exactly one integer, 6 (6/179 = 3.352%); placebo 3.3% over n=91 admits exactly one integer, 3 (3/91 = 3.297%). Uniqueness was re-checked this pass by exhaustive search over all admissible integers 0..n at 1-decimal rounding.",
+      "status_change": "UNVERIFIED / proposed-for-quarantine  ->  VERIFIED_FULL (2026-07-30 first pass)  ->  RECOVERED_FROM_PERCENTAGE_UNIQUE (2026-07-30 symmetric pass, re-tiered)",
+      "count_provenance_tier": "RECOVERED_FROM_PERCENTAGE_UNIQUE",
+      "re_tier_rationale": {
+        "why": "VERIFIED_FULL overstated the evidence. It put SPICE in the same tier as CIBIS-II, MERIT-HF, COPERNICUS, RALES, PARADIGM-HF and DAPA-HF, whose per-arm death counts are PRINTED AS INTEGERS in the source. SPICE's are not printed at all: they are back-computed from 'death 3.4% and 3.3%'. The derivation is sound and uniquely determined, but it is an inference from a rounded figure, not a read of a stated count, and it inherits any error in the published percentage.",
+        "what_this_does_NOT_mean": "SPICE is NOT quarantined and NOT downgraded in the fit. It stays in the network, fully sourced, with both arms uniquely determined. This is a labelling correction only -- no count changed, no fit changed.",
+        "why_it_matters_structurally": "SPICE is the sole trial on the Placebo-ARB leg and therefore the sole support for the network's only between-trial loop (Placebo-ACEI-ARB). A reader entitled to weigh that loop is entitled to know its counts were derived from rounded percentages rather than read."
+      },
+      "ledger_fix_required": "Add pmid 10740141 and doi 10.1016/s0002-8703(00)90037-1 to HF-008, which previously carried null for both.",
+      "symmetry_check_on_this_tier": {
+        "principle": "A tier applied to one trial must be applied to every trial in the same evidentiary state, or it is the same asymmetry the quarantine rule was corrected for.",
+        "scan": "All 28 trials in the settled cell were re-checked for whether their per-arm counts are printed or derived. FOUR are derived from percentages, not printed: SPICE, ELITE, US-Carvedilol and EMPHASIS-HF. All four are re-tiered here; the remaining VERIFIED_FULL trials state integer counts verbatim and keep that tier.",
+        "results": {
+          "HF-008 SPICE": "RECOVERED_FROM_PERCENTAGE_UNIQUE -- 3.4% -> {6} unique; 3.3% -> {3} unique.",
+          "HF-018 US-Carvedilol": "RECOVERED_FROM_PERCENTAGE_UNIQUE -- 7.8% over n=398 -> {31} unique; 3.2% over n=696 -> {22} unique. Ledger 31/398 and 22/696 both confirmed.",
+          "HF-023 EMPHASIS-HF": "RECOVERED_FROM_PERCENTAGE_NON_UNIQUE -- placebo 15.5% over n=1373 -> {213} unique, but eplerenone 12.5% over n=1364 admits TWO integers, 170 and 171. The ledger's 171 is admissible but not uniquely determined; 170 is equally consistent with the published record.",
+          "HF-010 ELITE": "SPLIT TIER, and a NEW FINDING. Losartan 4.8% over n=352 -> {17} unique, matching the ledger. But captopril 8.7% over n=370 admits NO integer: 32/370 = 8.649% (prints 8.6%) and 33/370 = 8.919% (prints 8.9%). The ledger's 32 is therefore NOT recoverable from the published percentage. Tier: NOT_RECOVERABLE_FROM_PERCENTAGE."
+        },
+        "new_findings_raised_not_actioned": [
+          "ELITE captopril 32/370 cannot be derived from the published 8.7%. The most likely explanation is that ELITE's 4.8%/8.7% are Kaplan-Meier estimates at 48 weeks rather than crude proportions, in which case no crude integer need reproduce them and the ledger's 32 came from somewhere else. This is NOT a quarantine trigger -- the counts are not identical across arms, so the rule does not reach it -- and no count was changed. Raised for the next gate.",
+          "EMPHASIS-HF eplerenone 171 is one of two admissible integers (170, 171). Not a quarantine trigger; the 1-death ambiguity is far below the resolution of any network estimate. Raised for the next gate."
+        ],
+        "method": "Exhaustive integer search: for published percentage p at d decimals and denominator n, the admissible set is {x in 0..n : p - 0.5*10^-d <= 100*x/n < p + 0.5*10^-d}."
+      }
     },
 
     {
@@ -133,8 +242,31 @@
   ],
 
   "summary": {
-    "quarantined": 1,
-    "quarantined_ids": ["HF-021 CARMEN"],
+    "quarantined": 3,
+    "quarantined_ids": ["HF-021 CARMEN", "HF-034 GALACTIC-HF", "HF-025 Vizzardi 2014"],
+    "quarantine_rule_applied_symmetrically": true,
+    "identical_count_scan": {
+      "arm_rows_scanned": 87,
+      "trials_scanned": 43,
+      "trials_with_identical_across_arm_counts": 4,
+      "matched": ["HF-021 CARMEN (14/14/14)", "HF-034 GALACTIC-HF (1078/1078)",
+                  "HF-025 Vizzardi 2014 (8/8)", "HF-055 Cohn 1997 (2/2)"],
+      "quarantined_of_those": 3,
+      "not_quarantined_and_why": "HF-055 Cohn 1997 is dupe-excluded by select_trials() from all four app cells, so it enters no fit and there is nothing to withhold."
+    },
+    "superseded_first_pass": {
+      "was": "quarantined 1 (CARMEN only); the quarantined fit replaced the primary",
+      "now": "quarantined 3, applied symmetrically; both fits presented as CO-PRIMARY",
+      "why": "The cross-family gate found the rule had been applied to one of the three trials that meet it, and that the app shipped only the CARMEN-removed fit with no full-network comparator."
+    },
+    "count_provenance_re_tier": {
+      "SPICE": "VERIFIED_FULL -> RECOVERED_FROM_PERCENTAGE_UNIQUE (retained in network; labelling only)",
+      "US-Carvedilol": "VERIFIED_FULL -> RECOVERED_FROM_PERCENTAGE_UNIQUE",
+      "EMPHASIS-HF": "VERIFIED_FULL -> RECOVERED_FROM_PERCENTAGE_NON_UNIQUE",
+      "ELITE": "VERIFIED_FULL -> split: losartan RECOVERED_FROM_PERCENTAGE_UNIQUE, captopril NOT_RECOVERABLE_FROM_PERCENTAGE (new finding)",
+      "unchanged_VERBATIM_COUNT": "SOLVD-Treatment, CIBIS-I, CIBIS-II, MERIT-HF, COPERNICUS, BEST, RALES, J-EMPHASIS-HF, PARADIGM-HF, DAPA-HF, VICTOR, DIGIT-HF, He 2015, QUEST",
+      "counts_changed_by_the_re_tier": 0
+    },
     "resolved_by_locating_the_source": 1,
     "resolved_by_locating_the_source_ids": ["HF-008 SPICE"],
     "resolved_by_correcting_the_citation": 1,
@@ -142,9 +274,22 @@
     "resolved_by_full_text_verification": 2,
     "resolved_by_full_text_verification_ids": ["HF-020 He 2015", "HF-038 QUEST"],
     "count_values_changed": 0,
-    "count_values_changed_note": "No extracted count was altered in this pass. Four findings resolved to 'the extraction was right, the provenance record was wrong'; the fifth (CARMEN) resolved to 'the extraction has no source', and was quarantined rather than corrected, because there is no sourced value to correct it to.",
+    "count_values_changed_note": "No extracted count was altered in either pass. Four findings resolved to 'the extraction was right, the provenance record was wrong'; three trials resolved to 'the extraction has no source' and were quarantined rather than corrected, because there is no sourced value to correct them to.",
+    "co_primary": {
+      "full_network": {"trials": 28, "arm_rows": 57, "contrasts": 25,
+        "_contrasts_note": "30 fitted contrasts; see outputs/hfref_coprimary_fit.json for the authoritative figure",
+        "acei_bb": 0.64459765, "acei_bb_mra": 0.59333495, "tau2": 0.02323609,
+        "role": "CONSERVATIVE CO-PRIMARY"},
+      "quarantined_network": {"trials": 25, "arm_rows": 50, "contrasts": 25,
+        "acei_bb": 0.63084425, "acei_bb_mra": 0.57803875, "tau2": 0.02513470,
+        "role": "PROVENANCE SENSITIVITY"},
+      "arm_rows": "57 -> 50 (CARMEN 3 rows + GALACTIC-HF 2 + Vizzardi 2014 2 = 7 withheld)",
+      "node_lost": "+Omecamtiv (GALACTIC-HF was its only trial)",
+      "direction": "Point estimates move AWAY from the null on every retained treatment node (median -2.13%), which must not be read as benefit. But interval significance FALLS: on the 91 pairs both fits estimate, CI-excludes-1 goes 12 -> 9 (0 gain, 3 lose), because tau2 rises 8.2%, I2 goes 57.3% -> 63.8% and HKSJ df falls 15 -> 12. Neither reading makes the quarantined fit stronger evidence."
+    },
     "trials_in_primary_before": 28,
-    "trials_in_primary_after": 27,
+    "trials_in_primary_after": 25,
+    "trials_in_primary_after_note": "The first pass recorded 27 under the CARMEN-only quarantine. Under the symmetric rule it is 25. Both fits remain available; 28 is the full co-primary.",
     "audit_claims_withdrawn": [
       "F3 'SPICE has no primary source at all' - withdrawn; the primary is PMID 10740141.",
       "F4 'He 2015 per-arm denominators unverified' - withdrawn; PMC5746969 Tables 1 and 2 verify them exactly.",
