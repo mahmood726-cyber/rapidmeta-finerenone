@@ -6,19 +6,35 @@
 # fit. Two corrections, both required by the cross-family gate:
 #
 #   1. SYMMETRIC QUARANTINE. The rule is "unverified per-arm all-cause deaths
-#      AND identical across-arm counts". Three trials in the settled network
-#      meet it, not one:
+#      AND identical across-arm counts". BOTH limbs are required, so verifying
+#      the counts clears a trial even when they stay identical. Two trials in
+#      the settled network now meet the rule:
 #        HF-021 CARMEN       14/14/14, 572 pts
-#        HF-034 GALACTIC-HF  1078/1078, 8232 pts (abstract gives CV death only)
 #        HF-025 Vizzardi 2014 8/8, 130 pts
 #      See outputs/hfref_quarantine_ledger.json for the named violation and the
 #      reinstatement condition attached to each.
 #
+#      HF-034 GALACTIC-HF (1078/1078, 8232 pts) was quarantined on 2026-07-30
+#      and is REINSTATED here. Its counts are still identical across arms, but
+#      they are no longer unverified: the ClinicalTrials.gov NCT02929329 posted
+#      results carry per-arm ALL-CAUSE deaths as verbatim integers in the FDAAA
+#      All-Cause Mortality table -- 1078/4112 placebo, 1078/4120 omecamtiv --
+#      matching the extraction exactly in both arms, on the same denominators
+#      the publication reports for its primary outcome. The identical count is a
+#      genuine coincidence. Recovery evidence and the frame distinctions:
+#        scripts/hfref_recover_galactic_allcause.py
+#        outputs/hfref_galactic_allcause_recovery.json
+#      Because GALACTIC-HF is the only trial supplying +Omecamtiv, reinstating
+#      it RESTORES that node to the quarantined network (V 14 -> 15).
+#
 #   2. CO-PRIMARY, NOT REPLACEMENT. Both fits are emitted and both are carried
 #      by the app. The FULL network is the conservative co-primary; the
-#      quarantined network is a PROVENANCE SENSITIVITY. Removing these
-#      null-pulling unverified trials moves estimates TOWARD significance, so
-#      the quarantined fit must never be presented as stronger evidence.
+#      quarantined network is a PROVENANCE SENSITIVITY, and must never be
+#      presented as stronger evidence. The measured direction is two-sided and
+#      the script reports both halves rather than the convenient one: most
+#      retained nodes' POINT ESTIMATES move away from the null, but INTERVAL
+#      significance FALLS (tau^2 rises, HKSJ df drops, CIs widen). Neither half
+#      makes the quarantined fit stronger.
 #
 # Same discipline as the scripts it supersedes: evaluates lines 1..587 of the
 # settled fit (up to and including fit_cell(), nothing from RUN or EMIT), so
@@ -40,11 +56,21 @@ APP_CELLS <- c("OURS-STRICT","OURS-INCLUSIVE","OURS-STRICT-7b","OURS-STRICT-7c")
 
 # The symmetric quarantine set. Every id here has a named violation and a
 # reinstatement condition in outputs/hfref_quarantine_ledger.json.
-QUARANTINE <- c("HF-021", "HF-034", "HF-025")
+QUARANTINE <- c("HF-021", "HF-025")
 QV <- list(
   "HF-021" = "unverified per-arm all-cause deaths (14/14/14) identical across all three arms; primary endpoint is LVESVI and the source reports no deaths",
-  "HF-034" = "unverified per-arm all-cause deaths (1078/1078) identical across both arms; the source states CARDIOVASCULAR death (808/798), not all-cause",
   "HF-025" = "unverified per-arm all-cause deaths (8/8) identical across both arms; the source reports only composite event-free survival")
+
+# Reinstated: quarantined 2026-07-30, cleared the same day by the registry route
+# the ledger named as its reinstatement condition. Kept here (not deleted) so the
+# quarantine record stays auditable -- see the ledger for the full disposition.
+REINSTATED <- list("HF-034" = paste0(
+  "GALACTIC-HF -- counts remain identical across arms (1078/1078) but are no ",
+  "longer unverified. ClinicalTrials.gov NCT02929329 posted results state ",
+  "per-arm ALL-CAUSE deaths as verbatim integers (1078/4112 placebo, ",
+  "1078/4120 omecamtiv), matching the extraction exactly. The rule requires ",
+  "unverified AND identical; only the second limb still holds, so the trial ",
+  "is retained in BOTH co-primary fits and the +Omecamtiv node survives."))
 
 fail <- function(...) { cat("FAIL: ", ..., "\n", sep = ""); quit(status = 1) }
 
@@ -201,6 +227,16 @@ wid_chg <- sapply(common, function(k)
 # node-level point-estimate move, retained nodes only
 retained <- Filter(function(x) !x$node_lost, nd)
 node_rr_chg <- sapply(retained, function(x) x$rel_change_pct)
+# COUNT the direction rather than asserting it. Earlier passes of this script
+# claimed "every retained treatment node falls"; that was never true -- the
+# nodes supplied only by pendant edges off the quarantined trials move the other
+# way, and BB moves sharply up when CARMEN's ACEI+BB vs BB edge is withheld.
+# Overstating the unfavourable direction is still misreporting, so the flag now
+# reports the split it actually measures.
+n_node_down <- sum(node_rr_chg < 0); n_node_up <- sum(node_rr_chg > 0)
+n_node_flat <- sum(node_rr_chg == 0)
+node_up_names <- sapply(retained, function(x) x$node)[node_rr_chg > 0]
+node_worst_up <- if (n_node_up) retained[[which.max(node_rr_chg)]]$node else NA_character_
 
 cat("\n=== DIRECTION (like-for-like on the ", length(common),
     " pairs BOTH fits estimate) ===\n", sep="")
@@ -210,13 +246,18 @@ cat(sprintf("point-estimate RR change: median %+.2f%% (min %+.2f%%, max %+.2f%%)
   median(rr_chg), min(rr_chg), max(rr_chg)))
 cat(sprintf("CI-width ratio change:    median %+.2f%% (min %+.2f%%, max %+.2f%%)\n",
   median(wid_chg), min(wid_chg), max(wid_chg)))
-cat(sprintf("league pairs dropped entirely: %d (all involve a lost node)\n",
-  length(lostpairs)))
+cat(sprintf("league pairs dropped entirely: %d%s\n", length(lostpairs),
+  if (length(lostpairs)) " (all involve a lost node)" else
+    " -- every league pair the full fit estimates is still estimable"))
 cat("\nHONEST DIRECTION FLAG -- two parts, both true, neither favourable:\n")
-cat(sprintf("  (1) POINT ESTIMATES move AWAY from the null: every retained\n"))
-cat(sprintf("      treatment node falls (median %+.2f%%). This is the direction the\n",
-  median(node_rr_chg)))
-cat("      gate warned about and it is real. It must NOT be read as benefit.\n")
+cat(sprintf("  (1) POINT ESTIMATES mostly move AWAY from the null: %d of %d retained\n",
+  n_node_down, length(node_rr_chg)))
+cat(sprintf("      treatment nodes fall (median %+.2f%%); %d rise%s. This is the\n",
+  median(node_rr_chg), n_node_up,
+  if (n_node_up) paste0(" (largest ", node_worst_up, " ",
+                        sprintf("%+.2f%%", max(node_rr_chg)), ")") else ""))
+cat("      direction the gate warned about and it is real for the majority of\n")
+cat("      nodes. It must NOT be read as benefit.\n")
 cat(sprintf("  (2) INTERVAL significance FALLS: %d -> %d of the common pairs exclude 1.\n",
   f_ex, q_ex))
 cat(sprintf("      tau2 rises %+.1f%%, I2 %.1f%% -> %.1f%%, HKSJ df %d -> %d, so CIs\n",
@@ -248,10 +289,15 @@ write(toJSON(list(schema="hfref-coprimary-fit/v1",
     conservative_coprimary="full",
     sensitivity="quarantined",
     direction_flag=paste0(
-      "Removing these unverified identical-count trials moves every retained ",
-      "treatment node's POINT ESTIMATE away from the null (median ",
-      sprintf("%+.2f%%", median(node_rr_chg)), "). That is the direction the ",
-      "gate warned about and it is real: it must not be read as benefit. But ",
+      "Removing these unverified identical-count trials moves MOST retained ",
+      "treatment nodes' POINT ESTIMATES away from the null -- ", n_node_down,
+      " of ", length(node_rr_chg), " fall (median ",
+      sprintf("%+.2f%%", median(node_rr_chg)), "), ", n_node_up, " rise",
+      if (n_node_up) paste0(" (largest ", node_worst_up, " ",
+                            sprintf("%+.2f%%", max(node_rr_chg)), ")") else "",
+      ". That is the direction the ",
+      "gate warned about and it is real for the majority of nodes: it must not ",
+      "be read as benefit. But ",
       "INTERVAL significance FALLS, not rises -- on the ", length(common),
       " pairs both fits estimate, CI-excludes-1 goes ", f_ex, " -> ", q_ex,
       " (", length(gained), " gain, ", length(lost_sg), " lose), because tau2 rises ",
@@ -269,18 +315,36 @@ write(toJSON(list(schema="hfref-coprimary-fit/v1",
       gained_significance=as.list(gained),
       lost_significance=as.list(lost_sg),
       node_point_estimate_pct_change=list(
-        median=median(node_rr_chg), min=min(node_rr_chg), max=max(node_rr_chg)),
+        median=median(node_rr_chg), min=min(node_rr_chg), max=max(node_rr_chg),
+        retained_nodes=length(node_rr_chg),
+        moved_away_from_null=n_node_down, moved_toward_null=n_node_up,
+        unchanged=n_node_flat,
+        nodes_moving_toward_null=as.list(node_up_names),
+        largest_move_toward_null=list(node=node_worst_up, pct=max(node_rr_chg)),
+        counted_not_asserted=paste0(
+          "Earlier passes of this script claimed EVERY retained node moves away ",
+          "from the null. That was never true and is now measured instead: the ",
+          "nodes supplied only by pendant edges are unaffected in the other ",
+          "direction, and BB moves sharply toward/past the null when CARMEN's ",
+          "ACEI+BB vs BB edge is withheld. Overstating the unfavourable ",
+          "direction is still misreporting.")),
       pair_ci_width_pct_change=list(
         median=median(wid_chg), min=min(wid_chg), max=max(wid_chg)),
       note=paste0(
-        "The single-trial (CARMEN-only) re-fit this supersedes reported ",
-        "CI-excludes-1 rising 12 -> 17. That rise was an artefact of the ",
-        "ASYMMETRIC quarantine: with GALACTIC-HF and Vizzardi 2014 also ",
-        "withheld, the added heterogeneity and lost df outweigh it and the ",
-        "count falls instead."))),
+        "Two earlier passes are superseded. (1) The single-trial (CARMEN-only) ",
+        "re-fit reported CI-excludes-1 rising 12 -> 17; that rise was an ",
+        "artefact of an ASYMMETRIC quarantine. (2) The three-trial symmetric ",
+        "pass (CARMEN + GALACTIC-HF + Vizzardi 2014) lost the +Omecamtiv node ",
+        "outright and reported 12 -> 9 on 91 common pairs. GALACTIC-HF has ",
+        "since been REINSTATED on verified registry counts, so the quarantine ",
+        "set is CARMEN + Vizzardi 2014 and +Omecamtiv is restored. Compare the ",
+        "current figures above against that history, not against either ",
+        "superseded pass."))),
   quarantine=list(ids=QUARANTINE, rule=paste0(
       "unverified per-arm all-cause deaths AND identical across-arm counts"),
     violations=QV,
+    reinstated=REINSTATED,
+    reinstated_ids=as.list(names(REINSTATED)),
     ledger="outputs/hfref_quarantine_ledger.json"),
   anchor=list(
     full=list(acei_bb=B0$rr, acei_bb_mra=A0$rr, tau2=FULL$tau2,
