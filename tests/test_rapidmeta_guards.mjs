@@ -848,3 +848,114 @@ describe("G20 — the monitored watchlist must be the app's own topic", () => {
       "WATCHLIST_PARTIALLY_FOREIGN");
   });
 });
+/* ============================================ G21 — the returning-visitor trap (RM-B09) */
+
+describe("G21 — persisted state may never resurrect a withdrawn row", () => {
+  // The andexanet app after its fix: realData emptied, three rows quarantined.
+  const authoritative = {
+    realDataIds: [],
+    quarantinedIds: ["NCT02220725", "NCT02207725", "NCT02329327"],
+    ledgerFingerprint: G.G21_ledgerFingerprint([], ["NCT02220725", "NCT02207725", "NCT02329327"], "v12.3")
+  };
+  // A profile saved BEFORE the fix, carrying the auto-seeded rows and a pooled result.
+  const staleProfile = {
+    ledgerFingerprint: G.G21_ledgerFingerprint(
+      ["NCT02220725", "NCT02207725", "NCT02329327"], [], "v12.2"),
+    trials: [
+      { id: "NCT02220725", status: "include", data: { tE: 1, tN: 14, pubHR: 73.83 } },
+      { id: "NCT02207725", status: "include", data: { tE: 0, tN: 9, pubHR: 73.15 } },
+      { id: "NCT02329327", status: "include", data: { tE: 2, tN: 477, pubHR: 0.80, hrLCI: -0.5509 } }
+    ],
+    pooledResult: { rr: 0.03, lci: 0.00, uci: 0.52 }
+  };
+
+  test("a stale profile's quarantined rows are PURGED, not kept [reproduced live as RR 0.03 (0.00-0.52)]", () => {
+    const r = G.G21_reconcilePersistedState(staleProfile, authoritative);
+    assert.equal(r.trials.length, 0, "no pre-fix row survives into the analysis");
+    assert.equal(r.purged.length, 3);
+    assert.equal(r.staleLedger, true);
+    assert.equal(r.mustRederive, true);
+  });
+
+  test("a persisted pooled estimate is NEVER carried forward", () => {
+    const r = G.G21_reconcilePersistedState(staleProfile, authoritative);
+    assert.equal(r.pooledResult, null, "the withdrawn RR 0.03 must not survive the hydrate");
+  });
+
+  test("a persisted row absent from the authoritative ledger is dropped", () => {
+    const r = G.G21_reconcilePersistedState(
+      { ledgerFingerprint: "lf1_x", trials: [{ id: "NCT99999999", status: "include", data: {} }] },
+      { realDataIds: ["NCT01764633"], quarantinedIds: [], ledgerFingerprint: "lf1_y" });
+    assert.equal(r.trials.length, 0);
+    assert.equal(r.dropped[0].why, "absent from the authoritative ledger");
+  });
+
+  test("BLOCK: an authoritative ledger with no fingerprint cannot detect a stale profile", () => {
+    blocks(() => G.G21_reconcilePersistedState(staleProfile,
+      { realDataIds: [], quarantinedIds: [] }), "LEDGER_FINGERPRINT_MISSING");
+  });
+
+  test("PASS: a current profile against an unchanged ledger keeps its rows and re-derives", () => {
+    const auth = {
+      realDataIds: ["NCT01764633", "NCT01663402"], quarantinedIds: [],
+      ledgerFingerprint: G.G21_ledgerFingerprint(["NCT01764633", "NCT01663402"], [], "v12.0")
+    };
+    const r = G.G21_reconcilePersistedState(
+      { ledgerFingerprint: auth.ledgerFingerprint,
+        trials: [{ id: "NCT01764633", data: {} }, { id: "NCT01663402", data: {} }] }, auth);
+    assert.equal(r.trials.length, 2);
+    assert.equal(r.staleLedger, false);
+    assert.equal(r.purged.length, 0);
+    assert.equal(r.mustRederive, false);
+  });
+
+  test("the fingerprint changes when the ledger changes, and is stable when it does not", () => {
+    const a = G.G21_ledgerFingerprint(["A", "B"], [], "v1");
+    const b = G.G21_ledgerFingerprint(["B", "A"], [], "v1");
+    const c = G.G21_ledgerFingerprint(["A"], ["B"], "v1");
+    assert.equal(a, b, "order-independent");
+    assert.notEqual(a, c, "quarantining a row changes the fingerprint");
+  });
+
+  test("assertNoResurrection is the verifier form", () => {
+    const r = G.G21_assertNoResurrection(staleProfile, authoritative);
+    assert.equal(r.trials.length, 0);
+  });
+});
+/* ============ G12 audit-trail strip — an honest badge quotes the claim it replaced */
+
+describe("G12 — a quoted prior claim is not a live claim", () => {
+  // LISINOPRIL_HTN_AUTO_FULL_REVIEW.html as it is live on main AFTER its fix (commit 0bcb8bd8a).
+  const correctedBadge =
+    "NO DATA — THIS IS NOT AN INTEGRITY PASS. Trials in ledger: 0 · Trials analysed: 0 · " +
+    "Pooled estimate: none. What this badge used to say, and why it was wrong. " +
+    "It read \u201cINTERNAL CHECKS PASSED · Fabrication-risk score 0.275 · Trials: 2\u201d on a " +
+    "green background, and the page's own verdict said STABLE.";
+  const verdict = { verdict: "NO_DATA", counts: { n_trials_seen: 0 }, reasons: [] };
+
+  test("the corrected LISINOPRIL badge PASSES — the pass phrase is quoted, not asserted", () => {
+    const r = G.G12_assertVerdictParity(verdict,
+      { background: "#7c2d12", text: correctedBadge }, { trialCount: 0 });
+    assert.equal(r.ok, true);
+  });
+
+  test("the quoted 'Trials: 2' is not read as the badge's own count", () => {
+    assert.equal(/Trials?\s*:\s*(\d+)/.test(G.G12_stripAuditTrail(correctedBadge)), false);
+  });
+
+  test("self-consistency ignores numbers inside the retention text", () => {
+    assert.equal(G.G12_assertBadgeSelfConsistent(correctedBadge).ok, true);
+  });
+
+  test("BLOCK still fires on a LIVE pass claim over a non-STABLE verdict", () => {
+    blocks(() => G.G12_assertVerdictParity(verdict,
+      { background: "#15803d", text: "INTERNAL CHECKS PASSED · Trials: 2" }, { trialCount: 0 }),
+      "FALSE_GREEN_VERDICT");
+  });
+
+  test("BLOCK still fires when the contradiction is OUTSIDE the retention text", () => {
+    blocks(() => G.G12_assertBadgeSelfConsistent(
+      "Trials: 28 ... k = 27 ... Trials: 27 ... What this badge used to say: Trials: 99"),
+      "BADGE_SELF_CONTRADICTION");
+  });
+});

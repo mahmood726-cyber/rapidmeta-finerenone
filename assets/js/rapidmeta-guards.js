@@ -640,6 +640,28 @@
   var GREEN_HEXES = Object.freeze(["#15803d", "#0a7d33", "#166534", "#14532d"]);
   var PASS_PHRASES = Object.freeze(["checks passed", "internal checks passed", "evidence grade: verified", "✓ verified"]);
 
+  /**
+   * Strip a badge's AUDIT TRAIL before reading it as a live claim.
+   *
+   * An honest badge QUOTES the claim it replaced - "It read <<INTERNAL CHECKS PASSED ... Trials: 2>>
+   * on a green background, and the page's own verdict said STABLE". Reading that as an assertion
+   * makes the guard flag the corrected app instead of the broken one, which is what happened on
+   * LISINOPRIL_HTN in the render test. The HFrEF precedent: a superseded value is gone EXCEPT
+   * where the correction itself is documented.
+   */
+  var RETENTION_MARKER_RE = new RegExp(
+    "(what this badge used to say|used to say|previously read|it read|the previous (visible )?badge read"
+    + "|this badge previously|was wrong|replaced the claim|quoted verbatim|round[_ ]?1[_ ]?error)", "i");
+
+  function stripAuditTrail(text) {
+    var t = String(text || "");
+    var m = RETENTION_MARKER_RE.exec(t);
+    if (m) t = t.slice(0, m.index);                 // narrative is appended; drop from the marker on
+    t = t.replace(/[\u201C\u2018][^\u201D\u2019]{0,400}[\u201D\u2019]/g, " ");  // curly-quoted spans
+    t = t.replace(/&ldquo;[\s\S]{0,400}?&rdquo;/gi, " ");
+    return t;
+  }
+
   function summariseVerdict(verdict) {
     var v = verdict || {};
     var counts = v.counts || {};
@@ -660,7 +682,7 @@
     var s = summariseVerdict(verdict);
     var b = badge || {};
     var bg = norm(b.background);
-    var text = norm(b.text);
+    var text = norm(stripAuditTrail(b.text));       // quoted prior claims are not live claims
     var isGreen = GREEN_HEXES.indexOf(bg) !== -1;
     var claimsPass = PASS_PHRASES.some(function (p) { return text.indexOf(p) !== -1; });
     var ledgerTrials = ledger && isPresent(ledger.trialCount) ? Number(ledger.trialCount) : null;
@@ -697,7 +719,7 @@
 
   function assertBadgeSelfConsistent(text) {
     var G = "G12";
-    var t = String(text || "");
+    var t = stripAuditTrail(text);
     function uniqueNumbers(re) {
       var set = {}, m, n = 0;
       var r = new RegExp(re.source, re.flags.indexOf("g") === -1 ? re.flags + "g" : re.flags);
@@ -1034,6 +1056,103 @@
     }
     return { ok: true, checked: true };
   }
+  /* ============================ G21 · PERSISTED STATE MAY NOT RESURRECT A WITHDRAWN ROW =======
+   * Registry: RM-B09.
+   *
+   * Found by RENDERING, not by reading the file (commit 9d37dce08). Emptying `realData` stops a
+   * FRESH visitor pooling withdrawn rows, but the engine persists `state.trials` to localStorage:
+   * a reader who opened the page BEFORE the fix keeps the old auto-seeded rows and is still shown
+   * the withdrawn pooled estimate. Reproduced in the browser - a stale profile still rendered
+   * RR 0.03 (0.00-0.52) after realData was emptied.
+   *
+   * The per-app remedy was a one-off migration (_migrated_v123_quarantine_purge). That does not
+   * generalise: it only purges ids the app already knows are quarantined. This guard is the
+   * general form - persisted state is RECONCILED against the current authoritative ledger on
+   * every hydrate, and a ledger that has changed forces a re-derivation rather than a restore.
+   */
+  function reconcilePersistedState(persisted, authoritative) {
+    var G = "G21";
+    var p = persisted || {};
+    var a = authoritative || {};
+    if (!isPresent(a.ledgerFingerprint)) {
+      block(G, "LEDGER_FINGERPRINT_MISSING",
+        "the authoritative ledger must carry a fingerprint, or a stale profile cannot be detected");
+    }
+    var realIds = {}, quarantinedIds = {};
+    (a.realDataIds || []).forEach(function (id) { realIds[String(id).toUpperCase()] = true; });
+    (a.quarantinedIds || []).forEach(function (id) { quarantinedIds[String(id).toUpperCase()] = true; });
+
+    var rows = Array.isArray(p.trials) ? p.trials : [];
+    var dropped = [], purged = [], kept = [];
+    rows.forEach(function (t) {
+      var id = String((t && t.id) || "").toUpperCase();
+      if (!id) { dropped.push({ id: "(none)", why: "persisted row has no id" }); return; }
+      if (quarantinedIds[id]) {
+        purged.push({ id: id, why: "quarantined in the authoritative ledger" });
+        return;
+      }
+      if (!realIds[id]) {
+        dropped.push({ id: id, why: "absent from the authoritative ledger" });
+        return;
+      }
+      kept.push(id);
+    });
+
+    var stale = String(p.ledgerFingerprint || "") !== String(a.ledgerFingerprint);
+    var changed = dropped.length > 0 || purged.length > 0 || stale;
+
+    // A persisted RESULT may never be restored once anything changed - it must be re-derived.
+    var mustRederive = changed || isPresent(p.pooledResult);
+
+    return {
+      ok: true,
+      trials: rows.filter(function (t) {
+        return kept.indexOf(String((t && t.id) || "").toUpperCase()) !== -1;
+      }),
+      dropped: dropped,
+      purged: purged,
+      staleLedger: stale,
+      mustRederive: mustRederive,
+      // never carry a persisted pooled estimate forward
+      pooledResult: null,
+      ledgerFingerprint: a.ledgerFingerprint,
+      reason: changed
+        ? ("persisted profile reconciled against the current ledger: " +
+           purged.length + " quarantined row(s) purged, " + dropped.length +
+           " unknown row(s) dropped" + (stale ? ", ledger fingerprint changed" : "") +
+           "; the analysis is re-derived, not restored")
+        : ""
+    };
+  }
+
+  /**
+   * The assertion form, for a verifier: a corrected app MUST NOT be able to show a withdrawn
+   * estimate to a returning visitor.
+   */
+  function assertNoResurrection(persisted, authoritative) {
+    var G = "G21";
+    var r = reconcilePersistedState(persisted, authoritative);
+    if (r.purged.length && !r.mustRederive) {
+      block(G, "WITHDRAWN_ROW_RESURRECTED",
+        r.purged.map(function (x) { return x.id; }).join(", "));
+    }
+    if (isPresent((persisted || {}).pooledResult) && r.pooledResult !== null) {
+      block(G, "PERSISTED_RESULT_RESTORED", "a stored pooled estimate was carried forward");
+    }
+    return r;
+  }
+
+  /** A stable fingerprint of the authoritative ledger. Any change invalidates a saved profile. */
+  function ledgerFingerprint(realDataIds, quarantinedIds, version) {
+    var src = (realDataIds || []).map(String).sort().join(",") + "|" +
+              (quarantinedIds || []).map(String).sort().join(",") + "|" + String(version || "");
+    var h = 2166136261;
+    for (var i = 0; i < src.length; i++) {
+      h ^= src.charCodeAt(i);
+      h = (h * 16777619) >>> 0;
+    }
+    return "lf1_" + h.toString(36);
+  }
   /* ------------------------------------------------------------------ export */
 
   return {
@@ -1065,6 +1184,7 @@
     G11_assertProtocolProvenance: assertProtocolProvenance,
     G12_assertVerdictParity: assertVerdictParity,
     G12_assertBadgeSelfConsistent: assertBadgeSelfConsistent,
+    G12_stripAuditTrail: stripAuditTrail,
     G13_assertAppIdentity: assertAppIdentity,
     G14_assertNoContamination: assertNoContamination,
     G15_countFromPostedOutcome: countFromPostedOutcome,
@@ -1076,6 +1196,9 @@
     G17_assertPoolPolarityConsistent: assertPoolPolarityConsistent,
     G18_assertIntegrityGate: assertIntegrityGate,
     G19_assertCompositeComponentsMatch: assertCompositeComponentsMatch,
-    G20_assertWatchlistOnTopic: assertWatchlistOnTopic
+    G20_assertWatchlistOnTopic: assertWatchlistOnTopic,
+    G21_reconcilePersistedState: reconcilePersistedState,
+    G21_assertNoResurrection: assertNoResurrection,
+    G21_ledgerFingerprint: ledgerFingerprint
   };
 });

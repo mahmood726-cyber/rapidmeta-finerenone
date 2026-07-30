@@ -605,3 +605,39 @@ def d_v01(c: Ctx):
             if shown and shown.replace(" ", "") not in cc.replace(" ", ""):
                 out.append(f"{spec.get('name')}: displays \"{shown}\"; verified citation is \"{cc}\"")
     return out
+
+# ================================ B09 persisted state can resurrect a withdrawn row
+
+@detector("RM-B09", "Persisted state can resurrect a withdrawn or absent row", "P0")
+def d_b09(c: Ctx):
+    """The returning-visitor trap. Found by RENDERING, not by reading the file (9d37dce08):
+    emptying `realData` stops a FRESH visitor pooling withdrawn rows, but the engine persists
+    `state.trials` to localStorage, so a reader who opened the page before the fix keeps the old
+    auto-seeded rows and is still shown the withdrawn estimate.
+
+    A per-app migration (_migrated_vNNN_quarantine_purge) only covers ids that app already knows
+    are quarantined. The general fix is a ledger-fingerprint reconciliation on hydrate (G21)."""
+    out = []
+    persists = re.search(r"localStorage\.setItem\([^)]{0,80}JSON\.stringify\(\s*this\.state", c.text)
+    if not persists:
+        return out
+    has_fingerprint = re.search(r"ledgerFingerprint|_rm_ledger_fp", c.text)
+    if has_fingerprint:
+        return out                      # the general reconciliation is present
+    quarantined = re.search(r"__quarantinedTrials", c.text)
+    purge_migration = re.search(r"_migrated_[A-Za-z0-9_]{0,30}(quarantine|purge)", c.text)
+    empty_ledger = (c.k == 0 and re.search(r"\brealData\s*[:=]\s*\{\s*\}", c.text))
+
+    if quarantined or empty_ledger:
+        if purge_migration:
+            out.append("persists state.trials to localStorage and ships a one-off purge migration "
+                       "(" + purge_migration.group(0) + ") — covers THIS withdrawal only; a later "
+                       "ledger change is not reconciled, and no ledger fingerprint is stored")
+        else:
+            out.append("persists state.trials to localStorage and has withdrawn/quarantined rows "
+                       "with NO purge migration and NO ledger fingerprint — a returning visitor "
+                       "keeps the pre-fix rows and can still be shown the withdrawn estimate")
+    else:
+        out.append("persists state.trials to localStorage with no ledger fingerprint — any future "
+                   "correction to this app's ledger will not reach a returning visitor")
+    return out

@@ -121,6 +121,20 @@ SEEDS = [
         'block(G, "WATCHLIST_WRONG_TOPIC",',
         'return { ok: true }; block(G, "WATCHLIST_WRONG_TOPIC",',
     ),
+    (
+        "S15-persisted-resurrection",
+        "a stale localStorage profile may carry its quarantined rows into the analysis",
+        "commit 9d37dce08: a pre-fix profile still rendered RR 0.03 (0.00-0.52)",
+        "if (quarantinedIds[id]) {\n        purged.push({ id: id, why: \"quarantined in the authoritative ledger\" });\n        return;\n      }",
+        "if (false) {\n        purged.push({ id: id, why: \"quarantined in the authoritative ledger\" });\n        return;\n      }",
+    ),
+    (
+        "S16-persisted-result-restored",
+        "a persisted pooled estimate is carried forward on hydrate",
+        "commit 9d37dce08 (returning-visitor safety)",
+        "      pooledResult: null,",
+        "      pooledResult: p.pooledResult,",
+    ),
 ]
 
 

@@ -279,11 +279,25 @@ MACHINERY_MIN_K = {
 
 class Ctx:
     __slots__ = ("path", "name", "text", "low", "_realdata", "_verdict", "_badge",
-                 "_trials", "_title", "_topic", "size", "parse_errors")
+                 "_trials", "_title", "_topic", "size", "parse_errors",
+                 "phase1_block_bytes")
 
     def __init__(self, path: Path, text: str):
         self.path = path
         self.name = path.name
+        # STRIP THE PHASE-1 GUARD BLOCK BEFORE DETECTING.
+        # The injected guard library contains regex literals naming the very strings the detectors
+        # look for (ICMJE_ATTRIBUTION_RE, PROSPERO_EQUIV_RE, the contamination blocklist, the
+        # recurrent-trial names). Left in, every patched app would report the defects the patch
+        # exists to prevent. Our own disclosure text must never trip our own detector.
+        self.phase1_block_bytes = 0
+        m = re.search(r"<!-- RM-PHASE1-GUARDS v\d+ BEGIN -->", text)
+        if m:
+            e = re.search(r"<!-- RM-PHASE1-GUARDS v\d+ END -->", text[m.end():])
+            if e:
+                stop = m.end() + e.end()
+                self.phase1_block_bytes = stop - m.start()
+                text = text[:m.start()] + text[stop:]
         self.text = text
         self.low = text.lower()
         self.size = len(text)
@@ -998,12 +1012,26 @@ def d_i01(c: Ctx):
 @detector("RM-J01", "False ICMJE / PROSPERO equivalence attribution", "P0")
 def d_j01(c: Ctx):
     out = []
-    for m in re.finditer(r"ICMJE", c.text):
-        out.append("ICMJE attribution: " + re.sub(r"\s+", " ", c.text[max(0, m.start() - 90):m.start() + 130])[:200])
+    # Scope to the PRE-REGISTRATION claim. These apps also carry a LEGITIMATE ICMJE reference -
+    # "Per ICMJE 2023: human author takes full responsibility for accuracy and integrity of the
+    # work, including all AI-assisted components" - which is true and must not be flagged.
+    for m in re.finditer(r"ICMJE[^.<]{0,160}?(pre-?registration|PROSPERO|registration record|"
+                         r"commit hash|timestamp)", c.text, re.I):
+        out.append("ICMJE pre-registration attribution: "
+                   + re.sub(r"\s+", " ", c.text[max(0, m.start() - 60):m.start() + 200])[:240])
         break
-    if re.search(r"(equivalent\s+to|constitutes?\s+a[^.<]{0,60}equivalent)[^.<]{0,60}PROSPERO", c.text, re.I) or \
-       re.search(r"PROSPERO[^.<]{0,40}\bequivalen", c.text, re.I):
-        out.append("a literal PROSPERO-equivalence label is asserted")
+    # An AFFIRMATIVE equivalence only. The corrected wording this programme itself ships -
+    # "It is not a PROSPERO registration and no equivalence is claimed" - contains both PROSPERO
+    # and "equivalence" and must NOT be flagged. Our own correction text is not a finding.
+    for m in re.finditer(r"(equivalent\s+to|constitutes?\s+a[^.<]{0,60}equivalent)[^.<]{0,60}PROSPERO"
+                         r"|PROSPERO[^.<]{0,40}\bequivalen", c.text, re.I):
+        window = c.text[max(0, m.start() - 90):m.end() + 90]
+        if re.search(r"\b(not|no|never)\b[^.<]{0,60}(a\s+)?PROSPERO|no equivalence is claimed"
+                     r"|is\s+not\s+a\s+PROSPERO", window, re.I):
+            continue                    # a negated statement is the CORRECTION, not the defect
+        out.append("a literal PROSPERO-equivalence label is asserted: "
+                   + re.sub(r"\s+", " ", window)[:180])
+        break
     return out
 
 
