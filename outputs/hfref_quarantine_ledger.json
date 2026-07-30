@@ -1,0 +1,156 @@
+{
+  "_schema": "hfref-quarantine-ledger/1",
+  "_date": "2026-07-30",
+  "_scope": "Disposition of the 5 findings raised in outputs/HFREF_INTEGRITY_GATES_2026-07-30.md",
+  "_principle": "QUARANTINE, NEVER SILENT DELETION. A contribution is removed from the fit only with a NAMED violation recorded here, and its arm-level rows stay on record in this file so the removal is auditable and reversible. Discrepancies are reconciled TO THE PRIMARY SOURCE. Nothing is fabricated: where a value could not be read from the primary in this pass, the evidence tier is stated explicitly rather than asserted.",
+
+  "_evidence_tiers": {
+    "PRIMARY_DIRECT": "Read by me this pass from the primary record retrieved through PubMed E-utilities or PubMed Central full text.",
+    "PRIMARY_ABSTRACT": "Read by me this pass from the primary's abstract; the full text was not retrievable.",
+    "SECONDARY_CORROBORATED": "Not read by me directly (publisher blocked automated retrieval); the value is reported concordantly by two or more independent retrievals of the publisher's page. Labelled as such and never presented as a direct read."
+  },
+
+  "entries": [
+    {
+      "id": "HF-021",
+      "trial": "CARMEN",
+      "finding_ref": "F2",
+      "disposition": "QUARANTINED",
+      "violation": "no death data in source; 14/14/14 unsourced; primary is LVESVI",
+      "evidence_tier": "PRIMARY_DIRECT",
+      "source": {"pmid": "15115904", "doi": "10.1023/B:CARD.0000025756.32499.6f",
+                 "citation": "Remme WJ et al. Cardiovasc Drugs Ther 2004;18(1):57-66"},
+      "quoted_evidence": "Abstract: 'In a parallel-group, 3-arm study of 18 months duration, 572 mild heart failure patients were randomly assigned to carvedilol (N = 191), enalapril (N = 190) or their combination (N = 191).' 'Primary comparisons considered the change in LV end-systolic volume index (LVESVI) from baseline to month 18.' The publication reports NO per-arm death counts anywhere; its only safety statement is 'All three arms showed similar safety profiles and withdrawal rates.'",
+      "what_was_wrong": "Denominators (190/191/191) are confirmed by the source. The DEATH COUNTS are not: the ledger carried an identical 14 deaths in all three arms, a figure that appears nowhere in the primary and for which no source could be located.",
+      "corroborating_internal_evidence": "F:/E156/hfref_eightcell_fit.R line 377 already annotates branch 7c as 'CARMEN inadmissible (its primary reports LVESVI and no deaths)'. The project's own fit script asserted this trial reports no deaths while the fitted ledger supplied 14/14/14.",
+      "quarantined_rows": [
+        {"treat": "ACEI",    "event": 14, "n": 190, "status": "UNSOURCED - withheld from the fit"},
+        {"treat": "ACEI+BB", "event": 14, "n": 191, "status": "UNSOURCED - withheld from the fit"},
+        {"treat": "BB",      "event": 14, "n": 191, "status": "UNSOURCED - withheld from the fit"}
+      ],
+      "reinstatement_condition": "Locate a primary or a CARMEN-authored secondary report that states per-arm all-cause deaths. If found, the rows above are restored and the fit re-run.",
+      "structural_cost": "CARMEN was the network's only multi-arm trial and the only trial closing an internal loop. See outputs/hfref_quarantine_refit.json for the measured consequence."
+    },
+
+    {
+      "id": "HF-008",
+      "trial": "SPICE",
+      "finding_ref": "F3",
+      "disposition": "RETAINED - PRIMARY SOURCE LOCATED THIS PASS",
+      "violation": null,
+      "evidence_tier": "PRIMARY_DIRECT",
+      "audit_claim_corrected": "The audit recorded SPICE as having NO primary source and its counts as unsubstantiated, and proposed quarantine. That claim is WRONG and is withdrawn. The primary exists and was located this pass by searching the trial's expansion rather than the acronym.",
+      "source": {"pmid": "10740141", "doi": "10.1016/s0002-8703(00)90037-1",
+                 "citation": "Granger CB, Ertl G, Kuch J, Maggioni AP, McMurray J, Rouleau JL, et al. Randomized trial of candesartan cilexetil in the treatment of patients with congestive heart failure and a history of intolerance to angiotensin-converting enzyme inhibitors. Am Heart J 2000;139(4):609-17.",
+                 "acronym_note": "SPICE = Study of Patients Intolerant of Converting Enzyme inhibitors. The acronym does not appear in the PubMed title/abstract, which is why an acronym-keyed search returned only the observational SPICE Registry and the audit concluded no source existed."},
+      "quoted_evidence": "Abstract: 'Patients with CHF, left ventricular ejection fraction less than 35%, and history of discontinuing an ACE inhibitor because of intolerance underwent double-blind randomization in a 2:1 ratio to receive candesartan (n = 179) or a placebo (n = 91).' and 'Frequencies of death and morbidity were not significantly different between the candesartan and placebo groups (death 3.4% and 3.3% ...)'.",
+      "reconciliation": "Denominators exact: 179 + 91 = 270, matching the ledger's ARB 179 and Placebo 91. Counts recover exactly from the published percentages: 6/179 = 3.35% -> 3.4% (candesartan) and 3/91 = 3.30% -> 3.3% (placebo). The ledger's 6/179 and 3/91 are the only integer pairs consistent with both stated percentages.",
+      "status_change": "UNVERIFIED / proposed-for-quarantine  ->  VERIFIED_FULL",
+      "ledger_fix_required": "Add pmid 10740141 and doi 10.1016/s0002-8703(00)90037-1 to HF-008, which previously carried null for both."
+    },
+
+    {
+      "id": "HF-019",
+      "trial": "RESOLVD",
+      "finding_ref": "F1",
+      "disposition": "RETAINED - CITATION CORRECTED, COUNTS RECONCILED",
+      "violation": null,
+      "evidence_tier": "PRIMARY_ABSTRACT + SECONDARY_CORROBORATED",
+      "citation_fix": {
+        "was": {"pmid": "10477530", "citation": "McKelvie RS et al. Circulation 1999;100:1056-64",
+                "why_wrong": "That paper is the candesartan/enalapril/combination comparison in 768 patients. It contains no metoprolol randomisation and no 212/214 arms, so it cannot substantiate the extracted ACEI vs ACEI+BB contrast."},
+        "now": {"pmid": "10653828", "doi": "10.1161/01.cir.101.4.378",
+                "citation": "Effects of metoprolol CR in patients with ischemic and dilated cardiomyopathy: the Randomized Evaluation of Strategies for Left Ventricular Dysfunction pilot study. Circulation 2000;101(4):378-84."}
+      },
+      "quoted_evidence_primary_abstract": "'Four hundred twenty-six patients with symptomatic CHF were randomized to receive metoprolol CR or placebo for 24 weeks.' (212 + 214 = 426, exact.) 'There were fewer deaths in the group receiving beta-blockers (3.4% versus 8.1%).'",
+      "residual_resolution": {
+        "the_residual_was": "The audit flagged 3.7% extracted vs 3.4% published for the metoprolol arm as an unresolved discrepancy.",
+        "resolved_as": "A discrepancy INTERNAL TO THE SOURCE, not an extraction error. The publication's body text reports the metoprolol deaths as n=8 (3.7%) against placebo n=17 (8.1%), while its own abstract states 3.4% for the same arm. The extracted counts 8 and 17 match the body text exactly.",
+        "evidence_tier_for_the_body_text": "SECONDARY_CORROBORATED - the body figures (n=8, 3.7%; n=17, 8.1%) were returned concordantly by two independent retrievals of the publisher page. The publisher's own HTML and PDF sit behind a Cloudflare bot check which was NOT circumvented, so I have not read the full text myself. This is stated rather than glossed.",
+        "counts_changed": "NONE. The extracted 8 and 17 already match the body text; correcting them to the abstract's 3.4% would mean inventing a count the source does not state.",
+        "remaining_precision_question": "Which per-arm split the percentages were computed on. 214/212 reproduces the metoprolol 3.7% but yields 8.02% for placebo (which prints as 8.0, not 8.1); the split 216/210 reproduces BOTH published percentages exactly (8/216 = 3.70%, 17/210 = 8.10%) and also sums to 426.",
+        "impact_of_that_ambiguity": "Negligible and quantified: logRR is -0.763085 under 214/212 and -0.781869 under 216/210, a shift of 0.0188 against a contrast SE of 0.4177 - i.e. 0.045 SE. It cannot move any network estimate materially. Retained at 214/212 as extracted; flagged, not silently switched, because switching would substitute an inference for a read."
+      }
+    },
+
+    {
+      "id": "HF-020",
+      "trial": "He 2015",
+      "finding_ref": "F4",
+      "disposition": "RETAINED - PER-ARM N AND DEATHS NOW VERIFIED EXACTLY",
+      "violation": null,
+      "evidence_tier": "PRIMARY_DIRECT",
+      "audit_claim_corrected": "The audit recorded the per-arm denominators as UNVERIFIED and speculated that an equal 5-way split would give 192 rather than the ledger's 198. That speculation is superseded: the full text states the per-arm N directly, and the ledger is exactly right.",
+      "source": {"pmid": "28834619", "pmcid": "PMC5746969", "doi": "10.1002/ehf2.12042",
+                 "nct": "NCT01917149",
+                 "citation": "He Z, Sun Y, Gao H, et al. ESC Heart Fail 2015;2(4):129-138."},
+      "quoted_evidence": "Table 1 (baseline) gives the five arm sizes: Metoprolol n=96; low-dose Benazepril n=97; low-dose Valsartan n=100; high-dose Benazepril n=101; high-dose Valsartan n=97. Table 2 (primary endpoints and components) gives ALL-CAUSE DEATH per arm: 14, 11, 13, 8, 8 respectively.",
+      "reconciliation": {
+        "BB node (metoprolol)": "14/96 - matches the ledger exactly (Table 1 n=96, Table 2 all-cause death 14).",
+        "ACEI node (pooled benazepril)": "low-dose 11/97 + high-dose 8/101 = 19 deaths / 198 - matches the ledger's 19/198 exactly. The 198 is 97+101, not the equal-split 192 the audit hypothesised."
+      },
+      "status_change": "FINDING (denominators unverified)  ->  VERIFIED_FULL",
+      "residual_flags_that_remain_real": [
+        {
+          "flag": "dose-arm pooling",
+          "detail": "The ledger maps two benazepril DOSE arms onto one ACEI node. The trial found high- vs low-dose benazepril significantly different (41% risk reduction, P=0.042). CRITICAL QUALIFIER established this pass: that P=0.042 is for the trial's PRIMARY COMPOSITE (all-cause death OR heart-failure admission), NOT for all-cause mortality. On the pooled outcome actually used here - all-cause death - the two benazepril arms are 11/97 vs 8/101, which is not a significant difference (Fisher p = 0.49). The pooling is therefore defensible for THIS outcome and is disclosed rather than quarantined.",
+          "action": "DISCLOSE in the app; no data change."
+        },
+        {
+          "flag": "dropped valsartan arms",
+          "detail": "The two valsartan arms (low-dose 13/100, high-dose 8/97) are dropped entirely rather than mapped to the ARB node. This discards 21 deaths in 197 randomised patients from a trial that is retained. It is a node-mapping choice, not an integrity violation, but it is not currently disclosed.",
+          "action": "DISCLOSE in the app; no data change this pass."
+        },
+        {
+          "flag": "source-internal enrolment inconsistency",
+          "detail": "The abstract and registry say 480 randomised; the Results text says 'A total of 491 consecutive patients were enrolled' and Table 1's five arms sum to 491 (96+97+100+101+97). The discrepancy is the source's own. Extraction uses the per-arm table, which is internally consistent.",
+          "action": "DISCLOSE; no data change."
+        },
+        {
+          "flag": "population",
+          "detail": "Idiopathic dilated cardiomyopathy only; registry exclusions explicitly remove coronary artery disease and diabetes. Open-label.",
+          "action": "Already carried as a population advisory."
+        }
+      ]
+    },
+
+    {
+      "id": "HF-038",
+      "trial": "QUEST",
+      "finding_ref": "F5",
+      "disposition": "RETAINED - COUNTS VERIFIED EXACTLY; PRESENTATION CONSTRAINED",
+      "violation": null,
+      "evidence_tier": "PRIMARY_DIRECT",
+      "source": {"pmid": "39095596", "pmcid": "PMC11333273", "doi": "10.1038/s41591-024-03169-2",
+                 "registry": "ChiCTR1900021929",
+                 "citation": "Cheang I, Yao W, Zhou Y, et al. Nat Med 2024;30(8):2295-2302."},
+      "quoted_evidence": "Full text, Secondary outcomes: 'A total of 221 patients (14.21%) in the QLQX group and 262 patients (16.85%) in the placebo group died from any cause (HR, 0.84; 95% CI, 0.70-1.01; P = 0.058).'",
+      "reconciliation": "The ledger's 221 and 262 are stated verbatim in the primary; 221/1555 = 14.21% and 262/1555 = 16.85% confirm the denominators exactly. Counts upgrade from 'unverified' to VERIFIED_FULL. NO COUNT CHANGES.",
+      "the_actual_finding": "A SIGNIFICANCE-PRESENTATION discordance, not a data error. The trial's own all-cause-mortality analysis - a Cox model accounting for follow-up and censoring - is HR 0.84 (0.70-1.01), P = 0.058: NOT SIGNIFICANT. Fisher's exact on the crude 2x2 gives p = 0.0426 with a fragility index of 1 (one patient moves it to p = 0.0536). The crude test ignores censoring and differential follow-up; the trial's reported analysis is authoritative.",
+      "binding_constraint": "No QLQX contrast may be presented as significant on the basis of the crude 2x2. Wherever a +QLQX contrast is displayed, the trial's own non-significant all-cause-mortality result (HR 0.84, 95% CI 0.70-1.01, P = 0.058) must be shown alongside it. This applies to the direct +QLQX vs ACEI+BB+MRA contrast and, a fortiori, to the indirect +QLQX vs Placebo and +QLQX vs ACEI network contrasts, which rest on the same trial and additionally carry no 2x2 at all.",
+      "action": "PRESENTATION FIX in the app; no data change."
+    }
+  ],
+
+  "summary": {
+    "quarantined": 1,
+    "quarantined_ids": ["HF-021 CARMEN"],
+    "resolved_by_locating_the_source": 1,
+    "resolved_by_locating_the_source_ids": ["HF-008 SPICE"],
+    "resolved_by_correcting_the_citation": 1,
+    "resolved_by_correcting_the_citation_ids": ["HF-019 RESOLVD"],
+    "resolved_by_full_text_verification": 2,
+    "resolved_by_full_text_verification_ids": ["HF-020 He 2015", "HF-038 QUEST"],
+    "count_values_changed": 0,
+    "count_values_changed_note": "No extracted count was altered in this pass. Four findings resolved to 'the extraction was right, the provenance record was wrong'; the fifth (CARMEN) resolved to 'the extraction has no source', and was quarantined rather than corrected, because there is no sourced value to correct it to.",
+    "trials_in_primary_before": 28,
+    "trials_in_primary_after": 27,
+    "audit_claims_withdrawn": [
+      "F3 'SPICE has no primary source at all' - withdrawn; the primary is PMID 10740141.",
+      "F4 'He 2015 per-arm denominators unverified' - withdrawn; PMC5746969 Tables 1 and 2 verify them exactly.",
+      "F5 'QUEST counts unverified' - withdrawn; PMC11333273 states 221 and 262 verbatim. The significance-discordance part of F5 stands."
+    ]
+  },
+
+  "attribution": "Source verification used PubMed (NCBI E-utilities) and PubMed Central full text. Per-trial DOIs are recorded above. Publisher sites that block automated retrieval were not circumvented; where that limited the evidence tier, the tier is stated."
+}
