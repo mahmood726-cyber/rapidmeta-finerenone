@@ -32,23 +32,45 @@
     const trials = Array.isArray(state.trials) ? state.trials : [];
     const rd = (global.RapidMeta && global.RapidMeta.realData) || {};
 
+    // `hydrated` is the honest gate. This module used to render before
+    // RapidMeta.state.trials was populated and report 0 for every upstream
+    // stage -- which is a false claim (zero records found), not an empty one.
+    const hydrated = trials.length > 0;
+
     const counts = {
-      total_search: trials.length,
-      duplicates_removed: 0,  // not tracked separately; equals total - unique
-      screened: 0,
-      excluded_screen: 0,
-      fulltext: 0,
-      excluded_fulltext: 0,
-      included_qualitative: 0,
+      hydrated: hydrated,
+      // duplicates were never tracked as a separate stage in this app; the
+      // search log records only a post-dedup total. null renders "not recorded".
+      duplicates_removed: null,
       in_nma: Object.keys(rd).length,
       reasons: {},
     };
+
+    if (!hydrated) {
+      // Nothing about the search/screening audit trail is known yet. Report
+      // that, rather than inventing zeros or back-filling from realData.
+      counts.total_search = null;
+      counts.screened = null;
+      counts.excluded_screen = null;
+      counts.unscreened = null;
+      counts.fulltext = null;
+      counts.excluded_fulltext = null;
+      counts.included_qualitative = null;
+      counts.included_not_in_nma = null;
+      return counts;
+    }
+
+    counts.total_search = trials.length;
+    counts.screened = 0;
+    counts.excluded_screen = 0;
+    counts.fulltext = 0;
+    counts.excluded_fulltext = 0;
+    counts.included_qualitative = 0;
 
     trials.forEach(t => {
       const status = (t && t.status) || '';
       const sr = (t && t.screenReview) || {};
       const ex = (t && t.data && t.data.extractionSignoff) || {};
-      // 'screened' = anyone with a screenReview decision (include/exclude)
       if (sr.decision || status === 'include' || status === 'exclude') {
         counts.screened++;
       }
@@ -67,11 +89,15 @@
       }
     });
 
-    // If no trials are tracked but realData has entries, derive minimal counts
-    if (counts.total_search === 0 && counts.in_nma > 0) {
-      counts.included_qualitative = counts.in_nma;
-      counts.fulltext = counts.in_nma;
-    }
+    // Records that reached no screening decision at all. Previously invisible:
+    // identified minus screened simply vanished from the diagram.
+    // decision_recorded = reached an include/exclude decision.
+    // screened (PRISMA 2020) = entered screening = every identified record.
+    counts.decision_recorded = counts.screened;
+    counts.unscreened = counts.total_search - counts.decision_recorded;
+    counts.screened = counts.total_search;
+    // Studies included qualitatively but absent from the fitted network.
+    counts.included_not_in_nma = counts.included_qualitative - counts.in_nma;
     return counts;
   }
 
@@ -102,7 +128,15 @@
     t2.setAttribute('font-size', '16');
     t2.setAttribute('font-weight', '700');
     t2.setAttribute('text-anchor', 'middle');
-    t2.textContent = 'k = ' + count;
+    // A null count means the stage was never recorded. Rendering it as 0 would
+    // assert that zero records were found, which is a different -- and false -- claim.
+    if (count === null || count === undefined) {
+      t2.textContent = 'not recorded';
+      t2.setAttribute('font-size', '13');
+      t2.setAttribute('fill', '#fbbf24');
+    } else {
+      t2.textContent = 'k = ' + count;
+    }
     g.appendChild(t2);
     return g;
   }
@@ -127,8 +161,8 @@
     }
     if (!container) return;
     const c = compute();
-    const W = 720;
-    const H = 460;
+    const W = 1000;
+    const H = 470;
     const svgNS = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(svgNS, 'svg');
     svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
@@ -168,6 +202,10 @@
       'Excluded at screening', c.excluded_screen, '#7f1d1d'));
     svg.appendChild(box(svgNS, cx + 170, 200, 200, boxH,
       'Excluded after full-text', c.excluded_fulltext, '#7f1d1d'));
+    // Left arm: records with no recorded screening decision. Without this box,
+    // screened minus (excluded + to-full-text) silently vanished from the flow.
+    svg.appendChild(box(svgNS, 40, 100, 200, boxH,
+      'Screening decision not recorded', c.unscreened, '#78350f'));
 
     // Arrows
     [
@@ -177,15 +215,48 @@
       [cx, 356, cx, 380],
       [cx + 140, 128, cx + 170, 128],
       [cx + 140, 228, cx + 170, 228],
+      [cx - 140, 128, 245, 128],
     ].forEach(a => svg.appendChild(arrow(svgNS, a[0], a[1], a[2], a[3])));
 
     container.innerHTML = '';
     container.appendChild(svg);
 
-    // Caption
+    // Caption + explicit reconciliation of every gap in the flow.
     const cap = document.createElement('div');
-    cap.style.cssText = 'font-size:10px;color:#64748b;margin-top:8px;line-height:1.5;';
-    cap.innerHTML = 'PRISMA 2020 / PRISMA-NMA flow (Page 2021 <em>BMJ</em>; Hutton 2015 <em>Ann Intern Med</em>). Counts derived live from RapidMeta.state.trials + realData. Re-renders when state changes.';
+    cap.style.cssText = 'font-size:10.5px;color:#94a3b8;margin-top:10px;line-height:1.6;';
+    let notes = '';
+    if (!c.hydrated) {
+      notes += '<div style="color:#fbbf24;margin-bottom:6px;"><strong>The search-and-screening audit trail is '
+            +  'not available.</strong> Only the final included set is documented. The upstream stages read '
+            +  '"not recorded" rather than 0, because 0 would assert that no records were found.</div>';
+    } else {
+      const bits = [];
+      if (c.unscreened > 0) {
+        bits.push('<strong>' + c.unscreened + ' screened records have no recorded screening decision</strong> '
+          + '(status still "search"). They are shown on the left arm, not absorbed into the exclusions: '
+          + c.screened + ' screened = ' + c.excluded_screen + ' excluded + ' + c.fulltext
+          + ' to full text + ' + c.unscreened + ' not recorded.');
+      }
+      if (c.included_not_in_nma > 0) {
+        bits.push('<strong>' + c.included_not_in_nma + ' study included qualitatively is not in the fitted '
+          + 'network</strong> (' + c.included_qualitative + ' included vs ' + c.in_nma + ' in the NMA). '
+          + 'The reason is not recorded in this app.');
+      } else if (c.included_not_in_nma < 0) {
+        bits.push('<strong>' + (-c.included_not_in_nma) + ' study in the network is not counted as included '
+          + 'qualitatively</strong> (' + c.included_qualitative + ' included vs ' + c.in_nma + ' in the NMA).');
+      }
+      bits.push('<strong>Duplicate removal is not recorded.</strong> The search log stores only a post-dedup '
+        + 'total, so no de-duplication stage can be shown; it is left blank rather than reported as 0.');
+      if (bits.length) {
+        notes += '<div style="background:#1a1206;border:1px solid #7c2d12;border-radius:8px;padding:9px 11px;'
+              +  'margin-bottom:8px;color:#fdba74;">' + bits.map(b => '<div style="margin:3px 0;">' + b
+              +  '</div>').join('') + '</div>';
+      }
+    }
+    cap.innerHTML = notes + 'PRISMA 2020 / PRISMA-NMA flow (Page 2021 <em>BMJ</em>; Hutton 2015 '
+      + '<em>Ann Intern Med</em>). Counts are read from RapidMeta.state.trials and realData at render time '
+      + 'and re-read whenever that state changes. Stages this app never recorded are shown as '
+      + '"not recorded", never as zero.';
     container.appendChild(cap);
   }
 
@@ -193,22 +264,54 @@
     if (document.readyState !== 'loading') fn();
     else document.addEventListener('DOMContentLoaded', fn);
   }
+
+  // Re-render whenever the trial state actually changes. The caption always
+  // claimed this happened; nothing had ever subscribed.
+  let _lastSig = null;
+  function stateSignature() {
+    const st = (global.RapidMeta && global.RapidMeta.state) || {};
+    const trials = Array.isArray(st.trials) ? st.trials : [];
+    const rd = (global.RapidMeta && global.RapidMeta.realData) || {};
+    let inc = 0, exc = 0;
+    trials.forEach(t => {
+      const s = (t && t.status) || '';
+      if (s === 'include') inc++; else if (s === 'exclude') exc++;
+    });
+    return trials.length + '/' + inc + '/' + exc + '/' + Object.keys(rd).length;
+  }
+
+  function refresh(container) {
+    const c = container || document.getElementById('prismaFlowContainer');
+    if (!c) return false;
+    render(c);
+    _lastSig = stateSignature();
+    return true;
+  }
+
   ready(function () {
     const c = document.getElementById('prismaFlowContainer');
-    if (c) {
-      // Retry pattern for late RapidMeta init
-      let attempts = 0;
-      function tryRender() {
-        render(c);
-        const counts = compute();
-        if (counts.total_search === 0 && counts.in_nma === 0 && attempts < 10) {
-          attempts++;
-          setTimeout(tryRender, 500);
-        }
-      }
-      tryRender();
-    }
+    if (!c) return;
+    refresh(c);
+
+    // Retry until the state is actually HYDRATED. The previous guard was
+    //   if (total_search === 0 && in_nma === 0 && attempts < 10)
+    // but realData is embedded and non-empty from the first paint, so in_nma
+    // was already 28 and the && short-circuited: the retry loop never ran once.
+    // The diagram was therefore painted exactly once, pre-hydration, and frozen.
+    let attempts = 0;
+    (function tick() {
+      if (compute().hydrated) { refresh(c); return; }
+      if (++attempts < 40) setTimeout(tick, 250);
+      else refresh(c);   // give up, but render the honest "not recorded" state
+    })();
+
+    // Keep it live: cheap signature poll, so screening decisions made in the
+    // Screening tab are reflected without a reload.
+    setInterval(function () {
+      const sig = stateSignature();
+      if (sig !== _lastSig) refresh(c);
+    }, 1500);
   });
 
-  global.PrismaFlow = { compute, render };
+  global.PrismaFlow = { compute, render, refresh };
 })(typeof window !== 'undefined' ? window : globalThis);
