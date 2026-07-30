@@ -277,11 +277,16 @@ settled 7c.
 
 - **Anchor gate** — pre-quarantine re-fit reproduces the settled primary to <1e-8 (`PASS`);
   the script refuses to emit otherwise.
-- **`scripts/hfref_verify_app_quarantine.py`** — structure (div balance, script integrity,
+- **`scripts/hfref_verify_app_coprimary.py`** — structure (div balance, script integrity,
   every `data-tab` has a panel, placeholder leaks), payload row-for-row vs the R re-fit at
   1e-8, **verdict-surface agreement**, quarantine integrity, QUEST constraint. `PASS`.
-  **Negative-tested and it blocks:** league RR perturbed 1e-6 → FAIL; badge trial count
-  27→28 → FAIL; badge anchor 0.631→0.501 → FAIL; CARMEN deleted instead of flagged → FAIL.
+  **Negative-tested and it blocks:** perturbing the full-network ACEI+BB anchor
+  0.64459765 → 0.61159765 yields 4 blocking findings and **exit 1** (re-confirmed
+  2026-07-30 on the rebuilt branch).
+  *(The earlier `scripts/hfref_verify_app_quarantine.py` was superseded by the
+  co-primary verifier and removed 2026-07-30: it crashed with `KeyError:
+  'contrasts_checked'` against the co-primary-era payload, so it could no longer
+  gate anything.)*
 - **JS parse gate** (`scripts/jscheck.py`) — `[JS-OK]`.
 - **Cross-meta contamination gate** (`scripts/scan_cross_meta.py`) — 410 clean / 127
   contaminated repo-wide (pre-existing); **this app is not flagged**.

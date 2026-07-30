@@ -12,7 +12,10 @@ rewrites, in HFREF_NMA_AUTO_FULL_REVIEW.html:
   3. #rapidmeta-integrity-badge -- the human-readable badge prose.
 
 Both verdict surfaces are written from the SAME derived facts here, so they
-cannot drift apart. scripts/hfref_verify_app_quarantine.py re-checks that.
+cannot drift apart. scripts/hfref_verify_app_coprimary.py re-checks that.
+(scripts/hfref_verify_app_quarantine.py was superseded by the co-primary
+verifier and removed 2026-07-30 -- it crashed with KeyError 'contrasts_checked'
+against the co-primary-era payload.)
 
 Never edits F:/E156/hfref_eightcell_fit.R.
 """

@@ -6715,7 +6715,78 @@ document.addEventListener('keydown', function(e){
   [250,800,2000,4000].forEach(function(ms){ setTimeout(function(){ hookPlotly(); gate(); }, ms); });
 })();
 
-</script></body>
+</script><script>
+/* ------------------------------------------------------------------
+   HFrEF-SCOPED PRISMA RECONCILIATION  (deliberately NOT a vendor edit)
+
+   vendor/prisma-flow.js is loaded by ~1011 apps in this repo. On this page
+   it painted tab 2 before RapidMeta.state.trials had hydrated, and then a
+   fallback fabricated the lower boxes from realData, producing
+
+       0 identified / 0 screened / 28 full-text
+
+   which is impossible: records cannot reach full text without being
+   identified. Correcting that inside the vendor module would change 1011
+   other apps as a side effect of an HFrEF release, so it is NOT done here.
+   The corpus-wide vendor fix is exported to
+   outputs/prisma-flow-vendor-fix.diff and is gated separately.
+
+   Instead this page drives tab 2 from its OWN PrismaEngine -- the same
+   engine tab 6/7 uses. One computation, two views, so the two surfaces
+   agree BY CONSTRUCTION rather than by coincidence. This also removes the
+   tab2-vs-tab6 "excluded after full-text" disagreement (1 vs 0), which was
+   two renderers classifying the same record two different ways.
+
+   Nothing is repainted until trials have hydrated: an unhydrated stage is
+   left alone rather than asserted as 0.
+   ------------------------------------------------------------------ */
+(function () {
+  var lastSig = null;
+
+  function hydrated() {
+    var st = (window.RapidMeta && window.RapidMeta.state) || {};
+    return Array.isArray(st.trials) && st.trials.length > 0;
+  }
+
+  function paint() {
+    if (typeof PrismaEngine === 'undefined' || !PrismaEngine.renderToElement) return false;
+    if (!hydrated()) return false;
+    if (!document.getElementById('prismaFlowContainer')) return false;
+    try { PrismaEngine.renderToElement('prismaFlowContainer'); return true; }
+    catch (e) { console.warn('HFrEF PRISMA tab-2 render failed:', e); return false; }
+  }
+
+  function sig() {
+    var st = (window.RapidMeta && window.RapidMeta.state) || {};
+    var t = Array.isArray(st.trials) ? st.trials : [];
+    var inc = 0, exc = 0;
+    for (var i = 0; i < t.length; i++) {
+      var s = t[i] && t[i].status;
+      if (s === 'include') inc++; else if (s === 'exclude') exc++;
+    }
+    return t.length + '|' + inc + '|' + exc;
+  }
+
+  function tick() {
+    var s = sig();
+    if (s !== lastSig && paint()) lastSig = s;
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tick);
+  else tick();
+
+  /* repaint the moment tab 2 is opened, so the reader never sees the
+     vendor's pre-hydration paint sitting in the container */
+  document.addEventListener('click', function (ev) {
+    var el = ev.target;
+    if (!el || !el.closest) return;
+    if (el.closest('[data-module="search"],[data-tab="search"]')) setTimeout(paint, 0);
+  }, true);
+
+  setInterval(tick, 1000);
+})();
+</script>
+</body>
 
 
 </html>

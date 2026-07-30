@@ -58,13 +58,7 @@
   "G5_identifier_format": {
    "status": "RAN",
    "applies": true,
-   "findings": [
-    {
-     "trial": "SPICE",
-     "issue": "no PMID in ledger",
-     "ledger_note": "NO verified primary report: the only PubMed-indexed SPICE paper is the observational SPICE Registry (n=9580), not this 270-patient randomised comparison"
-    }
-   ],
+   "findings": [],
    "registry_split": {
     "ctgov": [
      {
@@ -539,12 +533,20 @@
   "n_trials": 28,
   "n_study_contrasts": 30,
   "coverage": {
-   "network_trials": 28,
-   "extraction_substantiated": 28,
-   "arm_rows": 57,
-   "study_contrasts": 30,
-   "pmid_verified": 27,
-   "pmid_missing": 1
+   "mode": "CO-PRIMARY",
+   "full_network_trials": 28,
+   "quarantined_network_trials": 26,
+   "trials_on_record": 28,
+   "quarantined": 2,
+   "reinstated": 1,
+   "arm_rows_full": 57,
+   "arm_rows_quarantined": 52,
+   "arm_rows_withheld": 5,
+   "study_contrasts_full": 30,
+   "study_contrasts_quarantined": 26,
+   "pmid_verified": 28,
+   "pmid_missing": 0,
+   "note": "Arm rows 57 -> 52: CARMEN's 3 and Vizzardi 2014's 2 are withheld from the quarantined co-primary, 5 in total. Contrasts 30 -> 26. GALACTIC-HF's 2 rows were withheld by an earlier pass and are RESTORED, on per-arm all-cause deaths verified against the ClinicalTrials.gov NCT02929329 posted results. All 57 rows remain on record in outputs/hfref_quarantine_ledger.json and all 28 trials remain in the FULL co-primary. Every trial carries a PMID: SPICE's was located this pass."
   },
   "engine": "R 4.6.0 / netmeta 3.6.1",
   "nma_pairwise_key_found": false
