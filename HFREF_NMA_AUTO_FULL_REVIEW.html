@@ -2884,10 +2884,15 @@
                 <div class="glass p-10 rounded-[40px] border border-slate-800 shadow-2xl">
 
 
+                    <div id="hfref-pairwise-secondary" style="background:#1a1206;border:1px solid #7c2d12;border-radius:14px;padding:16px 18px;margin-bottom:26px;">
+                        <div style="font-size:11px;letter-spacing:.12em;color:#fdba74;text-transform:uppercase;font-weight:700;margin-bottom:6px;">Secondary &middot; pairwise diagnostics</div>
+                        <div style="color:#f8fafc;font-size:16px;font-weight:700;margin-bottom:6px;">These are NOT the network results</div>
+                        <p style="color:#cbd5e1;font-size:12.5px;line-height:1.65;margin:0;">Everything below this line &mdash; forest, L&rsquo;Abb&eacute;, funnel, Baujat, Egger, Galbraith, meta-regression and the rest &mdash; is a <strong>direct pairwise</strong> diagnostic computed over the pooled arm data. It is a data-integrity and small-study screen, <strong>not</strong> the network meta-analysis. The NMA &mdash; network geometry, the 105-contrast mixed-estimate league table, the P-score ranking and the specification multiverse &mdash; is above, at the top of this tab. Do not read a pooled pairwise RR as a network estimate: the network fit is reported per contrast, not as one summary number.</p>
+                    </div>
                     <h3 class="font-bold opacity-50 uppercase text-xs tracking-[0.3em] mb-10 text-center flex items-center justify-center gap-4">
 
 
-                        <span class="w-10 h-px bg-slate-700"></span> Precision Analytics Suite <span class="w-10 h-px bg-slate-700"></span>
+                        <span class="w-10 h-px bg-slate-700"></span> Precision Analytics Suite <span style="color:#fdba74">(secondary pairwise diagnostics)</span> <span class="w-10 h-px bg-slate-700"></span>
 
 
                     </h3>
@@ -6061,7 +6066,7 @@ window.onload=()=>RapidMeta.init(),function(){if(window.__ctgovAutolinkInstalled
 
   /* ---------------- multiverse ---------------- */
   function multiverse(){
-    var h='<div style="'+CARD+'">'+
+    var h='<div style="'+CARD+'" id="hfref-multiverse">'+
       '<div style="font-size:11px;letter-spacing:.12em;color:#a78bfa;text-transform:uppercase;font-weight:700">Specification multiverse</div>'+
       '<h3 style="color:#f8fafc;font-size:18px;font-weight:700;margin:6px 0 4px">'+
       F.cells.length+' computed cells \u00b7 '+F.withdrawn_cells.length+' declared but withdrawn</h3>'+
@@ -6114,9 +6119,10 @@ window.onload=()=>RapidMeta.init(),function(){if(window.__ctgovAutolinkInstalled
     var L=prim.league.slice().sort(function(a,b){return a.rr-b.rr;});
     var direct=L.filter(function(x){return x.direct_k>0;}).length;
     var h='<div style="'+CARD+'" id="hfref-league-card">'+
-      '<div style="font-size:11px;letter-spacing:.12em;color:#34d399;text-transform:uppercase;font-weight:700">League table</div>'+
+      '<div style="font-size:11px;letter-spacing:.12em;color:#34d399;text-transform:uppercase;font-weight:700">League table \u00b7 network (mixed) estimates</div>'+
       '<h3 style="color:#f8fafc;font-size:18px;font-weight:700;margin:6px 0 4px">'+
-      L.length+' estimable pairwise contrasts</h3>'+
+      L.length+' network contrasts \u2014 every cell is a MIXED estimate</h3>'+
+      '<p style="color:#cbd5e1;font-size:12.5px;margin-bottom:8px;background:#0f1e17;border:1px solid #14532d;border-radius:8px;padding:9px 11px">These are <strong>network (mixed) estimates</strong> from the fitted NMA \u2014 each combines the direct evidence for that pair (where any exists) with indirect evidence routed through the rest of the network. They are <strong>not</strong> direct pairwise meta-analyses, and they are not the pairwise diagnostics shown further down this tab.</p>'+
       '<p style="color:#94a3b8;font-size:12.5px;margin-bottom:6px">The network is connected, so all '+
       L.length+' node pairs ('+prim.nodes_in_network+'\u00d7'+(prim.nodes_in_network-1)+'/2) are estimable. '+
       'Point estimates and confidence intervals are computed from the fit\u2019s covariance matrix: '+
@@ -6147,7 +6153,7 @@ window.onload=()=>RapidMeta.init(),function(){if(window.__ctgovAutolinkInstalled
   /* ---------------- structure + limits ---------------- */
   function limits(){
     var st=prim.structure, mde=null;
-    return '<div style="'+CARD+'">'+
+    return '<div style="'+CARD+'" id="hfref-limits">'+
       '<div style="font-size:11px;letter-spacing:.12em;color:#f87171;text-transform:uppercase;font-weight:700">'+
       'What this analysis cannot tell you</div>'+
       '<h3 style="color:#f8fafc;font-size:18px;font-weight:700;margin:6px 0 12px">Honest limits</h3>'+
@@ -6259,11 +6265,110 @@ window.onload=()=>RapidMeta.init(),function(){if(window.__ctgovAutolinkInstalled
       '<th style="'+TH+'text-align:right">Rate</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
   }
 
+  /* ---------------- in-suite navigation ---------------- */
+  /* The suite is ~2.6k px tall inside a ~500px viewport, so the multiverse and
+     ranking were unreachable without blind scrolling. These are real anchors. */
+  function suiteNav(){
+    var items=[['hfref-network','Network diagram'],['hfref-league-card','League table (mixed)'],
+               ['hfref-ranking','Ranking (P-score)'],['hfref-multiverse','Multiverse'],
+               ['hfref-limits','Honest limits']];
+    return '<div style="'+CARD+'padding:12px 16px;position:sticky;top:0;z-index:20;'+
+      'background:#0b1220f2;backdrop-filter:blur(6px)">'+
+      '<span style="font-size:10.5px;letter-spacing:.12em;color:#94a3b8;text-transform:uppercase;'+
+      'font-weight:700;margin-right:10px">NMA surfaces</span>'+
+      items.map(function(it){
+        return '<a href="#'+it[0]+'" style="display:inline-block;margin:3px 8px 3px 0;padding:4px 10px;'+
+          'font-size:11.5px;color:#7dd3fc;border:1px solid #1e3a5f;border-radius:999px;text-decoration:none">'+
+          esc(it[1])+'</a>';}).join('')+
+      '</div>';
+  }
+
+  /* ---------------- network geometry ---------------- */
+  function networkPanel(){
+    var st=prim.structure, qst=quar?quar.structure:null;
+    var indirect=prim.estimable_pairs-prim.league.filter(function(x){return x.direct_k>0;}).length;
+    return '<div style="'+CARD+'" id="hfref-network">'+
+      '<div style="font-size:11px;letter-spacing:.12em;color:#7dd3fc;text-transform:uppercase;font-weight:700">'+
+      'Network geometry · node-and-edge</div>'+
+      '<h3 style="color:#f8fafc;font-size:18px;font-weight:700;margin:6px 0 4px">'+
+      st.V+' treatment nodes · '+st.E+' direct edges'+
+      (qst?(' <span style="color:#fdba74;font-size:13px;font-weight:600">('+qst.E+' under the quarantined co-primary)</span>'):'')+
+      '</h3>'+
+      '<p style="color:#94a3b8;font-size:12.5px;margin-bottom:12px">Each edge is a pair of nodes that at least one '+
+      'trial randomised against each other; edge width is the number of such trials. Every pair <em>without</em> an edge '+
+      'is estimated indirectly through the network — those are the '+indirect+
+      ' indirect-only contrasts flagged in the league table below. Cyclomatic number '+st.cyclomatic+
+      ', of which '+st.multiarm_internal_loops+' loop closes inside a single multi-arm trial, leaving '+st.icdf+
+      ' independent between-trial loop.</p>'+
+      '<div id="nma-network-plot"></div>'+
+      '</div>';
+  }
+
+  /* ---------------- treatment ranking ---------------- */
+  /* P-scores are read from the fit. They are NOT recomputed in the browser and
+     they are NOT SUCRA: SUCRA needs a Bayesian posterior; P-score is its
+     frequentist analogue (Ruecker & Schwarzer 2015). vendor/nma-sucra.js is
+     deliberately NOT mounted here -- it re-derives a ranking by DerSimonian-
+     Laird pooling plus Monte Carlo simulation, which would contradict this
+     REML + HKSJ netmeta fit with a second, browser-simulated hierarchy. */
+  function rankingPanel(){
+    var ps=prim.pscore||{}, qs=(quar&&quar.pscore)||null;
+    var names=Object.keys(ps).sort(function(a,b){return ps[b]-ps[a];});
+    if(!names.length) return '';
+    var indirect=prim.estimable_pairs-prim.league.filter(function(x){return x.direct_k>0;}).length;
+    var qrank={};
+    if(qs) Object.keys(qs).sort(function(a,b){return qs[b]-qs[a];}).forEach(function(n,i){qrank[n]=i+1;});
+    var rows='';
+    names.forEach(function(n,i){
+      var d=(qs&&qrank[n]!=null)?(qrank[n]-(i+1)):null;
+      var dTxt=(d===null)?'—':(d===0?'<span style="color:#64748b">—</span>':
+        (d<0?'<span style="color:#6ee7b7;font-weight:600">↑'+(-d)+'</span>':
+             '<span style="color:#fca5a5;font-weight:600">↓'+d+'</span>'));
+      rows+='<tr><td style="'+TD+'text-align:right;color:#64748b">'+(i+1)+'</td>'+
+        '<td style="'+TD+'color:#e2e8f0;font-weight:600">'+esc(n)+'</td>'+
+        '<td style="'+TD+'text-align:right;font-variant-numeric:tabular-nums">'+ps[n].toFixed(4)+'</td>'+
+        '<td style="'+TD+'text-align:right;font-variant-numeric:tabular-nums;color:#fdba74">'+
+        ((qs&&qs[n]!=null)?qs[n].toFixed(4):'—')+'</td>'+
+        '<td style="'+TD+'text-align:right">'+dTxt+'</td>'+
+        '<td style="'+TD+'">'+evidenceTag(prim,n)+'</td></tr>';
+    });
+    return '<div style="'+CARD+'" id="hfref-ranking">'+
+      '<div style="font-size:11px;letter-spacing:.12em;color:#c4b5fd;text-transform:uppercase;font-weight:700">'+
+      'Treatment ranking · network (mixed) estimates</div>'+
+      '<h3 style="color:#f8fafc;font-size:18px;font-weight:700;margin:6px 0 4px">'+
+      'P-score across '+names.length+' nodes, both co-primary fits</h3>'+
+      '<p style="color:#94a3b8;font-size:12.5px;margin-bottom:10px">P-score is the frequentist analogue of SUCRA '+
+      '(Rücker &amp; Schwarzer 2015): the mean certainty that a treatment is better than a competitor, averaged '+
+      'over all competitors. <strong>These values are read from the R/netmeta fit, not recomputed in the browser.</strong> '+
+      'This is a P-score, <strong>not</strong> SUCRA — SUCRA requires a Bayesian posterior, which this fit does not produce.</p>'+
+      '<p style="color:#fdba74;font-size:12.5px;margin-bottom:12px;background:#1a1206;border:1px solid #7c2d12;'+
+      'border-radius:8px;padding:9px 11px"><strong>A rank is not an effect size.</strong> '+indirect+' of '+
+      prim.estimable_pairs+' contrasts rest on no direct comparison, so most of this ordering is network '+
+      'extrapolation. Read the confidence intervals in the league table before reading this column.</p>'+
+      '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">'+
+      '<thead><tr><th style="'+TH+'text-align:right">#</th><th style="'+TH+'">Treatment</th>'+
+      '<th style="'+TH+'text-align:right;color:#7dd3fc">P-score (a) full</th>'+
+      '<th style="'+TH+'text-align:right;color:#fdba74">(b) quarantined</th>'+
+      '<th style="'+TH+'text-align:right">Rank Δ</th>'+
+      '<th style="'+TH+'">Direct evidence vs Placebo</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+  }
+
   function mount(){
     var a=document.getElementById('hfref-nma-suite');
     if(a && !a.getAttribute('data-rendered')){
-      a.innerHTML=provenance()+headline()+multiverse()+league()+limits();
+      /* The tab now LEADS with the NMA: geometry, then the mixed-estimate league,
+         then the ranking, then the multiverse. The 18 pairwise diagnostics further
+         down this tab are secondary and are labelled as such. */
+      a.innerHTML=provenance()+suiteNav()+headline()+networkPanel()+league()+rankingPanel()+multiverse()+limits();
       a.setAttribute('data-rendered','1');
+      /* mount the node-and-edge diagram from the fit's own NMA_CONFIG */
+      try{
+        if(window.NetworkGraph&&window.NMA_CONFIG&&window.NMA_CONFIG.treatments){
+          window.NetworkGraph.render(document.getElementById('nma-network-plot'),{
+            treatments:window.NMA_CONFIG.treatments,
+            comparisons:window.NMA_CONFIG.comparisons});
+        }
+      }catch(err){ console.warn('[hfref] network graph render failed:',err); }
       var cb=document.getElementById('hfref-league-direct');
       if(cb) cb.addEventListener('change',function(){
         var only=cb.checked;
