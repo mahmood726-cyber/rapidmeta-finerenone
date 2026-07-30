@@ -1,0 +1,223 @@
+{
+  "_meta": {
+    "build": "P. vivax radical cure NMA — recurrence at 180 days",
+    "stage": "0 (preflight)",
+    "generated": "2026-07-30",
+    "estimand": "P. vivax recurrence by 180 days (NOT relapse — PCR cannot separate relapse from reinfection in vivax)",
+    "sourcing_rule": "every count retrieved by live lookup; no recall; discrepancies recorded, never silently resolved",
+    "provenance_tiers": {
+      "T1": "three-way concordant: CT.gov results table + publication + FDA review",
+      "T2": "two-way concordant (one leg absent)",
+      "T3": "single source",
+      "X": "fails primary estimand or horizon — excluded from primary network"
+    }
+  },
+
+  "trials": [
+    {
+      "id": "DETECTIVE_PART1",
+      "nct": "NCT01376167",
+      "registry_title_readback": "Ph 2B/3 Tafenoquine (TFQ) Study in Prevention of Vivax Relapse",
+      "publication": {"pmid": "24360369", "cite": "Llanos-Cuentas A et al. Lancet 2014;383(9922):1049-58", "doi": "10.1016/S0140-6736(13)62568-4"},
+      "fda_study_code": "TAF112582 Part 1",
+      "fda_source": "NDA 210795 Multi-Discipline Review, Tables 22 and 23 (Reference ID 4294788)",
+      "population": "ITT",
+      "horizon_days": 180,
+      "partner_drug": "chloroquine",
+      "g6pd_regime": "screened, <70% activity excluded",
+      "provenance_tier": "T2",
+      "provenance_note": "CT.gov results section for NCT01376167 contains Part 2 ONLY. Part 1 has NO registry results table. Publication and FDA agree exactly, to the decimal, including all six CIs.",
+      "arms": [
+        {"label": "CQ alone",        "node": "no_hypnozoiticidal", "n": 54, "recurrence_free_n": 21, "recurrence_n": 31, "censored_n": 2, "km_pct": 37.5, "km_ci": [23, 52]},
+        {"label": "CQ + TQ 50 mg",   "node": "TQ_50",             "n": 55, "recurrence_free_n": 29, "recurrence_n": 22, "censored_n": 4, "km_pct": 57.7, "km_ci": [43, 70]},
+        {"label": "CQ + TQ 100 mg",  "node": "TQ_100",            "n": 57, "recurrence_free_n": 29, "recurrence_n": 25, "censored_n": 3, "km_pct": 54.1, "km_ci": [40, 66]},
+        {"label": "CQ + TQ 300 mg",  "node": "TQ_300",            "n": 57, "recurrence_free_n": 48, "recurrence_n": 6,  "censored_n": 3, "km_pct": 89.2, "km_ci": [77, 95]},
+        {"label": "CQ + TQ 600 mg",  "node": "TQ_600",            "n": 56, "recurrence_free_n": 43, "recurrence_n": 4,  "censored_n": 9, "km_pct": 91.9, "km_ci": [80, 97]},
+        {"label": "CQ + PQ 15 mg x 14 d", "node": "PQ_14d_low_3.5", "n": 50, "recurrence_free_n": 34, "recurrence_n": 12, "censored_n": 4, "km_pct": 77.3, "km_ci": [63, 87]}
+      ],
+      "total_n": 329,
+      "checks": {"arm_n_sum_equals_total": true, "publication_km_equals_fda_km": true, "registry_results_present": false}
+    },
+
+    {
+      "id": "DETECTIVE_PART2",
+      "nct": "NCT01376167",
+      "registry_title_readback": "Ph 2B/3 Tafenoquine (TFQ) Study in Prevention of Vivax Relapse",
+      "publication": {"pmid": "30650322", "cite": "Lacerda MVG et al. N Engl J Med 2019;380(3):215-28", "doi": "10.1056/NEJMoa1710775"},
+      "fda_study_code": "TAF112582 Part 2",
+      "fda_source": "NDA 210795 Multi-Discipline Review, Table 30 (Reference ID 4294788)",
+      "registry_outcome_readback": "Number of Participants With Recurrence-free Efficacy at 6 Months Post Dose (PRIMARY; unit 'Participants')",
+      "population": "micro-ITT",
+      "horizon_days": 180,
+      "partner_drug": "chloroquine",
+      "g6pd_regime": "screened, normal G6PD (>=70% of site median)",
+      "provenance_tier": "T1",
+      "provenance_note": "THREE-WAY EXACT concordance on numerator and denominator. Strongest cell in the network; anchors the integrity gates.",
+      "arms": [
+        {"label": "CQ alone",             "node": "no_hypnozoiticidal", "n": 133, "recurrence_free_n": 35,  "recurrence_n": 88, "censored_n": 10, "km_pct": 27.7, "km_ci": [19.6, 36.3], "registry_recurrence_free_n": 35},
+        {"label": "CQ + TQ 300 mg",       "node": "TQ_300",             "n": 260, "recurrence_free_n": 155, "recurrence_n": 85, "censored_n": 20, "km_pct": 62.4, "km_ci": [54.9, 69.0], "registry_recurrence_free_n": 155, "hr_vs_cq": 0.299, "hr_ci": [0.222, 0.404]},
+        {"label": "CQ + PQ 15 mg x 14 d", "node": "PQ_14d_low_3.5",     "n": 129, "recurrence_free_n": 83,  "recurrence_n": 36, "censored_n": 10, "km_pct": 69.6, "km_ci": [60.2, 77.1], "registry_recurrence_free_n": 83,  "hr_vs_cq": 0.262, "hr_ci": [0.178, 0.387]}
+      ],
+      "total_n": 522,
+      "alternative_estimators": {
+        "censoring_eq_failure_hr": {"TQ_300": [0.346, 0.262, 0.456], "PQ_14d_low_3.5": [0.312, 0.219, 0.443]},
+        "missing_eq_failure_or":   {"TQ_300": [0.241, 0.152, 0.382], "PQ_14d_low_3.5": [0.198, 0.117, 0.335]}
+      },
+      "checks": {"arm_n_sum_equals_total": true, "registry_equals_fda": true, "ratio_2_1_1": true}
+    },
+
+    {
+      "id": "GATHER",
+      "nct": "NCT02216123",
+      "registry_title_readback": "Study to Assess the Incidence of Hemolysis, Safety, and Efficacy of Tafenoquine (SB-252263, WR238605) Versus Primaquine in Subjects With Plasmodium Vivax Malaria",
+      "publication": {"pmid": "30650326", "cite": "Llanos-Cuentas A et al. N Engl J Med 2019;380(3):229-41", "doi": "10.1056/NEJMoa1802537"},
+      "fda_study_code": "TAF116564",
+      "fda_source": "NDA 210795 Multi-Discipline Review, Tables 40 and 41 (Reference ID 4294788)",
+      "registry_outcome_readback": "Rate of Relapse-free Efficacy at Six Months Post Dose (SECONDARY; unit 'Percentage of participants')",
+      "population": "micro-ITT",
+      "horizon_days": 180,
+      "partner_drug": "chloroquine",
+      "g6pd_regime": "normal G6PD AND females with moderate deficiency admitted by design",
+      "provenance_tier": "T2",
+      "provenance_note": "Registry and FDA agree exactly on KM estimates and CIs. Registry supplies NO raw counts; FDA does. GATHER's primary outcome was haemolysis, not efficacy.",
+      "arms": [
+        {"label": "CQ + TQ 300 mg",       "node": "TQ_300",         "n": 166, "recurrence_free_n": 112, "recurrence_observed_n": 42, "censored_n": 12, "recurrence_missing_eq_failure_n": 54, "km_pct": 72.7, "km_ci": [64.8, 79.2], "registry_km_pct": 72.7},
+        {"label": "CQ + PQ 15 mg x 14 d", "node": "PQ_14d_low_3.5", "n": 85,  "recurrence_free_n": 60,  "recurrence_observed_n": 20, "censored_n": 5,  "recurrence_missing_eq_failure_n": 25, "km_pct": 75.1, "km_ci": [64.2, 83.2], "registry_km_pct": 75.1}
+      ],
+      "total_n": 251,
+      "trial_specific_or_recurrence_tq_vs_pq": {"est": 1.141, "ci": [0.643, 2.027], "source": "FDA Table 41, missing=failure logistic"},
+      "hr_recurrence_tq_vs_pq": {"est": 0.984, "ci": [0.577, 1.678], "source": "FDA Table 40"},
+      "fda_own_analysis": {
+        "difference_recurrence_free_pct": -3.4,
+        "difference_ci": [-16.0, 9.8],
+        "conservative_difference_pct": -9.0,
+        "conservative_ci": [-21.4, 3.4],
+        "ni_margin_met_pct": 22,
+        "cq_pq_vs_cq_alone_effect_pct": 26,
+        "fda_conclusion": "supportive evidence of efficacy (NOT independently confirmatory)"
+      },
+      "DOUBLE_COUNTING_WARNING": {
+        "trap": "The GATHER abstract headline (67.0% of 426 TQ vs 72.8% of 214 PQ; OR 1.81, 95% CI 0.82-3.96) is a PRE-PLANNED PATIENT-LEVEL META-ANALYSIS POOLING GATHER WITH DETECTIVE PART 2.",
+        "arithmetic_proof": "426 = 260 (DETECTIVE Pt2 TQ) + 166 (GATHER TQ); 214 = 129 (DETECTIVE Pt2 PQ) + 85 (GATHER PQ)",
+        "rule": "Do NOT extract 67.0/72.8/1.81 as GATHER. GATHER's own OR is 1.141 (0.643, 2.027). Both must be displayed in the extraction tab with the reason the pooled figure is excluded."
+      },
+      "checks": {"arm_n_sum_equals_total": true, "registry_km_equals_fda_km": true, "free_plus_recur_plus_censored_equals_n": true}
+    },
+
+    {
+      "id": "INSPECTOR",
+      "nct": "NCT02802501",
+      "registry_title_readback": "Efficacy and Safety Study of Tafenoquine (TQ) Co-administered With Dihydroartemisinin-piperaquine (DHA-PQP) for the Radical Cure of Plasmodium Vivax (P. Vivax) Malaria",
+      "publication": {"pmid": "37236221", "cite": "Sutanto I et al. Lancet Infect Dis 2023;23(10):1153-63", "doi": "10.1016/S1473-3099(23)00213-X"},
+      "fda_source": null,
+      "registry_outcome_readback": "Percentage of Participants With Relapse-free Efficacy at Six Months ... (PRIMARY; unit 'Percentage of participants')",
+      "population": "micro-ITT",
+      "horizon_days": 180,
+      "partner_drug": "dihydroartemisinin-piperaquine",
+      "g6pd_regime": "G6PD-normal Indonesian soldiers",
+      "provenance_tier": "T2_CONTESTED",
+      "arms": [
+        {"label": "DHA-PQP alone",              "node": "no_hypnozoiticidal", "n": 50, "registry_km_pct": 12, "publication_km_pct": 11, "publication_ci": [4, 22],  "open_label_extension_n": 6,  "CONTESTED": true},
+        {"label": "TQ 300 mg + DHA-PQP",        "node": "TQ_300",             "n": 50, "registry_km_pct": 22, "publication_km_pct": 21, "publication_ci": [11, 34], "open_label_extension_n": 12, "CONTESTED": true},
+        {"label": "PQ 15 mg x 14 d + DHA-PQP",  "node": "PQ_14d_low_3.5",     "n": 50, "registry_km_pct": 52, "publication_km_pct": 52, "publication_ci": [37, 65], "open_label_extension_n": 26, "CONTESTED": false}
+      ],
+      "total_n": 150,
+      "hr_tq_vs_dhapqp_alone": {"est": 0.44, "ci": [0.29, 0.69]},
+      "DISCREPANCY": {
+        "what": "Registry and publication disagree by 1 percentage point on 2 of 3 arms (12 vs 11; 22 vs 21). Both labelled 6-month relapse-free, micro-ITT, N=50 per arm.",
+        "why_it_matters": "1 percentage point at N=50 is half a patient, so at least one source is not a simple proportion.",
+        "third_source": "NONE — INSPECTOR (2023) post-dates both 2018 NDAs, so FDA cannot break the tie.",
+        "resolution": "UNRESOLVED. Both values shown; cell marked contested. Requires the publication's own count table."
+      },
+      "UNIT_TRAP": "CT.gov types this outcome 'Percentage of participants' whereas DETECTIVE Part 2's analogous outcome is typed 'Participants' (a count). Reading 12/22/52 as counts yields 52/50 — impossible. Every extraction row must carry the source's own unit string.",
+      "checks": {"registry_equals_publication": false}
+    },
+
+    {
+      "id": "IMPROV",
+      "nct": "NCT01814683",
+      "registry_title_readback": "IMPROV (Improving the Radical Cure of Vivax Malaria)",
+      "official_title_readback": "Improving the Radical Cure of Vivax Malaria: A Multicentre Randomised Comparison of Short and Long Course Primaquine Regimens",
+      "publication": {"pmid": "31327563", "cite": "Taylor WRJ et al. Lancet 2019;394(10202):929-38", "doi": "10.1016/S0140-6736(19)31285-1", "open_access_pmc": "PMC6753019"},
+      "fda_source": null,
+      "registry_has_results": false,
+      "provenance_tier": "T3",
+      "arms": [
+        {"label": "PQ 1.0 mg/kg/d x 7 d",  "node": "PQ_7d_high_7",   "n": 935, "recurrence_rate_per_py": 0.18, "ci": [0.15, 0.21], "total_mg_per_kg": 7.0},
+        {"label": "PQ 0.5 mg/kg/d x 14 d", "node": "PQ_14d_high_7",  "n": 937, "recurrence_rate_per_py": 0.16, "ci": [0.13, 0.18], "total_mg_per_kg": 7.0},
+        {"label": "Placebo",               "node": "no_hypnozoiticidal", "n": 464, "recurrence_rate_per_py": 0.96, "ci": [0.83, 1.08], "total_mg_per_kg": 0}
+      ],
+      "total_n_published": 2336,
+      "total_n_registry": 2388,
+      "BLOCKING": {
+        "what": "IMPROV reports an INCIDENCE RATE per person-year over ~12 months, NOT a binary recurrence-by-180-days proportion.",
+        "why_it_matters": "Different estimands. The 180-day risk cannot be derived from the rate without arm-level 180-day counts.",
+        "consequence": "IMPROV is the primaquine-regimen backbone — it supplies the PQ 7 d vs PQ 14 d edge AND a large no-therapy anchor. Without its 180-day counts that edge does not exist at the primary estimand.",
+        "action_required_stage1": "Recover arm-level 180-day counts from open-access full text PMC6753019. If not recoverable, REVISE the node set and report the gap. Do NOT back-derive a proportion from the rate.",
+        "status": "OPEN"
+      },
+      "enrolment_discrepancy": {"registry": 2388, "publication": 2336, "arm_sum": 2336, "note": "52-participant gap; recorded, not reconciled"}
+    },
+
+    {
+      "id": "ENG_CAMBODIA_2025",
+      "nct": "NCT04706130",
+      "registry_title_readback": "Rigorous Assessment of P. Vivax Relapses and Primaquine Efficacy for Radical Cure",
+      "publication": {"pmid": "40112852", "cite": "Eng V et al. Lancet Infect Dis 2025;25:884-95", "doi": "10.1016/S1473-3099(25)00033-7"},
+      "registry_outcome_readback": "Number of Patients Experiencing P. Vivax Recurrence (PRIMARY; unit 'Participants'; timeFrame '3 months')",
+      "horizon_days": 90,
+      "partner_drug": "artesunate monotherapy",
+      "provenance_tier": "X",
+      "excluded_from_primary": "FAILS 180-day horizon (3-month time frame). Partner drug is artesunate monotherapy, a distinct stratum.",
+      "arms": [
+        {"label": "Artesunate alone, no PQ",     "node": "no_hypnozoiticidal", "n_started": 61, "n_analysed": 59, "recurrence_n": 48, "total_mg_per_kg": 0},
+        {"label": "PQ 0.25 mg/kg/d x 14 d",      "node": "PQ_14d_low_3.5",     "n_started": 49, "n_analysed": 45, "recurrence_n": 11, "total_mg_per_kg": 3.5},
+        {"label": "PQ 0.5 mg/kg/d x 14 d",       "node": "PQ_14d_high_7",      "n_started": 46, "n_analysed": 43, "recurrence_n": 2,  "total_mg_per_kg": 7.0}
+      ],
+      "usable_for": ["P1 horizon multiverse cell", "P3 partner-drug multiverse cell"]
+    },
+
+    {
+      "id": "TQ_PAEDIATRIC",
+      "nct": "NCT02563496",
+      "registry_title_readback": "A Pharmacokinetics, Safety and Efficacy Study of Tafenoquine (TQ) in Pediatric Subjects With Plasmodium Vivax (P. Vivax) Malaria",
+      "official_title_readback": "An Open Label, Non-comparative, Multicenter Study ...",
+      "horizon_days": 120,
+      "provenance_tier": "X",
+      "excluded_from_primary": "Single-arm (open-label, non-comparative) weight-band dosing with NO control; only a 4-month relapse-free outcome posted; the 50 mg band enrolled 0 participants.",
+      "arms": [
+        {"label": "TQ 50 mg",  "n": 0,  "relapse_free_4mo_n": null},
+        {"label": "TQ 100 mg", "n": 14, "relapse_free_4mo_n": 12},
+        {"label": "TQ 150 mg", "n": 5,  "relapse_free_4mo_n": 4},
+        {"label": "TQ 200 mg", "n": 22, "relapse_free_4mo_n": 20},
+        {"label": "TQ 300 mg", "n": 19, "relapse_free_4mo_n": 17}
+      ],
+      "total_n": 60,
+      "note": "Confirms the scoping memo's warning: the paediatric subnetwork is not supportable. A paediatric node must not inherit adult-network certainty."
+    }
+  ],
+
+  "regulatory": {
+    "tafenoquine": {
+      "FDA_KRINTAFEL": {"nda": "210795", "sponsor": "GlaxoSmithKline", "approved": "2018-07-20", "indication": "radical cure of P. vivax", "strength": "tafenoquine succinate EQ 150 mg base", "review": "Multi-Discipline Review, Reference ID 4294788", "supplies_nodes": true},
+      "FDA_ARAKODA":   {"nda": "210607", "sponsor": "60 Degrees Pharmaceuticals", "approved": "2018-08-08", "indication": "prophylaxis", "strength": "tafenoquine succinate EQ 100 mg base", "review": "Multi-Discipline Review, Reference ID 4303418", "supplies_nodes": false, "reason": "prophylaxis trials randomise uninfected people; 'recurrence' occurs once in 575k chars; no eligible arm"},
+      "EMA": {"status": "NO AUTHORISATION OR OPINION FOUND", "verified": "2026-07-30",
+              "centralised_MA": "absent from EMA medicines register (2738 rows; positive controls Eurartesim and Artesunate Amivas present)",
+              "article58_EUM4all": "absent from EMA EU-M4all enumeration of all eleven scientific opinions (infographic, as of July 2020); only malaria entries are Mosquirix and Pyramax",
+              "residual_uncertainty": "EU-M4all enumeration is dated July 2020; a later opinion would not appear in it",
+              "permitted_claim": "no EMA authorisation or opinion found (verified 2026-07-30)",
+              "forbidden_claims": ["EMA-covered", "no EMA opinion exists"]},
+      "WHO_PQ": {"prequalified": "2024-12-04", "products": ["MA203 tafenoquine 150 mg film-coated", "MA204 tafenoquine 50 mg dispersible (KOZENIS Dispersible)"], "manufacturer": "GlaxoSmithKline, Australia", "reference_regulator": "TGA Australia (AusPAR)"}
+    },
+    "primaquine": {"FDA": {"nda": "008316", "sponsor": "Sanofi-Aventis", "approved": "1952-01-23", "public_review_docs": "none (pre-modern)"}}
+  },
+
+  "integrity_gates_seeded": {
+    "count_plausibility": "for every arm: recurrence_free_n + recurrence_n + censored_n == n; every proportion in [0,1]",
+    "registry_concordance": "registry n and event counts must equal FDA counts where both exist; mismatch blocks, never auto-resolves",
+    "unit_typing": "every extraction row carries the source's own unit string (CT.gov 'Participants' vs 'Percentage of participants')",
+    "double_counting": "reject any figure whose denominator equals the sum of two trials' denominators (GATHER 426/214 trap)",
+    "estimand_typing": "reject rate-per-person-year rows from the binary 180-day network (IMPROV trap)",
+    "horizon": "reject rows whose timeFrame is not 180 days from the primary network"
+  }
+}
