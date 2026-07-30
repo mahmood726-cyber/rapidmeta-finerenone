@@ -228,3 +228,159 @@ bound to the composite scopes only, and the record is relabelled as not re-verif
   `ABEMACICLIB_BREAST`, …). In any app with more than one typed outcome per trial it can
   re-inject the trial's default counts under a different endpoint's label. Worth a separate
   corpus sweep.
+
+---
+
+# Round 2 — TIER 1 (2026-07-30)
+
+A second external review raised 39 issues plus a standing data-sourcing rule: pull numbers
+from outside paywalls — published meta-analysis supplements first, then ClinicalTrials.gov
+/AACT, FDA, EMA and open-access papers; for firewalled papers use their supplements. This
+section records Tier 1 only. Tier 2 (the four-analysis rebuild) follows in a separate commit.
+
+## T1.0 The invalid headline was already unreachable — and is now structurally impossible
+
+The reported headline **"All-cause mortality: pooled HR 0.86 (0.77–0.97)"** — built by pooling
+IRONMAN's rate ratio 0.82, AFFIRM-AHF's rate ratio 0.79, HEART-FID's secondary HR 0.93 and
+CONFIRM-HF's misattributed 0.69 — does not occur in this build. Round 1's scope lock removed it
+by typing every outcome row and refusing to bind a row whose unit is not `patients` into a
+binary pool. Verified empirically: iterating all nine scopes plus `default`, no scope yields a
+pool with more than one `unit`, and the mortality pool is built from 2×2 counts only.
+
+Two guards were added so this is impossible rather than merely absent:
+
+* `RapidMeta.poolingBasis()` returns `INVALID` and logs `[estimand-guard]` if a scoped pool ever
+  mixes units. Every analysis render now prints its **pooling basis** above the results:
+  *"Pooled from 2×2 patient counts as a RR. Effect estimates reported by the source publications
+  (for example a hazard ratio) are shown per trial for reference but are NOT the pooled input: a
+  hazard ratio is never combined with a count-derived risk ratio."*
+* `trialHasPublishedHR()` now rejects any trial that is `_notPoolable`, `_outcomeExcluded` or
+  `_scopeUnavailable`, whose `estimandType` is not `HR`, **or whose interval is not a 95%
+  interval**. That last clause matters: HEART-FID's secondary HR carries a **96%** interval, and
+  the SE formula divides the log-CI width by `2·z(0.975)`. Feeding a 96% interval through it
+  understates the variance and overweights the trial.
+
+Current mortality pool: k = 3, **RR 0.90 (95% CI 0.76–1.07)**, I² = 0%, HKSJ 0.62–1.30. The Wald
+tile is now labelled *"Wald interval; the declared primary inference surface is the HKSJ interval
+below"*, so the narrower interval cannot be read as the headline. The app states that the
+interval crosses 1.0 and that there is no statistically significant difference; no significance
+claim is made anywhere.
+
+## T1.1 HEART-FID — win ratio and the secondary hazard ratio
+
+**Win ratio — verified.** According to PubMed, Mentz et al., *N Engl J Med* 2023;389(11):975–986
+([DOI](https://doi.org/10.1056/NEJMoa2304968), PMID 37632463) reports the primary hierarchical
+composite as **unmatched win ratio 1.10, 99% CI 0.99 to 1.23, Wilcoxon–Mann–Whitney P = 0.02**,
+against a **prespecified significance level of 0.01** — so it did not meet the threshold. Round 1
+had already replaced the page's wrong "win ratio 1.02 (99% CI 0.87–1.18), P = 0.78". The review's
+"P ≈ 0.019" is consistent with the abstract's two-decimal 0.02; the app carries 0.02 because that
+is what the source prints.
+
+**HR 0.93 — reinstated as a separate record, flagged unverified.** Round 1 deleted it as
+unsourced. The reviewer is right that deleting it loses information: it is the *secondary*
+time-to-first CV-death-or-HF-hospitalisation endpoint, not the hierarchical primary. It is now its
+own row with `scopeClass: hf_cvdeath_composite_first`, `ciLevel: 0.96`, `poolable: false`,
+`unverified: true`.
+
+I could **not** verify it within the data-sourcing rule. It is absent from the NEJM abstract, from
+the ClinicalTrials.gov NCT03037931 posted results (which carry only the three primary components:
+deaths 131/158, HF hospitalisations 297/332, Δ6MWD 8.179/3.979 m), from the open-access FCM IPD
+commentary and from the open-access six-trial review. The NEJM full text is paywalled. Its
+provenance string says exactly this. It is barred from every pool by three independent mechanisms
+(`poolable:false`, `unverified`, and the new 95%-interval requirement in `trialHasPublishedHR`).
+
+## T1.2 Small-k diagnostics suppressed
+
+A `K_GATES` table drives suppression at both the engine level (defence in depth) and the
+presentation level (`applyKGates()`, called after every render). Each suppressed panel states its
+threshold and reason instead of a number.
+
+| Diagnostic | Threshold | Was showing at k=3 |
+|---|---|---|
+| Meta-regression | k ≥ 10 per covariate (Cochrane 10.11.5.1) | slope −0.0215, p = 0.723, **R² = 100.0%** |
+| Funnel plot + Egger | k ≥ 10 (Cochrane 13.3.5.4) | intercept 0.094, p = 0.964, "suggests absence of publication bias" |
+| Trim-and-fill | k ≥ 10 | k₀ = 0, adj RR 0.90 |
+| L'Abbé plot | k ≥ 10 | "Clustering below the line supports the pooled estimate of benefit" |
+| Galbraith plot | k ≥ 10 | radial outlier assessment |
+| Copas | k ≥ 15 | "Robust — findings are insensitive to potential selection bias" |
+| TSA / RIS | k ≥ 10 | RIS = 703, IF 21%, O'Brien–Fleming ±4.28 |
+| NNT | pooled interval must exclude 1 | "At a baseline event rate of 10%, NNT ≈ 100" |
+| Mantel–Haenszel | k ≥ 5 | concordance verdict |
+
+Peto was already correctly withheld ("N/A — no rare-event studies"): event rates here are 8–18%,
+far from the rare-event regime Peto requires.
+
+One disclosure: **Mantel–Haenszel is itself a valid fixed-effect estimator at k = 3.** What is not
+informative at k = 3 is the panel's framing of it as a *concordance check* on the random-effects
+pool. It is suppressed per the review instruction, with that reasoning stated rather than implied
+— this one is a presentational judgement, not a statistical necessity.
+
+## T1.3 safeRob, verdict surfaces, and the false internal-checks banner
+
+* **safeRob** — fixed in round 1 and re-verified: unknown ratings resolve to `"some"`, never
+  `"low"`. All four trials store `"some-concerns"` and render "Some Concerns".
+* **"INTERNAL CHECKS PASSED"** banner — replaced. It asserted a pass, printed a fabrication-risk
+  score of 0.025 to three decimals, said "Trials: 4" while only 3 are poolable under the primary
+  scope, and gave **two different audit-round counts (10 and 14) in adjacent sentences**. It now
+  reads "INTERNAL CHECKS: NOT A PASS CERTIFICATE", states that the automated checks test internal
+  consistency only and did not catch the scope and estimand defects, and drops the unreproducible
+  round counts rather than picking one. Strip recoloured green → amber.
+* **Version drift** — title/meta said v12.5, the exported R script header said v11.0 (×2) and the
+  exported Python script said v11.0 (×2). All now v12.5.
+* **Both verdict surfaces plus `window.__verdict`** updated and still in agreement (UNCERTAIN,
+  k = 3 of 4).
+
+## T1.4 "No external benchmark exists" was false — two now recorded
+
+The page claimed benchmark type SELF-REFERENCE, "no external IPD/aggregate MA at protocol freeze",
+while simultaneously storing a `Graham 2023` record of RR 0.84 (0.76–0.93) with `k: 3` over a scope
+string naming **four** trials — internally contradictory and not traceable. Replaced with two real,
+open-access-sourced benchmarks:
+
+* **FCM individual-participant-data meta-analysis** (CONFIRM-HF + AFFIRM-AHF + HEART-FID, n = 4501;
+  FCM only — IRONMAN is not in it). Total CV hospitalisations and CV death **RR 0.86 (0.75–0.98),
+  p = 0.029**; co-primary total HF hospitalisations and CV death RR 0.87 (0.75–1.01), p = 0.076;
+  total CV hospitalisations RR 0.83 (0.73–0.96); total HF hospitalisations RR 0.84 (0.71–0.98);
+  time to first CV death or HF hospitalisation **HR 0.88 (0.78–0.99), p = 0.039**; time to first CV
+  death or CV hospitalisation HR 0.89 (0.80–0.99). **No overall all-cause mortality benefit** —
+  significant mortality reductions appear only in the TSAT < 15% subgroup. According to PubMed, via
+  the open-access account in Kotit S, *Glob Cardiol Sci Pract* 2024;2024(2):e202410
+  ([DOI](https://doi.org/10.21542/gcsp.2024.10), PMID 38746071, PMC11090186).
+* **Six-trial IV-iron systematic review** (FAIR-HF, CONFIRM-HF, AFFIRM-AHF, IRONMAN, HEART-FID,
+  FAIR-HF2; n = 7175; Bayesian, IPD from five trials). All-cause mortality **HR 0.82 (0.65–1.03)**
+  at 12 months and **HR 0.92 (0.80–1.07)** over complete follow-up. According to PubMed, Anker SD
+  et al., *Nat Med* 2025;31(8):2640–2646 ([DOI](https://doi.org/10.1038/s41591-025-03671-1),
+  PMID 40159279, PMC12353798, open access).
+
+**The reviewer is right that the 0.86 resemblance is coincidental.** The real 0.86 is a *rate ratio
+for a CV-hospitalisation/CV-death composite* with CI 0.75–0.98 over three FCM trials. The app's old
+headline was an *all-cause-mortality "HR"* with CI 0.77–0.97 over four trials of mixed estimands.
+Different outcome, different estimand, different trial set, different interval. Neither benchmark is
+a like-for-like comparator for the app's count-based mortality RR, and the verdict text now says so
+rather than claiming validation.
+
+## T1.5 Verification
+
+* 17/17 inline script blocks parse (`node --check`) after every patch step; `<div>` balance
+  unchanged from HEAD; CRLF preserved (6383 CRLF, 0 bare LF).
+* In-browser, `localStorage` cleared atomically before load: all 8 tabs render, **0 console
+  errors**, **0 `NaN`**, every gated panel shows its threshold and reason, and none of `R²=100`,
+  `RIS 703`, `NNT ≈`, Egger `p = 0.964`, Copas "insensitive to selection bias", L'Abbé "supports
+  the pooled estimate of benefit", "CHECKS PASSED" or `v11.0` survives.
+* Contamination gate **OK** (0 hard, selftest passes); build gate **OK** (0 hard).
+
+## T1.6 Sourcing completed during Tier 1, applied in Tier 2
+
+**IRONMAN all-cause deaths — now sourced**, resolving the round-1 UNAVAILABLE. According to PubMed,
+Cleland JGF et al., *J Am Coll Cardiol* 2024;84(18):1704–1717
+([DOI](https://doi.org/10.1016/j.jacc.2024.08.052), PMID 39443013, PMC11496827, open access),
+Table 3 and Table 4 report all-cause deaths of **184 (ferric derisomaltose)** vs **192 (Table 3) or
+193 (Table 4) (usual care)**; the Results text gives 377 of 1137 (33%) dead overall, which
+reconciles with 193, not 192. 184/568 = 32.4% and 193/569 = 33.9%, matching the "~32% vs 34%" the
+first review quoted. Two discrepancies must travel with these numbers: (a) the paper's own Tables 3
+and 4 disagree by one death in the control arm; (b) the arm sizes are **swapped** relative to the
+Lancet primary report — Lancet 2022 gives FDI n = 569 / usual care n = 568, JACC 2024 gives FDI
+n = 568 / usual care n = 569. Counts and denominators are therefore taken from the same source
+(JACC) for internal consistency, with the conflict disclosed. Applied in Tier 2.
+
+The verdict text was updated in this commit so it no longer asserts these counts could not be found.
