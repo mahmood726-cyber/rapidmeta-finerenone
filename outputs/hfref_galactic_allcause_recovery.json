@@ -1,0 +1,89 @@
+{
+  "_schema": "hfref-galactic-allcause-recovery/1",
+  "_date": "2026-07-30",
+  "_purpose": "Close the HF-034 GALACTIC-HF provenance question by walking the one route the quarantine pass left unexhausted: the ClinicalTrials.gov posted-results record.",
+  "trial": "GALACTIC-HF",
+  "ledger_id": "HF-034",
+  "nct": "NCT02929329",
+  "api": "https://clinicaltrials.gov/api/v2/studies/NCT02929329",
+  "has_results": true,
+  "ALL_CAUSE_PER_ARM_DEATHS_FOUND": true,
+  "count_source": {
+    "where": "resultsSection.adverseEventsModule (FDAAA 'All-Cause Mortality' table)",
+    "kind": "VERBATIM INTEGER COUNTS",
+    "module_description": "All-cause mortality is reported for all participants randomized in the study, excluding 24 participants due to GCP violations. All-cause mortality includes all deaths that occurred during the study including any that occurred after the efficacy analysis cut-off date.\n\nSerious adverse events and other adverse events are reported for all participants who received at least one dose of study drug.",
+    "module_time_frame": "All-cause mortality is reported from randomization until end of study (27 August 2020); median (min, max) time on study was 21.8 (0, 42) months. Adverse events are reported from first dose of study drug until 30 days after last dose; median (min, max) treatment duration was 19.5 (0, 42) months.",
+    "frequency_threshold_pct": "5",
+    "per_arm": {
+      "placebo": {
+        "group_id": "EG000",
+        "arm_title": "Placebo",
+        "deaths": 1078,
+        "n": 4112
+      },
+      "omecamtiv": {
+        "group_id": "EG001",
+        "arm_title": "Omecamtiv Mecarbil",
+        "deaths": 1078,
+        "n": 4120
+      }
+    }
+  },
+  "corroborating_percentage_source": {
+    "title": "Time to All-cause Death",
+    "type": "SECONDARY",
+    "unit": "percentage of participants",
+    "time_frame": "From randomization up to earliest of last confirmed survival status date or analysis cut-off date (07 August 2020); the overall median duration of follow-up was 21.8 months up to a maximum of 42 months.",
+    "per_arm": {
+      "placebo": {
+        "percent": 25.9,
+        "n": 4112,
+        "integers_rounding_to_percent": [
+          1063,
+          1067
+        ],
+        "uniquely_recoverable": false
+      },
+      "omecamtiv": {
+        "percent": 25.9,
+        "n": 4120,
+        "integers_rounding_to_percent": [
+          1066,
+          1069
+        ],
+        "uniquely_recoverable": false
+      }
+    }
+  },
+  "why_the_two_all_cause_figures_differ": "Different follow-up windows, not different endpoints. The AE table runs to END OF STUDY (27 Aug 2020) and explicitly includes deaths after the efficacy cut-off; the secondary outcome measure censors at the EFFICACY CUT-OFF (07 Aug 2020). The AE table must therefore be the LARGER of the two, and it is (26.2% vs 25.9% on identical denominators). The percentage route alone would NOT have recovered a count -- 25.9% is non-uniquely recoverable in both arms -- which is why the verbatim AE integers are the count source.",
+  "participant_flow_death_dropout": {
+    "note": "Reported for completeness and explicitly NOT used as the all-cause count: the participant-flow 'Death' row counts death as the REASON FOR NOT COMPLETING the study, a third and narrower frame again.",
+    "per_arm": {
+      "placebo": 1054,
+      "omecamtiv": 1051
+    }
+  },
+  "reconciliation_with_ledger": {
+    "placebo": {
+      "registry_deaths": 1078,
+      "ledger_deaths": 1078,
+      "deaths_match": true,
+      "registry_n": 4112,
+      "ledger_n": 4112,
+      "n_match": true,
+      "exceeds_published_cv_death": true,
+      "cv_share_of_all_cause": 0.7403
+    },
+    "omecamtiv": {
+      "registry_deaths": 1078,
+      "ledger_deaths": 1078,
+      "deaths_match": true,
+      "registry_n": 4120,
+      "ledger_n": 4120,
+      "n_match": true,
+      "exceeds_published_cv_death": true,
+      "cv_share_of_all_cause": 0.7495
+    }
+  },
+  "verdict": "RECOVERED -- reinstate HF-034. The registry posts per-arm ALL-CAUSE deaths as verbatim integers and they match the ledger exactly in both arms, on denominators that also match the publication's primary-outcome denominators (4120/4112). The identical 1078/1078 is a genuine coincidence, now VERIFIED rather than unverified, so the trial no longer meets the quarantine rule (which requires identical AND unverified)."
+}
