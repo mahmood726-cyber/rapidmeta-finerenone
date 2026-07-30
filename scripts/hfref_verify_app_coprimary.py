@@ -11,11 +11,20 @@ Checks, all of which block:
                     (0.64459765 / 0.59333495 / 0.02323609) to 1e-8.
   D. CO-PRIMARY     both fits are present in every cell and in the anchor; the
                     app cannot ship one without the other.
-  E. QUARANTINE     exactly 3 trials quarantined, each with a named violation, a
-                    reinstatement condition and its arm rows RETAINED (flagged,
-                    never deleted); the symmetric rule is recorded.
+  E. QUARANTINE     exactly len(EXPECT_QUAR) trials quarantined, each with a
+                    named violation, a reinstatement condition and its arm rows
+                    RETAINED (flagged, never deleted); the symmetric rule is
+                    recorded.
   F. SYMMETRY       no trial in a fitted cell has identical across-arm counts
                     AND unverified status without being quarantined.
+  R. REINSTATEMENT  every trial in EXPECT_REINST is in BOTH networks, is NOT
+                    flagged quarantined, carries a verified count-provenance
+                    tier AND a named count_source, and is recorded as reinstated
+                    in the payload and the ledger. Plus the structural claim the
+                    reinstatement earns: the node it restores is present in BOTH
+                    fits. This check exists so a reinstatement cannot be a quiet
+                    un-flagging -- releasing a trial needs evidence recorded at
+                    the same standard as withholding one.
   G. VERDICT        window.__verdict and the rendered badge agree, and the badge
                     does not contradict itself on any count it states.
   H. DIRECTION      the honest direction flag is present and states BOTH parts.
@@ -37,7 +46,13 @@ LEDGER = "outputs/hfref_quarantine_ledger.json"
 TOL = 1e-8
 
 SETTLED = {"ACEI+BB": 0.64459765, "ACEI+BB+MRA": 0.59333495, "tau2": 0.02323609}
-EXPECT_QUAR = {"HF-021": "CARMEN", "HF-034": "GALACTIC-HF", "HF-025": "Vizzardi 2014"}
+EXPECT_QUAR = {"HF-021": "CARMEN", "HF-025": "Vizzardi 2014"}
+# Quarantined and then cleared on located evidence. Each maps to the node its
+# reinstatement restores -- checked to be present in BOTH fits, because that
+# structural consequence is the app's headline claim about the reinstatement.
+EXPECT_REINST = {"HF-034": ("GALACTIC-HF", "+Omecamtiv")}
+# Tiers that count as "the counts were actually read from a source".
+VERIFIED_TIERS = {"VERBATIM_COUNT", "RECOVERED_FROM_PERCENTAGE_UNIQUE"}
 
 fails = []
 
@@ -246,6 +261,98 @@ def check(html, fit, ledger):
                      "but is not quarantined -- the rule is being applied "
                      "asymmetrically again" % (t.get("id"), t.get("name")))
 
+    # No trial may be marked not-quarantined while still carrying live prose
+    # asserting a violation against it. The payload is rewritten in place across
+    # passes, so a stale key from an earlier disposition is a real failure mode:
+    # it ships a surface that contradicts itself about the same trial.
+    for t in P.get("trials", []):
+        if not t.get("quarantined") and (t.get("quarantine_violation") or "").strip():
+            bad("F", "%s (%s) is not quarantined but still carries a live "
+                     "quarantine_violation -- stale field from an earlier "
+                     "disposition" % (t.get("id"), t.get("name")))
+
+    # ---- R. reinstatement is evidenced, not a quiet un-flagging -------------
+    # The F check above cannot catch a bad reinstatement: flipping a tier from
+    # UNVERIFIED to VERBATIM_COUNT silences F by construction. So the release
+    # path gets its own gate, held to the same standard as the withholding path.
+    reinst_payload = {r["id"]: r for r in Q.get("reinstated", [])}
+    if set(reinst_payload) != set(EXPECT_REINST):
+        bad("R", "payload quarantine.reinstated ids %s, expected %s"
+            % (sorted(reinst_payload), sorted(EXPECT_REINST)))
+    for tid, (tname, restored_node) in EXPECT_REINST.items():
+        r = reinst_payload.get(tid)
+        if r is not None:
+            for field in ("cleared_because", "count_source", "restored_rows"):
+                if not r.get(field):
+                    bad("R", "%s reinstatement has no %s -- a release with no "
+                             "recorded evidence is a silent un-flagging" % (tid, field))
+        t = tr.get(tid)
+        if t is None:
+            bad("R", "%s missing from the trial ledger entirely" % tid)
+            continue
+        if t.get("quarantined"):
+            bad("R", "%s is flagged quarantined but is expected reinstated" % tid)
+        if t.get("in_network") is not True or t.get("in_quarantined_network") is not True:
+            bad("R", "%s must be in BOTH co-primary networks after reinstatement "
+                     "(in_network=%r, in_quarantined_network=%r)"
+                % (tid, t.get("in_network"), t.get("in_quarantined_network")))
+        if t.get("count_provenance_tier") not in VERIFIED_TIERS:
+            bad("R", "%s reinstated but its count_provenance_tier is %r -- a "
+                     "trial cannot leave quarantine while its counts are still "
+                     "unsourced" % (tid, t.get("count_provenance_tier")))
+        if not (t.get("count_source") or "").strip():
+            bad("R", "%s reinstated with no count_source naming where the counts "
+                     "were read" % tid)
+        if not t.get("was_quarantined"):
+            bad("R", "%s does not record that it WAS quarantined -- the history "
+                     "must survive the reinstatement, not be erased" % tid)
+        if not t.get("arms"):
+            bad("R", "%s arm rows missing" % tid)
+        # The structural claim the reinstatement earns, checked on the SHIPPED
+        # payload rather than on the fit JSON: in every cell where the full fit
+        # estimates the restored node, the QUARANTINED fit must estimate it too.
+        # That is precisely what withholding the trial used to destroy.
+        seen_anywhere = False
+        for cell in P.get("cells", []):
+            cid = cell.get("cell_id")
+            in_full = restored_node in {n["node"] for n in
+                                       cell.get("node_vs_placebo", [])}
+            if not in_full:
+                continue
+            seen_anywhere = True
+            qpack = cell.get("coprimary_quarantined") or {}
+            if restored_node not in {n["node"] for n in
+                                     qpack.get("node_vs_placebo", [])}:
+                bad("R", "%s reinstated to restore %s, but cell %s estimates that "
+                         "node in the FULL fit and NOT in the quarantined fit -- "
+                         "the restoration claim is false for this cell"
+                    % (tid, restored_node, cid))
+        if not seen_anywhere:
+            bad("R", "%s claims to restore %s but no cell estimates that node at "
+                     "all" % (tid, restored_node))
+    # ledger side: the disposition and its history
+    for tid, (tname, _node) in EXPECT_REINST.items():
+        e = next((x for x in ledger.get("entries", []) if x.get("id") == tid), None)
+        if e is None:
+            bad("R", "%s absent from the ledger" % tid)
+            continue
+        if "REINSTATED" not in (e.get("disposition") or "").upper():
+            bad("R", "ledger %s disposition is %r, expected a REINSTATED state"
+                % (tid, e.get("disposition")))
+        hist = e.get("disposition_history") or []
+        if not any("QUARANTINED" == (h.get("disposition") or "").upper() for h in hist):
+            bad("R", "ledger %s has no QUARANTINED step in disposition_history -- "
+                     "the round trip is not auditable" % tid)
+        if e.get("count_provenance_tier") not in VERIFIED_TIERS:
+            bad("R", "ledger %s count_provenance_tier is %r, expected a verified tier"
+                % (tid, e.get("count_provenance_tier")))
+        if not (e.get("source", {}) or {}).get("count_source"):
+            bad("R", "ledger %s source has no count_source" % tid)
+    lr = ledger.get("summary", {}).get("reinstated")
+    if lr != len(EXPECT_REINST):
+        bad("R", "ledger summary.reinstated = %r, expected %d"
+            % (lr, len(EXPECT_REINST)))
+
     # ---- G. verdict surfaces agree, badge self-consistent -------------------
     vc = V.get("counts", {})
     if V.get("verdict") != "UNCERTAIN" or "UNCERTAIN" not in BT:
@@ -303,6 +410,39 @@ def check(html, fit, ledger):
     if "NOT stronger evidence" not in html:
         bad("H", "the direction flag is not rendered at the point of display")
 
+    # ---- S. no hardcoded disposition claims in the renderers ----------------
+    # The analysis-tab renderer is static JS reading a payload that changes every
+    # pass. An earlier build hardcoded "the three quarantined trials", "lowers
+    # every retained node" and "loses the +Omecamtiv node outright" into it; all
+    # three silently went false when GALACTIC-HF was reinstated, so the analysis
+    # tab contradicted the badge two screens away. Those sentences are now
+    # derived from the payload, and this check keeps them that way -- a hardcoded
+    # count in a renderer is drift waiting to happen, not a style preference.
+    # Scope matters here. The scan covers RENDERER CODE only:
+    #   - the fit payload and window.__verdict are stripped, because those are
+    #     DATA and legitimately carry disposition HISTORY ("the 3-trial pass lost
+    #     the +Omecamtiv node outright"). Recording what a superseded pass found
+    #     is not drift; it is the audit trail, and banning the phrase there would
+    #     push the project toward erasing its own history to please a gate.
+    #   - JS block comments are stripped, so a comment may still DISCUSS the old
+    #     wording (the renderer's does) without tripping the check.
+    code = html
+    code = re.sub(r'<script id="hfref-fit-data".*?</script>', "", code, flags=re.S)
+    code = re.sub(r"window\.__verdict = \{.*?\};?\s*</script>", "", code, flags=re.S)
+    code = re.sub(r"/\*.*?\*/", "", code, flags=re.S)
+    BANNED = [
+        ("three quarantined trials", "quarantine-set size hardcoded"),
+        ("lowers every retained node", "node direction hardcoded (and false)"),
+        ("loses the +Omecamtiv node outright", "node loss hardcoded"),
+        ("+Omecamtiv node outright", "node loss hardcoded"),
+        ("CARMEN, GALACTIC-HF and Vizzardi 2014 are withheld",
+         "quarantine membership hardcoded"),
+    ]
+    for phrase, why in BANNED:
+        if phrase in code:
+            bad("S", "renderer hardcodes a disposition claim (%s): %r -- derive it "
+                     "from the payload instead" % (why, phrase))
+
     # ---- I. QUEST constraint ------------------------------------------------
     if "0.70" not in BT or "0.058" not in BT:
         bad("I", "badge does not carry QUEST's own non-significant HR 0.84 (0.70-1.01) P=0.058")
@@ -348,15 +488,43 @@ def main():
                 '"tau2": 0.02323609', '"tau2": 0.02423609', 1)),
             ("badge trial count 28 -> 27", lambda h: h.replace(
                 "28 trials (full)", "27 trials (full)", 1)),
-            ("badge quarantine count 3 -> 1", lambda h: h.replace(
-                "Quarantined: <strong>3</strong>", "Quarantined: <strong>1</strong>", 1)),
+            ("badge quarantine count 2 -> 1", lambda h: h.replace(
+                "Quarantined: <strong>2</strong>", "Quarantined: <strong>1</strong>", 1)),
             ("a quarantined trial deleted rather than flagged",
-             lambda h: re.sub(r'\{"id": ?"HF-034".*?\}(?=,\s*\{"id")', "", h, count=1, flags=re.S)),
+             lambda h: re.sub(r'\{"id": ?"HF-021".*?\}(?=,\s*\{"id")', "", h, count=1, flags=re.S)),
             ("direction flag stripped", lambda h: h.replace(
                 "NOT stronger evidence", "looks better", 1)),
             ("verdict quarantined count desynced from badge", lambda h: h.replace(
-                '"trials_quarantined": 3', '"trials_quarantined": 2', 1).replace(
-                '"trials_quarantined":3', '"trials_quarantined":2', 1)),
+                '"trials_quarantined": 2', '"trials_quarantined": 1', 1).replace(
+                '"trials_quarantined":2', '"trials_quarantined":1', 1)),
+            # --- the reinstatement path must be as hard to fake as the withholding one
+            ("reinstated trial silently dropped from the quarantined network",
+             lambda h: h.replace('"in_quarantined_network": true, '
+                                 '"count_provenance_tier": "VERBATIM_COUNT", '
+                                 '"was_quarantined": true',
+                                 '"in_quarantined_network": false, '
+                                 '"count_provenance_tier": "VERBATIM_COUNT", '
+                                 '"was_quarantined": true', 1)),
+            ("stale quarantine_violation left on the reinstated trial",
+             lambda h: h.replace('"violation_when_quarantined"',
+                                 '"quarantine_violation"', 1)),
+            ("reinstated trial's count_source stripped",
+             lambda h: h.replace('"count_source": "ClinicalTrials.gov NCT02929329',
+                                 '"count_source_REMOVED": "ClinicalTrials.gov NCT02929329', 1)),
+            ("reinstated trial's quarantine history erased",
+             lambda h: h.replace('"was_quarantined": true', '"was_quarantined": false', 1)),
+            ("reinstated trial left on an UNVERIFIED tier",
+             lambda h: h.replace('"reinstated": true, "reinstated_because"',
+                                 '"reinstated": true, "count_provenance_tier": "UNVERIFIED", '
+                                 '"reinstated_because"', 1)),
+            ("payload reinstatement record removed",
+             lambda h: h.replace('"reinstated": [{"id": "HF-034"',
+                                 '"reinstated": [{"id": "HF-999"', 1)),
+            ("renderer re-hardcodes the node-loss claim",
+             lambda h: h.replace("'<b>No node is lost</b> under the quarantine",
+                                 "'It also <b>loses the +Omecamtiv node outright</b>", 1)),
+            ("renderer re-hardcodes the quarantine-set size",
+             lambda h: h.replace("' quarantined trial'", "' three quarantined trials'", 1)),
         ]
         ok = True
         for name, mut in cases:
@@ -391,6 +559,8 @@ def main():
              next(n["rr"] for n in fit["quarantined"]["node_vs_placebo"] if n["node"] == "ACEI+BB"),
              next(n["rr"] for n in fit["quarantined"]["node_vs_placebo"] if n["node"] == "ACEI+BB+MRA")))
     print("  quarantined trials: %s" % ", ".join(sorted(EXPECT_QUAR.values())))
+    print("  reinstated trials : %s"
+          % ", ".join("%s (restores %s)" % v for v in sorted(EXPECT_REINST.values())))
     return 0
 
 

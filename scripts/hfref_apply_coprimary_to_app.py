@@ -5,8 +5,13 @@ Supersedes scripts/hfref_apply_quarantine_to_app.py, which wrote a single
 CARMEN-removed fit as though it were the primary. Two corrections:
 
   1. The quarantine rule -- unverified per-arm all-cause deaths AND identical
-     across-arm counts -- is applied to all three trials that meet it
-     (CARMEN, GALACTIC-HF, Vizzardi 2014), not one.
+     across-arm counts -- is applied to every trial that meets it, not one.
+     It is also RELEASED from every trial that stops meeting it: the rule is a
+     conjunction, so verifying the counts clears a trial even when they stay
+     identical. Currently quarantined: CARMEN, Vizzardi 2014. Reinstated:
+     GALACTIC-HF, on per-arm all-cause deaths read from the ClinicalTrials.gov
+     NCT02929329 posted results (see scripts/hfref_recover_galactic_allcause.py)
+     -- which also RESTORES the +Omecamtiv node that its quarantine had deleted.
 
   2. BOTH fits are carried and BOTH are displayed. The FULL network is the
      conservative co-primary; the quarantined network is a provenance
@@ -56,21 +61,6 @@ QUAR = {
         reinstatement=("Locate a primary or CARMEN-authored secondary report "
                        "stating per-arm all-cause deaths."),
         cost="Removes the ACEI+BB vs BB edge and the network's only multi-arm trial."),
-    "HF-034": dict(
-        trial="GALACTIC-HF",
-        violation=("unverified per-arm all-cause deaths (1078/1078) identical "
-                   "across both arms; the source states CARDIOVASCULAR death "
-                   "(808/798), not all-cause"),
-        source="PMID 33185990 (N Engl J Med 2021;384:105-116)",
-        rows=[{"treat": "ACEI+BB+MRA", "events": 1078, "n": 4112},
-              {"treat": "+Omecamtiv", "events": 1078, "n": 4120}],
-        reinstatement=("Read all-cause mortality from the NEJM full text, the "
-                       "supplementary appendix, or the NCT02929329 posted "
-                       "results. Most likely of the three to be reinstatable; "
-                       "this pass did not exhaust that route."),
-        cost=("SEVERE -- GALACTIC-HF is the ONLY trial supplying the "
-              "+Omecamtiv node, so quarantining it DELETES that node and 14 "
-              "league pairs cease to be estimable.")),
     "HF-025": dict(
         trial="Vizzardi 2014",
         violation=("unverified per-arm all-cause deaths (8/8) identical across "
@@ -86,6 +76,25 @@ QUAR = {
               "contributing trial.")),
 }
 QNAMES = {v["trial"] for v in QUAR.values()}
+
+# Quarantined 2026-07-30 and REINSTATED the same day, on the registry route the
+# quarantine pass had recorded as unexhausted. Kept as an explicit structure --
+# not simply deleted from QUAR -- so the app can show the round trip rather than
+# quietly presenting the trial as though it had never been withheld.
+REINST = {
+    "HF-034": dict(
+        trial="GALACTIC-HF",
+        cleared=("The quarantine rule requires per-arm all-cause deaths to be "
+                 "UNVERIFIED **and** identical across arms. The counts are still "
+                 "identical (1078/1078); they are no longer unverified."),
+        count_source=("ClinicalTrials.gov NCT02929329 posted results, "
+                      "adverse-events module (the FDAAA 'All-Cause Mortality' "
+                      "table), retrieved 2026-07-30 via CT.gov API v2"),
+        rows=[{"treat": "ACEI+BB+MRA", "events": 1078, "n": 4112},
+              {"treat": "+Omecamtiv", "events": 1078, "n": 4120}],
+        restores="+Omecamtiv (GALACTIC-HF is that node's only trial)"),
+}
+RNAMES = {v["trial"] for v in REINST.values()}
 
 fit = json.load(open(FIT, encoding="utf-8"))
 if not fit["anchor"]["full"]["reproduced"]:
@@ -200,10 +209,26 @@ P["quarantine"] = {
              "placeholder."),
     "symmetry": ("The rule is a property of the data, not of the trial, so it "
                  "is applied to every trial that meets it. All 87 arm rows / "
-                 "43 trials were scanned. Four matched; three are in the "
-                 "fitted cells and are withheld here. The fourth, Cohn 1997 "
-                 "(2/35, 2/70), is dupe-excluded from every cell and enters no "
-                 "fit, so there is nothing to withhold."),
+                 "43 trials were scanned. Four matched; %d are withheld here. "
+                 "Cohn 1997 (2/35, 2/70) is dupe-excluded from every cell and "
+                 "enters no fit, so there is nothing to withhold. GALACTIC-HF "
+                 "(1078/1078) was withheld and is now REINSTATED: its counts "
+                 "are verified against the ClinicalTrials.gov NCT02929329 "
+                 "posted results, so it fails the rule's first limb."
+                 % len(QUAR)),
+    "reversibility": ("Symmetry cuts both ways. Limb (a) -- 'unverified' -- is "
+                      "a statement about what has been looked for, not about "
+                      "the data, so locating the source clears it without "
+                      "changing any count. Every withheld trial therefore "
+                      "carries a reinstatement condition, and meeting it "
+                      "returns the trial to the fit. A rule that could only "
+                      "ever remove trials would be a ratchet, not a check."),
+    "reinstated": [
+        {"id": k, "trial": v["trial"], "cleared_because": v["cleared"],
+         "count_source": v["count_source"], "restored_rows": v["rows"],
+         "restores_node": v["restores"],
+         "evidence": "outputs/hfref_galactic_allcause_recovery.json"}
+        for k, v in sorted(REINST.items())],
     "principle": ("Quarantine, never silent deletion, and never replacement. "
                   "Every withheld contribution carries a NAMED violation, its "
                   "arm rows stay on record in "
@@ -408,17 +433,23 @@ QNOTE = {
                "the settled fit script's line 377 already called CARMEN "
                "inadmissible. Withheld from the QUARANTINED co-primary; STILL "
                "PRESENT in the FULL co-primary, which is displayed beside it."),
-    "HF-034": ("QUARANTINED 2026-07-30 (symmetric pass). PMID 33185990 "
-               "confirms the denominators exactly (omecamtiv 4120, placebo "
-               "4112) but states only CARDIOVASCULAR death -- '808 patients "
-               "(19.6%) and 798 patients (19.4%) ... died from cardiovascular "
-               "causes'. All-cause death is not reported. The ledger's "
-               "identical 1078/1078 is therefore unverified AND identical "
-               "across arms, which is the quarantine rule exactly. The first "
-               "pass recorded this as 'striking but not, on this evidence, an "
-               "error' and left it in -- the same evidentiary state as CARMEN, "
-               "which was withheld. That asymmetry is corrected. Withheld from "
-               "the QUARANTINED co-primary; STILL PRESENT in the FULL one."),
+    "HF-034": ("QUARANTINED then REINSTATED 2026-07-30. The quarantine was "
+               "correct on the evidence then in hand: PMID 33185990 confirms "
+               "the denominators exactly (omecamtiv 4120, placebo 4112) but "
+               "states only CARDIOVASCULAR death -- '808 patients (19.6%) and "
+               "798 patients (19.4%) ... died from cardiovascular causes' -- so "
+               "the identical 1078/1078 all-cause figure was unverified AND "
+               "identical, which is the rule exactly. The pass flagged the "
+               "registry as the one route it had not exhausted. That route "
+               "closes it: the ClinicalTrials.gov NCT02929329 posted results "
+               "state per-arm ALL-CAUSE deaths as verbatim integers in the "
+               "FDAAA All-Cause Mortality table -- 1078 of 4112 (placebo) and "
+               "1078 of 4120 (omecamtiv) -- matching the extraction exactly in "
+               "both arms, over a window running to end of study. The identical "
+               "count is a genuine coincidence (26.216% vs 26.165%). Only the "
+               "identical limb of the rule still holds, so the trial is "
+               "RETAINED IN BOTH co-primary fits and the +Omecamtiv node "
+               "survives. No count was changed."),
     "HF-025": ("QUARANTINED 2026-07-30 (symmetric pass). PMID 24196866 "
                "confirms n=65/65 exactly, but the trial reports only the "
                "composite of death from any cause or cardiovascular "
@@ -429,6 +460,7 @@ QNOTE = {
 }
 
 n_quar = 0
+n_reinst = 0
 for t in P["trials"]:
     tid = t.get("id")
     if tid in FIXES:
@@ -441,13 +473,41 @@ for t in P["trials"]:
         t["count_provenance_tier"] = "UNVERIFIED"
         t["pmid_note"] = QNOTE[tid]
         n_quar += 1
+    elif tid in REINST:
+        # In BOTH fits, but carrying its quarantine history rather than passing
+        # silently as a trial that was never questioned.
+        #
+        # A previous run of this script wrote quarantine_violation onto this
+        # trial. The payload is rewritten in place, so leaving that key would
+        # ship a trial marked quarantined=false while still carrying live prose
+        # asserting a violation against it -- a self-contradicting surface.
+        # Demote it to a history field instead of deleting it: the finding was
+        # real when it was made, and the record of it is worth keeping.
+        stale = t.pop("quarantine_violation", None)
+        if stale:
+            t["violation_when_quarantined"] = stale
+            t["violation_resolved_by"] = REINST[tid]["count_source"]
+        t["quarantined"] = False
+        t["was_quarantined"] = True
+        t["reinstated"] = True
+        t["reinstated_because"] = REINST[tid]["cleared"]
+        t["count_source"] = REINST[tid]["count_source"]
+        t["in_network"] = True
+        t["in_quarantined_network"] = True
+        t["count_provenance_tier"] = "VERBATIM_COUNT"
+        t["pmid_note"] = QNOTE[tid]
+        n_reinst += 1
     else:
         t.setdefault("quarantined", False)
         t.setdefault("in_network", True)
         t["in_quarantined_network"] = True
         t.setdefault("count_provenance_tier", "VERBATIM_COUNT")
-if n_quar != 3:
-    sys.exit("FAIL: expected exactly three quarantined trials, found %d" % n_quar)
+if n_quar != len(QUAR):
+    sys.exit("FAIL: expected exactly %d quarantined trials, found %d"
+             % (len(QUAR), n_quar))
+if n_reinst != len(REINST):
+    sys.exit("FAIL: expected exactly %d reinstated trials, found %d"
+             % (len(REINST), n_reinst))
 
 # ------------------------------------------------------------- nma_config ---
 # The prior pass DELETED the edge CARMEN alone supplied. The full co-primary
@@ -482,10 +542,13 @@ P["nma_config"]["note"] = (
     "CO-PRIMARY. (a) FULL NETWORK -- %d RCTs, %d nodes, %d direct edges, "
     "cyclomatic %d, ICDF %d. This is the conservative co-primary and the "
     "default shown here. (b) INTEGRITY-QUARANTINED NETWORK -- %d RCTs, %d "
-    "nodes, %d direct edges, cyclomatic %d, ICDF %d, after withholding CARMEN, "
-    "GALACTIC-HF and Vizzardi 2014 under the rule 'unverified per-arm "
-    "all-cause deaths AND identical across-arm counts'. Edges lost: %s. The "
-    "+Omecamtiv NODE is lost outright because GALACTIC-HF was its only trial. "
+    "nodes, %d direct edges, cyclomatic %d, ICDF %d, after withholding CARMEN "
+    "and Vizzardi 2014 under the rule 'unverified per-arm all-cause deaths AND "
+    "identical across-arm counts'. Edges lost: %s. NO NODE is lost: both "
+    "networks carry all %d treatments, so every league pair is estimable in "
+    "both. GALACTIC-HF was withheld by an earlier pass -- which did delete the "
+    "+Omecamtiv node -- and has since been reinstated on verified "
+    "ClinicalTrials.gov all-cause counts, restoring it. "
     "ICDF is UNCHANGED at %d: the loop CARMEN closed lay entirely inside a "
     "single study and the ICDF definition already excluded such loops. The one "
     "between-trial loop that remains is Placebo-ACEI-ARB, and it survives only "
@@ -494,7 +557,13 @@ P["nma_config"]["note"] = (
     "mandatory max(1,.) floor and a t_df critical value."
 ) % (FU["trials"], fst["V"], fst["E"], fst["cyclomatic"], fst["icdf"],
      QU["trials"], qst["V"], qst["E"], qst["cyclomatic"], qst["icdf"],
-     "; ".join(dropped_edges), qst["icdf"])
+     "; ".join(dropped_edges), qst["V"], qst["icdf"])
+# The "NO NODE is lost" sentence above is a claim about this fit, so gate it
+# rather than trusting the prose to stay true if the quarantine set changes.
+if qst["V"] != fst["V"]:
+    sys.exit("FAIL: nma_config note claims no node is lost, but the quarantined "
+             "network has %d nodes vs the full network's %d"
+             % (qst["V"], fst["V"]))
 
 # --------------------------------------------------------------- coverage ---
 P["coverage"] = {
@@ -503,6 +572,7 @@ P["coverage"] = {
     "quarantined_network_trials": QU["trials"],
     "trials_on_record": len(P["trials"]),
     "quarantined": len(QUAR),
+    "reinstated": len(REINST),
     "arm_rows_full": FU["arm_rows"],
     "arm_rows_quarantined": QU["arm_rows"],
     "arm_rows_withheld": FU["arm_rows"] - QU["arm_rows"],
@@ -510,12 +580,14 @@ P["coverage"] = {
     "study_contrasts_quarantined": QU["contrasts"],
     "pmid_verified": FU["trials"],
     "pmid_missing": 0,
-    "note": ("Arm rows %d -> %d: CARMEN's 3, GALACTIC-HF's 2 and Vizzardi "
-             "2014's 2 are withheld from the quarantined co-primary, %d in "
-             "total. Contrasts %d -> %d. All %d rows remain on record in "
-             "outputs/hfref_quarantine_ledger.json and all %d trials remain in "
-             "the FULL co-primary. Every trial carries a PMID: SPICE's was "
-             "located this pass.")
+    "note": ("Arm rows %d -> %d: CARMEN's 3 and Vizzardi 2014's 2 are withheld "
+             "from the quarantined co-primary, %d in total. Contrasts %d -> %d. "
+             "GALACTIC-HF's 2 rows were withheld by an earlier pass and are "
+             "RESTORED, on per-arm all-cause deaths verified against the "
+             "ClinicalTrials.gov NCT02929329 posted results. All %d rows remain "
+             "on record in outputs/hfref_quarantine_ledger.json and all %d "
+             "trials remain in the FULL co-primary. Every trial carries a PMID: "
+             "SPICE's was located this pass.")
     % (FU["arm_rows"], QU["arm_rows"], FU["arm_rows"] - QU["arm_rows"],
        FU["contrasts"], QU["contrasts"], FU["arm_rows"], FU["trials"])}
 
@@ -523,10 +595,10 @@ P["fit_source"] = (
     "F:/E156/hfref_eightcell_fit.R (lines 1-587 only, never its RUN or EMIT "
     "sections), re-executed twice by scripts/hfref_coprimary_fit.R -- once "
     "with every trial retained (the conservative co-primary) and once with the "
-    "three integrity-quarantined trials withheld (the provenance sensitivity) "
+    "%d integrity-quarantined trials withheld (the provenance sensitivity) "
     "-- and expanded to all pairwise contrasts. Anchor-gated: the FULL fit "
     "must reproduce the settled primary to <1e-8 before the quarantined fit is "
-    "emitted.")
+    "emitted." % len(QUAR))
 
 html = html[:m.start(2)] + json.dumps(P, ensure_ascii=False) + html[m.end(2):]
 
@@ -539,7 +611,12 @@ common = DD["common_pairs"]
 f_ex, q_ex = (DD["ci_excludes_null_common"]["full"],
               DD["ci_excludes_null_common"]["quarantined"])
 n_gain, n_lose = len(DD["gained_significance"]), len(DD["lost_significance"])
-node_med = DD["node_point_estimate_pct_change"]["median"]
+NPC = DD["node_point_estimate_pct_change"]
+node_med = NPC["median"]
+node_total = NPC["retained_nodes"]
+node_away = NPC["moved_away_from_null"]
+node_toward = NPC["moved_toward_null"]
+node_worst = NPC["largest_move_toward_null"]
 wid_med = DD["pair_ci_width_pct_change"]["median"]
 
 verdict = {
@@ -557,6 +634,7 @@ verdict = {
         "findings_raised": 5, "findings_resolved": 5, "findings_open": 0,
         "gate_findings_raised": 4, "gate_findings_resolved": 4,
         "trials_quarantined": len(QUAR),
+        "trials_reinstated": len(REINST),
         "audit_claims_withdrawn": 3,
         "count_values_changed": 0,
         "arm_rows_full": FU["arm_rows"],
@@ -584,53 +662,72 @@ verdict = {
          % (FU["trials"], FU["arm_rows"], f3(node(FU, "ACEI+BB")["rr"]),
             f3(node(FU, "ACEI+BB+MRA")["rr"]), QU["trials"], QU["arm_rows"],
             f3(node(QU, "ACEI+BB")["rr"]), f3(node(QU, "ACEI+BB+MRA")["rr"]))),
-        ("THE QUARANTINE RULE IS NOW APPLIED SYMMETRICALLY. The rule is "
-         "'unverified per-arm all-cause deaths AND identical across-arm "
-         "counts'. THREE trials meet it, not one: CARMEN (14/14/14, 572 pts), "
-         "GALACTIC-HF (1078/1078, 8232 pts -- the source states CARDIOVASCULAR "
-         "death 808/798, not all-cause) and Vizzardi 2014 (8/8, 130 pts). The "
-         "first pass withheld CARMEN alone while recording GALACTIC-HF's "
-         "identical counts as 'striking but not, on this evidence, an error'. "
-         "That is the same evidentiary state, and it now gets the same "
-         "disposition."),
+        ("THE QUARANTINE RULE IS A CONJUNCTION, APPLIED SYMMETRICALLY AND "
+         "RELEASED SYMMETRICALLY. The rule is 'unverified per-arm all-cause "
+         "deaths AND identical across-arm counts'. TWO trials currently meet "
+         "it: CARMEN (14/14/14, 572 pts) and Vizzardi 2014 (8/8, 130 pts). "
+         "Identical counts alone are NOT a violation -- they are the trigger "
+         "for checking provenance, never the finding itself."),
+        ("GALACTIC-HF WAS QUARANTINED AND IS NOW REINSTATED. It was withheld "
+         "because its identical 1078/1078 all-cause figure could not be "
+         "confirmed: PMID 33185990 states CARDIOVASCULAR death (808/798) only. "
+         "The ClinicalTrials.gov NCT02929329 posted results DO state per-arm "
+         "ALL-CAUSE deaths, as verbatim integers in the FDAAA All-Cause "
+         "Mortality table -- 1078 of 4112 placebo and 1078 of 4120 omecamtiv, "
+         "matching the extraction exactly in both arms on the publication's own "
+         "denominators. The identical count is a genuine coincidence (26.216% "
+         "vs 26.165%). Only the 'identical' limb still holds, so the trial is "
+         "retained in BOTH fits. No count was changed. A rule that could only "
+         "ever remove trials would be a ratchet, not an integrity check."),
         ("THE SCAN IS RECORDED, NOT ASSERTED. All 87 arm rows / 43 trials were "
-         "checked for identical across-arm counts. Four matched. The fourth, "
-         "Cohn 1997 (2/35, 2/70), is dupe-excluded from every fitted cell, so "
-         "it enters no fit and there is nothing to withhold; it is logged with "
-         "an explicit no-disposition entry."),
+         "checked for identical across-arm counts. Four matched; two are "
+         "quarantined. Cohn 1997 (2/35, 2/70) is dupe-excluded from every "
+         "fitted cell, so it enters no fit and there is nothing to withhold, "
+         "and GALACTIC-HF's identical counts are verified. Both are logged with "
+         "explicit entries rather than dropped from the record."),
         ("ANCHOR. The FULL co-primary reproduces the settled primary exactly -- "
          "ACEI+BB 0.64459765, ACEI+BB+MRA 0.59333495, tau^2 0.02323609, all to "
          "<1e-8 -- and the quarantined fit is emitted only after that gate "
          "passes. Quarantined anchors: ACEI+BB %.8f, ACEI+BB+MRA %.8f."
          % (node(QU, "ACEI+BB")["rr"], node(QU, "ACEI+BB+MRA")["rr"])),
-        ("HONEST DIRECTION FLAG, PART 1 -- POINT ESTIMATES MOVE AWAY FROM THE "
-         "NULL. Every retained treatment node falls (median %+.2f%%) when the "
-         "three unverified identical-count trials are withheld, because "
-         "identical counts are RR=1.00 on every edge they touch and act as a "
-         "null-pulling weight. This is real and it must NOT be read as "
-         "evidence of benefit. It is why the quarantined fit is labelled a "
-         "provenance sensitivity." % node_med),
+        ("HONEST DIRECTION FLAG, PART 1 -- POINT ESTIMATES MOSTLY MOVE AWAY "
+         "FROM THE NULL. %d of %d retained treatment nodes fall (median "
+         "%+.2f%%) when the unverified identical-count trials are withheld, "
+         "because identical counts are RR=1.00 on every edge they touch and act "
+         "as a null-pulling weight. %d move the other way (largest %s %+.2f%%). "
+         "The majority direction is real and it must NOT be read as evidence of "
+         "benefit; it is why the quarantined fit is labelled a provenance "
+         "sensitivity. The split is COUNTED, not asserted: earlier passes of "
+         "this app claimed EVERY retained node fell, which was never true."
+         % (node_away, node_total, node_med, node_toward,
+            node_worst["node"], node_worst["pct"])),
         ("HONEST DIRECTION FLAG, PART 2 -- INTERVAL SIGNIFICANCE FALLS, IT "
          "DOES NOT RISE. On the %d pairs BOTH fits estimate, the number whose "
          "CI excludes 1 goes %d -> %d: %d gain significance, %d lose it. tau^2 "
          "rises %.1f%%, I^2 goes %.1f%% -> %.1f%%, HKSJ df falls %d -> %d, and "
          "CI widths grow by a median %+.2f%%. The single-trial (CARMEN-only) "
          "re-fit reported this count RISING 12 -> 17; that rise was an "
-         "artefact of the asymmetric quarantine, and with all three withheld "
-         "the added heterogeneity and lost degrees of freedom outweigh it. "
-         "Neither reading makes the quarantined fit stronger evidence."
+         "artefact of an asymmetric quarantine, and once the added "
+         "heterogeneity and lost degrees of freedom are counted it falls "
+         "instead. Neither reading makes the quarantined fit stronger evidence."
          % (common, f_ex, q_ex, n_gain, n_lose,
             100 * (QU["tau2"] / FU["tau2"] - 1), 100 * FU["i2"], 100 * QU["i2"],
             FU["hksj"]["df"], QU["hksj"]["df"], wid_med)),
-        ("STRUCTURAL COST OF THE QUARANTINE, STATED PLAINLY. The +Omecamtiv "
-         "NODE is lost outright -- GALACTIC-HF was its only trial -- taking 14 "
-         "league pairs with it: nodes %d -> %d, edges %d -> %d, cyclomatic %d "
-         "-> %d. ICDF is UNCHANGED at %d, because CARMEN's loop lay entirely "
-         "inside one study and the ICDF definition already excluded such loops. "
-         "Losing a whole treatment comparison is the strongest single reason "
-         "the full network is retained as a co-primary rather than replaced."
-         % (fst["V"], qst["V"], fst["E"], qst["E"], fst["cyclomatic"],
-            qst["cyclomatic"], qst["icdf"])),
+        ("STRUCTURAL COST OF THE QUARANTINE, STATED PLAINLY. NO NODE IS LOST: "
+         "nodes %d -> %d, so every one of the %d league pairs is estimable in "
+         "both fits. Edges %d -> %d and cyclomatic %d -> %d. ICDF is UNCHANGED "
+         "at %d, because CARMEN's loop lay entirely inside one study and the "
+         "ICDF definition already excluded such loops. This is a CHANGE from "
+         "the previous pass, which withheld GALACTIC-HF and so DELETED the "
+         "+Omecamtiv node (nodes 15 -> 14) and 14 league pairs with it. "
+         "Reinstating GALACTIC-HF on verified registry counts restores that "
+         "node. Note what did and did not move: GALACTIC-HF sits on a PENDANT "
+         "edge to a leaf node, so it carries no information about any other "
+         "contrast -- restoring it recovers a whole treatment comparison while "
+         "shifting the other anchors by <1e-7. The structural gain is large; "
+         "the numerical perturbation is not. Both are true."
+         % (fst["V"], qst["V"], len(QU["league"]), fst["E"], qst["E"],
+            fst["cyclomatic"], qst["cyclomatic"], qst["icdf"])),
         ("SPICE IS RE-TIERED, NOT QUARANTINED. Its counts were labelled "
          "VERIFIED_FULL, which put them in the same tier as CIBIS-II and "
          "MERIT-HF, whose integers the source PRINTS. SPICE's are not printed: "
@@ -678,9 +775,9 @@ verdict = {
         ("VERDICT STAYS UNCERTAIN. Applying the rule symmetrically and showing "
          "both fits did not earn a PASS - it made the uncertainty visible "
          "rather than resolving it. Full-text verification is still absent for "
-         "8 denominator-only trials, three trials have no sourced mortality at "
+         "8 denominator-only trials, %d trials have no sourced mortality at "
          "all, no inconsistency test is fitted, and AMSTAR-2 confidence "
-         "remains CRITICALLY LOW."),
+         "remains CRITICALLY LOW." % len(QUAR)),
     ],
 }
 
@@ -691,7 +788,8 @@ html = html[:mv.start(2)] + json.dumps(verdict, ensure_ascii=False) + html[mv.en
 
 # ------------------------------------------------------------ badge prose ---
 badge_headline = ("VERDICT: UNCERTAIN &mdash; CO-PRIMARY (FULL + QUARANTINED) "
-                  "&middot; 3 TRIALS QUARANTINED")
+                  "&middot; %d TRIALS QUARANTINED, %d REINSTATED"
+                  % (len(QUAR), len(REINST)))
 badge_body = (
     '<div style="margin-top:8px;font-size:12.5px;line-height:1.6;">'
     '<b>Presented as co-primary.</b> <b>(a) FULL network</b> &mdash; %d trials, %d arm rows, '
@@ -699,35 +797,50 @@ badge_body = (
     '<b>(b) INTEGRITY-QUARANTINED network</b> &mdash; %d trials, %d arm rows, '
     'ACEI+BB <b>%s</b>, ACEI+BB+MRA <b>%s</b>: a <b>provenance sensitivity</b>. '
     'Both are shown; neither replaces the other.'
-    '<br><b>Quarantined (3, rule applied symmetrically):</b> '
+    '<br><b>Quarantined (%d, rule applied symmetrically):</b> '
     'CARMEN &mdash; <i>14/14/14, 572 pts; primary is LVESVI and the source reports no deaths</i>; '
-    'GALACTIC-HF &mdash; <i>1078/1078, 8232 pts; the source states CARDIOVASCULAR death '
-    '808/798, not all-cause</i>; '
     'Vizzardi 2014 &mdash; <i>8/8, 130 pts; the source reports only composite event-free '
-    'survival</i>. The rule is <i>unverified per-arm all-cause deaths AND identical '
-    'across-arm counts</i>. All 87 arm rows were scanned; a fourth match, Cohn 1997, is '
-    'dupe-excluded from every cell and enters no fit. Arm rows retained in '
+    'survival</i>. The rule is <i>unverified per-arm all-cause deaths <b>AND</b> identical '
+    'across-arm counts</i> &mdash; a conjunction, so identical counts alone are never the '
+    'finding, only the trigger to check provenance. All 87 arm rows were scanned; four matched. '
+    'Cohn 1997 is dupe-excluded from every cell and enters no fit. Arm rows retained in '
     '<code>outputs/hfref_quarantine_ledger.json</code>, not deleted.'
+    '<br><b style="color:#86efac">Reinstated (1): GALACTIC-HF.</b> It was quarantined because '
+    'PMID 33185990 states <i>cardiovascular</i> death only (808/798), leaving its identical '
+    '1078/1078 all-cause figure unverified. The <b>ClinicalTrials.gov NCT02929329 posted '
+    'results do state per-arm all-cause deaths</b>, as verbatim integers in the FDAAA '
+    'All-Cause Mortality table: <b>1078 of 4112</b> (placebo) and <b>1078 of 4120</b> '
+    '(omecamtiv), matching the extraction exactly in both arms, on the publication&rsquo;s own '
+    'denominators. The identical count is a genuine coincidence (26.216%% vs 26.165%%). Only the '
+    '&ldquo;identical&rdquo; limb of the rule still holds, so the trial is <b>retained in both '
+    'fits</b> and <b>no count was changed</b>. A rule that could only ever remove trials would '
+    'be a ratchet, not an integrity check.'
     '<br><b>Anchor:</b> the FULL co-primary reproduces the settled primary exactly &mdash; '
     'ACEI+BB <b>0.645</b>, ACEI+BB+MRA <b>0.593</b>, &tau;&sup2; 0.02323609, all to &lt;1e-8. '
     'Quarantined: ACEI+BB <b>%s</b>, ACEI+BB+MRA <b>%s</b>.'
     '<br><b style="color:#fdba74">Honest direction flag &mdash; two parts, neither favourable.</b> '
-    '<b>(1)</b> Withholding these null-pulling unverified trials moves every retained node&rsquo;s '
-    '<b>point estimate away from the null</b> (median %+.2f%%). Identical counts are RR=1.00 on '
-    'every edge they touch. This must <b>not</b> be read as evidence of benefit. '
+    '<b>(1)</b> Withholding these null-pulling unverified trials moves <b>%d of %d</b> retained '
+    'nodes&rsquo; <b>point estimates away from the null</b> (median %+.2f%%); %d move the other way '
+    '(largest %s %+.2f%%). Identical counts are RR=1.00 on every edge they touch. The majority '
+    'direction must <b>not</b> be read as evidence of benefit. This split is <b>counted, not '
+    'asserted</b> &mdash; earlier passes claimed <i>every</i> retained node fell, which was never true. '
     '<b>(2)</b> But <b>interval significance falls, it does not rise</b>: on the %d pairs both '
     'fits estimate, CI-excludes-1 goes <b>%d &rarr; %d</b> (%d gain, %d lose), because &tau;&sup2; '
     'rises %.1f%%, I&sup2; goes %.1f%% &rarr; %.1f%%, HKSJ df falls %d &rarr; %d and CIs widen by '
     'a median %+.2f%%. The earlier CARMEN-only fit reported this count <i>rising</i> 12 &rarr; 17; '
-    'that was an artefact of the asymmetric quarantine. <b>Neither reading makes the quarantined '
+    'that was an artefact of an asymmetric quarantine. <b>Neither reading makes the quarantined '
     'fit stronger evidence.</b>'
-    '<br><b>Structural cost:</b> the <b>+Omecamtiv node is lost outright</b> under the quarantine '
-    '&mdash; GALACTIC-HF was its only trial &mdash; taking 14 league pairs with it. Nodes '
-    '%d &rarr; %d, edges %d &rarr; %d, cyclomatic %d &rarr; %d. <b>ICDF unchanged at %d</b>: '
-    'CARMEN&rsquo;s loop was internal to one study and was never counted. The surviving '
-    'between-trial loop is Placebo&ndash;ACEI&ndash;ARB and it exists only because SPICE was '
-    're-sourced rather than quarantined. Losing a whole treatment comparison is why the full '
-    'network is <b>kept as a co-primary, not replaced</b>.'
+    '<br><b>Structural cost: no node is lost.</b> Nodes <b>%d &rarr; %d</b>, so all <b>%d</b> '
+    'league pairs are estimable in both fits. Edges %d &rarr; %d, cyclomatic %d &rarr; %d. '
+    '<b>ICDF unchanged at %d</b>: CARMEN&rsquo;s loop was internal to one study and was never '
+    'counted. The surviving between-trial loop is Placebo&ndash;ACEI&ndash;ARB and it exists only '
+    'because SPICE was re-sourced rather than quarantined. <b>This is a change from the previous '
+    'pass</b>, which withheld GALACTIC-HF and so deleted the +Omecamtiv node (15 &rarr; 14) and '
+    '14 league pairs with it; reinstating GALACTIC-HF restores them. Note what did and did not '
+    'move: GALACTIC-HF sits on a <b>pendant</b> edge to a leaf node, so it carries no information '
+    'about any other contrast &mdash; restoring it recovers a whole treatment comparison while '
+    'shifting the other anchors by &lt;1e-7. The structural gain is large; the numerical '
+    'perturbation is not. Both are true.'
     '<br><b>SPICE re-tiered, not quarantined:</b> VERIFIED_FULL &rarr; '
     '<b>RECOVERED_FROM_PERCENTAGE_UNIQUE</b>. The source prints no integers, only '
     '&ldquo;death 3.4%% and 3.3%%&rdquo;; 6/179 and 3/91 are the unique integers rounding to those '
@@ -752,7 +865,7 @@ badge_body = (
     'untested one. GRIM/GRIMMER is <b>not applicable</b> (binary outcome, no means), not passed. '
     'Registry concordance covers <b>9 of %d</b> trials; the rest predate ClinicalTrials.gov or are '
     'registered elsewhere, so concordance is <b>N/A</b> &mdash; there is no record to concord '
-    'with, and none is claimed. Full text is still absent for 8 denominator-only trials, three '
+    'with, and none is claimed. Full text is still absent for 8 denominator-only trials, %d '
     'trials have no sourced mortality at all, and no inconsistency test is fitted. '
     'AMSTAR-2 confidence: <b>CRITICALLY LOW</b>.'
     '</div>'
@@ -760,14 +873,17 @@ badge_body = (
      f3(node(FU, "ACEI+BB+MRA")["rr"]),
      QU["trials"], QU["arm_rows"], f3(node(QU, "ACEI+BB")["rr"]),
      f3(node(QU, "ACEI+BB+MRA")["rr"]),
+     len(QUAR),
      f3(node(QU, "ACEI+BB")["rr"]), f3(node(QU, "ACEI+BB+MRA")["rr"]),
-     node_med, common, f_ex, q_ex, n_gain, n_lose,
+     node_away, node_total, node_med, node_toward,
+     node_worst["node"], node_worst["pct"],
+     common, f_ex, q_ex, n_gain, n_lose,
      100 * (QU["tau2"] / FU["tau2"] - 1), 100 * FU["i2"], 100 * QU["i2"],
      FU["hksj"]["df"], QU["hksj"]["df"], wid_med,
-     fst["V"], qst["V"], fst["E"], qst["E"], fst["cyclomatic"],
-     qst["cyclomatic"], qst["icdf"],
+     fst["V"], qst["V"], len(QU["league"]), fst["E"], qst["E"],
+     fst["cyclomatic"], qst["cyclomatic"], qst["icdf"],
      indirect_excl, n_excl_full,
-     FU["arm_rows"], FU["contrasts"], FU["trials"])
+     FU["arm_rows"], FU["contrasts"], FU["trials"], len(QUAR))
 
 # Replace the badge's ENTIRE inner content by balanced <div> matching. Partial
 # replacement of a surface that states numbers is not safe -- an earlier draft
@@ -808,6 +924,8 @@ print("  co-primary (b) QUARANT : %d trials, %d arm rows, ACEI+BB %s, ACEI+BB+MR
          f3(node(QU, "ACEI+BB+MRA")["rr"])))
 print("  quarantined trials     : %d (%s)"
       % (len(QUAR), ", ".join(sorted(v["trial"] for v in QUAR.values()))))
+print("  reinstated trials      : %d (%s)"
+      % (len(REINST), ", ".join(sorted(v["trial"] for v in REINST.values()))))
 print("  edges                  : %d -> %d (dropped: %s)"
       % (fst["E"], qst["E"], "; ".join(dropped_edges)))
 print("  nodes                  : %d -> %d" % (fst["V"], qst["V"]))
