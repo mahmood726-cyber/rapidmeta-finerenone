@@ -17,8 +17,10 @@
 suppressMessages({ library(netmeta); library(jsonlite) })
 
 SETTLED <- "F:/E156/hfref_eightcell_fit.R"; PREFIX_END <- 587L
-OUT     <- "outputs/hfref_quarantine_primary.json"
-CELL_ID <- "OURS-STRICT"
+OUT      <- "outputs/hfref_quarantine_primary.json"
+CELL_ID  <- "OURS-STRICT"
+# every cell the app payload embeds a full league table for
+APP_CELLS <- c("OURS-STRICT","OURS-INCLUSIVE","OURS-STRICT-7b","OURS-STRICT-7c")
 QUARANTINE <- c("HF-021")   # CARMEN -- see outputs/hfref_quarantine_ledger.json
 
 fail <- function(...) { cat("FAIL: ", ..., "\n", sep = ""); quit(status = 1) }
@@ -30,21 +32,27 @@ if (!any(grepl("8\\. RUN", src[(PREFIX_END + 1):(PREFIX_END + 6)])))
 invisible(capture.output(
   eval(parse(text = paste(src[1:PREFIX_END], collapse = "\n")), envir = globalenv())))
 
-cl <- Filter(function(x) x$cell_id == CELL_ID, CELLS)[[1]]; co <- cl$coords
 pkey <- function(a, b) paste(sort(c(a, b)), collapse = "|")
 
-fitp <- function(drop_ids = character(0)) {
+fitp <- function(cl, drop_ids = character(0)) {
+  co  <- cl$coords
   ids <- setdiff(select_trials(co), drop_ids)
   cn  <- mk_contrasts(ARMS[ARMS$id %in% ids, ], emperor = co$emperor)
   st  <- structure_of(cn)
+  rnd <- (co$estimand != "fe")
   net <- netmeta(TE = TE, seTE = seTE, treat1 = treat1, treat2 = treat2,
-                 studlab = studlab, data = cn, sm = "RR", common = FALSE,
-                 random = TRUE, method.tau = "REML", reference.group = "Placebo",
+                 studlab = studlab, data = cn, sm = "RR", common = !rnd,
+                 random = rnd,
+                 method.tau = if (co$estimand == "reml") "REML" else "DL",
+                 reference.group = "Placebo",
                  warn = FALSE, details.chkmultiarm = FALSE)
-  w <- 1 / (net$seTE^2 + net$tau2); dfq <- unname(net$df.Q)
-  qraw <- sum(w * (net$TE - net$TE.nma.random)^2) / dfq
+  fitted <- if (rnd) net$TE.nma.random else net$TE.nma.common
+  w <- 1 / (net$seTE^2 + (if (rnd) net$tau2 else 0)); dfq <- unname(net$df.Q)
+  qraw <- sum(w * (net$TE - fitted)^2) / dfq
   q <- max(1, qraw); crit <- qt(0.975, dfq); mult <- crit * sqrt(q)
-  TEm <- net$TE.random; SEm <- net$seTE.random; trts <- sort(net$trts)
+  TEm <- if (rnd) net$TE.random else net$TE.common
+  SEm <- if (rnd) net$seTE.random else net$seTE.common
+  trts <- sort(net$trts)
   studs <- list()
   for (i in seq_len(nrow(cn))) {
     k <- pkey(cn$treat1[i], cn$treat2[i])
@@ -66,7 +74,12 @@ fitp <- function(drop_ids = character(0)) {
             (cn$treat2=="ARB" & cn$treat1=="Placebo"), ]
   edge_k <- table(apply(cn[, c("treat1","treat2")], 1,
                         function(r) paste(sort(r), collapse=" vs ")))
-  list(st=st, trts=trts, league=league, nodes=nodes, tau2=unname(net$tau2),
+  rk <- try(netrank(net, small.values = "desirable"), silent = TRUE)
+  ps <- if (inherits(rk,"try-error")) NULL else {
+    v <- if (rnd) rk$ranking.random else rk$ranking.common
+    as.list(round(v[order(-v)], 4)) }
+  list(st=st, trts=trts, league=league, nodes=nodes, pscore=ps,
+       tau2=unname(if (rnd) net$tau2 else 0),
        i2=unname(net$I2),
        hksj=list(q=unname(q), q_raw=unname(qraw), df=dfq, crit=unname(crit),
                  multiplier=unname(mult)),
@@ -82,7 +95,8 @@ fitp <- function(drop_ids = character(0)) {
 g <- function(f, nm) { x <- Filter(function(z) z$node == nm, f$nodes)
                        if (!length(x)) NULL else x[[1]] }
 
-B <- fitp(character(0))
+PC <- Filter(function(x) x$cell_id == CELL_ID, CELLS)[[1]]
+B <- fitp(PC, character(0))
 A0 <- g(B,"ACEI+BB+MRA"); B0 <- g(B,"ACEI+BB")
 anchor_ok <- abs(A0$rr-0.59333495)<1e-8 && abs(B0$rr-0.64459765)<1e-8 &&
              abs(B$tau2-0.02323609)<1e-8
@@ -96,7 +110,7 @@ cat(sprintf("ANCHOR %s : ACEI+BB+MRA %.8f  ACEI+BB %.8f  tau2 %.8f\n",
   if (anchor_ok) "PASS" else "FAIL", A0$rr, B0$rr, B$tau2))
 if (!anchor_ok) fail("BEFORE does not reproduce the settled primary")
 
-A <- fitp(QUARANTINE)
+A <- fitp(PC, QUARANTINE)
 cat("\n=== AFTER (CARMEN quarantined) ===\n")
 cat(sprintf("trials=%d contrasts=%d V=%d E=%d designs=%d cyclomatic=%d ICDF=%d internal_loops=%d\n",
   A$trials,A$contrasts,A$st$V,A$st$E,A$st$designs,A$st$cyclomatic,A$st$icdf,
@@ -134,7 +148,7 @@ pack <- function(f) list(trials=f$trials, trial_names=f$trial_names,
   contrasts=f$contrasts, tau2=f$tau2, i2=f$i2, hksj=f$hksj, structure=f$st,
   counts=list(estimable=length(f$league), with_direct=f$n_direct,
               indirect_only=length(f$league)-f$n_direct, ci_excludes_null=f$n_excl),
-  placebo_arb_direct_leg=f$placebo_arb, edge_k=f$edge_k,
+  placebo_arb_direct_leg=f$placebo_arb, edge_k=f$edge_k, pscore=f$pscore,
   node_vs_placebo=f$nodes, league=f$league)
 
 dir.create(dirname(OUT), showWarnings=FALSE, recursive=TRUE)
@@ -142,12 +156,21 @@ write(toJSON(list(schema="hfref-quarantine-primary/v1",
   generated_by="scripts/hfref_quarantine_primary.R", date="2026-07-30",
   settled_source=SETTLED, settled_prefix_lines=PREFIX_END,
   engine=paste0("R ",getRversion()," / netmeta ",packageVersion("netmeta")),
-  cell_id=CELL_ID, coords=co, outcome="all-cause mortality",
+  cell_id=CELL_ID, coords=PC$coords, outcome="all-cause mortality",
   quarantine=list(ids=QUARANTINE,
     violation="no death data in source; 14/14/14 unsourced; primary is LVESVI",
     ledger="outputs/hfref_quarantine_ledger.json"),
   anchor_before=list(acei_bb_mra=0.59333495, acei_bb=0.64459765,
                      tau2=0.02323609, reproduced=anchor_ok),
-  before=pack(B), after=pack(A), node_delta=nd),
+  before=pack(B), after=pack(A), node_delta=nd,
+  app_cells=lapply(APP_CELLS, function(cid) {
+    cc <- Filter(function(x) x$cell_id == cid, CELLS)[[1]]
+    # 7c already drops CARMEN in the settled definition; its "before" here is a
+    # synthetic CARMEN-included variant kept only so the columns line up.
+    list(cell_id=cid, label=cc$label, tier=cc$tier, coords=cc$coords,
+         settled_already_drops_carmen = cid %in% DROP_CARMEN,
+         before=pack(fitp(cc, character(0))),
+         after =pack(fitp(cc, QUARANTINE)))
+  })),
   auto_unbox=TRUE, digits=11, null="null", na="null"), file=OUT)
 cat("\nWROTE ", OUT, "\n", sep="")
