@@ -1,0 +1,205 @@
+{
+  "app": "APIXABAN_VTE_AUTO_FULL_REVIEW.html",
+  "branch": "fix/apixaban-vte-reconstruction-2026-07-30",
+  "base": "origin/main 9d37dce08ab0661877fc042f39215bf0d9a1b08f",
+  "date": "2026-07-30",
+  "verification_method": "ClinicalTrials.gov API v2 posted results (live fetch, 2026-07-30) + PubMed abstracts of the primary publications. Every count below was read off one of those two surfaces; nothing is back-computed from a percentage and nothing is imputed.",
+
+  "headline_defect": {
+    "id": "P0-1",
+    "claim_removed": "Pooled RR 2.44 (0.47-12.82) and every quantity derived from it (heterogeneity, Bayesian posterior, TSA, NNT/NNH, GRADE, fragility index, funnel/Egger, L'Abbe, plain-language 'increased risk by about 144%', manuscript conclusion).",
+    "why_invalid": "The pooled estimate combined (a) ISTH major bleeding after gynaecologic-cancer surgery, apixaban 1/204 vs enoxaparin 1/196, with (b) RAMBLE's 3/8 vs 1/11, which is neither the PBAC primary outcome nor an apixaban-vs-control contrast - it is the SECONDARY outcome 'crossed over to another anticoagulant', with the 3/8 arm being RIVAROXABAN. The two quantities measure different phenomena and the second is direction-reversed. No valid two-trial meta-analysis exists over this set.",
+    "value_was_not_hardcoded": "RR 2.44 and RAMBLE's RR 4.13 are computed at runtime from the ledger; the only occurrence of the literal string '2.44' in the file is a coefficient inside the normalQuantile rational approximation. The fix is therefore at the data + gate layer, not a string replacement."
+  },
+
+  "trials": [
+    {
+      "nct": "NCT00643201",
+      "label": "AMPLIFY",
+      "question": "A. Acute VTE treatment (apixaban vs enoxaparin/warfarin)",
+      "status": "ADDED - was excluded by the retired pre-2015 rule",
+      "sources": [
+        "PubMed PMID 23808982; Agnelli G et al. Oral apixaban for the treatment of acute venous thromboembolism. N Engl J Med 2013;369(9):799-808. DOI 10.1056/NEJMoa1302507",
+        "ClinicalTrials.gov NCT00643201 posted results, API v2, fetched 2026-07-30"
+      ],
+      "design": "Randomised, double-blind, double-dummy. Apixaban 10 mg BID x7d then 5 mg BID x6 months vs enoxaparin followed by warfarin. 5,395 patients analysed (5,614 enrolled).",
+      "arms": {"intervention": "Apixaban", "comparator": "Enoxaparin + warfarin"},
+      "registry_flow_group_order": "FG000 = Apixaban, FG001 = Enoxaparin + Warfarin (intervention listed first; arm order as recorded is correct)",
+      "outcomes": [
+        {
+          "label": "RecurrentVTEorVTEDeath",
+          "type": "PRIMARY",
+          "title": "Recurrent symptomatic VTE or VTE-related death (6 months)",
+          "tE": 59, "nT": 2609, "cE": 71, "nC": 2635,
+          "source": "NEJM abstract: 'occurred in 59 of 2609 patients (2.3%) ... as compared with 71 of 2635 (2.7%)'. Registry corroborates the same denominators (2609 / 2635) and rates 0.0226 / 0.0269.",
+          "published_effect": "RR 0.84 (95% CI 0.60-1.18), noninferior to conventional therapy (P<0.001)",
+          "computed_from_counts": "RR = (59/2609)/(71/2635) = 0.8395, agrees with the published 0.84"
+        },
+        {
+          "label": "MajorBleeding",
+          "type": "SAFETY",
+          "title": "ISTH major bleeding (safety population)",
+          "tE": 15, "nT": 2676, "cE": 49, "nC": 2689,
+          "source": "NEJM: major bleeding 0.6% apixaban vs 1.8% conventional, RR 0.31 (0.17-0.55), P<0.001 for superiority. Per-arm counts 15/2676 and 49/2689 are the safety-population figures.",
+          "denominator_note": "Safety-population denominators differ from the ITT efficacy denominators. Recorded on the outcome record itself (nT/nC), which the app honours, so the percentages are not silently taken from the efficacy denominators.",
+          "computed_from_counts": "RR = (15/2676)/(49/2689) = 0.3076, agrees with the published 0.31"
+        }
+      ],
+      "not_recorded_as_counts": "The major-or-CRNM composite (4.3% vs 9.7%, RR 0.44 [0.36-0.55]) is reported in the snippet as a published effect only. Per-arm counts were not read off a primary surface in this session, so they are NOT written as a switchable 2x2 outcome rather than being back-computed from the percentages."
+    },
+    {
+      "nct": "NCT00633893",
+      "label": "AMPLIFY-EXT",
+      "question": "B. Extended treatment after 6-12 months of anticoagulation (apixaban vs placebo)",
+      "status": "ADDED - was excluded by the retired pre-2015 rule",
+      "sources": [
+        "PubMed PMID 23216615; Agnelli G et al. Apixaban for extended treatment of venous thromboembolism. N Engl J Med 2013;368(8):699-708. DOI 10.1056/NEJMoa1207541",
+        "ClinicalTrials.gov NCT00633893 posted results, API v2, fetched 2026-07-30"
+      ],
+      "design": "Randomised, double-blind, placebo-controlled. Apixaban 2.5 mg BID or 5 mg BID vs placebo for 12 months. 2,486 randomised, 2,482 in ITT.",
+      "three_arm_note": "Three arms share ONE placebo group (n=829). The two apixaban contrasts are recorded as separate selectable outcomes against that shared control. They must never be pooled with each other - that would double-count the placebo arm. The app cannot pool them here in any case because the compatibility gate refuses any multi-record pool.",
+      "outcomes": [
+        {
+          "label": "RecurrentVTEorVTEDeath_2p5mg",
+          "type": "PRIMARY",
+          "title": "Recurrent symptomatic VTE or VTE-related death - apixaban 2.5 mg BID vs placebo",
+          "tE": 14, "nT": 840, "cE": 73, "nC": 829,
+          "source": "NEJM abstract: 'occurred in 73 of the 829 patients (8.8%) who were receiving placebo, as compared with 14 of the 840 patients (1.7%) who were receiving 2.5 mg of apixaban'. Registry corroborates denominators 840 / 813 / 829."
+        },
+        {
+          "label": "RecurrentVTEorVTEDeath_5mg",
+          "type": "PRIMARY",
+          "title": "Recurrent symptomatic VTE or VTE-related death - apixaban 5 mg BID vs placebo",
+          "tE": 14, "nT": 813, "cE": 73, "nC": 829,
+          "source": "NEJM abstract: '14 of the 813 patients (1.7%) who were receiving 5 mg of apixaban'."
+        }
+      ],
+      "not_recorded_as_counts": "Major bleeding (0.5% placebo / 0.2% 2.5 mg / 0.1% 5 mg) and CRNM bleeding (2.3% / 3.0% / 4.2%) are reported as published percentages in the snippet. Safety-population per-arm counts were not read off a primary surface in this session and are therefore not written as 2x2 outcomes."
+    },
+    {
+      "nct": "NCT03266783",
+      "label": "COBRRA",
+      "question": "C. Acute VTE treatment, DOAC vs DOAC (apixaban vs rivaroxaban)",
+      "status": "ADDED - the search surfaced it but it was left in NEW while the synthesis was declared complete. Now screened and adjudicated INCLUDE.",
+      "sources": [
+        "PubMed PMID 41812192; Castellucci LA et al. Bleeding Risk with Apixaban vs. Rivaroxaban in Acute Venous Thromboembolism. N Engl J Med 2026;394(11):1051-1060. DOI 10.1056/NEJMoa2510703",
+        "ClinicalTrials.gov NCT03266783 posted results, API v2, fetched 2026-07-30"
+      ],
+      "design": "International PROBE (prospective randomised open-label blinded end-point) trial. Apixaban vs rivaroxaban for 3 months in acute symptomatic PE or proximal DVT. 2,760 randomised (1,370 apixaban / 1,390 rivaroxaban).",
+      "arms": {"intervention": "Apixaban", "comparator": "Rivaroxaban"},
+      "registry_flow_group_order": "FG000 = Apixaban Group, FG001 = Rivaroxaban Group",
+      "outcomes": [
+        {"label": "ClinicallyRelevantBleeding", "type": "PRIMARY", "title": "Adjudicated clinically relevant bleeding (major or CRNM), 3 months", "tE": 44, "nT": 1345, "cE": 96, "nC": 1355, "source": "Registry outcome measure + NEJM abstract, identical: 44 of 1345 (3.3%) vs 96 of 1355 (7.1%), RR 0.46 (0.33-0.65), P<0.001"},
+        {"label": "MajorBleeding", "type": "SECONDARY", "title": "Adjudicated major bleeding", "tE": 5, "nT": 1345, "cE": 32, "nC": 1355, "source": "ClinicalTrials.gov NCT03266783 posted results"},
+        {"label": "CRNMBleeding", "type": "SECONDARY", "title": "Adjudicated clinically relevant non-major bleeding", "tE": 39, "nT": 1345, "cE": 67, "nC": 1355, "source": "ClinicalTrials.gov NCT03266783 posted results"},
+        {"label": "RecurrentVTE", "type": "SECONDARY", "title": "Adjudicated recurrent VTE", "tE": 15, "nT": 1345, "cE": 14, "nC": 1355, "source": "ClinicalTrials.gov NCT03266783 posted results"}
+      ]
+    },
+    {
+      "nct": "NCT02366871",
+      "label": "Guntupalli 2020 (gynaecologic-cancer surgery thromboprophylaxis)",
+      "question": "D. Postoperative thromboprophylaxis after gynaecologic-cancer surgery (apixaban vs enoxaparin)",
+      "status": "RETAINED, RECLASSIFIED - was framed as acute-VTE treatment, is postoperative prophylaxis",
+      "sources": [
+        "PubMed PMID 32589230; Guntupalli SR et al. Safety and Efficacy of Apixaban vs Enoxaparin for Preventing Postoperative Venous Thromboembolism in Women Undergoing Surgery for Gynecologic Malignant Neoplasm: A Randomized Clinical Trial. JAMA Netw Open 2020;3(6):e207410. DOI 10.1001/jamanetworkopen.2020.7410",
+        "ClinicalTrials.gov NCT02366871 posted results, API v2, fetched 2026-07-30"
+      ],
+      "design": "PROBE design, multicentre, open-label with blinded end-point. Apixaban 2.5 mg PO BID vs enoxaparin 40 mg SC daily for 28 days after surgery; 90-day follow-up. 400 randomised.",
+      "arms": {"intervention": "Oral apixaban (204)", "comparator": "Subcutaneous enoxaparin (196)"},
+      "registry_flow_group_order": "FG000 = Oral Apixaban (204), FG001 = Subcutaneous Enoxaparin (196). Arm order as previously recorded was CORRECT.",
+      "outcomes": [
+        {"label": "MajorBleeding", "type": "PRIMARY", "title": "ISTH major bleeding, day 1 to day 90", "tE": 1, "nT": 204, "cE": 1, "nC": 196, "source": "Registry + JAMA Netw Open: '1 patient [0.5%] vs 1 patient [0.5%]; odds ratio [OR], 1.04; 95% CI, 0.07-16.76; P>.99'", "single_trial_effect": "RR = (1/204)/(1/196) = 0.961, 95% CI 0.060-15.25 (Woolf/Katz, normal approximation on the log scale). Published OR 1.04 (0.07-16.76)."},
+        {"label": "CRNMBleeding", "type": "PRIMARY", "title": "Clinically relevant non-major bleeding, day 1 to day 90 (co-primary)", "tE": 12, "nT": 204, "cE": 19, "nC": 196, "source": "Registry + JAMA Netw Open: '12 patients [5.4%] vs 19 patients [9.7%]'", "note": "This CO-PRIMARY outcome was absent from the previous ledger, which listed only one primary."},
+        {"label": "VTE", "type": "SECONDARY", "title": "Venous thromboembolism (DVT or PE), day 1 to day 90", "tE": 2, "nT": 204, "cE": 3, "nC": 196, "source": "Registry + JAMA Netw Open: '2 patients [1.0%] vs 3 patients [1.5%]'"}
+      ],
+      "phase_correction": "The previous ledger recorded phase 'III'. The registry records PHASE2. Corrected to II. Consequence handled: the app's own phase-II auto-exclusion would otherwise silently drop this trial, so the record carries an explicit reviewed-and-eligible flag and the protocol text now states that phase 2-4 randomised trials are eligible."
+    },
+    {
+      "nct": "NCT02829957",
+      "label": "RAMBLE",
+      "question": "E. Menstrual blood loss in menstruating patients anticoagulated for VTE or AF (apixaban vs rivaroxaban)",
+      "status": "RETAINED as a standalone, severely underpowered continuous-outcome pilot. Three extraction errors corrected.",
+      "sources": [
+        "ClinicalTrials.gov NCT02829957 posted results, API v2, fetched 2026-07-30 (registry is the only source; no journal publication of RAMBLE was found on PubMed)",
+        "Registry document section: Study Protocol (Prot_000.pdf) AND Statistical Analysis Plan (SAP_001.pdf) are both attached"
+      ],
+      "design": "Randomised open-label, Indiana University, 19 participants. Rivaroxaban 15 mg BID x7d then 20 mg daily vs apixaban 10 mg BID x7d then 5 mg BID, 3 months. Registered PHASE2/PHASE3. Start 2016-09, primary completion 2020-02-13.",
+      "arms": {"intervention": "Apixaban (n=11)", "comparator": "Rivaroxaban (n=8)"},
+      "registry_flow_group_order": "FG000 = Rivaroxaban (STARTED 8), FG001 = Apixaban (STARTED 11). The intervention is listed SECOND. This is the mechanism of the arm reversal.",
+      "three_part_error_corrected": {
+        "a_outcome_type": {
+          "was": "PBAC treated as a binary event outcome, 3/8 vs 1/11, RR 4.13",
+          "is": "PBAC Scores is the PRIMARY outcome and is a CONTINUOUS/ordinal score. Registry paramType = MEDIAN, dispersion = Full Range, unit = 'score on a scale'. Rivaroxaban median 292 (range 74-600), n=6; apixaban median 146 (range 3-378), n=10.",
+          "handling": "Recorded as a CONTINUOUS outcome with tE/cE null so the app renders its continuous-outcome panel. No mean difference or SMD is computed: medians with full ranges at n=6 and n=10 cannot be converted to mean/SD without fabricating a distributional assumption on a heavily skewed score."
+        },
+        "b_wrong_outcome": {
+          "was": "the counts 3 and 1 were labelled 'PBAC Scores (primary)'",
+          "is": "3 and 1 are the SECONDARY outcome 'Number of Participants Who Crossed Over to Another Anticoagulant' (rivaroxaban 3/8, apixaban 1/11). PBAC contributes no count rows at all, being a median outcome.",
+          "root_cause": "outputs/new_topics/APIXABAN_VTE_AUTO.json stores aact_outcome_count_rows as a FLAT, unlabelled list of (group, value) pairs across all outcomes, and the builder bound the first pair to aact_primary_outcome_measure. For RAMBLE the first pair is the crossover outcome."
+        },
+        "c_arm_reversal": {
+          "was": "3/8 recorded as the apixaban (treatment) arm",
+          "is": "3/8 is the RIVAROXABAN arm; 1/11 is apixaban",
+          "root_cause": "The same corpus file stores aact_per_arm_counts as {BG000: 8, BG001: 11} and the builder assumes baseline group index 0 is the intervention. For RAMBLE, group 0 is rivaroxaban.",
+          "consequence": "The displayed RR 4.13 was neither a PBAC effect nor an apixaban-vs-control estimate. Corrected direction for the crossover outcome: apixaban 1/11 vs rivaroxaban 3/8, RR 0.242."
+        }
+      },
+      "outcomes": [
+        {"label": "PbacScore", "type": "CONTINUOUS", "title": "PBAC score at 3 months (primary) - median (full range)", "tE": null, "cE": null, "nT": 10, "nC": 6, "apixaban_median": 146, "apixaban_range": [3, 378], "rivaroxaban_median": 292, "rivaroxaban_range": [74, 600], "source": "ClinicalTrials.gov NCT02829957 posted results, primary outcome measure"},
+        {"label": "CrossedOverAnticoagulant", "type": "SECONDARY", "title": "Crossed over to another anticoagulant, 3 months", "tE": 1, "nT": 11, "cE": 3, "nC": 8, "source": "ClinicalTrials.gov NCT02829957 posted results, secondary outcome measure"},
+        {"label": "CRNMBleeding", "type": "SECONDARY", "title": "Clinically relevant non-major bleeding, 3 months", "tE": 0, "nT": 11, "cE": 3, "nC": 8, "source": "ClinicalTrials.gov NCT02829957 posted results"},
+        {"label": "MajorHaemorrhage", "type": "SECONDARY", "title": "Major haemorrhage, 3 months", "tE": 0, "nT": 11, "cE": 0, "nC": 8, "source": "ClinicalTrials.gov NCT02829957 posted results"},
+        {"label": "VTE", "type": "SECONDARY", "title": "Venous thromboembolism, 3 months", "tE": 0, "nT": 11, "cE": 0, "nC": 8, "source": "ClinicalTrials.gov NCT02829957 posted results"},
+        {"label": "DiscontinuedDrug", "type": "SECONDARY", "title": "Discontinued planned drug administration, 3 months", "tE": 2, "nT": 11, "cE": 4, "nC": 8, "source": "ClinicalTrials.gov NCT02829957 posted results"}
+      ],
+      "year_correction": {
+        "was": 2015,
+        "is": 2020,
+        "why": "The corpus matched RAMBLE to PMID 26272306 (De Crem N et al., Thromb Res 2015;136:749-53, 'Abnormal uterine bleeding in VTE patients treated with rivaroxaban compared to vitamin K antagonists'). That is a single-centre RETROSPECTIVE questionnaire study of rivaroxaban vs vitamin K antagonists - not RAMBLE, not randomised, not apixaban. It appears in RAMBLE's registry record as a BACKGROUND citation, and the matcher took a background reference as the trial's own publication. RAMBLE started 2016-09 and completed 2020-02-13; year set to 2020 (primary completion) with the registry as the source and no publication claimed.",
+        "found_by": "This session. NOT raised in the external review."
+      },
+      "phase_correction": "Registry records PHASE2/PHASE3; previous ledger said 'III'. Corrected to 'II/III'."
+    }
+  ],
+
+  "review_claims_adjudicated": [
+    {"claim": "RAMBLE PBAC is continuous/ordinal, not binary; registry medians 292 (74-600) n=6 rivaroxaban vs 146 (3-378) n=10 apixaban", "verdict": "CONFIRMED, exact", "evidence": "CT.gov NCT02829957 primary outcome, paramType MEDIAN, dispersion Full Range"},
+    {"claim": "3/8 vs 1/11 belongs to the secondary crossover outcome", "verdict": "CONFIRMED, exact", "evidence": "CT.gov NCT02829957 secondary 'Number of Participants Who Crossed Over to Another Anticoagulant': rivaroxaban 3, apixaban 1"},
+    {"claim": "The 3/8 arm is rivaroxaban, not apixaban", "verdict": "CONFIRMED", "evidence": "CT.gov participant flow FG000 Rivaroxaban STARTED 8, FG001 Apixaban STARTED 11"},
+    {"claim": "NCT02366871 major bleeding 1/204 vs 1/196, VTE 2/204 vs 3/196, JAMA Netw Open", "verdict": "CONFIRMED, exact", "evidence": "CT.gov results + PMID 32589230"},
+    {"claim": "Single-trial major-bleeding RR ~0.96 (0.06-15.25)", "verdict": "CONFIRMED, exact", "evidence": "Recomputed by the Katz log method: RR 0.9608, 95% CI 0.0605-15.2551. Published OR 1.04 (0.07-16.76)."},
+    {"claim": "Headline pooled RR 2.44 with CI 0.47-12.82 and I2 = 0%", "verdict": "CONFIRMED, exact - reproduced", "evidence": "DerSimonian-Laird random-effects over the two ledger rows as previously recorded, log-RR scale: study RRs 0.961 and 4.125, tau2 = 0, Q = 0.683, pooled RR 2.443 (0.465, 12.822), I2 = 0%. This reproduces the reported headline to three digits and confirms both the value and the mechanism."},
+    {"claim": "AMPLIFY 5,395; 59/2609 vs 71/2635; RR 0.84 (0.60-1.18); major bleeding RR 0.31 (0.17-0.55)", "verdict": "CONFIRMED, exact", "evidence": "PMID 23808982 abstract; registry denominators corroborate"},
+    {"claim": "AMPLIFY-EXT 2,486; recurrent VTE/VTE-death placebo 8.8% vs 1.7% either dose", "verdict": "CONFIRMED, exact", "evidence": "PMID 23216615 abstract: 73/829, 14/840, 14/813"},
+    {"claim": "COBRRA 2,760; clinically relevant bleeding 44/1345 vs 96/1355, RR 0.46 (0.33-0.65)", "verdict": "CONFIRMED, exact", "evidence": "PMID 41812192 + CT.gov NCT03266783"},
+    {"claim": "RAMBLE registry provides protocol and SAP", "verdict": "CONFIRMED", "evidence": "CT.gov documentSection: Prot_000.pdf (Study Protocol) and SAP_001.pdf (Statistical Analysis Plan)"},
+    {"claim": "The app says NOT POOLABLE / 'Not a pooled meta-analysis' yet produces a pooled diamond", "verdict": "CONFIRMED", "evidence": "The banner at the top of the analysis tab is unconditional static HTML; the k<2 gate injected by Overmind only fires at k<2, and k=2 here, so nothing stopped the diamond"},
+    {"claim": "Protocol excludes the pivotal trials via a pre-2015 rule", "verdict": "CONFIRMED", "evidence": "state.protocol.post2015 = true; AMPLIFY (2013) and AMPLIFY-EXT (2012/2013) fall outside it"},
+    {"claim": "Paper Studio / patient section contaminated with foreign-template text", "verdict": "CONFIRMED but mis-attributed in detail", "evidence": "The contaminating template is cardiorenal/finerenone and respiratory, not colchicine/ASCVD. Concretely: outcomeText/verdictOutcome/ocProse default to 'major cardiovascular events' / 'the matched cardiovascular composite endpoint across CKD trials'; the protocol comparator default is 'Placebo' (neither trial has a placebo arm); the subgroup plan default is 'Blood eosinophils, smoking status, ICS use' (an asthma/COPD template). The literal strings 'colchicine' and 'ASCVD' do not appear anywhere in the file."},
+    {"claim": "Patient section exposes internal id apixaban_vte_auto and says '144% higher risk'", "verdict": "CONFIRMED", "evidence": "The build pipeline replaced the template drug token with the TOPIC SLUG rather than the drug name, so user-visible strings read '% higher risk with apixaban_vte_auto'. The Arabic i18n table still maps that slug to the Arabic for 'finerenone', which identifies the source template. 144% is (2.44-1)x100, i.e. derived from the invalid pooled RR."},
+    {"claim": "GitHub timestamp claimed as 'equivalent to PROSPERO per ICMJE'", "verdict": "CONFIRMED", "evidence": "Protocol registration row asserts ICMJE 2023 equivalence; removed. The GitHub commit timestamp itself is kept as a legitimate immutable record."},
+    {"claim": "0/2 CT.gov results, 0 CT.gov-backed, no protocol/SAP", "verdict": "CONFIRMED as displayed, and FALSE as a statement about the world", "evidence": "Both trials have posted CT.gov results; RAMBLE has protocol+SAP, NCT02366871 has a combined Prot_SAP and an ICF. The provenance panel read empty evidence[] arrays in the ledger and reported the absence of evidence as if it were evidence of absence."},
+    {"claim": "PRISMA numbers are arithmetically impossible", "verdict": "CONFIRMED as a class of defect; the specific integers are runtime state, not file constants", "evidence": "The PRISMA boxes (p-reg, p-reg-scr, p-scr, p-exc, p-inc) are filled at runtime from whatever is in localStorage, and p-inc is set to r.k while p-scr/p-exc are set from unrelated filters, so the boxes are not constrained to balance. The reviewed instance's specific figures could not be reproduced from the shipped file because they depend on a saved search session. Rebuilt to a record-level count with an explicit 'not recorded' state rather than fabricated integers."},
+    {"claim": "COBRRA was found by the search but left NEW", "verdict": "PLAUSIBLE, not verifiable from the file", "evidence": "The string 'COBRRA' does not occur anywhere in the shipped HTML. It can only have appeared through the app's live PubMed/CT.gov search into localStorage. The claim is consistent with the app's behaviour, and COBRRA is in any case a real, relevant trial, so it has been screened and adjudicated."},
+    {"claim": "Method alternates REML / DL / fixed-IVW / HKSJ", "verdict": "CONFIRMED", "evidence": "Distinct surfaces label the same analysis differently; the exported Python validation script hardcodes 'Forest Plot (DL Random-Effects)' regardless of the estimator actually used"},
+    {"claim": "Forest caption says 'continuous' for a binary outcome", "verdict": "PARTLY WRONG as stated", "evidence": "The continuous-outcome panel is gated on tE and cE both being null, which was not true for either trial as previously recorded. What the app actually did was the OPPOSITE error - it rendered RAMBLE's genuinely continuous PBAC primary as a binary event count. The caption defect the review describes is the visible symptom of that inversion."}
+  ],
+
+  "defects_found_this_session_not_in_the_review": [
+    {"id": "N-1", "finding": "RAMBLE is matched to the wrong publication. PMID 26272306 is De Crem 2015, a retrospective rivaroxaban-vs-VKA questionnaire study taken from RAMBLE's own BACKGROUND citation list. This is the source of the app's RAMBLE year of 2015."},
+    {"id": "N-2", "finding": "Because that wrong publication is dated 2015, the pre-2015 protocol filter admitted RAMBLE on a false date. The filter that excluded AMPLIFY admitted RAMBLE only by an extraction error."},
+    {"id": "N-3", "finding": "Both trials had their registry phase overwritten to 'III'. NCT02366871 is registered PHASE2 and RAMBLE is PHASE2/PHASE3. The app separately auto-excludes phase-II-like records from analysis, so the mislabel is what kept the gynaecologic trial in the analysis at all."},
+    {"id": "N-4", "finding": "NCT02366871 has TWO co-primary outcomes (major bleeding and CRNM bleeding). Only one was recorded, so the co-primary showing 12/204 vs 19/196 was invisible."},
+    {"id": "N-5", "finding": "The corpus matched NCT02366871 to PMID 32641236, which is the medication-adherence subanalysis (Ross 2020, Gynecol Oncol), not the primary RCT report. The app's own ledger happened to carry the correct PMID 32589230, so the two disagree."},
+    {"id": "N-6", "finding": "The in-page CT.gov auto-extraction engine identifies the intervention arm with the regex /apixaban_vte_auto|bay\\s*94|treatment|active/i. 'bay 94' is the finerenone development code. On any apixaban trial this regex cannot match the drug name and falls through to positional/keyword guesses. This is a live extraction hazard, not only a cosmetic one."},
+    {"id": "N-7", "finding": "The Arabic localisation table contains cardiorenal template strings, including a mapping of the topic slug to the Arabic word for finerenone and 'Primary Result' rendered as 'Primary MACE result'."}
+  ],
+
+  "not_done": [
+    "No push. Branch is staged only, awaiting the cross-family gate and Mahmood's go.",
+    "AMPLIFY major-or-CRNM composite and AMPLIFY-EXT safety per-arm counts are not recorded as 2x2 outcomes because they were not read off a primary surface in this session.",
+    "RAMBLE's attached protocol and SAP PDFs are recorded as existing and linked, but their contents were not read.",
+    "No full texts were read for any trial; verification is registry + abstract, which is 2-source but not 3-source.",
+    "GRADE, RoB 2 and AMSTAR-2 have not been re-derived for the new question set; the app's automated GRADE output is suppressed rather than rebuilt."
+  ]
+}
