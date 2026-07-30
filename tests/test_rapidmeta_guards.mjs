@@ -959,3 +959,58 @@ describe("G12 — a quoted prior claim is not a live claim", () => {
       "BADGE_SELF_CONTRADICTION");
   });
 });
+/* ==================== G12 — gate P2: straight quotes, and a LIVE claim after the narrative */
+
+describe("G12 audit-trail strip — gate P2 refinements", () => {
+  test("a STRAIGHT-quoted prior claim is stripped, not treated as an assertion", () => {
+    const badge = 'NO DATA. It read "INTERNAL CHECKS PASSED - Trials: 2" on a green background.';
+    assert.equal(/CHECKS PASSED/.test(G.G12_stripAuditTrail(badge)), false);
+    const r = G.G12_assertVerdictParity(
+      { verdict: "NO_DATA", counts: { n_trials_seen: 0 }, reasons: [] },
+      { background: "#7c2d12", text: badge }, { trialCount: 0 });
+    assert.equal(r.ok, true, "an honest straight-quoted badge must not be blocked");
+  });
+
+  test("a LIVE pass claim placed AFTER a retention marker is still caught", () => {
+    // Previously stripAuditTrail truncated everything from the marker onward, so anything the
+    // badge asserted after its own narrative became invisible.
+    const badge = "What this badge used to say, and why it was wrong. " +
+                  "INTERNAL CHECKS PASSED · Trials: 2";
+    assert.equal(/CHECKS PASSED/.test(G.G12_stripAuditTrail(badge)), true);
+    blocks(() => G.G12_assertVerdictParity(
+      { verdict: "UNCERTAIN", counts: { n_trials_seen: 2 }, reasons: ["x"] },
+      { background: "#15803d", text: badge }, { trialCount: 2 }), "FALSE_GREEN_VERDICT");
+  });
+
+  test("only the retention SENTENCE is removed, not the rest of the badge", () => {
+    const out = G.G12_stripAuditTrail("Verdict UNCERTAIN. It read wrongly. Trials: 4 in the fit.");
+    assert.match(out, /Trials: 4 in the fit/);
+  });
+});
+
+/* ============================================ G18 — gate P0-2: fail-closed on an empty ledger */
+
+describe("G18 — an empty or absent ledger is N/A, never a pass (gate P0-2)", () => {
+  test("BLOCK: assertIntegrityGate({}) must not return ok", () => {
+    blocks(() => G.G18_assertIntegrityGate({}), "LEDGER_ABSENT");
+  });
+
+  test("BLOCK: zero trials with a NO_DATA verdict is still not a pass", () => {
+    const e = blocks(() => G.G18_assertIntegrityGate({ trialIds: [], verdictWord: "NO_DATA" }),
+      "LEDGER_ABSENT");
+    assert.match(e.message, /NO_DATA/);
+  });
+
+  test("BLOCK: a STRING 'NaN' output is caught, not just a numeric NaN", () => {
+    blocks(() => G.G18_assertIntegrityGate({
+      trialIds: ["NCT1"], outputs: [{ name: "pooled", value: "NaN" }]
+    }), "INTEGRITY_GATE_FAILED");
+    blocks(() => G.G18_assertIntegrityGate({
+      trialIds: ["NCT1"], outputs: [{ name: "loo", value: 0.9, interval: ["NaN", "NaN"] }]
+    }), "INTEGRITY_GATE_FAILED");
+  });
+
+  test("PASS: a real ledger still passes", () => {
+    assert.equal(G.G18_assertIntegrityGate({ trialIds: ["NCT1", "NCT2"], trialCounts: [2, 2] }).ok, true);
+  });
+});

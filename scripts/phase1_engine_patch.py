@@ -87,8 +87,60 @@ T1_REPLACE = (
     "independent institution. The evidence is the PUBLIC PUSH, not the commit date, which is "
     "author-settable. This review is NOT prospectively registered.")
 
-T2_FIND = '"RR"!==String(d?.estimandType??"HR")'
+# Quote- and whitespace-tolerant: 18 e156-submission copies are PRETTY-PRINTED with single
+# quotes, so the exact minified literal matched nothing and they were "patched" in name only.
+T2_RE = re.compile(r"""['"]RR['"]\s*!==\s*String\(\s*d\s*\?\.\s*estimandType\s*\?\?\s*['"]HR['"]\s*\)""")
 T2_REPLACE = '!window.__rmGuardEstimandOK(d)'
+
+# ---- T3 safeRob: matched by HEAD + BRACE BALANCE, not by literal --------------------------
+# The corpus ships at least two shapes:
+#   minified : safeRob=rob=>{const valid=["low","some","high"];return Array.isArray(rob)?...}
+#   pretty   : safeRob = (rob) => {\n  const valid = ['low', 'some', 'high'];\n  if (...)...}
+# safeRob is a closure-local const and CANNOT be monkey-patched at runtime, so the textual
+# replacement is the only fix - it must therefore hit every RoB app, minified or not.
+SAFEROB_HEAD_RE = re.compile(r"\bsafeRob\s*=\s*(?:\(\s*rob\s*\)|rob)\s*=>\s*\{")
+SAFEROB_PRESENT_RE = re.compile(r"\bsafeRob\s*=")
+
+
+def balanced_brace(text: str, start: int) -> int:
+    """Index just past the `}` matching the `{` at `start`, ignoring braces inside strings."""
+    depth, i, n, q = 0, start, len(text), None
+    while i < n:
+        ch = text[i]
+        if q:
+            if ch == "\\":
+                i += 2
+                continue
+            if ch == q:
+                q = None
+        elif ch in "\"'`":
+            q = ch
+        elif ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return i + 1
+        i += 1
+    return -1
+
+
+def replace_saferob(text: str):
+    """Replace every safeRob definition, whatever its formatting. Returns (text, n)."""
+    out, i, n = [], 0, 0
+    while True:
+        m = SAFEROB_HEAD_RE.search(text, i)
+        if not m:
+            break
+        end = balanced_brace(text, m.end() - 1)
+        if end == -1:
+            break
+        out.append(text[i:m.start()])
+        out.append(T3_REPLACE)
+        i = end
+        n += 1
+    out.append(text[i:])
+    return "".join(out), n
 
 # safeRob is a closure-local `const`, NOT a property of any object, so a runtime override cannot
 # reach it - the rendered app reported G08_safeRob:"absent". It must be replaced textually. The
@@ -96,7 +148,7 @@ T2_REPLACE = '!window.__rmGuardEstimandOK(d)'
 # alias table, so an unknown rating resolves to "some" even if the library failed to load.
 T3_FIND = ('safeRob=rob=>{const valid=["low","some","high"];'
            'return Array.isArray(rob)?rob.map(r=>valid.includes(r)?r:"low"):'
-           '["low","low","low","low","low"]}')
+           '["low","low","low","low","low"]}')   # kept ONLY as a selftest fixture
 T3_REPLACE = (
     'safeRob=rob=>{if(window.RapidMetaGuards)return window.RapidMetaGuards.G08_safeRob(rob);'
     'const A={"low":"low","some":"some","some-concerns":"some","some concerns":"some",'
@@ -105,10 +157,19 @@ T3_REPLACE = (
     'return Array.isArray(rob)?rob.map(r=>A[String(r??"").trim().toLowerCase()]??"some")'
     ':["some","some","some","some","some"]}')
 
+# T4: the COMPLETE-POOLING-REPAIR block is a scope-lock bypass (RM-B02). It runs at parse time,
+# BEFORE any injected overlay, so a runtime flag can never reach it - the previous
+# `__rmPoolingRepairDisabled` was dead code that nothing read. Neutralised at its own site.
+T4_RE = re.compile(r"(COMPLETE-POOLING-REPAIR[\s\S]{0,900}?\(function\s*\(\s*\)\s*\{)")
+T4_MARK = ("/* RM-PHASE1 G07: disabled - this block copies realData counts into the scoped row and "
+           "force-sets effectMeasure='HR', bypassing the outcome scope lock (RM-B02). */"
+           "if(!window.__rmAllowPoolingRepair)return;")
+
 TEXTUAL = [
     ("T1-icmje", "regex", T1_RE, T1_REPLACE, "RM-J01/RM-J02"),
-    ("T2-denylist", "literal", T2_FIND, T2_REPLACE, "RM-A02"),
-    ("T3-saferob", "literal", T3_FIND, T3_REPLACE, "RM-G01"),
+    ("T2-denylist", "regex", T2_RE, T2_REPLACE, "RM-A02"),
+    ("T3-saferob", "callable", replace_saferob, None, "RM-G01"),
+    ("T4-poolingrepair", "regex-group", T4_RE, None, "RM-B02"),
 ]
 
 # ---------------------------------------------------------------- engine markers
@@ -174,9 +235,14 @@ def overlay_js(guard_src: str) -> str:
   // end-of-body, but the engine hydrates its state and defines window.__quarantinedTrials LATER -
   // running only once left G21 with an empty quarantine set and it purged nothing. Found by
   // seeding a stale profile in the browser; the file-level view cannot see it.
+  // "PASS" and "N/A" are NOT settled. The ledger, the verdict object and the badge are all
+  // populated AFTER end-of-body, so an early PASS is a pass over an empty page - freezing it
+  // meant the one check that most needs the late re-run was the one that never re-ran.
+  var NEVER_SETTLED = {{ "PASS": 1, "NOT-APPLICABLE": 1, "absent": 1, "no-k": 1 }};
   function settled(v) {{
-    return v !== undefined && v !== "absent" && v !== "no-k"
-           && !(typeof v === "string" && v.indexOf("ERROR:") === 0);
+    if (v === undefined) return false;
+    if (typeof v === "string" && (NEVER_SETTLED[v] || v.indexOf("ERROR:") === 0)) return false;
+    return true;
   }}
   function step(name, fn) {{
     if (settled(applied[name])) return;               // already done - do not redo
@@ -201,12 +267,14 @@ def overlay_js(guard_src: str) -> str:
     return true;
   }});
 
-  /* --- G07 neutralise the pooling-repair scope-lock bypass ------------------------------- */
+  /* --- G07 pooling-repair: neutralised TEXTUALLY (T4), not here --------------------------
+   * The block runs at parse time, before any overlay, so a runtime flag could never reach it.
+   * An earlier revision set a runtime flag that nothing read. T4 injects an early
+   * return at the block's own site; this step only REPORTS whether that landed. */
   step("G07_pooling_repair", function () {{
-    var st = window.RapidMeta && window.RapidMeta.state;
-    if (!st) return "absent";
-    st.__rmPoolingRepairDisabled = true;   // the block checks this before mutating (see below)
-    return true;
+    if (!window.__rmAllowPoolingRepair && document.documentElement.innerHTML
+        .indexOf("RM-PHASE1 G07: disabled") !== -1) return "NEUTRALISED-BY-T4";
+    return "absent";
   }});
 
   /* --- G21 reconcile persisted state on hydrate ----------------------------------------- */
@@ -222,17 +290,21 @@ def overlay_js(guard_src: str) -> str:
     var res = G.G21_reconcilePersistedState(
       {{ trials: RM.state.trials, ledgerFingerprint: RM.state.__rmLedgerFp,
          pooledResult: RM.state.__pooledResult }}, auth);
-    if (res.purged.length || res.dropped.length || res.staleLedger) {{
+    // mustRederive is the library's own signal and MUST be consumed: it is true whenever a
+    // persisted pooled estimate exists, even when nothing was purged. Reading only
+    // purged/dropped/stale let a returning visitor's stored __pooledResult survive, which made
+    // the "never restores a persisted result" claim false.
+    if (res.mustRederive) {{
       RM.state.trials = res.trials;
-      RM.state.__pooledResult = null;
+      RM.state.__pooledResult = null;          // never carried forward
       RM.state.__rmLedgerFp = auth.ledgerFingerprint;
-      applied.notes.push(res.reason);
-      log(res.reason);
+      if (res.reason) {{ applied.notes.push(res.reason); log(res.reason); }}
       try {{ typeof RM.save === "function" && RM.save(); }} catch (e) {{}}
-      return {{ purged: res.purged.length, dropped: res.dropped.length, stale: res.staleLedger }};
+      return {{ purged: res.purged.length, dropped: res.dropped.length,
+                stale: res.staleLedger, rederived: true }};
     }}
     RM.state.__rmLedgerFp = auth.ledgerFingerprint;
-    return {{ purged: 0, dropped: 0, stale: false }};
+    return {{ purged: 0, dropped: 0, stale: false, rederived: false }};
   }});
 
   /* --- G18 fail-closed integrity gate + G12 badge parity --------------------------------- */
@@ -251,8 +323,14 @@ def overlay_js(guard_src: str) -> str:
     if (bm) counts.push(Number(bm[1]));
 
     var gate = G.attempt(function () {{
-      return G.G18_assertIntegrityGate({{ trialIds: ids, trialCounts: counts }});
+      return G.G18_assertIntegrityGate({{ trialIds: ids, trialCounts: counts,
+                                         verdictWord: v.verdict }});
     }});
+    if (!gate.ok && gate.block && gate.block.code === "LEDGER_ABSENT") {{
+      // Nothing to certify. N/A is NOT a pass (RM-H04) - and it is not settled either, so a
+      // later hydrate that populates the ledger will re-run this.
+      return "NOT-APPLICABLE";
+    }}
     var parity = G.attempt(function () {{
       return G.G12_assertVerdictParity(v,
         {{ background: badgeBg, text: badgeTxt, trialCount: bm ? Number(bm[1]) : undefined }},
@@ -383,16 +461,55 @@ def transform(text: str, guard_src: str):
     out = strip_existing(text)
     rep["had_previous_block"] = out != text
 
+    saferob_present = bool(SAFEROB_PRESENT_RE.search(out))
     for name, kind, find, replace, ids in TEXTUAL:
-        if kind == "regex":
+        if kind == "regex" and name == "T1-icmje":
+            # CONTEXT-BOUND: only the protocol-provenance claim. The corpus also carries a
+            # LEGITIMATE ICMJE line about AI-assisted authorship which must never be rewritten.
+            n = 0
+            def _t1(m, _r=replace):
+                # Window EXCLUDES the match itself - the sentence contains "PROSPERO", so
+                # matching on it would make the bind vacuous. The claim always sits in a
+                # protocol-provenance row in this corpus.
+                ctx = out[max(0, m.start() - 300):m.start()] + out[m.end():m.end() + 300]
+                if not re.search(r"protocol|registration|registry|OSF|pre-?register", ctx, re.I):
+                    return m.group(0)
+                return _r
+            out, n = find.subn(_t1, out)
+        elif kind == "regex":
             n = len(find.findall(out))
             if n:
                 out = find.sub(lambda _m: replace, out)
+        elif kind == "regex-group":
+            # IDEMPOTENT: unlike T1/T2/T3, T4's anchor (the COMPLETE-POOLING-REPAIR comment plus
+            # the IIFE head) SURVIVES its own replacement, so a second apply injected a second
+            # copy. Caught by the real double-apply test on the minified root apps - the
+            # submission copies have no pooling-repair block and hid it.
+            n = 0
+
+            def _t4(m):
+                nonlocal n
+                if T4_MARK[:24] in out[m.end():m.end() + 200]:
+                    return m.group(0)
+                n += 1
+                return m.group(1) + T4_MARK
+            out = find.sub(_t4, out)
+        elif kind == "callable":
+            out, n = find(out)
         else:
             n = out.count(find)
             if n:
                 out = out.replace(find, replace)
         rep["textual"][name] = {"occurrences": n, "registry": ids}
+
+    # FAIL CLOSED. safeRob is a closure-local const: if the textual replacement did not fire,
+    # the runtime overlay CANNOT fix it, and emitting the file would ship a page that carries the
+    # guard sentinel and a gate badge while its RoB still resolves every unknown to "low".
+    # A page that asserts it is guarded while the defect is live is worse than no guard at all.
+    if saferob_present and rep["textual"]["T3-saferob"]["occurrences"] == 0:
+        rep["error"] = ("T3 ANCHOR MISS: this file defines safeRob but no safeRob anchor matched. "
+                        "Refusing to emit a guards-absent-but-sentinel-present page.")
+        return text, rep
 
     nl = "\r\n" if "\r\n" in out else "\n"
     block = overlay_js(guard_src).replace("\n", nl)
@@ -453,15 +570,41 @@ SYNTH_APP = (
     'var q = "RR"!==String(d?.estimandType??"HR");'
     'localStorage.setItem("rapid_meta_x_v12_0",JSON.stringify(this.state));'
     "/* COMPLETE-POOLING-REPAIR */</script>"
-    "<p>Per ICMJE 2023, GitHub commit hash + timestamp constitutes a verifiable pre-registration "
+    "<td>Protocol provenance</td><td>Per ICMJE 2023, GitHub commit hash + timestamp constitutes a verifiable pre-registration "
     "record equivalent to PROSPERO for tracking outcome / eligibility / analysis-plan changes.</p>"
+    "</body></html>")
+
+# The e156-submission shape: PRETTY-PRINTED, single quotes, different body. 18 files. The exact
+# minified literals matched NOTHING on these, so they were "patched" in name only - sentinel and
+# badge present, guards absent, safeRob still resolving every unknown to "low".
+SYNTH_PRETTY = (
+    "<html><head><title>RapidMeta | Pretty</title></head><body>"
+    '<div id="rapidmeta-integrity-badge" style="background:#15803d">INTERNAL CHECKS PASSED Trials: 2</div>'
+    "<script>\n"
+    "        const safeRob = (rob) => {\n"
+    "            const valid = ['low', 'some', 'high'];\n"
+    "            if (!Array.isArray(rob)) return ['low','low','low','low','low'];\n"
+    "            return rob.map(r => valid.includes(r) ? r : 'low');\n"
+    "        };\n"
+    "        const q = 'RR' !== String(d?.estimandType ?? 'HR');\n"
+    "</script>"
+    "<p>Protocol registration: Per ICMJE 2023, GitHub commit hash + timestamp constitutes a "
+    "verifiable pre-registration record equivalent to PROSPERO for tracking outcome / "
+    "eligibility / analysis-plan changes.</p>"
+    "</body></html>")
+
+# safeRob present but in a shape no anchor can reach -> the patch MUST refuse the file.
+SYNTH_UNREACHABLE = (
+    "<html><body>"
+    '<div id="rapidmeta-integrity-badge">x</div>'
+    "<script>window.__verdict={};var safeRob = function (rob) { return rob; };</script>"
     "</body></html>")
 
 # The regression fixture for the injection-point bug: a DECOY </body> inside a JS string, which
 # is what every export/print template in this corpus contains.
 SYNTH_DECOY = SYNTH_APP.replace(
-    "<p>Per ICMJE",
-    "<script>var report='<div>report</div></body></html>';</script><p>Per ICMJE")
+    "<td>Protocol provenance</td>",
+    "<script>var report='<div>report</div></body></html>';</script><td>Protocol provenance</td>")
 
 
 def selftest():
@@ -486,12 +629,38 @@ def selftest():
         ("overlay injected at a top-level </body>", "</body>" in str(r1["overlay"])),
         ("ICMJE claim GONE from output", not T1_RE.search(once)),
         ("mechanism text PRESENT in output", "tamper-evident" in once),
-        ("denylist GONE from output", T2_FIND not in once),
+        ("denylist GONE from output", not T2_RE.search(once)),
         ("IDEMPOTENT: apply twice == apply once", twice == once),
         ("IDEMPOTENT: apply three times == apply once", thrice == once),
         ("exactly one sentinel block", once.count(BEGIN) == 1 and once.count(END) == 1),
         ("second apply detected the previous block", r2.get("had_previous_block") is True),
         ("a non-engine file is SKIPPED", transform("<html><body>hi</body></html>", guard_src)[1]["skipped"] is not None),
+    ]
+
+    # --- P0-1: pretty-printed apps must get REAL guards ---------------------------------------
+    pretty_out, pretty_rep = transform(SYNTH_PRETTY, guard_src)
+    unreach_out, unreach_rep = transform(SYNTH_UNREACHABLE, guard_src)
+    checks += [
+        ("PRETTY: T3 safeRob fired", pretty_rep["textual"]["T3-saferob"]["occurrences"] == 1),
+        ("PRETTY: T2 denylist fired", pretty_rep["textual"]["T2-denylist"]["occurrences"] == 1),
+        ("PRETTY: T1 icmje fired", pretty_rep["textual"]["T1-icmje"]["occurrences"] == 1),
+        ("PRETTY: single-quote low-fallback GONE", "valid.includes(r) ? r : 'low'" not in pretty_out),
+        ("PRETTY: no non-array all-low default", "return ['low','low','low','low','low']" not in pretty_out),
+        ("PRETTY: idempotent", transform(pretty_out, guard_src)[0] == pretty_out),
+        ("FAIL-CLOSED: unreachable safeRob is REFUSED", bool(unreach_rep.get("error"))),
+        ("FAIL-CLOSED: refused file is returned UNCHANGED", unreach_out == SYNTH_UNREACHABLE),
+        ("FAIL-CLOSED: no sentinel leaks into a refused file", BEGIN not in unreach_out),
+        ("T1 is context-bound: a bare AI-authorship ICMJE line is untouched",
+         "Per ICMJE 2023: human author takes full responsibility." in
+         transform("<html><body><div id=\"rapidmeta-integrity-badge\">x</div>"
+                   "<script>window.__verdict={};</script>"
+                   "<p>Per ICMJE 2023: human author takes full responsibility.</p>"
+                   "</body></html>", guard_src)[0]),
+        ("T4: pooling-repair neutralised at its own site",
+         "RM-PHASE1 G07: disabled" in transform(
+             "<html><body><div id=\"rapidmeta-integrity-badge\">x</div><script>window.__verdict={};"
+             "/* COMPLETE-POOLING-REPAIR (2026-06) */ (function () { var done = false; })();"
+             "</script></body></html>", guard_src)[0]),
     ]
 
     # --- the injection-point regression (APIXABAN_ACS, byte 586,007) --------------------------
@@ -560,15 +729,24 @@ def main():
     ap.add_argument("--only", action="append", help="restrict to these basenames")
     ap.add_argument("--emit-to", help="dry-run: write patched copies OUTSIDE the repo, for rendering")
     ap.add_argument("--report", default=str(ROOT / "outputs" / "phase1_patch_dryrun.json"))
+    ap.add_argument("--root", default=str(ROOT), help="scan this tree instead of the repo (for apply tests)")
     args = ap.parse_args()
 
     if args.selftest:
         return selftest()
 
+    scan_root = Path(args.root).resolve()
+    report_path = Path(args.report).resolve()
+    try:
+        report_path.relative_to(ROOT if scan_root == ROOT else scan_root)
+    except ValueError:
+        print(f"REFUSING: --report {report_path} is outside the scanned root")
+        return 2
+
     guard_src = GUARD_LIB.read_text(encoding="utf-8")
-    files = sorted(ROOT.glob("*_REVIEW.html"))
-    files += sorted(p for p in ROOT.rglob("*_REVIEW.html")
-                    if p.parent != ROOT and ".git" not in p.parts)
+    files = sorted(scan_root.glob("*_REVIEW.html"))
+    files += sorted(p for p in scan_root.rglob("*_REVIEW.html")
+                    if p.parent != scan_root and ".git" not in p.parts)
     if args.only:
         keep = set(args.only)
         files = [p for p in files if p.name in keep]
@@ -580,7 +758,7 @@ def main():
     rows, skipped, errors = [], [], {}
     tot = {n: 0 for n, _k, _f, _r, _i in TEXTUAL}
     for p in files:
-        rel = str(p.relative_to(ROOT)).replace("\\", "/")
+        rel = str(p.relative_to(scan_root)).replace("\\", "/")
         try:
             txt, bom = read_bytes_text(p)
         except Exception as e:
@@ -590,6 +768,9 @@ def main():
             skipped.append({"path": rel, "why": "redirect stub (<20KB)"})
             continue
         out, rep = transform(txt, guard_src)
+        if rep.get("error"):
+            errors[rel] = rep["error"]
+            continue
         if rep["skipped"]:
             skipped.append({"path": rel, "why": rep["skipped"]})
             continue
@@ -603,12 +784,23 @@ def main():
         rows.append({
             "path": rel, "bytes_before": len(txt), "bytes_after": len(out),
             "delta": len(out) - len(txt), "bom": bom, "idempotent": idem,
-            "t1_icmje": t1, "t2_denylist": t2, "markers": rep["markers"],
+            "t1_icmje": t1, "t2_denylist": t2,
+            # Per-app T3/T4 so the gate can verify guards landed WITHOUT inferring it from totals.
+            # `guards_real` is the honest bit: True only when safeRob was actually replaced, or
+            # the file has no safeRob to replace.
+            "t3_saferob": rep["textual"]["T3-saferob"]["occurrences"],
+            "t4_poolingrepair": rep["textual"]["T4-poolingrepair"]["occurrences"],
+            "guards_real": bool(rep["textual"]["T3-saferob"]["occurrences"]
+                                or not SAFEROB_PRESENT_RE.search(txt)),
+            "markers": rep["markers"],
             "sha_before": hashlib.sha256(txt.encode("utf-8")).hexdigest()[:12],
             "sha_after": hashlib.sha256(out.encode("utf-8")).hexdigest()[:12],
         })
         if emit:
-            dest = emit / p.name
+            # PATH-derived, not basename: --only with 6 names matched 8 files because the
+            # e156-submission copies share basenames, and the copy silently overwrote the root app.
+            safe = rel.replace("/", "__")
+            dest = emit / safe
             data = out.encode("utf-8")
             dest.write_bytes((b"\xef\xbb\xbf" + data) if bom else data)
         if args.apply:
@@ -632,13 +824,17 @@ def main():
         "apps": rows,
         "skipped_detail": skipped[:50],
     }
-    Path(args.report).parent.mkdir(exist_ok=True)
-    Path(args.report).write_text(json.dumps(report, indent=1), encoding="utf-8")
+    report_path.parent.mkdir(exist_ok=True)
+    report_path.write_text(json.dumps(report, indent=1), encoding="utf-8")
 
     print(f"MODE: {report['mode']}   patch v{PATCH_VERSION}")
     print(f"files considered : {report['files_considered']}")
     print(f"APPS MODIFIED    : {report['apps_modified']}")
     print(f"skipped          : {report['skipped']} (stubs + non-engine)")
+    if errors:
+        print(f"REFUSED (fail-closed) : {len(errors)}")
+        for k, v in list(errors.items())[:5]:
+            print(f"    {k}: {v[:110]}")
     print(f"idempotent (all) : {report['idempotent_all']}")
     for nm, v in tot.items():
         print(f"{nm:<24} replaced : {v}")
@@ -647,7 +843,7 @@ def main():
           f"{report['bytes_added_mean']:,} mean/app")
     if emit:
         print(f"patched copies written OUTSIDE the repo to: {emit}")
-    print(f"report           : {Path(args.report).relative_to(ROOT)}")
+    print(f"report           : {report_path}")
     if not args.apply:
         print("\nNO REPO FILE WAS MODIFIED.")
     return 0

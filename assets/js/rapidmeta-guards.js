@@ -655,10 +655,25 @@
 
   function stripAuditTrail(text) {
     var t = String(text || "");
-    var m = RETENTION_MARKER_RE.exec(t);
-    if (m) t = t.slice(0, m.index);                 // narrative is appended; drop from the marker on
-    t = t.replace(/[\u201C\u2018][^\u201D\u2019]{0,400}[\u201D\u2019]/g, " ");  // curly-quoted spans
+
+    // Quoted spans are quotations of a prior claim, not assertions. BOTH quote styles - an
+    // honest badge that uses straight quotes was being blocked as if it asserted the claim.
+    t = t.replace(/[\u201C\u2018][^\u201D\u2019]{0,400}[\u201D\u2019]/g, " ");
     t = t.replace(/&ldquo;[\s\S]{0,400}?&rdquo;/gi, " ");
+    t = t.replace(/"[^"\n]{0,400}"/g, " ");
+    t = t.replace(/&quot;[\s\S]{0,400}?&quot;/gi, " ");
+
+    // Remove only the retention SENTENCE, not everything after it. Truncating at the marker
+    // meant a LIVE "INTERNAL CHECKS PASSED" placed after the narrative was never seen.
+    var guard = 0;
+    while (guard++ < 20) {
+      var m = RETENTION_MARKER_RE.exec(t);
+      if (!m) break;
+      var rest = t.slice(m.index);
+      var endRel = rest.search(/[.!?](\s|$)/);
+      var stop = endRel === -1 ? t.length : m.index + endRel + 1;
+      t = t.slice(0, m.index) + " " + t.slice(stop);
+    }
     return t;
   }
 
@@ -943,6 +958,17 @@
     var s = state || {};
     var fails = [];
 
+    // 0. FAIL CLOSED on an absent or empty ledger. `assertIntegrityGate({})` used to return
+    //    {ok:true} - a gate that passes when handed nothing is the purest form of the defect
+    //    this registry documents. An app with no trials has nothing to certify: the honest
+    //    result is NOT_APPLICABLE, and NOT_APPLICABLE is never a pass (RM-H04).
+    var ids = s.trialIds;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      block(G, "LEDGER_ABSENT",
+        "no trial ledger was supplied — there is nothing to certify, so this is N/A, not a pass"
+        + (isPresent(s.verdictWord) ? " (verdict: " + s.verdictWord + ")" : ""));
+    }
+
     // 1. any trial id null, empty or NULLED
     (s.trialIds || []).forEach(function (id) {
       var v = String(id === null || id === undefined ? "" : id).trim();
@@ -972,7 +998,10 @@
     (s.outputs || []).forEach(function (o) {
       var name = (o && o.name) || "(unnamed)";
       var v = o && o.value;
-      if (v === null || v === undefined || (typeof v === "number" && !Number.isFinite(v))) {
+      // A STRING "NaN" renders identically to a numeric NaN and used to slip through.
+      if (v === null || v === undefined
+          || (typeof v === "number" && !Number.isFinite(v))
+          || (typeof v === "string" && /^\s*-?(NaN|Infinity)\s*$/i.test(v))) {
         fails.push(name + " is NaN/undefined");
         return;
       }
@@ -983,7 +1012,10 @@
         }
       }
       if (o && Array.isArray(o.interval) &&
-          o.interval.some(function (x) { return x === null || !Number.isFinite(Number(x)); })) {
+          o.interval.some(function (x) {
+            return x === null || x === undefined || !Number.isFinite(Number(x))
+                   || (typeof x === "string" && /^\s*-?(NaN|Infinity)\s*$/i.test(x));
+          })) {
         fails.push(name + " interval contains NaN");
       }
     });
