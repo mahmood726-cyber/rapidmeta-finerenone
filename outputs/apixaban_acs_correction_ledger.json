@@ -1,0 +1,444 @@
+{
+  "app": "APIXABAN_ACS_AUTO_FULL_REVIEW.html + APIXABAN_ACS_AUTO_REVIEW.html",
+  "date": "2026-07-30",
+  "branch": "fix/cardio-live-integrity-2026-07-30",
+  "status": "RE-GATED 2026-07-30 (Codex gpt-5.5 + Gemini, both verified to the live registry). Substance PASSED; four wording defects fixed in round 3 with no number changed. Committed locally, NOT PUSHED. Queued release-ready pending Mahmood's go.",
+  "supersedes": "outputs/APIXABAN_ACS_PILOT_2026-07-30.md sections 4 and 7 (proposal). This file records what was APPLIED.",
+  "verification_method": {
+    "registry": "ClinicalTrials.gov API v2, full study records retrieved live 2026-07-30. Per-arm values, unitOfMeasure, denoms and group TITLES read directly from resultsSection.outcomeMeasuresModule.",
+    "publication": "PubMed (NCBI E-utilities via the bio-research PubMed MCP). Abstracts quoted verbatim; DOIs recorded.",
+    "estimator": "Mantel-Haenszel odds ratio with Robins-Breslow-Greenland SE, implemented independently in Python and cross-validated against R 4.6.0 / metafor 'rma.mh'. Agreement to 4 decimal places on every figure below.",
+    "independence": "Every number was re-derived in this session. The pilot's figures were used as a hypothesis to test, not as a source. Where they disagree with this file, this file is the verified value - see 'corrections_to_the_pilot'."
+  },
+  "corrections_to_the_pilot": [
+    {
+      "item": "Pooled confidence interval, corrected analysis",
+      "pilot_stated": "OR 1.975 (1.223-3.189)",
+      "verified": "OR 1.9748 (1.0411-3.7458), SE(lnOR) = 0.3266, p = 0.0372",
+      "evidence": "R 4.6.0 metafor rma.mh returns pred 1.9748, ci.lb 1.0411, ci.ub 3.7457. The point estimate in the pilot is correct; its interval is too narrow.",
+      "why_it_matters": "The pilot's interval overstates precision. The verified interval only just excludes 1 (p = 0.037) and the HKSJ-adjusted interval crosses it. The DIRECTION of the correction is unaffected; its certainty is."
+    },
+    {
+      "item": "Pooled confidence interval, uncorrected analysis",
+      "pilot_stated": "OR 0.850 (0.780-0.926)",
+      "verified": "OR 0.8500 (0.7659-0.9434)",
+      "evidence": "R 4.6.0 metafor rma.mh. Point estimate correct, interval too narrow - same defect as above."
+    }
+  ],
+  "per_trial": [
+    {
+      "nct": "NCT00313300",
+      "identity": "APPRAISE (APPRAISE-1)",
+      "disposition": "CORRECTED AND POOLED",
+      "before": {
+        "name": "Alexander 2009",
+        "phase": "III",
+        "tE": 18,
+        "tN": 611,
+        "cE": 18,
+        "cN": 317,
+        "implied_reading": "apixaban 18/611 = 2.9% vs placebo 18/317 = 5.7% - i.e. apixaban protective"
+      },
+      "after": {
+        "name": "APPRAISE-1 (Alexander 2009)",
+        "phase": "II",
+        "tE": 18,
+        "tN": 315,
+        "cE": 18,
+        "cN": 599,
+        "armT": "Apixaban 2.5 mg BID",
+        "armC": "Placebo",
+        "reading": "apixaban 18/315 = 5.7% vs placebo 18/599 = 3.0% - i.e. apixaban harmful. OR 1.956"
+      },
+      "numbers_and_their_sources": [
+        {
+          "value": "tE = 18",
+          "source": "ClinicalTrials.gov NCT00313300 posted results, primary outcome, group OG001 'Apixaban 2.5mg BID': value 5.7, unitOfMeasure 'percentage of participants', denom 315. 5.7% x 315 = 17.96 -> 18."
+        },
+        {
+          "value": "tN = 315",
+          "source": "ClinicalTrials.gov NCT00313300 posted results, denoms for group OG001 (analysed population)."
+        },
+        {
+          "value": "cE = 18",
+          "source": "ClinicalTrials.gov NCT00313300 posted results, group OG000 'Placebo': value 3.0, denom 599. 3.0% x 599 = 17.97 -> 18."
+        },
+        {
+          "value": "cN = 599",
+          "source": "ClinicalTrials.gov NCT00313300 posted results, denoms for group OG000."
+        },
+        {
+          "value": "phase = II",
+          "source": "ClinicalTrials.gov designModule.phases = ['PHASE2']; PubMed abstract PMID 19470889 states 'APPRAISE was a phase 2, double-blind, placebo-controlled, dose-ranging study'."
+        },
+        {
+          "value": "arm assignment",
+          "source": "Bound by group TITLE, not index. ClinicalTrials.gov lists Placebo as OG000 for this study; the previous extraction mapped index 0 to 'treatment'."
+        }
+      ],
+      "why_the_previous_values_were_wrong": "Both ledger counts were 18 because 18 is recoverable BOTH as 3.0% of 599 (placebo) and as 5.7% of 315 (apixaban 2.5 mg BID). The denominators carried (611, 317) are the PUBLICATION's randomised n, while the counts are only recoverable from the REGISTRY's analysed denominators (599, 315) - counts and denominators came from different documents, and the arms were transposed.",
+      "corroboration": "PMID 19470889 abstract, verbatim: 'Compared with placebo, apixaban 2.5 mg twice daily (hazard ratio, 1.78; 95% confidence interval, 0.91 to 3.48; P=0.09) and 10 mg once daily (hazard ratio, 2.45; 95% confidence interval, 1.31 to 4.61; P=0.005) resulted in a dose-dependent increase in major or clinically relevant nonmajor bleeding.' The published HR 1.78 and the corrected crude OR 1.956 point the same way. The pre-correction ledger pointed the opposite way.",
+      "disclosed_limitation": "Only the 2.5 mg BID arm is pooled. Three higher-dose apixaban arms (10 mg QD n=318, 10 mg BID n=248, 20 mg QD n=221; 787 patients) are not pooled; the two highest-dose arms were discontinued by the Data Monitoring Committee for excess total bleeding. Stated on the badge.",
+      "sources": {
+        "pmid": "19470889",
+        "doi": "10.1161/CIRCULATIONAHA.108.832139",
+        "citation": "Alexander JH et al. Circulation 2009;119(22):2877-85",
+        "registry": "https://clinicaltrials.gov/study/NCT00313300"
+      }
+    },
+    {
+      "nct": "NCT00852397",
+      "identity": "APPRAISE-J",
+      "disposition": "CORRECTED AND POOLED",
+      "before": {
+        "name": "Ogawa 2013",
+        "phase": "III",
+        "tE": 17,
+        "tN": 52,
+        "cE": 19,
+        "cN": 49,
+        "defect": "Counts reconcile with NO arm of either document, and the arms are transposed (52 is the placebo n)."
+      },
+      "after": {
+        "name": "APPRAISE-J (Ogawa 2013)",
+        "phase": "II",
+        "tE": 4,
+        "tN": 99,
+        "cE": 1,
+        "cN": 52,
+        "armT": "Apixaban 2.5 mg BID + 5 mg BID (pooled)",
+        "armC": "Placebo",
+        "reading": "apixaban 4/99 = 4.0% vs placebo 1/52 = 1.9%. OR 2.147"
+      },
+      "numbers_and_their_sources": [
+        {
+          "value": "tE = 4",
+          "source": "PMID 23748920 abstract, verbatim: 'The composite primary endpoint of major or clinically relevant nonmajor bleeding occurred in 2 patients (4.1%) in each apixaban treatment group and 1 patient (2.0%) in the placebo group.' 2 + 2 = 4."
+        },
+        {
+          "value": "tN = 99",
+          "source": "PMID 23748920 abstract, verbatim: 'randomized to receive apixaban 2.5mg twice daily (BID; n=49), apixaban 5mg BID (n=50), or placebo (n=52)'. 49 + 50 = 99."
+        },
+        {
+          "value": "cE = 1",
+          "source": "Same sentence: '1 patient (2.0%) in the placebo group'."
+        },
+        {
+          "value": "cN = 52",
+          "source": "Same sentence: 'placebo (n=52)'."
+        },
+        {
+          "value": "phase = II",
+          "source": "ClinicalTrials.gov designModule.phases = ['PHASE2']."
+        },
+        {
+          "value": "arm assignment",
+          "source": "Bound by group TITLE. ClinicalTrials.gov lists Placebo as OG000."
+        }
+      ],
+      "registry_cross_check": "ClinicalTrials.gov NCT00852397 posted results, unitOfMeasure 'Percentage of Participants' (a true proportion): Placebo 2.0 on denom 51, Apixaban 2.5 mg BID 4.1 on denom 49, Apixaban 5.0 mg BID 4.1 on denom 49. Recoverable counts 1, 2, 2 - the publication's figures exactly. On registry-analysed denominators the row is 4/98 vs 1/51 and the pooled OR is 1.9729 rather than 1.9748; the choice of denominator source does not move the result.",
+      "why_the_previous_values_were_wrong": "17 and 19 are an order of magnitude larger than anything in either document and match no arm of the posted results, for the outcome the ledger's own title field names. NOTE: the pilot observed that 17/52 = 32.7% and 19/49 = 38.8% would be plausible as an 'any bleeding' tally, which the paper reports only qualitatively. That remains a HYPOTHESIS and was NOT used to justify any number here.",
+      "sources": {
+        "pmid": "23748920",
+        "doi": "10.1253/circj.cj-13-0209",
+        "citation": "Ogawa H et al. Circ J 2013;77(9):2341-8",
+        "registry": "https://clinicaltrials.gov/study/NCT00852397"
+      }
+    },
+    {
+      "nct": "NCT00831441",
+      "identity": "APPRAISE-2",
+      "disposition": "QUARANTINED - retained in window.__quarantinedTrials, excluded from the pool, NOT deleted",
+      "quarantine_reason": "MEASURE, not endpoint. This trial DOES report the pooled endpoint - ClinicalTrials.gov posts it as a SECONDARY outcome (ISTH major or CRNM bleeding: placebo 2.29 vs apixaban 6.15 per 100 patient-years on 3643 and 3672). It is excluded from the COUNT-based pool because that endpoint is posted only as an incidence RATE, so recovering per-arm counts would repeat the exact error this correction removes. Carried instead as directional corroboration, rate ratio 2.686 on the identical endpoint. Direction only: a rate ratio over person-time and an odds ratio over a fixed follow-up are different estimands on different scales, so the two magnitudes are not comparable and none is claimed.",
+      "before": {
+        "phase": "III",
+        "tE": 515,
+        "tN": 3687,
+        "cE": 489,
+        "cN": 3705
+      },
+      "corrected_values_recorded": [
+        {
+          "outcome": "ISTH major or CRNM bleeding (SECONDARY) - the pooled endpoint",
+          "unit": "percentage of participants/100-pt years",
+          "placebo": "2.29 on 3643",
+          "apixaban": "6.15 on 3672",
+          "rate_ratio": 2.686,
+          "counts_recoverable": false,
+          "source": "ClinicalTrials.gov NCT00831441 posted results, read 2026-07-30",
+          "comparability": "Direction only: a rate ratio over person-time and an odds ratio over a fixed follow-up are different estimands on different scales, so the two magnitudes are not comparable and none is claimed."
+        },
+        {
+          "outcome": "CV death, MI or ischaemic stroke (efficacy co-primary)",
+          "apixaban": "279/3705",
+          "placebo": "293/3687",
+          "published": "HR 0.95 (0.80-1.11), P=0.51 - NOT significant",
+          "crude_OR_verified": "0.9433 (0.7953-1.1189)",
+          "source": "PMID 21780946 abstract, verbatim: 'the primary outcome of cardiovascular death, myocardial infarction, or ischemic stroke occurred in 279 of the 3705 patients (7.5%) assigned to apixaban (13.2 events per 100 patient-years) and in 293 of the 3687 patients (7.9%) assigned to placebo (14.0 events per 100 patient-years) (hazard ratio with apixaban, 0.95; 95% confidence interval [CI], 0.80 to 1.11; P=0.51)'"
+        },
+        {
+          "outcome": "TIMI major bleeding (safety co-primary)",
+          "apixaban": "46/3673",
+          "placebo": "18/3642",
+          "published": "HR 2.59 (1.50-4.46), P=0.001",
+          "crude_OR_verified": "2.5534 (1.4779-4.4118)",
+          "source": "PMID 21780946 abstract, verbatim: 'major bleeding according to the Thrombolysis in Myocardial Infarction (TIMI) definition occurred in 46 of the 3673 patients (1.3%) who received at least one dose of apixaban ... and in 18 of the 3642 patients (0.5%) who received at least one dose of placebo ... (hazard ratio with apixaban, 2.59; 95% CI, 1.50 to 4.46; P=0.001)'"
+        }
+      ],
+      "why_the_previous_values_were_wrong": {
+        "root_cause": "A RATE read as a PROPORTION.",
+        "proof": "ClinicalTrials.gov NCT00831441 posts the primary with unitOfMeasure 'percentage of participants/100-pt years' - an incidence rate over person-time. Verified live: group OG000 'Placebo' value 13.96 denom 3687; group OG001 'Apixaban 5 mg BID' value 13.20 denom 3705. 3687 x 13.96/100 = 514.65 -> the ledger's 515. 3705 x 13.20/100 = 489.06 -> the ledger's 489. Both reproduce to under one unit. Neither count appears in any document.",
+        "second_defect": "Arms swapped. tN = 3687 is the PLACEBO denominator; cN = 3705 is apixaban's. The registry lists Placebo as OG000 and the extraction bound arms by index.",
+        "third_defect": "The row carried the genuine published HR 0.95 (favouring apixaban) beside counts giving a crude RR of 1.058 (favouring placebo). The app's own window.__verdict had already recorded '2 AACT outcome-direction divergence(s)' and the badge rendered green over it."
+      },
+      "note": "APPRAISE-2 was terminated early for excess major bleeding with apixaban without a counterbalancing reduction in ischaemic events. That termination is a finding about APPRAISE-2, which is NOT in this pool - external corroboration of the pooled result's direction, not the pooled result itself.",
+      "sources": {
+        "pmid": "21780946",
+        "doi": "10.1056/NEJMoa1105819",
+        "citation": "Alexander JH et al. N Engl J Med 2011;365(8):699-708",
+        "registry": "https://clinicaltrials.gov/study/NCT00831441"
+      },
+      "ROUND_1_ERROR_CORRECTED": "Round 1 stated: 'Reports neither arm of the pooled outcome. Its co-primaries are an ISCHAEMIC composite and TIMI-defined major bleeding; neither is the ISTH major/CRNM composite pooled in this app.' That was FALSE and is retained here so the error is visible, not overwritten."
+    },
+    {
+      "nct": "NCT02415400",
+      "identity": "AUGUSTUS",
+      "disposition": "QUARANTINED - retained in window.__quarantinedTrials, excluded from the pool, NOT deleted. Per-arm counts marked UNVERIFIED and deliberately NOT reconstructed.",
+      "quarantine_reason": "Wrong PICO. AUGUSTUS randomised patients with ATRIAL FIBRILLATION who had an ACS or PCI and compared apixaban against a VITAMIN K ANTAGONIST - not against placebo on top of antiplatelet therapy. It is also the only open-label (masking NONE) and only phase 4 trial in an otherwise double-blind phase 2-3 set, and a 2x2 factorial that no single 2x2 table can represent without stating which factor is estimated and that the other is marginalised over.",
+      "before": {
+        "name": "Lopes 2018",
+        "pmid": "29898844",
+        "year": 2018,
+        "phase": "III",
+        "tE": 284,
+        "tN": 1153,
+        "cE": 413,
+        "cN": 1153,
+        "pubHR_UCI": 0.82
+      },
+      "after": {
+        "name": "AUGUSTUS",
+        "pmid": "30883055",
+        "year": 2019,
+        "phase": "IV",
+        "per_arm_counts": "UNVERIFIED - NOT RECONSTRUCTED",
+        "published_effect": "HR 0.69 (0.58-0.81), P<0.001 for both noninferiority and superiority",
+        "published_percentages": "10.5% apixaban vs 14.7% vitamin K antagonist"
+      },
+      "citation_correction": {
+        "was": "PMID 29898844",
+        "was_actually": "Lopes RD et al. 'An open-label, 2x2 factorial, randomized controlled trial to evaluate the safety of apixaban vs. vitamin K antagonist and aspirin vs. placebo ... Rationale and design of the AUGUSTUS trial.' Am Heart J 2018;200:17-23. DOI 10.1016/j.ahj.2018.03.001. Confirmed against PubMed this session: it is the trial's PROTOCOL paper and reports no outcome data. It cannot substantiate any extracted count.",
+        "now": "PMID 30883055 - Lopes RD et al. 'Antithrombotic Therapy after Acute Coronary Syndrome or PCI in Atrial Fibrillation.' N Engl J Med 2019;380(16):1509-1524. DOI 10.1056/NEJMoa1817083.",
+        "how_located": "ClinicalTrials.gov NCT02415400 referencesModule, then confirmed in PubMed."
+      },
+      "why_the_previous_values_were_wrong": {
+        "root_cause": "A level-of-aggregation mismatch, compounded by a rate read as a proportion.",
+        "arithmetic_origin": "1153 x 24.66/100 = 284.33 -> the ledger 284; 1153 x 35.79/100 = 412.66 -> the ledger 413. Across all four reproductions (both trials) the maximum deviation is 0.3413, so the bound stated on the page is <= 0.3413. A measured reproduction, not a claim about intent.",
+        "the_denominator": "1153 is a REAL registry denominator. NCT02415400 randomised 1153 / 1153 / 1154 / 1154 across the four cells of its 2x2 factorial (total 4614), so 1153 is the size of each APIXABAN cell. The defect is that a factorial-CELL denominator was paired with a FACTOR-LEVEL marginal rate: the posted 24.66 and 35.79 ('Percentage per year') belong to the apixaban and VKA factor levels, analysed on 2290 and 2259. Compounding it, the apixaban-side cell denominator was applied to the VKA arm as well, whose cells are 1154.",
+        "ci_defect": "The ledger's upper CI was 0.82; the publication states 0.81."
+      },
+      "why_no_counts_are_asserted": "The publication reports percentages, not counts, and the registry posts a per-year rate. Back-computing counts from either would repeat the exact error being corrected. No per-arm count is written for this trial. This is the 'if a count cannot be verified, mark it, do not fabricate' rule applied literally.",
+      "arm_orientation_note": "Unlike the three APPRAISE trials, this registry lists Apixaban FIRST (OG000). This row was therefore the one row of four whose arms were NOT transposed - which is itself evidence that the previous extraction bound arms by index rather than by name.",
+      "sources": {
+        "pmid": "30883055",
+        "doi": "10.1056/NEJMoa1817083",
+        "citation": "Lopes RD et al. N Engl J Med 2019;380(16):1509-1524",
+        "registry": "https://clinicaltrials.gov/study/NCT02415400"
+      },
+      "ROUND_1_ERROR_CORRECTED": "Round 1 stated the denominator 1153 'corresponds to no randomised arm' and was 'invented'. That was FALSE - it is a factorial-cell denominator. Retained here so the error is visible."
+    }
+  ],
+  "pooled_result": {
+    "outcome": "ISTH major or clinically relevant non-major bleeding",
+    "population": "Acute coronary syndrome, on standard antiplatelet therapy",
+    "comparison": "Apixaban vs placebo",
+    "before": {
+      "k": 4,
+      "or": 0.85,
+      "ci": [
+        0.7659,
+        0.9434
+      ],
+      "reading": "nominally significant, favours apixaban",
+      "why_meaningless": "Three rows contributed bleeding outcomes and one an ischaemic composite; two rows' counts were manufactured; three rows' arms were transposed."
+    },
+    "after": {
+      "k": 2,
+      "or": 1.9748,
+      "ci": [
+        1.0411,
+        3.7458
+      ],
+      "se_lnOR": 0.3266,
+      "p": 0.0372,
+      "reading": "nominally significant, apixaban roughly DOUBLES major/CRNM bleeding",
+      "estimator": "Mantel-Haenszel OR, Robins-Breslow-Greenland SE",
+      "r_validation": "R 4.6.0 metafor rma.mh: pred 1.9748, ci.lb 1.0411, ci.ub 3.7457, pval 0.0372",
+      "events": 41,
+      "n": 1065,
+      "interpretation_status": "PRELIMINARY / exploratory - see the 'preliminary' block. Supports the reversal and the direction, not a precise magnitude."
+    },
+    "app_panel_agreement": "The app's own analysis panel independently recomputes and displays OR 1.97 (1.04-3.74), k=2, via inverse-variance random effects with tau^2 = 0 (so DerSimonian-Laird and Paule-Mandel coincide). Verified in a live browser render, not inferred from the file.",
+    "sign_change": "The correction reverses the conclusion from benefit to harm. This is a PROVENANCE CORRECTION, not a result that got worse - the evidence did not change; the app was wrong. The direction is independently corroborated on the identical endpoint by APPRAISE-2 (rate ratio 2.686, same direction), a trial not in the pool. Direction only: a rate ratio over person-time and an odds ratio over a fixed follow-up are different estimands on different scales, so the two magnitudes are not comparable and none is claimed.",
+    "fragility_disclosed": {
+      "hksj": "The HKSJ-adjusted interval is 0.03-124.7 and CROSSES 1. At k=2 HKSJ uses t with df=1 and is uninformative; the app's own panel flags the discordance.",
+      "fragility_index": 1,
+      "statement": "The DIRECTION (harm) is robust and independently corroborated by APPRAISE-2's TIMI major bleeding HR 2.59 (1.50-4.46). The P-VALUE is not robust. Both are stated on the badge."
+    },
+    "sensitivity": [
+      {
+        "spec": "Both rows on registry-analysed denominators (APPRAISE-J 4/98 vs 1/51)",
+        "or": 1.9729,
+        "ci": [
+          1.04,
+          3.7425
+        ]
+      },
+      {
+        "spec": "Both rows on publication randomised denominators (APPRAISE-1 18/317 vs 18/611)",
+        "or": 1.9993,
+        "ci": [
+          1.054,
+          3.7924
+        ]
+      }
+    ],
+    "phase2_restriction_justification": "The count-based pool is phase-2-only. This follows from the MEASURE available, not from a judgement that phase-3 evidence should be dropped: the phase-3 trial reports this endpoint as a rate, and a count-based estimator cannot consume a rate without person-time or counts. It does not select a favourable subset - on the identical endpoint the excluded phase-3 trial shows harm in the SAME DIRECTION. Direction only: a rate ratio over person-time and an odds ratio over a fixed follow-up are different estimands on different scales, so the two magnitudes are not comparable and none is claimed. Restricting to phase 3 instead would leave no count-based estimate at all."
+  },
+  "engine_changes_and_why": [
+    {
+      "change": "isPhaseTwoLike() honours window.__RM_ALLOW_PHASE2_POOLING",
+      "why": "Correcting the phases to their true values (II, II) triggered the app's own phase-2 exclusion, which would have emptied the analysis pool. The entire coherent evidence base for apixaban vs placebo on this outcome in ACS IS phase 2. The default exclusion is switched off for this app and the phase-2 status of both pooled trials is stated on the badge and in every ledger row.",
+      "honesty_note": "This is disclosed, not hidden. The alternative - leaving the phases falsely marked III so the engine would pool them - would have been dishonest by construction."
+    },
+    {
+      "change": "Default effectMeasure 'AUTO' -> 'OR'",
+      "why": "Under AUTO the app pools a RISK RATIO whenever not every trial carries a published HR. Pinning OR makes the displayed estimate the same quantity as the R-validated Mantel-Haenszel figure on the badge, so the two surfaces cannot be read as contradicting each other."
+    },
+    {
+      "change": "AUTO_INCLUDE_TRIAL_IDS trimmed to the two pooled NCTs",
+      "why": "It still force-included the two quarantined trials, which would have let them rejoin the pool through the screening path."
+    },
+    {
+      "change": "res-pi fallback label 'N/A (k < 2)' -> 'N/A (k < 3)'; same in the QA7 checklist row",
+      "why": "The guard is k>=3 but the label said k<2. At the corrected k=2 the page displayed a false statement. PRE-EXISTING app-shell bug, only visible once k became 2. Found by rendering, not by the file gate. The HKSJ cell's identical string is correct (its guard really is k<2) and was left alone."
+    },
+    {
+      "change": "KNOWN_TRIAL_ALIASES re-keyed from PARADIGM-HF / PARAGON-HF / PARADISE-MI / PARAGLIDE-HF to APPRAISE-1 / APPRAISE-J / APPRAISE-2 / AUGUSTUS",
+      "why": "PRE-EXISTING contamination from the sacubitril-valsartan heart-failure base engine this app was cloned from. The table feeds findConflictingTrialAlias(), the guard that detects when page text names a trial the row does not belong to; seeding it with another domain's trials made it look for the wrong conflicts and miss its own.",
+      "pre_existing_proof": "The contamination gate reports the identical two HARD findings against the unmodified file at HEAD."
+    },
+    {
+      "change": "NMAEngine.run() hardcoded ['NCT01035255','NCT01920711','NCT02924727'] -> Object.keys(RapidMeta.realData)",
+      "why": "PRE-EXISTING. The same heart-failure trial IDs, while the function labelled its output 'Apixaban vs Placebo'. Inert today only because those keys are absent from realData, so the lookup yields an empty list - an accident, not a design."
+    }
+  ],
+  "verification_performed": {
+    "contamination_gate": "scripts/clone_contamination_gate.py on both variants: 0 HARD findings, exit 0. The same gate on the unmodified file at HEAD returns 2 HARD findings, so the correction introduced no contamination and removed the pre-existing findings.",
+    "browser_render": "Both variants rendered from a local HTTP server in a real browser. All 8 tabs (protocol, search, screen, extract, analysis, report, paper, statistics) render with content. Zero console errors. Badge background rgb(124,45,18) - not green. Neither surface contains the string 'CHECKS PASSED'. window.__verdict and the visible badge agree on verdict, trial count and pooled estimate. The ledger read out of the live DOM is APPRAISE-1 18/315 vs 18/599 and APPRAISE-J 4/99 vs 1/52.",
+    "structural": "div and script tag balance unchanged from HEAD (the pre-existing off-by-one in div counts is identical before and after). No BOM, no hardcoded local paths, no template placeholders, no bare 'None' or 'NaN' introduced.",
+    "r_cross_validation": "Every pooled figure reproduced in R 4.6.0 / metafor rma.mh to 4 decimal places."
+  },
+  "not_done_and_not_claimed": [
+    "This page states a DIRECTION of harm, not a definitive magnitude. See the 'preliminary' block: k=2, 41 events, phase-2-only, fragility index 1, HKSJ crossing 1, 2-source verification.",
+    "Round 1 of this correction shipped two false explanatory claims (see cross_family_gate_round_1). They were caught by cross-family review, not by this session. Both are corrected, and both are named on the page rather than silently replaced.",
+    "No cross-family (Codex / agy) gate has run. These are new integrity claims and require review by a model of a different vendor family before publication.",
+    "NOTHING IS PUSHED. main is the deploy ref; this branch is local only.",
+    "Verification is 2-source (publication abstract + ClinicalTrials.gov posted results). No FDA or EMA review document and no prior published or Cochrane meta-analysis was consulted. The recipe's 4-source triangulation was NOT achieved for any row.",
+    "Full texts were not read. Verification is at abstract and registry-posted-results level.",
+    "Concordance against the AACT 2026-04-12 snapshot named by the previous badge remains unverified; the live ClinicalTrials.gov API v2 was used instead.",
+    "GRIM/GRIMMER is N/A on binary per-arm counts - not a pass. Benford is UNDERPOWERED (fewer than 30 digits) - cannot test, not 'no signal'.",
+    "At k=2, publication bias, small-study effects and prediction intervals are not assessable.",
+    "One ADVISORY contamination warning remains and was NOT fixed: the i18n dictionaries carry a dormant key 'Sacubitril/Valsartan in Heart Failure' mapped to an Arabic value naming finerenone, and the stylesheet is named FINERENONE_REVIEW.tailwind.css. Neither is reachable as visible English UI text in this app. Both are corpus-wide base-engine artefacts rather than app-specific defects and are recorded for Mahmood rather than patched here.",
+    "AMSTAR-2 confidence for this app remains CRITICALLY LOW."
+  ],
+  "cross_family_gate_round_1": {
+    "outcome": "Arithmetic and sign flip SURVIVED. Two explanatory claims did NOT.",
+    "survived": "Codex gpt-5.5 reproduced OR 1.9748 (1.0411-3.7458), p=0.037 digit for digit. Direction = harm confirmed, and judged UNDER-claimed rather than over-claimed.",
+    "rejected_and_corrected": [
+      {
+        "claim_that_was_false": "APPRAISE-2 'reports neither arm of the pooled outcome / neither is the ISTH major/CRNM composite pooled here'.",
+        "why_false": "ClinicalTrials.gov NCT00831441 posts, as a SECONDARY outcome, 'Event Rate of Confirmed Major Bleeding or Clinically Relevant Non-Major Bleeding (CRNM) Using ISTH Criteria During the Treatment Period - Treated Participants': Placebo 2.29, Apixaban 5 mg BID 6.15, unit 'percentage of participants/100-pt years', denominators 3643 and 3672. Re-read live from the API this session.",
+        "corrected_to": "The endpoint IS reported; it is the MEASURE that bars it. Posted only as an incidence RATE over person-time, so per-arm counts cannot be recovered without repeating the rate-as-count error being corrected. Excluded from the COUNT-based pool on that ground, and carried instead as a rate-based sensitivity comparison.",
+        "severity": "An unverified assertion of exactly the class the fix existed to remove."
+      },
+      {
+        "claim_that_was_false": "AUGUSTUS's denominator 1153 'matches no arm of the trial'.",
+        "why_false": "NCT02415400 participant flow and baseline denominators are 1153 / 1153 / 1154 / 1154 (total 4614) - the four cells of the 2x2 factorial. 1153 is the randomised size of each APIXABAN cell. It is a real registry denominator.",
+        "corrected_to": "A LEVEL-OF-AGGREGATION mismatch: a factorial-CELL denominator (1153) paired with a FACTOR-LEVEL marginal rate (24.66 and 35.79 belong to the apixaban and VKA factor levels, analysed on 2290 and 2259). Compounding it, the apixaban-side cell denominator was applied to the VKA arm too, whose cells are 1154.",
+        "severity": "Same class. The arithmetic reproduction was right; the explanation was not."
+      }
+    ],
+    "also_addressed": [
+      "Pooled total events (41) and N (1065) added to the VISIBLE badge - previously absent.",
+      "Gemini flagged circularity: the only phase-3 trial was excluded, then the phase-2 guard was disabled because only phase-2 trials remained. Addressed explicitly on the badge - the restriction follows from the MEASURE (APPRAISE-2 reports this endpoint as a rate, and no count-based estimator can consume a rate without person-time), not from a judgement about phase 3; and it is not a favourable subset, because on the identical endpoint the excluded phase-3 trial shows harm in the SAME DIRECTION rather than the opposite one. [Round-3 note: the round-2 wording of this bullet compared the MAGNITUDE of the rate ratio with the pooled odds ratio. That comparison was withdrawn - they are different estimands on different scales over different follow-up and are not commensurable. Only the directional agreement is claimed.]",
+      "Over-claims softened: 'root cause, proven' -> 'arithmetic origin', quantified as a measured maximum deviation of 0.3413 across the four reproductions; and the APPRAISE-2 early termination is no longer phrased so that a terminating finding is attributed to a pool that excludes APPRAISE-2."
+    ]
+  },
+  "external_corroboration": {
+    "same_endpoint_rate_ratio": {
+      "trial": "APPRAISE-2 (NCT00831441), phase 3, NOT in the pool",
+      "endpoint": "ISTH major or clinically relevant non-major bleeding - IDENTICAL definition to the pooled endpoint",
+      "posted": "placebo 2.29 vs apixaban 6.15 per 100 patient-years, denominators 3643 and 3672",
+      "rate_ratio": 2.686,
+      "ci": null,
+      "ci_note": "No interval is computable from posted rates alone - person-time is not posted and the counts are not recoverable. The point estimate is quoted without one rather than derived.",
+      "why_it_matters": "Its value is endpoint ALIGNMENT, not magnitude: it is the same endpoint definition as the pooled one, whereas the TIMI major bleeding HR 2.59 cited in round 1 is a narrower endpoint. It also refutes favourable-subset selection, because the excluded phase-3 trial points the same way rather than the opposite way. No magnitude comparison with the pooled odds ratio is drawn.",
+      "source": "ClinicalTrials.gov NCT00831441 posted results, read 2026-07-30",
+      "strength_of_claim": "QUALITATIVE, directional corroboration only. Direction only: a rate ratio over person-time and an odds ratio over a fixed follow-up are different estimands on different scales, so the two magnitudes are not comparable and none is claimed."
+    },
+    "other_appraise2_rates": {
+      "ISTH_major_only_rate_ratio": 2.515,
+      "TIMI_major_published_HR": "2.59 (1.50-4.46), P=0.001",
+      "note": "Recorded for completeness. No magnitude comparison with the pooled odds ratio is drawn from any of them."
+    }
+  },
+  "source_discordances_recorded_not_resolved": [
+    {
+      "item": "APPRAISE-2 TIMI major bleeding denominators",
+      "publication": "46/3673 apixaban and 18/3642 placebo (PMID 21780946)",
+      "registry": "safety denominators 3672 apixaban and 3643 placebo (NCT00831441 posted results)",
+      "gap": "One patient per arm, in opposite directions. Unexplained.",
+      "materiality": "Immaterial to every estimate on the page - TIMI major bleeding is not pooled. Recorded because an unexplained one-patient gap is exactly what this audit exists to surface."
+    }
+  ],
+  "preliminary": {
+    "status": "PRELIMINARY / exploratory - NOT a definitive safety estimate",
+    "why": "k=2, 41 events across 1065 participants, both pooled trials phase 2, fragility index 1, HKSJ-adjusted interval crossing 1, 2-source verification only.",
+    "what_it_supports": "That the page's previous claim of BENEFIT was wrong, and that the direction of effect is HARM.",
+    "what_it_does_not_support": "A precise magnitude. It must not be cited as a headline safety conclusion for apixaban in ACS.",
+    "flagged_by": "Both model families, as the standing caveat before any main-branch push."
+  },
+  "cross_family_gate_round_2_regate": {
+    "outcome": "Substance PASSED. Four wording defects fixed; no number changed.",
+    "verified_verbatim_to_source": [
+      "The APPRAISE-2 ISTH-secondary rewrite (2.29 / 6.15 on 3643 / 3672, rate ratio 2.686, no fabricated CI).",
+      "The 'ltapixaban factorial cell' rewrite for AUGUSTUS's 1153.",
+      "Pooled OR 1.9748 unchanged. No round-1 false claim live."
+    ],
+    "wording_defects_fixed": [
+      {
+        "defect": "CROSS-SCALE OVER-CLAIM",
+        "was": "'its rate ratio 2.69 which agrees with and EXCEEDS the pooled OR 1.97'; 'points the SAME WAY, HARDER'; 'restricting to phase 2 yields the SMALLER of the two effects'.",
+        "why_wrong": "An odds ratio and a rate ratio are different estimands on different scales over different follow-up. The comparison of DIRECTION is valid; the comparison of MAGNITUDE is unsupported.",
+        "now": "All magnitude words removed. The directional-agreement point is kept - it is what refutes favourable-subset selection - and so is the endpoint-alignment argument (identical endpoint definition, not a narrower proxy). The non-comparability is stated explicitly wherever the rate ratio appears."
+      },
+      {
+        "defect": "FALSE PRECISION BOUND",
+        "was": "'reproduces all four to within 0.341'",
+        "why_wrong": "The measured maximum deviation is 0.3413 (AUGUSTUS/VKA: 413 - 412.6587), so 'within 0.341' is strictly false.",
+        "now": "'with a maximum deviation of 0.3413', which holds with equality."
+      },
+      {
+        "defect": "MISSING PRELIMINARY FRAMING",
+        "was": "The badge headlined the corrected estimate without an explicit exploratory caveat.",
+        "now": "A dedicated PRELIMINARY block sits directly under the headline result on both the full page and the stub, and window.__verdict carries preliminary: true plus a preliminary_note."
+      },
+      {
+        "defect": "RETENTION-LABEL MISMATCH",
+        "was": "The commit framing and this ledger used ROUND_1_ERROR_CORRECTED; the HTML used correction_note.",
+        "now": "ROUND_1_ERROR_CORRECTED everywhere - ledger, window.__quarantinedTrials, and the framing."
+      }
+    ]
+  }
+}
