@@ -1,0 +1,137 @@
+{
+  "primary": {
+    "label": "Recurrent VTE - primary (cause-specific/Cox HR, k=4)",
+    "k": 4,
+    "studies": [
+      "HOKUSAI VTE-Cancer",
+      "SELECT-D",
+      "ADAM VTE",
+      "CARAVAGGIO"
+    ],
+    "fe": {
+      "est": 0.6162230232320807,
+      "lci": 0.45890427078230767,
+      "uci": 0.8274728272063084
+    },
+    "tau2": 0.048966326760295345,
+    "Q": 4.283579921430092,
+    "Q_df": 3,
+    "Q_p": 0.23242603266328066,
+    "I2": 29.965121346482622,
+    "dl": {
+      "logEffect": -0.5432902488919742,
+      "se": 0.20199307316164436,
+      "est": 0.5808340164655224,
+      "lci": 0.3909446076623733,
+      "uci": 0.8629564088394532,
+      "p": 0.007152743949534515
+    },
+    "hksj": {
+      "q_hk_raw": 1.2149635977817608,
+      "q_hk_used": 1.2149635977817608,
+      "se": 0.22264764695854417,
+      "t_crit": 3.1824463052837046,
+      "lci": 0.28597398600167934,
+      "uci": 1.1797162371317562,
+      "p": 0.09248912384475694
+    },
+    "pi": {
+      "lci": 0.22384749257711248,
+      "uci": 1.5071339455243253
+    },
+    "weights_pct": [
+      45.04337104980803,
+      18.03038375037905,
+      3.579254306218209,
+      33.34699089359471
+    ]
+  },
+  "sensitivity_with_casta_diva": {
+    "label": "Recurrent VTE - sensitivity adding CASTA-DIVA subdistribution HR (k=5)",
+    "k": 5,
+    "studies": [
+      "HOKUSAI VTE-Cancer",
+      "SELECT-D",
+      "ADAM VTE",
+      "CARAVAGGIO",
+      "CASTA-DIVA"
+    ],
+    "fe": {
+      "est": 0.6224474977385657,
+      "lci": 0.4670939898097252,
+      "uci": 0.8294709328176735
+    },
+    "tau2": 0.012616620338836355,
+    "Q": 4.370877381442586,
+    "Q_df": 4,
+    "Q_p": 0.358133780194284,
+    "I2": 8.485192996198395,
+    "dl": {
+      "logEffect": -0.49004782227530885,
+      "se": 0.1610568273324746,
+      "est": 0.6125970976968499,
+      "lci": 0.4467690862965036,
+      "uci": 0.8399757629102118,
+      "p": 0.0023446491856059523
+    },
+    "hksj": {
+      "q_hk_raw": 1.043717004525074,
+      "q_hk_used": 1.043717004525074,
+      "se": 0.16453963108368785,
+      "t_crit": 2.7764451051977908,
+      "lci": 0.38794834657362537,
+      "uci": 0.9673329127989556,
+      "p": 0.040807603706584095
+    },
+    "pi": {
+      "lci": 0.35514781460835343,
+      "uci": 1.0566732742546825
+    },
+    "weights_pct": [
+      47.82996206681288,
+      13.656457328743894,
+      2.3504556211345053,
+      30.16065756941218,
+      6.002467413896529
+    ]
+  },
+  "inputs": {
+    "primary": [
+      {
+        "id": "HOKUSAI VTE-Cancer",
+        "eff": 0.71,
+        "lo": 0.476,
+        "hi": 1.059,
+        "src": "ClinicalTrials.gov NCT02073682 posted results, secondary outcome \"Recurrent VTE During the Overall Study Period\", Cox PH; NEJM 2018;378:615-624"
+      },
+      {
+        "id": "SELECT-D",
+        "eff": 0.43,
+        "lo": 0.19,
+        "hi": 0.99,
+        "src": "J Clin Oncol 2018;36:2017-2023 (ISRCTN86712308)"
+      },
+      {
+        "id": "ADAM VTE",
+        "eff": 0.099,
+        "lo": 0.013,
+        "hi": 0.78,
+        "src": "J Thromb Haemost 2020;18:411-421 (NCT02585713)"
+      },
+      {
+        "id": "CARAVAGGIO",
+        "eff": 0.63,
+        "lo": 0.37,
+        "hi": 1.07,
+        "src": "NEJM 2020;382:1599-1607; ClinicalTrials.gov NCT03045406 posted results"
+      }
+    ],
+    "casta_diva": {
+      "id": "CASTA-DIVA",
+      "eff": 0.75,
+      "lo": 0.21,
+      "hi": 2.66,
+      "src": "Chest 2021;161:781-790 (NCT02746185); SUBDISTRIBUTION hazard ratio, composite outcome also counts worsening of pulmonary vascular or venous obstruction"
+    }
+  }
+}

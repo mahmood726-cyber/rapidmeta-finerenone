@@ -1,0 +1,206 @@
+{
+  "app": "DOAC_CANCER_VTE_REVIEW.html",
+  "topic": "Direct oral anticoagulants vs low-molecular-weight heparin for cancer-associated venous thromboembolism",
+  "rebuilt_on": "origin/main 9d37dce08ab0661877fc042f39215bf0d9a1b08f",
+  "date": "2026-07-30",
+  "status": "STAGED, NOT PUSHED - awaits Claude->Codex->Gemini cross-family gate",
+  "verification_sources_used": [
+    "PubMed abstracts of the trial primaries (via NCBI E-utilities)",
+    "ClinicalTrials.gov API v2 protocolSection and resultsSection (posted results)",
+    "ISRCTN registry API (SELECT-D)",
+    "R 4.6.0 / metafor 5.0.1 for every pooled quantity"
+  ],
+  "not_verified": [
+    "No full texts were read. Every figure comes from an abstract, a registry posted-results record, or a registry protocol record.",
+    "No FDA or EMA document was consulted.",
+    "SELECT-D crude major-bleeding event counts could not be sourced; only 6-month cumulative rates and the HR are carried, and the count fields are deliberately null.",
+    "CANVAS integer event counts are not recoverable: JAMA and the registry both report percentages only."
+  ],
+
+  "trials": {
+    "HOKUSAI_VTE_CANCER": {
+      "registry": "NCT02073682",
+      "pmid": "29231094",
+      "doi": "10.1056/NEJMoa1711948",
+      "citation": "N Engl J Med 2018;378:615-624",
+      "recurrent_vte": {
+        "was_on_page": "67/522 vs 71/524, HR 0.97 (0.70-1.36), labelled 'Recurrent VTE'",
+        "defect": "Those are the COMPOSITE of recurrent VTE OR major bleeding - the trial's primary outcome - not the recurrent-VTE component.",
+        "corrected_to": "41/522 vs 59/524, HR 0.71 (0.476-1.059)",
+        "source": "ClinicalTrials.gov NCT02073682 posted results, secondary outcome 'Number of Participants With Recurrent Venous Thromboembolism (VTE) During the Overall Study Period' = 41 vs 59, with a posted Cox proportional-hazard analysis HR 0.71, CI 0.476-1.059, p=0.0931. Corroborated by the NEJM abstract, which reports the same events as 7.9% vs 11.3%.",
+        "review_claim": "CONFIRMED. The review's 41/522 vs 59/524 and HR ~0.71 (0.48-1.06) are exact; the registry gives 0.476-1.059.",
+        "corroborating_detail": "The page's own evidence quote carried 'P=0.006 for noninferiority', which is the composite primary p-value - internal evidence that the 67/71 figures were the composite."
+      },
+      "major_bleeding": {
+        "kept": "36/522 vs 21/524, HR 1.77 (1.03-3.04)",
+        "source": "NEJM abstract, overall study period.",
+        "note_added_to_app": "ClinicalTrials.gov posts a narrower ON-TREATMENT count of 32 vs 16 for the same outcome. The overall-period counts are used so the bleeding and recurrence windows match. This discordance is now stated in the evidence panel."
+      },
+      "rob_change": "D2 and D4 were auto-set to High for all trials on the basis of open-label administration alone. Corrected to D2 'some concerns' / D4 'low': all efficacy and bleeding events were adjudicated by an independent committee blinded to allocation."
+    },
+
+    "SELECT_D": {
+      "registry_was": "NCT02583191",
+      "registry_corrected": "ISRCTN86712308",
+      "pmid": "29746227",
+      "doi": "10.1200/JCO.2018.78.8034",
+      "citation": "J Clin Oncol 2018;36(20):2017-2023",
+      "wrong_trial_identifier": {
+        "defect": "NCT02583191 is CONKO-011, a different trial. SELECT-D's data were attached to CONKO-011's registration.",
+        "proof": "ClinicalTrials.gov API v2 for NCT02583191 returns 'CONKO_011/ AIO-SUP-0115: Rivaroxaban in the Treatment of Venous Thromboembolism (VTE) in Cancer Patients - a Randomized Phase III Study', sponsor AIO-Studien-gGmbH, status TERMINATED, enrolment 246, primary outcome patient-reported treatment satisfaction, hasResults false. ISRCTN86712308 returns 'SELECT-D: Anticoagulation therapy in SELECTeD cancer patients at risk of recurrence of venous thromboembolism', acronym SELECT-D, dalteparin vs rivaroxaban.",
+        "review_claim": "CONFIRMED on both halves."
+      },
+      "denominators": {
+        "was_on_page": "8/101 vs 18/102, rates 7.9% and 17.6%",
+        "defect": "The denominators were fabricated by back-solving 101 and 102 from the event counts and an incorrect percentage. The trial randomised 203 per arm.",
+        "corrected_to": "8/203 vs 18/203; 6-month cumulative recurrence 4% (95% CI 2-9) rivaroxaban vs 11% (7-16) dalteparin; HR 0.43 (0.19-0.99)",
+        "source": "JCO abstract: 'A total of 203 patients were randomly assigned to each group... Twenty-six patients experienced recurrent VTE (dalteparin, n = 18; rivaroxaban, n = 8).'",
+        "review_claim": "CONFIRMED, including the 4% / 11% cumulative rates."
+      },
+      "major_bleeding": {
+        "was_on_page": "tE 6, cE 4 stored as EVENT COUNTS on denominators 101/102",
+        "defect": "6 and 4 are the 6-month cumulative PERCENTAGES, not event counts. Storing a percentage in a count field is a category error the review only partly caught.",
+        "corrected_to": "event counts set to null; 6-month cumulative rates 6% rivaroxaban vs 4% dalteparin and HR 1.83 (0.68-4.96) carried instead, on denominators 203/203",
+        "note": "Crude counts are not in the accessible source and were NOT invented."
+      },
+      "phase": {
+        "was_on_page": "II/III",
+        "corrected_to": "III",
+        "source": "ISRCTN86712308 registry field phase = 'Phase III', target enrolment 530.",
+        "review_claim": "PARTLY WRONG. The review said SELECT-D was listed 'Phase II/III while phase II is excluded', implying the trial is phase II. The registry of record says Phase III. The publication calls it a pilot. Resolved by using the registry phase and stating the pilot descriptor, and by rewording the phase criterion to name the registry as governing."
+      }
+    },
+
+    "ADAM_VTE": {
+      "registry": "NCT02585713",
+      "pmid": "31630479",
+      "doi": "10.1111/jth.14662",
+      "citation": "J Thromb Haemost 2020;18(2):411-421",
+      "recurrent_vte": {
+        "was_on_page": "no event counts at all (tE and cE null), HR 0.26 (0.09-0.80)",
+        "defect": "The HR was wrong and, with null counts, the row fell through to the app's continuous/mean-difference handling as the review reported.",
+        "corrected_to": "1/145 vs 9/142, HR 0.099 (0.013-0.780), estimandType HR",
+        "source": "JTH abstract: 'Recurrent VTE occurred in 0.7% of apixaban, compared to 6.3% of dalteparin patients [HR 0.099, 95% CI 0.013-0.780, P=.0281]'. 0.7% of 145 = 1; 6.3% of 142 = 9.",
+        "review_claim": "CONFIRMED, including that recurrent VTE was a SECONDARY outcome - the trial's primary outcome was major bleeding."
+      },
+      "major_bleeding": {
+        "corrected_to": "0/145 vs 2/142, hazard ratio NOT ESTIMABLE (zero events in the apixaban arm)",
+        "source": "JTH abstract: 'Major bleeding occurred in 0% of 145 patients receiving apixaban, compared with 1.4% of 142 patients receiving dalteparin [P = .138; hazard ratio not estimable because of 0 bleeding event in apixaban group]'.",
+        "registry_discordance": "ClinicalTrials.gov posts the same outcome as 0% vs 2.1% (denominators 145 and 142), which back-solves to 3 rather than 2 events. The published 0 vs 2 counts are used and the discordance is now stated on the page.",
+        "review_claim": "CONFIRMED (0/145 vs 2/142)."
+      },
+      "citation_defects_found_beyond_the_review": {
+        "sourceUrl": "was https://onlinelibrary.wiley.com/doi/full/10.1111/jth.15089 - the wrong DOI. Corrected to 10.1111/jth.14662.",
+        "snippet": "was 'Blood 2020; 136(suppl 1):8-9 / J Thromb Haemost 2020; 18:3208-3217' - wrong page range. Corrected to J Thromb Haemost 2020;18(2):411-421."
+      }
+    },
+
+    "CARAVAGGIO": {
+      "registry": "NCT03045406",
+      "pmid": "32223112",
+      "doi": "10.1056/NEJMoa1915103",
+      "citation": "N Engl J Med 2020;382:1599-1607",
+      "recurrent_vte": "32/576 vs 46/579, HR 0.63 (0.37-1.07) - VERIFIED CORRECT AND KEPT.",
+      "verification": "NEJM abstract and ClinicalTrials.gov NCT03045406 posted primary outcome both give 32 of 576 and 46 of 579.",
+      "major_bleeding": "22/576 vs 23/579, HR 0.82 (0.40-1.69) - verified correct and kept.",
+      "review_claim": "CONFIRMED - the review said this trial was correct, and it is.",
+      "rob_note": "The NEJM abstract states the design used 'blinded central outcome adjudication'. D4 corrected from High to Low on that basis."
+    }
+  },
+
+  "trials_added_to_the_review": {
+    "CASTA_DIVA": {
+      "registry": "NCT02746185",
+      "pmid": "34627853",
+      "doi": "10.1016/j.chest.2021.09.037",
+      "citation": "Chest 2021;161(3):781-790",
+      "data": "158 randomised (74 rivaroxaban, 84 dalteparin). Recurrent VTE 4 vs 6; cumulative incidence 6.4% vs 10.1%; SHR 0.75 (0.21-2.66). Major bleeding 1 vs 3; cumulative 1.4% vs 3.7%; SHR 0.36 (0.04-3.43).",
+      "review_claim": "CONFIRMED on every figure.",
+      "disposition": "Eligible and added to the review. NOT in the primary pool, for two independent estimand mismatches: (a) the reported effect is a SUBDISTRIBUTION hazard ratio from a competing-risks model, not the cause-specific HR the other four report; (b) its primary outcome additionally counts 'worsening of pulmonary vascular or venous obstruction', which the other four do not count as recurrent VTE. Carried as a pre-specified k=5 sensitivity analysis.",
+      "rob_note": "ClinicalTrials.gov records masking as SINGLE with OUTCOMES_ASSESSOR masked - direct registry evidence against the blanket 'all trials open-label therefore high D4' assignment the review criticised."
+    },
+    "CANVAS": {
+      "registry": "NCT02744092",
+      "pmid": "37266947",
+      "doi": "10.1001/jama.2023.7843",
+      "citation": "JAMA 2023;329(22):1924-1933",
+      "data": "671 randomised (335 DOAC, 336 LMWH); 330 and 308 received at least one dose and form the analysis population. Recurrent VTE 6.1% vs 8.8%, difference -2.7%, 1-sided 95% CI -100% to 0.7%. Major bleeding 5.2% vs 5.6%, difference -0.4%, 1-sided 95% CI to 2.5%.",
+      "review_claim": "CONFIRMED that it was retrieved and left unscreened, and the 6.1% / 8.8% figures are right.",
+      "disposition": "Eligible and added to the review. NOT poolable on the hazard-ratio scale: the trial reports a risk DIFFERENCE with a ONE-SIDED confidence interval and no hazard ratio, and both JAMA and the registry post percentages rather than event counts, so integer events cannot be recovered without assumption. Additional design caveats now stated on the page: agent and dose were chosen by clinician and patient, and the control arm permitted fondaparinux, which is not an LMWH. The registry also carries non-randomised preference cohorts (107 and 30) that must never be pooled.",
+      "search_fix": "The broadened Europe PMC and ClinicalTrials.gov strings now retrieve it; the registry query's filter.overallStatus=COMPLETED was also removed, since it would hide terminated trials such as CONKO-011."
+    },
+    "CONKO_011": {
+      "registry": "NCT02583191",
+      "pmid_design_only": "26069043",
+      "doi_design_only": "10.1055/s-0041-101770",
+      "citation": "Dtsch Med Wochenschr 2015;140 Suppl 1:S22-3 (design/rationale abstract, German)",
+      "data": "None. TERMINATED with 246 enrolled; ClinicalTrials.gov hasResults = false; no results publication found. Registered primary outcome was patient-reported treatment satisfaction, not recurrent VTE.",
+      "review_claim": "CONFIRMED that it needed formal adjudication.",
+      "disposition": "Eligible by PICO, classified as an eligible study awaiting classification. No outcome data exist to extract, so it contributes to no analysis. Its NCT is now correctly bound to CONKO-011 in every id map."
+    }
+  },
+
+  "pooled_results": {
+    "method": "DerSimonian-Laird random effects on log HR by generic inverse variance; HKSJ interval with t on k-1 df; prediction interval t on k-1 df per Cochrane Handbook v6.5.",
+    "primary_k4": {
+      "studies": ["HOKUSAI VTE-Cancer", "SELECT-D", "ADAM VTE", "CARAVAGGIO"],
+      "N": 2894,
+      "HR": 0.580834,
+      "CI95": [0.390945, 0.862956],
+      "p": 0.007153,
+      "HKSJ_CI95": [0.285974, 1.179716],
+      "HKSJ_p": 0.092489,
+      "PI95": [0.223847, 1.507134],
+      "tau2": 0.04896633,
+      "Q": 4.283580,
+      "Q_df": 3,
+      "Q_p": 0.232426,
+      "I2_pct": 29.9651
+    },
+    "sensitivity_k5_with_casta_diva": {
+      "HR": 0.612597,
+      "CI95": [0.446769, 0.839976],
+      "HKSJ_CI95": [0.387948, 0.967333],
+      "tau2": 0.01261662,
+      "I2_pct": 8.4852
+    },
+    "page_before_the_fix": {
+      "HR": 0.60,
+      "CI95": [0.36, 1.00],
+      "HKSJ_CI95": [0.26, 1.38],
+      "I2_pct": 62.9,
+      "N": 2691,
+      "note": "The similar point estimate was accidental: the composite Hokusai HR of 0.97 pulled the pool up and the erroneous ADAM HR of 0.26 pulled it down. Uncertainty and heterogeneity were materially wrong."
+    },
+    "review_claim": "CONFIRMED to four decimal places. The review predicted DL HR 0.58 (0.39-0.86), HKSJ ~0.29-1.18 and I2 ~30%; the recomputation gives 0.5808 (0.3909-0.8630), HKSJ 0.2860-1.1797 and I2 30.0%.",
+    "cross_validation": "R 4.6.0 / metafor 5.0.1 agrees to six decimal places on FE, DL, HKSJ, tau2, Q and I2 for both the k=4 and k=5 pools (scripts/doac_cancer_vte_pool.R). metafor 5.0.1's predict() default prediction interval is normal-based (0.3229-1.0449); the t_{k-1} interval the protocol specifies is 0.2238-1.5071 and is what the app now shows."
+  },
+
+  "defects_found_that_the_external_review_did_not_report": {
+    "headline_estimator_mislabelled": "results.estimator, the CI-comparison legend and the protocol all said DerSimonian-Laird, but the headline weights used tau2_reml. On the corrected data REML shrinks tau2 to ~0, so the page would have shown HR 0.62 (0.46-0.83) - effectively a fixed-effect estimate - next to a DL-derived I2 of 30%. Pinned to DL to match the protocol.",
+    "paule_mandel_solver_sign_error": "pauleMandelTau2() used the Newton step t + f/f' where the correct step is t - f/f'. Because f' is negative, the step went negative whenever Q > k-1 - which is exactly when heterogeneity exists - was clamped to zero, and the loop exited reporting tau2 = 0. The estimator the app itself describes as 'recommended for small k' could only ever return zero. Correct value here is 0.144808 (R metafor method='PM'); the app returned 0. After the fix the app returns 0.1448065 and HR 0.5437 (0.3212-0.9204), matching R.",
+    "significance_claim_ignored_the_interval_the_protocol_pins": "The verdict banner, the waiting-room chip and the narrative all called the result significant from the DL interval alone. With DL 0.39-0.86 excluding 1 but HKSJ 0.29-1.18 including it, the page asserted a 'robust 42% reduction' its own recommended interval does not support. All three surfaces now require both intervals to agree.",
+    "patient_facing_contamination_was_a_separate_code_path": "The Waiting Room and Patient Mode panels generate their own text and carried template contamination the scientific narrative did not share: 'DOACs reduced the risk of major heart and kidney events by about X% compared with placebo'. Fixed separately.",
+    "adam_source_url_and_page_range_wrong": "See ADAM_VTE.citation_defects_found_beyond_the_review.",
+    "published_benchmark_scope_text_wrong": "PUBLISHED_META_BENCHMARKS described Hokusai's HR 0.71 as 'recurrent VTE or major bleeding at 12 mo'. 0.71 is the recurrent-VTE component; 0.97 is the composite. Corrected.",
+    "search_is_live_at_page_load": "The record queue is fetched from ClinicalTrials.gov, Europe PMC and OpenAlex every time the page loads, so PRISMA counts are non-deterministic and differ between readers and between loads. This is why the external review saw 152 records and 46 exclusions while a clean load of the same commit gave 103 records, 29 exclusions and a PubMed count of 98 against a PRISMA node of 97. The specific numbers in the review's screening section are therefore not reproducible, but the structural defect the review identified is real and is now disclosed on the page.",
+    "file_ships_with_a_utf8_bom": "Pre-existing on main and corpus-wide, not introduced here. Preserved byte-for-byte rather than silently changed. Flagged for a separate corpus-wide decision."
+  },
+
+  "review_claims_found_wrong": {
+    "PICO_blank": "WRONG. The five PICO cells are <input> elements whose values are seeded from state.protocol; a clean load shows Population 'Adults with Active Cancer and Acute VTE', Intervention 'DOAC (Apixaban, Edoxaban, or Rivaroxaban)', Comparator 'LMWH (Dalteparin or Enoxaparin)', Primary Outcome 'Recurrent VTE' and a populated Subgroup Plan. innerText-style page scraping does not read an input's value, which is almost certainly how the reviewer concluded the fields were blank. They were populated but thin, and have been sharpened rather than filled.",
+    "SELECT_D_is_phase_II": "PARTLY WRONG. See SELECT_D.phase - the registry of record lists Phase III.",
+    "screening_counts": "NOT REPRODUCIBLE. See search_is_live_at_page_load. The counts 152, 46, 106 and 60 do not appear on a clean load of this commit; the incoherence is real but its arithmetic differs.",
+    "hokusai_recurrent_vte_HR_CI": "The review gave 0.48-1.06; the registry-posted CI is 0.476-1.059. The review rounded, it did not err."
+  },
+
+  "not_done": [
+    "NOT PUSHED. Staged on a branch off current origin/main for the cross-family gate.",
+    "The PRISMA flow numbers themselves are still generated by the app from the live queue. They are now accompanied by an explicit statement that the search is unfrozen and that most retrieved records carry no screening decision, but the diagram has not been rebuilt to show an 'awaiting screening' node.",
+    "Dual independent screening has not been performed and the page now says so.",
+    "GRADE was not manually re-rated; the automatic rating remains, and the removal of the uninterpretable Egger and fragility claims changes its publication-bias input.",
+    "The Arabic i18n map still contains orphaned finerenone/MACE/placebo translation keys. They cannot fire because their English source strings no longer exist, but they should be purged corpus-wide.",
+    "The major-bleeding pooled analysis was not separately re-verified in the live app after the outcome-switch, because the outcome selector recomputes on tab render; the underlying per-trial bleeding data are corrected and sourced.",
+    "SELECT-D crude major-bleeding counts and CANVAS integer event counts remain unsourced and were not invented."
+  ]
+}
