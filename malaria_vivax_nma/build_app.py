@@ -38,11 +38,15 @@ VERDICT = {
     },
     "reasons": [
         "14 of 17 edges rest on a single trial; the robust core is only 3 of 7 nodes",
-        "Between-design Q = 12.05 (df 4, p = 0.017): designs disagree more than trials within a design",
+        f"Focal-edge heterogeneity is I2 = {R['focal_edge']['I2']}% "
+        f"(Q {R['focal_edge']['Q']:.2f}, df {R['focal_edge']['df']}, "
+        f"p = {R['focal_edge']['pQ']:.4f}); per-trial ORs span 0.354 to 3.841",
+        "Partner drug splits that edge: OR 1.070 with chloroquine vs 3.841 with DHA-piperaquine",
+        f"An edge-specific Paule-Mandel tau2 widens the focal CI from "
+        f"(0.629, 1.825) to ({R['focal_edge']['pm_lo']}, {R['focal_edge']['pm_hi']})",
         "INSPECTOR violates proportional hazards on the TQ-vs-PQ edge; its authors use OR 4.57, not an HR",
         "DETECTIVE Part 1 is two-source only - NCT01376167 posts results for Part 2 alone",
         "IMPROV (N=2336) is excluded outright: it has no 180-day row, and the rate was not back-converted",
-        "Per-trial ORs on the focal edge span 0.354 to 3.841 (I2 = 64.8%)",
         "Mixed estimators coexist across trials (crude proportion, Kaplan-Meier, hazard ratio)",
         "The 'no therapy' node is chloroquine alone in DETECTIVE but DHA-piperaquine alone in INSPECTOR",
     ],
@@ -59,6 +63,7 @@ TIER_DESC = {
 }
 
 FULL = R['full']; CORE = R['core']; QD = R['q_decomposition']
+EDGE = R['focal_edge']; DEN = R['denominators']
 LOO = [("DETECTIVE_PART1", 4, "TQ 50, TQ 100, TQ 600"),
        ("DETECTIVE_PART2", 7, ""), ("GATHER", 7, ""), ("INSPECTOR", 7, ""),
        ("EFFORT", 6, "PQ 7 d high")]
@@ -271,7 +276,8 @@ doc = f"""<!DOCTYPE html>
 
 <h1>P.&nbsp;vivax radical cure &mdash; recurrence by 180 days</h1>
 <p class="sub">Arm-based binary network meta-analysis &middot; {FULL['n_trials']} trials &middot;
-N&nbsp;=&nbsp;{FULL['N']} &middot; {len(FULL['nodes'])} nodes &middot; generated {e(R['generated'])}
+N&nbsp;=&nbsp;{DEN['randomised']} randomised / <b>{DEN['evaluable']} evaluable</b>
+&middot; {len(FULL['nodes'])} nodes &middot; generated {e(R['generated'])}
 &middot; <b>staged, not published</b></p>
 
 <div id="verdict"></div>
@@ -287,11 +293,24 @@ reinfection and recrudescence cannot be separated. EFFORT's post-hoc genotyping 
 question, not a limitation of this analysis.</p>
 </div>
 
+<div class="panel">
+<h3 style="margin-top:0">Which N?</h3>
+<p style="margin:0"><b>{DEN['randomised']}</b> patients were randomised across the five trials;
+the analysed denominator is <b>{DEN['evaluable']} evaluable</b>. Axis&nbsp;P8a conditions on
+evaluability, so <b>{DEN['conditioned_away']} patients ({DEN['pct']}%)</b> are conditioned away
+&mdash; all of them in the three trials that report censoring
+({', '.join(x['trial'] + ' ' + str(x['randomised']) + '&rarr;' + str(x['evaluable'])
+            for x in DEN['by_trial'] if x['randomised'] != x['evaluable'])}).
+Axis&nbsp;P8b and P8c put them back under different assumptions and move the focal estimate by
+less than 0.01 on the odds-ratio scale.</p>
+</div>
+
 <h2>Two distinct claims</h2>
 <div class="grid2">
 <div class="panel claim">
 <h3 style="margin-top:0">Claim A &mdash; full network ({len(FULL['nodes'])} nodes)</h3>
-<div class="kv"><span>trials <b>{FULL['n_trials']}</b></span><span>N <b>{FULL['N']}</b></span>
+<div class="kv"><span>trials <b>{FULL['n_trials']}</b></span>
+<span>N <b>{DEN['evaluable']}</b> evaluable</span>
 <span>&tau;&sup2; <b>{FULL['tau2']}</b></span><span>I&sup2; <b>{FULL['I2']}%</b></span>
 <span>Q <b>{FULL['Q']}</b> (df {FULL['df']}, p&nbsp;=&nbsp;{FULL['pQ']})</span></div>
 <div class="tbl-scroll"><table><thead><tr><th>node</th><th class="num">OR</th><th>95% CI</th></tr></thead>
@@ -348,12 +367,49 @@ trials are not measuring the same thing.</p>
 <th>0.25 &nbsp;&larr;&nbsp; favours TQ &nbsp;|&nbsp; favours PQ &nbsp;&rarr;&nbsp; 5</th></tr></thead>
 <tbody>{FOREST}</tbody></table></div>
 <p style="margin:12px 0 0">Spread <b>{F_LO:.3f}</b> to <b>{F_HI:.3f}</b>, a
-{F_HI / F_LO:.1f}-fold range, I&sup2;&nbsp;=&nbsp;{FULL['I2']}%. The Q decomposition locates it:
-within-design Q&nbsp;=&nbsp;{QD['within_design']:.2f} (df&nbsp;{QD['within_df']},
-p&nbsp;=&nbsp;{QD['within_p']:.3f}) but <b>between-design
-Q&nbsp;=&nbsp;{QD['between_design']:.2f} (df&nbsp;{QD['between_df']},
-p&nbsp;=&nbsp;{QD['between_p']:.3f})</b>. Designs disagree with each other far more than trials
-within a design do &mdash; exactly what the pre-registered partner-drug confound predicts.</p>
+{F_HI / F_LO:.1f}-fold range. Heterogeneity <i>on this edge</i> is
+<b>I&sup2;&nbsp;=&nbsp;{EDGE['I2']}%</b> (Q&nbsp;=&nbsp;{EDGE['Q']:.2f},
+df&nbsp;{EDGE['df']}, p&nbsp;=&nbsp;{EDGE['pQ']:.4f}) &mdash; higher than the network-wide
+I&sup2;&nbsp;of&nbsp;{FULL['I2']}%, which is a different quantity and is <b>not</b> this edge's.</p>
+
+<h3>What explains the spread &mdash; and what does not</h3>
+<p><b>It is the partner blood-stage drug, and the multiverse is where that shows.</b> Splitting on
+axis&nbsp;P3 gives <b>OR&nbsp;1.070 (0.753&ndash;1.521), I&sup2;&nbsp;37.2%</b> across the three
+chloroquine-partner trials versus <b>OR&nbsp;3.841</b> in the single DHA-piperaquine trial.
+INSPECTOR's own published adjusted estimate agrees (odds of relapsing 4.57, 1.75&ndash;11.97), and
+EFFORT replicates the direction independently: 22.4% recurrence in its tafenoquine group in
+Indonesia, the site where the partner was DHA-piperaquine.</p>
+
+<p><b>The Q decomposition does <i>not</i> support that attribution, and an earlier version of this
+page wrongly said it did.</b> Two reasons, both checkable above:</p>
+<ul>
+<li>&ldquo;Design&rdquo; in <code>decomp.design()</code> means <b>node-set geometry, not partner
+drug</b>. INSPECTOR (DHA-piperaquine) shares its design
+<code>{{no-therapy, PQ&nbsp;3.5, TQ&nbsp;300}}</code> with DETECTIVE&nbsp;Part&nbsp;2
+(chloroquine), so the partner-drug contrast sits <b>inside</b> the
+<b>within</b>-design term &mdash; Q&nbsp;=&nbsp;{QD['within_design']:.2f}
+(df&nbsp;{QD['within_df']}, p&nbsp;=&nbsp;{QD['within_p']:.3f}), which is <b>not</b> significant.
+The significant <b>between</b>-design term
+(Q&nbsp;=&nbsp;{QD['between_design']:.2f}, df&nbsp;{QD['between_df']},
+p&nbsp;=&nbsp;{QD['between_p']:.3f}) is driven by DETECTIVE&nbsp;Part&nbsp;1, the unique six-arm
+design &mdash; and Part&nbsp;1 is a <b>chloroquine</b> trial.</li>
+<li>The split is <b>not invariant</b> to the node set. On the robust core the same total Q
+({QD['total']:.3f}) divides the other way round: within-design
+<b>{QD['core_within']:.2f}</b> (df&nbsp;{QD['core_within_df']},
+p&nbsp;=&nbsp;{QD['core_within_p']:.3f}), between-design
+<b>{QD['core_between']:.2f}</b> (df&nbsp;{QD['core_between_df']},
+p&nbsp;=&nbsp;{QD['core_between_p']:.3f}). A quantity that reverses when you drop four
+single-trial nodes cannot carry a causal claim about partner drug.</li>
+</ul>
+
+<h3>Edge-specific &tau;&sup2; &mdash; the common-&tau;&sup2; CI is too narrow</h3>
+<p>The network model assumes one &tau;&sup2; across all contrasts. With 14 of 17 edges
+single-trial, that assumption borrows strength this edge has not earned. Estimating &tau;&sup2;
+for this edge alone (Paule-Mandel, k&nbsp;=&nbsp;{EDGE['k']},
+&tau;&sup2;&nbsp;=&nbsp;{EDGE['pm_tau2']}) gives
+<b>OR&nbsp;{EDGE['pm_OR']:.3f} ({EDGE['pm_lo']:.3f}&ndash;{EDGE['pm_hi']:.3f})</b> against the
+network's <b>1.072 (0.629&ndash;1.825)</b>. The point estimate barely moves; the interval widens
+by about half. Read the wider one.</p>
 </div>
 
 <h2>Pre-declared specification multiverse</h2>
@@ -415,8 +471,18 @@ and denominators. The publication (PMID&nbsp;30650322) gives 522 in a 2:1:1 allo
 results section posts <b>Part&nbsp;2 alone</b>; Part&nbsp;1 has no registry results table.
 Publication (PMID&nbsp;24360369) and FDA Table&nbsp;22 agree to the decimal on all six arms and all
 six confidence intervals.</li>
-<li><b>GATHER</b> &mdash; use its own OR <b>1.141 (0.643, 2.027)</b>, from FDA Table&nbsp;41.
-<span class="notest">Never use the abstract's 1.81</span>: that figure comes from a pre-planned
+<li><b>GATHER</b> &mdash; three different odds ratios are all legitimately GATHER's own, and the
+forest plot above shows <b>1.125</b>, not the 1.141 quoted in the FDA review. They are not in
+conflict; they are different estimators of the same contrast:
+<ul>
+<li><b>1.125</b> &mdash; crude, observed recurrence (42/154 vs 20/80). This is what the fit uses,
+because axis&nbsp;P8a conditions on evaluability across every trial in the network.</li>
+<li><b>1.157</b> &mdash; crude, missing&nbsp;=&nbsp;failure (54/166 vs 25/85), i.e. axis&nbsp;P8b.</li>
+<li><b>1.141 (0.643, 2.027)</b> &mdash; FDA Table&nbsp;41's <b>model-based logistic-regression</b>
+estimate under missing&nbsp;=&nbsp;failure. It does not equal the crude 1.157 from the same counts
+because it is a fitted model, not a cross-product; no count pair yields 1.141.</li>
+</ul>
+<span class="notest">None of these is the abstract's 1.81</span>, which comes from a pre-planned
 patient-level meta-analysis pooling GATHER with DETECTIVE&nbsp;Part&nbsp;2. The arithmetic proves
 it &mdash; 426&nbsp;=&nbsp;260&nbsp;+&nbsp;166 and 214&nbsp;=&nbsp;129&nbsp;+&nbsp;85. Using it
 would double-count DETECTIVE&nbsp;Part&nbsp;2.</li>

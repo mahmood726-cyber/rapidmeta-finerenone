@@ -1,5 +1,56 @@
 {
   "generated": "2026-07-30",
+  "denominators": {
+    "randomised": 2153,
+    "evaluable": 2071,
+    "conditioned_away": 82,
+    "pct": 3.81,
+    "by_trial": [
+      {
+        "trial": "DETECTIVE_PART1",
+        "randomised": 329,
+        "evaluable": 304
+      },
+      {
+        "trial": "DETECTIVE_PART2",
+        "randomised": 522,
+        "evaluable": 482
+      },
+      {
+        "trial": "GATHER",
+        "randomised": 251,
+        "evaluable": 234
+      },
+      {
+        "trial": "INSPECTOR",
+        "randomised": 150,
+        "evaluable": 150
+      },
+      {
+        "trial": "EFFORT",
+        "randomised": 901,
+        "evaluable": 901
+      }
+    ]
+  },
+  "focal_edge": {
+    "k": 5,
+    "trials": [
+      "DETECTIVE_PART1",
+      "DETECTIVE_PART2",
+      "GATHER",
+      "INSPECTOR",
+      "EFFORT"
+    ],
+    "Q": 16.7458,
+    "df": 4,
+    "pQ": 0.002166,
+    "I2": 76.1,
+    "pm_tau2": 0.5584,
+    "pm_OR": 1.067,
+    "pm_lo": 0.516,
+    "pm_hi": 2.21
+  },
   "estimand": "P. vivax recurrence by 180 days (recurrence, NOT relapse)",
   "measure": "odds ratio of recurrence; OR < 1 favours the listed node",
   "reference": "no_hypnozoiticidal",
@@ -220,14 +271,14 @@
         "EFFORT"
       ],
       "estimable": false,
-      "tau2": 0.2471,
-      "I2": 64.8,
+      "tau2": null,
+      "I2": null,
       "tau2_estimable": true,
-      "Q": 17.041,
-      "df": 6,
-      "OR": 1.072,
-      "lo": 0.629,
-      "hi": 1.825,
+      "Q": null,
+      "df": null,
+      "OR": null,
+      "lo": null,
+      "hi": null,
       "reason": "off-horizon trials lack a 180-day count"
     },
     {
@@ -785,7 +836,42 @@
     "between_design": 12.046175,
     "between_df": 4,
     "between_p": 0.017011,
-    "source": "R netmeta decomp.design()"
+    "source": "R netmeta decomp.design()",
+    "core_within": 13.564354,
+    "core_within_df": 5,
+    "core_within_p": 0.018627,
+    "core_between": 3.476932,
+    "core_between_df": 1,
+    "core_between_p": 0.06223,
+    "designs": {
+      "DETECTIVE_PART1": [
+        "PQ_14d_low_3.5",
+        "TQ_100",
+        "TQ_300",
+        "TQ_50",
+        "TQ_600",
+        "no_hypnozoiticidal"
+      ],
+      "DETECTIVE_PART2": [
+        "PQ_14d_low_3.5",
+        "TQ_300",
+        "no_hypnozoiticidal"
+      ],
+      "GATHER": [
+        "PQ_14d_low_3.5",
+        "TQ_300"
+      ],
+      "INSPECTOR": [
+        "PQ_14d_low_3.5",
+        "TQ_300",
+        "no_hypnozoiticidal"
+      ],
+      "EFFORT": [
+        "PQ_14d_low_3.5",
+        "PQ_7d_high_7",
+        "TQ_300"
+      ]
+    }
   },
   "validation": {
     "tool": "R netmeta",

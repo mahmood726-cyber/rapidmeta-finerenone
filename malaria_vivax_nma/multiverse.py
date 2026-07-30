@@ -59,7 +59,7 @@ def cell(name, axis, level, trial_filter=None, node_filter=None, rule='observed'
                N=sum(sum(a['n'] for a in t['arms']) for t in trials),
                trial_ids=[t['id'] for t in trials])
     if not trials or not all(f in nodes for f in FOCAL):
-        rec.update(estimable=False,
+        rec.update(estimable=False, OR=None, lo=None, hi=None,
                    reason='focal contrast not in this cell' if trials else 'no trials')
         return rec
     # focal contrast must remain connected within this cell
@@ -82,7 +82,12 @@ CELLS.append(cell('P1b', 'P1 follow-up horizon', 'nearby horizons admitted',
                   note='NCT03610399 (168 d) and NCT04706130 (3 mo) have no 180-d row; '
                        'they cannot be added without changing the estimand, so this '
                        'cell is declared NOT ESTIMABLE rather than approximated'))
-CELLS[-1].update(estimable=False, reason='off-horizon trials lack a 180-day count')
+# F6: a cell declared NOT ESTIMABLE must not ship an estimate. The cell() call
+# above computes one (the filters happen to leave the primary set intact), so the
+# numbers are explicitly nulled here -- otherwise a JSON consumer could quote a
+# value for a cell we deliberately refused to estimate.
+CELLS[-1].update(estimable=False, reason='off-horizon trials lack a 180-day count',
+                 OR=None, lo=None, hi=None, tau2=None, I2=None, Q=None, df=None)
 # --- P2 relapse periodicity --------------------------------------------------
 CELLS.append(cell('P2a', 'P2 relapse periodicity', 'tropical-only sites',
                   trial_filter=lambda t: ATTR[t['id']]['region'] == 'tropical'))
@@ -160,8 +165,76 @@ for t in TRIALS:
                            tq_events=ea, tq_n=na, pq_events=eb, pq_n=nb,
                            OR=round(float(orr), 4)))
 
+# --------------------------------------------------------------------------
+# F2/F3: the focal EDGE deserves its own heterogeneity and its own tau^2.
+# The network-wide I^2 is a different quantity and must not be labelled as the
+# edge's. With 14 of 17 edges single-trial, the common-tau^2 assumption is doing
+# a lot of unexamined work, so an edge-specific Paule-Mandel fit is reported
+# alongside it. PM is preferred to DL here (house rule: not DL for k<10).
+# --------------------------------------------------------------------------
+def _pm_tau2(y, v, tol=1e-12, itmax=200):
+    """Paule-Mandel: solve sum w_i (y_i - ybar_w)^2 = k - 1 for tau^2."""
+    k = len(y)
+    t2 = 0.0
+    for _ in range(itmax):
+        w = 1.0 / (v + t2)
+        yb = float(np.sum(w * y) / np.sum(w))
+        F = float(np.sum(w * (y - yb) ** 2)) - (k - 1)
+        if abs(F) < tol:
+            break
+        dF = float(-np.sum(w ** 2 * (y - yb) ** 2))
+        step = F / dF if dF != 0 else 0.0
+        t2 = max(0.0, t2 - step)
+    return t2
+
+
+def focal_edge():
+    y, v, labs = [], [], []
+    for t in TRIALS:
+        nd = {a['node']: a for a in t['arms']}
+        if not set(FOCAL) <= set(nd):
+            continue
+        ea, na = M.arm_counts(nd[FOCAL[0]], 'observed')
+        eb, nb = M.arm_counts(nd[FOCAL[1]], 'observed')
+        y.append(np.log((ea / (na - ea)) / (eb / (nb - eb))))
+        v.append(1 / ea + 1 / (na - ea) + 1 / eb + 1 / (nb - eb))
+        labs.append(t['id'])
+    y, v = np.array(y), np.array(v)
+    k = len(y)
+    wf = 1.0 / v
+    yf = float(np.sum(wf * y) / np.sum(wf))
+    Q = float(np.sum(wf * (y - yf) ** 2))
+    df = k - 1
+    I2 = max(0.0, (Q - df) / Q * 100)
+    t2 = _pm_tau2(y, v)
+    w = 1.0 / (v + t2)
+    est = float(np.sum(w * y) / np.sum(w))
+    se = float(np.sqrt(1.0 / np.sum(w)))
+    return dict(k=k, trials=labs, Q=round(Q, 4), df=df,
+                pQ=round(float(1 - stats.chi2.cdf(Q, df)), 6),
+                I2=round(I2, 1), pm_tau2=round(t2, 4),
+                pm_OR=round(float(np.exp(est)), 3),
+                pm_lo=round(float(np.exp(est - Z * se)), 3),
+                pm_hi=round(float(np.exp(est + Z * se)), 3))
+
+
+EDGE = focal_edge()
+
+# F4: the randomised total and the analysed (evaluable) total are different
+# numbers; P8a conditions on evaluability, so both are reported.
+N_RAND = sum(t['n'] for t in TRIALS)
+N_EVAL = sum(sum(M.arm_counts(a, 'observed')[1] for a in t['arms']) for t in TRIALS)
+
 payload = dict(
     generated='2026-07-30',
+    denominators=dict(randomised=N_RAND, evaluable=N_EVAL,
+                      conditioned_away=N_RAND - N_EVAL,
+                      pct=round(100 * (N_RAND - N_EVAL) / N_RAND, 2),
+                      by_trial=[dict(trial=t['id'], randomised=t['n'],
+                                     evaluable=sum(M.arm_counts(a, 'observed')[1]
+                                                   for a in t['arms']))
+                                for t in TRIALS]),
+    focal_edge=EDGE,
     estimand='P. vivax recurrence by 180 days (recurrence, NOT relapse)',
     measure='odds ratio of recurrence; OR < 1 favours the listed node',
     reference=M.REF,
@@ -180,7 +253,14 @@ payload = dict(
     q_decomposition=dict(total=17.041286, total_df=6, total_p=0.009133,
                          within_design=4.995111, within_df=2, within_p=0.082286,
                          between_design=12.046175, between_df=4, between_p=0.017011,
-                         source='R netmeta decomp.design()'),
+                         source='R netmeta decomp.design()',
+                         # The same total Q splits the OTHER way on the robust core,
+                         # so the within/between split is not invariant to the node
+                         # set and cannot carry a causal attribution.
+                         core_within=13.564354, core_within_df=5, core_within_p=0.018627,
+                         core_between=3.476932, core_between_df=1, core_between_p=0.062230,
+                         designs={t['id']: sorted(a['node'] for a in t['arms'])
+                                  for t in TRIALS}),
     validation=dict(tool='R netmeta', max_abs_diff_fixed_effect=4.83e-08,
                     tolerance=1e-6, passed=True),
 )
