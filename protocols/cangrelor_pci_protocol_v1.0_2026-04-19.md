@@ -52,7 +52,12 @@ license: MIT
 - Comparator: any randomised periprocedural antiplatelet comparator -- oral P2Y12 loading **or** placebo-during-PCI. Active comparators without a placebo arm are explicitly **eligible**.
 - Outcomes: >=1 outcome matching the primary outcome or a secondary outcome in the pre-specified set
 - Follow-up: outcome ascertainment at 48 hours post-randomisation (the periprocedural window in which cangrelor acts); 30-day and 1-year data extracted where posted. **No minimum follow-up duration is required** -- these are acute periprocedural trials.
-- Publication: Published in a peer-reviewed journal OR results posted on ClinicalTrials.gov for a completed registered trial
+- Data availability: arm-level outcome data obtainable from any of -- registry posted-results
+  tables, the peer-reviewed report, FDA/EMA regulatory documents, supplements of prior
+  meta-analyses, or open-access full text. Any language.
+- **Publication date is NOT an eligibility criterion.** Eligibility is decided on PICO/scope
+  (periprocedural intravenous cangrelor in PCI) and on data availability, never on the year a
+  trial was published or enrolled.
 
 ### Exclusion
 - Non-randomized, observational, single-arm, or case series
@@ -61,6 +66,19 @@ license: MIT
 - Re-analyses of the same cohort where a later primary-analysis publication supersedes
 - Trials with duplicate cohorts already represented
 - Editorials, letters, reviews (used for citation network only)
+- No extractable arm-level outcome data in any available source
+
+> **Protocol amendment 2026-07-30 (eligibility axis).** A legacy "exclude pre-2015"
+> criterion and a `>=12-week follow-up` requirement were inherited from an earlier
+> ClinicalTrials.gov-only sourcing configuration. Both were invalid for this review and
+> mutually contradictory with its own included studies: CHAMPION-PCI (2009),
+> CHAMPION-PLATFORM (2009) and CHAMPION-PHOENIX (2013) are acute 48-hour periprocedural
+> trials. Now that sourcing also draws on FDA/EMA documents, supplements of prior
+> meta-analyses and open-access full text, publication date carries no information about
+> data availability and has been removed as an eligibility axis entirely. The corresponding
+> `year < 2015` auto-exclusion was also removed from the app's screener, and legacy
+> date-based exclusions held in saved state are no longer honoured. Trials are judged on
+> scope and data availability only.
 
 ---
 
