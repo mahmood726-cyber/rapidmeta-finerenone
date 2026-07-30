@@ -67,10 +67,15 @@
       }
     });
 
-    // If no trials are tracked but realData has entries, derive minimal counts
+    // If no screening ledger is loaded yet, the upstream counts are genuinely
+    // unknown -- they are NOT zero. Emitting 0 here produced an impossible
+    // flow (0 identified, 6 included). Mark them not-recorded instead.
     if (counts.total_search === 0 && counts.in_nma > 0) {
       counts.included_qualitative = counts.in_nma;
       counts.fulltext = counts.in_nma;
+      counts.total_search = null;
+      counts.screened = null;
+      counts.not_recorded = true;
     }
     return counts;
   }
@@ -102,7 +107,15 @@
     t2.setAttribute('font-size', '16');
     t2.setAttribute('font-weight', '700');
     t2.setAttribute('text-anchor', 'middle');
-    t2.textContent = 'k = ' + count;
+    // A null count means the ledger does not record this stage; printing
+    // 'k = 0' would assert something the data cannot support.
+    if (count === null || count === undefined) {
+      t2.setAttribute('font-size', '11');
+      t2.setAttribute('fill', '#fbbf24');
+      t2.textContent = 'not recorded';
+    } else {
+      t2.textContent = 'k = ' + count;
+    }
     g.appendChild(t2);
     return g;
   }

@@ -209,10 +209,17 @@
     const pd = res.plotData;
     const k = pd.length;
     const reml = remlTau2(pd);
-    const dl = typeof res.tau2 === 'number' ? res.tau2 : parseFloat(res.tau2);
+    // res.tau2 is the REML estimate on every current engine path, so printing it
+    // as "DL" made the two columns identical by construction. Prefer the
+    // engine's explicit DL estimate when present; fall back for older builds.
+    const _dlRaw = (res.tau2_dl !== undefined && res.tau2_dl !== null) ? res.tau2_dl : res.tau2;
+    const dl = typeof _dlRaw === 'number' ? _dlRaw : parseFloat(_dlRaw);
     const diff = Math.abs(reml - (isFinite(dl) ? dl : 0));
     const qp = qProfileI2CI(pd, 0.05);
-    const i2 = typeof res.i2 === 'number' ? res.i2 : parseFloat(res.i2);
+    // The engine returns I2 (capital); reading res.i2 yielded NaN and rendered
+    // "I2 = --" beside the correct 88% on the same page.
+    const _i2Raw = (res.I2 !== undefined && res.I2 !== null) ? res.I2 : res.i2;
+    const i2 = typeof _i2Raw === 'number' ? _i2Raw : parseFloat(_i2Raw);
 
     const fe = (k === 2) ? fePool(pd) : null;
 
