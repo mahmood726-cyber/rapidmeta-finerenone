@@ -59,7 +59,9 @@ Trials below all passed all 6 gates.
 
 | NCT | Name | Year | Primary outcome (AACT) | PMID |
 |-----|------|------|------------------------|------|
-| [NCT01156571](https://clinicaltrials.gov/study/NCT01156571) | CHAMPION | 2021 | The Composite Incidence of All-cause Mortality, Myocardial Infarction (MI), Isch | [22607853](https://pubmed.ncbi.nlm.nih.gov/22607853/) |
+| [NCT01156571](https://clinicaltrials.gov/study/NCT01156571) | CHAMPION-PHOENIX | 2013 | 48-h composite: all-cause mortality, MI, ischaemia-driven revascularisation **and stent thrombosis** | [23473369](https://pubmed.ncbi.nlm.nih.gov/23473369/) |
+
+> **Linkage correction (2026-07-30):** this row previously cited PMID 22607853 dated 2021. PMID 22607853 is Leonardi et al., *Am Heart J* 2012;163:768-776 -- the CHAMPION PHOENIX **rationale-and-design** paper, not the results paper. The principal results report is Bhatt et al., *N Engl J Med* 2013;368:1303-1313 (PMID 23473369). Verified against PubMed and ClinicalTrials.gov on 2026-07-30.
 
 ---
 

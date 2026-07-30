@@ -37,8 +37,8 @@ license: MIT
 |---|---|
 | **Population** | Patients undergoing PCI (elective, NSTE-ACS, or STEMI) |
 | **Intervention** | Intravenous cangrelor 30 mcg/kg bolus + 4 mcg/kg/min infusion periprocedurally |
-| **Comparator** | Oral clopidogrel 300 or 600 mg load (or placebo + post-PCI clopidogrel 600 mg) |
-| **Outcome (primary)** | 48-hour composite (death, MI, ischaemia-driven revascularization, stent thrombosis) |
+| **Comparator** | Not uniform across trials: clopidogrel 600 mg load (CHAMPION-PCI); clopidogrel 300/600 mg load (CHAMPION-PHOENIX); placebo during PCI with clopidogrel 600 mg at end of PCI in all patients (CHAMPION-PLATFORM) |
+| **Outcome (primary)** | 48-hour all-cause mortality -- the only endpoint identically defined and registry-posted in all three trials. The trials' own primary composites are **not** pooled: CHAMPION-PCI and CHAMPION-PLATFORM define it as death/MI/ischaemia-driven revascularisation, whereas CHAMPION-PHOENIX additionally includes stent thrombosis. |
 
 ---
 
@@ -49,9 +49,9 @@ license: MIT
 - Phase: III or IV (Phase II included only if pivotal)
 - Participants: Adults meeting the population definition above
 - Intervention: Active drug or device matching the intervention definition
-- Comparator: Matching the comparator definition (placebo or active)
+- Comparator: any randomised periprocedural antiplatelet comparator -- oral P2Y12 loading **or** placebo-during-PCI. Active comparators without a placebo arm are explicitly **eligible**.
 - Outcomes: >=1 outcome matching the primary outcome or a secondary outcome in the pre-specified set
-- Follow-up: >=12 weeks (or trial-specific primary assessment point)
+- Follow-up: outcome ascertainment at 48 hours post-randomisation (the periprocedural window in which cangrelor acts); 30-day and 1-year data extracted where posted. **No minimum follow-up duration is required** -- these are acute periprocedural trials.
 - Publication: Published in a peer-reviewed journal OR results posted on ClinicalTrials.gov for a completed registered trial
 
 ### Exclusion
