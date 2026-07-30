@@ -194,6 +194,25 @@ if V and badge:
         if got != want:
             bad("VERDICT SURFACES DISAGREE: %s states %r, window.__verdict/re-fit says %r"
                 % (nm, got, want))
+
+    # SELF-CONTRADICTION inside the badge. Label-anchored checks above verify the
+    # numbers the badge is SUPPOSED to state; they cannot see a stale leftover
+    # sentence asserting a DIFFERENT count. A partial rewrite of this surface
+    # once left "Trials: 28" sitting beside "Network: 27 trials", and only
+    # rendering the page exposed it. Any trial/arm-row count in the badge must
+    # now equal the post-quarantine figure.
+    txt = re.sub(r"<[^>]+>", " ", badge)
+    for pat, want, label in (
+            (r"(?:Trials|trials)\s*:\s*(\d+)\b", ps["trials"], "trial count"),
+            (r"(\d+)\s+trials\b", ps["trials"], "trial count"),
+            (r"(\d+)\s+arm rows\b", 54, "arm-row count")):
+        for mm in re.finditer(pat, txt):
+            got = int(mm.group(1))
+            if got != want:
+                bad("BADGE CONTRADICTS ITSELF: states %s %d, but the "
+                    "post-quarantine figure is %d (context: ...%s...)"
+                    % (label, got, want,
+                       " ".join(txt[max(0, mm.start() - 50):mm.start() + 40].split())))
     idc = sum(1 for p in ps["league"]
               if (p["lo"] > 1 or p["hi"] < 1) and p["direct_k"] == 0)
     if c["nma_ci_excludes_1_purely_indirect"] != idc:

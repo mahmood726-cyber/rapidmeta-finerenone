@@ -405,33 +405,51 @@ badge_body = (
     '(0.70&ndash;1.01), P=0.058 &mdash; <b>not significant</b>. No QLQX contrast is presented as '
     'significant on the crude 2&times;2 (p=0.0426, fragility index 1).'
     '<br><b>%d of %d</b> CI-excludes-1 contrasts are purely indirect; fragility index is '
-    '<b>undefined</b> for them, not favourable. AMSTAR-2 confidence: <b>CRITICALLY LOW</b>.'
+    '<b>undefined</b> for them, not favourable.'
+    '<br><b>What was tested:</b> all 54 remaining arm rows pass count plausibility and all '
+    '%d contrasts recompute logRR/seLogRR from the raw counts to under 1e-8 &mdash; a tested '
+    'zero, not an untested one. GRIM/GRIMMER is <b>not applicable</b> (binary outcome, no '
+    'means), not passed. Registry concordance covers <b>9 of %d</b> trials; the rest predate '
+    'ClinicalTrials.gov or are registered elsewhere, so concordance is <b>N/A</b> &mdash; '
+    'there is no record to concord with, and none is claimed. Full text is still absent for '
+    '8 denominator-only trials and no inconsistency test is fitted. '
+    'AMSTAR-2 confidence: <b>CRITICALLY LOW</b>.'
     '</div>'
 ) % (ps["trials"], ps["contrasts"], CARMEN_VIOLATION,
      f3(node(pb, "ACEI+BB")["rr"]), f3(node(ps, "ACEI+BB")["rr"]),
      f3(node(pb, "ACEI+BB+MRA")["rr"]), f3(node(ps, "ACEI+BB+MRA")["rr"]),
      n_excl_before, n_excl,
      pb["structure"]["cyclomatic"], st["cyclomatic"], st["icdf"],
-     indirect_excl, n_excl)
+     indirect_excl, n_excl, ps["contrasts"], ps["trials"])
 
-mb = re.search(r'(<div id="rapidmeta-integrity-badge"[^>]*>)(.*?)(</div>\s*<!--\s*/rapidmeta-integrity-badge\s*-->)',
-               html, re.S)
-if mb:
-    html = html[:mb.start(2)] + (
-        '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">'
-        '<strong style="font-size:14px;letter-spacing:0.04em;">%s</strong></div>%s'
-        % (badge_headline, badge_body)) + html[mb.end(2):]
-else:
-    # no explicit end-comment: replace only the headline <strong>, then insert
-    # the body immediately after the flex row that contains it.
-    mh = re.search(r'(<div id="rapidmeta-integrity-badge".*?<strong[^>]*>)(.*?)(</strong>)',
-                   html, re.S)
-    if not mh:
-        sys.exit("FAIL: integrity badge headline not found")
-    html = html[:mh.start(2)] + badge_headline + html[mh.end(2):]
-    mrow = re.search(r'(<div id="rapidmeta-integrity-badge".*?<strong[^>]*>.*?</strong>)(.*?)(</div>)',
-                     html, re.S)
-    html = html[:mrow.end(3)] + badge_body + html[mrow.end(3):]
+# Replace the badge's ENTIRE inner content, found by balanced <div> matching.
+# An earlier draft only swapped the headline and appended the new body, which
+# left the previous stats row ("Trials: 28") and a trailing paragraph ("all 57
+# arm rows") in place -- so the badge asserted both 28 and 27 trials at once.
+# Rendering the page is what exposed it. Partial replacement of a surface that
+# states numbers is not safe; the whole surface gets rewritten.
+mstart = re.search(r'<div id="rapidmeta-integrity-badge"[^>]*>', html)
+if not mstart:
+    sys.exit("FAIL: integrity badge not found")
+i = mstart.end()
+depth = 1
+tag = re.compile(r"<(/?)div\b[^>]*>")
+while depth:
+    t = tag.search(html, i)
+    if not t:
+        sys.exit("FAIL: unbalanced <div> inside the integrity badge")
+    depth += -1 if t.group(1) else 1
+    i = t.end()
+inner_end = i - len(t.group(0))     # offset of the badge's closing </div>
+
+html = html[:mstart.end()] + (
+    '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">'
+    '<strong style="font-size:14px;letter-spacing:0.04em;">%s</strong>'
+    '<span style="font-size:11.5px;">Network: <strong>%d trials</strong> &middot; '
+    'Quarantined: <strong>1</strong> &middot; Arithmetic gates: <strong>0 findings</strong> '
+    '&middot; Provenance findings: <strong>5 raised, 5 dispositioned, 0 open</strong>'
+    '</span></div>%s'
+    % (badge_headline, ps["trials"], badge_body)) + html[inner_end:]
 
 open(APP, "w", encoding="utf-8").write(html)
 print("app updated: %s (%d -> %d bytes)" % (APP, orig_len, len(html)))
