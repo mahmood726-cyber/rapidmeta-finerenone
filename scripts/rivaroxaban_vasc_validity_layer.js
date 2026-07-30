@@ -57,7 +57,9 @@
       "Rivaroxaban 2.5 mg BID vs placebo (no aspirin comparator). Decompensated HFrEF + CAD."],
     ["ATLAS ACS 2 (2.5 mg arm)", "CV death + MI + stroke",
       "3 components - matches COMPASS on components only",
-      "Rivaroxaban 2.5 mg BID vs placebo on aspirin +/- thienopyridine. ACUTE ACS, enrolled 2008-2011."]
+      "Rivaroxaban 2.5 mg BID vs placebo, on aspirin +/- a thienopyridine. ACUTE ACS. The " +
+      "contemporaneous antiplatelet background differs from the stable-ASCVD setting, which is a " +
+      "comparability issue in its own right - not a reason to exclude the trial for its age."]
   ];
 
   function endpointBanner() {
@@ -88,17 +90,27 @@
   }
 
   // --------------------------------------------------- B. eligibility ledger
+  // Eligibility is judged on SCOPE (PICO) plus verified data availability only.
+  // Publication/enrolment date is not an eligibility axis: evidence is sourced
+  // from regulatory dossiers (FDA/EMA), supplements of previous meta-analyses
+  // and open-access full texts, not from ClinicalTrials.gov alone, so a trial's
+  // age does not predict whether usable data can be obtained.
   var ELIGIBILITY = [
-    ["COMPASS", "MEETS PICO", "#4ade80",
-      "Stable ASCVD; rivaroxaban 2.5 mg BID + aspirin vs aspirin; enrolled 2013-2016."],
-    ["VOYAGER-PAD", "MEETS PICO", "#4ade80",
-      "Symptomatic PAD after revascularisation; rivaroxaban 2.5 mg BID + aspirin vs aspirin; enrolled 2015-2018."],
-    ["COMMANDER HF", "VIOLATES PICO", "#f87171",
-      "Population is decompensated HFrEF with CAD, not stable ASCVD/PAD. Comparator is placebo, " +
-      "not aspirin alone - so this is not a dual-pathway comparison."],
-    ["ATLAS ACS 2", "VIOLATES PICO", "#f87171",
-      "Published 2012 and enrolled 2008-2011, so it fails the stated post-2015 criterion. Population is " +
-      "ACUTE ACS (within 7 days) on aspirin +/- thienopyridine, not stable ASCVD."]
+    ["COMPASS", "IN SCOPE", "#4ade80",
+      "Stable ASCVD. Rivaroxaban 2.5 mg BID + aspirin vs aspirin alone - the dual-pathway " +
+      "comparison. Full outcome data retrievable."],
+    ["VOYAGER-PAD", "IN SCOPE", "#4ade80",
+      "Symptomatic PAD after revascularisation. Rivaroxaban 2.5 mg BID + aspirin vs aspirin. " +
+      "Full outcome data retrievable."],
+    ["COMMANDER HF", "OUT OF SCOPE", "#f87171",
+      "Population is decompensated HFrEF with CAD, not stable ASCVD/PAD. Comparator is placebo " +
+      "with no aspirin requirement, so this is not a dual-pathway comparison. Data are " +
+      "retrievable - the issue is scope and comparability, not availability."],
+    ["ATLAS ACS 2", "OUT OF SCOPE", "#f87171",
+      "Population is ACUTE ACS (within 7 days) on aspirin +/- a thienopyridine, not stable " +
+      "ASCVD/PAD, and the comparator is placebo on that background. Judged on scope alone: its " +
+      "2012 publication date is NOT a reason to exclude it, and its full 2.5 mg-arm mITT data " +
+      "are verified and retrievable from the CT.gov results record."]
   ];
 
   function eligibilityLedger() {
@@ -109,12 +121,21 @@
         '<td style="padding:4px 8px;color:#cbd5e1;">' + e[3] + '</td></tr>';
     }).join("");
     return el("div", { id: "rv-eligibility-ledger", style: WARN_CSS },
-      '<div style="font-weight:700;margin-bottom:6px;">ELIGIBILITY: 2 of 4 included trials do not meet the written PICO</div>' +
+      '<div style="font-weight:700;margin-bottom:6px;">ELIGIBILITY: 2 of 4 analysed trials fall outside the ' +
+      'written scope</div>' +
       '<table style="width:100%;border-collapse:collapse;font-size:11px;"><tbody>' + rows + '</tbody></table>' +
-      '<div style="margin-top:8px;">The protocol as written (stable ASCVD/PAD, rivaroxaban 2.5 mg BID + aspirin, ' +
-      'post-2015 enrolment) is narrower than the set actually analysed. Until the protocol is either widened to ' +
-      '"very-low-dose rivaroxaban across ASCVD/ACS/PAD/HF" or these two trials are excluded, the review scope and ' +
-      'the review contents disagree. Any "Post-2015 enrolment" badge is false for ATLAS ACS 2.</div>');
+      '<div style="margin-top:8px;"><strong>Eligibility is decided on scope (PICO) plus verified data ' +
+      'availability. Publication or enrolment date is not an eligibility criterion</strong> - evidence is ' +
+      'sourced from regulatory dossiers (FDA/EMA), supplements of previous meta-analyses and open-access full ' +
+      'texts, not from ClinicalTrials.gov alone, so a trial\'s age does not determine whether its data can be ' +
+      'used. An older trial with retrievable, non-firewalled data is eligible; a recent trial without usable ' +
+      'outcome data is not.</div>' +
+      '<div style="margin-top:8px;">What remains open is a genuine <em>scope</em> question, not a date one: the ' +
+      'protocol as written asks a stable-ASCVD/PAD dual-pathway question, while COMMANDER HF (decompensated ' +
+      'HFrEF, placebo comparator) and ATLAS ACS 2 (acute ACS, thienopyridine background) answer a broader one. ' +
+      'Either widen the protocol to "very-low-dose rivaroxaban across ASCVD/ACS/PAD/HF" with setting-stratified ' +
+      'analysis prespecified, or restrict the synthesis to COMPASS + VOYAGER-PAD. Both are defensible; the ' +
+      'current mismatch between the stated scope and the analysed set is not.</div>');
   }
 
   // ------------------------------------------------- C. small-k validity gate
@@ -303,6 +324,50 @@
     });
   }
 
+  // ------------------------------- G2. retire date-based exclusions in state
+  // The "exclude pre-2015" rule has been removed from the protocol, but users
+  // who opened this app earlier carry its verdicts in localStorage. Removing
+  // the filter from the code is not enough: any record already excluded on
+  // date must be returned to the screening queue, or the retired rule keeps
+  // silently deciding eligibility for anyone with saved state.
+  var ERA_RE = /era restriction|pre-?2015/i;
+
+  function retireDateExclusions() {
+    var R = window.RapidMeta;
+    if (!R || !R.state || !Array.isArray(R.state.trials)) return;
+    if (R.state._rvDateAxisRetired) return;
+    var restored = 0, cleared = 0;
+    R.state.trials.forEach(function (t) {
+      if (!t || !ERA_RE.test(String(t.reason || ""))) return;
+      if (t.status === "exclude") {
+        t.status = "search";
+        restored += 1;
+      }
+      t.reason = "";
+      cleared += 1;
+    });
+    R.state._rvDateAxisRetired = true;
+    if (cleared && typeof R.save === "function") {
+      try { R.save(); } catch (e) { /* non-fatal: state is corrected in memory */ }
+    }
+    if (cleared && window.console && console.info) {
+      console.info(TAG, "retired date-based eligibility: " + cleared +
+        " reason(s) cleared, " + restored + " record(s) returned to screening");
+    }
+    if (restored && !document.getElementById("rv-date-axis-note")) {
+      var anchor = document.getElementById("rv-eligibility-ledger");
+      if (anchor) {
+        anchor.parentElement.insertBefore(
+          el("div", { id: "rv-date-axis-note", style: WARN_CSS },
+            "<strong>Saved screening state was updated.</strong> " + restored +
+            " record(s) previously excluded under the retired \"pre-2015\" rule have been returned " +
+            "to the screening queue and must be re-adjudicated on scope and data availability. " +
+            "Publication date is no longer an eligibility criterion."),
+          anchor.nextSibling);
+      }
+    }
+  }
+
   // ------------------------------------------------------------- H. PICO
   // The protocol PICO cells shipped empty while the manuscript claimed a
   // defined question. Fill them with the scope the review actually operates,
@@ -390,6 +455,7 @@
 
   function tick() {
     try {
+      retireDateExclusions();
       mountBanners();
       applyGate();
       rebuildPrisma();
