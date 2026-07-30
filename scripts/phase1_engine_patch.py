@@ -157,19 +157,30 @@ T3_REPLACE = (
     'return Array.isArray(rob)?rob.map(r=>A[String(r??"").trim().toLowerCase()]??"some")'
     ':["some","some","some","some","some"]}')
 
-# T4: the COMPLETE-POOLING-REPAIR block is a scope-lock bypass (RM-B02). It runs at parse time,
-# BEFORE any injected overlay, so a runtime flag can never reach it - the previous
-# `__rmPoolingRepairDisabled` was dead code that nothing read. Neutralised at its own site.
-T4_RE = re.compile(r"(COMPLETE-POOLING-REPAIR[\s\S]{0,900}?\(function\s*\(\s*\)\s*\{)")
-T4_MARK = ("/* RM-PHASE1 G07: disabled - this block copies realData counts into the scoped row and "
-           "force-sets effectMeasure='HR', bypassing the outcome scope lock (RM-B02). */"
-           "if(!window.__rmAllowPoolingRepair)return;")
+# ---------------------------------------------------------------------------------------------
+# T4 (COMPLETE-POOLING-REPAIR neutralisation) IS DELIBERATELY NOT IN PHASE 1.
+#
+# The re-gate proved by 2x2 isolation that T4 ALONE sets state.results = NULL at load on ~944
+# apps (reproduced on ACS_ANTIPLATELET k=4, ABATACEPT_RA k=2, ABEMACICLIB k=2). Mechanism: the
+# pooling-repair block's rerun() is the ONLY unconditional load-time trigger for
+# AnalysisEngine.run() - every other call site is gated on activeTab === 'analysis' or an event
+# handler. Disabling it therefore removes the only thing that populates state.results at load,
+# and the pooled estimate goes MISSING until the user opens the Analysis tab.
+#
+# It does not produce a WRONG number (the Analysis tab restores identical values), but a
+# STRUCTURAL patch must never change a correct rendered result, and this blanks it on load.
+#
+# The real defect is narrower and per-app: on a SECONDARY scope the block injects
+# realData[id]'s TOP-LEVEL tE/cE, which is the PRIMARY endpoint - the per-endpoint values live
+# in allOutcomes[]. That is a scope-lock fix requiring source verification, so it belongs to
+# PHASE 2. See RAPIDMETA_BATCH_PLAN.md and registry RM-B02.
+# ---------------------------------------------------------------------------------------------
 
 TEXTUAL = [
     ("T1-icmje", "regex", T1_RE, T1_REPLACE, "RM-J01/RM-J02"),
     ("T2-denylist", "regex", T2_RE, T2_REPLACE, "RM-A02"),
     ("T3-saferob", "callable", replace_saferob, None, "RM-G01"),
-    ("T4-poolingrepair", "regex-group", T4_RE, None, "RM-B02"),
+
 ]
 
 # ---------------------------------------------------------------- engine markers
@@ -250,6 +261,37 @@ def overlay_js(guard_src: str) -> str:
     catch (e) {{ applied[name] = "ERROR:" + (e && e.message); log(name + " deferred", e && e.message); }}
   }}
 
+  /* --- durable suppression of the pooled surfaces ---------------------------------------- */
+  var SUPPRESSED_IDS = ["res-or", "res-ci", "res-i2", "res-tau2", "res-pi", "res-nnt"];
+  var suppressing = false;
+  var suppressObservers = [];
+
+  function suppressPooled() {{
+    if (suppressing) return;                 // ignore our own writes
+    suppressing = true;
+    try {{
+      SUPPRESSED_IDS.forEach(function (id) {{
+        var el = document.getElementById(id);
+        if (!el) return;
+        if (el.textContent !== "--") el.textContent = "--";
+        el.setAttribute("data-rm-guard-suppressed", "1");
+        if (el.__rmObserved) return;
+        el.__rmObserved = true;
+        if (typeof MutationObserver === "function") {{
+          var mo = new MutationObserver(function () {{
+            if (!window.__rmGuardBlocked) return;
+            if (el.textContent !== "--") {{
+              suppressing = true;
+              try {{ el.textContent = "--"; }} finally {{ suppressing = false; }}
+            }}
+          }});
+          mo.observe(el, {{ childList: true, characterData: true, subtree: true }});
+          suppressObservers.push(mo);
+        }}
+      }});
+    }} finally {{ suppressing = false; }}
+  }}
+  window.__rmSuppressPooled = suppressPooled;   // callable by a later render / by tests
   function allSteps() {{
   /* --- T2 support: the allowlist the denylist was replaced by (G01/G06) ------------------ */
   window.__rmGuardEstimandOK = function (d) {{
@@ -267,15 +309,11 @@ def overlay_js(guard_src: str) -> str:
     return true;
   }});
 
-  /* --- G07 pooling-repair: neutralised TEXTUALLY (T4), not here --------------------------
-   * The block runs at parse time, before any overlay, so a runtime flag could never reach it.
-   * An earlier revision set a runtime flag that nothing read. T4 injects an early
-   * return at the block's own site; this step only REPORTS whether that landed. */
-  step("G07_pooling_repair", function () {{
-    if (!window.__rmAllowPoolingRepair && document.documentElement.innerHTML
-        .indexOf("RM-PHASE1 G07: disabled") !== -1) return "NEUTRALISED-BY-T4";
-    return "absent";
-  }});
+  /* --- the pooling-repair step is REMOVED ----------------------------------------------
+   * It searched the DOM for a marker string that was itself inside the guard's own indexOf()
+   * call, so it could never report "absent" and was evidence of nothing. A self-satisfying
+   * guard is false assurance. The textual neutralisation it reported on now belongs to
+   * Phase 2 (per-app, source-verified), so there is nothing left for it to report. */
 
   /* --- G21 reconcile persisted state on hydrate ----------------------------------------- */
   step("G21_persisted_state", function () {{
@@ -306,6 +344,7 @@ def overlay_js(guard_src: str) -> str:
     RM.state.__rmLedgerFp = auth.ledgerFingerprint;
     return {{ purged: 0, dropped: 0, stale: false, rederived: false }};
   }});
+
 
   /* --- G18 fail-closed integrity gate + G12 badge parity --------------------------------- */
   step("G18_G12_gate", function () {{
@@ -350,10 +389,11 @@ def overlay_js(guard_src: str) -> str:
         note.textContent = "INTEGRITY GATE FAILED — this page's pooled result is suppressed. " + why;
         if (!badgeEl.querySelector('[data-rm-guard="gate"]')) badgeEl.appendChild(note);
       }}
-      ["res-or", "res-ci", "res-i2", "res-tau2", "res-pi", "res-nnt"].forEach(function (id) {{
-        var el = document.getElementById(id);
-        if (el) el.textContent = "--";
-      }});
+      // DURABLE suppression. A one-shot textContent write is not enough: any later render
+      // repopulates res-or / res-ci / res-i2 with live values (0.96 / 0.78-1.19 / 84% was
+      // reproduced), so a BLOCKED app quietly showed a live pooled estimate a moment later.
+      // Re-assert on every mutation, and again on every retry pass.
+      suppressPooled();
       return "BLOCKED";
     }}
     return "PASS";
@@ -406,6 +446,7 @@ def overlay_js(guard_src: str) -> str:
   function runAll() {{
     applied.runs++;
     allSteps();
+    if (window.__rmGuardBlocked) suppressPooled();   // re-assert after any later render
   }}
   runAll();
   if (document.readyState === "loading") {{
@@ -480,20 +521,7 @@ def transform(text: str, guard_src: str):
             n = len(find.findall(out))
             if n:
                 out = find.sub(lambda _m: replace, out)
-        elif kind == "regex-group":
-            # IDEMPOTENT: unlike T1/T2/T3, T4's anchor (the COMPLETE-POOLING-REPAIR comment plus
-            # the IIFE head) SURVIVES its own replacement, so a second apply injected a second
-            # copy. Caught by the real double-apply test on the minified root apps - the
-            # submission copies have no pooling-repair block and hid it.
-            n = 0
 
-            def _t4(m):
-                nonlocal n
-                if T4_MARK[:24] in out[m.end():m.end() + 200]:
-                    return m.group(0)
-                n += 1
-                return m.group(1) + T4_MARK
-            out = find.sub(_t4, out)
         elif kind == "callable":
             out, n = find(out)
         else:
@@ -656,11 +684,13 @@ def selftest():
                    "<script>window.__verdict={};</script>"
                    "<p>Per ICMJE 2023: human author takes full responsibility.</p>"
                    "</body></html>", guard_src)[0]),
-        ("T4: pooling-repair neutralised at its own site",
-         "RM-PHASE1 G07: disabled" in transform(
+        ("T4 is NOT in Phase 1: a pooling-repair block is left UNTOUCHED",
+         "COMPLETE-POOLING-REPAIR (2026-06) */ (function () { var done = false; })();" in transform(
              "<html><body><div id=\"rapidmeta-integrity-badge\">x</div><script>window.__verdict={};"
              "/* COMPLETE-POOLING-REPAIR (2026-06) */ (function () { var done = false; })();"
              "</script></body></html>", guard_src)[0]),
+        ("no G07 self-satisfying guard ships", "RM-PHASE1 G07" not in once),
+        ("exactly 3 textual transforms in Phase 1", len(TEXTUAL) == 3),
     ]
 
     # --- the injection-point regression (APIXABAN_ACS, byte 586,007) --------------------------
@@ -785,11 +815,11 @@ def main():
             "path": rel, "bytes_before": len(txt), "bytes_after": len(out),
             "delta": len(out) - len(txt), "bom": bom, "idempotent": idem,
             "t1_icmje": t1, "t2_denylist": t2,
-            # Per-app T3/T4 so the gate can verify guards landed WITHOUT inferring it from totals.
+            # Per-app T3 so the gate can verify guards landed WITHOUT inferring it from totals.
             # `guards_real` is the honest bit: True only when safeRob was actually replaced, or
             # the file has no safeRob to replace.
             "t3_saferob": rep["textual"]["T3-saferob"]["occurrences"],
-            "t4_poolingrepair": rep["textual"]["T4-poolingrepair"]["occurrences"],
+
             "guards_real": bool(rep["textual"]["T3-saferob"]["occurrences"]
                                 or not SAFEROB_PRESENT_RE.search(txt)),
             "markers": rep["markers"],

@@ -519,10 +519,32 @@ in place.
    to the previously bound endpoint's count. Denominators were worse: `null != oc.nT && (t.data.tN =
    oc.nT)` left `tN`/`cN` at the composite's values entirely, which is how `336/569` came to be
    printed as a percentage. `[IRON]` §1 Defect 2.
-2. **`pooling-repair`.** An inline post-load block copies `realData[id].tE/cE` into `t.data` whenever
-   the *scoped* row has no counts, and force-sets `effectMeasure = "HR"`. A direct scope-lock bypass.
-   `[IRON]` §1 Defect 3. **Present corpus-wide** — confirmed by grep in `ABATACEPT_PSA`,
+2. **`pooling-repair`.** An inline post-load block copies `realData[id]`'s **TOP-LEVEL** `tE`/`cE`
+   into `t.data` whenever the *scoped* row has no counts, and force-sets `effectMeasure = "HR"`.
+   The top-level counts are the trial's **PRIMARY** endpoint — the per-endpoint values live in
+   `allOutcomes[]` — so on a **secondary** scope the block writes the primary endpoint's counts
+   under the secondary endpoint's label. A direct scope-lock bypass. `[IRON]` §1 Defect 3.
+   **Present corpus-wide** — 944 apps measured; confirmed by grep in `ABATACEPT_PSA`,
    `ABATACEPT_RA`, `ABEMACICLIB_BREAST`, … (`[IRON]` §6).
+
+   > **CORRECTION (re-gate, 2026-07-30).** An earlier draft of this entry said the block "adds
+   > off-scope trials" to the pool. **That is wrong and is withdrawn.** `inclTrials` only fills
+   > COUNTS on rows already marked `s === "include"`; it does not add or remove trials, and `k`
+   > is unchanged. The defect is **counts-on-the-wrong-scope plus a forced HR label**, nothing
+   > more. The correct statement is above.
+   >
+   > **It is also NOT safe to neutralise corpus-wide, and the attempt was withdrawn from
+   > Phase 1.** A 2×2 isolation showed that disabling the block ALONE sets `state.results = NULL`
+   > at load on ~944 apps (reproduced on `ACS_ANTIPLATELET` k=4, `ABATACEPT_RA` k=2,
+   > `ABEMACICLIB` k=2): its `rerun()` is the **only unconditional load-time trigger** for
+   > `AnalysisEngine.run()` — every other call site is gated on `activeTab === 'analysis'` or an
+   > event handler. Disabling it therefore blanks the pooled estimate until the user opens the
+   > Analysis tab. It does not produce a *wrong* number (the Analysis tab restores identical
+   > values), but **a structural patch must never change a correct rendered result.**
+   >
+   > The fix is therefore **per-app and PHASE 2**: bind the scoped row to its own
+   > `allOutcomes[]` entry, and give the app a load-time analysis trigger that does not depend
+   > on this block. See `RAPIDMETA_BATCH_PLAN.md` §2.7.
 3. **`paper-studio.js`.** `PS.ensureAnalysisReady()` tests `state.selectedOutcome` against each row's
    `shortLabel` and, on a miss, assigns `trials[0].allOutcomes[0].shortLabel`. Because state holds a
    scope **key** while rows carry shortLabels, the test always misses — so merely **opening the Paper

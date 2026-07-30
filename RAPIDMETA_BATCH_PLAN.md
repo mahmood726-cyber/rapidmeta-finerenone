@@ -59,6 +59,12 @@ a fix applied to one variant is not applied to the app.
 
 ## 1.2 What Phase 1 lands
 
+> **Phase 1 is GUARDS-ONLY.** Three textual transforms (T1 ICMJE claim, T2 estimand denylist,
+> T3 `safeRob`) plus the runtime guard overlay. **No T4** — the pooling-repair neutralisation was
+> withdrawn after the re-gate proved it blanks `state.results` at load on ~944 apps; it is now a
+> per-app Phase-2 item (§2.7). **No G07** — that step searched the DOM for a marker string that
+> sat inside its own `indexOf()` call, so it could never fail and was evidence of nothing.
+
 All 20 guards from `assets/js/rapidmeta-guards.js`, plus the fail-closed integrity gate:
 
 | Guard | Registry ids | What it makes impossible |
@@ -208,6 +214,52 @@ each KM-vs-count decision · the benchmark synthesis's own trial list · and for
 **Full batch list, batches 1–24, with apps, lanes, dominant error types and source needs:**
 `outputs/rapidmeta_batch_list.json`. Regenerate with
 `python scripts/rapidmeta_batch_plan.py --md`.
+
+## 2.7 · PHASE-2 ITEM: the pooling-repair scope-lock fix (moved out of Phase 1)
+
+**Registry: RM-B02 · 944 apps · per-app, source-verified · NOT a corpus-wide neutralisation.**
+
+**Why it is here and not in Phase 1.** The Phase-1 patch originally shipped a textual
+neutralisation (T4) of the `COMPLETE-POOLING-REPAIR` block. The cross-family re-gate proved by
+2×2 isolation that **T4 alone sets `state.results = NULL` at load on ~944 apps** — reproduced on
+`ACS_ANTIPLATELET` (k=4), `ABATACEPT_RA` (k=2) and `ABEMACICLIB` (k=2).
+
+**Mechanism.** The block's `rerun()` is the **only unconditional load-time trigger** for
+`AnalysisEngine.run()`; every other call site is gated on `activeTab === 'analysis'` or an event
+handler. Disabling it removes the only thing that populates `state.results` at load, so the
+pooled estimate goes **missing** until the reader opens the Analysis tab.
+
+It does **not** produce a wrong number — the Analysis tab restores identical values — but
+**a structural patch must never change a correct rendered result.** T4 was withdrawn.
+
+**What the defect actually is** (the registry text was corrected too): on a **secondary** scope
+the block injects `realData[id]`'s **top-level** `tE`/`cE`, which is the **primary** endpoint;
+the per-endpoint values live in `allOutcomes[]`. So it renders the primary endpoint's counts
+under a secondary endpoint's label, and force-sets `effectMeasure = "HR"`.
+
+> **Withdrawn claim, recorded:** it does **not** add or remove trials. `inclTrials` only fills
+> counts on rows already marked `s === "include"`; `k` is unchanged.
+
+**The per-app fix, per batch:**
+1. Bind the scoped row to its **own** `allOutcomes[]` entry; never fall back to the trial's
+   top-level counts.
+2. Where the scoped row genuinely has no counts, render **NA** and exclude the trial from the
+   pool with a stated reason (G03/G05), rather than borrowing the primary's.
+3. Do **not** force `effectMeasure`; resolve it from the scoped row's `estimandType` (G01/G06).
+4. **Preserve the load-time trigger.** Give the app an unconditional `AnalysisEngine.run()` at
+   load that does not depend on this block, and verify in-browser that `state.results` is
+   populated at load and matches the Analysis-tab values exactly.
+5. Source-verify every count that changes, per the standard batch procedure.
+
+**Acceptance, per app:** `state.results` non-null at load; the load-time pooled estimate is
+byte-identical to the Analysis-tab value; every scoped row's counts trace to its own
+`allOutcomes[]` entry; no `effectMeasure` is forced.
+
+**Detector:** `RM-B02` (existing, 92.8%) plus a render check — *does `state.results` exist at
+load, and does it equal the Analysis-tab value?* — which is RENDER-class and cannot be measured
+by the static sweep.
+
+---
 
 ## 2.5 The per-batch procedure
 

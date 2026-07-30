@@ -49,7 +49,13 @@ before(() => {
 /** Minimal DOM/window double. Only what the bootstrap touches. */
 function makeEnv(opts = {}) {
   const store = Object.assign({}, opts.localStorage || {});
-  const elements = Object.assign({}, opts.elements || {});
+  // Every element double must behave like an element: the durable suppressor calls
+  // setAttribute() on the pooled fields, and a missing method threw INSIDE the guarded step,
+  // which silently turned a BLOCK into an "ERROR:" status.
+  const elements = {};
+  for (const [k, v] of Object.entries(opts.elements || {})) {
+    elements[k] = Object.assign({ _attrs: {}, setAttribute(a, b) { this._attrs[a] = b; } }, v);
+  }
   const listeners = {};
   const badge = opts.badge === null ? null : Object.assign({
     textContent: "", innerText: "", style: { background: "" },
@@ -61,7 +67,14 @@ function makeEnv(opts = {}) {
   }, opts.badge || {});
   if (badge) elements["rapidmeta-integrity-badge"] = badge;
 
+  const observers = [];
+  class FakeMutationObserver {
+    constructor(cb) { this.cb = cb; observers.push(this); }
+    observe(target) { this.target = target; }
+    disconnect() {}
+  }
   const win = {
+    MutationObserver: FakeMutationObserver,
     RapidMetaGuards: require(path.join(ROOT, "assets/js/rapidmeta-guards.js")),
     __verdict: opts.verdict,
     __quarantinedTrials: opts.quarantined,
@@ -91,7 +104,12 @@ function makeEnv(opts = {}) {
   win.document = doc;
   const ctx = vm.createContext(win);
   vm.runInContext(BOOTSTRAP, ctx);
-  return { win, doc, badge, store, listeners, fireTimers() { (listeners.__timers || []).forEach((f) => f()); } };
+  return {
+    win, doc, badge, store, listeners, observers,
+    fireTimers() { (listeners.__timers || []).forEach((f) => f()); },
+    /** Simulate a later render writing live values back into the pooled fields. */
+    fireObservers() { observers.forEach((o) => o.cb()); }
+  };
 }
 
 /* ============================================================ P1-3 · mustRederive is consumed */
@@ -202,15 +220,15 @@ describe("bootstrap G18 — fail-closed, and a PASS never freezes (gate P0-2)", 
   });
 
   test("a real integrity failure suppresses the pooled surfaces and recolours the badge", () => {
-    const resOr = { textContent: "0.85" };
+
     const env = makeEnv({
       rapidMeta: { realData: { NCT01: {}, "NULLED:NCT02": {} }, state: { trials: [] }, save() {} },
       verdict: { verdict: "STABLE", counts: { n_trials_seen: 2 }, reasons: [] },
-      elements: { "res-or": resOr },
+      elements: { "res-or": { textContent: "0.85" } },
       badge: { innerText: "x", textContent: "x", style: { background: "#15803d" } }
     });
     assert.equal(env.win.__rmGuardsApplied.G18_G12_gate, "BLOCKED");
-    assert.equal(resOr.textContent, "--", "the pooled estimate must be suppressed");
+    assert.equal(env.doc.getElementById("res-or").textContent, "--", "the pooled estimate must be suppressed");
     assert.equal(env.badge.style.background, "#7c2d12");
     assert.ok(env.win.__rmGuardBlocked);
   });
@@ -227,18 +245,87 @@ describe("bootstrap __rmGuardEstimandOK — the allowlist T2 substitutes in", ()
   });
 });
 
-/* ============================================================ G07 must not be dead code again */
+/* ================= P1 (re-gate): G18 suppression must be DURABLE, not a one-shot write */
 
-describe("bootstrap G07 — reports the TEXTUAL neutralisation, not a flag nothing reads", () => {
-  test("reports NEUTRALISED-BY-T4 when the T4 marker is in the document", () => {
+describe("bootstrap G18 — suppression re-asserts after a later render", () => {
+  function blockedEnv() {
     const env = makeEnv({
-      html: "<script>/* RM-PHASE1 G07: disabled - ... */</script>",
-      rapidMeta: { realData: {}, state: { trials: [] }, save() {} }
+      // a NULLED row forces a real BLOCK
+      rapidMeta: { realData: { NCT01: {}, "NULLED:NCT02": {} }, state: { trials: [] }, save() {} },
+      verdict: { verdict: "STABLE", counts: { n_trials_seen: 2 }, reasons: [] },
+      elements: { "res-or": { textContent: "0.96" }, "res-ci": { textContent: "0.78-1.19" },
+                  "res-i2": { textContent: "84%" } },
+      badge: { innerText: "x", textContent: "x", style: { background: "#15803d" } }
     });
-    assert.equal(env.win.__rmGuardsApplied.G07_pooling_repair, "NEUTRALISED-BY-T4");
+    const fields = {
+      "res-or": env.doc.getElementById("res-or"),
+      "res-ci": env.doc.getElementById("res-ci"),
+      "res-i2": env.doc.getElementById("res-i2")
+    };
+    return { env, fields };
+  }
+
+  test("the pooled fields are blanked when the gate BLOCKS", () => {
+    const { env, fields } = blockedEnv();
+    assert.equal(env.win.__rmGuardsApplied.G18_G12_gate, "BLOCKED");
+    assert.equal(fields["res-or"].textContent, "--");
+    assert.equal(fields["res-ci"].textContent, "--");
+    assert.equal(fields["res-i2"].textContent, "--");
   });
 
-  test("the dead __rmPoolingRepairDisabled flag is gone from the shipped bootstrap", () => {
-    assert.equal(/__rmPoolingRepairDisabled/.test(BOOTSTRAP), false);
+  test("a LATER RENDER cannot repopulate them — the observer re-asserts", () => {
+    const { env, fields } = blockedEnv();
+    // exactly the reproduced regression: a later render writes live values back
+    fields["res-or"].textContent = "0.96";
+    fields["res-ci"].textContent = "0.78-1.19";
+    fields["res-i2"].textContent = "84%";
+    env.fireObservers();
+    assert.equal(fields["res-or"].textContent, "--",
+      "a BLOCKED app must not quietly show a live pooled estimate a moment later");
+    assert.equal(fields["res-ci"].textContent, "--");
+    assert.equal(fields["res-i2"].textContent, "--");
+  });
+
+  test("the retry passes also re-assert the suppression", () => {
+    const { env, fields } = blockedEnv();
+    fields["res-or"].textContent = "0.96";
+    env.fireTimers();
+    assert.equal(fields["res-or"].textContent, "--");
+  });
+
+  test("suppressed fields are marked so a reviewer can see why", () => {
+    const { fields } = blockedEnv();
+    assert.equal(fields["res-or"]._attrs["data-rm-guard-suppressed"], "1");
+  });
+
+  test("an UNBLOCKED app is never suppressed", () => {
+    const env = makeEnv({
+      rapidMeta: { realData: { NCT01: {}, NCT02: {} }, state: { trials: [] }, save() {} },
+      verdict: { verdict: "STABLE", counts: { n_trials_seen: 2 }, reasons: [] },
+      elements: { "res-or": { textContent: "0.85" } },
+      badge: { innerText: "ok", textContent: "ok", style: { background: "#7c2d12" } }
+    });
+    assert.equal(env.win.__rmGuardsApplied.G18_G12_gate, "PASS");
+    assert.equal(env.doc.getElementById("res-or").textContent, "0.85",
+      "a passing app keeps its result");
+  });
+});
+
+/* ============ re-gate: T4 and G07 must be GONE from what ships (Phase 1 is guards-only) */
+
+describe("Phase 1 is guards-only — no T4, no G07", () => {
+  test("the shipped bootstrap has no pooling-repair step", () => {
+    assert.equal(/G07_pooling_repair/.test(BOOTSTRAP), false);
+    assert.equal(/__rmAllowPoolingRepair/.test(BOOTSTRAP), false);
+  });
+
+  test("no self-satisfying marker string ships", () => {
+    assert.equal(/RM-PHASE1 G07/.test(BOOTSTRAP), false,
+      "the old guard searched the DOM for a literal inside its own indexOf() call");
+  });
+
+  test("__rmGuardsApplied reports no pooling-repair key at all", () => {
+    const env = makeEnv({ rapidMeta: { realData: {}, state: { trials: [] }, save() {} } });
+    assert.equal("G07_pooling_repair" in env.win.__rmGuardsApplied, false);
   });
 });
