@@ -1,0 +1,241 @@
+{
+ "app": "APIXABAN_ACS_AUTO_FULL_REVIEW.html",
+ "date": "2026-07-30",
+ "branch": "audit/cardio-program-2026-07-30",
+ "status": "STAGED. Not pushed. New integrity claims require a cross-family gate before going live.",
+ "method": "Every identifier resolved against PubMed (NCBI E-utilities, via the bio-research PubMed MCP) and ClinicalTrials.gov API v2 posted results. Nothing below is from recall. Where a number could not be read from a primary source, the tier is stated rather than glossed.",
+ "attribution": {
+  "pubmed": "Article metadata and abstracts retrieved from PubMed.",
+  "ctgov": "Registry protocol and posted-results data from ClinicalTrials.gov API v2.",
+  "fragility_index": "Walsh M et al., J Clin Epidemiol 2014;67:622-628."
+ },
+ "summary": {
+  "k_in_ledger": 4,
+  "arm_rows": 8,
+  "VERIFIED_FULL": 0,
+  "VERIFIED_DENOM_ONLY": 0,
+  "FINDING": 4,
+  "note": "No arm row in this app survived source verification unchanged. All four trials have posted registry results, so this is not a limit of accessible evidence — every count was checkable and every count is wrong."
+ },
+ "trials": [
+  {
+   "ledger_key": "NCT00313300",
+   "ledger_name": "Alexander 2009",
+   "true_identity": "APPRAISE (APPRAISE-1)",
+   "status": "FINDING",
+   "citation_in_ledger": {"pmid": "19470889", "verdict": "CORRECT"},
+   "primary_source": {
+    "pmid": "19470889",
+    "doi": "10.1161/CIRCULATIONAHA.108.832139",
+    "citation": "Alexander JH et al. Circulation 2009;119(22):2877-85",
+    "pubmed_article_type": "Clinical Trial, Phase II",
+    "quoted": "Patients (n=1715) with recent ST-elevation or non-ST-elevation acute coronary syndrome were randomized to 6 months of placebo (n=611) or 1 of 4 doses of apixaban: 2.5 mg twice daily (n=317), 10 mg once daily (n=318), 10 mg twice daily (n=248), or 20 mg once daily (n=221)."
+   },
+   "registry": {
+    "nct": "NCT00313300", "phases": ["PHASE2"], "enrollment_actual": 1741,
+    "masking": "DOUBLE", "status": "COMPLETED", "has_results": true,
+    "posted_primary": {
+     "title": "Event Rate of Composite of Adjudicated Major Bleeding and Clinically Relevant Non-Major Bleeding During the Treatment Period",
+     "unit": "percentage of participants",
+     "unit_is_proportion": true,
+     "arms": [
+      {"group": "Placebo", "denominator": 599, "value": 3.0, "recovered_count": 18},
+      {"group": "Apixaban 2.5mg BID", "denominator": 315, "value": 5.7, "recovered_count": 18},
+      {"group": "Apixaban 10mg QD", "denominator": 315, "value": 7.9, "recovered_count": 25}
+     ]
+    }
+   },
+   "ledger_values": {"tE": 18, "tN": 611, "cE": 18, "cN": 317, "phase": "III"},
+   "findings": [
+    {"id": "F1a", "gate": "G6", "severity": "HIGH",
+     "finding": "Phase discordance. Ledger says phase III. The registry says PHASE2 and PubMed types the paper 'Clinical Trial, Phase II'. This is a dose-ranging phase 2 study, not a phase 3 outcome trial.",
+     "fix": "phase -> \"II\""},
+    {"id": "F1b", "gate": "G6c", "severity": "CRITICAL",
+     "finding": "Arm orientation is unverifiable and almost certainly inverted. Both ledger counts are 18, and 18 is recoverable BOTH as 3.0% x 599 (placebo) and as 5.7% x 315 (apixaban 2.5mg BID). The ledger places tN=611 (the publication's PLACEBO n) in the treatment slot and cN=317 (the apixaban 2.5mg n) in the control slot. As pooled, the app therefore reads apixaban bleeding as 18/611 = 2.9% against placebo 18/317 = 5.7%, inverting the trial's central safety finding.",
+     "source_says": "Apixaban increased major/CRNM bleeding dose-dependently vs placebo: 2.5 mg BID HR 1.78 (0.91-3.48); 10 mg QD HR 2.45 (1.31-4.61). The two highest-dose arms were discontinued for excess bleeding.",
+     "fix": "t = 18/315 (apixaban 2.5 mg BID), c = 18/599 (placebo), using the registry's analysed denominators; or 317/611 if the publication's randomised denominators are preferred - but not one from each."},
+    {"id": "F1c", "gate": "G6b", "severity": "HIGH",
+     "finding": "Source-tier mixing. Event counts are recoverable only from the registry's analysed denominators (599/315), but the denominators carried are the publication's randomised ones (611/317). The counts and the denominators come from different documents.",
+     "fix": "Choose one source per 2x2 and label it."},
+    {"id": "F1d", "gate": "G6", "severity": "ADVISORY",
+     "finding": "Ledger total N 928 is 53% of registry enrolment 1741. Three of four apixaban dose arms (10mg QD n=318, 10mg BID n=248, 20mg QD n=221) are dropped without disclosure.",
+     "fix": "State the arm selection on the page, or pool the apixaban arms explicitly."},
+    {"id": "F1e", "gate": "G7", "severity": "HIGH",
+     "finding": "As currently extracted the row is nominally significant with fragility index 1 (p=0.0486). One event overturns it. The fragility is an artifact of the inverted arms.",
+     "fix": "Recompute after F1b; do not quote an FI for a row that failed orientation."}
+   ]
+  },
+  {
+   "ledger_key": "NCT00831441",
+   "ledger_name": "APPRAISE-2",
+   "true_identity": "APPRAISE-2",
+   "status": "FINDING",
+   "citation_in_ledger": {"pmid": "21780946", "verdict": "CORRECT"},
+   "primary_source": {
+    "pmid": "21780946",
+    "doi": "10.1056/NEJMoa1105819",
+    "citation": "Alexander JH et al. N Engl J Med 2011;365(8):699-708",
+    "pubmed_article_type": "Clinical Trial, Phase III",
+    "quoted": "the primary outcome of cardiovascular death, myocardial infarction, or ischemic stroke occurred in 279 of the 3705 patients (7.5%) assigned to apixaban (13.2 events per 100 patient-years) and in 293 of the 3687 patients (7.9%) assigned to placebo (14.0 events per 100 patient-years) (hazard ratio with apixaban, 0.95; 95% confidence interval [CI], 0.80 to 1.11; P=0.51)",
+    "safety_quoted": "The primary safety outcome of major bleeding according to the Thrombolysis in Myocardial Infarction (TIMI) definition occurred in 46 of the 3673 patients (1.3%) who received at least one dose of apixaban ... and in 18 of the 3642 patients (0.5%) who received at least one dose of placebo ... (hazard ratio with apixaban, 2.59; 95% CI, 1.50 to 4.46; P=0.001)"
+   },
+   "registry": {
+    "nct": "NCT00831441", "acronym": "APPRAISE-2", "phases": ["PHASE3"],
+    "enrollment_actual": 7484, "masking": "TRIPLE", "status": "TERMINATED",
+    "has_results": true,
+    "posted_primary": {
+     "title": "Event Rate of Cardiovascular Death, Myocardial Infarction, or Ischemic Stroke During the Intended Treatment Period",
+     "unit": "percentage of participants/100-pt years",
+     "unit_is_proportion": false,
+     "arms": [
+      {"group": "Placebo", "denominator": 3687, "value": 13.96},
+      {"group": "Apixaban 5 mg BID", "denominator": 3705, "value": 13.20}
+     ]
+    }
+   },
+   "ledger_values": {"tE": 515, "tN": 3687, "cE": 489, "cN": 3705, "pubHR": 0.95, "pubHR_LCI": 0.80, "pubHR_UCI": 1.11},
+   "findings": [
+    {"id": "F2a", "gate": "G6b", "severity": "CRITICAL",
+     "finding": "THE COUNTS ARE MANUFACTURED. 3687 x 13.96/100 = 514.6 -> the ledger's 515. 3705 x 13.20/100 = 489.1 -> the ledger's 489. The extractor read the registry's posted value as a percentage of participants and multiplied it by the arm denominator. The posted unit is 'percentage of participants/100-pt years' - an incidence rate over person-time, not a proportion. Neither 515 nor 489 appears in any source. The true counts are 279 and 293.",
+     "root_cause": "rate-per-100-patient-years treated as a proportion",
+     "fix": "t = 279/3705 (apixaban), c = 293/3687 (placebo)."},
+    {"id": "F2b", "gate": "G6c", "severity": "CRITICAL",
+     "finding": "ARMS SWAPPED. The registry lists Placebo as group OG000 and Apixaban as OG001. The ledger assigns tN = 3687 (the PLACEBO denominator) and cN = 3705 (the APIXABAN denominator). The extractor mapped posted group index 0 to 'treatment', but this registry lists placebo first.",
+     "fix": "Swap; bind arms by group TITLE, never by index."},
+    {"id": "F2c", "gate": "G8", "severity": "HIGH",
+     "finding": "The row is internally self-contradictory. It carries the genuine published HR 0.95 (0.80-1.11), which favours apixaban, beside counts giving a crude RR of 1.058, which favours placebo. Counts and effect cannot both be right. The app's own window.__verdict already recorded '2 AACT outcome-direction divergence(s)' - the machinery detected this and the badge rendered green anyway.",
+     "fix": "Resolve to the source; then the crude OR (0.943) and the published HR (0.95) agree."},
+    {"id": "F2d", "gate": "PICO", "severity": "HIGH",
+     "finding": "Outcome mixing. This row contributes an ISCHAEMIC composite (CV death/MI/ischaemic stroke) to a pool whose other three rows contribute BLEEDING outcomes. The pooled estimate is not an estimate of anything.",
+     "fix": "Split into two co-primary analyses - efficacy (ischaemic) and safety (bleeding) - and mark each. APPRAISE-2's own bleeding row is available: 46/3673 vs 18/3642, HR 2.59 (1.50-4.46)."},
+    {"id": "F2e", "gate": "G6", "severity": "ADVISORY",
+     "finding": "Registry enrolment 7484 vs publication 7392 randomised. Not an error; state which denominator source is used.",
+     "fix": "Label the denominator source."}
+   ]
+  },
+  {
+   "ledger_key": "NCT00852397",
+   "ledger_name": "Ogawa 2013",
+   "true_identity": "APPRAISE-J",
+   "status": "FINDING",
+   "citation_in_ledger": {"pmid": "23748920", "verdict": "CORRECT"},
+   "primary_source": {
+    "pmid": "23748920",
+    "doi": "10.1253/circj.cj-13-0209",
+    "citation": "Ogawa H et al. Circ J 2013;77(9):2341-8",
+    "pubmed_article_type": "Clinical Trial, Phase II",
+    "quoted": "Patients with recently diagnosed ACS were randomized to receive apixaban 2.5mg twice daily (BID; n=49), apixaban 5mg BID (n=50), or placebo (n=52) in addition to standard antiplatelet therapy for 24 weeks. The composite primary endpoint of major or clinically relevant nonmajor bleeding occurred in 2 patients (4.1%) in each apixaban treatment group and 1 patient (2.0%) in the placebo group"
+   },
+   "registry": {
+    "nct": "NCT00852397", "phases": ["PHASE2"], "enrollment_actual": 151,
+    "masking": "DOUBLE", "status": "TERMINATED", "has_results": true,
+    "posted_primary": {
+     "title": "Percentage of Participants Who Had Composite of ISTH-Defined Major or Clinically Relevant Non-Major Bleeding",
+     "unit": "Percentage of Participants",
+     "unit_is_proportion": true,
+     "arms": [
+      {"group": "Placebo", "denominator": 51, "value": 2.0, "recovered_count": 1},
+      {"group": "Apixaban 2.5 mg BID", "denominator": 49, "value": 4.1, "recovered_count": 2},
+      {"group": "Apixaban 5.0 mg BID", "denominator": 49, "value": 4.1, "recovered_count": 2}
+     ]
+    }
+   },
+   "ledger_values": {"tE": 17, "tN": 52, "cE": 19, "cN": 49, "phase": "III"},
+   "findings": [
+    {"id": "F3a", "gate": "G6d", "severity": "CRITICAL",
+     "finding": "THE COUNTS HAVE NO LOCATED SOURCE. The publication states 2, 2 and 1 events. The registry posts 4.1%, 4.1% and 2.0% on denominators 49, 49 and 51, from which the only recoverable counts are 1 and 2. The ledger carries 17 and 19 - an order of magnitude larger, matching nothing in either document, for the outcome the ledger's own title field names.",
+     "hypothesis_not_asserted": "17/52 = 32.7% and 19/49 = 38.8% are plausible as an 'any bleeding' tally, which the paper reports only qualitatively as a dose-dependent increase. This is a hypothesis and is NOT used to justify the numbers.",
+     "fix": "Quarantine the row pending a located source, or re-extract as t = 4/99 (both apixaban arms) vs c = 1/52 (placebo) from the publication, labelled as such."},
+    {"id": "F3b", "gate": "G6", "severity": "HIGH",
+     "finding": "Phase discordance. Ledger says phase III; registry says PHASE2 and PubMed types it 'Clinical Trial, Phase II'.",
+     "fix": "phase -> \"II\""},
+    {"id": "F3c", "gate": "G6c", "severity": "CRITICAL",
+     "finding": "Arms swapped. tN = 52 is the PLACEBO n; cN = 49 is an apixaban n.",
+     "fix": "Swap and bind by group title."},
+    {"id": "F3d", "gate": "G6", "severity": "ADVISORY",
+     "finding": "Ledger total N 101 is 67% of enrolment 151; the apixaban 5 mg arm (n=50) is dropped silently. Registry places placebo at 51 analysed, publication at 52 randomised.",
+     "fix": "Pool both apixaban arms or state the exclusion."},
+    {"id": "F3e", "gate": "IDENTITY", "severity": "MEDIUM",
+     "finding": "The trial is APPRAISE-J. The ledger's display name 'Ogawa 2013' is a correct first-author-year but hides the trial's identity and its relationship to APPRAISE-1.",
+     "fix": "name -> \"APPRAISE-J\" with Ogawa 2013 as the citation."}
+   ]
+  },
+  {
+   "ledger_key": "NCT02415400",
+   "ledger_name": "Lopes 2018",
+   "true_identity": "AUGUSTUS",
+   "status": "FINDING",
+   "citation_in_ledger": {"pmid": "29898844", "verdict": "WRONG PAPER"},
+   "primary_source": {
+    "wrong_pmid_cited": "29898844",
+    "wrong_pmid_is": "Lopes RD et al. 'An open-label, 2x2 factorial, randomized controlled trial ... Rationale and design of the AUGUSTUS trial.' Am Heart J 2018;200:17-23. DOI 10.1016/j.ahj.2018.03.001. PubMed article type: 'Clinical Trial Protocol'. It reports NO outcome data and cannot substantiate any extracted count.",
+    "correct_pmid": "30883055",
+    "doi": "10.1056/NEJMoa1817083",
+    "citation": "Lopes RD et al. 'Antithrombotic Therapy after Acute Coronary Syndrome or PCI in Atrial Fibrillation.' N Engl J Med 2019;380(16):1509-1524",
+    "how_located": "ClinicalTrials.gov NCT02415400 referencesModule DERIVED publication list, then confirmed in PubMed.",
+    "quoted": "Major or clinically relevant nonmajor bleeding was noted in 10.5% of the patients receiving apixaban, as compared with 14.7% of those receiving a vitamin K antagonist (hazard ratio, 0.69; 95% confidence interval [CI], 0.58 to 0.81; P<0.001 for both noninferiority and superiority)"
+   },
+   "registry": {
+    "nct": "NCT02415400", "phases": ["PHASE4"], "enrollment_actual": 4614,
+    "masking": "NONE", "status": "COMPLETED", "has_results": true,
+    "arm_labels": ["Apixaban", "Vitamin K Antagonist", "Acetylsalicylic acid", "Placebo matching acetylsalicylic acid"],
+    "posted_primary": {
+     "title": "The Rate of ISTH Major or Clinically Relevant Non-Major (CRNM) Bleeding",
+     "unit": "Percentage per year",
+     "unit_is_proportion": false,
+     "arms": [
+      {"group": "Apixaban", "denominator": 2290, "value": 24.66},
+      {"group": "Vitamin K Antagonist", "denominator": 2259, "value": 35.79}
+     ]
+    }
+   },
+   "ledger_values": {"tE": 284, "tN": 1153, "cE": 413, "cN": 1153, "pubHR": 0.69, "pubHR_LCI": 0.58, "pubHR_UCI": 0.82},
+   "findings": [
+    {"id": "F4a", "gate": "CITATION", "severity": "CRITICAL",
+     "finding": "Wrong paper cited. PMID 29898844 is the AUGUSTUS rationale-and-design protocol paper, typed by PubMed as 'Clinical Trial Protocol'. It contains no results. This is the same class as the HFrEF RESOLVD finding.",
+     "fix": "pmid -> 30883055, doi -> 10.1056/NEJMoa1817083, year -> 2019, name -> \"AUGUSTUS\"."},
+    {"id": "F4b", "gate": "G6b", "severity": "CRITICAL",
+     "finding": "THE COUNTS ARE MANUFACTURED, and the denominator belongs to no arm. 1153 x 24.66/100 = 284.3 -> the ledger's 284. 1153 x 35.79/100 = 412.7 -> the ledger's 413. The posted unit is 'Percentage per year' - a rate. The registry's arm denominators are 2290 and 2259; 1153 is approximately one quarter of total enrolment (4614/4 = 1153.5) and corresponds to no randomised arm of this 2x2 factorial trial. Both ledger arms are given the SAME invented denominator.",
+     "root_cause": "percentage-per-year treated as a proportion, applied to a fabricated denominator",
+     "fix": "Use the published percentages with the registry denominators (10.5% of 2290 apixaban vs 14.7% of 2259 VKA) and label them as percentages, or carry the HR only."},
+    {"id": "F4c", "gate": "PICO", "severity": "CRITICAL",
+     "finding": "Wrong PICO for this app. AUGUSTUS randomised patients with ATRIAL FIBRILLATION who had an ACS or PCI, and compared apixaban against a VITAMIN K ANTAGONIST - not against placebo on top of antiplatelet therapy. The registry's own brief title begins 'A Study of Apixaban in Patients With Atrial Fibrillation'. Pooling it with APPRAISE-1/2/J mixes both the population and the comparator, and it is the only open-label (masking NONE), phase 4 trial in an otherwise double/triple-blind phase 2-3 set.",
+     "fix": "Exclude from the apixaban-vs-placebo-in-ACS pool, or restructure the app to a network/subgroup design that marks the comparator explicitly. If retained, the anticoagulant-naive-vs-VKA distinction must be on the page."},
+    {"id": "F4d", "gate": "G6", "severity": "HIGH",
+     "finding": "Phase discordance: ledger says III, registry says PHASE4.",
+     "fix": "phase -> \"IV\""},
+    {"id": "F4e", "gate": "CI", "severity": "MEDIUM",
+     "finding": "The ledger's upper CI is 0.82; the NEJM abstract states 0.58 to 0.81.",
+     "fix": "pubHR_UCI -> 0.81, sourced to the publication; if the registry states 0.82, label which document is used."},
+    {"id": "F4f", "gate": "FACTORIAL", "severity": "HIGH",
+     "finding": "AUGUSTUS is a 2x2 factorial (apixaban vs VKA AND aspirin vs placebo). A single 2x2 table cannot represent it without stating which factor is being estimated and that the other is marginalised over.",
+     "fix": "State the factor and the marginalisation on the page."}
+   ]
+  }
+ ],
+ "consequence_measured": {
+  "estimator": "Mantel-Haenszel OR with Robins-Breslow-Greenland SE. No tau2 or I2 is quoted: k<10 makes DerSimonian-Laird inadmissible (rules/advanced-stats.md) and a random-effects tau2 at k=2 is not interpretable.",
+  "as_the_app_pools_it_now": {
+   "k": 4, "or": 0.850, "ci": [0.780, 0.926],
+   "reading": "nominally significant, favours apixaban",
+   "caveat": "This number is uninterpretable regardless of its value: three rows are bleeding outcomes and one is an ischaemic composite."
+  },
+  "verified_coherent_pico": {
+   "outcome": "ISTH major or clinically relevant non-major bleeding, apixaban vs placebo on top of antiplatelet therapy",
+   "trials": ["APPRAISE-1 apixaban 2.5 mg BID 18/315 vs placebo 18/599",
+              "APPRAISE-J apixaban 2.5+5 mg 4/99 vs placebo 1/52"],
+   "k": 2, "or": 1.975, "ci": [1.223, 3.189],
+   "reading": "nominally significant, apixaban roughly DOUBLES major/CRNM bleeding",
+   "excluded": "AUGUSTUS (VKA comparator, AF population, open-label, phase 4)"
+  },
+  "headline": "The correction flips the sign. The app currently reports OR 0.850 favouring apixaban; the verified synthesis of the coherent PICO gives OR 1.975 against it, with both nominally significant. The app's live estimate is on the wrong side of 1.0 for the single finding that stopped APPRAISE-2 and ended apixaban's development in ACS."
+ },
+ "not_tested": [
+  "Full text of APPRAISE-1, APPRAISE-2, APPRAISE-J and AUGUSTUS. All verification above is against abstracts plus ClinicalTrials.gov posted results. Both are primary for the quantities used, but per-arm event counts for secondary outcomes were not sought.",
+  "FDA/EMA review documents. Not consulted in this pass. The apixaban ACS programme has an EMA assessment history that would corroborate the bleeding counts independently.",
+  "Prior published or Cochrane meta-analyses of apixaban in ACS. Not consulted; triangulation is therefore 2-source (registry + publication), not 4-source.",
+  "The AACT 2026-04-12 snapshot the app's badge names. This audit used the live ClinicalTrials.gov API v2 instead. Concordance against the snapshot itself is unverified.",
+  "Whether the app's own analysis engine reproduces the Mantel-Haenszel figures above. The consequence was computed independently, outside the app.",
+  "Publication bias, small-study effects and prediction intervals. Not assessed; at k=2-4 they are not assessable."
+ ]
+}

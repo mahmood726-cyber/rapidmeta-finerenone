@@ -1,0 +1,501 @@
+{
+ "app": "APIXABAN_ACS_AUTO_FULL_REVIEW.html",
+ "k_trials": 4,
+ "n_arm_rows": 8,
+ "ledger": [
+  {
+   "key": "NCT00313300",
+   "nct": "NCT00313300",
+   "name": "Alexander 2009",
+   "pmid": "19470889",
+   "phase": "III",
+   "year": 2009,
+   "tE": 18,
+   "tN": 611,
+   "cE": 18,
+   "cN": 317,
+   "pubHR": null,
+   "pubHR_LCI": null,
+   "pubHR_UCI": null,
+   "outcome_title": "Event Rate of Composite of Adjudicated Major Bleeding and Clinically Relevant Non-Major Bleeding During the Treatment Pe (primary)"
+  },
+  {
+   "key": "NCT00831441",
+   "nct": "NCT00831441",
+   "name": "APPRAISE-2",
+   "pmid": "21780946",
+   "phase": "III",
+   "year": 2011,
+   "tE": 515,
+   "tN": 3687,
+   "cE": 489,
+   "cN": 3705,
+   "pubHR": 0.95,
+   "pubHR_LCI": 0.8,
+   "pubHR_UCI": 1.11,
+   "outcome_title": "Event Rate of Cardiovascular Death, Myocardial Infarction, or Ischemic Stroke During the Intended Treatment Period - Ran (primary)"
+  },
+  {
+   "key": "NCT00852397",
+   "nct": "NCT00852397",
+   "name": "Ogawa 2013",
+   "pmid": "23748920",
+   "phase": "III",
+   "year": 2013,
+   "tE": 17,
+   "tN": 52,
+   "cE": 19,
+   "cN": 49,
+   "pubHR": null,
+   "pubHR_LCI": null,
+   "pubHR_UCI": null,
+   "outcome_title": "Percentage of Participants Who Had Composite of International Society on Thrombosis and Haemostasis (ISTH)-Defined Major (primary)"
+  },
+  {
+   "key": "NCT02415400",
+   "nct": "NCT02415400",
+   "name": "Lopes 2018",
+   "pmid": "29898844",
+   "phase": "III",
+   "year": 2018,
+   "tE": 284,
+   "tN": 1153,
+   "cE": 413,
+   "cN": 1153,
+   "pubHR": 0.69,
+   "pubHR_LCI": 0.58,
+   "pubHR_UCI": 0.82,
+   "outcome_title": "The Rate of International Society on Thrombosis and Haemostasis (ISTH) Major or Clinically Relevant Non-Major (CRNM) Ble (primary)"
+  }
+ ],
+ "gates": {
+  "G1_G4_G5_G6_G6b_G7_G8_findings": [
+   {
+    "gate": "G4",
+    "severity": "ADVISORY",
+    "trial": "Alexander 2009",
+    "message": "arm-balance ratio 1.93:1 (611 vs 317) \u2014 confirm the randomisation ratio in the source",
+    "ratio": 1.927
+   },
+   {
+    "gate": "G7",
+    "severity": "HIGH",
+    "trial": "Alexander 2009",
+    "message": "fragility index 1 at p=0.0486 \u2014 1 event(s) overturn it",
+    "fi": 1
+   },
+   {
+    "gate": "G8",
+    "severity": "HIGH",
+    "trial": "APPRAISE-2",
+    "message": "published effect 0.95 and crude 2x2 RR 1.058 point in OPPOSITE directions \u2014 counts and effect cannot both be right",
+    "pubHR": 0.95,
+    "crude_rr": 1.0583
+   },
+   {
+    "gate": "G6",
+    "severity": "HIGH",
+    "trial": "Alexander 2009",
+    "message": "phase discordance: ledger says phase III, registry says ['PHASE2'] for NCT00313300",
+    "ledger_phase": "III",
+    "registry_phase": [
+     "PHASE2"
+    ]
+   },
+   {
+    "gate": "G6",
+    "severity": "ADVISORY",
+    "trial": "Alexander 2009",
+    "message": "ledger total N 928 is 53% of registry enrolment 1741 \u2014 arms may be dropped or pooled; state which"
+   },
+   {
+    "gate": "G6b",
+    "severity": "HIGH",
+    "trial": "Alexander 2009",
+    "message": "treatment count 18 = posted 3.0% of group 'Placebo' applied to ledger:tN (MATCHES NO REGISTRY ARM)=611 \u2014 the denominator corresponds to no arm of this trial",
+    "posted_group": "Placebo",
+    "denom_used": "ledger:tN (MATCHES NO REGISTRY ARM)",
+    "ledger_count": 18
+   },
+   {
+    "gate": "G6b",
+    "severity": "HIGH",
+    "trial": "Alexander 2009",
+    "message": "control count 18 = posted 3.0% of group 'Placebo' applied to ledger:tN (MATCHES NO REGISTRY ARM)=611 \u2014 the denominator corresponds to no arm of this trial",
+    "posted_group": "Placebo",
+    "denom_used": "ledger:tN (MATCHES NO REGISTRY ARM)",
+    "ledger_count": 18
+   },
+   {
+    "gate": "G6b",
+    "severity": "HIGH",
+    "trial": "Alexander 2009",
+    "message": "treatment count 18 = posted 5.7% of group 'Apixaban 2.5mg BID' applied to ledger:cN (MATCHES NO REGISTRY ARM)=317 \u2014 the denominator corresponds to no arm of this trial",
+    "posted_group": "Apixaban 2.5mg BID",
+    "denom_used": "ledger:cN (MATCHES NO REGISTRY ARM)",
+    "ledger_count": 18
+   },
+   {
+    "gate": "G6b",
+    "severity": "HIGH",
+    "trial": "Alexander 2009",
+    "message": "control count 18 = posted 5.7% of group 'Apixaban 2.5mg BID' applied to ledger:cN (MATCHES NO REGISTRY ARM)=317 \u2014 the denominator corresponds to no arm of this trial",
+    "posted_group": "Apixaban 2.5mg BID",
+    "denom_used": "ledger:cN (MATCHES NO REGISTRY ARM)",
+    "ledger_count": 18
+   },
+   {
+    "gate": "G6c",
+    "severity": "MEDIUM",
+    "trial": "Alexander 2009",
+    "message": "both ledger slots reproduce the same registry group(s) ['Apixaban 2.5mg BID', 'Placebo'] \u2014 arm attribution is ambiguous and unverified",
+    "treatment_slot_owner": [
+     "Apixaban 2.5mg BID",
+     "Placebo"
+    ],
+    "control_slot_owner": [
+     "Apixaban 2.5mg BID",
+     "Placebo"
+    ]
+   },
+   {
+    "gate": "G6b",
+    "severity": "CRITICAL",
+    "trial": "APPRAISE-2",
+    "message": "treatment count 515 reproduces posted value 13.96 x registry:Placebo=3687 / 100, but the posted unit is 'percentage of participants/100-pt years' \u2014 a RATE over person-time, NOT a proportion. The count is MANUFACTURED and appears in no source.",
+    "posted_value": 13.96,
+    "posted_unit": "percentage of participants/100-pt years",
+    "posted_group": "Placebo",
+    "denom_used": "registry:Placebo",
+    "ledger_count": 515
+   },
+   {
+    "gate": "G6b",
+    "severity": "CRITICAL",
+    "trial": "APPRAISE-2",
+    "message": "control count 489 reproduces posted value 13.2 x registry:Apixaban 5 mg BID=3705 / 100, but the posted unit is 'percentage of participants/100-pt years' \u2014 a RATE over person-time, NOT a proportion. The count is MANUFACTURED and appears in no source.",
+    "posted_value": 13.2,
+    "posted_unit": "percentage of participants/100-pt years",
+    "posted_group": "Apixaban 5 mg BID",
+    "denom_used": "registry:Apixaban 5 mg BID",
+    "ledger_count": 489
+   },
+   {
+    "gate": "G6c",
+    "severity": "CRITICAL",
+    "trial": "APPRAISE-2",
+    "message": "ARMS SWAPPED: the ledger's TREATMENT slot (e=515, N=3687) reproduces the registry's ['Placebo'] group. Every effect estimate from this row points the wrong way.",
+    "treatment_slot_owner": [
+     "Placebo"
+    ],
+    "control_slot_owner": [
+     "Apixaban 5 mg BID"
+    ]
+   },
+   {
+    "gate": "G6",
+    "severity": "HIGH",
+    "trial": "Ogawa 2013",
+    "message": "phase discordance: ledger says phase III, registry says ['PHASE2'] for NCT00852397",
+    "ledger_phase": "III",
+    "registry_phase": [
+     "PHASE2"
+    ]
+   },
+   {
+    "gate": "G6",
+    "severity": "ADVISORY",
+    "trial": "Ogawa 2013",
+    "message": "ledger total N 101 is 67% of registry enrolment 151 \u2014 arms may be dropped or pooled; state which"
+   },
+   {
+    "gate": "G6d",
+    "severity": "CRITICAL",
+    "trial": "Ogawa 2013",
+    "message": "treatment count 17 reconciles with NO arm of the posted results for outcome 'Percentage of Participants Who Had Composite of Internationa'. Recoverable counts are [1, 2]. This count has no located source.",
+    "ledger_count": 17,
+    "recoverable": [
+     1,
+     2
+    ],
+    "outcome": "Percentage of Participants Who Had Composite of International Society on Thrombosis and Haemostasis (ISTH)-Defined Major and Clinically-relevant Non-major (CRNM) Bleeding Events Occurring During the Treatment Period."
+   },
+   {
+    "gate": "G6d",
+    "severity": "CRITICAL",
+    "trial": "Ogawa 2013",
+    "message": "control count 19 reconciles with NO arm of the posted results for outcome 'Percentage of Participants Who Had Composite of Internationa'. Recoverable counts are [1, 2]. This count has no located source.",
+    "ledger_count": 19,
+    "recoverable": [
+     1,
+     2
+    ],
+    "outcome": "Percentage of Participants Who Had Composite of International Society on Thrombosis and Haemostasis (ISTH)-Defined Major and Clinically-relevant Non-major (CRNM) Bleeding Events Occurring During the Treatment Period."
+   },
+   {
+    "gate": "G6",
+    "severity": "HIGH",
+    "trial": "Lopes 2018",
+    "message": "phase discordance: ledger says phase III, registry says ['PHASE4'] for NCT02415400",
+    "ledger_phase": "III",
+    "registry_phase": [
+     "PHASE4"
+    ]
+   },
+   {
+    "gate": "G6",
+    "severity": "ADVISORY",
+    "trial": "Lopes 2018",
+    "message": "ledger total N 2306 is 50% of registry enrolment 4614 \u2014 arms may be dropped or pooled; state which"
+   },
+   {
+    "gate": "G6b",
+    "severity": "CRITICAL",
+    "trial": "Lopes 2018",
+    "message": "treatment count 284 reproduces posted value 24.66 x ledger:tN (MATCHES NO REGISTRY ARM)=1153 / 100, but the posted unit is 'Percentage per year' \u2014 a RATE over person-time, NOT a proportion. The count is MANUFACTURED and appears in no source.",
+    "posted_value": 24.66,
+    "posted_unit": "Percentage per year",
+    "posted_group": "Apixaban",
+    "denom_used": "ledger:tN (MATCHES NO REGISTRY ARM)",
+    "ledger_count": 284
+   },
+   {
+    "gate": "G6b",
+    "severity": "CRITICAL",
+    "trial": "Lopes 2018",
+    "message": "treatment count 284 reproduces posted value 24.66 x ledger:cN (MATCHES NO REGISTRY ARM)=1153 / 100, but the posted unit is 'Percentage per year' \u2014 a RATE over person-time, NOT a proportion. The count is MANUFACTURED and appears in no source.",
+    "posted_value": 24.66,
+    "posted_unit": "Percentage per year",
+    "posted_group": "Apixaban",
+    "denom_used": "ledger:cN (MATCHES NO REGISTRY ARM)",
+    "ledger_count": 284
+   },
+   {
+    "gate": "G6b",
+    "severity": "CRITICAL",
+    "trial": "Lopes 2018",
+    "message": "control count 413 reproduces posted value 35.79 x ledger:tN (MATCHES NO REGISTRY ARM)=1153 / 100, but the posted unit is 'Percentage per year' \u2014 a RATE over person-time, NOT a proportion. The count is MANUFACTURED and appears in no source.",
+    "posted_value": 35.79,
+    "posted_unit": "Percentage per year",
+    "posted_group": "Vitamin K Antagonist",
+    "denom_used": "ledger:tN (MATCHES NO REGISTRY ARM)",
+    "ledger_count": 413
+   },
+   {
+    "gate": "G6b",
+    "severity": "CRITICAL",
+    "trial": "Lopes 2018",
+    "message": "control count 413 reproduces posted value 35.79 x ledger:cN (MATCHES NO REGISTRY ARM)=1153 / 100, but the posted unit is 'Percentage per year' \u2014 a RATE over person-time, NOT a proportion. The count is MANUFACTURED and appears in no source.",
+    "posted_value": 35.79,
+    "posted_unit": "Percentage per year",
+    "posted_group": "Vitamin K Antagonist",
+    "denom_used": "ledger:cN (MATCHES NO REGISTRY ARM)",
+    "ledger_count": 413
+   }
+  ],
+  "G2_grim": {
+   "applicable": false,
+   "why": "binary per-arm counts only; no means or SDs to reconstruct. N/A \u2014 not passed."
+  },
+  "G3_benford": {
+   "n": 16,
+   "verdict": "UNDERPOWERED \u2014 Benford needs >=30 values",
+   "chi2": null,
+   "crit": 15.507
+  },
+  "G7_fragility": [
+   {
+    "trial": "Alexander 2009",
+    "fi": 1,
+    "p": 0.04858,
+    "note": "added to treatment arm"
+   },
+   {
+    "trial": "APPRAISE-2",
+    "fi": null,
+    "p": 0.3419,
+    "note": "not significant"
+   },
+   {
+    "trial": "Ogawa 2013",
+    "fi": null,
+    "p": 0.54067,
+    "note": "not significant"
+   },
+   {
+    "trial": "Lopes 2018",
+    "fi": 84,
+    "p": 0.0,
+    "note": "added to treatment arm"
+   }
+  ]
+ },
+ "registry": {
+  "NCT00313300": {
+   "acronym": null,
+   "brief_title": "Safety Study of Apixaban in Recent Acute Coronary Syndrome",
+   "phases": [
+    "PHASE2"
+   ],
+   "enrollment": 1741,
+   "masking": "DOUBLE",
+   "status": "COMPLETED",
+   "has_results": true,
+   "primary_outcomes": [
+    {
+     "title": "Event Rate of Composite of Adjudicated Major Bleeding and Clinically Relevant Non-Major Bleeding During the Treatment Period- Treated Participants With Placebo or Apixaban Low Doses",
+     "unit": "percentage of participants",
+     "param": "NUMBER",
+     "groups": {
+      "OG000": "Placebo",
+      "OG001": "Apixaban 2.5mg BID",
+      "OG002": "Apixaban 10mg QD"
+     },
+     "denoms": {
+      "OG000": "599",
+      "OG001": "315",
+      "OG002": "315"
+     },
+     "values": {
+      "OG000": "3.0",
+      "OG001": "5.7",
+      "OG002": "7.9"
+     }
+    }
+   ]
+  },
+  "NCT00831441": {
+   "acronym": "APPRAISE-2",
+   "brief_title": "Phase III Acute Coronary Syndrome",
+   "phases": [
+    "PHASE3"
+   ],
+   "enrollment": 7484,
+   "masking": "TRIPLE",
+   "status": "TERMINATED",
+   "has_results": true,
+   "primary_outcomes": [
+    {
+     "title": "Event Rate of Cardiovascular Death, Myocardial Infarction, or Ischemic Stroke During the Intended Treatment Period - Randomized Participants",
+     "unit": "percentage of participants/100-pt years",
+     "param": "NUMBER",
+     "groups": {
+      "OG000": "Placebo",
+      "OG001": "Apixaban 5 mg BID"
+     },
+     "denoms": {
+      "OG000": "3687",
+      "OG001": "3705"
+     },
+     "values": {
+      "OG000": "13.96",
+      "OG001": "13.20"
+     }
+    },
+    {
+     "title": "Event Rate of Confirmed Major Bleeding Using Thrombolysis in Myocardial Infarction (TIMI) Criteria During the Treatment Period - Treated Participants",
+     "unit": "percentage of participants/100-pt years",
+     "param": "NUMBER",
+     "groups": {
+      "OG000": "Placebo",
+      "OG001": "Apixaban 5 mg BID"
+     },
+     "denoms": {
+      "OG000": "3643",
+      "OG001": "3672"
+     },
+     "values": {
+      "OG000": "0.91",
+      "OG001": "2.40"
+     }
+    }
+   ]
+  },
+  "NCT00852397": {
+   "acronym": null,
+   "brief_title": "A Study to Evaluate the Safety of Apixaban in Acute Coronary Syndrome (ACS) Japanese Patients",
+   "phases": [
+    "PHASE2"
+   ],
+   "enrollment": 151,
+   "masking": "DOUBLE",
+   "status": "TERMINATED",
+   "has_results": true,
+   "primary_outcomes": [
+    {
+     "title": "Percentage of Participants Who Had Composite of International Society on Thrombosis and Haemostasis (ISTH)-Defined Major and Clinically-relevant Non-major (CRNM) Bleeding Events Occurring During the Treatment Period.",
+     "unit": "Percentage of Participants",
+     "param": "NUMBER",
+     "groups": {
+      "OG000": "Placebo",
+      "OG001": "Apixaban 2.5 mg BID",
+      "OG002": "Apixaban 5.0 mg BID"
+     },
+     "denoms": {
+      "OG000": "51",
+      "OG001": "49",
+      "OG002": "49"
+     },
+     "values": {
+      "OG000": "2.0",
+      "OG001": "4.1",
+      "OG002": "4.1"
+     }
+    }
+   ]
+  },
+  "NCT02415400": {
+   "acronym": null,
+   "brief_title": "A Study of Apixaban in Patients With Atrial Fibrillation, Not Caused by a Heart Valve Problem, Who Are at Risk for Thrombosis (Blood Clots) Due to Having Had a Recent Coronary Event, Such as a Heart Attack or a Procedure to Open the Vessels of the Heart",
+   "phases": [
+    "PHASE4"
+   ],
+   "enrollment": 4614,
+   "masking": "NONE",
+   "status": "COMPLETED",
+   "has_results": true,
+   "primary_outcomes": [
+    {
+     "title": "The Rate of International Society on Thrombosis and Haemostasis (ISTH) Major or Clinically Relevant Non-Major (CRNM) Bleeding With Apixaban Versus Vitamin K Antagonist (VKA) During the Treatment Period",
+     "unit": "Percentage per year",
+     "param": "NUMBER",
+     "groups": {
+      "OG000": "Apixaban",
+      "OG001": "Vitamin K Antagonist"
+     },
+     "denoms": {
+      "OG000": "2290",
+      "OG001": "2259"
+     },
+     "values": {
+      "OG000": "24.66",
+      "OG001": "35.79"
+     }
+    },
+    {
+     "title": "The Rate of ISTH Major or CRNM Bleeding With Aspirin Versus no Aspirin During the Treatment Period",
+     "unit": "Percentage per year",
+     "param": "NUMBER",
+     "groups": {
+      "OG000": "Acetylsalicylic Acid Film Coated Tablet",
+      "OG001": "Placebo Matching Acetylsalicylic Acid Film Coated Tablet"
+     },
+     "denoms": {
+      "OG000": "2277",
+      "OG001": "2279"
+     },
+     "values": {
+      "OG000": "40.51",
+      "OG001": "21.03"
+     }
+    }
+   ]
+  }
+ },
+ "counts": {
+  "CRITICAL": 9,
+  "HIGH": 9,
+  "MEDIUM": 1,
+  "ADVISORY": 4
+ }
+}
