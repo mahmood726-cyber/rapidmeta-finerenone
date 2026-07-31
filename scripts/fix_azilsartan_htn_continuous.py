@@ -567,6 +567,43 @@ h = edit(
     '"دراسة أحادية الذراع أو امتداد مفتوح التسمية بدون مقارِن عشوائي"',
 )
 
+# D17 -- the PICO <input value="..."> attributes are only the initial paint.
+# syncUI() writes state.protocol into #p-pop/#p-int/#p-comp/#p-out on every
+# render, so the JS defaults are the real source and would overwrite the
+# corrected fields at runtime.  Fix both, or the visible fix is cosmetic.
+h = edit(
+    h, "D17", "protocol state defaults match the corrected PICO (syncUI overwrites the inputs)",
+    'state:{protocol:{pop:"Adults randomised in trials registered on ClinicalTrials.gov for '
+    'Hypertension",int:"Azilsartan (AACT-verified intervention name)",'
+    'comp:"Active comparator or placebo as registered on AACT",'
+    'out:"Trial-declared primary outcome (AACT design_outcomes); event counts from AACT '
+    'outcome_measurements",subgroup:"Subgroup analyses per parent trial protocol",'
+    'query:"",rctOnly:!0,post2015:!0}',
+    'state:{protocol:{pop:"Adults with stage 2 primary (essential) hypertension",'
+    'int:"Azilsartan medoxomil, as monotherapy or as a fixed-dose combination with chlorthalidone",'
+    'comp:"Active antihypertensive comparator (olmesartan/HCTZ; valsartan 320 mg; '
+    'azilsartan+HCTZ). No placebo-controlled trial is included.",'
+    'out:"Adjusted mean difference (mmHg) in change from baseline in systolic BP at a harmonised '
+    'timepoint, analysed separately within each estimand. Continuous outcome - no event counts.",'
+    'subgroup:"None. The only poolable estimand contains k = 2 studies, which cannot support '
+    'subgroup analysis or meta-regression.",'
+    # post2015 retired with the rest of the date-based eligibility (corpus policy).
+    'query:"",rctOnly:!0,post2015:!1}',
+)
+
+# D18 -- the same retired PICO text is served to search engines and social cards.
+OLD_META = (
+    'Azilsartan (AACT-verified intervention name); Adults randomised in trials registered on '
+    'ClinicalTrials.gov for Hypertension; Trial-declared primary outcome (AAC'
+)
+NEW_META = (
+    'Azilsartan medoxomil in stage 2 primary hypertension; adjusted mean difference in systolic '
+    'blood pressure (mmHg) across three separate estimands; 4 records, 2 pooled; UNVERIFIED '
+    'automated output, not a validated meta-analysis'
+)
+h = edit(h, "D18", "meta description and JSON-LD carry the corrected scope",
+         OLD_META, NEW_META, expect=2)
+
 # D16 -- clone contamination surviving in the i18n map: the English key names
 # sacubitril/valsartan and the Arabic value names finerenone, in an azilsartan
 # hypertension review.  The English DOM title is "Azilsartan in HTN", so the key
