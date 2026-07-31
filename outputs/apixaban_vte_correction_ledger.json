@@ -45,7 +45,11 @@
           "computed_from_counts": "RR = (15/2676)/(49/2689) = 0.3076, agrees with the published 0.31"
         }
       ],
-      "not_recorded_as_counts": "The major-or-CRNM composite (4.3% vs 9.7%, RR 0.44 [0.36-0.55]) is reported in the snippet as a published effect only. Per-arm counts were not read off a primary surface in this session, so they are NOT written as a switchable 2x2 outcome rather than being back-computed from the percentages."
+      "safety_counts_recovered": {
+        "MajorOrCRNMBleeding": {"tE": 115, "nT": 2676, "cE": 261, "nC": 2689, "published_effect": "RR 0.44 (95% CI 0.36-0.55)"},
+        "CRNMBleeding": {"tE": 103, "nT": 2676, "cE": 215, "nC": 2689},
+        "method": "ClinicalTrials.gov posts these as proportions over the treated-population denominator, not as participant counts. scripts/derive_bleeding_counts.py enumerates every integer in [0,N] and accepts a recovery ONLY when exactly one integer rounds to the posted proportion at the posted precision. All six AMPLIFY rows were unique; none ambiguous. The method reproduces the two counts already known independently from NEJM (15/2676 and 49/2689) exactly, which is what validates it, and the recovered rates cross-check against the published 0.6%/1.8% and 4.3%/9.7%."
+      }
     },
     {
       "nct": "NCT00633893",
@@ -74,7 +78,13 @@
           "source": "NEJM abstract: '14 of the 813 patients (1.7%) who were receiving 5 mg of apixaban'."
         }
       ],
-      "not_recorded_as_counts": "Major bleeding (0.5% placebo / 0.2% 2.5 mg / 0.1% 5 mg) and CRNM bleeding (2.3% / 3.0% / 4.2%) are reported as published percentages in the snippet. Safety-population per-arm counts were not read off a primary surface in this session and are therefore not written as 2x2 outcomes."
+      "safety_counts_recovered": {
+        "denominator_note": "Safety outcomes use the TREATED-population denominators 840 (2.5 mg) / 811 (5 mg) / 826 (placebo), which differ from the ITT denominators 840/813/829 used for the primary efficacy outcome. Each outcome record carries its own nT/nC so the app does not silently reuse the ITT denominators.",
+        "MajorBleeding": {"apixaban_2p5mg": "2/840", "apixaban_5mg": "1/811", "placebo": "4/826"},
+        "MajorOrCRNMBleeding": {"apixaban_2p5mg": "27/840", "apixaban_5mg": "35/811", "placebo": "22/826"},
+        "CRNMBleeding": {"apixaban_2p5mg": "25/840", "apixaban_5mg": "34/811", "placebo": "19/826"},
+        "method": "Recovered by the same uniqueness proof as AMPLIFY (scripts/derive_bleeding_counts.py); all nine rows unique, none ambiguous. Cross-checks against the NEJM abstract percentages 0.5/0.2/0.1 (major) and 2.3/3.0/4.2 (CRNM) all agree."
+      }
     },
     {
       "nct": "NCT03266783",
@@ -197,9 +207,9 @@
 
   "not_done": [
     "No push. Branch is staged only, awaiting the cross-family gate and Mahmood's go.",
-    "AMPLIFY major-or-CRNM composite and AMPLIFY-EXT safety per-arm counts are not recorded as 2x2 outcomes because they were not read off a primary surface in this session.",
+    "Safety per-arm counts for AMPLIFY and AMPLIFY-EXT were RECOVERED from the proportions posted on ClinicalTrials.gov rather than read as integers; each recovery is proven unique at the posted precision (scripts/derive_bleeding_counts.py) and cross-checks against the published percentages, but it is a recovery, not a direct reading.",
     "RAMBLE's attached protocol and SAP PDFs are recorded as existing and linked, but their contents were not read.",
     "No full texts were read for any trial; verification is registry + abstract, which is 2-source but not 3-source.",
-    "GRADE, RoB 2 and AMSTAR-2 have not been re-derived for the new question set; the app's automated GRADE output is suppressed rather than rebuilt."
+    "GRADE, RoB 2 and AMSTAR-2 have not been re-derived for the new question set. The automated GRADE engine is now suppressed for k<2 as well as under any refusal, so no certainty rating is issued anywhere in this review. The live render had shown it emitting 'Certainty HIGH - no downgrading required' for COBRRA from a single open-label trial; inconsistency and publication bias are not assessable from one study, so that rating was an artefact of having nothing to compare. A rating can be reinstated once a human has done the assessment."
   ]
 }
