@@ -307,9 +307,23 @@ def check_not_pooled_banner(text: str, verdict: dict | None) -> list[dict]:
     m = NOT_POOLED_RE.search(text)
     if not m:
         return []
-    k = None
-    if verdict:
-        k = (verdict.get("counts") or {}).get("n_trials_seen")
+    if not verdict:
+        return []
+    # "Not pooled" is HONEST when the app genuinely pooled nothing. The right
+    # comparator is n_trials_pooled, NOT n_trials_seen: an app can legitimately
+    # SEE 4 trials, find their estimands incommensurable, and pool 0. Comparing
+    # against n_trials_seen manufactures a contradiction out of a correct
+    # disclosure -- caught by a cross-family adversary on APIXABAN_AF, which
+    # carries "n_trials_seen": 4 with "n_trials_pooled": 0.
+    v = str(verdict.get("verdict", "")).upper()
+    if v in {"NOT_POOLABLE", "NOT-POOLABLE"}:
+        return []
+    counts = verdict.get("counts") or {}
+    pooled = counts.get("n_trials_pooled")
+    if pooled is not None:
+        k = pooled
+    else:
+        k = counts.get("n_trials_seen")
     if k is not None and k >= 2:
         return [{
             "check": "not-pooled-banner-vs-pooled-data",
