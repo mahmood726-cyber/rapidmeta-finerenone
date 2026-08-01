@@ -303,7 +303,71 @@ def check_date_gate(text: str) -> list[dict]:
     return findings
 
 
-# --- the generator rule: NOT IMPLEMENTED, deliberately -----------------------
+# --- the generator rule: display surfaces must read the prespecified estimate -
+# The dominant corpus defect is inference COMPUTED on the prespecified model but
+# DISPLAYED from a laxer one. Cancer-VTE rendered patient-facing "benefit" and an
+# NNT off the uncorrected DL interval (0.39-0.86) while the prespecified HKSJ
+# interval (0.286-1.180) crossed the null; ablation-AF coloured its significance
+# chip from a Wald interval (0.512-0.854) while HKSJ (~0.126-3.467) crossed 1.
+# Both were confirmed independently by a cross-family adversary.
+#
+# What made this detectable, after three failed attempts at window-scanning
+# arbitrary bound comparisons: restrict to (a) ASSIGNMENTS to known display
+# variables and (b) CALLS to known display functions, and check only their own
+# right-hand side / argument list for a prespecified token. Those are short,
+# self-contained, and they are exactly the surfaces a reader acts on.
+#
+# A function DEFINITION's parameter list is all bare identifiers
+# (pOR,lci,uci,k,trials); a CALL passes expressions (c.pOR,c.lci,c.uci). Only
+# the call decides which interval actually reaches the surface, so definitions
+# are skipped -- without that, every app flags on its own template signature.
+PRESPEC_RE = re.compile(r"hk(?:sj)?(?:LCI|UCI|Lo|Hi|OK)", re.I)
+DISPLAY_ASSIGN_RE = re.compile(
+    r"\b(sigColor|sigText|sigLabel|tlClass|trafficClass|benefitText|nntText|"
+    r"patientVerdict|patientText)\s*=\s*([^;,]{0,200})",
+    re.I,
+)
+DISPLAY_CALL_RE = re.compile(
+    r"\b((?:update|render|show|set|draw)\w*"
+    r"(?:Patient|Nnt|NNT|Benefit|Sig|Traffic|Gauge)\w*)\(([^()]{0,180})\)")
+BOUND_RE = re.compile(r"\b[\w.]*\b(?:lci|uci)\b", re.I)
+
+
+def check_display_prespecified(text: str) -> list[dict]:
+    """Reader-facing surfaces deciding significance from a laxer interval."""
+    if not PRESPEC_RE.search(text):
+        return []  # this app has no prespecified interval to compare against
+    findings, seen = [], set()
+
+    def add(kind, name, evidence):
+        if name in seen:
+            return
+        seen.add(name)
+        findings.append({
+            "check": "display-reads-laxer-interval",
+            "severity": "critical",
+            "detail": (
+                f"{kind} {name} decides significance/benefit from an "
+                f"uncorrected interval while the app carries a prespecified "
+                f"(HKSJ) bound -- the laxer interval is what reaches the reader"
+            ),
+            "evidence": _clip(evidence, 170),
+        })
+
+    for m in DISPLAY_ASSIGN_RE.finditer(text):
+        var, rhs = m.group(1), m.group(2)
+        if BOUND_RE.search(rhs) and not PRESPEC_RE.search(rhs):
+            add("assignment to", var, f"{var}={rhs}")
+    for m in DISPLAY_CALL_RE.finditer(text):
+        fn, args = m.group(1), m.group(2)
+        if "." not in args:
+            continue  # definition signature, not a call
+        if BOUND_RE.search(args) and not PRESPEC_RE.search(args):
+            add("call to", fn, f"{fn}({args})")
+    return findings
+
+
+# --- historical note: three earlier attempts at this check -------------------
 # The dominant corpus defect is inference COMPUTED on the prespecified model but
 # DISPLAYED from a laxer one (cancer-VTE showed patient-facing benefit + an NNT
 # off the uncorrected DL interval 0.39-0.86 while the prespecified HKSJ interval
@@ -409,6 +473,7 @@ def sweep(path: Path, retired: list[str]) -> list[dict]:
     text = path.read_text(encoding="utf-8", errors="replace")
     verdict = _find_verdict(text)
     findings: list[dict] = []
+    findings += check_display_prespecified(text)
     findings += check_badge_colour(text, verdict)
     findings += check_badge_text(text, verdict)
     findings += check_effect_measure(text)
