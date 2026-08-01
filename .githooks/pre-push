@@ -35,15 +35,37 @@ if ! curl -sf "http://127.0.0.1:$PORT/index.html" > /dev/null 2>&1; then
 fi
 
 echo "[pre-push] Running 53-app regression check ..."
-python "$SCRIPT" 2>&1 | tail -15
+# STATUS must be the exit code of python, NOT of tail. `cmd | tail` makes a bare
+# `$?` read tail's status, which is always 0 -- that made this gate structurally
+# incapable of failing (it printed PASS while regression_check.py was crashing on
+# a missing Playwright browser, having checked 0 of 53 apps). Capture PIPESTATUS[0].
+# errexit is lifted around the pipeline so we can report the code instead of
+# aborting silently on it.
+set +e
+set -o pipefail
+python "$SCRIPT" --base-url "http://127.0.0.1:$PORT" 2>&1 | tail -15
+STATUS=${PIPESTATUS[0]}
+set +o pipefail
+set -e
 
-STATUS=$?
-if [ $STATUS -ne 0 ]; then
+RESULTS="$REPO_ROOT/regression_results.json"
+
+if [ "$STATUS" -eq 2 ]; then
     echo ""
-    echo "[pre-push] Regression check FAILED. Inspect /tmp/regression_results.json."
+    echo "[pre-push] Regression check COULD NOT RUN (precondition failed: no HTTP server,"
+    echo "           no apps matched, or the Playwright browser is not installed)."
+    echo "           A run that could not execute is NOT a pass. Push blocked."
+    echo "           If the browser is missing:  python -m playwright install chromium"
+    echo "           Inspect $RESULTS"
+    exit 1
+fi
+
+if [ "$STATUS" -ne 0 ]; then
+    echo ""
+    echo "[pre-push] Regression check FAILED (exit $STATUS). Inspect $RESULTS."
     echo "          Override with: SKIP_REGRESSION=1 git push"
     exit 1
 fi
 
-echo "[pre-push] Regression check PASS. Proceeding with push."
+echo "[pre-push] Regression check PASS (python exit 0). Proceeding with push."
 exit 0
