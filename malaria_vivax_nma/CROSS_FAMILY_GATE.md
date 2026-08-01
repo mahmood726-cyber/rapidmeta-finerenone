@@ -168,3 +168,77 @@ These are deliberate and documented; flag them only if the *documentation* is wr
 - P1b multiverse cell marked NOT ESTIMABLE rather than approximated from 168-day/3-month data.
 - τ² fixed at 0 and labelled "not estimable" in the two single-trial cells (P3b, P6b).
 - DETECTIVE Part 1 tier T2, not T1 — NCT01376167 posts results for Part 2 only.
+
+---
+
+## Independent re-verification of F1–F6 (2026-08-01)
+
+The six fixes from `1daa80c` were **re-verified from scratch** rather than taken
+from the commit message. The whole pipeline was re-run and every claim re-checked
+against the regenerated artifact.
+
+### Pipeline re-run — all green, and byte-identical output
+
+| Step | Result |
+|---|---|
+| `preflight/check_network.py` | ALL GATES PASS, exit 0 |
+| `nma_fit.py` | τ²=0.2471, Q=17.04, df=6, p=0.009, I²=64.8%; focal OR **1.072 (0.629, 1.825)** |
+| `validate_netmeta.R` | exit 0; `netsplit` reproduces, focal edge k=5, direct proportion 1.00 |
+| `multiverse.py` | 19 cells; P3a **1.070** (I² 37.2%, 3 chloroquine trials) vs P3b **3.841** (1 DHA-piperaquine trial) |
+| `build_app.py` | exit 0 — regenerated HTML is **byte-identical** to the committed file (`git status` clean) |
+| `check_verdict_parity.py` | VERDICT PARITY PASS, exit 0 |
+
+Byte-identical regeneration is the load-bearing result: the artifact in the tree
+is exactly what the committed pipeline produces from the committed inputs.
+
+### F1 and F6 confirmed in the artifact, not just in the changelog
+
+* **F1** — the page now states that the Q decomposition does **not** support the
+  partner-drug attribution and that an earlier version wrongly said it did. It
+  gives both reasons: "design" in `decomp.design()` is node-set geometry, so
+  INSPECTOR shares its design with DETECTIVE Part 2 and the partner-drug contrast
+  sits **inside the within-design term**; and the split reverses on the robust
+  core (within 13.56 df 5 p 0.019 / between 3.48 df 1 p 0.062). The attribution is
+  carried by the P3 multiverse split, which the re-run reproduces exactly.
+* **F6** — `outputs/vivax_nma_results.json` was parsed directly. The only cell with
+  `estimable: false` is **P1b**, and it carries **no** `or`/`lo`/`hi`. Rendered
+  output agrees: the P1b row shows NOT ESTIMABLE with no number. P3b and P6b do
+  carry ORs — correctly, since only their τ² is not estimable, which is a
+  different claim and is labelled as such.
+
+### The gates can fail — negative controls run this round
+
+The recurring failure mode across the corpus is a gate that cannot return a
+second answer. Both gates here were tested against deliberately broken input and
+**both blocked**:
+
+| Gate | Injected fault | Result |
+|---|---|---|
+| `check_verdict_parity.py` | prose asserting "MODERATE certainty" against `__verdict` = EXPOSED | `VERDICT PARITY FAILED (1)`, **exit 1** |
+| `preflight/check_network.py` | DETECTIVE Part 1 no-therapy arm recurrence 31 → 104 (exceeds n=54) | `FAILED (2)` — sum mismatch and out-of-range, **exit 1** |
+
+Both inputs were restored; `git status` is clean for both files.
+
+### Runtime state of the rendered artifact
+
+`window.__verdict` = **EXPOSED**, `p0_total` 0, 9 reasons; counts carry
+`P1_focal_edge_heterogeneity` (the stale `P1_between_design_inconsistency` key is
+gone). Badge text equals the verdict. Six tables at **7 / 3 / 5 / 5 / 19 / 17**
+rows. No horizontal scroll at 375 px. **0 severe console errors.**
+
+### Data-integrity traps from the brief — all pass
+
+* **GATHER:** `1.81`, `426` and `214` appear only inside the passage that proves
+  they are the *pooled* GATHER + DETECTIVE Part 2 figures (426 = 260+166,
+  214 = 129+85) and must not be used as GATHER's own. No leak.
+* **EFFORT:** 97.55% CIs are identified as alpha-spent at an interim look and
+  converted on the log scale; nothing treats them as 95%.
+* **IMPROV:** excluded outright, with the reason stated; no number derives from it.
+* **EMA:** uses the permitted claim "no EMA authorisation or scientific opinion
+  (verified 2026-07-30)". Neither forbidden form appears.
+* **Arakoda:** the page states only NDA 210795 backs the network.
+
+**Conclusion: F1–F6 are complete. No further code change was required.** The
+branch is ready for the round-2 cross-family gate, whose first task is unchanged —
+force the Gemini lane onto 3.1 Pro and confirm with an exec that echoes its own
+model family.
