@@ -1,17 +1,22 @@
 #!/usr/bin/env bash
 # RapidMeta pre-push regression hook.
 #
-# Runs regression_check.py against all 53 *_REVIEW.html apps to verify none
-# of the 7 signals (page errors, trials seeded, auto-include, RoB banner,
-# protocol link, WebR tag, pool computes) have regressed before pushing.
+# Runs scripts/regression_check.py over the *_REVIEW.html apps actually being
+# pushed, verifying none of the 7 signals (page errors, trials seeded,
+# auto-include, RoB banner, protocol link, WebR tag, pool computes) regressed.
 #
 # Install once per clone with:  git config core.hooksPath .githooks
 # Skip with:                    SKIP_REGRESSION=1 git push
-# Runtime: ~60 seconds (headless chromium walk over 53 apps).
+#
+# SCOPE: the corpus is ~1217 *_REVIEW.html apps, not the 53 an earlier version
+# of this comment claimed. A full walk is hours, not "~60 seconds", so this
+# hook checks only the apps changed in the push range. A hook slow enough to be
+# bypassed every time is not a gate. If the range cannot be determined it falls
+# back to a bounded sample and SAYS SO rather than implying full coverage.
 
-set -e
+set -uo pipefail
 
-if [ "$SKIP_REGRESSION" = "1" ]; then
+if [ "${SKIP_REGRESSION:-}" = "1" ]; then
     echo "[pre-push] Regression check skipped via SKIP_REGRESSION=1"
     exit 0
 fi
@@ -20,11 +25,47 @@ REPO_ROOT="$(git rev-parse --show-toplevel)"
 SCRIPT="$REPO_ROOT/scripts/regression_check.py"
 
 if [ ! -f "$SCRIPT" ]; then
-    echo "[pre-push] regression_check.py not found at $SCRIPT -- skipping."
-    exit 0
+    echo "[pre-push] BLOCK: regression_check.py not found at $SCRIPT"
+    echo "           A missing checker is not a pass. Restore it or use"
+    echo "           SKIP_REGRESSION=1 deliberately."
+    exit 1
 fi
 
-# Require a running HTTP server on 127.0.0.1:8787 OR start a short-lived one.
+# --- work out which apps this push actually touches -------------------------
+# pre-push receives "<local ref> <local sha> <remote ref> <remote sha>" on stdin.
+CHANGED=""
+CAPPED=0
+while read -r _local_ref local_sha _remote_ref remote_sha; do
+    [ -z "${local_sha:-}" ] && continue
+    case "$local_sha" in *[!0]*) ;; *) continue ;; esac   # branch deletion
+    case "$remote_sha" in
+        *[!0]*) RANGE="$remote_sha..$local_sha" ;;         # existing remote branch
+        *)      RANGE="$local_sha" ;;                      # new branch: its own commits
+    esac
+    CHANGED="$CHANGED
+$(git diff --name-only "$RANGE" -- '*_REVIEW.html' 2>/dev/null || true)"
+done
+
+APPS=$(printf '%s\n' "$CHANGED" | grep -E '_REVIEW\.html$' | sed 's#.*/##; s#\.html$##' | sort -u)
+N=$(printf '%s\n' "$APPS" | grep -c . || true)
+
+ARGS=()
+if [ "$N" -eq 0 ]; then
+    echo "[pre-push] No *_REVIEW.html changed in this push; nothing to regress."
+    exit 0
+fi
+MAX=40
+if [ "$N" -gt "$MAX" ]; then
+    # Do not silently truncate: say what is being dropped.
+    echo "[pre-push] NOTE: $N apps changed; checking the first $MAX only."
+    echo "           Coverage is PARTIAL - run the full sweep separately:"
+    echo "           python scripts/regression_check.py"
+    APPS=$(printf '%s\n' "$APPS" | head -n "$MAX")
+    CAPPED=1
+fi
+while IFS= read -r a; do [ -n "$a" ] && ARGS+=(--app "$a"); done <<< "$APPS"
+
+# --- serve the corpus -------------------------------------------------------
 PORT=8787
 if ! curl -sf "http://127.0.0.1:$PORT/index.html" > /dev/null 2>&1; then
     echo "[pre-push] Starting local HTTP server on :$PORT ..."
@@ -34,38 +75,31 @@ if ! curl -sf "http://127.0.0.1:$PORT/index.html" > /dev/null 2>&1; then
     trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
 fi
 
-echo "[pre-push] Running 53-app regression check ..."
-# STATUS must be the exit code of python, NOT of tail. `cmd | tail` makes a bare
-# `$?` read tail's status, which is always 0 -- that made this gate structurally
-# incapable of failing (it printed PASS while regression_check.py was crashing on
-# a missing Playwright browser, having checked 0 of 53 apps). Capture PIPESTATUS[0].
-# errexit is lifted around the pipeline so we can report the code instead of
-# aborting silently on it.
-set +e
-set -o pipefail
-python "$SCRIPT" --base-url "http://127.0.0.1:$PORT" 2>&1 | tail -15
-STATUS=${PIPESTATUS[0]}
-set +o pipefail
-set -e
+echo "[pre-push] Regression check over $(printf '%s\n' "$APPS" | grep -c .) changed app(s) ..."
 
-RESULTS="$REPO_ROOT/regression_results.json"
+# Capture the CHECKER's status, not the pager's. `python ... | tail` makes $?
+# the exit code of tail, which is always 0 -- that single line is what made
+# this hook unable to fail. pipefail plus PIPESTATUS[0] fixes it both ways.
+python "$SCRIPT" --base-url "http://127.0.0.1:$PORT" "${ARGS[@]}" 2>&1 | tail -20
+STATUS=${PIPESTATUS[0]}
 
 if [ "$STATUS" -eq 2 ]; then
     echo ""
-    echo "[pre-push] Regression check COULD NOT RUN (precondition failed: no HTTP server,"
-    echo "           no apps matched, or the Playwright browser is not installed)."
-    echo "           A run that could not execute is NOT a pass. Push blocked."
-    echo "           If the browser is missing:  python -m playwright install chromium"
-    echo "           Inspect $RESULTS"
+    echo "[pre-push] BLOCK: regression check could not run (precondition failure,"
+    echo "           exit 2). A check that did not run is not a pass."
     exit 1
 fi
-
 if [ "$STATUS" -ne 0 ]; then
     echo ""
-    echo "[pre-push] Regression check FAILED (exit $STATUS). Inspect $RESULTS."
-    echo "          Override with: SKIP_REGRESSION=1 git push"
+    echo "[pre-push] BLOCK: regression check FAILED (exit $STATUS)."
+    echo "           Inspect $REPO_ROOT/regression_results.json"
+    echo "           Override deliberately with: SKIP_REGRESSION=1 git push"
     exit 1
 fi
 
-echo "[pre-push] Regression check PASS (python exit 0). Proceeding with push."
+if [ "$CAPPED" -eq 1 ]; then
+    echo "[pre-push] PASS on the checked subset (coverage was capped - see note above)."
+else
+    echo "[pre-push] PASS on all changed apps. Proceeding with push."
+fi
 exit 0
