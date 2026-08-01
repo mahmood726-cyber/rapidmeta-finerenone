@@ -303,6 +303,41 @@ def check_date_gate(text: str) -> list[dict]:
     return findings
 
 
+# --- the generator rule: NOT IMPLEMENTED, deliberately -----------------------
+# The dominant corpus defect is inference COMPUTED on the prespecified model but
+# DISPLAYED from a laxer one (cancer-VTE showed patient-facing benefit + an NNT
+# off the uncorrected DL interval 0.39-0.86 while the prespecified HKSJ interval
+# 0.286-1.180 crossed the null).
+#
+# Four lexical detectors for this were built and all four were rejected here:
+#   1. flag a bare .uci/.lci significance decision  -> 32 false positives on 8
+#      known-good apps; the helper legitimately branches on both intervals.
+#   2. same, but skip windows containing "hksj"     -> missed the real defect,
+#      because the helper DOES contain an hkOK branch.
+#   3. broaden the token to hk(sj|OK|Lo|Hi)         -> then nothing flags at all.
+#   4. move the check to the CALL SITE arguments    -> correct in principle and
+#      verified by hand on the real call
+#      (updatePatientMode(c.pOR,c.lci,c.uci,...)), but it would not fire
+#      reproducibly from the module and the cause was not identified.
+#
+# The reason is structural, not a bug to grind out: WHICH interval reaches a
+# display surface is a DATA-FLOW property. The helper can branch on HKSJ and
+# still be handed DL by its caller -- which is exactly what cancer-VTE did. A
+# regex over source text cannot see that without following the values.
+#
+# What would actually work, in rough order of cost:
+#   - a naming convention the generator enforces (display functions accept a
+#     single `prespecified` interval object, never loose lci/uci), which then IS
+#     greppable;
+#   - a runtime assertion in the generator: display helpers refuse to render a
+#     significance/benefit claim unless handed the prespecified bound;
+#   - an AST/data-flow pass over the emitted JS rather than a text scan.
+#
+# Shipping an unvalidated critical-severity check would be worse than shipping
+# none: it would train reviewers to ignore this class. Left to a cross-family
+# gate, which HAS caught it reliably (Codex found it on cancer-VTE by reading
+# the call site and reproducing the pool).
+
 def check_not_pooled_banner(text: str, verdict: dict | None) -> list[dict]:
     m = NOT_POOLED_RE.search(text)
     if not m:
@@ -315,8 +350,11 @@ def check_not_pooled_banner(text: str, verdict: dict | None) -> list[dict]:
     # against n_trials_seen manufactures a contradiction out of a correct
     # disclosure -- caught by a cross-family adversary on APIXABAN_AF, which
     # carries "n_trials_seen": 4 with "n_trials_pooled": 0.
-    v = str(verdict.get("verdict", "")).upper()
-    if v in {"NOT_POOLABLE", "NOT-POOLABLE"}:
+    # Match the FAMILY, not an enumerated list: verdicts appear as
+    # NOT_POOLABLE, BLOCKED_NOT_POOLABLE and similar. An exact-match list
+    # silently false-positives on every variant it forgot.
+    v = str(verdict.get("verdict", "")).upper().replace("-", "_")
+    if "NOT_POOLABLE" in v:
         return []
     counts = verdict.get("counts") or {}
     pooled = counts.get("n_trials_pooled")
