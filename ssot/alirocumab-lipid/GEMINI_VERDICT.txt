@@ -1,0 +1,49 @@
+(A) IS THE OBJECT CORRECT ABOUT THE WORLD?
+Yes, the object perfectly matches the source records. I verified every trial against its registry payload:
+* **NCT01507831**: Enrolment 2341. Arms: Alirocumab (n=1530) vs Placebo (n=780). The effect is MD -61.9 (-64.3 to -59.4). This is correctly sourced from a secondary outcome since its primary outcome was adverse events.
+* **NCT01617655**: Enrolment 107. Arms: Alirocumab (n=71) vs Placebo (n=35). Effect MD -39.1 (-51.1 to -27.1). Primary outcome. 
+* **NCT01623115**: Enrolment 486. Arms: Alirocumab (n=322) vs Placebo (n=163). Effect MD -57.9 (-63.3 to -52.6). Primary outcome.
+* **NCT01644175**: Enrolment 316. Arms: Alirocumab (n=205) vs Placebo (n=106). Effect MD -45.9 (-52.5 to -39.3). Primary outcome.
+* **NCT01709500**: Enrolment 249. Arms: Alirocumab (n=166) vs Placebo (n=81). Effect MD -51.4 (-58.1 to -44.8). Primary outcome.
+* **NCT02107898**: Enrolment 216. Arms: Alirocumab (n=143) vs Placebo (n=72). Effect MD -64.1 (-68.5 to -59.8). Primary outcome.
+
+(B) IS THE ARITHMETIC RIGHT?
+Yes, the arithmetic is flawless.
+* **Pooled Estimate**: Using inverse-variance pooling with the 95% CI widths, the fixed-effect mean is -59.34. The Q statistic is exactly 41.41 on 5 df, giving an I-squared of 87.9%. DerSimonian-Laird computes tau-squared = 47.42. The resulting random-effects weights yield a pooled mean difference of -54.66 with a 95% interval of -60.75 to -48.56.
+* **Secondary Outcome**: Including the secondary outcome from NCT01507831 is correct. It is the largest trial in the set (n=2310 analysed), and clinical trials are allowed to measure the relevant biomarker as a secondary outcome. Excluding it would bias the synthesis. The object discloses this honestly in the provenance note.
+* **Superseded Figure**: Keeping the superseded block (k=5) is honest and serves as a reproducible audit trail of the analysis's evolution before the secondary-outcome trial was recovered. Recomputing the 5 trials confirms the recorded figure: point -52.58, CI -60.61 to -44.56.
+* **Opposite Order Trial**: The object has the direction right. NCT01709500 lists Treatment First, while the others list Control First. However, the registry explicitly computed `Alirocumab vs Placebo` (Treatment - Control) for all of them. The negative values universally mean Alirocumab achieved a greater reduction in LDL than placebo.
+
+(C) IS THE VALIDATOR HONEST?
+No. The validator has severe holes, decorative detectors, and missing precision floors that allow wrong numbers and wrong directions to pass undetected. 
+
+**1. The Coordinated Sign Flip (Decorative Detector)**
+`check_direction_anchor` claims it ensures the pooled sign agrees with the direction of benefit, but it only anchors two mutable fields to each other (`ci_high` vs `favours`). Its own docstring admits: `"flipping every sign AND favours together is self-consistent and passes."`
+* **Concrete Edit**: Negate the `point`, `ci_low`, and `ci_high` of all 6 trials' effects in `by_outcome`, and negate the pooled and superseded `point`, `ci_low`, and `ci_high`. Finally, change `favours` from `"treatment"` to `"control"`. The object will now mathematically recompute perfectly to the wrong direction (claiming Alirocumab RAISES LDL by +54.66 and favours control), bypassing `check_direction_anchor` because the new positive interval (+48.56 to +60.75) implies `"control"`, matching the maliciously edited `favours` field. 
+
+**2. The Regex Blind Spot for Negative Numbers**
+`check_prose_numerals` claims it blocks prose fields from silently restating numbers that the object holds structurally. It parses the object to build a `structured` set of strings (e.g., `"-54.66"`). But the regex used to extract digits from prose is:
+`NUM = re.compile(r"\d+(?:\.\d+)?")`
+Because this regex strips the minus sign, it extracts `"54.66"` from prose, which fails to match `"-54.66"` in the structured set (`if m.group(0) in structured:` evaluates to False). 
+* **Concrete Edit**: An adversary can hardcode the wrong (or stale) negative pooled estimate directly into the prose `interpretation_caveat`, and the detector will completely ignore it, allowing a stale negative number to reach the reader.
+
+**3. The Superseded Precision Hole (Wide Tolerance)**
+In `check_pooled_recompute`, a precision floor was added because `"A pooled estimate must be stated to at least two [decimals], because the tolerance is derived from the precision..."` (`if dec < 2:` blocks it). However, this protection was forgotten in `check_superseded`:
+```python
+dec = len(str(sup[f]).split(".")[1]) if "." in str(sup[f]) else 0
+if abs(sup[f] - got[f]) > max(0.5 * 10 ** (-dec), 1e-9):
+```
+* **Concrete Edit**: An adversary can change the superseded point estimate from `-52.58` to the coarse integer `-53`. Because there is no decimal point, `dec = 0` and the tolerance becomes `0.5`. Since the error (`abs(-53 - (-52.58)) = 0.42`) is less than `0.5`, the validator accepts the wrong integer.
+
+(D) OTHER DEFECTS
+The `check_removal_disclosure` docstring claims that `"An app rebuilt on a fraction of its cited evidence, without saying so, is a worse defect... The declaration is therefore mandatory, and 'full' must be earned."`
+However, the code that "enforces" this is toothless:
+```python
+    if mode == "full":
+        if canon.get("removed_citations") or canon.get("quarantine"):
+            rep.block("full-build-with-removals", ... )
+        return
+```
+It merely checks if `removed_citations` is present. An adversary can delete the entire `removed_citations` block and set `"build_mode": "full"`. The validator will hit the `return` statement and pass an undisclosed fractional build as a full one, hiding the evidence reduction from the reader.
+
+VERDICT: DEFECTS-FOUND

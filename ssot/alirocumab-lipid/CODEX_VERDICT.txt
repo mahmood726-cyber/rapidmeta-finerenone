@@ -1,0 +1,42 @@
+REVIEW: alirocumab-lipid
+
+(A) IS THE OBJECT CORRECT ABOUT THE WORLD?
+For the included alirocumab trials, yes. I opened the staged ClinicalTrials.gov records under C:\gate3\sources\alirocumab-lipid and checked each registration, enrolment, analysed denominator, outcome role, effect estimate, and confidence interval.
+
+NCT01507831: C:\gate3\sources\alirocumab-lipid\NCT01507831.ctgov.json identifies NCT01507831 as the ODYSSEY Long Term alirocumab/placebo trial. The source outcome is SECONDARY, matching the object line "outcome_role_in_trial": "secondary". The source denominator counts are alirocumab 1530 and placebo 780, and the source analysis is -61.9 with 95 percent CI -64.3 to -59.4; all match the object.
+
+NCT01617655: C:\gate3\sources\alirocumab-lipid\NCT01617655.ctgov.json identifies NCT01617655 as an alirocumab/placebo heterozygous familial hypercholesterolaemia trial. The source outcome is PRIMARY. The source denominators are alirocumab 71 and placebo 35, and the source analysis is -39.1 with 95 percent CI -51.1 to -27.1; all match.
+
+NCT01623115: C:\gate3\sources\alirocumab-lipid\NCT01623115.ctgov.json identifies NCT01623115 as ODYSSEY FH I. The source outcome is PRIMARY. The source denominators are alirocumab 322 and placebo 163, and the source analysis is -57.9 with 95 percent CI -63.3 to -52.6; all match.
+
+NCT01644175: C:\gate3\sources\alirocumab-lipid\NCT01644175.ctgov.json identifies NCT01644175 as ODYSSEY COMBO I. The source outcome is PRIMARY. The source denominators are alirocumab 205 and placebo 106, and the source analysis is -45.9 with 95 percent CI -52.5 to -39.3; all match.
+
+NCT01709500: C:\gate3\sources\alirocumab-lipid\NCT01709500.ctgov.json identifies NCT01709500 as ODYSSEY FH II. The source lists the alirocumab arm first, matching "registry_arm_order": "TREATMENT FIRST". The source denominators are alirocumab 166 and placebo 81, and the source analysis is -51.4 with 95 percent CI -58.1 to -44.8; all match.
+
+NCT02107898: C:\gate3\sources\alirocumab-lipid\NCT02107898.ctgov.json identifies NCT02107898 as ODYSSEY JAPAN. The source outcome is PRIMARY. The source denominators are alirocumab 143 and placebo 72, and the source analysis is -64.1 with 95 percent CI -68.5 to -59.8; all match.
+
+I found no included-trial alirocumab effect, denominator, interval, enrolment, or identifier cell that was unsupported by the staged source payloads.
+
+(B) IS THE ARITHMETIC RIGHT?
+Yes. Recovering each trial SE from its 95 percent CI and pooling the six LS mean differences by inverse variance with DerSimonian-Laird gives MD -54.6554 with 95 percent CI -60.7476 to -48.5632. That reconstructs the object values "point": -54.66, "ci_low": -60.75, and "ci_high": -48.56.
+
+The heterogeneity also reconstructs: tau-squared 47.4240, I-squared 87.9246 percent, Q 41.4066 on 5 df. Those round to "tau2": 47.42, "i2": 87.9, "q": 41.41, and "df": 5.
+
+The secondary-outcome inclusion is adequately disclosed and not intrinsically biased for this estimand. The object says "This trial's only PRIMARY outcome is the percentage of participants experiencing adverse events" and the source confirms the LDL-C result is SECONDARY. Since the synthesized endpoint is the same LDL-C week-24 ITT effect, including it is appropriate if the review question is outcome-based rather than primary-outcome-only.
+
+The "superseded" block is honest as an audit trail because it names the five trials. Recomputing the named k=5 set gives -52.5809 with 95 percent CI -60.6057 to -44.5561, matching "point": -52.58, "ci_low": -60.61, and "ci_high": -44.56. It would only mislead if rendered as a second concurrent analysis rather than historical provenance.
+
+The opposite arm order is handled correctly. NCT01709500 lists alirocumab first in the source, and the analysis is alirocumab versus placebo with a negative LS mean difference, so the treatment-favouring direction is right.
+
+(C) IS THE VALIDATOR HONEST?
+It is honest for internal arithmetic. Running `python C:\gate3\validate_v2.py C:\gate3\canonical\alirocumab-lipid.json` reports "VALIDATOR CLEAN -- 13/13 detectors passed", and the pooled arithmetic independently matches.
+
+But the new source detector is still too weak to enforce source truth. The code says `if want in blob: return name` and then, if the preferred file search fails, searches every source blob again. It checks whether a number appears somewhere in a source file, not whether it appears in the corresponding trial, outcome, field, analysis, or arm.
+
+Concrete edit that passes undetected: in NCT01507831, replace the ITT effect -61.9 (-64.3 to -59.4) with the same trial's on-treatment effect -63.5 (-65.9 to -61.2), then recompute the pooled result and heterogeneity. The wrong object records a pooled MD -54.84 with 95 percent CI -61.33 to -48.36, tau-squared 54.99, I-squared 89.6 percent, and Q 47.98. I tested this edit and the validator still reports "VALIDATOR CLEAN -- 13/13 detectors passed" because those on-treatment numbers appear in the same source file even though they are the wrong outcome definition for the object.
+
+That is a wrong reader-visible measured input and a wrong pooled estimate going through undetected. The validator now catches more than the earlier version, but it still validates presence of tokens, not source-cell identity.
+
+(D) ANYTHING ELSE WRONG, MISLEADING, OR OVER-CLAIMED
+The alirocumab object is source-correct for the included cells and arithmetically correct. The defect is the validator over-claim: it can catch a pooled number inconsistent with the object, but not a consistently recomputed pooled number built from the wrong source cell.
+VERDICT: DEFECTS-FOUND
