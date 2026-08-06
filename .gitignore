@@ -95,3 +95,36 @@ outputs/data_integrity_audit_current.json
 outputs/extraction_audit/data/*_FULL_REVIEW.json
 outputs/extraction_audit/data/*_ICU_REVIEW.json
 outputs/extraction_audit/data/*_REVERSAL_REVIEW.json
+
+# --- Pages slim-down 2026-08-06 -------------------------------------
+# Data, cache and audit artefacts. Untracked from the published branch
+# because GitHub Pages publishes this branch and the site had grown past
+# the 1 GB limit, which made the build fail rather than merely be large.
+# Every path here was checked to be referenced by NO served file --
+# not by href/src/fetch, and not even mentioned in page text.
+# Files remain on disk and in git history; only the published tree shrinks.
+outputs/audit40/
+outputs/ctgov/
+outputs/ctgov_cache/
+outputs/ctgov_denom/
+outputs/extraction_audit/8agent_chunks/
+outputs/extraction_audit/agent_inputs/
+outputs/extraction_audit/agent_partitions/
+outputs/extraction_audit/data/
+outputs/extraction_audit/evidence_patches/
+outputs/extraction_audit/pmc_cache/
+outputs/extraction_audit/pubmed_cache/
+outputs/extraction_audit/quarantine/
+outputs/extraction_audit/retraction_watch/
+outputs/pmid_resolver/
+outputs/r_parity/
+outputs/stat_engine/
+outputs/_pubmed_cache.json
+outputs/_pmid_reaudit.json
+# Mixed directories: the referenced files inside them are ALREADY TRACKED,
+# and .gitignore does not untrack anything, so these survive. This only
+# stops the untracked cache siblings from being re-added by 'git add -A'.
+outputs/new_topics/
+outputs/extraction_audit/
+outputs/*.json
+outputs/*.csv
