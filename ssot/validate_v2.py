@@ -515,6 +515,11 @@ def check_per_trial_recompute(canon, rep):
             tx, ct = d.get("treatment"), d.get("control")
             if not (tx and ct):
                 continue
+            if r.get("point") is None or not r.get("measure"):
+                # Nothing to recompute: this row deliberately carries no
+                # estimate. check_reference_consistency owns the requirement
+                # that it explain itself.
+                continue
             got = pool([(tx["events"], tx["n"], ct["events"], ct["n"])],
                        r["measure"], "fixed", r.get("ci_level", 95))
             if got is None:
@@ -1556,6 +1561,19 @@ def check_reference_consistency(canon, rep, sources_root=None):
                               f"appear anywhere in {staged_as}, the payload of the review "
                               f"it is attributed to. The figure cannot be moved to suit "
                               f"the object's own estimate.")
+            if r.get("point") is None:
+                # A row may legitimately carry a published figure and NO ratio of
+                # our own: one trial reports its events over an efficacy
+                # population whose per-arm denominators are never published, so
+                # no count-based ratio is computable. The reference figure is
+                # still checked against the staged review above; there is simply
+                # nothing of ours to compare its direction with.
+                if not str(r.get("not_computed_reason", "")).strip():
+                    rep.block("reference-without-estimate",
+                              f"outcome {oid!r}/{r['trial_id']} carries a published figure "
+                              f"but no estimate of its own and no not_computed_reason. A "
+                              f"row that declines to compute must say why.")
+                continue
             ours_pp = 100.0 * (1.0 - r["point"])
             if (ours_pp >= 0) != (ref >= 0):
                 rep.block("reference-contradiction",

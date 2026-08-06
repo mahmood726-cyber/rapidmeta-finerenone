@@ -93,7 +93,10 @@ def _outcome_section(canon, oid, p, e):
     outcome = next(o for o in canon["outcomes"] if o["id"] == oid)
     res = canon["results"]["by_outcome"][oid]
     pooled, het = res.get("pooled"), res.get("heterogeneity") or {}
-    per_trial = {r["trial_id"]: r for r in (res.get("per_trial") or [])}
+    # The INDEX is kept, not just the record: a per-trial note that references
+    # {self.…} needs a scope path, and only the index can build one.
+    per_trial = {r["trial_id"]: (j, r)
+                 for j, r in enumerate(res.get("per_trial") or [])}
     srcs = canon["sources"]
     rm = canon.get("removed_citations")
 
@@ -121,8 +124,23 @@ def _outcome_section(canon, oid, p, e):
             # below is the only effect this object holds.
             tx, ct = d.get("treatment") or {}, d.get("control") or {}
             size = f"{fmt(tx.get('n'))} / {fmt(ct.get('n'))}"
-            pt = per_trial.get(t["id"])
-            if pt:
+            j, pt = per_trial.get(t["id"], (None, None))
+            pt_scope = f"results.by_outcome.{oid}.per_trial[{j}]" if pt else None
+            if pt and pt.get("point") is None:
+                # A row that deliberately carries no estimate shows why, not a
+                # blank where a number would go. It also still shows the
+                # reference figure it holds: dropping that made the page say
+                # nothing about a vaccine the object has a published efficacy
+                # for, while the reading note promised one beside every row.
+                est = (f"{fmt(tx.get('events'))} / {fmt(ct.get('events'))} events"
+                       f"<br><small>no ratio computed &mdash; "
+                       f"{p(pt.get('not_computed_reason',''), pt_scope)}</small>")
+                if pt.get("reference_efficacy_percent") is not None:
+                    est += (f"<br><small>reference review reports "
+                            f"{fmt(pt['reference_efficacy_percent'])}% efficacy "
+                            f"({fmt(pt['reference_ci_low_percent'])} to "
+                            f"{fmt(pt['reference_ci_high_percent'])})</small>")
+            elif pt:
                 est = (f"{e(pt['measure'])} {fmt(pt['point'])} "
                        f"({fmt(pt['ci_low'])} to {fmt(pt['ci_high'])})"
                        f"<br><small>{fmt(tx.get('events'))} / {fmt(ct.get('events'))} "
@@ -133,6 +151,13 @@ def _outcome_section(canon, oid, p, e):
             else:
                 est = (f"{fmt(tx.get('events'))} / {fmt(ct.get('events'))} events"
                        "<br><small>no per-trial estimate stored; not derived here</small>")
+            # Why this row's number is not the review's number, ON the row. The
+            # object held both of these and the page rendered neither, while the
+            # rendered reading note told the reader "the row says so". It now
+            # does. Same rule the subgroup block below is written under.
+            for k in ("estimand_difference", "source_divergence"):
+                if pt and pt.get(k):
+                    est += f"<br><small><em>{p(pt[k], pt_scope)}</em></small>"
         rows += (
             f"    <tr><td>{p(t['name'])}<br><small>{e(t['nct'])} &middot; "
             f"{e(d.get('outcome_role_in_trial', 'primary'))} outcome</small></td>"
