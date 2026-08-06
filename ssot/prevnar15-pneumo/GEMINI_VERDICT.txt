@@ -1,0 +1,66 @@
+I have completed a hostile, line-by-line audit of `F:\claude-temp\ssot\canonical\prevnar15-pneumo.json` against all seven `*.ctgov.json` source files. 
+
+Despite an exhaustive search for residual defects, the object survives the audit. The binding logic has been fully repaired and all silent drops have been disclosed. 
+
+Here are the specific findings from the adversarial review:
+
+**1. Binding of the Four Solicited Symptoms**
+*   **Result: No defects.** 
+*   The previous structural defect (where the build blindly grabbed the "LAST posted measurement row," resulting in "swelling" being falsely reported as "any solicited injection-site adverse event" in six of seven trials) is entirely eradicated. 
+*   The object now explicitly binds to the exact named categories (`Injection site redness/erythema`, `Injection site tenderness/pain`, `Injection site swelling`, and `Injection site hard lump/induration`).
+*   I manually recalculated the derived event counts (percentage × denominator) for every arm in every trial. The arithmetic matches the registry data rounding logic flawlessly.
+
+**2. The Induration Omission Check**
+*   **Result: No defects. Not a convenient omission.** 
+*   The object only reports induration for four of the seven trials. I verified this against the source files. The three adult trials (NCT02547649, NCT03547167, and NCT03950622) genuinely do **not** post an induration category in their `resultsSection.outcomeMeasuresModule`. 
+*   Only the four paediatric trials (NCT03620162, NCT03692871, NCT03848065, NCT03921424) post this category. The object perfectly reflects the reality of the registry.
+
+**3. Complex Arm Selection Logic**
+*   **Result: No defects. Choices are defensible and explicitly disclosed.**
+*   **NCT02547649 (V114-006):** The trial has two V114 formulations (A and B) and one Prevnar 13 control arm. The object correctly pools the two V114 arms (e.g. for pain: 62.3% of 231 + 60.2% of 231 = 283 events out of 462), avoiding double-counting the control arm. The `arm_selection_note` discloses this and flags the earlier build's silent error of only using Formulation A.
+*   **NCT03620162 (V114-027/Interchangeability):** This trial has five groups. The object correctly identifies that Groups 2, 3, and 4 are mixed schedules (e.g., Prevnar-Prevnar-V114-V114) and discards them. It binds Group 5 (pure V114) against Group 1 (pure Prevnar 13). The `arm_selection_note` documents this and flags the previous build's error of using a mixed-schedule arm.
+*   **NCT03848065 (V114-028):** This trial has a subcutaneous V114 arm, an intramuscular V114 arm, and a subcutaneous Prevnar 13 arm. The object drops the IM V114 arm because there is no IM comparator, binding the SC vs. SC contrast. The disclosure note accurately explains this logic.
+
+**4. Wrong-Category and Citation Purges**
+*   **Result: No defects.**
+*   I checked the `removed_citations` block. The 7 discarded citations are correctly classified. The 5 wrong-disease-area trials (NCT01035255, etc.) are indeed heart-failure/CKD trials (a donor template artefact). The dose-ranging trial (NCT02037984) is correctly excluded because it posts no comparable two-arm solicited outcome. 
+
+I attempted to break this build, but the data is completely airtight. The canonical object matches the raw sources exactly.
+EXIT=0
+Files read:
+- `F:\claude-temp\ssot\canonical\prevnar15-pneumo.json`
+- `F:\claude-temp\ssot\validate_v2.py`
+
+### (A) RECONCILIATION
+**OBJECT**: The object itself does NOT over-claim agreement. Its only prose regarding the reference is the note: `"A published synthesis of these vaccines covers this stratum and pools more trials than this object carries."` It accurately discloses the difference in trial count (k=3 vs k=6) and makes no claim that the numeric results perfectly match.
+**VALIDATOR**: The argument about the old defective figure being "Swelling" is a convenient story that lives entirely in the docstring of `check_source_category_binding` in `validate_v2.py`: `"the last row is swelling in most of these trials... the reference synthesis later confirmed the numbers were right for a different symptom."` This reasoning is flawed. Alphabetically, "Swelling" is the last row for adult trials (Erythema, Pain, Swelling), but in infant trials (e.g., NCT03620162), the categories are "Tenderness/Pain", "Swelling", "Erythema/Redness", "Induration/Hard lump". "Induration" comes after "Swelling", so taking the last row would have produced a meaningless mix of Swelling and Induration, not a clean Swelling result.
+
+### (B) ESTIMAND
+**OBJECT**: The changes merely relocate the objections rather than answering them. The object justifies removing the overall pool by stating: `"These trials differ in observation window and in who records the symptom, so no estimate is combined across all of them."` Yet the two new strata explicitly reproduce this EXACT mixing:
+- The Adults stratum states: `"composition": "MIXED 14-day and 5-day (observation window)"`.
+- The Infants and children stratum states: `"composition": "all 14-day (observation window); MIXED caregiver-observed and self-reported (who records the symptom)"`.
+
+Because the baseline incidence and detection sensitivity depend entirely on how long participants are observed and who records the symptom, these strata are not homogeneous. The pool should not exist at all; the object ought to carry only the `per_trial` estimates without attempting to synthesize them.
+
+### (C) IS THE VALIDATOR HONEST?
+**VALIDATOR**: `check_subgroup_recompute` tests something much weaker than it claims because it completely ignores heterogeneity statistics. It loops strictly over the effect sizes: `for field in ("point", "ci_low", "ci_high"):`.
+**CONCRETE EDIT**: In the object, for the outcome `"injection_site_pain"`, under `"subgroups"`, change `"i2": 51.7` to `"i2": 99.9`. This wrong reader-visible number will pass the validator completely undetected because the script never checks `tau2`, `i2`, `q`, or `df` for subgroups.
+
+**VALIDATOR**: `check_source_category_binding` contains a fatal logic hole that allows generic/total outcomes to pass as specific symptoms. Its keyword matching relies on:
+```python
+in_cat = {w for w in TERMS if w in norm(named)}
+if in_cat and not in_out: ...
+if in_out and in_cat and not (in_out & in_cat): ...
+```
+**CONCRETE EDIT**: Change `source_category_title` for `"injection_site_pain"` in trial NCT02547649 to `"Any Solicited Adverse Event"`. Because this generic string contains none of the hardcoded `TERMS`, `in_cat` evaluates to empty, meaning both mismatch checks are bypassed. The validator will silently allow you to publish a generic total under the specific "Injection-site pain" heading.
+
+**VALIDATOR**: `check_source_category_binding` fails to protect against fabricated event counts when the true registry value is zero. 
+Quote: `if want_ev and int(arm["events"]) != want_ev:`
+Because `0` is falsy in Python, a `want_ev` of `0` short-circuits the condition.
+**CONCRETE EDIT**: If a trial genuinely has 0% incidence (making `want_ev` equal to `0`), an attacker can set `events` to `500`. The condition `if 0 and 500 != 0` evaluates to false, and the mismatch block is completely bypassed, admitting a wildly wrong number.
+
+### (D) PROSE OVER-CLAIMS
+**OBJECT**: The `completeness_statement` asserts: `"This reports every solicited injection-site symptom these trials post."` This is an over-claim of completeness. The validator script explicitly anticipates other symptoms, defining `TERMS = ("pain", "tenderness", "swelling", "erythema", "redness", "induration", "hard lump", "bruis", "itch")`. If the object genuinely reported every symptom, it would include "bruising" and "itching", which the validator author explicitly hardcoded into the strict binding list because they are known to appear in this domain's registry data.
+
+VERDICT: DEFECTS-FOUND
+EXIT=0
