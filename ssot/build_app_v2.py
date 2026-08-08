@@ -113,10 +113,38 @@ def _outcome_section(canon, oid, p, e):
         eff = d.get("effect")
         if eff:
             # per-trial effect form: the trial's own model-based estimate
-            size = (f"{fmt((d.get('analysed') or {}).get('treatment'))} / "
-                    f"{fmt((d.get('analysed') or {}).get('control'))}")
+            an = d.get("analysed") or {}
+            size = (f"{fmt(an.get('treatment'))} / {fmt(an.get('control'))}")
+            if an and an.get("treatment") is None:
+                # Some trials publish only one side of the contrast at the level
+                # the row describes. Printing "not stated / 2974" beside a scope
+                # note is honest; printing a number the source never split is not.
+                size = "<br>".join(f"{e(k.replace('_', ' '))}: {fmt(v)}"
+                                   for k, v in an.items())
+            if d.get("analysed_scope"):
+                size += f"<br><small><em>{p(d['analysed_scope'], scope)}</em></small>"
             est = (f"{fmt(eff['point'])} "
                    f"({fmt(eff['ci_low'])} to {fmt(eff['ci_high'])})")
+            if eff.get("ci_level") and eff["ci_level"] != 95:
+                # A 97.5 per cent interval printed without its level reads as a
+                # 95 per cent one, which is a narrower claim than the trial made.
+                est += f"<br><small>{fmt(eff['ci_level'])}% interval</small>"
+            if eff.get("published_ve_percent") is not None:
+                est += (f"<br><small>published vaccine efficacy "
+                        f"{fmt(eff['published_ve_percent'])}% "
+                        f"({fmt(eff['published_ve_ci_low_percent'])} to "
+                        f"{fmt(eff['published_ve_ci_high_percent'])})</small>")
+            if eff.get("log_point") is not None:
+                est += (f"<br><small>on the log scale: {fmt(eff['log_point'])} "
+                        f"(standard error {fmt(eff['log_se'])})</small>")
+            if d.get("regimen"):
+                est += f"<br><small>regimen: {p(d['regimen'], scope)}</small>"
+            if d.get("follow_up_note"):
+                # Where two cohorts in one pool do not share a follow-up window,
+                # the difference belongs beside each estimate rather than only in
+                # the outcome's prose, because the row is what a reader compares.
+                est += (f"<br><small><em>{p(d['follow_up_note'], scope)}"
+                        f"</em></small>")
         else:
             # 2x2 count form. The generator does NOT compute a per-trial effect
             # from these: deriving a number at a surface is exactly what this
@@ -164,7 +192,10 @@ def _outcome_section(canon, oid, p, e):
             f"<td class='num'>{size}</td>"
             f"<td class='num'>{est}</td>"
             f"<td><small>{p(srcs[d['provenance']['source_id']]['layer'])}: "
-            f"{p(d['provenance'].get('source_outcome_title', d['provenance']['source']), scope)}"
+            f"{p(d['provenance'].get('source_outcome_title', d['provenance'].get('source', '')), scope)}"
+            + ("".join(f"<br><q>{e(q)}</q>"
+                       for q in (d['provenance'].get('source_quotes') or []))
+               if not d['provenance'].get('source') else "")
             + (f"<br><em>{p(t['enrolment_note'], scope)}</em>"
                if t.get("enrolment_note") else "")
             + "</small></td></tr>\n")
@@ -177,22 +208,65 @@ def _outcome_section(canon, oid, p, e):
               f"{fmt(pooled['ci_level'])}% interval</p>" + NL
             + f"  <p>{p(outcome['name'])}. {p(res['model'])}, estimator "
               f"{p(res['estimator_used'])}, k = {fmt(res['k'])}.</p>" + NL
+            + ((f"  <p class='num'>Vaccine efficacy "
+                f"{fmt(pooled['pooled_ve_percent'])}% "
+                f"({fmt(pooled['pooled_ve_ci_low_percent'])} to "
+                f"{fmt(pooled['pooled_ve_ci_high_percent'])})</p>" + NL)
+               if pooled.get("pooled_ve_percent") is not None else "")
             + f"  <p><small>&tau;&sup2; {fmt(het.get('tau2'))} &middot; I&sup2; "
               f"{fmt(het.get('i2'))}% &middot; Q {fmt(het.get('q'))} on "
               f"{fmt(het.get('df'))} df</small></p>" + NL
+            + ((f"  <p><small>{p(res['heterogeneity_status'])}</small></p>" + NL)
+               if res.get("heterogeneity_status") else "")
             + ((f"  <p><strong>How to read this:</strong> "
                 f"{p(res['interpretation_caveat'])}</p>" + NL)
                if res.get("interpretation_caveat") else "")
+            # What the pool holds constant and what it crosses, as a table a
+            # reader can check. Held in the object and rendered nowhere, it
+            # could not be disagreed with.
+            + ((("  <h3>What this pool holds constant</h3>" + NL + "  <table>" + NL
+                 + "    <tr><th>Dimension</th><th>Across the pooled cohorts</th>"
+                   "<th>If it differs, why it is crossed anyway</th></tr>" + NL
+                 + "".join(
+                     f"    <tr><td>{e(k.replace('_', ' '))}</td>"
+                     f"<td>{e(v[0])}</td><td><small>{p(v[1]) if v[1] else '&mdash;'}"
+                     f"</small></td></tr>" + NL
+                     for k, v in res["pool_uniformity"].items())
+                 + "  </table>" + NL))
+               if res.get("pool_uniformity") else "")
             + "</div>" + NL)
     else:
         # No headline number, deliberately. This object declines to combine
         # these trials, so there is nothing to put here, and inventing one is
         # exactly the defect the reshape removed.
-        headline = (
-            "<div class='card warn'>" + NL + "  <h2>No combined estimate</h2>" + NL
-            + f"  <p>{p(res['not_poolable_reason'])}</p>" + NL
-            + f"  <p><small>{p(res.get('reading_note', ''))}</small></p>" + NL
-            + "</div>" + NL)
+        # k=1 and "k>=2 but declining to pool" are different states and were not
+        # distinguished here: a single-cohort outcome has no pooled estimate
+        # because there is nothing to combine, and it still has a NUMBER, which
+        # this branch used to swallow entirely. An outcome whose only estimate is
+        # one trial's must show that estimate, not an empty explanation.
+        only = (res.get("per_trial") or [None])[0]
+        if res.get("k") == 1 and only:
+            headline = (
+                "<div class='card warn'>" + NL
+                + "  <h2>Single cohort &mdash; no synthesis</h2>" + NL
+                + f"  <p class='num'>{e(only['measure'])} {fmt(only['point'])} "
+                  f"({fmt(only['ci_low'])} to {fmt(only['ci_high'])})"
+                + (f", {fmt(only['ci_level'])}% interval"
+                   if only.get("ci_level") and only["ci_level"] != 95 else "")
+                + "</p>" + NL
+                + ((f"  <p class='num'>Vaccine efficacy "
+                    f"{fmt(only['published_ve_percent'])}% "
+                    f"({fmt(only['published_ve_ci_low_percent'])} to "
+                    f"{fmt(only['published_ve_ci_high_percent'])})</p>" + NL)
+                   if only.get("published_ve_percent") is not None else "")
+                + f"  <p>{p(res.get('poolable_reason', ''))}</p>" + NL
+                + "</div>" + NL)
+        else:
+            headline = (
+                "<div class='card warn'>" + NL + "  <h2>No combined estimate</h2>" + NL
+                + f"  <p>{p(res.get('not_poolable_reason', res.get('poolable_reason', '')))}</p>" + NL
+                + f"  <p><small>{p(res.get('reading_note', ''))}</small></p>" + NL
+                + "</div>" + NL)
 
     # Subgroups, when the object holds them. Rendering these is not decoration:
     # the split is what makes the object comparable with a published synthesis
@@ -204,8 +278,12 @@ def _outcome_section(canon, oid, p, e):
             f"    <tr><td>{p(sg['label'])}<br><small>"
             f"{e(', '.join(sg.get('trial_ids', [])))}</small></td>"
             f"<td class='num'>{fmt(sg['k'])}</td>"
-            f"<td class='num'>{e(sg['measure'])} {fmt(sg['point'])} "
-            f"({fmt(sg['ci_low'])} to {fmt(sg['ci_high'])})</td>"
+            f"<td class='num'>{e(sg.get('measure', outcome['measure']))} "
+            f"{fmt(sg['point'])} "
+            f"({fmt(sg['ci_low'])} to {fmt(sg['ci_high'])})"
+            + (f"<br><small>efficacy {fmt(sg['ve_percent'])}%</small>"
+               if sg.get("ve_percent") is not None else "")
+            + "</td>"
             f"<td class='num'>{fmt(sg.get('i2'))}%</td>"
             # What each stratum MIXES, beside its own estimate. The object held
             # this and the page showed none of it, so the one thing a reader
@@ -213,25 +291,122 @@ def _outcome_section(canon, oid, p, e):
             f"<td><small><strong>{e(sg.get('composition', ''))}</strong><br>"
             f"{p(sg.get('note', ''))}</small></td></tr>\n"
             for sg in res["subgroups"])
-        subgroups = (f"<div class='card'>\n  <h2>By age stratum</h2>\n  <table>\n"
+        # The heading and the footnote below describe WHAT the split is. They
+        # were written for a split by age and hard-coded, so an object that
+        # stratifies by anything else would have had its strata announced as
+        # age groups. The object says what its strata are; the default is the
+        # wording the first object to carry strata already ships.
+        sg_head = res.get("subgroup_heading", "By age stratum")
+        sg_foot = res.get("subgroup_footnote")
+        subgroups = (f"<div class='card'>\n  <h2>{e(sg_head)}</h2>\n  <table>\n"
                      f"    <tr><th>Stratum</th><th>Trials</th>"
                      f"<th>{e(outcome['measure'])} (95% CI)</th><th>I&sup2;</th>"
                      f"<th>What this stratum mixes</th></tr>\n{srows}  </table>\n"
-                     f"  <p><small>These strata are reported, not tested against each "
-                     f"other, and no claim is made that they differ. They are grouped by "
-                     f"AGE alone: neither is homogeneous in how the symptom was measured, "
-                     f"and each says what it mixes. The I&sup2; column is what the trials "
-                     f"actually show, and it is the only homogeneity claimed here."
-                     f"</small></p>\n"
-                     f"</div>\n")
+                     + (f"  <p><small>{p(sg_foot)}</small></p>\n" if sg_foot else
+                        f"  <p><small>These strata are reported, not tested against each "
+                        f"other, and no claim is made that they differ. They are grouped by "
+                        f"AGE alone: neither is homogeneous in how the symptom was measured, "
+                        f"and each says what it mixes. The I&sup2; column is what the trials "
+                        f"actually show, and it is the only homogeneity claimed here."
+                        f"</small></p>\n")
+                     + f"</div>\n")
+
+    # The methods rule that governs THIS outcome's combine-or-not decision, on
+    # the outcome itself. Held only in a registry at the foot of the page, a
+    # reader would have to go looking for the authority behind the number in
+    # front of them.
+    hb = ""
+    if res.get("handbook"):
+        h = res["handbook"]
+        hb = (f"<div class='card'>\n  <h3>The methods rule governing this "
+              f"decision</h3>\n"
+              f"  <p><strong>Decision:</strong> {p(h['decision'])}</p>\n"
+              f"  <p><strong>Cochrane Handbook sections:</strong> "
+              f"{e(', '.join(str(x) for x in h['sections']))}</p>\n"
+              f"  <p>{p(h['conformance'])}</p>\n"
+              + ((f"  <p><small><strong>An objection raised repeatedly in "
+                  f"review, and why it is not upheld:</strong> "
+                  f"{p(h['recurring_objection_and_why_it_is_not_upheld'])}"
+                  f"</small></p>\n")
+                 if h.get("recurring_objection_and_why_it_is_not_upheld") else "")
+              + "</div>\n")
+
+    # A pooled result has to be shown robust to the decision that produced it,
+    # and the decision worth testing here is the one review challenged. Held in
+    # the object and rendered nowhere, the test would prove nothing to a reader.
+    sens = ""
+    if res.get("sensitivity"):
+        s = res["sensitivity"]
+        srows = "".join(
+            f"    <tr><td>{e(a['omitted'])}</td>"
+            f"<td class='num'>{fmt(a['k'])}</td>"
+            f"<td class='num'>{fmt(a['point'])} "
+            f"({fmt(a['ci_low'])} to {fmt(a['ci_high'])})</td>"
+            f"<td class='num'>{fmt(a['ve_percent'])}%</td></tr>\n"
+            for a in s["analyses"])
+        sens = (f"<div class='card'>\n  <h3>Leave-one-out sensitivity</h3>\n"
+                f"  <p>{p(s['decision_under_test'])}</p>\n  <table>\n"
+                f"    <tr><th>Cohort omitted</th><th>k</th>"
+                f"<th>{e(outcome['measure'])} (95% CI)</th>"
+                f"<th>Efficacy</th></tr>\n{srows}  </table>\n"
+                f"  <p><strong>{p(s['conclusion'])}</strong></p>\n"
+                f"  <p><small>{p(s['authority'])}</small></p>\n</div>\n")
+
+    # Where the two judging families disagreed about whether a figure should be
+    # published at all, the disagreement is shown rather than resolved silently
+    # in favour of the side that lets the figure stand.
+    dissent = ""
+    if res.get("gate_dissent"):
+        gd = res["gate_dissent"]
+        dissent = (
+            f"<div class='card warn'>\n  <h3>The two review families disagreed "
+            f"about this figure</h3>\n  <p><strong>{p(gd['question'])}</strong></p>\n"
+            f"  <ul>\n"
+            f"    <li><strong>One family:</strong> {p(gd['openai_family_position'])}"
+            f"</li>\n"
+            f"    <li><strong>The other:</strong> {p(gd['google_family_position'])}"
+            f"</li>\n  </ul>\n"
+            f"  <p>{p(gd['resolution'])}</p>\n"
+            + (f"  <p><small>Settled against: {p(gd['authority'])}</small></p>\n"
+               if gd.get("authority") else "")
+            + "</div>\n")
 
     note = ""
     if res.get("subgroup_note"):
         note = f"  <p><small>{p(res['subgroup_note'])}</small></p>\n"
 
+    # WHAT WAS MEASURED, above the number. An object whose whole point is that a
+    # ratio is meaningless until its estimand is named cannot leave the estimand
+    # in the object and off the page.
+    estimand = ""
+    est_blk = outcome.get("estimand")
+    if est_blk:
+        fu = est_blk.get("follow_up_months")
+        estimand = (
+            "<div class='card'>" + NL + "  <h3>What was measured</h3>" + NL
+            + "  <table>" + NL
+            + f"    <tr><th>Vaccine</th><td>{p(outcome['vaccine'])}</td></tr>" + NL
+            + f"    <tr><th>Regimen</th><td>{p(outcome['regimen'])}</td></tr>" + NL
+            + f"    <tr><th>Comparator</th><td>{p(outcome['comparator'])} "
+              f"({e(outcome['comparator_type'])})</td></tr>" + NL
+            + f"    <tr><th>Estimand</th><td>{e(est_blk['family'])} &mdash; "
+              f"{p(est_blk['model'])}</td></tr>" + NL
+            + f"    <tr><th>Unit of analysis</th>"
+              f"<td>{p(est_blk['unit_of_analysis'])}</td></tr>" + NL
+            + f"    <tr><th>Case definition</th>"
+              f"<td>{p(est_blk['case_definition'])}</td></tr>" + NL
+            + f"    <tr><th>Window</th><td>{p(est_blk['window'])}"
+            + (f" &mdash; about {fmt(fu)} months" if fu else "")
+            + "</td></tr>" + NL
+            + f"    <tr><th>Analysis population</th>"
+              f"<td>{p(est_blk['analysis_population'])}</td></tr>" + NL
+            + f"    <tr><th>Effect scale</th><td>pooled on the "
+              f"{e(outcome.get('effect_scale', 'natural'))} scale</td></tr>" + NL
+            + "  </table>" + NL + "</div>" + NL)
+
     return f"""<section>
 <h2>{p(outcome['name'])}</h2>
-{headline}
+{estimand}{headline}
 <div class="card">
   <h3>Contributing trials</h3>
   <table>
@@ -241,7 +416,7 @@ def _outcome_section(canon, oid, p, e):
 {rows}  </table>
   <p><small>{p(outcome['definition_note'])}</small></p>
 </div>
-{subgroups}{note}</section>
+{hb}{sens}{dissent}{subgroups}{note}</section>
 """
 
 
@@ -256,6 +431,13 @@ def _page(canon, sections, p, e):
     srcs = canon["sources"]
     rm = canon.get("removed_citations")
     n_out = len(canon["results"]["by_outcome"])
+    # The banner announced a reduction unconditionally. An object that removed
+    # nothing would have told its reader it had been cut down to a core, which
+    # is a false disclosure rather than a cautious one.
+    banner = ("NOT SUBMISSION-READY &mdash; rebuilt on a sourceable core."
+              if canon.get("build_mode") != "full" else
+              "NOT SUBMISSION-READY &mdash; full build; every cohort cited is "
+              "reported.")
 
     removal = ""
     if rm:
@@ -266,6 +448,91 @@ def _page(canon, sections, p, e):
             + "</li>\n" for c in rm["categories"])
         removal = (f"<div class='card warn'>\n  <h2>What was removed, and why</h2>\n"
                    f"  <p>{p(rm['disclosure_note'])}</p>\n  <ul>\n{cats}  </ul>\n</div>\n")
+
+    # Contrasts the object holds, shows, and deliberately keeps out of every
+    # pool. Holding them without rendering them would make the exclusions
+    # invisible, which is the thing they exist to prevent.
+    carried = ""
+    if canon.get("carried_contrasts"):
+        crows = "".join(
+            f"    <tr><td>{p(c['label'])}<br><small>{e(c['trial_id'])}</small></td>"
+            f"<td class='num'>{fmt(c['effect']['point'])} "
+            f"({fmt(c['effect']['ci_low'])} to {fmt(c['effect']['ci_high'])})"
+            + (f"<br><small>efficacy {fmt(c['effect']['published_ve_percent'])}%"
+               f"</small>" if c["effect"].get("published_ve_percent") is not None
+               else "")
+            + f"</td><td><small>{p(c['excluded_from_pool_because'])}"
+              f"<br><q>{e(c['source_quote'])}</q></small></td></tr>\n"
+            for c in canon["carried_contrasts"])
+        carried = (f"<div class='card warn'>\n  <h2>Published contrasts shown here "
+                   f"but kept out of every pooled estimate</h2>\n"
+                   f"  <p>Each of these is a real, published result. Not one of them "
+                   f"is pooled, and the reason is on its own row. Most are here "
+                   f"because two "
+                   f"contrasts leaning on one control group cannot both enter one "
+                   f"estimate without counting those control participants twice.</p>\n"
+                   f"  <table>\n    <tr><th>Contrast</th><th>Estimate</th>"
+                   f"<th>Why it is outside every pool</th></tr>\n{crows}  </table>\n"
+                   f"</div>\n")
+
+    # What the search found and did NOT keep. A completeness claim that lists
+    # only survivors cannot be argued with; this lists the exclusions and their
+    # reasons, so a reader can disagree with a specific decision.
+    screening = ""
+    sc = canon.get("screening")
+    if sc:
+        xs = "".join(
+            f"    <li><strong>{p(x['reason'])}</strong><br>{p(x['detail'])}</li>\n"
+            for x in sc.get("excluded", []))
+        screening = (
+            f"<div class='card'>\n  <h2>What the search found, and what was kept</h2>\n"
+            f"  <p>{p(sc['search_note'])}</p>\n"
+            f"  <p><strong>Eligible:</strong> {p(sc['eligibility'])}</p>\n"
+            f"  <h3>Excluded, with reasons</h3>\n  <ul>\n{xs}  </ul>\n"
+            f"  <p><small>{p(sc['known_limitation'])}</small></p>\n</div>\n")
+
+    # The comparison against the published synthesis of the same literature.
+    recon = ""
+    r = canon.get("reconciliation")
+    if r:
+        def block(title, items, keys):
+            if not items:
+                return ""
+            lis = "".join(
+                "    <li>" + "".join(
+                    f"<strong>{p(it[k])}</strong> " if k == keys[0]
+                    else f"<br>{p(it[k])}" for k in keys if it.get(k))
+                + "</li>\n" for it in items)
+            return f"  <h3>{e(title)}</h3>\n  <ul>\n{lis}  </ul>\n"
+        recon = (
+            "<div class='card'>\n  <h2>Reconciliation against the published "
+            "synthesis of the same literature</h2>\n"
+            f"  <p>{p(srcs[r['target_source_id']]['name'])}</p>\n"
+            f"  <p class='warn'><small>{p(r['access_limitation'])}</small></p>\n"
+            + block("What matches", r.get("matches"), ["item", "detail"])
+            + block("What this object corrects", r.get("corrections"),
+                    ["item", "review_reports", "this_object"])
+            + block("What could not be resolved", r.get("unresolved"),
+                    ["item", "detail"])
+            + "</div>\n")
+
+    # The methods authority every combine-or-not decision was referred to, with
+    # what each cited section settled. Rendered because a decision sourced to a
+    # section a reader cannot see is an appeal to authority rather than a
+    # citation.
+    authority = ""
+    ma = canon.get("methodological_authority")
+    if ma:
+        arows = "".join(
+            f"    <tr><td class='num'>{e(s['section'])}</td>"
+            f"<td>{p(s['title'])}</td><td><small>{p(s['used_for'])}</small></td></tr>\n"
+            for s in ma["sections_relied_on"])
+        authority = (
+            f"<div class='card'>\n  <h2>The methods authority these decisions rest "
+            f"on</h2>\n  <p>{p(ma['reference'])}<br><small>{e(ma['url'])}</small></p>\n"
+            f"  <p>{p(ma['note'])}</p>\n  <table>\n"
+            f"    <tr><th>Section</th><th>Title</th><th>What it settled here</th>"
+            f"</tr>\n{arows}  </table>\n</div>\n")
 
     sources = "".join(
         f"    <tr><td>{p(v['layer'])}</td><td>{p(v['name'])}<br>"
@@ -284,7 +551,7 @@ def _page(canon, sections, p, e):
  small{{color:#3f3f46}}
 </style>
 
-<div class="badge" role="status">NOT SUBMISSION-READY &mdash; rebuilt on a sourceable core.
+<div class="badge" role="status">{banner}
 Outcomes reported: {fmt(n_out)}.
 {p(canon.get('completeness_statement', ''))}</div>
 
@@ -292,7 +559,7 @@ Outcomes reported: {fmt(n_out)}.
 <p>{p(canon['question'])}</p>
 
 {sections}
-{removal}
+{screening}{carried}{recon}{authority}{removal}
 <div class="card">
   <h2>Sources</h2>
   <table>

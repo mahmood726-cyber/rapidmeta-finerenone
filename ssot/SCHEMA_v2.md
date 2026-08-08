@@ -228,6 +228,49 @@ ClinicalTrials.gov records what each arm IS — EXPERIMENTAL, ACTIVE_COMPARATOR,
 PLACEBO_COMPARATOR — and that is outside the object. Inverting the object no
 longer inverts the source.
 
+## 26–32. The estimand block — forced by MALARIA_VACCINES
+
+Every extension in this group exists because a **ratio does not identify the
+quantity it estimates**. One malaria trial publishes, for one endpoint, a Cox
+hazard ratio for the time to a first episode, a rate ratio for all episodes, and
+each of those over several windows and under two case definitions. They are
+different numbers answering different questions, they all print as "vaccine
+efficacy N%", and the earlier corpus record for this comparison pooled across
+them as ordinary binary risk ratios.
+
+| # | Extension | Forced by |
+|---|---|---|
+| 26 | `outcomes[].estimand{id, family, model, unit_of_analysis, case_definition, window, follow_up_months, analysis_population}` | Naming the outcome is not enough. Two rows can cite the same endpoint of the same trial and be different quantities. `family` is one of `time_to_first`, `recurrent_rate`, `first_episode_rate`, or `undetermined`. |
+| 27 | `effect_scale: "log"`, and `effect.{log_point, log_se, scale}` | A hazard or rate ratio has no 2×2 to pool, so the variance must come from the published interval on the log scale. Storing both the ratio a reader sees and the log pair the pooling uses means the two can disagree, so `log-effect-consistency` checks them against each other. |
+| 28 | `effect.derived_from` + `published_ve_percent` and its two bounds | The source prints an efficacy percentage; the object stores a ratio. Demanding the ratio appear literally in the payload was both wrong and WEAK — a short ratio like `0.23` occurs somewhere in a large payload by coincidence, so the check passed for the wrong reason on some rows. Now the published percentage must be found and the derivation must reproduce, INCLUDING the interval inversion. |
+| 29 | `control_arm_key` per contributing row, and `carried_contrasts[]` | Both pivotal programmes randomised several vaccinated groups against ONE control. Each published contrast is valid alone; two of them in one pool count the same control participants twice and borrow precision that does not exist. Contrasts deliberately set aside are shown, with the reason, rather than deleted. |
+| 30 | `regimen` per row, and `subgroups[].regimen_collapse_prespecified` + reason | Seasonal and age-based administration were registered as SEPARATE co-primary endpoints. Averaging them reports a schedule nobody received. A collapse is permitted only where the trial itself performed it, and must be anchored to the trial's own combined figure. |
+| 31 | `analysed_scope` beside `analysed` | A trial may publish its analysed population only at a level COARSER than the row — the R21 phase 3 gives one figure for both co-primary strata. Printing it on a stratum without a word says that stratum was the size of the trial; omitting it leaves the row unweighable. So it is carried at the level the source reports and the level is declared. |
+| 32 | `comparator_type: "active"` blocks a vaccine efficacy on that outcome | One trial compares the vaccine against effective chemoprevention. One minus that ratio is not an efficacy against an unprotected control, and reading it as one reports a vaccine that barely works when the trial showed two interventions performing alike. Found by this round's own negative controls, not by reasoning. |
+| 33 | `screening{eligibility, excluded[], known_limitation}` | A completeness claim that lists only what survived is unfalsifiable. The exclusions and their reasons are now part of the object, so a reader can disagree with a specific decision. |
+
+### `head_to_head_role_note` — a narrow, declared exemption
+
+`arm-role-vs-registry` anchors an arm's role to what ClinicalTrials.gov posts.
+In a head-to-head trial BOTH arms are posted as active comparators, and the
+registry's label records which arm the sponsor registered as the reference, not
+which way the published contrast runs. Refusing every such object would make a
+vaccine-versus-chemoprevention trial unrepresentable; accepting it silently
+would reopen the arm-swap the detector exists to close. The exemption therefore
+requires the trial to declare an active comparator AND the arm to carry a note
+stating which direction its effect runs — so a swap must be written down to
+pass.
+
+### What the gate found that none of this catches
+
+Three of the five defects in round one were the object **over-claiming about
+itself**: a note saying this was the only pooled result when a later commit had
+added a second, a completeness statement claiming full open access when most
+sources are abstracts, and a reconciliation treating a coincidence of counts as
+evidence. The prose rule catches a stale NUMBER. A stale *claim about the
+object's own shape* has no structural anchor, and on this evidence the
+cross-family gate is the only thing that finds it.
+
 ## 25. Subgroup `trial_ids` must be unique
 
 The recomputation iterates the list, so a repeated identifier double-counted

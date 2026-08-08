@@ -1,0 +1,70 @@
+NONCE: malaria-vaccines-079d19af
+
+FINDINGS
+
+No OBJECT findings.
+
+No VALIDATOR findings.
+
+AUDIT NOTES
+
+Per-trial effects: I recomputed every VE-derived stored ratio from the quoted published efficacy percentage as ratio = 1 - efficacy/100, with interval inversion. All checked rows matched their adjacent source quote, including carried contrasts:
+
+- RTS,S phase 3 children R3R: quoted "VE 36.3%, 95% CI 31.8-40.5"; stored 0.637, 0.595-0.682.
+- RTS,S phase 3 children R3C carried contrast: quoted "28.3%, 23.3-32.9"; stored 0.717, 0.671-0.767.
+- RTS,S phase 3 infants R3R: quoted "VE 25.9%, 95% CI 19.9-31.5"; stored 0.741, 0.685-0.801.
+- RTS,S phase 3 infants R3C carried contrast: quoted "18.3%, 11.7-24.4"; stored 0.817, 0.756-0.883.
+- RTS,S 12-month children: quoted "55.8% (97.5% CI 50.6-60.4)"; stored 0.442, 0.396-0.494 at 97.5%.
+- R21 phase 2b group 2: quoted "77% (67-84)"; stored 0.23, 0.16-0.33.
+- R21 phase 2b group 1 carried contrast: quoted "71% (95% CI 59-79)"; stored 0.29, 0.21-0.41.
+- R21 phase 3 seasonal: quoted "75% (95% CI 71-79)"; stored 0.25, 0.21-0.29.
+- R21 phase 3 standard: quoted "68% (61-74)"; stored 0.32, 0.26-0.39.
+- R21 phase 3 multiple episodes: quoted "72% (69-75)"; stored 0.28, 0.25-0.31.
+- R21 phase 3 all-sites time-to-first carried contrast: quoted "73% (95% CI 70-76)"; stored 0.27, 0.24-0.30.
+- RTS,S fractional-dose R012-20: quoted "36% (95% CI 19-50)"; stored 0.64, 0.50-0.81.
+- RTS,S fractional-dose carried contrasts: quoted "51% (37-61), 43% (28-55), and 41% (26-53)"; stored 0.49, 0.39-0.63; 0.57, 0.45-0.72; and 0.59, 0.47-0.74.
+- RTS,S EPI 0,1,2 month schedule: quoted "59% (36-74)"; stored 0.41, 0.26-0.64.
+- RTS,S EPI delayed schedule carried contrast: quoted "32% CI 16-45"; stored 0.68, 0.55-0.84.
+- Bejon 2008: quoted "53% (95% confidence interval [CI], 28 to 69)"; stored 0.47, 0.31-0.72.
+- Chandramohan 2021: quoted "0.92 (95% confidence interval [CI], 0.84 to 1.01)"; stored as the published ratio, not converted to vaccine efficacy.
+
+Estimand integrity: The R21 pooled result uses two Cox HR time-to-first rows over the first year after the primary series. The RTS,S children pooled result uses two negative-binomial all-episode incidence-rate-ratio rows over end-of-trial follow-up. The RTS,S pool does cross a follow-up-window difference: the object quotes "Children were followed up for a median of 48 months (IQR 39-50)" for NCT00866619 and "to month 50" for NCT03276962. I do not count that as an object defect because the object no longer claims exact same-window identity for that pool; it quotes the difference as "one cohort reports a MEDIAN follow-up and the other a FIXED endpoint" and records the pooling judgement under clinical/methodological diversity rather than hiding it.
+
+Shared controls: No pooled estimate uses two contrasts that lean on the same control group. The multi-arm trials' unused arms are carried outside pools, and each pooled result takes at most one contrast per control key.
+
+Deduplication: I found no pooled estimate where one randomised cohort is represented more than once. Repeated publications of NCT00866619, NCT03896724, NCT03276962, NCT00436007, NCT00380393, and NCT03143218 are treated as reports of already represented randomisations, not as additional studies.
+
+Object self-description: I found no unsupported completeness, screening, reconciliation, or numeric prose claim. The reconciliation is appropriately limited by the staged SR2026 extract's access note: it says the full text was not retrievable and treats the review count as a count check, not as proof of identical membership.
+
+Handbook conformance: I checked the cited Cochrane Handbook sections against the decisions. Sections 4.6.1 and 4.6.2 support study-not-report deduplication; 23.3.2 and 23.3.4 support relevance selection and avoidance of shared-control double-counting in multi-arm studies; 3.2.3 supports distinguishing active head-to-head comparison from inactive-control efficacy; 6.7/10.8 and 6.8/10.9 support rate/time-to-event effect handling through log ratio estimates and generic inverse variance; 10.10.1, 10.10.2, 10.10.3, 10.11, and 10.14 are used consistently for documenting diversity, interpreting heterogeneity, declining the cross-vaccine synthesis, narrative subgroup presentation, and sensitivity analysis. I found no cited section attached to a decision it does not support.
+
+Validator: `python validate_v2.py canonical/malaria-vaccines.json` returned "VALIDATOR CLEAN -- 34/34 detectors passed". I also read the validator's handbook-citation and pool-uniformity detector text; it correctly states that it checks citation presence/structure and stale uniformity contradictions, not substantive Handbook adjudication. I performed the substantive Handbook check manually as above.
+
+FILES READ
+
+- F:\ProjectIndex\INDEX.md
+- F:\E156\rewrite-workbook.txt
+- F:\claude-temp\ssot\canonical\malaria-vaccines.json
+- F:\claude-temp\ssot\sources\malaria-vaccines\added-cohorts.extract.txt
+- F:\claude-temp\ssot\sources\malaria-vaccines\NCT00380393.ctgov.json
+- F:\claude-temp\ssot\sources\malaria-vaccines\NCT00436007.ctgov.json
+- F:\claude-temp\ssot\sources\malaria-vaccines\NCT00866619.ctgov.json
+- F:\claude-temp\ssot\sources\malaria-vaccines\NCT03143218.ctgov.json
+- F:\claude-temp\ssot\sources\malaria-vaccines\NCT03276962.ctgov.json
+- F:\claude-temp\ssot\sources\malaria-vaccines\NCT03896724.ctgov.json
+- F:\claude-temp\ssot\sources\malaria-vaccines\NCT04704830.ctgov.json
+- F:\claude-temp\ssot\sources\malaria-vaccines\PMC5626001.rtss-phase3.extract.txt
+- F:\claude-temp\ssot\sources\malaria-vaccines\PMC7618965.datoo2024.extract.txt
+- F:\claude-temp\ssot\sources\malaria-vaccines\PMC8121760.datoo2021.extract.txt
+- F:\claude-temp\ssot\sources\malaria-vaccines\PMID19064627.pubmed.xml
+- F:\claude-temp\ssot\sources\malaria-vaccines\PMID21782519.pubmed.xml
+- F:\claude-temp\ssot\sources\malaria-vaccines\PMID25913272.pubmed.xml
+- F:\claude-temp\ssot\sources\malaria-vaccines\PMID33964223.pubmed.xml
+- F:\claude-temp\ssot\sources\malaria-vaccines\PMID34432975.pubmed.xml
+- F:\claude-temp\ssot\sources\malaria-vaccines\PMID38310910.pubmed.xml
+- F:\claude-temp\ssot\sources\malaria-vaccines\PMID40975080.pubmed.xml
+- F:\claude-temp\ssot\sources\malaria-vaccines\SR2026-qamar.extract.txt
+- F:\claude-temp\ssot\sources\malaria-vaccines\supporting-trials.extract.txt
+- F:\claude-temp\ssot\validate_v2.py
+
+VERDICT: PASS

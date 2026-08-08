@@ -1,0 +1,126 @@
+SOURCE: RTS,S Clinical Trials Partnership. "Efficacy and safety of RTS,S/AS01
+malaria vaccine with or without a booster dose in infants and children in
+Africa: final results of a phase 3, individually randomised, controlled trial."
+Lancet 2015.
+PMCID: PMC5626001   PMID: 25913272   DOI: 10.1016/S0140-6736(15)60721-8
+Registration: NCT00866619
+Retrieved via PubMed Central full text.
+
+VERBATIM EXTRACTS -- these are the sentences the object's cells were read from.
+
+[DESIGN AND THE THREE GROUPS -- NOTE THE SHARED CONTROL]
+"From March 27, 2009, until Jan 31, 2011, infants aged 6-12 weeks and children
+aged 5-17 months were recruited and randomly assigned (1:1:1) by block
+randomisation with minimisation by centre to one of three groups. One group
+received RTS,S/AS01 at months 0, 1, and 2, followed by a booster dose at month 20
+(R3R group); a second group received the RTS,S/AS01 primary vaccination series
+with meningococcal serogroup C conjugate vaccine (Menjugate, Novartis, Basel,
+Switzerland) instead of an RTS,S/AS01 booster (R3C group); and the third group
+received only comparator vaccines: rabies vaccine (Verorab, Sanofi Pasteur,
+Paris, France) for children and Menjugate for young infants (C3C [control
+group])."
+
+The R3R and R3C groups are BOTH compared against the SAME C3C control group.
+Both contrasts use the same control participants and the same control episode
+count. Using both in one pooled estimate would count those controls twice.
+
+[ESTIMAND -- THIS IS A RECURRENT-EVENT RATE ANALYSIS, NOT A BINARY ONE]
+"Efficacy against all episodes of malaria was analysed by negative binomial
+regression with follow-up time as offset, allowing for interdependence between
+episodes within the same participant. Overall estimates were adjusted for study
+site as a fixed effect"
+
+"Vaccine efficacy (VE) against clinical malaria was analysed by negative binomial
+regression and against severe malaria by relative risk reduction."
+
+The unit of analysis for clinical malaria is the EPISODE, and the denominator is
+person-time. The counts below are episode counts, not numbers of participants,
+and they cannot be placed in a two-by-two table of participants.
+
+[CASE DEFINITION]
+"The primary case definition for clinical malaria was an illness accompanied by an
+axillary temperature of at least 37.5 degrees C and asexual parasitaemia (>5000
+parasites per mm3)"
+
+[FOLLOW-UP WINDOW -- THIS IS THE FINAL 3-4 YEAR ANALYSIS, NOT THE 12-MONTH ONE]
+"we initially designed this trial to assess vaccine efficacy (VE), safety, and
+immunogenicity during 32 months of follow-up, but the protocol was amended
+before month 32, on Dec 1, 2010, to extend the follow-up period to Dec 31, 2013
+(median follow-up 48 months for children and 38 months for young infants)."
+
+"Children were followed up for a median of 48 months (IQR 39-50) and young
+infants for 38 months (34-41) after dose 1."
+
+[CHILDREN 5-17 MONTHS -- THE PRIMARY RTS,S CELL IN THIS OBJECT]
+"In the modified ITT population, from month 0 until study end, compared with 9585
+episodes of clinical malaria that met the primary case definition in children in
+the C3C group, 6616 episodes occurred in children in the R3R group (VE 36.3%,
+95% CI 31.8-40.5) and 7396 in the R3C group (28.3%, 23.3-32.9)"
+
+[YOUNG INFANTS 6-12 WEEKS -- A SEPARATE RANDOMISED COHORT]
+"In the modified ITT population, from month 0 until study end, compared with 6170
+episodes of clinical malaria that met the primary case definition in young
+infants in the C3C group, 4993 episodes occurred in the R3R group (VE 25.9%, 95%
+CI 19.9-31.5) and 5444 in the R3C group (18.3%, 11.7-24.4)"
+
+[THE 12-MONTH CO-PRIMARY ENDPOINTS -- A DIFFERENT WINDOW, AND NOTE THE CI LEVEL]
+"The coprimary endpoints of efficacy to clinical malaria over the first 12 months
+after dose 3 were 55.8% (97.5% CI 50.6-60.4) in children aged 5-17 months and
+31.3% (23.6-38.3) in infants aged 6-12 weeks."
+
+These intervals are 97.5 per cent intervals, not 95 per cent intervals. This
+paper does not state which estimand produced them, and reports them only as a
+back-reference to earlier publications of the same cohort. This object therefore
+carries them as a labelled row and does not pool them.
+
+[WHAT MODEL PRODUCED THAT 12-MONTH FIGURE -- READ BOTH FIELDS, NOT ONE]
+The registered record NCT00866619 posts this endpoint with two facts that are
+easy to mistake for one, and staging only the first of them caused a real error
+in review. VERBATIM from the outcome measure:
+
+  title:          "Rate of First or Only Clinical Episode of Plasmodium
+                   Falciparum (P. Falciparum) Malaria Infection (CPFMI), or
+                   Clinical Malaria Episode of Primary Case Definition
+                   (CPFMI-PCD)"
+  unitOfMeasure:  "events per person-year"
+  description:    "The time to first or only CPFMI-PCD is expressed in terms of
+                   rate of first or only CPFMI (RfoCPFMI), that is person-year
+                   rate in each group (n/T)."
+
+and VERBATIM from the ANALYSIS attached to that same outcome:
+
+  statisticalMethod: "Regression, Cox"
+  paramType:         "Vaccine efficacy"   paramValue: 55.8
+  ciPctValue:        97.5   ciLowerLimit: 50.6   ciUpperLimit: 60.4
+  groupDescription:  "The analysis aimed to compare RfoCPFMI between groups over
+                      the Months 2.5-14 time period. Using RfoCFPMI, a Cox
+                      regression model was used to evaluate vaccine efficacy
+                      (VE) allowing for adjustment by factors. VE was calculated
+                      as 1 minus [Hazard Ratio (HR) in GSK257049 [5-17M] Group
+                      (HR1) divided by HR in control VeroRab Comparator [5-17M]
+                      Group (HR2)]; i.e. 1 - (HR1/HR2)."
+
+So the ENDPOINT is expressed as a person-year rate, and the EFFECT ESTIMATE of
+55.8 per cent is one minus a HAZARD RATIO from a Cox model. The two are not in
+conflict; they describe different things. An earlier version of this extract
+quoted only the unit and the description, and on that partial evidence a
+reviewer concluded the effect was a rate ratio and this object relabelled it as
+one. A later review read the analysis field and corrected it back. Both fields
+are staged here so the question cannot be decided again on half the record.
+
+[ENROLMENT]
+"8922 children and 6537 young infants were enrolled and included in the modified
+ITT analyses; of these, 6918 (78%) children and 5997 (92%) young infants were
+included in the per-protocol analyses"
+
+[POPULATION USED]
+"All results presented are for the modified intention-to-treat (ITT) population,
+unless otherwise recorded as per protocol. The modified ITT population included
+all participants who received at least one dose of vaccine."
+
+[NOTE ON THE NUMBER 5949]
+No figure of 5949 appears anywhere in this paper as a denominator for an
+R3R-only contrast. The modified-ITT children total is 8922 across all three
+groups. Any denominator that combines the R3R and R3C groups describes the
+pooled RTS,S-vaccinated arm and cannot be used for a contrast that names R3R
+alone.

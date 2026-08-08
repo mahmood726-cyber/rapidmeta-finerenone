@@ -188,6 +188,104 @@ difference, not a trial-set difference. The corrected object reconciles.
 
 ---
 
+## MALARIA_VACCINES vs Yousafzai/Qamar 2026 — the first reconciliation that does NOT reconcile
+
+Reference: *Efficacy and immunogenicity of RTS,S/AS01 and R21/Matrix-M malaria
+vaccines: systematic review and meta-analysis*, J Infect Public Health 2026,
+doi 10.1016/j.jiph.2026.103222.
+
+**Access, stated plainly.** The publisher's full text returned HTTP 403 and was
+NOT retrieved; nothing was done to get around that. The abstract and the
+authors' institutional open-repository record were read and are staged. So every
+statement below about the review's *numbers* is quoted; every statement about
+its *methods* is what those numbers imply, and is labelled as such rather than
+asserted as read.
+
+### The trial list
+
+Ours is built at the level of the randomised **cohort**, not the publication:
+eight cohorts from seven registrations. The RTS,S phase 3 registration
+randomised two disjoint age cohorts with their own control groups, so it
+contributes two. Four cohorts were published more than once as follow-up
+lengthened, and each contributes once.
+
+The review reports including eight studies. That the two counts coincide is
+worth nothing on its own — the question is whether its eight are eight
+*cohorts*. It cannot be answered from the retrievable material, and it is
+recorded as unresolved rather than guessed either way.
+
+### The estimates — and why no comparison is possible
+
+This is the first app in the batch where the divergence is not a number but a
+**quantity**. The reference reports:
+
+- a risk ratio of 0.61 covering **both vaccines** in the older age band,
+- a risk ratio of 0.77 for RTS,S in the 6–12-week band,
+- and, for R21, "a low event rate of 0.22".
+
+Each of the three is a different problem:
+
+1. **One ratio across both vaccines is a weighted average of two estimands.**
+   The R21 pivotal trials report a Cox hazard ratio for the *time to a first*
+   episode over 12 months. The RTS,S phase 3 reports a negative-binomial rate
+   ratio for *all* episodes over its 3–4-year follow-up. These are not two
+   measurements of one quantity, and no weighting reconciles them.
+2. **A risk ratio is the effect measure of a 2×2 table of participants.**
+   Neither pivotal trial produced one. The RTS,S phase 3's published counts are
+   **episodes** — 6,616 against 9,585 — and they exceed the number of children
+   randomised, so they cannot sit over a participant denominator at all.
+3. **"An event rate of 0.22" is not an efficacy.** It is a proportion in one
+   arm. It has no comparator in it, and printing it beside pooled efficacies
+   invites a comparison of a one-arm rate with a two-arm ratio.
+
+So the summary line for this app is not "reconciles" or "diverges by *x*". It is
+that the comparison **cannot be made**, and that saying so is the finding.
+
+### What we report instead
+
+Two vaccine-specific pooled results, each built only from cohorts reporting the
+same estimand over the same window, pooled on the log scale:
+
+| | k | effect | vaccine efficacy | I² |
+|---|---|---|---|---|
+| R21/Matrix-M, seasonal, time to first episode, 12 months | 2 | HR 0.2466 (0.2128–0.2857) | 75.34% (71.43–78.72) | 0 |
+| RTS,S/AS01, boosted, all episodes, full follow-up | 2 | IRR 0.6372 (0.5967–0.6805) | 36.28% (31.95–40.33) | 0 |
+
+The cross-vaccine figure exists only as an outcome declared **exploratory**,
+with vaccine as a subgroup and **I² = 99.4** printed beside it. It is not an
+answer to anything and the object says so on the same row.
+
+### The age band — a claim we withdrew
+
+The review reports analysing a band matching the older RTS,S cohort. The R21
+phase 3 enrolled 5–36 months and found efficacy to differ significantly *within*
+its own population by age — 78% (73–82) in the younger part against 70% (64–74)
+in the older — so the trial's overall figure and its figure for the narrower
+band are different numbers.
+
+An earlier draft of this section said the review had pooled the *wider* trial
+into the *narrower* band. **That is withdrawn.** The Gemini leg of the gate
+pointed out that the trial publishes a subgroup for exactly the band the review
+names, so the review could perfectly well have extracted it — and with the
+included-study table unavailable, we cannot tell which figure it used. Asserting
+the worse reading would have been the same over-claim this app exists to
+criticise, committed in the other direction.
+
+What survives is the fact that makes the question live, and our own answer to
+it: the two figures differ, which one was used matters, and every row in our
+object states its own population rather than being aligned to a common band.
+
+### What this reconciliation changed in our object
+
+The comparison was not decorative — it did the same job here it did for
+PREVNAR15. Screening against the review's stated count exposed **two eligible
+RTS,S/AS01 cohorts missing from our own first build**: the fractional-and-
+delayed-dose phase 2b (NCT03276962) and the trial given alongside the routine
+immunisation schedule (NCT00436007). Recovering the first turned the RTS,S
+result from a single trial into a genuine k=2 pool, because its R012-20 group is
+the same schedule as the phase 3 boosted group and — confirmed from that
+cohort's own methods section — the same negative-binomial rate-ratio model.
+
 ## Summary
 
 | app | trial-list diff | estimate reconciliation | verdict |
@@ -195,6 +293,7 @@ difference, not a trial-set difference. The corrected object reconciles.
 | COVID19_VACCINES | all 3 present in the reference; nothing spurious | 2 of 3 match within rounding; third explained by person-time | **reconciles**; the reference's refusal to pool across vaccines is a finding about the app |
 | ALIROCUMAB | ours a 6-of-18 subset, by scope | not comparable — different outcome | **reconciles**; a trial was recovered, k 5→6 |
 | PREVNAR15 | 2 of our 7 are in the reference; 4 are paediatric and could not be | adults 1.1696 vs reference 1.20 — overlapping | **reconciles only after rebuild**; the diff exposed three object defects |
+| MALARIA_VACCINES | 8 cohorts from 7 registrations; whether the reference's 8 are cohorts is unresolvable from the retrievable material | **no comparison possible** — the reference pools two estimands as a binary risk ratio | **does NOT reconcile, and that is the finding**; screening against it recovered 2 missing cohorts and turned RTS,S into a real k=2 pool |
 
 No reconciliation manufactured a divergence, and in every case the published
 review was justified. Two of the three produced a substantive change to our

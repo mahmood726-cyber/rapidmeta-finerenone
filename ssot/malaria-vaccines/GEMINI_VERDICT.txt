@@ -1,0 +1,53 @@
+===== PASS SOURCE =====
+[attempt 1: exit 0, 139s, 2019 chars, usable]
+NONCE: malaria-vaccines-079d19af
+
+I have read the following files to perform the validation pass:
+- `F:\claude-temp\ssot\canonical\malaria-vaccines.json`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\added-cohorts.extract.txt`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\PMC5626001.rtss-phase3.extract.txt`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\PMC7618965.datoo2024.extract.txt`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\PMC8121760.datoo2021.extract.txt`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\SR2026-qamar.extract.txt`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\supporting-trials.extract.txt`
+
+I have systematically checked every outcome row (including both the primary pooled inputs and the `carried_contrasts`) against the extraction files, ensuring that:
+1. **Ratio Arithmetic and Inversion**: The stored ratio point estimate is precisely `1 - efficacy/100`, and the interval inverts so that `ratio ci_low` maps to `1 - (VE ci_high / 100)` and `ratio ci_high` maps to `1 - (VE ci_low / 100)`. All mathematical calculations in the object are correct.
+2. **Quote Accuracy**: Every quoted sentence in the object verbatim matches the text in the provided source extracts.
+3. **Correct Group and Estimand**: The object isolates the correct figure described in the text for the specific group, follow-up window, and analysis (e.g., distinguishing between boosted `R3R` and unboosted `R3C`, correct separation of `r21_seasonal` and `r21_standard` site efficacies, precise alignment of first-episode vs all-episode analyses, and properly extracting the higher dose adjuvant `group 2` from Datoo 2021). No row adopts a figure intended for a different group. 
+4. **Chemoprevention vs. Vaccine**: For Chandramohan 2021, the direct hazard ratio is taken properly without deriving an invalid vaccine efficacy against an inactive control. 
+
+I found absolutely no discrepancies or defects in the object across these checks. Therefore, there are no quotes or values to object to.
+
+VERDICT: PASS
+
+
+===== PASS JUDGE =====
+[attempt 1: exit 0, 139s, 3271 chars, usable]
+NONCE: malaria-vaccines-079d19af
+
+I have read the following files:
+- F:\claude-temp\ssot\canonical\malaria-vaccines.json
+- F:\claude-temp\ssot\sources\malaria-vaccines\added-cohorts.extract.txt
+- F:\claude-temp\ssot\sources\malaria-vaccines\SR2026-qamar.extract.txt
+
+1. ESTIMAND
+VALIDATOR: No, the rows inside the pooled outcome `rtss_recurrent_children_final` are NOT over the same window. The object explicitly records this in its `pool_uniformity` block, stating: `"follow_up_window": ["differs", "one cohort reports a MEDIAN follow-up and the other a FIXED endpoint..."]`. They are pooled because they are both end-of-trial analyses of the same estimand, not because the windows are identical.
+VALIDATOR: Yes, the exploratory cross-vaccine outcome is adequately caveated and does not read as a real answer. It explicitly states, `"There is no combined number here, and the absence is the result."` The `gate_dissent` block documents that the pooled point estimate and efficacy percentage were removed in compliance with the Handbook because the measures were mixed and heterogeneity was considerable.
+
+2. SHARED CONTROLS
+VALIDATOR: No pool uses two contrasts leaning on one control group. The object designates exactly one contrast for the pool from any trial with multiple vaccinated groups. The remaining contrasts are safely isolated in the `carried_contrasts` list, and their `excluded_from_pool_because` notes clearly cite the shared control as the reason they are kept out of the pool.
+
+3. COMPLETENESS
+VALIDATOR: Yes, the completeness claim is true. Every cited cohort (including the older and newer reports and added cohorts) is present in the object. The exclusions listed under the `screening` block (e.g., different adjuvant formulations, further publications to prevent double-counting, non-field efficacy) are honest and standard methodological boundaries for a synthesis of this scope.
+
+4. RECONCILIATION
+VALIDATOR: Yes, the criticisms are fair and directly supported by the `SR2026-qamar.extract.txt` extract. The extract confirms the review reported a single risk ratio of 0.61 for both vaccines, used binary risk ratios (RR=0.77, RR=0.61) for time-to-event and rate data, and quoted a single-arm event rate of 0.22 as efficacy. 
+VALIDATOR: Yes, the object explicitly admits the full text was not retrievable, stating `"The publisher's full text was not retrievable, so this comparison rests on the review's abstract..."` and correctly limits its unit-of-analysis criticisms to the `unresolved` section.
+
+5. HANDBOOK CONFORMANCE
+OBJECT: The object cites sections `"4.6.1"` and `"4.6.2"` for `"Studies (not reports) as the unit of interest"` and `"Identifying multiple reports from the same study"`. This is the wrong section. Under Cochrane Handbook Version 6, Chapter 4 deals with searching and selecting studies (Section 4.6 is "Selecting studies"). The sections that cover the study as the unit of interest and identifying multiple reports belong to Chapter 5 ("Collecting data"), specifically sections **5.2.1** and **5.2.2**. 
+Exact text objected to: `"sections": [ "4.6.1", "4.6.2" ]` and `"Section 4.6.1 is titled 'Studies (not reports) as the unit of interest'... Section 4.6.2 covers identifying multiple reports..."`
+
+VERDICT: DEFECTS-FOUND
+

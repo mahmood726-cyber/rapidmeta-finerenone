@@ -22,7 +22,13 @@ from pathlib import Path
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-Z = {90: 1.644853627, 95: 1.959963985, 99: 2.575829304}
+# 97.5 is here because the RTS,S phase 3 states its twelve-month co-primary
+# efficacy at that level rather than at 95, on account of its interim looks --
+# the same class of fact as the 95.8 per cent interval recorded in the schema
+# for ChAdOx1. Assuming 95 for such a figure silently narrows a correctly
+# published interval, so the level travels with the estimate and the constant
+# must exist for the level the source actually used.
+Z = {90: 1.644853627, 95: 1.959963985, 97.5: 2.241402728, 99: 2.575829304}
 
 
 class Report:
@@ -314,8 +320,50 @@ def check_against_sources(canon, rep, sources_root=None):
                 continue
             cells = {}
             if eff:
-                cells.update({f"effect.{k}": eff[k]
-                              for k in ("point", "ci_low", "ci_high") if k in eff})
+                # An effect DERIVED from a published vaccine efficacy is not in the
+                # source as a ratio -- the source prints a percentage. Demanding the
+                # ratio appear literally was therefore both wrong and, worse, WEAK:
+                # a short ratio like 0.23 is a token that turns up somewhere in a
+                # large payload by coincidence, so the check passed for the wrong
+                # reason on some rows and failed honestly on others.
+                #
+                # What must hold for a derived value is what already holds for a
+                # derived count: its INPUTS are sourced, and the derivation
+                # reproduces the stored value. Both are checked here, so moving
+                # either the stored ratio or the published percentage it came from
+                # now breaks the pair.
+                if eff.get("derived_from") == "published_vaccine_efficacy_percent":
+                    trio = [("published_ve_percent", "point"),
+                            ("published_ve_ci_high_percent", "ci_low"),
+                            ("published_ve_ci_low_percent", "ci_high")]
+                    for src_key, eff_key in trio:
+                        pct = eff.get(src_key)
+                        if pct is None:
+                            rep.block("derivation-unsourced",
+                                      f"{t['id']}/{oid}: effect.{eff_key} is declared "
+                                      f"derived from a published efficacy but "
+                                      f"{src_key} is absent, so there is nothing to "
+                                      f"derive it from or to check it against.")
+                            continue
+                        if find(pct, nct) is None:
+                            rep.block("source-unsupported",
+                                      f"{t['id']}/{oid}: {src_key}={pct} is the "
+                                      f"published figure this effect is derived from, "
+                                      f"but it does not appear in any payload staged "
+                                      f"for {nct}.")
+                        want = round(1 - pct / 100, 4)
+                        if abs(eff[eff_key] - want) > 1e-9:
+                            rep.block("derivation-mismatch",
+                                      f"{t['id']}/{oid}: effect.{eff_key}="
+                                      f"{eff[eff_key]} but the published {src_key}="
+                                      f"{pct} gives {want}. The efficacy interval "
+                                      f"INVERTS into the ratio interval, and a row "
+                                      f"that does not reproduce has either the wrong "
+                                      f"stored value or the bounds the wrong way "
+                                      f"round.")
+                else:
+                    cells.update({f"effect.{k}": eff[k]
+                                  for k in ("point", "ci_low", "ci_high") if k in eff})
                 cells.update({f"analysed.{k}": v
                               for k, v in (d.get("analysed") or {}).items()})
             else:
@@ -324,8 +372,16 @@ def check_against_sources(canon, rep, sources_root=None):
                     if arm:
                         cells[f"{role}.events"] = arm["events"]
                         cells[f"{role}.n"] = arm["n"]
-            if t.get("enrolled") is not None:
-                cells["enrolled"] = t["enrolled"]
+            # Every trial-level number a READER can reach, not just `enrolled`.
+            # Both gate families demonstrated the gap with the same shape of
+            # edit: registry_enrolment 33758 -> 12345 and dosed 39540 -> 12345
+            # both returned VALIDATOR CLEAN, and both are interpolated into
+            # rendered prose ("The registry records an ACTUAL enrolment of
+            # {self.registry_enrolment}"). A field that reaches a reader and is
+            # checked against nothing is an editable field wearing a citation.
+            for fld in ("enrolled", "registry_enrolment", "dosed"):
+                if t.get(fld) is not None:
+                    cells[fld] = t[fld]
             for label, value in cells.items():
                 # Scoped to THIS trial's own payloads. A global fallback let a
                 # value belonging to another trial count as sourced for this one,
@@ -515,10 +571,21 @@ def check_per_trial_recompute(canon, rep):
             tx, ct = d.get("treatment"), d.get("control")
             if not (tx and ct):
                 continue
-            if r.get("point") is None or not r.get("measure"):
+            if r.get("point") is None:
                 # Nothing to recompute: this row deliberately carries no
                 # estimate. check_reference_consistency owns the requirement
                 # that it explain itself.
+                continue
+            if not r.get("measure"):
+                # A row that HAS a point but no measure used to fall through the
+                # same `continue`, which made `measure` a delete-to-disable
+                # switch: drop the key and ci_high could then be moved to
+                # anything. A row carrying a reader-visible estimate must say
+                # what that estimate IS, or it cannot be recomputed at all.
+                rep.block("per-trial-unmeasured",
+                          f"outcome {oid!r}/{r['trial_id']} carries point={r['point']} but "
+                          f"names no measure, so nothing can recompute it. Deleting the "
+                          f"measure key must not be a way to switch this check off.")
                 continue
             got = pool([(tx["events"], tx["n"], ct["events"], ct["n"])],
                        r["measure"], "fixed", r.get("ci_level", 95))
@@ -985,9 +1052,18 @@ def check_prose_numerals(canon, rep):
     # it cannot go stale against a value. Without this exemption a note saying
     # WHICH arms were used could not name them, which would suppress exactly the
     # disclosure check_arm_roles now requires.
+    # A cited SECTION NUMBER is a name, in the same class as an NCT number: the
+    # object cites "section 10.10.2" of a published methods handbook, and the
+    # digits in it are an address, not a quantity this object computed. Without
+    # this, citing the authority a decision rests on was impossible -- the rule
+    # fired on the citation and the only way to satisfy it was to stop naming
+    # the section, which is the opposite of what sourcing a decision means.
     IDENT = re.compile(r"NCT\d{8}|COV\d{3}|PMID\s*\d+|phase\s*\d(?:/\d)?"
                        r"|groups?\s*\d+(?:\s*,\s*\d+)*(?:\s+and\s+\d+)?"
                        r"|\d+\s*-?\s*valent"
+                       r"|sections?\s*\d+(?:\.\d+)*(?:\s*(?:,|and)\s*"
+                       r"\d+(?:\.\d+)*)*"
+                       r"|version\s*\d+"
                        r"|week\s*\d+|9[059]\s*per cent|9[059]\s*%", re.I)
     # The sign is part of the number. Without it a structured -54.66 was never
     # matched by a prose "54.66", so a stale negative value could be restated in
@@ -1003,16 +1079,30 @@ def check_prose_numerals(canon, rep):
     # sat in the badge a reader sees and no rule looked at it. A prose rule that
     # skips the most prominent prose in the object is a rule about the parts
     # nobody reads.
+    # "difference" and "divergence" were added after both gate families noticed
+    # the same hole independently: estimand_difference and source_divergence are
+    # prose, are RENDERED on the row a reader sees, and matched no entry here,
+    # so they could restate any structured value and go stale against it freely.
     PROSE_KEYS = ("note", "detail", "reason", "source", "access_note",
                   "caveat", "disclosure_note", "statement", "title", "question",
-                  "definition")
+                  "definition", "difference", "divergence")
 
     structured: set[str] = set()
+    # CONFIGURATION is not data. schema_version, a source's layer_rank, the
+    # confidence level and an outcome's null value are properties of the format,
+    # not quantities a sentence could be restating -- and treating them as data
+    # produced a false block the moment this rule was widened to cover more prose
+    # keys: "the two arms" collided with schema_version 2, so a sentence
+    # correctly quoting an earlier version of itself was reported as a stale copy
+    # of the SCHEMA NUMBER. A rule that fires on a coincidence teaches people to
+    # edit true prose until the tool stops complaining.
+    STRUCTURAL = {"schema_version", "layer_rank", "confidence_level", "ci_level",
+                  "null_value"}
 
     def collect(node):
         if isinstance(node, dict):
-            for val in node.values():
-                if isinstance(val, bool):
+            for key, val in node.items():
+                if isinstance(val, bool) or key in STRUCTURAL:
                     continue
                 if isinstance(val, (int, float)):
                     structured.add(str(val))
@@ -1091,9 +1181,36 @@ def check_direction_anchor(canon, rep):
     """
     for oid, res in canon["results"]["by_outcome"].items():
         rec = res.get("pooled")
-        if not rec:
-            continue
         outcome = next(o for o in canon["outcomes"] if o["id"] == oid)
+        if not rec:
+            # An object that declines to pool used to leave this detector with
+            # nothing to do, and direction_of_benefit -- which says which way
+            # counts as better -- was then checked by no rule at all. Flipping it
+            # to "higher", so the object asserts that MORE disease is the
+            # benefit, returned clean. With no pooled interval to read, the
+            # anchor is the published figure each row already carries: a review
+            # reporting positive efficacy means a ratio measure goes DOWN when
+            # the intervention helps.
+            w = outcome.get("direction_of_benefit")
+            if w is None:
+                rep.block("direction-unanchored",
+                          f"outcome {oid!r} declares no direction_of_benefit and has no "
+                          f"pooled result, so nothing records which way is better.")
+                continue
+            if outcome.get("measure") in ("RR", "OR", "HR"):
+                for r in res.get("per_trial") or []:
+                    ref = r.get("reference_efficacy_percent")
+                    if ref is None:
+                        continue
+                    implied = "lower" if ref > 0 else "higher"
+                    if w != implied:
+                        rep.block("direction-anchor",
+                                  f"outcome {oid!r}/{r['trial_id']}: the published review "
+                                  f"reports {ref}% efficacy, so benefit is a {implied} "
+                                  f"{outcome['measure']}, but the outcome declares "
+                                  f"direction_of_benefit={w!r}.")
+                        break
+            continue
         want = outcome.get("direction_of_benefit")
         favours = res.get("favours")
         if want is None or favours is None:
@@ -1425,7 +1542,7 @@ def check_subgroup_recompute(canon, rep):
                           f"outcome {oid!r}: subgroup {sg.get('id')!r} names no trial_ids, "
                           f"so its estimate cannot be recomputed from anything.")
                 continue
-            rows = []
+            rows, effects = [], []
             for tid in ids:
                 t = by_id.get(tid)
                 if t is None:
@@ -1436,6 +1553,16 @@ def check_subgroup_recompute(canon, rep):
                     break
                 d = (t.get("by_outcome") or {}).get(oid) or {}
                 tx, ct = d.get("treatment"), d.get("control")
+                if d.get("effect"):
+                    # A stratum over EFFECT-based rows was unverifiable here: this
+                    # detector only knew how to pool two-by-two counts, so a
+                    # subgroup of trials that report an effect estimate fell into
+                    # the missing-outcome branch and was reported as carrying no
+                    # data when it carried exactly the data being pooled. An
+                    # outcome whose trials report hazard or rate ratios has no
+                    # counts to pool and must still have its strata recomputed.
+                    effects.append(d["effect"])
+                    continue
                 if not (tx and ct):
                     # BLOCK, not skip. Setting rows=None and continuing meant a
                     # subgroup that named a trial lacking this outcome had its
@@ -1452,15 +1579,46 @@ def check_subgroup_recompute(canon, rep):
                     rows = None
                     break
                 rows.append((tx["events"], tx["n"], ct["events"], ct["n"]))
-            if not rows:
+            if rows is None:
                 continue
-            if int(sg.get("k", len(rows))) != len(rows):
+            if rows and effects:
+                rep.block("subgroup-mixed-input-forms",
+                          f"outcome {oid!r}: subgroup {sg.get('id')!r} names trials "
+                          f"that report counts AND trials that report effect "
+                          f"estimates. Their variances derive differently and a "
+                          f"stratum may not silently combine both.")
+                continue
+            n_contrib = len(rows) + len(effects)
+            if not n_contrib:
+                continue
+            if int(sg.get("k", n_contrib)) != n_contrib:
                 rep.block("subgroup-k",
                           f"outcome {oid!r}: subgroup {sg.get('id')!r} declares k="
-                          f"{sg.get('k')} but names {len(rows)} trials")
-            got = pool(rows, sg.get("measure", "RR"),
-                       res.get("estimator_used", "DerSimonian-Laird"),
-                       sg.get("ci_level", 95))
+                          f"{sg.get('k')} but names {n_contrib} trials")
+            if n_contrib < 2:
+                # A one-trial stratum has nothing to pool, but its printed value
+                # must still BE that trial's value rather than anything typed in.
+                only = (effects or [None])[0]
+                if only:
+                    for field in ("point", "ci_low", "ci_high"):
+                        if field in sg and abs(float(sg[field]) - only[field]) > 1e-9:
+                            rep.block("subgroup-recompute",
+                                      f"outcome {oid!r}: subgroup {sg.get('id')!r} "
+                                      f"names one trial and shows {field}={sg[field]}, "
+                                      f"but that trial's own {field} is "
+                                      f"{only[field]}. A stratum of one is its "
+                                      f"member, not an independent number.")
+                continue
+            outcome = next(o for o in canon["outcomes"] if o["id"] == oid)
+            if effects:
+                got = pool_generic(effects,
+                                   res.get("estimator_used", "DerSimonian-Laird"),
+                                   sg.get("ci_level", 95),
+                                   log_scale=outcome["measure"] not in ("MD", "SMD"))
+            else:
+                got = pool(rows, sg.get("measure", "RR"),
+                           res.get("estimator_used", "DerSimonian-Laird"),
+                           sg.get("ci_level", 95))
             if got is None:
                 rep.block("subgroup-recompute",
                           f"outcome {oid!r}: subgroup {sg.get('id')!r} cannot be recomputed "
@@ -1472,7 +1630,7 @@ def check_subgroup_recompute(canon, rep):
                 if abs(float(sg[field]) - got[field]) > agreement_tol(got[field]):
                     rep.block("subgroup-recompute",
                               f"outcome {oid!r}: subgroup {sg.get('id')!r} {field}="
-                              f"{sg[field]} but pooling the {len(rows)} trials it names "
+                              f"{sg[field]} but pooling the {n_contrib} trials it names "
                               f"gives {got[field]:.4f}")
 
 
@@ -1492,6 +1650,71 @@ def _review_numbers(path):
         text = path.read_text(encoding="utf-8", errors="replace")
         _REVIEW_NUMBERS[key] = {float(x) for x in re.findall(r"\d+(?:\.\d+)?", text)}
     return _REVIEW_NUMBERS[key]
+
+
+# A row of a review's summary-of-findings table, as (efficacy, lo, hi, n).
+# Both gate families broke the bag-of-numbers check the same way: a value was
+# accepted because it occurred SOMEWHERE in 1.5M characters, so 91.1 could be
+# replaced by 95.1 -- its own CI upper bound -- or by another vaccine's figure
+# entirely, and the CI bounds could be swapped end for end. Presence is not
+# identity. A figure has to be found as the row it claims to be.
+_REVIEW_ROWS: dict = {}
+
+# The review prints "VE 91.10 (83.80 to 95.10) 18,695 (1 RCT)" in its tables and
+# "VE 91.10%, 95% CI 83.80% to 95.10%; 1 RCT, 18,695 participants" in its prose.
+# Both forms are read; a figure need only be found in one of them.
+_ROW_PATTERNS = (
+    re.compile(r"VE\s*([\d.]+)\s*\(\s*([\d.]+)\s+to\s+([\d.]+)\s*\)\s*([\d,]+)?", re.I),
+    re.compile(r"VE[:\s]*([\d.]+)%?,?\s*95%\s*CI\s*([\d.]+)%?\s*to\s*([\d.]+)%?"
+               r"(?:;\s*\d+\s*RCTs?,?\s*([\d,]+))?", re.I),
+    re.compile(r"([\d.]+)%,\s*95%\s*CI\s*([\d.]+)%\s*to\s*([\d.]+)%;"
+               r"\s*\d+\s*RCTs?,\s*([\d,]+)", re.I),
+)
+
+
+def _f(tok):
+    try:
+        return float(str(tok).replace(",", ""))
+    except (TypeError, ValueError):
+        return None
+
+
+def _review_rows(path, section=None):
+    """Rows found in a staged review payload, optionally within one section.
+
+    `section` is a slice of the staged EXTRACT keyed to one trial, which is what
+    makes this per-vaccine rather than per-document: without it, one vaccine's
+    figures satisfy another vaccine's row, which is a substitution a reviewer
+    executed against the previous version of this check.
+    """
+    key = (str(path), section is not None and hash(section))
+    if key not in _REVIEW_ROWS:
+        text = section if section is not None else path.read_text(
+            encoding="utf-8", errors="replace")
+        text = _norm_numbers(text.replace("‐", "-").replace(" ", " "))
+        rows = set()
+        for pat in _ROW_PATTERNS:
+            for m in pat.finditer(text):
+                eff, lo, hi, n = (_f(m.group(1)), _f(m.group(2)),
+                                  _f(m.group(3)), _f(m.group(4)))
+                if None not in (eff, lo, hi):
+                    rows.add((eff, lo, hi, n))
+        _REVIEW_ROWS[key] = rows
+    return _REVIEW_ROWS[key]
+
+
+def _extract_section(path, nct):
+    """The block of a staged extract that belongs to one registration.
+
+    The extract is written with '###' headers carrying the NCT id, precisely so
+    a figure can be tied to the vaccine it belongs to.
+    """
+    text = path.read_text(encoding="utf-8", errors="replace")
+    blocks = re.split(r"\n###\s", text)
+    for b in blocks:
+        if nct and nct in b.split("\n", 1)[0]:
+            return b
+    return None
 
 
 def check_reference_consistency(canon, rep, sources_root=None):
@@ -1549,18 +1772,57 @@ def check_reference_consistency(canon, rep, sources_root=None):
                           f"in an editable field and checked against nothing, is not an "
                           f"anchor.")
                 continue
-            nums = _review_numbers(path)
-            for key in ("reference_efficacy_percent", "reference_ci_low_percent",
-                        "reference_ci_high_percent"):
-                val = r.get(key)
-                if val is None:
+            # IDENTITY, not presence. The triple must be found as ONE ROW of the
+            # review -- efficacy, then its own two CI bounds in that order -- and
+            # where a staged extract exists, inside the block belonging to THIS
+            # registration. Presence-anywhere let 91.1 be replaced by its own CI
+            # bound 95.1, let the two bounds be swapped end for end, and let one
+            # vaccine's figures stand in for another's. All three were executed
+            # against the previous version of this check and all three passed.
+            lo, hi = r.get("reference_ci_low_percent"), r.get("reference_ci_high_percent")
+            section = None
+            extract = src.get("staged_extract")
+            if extract and (root / extract).is_file():
+                section = _extract_section(root / extract, r.get("nct") or "")
+                if section is None:
+                    rep.block("reference-unlocated",
+                              f"outcome {oid!r}/{r['trial_id']}: the staged extract "
+                              f"{extract} has no block for {r.get('nct')!r}, so this row's "
+                              f"published figure cannot be tied to this registration.")
                     continue
-                if not any(abs(float(val) - x) < 1e-9 for x in nums):
+            rows = _review_rows(path, section)
+            if lo is None or hi is None:
+                nums = _review_numbers(path)
+                if not any(abs(float(ref) - x) < 1e-9 for x in nums):
                     rep.block("reference-unsupported",
-                              f"outcome {oid!r}/{r['trial_id']}: {key}={val} does not "
-                              f"appear anywhere in {staged_as}, the payload of the review "
-                              f"it is attributed to. The figure cannot be moved to suit "
-                              f"the object's own estimate.")
+                              f"outcome {oid!r}/{r['trial_id']}: "
+                              f"reference_efficacy_percent={ref} does not appear in "
+                              f"{staged_as}.")
+            elif not any(abs(ref - a) < 1e-9 and abs(lo - b) < 1e-9 and abs(hi - c) < 1e-9
+                         for a, b, c, _n in rows):
+                where = f"the {r.get('nct')} block of {extract}" if section else staged_as
+                rep.block("reference-row-unmatched",
+                          f"outcome {oid!r}/{r['trial_id']}: the published figure "
+                          f"{ref} ({lo} to {hi}) is not reported as a row in {where}. "
+                          f"Every one of those three numbers may occur in the review "
+                          f"separately -- a CI bound reused as a point estimate, or two "
+                          f"bounds swapped, still finds each of them. The row is what "
+                          f"identifies the figure.")
+            # The review's own analysis population belongs to the row it was read
+            # from. Left unbound it moved freely: 18695 -> 18696 and 18695 ->
+            # 25062, another vaccine's population, both passed.
+            pop = r.get("reference_analysis_population")
+            if pop is not None and lo is not None and hi is not None:
+                match = [n for a, b, c, n in rows
+                         if abs(ref - a) < 1e-9 and abs(lo - b) < 1e-9
+                         and abs(hi - c) < 1e-9 and n is not None]
+                if match and not any(abs(float(pop) - n) < 1e-9 for n in match):
+                    rep.block("reference-population-mismatch",
+                              f"outcome {oid!r}/{r['trial_id']}: "
+                              f"reference_analysis_population={pop}, but the review row "
+                              f"carrying {ref} ({lo} to {hi}) reports "
+                              f"{'/'.join(str(int(n)) for n in match)}. The population "
+                              f"belongs to the row the figure came from.")
             if r.get("point") is None:
                 # A row may legitimately carry a published figure and NO ratio of
                 # our own: one trial reports its events over an efficacy
@@ -1642,6 +1904,227 @@ def check_arm_completeness(canon, rep, sources_root=None):
                           f"invisibly is the defect this rule exists to catch.")
 
 
+def check_identifier_anchoring(canon, rep, sources_root=None):
+    """An identifier must BE the record it names, not merely look like one.
+
+    A reviewer changed a trial's pmid to 99999999 and its nct to NCT00000000 and
+    the validator returned clean, because nothing ever compared the object's
+    identifier fields with the identity of the payload staged beside them. Both
+    are reader-visible -- the page prints the NCT under every trial name -- and
+    both are the key every other source check is scoped by, so a wrong one
+    silently redirects the whole verification.
+    """
+    root = pathlib.Path(sources_root or "sources") / canon["app_id"]
+    if not root.is_dir():
+        return
+    for t in canon["inputs"]["trials"]:
+        nct = t.get("nct")
+        if nct:
+            f = root / f"{nct}.ctgov.json"
+            if not f.is_file():
+                rep.block("identifier-unstaged",
+                          f"{t['id']} cites {nct} but no {nct}.ctgov.json is staged, so "
+                          f"the registration cannot be confirmed to exist or to be this "
+                          f"trial.")
+            else:
+                try:
+                    got = (json.loads(f.read_text(encoding="utf-8"))["protocolSection"]
+                           ["identificationModule"]["nctId"])
+                except Exception as exc:
+                    got = None
+                    rep.block("identifier-unreadable",
+                              f"{t['id']}: cannot read nctId from {f.name}: {exc}")
+                if got is not None and got != nct:
+                    rep.block("identifier-mismatch",
+                              f"{t['id']} declares nct={nct} but the payload staged under "
+                              f"that name identifies itself as {got}.")
+        pmid = t.get("pmid")
+        if pmid:
+            f = root / f"PMID{pmid}.pubmed.xml"
+            if not f.is_file():
+                rep.block("identifier-unstaged",
+                          f"{t['id']} cites PMID {pmid} but no PMID{pmid}.pubmed.xml is "
+                          f"staged. The publication a cell is read from must be the "
+                          f"publication the object names.")
+            else:
+                raw = f.read_text(encoding="utf-8", errors="replace")
+                if not re.search(r"<PMID[^>]*>\s*" + re.escape(str(pmid)) + r"\s*</PMID>", raw):
+                    rep.block("identifier-mismatch",
+                              f"{t['id']} declares pmid={pmid} but the payload staged "
+                              f"under that name does not carry that PMID.")
+    # The per_trial row prints its own nct beside the estimate a reader reads.
+    by_id = {t["id"]: t for t in canon["inputs"]["trials"]}
+    for oid, res in canon["results"]["by_outcome"].items():
+        for r in res.get("per_trial") or []:
+            t = by_id.get(r.get("trial_id"))
+            if t and r.get("nct") and r["nct"] != t.get("nct"):
+                rep.block("identifier-mismatch",
+                          f"outcome {oid!r}/{r['trial_id']}: the result row shows "
+                          f"nct={r['nct']} while the trial it names is {t.get('nct')}.")
+
+
+def check_per_trial_source_fields(canon, rep, sources_root=None):
+    """Reader-visible per-row numbers that are neither counts nor estimates.
+
+    A row can carry figures that no other detector owns: what the trial itself
+    reported in its own units, and the population its crude counts rest on. A
+    reviewer moved 9.8 to 99.8 and it passed. These are printed on the row.
+    """
+    root = pathlib.Path(sources_root or "sources") / canon["app_id"]
+    blobs = {}
+    if root.is_dir():
+        for f in root.glob("*"):
+            if f.suffix in (".json", ".xml", ".txt"):
+                blobs[f.name] = _norm_numbers(f.read_text(encoding="utf-8", errors="replace"))
+    by_id = {t["id"]: t for t in canon["inputs"]["trials"]}
+    for oid, res in canon["results"]["by_outcome"].items():
+        for r in res.get("per_trial") or []:
+            t = by_id.get(r.get("trial_id")) or {}
+            nct = t.get("nct", "")
+            for key, val in r.items():
+                if not key.startswith("trial_reported_rate_") or not isinstance(val, (int, float)):
+                    continue
+                if not blobs:
+                    rep.block("sources-unavailable",
+                              f"outcome {oid!r}/{r['trial_id']}: {key}={val} is attributed "
+                              f"to the trial's own report but no payload is staged.")
+                    continue
+                hit = any(str(val) in b for n, b in blobs.items() if nct and nct in n) or \
+                      any(str(val) in b for n, b in blobs.items()
+                          if t.get("pmid") and str(t["pmid"]) in n)
+                if not hit:
+                    rep.block("source-unsupported",
+                              f"outcome {oid!r}/{r['trial_id']}: {key}={val} is presented "
+                              f"as what the trial itself reports, but does not appear in "
+                              f"any payload staged for {nct or r['trial_id']}.")
+            # A population the object says its own counts rest on is DERIVED from
+            # those counts. It was stored free-standing and checked by nothing.
+            pop = r.get("crude_analysis_population")
+            d = (t.get("by_outcome") or {}).get(oid) or {}
+            tx, ct = d.get("treatment") or {}, d.get("control") or {}
+            if pop is not None and tx.get("n") is not None and ct.get("n") is not None:
+                want = int(tx["n"]) + int(ct["n"])
+                if int(pop) != want:
+                    rep.block("crude-population-mismatch",
+                              f"outcome {oid!r}/{r['trial_id']}: "
+                              f"crude_analysis_population={pop}, but the arms this row's "
+                              f"ratio is computed from hold {tx['n']} + {ct['n']} = {want}.")
+
+
+def check_removal_grounds(canon, rep, sources_root=None):
+    """A stated removal reason must be the reason the staged registration shows.
+
+    check_removal_disclosure counts removals and requires each category to carry
+    a detail. A reviewer showed that is bookkeeping, not verification: refile the
+    HPV video-game trial from 'wrong disease area' to 'per-arm counts not
+    verifiable', rewrite its detail to match, and everything still passed --
+    while the registration staged beside it is plainly not a COVID-19 trial. The
+    reader sees the reason, so the reason is checked.
+
+    The disease vocabulary is taken from the RETAINED trials rather than
+    hardcoded, so this travels to any app: whatever the retained registrations
+    are about is what a removed one is measured against.
+    """
+    rm = canon.get("removed_citations")
+    if not rm:
+        return
+    root = pathlib.Path(sources_root or "sources") / canon["app_id"]
+    if not root.is_dir():
+        return
+
+    def payload(nct):
+        for p in (root / f"{nct}.ctgov.json", root / "removed" / f"{nct}.ctgov.json"):
+            if p.is_file():
+                return p
+        return None
+
+    def words(nct):
+        p = payload(nct)
+        if p is None:
+            return None
+        try:
+            ps = json.loads(p.read_text(encoding="utf-8"))["protocolSection"]
+        except Exception:
+            return None
+        text = " ".join([ps.get("identificationModule", {}).get("briefTitle", "") or "",
+                         ps.get("identificationModule", {}).get("officialTitle", "") or "",
+                         " ".join(ps.get("conditionsModule", {}).get("conditions") or [])])
+        return set(re.findall(r"[a-z0-9]+", text.lower()))
+
+    STOP = {"a", "an", "the", "of", "in", "to", "and", "study", "trial", "clinical",
+            "phase", "safety", "efficacy", "immunogenicity", "randomized", "randomised",
+            "placebo", "controlled", "participants", "adults", "vaccine", "vaccines",
+            "vaccination", "evaluate", "candidate", "healthy", "subjects", "prevention",
+            "double", "blind", "multicenter", "with", "for", "against", "dose", "doses"}
+    domain = set()
+    for t in canon["inputs"]["trials"]:
+        w = words(t.get("nct", ""))
+        if w:
+            domain |= (w - STOP)
+    if not domain:
+        return
+    for c in rm.get("categories") or []:
+        reason = str(c.get("reason", "")).lower()
+        for nct in c.get("removed_ids") or []:
+            w = words(nct)
+            if w is None:
+                continue
+            shared = (w - STOP) & domain
+            off_topic = not shared
+            if off_topic and "disease" not in reason:
+                rep.block("removal-reason-wrong",
+                          f"{nct} is filed under {c.get('reason')!r}, but the staged "
+                          f"registration shares no disease vocabulary with the retained "
+                          f"trials of this object, which is the signature of a "
+                          f"wrong-disease citation rather than an unsourceable one. "
+                          f"Refiling it must not be a way to soften what it was.")
+            if not off_topic and "disease" in reason:
+                rep.block("removal-reason-wrong",
+                          f"{nct} is filed under {c.get('reason')!r}, but the staged "
+                          f"registration shares disease vocabulary "
+                          f"({sorted(shared)[:4]}) with the retained trials, so it is not "
+                          f"off-topic. A removal reason is a claim about the record.")
+
+
+def check_quoted_group_disclosure(canon, rep):
+    """A trial group named in the object's OWN quoted source must be accounted for.
+
+    Deleting BBIBP's shared_control_note -- the disclosure that the trial ran
+    THREE groups against one shared alum control -- passed every detector,
+    because the arm rules read either the object's declared arms (which no
+    longer mentioned the third group) or a posted registry outcome (which
+    abstract-sourced cells do not have).
+
+    The anchor that does exist for those cells is the quoted sentence itself,
+    which check_against_sources has already proved appears verbatim in a staged
+    payload. If that sentence names a group, the object cannot silently not have
+    it. Generic words are excluded: "the vaccine group" and "the placebo group"
+    name a role, not a distinct arm.
+    """
+    GENERIC = {"vaccine", "placebo", "control", "treatment", "intervention", "study",
+               "each", "both", "the", "this", "that", "same", "other", "either",
+               "active", "comparator", "first", "second", "third", "per", "protocol"}
+    for t in canon["inputs"]["trials"]:
+        declared = " ".join([str(a.get("label", "")) for a in t.get("arms", [])]
+                            + [str(x) for x in (t.get("arms_not_used") or [])]).lower()
+        disclosed = " ".join(str(v) for k, v in t.items()
+                             if k.endswith("_note") and isinstance(v, str)).lower()
+        for oid, d in t.get("by_outcome", {}).items():
+            for q in ((d.get("provenance") or {}).get("source_quotes") or []):
+                for name in re.findall(r"([A-Za-z0-9][A-Za-z0-9\-]{1,20})\s+group\b", str(q)):
+                    low = name.lower()
+                    if low in GENERIC or low.isdigit():
+                        continue
+                    if low in declared or low in disclosed:
+                        continue
+                    rep.block("quoted-group-undisclosed",
+                              f"{t['id']}/{oid}: the source sentence this object quotes "
+                              f"names a {name!r} group, which the object neither declares "
+                              f"as an arm, lists in arms_not_used, nor mentions in any "
+                              f"note. A group the object's own evidence names cannot be "
+                              f"absent from the object without a word.")
+
+
 def check_arm_role_vs_registry(canon, rep, sources_root=None):
     """A declared role must agree with the arm type the REGISTRY posts.
 
@@ -1682,18 +2165,552 @@ def check_arm_role_vs_registry(canon, rep, sources_root=None):
             if not hits:
                 continue
             want = TREAT if role == "treatment" else CONTROL
-            if not any(ty in want for ty in hits):
-                rep.block("arm-role-vs-registry",
-                          f"{t['id']}: arm {lab!r} is declared {role!r} but the registry "
-                          f"posts it as {hits!r}. A role is not a matter of opinion when "
-                          f"the source records what the arm was.")
+            if any(ty in want for ty in hits):
+                continue
+            # HEAD-TO-HEAD. When neither arm is inactive, BOTH are posted as
+            # active comparators and the registry's label records which arm the
+            # sponsor registered as the reference -- not which arm the published
+            # contrast runs from. Refusing every such object would make a
+            # vaccine-versus-chemoprevention trial unrepresentable; accepting it
+            # silently would reopen the arm-swap this detector exists to close.
+            # So the exemption is narrow and must be DECLARED: the trial says its
+            # comparator is active, and the arm carries a note saying which way
+            # its published effect runs. A swap then has to be written down to
+            # pass, which is what makes it visible.
+            if (role == "treatment" and t.get("comparator_type") == "active"
+                    and all(ty == "ACTIVE_COMPARATOR" for ty in hits)
+                    and str(a.get("head_to_head_role_note", "")).strip()):
+                continue
+            rep.block("arm-role-vs-registry",
+                      f"{t['id']}: arm {lab!r} is declared {role!r} but the registry "
+                      f"posts it as {hits!r}. A role is not a matter of opinion when "
+                      f"the source records what the arm was.")
+
+
+SURVIVAL_FAMILIES = {"time_to_first", "recurrent_rate", "first_episode_rate"}
+# Measures whose value does not identify the quantity: a hazard ratio and an
+# incidence-rate ratio each require the estimand to be named before they mean
+# anything, because one trial publishes several of them for one endpoint.
+RATE_MEASURES = {"HR", "IRR"}
+
+
+def check_estimand_storage_form(canon, rep):
+    """A survival or rate endpoint may NOT be stored as a table of participants.
+
+    This is the defect the malaria object was rebuilt to remove, and it is the
+    one a validator that only checks arithmetic cannot see. The RTS,S phase 3
+    analysed ALL clinical malaria episodes by negative binomial regression with
+    person-time as the offset: its published counts are EPISODES and exceed the
+    number of participants, so a two-by-two built from them has a numerator that
+    cannot sit over its denominator. The R21 trials analysed the TIME to a first
+    episode by Cox regression. Neither is a proportion of participants, and the
+    earlier corpus record stored both as binary counts.
+
+    Nothing downstream can recover from this: pooling counts gives a risk ratio,
+    which is a different quantity from a hazard ratio or a rate ratio, and the
+    result looks perfectly well-formed. So the storage form is constrained at
+    the point where it is declared.
+    """
+    fam = {o["id"]: (o.get("estimand") or {}).get("family") for o in canon["outcomes"]}
+    for t in canon["inputs"]["trials"]:
+        for oid, d in (t.get("by_outcome") or {}).items():
+            if fam.get(oid) not in SURVIVAL_FAMILIES:
+                continue
+            for role in ("treatment", "control"):
+                arm = d.get(role)
+                if isinstance(arm, dict) and arm.get("events") is not None:
+                    rep.block("estimand-storage-form",
+                              f"{t['id']}/{oid}: the outcome declares estimand family "
+                              f"{fam[oid]!r}, which is a time-to-event or rate "
+                              f"quantity, but this row stores a participant count "
+                              f"under {role!r}. Pooling counts would produce a risk "
+                              f"ratio and present it as the ratio the trial actually "
+                              f"estimated. Binary counts belong in "
+                              f"binary_supplementary, never in the pooled path.")
+            if not d.get("effect"):
+                rep.block("estimand-storage-form",
+                          f"{t['id']}/{oid}: family {fam[oid]!r} requires a published "
+                          f"effect estimate with its interval, because the variance "
+                          f"of a hazard or rate ratio cannot be reconstructed from "
+                          f"anything else this object holds.")
+
+
+def check_estimand_homogeneity(canon, rep):
+    """One pool, one estimand. Every contributing row must name the same one.
+
+    Mixing a hazard ratio for the time to a first episode with a rate ratio for
+    all episodes, or mixing two follow-up windows, yields a weighted average of
+    quantities that answer different questions. It recomputes perfectly, which is
+    exactly why arithmetic checking cannot catch it.
+    """
+    for oid, res in canon["results"]["by_outcome"].items():
+        outcome = next(o for o in canon["outcomes"] if o["id"] == oid)
+        want = (outcome.get("estimand") or {}).get("id")
+        if not want:
+            # SCOPED, deliberately. A risk ratio or a mean difference on a
+            # participant-level outcome is already pinned by its case definition
+            # and its timepoint, and three objects that shipped before this rule
+            # existed are correct without an estimand block. Requiring one from
+            # them would be a retroactive block with nothing wrong behind it.
+            # A ratio of RATES is different: the same trial routinely publishes
+            # a time-to-first and an all-episode version of one endpoint, over
+            # several windows, and those numbers are interchangeable to look at
+            # and not interchangeable to pool. There the declaration is required.
+            if outcome.get("measure") in RATE_MEASURES:
+                rep.block("estimand-undeclared",
+                          f"outcome {oid!r} reports a {outcome.get('measure')} but "
+                          f"declares no estimand id. A ratio of rates is ambiguous "
+                          f"between the time to a first event and the rate of all "
+                          f"events, over any of several windows, so nothing here "
+                          f"could establish that the rows pooled under it measure "
+                          f"one thing.")
+            continue
+        if res.get("estimand_id") != want:
+            rep.block("estimand-homogeneity",
+                      f"outcome {oid!r}: the result block names estimand "
+                      f"{res.get('estimand_id')!r} while the outcome declares "
+                      f"{want!r}.")
+        for t in canon["inputs"]["trials"]:
+            d = (t.get("by_outcome") or {}).get(oid)
+            if not d:
+                continue
+            got = d.get("estimand_id")
+            if got != want:
+                rep.block("estimand-homogeneity",
+                          f"{t['id']}/{oid}: this row names estimand {got!r} but "
+                          f"contributes to an outcome whose estimand is {want!r}. A "
+                          f"pool of two estimands is a weighted average of two "
+                          f"different questions.")
+        for r in res.get("per_trial") or []:
+            if r.get("estimand_id") != want:
+                rep.block("estimand-homogeneity",
+                          f"outcome {oid!r}/{r.get('trial_id')}: the rendered row "
+                          f"names estimand {r.get('estimand_id')!r}, not {want!r}.")
+
+
+def check_shared_control_double_count(canon, rep):
+    """No two rows in one pool may lean on the same control participants.
+
+    Both pivotal programmes randomised MORE THAN ONE vaccinated group against a
+    single control group: two adjuvant doses against one rabies group, and a
+    boosted and an unboosted schedule against one comparator group. Each
+    published contrast is valid on its own. Using two of them in one pooled
+    estimate counts those control participants, and their events, twice --
+    which narrows the interval by borrowing precision that does not exist.
+    """
+    for oid, res in canon["results"]["by_outcome"].items():
+        seen = {}
+        for t in canon["inputs"]["trials"]:
+            d = (t.get("by_outcome") or {}).get(oid)
+            if not (d and d.get("effect")):
+                continue
+            key = d.get("control_arm_key")
+            if not key:
+                # Required where sharing is POSSIBLE, which is where the trial
+                # randomised more than one treatment arm. A two-arm trial has one
+                # control serving one contrast, and demanding a key from it would
+                # be bookkeeping with no failure mode behind it -- it would also
+                # retroactively block objects that shipped correct before this
+                # rule existed. A multi-arm trial is the case where two published
+                # contrasts lean on the same control participants, so there the
+                # key is the thing that makes the collision detectable.
+                n_treat = sum(1 for a in t.get("arms", [])
+                              if a.get("role") == "treatment")
+                if n_treat > 1:
+                    rep.block("shared-control-unkeyed",
+                              f"{t['id']}/{oid} contributes to a pool from a trial "
+                              f"with {n_treat} treatment arms, but names no "
+                              f"control_arm_key. Where one control group serves "
+                              f"several published contrasts, nothing else can "
+                              f"establish that only one of them was used.")
+                continue
+            if key in seen:
+                rep.block("shared-control-double-count",
+                          f"outcome {oid!r}: {t['id']} and {seen[key]} both "
+                          f"contribute and both name control group {key!r}. One "
+                          f"control group cannot serve two rows of the same pool; "
+                          f"choose one contrast and carry the other outside it.")
+            seen[key] = t["id"]
+        # Every contrast the object deliberately set aside must say which control
+        # it shared, or the disclosure is decorative.
+        for c in canon.get("carried_contrasts") or []:
+            if not str(c.get("excluded_from_pool_because", "")).strip():
+                rep.block("carried-contrast-unexplained",
+                          f"a carried contrast on {c.get('trial_id')!r} gives no "
+                          f"reason for being outside every pool. A contrast that is "
+                          f"shown but not pooled must say why, or a reader cannot "
+                          f"tell exclusion from oversight.")
+
+
+def check_regimen_homogeneity(canon, rep):
+    """A non-exploratory pool may not silently mix regimens.
+
+    Seasonal administration and age-based administration are different
+    interventions, and the phase 3 trial registered them as SEPARATE co-primary
+    endpoints. Averaging them reports a schedule nobody used. Where a collapse is
+    legitimate it must be the trial's own, declared and anchored.
+    """
+    for oid, res in canon["results"]["by_outcome"].items():
+        outcome = next(o for o in canon["outcomes"] if o["id"] == oid)
+        if outcome.get("type") == "exploratory" or not res.get("pooled"):
+            continue
+        regs = {r.get("regimen") for r in (res.get("per_trial") or [])}
+        if len(regs) > 1:
+            rep.block("regimen-mixed",
+                      f"outcome {oid!r} pools rows administered under different "
+                      f"regimens ({sorted(str(x) for x in regs)}). A pooled value "
+                      f"across schedules describes a schedule no participant "
+                      f"received.")
+        for sg in res.get("subgroups") or []:
+            if sg.get("regimen_collapse_prespecified") and not \
+                    str(sg.get("regimen_collapse_reason", "")).strip():
+                rep.block("regimen-collapse-unexplained",
+                          f"outcome {oid!r}: subgroup {sg.get('id')!r} declares a "
+                          f"prespecified regimen collapse with no reason given.")
+
+
+def check_log_effect_consistency(canon, rep):
+    """A stored log effect must BE the log of the effect stored beside it.
+
+    The object stores both, because the pooling happens on the log scale and a
+    reader sees the ratio. Two representations of one quantity can disagree, and
+    a validator that reads only one of them would never know which is rendered.
+    """
+    for t in canon["inputs"]["trials"]:
+        for oid, d in (t.get("by_outcome") or {}).items():
+            e = d.get("effect")
+            if not e or e.get("scale") != "log":
+                continue
+            if not (e["ci_low"] > 0 and e["point"] > 0 and e["ci_high"] > 0):
+                rep.block("log-effect-domain",
+                          f"{t['id']}/{oid}: a ratio measure stored on the log scale "
+                          f"must be strictly positive; got "
+                          f"({e['ci_low']}, {e['point']}, {e['ci_high']}).")
+                continue
+            z = Z.get(e.get("ci_level"))
+            if z is None:
+                continue
+            want_pt = math.log(e["point"])
+            want_se = (math.log(e["ci_high"]) - math.log(e["ci_low"])) / (2 * z)
+            if "log_point" in e and abs(e["log_point"] - want_pt) > 5e-6:
+                rep.block("log-effect-inconsistent",
+                          f"{t['id']}/{oid}: log_point={e['log_point']} but the log "
+                          f"of the stored point {e['point']} is {want_pt:.6f}.")
+            if "log_se" in e and abs(e["log_se"] - want_se) > 5e-6:
+                rep.block("log-effect-inconsistent",
+                          f"{t['id']}/{oid}: log_se={e['log_se']} but the stored "
+                          f"interval at its stated confidence level implies "
+                          f"{want_se:.6f}. The standard error is what the pooling "
+                          f"weights are built from, so a wrong one moves the pooled "
+                          f"value without moving anything a reader can see.")
+
+
+def check_ve_consistency(canon, rep):
+    """Every efficacy percentage a reader sees must be the effect it sits beside.
+
+    Efficacy is the presentation; the ratio is the stored quantity. They are two
+    views of one number and the page shows the percentage, so an efficacy that
+    drifted from its ratio would be a wrong headline over a right analysis.
+    """
+    def check(where, pct, ratio_val):
+        if pct is None or ratio_val is None:
+            return
+        want = 100 * (1 - ratio_val)
+        if abs(pct - want) > 0.01:
+            rep.block("ve-inconsistent",
+                      f"{where}: an efficacy of {pct} is shown beside a ratio of "
+                      f"{ratio_val}, which is an efficacy of {want:.4f}.")
+
+    # A head-to-head ratio is NOT a vaccine efficacy, and one minus it is not
+    # one either. The trial that forced this compared the vaccine against an
+    # active chemoprevention regimen, so its hazard ratio near the null means
+    # the two interventions performed alike -- not that the vaccine barely
+    # works. Relabelling that row as an efficacy passed every other detector,
+    # because the arithmetic of one-minus-a-ratio is the same whatever the
+    # comparator was. The comparator is what makes it meaningless, so the
+    # comparator is what this reads.
+    for o in canon["outcomes"]:
+        if o.get("comparator_type") != "active":
+            continue
+        oid = o["id"]
+        for t in canon["inputs"]["trials"]:
+            d = (t.get("by_outcome") or {}).get(oid) or {}
+            e = d.get("effect") or {}
+            if e.get("published_ve_percent") is not None or \
+                    e.get("derived_from") == "published_vaccine_efficacy_percent":
+                rep.block("efficacy-against-active-comparator",
+                          f"{t['id']}/{oid} carries a vaccine efficacy, but this "
+                          f"outcome declares an ACTIVE comparator "
+                          f"({o.get('comparator')!r}). An efficacy is a contrast "
+                          f"against an unprotected control; against an effective "
+                          f"comparator, one minus the ratio reports a vaccine that "
+                          f"barely works when what the trial showed was two "
+                          f"interventions performing alike.")
+        res = canon["results"]["by_outcome"].get(oid) or {}
+        for r in res.get("per_trial") or []:
+            if r.get("published_ve_percent") is not None:
+                rep.block("efficacy-against-active-comparator",
+                          f"outcome {oid!r}/{r.get('trial_id')}: the rendered row "
+                          f"shows a vaccine efficacy against an active comparator.")
+        if (res.get("pooled") or {}).get("pooled_ve_percent") is not None:
+            rep.block("efficacy-against-active-comparator",
+                      f"outcome {oid!r}: a pooled vaccine efficacy is reported "
+                      f"against an active comparator.")
+
+    for oid, res in canon["results"]["by_outcome"].items():
+        p = res.get("pooled")
+        if p:
+            check(f"outcome {oid!r} pooled", p.get("pooled_ve_percent"), p.get("point"))
+            check(f"outcome {oid!r} pooled lower",
+                  p.get("pooled_ve_ci_low_percent"), p.get("ci_high"))
+            check(f"outcome {oid!r} pooled upper",
+                  p.get("pooled_ve_ci_high_percent"), p.get("ci_low"))
+        for sg in res.get("subgroups") or []:
+            check(f"outcome {oid!r} subgroup {sg.get('id')!r}",
+                  sg.get("ve_percent"), sg.get("point"))
+        for r in res.get("per_trial") or []:
+            check(f"outcome {oid!r}/{r.get('trial_id')}",
+                  r.get("published_ve_percent"), r.get("point"))
+
+
+def check_analysed_scope(canon, rep):
+    """A denominator that is not the contrast's own must say so.
+
+    The R21 phase 3 publishes its analysed population only for the whole trial,
+    while reporting two co-primary strata. Printing the whole-trial denominator
+    on a stratum row without a word would tell a reader that stratum was the
+    size of the trial. Omitting it instead would leave the row unweighable. So
+    the figure is carried at the level the source reports it, and the level is
+    declared and rendered.
+    """
+    measure = {o["id"]: o.get("measure") for o in canon["outcomes"]}
+    for t in canon["inputs"]["trials"]:
+        for oid, d in (t.get("by_outcome") or {}).items():
+            if not d.get("effect"):
+                continue
+            sizes = d.get("analysed") or {}
+            if not sizes:
+                continue
+            # Scoped for the same reason as the estimand declaration above: on a
+            # rate measure a row's denominator is routinely published only at a
+            # level coarser than the contrast, and the gap between the two is
+            # invisible unless it is written down.
+            if measure.get(oid) not in RATE_MEASURES:
+                continue
+            if not str(d.get("analysed_scope", "")).strip():
+                rep.block("analysed-scope-undeclared",
+                          f"{t['id']}/{oid} carries analysed denominators but does "
+                          f"not say what population they describe. A denominator "
+                          f"whose scope is unstated is read as the row's own.")
+            for role, n in sizes.items():
+                if not isinstance(n, (int, float)) or n <= 0:
+                    rep.block("analysed-invalid",
+                              f"{t['id']}/{oid}: analysed.{role}={n} is not a "
+                              f"positive count.")
+                elif t.get("enrolled") and n > t["enrolled"]:
+                    rep.block("analysed-exceeds-enrolled",
+                              f"{t['id']}/{oid}: analysed.{role}={n} exceeds the "
+                              f"{t['enrolled']} recorded as enrolled.")
+
+
+def check_pool_uniformity(canon, rep):
+    """A pool may not CLAIM to hold constant what it records as varying.
+
+    Both gate families found the same thing in the same round: a result block
+    saying "the same estimand over the same window" while the outcome's own
+    estimand block, three fields away, said the windows were not the same
+    length. Neither statement was wrong about the world; they were wrong about
+    each other. The boilerplate had been written when it was true and stayed put
+    when a later commit made it false.
+
+    Nothing structural could catch that, because "same window" was free text.
+    So the uniformity of a pool becomes DATA -- one entry per dimension, each
+    either identical or differing, and a differing one carrying the reason it is
+    crossed anyway -- and the prose is generated from it. This detector enforces
+    that the data exists, that every crossed dimension is justified, and that the
+    prose does not assert sameness on a dimension recorded as differing.
+    """
+    # A phrase that asserts uniformity, mapped to the dimension it asserts it
+    # about. Deliberately short and literal: this is a guard against boilerplate
+    # drifting out of step with data, not a natural-language checker.
+    CLAIMS = {
+        "follow_up_window": ("same window", "same follow-up", "common window",
+                             "same follow up"),
+        "regression_model": ("same model", "same regression"),
+        "analysis_population": ("same population",),
+        "age_range": ("same age", "same population band"),
+        "case_definition": ("same case definition",),
+        "estimand_family": ("same estimand",),
+        "comparator": ("same comparator",),
+    }
+    for oid, res in canon["results"]["by_outcome"].items():
+        if not res.get("pooled"):
+            continue
+        u = res.get("pool_uniformity")
+        if not u:
+            # Required of objects in the estimand regime, which is where a pool
+            # can cross a dimension invisibly. An object that predates the
+            # regime is left alone rather than blocked for lacking a field that
+            # did not exist when it shipped -- the same scoping the estimand and
+            # analysed-scope rules already use.
+            outcome = next(o for o in canon["outcomes"] if o["id"] == oid)
+            if outcome.get("estimand"):
+                rep.block("pool-uniformity-undeclared",
+                          f"outcome {oid!r} declares an estimand and publishes a "
+                          f"pooled estimate, but records nothing about WHAT its "
+                          f"contributing cohorts hold constant. Without that, any "
+                          f"sentence describing the pool is unfalsifiable and can "
+                          f"go stale against the object silently.")
+            continue
+        # Scan EVERY reader-visible description of the pool, not just the one
+        # the generator writes. A reviewer found a stale "the comparator is
+        # identical" surviving in the outcome's definition_note after the
+        # uniformity table had recorded the comparator as differing -- the
+        # contradiction detector was pointed at poolable_reason alone and could
+        # not see it. A rule that checks one of the several places a claim can
+        # live is a rule that relocates the defect.
+        outcome_for_scan = next(o for o in canon["outcomes"] if o["id"] == oid)
+        reason = " ".join(str(x).lower() for x in (
+            res.get("poolable_reason", ""),
+            res.get("heterogeneity_status", ""),
+            res.get("interpretation_caveat", ""),
+            outcome_for_scan.get("definition_note", ""),
+            outcome_for_scan.get("definition", ""),
+            (res.get("handbook") or {}).get("decision", ""),
+            (res.get("handbook") or {}).get("conformance", ""),
+        ))
+        for dim, entry in u.items():
+            state = entry[0] if isinstance(entry, (list, tuple)) else entry.get("state")
+            note = (entry[1] if isinstance(entry, (list, tuple))
+                    else entry.get("note", ""))
+            if state not in ("identical", "differs", "not applicable"):
+                rep.block("pool-uniformity-state",
+                          f"outcome {oid!r}: dimension {dim!r} records state "
+                          f"{state!r}, which is not one this rule understands.")
+                continue
+            if state != "differs":
+                continue
+            if not str(note).strip():
+                rep.block("pool-uniformity-unjustified",
+                          f"outcome {oid!r}: dimension {dim!r} differs across the "
+                          f"cohorts being pooled and no reason is given for pooling "
+                          f"across it. Crossing a dimension is allowed; crossing it "
+                          f"silently is what this rule exists to stop.")
+            for phrase in CLAIMS.get(dim, ()):
+                if phrase in reason:
+                    rep.block("pool-uniformity-contradiction",
+                              f"outcome {oid!r}: the pooled result's own "
+                              f"description says {phrase!r} while this object "
+                              f"records {dim!r} as DIFFERING across the cohorts it "
+                              f"pools. One of the two is wrong about the other, and "
+                              f"a reader sees the sentence.")
+
+
+def check_handbook_citation(canon, rep):
+    """Every pooling or scope decision names the section that governs it.
+
+    STANDING RULE, from 2026-08-08: methodological decisions about pooling,
+    scope, estimand, heterogeneity and unit of analysis are settled against the
+    latest Cochrane Handbook, and the object records which section settled each.
+
+    The rule exists because this object twice lost an argument to a rule it had
+    invented itself. Once the invented rule was too STRICT -- "never mix
+    follow-up windows" would have discarded a pool the Handbook permits, of two
+    cohorts agreeing to three thousandths. Once it was self-CONTRADICTORY -- the
+    stated question and the actual practice disagreed, and both review families
+    found it. A cited section cannot be argued with in either direction; it can
+    only be checked.
+
+    WHAT THIS DETECTOR DOES AND DOES NOT DO. It checks that the citation EXISTS,
+    that it names sections in a plausible form, and that it carries a conformance
+    statement. It does NOT and cannot decide whether the decision genuinely
+    follows from the section it cites -- that is a judgement about a document
+    this validator has not read, and it is what the two independent review
+    families are for. This records and checks; it never adjudicates.
+    """
+    ma = canon.get("methodological_authority")
+    outcomes = {o["id"]: o for o in canon["outcomes"]}
+    # Only objects that have opted into the regime are held to it, on the same
+    # scoping principle as the estimand rules: an object that shipped before the
+    # standing rule is not retroactively in breach of it.
+    if not ma:
+        if any(o.get("estimand") for o in canon["outcomes"]):
+            rep.block("handbook-authority-undeclared",
+                      "this object declares estimands but names no methodological "
+                      "authority. Under the standing rule every pooling and scope "
+                      "decision is settled against the latest Cochrane Handbook "
+                      "with the section recorded; an object with no authority "
+                      "block is deciding by preference.")
+        return
+    for field in ("reference", "version", "sections_relied_on"):
+        if not ma.get(field):
+            rep.block("handbook-authority-incomplete",
+                      f"the methodological authority block has no {field!r}. A "
+                      f"citation missing its version cannot be checked against "
+                      f"the document that was actually consulted.")
+    for s in ma.get("sections_relied_on") or []:
+        if not re.fullmatch(r"\d+(?:\.\d+)*", str(s.get("section", ""))):
+            rep.block("handbook-section-malformed",
+                      f"{s.get('section')!r} is not a section number.")
+        if not str(s.get("used_for", "")).strip():
+            rep.block("handbook-section-purposeless",
+                      f"section {s.get('section')!r} is cited with no statement of "
+                      f"what it settled. A citation that does not say what it is "
+                      f"for cannot be checked against the decision it supports.")
+
+    cited = {str(s.get("section")) for s in ma.get("sections_relied_on") or []}
+    for oid, res in canon["results"]["by_outcome"].items():
+        # EVERY result block, not only the pooled ones. The first version asked
+        # for a citation where the object had POOLED or declined to pool, on the
+        # reasoning that a single-cohort outcome makes no decision. A reviewer
+        # read the object's own stated rule -- "every decision about pooling,
+        # scope, estimand, heterogeneity or unit of analysis names the section
+        # that governs it" -- against the object and found six result blocks
+        # with none. The reviewer was right and the reasoning was wrong: a
+        # single-cohort outcome still decides what MEASURE its estimate is, and
+        # that is exactly the decision this whole object exists to get right.
+        hb = res.get("handbook")
+        if not hb:
+            verb = ("pooling" if res.get("pooled")
+                    else "declining to pool" if res.get("k", 0) >= 2
+                    else "reporting a single cohort in a named effect measure")
+            rep.block("handbook-citation-missing",
+                      f"outcome {oid!r}: {verb} is a methodological decision and "
+                      f"this object names no Handbook section governing it, while "
+                      f"its own rule says every such decision names one.")
+            continue
+        for field in ("decision", "sections", "conformance"):
+            if not hb.get(field):
+                rep.block("handbook-citation-incomplete",
+                          f"outcome {oid!r}: the Handbook decision record has no "
+                          f"{field!r}.")
+        for sec in hb.get("sections") or []:
+            if str(sec) not in cited:
+                rep.block("handbook-section-unregistered",
+                          f"outcome {oid!r} cites section {sec!r}, which is not in "
+                          f"the object's own list of sections relied on. A section "
+                          f"invoked on a decision but absent from the register is "
+                          f"a citation nobody has stated the meaning of.")
 
 
 DETECTORS = [
     ("outcome-coverage", check_outcome_coverage),
+    ("handbook-citation", check_handbook_citation),
+    ("pool-uniformity", check_pool_uniformity),
+    ("estimand-storage-form", check_estimand_storage_form),
+    ("estimand-homogeneity", check_estimand_homogeneity),
+    ("shared-control-double-count", check_shared_control_double_count),
+    ("regimen-homogeneity", check_regimen_homogeneity),
+    ("log-effect-consistency", check_log_effect_consistency),
+    ("ve-consistency", check_ve_consistency),
+    ("analysed-scope", check_analysed_scope),
     ("arm-role-vs-registry", lambda c, r: check_arm_role_vs_registry(c, r)),
+    ("identifier-anchoring", check_identifier_anchoring),
     ("superseded", check_superseded),
     ("removal-disclosure", check_removal_disclosure),
+    ("removal-grounds", check_removal_grounds),
+    ("per-trial-source-fields", check_per_trial_source_fields),
+    ("quoted-group-disclosure", check_quoted_group_disclosure),
     ("trial-scoped-refs", check_trial_scoped_refs),
     ("source-ids", check_source_ids),
     ("against-sources", check_against_sources),
