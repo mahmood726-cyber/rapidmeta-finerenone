@@ -1,0 +1,47 @@
+===== PASS SOURCE =====
+[attempt 1: exit 0, 60s, 1139 chars, usable]
+NONCE: lenacapavir-prep-03a66995
+
+Files read:
+- F:\claude-temp\ssot\canonical\lenacapavir-prep.json
+- F:\claude-temp\ssot\sources\lenacapavir-prep\PURPOSE-trials.extract.txt
+
+VALIDATOR: The prompt instructs to check the derivation and interval inversion from a published vaccine efficacy percentage. This object does not store vaccine efficacy; it directly stores the published Incidence Rate Ratios from the pre-exposure prophylaxis trials. The JSON fields correctly show `"derived_from": "published_ratio"` and `"published_ve_percent": null` for all rows. Therefore, there are no inverted intervals to check, as the ratios are recorded exactly as published.
+
+OBJECT: All stored effects (points and confidence intervals) for `len_vs_ftdf`, `len_vs_background`, `ftaf_vs_ftdf`, and `ftaf_vs_background` across PURPOSE 1 and PURPOSE 2 exactly match the quoted sentences in the source extracts. No row has taken the wrong group's figure, and the correct comparator's value is used in each outcome. The participant counts, events, background incidences, and resistance findings also precisely match the extracted source texts.
+
+VERDICT: PASS
+
+
+===== PASS JUDGE =====
+[attempt 1: exit 0, 113s, 2284 chars, usable]
+NONCE: lenacapavir-prep-03a66995
+
+I have read the following files:
+- F:\claude-temp\ssot\canonical\lenacapavir-prep.json
+- F:\claude-temp\ssot\sources\lenacapavir-prep\NCT04925752.ctgov.json
+- F:\claude-temp\ssot\sources\lenacapavir-prep\NCT04994509.ctgov.json
+- F:\claude-temp\ssot\sources\lenacapavir-prep\PMID39046157.pubmed.xml
+- F:\claude-temp\ssot\sources\lenacapavir-prep\PMID39602624.pubmed.xml
+- F:\claude-temp\ssot\sources\lenacapavir-prep\PURPOSE-trials.extract.txt
+
+1. ESTIMAND
+VALIDATOR: The object pools nothing. I have checked its stated reasons for not pooling, which are true of the object: PURPOSE 1's incidence rate ratio is exactly zero, meaning it has no logarithm, which makes the generic inverse-variance method inapplicable. It also correctly notes that a Peto odds-ratio synthesis was rejected because both trials allocated unequally (PURPOSE 1 at 2:2:1, PURPOSE 2 at 2:1), a condition the Handbook identifies as biasing that method, and it would silently change the estimand to an odds ratio.
+
+2. SHARED CONTROLS
+VALIDATOR: The object pools nothing, so no pooled estimate leans on the same control participants twice.
+
+3. COMPLETENESS
+VALIDATOR: The `completeness_statement` states that both phase 3 trials of this intervention are held and reported. This claim is true of the object; it holds both PURPOSE 1 and PURPOSE 2, and no exclusions were made.
+
+4. CORRECTIONS AND RECONCILIATION
+VALIDATOR: The `claims_corrected` block fairly corrects claims regarding resistance findings, interval confusion, and the adding of oral arms, and these criticisms are supported by the staged sources (e.g., the WHO guideline noting N74D resistance in PURPOSE 2, and the PURPOSE 1 abstract detailing separate arms). The object admits the limits of what it could read in the `access_note` fields of the sources, explicitly stating that the primary journals are not open access and only the abstracts are staged.
+
+5. HANDBOOK CONFORMANCE
+OBJECT: 
+"section": "3.2.3"
+"title": "Defining which comparisons will be made"
+VALIDATOR: This is the wrong section citation. In the Cochrane Handbook, section 3.2.3 covers "Types of outcomes" under the criteria for including studies. The correct section for "Defining which comparisons will be made" is 3.3.2.
+
+VERDICT: DEFECTS-FOUND
+

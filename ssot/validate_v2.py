@@ -1059,6 +1059,7 @@ def check_prose_numerals(canon, rep):
     # fired on the citation and the only way to satisfy it was to stop naming
     # the section, which is the opposite of what sourcing a decision means.
     IDENT = re.compile(r"NCT\d{8}|COV\d{3}|PMID\s*\d+|phase\s*\d(?:/\d)?"
+                       r"|HIV-\d|SARS-CoV-\d"
                        r"|groups?\s*\d+(?:\s*,\s*\d+)*(?:\s+and\s+\d+)?"
                        r"|\d+\s*-?\s*valent"
                        r"|sections?\s*\d+(?:\.\d+)*(?:\s*(?:,|and)\s*"
@@ -1266,10 +1267,22 @@ def check_counts_sane(canon, rep):
         for oid, d in t.get("by_outcome", {}).items():
             eff = d.get("effect")
             if eff:
-                if not (eff["ci_low"] < eff["point"] < eff["ci_high"]):
+                boundary = bool(str(eff.get("not_log_transformable_because", "")).strip())
+                ordered = ((eff["ci_low"] <= eff["point"] <= eff["ci_high"])
+                           if boundary else
+                           (eff["ci_low"] < eff["point"] < eff["ci_high"]))
+                if not ordered:
                     rep.block("arithmetic",
                               f"{t['id']}/{oid}: interval is not ordered around the point "
                               f"({eff['ci_low']}, {eff['point']}, {eff['ci_high']})")
+                if boundary and eff["point"] > eff["ci_low"]:
+                    rep.block("boundary-effect-misdeclared",
+                              f"{t['id']}/{oid}: the effect declares itself a "
+                              f"boundary estimate that cannot be log-transformed, "
+                              f"but its point {eff['point']} lies strictly above "
+                              f"its lower limit {eff['ci_low']}, so it is an "
+                              f"ordinary estimate and the declaration is an "
+                              f"escape from the log-scale checks.")
                 if eff.get("ci_level") not in Z:
                     rep.block("arithmetic",
                               f"{t['id']}/{oid}: ci_level {eff.get('ci_level')!r} is not "

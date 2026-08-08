@@ -382,26 +382,47 @@ def _outcome_section(canon, oid, p, e):
     est_blk = outcome.get("estimand")
     if est_blk:
         fu = est_blk.get("follow_up_months")
+        # DATA-DRIVEN. This block named vaccine, regimen and comparator
+        # explicitly, which made the shared generator refuse any object that is
+        # not about a vaccine. What belongs on the page is whatever the estimand
+        # and the outcome actually carry, so the rows are built from the keys
+        # that are there.
+        def row(label, value, extra=""):
+            return (f"    <tr><th>{e(label)}</th><td>{value}{extra}</td></tr>"
+                    + NL) if value else ""
+
+        if outcome.get("vaccine"):
+            # The shape the first objects to carry an estimand use. Kept
+            # byte-for-byte so their pages do not move under a change made for
+            # a different object.
+            outcome_rows = (
+                row("Vaccine", p(outcome["vaccine"]))
+                + row("Regimen", p(outcome["regimen"]))
+                + row("Comparator", f"{p(outcome['comparator'])} "
+                                    f"({e(outcome['comparator_type'])})"))
+        else:
+            outcome_rows = "".join(
+                row(k.replace("_", " ").capitalize(), p(outcome[k]))
+                for k in ("intervention", "comparator", "comparator_kind",
+                          "population")
+                if outcome.get(k))
         estimand = (
             "<div class='card'>" + NL + "  <h3>What was measured</h3>" + NL
             + "  <table>" + NL
-            + f"    <tr><th>Vaccine</th><td>{p(outcome['vaccine'])}</td></tr>" + NL
-            + f"    <tr><th>Regimen</th><td>{p(outcome['regimen'])}</td></tr>" + NL
-            + f"    <tr><th>Comparator</th><td>{p(outcome['comparator'])} "
-              f"({e(outcome['comparator_type'])})</td></tr>" + NL
-            + f"    <tr><th>Estimand</th><td>{e(est_blk['family'])} &mdash; "
-              f"{p(est_blk['model'])}</td></tr>" + NL
-            + f"    <tr><th>Unit of analysis</th>"
-              f"<td>{p(est_blk['unit_of_analysis'])}</td></tr>" + NL
-            + f"    <tr><th>Case definition</th>"
-              f"<td>{p(est_blk['case_definition'])}</td></tr>" + NL
-            + f"    <tr><th>Window</th><td>{p(est_blk['window'])}"
-            + (f" &mdash; about {fmt(fu)} months" if fu else "")
-            + "</td></tr>" + NL
-            + f"    <tr><th>Analysis population</th>"
-              f"<td>{p(est_blk['analysis_population'])}</td></tr>" + NL
-            + f"    <tr><th>Effect scale</th><td>pooled on the "
-              f"{e(outcome.get('effect_scale', 'natural'))} scale</td></tr>" + NL
+            + outcome_rows
+            + row("Estimand", f"{e(est_blk['family'])} &mdash; "
+                              f"{p(est_blk['model'])}")
+            + "".join(row(k.replace("_", " ").capitalize(), p(est_blk[k]))
+                      for k in ("unit_of_analysis", "case_definition")
+                      if est_blk.get(k))
+            + row("Window", p(est_blk["window"]) if est_blk.get("window") else "",
+                  f" &mdash; about {fmt(fu)} months" if fu else "")
+            + row("Analysis population",
+                  p(est_blk["analysis_population"])
+                  if est_blk.get("analysis_population") else "")
+            + row("Effect scale", f"pooled on the "
+                                  f"{e(outcome.get('effect_scale', 'natural'))} "
+                                  f"scale")
             + "  </table>" + NL + "</div>" + NL)
 
     return f"""<section>

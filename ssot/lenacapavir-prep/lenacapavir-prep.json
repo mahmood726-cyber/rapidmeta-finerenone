@@ -1,0 +1,675 @@
+{
+ "app_id": "lenacapavir-prep",
+ "schema_version": 2,
+ "title": "Twice-yearly lenacapavir for HIV pre-exposure prophylaxis: both phase 3 trials, reported as incidence rate ratios, with the randomised and the counterfactual comparisons kept apart",
+ "question": "In the two phase 3 lenacapavir prevention trials, what is the incidence of HIV acquisition with lenacapavir relative to the randomised oral active control, and separately relative to the background incidence estimated in the screened population?",
+ "built": "2026-08-08",
+ "_prose_rule": "Every text field is PROSE unless it is on the validator's numeric list. Prose may not restate a number the object holds structurally.",
+ "_sourcing_rule": "Every MEASURED input carries the verbatim sentence it was read from. No measured input is stored that the staged sources do not carry, which is why this object has no person-years field. DERIVED transforms of stored values -- the log point and log standard error of a ratio -- are stored and are not claimed to appear in any source; an earlier wording said no figure at all was stored beyond the sources, which was false of those fields.",
+ "_estimand_rule": "The estimand is an incidence rate over person-time. Events and participants are stored because they are published, and NOT in the shape of a table of participants with and without an event, so that no risk ratio can be computed from them.",
+ "build_mode": "full",
+ "cited_total": 2,
+ "completeness_statement": "FULL BUILD: both phase 3 trials of this intervention are held and reported. Nothing was cited and dropped.",
+ "methodological_authority": {
+  "reference": "Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, et al (editors). Cochrane Handbook for Systematic Reviews of Interventions version 6.5 (updated August 2024). Cochrane, 2024.",
+  "url": "https://www.cochrane.org/authors/handbooks-and-manuals/handbook",
+  "version": "6.5 (updated August 2024)",
+  "version_checked_on": "2026-08-08",
+  "note": "Every pooling and scope decision names the section that governs it, on the result it governs.",
+  "sections_relied_on": [
+   {
+    "section": "3.2.3",
+    "title": "Defining which comparisons will be made",
+    "used_for": "Separating the randomised active-control comparison from the external comparison against a modelled background incidence."
+   },
+   {
+    "section": "10.3.3",
+    "title": "Performing inverse-variance meta-analyses",
+    "used_for": "The method that combines log ratios, and which a rate ratio of zero gives nothing to work with."
+   },
+   {
+    "section": "10.4.4",
+    "title": "Meta-analysis of rare events",
+    "used_for": "Its recommendation of the Peto method for rare events, and its warning about adding a half to each cell. Cited as the nearest guidance rather than as governing, because it concerns two-by-two cells and these are rates."
+   },
+   {
+    "section": "10.8",
+    "title": "Meta-analysis of counts and rates",
+    "used_for": "The rate ratio as the effect measure for rate data, and the generic inverse-variance method that a zero point estimate makes inapplicable here."
+   },
+   {
+    "section": "10.10.3",
+    "title": "Strategies for addressing heterogeneity",
+    "used_for": "Where declining to synthesise lives, as a judgement about whether an average would mislead rather than an automatic consequence of diversity."
+   },
+   {
+    "section": "10.10.1",
+    "title": "What is heterogeneity?",
+    "used_for": "The population difference between the two trials, as clinical diversity."
+   },
+   {
+    "section": "23.3.2",
+    "title": "Determining which intervention groups are relevant",
+    "used_for": "Keeping the two oral arms of the three-arm trial as the separate randomised groups they are."
+   }
+  ]
+ },
+ "sources": {
+  "OA_PURPOSE1": {
+   "layer": "Primary paper (abstract)",
+   "layer_rank": 4,
+   "name": "Bekker L-G et al. Twice-Yearly Lenacapavir or Daily F/TAF for HIV Prevention in Cisgender Women. N Engl J Med.",
+   "url": "https://doi.org/10.1056/NEJMoa2407001",
+   "staged_as": "PURPOSE-trials.extract.json",
+   "access_note": "QUOTED: the journal is not open access; the abstract is, and is staged verbatim. Every figure this object takes from this trial is in the staged text."
+  },
+  "OA_PURPOSE2": {
+   "layer": "Primary paper (abstract)",
+   "layer_rank": 4,
+   "name": "Kelley CF et al. Twice-Yearly Lenacapavir for HIV Prevention in Men and Gender-Diverse Persons. N Engl J Med.",
+   "url": "https://doi.org/10.1056/NEJMoa2411858",
+   "staged_as": "PURPOSE-trials.extract.json",
+   "access_note": "QUOTED: abstract staged verbatim, as above."
+  },
+  "REGISTRY_CTGOV": {
+   "layer": "Registry",
+   "layer_rank": 5,
+   "name": "ClinicalTrials.gov posted results for NCT04994509 and NCT04925752.",
+   "url": "https://clinicaltrials.gov/",
+   "access_note": "QUOTED: both registrations post the randomised-phase incidence outcome with the same denominators and intervals as the abstracts, to one further decimal place, together with the definition of the person-time denominator."
+  },
+  "WHO_LEN_GUIDELINE": {
+   "layer": "Guideline",
+   "layer_rank": 3,
+   "name": "World Health Organization. Guidelines on lenacapavir for HIV prevention and testing strategies for long-acting injectable pre-exposure prophylaxis.",
+   "url": "https://www.ncbi.nlm.nih.gov/books/NBK616664/",
+   "access_note": "QUOTED: open access. Staged because it is the source for the resistance finding, which neither abstract carries and which an earlier record stated backwards."
+  }
+ },
+ "outcomes": [
+  {
+   "id": "len_vs_ftdf",
+   "name": "Lenacapavir against F/TDF, the randomised active control",
+   "type": "primary",
+   "measure": "IRR",
+   "direction_of_benefit": "lower",
+   "null_value": 1,
+   "effect_scale": "log",
+   "estimand": {
+    "id": "len_vs_ftdf-estimand",
+    "family": "incidence_rate",
+    "model": "incidence rate over person-time, compared as a rate ratio",
+    "unit_of_analysis": "HIV-1 acquisition, over person-time at risk",
+    "case_definition": "confirmed incident HIV-1 infection",
+    "window": "the randomised blinded phase",
+    "follow_up_months": null,
+    "analysis_population": "modified intention-to-treat"
+   },
+   "comparator_kind": "randomised concurrent control",
+   "definition": "Lenacapavir against F/TDF, the randomised active control",
+   "definition_note": "A contrast between two groups randomised in the same trial."
+  },
+  {
+   "id": "len_vs_background",
+   "name": "Lenacapavir against the estimated background incidence in the screened population",
+   "type": "primary",
+   "measure": "IRR",
+   "direction_of_benefit": "lower",
+   "null_value": 1,
+   "effect_scale": "log",
+   "estimand": {
+    "id": "len_vs_background-estimand",
+    "family": "incidence_rate",
+    "model": "a randomised-group incidence rate over person-time, divided by a cross-sectional background incidence estimated by a recent-infection testing algorithm",
+    "unit_of_analysis": "HIV-1 acquisition, over person-time at risk",
+    "case_definition": "confirmed incident HIV-1 infection",
+    "window": "intervention side, the randomised blinded phase; comparator side, the incidence-phase screening visit",
+    "follow_up_months": null,
+    "analysis_population": "intervention side, modified intention-to-treat; comparator side, all screened participants",
+    "two_sided_estimand_note": "The sides differ in phase, in population and in method of estimation. An earlier version described the whole contrast with the randomised side's estimand, which read as though one quantity were being compared with another of its own kind."
+   },
+   "comparator_kind": "external counterfactual, not randomised",
+   "definition": "Lenacapavir against the estimated background incidence in the screened population",
+   "definition_note": "The comparator is an incidence estimated in the screened population, not a randomised group. It carries the assumptions of that estimate and is never combined with the randomised contrast."
+  },
+  {
+   "id": "ftaf_vs_ftdf",
+   "name": "F/TAF against F/TDF, both randomised oral arms",
+   "type": "secondary",
+   "measure": "IRR",
+   "direction_of_benefit": "lower",
+   "null_value": 1,
+   "effect_scale": "log",
+   "estimand": {
+    "id": "ftaf_vs_ftdf-estimand",
+    "family": "incidence_rate",
+    "model": "incidence rate over person-time, compared as a rate ratio",
+    "unit_of_analysis": "HIV-1 acquisition, over person-time at risk",
+    "case_definition": "confirmed incident HIV-1 infection",
+    "window": "the randomised blinded phase",
+    "follow_up_months": null,
+    "analysis_population": "modified intention-to-treat"
+   },
+   "comparator_kind": "randomised concurrent control",
+   "definition": "F/TAF against F/TDF, both randomised oral arms",
+   "definition_note": "Present so that the two oral arms are visible as the separate randomised groups they are."
+  },
+  {
+   "id": "ftaf_vs_background",
+   "name": "F/TAF against the estimated background incidence",
+   "type": "secondary",
+   "measure": "IRR",
+   "direction_of_benefit": "lower",
+   "null_value": 1,
+   "effect_scale": "log",
+   "estimand": {
+    "id": "ftaf_vs_background-estimand",
+    "family": "incidence_rate",
+    "model": "a randomised-group incidence rate over person-time, divided by a cross-sectional background incidence estimated by a recent-infection testing algorithm",
+    "unit_of_analysis": "HIV-1 acquisition, over person-time at risk",
+    "case_definition": "confirmed incident HIV-1 infection",
+    "window": "intervention side, the randomised blinded phase; comparator side, the incidence-phase screening visit",
+    "follow_up_months": null,
+    "analysis_population": "intervention side, modified intention-to-treat; comparator side, all screened participants",
+    "two_sided_estimand_note": "The sides differ in phase, in population and in method of estimation. An earlier version described the whole contrast with the randomised side's estimand, which read as though one quantity were being compared with another of its own kind."
+   },
+   "comparator_kind": "external counterfactual, not randomised",
+   "definition": "F/TAF against the estimated background incidence",
+   "definition_note": "As for lenacapavir, an external comparison."
+  }
+ ],
+ "inputs": {
+  "trials": [
+   {
+    "id": "purpose-1",
+    "name": "PURPOSE 1, adolescent girls and young women, South Africa and Uganda",
+    "nct": "NCT04994509",
+    "pmid": "39046157",
+    "year": 2024,
+    "design": "phase 3, double-blind, randomised two to two to one to three groups, with double-dummy placebos",
+    "population": "adolescent girls and young women",
+    "comparator_type": "active",
+    "comparator_type_basis": "the trial's own words: daily oral emtricitabine-tenofovir disoproxil fumarate is designated the active control, and the staged abstract says so.",
+    "arms": [
+     {
+      "label": "lenacapavir",
+      "role": "treatment",
+      "events": 0,
+      "participants": 2134,
+      "incidence_per_100py": 0.0,
+      "incidence_ci_low": 0.0,
+      "incidence_ci_high": 0.19
+     },
+     {
+      "label": "F/TAF",
+      "role": "treatment",
+      "events": 39,
+      "participants": 2136,
+      "incidence_per_100py": 2.02,
+      "incidence_ci_low": 1.44,
+      "incidence_ci_high": 2.76
+     },
+     {
+      "label": "F/TDF",
+      "role": "control",
+      "events": 16,
+      "participants": 1068,
+      "incidence_per_100py": 1.69,
+      "incidence_ci_low": 0.96,
+      "incidence_ci_high": 2.74
+     }
+    ],
+    "arm_selection_note": "Three randomised groups, two of them oral drugs that are not the same drug. F/TDF is the trial's designated active control; F/TAF is a separate investigational arm and is reported on its own rows. Adding the two oral groups together would create a comparator that was never randomised.",
+    "arms_not_used": [],
+    "background_incidence": 2.41,
+    "background_ci_low": 1.82,
+    "background_ci_high": 3.19,
+    "background_screened": 8094,
+    "enrolled": 5338,
+    "enrolment_note": "Participants initially HIV-negative.",
+    "resistance_finding": "no HIV acquisitions occurred in the lenacapavir group, so no resistance could be observed",
+    "by_outcome": {
+     "len_vs_ftdf": {
+      "effect": {
+       "point": 0.0,
+       "ci_low": 0.0,
+       "ci_high": 0.1,
+       "ci_level": 95,
+       "derived_from": "published_ratio",
+       "published_ve_percent": null,
+       "published_ve_ci_low_percent": null,
+       "published_ve_ci_high_percent": null,
+       "scale": "not-log-transformable",
+       "log_point": null,
+       "log_se": null,
+       "not_log_transformable_because": "the point estimate is zero, so its logarithm does not exist; the zero arises from a zero numerator, not from rounding"
+      },
+      "estimand_id": "len_vs_ftdf-estimand",
+      "control_arm_key": "NCT04994509-ftdf",
+      "analysed": {
+       "treatment": 2134,
+       "control": 1068
+      },
+      "analysed_scope": "the two randomised groups this row contrasts.",
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "OA_PURPOSE1",
+       "source_quotes": [
+        "HIV incidence with lenacapavir was significantly lower than background HIV incidence (incidence rate ratio, 0.00; 95% CI, 0.00 to 0.04; P<0.001) and than HIV incidence with F/TDF (incidence rate ratio, 0.00; 95% CI, 0.00 to 0.10; P<0.001).",
+        "Among 5338 participants who were initially HIV-negative, 55 incident HIV infections were observed: 0 infections among 2134 participants in the lenacapavir group (0 per 100 person-years; 95% confidence interval [CI], 0.00 to 0.19), 39 infections among 2136 participants in the F/TAF group (2.02 per 100 person-years; 95% CI, 1.44 to 2.76), and 16 infections among 1068 participants in the F/TDF group (1.69 per 100 person-years; 95% CI, 0.96 to 2.74)."
+       ],
+       "quote_note": "Three intervals beginning at zero appear in this trial and the quote distinguishes them: the group's own incidence interval, the rate ratio against background, and the rate ratio against F/TDF."
+      }
+     },
+     "len_vs_background": {
+      "effect": {
+       "point": 0.0,
+       "ci_low": 0.0,
+       "ci_high": 0.04,
+       "ci_level": 95,
+       "derived_from": "published_ratio",
+       "published_ve_percent": null,
+       "published_ve_ci_low_percent": null,
+       "published_ve_ci_high_percent": null,
+       "scale": "not-log-transformable",
+       "log_point": null,
+       "log_se": null,
+       "not_log_transformable_because": "the point estimate is zero, so its logarithm does not exist; the zero arises from a zero numerator, not from rounding"
+      },
+      "estimand_id": "len_vs_background-estimand",
+      "control_arm_key": "NCT04994509-background",
+      "analysed": {
+       "treatment": 2134
+      },
+      "screened_population": 8094,
+      "analysed_scope": "the lenacapavir group against an incidence estimated in the screened population, which is not a randomised group.",
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "OA_PURPOSE1",
+       "source_quotes": [
+        "HIV incidence with lenacapavir was significantly lower than background HIV incidence (incidence rate ratio, 0.00; 95% CI, 0.00 to 0.04; P<0.001) and than HIV incidence with F/TDF (incidence rate ratio, 0.00; 95% CI, 0.00 to 0.10; P<0.001).",
+        "Background HIV incidence in the screened population (8094 participants) was 2.41 per 100 person-years (95% CI, 1.82 to 3.19)."
+       ],
+       "quote_note": "Three intervals beginning at zero appear in this trial and the quote distinguishes them: the group's own incidence interval, the rate ratio against background, and the rate ratio against F/TDF."
+      }
+     },
+     "ftaf_vs_ftdf": {
+      "effect": {
+       "point": 1.2,
+       "ci_low": 0.67,
+       "ci_high": 2.14,
+       "ci_level": 95,
+       "derived_from": "published_ratio",
+       "published_ve_percent": null,
+       "published_ve_ci_low_percent": null,
+       "published_ve_ci_high_percent": null,
+       "scale": "log",
+       "log_point": 0.182322,
+       "log_se": 0.296251
+      },
+      "estimand_id": "ftaf_vs_ftdf-estimand",
+      "control_arm_key": "NCT04994509-ftdf-oral",
+      "analysed": {
+       "treatment": 2136,
+       "control": 1068
+      },
+      "analysed_scope": "the two randomised oral groups.",
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "OA_PURPOSE1",
+       "source_quotes": [
+        "HIV incidence with F/TAF did not differ significantly from background HIV incidence (incidence rate ratio, 0.84; 95% CI, 0.55 to 1.28; P = 0.21), and no evidence of a meaningful difference in HIV incidence was observed between F/TAF and F/TDF (incidence rate ratio, 1.20; 95% CI, 0.67 to 2.14).",
+        "Among 5338 participants who were initially HIV-negative, 55 incident HIV infections were observed: 0 infections among 2134 participants in the lenacapavir group (0 per 100 person-years; 95% confidence interval [CI], 0.00 to 0.19), 39 infections among 2136 participants in the F/TAF group (2.02 per 100 person-years; 95% CI, 1.44 to 2.76), and 16 infections among 1068 participants in the F/TDF group (1.69 per 100 person-years; 95% CI, 0.96 to 2.74)."
+       ],
+       "quote_note": "The sentence names both oral comparisons."
+      }
+     },
+     "ftaf_vs_background": {
+      "effect": {
+       "point": 0.84,
+       "ci_low": 0.55,
+       "ci_high": 1.28,
+       "ci_level": 95,
+       "derived_from": "published_ratio",
+       "published_ve_percent": null,
+       "published_ve_ci_low_percent": null,
+       "published_ve_ci_high_percent": null,
+       "scale": "log",
+       "log_point": -0.174353,
+       "log_se": 0.215488
+      },
+      "estimand_id": "ftaf_vs_background-estimand",
+      "control_arm_key": "NCT04994509-background-oral",
+      "analysed": {
+       "treatment": 2136
+      },
+      "screened_population": 8094,
+      "analysed_scope": "the F/TAF group against the screened-population incidence.",
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "OA_PURPOSE1",
+       "source_quotes": [
+        "HIV incidence with F/TAF did not differ significantly from background HIV incidence (incidence rate ratio, 0.84; 95% CI, 0.55 to 1.28; P = 0.21), and no evidence of a meaningful difference in HIV incidence was observed between F/TAF and F/TDF (incidence rate ratio, 1.20; 95% CI, 0.67 to 2.14).",
+        "Background HIV incidence in the screened population (8094 participants) was 2.41 per 100 person-years (95% CI, 1.82 to 3.19)."
+       ],
+       "quote_note": "The sentence names both oral comparisons."
+      }
+     }
+    }
+   },
+   {
+    "id": "purpose-2",
+    "name": "PURPOSE 2, cisgender men, transgender and gender-diverse persons",
+    "nct": "NCT04925752",
+    "pmid": "39602624",
+    "year": 2024,
+    "design": "phase 3, double-blind, randomised two to one against an active oral control",
+    "population": "cisgender men, transgender women, transgender men and gender-nonbinary persons",
+    "comparator_type": "active",
+    "comparator_type_basis": "the trial describes itself as active-controlled in the staged abstract.",
+    "arms": [
+     {
+      "label": "lenacapavir",
+      "role": "treatment",
+      "events": 2,
+      "participants": 2179,
+      "incidence_per_100py": 0.1,
+      "incidence_ci_low": 0.01,
+      "incidence_ci_high": 0.37
+     },
+     {
+      "label": "F/TDF",
+      "role": "control",
+      "events": 9,
+      "participants": 1086,
+      "incidence_per_100py": 0.93,
+      "incidence_ci_low": 0.43,
+      "incidence_ci_high": 1.77
+     }
+    ],
+    "arms_not_used": [],
+    "background_incidence": 2.37,
+    "background_ci_low": 1.65,
+    "background_ci_high": 3.42,
+    "background_screened": 4634,
+    "enrolled": 3265,
+    "enrolment_note": "Participants in the modified intention-to-treat analysis. The randomised group sizes are larger, at 2183 and 1088, and are quoted in the staged extract.",
+    "resistance_finding": "both incident infections in the lenacapavir group carried the N74D capsid resistance mutation, and both occurred after the first injection and before the second",
+    "by_outcome": {
+     "len_vs_ftdf": {
+      "effect": {
+       "point": 0.11,
+       "ci_low": 0.02,
+       "ci_high": 0.51,
+       "ci_level": 95,
+       "derived_from": "published_ratio",
+       "published_ve_percent": null,
+       "published_ve_ci_low_percent": null,
+       "published_ve_ci_high_percent": null,
+       "scale": "log",
+       "log_point": -2.207275,
+       "log_se": 0.826209
+      },
+      "estimand_id": "len_vs_ftdf-estimand",
+      "control_arm_key": "NCT04925752-ftdf",
+      "analysed": {
+       "treatment": 2179,
+       "control": 1086
+      },
+      "analysed_scope": "the two randomised groups this row contrasts, in the modified intention-to-treat population.",
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "OA_PURPOSE2",
+       "source_quotes": [
+        "The incidence of HIV infection in the lenacapavir group was significantly lower than both the background incidence (incidence rate ratio, 0.04; 95% CI, 0.01 to 0.18; P<0.001) and the incidence in the F/TDF group (incidence rate ratio, 0.11; 95% CI, 0.02 to 0.51; P = 0.002).",
+        "Among 3265 participants who were included in the modified intention-to-treat analysis, HIV infections occurred in 2 participants in the lenacapavir group (0.10 per 100 person-years; 95% confidence interval [CI], 0.01 to 0.37) and in 9 participants in the F/TDF group (0.93 per 100 person-years; 95% CI, 0.43 to 1.77)."
+       ],
+       "quote_note": "The trial calls this comparison SECONDARY and the background comparison primary; the staged extract carries that sentence."
+      }
+     },
+     "len_vs_background": {
+      "effect": {
+       "point": 0.04,
+       "ci_low": 0.01,
+       "ci_high": 0.18,
+       "ci_level": 95,
+       "derived_from": "published_ratio",
+       "published_ve_percent": null,
+       "published_ve_ci_low_percent": null,
+       "published_ve_ci_high_percent": null,
+       "scale": "log",
+       "log_point": -3.218876,
+       "log_se": 0.737353
+      },
+      "estimand_id": "len_vs_background-estimand",
+      "control_arm_key": "NCT04925752-background",
+      "analysed": {
+       "treatment": 2179
+      },
+      "screened_population": 4634,
+      "analysed_scope": "the lenacapavir group against the screened-population incidence.",
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "OA_PURPOSE2",
+       "source_quotes": [
+        "The incidence of HIV infection in the lenacapavir group was significantly lower than both the background incidence (incidence rate ratio, 0.04; 95% CI, 0.01 to 0.18; P<0.001) and the incidence in the F/TDF group (incidence rate ratio, 0.11; 95% CI, 0.02 to 0.51; P = 0.002).",
+        "The background HIV incidence in the screened population (4634 participants) was 2.37 per 100 person-years (95% CI, 1.65 to 3.42)."
+       ],
+       "quote_note": "This is the trial's PRIMARY comparison."
+      }
+     }
+    }
+   }
+  ]
+ },
+ "config": {
+  "confidence_level": 95
+ },
+ "results": {
+  "by_outcome": {
+   "len_vs_ftdf": {
+    "k": 2,
+    "estimand_id": "len_vs_ftdf-estimand",
+    "comparator_kind": "randomised concurrent control",
+    "handbook": {
+     "decision": "REPORT each trial separately; compute NO pooled estimate",
+     "sections": [
+      "10.3.3",
+      "10.8",
+      "10.4.4",
+      "10.10.1",
+      "10.10.3"
+     ],
+     "conformance": "ONE reason is sufficient and it is arithmetic rather than judgement: PURPOSE 1's rate ratio is exactly zero, so it has no logarithm, and the generic inverse-variance method that sections 10.3.3 and 10.8 prescribe for combining rate ratios operates on log ratios. There is nothing to give it. Section 10.4.4 is cited for what it actually covers -- rare events in two-by-two data, where it recommends the Peto method and warns that adding a half to each cell 'usually has the undesirable effect of biasing study estimates towards no difference'. That warning is about CELLS and these are RATES, so it is cited as the nearest guidance rather than as governing; a reviewer objected to an earlier version that cited it as though it governed, and was right. A Peto odds-ratio synthesis on the participant counts IS computable and is not performed for two stated reasons: it would silently change the estimand from the rate ratio both trials published to an odds ratio on participants, and both trials allocated unequally, which is the condition 10.4.4 identifies as biasing that method. The population difference between the trials is recorded as clinical diversity under 10.10.1 and is NOT claimed to be independently sufficient -- an earlier version did claim that, which is stricter than the Handbook, since 10.10.3 treats declining to synthesise as a judgement about whether an average would mislead and random-effects models exist precisely to carry such diversity."
+    },
+    "per_trial": [
+     {
+      "trial_id": "purpose-1",
+      "nct": "NCT04994509",
+      "measure": "IRR",
+      "point": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.1,
+      "ci_level": 95,
+      "log_point": null,
+      "log_se": null,
+      "estimand_id": "len_vs_ftdf-estimand",
+      "population": "adolescent girls and young women",
+      "derivation": "the published rate ratio, stored as published"
+     },
+     {
+      "trial_id": "purpose-2",
+      "nct": "NCT04925752",
+      "measure": "IRR",
+      "point": 0.11,
+      "ci_low": 0.02,
+      "ci_high": 0.51,
+      "ci_level": 95,
+      "log_point": -2.207275,
+      "log_se": 0.826209,
+      "estimand_id": "len_vs_ftdf-estimand",
+      "population": "cisgender men, transgender women, transgender men and gender-nonbinary persons",
+      "derivation": "the published rate ratio, stored as published"
+     }
+    ],
+    "poolable": false,
+    "not_poolable_reason": "No pooled estimate is computed. The grounds and the sections that govern them are on this outcome's handbook block.",
+    "model": "per-trial, no synthesis",
+    "estimator": "none (no synthesis)",
+    "estimator_used": "none (no synthesis)",
+    "pooled": null,
+    "single_study_ref": null,
+    "heterogeneity": null,
+    "heterogeneity_status": "not applicable; no synthesis is performed"
+   },
+   "len_vs_background": {
+    "k": 2,
+    "estimand_id": "len_vs_background-estimand",
+    "comparator_kind": "external counterfactual, not randomised",
+    "handbook": {
+     "decision": "REPORT each trial separately; compute NO pooled estimate, and never combine this with the randomised contrast",
+     "sections": [
+      "3.2.3",
+      "10.3.3",
+      "10.8",
+      "10.10.1"
+     ],
+     "conformance": "The comparator is not a randomised group. Section 3.2.3 distinguishes the kinds of comparison a review may make, and an estimate against an incidence modelled in a screened population is not the same quantity as a contrast between two randomised arms: it carries the assumptions of that model and none of the protection randomisation provides. The two are reported as separate outcomes for that reason. No synthesis across trials is computed here either, and the governing reason is the same arithmetic one as for the randomised contrast -- one trial's rate ratio is zero and the generic inverse-variance method of 10.3.3 and 10.8 has no log ratio to take. An earlier version invoked that reason here while citing only the comparison-definition and heterogeneity sections, which did not govern it."
+    },
+    "per_trial": [
+     {
+      "trial_id": "purpose-1",
+      "nct": "NCT04994509",
+      "measure": "IRR",
+      "point": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.04,
+      "ci_level": 95,
+      "log_point": null,
+      "log_se": null,
+      "estimand_id": "len_vs_background-estimand",
+      "population": "adolescent girls and young women",
+      "derivation": "the published rate ratio, stored as published"
+     },
+     {
+      "trial_id": "purpose-2",
+      "nct": "NCT04925752",
+      "measure": "IRR",
+      "point": 0.04,
+      "ci_low": 0.01,
+      "ci_high": 0.18,
+      "ci_level": 95,
+      "log_point": -3.218876,
+      "log_se": 0.737353,
+      "estimand_id": "len_vs_background-estimand",
+      "population": "cisgender men, transgender women, transgender men and gender-nonbinary persons",
+      "derivation": "the published rate ratio, stored as published"
+     }
+    ],
+    "poolable": false,
+    "not_poolable_reason": "No pooled estimate is computed. The grounds and the sections that govern them are on this outcome's handbook block.",
+    "model": "per-trial, no synthesis",
+    "estimator": "none (no synthesis)",
+    "estimator_used": "none (no synthesis)",
+    "pooled": null,
+    "single_study_ref": null,
+    "heterogeneity": null,
+    "heterogeneity_status": "not applicable; no synthesis is performed"
+   },
+   "ftaf_vs_ftdf": {
+    "k": 1,
+    "estimand_id": "ftaf_vs_ftdf-estimand",
+    "comparator_kind": "randomised concurrent control",
+    "handbook": {
+     "decision": "REPORT the single trial that randomised both oral arms",
+     "sections": [
+      "23.3.2"
+     ],
+     "conformance": "Section 23.3.2 governs which groups of a multi-arm trial are relevant to a given comparison. F/TAF and F/TDF are different drugs randomised separately; this row is the contrast between them and exists so that neither is absorbed into the other."
+    },
+    "per_trial": [
+     {
+      "trial_id": "purpose-1",
+      "nct": "NCT04994509",
+      "measure": "IRR",
+      "point": 1.2,
+      "ci_low": 0.67,
+      "ci_high": 2.14,
+      "ci_level": 95,
+      "log_point": 0.182322,
+      "log_se": 0.296251,
+      "estimand_id": "ftaf_vs_ftdf-estimand",
+      "population": "adolescent girls and young women",
+      "derivation": "the published rate ratio, stored as published"
+     }
+    ],
+    "poolable": false,
+    "not_poolable_reason": "Reported by a single trial.",
+    "model": "per-trial, no synthesis",
+    "estimator": "none (no synthesis)",
+    "estimator_used": "none (no synthesis)",
+    "pooled": null,
+    "single_study_ref": "purpose-1",
+    "heterogeneity": null,
+    "heterogeneity_status": "not applicable; no synthesis is performed"
+   },
+   "ftaf_vs_background": {
+    "k": 1,
+    "estimand_id": "ftaf_vs_background-estimand",
+    "comparator_kind": "external counterfactual, not randomised",
+    "handbook": {
+     "decision": "REPORT the single trial",
+     "sections": [
+      "3.2.3"
+     ],
+     "conformance": "An external comparison, as for lenacapavir, and reported apart from the randomised one for the same reason."
+    },
+    "per_trial": [
+     {
+      "trial_id": "purpose-1",
+      "nct": "NCT04994509",
+      "measure": "IRR",
+      "point": 0.84,
+      "ci_low": 0.55,
+      "ci_high": 1.28,
+      "ci_level": 95,
+      "log_point": -0.174353,
+      "log_se": 0.215488,
+      "estimand_id": "ftaf_vs_background-estimand",
+      "population": "adolescent girls and young women",
+      "derivation": "the published rate ratio, stored as published"
+     }
+    ],
+    "poolable": false,
+    "not_poolable_reason": "Reported by a single trial.",
+    "model": "per-trial, no synthesis",
+    "estimator": "none (no synthesis)",
+    "estimator_used": "none (no synthesis)",
+    "pooled": null,
+    "single_study_ref": "purpose-1",
+    "heterogeneity": null,
+    "heterogeneity_status": "not applicable; no synthesis is performed"
+   }
+  }
+ },
+ "claims_corrected": [
+  {
+   "claim": "that no resistance was observed with lenacapavir",
+   "status": "TRUE of one trial and FALSE of the other, so false as a statement about the programme",
+   "correction": "PURPOSE 1 had no acquisitions in the lenacapavir group, so no resistance could be observed. In PURPOSE 2 both incident infections in that group carried the N74D capsid resistance mutation. Each trial's finding is on its own row.",
+   "source_id": "WHO_LEN_GUIDELINE"
+  },
+  {
+   "claim": "that the lenacapavir incidence interval in PURPOSE 1 runs to 0.10",
+   "status": "a confusion of two different intervals",
+   "correction": "The group's own incidence interval and the rate ratio against F/TDF are different quantities that both begin at zero. Both are stored, on different rows.",
+   "source_id": "OA_PURPOSE1"
+  },
+  {
+   "claim": "that the oral comparator arms of PURPOSE 1 may be added together",
+   "status": "false",
+   "correction": "F/TAF and F/TDF are different drugs randomised as separate groups, and the trial designates only F/TDF as the active control.",
+   "source_id": "OA_PURPOSE1"
+  }
+ ]
+}
