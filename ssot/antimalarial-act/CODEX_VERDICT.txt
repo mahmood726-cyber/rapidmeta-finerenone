@@ -1,0 +1,47 @@
+NONCE: antimalarial-act-b9d15278
+
+FILES READ
+- F:\ProjectIndex\INDEX.md
+- F:\E156\rewrite-workbook.txt
+- F:\claude-temp\ssot\canonical\antimalarial-act.json
+- F:\claude-temp\ssot\sources\antimalarial-act\ACT-trials.extract.txt
+- F:\claude-temp\ssot\sources\antimalarial-act\ACT-trials.extract.json
+- F:\claude-temp\ssot\sources\antimalarial-act\NCT01704508.ctgov.json
+- F:\claude-temp\ssot\sources\antimalarial-act\NCT04565184.ctgov.json
+- F:\claude-temp\ssot\sources\antimalarial-act\NCT04767191.ctgov.json
+- F:\claude-temp\ssot\sources\antimalarial-act\NCT05192265.ctgov.json
+- F:\claude-temp\ssot\sources\antimalarial-act\NCT06076213.ctgov.json
+- F:\claude-temp\ssot\sources\antimalarial-act\PMID27649561.pubmed.xml
+- F:\claude-temp\ssot\sources\antimalarial-act\PMID35189818.pubmed.xml
+- F:\claude-temp\ssot\sources\antimalarial-act\PMID37179349.pubmed.xml
+- F:\claude-temp\ssot\validate_v2.py
+- F:\claude-temp\ssot\g4_antimalarial-act_codex.txt (prompt mirror only; not used as evidence)
+- F:\claude-temp\ssot\gates\verdict_antimalarial-act.txt (format verification/diff only; not used as evidence)
+
+EXTERNAL HANDBOOK PAGES CONSULTED
+- https://www.cochrane.org/authors/handbooks-and-manuals/handbook
+- https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current
+- https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current/chapter-04
+- https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current/chapter-10
+- https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current/chapter-11
+- https://www.cochrane.org/authors/handbooks-and-manuals/handbook/versions-and-changes-handbook
+
+VALIDATOR
+- Ran: python validate_v2.py canonical/antimalarial-act.json
+- Result: VALIDATOR CLEAN -- 36/36 detectors passed.
+
+FINDINGS
+- No OBJECT defects found.
+- No VALIDATOR defects found.
+
+CHECK NOTES
+- Per-trial effects matched the staged source arithmetic:
+  DP vs AL stores "treatment_failures": 0, "treatment_evaluable": 136, "control_failures": 7, "control_evaluable": 135, and "point": 0.0, matching the staged extract's "136 - 136 = 0 of 136" and "135 - 128 = 7 of 135".
+  ASAQ vs AL stores "point": 0.6928, "ci_low": 0.1699, "ci_high": 2.8243 from 3/97 vs 5/112, matching the staged extract's "3 failures of 97" and "5 failures of 112".
+  PA vs AL stores "point": 0.2147, "ci_low": 0.0472, "ci_high": 0.9767 from 2/78 vs 8/67, matching the staged extract's "2 of 78" and "8 of 67".
+- Estimand integrity: no pooled estimate combines rows across windows or administration settings. Each comparison has k=1 and is reported as a single direct comparison.
+- Shared controls and deduplication: no included study is multi-arm, and no pooled estimate uses two contrasts sharing one control group. Each randomized cohort appears once in the comparison it carries.
+- Network self-description: the network block correctly reports a connected star graph with "closed_loops": 0 and "multi_arm_studies": 0. The object correctly states that an indirect path is constructible through the common comparator but that no indirect or mixed estimate is computed because the transitivity judgement is not accepted and no closed loop exists to check incoherence.
+- Eligibility/no-data disposition: NCT06076213 and NCT04767191 are completed registrations with no resultsSection in the staged ClinicalTrials.gov JSON files. The object states they are "eligible_but_not_contributing" and "not excluded", which is supported by the staged extract and registry files.
+- Handbook conformance: section 4.3.3 supports trials-register searching; section 4.6.3 supports recording completed but unreported eligible studies rather than omitting them solely because outcome data are not reported; sections 11.2.1 and 11.2.2 support the distinction between a constructible indirect comparison and the transitivity requirement; sections 11.4.4 and 11.4.4.1 support the statement that incoherence is checked by comparing direct and indirect evidence in closed loops; sections 10.4.4 and 10.4.4.1 support the warning about zero-cell corrections and the object's decision not to manufacture an interval for the single zero-event row.
+VERDICT: PASS

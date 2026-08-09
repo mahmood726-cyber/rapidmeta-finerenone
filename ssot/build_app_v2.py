@@ -31,6 +31,32 @@ def fmt(x):
     return str(x)
 
 
+def _interval(eff, p=lambda s: s):
+    """Render a point with its interval, or a point that HAS no interval.
+
+    A boundary estimate sits where the log scale ends, so it carries a point
+    and no bounds. Feeding those bounds through fmt() printed the literal
+    phrase 'not stated to not stated' at the reader, which reads as missing
+    data rather than as a value that cannot have an interval. Where the object
+    explains the absence, the page shows the explanation instead.
+    """
+    lo, hi = eff.get("ci_low"), eff.get("ci_high")
+    if eff.get("point") is None:
+        # Some outcomes carry counts and NO effect at all, because the source
+        # published none and none is derivable. Showing "not stated" where a
+        # value would go reads as missing data; the reason reads as what it is.
+        why = eff.get("effect_absent_because") or eff.get("not_computed_reason")
+        return (f"<small>{p(why)}</small>" if why
+                else "<small>no estimate is stored for this row</small>")
+    if lo is None and hi is None:
+        why = (eff.get("not_log_transformable_because")
+               or eff.get("interval_absent_reason"))
+        return (f"{fmt(eff['point'])}"
+                + (f" <small>&mdash; no interval: {p(why)}</small>" if why
+                   else ""))
+    return f"{fmt(eff['point'])} ({fmt(lo)} to {fmt(hi)})"
+
+
 def resolve(canon, ref, scope=None):
     """Resolve a reference. `scope` binds `self` to the record the text lives on.
 
@@ -169,13 +195,25 @@ def _outcome_section(canon, oid, p, e):
                             f"({fmt(pt['reference_ci_low_percent'])} to "
                             f"{fmt(pt['reference_ci_high_percent'])})</small>")
             elif pt:
-                est = (f"{e(pt['measure'])} {fmt(pt['point'])} "
-                       f"({fmt(pt['ci_low'])} to {fmt(pt['ci_high'])})"
-                       f"<br><small>{fmt(tx.get('events'))} / {fmt(ct.get('events'))} "
-                       f"events &middot; reference review reports "
-                       f"{fmt(pt['reference_efficacy_percent'])}% efficacy "
-                       f"({fmt(pt['reference_ci_low_percent'])} to "
-                       f"{fmt(pt['reference_ci_high_percent'])})</small>")
+                # The reference-review comparison is OPTIONAL. It exists only
+                # where an object anchors its rows against a published
+                # synthesis, and requiring it here made the shared generator
+                # crash on the first count-based object that had none.
+                est = (f"{e(pt['measure'])} {_interval(pt, p)}"
+                       f"<br><small>{fmt(tx.get('events'))} / "
+                       f"{fmt(ct.get('events'))} events")
+                if pt.get("reference_efficacy_percent") is not None:
+                    est += (f" &middot; reference review reports "
+                            f"{fmt(pt['reference_efficacy_percent'])}% efficacy "
+                            f"({fmt(pt['reference_ci_low_percent'])} to "
+                            f"{fmt(pt['reference_ci_high_percent'])})")
+                est += "</small>"
+                if pt.get("reference_efficacy_percent") is None and pt.get("derivation"):
+                    # Where there is no reference figure to anchor the row, the
+                    # derivation is what tells a reader which direction is which.
+                    # A generic "below one is better" is wrong whenever the
+                    # outcome is a bad event rather than a good one.
+                    est += f"<br><small><em>{p(pt['derivation'])}</em></small>"
             else:
                 est = (f"{fmt(tx.get('events'))} / {fmt(ct.get('events'))} events"
                        "<br><small>no per-trial estimate stored; not derived here</small>")
@@ -187,7 +225,11 @@ def _outcome_section(canon, oid, p, e):
                 if pt and pt.get(k):
                     est += f"<br><small><em>{p(pt[k], pt_scope)}</em></small>"
         rows += (
-            f"    <tr><td>{p(t['name'])}<br><small>{e(t['nct'])} &middot; "
+            f"    <tr><td>{p(t.get('name') or t['label'])}<br><small>"
+            # Not every registry is ClinicalTrials.gov. A trial registered
+            # elsewhere has no NCT, and escaping the absent value crashed the
+            # page rather than showing the identifier the trial actually has.
+            f"{e(t.get('nct') or t.get('registration') or 'no registry identifier')} &middot; "
             f"{e(d.get('outcome_role_in_trial', 'primary'))} outcome</small></td>"
             f"<td class='num'>{size}</td>"
             f"<td class='num'>{est}</td>"
@@ -249,8 +291,7 @@ def _outcome_section(canon, oid, p, e):
             headline = (
                 "<div class='card warn'>" + NL
                 + "  <h2>Single cohort &mdash; no synthesis</h2>" + NL
-                + f"  <p class='num'>{e(only['measure'])} {fmt(only['point'])} "
-                  f"({fmt(only['ci_low'])} to {fmt(only['ci_high'])})"
+                + f"  <p class='num'>{e(only['measure'])} {_interval(only, p)}"
                 + (f", {fmt(only['ci_level'])}% interval"
                    if only.get("ci_level") and only["ci_level"] != 95 else "")
                 + "</p>" + NL
@@ -555,6 +596,46 @@ def _page(canon, sections, p, e):
             f"    <tr><th>Section</th><th>Title</th><th>What it settled here</th>"
             f"</tr>\n{arows}  </table>\n</div>\n")
 
+    # THE NETWORK, if the object is one. Its shape is the finding: which
+    # treatments are compared, by how many studies, and whether any closed loop
+    # exists to check an indirect estimate against.
+    network = ""
+    net = canon.get("network")
+    if net:
+        nodes = ", ".join(f"{e(t['label'])}"
+                          + (" (reference)" if t.get("is_reference") else "")
+                          for t in net["treatments"])
+        # Follow-up and administration describe an edge in some networks and
+        # are simply not part of the comparison in others. Rendering a column
+        # no edge carries printed "not stated" down the whole table, which
+        # reads as missing data rather than as a column that does not apply.
+        show_fu = any(x.get("follow_up_days") is not None for x in net["edges"])
+        show_admin = any(x.get("administration") for x in net["edges"])
+        erows = "".join(
+            f"    <tr><td>{e(x['comparison'])}</td>"
+            f"<td class='num'>{fmt(x['studies'])}</td>"
+            + (f"<td class='num'>{fmt(x.get('follow_up_days'))}</td>"
+               if show_fu else "")
+            + (f"<td>{p(x.get('administration', ''))}</td>" if show_admin else "")
+            + "</tr>" + NL
+            for x in net["edges"])
+        network = (
+            f"<div class='card warn'>" + NL + "  <h2>The network</h2>" + NL
+            + f"  <p><strong>Treatments:</strong> {nodes}</p>" + NL
+            + "  <table>" + NL
+            + "    <tr><th>Comparison</th><th>Studies</th>"
+            + ("<th>Follow-up (days)</th>" if show_fu else "")
+            + ("<th>Administration</th>" if show_admin else "")
+            + "</tr>" + NL + erows
+            + "  </table>" + NL
+            + f"  <p><strong>Closed loops: {fmt(net['closed_loops'])}. "
+            f"Multi-arm studies: {fmt(net['multi_arm_studies'])}. "
+              f"Status: {p(net['status'])}</strong></p>" + NL
+            + f"  <p>{p(net['why_no_network_estimate'])}</p>" + NL
+            + (f"  <p><small>{p(net['multi_arm_covariance_note'])}</small></p>" + NL
+               if net.get("multi_arm_covariance_note") else "")
+            + "</div>" + NL)
+
     sources = "".join(
         f"    <tr><td>{p(v['layer'])}</td><td>{p(v['name'])}<br>"
         f"<small>{e(v['url'])}</small></td><td><small>{p(v['access_note'])}</small></td></tr>\n"
@@ -580,7 +661,7 @@ Outcomes reported: {fmt(n_out)}.
 <p>{p(canon['question'])}</p>
 
 {sections}
-{screening}{carried}{recon}{authority}{removal}
+{network}{screening}{carried}{recon}{authority}{removal}
 <div class="card">
   <h2>Sources</h2>
   <table>

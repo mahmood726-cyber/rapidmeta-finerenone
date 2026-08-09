@@ -594,7 +594,44 @@ def check_per_trial_recompute(canon, rep):
                           f"outcome {oid!r}/{r['trial_id']}: cannot recompute a "
                           f"{r['measure']} from the counts given")
                 continue
-            for f in ("point", "ci_low", "ci_high"):
+            # A BOUNDARY row carries a point with no interval, because the point
+            # sits where the log scale ends. Its point must still recompute; it
+            # is the interval, and only the interval, that is allowed to be
+            # absent -- and it must then be absent on BOTH sides, so the
+            # declaration cannot be used to hide one bound.
+            boundary = bool(str(r.get("not_log_transformable_because", "")).strip())
+            fields = ("point", "ci_low", "ci_high")
+            if boundary:
+                # pool() adds the usual half to every cell when one is zero. A
+                # boundary row is precisely the row that DECLINES that
+                # correction, so recomputing it through pool() would compare the
+                # stored number against a correction the object refused. Redo
+                # the arithmetic raw. This is stricter than the pooled path, not
+                # looser: it pins the point to exact division.
+                # Reaching here means pool() accepted the measure, and pool()
+                # accepts only the two that a 2x2 determines, so both are
+                # handled and there is no third case to guard against.
+                if r["measure"] == "RR":
+                    raw = (tx["events"] / tx["n"]) / (ct["events"] / ct["n"])
+                else:
+                    raw = ((tx["events"] / (tx["n"] - tx["events"])) /
+                           (ct["events"] / (ct["n"] - ct["events"])))
+                got = dict(got, point=raw)
+                if r.get("ci_low") is not None or r.get("ci_high") is not None:
+                    rep.block("boundary-row-half-interval",
+                              f"outcome {oid!r}/{r['trial_id']} declares itself "
+                              f"not log-transformable but still carries an "
+                              f"interval bound. A boundary row has no interval "
+                              f"on either side or it is not a boundary row.")
+                fields = ("point",)
+            for f in fields:
+                if r.get(f) is None:
+                    rep.block("per-trial-missing-bound",
+                              f"outcome {oid!r}/{r['trial_id']} carries "
+                              f"point={r['point']} but no {f}, and does not "
+                              f"declare itself a boundary estimate. A row with "
+                              f"a reader-visible point owes a full interval.")
+                    continue
                 if abs(r[f] - got[f]) > agreement_tol(got[f]):
                     rep.block("per-trial-recompute",
                               f"outcome {oid!r}/{r['trial_id']}: {f}={r[f]} but the trial's "
@@ -2706,8 +2743,205 @@ def check_handbook_citation(canon, rep):
                           f"a citation nobody has stated the meaning of.")
 
 
+def check_network(canon, rep):
+    """A network's claims about its own shape must follow from its edges.
+
+    Added with the first network object. The claim that matters is whether an
+    INDIRECT comparison is supportable, and that turns on whether the graph
+    contains a closed loop -- the Handbook measures incoherence as a difference
+    between direct and indirect estimates around one. A star of edges meeting at
+    a single comparator has none, so consistency there is untestable rather than
+    satisfied, and an object must not present it as satisfied.
+
+    This checks the graph against the object's own count, not against a
+    judgement: loops are recomputed from the edges.
+    """
+    net = canon.get("network")
+    if not net:
+        return
+    ids = {t["id"] for t in net.get("treatments", [])}
+    if not ids:
+        rep.block("network-no-treatments",
+                  "a network block declares no treatments.")
+        return
+    refs = [t["id"] for t in net["treatments"] if t.get("is_reference")]
+    outcomes = {o["id"]: o for o in canon["outcomes"]}
+    pairs, seen_edges = [], set()
+    for e in net.get("edges", []):
+        oid = e.get("outcome_id")
+        o = outcomes.get(oid)
+        if o is None:
+            rep.block("network-edge-unknown-outcome",
+                      f"network edge {e.get('comparison')!r} names outcome "
+                      f"{oid!r}, which this object does not declare.")
+            continue
+        a, b = o.get("treatment_node"), o.get("comparator_node")
+        if a not in ids or b not in ids:
+            rep.block("network-edge-unknown-node",
+                      f"network edge {e.get('comparison')!r} runs between "
+                      f"{a!r} and {b!r}, and one of those is not a declared "
+                      f"treatment.")
+            continue
+        key = frozenset((a, b))
+        if key in seen_edges:
+            rep.block("network-duplicate-edge",
+                      f"two edges connect {a!r} and {b!r}; a comparison is one "
+                      f"edge however many studies inform it.")
+        seen_edges.add(key)
+        pairs.append((a, b))
+    # Loops, recomputed. Edges = E, nodes touched = V, components = C; the
+    # cyclomatic number E - V + C is the number of independent closed loops.
+    nodes = {n for pr in pairs for n in pr}
+    parent = {n: n for n in nodes}
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]; x = parent[x]
+        return x
+    for a, b in pairs:
+        ra, rb = find(a), find(b)
+        if ra != rb:
+            parent[ra] = rb
+    comps = len({find(n) for n in nodes}) if nodes else 0
+    loops = len(pairs) - len(nodes) + comps if nodes else 0
+    if net.get("closed_loops") != loops:
+        rep.block("network-loops",
+                  f"the network records closed_loops={net.get('closed_loops')} "
+                  f"but its {len(pairs)} edge(s) over {len(nodes)} node(s) in "
+                  f"{comps} component(s) contain {loops}. The count is derived "
+                  f"from the graph, not declared about it.")
+    # EXACTLY ONE REFERENCE PER COMPONENT. The old rule demanded one reference
+    # for the whole network, which silently assumed the graph was connected: a
+    # reference is the node others are expressed against, and nothing in a
+    # second component can be expressed against a node in the first. Demanding
+    # a single global reference on a disconnected graph forces an object to
+    # nominate one arbitrarily and assert a comparison that does not exist.
+    # Per-component is strictly tighter than the old rule on a connected graph,
+    # where there is one component and the two rules coincide.
+    if nodes:
+        by_comp = {}
+        for n in nodes:
+            by_comp.setdefault(find(n), set()).add(n)
+        for root, members in sorted(by_comp.items()):
+            local = sorted(set(refs) & members)
+            if len(local) != 1:
+                rep.block("network-reference",
+                          f"each connected component needs exactly one "
+                          f"reference treatment; the component "
+                          f"{sorted(members)} names {local}.")
+    stray = sorted(set(refs) - nodes)
+    if stray:
+        rep.block("network-reference-unconnected",
+                  f"{stray} are marked as reference treatments but no edge "
+                  f"touches them, so nothing is expressed against them.")
+    connected = comps <= 1
+    if net.get("connected") is not None and bool(net["connected"]) != connected:
+        rep.block("network-connected",
+                  f"the network records connected={net.get('connected')} but its "
+                  f"edges form {comps} component(s).")
+    # The load-bearing rule: no indirect estimate without a loop to check it.
+    has_indirect = any(
+        (canon["results"]["by_outcome"].get(e.get("outcome_id")) or {}).get("pooled")
+        for e in net.get("edges", []))
+    if loops == 0:
+        if net.get("status", "").strip() == "":
+            rep.block("network-status-undeclared",
+                      "a network with no closed loop must state its status; "
+                      "consistency there is untestable, not satisfied.")
+        if not str(net.get("why_no_network_estimate", "")).strip():
+            rep.block("network-silent-on-loops",
+                      "this network contains no closed loop and says nothing "
+                      "about what that costs. Incoherence is measured around a "
+                      "loop; with none, an indirect estimate rests on an "
+                      "assumption nothing in the object can test.")
+        if has_indirect:
+            rep.block("network-indirect-without-loop",
+                      "this network publishes a synthesised estimate while "
+                      "containing no closed loop, so nothing in it can be "
+                      "checked against anything else.")
+    # A multi-arm study contributes a covariance; claiming none while declaring
+    # one is the unit-of-analysis error 23.3.4 names.
+    declared_multi = net.get("multi_arm_studies")
+    actual_multi = sum(
+        1 for t in canon["inputs"]["trials"]
+        if sum(1 for a in t.get("arms", []) if a.get("role") == "treatment") > 1)
+    if declared_multi is not None and declared_multi != actual_multi:
+        rep.block("network-multi-arm-count",
+                  f"the network records {declared_multi} multi-arm studies but "
+                  f"{actual_multi} of the trials declare more than one treatment "
+                  f"arm.")
+
+
+def check_self_reference(canon, rep):
+    """Prose may not ASSERT a block of this object that this object lacks.
+
+    A reviewer found completeness_statement saying the excluded registrations
+    were itemised in the removal block, one commit after the removal block was
+    deleted -- the object describing a part of itself that no longer existed.
+    The removal-disclosure detector could not see it, because it reads the block
+    and not the sentence pointing at the block.
+
+    POLARITY MATTERS and the first version of this rule got it wrong, firing on
+    "there is no removal block and no quarantine", which is a correct statement
+    about an object that has neither -- and firing it against an object already
+    published. A denial is not a dangling reference. So the sentence is split on
+    its clauses and only a clause that mentions the block WITHOUT a negation in
+    it counts as an assertion.
+    """
+    NAMED = {
+        "removal block": ("removed_citations",),
+        "removed_citations": ("removed_citations",),
+        "quarantine": ("quarantine",),
+        "screening block": ("screening",),
+        "reconciliation block": ("reconciliation",),
+        "network block": ("network",),
+    }
+    PROSE_KEYS = ("note", "detail", "reason", "statement", "conformance",
+                  "caveat", "definition_note", "decision", "question_note")
+    NEG = re.compile(r"\b(no|not|never|without|neither|nor|absent|lacks)\b")
+    SPLIT = re.compile(r"[.;]|\band\b|\bbut\b")
+
+    def present(keys):
+        return any(canon.get(k) for k in keys)
+
+    def asserts(text, phrase):
+        """True only if some clause names the phrase and does not negate it."""
+        # Word boundaries in BOTH tests. A bare "and" splits
+        # inside "randomised", so the clauses stop
+        # corresponding to anything.
+        for clause in SPLIT.split(text.lower()):
+            if phrase in clause and not NEG.search(clause):
+                return True
+        return False
+
+    def walk(node, path):
+        if isinstance(node, dict):
+            for k, v in node.items():
+                if isinstance(v, str):
+                    if not any(k == pk or k.endswith("_" + pk) for pk in PROSE_KEYS):
+                        continue
+                    for phrase, keys in NAMED.items():
+                        if present(keys):
+                            continue
+                        if asserts(v, phrase):
+                            rep.block("self-reference-absent",
+                                      f"{path}.{k} asserts a {phrase!r} that this "
+                                      f"object does not contain. A sentence "
+                                      f"pointing at a part of the object is wrong "
+                                      f"the moment that part is removed, and "
+                                      f"nothing else here can see it.")
+                else:
+                    walk(v, f"{path}.{k}")
+        elif isinstance(node, list):
+            for i, v in enumerate(node):
+                walk(v, f"{path}[{i}]")
+
+    walk(canon, "canonical")
+
+
 DETECTORS = [
     ("outcome-coverage", check_outcome_coverage),
+    ("self-reference", check_self_reference),
+    ("network", check_network),
     ("handbook-citation", check_handbook_citation),
     ("pool-uniformity", check_pool_uniformity),
     ("estimand-storage-form", check_estimand_storage_form),
