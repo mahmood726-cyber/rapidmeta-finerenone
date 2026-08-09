@@ -1,0 +1,286 @@
+<meta charset="utf-8">
+<title>Cryptococcal meningitis: an antifungal induction network that does not connect, and a separate trial of when to start antiretroviral therapy</title>
+<style>
+ body{font-family:system-ui,-apple-system,sans-serif;max-width:64rem;margin:0 auto;padding:1.5rem;line-height:1.6;color:#111}
+ .badge{background:#b45309;color:#fff;padding:.75rem 1rem;border-radius:.375rem;font-size:.9rem}
+ .card{border:1px solid #d4d4d8;border-radius:.5rem;padding:1rem;margin:1rem 0}
+ .card.warn{border-color:#b45309;background:#fffbeb}
+ .num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+ table{border-collapse:collapse;width:100%} th,td{border:1px solid #d4d4d8;padding:.5rem;text-align:left;vertical-align:top}
+ small{color:#3f3f46}
+</style>
+
+<div class="badge" role="status">NOT SUBMISSION-READY &mdash; full build; every cohort cited is reported.
+Outcomes reported: 6.
+Every trial named is held with its counts and its own estimand. Nothing was cited and then dropped, so there is no removal block and no quarantine. Claims previously attached to this topic are carried under claims_corrected rather than silently deleted.</div>
+
+<h1>Cryptococcal meningitis: an antifungal induction network that does not connect, and a separate trial of when to start antiretroviral therapy</h1>
+<p>Among randomised trials in HIV-associated cryptococcal meningitis, what does each antifungal induction trial report for ten-week mortality, can those trials be joined into a network, and what does the separate trial of antiretroviral timing report?</p>
+
+<section>
+<h2>Oral fluconazole with flucytosine against two weeks of amphotericin B</h2>
+<div class='card'>
+  <h3>What was measured</h3>
+  <table>
+    <tr><th>Estimand</th><td>binary_proportion &mdash; proportion of the analysed population dead by ten weeks after randomisation</td></tr>
+    <tr><th>Unit of analysis</th><td>participant, alive or dead</td></tr>
+    <tr><th>Case definition</th><td>death from any cause</td></tr>
+    <tr><th>Window</th><td>ten weeks after randomisation</td></tr>
+    <tr><th>Analysis population</th><td>the analysed strategy groups as the abstract reports them. The accessible abstract does not name an analysis population, and its analysed groups do not add up to the number randomised, so calling this intention to treat would assert what no readable source says</td></tr>
+    <tr><th>Effect scale</th><td>pooled on the log scale</td></tr>
+  </table>
+</div>
+<div class='card warn'>
+  <h2>Single cohort &mdash; no synthesis</h2>
+  <p class='num'>RR 0.8836 (0.6959 to 1.1218)</p>
+  <p></p>
+</div>
+
+<div class="card">
+  <h3>Contributing trials</h3>
+  <table>
+    <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
+        <th>RR (95% CI), or events</th>
+        <th>Source of this cell</th></tr>
+    <tr><td>Antifungal Combinations for Treatment of Cryptococcal Meningitis in Africa<br><small>ISRCTN45035509 &middot; primary outcome</small></td><td class='num'>225 / 229</td><td class='num'>RR 0.8836 (0.6959 to 1.1218)<br><small>79 / 91 events</small><br><small><em>risk ratio computed here from the two counts on this row, with a normal-approximation interval on the log scale. Death is the outcome, so a ratio BELOW one means fewer deaths on the first-named treatment.</em></small></td><td><small>Primary paper (abstract only; full text behind a paywall): <br><q>Mortality in the oral-regimen, 1-week amphotericin B, and 2-week amphotericin B groups was 18.2% (41 of 225), 21.9% (49 of 224), and 21.4% (49 of 229), respectively, at 2 weeks and was 35.1% (79 of 225), 36.2% (81 of 224), and 39.7% (91 of 229), respectively, at 10 weeks.</q></small></td></tr>
+  </table>
+  <p><small>This contrast comes from a trial that randomised three strategies at once, so it shares whole arms with the trial&#x27;s other contrasts, and sharing an arm means sharing those participants and their deaths. It shares the two-week strategy with the contrast of the one-week strategy against the two-week strategy. It shares the oral strategy with the contrast of the oral strategy against the one-week strategy. Each contrast is valid alone. Entering any of them alongside another as though it were a separate study would count the shared participants twice, which is why nothing here is added. Note this is NOT only a shared-REFERENCE-arm problem: one of these three contrasts never touches the trial&#x27;s reference arm at all and still shares participants with both others.</small></p>
+</div>
+<div class='card'>
+  <h3>The methods rule governing this decision</h3>
+  <p><strong>Decision:</strong> No network estimate and no indirect comparison is computed for antifungal induction.</p>
+  <p><strong>Cochrane Handbook sections:</strong> 11.2.1, 11.2.2, 11.3.2.3, 11.4.4.1</p>
+  <p>Section 11.2.1 describes an indirect comparison as one made through a common comparator. These trials share no node, so that construction has no input. Whether a shared node COULD be forced into being by treating the one-week strategy as though it were the flucytosine-partnered regimen is a question about node GROUPING, and section 11.3.2.3 is what governs it: node definitions need careful consideration and should maximise similarity within a node. Half of that strategy received a different partner drug, and within that very node the trial demonstrated a difference: flucytosine better than fluconazole on ten-week mortality, with an interval excluding no effect. An earlier version called that the difference the trial found to matter MOST, which ranks it against strategy comparisons the trial reported as non-inferiority conclusions on a different window; the source states no such ranking and a reviewer was right to strike it. A demonstrated difference inside the node is enough on its own, so the two are not one node. An earlier version of this block argued that point from transitivity alone and a reviewer was right that transitivity does not settle what a node is. Once the nodes are fixed, section 11.2.2 refuses the forced merge for its own reason: it requires the sets of trials to be similar in all important factors other than the comparison being made, and half of that node received a different partner drug, which is the one difference the trial demonstrated INSIDE that node, on its own ten-week mortality comparison. No claim is made that it mattered more than anything else the trial tested; that would rank a superiority finding against non-inferiority conclusions on another window, which the source does not do. On loops, an earlier version of this object said the graph closed none. It does close one, and a reviewer was right to say so: the multi-arm trial supplies all three pairwise lines among its own strategies, which is the triangle section 11.1.1 describes a three-arm study as drawing. That loop still buys NO incoherence check, and the reason is not its absence but its provenance. Section 11.4.4.1 defines incoherence as the difference between the direct and the indirect estimate of the same comparison; here the indirect path runs through the third node of the SAME randomised population, so it is not independent evidence about the direct edge -- it is the same participants, arriving a different way. Comparing them would measure arithmetic, not disagreement between sources.</p>
+</div>
+</section>
+<section>
+<h2>One week of amphotericin B against two weeks of amphotericin B</h2>
+<div class='card'>
+  <h3>What was measured</h3>
+  <table>
+    <tr><th>Estimand</th><td>binary_proportion &mdash; proportion of the analysed population dead by ten weeks after randomisation</td></tr>
+    <tr><th>Unit of analysis</th><td>participant, alive or dead</td></tr>
+    <tr><th>Case definition</th><td>death from any cause</td></tr>
+    <tr><th>Window</th><td>ten weeks after randomisation</td></tr>
+    <tr><th>Analysis population</th><td>the analysed strategy groups as the abstract reports them. The accessible abstract does not name an analysis population, and its analysed groups do not add up to the number randomised, so calling this intention to treat would assert what no readable source says</td></tr>
+    <tr><th>Effect scale</th><td>pooled on the log scale</td></tr>
+  </table>
+</div>
+<div class='card warn'>
+  <h2>Single cohort &mdash; no synthesis</h2>
+  <p class='num'>RR 0.91 (0.7187 to 1.1522)</p>
+  <p></p>
+</div>
+
+<div class="card">
+  <h3>Contributing trials</h3>
+  <table>
+    <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
+        <th>RR (95% CI), or events</th>
+        <th>Source of this cell</th></tr>
+    <tr><td>Antifungal Combinations for Treatment of Cryptococcal Meningitis in Africa<br><small>ISRCTN45035509 &middot; primary outcome</small></td><td class='num'>224 / 229</td><td class='num'>RR 0.91 (0.7187 to 1.1522)<br><small>81 / 91 events</small><br><small><em>risk ratio computed here from the two counts on this row, with a normal-approximation interval on the log scale. Death is the outcome, so a ratio BELOW one means fewer deaths on the first-named treatment.</em></small></td><td><small>Primary paper (abstract only; full text behind a paywall): <br><q>Mortality in the oral-regimen, 1-week amphotericin B, and 2-week amphotericin B groups was 18.2% (41 of 225), 21.9% (49 of 224), and 21.4% (49 of 229), respectively, at 2 weeks and was 35.1% (79 of 225), 36.2% (81 of 224), and 39.7% (91 of 229), respectively, at 10 weeks.</q></small></td></tr>
+  </table>
+  <p><small>This contrast comes from a trial that randomised three strategies at once, so it shares whole arms with the trial&#x27;s other contrasts, and sharing an arm means sharing those participants and their deaths. It shares the two-week strategy with the contrast of the oral strategy against the two-week strategy. It shares the one-week strategy with the contrast of the oral strategy against the one-week strategy. Each contrast is valid alone. Entering any of them alongside another as though it were a separate study would count the shared participants twice, which is why nothing here is added. Note this is NOT only a shared-REFERENCE-arm problem: one of these three contrasts never touches the trial&#x27;s reference arm at all and still shares participants with both others.</small></p>
+</div>
+<div class='card'>
+  <h3>The methods rule governing this decision</h3>
+  <p><strong>Decision:</strong> No network estimate and no indirect comparison is computed for antifungal induction.</p>
+  <p><strong>Cochrane Handbook sections:</strong> 11.2.1, 11.2.2, 11.3.2.3, 11.4.4.1</p>
+  <p>Section 11.2.1 describes an indirect comparison as one made through a common comparator. These trials share no node, so that construction has no input. Whether a shared node COULD be forced into being by treating the one-week strategy as though it were the flucytosine-partnered regimen is a question about node GROUPING, and section 11.3.2.3 is what governs it: node definitions need careful consideration and should maximise similarity within a node. Half of that strategy received a different partner drug, and within that very node the trial demonstrated a difference: flucytosine better than fluconazole on ten-week mortality, with an interval excluding no effect. An earlier version called that the difference the trial found to matter MOST, which ranks it against strategy comparisons the trial reported as non-inferiority conclusions on a different window; the source states no such ranking and a reviewer was right to strike it. A demonstrated difference inside the node is enough on its own, so the two are not one node. An earlier version of this block argued that point from transitivity alone and a reviewer was right that transitivity does not settle what a node is. Once the nodes are fixed, section 11.2.2 refuses the forced merge for its own reason: it requires the sets of trials to be similar in all important factors other than the comparison being made, and half of that node received a different partner drug, which is the one difference the trial demonstrated INSIDE that node, on its own ten-week mortality comparison. No claim is made that it mattered more than anything else the trial tested; that would rank a superiority finding against non-inferiority conclusions on another window, which the source does not do. On loops, an earlier version of this object said the graph closed none. It does close one, and a reviewer was right to say so: the multi-arm trial supplies all three pairwise lines among its own strategies, which is the triangle section 11.1.1 describes a three-arm study as drawing. That loop still buys NO incoherence check, and the reason is not its absence but its provenance. Section 11.4.4.1 defines incoherence as the difference between the direct and the indirect estimate of the same comparison; here the indirect path runs through the third node of the SAME randomised population, so it is not independent evidence about the direct edge -- it is the same participants, arriving a different way. Comparing them would measure arithmetic, not disagreement between sources.</p>
+</div>
+</section>
+<section>
+<h2>Oral fluconazole with flucytosine against one week of amphotericin B</h2>
+<div class='card'>
+  <h3>What was measured</h3>
+  <table>
+    <tr><th>Estimand</th><td>binary_proportion &mdash; proportion of the analysed population dead by ten weeks after randomisation</td></tr>
+    <tr><th>Unit of analysis</th><td>participant, alive or dead</td></tr>
+    <tr><th>Case definition</th><td>death from any cause</td></tr>
+    <tr><th>Window</th><td>ten weeks after randomisation</td></tr>
+    <tr><th>Analysis population</th><td>the analysed strategy groups as the abstract reports them. The accessible abstract does not name an analysis population, and its analysed groups do not add up to the number randomised, so calling this intention to treat would assert what no readable source says</td></tr>
+    <tr><th>Effect scale</th><td>pooled on the log scale</td></tr>
+  </table>
+</div>
+<div class='card warn'>
+  <h2>Single cohort &mdash; no synthesis</h2>
+  <p class='num'>RR 0.971 (0.7572 to 1.2451)</p>
+  <p></p>
+</div>
+
+<div class="card">
+  <h3>Contributing trials</h3>
+  <table>
+    <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
+        <th>RR (95% CI), or events</th>
+        <th>Source of this cell</th></tr>
+    <tr><td>Antifungal Combinations for Treatment of Cryptococcal Meningitis in Africa<br><small>ISRCTN45035509 &middot; primary outcome</small></td><td class='num'>225 / 224</td><td class='num'>RR 0.971 (0.7572 to 1.2451)<br><small>79 / 81 events</small><br><small><em>risk ratio computed here from the two counts on this row, with a normal-approximation interval on the log scale. Death is the outcome, so a ratio BELOW one means fewer deaths on the first-named treatment.</em></small></td><td><small>Primary paper (abstract only; full text behind a paywall): <br><q>Mortality in the oral-regimen, 1-week amphotericin B, and 2-week amphotericin B groups was 18.2% (41 of 225), 21.9% (49 of 224), and 21.4% (49 of 229), respectively, at 2 weeks and was 35.1% (79 of 225), 36.2% (81 of 224), and 39.7% (91 of 229), respectively, at 10 weeks.</q></small></td></tr>
+  </table>
+  <p><small>The third pairwise comparison inside the multi-arm trial. It is a DIRECT comparison between two of that trial&#x27;s own strategy groups, recoverable because the source publishes a count and a denominator for each. It shares participants with the other two contrasts from this trial and none of the three may be entered alongside another as though it were an independent study.</small></p>
+</div>
+<div class='card'>
+  <h3>The methods rule governing this decision</h3>
+  <p><strong>Decision:</strong> No network estimate and no indirect comparison is computed for antifungal induction.</p>
+  <p><strong>Cochrane Handbook sections:</strong> 11.2.1, 11.2.2, 11.3.2.3, 11.4.4.1</p>
+  <p>Section 11.2.1 describes an indirect comparison as one made through a common comparator. These trials share no node, so that construction has no input. Whether a shared node COULD be forced into being by treating the one-week strategy as though it were the flucytosine-partnered regimen is a question about node GROUPING, and section 11.3.2.3 is what governs it: node definitions need careful consideration and should maximise similarity within a node. Half of that strategy received a different partner drug, and within that very node the trial demonstrated a difference: flucytosine better than fluconazole on ten-week mortality, with an interval excluding no effect. An earlier version called that the difference the trial found to matter MOST, which ranks it against strategy comparisons the trial reported as non-inferiority conclusions on a different window; the source states no such ranking and a reviewer was right to strike it. A demonstrated difference inside the node is enough on its own, so the two are not one node. An earlier version of this block argued that point from transitivity alone and a reviewer was right that transitivity does not settle what a node is. Once the nodes are fixed, section 11.2.2 refuses the forced merge for its own reason: it requires the sets of trials to be similar in all important factors other than the comparison being made, and half of that node received a different partner drug, which is the one difference the trial demonstrated INSIDE that node, on its own ten-week mortality comparison. No claim is made that it mattered more than anything else the trial tested; that would rank a superiority finding against non-inferiority conclusions on another window, which the source does not do. On loops, an earlier version of this object said the graph closed none. It does close one, and a reviewer was right to say so: the multi-arm trial supplies all three pairwise lines among its own strategies, which is the triangle section 11.1.1 describes a three-arm study as drawing. That loop still buys NO incoherence check, and the reason is not its absence but its provenance. Section 11.4.4.1 defines incoherence as the difference between the direct and the indirect estimate of the same comparison; here the indirect path runs through the third node of the SAME randomised population, so it is not independent evidence about the direct edge -- it is the same participants, arriving a different way. Comparing them would measure arithmetic, not disagreement between sources.</p>
+</div>
+</section>
+<section>
+<h2>A single high dose of liposomal amphotericin B against one week of amphotericin B deoxycholate with flucytosine</h2>
+<div class='card'>
+  <h3>What was measured</h3>
+  <table>
+    <tr><th>Estimand</th><td>binary_proportion &mdash; proportion of the analysed population dead by ten weeks after randomisation</td></tr>
+    <tr><th>Unit of analysis</th><td>participant, alive or dead</td></tr>
+    <tr><th>Case definition</th><td>death from any cause</td></tr>
+    <tr><th>Window</th><td>ten weeks after randomisation</td></tr>
+    <tr><th>Analysis population</th><td>intention to treat, which this trial names explicitly and defines as all randomised who did not meet a late exclusion. Read from the open full text, not from an abstract</td></tr>
+    <tr><th>Effect scale</th><td>pooled on the log scale</td></tr>
+  </table>
+</div>
+<div class='card warn'>
+  <h2>Single cohort &mdash; no synthesis</h2>
+  <p class='num'>RR 0.8632 (0.6872 to 1.0843)</p>
+  <p></p>
+</div>
+
+<div class="card">
+  <h3>Contributing trials</h3>
+  <table>
+    <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
+        <th>RR (95% CI), or events</th>
+        <th>Source of this cell</th></tr>
+    <tr><td>Single-Dose Liposomal Amphotericin B Treatment for Cryptococcal Meningitis<br><small>ISRCTN72509687 &middot; primary outcome</small></td><td class='num'>407 / 407</td><td class='num'>RR 0.8632 (0.6872 to 1.0843)<br><small>101 / 117 events</small><br><small><em>risk ratio computed here from the two counts on this row, with a normal-approximation interval on the log scale. Death is the outcome, so a ratio BELOW one means fewer deaths on the first-named treatment.</em></small></td><td><small>Primary paper (open access full text): <br><q>In the intention-to-treat analysis, the proportion who died at 10 weeks was 24.8% (101 of 407; 95% CI, 20.7-29.3%) in the AmBisome group compared with 28.7% (117 of 407; 95% CI, 24.4-33.4%) in the control group</q></small></td></tr>
+  </table>
+  <p><small>A two-arm trial, so its reference arm serves one contrast only.</small></p>
+</div>
+<div class='card'>
+  <h3>The methods rule governing this decision</h3>
+  <p><strong>Decision:</strong> No network estimate and no indirect comparison is computed for antifungal induction.</p>
+  <p><strong>Cochrane Handbook sections:</strong> 11.2.1, 11.2.2, 11.3.2.3, 11.4.4.1</p>
+  <p>Section 11.2.1 describes an indirect comparison as one made through a common comparator. These trials share no node, so that construction has no input. Whether a shared node COULD be forced into being by treating the one-week strategy as though it were the flucytosine-partnered regimen is a question about node GROUPING, and section 11.3.2.3 is what governs it: node definitions need careful consideration and should maximise similarity within a node. Half of that strategy received a different partner drug, and within that very node the trial demonstrated a difference: flucytosine better than fluconazole on ten-week mortality, with an interval excluding no effect. An earlier version called that the difference the trial found to matter MOST, which ranks it against strategy comparisons the trial reported as non-inferiority conclusions on a different window; the source states no such ranking and a reviewer was right to strike it. A demonstrated difference inside the node is enough on its own, so the two are not one node. An earlier version of this block argued that point from transitivity alone and a reviewer was right that transitivity does not settle what a node is. Once the nodes are fixed, section 11.2.2 refuses the forced merge for its own reason: it requires the sets of trials to be similar in all important factors other than the comparison being made, and half of that node received a different partner drug, which is the one difference the trial demonstrated INSIDE that node, on its own ten-week mortality comparison. No claim is made that it mattered more than anything else the trial tested; that would rank a superiority finding against non-inferiority conclusions on another window, which the source does not do. On loops, an earlier version of this object said the graph closed none. It does close one, and a reviewer was right to say so: the multi-arm trial supplies all three pairwise lines among its own strategies, which is the triangle section 11.1.1 describes a three-arm study as drawing. That loop still buys NO incoherence check, and the reason is not its absence but its provenance. Section 11.4.4.1 defines incoherence as the difference between the direct and the indirect estimate of the same comparison; here the indirect path runs through the third node of the SAME randomised population, so it is not independent evidence about the direct edge -- it is the same participants, arriving a different way. Comparing them would measure arithmetic, not disagreement between sources.</p>
+</div>
+</section>
+<section>
+<h2>Earlier against deferred start of antiretroviral therapy, death by twenty-six weeks</h2>
+<div class='card'>
+  <h3>What was measured</h3>
+  <table>
+    <tr><th>Estimand</th><td>time_to_event &mdash; Cox proportional-hazards model on time to death</td></tr>
+    <tr><th>Unit of analysis</th><td>participant, time to first event</td></tr>
+    <tr><th>Case definition</th><td>death from any cause</td></tr>
+    <tr><th>Window</th><td>twenty-six weeks after randomisation</td></tr>
+    <tr><th>Analysis population</th><td>intention to treat, as the trial states and as its registration states. Its two analysed arms sum to the number randomised</td></tr>
+    <tr><th>Effect scale</th><td>pooled on the log scale</td></tr>
+  </table>
+</div>
+<div class='card warn'>
+  <h2>Single cohort &mdash; no synthesis</h2>
+  <p class='num'>HR 1.73 (1.06 to 2.82)</p>
+  <p></p>
+</div>
+
+<div class="card">
+  <h3>Contributing trials</h3>
+  <table>
+    <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
+        <th>HR (95% CI), or events</th>
+        <th>Source of this cell</th></tr>
+    <tr><td>Timing of Antiretroviral Therapy after Diagnosis of Cryptococcal Meningitis<br><small>NCT01075152 &middot; primary outcome</small></td><td class='num'>88 / 89<br><small><em>every randomised participant; the trial reports vital status at forty-six weeks for all but one, who withdrew consent.</em></small></td><td class='num'>1.73 (1.06 to 2.82)<br><small>on the log scale: 0.548121 (standard error 0.249614)</small></td><td><small>Primary paper (open access full text): <br><q>The proportion of participants who died by 26 weeks was greater in the earlier-ART group than in the deferred-ART group (40 of 88 [45%] vs. 27 of 89 [30%]; hazard ratio for death, 1.73; 95% confidence interval [CI], 1.06 to 2.82; P = 0.03)</q><br><q>After the second review in April 2012, the data and safety monitoring board recommended stopping enrollment because of substantial excess mortality with earlier ART. Enrollment was stopped on April 27, 2012, with 177 participants enrolled.</q></small></td></tr>
+  </table>
+  <p><small>Stored as the trial&#x27;s own hazard ratio and NOT as a two-by-two, because section 10.9 governs a time-to-event analysis and a two-by-two would discard the timing that the analysis rests on. The arm totals and deaths are carried on the arms, where they describe the trial rather than stand in for its estimate.</small></p>
+</div>
+<div class='card'>
+  <h3>The methods rule governing this decision</h3>
+  <p><strong>Decision:</strong> The timing trial is held as a separate two-arm comparison and is not placed in the antifungal network.</p>
+  <p><strong>Cochrane Handbook sections:</strong> 11.1.1, 10.9</p>
+  <p>Every participant in it received the same antifungal induction; what was randomised is the day antiretroviral therapy started. Section 11.1.1 is where a network&#x27;s nodes are defined: a network diagram consists of nodes representing the interventions and lines showing the available direct comparisons between pairs of them. This trial randomises none of the antifungal regimens, so it supplies no such line between them. An earlier version attached this to 11.2.2, which is TRANSITIVITY and makes no statement about what a node is; a reviewer was right that a correct decision was hanging from a claim its section does not make. Its outcome is analysed as time to death, which section 10.9 governs, and that is a different measure from the risk ratio used for induction, so the two are never combined.</p>
+</div>
+</section>
+<section>
+<h2>Recognised cryptococcal immune reconstitution inflammatory syndrome</h2>
+<div class='card'>
+  <h3>What was measured</h3>
+  <table>
+    <tr><th>Estimand</th><td>competing_risk_cumulative_incidence &mdash; cumulative incidence function, with death as a competing risk</td></tr>
+    <tr><th>Unit of analysis</th><td>participant, first adjudicated event</td></tr>
+    <tr><th>Case definition</th><td>recognised cryptococcal immune reconstitution inflammatory syndrome, adjudicated by an external panel of three physicians unaware of the timing assignment</td></tr>
+    <tr><th>Window</th><td>through follow-up</td></tr>
+    <tr><th>Analysis population</th><td>the at-risk sets of the competing-risk analysis, which are smaller than the randomised arms on both sides</td></tr>
+    <tr><th>Effect scale</th><td>pooled on the none scale</td></tr>
+  </table>
+</div>
+<div class='card warn'>
+  <h2>Single cohort &mdash; no synthesis</h2>
+  <p class='num'>none <small>The trial published two cumulative incidences under a competing risk and a P value, and no ratio, and none is derived here.</small></p>
+  <p></p>
+</div>
+
+<div class="card">
+  <h3>Contributing trials</h3>
+  <table>
+    <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
+        <th>none (95% CI), or events</th>
+        <th>Source of this cell</th></tr>
+    <tr><td>Timing of Antiretroviral Therapy after Diagnosis of Cryptococcal Meningitis<br><small>NCT01075152 &middot; primary outcome</small></td><td class='num'>87 / 69</td><td class='num'>17 / 9 events<br><small>no ratio computed &mdash; </small></td><td><small>Primary paper (open access full text): <br><q>Even the cumulative incidence of recognized cryptococcal IRIS did not differ significantly between the earlier-ART group and the deferred-ART group (20% [17 of 87] and 13% [9 of 69], respectively; P = 0.32)</q><br><q>To account for the competing risk of death, the cumulative incidence function was used to compare the end points of IRIS, relapse, and adverse events between treatment groups.</q></small></td></tr>
+  </table>
+  <p><small>NO ratio effect measure is stored, and none may be. The trial published two cumulative incidences and a P value. A cumulative incidence under a competing risk does not yield any of the measures section 10.4.3 lists without the subdistribution model, which the paper does not report.</small></p>
+</div>
+<div class='card'>
+  <h3>The methods rule governing this decision</h3>
+  <p><strong>Decision:</strong> The two immune reconstitution counts are held and NO ratio effect measure is stored or derived.</p>
+  <p><strong>Cochrane Handbook sections:</strong> 10.4.3</p>
+  <p>Section 10.4.3 sets out which effect measures are available for a dichotomous outcome. What this trial published is not a plain proportion: it is a cumulative incidence estimated against the competing risk of death, over at-risk sets that differ from the randomised arms. Not one of the measures that section offers can be recovered from it without the subdistribution model, which the paper does not report.</p>
+</div>
+</section>
+
+<div class='card warn'>
+  <h2>The network</h2>
+  <p><strong>Treatments:</strong> oral fluconazole 1200 mg/day plus flucytosine 100 mg/kg/day for two weeks, one week of amphotericin B deoxycholate 1 mg/kg/day, partner drug randomised between flucytosine and fluconazole, two weeks of amphotericin B deoxycholate 1 mg/kg/day, partner drug randomised between flucytosine and fluconazole (reference), a single 10 mg/kg dose of liposomal amphotericin B with flucytosine and fluconazole for two weeks, one week of amphotericin B deoxycholate 1 mg/kg/day with flucytosine, then fluconazole 1200 mg/day on days eight to fourteen (reference)</p>
+  <table>
+    <tr><th>Comparison</th><th>Studies</th></tr>
+    <tr><td>ORAL_FLU_5FC vs AMB2W_MIXED</td><td class='num'>1</td></tr>
+    <tr><td>AMB1W_MIXED vs AMB2W_MIXED</td><td class='num'>1</td></tr>
+    <tr><td>ORAL_FLU_5FC vs AMB1W_MIXED</td><td class='num'>1</td></tr>
+    <tr><td>LAMB_SINGLE vs AMB1W_5FC</td><td class='num'>1</td></tr>
+  </table>
+  <p><strong>Closed loops: 1. Multi-arm studies: 1. Status: disconnected; no network meta-analysis is possible and none is reported</strong></p>
+  <p>The graph falls into separate pieces. Section 11.2.1 builds an indirect comparison through a treatment the two sets of trials have in common, and these trials share no node, so that construction has no input. Which regimen would have joined them is the part worth stating plainly: the one week of amphotericin B with flucytosine that the older trial found best, and that the World Health Organization adopted after it, is exactly the newer trial&#x27;s control arm. The older trial holds it as one of five arms, and it is the arm whose numerator and denominator the accessible source does not publish. The break in this network is not a fact about the trials. It is a fact about what could be read.</p>
+  <p><small>The multi-arm trial contributes two contrasts from one randomised population, sharing a control arm, so those contrasts are correlated and any synthesis using both would need the covariance between them. An earlier version of this object said that covariance COULD NOT BE CONSTRUCTED because the source publishes no variance for any arm. That was false, and false against this object&#x27;s own arithmetic: it derives each contrast&#x27;s standard error from the published counts, and on that same log risk-ratio approximation the shared-arm covariance is the reference arm&#x27;s own contribution, one over its deaths minus one over its denominator, from the very same counts. A reviewer caught the contradiction. The covariance is available, and it is NOT the reason no synthesis is computed. The reason is that the graph does not connect.</small></p>
+</div>
+<div class='card'>
+  <h2>The methods authority these decisions rest on</h2>
+  <p>Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, et al (editors). Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1. Cochrane, 2025.<br><small>https://www.cochrane.org/authors/handbooks-and-manuals/handbook</small></p>
+  <p>Every scope and synthesis decision names the section governing it, on the block it governs.</p>
+  <table>
+    <tr><th>Section</th><th>Title</th><th>What it settled here</th></tr>
+    <tr><td class='num'>4.3.3</td><td>Trials registers and trials results registers</td><td><small>Trials registers as a source to be searched, which is why each registration identifier is carried.</small></td></tr>
+    <tr><td class='num'>10.2</td><td>Introduction to meta-analysis</td><td><small>Meta-analysis as the combination of studies estimating the same quantity, which is the test no pair of these trials passes.</small></td></tr>
+    <tr><td class='num'>10.4.3</td><td>Which effect measure for dichotomous outcomes?</td><td><small>The effect measures available for a dichotomous outcome, none of which a competing-risk cumulative incidence yields without the subdistribution model.</small></td></tr>
+    <tr><td class='num'>10.9</td><td>Meta-analysis of time-to-event outcomes</td><td><small>The hazard ratio as the measure for a time-to-event analysis, and the reason it is never combined with a risk ratio here.</small></td></tr>
+    <tr><td class='num'>10.11.1</td><td>Interaction and effect modification</td><td><small>The interaction test as what carries a subgroup claim, rather than the separate within-subgroup results.</small></td></tr>
+    <tr><td class='num'>11.1.1</td><td>Network diagrams</td><td><small>What a node and a line in a network ARE: nodes are the interventions, lines the available direct comparisons between pairs of them. This is the authority for holding the timing trial outside the antifungal graph, and an earlier version of this object hung that decision on the transitivity section, which makes no such statement.</small></td></tr>
+    <tr><td class='num'>23.3.3</td><td>Risk of bias in studies with more than two groups</td><td><small>Its statement that where summary data are provided for each intervention group it does not matter how the groups were combined in the reported analyses, and that review authors need not analyse the data the way the study authors did. It is why the third within-trial contrast is recovered rather than declined for not having been framed. A review leg argued this sentence belongs to 23.3.2 instead. It does not, and the chapter was re-opened to check: the sentence sits between the 23.3.3 heading and the 23.3.4 heading, and 23.3.2 is titled Determining which intervention groups are relevant, not what that leg called it. The citation stands. A second leg then pressed the same point on THEMATIC grounds -- that a rule about extraction does not belong under risk of bias -- and that is a fair reading of the chapter&#x27;s own organisation even though it does not move the sentence. So both are now cited, each for its own half: 23.3.2 for whether these groups are relevant to this review at all, 23.3.3 for the sentence that says the trialists&#x27; grouping does not bind us. A judge leg has now asserted the same relocation in four consecutive rounds, most recently calling this location claim factually incorrect, and in none of those rounds does its own list of files read contain a Handbook page. So the boundary is recorded here as quotation rather than as assertion. Section 23.3.3 opens: &#x27;Bias may be introduced in a multiple-intervention study if the decisions regarding data analysis are made...&#x27;. It ends, immediately before the 23.3.4 heading: &#x27;...if the summary data are provided for each intervention group, it does not matter how the groups had been combined in reported analyses; review authors do not need to analyse the data in the same way as the study authors.&#x27; Anyone may open the chapter and check both.</small></td></tr>
+    <tr><td class='num'>23.3.2</td><td>Determining which intervention groups are relevant</td><td><small>Whether the third within-trial contrast is relevant to this review: the section asks which pair-wise comparisons of a multi-arm study would themselves meet the review&#x27;s inclusion criteria. Both arms of that contrast are induction strategies inside this review&#x27;s scope, so the comparison is relevant and is recovered.</small></td></tr>
+    <tr><td class='num'>23.3.4</td><td>How to include multiple groups from one study</td><td><small>The unit-of-analysis problem created by two contrasts sharing one reference arm, and the routes out of it, one of which is to account for the correlation. This is what governs the shared-control decision; an earlier version cited the indirect-comparison section, which both review families identified as the wrong one.</small></td></tr>
+    <tr><td class='num'>11.2.1</td><td>Indirect comparisons</td><td><small>The indirect path a common comparator makes available, and its absence when no node is shared.</small></td></tr>
+    <tr><td class='num'>11.2.2</td><td>Transitivity</td><td><small>The requirement that the sets of trials be similar in all important factors other than the comparison being made. It is about whether an indirect comparison is valid ONCE the nodes exist; it is not what decides what a node is.</small></td></tr>
+    <tr><td class='num'>11.3.2.3</td><td>Grouping variants of an intervention (defining nodes in the network diagram)</td><td><small>What actually governs whether a partner-mixed regimen and the flucytosine-partnered regimen may be ONE node: node definitions need careful consideration, maximising similarity within a node. An earlier version hung that decision on transitivity, which makes no statement about node grouping, and a reviewer was right about it.</small></td></tr>
+    <tr><td class='num'>11.4.4.1</td><td>What is incoherence?</td><td><small>Incoherence as the difference between a direct and an indirect estimate, which a graph with no closed loop cannot supply.</small></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Sources</h2>
+  <table>
+    <tr><th>Layer</th><th>Source</th><th>How it was obtained</th></tr>
+    <tr><td>Primary paper (open access full text)</td><td>Jarvis JN, Lawrence DS, Meya DB, et al. Single-Dose Liposomal Amphotericin B Treatment for Cryptococcal Meningitis. N Engl J Med.<br><small>https://doi.org/10.1056/NEJMoa2111904</small></td><td><small>QUOTED: the author manuscript is open in PubMed Central as PMC7612678, and the full text was read there.</small></td></tr>
+    <tr><td>Primary paper (open access full text)</td><td>Boulware DR, Meya DB, Muzoora C, et al. Timing of Antiretroviral Therapy after Diagnosis of Cryptococcal Meningitis. N Engl J Med.<br><small>https://doi.org/10.1056/NEJMoa1312884</small></td><td><small>QUOTED: the author manuscript is open in PubMed Central as PMC4127879, and the full text was read there.</small></td></tr>
+    <tr><td>Primary paper (abstract only; full text behind a paywall)</td><td>Molloy SF, Kanyama C, Heyderman RS, et al. Antifungal Combinations for Treatment of Cryptococcal Meningitis in Africa. N Engl J Med.<br><small>https://doi.org/10.1056/NEJMoa1710922</small></td><td><small>NOT QUOTED BEYOND THE ABSTRACT. This record has no PubMed Central entry, and Europe PMC returns isOpenAccess N, inEPMC N and &#x27;Subscription required&#x27;. No paywall was bypassed. Only the indexed structured abstract was read, and every limit that follows from that is recorded on the block it constrains.</small></td></tr>
+  </table>
+</div>
+
+<p><small>Every number on this page is projected from a single canonical object,
+and each measured cell names the source analysis it was read from. That is what
+is machine-checked. It does not establish that the underlying sources are right,
+only that this page faithfully reports them.</small></p>

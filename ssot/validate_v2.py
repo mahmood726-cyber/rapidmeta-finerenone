@@ -205,9 +205,28 @@ def check_against_sources(canon, rep, sources_root=None):
                   f"without the sources those assertions cannot be verified, and an "
                   f"unverifiable claim is not a passing one.")
         return
+    # STAGED_AS MUST BIND TO A FILE THAT EXISTS.
+    #
+    # The registry names, for each source, the file it was read from. Nothing
+    # checked that the name resolved. One object pointed every entry at a JSON
+    # wrapper the gate deliberately withholds from reviewers, and a checker
+    # following the registry would have been sent to a file no leg ever saw --
+    # caught by a reviewer, not by this. A registry entry that cannot be opened
+    # is not provenance, it is a label.
+    for sid, src in (canon.get("sources") or {}).items():
+        named = src.get("staged_as")
+        if named and not (root / named).is_file():
+            rep.block("staged-as-unresolvable",
+                      f"source {sid!r} says it is staged as {named!r}, and no such "
+                      f"file is in {root}. The registry must name a file a reader "
+                      f"can actually open.")
+
     blobs, raw_blobs = {}, {}
     for f in root.glob("*"):
-        if f.suffix in (".json", ".xml"):
+        # .txt is loaded too. It was excluded, so the verbatim TEXT extracts --
+        # which are what the gate hands every reviewer, and what the quoted
+        # sentences were read from -- were bound by nothing here.
+        if f.suffix in (".json", ".xml", ".txt"):
             raw = f.read_text(encoding="utf-8", errors="replace")
             # Token lookups want numerals joined, which requires unescaping.
             # Quote comparison must NOT see unescaped text before tags are
@@ -2789,6 +2808,34 @@ def check_network(canon, rep):
                       f"edge however many studies inform it.")
         seen_edges.add(key)
         pairs.append((a, b))
+    # A DIRECT COMPARISON THE OBJECT COMPUTED CANNOT BE MISSING FROM THE GRAPH.
+    #
+    # An object held a third within-trial contrast between two of its own
+    # declared nodes -- counts, point estimate, interval, the lot -- and left it
+    # out of `edges`, then reported the loop count that omission produced. Every
+    # check here passed, because they all read the edge list and the edge list
+    # was self-consistent. The graph was simply not the graph the object's own
+    # results described, and a reviewer caught what the validator could not.
+    #
+    # The anchor that does exist is the outcome set: an outcome naming two
+    # declared nodes and carrying a per-trial estimate IS a direct comparison,
+    # so it owes an edge. Outcomes whose nodes are not both in this network are
+    # untouched -- that is how a second, separate synthesis lives in one object.
+    for oid, o in outcomes.items():
+        a, b = o.get("treatment_node"), o.get("comparator_node")
+        if a not in ids or b not in ids or a is None or b is None:
+            continue
+        res = canon.get("results", {}).get("by_outcome", {}).get(oid) or {}
+        if not (res.get("per_trial") or res.get("pooled")):
+            continue
+        if frozenset((a, b)) not in seen_edges:
+            rep.block("network-missing-edge",
+                      f"outcome {oid!r} compares {a!r} with {b!r}, both declared "
+                      f"treatments of this network, and carries a result -- but "
+                      f"no edge connects them. A direct comparison the object "
+                      f"computed cannot be absent from the graph it reports, "
+                      f"because the loop count is derived from that graph.")
+
     # Loops, recomputed. Edges = E, nodes touched = V, components = C; the
     # cyclomatic number E - V + C is the number of independent closed loops.
     nodes = {n for pr in pairs for n in pr}

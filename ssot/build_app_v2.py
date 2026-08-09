@@ -23,6 +23,65 @@ ALIASES = {"res": "results", "cfg": "config", "rm": "removed_citations",
            "t": "inputs.trials[0]"}
 
 
+
+def _method_table(sens, p, e):
+    """Render the between-study-variance method comparison, if the object has one.
+
+    Handbook 10.10.4.5 asks for this comparison whenever a random-effects pool
+    has only two or three studies, and every pool in this batch does. Computed
+    and stored but not shown, it would satisfy the letter of that advice and
+    none of its purpose -- the point is that a READER sees whether the answer
+    depends on the method.
+    """
+    mc = sens.get("between_study_variance_method_comparison")
+    if not mc:
+        return ""
+    # The object stores the estimators by their conventional abbreviations,
+    # which are what a methods reader looks for. A page has readers who are not
+    # methods readers, so both are shown rather than either alone.
+    LONG = {"DL": "DerSimonian-Laird (DL)", "PM": "Paule-Mandel (PM)",
+            "REML": "restricted maximum likelihood (REML)"}
+    LONG_INT = {"Wald": "ordinary (Wald)",
+                "HKSJ": "Hartung-Knapp-Sidik-Jonkman (HKSJ)"}
+    rows = "".join(
+        f"    <tr><td>{e(LONG.get(m['between_study_variance_estimator'], m['between_study_variance_estimator']))}</td>"
+        f"<td>{e(LONG_INT.get(m['interval_method'], m['interval_method']))}</td>"
+        f"<td class='num'>{fmt(m['point'])} "
+        f"({fmt(m['ci_low'])} to {fmt(m['ci_high'])})</td>"
+        f"<td class='num'>{fmt(m['tau2'])}</td></tr>" + NL
+        for m in mc["methods"])
+    return (f"  <h3>Does the answer depend on the pooling method?</h3>" + NL
+            + f"  <p>{p(mc['why'])}</p>" + NL + "  <table>" + NL
+            + "    <tr><th>Between-study variance</th><th>Interval</th>"
+              "<th>Summary (95% CI)</th><th>&tau;&sup2;</th></tr>" + NL
+            + rows + "  </table>" + NL
+            + f"  <p><strong>{p(mc['verdict'])}</strong></p>" + NL
+            + f"  <p><small>{p(mc['estimator_kept'])}</small></p>" + NL)
+
+
+def _favoured_arm(res, outcome):
+    """Name the favoured arm, and say which way the outcome runs.
+
+    `favours` stores "treatment", "control" or "neither", which tells a reader
+    nothing about WHICH treatment or which way better runs. The nodes are on the
+    outcome; the direction of benefit is too. Spelling both out is the whole
+    point, because a ratio below one on a CURE outcome means less cure, and an
+    app in this corpus presented exactly that as a benefit.
+    """
+    f = res.get("favours")
+    tx = outcome.get("treatment_node") or "the intervention"
+    ct = outcome.get("comparator_node") or "the comparator"
+    way = ("higher is better" if outcome.get("direction_of_benefit") == "higher"
+           else "lower is better")
+    if f == "neither":
+        return f"neither arm; the interval spans the null ({way})"
+    if f == "treatment":
+        return f"{tx} ({way})"
+    if f == "control":
+        return f"{ct} ({way})"
+    return str(f)
+
+
 def fmt(x):
     if x is None:
         return "not stated"
@@ -258,6 +317,17 @@ def _outcome_section(canon, oid, p, e):
             + f"  <p><small>&tau;&sup2; {fmt(het.get('tau2'))} &middot; I&sup2; "
               f"{fmt(het.get('i2'))}% &middot; Q {fmt(het.get('q'))} on "
               f"{fmt(het.get('df'))} df</small></p>" + NL
+            # WHICH ARM THE NUMBER FAVOURS, in words. The object has always
+            # carried `favours`, and the validator's direction anchor has
+            # always tied it to the interval -- but it was rendered NOWHERE, so
+            # a reader saw a ratio below one and had to supply the direction
+            # themselves. On a BENEFICIAL outcome that reading inverts, and
+            # inverting it is exactly the defect one of these apps shipped.
+            + ((f"  <p><strong>Favours: "
+                f"{e(_favoured_arm(res, outcome))}</strong>"
+                f"{(' &mdash; ' + p(res['favours_note'])) if res.get('favours_note') else ''}"
+                f"</p>" + NL)
+               if res.get("favours") else "")
             + ((f"  <p><small>{p(res['heterogeneity_status'])}</small></p>" + NL)
                if res.get("heterogeneity_status") else "")
             + ((f"  <p><strong>How to read this:</strong> "
@@ -376,7 +446,33 @@ def _outcome_section(canon, oid, p, e):
     # and the decision worth testing here is the one review challenged. Held in
     # the object and rendered nowhere, the test would prove nothing to a reader.
     sens = ""
-    if res.get("sensitivity"):
+    if res.get("sensitivity") and not all(
+            "omitted" in a for a in res["sensitivity"].get("analyses", [])):
+        # A GENERAL sensitivity block. The original renderer assumed every row
+        # omitted a cohort, which is only one of the decisions the Handbook
+        # asks to be tested: section 10.4.3 asks specifically whether the
+        # choice of summary statistic AND of which category counts as the event
+        # changes the conclusion, and neither of those omits anything. An
+        # object testing them had its most important finding rendered nowhere.
+        # Leave-one-out rows still take the branch below, unchanged.
+        s = res["sensitivity"]
+        srows = "".join(
+            f"    <tr><td>{e(a['changed'])}</td>"
+            f"<td class='num'>{fmt(a['result']['point'])} "
+            f"({fmt(a['result']['ci_low'])} to {fmt(a['result']['ci_high'])})"
+            f"</td>"
+            f"<td class='num'>{fmt(a['result']['i2'])}%</td>"
+            f"<td>{e(a['verdict'])}</td></tr>\n"
+            for a in s["analyses"])
+        sens = (f"<div class='card warn'>\n  <h3>Is the finding robust to how "
+                f"it was reached?</h3>\n  <p>{p(s['why'])}</p>\n  <table>\n"
+                f"    <tr><th>What was changed</th>"
+                f"<th>{e(outcome['measure'])} or its alternative (95% CI)</th>"
+                f"<th>I&sup2;</th><th>Effect on the conclusion</th></tr>\n"
+                f"{srows}  </table>\n"
+                f"  <p><strong>{p(s['conclusion'])}</strong></p>\n"
+                + _method_table(s, p, e) + "</div>\n")
+    elif res.get("sensitivity"):
         s = res["sensitivity"]
         srows = "".join(
             f"    <tr><td>{e(a['omitted'])}</td>"
@@ -391,7 +487,8 @@ def _outcome_section(canon, oid, p, e):
                 f"<th>{e(outcome['measure'])} (95% CI)</th>"
                 f"<th>Efficacy</th></tr>\n{srows}  </table>\n"
                 f"  <p><strong>{p(s['conclusion'])}</strong></p>\n"
-                f"  <p><small>{p(s['authority'])}</small></p>\n</div>\n")
+                f"  <p><small>{p(s['authority'])}</small></p>\n"
+                + _method_table(s, p, e) + "</div>\n")
 
     # Where the two judging families disagreed about whether a figure should be
     # published at all, the disagreement is shown rather than resolved silently
