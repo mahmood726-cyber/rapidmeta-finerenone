@@ -138,6 +138,18 @@ def pool(rows, measure, estimator, level=95):
         tau2 = max(0.0, (Q - df) / C) if C > 0 else 0.0
     elif estimator.lower() in ("fixed", "none", "iv", "inverse variance"):
         tau2 = 0.0
+    elif estimator.lower() in ("reml", "restricted maximum likelihood"):
+        # Added because the alternative was worse. Handbook 10.10.4.4 records
+        # REML as RevMan's default and says other estimators outperform
+        # DerSimonian-Laird -- but this function could only recompute DL, so an
+        # object wanting the Handbook's default had to choose between being
+        # method-correct and being externally checkable. A reviewer put exactly
+        # that to an object here. Implementing it removes the choice.
+        from estimators import tau2_reml
+        tau2 = tau2_reml(list(ys), list(vs))
+    elif estimator.lower() in ("pm", "paule-mandel", "paule mandel"):
+        from estimators import tau2_pm
+        tau2 = tau2_pm(list(ys), list(vs))
     else:
         tau2 = None                       # estimator we do not implement
     if tau2 is None:

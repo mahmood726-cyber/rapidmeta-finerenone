@@ -1,0 +1,40 @@
+NONCE: tigecycline-ciai-22d1a218
+
+Files read:
+- canonical/tigecycline-ciai.json
+- validate_v2.py
+- sources/tigecycline-ciai/NCT00081744.ctgov.json
+- sources/tigecycline-ciai/NCT00136201.ctgov.json
+- sources/tigecycline-ciai/NCT00230971.ctgov.json
+- sources/tigecycline-ciai/NCT01721408.ctgov.json
+- sources/tigecycline-ciai/NCT01721408.outcomes-one-per-line.json
+- sources/tigecycline-ciai/PMC10122415.fulltext.xml
+- sources/tigecycline-ciai/PMC6783191.fulltext.xml
+- sources/tigecycline-ciai/PMID16080072.pubmed.xml
+- sources/tigecycline-ciai/PMID16080073.pubmed.xml
+- sources/tigecycline-ciai/PMID16236177.pubmed.xml
+- sources/tigecycline-ciai/PMID20663130.pubmed.xml
+- sources/tigecycline-ciai/PMID20670293.pubmed.xml
+- sources/tigecycline-ciai/PMID30584308.pubmed.xml
+- sources/tigecycline-ciai/PMID31577763.pubmed.xml
+- sources/tigecycline-ciai/PMID37085768.pubmed.xml
+- sources/tigecycline-ciai/SUPERSEDED-sidecar.TIGECYCLINE_INFECTION_AUTO_REVIEW.json
+- sources/tigecycline-ciai/TIGE-ciai.extract.txt
+
+Handbook pages checked:
+- https://www.cochrane.org/authors/handbooks-and-manuals/handbook/versions-and-changes-handbook
+- https://www.cochrane.org/authors/handbooks-and-manuals/handbook
+- https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current/chapter-03
+- https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current/chapter-04
+- https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current/chapter-10
+
+No OBJECT defect found. The three pooled rows match their staged source sentences: 199/247 versus 210/255, 45/52 versus 47/48, and the NCT01721408 derived counts 110/125 versus 102/107 from "88.0" and "95.3" over denominators "125" and "107". The primary result's "favours": "control" is directionally correct because cure is beneficial and the pooled interval is below 1. The sensitivity block does not bury fragility: it states that the null is no longer excluded under "odds-ratio", "event-is-failure", "analysis-population", and two of three leave-one-out sets. I found no shared-control double use or duplicate randomised cohort in the pooled estimate, and the fourth eligible trial is held as non-contributing rather than pooled from the paywalled pooled report.
+
+Finding 1 - VALIDATOR: the clean validator result overstates registry-derived source binding for the NCT01721408 derived clinical-cure row.
+
+Quoted object fields: the registry-derived row's provenance is only `"tag": "DERIVED", "source_id": "REGISTRY_CTGOV"` with `"source_quotes"`; it has no `"source_outcome_title"` and no `"source_category_title"`. The treatment/control arm keys are only `"events"`, `"n"`, and `"source_fragments"`, with no structured `"percentage"` field.
+
+Quoted validator behavior: `python validate_v2.py canonical/tigecycline-ciai.json` reports `[ ok  ] against-sources` and `[ ok  ] source-category-binding`. But in `check_against_sources`, registry source-outcome binding is guarded by `if eff and prov.get("source_id", "").startswith("REGISTRY")`; this row has no `effect`, so that branch does not enforce a named outcome. In `check_source_category_binding`, the code then computes `title = prov.get("source_outcome_title")`, tries to find a matching posted outcome, and if none is found executes `if m is None: continue`. Because the row omits `source_outcome_title`, the later intended block - `"is DERIVED from a registry percentage but stores no percentage, so its counts cannot be checked against the source at all"` - is unreachable for this current object row.
+
+Why it matters: NCT01721408 posts both `"Clinical Response at the TOC Assessment Within the Microbiologically Evaluable (ME) Population"` with category `"Cure"` values `"88.0"` and `"95.3"`, and a separate `"Microbiological Response at the Subject Level in the ME Population at the TOC Assessment"` row with the same percentages under `"Eradication (N=125, 107)"`. The object itself says the coincidence and arithmetic correctly, so this is not an OBJECT defect. The validator, however, does not actually prove the current registry-derived counts are structurally bound to the clinical outcome and Cure category rather than to the same-percentage microbiological row.
+VERDICT: DEFECTS-FOUND
