@@ -101,6 +101,17 @@ def pool_generic(effects, estimator, level=95, log_scale=False):
         tau2 = max(0.0, (Q - df) / C) if C > 0 else 0.0
     elif estimator.lower() in ("fixed", "none", "iv", "inverse variance"):
         tau2 = 0.0
+    elif estimator.lower() in ("reml", "restricted maximum likelihood"):
+        # Same reason as in pool(): Handbook 10.10.4.4 makes REML the Cochrane
+        # software default and says it is better supported than DL, and an
+        # object should not have to choose between the Handbook's default and
+        # being recomputed here. This path serves objects pooling PUBLISHED
+        # effects rather than counts, which is where that choice bit hardest.
+        from estimators import tau2_reml
+        tau2 = tau2_reml(list(ys), list(vs))
+    elif estimator.lower() in ("pm", "paule-mandel", "paule mandel"):
+        from estimators import tau2_pm
+        tau2 = tau2_pm(list(ys), list(vs))
     else:
         return None
     wr = [1 / (v + tau2) for v in vs]
@@ -1357,11 +1368,18 @@ def check_counts_sane(canon, rep):
                               f"one this validator can convert to a standard error")
                 sizes = {k: v for k, v in (d.get("analysed") or {}).items()
                          if isinstance(v, (int, float))}
-                if not sizes:
+                if not sizes and not str(d.get("analysed_absent_because", "")).strip():
                     rep.block("denominators-missing",
                               f"{t['id']}/{oid} carries an effect estimate with no analysed "
-                              f"denominators. A reader cannot weigh a trial whose size is "
-                              f"not stated.")
+                              f"denominators and no reason for their absence. A reader "
+                              f"cannot weigh a trial whose size is not stated, and an "
+                              f"absence with no explanation is indistinguishable from an "
+                              f"omission. Declare `analysed_absent_because` if the source "
+                              f"genuinely publishes none -- a SUBGROUP row is the case this "
+                              f"allows for, because a trial may report an efficacy for a "
+                              f"band and no denominator for it. Borrowing the whole trial's "
+                              f"totals instead would be the over-assertion this batch keeps "
+                              f"finding.")
             else:
                 tx, ct = d.get("treatment"), d.get("control")
                 if not (tx and ct):
@@ -2997,7 +3015,19 @@ def check_self_reference(canon, rep):
     walk(canon, "canonical")
 
 
+def check_overassertion_class(canon, rep):
+    """The OVER-ASSERTION library: claims stronger than the evidence behind them.
+
+    Every rule in overassertion_rules.py was a defect a gate round found in a
+    shipped object. They live in the build now, because a class the review has
+    already taught us is a class the review should never have to teach twice.
+    """
+    from overassertion_rules import check_overassertion
+    check_overassertion(canon, rep)
+
+
 DETECTORS = [
+    ("over-assertion", check_overassertion_class),
     ("outcome-coverage", check_outcome_coverage),
     ("self-reference", check_self_reference),
     ("network", check_network),
