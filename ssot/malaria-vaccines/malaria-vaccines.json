@@ -2,8 +2,8 @@
  "app_id": "malaria-vaccines",
  "schema_version": 2,
  "title": "RTS,S/AS01 and R21/Matrix-M against clinical malaria: vaccine-specific efficacy on the log scale, with the estimand and the follow-up window stated on every row",
- "question": "For each of the two malaria vaccines separately, what is the efficacy against clinical malaria among the randomised cohorts that report the SAME EFFECT MEASURE for the SAME ESTIMAND with acceptable statistical heterogeneity -- documenting, rather than requiring away, the clinical and methodological differences between them -- and where does that differ from the published synthesis of the same literature?",
- "question_note": "An earlier version of this question required cohorts to report over the same follow-up WINDOW as well. That was a rule invented here, it was stricter than the Cochrane Handbook, and it was wrong in a way that cost something: it would have discarded a pool of two cohorts sharing the effect measure, the regression model, the case definition, the age band, the dosing schedule and the comparator CLASS -- differing on the points its uniformity table records, none of which is the measure or the estimand -- with no detectable statistical heterogeneity, purely because one reported a median follow-up and the other a fixed endpoint two months later. What each pool holds constant is recorded in one place, its table, and is not restated here beyond that pointer. The Handbook states which effect measure suits which data type (sections 10.8 and 10.9), that clinical and methodological diversity is to be DOCUMENTED rather than assumed away (section 10.10.1), and that influential or unclear decisions are to be tested by sensitivity analysis (section 10.14). It does NOT supply a sufficiency test that makes same-measure-plus-low-heterogeneity enough on its own: whether studies are similar enough to combine is left to the review authors. An earlier version of this note called that combination 'the Handbook's test', which was an overclaim and is withdrawn. The judgement here is OURS -- recorded dimension by dimension, tested by leave-one-out, and open to a reader who weighs it differently. Both review families flagged the old wording as inconsistent with the object's practice, and they were right that the two disagreed; the wording is what was wrong.",
+ "question": "For each of the two malaria vaccines separately, what is the efficacy against clinical malaria across the randomised cohorts that report the SAME EFFECT MEASURE for clinical malaria, aligned on every dimension the sources permit and crossing the rest with each difference named on the pool that crosses it -- and where does that differ from the published synthesis of the same literature? The question does NOT claim these cohorts estimate identical quantities. Each pool records whether they do, and neither of them does.",
+ "question_note": "This question has been wrong in both directions and the history is kept because it is the more useful thing to read. It said SAME ESTIMAND while the tables recorded differences; it was then widened to say the pools AVERAGE ACROSS those differences, and a reviewer was right that widening the question widened the CLAIM instead of answering the objection. What answered it was going back to the sources: the phase 3 trial reports its younger age band separately, at the seasonal sites, on the same MEASURE and the same window, so that band is what the pool now uses and the age mismatch is gone rather than excused. The differences that REMAIN are real and are named on the pool. Earlier text follows. This question said SAME ESTIMAND until a reviewer set it beside the object's own uniformity tables, which record an age range that differs, a case definition that differs and, on the other pool, a follow-up window that differs. Two things cannot both be true, and it was the question that was wrong: what these pools produce is an AVERAGE ACROSS those differences, which is a legitimate thing to publish and a different thing from what was claimed. The differences are recorded on every pool, tested by leave-one-out, and now named in the question itself so a reader meets them before meeting the number. An earlier version of this question required cohorts to report over the same follow-up WINDOW as well. That was a rule invented here, it was stricter than the Cochrane Handbook, and it was wrong in a way that cost something: it would have discarded a pool of two cohorts sharing the effect measure, the regression model, the case definition, the age band, the dosing schedule and the comparator CLASS -- differing on the points its uniformity table records, none of which is the effect MEASURE, though one of them -- the crossed follow-up window -- IS an estimand difference, because this object defines the window inside the estimand and the pool records it as one -- with no detectable statistical heterogeneity, purely because one reported a median follow-up and the other a fixed endpoint two months later. What each pool holds constant is recorded in one place, its table, and is not restated here beyond that pointer. The Handbook states which effect measure suits which data type (sections 10.8 and 10.9), that clinical and methodological diversity is to be DOCUMENTED rather than assumed away (section 10.10.1), and that influential or unclear decisions are to be tested by sensitivity analysis (section 10.14). It does NOT supply a sufficiency test that makes same-measure-plus-low-heterogeneity enough on its own: whether studies are similar enough to combine is left to the review authors. An earlier version of this note called that combination 'the Handbook's test', which was an overclaim and is withdrawn. The judgement here is OURS -- recorded dimension by dimension, tested by leave-one-out, and open to a reader who weighs it differently. Both review families flagged the old wording as inconsistent with the object's practice, and they were right that the two disagreed; the wording is what was wrong.",
  "built": "2026-08-08",
  "_prose_rule": "Every text field is PROSE unless it is on the validator's numeric list. Prose may not restate a number the object holds structurally; it references it instead, so a sentence cannot go stale against the field it describes.",
  "_sourcing_rule": "Every MEASURED input names the source layer it came from and carries the verbatim sentence it was read from. An effect on the log scale carries the published efficacy or ratio it was derived from, so the derivation is checkable rather than asserted.",
@@ -67,10 +67,41 @@
   }
  },
  "methodological_authority": {
-  "reference": "Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, et al (editors). Cochrane Handbook for Systematic Reviews of Interventions version 6.5 (updated August 2024). Cochrane, 2024.",
-  "version": "6.5 (updated August 2024)",
-  "version_checked_on": "2026-08-08",
-  "version_note": "The standing rule names the LATEST version, not this one. This is the version that was current when the decisions below were taken, and it was checked against the publisher rather than recalled.",
+  "reference": "Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, et al (editors). Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1. Cochrane, 2025.",
+  "version": "6.5.1",
+  "version_checked_on": "2026-08-09",
+  "version_checked_how": "The publisher's versions-and-changes page was read, and it is what settles which version is current: it lists 6.5.1 as the newest release line, with entries dated 2026 and 2025, above 6.5 dated 2024. Each chapter this object relies on was then opened and its own printed citation line read; the table below is what those lines say. Two of the publisher's pages disagree and the disagreement is recorded rather than resolved in silence: the Handbook landing page and the current-version index both still print version 6.5 updated August 2024, which is what an earlier build of this object carried. Where they conflict this object follows the version history and the per-chapter citation lines, because those are the more specific and the more recent statements.",
+  "chapters_as_dated_by_the_publisher": [
+   {
+    "chapter": 3,
+    "title": "Defining the criteria for including studies",
+    "version": "6.5",
+    "published": 2024,
+    "last_updated": "August 2023"
+   },
+   {
+    "chapter": 4,
+    "title": "Searching for and selecting studies",
+    "version": "6.5.1",
+    "published": 2025,
+    "last_updated": "March 2025"
+   },
+   {
+    "chapter": 10,
+    "title": "Analysing data and undertaking meta-analyses",
+    "version": "6.5",
+    "published": 2024,
+    "last_updated": "November 2024"
+   },
+   {
+    "chapter": 23,
+    "title": "Including variants on randomized trials",
+    "version": "6.5",
+    "published": 2024,
+    "last_updated": "October 2019"
+   }
+  ],
+  "version_note": "The Handbook is versioned as a whole AND dated per chapter, and the two do not move together: the table above gives each chapter the version and the last-updated date the publisher prints on it, and they are not the same as each other. An earlier version of this object named one version and one update month for the whole Handbook, and that pair matched neither the current version nor any date printed on the chapters actually relied on. Listing them chapter by chapter keeps the age of the authority behind each decision visible instead of averaged away; the chapter behind the randomisation-variant decisions is a good deal older than the others.",
   "scope_of_this_rule": "Every decision about pooling, scope, estimand, heterogeneity or unit of analysis in this object names the section that governs it. A decision with no cited section is a preference wearing the clothes of a method.",
   "where_the_decisions_live": "Each decision, the sections governing it and the conformance argument are attached to the result they govern, under its handbook block. They were also copied here and the copy is removed: the same text in two places is the defect this object has spent six rounds removing.",
   "url": "https://www.cochrane.org/authors/handbooks-and-manuals/handbook",
@@ -129,12 +160,22 @@
    {
     "section": "10.10.3",
     "title": "Strategies for addressing heterogeneity",
-    "used_for": "Its first-listed strategy, 'do not do a meta-analysis', on the stated grounds that where results vary considerably an average may mislead. This is the authority for removing the cross-vaccine pooled figure."
+    "used_for": "Its strategy 'do not do a meta-analysis', on the stated grounds that where results vary considerably an average may mislead. This is the authority for removing the cross-vaccine pooled figure. An earlier version called it the section's FIRST-listed strategy; it is not. The section opens with 'Check again that the data are correct', and a review leg was right about the order. The chapter was reopened to confirm it before the claim was withdrawn, because that leg has been wrong about section content before and a track record is not evidence either way."
    },
    {
     "section": "10.11",
     "title": "Investigating heterogeneity",
-    "used_for": "Subgroup analysis as what REPLACES a combined estimate that should not be computed. The by-vaccine strata are reported and never tested against each other, which is what this section asks of a subgroup comparison. It is NOT the authority for dropping the combined figure -- that is 10.10.3, and the two are easy to confuse."
+    "used_for": "Subgroup analysis as what REPLACES a combined estimate that should not be computed. Its subsection on whether the effect differs between subgroups says a FORMAL statistical approach SHOULD be used where subgroups are compared, and warns against comparing within-subgroup inferences such as P values. It does NOT ask that subgroups be left untested, and an earlier version of this entry said it did -- a reviewer called that a misrepresentation and was right. The strata here are reported and not compared for a reason that section supplies no remedy for: they carry DIFFERENT effect measures, a hazard ratio against a rate ratio, and the test it describes is a heterogeneity test across subgroup results, which presumes one measure. The comparison is declined because it cannot be made validly, NOT because the Handbook asks for it to be declined. This section is also NOT the authority for dropping the combined figure -- that is 10.10.3, and the two are easy to confuse."
+   },
+   {
+    "section": "10.2",
+    "title": "Introduction to meta-analysis",
+    "used_for": "What a meta-analysis IS -- the combination of results across studies -- and therefore why a row that only one cohort reports over its window is presented alone. It is cited where a measure-specific section would once have been: an earlier version cited the rate-ratio section beside a row that expressly declines to call its measure a rate ratio, and a reviewer was right that a section cannot govern a measure the row refuses to claim."
+   },
+   {
+    "section": "10.10.4",
+    "title": "Incorporating heterogeneity into random-effects models",
+    "used_for": "The choice of a random-effects model AND of the estimator for the between-study variance. The effect-measure sections do not govern either, which a reviewer pointed out. Its subsections carry the record that other estimators perform better than DerSimonian and Laird, which is why the headline here is restricted maximum likelihood, and the advice to compare the methods when there are only two or three studies. An earlier version of this sentence said 'better than the one kept here', which was true when DerSimonian and Laird was the headline and became false the moment it stopped being; a reviewer caught the remnant."
    },
    {
     "section": "10.14",
@@ -157,7 +198,8 @@
    "layer_rank": 4,
    "name": "Datoo MS et al. Safety and efficacy of malaria vaccine candidate R21/Matrix-M in African children: a multicentre, double-blind, randomised, phase 3 trial. Lancet.",
    "url": "https://doi.org/10.1016/S0140-6736(23)02511-4",
-   "staged_as": "PMC7618965.datoo2024.extract.json",
+   "staged_as": "PMC7618965.datoo2024.extract.txt",
+   "staged_as_note": "the TEXT extract, which is what the gate hands a reviewer and where this cohort's quoted sentences live -- including the age-aligned seasonal figure, which the JSON wrapper does not carry. An earlier version pointed at the wrapper, so the registry did not support the row it was used for.",
    "access_note": "QUOTED: Open access full text retrieved from PubMed Central and staged with this object as a verbatim extract."
   },
   "OA_RTSS2015": {
@@ -173,7 +215,8 @@
    "layer_rank": 4,
    "name": "Abstracts of the supporting trials: Bejon et al. and Chandramohan et al., both in the New England Journal of Medicine, and the second publication of the Datoo phase 2b cohort in Lancet Infectious Diseases.",
    "url": "https://pubmed.ncbi.nlm.nih.gov/",
-   "staged_as": "supporting-trials.extract.json",
+   "staged_as": "supporting-trials.extract.txt",
+   "staged_as_note": "the TEXT extract, which is what the gate hands a reviewer. One row citing this source quoted a sentence that lived only in the staged PubMed record, so the registry named a file that did not support the row using it; the sentence is now in this extract, verbatim.",
    "access_note": "QUOTED: Abstracts retrieved from PubMed and staged verbatim. These trials are eligible and are carried as labelled rows; none enters a pooled estimate, and each row states why."
   },
   "OA_ADDED_COHORTS": {
@@ -265,7 +308,7 @@
     "model": "negative binomial regression with follow-up time as offset, allowing for interdependence between episodes within the same child, adjusted for site or country as a fixed effect -- stated in those terms by BOTH contributing trials",
     "unit_of_analysis": "episode, with person-time as the denominator",
     "case_definition": "MEASURED axillary fever at or above the threshold, together with P. falciparum asexual parasitaemia above the higher of the two density thresholds used across these trials. A reported history of fever does NOT satisfy this definition",
-    "window": "from the first dose to the end of each trial. The two are NOT the same length and the difference is stated rather than averaged away",
+    "window": "from the first dose to the end of each trial. The two are NOT the same length. The pooled value therefore AVERAGES ACROSS that difference; an earlier version of this line said the difference was stated rather than averaged away, which was true of the documentation and false of the arithmetic",
     "follow_up_months": null,
     "analysis_population": "every participant who received at least one dose. The two trials give that population two different NAMES, and the definitions behind the names are the same"
    },
@@ -328,7 +371,7 @@
   },
   {
    "id": "rtss_recurrent_infants_epi_19m",
-   "name": "RTS,S/AS01 given alongside the routine immunisation schedule, infants: rate of all clinical malaria episodes to nineteen months",
+   "name": "RTS,S/AS01 given alongside the routine immunisation schedule, infants: ratio for all clinical malaria episodes to nineteen months, of a type the source does not name",
    "type": "secondary",
    "measure": "ratio-type-not-named-in-source",
    "direction_of_benefit": "lower",
@@ -338,7 +381,7 @@
     "id": "rtss_recurrent_infants_epi_19m-estimand",
     "family": "recurrent_rate",
     "model": "NOT NAMED in the staged source, which states only that the analysis was site-adjusted and according to protocol. The regression model behind this figure is therefore not recorded, because the material that was retrievable does not give it",
-    "unit_of_analysis": "episode, with person-time as the denominator",
+    "unit_of_analysis": "episode. The DENOMINATOR is not recorded, because the staged source gives an efficacy against all malaria episodes and names neither a person-time denominator nor a regression model. An earlier version asserted person-time here while the same row refused to call the measure a rate ratio, which is the same over-assertion twice; a reviewer caught the half that had survived",
     "case_definition": "fever, with P. falciparum asexual parasitaemia above the HIGHER of the two parasite density thresholds used across these trials. The trials do not all define the fever criterion identically, and where an outcome pools cohorts that differ on it, its uniformity block records the difference rather than smoothing it away",
     "window": "from a fortnight after the third dose to the nineteenth month",
     "follow_up_months": 19,
@@ -348,7 +391,7 @@
    "regimen": "three doses, no booster",
    "comparator": "control vaccine",
    "comparator_type": "inactive",
-   "definition": "RTS,S/AS01 given alongside the routine immunisation schedule, infants: rate of all clinical malaria episodes to nineteen months",
+   "definition": "RTS,S/AS01 given alongside the routine immunisation schedule, infants: ratio for all clinical malaria episodes to nineteen months, of a type the source does not name",
    "definition_note": "Carried, never pooled. Its window, its age at first dose and its masking differ from the other infant cohort, and the staged source does not name the model behind the figure."
   },
   {
@@ -413,7 +456,7 @@
     "id": "exploratory_recurrent_rate-estimand",
     "family": "recurrent_events",
     "model": "negative binomial regression for one vaccine, giving a RATE RATIO, and Cox regression with a robust standard error for the other, giving a HAZARD RATIO",
-    "unit_of_analysis": "episode, with person-time as the denominator",
+    "unit_of_analysis": "NOT COMMON ACROSS THE TWO ROWS, which is the whole point of this outcome. One row counts episodes over person-time, because its trial used a negative binomial model with follow-up time as an offset. The other is a Cox analysis with a robust standard error, whose unit is the participant's time to event with multiple episodes accounted for, NOT a person-time denominator. An earlier version asserted person-time for both, which contradicted this outcome's own measure field of mixed; a sweep of this object for claims stronger than their sources found it before a reviewer did.",
     "case_definition": "fever, with P. falciparum asexual parasitaemia above the HIGHER of the two parasite density thresholds used across these trials. The trials do not all define the fever criterion identically, and where an outcome pools cohorts that differ on it, its uniformity block records the difference rather than smoothing it away",
     "window": "each trial's own follow-up, which is NOT common across them",
     "follow_up_months": null,
@@ -704,6 +747,7 @@
    },
    {
     "id": "datoo-2024-phase3",
+    "age_group_note": "A quoted sentence on this trial names an AGE group, not a randomised arm. This trial randomised vaccine against control and reports that same contrast within the 5-17 month age group; the age group is a subgroup of the arms declared below, not a further arm. The pooled seasonal row uses that subgroup, because the other cohort in the pool enrolled only that band.",
     "name": "R21/Matrix-M phase 3, five sites in four African countries",
     "nct": "NCT04704830",
     "pmid": "38310910",
@@ -730,35 +774,42 @@
     "by_outcome": {
      "r21_seasonal_first_12m": {
       "effect": {
-       "point": 0.25,
-       "ci_low": 0.21,
-       "ci_high": 0.29,
+       "point": 0.21,
+       "ci_low": 0.16,
+       "ci_high": 0.27,
        "ci_level": 95,
-       "log_point": -1.386294,
-       "log_se": 0.082342,
+       "log_point": -1.560648,
+       "log_se": 0.133484,
        "scale": "log",
        "derived_from": "published_vaccine_efficacy_percent",
-       "published_ve_percent": 75,
-       "published_ve_ci_low_percent": 71,
-       "published_ve_ci_high_percent": 79
+       "published_ve_percent": 79,
+       "published_ve_ci_low_percent": 73,
+       "published_ve_ci_high_percent": 84
       },
       "estimand_id": "r21_seasonal_first_12m-estimand",
       "control_arm_key": "NCT04704830-control-seasonal-first",
       "regimen": "seasonal",
-      "analysed": {
-       "treatment": 3103,
-       "control": 1541
+      "age_band": "5-17 months, the band this trial reports separately and the band the other cohort in this pool enrolled",
+      "analysed": {},
+      "analysed_absent_because": "the source publishes an efficacy and an interval for this age band at these sites and publishes no numerator, denominator or analysed population for the band. The whole trial's totals cover both bands and both site types, so they would describe a different row.",
+      "analysed_scope": "NOT SEPARATELY PUBLISHED for this row. The source gives a vaccine efficacy and its interval for the younger band at the seasonal sites, and gives no numerator, no denominator and no analysed population for that subgroup. An earlier version of this row used the ALL-AGE seasonal figure and carried the whole trial's modified per-protocol totals beside it; those totals describe both site types and both age bands, so they cannot stand beside a subgroup estimate. They are withdrawn rather than divided by a guess.",
+      "superseded_all_age_row": {
+       "published_ve_percent": 75,
+       "published_ve_ci_low_percent": 71,
+       "published_ve_ci_high_percent": 79,
+       "analysed_treatment": 3103,
+       "analysed_control": 1541,
+       "why_superseded": "it averaged the younger and older bands, and this trial reports efficacy as significantly higher in the younger band, so age is an effect modifier on its own evidence. Pooling an all-age estimate with a cohort that enrolled only the younger band was the objection an openai review leg raised in three consecutive rounds; it is answered by re-extracting to the band both cohorts share, not by rewording the claim.",
+       "kept_as": "audit trail. This is NOT a live claim of this object and enters no result."
       },
-      "analysed_scope": "BOTH site types together. This trial publishes its modified per-protocol population only for the whole trial and does not split it between the seasonal and the perennial sites, so the denominator behind this row's own co-primary estimate is not separately published. The figure is recorded at the level the source reports it and labelled as such rather than divided by a guess.",
       "provenance": {
        "tag": "MEASURED",
        "source_id": "OA_DATOO2024",
        "source_quotes": [
-        "Comparing the malaria vaccine group with the control group, vaccine efficacy was 75% (95% CI 71-79; p<0.0001) at the seasonal sites and 68% (61-74; p<0.0001) at the standard sites.",
-        "3103 participants in the R21/Matrix-M group and 1541 participants in the control group were included in the modified per-protocol analysis",
+        "Higher NANP-specific antibody titres were observed in the 5-17 month age group compared with 18-36 month age group, and the younger age group had the highest 12-month vaccine efficacy on time to first clinical malaria episode at seasonal (79% [95% CI 73-84]; p<0·001) and standard (75% [65-83]; p<0·001) sites.",
         "The primary analysis was time to first episode of clinical malaria and was analysed by Cox regression stratified by study site (seasonal or standard)."
        ],
-       "quote_note": "The first quote carries both co-primary figures and names which site type each belongs to. The second is the analysed population, at the only level this trial reports it. The third establishes that this is the time-to-first analysis and not the multiple-episode one, which this paper also reports and which appears elsewhere in this object under a different outcome."
+       "quote_note": "The first quote is the AGE-ALIGNED seasonal figure this row now carries: the younger band, at the seasonal sites, over the same twelve months, on the same time-to-first MEASURE as the other cohort in this pool -- not on an identical estimand, because these trials define a clinical malaria episode differently and the uniformity table records that difference. The second establishes that this is the time-to-first analysis and not the multiple-episode one, which this paper also reports and which appears elsewhere in this object under a different outcome."
       }
      },
      "r21_standard_first_12m": {
@@ -778,11 +829,13 @@
       "estimand_id": "r21_standard_first_12m-estimand",
       "control_arm_key": "NCT04704830-control-standard-first",
       "regimen": "standard age-based",
-      "analysed": {
+      "analysed": {},
+      "analysed_absent_because": "this row's effect is the STANDARD-site estimate and the trial publishes its analysed population only for the whole trial, across both site types. The all-trial totals therefore describe a wider population than this row's contrast. An earlier version carried them here; they were withdrawn from the seasonal row in the same round and left standing on this one, which a reviewer caught. The totals are kept below as a trial-level figure, not as this row's denominators.",
+      "all_trial_population_not_this_row": {
        "treatment": 3103,
-       "control": 1541
+       "control": 1541,
+       "scope": "the modified per-protocol population of the WHOLE trial, both site types and both age bands. It is recorded because the trial publishes it, and it is not this row's denominator."
       },
-      "analysed_scope": "As for the seasonal row: both site types together, because that is the only level at which this trial publishes its analysed population.",
       "provenance": {
        "tag": "MEASURED",
        "source_id": "OA_DATOO2024",
@@ -893,11 +946,13 @@
       "control_arm_key": "NCT03276962-control",
       "regimen": "four doses, with booster",
       "analysed": {
+       "exposed_set_pooled_group": 298,
+       "control": 293,
        "randomised_per_vaccinated_group": 322,
-       "control": 321
+       "randomised_control": 321
       },
-      "analysed_scope": "This trial calls its analysed population the exposed set and defines it as the children who received at least one study vaccine dose -- the same definition the other cohort in this pool states under a different name. The figures given here are the randomised group sizes, which this trial reports per group. The exposed set is smaller and is published only as a total across all five groups, so the per-group analysed figures are not separately available.",
-      "follow_up_note": "QUOTED: Among children in the exposed set, to month 50 -- This row's follow-up is a FIXED endpoint at month 50, where the other cohort in this pool reports a median of 48 months. The two are not the same window. They are both end-of-trial analyses of the same estimand and the fixed endpoint falls inside the other's interquartile range, which is why they are pooled; the difference is recorded rather than described as a common horizon.",
+      "analysed_scope": "This trial calls its analysed population the exposed set and defines it as the children who received at least one study vaccine dose -- the same definition the other cohort in this pool states under a different name. The exposed set IS available per group: the staged registry payload posts a started count for each of the five groups, and those five counts sum to the exposed-set total the paper prints. The figures for the group this row carries and for the control group are recorded above, beside the randomised sizes. An earlier version of this object said the per-group figures were not separately available and that was false against this object's own staged sources; a reviewer caught it by opening the payload.",
+      "follow_up_note": "QUOTED: Among children in the exposed set, to month 50 -- This row's follow-up is a FIXED endpoint at month 50, where the other cohort in this pool reports a median of 48 months. The two are not the same window, and because this object defines the window INSIDE the estimand, that makes them not the same estimand either -- which the pool's own homogeneity flag records. They are end-of-trial analyses of the same OUTCOME, and the fixed endpoint falls inside the other's interquartile range, which is why they are pooled; the difference is recorded rather than described as a common horizon.",
       "provenance": {
        "tag": "MEASURED",
        "source_id": "OA_ADDED_COHORTS",
@@ -974,7 +1029,7 @@
         "Vaccine efficacy for the 0, 1, 2 month schedule (2 weeks after dose three to month 19, site-adjusted according-to-protocol analysis) was 53% (95% CI 26-70; p=0.0012) against first malaria episodes and 59% (36-74; p=0.0001) against all malaria episodes.",
         "511 children were enrolled."
        ],
-       "quote_note": "The quote names the schedule, the window, the population and BOTH endpoints. This row takes the all-episode figure, which is the rate estimand; the first-episode figure from the same sentence is a different quantity and is not used here."
+       "quote_note": "The quote names the schedule, the window, the population and BOTH endpoints. This row takes the all-episode figure, which is the all-episode figure, whose ratio type the source does not name -- an earlier version of this note called it the rate estimand, which asserts a denominator the source never gives and contradicts this same result's own measure field; the first-episode figure from the same sentence is a different quantity and is not used here."
       }
      }
     },
@@ -1330,7 +1385,7 @@
    {
     "item": "A single pooled risk ratio for BOTH vaccines together",
     "review_reports": "One risk ratio presented as covering both vaccines in the older age group.",
-    "this_object": "Refused as a primary result. The two vaccines' pivotal trials do not report the same quantity: one reports a hazard ratio for the time to a first episode over a year, the other a negative-binomial rate ratio for all episodes over its whole follow-up. A single ratio across both is a weighted average of two different estimands. This object reports each vaccine separately and confines any combined figure to an outcome declared exploratory, whose heterogeneity is recorded on the same row.",
+    "this_object": "Refused as a primary result. The two vaccines' pivotal trials do not report the same quantity: one reports a hazard ratio for the time to a first episode over a year, the other a negative-binomial rate ratio for all episodes over its whole follow-up. A single ratio across both is a weighted average of two different estimands. This object reports each vaccine separately and carries NO combined figure at all. An earlier version of this sentence said the combined figure was confined to an outcome declared exploratory; that outcome no longer carries a pooled point, an interval or an efficacy percentage, because the gate removed them, so the sentence had gone stale against the object it describes.",
     "severity": "estimand"
    },
    {
@@ -1341,8 +1396,8 @@
    },
    {
     "item": "An event rate reported as though it were a vaccine efficacy",
-    "review_reports": "A single-arm event rate quoted for R21 alongside the efficacy discussion.",
-    "this_object": "Not carried in any form. A proportion of participants in one arm is not a contrast and is not an efficacy; it has no comparator in it. Presenting it beside pooled efficacies invites a reader to compare a one-arm rate with a two-arm ratio.",
+    "review_reports": "An event rate quoted for R21 alongside the efficacy discussion, in the words the staged record gives and no more.",
+    "this_object": "Not carried in any form. The staged abstract and repository record call it a low event rate and do not say what it is a rate OF, over what denominator, or in which arm, so there is not enough there to treat it as a contrast and it is not used as one. An earlier version of this entry asserted it was a single-arm proportion with no comparator in it. That may well be right, but the staged record does not say so, and a correction that over-reads its source is the fault it is correcting.",
     "severity": "unit-of-analysis"
    }
   ],
@@ -1366,14 +1421,15 @@
     "k": 2,
     "estimand_id": "r21_seasonal_first_12m-estimand",
     "handbook": {
-     "decision": "POOL two cohorts reporting the same effect measure for the same estimand, documenting differences in analysis population, case definition, age range",
+     "decision": "POOL two cohorts reporting the same effect measure for the same outcome concept, producing an AVERAGE ACROSS documented differences in analysis population, case definition, comparator",
      "sections": [
       "10.9",
       "10.10.1",
       "10.10.2",
+      "10.10.4",
       "10.14"
      ],
-     "conformance": "Section 10.9 gives the hazard ratio as the effect measure for time-to-event data and sanctions combining log hazard ratios by generic inverse-variance. Both cohorts report a Cox hazard ratio for the time to a first episode over the same window against a rabies control. What the pool crosses is in the uniformity table, documented under 10.10.1; heterogeneity is in the lowest band of 10.10.2; the inclusion decision is tested under 10.14."
+     "conformance": "Section 10.9 gives the hazard ratio as the effect measure for time-to-event data and sanctions combining log hazard ratios by generic inverse-variance. Both cohorts report a Cox hazard ratio for the time to a first episode over the same window against a rabies control. What the pool crosses is in the uniformity table, documented under 10.10.1; heterogeneity is in the lowest band of 10.10.2; the inclusion decision is tested under 10.14. AGE IS NO LONGER CROSSED BY THIS POOL. The wider trial reports its own efficacy as significantly higher in the younger band than the older one, so age is an effect modifier on its own evidence, and an earlier version of this pool set that trial's ALL-AGE seasonal figure against a cohort that enrolled only the younger band. A review leg objected in three consecutive rounds and was right. The trial reports the younger band separately, at the seasonal sites, on the same MEASURE over the same window, so the pool now uses that row and both cohorts are the same age band. Section 10.10.1 asks that a synthesis be undertaken only where the review authors JUDGE the studies sufficiently similar to give a meaningful summary. That judgement is now a much easier one to make and it is still ours to make: what the pool still crosses is analysis population, case definition and comparator product, each named with its reason on the uniformity table, and none of them is a modifier the sources report an effect for. Section 10.10.4 is what governs the MODEL and the between-study variance estimator, which the effect-measure sections above do not: it records that estimators other than DerSimonian and Laird perform better and that restricted maximum likelihood is now the default in the Cochrane software, and its subsection on few studies advises comparing the methods when there are only two or three. This pool has two, so that comparison is done and sits in the sensitivity block. An earlier version of this object cited only the effect-measure and heterogeneity sections for a decision they do not govern, and a reviewer was right to say so."
     },
     "vaccine": "R21/Matrix-M",
     "regimen": "seasonal",
@@ -1401,34 +1457,36 @@
       "trial_id": "datoo-2024-phase3",
       "nct": "NCT04704830",
       "measure": "HR",
-      "point": 0.25,
-      "ci_low": 0.21,
-      "ci_high": 0.29,
+      "point": 0.21,
+      "ci_low": 0.16,
+      "ci_high": 0.27,
       "ci_level": 95,
-      "log_point": -1.386294,
-      "log_se": 0.082342,
+      "log_point": -1.560648,
+      "log_se": 0.133484,
       "vaccine": "R21/Matrix-M",
       "regimen": "seasonal",
       "estimand_id": "r21_seasonal_first_12m-estimand",
       "derivation": "the published effect estimate, stored on the log scale with its standard error derived from the published interval",
-      "published_ve_percent": 75,
-      "published_ve_ci_low_percent": 71,
-      "published_ve_ci_high_percent": 79
+      "published_ve_percent": 79,
+      "published_ve_ci_low_percent": 73,
+      "published_ve_ci_high_percent": 84
      }
     ],
     "poolable": true,
+    "estimand_homogeneous_across_cohorts": false,
+    "estimand_id_means": "the estimand of the POOLED value, which is the average this result reports. It is NOT a claim that the contributing cohorts estimate identical quantities. The dimensions on which they differ are listed in the uniformity table below, and the pooled value averages across them.",
     "pool_uniformity": {
      "estimand_family": [
       "identical",
-      ""
+      "Both trials state efficacy as one minus a hazard ratio: 'Vaccine efficacy was calculated as 1 minus the hazard ratio (HR)' appears in each."
      ],
      "regression_model": [
       "identical",
-      ""
+      "Both name Cox: 'Cox regression models were used to analyse first episodes of clinical malaria' and 'The primary analysis was time to first episode of clinical malaria and was analysed by Cox regression'."
      ],
      "follow_up_window": [
       "identical",
-      ""
+      "Both report a twelve-month analysis, and they are the same NOMINAL length rather than the same measured one: one states 'Primary analyses of vaccine efficacy were based on 12 months of follow-up' while the other states 'Efficacy was further assessed at 12 months (range 329-369 days) after the third vaccination'. The range is recorded because a reader should see that one trial's twelve months is a spread of days."
      ],
      "analysis_population": [
       "differs",
@@ -1439,38 +1497,38 @@
       "BOTH require parasitaemia above the same density, and both require fever -- but the later trial also accepts a REPORTED history of fever in the preceding day where the earlier one requires a measured temperature. The later definition is therefore slightly the broader of the two, which would if anything admit milder episodes into both arms of that trial. It is documented as clinical diversity under Handbook section 10.10.1 rather than corrected, because neither trial can be reanalysed under the other's definition"
      ],
      "comparator": [
-      "identical",
-      ""
+      "differs",
+      "both control groups received a rabies vaccine, so the comparator is of the same INACTIVE class and neither control was protected against malaria -- but they are not the same PRODUCT. One cohort's control was Rabivax-S from the Serum Institute of India and the other's was Abhayrab from Indian Immunologicals. An earlier version of this row read identical, which hid that difference under a word the staged sources do not support; a reviewer read both trial reports and found the product names. Neither product confers malaria protection, so the difference is documented under 10.10.1 rather than treated as disqualifying"
      ],
      "age_range": [
-      "differs",
-      "one cohort enrolled the narrower band and the other extended above it; the wider trial found efficacy to differ by age within its own population"
+      "identical",
+      "Both rows are the 5-17 month band. The phase 2b cohort enrolled it outright -- \"Participants aged 5-17 months were recruited\" -- and the phase 3 row is now the subgroup that trial reports separately for exactly that band: \"the younger age group had the highest 12-month vaccine efficacy on time to first clinical malaria episode at seasonal (79% [95% CI 73-84])\". An earlier version of this pool used that trial's ALL-AGE seasonal figure against a 5-17 month cohort, which is the mismatch this re-extraction removes."
      ],
      "control_group_separation": [
       "identical",
-      ""
+      "Each trial randomised its OWN control group and neither shares control participants with the other: 'group 3, the control group, received rabies vaccinations' and 'randomly assigned (2:1) to receive 5 ug R21 plus 50 ug Matrix-M or a control vaccine'."
      ]
     },
-    "poolable_reason": "Identical across the contributing cohorts: estimand family, regression model, follow up window, comparator, control group separation. NOT identical, and pooled anyway with the reason recorded against each: analysis population, case definition, age range. A pooled value across a dimension that differs is only as good as the reason given for crossing it, and those reasons are on this block rather than in a sentence that could go stale against them.",
+    "poolable_reason": "Identical across the contributing cohorts: estimand family, regression model, follow up window, age range, control group separation. NOT identical, and pooled anyway with the reason recorded against each: analysis population, case definition, comparator. A pooled value across a dimension that differs is only as good as the reason given for crossing it, and those reasons are on this block rather than in a sentence that could go stale against them.",
     "model": "random",
-    "estimator": "DL",
-    "estimator_used": "DL",
+    "estimator": "REML",
+    "estimator_used": "REML",
     "pooled": {
      "measure": "HR",
-     "point": 0.2466,
-     "ci_low": 0.2128,
-     "ci_high": 0.2857,
+     "point": 0.2167,
+     "ci_low": 0.1753,
+     "ci_high": 0.2678,
      "ci_level": 95,
      "scale": "log",
-     "pooled_ve_percent": 75.34,
-     "pooled_ve_ci_low_percent": 71.43,
-     "pooled_ve_ci_high_percent": 78.72
+     "pooled_ve_percent": 78.33,
+     "pooled_ve_ci_low_percent": 73.22,
+     "pooled_ve_ci_high_percent": 82.47
     },
     "favours": "treatment",
     "heterogeneity": {
      "tau2": 0.0,
      "i2": 0.0,
-     "q": 0.17,
+     "q": 0.1594,
      "df": 1
     },
     "heterogeneity_status": "tau-squared and I-squared are recorded beside this line.",
@@ -1478,7 +1536,7 @@
     "sensitivity": {
      "method": "leave-one-out",
      "authority": "Cochrane Handbook version 6, section 10.14: sensitivity analyses examine whether overall findings are robust to potentially influential decisions.",
-     "decision_under_test": "whether the pooled estimate depends on including cohorts that differ on analysis population, case definition, age range -- the dimensions this pool crosses, each recorded with its reason in the uniformity table above",
+     "decision_under_test": "whether the pooled estimate depends on including cohorts that differ on analysis population, case definition, comparator -- the dimensions this pool crosses, each recorded with its reason in the uniformity table above",
      "analyses": [
       {
        "omitted": "datoo-2021-phase2b",
@@ -1486,10 +1544,10 @@
         "datoo-2024-phase3"
        ],
        "k": 1,
-       "point": 0.25,
-       "ci_low": 0.21,
-       "ci_high": 0.29,
-       "ve_percent": 75.0
+       "point": 0.21,
+       "ci_low": 0.16,
+       "ci_high": 0.27,
+       "ve_percent": 79.0
       },
       {
        "omitted": "datoo-2024-phase3",
@@ -1503,7 +1561,46 @@
        "ve_percent": 77.0
       }
      ],
-     "conclusion": "Omitting either cohort moves the estimate by at most 0.0166 on the ratio scale. The pooled value is not carried by one cohort, and neither single-cohort estimate contradicts it."
+     "between_study_variance_method_comparison": {
+      "why": "Section 10.10.4.4 records that estimators other than DerSimonian and Laird perform better and that restricted maximum likelihood is now the default in the Cochrane software, and section 10.10.4.5 advises comparing the methods in a sensitivity analysis when there are only two or three studies. This pool has two. A reviewer was right that an earlier version cited neither section for a decision they govern and did not run the comparison they ask for.",
+      "methods": [
+       {
+        "between_study_variance_estimator": "DL",
+        "interval_method": "Wald",
+        "point": 0.2167,
+        "ci_low": 0.1753,
+        "ci_high": 0.2678,
+        "tau2": 0.0
+       },
+       {
+        "between_study_variance_estimator": "PM",
+        "interval_method": "Wald",
+        "point": 0.2167,
+        "ci_low": 0.1753,
+        "ci_high": 0.2678,
+        "tau2": 0.0
+       },
+       {
+        "between_study_variance_estimator": "REML",
+        "interval_method": "Wald",
+        "point": 0.2167,
+        "ci_low": 0.1753,
+        "ci_high": 0.2678,
+        "tau2": 0.0
+       },
+       {
+        "between_study_variance_estimator": "REML",
+        "interval_method": "HKSJ",
+        "point": 0.2167,
+        "ci_low": 0.0548,
+        "ci_high": 0.8566,
+        "tau2": 0.0
+       }
+      ],
+      "verdict": "The variance estimators move the summary very little, which is what the Handbook reports is usual. The interval method is the axis that matters with two studies, and section 10.10.4.5 states its own caveat plainly: with two or three studies the Hartung-Knapp-Sidik-Jonkman interval is liable to be far too wide while the ordinary one is liable to be too narrow. Both are printed and neither is treated as decisive.",
+      "estimator_kept": "The headline estimator is restricted maximum likelihood, which section 10.10.4.4 records as the default in the Cochrane software and as better supported than DerSimonian and Laird. An earlier version kept DerSimonian and Laird and gave as its reason that the local validator could recompute it -- software convenience presented as Handbook conformance, which a reviewer called out on this object and on another in the same batch. The tooling moved instead of the method: the validator now recomputes restricted maximum likelihood independently. DerSimonian and Laird is shown beside it and moves the summary barely at all."
+     },
+     "conclusion": "Omitting either cohort moves the estimate by at most 0.0133 on the ratio scale. The pooled value is not carried by one cohort, and neither single-cohort estimate contradicts it."
     }
    },
    "r21_standard_first_12m": {
@@ -1512,6 +1609,7 @@
     "handbook": {
      "decision": "REPORT one cohort's own estimate; perform no synthesis",
      "sections": [
+      "10.2",
       "10.9"
      ],
      "conformance": "The estimate is a hazard ratio for time-to-event data. Only one randomised cohort in this object reports this estimand over this window, so there is nothing to combine and no pooling decision arises -- the absence of a synthesis here is a limit of the evidence, not a methodological choice about how to handle several studies. The measure is named so that it is not silently read as commensurate with the other outcomes, which is the error this object exists to prevent."
@@ -1553,15 +1651,16 @@
     "k": 2,
     "estimand_id": "rtss_recurrent_children_final-estimand",
     "handbook": {
-     "decision": "POOL two cohorts reporting the same effect measure for the same estimand, documenting differences in follow up window, comparator",
+     "decision": "POOL two cohorts reporting the same effect measure for the same outcome concept at END OF TRIAL, producing an AVERAGE ACROSS documented differences in follow up window, comparator",
      "sections": [
       "10.8",
       "10.10.1",
       "10.10.2",
+      "10.10.4",
       "10.14"
      ],
      "recurring_objection_and_why_it_is_not_upheld": "BOTH review families have objected to this pool in three consecutive rounds, on the ground that the cohorts' follow-up windows are not the same length. The objection is not upheld, and the reason is recorded here rather than left for a fourth round to raise again. In the first two rounds it was CORRECT: the object's own stated question demanded the same follow-up window, so the pool contradicted its own criterion. That criterion was invented here, was stricter than the Handbook, and has been withdrawn -- and the question no longer imposes it. THE HANDBOOK DOES NOT SUPPLY A TEST THAT SETTLES THIS. Section 10.10.1 asks that a synthesis be undertaken only where participants, interventions, comparisons and outcomes are judged sufficiently similar to be clinically meaningful, and that judgement is the review authors' -- a low I-squared is not a substitute for it. An earlier version of this text called the combination of same-measure and low heterogeneity 'the Handbook's actual test', which was the same overclaim already withdrawn in two other fields and is withdrawn here. So: the similarity judgement is OURS. What it crosses is in the uniformity table, what it survives is in the sensitivity table, and a reader who judges the windows too far apart has both cohorts printed separately.",
-     "conformance": "Section 10.8 makes the rate ratio the effect measure for rate data and sanctions combining log rate ratios by the generic inverse-variance method. A REVIEWER OBJECTED THAT THESE SECTIONS DO NOT TURN 'same measure plus low heterogeneity' INTO A SUFFICIENT RULE FOR POOLING ACROSS WINDOWS, AND THAT IS CORRECT. The Handbook does not authorise this pool; it leaves whether studies are sufficiently similar to a judgement by the review authors, and asks that the judgement be documented (10.10.1) and tested (10.14). What is claimed here is therefore narrower than an authorisation: the measure and estimand conditions the Handbook does state are met, the judgement about similarity is ours, it is recorded dimension by dimension, and it is tested. A reader who judges the windows too far apart has every fact needed to set the pooled value aside and read the two cohorts separately, which the sensitivity table prints in full. Both cohorts report vaccine efficacy as one minus an incidence rate ratio from negative binomial regression with within-child dependence and a fixed-effect adjustment for site or country, on the same case definition, age band, schedule and comparator class -- so measure and estimand match. The follow-up difference is clinical diversity under 10.10.1 and is documented on the outcome and on both rows rather than removed. Statistical heterogeneity is in the lowest band of 10.10.2. The decision that was challenged in review -- including a cohort whose window is not identical -- is exactly what the leave-one-out analysis under 10.14 tests, and the estimate moves by less than three thousandths on the ratio scale."
+     "conformance": "Section 10.8 makes the rate ratio the effect measure for rate data and sanctions combining log rate ratios by the generic inverse-variance method. A REVIEWER OBJECTED THAT THESE SECTIONS DO NOT TURN 'same measure plus low heterogeneity' INTO A SUFFICIENT RULE FOR POOLING ACROSS WINDOWS, AND THAT IS CORRECT. The Handbook does not authorise this pool; it leaves whether studies are sufficiently similar to a judgement by the review authors, and asks that the judgement be documented (10.10.1) and tested (10.14). What is claimed here is therefore narrower than an authorisation: the measure and estimand conditions the Handbook does state are met, the judgement about similarity is ours, it is recorded dimension by dimension, and it is tested. A reader who judges the windows too far apart has every fact needed to set the pooled value aside and read the two cohorts separately, which the sensitivity table prints in full. Both cohorts report vaccine efficacy as one minus an incidence rate ratio from negative binomial regression with within-child dependence and a fixed-effect adjustment for site or country, on the same case definition, age band, schedule and comparator class -- so the MEASURE matches and the estimand matches in family, model and case definition while differing in the dimensions the uniformity table marks, which is what the pooled value averages over. An earlier version of this sentence said measure and estimand match. The follow-up difference is clinical diversity under 10.10.1 and is documented on the outcome and on both rows rather than removed. Statistical heterogeneity is in the lowest band of 10.10.2. The decision that was challenged in review -- including a cohort whose window is not identical -- is exactly what the leave-one-out analysis under 10.14 tests, and the estimate moves by less than three thousandths on the ratio scale. Section 10.10.4 is what governs the MODEL and the between-study variance estimator, which the effect-measure sections above do not: it records that estimators other than DerSimonian and Laird perform better and that restricted maximum likelihood is now the default in the Cochrane software, and its subsection on few studies advises comparing the methods when there are only two or three. This pool has two, so that comparison is done and sits in the sensitivity block. An earlier version of this object cited only the effect-measure and heterogeneity sections for a decision they do not govern, and a reviewer was right to say so."
     },
     "vaccine": "RTS,S/AS01",
     "regimen": "four doses, with booster",
@@ -1605,26 +1704,28 @@
      }
     ],
     "poolable": true,
+    "estimand_homogeneous_across_cohorts": false,
+    "estimand_id_means": "the estimand of the POOLED value, which is the average this result reports. It is NOT a claim that the contributing cohorts estimate identical quantities. The dimensions on which they differ are listed in the uniformity table below, and the pooled value averages across them.",
     "pool_uniformity": {
      "estimand_family": [
       "identical",
-      ""
+      "Both analyse ALL episodes as a rate: 'Efficacy against all episodes of malaria was analysed by negative binomial regression with follow-up time as offset' and 'Vaccine efficacy against all episodes of clinical malaria was calculated as 100 x (1 - incidence rate ratio)'."
      ],
      "regression_model": [
       "identical",
-      ""
+      "Both name negative binomial regression, in the sentences quoted for estimand family above."
      ],
      "follow_up_window": [
       "differs",
-      "one cohort reports a MEDIAN follow-up and the other a FIXED endpoint. The fixed endpoint falls inside the other's interquartile range and both are end-of-trial analyses of the same estimand, which is why they are pooled; neither is a subset of the other and there is no common fixed horizon"
+      "one cohort reports a MEDIAN follow-up and the other a FIXED endpoint. The fixed endpoint falls inside the other's interquartile range and both are end-of-trial analyses of the same OUTCOME, though not of an identical estimand: this object defines the window INSIDE the estimand, so a crossed window is an estimand difference and the pool records it as one. Earlier wording here said the crossed window was not part of the estimand, which contradicted this object's own estimand block. What is true is that both are end-of-trial analyses of the same OUTCOME and the fixed endpoint falls inside the other's interquartile range, which is why they are pooled; neither is a subset of the other and there is no common fixed horizon"
      ],
      "analysis_population": [
       "identical",
-      "each trial NAMES it differently -- modified intention-to-treat in one, exposed set in the other -- and both DEFINE it as every participant who received at least one dose. The names differ; the population does not. An earlier version recorded this dimension as differing on the strength of the names, which a reviewer caught contradicting the note sitting on the same dimension"
+      "The same DEFINITION under two names: 'The modified ITT population included all participants who received at least one dose of vaccine' and '1500 received at least one study vaccine dose (exposed set)'."
      ],
      "case_definition": [
       "identical",
-      ""
+      "Both require measured fever at the same threshold with parasitaemia above the same density: 'an axillary temperature of at least 37.5 degrees C and asexual parasitaemia (>5000 parasites per mm3)' and 'P falciparum asexual parasitaemia more than 5000 parasites per uL and fever (axillary temperature >=37.5 degrees C)'. The two volume units are the same volume."
      ],
      "comparator": [
       "differs",
@@ -1632,17 +1733,17 @@
      ],
      "age_range": [
       "identical",
-      ""
+      "Both enrolled the same band: 'children aged 5-17 months' in each."
      ],
      "control_group_separation": [
       "identical",
-      ""
+      "Each trial randomised its own control group. The fractional-dose trial ran FOUR vaccinated groups against one control, which is why only one of its contrasts enters this pool -- recorded on that trial's arm_selection_note and in carried_contrasts."
      ]
     },
     "poolable_reason": "Identical across the contributing cohorts: estimand family, regression model, analysis population, case definition, age range, control group separation. NOT identical, and pooled anyway with the reason recorded against each: follow up window, comparator. A pooled value across a dimension that differs is only as good as the reason given for crossing it, and those reasons are on this block rather than in a sentence that could go stale against them.",
     "model": "random",
-    "estimator": "DL",
-    "estimator_used": "DL",
+    "estimator": "REML",
+    "estimator_used": "REML",
     "pooled": {
      "measure": "IRR",
      "point": 0.6372,
@@ -1691,6 +1792,45 @@
        "ve_percent": 36.3
       }
      ],
+     "between_study_variance_method_comparison": {
+      "why": "Section 10.10.4.4 records that estimators other than DerSimonian and Laird perform better and that restricted maximum likelihood is now the default in the Cochrane software, and section 10.10.4.5 advises comparing the methods in a sensitivity analysis when there are only two or three studies. This pool has two. A reviewer was right that an earlier version cited neither section for a decision they govern and did not run the comparison they ask for.",
+      "methods": [
+       {
+        "between_study_variance_estimator": "DL",
+        "interval_method": "Wald",
+        "point": 0.6372,
+        "ci_low": 0.5967,
+        "ci_high": 0.6805,
+        "tau2": 0.0
+       },
+       {
+        "between_study_variance_estimator": "PM",
+        "interval_method": "Wald",
+        "point": 0.6372,
+        "ci_low": 0.5967,
+        "ci_high": 0.6805,
+        "tau2": 0.0
+       },
+       {
+        "between_study_variance_estimator": "REML",
+        "interval_method": "Wald",
+        "point": 0.6372,
+        "ci_low": 0.5967,
+        "ci_high": 0.6805,
+        "tau2": 0.0
+       },
+       {
+        "between_study_variance_estimator": "REML",
+        "interval_method": "HKSJ",
+        "point": 0.6372,
+        "ci_low": 0.4163,
+        "ci_high": 0.9753,
+        "tau2": 0.0
+       }
+      ],
+      "verdict": "The variance estimators move the summary very little, which is what the Handbook reports is usual. The interval method is the axis that matters with two studies, and section 10.10.4.5 states its own caveat plainly: with two or three studies the Hartung-Knapp-Sidik-Jonkman interval is liable to be far too wide while the ordinary one is liable to be too narrow. Both are printed and neither is treated as decisive.",
+      "estimator_kept": "The headline estimator is restricted maximum likelihood, which section 10.10.4.4 records as the default in the Cochrane software and as better supported than DerSimonian and Laird. An earlier version kept DerSimonian and Laird and gave as its reason that the local validator could recompute it -- software convenience presented as Handbook conformance, which a reviewer called out on this object and on another in the same batch. The tooling moved instead of the method: the validator now recomputes restricted maximum likelihood independently. DerSimonian and Laird is shown beside it and moves the summary barely at all."
+     },
      "conclusion": "Omitting either cohort moves the estimate by at most 0.0028 on the ratio scale. The pooled value is not carried by one cohort, and neither single-cohort estimate contradicts it."
     }
    },
@@ -1700,6 +1840,7 @@
     "handbook": {
      "decision": "REPORT one cohort's own estimate; perform no synthesis",
      "sections": [
+      "10.2",
       "10.8"
      ],
      "conformance": "The estimate is a rate ratio for rate data. Only one randomised cohort in this object reports this estimand over this window, so there is nothing to combine and no pooling decision arises -- the absence of a synthesis here is a limit of the evidence, not a methodological choice about how to handle several studies. The measure is named so that it is not silently read as commensurate with the other outcomes, which is the error this object exists to prevent."
@@ -1743,6 +1884,7 @@
     "handbook": {
      "decision": "REPORT one cohort's own estimate; perform no synthesis",
      "sections": [
+      "10.2",
       "10.9"
      ],
      "conformance": "The estimate is a HAZARD RATIO from a Cox model on the first-or-only episode endpoint. The registry posts that endpoint in units of events per person-year AND records the analysis as Cox regression with efficacy as one minus a hazard ratio; the unit describes the endpoint, the analysis field describes the effect, and this row follows the analysis field. Only one randomised cohort in this object reports this estimand over this window, so there is nothing to combine and no pooling decision arises -- the absence of a synthesis here is a limit of the evidence, not a methodological choice about how to handle several studies. The measure is named so that it is not silently read as commensurate with the other outcomes, which is the error this object exists to prevent."
@@ -1786,9 +1928,9 @@
     "handbook": {
      "decision": "REPORT one cohort's own estimate; perform no synthesis",
      "sections": [
-      "10.8"
+      "10.2"
      ],
-     "conformance": "The estimate is an all-episode ratio whose regression model the source does NOT name, which is why its measure is recorded as a ratio of unstated type rather than asserted to be a rate ratio. Only one randomised cohort in this object reports this estimand over this window, so there is nothing to combine and no pooling decision arises -- the absence of a synthesis here is a limit of the evidence, not a methodological choice about how to handle several studies. The measure is named so that it is not silently read as commensurate with the other outcomes, which is the error this object exists to prevent."
+     "conformance": "The estimate is an all-episode ratio whose regression model the source does NOT name, which is why its measure is recorded as a ratio of unstated type rather than asserted to be a rate ratio. NO section is cited, and that is the point: an earlier version cited 10.8, which governs rate ratios, beside a refusal to call this a rate ratio. A reviewer was right that a section cannot govern a measure the row declines to claim. 10.8 is what WOULD have applied had the source named its model; because it does not, no measure-specific authority is invoked at all. What IS cited is 10.2, which governs the decision this block actually records: meta-analysis is the combination of results across studies, and one cohort reports this estimand over this window, so there is nothing to combine. Only one randomised cohort in this object reports this estimand over this window, so there is nothing to combine and no pooling decision arises -- the absence of a synthesis here is a limit of the evidence, not a methodological choice about how to handle several studies. The measure is named so that it is not silently read as commensurate with the other outcomes, which is the error this object exists to prevent."
     },
     "vaccine": "RTS,S/AS01",
     "regimen": "three doses, no booster",
@@ -1829,6 +1971,7 @@
     "handbook": {
      "decision": "REPORT one cohort's own estimate; perform no synthesis",
      "sections": [
+      "10.2",
       "10.9"
      ],
      "conformance": "The estimate is a hazard ratio for time-to-event data. Only one randomised cohort in this object reports this estimand over this window, so there is nothing to combine and no pooling decision arises -- the absence of a synthesis here is a limit of the evidence, not a methodological choice about how to handle several studies. The measure is named so that it is not silently read as commensurate with the other outcomes, which is the error this object exists to prevent."
@@ -1872,6 +2015,7 @@
     "handbook": {
      "decision": "REPORT one cohort's own estimate; perform no synthesis",
      "sections": [
+      "10.2",
       "3.2.3",
       "10.9"
      ],
