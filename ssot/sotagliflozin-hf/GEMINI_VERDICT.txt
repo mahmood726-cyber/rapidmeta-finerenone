@@ -1,0 +1,47 @@
+===== PASS SOURCE =====
+[attempt 1: exit 0, 147s, 1502 chars, usable]
+NONCE: sotagliflozin-hf-82453e7f
+
+PASS ONE -- SOURCE CHECK: I have verified the effect estimates and text quotes in `sotagliflozin-hf.json` against the provided source extracts.
+
+1. **`hfcv_first` (time-to-first event analysis)**: 
+The canonical JSON records that the FDA review states:
+- "An analysis was performed on the primary endpoint using time to first event analysis"
+- SOLOIST: "0.69 [0.56, 0.85] and 0.74 [0.57, 0.95] for investigator-reported and adjudicated events, respectively SOLOIST"
+- SCORED: "0.78 [0.67, 0.90] and 0.72 [0.59, 0.86] for investigator-reported and adjudicated"
+
+All three sentences are verified as verbatim exact matches found in `FDA_216203_IntegratedR.extract.txt` (Section 5.3, "Sensitivity and Supportive Analyses", "Time-to-first event – investigator-reported and adjudicated outcomes").
+
+2. **`mace3_first`**:
+The canonical JSON records that the FDA review (Tables 12 and 13) states:
+- SOLOIST (Table 12): "CV death, HHF, non-fatal MI, and non-fatal stroke... 0.73 (0.57, 0.94)"
+- SCORED (Table 13): "Total occurrences of CV death, non-fatal MI, or non-fatal stroke... 0.79 (0.67, 0.93)"
+
+These figures and quotes are verified exact matches found in `FDA_216203_IntegratedR.extract.txt` (Tables 12 and 13).
+
+All mandated source layers (primary_oa, registry, regulator_fda, regulator_ema, prior_meta) are present in the JSON cascades for the outcomes. Divergences between layers are appropriately and accurately documented without being overridden.
+
+VERDICT: PASS
+
+
+===== PASS JUDGE =====
+[attempt 1: exit 0, 96s, 3284 chars, usable]
+NONCE: sotagliflozin-hf-82453e7f
+
+VALIDATOR FINDINGS:
+
+1. ESTIMAND: Checked `outcomes[].estimand` and `pool_uniformity` for the pooled outcomes (`hfcv_total` and `hfcv_first`). The object declares all differences across the pooled rows—most notably the population differences and the differing endpoint ranks for the first-occurrence composite. These differences are computed and declared directly in the `pool_uniformity` table with clear, stated reasons for crossing them (e.g., "The pooled value is therefore a DRUG-WIDE estimate across the pivotal programme"). The object is careful not to smooth away asymmetries (such as the exploratory vs. regulator-only status of `hfcv_first`) and contains no prose claiming a sameness that its tables deny. For `mace3_first`, which pools nothing, the object accurately states the reason for not pooling: the companion trial does not report a three-component analysis, only a four-component one, governed separately by Handbook sections 10.8, 10.9, and 3.2.4.
+
+2. SHARED CONTROLS: Both `soloist-whf` and `scored` are simple two-arm trials randomising sotagliflozin against placebo. There is no multiple-intervention trial leaning on the same control participants twice. 
+
+3. COMPLETENESS: The `completeness_statement` bounds the scope to a named two-trial pivotal programme and states exactly what it is (and what it is not—i.e., not a systematic database search). The single exclusion in the screening log (`NCT05562063` / SOTA-P-CARDIA) is honest and accurately reasoned: it reports no estimate of any of the event composites held by the object. 
+
+4. CORRECTIONS AND RECONCILIATION: The object explicitly admits the limitations of what it could read. It acknowledges that the Vaduganathan synthesis was abstract-only and states plainly that it found no independent synthesis reporting either trial's own primary endpoint as a separate row to check its values against. The `claims_corrected` block fairly criticises the object's own past errors, fully supported by the staged sources (such as correcting the false claim that the FDA label and statistical review disagreed on `scored`, when in fact the differing lower bound belonged to a sensitivity analysis). 
+
+5. HANDBOOK CONFORMANCE: The object maps its methodological choices tightly and accurately to the Cochrane Handbook (v6.5.1). It correctly relies on Section 10.8 (Counts and rates) for the recurrent-event total-occurrence estimand and 10.9 (Time-to-event outcomes) for the time-to-first event estimand as the structural authority for refusing to pool them together. It correctly cites 10.10.4.4 to justify using REML and 10.10.4.5 to compare the standard interval against the HKSJ interval without enforcing the latter as a strict rule. GRADE downgrade domains are meticulously reasoned using 14.2.1 and 14.2.2: the object correctly refuses to downgrade risk of bias for a commercial trial stoppage (which lacks a data-dependent boundary) and instead accurately downgrades imprecision because the optimal information size (OIS) was not met. It also correctly defends its decision not to downgrade indirectness, as the population diversity sits within the bounds of the drug-wide review question.
+
+Files read:
+* F:\claude-temp\ssot\canonical\sotagliflozin-hf.json
+
+VERDICT: PASS
+

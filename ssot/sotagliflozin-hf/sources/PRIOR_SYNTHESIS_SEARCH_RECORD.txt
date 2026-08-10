@@ -1,0 +1,56 @@
+PRIOR-SYNTHESIS SEARCH RECORD -- sotagliflozin (SOLOIST-WHF and SCORED)
+Run 2026-08-10 against PubMed E-utilities. CORRECTED the same day, after a gate
+leg found a paper this record had said did not exist.
+
+WHY THIS FILE EXISTS. Every cascade cell records the prior-synthesis layer as
+not available for the trials own primary endpoint. An absence claim with nothing
+behind it is an assumption, so this is what was asked and what came back.
+
+WHAT THE FIRST VERSION OF THIS FILE GOT WRONG. It concluded that no synthesis
+reporting either trials own primary could be located. That was too strong. A
+cross-family gate leg found, in one step:
+
+  PMID 39257196 -- Bantounou et al, ESC Heart Fail 2025;12(2):968-979.
+    Meta-analysis of sotagliflozin, a dual sodium-glucose-cotransporter 1/2
+    inhibitor, for heart failure in type 2 diabetes.
+    Nine studies, n = 15,320. Searched inception to 2 June 2023.
+    Reports RELATIVE RISKS: heart failure RR 0.66 (0.64, 0.69) from 8 studies;
+    MACE RR 0.73 (0.66, 0.81) from 8 studies; and a systolic blood pressure
+    mean difference. It also reports numbers needed to treat.
+
+It is now STAGED as OA_PM_BANTOUNOU2025_abstract.txt and registered as a source.
+
+WHAT IT DOES AND DOES NOT SETTLE. It does not yield any cell in this object, and
+the reason is the QUANTITY, not availability: it pools relative risks across nine
+studies of mixed design, and restates neither trials own primary -- a
+total-occurrence composite reported as a hazard ratio -- as a separate row. Its
+abstract does not name its included studies, so its study list cannot be read
+from what is open. Its search also closed before either trials FDA review was
+published, so it cannot speak to the time-to-first analyses at all. The layer is
+therefore unavailable FOR THIS CELL, which is a different and weaker statement
+than the one this file made first.
+
+TERMS RUN (esearch, db=pubmed), all on 2026-08-10:
+  1. sotagliflozin AND (SOLOIST OR SCORED) AND (meta-analysis[pt] OR pooled)
+  2. sotagliflozin pooled analysis SOLOIST-WHF SCORED heart failure
+  3. Szarek sotagliflozin SOLOIST SCORED
+  4. sotagliflozin SOLOIST-WHF SCORED combined analysis cardiovascular
+
+RESULT. Terms 2 and 4 returned nothing. Terms 1 and 3 returned class-level and
+unrelated work. Two class-level network meta-analyses were fetched and read --
+PMID 40324721 (Su et al, Diabetes Res Clin Pract 2025) and PMID 38845687 (Lan et
+al, Front Cardiovasc Med 2024) -- and neither names SOLOIST or SCORED in its
+abstract.
+
+THE LESSON, recorded because it is the point of keeping this file. Four queries
+that all miss a paper are four queries, not a proof of absence. The queries were
+built around the TRIAL ACRONYMS; the paper that exists is indexed under the DRUG
+and the disease and names neither acronym in its title or abstract. An absence
+claim is only ever as strong as the search that produced it, and this one was
+weaker than the sentence it was used to write.
+
+WHAT IS RECONCILED AGAINST. Vaduganathan et al 2022 (Lancet), staged here, is a
+five-trial synthesis that DOES name SOLOIST-WHF in its abstract, so the
+included-study-list check is possible against it. It reports a pooled value on a
+harmonized first-event composite and no per-trial row, so it is a scope check and
+not a value check, and it is recorded as exactly that.

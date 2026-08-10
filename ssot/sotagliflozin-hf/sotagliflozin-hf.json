@@ -1,0 +1,1495 @@
+{
+ "app_id": "sotagliflozin-hf",
+ "schema_version": 2,
+ "source_links_enforced": true,
+ "source_links_enforced_means": "The flag asserts that every MEASURED cell records all five mandated source layers with a date on each check; that a layer recorded as found carries what it yielded and a link resolving to that row's own trial identifier; and that a layer recorded as not available carries a reason and a date. Inside a cascade record the link sits on the layer entry, which is the shape the enforcing detector defines and every object in this batch uses.",
+ "title": "Sotagliflozin against placebo across its pivotal cardiovascular outcome programme: three separate estimands, never merged -- two pooled within themselves, one reported from a single trial",
+ "question": "In both phase 3 trials that supported sotagliflozin's approval, what is the effect of sotagliflozin compared with placebo on cardiovascular death and worsening heart failure -- counted as total events, counted as time to a first event, and on the three-component atherothrombotic endpoint -- with each of those questions answered separately?",
+ "built": "2026-08-10",
+ "_prose_rule": "Every text field is PROSE unless it is on the validator's numeric list. Prose may not restate a number the object holds structurally.",
+ "_sourcing_rule": "Every measured input carries the verbatim sentence it was read from and a resolvable link to the layer it was read from. Every cell records all five mandated source layers with a date, so a layer that held nothing is distinguishable from a layer nobody opened. Derived transforms are computed here and are not claimed to appear in any source.",
+ "_estimand_rule": "THE LABEL ON THE QUANTITY IS NOT THE QUANTITY. Both trials' primary endpoints are RECURRENT-EVENT analyses counting first and subsequent events, and the journal, the registry and the regulator all report them as hazard ratios. This object files them by what the analysis did. It holds three estimands and pools across none of them; within them, the two that both trials report are pooled, and the third -- reported by a single trial -- is not pooled at all. No automated effect-measure check in this repository could enforce that -- which is why the separation is structural rather than a warning.",
+ "build_mode": "full",
+ "single_tier_because": "The primary tier is NOT uniform in this object and that is worth stating, because it is unusual here: the two total-occurrence outcomes are sourced to the primary publications, while every cell of the time-to-first outcome is sourced to the FDA statistical review, because that review is the only staged layer on earth that prints those numbers. A cell's tier follows where its value actually came from.",
+ "cited_total": 2,
+ "completeness_statement": "FULL BUILD over a NAMED PROGRAMME, with the boundary stated. Both phase 3 cardiovascular outcome trials of this drug are held and each contributes to every estimand it reports. There is exactly ONE source list, `screening.records`; `screening.excluded` is a view COMPUTED from it at build time, row for row, so it cannot say anything the records do not. What is NOT claimed is a systematic database search: the scope is the pivotal programme as the regulator's own review defines it, and the prior-synthesis search that WAS run is recorded with its terms, its results and its date in a staged file.",
+ "verification_basis": {
+  "what_verifies_this_object": "Two things, and neither is a badge this repository can emit about itself. The object is the single source of truth and the page is a pure projection of it, so a claim on the page that is not in the object cannot exist. And the object is read by two model families with independent file access, from different vendors, each asked to find a defect in the ACTUAL object rather than to approve it.",
+  "what_is_not_claimed": "No internal check is described as independent verification. A script that reads this object and reports it consistent has confirmed consistency and nothing else. Note also what this object could NOT get: no published synthesis reports either trial's own primary as a separate row, so no independent re-analysis checks these values.",
+  "families": [
+   "openai",
+   "google"
+  ],
+  "bar": "Both families must find no defect in the object. A finding about the validator is not a finding about the object and does not block."
+ },
+ "methodological_authority": {
+  "reference": "Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, et al (editors). Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1. Cochrane, 2025.",
+  "version": "6.5.1",
+  "version_checked_on": "2026-08-10",
+  "version_checked_how": "The publisher's versions-and-changes page settles which version is current. Every section title stored below was then verified against the publisher's own heading by fetching the chapter, rather than recalled -- a check that caught four wrong titles on the previous app in this batch, with the correct ones already sitting in a sibling object.",
+  "chapters_as_dated_by_the_publisher": [
+   {
+    "chapter": 3,
+    "title": "Defining the criteria for including studies",
+    "version": "6.5",
+    "published": 2024,
+    "last_updated": "August 2023"
+   },
+   {
+    "chapter": 10,
+    "title": "Analysing data and undertaking meta-analyses",
+    "version": "6.5",
+    "published": 2024,
+    "last_updated": "November 2024"
+   },
+   {
+    "chapter": 14,
+    "title": "Completing 'Summary of findings' tables and grading the certainty of the evidence",
+    "version": "6.5.1",
+    "published": 2025,
+    "last_updated": "March 2025"
+   }
+  ],
+  "version_note": "The Handbook is versioned as a whole AND dated per chapter, and the two do not move together. The table gives each chapter what the publisher prints on it.",
+  "scope_of_this_rule": "Every decision about pooling, scope, estimand, heterogeneity, certainty or unit of analysis names the section that governs it, on the result it governs. A decision with no cited section is a preference wearing the clothes of a method.",
+  "url": "https://www.cochrane.org/authors/handbooks-and-manuals/handbook",
+  "note": "Where this object had to decide whether something could be combined, the decision was referred to the Handbook rather than to a rule invented here.",
+  "sections_relied_on": [
+   {
+    "section": "3.2.1",
+    "title": "Defining types of participants: which people and populations?",
+    "used_for": "Defining the population as the pivotal PROGRAMME rather than as a disease, which is the decision a reader is most likely to misread."
+   },
+   {
+    "section": "3.2.3",
+    "title": "Defining which comparisons will be made",
+    "used_for": "The comparator restriction to placebo on background therapy, which both trials satisfy."
+   },
+   {
+    "section": "3.2.4",
+    "title": "Selecting, prioritizing and grouping review outcomes",
+    "used_for": "Selecting and ranking the three outcomes this review reports, and for its caution AGAINST letting eligibility depend on which outcomes a study reported."
+   },
+   {
+    "section": "10.3",
+    "title": "A generic inverse-variance approach to meta-analysis",
+    "used_for": "The METHOD by which every pool here is computed: log ratios combined by generic inverse variance. An earlier version credited that method to 10.9, which names a class of outcome rather than a method."
+   },
+   {
+    "section": "10.8",
+    "title": "Meta-analysis of counts and rates",
+    "used_for": "The authority for the TOTAL-OCCURRENCE outcome, which counts first and subsequent events. An earlier version governed it with 10.9 -- a time-to-event section -- which is the very conflation this object exists to refuse, made in the object's own citations. A gate leg caught it."
+   },
+   {
+    "section": "10.9",
+    "title": "Meta-analysis of time-to-event outcomes",
+    "used_for": "The authority for the two TIME-TO-FIRST outcomes, and, read beside 10.8, the reason a total-occurrence analysis and a time-to-first analysis fall under different sections and may not be combined."
+   },
+   {
+    "section": "10.10.1",
+    "title": "What is heterogeneity?",
+    "used_for": "The distinction between clinical diversity and statistical heterogeneity, which is why the uniformity table carries the population difference a two-study statistic cannot see."
+   },
+   {
+    "section": "10.10.2",
+    "title": "Identifying and measuring heterogeneity",
+    "used_for": "Interpreting the heterogeneity statistic, and the caveat that attaches to it at two studies."
+   },
+   {
+    "section": "10.10.4",
+    "title": "Incorporating heterogeneity into random-effects models",
+    "used_for": "The random-effects model and the between-study variance estimator."
+   },
+   {
+    "section": "10.10.4.4",
+    "title": "Implementing random-effects meta-analyses",
+    "used_for": "The record that restricted maximum likelihood is the current default, which is the authority for the estimator comparison."
+   },
+   {
+    "section": "10.10.4.5",
+    "title": "Interpretation of random-effects meta-analysis with few studies",
+    "used_for": "Why a more conservative interval is reported beside the ordinary one. Cited for the INTERVAL, not the estimator."
+   },
+   {
+    "section": "10.14",
+    "title": "Sensitivity analyses",
+    "used_for": "The leave-one-out analysis, the estimator comparison and the parallel-ascertainment pool."
+   },
+   {
+    "section": "14.2.1",
+    "title": "The GRADE approach",
+    "used_for": "The starting point of high certainty for randomised evidence."
+   },
+   {
+    "section": "14.2.2",
+    "title": "Domains that can lead to decreasing the certainty level of a body of evidence",
+    "used_for": "The five downgrade domains, the three-part precision condition, and the requirement that an uncomputable optimal information size be declared rather than assumed met."
+   }
+  ]
+ },
+ "sources": {
+  "OA_SOLOIST2021": {
+   "layer": "Primary paper (abstract, open)",
+   "layer_rank": 4,
+   "name": "Bhatt et al. Sotagliflozin in Patients with Diabetes and Recent Worsening Heart Failure. N Engl J Med 2021.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/33200892/",
+   "staged_as": "OA_SOLOIST_WHF_abstract.txt",
+   "access_note": "Abstract staged from PubMed. It prints the total-occurrence primary with its interval and states in its own words that the endpoint counts first AND subsequent events."
+  },
+  "OA_SCORED2021": {
+   "layer": "Primary paper (abstract, open)",
+   "layer_rank": 4,
+   "name": "Bhatt et al. Sotagliflozin in Patients with Diabetes and Chronic Kidney Disease. N Engl J Med 2021.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/33200891/",
+   "staged_as": "OA_SCORED_abstract.txt",
+   "access_note": "Abstract staged from PubMed. It prints the changed primary, both ORIGINAL co-primaries, and the fact that the primary endpoint was changed during the trial."
+  },
+  "REG_CTGOV": {
+   "layer": "Registry with posted results",
+   "layer_rank": 5,
+   "name": "ClinicalTrials.gov results records for both trials",
+   "url": "https://clinicaltrials.gov/study/NCT03521934",
+   "staged_as": "NCT03521934.ctgov.json",
+   "access_note": "Both records are staged under their own accession names; this entry names the first and each cell's cascade links its own record."
+  },
+  "FDA_REVIEW_216203": {
+   "layer": "Regulator: FDA integrated review",
+   "layer_rank": 1,
+   "name": "INPEFA (sotagliflozin) NDA 216203 integrated review, including the statistical review's sensitivity and supportive analyses",
+   "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2023/216203Orig1s000IntegratedR.pdf",
+   "staged_as": "FDA_216203_IntegratedR.extract.txt",
+   "access_note": "Staged as text and read. It is the ONLY layer holding the time-to-first-event analysis of either trial's primary composite, which is the single most load-bearing fact in this object's sourcing."
+  },
+  "FDA_LABEL_INPEFA": {
+   "layer": "Regulator: FDA approved label",
+   "layer_rank": 1,
+   "name": "INPEFA (sotagliflozin) US prescribing information, clinical studies",
+   "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/216203s000lbl.pdf",
+   "staged_as": "FDA_LABEL_INPEFA.extract.txt",
+   "access_note": "Discovered from the product's Drugs@FDA overview page and staged as text. Its efficacy tables are one side of the divergences this object records on the total-occurrence cells."
+  },
+  "EMA_ZYNQUISTA": {
+   "layer": "Regulator: EMA, authorisation for a DIFFERENT indication, withdrawn",
+   "layer_rank": 2,
+   "name": "Zynquista (sotagliflozin) EPAR medicine overview and the European Commission's public statement of withdrawal",
+   "url": "https://www.ema.europa.eu/en/medicines/human/EPAR/zynquista",
+   "staged_as": "EMA_ZYNQUISTA_WITHDRAWAL.extract.txt",
+   "access_note": "Both documents staged and read. They are the evidence for the European layer being recorded as not available on every cell: the EU authorisation was for insulin-dependent diabetes, never heart failure, and was withdrawn in 2022."
+  },
+  "EMA_ZYNQUISTA_OVERVIEW": {
+   "layer": "Regulator: EMA medicine overview",
+   "layer_rank": 2,
+   "name": "Zynquista (sotagliflozin) EPAR medicine overview",
+   "url": "https://www.ema.europa.eu/en/medicines/human/EPAR/zynquista",
+   "staged_as": "EMA_ZYNQUISTA_OVERVIEW.extract.txt",
+   "access_note": "Staged so the claim that the European indication never mentioned heart failure rests on the document rather than on this object's word."
+  },
+  "PM_VADUGANATHAN2022": {
+   "layer": "Prior synthesis (abstract, open)",
+   "layer_rank": 3,
+   "name": "Vaduganathan et al. SGLT-2 inhibitors in patients with heart failure: a comprehensive meta-analysis of five randomised controlled trials. Lancet 2022.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/36041474/",
+   "staged_as": "OA_PM_VADUGANATHAN2022_abstract.txt",
+   "access_note": "Staged for the reconciliation step. Its abstract NAMES its five trials, one of which is in this object, so the included-study-list check is possible. It reports a pooled value on a harmonized first-event composite and no per-trial row, so it is a scope check and never a value check."
+  },
+  "PM_BANTOUNOU2025": {
+   "layer": "Prior synthesis (abstract, open)",
+   "layer_rank": 3,
+   "name": "Bantounou et al. Meta-analysis of sotagliflozin, a dual sodium-glucose-cotransporter 1/2 inhibitor, for heart failure in type 2 diabetes. ESC Heart Fail 2025.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/39257196/",
+   "staged_as": "OA_PM_BANTOUNOU2025_abstract.txt",
+   "access_note": "The drug-specific prior synthesis, staged after a gate leg found it in one step against an earlier claim that none could be located. It pools RELATIVE RISKS across nine studies of broader heart-failure and atherothrombotic outcomes and restates neither trial's own primary as a separate row, so it neither checks nor contradicts the cells here -- which is recorded rather than treated as agreement. The reason is one of QUANTITY, and an earlier version of this note gave a CHRONOLOGY instead: it said the synthesis searched to a date before the regulator's review. That was false in both direction and relevance. Its search ran to early June 2023 -- AFTER the review's stated completion date, after the statistical review filed in March, and after the label was issued -- and a regulatory review is not indexed in the bibliographic databases it searched, so no search date could have reached it."
+  },
+  "SEARCH_RECORD": {
+   "layer": "Record of what the literature does NOT hold",
+   "layer_rank": 3,
+   "name": "Prior-synthesis search record for these two trials, 2026-08-10",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/",
+   "staged_as": "PRIOR_SYNTHESIS_SEARCH_RECORD.txt",
+   "access_note": "Staged because every cell records the prior-synthesis layer as not available, and an absence claim needs the queries behind it. It lists the four terms run, the two that returned nothing, and the two candidates fetched and rejected with the reason."
+  }
+ },
+ "outcomes": [
+  {
+   "id": "hfcv_total",
+   "name": "Total occurrences of cardiovascular death, hospitalization for heart failure and urgent heart failure visit, as a hazard ratio",
+   "type": "primary",
+   "measure": "HR",
+   "direction_of_benefit": "lower",
+   "null_value": 1,
+   "effect_scale": "log",
+   "estimand": {
+    "id": "hfcv_total-estimand",
+    "family": "total_occurrence",
+    "model": "proportional-rates model over first AND subsequent events, reported by every layer as a hazard ratio",
+    "unit_of_analysis": "event, with each participant contributing every qualifying event they have rather than only their first",
+    "case_definition": "every occurrence of cardiovascular death, hospitalization for heart failure or an urgent heart failure visit -- FIRST AND SUBSEQUENT. The contributing trials are NOT equally explicit about that and this field no longer says they are. The worsening-heart-failure trial's own abstract names the recurrent counting in those words, in a parenthesis on its primary endpoint. The larger trial's abstract says its primary endpoint is the composite of the TOTAL NUMBER of the three events and stops there; the recurrent counting is established for that trial by its registry description, which says first and potentially subsequent, and by the regulator's total-occurrence tables. An earlier version of this sentence credited BOTH abstracts with the explicit phrase, which the object's own note on that trial's cell already contradicted. Every layer nonetheless reports both results as a hazard ratio. This field exists so the quantity is identified by what was analysed rather than by what it was called.",
+    "window": "from randomisation to the end of the trial's own follow-up",
+    "follow_up_months": null,
+    "follow_up_note": "Both trials ran to different median lengths and each was cut short when the sponsor withdrew funding, so no single figure is given. Each trial's median is stored on its own cell.",
+    "analysis_population": "all randomised patients in both trials",
+    "not_to_be_confused_with": "the time-to-first analysis of the same composite, which this object holds as a SEPARATE outcome with different numbers"
+   },
+   "comparator": "placebo on top of background therapy",
+   "comparator_type": "placebo",
+   "definition": "Total occurrences of cardiovascular death, hospitalization for heart failure and urgent heart failure visit, as a hazard ratio",
+   "definition_note": "The contributing trials share no participant and no control group."
+  },
+  {
+   "id": "hfcv_first",
+   "name": "Time to the FIRST occurrence of that same composite, as a hazard ratio",
+   "type": "secondary",
+   "measure": "HR",
+   "direction_of_benefit": "lower",
+   "null_value": 1,
+   "effect_scale": "log",
+   "estimand": {
+    "id": "hfcv_first-estimand",
+    "family": "time_to_first",
+    "model": "Cox proportional hazards on the time to a first event",
+    "unit_of_analysis": "participant, with the time to the first component event",
+    "case_definition": "the FIRST occurrence, per participant, of that same composite. The two contributing trials do NOT stand in the same relation to it, and an earlier version of this field said neither trial designated it at all. For the LARGER trial the regulator's review lists this first-occurrence composite among that trial's Exploratory Endpoints, so it is a designated endpoint there, at exploratory rank. For the worsening-heart-failure trial it appears in no such list and is a regulator analysis only. In BOTH trials the values stored here are the regulator's own time-to-first analysis of the trial's primary composite, reported on an investigator-reported and a centrally adjudicated basis, and both bases are stored. The asymmetry is declared on the uniformity row rather than smoothed away.",
+    "window": "from randomisation to the end of the trial's own follow-up",
+    "follow_up_months": null,
+    "follow_up_note": "Both trials ran to different median lengths and each was cut short when the sponsor withdrew funding, so no single figure is given. Each trial's median is stored on its own cell.",
+    "analysis_population": "all randomised patients in both trials",
+    "not_to_be_confused_with": "the trials' own primary endpoints, which count first and subsequent events and are held separately"
+   },
+   "comparator": "placebo on top of background therapy",
+   "comparator_type": "placebo",
+   "definition": "Time to the FIRST occurrence of that same composite, as a hazard ratio",
+   "definition_note": "The contributing trials share no participant and no control group."
+  },
+  {
+   "id": "mace3_first",
+   "name": "Time to the first occurrence of cardiovascular death, non-fatal myocardial infarction or non-fatal stroke, as a hazard ratio",
+   "type": "secondary",
+   "measure": "HR",
+   "direction_of_benefit": "lower",
+   "null_value": 1,
+   "effect_scale": "log",
+   "estimand": {
+    "id": "mace3_first-estimand",
+    "family": "time_to_first",
+    "model": "Cox proportional hazards on the time to a first event",
+    "unit_of_analysis": "participant, with the time to the first component event",
+    "case_definition": "the first occurrence, per participant, of cardiovascular death, non-fatal myocardial infarction or non-fatal stroke. It was an ORIGINAL co-primary of the trial that reports it, before that trial changed its primary endpoint.",
+    "window": "from randomisation to the end of the trial's own follow-up",
+    "follow_up_months": null,
+    "follow_up_note": "Both trials ran to different median lengths and each was cut short when the sponsor withdrew funding, so no single figure is given. Each trial's median is stored on its own cell.",
+    "analysis_population": "all randomised patients in both trials",
+    "not_to_be_confused_with": "the registry's total-occurrence analysis over the same three components, which is a different estimand and is recorded on the cell but never pooled here"
+   },
+   "comparator": "placebo on top of background therapy",
+   "comparator_type": "placebo",
+   "definition": "Time to the first occurrence of cardiovascular death, non-fatal myocardial infarction or non-fatal stroke, as a hazard ratio",
+   "definition_note": "The contributing trials share no participant and no control group."
+  }
+ ],
+ "inputs": {
+  "trials": [
+   {
+    "id": "soloist-whf",
+    "name": "SOLOIST-WHF",
+    "nct": "NCT03521934",
+    "pmid": "33200892",
+    "year": 2021,
+    "design": "phase 3, double-blind, randomised one to one against placebo, STOPPED EARLY because the sponsor withdrew funding",
+    "population": "adults with type 2 diabetes recently hospitalised for worsening heart failure, with the first dose given before discharge in about half and a median of two days after it in the rest",
+    "comparator_type": "placebo",
+    "comparator_type_basis": "The trial randomised against a matching placebo on top of background therapy, which its own abstract names as the comparator.",
+    "arms": [
+     {
+      "label": "sotagliflozin, 200 mg once daily titrated to 400 mg as tolerated",
+      "role": "treatment",
+      "events": null,
+      "participants": 608
+     },
+     {
+      "label": "placebo",
+      "role": "control",
+      "events": null,
+      "participants": 614
+     }
+    ],
+    "arms_not_used": [],
+    "enrolled": 1222,
+    "enrolment_note": "Randomised, as posted by the registry, and equal to the arms below. Arm-level EVENT COUNTS are deliberately absent: this trial's primary endpoint counts first and subsequent events, so a per-arm participant count of events would not be the numerator of the stored ratio and printing one would invite exactly the misreading this object exists to prevent. The sources print event RATES per 100 patient-years instead, and those are quoted on the cell.",
+    "by_outcome": {
+     "hfcv_total": {
+      "effect": {
+       "point": 0.67,
+       "ci_low": 0.52,
+       "ci_high": 0.85,
+       "ci_level": 95,
+       "log_point": -0.400478,
+       "log_se": 0.125361,
+       "scale": "log",
+       "derived_from": "published_hazard_ratio",
+       "derivation_note": "The point estimate and interval are stored as the source prints them. The log point and log standard error are DERIVED here, the standard error from the width of the printed interval on the log scale, and are not claimed to appear in any source."
+      },
+      "estimand_id": "hfcv_total-estimand",
+      "analysed": {
+       "treatment": 608,
+       "control": 614
+      },
+      "analysed_scope": "All randomised patients. The registry posts these denominators on every outcome of this trial and they sum to its randomised total, so there is no gap between randomised and analysed to reconcile.",
+      "source_tier": "primary_oa",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/33200892/",
+      "cascade": {
+       "checked": {
+        "primary_oa": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "hazard ratio 0.67 (95% CI 0.52 to 0.85) for the TOTAL number of the composite's events, first and subsequent",
+         "url": "https://pubmed.ncbi.nlm.nih.gov/33200892/"
+        },
+        "registry": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "the same 0.67 (0.52 to 0.85) on the trial's posted PRIMARY outcome, over 608 against 614 randomised",
+         "url": "https://clinicaltrials.gov/study/NCT03521934"
+        },
+        "regulator_fda": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "the label's efficacy table and the statistical review both print 0.67 with a LOWER bound of 0.53 rather than 0.52",
+         "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2023/216203Orig1s000IntegratedR.pdf"
+        },
+        "regulator_ema": {
+         "status": "not_available",
+         "checked_on": "2026-08-10",
+         "reason": "The European regulator holds nothing for this outcome, and the reason is a fact about the INDICATION rather than about the agency's silence. Sotagliflozin WAS authorised in the European Union, on 26 April 2019, as Zynquista -- but as an adjunct to insulin therapy in adults with INSULIN-DEPENDENT DIABETES MELLITUS, which is the indication the staged medicine overview names in the regulator's own words, and the medicine overview staged here does not contain the phrase heart failure at all. That authorisation was withdrawn by the European Commission on 22 March 2022 at the marketing authorisation holder's request, for commercial reasons, which the staged public statement says in those words. What follows from those two documents is ONLY this: the European authorisation that existed was for another indication, and it no longer exists, so there is no European assessment of THIS endpoint to check against. An earlier version of this field went further and said a heart-failure indication had never been APPLIED FOR in Europe. Nothing staged here supports that -- the absence of a phrase from a medicine overview is not evidence that no application was ever filed -- and a gate leg was right to separate the claim the documents carry from the stronger one they do not. Both documents were read on the date recorded here rather than inferred from the absence of a link.",
+         "url": "https://www.ema.europa.eu/en/medicines/human/EPAR/zynquista"
+        },
+        "prior_meta": {
+         "status": "not_available",
+         "checked_on": "2026-08-10",
+         "reason": "A drug-specific prior synthesis EXISTS and is staged: a meta-analysis of sotagliflozin in diabetic populations covering nine studies. It does not yield this cell, and the reason is a difference of quantity rather than of availability -- it pools RELATIVE RISKS of heart failure events and of a composite cardiovascular endpoint -- each of those two analyses drawn from eight of its nine selected studies, not from all of them -- and restates neither trial's own primary as a separate row. Its abstract does not name its included trials, so its study list cannot be read from what is open either. An earlier version of this field said no synthesis could be LOCATED, which was too strong and was corrected after a gate leg found this paper in one step; the layer is unavailable for this cell, not unsearched, and the difference matters. Two class-level network meta-analyses were also fetched and read and name neither trial in their abstracts. Every query, with its date and its outcome, is staged beside this object."
+        }
+       },
+       "primary_source": "primary_oa",
+       "divergences": [
+        {
+         "layers": [
+          "primary_oa",
+          "registry",
+          "regulator_fda"
+         ],
+         "what_differs": "the lower confidence bound",
+         "primary_oa_and_registry": "0.67 (0.52 to 0.85)",
+         "regulator_fda": "0.67 (0.53 to 0.85)",
+         "note": "This is a REAL cross-layer divergence and it is recorded rather than resolved. The publication and the registry agree with each other EXACTLY, to every digit. The FDA documents differ. No layer is corrected against another and no midpoint is invented: the cell stores what the two agreeing layers print, the regulator's figure is recorded here beside it, and a reader can see both. Nothing in the staged sources explains the difference, and this object does not guess at one -- the review describes its analyses as based on investigator-reported events in all randomized patients, which is a plausible starting point for an explanation but is not a statement that it accounts for this."
+        }
+       ],
+       "agreement_note": "Publication and registry agree to every digit, including the denominators. The regulator layers agree on the point estimate and the upper bound and differ on the lower bound, which is recorded above.",
+       "primary_not_best_because": "The FDA layer outranks the publication in this cascade's preference order and it DID hold this cell, so this key is required. It is not taken as the primary source because it is the layer that DISAGREES with the other two on the interval. Promoting a lone divergent layer over two that agree would resolve a divergence by ranking rather than by evidence, and the divergence is the finding here -- it is recorded on this cell precisely so that no reader has to take this object's word for which layer is right."
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "OA_SOLOIST2021",
+       "source_quotes": [
+        "The primary end point was the total number of deaths from cardiovascular causes and hospitalizations and urgent visits for heart failure (first and subsequent events).",
+        "hazard ratio, 0.67; 95% confidence interval [CI], 0.52 to 0.85"
+       ],
+       "quote_note": "Two verbatim sentences from the staged abstract. The FIRST is stored deliberately and is the more important of the two: it is this trial's own statement, in its own words, that the endpoint counts first AND SUBSEQUENT events. Without it a reader sees a sentence saying hazard ratio and has no way to know the quantity is not a time-to-first hazard ratio."
+      },
+      "follow_up": "a median of 9.0 months"
+     },
+     "hfcv_first": {
+      "effect": {
+       "point": 0.69,
+       "ci_low": 0.56,
+       "ci_high": 0.85,
+       "ci_level": 95,
+       "log_point": -0.371064,
+       "log_se": 0.106456,
+       "scale": "log",
+       "derived_from": "published_hazard_ratio",
+       "derivation_note": "The point estimate and interval are stored as the source prints them. The log point and log standard error are DERIVED here, the standard error from the width of the printed interval on the log scale, and are not claimed to appear in any source."
+      },
+      "estimand_id": "hfcv_first-estimand",
+      "analysed_absent_because": "This trial has ONE analysis set and this object records it ONCE, on the row for the trial's own primary endpoint. The denominators are not unknown and they are not different here -- every outcome of this trial was analysed on all randomised patients, which the registry posts on every one of its outcome records. They are omitted from this row on purpose: repeating them under a different effect estimate would assert three independently-scoped analysis populations where the trial has one, and that is the shape a structural rule in this repository blocks, for a good reason learned from a trial that really did borrow a wider population for a narrower contrast.",
+      "source_tier": "regulator_fda",
+      "source_url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2023/216203Orig1s000IntegratedR.pdf",
+      "cascade": {
+       "checked": {
+        "primary_oa": {
+         "status": "not_available",
+         "checked_on": "2026-08-10",
+         "reason": "NOTHING for this estimand. The publication reports the total-occurrence analysis and does not print a time-to-first analysis of the composite; this layer is recorded as found because it was read and because it supplies the trial's design, population and denominators, not because it supplies this cell.",
+         "url": "https://pubmed.ncbi.nlm.nih.gov/33200892/"
+        },
+        "registry": {
+         "status": "not_available",
+         "checked_on": "2026-08-10",
+         "reason": "NOTHING for this estimand. Every posted outcome on this record is a total-occurrence or a change-from-baseline analysis; the registry holds the trial's denominators, which this cell uses.",
+         "url": "https://clinicaltrials.gov/study/NCT03521934"
+        },
+        "regulator_fda": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "the ONLY layer that holds this cell: the statistical review's sensitivity section reports the time-to-first-event analysis of the primary composite as 0.69 (0.56 to 0.85) on investigator-reported events and 0.74 (0.57 to 0.95) on adjudicated events",
+         "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2023/216203Orig1s000IntegratedR.pdf"
+        },
+        "regulator_ema": {
+         "status": "not_available",
+         "checked_on": "2026-08-10",
+         "reason": "The European regulator holds nothing for this outcome, and the reason is a fact about the INDICATION rather than about the agency's silence. Sotagliflozin WAS authorised in the European Union, on 26 April 2019, as Zynquista -- but as an adjunct to insulin therapy in adults with INSULIN-DEPENDENT DIABETES MELLITUS, which is the indication the staged medicine overview names in the regulator's own words, and the medicine overview staged here does not contain the phrase heart failure at all. That authorisation was withdrawn by the European Commission on 22 March 2022 at the marketing authorisation holder's request, for commercial reasons, which the staged public statement says in those words. What follows from those two documents is ONLY this: the European authorisation that existed was for another indication, and it no longer exists, so there is no European assessment of THIS endpoint to check against. An earlier version of this field went further and said a heart-failure indication had never been APPLIED FOR in Europe. Nothing staged here supports that -- the absence of a phrase from a medicine overview is not evidence that no application was ever filed -- and a gate leg was right to separate the claim the documents carry from the stronger one they do not. Both documents were read on the date recorded here rather than inferred from the absence of a link.",
+         "url": "https://www.ema.europa.eu/en/medicines/human/EPAR/zynquista"
+        },
+        "prior_meta": {
+         "status": "not_available",
+         "checked_on": "2026-08-10",
+         "reason": "A drug-specific prior synthesis EXISTS and is staged: a meta-analysis of sotagliflozin in diabetic populations covering nine studies. It does not yield this cell, and the reason is a difference of quantity rather than of availability -- it pools RELATIVE RISKS of heart failure events and of a composite cardiovascular endpoint -- each of those two analyses drawn from eight of its nine selected studies, not from all of them -- and restates neither trial's own primary as a separate row. Its abstract does not name its included trials, so its study list cannot be read from what is open either. An earlier version of this field said no synthesis could be LOCATED, which was too strong and was corrected after a gate leg found this paper in one step; the layer is unavailable for this cell, not unsearched, and the difference matters. Two class-level network meta-analyses were also fetched and read and name neither trial in their abstracts. Every query, with its date and its outcome, is staged beside this object."
+        }
+       },
+       "primary_source": "regulator_fda",
+       "divergences": [],
+       "agreement_note": "There is no agreement to report and none is claimed: exactly ONE layer holds this quantity. That is the finding, and it is the reason the regulator layer had to be opened rather than recorded as a formality -- the number is in no journal abstract and no registry field."
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "FDA_REVIEW_216203",
+       "source_quotes": [
+        "An analysis was\n               performed on the primary endpoint using time to first event analysis",
+        "0.69 [0.56, 0.85] and 0.74 [0.57, 0.95] for investigator-reported and adjudicated events,\n               respectively SOLOIST"
+       ],
+       "quote_note": "Two verbatim sentences from the staged FDA statistical review. The first establishes WHAT analysis was run; the second carries the numbers for both ascertainment bases. Both are stored because the value alone would not tell a reader that a second, equally official estimate of the same quantity exists."
+      },
+      "follow_up": "a median of 9.0 months",
+      "parallel_ascertainment": {
+       "basis": "centrally adjudicated events",
+       "point": 0.74,
+       "ci_low": 0.57,
+       "ci_high": 0.95,
+       "ci_level": 95,
+       "why_stored_beside_and_not_instead": "The same estimand under a different ascertainment, from the same sentence of the same document. The cell above carries the investigator-reported analysis because that is the basis of the trial's OWN primary analysis, which the review states in those words -- not because it is preferred. The adjudicated figure is stored here at full precision and pooled in the sensitivity block, so a reader can see the alternative answer rather than be told one exists."
+      }
+     }
+    }
+   },
+   {
+    "id": "scored",
+    "name": "SCORED",
+    "nct": "NCT03315143",
+    "pmid": "33200891",
+    "year": 2021,
+    "design": "phase 3, double-blind, randomised one to one against placebo, STOPPED EARLY because the sponsor withdrew funding, and with its PRIMARY ENDPOINT CHANGED during the trial",
+    "population": "adults with type 2 diabetes, chronic kidney disease with an estimated glomerular filtration rate of 25 to 60, and cardiovascular risk; heart failure was NOT an entry requirement",
+    "comparator_type": "placebo",
+    "comparator_type_basis": "The trial randomised against a matching placebo on top of background therapy, which its own abstract names as the comparator.",
+    "arms": [
+     {
+      "label": "sotagliflozin, 200 mg once daily titrated to 400 mg as tolerated",
+      "role": "treatment",
+      "events": null,
+      "participants": 5292
+     },
+     {
+      "label": "placebo",
+      "role": "control",
+      "events": null,
+      "participants": 5292
+     }
+    ],
+    "arms_not_used": [],
+    "enrolled": 10584,
+    "enrolment_note": "Randomised, as posted by the registry, and equal to the arms below. Arm-level EVENT COUNTS are deliberately absent: this trial's primary endpoint counts first and subsequent events, so a per-arm participant count of events would not be the numerator of the stored ratio and printing one would invite exactly the misreading this object exists to prevent. The sources print event RATES per 100 patient-years instead, and those are quoted on the cell.",
+    "by_outcome": {
+     "hfcv_total": {
+      "effect": {
+       "point": 0.74,
+       "ci_low": 0.63,
+       "ci_high": 0.88,
+       "ci_level": 95,
+       "log_point": -0.301105,
+       "log_se": 0.085257,
+       "scale": "log",
+       "derived_from": "published_hazard_ratio",
+       "derivation_note": "The point estimate and interval are stored as the source prints them. The log point and log standard error are DERIVED here, the standard error from the width of the printed interval on the log scale, and are not claimed to appear in any source."
+      },
+      "estimand_id": "hfcv_total-estimand",
+      "analysed": {
+       "treatment": 5292,
+       "control": 5292
+      },
+      "analysed_scope": "All randomised patients. The registry posts these denominators on every outcome of this trial and they sum to its randomised total, so there is no gap between randomised and analysed to reconcile.",
+      "source_tier": "primary_oa",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/33200891/",
+      "cascade": {
+       "checked": {
+        "primary_oa": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "hazard ratio 0.74 (95% CI 0.63 to 0.88) for the TOTAL number of the composite's events",
+         "url": "https://pubmed.ncbi.nlm.nih.gov/33200891/"
+        },
+        "registry": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "the same 0.74 (0.63 to 0.88) on the trial's posted PRIMARY outcome, over 5292 against 5292 randomised",
+         "url": "https://clinicaltrials.gov/study/NCT03315143"
+        },
+        "regulator_fda": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "the label's efficacy table and the review's PRIMARY endpoint analysis both print 0.75 (0.63 to 0.88) -- the two FDA documents agree with each other to every digit, and both differ from the publication and the registry on the POINT estimate. The review does also print 0.75 with a lower bound of 0.64, but that line stands under an analysis censoring non-cardiovascular deaths as non-informative: it is a SENSITIVITY analysis of this endpoint and not its primary analysis, so it is not this cell and is not compared against one",
+         "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2023/216203Orig1s000IntegratedR.pdf"
+        },
+        "regulator_ema": {
+         "status": "not_available",
+         "checked_on": "2026-08-10",
+         "reason": "The European regulator holds nothing for this outcome, and the reason is a fact about the INDICATION rather than about the agency's silence. Sotagliflozin WAS authorised in the European Union, on 26 April 2019, as Zynquista -- but as an adjunct to insulin therapy in adults with INSULIN-DEPENDENT DIABETES MELLITUS, which is the indication the staged medicine overview names in the regulator's own words, and the medicine overview staged here does not contain the phrase heart failure at all. That authorisation was withdrawn by the European Commission on 22 March 2022 at the marketing authorisation holder's request, for commercial reasons, which the staged public statement says in those words. What follows from those two documents is ONLY this: the European authorisation that existed was for another indication, and it no longer exists, so there is no European assessment of THIS endpoint to check against. An earlier version of this field went further and said a heart-failure indication had never been APPLIED FOR in Europe. Nothing staged here supports that -- the absence of a phrase from a medicine overview is not evidence that no application was ever filed -- and a gate leg was right to separate the claim the documents carry from the stronger one they do not. Both documents were read on the date recorded here rather than inferred from the absence of a link.",
+         "url": "https://www.ema.europa.eu/en/medicines/human/EPAR/zynquista"
+        },
+        "prior_meta": {
+         "status": "not_available",
+         "checked_on": "2026-08-10",
+         "reason": "A drug-specific prior synthesis EXISTS and is staged: a meta-analysis of sotagliflozin in diabetic populations covering nine studies. It does not yield this cell, and the reason is a difference of quantity rather than of availability -- it pools RELATIVE RISKS of heart failure events and of a composite cardiovascular endpoint -- each of those two analyses drawn from eight of its nine selected studies, not from all of them -- and restates neither trial's own primary as a separate row. Its abstract does not name its included trials, so its study list cannot be read from what is open either. An earlier version of this field said no synthesis could be LOCATED, which was too strong and was corrected after a gate leg found this paper in one step; the layer is unavailable for this cell, not unsearched, and the difference matters. Two class-level network meta-analyses were also fetched and read and name neither trial in their abstracts. Every query, with its date and its outcome, is staged beside this object."
+        }
+       },
+       "primary_source": "primary_oa",
+       "divergences": [
+        {
+         "layers": [
+          "primary_oa",
+          "registry",
+          "regulator_fda"
+         ],
+         "what_differs": "the point estimate",
+         "primary_oa_and_registry": "0.74 (0.63 to 0.88)",
+         "regulator_fda": "0.75 (0.63 to 0.88), printed identically in the label and in the review's primary endpoint analysis",
+         "note": "This is a REAL cross-layer divergence and it is recorded rather than resolved. The publication and the registry agree with each other EXACTLY, to every digit. The FDA documents differ. No layer is corrected against another and no midpoint is invented: the cell stores what the two agreeing layers print, the regulator's figure is recorded here beside it, and a reader can see both. Nothing in the staged sources explains the difference, and this object does not guess at one -- the review describes its analyses as based on investigator-reported events in all randomized patients, which is a plausible starting point for an explanation but is not a statement that it accounts for this. On this trial the divergence moves the POINT estimate rather than only a bound, which makes it the larger of the two total-occurrence divergences here. It runs BETWEEN the regulator and the two agreeing layers, and not within the regulator: an earlier version of this object reported the two FDA documents as disagreeing with each other, having matched the review's censoring-sensitivity line against the label's primary. That claim is withdrawn and is recorded in the corrected-claims block."
+        }
+       ],
+       "agreement_note": "Publication and registry agree to every digit, and the label and the statistical review agree with each other to every digit. The disagreement runs between those two PAIRS, on the point estimate, and it is recorded above rather than averaged.",
+       "primary_not_best_because": "As on the companion trial, and on the point estimate rather than on a bound alone. The FDA layer outranks the publication in this cascade's preference order and it DID hold this cell, so this key is required. It is not taken as the primary source because it is the layer that DISAGREES with the other two, and promoting a lone divergent layer over two that agree would resolve a divergence by ranking rather than by evidence. An earlier version of this argument rested on the regulator contradicting ITSELF. It does not, and the argument no longer claims that it does."
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "OA_SCORED2021",
+       "source_quotes": [
+        "The primary end point was changed during the trial to the composite of the total number of deaths from cardiovascular causes, hospitalizations for heart failure, and urgent visits for heart failure.",
+        "hazard ratio, 0.74; 95% confidence interval [CI], 0.63 to 0.88"
+       ],
+       "quote_note": "Two verbatim sentences from the staged abstract. The FIRST is stored deliberately, and what it establishes is NARROWER than its counterpart on the companion trial: it records that this trial's primary endpoint was CHANGED during the trial, and that what it changed to is a TOTAL number of events. Unlike the companion abstract it does not spell out the phrase first and subsequent, and this note does not pretend it does -- an earlier, shared version claimed that wording for both trials. That this endpoint is a recurrent-event quantity is established for THIS trial by the regulator's review, which is staged and cited on the cascade."
+      },
+      "follow_up": "a median of 16 months"
+     },
+     "hfcv_first": {
+      "effect": {
+       "point": 0.78,
+       "ci_low": 0.67,
+       "ci_high": 0.9,
+       "ci_level": 95,
+       "log_point": -0.248461,
+       "log_se": 0.075286,
+       "scale": "log",
+       "derived_from": "published_hazard_ratio",
+       "derivation_note": "The point estimate and interval are stored as the source prints them. The log point and log standard error are DERIVED here, the standard error from the width of the printed interval on the log scale, and are not claimed to appear in any source."
+      },
+      "estimand_id": "hfcv_first-estimand",
+      "analysed_absent_because": "This trial has ONE analysis set and this object records it ONCE, on the row for the trial's own primary endpoint. The denominators are not unknown and they are not different here -- every outcome of this trial was analysed on all randomised patients, which the registry posts on every one of its outcome records. They are omitted from this row on purpose: repeating them under a different effect estimate would assert three independently-scoped analysis populations where the trial has one, and that is the shape a structural rule in this repository blocks, for a good reason learned from a trial that really did borrow a wider population for a narrower contrast.",
+      "source_tier": "regulator_fda",
+      "source_url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2023/216203Orig1s000IntegratedR.pdf",
+      "cascade": {
+       "checked": {
+        "primary_oa": {
+         "status": "not_available",
+         "checked_on": "2026-08-10",
+         "reason": "NOTHING for this estimand as this object defines it. The publication does report a first-occurrence composite, but of cardiovascular death OR hospitalization for heart failure, WITHOUT urgent heart failure visits -- a different composite from the trial's own primary. It is not silently used here: the decision to hold it out, and the reason, are recorded in the scope block SCOPE:publication-two-component-first-event-composite.",
+         "url": "https://pubmed.ncbi.nlm.nih.gov/33200891/"
+        },
+        "registry": {
+         "status": "not_available",
+         "checked_on": "2026-08-10",
+         "reason": "NOTHING for this estimand; the registry supplies the denominators.",
+         "url": "https://clinicaltrials.gov/study/NCT03315143"
+        },
+        "regulator_fda": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "the only layer holding the time-to-first analysis OF THE TRIAL'S OWN PRIMARY COMPOSITE: 0.78 (0.67 to 0.90) on investigator-reported events and 0.72 (0.59 to 0.86) on adjudicated events",
+         "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2023/216203Orig1s000IntegratedR.pdf"
+        },
+        "regulator_ema": {
+         "status": "not_available",
+         "checked_on": "2026-08-10",
+         "reason": "The European regulator holds nothing for this outcome, and the reason is a fact about the INDICATION rather than about the agency's silence. Sotagliflozin WAS authorised in the European Union, on 26 April 2019, as Zynquista -- but as an adjunct to insulin therapy in adults with INSULIN-DEPENDENT DIABETES MELLITUS, which is the indication the staged medicine overview names in the regulator's own words, and the medicine overview staged here does not contain the phrase heart failure at all. That authorisation was withdrawn by the European Commission on 22 March 2022 at the marketing authorisation holder's request, for commercial reasons, which the staged public statement says in those words. What follows from those two documents is ONLY this: the European authorisation that existed was for another indication, and it no longer exists, so there is no European assessment of THIS endpoint to check against. An earlier version of this field went further and said a heart-failure indication had never been APPLIED FOR in Europe. Nothing staged here supports that -- the absence of a phrase from a medicine overview is not evidence that no application was ever filed -- and a gate leg was right to separate the claim the documents carry from the stronger one they do not. Both documents were read on the date recorded here rather than inferred from the absence of a link.",
+         "url": "https://www.ema.europa.eu/en/medicines/human/EPAR/zynquista"
+        },
+        "prior_meta": {
+         "status": "not_available",
+         "checked_on": "2026-08-10",
+         "reason": "A drug-specific prior synthesis EXISTS and is staged: a meta-analysis of sotagliflozin in diabetic populations covering nine studies. It does not yield this cell, and the reason is a difference of quantity rather than of availability -- it pools RELATIVE RISKS of heart failure events and of a composite cardiovascular endpoint -- each of those two analyses drawn from eight of its nine selected studies, not from all of them -- and restates neither trial's own primary as a separate row. Its abstract does not name its included trials, so its study list cannot be read from what is open either. An earlier version of this field said no synthesis could be LOCATED, which was too strong and was corrected after a gate leg found this paper in one step; the layer is unavailable for this cell, not unsearched, and the difference matters. Two class-level network meta-analyses were also fetched and read and name neither trial in their abstracts. Every query, with its date and its outcome, is staged beside this object."
+        }
+       },
+       "primary_source": "regulator_fda",
+       "divergences": [],
+       "agreement_note": "One layer holds this quantity. The publication holds a DIFFERENT first-event composite, which is why the two must not be treated as the same cell, and the scope block says so."
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "FDA_REVIEW_216203",
+       "source_quotes": [
+        "An analysis was\n               performed on the primary endpoint using time to first event analysis",
+        "0.78 [0.67, 0.90] and 0.72 [0.59, 0.86] for investigator-reported and\n               adjudicated"
+       ],
+       "quote_note": "Two verbatim sentences from the staged FDA statistical review. The first establishes WHAT analysis was run; the second carries the numbers for both ascertainment bases. Both are stored because the value alone would not tell a reader that a second, equally official estimate of the same quantity exists."
+      },
+      "follow_up": "a median of 16 months",
+      "parallel_ascertainment": {
+       "basis": "centrally adjudicated events",
+       "point": 0.72,
+       "ci_low": 0.59,
+       "ci_high": 0.86,
+       "ci_level": 95,
+       "why_stored_beside_and_not_instead": "The same estimand under a different ascertainment, from the same sentence of the same document. The cell above carries the investigator-reported analysis because that is the basis of the trial's OWN primary analysis, which the review states in those words -- not because it is preferred. The adjudicated figure is stored here at full precision and pooled in the sensitivity block, so a reader can see the alternative answer rather than be told one exists."
+      }
+     },
+     "mace3_first": {
+      "effect": {
+       "point": 0.84,
+       "ci_low": 0.72,
+       "ci_high": 0.99,
+       "ci_level": 95,
+       "log_point": -0.174353,
+       "log_se": 0.08124,
+       "scale": "log",
+       "derived_from": "published_hazard_ratio",
+       "derivation_note": "The point estimate and interval are stored as the source prints them. The log point and log standard error are DERIVED here, the standard error from the width of the printed interval on the log scale, and are not claimed to appear in any source."
+      },
+      "estimand_id": "mace3_first-estimand",
+      "analysed_absent_because": "This trial has ONE analysis set and this object records it ONCE, on the row for the trial's own primary endpoint. The denominators are not unknown and they are not different here -- every outcome of this trial was analysed on all randomised patients, which the registry posts on every one of its outcome records. They are omitted from this row on purpose: repeating them under a different effect estimate would assert three independently-scoped analysis populations where the trial has one, and that is the shape a structural rule in this repository blocks, for a good reason learned from a trial that really did borrow a wider population for a narrower contrast.",
+      "source_tier": "primary_oa",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/33200891/",
+      "cascade": {
+       "checked": {
+        "primary_oa": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "hazard ratio 0.84 (95% CI 0.72 to 0.99) for the ORIGINAL co-primary endpoint, the first occurrence of death from cardiovascular causes, non-fatal myocardial infarction or non-fatal stroke",
+         "url": "https://pubmed.ncbi.nlm.nih.gov/33200891/"
+        },
+        "registry": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "a row TITLED as a total-occurrence version of these same three components, 0.77 (0.65 to 0.91) -- a different unit of analysis and NOT this cell, recorded here so the difference is visible on the cell rather than only in the scope block. The registry record is internally inconsistent at that row and this object does not settle it: the row's own description says its combined endpoint is cardiovascular death and urgent heart failure visits, which matches neither this cell's event set nor the row's title. It is therefore recorded as AMBIGUOUS and is not used as a settled source-layer finding. The same record carries a separate FOUR-component total-occurrence row -- these three plus hospitalization for heart failure -- whose title and description do agree with each other",
+         "url": "https://clinicaltrials.gov/study/NCT03315143"
+        },
+        "regulator_fda": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "the review discusses the endpoint's hierarchy and the trial's mid-course primary-endpoint change; it does not print a separate first-occurrence three-component estimate that differs from the publication's",
+         "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2023/216203Orig1s000IntegratedR.pdf"
+        },
+        "regulator_ema": {
+         "status": "not_available",
+         "checked_on": "2026-08-10",
+         "reason": "The European regulator holds nothing for this outcome, and the reason is a fact about the INDICATION rather than about the agency's silence. Sotagliflozin WAS authorised in the European Union, on 26 April 2019, as Zynquista -- but as an adjunct to insulin therapy in adults with INSULIN-DEPENDENT DIABETES MELLITUS, which is the indication the staged medicine overview names in the regulator's own words, and the medicine overview staged here does not contain the phrase heart failure at all. That authorisation was withdrawn by the European Commission on 22 March 2022 at the marketing authorisation holder's request, for commercial reasons, which the staged public statement says in those words. What follows from those two documents is ONLY this: the European authorisation that existed was for another indication, and it no longer exists, so there is no European assessment of THIS endpoint to check against. An earlier version of this field went further and said a heart-failure indication had never been APPLIED FOR in Europe. Nothing staged here supports that -- the absence of a phrase from a medicine overview is not evidence that no application was ever filed -- and a gate leg was right to separate the claim the documents carry from the stronger one they do not. Both documents were read on the date recorded here rather than inferred from the absence of a link.",
+         "url": "https://www.ema.europa.eu/en/medicines/human/EPAR/zynquista"
+        },
+        "prior_meta": {
+         "status": "not_available",
+         "checked_on": "2026-08-10",
+         "reason": "A drug-specific prior synthesis EXISTS and is staged: a meta-analysis of sotagliflozin in diabetic populations covering nine studies. It does not yield this cell, and the reason is a difference of quantity rather than of availability -- it pools RELATIVE RISKS of heart failure events and of a composite cardiovascular endpoint -- each of those two analyses drawn from eight of its nine selected studies, not from all of them -- and restates neither trial's own primary as a separate row. Its abstract does not name its included trials, so its study list cannot be read from what is open either. An earlier version of this field said no synthesis could be LOCATED, which was too strong and was corrected after a gate leg found this paper in one step; the layer is unavailable for this cell, not unsearched, and the difference matters. Two class-level network meta-analyses were also fetched and read and name neither trial in their abstracts. Every query, with its date and its outcome, is staged beside this object."
+        }
+       },
+       "primary_source": "primary_oa",
+       "divergences": [],
+       "agreement_note": "The registry's nearest row is a TOTAL-occurrence analysis of the same three components and deliberately not used. That is a difference of estimand, not a divergence of value, and it is labelled as such: calling it a divergence would imply the two are estimates of one quantity.",
+       "primary_not_best_because": "The FDA layer outranks the publication and holds nothing that contradicts or improves on this cell, so the publication stands as the source. The registry holds a same-named but differently-shaped quantity, which is recorded above rather than substituted."
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "OA_SCORED2021",
+       "source_quotes": [
+        "original coprimary end point of the first occurrence of death from cardiovascular causes, nonfatal myocardial infarction, or nonfatal stroke, the hazard ratio was 0.84 (95% CI, 0.72 to 0.99)"
+       ],
+       "quote_note": "One verbatim sentence from the staged abstract. It names the endpoint as the trial's ORIGINAL co-primary and as a FIRST occurrence, which is what distinguishes it from the registry's total-occurrence row over the same three components."
+      },
+      "follow_up": "a median of 16 months"
+     }
+    }
+   }
+  ]
+ },
+ "config": {
+  "confidence_level": 95
+ },
+ "results": {
+  "by_outcome": {
+   "hfcv_total": {
+    "k": 2,
+    "estimand_id": "hfcv_total-estimand",
+    "comparator_type": "placebo",
+    "handbook": {
+     "decision": "POOL the two pivotal trials on THIS estimand alone, producing a drug-wide average across two documented population differences, and combine it with NO other estimand in this object",
+     "sections": [
+      "3.2.1",
+      "3.2.3",
+      "3.2.4",
+      "10.3",
+      "10.8",
+      "10.10.1",
+      "10.10.2",
+      "10.10.4",
+      "10.10.4.4",
+      "10.10.4.5",
+      "10.14"
+     ],
+     "conformance": "Sections 3.2.1 and 3.2.3 fix the axes on which ELIGIBILITY turns -- population and comparator. Section 3.2.4 is cited for the caution it gives AGAINST making eligibility depend on which outcomes a study reported, which is why this object carries three outcomes rather than admitting only the trials that report one of them. Section 10.3 gives the METHOD -- log ratios combined by generic inverse variance -- and is the authority for combining WITHIN each estimand. What licenses the refusal to combine ACROSS them is that the estimands fall under DIFFERENT sections: a composite counting first and subsequent events is governed by 10.8, on counts and rates, while a time-to-first analysis is governed by 10.9. An earlier version cited 10.9 for both and for the method as well, which made the object commit in its own citations the conflation it exists to refuse. Section 10.10.1 is what distinguishes clinical and methodological diversity from statistical heterogeneity, which is why the uniformity table sits beside the statistic rather than being replaced by it -- with two trials the statistic is nearly powerless and the population difference it cannot see is the largest thing about this pool. Section 10.10.4 governs the model and the between-study variance estimator, 10.10.4.4 records restricted maximum likelihood as the current default, and 10.10.4.5 is why a more conservative interval is reported beside the ordinary one at this number of studies. Section 10.14 is the authority for the sensitivity analyses."
+    },
+    "per_trial": [
+     {
+      "trial_id": "soloist-whf",
+      "nct": "NCT03521934",
+      "measure": "HR",
+      "point": 0.67,
+      "ci_low": 0.52,
+      "ci_high": 0.85,
+      "ci_level": 95,
+      "log_point": -0.400478,
+      "log_se": 0.125361,
+      "estimand_id": "hfcv_total-estimand",
+      "population": "adults with type 2 diabetes recently hospitalised for worsening heart failure, with the first dose given before discharge in about half and a median of two days after it in the rest",
+      "derivation": "the printed hazard ratio, stored on the log scale with the standard error its printed interval implies"
+     },
+     {
+      "trial_id": "scored",
+      "nct": "NCT03315143",
+      "measure": "HR",
+      "point": 0.74,
+      "ci_low": 0.63,
+      "ci_high": 0.88,
+      "ci_level": 95,
+      "log_point": -0.301105,
+      "log_se": 0.085257,
+      "estimand_id": "hfcv_total-estimand",
+      "population": "adults with type 2 diabetes, chronic kidney disease with an estimated glomerular filtration rate of 25 to 60, and cardiovascular risk; heart failure was NOT an entry requirement",
+      "derivation": "the printed hazard ratio, stored on the log scale with the standard error its printed interval implies"
+     }
+    ],
+    "poolable": true,
+    "poolable_reason": "One effect measure, one comparator, one estimand and one drug, across trials that share no participant and no control group.",
+    "estimand_homogeneous_across_cohorts": false,
+    "estimand_id_means": "the estimand of the POOLED value. It is NOT a claim that the two trials estimate the same quantity in the same people: their populations differ more than anything else in this object, and the uniformity table says so.",
+    "pool_uniformity": {
+     "effect_measure": [
+      "identical",
+      "Both trials report this quantity as a hazard ratio and no conversion is performed."
+     ],
+     "comparator": [
+      "identical",
+      "Both randomised against a matching placebo on top of background therapy."
+     ],
+     "drug_and_dose": [
+      "identical",
+      "Sotagliflozin, 200 mg once daily titrated to 400 mg as tolerated, in both."
+     ],
+     "population": [
+      "differs",
+      "This is the axis the pool crosses and it is the largest thing it crosses. One trial enrolled patients hospitalised for worsening heart failure and started treatment around discharge. The other enrolled patients with chronic kidney disease and cardiovascular risk in whom heart failure was NOT an entry requirement, and most did not have it. The pooled value is therefore a DRUG-WIDE estimate across the pivotal programme, which is the question this object asks, and it is not an estimate for a heart-failure population. The heart-failure-only result is the first trial's own row and a reader who wants it should read that row rather than the pool."
+     ],
+     "why_stopped": [
+      "identical",
+      "Both trials were terminated early because the sponsor withdrew funding. That is not a data-dependent stopping rule and it is not a boundary crossing; it is a commercial event, and it applies to both. What it cost was INFORMATION -- power and follow-up -- so it is carried into the GRADE IMPRECISION domain, where an unmet optimal information size is the ground for that downgrade. It is NOT carried into risk of bias: lost information widens an interval rather than biasing it. An earlier version of this row said the opposite and contradicted the risk-of-bias domain it was describing."
+     ],
+     "follow_up_length": [
+      "differs",
+      "Medians of about nine and about sixteen months. Each trial's own median is stored on its cell."
+     ],
+     "analysis_population": [
+      "identical",
+      "All randomised patients in both, with the registry posting the same two denominators on every outcome."
+     ],
+     "endpoint_rank_within_its_own_trial": [
+      "identical",
+      "This composite is the PRIMARY endpoint of both trials as they were finally analysed. In one of them it BECAME the primary by a change made during the trial, which the trial's own abstract states and which this object records on the cell and in the risk-of-bias domain rather than in a footnote."
+     ],
+     "ascertainment": [
+      "identical",
+      "Both trials' primary analyses rest on investigator-reported events, which the regulator's review states in those words. Centrally adjudicated versions of this endpoint DO exist for both trials in that review, and this outcome does NOT pool them: the parallel-ascertainment pool lives on the first-event estimand only, where both bases are printed in one regulator sentence. Here the contributing cells come from the publication and the registry on an investigator-reported basis, and building a second pool from a layer the cells are not drawn from would be a different synthesis wearing this one's name. An earlier version of this row said the adjudicated versions were reported in THIS outcome's sensitivity block; they are not, and a review leg was right that the prose claimed a feature the structure denies."
+     ]
+    },
+    "model": "random",
+    "estimator": "REML",
+    "estimator_used": "REML",
+    "pooled": {
+     "measure": "HR",
+     "point": 0.7171,
+     "ci_low": 0.6246,
+     "ci_high": 0.8234,
+     "ci_level": 95,
+     "scale": "log"
+    },
+    "favours": "treatment",
+    "heterogeneity": {
+     "tau2": 0.0,
+     "i2": 0.0,
+     "q": 0.4296,
+     "df": 1
+    },
+    "heterogeneity_status": "Computed from Q and its single degree of freedom. With TWO studies this statistic has almost no power to detect heterogeneity, so a low value is consistent both with agreement and with not being able to tell, and it is reported with that caveat rather than as reassurance. The difference these two trials genuinely have is in their POPULATIONS, and no statistic computed from two effect estimates can see it -- the uniformity table is the only place it is visible.",
+    "single_study_ref": null,
+    "sensitivity": {
+     "method": "leave-one-out, a comparison of between-study variance estimators, and -- on the first-event estimand -- a parallel pool of the centrally adjudicated ascertainment",
+     "authority": "Cochrane Handbook version 6.5.1, section 10.14 for sensitivity analyses generally. Section 10.10.4.4 governs the estimator half: it records that methods other than DerSimonian and Laird estimate the between-study variance better and that restricted maximum likelihood is the current default. Section 10.10.4.5 is cited for the INTERVAL comparison and not for the estimator comparison; it concerns interpretation with few studies and the method it compares is the confidence interval.",
+     "decision_under_test": "Whether the pooled estimate depends on either single trial, on the choice of between-study variance estimator and interval method, and -- where two ascertainment bases exist -- on which of them is used.",
+     "analyses": [
+      {
+       "omitted": "soloist-whf",
+       "remaining": [
+        "scored"
+       ],
+       "k": 1,
+       "point": 0.74,
+       "ci_low": 0.6261,
+       "ci_high": 0.8746,
+       "tau2": 0.0,
+       "i2": 0.0,
+       "still_excludes_null": true
+      },
+      {
+       "omitted": "scored",
+       "remaining": [
+        "soloist-whf"
+       ],
+       "k": 1,
+       "point": 0.67,
+       "ci_low": 0.524,
+       "ci_high": 0.8566,
+       "tau2": 0.0,
+       "i2": 0.0,
+       "still_excludes_null": true
+      }
+     ],
+     "leave_one_out_finding": "With two trials a leave-one-out fit IS the other trial, and this table says so rather than presenting single-trial rows as though they were pooled sensitivity results. Read it as what it is: the two trials' own estimates, side by side, with the interval each carries alone.",
+     "between_study_variance_method_comparison": {
+      "why": "Section 10.10.4.4 records restricted maximum likelihood as the current default and that estimators other than DerSimonian and Laird perform better; that is the whole of the authority for running this comparison. Nothing in the Handbook instructs a review to run it at a particular number of studies, and running it here is a choice made under 10.14 because with two trials the choice is plausibly influential.",
+      "methods": [
+       {
+        "between_study_variance_estimator": "DL",
+        "interval_method": "Wald",
+        "point": 0.7171,
+        "ci_low": 0.6246,
+        "ci_high": 0.8234,
+        "tau2": 0.0
+       },
+       {
+        "between_study_variance_estimator": "PM",
+        "interval_method": "Wald",
+        "point": 0.7171,
+        "ci_low": 0.6246,
+        "ci_high": 0.8234,
+        "tau2": 0.0
+       },
+       {
+        "between_study_variance_estimator": "REML",
+        "interval_method": "Wald",
+        "point": 0.7171,
+        "ci_low": 0.6246,
+        "ci_high": 0.8234,
+        "tau2": 0.0
+       },
+       {
+        "between_study_variance_estimator": "REML",
+        "interval_method": "HKSJ",
+        "point": 0.7171,
+        "ci_low": 0.2928,
+        "ci_high": 1.7563,
+        "tau2": 0.0
+       }
+      ],
+      "estimator_kept": "Restricted maximum likelihood with the ordinary interval, because section 10.10.4.4 records it as the current default and as a better estimator than DerSimonian and Laird. The Hartung-Knapp-Sidik-Jonkman interval is reported beside it with the floor on its scale factor applied, so it can widen and can never come out narrower than the ordinary one. It is NOT presented as the interval to prefer: section 10.10.4.5 says the opposite is possible, that with only two or three studies such intervals can be EXCESSIVELY WIDE and an ordinary interval may be preferable, and it asks for the comparison rather than for a winner. An earlier version of this field called it the interval to weigh most heavily, which attributed to that section a preference it does not express.",
+      "verdict": "Reported as computed rather than summarised in advance. Where the estimators agree it is because there is little between-study variance for them to disagree about, which at two studies is close to uninformative; where the conservative interval is much wider than the ordinary one, that width is the honest expression of how little two trials constrain a random-effects average, and section 10.10.4.5 says to expect it."
+     }
+    },
+    "cross_engine": {
+     "engine": "metafor 5.0.1 under R 4.6.0, generic inverse variance on the same log point and log standard error this object stores",
+     "agreement": "Recomputed independently and checked against the stored values. This is two ENGINES agreeing on one arithmetic; it says nothing about whether the two TRIALS agree, and nothing at all about the population difference between them.",
+     "i2_definitions_differ": "The two engines can report different values for the Higgins statistic and neither is wrong: this object's is computed from Q and its degrees of freedom, the other engine's relative to the restricted-maximum-likelihood between-study variance. They are different quantities sharing a name."
+    },
+    "grade": {
+     "certainty": "low",
+     "certainty_derivation": "start high; risk_of_bias serious (-1), imprecision serious (-1); total -2 -> low",
+     "randomised": true,
+     "starting_point": "high",
+     "starting_point_because": "both contributing studies are randomised controlled trials",
+     "domains": {
+      "risk_of_bias": {
+       "rating": "serious",
+       "basis_in_sources": "BOTH trials were terminated early because the sponsor withdrew funding, and THIS DOMAIN DOES NOT REST ON THAT. The usual stopped-early reasoning does not apply here: the danger with a trial stopped early FOR BENEFIT is an inflated effect at a data-dependent boundary, and the stop here was commercial, so there was no boundary to stop at. The early termination is named in this domain because any reader will look for it, and it is then explicitly SET ASIDE as a ground for it. An earlier version of this field said the object 'treats that as serious' and then argued in the next clause that it introduces no bias, which is a contradiction a gate leg was right to refuse. What carries the SERIOUS rating is internal validity alone: one trial changed its PRIMARY ENDPOINT during the trial, and both rest their primary analysis on investigator-reported rather than centrally adjudicated events. The lost power and lost follow-up that early termination also caused are NOT counted here -- they widen intervals rather than bias them, so they belong to imprecision, and an earlier version of this domain double-counted them. A gate leg was right that downgrading risk of bias for lost power is a misapplication of the domains. The endpoint change is the most serious of the three: it is exactly the condition that outcome-reporting-bias guidance is about, and it is recorded on the trial, on the cell and here."
+      },
+      "inconsistency": {
+       "rating": "not serious",
+       "derived_from": "Q against its degrees of freedom and the between-study variance, both stored in this result's heterogeneity block. With so few studies the statistic has almost no power, so 'not serious' here means no heterogeneity was DETECTED and must not be read as evidence of agreement. Section 14.2.2 makes the trigger unexplained heterogeneity rather than a value of the statistic, and the one large clinical difference between these trials -- their populations -- is documented in the uniformity table rather than offered as a post-hoc explanation. Not downgraded, with that caveat stated rather than implied."
+      },
+      "indirectness": {
+       "rating": "not serious",
+       "basis_in_sources": "Not downgraded, and the reasoning is worth stating because the opposite call is tempting. The frozen question is the drug across its PIVOTAL PROGRAMME, and the evidence is exactly that programme: the population, the intervention, the comparator and the outcomes are the ones the question names, measured in the trials themselves. The population SPREAD between the trials is real and large, but it is diversity WITHIN the question rather than a mismatch between the question and the evidence, and section 10.10.1 is where it belongs -- the uniformity table -- not here. An earlier version of this domain downgraded on the ground that a reader wanting a heart-failure answer would misread the pooled value. That is a risk of MISREADING, answered by labelling and by the scope block, and downgrading for it would be stricter than the Handbook while claiming the Handbook's support -- the same defect a gate leg caught on the companion review in this batch."
+      },
+      "imprecision": {
+       "rating": "serious",
+       "triggers_computed": "Condition one, the ordinary interval excluding the null: MET on every outcome here. Condition three, the optimal information size: NOT MET and not merely uncomputable -- both trials were terminated before they collected the information they were designed for, so whatever the target was, it was not reached. That alone is the ground for this downgrade and it is a fact about the trials, not a reading of a Handbook section. Two further observations point the same way and neither is offered as a rule: on the pooled outcomes an alternative interval method gives a range that includes the null, which section 10.10.4.5 says may be excessively wide at this number of studies and which is therefore reported rather than relied on; and on the single-trial outcome the upper bound sits just under the null, so the interval is consistent with a benefit too small to matter, which is condition two. An earlier version of this field made alternative-interval-crosses-null a downgrade RULE and credited it to 10.10.4.5, which does not give one.",
+       "derived_from": "The pooled interval stored in this result, and the alternative-method interval reported beside it in the sensitivity block. Neither is turned into a threshold rule here: what carries the downgrade is the unmet information size recorded above, and the intervals are the arithmetic a reader can check it against. An earlier version of this field stated a rule that the triggers field two lines above explicitly disowned, and both review families found the contradiction.",
+       "ois_note": "The optimal information size is a condition section 14.2.2 makes part of adequate precision, and it is NOT computable from what this object holds: it needs an assumed control-arm risk and a target difference no field here carries. It is UNKNOWN rather than satisfied, and this sentence exists so its absence cannot read as a pass. Both trials also stopped early for funding, so neither reached the information it was designed to collect -- which is an argument for caution that the interval alone does not carry."
+      },
+      "publication_bias": {
+       "rating": "not assessable",
+       "not_assessable_because": "Far too few studies. Funnel-plot and regression methods for small-study effects are not interpretable at this size, so no assessment is made and none is implied. What can be said without a test is recorded instead: both trials are registered, both posted results, and both published their primary papers reporting the early termination. The mid-trial change of primary endpoint is reported in ONE of those papers, not in both -- an earlier version of this sentence credited it to both, which the object's own uniformity row already contradicted, and the regulator's review of both is public and staged here. Rated not assessable, which downgrades nothing on its own."
+      }
+     },
+     "sections": [
+      "14.2.1",
+      "14.2.2",
+      "10.10.2",
+      "10.10.4",
+      "10.14"
+     ],
+     "what_this_certainty_is_about": "The certainty of THIS estimand's pooled value and of nothing else. This object holds three estimands with three separate ratings, and they are not interchangeable: a reader who takes the rating from one and the number from another has produced a claim this object does not make. It is also a rating of a DRUG-WIDE average across two very different populations, not of the drug in heart failure."
+    }
+   },
+   "hfcv_first": {
+    "k": 2,
+    "estimand_id": "hfcv_first-estimand",
+    "comparator_type": "placebo",
+    "handbook": {
+     "decision": "POOL the two pivotal trials on THIS estimand alone, producing a drug-wide average across two documented population differences, and combine it with NO other estimand in this object",
+     "sections": [
+      "3.2.1",
+      "3.2.3",
+      "3.2.4",
+      "10.3",
+      "10.9",
+      "10.10.1",
+      "10.10.2",
+      "10.10.4",
+      "10.10.4.4",
+      "10.10.4.5",
+      "10.14"
+     ],
+     "conformance": "Sections 3.2.1 and 3.2.3 fix the axes on which ELIGIBILITY turns -- population and comparator. Section 3.2.4 is cited for the caution it gives AGAINST making eligibility depend on which outcomes a study reported, which is why this object carries three outcomes rather than admitting only the trials that report one of them. Section 10.3 gives the METHOD -- log ratios combined by generic inverse variance -- and is the authority for combining WITHIN each estimand. What licenses the refusal to combine ACROSS them is that the estimands fall under DIFFERENT sections: a composite counting first and subsequent events is governed by 10.8, on counts and rates, while a time-to-first analysis is governed by 10.9. An earlier version cited 10.9 for both and for the method as well, which made the object commit in its own citations the conflation it exists to refuse. Section 10.10.1 is what distinguishes clinical and methodological diversity from statistical heterogeneity, which is why the uniformity table sits beside the statistic rather than being replaced by it -- with two trials the statistic is nearly powerless and the population difference it cannot see is the largest thing about this pool. Section 10.10.4 governs the model and the between-study variance estimator, 10.10.4.4 records restricted maximum likelihood as the current default, and 10.10.4.5 is why a more conservative interval is reported beside the ordinary one at this number of studies. Section 10.14 is the authority for the sensitivity analyses."
+    },
+    "per_trial": [
+     {
+      "trial_id": "soloist-whf",
+      "nct": "NCT03521934",
+      "measure": "HR",
+      "point": 0.69,
+      "ci_low": 0.56,
+      "ci_high": 0.85,
+      "ci_level": 95,
+      "log_point": -0.371064,
+      "log_se": 0.106456,
+      "estimand_id": "hfcv_first-estimand",
+      "population": "adults with type 2 diabetes recently hospitalised for worsening heart failure, with the first dose given before discharge in about half and a median of two days after it in the rest",
+      "derivation": "the printed hazard ratio, stored on the log scale with the standard error its printed interval implies"
+     },
+     {
+      "trial_id": "scored",
+      "nct": "NCT03315143",
+      "measure": "HR",
+      "point": 0.78,
+      "ci_low": 0.67,
+      "ci_high": 0.9,
+      "ci_level": 95,
+      "log_point": -0.248461,
+      "log_se": 0.075286,
+      "estimand_id": "hfcv_first-estimand",
+      "population": "adults with type 2 diabetes, chronic kidney disease with an estimated glomerular filtration rate of 25 to 60, and cardiovascular risk; heart failure was NOT an entry requirement",
+      "derivation": "the printed hazard ratio, stored on the log scale with the standard error its printed interval implies"
+     }
+    ],
+    "poolable": true,
+    "poolable_reason": "One effect measure, one comparator, one estimand and one drug, across trials that share no participant and no control group.",
+    "estimand_homogeneous_across_cohorts": false,
+    "estimand_id_means": "the estimand of the POOLED value. It is NOT a claim that the two trials estimate the same quantity in the same people: their populations differ more than anything else in this object, and the uniformity table says so.",
+    "pool_uniformity": {
+     "effect_measure": [
+      "identical",
+      "Both trials report this quantity as a hazard ratio and no conversion is performed."
+     ],
+     "comparator": [
+      "identical",
+      "Both randomised against a matching placebo on top of background therapy."
+     ],
+     "drug_and_dose": [
+      "identical",
+      "Sotagliflozin, 200 mg once daily titrated to 400 mg as tolerated, in both."
+     ],
+     "population": [
+      "differs",
+      "This is the axis the pool crosses and it is the largest thing it crosses. One trial enrolled patients hospitalised for worsening heart failure and started treatment around discharge. The other enrolled patients with chronic kidney disease and cardiovascular risk in whom heart failure was NOT an entry requirement, and most did not have it. The pooled value is therefore a DRUG-WIDE estimate across the pivotal programme, which is the question this object asks, and it is not an estimate for a heart-failure population. The heart-failure-only result is the first trial's own row and a reader who wants it should read that row rather than the pool."
+     ],
+     "why_stopped": [
+      "identical",
+      "Both trials were terminated early because the sponsor withdrew funding. That is not a data-dependent stopping rule and it is not a boundary crossing; it is a commercial event, and it applies to both. What it cost was INFORMATION -- power and follow-up -- so it is carried into the GRADE IMPRECISION domain, where an unmet optimal information size is the ground for that downgrade. It is NOT carried into risk of bias: lost information widens an interval rather than biasing it. An earlier version of this row said the opposite and contradicted the risk-of-bias domain it was describing."
+     ],
+     "follow_up_length": [
+      "differs",
+      "Medians of about nine and about sixteen months. Each trial's own median is stored on its cell."
+     ],
+     "analysis_population": [
+      "identical",
+      "All randomised patients in both, with the registry posting the same two denominators on every outcome."
+     ],
+     "endpoint_rank_within_its_own_trial": [
+      "differs",
+      "THE ROWS ARE NOT ALIKE ON THIS AXIS and this object no longer says they are. The regulator's review lists, under Exploratory Endpoints for the LARGER trial, the first occurrence of the composite of cardiovascular death, hospitalization for heart failure or an urgent heart failure visit -- so for that trial this analysis IS a designated endpoint of the trial, at exploratory rank. The same list for the worsening-heart-failure trial does not contain it: there the quantity is a regulator analysis and nothing more. This row has now been wrong in BOTH directions -- an earlier version marked it differing with prose beside it denying any difference, that was corrected to identical on the premise that neither trial designated it, and the premise was false of the larger trial. It is recorded as DIFFERING with the asymmetry named, which is what the source supports. What remains true of both rows equally: this is a SENSITIVITY analysis of each trial's primary composite, performed and reported by the regulator, and in one of the trials the composite it re-analyses had itself been changed mid-trial. A pool of regulator sensitivity analyses is a legitimate quantity and it is not the same kind of evidence as a pool of prespecified primary endpoints. That does NOT show up as a different certainty rating here -- this outcome and the total-occurrence one carry the same rating from the same two downgrades -- and an earlier version of this row claimed it did."
+     ],
+     "ascertainment": [
+      "identical",
+      "BOTH stored cells use investigator-reported events, so the contributing rows do not differ on this axis and an earlier version of this row was wrong to say they did -- both review families caught it, and the companion outcome had always recorded the same situation as identical. What differs is not between the ROWS but between two analyses of each row: centrally adjudicated estimates exist for both trials, are stored beside each cell, and pool to a visibly different summary reported in the sensitivity block. Those are a SENSITIVITY analysis, not contributing rows. They are worth reading because the two bases move the two trials in OPPOSITE directions, which is the clearest signal in this object that ascertainment is not a rounding detail."
+     ]
+    },
+    "model": "random",
+    "estimator": "REML",
+    "estimator_used": "REML",
+    "pooled": {
+     "measure": "HR",
+     "point": 0.7488,
+     "ci_low": 0.6638,
+     "ci_high": 0.8446,
+     "ci_level": 95,
+     "scale": "log"
+    },
+    "favours": "treatment",
+    "heterogeneity": {
+     "tau2": 0.0,
+     "i2": 0.0,
+     "q": 0.8841,
+     "df": 1
+    },
+    "heterogeneity_status": "Computed from Q and its single degree of freedom. With TWO studies this statistic has almost no power to detect heterogeneity, so a low value is consistent both with agreement and with not being able to tell, and it is reported with that caveat rather than as reassurance. The difference these two trials genuinely have is in their POPULATIONS, and no statistic computed from two effect estimates can see it -- the uniformity table is the only place it is visible.",
+    "single_study_ref": null,
+    "sensitivity": {
+     "method": "leave-one-out, a comparison of between-study variance estimators, and -- on the first-event estimand -- a parallel pool of the centrally adjudicated ascertainment",
+     "authority": "Cochrane Handbook version 6.5.1, section 10.14 for sensitivity analyses generally. Section 10.10.4.4 governs the estimator half: it records that methods other than DerSimonian and Laird estimate the between-study variance better and that restricted maximum likelihood is the current default. Section 10.10.4.5 is cited for the INTERVAL comparison and not for the estimator comparison; it concerns interpretation with few studies and the method it compares is the confidence interval.",
+     "decision_under_test": "Whether the pooled estimate depends on either single trial, on the choice of between-study variance estimator and interval method, and -- where two ascertainment bases exist -- on which of them is used.",
+     "analyses": [
+      {
+       "omitted": "soloist-whf",
+       "remaining": [
+        "scored"
+       ],
+       "k": 1,
+       "point": 0.78,
+       "ci_low": 0.673,
+       "ci_high": 0.904,
+       "tau2": 0.0,
+       "i2": 0.0,
+       "still_excludes_null": true
+      },
+      {
+       "omitted": "scored",
+       "remaining": [
+        "soloist-whf"
+       ],
+       "k": 1,
+       "point": 0.69,
+       "ci_low": 0.5601,
+       "ci_high": 0.8501,
+       "tau2": 0.0,
+       "i2": 0.0,
+       "still_excludes_null": true
+      }
+     ],
+     "leave_one_out_finding": "With two trials a leave-one-out fit IS the other trial, and this table says so rather than presenting single-trial rows as though they were pooled sensitivity results. Read it as what it is: the two trials' own estimates, side by side, with the interval each carries alone.",
+     "between_study_variance_method_comparison": {
+      "why": "Section 10.10.4.4 records restricted maximum likelihood as the current default and that estimators other than DerSimonian and Laird perform better; that is the whole of the authority for running this comparison. Nothing in the Handbook instructs a review to run it at a particular number of studies, and running it here is a choice made under 10.14 because with two trials the choice is plausibly influential.",
+      "methods": [
+       {
+        "between_study_variance_estimator": "DL",
+        "interval_method": "Wald",
+        "point": 0.7488,
+        "ci_low": 0.6638,
+        "ci_high": 0.8446,
+        "tau2": 0.0
+       },
+       {
+        "between_study_variance_estimator": "PM",
+        "interval_method": "Wald",
+        "point": 0.7488,
+        "ci_low": 0.6638,
+        "ci_high": 0.8446,
+        "tau2": 0.0
+       },
+       {
+        "between_study_variance_estimator": "REML",
+        "interval_method": "Wald",
+        "point": 0.7488,
+        "ci_low": 0.6638,
+        "ci_high": 0.8446,
+        "tau2": 0.0
+       },
+       {
+        "between_study_variance_estimator": "REML",
+        "interval_method": "HKSJ",
+        "point": 0.7488,
+        "ci_low": 0.3429,
+        "ci_high": 1.6351,
+        "tau2": 0.0
+       }
+      ],
+      "estimator_kept": "Restricted maximum likelihood with the ordinary interval, because section 10.10.4.4 records it as the current default and as a better estimator than DerSimonian and Laird. The Hartung-Knapp-Sidik-Jonkman interval is reported beside it with the floor on its scale factor applied, so it can widen and can never come out narrower than the ordinary one. It is NOT presented as the interval to prefer: section 10.10.4.5 says the opposite is possible, that with only two or three studies such intervals can be EXCESSIVELY WIDE and an ordinary interval may be preferable, and it asks for the comparison rather than for a winner. An earlier version of this field called it the interval to weigh most heavily, which attributed to that section a preference it does not express.",
+      "verdict": "Reported as computed rather than summarised in advance. Where the estimators agree it is because there is little between-study variance for them to disagree about, which at two studies is close to uninformative; where the conservative interval is much wider than the ordinary one, that width is the honest expression of how little two trials constrain a random-effects average, and section 10.10.4.5 says to expect it."
+     },
+     "parallel_ascertainment_pool": {
+      "basis": "centrally adjudicated events, both trials",
+      "point": 0.727,
+      "ci_low": 0.6247,
+      "ci_high": 0.846,
+      "ci_level": 95,
+      "tau2": 0.0,
+      "i2": 0.0,
+      "finding": "This is the same OUTCOME CONCEPT computed from the same document under the other ascertainment the regulator reports. The contributing rows of the pool above do NOT differ on ascertainment -- both are investigator-reported, and the uniformity table records that axis as identical. What is compared here is two ANALYSES of those same rows, which is why this sits in the sensitivity block and not in the table. It is the most informative sensitivity analysis in this object. The two bases move the two trials in OPPOSITE directions -- adjudication makes one trial's estimate less favourable and the other's more so -- which is why the pooled values sit close together while the per-trial values do not. A reader should take from this that the choice of ascertainment is not a rounding detail here, and that neither pooled number is the answer on its own."
+     }
+    },
+    "cross_engine": {
+     "engine": "metafor 5.0.1 under R 4.6.0, generic inverse variance on the same log point and log standard error this object stores",
+     "agreement": "Recomputed independently and checked against the stored values. This is two ENGINES agreeing on one arithmetic; it says nothing about whether the two TRIALS agree, and nothing at all about the population difference between them.",
+     "i2_definitions_differ": "The two engines can report different values for the Higgins statistic and neither is wrong: this object's is computed from Q and its degrees of freedom, the other engine's relative to the restricted-maximum-likelihood between-study variance. They are different quantities sharing a name."
+    },
+    "grade": {
+     "certainty": "low",
+     "certainty_derivation": "start high; risk_of_bias serious (-1), imprecision serious (-1); total -2 -> low",
+     "randomised": true,
+     "starting_point": "high",
+     "starting_point_because": "both contributing studies are randomised controlled trials",
+     "domains": {
+      "risk_of_bias": {
+       "rating": "serious",
+       "basis_in_sources": "BOTH trials were terminated early because the sponsor withdrew funding, and THIS DOMAIN DOES NOT REST ON THAT. The usual stopped-early reasoning does not apply here: the danger with a trial stopped early FOR BENEFIT is an inflated effect at a data-dependent boundary, and the stop here was commercial, so there was no boundary to stop at. The early termination is named in this domain because any reader will look for it, and it is then explicitly SET ASIDE as a ground for it. An earlier version of this field said the object 'treats that as serious' and then argued in the next clause that it introduces no bias, which is a contradiction a gate leg was right to refuse. What carries the SERIOUS rating is internal validity alone: one trial changed its PRIMARY ENDPOINT during the trial, and both rest their primary analysis on investigator-reported rather than centrally adjudicated events. The lost power and lost follow-up that early termination also caused are NOT counted here -- they widen intervals rather than bias them, so they belong to imprecision, and an earlier version of this domain double-counted them. A gate leg was right that downgrading risk of bias for lost power is a misapplication of the domains. The endpoint change is the most serious of the three: it is exactly the condition that outcome-reporting-bias guidance is about, and it is recorded on the trial, on the cell and here."
+      },
+      "inconsistency": {
+       "rating": "not serious",
+       "derived_from": "Q against its degrees of freedom and the between-study variance, both stored in this result's heterogeneity block. With so few studies the statistic has almost no power, so 'not serious' here means no heterogeneity was DETECTED and must not be read as evidence of agreement. Section 14.2.2 makes the trigger unexplained heterogeneity rather than a value of the statistic, and the one large clinical difference between these trials -- their populations -- is documented in the uniformity table rather than offered as a post-hoc explanation. Not downgraded, with that caveat stated rather than implied."
+      },
+      "indirectness": {
+       "rating": "not serious",
+       "basis_in_sources": "Not downgraded, and the reasoning is worth stating because the opposite call is tempting. The frozen question is the drug across its PIVOTAL PROGRAMME, and the evidence is exactly that programme: the population, the intervention, the comparator and the outcomes are the ones the question names, measured in the trials themselves. The population SPREAD between the trials is real and large, but it is diversity WITHIN the question rather than a mismatch between the question and the evidence, and section 10.10.1 is where it belongs -- the uniformity table -- not here. An earlier version of this domain downgraded on the ground that a reader wanting a heart-failure answer would misread the pooled value. That is a risk of MISREADING, answered by labelling and by the scope block, and downgrading for it would be stricter than the Handbook while claiming the Handbook's support -- the same defect a gate leg caught on the companion review in this batch."
+      },
+      "imprecision": {
+       "rating": "serious",
+       "triggers_computed": "Condition one, the ordinary interval excluding the null: MET on every outcome here. Condition three, the optimal information size: NOT MET and not merely uncomputable -- both trials were terminated before they collected the information they were designed for, so whatever the target was, it was not reached. That alone is the ground for this downgrade and it is a fact about the trials, not a reading of a Handbook section. Two further observations point the same way and neither is offered as a rule: on the pooled outcomes an alternative interval method gives a range that includes the null, which section 10.10.4.5 says may be excessively wide at this number of studies and which is therefore reported rather than relied on; and on the single-trial outcome the upper bound sits just under the null, so the interval is consistent with a benefit too small to matter, which is condition two. An earlier version of this field made alternative-interval-crosses-null a downgrade RULE and credited it to 10.10.4.5, which does not give one.",
+       "derived_from": "The pooled interval stored in this result, and the alternative-method interval reported beside it in the sensitivity block. Neither is turned into a threshold rule here: what carries the downgrade is the unmet information size recorded above, and the intervals are the arithmetic a reader can check it against. An earlier version of this field stated a rule that the triggers field two lines above explicitly disowned, and both review families found the contradiction.",
+       "ois_note": "The optimal information size is a condition section 14.2.2 makes part of adequate precision, and it is NOT computable from what this object holds: it needs an assumed control-arm risk and a target difference no field here carries. It is UNKNOWN rather than satisfied, and this sentence exists so its absence cannot read as a pass. Both trials also stopped early for funding, so neither reached the information it was designed to collect -- which is an argument for caution that the interval alone does not carry."
+      },
+      "publication_bias": {
+       "rating": "not assessable",
+       "not_assessable_because": "Far too few studies. Funnel-plot and regression methods for small-study effects are not interpretable at this size, so no assessment is made and none is implied. What can be said without a test is recorded instead: both trials are registered, both posted results, and both published their primary papers reporting the early termination. The mid-trial change of primary endpoint is reported in ONE of those papers, not in both -- an earlier version of this sentence credited it to both, which the object's own uniformity row already contradicted, and the regulator's review of both is public and staged here. Rated not assessable, which downgrades nothing on its own."
+      }
+     },
+     "sections": [
+      "14.2.1",
+      "14.2.2",
+      "10.10.2",
+      "10.10.4",
+      "10.14"
+     ],
+     "what_this_certainty_is_about": "The certainty of THIS estimand's pooled value and of nothing else. This object holds three estimands with three separate ratings, and they are not interchangeable: a reader who takes the rating from one and the number from another has produced a claim this object does not make. It is also a rating of a DRUG-WIDE average across two very different populations, not of the drug in heart failure."
+    }
+   },
+   "mace3_first": {
+    "k": 1,
+    "estimand_id": "mace3_first-estimand",
+    "comparator_type": "placebo",
+    "handbook": {
+     "decision": "DO NOT POOL. One trial reports this endpoint in this form, so the result is that trial's own estimate, presented as such",
+     "sections": [
+      "3.2.4",
+      "10.8",
+      "10.9"
+     ],
+     "conformance": "There is no meta-analysis here and none is implied. The companion trial posts a total-occurrence composite of FOUR components -- these three plus hospitalization for heart failure -- so it differs from this cell in BOTH its event set and its unit of analysis, and the two differences are governed by DIFFERENT sections: the unit of analysis by 10.8 read against 10.9, and the EVENT SET by 3.2.4, under which a composite's components are part of how the review DEFINES its outcome -- so two composites differing in a component are two outcomes rather than two names for one. That is a limit on what may be POOLED, not a criterion for which trials are eligible: 3.2.4 cautions AGAINST letting eligibility depend on which outcomes a study reported, and this review's eligibility does not. An earlier version of this field read it the other way round and called the outcome a defining criterion of the review, which is the over-strict reading the object disowns elsewhere. An earlier version credited both to 10.9 alone, which is a time-to-event section and has nothing to say about which events a composite contains; an earlier version still called this the same three components, which was false of the registry record. Section 3.2.4 is also why this outcome is carried at all rather than dropped for being reported by only one trial: dropping it would make the review's content depend on what the studies chose to report."
+    },
+    "per_trial": [
+     {
+      "trial_id": "scored",
+      "nct": "NCT03315143",
+      "measure": "HR",
+      "point": 0.84,
+      "ci_low": 0.72,
+      "ci_high": 0.99,
+      "ci_level": 95,
+      "log_point": -0.174353,
+      "log_se": 0.08124,
+      "estimand_id": "mace3_first-estimand",
+      "population": "adults with type 2 diabetes, chronic kidney disease with an estimated glomerular filtration rate of 25 to 60, and cardiovascular risk; heart failure was NOT an entry requirement",
+      "derivation": "the printed hazard ratio, stored on the log scale with the standard error its printed interval implies"
+     }
+    ],
+    "poolable": false,
+    "poolable_reason": "Only one contributing trial reports this estimand. The companion trial posts no three-component analysis at all: its nearest registry row is a total-occurrence composite of FOUR components, adding hospitalization for heart failure to these three. An earlier version of this field called it the same three components, which was false of the record, and a gate leg was right to read the registry rather than this sentence.",
+    "estimand_homogeneous_across_cohorts": false,
+    "estimand_homogeneity_note": "False because there is nothing to compare, NOT because a difference was found. With one contributing trial the question does not arise, and the uniformity table records its dimensions as not applicable rather than claiming they match.",
+    "estimand_id_means": "the estimand of the single trial's estimate, which is what this result reports. Nothing is averaged and nothing is claimed about the companion trial's patients.",
+    "pool_uniformity": {
+     "effect_measure": [
+      "not applicable",
+      "One study; nothing is combined."
+     ],
+     "comparator": [
+      "not applicable",
+      "One study; nothing is combined."
+     ],
+     "population": [
+      "not applicable",
+      "One study, so no population is crossed. The trial's own population is on its row and it is NOT a heart-failure population."
+     ]
+    },
+    "model": "single-study",
+    "estimator": "none",
+    "estimator_used": "none",
+    "favours": "treatment",
+    "heterogeneity_status": "No heterogeneity is reported and no pooled figure is stored, because there is nothing to pool and nothing to be heterogeneous. Storing zeroes here would have been worse than storing nothing: a zero in this field on a two-study pool means 'none detected, with almost no power to detect it', and this object contains two of those. The same digit would then have meant two different things in one object.",
+    "single_study_ref": "scored",
+    "sensitivity": {
+     "method": "none applicable",
+     "authority": "Cochrane Handbook version 6.5.1, section 10.14. A leave-one-out analysis of one study leaves nothing, and an estimator comparison with no between-study variance to estimate is not a sensitivity analysis. Neither is run, and this field says so rather than presenting an empty table.",
+     "decision_under_test": "none; there is one study",
+     "analyses": [],
+     "leave_one_out_finding": "Not run. With one study there is nothing to leave out, and an object that printed a table here would be manufacturing reassurance."
+    },
+    "grade": {
+     "certainty": "low",
+     "certainty_derivation": "start high; risk_of_bias serious (-1), imprecision serious (-1); total -2 -> low",
+     "randomised": true,
+     "starting_point": "high",
+     "starting_point_because": "the contributing study is a randomised controlled trial",
+     "domains": {
+      "risk_of_bias": {
+       "rating": "serious",
+       "basis_in_sources": "The contributing trial was terminated early because the sponsor withdrew funding, and THIS DOMAIN DOES NOT REST ON THAT. The usual stopped-early reasoning does not apply here: the danger with a trial stopped early FOR BENEFIT is an inflated effect at a data-dependent boundary, and the stop here was commercial, so there was no boundary to stop at. The early termination is named in this domain because any reader will look for it, and it is then explicitly SET ASIDE as a ground for it. An earlier version of this field said the object 'treats that as serious' and then argued in the next clause that it introduces no bias, which is a contradiction a gate leg was right to refuse. What carries the SERIOUS rating is internal validity alone: this trial changed its PRIMARY ENDPOINT during the trial -- the endpoint reported here was one of its ORIGINAL co-primaries, displaced by that change, and nothing on this outcome is pooled -- and it rests its analysis on investigator-reported rather than centrally adjudicated events. The lost power and lost follow-up that early termination also caused are NOT counted here -- they widen intervals rather than bias them, so they belong to imprecision, and an earlier version of this domain double-counted them. A gate leg was right that downgrading risk of bias for lost power is a misapplication of the domains. The endpoint change is the most serious of the three: it is exactly the condition that outcome-reporting-bias guidance is about, and it is recorded on the trial, on the cell and here."
+      },
+      "inconsistency": {
+       "rating": "not assessable",
+       "not_assessable_because": "One contributing study. There is nothing for a second estimate to agree or disagree with, this outcome stores no heterogeneity block at all, and no statistic is computed. It is recorded as NOT ASSESSABLE rather than as not serious, because the latter would imply the question had been asked and answered reassuringly. It downgrades nothing either way, and it is why this outcome does not cite the sections that give heterogeneity its number."
+      },
+      "indirectness": {
+       "rating": "not serious",
+       "basis_in_sources": "Not downgraded, and the reasoning is worth stating because the opposite call is tempting. The frozen question is the drug across its PIVOTAL PROGRAMME, and the evidence is exactly that programme: the population, the intervention, the comparator and the outcomes are the ones the question names, measured in the trials themselves. There is no population spread to weigh on this outcome: it holds ONE trial, and that trial's population -- diabetes with chronic kidney disease, heart failure not an entry requirement -- is stated on its row and is not averaged with anything. A reader must not read this rating as covering a heart-failure population, and that is answered by saying so here and on the row rather than by a downgrade."
+      },
+      "imprecision": {
+       "rating": "serious",
+       "triggers_computed": "Condition one, the ordinary interval excluding the null: MET on every outcome here. Condition three, the optimal information size: NOT MET and not merely uncomputable -- the contributing trial was terminated before it collected the information it was designed for, so whatever the target was, it was not reached. That alone is the ground for this downgrade and it is a fact about the trials, not a reading of a Handbook section. Two further observations point the same way and neither is offered as a rule: on the pooled outcomes an alternative interval method gives a range that includes the null, which section 10.10.4.5 says may be excessively wide at this number of studies and which is therefore reported rather than relied on; and on the single-trial outcome the upper bound sits just under the null, so the interval is consistent with a benefit too small to matter, which is condition two. An earlier version of this field made alternative-interval-crosses-null a downgrade RULE and credited it to 10.10.4.5, which does not give one.",
+       "derived_from": "The single trial's own interval, stored on its row: its upper bound sits just under the null, so the interval is consistent with a benefit too small to be appreciable. There is no pooled interval and no alternative-method interval on this outcome, and this field claims neither.",
+       "ois_note": "The optimal information size is a condition section 14.2.2 makes part of adequate precision, and it is NOT computable from what this object holds: it needs an assumed control-arm risk and a target difference no field here carries. It is UNKNOWN rather than satisfied, and this sentence exists so its absence cannot read as a pass. The contributing trial also stopped early for funding, so it did not reach the information it was designed to collect -- which is an argument for caution that the interval alone does not carry."
+      },
+      "publication_bias": {
+       "rating": "not assessable",
+       "not_assessable_because": "Far too few studies. Funnel-plot and regression methods for small-study effects are not interpretable at this size, so no assessment is made and none is implied. What can be said without a test is recorded instead: the contributing trial is registered, posted its results, and published a primary paper reporting both the mid-trial change of primary endpoint and the early termination, and the regulator's review of both is public and staged here. Rated not assessable, which downgrades nothing on its own."
+      }
+     },
+     "sections": [
+      "14.2.1",
+      "14.2.2"
+     ],
+     "what_this_certainty_is_about": "The certainty of ONE trial's estimate of this endpoint, and of nothing else. Nothing here is pooled, no average across populations is involved, and the population rated is that single trial's -- which is a diabetes and kidney-disease population, not a heart-failure one. This object holds three estimands with three separate ratings and they are not interchangeable: a reader who takes the rating from one and the number from another has produced a claim this object does not make."
+    }
+   }
+  }
+ },
+ "screening": {
+  "search_note": "The candidate set is the sotagliflozin PIVOTAL PROGRAMME as the regulator defines it -- the two phase 3 cardiovascular outcome trials that supported the US approval, both named in the staged integrated review -- together with the registry records for those trials and a check of the programme's other registered trials. That is what a drug-wide pivotal question needs, and it is described here as what it is rather than as a systematic database search.",
+  "eligibility": "ELIGIBILITY turns on population, intervention and comparator: a phase 3 randomised trial of sotagliflozin against placebo in the pivotal cardiovascular outcome programme. It does NOT turn on which analysis a trial reported -- section 3.2.4 cautions that eligibility resting on reported outcomes invites outcome reporting bias, and this object carries THREE estimands precisely so that a trial is not admitted or refused according to which one it happens to print. What the estimand governs is which POOL a value may enter, under section 10.9.",
+  "known_limitation": "No systematic database search was run and nothing here should be read as though one had been. The scope is a named two-trial programme, which is what the frozen question asks about, so the risk a search would address -- an eligible trial nobody named -- is small but not zero, and it is stated rather than assumed away. A separate and dated record of the prior-synthesis search that WAS run is staged beside this object.",
+  "records": [
+   {
+    "trial": "SOTA-P-CARDIA",
+    "nct": "NCT05562063",
+    "pmid": null,
+    "source_tier": "registry",
+    "source_url": "https://clinicaltrials.gov/study/NCT05562063",
+    "identifier_note": "The registry record whose official title reads SOTA-P-CARDIA Trial: A Randomized Trial of Sotagliflozin in HFpEF Patients Without Diabetes. An earlier version of this row carried a DIFFERENT accession, which had been written from recall rather than looked up and which belongs to an unrelated drug-interaction study in healthy volunteers. A gate leg resolved the identifier and caught it. A resolvable link to the wrong study is worse than no link, because it survives every check that only asks whether a link resolves.",
+    "criteria_failed": [
+     "outcome_not_this_review's"
+    ],
+    "not_poolable_even_if_eligible": [],
+    "reason": "A sotagliflozin trial, and it is in this log rather than absent because a reader looking for the drug's trials will look for it. It is NOT part of the pivotal programme this object is scoped to: its registry record describes an investigator-sponsored later-phase mechanistic study in heart failure with preserved ejection fraction WITHOUT diabetes, with imaging and functional endpoints and an enrolment two orders of magnitude below either pivotal trial. An earlier version of this row called it part of the same programme, which a gate leg correctly read as false of the record. Its endpoints are cardiac and metabolic measures rather than the event composites this object holds, so it contributes to none of the three estimands. It is NOT excluded for reporting the wrong outcome in the sense section 3.2.4 warns against -- it reports no estimate of any of these three quantities at all, which is a different thing from reporting them and being ignored.",
+    "quantity_it_reports": "cardiac and metabolic endpoints; no estimate of any composite this object holds",
+    "why_that_quantity_is_never_stored_as_a_hazard_ratio": "It is not stored anywhere in this object in any form. This row exists so that the absence is visible and dated rather than silent.",
+    "record_limitation": "This row is written from the registry record and from the trial's place in the programme. Its results were not read for this object and no value from it is claimed, which is stated here rather than left for a reader to infer from the empty quantity field."
+   }
+  ],
+  "excluded": [
+   {
+    "reason": "SOTA-P-CARDIA -- outcome_not_this_review's",
+    "detail": "A sotagliflozin trial, and it is in this log rather than absent because a reader looking for the drug's trials will look for it. It is NOT part of the pivotal programme this object is scoped to: its registry record describes an investigator-sponsored later-phase mechanistic study in heart failure with preserved ejection fraction WITHOUT diabetes, with imaging and functional endpoints and an enrolment two orders of magnitude below either pivotal trial. An earlier version of this row called it part of the same programme, which a gate leg correctly read as false of the record. Its endpoints are cardiac and metabolic measures rather than the event composites this object holds, so it contributes to none of the three estimands. It is NOT excluded for reporting the wrong outcome in the sense section 3.2.4 warns against -- it reports no estimate of any of these three quantities at all, which is a different thing from reporting them and being ignored.",
+    "source_tier": "registry",
+    "source_url": "https://clinicaltrials.gov/study/NCT05562063"
+   }
+  ]
+ },
+ "screening_names_unresolved": [],
+ "eligible_but_not_contributing": {
+  "note": "No trial is in this category. Both pivotal trials contribute to every estimand they report, and the one further programme trial screened is in the screening log because it reports none of them. This field is present and empty rather than absent, so a reader can tell the category was considered.",
+  "studies": []
+ },
+ "reconciliation": {
+  "why_this_step_exists": "Because on the first app in this batch it changed the answer, and on the second it recovered a correct benchmark that had been written off. Here it does a third thing: it establishes, with a dated record of the queries, that the synthesis this object would most want to check itself against does not appear to exist.",
+  "clean": false,
+  "clean_because": "Not clean, and the reason is an absence rather than a disagreement. No published synthesis reporting either trial's OWN primary endpoint as a separate row could be located, so the per-cell values in this object are checked against the regulator and the registry but against no independent synthesis. The one synthesis reconciled against includes one of these two trials and reports a harmonized endpoint this object does not hold, so it checks SCOPE and not VALUES. That is a real limit on how far this object has been checked and it is recorded rather than papered over.",
+  "target_source_id": "PM_VADUGANATHAN2022",
+  "access_limitation": "The synthesis reconciled against is staged as its abstract; its full text is not open, which was established by querying the full-text archive for its identifier rather than inferred from a paywall notice. Its abstract NAMES all five of its trials, so the included-study list -- the thing this step needs -- is readable in full. Its per-trial rows are not, which is why no per-trial value is attributed to it anywhere in this object.",
+  "trial_list_diffs": [
+   {
+    "review_id": "PM_VADUGANATHAN2022",
+    "review_scope": "SGLT2 inhibitors in heart failure across the ejection fraction spectrum, five randomised trials, fixed-effect, with endpoint definitions harmonized by the authors",
+    "list_was_readable": true,
+    "review_included_trials": [
+     "DAPA-HF",
+     "EMPEROR-Reduced",
+     "EMPEROR-Preserved",
+     "DELIVER",
+     "SOLOIST-WHF"
+    ],
+    "ours_not_theirs": [
+     {
+      "trial": "SCORED",
+      "why_ours_is_right": "Their question is heart failure; this object's question is the sotagliflozin pivotal programme, drug-wide. SCORED is a diabetes and kidney-disease cardiovascular outcome trial, so it is correctly outside their scope and correctly inside this one. The two scopes disagree because they are different questions, not because either is wrong."
+     }
+    ],
+    "theirs_not_ours": [
+     {
+      "trial": "DAPA-HF",
+      "disposition": "out of scope",
+      "source_tier": "prior_meta",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/36041474/",
+      "reason": "a different drug; this object is scoped to one molecule"
+     },
+     {
+      "trial": "EMPEROR-Reduced",
+      "disposition": "out of scope",
+      "source_tier": "prior_meta",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/36041474/",
+      "reason": "a different drug"
+     },
+     {
+      "trial": "EMPEROR-Preserved",
+      "disposition": "out of scope",
+      "source_tier": "prior_meta",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/36041474/",
+      "reason": "a different drug"
+     },
+     {
+      "trial": "DELIVER",
+      "disposition": "out of scope",
+      "source_tier": "prior_meta",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/36041474/",
+      "reason": "a different drug"
+     }
+    ]
+   }
+  ],
+  "matches": [
+   {
+    "item": "the worsening-heart-failure trial is recognised as a trial of this class",
+    "detail": "A published five-trial synthesis names it among its included studies, which confirms this object has not invented a trial or misidentified one."
+   },
+   {
+    "item": "that trial's randomised total",
+    "detail": "The synthesis's stated combined sample size is consistent with this object's denominators for the trial they share, given the four other trials it names."
+   }
+  ],
+  "corrections": [
+   {
+    "item": "the supplied first-event estimate for the worsening-heart-failure trial",
+    "review_reports": "This object was handed a time-to-first estimate for that trial to carry, described as unverified.",
+    "this_object": "It matches no analysis in the staged regulator review. The review reports two time-to-first estimates for that trial, on the two ascertainment bases, and the supplied figure is neither of them; its lower bound is the lower bound of one of them. Both real estimates are stored, the supplied one is stored nowhere."
+   },
+   {
+    "item": "which layer holds the time-to-first analysis at all",
+    "review_reports": "The handoff expected the registry to be searched for it.",
+    "this_object": "Neither registry posts it. Every posted outcome on both records is a total-occurrence or a change-from-baseline analysis. The quantity exists in exactly one staged document, the regulator's statistical review, which is recorded on each cell."
+   },
+   {
+    "item": "the European regulator layer",
+    "review_reports": "The handoff recorded that the European application was withdrawn, which suggested an application for this indication that failed.",
+    "this_object": "The European authorisation was GRANTED, in 2019, and for a different indication entirely -- an adjunct to insulin in type 1 diabetes. The staged medicine overview does not contain the phrase heart failure at all. It was later withdrawn at the holder's request for commercial reasons. So the European layer is not available for this endpoint because the EU authorisation was for type 1 diabetes and was withdrawn -- which is a different and more informative fact than a withdrawn application. What this object does NOT say, and what an earlier version of this sentence did say, is that there was never a European heart-failure assessment. The staged documents cannot establish that: an overview that omits a phrase is not a record of what was never filed. The corrected-claims block already made exactly that distinction, and this sentence had been contradicting it."
+   }
+  ],
+  "unresolved": [
+   {
+    "item": "no independent synthesis checks the values in this object",
+    "detail": "Four dated queries found no synthesis reporting either trial's own primary endpoint as a separate row, and the closest class-level network meta-analyses do not name either trial in their abstracts, so their included-study lists cannot be read from what is open. The consequence is stated plainly rather than minimised: the per-cell values here rest on the publication, the registry and the regulator, and on no independent re-analysis. A synthesis may exist behind a paywall or under indexing these queries did not reach."
+   },
+   {
+    "item": "what explains the regulator-versus-publication divergences",
+    "detail": "Both total-occurrence cells differ between the FDA documents and the agreeing publication and registry -- on the lower bound for the smaller trial, on the point estimate for the larger. Within the FDA the two documents agree with each other on BOTH trials: an earlier version of this entry said they differed on the larger one, which was this object's own error and is corrected in the corrected-claims block. Nothing in the staged sources explains it. The review describes its analyses as based on investigator-reported events in all randomized patients, which is where an explanation would start, but the staged text does not say that it accounts for these differences and this object does not assert that it does."
+   }
+  ]
+ },
+ "claims_corrected": [
+  {
+   "claim": "that the worsening-heart-failure trial's time-to-first estimate is the value supplied to this build",
+   "status": "FALSE",
+   "correction": "The regulator's review reports two such estimates, one per ascertainment basis, and the supplied figure is neither. Its lower bound coincides with the lower bound of one of them, which is how a bound becomes an estimate in a chain of custody.",
+   "source_id": "FDA_REVIEW_216203"
+  },
+  {
+   "claim": "that the European application for this drug was withdrawn",
+   "status": "INCOMPLETE",
+   "correction": "An authorisation was granted and later withdrawn, and it was for insulin-dependent diabetes rather than heart failure. That is why the European layer holds nothing for this endpoint. What is NOT claimed, because the staged documents do not show it, is that a heart-failure indication was never applied for -- an overview that omits a phrase is not a record of what was never filed.",
+   "source_id": "EMA_ZYNQUISTA"
+  },
+  {
+   "claim": "that this review can report one pooled effect for sotagliflozin",
+   "status": "FALSE",
+   "correction": "It holds three estimands and pools none of them together. The trials' own primary is a total-occurrence analysis reported as a hazard ratio; the time-to-first analysis of the same composite is a different set of numbers held only by the regulator; and the three-component first-occurrence endpoint is reported by one trial. A single headline would have to merge at least two of those.",
+   "source_id": "FDA_REVIEW_216203"
+  },
+  {
+   "claim": "that the two FDA documents disagree with each other about the larger trial's total-occurrence primary endpoint",
+   "status": "FALSE",
+   "correction": "They agree to every digit. The review's PRIMARY endpoint analysis and the label's efficacy table print the same interval, and the differing lower bound this object had quoted from the review belongs to a SENSITIVITY analysis on the same endpoint -- the one censoring non-cardiovascular deaths as non-informative. A value was matched across documents without the ANALYSIS it belongs to, which is the defect this object's own cascade exists to prevent, committed by the object itself and built into a headline before a gate leg caught it. The surviving divergence is real and unchanged: the publication and the registry print a different point estimate from the one both FDA documents print. The companion trial was re-checked the same way and needed no correction -- there the review's primary line and the label's table do print the interval this object records.",
+   "source_id": "FDA_REVIEW_216203"
+  }
+ ],
+ "scope_decisions": {
+  "SCOPE:three-estimands-never-merged": {
+   "decision": "The total-occurrence composite, the time-to-first analysis of that same composite, and the three-component first-occurrence endpoint are three separate outcomes, each with its own result block and its own certainty rating, and no value crosses between them. TWO of them are pooled; the third is reported by a single trial and is not pooled at all, which its own result block says on its face. An earlier version of this sentence claimed three separate POOLS, which implied a synthesis for that third outcome that the sources do not support and that the structured result correctly refuses.",
+   "sections": [
+    "10.3",
+    "10.8",
+    "10.9",
+    "3.2.4"
+   ],
+   "conformance": "Section 10.9 fixes what may be combined: log hazard ratios for the same quantity by generic inverse variance. A proportional-rates analysis over first and subsequent events and a Cox analysis of the time to a first event are not the same quantity, and every layer here calls both of them a hazard ratio -- which is precisely why the separation has to be structural rather than a note. Section 3.2.4 is why all three are carried instead of only the one the trials designated primary."
+  },
+  "SCOPE:the-label-on-the-quantity-is-not-the-quantity": {
+   "decision": "A value is filed by what the analysis DID, never by what the source called it. Both trials' primary endpoints are recurrent-event analyses reported as hazard ratios by the journal, the registry and the regulator alike, and they are filed as total-occurrence estimands.",
+   "sections": [
+    "10.8",
+    "10.9"
+   ],
+   "conformance": "This is the single most load-bearing decision in the object and the one no automated check in this repository could make for it: an effect-measure detector sees two hazard ratios and is satisfied. The companion review in this batch EXCLUDED one of these very trials for this reason. This object includes it and separates the estimands instead, which is a different answer to the same fact and is defensible only because the separation is structural."
+  },
+  "SCOPE:publication-two-component-first-event-composite": {
+   "decision": "The larger trial's publication reports a first-occurrence composite of cardiovascular death OR hospitalization for heart failure -- TWO components, without urgent heart failure visits. This object does not use it for the time-to-first estimand and stores no value from it. The time-to-first estimand here is the time-to-first analysis of that trial's OWN primary composite, which has three components, and the regulator's review is the only staged layer that prints it. Treating the publication's two-component figure as the same cell would put a different event set under the same name -- the conflation this object exists to refuse -- and it would also re-source a load-bearing row to a layer that does not print it.",
+   "sections": [
+    "3.2.4",
+    "10.9"
+   ],
+   "conformance": "Section 3.2.4 governs which outcomes a review defines and how they are grouped. A composite is defined by its event set, so two composites differing in a component are two outcomes and not two labels for one. Section 10.9 governs the time-to-event analysis the two share, which is exactly why the shared analysis type is not sufficient to make them one cell. This block exists because an earlier version of the time-to-first cascade cell said this composite was 'recorded in the screening and scope blocks rather than silently used here' when it was recorded in NEITHER -- a cross-reference that pointed at nothing. A gate leg found it; this block is the record the sentence claimed."
+  },
+  "SCOPE:drug-wide-pivotal-not-heart-failure": {
+   "decision": "The question is the drug across its pivotal programme, so both trials are in and the pooled value spans a heart-failure population and a diabetes-and-kidney-disease population. The heart-failure-only result is a labelled SUBGROUP -- one trial's own row -- and never the headline.",
+   "sections": [
+    "3.2.1",
+    "10.10.1"
+   ],
+   "conformance": "Section 3.2.1 makes the population a defining criterion, and this object defines it as the pivotal programme rather than as a disease. That is a legitimate question and it is also the one most open to being misread, so the population difference is the largest row in every uniformity table here. It is deliberately NOT a reason to downgrade indirectness: the frozen question IS the drug-wide programme, so the spread is diversity WITHIN the question rather than a mismatch with it, and it is carried under section 10.10.1 in the uniformity table instead. An earlier version of this sentence said the indirectness domain was downgraded for it, which contradicted the GRADE blocks themselves; a gate leg found the contradiction by reading both."
+  },
+  "SCOPE:no-number-needed-to-treat": {
+   "decision": "No absolute risk reduction and no number needed to treat is computed or displayed anywhere in this object, on any outcome.",
+   "sections": [
+    "10.8",
+    "10.9"
+   ],
+   "conformance": "On the total-occurrence outcome the arithmetic is not merely unhelpful, it has no meaning in the usual sense: the denominator of a number needed to treat is a difference in the PROPORTION of people with an event, and this endpoint counts events rather than people. On the other two outcomes it would need an assumed control risk over a stated horizon that no field here carries. The renderer computes none, which was checked rather than assumed."
+  }
+ }
+}
