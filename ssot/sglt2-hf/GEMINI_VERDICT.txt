@@ -1,0 +1,50 @@
+===== PASS SOURCE =====
+[attempt 1: exit 0, 70s, 0 chars, no verdict]
+[attempt 2: exit 0, 68s, 2503 chars, usable]
+NONCE: sglt2-hf-4d5a9a5f
+
+I have reviewed the canonical JSON object and compared its claims and extracted data against the corresponding source files. 
+
+**Files Read:**
+1. `F:\claude-temp\ssot\canonical\sglt2-hf.json`
+2. `F:\claude-temp\ssot\sources\sglt2-hf\OA_DAPA_HF_abstract.txt`
+3. `F:\claude-temp\ssot\sources\sglt2-hf\OA_DELIVER_abstract.txt`
+4. `F:\claude-temp\ssot\sources\sglt2-hf\OA_EMPEROR_PRESERVED_abstract.txt`
+5. `F:\claude-temp\ssot\sources\sglt2-hf\OA_EMPEROR_REDUCED_abstract.txt`
+6. `F:\claude-temp\ssot\sources\sglt2-hf\OA_SOLOIST_WHF_abstract.txt`
+7. `F:\claude-temp\ssot\sources\sglt2-hf\OA_SCORED_abstract.txt`
+8. `F:\claude-temp\ssot\sources\sglt2-hf\OA_EMPULSE_PMC8938265.txt`
+
+**Findings:**
+- **DAPA-HF**: The stated hazard ratio of 0.74 (95% CI, 0.65 to 0.85), event counts (386 of 2373 vs 502 of 2371), follow-up (18.2 months), and composite definition exactly match the verbatim text in the DAPA-HF abstract. The derived `log_point` and `log_se` values correctly follow mathematical derivation (using the exact critical value of ~1.96).
+- **EMPEROR-Reduced**: The stated hazard ratio of 0.75 (95% CI, 0.65 to 0.86), event counts (361 of 1863 vs 462 of 1867), follow-up (16 months), and composite definition exactly match the verbatim text in the EMPEROR-Reduced abstract. The derivation logic maintains precision and correct directionality.
+- **EMPEROR-Preserved**: The stated hazard ratio of 0.79 (95% CI, 0.69 to 0.90), event counts (415 of 2997 vs 511 of 2991), follow-up (26.2 months), and composite definition exactly match the verbatim text in the EMPEROR-Preserved abstract. The derivation logic is correct.
+- **DELIVER**: The stated hazard ratio of 0.82 (95% CI, 0.73 to 0.92), event counts (512 of 3131 vs 610 of 3132), follow-up (2.3 years), and composite definition exactly match the verbatim text in the DELIVER abstract. The derivation logic is correct.
+- **SOLOIST-WHF (Excluded)**: The reported HR of 0.67 (95% CI, 0.52 to 0.85) for the total occurrence of the composite exactly matches the source.
+- **SCORED (Excluded)**: The reported original coprimary HR of 0.77 (95% CI, 0.66 to 0.91) exactly matches the source.
+- **EMPULSE (Excluded)**: The reported stratified win ratio of 1.36 (95% CI, 1.09 to 1.68) with values above 1 favoring treatment exactly matches the source.
+
+The JSON correctly captures all the values, composite definitions, group allocations, and derived log forms with the proper direction of benefit without any defects.
+
+VERDICT: PASS
+
+
+===== PASS JUDGE =====
+[attempt 1: exit 0, 68s, 2323 chars, usable]
+NONCE: sglt2-hf-4d5a9a5f
+
+VALIDATOR: I read the following file to evaluate the object:
+- F:\claude-temp\ssot\canonical\sglt2-hf.json
+
+VALIDATOR: 1. ESTIMAND. The object correctly declares the differences in how the worsening-heart-failure component is defined across the contributing trials. It explicitly marks `estimand_homogeneous_across_cohorts` as false, thoroughly documents the differences in `pool_uniformity.outcome_definition`, and carries the exact source text and trial-specific definition for each trial in the `provenance` and `composite_as_this_trial_defines_it` fields. No prose claims sameness; the object repeatedly emphasizes that the pooled value is an average across these documented differences.
+
+VALIDATOR: 2. SHARED CONTROLS. The four pooled trials (DAPA-HF, EMPEROR-Reduced, EMPEROR-Preserved, DELIVER) are independent studies. None of the trials randomized more than one intervention group against a single control, meaning no pooled estimate leans on the same control participants twice.
+
+VALIDATOR: 3. COMPLETENESS. The `completeness_statement` accurately scopes its claim to trials reached by reconciliation against three published syntheses and registry records, explicitly disclaiming a systematic database search. The exclusions documented in `screening.records` are honest and properly distinguish between failing an eligibility criterion (population) and failing a pooling limit (measure).
+
+VALIDATOR: 4. CORRECTIONS AND RECONCILIATION. The object includes comprehensive `reconciliation` and `claims_corrected` blocks. The criticisms and corrections are fair, highly detailed, and properly address prior misattributions. The object explicitly admits the limits of its reading in the `access_limitation` field, noting that the full texts for two of the prior syntheses were not open and therefore only their abstracts were read.
+
+VALIDATOR: 5. HANDBOOK CONFORMANCE. The methodological decisions accurately apply the Cochrane Handbook (version 6.5.1). Section 3.2.1 is correctly cited for population eligibility restrictions. Section 3.2.4 is appropriately cited as a caution against making eligibility turn on reported outcomes. Section 10.9 properly governs the time-to-first-event hazard ratio pooling limit. The decisions logically and strictly follow the cited sections.
+
+VERDICT: PASS
+

@@ -1,0 +1,117 @@
+FDA REVIEW-DOCUMENT ABSENCE PROBE -- dapagliflozin (NDA 202293) and empagliflozin (NDA 204629)
+Run 2026-08-10 by _probe_farxiga_letters.py and _probe_fda_hf_supplement.py.
+
+WHY THIS FILE EXISTS. Four cascade cells record regulator_fda as FOUND at the
+approved LABEL rather than at a review document, and the object states that no
+review is published for the heart-failure indications. That is an ABSENCE claim,
+and an absence claim with nothing behind it is an assumption. This is what was
+actually asked of the server, and what it answered.
+
+METHOD. Every approval letter Drugs@FDA serves for the application was read off
+the overview page; each letter names one or more submissions; a review table of
+contents was requested for each submission by name. A submission derived from a
+letter the page serves is a submission that provably exists, which is the line
+between discovery and invention.
+
+RESULT, dapagliflozin NDA 202293: 21 approval letters, 29 submissions probed,
+exactly TWO publish a review table of contents -- s000 (2014, the original
+diabetes application) and s024 (2021), whose own cover page names chronic kidney
+disease as the indication under review. The heart-failure supplements s021 and
+s028 publish letters and labels and no review.
+
+RESULT, empagliflozin NDA 204629: the overview page lists exactly one review
+table of contents, for s000 (2014), and it returns 404. Confirmed twice, by two
+independent routes.
+
+--- raw probe output follows ---
+
+approval letters served: 21
+
+  202293Orig1s035        (2026)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2026/202293Orig1s035ltr.pdf
+
+  205649Orig1s022        (2024)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2024/202293Orig1s031,205649Orig1s022ltr.pdf
+
+  202293Orig1s031        (2024)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2024/202293Orig1s031,205649Orig1s022ltr.pdf
+
+  202293Orig1s027        (2023)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/202293Orig1s027ltr.pdf
+
+  202293Orig1s026        (2023)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/202293Orig1s026ltr.pdf
+
+  205649Orig1s018        (2022)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/202293Orig1s028,205649Orig1s018ltr.pdf
+
+  202293Orig1s028        (2022)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/202293Orig1s028,205649Orig1s018ltr.pdf
+
+  202293Orig1s024        (2021)  review TOC: FOUND
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/202293Orig1s024ltr.pdf
+    TOC:    https://www.accessdata.fda.gov/drugsatfda_docs/nda/2021/202293Orig1s024TOC.html
+
+  210874Orig1s003        (2020)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/202293Orig1s021, 205649Orig1s013, 209091Orig1s005, 210874Orig1s003ltr.pdf
+
+  209091Orig1s005        (2020)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/202293Orig1s021, 205649Orig1s013, 209091Orig1s005, 210874Orig1s003ltr.pdf
+
+  205649Orig1s014        (2020)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/202293Orig1s022, 205649Orig1s014ltr.pdf
+
+  205649Orig1s013        (2020)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/202293Orig1s021, 205649Orig1s013, 209091Orig1s005, 210874Orig1s003ltr.pdf
+
+  202293Orig1s022        (2020)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/202293Orig1s022, 205649Orig1s014ltr.pdf
+
+  202293Orig1s021        (2020)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/202293Orig1s021, 205649Orig1s013, 209091Orig1s005, 210874Orig1s003ltr.pdf
+
+  202293Orig1s020        (2020)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/202293Orig1s020ltr.pdf
+
+  205649Orig1s011        (2019)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/202293Orig1s018, 205649Orig1s011ltr.pdf
+
+  205649Orig1s009        (2019)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/202293Orig1s015, 205649Orig1s009ltr.pdf
+
+  202293Orig1s018        (2019)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/202293Orig1s018, 205649Orig1s011ltr.pdf
+
+  202293Orig1s015        (2019)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/202293Orig1s015, 205649Orig1s009ltr.pdf
+
+  209091Orig1s003        (2018)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2018/202293Orig1s017,205649Origs010,209091Orig1s003ltr.pdf
+
+  202293Orig1s017        (2018)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2018/202293Orig1s017,205649Origs010,209091Orig1s003ltr.pdf
+
+  202293Orig1s012        (2017)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2017/202293Orig1s012ltr.pdf
+
+  202293Orig1s011        (2017)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2017/202293Orig1s011ltr.pdf
+
+  202293Orig1s010        (2016)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2016/202293Orig1s010ltr.pdf
+
+  202293Orig1s009        (2016)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2016/202293Orig1s009ltr.pdf
+
+  202293Orig1s008        (2015)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2015/202293Orig1s008ltr.pdf
+
+  202293Orig1s002        (2015)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2015/202293Orig1s002ltr.pdf
+
+  202293Orig1s003        (2014)  review TOC: absent
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2014/202293Orig1s003ltr.pdf
+
+  202293Orig1s000        (2014)  review TOC: FOUND
+    letter: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2014/202293Orig1s000ltr.pdf
+    TOC:    https://www.accessdata.fda.gov/drugsatfda_docs/nda/2014/202293Orig1s000TOC.html

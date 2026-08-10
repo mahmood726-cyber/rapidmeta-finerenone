@@ -679,6 +679,45 @@ def _page(canon, sections, p, e):
             f"  <h3>Excluded, with reasons</h3>\n  <ul>\n{xs}  </ul>\n"
             f"  <p><small>{p(sc['known_limitation'])}</small></p>\n</div>\n")
 
+    def _benchmarks(r, e, p):
+        """The published syntheses' OWN numbers, each with its own scope.
+
+        Emitted only when `reconciliation.published_benchmarks` exists, so every
+        object that does not carry the key renders byte-identically to before.
+
+        It exists because of a specific failure it is meant to make impossible.
+        The page this block was written for replaced one whose benchmark row
+        carried one synthesis's NAME, a second synthesis's trial count and
+        sample size, and an interval bound belonging to neither -- three real
+        numbers assembled into a claim no source makes. A reader could not have
+        caught that from a single row. Printing each synthesis on its own line
+        with its own trial list, sample size, model and endpoint is what makes
+        the mismatch visible rather than plausible.
+        """
+        bms = r.get("published_benchmarks")
+        if not bms:
+            return ""
+        rows = ""
+        for b in bms:
+            trials = ", ".join(b.get("trials") or [])
+            ci = (f"{b['point']} ({b['ci_low']} to {b['ci_high']})"
+                  if b.get("point") is not None else "")
+            rows += (
+                f"    <tr><td>{e(b.get('measure', ''))} {e(ci)}</td>"
+                f"<td class='num'>{e(str(len(b.get('trials') or [])))}</td>"
+                f"<td class='num'>{e(str(b.get('n', '')))}</td>"
+                f"<td>{p(b.get('model', ''))}</td>"
+                f"<td>{p(b.get('endpoint', ''))}</td></tr>\n"
+                f"    <tr><td colspan='5'><small>{p(trials)}"
+                f"<br>{p(b.get('comparability', ''))}</small></td></tr>\n")
+        note = r.get("what_the_benchmarks_show")
+        return (
+            "  <h3>What the published syntheses report, each with its own scope</h3>\n"
+            "  <table>\n    <thead><tr><th>estimate</th><th>trials</th>"
+            "<th>participants</th><th>model</th><th>endpoint</th></tr></thead>\n"
+            f"    <tbody>\n{rows}    </tbody>\n  </table>\n"
+            + (f"  <p><small>{p(note)}</small></p>\n" if note else ""))
+
     # The comparison against the published synthesis of the same literature.
     recon = ""
     r = canon.get("reconciliation")
@@ -700,6 +739,7 @@ def _page(canon, sections, p, e):
             + block("What matches", r.get("matches"), ["item", "detail"])
             + block("What this object corrects", r.get("corrections"),
                     ["item", "review_reports", "this_object"])
+            + _benchmarks(r, e, p)
             + block("What could not be resolved", r.get("unresolved"),
                     ["item", "detail"])
             + "</div>\n")
