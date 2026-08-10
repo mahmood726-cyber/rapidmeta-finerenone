@@ -474,20 +474,33 @@ def _outcome_section(canon, oid, p, e):
                 + _method_table(s, p, e) + "</div>\n")
     elif res.get("sensitivity"):
         s = res["sensitivity"]
+        # An efficacy column and a `conclusion` line are VACCINE-shaped. This
+        # renderer was written against a vaccine pool and read both keys
+        # unconditionally, so the first hazard-ratio pool to reach it died on
+        # KeyError: 've_percent'. A hazard ratio has no vaccine efficacy and
+        # inventing one would be a fabricated column, so the column is emitted
+        # only where every row actually carries the value. Both branches are
+        # byte-identical to the previous output when the keys are present, which
+        # is asserted against a fresh projection of all eight live objects
+        # rather than reasoned about.
+        has_ve = all("ve_percent" in a for a in s["analyses"])
+        concl = s.get("conclusion") or s.get("leave_one_out_finding")
         srows = "".join(
             f"    <tr><td>{e(a['omitted'])}</td>"
             f"<td class='num'>{fmt(a['k'])}</td>"
             f"<td class='num'>{fmt(a['point'])} "
             f"({fmt(a['ci_low'])} to {fmt(a['ci_high'])})</td>"
-            f"<td class='num'>{fmt(a['ve_percent'])}%</td></tr>\n"
+            + (f"<td class='num'>{fmt(a['ve_percent'])}%</td>" if has_ve else "")
+            + "</tr>\n"
             for a in s["analyses"])
         sens = (f"<div class='card'>\n  <h3>Leave-one-out sensitivity</h3>\n"
                 f"  <p>{p(s['decision_under_test'])}</p>\n  <table>\n"
                 f"    <tr><th>Cohort omitted</th><th>k</th>"
                 f"<th>{e(outcome['measure'])} (95% CI)</th>"
-                f"<th>Efficacy</th></tr>\n{srows}  </table>\n"
-                f"  <p><strong>{p(s['conclusion'])}</strong></p>\n"
-                f"  <p><small>{p(s['authority'])}</small></p>\n"
+                + ("<th>Efficacy</th>" if has_ve else "")
+                + f"</tr>\n{srows}  </table>\n"
+                + (f"  <p><strong>{p(concl)}</strong></p>\n" if concl else "")
+                + f"  <p><small>{p(s['authority'])}</small></p>\n"
                 + _method_table(s, p, e) + "</div>\n")
 
     # Where the two judging families disagreed about whether a figure should be
@@ -640,8 +653,24 @@ def _page(canon, sections, p, e):
     screening = ""
     sc = canon.get("screening")
     if sc:
+        # The LINK is rendered when the decision carries one. A displayed
+        # include/exclude decision is a claim about the world as much as a
+        # number is, and under `source_links_enforced` a reader has to be able
+        # to click through to the place it was decided from. A review leg found
+        # this list rendering bare while the underlying records were fully
+        # linked -- provenance that exists only where nobody looks. Objects
+        # whose decisions carry no link render exactly as before.
+        def _xlink(x):
+            u = x.get("source_url")
+            if not u:
+                return ""
+            t = x.get("source_tier")
+            label = f"{t}: {u}" if t else u
+            return f"<br><small><a href='{e(u)}'>{e(label)}</a></small>"
+
         xs = "".join(
-            f"    <li><strong>{p(x['reason'])}</strong><br>{p(x['detail'])}</li>\n"
+            f"    <li><strong>{p(x['reason'])}</strong><br>{p(x['detail'])}"
+            f"{_xlink(x)}</li>\n"
             for x in sc.get("excluded", []))
         screening = (
             f"<div class='card'>\n  <h2>What the search found, and what was kept</h2>\n"

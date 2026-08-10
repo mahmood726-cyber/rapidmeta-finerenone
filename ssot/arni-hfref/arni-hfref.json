@@ -1,0 +1,1272 @@
+{
+ "app_id": "arni-hfref",
+ "schema_version": 2,
+ "source_links_enforced": true,
+ "title": "Sacubitril/valsartan against enalapril in heart failure with reduced ejection fraction: the three randomised trials that report cardiovascular death or heart failure hospitalization as a time-to-first hazard ratio",
+ "question": "In adults with heart failure and reduced ejection fraction, what is the hazard of a first cardiovascular death or heart failure hospitalization with sacubitril/valsartan compared with enalapril?",
+ "built": "2026-08-09",
+ "_prose_rule": "Every text field is PROSE unless it is on the validator's numeric list. Prose may not restate a number the object holds structurally.",
+ "_sourcing_rule": "Every measured input carries the verbatim sentence it was read from and a resolvable link to the layer it was read from. Every cell records all five mandated source layers, with a date on every check, so a layer that held nothing is distinguishable from a layer nobody opened. Derived transforms -- the log point and log standard error of each ratio, and the pooled summary -- are computed here and are not claimed to appear in any source.",
+ "_estimand_rule": "The measure is part of the question, not a presentation choice. This object pools TIME-TO-FIRST-EVENT HAZARD RATIOS for the composite of cardiovascular death or heart failure hospitalization, and nothing else. A recurrent-event rate ratio, a hierarchical win ratio and a biomarker ratio-of-change are different quantities that answer different questions, and each trial excluded for reporting one is shown with that reason rather than deleted.",
+ "build_mode": "full",
+ "single_tier_because": "Every cell's PRIMARY source is the open-access primary publication, and the tier tag on each cell names that layer. That is a real uniformity and it is not the absence of a cascade: each cell's `cascade` block records all five mandated layers, and between them the cells carry found records at the FDA, EMA, registry and prior-synthesis layers as well. The reason the primary tier is the same everywhere is stated on the cell that has to argue for it: what these cells STORE is a point estimate together with a two-sided interval, and the primary publication is the only layer that prints both. On the PARADIGM-HF cell -- the ONE cell where the regulator layers hold anything at all -- they confirm the counts, the denominators and the point estimate exactly, and that agreement is recorded on the cell; they are still not the primary tier there, because they report significance against one-sided alphas and taking a point from one layer and an interval from another would manufacture a quantity no source states. On the other two cells the regulator layers hold NOTHING and the cascade records them as not available with a dated reason, so no confirmation is claimed from them and none should be read into this sentence.",
+ "cited_total": 3,
+ "completeness_statement": "FULL BUILD. Every randomised trial located that compares sacubitril/valsartan with enalapril in heart failure with reduced ejection fraction AND reports the composite of cardiovascular death or heart failure hospitalization as a time-to-first hazard ratio is held and pooled. Every trial that was looked at and not pooled is in ONE screening log, whatever it failed on, including the four that reached this review only by reconciliation against a published review's included-study table. Each row names the criterion it fails and the quantity it reports instead -- with ONE row that does neither, and says so: a trial that could not be retrieved at all is recorded as undetermined, with what was established, the document it was established from, what could not be, and the date each attempt was made. That row is not an exclusion and is not counted as one. There is exactly ONE SOURCE list, `screening.records`. The object does also hold a second array, `screening.excluded`, and it is not a second table in any sense a reader has to reconcile: it is a view COMPUTED from the records at build time, row for row, so it cannot say anything the records do not. An earlier version of this sentence claimed there was no second array at all, which was false of the structure, and a review leg was right to read the structure rather than the sentence.",
+ "verification_basis": {
+  "what_verifies_this_object": "Two things, and neither is a badge this repository can emit about itself. The first is that the object is the single source of truth and the page is a pure projection of it, so a claim on the page that is not in the object cannot exist. The second is a cross-family adversarial gate: the object is read by two model families with independent file access, from different vendors, each asked to find a defect in the ACTUAL object rather than to approve it.",
+  "what_is_not_claimed": "No internal check is described as independent verification. A script that reads this object and reports that this object is consistent has confirmed consistency and nothing else, and a badge that cannot fail is worth less than no badge, because it teaches a reader to stop looking. The validator finding no defect is reported as exactly that.",
+  "families": [
+   "openai",
+   "google"
+  ],
+  "bar": "Both families must find no defect in the object. A finding about the validator is not a finding about the object and does not block."
+ },
+ "methodological_authority": {
+  "reference": "Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, et al (editors). Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1. Cochrane, 2025.",
+  "version": "6.5.1",
+  "version_checked_on": "2026-08-09",
+  "version_checked_how": "The publisher's versions-and-changes page settles which version is current: it lists 6.5.1 as the newest release line, with entries dated 2026 and 2025, above 6.5 dated 2024. Each chapter relied on here was then opened and its own printed citation line read. The publisher contradicts itself and the contradiction is recorded rather than resolved in silence: the Handbook landing page and the current-version index both still print version 6.5 updated August 2024. Where they conflict this object follows the version history and the per-chapter citation lines, because those are the more specific and the more recent statements.",
+  "chapters_as_dated_by_the_publisher": [
+   {
+    "chapter": 3,
+    "title": "Defining the criteria for including studies",
+    "version": "6.5",
+    "published": 2024,
+    "last_updated": "August 2023"
+   },
+   {
+    "chapter": 10,
+    "title": "Analysing data and undertaking meta-analyses",
+    "version": "6.5",
+    "published": 2024,
+    "last_updated": "November 2024"
+   },
+   {
+    "chapter": 14,
+    "title": "Completing 'Summary of findings' tables and grading the certainty of the evidence",
+    "version": "6.5.1",
+    "published": 2025,
+    "last_updated": "March 2025"
+   }
+  ],
+  "version_note": "The Handbook is versioned as a whole AND dated per chapter, and the two do not move together. The table gives each chapter the version and the last-updated date the publisher prints on it. The GRADE chapter was read from the publisher's own bytes for this build rather than recalled, because earlier gate rounds in this batch asserted section titles from memory and were wrong time.",
+  "scope_of_this_rule": "Every decision about pooling, scope, estimand, heterogeneity, certainty or unit of analysis names the section that governs it, on the result it governs. A decision with no cited section is a preference wearing the clothes of a method.",
+  "url": "https://www.cochrane.org/authors/handbooks-and-manuals/handbook",
+  "note": "Where this object had to decide whether something could be combined, the decision was referred to the Handbook rather than to a rule invented here.",
+  "sections_relied_on": [
+   {
+    "section": "3.2.1",
+    "title": "Defining types of participants: which people and populations?",
+    "used_for": "The population restriction to heart failure with reduced ejection fraction, which is what disqualifies the preserved and mildly reduced ejection fraction trials."
+   },
+   {
+    "section": "3.2.3",
+    "title": "Defining which comparisons will be made",
+    "used_for": "The comparator restriction to enalapril. Valsartan and ramipril are different comparisons, not variants of this one."
+   },
+   {
+    "section": "3.2.4",
+    "title": "Selecting, prioritizing and grouping review outcomes",
+    "used_for": "Fixing the composite of cardiovascular death or heart failure hospitalization as the outcome, and the boundary rule for trials whose own primary endpoint is a different quantity."
+   },
+   {
+    "section": "10.9",
+    "title": "Meta-analysis of time-to-event outcomes",
+    "used_for": "The hazard ratio as the effect measure for time-to-event data and the generic inverse-variance method that combines log hazard ratios. This is the measure and the method used here."
+   },
+   {
+    "section": "10.10.1",
+    "title": "What is heterogeneity?",
+    "used_for": "The distinction between clinical and methodological diversity and statistical heterogeneity. What this pool crosses -- aetiology, blinding, endpoint rank -- is documented as diversity in the uniformity table rather than smoothed away."
+   },
+   {
+    "section": "10.10.2",
+    "title": "Identifying and measuring heterogeneity",
+    "used_for": "The I-squared bands, cited both for the heterogeneity statement and for the GRADE inconsistency domain, which section 14.2.2 governs but prints no bands for."
+   },
+   {
+    "section": "10.10.4",
+    "title": "Incorporating heterogeneity into random-effects models",
+    "used_for": "The random-effects model AND the between-study variance estimator, which the effect-measure sections do not govern. The record that estimators other than DerSimonian and Laird perform better sits in its subsection 10.10.4.4 and is why restricted maximum likelihood is the headline. Running the comparison is a sensitivity choice under 10.14, not an instruction from this section; saying otherwise credited the Handbook with advice it does not give."
+   },
+   {
+    "section": "10.10.4.4",
+    "title": "Implementing random-effects meta-analyses",
+    "used_for": "The between-study variance estimator specifically: that methods other than DerSimonian and Laird perform better, that restricted maximum likelihood is the RevMan default, and that the HKSJ adjustment can be overly wide with few studies and overly narrow when the variance estimate is zero. It also gives the I-squared RevMan computes -- from the estimated variance rather than from Cochran's Q -- which is the definitional difference this object records between its own I-squared and metafor's, and the reason neither is adopted over the other."
+   },
+   {
+    "section": "10.10.4.5",
+    "title": "Interpretation of random-effects meta-analysis with few studies",
+    "used_for": "The HKSJ interval, and ONLY that. It states that excessively wide confidence intervals are not uncommon with two or even three studies, which is why this pool reports its HKSJ interval, records that it crosses the null, and neither adopts it as the headline nor discards it. It is cited nowhere in this object for the choice of variance estimator, which it does not govern."
+   },
+   {
+    "section": "4.6.1",
+    "title": "Studies (not reports) as the unit of interest",
+    "used_for": "The deduplication decision in the reconciliation block. Two paywalled reviews count three STUDIES where this object counts two randomisations plus a post hoc subgroup of a trial it already pools; this section is the distinction that makes recovering that subgroup a double-count rather than a recovery."
+   },
+   {
+    "section": "10.14",
+    "title": "Sensitivity analyses",
+    "used_for": "The requirement that a pooled result be shown robust to influential decisions. The leave-one-out analysis here is not decorative: it is what shows the pooled benefit rests on one trial."
+   },
+   {
+    "section": "14.2.1",
+    "title": "The GRADE approach",
+    "used_for": "That Cochrane has formally adopted GRADE and that reviews should use it to evaluate certainty for important outcomes, with MECIR C74 making the five considerations mandatory and C75 making the justification of each mandatory."
+   },
+   {
+    "section": "14.2.2",
+    "title": "Domains that can lead to decreasing the certainty level of a body of evidence",
+    "used_for": "The five downgrade domains and the rating vocabulary. The certainty here is COMPUTED from the domains and checked against them."
+   }
+  ]
+ },
+ "sources": {
+  "OA_PARADIGM2014": {
+   "layer": "Primary paper (abstract, open)",
+   "layer_rank": 4,
+   "name": "McMurray JJV et al. Angiotensin-neprilysin inhibition versus enalapril in heart failure. N Engl J Med 2014.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/25176015/",
+   "staged_as": "OA_PARADIGM_abstract.txt",
+   "access_note": "QUOTED: the journal is not open access; the abstract is, and carries the point estimate, the interval and both event counts with their percentages."
+  },
+  "OA_PARACHUTE2026": {
+   "layer": "Primary paper (full text, open)",
+   "layer_rank": 4,
+   "name": "Lopes RD et al. Sacubitril/valsartan vs enalapril in heart failure due to Chagas disease: an open-label, multicenter randomized clinical trial. JAMA 2026;335(1):49-59.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/41335448/",
+   "staged_as": "OA_PARACHUTE_JAMA2026.txt",
+   "access_note": "QUOTED: the full text is open in PubMed Central and is staged. The secondary-outcome table carries the hazard ratio this object pools; the abstract does not."
+  },
+  "OA_PARALLEL2021": {
+   "layer": "Primary paper (abstract, open)",
+   "layer_rank": 4,
+   "name": "Tsutsui H et al. Efficacy and safety of sacubitril/valsartan in Japanese patients with chronic heart failure and reduced ejection fraction -- results from the PARALLEL-HF study. Circ J 2021;85(5):584-594.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/33731544/",
+   "staged_as": "OA_PARALLEL_abstract.txt",
+   "access_note": "QUOTED: the abstract carries the primary composite endpoint with its hazard ratio and interval."
+  },
+  "OA_ANSWERHF2025": {
+   "layer": "Primary paper (abstract, open)",
+   "layer_rank": 4,
+   "name": "Madrini V et al. Sacubitril-valsartan vs enalapril in heart failure due to Chagas disease: primary results of the ANSWER-HF randomized trial. J Am Coll Cardiol 2025;87(10):1220-1232.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/41396086/",
+   "staged_as": "OA_ANSWERHF_abstract.txt",
+   "access_note": "QUOTED: staged for an EXCLUDED trial, deliberately. ANSWER-HF is the exclusion the measure rule leans on hardest -- right population, right comparator, wrong quantity -- so the row that excludes it has to be checkable at the layer that holds its numbers. An earlier version pointed that row at the registry, which posts no results for this trial at all."
+  },
+  "REG_CTGOV": {
+   "layer": "Registry with posted results",
+   "layer_rank": 5,
+   "name": "ClinicalTrials.gov records for every trial this object names: posted results for the three contributing trials, and the full record for each excluded and each screened trial, staged one file per registration.",
+   "url": "https://clinicaltrials.gov/study/NCT01035255",
+   "staged_as": "REG_CTGOV_NCT01035255.json",
+   "access_note": "QUOTED: each record is staged as the API returned it, and there is one for every registration the object cites -- a review leg found four screening rows pointing at registry pages whose records were not in the bundle, which is a link a reader can follow but a reviewer cannot audit offline. The participant-flow milestones are what let this object show, rather than assert, why an analysis-set denominator is smaller than a randomised one. One record that WAS staged has been removed: NCT02887183 is PROVE-HF, staged during an early mis-identification of PARAGON-HF's registration and never cited by anything here. An uncited file in an evidence bundle is noise that looks like evidence."
+  },
+  "FDA_207620": {
+   "layer": "Regulator: FDA statistical review",
+   "layer_rank": 1,
+   "name": "FDA statistical review, NDA 207620 (Entresto), 2015.",
+   "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2015/207620Orig1s000StatR.pdf",
+   "staged_as": "FDA_207620_StatR.txt",
+   "access_note": "QUOTED: staged as text extracted from the review PDF. It states the full analysis set and its derivation, and splits the composite into its mutually exclusive first-event parts."
+  },
+  "EMA_ENTRESTO": {
+   "layer": "Regulator: EMA EPAR",
+   "layer_rank": 2,
+   "name": "Entresto EPAR public assessment report, European Medicines Agency.",
+   "url": "https://www.ema.europa.eu/en/documents/assessment-report/entresto-epar-public-assessment-report_en.pdf",
+   "staged_as": "EMA_ENTRESTO_EPAR.txt",
+   "access_note": "QUOTED: staged as text extracted from the EPAR PDF. It prints the composite with both denominators and both percentages."
+  },
+  "SR_CHAGAS_PAIR": {
+   "layer": "Prior synthesis (abstracts staged; full text paywalled)",
+   "layer_rank": 3,
+   "name": "Two 2026 systematic reviews of sacubitril/valsartan against enalapril in heart failure with reduced ejection fraction due to Chagas cardiomyopathy, both in Cardiology in Review: Daniyal SM et al (PMID 41923142) and AlSejari NY et al (PMID 41941460).",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/41923142/",
+   "staged_as": "SR_CHAGAS_PAIR_abstracts.txt",
+   "access_note": "QUOTED, and the distinction matters: the ABSTRACTS are open and are staged, and they are what carries the patient total this object cannot reconcile. The FULL TEXTS are paywalled -- each returned a payment-required response on the date recorded here and neither has an open-access or PubMed Central copy -- and the full text is where the included-study LIST lives. So the count is checkable in the bundle and the list is not, which is precisely why the discrepancy is recorded as unresolved rather than settled. An earlier version cited these reviews with nothing staged at all, and a review leg was right that an unresolved finding resting on an unstaged source is itself an assertion."
+  },
+  "OA_PATHADKA2020": {
+   "layer": "Primary paper (open access)",
+   "layer_rank": 4,
+   "name": "Pathadka S, Yan VKC, Li X, et al. Hospitalization and mortality in patients with heart failure treated with sacubitril/valsartan vs. enalapril: a real-world, population-based study. Front Cardiovasc Med 2020;7:602363.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/33553256/",
+   "staged_as": "OA_PATHADKA2020_PMC7855850.txt",
+   "access_note": "QUOTED: open access in PubMed Central. Staged because this is the one screened-out record that reports this review's own composite as a hazard ratio -- 0.58, 0.45 to 0.75, by Cox regression with inverse-probability-of-treatment weighting -- and is excluded solely for not being randomised. A reader is entitled to check both halves of that."
+  },
+  "OA_BANO2021": {
+   "layer": "Primary paper (open access)",
+   "layer_rank": 4,
+   "name": "Bano S, Bai P, Kumar S, et al. Comparison of sacubitril/valsartan versus enalapril in the management of heart failure. Cureus 2021;13(7):e16332.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/34395116/",
+   "staged_as": "OA_BANO2021_PMC8357012.txt",
+   "access_note": "QUOTED: open access in PubMed Central. Staged because its screening row makes a NEGATIVE claim -- that the paper contains no hazard ratio, no Cox model and no time-to-event analysis -- and a negative claim about a document can only be checked against the document."
+  },
+  "OA_ZHAO2022": {
+   "layer": "Primary paper (open access)",
+   "layer_rank": 4,
+   "name": "Zhao Y, Tian LG, Zhang LX, et al. The comparative effects of sacubitril/valsartan versus enalapril on pulmonary hypertension due to heart failure with a reduced ejection fraction. Pulm Circ 2022;12(3).",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/35874853/",
+   "staged_as": "OA_ZHAO2022_PMC9297686.txt",
+   "access_note": "QUOTED: open access in PubMed Central. Staged for the same reason as Bano 2021, and for one more: the string \"HR\" appears in it four times and is HEART RATE every time, in a baseline table. The screening row says so, and a reviewer should be able to confirm that the check was for the quantity and not for the string."
+  },
+  "PM_REYAZ2023": {
+   "layer": "Prior synthesis",
+   "layer_rank": 3,
+   "name": "Reyaz I et al. Comparison of outcomes between sacubitril/valsartan and enalapril in patients with heart failure: a systematic review and meta-analysis. Cureus 2023;15(11):e48623.",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10710849/",
+   "staged_as": "PM_SACVAL_ENAL_PMC10710849.txt",
+   "access_note": "QUOTED: open access in PubMed Central. Its characteristics table lists every included study with arm sizes, which is what made the trial-list diff possible and is what surfaced PARALLEL-HF."
+  }
+ },
+ "outcomes": [
+  {
+   "id": "cvdeath_or_hfh_first",
+   "name": "Cardiovascular death or hospitalization for heart failure, whichever comes first, as a hazard ratio",
+   "type": "primary",
+   "measure": "HR",
+   "direction_of_benefit": "lower",
+   "null_value": 1,
+   "effect_scale": "log",
+   "estimand": {
+    "id": "cvdeath_or_hfh_first-estimand",
+    "family": "time_to_first",
+    "model": "Cox proportional hazards",
+    "unit_of_analysis": "participant, with the time to the first component event",
+    "case_definition": "adjudicated cardiovascular death or adjudicated hospitalization for heart failure, whichever occurs first. every contributing trial adjudicates the components centrally, and the trials differ in the aetiology of the heart failure, which the uniformity table records rather than smoothing away",
+    "window": "from randomisation to the end of the trial's own follow-up",
+    "follow_up_months": null,
+    "follow_up_note": "The contributing trials ran to different median lengths, and no single figure is given here because there is no single figure. Each trial's median is quoted in the uniformity table under `follow_up_length`, which is also where the difference is recorded as a crossed dimension rather than averaged away.",
+    "analysis_population": "each trial's own full analysis set, which in two of the three is smaller than the randomised total for reasons the trial states and this object reproduces"
+   },
+   "comparator": "enalapril",
+   "comparator_type": "active",
+   "definition": "Cardiovascular death or hospitalization for heart failure, whichever comes first, as a hazard ratio",
+   "definition_note": "The three contributing trials share no participant and no control group."
+  }
+ ],
+ "inputs": {
+  "trials": [
+   {
+    "id": "paradigm-hf",
+    "name": "PARADIGM-HF",
+    "nct": "NCT01035255",
+    "pmid": "25176015",
+    "year": 2014,
+    "design": "phase 3, double-blind, randomised one to one against an active comparator, stopped early by prespecified rule for overwhelming benefit",
+    "population": "adults with NYHA class II to IV heart failure and an ejection fraction of 40% or less",
+    "comparator_type": "active",
+    "comparator_type_basis": "the trial randomised against enalapril 10 mg twice daily, which its own abstract names as the comparator.",
+    "arms": [
+     {
+      "label": "LCZ696 (sacubitril/valsartan) 200 mg twice daily",
+      "role": "treatment",
+      "events": 914,
+      "participants": 4187
+     },
+     {
+      "label": "enalapril 10 mg twice daily",
+      "role": "control",
+      "events": 1117,
+      "participants": 4212
+     }
+    ],
+    "arms_not_used": [],
+    "enrolled": 8442,
+    "enrolment_note": "Randomised. The analysis set is smaller and the difference is reproduced on the cell below rather than left as a discrepancy.",
+    "by_outcome": {
+     "cvdeath_or_hfh_first": {
+      "effect": {
+       "point": 0.8,
+       "ci_low": 0.73,
+       "ci_high": 0.87,
+       "ci_level": 95,
+       "log_point": -0.223144,
+       "log_se": 0.044758,
+       "scale": "log",
+       "derived_from": "published_hazard_ratio",
+       "derivation_note": "The point estimate and interval are stored as published. The log point and log standard error are DERIVED here, the standard error from the width of the published interval on the log scale, and are not claimed to appear in any source."
+      },
+      "estimand_id": "cvdeath_or_hfh_first-estimand",
+      "analysed": {
+       "treatment": 4187,
+       "control": 4212
+      },
+      "analysed_scope": "The trial's full analysis set. It is SMALLER than the randomised total and the object shows why rather than leaving two numbers side by side: 4209 and 4233 patients were randomised, 8442 in all; 37 were excluded because their sites were closed for serious good-clinical-practice violations and 6 because they were randomised without qualifying and never received double-blind medication; 4209 less 18 less 4 is 4187 and 4233 less 19 less 2 is 4212, which is the 8399 the regulator layers name. The exclusions are site-level and protocol-level rather than outcome-dependent, which is why they are reported and not treated as attrition on the effect.",
+      "source_tier": "primary_oa",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/25176015/",
+      "cascade": {
+       "checked": {
+        "primary_oa": {
+         "status": "found",
+         "checked_on": "2026-08-09",
+         "yielded": "hazard ratio 0.80 (95% CI 0.73 to 0.87); 914 of 4187 (21.8%) against 1117 of 4212 (26.5%)",
+         "url": "https://pubmed.ncbi.nlm.nih.gov/25176015/"
+        },
+        "registry": {
+         "status": "found",
+         "checked_on": "2026-08-09",
+         "yielded": "914 of 4187 against 1117 of 4212, with the full analysis set derived on the record itself from 4209 and 4233 randomised less 37 patients at sites closed for GCP violations and 6 mis-randomised",
+         "url": "https://clinicaltrials.gov/study/NCT01035255"
+        },
+        "regulator_fda": {
+         "status": "found",
+         "checked_on": "2026-08-09",
+         "yielded": "the same full analysis set of 8399, and the composite split into its mutually exclusive parts as 377+537=914 against 459+658=1117",
+         "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2015/207620Orig1s000StatR.pdf"
+        },
+        "regulator_ema": {
+         "status": "found",
+         "checked_on": "2026-08-09",
+         "yielded": "914/4187, 21.83%, against 1117/4212, 26.52%, with the risk reduced by 20%",
+         "url": "https://www.ema.europa.eu/en/documents/assessment-report/entresto-epar-public-assessment-report_en.pdf"
+        },
+        "prior_meta": {
+         "status": "found",
+         "checked_on": "2026-08-09",
+         "yielded": "the trial tabulated with 4187 and 4212 in the arms, and the composite of HF hospitalization and cardiovascular mortality described as reduced by 20%",
+         "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10710849/"
+        }
+       },
+       "primary_source": "primary_oa",
+       "primary_not_best_because": "All five layers hold this cell and the two regulator layers rank higher, so the choice has to be argued rather than assumed. What this cell STORES is a point estimate WITH a two-sided 95% interval, and that interval is printed only by the primary publication. The FDA statistical review assesses the endpoint against a one-sided alpha and the EPAR prints a one-sided p value beside the point estimate; taking the point from one layer and the interval from another would manufacture a quantity no source states. The regulator layers are therefore used to CONFIRM the counts, the denominators and the point estimate, which they do exactly, and the layer that prints the stored interval is named as its source.",
+       "divergences": [],
+       "agreement_note": "Every layer checked holds this cell and none disagrees with another. The event counts and both denominators are identical across the journal, the registry, the FDA statistical review, the EPAR and the prior synthesis. The FDA review goes further than the rest and splits the composite into cardiovascular deaths occurring as a first event plus heart failure hospitalizations occurring as a first event; those parts sum exactly to the arm total the other layers report, so the layers agree on the decomposition and not merely on the total. The percentages the EPAR prints are each arm's stored event count over its stored denominator, and the journal prints the same figures to one fewer decimal place."
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "OA_PARADIGM2014",
+       "source_quotes": [
+        "At the time of study closure, the primary outcome had occurred in 914 patients (21.8%) in the LCZ696 group and 1117 patients (26.5%) in the enalapril group (hazard ratio in the LCZ696 group, 0.80; 95% confidence interval [CI], 0.73 to 0.87; P<0.001).",
+        "In this double-blind trial, we randomly assigned 8442 patients with class II, III, or IV heart failure and an ejection fraction of 40% or less to receive either LCZ696 (at a dose of 200 mg twice daily) or enalapril (at a dose of 10 mg twice daily), in addition to recommended therapy.",
+        "The primary outcome was a composite of death from cardiovascular causes or hospitalization for heart failure, but the trial was designed to detect a difference in the rates of death from cardiovascular causes."
+       ],
+       "quote_note": "The first quote carries the stored point estimate, its interval and both event counts, so the effect and the counts cannot come apart. The second establishes the population and the comparator against the frozen question. The third is here because it matters for interpretation and is easy to lose: the composite is the primary OUTCOME but the trial was POWERED on cardiovascular death alone."
+      },
+      "outcome_role_in_trial": "primary"
+     }
+    }
+   },
+   {
+    "id": "parachute-hf",
+    "name": "PARACHUTE-HF",
+    "nct": "NCT04023227",
+    "pmid": "41335448",
+    "year": 2026,
+    "design": "phase 4, multicentre, randomised one to one against an active comparator, OPEN-LABEL with blinded endpoint adjudication",
+    "population": "adults with NYHA class II to IV heart failure, an ejection fraction of 40% or less, and chronic Chagas cardiomyopathy confirmed serologically",
+    "comparator_type": "active",
+    "comparator_type_basis": "the trial randomised against enalapril at a target dose of 10 mg twice daily, as its abstract states.",
+    "arms": [
+     {
+      "label": "sacubitril/valsartan, target 200 mg twice daily",
+      "role": "treatment",
+      "events": 155,
+      "participants": 462
+     },
+     {
+      "label": "enalapril, target 10 mg twice daily",
+      "role": "control",
+      "events": 169,
+      "participants": 460
+     }
+    ],
+    "arms_not_used": [],
+    "enrolled": 922,
+    "enrolment_note": "Randomised, and the same number analysed; no participant is dropped.",
+    "by_outcome": {
+     "cvdeath_or_hfh_first": {
+      "effect": {
+       "point": 0.91,
+       "ci_low": 0.73,
+       "ci_high": 1.13,
+       "ci_level": 95,
+       "log_point": -0.094311,
+       "log_se": 0.111463,
+       "scale": "log",
+       "derived_from": "published_hazard_ratio",
+       "derivation_note": "The point estimate and interval are stored as published. The log point and log standard error are DERIVED here, the standard error from the width of the published interval on the log scale, and are not claimed to appear in any source."
+      },
+      "estimand_id": "cvdeath_or_hfh_first-estimand",
+      "analysed": {
+       "treatment": 462,
+       "control": 460
+      },
+      "analysed_scope": "The full analysis set, which the registry defines as all participants to whom study treatment was assigned at randomisation, and which equals the randomised total here.",
+      "source_tier": "primary_oa",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/41335448/",
+      "cascade": {
+       "checked": {
+        "primary_oa": {
+         "status": "found",
+         "checked_on": "2026-08-09",
+         "yielded": "first hospitalization for HF or cardiovascular death in 155 (33.5%) against 169 (36.7%), hazard ratio 0.91 (95% CI 0.73 to 1.13)",
+         "url": "https://pubmed.ncbi.nlm.nih.gov/41335448/"
+        },
+        "registry": {
+         "status": "found",
+         "checked_on": "2026-08-09",
+         "yielded": "the same endpoint posted as percentages of the full analysis set, 33.5% of 462 against 36.7% of 460, with no hazard ratio posted",
+         "url": "https://clinicaltrials.gov/study/NCT04023227"
+        },
+        "regulator_fda": {
+         "status": "not_available",
+         "checked_on": "2026-08-09",
+         "reason": "The US approval package for this product (NDA 207620) was written years before this trial reported and does not contain it. Drugs@FDA was searched for a later review naming this trial and none exists: it is a post-approval trial that supported no US labelling change. Checked on the date recorded here, so this absence is falsifiable rather than assumed."
+        },
+        "regulator_ema": {
+         "status": "not_available",
+         "checked_on": "2026-08-09",
+         "reason": "The Entresto EPAR and its published variation assessments predate this trial and do not contain it. The EMA medicine page was searched on the date recorded here for a later assessment naming it, and none is published."
+        },
+        "prior_meta": {
+         "status": "not_available",
+         "checked_on": "2026-08-09",
+         "reason": "The prior syntheses that pool this trial are the paired Chagas reviews staged under SR_CHAGAS_PAIR, and they cannot yield this cell. Their abstracts are staged and readable and report only pooled RISK RATIOS across the whole set they include -- a different quantity from this row's time-to-first hazard ratio, and not reported per trial in any case. Their full texts, where a per-trial extraction would be, are paywalled: each returned a payment-required response when fetched on the date recorded here and neither has an open-access copy. So this layer was checked at the only depth available and holds nothing for this cell. The count discrepancy their abstracts DO create is recorded against the reconciliation block rather than here."
+        }
+       },
+       "primary_source": "primary_oa",
+       "divergences": [],
+       "agreement_note": "Both layers that hold this cell agree, once the difference in FORM is taken into account, which is the whole reason this note exists. The registry posts this endpoint only as a percentage of each arm; the journal posts counts. Applying each posted percentage to that arm's stored denominator reproduces the journal's count to the nearest patient, so the layers carry the same figures in two shapes. The hazard ratio itself is posted by the journal alone: the registry record attaches no analysis to this outcome. That is why the registry cannot substitute for the publication here, and saying so is the point of recording what each layer yielded rather than only that it was checked."
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "OA_PARACHUTE2026",
+       "source_quotes": [
+        "The first secondary end point was the composite of time to first HF hospitalization or death from cardiovascular causes ( Figure 2 , C, D, and E), which occurred in 155 patients (33.5%) in the sacubitril/valsartan group and 169 (36.7%) in the enalapril group (HR, 0.91 [95% CI, 0.73-1.13])",
+        "The primary end point was a hierarchical composite outcome tested, in order, of death from cardiovascular causes, hospitalization for HF, or relative change in NT-proBNP from baseline to 12 weeks. The primary analysis was done using a win ratio approach.",
+        "Overall, 462 participants were randomized to receive sacubitril/valsartan and 460 to receive enalapril (mean [SD] age, 64.2 [10.8] years; 387 [42.0%] were female)."
+       ],
+       "quote_note": "The first quote is the cell, and it names the endpoint as SECONDARY in the trial's own words, which is the fact that governs how this row may be used. The second is staged deliberately: this trial's PRIMARY analysis is a win ratio, a quantity that is not a hazard ratio and is never pooled here, and an object that took the row without showing that would look like it had pooled the trial's headline. The third fixes both denominators."
+      },
+      "outcome_role_in_trial": "FIRST SECONDARY",
+      "estimand_rank_note": "This trial enters the pool through a SECONDARY endpoint, and that is a deliberate, stated choice rather than an oversight. The frozen question fixes the measure -- a time-to-first hazard ratio for cardiovascular death or heart failure hospitalization -- and this trial reports exactly that quantity, separately, with its own interval. Its PRIMARY endpoint is a hierarchical composite analysed by win ratio, which shares no scale with a hazard ratio and would answer a different question. Taking the trial's headline because it is the headline would be the error; taking the quantity the question asks for, and labelling where it sits in the trial's own hierarchy, is the alternative. The risk it carries -- that a secondary endpoint is not the one the trial was powered for -- is carried into the GRADE risk-of-bias domain rather than left here."
+     }
+    }
+   },
+   {
+    "id": "parallel-hf",
+    "name": "PARALLEL-HF",
+    "nct": "NCT02468232",
+    "pmid": "33731544",
+    "year": 2021,
+    "design": "phase 3, randomised one to one against an active comparator, in Japan",
+    "population": "Japanese adults with NYHA class II to IV chronic heart failure and an ejection fraction of 35% or less",
+    "comparator_type": "active",
+    "comparator_type_basis": "the trial randomised against enalapril 10 mg twice daily, as its abstract states.",
+    "arms": [
+     {
+      "label": "sacubitril/valsartan 200 mg twice daily",
+      "role": "treatment",
+      "events": 30,
+      "participants": 111
+     },
+     {
+      "label": "enalapril 10 mg twice daily",
+      "role": "control",
+      "events": 28,
+      "participants": 112
+     }
+    ],
+    "arms_not_used": [],
+    "enrolled": 225,
+    "enrolment_note": "Randomised. Two patients, one in each group, were mis-randomised and are outside the analysis set, which the registry record shows as a milestone.",
+    "by_outcome": {
+     "cvdeath_or_hfh_first": {
+      "effect": {
+       "point": 1.09,
+       "ci_low": 0.65,
+       "ci_high": 1.82,
+       "ci_level": 95,
+       "log_point": 0.086178,
+       "log_se": 0.262663,
+       "scale": "log",
+       "derived_from": "published_hazard_ratio",
+       "derivation_note": "The point estimate and interval are stored as published. The log point and log standard error are DERIVED here, the standard error from the width of the published interval on the log scale, and are not claimed to appear in any source."
+      },
+      "estimand_id": "cvdeath_or_hfh_first-estimand",
+      "analysed": {
+       "treatment": 111,
+       "control": 112
+      },
+      "analysed_scope": "The analysis set the registry posts for this endpoint, 111 and 112, derived on the record from 112 and 113 randomised less one mis-randomised patient in each arm. This is the same denominator-scope shape as PARADIGM-HF and is shown the same way rather than left as an unexplained difference from 225.",
+      "source_tier": "primary_oa",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/33731544/",
+      "cascade": {
+       "checked": {
+        "primary_oa": {
+         "status": "found",
+         "checked_on": "2026-08-09",
+         "yielded": "no significant between-group difference for the primary composite outcome of CV death and HF hospitalization, hazard ratio 1.09 (95% CI 0.65 to 1.82)",
+         "url": "https://pubmed.ncbi.nlm.nih.gov/33731544/"
+        },
+        "registry": {
+         "status": "found",
+         "checked_on": "2026-08-09",
+         "yielded": "BOTH the counts and an independent hazard ratio. The composite endpoint confirmed by the clinical endpoint committee occurs in 30 of 111 against 28 of 112, the analysis set derived on the record from 112 and 113 randomised less one mis-randomised patient in each arm; and the exposure-adjusted incidence outcome on the same record carries a Cox analysis of the primary composite reporting a hazard ratio of 1.0881 with a 95% interval of 0.6501 to 1.8212 and a p value of 0.6260",
+         "url": "https://clinicaltrials.gov/study/NCT02468232"
+        },
+        "regulator_fda": {
+         "status": "not_available",
+         "checked_on": "2026-08-09",
+         "reason": "The US approval package for this product (NDA 207620) was written years before this trial reported and does not contain it. Drugs@FDA was searched for a later review naming this trial and none exists: it is a post-approval trial that supported no US labelling change. Checked on the date recorded here, so this absence is falsifiable rather than assumed."
+        },
+        "regulator_ema": {
+         "status": "not_available",
+         "checked_on": "2026-08-09",
+         "reason": "The Entresto EPAR and its published variation assessments predate this trial and do not contain it. The EMA medicine page was searched on the date recorded here for a later assessment naming it, and none is published."
+        },
+        "prior_meta": {
+         "status": "found",
+         "checked_on": "2026-08-09",
+         "yielded": "the trial tabulated as a randomised comparison of sacubitril/valsartan 200 mg twice daily against enalapril 10 mg twice daily with 111 and 112 patients and 33.9 months of follow-up",
+         "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10710849/"
+        }
+       },
+       "primary_source": "primary_oa",
+       "primary_not_best_because": "The registry and the publication both hold this hazard ratio and the registry ranks LOWER, so naming the publication needs no excuse -- but the reverse question is the interesting one and is answered here. The registry's figure is carried to four decimal places and the publication's to two. The publication is still the primary source because it is the reported analysis of record and because storing four decimals would imply a precision the trial does not claim; the registry's fuller figure is recorded in this cascade so the rounding is visible rather than lost.",
+       "divergences": [],
+       "agreement_note": "This is the strongest-evidenced cell in the object, and an earlier version understated it. The registry and the publication BOTH carry a hazard ratio for this composite, from the same Cox analysis: the registry's is unrounded and the publication's is the same quantity to two decimal places, and the p values are identical. Rounding the registry's figure to the precision this row stores gives exactly the stored value, so the two layers do not merely fail to disagree -- one reproduces the other. The registry additionally posts adjudicated event counts, which the publication's abstract does not, and the prior synthesis reproduces this row's analysis-set denominators independently of both. The counts are recorded as corroboration and NOT as a derivation of the effect: they carry no follow-up time, so no hazard ratio can be recomputed from them. An earlier version of this note asserted the registry held no hazard ratio at all; a review leg read the staged record and was right, and the correction strengthens the cell rather than weakening it."
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "OA_PARALLEL2021",
+       "source_quotes": [
+        "Over a median follow up of 33.9 months, no significant between-group difference was observed for the primary composite outcome of CV death and HF hospitalization (HR 1.09; 95% CI 0.65-1.82; P=0.6260).",
+        "In the Prospective comparison of ARNI with ACEi to determine the noveL beneficiaL trEatment vaLue in Japanese Heart Failure patients (PARALLEL-HF) study, 225 Japanese HFrEF patients (New York Heart Association [NYHA] class II-IV, left ventricular ejection fraction [LVEF] ≤35%) were randomized (1 : 1) to receive sacubitril/valsartan 200 mg bid or enalapril 10 mg bid."
+       ],
+       "quote_note": "The first quote is the cell and it names the endpoint as the trial's PRIMARY composite, so unlike the Chagas trial this row is the trial's own headline. The second fixes the population, the ejection-fraction ceiling and the comparator, which is what qualifies the trial against the frozen question. The ejection-fraction ceiling here is 35% rather than the 40% of the other two, and that difference is carried in the uniformity table."
+      },
+      "outcome_role_in_trial": "primary",
+      "recovery_note": "THIS TRIAL WAS NOT IN THE BRIEF THIS OBJECT WAS BUILT FROM. It was recovered by the published-meta reconciliation step, from the characteristics table of an open-access prior synthesis, and then verified against its own publication and its own registry record. It is recorded as a recovery rather than presented as though it had always been in scope, because the difference between those two is the whole value of the reconciliation step: it changed k from two to three and it moved the pooled estimate."
+     }
+    }
+   }
+  ]
+ },
+ "config": {
+  "confidence_level": 95
+ },
+ "results": {
+  "by_outcome": {
+   "cvdeath_or_hfh_first": {
+    "k": 3,
+    "estimand_id": "cvdeath_or_hfh_first-estimand",
+    "comparator_type": "active",
+    "handbook": {
+     "decision": "POOL three trials reporting the same effect measure for the same outcome concept against the same comparator, producing an AVERAGE ACROSS documented differences in aetiology, ejection-fraction ceiling, blinding and the endpoint's rank within its own trial",
+     "sections": [
+      "3.2.1",
+      "3.2.3",
+      "3.2.4",
+      "10.9",
+      "10.10.1",
+      "10.10.2",
+      "10.10.4",
+      "10.14"
+     ],
+     "conformance": "Sections 3.2.1, 3.2.3 and 3.2.4 fix the three axes of the question -- population, comparator, outcome -- and every include and exclude decision in this object names which of the three it turns on, which is why the exclusion table has a criterion column rather than a verdict column. Section 10.9 gives the hazard ratio as the effect measure for time-to-event data and sanctions combining log hazard ratios by generic inverse variance; all three trials report a Cox hazard ratio for the time to a first event of the same composite against enalapril, so the measure is shared and not converted. What the pool crosses is documented under 10.10.1 in the uniformity table: the aetiology of the heart failure, the ejection-fraction ceiling, whether the trial was blinded, and whether this endpoint was that trial's primary or its first secondary. Not one of those is smoothed away and none is claimed to be absent. Section 10.10.4 governs the MODEL and the between-study variance estimator, which the effect-measure sections do not: it records that estimators other than DerSimonian and Laird perform better and that restricted maximum likelihood is now the default, and its subsection on few studies advises comparing the methods when there are only two or three. This pool has three, so the comparison is RUN and sits in the sensitivity block, where the three estimators do not agree closely and that is shown rather than reported as a formality. Section 10.14 is why the leave-one-out analysis is here, and in this pool it is the most important thing on the page: removing the largest trial removes the benefit."
+    },
+    "per_trial": [
+     {
+      "trial_id": "paradigm-hf",
+      "nct": "NCT01035255",
+      "measure": "HR",
+      "point": 0.8,
+      "ci_low": 0.73,
+      "ci_high": 0.87,
+      "ci_level": 95,
+      "log_point": -0.223144,
+      "log_se": 0.044758,
+      "estimand_id": "cvdeath_or_hfh_first-estimand",
+      "population": "adults with HFrEF, ejection fraction 40% or less",
+      "endpoint_rank_in_its_own_trial": "the trial's own primary composite endpoint",
+      "derivation": "the published hazard ratio, stored on the log scale with the standard error its published interval implies"
+     },
+     {
+      "trial_id": "parachute-hf",
+      "nct": "NCT04023227",
+      "measure": "HR",
+      "point": 0.91,
+      "ci_low": 0.73,
+      "ci_high": 1.13,
+      "ci_level": 95,
+      "log_point": -0.094311,
+      "log_se": 0.111463,
+      "estimand_id": "cvdeath_or_hfh_first-estimand",
+      "population": "adults with HFrEF due to chronic Chagas cardiomyopathy",
+      "endpoint_rank_in_its_own_trial": "the trial's own FIRST SECONDARY endpoint; its primary is a win ratio",
+      "derivation": "the published hazard ratio, stored on the log scale with the standard error its published interval implies"
+     },
+     {
+      "trial_id": "parallel-hf",
+      "nct": "NCT02468232",
+      "measure": "HR",
+      "point": 1.09,
+      "ci_low": 0.65,
+      "ci_high": 1.82,
+      "ci_level": 95,
+      "log_point": 0.086178,
+      "log_se": 0.262663,
+      "estimand_id": "cvdeath_or_hfh_first-estimand",
+      "population": "Japanese adults with HFrEF, ejection fraction 35% or less",
+      "endpoint_rank_in_its_own_trial": "the trial's own primary composite endpoint",
+      "derivation": "the published hazard ratio, stored on the log scale with the standard error its published interval implies"
+     }
+    ],
+    "poolable": true,
+    "poolable_reason": "A single effect measure, a single comparator and a single outcome concept, across trials that share no participant and no control group.",
+    "estimand_homogeneous_across_cohorts": false,
+    "estimand_id_means": "the estimand of the POOLED value, which is the average this result reports. It is NOT a claim that the contributing trials estimate identical quantities. The dimensions on which they differ are listed in the uniformity table below, and the pooled value averages across them.",
+    "pool_uniformity": {
+     "effect_measure": [
+      "identical",
+      "All three report a hazard ratio for the time to a first event of the same composite. No conversion is performed and none would be valid: the trials excluded from this pool are excluded largely because their quantities cannot be converted into this one."
+     ],
+     "comparator": [
+      "identical",
+      "All three randomised against enalapril at a target of 10 mg twice daily. This is the axis on which PARAGON-HF, PARAGLIDE-HF and PARADISE-MI fail, and it is checked rather than assumed."
+     ],
+     "outcome_definition": [
+      "identical",
+      "Cardiovascular death or hospitalization for heart failure, whichever comes first, with adjudication by a central committee in each trial."
+     ],
+     "aetiology_of_heart_failure": [
+      "differs",
+      "PARACHUTE-HF admitted only chronic Chagas cardiomyopathy, confirmed serologically at entry -- a distinct disease with a different natural history and a high burden of conduction disease. Neither of the other trials restricted aetiology at all, so the pool crosses a narrow-aetiology trial with two unrestricted ones, and that is the most substantive thing it crosses. What the contributing trials' own sources say about their aetiology MIX differs in how much they say, and this row says only what they support: the EPAR records ischaemic cardiac disease as the primary cause of heart failure in the majority of PARADIGM-HF participants, and the staged sources for PARALLEL-HF characterise its population by ejection fraction and functional class without describing its aetiology mix at all. An earlier version of this row described both unrestricted trials as largely ischaemic or idiopathic; a review leg was right that the second half of that had no basis in anything staged, and it is the more serious kind of over-claim for sitting inside the table that justifies pooling across aetiology."
+     ],
+     "ejection_fraction_ceiling": [
+      "differs",
+      "40% or less in PARADIGM-HF and PARACHUTE-HF; 35% or less in PARALLEL-HF. Both are within the reduced-ejection-fraction population the question fixes, and they are not the same entry criterion."
+     ],
+     "blinding": [
+      "differs",
+      "PARADIGM-HF and PARALLEL-HF were double-blind. PARACHUTE-HF was OPEN-LABEL with blinded endpoint adjudication. Blinded adjudication protects the outcome ascertainment and does not protect the management decisions that lead to a hospitalization, so the difference is carried into the GRADE risk-of-bias domain rather than dismissed here."
+     ],
+     "endpoint_rank_within_its_own_trial": [
+      "differs",
+      "This composite is the PRIMARY endpoint of PARADIGM-HF and of PARALLEL-HF. In PARACHUTE-HF it is the first SECONDARY endpoint, the primary there being a hierarchical composite analysed by win ratio. A trial is not powered for its secondary endpoints, and the pool crosses that."
+     ],
+     "follow_up_length": [
+      "differs",
+      "Medians of 27 months, 25.2 months and 33.9 months. PARADIGM-HF's follow-up ended early by prespecified rule when a boundary for overwhelming benefit was crossed, which is a different reason for a follow-up length than the other two have."
+     ],
+     "analysis_population": [
+      "differs",
+      "All three use the trial's own full analysis set. In PARACHUTE-HF that equals the randomised total; in PARADIGM-HF and PARALLEL-HF it is smaller, and each cell shows the arithmetic from the randomised total rather than leaving the difference unexplained."
+     ]
+    },
+    "model": "random",
+    "estimator": "REML",
+    "estimator_used": "REML",
+    "pooled": {
+     "measure": "HR",
+     "point": 0.8392,
+     "ci_low": 0.7429,
+     "ci_high": 0.948,
+     "ci_level": 95,
+     "scale": "log"
+    },
+    "favours": "treatment",
+    "heterogeneity": {
+     "tau2": 0.0035,
+     "i2": 14.9469,
+     "q": 2.3515,
+     "df": 2
+    },
+    "heterogeneity_status": "The I-squared here is the Higgins statistic computed from Q and its degrees of freedom, and it falls in the lowest band of section 10.10.2. That band is reported with a caveat rather than as reassurance: with three trials, two of which have wide intervals, a low I-squared reflects imprecision as much as agreement, and the point estimates themselves range from 0.80 to 1.09 and straddle the null. The uniformity table and the leave-one-out analysis are where that spread is visible; the I-squared alone would hide it.",
+    "single_study_ref": null,
+    "sensitivity": {
+     "method": "leave-one-out, plus a comparison of between-study variance estimators",
+     "authority": "Cochrane Handbook version 6.5.1, section 10.14: sensitivity analyses examine whether overall findings are robust to potentially influential decisions. Section 10.10.4.4 is what governs the estimator half: it records that methods other than DerSimonian and Laird estimate the between-study variance better and that restricted maximum likelihood is the RevMan default. An earlier version of this field credited that advice to section 10.10.4.5, which does not give it -- 10.10.4.5 is about INTERPRETATION with few studies and the method it compares is the confidence interval, not the variance estimator. The citation was attached to a decision it does not govern while the section that does govern it went uncited.",
+     "decision_under_test": "Two decisions. First, whether the pooled benefit depends on any single trial -- and it does. Second, whether it depends on the choice of between-study variance estimator and interval method, which with three studies is not a formality.",
+     "analyses": [
+      {
+       "omitted": "paradigm-hf",
+       "remaining": [
+        "parachute-hf",
+        "parallel-hf"
+       ],
+       "k": 2,
+       "point": 0.9354,
+       "ci_low": 0.765,
+       "ci_high": 1.1438,
+       "tau2": 0.0,
+       "i2": 0.0,
+       "still_excludes_null": false
+      },
+      {
+       "omitted": "parachute-hf",
+       "remaining": [
+        "paradigm-hf",
+        "parallel-hf"
+       ],
+       "k": 2,
+       "point": 0.838,
+       "ci_low": 0.6749,
+       "ci_high": 1.0405,
+       "tau2": 0.0123423,
+       "i2": 25.7992,
+       "still_excludes_null": false
+      },
+      {
+       "omitted": "parallel-hf",
+       "remaining": [
+        "paradigm-hf",
+        "parachute-hf"
+       ],
+       "k": 2,
+       "point": 0.8194,
+       "ci_low": 0.7427,
+       "ci_high": 0.904,
+       "tau2": 0.0010853,
+       "i2": 13.0772,
+       "still_excludes_null": true
+      }
+     ],
+     "leave_one_out_finding": "The pooled benefit rests on PARADIGM-HF, and the table is blunter than that summary sounds. Every leave-one-out fit still points below the null, so the DIRECTION is stable. The INTERVAL is not: only the fit that drops PARALLEL-HF keeps the null outside it. Dropping PARADIGM-HF or dropping PARACHUTE-HF both leave an interval that includes the null, so two of the three fits do. That is the single most important qualification on the headline, it is what the imprecision domain of the GRADE assessment is counting, and it is stated here rather than left for a reader to derive from the table.",
+     "between_study_variance_method_comparison": {
+      "why": "Section 10.10.4.4 records that estimators other than DerSimonian and Laird perform better and that restricted maximum likelihood is now the default in the Cochrane software, and it is the whole of the authority for running this comparison. Nothing in the Handbook instructs a review to compare variance estimators at a particular number of studies; running it here is a choice made under section 10.14, because with a pool this small the choice is plausibly influential. It is: unlike the two-study pools elsewhere in this batch, the estimators here do NOT coincide.",
+      "methods": [
+       {
+        "between_study_variance_estimator": "DL",
+        "interval_method": "Wald",
+        "point": 0.8333,
+        "ci_low": 0.7473,
+        "ci_high": 0.9292,
+        "tau2": 0.0021493
+       },
+       {
+        "between_study_variance_estimator": "PM",
+        "interval_method": "Wald",
+        "point": 0.8315,
+        "ci_low": 0.7485,
+        "ci_high": 0.9237,
+        "tau2": 0.0017965
+       },
+       {
+        "between_study_variance_estimator": "REML",
+        "interval_method": "Wald",
+        "point": 0.8392,
+        "ci_low": 0.7429,
+        "ci_high": 0.948,
+        "tau2": 0.0034981
+       },
+       {
+        "between_study_variance_estimator": "REML",
+        "interval_method": "HKSJ",
+        "point": 0.8392,
+        "ci_low": 0.6421,
+        "ci_high": 1.0968,
+        "tau2": 0.0034981
+       }
+      ],
+      "estimator_kept": "Restricted maximum likelihood is kept as the headline estimator, with the ordinary interval. Section 10.10.4.4 records that it is now the default in the Cochrane software and that estimators other than DerSimonian and Laird perform better; it is also the most conservative of the three here, so keeping it is not a choice that flatters the result. The Hartung-Knapp-Sidik-Jonkman interval is reported beside it rather than instead of it, and the fact that the two disagree about the null is stated in the headline rather than left in this table.",
+      "verdict": "The three variance estimators give visibly different between-study variances and therefore different intervals, with restricted maximum likelihood the most conservative of the three; all three keep the interval clear of the null. The Hartung-Knapp-Sidik-Jonkman interval does NOT: it is much wider and it includes the null. Section 10.10.4.5 says to expect exactly that with so few studies, so the disagreement is not treated as one method being wrong. Both are printed and neither is decisive, and the headline is reported as an estimate whose interval excludes the null under the ordinary method and does not under the more conservative one. The floor on the Hartung-Knapp scale factor is applied, so that interval can widen and can never come out narrower than the ordinary one."
+     }
+    },
+    "cross_engine": {
+     "engine": "metafor 5.0.1 under R 4.6.0, generic inverse variance on the same log point and log standard error this object stores",
+     "agreement": "The summary agrees to within a ten-millionth on the ratio scale for the point and both bounds, and to a few parts in ten million on the between-study variance. Q and its degrees of freedom match exactly. This is a statement about two ENGINES agreeing on one arithmetic, and it is not a claim that the trials agree with each other: what the pooled trials differ on is in the uniformity table, and a cross-engine check has nothing to say about that.",
+     "i2_definitions_differ": "The two engines report DIFFERENT I-squared values and neither is wrong. This object's is the Higgins statistic computed from Q and its degrees of freedom; metafor's is computed relative to the restricted-maximum-likelihood between-study variance. They are different quantities that share a name, a single engine could never reveal it, and the disagreement is recorded rather than resolved by adopting the other engine's number."
+    },
+    "grade": {
+     "certainty": "low",
+     "certainty_derivation": "start high; risk_of_bias serious (-1), imprecision serious (-1); total -2 -> low",
+     "randomised": true,
+     "starting_point": "high",
+     "starting_point_because": "every contributing study is a randomised controlled trial",
+     "domains": {
+      "risk_of_bias": {
+       "rating": "serious",
+       "basis_in_sources": "Three separate features, each read from a staged source rather than assumed. PARACHUTE-HF describes itself as an 'open-label, multicenter randomized clinical trial' with blinded endpoint adjudication; blinded adjudication protects how an event is classified but not the unblinded management decisions that produce a heart failure hospitalization, which is one of the two components. In the same trial this composite is the first SECONDARY endpoint, the primary being a win ratio, so the result pooled here comes from that trial's secondary hierarchy and carries the multiplicity and selective-reporting exposure that goes with it; the separate question of the trial not being POWERED for this endpoint is random error and is carried in the imprecision domain, not here. PARADIGM-HF 'was stopped early, according to prespecified rules ... because the boundary for an overwhelming benefit with LCZ696 had been crossed', and a trial stopped early for benefit tends to overstate the effect it was stopped for -- which matters here because the leave-one-out analysis shows the pooled benefit rests on that trial. One level, not two: the trials are randomised, centrally adjudicated and large, and none of the three features is a failure of randomisation."
+      },
+      "inconsistency": {
+       "rating": "not serious",
+       "derived_from": "results.by_outcome.cvdeath_or_hfh_first.heterogeneity.i2",
+       "computed_bands": [
+        "might not be important"
+       ],
+       "computed_value": 14.9469,
+       "why_not_downgraded_despite_the_spread": "The I-squared falls in the lowest band section 10.10.2 prints, and this domain is rated from that. The spread in the point estimates, from 0.80 to 1.09, is real and is NOT hidden by this rating: it is recorded in the uniformity table, in the heterogeneity statement and in the leave-one-out analysis, and it is what drives the imprecision downgrade below. Downgrading twice for one underlying fact -- that two of the three trials are small and their intervals wide -- would double-count it."
+      },
+      "indirectness": {
+       "rating": "not serious",
+       "basis_in_sources": "All three trials enrol the population the question names, randomise the intervention the question names against the comparator the question names, and report the outcome the question names. The Chagas aetiology of one trial makes its population narrower than the others, not indirect: it is heart failure with reduced ejection fraction, entered on an ejection fraction of 40% or less and NYHA class II to IV, exactly as the other two are. Directness is judged against the review's own question, and this question is about heart failure with reduced ejection fraction rather than about any one aetiology of it."
+      },
+      "imprecision": {
+       "rating": "serious",
+       "derived_from": "results.by_outcome.cvdeath_or_hfh_first.sensitivity",
+       "computed_value": {
+        "wald_interval_excludes_null": true,
+        "hksj_interval_includes_null": true,
+        "leave_one_out_intervals_that_still_exclude_the_null": 1,
+        "leave_one_out_analyses": 3
+       },
+       "ois_note": "The optimal information size is a condition section 14.2.2 makes part of adequate precision, and it is NOT computable from what this object holds: it needs an assumed control-arm risk and a target difference that no field here carries. It is therefore UNKNOWN rather than satisfied, and this sentence exists so that its absence cannot read as a pass. What can be said is that the pooled evidence carries a large absolute event count, so the downgrade below does not rest on sparse events.",
+       "why": "The ordinary interval excludes the null, which is 14.2.2's first condition, and on that alone this domain would not be downgraded. Two computed facts in this object contradict a reading of adequate precision. The Hartung-Knapp-Sidik-Jonkman interval, which section 10.10.4.5 points to for exactly this number of studies, includes the null. And only one of the three leave-one-out fits keeps the null outside the interval, so the precision of the pooled estimate is a property of one trial rather than of the body of evidence. One level."
+      },
+      "publication_bias": {
+       "rating": "not assessable",
+       "not_assessable_because": "Three studies. The funnel-plot and regression methods for small-study effects are not interpretable below about ten, so no assessment is made and none is implied. What can be said without a test is recorded instead and is not treated as a substitute for one: all three trials are registered, all three posted results to their registry, and the two that are industry-sponsored report the composite in the direction of no benefit as well as of benefit, so there is no positive evidence of selective reporting of this endpoint. Rated not assessable, which downgrades nothing on its own."
+      }
+     },
+     "sections": [
+      "14.2.1",
+      "14.2.2",
+      "10.10.2",
+      "10.10.4",
+      "10.14"
+     ],
+     "what_this_certainty_is_about": "It is the certainty of the POOLED average across three trials, not of PARADIGM-HF. PARADIGM-HF on its own is a large double-blind trial whose result underpins a guideline recommendation; the thing rated here is the three-trial average, which inherits the open-label secondary endpoint of one trial and the fragility the leave-one-out analysis shows. Reading this rating as a verdict on sacubitril/valsartan would be a misreading, and the sentence is here because that misreading is the easy one."
+    }
+   }
+  }
+ },
+ "screening": {
+  "search_note": "The search ran across PubMed and ClinicalTrials.gov for randomised comparisons of sacubitril/valsartan with enalapril in heart failure, and was then extended by the reconciliation step: the included-study list of every retrievable published synthesis of the same comparison was read and diffed against this one in both directions. That second pass is what found PARALLEL-HF, which the brief this object was built from did not name.",
+  "eligibility": "A randomised trial of sacubitril/valsartan against enalapril, in adults with heart failure and reduced ejection fraction, reporting cardiovascular death or heart failure hospitalization as a time-to-first-event hazard ratio. All four conditions, and the last is a condition on the QUANTITY reported, not on the trial's quality: several excluded trials are large, well conducted and directly on topic, and report something that is not this.",
+  "known_limitation": "The one apparent gap this search had is now closed, and closing it removed a trial rather than adding one: the patient total of the paywalled Chagas reviews exceeded the trials found here by a post hoc PARADIGM-HF subgroup, which is not a separate randomisation and is not recovered. The reconciliation block sets out the arithmetic and the deduplication reason. What is still unread is how those reviews themselves treated that subgroup, which their abstracts do not say.",
+  "records": [
+   {
+    "trial": "PARAGON-HF",
+    "nct": "NCT01920711",
+    "pmid": "31475794",
+    "source_tier": "registry",
+    "source_url": "https://clinicaltrials.gov/study/NCT01920711",
+    "criteria_failed": [
+     "population",
+     "comparator",
+     "measure"
+    ],
+    "reason": "Fails the frozen question on all three axes, and any one of them is sufficient. POPULATION: it enrolled an ejection fraction of 45% or higher, which is preserved rather than reduced. COMPARATOR: it randomised against VALSARTAN, not enalapril. MEASURE: its primary is the cumulative number of cardiovascular deaths and TOTAL, first and recurrent, heart failure hospitalizations, analysed as a RATE RATIO.",
+    "quantity_it_reports": "a rate ratio of 0.87 with a 95% interval of 0.75 to 1.01 for total heart failure hospitalizations and cardiovascular death",
+    "why_that_quantity_is_never_stored_as_a_hazard_ratio": "A recurrent-event rate ratio counts repeat events per person over time; a time-to-first hazard ratio counts each person once, at their first event. The two share a scale and a direction and answer different questions, and storing this trial's 0.87 in a hazard-ratio field would be indistinguishable, to any reader and to most software, from a hazard ratio of 0.87. It is stored nowhere in this object except in this sentence."
+   },
+   {
+    "trial": "PARADISE-MI",
+    "nct": "NCT02924727",
+    "source_tier": "registry",
+    "source_url": "https://clinicaltrials.gov/study/NCT02924727",
+    "criteria_failed": [
+     "population",
+     "comparator",
+     "outcome"
+    ],
+    "reason": "POPULATION: acute myocardial infarction with left-ventricular dysfunction or pulmonary congestion, not chronic heart failure with reduced ejection fraction. COMPARATOR: RAMIPRIL, not enalapril. OUTCOME: its composite counts INCIDENT heart failure -- a first presentation in people who did not have heart failure at randomisation -- which is not hospitalization for heart failure in an established heart failure population.",
+    "count_correction": "The brief this object was built from stated that this trial randomised 5661 rather than 5669. That is inverted. The registry posts 5669 randomised, as 2834 and 2835, and a full analysis set of 5661, as 2830 and 2831. Both numbers are real and they name different sets; the correction is recorded here because a wrong correction is harder to catch than a wrong number."
+   },
+   {
+    "trial": "PARAGLIDE-HF",
+    "nct": "NCT03988634",
+    "pmid": "37212758",
+    "source_tier": "registry",
+    "source_url": "https://clinicaltrials.gov/study/NCT03988634",
+    "criteria_failed": [
+     "population",
+     "comparator",
+     "measure"
+    ],
+    "reason": "POPULATION: ejection fraction above 40% after a worsening heart failure event. COMPARATOR: VALSARTAN. MEASURE: the primary is the time-averaged proportional change in NT-proBNP, a biomarker ratio-of-change, and its hierarchical secondary is a win ratio. Neither is a hazard ratio for a clinical event.",
+    "quantity_it_reports": "a ratio of change in NT-proBNP of 0.85 with a 95% interval of 0.73 to 0.999, and an unmatched win ratio of 1.19 with a 95% interval of 0.93 to 1.52",
+    "what_was_removed": "An earlier description of this trial in the brief carried a mean difference of about minus 223 with a standard error of about 85, with no derivation attached. No such quantity is stored here. An effect with no stated derivation is an identity without a basis, and the published quantity -- a ratio of change, on the ratio scale -- is what this entry records instead."
+   },
+   {
+    "trial": "ANSWER-HF",
+    "nct": "NCT04853758",
+    "pmid": "41396086",
+    "source_tier": "primary_oa",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/41396086/",
+    "why_this_tier": "The registry record for this trial is staged, and it posts NO results section at all and carries an enrolment of 200 marked ESTIMATED rather than actual. So it can establish that the trial exists, who it enrolled, that it randomised against enalapril and that its primary endpoint is a change in ejection fraction -- and it cannot establish a single one of the numbers this row turns on. Those come from the publication, so the publication is the tier and the link. An earlier version of this row linked the registry, and a review leg was right to call it out: the identifier in that URL matched this row's own NCT, so the structural check passed while sending a reader to a page that could not substantiate the claim. That is the wrong-document failure, which is worse than no link because it looks checked.",
+    "criteria_failed": [
+     "measure"
+    ],
+    "reason": "This is the hardest exclusion in the table and the only one that passes the population and the comparator: 190 patients with heart failure with reduced ejection fraction due to Chagas cardiomyopathy, randomised double-blind against ENALAPRIL. It fails on the MEASURE. Its primary endpoint is the change in left-ventricular ejection fraction at six months, and its only composite analysis of cardiovascular death and heart failure hospitalization is inside a hierarchical endpoint analysed by WIN RATIO, reported as 1.80 with a 95% interval of 1.27 to 2.63. No time-to-first hazard ratio for the composite is separately reported. The registry record is consistent with all of this and posts no results of its own, which is why this row is sourced to the publication.",
+    "the_rule_this_applies": "A trial with the right population and the right comparator enters this pool only if it separately reports the quantity the question fixes. A win ratio is not a hazard ratio: it is a count of pairwise wins over an ordered hierarchy, it has no interpretation as a ratio of hazards, and pooling it with hazard ratios would average two different questions. Six months of follow-up in 190 patients would also contribute very few events. The trial is shown here, with its quantity, rather than deleted -- if a hazard ratio for this composite is published later, this entry is where the recovery starts."
+   },
+   {
+    "trial": "PIONEER-HF",
+    "nct": "NCT02554890",
+    "source_tier": "registry",
+    "source_url": "https://clinicaltrials.gov/study/NCT02554890",
+    "disposition": "screened, not eligible",
+    "criteria_failed": [
+     "measure"
+    ],
+    "quantity_it_reports": "the time-averaged proportional change in NT-proBNP over eight weeks",
+    "reason": "Right population and right comparator -- acute decompensated heart failure with reduced ejection fraction, randomised against enalapril -- and the wrong quantity over the wrong horizon. The brief noted a conflict between a rule excluding follow-up under twelve weeks and a rule keyed to the trial's own endpoint, and left both standing. It is resolved here against the frozen question and only one rule survives: the trial is excluded because it reports no time-to-first hazard ratio for cardiovascular death or heart failure hospitalization, which is section 3.2.4, the outcome axis. Follow-up length is a CONSEQUENCE of that endpoint and is not an independent criterion in this object, because a short trial that did report the composite as a hazard ratio would be eligible and a long one that did not would still not be. Two rules that disagree are one object with two descriptions, which is the failure this batch has paid for before.",
+    "checked_on": "2026-08-09"
+   },
+   {
+    "trial": "EVALUATE-HF",
+    "nct": "NCT02874794",
+    "source_tier": "registry",
+    "source_url": "https://clinicaltrials.gov/study/NCT02874794",
+    "disposition": "screened, not eligible",
+    "criteria_failed": [
+     "measure"
+    ],
+    "quantity_it_reports": "the change from baseline in aortic characteristic impedance at twelve weeks",
+    "reason": "Randomised against enalapril in heart failure with reduced ejection fraction, and its endpoint is a vascular-mechanics measurement. It reports no hazard ratio for the composite.",
+    "checked_on": "2026-08-09"
+   },
+   {
+    "trial": "OUTSTEP-HF",
+    "nct": "NCT02900378",
+    "source_tier": "registry",
+    "source_url": "https://clinicaltrials.gov/study/NCT02900378",
+    "disposition": "screened, not eligible",
+    "criteria_failed": [
+     "measure"
+    ],
+    "quantity_it_reports": "change in daily physical activity measured by accelerometry",
+    "reason": "Randomised against enalapril in heart failure with reduced ejection fraction. Its endpoint is an activity measure, not a clinical event, and it reports no hazard ratio for the composite.",
+    "checked_on": "2026-08-09"
+   },
+   {
+    "trial": "PARALLAX",
+    "nct": "NCT03066804",
+    "source_tier": "registry",
+    "source_url": "https://clinicaltrials.gov/study/NCT03066804",
+    "disposition": "screened, not eligible",
+    "criteria_failed": [
+     "population",
+     "comparator",
+     "measure"
+    ],
+    "quantity_it_reports": "change in NT-proBNP and in six-minute walk distance",
+    "reason": "Fails the population as well as the measure: it enrolled an ejection fraction above 40%, and its comparator is individualised medical therapy rather than enalapril alone.",
+    "checked_on": "2026-08-09"
+   },
+   {
+    "trial": "HFN-LIFE",
+    "nct": "NCT02816736",
+    "source_tier": "registry",
+    "source_url": "https://clinicaltrials.gov/study/NCT02816736",
+    "disposition": "screened, not eligible",
+    "criteria_failed": [
+     "population",
+     "comparator",
+     "measure"
+    ],
+    "quantity_it_reports": "the area under the curve for NT-proBNP over twenty-four weeks",
+    "reason": "Advanced, NYHA class IV heart failure, randomised against VALSARTAN rather than enalapril, with a biomarker endpoint. Recorded because the brief listed a trial called LIFE and this is the trial that name resolves to.",
+    "checked_on": "2026-08-09"
+   },
+   {
+    "trial": "Pathadka 2020",
+    "pmid": "33553256",
+    "source_tier": "primary_oa",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/33553256/",
+    "how_it_reached_this_review": "from the included-study table of PM_REYAZ2023, not from the registry search",
+    "disposition": "screened, not eligible",
+    "criteria_failed": [
+     "randomisation"
+    ],
+    "quantity_it_reports": "a hazard ratio of 0.58 with a 95% interval of 0.45 to 0.75 for the composite of cardiovascular mortality or heart-failure-related hospitalization, estimated by Cox regression with inverse-probability-of-treatment weighting",
+    "reason": "This is the only excluded record in this object that reports THE QUANTITY THIS REVIEW POOLS, for THE COMPOSITE THIS REVIEW POOLS, and it is excluded anyway. It is not a randomised trial: it is a population-based new-user cohort drawn from the Hong Kong-wide electronic health record, 1056 people dispensed sacubitril/valsartan against 2181 dispensed enalapril, with treatment assigned by prescribers rather than by allocation. The frozen question is answered from randomised evidence only, so design decides this row before the endpoint is reached. Recording the endpoint anyway is deliberate: its 0.58 sits BELOW the lower bound of this object's randomised pooled interval, so a reader can see what the design rule is holding out, rather than being asked to take the rule on trust. The prior meta-analysis that surfaced it reached the same decision from the other direction -- its own sensitivity analysis removes this study for being retrospective, and the heterogeneity of the pool it sat in falls from severe to none when it does.",
+    "checked_on": "2026-08-10"
+   },
+   {
+    "trial": "Bano 2021",
+    "pmid": "34395116",
+    "source_tier": "primary_oa",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/34395116/",
+    "how_it_reached_this_review": "from the included-study table of PM_REYAZ2023, not from the registry search",
+    "disposition": "screened, not eligible",
+    "criteria_failed": [
+     "measure"
+    ],
+    "quantity_it_reports": "heart-failure-related hospitalization as a proportion in each arm -- 13.8% against 22.4%, p = 0.03 -- with a relative risk reduction of 38.3% for hospitalization and of 52% for heart-failure-related death, the two counted separately rather than as one composite",
+    "reason": "Right population and right comparator: a randomised comparison of sacubitril/valsartan with enalapril, in equal allocation, in heart failure at a tertiary hospital in Pakistan, 181 against 183, followed for twelve months or to an event. It fails on the measure. Its full text contains no hazard ratio, no Cox model and no time-to-event analysis of any kind; it reports proportions and relative risk reductions, and it keeps hospitalization and death apart instead of combining them. Neither of those quantities can be converted into a time-to-first hazard ratio without the event times the paper does not report.",
+    "checked_on": "2026-08-10"
+   },
+   {
+    "trial": "Zhao 2022",
+    "pmid": "35874853",
+    "source_tier": "primary_oa",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/35874853/",
+    "how_it_reached_this_review": "from the included-study table of PM_REYAZ2023, not from the registry search",
+    "disposition": "screened, not eligible",
+    "criteria_failed": [
+     "measure"
+    ],
+    "quantity_it_reports": "right-ventricular function at six months -- tricuspid annular plane systolic excursion, systolic pulmonary artery pressure and their ratio -- as means with standard deviations, alongside major adverse cardiac events given as counts per arm",
+    "reason": "A randomised comparison of sacubitril/valsartan with enalapril, 52 against 45, in pulmonary hypertension due to heart failure with reduced ejection fraction, followed for six months. Population and comparator hold; the measure does not. Its declared primary endpoint is echocardiographic right-ventricular function, and it reports no hazard ratio for any clinical event -- it states only that readmission for recurrent heart failure did not differ. Worth recording how that was confirmed: the full text does contain four instances of the string \"HR\", and every one of them is the abbreviation for HEART RATE in a table of baseline characteristics. A search for the quantity rather than for the string is the reason this row says no hazard ratio instead of the reverse.",
+    "checked_on": "2026-08-10"
+   },
+   {
+    "trial": "Li 2019",
+    "source_tier": "prior_meta",
+    "source_url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10710849/",
+    "how_it_reached_this_review": "from the included-study table of PM_REYAZ2023, not from the registry search",
+    "disposition": "screened, eligibility could not be established",
+    "criteria_failed": [],
+    "quantity_it_reports": "NOT ESTABLISHED, and this row links the only document in which this trial was actually read. What that document states is that it is a randomised trial of sacubitril/valsartan against enalapril in elderly patients with dilated cardiomyopathy, 62 against 64, followed for six months, and that it contributed to that review's ALL-CAUSE MORTALITY pool, which that review analysed as a dichotomous risk ratio rather than as a time-to-event quantity. What could not be established is what the trial itself reports, because the trial itself could not be retrieved: it is cited to Chinese Journal of Geriatrics 2019, pages 520 to 524, with no DOI to resolve; a PubMed search returns no record for it, and a Crossref bibliographic query returns no matching work. All three were tried on the date in this row. It is therefore recorded as undetermined rather than assigned the exclusion its neighbours received -- an earlier version of the reconciliation block did assert that it reports no time-to-first hazard ratio, which nothing staged supported then and nothing supports now.",
+    "reason": "Eligibility is undetermined, not decided. Neither inclusion nor exclusion is asserted here, and the trial is NOT pooled -- so this row records a limit of the search rather than a judgement about the trial. Its likely weight is small and is stated rather than used as a reason to stop looking: 126 randomised participants against the 8399 of the largest trial already pooled. If this trial does report the composite as a time-to-first hazard ratio, this object is missing it, and this row is the place that will say so.",
+    "checked_on": "2026-08-10"
+   }
+  ],
+  "excluded": [
+   {
+    "reason": "PARAGON-HF -- fails population, comparator, measure",
+    "detail": "Fails the frozen question on all three axes, and any one of them is sufficient. POPULATION: it enrolled an ejection fraction of 45% or higher, which is preserved rather than reduced. COMPARATOR: it randomised against VALSARTAN, not enalapril. MEASURE: its primary is the cumulative number of cardiovascular deaths and TOTAL, first and recurrent, heart failure hospitalizations, analysed as a RATE RATIO.",
+    "source_tier": "registry",
+    "source_url": "https://clinicaltrials.gov/study/NCT01920711"
+   },
+   {
+    "reason": "PARADISE-MI -- fails population, comparator, outcome",
+    "detail": "POPULATION: acute myocardial infarction with left-ventricular dysfunction or pulmonary congestion, not chronic heart failure with reduced ejection fraction. COMPARATOR: RAMIPRIL, not enalapril. OUTCOME: its composite counts INCIDENT heart failure -- a first presentation in people who did not have heart failure at randomisation -- which is not hospitalization for heart failure in an established heart failure population.",
+    "source_tier": "registry",
+    "source_url": "https://clinicaltrials.gov/study/NCT02924727"
+   },
+   {
+    "reason": "PARAGLIDE-HF -- fails population, comparator, measure",
+    "detail": "POPULATION: ejection fraction above 40% after a worsening heart failure event. COMPARATOR: VALSARTAN. MEASURE: the primary is the time-averaged proportional change in NT-proBNP, a biomarker ratio-of-change, and its hierarchical secondary is a win ratio. Neither is a hazard ratio for a clinical event.",
+    "source_tier": "registry",
+    "source_url": "https://clinicaltrials.gov/study/NCT03988634"
+   },
+   {
+    "reason": "ANSWER-HF -- fails measure",
+    "detail": "This is the hardest exclusion in the table and the only one that passes the population and the comparator: 190 patients with heart failure with reduced ejection fraction due to Chagas cardiomyopathy, randomised double-blind against ENALAPRIL. It fails on the MEASURE. Its primary endpoint is the change in left-ventricular ejection fraction at six months, and its only composite analysis of cardiovascular death and heart failure hospitalization is inside a hierarchical endpoint analysed by WIN RATIO, reported as 1.80 with a 95% interval of 1.27 to 2.63. No time-to-first hazard ratio for the composite is separately reported. The registry record is consistent with all of this and posts no results of its own, which is why this row is sourced to the publication.",
+    "source_tier": "primary_oa",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/41396086/"
+   },
+   {
+    "reason": "PIONEER-HF -- fails measure",
+    "detail": "Right population and right comparator -- acute decompensated heart failure with reduced ejection fraction, randomised against enalapril -- and the wrong quantity over the wrong horizon. The brief noted a conflict between a rule excluding follow-up under twelve weeks and a rule keyed to the trial's own endpoint, and left both standing. It is resolved here against the frozen question and only one rule survives: the trial is excluded because it reports no time-to-first hazard ratio for cardiovascular death or heart failure hospitalization, which is section 3.2.4, the outcome axis. Follow-up length is a CONSEQUENCE of that endpoint and is not an independent criterion in this object, because a short trial that did report the composite as a hazard ratio would be eligible and a long one that did not would still not be. Two rules that disagree are one object with two descriptions, which is the failure this batch has paid for before.",
+    "source_tier": "registry",
+    "source_url": "https://clinicaltrials.gov/study/NCT02554890"
+   },
+   {
+    "reason": "EVALUATE-HF -- fails measure",
+    "detail": "Randomised against enalapril in heart failure with reduced ejection fraction, and its endpoint is a vascular-mechanics measurement. It reports no hazard ratio for the composite.",
+    "source_tier": "registry",
+    "source_url": "https://clinicaltrials.gov/study/NCT02874794"
+   },
+   {
+    "reason": "OUTSTEP-HF -- fails measure",
+    "detail": "Randomised against enalapril in heart failure with reduced ejection fraction. Its endpoint is an activity measure, not a clinical event, and it reports no hazard ratio for the composite.",
+    "source_tier": "registry",
+    "source_url": "https://clinicaltrials.gov/study/NCT02900378"
+   },
+   {
+    "reason": "PARALLAX -- fails population, comparator, measure",
+    "detail": "Fails the population as well as the measure: it enrolled an ejection fraction above 40%, and its comparator is individualised medical therapy rather than enalapril alone.",
+    "source_tier": "registry",
+    "source_url": "https://clinicaltrials.gov/study/NCT03066804"
+   },
+   {
+    "reason": "HFN-LIFE -- fails population, comparator, measure",
+    "detail": "Advanced, NYHA class IV heart failure, randomised against VALSARTAN rather than enalapril, with a biomarker endpoint. Recorded because the brief listed a trial called LIFE and this is the trial that name resolves to.",
+    "source_tier": "registry",
+    "source_url": "https://clinicaltrials.gov/study/NCT02816736"
+   },
+   {
+    "reason": "Pathadka 2020 -- fails randomisation",
+    "detail": "This is the only excluded record in this object that reports THE QUANTITY THIS REVIEW POOLS, for THE COMPOSITE THIS REVIEW POOLS, and it is excluded anyway. It is not a randomised trial: it is a population-based new-user cohort drawn from the Hong Kong-wide electronic health record, 1056 people dispensed sacubitril/valsartan against 2181 dispensed enalapril, with treatment assigned by prescribers rather than by allocation. The frozen question is answered from randomised evidence only, so design decides this row before the endpoint is reached. Recording the endpoint anyway is deliberate: its 0.58 sits BELOW the lower bound of this object's randomised pooled interval, so a reader can see what the design rule is holding out, rather than being asked to take the rule on trust. The prior meta-analysis that surfaced it reached the same decision from the other direction -- its own sensitivity analysis removes this study for being retrospective, and the heterogeneity of the pool it sat in falls from severe to none when it does.",
+    "source_tier": "primary_oa",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/33553256/"
+   },
+   {
+    "reason": "Bano 2021 -- fails measure",
+    "detail": "Right population and right comparator: a randomised comparison of sacubitril/valsartan with enalapril, in equal allocation, in heart failure at a tertiary hospital in Pakistan, 181 against 183, followed for twelve months or to an event. It fails on the measure. Its full text contains no hazard ratio, no Cox model and no time-to-event analysis of any kind; it reports proportions and relative risk reductions, and it keeps hospitalization and death apart instead of combining them. Neither of those quantities can be converted into a time-to-first hazard ratio without the event times the paper does not report.",
+    "source_tier": "primary_oa",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/34395116/"
+   },
+   {
+    "reason": "Zhao 2022 -- fails measure",
+    "detail": "A randomised comparison of sacubitril/valsartan with enalapril, 52 against 45, in pulmonary hypertension due to heart failure with reduced ejection fraction, followed for six months. Population and comparator hold; the measure does not. Its declared primary endpoint is echocardiographic right-ventricular function, and it reports no hazard ratio for any clinical event -- it states only that readmission for recurrent heart failure did not differ. Worth recording how that was confirmed: the full text does contain four instances of the string \"HR\", and every one of them is the abbreviation for HEART RATE in a table of baseline characteristics. A search for the quantity rather than for the string is the reason this row says no hazard ratio instead of the reverse.",
+    "source_tier": "primary_oa",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/35874853/"
+   },
+   {
+    "reason": "Li 2019 -- screened, eligibility could not be established",
+    "detail": "Eligibility is undetermined, not decided. Neither inclusion nor exclusion is asserted here, and the trial is NOT pooled -- so this row records a limit of the search rather than a judgement about the trial. Its likely weight is small and is stated rather than used as a reason to stop looking: 126 randomised participants against the 8399 of the largest trial already pooled. If this trial does report the composite as a time-to-first hazard ratio, this object is missing it, and this row is the place that will say so.",
+    "source_tier": "prior_meta",
+    "source_url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10710849/"
+   }
+  ]
+ },
+ "screening_names_unresolved": [
+  {
+   "name_as_given": "ACTIVITY-HF",
+   "disposition": "could not be resolved to any trial",
+   "what_was_done": "The brief listed this among the trials to screen. ClinicalTrials.gov was searched by title and by intervention on the date this object was built and no registration carries this acronym; the nearest matches are unrelated studies. It is recorded here rather than dropped, because a screened name that silently disappears is indistinguishable from a screened name that was never looked for. If it names a real trial under another identifier, this entry is the place that will be corrected.",
+   "checked_on": "2026-08-09"
+  }
+ ],
+ "eligible_but_not_contributing": {
+  "note": "No trial is in this category. Every trial that meets the population, the comparator and the measure contributes; every trial that fails one of the three is in the exclusion table or the screening log with the criterion it fails. This field is present and empty rather than absent, so that a reader can tell the category was considered.",
+  "studies": []
+ },
+ "reconciliation": {
+  "why_this_step_exists": "To answer, with evidence rather than assertion, whether this review has missed an eligible trial. It is symmetric by design: a trial a published review has and this object lacks must be either recovered or excluded with a named reason, and a trial this object has and a published review lacks must be shown to be newer or justified rather than assumed to be a bonus. Reconciling cleanly is a valid outcome and is recordable as one, because a step that can only produce findings is the mirror image of a gate that can only pass.",
+  "clean": false,
+  "clean_because": "Not clean, and the two reasons are of different kinds. One published review's list was readable and produced a RECOVERY that changed this object's k from two to three. Another pair of reviews could not be read at all, and the count they report cannot be reconciled with the trials this object can see.",
+  "trial_list_diffs": [
+   {
+    "review_id": "PM_REYAZ2023",
+    "review_scope": "sacubitril/valsartan against enalapril in heart failure, any outcome, any design",
+    "list_was_readable": true,
+    "review_included_trials": [
+     "Bano 2021",
+     "Desai 2019 (EVALUATE-HF)",
+     "Li 2019",
+     "McMurray 2014 (PARADIGM-HF)",
+     "Pathadka 2020",
+     "Piepoli 2021 (OUTSTEP-HF)",
+     "Tsutsui 2021 (PARALLEL-HF)",
+     "Velazquez 2019 (PIONEER-HF)",
+     "Zhao 2022"
+    ],
+    "ours_not_theirs": [
+     {
+      "trial": "PARACHUTE-HF",
+      "why_ours_is_right": "published in 2026, after this review's search"
+     }
+    ],
+    "theirs_not_ours": [
+     {
+      "trial": "Tsutsui 2021 (PARALLEL-HF)",
+      "disposition": "recovered",
+      "reason": "Eligible on every axis of the frozen question and absent from the brief this object was built from. Recovered, sourced to its own publication and its own registry record, and pooled.",
+      "k_change": "2 -> 3"
+     },
+     {
+      "trial": "Velazquez 2019 (PIONEER-HF)",
+      "disposition": "excluded",
+      "reason": "reports NT-proBNP change, not a hazard ratio for the composite; in the screening log"
+     },
+     {
+      "trial": "Desai 2019 (EVALUATE-HF)",
+      "disposition": "excluded",
+      "reason": "reports aortic characteristic impedance; in the screening log"
+     },
+     {
+      "trial": "Piepoli 2021 (OUTSTEP-HF)",
+      "disposition": "excluded",
+      "reason": "reports physical activity by accelerometry; in the screening log"
+     },
+     {
+      "trial": "Pathadka 2020",
+      "disposition": "excluded",
+      "reason": "a population-based new-user cohort, not a randomised trial, and excluded on that alone -- it DOES report this review's composite as a hazard ratio, 0.58 (0.45 to 0.75). In the screening log with that endpoint recorded. This review's own sensitivity analysis removes it for being retrospective; this object's question is answered from randomised evidence only."
+     },
+     {
+      "trial": "Bano 2021",
+      "disposition": "excluded",
+      "reason": "a randomised trial whose open-access full text reports arm proportions and relative risk reductions and contains no time-to-event analysis; in the screening log"
+     },
+     {
+      "trial": "Li 2019",
+      "disposition": "undetermined",
+      "reason": "NOT decided. The trial could not be retrieved -- no DOI, no PubMed record, no Crossref match -- so neither inclusion nor exclusion is asserted. In the screening log as undetermined, with what is known from this review's own table and what is not. An earlier version of this entry claimed it reports no time-to-first hazard ratio, which was an assertion about a document nobody here has read."
+     },
+     {
+      "trial": "Zhao 2022",
+      "disposition": "excluded",
+      "reason": "a randomised trial whose declared primary endpoint is echocardiographic right-ventricular function and which reports no hazard ratio for any clinical event; in the screening log"
+     }
+    ],
+    "clean": false,
+    "what_it_changed": "This diff is the reason the pooled estimate in this object is not the one its brief anticipated. PARALLEL-HF was recovered from this review's characteristics table, verified independently against its own abstract and its own registry record, and added. It is the only trial of the three whose point estimate is above one, so recovering it both widened the interval and moved the point."
+   },
+   {
+    "review_id": "SR_CHAGAS_PAIR",
+    "review_scope": "sacubitril/valsartan against enalapril in heart failure with reduced ejection fraction due to Chagas cardiomyopathy",
+    "list_was_readable": false,
+    "review_included_trials": [],
+    "access_limitation": "Both reviews are staged, at the depth that is open. Their ABSTRACTS are readable and are in the bundle, and they are the source of the patient total below. Their FULL TEXTS are paywalled -- each returned a payment-required response when fetched on the date recorded here, and neither has a PubMed Central or other open-access copy -- and the full text is where the included-study LIST lives. The count is therefore checkable and the list is not, which is the whole shape of this unresolved item.",
+    "count_discrepancy": "RESOLVED, and the resolution reverses what an earlier version of this object concluded. Both reviews report a pooled total of 1225 patients, 615 against 610, across a study count larger than the Chagas TRIALS this object can identify. The earlier text treated the shortfall as an entire randomised trial that the search had missed. It is not a trial. The staged ANSWER-HF registry record states in its own background that a post hoc analysis of PARADIGM-HF in chagasic cardiomyopathy, by Ramires and colleagues, reported on 113 patients treated with sacubitril/valsartan or enalapril -- and adding that subgroup to the two Chagas trials reproduces the reviews' total exactly.",
+    "why_it_is_not_recovered": "Because recovering it would be a unit-of-analysis error, not a gain. A post hoc Chagas subgroup of PARADIGM-HF is not a separate randomisation: those patients are already inside the PARADIGM-HF row this object pools, and entering them again as a third cohort would count the same randomised participants and the same control group twice. The reviews' count of studies is a count of REPORTS; this object's k is a count of RANDOMISATIONS, and the two are not the same quantity. That is the same distinction the Handbook draws in section 4.6.1 between studies and reports, applied in the direction that costs a study rather than the direction that adds one.",
+    "what_this_says_about_the_reviews": "Nothing critical, and this object is not in a position to be critical: their full texts are paywalled, so how they handled the overlap cannot be read. Pooling a subgroup of PARADIGM-HF alongside two independent Chagas trials would be a unit-of-analysis problem only if PARADIGM-HF itself were also in their pool, and it is not -- their question is Chagas-only. The observation is recorded because it explains their count, not because it impeaches it.",
+    "disposition": "resolved by a staged source, and recorded as a deduplication decision",
+    "why_it_does_not_change_the_pool": "It does not change k and it must not. The patients it names are PARADIGM-HF patients, already counted once in this pool at the level of the randomisation they belong to. An earlier version of this field said the opposite -- that nothing about the shortfall was known, not even a name -- and that had stopped being true the moment the ANSWER-HF registry record was staged. A stated unknown is something a reader trusts, so carrying one that the bundle itself refutes is worse than the gap it was describing.",
+    "clean": false
+   }
+  ],
+  "target_source_id": "PM_REYAZ2023",
+  "access_limitation": "One comparison review was fully readable and its included-study table is what made this reconciliation possible. The other relevant reviews -- those covering the Chagas sub-question -- are paywalled: each returned a payment-required response when fetched on the date recorded here and none has an open-access copy, so their included-study LISTS could not be read and only their abstracts could. Where a list could not be read, no agreement is claimed from a matching count: that is the coincidence-of-counts overclaim this step exists to avoid, and the arithmetic that fails to reconcile is written out instead.",
+  "matches": [
+   {
+    "item": "PARADIGM-HF",
+    "detail": "Held by this object and by the readable comparison review, with the same arm sizes in both."
+   },
+   {
+    "item": "The screened-out trials",
+    "detail": "Every trial that review includes and this object does not appear in this object's screening log with the quantity it reports instead. Not one was missed; each was decided against on a named criterion."
+   }
+  ],
+  "corrections": [
+   {
+    "item": "PARALLEL-HF",
+    "review_reports": "included as a randomised comparison of sacubitril/valsartan with enalapril, with its arm sizes tabulated",
+    "this_object": "recovered, verified against its own publication and its own registry record, and pooled. It was absent from the brief this object was built from; adding it raised k and moved the pooled estimate, and it is the only contributing trial whose point estimate sits above the null."
+   },
+   {
+    "item": "PARADISE-MI's randomised total",
+    "review_reports": "not applicable -- this correction is against the brief this object was built from, not against a published review",
+    "this_object": "records the randomised total and the full analysis set as the two different quantities they are. The brief inverted them."
+   }
+  ],
+  "unresolved": [
+   {
+    "item": "How the paywalled Chagas reviews handled the PARADIGM-HF subgroup overlap",
+    "detail": "The arithmetic that once looked like a missing trial is settled: the shortfall is a post hoc Chagas subgroup of PARADIGM-HF, named in a staged registry record, and it is not recovered because those patients are already in this pool inside PARADIGM-HF. What remains genuinely unread is narrower and is not a gap in THIS review: whether those reviews describe that subgroup as a study, and how they treated it. Their full texts are paywalled and their abstracts do not say. It is recorded because a resolved discrepancy that quietly drops its remaining loose end reads as more settled than it is."
+   }
+  ]
+ },
+ "claims_corrected": [
+  {
+   "claim": "that the trials eligible for this question are PARADIGM-HF and PARACHUTE-HF, with ANSWER-HF to be screened",
+   "status": "INCOMPLETE",
+   "correction": "PARALLEL-HF meets every axis of the frozen question and was absent from that list. It is recovered, sourced and pooled, and k is three.",
+   "source_id": "PM_REYAZ2023"
+  },
+  {
+   "claim": "that PARACHUTE-HF contributes its primary endpoint to this pool",
+   "status": "FALSE as stated",
+   "correction": "PARACHUTE-HF's primary endpoint is a hierarchical composite analysed by win ratio, reported as 1.52 with a 95% interval of 1.28 to 1.82. The quantity this object pools is its first SECONDARY endpoint, a time-to-first hazard ratio for the composite. The distinction is on the trial's row and on this object's face.",
+   "source_id": "OA_PARACHUTE2026"
+  },
+  {
+   "claim": "that PARADISE-MI randomised 5661 patients rather than 5669",
+   "status": "INVERTED",
+   "correction": "5669 were randomised and 5661 are in the full analysis set. The two numbers name different sets and neither is an error in the source.",
+   "source_id": "REG_CTGOV"
+  },
+  {
+   "claim": "that an exclusion for 'active comparator without a placebo arm', and an exclusion of trials published before 2015, belong in this review's eligibility criteria",
+   "status": "SELF-CONTRADICTORY",
+   "correction": "Neither criterion is used here and both would empty the review. Every trial in this pool is active-controlled, because the question names an active comparator; and PARADIGM-HF, the largest contributor, was published in 2014. A screening rule that requires a placebo signal cannot find the trials this question is about. The eligibility table, the question banner and the scope decisions in this object describe one review, and that is checked rather than asserted.",
+   "source_id": "OA_PARADIGM2014"
+  }
+ ],
+ "scope_decisions": {
+  "SCOPE:measure-is-part-of-the-question": {
+   "decision": "Only a time-to-first-event hazard ratio for the composite enters the pool. Recurrent-event rate ratios, hierarchical win ratios and biomarker ratios-of-change do not, whatever the trial calls them.",
+   "sections": [
+    "3.2.4",
+    "10.9"
+   ],
+   "conformance": "Section 3.2.4 makes the outcome a defining criterion of the review rather than a reporting preference, and section 10.9 fixes the hazard ratio as the measure for time-to-event data and the generic inverse-variance method as the way to combine log hazard ratios. Together they make the measure part of the question. This is the decision that produces most of the exclusion table, and it is applied symmetrically: it excludes PARAGON-HF's rate ratio of 0.87, which is the number most likely to be mistaken for a hazard ratio because it is a plausible one, and it excludes ANSWER-HF even though ANSWER-HF has the right population and the right comparator. A criterion that bends for a trial one wants is not a criterion."
+  },
+  "SCOPE:secondary-endpoints-are-eligible-when-they-are-the-quantity-asked-for": {
+   "decision": "A trial may contribute a SECONDARY endpoint if that endpoint is the quantity the frozen question names and is separately reported with its own interval. The rank is recorded on the row and carried into GRADE.",
+   "sections": [
+    "3.2.4",
+    "14.2.2"
+   ],
+   "conformance": "Section 3.2.4 defines eligibility by the outcome the review is about, not by the outcome the trial chose to power. Excluding a separately reported, centrally adjudicated hazard ratio because the trial ranked something else first would make the review's scope depend on other people's design choices. The cost is real and is not hidden: a secondary endpoint carries no power guarantee and, in PARACHUTE-HF's case, sits beneath a primary that was itself positive on a different scale. That cost is real and it falls in TWO different GRADE domains, which an earlier version of this decision ran together. The part that is about SYSTEMATIC error -- that a result taken from a trial's secondary hierarchy carries multiplicity and selective-reporting exposure the primary does not -- is carried in the risk-of-bias domain, and is one of the reasons that domain is rated serious. The part that is about RANDOM error -- that the trial was not powered for this endpoint -- is not risk of bias at all and is carried in the imprecision domain, where the leave-one-out fits and the Hartung-Knapp-Sidik-Jonkman interval already do the work. A review leg was right that attributing a power argument to risk of bias confuses the two."
+  },
+  "SCREENING:must-match-the-question-it-serves": {
+   "decision": "The screening rule looks for the population, the comparator and the measure this question names. It does NOT require a placebo-controlled design or a publication date after 2015.",
+   "sections": [
+    "3.2.1",
+    "3.2.3"
+   ],
+   "conformance": "Sections 3.2.1 and 3.2.3 define participants and comparisons, and a screening rule is only as good as its agreement with them. A rule requiring a placebo arm would structurally miss every trial this question is about, since the question names an active comparator; a rule excluding pre-2015 publications would drop the trial that carries most of the weight. Both rules appeared in the material this object was built from and neither survives contact with the question, which is recorded in the corrected-claims table rather than fixed in silence."
+  }
+ }
+}

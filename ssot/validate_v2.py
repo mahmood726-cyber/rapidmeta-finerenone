@@ -35,9 +35,19 @@ class Report:
     def __init__(self):
         self.blocks: list[tuple[str, str]] = []
         self.passes: list[str] = []
+        # A THIRD outcome, added for the cross-engine check. Some findings are
+        # neither a pass nor a block: an independent engine that could not be
+        # reached, or two quantities that share a name and are not comparable.
+        # Both must be VISIBLE. Folding them into passes is precisely the
+        # SKIP-as-pass failure recorded in rules/lessons.md, and folding them
+        # into blocks would stop a build for something nobody did wrong.
+        self.notes: list[tuple[str, str]] = []
 
     def block(self, rule, msg):
         self.blocks.append((rule, msg))
+
+    def note(self, rule, msg):
+        self.notes.append((rule, msg))
 
 
 # --------------------------------------------------------------- pooling
@@ -1104,6 +1114,22 @@ def entity_names(canon):
             add(a.get("label", ""))
         for lab in t.get("arms_not_used", []) or []:
             add(lab)
+    # STUDY LABELS are names in the same sense arm labels are. An author-year
+    # key -- "Bano 2021", "Li 2019" -- is how a study is CALLED, by the prior
+    # review it was read from and by every block of this object that refers to
+    # it. The year inside it is not a reading of any field and cannot go stale
+    # against one, but it collides freely with the `year` of some OTHER trial:
+    # the computed line "Bano 2021 -- fails measure" was reported as a stale
+    # copy of PARALLEL-HF's publication year. Only literal stored labels are
+    # masked, so a numeral restated in any other form is still caught.
+    for key in ("screening", "exclusions", "screened"):
+        block = canon.get(key)
+        rows = (block if isinstance(block, list)
+                else (block or {}).get("records", []) if isinstance(block, dict)
+                else [])
+        for r in rows:
+            if isinstance(r, dict) and r.get("trial"):
+                add(r["trial"])
     return out
 
 
@@ -3026,6 +3052,516 @@ def check_overassertion_class(canon, rep):
     check_overassertion(canon, rep)
 
 
+def cascade_cells(canon):
+    """Every measured or derived cell the hard rule applies to, with its path.
+
+    One definition, used by the detector AND by the coverage report, so the
+    report can never claim coverage over a different set of cells than the gate
+    checks. Two implementations of "which cells count" is how a coverage number
+    drifts away from the thing it certifies.
+    """
+    out = []
+    for t in canon.get("inputs", {}).get("trials", []):
+        for oid, d in (t.get("by_outcome") or {}).items():
+            if isinstance(d, dict) and (d.get("effect") or d.get("treatment")
+                                        or d.get("control")):
+                out.append((f"inputs.trials[{t.get('id')}].by_outcome.{oid}", d, t))
+    return out
+
+
+def check_cascade_coverage(canon, rep):
+    """HARD RULE: every cell records every layer it checked, and what it found.
+
+    Blocks a cell that lacks a per-layer checked / not-available record, or
+    whose primary value has no resolvable link. Enforced when the object sets
+    `source_links_enforced` -- the same switch as `source-links`, because this
+    is the same standing sourcing rule and two flags would let an app satisfy
+    one half and skip the other.
+
+    THE LIVE NINE ARE NOT SILENTLY EXEMPT. They predate the rule and would fail
+    it, and Mahmood asked for that to be reported rather than hidden.
+    `cascade_report.py` audits them and names the gap; retrofitting is a
+    separate pass. What must never happen is the gap disappearing because the
+    rule politely looked away.
+    """
+    if not canon.get("source_links_enforced"):
+        return
+
+    import cascade as C
+    import source_links as SL
+    import re as _re
+
+    for path, cell, trial in cascade_cells(canon):
+        rec = cell.get("cascade")
+        if not isinstance(rec, dict) or not rec.get("checked"):
+            rep.block("cascade-coverage",
+                      f"{path} is a measured cell with no `cascade` record. The "
+                      f"hard rule is that every cell names which of "
+                      f"{list(C.LAYERS)} was checked and what each yielded. A "
+                      f"cell without one cannot distinguish a layer that held "
+                      f"nothing from a layer nobody opened.")
+            continue
+
+        missing = C.layers_missing(rec)
+        if missing:
+            rep.block("cascade-coverage",
+                      f"{path}: no record for layer(s) {missing}. Every layer is "
+                      f"mandated -- a datum is unavailable only when ALL layers "
+                      f"fail, so an unmentioned layer is an unfinished search "
+                      f"presented as a completed one.")
+
+        checked = rec.get("checked") or {}
+        for layer, entry in checked.items():
+            where = f"{path}.cascade.checked.{layer}"
+            if not isinstance(entry, dict):
+                rep.block("cascade-coverage", f"{where} is not a record.")
+                continue
+            status = entry.get("status")
+            if status not in C.STATUSES:
+                rep.block("cascade-coverage",
+                          f"{where}: status {status!r} is not one of "
+                          f"{list(C.STATUSES)}.")
+                continue
+            if not _re.match(C.DATE_RE, str(entry.get("checked_on", ""))):
+                rep.block("cascade-check-undated",
+                          f"{where}: no valid `checked_on` date. 'We looked and "
+                          f"found nothing' and 'nobody looked' produce identical "
+                          f"objects unless the check itself is dated.")
+            if status == "not_available":
+                if not str(entry.get("reason", "")).strip():
+                    rep.block("cascade-absence-undocumented",
+                              f"{where}: recorded not_available with no reason. "
+                              f"Absence must be a documented check, never a "
+                              f"silent skip.")
+            else:
+                if not str(entry.get("yielded", "")).strip():
+                    rep.block("cascade-coverage",
+                              f"{where}: found, but does not say what it "
+                              f"yielded. A layer that contributed nothing "
+                              f"checkable did not contribute.")
+                ok, why, _ = SL.check(entry.get("url"), layer)
+                if not ok:
+                    rep.block("cascade-link-unresolvable", f"{where}: {why}")
+                else:
+                    ok, why = SL.consistent_with(
+                        entry.get("url"),
+                        {k: (cell.get(k) or (trial or {}).get(k))
+                         for k in ("nct", "pmid", "pmcid", "doi")})
+                    if not ok:
+                        rep.block("cascade-link-wrong-target", f"{where}: {why}")
+
+        # THE PRIMARY VALUE must come from a layer that actually found one.
+        prim = rec.get("primary_source")
+        found = C.found_layers(rec)
+        if not found:
+            rep.block("cascade-coverage",
+                      f"{path}: no layer is recorded as `found`, yet the cell "
+                      f"carries a value. A datum is unavailable only when ALL "
+                      f"layers fail -- if that is genuinely so, the cell should "
+                      f"not hold a number.")
+        elif prim not in found:
+            rep.block("cascade-primary-unsourced",
+                      f"{path}: primary_source is {prim!r} but the layers that "
+                      f"found a value are {found}. The primary value must be "
+                      f"sourced to a layer that actually holds it.")
+        else:
+            best = C.best_available(rec)
+            if prim != best and not str(rec.get("primary_not_best_because", "")).strip():
+                rep.block("cascade-primary-not-best",
+                          f"{path}: primary_source is {prim!r} while {best!r} "
+                          f"also found a value and ranks higher. Preferring a "
+                          f"lower layer is defensible and an undocumented "
+                          f"preference is not -- say why in "
+                          f"`primary_not_best_because`.")
+
+        # DIVERGENCE. Where two layers both found a value, agreement is a CLAIM.
+        if len(found) >= 2:
+            div = rec.get("divergences")
+            if div is None:
+                rep.block("cascade-divergence-unrecorded",
+                          f"{path}: {len(found)} layers found a value and the "
+                          f"cell records no `divergences`. Silence and "
+                          f"concordance have the same shape, which is how a "
+                          f"builder picks one of two numbers and leaves no "
+                          f"trace.")
+            elif not div and not str(rec.get("agreement_note", "")).strip():
+                rep.block("cascade-divergence-unrecorded",
+                          f"{path}: `divergences` is empty but nothing states "
+                          f"that the layers AGREE. Make agreement a stated "
+                          f"claim a reviewer can check.")
+
+
+def check_source_links(canon, rep):
+    """Every sourced cell and every displayed decision carries a live pointer.
+
+    Standing rule, 2026-08-09. See source_links.py for the cascade and for why
+    the default check is structural and cross-field rather than an HTTP fetch.
+
+    OPT-IN PER OBJECT, and deliberately so. The nine live objects were built
+    before this rule existed; enforcing it on them would be a retroactive block
+    with nothing wrong behind it, which is the reasoning `estimand-undeclared`
+    and `grade-certainty` already use. An app turns it on with
+    `"source_links_enforced": true`.
+
+    THE HOLE THAT OPT-IN LEAVES, stated rather than hidden: an app can evade the
+    rule by not declaring it. That half is NOT machine-enforceable from inside
+    the object, so it is enforced where it can be -- the standing build step in
+    GATE_HEADLESS.md requires every new app to declare it, and the gate brief
+    asks the cross-family adversary to confirm the flag is set AND that links
+    resolve to what each cell claims. A rule that can be switched off silently
+    would be the "gate that can only pass" failure, so the switch is visible in
+    the object and is a thing a reviewer is told to look for.
+
+    What blocks:
+      * a cell or decision with no `source_url`
+      * a URL that is not https, or matches no known source pattern
+      * a URL whose kind contradicts its declared `source_tier`
+      * a URL pointing at an identifier that contradicts the row's own nct/
+        pmid/pmcid/doi -- the wrong-study link an HTTP 200 would certify
+      * a cell resting on ONE tier while claiming triangulation
+    """
+    if not canon.get("source_links_enforced"):
+        return
+
+    import source_links as SL
+
+    def _ids(node, trial):
+        out = {}
+        for src in (node, trial or {}):
+            for k in ("nct", "pmid", "pmcid", "doi"):
+                if src.get(k) and k not in out:
+                    out[k] = src[k]
+        return out
+
+    def _one(node, path, trial=None):
+        """Check a dict that claims a source."""
+        url = node.get("source_url")
+        tier = node.get("source_tier")
+        if not url:
+            rep.block("source-link-missing",
+                      f"{path} is a sourced claim with no `source_url`. The "
+                      f"standing rule is that a reader can click through to the "
+                      f"place the number came from; a citation string they "
+                      f"cannot open does not satisfy it.")
+            return
+        ok, why, _ = SL.check(url, tier)
+        if not ok:
+            rep.block("source-link-unresolvable", f"{path}: {why}")
+            return
+        ok, why = SL.consistent_with(url, _ids(node, trial))
+        if not ok:
+            rep.block("source-link-wrong-target", f"{path}: {why}")
+
+    # 1. Every per-trial cell that carries a measured or derived value.
+    for t in canon.get("inputs", {}).get("trials", []):
+        for oid, d in (t.get("by_outcome") or {}).items():
+            if not isinstance(d, dict):
+                continue
+            if d.get("effect") or d.get("treatment") or d.get("control"):
+                _one(d, f"inputs.trials[{t.get('id')}].by_outcome.{oid}", t)
+
+    # 2. Every displayed include/exclude decision. A shown decision is a claim
+    #    about the world as much as a number is, and the brief is explicit that
+    #    exclusions are shown, not deleted -- so they are checkable too.
+    for key in ("screening", "exclusions", "screened"):
+        block = canon.get(key)
+        entries = (block if isinstance(block, list)
+                   else (block or {}).get("records", []) if isinstance(block, dict)
+                   else [])
+        for i, e in enumerate(entries):
+            if isinstance(e, dict):
+                _one(e, f"{key}[{i}]({e.get('trial') or e.get('id') or i})")
+
+    # 3. TRIANGULATION. The rule says a datum is unavailable only when ALL
+    #    layers fail, so an object resting entirely on one tier is reporting a
+    #    single-source review and must say so rather than let the tier tags
+    #    imply a cascade that was never run.
+    tiers = set()
+    for t in canon.get("inputs", {}).get("trials", []):
+        for d in (t.get("by_outcome") or {}).values():
+            if isinstance(d, dict) and d.get("source_tier"):
+                tiers.add(d["source_tier"])
+    if len(tiers) == 1 and not str(canon.get("single_tier_because", "")).strip():
+        rep.block("source-cascade-single-tier",
+                  f"every sourced cell rests on the single tier {tiers.pop()!r}. "
+                  f"The standing rule asks for the cascade -- prior meta, FDA, "
+                  f"EMA, open-access primary, registry -- with divergences "
+                  f"recorded. If the other layers were genuinely tried and "
+                  f"failed, say so in `single_tier_because`; silence here "
+                  f"reads as triangulation that never happened.")
+
+    # 4. LIVENESS is opt-in and its absence is RECORDED, never folded into the
+    #    pass. Structural checking above is the stronger guarantee; this only
+    #    adds "and the page is still there".
+    import os
+    if not os.environ.get("SSOT_CHECK_LINKS"):
+        rep.note("source-link-liveness-skipped",
+                 "URLs were checked for form and for pointing at this row's own "
+                 "identifier, but NOT fetched. Set SSOT_CHECK_LINKS=1 for a "
+                 "reachability pass. This is a SKIP, not a confirmation that "
+                 "the pages are up.")
+
+
+def check_cross_engine(canon, rep):
+    """Recompute every pooled estimate in metafor and block on disagreement.
+
+    Our pooling is implemented independently of whatever produced the recorded
+    number, but it is still OUR arithmetic checking OUR arithmetic. metafor is a
+    third party: different authors, different code, published and widely used.
+
+    WHAT IT BLOCKS ON: point, ci_low, ci_high and tau2, outside 1e-4 on the
+    ratio scale. The observed disagreement on a real pool was 6.2e-06, so the
+    tolerance sits far above the noise and far below any error worth catching.
+
+    WHAT IT DOES NOT BLOCK ON: I2. Ours is the Higgins I2 from Q and df,
+    metafor's is relative to the REML tau2 -- on the tigecycline pool ours is
+    7.29% and metafor's 1.18%. Two quantities, one name. A single engine can
+    never surface that, and forcing agreement would silently change published I2
+    values across the batch. Both are RECORDED, labelled, side by side.
+
+    WHEN R IS UNREACHABLE it records a NOTE naming the cause and does not pass
+    silently. A numerical witness that skips on a missing prerequisite and is
+    counted as a pass is a failure this repo has already shipped once.
+
+    Runs on the generic-inverse-variance shape, which is what most of this batch
+    stores: a published effect with an interval, whose log point and log
+    standard error are what our own estimators consume. Rows without those are
+    skipped WITH a note rather than quietly ignored.
+    """
+    import r_bridge
+
+    exe, why = r_bridge.find_rscript()
+    pooled_ids = [oid for oid, res in
+                  (canon.get("results", {}).get("by_outcome") or {}).items()
+                  if res.get("pooled")]
+    if not pooled_ids:
+        return
+    if exe is None:
+        rep.note("cross-engine-skipped",
+                 f"no independent recompute was performed for "
+                 f"{len(pooled_ids)} pooled outcome(s): {why}. This is a SKIP, "
+                 f"not agreement.")
+        return
+
+    for oid in pooled_ids:
+        res = canon["results"]["by_outcome"][oid]
+        outcome = next((o for o in canon["outcomes"] if o["id"] == oid), None)
+        rec = res.get("pooled") or {}
+
+        # SAME EXTRACTION check_pooled_recompute uses -- from inputs.trials, not
+        # from the rendered per_trial rows. Writing a second extractor is how
+        # this session's earlier rules ended up accusing correct objects: the
+        # bug was always in the parallel implementation, never in the object.
+        counts, effects = [], []
+        for t in canon["inputs"]["trials"]:
+            d = (t.get("by_outcome") or {}).get(oid)
+            if not d:
+                continue
+            if d.get("effect"):
+                effects.append(d["effect"])
+                continue
+            tx, ct = d.get("treatment"), d.get("control")
+            if tx and ct:
+                counts.append((tx["events"], tx["n"], ct["events"], ct["n"]))
+        if len(counts) + len(effects) < 2 or (counts and effects):
+            continue
+
+        method = str(res.get("estimator_used") or "REML").upper()
+        if method not in ("REML", "DL", "PM", "EB", "HE", "SJ", "ML"):
+            method = "REML"
+        level = rec.get("ci_level", 95)
+        measure = (outcome or {}).get("measure")
+
+        if effects:
+            # GENERIC INVERSE VARIANCE. The log point and log standard error are
+            # derived here exactly as pool_generic derives them, so both engines
+            # eat identical numbers and a disagreement is in the pooling rather
+            # than in the setup.
+            if measure in ("MD", "SMD"):
+                rep.note("cross-engine-skipped",
+                         f"{oid}: measure {measure!r} is not on the ratio scale; "
+                         f"this bridge back-transforms with exp() and would "
+                         f"misreport it. NOT recomputed independently.")
+                continue
+            yi, se = [], []
+            ok = True
+            for e in effects:
+                z = Z.get(e.get("ci_level", level))
+                if z is None or not e.get("point") or not e.get("ci_low"):
+                    ok = False
+                    break
+                yi.append(math.log(e["point"]))
+                se.append((math.log(e["ci_high"]) - math.log(e["ci_low"])) / (2 * z))
+            if not ok:
+                rep.note("cross-engine-skipped",
+                         f"{oid}: a row lacks the point or interval metafor "
+                         f"needs. NOT recomputed independently.")
+                continue
+            job = {"mode": "generic", "yi": yi, "se": se,
+                   "method": method, "level": level}
+        else:
+            # COUNTS. This is the shape the bridge was originally written for,
+            # and the shape tigecycline stores; without this branch the only
+            # 2x2 pool in the batch was being SKIPPED by an upgrade whose whole
+            # point is that a skip is not agreement.
+            if measure not in ("RR", "OR"):
+                rep.note("cross-engine-skipped",
+                         f"{oid}: a 2x2 supports RR and OR; measure is "
+                         f"{measure!r}. NOT recomputed independently.")
+                continue
+            job = {"mode": "counts", "rows": [list(r) for r in counts],
+                   "measure": measure, "method": method, "level": level}
+
+        out, why = r_bridge.run_job(job)
+        if out is None:
+            rep.note("cross-engine-skipped", f"{oid}: {why}. This is a SKIP, "
+                                             f"not agreement.")
+            continue
+        ours = res.get("pooled") or {}
+        bad = r_bridge.compare(ours, out)
+        for key, a, b, diff, tol in bad:
+            rep.block("cross-engine-disagreement",
+                      f"{oid}: {key} is {a} here and {b} in "
+                      f"{out.get('engine')} ({method}); they differ by {diff:.3g}, "
+                      f"beyond the {tol:g} tolerance. One of the two "
+                      f"implementations is wrong and this object cannot say "
+                      f"which.")
+        ours_i2 = (res.get("heterogeneity") or {}).get("i2")
+        rep.note("cross-engine-i2",
+                 f"{oid}: I2 is {ours_i2} here (Higgins, from Q and df) and "
+                 f"{out.get('i2_metafor_tau2_based')} in {out.get('engine')} "
+                 f"(relative to the REML tau2). Different quantities sharing a "
+                 f"name; neither is adopted over the other.")
+
+
+def check_grade(canon, rep):
+    """GRADE certainty: every domain backed, and the certainty COMPUTED.
+
+    ADDITIVE AND SILENT BY DEFAULT. An outcome with no `grade` block is not
+    touched, because the nine objects already live were built before this rule
+    existed and backfilling them is a separate pass Mahmood asked to keep
+    separate. Requiring the block from them would be a retroactive block with
+    nothing wrong behind it -- the same reasoning `estimand-undeclared` and
+    `shared-control-unkeyed` already use.
+
+    What it enforces where a block IS present:
+
+      * every one of the five downgrade domains is present and carries EXACTLY
+        one backing -- a computed value in this object, staged source text, or a
+        stated reason. A rating with none of the three is the
+        identity-without-basis defect wearing a GRADE hat.
+      * a `derived_from` domain's stored value equals the value computed here,
+        so a domain cannot drift from the field it claims to come from.
+      * the stored certainty equals the certainty computed from the domains.
+        This is `sameness-not-derived` for GRADE: the number follows the
+        structure, never the other way round.
+      * the rating vocabulary is 14.2.2's, and 'extremely serious' is rejected
+        on randomised evidence because the Handbook offers it only for
+        ROBINS-I-assessed non-randomised studies.
+      * the sections cited are recorded. Inconsistency in particular needs BOTH
+        14.2.2 (which governs the domain and gives no bands) and 10.10.2 (which
+        gives the bands) -- citing only the first is the "section governs the
+        measure, not the decision" error the self-audit checklist already names.
+    """
+    import grade as G
+
+    for oid, res in (canon.get("results", {}).get("by_outcome") or {}).items():
+        g = res.get("grade")
+        if not g:
+            continue
+
+        domains = g.get("domains") or {}
+        for d in G.DOMAINS:
+            entry = domains.get(d)
+            if not isinstance(entry, dict):
+                rep.block("grade-domain-missing",
+                          f"{oid}: GRADE is asserted but domain {d!r} is absent. "
+                          f"14.2.2 names five domains that can decrease certainty; "
+                          f"an omitted one is an unstated judgement, not a "
+                          f"neutral one.")
+                continue
+            present = [b for b in G.BACKINGS if entry.get(b) not in (None, "", [])]
+            if not present:
+                rep.block("grade-domain-without-basis",
+                          f"{oid}/{d}: rated {entry.get('rating')!r} with no "
+                          f"backing. Exactly one of {G.BACKINGS} is required: a "
+                          f"computed value in this object, staged source text, "
+                          f"or a stated reason it cannot be assessed. An "
+                          f"unbacked rating is the defect this batch spent "
+                          f"fifteen rounds on.")
+            elif len(present) > 1:
+                rep.block("grade-domain-without-basis",
+                          f"{oid}/{d}: carries {present}. Exactly one backing is "
+                          f"required, so a reader knows whether the rating was "
+                          f"computed, read from a source, or declined.")
+
+            rating = str(entry.get("rating", "")).strip().lower()
+            if rating not in G.DOWNGRADE:
+                rep.block("grade-rating-vocabulary",
+                          f"{oid}/{d}: rating {entry.get('rating')!r} is not one "
+                          f"of 14.2.2's {sorted(G.DOWNGRADE)}.")
+            elif rating == G.ROBINS_I_ONLY and g.get("randomised", True):
+                rep.block("grade-rating-vocabulary",
+                          f"{oid}/{d}: {G.ROBINS_I_ONLY!r} is offered by 14.2.2 "
+                          f"only for non-randomised studies assessed with "
+                          f"ROBINS-I. This body of evidence is randomised.")
+
+        # IMPRECISION must not contradict its own arithmetic.
+        pooled = res.get("pooled") or {}
+        imp = domains.get("imprecision") or {}
+        trig = G.imprecision_triggers(pooled.get("point"), pooled.get("ci_low"),
+                                      pooled.get("ci_high"))
+        if trig:
+            bad = G.imprecision_contradicted(
+                str(imp.get("rating", "")).strip().lower(), trig)
+            if bad:
+                rep.block("grade-imprecision-contradicted", f"{oid}: {bad}")
+            # An OIS that cannot be computed must be SAID to be uncomputable.
+            # Silence here reads as "precision adequate", which is exactly the
+            # skip-that-looks-like-a-pass this repo already has a lesson about.
+            if trig["ois_met"] is None and not str(imp.get("ois_note", "")).strip():
+                rep.block("grade-ois-unstated",
+                          f"{oid}/imprecision: 14.2.2 makes the optimal "
+                          f"information size a condition for adequate precision, "
+                          f"and it cannot be computed from what this object "
+                          f"holds. Say so in `ois_note`; an unmentioned OIS reads "
+                          f"as a satisfied one.")
+
+        # INCONSISTENCY, when derived, must match the I2 this object stores and
+        # must cite the section that carries the bands as well as the one that
+        # governs the domain.
+        inc = domains.get("inconsistency") or {}
+        if inc.get("derived_from"):
+            het = res.get("heterogeneity") or {}
+            i2 = het.get("i2")
+            want = G.i2_bands(i2)
+            got = inc.get("computed_bands")
+            if got is not None and list(got) != want:
+                rep.block("grade-domain-not-derived",
+                          f"{oid}/inconsistency: stores bands {got} but this "
+                          f"object's I2 of {i2} falls in {want} per 10.10.2.")
+            secs = [str(s) for s in (g.get("sections") or [])]
+            if not any(s.startswith("10.10.2") for s in secs):
+                rep.block("grade-section-missing",
+                          f"{oid}/inconsistency: derived from I2, but no 10.10.2 "
+                          f"among {secs}. 14.2.2 governs the DOMAIN and prints no "
+                          f"bands at all -- it cross-references Chapter 10. The "
+                          f"section that gives the number has to be cited too.")
+
+        # CERTAINTY is a function of the domains, and is checked against it.
+        computed, derivation = G.certainty(g.get("starting_point"), domains,
+                                           randomised=g.get("randomised", True))
+        if computed is None:
+            rep.block("grade-certainty-not-derived",
+                      f"{oid}: certainty cannot be computed -- {derivation}")
+        elif str(g.get("certainty", "")).strip().lower() != computed:
+            rep.block("grade-certainty-not-derived",
+                      f"{oid}: stores certainty {g.get('certainty')!r} while its "
+                      f"own domains compute to {computed!r} ({derivation}). The "
+                      f"certainty must follow the domains, not be typed beside "
+                      f"them.")
+
+
 DETECTORS = [
     ("over-assertion", check_overassertion_class),
     ("outcome-coverage", check_outcome_coverage),
@@ -3064,6 +3600,10 @@ DETECTORS = [
     ("estimator-labels", check_estimator_labels),
     ("per-trial-recompute", check_per_trial_recompute),
     ("pooled-recompute", check_pooled_recompute),
+    ("grade-certainty", check_grade),
+    ("cross-engine-recompute", check_cross_engine),
+    ("source-links", check_source_links),
+    ("cascade-coverage", check_cascade_coverage),
 ]
 
 
@@ -3087,6 +3627,12 @@ def main():
     print(f"VALIDATING (schema v2) {p.name}\n")
     rep = validate(p)
     print()
+    # NOTES PRINT BEFORE THE VERDICT, and print even on a clean run. A skipped
+    # independent recompute that nobody sees is a skip that reads as a pass.
+    for r, m in rep.notes:
+        print(f"  [note: {r}] {m}")
+    if rep.notes:
+        print()
     if rep.blocks:
         print(f"BUILD BLOCKED -- {len(rep.blocks)} finding(s):")
         for r, m in rep.blocks:
