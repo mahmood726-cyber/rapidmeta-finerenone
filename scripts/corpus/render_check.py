@@ -59,14 +59,28 @@ NETWORK_NOISE = ("net::ERR", "Access to fetch", "Failed to fetch", "favicon",
                  "ERR_INTERNET_DISCONNECTED", "CORS policy", "Failed to load resource")
 
 
-def snapshot(driver, path):
-    # Every file:// page shares one localStorage origin, so a before-run seeds state
-    # that changes how the after-run behaves -- the two loads would not be comparable.
-    # Clear it, then load twice: the first load re-seeds, the second is the steady
-    # state a returning reader meets.
+BLANK = "blank__rmwave.html"
+
+
+def _blank_for(path):
+    """A near-empty file in the same directory, so it shares the page's file:// origin.
+
+    Storage must be cleared between loads -- every file:// page shares one origin, and
+    a before-run would otherwise seed state that changes how the after-run behaves. The
+    obvious way to do that is load the page, clear, reload, but that costs TWO loads of
+    a ~900 KB single-file app carrying plotly, i.e. four heavy loads per before/after
+    pair. Clearing from a blank page in the same origin costs one trivial load instead,
+    which is the difference between a 12-hour rollout and a 5-hour one."""
+    p = pathlib.Path(path).resolve().parent / BLANK
+    if not p.exists():
+        p.write_text("<!doctype html><title>b</title>", encoding="utf-8")
+    return p.as_uri()
+
+
+def snapshot(driver, path, settle=2.5):
     uri = pathlib.Path(path).resolve().as_uri()
-    driver.get(uri)
     try:
+        driver.get(_blank_for(path))
         driver.execute_script("localStorage.clear();sessionStorage.clear();")
     except Exception:                                          # noqa: BLE001
         pass
@@ -79,14 +93,17 @@ def snapshot(driver, path):
         driver.execute_script("RapidMeta.switchTab('analysis'); AnalysisEngine.run();")
     except Exception as e:                                    # noqa: BLE001
         return None, [f"switchTab/AnalysisEngine failed: {e}"], []
-    WebDriverWait(driver, 40).until(
-        lambda d: (d.execute_script("var e=document.getElementById('res-or');"
-                                    "return e? e.innerText : '--'") or "--") != "--")
+    try:
+        WebDriverWait(driver, 25).until(
+            lambda d: (d.execute_script("var e=document.getElementById('res-or');"
+                                        "return e? e.innerText : '--'") or "--") != "--")
+    except Exception:                                          # noqa: BLE001
+        pass          # a k=0 page never fills res-or; the probe below still runs
     # init() finishes AFTER the first result render: the tab-visibility gate is the
     # last statement in it. Probing on res-or alone read the tab bar mid-init and
     # reported the T9 gate as not firing when it had. Settle, then probe.
     import time
-    time.sleep(4)
+    time.sleep(settle)
     data = json.loads(driver.execute_script(PROBE))
     logs = driver.get_log("browser")
     # An offline single-file page legitimately fails its live registry fetches in a
@@ -137,92 +154,117 @@ def result_numbers(d):
     return collections.Counter(m.group(0).replace(",", "") for m in NUM.finditer(joined))
 
 
+def new_driver():
+    from selenium import webdriver
+    from selenium.webdriver.chrome.options import Options
+    o = Options()
+    o.add_argument("--headless=new")
+    o.add_argument("--disable-gpu")
+    o.add_argument("--no-sandbox")
+    o.add_argument("--disable-dev-shm-usage")
+    o.add_argument("--allow-file-access-from-files")
+    o.set_capability("goog:loggingPrefs", {"browser": "ALL"})
+    return webdriver.Chrome(options=o)
+
+
+def compare(db, sb, da, sa):
+    """Score one before/after pair. Split out so the A/A retry can reuse it."""
+    nb, na = result_numbers(db), result_numbers(da)
+    mb = collections.Counter(normalize_error(m) for m in sb)
+    ma = collections.Counter(normalize_error(m) for m in sa)
+    new = [e for e in sorted((ma - mb).elements()) if not is_known_preexisting(e)]
+    return nb == na, new, nb, na
+
+
+def run_pair(before_dir, after_dir, settle=2.5, driver=None, log=print):
+    """Render every page present in after_dir, before vs after. Returns report rows.
+
+    ONE before-load and ONE after-load per page. The A/A baseline -- loading the
+    unedited page a second time -- is expensive and only earns its cost when something
+    looks new, so it is taken lazily, per page, and only then. That keeps a ~900-page
+    rollout inside a night while preserving the property that actually matters: no
+    page is failed for an error the unedited page also produces.
+    """
+    before_dir, after_dir = pathlib.Path(before_dir), pathlib.Path(after_dir)
+    pages = sorted(p.name for p in after_dir.glob("*.html"))
+    own = driver is None
+    d = driver or new_driver()
+    report = []
+    try:
+        for i, name in enumerate(pages, 1):
+            bp, apth = before_dir / name, after_dir / name
+            row = {"page": name}
+            if not bp.exists():
+                row["verdict"] = "NO_BASELINE"
+                report.append(row)
+                continue
+            try:
+                db, sb, _ = snapshot(d, bp, settle)
+                da, sa, _ = snapshot(d, apth, settle)
+            except Exception as e:                              # noqa: BLE001
+                row["verdict"] = "RUNTIME_BREAK"
+                row["error"] = str(e)[:300]
+                report.append(row)
+                log(f"   [{i}/{len(pages)}] {name}: RUNTIME_BREAK {str(e)[:80]}")
+                continue
+            if db is None or da is None:
+                row["verdict"] = "RUNTIME_BREAK"
+                row["before_console_severe"] = sb
+                row["after_console_severe"] = sa
+                report.append(row)
+                log(f"   [{i}/{len(pages)}] {name}: RUNTIME_BREAK")
+                continue
+            same, new, nb, na = compare(db, sb, da, sa)
+            if new:
+                # Lazy A/A: reload the UNEDITED page and see whether it produces the
+                # same thing. Only errors the before-page cannot reproduce count.
+                try:
+                    _, sb2, _ = snapshot(d, bp, settle)
+                    same, new, nb, na = compare(db, sb + sb2, da, sa)
+                except Exception:                               # noqa: BLE001
+                    pass
+            row.update({
+                "result_numbers_identical": same,
+                "new_console_errors": new,
+                "results_before": db["results"], "results_after": da["results"],
+                "nma_visible_before": db["nmaVisible"], "nma_visible_after": da["nmaVisible"],
+                "qa4_banner_after": da["qa4Banner"],
+                "before_console_severe": sb, "after_console_severe": sa,
+                "known_preexisting_seen": sorted({e for e in
+                                                  (normalize_error(m) for m in sa)
+                                                  if is_known_preexisting(e)}),
+                "verdict": "OK" if (same and not new) else "CHANGED",
+            })
+            report.append(row)
+            if row["verdict"] != "OK":
+                log(f"   [{i}/{len(pages)}] {name}: {row['verdict']} "
+                    f"numbers-identical={same} new-errors={len(new)}")
+            elif i % 25 == 0:
+                log(f"   [{i}/{len(pages)}] ok so far")
+    finally:
+        if own:
+            d.quit()
+    return report
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--before", required=True)
     ap.add_argument("--after", required=True)
+    ap.add_argument("--settle", type=float, default=2.5)
     ap.add_argument("--json-out", default=None)
     a = ap.parse_args()
-
-    from selenium import webdriver
-    from selenium.webdriver.chrome.options import Options
-    opts = Options()
-    opts.add_argument("--headless=new")
-    opts.add_argument("--disable-gpu")
-    opts.add_argument("--allow-file-access-from-files")
-    opts.set_capability("goog:loggingPrefs", {"browser": "ALL"})
-
-    bdir, adir = pathlib.Path(a.before), pathlib.Path(a.after)
-    pages = sorted(p.name for p in (adir.glob("*.html") if adir.is_dir() else [adir]))
-
-    driver = webdriver.Chrome(options=opts)
-    report = []
-    try:
-        for name in pages:
-            bp = (bdir / name) if bdir.is_dir() else bdir
-            appath = (adir / name) if adir.is_dir() else adir
-            if not bp.exists():
-                print(f"{name}: no before-page; skipping")
-                continue
-            row = {"page": name}
-            # A/A baseline: load the BEFORE page twice. Several corpus pages throw a
-            # pre-existing, INTERMITTENT TypeError (s.i2.toFixed) that appears on one
-            # load and not the next, so a single before-load would report it as a
-            # regression introduced by the wave. Establishing the flaky set from the
-            # unedited page is the only way to tell a real regression from noise.
-            db, sb1, _ = snapshot(driver, bp)
-            _, sb2, _ = snapshot(driver, bp)
-            sb = sb1 + sb2
-            da, sa, _ = snapshot(driver, appath)
-            row["flaky_baseline"] = sorted({normalize_error(m) for m in sb2}
-                                           - {normalize_error(m) for m in sb1})
-            row["before_console_severe"] = sb
-            row["after_console_severe"] = sa
-            if db is None or da is None:
-                row["verdict"] = "RUNTIME_BREAK"
-                report.append(row)
-                print(f"{name}: RUNTIME_BREAK  before={sb[:1]} after={sa[:1]}")
-                continue
-            nb, na = result_numbers(db), result_numbers(da)
-            row["results_before"] = db["results"]
-            row["results_after"] = da["results"]
-            row["result_numbers_identical"] = nb == na
-            row["nma_visible_before"] = db["nmaVisible"]
-            row["nma_visible_after"] = da["nmaVisible"]
-            row["qa4_banner_after"] = da["qa4Banner"]
-            tabs_b = [t["label"] for t in db["tabs"] if t["visible"]]
-            tabs_a = [t["label"] for t in da["tabs"] if t["visible"]]
-            row["tabs_before"], row["tabs_after"] = tabs_b, tabs_a
-            # Compare error IDENTITY, not the raw message: chrome prefixes every entry
-            # with the page URL and a line:column, so a before-message and the same
-            # after-message never match textually and every pre-existing error would
-            # be reported as new. Confirmed against a before-vs-before self control.
-            nb_msgs = collections.Counter(normalize_error(m) for m in sb)
-            na_msgs = collections.Counter(normalize_error(m) for m in sa)
-            new_errors = [e for e in sorted((na_msgs - nb_msgs).elements())
-                          if not is_known_preexisting(e)]
-            row["known_preexisting_seen"] = sorted({e for e in na_msgs
-                                                    if is_known_preexisting(e)})
-            row["preexisting_console_errors"] = sorted(set(nb_msgs))
-            row["new_console_errors"] = new_errors
-            ok = (nb == na) and not new_errors
-            row["verdict"] = "OK" if ok else "CHANGED"
-            report.append(row)
-            print(f"{name}: {row['verdict']}  result-numbers identical={nb == na}  "
-                  f"new-console-errors={len(new_errors)}  "
-                  f"NMA tab {db['nmaVisible']}->{da['nmaVisible']}")
-            if nb != na:
-                print(f"    lost={dict((nb - na))}  gained={dict((na - nb))}")
-            for e in new_errors[:3]:
-                print(f"    NEW ERROR: {e[:200]}")
-    finally:
-        driver.quit()
-
+    rep = run_pair(a.before, a.after, settle=a.settle)
+    for r in rep:
+        print(f"{r['page']}: {r.get('verdict')}  "
+              f"result-numbers identical={r.get('result_numbers_identical')}  "
+              f"new-console-errors={len(r.get('new_console_errors', []))}  "
+              f"NMA tab {r.get('nma_visible_before')}->{r.get('nma_visible_after')}")
     if a.json_out:
-        pathlib.Path(a.json_out).write_text(json.dumps(report, indent=1, ensure_ascii=False),
+        pathlib.Path(a.json_out).write_text(json.dumps(rep, indent=1, ensure_ascii=False),
                                             encoding="utf-8")
-        print(f"\nreport -> {a.json_out}")
-    return 0 if all(r.get("verdict") == "OK" for r in report) else 1
+        print(f"report -> {a.json_out}")
+    return 0 if all(r.get("verdict") == "OK" for r in rep) else 1
 
 
 if __name__ == "__main__":
