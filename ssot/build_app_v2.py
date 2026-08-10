@@ -59,6 +59,62 @@ def _method_table(sens, p, e):
             + f"  <p><small>{p(mc['estimator_kept'])}</small></p>" + NL)
 
 
+
+def _benchmark_trial_count(b):
+    """How many trials a published benchmark pooled, or an honest blank.
+
+    An explicit count wins over a list length, because an object may know the
+    number without being able to name the members -- one synthesis here states
+    its trial count and patient total and names none of its trials, so its list
+    is INFERRED and its count is read. Where neither is present this returns
+    "not stated" rather than a zero, which is the whole point: a zero is a claim.
+    """
+    n = b.get("trial_count")
+    if isinstance(n, int) and n > 0:
+        return str(n)
+    trials = b.get("trials") or []
+    return str(len(trials)) if trials else "not stated"
+
+
+def _cell_source_link(cell, srcs, e):
+    """The measured cell's source, as something a reader can actually open.
+
+    The object carries `source_tier` and `source_url` on every measured cell and
+    the page projected NEITHER: every anchor on the rendered page belonged to a
+    SCREENED-OUT trial, so a reader could click through to a study the review
+    excluded but not to the source of any number it reports. The object declares
+    `source_links_enforced`; this is what makes that claim something a reader can
+    exercise rather than something only a validator can see.
+    """
+    url = cell.get("source_url")
+    layer = (srcs.get(cell.get("provenance", {}).get("source_id"), {})
+             .get("layer", "")) or cell.get("source_tier", "")
+    if not url:
+        return e(layer)
+    return f"<a href='{e(url)}'>{e(layer)}</a>"
+
+
+def _rank_label(cell, e):
+    """The contributing row's rank IN ITS OWN TRIAL, or nothing.
+
+    Never defaults. See the comment at the call site: the default this replaces
+    printed "primary outcome" on rows the object recorded as secondary.
+    """
+    rank = (cell.get("outcome_role_in_trial")
+            or cell.get("endpoint_rank_in_its_own_trial"))
+    if not str(rank or "").strip():
+        return ""
+    rank = str(rank).strip()
+    # A stored rank that already NAMES what it is -- "…primary composite
+    # endpoint", "an other-prespecified outcome…" -- is printed as it stands.
+    # One that is only a rank -- "primary", "FIRST SECONDARY" -- gets the noun
+    # it needs. Keying on word count instead got "FIRST SECONDARY" wrong, which
+    # a fresh projection of a live object caught.
+    if re.search(r"\b(outcome|endpoint)s?\b", rank, re.I):
+        return " &middot; " + e(rank)
+    return " &middot; " + e(f"{rank} outcome")
+
+
 def _favoured_arm(res, outcome):
     """Name the favoured arm, and say which way the outcome runs.
 
@@ -288,11 +344,28 @@ def _outcome_section(canon, oid, p, e):
             # Not every registry is ClinicalTrials.gov. A trial registered
             # elsewhere has no NCT, and escaping the absent value crashed the
             # page rather than showing the identifier the trial actually has.
-            f"{e(t.get('nct') or t.get('registration') or 'no registry identifier')} &middot; "
-            f"{e(d.get('outcome_role_in_trial', 'primary'))} outcome</small></td>"
+            f"{e(t.get('nct') or t.get('registration') or 'no registry identifier')}"
+            # A DEFAULT THAT ASSERTS A FACT. This read `outcome_role_in_trial`
+            # and, when absent, printed the literal string "primary" -- so every
+            # contributing row of an object that stores its ranks under any other
+            # name was labelled a PRIMARY OUTCOME beside its effect. A gate leg
+            # found four such rows in one object: a trial's designated SECONDARY
+            # endpoints and its registry-only other-prespecified endpoint, each
+            # rendered "primary outcome" while the object stored the correct rank
+            # three fields away. That is this batch's central defect class -- a
+            # label belonging to a different analysis sitting beside a number --
+            # committed by the projection rather than by the object, and it is the
+            # same shape as the silent RoB coercion these apps were built to
+            # replace: a default that can only ever raise the apparent standing of
+            # the evidence.
+            #
+            # So the rank is read from either field, and when NEITHER is present
+            # nothing is printed. A blank tells a reader the rank was not stated;
+            # a default tells them something false.
+            f"{_rank_label(d, e)}</small></td>"
             f"<td class='num'>{size}</td>"
             f"<td class='num'>{est}</td>"
-            f"<td><small>{p(srcs[d['provenance']['source_id']]['layer'])}: "
+            f"<td><small>{_cell_source_link(d, srcs, e)}: "
             f"{p(d['provenance'].get('source_outcome_title', d['provenance'].get('source', '')), scope)}"
             + ("".join(f"<br><q>{e(q)}</q>"
                        for q in (d['provenance'].get('source_quotes') or []))
@@ -370,6 +443,22 @@ def _outcome_section(canon, oid, p, e):
                     f"({fmt(only['published_ve_ci_low_percent'])} to "
                     f"{fmt(only['published_ve_ci_high_percent'])})</p>" + NL)
                    if only.get("published_ve_percent") is not None else "")
+                # WHICH ARM THE NUMBER FAVOURS, on the SINGLE-COHORT branch too.
+                # This line existed only under `if pooled`, so an outcome
+                # reported from one trial rendered no direction at all -- and
+                # the outcomes most likely to be reported from one trial are the
+                # unusual ones. In the intravenous-iron review BOTH outcomes
+                # whose benefit runs UPWARD are single-cohort, so the page stated
+                # "lower is better" four times and never once said the opposite
+                # about the two rows where it is true. A reader meeting a win
+                # ratio above one, or a difference in metres, had to supply the
+                # direction themselves, which is precisely the inversion this
+                # line was added to prevent.
+                + ((f"  <p><strong>Favours: "
+                    f"{e(_favoured_arm(res, outcome))}</strong>"
+                    f"{(' &mdash; ' + p(res['favours_note'])) if res.get('favours_note') else ''}"
+                    f"</p>" + NL)
+                   if res.get("favours") else "")
                 + f"  <p>{p(res.get('poolable_reason', ''))}</p>" + NL
                 + "</div>" + NL)
         else:
@@ -493,12 +582,25 @@ def _outcome_section(canon, oid, p, e):
             + (f"<td class='num'>{fmt(a['ve_percent'])}%</td>" if has_ve else "")
             + "</tr>\n"
             for a in s["analyses"])
+        # AN EMPTY TABLE IS NOT A SENSITIVITY ANALYSIS. When no leave-one-out fit
+        # was run -- which is every single-cohort outcome, where there is nothing
+        # to leave out -- this rendered a header row over zero data rows. Two
+        # things were wrong with that and both reached the reader: a table with
+        # a header reads as an analysis that came out empty rather than as one
+        # that was never applicable, which is the exact "manufacturing
+        # reassurance" the prose immediately below it disclaims; and the header
+        # named a NINETY-FIVE per cent interval on an outcome whose only interval
+        # is at ninety-nine, because on a single-cohort outcome there are no
+        # rows to read a level from. The finding prose is kept -- it says the
+        # analysis was not run and why -- and the empty table is dropped.
+        _table = (f"  <table>\n"
+                  f"    <tr><th>Cohort omitted</th><th>k</th>"
+                  f"<th>{e(outcome['measure'])} (95% CI)</th>"
+                  + ("<th>Efficacy</th>" if has_ve else "")
+                  + f"</tr>\n{srows}  </table>\n") if s["analyses"] else ""
         sens = (f"<div class='card'>\n  <h3>Leave-one-out sensitivity</h3>\n"
-                f"  <p>{p(s['decision_under_test'])}</p>\n  <table>\n"
-                f"    <tr><th>Cohort omitted</th><th>k</th>"
-                f"<th>{e(outcome['measure'])} (95% CI)</th>"
-                + ("<th>Efficacy</th>" if has_ve else "")
-                + f"</tr>\n{srows}  </table>\n"
+                f"  <p>{p(s['decision_under_test'])}</p>\n"
+                + _table
                 + (f"  <p><strong>{p(concl)}</strong></p>\n" if concl else "")
                 + f"  <p><small>{p(s['authority'])}</small></p>\n"
                 + _method_table(s, p, e) + "</div>\n")
@@ -571,11 +673,38 @@ def _outcome_section(canon, oid, p, e):
             + row("Analysis population",
                   p(est_blk["analysis_population"])
                   if est_blk.get("analysis_population") else "")
-            + row("Effect scale", f"pooled on the "
-                                  f"{e(outcome.get('effect_scale', 'natural'))} "
-                                  f"scale")
+            # THE WORD "pooled" IS A CLAIM, AND THIS ROW MADE IT UNCONDITIONALLY.
+            # Every outcome rendered "pooled on the X scale" -- including the
+            # single-cohort ones, which carry a "Single cohort - no synthesis"
+            # banner in the SAME block and store poolable=false, model=
+            # single-study, estimator=none. The page contradicted itself three
+            # lines apart, and a gate leg put the two quotes side by side.
+            #
+            # FOURTH instance of the generator class, and the one that widened
+            # its definition: the first three were an ABSENT FIELD yielding a
+            # confident default (`outcome_role_in_trial` -> "primary", the
+            # hardcoded 95% header, `len(trials or [])` -> 0). This one is a
+            # hardcoded PROSE PREFIX asserting a property the generator never
+            # checked. The class is not "absent field, bad default" -- it is
+            # "generator prose asserting something it never verified against the
+            # object".
+            + row("Effect scale",
+                  (f"pooled on the {e(outcome.get('effect_scale', 'natural'))} scale"
+                   if res.get("poolable") else
+                   f"reported on the {e(outcome.get('effect_scale', 'natural'))} "
+                   f"scale; nothing is pooled on this outcome"))
             + "  </table>" + NL + "</div>" + NL)
 
+    # THE COLUMN HEADER MUST NOT NAME AN INTERVAL LEVEL THE ROWS DO NOT CARRY.
+    # This header hardcoded "95% CI" over whatever the rows held. One trial in
+    # this corpus prints its primary with a NINETY-NINE per cent interval,
+    # because it set its own significance level at one per cent -- so the header
+    # labelled a 99% interval as a 95% one, in the table a reader reads, on the
+    # single row in that outcome. The object stored the level correctly the whole
+    # time; only the header was wrong, which is the worst place for it to be.
+    _levels = {r.get("ci_level", 95) for r in (res.get("per_trial") or [])}
+    _lvl = (f"{fmt(_levels.pop())}% CI" if len(_levels) == 1
+            else "interval, at each row's own level")
     return f"""<section>
 <h2>{p(outcome['name'])}</h2>
 {estimand}{headline}
@@ -583,7 +712,7 @@ def _outcome_section(canon, oid, p, e):
   <h3>Contributing trials</h3>
   <table>
     <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
-        <th>{e(outcome['measure'])} (95% CI), or events</th>
+        <th>{e(outcome['measure'])} ({_lvl}), or events</th>
         <th>Source of this cell</th></tr>
 {rows}  </table>
   <p><small>{p(outcome['definition_note'])}</small></p>
@@ -679,6 +808,45 @@ def _page(canon, sections, p, e):
             f"  <h3>Excluded, with reasons</h3>\n  <ul>\n{xs}  </ul>\n"
             f"  <p><small>{p(sc['known_limitation'])}</small></p>\n</div>\n")
 
+    # RESULTS THE OBJECT READ AND DID NOT USE. The screening block answers which
+    # TRIALS are here. It has never answered which ROWS are in which pool, and an
+    # object can read a result, decline it for a good reason, and leave a reader
+    # unable to tell that from an oversight. Stored and unrendered is the same
+    # failure as unstored: the object is the source of truth, the page is its
+    # projection, and a disposition nobody can see is not a disclosure.
+    considered = ""
+    rows_any = [(t, r) for t in canon["inputs"]["trials"]
+                for r in (t.get("rows_considered_not_pooled") or [])]
+    if rows_any:
+        def _val(r):
+            if r.get("point") is None:
+                return "<small>several rows; no value stored</small>"
+            return (f"{e(r.get('measure',''))} {fmt(r['point'])} "
+                    f"({fmt(r['ci_low'])} to {fmt(r['ci_high'])})")
+        body = "".join(
+            f"    <tr><td>{p(t.get('name') or t['id'])}</td>"
+            f"<td>{p(r['row'])}</td>"
+            f"<td class='num'>{_val(r)}</td>"
+            f"<td>{e(r.get('designation',''))}</td>"
+            f"<td><small>{p(r['why_not_pooled'])}</small></td></tr>\n"
+            for t, r in rows_any)
+        empties = "".join(
+            f"  <p><small><strong>{p(t.get('name') or t['id'])}:</strong> "
+            f"{p(t['rows_considered_empty_because'])}</small></p>\n"
+            for t in canon["inputs"]["trials"]
+            if not (t.get("rows_considered_not_pooled") or [])
+            and str(t.get("rows_considered_empty_because", "")).strip())
+        basis = next((t["rows_considered_basis"] for t in canon["inputs"]["trials"]
+                      if t.get("rows_considered_basis")), "")
+        considered = (
+            "<div class='card'>\n  <h2>Results this review READ and did not pool</h2>\n"
+            + (f"  <p>{p(basis)}</p>\n" if basis else "")
+            + "  <table>\n    <tr><th>Trial</th><th>What it reports</th>"
+              "<th>Effect</th><th>How the trial designates it</th>"
+              "<th>Why it is not pooled here</th></tr>\n"
+            + body + "  </table>\n" + empties + "</div>\n")
+        screening += considered
+
     def _benchmarks(r, e, p):
         """The published syntheses' OWN numbers, each with its own scope.
 
@@ -704,7 +872,20 @@ def _page(canon, sections, p, e):
                   if b.get("point") is not None else "")
             rows += (
                 f"    <tr><td>{e(b.get('measure', ''))} {e(ci)}</td>"
-                f"<td class='num'>{e(str(len(b.get('trials') or [])))}</td>"
+                # NEVER PRINT A COUNT DERIVED FROM AN ABSENT FIELD. This read
+                # `len(b.get("trials") or [])`, so a benchmark row that records
+                # its size as a COUNT rather than as a list rendered a hard ZERO
+                # in the trials column -- the page telling a reader that a
+                # published ten-trial synthesis pooled nothing, while the object
+                # three fields away stored ten. A gate leg quoted the row back.
+                #
+                # This is the THIRD instance of one class in this generator, after
+                # `outcome_role_in_trial` defaulting to the string "primary" and
+                # the interval header hardcoding 95%: an absent field yielding a
+                # confident wrong value instead of an honest blank. The block's
+                # own docstring says it exists so a reader can see each
+                # synthesis's own trial count -- and it printed zero.
+                f"<td class='num'>{e(_benchmark_trial_count(b))}</td>"
                 f"<td class='num'>{e(str(b.get('n', '')))}</td>"
                 f"<td>{p(b.get('model', ''))}</td>"
                 f"<td>{p(b.get('endpoint', ''))}</td></tr>\n"

@@ -413,6 +413,65 @@ def check_against_sources(canon, rep, sources_root=None):
                                       f"that does not reproduce has either the wrong "
                                       f"stored value or the bounds the wrong way "
                                       f"round.")
+                # A CONTINUOUS effect whose source prints a DISPERSION TERM and
+                # no interval. The same shape as the vaccine-efficacy branch
+                # above and added for the same reason: demanding that the bounds
+                # appear literally would block a row whose bounds were honestly
+                # COMPUTED, while demanding nothing would let the point drift
+                # from the paper. So the INPUTS must be sourced and the
+                # derivation must reproduce the stored bounds. Moving either the
+                # stored interval or the published difference now breaks the
+                # pair. The interval level is read off the row, so a row that
+                # silently changed its level would also break.
+                elif eff.get("derived_from") == "published_mean_difference_and_se":
+                    md, se = eff.get("published_md"), eff.get("published_se")
+                    if md is None or se is None:
+                        rep.block("derivation-unsourced",
+                                  f"{t['id']}/{oid}: the effect declares itself derived "
+                                  f"from a published mean difference and standard "
+                                  f"error, and one of the two is absent, so there is "
+                                  f"nothing to derive it from or to check it against.")
+                    else:
+                        # PRESENCE IS NOT IDENTITY, and these two tokens are
+                        # short enough that presence somewhere in a payload is
+                        # nearly worthless -- the same weakness this file already
+                        # records for a short ratio. So both figures must appear
+                        # inside one of THIS ROW'S OWN verbatim quotes, which is
+                        # the mechanism used for measured counts a few lines
+                        # below. A quote is itself checked against the staged
+                        # file, so this binds the derivation to a located
+                        # sentence rather than to a coincidence.
+                        rowq = " ".join(prov.get("source_quotes") or [])
+                        for key, val in (("published_md", md), ("published_se", se)):
+                            if find(val, nct) is None:
+                                rep.block("source-unsupported",
+                                          f"{t['id']}/{oid}: {key}={val} is a figure "
+                                          f"this effect is derived from, and it does "
+                                          f"not appear in any payload staged for "
+                                          f"{nct}.")
+                            elif str(val) not in _norm_numbers(rowq):
+                                rep.block("source-cell-unbound",
+                                          f"{t['id']}/{oid}: {key}={val} appears in a "
+                                          f"payload for {nct} but in NONE of this row's "
+                                          f"own quoted sentences, so nothing ties it to "
+                                          f"this endpoint rather than to some other "
+                                          f"number in the same document.")
+                        z = Z.get(eff.get("ci_level", 95))
+                        if z is None:
+                            rep.block("derivation-mismatch",
+                                      f"{t['id']}/{oid}: ci_level "
+                                      f"{eff.get('ci_level')!r} has no multiplier, so "
+                                      f"the stored interval cannot be reproduced.")
+                        else:
+                            for key, want in (("point", md),
+                                              ("ci_low", round(md - z * se, 4)),
+                                              ("ci_high", round(md + z * se, 4))):
+                                if abs(float(eff[key]) - want) > 1e-9:
+                                    rep.block("derivation-mismatch",
+                                              f"{t['id']}/{oid}: effect.{key}="
+                                              f"{eff[key]} but the published difference "
+                                              f"and standard error give {want} at this "
+                                              f"row's own interval level.")
                 else:
                     cells.update({f"effect.{k}": eff[k]
                                   for k in ("point", "ci_low", "ci_high") if k in eff})
@@ -2284,7 +2343,24 @@ def check_arm_role_vs_registry(canon, rep, sources_root=None):
         if not posted:
             continue
         for a in t.get("arms", []):
-            lab, role = str(a.get("label", "")), a.get("role")
+            # THE ANCHOR MAY NAME THE REGISTRY'S OWN STRING SEPARATELY. Matching
+            # on the displayed label alone made this detector silently do
+            # NOTHING whenever an object wrote a readable arm name instead of
+            # the registry's -- no prefix match, no hits, no check, and no way
+            # to tell that apart from a passing check. Worse, the two role
+            # detectors pulled in opposite directions: one registry here labels
+            # its INTERVENTION arm "Standard care plus IV iron infusion", so
+            # displaying the registry's string would trip the keyword detector
+            # that reads a label for comparator words, and an object could
+            # satisfy only one of the two at a time.
+            #
+            # So an arm may carry `registry_label`, the posted string verbatim,
+            # and this check anchors on that while the keyword check keeps
+            # reading the human label. It STRENGTHENS the anchor: an arm with no
+            # registry_label and a paraphrased label is checked against nothing,
+            # which is what this field lets an object fix.
+            lab = str(a.get("registry_label") or a.get("label", ""))
+            role = a.get("role")
             hits = [ty for plab, ty in posted.items()
                     if plab and (plab.startswith(lab) or lab.startswith(plab))]
             if not hits:
@@ -2305,6 +2381,32 @@ def check_arm_role_vs_registry(canon, rep, sources_root=None):
             if (role == "treatment" and t.get("comparator_type") == "active"
                     and all(ty == "ACTIVE_COMPARATOR" for ty in hits)
                     and str(a.get("head_to_head_role_note", "")).strip()):
+                continue
+            # THE REGISTRY RECORD CONTRADICTS ITSELF. Two trials in the
+            # intravenous-iron review post their intervention arm as
+            # ACTIVE_COMPARATOR while posting the OTHER arm, in the same record,
+            # as PLACEBO_COMPARATOR. A trial cannot consist entirely of
+            # comparator arms and no experimental arm, so the record is
+            # internally inconsistent and this detector's premise -- that the
+            # registry records what the arm WAS -- does not hold on it.
+            #
+            # The exemption is deliberately narrow and must be DECLARED, for the
+            # same reason the head-to-head one is: it applies only when the SAME
+            # record posts a sibling arm as inactive, which is what identifies
+            # which side is the control independently of the mislabelled arm, and
+            # the arm must carry a note saying so. An arm swap would then have to
+            # be written down to pass. It does NOT fire when both arms are active
+            # comparators (that is the head-to-head case above) and it does NOT
+            # fire on a control arm declared as treatment where the registry
+            # posts a real EXPERIMENTAL sibling.
+            sibling_inactive = any(
+                ty in {"PLACEBO_COMPARATOR", "SHAM_COMPARATOR", "NO_INTERVENTION"}
+                for plab, ty in posted.items()
+                if not (plab.startswith(lab) or lab.startswith(plab)))
+            has_experimental = any(ty in TREAT for ty in posted.values())
+            if (role == "treatment" and all(ty == "ACTIVE_COMPARATOR" for ty in hits)
+                    and sibling_inactive and not has_experimental
+                    and str(a.get("registry_role_contradiction_note", "")).strip()):
                 continue
             rep.block("arm-role-vs-registry",
                       f"{t['id']}: arm {lab!r} is declared {role!r} but the registry "
@@ -2713,6 +2815,64 @@ def check_pool_uniformity(canon, rep):
                           f"outcome {oid!r}: dimension {dim!r} records state "
                           f"{state!r}, which is not one this rule understands.")
                 continue
+            # A DIMENSION THAT NAMES A STORED FIELD IS CHECKABLE AGAINST IT.
+            # Until now every uniformity state was free assertion: the rule
+            # checked that a `differs` carried a reason and that prose did not
+            # contradict it, and nothing compared the state with the data the
+            # object already holds. A gate leg found the gap by finding the
+            # defect -- an axis named `drug` marked DIFFERING across two trials
+            # whose stored `drug` is the same string, with the row's own text
+            # saying the molecule was identical. A reader scanning the status
+            # column reads that as a pool crossing two molecules.
+            #
+            # So where a dimension names a per-trial field, the state must agree
+            # with that field across the trials CONTRIBUTING to this outcome --
+            # not across every trial in the object, because a pool's uniformity
+            # is a statement about its own rows. Both directions block: claiming
+            # a difference that the data denies, and claiming sameness the data
+            # denies. Dimensions with no stored counterpart are untouched.
+            # THE MAPPING IS ASYMMETRIC AND THAT ASYMMETRY IS THE WHOLE RULE.
+            #
+            # `drug` stores the molecule and the dimension named `drug` is about
+            # the molecule, so the two are the same claim and BOTH directions of
+            # disagreement are defects.
+            #
+            # `comparator_type` is a CLASS -- "placebo", "inactive", "active" --
+            # and the dimension named `comparator` is broader than its class. A
+            # first version of this rule blocked both directions there, and it
+            # would have falsely accused a live object whose two cohorts both
+            # used an inactive comparator that was a DIFFERENT PRODUCT from a
+            # different manufacturer on a different schedule -- a difference a
+            # reviewer found by reading both trial reports, and which a previous
+            # gate round had already corrected FROM "identical" TO "differs".
+            # Blocking that would have reversed a real improvement and taught the
+            # next author to hide a difference to satisfy a tool. So on the
+            # comparator only the direction that cannot be legitimate blocks:
+            # claiming the comparators are IDENTICAL while their stored classes
+            # differ. Claiming they differ while the class is shared is exactly
+            # what an honest object does when the products differ.
+            BOTH_WAYS = {"drug": "drug"}
+            IDENTICAL_ONLY = {"comparator": "comparator_type"}
+            field = BOTH_WAYS.get(dim) or IDENTICAL_ONLY.get(dim)
+            if field:
+                vals = {t2[field] for t2 in canon["inputs"]["trials"]
+                        if oid in (t2.get("by_outcome") or {}) and field in t2}
+                if len(vals) > 1 and state == "identical":
+                    rep.block("pool-uniformity-contradicts-stored",
+                              f"outcome {oid!r}: dimension {dim!r} is recorded "
+                              f"IDENTICAL, but the trials contributing to this "
+                              f"outcome store {sorted(vals)!r} in their {field!r} "
+                              f"field. The pool crosses a dimension its own "
+                              f"uniformity table says it holds constant.")
+                elif len(vals) == 1 and state == "differs" and dim in BOTH_WAYS:
+                    rep.block("pool-uniformity-contradicts-stored",
+                              f"outcome {oid!r}: dimension {dim!r} is recorded "
+                              f"DIFFERING, but every trial contributing to this "
+                              f"outcome stores the same {field!r}, "
+                              f"{sorted(vals)[0]!r}. A reader scanning the status "
+                              f"column reads that as a crossed dimension. If "
+                              f"something else about the intervention differs, it "
+                              f"belongs on a dimension of its own.")
             if state != "differs":
                 continue
             if not str(note).strip():
