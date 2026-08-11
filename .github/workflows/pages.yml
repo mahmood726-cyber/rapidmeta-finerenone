@@ -1,0 +1,100 @@
+name: pages
+
+# Publishes the repository root to GitHub Pages via the Actions builder.
+#
+# WHY THIS REPLACES THE LEGACY BUILDER. The site is currently built by the legacy
+# branch-based Pages builder (`build_type: "legacy"`, source `main` `/`), which is
+# subject to a ~10 minute build timeout. This repo is 1,478 root HTML pages and
+# ~1.1 GB, and a commit that rewrites several hundred of those pages has been
+# observed to exceed that timeout. An Actions-built deploy runs under the normal
+# job limit (hours, not minutes) and produces a log when it fails, which the legacy
+# builder does not.
+#
+# THIS WORKFLOW DOES NOT SWITCH THE BUILDER. Changing Pages "Source" from
+# "Deploy from a branch" to "GitHub Actions" is a repository settings change and
+# has to be made by hand in Settings -> Pages. Until it is made, the `build` job
+# below runs and validates the artifact, and only the `deploy` job fails. That is
+# deliberate: the build is worth running and reading before the switch is made.
+#
+# `.nojekyll` is required and is asserted by the preflight -- without it the Pages
+# runtime treats the tree as a Jekyll source and silently drops `_`-prefixed paths.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+# `contents: read` to check out; `pages: write` + `id-token: write` are what
+# deploy-pages needs to mint its OIDC token and publish.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time, and never cancel one in flight -- a cancelled deploy can
+# leave the site serving a partially-swapped tree.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build artifact
+    runs-on: ubuntu-latest
+    # The legacy builder's ceiling was ~10 min. This is the whole point of the
+    # migration: give the build room, but still bound it so a hang is visible.
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # The object store is ~2 GB. A shallow checkout is the difference
+          # between a 30-second and a multi-minute clone; no history is needed
+          # to publish a working tree.
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # Pages caps a published site at 1 GB, and here that is a build FAILURE, not a
+      # warning -- it is what commit f7cb32bdd was fixing. After that slim-down and the
+      # corpus merge the tracked tree is still 1.026 GB. These three directories are
+      # repository working material that no served file references (checked by grep for
+      # href/src/fetch AND for the bare directory name across every root .html and .js),
+      # and dropping them takes ~192 MB off the artifact.
+      #
+      # This prunes the RUNNER'S DISPOSABLE CHECKOUT. Nothing is untracked, nothing is
+      # deleted from the repository, and the build lane's ssot/ files are untouched in
+      # git -- they simply are not published.
+      #
+      # outputs/ and e156-submission/ are NOT pruned: 916 served pages fetch paths under
+      # outputs/, and index.html links three files in e156-submission/.
+      - name: Prune non-served directories from the artifact
+        run: rm -rf retired removed ssot
+
+      - name: Preflight (site shape + payload)
+        run: python scripts/pages_preflight.py --root .
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # The repository root, exactly as the legacy builder published it.
+          # The action tars this path with `--exclude=.git --exclude=.github`;
+          # scripts/pages_preflight.py measures the same set, so the payload it
+          # reports is the payload that is uploaded.
+          path: .
+
+  deploy:
+    name: deploy to Pages
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
