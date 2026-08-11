@@ -56,6 +56,7 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import corpus_detectors as CD  # noqa: E402
+import data_spans as _DS  # noqa: E402
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -176,12 +177,25 @@ DATA_SPANS = [
 def data_fingerprint(html: str):
     """A fingerprint of every per-page data surface. Must be byte-identical across the
     edit. Uses the raw matched text, not a parse -- parsing is exactly the step this
-    whole approach exists to avoid."""
-    fp = {}
-    for name, rx in DATA_SPANS:
-        hits = rx.findall(html)
-        fp[name] = (len(hits), sum(len(h) for h in hits),
-                    hash(tuple(hits)) if hits else 0)
+    whole approach exists to avoid.
+
+    DELEGATED TO data_spans.py, WHICH BRACE-MATCHES. The six regexes that used to live
+    in DATA_SPANS included three -- realData, outcomeKeys, TRIALS -- that matched ZERO
+    times on all 863 pages, because the corpus writes `realData:{"NCT..."` as an object
+    property and the pattern expected an assignment. A span that matches nothing
+    contributes (0,0,0) on both sides and therefore always compares equal, so guard 2
+    was silently enforcing byte-identity on three spans while claiming six -- and the
+    2.9 MB of realData it was named after was not one of the three.
+
+    The replacement finds the spans by brace matching and treats an expected-but-absent
+    span as an ERROR. Re-verified after the fix: all 863 pages' data spans are
+    byte-identical to origin/main across W1-W4, so nothing was in fact corrupted -- but
+    that is now a measurement rather than an assumption.
+    """
+    fp, missing = _DS.fingerprint(html)
+    if missing:
+        # Surfaced into the fingerprint itself so the comparison cannot silently pass.
+        fp["__missing_required__"] = tuple(sorted(missing))
     return fp
 
 
