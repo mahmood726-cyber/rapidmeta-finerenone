@@ -144,11 +144,21 @@ def is_finerenone_review(s: str, path: pathlib.Path) -> bool:
 def det_d18b(s, path):
     """C-D18b: the false claim that a git commit hash is a PROSPERO-equivalent
     prospective registration. Every page carrying it contradicts it in its own
-    PRISMA item 24. There is no page on which the sentence is true."""
-    hit = "equivalent to PROSPERO" in s
+    PRISMA item 24.
+
+    LEGITIMATE INSTANCE, found by the full-corpus sweep: at least one page
+    (CANGRELOR_PCI_REVIEW) had already been corrected by hand and states the opposite --
+    "It is **not** a prospective registration and is **not** equivalent to PROSPERO".
+    A bare substring test fires on that, i.e. it flags the one page that got it right.
+    So the claim must be asserted, not merely mentioned: an occurrence negated within
+    the preceding 60 characters does not count."""
+    hits = [m for m in re.finditer(r"equivalent to PROSPERO", s)
+            if not re.search(r"\bnot\b[^.]{0,60}$", s[max(0, m.start() - 60):m.start()])]
+    hit = bool(hits)
     return Finding("C-D18b", hit, True,
-                   "PROSPERO-equivalence sentence present" if hit else
-                   ("fix marker present" if FIXED["D18b"] in s else "sentence absent"))
+                   "PROSPERO-equivalence asserted" if hit else
+                   ("fix marker present" if FIXED["D18b"] in s else
+                    "claim absent or explicitly negated"))
 
 
 def det_d18b2(s, path):
@@ -307,8 +317,14 @@ def det_t6(s, path):
     sites = []
     if "\u03c4\u00b2 (DerSimonian-Laird)" in s:
         sites.append("methods paragraph tau-squared label")
-    if 'addTrace("DerSimonian-Laird ("' in s:
-        sites.append("CI-comparison trace label")
+    # LEGITIMATE INSTANCE, found by the full-corpus sweep: GLP1_CVOT_REVIEW had already
+    # been corrected by hand -- its headline trace reads REML -- and it ALSO plots a
+    # genuine DerSimonian-Laird fit from state._dlResult as a separate series. Labelling
+    # that one "DerSimonian-Laird" is correct. What is wrong is labelling the HEADLINE
+    # arrays (dlL, dlU = the Wald interval around the REML estimate) as DL, so the test
+    # is bound to those arrays rather than to the label text.
+    if re.search(r'addTrace\("DerSimonian-Laird \([^)]*\)",\s*dlL\s*,\s*dlU', s):
+        sites.append("CI-comparison trace label on the headline interval")
     if "Fig. \u2014 DerSimonian-Laird (standard)" in s:
         sites.append("figure caption")
     return Finding("C-T6", bool(sites), True,
@@ -584,6 +600,14 @@ def selftest(corpus_root=None, fixed_host=None, verbose=True):
              "four DOACs on a shared warfarin control IS a connected network"),
             (root / "CGRP_MIGRAINE_NMA_REVIEW.html", "C-T9",
              "four CGRP mAbs on a shared placebo control IS a connected network"),
+            # Both found by the full-corpus sweep, as pages that were already correct
+            # and that the first version of these detectors flagged anyway.
+            (root / "CANGRELOR_PCI_REVIEW.html", "C-D18b",
+             "this page already states it is NOT equivalent to PROSPERO -- a negated "
+             "mention is not the claim"),
+            (root / "GLP1_CVOT_REVIEW.html", "C-T6",
+             "its headline trace already reads REML; the DL-labelled series is a real "
+             "DerSimonian-Laird fit from state._dlResult"),
         ]
     if not checks:
         print("  SKIPPED -- no corpus root given. Report as unverified.")
