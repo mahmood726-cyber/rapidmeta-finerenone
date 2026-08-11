@@ -105,9 +105,11 @@ EXPECT_CHANGE = {
     # W5 moves the displayed cohort toward the pooled set. The pooled EFFECT must not
     # move -- res-or/res-ci are not in this set, so a W5 edit that changed the estimate
     # would still be caught.
-    "W5": {"state_n", "nyt_subhead", "patient_plain"},
-    # W6 changes RoB badges and the certainty that is derived from them.
-    "W6": {"grade_container", "rob_lights"},
+    # The GRADE profile table restates the cohort, so it moves with N.
+    "W5": {"state_n", "nyt_subhead", "patient_plain", "grade_profile"},
+    # W6 changes RoB badges and the certainty that is derived from them. The profile
+    # table prints that certainty per outcome, so it moves too.
+    "W6": {"grade_container", "rob_lights", "grade_profile"},
 }
 
 
@@ -347,9 +349,37 @@ def run_pair(before_dir, after_dir, settle=2.5, driver=None, log=print, waves=()
                 report.append(row)
                 log(f"   [{i}/{len(pages)}] {name}: RUNTIME_BREAK")
                 continue
+            # `state_k` is null when the page had not assigned RapidMeta.state.results
+            # by the time it was probed -- "not measured", which is not a value and
+            # must never be differenced against one. It survives the A/A control
+            # because the A/A reloads the SAME side: if the before-page is reliably
+            # slow and the after-page reliably is not, both A/A loads agree and the
+            # asymmetry is reported as a change. Observed on ACALABRUTINIB_CLL_REVIEW,
+            # whose live registry fetch is rate-limited and pushes the assignment past
+            # the wait. Re-measure the unmeasured side before comparing anything.
+            for _ in range(2):
+                b_null = (db.get("declared", {}) or {}).get("state_k") is None
+                a_null = (da.get("declared", {}) or {}).get("state_k") is None
+                if b_null == a_null:
+                    break
+                try:
+                    if b_null:
+                        db, sb, _ = snapshot(d, bp, settle)
+                    else:
+                        da, sa, _ = snapshot(d, apth, settle)
+                except Exception:                               # noqa: BLE001
+                    break
             same, new, nb, na = compare(db, sb, da, sa)
             dd = declared_diff(db, da)
             unstable = {}
+            # Still asymmetric after two retries: the pair is not comparable on the
+            # cohort surfaces. Say so rather than reporting a number that moved.
+            if ((db.get("declared", {}) or {}).get("state_k") is None) != \
+               ((da.get("declared", {}) or {}).get("state_k") is None):
+                for k in ("state_k", "state_n", "nyt_subhead", "grade_profile"):
+                    if k in dd:
+                        unstable[k] = dd.pop(k)
+                row["cohort_unmeasured"] = True
             if new or dd:
                 # Lazy A/A, extended to the declared surfaces. Reload the UNEDITED page
                 # and compare it against ITSELF. Only what the before-page cannot

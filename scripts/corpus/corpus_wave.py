@@ -684,6 +684,243 @@ ANCHORS = [
             None if "affectedPer100=_rmIsHR?0:" in html
             else "D18a2-waitingroom did not apply on this page, so _rmIsHR is not "
                  "declared in this scope; adding a reader would be a ReferenceError")),
+
+    # ---------------------------------------------------------------- W5
+    # D12 -- k, N and the control event rate derived from ONE array.
+    #
+    # The page already contains the right answer and disagrees with itself.
+    # GradeProfileEngine derives its cohort from c.plotData; RapidMeta.state.results
+    # sets `k: c.k` (= plotData.length) beside `n:` summed over the FULL eligible
+    # array. plotData has already dropped the no-published-HR trials in HR mode and
+    # the double-zero / double-complete trials in binary mode -- and those dropped
+    # trials are exactly what `n` still counts. So N is quoted for a cohort that was
+    # never pooled, next to a k that was.
+    #
+    # The fix is not a new formula. It routes every site through ONE helper, so the
+    # agreement between state.results.n and GRADE's totalN stops being a coincidence
+    # that has to be re-checked and becomes structural. That agreement is then the
+    # detector, exactly as the plan proposed.
+    Anchor(
+        "D12-helper", "W5", "D12",
+        r"(,sanitizeCSVCell=val=>)",
+        lambda m, ctx: (
+            "," + MARK.format("D12") +
+            # A trial with a null cE still randomised real participants, so it counts
+            # toward N. It cannot count toward the CER: `(cE ?? 0)` over a real
+            # denominator asserts the trial observed zero control events, which drags
+            # the pooled rate down and inflates every NNT derived from it. Admitted
+            # to the numerator only when BOTH counts are finite.
+            "rmPooledCohort=pd=>{const a=Array.isArray(pd)?pd:[];"
+            "let n=0,cE=0,cN=0;"
+            "for(const d of a){const tn=Number(d?.tN),cn=Number(d?.cN),ce=Number(d?.cE);"
+            "Number.isFinite(tn)&&(n+=tn),Number.isFinite(cn)&&(n+=cn),"
+            "Number.isFinite(ce)&&Number.isFinite(cn)&&cn>0&&(cE+=ce,cN+=cn)}"
+            "return{k:a.length,n,cer:cN>0?cE/cN:0,cerN:cN}},"
+            # Same admissibility rule, over trial-shaped records, for the two report
+            # surfaces that never receive plotData.
+            "rmCerFromTrials=ts=>{let cE=0,cN=0;"
+            "for(const t of ts||[]){const ce=Number(t?.data?.cE),cn=Number(t?.data?.cN);"
+            "Number.isFinite(ce)&&Number.isFinite(cn)&&cn>0&&(cE+=ce,cN+=cn)}"
+            "return cN>0?cE/cN:0}") + m.group(1),
+        "one cohort helper, injected beside safeRob, so every consumer shares it"),
+
+    Anchor(
+        "D12-state-n", "W5", "D12",
+        r"k:c\.k,n:trials\.reduce\(\(a,b\)=>a\+b\.data\.tN\+b\.data\.cN,0\)\.toLocaleString\(\)",
+        lambda m, ctx: ("k:c.k," + MARK.format("D12") +
+                        "n:rmPooledCohort(c.plotData).n.toLocaleString()"),
+        "the headline N, moved onto the same array as the headline k"),
+
+    Anchor(
+        "D12-grade-n", "W5", "D12",
+        r"totalN=c\.plotData\.reduce\(\(a,d\)=>a\+d\.tN\+d\.cN,0\),"
+        r"totalCN=c\.plotData\.reduce\(\(a,d\)=>a\+d\.cN,0\),"
+        r"cer=totalCN>0\?c\.plotData\.reduce\(\(a,d\)=>a\+d\.cer\*d\.cN,0\)/totalCN:0",
+        lambda m, ctx: (MARK.format("D12") +
+                        "totalN=rmPooledCohort(c.plotData).n,"
+                        "totalCN=rmPooledCohort(c.plotData).cerN,"
+                        "cer=rmPooledCohort(c.plotData).cer"),
+        "GRADE was already right about WHICH array, and wrong in two smaller ways: "
+        "d.tN+d.cN is NaN on a continuous plotData, which carries md/se and no counts, "
+        "and its weighted CER admitted a null-cE trial as zero events. Routing it "
+        "through the same helper fixes both and is what makes the agreement detector "
+        "meaningful -- two sites that share a function cannot drift apart."),
+
+    Anchor(
+        "D12-patient-callsite", "W5", "D12",
+        r"updatePatientMode\(c\.pOR,c\.lci,c\.uci,c\.k,trials\)",
+        lambda m, ctx: ("updatePatientMode(c.pOR,c.lci,c.uci,c.k,trials,c.plotData)" +
+                        MARK.format("D12")),
+        "hand the patient module the pooled array as well as the eligible one"),
+
+    # Both body anchors READ the parameter the call-site anchor supplies. Gated on it,
+    # for the reason the W4 census taught: rmPooledCohort(undefined) returns a zero
+    # cohort, so an ungated body edit would not throw -- it would silently render
+    # N = 0 on every page where the call site did not match. A guard that fails loudly
+    # is available here only by refusing to apply.
+    Anchor(
+        "D12-upm-gen2", "W5", "D12",
+        r"updatePatientMode\(pOR,lci,uci,k,trials\)\{const effect=interpretRelativeEffect"
+        r"\(pOR,lci,uci\),totalN=trials\.reduce\(\(a,b\)=>a\+\(b\.data\?\.tN\?\?0\)\+"
+        r"\(b\.data\?\.cN\?\?0\),0\),avgCER=trials\.length>0\?trials\.reduce\(\(a,t\)=>"
+        r"a\+\(t\.data\?\.cE\?\?0\)/\(t\.data\?\.cN\?\?1\),0\)/trials\.length:0",
+        lambda m, ctx: (
+            "updatePatientMode(pOR,lci,uci,k,trials,_pd){" + MARK.format("D12") +
+            "const _pc=rmPooledCohort(_pd),"
+            "effect=interpretRelativeEffect(pOR,lci,uci),totalN=_pc.n,avgCER=_pc.cer"),
+        "the newer lineage averaged per-trial rates unweighted, with a missing cE "
+        "counted as zero over a real denominator and a missing cN as a denominator "
+        "of 1",
+        gate=lambda html, path: (
+            None if "updatePatientMode(c.pOR,c.lci,c.uci,c.k,trials,c.plotData)" in html
+            else "call site does not pass plotData; the pooled array is not in scope")),
+
+    Anchor(
+        "D12-upm-gen1", "W5", "D12",
+        r'updatePatientMode\(pOR,lci,uci,k,trials\)\{const isHRMode="HR"==='
+        r'\(RapidMeta\.state\.effectMeasure\?\?"OR"\),emShort=RapidMeta\.emLabel\("short"\),'
+        r'controlEventRate=pooledControlEventRate\(trials\)',
+        lambda m, ctx: (
+            "updatePatientMode(pOR,lci,uci,k,trials,_pd){" + MARK.format("D12") +
+            'const _pc=rmPooledCohort(_pd),isHRMode="HR"===(RapidMeta.state.effectMeasure'
+            '??"OR"),emShort=RapidMeta.emLabel("short"),controlEventRate=_pc.cer'),
+        "same reconciliation on the older lineage, whose CER came from the full "
+        "eligible array rather than the pooled one",
+        gate=lambda html, path: (
+            None if "updatePatientMode(c.pOR,c.lci,c.uci,c.k,trials,c.plotData)" in html
+            else "call site does not pass plotData; the pooled array is not in scope")),
+
+    Anchor(
+        "D12-upm-gen1-n", "W5", "D12",
+        r",totalN=trials\.reduce\(\(a,b\)=>a\+\(b\.data\?\.tN\?\?0\)\+\(b\.data\?\.cN\?\?0\),0\),"
+        r"controlEventRatePct=",
+        lambda m, ctx: "," + MARK.format("D12") + "totalN=_pc.n,controlEventRatePct=",
+        "the older lineage's N, in the same const list",
+        gate=lambda html, path: (
+            None if "const _pc=rmPooledCohort(_pd),isHRMode=" in html
+            else "D12-upm-gen1 did not apply, so _pc is not declared in this scope")),
+
+    # The two report surfaces that are handed trial records rather than plotData. N is
+    # not recomputed here -- renderNarrative reads it back out of state.results.n,
+    # which D12-state-n has already reconciled -- so only the CER needs the fix.
+    Anchor(
+        "D12-wr-cer", "W5", "D12",
+        r"avgCER=included\.length>0\?included\.reduce\(\(a,t\)=>a\+t\.data\.cE/t\.data\.cN,0\)"
+        r"/included\.length:\.15",
+        lambda m, ctx: (MARK.format("D12") +
+                        "avgCER=included.length>0?rmCerFromTrials(included):.15"),
+        "waiting-room control event rate: event-weighted, null-count trials excluded"),
+
+    Anchor(
+        "D12-narr-cer", "W5", "D12",
+        r"avgCER=included\.length>0\?\(included\.reduce\(\(a,t\)=>a\+t\.data\.cE/t\.data\.cN,0\)"
+        r"/included\.length\*100\)\.toFixed\(1\):\"--\"",
+        lambda m, ctx: (MARK.format("D12") +
+                        'avgCER=included.length>0?(100*rmCerFromTrials(included)).toFixed(1)'
+                        ':"--"'),
+        "the same rate as quoted in the report narrative"),
+
+    Anchor(
+        "D12-pooledcer", "W5", "D12",
+        r"pooledControlEventRate=\(trials=\[\]\)=>\{let totalCtrlEvents=0,totalCtrlN=0;"
+        r"return trials\.forEach\(t=>\{totalCtrlEvents\+=parseInt\(t\?\.data\?\.cE\?\?0,10\)\|\|0,"
+        r"totalCtrlN\+=parseInt\(t\?\.data\?\.cN\?\?0,10\)\|\|0\}\),"
+        r"totalCtrlN>0\?totalCtrlEvents/totalCtrlN:0\}",
+        lambda m, ctx: ("pooledControlEventRate=(trials=[])=>" + MARK.format("D12") +
+                        "rmCerFromTrials(trials)"),
+        "the older lineage's shared CER helper. `parseInt(cE ?? 0) || 0` turned a "
+        "missing count into zero events over a real denominator; the replacement "
+        "drops the trial from both sides of the ratio instead."),
+
+    # ---------------------------------------------------------------- W6
+    # D4 -- the safeRob enum. `valid.includes(r) ? r : "low"` silently rewrites every
+    # token it does not recognise -- "some-concerns", "unclear", "Some concerns", a
+    # blank -- into LOW RISK OF BIAS, which is the most favourable value in the scale.
+    # A missing assessment is rendered as a clean bill of health, and GRADE then
+    # derives a certainty from it.
+    #
+    # Every change here moves in one direction: less certainty claimed, never more.
+    Anchor(
+        "D4-saferob", "W6", "D4",
+        r'safeRob=rob=>\{const valid=\["low","some","high"\];return Array\.isArray\(rob\)\?'
+        r'rob\.map\(r=>valid\.includes\(r\)\?r:"low"\):\["low","low","low","low","low"\]\}',
+        lambda m, ctx: (
+            "safeRob=rob=>{" + MARK.format("D4") +
+            # Hyphen-normalised so "Some concerns", "some_concerns" and "SOME-CONCERNS"
+            # all land on the same key. No regex literals: a backslash in a string
+            # replacement is refused by this engine, and rightly.
+            'const M={low:"low","low-risk":"low",some:"some","some-concerns":"some",'
+            '"some-concern":"some",moderate:"some",unclear:"unclear",unknown:"unclear",'
+            '"not-reported":"unclear","no-information":"unclear",'
+            'high:"high","high-risk":"high","serious":"high"},'
+            'nz=r=>{const k=String(r??"").trim().toLowerCase().split("_").join("-")'
+            '.split(" ").join("-");return M[k]??"unclear"};'
+            # The default for a non-array is "unclear", not "low". An absent RoB
+            # assessment is an absent assessment.
+            'return Array.isArray(rob)?rob.map(nz)'
+            ':["unclear","unclear","unclear","unclear","unclear"]}'),
+        "maps some-concerns/unclear correctly and sends anything unrecognised to "
+        "unclear rather than to low"),
+
+    # The continuous plotData path never went through safeRob at all -- it defaulted a
+    # missing assessment straight to five lows. Routing it through the same function
+    # is what makes "every pooled record carries five recognised tokens" true, which
+    # in turn is what makes the `?? "low"` default inside the GRADE tallies dead code.
+    Anchor(
+        "D4-continuous-rob", "W6", "D4",
+        r'rob:t\.data\.rob\|\|\["low","low","low","low","low"\]',
+        lambda m, ctx: MARK.format("D4") + "rob:safeRob(t.data.rob)",
+        "the continuous branch built its own five-low default instead of using safeRob"),
+
+    # BLOCK THE AUTO-DERIVATION. Implemented at the single return site rather than in
+    # the tallies, which occur twice and would abort the page. It is also the more
+    # honest place: the tallies feed downgrade RULES that only ever inspect .high and
+    # .some, so an unclear domain would contribute no downgrade at all and certainty
+    # would stay HIGH -- the opposite of the intended direction. Refusing to state a
+    # level claims nothing, which is the correct output when the inputs are unknown.
+    Anchor(
+        "D4-grade-block", "W6", "D4",
+        r'return\{certainty:\["HIGH","MODERATE","LOW","VERY LOW"\]\[netLevel\],'
+        r'badge:\["grade-high","grade-mod","grade-low","grade-vlow"\]\[netLevel\]',
+        lambda m, ctx: (
+            MARK.format("D4") +
+            'const _robUnclear=data.some(d=>!Array.isArray(d.rob)||d.rob.length<1||'
+            'd.rob.some(x=>"unclear"===x));'
+            'return{robUnclear:_robUnclear,'
+            'certainty:_robUnclear?"NOT DERIVABLE"'
+            ':["HIGH","MODERATE","LOW","VERY LOW"][netLevel],'
+            'badge:_robUnclear?"grade-vlow"'
+            ':["grade-high","grade-mod","grade-low","grade-vlow"][netLevel]'),
+        "when any pooled study carries an unrecognised or absent RoB domain the "
+        "certainty is not derived. NOT DERIVABLE is not a rating -- it is the refusal "
+        "to give one, which is what the evidence supports."),
+
+    Anchor(
+        "D4-overall", "W6", "D4",
+        r'overallRob=rob\.includes\("high"\)\?"high":rob\.includes\("some"\)\?"some":"low"',
+        lambda m, ctx: (MARK.format("D4") +
+                        'overallRob=rob.includes("high")?"high"'
+                        ':rob.includes("unclear")?"unclear"'
+                        ':rob.includes("some")?"some":"low"'),
+        "the extraction view's per-trial summary fell through to low for unclear, "
+        "which would have undone safeRob one line later"),
+
+    Anchor(
+        "D4-cycle", "W6", "D4",
+        r'const cycle=\{low:"some",some:"high",high:"low"\}',
+        lambda m, ctx: (MARK.format("D4") +
+                        'const cycle={low:"some",some:"high",high:"unclear",'
+                        'unclear:"low"}'),
+        "the manual RoB cycle had no way to reach or leave unclear; without this a "
+        "reviewer clicking an unclear badge would silently coerce it to low"),
+
+    Anchor(
+        "D4-css", "W6", "D4",
+        r"(\.rob-high \{ background-color: #ef4444; \})",
+        lambda m, ctx: (m.group(1) +
+                        "\n        .rob-unclear { background-color: #94a3b8; }"),
+        "there was no .rob-unclear class; without it an unclear badge renders as an "
+        "unstyled circle indistinguishable from low"),
 ]
 
 WAVES = ("W1", "W2", "W3")
