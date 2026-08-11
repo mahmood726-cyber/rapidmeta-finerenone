@@ -305,7 +305,8 @@ def compare(db, sb, da, sa):
     return nb == na, new, nb, na
 
 
-def run_pair(before_dir, after_dir, settle=2.5, driver=None, log=print, waves=()):
+def run_pair(before_dir, after_dir, settle=2.5, driver=None, log=print, waves=(),
+             incremental_out=None):
     """Render every page present in after_dir, before vs after. Returns report rows.
 
     ONE before-load and ONE after-load per page. The A/A baseline -- loading the
@@ -430,10 +431,22 @@ def run_pair(before_dir, after_dir, settle=2.5, driver=None, log=print, waves=()
                             else "CHANGED"),
             })
             report.append(row)
+            # Written after EVERY page, not at the end. A pass over the whole corpus
+            # takes hours; if it is interrupted -- or has to be cut short to make a
+            # deploy window -- a report that only exists on clean completion means the
+            # work produced no evidence at all. Now any prefix is usable, and the
+            # coverage it represents is countable.
+            if incremental_out:
+                try:
+                    pathlib.Path(incremental_out).write_text(
+                        json.dumps(report, indent=1, ensure_ascii=False),
+                        encoding="utf-8")
+                except OSError:
+                    pass
             if row["verdict"] != "OK":
                 log(f"   [{i}/{len(pages)}] {name}: {row['verdict']} "
                     f"numbers-identical={same} new-errors={len(new)}")
-            elif i % 25 == 0:
+            elif i % 10 == 0:
                 log(f"   [{i}/{len(pages)}] ok so far")
     finally:
         if own:
@@ -458,7 +471,8 @@ def main():
             print(f"REFUSING: unknown wave {w!r} in --expect-change. An unrecognised "
                   f"wave would silently allow nothing, which reads as a pass.")
             return 2
-    rep = run_pair(a.before, a.after, settle=a.settle, waves=waves)
+    rep = run_pair(a.before, a.after, settle=a.settle, waves=waves,
+                   incremental_out=a.json_out)
     for r in rep:
         print(f"{r['page']}: {r.get('verdict')}  "
               f"result-numbers identical={r.get('result_numbers_identical')}  "

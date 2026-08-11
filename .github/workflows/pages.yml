@@ -58,6 +58,22 @@ jobs:
         with:
           python-version: '3.12'
 
+      # Pages caps a published site at 1 GB, and here that is a build FAILURE, not a
+      # warning -- it is what commit f7cb32bdd was fixing. After that slim-down and the
+      # corpus merge the tracked tree is still 1.026 GB. These three directories are
+      # repository working material that no served file references (checked by grep for
+      # href/src/fetch AND for the bare directory name across every root .html and .js),
+      # and dropping them takes ~192 MB off the artifact.
+      #
+      # This prunes the RUNNER'S DISPOSABLE CHECKOUT. Nothing is untracked, nothing is
+      # deleted from the repository, and the build lane's ssot/ files are untouched in
+      # git -- they simply are not published.
+      #
+      # outputs/ and e156-submission/ are NOT pruned: 916 served pages fetch paths under
+      # outputs/, and index.html links three files in e156-submission/.
+      - name: Prune non-served directories from the artifact
+        run: rm -rf retired removed ssot
+
       - name: Preflight (site shape + payload)
         run: python scripts/pages_preflight.py --root .
 
