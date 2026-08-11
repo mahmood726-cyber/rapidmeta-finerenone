@@ -143,6 +143,29 @@ def guards_for(name: str, s: str, data: str) -> list[dict]:
                         f"rather than endpoint names, e.g. {ph[:3]}; the outcome a "
                         f"reader is shown was never adjudicated"})
 
+    # ---- G7 inadmissible counts (exact) ------------------------------------
+    # Found by the render gate, not by design: AFICAMTEN_HCM_REVIEW renders res-or as
+    # literally "NaN" -- before any wave, so it is not ours -- and plotly then throws
+    # on rotate(0,NaN,...) because the NaN reaches an axis coordinate.
+    #
+    # The mechanism is in the binary pooling path. A record whose cE is null passes the
+    # double-zero filter (0 !== null), gets a continuity correction of 0, and yields
+    # c = null + 0 = 0, so logEff = log(a/b/0) = Infinity and vi = Infinity. Its weight
+    # is 1/Infinity = 0, which looks harmless -- but Q accumulates w*logEff*logEff =
+    # 0 * Infinity * Infinity = NaN, and NaN propagates through Q, I-squared, tau-squared
+    # and the whole summary. One unusable count silently voids the entire analysis.
+    #
+    # This is the D20 class the plan scoped to W4b, which was not commissioned here. The
+    # guard does not fix it; it makes the pages countable.
+    counts = re.findall(r"\b([tc][EN]):(null|undefined|\"\"|NaN)", data)
+    if counts:
+        kinds = sorted({k for k, _ in counts})
+        out.append({
+            "guard": "inadmissible-counts", "klass": "D20", "precision": "exact",
+            "evidence": f"{len(counts)} non-numeric count field(s) {kinds} in pooled "
+                        f"records; in the binary path one of these makes Q, I2 and tau2 "
+                        f"NaN and the pooled estimate renders as NaN"})
+
     # ---- G6 NULLED canonical key (exact, build-breaking) -------------------
     if NULLED.search(data):
         ex = DS.extract(s)
