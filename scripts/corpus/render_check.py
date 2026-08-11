@@ -36,7 +36,8 @@ if hasattr(sys.stdout, "reconfigure"):
 NUM = re.compile(r"\d+(?:[.,]\d+)*")
 
 PROBE = r"""
-const out = {tabs: [], results: {}, text: "", nmaVisible: null, qa4Banner: null};
+const out = {tabs: [], results: {}, text: "", nmaVisible: null, qa4Banner: null,
+             declared: {}};
 document.querySelectorAll('nav .tab-btn').forEach(b => {
   const vis = b.style.display !== 'none' && b.offsetParent !== null;
   out.tabs.push({id: b.id, label: (b.textContent||'').trim(), visible: vis});
@@ -51,8 +52,91 @@ out.qa4Banner = qa4 ? (qa4.className.indexOf('hidden') === -1) : null;
 });
 const an = document.getElementById('tab-analysis');
 out.text = an ? (an.innerText||'').slice(0, 20000) : '';
+
+// ---- DECLARED-CHANGE SURFACES, ANALYSIS TAB ----------------------------------
+// W4-W6 change what a reader sees. Each surface a wave is ALLOWED to change is
+// probed by name, so the change is recorded per page rather than merely permitted.
+// Everything NOT named in a wave's allowlist stays zero-tolerance.
+//
+// Surfaces are probed in the tab they live on, immediately after that tab has been
+// driven, and the page is never switched back. An earlier version drove the report
+// tab and returned to analysis before probing; the round trip re-entered init and
+// left RapidMeta.state.results null on one side of the pair but not the other, so
+// the same page compared against itself reported k and N as changed.
+const txt = id => { const e = document.getElementById(id);
+                    return e ? (e.innerText||'').trim().slice(0,400) : null; };
+out.declared['hta']             = txt('hta-container');      // W4: the two HTA cards
+out.declared['patient_plain']   = txt('patient-plain-text'); // W4/W5: NNT + N sentence
+out.declared['grade_container'] = txt('grade-container');    // W6: certainty + reasons
+out.declared['rob_lights']      = txt('rob-traffic-lights'); // W6: RoB badges
+try {
+  const r = (window.RapidMeta && RapidMeta.state && RapidMeta.state.results) || null;
+  // k and n are the two numbers W5 exists to reconcile. Probing the state object
+  // rather than a DOM string is what makes the GRADE-agreement assertion possible.
+  out.declared['state_k'] = r ? String(r.k) : null;
+  out.declared['state_n'] = r ? String(r.n) : null;
+} catch (e) { out.declared['state_k'] = null; out.declared['state_n'] = null; }
 return JSON.stringify(out);
 """
+
+# Report tab. Driven and probed as its own step, after the analysis probe has been
+# taken, so nothing here can perturb the analysis-tab reading.
+PROBE_REPORT = r"""
+const out = {};
+const txt = id => { const e = document.getElementById(id);
+                    return e ? (e.innerText||'').trim().slice(0,400) : null; };
+out['nyt_nnt']       = txt('nyt-kn-nnt');        // W4: report NNT tile
+out['wr_icon_label'] = txt('wr-icon-label');     // W4: waiting-room caption
+out['nyt_subhead']   = txt('nyt-subhead');       // W5: "k trials enrolling N patients"
+// The independent second opinion on N: GradeProfileEngine derives its cohort from
+// plotData already, so it is the page's own disagreeing copy of the same number.
+// After W5 the two must agree, and that agreement is the detector.
+out['grade_profile'] = txt('grade-profile-container');
+return JSON.stringify(out);
+"""
+
+# Which declared surfaces each wave is permitted to move. A surface not listed here
+# is held to the same zero tolerance as W1-W3. Listing one does NOT make its change
+# unexamined: every before/after pair is written to the per-page change log.
+EXPECT_CHANGE = {
+    "W1": set(), "W2": set(), "W3": set(),
+    # W4 removes the HTA cards and suppresses NNT in HR mode.
+    "W4": {"hta", "nyt_nnt", "wr_icon_label", "patient_plain"},
+    # W5 moves the displayed cohort toward the pooled set. The pooled EFFECT must not
+    # move -- res-or/res-ci are not in this set, so a W5 edit that changed the estimate
+    # would still be caught.
+    "W5": {"state_n", "nyt_subhead", "patient_plain"},
+    # W6 changes RoB badges and the certainty that is derived from them.
+    "W6": {"grade_container", "rob_lights"},
+}
+
+
+def _norm_surface(v):
+    """Normalise a probed surface before comparing.
+
+    The RoB traffic-light strip lists trial names in whatever order the extraction
+    promises settled, so the A/A control -- the unedited page against itself -- saw
+    'CHAMPION-PCI, CHAMPION-PHOENIX, CHAMPION-PLATFORM' become
+    'CHAMPION-PCI, CHAMPION-PLATFORM, CHAMPION-PHOENIX'. That is a set, rendered in a
+    nondeterministic order; comparing it as a string reports a change on a page where
+    nothing changed. Sorting the lines compares what the surface means rather than
+    the order the network happened to deliver it in.
+    """
+    if v is None:
+        return None
+    lines = [ln.strip() for ln in str(v).splitlines() if ln.strip()]
+    return "\n".join(sorted(lines))
+
+
+def declared_diff(db, da):
+    """Per-page change log: every declared surface whose text moved, before -> after."""
+    out = {}
+    for key in sorted(set(db.get("declared", {})) | set(da.get("declared", {}))):
+        b = db.get("declared", {}).get(key)
+        a = da.get("declared", {}).get(key)
+        if _norm_surface(b) != _norm_surface(a):
+            out[key] = {"before": b, "after": a}
+    return out
 
 
 NETWORK_NOISE = ("net::ERR", "Access to fetch", "Failed to fetch", "favicon",
@@ -99,12 +183,55 @@ def snapshot(driver, path, settle=2.5):
                                         "return e? e.innerText : '--'") or "--") != "--")
     except Exception:                                          # noqa: BLE001
         pass          # a k=0 page never fills res-or; the probe below still runs
+    # AnalysisEngine.run() finishes asynchronously. res-or is written to the DOM before
+    # RapidMeta.state.results is assigned, so waiting on res-or alone let the probe
+    # read state.results as null on one side of an A/A pair and populated on the other
+    # -- reporting k and N as changed on a page compared against itself. Wait for the
+    # object the probe actually reads.
+    try:
+        WebDriverWait(driver, 25).until(
+            lambda d: d.execute_script(
+                "return !!(window.RapidMeta&&RapidMeta.state&&RapidMeta.state.results)"))
+    except Exception:                                          # noqa: BLE001
+        pass          # k=0 pages never assign it; both sides wait identically
     # init() finishes AFTER the first result render: the tab-visibility gate is the
     # last statement in it. Probing on res-or alone read the tab bar mid-init and
     # reported the T9 gate as not firing when it had. Settle, then probe.
     import time
     time.sleep(settle)
     data = json.loads(driver.execute_script(PROBE))
+
+    # ---- report tab, as a separate step -------------------------------------
+    # W1-W3 only touched analysis-tab surfaces, so the check drove only that tab --
+    # limit #1 of the W1-W3 rollout. But the NNT tile, the waiting-room caption and
+    # the "k trials enrolling N patients" subhead all live here, and they are exactly
+    # what W4 and W5 change. Probed without this step every declared surface read as
+    # its '--' placeholder on both sides, and the check reported a clean pass while
+    # observing nothing.
+    #
+    # WAITED ON, NOT SLEPT THROUGH. A first attempt slept a fixed 1.5 s. On a cold
+    # browser the generate had not finished inside it; on the warm second load of the
+    # pair it had. That produced a placeholder before-snapshot against a populated
+    # after-snapshot -- a difference caused entirely by load order, which at 863 pages
+    # would have manufactured a declared change on nearly every page.
+    try:
+        driver.execute_script(
+            "try{RapidMeta.switchTab('report');"
+            "if(window.ReportEngine&&ReportEngine.generate)ReportEngine.generate();}"
+            "catch(e){}")
+        try:
+            WebDriverWait(driver, 20).until(
+                lambda d: any(ch.isdigit() for ch in (d.execute_script(
+                    "var e=document.getElementById('nyt-subhead');"
+                    "return e?e.innerText:''") or "")))
+        except Exception:                                      # noqa: BLE001
+            # A k=0 page never fills the subhead. Not a failure, and symmetric:
+            # both sides of the pair wait the same way for the same timeout.
+            pass
+        time.sleep(settle)
+        data["declared"].update(json.loads(driver.execute_script(PROBE_REPORT)))
+    except Exception:                                          # noqa: BLE001
+        pass
     logs = driver.get_log("browser")
     # An offline single-file page legitimately fails its live registry fetches in a
     # sandbox. Those are environmental, not regressions; JS errors are not.
@@ -176,7 +303,7 @@ def compare(db, sb, da, sa):
     return nb == na, new, nb, na
 
 
-def run_pair(before_dir, after_dir, settle=2.5, driver=None, log=print):
+def run_pair(before_dir, after_dir, settle=2.5, driver=None, log=print, waves=()):
     """Render every page present in after_dir, before vs after. Returns report rows.
 
     ONE before-load and ONE after-load per page. The A/A baseline -- loading the
@@ -186,7 +313,13 @@ def run_pair(before_dir, after_dir, settle=2.5, driver=None, log=print):
     page is failed for an error the unedited page also produces.
     """
     before_dir, after_dir = pathlib.Path(before_dir), pathlib.Path(after_dir)
-    pages = sorted(p.name for p in after_dir.glob("*.html"))
+    expect = set()
+    for w in waves:
+        expect |= EXPECT_CHANGE.get(w, set())
+    # BLANK is this module's own storage-clearing helper, written into the page
+    # directory to share its file:// origin. Globbing *.html picks it up as a page to
+    # render, where it fails every assertion and lands as a spurious RUNTIME_BREAK.
+    pages = sorted(p.name for p in after_dir.glob("*.html") if p.name != BLANK)
     own = driver is None
     d = driver or new_driver()
     report = []
@@ -215,15 +348,45 @@ def run_pair(before_dir, after_dir, settle=2.5, driver=None, log=print):
                 log(f"   [{i}/{len(pages)}] {name}: RUNTIME_BREAK")
                 continue
             same, new, nb, na = compare(db, sb, da, sa)
-            if new:
-                # Lazy A/A: reload the UNEDITED page and see whether it produces the
-                # same thing. Only errors the before-page cannot reproduce count.
+            dd = declared_diff(db, da)
+            unstable = {}
+            if new or dd:
+                # Lazy A/A, extended to the declared surfaces. Reload the UNEDITED page
+                # and compare it against ITSELF. Only what the before-page cannot
+                # reproduce counts as this wave's doing.
+                #
+                # This is not belt-and-braces. The A/A control on the extended probe
+                # found CANGRELOR_PCI_REVIEW moving six surfaces against itself: the
+                # report tab populated on one load and not the next, and the RoB strip
+                # emitted its trials in a different order. Without this, every one of
+                # those would have been written into the per-page change log as an
+                # effect of the wave, and the log is the whole evidence product.
                 try:
-                    _, sb2, _ = snapshot(d, bp, settle)
+                    db2, sb2, _ = snapshot(d, bp, settle)
                     same, new, nb, na = compare(db, sb + sb2, da, sa)
+                    aa = declared_diff(db, db2)
+                    for k in list(dd):
+                        if k in aa:
+                            unstable[k] = dd.pop(k)
                 except Exception:                               # noqa: BLE001
                     pass
+            # The per-page change log. `expect` names the surfaces this wave declared;
+            # anything that moved OUTSIDE that set is an undeclared change and fails
+            # the page, exactly as it would have under W1-W3. `dd` has already had any
+            # surface the A/A control reproduced removed from it.
+            undeclared = sorted(k for k in dd if k not in expect)
             row.update({
+                # Full snapshots, not only the diff: the per-page change log has to be
+                # readable as evidence on its own, and a diff that is empty is
+                # ambiguous between "nothing moved" and "the surface never rendered".
+                "declared_before": db.get("declared", {}),
+                "declared_after": da.get("declared", {}),
+                "declared_changes": {k: v for k, v in dd.items() if k in expect},
+                "undeclared_changes": {k: dd[k] for k in undeclared},
+                # Surfaces the unedited page moved against itself. Reported, never
+                # charged to the wave, and worth reading: a surface that is unstable
+                # on an A/A control is a page defect in its own right.
+                "unstable_surfaces": unstable,
                 "result_numbers_identical": same,
                 "new_console_errors": new,
                 "results_before": db["results"], "results_after": da["results"],
@@ -233,7 +396,8 @@ def run_pair(before_dir, after_dir, settle=2.5, driver=None, log=print):
                 "known_preexisting_seen": sorted({e for e in
                                                   (normalize_error(m) for m in sa)
                                                   if is_known_preexisting(e)}),
-                "verdict": "OK" if (same and not new) else "CHANGED",
+                "verdict": ("OK" if (same and not new and not undeclared)
+                            else "CHANGED"),
             })
             report.append(row)
             if row["verdict"] != "OK":
@@ -253,13 +417,29 @@ def main():
     ap.add_argument("--after", required=True)
     ap.add_argument("--settle", type=float, default=2.5)
     ap.add_argument("--json-out", default=None)
+    ap.add_argument("--expect-change", default="",
+                    help="comma-separated waves whose declared surfaces may move "
+                         "(e.g. W4). Surfaces outside the allowlist stay zero-"
+                         "tolerance. Omit for the W1-W3 contract.")
     a = ap.parse_args()
-    rep = run_pair(a.before, a.after, settle=a.settle)
+    waves = tuple(w.strip() for w in a.expect_change.split(",") if w.strip())
+    for w in waves:
+        if w not in EXPECT_CHANGE:
+            print(f"REFUSING: unknown wave {w!r} in --expect-change. An unrecognised "
+                  f"wave would silently allow nothing, which reads as a pass.")
+            return 2
+    rep = run_pair(a.before, a.after, settle=a.settle, waves=waves)
     for r in rep:
         print(f"{r['page']}: {r.get('verdict')}  "
               f"result-numbers identical={r.get('result_numbers_identical')}  "
               f"new-console-errors={len(r.get('new_console_errors', []))}  "
               f"NMA tab {r.get('nma_visible_before')}->{r.get('nma_visible_after')}")
+        for k, v in (r.get("declared_changes") or {}).items():
+            print(f"    declared  {k}: {str(v['before'])[:70]!r} -> "
+                  f"{str(v['after'])[:70]!r}")
+        for k, v in (r.get("undeclared_changes") or {}).items():
+            print(f"    UNDECLARED {k}: {str(v['before'])[:70]!r} -> "
+                  f"{str(v['after'])[:70]!r}")
     if a.json_out:
         pathlib.Path(a.json_out).write_text(json.dumps(rep, indent=1, ensure_ascii=False),
                                             encoding="utf-8")

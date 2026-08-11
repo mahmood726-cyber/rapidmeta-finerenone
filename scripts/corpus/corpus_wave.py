@@ -577,9 +577,117 @@ ANCHORS = [
         'if(!nmaOk){const nmaSec=document.getElementById("tab-nma");'
         'nmaSec&&nmaSec.classList.add("hidden")}}',
         "the tab was revealed on NMA_CONFIG being truthy, with no connectivity check"),
+
+    # ---------------------------------------------------------------- W4
+    # W4 IS THE FIRST WAVE THAT CHANGES WHAT A READER SEES. Two cards stop being
+    # rendered. It is nonetheless STATICALLY number-neutral: every constant it removes
+    # (.133, 3e3, the "3-year" label, "$3,000") lives inside <script>, and guard 1
+    # counts numbers in the visible text with script bodies removed. So the zero-
+    # tolerance static guard stays ON for W4 exactly as it was for W1-W3, and the
+    # expected difference is declared and measured at RUNTIME by render_check.py.
+    # That is the whole reason the two guards are separate.
+    Anchor(
+        "D18a-engine", "W4", "D18a",
+        r"HTAEngine=\{calculate\(res\)\{.*?\}\},(?=AnalysisEngine=\{)",
+        lambda m, ctx: (
+            'HTAEngine={calculate(){return null},render(){' + MARK.format("D18a") +
+            'const c=document.getElementById("hta-container");c&&(c.innerHTML="")}},'),
+        "nnt=Math.abs(1/(.133*(1-or))) asserts a 13.3% baseline event rate on every "
+        "topic in the corpus, and costPerEvent multiplies it by a $3,000 price that "
+        "exists nowhere in any source. The horizon is a string in a label, not an "
+        "input, so the '3-year' NNT is not a 3-year anything. A jurisdiction, price "
+        "source, discount rate, horizon and per-review baseline risk cannot be invented "
+        "for 650 topics, so the module is removed rather than parameterised. The stub "
+        "keeps the call site valid and clears the container.",
+        gate=lambda html, path: (
+            "CANGRELOR_PCI_REVIEW derives its NNT from the page's own pooled control "
+            "event rate and says so; only its cost card is defective. Handled by "
+            "D18a-cangrelor-cost instead."
+            if path.name == "CANGRELOR_PCI_REVIEW.html" else None)),
+
+    # The hand inspection the plan demanded of the 1-variant outlier, carried out and
+    # recorded rather than swept in. CANGRELOR's calculate() sums cE/cN across the
+    # page's own included trials, refuses to return anything when the CER is not
+    # finite, and captions the NNT with an explicit "this is NOT an established
+    # treatment effect" and a real 48-hour horizon. That half is legitimate and is
+    # kept. Its cost card is not: it is the same hardcoded 3e3, and it multiplies an
+    # ANNUAL price by an NNT defined over 48 hours, which is incoherent on its face.
+    Anchor(
+        "D18a-cangrelor-cost", "W4", "D18a",
+        r'<div>\\n\\n\\n                        <div class="text-\[10px\] text-slate-400 '
+        r'uppercase font-bold mb-1">Drug Cost per Event Avoided</div>.*?'
+        r'assumed annual cost of \$3,000\.</div>\\n\\n\\n                    </div>',
+        lambda m, ctx: MARK.format("D18a") + "",
+        "removes only the cost card and leaves the data-derived NNT card standing",
+        gate=lambda html, path: (
+            None if path.name == "CANGRELOR_PCI_REVIEW.html"
+            else "this anchor is for the CANGRELOR variant only")),
+
+    # D18a2 -- restore the NNT guard the older lineage already had. On the pages that
+    # carry isHRMode, NNT is suppressed in HR/RR mode because a hazard ratio does not
+    # convert to an absolute risk reduction without a baseline hazard. The newer
+    # lineage dropped that guard and computes an NNT from a risk-ratio-shaped ARD even
+    # when the pooled estimand is a hazard ratio.
+    Anchor(
+        "D18a2-patient", "W4", "D18a2",
+        r"nntValue=avgCER>0&&ard>1e-9\?Math\.ceil\(1/ard\):null,"
+        r"nnhValue=avgCER>0&&ard<-1e-9\?Math\.ceil\(1/Math\.abs\(ard\)\):null",
+        lambda m, ctx: (
+            '_rmIsHR="HR"===RapidMeta.emLabel("short"),' + MARK.format("D18a2") +
+            'nntValue=!_rmIsHR&&avgCER>0&&ard>1e-9?Math.ceil(1/ard):null,'
+            'nnhValue=!_rmIsHR&&avgCER>0&&ard<-1e-9?Math.ceil(1/Math.abs(ard)):null'),
+        "patient-mode NNT/NNH suppressed in HR mode, matching the older lineage"),
+
+    Anchor(
+        "D18a2-nyt", "W4", "D18a2",
+        r'getElementById\("nyt-kn-nnt"\)\.textContent=nnt',
+        lambda m, ctx: ('getElementById("nyt-kn-nnt").textContent=' +
+                        MARK.format("D18a2") +
+                        '"HR"===RapidMeta.emLabel("short")?"--":nnt'),
+        "the report headline NNT tile, guarded the way the older lineage guards it"),
+
+    Anchor(
+        "D18a2-waitingroom", "W4", "D18a2",
+        r"nntRaw=avgCER>0&&Math\.abs\(1-orVal\)>\.001\?"
+        r"Math\.ceil\(1/Math\.abs\(avgCER\*\(1-orVal\)\)\):100,"
+        r"affectedPer100=Math\.max\(0,Math\.min\(100,Math\.round\(100/nntRaw\)\)\)",
+        lambda m, ctx: (
+            '_rmIsHR="HR"===RapidMeta.emLabel("short"),' + MARK.format("D18a2") +
+            'nntRaw=_rmIsHR?1/0:avgCER>0&&Math.abs(1-orVal)>.001?'
+            'Math.ceil(1/Math.abs(avgCER*(1-orVal))):100,'
+            'affectedPer100=_rmIsHR?0:Math.max(0,Math.min(100,Math.round(100/nntRaw)))'),
+        "the waiting-room icon array colours 100 human figures from this NNT. In HR "
+        "mode it was colouring them from an absolute risk reduction derived from a "
+        "hazard ratio, which is not an absolute risk reduction."),
+
+    Anchor(
+        "D18a2-wr-label", "W4", "D18a2",
+        r'getElementById\("wr-icon-label"\)\.textContent=0===affectedPer100\?'
+        r'"No measurable effect per 100 patients":',
+        lambda m, ctx: (
+            'getElementById("wr-icon-label").textContent=' + MARK.format("D18a2") +
+            '_rmIsHR?"Absolute NNT is not shown in HR/RR mode":'
+            '0===affectedPer100?"No measurable effect per 100 patients":'),
+        "with the figures blanked in HR mode the caption must say why. 'No measurable "
+        "effect' would be a claim, and a false one: the quantity is not estimable, "
+        "which is not the same as being zero.",
+        # THE CALL-SITE GATE, in the form the plan's limit #3 demands. This anchor
+        # READS _rmIsHR, which the sibling D18a2-waitingroom anchor DECLARES in the
+        # same function. The census found the two anchors do not cover the same pages
+        # -- 702 vs 652 -- so on 50 pages this replacement would have referenced an
+        # undeclared binding and thrown a ReferenceError at render. The static number
+        # guards cannot see that; node --check cannot either, because an undeclared
+        # identifier is valid syntax. So the gate tests for the sibling's own output.
+        # Testing for the bare name would not do: D18a2-patient introduces an _rmIsHR
+        # in a DIFFERENT function scope, and that one is not visible here.
+        gate=lambda html, path: (
+            None if "affectedPer100=_rmIsHR?0:" in html
+            else "D18a2-waitingroom did not apply on this page, so _rmIsHR is not "
+                 "declared in this scope; adding a reader would be a ReferenceError")),
 ]
 
 WAVES = ("W1", "W2", "W3")
+ALL_WAVES = ("W1", "W2", "W3", "W4", "W5", "W6")
 
 # One stamp per wave. No digits other than the wave number itself, which is accounted
 # for in the anchor delta like any other replacement.
