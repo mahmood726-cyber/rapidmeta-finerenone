@@ -1,0 +1,569 @@
+<meta charset="utf-8">
+<title>RTS,S/AS01 and R21/Matrix-M against clinical malaria: vaccine-specific efficacy on the log scale, with the estimand and the follow-up window stated on every row</title>
+<style>
+ body{font-family:system-ui,-apple-system,sans-serif;max-width:64rem;margin:0 auto;padding:1.5rem;line-height:1.6;color:#111}
+ .badge{background:#b45309;color:#fff;padding:.75rem 1rem;border-radius:.375rem;font-size:.9rem}
+ .card{border:1px solid #d4d4d8;border-radius:.5rem;padding:1rem;margin:1rem 0}
+ .card.warn{border-color:#b45309;background:#fffbeb}
+ .num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+ table{border-collapse:collapse;width:100%} th,td{border:1px solid #d4d4d8;padding:.5rem;text-align:left;vertical-align:top}
+ small{color:#3f3f46}
+</style>
+
+<div class="badge" role="status">NOT SUBMISSION-READY &mdash; full build; every cohort cited is reported.
+Outcomes reported: 9.
+FULL BUILD: every randomised cohort this object cites, it holds and reports. Nothing was cited and dropped, so there is no removal block and no quarantine. Cohorts are counted at the level of the RANDOMISATION; the further reports set aside are listed on the deduplication decision. Eligibility is stated in the question. Source depth is not uniform and each source entry names its own layer.</div>
+
+<h1>RTS,S/AS01 and R21/Matrix-M against clinical malaria: vaccine-specific efficacy on the log scale, with the estimand and the follow-up window stated on every row</h1>
+<p>For each of the two malaria vaccines separately, what is the efficacy against clinical malaria across the randomised cohorts that report the SAME EFFECT MEASURE for clinical malaria, aligned on every dimension the sources permit and crossing the rest with each difference named on the pool that crosses it -- and where does that differ from the published synthesis of the same literature? The question does NOT claim these cohorts estimate identical quantities. Each pool records whether they do, and neither of them does.</p>
+
+<section>
+<h2>R21 with the HIGHER Matrix-M adjuvant dose, the formulation carried into phase 3, given seasonally: time to first clinical malaria episode over the first year after the primary series</h2>
+<div class='card'>
+  <h3>What was measured</h3>
+  <table>
+    <tr><th>Vaccine</th><td>R21/Matrix-M</td></tr>
+    <tr><th>Regimen</th><td>seasonal</td></tr>
+    <tr><th>Comparator</th><td>rabies vaccine (inactive)</td></tr>
+    <tr><th>Estimand</th><td>time_to_first &mdash; Cox proportional hazards</td></tr>
+    <tr><th>Unit of analysis</th><td>participant, with the time to the first episode</td></tr>
+    <tr><th>Case definition</th><td>fever, with P. falciparum asexual parasitaemia above the HIGHER of the two parasite density thresholds used across these trials. The trials do not all define the fever criterion identically, and where an outcome pools cohorts that differ on it, its uniformity block records the difference rather than smoothing it away</td></tr>
+    <tr><th>Window</th><td>from a fortnight after the third dose to the end of the first year &mdash; about 12 months</td></tr>
+    <tr><th>Analysis population</th><td>modified per-protocol or modified intention-to-treat, as each trial defines it</td></tr>
+    <tr><th>Effect scale</th><td>pooled on the log scale</td></tr>
+  </table>
+</div>
+<div class='card'>
+  <h2>Pooled result</h2>
+  <p class='num'>HR 0.2167 (0.1753 to 0.2678), 95% interval</p>
+  <p>R21 with the HIGHER Matrix-M adjuvant dose, the formulation carried into phase 3, given seasonally: time to first clinical malaria episode over the first year after the primary series. random, estimator REML, k = 2.</p>
+  <p class='num'>Vaccine efficacy 78.33% (73.22 to 82.47)</p>
+  <p><small>&tau;&sup2; 0 &middot; I&sup2; 0% &middot; Q 0.1594 on 1 df</small></p>
+  <p><strong>Favours: the intervention (lower is better)</strong></p>
+  <p><small>tau-squared and I-squared are recorded beside this line.</small></p>
+  <h3>What this pool holds constant</h3>
+  <table>
+    <tr><th>Dimension</th><th>Across the pooled cohorts</th><th>If it differs, why it is crossed anyway</th></tr>
+    <tr><td>estimand family</td><td>identical</td><td><small>Both trials state efficacy as one minus a hazard ratio: &#x27;Vaccine efficacy was calculated as 1 minus the hazard ratio (HR)&#x27; appears in each.</small></td></tr>
+    <tr><td>regression model</td><td>identical</td><td><small>Both name Cox: &#x27;Cox regression models were used to analyse first episodes of clinical malaria&#x27; and &#x27;The primary analysis was time to first episode of clinical malaria and was analysed by Cox regression&#x27;.</small></td></tr>
+    <tr><td>follow up window</td><td>identical</td><td><small>Both report a twelve-month analysis, and they are the same NOMINAL length rather than the same measured one: one states &#x27;Primary analyses of vaccine efficacy were based on 12 months of follow-up&#x27; while the other states &#x27;Efficacy was further assessed at 12 months (range 329-369 days) after the third vaccination&#x27;. The range is recorded because a reader should see that one trial&#x27;s twelve months is a spread of days.</small></td></tr>
+    <tr><td>analysis population</td><td>differs</td><td><small>one cohort analysed a modified per-protocol population and the other a modified intention-to-treat population, which that trial states is equivalent to per-protocol because every participant received the correct vaccine</small></td></tr>
+    <tr><td>case definition</td><td>differs</td><td><small>BOTH require parasitaemia above the same density, and both require fever -- but the later trial also accepts a REPORTED history of fever in the preceding day where the earlier one requires a measured temperature. The later definition is therefore slightly the broader of the two, which would if anything admit milder episodes into both arms of that trial. It is documented as clinical diversity under Handbook section 10.10.1 rather than corrected, because neither trial can be reanalysed under the other&#x27;s definition</small></td></tr>
+    <tr><td>comparator</td><td>differs</td><td><small>both control groups received a rabies vaccine, so the comparator is of the same INACTIVE class and neither control was protected against malaria -- but they are not the same PRODUCT. One cohort&#x27;s control was Rabivax-S from the Serum Institute of India and the other&#x27;s was Abhayrab from Indian Immunologicals. An earlier version of this row read identical, which hid that difference under a word the staged sources do not support; a reviewer read both trial reports and found the product names. Neither product confers malaria protection, so the difference is documented under 10.10.1 rather than treated as disqualifying</small></td></tr>
+    <tr><td>age range</td><td>identical</td><td><small>Both rows are the 5-17 month band. The phase 2b cohort enrolled it outright -- &quot;Participants aged 5-17 months were recruited&quot; -- and the phase 3 row is now the subgroup that trial reports separately for exactly that band: &quot;the younger age group had the highest 12-month vaccine efficacy on time to first clinical malaria episode at seasonal (79% [95% CI 73-84])&quot;. An earlier version of this pool used that trial&#x27;s ALL-AGE seasonal figure against a 5-17 month cohort, which is the mismatch this re-extraction removes.</small></td></tr>
+    <tr><td>control group separation</td><td>identical</td><td><small>Each trial randomised its OWN control group and neither shares control participants with the other: &#x27;group 3, the control group, received rabies vaccinations&#x27; and &#x27;randomly assigned (2:1) to receive 5 ug R21 plus 50 ug Matrix-M or a control vaccine&#x27;.</small></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>Contributing trials</h3>
+  <table>
+    <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
+        <th>HR (95% CI), or events</th>
+        <th>Source of this cell</th></tr>
+    <tr><td>R21/Matrix-M phase 2b, Nanoro, seasonal administration<br><small>NCT03896724 &middot; primary outcome</small></td><td class='num'>146 / 147<br><small><em>The two groups this row contrasts, at the timepoint this row reports, exactly as the paper states them.</em></small></td><td class='num'>0.23 (0.16 to 0.33)<br><small>published vaccine efficacy 77% (67 to 84)</small><br><small>on the log scale: -1.469676 (standard error 0.184677)</small><br><small>regimen: seasonal</small></td><td><small>Primary paper (PubMed Central full text): <br><q>Cox regression showed vaccine efficacy of 71% (95% CI 59-79; p&lt;0.0001) for group 1, and 77% (67-84; p&lt;0.0001) for group 2.</q><br><q>These cases occurred in 50 (34%) of 146 participants in group 1, 39 (27%) of 146 participants in group 2, and 106 (72%) of 147 participants in group 3.</q><br><q>Cox regression models were used to analyse first episodes of clinical malaria from 14 days after the third vaccination to 6 months and 1 year.</q><br><q>Vaccine efficacy was calculated as 1 minus the hazard ratio (HR).</q><br><em>Children enrolled and given at least one dose, across all three randomised groups.</em></small></td></tr>
+    <tr><td>R21/Matrix-M phase 3, five sites in four African countries<br><small>NCT04704830 &middot; primary outcome</small></td><td class='num'>not stated / not stated<br><small><em>NOT SEPARATELY PUBLISHED for this row. The source gives a vaccine efficacy and its interval for the younger band at the seasonal sites, and gives no numerator, no denominator and no analysed population for that subgroup. An earlier version of this row used the ALL-AGE seasonal figure and carried the whole trial&#x27;s modified per-protocol totals beside it; those totals describe both site types and both age bands, so they cannot stand beside a subgroup estimate. They are withdrawn rather than divided by a guess.</em></small></td><td class='num'>0.21 (0.16 to 0.27)<br><small>published vaccine efficacy 79% (73 to 84)</small><br><small>on the log scale: -1.560648 (standard error 0.133484)</small><br><small>regimen: seasonal</small></td><td><small>Primary paper (PubMed Central full text): <br><q>Higher NANP-specific antibody titres were observed in the 5-17 month age group compared with 18-36 month age group, and the younger age group had the highest 12-month vaccine efficacy on time to first clinical malaria episode at seasonal (79% [95% CI 73-84]; p&lt;0·001) and standard (75% [65-83]; p&lt;0·001) sites.</q><br><q>The primary analysis was time to first episode of clinical malaria and was analysed by Cox regression stratified by study site (seasonal or standard).</q><br><em>Children who received a first dose of a study vaccine.</em></small></td></tr>
+  </table>
+  <p><small>The contributing cohorts share no participant and no control group.</small></p>
+</div>
+<div class='card'>
+  <h3>The methods rule governing this decision</h3>
+  <p><strong>Decision:</strong> POOL two cohorts reporting the same effect measure for the same outcome concept, producing an AVERAGE ACROSS documented differences in analysis population, case definition, comparator</p>
+  <p><strong>Cochrane Handbook sections:</strong> 10.9, 10.10.1, 10.10.2, 10.10.4, 10.14</p>
+  <p>Section 10.9 gives the hazard ratio as the effect measure for time-to-event data and sanctions combining log hazard ratios by generic inverse-variance. Both cohorts report a Cox hazard ratio for the time to a first episode over the same window against a rabies control. What the pool crosses is in the uniformity table, documented under 10.10.1; heterogeneity is in the lowest band of 10.10.2; the inclusion decision is tested under 10.14. AGE IS NO LONGER CROSSED BY THIS POOL. The wider trial reports its own efficacy as significantly higher in the younger band than the older one, so age is an effect modifier on its own evidence, and an earlier version of this pool set that trial&#x27;s ALL-AGE seasonal figure against a cohort that enrolled only the younger band. A review leg objected in three consecutive rounds and was right. The trial reports the younger band separately, at the seasonal sites, on the same MEASURE over the same window, so the pool now uses that row and both cohorts are the same age band. Section 10.10.1 asks that a synthesis be undertaken only where the review authors JUDGE the studies sufficiently similar to give a meaningful summary. That judgement is now a much easier one to make and it is still ours to make: what the pool still crosses is analysis population, case definition and comparator product, each named with its reason on the uniformity table, and none of them is a modifier the sources report an effect for. Section 10.10.4 is what governs the MODEL and the between-study variance estimator, which the effect-measure sections above do not: it records that estimators other than DerSimonian and Laird perform better and that restricted maximum likelihood is now the default in the Cochrane software, and its subsection on few studies advises comparing the methods when there are only two or three. This pool has two, so that comparison is done and sits in the sensitivity block. An earlier version of this object cited only the effect-measure and heterogeneity sections for a decision they do not govern, and a reviewer was right to say so.</p>
+</div>
+<div class='card'>
+  <h3>Leave-one-out sensitivity</h3>
+  <p>whether the pooled estimate depends on including cohorts that differ on analysis population, case definition, comparator -- the dimensions this pool crosses, each recorded with its reason in the uniformity table above</p>
+  <table>
+    <tr><th>Cohort omitted</th><th>k</th><th>HR (95% CI)</th><th>Efficacy</th></tr>
+    <tr><td>datoo-2021-phase2b</td><td class='num'>1</td><td class='num'>0.21 (0.16 to 0.27)</td><td class='num'>79%</td></tr>
+    <tr><td>datoo-2024-phase3</td><td class='num'>1</td><td class='num'>0.23 (0.16 to 0.33)</td><td class='num'>77%</td></tr>
+  </table>
+  <p><strong>Omitting either cohort moves the estimate by at most 0.0133 on the ratio scale. The pooled value is not carried by one cohort, and neither single-cohort estimate contradicts it.</strong></p>
+  <p><small>Cochrane Handbook version 6, section 10.14: sensitivity analyses examine whether overall findings are robust to potentially influential decisions.</small></p>
+  <h3>Does the answer depend on the pooling method?</h3>
+  <p>Section 10.10.4.4 records that estimators other than DerSimonian and Laird perform better and that restricted maximum likelihood is now the default in the Cochrane software, and section 10.10.4.5 advises comparing the methods in a sensitivity analysis when there are only two or three studies. This pool has two. A reviewer was right that an earlier version cited neither section for a decision they govern and did not run the comparison they ask for.</p>
+  <table>
+    <tr><th>Between-study variance</th><th>Interval</th><th>Summary (95% CI)</th><th>&tau;&sup2;</th></tr>
+    <tr><td>DerSimonian-Laird (DL)</td><td>ordinary (Wald)</td><td class='num'>0.2167 (0.1753 to 0.2678)</td><td class='num'>0</td></tr>
+    <tr><td>Paule-Mandel (PM)</td><td>ordinary (Wald)</td><td class='num'>0.2167 (0.1753 to 0.2678)</td><td class='num'>0</td></tr>
+    <tr><td>restricted maximum likelihood (REML)</td><td>ordinary (Wald)</td><td class='num'>0.2167 (0.1753 to 0.2678)</td><td class='num'>0</td></tr>
+    <tr><td>restricted maximum likelihood (REML)</td><td>Hartung-Knapp-Sidik-Jonkman (HKSJ)</td><td class='num'>0.2167 (0.0548 to 0.8566)</td><td class='num'>0</td></tr>
+  </table>
+  <p><strong>The variance estimators move the summary very little, which is what the Handbook reports is usual. The interval method is the axis that matters with two studies, and section 10.10.4.5 states its own caveat plainly: with two or three studies the Hartung-Knapp-Sidik-Jonkman interval is liable to be far too wide while the ordinary one is liable to be too narrow. Both are printed and neither is treated as decisive.</strong></p>
+  <p><small>The headline estimator is restricted maximum likelihood, which section 10.10.4.4 records as the default in the Cochrane software and as better supported than DerSimonian and Laird. An earlier version kept DerSimonian and Laird and gave as its reason that the local validator could recompute it -- software convenience presented as Handbook conformance, which a reviewer called out on this object and on another in the same batch. The tooling moved instead of the method: the validator now recomputes restricted maximum likelihood independently. DerSimonian and Laird is shown beside it and moves the summary barely at all.</small></p>
+</div>
+</section>
+<section>
+<h2>R21/Matrix-M, standard age-based administration: time to first clinical malaria episode over the first year after the primary series</h2>
+<div class='card'>
+  <h3>What was measured</h3>
+  <table>
+    <tr><th>Vaccine</th><td>R21/Matrix-M</td></tr>
+    <tr><th>Regimen</th><td>standard age-based</td></tr>
+    <tr><th>Comparator</th><td>rabies vaccine (inactive)</td></tr>
+    <tr><th>Estimand</th><td>time_to_first &mdash; Cox proportional hazards</td></tr>
+    <tr><th>Unit of analysis</th><td>participant, with the time to the first episode</td></tr>
+    <tr><th>Case definition</th><td>fever, with P. falciparum asexual parasitaemia above the HIGHER of the two parasite density thresholds used across these trials. The trials do not all define the fever criterion identically, and where an outcome pools cohorts that differ on it, its uniformity block records the difference rather than smoothing it away</td></tr>
+    <tr><th>Window</th><td>from a fortnight after the third dose to the end of the first year &mdash; about 12 months</td></tr>
+    <tr><th>Analysis population</th><td>modified per-protocol</td></tr>
+    <tr><th>Effect scale</th><td>pooled on the log scale</td></tr>
+  </table>
+</div>
+<div class='card warn'>
+  <h2>Single cohort &mdash; no synthesis</h2>
+  <p class='num'>HR 0.32 (0.26 to 0.39)</p>
+  <p class='num'>Vaccine efficacy 68% (61 to 74)</p>
+  <p>Only one independent cohort reports this estimand over this window, so there is nothing to combine. That is a limit of the evidence, not a choice made here.</p>
+</div>
+
+<div class="card">
+  <h3>Contributing trials</h3>
+  <table>
+    <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
+        <th>HR (95% CI), or events</th>
+        <th>Source of this cell</th></tr>
+    <tr><td>R21/Matrix-M phase 3, five sites in four African countries<br><small>NCT04704830 &middot; primary outcome</small></td><td class='num'>not stated / not stated</td><td class='num'>0.32 (0.26 to 0.39)<br><small>published vaccine efficacy 68% (61 to 74)</small><br><small>on the log scale: -1.139434 (standard error 0.103437)</small><br><small>regimen: standard age-based</small></td><td><small>Primary paper (PubMed Central full text): <br><q>Comparing the malaria vaccine group with the control group, vaccine efficacy was 75% (95% CI 71-79; p&lt;0.0001) at the seasonal sites and 68% (61-74; p&lt;0.0001) at the standard sites.</q><br><em>Children who received a first dose of a study vaccine.</em></small></td></tr>
+  </table>
+  <p><small>The perennial sites vaccinated on an age-based schedule rather than before a season. The trial registered this as a co-primary endpoint SEPARATE from the seasonal one, so it is reported separately here rather than folded into it.</small></p>
+</div>
+<div class='card'>
+  <h3>The methods rule governing this decision</h3>
+  <p><strong>Decision:</strong> REPORT one cohort&#x27;s own estimate; perform no synthesis</p>
+  <p><strong>Cochrane Handbook sections:</strong> 10.2, 10.9</p>
+  <p>The estimate is a hazard ratio for time-to-event data. Only one randomised cohort in this object reports this estimand over this window, so there is nothing to combine and no pooling decision arises -- the absence of a synthesis here is a limit of the evidence, not a methodological choice about how to handle several studies. The measure is named so that it is not silently read as commensurate with the other outcomes, which is the error this object exists to prevent.</p>
+</div>
+</section>
+<section>
+<h2>RTS,S/AS01 with a booster, children: rate of ALL clinical malaria episodes over the full trial follow-up</h2>
+<div class='card'>
+  <h3>What was measured</h3>
+  <table>
+    <tr><th>Vaccine</th><td>RTS,S/AS01</td></tr>
+    <tr><th>Regimen</th><td>four doses, with booster</td></tr>
+    <tr><th>Comparator</th><td>rabies vaccine (inactive)</td></tr>
+    <tr><th>Estimand</th><td>recurrent_rate &mdash; negative binomial regression with follow-up time as offset, allowing for interdependence between episodes within the same child, adjusted for site or country as a fixed effect -- stated in those terms by BOTH contributing trials</td></tr>
+    <tr><th>Unit of analysis</th><td>episode, with person-time as the denominator</td></tr>
+    <tr><th>Case definition</th><td>MEASURED axillary fever at or above the threshold, together with P. falciparum asexual parasitaemia above the higher of the two density thresholds used across these trials. A reported history of fever does NOT satisfy this definition</td></tr>
+    <tr><th>Window</th><td>from the first dose to the end of each trial. The two are NOT the same length. The pooled value therefore AVERAGES ACROSS that difference; an earlier version of this line said the difference was stated rather than averaged away, which was true of the documentation and false of the arithmetic</td></tr>
+    <tr><th>Analysis population</th><td>every participant who received at least one dose. The two trials give that population two different NAMES, and the definitions behind the names are the same</td></tr>
+    <tr><th>Effect scale</th><td>pooled on the log scale</td></tr>
+  </table>
+</div>
+<div class='card'>
+  <h2>Pooled result</h2>
+  <p class='num'>IRR 0.6372 (0.5967 to 0.6805), 95% interval</p>
+  <p>RTS,S/AS01 with a booster, children: rate of ALL clinical malaria episodes over the full trial follow-up. random, estimator REML, k = 2.</p>
+  <p class='num'>Vaccine efficacy 36.28% (31.95 to 40.33)</p>
+  <p><small>&tau;&sup2; 0 &middot; I&sup2; 0% &middot; Q 0.0013 on 1 df</small></p>
+  <p><strong>Favours: the intervention (lower is better)</strong></p>
+  <p><small>tau-squared and I-squared are recorded beside this line.</small></p>
+  <h3>What this pool holds constant</h3>
+  <table>
+    <tr><th>Dimension</th><th>Across the pooled cohorts</th><th>If it differs, why it is crossed anyway</th></tr>
+    <tr><td>estimand family</td><td>identical</td><td><small>Both analyse ALL episodes as a rate: &#x27;Efficacy against all episodes of malaria was analysed by negative binomial regression with follow-up time as offset&#x27; and &#x27;Vaccine efficacy against all episodes of clinical malaria was calculated as 100 x (1 - incidence rate ratio)&#x27;.</small></td></tr>
+    <tr><td>regression model</td><td>identical</td><td><small>Both name negative binomial regression, in the sentences quoted for estimand family above.</small></td></tr>
+    <tr><td>follow up window</td><td>differs</td><td><small>one cohort reports a MEDIAN follow-up and the other a FIXED endpoint. The fixed endpoint falls inside the other&#x27;s interquartile range and both are end-of-trial analyses of the same OUTCOME, though not of an identical estimand: this object defines the window INSIDE the estimand, so a crossed window is an estimand difference and the pool records it as one. Earlier wording here said the crossed window was not part of the estimand, which contradicted this object&#x27;s own estimand block. What is true is that both are end-of-trial analyses of the same OUTCOME and the fixed endpoint falls inside the other&#x27;s interquartile range, which is why they are pooled; neither is a subset of the other and there is no common fixed horizon</small></td></tr>
+    <tr><td>analysis population</td><td>identical</td><td><small>The same DEFINITION under two names: &#x27;The modified ITT population included all participants who received at least one dose of vaccine&#x27; and &#x27;1500 received at least one study vaccine dose (exposed set)&#x27;.</small></td></tr>
+    <tr><td>case definition</td><td>identical</td><td><small>Both require measured fever at the same threshold with parasitaemia above the same density: &#x27;an axillary temperature of at least 37.5 degrees C and asexual parasitaemia (&gt;5000 parasites per mm3)&#x27; and &#x27;P falciparum asexual parasitaemia more than 5000 parasites per uL and fever (axillary temperature &gt;=37.5 degrees C)&#x27;. The two volume units are the same volume.</small></td></tr>
+    <tr><td>comparator</td><td>differs</td><td><small>both control groups received a rabies vaccine, so the comparator is of the same INACTIVE class and neither control was protected against malaria -- but they are not identical in administration. The phase 3 control received its comparator on the same four-dose schedule as the vaccine group including a dose at month twenty, in a double-blind trial; the other cohort&#x27;s control received three doses in an OPEN-LABEL trial. Masking differs and so does the number of control contacts. An earlier version recorded this dimension as identical, which was true of the comparator&#x27;s class and not of its administration</small></td></tr>
+    <tr><td>age range</td><td>identical</td><td><small>Both enrolled the same band: &#x27;children aged 5-17 months&#x27; in each.</small></td></tr>
+    <tr><td>control group separation</td><td>identical</td><td><small>Each trial randomised its own control group. The fractional-dose trial ran FOUR vaccinated groups against one control, which is why only one of its contrasts enters this pool -- recorded on that trial&#x27;s arm_selection_note and in carried_contrasts.</small></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>Contributing trials</h3>
+  <table>
+    <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
+        <th>IRR (95% CI), or events</th>
+        <th>Source of this cell</th></tr>
+    <tr><td>RTS,S/AS01 phase 3, children enrolled at five to seventeen months<br><small>NCT00866619 &middot; primary outcome</small></td><td class='num'>control: 2974<br>vaccinated both booster groups: 5948<br><small><em>This trial calls this population the modified intention-to-treat population and defines it as every participant who received at least one dose of vaccine. The control figure is the control children in this cohort, from the registry&#x27;s participant flow. The vaccinated figure is BOTH RTS,S groups together, which is the only level at which either source reports it; neither the paper nor the registry splits the vaccinated children by booster status, so this object does not split them either. The contrast on this row is the boosted group against the control, and its vaccinated denominator is therefore not separately published.</em></small></td><td class='num'>0.637 (0.595 to 0.682)<br><small>published vaccine efficacy 36.3% (31.8 to 40.5)</small><br><small>on the log scale: -0.450986 (standard error 0.034814)</small><br><small>regimen: four doses, with booster</small><br><small><em>QUOTED: Children were followed up for a median of 48 months (IQR 39-50) and young infants for 38 months (34-41) after dose 1. -- This row is the children. Its follow-up is a MEDIAN with a spread, not a fixed endpoint, and the other cohort in this pool has a fixed endpoint that falls inside that spread.</em></small></td><td><small>Primary paper (PubMed Central full text): <br><q>In the modified ITT population, from month 0 until study end, compared with 9585 episodes of clinical malaria that met the primary case definition in children in the C3C group, 6616 episodes occurred in children in the R3R group (VE 36.3%, 95% CI 31.8-40.5) and 7396 in the R3C group (28.3%, 23.3-32.9)</q><br><q>Efficacy against all episodes of malaria was analysed by negative binomial regression with follow-up time as offset, allowing for interdependence between episodes within the same participant.</q><br><em>Children in the modified intention-to-treat analysis, across all three randomised groups.</em></small></td></tr>
+    <tr><td>RTS,S/AS01 fractional and delayed dose phase 2b, Ghana and Kenya<br><small>NCT03276962 &middot; primary outcome</small></td><td class='num'>exposed set pooled group: 298<br>control: 293<br>randomised per vaccinated group: 322<br>randomised control: 321<br><small><em>This trial calls its analysed population the exposed set and defines it as the children who received at least one study vaccine dose -- the same definition the other cohort in this pool states under a different name. The exposed set IS available per group: the staged registry payload posts a started count for each of the five groups, and those five counts sum to the exposed-set total the paper prints. The figures for the group this row carries and for the control group are recorded above, beside the randomised sizes. An earlier version of this object said the per-group figures were not separately available and that was false against this object&#x27;s own staged sources; a reviewer caught it by opening the payload.</em></small></td><td class='num'>0.64 (0.5 to 0.81)<br><small>published vaccine efficacy 36% (19 to 50)</small><br><small>on the log scale: -0.446287 (standard error 0.12307)</small><br><small>regimen: four doses, with booster</small><br><small><em>QUOTED: Among children in the exposed set, to month 50 -- This row&#x27;s follow-up is a FIXED endpoint at month 50, where the other cohort in this pool reports a median of 48 months. The two are not the same window, and because this object defines the window INSIDE the estimand, that makes them not the same estimand either -- which the pool&#x27;s own homogeneity flag records. They are end-of-trial analyses of the same OUTCOME, and the fixed endpoint falls inside the other&#x27;s interquartile range, which is why they are pooled; the difference is recorded rather than described as a common horizon.</em></small></td><td><small>Primary paper (abstract, with a methods extract from the same cohort&#x27;s earlier full-text report): <br><q>Among children in the exposed set, to month 50, vaccine efficacy against all episodes of clinical malaria was 36% (95% CI 19-50), 51% (37-61), 43% (28-55), and 41% (26-53) in groups R012-20, R012-14-26-38, Fx012-14-26-38, and Fx017-20-32, respectively (p&lt;0.001 for all).</q><br><q>Vaccine efficacy against all episodes of clinical malaria was calculated as 100 x (1 - incidence rate ratio), overall (adjusted for country as a fixed effect) and by country, and analysed by negative binomial regression allowing for interdependence between episodes within the same child.</q><br><q>1609 were randomly assigned (322 to each RTS,S group and 321 to the control group).</q><br><em>Children randomised across all five groups.</em></small></td></tr>
+  </table>
+  <p><small>The unit of analysis is the EPISODE and the denominator is person-time. The published counts are episode counts, not numbers of participants, and cannot be placed in a table of participants with and without an event.</small></p>
+</div>
+<div class='card'>
+  <h3>The methods rule governing this decision</h3>
+  <p><strong>Decision:</strong> POOL two cohorts reporting the same effect measure for the same outcome concept at END OF TRIAL, producing an AVERAGE ACROSS documented differences in follow up window, comparator</p>
+  <p><strong>Cochrane Handbook sections:</strong> 10.8, 10.10.1, 10.10.2, 10.10.4, 10.14</p>
+  <p>Section 10.8 makes the rate ratio the effect measure for rate data and sanctions combining log rate ratios by the generic inverse-variance method. A REVIEWER OBJECTED THAT THESE SECTIONS DO NOT TURN &#x27;same measure plus low heterogeneity&#x27; INTO A SUFFICIENT RULE FOR POOLING ACROSS WINDOWS, AND THAT IS CORRECT. The Handbook does not authorise this pool; it leaves whether studies are sufficiently similar to a judgement by the review authors, and asks that the judgement be documented (10.10.1) and tested (10.14). What is claimed here is therefore narrower than an authorisation: the measure and estimand conditions the Handbook does state are met, the judgement about similarity is ours, it is recorded dimension by dimension, and it is tested. A reader who judges the windows too far apart has every fact needed to set the pooled value aside and read the two cohorts separately, which the sensitivity table prints in full. Both cohorts report vaccine efficacy as one minus an incidence rate ratio from negative binomial regression with within-child dependence and a fixed-effect adjustment for site or country, on the same case definition, age band, schedule and comparator class -- so the MEASURE matches and the estimand matches in family, model and case definition while differing in the dimensions the uniformity table marks, which is what the pooled value averages over. An earlier version of this sentence said measure and estimand match. The follow-up difference is clinical diversity under 10.10.1 and is documented on the outcome and on both rows rather than removed. Statistical heterogeneity is in the lowest band of 10.10.2. The decision that was challenged in review -- including a cohort whose window is not identical -- is exactly what the leave-one-out analysis under 10.14 tests, and the estimate moves by less than three thousandths on the ratio scale. Section 10.10.4 is what governs the MODEL and the between-study variance estimator, which the effect-measure sections above do not: it records that estimators other than DerSimonian and Laird perform better and that restricted maximum likelihood is now the default in the Cochrane software, and its subsection on few studies advises comparing the methods when there are only two or three. This pool has two, so that comparison is done and sits in the sensitivity block. An earlier version of this object cited only the effect-measure and heterogeneity sections for a decision they do not govern, and a reviewer was right to say so.</p>
+  <p><small><strong>An objection raised repeatedly in review, and why it is not upheld:</strong> BOTH review families have objected to this pool in three consecutive rounds, on the ground that the cohorts&#x27; follow-up windows are not the same length. The objection is not upheld, and the reason is recorded here rather than left for a fourth round to raise again. In the first two rounds it was CORRECT: the object&#x27;s own stated question demanded the same follow-up window, so the pool contradicted its own criterion. That criterion was invented here, was stricter than the Handbook, and has been withdrawn -- and the question no longer imposes it. THE HANDBOOK DOES NOT SUPPLY A TEST THAT SETTLES THIS. Section 10.10.1 asks that a synthesis be undertaken only where participants, interventions, comparisons and outcomes are judged sufficiently similar to be clinically meaningful, and that judgement is the review authors&#x27; -- a low I-squared is not a substitute for it. An earlier version of this text called the combination of same-measure and low heterogeneity &#x27;the Handbook&#x27;s actual test&#x27;, which was the same overclaim already withdrawn in two other fields and is withdrawn here. So: the similarity judgement is OURS. What it crosses is in the uniformity table, what it survives is in the sensitivity table, and a reader who judges the windows too far apart has both cohorts printed separately.</small></p>
+</div>
+<div class='card'>
+  <h3>Leave-one-out sensitivity</h3>
+  <p>whether the pooled estimate depends on including cohorts that differ on follow up window, comparator -- the dimensions this pool crosses, each recorded with its reason in the uniformity table above</p>
+  <table>
+    <tr><th>Cohort omitted</th><th>k</th><th>IRR (95% CI)</th><th>Efficacy</th></tr>
+    <tr><td>rtss-phase3-children</td><td class='num'>1</td><td class='num'>0.64 (0.5 to 0.81)</td><td class='num'>36%</td></tr>
+    <tr><td>rtss-fractional-dose-phase2b</td><td class='num'>1</td><td class='num'>0.637 (0.595 to 0.682)</td><td class='num'>36.3%</td></tr>
+  </table>
+  <p><strong>Omitting either cohort moves the estimate by at most 0.0028 on the ratio scale. The pooled value is not carried by one cohort, and neither single-cohort estimate contradicts it.</strong></p>
+  <p><small>Cochrane Handbook version 6, section 10.14: sensitivity analyses examine whether overall findings are robust to potentially influential decisions.</small></p>
+  <h3>Does the answer depend on the pooling method?</h3>
+  <p>Section 10.10.4.4 records that estimators other than DerSimonian and Laird perform better and that restricted maximum likelihood is now the default in the Cochrane software, and section 10.10.4.5 advises comparing the methods in a sensitivity analysis when there are only two or three studies. This pool has two. A reviewer was right that an earlier version cited neither section for a decision they govern and did not run the comparison they ask for.</p>
+  <table>
+    <tr><th>Between-study variance</th><th>Interval</th><th>Summary (95% CI)</th><th>&tau;&sup2;</th></tr>
+    <tr><td>DerSimonian-Laird (DL)</td><td>ordinary (Wald)</td><td class='num'>0.6372 (0.5967 to 0.6805)</td><td class='num'>0</td></tr>
+    <tr><td>Paule-Mandel (PM)</td><td>ordinary (Wald)</td><td class='num'>0.6372 (0.5967 to 0.6805)</td><td class='num'>0</td></tr>
+    <tr><td>restricted maximum likelihood (REML)</td><td>ordinary (Wald)</td><td class='num'>0.6372 (0.5967 to 0.6805)</td><td class='num'>0</td></tr>
+    <tr><td>restricted maximum likelihood (REML)</td><td>Hartung-Knapp-Sidik-Jonkman (HKSJ)</td><td class='num'>0.6372 (0.4163 to 0.9753)</td><td class='num'>0</td></tr>
+  </table>
+  <p><strong>The variance estimators move the summary very little, which is what the Handbook reports is usual. The interval method is the axis that matters with two studies, and section 10.10.4.5 states its own caveat plainly: with two or three studies the Hartung-Knapp-Sidik-Jonkman interval is liable to be far too wide while the ordinary one is liable to be too narrow. Both are printed and neither is treated as decisive.</strong></p>
+  <p><small>The headline estimator is restricted maximum likelihood, which section 10.10.4.4 records as the default in the Cochrane software and as better supported than DerSimonian and Laird. An earlier version kept DerSimonian and Laird and gave as its reason that the local validator could recompute it -- software convenience presented as Handbook conformance, which a reviewer called out on this object and on another in the same batch. The tooling moved instead of the method: the validator now recomputes restricted maximum likelihood independently. DerSimonian and Laird is shown beside it and moves the summary barely at all.</small></p>
+</div>
+</section>
+<section>
+<h2>RTS,S/AS01 with a booster, young infants: rate of ALL clinical malaria episodes over the full trial follow-up</h2>
+<div class='card'>
+  <h3>What was measured</h3>
+  <table>
+    <tr><th>Vaccine</th><td>RTS,S/AS01</td></tr>
+    <tr><th>Regimen</th><td>four doses, with booster</td></tr>
+    <tr><th>Comparator</th><td>meningococcal serogroup C conjugate vaccine (inactive)</td></tr>
+    <tr><th>Estimand</th><td>recurrent_rate &mdash; negative binomial regression with follow-up time as offset</td></tr>
+    <tr><th>Unit of analysis</th><td>episode, with person-time as the denominator</td></tr>
+    <tr><th>Case definition</th><td>fever, with P. falciparum asexual parasitaemia above the HIGHER of the two parasite density thresholds used across these trials. The trials do not all define the fever criterion identically, and where an outcome pools cohorts that differ on it, its uniformity block records the difference rather than smoothing it away</td></tr>
+    <tr><th>Window</th><td>from the first dose to the end of the trial &mdash; about 38 months</td></tr>
+    <tr><th>Analysis population</th><td>modified intention-to-treat</td></tr>
+    <tr><th>Effect scale</th><td>pooled on the log scale</td></tr>
+  </table>
+</div>
+<div class='card warn'>
+  <h2>Single cohort &mdash; no synthesis</h2>
+  <p class='num'>IRR 0.741 (0.685 to 0.801)</p>
+  <p class='num'>Vaccine efficacy 25.9% (19.9 to 31.5)</p>
+  <p>Only one independent cohort reports this estimand over this window, so there is nothing to combine. That is a limit of the evidence, not a choice made here.</p>
+</div>
+
+<div class="card">
+  <h3>Contributing trials</h3>
+  <table>
+    <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
+        <th>IRR (95% CI), or events</th>
+        <th>Source of this cell</th></tr>
+    <tr><td>RTS,S/AS01 phase 3, young infants enrolled at six to twelve weeks<br><small>NCT00866619 &middot; primary outcome</small></td><td class='num'>control: 2179<br>vaccinated both booster groups: 4358<br><small><em>As for the older cohort: the control figure is this cohort&#x27;s own control group from the registry&#x27;s participant flow, and the vaccinated figure is both RTS,S groups together because that is the only level at which it is reported.</em></small></td><td class='num'>0.741 (0.685 to 0.801)<br><small>published vaccine efficacy 25.9% (19.9 to 31.5)</small><br><small>on the log scale: -0.299755 (standard error 0.039909)</small><br><small>regimen: four doses, with booster</small></td><td><small>Primary paper (PubMed Central full text): <br><q>In the modified ITT population, from month 0 until study end, compared with 6170 episodes of clinical malaria that met the primary case definition in young infants in the C3C group, 4993 episodes occurred in the R3R group (VE 25.9%, 95% CI 19.9-31.5) and 5444 in the R3C group (18.3%, 11.7-24.4)</q><br><em>Young infants in the modified intention-to-treat analysis, across all three randomised groups.</em></small></td></tr>
+  </table>
+  <p><small>A separately randomised age cohort within the same registration, with its OWN control group and its own comparator product. It is a different population from the children, not a subgroup of them.</small></p>
+</div>
+<div class='card'>
+  <h3>The methods rule governing this decision</h3>
+  <p><strong>Decision:</strong> REPORT one cohort&#x27;s own estimate; perform no synthesis</p>
+  <p><strong>Cochrane Handbook sections:</strong> 10.2, 10.8</p>
+  <p>The estimate is a rate ratio for rate data. Only one randomised cohort in this object reports this estimand over this window, so there is nothing to combine and no pooling decision arises -- the absence of a synthesis here is a limit of the evidence, not a methodological choice about how to handle several studies. The measure is named so that it is not silently read as commensurate with the other outcomes, which is the error this object exists to prevent.</p>
+</div>
+</section>
+<section>
+<h2>RTS,S/AS01 primary series, children: rate of the first or only clinical malaria episode per person-year over the first year after the third dose</h2>
+<div class='card'>
+  <h3>What was measured</h3>
+  <table>
+    <tr><th>Vaccine</th><td>RTS,S/AS01</td></tr>
+    <tr><th>Regimen</th><td>three doses, primary series</td></tr>
+    <tr><th>Comparator</th><td>rabies vaccine (inactive)</td></tr>
+    <tr><th>Estimand</th><td>time_to_first &mdash; Cox regression on the first-or-only episode endpoint, adjusted for factors, with efficacy computed as one minus the hazard ratio -- stated in those words in the registry&#x27;s analysis record for this outcome</td></tr>
+    <tr><th>Unit of analysis</th><td>the first or only episode, expressed as a rate per person-year</td></tr>
+    <tr><th>Case definition</th><td>fever, with P. falciparum asexual parasitaemia above the HIGHER of the two parasite density thresholds used across these trials. The trials do not all define the fever criterion identically, and where an outcome pools cohorts that differ on it, its uniformity block records the difference rather than smoothing it away</td></tr>
+    <tr><th>Window</th><td>from the third dose to a year later &mdash; about 12 months</td></tr>
+    <tr><th>Analysis population</th><td>per protocol</td></tr>
+    <tr><th>Effect scale</th><td>pooled on the log scale</td></tr>
+  </table>
+</div>
+<div class='card warn'>
+  <h2>Single cohort &mdash; no synthesis</h2>
+  <p class='num'>HR 0.442 (0.396 to 0.494), 97.5% interval</p>
+  <p class='num'>Vaccine efficacy 55.8% (50.6 to 60.4)</p>
+  <p>Only one independent cohort reports this estimand over this window, so there is nothing to combine. That is a limit of the evidence, not a choice made here.</p>
+</div>
+
+<div class="card">
+  <h3>Contributing trials</h3>
+  <table>
+    <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
+        <th>HR (95% CI), or events</th>
+        <th>Source of this cell</th></tr>
+    <tr><td>RTS,S/AS01 phase 3, children enrolled at five to seventeen months<br><small>NCT00866619 &middot; primary outcome</small></td><td class='num'>2830 / 1466<br><small><em>The per-protocol denominators the registry posts for the registered primary outcome. The vaccinated group at this timepoint is every recipient of the primary series, because the booster had not yet been given, so no split by booster status exists to be made.</em></small></td><td class='num'>0.442 (0.396 to 0.494)<br><small>97.5% interval</small><br><small>published vaccine efficacy 55.8% (50.6 to 60.4)</small><br><small>on the log scale: -0.816445 (standard error 0.049327)</small><br><small>regimen: three doses, primary series</small></td><td><small>Primary paper (PubMed Central full text): <br><q>The coprimary endpoints of efficacy to clinical malaria over the first 12 months after dose 3 were 55.8% (97.5% CI 50.6-60.4) in children aged 5-17 months and 31.3% (23.6-38.3) in infants aged 6-12 weeks.</q><br><em>Children in the modified intention-to-treat analysis, across all three randomised groups.</em></small></td></tr>
+  </table>
+  <p><small>This is the figure a reader is most likely to recognise for this vaccine, so it is carried rather than dropped -- but it is NOT pooled with anything. Its estimand is a rate of the FIRST episode per person-year, which is neither the time-to-event hazard ratio the other vaccine reports nor the all-episode rate the same trial reports at its end. Its interval is also stated at a higher confidence level than every other interval in this object. At this timepoint the boosted and unboosted groups had not yet diverged, because the booster is given later, so the vaccinated group here is every recipient of the primary series.</small></p>
+</div>
+<div class='card'>
+  <h3>The methods rule governing this decision</h3>
+  <p><strong>Decision:</strong> REPORT one cohort&#x27;s own estimate; perform no synthesis</p>
+  <p><strong>Cochrane Handbook sections:</strong> 10.2, 10.9</p>
+  <p>The estimate is a HAZARD RATIO from a Cox model on the first-or-only episode endpoint. The registry posts that endpoint in units of events per person-year AND records the analysis as Cox regression with efficacy as one minus a hazard ratio; the unit describes the endpoint, the analysis field describes the effect, and this row follows the analysis field. Only one randomised cohort in this object reports this estimand over this window, so there is nothing to combine and no pooling decision arises -- the absence of a synthesis here is a limit of the evidence, not a methodological choice about how to handle several studies. The measure is named so that it is not silently read as commensurate with the other outcomes, which is the error this object exists to prevent.</p>
+</div>
+</section>
+<section>
+<h2>RTS,S/AS01 given alongside the routine immunisation schedule, infants: ratio for all clinical malaria episodes to nineteen months, of a type the source does not name</h2>
+<div class='card'>
+  <h3>What was measured</h3>
+  <table>
+    <tr><th>Vaccine</th><td>RTS,S/AS01</td></tr>
+    <tr><th>Regimen</th><td>three doses, no booster</td></tr>
+    <tr><th>Comparator</th><td>control vaccine (inactive)</td></tr>
+    <tr><th>Estimand</th><td>recurrent_rate &mdash; NOT NAMED in the staged source, which states only that the analysis was site-adjusted and according to protocol. The regression model behind this figure is therefore not recorded, because the material that was retrievable does not give it</td></tr>
+    <tr><th>Unit of analysis</th><td>episode. The DENOMINATOR is not recorded, because the staged source gives an efficacy against all malaria episodes and names neither a person-time denominator nor a regression model. An earlier version asserted person-time here while the same row refused to call the measure a rate ratio, which is the same over-assertion twice; a reviewer caught the half that had survived</td></tr>
+    <tr><th>Case definition</th><td>fever, with P. falciparum asexual parasitaemia above the HIGHER of the two parasite density thresholds used across these trials. The trials do not all define the fever criterion identically, and where an outcome pools cohorts that differ on it, its uniformity block records the difference rather than smoothing it away</td></tr>
+    <tr><th>Window</th><td>from a fortnight after the third dose to the nineteenth month &mdash; about 19 months</td></tr>
+    <tr><th>Analysis population</th><td>according to protocol, site-adjusted</td></tr>
+    <tr><th>Effect scale</th><td>pooled on the log scale</td></tr>
+  </table>
+</div>
+<div class='card warn'>
+  <h2>Single cohort &mdash; no synthesis</h2>
+  <p class='num'>ratio-type-not-named-in-source 0.41 (0.26 to 0.64)</p>
+  <p class='num'>Vaccine efficacy 59% (36 to 74)</p>
+  <p>Only one independent cohort reports this estimand over this window, so there is nothing to combine. That is a limit of the evidence, not a choice made here.</p>
+</div>
+
+<div class="card">
+  <h3>Contributing trials</h3>
+  <table>
+    <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
+        <th>ratio-type-not-named-in-source (95% CI), or events</th>
+        <th>Source of this cell</th></tr>
+    <tr><td>RTS,S/AS01 with the routine immunisation schedule, Ghana, Tanzania and Gabon<br><small>NCT00436007 &middot; primary outcome</small></td><td class='num'>randomised all groups: 511<br><small><em>The number enrolled across all three randomised groups. This cohort&#x27;s according-to-protocol group sizes for the efficacy analysis are not stated in the material that was retrievable, so no per-arm figure is claimed.</em></small></td><td class='num'>0.41 (0.26 to 0.64)<br><small>published vaccine efficacy 59% (36 to 74)</small><br><small>on the log scale: -0.891598 (standard error 0.229797)</small><br><small>regimen: three doses, no booster</small></td><td><small>Primary paper (abstract, with a methods extract from the same cohort&#x27;s earlier full-text report): <br><q>Vaccine efficacy for the 0, 1, 2 month schedule (2 weeks after dose three to month 19, site-adjusted according-to-protocol analysis) was 53% (95% CI 26-70; p=0.0012) against first malaria episodes and 59% (36-74; p=0.0001) against all malaria episodes.</q><br><q>511 children were enrolled.</q><br><em>Children enrolled across all three randomised groups.</em></small></td></tr>
+  </table>
+  <p><small>Carried, never pooled. Its window, its age at first dose and its masking differ from the other infant cohort, and the staged source does not name the model behind the figure.</small></p>
+</div>
+<div class='card'>
+  <h3>The methods rule governing this decision</h3>
+  <p><strong>Decision:</strong> REPORT one cohort&#x27;s own estimate; perform no synthesis</p>
+  <p><strong>Cochrane Handbook sections:</strong> 10.2</p>
+  <p>The estimate is an all-episode ratio whose regression model the source does NOT name, which is why its measure is recorded as a ratio of unstated type rather than asserted to be a rate ratio. NO section is cited, and that is the point: an earlier version cited 10.8, which governs rate ratios, beside a refusal to call this a rate ratio. A reviewer was right that a section cannot govern a measure the row declines to claim. 10.8 is what WOULD have applied had the source named its model; because it does not, no measure-specific authority is invoked at all. What IS cited is 10.2, which governs the decision this block actually records: meta-analysis is the combination of results across studies, and one cohort reports this estimand over this window, so there is nothing to combine. Only one randomised cohort in this object reports this estimand over this window, so there is nothing to combine and no pooling decision arises -- the absence of a synthesis here is a limit of the evidence, not a methodological choice about how to handle several studies. The measure is named so that it is not silently read as commensurate with the other outcomes, which is the error this object exists to prevent.</p>
+</div>
+</section>
+<section>
+<h2>RTS,S/AS01 without a booster, phase 2b: time to first clinical malaria episode over a mean follow-up shorter than a year</h2>
+<div class='card'>
+  <h3>What was measured</h3>
+  <table>
+    <tr><th>Vaccine</th><td>RTS,S/AS01</td></tr>
+    <tr><th>Regimen</th><td>three doses, no booster</td></tr>
+    <tr><th>Comparator</th><td>rabies vaccine (inactive)</td></tr>
+    <tr><th>Estimand</th><td>time_to_first &mdash; Cox proportional hazards</td></tr>
+    <tr><th>Unit of analysis</th><td>participant, with the time to the first episode</td></tr>
+    <tr><th>Case definition</th><td>fever with P. falciparum parasitaemia above the LOWER of the two thresholds -- a different case definition from every other row here</td></tr>
+    <tr><th>Window</th><td>from the third dose to the end of surveillance &mdash; about 8 months</td></tr>
+    <tr><th>Analysis population</th><td>according to protocol</td></tr>
+    <tr><th>Effect scale</th><td>pooled on the log scale</td></tr>
+  </table>
+</div>
+<div class='card warn'>
+  <h2>Single cohort &mdash; no synthesis</h2>
+  <p class='num'>HR 0.47 (0.31 to 0.72)</p>
+  <p class='num'>Vaccine efficacy 53% (28 to 69)</p>
+  <p>Only one independent cohort reports this estimand over this window, so there is nothing to combine. That is a limit of the evidence, not a choice made here.</p>
+</div>
+
+<div class="card">
+  <h3>Contributing trials</h3>
+  <table>
+    <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
+        <th>HR (95% CI), or events</th>
+        <th>Source of this cell</th></tr>
+    <tr><td>RTS,S/AS01 phase 2b, Kilifi and Korogwe<br><small>NCT00380393 &middot; primary outcome</small></td><td class='num'>402 / 407<br><small><em>The according-to-protocol population this row&#x27;s estimate was computed on, exactly as the paper states it.</em></small></td><td class='num'>0.47 (0.31 to 0.72)<br><small>published vaccine efficacy 53% (28 to 69)</small><br><small>on the log scale: -0.755023 (standard error 0.214973)</small><br><small>regimen: three doses, no booster</small></td><td><small>Primary paper (abstract): <br><q>the cumulative number in whom clinical malaria developed was 32 of 402 assigned to receive RTS,S/AS01E and 66 of 407 assigned to receive the rabies vaccine; the adjusted efficacy rate for RTS,S/AS01E was 53% (95% confidence interval [CI], 28 to 69; P&lt;0.001) on the basis of Cox regression</q><br><q>The primary end point was fever with a falciparum parasitemia density of more than 2500 parasites per microliter, and the mean duration of follow-up was 7.9 months (range, 4.5 to 10.5).</q><br><em>Children randomised.</em></small></td></tr>
+  </table>
+  <p><small>Carried but never pooled. Its case definition uses a lower parasite density threshold than every other row, and its follow-up is shorter than a year. Either difference alone would make it a different quantity.</small></p>
+</div>
+<div class='card'>
+  <h3>The methods rule governing this decision</h3>
+  <p><strong>Decision:</strong> REPORT one cohort&#x27;s own estimate; perform no synthesis</p>
+  <p><strong>Cochrane Handbook sections:</strong> 10.2, 10.9</p>
+  <p>The estimate is a hazard ratio for time-to-event data. Only one randomised cohort in this object reports this estimand over this window, so there is nothing to combine and no pooling decision arises -- the absence of a synthesis here is a limit of the evidence, not a methodological choice about how to handle several studies. The measure is named so that it is not silently read as commensurate with the other outcomes, which is the error this object exists to prevent.</p>
+</div>
+</section>
+<section>
+<h2>RTS,S/AS01, seasonal administration, against seasonal chemoprevention rather than against an inactive control</h2>
+<div class='card'>
+  <h3>What was measured</h3>
+  <table>
+    <tr><th>Vaccine</th><td>RTS,S/AS01</td></tr>
+    <tr><th>Regimen</th><td>seasonal</td></tr>
+    <tr><th>Comparator</th><td>sulfadoxine-pyrimethamine with amodiaquine (active)</td></tr>
+    <tr><th>Estimand</th><td>time_to_first &mdash; Cox proportional hazards</td></tr>
+    <tr><th>Unit of analysis</th><td>participant, with the time to the first episode</td></tr>
+    <tr><th>Case definition</th><td>fever, with P. falciparum asexual parasitaemia above the HIGHER of the two parasite density thresholds used across these trials. The trials do not all define the fever criterion identically, and where an outcome pools cohorts that differ on it, its uniformity block records the difference rather than smoothing it away</td></tr>
+    <tr><th>Window</th><td>over the full trial follow-up &mdash; about 36 months</td></tr>
+    <tr><th>Analysis population</th><td>intention-to-treat</td></tr>
+    <tr><th>Effect scale</th><td>pooled on the log scale</td></tr>
+  </table>
+</div>
+<div class='card warn'>
+  <h2>Single cohort &mdash; no synthesis</h2>
+  <p class='num'>HR 0.92 (0.84 to 1.01)</p>
+  <p>Only one independent cohort reports this estimand over this window, so there is nothing to combine. That is a limit of the evidence, not a choice made here.</p>
+</div>
+
+<div class="card">
+  <h3>Contributing trials</h3>
+  <table>
+    <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
+        <th>HR (95% CI), or events</th>
+        <th>Source of this cell</th></tr>
+    <tr><td>RTS,S/AS01 seasonal vaccination against seasonal chemoprevention<br><small>NCT03143218 &middot; primary outcome</small></td><td class='num'>1988 / 1965<br><small><em>The two groups this row contrasts, as both the paper and the registry&#x27;s participant flow report them. The third randomised group is not part of this contrast.</em></small></td><td class='num'>0.92 (0.84 to 1.01)<br><small>on the log scale: -0.083382 (standard error 0.047017)</small><br><small>regimen: seasonal</small></td><td><small>Primary paper (abstract): <br><q>The hazard ratio for the protective efficacy of RTS,S/AS01 as compared with chemoprevention was 0.92 (95% confidence interval [CI], 0.84 to 1.01), which excluded the prespecified noninferiority margin of 1.20.</q><br><q>Of these, 1965, 1988, and 1967 children in the three groups, respectively, received the first dose of the assigned intervention and were followed for 3 years.</q><br><q>Administration of RTS,S/AS01 was noninferior to chemoprevention in preventing uncomplicated malaria.</q><br><em>Children randomised across all three groups.</em></small></td></tr>
+  </table>
+  <p><small>Carried but never pooled, and never presented as a vaccine efficacy. The comparator is an ACTIVE and highly effective chemoprevention regimen, so this hazard ratio compares two interventions. Read as an efficacy against an unprotected control it would report this vaccine as having almost no effect, which is not what the trial found and not what this row says.</small></p>
+</div>
+<div class='card'>
+  <h3>The methods rule governing this decision</h3>
+  <p><strong>Decision:</strong> REPORT one cohort&#x27;s own estimate; perform no synthesis</p>
+  <p><strong>Cochrane Handbook sections:</strong> 10.2, 3.2.3, 10.9</p>
+  <p>The estimate is a hazard ratio against an ACTIVE comparator, which section 3.2.3 distinguishes from a comparison against placebo or control and which is why no efficacy is derived from it. Only one randomised cohort in this object reports this estimand over this window, so there is nothing to combine and no pooling decision arises -- the absence of a synthesis here is a limit of the evidence, not a methodological choice about how to handle several studies. The measure is named so that it is not silently read as commensurate with the other outcomes, which is the error this object exists to prevent.</p>
+</div>
+</section>
+<section>
+<h2>The two vaccines side by side on recurrent clinical malaria: SEPARATE estimates in two DIFFERENT effect measures, presented without a combined figure</h2>
+<div class='card'>
+  <h3>What was measured</h3>
+  <table>
+    <tr><th>Vaccine</th><td>both</td></tr>
+    <tr><th>Regimen</th><td>as each trial administered it</td></tr>
+    <tr><th>Comparator</th><td>inactive controls (inactive)</td></tr>
+    <tr><th>Estimand</th><td>recurrent_events &mdash; negative binomial regression for one vaccine, giving a RATE RATIO, and Cox regression with a robust standard error for the other, giving a HAZARD RATIO</td></tr>
+    <tr><th>Unit of analysis</th><td>NOT COMMON ACROSS THE TWO ROWS, which is the whole point of this outcome. One row counts episodes over person-time, because its trial used a negative binomial model with follow-up time as an offset. The other is a Cox analysis with a robust standard error, whose unit is the participant&#x27;s time to event with multiple episodes accounted for, NOT a person-time denominator. An earlier version asserted person-time for both, which contradicted this outcome&#x27;s own measure field of mixed; a sweep of this object for claims stronger than their sources found it before a reviewer did.</td></tr>
+    <tr><th>Case definition</th><td>fever, with P. falciparum asexual parasitaemia above the HIGHER of the two parasite density thresholds used across these trials. The trials do not all define the fever criterion identically, and where an outcome pools cohorts that differ on it, its uniformity block records the difference rather than smoothing it away</td></tr>
+    <tr><th>Window</th><td>each trial&#x27;s own follow-up, which is NOT common across them</td></tr>
+    <tr><th>Analysis population</th><td>as each trial defines it</td></tr>
+    <tr><th>Effect scale</th><td>pooled on the log scale</td></tr>
+  </table>
+</div>
+<div class='card warn'>
+  <h2>No combined estimate</h2>
+  <p>No combined figure is computed. The grounds, and the Handbook sections that govern them, are on this outcome&#x27;s handbook block; the contributing estimates are on the rows below, each in its own measure.</p>
+  <p><small></small></p>
+</div>
+
+<div class="card">
+  <h3>Contributing trials</h3>
+  <table>
+    <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
+        <th>mixed (95% CI), or events</th>
+        <th>Source of this cell</th></tr>
+    <tr><td>RTS,S/AS01 phase 3, children enrolled at five to seventeen months<br><small>NCT00866619 &middot; primary outcome</small></td><td class='num'>control: 2974<br>vaccinated both booster groups: 5948<br><small><em>The same population as this cohort&#x27;s own primary row, reported at the same level and for the same reason.</em></small></td><td class='num'>0.637 (0.595 to 0.682)<br><small>published vaccine efficacy 36.3% (31.8 to 40.5)</small><br><small>on the log scale: -0.450986 (standard error 0.034814)</small><br><small>regimen: as each trial administered it</small></td><td><small>Primary paper (PubMed Central full text): <br><q>In the modified ITT population, from month 0 until study end, compared with 9585 episodes of clinical malaria that met the primary case definition in children in the C3C group, 6616 episodes occurred in children in the R3R group (VE 36.3%, 95% CI 31.8-40.5) and 7396 in the R3C group (28.3%, 23.3-32.9)</q><br><em>Children in the modified intention-to-treat analysis, across all three randomised groups.</em></small></td></tr>
+    <tr><td>R21/Matrix-M phase 3, five sites in four African countries<br><small>NCT04704830 &middot; primary outcome</small></td><td class='num'>3103 / 1541<br><small><em>The whole trial, which is the population this all-sites analysis was actually run on.</em></small></td><td class='num'>0.28 (0.25 to 0.31)<br><small>published vaccine efficacy 72% (69 to 75)</small><br><small>on the log scale: -1.272966 (standard error 0.054876)</small><br><small>regimen: as each trial administered it</small></td><td><small>Primary paper (PubMed Central full text): <br><q>Across all sites, vaccine efficacy against multiple episodes of malaria was 72% (69-75; p&lt;0.0001)</q><br><q>A secondary analysis of rate of all (multiple) clinical malaria episodes was analysed by Cox regression, with a robust standard error to account for multiple episodes in the same child.</q><br><em>Children who received a first dose of a study vaccine.</em></small></td></tr>
+  </table>
+  <p><small>The two rows here are not the same effect measure. Each row names its own, with the basis for it.</small></p>
+</div>
+<div class='card'>
+  <h3>The methods rule governing this decision</h3>
+  <p><strong>Decision:</strong> DO NOT compute a combined estimate; present each vaccine separately and compare narratively by subgroup</p>
+  <p><strong>Cochrane Handbook sections:</strong> 10.6, 10.8, 10.9, 10.10.2, 10.10.3, 10.11</p>
+  <p>The two contributing estimates are different effect measures: a rate ratio under 10.8 and a hazard ratio under 10.9. Where the Handbook permits combining unlike measures it names the conversion -- 10.6 re-expresses odds ratios as standardised mean differences -- and it names none between a hazard ratio and a rate ratio, so there is no sanctioned way to combine these two. Independently, the heterogeneity observed when they were combined sat in the &#x27;considerable&#x27; band of 10.10.2, and 10.10.3 lists &#x27;do not do a meta-analysis&#x27; for that case on the stated grounds that an average may mislead. What replaces the combined figure is the subgroup presentation of 10.11: each vaccine reported as its own stratum, read side by side and never tested against the other.</p>
+</div>
+<div class='card warn'>
+  <h3>The two review families disagreed about this figure</h3>
+  <p><strong>Should a pooled point estimate for this outcome be published at all, given that the object itself says its contributors do not estimate one common quantity?</strong></p>
+  <ul>
+    <li><strong>One family:</strong> It should not. The caveat does not make the pooled point and its efficacy percentage a meaningful estimate; it confirms the opposite, and publishing the number is misleading even when labelled exploratory.</li>
+    <li><strong>The other:</strong> It is acceptable as published. The outcome is adequately caveated, it states plainly that the contributors share neither a follow-up window nor a regression model, and it is not presented as a real answer.</li>
+  </ul>
+  <p>RESOLVED IN FAVOUR OF THE OPENAI FAMILY, and not by preferring one reviewer to the other. The disagreement was referred to the Cochrane Handbook, version 6, and the Handbook settles it twice over: the two contributing estimates are different EFFECT MEASURES under sections 10.8 and 10.9, for which the Handbook provides no conversion, and the heterogeneity sat in the &#x27;considerable&#x27; band of section 10.10.2, where section 10.10.3 explicitly offers &#x27;do not do a meta-analysis&#x27;. The pooled point, its interval and its efficacy percentage have therefore been REMOVED. The google family&#x27;s position -- that the caveat was adequate -- is recorded here because it was reasonable and because a record that only keeps the winning argument is not a record. What survives is what the Handbook does support for these data: the per-cohort estimates, and a by-vaccine stratum for each, presented as a narrative comparison rather than as a combined number.</p>
+  <p><small>Settled against: Cochrane Handbook for Systematic Reviews of Interventions, version 6, sections 10.6, 10.8, 10.9, 10.10.2 and 10.10.3.</small></p>
+</div>
+<div class='card'>
+  <h2>By vaccine</h2>
+  <table>
+    <tr><th>Stratum</th><th>Trials</th><th>mixed (95% CI)</th><th>I&sup2;</th><th>What this stratum mixes</th></tr>
+    <tr><td>RTS,S/AS01<br><small>rtss-phase3-children</small></td><td class='num'>1</td><td class='num'>mixed 0.637 (0.595 to 0.682)<br><small>efficacy 36.3%</small></td><td class='num'>not stated%</td><td><small><strong></strong><br>Vaccine as a pre-declared subgroup. The subgroups are reported, never tested against each other: their follow-up windows differ by years and their regression models differ, so a gap between them is not attributable to the vaccines alone.</small></td></tr>
+    <tr><td>R21/Matrix-M<br><small>datoo-2024-phase3</small></td><td class='num'>1</td><td class='num'>mixed 0.28 (0.25 to 0.31)<br><small>efficacy 72%</small></td><td class='num'>not stated%</td><td><small><strong></strong><br>Vaccine as a pre-declared subgroup. The subgroups are reported, never tested against each other: their follow-up windows differ by years and their regression models differ, so a gap between them is not attributable to the vaccines alone.</small></td></tr>
+  </table>
+  <p><small>These strata are reported, never tested against each other, and no claim is made that the vaccines differ by the gap between them. They are grouped by VACCINE alone, and neither stratum is homogeneous in anything else: the follow-up windows behind them differ by years, the regression models differ, and the age ranges differ. A reader who reads the gap as a head-to-head comparison would be reading mostly those differences.</small></p>
+</div>
+</section>
+
+<div class='card'>
+  <h2>What the search found, and what was kept</h2>
+  <p>Candidate records were retrieved from PubMed across both vaccines and screened against the eligibility boundary stated in the question. The published synthesis this object reconciles against was used as a search prior and a completeness check, not as a source of trials.</p>
+  <p><strong>Eligible:</strong> A randomised controlled trial of RTS,S/AS01 or R21/Matrix-M reporting a clinical malaria efficacy result against a control group. Counted at the level of the randomised COHORT, not the publication.</p>
+  <h3>Excluded, with reasons</h3>
+  <ul>
+    <li><strong>A different adjuvant formulation of the same antigen</strong><br>Field trials of the earlier AS02 adjuvant systems fall outside the boundary in the question, which names the AS01 formulation. This is a scope decision and a reader may disagree with it; it is recorded rather than left implicit.</li>
+    <li><strong>A further publication of a cohort already included</strong><br>Several cohorts here were reported more than once as follow-up lengthened. Each contributes ONE row, from the report this object cites. Counting the others would enter one randomised cohort into a synthesis several times, which is the unit-of-analysis error this object exists to avoid.</li>
+    <li><strong>An ancillary or secondary analysis of an included cohort</strong><br>Genotypic, immunological and modelling analyses of cohorts already included are not separate trials and carry no separate efficacy contrast against a control.</li>
+    <li><strong>A different vaccine</strong><br>Trials of blood-stage and whole-sporozoite candidates were retrieved by the search and are outside the comparison.</li>
+    <li><strong>No field efficacy against clinical malaria</strong><br>Controlled human infection studies and immunogenicity-only reports measure something else.</li>
+    <li><strong>Not a trial report</strong><br>Reviews and commentaries retrieved by the search.</li>
+  </ul>
+  <p><small>The screening was done from titles, abstracts and, where needed, full text, on records this search retrieved. A search is not a census, and no claim is made that no eligible cohort exists outside it. What is claimed is narrower and checkable: every cohort this object cites, it holds and reports, and every exclusion above is stated with its reason.</small></p>
+</div>
+<div class='card warn'>
+  <h2>Published contrasts shown here but kept out of every pooled estimate</h2>
+  <p>Each of these is a real, published result. Not one of them is pooled, and the reason is on its own row. Most are here because two contrasts leaning on one control group cannot both enter one estimate without counting those control participants twice.</p>
+  <table>
+    <tr><th>Contrast</th><th>Estimate</th><th>Why it is outside every pool</th></tr>
+    <tr><td>RTS,S/AS01 primary series WITHOUT a booster, children<br><small>rtss-phase3-children</small></td><td class='num'>0.717 (0.671 to 0.767)<br><small>efficacy 28.3%</small></td><td><small>It shares its control group with the boosted contrast already used for this cohort. Both compare against the same control children and the same control episode count, so using both would count those controls twice.<br><q>6616 episodes occurred in children in the R3R group (VE 36.3%, 95% CI 31.8-40.5) and 7396 in the R3C group (28.3%, 23.3-32.9)</q></small></td></tr>
+    <tr><td>RTS,S/AS01 primary series WITHOUT a booster, young infants<br><small>rtss-phase3-infants</small></td><td class='num'>0.817 (0.756 to 0.883)<br><small>efficacy 18.3%</small></td><td><small>The same shared-control reason as the older cohort.<br><q>4993 episodes occurred in the R3R group (VE 25.9%, 95% CI 19.9-31.5) and 5444 in the R3C group (18.3%, 11.7-24.4)</q></small></td></tr>
+    <tr><td>R21 with the LOWER adjuvant dose, at one year<br><small>datoo-2021-phase2b</small></td><td class='num'>0.29 (0.21 to 0.41)<br><small>efficacy 71%</small></td><td><small>It shares its control group with the higher-adjuvant contrast already used for this cohort, and its adjuvant dose is not the one carried into the phase 3 trial that the pool&#x27;s other cohort reports.<br><q>Cox regression showed vaccine efficacy of 71% (95% CI 59-79; p&lt;0.0001) for group 1, and 77% (67-84; p&lt;0.0001) for group 2.</q></small></td></tr>
+    <tr><td>RTS,S full doses with three further annual doses (group R012-14-26-38)<br><small>rtss-fractional-dose-phase2b</small></td><td class='num'>0.49 (0.39 to 0.63)<br><small>efficacy 51%</small></td><td><small>It shares its control group with the standard-schedule contrast already used for this cohort, and its schedule -- annual redosing -- is one no other cohort here used.<br><q>vaccine efficacy against all episodes of clinical malaria was 36% (95% CI 19-50), 51% (37-61), 43% (28-55), and 41% (26-53) in groups R012-20, R012-14-26-38, Fx012-14-26-38, and Fx017-20-32, respectively</q></small></td></tr>
+    <tr><td>RTS,S with fractional doses from the third (group Fx012-14-26-38)<br><small>rtss-fractional-dose-phase2b</small></td><td class='num'>0.57 (0.45 to 0.72)<br><small>efficacy 43%</small></td><td><small>The same shared control, and a fifth-strength dose that no other cohort here administered.<br><q>vaccine efficacy against all episodes of clinical malaria was 36% (95% CI 19-50), 51% (37-61), 43% (28-55), and 41% (26-53) in groups R012-20, R012-14-26-38, Fx012-14-26-38, and Fx017-20-32, respectively</q></small></td></tr>
+    <tr><td>RTS,S with delayed fractional doses (group Fx017-20-32)<br><small>rtss-fractional-dose-phase2b</small></td><td class='num'>0.59 (0.47 to 0.74)<br><small>efficacy 41%</small></td><td><small>The same shared control, and both a fifth-strength dose and a delayed schedule that no other cohort here used.<br><q>vaccine efficacy against all episodes of clinical malaria was 36% (95% CI 19-50), 51% (37-61), 43% (28-55), and 41% (26-53) in groups R012-20, R012-14-26-38, Fx012-14-26-38, and Fx017-20-32, respectively</q></small></td></tr>
+    <tr><td>RTS,S on the delayed third-dose schedule, over the whole study period<br><small>asante-2011-epi-phase2</small></td><td class='num'>0.68 (0.55 to 0.84)<br><small>efficacy 32%</small></td><td><small>It shares its control group with the earlier-schedule contrast already used for this cohort, and it is reported over the whole study period in the total vaccinated cohort rather than over this object&#x27;s window in the according-to-protocol population.<br><q>vaccine efficacy against all malaria episodes was higher with the 0, 1, 2 month schedule (57%, 95% CI 33-73; p=0.0002) than with the 0, 1, 7 month schedule (32% CI 16-45; p=0.0003)</q></small></td></tr>
+    <tr><td>R21/Matrix-M, all sites combined, time to first episode<br><small>datoo-2024-phase3</small></td><td class='num'>0.27 (0.24 to 0.3)<br><small>efficacy 73%</small></td><td><small>It is the trial&#x27;s own combination of the two co-primary strata, so it contains every participant already represented by the seasonal and the standard rows. It is carried as an EXTERNAL ANCHOR for those rows, not as an additional cohort.<br><q>Overall, vaccine efficacy was 73% (95% CI 70-76; p&lt;0.0001)</q></small></td></tr>
+  </table>
+</div>
+<div class='card'>
+  <h2>Reconciliation against the published synthesis of the same literature</h2>
+  <p>Yousafzai MT, Sherali S, Asjad H, Sadiq MW, Siddiqui S, Taseen S, Qamar FN. Efficacy and immunogenicity of RTS,S/AS01 and R21/Matrix-M malaria vaccines: systematic review and meta-analysis. Journal of Infection and Public Health.</p>
+  <p class='warn'><small>The publisher&#x27;s full text was not retrievable, so this comparison rests on the review&#x27;s abstract and its institutional repository record. Where a statement below concerns the review&#x27;s METHODS rather than its reported numbers, it is stated as what those numbers imply and not as a finding read from a methods section.</small></p>
+  <h3>What matches</h3>
+  <ul>
+    <li><strong>Eligible trial count</strong> <br>The review reports a number of included studies equal to the number of distinct randomised COHORTS this object located independently. This is recorded because it is true, NOT because it establishes anything: two sets of the same size can have different members, and the review&#x27;s included-study list was not in the material that could be retrieved. It is a coincidence of counts until that list can be read, and the unresolved section below says so.</li>
+    <li><strong>Direction and rough magnitude for R21</strong> <br>The review describes this vaccine as showing high efficacy, which agrees with this object&#x27;s pooled seasonal result.</li>
+    <li><strong>Waning</strong> <br>The review reports that protective efficacy declined over time, and this object does not contradict it. An earlier version of this entry went further and said this object&#x27;s own rows demonstrate the same pattern, because the longest follow-up carried the smallest estimate. That was withdrawn on review: it is not true of these rows. The longest follow-up row is neither the smallest efficacy here -- the infant cohort at a shorter follow-up is smaller -- nor the smallest ratio. These rows differ from one another in vaccine, estimand, age and window all at once, so the variation between them cannot be attributed to follow-up length, and a cross-sectional read of them is not evidence of waning. Waning is a within-cohort question, and the trials that answer it do so inside their own reports rather than in this comparison.</li>
+  </ul>
+  <h3>What this object corrects</h3>
+  <ul>
+    <li><strong>A single pooled risk ratio for BOTH vaccines together</strong> <br>One risk ratio presented as covering both vaccines in the older age group.<br>Refused as a primary result. The two vaccines&#x27; pivotal trials do not report the same quantity: one reports a hazard ratio for the time to a first episode over a year, the other a negative-binomial rate ratio for all episodes over its whole follow-up. A single ratio across both is a weighted average of two different estimands. This object reports each vaccine separately and carries NO combined figure at all. An earlier version of this sentence said the combined figure was confined to an outcome declared exploratory; that outcome no longer carries a pooled point, an interval or an efficacy percentage, because the gate removed them, so the sentence had gone stale against the object it describes.</li>
+    <li><strong>Ordinary binary risk ratios for time-to-event and rate endpoints</strong> <br>Risk ratios, the effect measure of a table of participants with and without an event.<br>Both pivotal trials analysed something else. One used Cox regression on the time to a first episode; the other used negative binomial regression on all episodes with person-time as the offset, so its published counts are EPISODES and exceed the number of participants. Treating either as a table of participants changes the estimand and, for the episode counts, uses a numerator that cannot sit over a participant denominator at all. This object stores every effect on the log scale with its standard error derived from the published interval, and its validator blocks a survival or rate endpoint stored as a binary one.</li>
+    <li><strong>An event rate reported as though it were a vaccine efficacy</strong> <br>An event rate quoted for R21 alongside the efficacy discussion, in the words the staged record gives and no more.<br>Not carried in any form. The staged abstract and repository record call it a low event rate and do not say what it is a rate OF, over what denominator, or in which arm, so there is not enough there to treat it as a contrast and it is not used as one. An earlier version of this entry asserted it was a single-arm proportion with no comparator in it. That may well be right, but the staged record does not say so, and a correction that over-reads its source is the fault it is correcting.</li>
+  </ul>
+  <h3>What could not be resolved</h3>
+  <ul>
+    <li><strong>Possible unit-of-analysis double counting</strong> <br>Both pivotal programmes publish more than one contrast against a SHARED control group, and both were published more than once at different follow-up points. A review that counts publications rather than randomised cohorts, or that uses more than one contrast per shared control, would double-count control participants. Whether this review did either cannot be determined from the material that was retrievable. This object makes the corresponding choice explicit on every row: contrasts sharing a control carry the same control key, one is chosen, and the rest are carried outside every pool.</li>
+    <li><strong>Which R21 figure entered an age-banded analysis</strong> <br>The review reports analysing an age band matching the older RTS,S cohort. The R21 phase 3 enrolled a WIDER band extending beyond it, and found efficacy to differ significantly by age within its own population, so the trial&#x27;s overall figure and its figure for the narrower band are not the same number. Which of the two a reader of the review is seeing therefore matters. An earlier draft of this reconciliation asserted that the review had used the wider trial&#x27;s overall figure; that assertion is WITHDRAWN, because the review also publishes the narrower band as its analysis population and the trial publishes a subgroup for exactly that band, so the review could legitimately have extracted the subgroup. Without the included-study table there is no basis to say which it did, and saying so anyway would be the same kind of over-claim this object criticises elsewhere. What is recorded instead is the fact that makes the question live, and this object&#x27;s own response to it: every row here states its own population rather than being aligned to a common band.</li>
+  </ul>
+</div>
+<div class='card'>
+  <h2>The methods authority these decisions rest on</h2>
+  <p>Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, et al (editors). Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1. Cochrane, 2025.<br><small>https://www.cochrane.org/authors/handbooks-and-manuals/handbook</small></p>
+  <p>Where this object had to decide whether something could be combined, the decision was referred to the Handbook rather than to a rule invented here. The sections relied on are listed with what each one settled, so a reader can check the reasoning against the source rather than against this object&#x27;s own assertion of it.</p>
+  <table>
+    <tr><th>Section</th><th>Title</th><th>What it settled here</th></tr>
+    <tr><td class='num'>3.2.3</td><td>Defining which comparisons will be made</td><td><small>Distinguishes intervention-versus-placebo and intervention-versus-control from intervention A versus intervention B. The chemoprevention trial is the third kind, which is why its ratio is never reported as an efficacy.</small></td></tr>
+    <tr><td class='num'>4.6.1</td><td>Studies (not reports) as the unit of interest</td><td><small>Reviews have STUDIES as the unit of analysis and a single study may have several reports. This is the authority for counting cohorts rather than publications.</small></td></tr>
+    <tr><td class='num'>4.6.2</td><td>Identifying multiple reports from the same study</td><td><small>Associating the several reports of one cohort with each other. The cohorts this was done for are listed on the deduplication decision itself; no count is restated here, because the count restated here was wrong twice.</small></td></tr>
+    <tr><td class='num'>23.3.2</td><td>Determining which intervention groups are relevant</td><td><small>The governing rule where a trial randomised more than two groups: which of them the review&#x27;s own question concerns. Each pooled outcome names one regimen, and that is what selects the arm.</small></td></tr>
+    <tr><td class='num'>23.3.4</td><td>How to include multiple groups from one study</td><td><small>Its prohibition on entering the same comparator group more than once, which it calls a unit-of-analysis error -- the reason a choice is compulsory here. Its four options, and its caveat against arbitrary pair-selection, are both recorded on the decision rather than omitted.</small></td></tr>
+    <tr><td class='num'>10.8</td><td>Meta-analysis of counts and rates</td><td><small>Establishes the RATE RATIO as the effect measure for count and rate data, combined as log rate ratios by the generic inverse-variance method. This is the measure and the method used for the RTS,S pooled result.</small></td></tr>
+    <tr><td class='num'>10.9</td><td>Meta-analysis of time-to-event outcomes</td><td><small>Establishes the HAZARD RATIO as the effect measure for time-to-event data, combined as log hazard ratios by the same generic method. This is the measure and method used for the R21 pooled result -- and it is a DIFFERENT measure from the one in section 10.8, which is why the two vaccines&#x27; results are not combined with each other.</small></td></tr>
+    <tr><td class='num'>10.6</td><td>Combining dichotomous and continuous outcomes</td><td><small>Read as the limiting case rather than as permission. Where the Handbook sanctions combining unlike measures it names the conversion; it provides one between odds ratios and standardised mean differences, and none between a hazard ratio and a rate ratio.</small></td></tr>
+    <tr><td class='num'>10.10.1</td><td>What is heterogeneity?</td><td><small>The distinction between clinical and methodological diversity on one hand and statistical heterogeneity on the other. Differences in follow-up length and in the fever criterion are documented as diversity rather than treated as disqualifying.</small></td></tr>
+    <tr><td class='num'>10.10.2</td><td>Identifying and measuring heterogeneity</td><td><small>The I-squared bands. Both pooled results here fall in the lowest band; the cross-vaccine combination that was removed fell in the highest.</small></td></tr>
+    <tr><td class='num'>10.10.3</td><td>Strategies for addressing heterogeneity</td><td><small>Its strategy &#x27;do not do a meta-analysis&#x27;, on the stated grounds that where results vary considerably an average may mislead. This is the authority for removing the cross-vaccine pooled figure. An earlier version called it the section&#x27;s FIRST-listed strategy; it is not. The section opens with &#x27;Check again that the data are correct&#x27;, and a review leg was right about the order. The chapter was reopened to confirm it before the claim was withdrawn, because that leg has been wrong about section content before and a track record is not evidence either way.</small></td></tr>
+    <tr><td class='num'>10.11</td><td>Investigating heterogeneity</td><td><small>Subgroup analysis as what REPLACES a combined estimate that should not be computed. Its subsection on whether the effect differs between subgroups says a FORMAL statistical approach SHOULD be used where subgroups are compared, and warns against comparing within-subgroup inferences such as P values. It does NOT ask that subgroups be left untested, and an earlier version of this entry said it did -- a reviewer called that a misrepresentation and was right. The strata here are reported and not compared for a reason that section supplies no remedy for: they carry DIFFERENT effect measures, a hazard ratio against a rate ratio, and the test it describes is a heterogeneity test across subgroup results, which presumes one measure. The comparison is declined because it cannot be made validly, NOT because the Handbook asks for it to be declined. This section is also NOT the authority for dropping the combined figure -- that is 10.10.3, and the two are easy to confuse.</small></td></tr>
+    <tr><td class='num'>10.2</td><td>Introduction to meta-analysis</td><td><small>What a meta-analysis IS -- the combination of results across studies -- and therefore why a row that only one cohort reports over its window is presented alone. It is cited where a measure-specific section would once have been: an earlier version cited the rate-ratio section beside a row that expressly declines to call its measure a rate ratio, and a reviewer was right that a section cannot govern a measure the row refuses to claim.</small></td></tr>
+    <tr><td class='num'>10.10.4</td><td>Incorporating heterogeneity into random-effects models</td><td><small>The choice of a random-effects model AND of the estimator for the between-study variance. The effect-measure sections do not govern either, which a reviewer pointed out. Its subsections carry the record that other estimators perform better than DerSimonian and Laird, which is why the headline here is restricted maximum likelihood, and the advice to compare the methods when there are only two or three studies. An earlier version of this sentence said &#x27;better than the one kept here&#x27;, which was true when DerSimonian and Laird was the headline and became false the moment it stopped being; a reviewer caught the remnant.</small></td></tr>
+    <tr><td class='num'>10.14</td><td>Sensitivity analyses</td><td><small>The requirement that a pooled result be shown robust to influential decisions. Both pooled outcomes carry a leave-one-out analysis testing the decision that was challenged in review.</small></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Sources</h2>
+  <table>
+    <tr><th>Layer</th><th>Source</th><th>How it was obtained</th></tr>
+    <tr><td>Prior published synthesis</td><td>Yousafzai MT, Sherali S, Asjad H, Sadiq MW, Siddiqui S, Taseen S, Qamar FN. Efficacy and immunogenicity of RTS,S/AS01 and R21/Matrix-M malaria vaccines: systematic review and meta-analysis. Journal of Infection and Public Health.<br><small>https://doi.org/10.1016/j.jiph.2026.103222</small></td><td><small>QUOTED: The publisher&#x27;s full text returned a Forbidden response and was NOT retrieved; no attempt was made to circumvent that. The abstract and the record on the authors&#x27; institutional open repository were read and are staged. Everything this object says about this review rests on that material, and the reconciliation says so rather than implying the full text was read.</small></td></tr>
+    <tr><td>Primary paper (PubMed Central full text)</td><td>Datoo MS et al. Efficacy of a low-dose candidate malaria vaccine, R21 in adjuvant Matrix-M, with seasonal administration to children in Burkina Faso: a randomised controlled trial. Lancet.<br><small>https://doi.org/10.1016/S0140-6736(21)00943-0</small></td><td><small>QUOTED: Open access full text retrieved from PubMed Central and staged with this object as a verbatim extract carrying the design, the estimand, the case definition and both efficacy analyses.</small></td></tr>
+    <tr><td>Primary paper (PubMed Central full text)</td><td>Datoo MS et al. Safety and efficacy of malaria vaccine candidate R21/Matrix-M in African children: a multicentre, double-blind, randomised, phase 3 trial. Lancet.<br><small>https://doi.org/10.1016/S0140-6736(23)02511-4</small></td><td><small>QUOTED: Open access full text retrieved from PubMed Central and staged with this object as a verbatim extract.</small></td></tr>
+    <tr><td>Primary paper (PubMed Central full text)</td><td>RTS,S Clinical Trials Partnership. Efficacy and safety of RTS,S/AS01 malaria vaccine with or without a booster dose in infants and children in Africa: final results of a phase 3, individually randomised, controlled trial. Lancet.<br><small>https://doi.org/10.1016/S0140-6736(15)60721-8</small></td><td><small>QUOTED: Open access full text retrieved from PubMed Central and staged with this object as a verbatim extract.</small></td></tr>
+    <tr><td>Primary paper (abstract)</td><td>Abstracts of the supporting trials: Bejon et al. and Chandramohan et al., both in the New England Journal of Medicine, and the second publication of the Datoo phase 2b cohort in Lancet Infectious Diseases.<br><small>https://pubmed.ncbi.nlm.nih.gov/</small></td><td><small>QUOTED: Abstracts retrieved from PubMed and staged verbatim. These trials are eligible and are carried as labelled rows; none enters a pooled estimate, and each row states why.</small></td></tr>
+    <tr><td>Primary paper (abstract, with a methods extract from the same cohort&#x27;s earlier full-text report)</td><td>Abstracts of the two further eligible RTS,S/AS01 cohorts: the fractional and delayed dose phase 2b trial in Ghana and Kenya, and the trial of the vaccine given alongside the expanded programme on immunisation in Ghana, Tanzania and Gabon.<br><small>https://pubmed.ncbi.nlm.nih.gov/</small></td><td><small>QUOTED: Abstracts retrieved from PubMed. For the fractional dose cohort the statistical model is quoted from the open access full text of the SAME cohort&#x27;s earlier report, because an abstract does not state a model and the model is what establishes that this row may be pooled with the phase 3 row at all.</small></td></tr>
+    <tr><td>Registry</td><td>ClinicalTrials.gov records for the included registrations.<br><small>https://clinicaltrials.gov/</small></td><td><small>QUOTED: Every registration named by this object was fetched from the ClinicalTrials.gov programmatic interface and staged beside it. Each payload identifies itself, so an identifier a reader sees is anchored to a record rather than merely well-formed. Where the registry posts participant flow, the analysed denominators on a row come from it.</small></td></tr>
+  </table>
+</div>
+
+<p><small>Every number on this page is projected from a single canonical object,
+and each measured cell names the source analysis it was read from. That is what
+is machine-checked. It does not establish that the underlying sources are right,
+only that this page faithfully reports them.</small></p>

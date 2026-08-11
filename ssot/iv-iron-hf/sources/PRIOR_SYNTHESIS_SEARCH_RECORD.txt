@@ -1,0 +1,203 @@
+PRIOR-SYNTHESIS AND COMPLETENESS SEARCH RECORD -- iv-iron-hf
+Run 2026-08-10. Every query below was actually executed on that date and its
+outcome is recorded whether or not it found anything.
+
+================================================================================
+1. THE LIVING-SEARCH DEFECT THIS RECORD EXISTS TO DOCUMENT
+================================================================================
+
+A drug-name-keyed ClinicalTrials.gov query CANNOT rediscover FAIR-HF2, which is
+the largest and most recent ferric carboxymaltose outcome trial in this review.
+
+Query actually run (2026-08-10), API v2:
+
+  query.cond      = heart failure
+  query.term      = AREA[InterventionName]("ferric carboxymaltose" OR
+                    "ferric derisomaltose" OR "iron isomaltoside" OR
+                    "intravenous iron" OR "iron sucrose" OR "ferumoxytol")
+  filter.advanced = AREA[DesignAllocation]RANDOMIZED
+
+  RESULT: 35 studies, 8 with enrolment >= 300. NCT03036462 (FAIR-HF2) ABSENT.
+
+The reason, read off the staged registry record NCT03036462.ctgov.json:
+
+  INTERVENTION: DRUG | Iron   | (no other names)
+  INTERVENTION: DRUG | Saline | (other name: "salin")
+
+The registry record names the drug only as "Iron". The trial is COMPLETED,
+PHASE4, RANDOMIZED, condition heart failure -- it passes a status filter, a
+phase filter and an allocation filter, and is still invisible, because no brand
+name and no INN appears in its intervention field at all.
+
+This matters beyond one trial. The shared-defect note for this batch attributes
+missed trials to COMPLETED-only filters, hardcoded drug whitelists and wrong
+population ontologies. None of those three explains this miss. A search keyed on
+ANY drug name -- however complete the whitelist -- misses this trial.
+
+Corrected query, also run 2026-08-10, keyed on the intervention CLASS:
+
+  query.cond      = heart failure
+  query.intr      = iron
+  filter.advanced = AREA[DesignAllocation]RANDOMIZED
+
+  RESULT: 52 studies. REDISCOVERY TEST, all five trials this review contains:
+
+    FOUND NCT03036462 FAIR-HF2    COMPLETED n=1105
+    FOUND NCT02937454 AFFIRM-AHF  COMPLETED n=1132
+    FOUND NCT02642562 IRONMAN     COMPLETED n=1160
+    FOUND NCT03037931 HEART-FID   COMPLETED n=3065
+    FOUND NCT01453608 CONFIRM-HF  COMPLETED n=304
+
+A search that cannot re-derive the review's own membership is not a completeness
+check, so this rediscovery test is the evidence behind this object's completeness
+statement rather than an assertion that a search was run.
+
+Note that the corrected query carries NO status filter and NO comparator
+requirement. A placebo requirement would exclude IRONMAN, whose comparator is
+usual care; a COMPLETED-only filter would drop the four ongoing trials below.
+
+================================================================================
+2. ONGOING OR NOT-YET-REPORTING TRIALS THE CORRECTED QUERY SURFACED
+================================================================================
+
+Enrolment >= 300, randomised, intravenous iron in heart failure, no results yet:
+
+  NCT07467668  RECRUITING          n=3000
+  NCT06929806  RECRUITING          n=1900  ferric derisomaltose vs no IV iron;
+                                           primary: cardiovascular deaths and
+                                           hospitalisations for worsening HF
+  NCT05759078  RECRUITING          n=1000  primary: time to all-cause death
+  NCT07686692  NOT_YET_RECRUITING  n=300   HFpEF; hierarchical composite primary
+
+  NCT03344523  UNKNOWN             n=600   ORAL iron protein succinylate --
+                                           fails the intravenous-route criterion
+
+================================================================================
+3. PRIOR SYNTHESES SEARCHED FOR AND FOUND
+================================================================================
+
+Both are staged and both are used, keyed by their OWN endpoint, effect measure
+and search window rather than mapped onto whatever outcome is on screen.
+
+GRAHAM 2023 -- Eur J Heart Fail 2023;25(4):528-537, PMID 36823953,
+doi 10.1002/ejhf.2810. Staged as abstract and as PMC10946839 full text.
+  search window: 1 January 2000 to 5 November 2022
+  ten trials, 3373 participants
+  Its two headline rows carry DIFFERENT effect measures:
+    recurrent HHF + CVD .... RATE RATIO 0.75 (0.61-0.93)
+    first HHF or CVD ....... ODDS RATIO 0.72 (0.53-0.99)
+  Its included list, read from its own Table 1 rather than from its count:
+    Toblli 2007, FERRIC-HF 2008, FAIR-HF 2009, CONFIRM-HF 2015, EFFECT-HF 2017,
+    PRACTICE-ASIA-HF 2018, AFFIRM-AHF 2020, Dhoot 2020, IRON-CRT 2021,
+    IRONMAN 2022.
+  Because its search closed in early November 2022 it CANNOT contain HEART-FID
+  (published August 2023) or FAIR-HF2 (published 2025). That is a fact about its
+  window, not a criticism of it.
+
+PONIKOWSKI 2023 -- Eur Heart J 2023;44(48):5077-5091, PMID 37632415,
+doi 10.1093/eurheartj/ehad586. Individual-patient-data meta-analysis.
+  three ferric carboxymaltose trials, 4501 patients, through 52 weeks,
+  negative binomial model
+  co-primary 1, total/recurrent CV hospitalisations and CV death:
+    RATE RATIO 0.86 (0.75-0.98)
+  co-primary 2, total HF hospitalisations and CV death:
+    RATE RATIO 0.87 (0.75-1.01)
+  Its patient total is exactly AFFIRM-AHF + CONFIRM-HF + HEART-FID.
+
+A third synthesis was located and read and is NOT used as a benchmark: a 2025
+systematic review with trial sequential analysis (PMC13108314). It is recorded
+here because it was read, and it is not stored because two prior syntheses
+already cover both effect-measure families with their own trial lists, and a
+third would add a benchmark without adding a distinct estimand.
+
+The "~0.84 (0.75-0.93) over 9 trials and 3337 participants" figure that an
+adversary brief attributed to a separate synthesis was searched for and NOT
+located. No value from it is stored anywhere in this object.
+
+================================================================================
+4. THE ONE CELL THAT COULD NOT BE SOURCED, AND EVERY PLACE IT WAS LOOKED FOR
+================================================================================
+
+HEART-FID's top secondary endpoint -- time to first cardiovascular death or
+hospitalisation for heart failure -- has a PRESPECIFIED DESIGN that is fully
+verified here, and a RESULT that no staged layer prints.
+
+VERIFIED, from the trial's own protocol and statistical analysis plan, posted by
+ClinicalTrials.gov and staged as CTGOV_HEARTFID_PROT_SAP.extract.txt:
+
+  "8.7.1 Top Secondary Comparison: Time to first event of cardiovascular death
+   or hospitalization of heart failure ... The Cox proportional hazards model
+   will be employed to conduct this comparison."
+  "Section 5.3.2: updated alpha for top secondary to 0.04 based on FDA feedback."
+
+An alpha of 0.04 on the top secondary is why an interval on this endpoint is a
+96% interval and not a 95% one. That is now a sourced design fact rather than a
+plausible-sounding inference -- but it is the DESIGN, not the RESULT.
+
+Retrieval attempts for the effect estimate itself, all made 2026-08-10:
+
+  New England Journal of Medicine full text ... paywalled; Europe PMC reports
+      isOpenAccess N, inEPMC N, no PMC identifier
+  ClinicalTrials.gov posted results ......... NCT03037931 posts THREE outcome
+      measures, all the components of the hierarchical primary, and NO analysis
+      block on any of them: deaths 131 vs 158, HF hospitalisations 297 vs 332,
+      6MWT change 8.179 vs 3.979. No hazard ratio is posted.
+  FDA label, Injectafer NDA 203565 s027 ..... section 14.2 is the only heart
+      failure efficacy section and it rests entirely on CONFIRM-HF's 6-minute
+      walk distance. A scan of the whole label for the strings "hazard",
+      "rate ratio", "odds ratio", "risk ratio", "win ratio" and "relative risk"
+      returns NOTHING. The regulator holds no clinical-event estimate for this
+      molecule at all.
+  Trial protocol and SAP ..................... design only, as above
+  American College of Cardiology trial summary  prints proportions 31.0% versus
+      32.2% and the words "not significant"; prints neither the ratio nor its
+      bounds, so it cannot yield the cell
+  Europe PMC open-access corpus .............. searched for open full texts
+      carrying both "HEART-FID" and "96%"; 33 hits read down, none restates the
+      estimate
+
+So the effect is NOT STORED. What is stored is the endpoint, its prespecified
+rank, its model, its alpha and therefore its interval level, together with this
+record of where it was looked for. An estimate available only through a summary
+that prints neither the ratio nor its interval is exactly the "a value is not a
+cell" trap this batch has already been caught by more than once.
+
+================================================================================
+5. REGULATOR LAYER -- WHAT EACH AGENCY ACTUALLY HOLDS
+================================================================================
+
+UNITED STATES, ferric carboxymaltose (Injectafer, NDA 203565, label revised
+01/2025, staged as FDA_LABEL_INJECTAFER.extract.txt). There IS a heart failure
+indication and it is narrower than a reader would guess:
+
+  "iron deficiency in adult patients with heart failure and New York Heart
+   Association class II/III to improve exercise capacity."
+
+Section 14.2 "Iron Deficiency in Heart Failure" rests on ONE trial, CONFIRM-HF,
+and on ONE endpoint, the 6-minute walk distance. FAIR-HF, CONFIRM-HF and
+AFFIRM-AHF appear elsewhere in the label only in the SAFETY section, as a pooled
+exposure of 1,016 patients against 857. No clinical-event effect estimate for
+any endpoint appears anywhere in the document.
+
+UNITED STATES, ferric derisomaltose (Monoferric, NDA 208171 s003, staged as
+FDA_LABEL_MONOFERRIC.extract.txt). The string "heart failure" does not occur in
+the label at all. The indication is iron deficiency anaemia only.
+
+EUROPE. Neither product is centrally authorised, so no European Public
+Assessment Report exists to check. Probed 2026-08-10:
+
+  .../medicines/human/EPAR/ferinject ......... HTTP 404
+  .../medicines/human/EPAR/monofer ........... HTTP 404
+  EMA site search, scripted request .......... HTTP 401
+
+Ferinject was registered through the DECENTRALISED procedure (SE/H/1816/001/DC,
+from 6 July 2007), which produces national marketing authorisations and national
+public assessment reports rather than an EPAR. What the EMA does hold for this
+molecule class is a completed Article 31 referral on intravenous
+iron-containing medicinal products, staged here as
+EMA_IV_IRON_ART31_ANNEX1.pdf, which concerns hypersensitivity risk and carries
+no efficacy assessment of any heart failure endpoint.
+
+So the European layer is recorded not_available for every efficacy cell in this
+object, and the reason is a fact about the AUTHORISATION ROUTE rather than about
+the agency's silence.

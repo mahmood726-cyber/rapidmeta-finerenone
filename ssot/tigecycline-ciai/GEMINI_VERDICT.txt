@@ -1,0 +1,33 @@
+===== PASS SOURCE =====
+[attempt 1: exit 0, 99s, 2937 chars, usable]
+NONCE: tigecycline-ciai-22d1a218
+
+VALIDATOR: I read the canonical JSON file `F:\claude-temp\ssot\canonical\tigecycline-ciai.json` and the source extract file `F:\claude-temp\ssot\sources\tigecycline-ciai\TIGE-ciai.extract.txt`.
+
+VALIDATOR: For `study-301`, I checked the stored effect against the source quote. The JSON stores treatment cured 199 of 247, and control cured 210 of 255 for the microbiologically evaluable group at the TOC visit. This matches the extract S1 exactly. I recomputed the risk ratio of clinical cure: (199/247) / (210/255) = 0.8057 / 0.8235 = 0.9783. The object's stored point estimate of 0.9783 is correct. The object correctly notes that since the ratio is below 1, tigecycline cured fewer evaluable participants. The `other_population_not_pooled_here` m-mITT counts (227/309 and 244/312) also match extract S2 exactly.
+
+VALIDATOR: For `study-316`, the JSON stores treatment cured 45 of 52, and control cured 47 of 48 for the microbiologically evaluable population at TOC. This matches extract S4 exactly. I recomputed the risk ratio: (45/52) / (47/48) = 0.8654 / 0.9792 = 0.8838. The object's point estimate of 0.8838 is correct, and the direction is correct. The `other_population_not_pooled_here` m-mITT counts (49/60 and 50/55) also match S4 exactly.
+
+VALIDATOR: For `study-b1811185`, the JSON stores derived counts for the microbiologically evaluable population at TOC: treatment cured 110 of 125, and control cured 102 of 107. The quoted registry output (S19/S7) provides percentages: 88.0% of 125 for tigecycline and 95.3% of 107 for imipenem/cilastatin. I recomputed the derivation: 0.880 * 125 = 110, and 0.953 * 107 = 101.971 (which correctly rounds to the nearest integer 102, as 102/107 = 95.327%, printing back as 95.3%). The magnitude and derived counts are exactly correct. I recomputed the risk ratio from the counts: (110/125) / (102/107) = 0.880 / 0.9533 = 0.9231. The point estimate is correct. The `other_population_not_pooled_here` plain mITT counts are derived from 82.8% of 232 (which is 192.096, matching the stored 192) and 88.7% of 231 (which is 204.897, matching the stored 205), exactly conforming with extract S20.
+
+VALIDATOR: I verified that the quoted sentences assert exactly what the rows claim. Each quote explicitly confirms the correct groups (tigecycline vs imipenem/cilastatin), the correct follow-up window (TOC / test-of-cure), and the correct analysis populations (ME and mITT / plain mITT). No row mistakenly pulls figures from a different intervention arm.
+
+VALIDATOR: I verified all metadata, enrolment counts, and scope exclusions. S12 confirms the excluded cSSSI indication. S13 confirms the excluded ceftriaxone comparator. S10/S11 confirms the pooled study 3074A1-306 publishes only pooled figures across both trials, matching the object's claim that adding them would double-count study-301. All claims correspond precisely with their sources. 
+
+VERDICT: PASS
+
+
+===== PASS JUDGE =====
+[attempt 1: exit 0, 103s, 1701 chars, usable]
+NONCE: tigecycline-ciai-22d1a218
+
+The evaluation of the canonical object `F:\claude-temp\ssot\canonical\tigecycline-ciai.json` is complete based on the required five criteria:
+
+1. **ESTIMAND**: The rows pooled in the primary outcome share a consistent estimand (Microbiologically Evaluable, test-of-cure visit), and alternative analysis populations (mITT) are held separately for sensitivity analyses.
+2. **SHARED CONTROLS**: There is no reuse of control groups. Each trial (NCT00081744, NCT00136201, NCT01721408) contributes a distinct pair of active arms to the pooled synthesis. 
+3. **COMPLETENESS**: The completeness statement is factually supported. The trials excluded by scope are genuinely studying a different indication (skin/skin-structure) or a different comparator (ceftriaxone). The "eligible but not contributing" study (3074A1-306) is correctly identified and prevented from being double-counted via its pooled report.
+4. **CORRECTIONS AND RECONCILIATION**: The reconciliation block against the two published networks (SR_ZHANG2019_NMA and SR_2023_CIAI_NMA) is fair and supported by the staged XML full texts. The object accurately reflects the larger synthesis's stated extraction policy (modified intention-to-treat preference) and admits its own limitations in not having per-trial arm breakdowns from the networks.
+5. **HANDBOOK CONFORMANCE**: The citations to the Cochrane Handbook 6.5.1 are accurate and appropriately justify the methodological decisions, such as using 4.6.3 to justify not excluding a study solely due to missing outcome data, and 10.10.4 to justify the choice of estimator for random-effects meta-analysis and the need for sensitivity analysis.
+
+VERDICT: PASS
+

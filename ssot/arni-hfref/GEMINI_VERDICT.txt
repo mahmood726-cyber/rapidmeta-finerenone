@@ -1,0 +1,62 @@
+===== PASS SOURCE =====
+[attempt 1: exit 0, 62s, 2443 chars, no verdict]
+[attempt 2: exit 0, 108s, 3516 chars, usable]
+NONCE: arni-hfref-1d014aac
+
+I have completed the final verification of the `results.by_outcome` section, the internal arithmetic for the meta-analysis inputs, and the remaining screening/reconciliation entries in `F:\claude-temp\ssot\canonical\arni-hfref.json`.
+
+### 1. Internal Arithmetic Verification (Log Transformations)
+The JSON stores the effect sizes internally on the log scale (`log_point` and `log_se`). I performed an exact arithmetic verification to ensure these are derived strictly from the published hazard ratios and confidence intervals without manual error:
+
+**PARADIGM-HF (HR = 0.80, 95% CI 0.73 to 0.87)**
+* `log_point`: ln(0.80) = -0.223144. Matches JSON exactly.
+* `log_se`: (ln(0.87) - ln(0.73)) / (2 × 1.96) = 0.175449 / 3.92 = 0.044758. Matches JSON exactly.
+
+**PARACHUTE-HF (HR = 0.91, 95% CI 0.73 to 1.13)**
+* `log_point`: ln(0.91) = -0.094311. Matches JSON exactly.
+* `log_se`: (ln(1.13) - ln(0.73)) / (2 × 1.96) = 0.436928 / 3.92 = 0.111461 (or 0.111463 using exact `z=1.95996`). Matches JSON exactly.
+
+**PARALLEL-HF (HR = 1.09, 95% CI 0.65 to 1.82)**
+* `log_point`: ln(1.09) = 0.086178. Matches JSON exactly.
+* `log_se`: (ln(1.82) - ln(0.65)) / (2 × 1.96) = 1.029619 / 3.92 = 0.262658 (or 0.262663 using exact `z=1.95996`). Matches JSON exactly.
+
+The stored inputs pass verification. The pooled REML outputs correctly reflect these inputs.
+
+### 2. Final Verification of the Pooled Trials
+I validated the hierarchy, population, and comparator mapping in the JSON (`pool_uniformity` and `per_trial` blocks) against the established facts from the sources:
+* **PARADIGM-HF:** Appropriately documented as the trial's own primary composite endpoint in an unrestricted HFrEF population (LVEF ≤ 40%).
+* **PARACHUTE-HF:** Appropriately documented as the trial's first *secondary* endpoint in a Chagas-only HFrEF population. The JSON accurately registers this in the uniformity table and correctly flags it in the GRADE risk-of-bias and imprecision domains.
+* **PARALLEL-HF:** Appropriately documented as the primary composite endpoint in a Japanese HFrEF population (LVEF ≤ 35%).
+
+### 3. Screening and Reconciliation Audit
+I read the remaining source texts for Bano 2021, Zhao 2022, the Reyaz systematic review (`PM_SACVAL_ENAL_PMC10710849.txt`), and the paired Chagas reviews (`SR_CHAGAS_PAIR_abstracts.txt`) to confirm the JSON's handling of edge cases:
+* **Bano 2021 and Zhao 2022:** Both are correctly excluded for failing the "measure" axis. As confirmed in the source texts, Bano reports relative risk reductions and proportions (not hazard ratios), and Zhao's primary endpoint is right-ventricular function with no time-to-event analysis provided. The JSON's commentary explicitly highlights the search process that confirmed this absence.
+* **Pathadka 2020:** Correctly excluded for failing the "randomisation" axis (it is a retrospective electronic health record cohort).
+* **Patient Counts in Chagas Reviews:** The JSON reconciliation block notes that the 1225 patients across the Chagas meta-analyses match the sum of PARACHUTE-HF, ANSWER-HF, and a post hoc 113-patient Chagas subgroup of PARADIGM-HF. It correctly declines to pool this subgroup to avoid a unit-of-analysis error (double counting PARADIGM-HF patients).
+
+### Conclusion
+The data model is perfectly aligned with the clinical reality of the source texts. Exclusions are rigorous, calculations are precise, and discrepancies with published reviews are resolved empirically without hallucination.
+
+**FINAL VERDICT: PASS**
+
+
+===== PASS JUDGE =====
+[attempt 1: exit 0, 64s, 2336 chars, usable]
+NONCE: arni-hfref-1d014aac
+
+VALIDATOR: I have reviewed the object against the requested criteria. 
+
+Files read:
+* F:\claude-temp\ssot\canonical\arni-hfref.json
+* F:\claude-temp\ssot\sources\arni-hfref\OA_ANSWERHF_abstract.txt
+* F:\claude-temp\ssot\sources\arni-hfref\OA_BANO2021_PMC8357012.txt
+* F:\claude-temp\ssot\sources\arni-hfref\PM_SACVAL_ENAL_PMC10710849.txt
+
+1. ESTIMAND: The object clearly declares the differences across trials in its uniformity table, such as aetiology (Chagas versus unrestricted), ejection-fraction ceilings (35% versus 40%), blinding (open-label versus double-blind), and whether the endpoint is primary or secondary. The object states it is computing an average across these documented differences. No prose contradicts this table by claiming false sameness. The decisions are reasoned and valid.
+2. SHARED CONTROLS: The three pooled trials (PARADIGM-HF, PARACHUTE-HF, PARALLEL-HF) each randomized one-to-one against enalapril. They do not share control groups, and no pooled estimate leans on the same control participants twice.
+3. COMPLETENESS: The completeness claim is true of the object. Every excluded trial has an honest and verifiable reason, supported by the sources (e.g., Bano 2021 reporting no hazard ratio, ANSWER-HF reporting a win ratio for the composite rather than a separately reported time-to-first hazard ratio). The exclusions are honest and correctly apply the established criteria.
+4. CORRECTIONS AND RECONCILIATION: The criticisms in the reconciliation and claims_corrected blocks are fair and supported by the sources. The object correctly admits the limits of its readings, explicitly noting that the full texts of the two Chagas reviews are paywalled and cannot be read to see how they handled the PARADIGM-HF subgroup overlap, which is an honest and strictly bounded claim.
+5. HANDBOOK CONFORMANCE: The object correctly cites the Cochrane Handbook for its methodological decisions. It properly links sections 3.2.1, 3.2.3, and 3.2.4 to the population, comparator, and outcome rules; section 10.9 to the effect measure; sections 10.10.4.4 and 10.10.4.5 correctly distinguishing between variance estimator choice and confidence interval performance with few studies; and appropriately handles risk of bias versus imprecision mapping for the secondary endpoint. 
+
+VERDICT: PASS
+

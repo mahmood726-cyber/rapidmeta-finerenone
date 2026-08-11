@@ -1,0 +1,63 @@
+NONCE: sglt2-hf-4d5a9a5f
+
+Gate review of `canonical/sglt2-hf.json`.
+
+Findings:
+No OBJECT or VALIDATOR defects found.
+
+Audit notes:
+- The four pooled trial effects are stored as published hazard ratios, not derived efficacy ratios: DAPA-HF 0.74 (0.65 to 0.85), EMPEROR-Reduced 0.75 (0.65 to 0.86), EMPEROR-Preserved 0.79 (0.69 to 0.90), and DELIVER 0.82 (0.73 to 0.92). The quoted source sentences beside each cell match the staged primary abstracts.
+- The pooled result documents the endpoint-definition split where the reader meets the pooled number: the result handbook block and `pool_uniformity.outcome_definition` state that the two dapagliflozin trials count urgent HF visits and the two empagliflozin trials do not. I found no object prose claiming one shared endpoint definition.
+- SOLOIST-WHF's recurrent-event HR 0.67 (0.52 to 0.85) is not stored as a poolable effect; it appears only in screening narrative with the recurrent-event warning, and the object does not claim an automated detector would catch it.
+- SCORED is excluded on population alone while quoting the exact first-event endpoint HR 0.77 (0.66 to 0.91); I did not find it misdescribed as a measure failure.
+- FDA cells point to approved labels, not the staged CKD review. The absence probe supports the claim that no FDA review is published for the HF indications in the probed submissions.
+- Heterogeneity is reported as tau2 0 and I2 0 with the low-power caveat; leave-one-out and HKSJ intervals remain below the null. GRADE high is derived from the domain ratings rather than asserted nakedly.
+- Source cascade coverage is present for all four measured cells: primary OA, registry, FDA label, EMA product information, and prior synthesis, each dated. The prior-synthesis `not_available` entries are supported by the staged synthesis texts reporting harmonized pooled values rather than per-trial own-primary cells.
+- No shared-control double counting or randomisation duplication found.
+
+Validator:
+`python validate_v2.py canonical/sglt2-hf.json` returned `VALIDATOR CLEAN -- 41/41 detectors passed`.
+
+Files read:
+- `canonical/sglt2-hf.json`
+- `sources/sglt2-hf/EMA_FORXIGA_PI.extract.txt`
+- `sources/sglt2-hf/EMA_JARDIANCE_PI.extract.txt`
+- `sources/sglt2-hf/FDA_202293_202293Orig1s024MultidisciplineR.extract.txt`
+- `sources/sglt2-hf/FDA_LABEL_FARXIGA.extract.txt`
+- `sources/sglt2-hf/FDA_LABEL_JARDIANCE.extract.txt`
+- `sources/sglt2-hf/FDA_REVIEW_ABSENCE_PROBE.txt`
+- `sources/sglt2-hf/NCT03036124.ctgov.json`
+- `sources/sglt2-hf/NCT03057951.ctgov.json`
+- `sources/sglt2-hf/NCT03057977.ctgov.json`
+- `sources/sglt2-hf/NCT03315143.ctgov.json`
+- `sources/sglt2-hf/NCT03521934.ctgov.json`
+- `sources/sglt2-hf/NCT03619213.ctgov.json`
+- `sources/sglt2-hf/NCT04157751.ctgov.json`
+- `sources/sglt2-hf/OA_DAPA_HF_abstract.txt`
+- `sources/sglt2-hf/OA_DELIVER_abstract.txt`
+- `sources/sglt2-hf/OA_EMPEROR_PRESERVED_abstract.txt`
+- `sources/sglt2-hf/OA_EMPEROR_REDUCED_abstract.txt`
+- `sources/sglt2-hf/OA_EMPULSE_abstract.txt`
+- `sources/sglt2-hf/OA_EMPULSE_PMC8938265.txt`
+- `sources/sglt2-hf/OA_PM_JHUND2022_abstract.txt`
+- `sources/sglt2-hf/OA_PM_JHUND2022_PMC9499855.txt`
+- `sources/sglt2-hf/OA_PM_VADUGANATHAN2022_abstract.txt`
+- `sources/sglt2-hf/OA_PM_ZANNAD2020_abstract.txt`
+- `sources/sglt2-hf/OA_SCORED_abstract.txt`
+- `sources/sglt2-hf/OA_SOLOIST_WHF_abstract.txt`
+- `sources/sglt2-hf/PM_JHUND2022_abstract.txt`
+- `sources/sglt2-hf/PMID31535829.pubmed.xml`
+- `sources/sglt2-hf/PMID32865377.pubmed.xml`
+- `sources/sglt2-hf/PMID32877652.pubmed.xml`
+- `sources/sglt2-hf/PMID33200891.pubmed.xml`
+- `sources/sglt2-hf/PMID33200892.pubmed.xml`
+- `sources/sglt2-hf/PMID34449189.pubmed.xml`
+- `sources/sglt2-hf/PMID35228754.pubmed.xml`
+- `sources/sglt2-hf/PMID36027570.pubmed.xml`
+- `sources/sglt2-hf/PMID36030328.pubmed.xml`
+- `sources/sglt2-hf/PMID36041474.pubmed.xml`
+
+Validator executed, not source-reviewed:
+- `validate_v2.py`
+
+VERDICT: PASS

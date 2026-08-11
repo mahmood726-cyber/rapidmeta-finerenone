@@ -1,0 +1,47 @@
+NONCE: malaria-vaccines-d1a54ca9
+
+OBJECT findings: none.
+
+VALIDATOR findings: none. I ran `python validate_v2.py canonical/malaria-vaccines.json`; it reported `VALIDATOR CLEAN -- 37/37 detectors passed`.
+
+Checks performed:
+- Per-trial effects: all stored ratios match the staged source values. Efficacy-derived rows use `ratio = 1 - efficacy/100` with inverted confidence bounds; the active-comparator row stores the published `0.92 (95% CI 0.84 to 1.01)` ratio without converting it to vaccine efficacy.
+- Pooled estimates: recomputation from the row log effects and standard errors matches the object: R21 seasonal `HR 0.2167 (0.1753 to 0.2678)` and RTS,S recurrent children `IRR 0.6372 (0.5967 to 0.6805)`.
+- Estimand integrity: both pooled blocks declare `estimand_homogeneous_across_cohorts: false` and name the crossed dimensions. The R21 pool documents differences in analysis population, case definition, and rabies-vaccine product; the RTS,S pool documents follow-up-window and comparator-administration differences. I found no prose that still claims same-estimand homogeneity for those pools.
+- R21 age alignment: the pooled phase 3 row uses the staged 5-17 month seasonal subgroup, supported by the quoted source text `the younger age group had the highest 12-month vaccine efficacy on time to first clinical malaria episode at seasonal (79% [95% CI 73-84])`.
+- Shared controls and deduplication: no pooled estimate uses two contrasts sharing one control group, and no randomised cohort is represented more than once in a pooled estimate.
+- Reconciliation/completeness: the object's limited reconciliation against the 2026 synthesis is consistent with the staged abstract/repository extract and does not claim access to unavailable full text.
+- Handbook conformance: the cited Handbook sections support the decisions checked here: 10.8/10.9 for rate-ratio versus hazard-ratio handling, 10.10.1/10.14 for documented diversity plus sensitivity checks, 23.3.2/23.3.4 for multi-arm/shared-control handling, 4.6.1/4.6.2 for study-level deduplication, and 3.2.3 for active-comparator scope.
+
+Local files read:
+- `F:\ProjectIndex\INDEX.md`
+- `F:\E156\rewrite-workbook.txt`
+- `F:\claude-temp\ssot\canonical\malaria-vaccines.json`
+- `F:\claude-temp\ssot\validate_v2.py`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\added-cohorts.extract.txt`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\NCT00380393.ctgov.json`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\NCT00436007.ctgov.json`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\NCT00866619.ctgov.json`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\NCT03143218.ctgov.json`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\NCT03276962.ctgov.json`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\NCT03896724.ctgov.json`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\NCT04704830.ctgov.json`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\PMC5626001.rtss-phase3.extract.txt`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\PMC7618965.datoo2024.extract.txt`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\PMC8121760.datoo2021.extract.txt`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\PMID19064627.pubmed.xml`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\PMID21782519.pubmed.xml`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\PMID25913272.pubmed.xml`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\PMID33964223.pubmed.xml`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\PMID34432975.pubmed.xml`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\PMID38310910.pubmed.xml`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\PMID40975080.pubmed.xml`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\SR2026-qamar.extract.txt`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\supporting-trials.extract.txt`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\PMC5626001.rtss-phase3.extract.json`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\PMC8121760.datoo2021.extract.json`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\added-cohorts.extract.json`
+- `F:\claude-temp\ssot\sources\malaria-vaccines\SR2026-qamar.extract.json`
+
+External methodological sources consulted: Cochrane Handbook current Chapter 3, Chapter 4, Chapter 10, Chapter 23, and the Handbook versions-and-changes page.
+VERDICT: PASS

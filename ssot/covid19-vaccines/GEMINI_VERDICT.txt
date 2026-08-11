@@ -1,0 +1,247 @@
+GEMINI (agy) FILE-ACCESS VERDICTS -- covid19-vaccines, round 12
+commit:  dc4bb6daa159f5b4fbc41c5317ddfa5dddcee451
+round nonce (Codex leg): covid19-vaccines-4cfed46e
+model:   Gemini 3.1 Pro (High), google family. read_file only: no shell, no write
+         tool, so it cannot modify what it reviews and cannot run the validator.
+         Every arithmetic check below was done by reasoning.
+
+Cast on the object AFTER the two OBJECT defects the Codex leg found were fixed.
+The previous round's PASS/PASS was discarded rather than carried over: it was cast
+on 37068da and the object changed, so it no longer describes what would ship.
+
+The SOURCE leg is REPEATED because it is the leg with a history of returning PASS
+on one run and DEFECTS-FOUND on the next against identical input.
+
+Read the LAST 'VERDICT:' line of each leg; the prompt bodies quote both forms as
+a format specification.
+
+==========================================================================
+SOURCE leg, run 1
+terminal verdict: VERDICT: PASS
+==========================================================================
+
+### Files Inspected
+- `F:\claude-temp\ssot\canonical\covid19-vaccines.json`
+- `F:\claude-temp\ssot\sources\covid19-vaccines\INDEX.json`
+- `F:\claude-temp\ssot\sources\covid19-vaccines\NCT04324606.ctgov.json`
+- `F:\claude-temp\ssot\sources\covid19-vaccines\NCT04510207.ctgov.json`
+- `F:\claude-temp\ssot\sources\covid19-vaccines\NCT04530396.ctgov.json`
+- `F:\claude-temp\ssot\sources\covid19-vaccines\NCT04652102.ctgov.json`
+- `F:\claude-temp\ssot\sources\covid19-vaccines\PMC9726273.cochrane-SOF-extract.txt`
+- `F:\claude-temp\ssot\sources\covid19-vaccines\PMC9726273.cochrane.xml`
+- `F:\claude-temp\ssot\sources\covid19-vaccines\PMID33306989.pubmed.xml`
+- `F:\claude-temp\ssot\sources\covid19-vaccines\PMID33545094.pubmed.xml`
+- `F:\claude-temp\ssot\sources\covid19-vaccines\PMID34037666.pubmed.xml`
+- `F:\claude-temp\ssot\sources\covid19-vaccines\PMID34826381.pubmed.xml`
+
+---
+
+### (A) Numeric Cell Verification
+
+#### 1. Gam-COVID-Vac interim analysis (`Sputnik-V-phase3`)
+- **Identifiers**: `NCT04530396` verified in `NCT04530396.ctgov.json` (line 4) and `PMID33545094.pubmed.xml` (line 4); `PMID33545094` verified in `PMID33545094.pubmed.xml` (line 4).
+- **Counts**: Treatment (Gam-COVID-Vac) events = 16, $n = 14964$; Control (placebo) events = 62, $n = 4902$. Confirmed in `PMID33545094.pubmed.xml` line 4 ("`16 (0·1%) of 14 964 participants in the vaccine group and 62 (1·3%) of 4902 in the placebo group`", XML uses thin space entity `14&#x2008;964`).
+- **Enrolment figures**: Enrolled in published interim analysis = 21977, confirmed in `PMID33545094.pubmed.xml` line 4 ("`21 977 adults were randomly assigned`"). Registry actual enrolment = 33758, confirmed in `NCT04530396.ctgov.json` line 46 (`"count": 33758, "type": "ACTUAL"`) and `INDEX.json` line 8.
+- **Crude Risk Ratio**: Point = 0.0845 (exact: $\frac{16/14964}{62/4902} = 0.084538$), 95% CI = [0.0488, 0.1463] (log-scale normal approximation: $\ln(RR) \pm 1.96 \sqrt{1/16 - 1/14964 + 1/62 - 1/4902} = -2.4706 \pm 0.5487 \Rightarrow [0.04884, 0.14632]$).
+
+#### 2. HERALD / CVnCoV phase 2b/3 (`HERALD`)
+- **Identifiers**: `NCT04652102` verified in `NCT04652102.ctgov.json` (line 4) and `PMID34826381.pubmed.xml` (line 4); `PMID34826381` verified in `PMID34826381.pubmed.xml` (line 4).
+- **Counts**: Treatment (CVnCoV) events = 83, $n = 12851$; Control (placebo) events = 145, $n = 12211$. Confirmed in `PMID34826381.pubmed.xml` line 4 ("`83 cases of COVID-19 occurred in the CVnCoV group (n=12 851) ... and 145 cases occurred in the placebo group (n=12 211)`", XML uses thin space entity `12&#x2009;851`).
+- **Enrolment figures**: Enrolled = 39680, confirmed in `PMID34826381.pubmed.xml` line 4 ("`39 680 participants were enrolled and randomly assigned`") and `NCT04652102.ctgov.json` line 50. Dosed = 39540, confirmed in `NCT04652102.ctgov.json` lines 217 & 456 (`Safety Analysis Set / BG002 Total = 39540`).
+- **Crude Risk Ratio**: Point = 0.5439 (exact: $\frac{83/12851}{145/12211} = 0.543907$), 95% CI = [0.4158, 0.7115] (log-scale normal approximation: $\ln(RR) \pm 1.96 \sqrt{1/83 - 1/12851 + 1/145 - 1/12211} = -0.6090 \pm 0.2686 \Rightarrow [0.41578, 0.71153]$).
+
+#### 3. Inactivated vaccine phase 3, HB02 group (`BBIBP-CorV-phase3`)
+- **Identifiers**: `NCT04510207` verified in `NCT04510207.ctgov.json` (line 4) and `PMID34037666.pubmed.xml` (line 4); `PMID34037666` verified in `PMID34037666.pubmed.xml` (line 4).
+- **Counts**: Treatment (HB02) events = 21, $n = 13465$ (randomised group size); Control (alum-only) events = 95, $n = 13458$ (randomised group size). Confirmed in `PMID34037666.pubmed.xml` line 4 ("`HB02 (4 µg/dose; n = 13 465)`", "`aluminum hydroxide (alum)-only control (n = 13 458)`", "`21 in the HB02 group`", "`95 in the alum-only group`").
+- **Enrolment figures**: Publication randomised = 40382, confirmed in `PMID34037666.pubmed.xml` line 4 ("`Among 40 382 participants randomized`"). Registry actual enrolment = 44101, confirmed in `NCT04510207.ctgov.json` line 46 (`"count": 44101, "type": "ACTUAL"`) and `INDEX.json` line 24.
+- **Trial-reported rates**: HB02 = 9.8 per 1000 person-years, Alum control = 44.7 per 1000 person-years, confirmed in `PMID34037666.pubmed.xml` line 4.
+- **Risk Ratio**: Not computed due to population mismatch (events from primary efficacy population $N=38206$, denominators are randomised group sizes), as explicitly recorded in the object.
+
+#### 4. Exclusion & Removal Citations
+- `NCT04324606`: Organization study ID `COV001` with actual enrolment 1077 in `NCT04324606.ctgov.json` (lines 6, 89). PMID 33306989 (`PMID33306989.pubmed.xml` line 4) reports pooled interim counts across four trials ($30/5807$ vs $101/5829$). Correctly removed for units-of-analysis error.
+- All numbers in `removed_citations` (total_cited = 12, removed = 9, retained = 3) match the itemised categories ($7 + 1 + 1 = 9$).
+
+---
+
+### (B) Registration and Arm Assignment Verification
+
+- **Sputnik-V-phase3** (`NCT04530396`): Registration title "Clinical Trial of Efficacy, Safety, and Immunogenicity of Gam-COVID-Vac Vaccine Against COVID-19" (`NCT04530396.ctgov.json` line 12). Treatment arm is "Primary Group" (Gam-COVID-Vac vector vaccine, line 53); control arm is "Control Group" (placebo, line 61).
+- **HERALD** (`NCT04652102`): Registration title "A Phase 2b/3... Study Evaluating the Efficacy and Safety of... CVnCoV in Adults..." (`NCT04652102.ctgov.json` line 18). Treatment arm is "CVnCoV vaccine" (line 57 & 73); control arm is "Placebo" (line 65 & 81).
+- **BBIBP-CorV-phase3** (`NCT04510207`): Registration title "A Study to Evaluate The Efficacy, Safety and Immunogenicity of Inactivated SARS-CoV-2 Vaccines..." (`NCT04510207.ctgov.json` line 12). Treatment arm assigned is "Investigational Vaccine 2" (HB02 strain, line 61); control arm is "Placebo" (aluminum hydroxide, line 69).
+
+---
+
+### (C) Reference Systematic Review Figures Verification
+
+Reference systematic review source: `COCHRANE_GRANA` (`PMC9726273.cochrane.xml` / `PMC9726273.cochrane-SOF-extract.txt`).
+
+- **Gam-COVID-Vac**: Recorded VE = 91.10% (95% CI: 83.80% to 95.10%), analysis population = 18695. Confirmed in `PMC9726273.cochrane-SOF-extract.txt` lines 20 & 22 ("`VE 91.10 (83.80 to 95.10) 18,695 (1 RCT)`"). The object correctly notes that Cochrane's 18,695 differs from the 19,866 primary efficacy cohort ($14964 + 4902$) in Logunov 2021.
+- **HERALD (CVnCoV)**: Recorded VE = 48.20% (95% CI: 31.70% to 60.90%), analysis population = 25062. Confirmed in `PMC9726273.cochrane-SOF-extract.txt` lines 28 & 30 ("`VE 48.20 (31.70 to 60.90) 25,062 (1 RCT)`"). The object correctly notes that Kremsner 2021 analysed cases per person-years whereas the object's crude RR ignores time at risk.
+- **BBIBP-CorV (HB02)**: Recorded VE = 78.10% (95% CI: 64.80% to 86.30%), analysis population = 25463. Confirmed in `PMC9726273.cochrane-SOF-extract.txt` lines 36 & 38 ("`VE 78.10 (64.80 to 86.30) 25,463 (1 RCT)`").
+
+The reference figures match the Cochrane review, and the object's accompanying notes accurately describe the population and estimand differences without over-claiming or misrepresenting the crude trial data.
+
+---
+
+VERDICT: PASS
+
+==========================================================================
+SOURCE leg, run 2 (repeat, for the known flakiness on this leg)
+terminal verdict: VERDICT: PASS
+==========================================================================
+
+### Files Read
+
+1. `F:\claude-temp\ssot\canonical\covid19-vaccines.json`
+2. `F:\claude-temp\ssot\sources\covid19-vaccines\INDEX.json`
+3. `F:\claude-temp\ssot\sources\covid19-vaccines\NCT04324606.ctgov.json`
+4. `F:\claude-temp\ssot\sources\covid19-vaccines\NCT04510207.ctgov.json`
+5. `F:\claude-temp\ssot\sources\covid19-vaccines\NCT04530396.ctgov.json`
+6. `F:\claude-temp\ssot\sources\covid19-vaccines\NCT04652102.ctgov.json`
+7. `F:\claude-temp\ssot\sources\covid19-vaccines\PMC9726273.cochrane-SOF-extract.txt`
+8. `F:\claude-temp\ssot\sources\covid19-vaccines\PMC9726273.cochrane.xml`
+9. `F:\claude-temp\ssot\sources\covid19-vaccines\PMID33306989.pubmed.xml`
+10. `F:\claude-temp\ssot\sources\covid19-vaccines\PMID33545094.pubmed.xml`
+11. `F:\claude-temp\ssot\sources\covid19-vaccines\PMID34037666.pubmed.xml`
+12. `F:\claude-temp\ssot\sources\covid19-vaccines\PMID34826381.pubmed.xml`
+
+---
+
+### Verification Findings
+
+#### (A) Per-Arm Event Counts, Denominators, Identifiers, and Calculations
+
+1. **Gam-COVID-Vac / Sputnik V (`Sputnik-V-phase3`)**
+   - **Identifiers**: `NCT04530396` confirmed in `NCT04530396.ctgov.json` and `PMID33545094.pubmed.xml`; `PMID33545094` confirmed in `PMID33545094.pubmed.xml`.
+   - **Counts & Denominators**: Vaccine events `16`, vaccine $N$ `14964`, placebo events `62`, placebo $N$ `4902`. Confirmed in `PMID33545094.pubmed.xml` (`"16 (0·1%) of 14 964 participants in the vaccine group and 62 (1·3%) of 4902 in the placebo group"`).
+   - **Enrolment Numbers**: Enrolled `21977` confirmed in `PMID33545094.pubmed.xml` (`"21 977 adults were randomly assigned"`); `registry_enrolment` `33758` confirmed in `NCT04530396.ctgov.json` (`"count": 33758, "type": "ACTUAL"`).
+   - **Crude RR & 95% CI**: Crude RR = $(16/14964) / (62/4902) = 0.084538... \approx 0.0845$; log scale normal approximation 95% CI = $[0.0488, 0.1463]$. All figures match `covid19-vaccines.json`.
+
+2. **CVnCoV / HERALD (`HERALD`)**
+   - **Identifiers**: `NCT04652102` confirmed in `NCT04652102.ctgov.json` and `PMID34826381.pubmed.xml`; `PMID34826381` confirmed in `PMID34826381.pubmed.xml`.
+   - **Counts & Denominators**: Vaccine events `83`, vaccine $N$ `12851`, placebo events `145`, placebo $N$ `12211`. Confirmed in `PMID34826381.pubmed.xml` (`"83 cases of COVID-19 occurred in the CVnCoV group (n=12 851)... and 145 cases occurred in the placebo group (n=12 211)"`).
+   - **Enrolment & Dosed Numbers**: Enrolled `39680` confirmed in `PMID34826381.pubmed.xml` (`"39 680 participants were enrolled"`) and `NCT04652102.ctgov.json` (`"count": 39680`); dosed `39540` confirmed in `NCT04652102.ctgov.json` (`"39540 participants received at least one dose vaccine"`).
+   - **Crude RR & 95% CI**: Crude RR = $(83/12851) / (145/12211) = 0.543906... \approx 0.5439$; log scale normal approximation 95% CI = $[0.4158, 0.7115]$. All figures match `covid19-vaccines.json`.
+
+3. **Inactivated Vaccine HB02 (`BBIBP-CorV-phase3`)**
+   - **Identifiers**: `NCT04510207` confirmed in `NCT04510207.ctgov.json` and `PMID34037666.pubmed.xml`; `PMID34037666` confirmed in `PMID34037666.pubmed.xml`.
+   - **Counts & Denominators**: HB02 events `21`, HB02 $N$ `13465`, alum-only events `95`, alum-only $N$ `13458`. Confirmed in `PMID34037666.pubmed.xml` (`"HB02 (4 µg/dose; n = 13 465)"`, `"alum-only control (n = 13 458)"`, `"21 in the HB02 group... 95 in the alum-only group"`).
+   - **Incidence Rates**: Treatment rate `9.8` per 1000 person-years, control rate `44.7` per 1000 person-years. Confirmed in `PMID34037666.pubmed.xml`.
+   - **Enrolment Numbers**: Enrolled `40382` confirmed in `PMID34037666.pubmed.xml` (`"40 382 participants randomized"`); `registry_enrolment` `44101` confirmed in `NCT04510207.ctgov.json` (`"count": 44101, "type": "ACTUAL"`).
+
+4. **Units-of-Analysis Excluded Trial (`NCT04324606`)**
+   - Verified in `NCT04324606.ctgov.json` (Phase I/II COV001 trial, actual enrolment `1077`) and `PMID33306989.pubmed.xml` (pooled interim analysis of 4 trials containing 5807 vs 5829 participants across 2 standard dose arms).
+
+---
+
+#### (B) Trial Identity and Arm Role Confirmation
+
+- **Sputnik-V-phase3**: `NCT04530396.ctgov.json` lists `"Primary Group"` (EXPERIMENTAL, Gam-COVID-Vac) and `"Control Group"` (PLACEBO_COMPARATOR, placebo). Treatment and control designations are correct.
+- **HERALD**: `NCT04652102.ctgov.json` lists CVnCoV vaccine (EXPERIMENTAL) and Placebo (PLACEBO_COMPARATOR). Treatment and control designations are correct.
+- **BBIBP-CorV-phase3**: `NCT04510207.ctgov.json` lists `"Investigational Vaccine 2"` (EXPERIMENTAL, BIBP/HB02) and `"Placebo"` (PLACEBO_COMPARATOR, alum-only control). Treatment and control designations are correct.
+
+---
+
+#### (C) Reference Systematic Review Figures (Cochrane Grana et al. PMC9726273)
+
+- **Gam-COVID-Vac**: Recorded reference VE `91.1%` (95% CI: `83.8%` to `95.1%`), $N = 18695$. Confirmed present in `PMC9726273.cochrane-SOF-extract.txt` and `PMC9726273.cochrane.xml`.
+- **CVnCoV / HERALD**: Recorded reference VE `48.2%` (95% CI: `31.7%` to `60.9%`), $N = 25062$. Confirmed present in `PMC9726273.cochrane-SOF-extract.txt` and `PMC9726273.cochrane.xml`.
+- **BBIBP-CorV**: Recorded reference VE `78.1%` (95% CI: `64.8%` to `86.3%`), $N = 25463$. Confirmed present in `PMC9726273.cochrane-SOF-extract.txt` and `PMC9726273.cochrane.xml`.
+
+The object records these reference values strictly as external comparison figures and explicitly carries no pooled synthesis (`"pooled": null`, `"estimator": "none (no synthesis)"`).
+
+VERDICT: PASS
+
+==========================================================================
+JUDGE leg
+terminal verdict: VERDICT: DEFECTS-FOUND
+==========================================================================
+
+### Files Read
+- `F:\claude-temp\ssot\canonical\covid19-vaccines.json`
+- `F:\claude-temp\ssot\validate_v2.py`
+
+---
+
+### (A) IS DECLINING TO POOL THE RIGHT CALL, OR A DODGE?
+Declining to pool across the three vaccine trials is the **methodologically correct decision**, not a dodge.
+
+**Rationale:**
+Synthesizing Gam-COVID-Vac (Sputnik V, viral vector), CVnCoV (HERALD, mRNA), and BBIBP-CorV (inactivated virus) into a single summary risk ratio would violate fundamental meta-analytic principles of clinical and methodological homogeneity. These trials evaluated distinct vaccine platforms, operating with different case definitions, conducted across different geographic regions and time periods with differing baseline transmission rates and circulating SARS-CoV-2 variants. Combining them into one global "COVID-19 vaccine risk ratio" would generate a clinically meaningless composite effect size. The benchmark Cochrane review (Grana et al., 2022) similarly presents efficacy per vaccine candidate/platform rather than pooling across distinct technologies. Removing the pooled estimate rather than publishing an invalid summary statistic with a disclaimer is the proper epidemiological practice.
+
+---
+
+### (B) COMPLETENESS
+The disclosure of incompleteness and availability bias is **adequate and prominent**.
+
+**Quoted Wording:**
+1. `covid19-vaccines.json` (line 5):
+   > `"For each COVID-19 vaccine whose trial data could be sourced here, what was the risk of symptomatic laboratory-confirmed COVID-19 relative to placebo in its own trial? This is a per-vaccine snapshot of the sourceable trials. It is NOT a systematic review of COVID-19 vaccine evidence, and it does not combine vaccines. Most vaccines absent from it are absent because their counts could not be sourced here rather than because they were assessed and excluded."`
+2. `covid19-vaccines.json` (line 312):
+   > `"This is a real limitation and a source of availability bias: the analysis is a convenience sample of what could be verified, NOT a systematic review of all evidence, and must not be read as one."`
+3. `covid19-vaccines.json` (line 349):
+   > `"completeness_statement": "INCOMPLETE BY CONSTRUCTION. The source app cited {rm.total_cited} registrations. This object carries {rm.retained}. Most of the rest were dropped because their per-arm counts could not be read from a primary source in this environment, which selects for trials whose abstracts happen to state counts plainly... Anyone wanting the evidence base rather than this snapshot should read it."`
+
+**Assessment:**
+The object explicitly states it is "INCOMPLETE BY CONSTRUCTION", labels itself a convenience sample subject to availability bias, quantifies that 9 out of 12 cited registrations (75%) were excluded, itemizes every excluded trial with specific removal reasons, and directs readers seeking the full evidence base to the Cochrane systematic review.
+
+---
+
+### (C) ARITHMETIC (BY REASONING ONLY)
+Each per-trial crude risk ratio is **consistent with its own two-by-two counts** stored in the object:
+
+1. **Sputnik-V-phase3 (Gam-COVID-Vac):**
+   - Treatment: 16 events / 14,964 ($R_T = 0.00106923$)
+   - Control: 62 events / 4,902 ($R_C = 0.01264790$)
+   - $RR = \frac{16 / 14964}{62 / 4902} = \frac{78432}{927768} \approx 0.08453837$
+   - $SE(\ln RR) = \sqrt{\frac{1}{16} - \frac{1}{14964} + \frac{1}{62} - \frac{1}{4902}} \approx 0.279925$
+   - $95\%\text{ CI} = e^{\ln(0.084538) \pm 1.959964 \times 0.279925} = (0.04884, 0.14633)$
+   - Object stores: `"point": 0.0845, "ci_low": 0.0488, "ci_high": 0.1463`. **(Exact match)**
+
+2. **HERALD (CVnCoV phase 2b/3):**
+   - Treatment: 83 events / 12,851 ($R_T = 0.00645864$)
+   - Control: 145 events / 12,211 ($R_C = 0.01187454$)
+   - $RR = \frac{83 / 12851}{145 / 12211} = \frac{1013513}{1863395} \approx 0.54390669$
+   - $SE(\ln RR) = \sqrt{\frac{1}{83} - \frac{1}{12851} + \frac{1}{145} - \frac{1}{12211}} \approx 0.137058$
+   - $95\%\text{ CI} = e^{\ln(0.543907) \pm 1.959964 \times 0.137058} = (0.41577, 0.71153)$
+   - Object stores: `"point": 0.5439, "ci_low": 0.4158, "ci_high": 0.7115`. **(Exact match)**
+
+3. **BBIBP-CorV-phase3:**
+   - Object explicitly sets `"point": null` and carries `"not_computed_reason"` explaining that the publication reports events from the primary efficacy population while per-arm denominators are randomized group totals. **(Correctly omitted)**
+
+---
+
+### (D) IS THE VALIDATOR HONEST?
+
+The validator `validate_v2.py` contains structural gaps that allow wrong reader-visible figures and inverted rates to pass undetected.
+
+#### Finding 1 [VALIDATOR]: Unpooled trial-reported rates are ignored by source-verification checks.
+- **Weakness:** In `check_against_sources` (lines 315–330), `cells` collected for validation against source payloads only include `effect`, `analysed`, `treatment.events`, `treatment.n`, `control.events`, `control.n`, and `enrolled`. Custom fields carrying per-1000 person-year incidence rates (`trial_reported_rate_treatment_per_1000_person_years` and `trial_reported_rate_control_per_1000_person_years`) are never collected or checked against source payloads.
+- **Concrete Object Edit:** In `covid19-vaccines.json` (lines 290–291), under `BBIBP-CorV-phase3` in `results.by_outcome.symptomatic_covid.per_trial[2]`:
+  ```json
+  "trial_reported_rate_treatment_per_1000_person_years": 44.7,
+  "trial_reported_rate_control_per_1000_person_years": 9.8
+  ```
+  *(Swapping treatment incidence of 9.8 and control incidence of 44.7 so treatment appears to increase risk relative to control).*
+  Because `check_against_sources` ignores these fields and `check_per_trial_recompute` skips rows where `point is None`, this inverted rate passes `validate_v2.py` without triggering any block.
+
+#### Finding 2 [VALIDATOR]: `check_reference_consistency` uses global document matching and skips direction checks when `point` is `null`.
+- **Weakness:** `_review_numbers` (lines 1482–1494) extracts all numbers from the entire Cochrane review payload into a single flat set. `check_reference_consistency` (lines 1553–1563) accepts any `reference_efficacy_percent` as long as it matches *any* float anywhere in that XML file. Furthermore, when `r.get("point") is None` (lines 1564–1568), execution hits `continue`, skipping direction and magnitude comparison entirely.
+- **Concrete Object Edit:** In `covid19-vaccines.json` (line 283), under `BBIBP-CorV-phase3` in `results.by_outcome.symptomatic_covid.per_trial[2]`:
+  ```json
+  "reference_efficacy_percent": 91.1
+  ```
+  *(Replacing BBIBP-CorV's actual reference efficacy of 78.1% with Sputnik V's efficacy of 91.1%).*
+  Because `91.1` is present in `PMC9726273.cochrane.xml` and `point` is `null`, `validate_v2.py` skips direction validation and passes the wrong reference efficacy figure undetected.
+
+#### Finding 3 [VALIDATOR]: `check_prose_numerals` skips result fields whose names do not match `PROSE_KEYS`.
+- **Weakness:** `check_prose_numerals` (lines 1009–1034) filters string fields using `PROSE_KEYS = ("note", "detail", "reason", "source", "access_note", "caveat", "disclosure_note", "statement", "title", "question", "definition")`. Result keys such as `estimand_difference`, `source_divergence`, and `derivation` do not match any allowed suffix and are completely skipped during scanning.
+- **Concrete Object Edit:** In `covid19-vaccines.json` (line 278), under `HERALD` in `results.by_outcome.symptomatic_covid.per_trial[1]`:
+  ```json
+  "estimand_difference": "This trial reported 99.9 per cent efficacy across 100000 participants."
+  ```
+  Because `estimand_difference` does not end with a key in `PROSE_KEYS`, `check_prose_numerals` does not inspect it, allowing un-masked bare numerals and fabricated statistical claims to pass undetected.
+
+---
+
+VERDICT: DEFECTS-FOUND

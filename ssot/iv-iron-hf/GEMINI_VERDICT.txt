@@ -1,0 +1,58 @@
+===== PASS SOURCE =====
+[attempt 1: exit 0, 63s, 0 chars, no verdict]
+[attempt 2: exit 0, 210s, 3555 chars, no verdict]
+[attempt 3: exit 0, 169s, 3332 chars, usable]
+NONCE: iv-iron-hf-54787c54
+
+**Pass One -- Source Check: COMPLETED**
+
+I have resumed where the previous agent left off and systematically verified the remaining rows for `CONFIRM-HF` as well as the entire `results` (meta-analysis pooling) section.
+
+### 1. CONFIRM-HF Row Validations
+*   **acm (Time to death from ANY cause)**:
+    *   **Quote check**: `OA_CONFIRM_HF_PMC.txt` lists in Table 2: "Death 12 12 (8.9) 14 14 (9.9) 0.89 (0.41– 1.93) 0.77" which matches the quoted sentence perfectly.
+    *   **Derivation check**: Stored effect is a Hazard Ratio (HR) of 0.89 [0.41, 1.93] at 95% CI. Direction is lower.
+    *   Log derivation: `ln(0.89) = -0.116533`. CI width on log scale is `ln(1.93) - ln(0.41) = 0.65752 - (-0.891598) = 1.549118`. Standard error is `1.549118 / (2 * 1.95996) = 0.39519`. The object correctly stores `log_point: -0.116534` and `log_se: 0.39519`.
+*   **six_min_walk_24w (Change in six-minute walk distance)**:
+    *   **Quote check**: `OA_CONFIRM_HF_abstract.txt` states: "Treatment with FCM significantly prolonged 6MWT distance at Week 24 (difference FCM vs. placebo: 33 ± 11 m, P = 0.002)". Matches precisely.
+    *   **FDA Label check**: `FDA_LABEL_INJECTAFER.extract.txt` correctly supports the divergence note with its own quote: "between group difference of 25 meters (7, 43), p-value 0.007".
+    *   **Derivation check**: The object claims a continuous change mean difference (MD) of `point: 33`, with an SE of 11. It computes the 95% CI as `[11.4404, 54.5596]` (`33 ± (1.95996 * 11)`). The math is exact. Direction of benefit is higher, null value is 0, which correctly aligns with the continuous change formulation without any inversion.
+
+### 2. Validation of the `results` Pool (Starting Line 1452)
+I verified the structural and mathematical integrity of the meta-analytic aggregations (`hfh_cvd_recurrent`, `hfh_cvd_first`, `hfh_recurrent`, `acm`).
+*   **Methodology & Grouping**: Each pool strictly groups by identical effect measure and outcome definition (e.g. `hfh_cvd_recurrent` includes only `affirm-ahf` and `ironman`). There is zero cross-contamination of endpoints (e.g. death components are successfully kept separate from hospitalizations-only rates).
+*   **Arithmetic Check (Generic Inverse Variance)**: 
+    *   Taking `hfh_cvd_recurrent` as an example: The inputs are `log_point` -0.235722 (se 0.124489) for AFFIRM-AHF, and -0.198451 (se 0.111053) for IRONMAN. Weighting by inverse variance yields a pooled log point of `-0.21496` and log SE of `0.08287`.
+    *   `exp(-0.21496) = 0.80657`, which matches the JSON's `0.8066`.
+    *   The 95% CI is computed as `exp(-0.21496 ± 1.95996*0.08287) = [0.6856, 0.9488]`, exactly matching the stored JSON bounds.
+*   **Sensitivity & Heterogeneity (`tau2 = 0.0`)**: Across all estimators (DL, PM, REML), the null between-study variance holds true. The HKSJ interval penalty is correctly reported alongside the Wald interval without overwriting it, capturing the necessary uncertainty for `k=2` pools. 
+
+### Conclusion
+Every checked trial row strictly honors its quoted extracts, and the resulting cascades log true to the arithmetic expected of them. The derivation mechanics—both within the single trial rows (log transforming CIs) and inside the generic inverse variance synthesis—are flawless in magnitude and direction.
+
+VERDICT: PASS
+
+
+===== PASS JUDGE =====
+[attempt 1: exit 0, 69s, 1993 chars, usable]
+NONCE: iv-iron-hf-54787c54
+
+Here is the judgment of `F:\claude-temp\ssot\canonical\iv-iron-hf.json` based on the five criteria:
+
+1. **Estimand**: 
+VALIDATOR: The object rigorously defines and isolates distinct estimands (`hfh_cvd_recurrent`, `hfh_cvd_first`, `hfh_recurrent`, `acm`, `hierarchical_primary`, `six_min_walk_24w`). It provides exact reasoning for why they are kept separate and not combined, explicitly citing differences in effect measures (`RATE_RATIO`, `HR`, `WIN_RATIO`, `MD`) and endpoint definitions (e.g., composite vs. hospitalisation-only). 
+
+2. **Shared Controls**: 
+VALIDATOR: The object does not double-count participants. Within each pooled estimand, the contributing trials (`affirm-ahf`, `ironman`, `fair-hf2`, `confirm-hf`) are distinct, share no participants, and have independent control groups. 
+
+3. **Completeness**: 
+VALIDATOR: The object is complete. It includes a `screening` block that documents excluded records with their specific criterion failures, and an `eligible_but_not_contributing` block that lists four trials that meet eligibility but have not yet posted extractable results.
+
+4. **Corrections and Reconciliation**: 
+VALIDATOR: The `reconciliation` and `claims_corrected` blocks are present and meticulously detailed. The object correctly compares its findings against prior syntheses (PM_GRAHAM2023, PM_PONIKOWSKI2023) without treating them as independent evidence. It documents explicit corrections, such as the refusal to pool FAIR-HF2's hospitalisation-only rate ratio with the recurrent composite primaries of other trials.
+
+5. **Handbook Conformance**: 
+VALIDATOR: The object includes comprehensive `handbook` blocks under each estimand and a `scope_decisions` block. It cites specific Cochrane Handbook sections (e.g., 10.3 for generic inverse variance, 10.10.4.4 for restricted maximum likelihood as the default estimator, 14.2.2 for imprecision) and strictly justifies its methodological choices against those sections.
+
+VERDICT: PASS
+

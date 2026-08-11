@@ -1,0 +1,140 @@
+NONCE: covid19-vaccines-4cfed46e
+
+Reviewed:
+- canonical/covid19-vaccines.json
+- validate_v2.py
+- all staged payloads listed in the prompt, including removed registrations
+
+Baseline run:
+- `python validate_v2.py canonical\covid19-vaccines.json`
+- Result: `VALIDATOR CLEAN -- 21/21 detectors passed`
+
+A. OBJECT SOURCE VERIFICATION
+
+OBJECT: No defect found in the included per-arm event counts, per-arm denominators, NCT identifiers, or PMID identifiers.
+
+Included trial cells checked:
+- Sputnik-V-phase3 / NCT04530396 / PMID33545094:
+  - File checked: sources/covid19-vaccines/NCT04530396.ctgov.json. It has `"nctId": "NCT04530396"` and enrollment `"count": 33758`, `"type": "ACTUAL"`.
+  - File checked: sources/covid19-vaccines/PMID33545094.pubmed.xml. It has `<PMID Version="1">33545094</PMID>`.
+  - The quoted count sentence exists in PMID33545094.pubmed.xml. The arm fragments exist inside it:
+    - `"16 (0.1%) of 14964 participants in the vaccine group"`
+    - `"62 (1.3%) of 4902 in the placebo group"`
+  - The publication also supports `"enrolled": 21977` and `"crude_analysis_population": 19866` after normalising thin spaces.
+
+- HERALD / NCT04652102 / PMID34826381:
+  - File checked: sources/covid19-vaccines/NCT04652102.ctgov.json. It has `"nctId": "NCT04652102"`, enrollment `"count": 39680`, and baseline total `"value": "39540"` for `"Participants"`.
+  - File checked: sources/covid19-vaccines/PMID34826381.pubmed.xml. It has `<PMID Version="1">34826381</PMID>`.
+  - The quoted count sentence exists in PMID34826381.pubmed.xml. The arm fragments exist inside it:
+    - `"83 cases of COVID-19 occurred in the CVnCoV group (n=12851)"`
+    - `"145 cases occurred in the placebo group (n=12211)"`
+  - The object year `"year": 2021` is not a defect: PMID34826381 has electronic article date 2021-11-23, although the journal issue date is 2022-03.
+
+- BBIBP-CorV-phase3 / NCT04510207 / PMID34037666:
+  - File checked: sources/covid19-vaccines/NCT04510207.ctgov.json. It has `"nctId": "NCT04510207"` and enrollment `"count": 44101`, `"type": "ACTUAL"`.
+  - File checked: sources/covid19-vaccines/PMID34037666.pubmed.xml. It has `<PMID Version="1">34037666</PMID>`.
+  - The quoted denominator sentence exists in PMID34037666.pubmed.xml. The fragments exist inside it:
+    - `"HB02 (4 microgram/dose; n = 13465)"`
+    - `"aluminum hydroxide (alum)-only control (n = 13458)"`
+  - The quoted events/rates sentence exists in PMID34037666.pubmed.xml. The fragments exist inside it:
+    - `"21 in the HB02 group"`
+    - `"95 in the alum-only group"`
+  - The same sentence supports the rate fields `"trial_reported_rate_treatment_per_1000_person_years": 9.8` and `"trial_reported_rate_control_per_1000_person_years": 44.7`.
+  - The publication supports `"enrolled": 40382` and the primary efficacy population statement `"38206"`.
+
+Derived reader-visible trial estimates:
+- Sputnik RR/CI recomputed from `(16, 14964, 62, 4902)` as `0.084538`, `0.048841`, `0.146328`; stored values are `0.0845`, `0.0488`, `0.1463`.
+- HERALD RR/CI recomputed from `(83, 12851, 145, 12211)` as `0.543907`, `0.415777`, `0.711523`; stored values are `0.5439`, `0.4158`, `0.7115`.
+- BBIBP correctly carries no count-based RR because the event population and available per-arm denominators do not match.
+
+Cells I could not find in the staged payloads: none for the included trial cells above.
+
+B. REMOVALS
+
+OBJECT: No defect found in the stated removal reason for each removed registration.
+
+- NCT04368728.ctgov.json: right reason is `"per-arm counts not verifiable to a primary source"`. The staged registration is a COVID-19 vaccine trial with BNT162b arms, actual enrollment `46969`, and no posted results/outcome measures in the staged payload.
+- NCT04470427.ctgov.json: right reason is `"per-arm counts not verifiable to a primary source"`. The staged registration is a COVID-19 mRNA-1273 vaccine trial, actual enrollment `30415`, and no posted results/outcome measures in the staged payload.
+- NCT04505722.ctgov.json: right reason is `"per-arm counts not verifiable to a primary source"`. The staged registration is an Ad26.COV2.S COVID-19 trial, actual enrollment `44325`, and no posted results/outcome measures in the staged payload.
+- NCT04611802.ctgov.json: right reason is `"per-arm counts not verifiable to a primary source"`. The staged registration is a SARS-CoV-2 rS/Matrix-M1 COVID-19 vaccine trial, actual enrollment `33000`, and no posted results/outcome measures in the staged payload.
+- NCT04456595.ctgov.json: right reason is `"per-arm counts not verifiable to a primary source"`. The staged registration is Sinovac's inactivated COVID-19 vaccine trial, actual enrollment `12688`, and no posted results/outcome measures in the staged payload.
+- NCT04672395.ctgov.json: right reason is `"per-arm counts not verifiable to a primary source"`. The staged registration is an SCB-2019 COVID-19 vaccine trial, actual enrollment `31454`, and no posted results/outcome measures in the staged payload.
+- NCT04619628.ctgov.json: right reason is `"per-arm counts not verifiable to a primary source"`. The staged registration is a COVI-VAC COVID-19 vaccine trial, actual enrollment `48`, and no posted results/outcome measures in the staged payload.
+- NCT04627298.ctgov.json: right reason is `"wrong disease area"`. The staged title is `"Normalizing HPV Vaccination in Preteens With a Serious Video Game"` and the intervention is `"educational video game for preteens to support HPV vaccination"`.
+- NCT04324606.ctgov.json: right reason is `"units-of-analysis error"`. The staged registration is COV001 with `"phases": ["PHASE1", "PHASE2"]` and actual enrollment `1077`. The staged publication PMID33306989 is explicitly an `"interim analysis of four randomised controlled trials"` and reports the pooled counts `"30 [0.5%] of 5807 vs 101 [1.7%] of 5829"`, so those counts cannot be assigned to NCT04324606 alone.
+
+C. REFERENCE FIGURES AND SOURCE/ESTIMAND CLAIMS
+
+OBJECT: No defect found in the reference efficacy figures.
+
+- File checked: sources/covid19-vaccines/PMC9726273.cochrane.xml, with the staged extract sources/covid19-vaccines/PMC9726273.cochrane-SOF-extract.txt as a readable locator.
+- Sputnik: the review contains `"VE 91.10 (83.80 to 95.10)"` for confirmed symptomatic COVID-19 and population `"18,695"`. The trial publication PMID33545094 reports `"vaccine efficacy was 91.6%"` from counts `(16/14964, 62/4902)`, so the object is right to state a publication/review divergence. The review also shows `"19,866"` for the severe-COVID row, matching the object's explanation that the review uses a different population for the symptomatic-COVID figure.
+- HERALD: the review contains `"VE 48.20 (31.70 to 60.90)"`. The primary publication sentence reports cases in `"1735.29 person-years"` and `"1569.87 person-years"`, so the object is right that the publication/review efficacy is not the same estimand as a crude proportion RR.
+- BBIBP-CorV: the review contains `"VE 78.10 (64.80 to 86.30)"` and `"25,463"` participants for confirmed symptomatic COVID-19. The primary publication reports `"9.8"` and `"44.7"` per 1000 person-years, so the object is right that the publication's reported incidence contrast is person-time based rather than a simple proportion. The publication's primary efficacy analysis population `"38206"` is also staged in PMID34037666.pubmed.xml.
+
+D. NO-POOL DECISION AND COMPLETENESS FRAMING
+
+OBJECT: No defect found. Declining to pool is the right call, not a dodge.
+
+The object stores `"poolable": false`, `"model": "per-trial, no synthesis"`, `"pooled": null`, and `"heterogeneity": null`. The stated reason is not cosmetic: the retained rows are different vaccine platforms, trial periods, case definitions, and analysis populations. A combined RR across Sputnik-V, CVnCoV, and BBIBP-CorV would be a manufactured average over non-identical interventions, not a useful estimand.
+
+The completeness framing is honest in the object text. It says `"INCOMPLETE BY CONSTRUCTION"`, `"NOT a systematic review"`, and `"anyone wanting the evidence base rather than this snapshot should read"` the systematic review. I did not review a separate rendered app surface; if a UI suppresses those statements, that would be a UI defect, but it is not shown by the supplied files.
+
+E. VALIDATOR FINDINGS
+
+VALIDATOR FINDING 1: `check_reference_consistency` can be fooled by a wrong reader-visible reference figure because it checks review-wide number presence, not row/outcome/role identity.
+
+Exact validator mechanism:
+- `validate_v2.py` builds a flat number set with `"_REVIEW_NUMBERS[key] = {float(x) for x in re.findall(r\"\\d+(?:\\.\\d+)?\", text)}"`.
+- It accepts a reference value if `"not any(abs(float(val) - x) < 1e-9 for x in nums)"` is false.
+
+That proves only that a number occurs somewhere in the Cochrane XML. It does not prove that the number is the point estimate for this vaccine and outcome, or even that it is a point estimate rather than a CI bound.
+
+Concrete passing bad edits:
+- Change `canonical/covid19-vaccines.json` Sputnik row from `"reference_efficacy_percent": 91.1` to `"reference_efficacy_percent": 95.1`.
+- This is wrong: the review text is `"VE 91.10 (83.80 to 95.10)"`, so `95.10` is the upper CI bound, not the efficacy point estimate.
+- Validator result on the mutated file: `VALIDATOR CLEAN -- 21/21 detectors passed`.
+
+A second passing bad edit in the same area:
+- Change `"reference_ci_low_percent": 83.8` to `95.1`.
+- Change `"reference_ci_high_percent": 95.1` to `83.8`.
+- Validator result on the mutated file: `VALIDATOR CLEAN -- 21/21 detectors passed`.
+
+VALIDATOR FINDING 2: Trial identifiers are reader-visible but not anchored to the staged payload identity.
+
+Concrete passing bad edits:
+- Change Sputnik `"pmid": "33545094"` to `"pmid": "99999999"`.
+- Change Sputnik trial-level `"nct": "NCT04530396"` and the corresponding per-trial result `"nct": "NCT04530396"` to `"NCT00000000"`.
+- Validator result on each mutated file: `VALIDATOR CLEAN -- 21/21 detectors passed`.
+
+Why this passes:
+- `check_against_sources` searches preferred payloads, then falls back globally:
+  - `"for name, blob in blobs.items():"`
+  - `"if prefer and prefer not in name: continue"`
+  - then a second `"for name, blob in blobs.items():"`
+- The quote check also accepts a quote if it appears in any staged payload: `"if any(qn in _quote_norm(b) for b in raw_blobs.values())"`.
+- Registry-based detectors skip absent registry files with `"if not f.is_file(): continue"` in `check_arm_completeness` and `check_arm_role_vs_registry`.
+
+The source payloads themselves are clear: NCT04530396.ctgov.json has `"nctId": "NCT04530396"`, and PMID33545094.pubmed.xml has `<PMID Version="1">33545094</PMID>`. The validator does not require the object's identifier fields to equal those values.
+
+VALIDATOR FINDING 3: Non-arm reader-visible numeric fields are not fully source-checked.
+
+Concrete passing bad edits:
+- Change Sputnik `"registry_enrolment": 33758` to `33759`. The staged registry has `"count": 33758`, but the validator passes.
+- Change HERALD `"dosed": 39540` to `39541`. The staged registry baseline denominator total is `"value": "39540"`, but the validator passes.
+- Change Sputnik `"reference_analysis_population": 18695` to `18696`. The staged review has `"18,695"` for the symptomatic-COVID review population, but the validator passes.
+
+Validator result on each mutated file: `VALIDATOR CLEAN -- 21/21 detectors passed`.
+
+Why this passes:
+- `check_against_sources` adds only `"enrolled"` as a trial-level numeric cell: `"cells[\"enrolled\"] = t[\"enrolled\"]"`.
+- It does not add `"registry_enrolment"`, `"dosed"`, `"reference_analysis_population"`, or `"crude_analysis_population"` to a source-bound cell set.
+- Those fields are not decorative; they are interpolated into reader-visible notes such as `"The registry records an ACTUAL enrolment of {self.registry_enrolment}"` and `"covers {self.reference_analysis_population} participants"`.
+
+OVERALL
+
+OBJECT: I found no source-backed object defect in the included trial cells, removal reasons, reference figures, no-pool decision, or completeness disclosure.
+
+VALIDATOR: Defects found. The validator does not yet enforce the stated architecture that every reader-visible number is a pure projection of the one source-checked object, because wrong identifiers, wrong registry totals, wrong reference populations, and wrong-but-review-present reference figures can pass.
+
+VERDICT: DEFECTS-FOUND

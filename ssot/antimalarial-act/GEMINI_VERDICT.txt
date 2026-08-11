@@ -1,0 +1,39 @@
+===== PASS SOURCE =====
+[attempt 1: exit 0, 78s, 1833 chars, usable]
+NONCE: antimalarial-act-b9d15278
+
+VALIDATOR: I have read the following files using the `read_file` tool:
+- `F:\claude-temp\ssot\canonical\antimalarial-act.json`
+- `F:\claude-temp\ssot\sources\antimalarial-act\ACT-trials.extract.txt`
+
+VALIDATOR: I checked the Guinea-Bissau trial (NCT01704508) "dp_vs_al". The object stores 0 failures of 136 evaluable for dihydroartemisinin-piperaquine (DP) and 7 failures of 135 evaluable for artemether-lumefantrine (AL) at day 42. This exactly matches the source extract's day 42 per-protocol figures. The boundary estimate of 0.0 and the absence of a confidence interval are accurately reasoned and derived based on the zero-event arm.
+
+VALIDATOR: I checked the Cameroon trial (NCT04565184) "asaq_vs_al". The object stores 3 failures of 97 evaluable for artesunate-amodiaquine (ASAQ) and 5 failures of 112 evaluable for AL at day 28. The object correctly derives these failure counts from the quoted cure rates of 96.9% (94 of 97 evaluable) and 95.5% (107 of 112 evaluable) from the source extract. Recomputing the RR yields 0.6928 with a 95% CI of 0.1699 to 2.8243; both direction and magnitude perfectly match the object.
+
+VALIDATOR: I checked the Nigeria trial (NCT05192265) "pa_vs_al". The object stores 2 failures of 78 evaluable for pyronaridine-artesunate (PA) and 8 failures of 67 evaluable for AL at day 28. The object correctly derives these failure counts from the source extract's cure rates of 97.4% (76/78) and 88.1% (59/67). Recomputing the RR yields 0.2147 with a 95% CI of 0.0472 to 0.9767; both direction and magnitude perfectly match the object.
+
+VALIDATOR: Every quoted sentence verifies precisely what the row claims. All follow-up windows, right groups, and exact analysis populations match the extract accurately with no inversions or misattributed figures.
+
+VERDICT: PASS
+
+
+===== PASS JUDGE =====
+[attempt 1: exit 0, 117s, 1979 chars, usable]
+NONCE: antimalarial-act-b9d15278
+
+VALIDATOR: I have read the following files:
+- F:\claude-temp\ssot\canonical\antimalarial-act.json
+- F:\claude-temp\ssot\sources\antimalarial-act\ACT-trials.extract.txt
+- F:\claude-temp\ssot\sources\antimalarial-act\NCT01704508.ctgov.json
+- F:\claude-temp\ssot\sources\antimalarial-act\NCT04767191.ctgov.json
+- F:\claude-temp\ssot\sources\antimalarial-act\NCT06076213.ctgov.json
+- F:\claude-temp\ssot\sources\antimalarial-act\PMID35189818.pubmed.xml
+
+VALIDATOR: 1. ESTIMAND. The object pools nothing. Its stated reasons for not pooling (that each direct comparison rests on a single trial) and for not computing an indirect estimate (differing follow-up times and observed versus home-based administration affecting transitivity) are true of the object and accurately reflect the sources.
+VALIDATOR: 2. SHARED CONTROLS. No included study is multi-arm, as correctly noted by the object. No pooled estimate leans on the same control participants twice.
+VALIDATOR: 3. COMPLETENESS. The claim in the `completeness_statement` is true of the object. Exclusions are honest, and the two completed registrations lacking results are properly retained as eligible but not contributing rather than being excluded.
+VALIDATOR: 4. CORRECTIONS AND RECONCILIATION. The criticisms in `claims_corrected` (e.g., the cure rates in the Nigerian trial and the trial location in Cameroon) are fair and supported by the staged sources. The object also explicitly admits the limits of what it could read regarding the absence of posted results for the two CTGOV registrations.
+VALIDATOR: 5. HANDBOOK CONFORMANCE. Each cited section says what the object claims, and the decisions follow logically from those sections. For example, omitting the continuity correction avoids bias when the zero-event row is not entering a pooled estimate. No citation appears to be the wrong section, and the object is neither improperly looser nor stricter than the Handbook.
+
+VERDICT: PASS
+

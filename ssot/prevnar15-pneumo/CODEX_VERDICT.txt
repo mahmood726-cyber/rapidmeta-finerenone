@@ -1,0 +1,27 @@
+NONCE: prevnar15-pneumo-265c7acb
+
+I read canonical\prevnar15-pneumo.json, validate_v2.py, and the staged registry payloads under sources\prevnar15-pneumo. Baseline validator result: VALIDATOR CLEAN -- 21/21 detectors passed.
+
+(A) OBJECT/source correctness.
+
+I found no current source-row defect. In these ClinicalTrials.gov v2 payloads the symptom label is carried as the class title and the nested category title is null, so I treated source_category_title as the class/category label the validator also uses. Under that reading, every stored percentage and denominator matches the cited outcome and symptom row for the declared arms.
+
+The fixed source rows are: pain/tenderness matches 283/462 vs 119/227, 860/1134 vs 260/378, 325/602 vs 254/600, 85/179 vs 79/179, 843/1965 vs 158/433, 17/44 vs 18/43, and 112/203 vs 110/204. Swelling matches 65/462 vs 28/227, 246/1134 vs 84/378, 75/602 vs 67/600, 41/179 vs 41/179, 548/1965 vs 101/433, 38/44 vs 38/43, and 58/203 vs 44/204. Erythema/redness matches 46/462 vs 23/227, 171/1134 vs 53/378, 54/602 vs 68/600, 79/179 vs 85/179, 863/1965 vs 156/433, 44/44 vs 41/43, and 19/203 vs 12/204. Induration/hard lump matches the four paediatric rows: 47/179 vs 62/179, 497/1965 vs 111/433, 40/44 vs 43/43, and 21/203 vs 13/204.
+
+The multi-arm choices are defensible and disclosed. The object says NCT02547649 combines `TWO V114 formulations against one shared Prevnar 13 arm`; NCT03620162 says `Groups 2, 3 and 4 each receive Prevnar 13 for some doses and V114 for others`; and NCT03848065 says the subcutaneous V114 arm is used because `the intramuscular arm has no matching control`. Those match the posted arms, and every posted arm is either used or named in arms_not_used.
+
+(B) OBJECT/arithmetic.
+
+The event derivations recompute from percentage times denominator, rounded. I agree with the stated continuity-correction rule: for RR, a 0.5 correction is needed only for zero event numerators, not for arms with 100% incidence. The NCT03848065 erythema row 44/44 vs 41/43 and induration row 40/44 vs 43/43 are well defined on the log-RR scale without correcting the full-incidence arm.
+
+The reported strata recompute with DerSimonian-Laird: pain adults RR 1.1696 (1.0677 to 1.2812), tau2 0.0034, I2 51.7%, Q 4.14; pain children RR 1.1028 (1.0028 to 1.2128), tau2 0, I2 0.0%, Q 2.07. Swelling adults RR 1.0386 (0.8815 to 1.2236), tau2 0, I2 0.0%, Q 0.71; swelling children RR 1.0952 (0.9533 to 1.2583), tau2 0.0058, I2 28.6%, Q 4.20. Erythema adults RR 0.9532 (0.7817 to 1.1622), tau2 0, I2 0.0%, Q 1.86; erythema children RR 1.0893 (0.9616 to 1.2341), tau2 0.0078, I2 55.0%, Q 6.67. Induration children RR 0.9295 (0.8116 to 1.0646), tau2 0.0072, I2 38.7%, Q 4.90.
+
+(C) OBJECT/estimand.
+
+Removing the all-ages pool is the right response, not just moving the defect. The remaining strata are not perfectly homogeneous: the adult strata still mix 14-day and 5-day observation windows, and the child strata still mix caregiver-observed and self-reported symptoms. The object quotes that composition directly, e.g. `MIXED 14-day and 5-day` for adults and `MIXED caregiver-observed and self-reported` for children, and reports moderate heterogeneity where it exists. Reporting all four symptoms answers the dredging objection because pain is no longer selected alone. Induration is handled honestly: the object says `Not every trial posts every symptom`, and induration has only the paediatric subgroup because there are no adult induration rows in this object.
+
+(D) VALIDATOR finding.
+
+subgroup-recompute is still incomplete. It recomputes subgroup point and CI only: the code iterates `for field in ("point", "ci_low", "ci_high")`. It does not validate subgroup tau2, I2, Q, or df, even though those are reader-visible and the prompt explicitly asks for them. Concrete edit tested: in injection_site_pain/adults, change tau2 from 0.0034 to 9.9999, I2 from 51.7 to 99.9, and Q from 4.14 to 99.99. The edited object still returned VALIDATOR CLEAN -- 21/21 detectors passed.
+
+VERDICT: DEFECTS-FOUND

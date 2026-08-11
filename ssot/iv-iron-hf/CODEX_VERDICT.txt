@@ -1,0 +1,84 @@
+NONCE: iv-iron-hf-54787c54
+
+Gate verdict for F:\claude-temp\ssot\canonical\iv-iron-hf.json
+
+Findings
+
+No OBJECT findings.
+
+No VALIDATOR findings.
+
+Checks performed
+
+Validator:
+python validate_v2.py canonical/iv-iron-hf.json
+Result: CLEAN, 41/41 checks passed. Link liveness was not claimed by the validator; I separately checked URL identity and tier consistency against the staged source map and per-cell source metadata.
+
+Per-trial effects:
+AFFIRM-AHF recurrent HF hospitalisations plus cardiovascular death is stored as RATE_RATIO 0.79 (0.62 to 1.01), matching the staged primary abstract. IRONMAN is stored as RATE_RATIO 0.82 (0.66 to 1.02), matching the staged primary abstract. AFFIRM-AHF first HF hospitalisation or cardiovascular death is stored as HR 0.80 (0.66 to 0.98), matching the staged abstract. FAIR-HF2 first cardiovascular death or first HF hospitalisation is stored as HR 0.79 (0.63 to 0.99), matching the staged abstract and with the Hochberg non-significance stored structurally. AFFIRM-AHF recurrent HF hospitalisation alone is stored as RATE_RATIO 0.74 (0.58 to 0.94), matching the staged abstract. FAIR-HF2 recurrent HF hospitalisation alone is stored as RATE_RATIO 0.80 (0.60 to 1.06), matching the staged abstract. AFFIRM-AHF all-cause mortality is stored as HR 0.99 (0.75 to 1.31), matching the staged registry result. CONFIRM-HF all-cause mortality is stored as HR 0.89 (0.41 to 1.93), matching the staged full text. HEART-FID hierarchical primary is stored as WIN_RATIO 1.10 (0.99 to 1.23), 99% interval, matching the staged abstract. CONFIRM-HF six-minute walk distance is stored as MD 33 with computed 95% CI 11.4404 to 54.5596 from the printed standard error of 11; this is declared as computed and not as a printed CI.
+
+Estimand integrity:
+The object holds the recurrent composite estimand apart from the hospitalisation-only recurrent estimand. AFFIRM-AHF and IRONMAN are pooled only for recurrent HF hospitalisations with cardiovascular death. AFFIRM-AHF and FAIR-HF2 are pooled separately for recurrent HF hospitalisations without a death component. The FAIR-HF2 second primary endpoint is not pooled with the two composite primaries.
+
+Interval levels and directions:
+The HEART-FID row stores ci_level 99 and the stored log standard error matches the 99% multiplier. The HTML page labels the single-study row as "WIN_RATIO 1.1 (0.99 to 1.23), 99% interval" and its table header as "WIN_RATIO (99% CI), or events". Direction is per outcome: win ratio and six-minute walk distance are marked higher-is-better, while lower ratios are marked lower-is-better and all-cause mortality spanning the null is marked as favouring neither arm.
+
+Pooled interpretation:
+The recurrent-composite pool reports the ordinary interval excluding the null but does not headline this as a trial-level finding. Both contributing trial rows retain p values above the conventional threshold and intervals including the null, and the HKSJ/conservative interval is reported beside the ordinary interval for every pool.
+
+Regulator and source cascade:
+The FDA regulator layer holds one effect cell: CONFIRM-HF six-minute walk distance from the Injectafer label, MD 25 (7 to 43), p=0.007. The publication value, MD 33 plus printed SE 11, is kept beside it rather than resolved away. FDA silence on other ferric carboxymaltose event cells is recorded as the label containing no event estimate for that indication; silence on ferric derisomaltose is recorded separately because the Monoferric label contains no heart-failure indication. EMA is recorded as not yielding efficacy data because the staged Article 31 document is a hypersensitivity referral rather than an EPAR. Each measured cell has all five source-cascade layers with status, reason/date where unavailable, source_tier, and source_url.
+
+Comparator, blinding, shared controls, and deduplication:
+The recurrent-composite pool explicitly crosses placebo and usual care, and states that IRONMAN is open label with masked endpoint adjudication. I found no prose claiming a shared placebo comparator, universal masking, or universal adjudication across the trials. No pooled estimate uses duplicate contrasts from a shared control group, and no randomised cohort is represented twice within a pooled estimate.
+
+Completeness and reconciliation:
+The completeness claim rests on the staged rediscovery record, including the failed drug-name query and the corrected class-level query that rediscovers FAIR-HF2 despite its registry intervention being named only "Iron". The object does not claim a full multi-database systematic search. Its reconciliation against prior syntheses is marked not clean and states the trial-set, effect-measure, molecule, comparator, and publication-date differences rather than using those syntheses as checksums.
+
+Handbook conformance:
+The pooling and non-pooling decisions cite sections that fit the decisions: generic inverse variance for log ratios, recurrent counts/rates separately from time-to-first hazard ratios, mean differences on their own scale, diversity recorded beside rather than replaced by heterogeneity, and HKSJ/conservative intervals reported beside ordinary intervals for few-study random-effects pools. The win-ratio non-pooling is not falsely licensed by a hazard-ratio section; the object records that no Handbook section directly governs win ratios and rests the decision on outcome grouping and incompatible measure form.
+
+Files read or inspected
+
+F:\ProjectIndex\INDEX.md
+F:\E156\rewrite-workbook.txt
+F:\claude-temp\ssot\canonical\iv-iron-hf.json
+F:\claude-temp\ssot\build\IV_IRON_HF_REVIEW.html
+F:\claude-temp\ssot\build_app_v2.py
+F:\claude-temp\ssot\build_iv_iron.py
+F:\claude-temp\ssot\scan_page.py
+F:\claude-temp\ssot\sources\iv-iron-hf\CTGOV_HEARTFID_PROT_SAP.extract.txt
+F:\claude-temp\ssot\sources\iv-iron-hf\EMA_IV_IRON_ART31_ANNEX1.extract.txt
+F:\claude-temp\ssot\sources\iv-iron-hf\FDA_LABEL_INJECTAFER.extract.txt
+F:\claude-temp\ssot\sources\iv-iron-hf\FDA_LABEL_MONOFERRIC.extract.txt
+F:\claude-temp\ssot\sources\iv-iron-hf\NCT00520780.ctgov.json
+F:\claude-temp\ssot\sources\iv-iron-hf\NCT01394562.ctgov.json
+F:\claude-temp\ssot\sources\iv-iron-hf\NCT01453608.ctgov.json
+F:\claude-temp\ssot\sources\iv-iron-hf\NCT02642562.ctgov.json
+F:\claude-temp\ssot\sources\iv-iron-hf\NCT02937454.ctgov.json
+F:\claude-temp\ssot\sources\iv-iron-hf\NCT03036462.ctgov.json
+F:\claude-temp\ssot\sources\iv-iron-hf\NCT03037931.ctgov.json
+F:\claude-temp\ssot\sources\iv-iron-hf\OA_AFFIRM_AHF_abstract.txt
+F:\claude-temp\ssot\sources\iv-iron-hf\OA_CONFIRM_HF_abstract.txt
+F:\claude-temp\ssot\sources\iv-iron-hf\OA_CONFIRM_HF_PMC.txt
+F:\claude-temp\ssot\sources\iv-iron-hf\OA_EFFECT_HF_abstract.txt
+F:\claude-temp\ssot\sources\iv-iron-hf\OA_EFFECT_HF_PMC.txt
+F:\claude-temp\ssot\sources\iv-iron-hf\OA_FAIR_HF2_abstract.txt
+F:\claude-temp\ssot\sources\iv-iron-hf\OA_FAIR_HF_abstract.txt
+F:\claude-temp\ssot\sources\iv-iron-hf\OA_HEART_FID_abstract.txt
+F:\claude-temp\ssot\sources\iv-iron-hf\OA_IRONMAN_abstract.txt
+F:\claude-temp\ssot\sources\iv-iron-hf\OA_PM_GRAHAM2023_abstract.txt
+F:\claude-temp\ssot\sources\iv-iron-hf\OA_PM_GRAHAM2023_PMC.txt
+F:\claude-temp\ssot\sources\iv-iron-hf\OA_PM_PONIKOWSKI2023_abstract.txt
+F:\claude-temp\ssot\sources\iv-iron-hf\OLD_GENERATOR_DEFECT_PROBE.txt
+F:\claude-temp\ssot\sources\iv-iron-hf\PMID19920054.pubmed.xml
+F:\claude-temp\ssot\sources\iv-iron-hf\PMID25176939.pubmed.xml
+F:\claude-temp\ssot\sources\iv-iron-hf\PMID28701470.pubmed.xml
+F:\claude-temp\ssot\sources\iv-iron-hf\PMID33197395.pubmed.xml
+F:\claude-temp\ssot\sources\iv-iron-hf\PMID36347265.pubmed.xml
+F:\claude-temp\ssot\sources\iv-iron-hf\PMID36823953.pubmed.xml
+F:\claude-temp\ssot\sources\iv-iron-hf\PMID37632415.pubmed.xml
+F:\claude-temp\ssot\sources\iv-iron-hf\PMID37632463.pubmed.xml
+F:\claude-temp\ssot\sources\iv-iron-hf\PMID40159390.pubmed.xml
+F:\claude-temp\ssot\sources\iv-iron-hf\PRIOR_SYNTHESIS_SEARCH_RECORD.txt
+VERDICT: PASS

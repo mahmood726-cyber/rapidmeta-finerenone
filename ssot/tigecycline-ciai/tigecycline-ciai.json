@@ -1,0 +1,836 @@
+{
+ "app_id": "tigecycline-ciai",
+ "schema_version": 2,
+ "title": "Tigecycline versus imipenem/cilastatin for complicated intra-abdominal infection: clinical cure at test-of-cure",
+ "question": "Among trials randomising adults with complicated intra-abdominal infection to tigecycline or to imipenem/cilastatin, how does the proportion cured at the test-of-cure visit compare, and does that comparison survive the choices made in reaching it?",
+ "built": "2026-08-09",
+ "_prose_rule": "Prose may not restate a number the object holds structurally.",
+ "_sourcing_rule": "Every MEASURED input carries the verbatim sentence it was read from. The one DERIVED row shows its arithmetic on itself.",
+ "_year_field_note": "The year on each trial is the PUBLICATION year its PubMed record prints under PubDate. An earlier build took the first year appearing in the record, which is the indexing DateCompleted or DateRevised and sits ABOVE PubDate in the XML, so more than one trial carried a year no source asserts -- in one case a revision date years after the paper. A reviewer caught it beside the identifiers, which is exactly where a reader would read it as the study's year.",
+ "_estimand_rule": "One indication, one comparator, one analysis population, one outcome. Anything that changes any of those four is a different comparison and is either excluded with a reason or held as a sensitivity analysis.",
+ "_direction_rule": "Clinical cure is BENEFICIAL. A ratio below the null therefore means the intervention cured LESS often. Nothing in this object may colour or word a ratio below the null as a benefit.",
+ "build_mode": "full",
+ "cited_total": 3,
+ "completeness_statement": "Every trial found that randomises this population to this intervention against this comparator AND publishes per-arm counts in the analysis population is held and pooled. One further eligible registrational trial exists whose per-arm figures are published only inside a pooled report this build could not open; it is listed as eligible and contributing no data, and it is not excluded. Trials in the other licensed indication, and cIAI trials against a different comparator, are outside the scope and are named where they are excluded rather than left unmentioned.",
+ "eligible_but_not_contributing": {
+  "note": "This registrational trial meets every eligibility criterion and is NOT excluded. Its per-arm figures appear only inside a report that pools it with a trial this object already holds separately, and that report is behind a paywall. No paywall was bypassed.",
+  "studies": [
+   {
+    "study_id": "3074A1-306",
+    "nct": null,
+    "registration_note": "No registration for this trial was found in ClinicalTrials.gov; it ran before registration became a condition of publication.",
+    "reason_no_data": "the accessible record publishes its clinical cure figures only POOLED with study 3074A1-301, which this object holds as a separate row. Adding the pooled figure would count that trial twice.",
+    "what_would_be_needed": "the per-trial table of the pooled report, or a separate publication of this trial's own arms.",
+    "arithmetic_deliberately_not_done": "Subtracting the held trial's evaluable counts from the pooled ones would produce a number for this trial. It is not done, because it assumes the pooled report reproduced the held trial's evaluable counts exactly, and that assumption cannot be checked against a report this build cannot read. An unverifiable assumption dressed as arithmetic is the failure this batch exists to prevent."
+   }
+  ]
+ },
+ "excluded_by_scope": {
+  "note": "Named so the boundary of this review is visible rather than implied by silence.",
+  "studies": [
+   {
+    "what": "the two registrational trials in the other licensed indication, complicated skin and skin-structure infection, against vancomycin plus aztreonam",
+    "why": "a different population AND a different comparator",
+    "sections": [
+     "3.2.1",
+     "3.2.3"
+    ],
+    "claim_made_by": "the earlier app this object replaces",
+    "settled_by": "OA_ELLISGROSSE2005, which shows the other indication was studied against a different comparator entirely, so the two cannot be one comparison",
+    "source_id": "OA_ELLISGROSSE2005"
+   },
+   {
+    "what": "a trial in this indication against ceftriaxone plus metronidazole",
+    "why": "the same population but a different comparator, so a different comparison",
+    "sections": [
+     "3.2.3"
+    ],
+    "source_id": "OA_TOWFIGH2010"
+   }
+  ]
+ },
+ "methodological_authority": {
+  "reference": "Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, et al (editors). Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1. Cochrane, 2025.",
+  "url": "https://www.cochrane.org/authors/handbooks-and-manuals/handbook",
+  "version": "6.5.1",
+  "version_checked_on": "2026-08-09",
+  "version_checked_how": "The publisher's versions-and-changes page was read, and it is what settles which version is current: it lists 6.5.1 as the newest release line, with entries dated 2026 and 2025, above 6.5 dated 2024. Each chapter relied on was then opened and its own printed citation line read; the table below is what those lines say. Two of the publisher's pages disagree and the disagreement is recorded rather than resolved in silence: the Handbook landing page and the current-version index both still print version 6.5 updated August 2024. Where they conflict this object follows the version history and the per-chapter citation lines, because those are the more specific and the more recent statements.",
+  "chapters_as_dated_by_the_publisher": [
+   {
+    "chapter": 3,
+    "title": "Defining the criteria for including studies",
+    "version": "6.5",
+    "published": 2024,
+    "last_updated": "August 2023"
+   },
+   {
+    "chapter": 4,
+    "title": "Searching for and selecting studies",
+    "version": "6.5.1",
+    "published": 2025,
+    "last_updated": "March 2025"
+   },
+   {
+    "chapter": 10,
+    "title": "Analysing data and undertaking meta-analyses",
+    "version": "6.5",
+    "published": 2024,
+    "last_updated": "November 2024"
+   }
+  ],
+  "version_note": "The Handbook is versioned as a whole AND dated per chapter, and the two do not move together: the table above gives each chapter the version and the last-updated date the publisher prints on it, and they are not the same as each other. Listing them chapter by chapter keeps the age of the authority behind each decision visible instead of averaged away.",
+  "note": "Every scope, measure, population and pooling decision names the section governing it, on the block it governs.",
+  "sections_relied_on": [
+   {
+    "section": "3.2.1",
+    "title": "Defining types of participants: which people and populations?",
+    "used_for": "The restriction to one indication. The section asks for criteria broad enough to cover the likely diversity of studies but narrow enough that a meaningful answer is obtained when the studies are considered together, and names the definition of the condition as a consideration."
+   },
+   {
+    "section": "3.2.3",
+    "title": "Defining which comparisons will be made",
+    "used_for": "The restriction to one comparator. A trial against a different active drug is a different comparison, not another instance of this one."
+   },
+   {
+    "section": "4.6.1",
+    "title": "Studies (not reports) as the unit of interest",
+    "used_for": "Why a report that pools two trials is not a source for either trial's own arms, and why using it beside a trial already held would double count."
+   },
+   {
+    "section": "4.6.3",
+    "title": "A typical process for selecting studies",
+    "checked_because_disputed": "A judge leg said this sentence belongs to 3.2.4 and not here. The chapter was opened: 4.6.3 contains, verbatim, 'Note that studies should not be omitted from a review solely on the basis of measured outcome data not being reported', with its MECIR box beside it. That leg also gave 3.2.4 the title 'Defining outcomes'; its actual title is 'Selecting, prioritizing and grouping review outcomes'. The citation stands, and 3.2.4 is cited separately for what it does govern here, which is the outcome's time frame.",
+    "used_for": "The disposition of the eligible trial whose own figures are unavailable: the section forbids omitting a study solely because its outcome data are unreported, so it is held rather than excluded."
+   },
+   {
+    "section": "3.2.4",
+    "title": "Selecting, prioritizing and grouping review outcomes",
+    "used_for": "The outcome's TIME FRAME. The section says reviews commonly specify a time frame rather than a specific time point precisely to handle diversity in the timing of measurement across studies, and the expectation printed with it asks that no more than one time point be taken from any study for an outcome. Both are what this pool does, and it is why the differing test-of-cure intervals are declared rather than described as identical."
+   },
+   {
+    "section": "10.4.3",
+    "title": "Which effect measure for dichotomous outcomes?",
+    "used_for": "The choice of the risk ratio, the requirement to make a sensible and declared choice of which category is the event, and the section's own warning that choosing a measure BECAUSE it is the most consistent is not a recommended strategy."
+   },
+   {
+    "section": "10.10.1",
+    "title": "What is heterogeneity?",
+    "used_for": "Clinical and methodological diversity across the pooled trials is documented rather than treated as disqualifying."
+   },
+   {
+    "section": "10.10.2",
+    "title": "Identifying and measuring heterogeneity",
+    "used_for": "The band the observed inconsistency falls in, reported beside the pooled line."
+   },
+   {
+    "section": "10.12.1",
+    "title": "Types of missing data",
+    "used_for": "Participants excluded from an evaluable population are missing individuals, and the expectation printed with that section asks authors to follow intention-to-treat principles as far as possible. It is why the evaluable population is declared as a limitation and tested."
+   },
+   {
+    "section": "10.10.4",
+    "title": "Incorporating heterogeneity into random-effects models",
+    "used_for": "The choice of a random-effects model AND of the estimator for the between-study variance, which the effect-measure sections do not govern. Its subsections carry the record that other estimators perform better than the one kept here, and the advice to compare methods when there are only two or three studies."
+   },
+   {
+    "section": "10.14",
+    "title": "Sensitivity analyses",
+    "used_for": "Testing whether the finding is robust to the decisions taken in reaching it."
+   }
+  ]
+ },
+ "sources": {
+  "OA_OLIVA2005": {
+   "layer": "Primary paper (open access full text)",
+   "layer_rank": 4,
+   "name": "Oliva ME et al. A multicenter trial of the efficacy and safety of tigecycline versus imipenem/cilastatin in patients with complicated intra-abdominal infections. BMC Infectious Diseases.",
+   "url": "https://doi.org/10.1186/1471-2334-5-88",
+   "staged_as": "TIGE-ciai.extract.txt",
+   "access_note": "QUOTED: open access; the figures used are staged verbatim."
+  },
+  "OA_CHEN2010": {
+   "layer": "Primary paper (open access full text)",
+   "layer_rank": 4,
+   "name": "Chen Z et al. Efficacy and safety of tigecycline monotherapy vs. imipenem/cilastatin in Chinese patients with complicated intra-abdominal infections: a randomized controlled trial. BMC Infectious Diseases.",
+   "url": "https://doi.org/10.1186/1471-2334-10-217",
+   "staged_as": "TIGE-ciai.extract.txt",
+   "access_note": "QUOTED: open access; the figures used are staged verbatim."
+  },
+  "REGISTRY_CTGOV": {
+   "layer": "Registry",
+   "layer_rank": 5,
+   "name": "ClinicalTrials.gov posted results for NCT01721408, and the registration records for NCT00081744 and NCT00136201.",
+   "url": "https://clinicaltrials.gov/",
+   "access_note": "QUOTED: the posted outcome carrying this object's third row is staged verbatim, with its posted denominators."
+  },
+  "PAY_BABINCHAK2005": {
+   "layer": "Primary paper (indexed abstract only)",
+   "layer_rank": 4,
+   "name": "Babinchak T et al. The efficacy and safety of tigecycline for the treatment of complicated intra-abdominal infections: analysis of pooled clinical trial data. Clinical Infectious Diseases.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/16080073/",
+   "access_note": "QUOTED: NOT open access. Europe PMC reports it as closed, with no full text record. Only the indexed abstract was read, and it publishes figures pooled across both trials and none for either alone. No paywall was bypassed."
+  },
+  "OA_ELLISGROSSE2005": {
+   "layer": "Primary paper (indexed abstract)",
+   "layer_rank": 4,
+   "name": "Ellis-Grosse EJ et al. The efficacy and safety of tigecycline in the treatment of skin and skin-structure infections: results of 2 double-blind phase 3 comparison studies with vancomycin-aztreonam. Clinical Infectious Diseases.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/16080072/",
+   "access_note": "QUOTED: staged only to make the indication boundary of this review checkable. Nothing is taken from it."
+  },
+  "SR_ZHANG2019_NMA": {
+   "layer": "Published synthesis (open access full text)",
+   "layer_rank": 2,
+   "name": "Carbapenems vs tigecycline for the treatment of complicated intra-abdominal infections: A Bayesian network meta-analysis. Medicine.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/31577763/",
+   "access_note": "QUOTED: open access. The full text was retrieved from PubMed Central and read. An earlier version of this object called it an indexed abstract and said the full text was not retrievable; that was false, and it was false because no attempt had been made. A reviewer found the PMC identifier sitting in this object's own staged record. No number is imported from it."
+  },
+  "SR_2023_CIAI_NMA": {
+   "layer": "Published synthesis (open access full text)",
+   "layer_rank": 2,
+   "name": "Efficacy, safety, and tolerability of antimicrobial agents for complicated intra-abdominal infection: a systematic review and network meta-analysis. BMC Infectious Diseases.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/37085768/",
+   "access_note": "QUOTED: staged for reconciliation only. No number is imported from it."
+  },
+  "ART_SUPERSEDED_SIDECAR": {
+   "layer": "Superseded artifact under examination",
+   "layer_rank": 6,
+   "name": "The extraction-audit sidecar shipped beside the app this object replaces, claiming to cross-validate it.",
+   "url": "outputs/extraction_audit/data/TIGECYCLINE_INFECTION_AUTO_REVIEW.json",
+   "access_note": "QUOTED: read in full and NOT staged into this object's source directory, because it is not evidence about the world -- it is the artifact whose defects are being recorded. Its three rows, one of which randomises a different antibiotic entirely, are set out in regenerate_tigecycline_sidecar.py, which replaces it from this object's own locked dataset."
+  },
+  "OA_TOWFIGH2010": {
+   "layer": "Primary paper (indexed abstract)",
+   "layer_rank": 4,
+   "name": "Towfigh S et al. A multicentre, open-label, randomized comparative study of tigecycline versus ceftriaxone sodium plus metronidazole for the treatment of hospitalized subjects with complicated intra-abdominal infections. Clinical Microbiology and Infection.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/20670293/",
+   "access_note": "QUOTED: staged only to make the comparator boundary checkable. Nothing is taken from it."
+  }
+ },
+ "outcomes": [
+  {
+   "id": "cure_toc_me",
+   "name": "Clinical cure at the test-of-cure visit",
+   "type": "primary",
+   "measure": "RR",
+   "direction_of_benefit": "higher",
+   "null_value": 1,
+   "effect_scale": "log",
+   "estimand": {
+    "id": "cure_toc_me-estimand",
+    "family": "binary_proportion",
+    "model": "proportion of microbiologically evaluable participants judged cured at the test-of-cure visit",
+    "unit_of_analysis": "participant, classified cured or not cured",
+    "case_definition": "investigator-assessed clinical cure at the test-of-cure visit",
+    "window": "the test-of-cure visit, a protocol-defined interval after the end of therapy",
+    "analysis_population": "microbiologically evaluable"
+   },
+   "treatment_node": "tigecycline",
+   "comparator_node": "imipenem/cilastatin",
+   "definition": "Clinical cure at the test-of-cure visit, microbiologically evaluable participants",
+   "definition_note": "The event counted is CURE, the beneficial category. That choice is declared because the section governing the measure asks for it explicitly, and because the complementary choice gives a different answer, which is reported in the sensitivity block rather than hidden."
+  }
+ ],
+ "inputs": {
+  "trials": [
+   {
+    "id": "study-301",
+    "name": "Study 3074A1-301 (Oliva), tigecycline versus imipenem/cilastatin in complicated intra-abdominal infection",
+    "nct": "NCT00081744",
+    "pmid": "16236177",
+    "year": 2005,
+    "design": "double-blind, randomised, multinational, two arms",
+    "blinding": "double-blind",
+    "indication": "complicated intra-abdominal infection",
+    "comparator_type": "active",
+    "comparator": "imipenem/cilastatin",
+    "arms": [
+     {
+      "label": "tigecycline",
+      "role": "treatment",
+      "cured": 199,
+      "evaluable": 247
+     },
+     {
+      "label": "imipenem/cilastatin, active control",
+      "role": "control",
+      "cured": 210,
+      "evaluable": 255
+     }
+    ],
+    "arms_not_used": [],
+    "enrolled": 850,
+    "enrolment_note": "The enrolment recorded here is the count posted on this trial's own registration. It is larger than the evaluable population analysed for this outcome, which is what an evaluable population is.",
+    "population_note": "The ME group named in the quoted sentence is the microbiologically evaluable population: the analysis population of this outcome, not a further randomised arm. This trial randomised two groups and both are declared above.",
+    "by_outcome": {
+     "cure_toc_me": {
+      "estimand_id": "cure_toc_me-estimand",
+      "control_arm_key": "NCT00081744-imipenem-cilastatin",
+      "treatment": {
+       "events": 199,
+       "n": 247,
+       "source_fragments": [
+        "For the ME group, clinical cure rates at TOC were 80.6% (199/247) for tigecycline versus 82.4% (210/255) for IMI/CIS (95% CI -8.4, 5.1 for non-inferiority tigecycline versus IMI/CIS)."
+       ]
+      },
+      "control": {
+       "events": 210,
+       "n": 255,
+       "source_fragments": [
+        "For the ME group, clinical cure rates at TOC were 80.6% (199/247) for tigecycline versus 82.4% (210/255) for IMI/CIS (95% CI -8.4, 5.1 for non-inferiority tigecycline versus IMI/CIS)."
+       ]
+      },
+      "analysed": {
+       "treatment": 247,
+       "control": 255
+      },
+      "analysed_scope": "the microbiologically evaluable participants assessed at the test-of-cure visit. This is an EVALUABLE population, not the randomised one.",
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "OA_OLIVA2005",
+       "source_quotes": [
+        "For the ME group, clinical cure rates at TOC were 80.6% (199/247) for tigecycline versus 82.4% (210/255) for IMI/CIS (95% CI -8.4, 5.1 for non-inferiority tigecycline versus IMI/CIS)."
+       ]
+      }
+     }
+    },
+    "other_population_not_pooled_here": {
+     "population": "microbiological modified intention-to-treat",
+     "treatment_cured": 227,
+     "treatment_analysed": 309,
+     "control_cured": 244,
+     "control_analysed": 312,
+     "used_for": "the analysis-population sensitivity analysis only. It is never mixed with the evaluable rows above."
+    }
+   },
+   {
+    "id": "study-316",
+    "name": "Study 3074A1-316, tigecycline versus imipenem/cilastatin in Chinese patients with complicated intra-abdominal infection",
+    "nct": "NCT00136201",
+    "pmid": "20663130",
+    "year": 2010,
+    "design": "open-label, randomised, multicentre, two arms",
+    "blinding": "open-label",
+    "indication": "complicated intra-abdominal infection",
+    "comparator_type": "active",
+    "comparator": "imipenem/cilastatin",
+    "arms": [
+     {
+      "label": "tigecycline",
+      "role": "treatment",
+      "cured": 45,
+      "evaluable": 52
+     },
+     {
+      "label": "imipenem/cilastatin, active control",
+      "role": "control",
+      "cured": 47,
+      "evaluable": 48
+     }
+    ],
+    "arms_not_used": [],
+    "enrolled": 200,
+    "enrolment_note": "The enrolment recorded here is the count posted on this trial's own registration. It is larger than the evaluable population analysed for this outcome, which is what an evaluable population is.",
+    "population_note": "The ME group named in the quoted sentence is the microbiologically evaluable population: the analysis population of this outcome, not a further randomised arm. This trial randomised two groups and both are declared above.",
+    "by_outcome": {
+     "cure_toc_me": {
+      "estimand_id": "cure_toc_me-estimand",
+      "control_arm_key": "NCT00136201-imipenem-cilastatin",
+      "treatment": {
+       "events": 45,
+       "n": 52,
+       "source_fragments": [
+        "In the microbiologically evaluable population, 86.5% (45 of 52) of tigecycline- and 97.9% (47 of 48) of imipenem/cilastatin-treated patients were cured at the test-of-cure assessment (12-37 days after therapy); in the microbiologic modified intent-to-treat population, cure rates were 81.7% (49 of 60) and 90.9% (50 of 55), respectively."
+       ]
+      },
+      "control": {
+       "events": 47,
+       "n": 48,
+       "source_fragments": [
+        "In the microbiologically evaluable population, 86.5% (45 of 52) of tigecycline- and 97.9% (47 of 48) of imipenem/cilastatin-treated patients were cured at the test-of-cure assessment (12-37 days after therapy); in the microbiologic modified intent-to-treat population, cure rates were 81.7% (49 of 60) and 90.9% (50 of 55), respectively."
+       ]
+      },
+      "analysed": {
+       "treatment": 52,
+       "control": 48
+      },
+      "analysed_scope": "the microbiologically evaluable participants assessed at the test-of-cure visit. This is an EVALUABLE population, not the randomised one.",
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "OA_CHEN2010",
+       "source_quotes": [
+        "In the microbiologically evaluable population, 86.5% (45 of 52) of tigecycline- and 97.9% (47 of 48) of imipenem/cilastatin-treated patients were cured at the test-of-cure assessment (12-37 days after therapy); in the microbiologic modified intent-to-treat population, cure rates were 81.7% (49 of 60) and 90.9% (50 of 55), respectively."
+       ]
+      }
+     }
+    },
+    "other_population_not_pooled_here": {
+     "population": "microbiological modified intention-to-treat",
+     "treatment_cured": 49,
+     "treatment_analysed": 60,
+     "control_cured": 50,
+     "control_analysed": 55,
+     "used_for": "the analysis-population sensitivity analysis only. It is never mixed with the evaluable rows above."
+    }
+   },
+   {
+    "id": "study-b1811185",
+    "name": "Study B1811185, tigecycline versus imipenem/cilastatin in complicated intra-abdominal infection",
+    "nct": "NCT01721408",
+    "pmid": "30584308",
+    "year": 2018,
+    "design": "double-blind, randomised, multicentre, two arms, phase four",
+    "blinding": "double-blind",
+    "indication": "complicated intra-abdominal infection",
+    "comparator_type": "active",
+    "comparator": "imipenem/cilastatin",
+    "arms": [
+     {
+      "label": "tigecycline",
+      "role": "treatment",
+      "cured": 110,
+      "evaluable": 125
+     },
+     {
+      "label": "imipenem/cilastatin, active control",
+      "role": "control",
+      "cured": 102,
+      "evaluable": 107
+     }
+    ],
+    "arms_not_used": [],
+    "enrolled": 470,
+    "enrolment_note": "The enrolment recorded here is the count posted on this trial's own registration. It is larger than the evaluable population analysed for this outcome, which is what an evaluable population is.",
+    "population_note": "The ME group named in the quoted sentence is the microbiologically evaluable population: the analysis population of this outcome, not a further randomised arm. This trial randomised two groups and both are declared above.",
+    "by_outcome": {
+     "cure_toc_me": {
+      "estimand_id": "cure_toc_me-estimand",
+      "control_arm_key": "NCT01721408-imipenem-cilastatin",
+      "treatment": {
+       "events": 110,
+       "n": 125,
+       "source_fragments": [
+        "{\"type\": \"SECONDARY\", \"title\": \"Clinical Response at the TOC Assessment Within the Microbiologically Evaluable (ME) Population\", \"description\": \"The clinical response was to be determined by the investigator and was classified as 1 of the following: cure (relevant clinical signs and symptoms of infection at baseline disappeared or recovered to normal and relevant non microbiological results of laboratory tests returned to normal level or the resolution of signs and symptoms so that at no further therapy was required), failure (participant required additional surgical or radiologic intervention and/or received additional anti-infection therapy to cure the infection since administration of study drug until TOC; or death after study Day 2 due to the infection or a treatment related AE or discontinuation due to a treatment related AE or received greater than 120% of the prescribed number of investigational product doses), or indeterminate (lost to follow-up; or died within 2 days after the first dose of study drug for any reason; or died after study Day 2 but prior to the TOC assessment because of non infection related reasons).\", \"populationDescription\": \"The ME population was defined as all CE participants who satisfied the pre-specified ME evaluable criteria.\", \"reportingStatus\": \"POSTED\", \"paramType\": \"NUMBER\", \"dispersionType\": \"95% Confidence Interval\", \"unitOfMeasure\": \"percentage of participants\", \"timeFrame\": \"Day 3, Day 14 or last day of therapy (treatment duration was at least 5 days and up to 14 days), and TOC (14-21 days after the last dose of therapy)\", \"groups\": [{\"id\": \"OG000\", \"title\": \"Tigecycline 50mg\", \"description\": \"Participants were administered with tigecycline every 12 hours (an initial intravenous \\\\[IV\\\\] dose of 100 mg followed by 50 mg twice a day \\\\[BID\\\\] approximately every 12 hours) and placebo (100-mL of normal saline) IV doses every 12 hours beginning 6 hours after the initial IV dose of tigecycline.\"}, {\"id\": \"OG001\", \"title\": \"Imipenem/Cilastatin\", \"description\": \"Participants were administered with imipenem/cilastatin (approximately 100-mL IV infusion) intravenously approximately every 6 hours. IV placebo (100 mL of normal saline) was required to be dosed immediately After the first dose of imipenem/cilastatin.\"}], \"denoms\": [{\"units\": \"Participants\", \"counts\": [{\"groupId\": \"OG000\", \"value\": \"125\"}, {\"groupId\": \"OG001\", \"value\": \"107\"}]}], \"classes\": [{\"title\": \"Cure\", \"categories\": [{\"measurements\": [{\"groupId\": \"OG000\", \"value\": \"88.0\", \"lowerLimit\": \"81.0\", \"upperLimit\": \"93.1\"}, {\"groupId\": \"OG001\", \"value\": \"95.3\", \"lowerLimit\": \"89.4\", \"upperLimit\": \"98.5\"}]}]}, {\"title\": \"Failure\", \"categories\": [{\"measurements\": [{\"groupId\": \"OG000\", \"value\": \"12.0\", \"lowerLimit\": \"6.9\", \"upperLimit\": \"19.0\"}, {\"groupId\": \"OG001\", \"value\": \"4.7\", \"lowerLimit\": \"1.5\", \"upperLimit\": \"10.6\"}]}]}], \"analyses\": [{\"groupIds\": [\"OG000\", \"OG001\"], \"nonInferiorityType\": \"NON_INFERIORITY_OR_EQUIVALENCE\", \"nonInferiorityComment\": \"Non-inferiority was concluded if the lower limit of the 2-sided CI for the difference in cure rates between treatment groups (tigecycline minus imipenem/cilastatin) was greater than -15%.\", \"pValue\": \"0.0277\", \"statisticalMethod\": \"See method of CI\", \"paramType\": \"Difference in percentage\", \"paramValue\": \"-7.3\", \"ciPctValue\": \"95\", \"ciNumSides\": \"TWO_SIDED\", \"ciLowerLimit\": \"-15.2\", \"ciUpperLimit\": \"0.5\", \"estimateComment\": \"CIs and p-values for between-group treatment difference in cure rate were calculated by the asymptotic method corrected for continuity with normal distribution approximation.\"}]}"
+       ]
+      },
+      "control": {
+       "events": 102,
+       "n": 107,
+       "source_fragments": [
+        "{\"type\": \"SECONDARY\", \"title\": \"Clinical Response at the TOC Assessment Within the Microbiologically Evaluable (ME) Population\", \"description\": \"The clinical response was to be determined by the investigator and was classified as 1 of the following: cure (relevant clinical signs and symptoms of infection at baseline disappeared or recovered to normal and relevant non microbiological results of laboratory tests returned to normal level or the resolution of signs and symptoms so that at no further therapy was required), failure (participant required additional surgical or radiologic intervention and/or received additional anti-infection therapy to cure the infection since administration of study drug until TOC; or death after study Day 2 due to the infection or a treatment related AE or discontinuation due to a treatment related AE or received greater than 120% of the prescribed number of investigational product doses), or indeterminate (lost to follow-up; or died within 2 days after the first dose of study drug for any reason; or died after study Day 2 but prior to the TOC assessment because of non infection related reasons).\", \"populationDescription\": \"The ME population was defined as all CE participants who satisfied the pre-specified ME evaluable criteria.\", \"reportingStatus\": \"POSTED\", \"paramType\": \"NUMBER\", \"dispersionType\": \"95% Confidence Interval\", \"unitOfMeasure\": \"percentage of participants\", \"timeFrame\": \"Day 3, Day 14 or last day of therapy (treatment duration was at least 5 days and up to 14 days), and TOC (14-21 days after the last dose of therapy)\", \"groups\": [{\"id\": \"OG000\", \"title\": \"Tigecycline 50mg\", \"description\": \"Participants were administered with tigecycline every 12 hours (an initial intravenous \\\\[IV\\\\] dose of 100 mg followed by 50 mg twice a day \\\\[BID\\\\] approximately every 12 hours) and placebo (100-mL of normal saline) IV doses every 12 hours beginning 6 hours after the initial IV dose of tigecycline.\"}, {\"id\": \"OG001\", \"title\": \"Imipenem/Cilastatin\", \"description\": \"Participants were administered with imipenem/cilastatin (approximately 100-mL IV infusion) intravenously approximately every 6 hours. IV placebo (100 mL of normal saline) was required to be dosed immediately After the first dose of imipenem/cilastatin.\"}], \"denoms\": [{\"units\": \"Participants\", \"counts\": [{\"groupId\": \"OG000\", \"value\": \"125\"}, {\"groupId\": \"OG001\", \"value\": \"107\"}]}], \"classes\": [{\"title\": \"Cure\", \"categories\": [{\"measurements\": [{\"groupId\": \"OG000\", \"value\": \"88.0\", \"lowerLimit\": \"81.0\", \"upperLimit\": \"93.1\"}, {\"groupId\": \"OG001\", \"value\": \"95.3\", \"lowerLimit\": \"89.4\", \"upperLimit\": \"98.5\"}]}]}, {\"title\": \"Failure\", \"categories\": [{\"measurements\": [{\"groupId\": \"OG000\", \"value\": \"12.0\", \"lowerLimit\": \"6.9\", \"upperLimit\": \"19.0\"}, {\"groupId\": \"OG001\", \"value\": \"4.7\", \"lowerLimit\": \"1.5\", \"upperLimit\": \"10.6\"}]}]}], \"analyses\": [{\"groupIds\": [\"OG000\", \"OG001\"], \"nonInferiorityType\": \"NON_INFERIORITY_OR_EQUIVALENCE\", \"nonInferiorityComment\": \"Non-inferiority was concluded if the lower limit of the 2-sided CI for the difference in cure rates between treatment groups (tigecycline minus imipenem/cilastatin) was greater than -15%.\", \"pValue\": \"0.0277\", \"statisticalMethod\": \"See method of CI\", \"paramType\": \"Difference in percentage\", \"paramValue\": \"-7.3\", \"ciPctValue\": \"95\", \"ciNumSides\": \"TWO_SIDED\", \"ciLowerLimit\": \"-15.2\", \"ciUpperLimit\": \"0.5\", \"estimateComment\": \"CIs and p-values for between-group treatment difference in cure rate were calculated by the asymptotic method corrected for continuity with normal distribution approximation.\"}]}"
+       ]
+      },
+      "analysed": {
+       "treatment": 125,
+       "control": 107
+      },
+      "analysed_scope": "the microbiologically evaluable participants assessed at the test-of-cure visit. This is an EVALUABLE population, not the randomised one.",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_quotes": [
+        "{\"type\": \"SECONDARY\", \"title\": \"Clinical Response at the TOC Assessment Within the Microbiologically Evaluable (ME) Population\", \"description\": \"The clinical response was to be determined by the investigator and was classified as 1 of the following: cure (relevant clinical signs and symptoms of infection at baseline disappeared or recovered to normal and relevant non microbiological results of laboratory tests returned to normal level or the resolution of signs and symptoms so that at no further therapy was required), failure (participant required additional surgical or radiologic intervention and/or received additional anti-infection therapy to cure the infection since administration of study drug until TOC; or death after study Day 2 due to the infection or a treatment related AE or discontinuation due to a treatment related AE or received greater than 120% of the prescribed number of investigational product doses), or indeterminate (lost to follow-up; or died within 2 days after the first dose of study drug for any reason; or died after study Day 2 but prior to the TOC assessment because of non infection related reasons).\", \"populationDescription\": \"The ME population was defined as all CE participants who satisfied the pre-specified ME evaluable criteria.\", \"reportingStatus\": \"POSTED\", \"paramType\": \"NUMBER\", \"dispersionType\": \"95% Confidence Interval\", \"unitOfMeasure\": \"percentage of participants\", \"timeFrame\": \"Day 3, Day 14 or last day of therapy (treatment duration was at least 5 days and up to 14 days), and TOC (14-21 days after the last dose of therapy)\", \"groups\": [{\"id\": \"OG000\", \"title\": \"Tigecycline 50mg\", \"description\": \"Participants were administered with tigecycline every 12 hours (an initial intravenous \\\\[IV\\\\] dose of 100 mg followed by 50 mg twice a day \\\\[BID\\\\] approximately every 12 hours) and placebo (100-mL of normal saline) IV doses every 12 hours beginning 6 hours after the initial IV dose of tigecycline.\"}, {\"id\": \"OG001\", \"title\": \"Imipenem/Cilastatin\", \"description\": \"Participants were administered with imipenem/cilastatin (approximately 100-mL IV infusion) intravenously approximately every 6 hours. IV placebo (100 mL of normal saline) was required to be dosed immediately After the first dose of imipenem/cilastatin.\"}], \"denoms\": [{\"units\": \"Participants\", \"counts\": [{\"groupId\": \"OG000\", \"value\": \"125\"}, {\"groupId\": \"OG001\", \"value\": \"107\"}]}], \"classes\": [{\"title\": \"Cure\", \"categories\": [{\"measurements\": [{\"groupId\": \"OG000\", \"value\": \"88.0\", \"lowerLimit\": \"81.0\", \"upperLimit\": \"93.1\"}, {\"groupId\": \"OG001\", \"value\": \"95.3\", \"lowerLimit\": \"89.4\", \"upperLimit\": \"98.5\"}]}]}, {\"title\": \"Failure\", \"categories\": [{\"measurements\": [{\"groupId\": \"OG000\", \"value\": \"12.0\", \"lowerLimit\": \"6.9\", \"upperLimit\": \"19.0\"}, {\"groupId\": \"OG001\", \"value\": \"4.7\", \"lowerLimit\": \"1.5\", \"upperLimit\": \"10.6\"}]}]}], \"analyses\": [{\"groupIds\": [\"OG000\", \"OG001\"], \"nonInferiorityType\": \"NON_INFERIORITY_OR_EQUIVALENCE\", \"nonInferiorityComment\": \"Non-inferiority was concluded if the lower limit of the 2-sided CI for the difference in cure rates between treatment groups (tigecycline minus imipenem/cilastatin) was greater than -15%.\", \"pValue\": \"0.0277\", \"statisticalMethod\": \"See method of CI\", \"paramType\": \"Difference in percentage\", \"paramValue\": \"-7.3\", \"ciPctValue\": \"95\", \"ciNumSides\": \"TWO_SIDED\", \"ciLowerLimit\": \"-15.2\", \"ciUpperLimit\": \"0.5\", \"estimateComment\": \"CIs and p-values for between-group treatment difference in cure rate were calculated by the asymptotic method corrected for continuity with normal distribution approximation.\"}]}"
+       ]
+      },
+      "derivation": "The registry posts this outcome as PERCENTAGES over posted denominators, not as counts. The posted category Cure gives 88.0 per cent over 125 participants for tigecycline and 95.3 per cent over 107 for imipenem/cilastatin. 0.880 x 125 = 110 exactly. 0.953 x 107 = 101.97, which rounds to 102, and 102 of 107 is 95.327 per cent, which prints as the posted 95.3. Both counts are therefore determined by the posted figures rather than chosen. A separate registry outcome on the same record, MICROBIOLOGICAL response in the same population, happens to carry the same two percentages over the same two denominators; the clinical row here is taken from the CLINICAL outcome, and the coincidence is stated so a reader can check that it was not lifted from the microbiological one."
+     }
+    },
+    "other_population_not_pooled_here": {
+     "population": "plain modified intention-to-treat, defined by this trial's registry as all randomised participants who received at least one dose",
+     "treatment_cured": 192,
+     "treatment_analysed": 232,
+     "control_cured": 205,
+     "control_analysed": 231,
+     "derivation": "the registry posts the Cure category as percentages over posted denominators, as it does for the evaluable population: 0.828 x 232 is 192, and 0.887 x 231 is 205, and each recovers the posted percentage when divided back.",
+     "why_it_is_not_used": "it is a PLAIN intention-to-treat population. The other two trials publish a MICROBIOLOGICAL modified intention-to-treat population. Pooling them would put two different definitions under one name.",
+     "source_quotes": [
+      "{\"type\": \"PRIMARY\", \"title\": \"Clinical Response at the TOC Assessment Within the Modified Intent-to-Treat (mITT) Population\", \"description\": \"The clinical response was to be determined by the investigator and was classified as 1 of the following: cure (relevant clinical signs and symptoms of infection at baseline disappeared or recovered to normal and relevant non microbiological results of laboratory tests returned to normal level or the resolution of signs and symptoms so that at no further therapy was required), failure (participant required additional surgical or radiologic intervention and/or received additional anti-infection therapy to cure the infection since administration of study drug until TOC; or death after study Day 2 due to the infection or a treatment related AE or discontinuation due to a treatment related AE or received greater than 120% of the prescribed number of investigational product doses), or indeterminate (lost to follow-up; or died within 2 days after the first dose of study drug for any reason; or died after study Day 2 but prior to the TOC assessment because of non infection related reasons).\", \"populationDescription\": \"The MITT population was defined as all randomized participants who received at least 1 dose of investigational product.\", \"reportingStatus\": \"POSTED\", \"paramType\": \"NUMBER\", \"dispersionType\": \"95% Confidence Interval\", \"unitOfMeasure\": \"percentage of participants\", \"timeFrame\": \"Day 3, Day 14 or last day of therapy (treatment duration was at least 5 days and up to 14 days), and TOC (14-21 days after the last dose of therapy)\", \"groups\": [{\"id\": \"OG000\", \"title\": \"Tigecycline 50mg\", \"description\": \"Participants were administered with tigecycline every 12 hours (an initial intravenous \\\\[IV\\\\] dose of 100 mg followed by 50 mg twice a day \\\\[BID\\\\] approximately every 12 hours) and placebo (100-mL of normal saline) IV doses every 12 hours beginning 6 hours after the initial IV dose of tigecycline.\"}, {\"id\": \"OG001\", \"title\": \"Imipenem/Cilastatin\", \"description\": \"Participants were administered with imipenem/cilastatin (approximately 100-mL IV infusion) intravenously approximately every 6 hours. IV placebo (100 mL of normal saline) was required to be dosed immediately After the first dose of imipenem/cilastatin.\"}], \"denoms\": [{\"units\": \"Participants\", \"counts\": [{\"groupId\": \"OG000\", \"value\": \"232\"}, {\"groupId\": \"OG001\", \"value\": \"231\"}]}], \"classes\": [{\"title\": \"Cure\", \"categories\": [{\"measurements\": [{\"groupId\": \"OG000\", \"value\": \"82.8\", \"lowerLimit\": \"77.3\", \"upperLimit\": \"87.4\"}, {\"groupId\": \"OG001\", \"value\": \"88.7\", \"lowerLimit\": \"83.9\", \"upperLimit\": \"92.5\"}]}]}, {\"title\": \"Failure\", \"categories\": [{\"measurements\": [{\"groupId\": \"OG000\", \"value\": \"10.3\", \"lowerLimit\": \"6.7\", \"upperLimit\": \"15.0\"}, {\"groupId\": \"OG001\", \"value\": \"3.5\", \"lowerLimit\": \"1.5\", \"upperLimit\": \"6.7\"}]}]}, {\"title\": \"Indeterminate\", \"categories\": [{\"measurements\": [{\"groupId\": \"OG000\", \"value\": \"6.9\", \"lowerLimit\": \"4.0\", \"upperLimit\": \"11.0\"}, {\"groupId\": \"OG001\", \"value\": \"7.8\", \"lowerLimit\": \"4.7\", \"upperLimit\": \"12.0\"}]}]}], \"analyses\": [{\"groupIds\": [\"OG000\", \"OG001\"], \"nonInferiorityType\": \"NON_INFERIORITY_OR_EQUIVALENCE\", \"nonInferiorityComment\": \"Non-inferiority was concluded if the lower limit of the 2-sided CI for the difference in cure rates between treatment groups (tigecycline minus imipenem/cilastatin) was greater than -15%.\", \"pValue\": \"0.0040\", \"statisticalMethod\": \"See method of CI\", \"paramType\": \"Difference in percentage\", \"paramValue\": \"-6.0\", \"ciPctValue\": \"95\", \"ciNumSides\": \"TWO_SIDED\", \"ciLowerLimit\": \"-12.8\", \"ciUpperLimit\": \"0.8\", \"estimateComment\": \"Used the asymptotic method corrected for continuity with normal distribution approximation. Non-inferiority test was conducted on the CE population. If non-inferiority was concluded, superiority test was conducted on both the CE and mITT populations.\"}]}"
+     ],
+     "source_id": "REGISTRY_CTGOV"
+    }
+   }
+  ]
+ },
+ "config": {
+  "confidence_level": 95
+ },
+ "results": {
+  "by_outcome": {
+   "cure_toc_me": {
+    "k": 3,
+    "estimand_id": "cure_toc_me-estimand",
+    "comparator_kind": "randomised concurrent active control",
+    "handbook": {
+     "decision": "POOL the three trials that share indication, comparator, outcome and analysis population, on the risk ratio of cure, by random effects; and report in the same breath that the exclusion of the null does not survive the alternatives the Handbook asks to be tested",
+     "sections": [
+      "3.2.4",
+      "10.4.3",
+      "10.10.1",
+      "10.10.2",
+      "10.10.4",
+      "10.14"
+     ],
+     "conformance": "Section 10.4.3 recommends that meta-analyses be undertaken using risk ratios or odds ratios and asks for a sensible, declared choice of which category is the event; the risk ratio of cure is used and the event category is declared on the outcome. That section also warns that selecting an effect measure BECAUSE it is the most consistent is not a recommended strategy, since it can spuriously maximise precision, and this object is bound by that warning: the risk ratio is not chosen for its lower inconsistency, it is chosen as one of the two measures the section recommends and on its ease of interpretation, which the same section discusses. The odds ratio is reported beside it. What the pooled trials differ in is recorded under 10.10.1 rather than treated as disqualifying, and the inconsistency statistic is reported in the bands of 10.10.2. Section 10.14, with 10.4.3's own instruction to test the choice of statistic and of event category, is why the sensitivity block exists and why its result is reported as prominently as the primary line. Section 10.10.4 is what governs the MODEL and the estimator, which the effect-measure sections do not: it records that estimators other than DerSimonian and Laird perform better and that restricted maximum likelihood is now the default in the Cochrane software, and its subsection on few studies advises comparing the methods when there are only two or three. That comparison is in the sensitivity block, on all three estimators and on both interval methods."
+    },
+    "per_trial": [
+     {
+      "trial_id": "study-301",
+      "nct": "NCT00081744",
+      "measure": "RR",
+      "treatment_cured": 199,
+      "treatment_evaluable": 247,
+      "control_cured": 210,
+      "control_evaluable": 255,
+      "estimand_id": "cure_toc_me-estimand",
+      "point": 0.9783,
+      "ci_low": 0.8999,
+      "ci_high": 1.0636,
+      "ci_level": 95,
+      "derivation": "risk ratio of CLINICAL CURE, computed from this trial's own two-by-two with a normal-approximation interval on the log scale. Cure is beneficial, so a ratio BELOW one means tigecycline cured FEWER of its evaluable participants than the comparator did."
+     },
+     {
+      "trial_id": "study-316",
+      "nct": "NCT00136201",
+      "measure": "RR",
+      "treatment_cured": 45,
+      "treatment_evaluable": 52,
+      "control_cured": 47,
+      "control_evaluable": 48,
+      "estimand_id": "cure_toc_me-estimand",
+      "point": 0.8838,
+      "ci_low": 0.7879,
+      "ci_high": 0.9914,
+      "ci_level": 95,
+      "derivation": "risk ratio of CLINICAL CURE, computed from this trial's own two-by-two with a normal-approximation interval on the log scale. Cure is beneficial, so a ratio BELOW one means tigecycline cured FEWER of its evaluable participants than the comparator did."
+     },
+     {
+      "trial_id": "study-b1811185",
+      "nct": "NCT01721408",
+      "measure": "RR",
+      "treatment_cured": 110,
+      "treatment_evaluable": 125,
+      "control_cured": 102,
+      "control_evaluable": 107,
+      "estimand_id": "cure_toc_me-estimand",
+      "point": 0.9231,
+      "ci_low": 0.8546,
+      "ci_high": 0.9972,
+      "ci_level": 95,
+      "derivation": "risk ratio of CLINICAL CURE, computed from this trial's own two-by-two with a normal-approximation interval on the log scale. Cure is beneficial, so a ratio BELOW one means tigecycline cured FEWER of its evaluable participants than the comparator did. Counts derived; see the derivation note on this trial's input."
+     }
+    ],
+    "poolable": true,
+    "pool_uniformity": {
+     "indication": [
+      "identical",
+      "every pooled trial states complicated intra-abdominal infection as its indication: 'patients with cIAI randomly received intravenous (IV) tigecycline ... or IV IMI/CIS', 'Chinese patients with cIAIs', and a phase four study in 'Hospitalized cIAI patients'."
+     ],
+     "comparator": [
+      "identical",
+      "every pooled trial randomises against imipenem/cilastatin by name, in the design sentences quoted for each on its own row."
+     ],
+     "outcome": [
+      "identical",
+      "every pooled trial reports clinical cure at the test-of-cure visit; the differing WINDOW of that visit is recorded as its own dimension below rather than folded into this one."
+     ],
+     "analysis_population": [
+      "identical",
+      "every pooled row is the MICROBIOLOGICALLY EVALUABLE population: 'For the ME group, clinical cure rates at TOC were 80.6% (199/247)', 'In the microbiologically evaluable population, 86.5% (45 of 52)', and the registry's posted 'Clinical Response at the TOC Assessment Within the Microbiologically Evaluable (ME) Population'. An earlier version declared this identical with nothing behind it, which a build-time rule added after the malaria comparator defect now refuses."
+     ],
+     "blinding": [
+      "differs",
+      "two trials are double-blind and one is open-label. An open-label trial of a subjective, investigator-assessed outcome is the more susceptible to assessment bias, and its removal is one of the leave-one-out analyses"
+     ],
+     "test_of_cure_window": [
+      "differs",
+      "each protocol defines its own test-of-cure interval and the three do not coincide: one runs fourteen to thirty-five days after therapy, one twelve to thirty-seven, and one fourteen to twenty-one days after the last dose. Section 3.2.4 is what permits this and what it asks for: it says a review commonly specifies a time FRAME rather than a specific time point precisely to handle diversity in timing across studies, and its expectation on predefining time points asks that no more than one time point be taken from each study for an outcome, which is what happens here. An earlier version of this table called the outcome identical without qualification, which made the windows look the same; a reviewer read the three protocols and found they are not"
+     ],
+     "region": [
+      "differs",
+      "one trial is multinational and two enrolled in one country"
+     ],
+     "trial_size": [
+      "differs",
+      "the evaluable populations differ by roughly an order of magnitude between the largest and the smallest, so the smallest contributes little weight but can still move a random-effects estimate"
+     ]
+    },
+    "poolable_reason": "Identical across the pooled trials: indication, comparator, outcome definition and analysis population. Not identical, and pooled anyway with the reason recorded against each: blinding, region and trial size. Each difference that could plausibly drive the result has a matching entry in the sensitivity block.",
+    "model": "random",
+    "estimator": "REML",
+    "estimator_used": "REML",
+    "pooled": {
+     "measure": "RR",
+     "point": 0.9351,
+     "ci_low": 0.8885,
+     "ci_high": 0.9842,
+     "ci_level": 95,
+     "scale": "log"
+    },
+    "favours": "control",
+    "favours_note": "The pooled interval lies wholly below the null AND the outcome is beneficial, so the comparator is the arm favoured. This is the reading an earlier presentation of this review inverted.",
+    "heterogeneity": {
+     "tau2": 2.5e-05,
+     "i2": 7.2866,
+     "q": 2.1572,
+     "df": 2
+    },
+    "heterogeneity_status": "tau-squared and I-squared are recorded beside this line, on the measure actually used. They are NOT the grounds on which that measure was chosen.",
+    "single_study_ref": null,
+    "sensitivity": {
+     "why": "Section 10.4.3 says in terms that it may be wise to test whether the choice of summary statistic AND of which category counts as the event is critical to the conclusions, and section 10.14 is the general authority for testing arbitrary or unclear decisions. Here the answer is that it IS critical, and that is the most important thing this object has to report.",
+     "analyses": [
+      {
+       "id": "odds-ratio",
+       "changed": "the summary statistic, from risk ratio to odds ratio",
+       "result": {
+        "point": 0.4987,
+        "ci_low": 0.1955,
+        "ci_high": 1.2722,
+        "i2": 58.7606
+       },
+       "verdict": "the interval now includes the null"
+      },
+      {
+       "id": "event-is-failure",
+       "changed": "which category counts as the event, from cure to its complement, treatment failure",
+       "result": {
+        "point": 1.8683,
+        "ci_low": 0.7784,
+        "ci_high": 4.4844,
+        "i2": 59.7293
+       },
+       "verdict": "the interval now includes the null"
+      },
+      {
+       "id": "fixed-effect",
+       "changed": "the model, from random effects to fixed effect",
+       "result": {
+        "point": 0.9352,
+        "ci_low": 0.8888,
+        "ci_high": 0.9839,
+        "i2": 7.2866
+       },
+       "verdict": "unchanged in substance"
+      },
+      {
+       "id": "analysis-population-best-available",
+       "changed": "the analysis population, to each trial's best-available modified intention-to-treat population, across all three trials. Two supply a MICROBIOLOGICAL one and the third a PLAIN one, so this row deliberately crosses a definition difference that the row below refuses to cross",
+       "result": {
+        "point": 0.9304,
+        "ci_low": 0.8821,
+        "ci_high": 0.9812,
+        "i2": 0.0
+       },
+       "verdict": "still excludes the null"
+      },
+      {
+       "id": "analysis-population",
+       "changed": "the analysis population, from microbiologically evaluable to microbiological modified intention-to-treat, across the two trials that publish that SAME definition",
+       "result": {
+        "point": 0.9281,
+        "ci_low": 0.8601,
+        "ci_high": 1.0014,
+        "i2": 0.0
+       },
+       "verdict": "the interval now includes the null, on the two trials that permit the comparison"
+      },
+      {
+       "id": "leave-out-study-301",
+       "changed": "the study set, by removing study-301",
+       "result": {
+        "point": 0.9107,
+        "ci_low": 0.8542,
+        "ci_high": 0.971,
+        "i2": 0.0
+       },
+       "verdict": "still excludes the null"
+      },
+      {
+       "id": "leave-out-study-316",
+       "changed": "the study set, by removing study-316",
+       "result": {
+        "point": 0.9481,
+        "ci_low": 0.8959,
+        "ci_high": 1.0035,
+        "i2": 0.1149
+       },
+       "verdict": "the interval now includes the null"
+      },
+      {
+       "id": "leave-out-study-b1811185",
+       "changed": "the study set, by removing study-b1811185",
+       "result": {
+        "point": 0.9373,
+        "ci_low": 0.8495,
+        "ci_high": 1.0341,
+        "i2": 49.1254
+       },
+       "verdict": "the interval now includes the null"
+      }
+     ],
+     "between_study_variance_method_comparison": {
+      "why": "Section 10.10.4.4 records that other estimators of the between-study variance perform better than DerSimonian and Laird and that the restricted maximum likelihood method is now the default in the Cochrane software, and section 10.10.4.5 advises in terms that with only two or three studies the different methods should be compared in a sensitivity analysis. This pool has three, so the comparison is done rather than the advice merely cited.",
+      "methods": [
+       {
+        "between_study_variance_estimator": "DL",
+        "interval_method": "Wald",
+        "point": 0.9348,
+        "ci_low": 0.8865,
+        "ci_high": 0.9858,
+        "tau2": 0.000166,
+        "excludes_the_null": true
+       },
+       {
+        "between_study_variance_estimator": "PM",
+        "interval_method": "Wald",
+        "point": 0.9348,
+        "ci_low": 0.8864,
+        "ci_high": 0.9859,
+        "tau2": 0.000178,
+        "excludes_the_null": true
+       },
+       {
+        "between_study_variance_estimator": "REML",
+        "interval_method": "Wald",
+        "point": 0.9351,
+        "ci_low": 0.8885,
+        "ci_high": 0.9842,
+        "tau2": 2.5e-05,
+        "excludes_the_null": true
+       },
+       {
+        "between_study_variance_estimator": "REML",
+        "interval_method": "HKSJ",
+        "point": 0.9351,
+        "ci_low": 0.8327,
+        "ci_high": 1.0502,
+        "tau2": 2.5e-05,
+        "excludes_the_null": false
+       }
+      ],
+      "sections_checked_because_disputed": "A judge leg said this guidance lives in 10.10.4.1, titled 'Between-study variance estimators'. It does not. The chapter was opened: 10.10.4.1 is 'Fixed or random effects?'. The restricted maximum likelihood and RevMan-default text is in 10.10.4.4, 'Implementing random-effects meta-analyses', and the advice to compare methods with two or three studies is the closing sentence of 10.10.4.5. Both are quoted in this object's own authority registry. The citations stand.",
+      "verdict": "The three variance estimators agree closely, which is what the Handbook reports is usual: they can differ substantially in the heterogeneity they estimate but seldom move the summary effect much. The interval method is what matters here. Under the Hartung-Knapp-Sidik-Jonkman interval the null is no longer excluded, and section 10.10.4.5 says exactly what to make of that: with three studies that interval is likely to be too wide, while the ordinary one is likely to be too narrow, so neither is taken as decisive and both are shown.",
+      "estimator_kept": "The headline estimator is restricted maximum likelihood, which is what section 10.10.4.4 records as the default in the Cochrane software and the direction its evidence points: it says in terms that other methods for estimating the between-study variance perform better than DerSimonian and Laird. An earlier version of this object kept DerSimonian and Laird as the headline and gave as its reason that the local validator could recompute it. A reviewer was right that this is not a methodological reason at all, and that it mattered here, because the headline is the line that excludes the null. The tooling was the thing that had to move, not the method: the validator now recomputes restricted maximum likelihood independently, so the Handbook's default and external checkability are no longer in tension. DerSimonian and Laird is still shown beside it, and it makes almost no difference to the summary, which is what the Handbook says to expect."
+     },
+     "conclusion": "The DIRECTION is stable: every trial's point estimate, every alternative statistic and every leave-one-out set puts tigecycline below its comparator on cure. What is NOT stable is the exclusion of the null. It survives only under the risk ratio of cure, on the evaluable population, with all three trials in. Reporting the primary line without this block would present a fragile result as a firm one."
+    }
+   }
+  }
+ },
+ "scope_decisions": {
+  "SCOPE:indication-intra-abdominal-only": {
+   "decision": "Restrict to complicated intra-abdominal infection, and exclude the other licensed indication",
+   "sections": [
+    "3.2.1"
+   ],
+   "conformance": "Section 3.2.1 asks for participant criteria broad enough to encompass the likely diversity of studies but narrow enough that a meaningful answer is obtained when the studies are considered together, and names the definition of the condition among the considerations. The two indications are different infections, treated at different sites, and in this drug's programme they were studied against DIFFERENT comparators, so combining them would answer neither question. The review this object replaces combined them."
+  },
+  "SCOPE:comparator-imipenem-cilastatin-only": {
+   "decision": "Restrict to trials whose control arm is imipenem/cilastatin",
+   "sections": [
+    "3.2.3"
+   ],
+   "conformance": "Section 3.2.3 distinguishes the comparisons a review makes, and a trial of this drug against a different active regimen is a different comparison rather than another instance of this one. Pooling across comparators would produce a summary against a mixture that no patient is offered. The excluded trial is named under excluded_by_scope so the boundary is visible."
+  },
+  "SCOPE:pooled-report-not-a-source-for-one-arm": {
+   "decision": "Hold the second registrational trial as eligible and contributing no data; do not reconstruct its arms",
+   "sections": [
+    "4.6.1",
+    "4.6.3"
+   ],
+   "conformance": "Section 4.6.1 makes the STUDY, not the report, the unit of interest, which is why using the pooled figure beside a study already held here would count that study twice. It does NOT say a pooled report can never be a source for a component trial's arms, and an earlier version of this text implied that; a review leg was right to call it stricter than the section. Had this report printed a per-trial breakdown it would be a perfectly good source for it. The barrier is that it does not, and that its full text is paywalled. Section 4.6.3 governs what then happens to the study: a completed but unreported study that clearly meets the eligibility criteria is recorded rather than dropped, and the same section states that a study should not be omitted solely because its measured outcome data are not reported. So it is held, visible, contributing nothing."
+  },
+  "MEASURE:risk-ratio-of-cure": {
+   "decision": "Use the risk ratio with CURE as the event, and report the odds ratio and the risk ratio of failure beside it",
+   "sections": [
+    "10.4.3",
+    "10.14"
+   ],
+   "conformance": "Section 10.4.3 recommends risk ratios or odds ratios and asks for care over which category is classified as the event. Cure is chosen as the event because it is the outcome every source publishes and the one the trials were designed around, and the choice is declared on the outcome rather than left implicit. The same section warns that picking the measure that is most consistent can spuriously maximise precision, so the observed inconsistency is reported but is NOT the reason for the choice. Both alternatives the section names, the other statistic and the other event category, are computed and reported, which is what it says it may be wise to do."
+  },
+  "POPULATION:microbiologically-evaluable": {
+   "decision": "Analyse the microbiologically evaluable population, and declare it as a departure from the randomised one",
+   "sections": [
+    "10.12.1",
+    "10.14"
+   ],
+   "conformance": "It is the only population for which all three trials publish a MICROBIOLOGICALLY evaluable result for this outcome. An earlier version said one trial published no counts at all for any other population; that was false and a reviewer caught it. That trial's registry also posts a plain modified intention-to-treat clinical response, with counts, and those figures are recorded on the trial. What it does NOT publish is a MICROBIOLOGICAL modified intention-to-treat result, and that is the population the other two report -- so it cannot join the sensitivity analysis without combining a plain intention-to-treat population with two microbiological ones under a single label, which is the estimand error this object exists to avoid. Section 10.12.1 treats participants excluded from analysis as missing individuals, and the expectation printed with it asks authors to follow intention-to-treat principles as far as possible, so using an evaluable population is a real limitation and is stated as one rather than presented as neutral. Section 10.14 is why it is tested: the two trials that also publish the modified intention-to-treat population are re-pooled on that population in the sensitivity block, and the answer changes."
+  }
+ },
+ "reconciliation": {
+  "target_source_id": "SR_ZHANG2019_NMA",
+  "access_limitation": "Both syntheses are OPEN ACCESS and both full texts were retrieved from PubMed Central and read, so the statements below are taken from methods sections and reference lists rather than from abstracts. An earlier version of this block said neither full text was retrievable. That was false, and it was false in the worst way available: no attempt had been made, while the PMC identifier for each sat in this object's own staged PubMed record. A reviewer read the staged record and found them. What remains genuinely unresolved is narrower and is stated below.",
+  "matches": [
+   {
+    "item": "Whether the networks INCLUDED the trials pooled here",
+    "detail": "For the carbapenem synthesis this is settled from its own text rather than inferred: it states that fifteen randomised trials were included and attaches the reference numbers of that set, and every trial pooled here carries a number inside it. So the syntheses and this object draw on the same trials for this comparison, and their far larger trial counts are scope rather than disagreement -- they answer which of many regimens is best, and this object answers one pairwise question. For the other synthesis all three appear in the reference list, which is evidence they were seen and not proof of inclusion, and it is left at that."
+   },
+   {
+    "item": "The direction of the comparison",
+    "detail": "The network ranks clinical treatment success with imipenem/cilastatin ABOVE tigecycline. That is the direction this object finds directly, from the pairwise trials alone."
+   },
+   {
+    "item": "Which analysis population, and it settles a question raised in review",
+    "detail": "The larger synthesis states its policy in its methods: it preferentially extracted a modified intention-to-treat population for clinical success where possible, and otherwise used the intention-to-treat population or the available data. That is exactly the BEST-AVAILABLE strategy this object runs as one of its two analysis-population sensitivity rows, and it was added only because a review leg argued that refusing it was stricter than the Handbook. A published synthesis in this indication doing the same thing is external support for that leg's objection, so it is recorded here rather than left as the object's own judgement call."
+   },
+   {
+    "item": "How strong the difference is",
+    "detail": "The network reports the regimens as not statistically distinguishable. This object's pooled interval does exclude the null, but its own sensitivity block shows that exclusion failing under the odds ratio, under the complementary event, under the other analysis population and on two of three leave-one-out sets. A network on the odds ratio scale finding no distinguishable difference is what this object's own odds-ratio row finds too, so the two agree on the point that matters most."
+   },
+   {
+    "item": "The outcome",
+    "detail": "The larger of the two syntheses names the clinical success rate as its primary outcome, which is the outcome this object pools."
+   }
+  ],
+  "corrections": [
+   {
+    "item": "No estimate comparison is possible, and none is offered",
+    "review_reports": "A network estimate on the odds ratio scale, pooled across many regimens, in which the figure for this pair mixes direct with indirect evidence.",
+    "this_object": "A DIRECT pairwise pooled risk ratio, from the trials that randomised this drug against this comparator and nothing else. These are different quantities on different scales, and setting them beside each other as though one checked the other would be the estimand error this batch exists to stop. Only the order and the strength are compared.",
+    "severity": "estimand"
+   }
+  ],
+  "unresolved": [
+   {
+    "item": "Exactly which arms the networks extracted per trial",
+    "detail": "The larger synthesis names its extraction POLICY but not, in the text read here, the per-trial arm numbers it drew under it, and neither study-flow table was read to arm level. So no arm-by-arm comparison against this object's rows is offered."
+   },
+   {
+    "item": "What was withdrawn from this block, and why",
+    "detail": "An earlier version said the included-study lists were not in the retrievable material and that whether the networks hold every trial pooled here could not be determined. Both were false once the open full texts were read, and both SURVIVED a round in which this object also carried the corrected finding beside them, so the block contradicted itself and two reviewers quoted the stale half back. The cause was a text substitution that missed its anchor and was not checked. Recorded rather than quietly deleted, because a reconciliation that silently drops what it got wrong is worth less than one that shows it."
+   }
+  ]
+ },
+ "_claims_corrected_note": "Each entry names a claim made by the EARLIER app this object replaces, not by any staged source. `claim_made_by` says that outright, because a review leg read `source_id` as naming the claimant and objected, reasonably, that a trial paper makes no claim about a later review. `settled_by` names the evidence that decides the claim, and where nothing staged decides it, it says so rather than pointing at the nearest available source.",
+ "claims_corrected": [
+  {
+   "claim": "that one review can answer for both licensed indications at once, pooling skin infection with intra-abdominal infection",
+   "status": "a scope error",
+   "correction": "They are different populations studied against different comparators. This object answers for one indication against one comparator and names what it excludes.",
+   "source_id": "OA_ELLISGROSSE2005"
+  },
+  {
+   "claim": "that a ratio below the null on this outcome is a point in the intervention's favour",
+   "status": "false, and inverted",
+   "correction": "The outcome is cure. Below the null means LESS cure. The object declares the direction of benefit as the upward one and the pooled line names the comparator as the favoured arm.",
+   "claim_made_by": "the earlier app this object replaces",
+   "settled_by": "no staged source settles this, and none could: it is settled by what the outcome IS. Cure is the beneficial category, so a ratio below the null means less of it. The object encodes that as direction_of_benefit and the validator ties it to the pooled interval.",
+   "source_id": null
+  },
+  {
+   "claim": "that a validation artifact shipped beside the earlier review cross-validates it",
+   "status": "false",
+   "correction": "That artifact holds three trials. One of them randomises a DIFFERENT ANTIBIOTIC, delafloxacin. The artifact labels that row phase three; an earlier version of this correction called it an earlier-phase trial, which the staged artifact does not say, and a reviewer was right to strike it. The drug is the point and it stands alone. None of its denominators matches any arm the review analyses. It cannot validate this review or the earlier one, and it is regenerated from the dataset locked in this object.",
+   "claim_made_by": "the earlier app this object replaces",
+   "settled_by": "ART_SUPERSEDED_SIDECAR, the artifact itself. Its three rows can be read off it directly, including the row whose group field names a different antibiotic.",
+   "source_id": "ART_SUPERSEDED_SIDECAR"
+  },
+  {
+   "claim": "per-arm cure figures for the second registrational trial",
+   "status": "unsourced",
+   "correction": "The only accessible record pools that trial with one already held here. The figures are not carried and the trial is listed as eligible and non-contributing.",
+   "claim_made_by": "the earlier app this object replaces",
+   "settled_by": "PAY_BABINCHAK2005, whose abstract states it is a pooled analysis of two trials and publishes only pooled figures",
+   "source_id": "PAY_BABINCHAK2005"
+  }
+ ]
+}

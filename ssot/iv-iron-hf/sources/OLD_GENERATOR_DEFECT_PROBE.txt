@@ -1,0 +1,98 @@
+OLD-GENERATOR DEFECT PROBE -- iv-iron-hf
+Fetched and grepped 2026-08-10 from the live page this rebuild will overwrite:
+https://mahmood726-cyber.github.io/rapidmeta-finerenone/IV_IRON_HF_REVIEW.html
+(857,671 bytes; the page identifies itself as "RapidMeta Cardiology | IV Iron in
+Heart Failure Ultra-Precision v12.5", dateModified 2026-05-24.)
+
+WHY THIS FILE EXISTS. The source-verification record for this app established
+that defect items 9, 10 and 11 are properties of the OLD generator rather than
+of this pipeline, and said in terms that they "must be CHECKED against the old
+page rather than asserted". This is that check. Every quotation below is copied
+from the fetched page.
+
+================================================================================
+T1 -- CANONICAL TRIALS ARE A HARD-CODED ALLOW-LIST. CONFIRMED.
+================================================================================
+
+    AUTO_INCLUDE_TRIAL_IDS=new Set(["NCT01453608","NCT02937454","NCT02642562",
+    "NCT03037931"])
+
+    isValidScreenIncludeCandidate=(trial,referenceData=null)=>{
+      const id=String(trial?.id??"").toUpperCase();
+      return !!AUTO_INCLUDE_TRIAL_IDS.has(id)
+        ||(!(!referenceData||!referenceData[id]
+             ||isPhaseTwoLike(referenceData[id]?.phase))
+           ||isFutureCriteriaMatchedRCT(trial))}
+
+Membership of the allow-list is by itself sufficient for inclusion, and a trial
+that is NOT on it must instead survive a reference-data lookup or the
+future-RCT classifier. That is the "canonical means the only trials allowed in"
+architecture the batch note calls GATING.
+
+THE ALLOW-LIST NAMES FOUR TRIALS AND FAIR-HF2 IS NOT ONE OF THEM. The set holds
+CONFIRM-HF, AFFIRM-AHF, IRONMAN and HEART-FID. NCT03036462 is absent. So the
+largest and most recent ferric carboxymaltose outcome trial had to pass the
+future-RCT classifier to be seen at all -- and the classifier is keyed on drug
+names, while FAIR-HF2's registry record names its intervention only as "Iron".
+The two defects compound: the trial is neither pre-approved nor discoverable.
+
+================================================================================
+T2 -- RoB "some-concerns" IS SILENTLY COERCED TO "low". CONFIRMED, and the
+       coercion is broader than the claim.
+================================================================================
+
+    safeRob=rob=>{const valid=["low","some","high"];
+      return Array.isArray(rob)?rob.map(r=>valid.includes(r)?r:"low")
+                               :["low","low","low","low","low"]}
+
+The accepted vocabulary is `low`, `some`, `high`. The RoB 2 term written in the
+data is `some-concerns`, which is NOT in that list, so `.map` sends it to
+**"low"**. Every unrecognised domain value becomes low risk, and a `rob` field
+that is not an array at all becomes five low-risk domains.
+
+The downstream consumer then computes the overall judgement from the coerced
+vector:
+
+    overallRob = rob.includes("high") ? "high"
+               : rob.includes("some") ? "some" : "low"
+
+so a trial whose real assessment was "some concerns" on every domain is
+presented as low risk of bias throughout, and any GRADE derivation reading that
+vector inherits the inflation. A silent default that always fails SAFE-LOOKING
+rather than loud is the shape of this defect: it can only ever raise certainty.
+
+================================================================================
+T5 -- INHERITED FINERENONE TEMPLATE. CONFIRMED.
+================================================================================
+
+    <link rel="stylesheet" href="FINERENONE_REVIEW.tailwind.css">
+
+An intravenous-iron review loads the finerenone review's stylesheet, and the
+whole site sits under the path `rapidmeta-finerenone/`. The page also ships an
+Arabic translation map. Whether any given Arabic or patient-mode STRING is
+mistranslated is a separate question from this one; what is established here is
+that the template is inherited rather than built for this review.
+
+================================================================================
+T4 -- THE FUTURE-RCT CLASSIFIER IS THE ONLY ROUTE IN FOR A NON-CANONICAL TRIAL
+================================================================================
+
+    isFutureCriteriaMatchedRCT(trial)
+
+appears in the page and is, per the include predicate above, the sole path by
+which a search hit outside the allow-list can be admitted. That places the whole
+completeness claim on one classifier, which is why the rebuild's completeness
+statement rests on a REDISCOVERY TEST -- run against ClinicalTrials.gov, with
+its queries and results staged -- rather than on an assertion that a search ran.
+
+================================================================================
+WHAT THIS PROBE DOES NOT ESTABLISH
+================================================================================
+
+The page is minified, so these are the definitions as shipped, not the authoring
+source. Nothing here is evidence about any number STORED in the old page; the
+stored cells were checked separately, against the primary publications, and the
+results of that check are in IV_IRON_SOURCE_VERIFICATION.md. And nothing here is
+a claim that the rebuild inherits any of it -- the rebuild shares no code with
+this generator. The probe exists so that "the old generator did X" is a checkable
+statement rather than a repeated assertion.

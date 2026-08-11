@@ -1,0 +1,48 @@
+===== PASS SOURCE =====
+[attempt 1: exit 0, 163s, 2447 chars, usable]
+NONCE: malaria-vaccines-d1a54ca9
+
+NONCE: malaria-vaccines-d1a54ca9
+
+I have completed PASS ONE -- SOURCE CHECK. I read the following files:
+* `F:\claude-temp\ssot\canonical\malaria-vaccines.json`
+* `F:\claude-temp\ssot\sources\malaria-vaccines\added-cohorts.extract.txt`
+* `F:\claude-temp\ssot\sources\malaria-vaccines\PMC5626001.rtss-phase3.extract.txt`
+* `F:\claude-temp\ssot\sources\malaria-vaccines\PMC7618965.datoo2024.extract.txt`
+* `F:\claude-temp\ssot\sources\malaria-vaccines\PMC8121760.datoo2021.extract.txt`
+* `F:\claude-temp\ssot\sources\malaria-vaccines\SR2026-qamar.extract.txt`
+* `F:\claude-temp\ssot\sources\malaria-vaccines\supporting-trials.extract.txt`
+
+I cross-referenced every effect estimate stored in the object (both in the primary `inputs.trials` structure and the `carried_contrasts` blocks) against the verbatim quotes in the source extracts. 
+
+My checks confirmed the following:
+1. **Derivation & Inversion**: All efficacy points and intervals (expressed as percentages in the sources) were correctly inverted to the ratio scale. In every case, calculating $1 - \text{Upper Bound of VE}$ correctly mapped to the `ci_low` of the stored effect, and $1 - \text{Lower Bound of VE}$ correctly mapped to the `ci_high`. For the one head-to-head ratio (`chandramohan-2021-phase3`), the hazard ratio was correctly stored verbatim without inversion.
+2. **Right Group Selection**: Where multiple arms shared a single control, the correct figure was attributed to the correct row. For example, in `rtss-phase3-children`, the 36.3% figure was correctly mapped to the boosted R3R group, while the 28.3% figure was correctly logged as the unboosted R3C group in `carried_contrasts`. In `datoo-2021-phase2b`, 77% was correctly matched to the higher Matrix-M dose (Group 2), with 71% (Group 1) placed in `carried_contrasts`.
+3. **Right Follow-up & Analysis**: I verified that time-to-first vs. recurrent-rate endpoints were properly preserved. For instance, in `asante-2011-epi-phase2`, the 59% efficacy matches the all-episodes endpoint for month 19 as recorded, whereas the 53% time-to-first figure and the 57% whole-study figure were correctly omitted from that particular row. The age-aligned 12-month subgroup in `datoo-2024-phase3` (79% for 5-17 months) was also correctly extracted for the `r21_seasonal_first_12m` pool.
+
+No defects were found in the extraction of magnitude, direction, group, or estimand context.
+
+VERDICT: PASS
+
+
+===== PASS JUDGE =====
+[attempt 1: exit 0, 94s, 1615 chars, usable]
+NONCE: malaria-vaccines-d1a54ca9
+
+Files read:
+- F:\claude-temp\ssot\canonical\malaria-vaccines.json
+- F:\claude-temp\ssot\sources\malaria-vaccines\SR2026-qamar.extract.txt
+
+VALIDATOR
+The validator's rule 1 (ESTIMAND) imposes a requirement that is stricter than the Cochrane Handbook, which rule 5 explicitly defines as a defect. Rule 1 demands: "Is every row inside one POOLED outcome the same estimand over the same window?" 
+
+The object explicitly violates this validator rule by pooling rows that differ in follow-up window lengths and case definitions. However, the object correctly justifies this under Cochrane Handbook Section 10.10.1, which permits meta-analysis across clinical and methodological diversity (such as differing windows or case definitions) as long as the differences are documented and the reviewers judge them sufficiently similar to yield a meaningful average. By requiring the exact same estimand over the exact same window, the validator is enforcing a rule that is stricter than the Handbook.
+
+Text objected to in the validator prompt:
+"Is every row inside one POOLED outcome the same estimand over the same window?"
+
+Text in the object confirming it crosses different windows contrary to the validator rule (from `rtss_recurrent_children_final` estimand):
+"window": "from the first dose to the end of each trial. The two are NOT the same length. The pooled value therefore AVERAGES ACROSS that difference; an earlier version of this line said the difference was stated rather than averaged away, which was true of the documentation and false of the arithmetic"
+
+VERDICT: DEFECTS-FOUND
+

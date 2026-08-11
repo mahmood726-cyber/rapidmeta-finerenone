@@ -1,0 +1,32 @@
+NONCE: cryptococcal-meningitis-9d83b87b
+
+Files read:
+- F:\ProjectIndex\INDEX.md
+- F:\E156\rewrite-workbook.txt
+- F:\claude-temp\ssot\canonical\cryptococcal-meningitis.json
+- F:\claude-temp\ssot\sources\cryptococcal-meningitis\ACTA.extract.txt
+- F:\claude-temp\ssot\sources\cryptococcal-meningitis\AMBITION-cm.extract.txt
+- F:\claude-temp\ssot\sources\cryptococcal-meningitis\COAT.extract.txt
+- F:\claude-temp\ssot\sources\cryptococcal-meningitis\NCT01075152.ctgov.json
+- F:\claude-temp\ssot\sources\cryptococcal-meningitis\PMID24963568.pubmed.xml
+- F:\claude-temp\ssot\sources\cryptococcal-meningitis\PMID29539274.pubmed.xml
+- F:\claude-temp\ssot\sources\cryptococcal-meningitis\PMID35320642.pubmed.xml
+- F:\claude-temp\ssot\sources\cryptococcal-meningitis\ACTA.extract.json
+- F:\claude-temp\ssot\sources\cryptococcal-meningitis\AMBITION-cm.extract.json
+- F:\claude-temp\ssot\sources\cryptococcal-meningitis\COAT.extract.json
+- F:\claude-temp\ssot\validate_v2.py
+- F:\claude-temp\ssot\g4_cryptococcal-meningitis_codex.txt
+- F:\claude-temp\ssot\g4_cryptococcal-meningitis_gem_judge.txt
+- F:\claude-temp\ssot\g4_cryptococcal-meningitis_gem_source.txt
+- Official Cochrane Handbook web pages: handbook landing page, versions-and-changes page, and current chapters 4, 10, 11, and 23.
+
+Validator:
+- `python validate_v2.py canonical/cryptococcal-meningitis.json` returned `VALIDATOR CLEAN -- 36/36 detectors passed`.
+- No VALIDATOR findings. The validator's Handbook detector is accurately limited to citation existence/form; I checked the substantive Handbook conformance manually.
+
+Findings:
+- No OBJECT findings. The staged sources support the stored ACTA, AMBITION-cm, and COAT effects and count-only outcome; no pooled result mixes estimands or windows; no pooled estimate double-counts a shared control or duplicate randomisation; and the object does not overstate source completeness.
+- No Handbook conformance OBJECT findings. The cited Handbook sections support the no-network/no-pooling decision for disconnected induction evidence, the ART-timing separation, the handling of multi-arm dependence without an independent incoherence estimate, and storing COAT IRIS as counts without recovering a ratio.
+- No VALIDATOR findings.
+
+VERDICT: PASS

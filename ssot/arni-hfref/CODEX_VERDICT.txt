@@ -1,0 +1,75 @@
+NONCE: arni-hfref-1d014aac
+
+No OBJECT findings.
+
+No VALIDATOR findings. The validator passed all 41 detectors. Its source-link note was a disclosed limitation rather than a false claim: it checked source-link form/identifier binding and skipped live URL fetching.
+
+Checks supporting this verdict:
+
+- Per-trial effects matched the staged quoted source sentences. PARADIGM-HF stores the published HR 0.80 (95% CI 0.73 to 0.87), PARACHUTE-HF stores the published first-secondary endpoint HR 0.91 (95% CI 0.73 to 1.13), and PARALLEL-HF stores the published HR 1.09 (95% CI 0.65 to 1.82). The log points and log SEs recomputed from the stored intervals.
+- Estimand integrity is declared on the pool. The object records identical effect measure/comparator/outcome concept, and separately declares differences in aetiology, ejection-fraction ceiling, blinding, endpoint rank, follow-up length, and analysis population. I did not find prose that claimed those differing dimensions were identical.
+- The measure rule is applied symmetrically. PARAGON-HF's 0.87 is recorded as a recurrent-event rate ratio, ANSWER-HF's 1.80 is recorded as a win ratio, and Pathadka 2020's 0.58 HR is recorded as non-randomised evidence excluded by design. I found no excluded trial's non-HR quantity stored as a hazard ratio in the pooled result.
+- PARACHUTE-HF is consistently labelled as contributing the first secondary endpoint, with its primary hierarchical win-ratio endpoint kept separate. The GRADE risk-of-bias domain carries the open-label and secondary-endpoint concerns rather than leaving them only on the trial row.
+- PARALLEL-HF is recorded as recovered by reconciliation, as the only included estimate above the null, and as widening/moving the pooled estimate. The leave-one-out block states that dropping PARADIGM-HF removes the benefit, and the HKSJ interval 0.6421 to 1.0968 is present and described as crossing the null.
+- The two smaller analysis sets show source-backed arithmetic. PARADIGM-HF shows 4209 and 4233 randomised minus 18/19 GCP exclusions and 4/2 mis-randomised participants, giving 4187 and 4212. PARALLEL-HF shows 112 and 113 randomised minus one mis-randomised patient in each arm, giving 111 and 112.
+- I found no shared-control double use and no duplicate randomisation in the pooled estimate. The unresolved Chagas-count issue is handled as a post hoc PARADIGM-HF subgroup/report issue rather than as a fourth randomisation.
+- Each measured cell has all five cascade layers with dated found/not-available entries. Where multiple layers yielded values, the object records agreement, rounding, or form differences rather than silently choosing one. The staged FDA statistical review and EMA EPAR do not contain PARALLEL-HF or PARACHUTE-HF identifiers, and official regulator-page searches did not reveal a later FDA/EMA assessment for those two trials.
+- Handbook conformance checked against the current Cochrane Handbook pages: section 10.9 supports combining Cox log-HRs by generic inverse variance; 10.10.1 supports declaring clinical/methodological diversity; 10.10.4.4 supports REML as RevMan's between-study variance default and comparison with other estimators; 10.10.4.5 and 10.14 support the few-study HKSJ/Wald comparison as sensitivity/context rather than silent substitution; 14.2.2 supports the GRADE downgrade domains used.
+
+Files read:
+
+- F:\ProjectIndex\INDEX.md
+- F:\E156\rewrite-workbook.txt
+- F:\claude-temp\ssot\canonical\arni-hfref.json
+- F:\claude-temp\ssot\validate_v2.py (executed)
+- F:\claude-temp\ssot\sources\arni-hfref\EMA_ENTRESTO_EPAR.txt
+- F:\claude-temp\ssot\sources\arni-hfref\FDA_207620_StatR.txt
+- F:\claude-temp\ssot\sources\arni-hfref\NCT01035255.ctgov.json
+- F:\claude-temp\ssot\sources\arni-hfref\NCT02468232.ctgov.json
+- F:\claude-temp\ssot\sources\arni-hfref\NCT04023227.ctgov.json
+- F:\claude-temp\ssot\sources\arni-hfref\OA_ANSWERHF_abstract.txt
+- F:\claude-temp\ssot\sources\arni-hfref\OA_BANO2021_abstract.txt
+- F:\claude-temp\ssot\sources\arni-hfref\OA_BANO2021_PMC8357012.txt
+- F:\claude-temp\ssot\sources\arni-hfref\OA_PARACHUTE_JAMA2026.txt
+- F:\claude-temp\ssot\sources\arni-hfref\OA_PARADIGM_abstract.txt
+- F:\claude-temp\ssot\sources\arni-hfref\OA_PARALLEL_abstract.txt
+- F:\claude-temp\ssot\sources\arni-hfref\OA_PATHADKA2020_abstract.txt
+- F:\claude-temp\ssot\sources\arni-hfref\OA_PATHADKA2020_PMC7855850.txt
+- F:\claude-temp\ssot\sources\arni-hfref\OA_ZHAO2022_abstract.txt
+- F:\claude-temp\ssot\sources\arni-hfref\OA_ZHAO2022_PMC9297686.txt
+- F:\claude-temp\ssot\sources\arni-hfref\PM_SACVAL_ENAL_PMC10710849.txt
+- F:\claude-temp\ssot\sources\arni-hfref\PMID25176015.pubmed.xml
+- F:\claude-temp\ssot\sources\arni-hfref\PMID33553256.pubmed.xml
+- F:\claude-temp\ssot\sources\arni-hfref\PMID33731544.pubmed.xml
+- F:\claude-temp\ssot\sources\arni-hfref\PMID34395116.pubmed.xml
+- F:\claude-temp\ssot\sources\arni-hfref\PMID35874853.pubmed.xml
+- F:\claude-temp\ssot\sources\arni-hfref\PMID41335448.pubmed.xml
+- F:\claude-temp\ssot\sources\arni-hfref\PMID41396086.pubmed.xml
+- F:\claude-temp\ssot\sources\arni-hfref\REG_CTGOV_NCT01035255.json
+- F:\claude-temp\ssot\sources\arni-hfref\REG_CTGOV_NCT01920711.json
+- F:\claude-temp\ssot\sources\arni-hfref\REG_CTGOV_NCT02468232.json
+- F:\claude-temp\ssot\sources\arni-hfref\REG_CTGOV_NCT02554890.json
+- F:\claude-temp\ssot\sources\arni-hfref\REG_CTGOV_NCT02816736.json
+- F:\claude-temp\ssot\sources\arni-hfref\REG_CTGOV_NCT02874794.json
+- F:\claude-temp\ssot\sources\arni-hfref\REG_CTGOV_NCT02900378.json
+- F:\claude-temp\ssot\sources\arni-hfref\REG_CTGOV_NCT02924727.json
+- F:\claude-temp\ssot\sources\arni-hfref\REG_CTGOV_NCT03066804.json
+- F:\claude-temp\ssot\sources\arni-hfref\REG_CTGOV_NCT03988634.json
+- F:\claude-temp\ssot\sources\arni-hfref\REG_CTGOV_NCT04023227.json
+- F:\claude-temp\ssot\sources\arni-hfref\REG_CTGOV_NCT04853758.json
+- F:\claude-temp\ssot\sources\arni-hfref\SR_CHAGAS_PAIR.pubmed.xml
+- F:\claude-temp\ssot\sources\arni-hfref\SR_CHAGAS_PAIR_abstracts.txt
+- F:\claude-temp\ssot\g4_arni-hfref_codex.txt
+- F:\claude-temp\ssot\g4_arni-hfref_gem_source.txt
+
+External methodological pages consulted:
+
+- https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current/chapter-03
+- https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current/chapter-04
+- https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current/chapter-10
+- https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current/chapter-14
+- https://www.cochrane.org/authors/handbooks-and-manuals/handbook/versions-and-changes-handbook
+- https://www.ema.europa.eu/en/medicines/human/EPAR/entresto
+
+No requested file was unreadable.
+VERDICT: PASS

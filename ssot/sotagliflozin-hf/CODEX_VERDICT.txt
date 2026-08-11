@@ -1,0 +1,43 @@
+NONCE: sotagliflozin-hf-82453e7f
+
+Findings:
+- No OBJECT findings found.
+- No VALIDATOR findings found. `python validate_v2.py canonical/sotagliflozin-hf.json` passed, and the rerun with `SSOT_CHECK_LINKS=1` also passed.
+
+Audit notes:
+- Per-trial stored effects matched the quoted source text. SOLOIST total occurrence stores 0.67 (0.52, 0.85) from the publication/registry, with FDA recorded separately as 0.67 (0.53, 0.85). SCORED total occurrence stores 0.74 (0.63, 0.88) from the publication/registry, with FDA recorded separately as 0.75 (0.63, 0.88).
+- The prompt's expected larger-trial within-FDA split was not supported by the staged FDA texts: the label and integrated review primary line agree at 0.75 (0.63, 0.88); the 0.75 (0.64, 0.88) line is a separate censoring sensitivity.
+- The time-to-first primary-composite values were present only in the FDA integrated/statistical review: SOLOIST 0.69 (0.56, 0.85), adjudicated sensitivity 0.74 (0.57, 0.95); SCORED 0.78 (0.67, 0.90), adjudicated sensitivity 0.72 (0.59, 0.86). I found no matching journal-abstract or registry result for that estimand.
+- The three-component first-occurrence endpoint is kept as k=1, with SCORED 0.84 (0.72, 0.99), no pooled estimate, and no heterogeneity block.
+- The EMA layer being unavailable is supported by the staged EMA overview and withdrawal statement: the EU authorisation was for type 1 diabetes adjunct-to-insulin use, and the marketing authorisation was withdrawn on 2022-03-22 at the holder's request.
+- Population scope is disclosed on the pooled outcomes: the pool crosses SOLOIST-WHF and SCORED, and the object labels the result as drug-wide across the pivotal programme, not as a heart-failure population estimate.
+- Shared-control and deduplication checks found one sotagliflozin-placebo contrast per randomised trial in each pooled outcome, with no randomised cohort represented twice in a pooled estimate.
+- Source-cascade checks found the five required layers recorded on each measured cell, with divergences shown rather than silently resolved. Not-available prior-synthesis entries record that Bantounou 2025 exists but does not yield the object's hazard-ratio primary-estimand cells.
+- Provenance-link checks found no wrong-study link pattern: contributing cell links point to the relevant PubMed PMID, ClinicalTrials.gov NCT, FDA NDA package, or EMA Zynquista page; the displayed SOTA-P-CARDIA exclusion links to NCT05562063 and resolves to the later mechanistic HFpEF-without-diabetes trial, not one of the pivotal trials.
+
+Files read:
+- F:\ProjectIndex\INDEX.md
+- F:\E156\rewrite-workbook.txt
+- F:\claude-temp\ssot\canonical\sotagliflozin-hf.json
+- F:\claude-temp\ssot\sources\sotagliflozin-hf\EMA_ZYNQUISTA_OVERVIEW.extract.txt
+- F:\claude-temp\ssot\sources\sotagliflozin-hf\EMA_ZYNQUISTA_WITHDRAWAL.extract.txt
+- F:\claude-temp\ssot\sources\sotagliflozin-hf\FDA_216203_IntegratedR.extract.txt
+- F:\claude-temp\ssot\sources\sotagliflozin-hf\FDA_LABEL_INPEFA.extract.txt
+- F:\claude-temp\ssot\sources\sotagliflozin-hf\NCT03315143.ctgov.json
+- F:\claude-temp\ssot\sources\sotagliflozin-hf\NCT03521934.ctgov.json
+- F:\claude-temp\ssot\sources\sotagliflozin-hf\OA_PM_BANTOUNOU2025_abstract.txt
+- F:\claude-temp\ssot\sources\sotagliflozin-hf\OA_PM_VADUGANATHAN2022_abstract.txt
+- F:\claude-temp\ssot\sources\sotagliflozin-hf\OA_SCORED_abstract.txt
+- F:\claude-temp\ssot\sources\sotagliflozin-hf\OA_SOLOIST_WHF_abstract.txt
+- F:\claude-temp\ssot\sources\sotagliflozin-hf\PMID33200891.pubmed.xml
+- F:\claude-temp\ssot\sources\sotagliflozin-hf\PMID33200892.pubmed.xml
+- F:\claude-temp\ssot\sources\sotagliflozin-hf\PRIOR_SYNTHESIS_SEARCH_RECORD.txt
+- F:\claude-temp\ssot\g4_sotagliflozin-hf_codex.txt
+- F:\claude-temp\ssot\g4_sotagliflozin-hf_gem_judge.txt
+- F:\claude-temp\ssot\g4_sotagliflozin-hf_gem_source.txt
+- F:\claude-temp\ssot\gate_sota_r10.log
+
+Validator file executed but not manually inspected:
+- F:\claude-temp\ssot\validate_v2.py
+
+VERDICT: PASS

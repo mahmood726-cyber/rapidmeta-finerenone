@@ -1,0 +1,1296 @@
+{
+ "app_id": "sglt2-hf",
+ "schema_version": 2,
+ "source_links_enforced": true,
+ "source_links_enforced_means": "The flag asserts a specific, checkable contract and it is worth saying which, because a gate leg read it as broader than it is and was right that the difference matters. It asserts that every MEASURED cell records all five mandated source layers with a date on each check, that a layer recorded as found carries what it yielded and a link resolving to that row's own trial identifier, and that a layer recorded as not available carries a reason and a date. Inside a cascade record the link is stored on the layer entry, which is the shape the enforcing detector defines and the shape every object in this batch uses; that is the contract, not an exemption from it. What the flag did NOT originally cover was the published-benchmark block, which is new here and which holds sourced effect values of its own. Rather than narrow the claim, those rows were brought under the same convention and now carry a tier and a resolvable link like any other sourced cell.",
+ "title": "SGLT2 inhibitors against placebo in chronic heart failure across the ejection fraction spectrum: the four randomised outcome trials that report cardiovascular death or a worsening heart failure event as a time-to-first hazard ratio",
+ "question": "In adults with chronic heart failure, what is the hazard of a first cardiovascular death or worsening heart failure event with an SGLT2 inhibitor compared with placebo added to background therapy?",
+ "built": "2026-08-10",
+ "_prose_rule": "Every text field is PROSE unless it is on the validator's numeric list. Prose may not restate a number the object holds structurally.",
+ "_sourcing_rule": "Every measured input carries the verbatim sentence it was read from and a resolvable link to the layer it was read from. Every cell records all five mandated source layers, with a date on every check, so a layer that held nothing is distinguishable from a layer nobody opened. Derived transforms -- the log point and log standard error of each ratio, and the pooled summary -- are computed here and are not claimed to appear in any source.",
+ "_estimand_rule": "The measure governs what can be POOLED, not who is eligible -- a distinction this object got wrong once and now keeps in two separate columns of the screening log. This object pools TIME-TO-FIRST-EVENT HAZARD RATIOS and nothing else. The hardest case in this review is a trial whose RECURRENT-EVENT analysis is reported, by its publication and its registry alike, AS A HAZARD RATIO: it is excluded, and its screening row explains at length why no automated check in this repository could have caught it if it had been let in. A hierarchical win ratio, whose direction of benefit is inverted, is excluded for the same family of reason.",
+ "build_mode": "full",
+ "single_tier_because": "Every cell's PRIMARY source is the open-access primary publication and the tier tag on each cell names that layer. That uniformity is not the absence of a cascade: each cell records all five mandated layers, and on all four cells the two regulator layers and the registry are FOUND and agree. The reason the primary tier is the same everywhere is stated on each cell, and it is not the reason the companion review in this batch gives. There, the publication was the only layer printing both a point and a two-sided interval. Here the regulator layers print both as well, so a higher-ranked layer genuinely did hold every cell. The publication is kept because it is the layer that also fixes the follow-up, the adjudication and the analysis set stored beside each estimate, and assembling a cell from a label's estimate and a paper's context would attribute to one document something built from two. Each cell carries that argument explicitly rather than inheriting it from here.",
+ "cited_total": 4,
+ "completeness_statement": "FULL BUILD, with a stated boundary on the search. Every randomised trial reached by reconciliation against three published syntheses of this class in heart failure, and by the registry records staged for every trial those syntheses name, is either pooled or in ONE screening log with the criterion it fails and the quantity it reports instead. There is exactly ONE SOURCE list, `screening.records`. The object also holds `screening.excluded`, which is not a second table a reader must reconcile: it is a view COMPUTED from the records at build time, row for row, so it cannot say anything the records do not. What this statement does NOT claim is a systematic database search; none was run, the limitation is recorded in the screening block, and a trial missed by all three syntheses and absent from the staged registry layer would be missed here.",
+ "verification_basis": {
+  "what_verifies_this_object": "Two things, and neither is a badge this repository can emit about itself. The first is that the object is the single source of truth and the page is a pure projection of it, so a claim on the page that is not in the object cannot exist. The second is a cross-family adversarial gate: the object is read by two model families with independent file access, from different vendors, each asked to find a defect in the ACTUAL object rather than to approve it.",
+  "what_is_not_claimed": "No internal check is described as independent verification. A script that reads this object and reports that this object is consistent has confirmed consistency and nothing else, and a badge that cannot fail is worth less than no badge, because it teaches a reader to stop looking. The validator finding no defect is reported as exactly that.",
+  "families": [
+   "openai",
+   "google"
+  ],
+  "bar": "Both families must find no defect in the object. A finding about the validator is not a finding about the object and does not block."
+ },
+ "methodological_authority": {
+  "reference": "Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, et al (editors). Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1. Cochrane, 2025.",
+  "version": "6.5.1",
+  "version_checked_on": "2026-08-10",
+  "version_checked_how": "The publisher's versions-and-changes page settles which version is current: it lists 6.5.1 as the newest release line, above 6.5. Each chapter relied on here was then opened and its own printed citation line read, and every section title stored below was verified against the publisher's own heading rather than recalled. The publisher contradicts itself and the contradiction is recorded rather than resolved in silence: the Handbook landing page and the current-version index both still print version 6.5. Where they conflict this object follows the version history and the per-chapter citation lines, because those are the more specific and the more recent statements.",
+  "chapters_as_dated_by_the_publisher": [
+   {
+    "chapter": 3,
+    "title": "Defining the criteria for including studies",
+    "version": "6.5",
+    "published": 2024,
+    "last_updated": "August 2023"
+   },
+   {
+    "chapter": 10,
+    "title": "Analysing data and undertaking meta-analyses",
+    "version": "6.5",
+    "published": 2024,
+    "last_updated": "November 2024"
+   },
+   {
+    "chapter": 14,
+    "title": "Completing 'Summary of findings' tables and grading the certainty of the evidence",
+    "version": "6.5.1",
+    "published": 2025,
+    "last_updated": "March 2025"
+   }
+  ],
+  "version_note": "The Handbook is versioned as a whole AND dated per chapter, and the two do not move together. The table gives each chapter the version and the last-updated date the publisher prints on it.",
+  "scope_of_this_rule": "Every decision about pooling, scope, estimand, heterogeneity, certainty or unit of analysis names the section that governs it, on the result it governs. A decision with no cited section is a preference wearing the clothes of a method.",
+  "url": "https://www.cochrane.org/authors/handbooks-and-manuals/handbook",
+  "note": "Where this object had to decide whether something could be combined, the decision was referred to the Handbook rather than to a rule invented here.",
+  "sections_relied_on": [
+   {
+    "section": "3.2.1",
+    "title": "Defining types of participants: which people and populations?",
+    "used_for": "The population restriction to chronic heart failure, which is what removes the diabetic kidney-disease trial and the acute in-hospital trial."
+   },
+   {
+    "section": "3.2.3",
+    "title": "Defining which comparisons will be made",
+    "used_for": "The comparator restriction to placebo on top of background therapy, which every pooled trial satisfies."
+   },
+   {
+    "section": "3.2.4",
+    "title": "Selecting, prioritizing and grouping review outcomes",
+    "used_for": "Choosing and ranking the outcomes this review REPORTS, and for the caution it gives AGAINST the opposite use: it advises that eligibility should not turn on which outcomes a study reported, because that invites outcome reporting bias. An earlier version of this object cited it as authority for treating the measure as an eligibility criterion, which is the reverse of what it says, and a gate leg was right to call that being stricter than the Handbook. Combinability is governed by 10.9 instead, and the screening log now separates the two."
+   },
+   {
+    "section": "10.9",
+    "title": "Meta-analysis of time-to-event outcomes",
+    "used_for": "The hazard ratio as the effect measure for time-to-event data and generic inverse variance as the way to combine log hazard ratios."
+   },
+   {
+    "section": "10.10.1",
+    "title": "What is heterogeneity?",
+    "used_for": "The distinction between clinical and methodological DIVERSITY and statistical heterogeneity, which is why the uniformity table sits beside the statistic rather than being replaced by it."
+   },
+   {
+    "section": "10.10.2",
+    "title": "Identifying and measuring heterogeneity",
+    "used_for": "The interpretation of the Higgins statistic and the caveat attached to a floor value with few studies."
+   },
+   {
+    "section": "10.10.4",
+    "title": "Incorporating heterogeneity into random-effects models",
+    "used_for": "The random-effects model and the choice of between-study variance estimator."
+   },
+   {
+    "section": "10.10.4.4",
+    "title": "Implementing random-effects meta-analyses",
+    "used_for": "The record that estimators other than DerSimonian and Laird perform better and that restricted maximum likelihood is the current default, which is the authority for running the estimator comparison."
+   },
+   {
+    "section": "10.10.4.5",
+    "title": "Interpretation of random-effects meta-analysis with few studies",
+    "used_for": "The reason a more conservative interval is reported beside the ordinary one. Cited for the INTERVAL and not for the variance estimator, which is a distinction the companion review in this batch got wrong before a gate round caught it."
+   },
+   {
+    "section": "10.14",
+    "title": "Sensitivity analyses",
+    "used_for": "The leave-one-out analysis and the estimator comparison."
+   },
+   {
+    "section": "14.2.1",
+    "title": "The GRADE approach",
+    "used_for": "The starting point of high certainty for a body of randomised evidence."
+   },
+   {
+    "section": "14.2.2",
+    "title": "Domains that can lead to decreasing the certainty level of a body of evidence",
+    "used_for": "The five downgrade domains, the three-part precision condition, and the requirement that an uncomputable optimal information size be declared rather than treated as met."
+   }
+  ]
+ },
+ "sources": {
+  "OA_DAPAHF2019": {
+   "layer": "Primary paper (abstract, open)",
+   "layer_rank": 4,
+   "name": "McMurray et al. Dapagliflozin in Patients with Heart Failure and Reduced Ejection Fraction. N Engl J Med 2019.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/31535829/",
+   "staged_as": "OA_DAPA_HF_abstract.txt",
+   "access_note": "Abstract staged from PubMed. The abstract prints the primary composite with its interval and both arms' counts."
+  },
+  "OA_EMPRED2020": {
+   "layer": "Primary paper (abstract, open)",
+   "layer_rank": 4,
+   "name": "Packer et al. Cardiovascular and Renal Outcomes with Empagliflozin in Heart Failure. N Engl J Med 2020.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/32865377/",
+   "staged_as": "OA_EMPEROR_REDUCED_abstract.txt",
+   "access_note": "Abstract staged from PubMed; prints the composite, its interval and both arms' counts."
+  },
+  "OA_EMPPRE2021": {
+   "layer": "Primary paper (abstract, open)",
+   "layer_rank": 4,
+   "name": "Anker et al. Empagliflozin in Heart Failure with a Preserved Ejection Fraction. N Engl J Med 2021.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/34449189/",
+   "staged_as": "OA_EMPEROR_PRESERVED_abstract.txt",
+   "access_note": "Abstract staged from PubMed; prints the composite, its interval and both arms' counts."
+  },
+  "OA_DELIVER2022": {
+   "layer": "Primary paper (abstract, open)",
+   "layer_rank": 4,
+   "name": "Solomon et al. Dapagliflozin in Heart Failure with Mildly Reduced or Preserved Ejection Fraction. N Engl J Med 2022.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/36027570/",
+   "staged_as": "OA_DELIVER_abstract.txt",
+   "access_note": "Abstract staged from PubMed; prints the composite, its interval and both arms' counts."
+  },
+  "OA_SOLOIST2021": {
+   "layer": "Primary paper (abstract, open)",
+   "layer_rank": 4,
+   "name": "Bhatt et al. Sotagliflozin in Patients with Diabetes and Recent Worsening Heart Failure. N Engl J Med 2021.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/33200892/",
+   "staged_as": "OA_SOLOIST_WHF_abstract.txt",
+   "access_note": "Staged for the screening log. Its primary is a total-occurrence quantity and no value from it is pooled here."
+  },
+  "OA_SCORED2021": {
+   "layer": "Primary paper (abstract, open)",
+   "layer_rank": 4,
+   "name": "Bhatt et al. Sotagliflozin in Patients with Diabetes and Chronic Kidney Disease. N Engl J Med 2021.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/33200891/",
+   "staged_as": "OA_SCORED_abstract.txt",
+   "access_note": "Staged for the screening log. It reports a first-event composite as an ORIGINAL co-primary, which the screening row records, and the trial is excluded on population rather than on measure."
+  },
+  "OA_EMPULSE2022": {
+   "layer": "Primary paper (full text, open)",
+   "layer_rank": 4,
+   "name": "Voors et al. The SGLT2 inhibitor empagliflozin in patients hospitalized for acute heart failure. Nat Med 2022.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/35228754/",
+   "staged_as": "OA_EMPULSE_PMC8938265.txt",
+   "access_note": "Open-access full text staged. Its primary is a hierarchical win ratio and no value from it is pooled here."
+  },
+  "REG_CTGOV": {
+   "layer": "Registry with posted results",
+   "layer_rank": 5,
+   "name": "ClinicalTrials.gov results records for all seven screened trials",
+   "url": "https://clinicaltrials.gov/study/NCT03036124",
+   "staged_as": "NCT03036124.ctgov.json",
+   "access_note": "All seven registry payloads are staged under their own accession names; this entry names the one belonging to the first pooled trial, and each cell's cascade links its own record."
+  },
+  "FDA_FARXIGA": {
+   "layer": "Regulator: FDA approved label",
+   "layer_rank": 1,
+   "name": "FARXIGA (dapagliflozin) US prescribing information, clinical studies section",
+   "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2026/202293s035lbl.pdf",
+   "staged_as": "FDA_LABEL_FARXIGA.extract.txt",
+   "access_note": "Discovered from the product's Drugs@FDA overview page and staged as text. Used because no review document is published for the heart-failure supplements; the reasoning is on every cell."
+  },
+  "FDA_JARDIANCE": {
+   "layer": "Regulator: FDA approved label",
+   "layer_rank": 1,
+   "name": "JARDIANCE (empagliflozin) US prescribing information, clinical studies section",
+   "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/204629s063lbl.pdf",
+   "staged_as": "FDA_LABEL_JARDIANCE.extract.txt",
+   "access_note": "Discovered from the product's Drugs@FDA overview page and staged as text. This application's single published review link does not resolve, confirmed twice by two independent routes."
+  },
+  "EMA_FORXIGA": {
+   "layer": "Regulator: EMA product information",
+   "layer_rank": 2,
+   "name": "Forxiga (dapagliflozin) EPAR product information, pharmacodynamic properties",
+   "url": "https://www.ema.europa.eu/en/documents/product-information/forxiga-epar-product-information_en.pdf",
+   "staged_as": "EMA_FORXIGA_PI.extract.txt",
+   "access_note": "Staged from the medicine's own EPAR page. The INITIAL public assessment report describes the diabetes dossier that preceded both heart-failure indications, so the product information is the document that carries this review's outcome."
+  },
+  "EMA_JARDIANCE": {
+   "layer": "Regulator: EMA product information",
+   "layer_rank": 2,
+   "name": "Jardiance (empagliflozin) EPAR product information, pharmacodynamic properties",
+   "url": "https://www.ema.europa.eu/en/documents/product-information/jardiance-epar-product-information_en.pdf",
+   "staged_as": "EMA_JARDIANCE_PI.extract.txt",
+   "access_note": "Staged from the medicine's own EPAR page, for the same reason as the other product. It prints both heart-failure trials in full tables with counts."
+  },
+  "FDA_ABSENCE_PROBE": {
+   "layer": "Regulator: record of what the FDA does NOT publish",
+   "layer_rank": 1,
+   "name": "Drugs@FDA review-document absence probe for both applications, 2026-08-10",
+   "url": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=202293",
+   "staged_as": "FDA_REVIEW_ABSENCE_PROBE.txt",
+   "access_note": "Staged because four cells assert that no FDA review document exists for the heart-failure indications, and an absence claim with nothing behind it is an assumption. This is the list of submissions asked and the server's answers."
+  },
+  "PM_JHUND2022": {
+   "layer": "Prior synthesis (full text, open)",
+   "layer_rank": 3,
+   "name": "Jhund et al. Dapagliflozin across the range of ejection fraction in patients with heart failure: a patient-level, pooled meta-analysis of DAPA-HF and DELIVER. Nat Med 2022.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/36030328/",
+   "staged_as": "OA_PM_JHUND2022_PMC9499855.txt",
+   "access_note": "PMC full text staged. The benchmark this synthesis supplies is in the full text and NOT in the abstract, which is why an earlier reading of the abstract alone concluded it did not exist."
+  },
+  "PM_VADUGANATHAN2022": {
+   "layer": "Prior synthesis (abstract, open)",
+   "layer_rank": 3,
+   "name": "Vaduganathan et al. SGLT-2 inhibitors in patients with heart failure: a comprehensive meta-analysis of five randomised controlled trials. Lancet 2022.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/36041474/",
+   "staged_as": "OA_PM_VADUGANATHAN2022_abstract.txt",
+   "access_note": "Abstract staged. It states its own model as FIXED-EFFECT and its endpoint as harmonized, both of which the reconciliation uses."
+  },
+  "PM_ZANNAD2020": {
+   "layer": "Prior synthesis (abstract, open)",
+   "layer_rank": 3,
+   "name": "Zannad et al. SGLT2 inhibitors in patients with heart failure with reduced ejection fraction: a meta-analysis of the EMPEROR-Reduced and DAPA-HF trials. Lancet 2020.",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/32877652/",
+   "staged_as": "OA_PM_ZANNAD2020_abstract.txt",
+   "access_note": "Abstract staged. Its pooled composite is the harmonized one and its trial pair is a subset of this object's four."
+  }
+ },
+ "outcomes": [
+  {
+   "id": "cvdeath_or_whf_first",
+   "name": "Cardiovascular death or a worsening heart failure event, whichever comes first, as a hazard ratio",
+   "type": "primary",
+   "measure": "HR",
+   "direction_of_benefit": "lower",
+   "null_value": 1,
+   "effect_scale": "log",
+   "estimand": {
+    "id": "cvdeath_or_whf_first-estimand",
+    "family": "time_to_first",
+    "model": "Cox proportional hazards",
+    "unit_of_analysis": "participant, with the time to the first component event",
+    "case_definition": "each trial's OWN primary composite of centrally adjudicated cardiovascular death or a worsening heart failure event, whichever occurs first. The trials do not define the worsening-heart-failure component identically -- two count an urgent heart failure visit and two count only hospitalization -- and the two that count it do not define it identically either, which is why each cell stores its own trial's wording rather than a common paraphrase. The FDA label records a further difference, in whether deaths of undetermined cause were counted as cardiovascular. All of it is in the uniformity table and none of it is harmonized away.",
+    "window": "from randomisation to the end of the trial's own follow-up",
+    "follow_up_months": null,
+    "follow_up_note": "The contributing trials ran to different median lengths and no single figure is given here because there is no single figure. Each trial's median is stored on its own cell, and the difference is recorded in the uniformity table as a crossed dimension rather than averaged away.",
+    "analysis_population": "each trial's own full analysis set, which on all four equals its randomised total"
+   },
+   "comparator": "placebo added to background heart failure therapy",
+   "comparator_type": "placebo",
+   "definition": "Cardiovascular death or a worsening heart failure event, whichever comes first, as a hazard ratio",
+   "definition_note": "The four contributing trials share no participant and no control group. They do not share a single definition of the composite, which is why this field is worded around the outcome CONCEPT and each cell stores its trial's own wording."
+  }
+ ],
+ "inputs": {
+  "trials": [
+   {
+    "id": "dapa-hf",
+    "name": "DAPA-HF",
+    "nct": "NCT03036124",
+    "pmid": "31535829",
+    "year": 2019,
+    "design": "phase 3, double-blind, randomised one to one against placebo on top of recommended heart failure therapy, event-driven",
+    "population": "adults with NYHA class II to IV heart failure and an ejection fraction of 40% or less, with or without type 2 diabetes",
+    "comparator_type": "placebo",
+    "comparator_type_basis": "The trial randomised against a matching placebo added to background therapy, which its own abstract names as the comparator. All four pooled trials share that design, so the comparator axis is identical here -- unlike the other cardiology review in this batch, where the comparator is what removed most candidate trials.",
+    "arms": [
+     {
+      "label": "dapagliflozin 10 mg once daily",
+      "role": "treatment",
+      "events": 386,
+      "participants": 2373
+     },
+     {
+      "label": "placebo",
+      "role": "control",
+      "events": 502,
+      "participants": 2371
+     }
+    ],
+    "arms_not_used": [],
+    "enrolled": 4744,
+    "enrolment_note": "Randomised, as posted by the registry. The two arms below sum to that same total: no participant randomised in this trial is absent from its primary analysis. That is a property every trial in this pool happens to share, and it is checked on each of them rather than assumed from the first.",
+    "by_outcome": {
+     "cvdeath_or_whf_first": {
+      "effect": {
+       "point": 0.74,
+       "ci_low": 0.65,
+       "ci_high": 0.85,
+       "ci_level": 95,
+       "log_point": -0.301105,
+       "log_se": 0.068436,
+       "scale": "log",
+       "derived_from": "published_hazard_ratio",
+       "derivation_note": "The point estimate and interval are stored as published. The log point and log standard error are DERIVED here, the standard error from the width of the published interval on the log scale, and are not claimed to appear in any source."
+      },
+      "estimand_id": "cvdeath_or_whf_first-estimand",
+      "analysed": {
+       "treatment": 2373,
+       "control": 2371
+      },
+      "analysed_scope": "The trial's full analysis set, which equals its randomised total. The registry, the publication and both regulator layers give the same two denominators, so there is no gap between randomised and analysed for this object to reconcile.",
+      "source_tier": "primary_oa",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/31535829/",
+      "cascade": {
+       "checked": {
+        "primary_oa": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "hazard ratio 0.74 (95% CI 0.65 to 0.85); 386 of 2373 against 502 of 2371",
+         "url": "https://pubmed.ncbi.nlm.nih.gov/31535829/"
+        },
+        "registry": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "386 of 2373 against 502 of 2371, with the hazard ratio 0.74 (0.65 to 0.85) posted on the same primary outcome",
+         "url": "https://clinicaltrials.gov/study/NCT03036124"
+        },
+        "regulator_fda": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "the same hazard ratio and interval, with the composite decomposed into cardiovascular death, hospitalization for heart failure and urgent heart failure visit as separate rows",
+         "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2026/202293s035lbl.pdf",
+         "why_this_document": "The layer is the approved US label rather than a review document, and the reason is a fact about what the agency publishes for THIS application, not a convenience. Every submission Drugs@FDA serves for the dapagliflozin application was asked for a review table of contents on the date recorded here: of the 29 probed, exactly two publish one -- the original diabetes application and a later supplement whose own cover page names chronic kidney disease as the indication under review. The heart-failure supplements publish an approval letter and a label and no review. The label's clinical studies section is written and approved by the same division, prints this trial's primary composite with its interval and its event counts, and resolves at a stable public address. Recording this layer as unavailable while a document holding the number sits one discovered link away would be false."
+        },
+        "regulator_ema": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "the same hazard ratio and interval in the pharmacodynamics section",
+         "url": "https://www.ema.europa.eu/en/documents/product-information/forxiga-epar-product-information_en.pdf"
+        },
+        "prior_meta": {
+         "status": "not_available",
+         "checked_on": "2026-08-10",
+         "reason": "The staged prior syntheses pool a HARMONIZED composite of cardiovascular death or a first heart failure admission and report the POOLED estimate. None of them restates this trial's own primary composite as a separate row, so there is nothing here for this cell to be checked against. That was TESTED and not assumed: the one synthesis whose full text is open was read through on the date recorded here, and its per-trial tables break results down by ejection-fraction category rather than by trial. The other two are abstract-only, which was itself checked against the full-text archive rather than inferred. This is an absence in what those papers REPORT, not an absence of prior synthesis -- the syntheses are held and reconciled against in their own block."
+        }
+       },
+       "primary_source": "primary_oa",
+       "primary_not_best_because": "Both regulator layers outrank the publication in this cascade's preference order and both DID hold this cell: each prints the same point estimate and the same two-sided interval. The publication is kept as the primary source because it is the layer that also fixes the follow-up, the adjudication and the analysis set this object stores beside the estimate, and because taking the estimate from a label while taking its context from a paper would attribute to one document a cell assembled from two. The regulator agreement is recorded on this cell as confirmation and is not displaced by that choice; where a regulator layer disagreed it would be a divergence and would appear below rather than in this sentence.",
+       "divergences": [],
+       "agreement_note": "Four layers print the same point estimate and the same interval. THREE of them print the event counts -- the publication, the registry and the FDA label -- and those three agree; the European product information gives the estimate and its interval in prose and prints no count row for this trial, which is why its yield above is worded narrowly. The FDA label adds the decomposition into the three components, which the registry does not post."
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "OA_DAPAHF2019",
+       "source_quotes": [
+        "the primary outcome occurred in 386 of 2373 patients (16.3%) in the dapagliflozin group and in 502 of 2371 patients (21.2%) in the placebo group (hazard ratio, 0.74; 95% confidence interval [CI], 0.65 to 0.85; P<0.001)",
+        "The primary outcome was a composite of worsening heart failure (hospitalization or an urgent visit resulting in intravenous therapy for heart failure) or cardiovascular death."
+       ],
+       "quote_note": "Both sentences are verbatim from the staged abstract of this trial's primary publication. The second is stored beside the first deliberately: it is the trial's OWN definition of the composite, and this pool crosses a difference in that definition. A cell storing only the effect sentence would hide the axis these trials differ on most, and the uniformity table would be the only place a reader could find it."
+      },
+      "composite_as_this_trial_defines_it": "cardiovascular death, hospitalization for heart failure, or an urgent heart failure visit resulting in intravenous therapy",
+      "follow_up": "a median of 18.2 months",
+      "endpoint_rank_in_its_own_trial": "the trial's own primary composite endpoint"
+     }
+    }
+   },
+   {
+    "id": "emperor-reduced",
+    "name": "EMPEROR-Reduced",
+    "nct": "NCT03057977",
+    "pmid": "32865377",
+    "year": 2020,
+    "design": "phase 3, double-blind, randomised one to one against placebo on top of recommended heart failure therapy",
+    "population": "adults with NYHA class II to IV heart failure and an ejection fraction of 40% or less, with or without type 2 diabetes",
+    "comparator_type": "placebo",
+    "comparator_type_basis": "The trial randomised against a matching placebo added to background therapy, which its own abstract names as the comparator. All four pooled trials share that design, so the comparator axis is identical here -- unlike the other cardiology review in this batch, where the comparator is what removed most candidate trials.",
+    "arms": [
+     {
+      "label": "empagliflozin 10 mg once daily",
+      "role": "treatment",
+      "events": 361,
+      "participants": 1863
+     },
+     {
+      "label": "placebo",
+      "role": "control",
+      "events": 462,
+      "participants": 1867
+     }
+    ],
+    "arms_not_used": [],
+    "enrolled": 3730,
+    "enrolment_note": "Randomised, as posted by the registry. The two arms below sum to that same total: no participant randomised in this trial is absent from its primary analysis. That is a property every trial in this pool happens to share, and it is checked on each of them rather than assumed from the first.",
+    "by_outcome": {
+     "cvdeath_or_whf_first": {
+      "effect": {
+       "point": 0.75,
+       "ci_low": 0.65,
+       "ci_high": 0.86,
+       "ci_level": 95,
+       "log_point": -0.287682,
+       "log_se": 0.07142,
+       "scale": "log",
+       "derived_from": "published_hazard_ratio",
+       "derivation_note": "The point estimate and interval are stored as published. The log point and log standard error are DERIVED here, the standard error from the width of the published interval on the log scale, and are not claimed to appear in any source."
+      },
+      "estimand_id": "cvdeath_or_whf_first-estimand",
+      "analysed": {
+       "treatment": 1863,
+       "control": 1867
+      },
+      "analysed_scope": "The trial's full analysis set, which equals its randomised total. The registry, the publication and both regulator layers give the same two denominators, so there is no gap between randomised and analysed for this object to reconcile.",
+      "source_tier": "primary_oa",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/32865377/",
+      "cascade": {
+       "checked": {
+        "primary_oa": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "hazard ratio 0.75 (95% CI 0.65 to 0.86); 361 of 1863 against 462 of 1867",
+         "url": "https://pubmed.ncbi.nlm.nih.gov/32865377/"
+        },
+        "registry": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "the hazard ratio 0.75 (0.65 to 0.86) on the primary outcome, with the arms posted as rates per 100 patient-years rather than as counts",
+         "url": "https://clinicaltrials.gov/study/NCT03057977"
+        },
+        "regulator_fda": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "the same hazard ratio and interval, with the counts beside it",
+         "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/204629s063lbl.pdf",
+         "why_this_document": "The layer is the approved US label rather than a review document, and the reason is a fact about what the agency publishes for THIS application, not a convenience. The empagliflozin application is a different case and is described here as what it is rather than by analogy: its Drugs@FDA overview lists exactly ONE review table of contents, for the original 2014 application, and that link returns a not-found error. There is no second review to characterise and no chronic-kidney-disease supplement review in this application's list. The absence was confirmed twice, by two independent routes, on the date recorded here. The label's clinical studies section is written and approved by the same division, prints this trial's primary composite with its interval and its event counts, and resolves at a stable public address. Recording this layer as unavailable while a document holding the number sits one discovered link away would be false."
+        },
+        "regulator_ema": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "the same hazard ratio and interval, with the counts and their percentages, in a table of the primary composite and its components",
+         "url": "https://www.ema.europa.eu/en/documents/product-information/jardiance-epar-product-information_en.pdf"
+        },
+        "prior_meta": {
+         "status": "not_available",
+         "checked_on": "2026-08-10",
+         "reason": "The staged prior syntheses pool a HARMONIZED composite of cardiovascular death or a first heart failure admission and report the POOLED estimate. None of them restates this trial's own primary composite as a separate row, so there is nothing here for this cell to be checked against. That was TESTED and not assumed: the one synthesis whose full text is open was read through on the date recorded here, and its per-trial tables break results down by ejection-fraction category rather than by trial. The other two are abstract-only, which was itself checked against the full-text archive rather than inferred. This is an absence in what those papers REPORT, not an absence of prior synthesis -- the syntheses are held and reconciled against in their own block."
+        }
+       },
+       "primary_source": "primary_oa",
+       "primary_not_best_because": "Both regulator layers outrank the publication in this cascade's preference order and both DID hold this cell: each prints the same point estimate and the same two-sided interval. The publication is kept as the primary source because it is the layer that also fixes the follow-up, the adjudication and the analysis set this object stores beside the estimate, and because taking the estimate from a label while taking its context from a paper would attribute to one document a cell assembled from two. The regulator agreement is recorded on this cell as confirmation and is not displaced by that choice; where a regulator layer disagreed it would be a divergence and would appear below rather than in this sentence.",
+       "divergences": [],
+       "agreement_note": "The registry posts this trial's arms as event RATES per 100 patient-years and not as counts, so the counts this object stores come from the publication and are confirmed independently by both regulator layers. That is a cascade layer supplying something the registry does not hold, which is the case for running it."
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "OA_EMPRED2020",
+       "source_quotes": [
+        "a primary outcome event occurred in 361 of 1863 patients (19.4%) in the empagliflozin group and in 462 of 1867 patients (24.7%) in the placebo group (hazard ratio for cardiovascular death or hospitalization for heart failure, 0.75; 95% confidence interval [CI], 0.65 to 0.86; P<0.001)",
+        "The primary outcome was a composite of cardiovascular death or hospitalization for worsening heart failure."
+       ],
+       "quote_note": "Both sentences are verbatim from the staged abstract of this trial's primary publication. The second is stored beside the first deliberately: it is the trial's OWN definition of the composite, and this pool crosses a difference in that definition. A cell storing only the effect sentence would hide the axis these trials differ on most, and the uniformity table would be the only place a reader could find it."
+      },
+      "composite_as_this_trial_defines_it": "cardiovascular death or hospitalization for worsening heart failure",
+      "follow_up": "a median of 16 months",
+      "endpoint_rank_in_its_own_trial": "the trial's own primary composite endpoint"
+     }
+    }
+   },
+   {
+    "id": "emperor-preserved",
+    "name": "EMPEROR-Preserved",
+    "nct": "NCT03057951",
+    "pmid": "34449189",
+    "year": 2021,
+    "design": "phase 3, double-blind, randomised one to one against placebo on top of usual therapy",
+    "population": "adults with NYHA class II to IV heart failure and an ejection fraction above 40%, with or without type 2 diabetes",
+    "comparator_type": "placebo",
+    "comparator_type_basis": "The trial randomised against a matching placebo added to background therapy, which its own abstract names as the comparator. All four pooled trials share that design, so the comparator axis is identical here -- unlike the other cardiology review in this batch, where the comparator is what removed most candidate trials.",
+    "arms": [
+     {
+      "label": "empagliflozin 10 mg once daily",
+      "role": "treatment",
+      "events": 415,
+      "participants": 2997
+     },
+     {
+      "label": "placebo",
+      "role": "control",
+      "events": 511,
+      "participants": 2991
+     }
+    ],
+    "arms_not_used": [],
+    "enrolled": 5988,
+    "enrolment_note": "Randomised, as posted by the registry. The two arms below sum to that same total: no participant randomised in this trial is absent from its primary analysis. That is a property every trial in this pool happens to share, and it is checked on each of them rather than assumed from the first.",
+    "by_outcome": {
+     "cvdeath_or_whf_first": {
+      "effect": {
+       "point": 0.79,
+       "ci_low": 0.69,
+       "ci_high": 0.9,
+       "ci_level": 95,
+       "log_point": -0.235722,
+       "log_se": 0.067783,
+       "scale": "log",
+       "derived_from": "published_hazard_ratio",
+       "derivation_note": "The point estimate and interval are stored as published. The log point and log standard error are DERIVED here, the standard error from the width of the published interval on the log scale, and are not claimed to appear in any source."
+      },
+      "estimand_id": "cvdeath_or_whf_first-estimand",
+      "analysed": {
+       "treatment": 2997,
+       "control": 2991
+      },
+      "analysed_scope": "The trial's full analysis set, which equals its randomised total. The registry, the publication and both regulator layers give the same two denominators, so there is no gap between randomised and analysed for this object to reconcile.",
+      "source_tier": "primary_oa",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/34449189/",
+      "cascade": {
+       "checked": {
+        "primary_oa": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "hazard ratio 0.79 (95% CI 0.69 to 0.90); 415 of 2997 against 511 of 2991",
+         "url": "https://pubmed.ncbi.nlm.nih.gov/34449189/"
+        },
+        "registry": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "the hazard ratio 0.79 (0.69 to 0.90) on the primary outcome, with the arms posted as rates per 100 patient-years rather than as counts",
+         "url": "https://clinicaltrials.gov/study/NCT03057951"
+        },
+        "regulator_fda": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "the same hazard ratio and interval, with the counts beside it",
+         "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/204629s063lbl.pdf",
+         "why_this_document": "The layer is the approved US label rather than a review document, and the reason is a fact about what the agency publishes for THIS application, not a convenience. The empagliflozin application is a different case and is described here as what it is rather than by analogy: its Drugs@FDA overview lists exactly ONE review table of contents, for the original 2014 application, and that link returns a not-found error. There is no second review to characterise and no chronic-kidney-disease supplement review in this application's list. The absence was confirmed twice, by two independent routes, on the date recorded here. The label's clinical studies section is written and approved by the same division, prints this trial's primary composite with its interval and its event counts, and resolves at a stable public address. Recording this layer as unavailable while a document holding the number sits one discovered link away would be false."
+        },
+        "regulator_ema": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "the same hazard ratio and interval, with the counts and their percentages, in a table of the primary composite and its components",
+         "url": "https://www.ema.europa.eu/en/documents/product-information/jardiance-epar-product-information_en.pdf"
+        },
+        "prior_meta": {
+         "status": "not_available",
+         "checked_on": "2026-08-10",
+         "reason": "The staged prior syntheses pool a HARMONIZED composite of cardiovascular death or a first heart failure admission and report the POOLED estimate. None of them restates this trial's own primary composite as a separate row, so there is nothing here for this cell to be checked against. That was TESTED and not assumed: the one synthesis whose full text is open was read through on the date recorded here, and its per-trial tables break results down by ejection-fraction category rather than by trial. The other two are abstract-only, which was itself checked against the full-text archive rather than inferred. This is an absence in what those papers REPORT, not an absence of prior synthesis -- the syntheses are held and reconciled against in their own block."
+        }
+       },
+       "primary_source": "primary_oa",
+       "primary_not_best_because": "Both regulator layers outrank the publication in this cascade's preference order and both DID hold this cell: each prints the same point estimate and the same two-sided interval. The publication is kept as the primary source because it is the layer that also fixes the follow-up, the adjudication and the analysis set this object stores beside the estimate, and because taking the estimate from a label while taking its context from a paper would attribute to one document a cell assembled from two. The regulator agreement is recorded on this cell as confirmation and is not displaced by that choice; where a regulator layer disagreed it would be a divergence and would appear below rather than in this sentence.",
+       "divergences": [],
+       "agreement_note": "As for the reduced-ejection-fraction trial, the registry posts rates and not counts and both regulator layers supply the counts, agreeing with the publication and with each other."
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "OA_EMPPRE2021",
+       "source_quotes": [
+        "a primary outcome event occurred in 415 of 2997 patients (13.8%) in the empagliflozin group and in 511 of 2991 patients (17.1%) in the placebo group (hazard ratio, 0.79; 95% confidence interval [CI], 0.69 to 0.90; P<0.001)",
+        "The primary outcome was a composite of cardiovascular death or hospitalization for heart failure."
+       ],
+       "quote_note": "Both sentences are verbatim from the staged abstract of this trial's primary publication. The second is stored beside the first deliberately: it is the trial's OWN definition of the composite, and this pool crosses a difference in that definition. A cell storing only the effect sentence would hide the axis these trials differ on most, and the uniformity table would be the only place a reader could find it."
+      },
+      "composite_as_this_trial_defines_it": "cardiovascular death or hospitalization for heart failure",
+      "follow_up": "a median of 26.2 months",
+      "endpoint_rank_in_its_own_trial": "the trial's own primary composite endpoint"
+     }
+    }
+   },
+   {
+    "id": "deliver",
+    "name": "DELIVER",
+    "nct": "NCT03619213",
+    "pmid": "36027570",
+    "year": 2022,
+    "design": "phase 3, double-blind, randomised one to one against placebo on top of usual therapy, event-driven",
+    "population": "adults with heart failure and an ejection fraction above 40%, with or without type 2 diabetes",
+    "comparator_type": "placebo",
+    "comparator_type_basis": "The trial randomised against a matching placebo added to background therapy, which its own abstract names as the comparator. All four pooled trials share that design, so the comparator axis is identical here -- unlike the other cardiology review in this batch, where the comparator is what removed most candidate trials.",
+    "arms": [
+     {
+      "label": "dapagliflozin 10 mg once daily",
+      "role": "treatment",
+      "events": 512,
+      "participants": 3131
+     },
+     {
+      "label": "placebo",
+      "role": "control",
+      "events": 610,
+      "participants": 3132
+     }
+    ],
+    "arms_not_used": [],
+    "enrolled": 6263,
+    "enrolment_note": "Randomised, as posted by the registry. The two arms below sum to that same total: no participant randomised in this trial is absent from its primary analysis. That is a property every trial in this pool happens to share, and it is checked on each of them rather than assumed from the first.",
+    "by_outcome": {
+     "cvdeath_or_whf_first": {
+      "effect": {
+       "point": 0.82,
+       "ci_low": 0.73,
+       "ci_high": 0.92,
+       "ci_level": 95,
+       "log_point": -0.198451,
+       "log_se": 0.059014,
+       "scale": "log",
+       "derived_from": "published_hazard_ratio",
+       "derivation_note": "The point estimate and interval are stored as published. The log point and log standard error are DERIVED here, the standard error from the width of the published interval on the log scale, and are not claimed to appear in any source."
+      },
+      "estimand_id": "cvdeath_or_whf_first-estimand",
+      "analysed": {
+       "treatment": 3131,
+       "control": 3132
+      },
+      "analysed_scope": "The trial's full analysis set, which equals its randomised total. The registry, the publication and both regulator layers give the same two denominators, so there is no gap between randomised and analysed for this object to reconcile.",
+      "source_tier": "primary_oa",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/36027570/",
+      "cascade": {
+       "checked": {
+        "primary_oa": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "hazard ratio 0.82 (95% CI 0.73 to 0.92); 512 of 3131 against 610 of 3132",
+         "url": "https://pubmed.ncbi.nlm.nih.gov/36027570/"
+        },
+        "registry": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "512 of 3131 against 610 of 3132, with the hazard ratio 0.82 (0.73 to 0.92) posted on the same primary outcome",
+         "url": "https://clinicaltrials.gov/study/NCT03619213"
+        },
+        "regulator_fda": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "the same hazard ratio and interval, in the same table as the reduced-ejection-fraction trial, with the components split out",
+         "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2026/202293s035lbl.pdf",
+         "why_this_document": "The layer is the approved US label rather than a review document, and the reason is a fact about what the agency publishes for THIS application, not a convenience. Every submission Drugs@FDA serves for the dapagliflozin application was asked for a review table of contents on the date recorded here: of the 29 probed, exactly two publish one -- the original diabetes application and a later supplement whose own cover page names chronic kidney disease as the indication under review. The heart-failure supplements publish an approval letter and a label and no review. The label's clinical studies section is written and approved by the same division, prints this trial's primary composite with its interval and its event counts, and resolves at a stable public address. Recording this layer as unavailable while a document holding the number sits one discovered link away would be false."
+        },
+        "regulator_ema": {
+         "status": "found",
+         "checked_on": "2026-08-10",
+         "yielded": "the same hazard ratio and interval in the pharmacodynamics section",
+         "url": "https://www.ema.europa.eu/en/documents/product-information/forxiga-epar-product-information_en.pdf"
+        },
+        "prior_meta": {
+         "status": "not_available",
+         "checked_on": "2026-08-10",
+         "reason": "The staged prior syntheses pool a HARMONIZED composite of cardiovascular death or a first heart failure admission and report the POOLED estimate. None of them restates this trial's own primary composite as a separate row, so there is nothing here for this cell to be checked against. That was TESTED and not assumed: the one synthesis whose full text is open was read through on the date recorded here, and its per-trial tables break results down by ejection-fraction category rather than by trial. The other two are abstract-only, which was itself checked against the full-text archive rather than inferred. This is an absence in what those papers REPORT, not an absence of prior synthesis -- the syntheses are held and reconciled against in their own block."
+        }
+       },
+       "primary_source": "primary_oa",
+       "primary_not_best_because": "Both regulator layers outrank the publication in this cascade's preference order and both DID hold this cell: each prints the same point estimate and the same two-sided interval. The publication is kept as the primary source because it is the layer that also fixes the follow-up, the adjudication and the analysis set this object stores beside the estimate, and because taking the estimate from a label while taking its context from a paper would attribute to one document a cell assembled from two. The regulator agreement is recorded on this cell as confirmation and is not displaced by that choice; where a regulator layer disagreed it would be a divergence and would appear below rather than in this sentence.",
+       "divergences": [],
+       "agreement_note": "Four layers agree on the estimate and the interval. The counts are printed by three of them -- the publication, the registry and the FDA label -- and agree; the European product information carries no count row for this trial, so no count agreement is claimed from it. An earlier version of this note said four layers agreed on the counts, which credited a layer with something it does not print. The FDA LABEL records one thing the registry does not: that this trial's cardiovascular-death component EXCLUDED deaths of undetermined cause while the earlier dapagliflozin trial's included them. It is credited to that layer alone because the European product information does not carry it. That is a difference between two trials pooled here and it is carried into the uniformity table rather than left on this cell."
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "OA_DELIVER2022",
+       "source_quotes": [
+        "the primary outcome occurred in 512 of 3131 patients (16.4%) in the dapagliflozin group and in 610 of 3132 patients (19.5%) in the placebo group (hazard ratio, 0.82; 95% confidence interval [CI], 0.73 to 0.92; P<0.001)",
+        "The primary outcome was a composite of worsening heart failure (which was defined as either an unplanned hospitalization for heart failure or an urgent visit for heart failure) or cardiovascular death, as assessed in a time-to-event analysis."
+       ],
+       "quote_note": "Both sentences are verbatim from the staged abstract of this trial's primary publication. The second is stored beside the first deliberately: it is the trial's OWN definition of the composite, and this pool crosses a difference in that definition. A cell storing only the effect sentence would hide the axis these trials differ on most, and the uniformity table would be the only place a reader could find it."
+      },
+      "composite_as_this_trial_defines_it": "worsening heart failure, defined as an unplanned hospitalization for heart failure or an urgent heart failure visit, or cardiovascular death",
+      "follow_up": "a median of 2.3 years",
+      "endpoint_rank_in_its_own_trial": "the trial's own primary composite endpoint"
+     }
+    }
+   }
+  ]
+ },
+ "config": {
+  "confidence_level": 95
+ },
+ "results": {
+  "by_outcome": {
+   "cvdeath_or_whf_first": {
+    "k": 4,
+    "estimand_id": "cvdeath_or_whf_first-estimand",
+    "comparator_type": "placebo",
+    "handbook": {
+     "decision": "POOL four trials reporting the same effect measure for the same outcome CONCEPT against the same comparator, producing an AVERAGE ACROSS a documented difference in how two of them define the composite, across two molecules and across the ejection-fraction spectrum",
+     "sections": [
+      "3.2.1",
+      "3.2.3",
+      "3.2.4",
+      "10.9",
+      "10.10.1",
+      "10.10.2",
+      "10.10.4",
+      "10.14"
+     ],
+     "conformance": "Sections 3.2.1 and 3.2.3 fix the two axes on which ELIGIBILITY turns -- population and comparator -- and every screening decision names which of them it falls on, which is why the log has a criterion column rather than a verdict column. Section 3.2.4 is what keeps the MEASURE out of that list: it cautions that eligibility resting on which outcomes a study reported invites outcome reporting bias, so the measure is recorded in a separate column as a limit on POOLING. Section 10.9 is the authority for that limit, and it gives the hazard ratio as the effect measure for time-to-event data and sanctions combining log hazard ratios by generic inverse variance; all four trials report a Cox hazard ratio for the time to a first event of their primary composite against placebo, so the measure is shared and nothing is converted. What the pool crosses is documented under 10.10.1 in the uniformity table, and the first row of that table is the one that matters: two trials count an urgent heart failure visit inside the composite and two do not. That difference is not smoothed away, not harmonized and not described as absent. Section 10.10.4 governs the model and the between-study variance estimator; restricted maximum likelihood is used and the comparison of estimators that 10.10.4.4 motivates is RUN rather than asserted, and with this little heterogeneity the estimators agree closely, which is reported as the unremarkable result it is. Section 10.14 is why the leave-one-out analysis is here; unlike the other cardiology pool in this batch it changes nothing, and that is itself the finding."
+    },
+    "per_trial": [
+     {
+      "trial_id": "dapa-hf",
+      "nct": "NCT03036124",
+      "measure": "HR",
+      "point": 0.74,
+      "ci_low": 0.65,
+      "ci_high": 0.85,
+      "ci_level": 95,
+      "log_point": -0.301105,
+      "log_se": 0.068436,
+      "estimand_id": "cvdeath_or_whf_first-estimand",
+      "population": "adults with NYHA class II to IV heart failure and an ejection fraction of 40% or less, with or without type 2 diabetes",
+      "endpoint_rank_in_its_own_trial": "the trial's own primary composite endpoint",
+      "composite_as_this_trial_defines_it": "cardiovascular death, hospitalization for heart failure, or an urgent heart failure visit resulting in intravenous therapy",
+      "derivation": "the published hazard ratio, stored on the log scale with the standard error its published interval implies"
+     },
+     {
+      "trial_id": "emperor-reduced",
+      "nct": "NCT03057977",
+      "measure": "HR",
+      "point": 0.75,
+      "ci_low": 0.65,
+      "ci_high": 0.86,
+      "ci_level": 95,
+      "log_point": -0.287682,
+      "log_se": 0.07142,
+      "estimand_id": "cvdeath_or_whf_first-estimand",
+      "population": "adults with NYHA class II to IV heart failure and an ejection fraction of 40% or less, with or without type 2 diabetes",
+      "endpoint_rank_in_its_own_trial": "the trial's own primary composite endpoint",
+      "composite_as_this_trial_defines_it": "cardiovascular death or hospitalization for worsening heart failure",
+      "derivation": "the published hazard ratio, stored on the log scale with the standard error its published interval implies"
+     },
+     {
+      "trial_id": "emperor-preserved",
+      "nct": "NCT03057951",
+      "measure": "HR",
+      "point": 0.79,
+      "ci_low": 0.69,
+      "ci_high": 0.9,
+      "ci_level": 95,
+      "log_point": -0.235722,
+      "log_se": 0.067783,
+      "estimand_id": "cvdeath_or_whf_first-estimand",
+      "population": "adults with NYHA class II to IV heart failure and an ejection fraction above 40%, with or without type 2 diabetes",
+      "endpoint_rank_in_its_own_trial": "the trial's own primary composite endpoint",
+      "composite_as_this_trial_defines_it": "cardiovascular death or hospitalization for heart failure",
+      "derivation": "the published hazard ratio, stored on the log scale with the standard error its published interval implies"
+     },
+     {
+      "trial_id": "deliver",
+      "nct": "NCT03619213",
+      "measure": "HR",
+      "point": 0.82,
+      "ci_low": 0.73,
+      "ci_high": 0.92,
+      "ci_level": 95,
+      "log_point": -0.198451,
+      "log_se": 0.059014,
+      "estimand_id": "cvdeath_or_whf_first-estimand",
+      "population": "adults with heart failure and an ejection fraction above 40%, with or without type 2 diabetes",
+      "endpoint_rank_in_its_own_trial": "the trial's own primary composite endpoint",
+      "composite_as_this_trial_defines_it": "worsening heart failure, defined as an unplanned hospitalization for heart failure or an urgent heart failure visit, or cardiovascular death",
+      "derivation": "the published hazard ratio, stored on the log scale with the standard error its published interval implies"
+     }
+    ],
+    "poolable": true,
+    "poolable_reason": "A single effect measure, a single comparator and one outcome concept, across trials that share no participant and no control group.",
+    "estimand_homogeneous_across_cohorts": false,
+    "estimand_id_means": "the estimand of the POOLED value, which is the average this result reports. It is NOT a claim that the contributing trials estimate identical quantities: two of them count a component the other two do not. The dimensions on which they differ are listed in the uniformity table, and the pooled value averages across them.",
+    "pool_uniformity": {
+     "effect_measure": [
+      "identical",
+      "All four report a Cox hazard ratio for the time to a FIRST event of their primary composite. No conversion is performed and none would be valid: the three trials kept out of this pool are kept out precisely because their headline quantities cannot be turned into this one."
+     ],
+     "comparator": [
+      "identical",
+      "All four randomised against a matching placebo added to background heart failure therapy. No trial in this pool has an active comparator."
+     ],
+     "outcome_definition": [
+      "differs",
+      "This is the axis the pool crosses, and it is the most important row in this table. The two empagliflozin trials define their composite as cardiovascular death or hospitalization for heart failure. The two dapagliflozin trials ADD a third component, an urgent heart failure visit, which is an outpatient event the empagliflozin trials do not count. The two that count it do NOT define it identically, and that is why each cell stores its trial's own wording instead of a common paraphrase: the earlier trial specifies a visit resulting in intravenous therapy, while the later one and its label describe a visit requiring treatment for worsening heart failure other than merely an increase in oral diuretics, which is the broader criterion. An earlier version of this row applied the narrower intravenous-therapy wording to both, importing one trial's definition onto the other at the point where a reader meets the pooled number; a gate leg was right to read the cells rather than this sentence. The FDA LABEL records a further difference the registry does not post: in the earlier dapagliflozin trial the cardiovascular-death component INCLUDED deaths of undetermined cause and in the later one it excluded them. That distinction is in the label and in one of the prior syntheses; it is NOT in the European product information, so it is credited to the layer that carries it and not to the regulator layers jointly. Nothing here is harmonized, and where a published synthesis DID harmonize it the reconciliation block says so and gives that synthesis's number beside this one."
+     ],
+     "ejection_fraction_range": [
+      "differs",
+      "Two trials enrolled at or below an ejection fraction of 40% and two enrolled above it, so the pool spans the ejection-fraction spectrum by design rather than by accident. That is the question this object asks, and it is also why a reader looking for a reduced-ejection-fraction answer should not read the headline as one."
+     ],
+     "drug": [
+      "differs",
+      "Two trials tested dapagliflozin and two tested empagliflozin, each at 10 mg once daily. The pooled value is a CLASS average and not an estimate for either molecule; nothing in this object identifies one as better than the other and the leave-one-out table is where a reader can see how little the average depends on any one of them."
+     ],
+     "blinding": [
+      "identical",
+      "All four were double-blind with centrally adjudicated components."
+     ],
+     "endpoint_rank_within_its_own_trial": [
+      "identical",
+      "This composite is the PRIMARY endpoint of every contributing trial, so the pool inherits none of the multiplicity exposure that a secondary endpoint would carry. That is unusual for this batch and it is the main reason the risk-of-bias domain is not downgraded."
+     ],
+     "follow_up_length": [
+      "differs",
+      "The medians range from just over a year to well over two, and each trial's own median is stored on its cell. The two dapagliflozin trials are described as event-driven by their own registry records, so for that pair the difference reflects event accrual rather than a differing follow-up intention. Nothing staged for the two empagliflozin trials says the same, and an earlier version of this row generalised it to all four; what can be said of them is only that their medians differ."
+     ],
+     "analysis_population": [
+      "identical",
+      "Each trial's full analysis set equals its randomised total, on all four."
+     ]
+    },
+    "model": "random",
+    "estimator": "REML",
+    "estimator_used": "REML",
+    "pooled": {
+     "measure": "HR",
+     "point": 0.7785,
+     "ci_low": 0.7296,
+     "ci_high": 0.8306,
+     "ci_level": 95,
+     "scale": "log"
+    },
+    "favours": "treatment",
+    "heterogeneity": {
+     "tau2": 0.0,
+     "i2": 0.0,
+     "q": 1.6432,
+     "df": 3
+    },
+    "heterogeneity_status": "Q does not exceed its degrees of freedom, so the Higgins statistic sits at its floor and the between-study variance is estimated at zero. That is reported with the same caveat this batch applies everywhere rather than as reassurance: with four trials the statistic has little power to detect heterogeneity, and a floor value is consistent both with genuine agreement and with not being able to tell. What supports reading it as agreement here is visible without the statistic -- the four point estimates lie in a narrow band and every interval overlaps every other. What the statistic cannot see at all is the difference in how the composite is defined, because that is a difference in the QUESTION each trial answered, not in its answer. The uniformity table is the only place that difference is visible.",
+    "single_study_ref": null,
+    "sensitivity": {
+     "method": "leave-one-out, plus a comparison of between-study variance estimators",
+     "authority": "Cochrane Handbook version 6.5.1, section 10.14: sensitivity analyses examine whether overall findings are robust to potentially influential decisions. Section 10.10.4.4 governs the estimator half -- it records that methods other than DerSimonian and Laird estimate the between-study variance better and that restricted maximum likelihood is the RevMan default. Section 10.10.4.5 is about INTERPRETATION with few studies and the method it compares is the confidence interval, not the variance estimator; it is cited for the interval comparison and not for the estimator comparison.",
+     "decision_under_test": "Two decisions. First, whether the pooled benefit depends on any single trial. Second, whether it depends on the choice of between-study variance estimator and interval method, which with four studies is not automatically a formality even though it turns out to be one here.",
+     "analyses": [
+      {
+       "omitted": "dapa-hf",
+       "remaining": [
+        "emperor-reduced",
+        "emperor-preserved",
+        "deliver"
+       ],
+       "k": 3,
+       "point": 0.7906,
+       "ci_low": 0.7342,
+       "ci_high": 0.8513,
+       "tau2": 0.0,
+       "i2": 0.0,
+       "still_excludes_null": true
+      },
+      {
+       "omitted": "emperor-reduced",
+       "remaining": [
+        "dapa-hf",
+        "emperor-preserved",
+        "deliver"
+       ],
+       "k": 3,
+       "point": 0.7864,
+       "ci_low": 0.731,
+       "ci_high": 0.8461,
+       "tau2": 0.0,
+       "i2": 0.0,
+       "still_excludes_null": true
+      },
+      {
+       "omitted": "emperor-preserved",
+       "remaining": [
+        "dapa-hf",
+        "emperor-reduced",
+        "deliver"
+       ],
+       "k": 3,
+       "point": 0.7749,
+       "ci_low": 0.7194,
+       "ci_high": 0.8346,
+       "tau2": 0.0,
+       "i2": 0.0,
+       "still_excludes_null": true
+      },
+      {
+       "omitted": "deliver",
+       "remaining": [
+        "dapa-hf",
+        "emperor-reduced",
+        "emperor-preserved"
+       ],
+       "k": 3,
+       "point": 0.7602,
+       "ci_low": 0.7029,
+       "ci_high": 0.822,
+       "tau2": 0.0,
+       "i2": 0.0,
+       "still_excludes_null": true
+      }
+     ],
+     "leave_one_out_finding": "The pooled benefit depends on no single trial. Every leave-one-out fit keeps the null outside its interval and every one lands close to the full pool. This is the opposite of what the companion reduced-ejection-fraction review in this batch found, where dropping the largest trial removed the benefit, and the contrast is worth stating because the two objects share a template and a reader may assume they share a fragility. They do not.",
+     "between_study_variance_method_comparison": {
+      "why": "Section 10.10.4.4 records that estimators other than DerSimonian and Laird perform better and that restricted maximum likelihood is now the default in the Cochrane software, and it is the whole of the authority for running this comparison. Nothing in the Handbook instructs a review to compare variance estimators at a particular number of studies; running it is a choice made under section 10.14. Here it is uninformative, and that is reported rather than dropped: a sensitivity analysis that changes nothing is evidence about the result, and only a lane that ran it can say so.",
+      "methods": [
+       {
+        "between_study_variance_estimator": "DL",
+        "interval_method": "Wald",
+        "point": 0.7785,
+        "ci_low": 0.7296,
+        "ci_high": 0.8306,
+        "tau2": 0.0
+       },
+       {
+        "between_study_variance_estimator": "PM",
+        "interval_method": "Wald",
+        "point": 0.7785,
+        "ci_low": 0.7296,
+        "ci_high": 0.8306,
+        "tau2": 0.0
+       },
+       {
+        "between_study_variance_estimator": "REML",
+        "interval_method": "Wald",
+        "point": 0.7785,
+        "ci_low": 0.7296,
+        "ci_high": 0.8306,
+        "tau2": 0.0
+       },
+       {
+        "between_study_variance_estimator": "REML",
+        "interval_method": "HKSJ",
+        "point": 0.7785,
+        "ci_low": 0.7007,
+        "ci_high": 0.8649,
+        "tau2": 0.0
+       }
+      ],
+      "estimator_kept": "Restricted maximum likelihood is kept as the headline estimator with the ordinary interval, because section 10.10.4.4 records it as the Cochrane default and as a better estimator than DerSimonian and Laird. With the between-study variance estimated at zero the choice is close to immaterial here, and keeping the default is therefore not a choice that flatters the result. The Hartung-Knapp-Sidik-Jonkman interval is reported beside it, with the floor on its scale factor applied so it can widen and can never come out narrower than the ordinary interval.",
+      "verdict": "The three variance estimators agree, because there is no between-study variance for them to disagree about, and all three intervals exclude the null. The Hartung-Knapp-Sidik-Jonkman interval is wider, as its floor guarantees it can only be, and it excludes the null as well. No method tried here reverses the finding. This is reported as a null sensitivity result and not as corroboration: four ways of computing an interval from the same four numbers agreeing is arithmetic, not independent evidence."
+     }
+    },
+    "cross_engine": {
+     "engine": "metafor 5.0.1 under R 4.6.0, generic inverse variance on the same log point and log standard error this object stores",
+     "agreement": "Recomputed independently and reported by `_nc_crossengine.py` against the stored values. This is a statement about two ENGINES agreeing on one arithmetic; it is not a claim that the trials agree with each other, and a cross-engine check has nothing to say about the definitional difference the uniformity table records.",
+     "i2_definitions_differ": "The two engines can report DIFFERENT values for the Higgins statistic and neither is wrong: this object's is computed from Q and its degrees of freedom, and the other engine's is computed relative to the restricted-maximum-likelihood between-study variance. They are different quantities sharing a name. Where the between-study variance is estimated at zero the two definitions coincide, so this pool is a case where the disagreement does not arise -- which is a fact about this pool and not a resolution of the general point."
+    },
+    "grade": {
+     "certainty": "high",
+     "certainty_derivation": "start high; no downgrades; total -0 -> high",
+     "randomised": true,
+     "starting_point": "high",
+     "starting_point_because": "every contributing study is a randomised controlled trial",
+     "domains": {
+      "risk_of_bias": {
+       "rating": "not serious",
+       "basis_in_sources": "Every contributing trial is double-blind, randomised one to one against a matching placebo, prospectively registered, and posts results to its registry; the components of the composite are adjudicated by a central committee in each. This object holds each trial's registry record, its primary publication and two regulator documents, and the effect estimate agrees across all four layers on all four trials, which is a check on reporting rather than on conduct but is the check available. The endpoint pooled here is each trial's own PRIMARY, so none of the selective-reporting exposure that a secondary endpoint carries applies. No trial in this pool stopped early for benefit. Not downgraded."
+      },
+      "inconsistency": {
+       "rating": "not serious",
+       "derived_from": "The between-study variance estimated by restricted maximum likelihood, and Q against its degrees of freedom, both stored in the heterogeneity block of this result. Q does not exceed its degrees of freedom, so the Higgins statistic is at its floor and there is no heterogeneity for a downgrade to be about. Section 14.2.2 makes the trigger UNEXPLAINED heterogeneity rather than a value of the Higgins statistic, and it cross-references chapter 10. There is no unexplained heterogeneity to carry: the point estimates lie in a narrow band, every interval overlaps every other, and the dimensions on which the trials genuinely differ -- the composite's definition, the ejection-fraction range, the molecule -- are documented in the uniformity table rather than offered as post-hoc explanations. Not downgraded, and the low statistic is reported with the caveat that with four trials it carries little power to detect heterogeneity."
+      },
+      "indirectness": {
+       "rating": "not serious",
+       "basis_in_sources": "Population, intervention and comparator are all direct: adults with chronic heart failure, an SGLT2 inhibitor at its approved heart failure dose, against placebo on top of background therapy, with the outcome measured in the trials themselves and not surrogated. The one candidate for indirectness is the OUTCOME, because two trials count an urgent heart failure visit within the composite and two do not. It is not downgraded, and the reasoning is stated rather than assumed: the extra component is a worsening-heart-failure event of the same clinical kind as the other two, it is the minority of events in both trials that count it, and the regulator layers report those trials' composites decomposed so the size of that minority is visible rather than inferred. A reader who wants the strictly harmonized composite instead has it in the reconciliation block, from syntheses that computed it, and this object does not pretend the two are the same quantity."
+      },
+      "imprecision": {
+       "rating": "not serious",
+       "derived_from": "The pooled interval stored in this result, which lies wholly below the null, together with the leave-one-out table, in which every fit keeps the null outside its interval, and the Hartung-Knapp-Sidik-Jonkman interval, which also excludes it. Section 14.2.2 gives three conditions and this object can check two. The interval excludes the null, which is the first. The second asks whether the interval includes appreciable benefit or harm; the upper bound here sits below the threshold the section offers as a rough guide, so the interval does not straddle a boundary between appreciable and negligible effect. The third, the optimal information size, is declared uncomputable below rather than quietly treated as met. Unlike the other cardiology pool in this batch, the precision here is not a property of one trial: every leave-one-out fit keeps the null outside its interval, and so does the more conservative interval method. Not downgraded.",
+       "ois_note": "The optimal information size is a condition section 14.2.2 makes part of adequate precision and it is NOT computable from what this object holds: it needs an assumed control-arm risk and a target difference that no field here carries. It is therefore UNKNOWN rather than satisfied, and this sentence exists so its absence cannot read as a pass. What can be said is that the pooled evidence carries a large absolute event count across every contributing trial, so the decision not to downgrade does not rest on sparse events."
+      },
+      "publication_bias": {
+       "rating": "not assessable",
+       "not_assessable_because": "Four studies. The funnel-plot and regression methods for small-study effects are not interpretable much below ten, so no assessment is made and none is implied. What can be said without a test is recorded instead and is not offered as a substitute for one: all four trials were prospectively registered, all four posted results to their registry, all four are held here in four independent document layers that agree, and the field's own null results in adjacent populations are published. Rated not assessable, which downgrades nothing on its own."
+      }
+     },
+     "sections": [
+      "14.2.1",
+      "14.2.2",
+      "10.10.2",
+      "10.10.4",
+      "10.14"
+     ],
+     "what_this_certainty_is_about": "It is the certainty of the POOLED class average across four trials of two molecules, spanning the ejection-fraction spectrum. It is not a rating of either molecule on its own and not a rating for any one ejection-fraction band. It is also not a rating of the strictly harmonized composite that the published syntheses in the reconciliation block estimate, because that is a different quantity computed from patient-level or trial-level data this object does not hold. Reading this rating as a verdict on one drug in one population would be a misreading, and the sentence is here because that misreading is the easy one."
+    }
+   }
+  }
+ },
+ "screening": {
+  "search_note": "The candidate set was assembled from the included-study LISTS of three published syntheses of this class in heart failure, taken together with the registry results records staged for every trial those lists name. That is the reconciliation step doing the work a search would do, and it is described here as what it is rather than as a systematic database search.",
+  "eligibility": "ELIGIBILITY turns on population, intervention and comparator: a trial is in scope if it randomised adults with CHRONIC heart failure to an SGLT2 inhibitor against placebo on top of background therapy. It does NOT turn on which analysis the trial reported, because section 3.2.4 cautions that making eligibility depend on reported outcomes invites outcome reporting bias. What the measure governs is POOLING, under section 10.9: only a time-to-first-event hazard ratio can be combined with the others. Each row below therefore carries two separate columns -- the eligibility axis it fails, and, where it applies, the reason its quantity could not have been pooled even had it been eligible. Every screened trial appears with the quantity it reports quoted, whichever column it fell in.",
+  "known_limitation": "No fresh systematic database search was run for this object, and nothing here should be read as though one had been. The completeness claim rests on reconciliation against three independent published syntheses whose included-study lists are read rather than counted, plus the registry layer. A trial that all three syntheses missed and that no staged registry record names would be missed here too. That is a real and stated limit on the search, and it is the reason the completeness statement below is scoped to what was reconciled against rather than to the literature as a whole.",
+  "records": [
+   {
+    "trial": "SOLOIST-WHF",
+    "nct": "NCT03521934",
+    "pmid": "33200892",
+    "source_tier": "primary_oa",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/33200892/",
+    "criteria_failed": [
+     "population"
+    ],
+    "not_poolable_even_if_eligible": [
+     "measure"
+    ],
+    "reason": "POPULATION, which is the axis the Handbook makes an eligibility criterion. It enrolled patients with type 2 diabetes who had been hospitalized for worsening heart failure and started treatment before or shortly after discharge, which is a recently-decompensated population rather than the chronic ambulatory one this question fixes. SEPARATELY, and recorded as a pooling limit rather than as a second exclusion: its primary endpoint is the TOTAL number of cardiovascular deaths, heart failure hospitalizations and urgent heart failure visits -- first AND subsequent events -- which its own abstract states in those words. That is a recurrent-event quantity, so under section 10.9 it could not have entered this pool even had the population matched. The two are kept apart because an earlier version of this object ran them together and cited a section that cautions against exactly that.",
+    "quantity_it_reports": "a hazard ratio for the TOTAL occurrence of the composite, reported as 0.67 with a 95% interval of 0.52 to 0.85 by its publication and its registry record alike",
+    "why_that_quantity_is_never_stored_as_a_hazard_ratio": "It IS labelled a hazard ratio by every layer that reports it, and that is exactly the trap. A recurrent-event analysis counts a participant each time they have an event; a time-to-first analysis counts them once. The two share a name, a scale and a direction, so storing this value in the same field as the four pooled cells would be invisible to a reader and to most software. The detector that guards effect-measure form would not catch it either, because both are hazard ratios. It is stored nowhere in this object except in this sentence.",
+    "note_on_a_claim_this_review_inherited": "This trial was handed to this object with a recorded cross-layer divergence: a registry value against a published value. Re-reading the staged registry payload shows its PRIMARY outcome posts exactly what the publication reports. The pair that was quoted as a divergence belongs to a DIFFERENT outcome on the same record -- a broader secondary composite that also counts heart failure occurring while already hospitalized. The divergence was an artefact of matching a value without its outcome title, and it is recorded here as corrected rather than carried."
+   },
+   {
+    "trial": "SCORED",
+    "nct": "NCT03315143",
+    "pmid": "33200891",
+    "source_tier": "primary_oa",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/33200891/",
+    "criteria_failed": [
+     "population"
+    ],
+    "reason": "POPULATION, and this is the one exclusion in this log that does NOT turn on the measure. It enrolled patients with type 2 diabetes and chronic kidney disease at cardiovascular risk; heart failure was not an entry requirement and most participants did not have it. It is a cardiovascular and renal outcome trial in diabetic kidney disease, not a heart failure trial, so it fails the first axis of the question.",
+    "quantity_it_reports": "its changed primary endpoint is a TOTAL-occurrence composite; but it also reports its ORIGINAL co-primary, the first occurrence of cardiovascular death or hospitalization for heart failure, as a hazard ratio of 0.77 with a 95% interval of 0.66 to 0.91",
+    "why_that_quantity_is_never_stored_as_a_hazard_ratio": "It is not stored because of the population, not because of its form. This row says so explicitly because the honest version of this exclusion is uncomfortable: a first-event hazard ratio for this review's exact composite EXISTS for this trial and is quoted above, so a reader cannot be told the quantity was unavailable. The trial is out on who was enrolled. A reader who disagrees with that boundary can see precisely what including it would have added, which is the point of recording the value here."
+   },
+   {
+    "trial": "EMPULSE",
+    "nct": "NCT04157751",
+    "pmid": "35228754",
+    "source_tier": "primary_oa",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/35228754/",
+    "criteria_failed": [
+     "population"
+    ],
+    "not_poolable_even_if_eligible": [
+     "measure"
+    ],
+    "reason": "POPULATION and duration: patients were randomised in hospital during an admission for acute heart failure and treated for up to ninety days, which is neither the chronic population nor the event-driven follow-up this question fixes. SEPARATELY, as a pooling limit and not as a second exclusion: its primary outcome is clinical benefit expressed as a hierarchical composite of death, heart failure events and a symptom-score difference, analysed as a stratified WIN RATIO -- a ratio of favourable to unfavourable pairwise comparisons, with no interpretation as a hazard and with the opposite direction of benefit.",
+    "quantity_it_reports": "a stratified win ratio of 1.36 with a 95% interval of 1.09 to 1.68, in which values ABOVE one favour treatment -- the opposite direction to every value this object pools",
+    "why_that_quantity_is_never_stored_as_a_hazard_ratio": "Its direction of benefit is inverted relative to a hazard ratio, so storing it in a hazard-ratio field would not merely mislabel the quantity, it would reverse the sign of the trial's finding. Its registry record does also post a secondary first-occurrence hazard ratio for cardiovascular death or a heart failure event, and that value is not pooled either, on the population and duration grounds above."
+   }
+  ],
+  "excluded": [
+   {
+    "reason": "SOLOIST-WHF -- fails population",
+    "detail": "POPULATION, which is the axis the Handbook makes an eligibility criterion. It enrolled patients with type 2 diabetes who had been hospitalized for worsening heart failure and started treatment before or shortly after discharge, which is a recently-decompensated population rather than the chronic ambulatory one this question fixes. SEPARATELY, and recorded as a pooling limit rather than as a second exclusion: its primary endpoint is the TOTAL number of cardiovascular deaths, heart failure hospitalizations and urgent heart failure visits -- first AND subsequent events -- which its own abstract states in those words. That is a recurrent-event quantity, so under section 10.9 it could not have entered this pool even had the population matched. The two are kept apart because an earlier version of this object ran them together and cited a section that cautions against exactly that.",
+    "source_tier": "primary_oa",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/33200892/"
+   },
+   {
+    "reason": "SCORED -- fails population",
+    "detail": "POPULATION, and this is the one exclusion in this log that does NOT turn on the measure. It enrolled patients with type 2 diabetes and chronic kidney disease at cardiovascular risk; heart failure was not an entry requirement and most participants did not have it. It is a cardiovascular and renal outcome trial in diabetic kidney disease, not a heart failure trial, so it fails the first axis of the question.",
+    "source_tier": "primary_oa",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/33200891/"
+   },
+   {
+    "reason": "EMPULSE -- fails population",
+    "detail": "POPULATION and duration: patients were randomised in hospital during an admission for acute heart failure and treated for up to ninety days, which is neither the chronic population nor the event-driven follow-up this question fixes. SEPARATELY, as a pooling limit and not as a second exclusion: its primary outcome is clinical benefit expressed as a hierarchical composite of death, heart failure events and a symptom-score difference, analysed as a stratified WIN RATIO -- a ratio of favourable to unfavourable pairwise comparisons, with no interpretation as a hazard and with the opposite direction of benefit.",
+    "source_tier": "primary_oa",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/35228754/"
+   }
+  ]
+ },
+ "screening_names_unresolved": [],
+ "eligible_but_not_contributing": {
+  "note": "No trial is in this category. Every trial meeting the population, the comparator and the measure contributes; every trial failing one of the three is in the screening log with the criterion it fails. This field is present and empty rather than absent, so a reader can tell the category was considered.",
+  "studies": []
+ },
+ "reconciliation": {
+  "why_this_step_exists": "Because on the previous app in this batch it changed the answer: reading a prior synthesis's included-study LIST rather than its count recovered an eligible trial the brief had never named. It is run here for the same reason and it did something different but equally load-bearing -- it recovered a benchmark that had been written off as nonexistent, and it dissolved a divergence that had been recorded as real.",
+  "clean": false,
+  "clean_because": "Not clean, and the reasons are stated rather than smoothed. One synthesis pools a trial this object screens out on POPULATION -- and which could not have been pooled here on the measure either, though that is a separate column in the log and not the ground for leaving it out. All three syntheses estimate a HARMONIZED composite that this object deliberately does not construct, so their pooled values are comparators and not checksums. And one open question remains that this object cannot close with what it holds.",
+  "target_source_id": "PM_VADUGANATHAN2022",
+  "access_limitation": "The broadest of the three syntheses is staged as its abstract; its full text is not open, and that was established by querying the full-text archive for its identifier rather than assumed from a paywall notice; the same query was run for the third synthesis, with the same answer, and for the second, which IS open and is staged in full. The abstract NAMES all five contributing trials, so the included-study list -- the thing this step needs -- is readable in full. What is not readable is its per-trial rows, which is why no per-trial value is attributed to it anywhere in this object.",
+  "published_benchmarks": [
+   {
+    "review_id": "PM_JHUND2022",
+    "endpoint": "time to the first occurrence of hospital admission for worsening heart failure or death from cardiovascular causes, harmonized by the authors across both trials",
+    "measure": "HR",
+    "point": 0.78,
+    "ci_low": 0.72,
+    "ci_high": 0.86,
+    "ci_level": 95,
+    "n": 11007,
+    "model": "patient-level pooled analysis",
+    "trials": [
+     "DAPA-HF",
+     "DELIVER"
+    ],
+    "source_tier": "prior_meta",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/36030328/",
+    "quote": "Dapagliflozin reduced the risk of this outcome by 22% (HR 0.78 (95% CI 0.72-0.86); P < 0.001)",
+    "comparability": "NOT a checksum. Its endpoint is the harmonized composite, which excludes the urgent heart failure visits that two of this object's trials count, and its trial set is a subset of this object's. It is the value the page this object replaces mis-attributed, which is why it is stored with its own trial count and sample size beside it."
+   },
+   {
+    "review_id": "PM_VADUGANATHAN2022",
+    "endpoint": "time from randomisation to the composite of cardiovascular death or hospitalisation for heart failure, with endpoint definitions harmonized by the authors",
+    "measure": "HR",
+    "point": 0.77,
+    "ci_low": 0.72,
+    "ci_high": 0.82,
+    "ci_level": 95,
+    "n": 21947,
+    "model": "fixed-effect",
+    "trials": [
+     "DAPA-HF",
+     "EMPEROR-Reduced",
+     "EMPEROR-Preserved",
+     "DELIVER",
+     "SOLOIST-WHF"
+    ],
+    "source_tier": "prior_meta",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/36041474/",
+    "quote": "In the broader context of the five trials of 21 947 participants, SGLT2 inhibitors reduced the risk of composite cardiovascular death or hospitalisation for heart failure (0.77 [0.72-0.82])",
+    "comparability": "NOT a checksum, and for two independent reasons. Its model is FIXED-EFFECT, so a random-effects pool is under no obligation to reproduce it. And its trial set includes the trial this object screens out on population, which it could pool only because it harmonized endpoints from data this object does not hold. Its trial count and sample size are the ones the page this object replaces attached to the wrong synthesis."
+   },
+   {
+    "review_id": "PM_ZANNAD2020",
+    "endpoint": "the combined risk of cardiovascular death or first hospitalisation for heart failure",
+    "measure": "HR",
+    "point": 0.74,
+    "ci_low": 0.68,
+    "ci_high": 0.82,
+    "ci_level": 95,
+    "n": 8474,
+    "model": "one trial at patient level, one at study level",
+    "trials": [
+     "DAPA-HF",
+     "EMPEROR-Reduced"
+    ],
+    "source_tier": "prior_meta",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/32877652/",
+    "quote": "SGLT2 inhibition was accompanied by a 26% relative reduction in the combined risk of cardiovascular death or first hospitalisation for heart failure (0.74, 0.68-0.82; p<0.0001)",
+    "comparability": "NOT a checksum. Its two trials are the reduced-ejection-fraction pair only, so it estimates a different population's effect, and its endpoint is again the harmonized one."
+   }
+  ],
+  "what_the_benchmarks_show": "All three published syntheses and this pool point the same way and land within a narrow band. That agreement is worth stating and is worth almost nothing as corroboration: every one of them is built from trials this object also pools, so they are not independent evidence and are not treated as such. What they ARE is a check on this object's SCOPE -- each names a different trial set and a different endpoint, and storing all three with their own counts is what makes it impossible to repeat the error on the page this object replaces, where one synthesis's name was attached to another's trial count and to an interval bound belonging to neither.",
+  "trial_list_diffs": [
+   {
+    "review_id": "PM_VADUGANATHAN2022",
+    "review_scope": "SGLT2 inhibitors in heart failure across the ejection fraction spectrum, five randomised trials, FIXED-EFFECT, with endpoint definitions harmonized by the authors",
+    "list_was_readable": true,
+    "review_included_trials": [
+     "DAPA-HF",
+     "EMPEROR-Reduced",
+     "EMPEROR-Preserved",
+     "DELIVER",
+     "SOLOIST-WHF"
+    ],
+    "ours_not_theirs": [],
+    "theirs_not_ours": [
+     {
+      "trial": "SOLOIST-WHF",
+      "disposition": "excluded",
+      "source_tier": "primary_oa",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/33200892/",
+      "reason": "Screened out on POPULATION -- recently decompensated rather than chronic -- with its total-occurrence primary recorded separately as the reason it could not have been pooled in any case; it is in the screening log with both columns filled. This synthesis could include it because it harmonized endpoints across trials, which is an analysis this object does not perform and does not have the data to perform."
+     }
+    ]
+   },
+   {
+    "review_id": "PM_JHUND2022",
+    "review_scope": "dapagliflozin across the range of ejection fraction, a patient-level pooled analysis of the two dapagliflozin trials",
+    "list_was_readable": true,
+    "review_included_trials": [
+     "DAPA-HF",
+     "DELIVER"
+    ],
+    "ours_not_theirs": [
+     {
+      "trial": "EMPEROR-Reduced",
+      "why_ours_is_right": "a different molecule; this synthesis is scoped to one drug and this object is not"
+     },
+     {
+      "trial": "EMPEROR-Preserved",
+      "why_ours_is_right": "same reason"
+     }
+    ],
+    "theirs_not_ours": []
+   },
+   {
+    "review_id": "PM_ZANNAD2020",
+    "review_scope": "the two reduced-ejection-fraction trials, one at patient level and one at study level, with all-cause death as the primary endpoint",
+    "list_was_readable": true,
+    "review_included_trials": [
+     "DAPA-HF",
+     "EMPEROR-Reduced"
+    ],
+    "ours_not_theirs": [
+     {
+      "trial": "EMPEROR-Preserved",
+      "why_ours_is_right": "published after this synthesis and outside its reduced-ejection-fraction scope"
+     },
+     {
+      "trial": "DELIVER",
+      "why_ours_is_right": "same reason"
+     }
+    ],
+    "theirs_not_ours": []
+   }
+  ],
+  "matches": [
+   {
+    "item": "trial count and sample size of the two-trial dapagliflozin synthesis",
+    "detail": "Its stated trial pair and its combined sample size both agree with what this object holds for those two trials."
+   },
+   {
+    "item": "trial count and sample size of the five-trial synthesis",
+    "detail": "The trials it names are this object's own plus the one screened out on population, and its stated total equals this object's pooled denominators plus that trial's randomised total."
+   },
+   {
+    "item": "direction and rough magnitude of the pooled effect",
+    "detail": "All three syntheses and this pool point the same way and lie within a narrow band of one another, which is what should be expected of overlapping trial sets and is not independent confirmation of anything."
+   }
+  ],
+  "corrections": [
+   {
+    "item": "the benchmark carried by the page this object replaces",
+    "review_reports": "The published page attributed a five-trial, twenty-one-thousand-patient pool to the two-trial dapagliflozin synthesis, described it as reduced-ejection-fraction only, and gave it an upper interval bound that belongs to neither synthesis.",
+    "this_object": "Both syntheses are held separately, each with its own trial list, its own sample size, its own model and its own interval, and neither is described as covering only reduced ejection fraction, because neither does. The upper bound that appeared on the page is not reproduced anywhere, because no source states it."
+   },
+   {
+    "item": "the claim that the two-trial synthesis's benchmark appears nowhere in it",
+    "review_reports": "This object was handed a finding that the benchmark hazard ratio could not be located in that paper and should not be carried.",
+    "this_object": "It is in the paper, in a sentence of its own, as the harmonized composite of a first heart failure admission or cardiovascular death. The earlier reading had used the abstract, where it does not appear; the open-access full text is staged here and it does. The benchmark is carried, with the endpoint it belongs to named."
+   },
+   {
+    "item": "the recorded registry-against-publication divergence on the excluded sotagliflozin trial",
+    "review_reports": "This object was handed a genuine cross-layer divergence to record side by side and never resolve.",
+    "this_object": "There is no divergence between those two layers. The registry's PRIMARY outcome posts what the publication reports; the other value belongs to a different, broader secondary outcome on the same record. The pair had been matched by value rather than by outcome title. The same slip had been made on the companion trial."
+   }
+  ],
+  "unresolved": [
+   {
+    "item": "what a strictly harmonized pool of these same four trials would give",
+    "detail": "This object pools each trial's OWN primary composite, and two of the four count an urgent heart failure visit that the other two do not. A pool of the strictly harmonized composite would be a different and arguably better quantity, and it cannot be computed here: the harmonized cell is published per trial for some of these trials and not for others, and constructing the missing ones would require patient-level data this object does not hold. What can be said is recorded rather than estimated -- the published syntheses that DID harmonize are held beside this pool with their values intact, and a reader can see how far apart the two approaches land. Attempting the harmonized pool from the values available would mean pooling published harmonized cells for two trials with own-primary cells for the others, which is the estimand mixing this object exists to refuse."
+   }
+  ]
+ },
+ "claims_corrected": [
+  {
+   "claim": "that the published benchmark on the live page is a five-trial, reduced-ejection-fraction pool from the two-trial dapagliflozin synthesis",
+   "status": "FALSE",
+   "correction": "Three separate errors in one field: the synthesis named is a two-trial one, the trial count and sample size quoted belong to a different five-trial synthesis, and neither synthesis is restricted to reduced ejection fraction. The interval's upper bound matches neither source. Both syntheses are now held separately and correctly.",
+   "source_id": "PM_JHUND2022"
+  },
+  {
+   "claim": "that the two-trial synthesis's benchmark hazard ratio matches nothing in the paper",
+   "status": "FALSE",
+   "correction": "It matches the paper's harmonized composite of a first heart failure admission or cardiovascular death, stated in the full text. The earlier check had read the abstract only.",
+   "source_id": "PM_JHUND2022"
+  },
+  {
+   "claim": "that the registry and the publication disagree on the excluded sotagliflozin worsening-heart-failure trial",
+   "status": "FALSE",
+   "correction": "They agree exactly on that trial's primary outcome. The value taken for the registry side belongs to a different secondary outcome on the same record.",
+   "source_id": "OA_SOLOIST2021"
+  },
+  {
+   "claim": "that the US regulator holds a review document for the heart-failure indications of these two products",
+   "status": "INCOMPLETE",
+   "correction": "It does not. Every submission the agency serves for the dapagliflozin application was asked; only two publish a review and the newer is the kidney-disease supplement. The empagliflozin application's single review link does not resolve, checked by two independent routes. The regulator layer is the approved label instead, and every cell says so.",
+   "source_id": "FDA_ABSENCE_PROBE"
+  }
+ ],
+ "scope_decisions": {
+  "SCOPE:measure-governs-POOLING-not-eligibility": {
+   "decision": "Only a time-to-first-event hazard ratio enters the POOL. Recurrent-event and total-occurrence analyses and hierarchical win ratios do not, whatever the trial or the registry calls them. That is a limit on what can be COMBINED, and it is deliberately NOT used as a reason to leave a trial out of the review: every screened trial is in the log with the quantity it reports, quoted.",
+   "sections": [
+    "10.9",
+    "3.2.4"
+   ],
+   "conformance": "Section 10.9 fixes the hazard ratio as the measure for time-to-event data and generic inverse variance as the way to combine log hazard ratios; it is the whole of the authority for the pooling limit, because a win ratio and a recurrent-event analysis are not log hazard ratios and cannot be entered as though they were. Section 3.2.4 is cited for the OPPOSITE reason and the distinction matters: it cautions AGAINST making eligibility turn on which outcomes a study reported, because that invites outcome reporting bias. An earlier version of this object cited 3.2.4 as authority for treating the measure as an eligibility criterion and was being stricter than the Handbook while claiming the Handbook's support. The object's position is now the one it can actually defend: each screened trial fails an axis the Handbook DOES make eligibility -- population under 3.2.1 -- and each screening row records its measure separately, as the reason its value could not have been pooled even had the population matched. The hardest case is unchanged and is the reason the pooling limit exists at all: one excluded trial's recurrent-event analysis is reported by its journal AND its registry AS A HAZARD RATIO, so the label on the quantity is not the quantity, and no automated check in this repository can tell the two apart."
+  },
+  "SCOPE:own-primary-not-harmonized": {
+   "decision": "Each trial contributes its OWN primary composite as that trial defines it. This object does not construct a harmonized endpoint across trials, and it does not import one from a synthesis that did.",
+   "sections": [
+    "3.2.4",
+    "10.10.1"
+   ],
+   "conformance": "Section 10.10.1 is what distinguishes clinical and methodological DIVERSITY from statistical heterogeneity, which is why the uniformity table sits beside the heterogeneity statistic rather than being replaced by it: the difference in composite definition is a difference in the question each trial answered and no statistic computed from four numbers can see it. It is the first substantive row in that table. The alternative was to import published harmonized cells where they exist and fall back on own-primary cells where they do not, which would put two different quantities in one pool while looking tidier than this does. The syntheses that harmonized properly, from data this object does not hold, are reported beside the pool with their scope intact."
+  },
+  "SCOPE:population-is-heart-failure-not-cardiovascular-risk": {
+   "decision": "A trial enters only if chronic heart failure was an entry requirement. A cardiovascular or renal outcome trial in which some participants happen to have heart failure does not, even when it reports this review's exact endpoint in this review's exact form.",
+   "sections": [
+    "3.2.1"
+   ],
+   "conformance": "Section 3.2.1 fixes the population as a defining criterion. This is the boundary that removes the diabetic kidney-disease trial, and that exclusion is the least comfortable one in this object because the quantity it would contribute is available and correctly shaped. The screening row quotes that value rather than hiding it, so the cost of the boundary is visible to a reader who would draw it elsewhere."
+  },
+  "SCOPE:class-average-not-molecule": {
+   "decision": "The pool averages across two molecules and reports a class effect. It does not claim, and must not be read as claiming, an estimate for either drug individually.",
+   "sections": [
+    "10.10.1",
+    "10.14"
+   ],
+   "conformance": "The molecule is a documented crossed dimension in the uniformity table under section 10.10.1, and the leave-one-out analysis run under section 10.14 is what lets a reader see how little the average moves when any one trial is removed. Both are reported; neither is offered as a subgroup analysis, because this object holds no test for a difference between the molecules and does not imply one."
+  }
+ }
+}

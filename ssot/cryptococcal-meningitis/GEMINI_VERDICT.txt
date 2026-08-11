@@ -1,0 +1,76 @@
+===== PASS SOURCE =====
+[attempt 1: exit 0, 222s, 3593 chars, usable]
+NONCE: cryptococcal-meningitis-9d83b87b
+
+I have performed PASS ONE (SOURCE CHECK) as requested. 
+
+**Files Read:**
+1. `F:\claude-temp\ssot\canonical\cryptococcal-meningitis.json`
+2. `F:\claude-temp\ssot\sources\cryptococcal-meningitis\ACTA.extract.txt`
+3. `F:\claude-temp\ssot\sources\cryptococcal-meningitis\AMBITION-cm.extract.txt`
+4. `F:\claude-temp\ssot\sources\cryptococcal-meningitis\COAT.extract.txt`
+
+**Checks Performed:**
+
+**1. ACTA Trial (`acta_oral_vs_2wk`, `acta_1wk_vs_2wk`, `acta_oral_vs_1wk`):**
+*   **Source Check:** The quoted sentence names mortality at 10 weeks as 35.1% (79 of 225) for oral, 36.2% (81 of 224) for 1-week AmB, and 39.7% (91 of 229) for 2-week AmB.
+*   **Object Verification:** 
+    *   `acta_oral_vs_2wk`: Correctly takes 79 of 225 (oral, treatment) and 91 of 229 (2-week, control).
+    *   `acta_1wk_vs_2wk`: Correctly takes 81 of 224 (1-week, treatment) and 91 of 229 (2-week, control).
+    *   `acta_oral_vs_1wk`: Correctly takes 79 of 225 (oral, treatment) and 81 of 224 (1-week, control).
+*   **Derived Arithmetic (Risk Ratios & SE):** Recomputed RR for `acta_oral_vs_2wk` yields `(79/225)/(91/229) = 0.8836` with a log standard error of `sqrt(1/79 - 1/225 + 1/91 - 1/229) = 0.121803`. These match the object perfectly. The bounds and direction (fewer deaths = lower) are correctly aligned. Recomputations for `acta_1wk_vs_2wk` (RR = 0.9100) and `acta_oral_vs_1wk` (RR = 0.9710) with their respective standard errors similarly match exactly.
+*   **Partner-drug Contrast (Unsynthesised):** The abstract states "flucytosine was superior to fluconazole (71 deaths [31.1%] vs. 101 deaths [45.0%]; hazard ratio... 0.62)". The object correctly records 71 vs 101 and an HR of 0.62.
+
+**2. AMBITION-cm Trial (`ambition_lamb_vs_amb1w`):**
+*   **Source Check:** The quoted sentence states "AmBisome group ... 24.8% (101 of 407)" and "control group ... 28.7% (117 of 407)".
+*   **Object Verification:** The object correctly matches 101 of 407 to the treatment arm and 117 of 407 to the control arm.
+*   **Derived Arithmetic:** Recomputed RR yields `(101/407)/(117/407) = 0.8632` with log standard error `sqrt(1/101 - 1/407 + 1/117 - 1/407) = 0.116336`. The bounds and point estimate stored in the object match exactly. The published risk differences (-3.9 pp and -5.7 pp) and their confidence intervals match the verbatim quotes.
+
+**3. COAT Trial (`coat_26wk_mortality`, `coat_iris`):**
+*   **Source Check (`coat_26wk_mortality`):** The extract reports 26-week mortality as 40 of 88 (earlier-ART, treatment) vs 27 of 89 (deferred-ART, control) with an HR of 1.73 (95% CI 1.06 to 2.82). 
+*   **Object Verification:** The object correctly stores these values. 1.73 is greater than 1, reflecting harm, which correctly matches the "greater in the earlier-ART group" text. The derived log standard error of `0.249614` is mathematically sound (e.g., `[ln(2.82) - ln(1.06)] / (2 * 1.96) = 0.249614`). Subgroup interactions and timing of excess match identically to the source text.
+*   **Source Check (`coat_iris`):** The extract records 20% (17 of 87) for earlier-ART and 13% (9 of 69) for deferred-ART.
+*   **Object Verification:** The object correctly captures the specific competing-risk denominators (87 and 69) and properly refuses to convert this into a ratio effect measure.
+
+I did not find any instances of misattribution of data among shared controls or miscalculation of point estimates, standard errors, bounds, or direction of benefit in any of the verified derived variables. All stated values strictly adhere to the provided source extracts.
+
+VERDICT: PASS
+
+
+===== PASS JUDGE =====
+[attempt 1: exit 0, 153s, 4123 chars, usable]
+NONCE: cryptococcal-meningitis-9d83b87b
+
+VALIDATOR: I read the following files:
+- F:\claude-temp\ssot\canonical\cryptococcal-meningitis.json
+- F:\claude-temp\ssot\sources\cryptococcal-meningitis\ACTA.extract.txt
+- F:\claude-temp\ssot\sources\cryptococcal-meningitis\AMBITION-cm.extract.txt
+- F:\claude-temp\ssot\sources\cryptococcal-meningitis\COAT.extract.txt
+
+1. ESTIMAND
+VALIDATOR: The object pools nothing. I checked its stated reason for not pooling: "No two trials here estimate the same quantity: the induction trials share no treatment contrast, and the timing trial compares something else entirely." This is true of the object. ACTA compares mixed-partner amphotericin B nodes (`AMB1W_MIXED`, `AMB2W_MIXED`) against an oral regimen, while AMBITION-cm compares a single liposomal dose (`LAMB_SINGLE`) against a pure flucytosine-partnered node (`AMB1W_5FC`). COAT tests antiretroviral timing, which is a different intervention class. Because no two trials share a node/contrast, they cannot be pooled. 
+
+2. SHARED CONTROLS
+VALIDATOR: Because the object computes no pooled estimates, no pooled estimate leans on the same control participants twice. The object explicitly recognizes that ACTA's contrasts share control arms (e.g., `acta_oral_vs_2wk` and `acta_1wk_vs_2wk` both use `ISRCTN45035509-amb2w`), and correctly applies Handbook 23.3.4 to hold them separately rather than falsely entering them alongside each other as independent studies.
+
+3. COMPLETENESS
+VALIDATOR: The `completeness_statement` claims "Every trial named is held with its counts and its own estimand. Nothing was cited and then dropped..." This is true of the object. The COAT trial is appropriately excluded from the antifungal induction network graph, but it is not dropped from the object; it is honestly held with its own distinct outcomes (`coat_26wk_mortality`, `coat_iris`). 
+
+4. CORRECTIONS AND RECONCILIATION
+VALIDATOR: The `claims_corrected` block makes three criticisms, all of which are fair and supported by the staged sources:
+- On AMBITION-cm, it rejects a hazard ratio of 0.86. The staged source confirms the primary estimand is a risk difference and the HR is merely in a supplementary table not present in the body text. 
+- On COAT, it corrects an IRIS count ("deferred-start count is nine, not seven") and rejects an odds ratio of 2.5. The staged source confirms the counts (17 vs 9) and confirms no ratio measure was derivable from the competing-risk analysis.
+- On ACTA, it corrects the claim that all five arms could be independent nodes. The object explicitly admits its reading limits ("The full text is behind a paywall and was not retrieved"), and the staged abstract confirms that it publishes counts for the three strategies but only pooled totals for the partner drug. 
+
+5. HANDBOOK CONFORMANCE
+VALIDATOR: I checked the decisions against the cited Handbook sections:
+- Node grouping (11.3.2.3) and Indirect comparisons (11.2.1): The decision not to synthesize the network follows perfectly from 11.3.2.3 (maximizing similarity within a node). The object rightly refuses to merge `AMB1W_MIXED` (50% fluconazole) with `AMB1W_5FC` (100% flucytosine), meaning there is no common comparator to satisfy 11.2.1.
+- Transitivity (11.2.2): The object accurately notes that even if the nodes were forcefully merged, the difference in co-intervention (partner drug) violates transitivity.
+- Time-to-event (10.9) and Network lines (11.1.1): Correctly used to keep COAT out of the induction network, as it randomizes a different intervention and uses a different outcome measure.
+- Dichotomous measures (10.4.3): Correctly applied to refuse storing an effect ratio for COAT's competing-risk cumulative incidence.
+- Multiple groups (23.3.3 / 23.3.4): The object properly identifies unit-of-analysis constraints and expertly defends its quotation of 23.3.3 against previous LLM validators, proving that the rule on ignoring study authors' data grouping belongs exactly where cited.
+
+Every cited section says what the object claims, the decisions follow directly from them, and none are stricter than the Handbook.
+
+VERDICT: PASS
+

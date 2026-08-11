@@ -1,0 +1,28 @@
+NONCE: lenacapavir-prep-03a66995
+
+Files read:
+- F:\ProjectIndex\INDEX.md
+- F:\E156\rewrite-workbook.txt
+- F:\claude-temp\ssot\canonical\lenacapavir-prep.json
+- F:\claude-temp\ssot\sources\lenacapavir-prep\NCT04925752.ctgov.json
+- F:\claude-temp\ssot\sources\lenacapavir-prep\NCT04994509.ctgov.json
+- F:\claude-temp\ssot\sources\lenacapavir-prep\PMID39046157.pubmed.xml
+- F:\claude-temp\ssot\sources\lenacapavir-prep\PMID39602624.pubmed.xml
+- F:\claude-temp\ssot\sources\lenacapavir-prep\PURPOSE-trials.extract.txt
+- F:\claude-temp\ssot\sources\lenacapavir-prep\PURPOSE-trials.extract.json
+- F:\claude-temp\ssot\validate_v2.py
+
+Non-file references checked:
+- Cochrane Handbook for Systematic Reviews of Interventions, current online version 6.5, chapter 3, chapter 10, and chapter 23.
+
+OBJECT: No object defects found.
+
+The per-trial effects match the staged source sentences quoted beside them. PURPOSE 1 records lenacapavir versus background as 0.00 (95% CI 0.00 to 0.04), lenacapavir versus F/TDF as 0.00 (95% CI 0.00 to 0.10), F/TAF versus background as 0.84 (95% CI 0.55 to 1.28), and F/TAF versus F/TDF as 1.20 (95% CI 0.67 to 2.14). PURPOSE 2 records lenacapavir versus background as 0.04 (95% CI 0.01 to 0.18), and lenacapavir versus F/TDF as 0.11 (95% CI 0.02 to 0.51). A mechanical quote-presence pass found 0 missing source_quotes.
+
+OBJECT: Estimand and pooling checks found no defect. The randomized active-control outcomes and the screened-population background-incidence outcomes are separate result blocks and are not pooled together. PURPOSE 1's zero lenacapavir rate ratios carry null log_point/log_se fields and no pooled estimate is computed anywhere. No pooled result uses duplicate randomizations or shared control participants.
+
+OBJECT: Handbook conformance checks found no defect. Sections 3.2.3, 10.3.3, 10.4.4, 10.8, 10.10.1, 10.10.3, and 23.3.2 support the object's separation of comparisons, use of rate-ratio/log inverse-variance framing for rate data, refusal to convert the object to a participant risk-ratio or Peto odds-ratio synthesis, and handling of the PURPOSE 1 multi-arm trial as separate pairwise comparisons.
+
+VALIDATOR: No validator defect found. `python validate_v2.py canonical/lenacapavir-prep.json` returned `VALIDATOR CLEAN -- 34/34 detectors passed`.
+
+VERDICT: PASS
