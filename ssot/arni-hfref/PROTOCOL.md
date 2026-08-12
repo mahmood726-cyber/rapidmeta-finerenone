@@ -161,15 +161,72 @@ composite.
 
 ## 9 · Risk of bias
 
-Cochrane RoB-2, at the level of the result being pooled, by two independent
-cross-family assessors with human adjudication.
+**Tool.** Cochrane risk-of-bias tool for randomized trials, version 2 (RoB-2).
 
-**PENDING, and stated as pending rather than implied as done.** At the time of
-this commit no RoB-2 assessment exists for these trials. The object currently
-holds *recorded bias-relevant features* — blinding status, endpoint adjudication,
-endpoint rank within its own trial, early stopping — each traceable to a source,
-and those features feed the GRADE risk-of-bias domain. They are not a RoB-2
-judgement and are not presented as one.
+**Unit of assessment.** RoB-2 is applied **to the result being pooled, not to the
+trial as a whole**: the composite of cardiovascular death or first hospitalisation
+for heart failure, expressed as a time-to-first-event hazard ratio. One trial may
+therefore carry a different judgement for this result than it would for its own
+primary endpoint, and that is the intended behaviour of the tool.
+
+**Variant.** The **effect of assignment to intervention** variant, because that is
+what an intention-to-treat hazard ratio estimates. The adherence variant is not
+used, and no result assessed under one variant will be reported as though assessed
+under the other.
+
+**Domains.** All five, each reached through the RoB-2 signalling questions rather
+than by overall impression, with a recorded answer per signalling question, a
+**domain judgement** of low / some concerns / high, and a rationale naming the
+evidence it rests on:
+
+1. Bias arising from the randomization process
+2. Bias due to deviations from intended interventions (effect of assignment)
+3. Bias due to missing outcome data
+4. Bias in measurement of the outcome
+5. Bias in selection of the reported result
+
+An **overall judgement** follows the standard RoB-2 algorithm: low only if every
+domain is low; high if any domain is high or if multiple domains raise some
+concerns in a way that substantially lowers confidence; some concerns otherwise.
+
+**Assessors.** Two independent assessors **from different model families**. Two
+instances of one model is one assessor run twice and its agreement statistic is
+meaningless, so same-family duplication does not satisfy this requirement. Neither
+assessor may be the agent that assembled the canonical object, because assessing
+one's own extraction is not an independent assessment.
+
+**Both sets of judgements are recorded and published** — per domain, per assessor,
+with rationales — not only the reconciled outcome. The **per-domain agreement rate
+is published as measured**. Agreement on RoB-2 domains is expected to be
+substantially lower than agreement on screening; if that proves true it is a
+finding worth reporting and it will not be smoothed. **Disagreements are
+adjudicated by a named human**, and the adjudication and its reason are recorded
+per disagreement.
+
+**Evidence admissible to an assessment.** The trial's registry record including its
+protocol and statistical analysis plan where posted, the primary publication and
+its supplement, and the posted results module. A judgement made from an abstract
+alone is not the same act as one made from a protocol, so **the sources actually
+consulted are recorded per domain**, and a domain judged without access to the
+protocol is marked as such rather than presented as equivalent.
+
+**Relationship to the recorded bias features.** The object already holds
+bias-relevant features — open-label design with blinded endpoint adjudication,
+endpoint rank within its own trial, early stopping for benefit, analysis
+population. These are **inputs to the assessment and never substitutes for a
+domain judgement**. No existing prose in the object may stand in for a signalling
+question or a domain rating.
+
+**Feeding GRADE.** The completed RoB-2 result becomes the basis of the GRADE
+risk-of-bias domain, replacing the current reasoning from recorded features. When
+it does, the review will state **whether the GRADE rating moves and why — and if
+it does not move, will say so explicitly** rather than leaving the reader to infer
+that nothing changed.
+
+**Status at the time of this commit: PENDING, and stated as pending rather than
+implied as done.** No RoB-2 assessment exists for these trials. Performing it
+later **executes this section rather than amending it**, and the object will record
+that distinction.
 
 ## 10 · Synthesis methods
 
