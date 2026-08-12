@@ -1,0 +1,1028 @@
+<meta charset="utf-8">
+<title>Sacubitril/valsartan against enalapril in heart failure with reduced ejection fraction: the three randomised trials that report cardiovascular death or heart failure hospitalization as a time-to-first hazard ratio</title>
+<style>
+ body{font-family:system-ui,-apple-system,sans-serif;max-width:64rem;margin:0 auto;padding:1.5rem;line-height:1.6;color:#111}
+ .badge{background:#b45309;color:#fff;padding:.75rem 1rem;border-radius:.375rem;font-size:.9rem}
+ .card{border:1px solid #d4d4d8;border-radius:.5rem;padding:1rem;margin:1rem 0}
+ .card.warn{border-color:#b45309;background:#fffbeb}
+ .num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+ table{border-collapse:collapse;width:100%} th,td{border:1px solid #d4d4d8;padding:.5rem;text-align:left;vertical-align:top}
+ small{color:#3f3f46}
+ .tabs input{position:absolute;clip-path:inset(50%);height:1px;width:1px;overflow:hidden}
+ .tabnav{display:flex;flex-wrap:wrap;gap:.25rem;border-bottom:2px solid #d4d4d8;margin:1.25rem 0 0}
+ .tabnav label{padding:.5rem .9rem;cursor:pointer;font-size:.9rem;font-weight:600;color:#52525b;border:1px solid transparent;border-bottom:none;border-radius:.375rem .375rem 0 0}
+ .tabnav label:hover{color:#111;background:#f4f4f5}
+ .panel{height:0;overflow:hidden}
+ .panel>h2:first-child,.panel>section>h2:first-child{margin-top:.75rem}
+ .toc{margin:.6rem 0 1rem;padding:.5rem .75rem;background:#f4f4f5;border-radius:.375rem;font-size:.85rem;color:#3f3f46}
+ .card.rec{border-left:4px solid #d4d4d8}
+ .card.rec.mine-inc{border-left-color:#15803d}
+ .card.rec.mine-exc{border-left-color:#b91c1c}
+ .mine{margin-top:.5rem;padding-top:.5rem;border-top:1px dashed #d4d4d8;font-size:.85rem;color:#52525b}
+ .mine button,.chip{margin-right:.35rem;padding:.25rem .6rem;border:1px solid #d4d4d8;border-radius:.25rem;background:#fafafa;cursor:pointer;font:inherit;font-size:.85rem}
+ .mine button:hover,.chip:hover{background:#f4f4f5}
+ .mine output{margin-left:.4rem;font-style:italic}
+ .chips{margin:.5rem 0}
+ #draft{width:100%;font:inherit;font-size:.9rem;padding:.6rem;border:1px solid #d4d4d8;border-radius:.375rem}
+ svg{max-width:100%;height:auto}
+ a.dl{display:inline-block;padding:.3rem .7rem;border:1px solid #d4d4d8;border-radius:.25rem;background:#fafafa;text-decoration:none;font-size:.85rem}
+ a.dl:hover{background:#f4f4f5}
+ #rt-protocol:checked ~ .panels > #pn-protocol{height:auto;overflow:visible}
+ #rt-protocol:checked ~ .tabnav label[for="rt-protocol"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
+ #rt-search:checked ~ .panels > #pn-search{height:auto;overflow:visible}
+ #rt-search:checked ~ .tabnav label[for="rt-search"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
+ #rt-screen:checked ~ .panels > #pn-screen{height:auto;overflow:visible}
+ #rt-screen:checked ~ .tabnav label[for="rt-screen"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
+ #rt-extract:checked ~ .panels > #pn-extract{height:auto;overflow:visible}
+ #rt-extract:checked ~ .tabnav label[for="rt-extract"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
+ #rt-analysis:checked ~ .panels > #pn-analysis{height:auto;overflow:visible}
+ #rt-analysis:checked ~ .tabnav label[for="rt-analysis"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
+ #rt-report:checked ~ .panels > #pn-report{height:auto;overflow:visible}
+ #rt-report:checked ~ .tabnav label[for="rt-report"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
+ #rt-paper:checked ~ .panels > #pn-paper{height:auto;overflow:visible}
+ #rt-paper:checked ~ .tabnav label[for="rt-paper"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
+ #rt-statistics:checked ~ .panels > #pn-statistics{height:auto;overflow:visible}
+ #rt-statistics:checked ~ .tabnav label[for="rt-statistics"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
+ @media print{.panel{height:auto;overflow:visible}.tabnav{display:none}}
+</style>
+
+<div class='card warn verdict'>
+  <h2>Submission readiness: NOT YET DETERMINED</h2>
+  <p>Computed from this object's own state &mdash; the author has not yet attested the surfaces below. This is not a fixed disclaimer: the conditions below are each testable, and a build in which they are met renders READY.</p>
+  <ul>
+    <li><strong>Awaiting author attestation: Screening decisions</strong> &mdash; That every record in `screening.records` was screened against the stated eligibility criteria, that each recorded decision and reason matches the record it names, and that the search was screened by the number of reviewers the write-up claims.</li>
+    <li><strong>Awaiting author attestation: Data extraction against source</strong> &mdash; That every extracted cell -- arm sizes, effect estimates, intervals and their scales -- was read back against the source named on that cell, and matches it.</li>
+    <li><strong>Awaiting author attestation: Per-study risk of bias</strong> &mdash; That a per-study risk-of-bias assessment was carried out and its domain judgements recorded in `inputs.trials[].risk_of_bias.domains`. This object currently holds recorded FEATURES only, so this surface requires the assessment to be done, not merely signed for.</li>
+    <li><strong>Awaiting author attestation: GRADE domain ratings</strong> &mdash; That each GRADE domain rating and the resulting certainty were reviewed against the evidence cited in its own `basis_in_sources`.</li>
+    <li><strong>Registration is not prospective</strong> <small>(no attestation can discharge this)</small> &mdash; The ordering test asks whether a protocol commit precedes the search, the screening decisions and the analysis. It cannot pass here: this object&#x27;s EARLIEST commit is also its only one, and it already contains the finished analysis -- its own subject line says &#x27;certified build&#x27;. The object&#x27;s `built` date is 2026-08-09, which is BEFORE that commit, so the analysis demonstrably existed before the first registration evidence rather than after it. Nothing is being hidden by saying so: the commit is real and public, it just registers a completed review rather than a plan. A future review that commits its protocol first will pass this test, and the test is what makes the claim worth anything.</li>
+    <li><strong>Publication bias not assessable</strong> <small>(no attestation can discharge this)</small> &mdash; The GRADE publication-bias domain for this outcome is rated not assessable. No attestation changes that; it is a property of how many studies there are.</li>
+    <li><strong>1 record(s) with eligibility undetermined</strong> <small>(no attestation can discharge this)</small> &mdash; Li 2019: screened, eligibility could not be established</li>
+    <li><strong>1 screened name(s) unresolved</strong> <small>(no attestation can discharge this)</small> &mdash; ACTIVITY-HF: could not be resolved to any trial</li>
+  </ul>
+  <h3>Qualifications that travel with the headline</h3>
+  <ul>
+    <li>The pooled benefit rests on PARADIGM-HF, and the table is blunter than that summary sounds. Every leave-one-out fit still points below the null, so the DIRECTION is stable. The INTERVAL is not: only the fit that drops PARALLEL-HF keeps the null outside it. Dropping PARADIGM-HF or dropping PARACHUTE-HF both leave an interval that includes the null, so two of the three fits do. That is the single most important qualification on the headline, it is what the imprecision domain of the GRADE assessment is counting, and it is stated here rather than left for a reader to derive from the table.</li>
+  </ul>
+</div>
+<p><small>Outcomes reported: 1.</small></p>
+
+<h1>Sacubitril/valsartan against enalapril in heart failure with reduced ejection fraction: the three randomised trials that report cardiovascular death or heart failure hospitalization as a time-to-first hazard ratio</h1>
+<p>In adults with heart failure and reduced ejection fraction, what is the hazard of a first cardiovascular death or heart failure hospitalization with sacubitril/valsartan compared with enalapril?</p>
+
+<div class="tabs">
+<input type="radio" name="rmtab" id="rt-protocol" checked>
+<input type="radio" name="rmtab" id="rt-search">
+<input type="radio" name="rmtab" id="rt-screen">
+<input type="radio" name="rmtab" id="rt-extract">
+<input type="radio" name="rmtab" id="rt-analysis">
+<input type="radio" name="rmtab" id="rt-report">
+<input type="radio" name="rmtab" id="rt-paper">
+<input type="radio" name="rmtab" id="rt-statistics">
+<nav class="tabnav" aria-label="Review sections">
+  <label for="rt-protocol">1. Protocol</label>
+  <label for="rt-search">2. Search</label>
+  <label for="rt-screen">3. Screening</label>
+  <label for="rt-extract">4. Extraction</label>
+  <label for="rt-analysis">5. Analysis Suite</label>
+  <label for="rt-report">6. Scientific Output</label>
+  <label for="rt-paper">7. Paper Studio</label>
+  <label for="rt-statistics">Statistics</label>
+</nav>
+<div class="panels">
+  <section class="panel" id="pn-protocol">
+  <p class='toc'><strong>In this section:</strong> Registration &amp; administrative information &middot; Protocol registration &middot; Author attestation &middot; What this object claims to contain &middot; What was measured</p>
+<div class='card'>
+  <h3>Registration &amp; administrative information</h3>
+  <table>
+    <tr><th>Review title</th><td>Sacubitril/valsartan against enalapril in heart failure with reduced ejection fraction: the three randomised trials that report cardiovascular death or heart failure hospitalization as a time-to-first hazard ratio</td></tr>
+    <tr><th>Question</th><td>In adults with heart failure and reduced ejection fraction, what is the hazard of a first cardiovascular death or heart failure hospitalization with sacubitril/valsartan compared with enalapril?</td></tr>
+    <tr><th>Registration</th><td><em>Not registered, and not claimed to be. This object records no prospective registration.</em></td></tr>
+    <tr><th>Built</th><td>2026-08-09</td></tr>
+    <tr><th>Schema</th><td>2</td></tr>
+    <tr><th>Build mode</th><td>full</td></tr>
+    <tr><th>Confidence level</th><td>95%</td></tr>
+    <tr><th>Eligibility</th><td>A randomised trial of sacubitril/valsartan against enalapril, in adults with heart failure and reduced ejection fraction, reporting cardiovascular death or heart failure hospitalization as a time-to-first-event hazard ratio. All four conditions, and the last is a condition on the QUANTITY reported, not on the trial&#x27;s quality: several excluded trials are large, well conducted and directly on topic, and report something that is not this.</td></tr>
+  </table>
+</div>
+<div class='card'>
+  <h3>Protocol registration</h3>
+  <p><strong>Method:</strong> timestamped public git commit &mdash; repository <a href='https://github.com/mahmood726-cyber/rapidmeta-finerenone'>https://github.com/mahmood726-cyber/rapidmeta-finerenone</a> (public), path <code>ssot/arni-hfref/arni-hfref.json</code>.</p>
+  <table>
+    <tr><th>Commit</th><th>Committed (UTC)</th><th>Subject and permalink</th></tr>
+    <tr><td><code>961400264a06</code></td><td class='num'>2026-08-10T05:13:40Z</td><td>ssot(arni-hfref): certified build, cross-family gate passed<br><small><a href='https://github.com/mahmood726-cyber/rapidmeta-finerenone/commit/961400264a06bd940bef11e02b528ea0f73a8dee'>https://github.com/mahmood726-cyber/rapidmeta-finerenone/commit/961400264a06bd940bef11e02b528ea0f73a8dee</a></small></td></tr>
+  </table>
+  <p><small>Permalinks are pinned to the commit SHA, not to a branch. A branch link moves and would prove nothing.</small></p>
+  <p><strong>Amendments after the first commit: 0.</strong> Every row above is shown, not just the latest, because a log that only ever displays its own head is no better than a mutable document.</p>
+  <h4>Ordering test: not_established</h4>
+  <p>The ordering test asks whether a protocol commit precedes the search, the screening decisions and the analysis. It cannot pass here: this object&#x27;s EARLIEST commit is also its only one, and it already contains the finished analysis -- its own subject line says &#x27;certified build&#x27;. The object&#x27;s `built` date is 2026-08-09, which is BEFORE that commit, so the analysis demonstrably existed before the first registration evidence rather than after it. Nothing is being hidden by saying so: the commit is real and public, it just registers a completed review rather than a plan. A future review that commits its protocol first will pass this test, and the test is what makes the claim worth anything.</p>
+  <h4>What this evidence establishes</h4>
+  <p>That the text of this object existed, in this public repository, at the committer timestamp shown, and has not been altered since without producing a new commit. The permalink is pinned to the commit SHA rather than to a branch, so it resolves to that exact state forever; a branch link would move and would prove nothing. Anyone can verify the timestamp and the content independently of this page and independently of its authors.</p>
+  <h4>What it does not</h4>
+  <p>It does not establish prospectiveness. A commit proves when text entered THIS repository; it cannot prove that no earlier or parallel version existed elsewhere, that the data had not already been seen when the text was written, or that the analysis plan was fixed before the results were known. It also says nothing about the independence of the people who wrote it. Those are claims about conduct, and a timestamp cannot carry them.</p>
+</div>
+<div class='card'>
+  <h3>Author attestation</h3>
+  <p>These are the surfaces a human author discharges by checking them and recording that they did. An attestation records that someone checked what is already here; it never alters a number and never raises a cell's source tier. A slot naming no person, no source or no date reads as absent.</p>
+  <table>
+    <tr><th>Surface</th><th>Status</th><th>What must be checked</th></tr>
+    <tr><th>Screening decisions</th><td><em>Awaiting attestation</em></td><td><small>That every record in `screening.records` was screened against the stated eligibility criteria, that each recorded decision and reason matches the record it names, and that the search was screened by the number of reviewers the write-up claims.</small></td></tr>
+    <tr><th>Data extraction against source</th><td><em>Awaiting attestation</em></td><td><small>That every extracted cell -- arm sizes, effect estimates, intervals and their scales -- was read back against the source named on that cell, and matches it.</small></td></tr>
+    <tr><th>Per-study risk of bias</th><td><em>Awaiting attestation</em></td><td><small>That a per-study risk-of-bias assessment was carried out and its domain judgements recorded in `inputs.trials[].risk_of_bias.domains`. This object currently holds recorded FEATURES only, so this surface requires the assessment to be done, not merely signed for.</small></td></tr>
+    <tr><th>GRADE domain ratings</th><td><em>Awaiting attestation</em></td><td><small>That each GRADE domain rating and the resulting certainty were reviewed against the evidence cited in its own `basis_in_sources`.</small></td></tr>
+  </table>
+</div>
+<div class='card warn'>
+  <h3>What this object claims to contain</h3>
+  <p>FULL BUILD. Every randomised trial located that compares sacubitril/valsartan with enalapril in heart failure with reduced ejection fraction AND reports the composite of cardiovascular death or heart failure hospitalization as a time-to-first hazard ratio is held and pooled. Every trial that was looked at and not pooled is in ONE screening log, whatever it failed on, including the four that reached this review only by reconciliation against a published review&#x27;s included-study table. Each row names the criterion it fails and the quantity it reports instead -- with ONE row that does neither, and says so: a trial that could not be retrieved at all is recorded as undetermined, with what was established, the document it was established from, what could not be, and the date each attempt was made. That row is not an exclusion and is not counted as one. There is exactly ONE SOURCE list, `screening.records`. The object does also hold a second array, `screening.excluded`, and it is not a second table in any sense a reader has to reconcile: it is a view COMPUTED from the records at build time, row for row, so it cannot say anything the records do not. An earlier version of this sentence claimed there was no second array at all, which was false of the structure, and a review leg was right to read the structure rather than the sentence.</p>
+</div>
+<div class='card'>
+  <h2>The methods authority these decisions rest on</h2>
+  <p>Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, et al (editors). Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1. Cochrane, 2025.<br><small>https://www.cochrane.org/authors/handbooks-and-manuals/handbook</small></p>
+  <p>Where this object had to decide whether something could be combined, the decision was referred to the Handbook rather than to a rule invented here.</p>
+  <table>
+    <tr><th>Section</th><th>Title</th><th>What it settled here</th></tr>
+    <tr><td class='num'>3.2.1</td><td>Defining types of participants: which people and populations?</td><td><small>The population restriction to heart failure with reduced ejection fraction, which is what disqualifies the preserved and mildly reduced ejection fraction trials.</small></td></tr>
+    <tr><td class='num'>3.2.3</td><td>Defining which comparisons will be made</td><td><small>The comparator restriction to enalapril. Valsartan and ramipril are different comparisons, not variants of this one.</small></td></tr>
+    <tr><td class='num'>3.2.4</td><td>Selecting, prioritizing and grouping review outcomes</td><td><small>Fixing the composite of cardiovascular death or heart failure hospitalization as the outcome, and the boundary rule for trials whose own primary endpoint is a different quantity.</small></td></tr>
+    <tr><td class='num'>10.9</td><td>Meta-analysis of time-to-event outcomes</td><td><small>The hazard ratio as the effect measure for time-to-event data and the generic inverse-variance method that combines log hazard ratios. This is the measure and the method used here.</small></td></tr>
+    <tr><td class='num'>10.10.1</td><td>What is heterogeneity?</td><td><small>The distinction between clinical and methodological diversity and statistical heterogeneity. What this pool crosses -- aetiology, blinding, endpoint rank -- is documented as diversity in the uniformity table rather than smoothed away.</small></td></tr>
+    <tr><td class='num'>10.10.2</td><td>Identifying and measuring heterogeneity</td><td><small>The I-squared bands, cited both for the heterogeneity statement and for the GRADE inconsistency domain, which section 14.2.2 governs but prints no bands for.</small></td></tr>
+    <tr><td class='num'>10.10.4</td><td>Incorporating heterogeneity into random-effects models</td><td><small>The random-effects model AND the between-study variance estimator, which the effect-measure sections do not govern. The record that estimators other than DerSimonian and Laird perform better sits in its subsection 10.10.4.4 and is why restricted maximum likelihood is the headline. Running the comparison is a sensitivity choice under 10.14, not an instruction from this section; saying otherwise credited the Handbook with advice it does not give.</small></td></tr>
+    <tr><td class='num'>10.10.4.4</td><td>Implementing random-effects meta-analyses</td><td><small>The between-study variance estimator specifically: that methods other than DerSimonian and Laird perform better, that restricted maximum likelihood is the RevMan default, and that the HKSJ adjustment can be overly wide with few studies and overly narrow when the variance estimate is zero. It also gives the I-squared RevMan computes -- from the estimated variance rather than from Cochran&#x27;s Q -- which is the definitional difference this object records between its own I-squared and metafor&#x27;s, and the reason neither is adopted over the other.</small></td></tr>
+    <tr><td class='num'>10.10.4.5</td><td>Interpretation of random-effects meta-analysis with few studies</td><td><small>The HKSJ interval, and ONLY that. It states that excessively wide confidence intervals are not uncommon with two or even three studies, which is why this pool reports its HKSJ interval, records that it crosses the null, and neither adopts it as the headline nor discards it. It is cited nowhere in this object for the choice of variance estimator, which it does not govern.</small></td></tr>
+    <tr><td class='num'>4.6.1</td><td>Studies (not reports) as the unit of interest</td><td><small>The deduplication decision in the reconciliation block. Two paywalled reviews count three STUDIES where this object counts two randomisations plus a post hoc subgroup of a trial it already pools; this section is the distinction that makes recovering that subgroup a double-count rather than a recovery.</small></td></tr>
+    <tr><td class='num'>10.14</td><td>Sensitivity analyses</td><td><small>The requirement that a pooled result be shown robust to influential decisions. The leave-one-out analysis here is not decorative: it is what shows the pooled benefit rests on one trial.</small></td></tr>
+    <tr><td class='num'>14.2.1</td><td>The GRADE approach</td><td><small>That Cochrane has formally adopted GRADE and that reviews should use it to evaluate certainty for important outcomes, with MECIR C74 making the five considerations mandatory and C75 making the justification of each mandatory.</small></td></tr>
+    <tr><td class='num'>14.2.2</td><td>Domains that can lead to decreasing the certainty level of a body of evidence</td><td><small>The five downgrade domains and the rating vocabulary. The certainty here is COMPUTED from the domains and checked against them.</small></td></tr>
+  </table>
+</div>
+<h2>Cardiovascular death or hospitalization for heart failure, whichever comes first, as a hazard ratio</h2>
+<div class='card'>
+  <h3>What was measured</h3>
+  <table>
+    <tr><th>Comparator</th><td>enalapril</td></tr>
+    <tr><th>Estimand</th><td>time_to_first &mdash; Cox proportional hazards</td></tr>
+    <tr><th>Unit of analysis</th><td>participant, with the time to the first component event</td></tr>
+    <tr><th>Case definition</th><td>adjudicated cardiovascular death or adjudicated hospitalization for heart failure, whichever occurs first. every contributing trial adjudicates the components centrally, and the trials differ in the aetiology of the heart failure, which the uniformity table records rather than smoothing away</td></tr>
+    <tr><th>Window</th><td>from randomisation to the end of the trial&#x27;s own follow-up</td></tr>
+    <tr><th>Analysis population</th><td>each trial&#x27;s own full analysis set, which in two of the three is smaller than the randomised total for reasons the trial states and this object reproduces</td></tr>
+    <tr><th>Effect scale</th><td>pooled on the log scale</td></tr>
+  </table>
+</div>
+  </section>
+<!--end-protocol-->  <section class="panel" id="pn-search">
+  <p class='toc'><strong>In this section:</strong> Excluded, with reasons</p>
+<div class='card'>
+  <h2>What the search found, and what was kept</h2>
+  <p>The search ran across PubMed and ClinicalTrials.gov for randomised comparisons of sacubitril/valsartan with enalapril in heart failure, and was then extended by the reconciliation step: the included-study list of every retrievable published synthesis of the same comparison was read and diffed against this one in both directions. That second pass is what found PARALLEL-HF, which the brief this object was built from did not name.</p>
+  <p><strong>Eligible:</strong> A randomised trial of sacubitril/valsartan against enalapril, in adults with heart failure and reduced ejection fraction, reporting cardiovascular death or heart failure hospitalization as a time-to-first-event hazard ratio. All four conditions, and the last is a condition on the QUANTITY reported, not on the trial&#x27;s quality: several excluded trials are large, well conducted and directly on topic, and report something that is not this.</p>
+  <h3>Excluded, with reasons</h3>
+  <ul>
+    <li><strong>PARAGON-HF -- fails population, comparator, measure</strong><br>Fails the frozen question on all three axes, and any one of them is sufficient. POPULATION: it enrolled an ejection fraction of 45% or higher, which is preserved rather than reduced. COMPARATOR: it randomised against VALSARTAN, not enalapril. MEASURE: its primary is the cumulative number of cardiovascular deaths and TOTAL, first and recurrent, heart failure hospitalizations, analysed as a RATE RATIO.<br><small><a href='https://clinicaltrials.gov/study/NCT01920711'>registry: https://clinicaltrials.gov/study/NCT01920711</a></small></li>
+    <li><strong>PARADISE-MI -- fails population, comparator, outcome</strong><br>POPULATION: acute myocardial infarction with left-ventricular dysfunction or pulmonary congestion, not chronic heart failure with reduced ejection fraction. COMPARATOR: RAMIPRIL, not enalapril. OUTCOME: its composite counts INCIDENT heart failure -- a first presentation in people who did not have heart failure at randomisation -- which is not hospitalization for heart failure in an established heart failure population.<br><small><a href='https://clinicaltrials.gov/study/NCT02924727'>registry: https://clinicaltrials.gov/study/NCT02924727</a></small></li>
+    <li><strong>PARAGLIDE-HF -- fails population, comparator, measure</strong><br>POPULATION: ejection fraction above 40% after a worsening heart failure event. COMPARATOR: VALSARTAN. MEASURE: the primary is the time-averaged proportional change in NT-proBNP, a biomarker ratio-of-change, and its hierarchical secondary is a win ratio. Neither is a hazard ratio for a clinical event.<br><small><a href='https://clinicaltrials.gov/study/NCT03988634'>registry: https://clinicaltrials.gov/study/NCT03988634</a></small></li>
+    <li><strong>ANSWER-HF -- fails measure</strong><br>This is the hardest exclusion in the table and the only one that passes the population and the comparator: 190 patients with heart failure with reduced ejection fraction due to Chagas cardiomyopathy, randomised double-blind against ENALAPRIL. It fails on the MEASURE. Its primary endpoint is the change in left-ventricular ejection fraction at six months, and its only composite analysis of cardiovascular death and heart failure hospitalization is inside a hierarchical endpoint analysed by WIN RATIO, reported as 1.80 with a 95% interval of 1.27 to 2.63. No time-to-first hazard ratio for the composite is separately reported. The registry record is consistent with all of this and posts no results of its own, which is why this row is sourced to the publication.<br><small><a href='https://pubmed.ncbi.nlm.nih.gov/41396086/'>primary_oa: https://pubmed.ncbi.nlm.nih.gov/41396086/</a></small></li>
+    <li><strong>PIONEER-HF -- fails measure</strong><br>Right population and right comparator -- acute decompensated heart failure with reduced ejection fraction, randomised against enalapril -- and the wrong quantity over the wrong horizon. The brief noted a conflict between a rule excluding follow-up under twelve weeks and a rule keyed to the trial&#x27;s own endpoint, and left both standing. It is resolved here against the frozen question and only one rule survives: the trial is excluded because it reports no time-to-first hazard ratio for cardiovascular death or heart failure hospitalization, which is section 3.2.4, the outcome axis. Follow-up length is a CONSEQUENCE of that endpoint and is not an independent criterion in this object, because a short trial that did report the composite as a hazard ratio would be eligible and a long one that did not would still not be. Two rules that disagree are one object with two descriptions, which is the failure this batch has paid for before.<br><small><a href='https://clinicaltrials.gov/study/NCT02554890'>registry: https://clinicaltrials.gov/study/NCT02554890</a></small></li>
+    <li><strong>EVALUATE-HF -- fails measure</strong><br>Randomised against enalapril in heart failure with reduced ejection fraction, and its endpoint is a vascular-mechanics measurement. It reports no hazard ratio for the composite.<br><small><a href='https://clinicaltrials.gov/study/NCT02874794'>registry: https://clinicaltrials.gov/study/NCT02874794</a></small></li>
+    <li><strong>OUTSTEP-HF -- fails measure</strong><br>Randomised against enalapril in heart failure with reduced ejection fraction. Its endpoint is an activity measure, not a clinical event, and it reports no hazard ratio for the composite.<br><small><a href='https://clinicaltrials.gov/study/NCT02900378'>registry: https://clinicaltrials.gov/study/NCT02900378</a></small></li>
+    <li><strong>PARALLAX -- fails population, comparator, measure</strong><br>Fails the population as well as the measure: it enrolled an ejection fraction above 40%, and its comparator is individualised medical therapy rather than enalapril alone.<br><small><a href='https://clinicaltrials.gov/study/NCT03066804'>registry: https://clinicaltrials.gov/study/NCT03066804</a></small></li>
+    <li><strong>HFN-LIFE -- fails population, comparator, measure</strong><br>Advanced, NYHA class IV heart failure, randomised against VALSARTAN rather than enalapril, with a biomarker endpoint. Recorded because the brief listed a trial called LIFE and this is the trial that name resolves to.<br><small><a href='https://clinicaltrials.gov/study/NCT02816736'>registry: https://clinicaltrials.gov/study/NCT02816736</a></small></li>
+    <li><strong>Pathadka 2020 -- fails randomisation</strong><br>This is the only excluded record in this object that reports THE QUANTITY THIS REVIEW POOLS, for THE COMPOSITE THIS REVIEW POOLS, and it is excluded anyway. It is not a randomised trial: it is a population-based new-user cohort drawn from the Hong Kong-wide electronic health record, 1056 people dispensed sacubitril/valsartan against 2181 dispensed enalapril, with treatment assigned by prescribers rather than by allocation. The frozen question is answered from randomised evidence only, so design decides this row before the endpoint is reached. Recording the endpoint anyway is deliberate: its 0.58 sits BELOW the lower bound of this object&#x27;s randomised pooled interval, so a reader can see what the design rule is holding out, rather than being asked to take the rule on trust. The prior meta-analysis that surfaced it reached the same decision from the other direction -- its own sensitivity analysis removes this study for being retrospective, and the heterogeneity of the pool it sat in falls from severe to none when it does.<br><small><a href='https://pubmed.ncbi.nlm.nih.gov/33553256/'>primary_oa: https://pubmed.ncbi.nlm.nih.gov/33553256/</a></small></li>
+    <li><strong>Bano 2021 -- fails measure</strong><br>Right population and right comparator: a randomised comparison of sacubitril/valsartan with enalapril, in equal allocation, in heart failure at a tertiary hospital in Pakistan, 181 against 183, followed for twelve months or to an event. It fails on the measure. Its full text contains no hazard ratio, no Cox model and no time-to-event analysis of any kind; it reports proportions and relative risk reductions, and it keeps hospitalization and death apart instead of combining them. Neither of those quantities can be converted into a time-to-first hazard ratio without the event times the paper does not report.<br><small><a href='https://pubmed.ncbi.nlm.nih.gov/34395116/'>primary_oa: https://pubmed.ncbi.nlm.nih.gov/34395116/</a></small></li>
+    <li><strong>Zhao 2022 -- fails measure</strong><br>A randomised comparison of sacubitril/valsartan with enalapril, 52 against 45, in pulmonary hypertension due to heart failure with reduced ejection fraction, followed for six months. Population and comparator hold; the measure does not. Its declared primary endpoint is echocardiographic right-ventricular function, and it reports no hazard ratio for any clinical event -- it states only that readmission for recurrent heart failure did not differ. Worth recording how that was confirmed: the full text does contain four instances of the string &quot;HR&quot;, and every one of them is the abbreviation for HEART RATE in a table of baseline characteristics. A search for the quantity rather than for the string is the reason this row says no hazard ratio instead of the reverse.<br><small><a href='https://pubmed.ncbi.nlm.nih.gov/35874853/'>primary_oa: https://pubmed.ncbi.nlm.nih.gov/35874853/</a></small></li>
+    <li><strong>Li 2019 -- screened, eligibility could not be established</strong><br>Eligibility is undetermined, not decided. Neither inclusion nor exclusion is asserted here, and the trial is NOT pooled -- so this row records a limit of the search rather than a judgement about the trial. Its likely weight is small and is stated rather than used as a reason to stop looking: 126 randomised participants against the 8399 of the largest trial already pooled. If this trial does report the composite as a time-to-first hazard ratio, this object is missing it, and this row is the place that will say so.<br><small><a href='https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10710849/'>prior_meta: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10710849/</a></small></li>
+  </ul>
+  <p><small>The one apparent gap this search had is now closed, and closing it removed a trial rather than adding one: the patient total of the paywalled Chagas reviews exceeded the trials found here by a post hoc PARADIGM-HF subgroup, which is not a separate randomisation and is not recovered. The reconciliation block sets out the arithmetic and the deduplication reason. What is still unread is how those reviews themselves treated that subgroup, which their abstracts do not say.</small></p>
+</div>
+  </section>
+<!--end-search-->  <section class="panel" id="pn-screen">
+  <p class='toc'><strong>In this section:</strong> PARAGON-HF NCT &middot; PMID &middot; PARADISE-MI NCT &middot; PARAGLIDE-HF NCT &middot; PMID &middot; ANSWER-HF NCT &middot; PMID &middot; PIONEER-HF NCT &middot; EVALUATE-HF NCT &middot; OUTSTEP-HF NCT &middot; PARALLAX NCT &middot; HFN-LIFE NCT &middot; Pathadka  PMID &middot; Bano  PMID &middot; Zhao  PMID &middot; Li</p>
+<div class='card'>
+  <h2>Screening</h2>
+  <p>The search ran across PubMed and ClinicalTrials.gov for randomised comparisons of sacubitril/valsartan with enalapril in heart failure, and was then extended by the reconciliation step: the included-study list of every retrievable published synthesis of the same comparison was read and diffed against this one in both directions. That second pass is what found PARALLEL-HF, which the brief this object was built from did not name.</p>
+  <p><strong>Eligibility:</strong> A randomised trial of sacubitril/valsartan against enalapril, in adults with heart failure and reduced ejection fraction, reporting cardiovascular death or heart failure hospitalization as a time-to-first-event hazard ratio. All four conditions, and the last is a condition on the QUANTITY reported, not on the trial&#x27;s quality: several excluded trials are large, well conducted and directly on topic, and report something that is not this.</p>
+  <p><small>The one apparent gap this search had is now closed, and closing it removed a trial rather than adding one: the patient total of the paywalled Chagas reviews exceeded the trials found here by a post hoc PARADIGM-HF subgroup, which is not a separate randomisation and is not recovered. The reconciliation block sets out the arithmetic and the deduplication reason. What is still unread is how those reviews themselves treated that subgroup, which their abstracts do not say.</small></p>
+  <p><small>Each record below carries this review's decision and the reason for it. The Include/Exclude buttons record <em>your</em> reading in this browser only; they change nothing on the page and no number depends on them.</small></p>
+</div>
+<div class='card rec' data-rec='0'>
+  <h3>PARAGON-HF <small>NCT01920711 &middot; PMID 31475794</small></h3>
+  <p><strong>This review's decision: excluded.</strong></p>
+  <p>Fails the frozen question on all three axes, and any one of them is sufficient. POPULATION: it enrolled an ejection fraction of 45% or higher, which is preserved rather than reduced. COMPARATOR: it randomised against VALSARTAN, not enalapril. MEASURE: its primary is the cumulative number of cardiovascular deaths and TOTAL, first and recurrent, heart failure hospitalizations, analysed as a RATE RATIO.</p>
+  <ul><li>population</li><li>comparator</li><li>measure</li></ul>
+  <p><small><strong>What it actually reports:</strong> a rate ratio of 0.87 with a 95% interval of 0.75 to 1.01 for total heart failure hospitalizations and cardiovascular death</small></p>
+  <p><small><strong>Why that is not stored as this review's measure:</strong> A recurrent-event rate ratio counts repeat events per person over time; a time-to-first hazard ratio counts each person once, at their first event. The two share a scale and a direction and answer different questions, and storing this trial&#x27;s 0.87 in a hazard-ratio field would be indistinguishable, to any reader and to most software, from a hazard ratio of 0.87. It is stored nowhere in this object except in this sentence.</small></p>
+  <p><small><a href='https://clinicaltrials.gov/study/NCT01920711'>registry: https://clinicaltrials.gov/study/NCT01920711</a></small></p>
+  <div class='mine'><span>Your own screening note:</span>
+    <button type='button' data-mark='include' data-i='0'>Include</button>
+    <button type='button' data-mark='exclude' data-i='0'>Exclude</button>
+    <button type='button' data-mark='clear' data-i='0'>Clear</button>
+    <output id='mine-0'></output>
+  </div>
+</div>
+<div class='card rec' data-rec='1'>
+  <h3>PARADISE-MI <small>NCT02924727</small></h3>
+  <p><strong>This review's decision: excluded.</strong></p>
+  <p>POPULATION: acute myocardial infarction with left-ventricular dysfunction or pulmonary congestion, not chronic heart failure with reduced ejection fraction. COMPARATOR: RAMIPRIL, not enalapril. OUTCOME: its composite counts INCIDENT heart failure -- a first presentation in people who did not have heart failure at randomisation -- which is not hospitalization for heart failure in an established heart failure population.</p>
+  <ul><li>population</li><li>comparator</li><li>outcome</li></ul>
+  <p><small><a href='https://clinicaltrials.gov/study/NCT02924727'>registry: https://clinicaltrials.gov/study/NCT02924727</a></small></p>
+  <div class='mine'><span>Your own screening note:</span>
+    <button type='button' data-mark='include' data-i='1'>Include</button>
+    <button type='button' data-mark='exclude' data-i='1'>Exclude</button>
+    <button type='button' data-mark='clear' data-i='1'>Clear</button>
+    <output id='mine-1'></output>
+  </div>
+</div>
+<div class='card rec' data-rec='2'>
+  <h3>PARAGLIDE-HF <small>NCT03988634 &middot; PMID 37212758</small></h3>
+  <p><strong>This review's decision: excluded.</strong></p>
+  <p>POPULATION: ejection fraction above 40% after a worsening heart failure event. COMPARATOR: VALSARTAN. MEASURE: the primary is the time-averaged proportional change in NT-proBNP, a biomarker ratio-of-change, and its hierarchical secondary is a win ratio. Neither is a hazard ratio for a clinical event.</p>
+  <ul><li>population</li><li>comparator</li><li>measure</li></ul>
+  <p><small><strong>What it actually reports:</strong> a ratio of change in NT-proBNP of 0.85 with a 95% interval of 0.73 to 0.999, and an unmatched win ratio of 1.19 with a 95% interval of 0.93 to 1.52</small></p>
+  <p><small><a href='https://clinicaltrials.gov/study/NCT03988634'>registry: https://clinicaltrials.gov/study/NCT03988634</a></small></p>
+  <div class='mine'><span>Your own screening note:</span>
+    <button type='button' data-mark='include' data-i='2'>Include</button>
+    <button type='button' data-mark='exclude' data-i='2'>Exclude</button>
+    <button type='button' data-mark='clear' data-i='2'>Clear</button>
+    <output id='mine-2'></output>
+  </div>
+</div>
+<div class='card rec' data-rec='3'>
+  <h3>ANSWER-HF <small>NCT04853758 &middot; PMID 41396086</small></h3>
+  <p><strong>This review's decision: excluded.</strong></p>
+  <p>This is the hardest exclusion in the table and the only one that passes the population and the comparator: 190 patients with heart failure with reduced ejection fraction due to Chagas cardiomyopathy, randomised double-blind against ENALAPRIL. It fails on the MEASURE. Its primary endpoint is the change in left-ventricular ejection fraction at six months, and its only composite analysis of cardiovascular death and heart failure hospitalization is inside a hierarchical endpoint analysed by WIN RATIO, reported as 1.80 with a 95% interval of 1.27 to 2.63. No time-to-first hazard ratio for the composite is separately reported. The registry record is consistent with all of this and posts no results of its own, which is why this row is sourced to the publication.</p>
+  <ul><li>measure</li></ul>
+  <p><small><a href='https://pubmed.ncbi.nlm.nih.gov/41396086/'>primary_oa: https://pubmed.ncbi.nlm.nih.gov/41396086/</a></small></p>
+  <div class='mine'><span>Your own screening note:</span>
+    <button type='button' data-mark='include' data-i='3'>Include</button>
+    <button type='button' data-mark='exclude' data-i='3'>Exclude</button>
+    <button type='button' data-mark='clear' data-i='3'>Clear</button>
+    <output id='mine-3'></output>
+  </div>
+</div>
+<div class='card rec' data-rec='4'>
+  <h3>PIONEER-HF <small>NCT02554890</small></h3>
+  <p><strong>This review's decision: screened, not eligible.</strong></p>
+  <p>Right population and right comparator -- acute decompensated heart failure with reduced ejection fraction, randomised against enalapril -- and the wrong quantity over the wrong horizon. The brief noted a conflict between a rule excluding follow-up under twelve weeks and a rule keyed to the trial&#x27;s own endpoint, and left both standing. It is resolved here against the frozen question and only one rule survives: the trial is excluded because it reports no time-to-first hazard ratio for cardiovascular death or heart failure hospitalization, which is section 3.2.4, the outcome axis. Follow-up length is a CONSEQUENCE of that endpoint and is not an independent criterion in this object, because a short trial that did report the composite as a hazard ratio would be eligible and a long one that did not would still not be. Two rules that disagree are one object with two descriptions, which is the failure this batch has paid for before.</p>
+  <ul><li>measure</li></ul>
+  <p><small><strong>What it actually reports:</strong> the time-averaged proportional change in NT-proBNP over eight weeks</small></p>
+  <p><small><a href='https://clinicaltrials.gov/study/NCT02554890'>registry: https://clinicaltrials.gov/study/NCT02554890</a></small></p>
+  <div class='mine'><span>Your own screening note:</span>
+    <button type='button' data-mark='include' data-i='4'>Include</button>
+    <button type='button' data-mark='exclude' data-i='4'>Exclude</button>
+    <button type='button' data-mark='clear' data-i='4'>Clear</button>
+    <output id='mine-4'></output>
+  </div>
+</div>
+<div class='card rec' data-rec='5'>
+  <h3>EVALUATE-HF <small>NCT02874794</small></h3>
+  <p><strong>This review's decision: screened, not eligible.</strong></p>
+  <p>Randomised against enalapril in heart failure with reduced ejection fraction, and its endpoint is a vascular-mechanics measurement. It reports no hazard ratio for the composite.</p>
+  <ul><li>measure</li></ul>
+  <p><small><strong>What it actually reports:</strong> the change from baseline in aortic characteristic impedance at twelve weeks</small></p>
+  <p><small><a href='https://clinicaltrials.gov/study/NCT02874794'>registry: https://clinicaltrials.gov/study/NCT02874794</a></small></p>
+  <div class='mine'><span>Your own screening note:</span>
+    <button type='button' data-mark='include' data-i='5'>Include</button>
+    <button type='button' data-mark='exclude' data-i='5'>Exclude</button>
+    <button type='button' data-mark='clear' data-i='5'>Clear</button>
+    <output id='mine-5'></output>
+  </div>
+</div>
+<div class='card rec' data-rec='6'>
+  <h3>OUTSTEP-HF <small>NCT02900378</small></h3>
+  <p><strong>This review's decision: screened, not eligible.</strong></p>
+  <p>Randomised against enalapril in heart failure with reduced ejection fraction. Its endpoint is an activity measure, not a clinical event, and it reports no hazard ratio for the composite.</p>
+  <ul><li>measure</li></ul>
+  <p><small><strong>What it actually reports:</strong> change in daily physical activity measured by accelerometry</small></p>
+  <p><small><a href='https://clinicaltrials.gov/study/NCT02900378'>registry: https://clinicaltrials.gov/study/NCT02900378</a></small></p>
+  <div class='mine'><span>Your own screening note:</span>
+    <button type='button' data-mark='include' data-i='6'>Include</button>
+    <button type='button' data-mark='exclude' data-i='6'>Exclude</button>
+    <button type='button' data-mark='clear' data-i='6'>Clear</button>
+    <output id='mine-6'></output>
+  </div>
+</div>
+<div class='card rec' data-rec='7'>
+  <h3>PARALLAX <small>NCT03066804</small></h3>
+  <p><strong>This review's decision: screened, not eligible.</strong></p>
+  <p>Fails the population as well as the measure: it enrolled an ejection fraction above 40%, and its comparator is individualised medical therapy rather than enalapril alone.</p>
+  <ul><li>population</li><li>comparator</li><li>measure</li></ul>
+  <p><small><strong>What it actually reports:</strong> change in NT-proBNP and in six-minute walk distance</small></p>
+  <p><small><a href='https://clinicaltrials.gov/study/NCT03066804'>registry: https://clinicaltrials.gov/study/NCT03066804</a></small></p>
+  <div class='mine'><span>Your own screening note:</span>
+    <button type='button' data-mark='include' data-i='7'>Include</button>
+    <button type='button' data-mark='exclude' data-i='7'>Exclude</button>
+    <button type='button' data-mark='clear' data-i='7'>Clear</button>
+    <output id='mine-7'></output>
+  </div>
+</div>
+<div class='card rec' data-rec='8'>
+  <h3>HFN-LIFE <small>NCT02816736</small></h3>
+  <p><strong>This review's decision: screened, not eligible.</strong></p>
+  <p>Advanced, NYHA class IV heart failure, randomised against VALSARTAN rather than enalapril, with a biomarker endpoint. Recorded because the brief listed a trial called LIFE and this is the trial that name resolves to.</p>
+  <ul><li>population</li><li>comparator</li><li>measure</li></ul>
+  <p><small><strong>What it actually reports:</strong> the area under the curve for NT-proBNP over twenty-four weeks</small></p>
+  <p><small><a href='https://clinicaltrials.gov/study/NCT02816736'>registry: https://clinicaltrials.gov/study/NCT02816736</a></small></p>
+  <div class='mine'><span>Your own screening note:</span>
+    <button type='button' data-mark='include' data-i='8'>Include</button>
+    <button type='button' data-mark='exclude' data-i='8'>Exclude</button>
+    <button type='button' data-mark='clear' data-i='8'>Clear</button>
+    <output id='mine-8'></output>
+  </div>
+</div>
+<div class='card rec' data-rec='9'>
+  <h3>Pathadka 2020 <small>PMID 33553256</small></h3>
+  <p><strong>This review's decision: screened, not eligible.</strong></p>
+  <p>This is the only excluded record in this object that reports THE QUANTITY THIS REVIEW POOLS, for THE COMPOSITE THIS REVIEW POOLS, and it is excluded anyway. It is not a randomised trial: it is a population-based new-user cohort drawn from the Hong Kong-wide electronic health record, 1056 people dispensed sacubitril/valsartan against 2181 dispensed enalapril, with treatment assigned by prescribers rather than by allocation. The frozen question is answered from randomised evidence only, so design decides this row before the endpoint is reached. Recording the endpoint anyway is deliberate: its 0.58 sits BELOW the lower bound of this object&#x27;s randomised pooled interval, so a reader can see what the design rule is holding out, rather than being asked to take the rule on trust. The prior meta-analysis that surfaced it reached the same decision from the other direction -- its own sensitivity analysis removes this study for being retrospective, and the heterogeneity of the pool it sat in falls from severe to none when it does.</p>
+  <ul><li>randomisation</li></ul>
+  <p><small><strong>What it actually reports:</strong> a hazard ratio of 0.58 with a 95% interval of 0.45 to 0.75 for the composite of cardiovascular mortality or heart-failure-related hospitalization, estimated by Cox regression with inverse-probability-of-treatment weighting</small></p>
+  <p><small><a href='https://pubmed.ncbi.nlm.nih.gov/33553256/'>primary_oa: https://pubmed.ncbi.nlm.nih.gov/33553256/</a></small></p>
+  <div class='mine'><span>Your own screening note:</span>
+    <button type='button' data-mark='include' data-i='9'>Include</button>
+    <button type='button' data-mark='exclude' data-i='9'>Exclude</button>
+    <button type='button' data-mark='clear' data-i='9'>Clear</button>
+    <output id='mine-9'></output>
+  </div>
+</div>
+<div class='card rec' data-rec='10'>
+  <h3>Bano 2021 <small>PMID 34395116</small></h3>
+  <p><strong>This review's decision: screened, not eligible.</strong></p>
+  <p>Right population and right comparator: a randomised comparison of sacubitril/valsartan with enalapril, in equal allocation, in heart failure at a tertiary hospital in Pakistan, 181 against 183, followed for twelve months or to an event. It fails on the measure. Its full text contains no hazard ratio, no Cox model and no time-to-event analysis of any kind; it reports proportions and relative risk reductions, and it keeps hospitalization and death apart instead of combining them. Neither of those quantities can be converted into a time-to-first hazard ratio without the event times the paper does not report.</p>
+  <ul><li>measure</li></ul>
+  <p><small><strong>What it actually reports:</strong> heart-failure-related hospitalization as a proportion in each arm -- 13.8% against 22.4%, p = 0.03 -- with a relative risk reduction of 38.3% for hospitalization and of 52% for heart-failure-related death, the two counted separately rather than as one composite</small></p>
+  <p><small><a href='https://pubmed.ncbi.nlm.nih.gov/34395116/'>primary_oa: https://pubmed.ncbi.nlm.nih.gov/34395116/</a></small></p>
+  <div class='mine'><span>Your own screening note:</span>
+    <button type='button' data-mark='include' data-i='10'>Include</button>
+    <button type='button' data-mark='exclude' data-i='10'>Exclude</button>
+    <button type='button' data-mark='clear' data-i='10'>Clear</button>
+    <output id='mine-10'></output>
+  </div>
+</div>
+<div class='card rec' data-rec='11'>
+  <h3>Zhao 2022 <small>PMID 35874853</small></h3>
+  <p><strong>This review's decision: screened, not eligible.</strong></p>
+  <p>A randomised comparison of sacubitril/valsartan with enalapril, 52 against 45, in pulmonary hypertension due to heart failure with reduced ejection fraction, followed for six months. Population and comparator hold; the measure does not. Its declared primary endpoint is echocardiographic right-ventricular function, and it reports no hazard ratio for any clinical event -- it states only that readmission for recurrent heart failure did not differ. Worth recording how that was confirmed: the full text does contain four instances of the string &quot;HR&quot;, and every one of them is the abbreviation for HEART RATE in a table of baseline characteristics. A search for the quantity rather than for the string is the reason this row says no hazard ratio instead of the reverse.</p>
+  <ul><li>measure</li></ul>
+  <p><small><strong>What it actually reports:</strong> right-ventricular function at six months -- tricuspid annular plane systolic excursion, systolic pulmonary artery pressure and their ratio -- as means with standard deviations, alongside major adverse cardiac events given as counts per arm</small></p>
+  <p><small><a href='https://pubmed.ncbi.nlm.nih.gov/35874853/'>primary_oa: https://pubmed.ncbi.nlm.nih.gov/35874853/</a></small></p>
+  <div class='mine'><span>Your own screening note:</span>
+    <button type='button' data-mark='include' data-i='11'>Include</button>
+    <button type='button' data-mark='exclude' data-i='11'>Exclude</button>
+    <button type='button' data-mark='clear' data-i='11'>Clear</button>
+    <output id='mine-11'></output>
+  </div>
+</div>
+<div class='card rec' data-rec='12'>
+  <h3>Li 2019 <small></small></h3>
+  <p><strong>This review's decision: screened, eligibility could not be established.</strong></p>
+  <p>Eligibility is undetermined, not decided. Neither inclusion nor exclusion is asserted here, and the trial is NOT pooled -- so this row records a limit of the search rather than a judgement about the trial. Its likely weight is small and is stated rather than used as a reason to stop looking: 126 randomised participants against the 8399 of the largest trial already pooled. If this trial does report the composite as a time-to-first hazard ratio, this object is missing it, and this row is the place that will say so.</p>
+  <p><small><strong>What it actually reports:</strong> NOT ESTABLISHED, and this row links the only document in which this trial was actually read. What that document states is that it is a randomised trial of sacubitril/valsartan against enalapril in elderly patients with dilated cardiomyopathy, 62 against 64, followed for six months, and that it contributed to that review&#x27;s ALL-CAUSE MORTALITY pool, which that review analysed as a dichotomous risk ratio rather than as a time-to-event quantity. What could not be established is what the trial itself reports, because the trial itself could not be retrieved: it is cited to Chinese Journal of Geriatrics 2019, pages 520 to 524, with no DOI to resolve; a PubMed search returns no record for it, and a Crossref bibliographic query returns no matching work. All three were tried on the date in this row. It is therefore recorded as undetermined rather than assigned the exclusion its neighbours received -- an earlier version of the reconciliation block did assert that it reports no time-to-first hazard ratio, which nothing staged supported then and nothing supports now.</small></p>
+  <p><small><a href='https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10710849/'>prior_meta: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10710849/</a></small></p>
+  <div class='mine'><span>Your own screening note:</span>
+    <button type='button' data-mark='include' data-i='12'>Include</button>
+    <button type='button' data-mark='exclude' data-i='12'>Exclude</button>
+    <button type='button' data-mark='clear' data-i='12'>Clear</button>
+    <output id='mine-12'></output>
+  </div>
+</div>
+  </section>
+<!--end-screen-->  <section class="panel" id="pn-extract">
+  <p class='toc'><strong>In this section:</strong> Component endpoints, read but not pooled &middot; Bias-relevant features, as recorded &middot; Contributing trials</p>
+<div class='card'>
+  <h3>Component endpoints, read but not pooled</h3>
+  <p>Read from source and shown, but NOT pooled here: this review&#x27;s estimand is the composite. The composite is a FIRST-EVENT count and is not the sum of its components -- on this trial the components exceed it, which is expected and is why no composite anywhere in this object is reconstructed by addition.</p>
+  <table>
+    <tr><th>Trial</th><th>Endpoint</th><th>Intervention</th><th>Comparator</th><th>Source</th></tr>
+    <tr><th>PARADIGM-HF</th><td>Cardiovascular death</td><td class='num'>558 / 4187</td><td class='num'>693 / 4212</td><td><small>T1+T2<br>CT.gov Outcome 1 row &#x27;CV death&#x27;; NEJM &#x27;558 deaths (13.3%) ... 693 (16.5%)&#x27;.</small></td></tr>
+    <tr><th>PARADIGM-HF</th><td>First heart-failure hospitalisation</td><td class='num'>537 / 4187</td><td class='num'>658 / 4212</td><td><small>T1+T2<br>CT.gov Outcome 1 row &#x27;1st HF Hospitalization&#x27;; NEJM &#x27;537 (12.8%) ... 658 (15.6%)&#x27;.</small></td></tr>
+    <tr><th>PARADIGM-HF</th><td>All-cause death</td><td class='num'>711 / 4187</td><td class='num'>835 / 4212</td><td><small>T1+T2<br>CT.gov Outcome Measure 2; NEJM &#x27;711 patients (17.0%) ... 835 (19.8%)&#x27;.</small></td></tr>
+    <tr><th>PARACHUTE-HF</th><td>Cardiovascular death</td><td class='num'>110 / 462</td><td class='num'>117 / 460</td><td><small>T1<br>JAMA Table 2, &#x27;Death from cardiovascular causes&#x27;; the abstract states the same 110 vs 117 independently.</small></td></tr>
+    <tr><th>PARACHUTE-HF</th><td>First heart-failure hospitalisation</td><td class='num'>102 / 462</td><td class='num'>111 / 460</td><td><small>T1<br>JAMA Table 2, &#x27;First hospitalization due to HF&#x27;; abstract concurs.</small></td></tr>
+    <tr><th>PARACHUTE-HF</th><td>All-cause death</td><td class='num'>129 / 462</td><td class='num'>134 / 460</td><td><small>T1+T2<br>JAMA Table 2 &#x27;Death from any cause&#x27; 129 vs 134; the registry&#x27;s post-hoc &#x27;All Collected Deaths&#x27; outcome posts an integer 129 / 134, matching.</small></td></tr>
+    <tr><th>PARALLEL-HF</th><td>Cardiovascular death</td><td class='num'>13 / 111</td><td class='num'>11 / 112</td><td><small>T1+T2<br>Circ J Table 2 and CT.gov Outcome 1.</small></td></tr>
+    <tr><th>PARALLEL-HF</th><td>First heart-failure hospitalisation</td><td class='num'>25 / 111</td><td class='num'>20 / 112</td><td><small>T1+T2<br>Circ J Table 2 and CT.gov Outcome 1.</small></td></tr>
+    <tr><th>PARALLEL-HF</th><td>All-cause death</td><td class='num'>19 / 111</td><td class='num'>16 / 112</td><td><small>T2 ONLY -- SINGLE SOURCE<br><strong>one source only</strong><br>ClinicalTrials.gov Outcome Measure 10 only. The Circ J primary paper does not report all-cause mortality at all, so this pair has no second source and is marked as such rather than presented like the others.</small></td></tr>
+  </table>
+</div>
+<div class='card'>
+  <h3>Bias-relevant features, as recorded</h3>
+  <table>
+    <tr><th>PARADIGM-HF</th><td><ul><li>Phase 3, double-blind, randomised one to one against an active comparator.</li><li>Stopped early by prespecified rule for overwhelming benefit. A trial stopped early for benefit tends to overstate the effect it was stopped for, and the leave-one-out analysis shows the pooled benefit rests on this trial.</li></ul><br><small><strong>Design:</strong> phase 3, double-blind, randomised one to one against an active comparator, stopped early by prespecified rule for overwhelming benefit</small><br><small><strong>Comparator basis:</strong> the trial randomised against enalapril 10 mg twice daily, which its own abstract names as the comparator.</small></td></tr>
+    <tr><th>PARACHUTE-HF</th><td><ul><li>Describes itself as an open-label, multicentre randomised clinical trial with blinded endpoint adjudication. Blinded adjudication protects how an event is classified, not the unblinded management decisions that produce a heart failure hospitalization, which is one of the two components.</li><li>This composite is the trial&#x27;s FIRST SECONDARY endpoint; its primary is a win ratio. The pooled result therefore comes from that trial&#x27;s secondary hierarchy and carries the multiplicity and selective-reporting exposure that goes with it.</li></ul><br><small><strong>Design:</strong> phase 4, multicentre, randomised one to one against an active comparator, OPEN-LABEL with blinded endpoint adjudication</small><br><small><strong>Comparator basis:</strong> the trial randomised against enalapril at a target dose of 10 mg twice daily, as its abstract states.</small></td></tr>
+    <tr><th>PARALLEL-HF</th><td><ul><li>The trial&#x27;s own primary composite endpoint is what is pooled here.</li></ul><br><small><strong>Design:</strong> phase 3, randomised one to one against an active comparator, in Japan</small><br><small><strong>Comparator basis:</strong> the trial randomised against enalapril 10 mg twice daily, as its abstract states.</small></td></tr>
+  </table>
+  <p><small>These are recorded, sourced features, not a Cochrane RoB-2 assessment. No assessor has rated the five RoB-2 domains for these trials, so no per-domain rating appears here. What the features DO feed is the GRADE risk-of-bias domain on the Certainty tab, which this object does carry, rates as serious, and justifies from these same three features.</small></p>
+</div>
+<div class="card">
+  <h2>Sources</h2>
+  <table>
+    <tr><th>Layer</th><th>Source</th><th>How it was obtained</th></tr>
+    <tr><td>Regulator: FDA statistical review</td><td>FDA statistical review, NDA 207620 (Entresto), 2015.<br><small>https://www.accessdata.fda.gov/drugsatfda_docs/nda/2015/207620Orig1s000StatR.pdf</small></td><td><small>QUOTED: staged as text extracted from the review PDF. It states the full analysis set and its derivation, and splits the composite into its mutually exclusive first-event parts.</small></td></tr>
+    <tr><td>Regulator: EMA EPAR</td><td>Entresto EPAR public assessment report, European Medicines Agency.<br><small>https://www.ema.europa.eu/en/documents/assessment-report/entresto-epar-public-assessment-report_en.pdf</small></td><td><small>QUOTED: staged as text extracted from the EPAR PDF. It prints the composite with both denominators and both percentages.</small></td></tr>
+    <tr><td>Prior synthesis (abstracts staged; full text paywalled)</td><td>Two 2026 systematic reviews of sacubitril/valsartan against enalapril in heart failure with reduced ejection fraction due to Chagas cardiomyopathy, both in Cardiology in Review: Daniyal SM et al (PMID 41923142) and AlSejari NY et al (PMID 41941460).<br><small>https://pubmed.ncbi.nlm.nih.gov/41923142/</small></td><td><small>QUOTED, and the distinction matters: the ABSTRACTS are open and are staged, and they are what carries the patient total this object cannot reconcile. The FULL TEXTS are paywalled -- each returned a payment-required response on the date recorded here and neither has an open-access or PubMed Central copy -- and the full text is where the included-study LIST lives. So the count is checkable in the bundle and the list is not, which is precisely why the discrepancy is recorded as unresolved rather than settled. An earlier version cited these reviews with nothing staged at all, and a review leg was right that an unresolved finding resting on an unstaged source is itself an assertion.</small></td></tr>
+    <tr><td>Prior synthesis</td><td>Reyaz I et al. Comparison of outcomes between sacubitril/valsartan and enalapril in patients with heart failure: a systematic review and meta-analysis. Cureus 2023;15(11):e48623.<br><small>https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10710849/</small></td><td><small>QUOTED: open access in PubMed Central. Its characteristics table lists every included study with arm sizes, which is what made the trial-list diff possible and is what surfaced PARALLEL-HF.</small></td></tr>
+    <tr><td>Primary paper (abstract, open)</td><td>McMurray JJV et al. Angiotensin-neprilysin inhibition versus enalapril in heart failure. N Engl J Med 2014.<br><small>https://pubmed.ncbi.nlm.nih.gov/25176015/</small></td><td><small>QUOTED: the journal is not open access; the abstract is, and carries the point estimate, the interval and both event counts with their percentages.</small></td></tr>
+    <tr><td>Primary paper (full text, open)</td><td>Lopes RD et al. Sacubitril/valsartan vs enalapril in heart failure due to Chagas disease: an open-label, multicenter randomized clinical trial. JAMA 2026;335(1):49-59.<br><small>https://pubmed.ncbi.nlm.nih.gov/41335448/</small></td><td><small>QUOTED: the full text is open in PubMed Central and is staged. The secondary-outcome table carries the hazard ratio this object pools; the abstract does not.</small></td></tr>
+    <tr><td>Primary paper (abstract, open)</td><td>Tsutsui H et al. Efficacy and safety of sacubitril/valsartan in Japanese patients with chronic heart failure and reduced ejection fraction -- results from the PARALLEL-HF study. Circ J 2021;85(5):584-594.<br><small>https://pubmed.ncbi.nlm.nih.gov/33731544/</small></td><td><small>QUOTED: the abstract carries the primary composite endpoint with its hazard ratio and interval.</small></td></tr>
+    <tr><td>Primary paper (abstract, open)</td><td>Madrini V et al. Sacubitril-valsartan vs enalapril in heart failure due to Chagas disease: primary results of the ANSWER-HF randomized trial. J Am Coll Cardiol 2025;87(10):1220-1232.<br><small>https://pubmed.ncbi.nlm.nih.gov/41396086/</small></td><td><small>QUOTED: staged for an EXCLUDED trial, deliberately. ANSWER-HF is the exclusion the measure rule leans on hardest -- right population, right comparator, wrong quantity -- so the row that excludes it has to be checkable at the layer that holds its numbers. An earlier version pointed that row at the registry, which posts no results for this trial at all.</small></td></tr>
+    <tr><td>Primary paper (open access)</td><td>Pathadka S, Yan VKC, Li X, et al. Hospitalization and mortality in patients with heart failure treated with sacubitril/valsartan vs. enalapril: a real-world, population-based study. Front Cardiovasc Med 2020;7:602363.<br><small>https://pubmed.ncbi.nlm.nih.gov/33553256/</small></td><td><small>QUOTED: open access in PubMed Central. Staged because this is the one screened-out record that reports this review&#x27;s own composite as a hazard ratio -- 0.58, 0.45 to 0.75, by Cox regression with inverse-probability-of-treatment weighting -- and is excluded solely for not being randomised. A reader is entitled to check both halves of that.</small></td></tr>
+    <tr><td>Primary paper (open access)</td><td>Bano S, Bai P, Kumar S, et al. Comparison of sacubitril/valsartan versus enalapril in the management of heart failure. Cureus 2021;13(7):e16332.<br><small>https://pubmed.ncbi.nlm.nih.gov/34395116/</small></td><td><small>QUOTED: open access in PubMed Central. Staged because its screening row makes a NEGATIVE claim -- that the paper contains no hazard ratio, no Cox model and no time-to-event analysis -- and a negative claim about a document can only be checked against the document.</small></td></tr>
+    <tr><td>Primary paper (open access)</td><td>Zhao Y, Tian LG, Zhang LX, et al. The comparative effects of sacubitril/valsartan versus enalapril on pulmonary hypertension due to heart failure with a reduced ejection fraction. Pulm Circ 2022;12(3).<br><small>https://pubmed.ncbi.nlm.nih.gov/35874853/</small></td><td><small>QUOTED: open access in PubMed Central. Staged for the same reason as Bano 2021, and for one more: the string &quot;HR&quot; appears in it four times and is HEART RATE every time, in a baseline table. The screening row says so, and a reviewer should be able to confirm that the check was for the quantity and not for the string.</small></td></tr>
+    <tr><td>Registry with posted results</td><td>ClinicalTrials.gov records for every trial this object names: posted results for the three contributing trials, and the full record for each excluded and each screened trial, staged one file per registration.<br><small>https://clinicaltrials.gov/study/NCT01035255</small></td><td><small>QUOTED: each record is staged as the API returned it, and there is one for every registration the object cites -- a review leg found four screening rows pointing at registry pages whose records were not in the bundle, which is a link a reader can follow but a reviewer cannot audit offline. The participant-flow milestones are what let this object show, rather than assert, why an analysis-set denominator is smaller than a randomised one. One record that WAS staged has been removed: NCT02887183 is PROVE-HF, staged during an early mis-identification of PARAGON-HF&#x27;s registration and never cited by anything here. An uncited file in an evidence bundle is noise that looks like evidence.</small></td></tr>
+  </table>
+</div>
+<h2>Cardiovascular death or hospitalization for heart failure, whichever comes first, as a hazard ratio</h2>
+<div class="card">
+  <h3>Contributing trials</h3>
+  <table>
+    <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
+        <th>HR (95% CI), or events</th>
+        <th>Source of this cell</th></tr>
+    <tr><td>PARADIGM-HF<br><small>NCT01035255 &middot; primary outcome</small></td><td class='num'>4187 / 4212<br><small><em>The trial&#x27;s full analysis set. It is SMALLER than the randomised total and the object shows why rather than leaving two numbers side by side: 4209 and 4233 patients were randomised, 8442 in all; 37 were excluded because their sites were closed for serious good-clinical-practice violations and 6 because they were randomised without qualifying and never received double-blind medication; 4209 less 18 less 4 is 4187 and 4233 less 19 less 2 is 4212, which is the 8399 the regulator layers name. The exclusions are site-level and protocol-level rather than outcome-dependent, which is why they are reported and not treated as attrition on the effect.</em></small></td><td class='num'>0.8 (0.73 to 0.87)<br><small>on the log scale: -0.223144 (standard error 0.044758)</small></td><td><small><a href='https://pubmed.ncbi.nlm.nih.gov/25176015/'>Primary paper (abstract, open)</a>: <br><q>At the time of study closure, the primary outcome had occurred in 914 patients (21.8%) in the LCZ696 group and 1117 patients (26.5%) in the enalapril group (hazard ratio in the LCZ696 group, 0.80; 95% confidence interval [CI], 0.73 to 0.87; P&lt;0.001).</q><br><q>In this double-blind trial, we randomly assigned 8442 patients with class II, III, or IV heart failure and an ejection fraction of 40% or less to receive either LCZ696 (at a dose of 200 mg twice daily) or enalapril (at a dose of 10 mg twice daily), in addition to recommended therapy.</q><br><q>The primary outcome was a composite of death from cardiovascular causes or hospitalization for heart failure, but the trial was designed to detect a difference in the rates of death from cardiovascular causes.</q><br><em>Randomised. The analysis set is smaller and the difference is reproduced on the cell below rather than left as a discrepancy.</em></small></td></tr>
+    <tr><td>PARACHUTE-HF<br><small>NCT04023227 &middot; FIRST SECONDARY outcome</small></td><td class='num'>462 / 460<br><small><em>The full analysis set, which the registry defines as all participants to whom study treatment was assigned at randomisation, and which equals the randomised total here.</em></small></td><td class='num'>0.91 (0.73 to 1.13)<br><small>on the log scale: -0.094311 (standard error 0.111463)</small></td><td><small><a href='https://pubmed.ncbi.nlm.nih.gov/41335448/'>Primary paper (full text, open)</a>: <br><q>The first secondary end point was the composite of time to first HF hospitalization or death from cardiovascular causes ( Figure 2 , C, D, and E), which occurred in 155 patients (33.5%) in the sacubitril/valsartan group and 169 (36.7%) in the enalapril group (HR, 0.91 [95% CI, 0.73-1.13])</q><br><q>The primary end point was a hierarchical composite outcome tested, in order, of death from cardiovascular causes, hospitalization for HF, or relative change in NT-proBNP from baseline to 12 weeks. The primary analysis was done using a win ratio approach.</q><br><q>Overall, 462 participants were randomized to receive sacubitril/valsartan and 460 to receive enalapril (mean [SD] age, 64.2 [10.8] years; 387 [42.0%] were female).</q><br><em>Randomised, and the same number analysed; no participant is dropped.</em></small></td></tr>
+    <tr><td>PARALLEL-HF<br><small>NCT02468232 &middot; primary outcome</small></td><td class='num'>111 / 112<br><small><em>The analysis set the registry posts for this endpoint, 111 and 112, derived on the record from 112 and 113 randomised less one mis-randomised patient in each arm. This is the same denominator-scope shape as PARADIGM-HF and is shown the same way rather than left as an unexplained difference from 225.</em></small></td><td class='num'>1.09 (0.65 to 1.82)<br><small>on the log scale: 0.086178 (standard error 0.262663)</small></td><td><small><a href='https://pubmed.ncbi.nlm.nih.gov/33731544/'>Primary paper (abstract, open)</a>: <br><q>Over a median follow up of 33.9 months, no significant between-group difference was observed for the primary composite outcome of CV death and HF hospitalization (HR 1.09; 95% CI 0.65-1.82; P=0.6260).</q><br><q>In the Prospective comparison of ARNI with ACEi to determine the noveL beneficiaL trEatment vaLue in Japanese Heart Failure patients (PARALLEL-HF) study, 225 Japanese HFrEF patients (New York Heart Association [NYHA] class II-IV, left ventricular ejection fraction [LVEF] ≤35%) were randomized (1 : 1) to receive sacubitril/valsartan 200 mg bid or enalapril 10 mg bid.</q><br><em>Randomised. Two patients, one in each group, were mis-randomised and are outside the analysis set, which the registry record shows as a milestone.</em></small></td></tr>
+  </table>
+  <p><small>The three contributing trials share no participant and no control group.</small></p>
+</div>
+  </section>
+<!--end-extract-->  <section class="panel" id="pn-analysis">
+  <p class='toc'><strong>In this section:</strong> What this pool holds constant &middot; Forest plot &middot; Funnel plot &middot; Galbraith (radial) plot &middot; Baujat plot &middot; Influence diagnostics &middot; Leave-one-out &middot; Cumulative meta-analysis &middot; Bayesian posterior density &middot; L'Abbe plot &middot; Number needed to treat, across baseline risk &middot; The methods rule governing this decision &middot; Leave-one-out sensitivity &middot; Does the answer depend on the pooling method?</p>
+<h2>Cardiovascular death or hospitalization for heart failure, whichever comes first, as a hazard ratio</h2>
+<div class='card'>
+  <h2>Pooled result</h2>
+  <p class='num'>HR 0.8392 (0.7429 to 0.948), 95% interval</p>
+  <p>Cardiovascular death or hospitalization for heart failure, whichever comes first, as a hazard ratio. random, estimator REML, k = 3.</p>
+  <p><small>&tau;&sup2; 0.0035 &middot; I&sup2; 14.9469% &middot; Q 2.3515 on 2 df</small></p>
+  <p><strong>Favours: the intervention (lower is better)</strong></p>
+  <p><small>The I-squared here is the Higgins statistic computed from Q and its degrees of freedom, and it falls in the lowest band of section 10.10.2. That band is reported with a caveat rather than as reassurance: with three trials, two of which have wide intervals, a low I-squared reflects imprecision as much as agreement, and the point estimates themselves range from 0.80 to 1.09 and straddle the null. The uniformity table and the leave-one-out analysis are where that spread is visible; the I-squared alone would hide it.</small></p>
+  <h3>What this pool holds constant</h3>
+  <table>
+    <tr><th>Dimension</th><th>Across the pooled cohorts</th><th>If it differs, why it is crossed anyway</th></tr>
+    <tr><td>effect measure</td><td>identical</td><td><small>All three report a hazard ratio for the time to a first event of the same composite. No conversion is performed and none would be valid: the trials excluded from this pool are excluded largely because their quantities cannot be converted into this one.</small></td></tr>
+    <tr><td>comparator</td><td>identical</td><td><small>All three randomised against enalapril at a target of 10 mg twice daily. This is the axis on which PARAGON-HF, PARAGLIDE-HF and PARADISE-MI fail, and it is checked rather than assumed.</small></td></tr>
+    <tr><td>outcome definition</td><td>identical</td><td><small>Cardiovascular death or hospitalization for heart failure, whichever comes first, with adjudication by a central committee in each trial.</small></td></tr>
+    <tr><td>aetiology of heart failure</td><td>differs</td><td><small>PARACHUTE-HF admitted only chronic Chagas cardiomyopathy, confirmed serologically at entry -- a distinct disease with a different natural history and a high burden of conduction disease. Neither of the other trials restricted aetiology at all, so the pool crosses a narrow-aetiology trial with two unrestricted ones, and that is the most substantive thing it crosses. What the contributing trials&#x27; own sources say about their aetiology MIX differs in how much they say, and this row says only what they support: the EPAR records ischaemic cardiac disease as the primary cause of heart failure in the majority of PARADIGM-HF participants, and the staged sources for PARALLEL-HF characterise its population by ejection fraction and functional class without describing its aetiology mix at all. An earlier version of this row described both unrestricted trials as largely ischaemic or idiopathic; a review leg was right that the second half of that had no basis in anything staged, and it is the more serious kind of over-claim for sitting inside the table that justifies pooling across aetiology.</small></td></tr>
+    <tr><td>ejection fraction ceiling</td><td>differs</td><td><small>40% or less in PARADIGM-HF and PARACHUTE-HF; 35% or less in PARALLEL-HF. Both are within the reduced-ejection-fraction population the question fixes, and they are not the same entry criterion.</small></td></tr>
+    <tr><td>blinding</td><td>differs</td><td><small>PARADIGM-HF and PARALLEL-HF were double-blind. PARACHUTE-HF was OPEN-LABEL with blinded endpoint adjudication. Blinded adjudication protects the outcome ascertainment and does not protect the management decisions that lead to a hospitalization, so the difference is carried into the GRADE risk-of-bias domain rather than dismissed here.</small></td></tr>
+    <tr><td>endpoint rank within its own trial</td><td>differs</td><td><small>This composite is the PRIMARY endpoint of PARADIGM-HF and of PARALLEL-HF. In PARACHUTE-HF it is the first SECONDARY endpoint, the primary there being a hierarchical composite analysed by win ratio. A trial is not powered for its secondary endpoints, and the pool crosses that.</small></td></tr>
+    <tr><td>follow up length</td><td>differs</td><td><small>Medians of 27 months, 25.2 months and 33.9 months. PARADIGM-HF&#x27;s follow-up ended early by prespecified rule when a boundary for overwhelming benefit was crossed, which is a different reason for a follow-up length than the other two have.</small></td></tr>
+    <tr><td>analysis population</td><td>differs</td><td><small>All three use the trial&#x27;s own full analysis set. In PARACHUTE-HF that equals the randomised total; in PARADIGM-HF and PARALLEL-HF it is smaller, and each cell shows the arithmetic from the randomised total rather than leaving the difference unexplained.</small></td></tr>
+  </table>
+</div>
+<div class='card'>
+  <h3>Forest plot</h3>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 196" width="100%" role="img" aria-label="Forest plot of the stored per-trial and pooled estimates">
+  <line x1="279.7" y1="8" x2="279.7" y2="148" stroke="#a1a1aa" stroke-dasharray="3 3"/>
+  <text x="279.7" y="166" font-size="11" text-anchor="middle" fill="#52525b">0.65</text>
+  <line x1="434.7" y1="8" x2="434.7" y2="148" stroke="#a1a1aa" stroke-dasharray="0"/>
+  <text x="434.7" y="166" font-size="11" text-anchor="middle" fill="#52525b">1</text>
+  <line x1="650.3" y1="8" x2="650.3" y2="148" stroke="#a1a1aa" stroke-dasharray="3 3"/>
+  <text x="650.3" y="166" font-size="11" text-anchor="middle" fill="#52525b">1.82</text>
+  <line x1="321.4" y1="26" x2="384.6" y2="26" stroke="#3f3f46" stroke-width="1.5"/>
+  <rect x="347.4" y="19.0" width="14.0" height="14.0" fill="#1d4ed8"/>
+  <text x="8" y="30" font-size="12" fill="#111">paradigm-hf</text>
+  <line x1="321.4" y1="60" x2="478.7" y2="60" stroke="#3f3f46" stroke-width="1.5"/>
+  <rect x="396.5" y="55.7" width="8.6" height="8.6" fill="#1d4ed8"/>
+  <text x="8" y="64" font-size="12" fill="#111">parachute-hf</text>
+  <line x1="279.7" y1="94" x2="650.3" y2="94" stroke="#3f3f46" stroke-width="1.5"/>
+  <rect x="462.5" y="90.7" width="6.5" height="6.5" fill="#1d4ed8"/>
+  <text x="8" y="98" font-size="12" fill="#111">parallel-hf</text>
+  <polygon points="327.8,132 371.6,124 415.5,132 371.6,140" fill="#b45309"/>
+  <text x="8" y="136" font-size="12" font-weight="700" fill="#111">Pooled (HR)</text>
+</svg>
+  <p><a class='dl' download='forest.svg' href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20720%20196%22%20width%3D%22100%25%22%20role%3D%22img%22%20aria-label%3D%22Forest%20plot%20of%20the%20stored%20per-trial%20and%20pooled%20estimates%22%3E%0A%20%20%3Cline%20x1%3D%22279.7%22%20y1%3D%228%22%20x2%3D%22279.7%22%20y2%3D%22148%22%20stroke%3D%22%23a1a1aa%22%20stroke-dasharray%3D%223%203%22%2F%3E%0A%20%20%3Ctext%20x%3D%22279.7%22%20y%3D%22166%22%20font-size%3D%2211%22%20text-anchor%3D%22middle%22%20fill%3D%22%2352525b%22%3E0.65%3C%2Ftext%3E%0A%20%20%3Cline%20x1%3D%22434.7%22%20y1%3D%228%22%20x2%3D%22434.7%22%20y2%3D%22148%22%20stroke%3D%22%23a1a1aa%22%20stroke-dasharray%3D%220%22%2F%3E%0A%20%20%3Ctext%20x%3D%22434.7%22%20y%3D%22166%22%20font-size%3D%2211%22%20text-anchor%3D%22middle%22%20fill%3D%22%2352525b%22%3E1%3C%2Ftext%3E%0A%20%20%3Cline%20x1%3D%22650.3%22%20y1%3D%228%22%20x2%3D%22650.3%22%20y2%3D%22148%22%20stroke%3D%22%23a1a1aa%22%20stroke-dasharray%3D%223%203%22%2F%3E%0A%20%20%3Ctext%20x%3D%22650.3%22%20y%3D%22166%22%20font-size%3D%2211%22%20text-anchor%3D%22middle%22%20fill%3D%22%2352525b%22%3E1.82%3C%2Ftext%3E%0A%20%20%3Cline%20x1%3D%22321.4%22%20y1%3D%2226%22%20x2%3D%22384.6%22%20y2%3D%2226%22%20stroke%3D%22%233f3f46%22%20stroke-width%3D%221.5%22%2F%3E%0A%20%20%3Crect%20x%3D%22347.4%22%20y%3D%2219.0%22%20width%3D%2214.0%22%20height%3D%2214.0%22%20fill%3D%22%231d4ed8%22%2F%3E%0A%20%20%3Ctext%20x%3D%228%22%20y%3D%2230%22%20font-size%3D%2212%22%20fill%3D%22%23111%22%3Eparadigm-hf%3C%2Ftext%3E%0A%20%20%3Cline%20x1%3D%22321.4%22%20y1%3D%2260%22%20x2%3D%22478.7%22%20y2%3D%2260%22%20stroke%3D%22%233f3f46%22%20stroke-width%3D%221.5%22%2F%3E%0A%20%20%3Crect%20x%3D%22396.5%22%20y%3D%2255.7%22%20width%3D%228.6%22%20height%3D%228.6%22%20fill%3D%22%231d4ed8%22%2F%3E%0A%20%20%3Ctext%20x%3D%228%22%20y%3D%2264%22%20font-size%3D%2212%22%20fill%3D%22%23111%22%3Eparachute-hf%3C%2Ftext%3E%0A%20%20%3Cline%20x1%3D%22279.7%22%20y1%3D%2294%22%20x2%3D%22650.3%22%20y2%3D%2294%22%20stroke%3D%22%233f3f46%22%20stroke-width%3D%221.5%22%2F%3E%0A%20%20%3Crect%20x%3D%22462.5%22%20y%3D%2290.7%22%20width%3D%226.5%22%20height%3D%226.5%22%20fill%3D%22%231d4ed8%22%2F%3E%0A%20%20%3Ctext%20x%3D%228%22%20y%3D%2298%22%20font-size%3D%2212%22%20fill%3D%22%23111%22%3Eparallel-hf%3C%2Ftext%3E%0A%20%20%3Cpolygon%20points%3D%22327.8%2C132%20371.6%2C124%20415.5%2C132%20371.6%2C140%22%20fill%3D%22%23b45309%22%2F%3E%0A%20%20%3Ctext%20x%3D%228%22%20y%3D%22136%22%20font-size%3D%2212%22%20font-weight%3D%22700%22%20fill%3D%22%23111%22%3EPooled%20%28HR%29%3C%2Ftext%3E%0A%3C%2Fsvg%3E">&#11015; Download this forest plot (SVG)</a> <small>saves the figure exactly as rendered &mdash; the file is the same bytes as the graphic above</small></p>
+  <p><small>Drawn from the same stored estimates the table above lists. The dashed guides mark the extremes of the plotted intervals; the solid guide is the null. Box area is proportional to inverse-variance weight.</small></p>
+</div>
+<div class='card'>
+  <h3>Funnel plot</h3>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 300" width="100%" role="img" aria-label="log effect against standard error">
+<line x1="74" y1="18" x2="74" y2="254" stroke="#71717a"/><line x1="74" y1="254" x2="676" y2="254" stroke="#71717a"/>
+<line x1="482.5" y1="18" x2="482.5" y2="254" stroke="#a1a1aa"/>
+<circle cx="132.3" cy="49.2" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<text x="140.3" y="53.2" font-size="11" fill="#3f3f46">paradigm-hf</text>
+<circle cx="334.5" cy="102.4" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<text x="342.5" y="106.4" font-size="11" fill="#3f3f46">parachute-hf</text>
+<circle cx="617.7" cy="222.8" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<text x="625.7" y="226.8" font-size="11" fill="#3f3f46">parallel-hf</text>
+<text x="132.3" y="270" font-size="10" text-anchor="middle" fill="#52525b">-0.223144</text>
+<text x="617.7" y="270" font-size="10" text-anchor="middle" fill="#52525b">0.086178</text>
+<text x="68" y="53.2" font-size="10" text-anchor="end" fill="#52525b">0.044758</text>
+<text x="68" y="226.8" font-size="10" text-anchor="end" fill="#52525b">0.262663</text>
+<text x="375" y="294" font-size="11" text-anchor="middle" fill="#3f3f46">log effect</text>
+<text x="13" y="136" font-size="11" fill="#3f3f46" transform="rotate(-90 13 136)" text-anchor="middle">standard error</text>
+</svg>
+  <p><a class='dl' download='funnel.svg' href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20700%20300%22%20width%3D%22100%25%22%20role%3D%22img%22%20aria-label%3D%22log%20effect%20against%20standard%20error%22%3E%0A%3Cline%20x1%3D%2274%22%20y1%3D%2218%22%20x2%3D%2274%22%20y2%3D%22254%22%20stroke%3D%22%2371717a%22%2F%3E%3Cline%20x1%3D%2274%22%20y1%3D%22254%22%20x2%3D%22676%22%20y2%3D%22254%22%20stroke%3D%22%2371717a%22%2F%3E%0A%3Cline%20x1%3D%22482.5%22%20y1%3D%2218%22%20x2%3D%22482.5%22%20y2%3D%22254%22%20stroke%3D%22%23a1a1aa%22%2F%3E%0A%3Ccircle%20cx%3D%22132.3%22%20cy%3D%2249.2%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ctext%20x%3D%22140.3%22%20y%3D%2253.2%22%20font-size%3D%2211%22%20fill%3D%22%233f3f46%22%3Eparadigm-hf%3C%2Ftext%3E%0A%3Ccircle%20cx%3D%22334.5%22%20cy%3D%22102.4%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ctext%20x%3D%22342.5%22%20y%3D%22106.4%22%20font-size%3D%2211%22%20fill%3D%22%233f3f46%22%3Eparachute-hf%3C%2Ftext%3E%0A%3Ccircle%20cx%3D%22617.7%22%20cy%3D%22222.8%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ctext%20x%3D%22625.7%22%20y%3D%22226.8%22%20font-size%3D%2211%22%20fill%3D%22%233f3f46%22%3Eparallel-hf%3C%2Ftext%3E%0A%3Ctext%20x%3D%22132.3%22%20y%3D%22270%22%20font-size%3D%2210%22%20text-anchor%3D%22middle%22%20fill%3D%22%2352525b%22%3E-0.223144%3C%2Ftext%3E%0A%3Ctext%20x%3D%22617.7%22%20y%3D%22270%22%20font-size%3D%2210%22%20text-anchor%3D%22middle%22%20fill%3D%22%2352525b%22%3E0.086178%3C%2Ftext%3E%0A%3Ctext%20x%3D%2268%22%20y%3D%2253.2%22%20font-size%3D%2210%22%20text-anchor%3D%22end%22%20fill%3D%22%2352525b%22%3E0.044758%3C%2Ftext%3E%0A%3Ctext%20x%3D%2268%22%20y%3D%22226.8%22%20font-size%3D%2210%22%20text-anchor%3D%22end%22%20fill%3D%22%2352525b%22%3E0.262663%3C%2Ftext%3E%0A%3Ctext%20x%3D%22375%22%20y%3D%22294%22%20font-size%3D%2211%22%20text-anchor%3D%22middle%22%20fill%3D%22%233f3f46%22%3Elog%20effect%3C%2Ftext%3E%0A%3Ctext%20x%3D%2213%22%20y%3D%22136%22%20font-size%3D%2211%22%20fill%3D%22%233f3f46%22%20transform%3D%22rotate%28-90%2013%20136%29%22%20text-anchor%3D%22middle%22%3Estandard%20error%3C%2Ftext%3E%0A%3C%2Fsvg%3E">&#11015; Download (SVG)</a> <small>saves the figure exactly as rendered &mdash; the file is the same bytes as the graphic above</small></p>
+  <p><small>Standard error against log effect, most precise at the top. At three studies a funnel cannot be read for asymmetry; it is shown because the positions are real and the emptiness is the finding.</small></p>
+</div>
+<div class='card'>
+  <h3>Galbraith (radial) plot</h3>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 300" width="100%" role="img" aria-label="precision (1/SE) against z = effect / SE">
+<line x1="74" y1="18" x2="74" y2="254" stroke="#71717a"/><line x1="74" y1="254" x2="676" y2="254" stroke="#71717a"/>
+<circle cx="617.7" cy="222.8" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<text x="625.7" y="226.8" font-size="11" fill="#3f3f46">paradigm-hf</text>
+<circle cx="267.5" cy="87.6" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<text x="275.5" y="91.6" font-size="11" fill="#3f3f46">parachute-hf</text>
+<circle cx="132.3" cy="49.2" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<text x="140.3" y="53.2" font-size="11" fill="#3f3f46">parallel-hf</text>
+<text x="132.3" y="270" font-size="10" text-anchor="middle" fill="#52525b">3.80716</text>
+<text x="617.7" y="270" font-size="10" text-anchor="middle" fill="#52525b">22.342375</text>
+<text x="68" y="226.8" font-size="10" text-anchor="end" fill="#52525b">-4.985567</text>
+<text x="68" y="53.2" font-size="10" text-anchor="end" fill="#52525b">0.328093</text>
+<text x="375" y="294" font-size="11" text-anchor="middle" fill="#3f3f46">precision (1/SE)</text>
+<text x="13" y="136" font-size="11" fill="#3f3f46" transform="rotate(-90 13 136)" text-anchor="middle">z = effect / SE</text>
+</svg>
+  <p><a class='dl' download='galbraith.svg' href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20700%20300%22%20width%3D%22100%25%22%20role%3D%22img%22%20aria-label%3D%22precision%20%281%2FSE%29%20against%20z%20%3D%20effect%20%2F%20SE%22%3E%0A%3Cline%20x1%3D%2274%22%20y1%3D%2218%22%20x2%3D%2274%22%20y2%3D%22254%22%20stroke%3D%22%2371717a%22%2F%3E%3Cline%20x1%3D%2274%22%20y1%3D%22254%22%20x2%3D%22676%22%20y2%3D%22254%22%20stroke%3D%22%2371717a%22%2F%3E%0A%3Ccircle%20cx%3D%22617.7%22%20cy%3D%22222.8%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ctext%20x%3D%22625.7%22%20y%3D%22226.8%22%20font-size%3D%2211%22%20fill%3D%22%233f3f46%22%3Eparadigm-hf%3C%2Ftext%3E%0A%3Ccircle%20cx%3D%22267.5%22%20cy%3D%2287.6%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ctext%20x%3D%22275.5%22%20y%3D%2291.6%22%20font-size%3D%2211%22%20fill%3D%22%233f3f46%22%3Eparachute-hf%3C%2Ftext%3E%0A%3Ccircle%20cx%3D%22132.3%22%20cy%3D%2249.2%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ctext%20x%3D%22140.3%22%20y%3D%2253.2%22%20font-size%3D%2211%22%20fill%3D%22%233f3f46%22%3Eparallel-hf%3C%2Ftext%3E%0A%3Ctext%20x%3D%22132.3%22%20y%3D%22270%22%20font-size%3D%2210%22%20text-anchor%3D%22middle%22%20fill%3D%22%2352525b%22%3E3.80716%3C%2Ftext%3E%0A%3Ctext%20x%3D%22617.7%22%20y%3D%22270%22%20font-size%3D%2210%22%20text-anchor%3D%22middle%22%20fill%3D%22%2352525b%22%3E22.342375%3C%2Ftext%3E%0A%3Ctext%20x%3D%2268%22%20y%3D%22226.8%22%20font-size%3D%2210%22%20text-anchor%3D%22end%22%20fill%3D%22%2352525b%22%3E-4.985567%3C%2Ftext%3E%0A%3Ctext%20x%3D%2268%22%20y%3D%2253.2%22%20font-size%3D%2210%22%20text-anchor%3D%22end%22%20fill%3D%22%2352525b%22%3E0.328093%3C%2Ftext%3E%0A%3Ctext%20x%3D%22375%22%20y%3D%22294%22%20font-size%3D%2211%22%20text-anchor%3D%22middle%22%20fill%3D%22%233f3f46%22%3Eprecision%20%281%2FSE%29%3C%2Ftext%3E%0A%3Ctext%20x%3D%2213%22%20y%3D%22136%22%20font-size%3D%2211%22%20fill%3D%22%233f3f46%22%20transform%3D%22rotate%28-90%2013%20136%29%22%20text-anchor%3D%22middle%22%3Ez%20%3D%20effect%20%2F%20SE%3C%2Ftext%3E%0A%3C%2Fsvg%3E">&#11015; Download (SVG)</a> <small>saves the figure exactly as rendered &mdash; the file is the same bytes as the graphic above</small></p>
+  <p><small>Each trial's standardised effect against its precision.</small></p>
+</div>
+<div class='card'>
+  <h3>Baujat plot</h3>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 300" width="100%" role="img" aria-label="contribution to Q (heterogeneity) against influence on the pooled estimate">
+<line x1="74" y1="18" x2="74" y2="254" stroke="#71717a"/><line x1="74" y1="254" x2="676" y2="254" stroke="#71717a"/>
+<circle cx="135.7" cy="49.2" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<text x="143.7" y="53.2" font-size="11" fill="#3f3f46">paradigm-hf</text>
+<circle cx="132.3" cy="222.8" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<text x="140.3" y="226.8" font-size="11" fill="#3f3f46">parachute-hf</text>
+<circle cx="617.7" cy="187.7" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<text x="625.7" y="191.7" font-size="11" fill="#3f3f46">parallel-hf</text>
+<text x="132.3" y="270" font-size="10" text-anchor="middle" fill="#52525b">0.412087</text>
+<text x="617.7" y="270" font-size="10" text-anchor="middle" fill="#52525b">0.943267</text>
+<text x="68" y="226.8" font-size="10" text-anchor="end" fill="#52525b">0.000173</text>
+<text x="68" y="53.2" font-size="10" text-anchor="end" fill="#52525b">1.119079</text>
+<text x="375" y="294" font-size="11" text-anchor="middle" fill="#3f3f46">contribution to Q (heterogeneity)</text>
+<text x="13" y="136" font-size="11" fill="#3f3f46" transform="rotate(-90 13 136)" text-anchor="middle">influence on the pooled estimate</text>
+</svg>
+  <p><a class='dl' download='baujat.svg' href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20700%20300%22%20width%3D%22100%25%22%20role%3D%22img%22%20aria-label%3D%22contribution%20to%20Q%20%28heterogeneity%29%20against%20influence%20on%20the%20pooled%20estimate%22%3E%0A%3Cline%20x1%3D%2274%22%20y1%3D%2218%22%20x2%3D%2274%22%20y2%3D%22254%22%20stroke%3D%22%2371717a%22%2F%3E%3Cline%20x1%3D%2274%22%20y1%3D%22254%22%20x2%3D%22676%22%20y2%3D%22254%22%20stroke%3D%22%2371717a%22%2F%3E%0A%3Ccircle%20cx%3D%22135.7%22%20cy%3D%2249.2%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ctext%20x%3D%22143.7%22%20y%3D%2253.2%22%20font-size%3D%2211%22%20fill%3D%22%233f3f46%22%3Eparadigm-hf%3C%2Ftext%3E%0A%3Ccircle%20cx%3D%22132.3%22%20cy%3D%22222.8%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ctext%20x%3D%22140.3%22%20y%3D%22226.8%22%20font-size%3D%2211%22%20fill%3D%22%233f3f46%22%3Eparachute-hf%3C%2Ftext%3E%0A%3Ccircle%20cx%3D%22617.7%22%20cy%3D%22187.7%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ctext%20x%3D%22625.7%22%20y%3D%22191.7%22%20font-size%3D%2211%22%20fill%3D%22%233f3f46%22%3Eparallel-hf%3C%2Ftext%3E%0A%3Ctext%20x%3D%22132.3%22%20y%3D%22270%22%20font-size%3D%2210%22%20text-anchor%3D%22middle%22%20fill%3D%22%2352525b%22%3E0.412087%3C%2Ftext%3E%0A%3Ctext%20x%3D%22617.7%22%20y%3D%22270%22%20font-size%3D%2210%22%20text-anchor%3D%22middle%22%20fill%3D%22%2352525b%22%3E0.943267%3C%2Ftext%3E%0A%3Ctext%20x%3D%2268%22%20y%3D%22226.8%22%20font-size%3D%2210%22%20text-anchor%3D%22end%22%20fill%3D%22%2352525b%22%3E0.000173%3C%2Ftext%3E%0A%3Ctext%20x%3D%2268%22%20y%3D%2253.2%22%20font-size%3D%2210%22%20text-anchor%3D%22end%22%20fill%3D%22%2352525b%22%3E1.119079%3C%2Ftext%3E%0A%3Ctext%20x%3D%22375%22%20y%3D%22294%22%20font-size%3D%2211%22%20text-anchor%3D%22middle%22%20fill%3D%22%233f3f46%22%3Econtribution%20to%20Q%20%28heterogeneity%29%3C%2Ftext%3E%0A%3Ctext%20x%3D%2213%22%20y%3D%22136%22%20font-size%3D%2211%22%20fill%3D%22%233f3f46%22%20transform%3D%22rotate%28-90%2013%20136%29%22%20text-anchor%3D%22middle%22%3Einfluence%20on%20the%20pooled%20estimate%3C%2Ftext%3E%0A%3C%2Fsvg%3E">&#11015; Download (SVG)</a> <small>saves the figure exactly as rendered &mdash; the file is the same bytes as the graphic above</small></p>
+  <p><small>Right means a trial drives heterogeneity; up means it moves the pooled result. Top-right is both.</small></p>
+</div>
+<div class='card'>
+  <h3>Influence diagnostics</h3>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 300" width="100%" role="img" aria-label="leverage (hat) against Cook&#x27;s distance">
+<line x1="74" y1="18" x2="74" y2="254" stroke="#71717a"/><line x1="74" y1="254" x2="676" y2="254" stroke="#71717a"/>
+<circle cx="617.7" cy="49.2" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<text x="625.7" y="53.2" font-size="11" fill="#3f3f46">paradigm-hf</text>
+<circle cx="273.9" cy="222.8" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<text x="281.9" y="226.8" font-size="11" fill="#3f3f46">parachute-hf</text>
+<circle cx="132.3" cy="214.4" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<text x="140.3" y="218.4" font-size="11" fill="#3f3f46">parallel-hf</text>
+<text x="132.3" y="270" font-size="10" text-anchor="middle" fill="#52525b">0.053391</text>
+<text x="617.7" y="270" font-size="10" text-anchor="middle" fill="#52525b">0.70353</text>
+<text x="68" y="226.8" font-size="10" text-anchor="end" fill="#52525b">0.000546</text>
+<text x="68" y="53.2" font-size="10" text-anchor="end" fill="#52525b">3.044156</text>
+<text x="375" y="294" font-size="11" text-anchor="middle" fill="#3f3f46">leverage (hat)</text>
+<text x="13" y="136" font-size="11" fill="#3f3f46" transform="rotate(-90 13 136)" text-anchor="middle">Cook&#x27;s distance</text>
+</svg>
+  <p><a class='dl' download='influence.svg' href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20700%20300%22%20width%3D%22100%25%22%20role%3D%22img%22%20aria-label%3D%22leverage%20%28hat%29%20against%20Cook%26%23x27%3Bs%20distance%22%3E%0A%3Cline%20x1%3D%2274%22%20y1%3D%2218%22%20x2%3D%2274%22%20y2%3D%22254%22%20stroke%3D%22%2371717a%22%2F%3E%3Cline%20x1%3D%2274%22%20y1%3D%22254%22%20x2%3D%22676%22%20y2%3D%22254%22%20stroke%3D%22%2371717a%22%2F%3E%0A%3Ccircle%20cx%3D%22617.7%22%20cy%3D%2249.2%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ctext%20x%3D%22625.7%22%20y%3D%2253.2%22%20font-size%3D%2211%22%20fill%3D%22%233f3f46%22%3Eparadigm-hf%3C%2Ftext%3E%0A%3Ccircle%20cx%3D%22273.9%22%20cy%3D%22222.8%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ctext%20x%3D%22281.9%22%20y%3D%22226.8%22%20font-size%3D%2211%22%20fill%3D%22%233f3f46%22%3Eparachute-hf%3C%2Ftext%3E%0A%3Ccircle%20cx%3D%22132.3%22%20cy%3D%22214.4%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ctext%20x%3D%22140.3%22%20y%3D%22218.4%22%20font-size%3D%2211%22%20fill%3D%22%233f3f46%22%3Eparallel-hf%3C%2Ftext%3E%0A%3Ctext%20x%3D%22132.3%22%20y%3D%22270%22%20font-size%3D%2210%22%20text-anchor%3D%22middle%22%20fill%3D%22%2352525b%22%3E0.053391%3C%2Ftext%3E%0A%3Ctext%20x%3D%22617.7%22%20y%3D%22270%22%20font-size%3D%2210%22%20text-anchor%3D%22middle%22%20fill%3D%22%2352525b%22%3E0.70353%3C%2Ftext%3E%0A%3Ctext%20x%3D%2268%22%20y%3D%22226.8%22%20font-size%3D%2210%22%20text-anchor%3D%22end%22%20fill%3D%22%2352525b%22%3E0.000546%3C%2Ftext%3E%0A%3Ctext%20x%3D%2268%22%20y%3D%2253.2%22%20font-size%3D%2210%22%20text-anchor%3D%22end%22%20fill%3D%22%2352525b%22%3E3.044156%3C%2Ftext%3E%0A%3Ctext%20x%3D%22375%22%20y%3D%22294%22%20font-size%3D%2211%22%20text-anchor%3D%22middle%22%20fill%3D%22%233f3f46%22%3Eleverage%20%28hat%29%3C%2Ftext%3E%0A%3Ctext%20x%3D%2213%22%20y%3D%22136%22%20font-size%3D%2211%22%20fill%3D%22%233f3f46%22%20transform%3D%22rotate%28-90%2013%20136%29%22%20text-anchor%3D%22middle%22%3ECook%26%23x27%3Bs%20distance%3C%2Ftext%3E%0A%3C%2Fsvg%3E">&#11015; Download (SVG)</a> <small>saves the figure exactly as rendered &mdash; the file is the same bytes as the graphic above</small></p>
+  <p><small>Leverage against Cook's distance, from metafor's influence diagnostics.</small></p>
+</div>
+<div class='card'>
+  <h3>Leave-one-out</h3>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 132" width="100%" role="img" aria-label="point and interval rows">
+<line x1="332.2" y1="22" x2="630.8" y2="22" stroke="#3f3f46"/>
+<rect x="477.5" y="18" width="8" height="8" fill="#1d4ed8"/>
+<text x="6" y="26" font-size="11" fill="#111">omitting paradigm-hf</text>
+<line x1="239.2" y1="54" x2="560.6" y2="54" stroke="#3f3f46"/>
+<rect x="395.9" y="50" width="8" height="8" fill="#1d4ed8"/>
+<text x="6" y="58" font-size="11" fill="#111">omitting parachute-hf</text>
+<line x1="310.3" y1="86" x2="456.2" y2="86" stroke="#3f3f46"/>
+<rect x="379.2" y="82" width="8" height="8" fill="#1d4ed8"/>
+<text x="6" y="90" font-size="11" fill="#111">omitting parallel-hf</text>
+<line x1="531.1" y1="8" x2="531.1" y2="102" stroke="#a1a1aa"/>
+<text x="531.1" y="120" font-size="10" text-anchor="middle" fill="#52525b">1</text>
+</svg>
+  <p><a class='dl' download='leave-one-out.svg' href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20700%20132%22%20width%3D%22100%25%22%20role%3D%22img%22%20aria-label%3D%22point%20and%20interval%20rows%22%3E%0A%3Cline%20x1%3D%22332.2%22%20y1%3D%2222%22%20x2%3D%22630.8%22%20y2%3D%2222%22%20stroke%3D%22%233f3f46%22%2F%3E%0A%3Crect%20x%3D%22477.5%22%20y%3D%2218%22%20width%3D%228%22%20height%3D%228%22%20fill%3D%22%231d4ed8%22%2F%3E%0A%3Ctext%20x%3D%226%22%20y%3D%2226%22%20font-size%3D%2211%22%20fill%3D%22%23111%22%3Eomitting%20paradigm-hf%3C%2Ftext%3E%0A%3Cline%20x1%3D%22239.2%22%20y1%3D%2254%22%20x2%3D%22560.6%22%20y2%3D%2254%22%20stroke%3D%22%233f3f46%22%2F%3E%0A%3Crect%20x%3D%22395.9%22%20y%3D%2250%22%20width%3D%228%22%20height%3D%228%22%20fill%3D%22%231d4ed8%22%2F%3E%0A%3Ctext%20x%3D%226%22%20y%3D%2258%22%20font-size%3D%2211%22%20fill%3D%22%23111%22%3Eomitting%20parachute-hf%3C%2Ftext%3E%0A%3Cline%20x1%3D%22310.3%22%20y1%3D%2286%22%20x2%3D%22456.2%22%20y2%3D%2286%22%20stroke%3D%22%233f3f46%22%2F%3E%0A%3Crect%20x%3D%22379.2%22%20y%3D%2282%22%20width%3D%228%22%20height%3D%228%22%20fill%3D%22%231d4ed8%22%2F%3E%0A%3Ctext%20x%3D%226%22%20y%3D%2290%22%20font-size%3D%2211%22%20fill%3D%22%23111%22%3Eomitting%20parallel-hf%3C%2Ftext%3E%0A%3Cline%20x1%3D%22531.1%22%20y1%3D%228%22%20x2%3D%22531.1%22%20y2%3D%22102%22%20stroke%3D%22%23a1a1aa%22%2F%3E%0A%3Ctext%20x%3D%22531.1%22%20y%3D%22120%22%20font-size%3D%2210%22%20text-anchor%3D%22middle%22%20fill%3D%22%2352525b%22%3E1%3C%2Ftext%3E%0A%3C%2Fsvg%3E">&#11015; Download (SVG)</a> <small>saves the figure exactly as rendered &mdash; the file is the same bytes as the graphic above</small></p>
+  <p><small>The pool refitted with each trial removed in turn.</small></p>
+</div>
+<div class='card'>
+  <h3>Cumulative meta-analysis</h3>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 132" width="100%" role="img" aria-label="point and interval rows">
+<line x1="313.7" y1="22" x2="472.4" y2="22" stroke="#3f3f46"/>
+<rect x="389.0" y="18" width="8" height="8" fill="#1d4ed8"/>
+<text x="6" y="26" font-size="11" fill="#111">through paradigm-hf (2014)</text>
+<line x1="239.2" y1="54" x2="630.8" y2="54" stroke="#3f3f46"/>
+<rect x="431.0" y="50" width="8" height="8" fill="#1d4ed8"/>
+<text x="6" y="58" font-size="11" fill="#111">through parallel-hf (2021)</text>
+<line x1="326.0" y1="86" x2="546.6" y2="86" stroke="#3f3f46"/>
+<rect x="432.3" y="82" width="8" height="8" fill="#1d4ed8"/>
+<text x="6" y="90" font-size="11" fill="#111">through parachute-hf (2026)</text>
+<line x1="594.9" y1="8" x2="594.9" y2="102" stroke="#a1a1aa"/>
+<text x="594.9" y="120" font-size="10" text-anchor="middle" fill="#52525b">1</text>
+</svg>
+  <p><a class='dl' download='cumulative.svg' href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20700%20132%22%20width%3D%22100%25%22%20role%3D%22img%22%20aria-label%3D%22point%20and%20interval%20rows%22%3E%0A%3Cline%20x1%3D%22313.7%22%20y1%3D%2222%22%20x2%3D%22472.4%22%20y2%3D%2222%22%20stroke%3D%22%233f3f46%22%2F%3E%0A%3Crect%20x%3D%22389.0%22%20y%3D%2218%22%20width%3D%228%22%20height%3D%228%22%20fill%3D%22%231d4ed8%22%2F%3E%0A%3Ctext%20x%3D%226%22%20y%3D%2226%22%20font-size%3D%2211%22%20fill%3D%22%23111%22%3Ethrough%20paradigm-hf%20%282014%29%3C%2Ftext%3E%0A%3Cline%20x1%3D%22239.2%22%20y1%3D%2254%22%20x2%3D%22630.8%22%20y2%3D%2254%22%20stroke%3D%22%233f3f46%22%2F%3E%0A%3Crect%20x%3D%22431.0%22%20y%3D%2250%22%20width%3D%228%22%20height%3D%228%22%20fill%3D%22%231d4ed8%22%2F%3E%0A%3Ctext%20x%3D%226%22%20y%3D%2258%22%20font-size%3D%2211%22%20fill%3D%22%23111%22%3Ethrough%20parallel-hf%20%282021%29%3C%2Ftext%3E%0A%3Cline%20x1%3D%22326.0%22%20y1%3D%2286%22%20x2%3D%22546.6%22%20y2%3D%2286%22%20stroke%3D%22%233f3f46%22%2F%3E%0A%3Crect%20x%3D%22432.3%22%20y%3D%2282%22%20width%3D%228%22%20height%3D%228%22%20fill%3D%22%231d4ed8%22%2F%3E%0A%3Ctext%20x%3D%226%22%20y%3D%2290%22%20font-size%3D%2211%22%20fill%3D%22%23111%22%3Ethrough%20parachute-hf%20%282026%29%3C%2Ftext%3E%0A%3Cline%20x1%3D%22594.9%22%20y1%3D%228%22%20x2%3D%22594.9%22%20y2%3D%22102%22%20stroke%3D%22%23a1a1aa%22%2F%3E%0A%3Ctext%20x%3D%22594.9%22%20y%3D%22120%22%20font-size%3D%2210%22%20text-anchor%3D%22middle%22%20fill%3D%22%2352525b%22%3E1%3C%2Ftext%3E%0A%3C%2Fsvg%3E">&#11015; Download (SVG)</a> <small>saves the figure exactly as rendered &mdash; the file is the same bytes as the graphic above</small></p>
+  <p><small>The pool as each trial reported, in year order.</small></p>
+</div>
+<div class='card'>
+  <h3>Bayesian posterior density</h3>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 300" width="100%" role="img" aria-label="pooled ratio against posterior density">
+<line x1="74" y1="18" x2="74" y2="254" stroke="#71717a"/><line x1="74" y1="254" x2="676" y2="254" stroke="#71717a"/>
+<line x1="217.0" y1="18" x2="217.0" y2="254" stroke="#a1a1aa"/>
+<circle cx="132.3" cy="222.8" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="133.5" cy="222.7" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="134.9" cy="222.7" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="136.3" cy="222.7" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="137.8" cy="222.7" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="139.5" cy="222.6" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="141.2" cy="222.6" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="143.1" cy="222.5" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="145.1" cy="222.4" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="147.3" cy="222.3" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="149.5" cy="222.2" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="152.0" cy="222.1" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="154.6" cy="221.8" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="157.4" cy="221.5" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="160.4" cy="221.1" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="163.5" cy="220.6" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="166.9" cy="219.8" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="170.6" cy="218.5" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="174.5" cy="216.6" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="178.6" cy="213.2" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="183.0" cy="206.8" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="187.8" cy="192.1" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="192.8" cy="142.3" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="198.2" cy="49.2" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="204.0" cy="77.1" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="210.2" cy="136.2" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="216.8" cy="170.0" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="223.8" cy="190.0" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="231.3" cy="201.9" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="239.4" cy="209.1" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="248.0" cy="213.5" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="257.1" cy="216.3" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="266.9" cy="218.2" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="277.4" cy="219.5" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="288.6" cy="220.3" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="300.6" cy="220.9" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="313.3" cy="221.4" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="327.0" cy="221.7" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="341.6" cy="222.0" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="357.2" cy="222.1" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="373.8" cy="222.3" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="391.6" cy="222.4" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="410.6" cy="222.5" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="430.9" cy="222.5" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="452.6" cy="222.6" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="475.8" cy="222.6" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="500.5" cy="222.7" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="527.0" cy="222.7" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="555.3" cy="222.7" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="585.5" cy="222.7" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="617.7" cy="222.8" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<text x="132.3" y="270" font-size="10" text-anchor="middle" fill="#52525b">0.178504</text>
+<text x="617.7" y="270" font-size="10" text-anchor="middle" fill="#52525b">4.885043</text>
+<text x="68" y="226.8" font-size="10" text-anchor="end" fill="#52525b">2.7e-05</text>
+<text x="68" y="53.2" font-size="10" text-anchor="end" fill="#52525b">0.060098</text>
+<text x="375" y="294" font-size="11" text-anchor="middle" fill="#3f3f46">pooled ratio</text>
+<text x="13" y="136" font-size="11" fill="#3f3f46" transform="rotate(-90 13 136)" text-anchor="middle">posterior density</text>
+</svg>
+  <p><a class='dl' download='posterior.svg' href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20700%20300%22%20width%3D%22100%25%22%20role%3D%22img%22%20aria-label%3D%22pooled%20ratio%20against%20posterior%20density%22%3E%0A%3Cline%20x1%3D%2274%22%20y1%3D%2218%22%20x2%3D%2274%22%20y2%3D%22254%22%20stroke%3D%22%2371717a%22%2F%3E%3Cline%20x1%3D%2274%22%20y1%3D%22254%22%20x2%3D%22676%22%20y2%3D%22254%22%20stroke%3D%22%2371717a%22%2F%3E%0A%3Cline%20x1%3D%22217.0%22%20y1%3D%2218%22%20x2%3D%22217.0%22%20y2%3D%22254%22%20stroke%3D%22%23a1a1aa%22%2F%3E%0A%3Ccircle%20cx%3D%22132.3%22%20cy%3D%22222.8%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22133.5%22%20cy%3D%22222.7%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22134.9%22%20cy%3D%22222.7%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22136.3%22%20cy%3D%22222.7%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22137.8%22%20cy%3D%22222.7%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22139.5%22%20cy%3D%22222.6%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22141.2%22%20cy%3D%22222.6%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22143.1%22%20cy%3D%22222.5%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22145.1%22%20cy%3D%22222.4%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22147.3%22%20cy%3D%22222.3%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22149.5%22%20cy%3D%22222.2%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22152.0%22%20cy%3D%22222.1%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22154.6%22%20cy%3D%22221.8%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22157.4%22%20cy%3D%22221.5%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22160.4%22%20cy%3D%22221.1%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22163.5%22%20cy%3D%22220.6%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22166.9%22%20cy%3D%22219.8%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22170.6%22%20cy%3D%22218.5%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22174.5%22%20cy%3D%22216.6%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22178.6%22%20cy%3D%22213.2%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22183.0%22%20cy%3D%22206.8%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22187.8%22%20cy%3D%22192.1%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22192.8%22%20cy%3D%22142.3%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22198.2%22%20cy%3D%2249.2%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22204.0%22%20cy%3D%2277.1%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22210.2%22%20cy%3D%22136.2%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22216.8%22%20cy%3D%22170.0%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22223.8%22%20cy%3D%22190.0%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22231.3%22%20cy%3D%22201.9%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22239.4%22%20cy%3D%22209.1%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22248.0%22%20cy%3D%22213.5%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22257.1%22%20cy%3D%22216.3%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22266.9%22%20cy%3D%22218.2%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22277.4%22%20cy%3D%22219.5%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22288.6%22%20cy%3D%22220.3%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22300.6%22%20cy%3D%22220.9%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22313.3%22%20cy%3D%22221.4%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22327.0%22%20cy%3D%22221.7%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22341.6%22%20cy%3D%22222.0%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22357.2%22%20cy%3D%22222.1%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22373.8%22%20cy%3D%22222.3%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22391.6%22%20cy%3D%22222.4%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22410.6%22%20cy%3D%22222.5%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22430.9%22%20cy%3D%22222.5%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22452.6%22%20cy%3D%22222.6%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22475.8%22%20cy%3D%22222.6%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22500.5%22%20cy%3D%22222.7%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22527.0%22%20cy%3D%22222.7%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22555.3%22%20cy%3D%22222.7%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22585.5%22%20cy%3D%22222.7%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22617.7%22%20cy%3D%22222.8%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ctext%20x%3D%22132.3%22%20y%3D%22270%22%20font-size%3D%2210%22%20text-anchor%3D%22middle%22%20fill%3D%22%2352525b%22%3E0.178504%3C%2Ftext%3E%0A%3Ctext%20x%3D%22617.7%22%20y%3D%22270%22%20font-size%3D%2210%22%20text-anchor%3D%22middle%22%20fill%3D%22%2352525b%22%3E4.885043%3C%2Ftext%3E%0A%3Ctext%20x%3D%2268%22%20y%3D%22226.8%22%20font-size%3D%2210%22%20text-anchor%3D%22end%22%20fill%3D%22%2352525b%22%3E2.7e-05%3C%2Ftext%3E%0A%3Ctext%20x%3D%2268%22%20y%3D%2253.2%22%20font-size%3D%2210%22%20text-anchor%3D%22end%22%20fill%3D%22%2352525b%22%3E0.060098%3C%2Ftext%3E%0A%3Ctext%20x%3D%22375%22%20y%3D%22294%22%20font-size%3D%2211%22%20text-anchor%3D%22middle%22%20fill%3D%22%233f3f46%22%3Epooled%20ratio%3C%2Ftext%3E%0A%3Ctext%20x%3D%2213%22%20y%3D%22136%22%20font-size%3D%2211%22%20fill%3D%22%233f3f46%22%20transform%3D%22rotate%28-90%2013%20136%29%22%20text-anchor%3D%22middle%22%3Eposterior%20density%3C%2Ftext%3E%0A%3C%2Fsvg%3E">&#11015; Download (SVG)</a> <small>saves the figure exactly as rendered &mdash; the file is the same bytes as the graphic above</small></p>
+  <p><small>grid integration, 201x201, flat prior on the pooled log effect and half-Cauchy(scale=1) on the between-study SD (Gelman 2006)</small></p>
+</div>
+<div class='card'>
+  <h3>L'Abbe plot</h3>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 300" width="100%" role="img" aria-label="risk in the control arm against risk in the treatment arm">
+<line x1="74" y1="18" x2="74" y2="254" stroke="#71717a"/><line x1="74" y1="254" x2="676" y2="254" stroke="#71717a"/>
+<circle cx="195.1" cy="222.8" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<text x="203.1" y="226.8" font-size="11" fill="#3f3f46">paradigm-hf</text>
+<circle cx="617.7" cy="49.2" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<text x="625.7" y="53.2" font-size="11" fill="#3f3f46">parachute-hf</text>
+<circle cx="132.3" cy="145.8" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<text x="140.3" y="149.8" font-size="11" fill="#3f3f46">parallel-hf</text>
+<text x="132.3" y="270" font-size="10" text-anchor="middle" fill="#52525b">0.25</text>
+<text x="617.7" y="270" font-size="10" text-anchor="middle" fill="#52525b">0.367391</text>
+<text x="68" y="226.8" font-size="10" text-anchor="end" fill="#52525b">0.218295</text>
+<text x="68" y="53.2" font-size="10" text-anchor="end" fill="#52525b">0.335498</text>
+<text x="375" y="294" font-size="11" text-anchor="middle" fill="#3f3f46">risk in the control arm</text>
+<text x="13" y="136" font-size="11" fill="#3f3f46" transform="rotate(-90 13 136)" text-anchor="middle">risk in the treatment arm</text>
+</svg>
+  <p><a class='dl' download='labbe.svg' href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20700%20300%22%20width%3D%22100%25%22%20role%3D%22img%22%20aria-label%3D%22risk%20in%20the%20control%20arm%20against%20risk%20in%20the%20treatment%20arm%22%3E%0A%3Cline%20x1%3D%2274%22%20y1%3D%2218%22%20x2%3D%2274%22%20y2%3D%22254%22%20stroke%3D%22%2371717a%22%2F%3E%3Cline%20x1%3D%2274%22%20y1%3D%22254%22%20x2%3D%22676%22%20y2%3D%22254%22%20stroke%3D%22%2371717a%22%2F%3E%0A%3Ccircle%20cx%3D%22195.1%22%20cy%3D%22222.8%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ctext%20x%3D%22203.1%22%20y%3D%22226.8%22%20font-size%3D%2211%22%20fill%3D%22%233f3f46%22%3Eparadigm-hf%3C%2Ftext%3E%0A%3Ccircle%20cx%3D%22617.7%22%20cy%3D%2249.2%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ctext%20x%3D%22625.7%22%20y%3D%2253.2%22%20font-size%3D%2211%22%20fill%3D%22%233f3f46%22%3Eparachute-hf%3C%2Ftext%3E%0A%3Ccircle%20cx%3D%22132.3%22%20cy%3D%22145.8%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ctext%20x%3D%22140.3%22%20y%3D%22149.8%22%20font-size%3D%2211%22%20fill%3D%22%233f3f46%22%3Eparallel-hf%3C%2Ftext%3E%0A%3Ctext%20x%3D%22132.3%22%20y%3D%22270%22%20font-size%3D%2210%22%20text-anchor%3D%22middle%22%20fill%3D%22%2352525b%22%3E0.25%3C%2Ftext%3E%0A%3Ctext%20x%3D%22617.7%22%20y%3D%22270%22%20font-size%3D%2210%22%20text-anchor%3D%22middle%22%20fill%3D%22%2352525b%22%3E0.367391%3C%2Ftext%3E%0A%3Ctext%20x%3D%2268%22%20y%3D%22226.8%22%20font-size%3D%2210%22%20text-anchor%3D%22end%22%20fill%3D%22%2352525b%22%3E0.218295%3C%2Ftext%3E%0A%3Ctext%20x%3D%2268%22%20y%3D%2253.2%22%20font-size%3D%2210%22%20text-anchor%3D%22end%22%20fill%3D%22%2352525b%22%3E0.335498%3C%2Ftext%3E%0A%3Ctext%20x%3D%22375%22%20y%3D%22294%22%20font-size%3D%2211%22%20text-anchor%3D%22middle%22%20fill%3D%22%233f3f46%22%3Erisk%20in%20the%20control%20arm%3C%2Ftext%3E%0A%3Ctext%20x%3D%2213%22%20y%3D%22136%22%20font-size%3D%2211%22%20fill%3D%22%233f3f46%22%20transform%3D%22rotate%28-90%2013%20136%29%22%20text-anchor%3D%22middle%22%3Erisk%20in%20the%20treatment%20arm%3C%2Ftext%3E%0A%3C%2Fsvg%3E">&#11015; Download (SVG)</a> <small>saves the figure exactly as rendered &mdash; the file is the same bytes as the graphic above</small></p>
+  <p><small>Each trial's own two risks, read from its 2x2. A trial below the diagonal favours the intervention; above it favours the comparator.</small></p>
+</div>
+<div class='card'>
+  <h3>Number needed to treat, across baseline risk</h3>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 300" width="100%" role="img" aria-label="assumed risk without treatment against number needed to treat">
+<line x1="74" y1="18" x2="74" y2="254" stroke="#71717a"/><line x1="74" y1="254" x2="676" y2="254" stroke="#71717a"/>
+<circle cx="132.3" cy="49.2" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="154.3" cy="112.3" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="176.4" cy="143.9" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="198.5" cy="162.8" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="220.5" cy="175.4" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="242.6" cy="184.5" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="264.7" cy="191.2" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="286.7" cy="196.5" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="308.8" cy="200.7" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="330.9" cy="204.1" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="352.9" cy="207.0" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="375.0" cy="209.4" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="397.1" cy="211.5" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="419.1" cy="213.3" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="441.2" cy="214.9" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="463.3" cy="216.3" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="485.3" cy="217.5" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="507.4" cy="218.6" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="529.5" cy="219.6" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="551.5" cy="220.5" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="573.6" cy="221.3" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="595.7" cy="222.1" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<circle cx="617.7" cy="222.8" r="5" fill="#1d4ed8" fill-opacity=".8"/>
+<text x="132.3" y="270" font-size="10" text-anchor="middle" fill="#52525b">0.05</text>
+<text x="617.7" y="270" font-size="10" text-anchor="middle" fill="#52525b">0.6</text>
+<text x="68" y="226.8" font-size="10" text-anchor="end" fill="#52525b">11.600781</text>
+<text x="68" y="53.2" font-size="10" text-anchor="end" fill="#52525b">139.209366</text>
+<text x="375" y="294" font-size="11" text-anchor="middle" fill="#3f3f46">assumed risk without treatment</text>
+<text x="13" y="136" font-size="11" fill="#3f3f46" transform="rotate(-90 13 136)" text-anchor="middle">number needed to treat</text>
+</svg>
+  <p><a class='dl' download='nnt-curve.svg' href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20700%20300%22%20width%3D%22100%25%22%20role%3D%22img%22%20aria-label%3D%22assumed%20risk%20without%20treatment%20against%20number%20needed%20to%20treat%22%3E%0A%3Cline%20x1%3D%2274%22%20y1%3D%2218%22%20x2%3D%2274%22%20y2%3D%22254%22%20stroke%3D%22%2371717a%22%2F%3E%3Cline%20x1%3D%2274%22%20y1%3D%22254%22%20x2%3D%22676%22%20y2%3D%22254%22%20stroke%3D%22%2371717a%22%2F%3E%0A%3Ccircle%20cx%3D%22132.3%22%20cy%3D%2249.2%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22154.3%22%20cy%3D%22112.3%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22176.4%22%20cy%3D%22143.9%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22198.5%22%20cy%3D%22162.8%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22220.5%22%20cy%3D%22175.4%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22242.6%22%20cy%3D%22184.5%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22264.7%22%20cy%3D%22191.2%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22286.7%22%20cy%3D%22196.5%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22308.8%22%20cy%3D%22200.7%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22330.9%22%20cy%3D%22204.1%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22352.9%22%20cy%3D%22207.0%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22375.0%22%20cy%3D%22209.4%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22397.1%22%20cy%3D%22211.5%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22419.1%22%20cy%3D%22213.3%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22441.2%22%20cy%3D%22214.9%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22463.3%22%20cy%3D%22216.3%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22485.3%22%20cy%3D%22217.5%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22507.4%22%20cy%3D%22218.6%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22529.5%22%20cy%3D%22219.6%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22551.5%22%20cy%3D%22220.5%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22573.6%22%20cy%3D%22221.3%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22595.7%22%20cy%3D%22222.1%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ccircle%20cx%3D%22617.7%22%20cy%3D%22222.8%22%20r%3D%225%22%20fill%3D%22%231d4ed8%22%20fill-opacity%3D%22.8%22%2F%3E%0A%3Ctext%20x%3D%22132.3%22%20y%3D%22270%22%20font-size%3D%2210%22%20text-anchor%3D%22middle%22%20fill%3D%22%2352525b%22%3E0.05%3C%2Ftext%3E%0A%3Ctext%20x%3D%22617.7%22%20y%3D%22270%22%20font-size%3D%2210%22%20text-anchor%3D%22middle%22%20fill%3D%22%2352525b%22%3E0.6%3C%2Ftext%3E%0A%3Ctext%20x%3D%2268%22%20y%3D%22226.8%22%20font-size%3D%2210%22%20text-anchor%3D%22end%22%20fill%3D%22%2352525b%22%3E11.600781%3C%2Ftext%3E%0A%3Ctext%20x%3D%2268%22%20y%3D%2253.2%22%20font-size%3D%2210%22%20text-anchor%3D%22end%22%20fill%3D%22%2352525b%22%3E139.209366%3C%2Ftext%3E%0A%3Ctext%20x%3D%22375%22%20y%3D%22294%22%20font-size%3D%2211%22%20text-anchor%3D%22middle%22%20fill%3D%22%233f3f46%22%3Eassumed%20risk%20without%20treatment%3C%2Ftext%3E%0A%3Ctext%20x%3D%2213%22%20y%3D%22136%22%20font-size%3D%2211%22%20fill%3D%22%233f3f46%22%20transform%3D%22rotate%28-90%2013%20136%29%22%20text-anchor%3D%22middle%22%3Enumber%20needed%20to%20treat%3C%2Ftext%3E%0A%3C%2Fsvg%3E">&#11015; Download (SVG)</a> <small>saves the figure exactly as rendered &mdash; the file is the same bytes as the graphic above</small></p>
+  <p><small>The number needed to treat is not one number: it depends on the risk a patient starts with. This curve applies the pooled risk ratio across a range of control risks, so a reader can read off the value for the patient in front of them rather than accepting a single figure computed at the trials' average risk.</small></p>
+</div>
+<div class='card'>
+  <h3>The methods rule governing this decision</h3>
+  <p><strong>Decision:</strong> POOL three trials reporting the same effect measure for the same outcome concept against the same comparator, producing an AVERAGE ACROSS documented differences in aetiology, ejection-fraction ceiling, blinding and the endpoint&#x27;s rank within its own trial</p>
+  <p><strong>Cochrane Handbook sections:</strong> 3.2.1, 3.2.3, 3.2.4, 10.9, 10.10.1, 10.10.2, 10.10.4, 10.14</p>
+  <p>Sections 3.2.1, 3.2.3 and 3.2.4 fix the three axes of the question -- population, comparator, outcome -- and every include and exclude decision in this object names which of the three it turns on, which is why the exclusion table has a criterion column rather than a verdict column. Section 10.9 gives the hazard ratio as the effect measure for time-to-event data and sanctions combining log hazard ratios by generic inverse variance; all three trials report a Cox hazard ratio for the time to a first event of the same composite against enalapril, so the measure is shared and not converted. What the pool crosses is documented under 10.10.1 in the uniformity table: the aetiology of the heart failure, the ejection-fraction ceiling, whether the trial was blinded, and whether this endpoint was that trial&#x27;s primary or its first secondary. Not one of those is smoothed away and none is claimed to be absent. Section 10.10.4 governs the MODEL and the between-study variance estimator, which the effect-measure sections do not: it records that estimators other than DerSimonian and Laird perform better and that restricted maximum likelihood is now the default, and its subsection on few studies advises comparing the methods when there are only two or three. This pool has three, so the comparison is RUN and sits in the sensitivity block, where the three estimators do not agree closely and that is shown rather than reported as a formality. Section 10.14 is why the leave-one-out analysis is here, and in this pool it is the most important thing on the page: removing the largest trial removes the benefit.</p>
+</div>
+<div class='card'>
+  <h3>Leave-one-out sensitivity</h3>
+  <p>Two decisions. First, whether the pooled benefit depends on any single trial -- and it does. Second, whether it depends on the choice of between-study variance estimator and interval method, which with three studies is not a formality.</p>
+  <table>
+    <tr><th>Cohort omitted</th><th>k</th><th>HR (95% CI)</th></tr>
+    <tr><td>paradigm-hf</td><td class='num'>2</td><td class='num'>0.9354 (0.765 to 1.1438)</td></tr>
+    <tr><td>parachute-hf</td><td class='num'>2</td><td class='num'>0.838 (0.6749 to 1.0405)</td></tr>
+    <tr><td>parallel-hf</td><td class='num'>2</td><td class='num'>0.8194 (0.7427 to 0.904)</td></tr>
+  </table>
+  <p><strong>The pooled benefit rests on PARADIGM-HF, and the table is blunter than that summary sounds. Every leave-one-out fit still points below the null, so the DIRECTION is stable. The INTERVAL is not: only the fit that drops PARALLEL-HF keeps the null outside it. Dropping PARADIGM-HF or dropping PARACHUTE-HF both leave an interval that includes the null, so two of the three fits do. That is the single most important qualification on the headline, it is what the imprecision domain of the GRADE assessment is counting, and it is stated here rather than left for a reader to derive from the table.</strong></p>
+  <p><small>Cochrane Handbook version 6.5.1, section 10.14: sensitivity analyses examine whether overall findings are robust to potentially influential decisions. Section 10.10.4.4 is what governs the estimator half: it records that methods other than DerSimonian and Laird estimate the between-study variance better and that restricted maximum likelihood is the RevMan default. An earlier version of this field credited that advice to section 10.10.4.5, which does not give it -- 10.10.4.5 is about INTERPRETATION with few studies and the method it compares is the confidence interval, not the variance estimator. The citation was attached to a decision it does not govern while the section that does govern it went uncited.</small></p>
+  <h3>Does the answer depend on the pooling method?</h3>
+  <p>Section 10.10.4.4 records that estimators other than DerSimonian and Laird perform better and that restricted maximum likelihood is now the default in the Cochrane software, and it is the whole of the authority for running this comparison. Nothing in the Handbook instructs a review to compare variance estimators at a particular number of studies; running it here is a choice made under section 10.14, because with a pool this small the choice is plausibly influential. It is: unlike the two-study pools elsewhere in this batch, the estimators here do NOT coincide.</p>
+  <table>
+    <tr><th>Between-study variance</th><th>Interval</th><th>Summary (95% CI)</th><th>&tau;&sup2;</th></tr>
+    <tr><td>DerSimonian-Laird (DL)</td><td>ordinary (Wald)</td><td class='num'>0.8333 (0.7473 to 0.9292)</td><td class='num'>0.0021493</td></tr>
+    <tr><td>Paule-Mandel (PM)</td><td>ordinary (Wald)</td><td class='num'>0.8315 (0.7485 to 0.9237)</td><td class='num'>0.0017965</td></tr>
+    <tr><td>restricted maximum likelihood (REML)</td><td>ordinary (Wald)</td><td class='num'>0.8392 (0.7429 to 0.948)</td><td class='num'>0.0034981</td></tr>
+    <tr><td>restricted maximum likelihood (REML)</td><td>Hartung-Knapp-Sidik-Jonkman (HKSJ)</td><td class='num'>0.8392 (0.6421 to 1.0968)</td><td class='num'>0.0034981</td></tr>
+  </table>
+  <p><strong>The three variance estimators give visibly different between-study variances and therefore different intervals, with restricted maximum likelihood the most conservative of the three; all three keep the interval clear of the null. The Hartung-Knapp-Sidik-Jonkman interval does NOT: it is much wider and it includes the null. Section 10.10.4.5 says to expect exactly that with so few studies, so the disagreement is not treated as one method being wrong. Both are printed and neither is decisive, and the headline is reported as an estimate whose interval excludes the null under the ordinary method and does not under the more conservative one. The floor on the Hartung-Knapp scale factor is applied, so that interval can widen and can never come out narrower than the ordinary one.</strong></p>
+  <p><small>Restricted maximum likelihood is kept as the headline estimator, with the ordinary interval. Section 10.10.4.4 records that it is now the default in the Cochrane software and that estimators other than DerSimonian and Laird perform better; it is also the most conservative of the three here, so keeping it is not a choice that flatters the result. The Hartung-Knapp-Sidik-Jonkman interval is reported beside it rather than instead of it, and the fact that the two disagree about the null is stated in the headline rather than left in this table.</small></p>
+</div>
+  </section>
+<!--end-analysis-->  <section class="panel" id="pn-report">
+  <p class='toc'><strong>In this section:</strong> Summary of findings &middot; Reproducibility artifact &middot; What matches &middot; What this object corrects &middot; What could not be resolved &middot; Certainty of the evidence (GRADE)</p>
+<div class='card'>
+  <h3>Summary of findings</h3>
+  <table>
+    <tr><th>Outcome</th><th>k</th><th>Pooled effect</th><th>Certainty</th><th>How that certainty was reached</th></tr>
+    <tr><td>Cardiovascular death or hospitalization for heart failure, whichever comes first, as a hazard ratio</td><td class='num'>3</td><td class='num'>HR 0.8392 (0.7429 to 0.948)</td><td>low</td><td><small>start high; risk_of_bias serious (-1), imprecision serious (-1); total -2 -&gt; low</small></td></tr>
+  </table>
+</div>
+<div class='card'>
+  <h3>Reproducibility artifact</h3>
+  <table>
+    <tr><th>Canonical object</th><td><code>ssot/arni-hfref/arni-hfref.json</code></td></tr>
+    <tr><th>Registered at</th><td><code>961400264a06</code> 2026-08-10T05:13:40Z</td></tr>
+    <tr><th>Permalink</th><td><a href='https://github.com/mahmood726-cyber/rapidmeta-finerenone/commit/961400264a06bd940bef11e02b528ea0f73a8dee'>https://github.com/mahmood726-cyber/rapidmeta-finerenone/commit/961400264a06bd940bef11e02b528ea0f73a8dee</a></td></tr>
+    <tr><th>Schema</th><td>2</td></tr>
+    <tr><th>Built</th><td>2026-08-09</td></tr>
+    <tr><th>Statistical engine</th><td>metafor 5.0.1 under R 4.6.0, generic inverse variance on the same log point and log standard error this object stores</td></tr>
+  </table>
+  <p><small>Everything a third party needs to rebuild this page: the object, the commit it is registered at, and the engine that produced the statistics. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
+</div>
+<div class='card'>
+  <h2>Reconciliation against the published synthesis of the same literature</h2>
+  <p>Reyaz I et al. Comparison of outcomes between sacubitril/valsartan and enalapril in patients with heart failure: a systematic review and meta-analysis. Cureus 2023;15(11):e48623.</p>
+  <p class='warn'><small>One comparison review was fully readable and its included-study table is what made this reconciliation possible. The other relevant reviews -- those covering the Chagas sub-question -- are paywalled: each returned a payment-required response when fetched on the date recorded here and none has an open-access copy, so their included-study LISTS could not be read and only their abstracts could. Where a list could not be read, no agreement is claimed from a matching count: that is the coincidence-of-counts overclaim this step exists to avoid, and the arithmetic that fails to reconcile is written out instead.</small></p>
+  <h3>What matches</h3>
+  <ul>
+    <li><strong>PARADIGM-HF</strong> <br>Held by this object and by the readable comparison review, with the same arm sizes in both.</li>
+    <li><strong>The screened-out trials</strong> <br>Every trial that review includes and this object does not appear in this object&#x27;s screening log with the quantity it reports instead. Not one was missed; each was decided against on a named criterion.</li>
+  </ul>
+  <h3>What this object corrects</h3>
+  <ul>
+    <li><strong>PARALLEL-HF</strong> <br>included as a randomised comparison of sacubitril/valsartan with enalapril, with its arm sizes tabulated<br>recovered, verified against its own publication and its own registry record, and pooled. It was absent from the brief this object was built from; adding it raised k and moved the pooled estimate, and it is the only contributing trial whose point estimate sits above the null.</li>
+    <li><strong>PARADISE-MI&#x27;s randomised total</strong> <br>not applicable -- this correction is against the brief this object was built from, not against a published review<br>records the randomised total and the full analysis set as the two different quantities they are. The brief inverted them.</li>
+  </ul>
+  <h3>What could not be resolved</h3>
+  <ul>
+    <li><strong>How the paywalled Chagas reviews handled the PARADIGM-HF subgroup overlap</strong> <br>The arithmetic that once looked like a missing trial is settled: the shortfall is a post hoc Chagas subgroup of PARADIGM-HF, named in a staged registry record, and it is not recovered because those patients are already in this pool inside PARADIGM-HF. What remains genuinely unread is narrower and is not a gap in THIS review: whether those reviews describe that subgroup as a study, and how they treated it. Their full texts are paywalled and their abstracts do not say. It is recorded because a resolved discrepancy that quietly drops its remaining loose end reads as more settled than it is.</li>
+  </ul>
+</div>
+<h2>Cardiovascular death or hospitalization for heart failure, whichever comes first, as a hazard ratio</h2>
+<div class='card'>
+  <h3>Certainty of the evidence (GRADE)</h3>
+  <p><strong>Certainty: low</strong></p>
+  <p>Started at <strong>high</strong> &mdash; every contributing study is a randomised controlled trial.</p>
+  <p><small>start high; risk_of_bias serious (-1), imprecision serious (-1); total -2 -&gt; low</small></p>
+  <table>
+    <tr><th>Domain</th><th>Rating</th><th>Why it was rated that way</th></tr>
+    <tr><th>Risk of bias</th><td>serious</td><td><small>Three separate features, each read from a staged source rather than assumed. PARACHUTE-HF describes itself as an &#x27;open-label, multicenter randomized clinical trial&#x27; with blinded endpoint adjudication; blinded adjudication protects how an event is classified but not the unblinded management decisions that produce a heart failure hospitalization, which is one of the two components. In the same trial this composite is the first SECONDARY endpoint, the primary being a win ratio, so the result pooled here comes from that trial&#x27;s secondary hierarchy and carries the multiplicity and selective-reporting exposure that goes with it; the separate question of the trial not being POWERED for this endpoint is random error and is carried in the imprecision domain, not here. PARADIGM-HF &#x27;was stopped early, according to prespecified rules ... because the boundary for an overwhelming benefit with LCZ696 had been crossed&#x27;, and a trial stopped early for benefit tends to overstate the effect it was stopped for -- which matters here because the leave-one-out analysis shows the pooled benefit rests on that trial. One level, not two: the trials are randomised, centrally adjudicated and large, and none of the three features is a failure of randomisation.</small></td></tr>
+    <tr><th>Inconsistency</th><td>not serious</td><td><small>&mdash;</small></td></tr>
+    <tr><th>Indirectness</th><td>not serious</td><td><small>All three trials enrol the population the question names, randomise the intervention the question names against the comparator the question names, and report the outcome the question names. The Chagas aetiology of one trial makes its population narrower than the others, not indirect: it is heart failure with reduced ejection fraction, entered on an ejection fraction of 40% or less and NYHA class II to IV, exactly as the other two are. Directness is judged against the review&#x27;s own question, and this question is about heart failure with reduced ejection fraction rather than about any one aetiology of it.</small></td></tr>
+    <tr><th>Imprecision</th><td>serious</td><td><small>&mdash;</small></td></tr>
+    <tr><th>Publication bias</th><td>not assessable</td><td><small>&mdash;</small></td></tr>
+  </table>
+</div>
+  </section>
+<!--end-report-->  <section class="panel" id="pn-paper">
+  <p class='toc'><strong>In this section:</strong> Projected manuscript draft &middot; Your draft</p>
+<div class='card'>
+  <h3>Projected manuscript draft</h3>
+  <p><small>Every paragraph below is assembled from the canonical object at build time. Nothing here is written by the generator, and nothing recomputes when you open the page &mdash; this is the review saying what it holds, in the order a paper says it.</small></p>
+  <ol class='draft'>
+    <li><strong>Question.</strong> In adults with heart failure and reduced ejection fraction, what is the hazard of a first cardiovascular death or heart failure hospitalization with sacubitril/valsartan compared with enalapril?</li>
+    <li><strong>Outcome and estimand.</strong> Cardiovascular death or hospitalization for heart failure, whichever comes first, as a hazard ratio. Cox proportional hazards</li>
+    <li><strong>Search and selection.</strong> The search ran across PubMed and ClinicalTrials.gov for randomised comparisons of sacubitril/valsartan with enalapril in heart failure, and was then extended by the reconciliation step: the included-study list of every retrievable published synthesis of the same comparison was read and diffed against this one in both directions. That second pass is what found PARALLEL-HF, which the brief this object was built from did not name.</li>
+    <li><strong>Eligibility.</strong> A randomised trial of sacubitril/valsartan against enalapril, in adults with heart failure and reduced ejection fraction, reporting cardiovascular death or heart failure hospitalization as a time-to-first-event hazard ratio. All four conditions, and the last is a condition on the QUANTITY reported, not on the trial&#x27;s quality: several excluded trials are large, well conducted and directly on topic, and report something that is not this.</li>
+    <li><strong>Synthesis method.</strong> random model, estimator REML, k = 3.</li>
+    <li><strong>Result.</strong> Pooled HR 0.8392 (0.7429 to 0.948, 95% interval). I-squared 14.9469%, tau-squared 0.0035.</li>
+    <li><strong>Robustness.</strong> The pooled benefit rests on PARADIGM-HF, and the table is blunter than that summary sounds. Every leave-one-out fit still points below the null, so the DIRECTION is stable. The INTERVAL is not: only the fit that drops PARALLEL-HF keeps the null outside it. Dropping PARADIGM-HF or dropping PARACHUTE-HF both leave an interval that includes the null, so two of the three fits do. That is the single most important qualification on the headline, it is what the imprecision domain of the GRADE assessment is counting, and it is stated here rather than left for a reader to derive from the table.</li>
+    <li><strong>Cross-engine check.</strong> The summary agrees to within a ten-millionth on the ratio scale for the point and both bounds, and to a few parts in ten million on the between-study variance. Q and its degrees of freedom match exactly. This is a statement about two ENGINES agreeing on one arithmetic, and it is not a claim that the trials agree with each other: what the pooled trials differ on is in the uniformity table, and a cross-engine check has nothing to say about that.</li>
+    <li><strong>Certainty.</strong> GRADE certainty: low. start high; risk_of_bias serious (-1), imprecision serious (-1); total -2 -&gt; low</li>
+    <li><strong>What this review could not settle.</strong> The one apparent gap this search had is now closed, and closing it removed a trial rather than adding one: the patient total of the paywalled Chagas reviews exceeded the trials found here by a post hoc PARADIGM-HF subgroup, which is not a separate randomisation and is not recovered. The reconciliation block sets out the arithmetic and the deduplication reason. What is still unread is how those reviews themselves treated that subgroup, which their abstracts do not say.</li>
+  </ol>
+</div>
+<div class='card'>
+  <h3>Your draft</h3>
+  <p><small>Stored in this browser only. The buttons paste figures projected at build time &mdash; the same strings shown elsewhere on the page.</small></p>
+  <div class='chips'>
+    <button type='button' class='chip' data-ins="HR 0.8392 (0.7429 to 0.948, 95% interval)">Pooled estimate</button>
+    <button type='button' class='chip' data-ins="k = 3">Trials pooled</button>
+    <button type='button' class='chip' data-ins="I-squared 14.9469%, tau-squared 0.0035">Heterogeneity</button>
+    <button type='button' class='chip' data-ins="GRADE certainty: low">Certainty</button>
+  </div>
+  <textarea id='draft' rows='14' placeholder='Write your synthesis here.'></textarea>
+  <p><button type='button' id='draft-copy'>Copy draft</button> <button type='button' id='draft-clear'>Clear draft</button> <output id='draft-note'></output></p>
+</div>
+  </section>
+<!--end-paper-->  <section class="panel" id="pn-statistics">
+  <p class='toc'><strong>In this section:</strong> Diagnostics &middot; Per-trial influence and weight &middot; Leave-one-out, numerically &middot; Where these numbers came from &middot; The same x, on three scales &middot; Number needed to treat &middot; Baseline risk, per trial &middot; Peters' test for small-study effects &middot; Benford first-digit screen &middot; What these counts are, and are not &middot; Cross-engine check against R &middot; Further analyses &mdash; what was run, and what was not</p>
+<h2>Cardiovascular death or hospitalization for heart failure, whichever comes first, as a hazard ratio</h2>
+<div class='card'>
+  <h3>Diagnostics</h3>
+  <table>
+    <tr><th>Statistic</th><th>Value</th><th>Method and caution</th></tr>
+    <tr><th>Prediction interval</th><td class='num'>0.709246 to 0.992953</td><td><small>t_{k-1}, Cochrane Handbook v6.5</small></td></tr>
+    <tr><th>Between-study variance</th><td class='num'>0.003498 (0 to 0.914856)</td><td><small>Q-profile (Viechtbauer 2007)</small></td></tr>
+    <tr><th>Egger's regression</th><td class='num'>intercept -0.291258, p = 0.101023</td><td><small>Run for completeness. With k = 3 the test has almost no power and the Cochrane Handbook advises against interpreting it below about ten studies. Reported as a computed value, NOT as evidence about small-study effects.</small></td></tr>
+    <tr><th>Bayesian posterior</th><td class='num'>0.845554 (0.568428 to 1.459765)</td><td><small>grid integration, 201x201, flat prior on the pooled log effect and half-Cauchy(scale=1) on the between-study SD (Gelman 2006)</small></td></tr>
+  </table>
+</div>
+<div class='card'>
+  <h3>Per-trial influence and weight</h3>
+  <table>
+    <tr><th>Trial</th><th>Weight</th><th>Leverage</th><th>Cook's D</th><th>Std. residual</th><th>metafor flag</th></tr>
+    <tr><th>paradigm-hf</th><td class='num'>70.35302%</td><td class='num'>0.70353</td><td class='num'>3.044156</td><td class='num'>-1.396912</td><td>flagged</td></tr>
+    <tr><th>parachute-hf</th><td class='num'>24.307892%</td><td class='num'>0.243079</td><td class='num'>0.000546</td><td class='num'>0.428887</td><td>&mdash;</td></tr>
+    <tr><th>parallel-hf</th><td class='num'>5.339088%</td><td class='num'>0.053391</td><td class='num'>0.147068</td><td class='num'>1.059092</td><td>&mdash;</td></tr>
+  </table>
+  <p><small>Read the weight column beside the leave-one-out rows: a trial carrying most of the weight is the trial the answer rests on.</small></p>
+</div>
+<div class='card'>
+  <h3>Leave-one-out, numerically</h3>
+  <table>
+    <tr><th>Omitted</th><th>Pooled</th><th>I-squared</th></tr>
+    <tr><th>paradigm-hf</th><td class='num'>0.935412 (0.765004 to 1.143778)</td><td class='num'>0%</td></tr>
+    <tr><th>parachute-hf</th><td class='num'>0.837976 (0.67489 to 1.040471)</td><td class='num'>25.799481%</td></tr>
+    <tr><th>parallel-hf</th><td class='num'>0.81941 (0.742717 to 0.904023)</td><td class='num'>13.077904%</td></tr>
+  </table>
+</div>
+<div class='card'>
+  <h3>Where these numbers came from</h3>
+  <p>Computed at BUILD time by metafor 5.0.1 under R 4.6.0, from the log point and log standard error this object already stores for each trial, and written here. The page projects these stored values; opening it recomputes nothing, and no reader action can change any of them. Nothing in this block replaces a figure the object already held -- the pooled estimate, its interval, tau-squared and Q are unchanged and are shown against metafor&#x27;s in the cross-engine table.</p>
+</div>
+<div class='card'>
+  <h3>The same 2x2, on three scales</h3>
+  <table>
+    <tr><th>Measure</th><th>Pooled</th><th>I-squared</th><th>tau-squared</th></tr>
+    <tr><th>Risk ratio</th><td class='num'>0.856332 (0.775055 to 0.946131)</td><td class='num'>21.026426%</td><td class='num'>0.002194</td></tr>
+    <tr><th>Odds ratio</th><td class='num'>0.791379 (0.721055 to 0.868561)</td><td class='num'>0.059244%</td><td class='num'>1.1e-05</td></tr>
+    <tr><th>Risk difference</th><td class='num'>-0.044191 (-0.061519 to -0.026863)</td><td class='num'>0%</td><td class='num'>0</td></tr>
+  </table>
+  <p><small>An odds ratio is not collapsible: where baseline risk varies across trials it can sit further from the null than the risk ratio describing the same data, which is why Cochrane Handbook v6.5 section 10.4.2 asks for both when baseline risks differ. None of these three is this review's primary result &mdash; that remains the pooled hazard ratio, which uses time to first event rather than counting people once.</small></p>
+</div>
+<div class='card'>
+  <h3>Number needed to treat</h3>
+  <p><strong>22.628984</strong> (16.255105 to 37.225795)</p>
+  <p><small>From the pooled risk difference -0.044191 (-0.061519 to -0.026863), never from a ratio. It applies at the control risk these trials happened to have; the curve on the Analysis tab shows how it moves with baseline risk.</small></p>
+</div>
+<div class='card'>
+  <h3>Baseline risk, per trial</h3>
+  <table>
+    <tr><th>Trial</th><th>Control events / analysed</th><th>Risk</th></tr>
+    <tr><th>paradigm-hf</th><td class='num'>1117 / 4212</td><td class='num'>0.265195</td></tr>
+    <tr><th>parachute-hf</th><td class='num'>169 / 460</td><td class='num'>0.367391</td></tr>
+    <tr><th>parallel-hf</th><td class='num'>28 / 112</td><td class='num'>0.25</td></tr>
+  </table>
+</div>
+<div class='card'>
+  <h3>Peters' test for small-study effects</h3>
+  <p class='num'>intercept [], p = 0.333595</p>
+  <p><small>Peters 2006 regresses the log odds ratio on the inverse of total sample size, which the Cochrane Handbook v6.5 section 13.3.5 recommends for binary outcomes in place of Egger, whose test is biased on the odds-ratio scale. With k = 3 it still has almost no power and is reported as a computed value, not as evidence.</small></p>
+</div>
+<div class='card'>
+  <h3>Benford first-digit screen</h3>
+  <table>
+    <tr><th>Leading digit</th><th>Observed</th><th>Expected</th></tr>
+    <tr><th>1</th><td class='num'>3</td><td class='num'>1.8062</td></tr>
+    <tr><th>2</th><td class='num'>1</td><td class='num'>1.0565</td></tr>
+    <tr><th>3</th><td class='num'>1</td><td class='num'>0.7496</td></tr>
+    <tr><th>4</th><td class='num'>0</td><td class='num'>0.5815</td></tr>
+    <tr><th>5</th><td class='num'>0</td><td class='num'>0.4751</td></tr>
+    <tr><th>6</th><td class='num'>0</td><td class='num'>0.4017</td></tr>
+    <tr><th>7</th><td class='num'>0</td><td class='num'>0.348</td></tr>
+    <tr><th>8</th><td class='num'>0</td><td class='num'>0.3069</td></tr>
+    <tr><th>9</th><td class='num'>1</td><td class='num'>0.2745</td></tr>
+  </table>
+  <p><small>First-digit screen over the 6 event counts as read. With this few integers the comparison is descriptive only -- Benford&#x27;s law is a large-sample regularity and no test statistic is computed here.</small></p>
+</div>
+<div class='card warn'>
+  <h3>What these counts are, and are not</h3>
+  <p>Computed at BUILD time by metafor 5.0.1 under R 4.6.0 from the per-arm 2x2 counts stored on each trial, which were themselves READ from the sources named on each cell. No composite was reconstructed by addition and no count was derived from a percentage. These are SEPARATE ESTIMANDS from this review&#x27;s primary pooled hazard ratio, which is unchanged at 0.8392 and is what the headline reports; a risk ratio, an odds ratio and a risk difference computed from first-event counts answer related but different questions and are shown as sensitivity, never as the primary result.</p>
+</div>
+<div class='card'>
+  <h3>Cross-engine check against R</h3>
+  <p><strong>metafor 5.0.1 under R 4.6.0</strong>, estimator REML. at build time, by running metafor on the log point and log standard error this object stores, and recording what it returned. Nothing is recomputed when the page is opened.</p>
+  <table>
+    <tr><th>Quantity</th><th>This object</th><th>metafor</th><th>Agreement</th></tr>
+    <tr><th>Pooled ratio</th><td class='num'>0.8392</td><td class='num'>0.8392</td><td><small>to the stored precision</small></td></tr>
+    <tr><th>Interval, lower</th><td class='num'>0.7429</td><td class='num'>0.7429</td><td><small>to the stored precision</small></td></tr>
+    <tr><th>Interval, upper</th><td class='num'>0.948</td><td class='num'>0.948</td><td><small>to the stored precision</small></td></tr>
+    <tr><th>Between-study variance (tau-squared)</th><td class='num'>0.0035</td><td class='num'>0.0035</td><td><small>to the stored precision</small></td></tr>
+    <tr><th>Q</th><td class='num'>2.3515</td><td class='num'>2.3515</td><td><small>exactly</small></td></tr>
+    <tr><th>Q degrees of freedom</th><td class='num'>2</td><td class='num'>2</td><td><small>exactly</small></td></tr>
+    <tr><th>I-squared</th><td class='num'>14.9469</td><td class='num'>22.2398</td><td><small>NO -- and neither is wrong; see the note below</small></td></tr>
+  </table>
+  <p><small>The two engines report DIFFERENT I-squared values and neither is wrong. This object&#x27;s is the Higgins statistic computed from Q and its degrees of freedom; metafor&#x27;s is computed relative to the restricted-maximum-likelihood between-study variance. They are different quantities that share a name, a single engine could never reveal it, and the disagreement is recorded rather than resolved by adopting the other engine&#x27;s number.</small></p>
+  <p><small>The summary agrees to within a ten-millionth on the ratio scale for the point and both bounds, and to a few parts in ten million on the between-study variance. Q and its degrees of freedom match exactly. This is a statement about two ENGINES agreeing on one arithmetic, and it is not a claim that the trials agree with each other: what the pooled trials differ on is in the uniformity table, and a cross-engine check has nothing to say about that.</small></p>
+</div>
+<div class='card'>
+  <h3>Further analyses &mdash; what was run, and what was not</h3>
+  <table>
+    <tr><th>Analysis</th><th>Status</th><th>Why</th></tr>
+    <tr><th>Forest plot</th><td>shown</td><td><small>Drawn from the stored per-trial and pooled estimates.</small></td></tr>
+    <tr><th>Random-effects pool (REML)</th><td>shown</td><td><small>The headline result, with its interval and heterogeneity.</small></td></tr>
+    <tr><th>Leave-one-out sensitivity</th><td>shown</td><td><small>Each cohort omitted in turn; the finding is on the Analysis tab.</small></td></tr>
+    <tr><th>Between-study-variance method comparison</th><td>shown</td><td><small>REML against the alternatives, as Handbook 10.10.4.5 asks whenever a random-effects pool rests on few studies.</small></td></tr>
+    <tr><th>Cross-engine replication</th><td>shown</td><td><small>The pool refitted in a second engine; the agreement is stored.</small></td></tr>
+    <tr><th>Prediction interval</th><td>not estimable</td><td><small>Undefined at this k on the Cochrane Handbook v6.5 t-based formula for the interval this object would report; no value is stored and none is shown.</small></td></tr>
+    <tr><th>Funnel plot and Egger&#x27;s test</th><td>not estimable</td><td><small>Three studies. Egger&#x27;s test has almost no power below about ten and the Handbook advises against it there, so it was not run and no small-study estimate is stored. This is why the GRADE publication-bias domain reads &#x27;not assessable&#x27; rather than &#x27;not serious&#x27;.</small></td></tr>
+    <tr><th>Trim-and-fill</th><td>not run</td><td><small>A sensitivity procedure on a funnel that cannot be read at three studies. It would produce an adjusted estimate with no diagnostic behind it.</small></td></tr>
+    <tr><th>Meta-regression</th><td>not estimable</td><td><small>Three studies and no shared covariate; a regression here would have more parameters than it can support.</small></td></tr>
+    <tr><th>Bayesian re-analysis</th><td>not stored</td><td><small>No posterior summary is held in this object. Nothing is shown rather than a credible interval nobody fitted.</small></td></tr>
+    <tr><th>Subgroup analysis</th><td>not stored</td><td><small>No subgroup contrast is held for this outcome.</small></td></tr>
+    <tr><th>Network / component analysis</th><td>not applicable</td><td><small>Two treatments and one comparison. There is no network.</small></td></tr>
+    <tr><th>Reconstructed patient-level survival</th><td>not stored</td><td><small>No digitised Kaplan-Meier curve is held. The pooled quantity is a published hazard ratio per trial.</small></td></tr>
+    <tr><th>Benefit-risk frontier</th><td>not stored</td><td><small>No harm outcome is held for these trials in this object, so there is no second axis to plot against.</small></td></tr>
+    <tr><th>Transportability / external validity</th><td>partly shown</td><td><small>Each trial&#x27;s population is stored per row and the populations differ; the Studies tab shows them. No formal transport estimate is stored.</small></td></tr>
+  </table>
+</div>
+  </section>
+<!--end-statistics--></div>
+</div>
+
+<script>
+(function(){
+ var K='rmreader:'+(document.title||'page');
+ function load(){try{return JSON.parse(localStorage.getItem(K)||'{}')}catch(e){return {}}}
+ function save(s){try{localStorage.setItem(K,JSON.stringify(s))}catch(e){}}
+ var st=load();
+ function paint(){
+  document.querySelectorAll('[id^="mine-"]').forEach(function(o){
+   var i=o.id.slice(5), v=(st.marks||{})[i];
+   o.textContent = v ? ('you marked: '+v) : '';
+   var card=document.querySelector('.card.rec[data-rec="'+i+'"]');
+   if(card){card.classList.toggle('mine-inc', v==='include');
+            card.classList.toggle('mine-exc', v==='exclude');}
+  });
+ }
+ document.addEventListener('click', function(ev){
+  var b=ev.target.closest('[data-mark]'); if(!b) return;
+  st.marks=st.marks||{};
+  if(b.dataset.mark==='clear'){delete st.marks[b.dataset.i];}
+  else {st.marks[b.dataset.i]=b.dataset.mark;}
+  save(st); paint();
+ });
+ var d=document.getElementById('draft');
+ if(d){
+  d.value = st.draft||'';
+  d.addEventListener('input', function(){st.draft=d.value; save(st);});
+  document.addEventListener('click', function(ev){
+   var c=ev.target.closest('.chip'); if(!c) return;
+   // The inserted text is a build-time projection carried in the attribute.
+   // Nothing here parses or recalculates it.
+   d.value += (d.value && !/\n$/.test(d.value) ? '\n' : '') + c.dataset.ins;
+   st.draft=d.value; save(st); d.focus();
+  });
+  var cp=document.getElementById('draft-copy'), n=document.getElementById('draft-note');
+  if(cp) cp.addEventListener('click', function(){
+   navigator.clipboard && navigator.clipboard.writeText(d.value);
+   if(n){n.textContent=' copied'; setTimeout(function(){n.textContent='';},1500);}
+  });
+  var cl=document.getElementById('draft-clear');
+  if(cl) cl.addEventListener('click', function(){
+   d.value=''; st.draft=''; save(st);
+  });
+ }
+ paint();
+})();
+</script>
+
+<p><small>Every number on this page is projected from a single canonical object,
+and each measured cell names the source analysis it was read from. That is what
+is machine-checked. It does not establish that the underlying sources are right,
+only that this page faithfully reports them.</small></p>
