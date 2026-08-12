@@ -343,8 +343,75 @@
        ],
        "quote_note": "The first quote carries the stored point estimate, its interval and both event counts, so the effect and the counts cannot come apart. The second establishes the population and the comparator against the frozen question. The third is here because it matters for interpretation and is easy to lose: the composite is the primary OUTCOME but the trial was POWERED on cardiovascular death alone."
       },
-      "outcome_role_in_trial": "primary"
+      "outcome_role_in_trial": "primary",
+      "treatment": {
+       "events": 914,
+       "n": 4187,
+       "denominator_is": "full analysis set",
+       "randomised": 4209,
+       "source_tier": "T1+T2",
+       "source_pointer": "CT.gov results Outcome Measure 1, row 'Primary Composite'; independently confirmed in NEJM 2014 Results text: '914 patients (21.8%) ... 1117 patients (26.5%)'.",
+       "read_or_derived": "read"
+      },
+      "control": {
+       "events": 1117,
+       "n": 4212,
+       "denominator_is": "full analysis set",
+       "randomised": 4233,
+       "source_tier": "T1+T2",
+       "source_pointer": "CT.gov results Outcome Measure 1, row 'Primary Composite'; independently confirmed in NEJM 2014 Results text: '914 patients (21.8%) ... 1117 patients (26.5%)'.",
+       "read_or_derived": "read"
+      },
+      "denominator_note": "Randomised 4209 / 4233. The full analysis set is 4187 / 4212 after 37 participants at sites closed for serious GCP violations and 6 inadvertently randomised who never received drug. The 2x2 uses the FAS. A separate registry table, 'Adjudicated Primary Causes of Death', posts 714 / 837 deaths on the RANDOMISED denominator 4209 / 4233 -- the same endpoint on a different population. Pulling that pair into this 2x2 would silently mix populations."
      }
+    },
+    "risk_of_bias": {
+     "features": [
+      {
+       "feature": "Phase 3, double-blind, randomised one to one against an active comparator.",
+       "from": "inputs.trials[].design"
+      },
+      {
+       "feature": "Stopped early by prespecified rule for overwhelming benefit. A trial stopped early for benefit tends to overstate the effect it was stopped for, and the leave-one-out analysis shows the pooled benefit rests on this trial.",
+       "from": "results.grade.domains.risk_of_bias.basis_in_sources"
+      }
+     ],
+     "note": "Recorded features only. No per-domain RoB-2 rating is stored for this trial and none is shown."
+    },
+    "component_endpoints": {
+     "note": "Read from source and shown, but NOT pooled here: this review's estimand is the composite. The composite is a FIRST-EVENT count and is not the sum of its components -- on this trial the components exceed it, which is expected and is why no composite anywhere in this object is reconstructed by addition.",
+     "rows": [
+      {
+       "endpoint": "Cardiovascular death",
+       "treatment_events": 558,
+       "control_events": 693,
+       "treatment_n": 4187,
+       "control_n": 4212,
+       "source_tier": "T1+T2",
+       "source_pointer": "CT.gov Outcome 1 row 'CV death'; NEJM '558 deaths (13.3%) ... 693 (16.5%)'.",
+       "read_or_derived": "read"
+      },
+      {
+       "endpoint": "First heart-failure hospitalisation",
+       "treatment_events": 537,
+       "control_events": 658,
+       "treatment_n": 4187,
+       "control_n": 4212,
+       "source_tier": "T1+T2",
+       "source_pointer": "CT.gov Outcome 1 row '1st HF Hospitalization'; NEJM '537 (12.8%) ... 658 (15.6%)'.",
+       "read_or_derived": "read"
+      },
+      {
+       "endpoint": "All-cause death",
+       "treatment_events": 711,
+       "control_events": 835,
+       "treatment_n": 4187,
+       "control_n": 4212,
+       "source_tier": "T1+T2",
+       "source_pointer": "CT.gov Outcome Measure 2; NEJM '711 patients (17.0%) ... 835 (19.8%)'.",
+       "read_or_derived": "read"
+      }
+     ]
     }
    },
    {
@@ -440,8 +507,75 @@
        "quote_note": "The first quote is the cell, and it names the endpoint as SECONDARY in the trial's own words, which is the fact that governs how this row may be used. The second is staged deliberately: this trial's PRIMARY analysis is a win ratio, a quantity that is not a hazard ratio and is never pooled here, and an object that took the row without showing that would look like it had pooled the trial's headline. The third fixes both denominators."
       },
       "outcome_role_in_trial": "FIRST SECONDARY",
-      "estimand_rank_note": "This trial enters the pool through a SECONDARY endpoint, and that is a deliberate, stated choice rather than an oversight. The frozen question fixes the measure -- a time-to-first hazard ratio for cardiovascular death or heart failure hospitalization -- and this trial reports exactly that quantity, separately, with its own interval. Its PRIMARY endpoint is a hierarchical composite analysed by win ratio, which shares no scale with a hazard ratio and would answer a different question. Taking the trial's headline because it is the headline would be the error; taking the quantity the question asks for, and labelling where it sits in the trial's own hierarchy, is the alternative. The risk it carries -- that a secondary endpoint is not the one the trial was powered for -- is carried into the GRADE risk-of-bias domain rather than left here."
+      "estimand_rank_note": "This trial enters the pool through a SECONDARY endpoint, and that is a deliberate, stated choice rather than an oversight. The frozen question fixes the measure -- a time-to-first hazard ratio for cardiovascular death or heart failure hospitalization -- and this trial reports exactly that quantity, separately, with its own interval. Its PRIMARY endpoint is a hierarchical composite analysed by win ratio, which shares no scale with a hazard ratio and would answer a different question. Taking the trial's headline because it is the headline would be the error; taking the quantity the question asks for, and labelling where it sits in the trial's own hierarchy, is the alternative. The risk it carries -- that a secondary endpoint is not the one the trial was powered for -- is carried into the GRADE risk-of-bias domain rather than left here.",
+      "treatment": {
+       "events": 155,
+       "n": 462,
+       "denominator_is": "full analysis set",
+       "randomised": 462,
+       "source_tier": "T1",
+       "source_pointer": "JAMA 2026 Table 2, 'First hospitalization for HF or cardiovascular death', 155 (33.5) vs 169 (36.7), read at PMC12676478. ClinicalTrials.gov posts this outcome as PERCENTAGES ONLY, so no registry count exists to confirm it and none was manufactured from the percentage.",
+       "read_or_derived": "read"
+      },
+      "control": {
+       "events": 169,
+       "n": 460,
+       "denominator_is": "full analysis set",
+       "randomised": 460,
+       "source_tier": "T1",
+       "source_pointer": "JAMA 2026 Table 2, 'First hospitalization for HF or cardiovascular death', 155 (33.5) vs 169 (36.7), read at PMC12676478. ClinicalTrials.gov posts this outcome as PERCENTAGES ONLY, so no registry count exists to confirm it and none was manufactured from the percentage.",
+       "read_or_derived": "read"
+      },
+      "denominator_note": "The full analysis set is 'all participants to whom study treatment was assigned at randomization' = 462 / 460, identical to the randomised totals. For this trial alone, analysed equals randomised."
      }
+    },
+    "risk_of_bias": {
+     "features": [
+      {
+       "feature": "Describes itself as an open-label, multicentre randomised clinical trial with blinded endpoint adjudication. Blinded adjudication protects how an event is classified, not the unblinded management decisions that produce a heart failure hospitalization, which is one of the two components.",
+       "from": "results.grade.domains.risk_of_bias.basis_in_sources"
+      },
+      {
+       "feature": "This composite is the trial's FIRST SECONDARY endpoint; its primary is a win ratio. The pooled result therefore comes from that trial's secondary hierarchy and carries the multiplicity and selective-reporting exposure that goes with it.",
+       "from": "results.per_trial[].endpoint_rank_in_its_own_trial"
+      }
+     ],
+     "note": "Recorded features only. No per-domain RoB-2 rating is stored for this trial and none is shown."
+    },
+    "component_endpoints": {
+     "note": "Read from source and shown, but NOT pooled here: this review's estimand is the composite. The composite is a FIRST-EVENT count and is not the sum of its components -- on this trial the components exceed it, which is expected and is why no composite anywhere in this object is reconstructed by addition.",
+     "rows": [
+      {
+       "endpoint": "Cardiovascular death",
+       "treatment_events": 110,
+       "control_events": 117,
+       "treatment_n": 462,
+       "control_n": 460,
+       "source_tier": "T1",
+       "source_pointer": "JAMA Table 2, 'Death from cardiovascular causes'; the abstract states the same 110 vs 117 independently.",
+       "read_or_derived": "read"
+      },
+      {
+       "endpoint": "First heart-failure hospitalisation",
+       "treatment_events": 102,
+       "control_events": 111,
+       "treatment_n": 462,
+       "control_n": 460,
+       "source_tier": "T1",
+       "source_pointer": "JAMA Table 2, 'First hospitalization due to HF'; abstract concurs.",
+       "read_or_derived": "read"
+      },
+      {
+       "endpoint": "All-cause death",
+       "treatment_events": 129,
+       "control_events": 134,
+       "treatment_n": 462,
+       "control_n": 460,
+       "source_tier": "T1+T2",
+       "source_pointer": "JAMA Table 2 'Death from any cause' 129 vs 134; the registry's post-hoc 'All Collected Deaths' outcome posts an integer 129 / 134, matching.",
+       "read_or_derived": "read"
+      }
+     ]
     }
    },
    {
@@ -538,8 +672,71 @@
        "quote_note": "The first quote is the cell and it names the endpoint as the trial's PRIMARY composite, so unlike the Chagas trial this row is the trial's own headline. The second fixes the population, the ejection-fraction ceiling and the comparator, which is what qualifies the trial against the frozen question. The ejection-fraction ceiling here is 35% rather than the 40% of the other two, and that difference is carried in the uniformity table."
       },
       "outcome_role_in_trial": "primary",
-      "recovery_note": "THIS TRIAL WAS NOT IN THE BRIEF THIS OBJECT WAS BUILT FROM. It was recovered by the published-meta reconciliation step, from the characteristics table of an open-access prior synthesis, and then verified against its own publication and its own registry record. It is recorded as a recovery rather than presented as though it had always been in scope, because the difference between those two is the whole value of the reconciliation step: it changed k from two to three and it moved the pooled estimate."
+      "recovery_note": "THIS TRIAL WAS NOT IN THE BRIEF THIS OBJECT WAS BUILT FROM. It was recovered by the published-meta reconciliation step, from the characteristics table of an open-access prior synthesis, and then verified against its own publication and its own registry record. It is recorded as a recovery rather than presented as though it had always been in scope, because the difference between those two is the whole value of the reconciliation step: it changed k from two to three and it moved the pooled estimate.",
+      "treatment": {
+       "events": 30,
+       "n": 111,
+       "denominator_is": "full analysis set",
+       "randomised": 112,
+       "source_tier": "T1+T2",
+       "source_pointer": "Circ J 2021 Table 2, 'Primary composite outcome: CV death or HF hospitalization', 30 (27.0) vs 28 (25.0); CT.gov Outcome Measure 1 posts the identical 30 / 28 on denominators 111 / 112.",
+       "read_or_derived": "read"
+      },
+      "control": {
+       "events": 28,
+       "n": 112,
+       "denominator_is": "full analysis set",
+       "randomised": 113,
+       "source_tier": "T1+T2",
+       "source_pointer": "Circ J 2021 Table 2, 'Primary composite outcome: CV death or HF hospitalization', 30 (27.0) vs 28 (25.0); CT.gov Outcome Measure 1 posts the identical 30 / 28 on denominators 111 / 112.",
+       "read_or_derived": "read"
+      },
+      "denominator_note": "Randomised 112 / 113; one mis-randomised participant in each arm gives a full analysis set of 111 / 112, which is what the Circ J table headers carry and what the 2x2 uses."
      }
+    },
+    "risk_of_bias": {
+     "features": [
+      {
+       "feature": "The trial's own primary composite endpoint is what is pooled here.",
+       "from": "results.per_trial[].endpoint_rank_in_its_own_trial"
+      }
+     ],
+     "note": "Recorded features only. No per-domain RoB-2 rating is stored for this trial and none is shown."
+    },
+    "component_endpoints": {
+     "note": "Read from source and shown, but NOT pooled here: this review's estimand is the composite. The composite is a FIRST-EVENT count and is not the sum of its components -- on this trial the components exceed it, which is expected and is why no composite anywhere in this object is reconstructed by addition.",
+     "rows": [
+      {
+       "endpoint": "Cardiovascular death",
+       "treatment_events": 13,
+       "control_events": 11,
+       "treatment_n": 111,
+       "control_n": 112,
+       "source_tier": "T1+T2",
+       "source_pointer": "Circ J Table 2 and CT.gov Outcome 1.",
+       "read_or_derived": "read"
+      },
+      {
+       "endpoint": "First heart-failure hospitalisation",
+       "treatment_events": 25,
+       "control_events": 20,
+       "treatment_n": 111,
+       "control_n": 112,
+       "source_tier": "T1+T2",
+       "source_pointer": "Circ J Table 2 and CT.gov Outcome 1.",
+       "read_or_derived": "read"
+      },
+      {
+       "endpoint": "All-cause death",
+       "treatment_events": 19,
+       "control_events": 16,
+       "treatment_n": 111,
+       "control_n": 112,
+       "source_tier": "T2 ONLY -- SINGLE SOURCE",
+       "source_pointer": "ClinicalTrials.gov Outcome Measure 10 only. The Circ J primary paper does not report all-cause mortality at all, so this pair has no second source and is marked as such rather than presented like the others.",
+       "read_or_derived": "read"
+      }
+     ]
     }
    }
   ]
@@ -819,6 +1016,743 @@
       "10.14"
      ],
      "what_this_certainty_is_about": "It is the certainty of the POOLED average across three trials, not of PARADIGM-HF. PARADIGM-HF on its own is a large double-blind trial whose result underpins a guideline recommendation; the thing rated here is the three-trial average, which inherits the open-label secondary endpoint of one trial and the fragility the leave-one-out analysis shows. Reading this rating as a verdict on sacubitril/valsartan would be a misreading, and the sentence is here because that misreading is the easy one."
+    },
+    "analysis_panels": [
+     {
+      "panel": "Forest plot",
+      "status": "shown",
+      "detail": "Drawn from the stored per-trial and pooled estimates."
+     },
+     {
+      "panel": "Random-effects pool (REML)",
+      "status": "shown",
+      "detail": "The headline result, with its interval and heterogeneity."
+     },
+     {
+      "panel": "Leave-one-out sensitivity",
+      "status": "shown",
+      "detail": "Each cohort omitted in turn; the finding is on the Analysis tab."
+     },
+     {
+      "panel": "Between-study-variance method comparison",
+      "status": "shown",
+      "detail": "REML against the alternatives, as Handbook 10.10.4.5 asks whenever a random-effects pool rests on few studies."
+     },
+     {
+      "panel": "Cross-engine replication",
+      "status": "shown",
+      "detail": "The pool refitted in a second engine; the agreement is stored."
+     },
+     {
+      "panel": "Prediction interval",
+      "status": "not estimable",
+      "detail": "Undefined at this k on the Cochrane Handbook v6.5 t-based formula for the interval this object would report; no value is stored and none is shown."
+     },
+     {
+      "panel": "Funnel plot and Egger's test",
+      "status": "not estimable",
+      "detail": "Three studies. Egger's test has almost no power below about ten and the Handbook advises against it there, so it was not run and no small-study estimate is stored. This is why the GRADE publication-bias domain reads 'not assessable' rather than 'not serious'."
+     },
+     {
+      "panel": "Trim-and-fill",
+      "status": "not run",
+      "detail": "A sensitivity procedure on a funnel that cannot be read at three studies. It would produce an adjusted estimate with no diagnostic behind it."
+     },
+     {
+      "panel": "Meta-regression",
+      "status": "not estimable",
+      "detail": "Three studies and no shared covariate; a regression here would have more parameters than it can support."
+     },
+     {
+      "panel": "Bayesian re-analysis",
+      "status": "not stored",
+      "detail": "No posterior summary is held in this object. Nothing is shown rather than a credible interval nobody fitted."
+     },
+     {
+      "panel": "Subgroup analysis",
+      "status": "not stored",
+      "detail": "No subgroup contrast is held for this outcome."
+     },
+     {
+      "panel": "Network / component analysis",
+      "status": "not applicable",
+      "detail": "Two treatments and one comparison. There is no network."
+     },
+     {
+      "panel": "Reconstructed patient-level survival",
+      "status": "not stored",
+      "detail": "No digitised Kaplan-Meier curve is held. The pooled quantity is a published hazard ratio per trial."
+     },
+     {
+      "panel": "Benefit-risk frontier",
+      "status": "not stored",
+      "detail": "No harm outcome is held for these trials in this object, so there is no second axis to plot against."
+     },
+     {
+      "panel": "Transportability / external validity",
+      "status": "partly shown",
+      "detail": "Each trial's population is stored per row and the populations differ; the Studies tab shows them. No formal transport estimate is stored."
+     }
+    ],
+    "panels": {
+     "fit": {
+      "k": 3,
+      "point": 0.839195,
+      "ci_low": 0.742862,
+      "ci_high": 0.94802,
+      "log_point": -0.175312,
+      "log_se": 0.062212,
+      "tau2": 0.003498,
+      "I2": 22.239816,
+      "H2": 1.286005,
+      "Q": 2.351486,
+      "Qdf": 2,
+      "Qp": 0.30859
+     },
+     "prediction": {
+      "pi_low": 0.709246,
+      "pi_high": 0.992953,
+      "convention": "t_{k-1}, Cochrane Handbook v6.5"
+     },
+     "tau2_ci": {
+      "estimate": 0.003498,
+      "ci_low": 0,
+      "ci_high": 0.914856,
+      "method": "Q-profile (Viechtbauer 2007)"
+     },
+     "leave_one_out": [
+      {
+       "omitted": "paradigm-hf",
+       "point": 0.935412,
+       "ci_low": 0.765004,
+       "ci_high": 1.143778,
+       "I2": 0,
+       "Q": 0.400122
+      },
+      {
+       "omitted": "parachute-hf",
+       "point": 0.837976,
+       "ci_low": 0.67489,
+       "ci_high": 1.040471,
+       "I2": 25.799481,
+       "Q": 1.347699
+      },
+      {
+       "omitted": "parallel-hf",
+       "point": 0.81941,
+       "ci_low": 0.742717,
+       "ci_high": 0.904023,
+       "I2": 13.077904,
+       "Q": 1.150455
+      }
+     ],
+     "influence": [
+      {
+       "trial": "paradigm-hf",
+       "rstudent": -1.396912,
+       "dffits": -2.891302,
+       "cook_d": 3.044156,
+       "hat": 0.70353,
+       "weight": 70.35302,
+       "influential": true
+      },
+      {
+       "trial": "parachute-hf",
+       "rstudent": 0.428887,
+       "dffits": 0.018733,
+       "cook_d": 0.000546,
+       "hat": 0.243079,
+       "weight": 24.307892,
+       "influential": false
+      },
+      {
+       "trial": "parallel-hf",
+       "rstudent": 1.059092,
+       "dffits": 0.39004,
+       "cook_d": 0.147068,
+       "hat": 0.053391,
+       "weight": 5.339088,
+       "influential": false
+      }
+     ],
+     "baujat": [
+      {
+       "trial": "paradigm-hf",
+       "q_contribution": 0.41588,
+       "pooled_influence": 1.119079
+      },
+      {
+       "trial": "parachute-hf",
+       "q_contribution": 0.412087,
+       "pooled_influence": 0.000173
+      },
+      {
+       "trial": "parallel-hf",
+       "q_contribution": 0.943267,
+       "pooled_influence": 0.226422
+      }
+     ],
+     "cumulative": [
+      {
+       "through": "paradigm-hf",
+       "year": 2014,
+       "k": 1,
+       "point": 0.8,
+       "ci_low": 0.732811,
+       "ci_high": 0.873349
+      },
+      {
+       "through": "parallel-hf",
+       "year": 2021,
+       "k": 2,
+       "point": 0.837976,
+       "ci_low": 0.67489,
+       "ci_high": 1.040471
+      },
+      {
+       "through": "parachute-hf",
+       "year": 2026,
+       "k": 3,
+       "point": 0.839195,
+       "ci_low": 0.742862,
+       "ci_high": 0.94802
+      }
+     ],
+     "galbraith": [
+      {
+       "trial": "paradigm-hf",
+       "precision": 22.342375,
+       "z": -4.985567
+      },
+      {
+       "trial": "parachute-hf",
+       "precision": 8.971587,
+       "z": -0.846119
+      },
+      {
+       "trial": "parallel-hf",
+       "precision": 3.80716,
+       "z": 0.328093
+      }
+     ],
+     "funnel": [
+      {
+       "trial": "paradigm-hf",
+       "log_effect": -0.223144,
+       "se": 0.044758
+      },
+      {
+       "trial": "parachute-hf",
+       "log_effect": -0.094311,
+       "se": 0.111463
+      },
+      {
+       "trial": "parallel-hf",
+       "log_effect": 0.086178,
+       "se": 0.262663
+      }
+     ],
+     "egger": {
+      "estimable": true,
+      "intercept": -0.291258,
+      "se": [],
+      "z": 6.24875,
+      "p": 0.101023,
+      "caution": "Run for completeness. With k = 3 the test has almost no power and the Cochrane Handbook advises against interpreting it below about ten studies. Reported as a computed value, NOT as evidence about small-study effects."
+     },
+     "bayes": {
+      "method": "grid integration, 201x201, flat prior on the pooled log effect and half-Cauchy(scale=1) on the between-study SD (Gelman 2006)",
+      "posterior_median": 0.845554,
+      "cri_low": 0.568428,
+      "cri_high": 1.459765,
+      "density": [
+       {
+        "x": 0.178504,
+        "d": 2.9e-05
+       },
+       {
+        "x": 0.190718,
+        "d": 3.5e-05
+       },
+       {
+        "x": 0.203768,
+        "d": 4.2e-05
+       },
+       {
+        "x": 0.217711,
+        "d": 5.1e-05
+       },
+       {
+        "x": 0.232609,
+        "d": 6.2e-05
+       },
+       {
+        "x": 0.248525,
+        "d": 7.5e-05
+       },
+       {
+        "x": 0.265531,
+        "d": 9.2e-05
+       },
+       {
+        "x": 0.2837,
+        "d": 0.000113
+       },
+       {
+        "x": 0.303112,
+        "d": 0.000139
+       },
+       {
+        "x": 0.323853,
+        "d": 0.000173
+       },
+       {
+        "x": 0.346013,
+        "d": 0.000216
+       },
+       {
+        "x": 0.369689,
+        "d": 0.000272
+       },
+       {
+        "x": 0.394985,
+        "d": 0.000347
+       },
+       {
+        "x": 0.422013,
+        "d": 0.000448
+       },
+       {
+        "x": 0.450889,
+        "d": 0.000586
+       },
+       {
+        "x": 0.481742,
+        "d": 0.000782
+       },
+       {
+        "x": 0.514705,
+        "d": 0.001066
+       },
+       {
+        "x": 0.549924,
+        "d": 0.001495
+       },
+       {
+        "x": 0.587553,
+        "d": 0.002178
+       },
+       {
+        "x": 0.627757,
+        "d": 0.00334
+       },
+       {
+        "x": 0.670712,
+        "d": 0.005543
+       },
+       {
+        "x": 0.716606,
+        "d": 0.010644
+       },
+       {
+        "x": 0.765641,
+        "d": 0.027877
+       },
+       {
+        "x": 0.81803,
+        "d": 0.060098
+       },
+       {
+        "x": 0.874005,
+        "d": 0.050446
+       },
+       {
+        "x": 0.933809,
+        "d": 0.029997
+       },
+       {
+        "x": 0.997706,
+        "d": 0.018289
+       },
+       {
+        "x": 1.065975,
+        "d": 0.011371
+       },
+       {
+        "x": 1.138915,
+        "d": 0.007258
+       },
+       {
+        "x": 1.216847,
+        "d": 0.004773
+       },
+       {
+        "x": 1.30011,
+        "d": 0.003233
+       },
+       {
+        "x": 1.389072,
+        "d": 0.002252
+       },
+       {
+        "x": 1.48412,
+        "d": 0.001607
+       },
+       {
+        "x": 1.585672,
+        "d": 0.001173
+       },
+       {
+        "x": 1.694173,
+        "d": 0.000872
+       },
+       {
+        "x": 1.810099,
+        "d": 0.00066
+       },
+       {
+        "x": 1.933956,
+        "d": 0.000506
+       },
+       {
+        "x": 2.066289,
+        "d": 0.000393
+       },
+       {
+        "x": 2.207677,
+        "d": 0.000309
+       },
+       {
+        "x": 2.358739,
+        "d": 0.000245
+       },
+       {
+        "x": 2.520138,
+        "d": 0.000196
+       },
+       {
+        "x": 2.692581,
+        "d": 0.000158
+       },
+       {
+        "x": 2.876823,
+        "d": 0.000128
+       },
+       {
+        "x": 3.073672,
+        "d": 0.000104
+       },
+       {
+        "x": 3.283991,
+        "d": 8.5e-05
+       },
+       {
+        "x": 3.508701,
+        "d": 7e-05
+       },
+       {
+        "x": 3.748787,
+        "d": 5.8e-05
+       },
+       {
+        "x": 4.005301,
+        "d": 4.8e-05
+       },
+       {
+        "x": 4.279367,
+        "d": 4e-05
+       },
+       {
+        "x": 4.572187,
+        "d": 3.3e-05
+       },
+       {
+        "x": 4.885043,
+        "d": 2.7e-05
+       }
+      ]
+     },
+     "_provenance": "Computed at BUILD time by metafor 5.0.1 under R 4.6.0 from the log point and log standard error this object stores. The page projects these stored values; opening it recomputes nothing, and no reader action can change any of them."
+    },
+    "count_panels": {
+     "rr": {
+      "measure": "RR",
+      "k": 3,
+      "point": 0.856332,
+      "ci_low": 0.775055,
+      "ci_high": 0.946131,
+      "tau2": 0.002194,
+      "I2": 21.026426,
+      "Q": 2.381395,
+      "Qdf": 2,
+      "Qp": 0.304009,
+      "per_trial": [
+       {
+        "trial": "paradigm-hf",
+        "point": 0.823149,
+        "ci_low": 0.762724,
+        "ci_high": 0.888361
+       },
+       {
+        "trial": "parachute-hf",
+        "point": 0.913189,
+        "ci_low": 0.766093,
+        "ci_high": 1.08853
+       },
+       {
+        "trial": "parallel-hf",
+        "point": 1.081081,
+        "ci_low": 0.694095,
+        "ci_high": 1.683827
+       }
+      ]
+     },
+     "or": {
+      "measure": "OR",
+      "k": 3,
+      "point": 0.791379,
+      "ci_low": 0.721055,
+      "ci_high": 0.868561,
+      "tau2": 1.1e-05,
+      "I2": 0.059244,
+      "Q": 1.891136,
+      "Qdf": 2,
+      "Qp": 0.388459,
+      "per_trial": [
+       {
+        "trial": "paradigm-hf",
+        "point": 0.773762,
+        "ci_low": 0.699929,
+        "ci_high": 0.855384
+       },
+       {
+        "trial": "parachute-hf",
+        "point": 0.86936,
+        "ci_low": 0.663246,
+        "ci_high": 1.139527
+       },
+       {
+        "trial": "parallel-hf",
+        "point": 1.111111,
+        "ci_low": 0.610598,
+        "ci_high": 2.021899
+       }
+      ]
+     },
+     "rd": {
+      "measure": "RD",
+      "k": 3,
+      "point": -0.044191,
+      "ci_low": -0.061519,
+      "ci_high": -0.026863,
+      "tau2": 0,
+      "I2": 0,
+      "Q": 1.441535,
+      "Qdf": 2,
+      "Qp": 0.486379,
+      "per_trial": [
+       {
+        "trial": "paradigm-hf",
+        "point": -0.0469,
+        "ci_low": -0.065184,
+        "ci_high": -0.028616
+       },
+       {
+        "trial": "parachute-hf",
+        "point": -0.031893,
+        "ci_low": -0.093495,
+        "ci_high": 0.029708
+       },
+       {
+        "trial": "parallel-hf",
+        "point": 0.02027,
+        "ci_low": -0.094869,
+        "ci_high": 0.135409
+       }
+      ]
+     },
+     "labbe": [
+      {
+       "trial": "paradigm-hf",
+       "control_risk": 0.265195,
+       "treatment_risk": 0.218295,
+       "n": 8399
+      },
+      {
+       "trial": "parachute-hf",
+       "control_risk": 0.367391,
+       "treatment_risk": 0.335498,
+       "n": 922
+      },
+      {
+       "trial": "parallel-hf",
+       "control_risk": 0.25,
+       "treatment_risk": 0.27027,
+       "n": 223
+      }
+     ],
+     "baseline_risk": [
+      {
+       "trial": "paradigm-hf",
+       "control_events": 1117,
+       "control_n": 4212,
+       "control_risk": 0.265195
+      },
+      {
+       "trial": "parachute-hf",
+       "control_events": 169,
+       "control_n": 460,
+       "control_risk": 0.367391
+      },
+      {
+       "trial": "parallel-hf",
+       "control_events": 28,
+       "control_n": 112,
+       "control_risk": 0.25
+      }
+     ],
+     "nnt": {
+      "pooled_rd": -0.044191,
+      "rd_ci_low": -0.061519,
+      "rd_ci_high": -0.026863,
+      "nnt": 22.628984,
+      "nnt_low": 37.225795,
+      "nnt_high": 16.255105,
+      "undefined_because": {}
+     },
+     "nnt_curve": [
+      {
+       "control_risk": 0.05,
+       "nnt": 139.209366
+      },
+      {
+       "control_risk": 0.075,
+       "nnt": 92.806244
+      },
+      {
+       "control_risk": 0.1,
+       "nnt": 69.604683
+      },
+      {
+       "control_risk": 0.125,
+       "nnt": 55.683746
+      },
+      {
+       "control_risk": 0.15,
+       "nnt": 46.403122
+      },
+      {
+       "control_risk": 0.175,
+       "nnt": 39.774105
+      },
+      {
+       "control_risk": 0.2,
+       "nnt": 34.802342
+      },
+      {
+       "control_risk": 0.225,
+       "nnt": 30.935415
+      },
+      {
+       "control_risk": 0.25,
+       "nnt": 27.841873
+      },
+      {
+       "control_risk": 0.275,
+       "nnt": 25.310794
+      },
+      {
+       "control_risk": 0.3,
+       "nnt": 23.201561
+      },
+      {
+       "control_risk": 0.325,
+       "nnt": 21.416826
+      },
+      {
+       "control_risk": 0.35,
+       "nnt": 19.887052
+      },
+      {
+       "control_risk": 0.375,
+       "nnt": 18.561249
+      },
+      {
+       "control_risk": 0.4,
+       "nnt": 17.401171
+      },
+      {
+       "control_risk": 0.425,
+       "nnt": 16.377572
+      },
+      {
+       "control_risk": 0.45,
+       "nnt": 15.467707
+      },
+      {
+       "control_risk": 0.475,
+       "nnt": 14.653617
+      },
+      {
+       "control_risk": 0.5,
+       "nnt": 13.920937
+      },
+      {
+       "control_risk": 0.525,
+       "nnt": 13.258035
+      },
+      {
+       "control_risk": 0.55,
+       "nnt": 12.655397
+      },
+      {
+       "control_risk": 0.575,
+       "nnt": 12.105162
+      },
+      {
+       "control_risk": 0.6,
+       "nnt": 11.600781
+      }
+     ],
+     "peters": {
+      "estimable": true,
+      "intercept": [],
+      "z": -1.730405,
+      "p": 0.333595,
+      "note": "Peters 2006 regresses the log odds ratio on the inverse of total sample size, which the Cochrane Handbook v6.5 section 13.3.5 recommends for binary outcomes in place of Egger, whose test is biased on the odds-ratio scale. With k = 3 it still has almost no power and is reported as a computed value, not as evidence."
+     },
+     "benford": {
+      "n_counts": 6,
+      "observed": [
+       3,
+       1,
+       1,
+       0,
+       0,
+       0,
+       0,
+       0,
+       1
+      ],
+      "expected": [
+       1.8062,
+       1.0565,
+       0.7496,
+       0.5815,
+       0.4751,
+       0.4017,
+       0.348,
+       0.3069,
+       0.2745
+      ],
+      "note": "First-digit screen over the 6 event counts as read. With this few integers the comparison is descriptive only -- Benford's law is a large-sample regularity and no test statistic is computed here."
+     },
+     "_provenance": "Computed at BUILD time by metafor from the per-arm 2x2 counts stored on each trial, which were READ from the sources named on each cell. No composite was reconstructed by addition and no count was derived from a percentage. These are SEPARATE ESTIMANDS from the primary pooled hazard ratio, which is unchanged at 0.8392, and are shown as sensitivity, never as the headline."
+    },
+    "k_status": {
+     "k_reported": 3,
+     "is_lower_bound": true,
+     "why": "ANSWER-HF remains UNDETERMINED behind a paywall; PIONEER-HF is now determinate and EXCLUDED on the measure axis. k=3 is therefore a LOWER BOUND and may become 4. The correct formulation is 'the three trials whose eligibility could be established', never 'the three trials that exist'."
     }
    }
   }
@@ -6806,6 +7740,29 @@
   "reproducibility_note": "Every string above is the string as EXECUTED, copied from the capture rather than from the protocol, so a reader can re-run it. Hit counts are the values the APIs returned (esearchresult.count and totalCount) and were not counted or computed here. Where the two differ from the registered strings, that would be recorded as a departure rather than silently reconciled."
  },
  "registration": {
+  "method": "timestamped public git commit",
+  "repository": "https://github.com/mahmood726-cyber/rapidmeta-finerenone",
+  "path": "ssot/arni-hfref/arni-hfref.json",
+  "repository_visibility": "public",
+  "commits": [
+   {
+    "sha": "961400264a06bd940bef11e02b528ea0f73a8dee",
+    "committed_utc": "2026-08-10T05:13:40Z",
+    "subject": "ssot(arni-hfref): certified build, cross-family gate passed",
+    "permalink": "https://github.com/mahmood726-cyber/rapidmeta-finerenone/commit/961400264a06bd940bef11e02b528ea0f73a8dee",
+    "tree_permalink": "https://github.com/mahmood726-cyber/rapidmeta-finerenone/blob/961400264a06bd940bef11e02b528ea0f73a8dee/ssot/arni-hfref/arni-hfref.json"
+   },
+   {
+    "sha": "6272db4f0ee9ec88018ed33db0ee9a1f0997be9d",
+    "committed_utc": "2026-08-12T19:43:11Z",
+    "subject": "recover: preserve the only surviving generator; install the destructive-git guard",
+    "permalink": "https://github.com/mahmood726-cyber/rapidmeta-finerenone/commit/6272db4f0ee9ec88018ed33db0ee9a1f0997be9d",
+    "tree_permalink": "https://github.com/mahmood726-cyber/rapidmeta-finerenone/blob/6272db4f0ee9ec88018ed33db0ee9a1f0997be9d/ssot/arni-hfref/arni-hfref.json"
+   }
+  ],
+  "amendment_count": 1,
+  "what_the_commit_evidence_establishes": "That the text of this object existed, in this public repository, at the committer timestamp shown, and has not been altered since without producing a new commit. The permalink is pinned to the commit SHA rather than to a branch, so it resolves to that exact state forever; a branch link would move and would prove nothing. Anyone can verify the timestamp and the content independently of this page and independently of its authors.",
+  "what_the_commit_evidence_does_not_establish": "It does not establish prospectiveness. A commit proves when text entered THIS repository; it cannot prove that no earlier or parallel version existed elsewhere, that the data had not already been seen when the text was written, or that the analysis plan was fixed before the results were known. It also says nothing about the independence of the people who wrote it. Those are claims about conduct, and a timestamp cannot carry them.",
   "ordering": {
    "protocol_committed_utc": "2026-08-12T11:27:47Z",
    "strengthened_commit_utc": "2026-08-12T12:05:56Z",
@@ -6835,5 +7792,538 @@
    }
   ],
   "amendment_note": "The full commit history is projected, not only its head. A log that displays only its current state is no better than a mutable document, and the point of registering by commit is that every earlier state stays readable. Each entry records whether it post-dates the first executed query, because an amendment made after the search is a different act from one made before it and must not be presented as the same."
- }
+ },
+ "risk_of_bias_verdict": "These are recorded, sourced features, not a Cochrane RoB-2 assessment. No assessor has rated the five RoB-2 domains for these trials, so no per-domain rating appears here. What the features DO feed is the GRADE risk-of-bias domain on the Certainty tab, which this object does carry, rates as serious, and justifies from these same three features.",
+ "attestations": {
+  "screening": {
+   "surface": "screening",
+   "what_must_be_checked": "That every record in `screening.records` was screened against the stated eligibility criteria, that each recorded decision and reason matches the record it names, and that the search was screened by the number of reviewers the write-up claims.",
+   "by": null,
+   "role": null,
+   "source_checked_against": null,
+   "date_utc": null,
+   "note": null
+  },
+  "extraction": {
+   "surface": "extraction",
+   "what_must_be_checked": "That every extracted cell -- arm sizes, effect estimates, intervals and their scales -- was read back against the source named on that cell, and matches it.",
+   "by": null,
+   "role": null,
+   "source_checked_against": null,
+   "date_utc": null,
+   "note": null
+  },
+  "risk_of_bias": {
+   "surface": "risk_of_bias",
+   "what_must_be_checked": "That a per-study risk-of-bias assessment was carried out and its domain judgements recorded in `inputs.trials[].risk_of_bias.domains`. This object currently holds recorded FEATURES only, so this surface requires the assessment to be done, not merely signed for.",
+   "by": null,
+   "role": null,
+   "source_checked_against": null,
+   "date_utc": null,
+   "note": null
+  },
+  "grade": {
+   "surface": "grade",
+   "what_must_be_checked": "That each GRADE domain rating and the resulting certainty were reviewed against the evidence cited in its own `basis_in_sources`.",
+   "by": null,
+   "role": null,
+   "source_checked_against": null,
+   "date_utc": null,
+   "note": null
+  }
+ },
+ "count_recovery": {
+  "date": "2026-08-12",
+  "cells": 24,
+  "doubly_confirmed": 22,
+  "single_source_cells": [
+   "PARALLEL-HF all-cause death (both arms), ClinicalTrials.gov Outcome Measure 10 only"
+  ],
+  "no_prior_meta_used": "No count rests on a prior meta-analysis extraction table. There are no unverified secondary-source cells to flag.",
+  "count_vs_percentage": "Every count was checked against the percentage printed beside it in its own source. No disagreement was found in any of the 24 cells, which is what establishes that these denominators are the ones the trialists used."
+ },
+ "citations": {
+  "25176015": {
+   "pmid": "25176015",
+   "doi": "10.1056/NEJMoa1409077",
+   "pmcid": null,
+   "authors": [
+    "McMurray JJ",
+    "Packer M",
+    "Desai AS",
+    "Gong J",
+    "Lefkowitz MP",
+    "Rizkala AR",
+    "Rouleau JL",
+    "Shi VC",
+    "Solomon SD",
+    "Swedberg K",
+    "Zile MR"
+   ],
+   "authors_vancouver": "McMurray JJ, Packer M, Desai AS, Gong J, Lefkowitz MP, Rizkala AR, et al.",
+   "title": "Angiotensin-neprilysin inhibition versus enalapril in heart failure",
+   "journal": "N Engl J Med",
+   "year": "2014",
+   "volume": "371",
+   "issue": "11",
+   "pages": "993-1004",
+   "article_types": [
+    "Comparative Study",
+    "Journal Article",
+    "Multicenter Study",
+    "Randomized Controlled Trial",
+    "Research Support, Non-U.S. Gov't"
+   ],
+   "url": "https://pubmed.ncbi.nlm.nih.gov/25176015/",
+   "doi_url": "https://doi.org/10.1056/NEJMoa1409077",
+   "retrieved_utc": "2026-08-12T10:04:12Z",
+   "retrieved_from": "PubMed E-utilities via bio-research MCP",
+   "link_status": 200,
+   "link_checked_utc": "2026-08-12T10:04:32Z",
+   "doi_link_status": 403,
+   "doi_link_checked_utc": "2026-08-12T10:04:32Z",
+   "doi_link_note": "The publisher returns 403 to an automated request. That is a bot block, not a dead link -- an obstacle, not an absence -- and the PubMed record for the same article resolves normally.",
+   "traces_to_screening_record": true
+  },
+  "31475794": {
+   "pmid": "31475794",
+   "doi": "10.1056/NEJMoa1908655",
+   "pmcid": null,
+   "authors": [
+    "Solomon SD",
+    "McMurray JJV",
+    "Anand IS",
+    "Ge J",
+    "Lam CSP",
+    "Maggioni AP",
+    "Martinez F",
+    "Packer M",
+    "Pfeffer MA",
+    "Pieske B",
+    "Redfield MM",
+    "Rouleau JL",
+    "van Veldhuisen DJ",
+    "Zannad F",
+    "Zile MR",
+    "Desai AS",
+    "Claggett B",
+    "Jhund PS",
+    "Boytsov SA",
+    "Comin-Colet J",
+    "Cleland J",
+    "D&#xfc;ngen HD",
+    "Goncalvesova E",
+    "Katova T",
+    "Kerr Saraiva JF",
+    "Lelonek M",
+    "Merkely B",
+    "Senni M",
+    "Shah SJ",
+    "Zhou J",
+    "Rizkala AR",
+    "Gong J",
+    "Shi VC",
+    "Lefkowitz MP"
+   ],
+   "authors_vancouver": "Solomon SD, McMurray JJV, Anand IS, Ge J, Lam CSP, Maggioni AP, et al.",
+   "title": "Angiotensin-Neprilysin Inhibition in Heart Failure with Preserved Ejection Fraction",
+   "journal": "N Engl J Med",
+   "year": "2019",
+   "volume": "381",
+   "issue": "17",
+   "pages": "1609-1620",
+   "article_types": [
+    "Comparative Study",
+    "Journal Article",
+    "Multicenter Study",
+    "Randomized Controlled Trial",
+    "Research Support, Non-U.S. Gov't"
+   ],
+   "url": "https://pubmed.ncbi.nlm.nih.gov/31475794/",
+   "doi_url": "https://doi.org/10.1056/NEJMoa1908655",
+   "retrieved_utc": "2026-08-12T10:04:12Z",
+   "retrieved_from": "PubMed E-utilities via bio-research MCP",
+   "link_status": 200,
+   "link_checked_utc": "2026-08-12T10:04:32Z",
+   "doi_link_status": 403,
+   "doi_link_checked_utc": "2026-08-12T10:04:32Z",
+   "doi_link_note": "The publisher returns 403 to an automated request. That is a bot block, not a dead link -- an obstacle, not an absence -- and the PubMed record for the same article resolves normally.",
+   "traces_to_screening_record": true
+  },
+  "33553256": {
+   "pmid": "33553256",
+   "doi": "10.3389/fcvm.2020.602363",
+   "pmcid": "PMC7855850",
+   "authors": [
+    "Pathadka S",
+    "Yan VKC",
+    "Li X",
+    "Tse G",
+    "Wan EYF",
+    "Lau H",
+    "Lau WCY",
+    "Siu DCW",
+    "Chan EW",
+    "Wong ICK"
+   ],
+   "authors_vancouver": "Pathadka S, Yan VKC, Li X, Tse G, Wan EYF, Lau H, et al.",
+   "title": "Hospitalization and Mortality in Patients With Heart Failure Treated With Sacubitril/Valsartan vs. Enalapril: A Real-World, Population-Based Study",
+   "journal": "Front Cardiovasc Med",
+   "year": "2021",
+   "volume": "7",
+   "issue": null,
+   "pages": "602363",
+   "article_types": [
+    "Journal Article"
+   ],
+   "url": "https://pubmed.ncbi.nlm.nih.gov/33553256/",
+   "doi_url": "https://doi.org/10.3389/fcvm.2020.602363",
+   "retrieved_utc": "2026-08-12T10:04:12Z",
+   "retrieved_from": "PubMed E-utilities via bio-research MCP",
+   "link_status": 200,
+   "link_checked_utc": "2026-08-12T10:04:32Z",
+   "doi_link_status": 200,
+   "doi_link_checked_utc": "2026-08-12T10:04:32Z",
+   "traces_to_screening_record": true
+  },
+  "33731544": {
+   "pmid": "33731544",
+   "doi": "10.1253/circj.CJ-20-0854",
+   "pmcid": null,
+   "authors": [
+    "Tsutsui H",
+    "Momomura SI",
+    "Saito Y",
+    "Ito H",
+    "Yamamoto K",
+    "Sakata Y",
+    "Desai AS",
+    "Ohishi T",
+    "Iimori T",
+    "Kitamura T",
+    "Guo W"
+   ],
+   "authors_vancouver": "Tsutsui H, Momomura SI, Saito Y, Ito H, Yamamoto K, Sakata Y, et al.",
+   "title": "Efficacy and Safety of Sacubitril/Valsartan in Japanese Patients With Chronic Heart Failure and Reduced Ejection Fraction&#x3000;- Results From the PARALLEL-HF Study",
+   "journal": "Circ J",
+   "year": "2021",
+   "volume": "85",
+   "issue": "5",
+   "pages": "584-594",
+   "article_types": [
+    "Journal Article",
+    "Randomized Controlled Trial"
+   ],
+   "url": "https://pubmed.ncbi.nlm.nih.gov/33731544/",
+   "doi_url": "https://doi.org/10.1253/circj.CJ-20-0854",
+   "retrieved_utc": "2026-08-12T10:04:12Z",
+   "retrieved_from": "PubMed E-utilities via bio-research MCP",
+   "link_status": 200,
+   "link_checked_utc": "2026-08-12T10:04:32Z",
+   "doi_link_status": 200,
+   "doi_link_checked_utc": "2026-08-12T10:04:32Z",
+   "traces_to_screening_record": true
+  },
+  "34395116": {
+   "pmid": "34395116",
+   "doi": "10.7759/cureus.16332",
+   "pmcid": "PMC8357012",
+   "authors": [
+    "Bano S",
+    "Bai P",
+    "Kumar S",
+    "Kumar N",
+    "Ali A",
+    "Pariya F",
+    "Versha F",
+    "Khalid D",
+    "Khalid H",
+    "Rizwan A"
+   ],
+   "authors_vancouver": "Bano S, Bai P, Kumar S, Kumar N, Ali A, Pariya F, et al.",
+   "title": "Comparison of Sacubitril/Valsartan Versus Enalapril in the Management of Heart Failure",
+   "journal": "Cureus",
+   "year": "2021",
+   "volume": "13",
+   "issue": "7",
+   "pages": "e16332",
+   "article_types": [
+    "Journal Article"
+   ],
+   "url": "https://pubmed.ncbi.nlm.nih.gov/34395116/",
+   "doi_url": "https://doi.org/10.7759/cureus.16332",
+   "retrieved_utc": "2026-08-12T10:04:12Z",
+   "retrieved_from": "PubMed E-utilities via bio-research MCP",
+   "link_status": 200,
+   "link_checked_utc": "2026-08-12T10:04:32Z",
+   "doi_link_status": 200,
+   "doi_link_checked_utc": "2026-08-12T10:04:32Z",
+   "traces_to_screening_record": true
+  },
+  "35874853": {
+   "pmid": "35874853",
+   "doi": "10.1002/pul2.12034",
+   "pmcid": "PMC9297686",
+   "authors": [
+    "Zhao Y",
+    "Tian LG",
+    "Zhang LX",
+    "Ma T",
+    "Di L",
+    "Wang YB",
+    "Gu XS",
+    "Wang DD",
+    "Gao S",
+    "Wang H"
+   ],
+   "authors_vancouver": "Zhao Y, Tian LG, Zhang LX, Ma T, Di L, Wang YB, et al.",
+   "title": "The comparative effects of sacubitril/valsartan versus&#xa0;enalapril on pulmonary hypertension due to heart failure with a reduced ejection fraction",
+   "journal": "Pulm Circ",
+   "year": "2022",
+   "volume": "12",
+   "issue": "3",
+   "pages": "e12034",
+   "article_types": [
+    "Journal Article"
+   ],
+   "url": "https://pubmed.ncbi.nlm.nih.gov/35874853/",
+   "doi_url": "https://doi.org/10.1002/pul2.12034",
+   "retrieved_utc": "2026-08-12T10:04:12Z",
+   "retrieved_from": "PubMed E-utilities via bio-research MCP",
+   "link_status": 200,
+   "link_checked_utc": "2026-08-12T10:04:32Z",
+   "doi_link_status": 403,
+   "doi_link_checked_utc": "2026-08-12T10:04:32Z",
+   "doi_link_note": "The publisher returns 403 to an automated request. That is a bot block, not a dead link -- an obstacle, not an absence -- and the PubMed record for the same article resolves normally.",
+   "traces_to_screening_record": true
+  },
+  "37212758": {
+   "pmid": "37212758",
+   "doi": "10.1016/j.jacc.2023.04.019",
+   "pmcid": null,
+   "authors": [
+    "Mentz RJ",
+    "Ward JH",
+    "Hernandez AF",
+    "Lepage S",
+    "Morrow DA",
+    "Sarwat S",
+    "Sharma K",
+    "Starling RC",
+    "Velazquez EJ",
+    "Williamson KM",
+    "Desai AS",
+    "Zieroth S",
+    "Solomon SD",
+    "Braunwald E"
+   ],
+   "authors_vancouver": "Mentz RJ, Ward JH, Hernandez AF, Lepage S, Morrow DA, Sarwat S, et al.",
+   "title": "Angiotensin-Neprilysin Inhibition in&#xa0;Patients With Mildly Reduced or&#xa0;Preserved Ejection Fraction and&#xa0;Worsening Heart&#xa0;Failure",
+   "journal": "J Am Coll Cardiol",
+   "year": "2023",
+   "volume": "82",
+   "issue": "1",
+   "pages": "1-12",
+   "article_types": [
+    "Randomized Controlled Trial",
+    "Journal Article",
+    "Research Support, Non-U.S. Gov't"
+   ],
+   "url": "https://pubmed.ncbi.nlm.nih.gov/37212758/",
+   "doi_url": "https://doi.org/10.1016/j.jacc.2023.04.019",
+   "retrieved_utc": "2026-08-12T10:04:12Z",
+   "retrieved_from": "PubMed E-utilities via bio-research MCP",
+   "link_status": 200,
+   "link_checked_utc": "2026-08-12T10:04:32Z",
+   "doi_link_status": 200,
+   "doi_link_checked_utc": "2026-08-12T10:04:32Z",
+   "traces_to_screening_record": true
+  },
+  "41335448": {
+   "pmid": "41335448",
+   "doi": "10.1001/jama.2025.19808",
+   "pmcid": "PMC12676478",
+   "authors": [
+    "Lopes RD",
+    "Bocchi EA",
+    "Echeverr&#xed;a LE",
+    "Demacq C",
+    "de Barros E Silva PGM",
+    "Barbosa LM",
+    "Damiani L",
+    "Sayyed S",
+    "Yoshida LAF",
+    "Furtado RHM",
+    "Morillo CA",
+    "Kevorkian R",
+    "Ramires F",
+    "Bahit MC",
+    "Maga&#xf1;a A",
+    "Ch&#xe1;vez-Mendoza A",
+    "Miguel da Silva AH",
+    "Coelho da Silva A",
+    "Freitas AF",
+    "Romano AA",
+    "Parneix A",
+    "Segura A",
+    "Fran&#xe7;a CCB",
+    "Botta CE",
+    "de Barros E",
+    "Perna ER",
+    "Montenegro E",
+    "Quiroz Diaz FR",
+    "Feitosa-Filho GS",
+    "Severini GV",
+    "Molina I",
+    "Miranda JDSS",
+    "Sala J",
+    "Kerr Saraiva JF",
+    "Carbajales J",
+    "Maia LN",
+    "Santana Passos LC",
+    "Sim&#xf5;es MV",
+    "Moreira MDCV",
+    "Nunes MCP",
+    "Hernandes ME",
+    "Hominal M",
+    "Zarandon RS",
+    "Leon de la Fuente R",
+    "Aras R",
+    "Bazan SGZ",
+    "Luiz da Silva T",
+    "Madrini V",
+    "de Oliveira WA",
+    "Saporito WF",
+    "Gimpelewicz C",
+    "McMurray JJV"
+   ],
+   "authors_vancouver": "Lopes RD, Bocchi EA, Echeverr&#xed;a LE, Demacq C, de Barros E Silva PGM, Barbosa LM, et al.",
+   "title": "Sacubitril/Valsartan vs Enalapril in Heart Failure Due to Chagas Disease: An Open-Label, Multicenter Randomized Clinical Trial",
+   "journal": "JAMA",
+   "year": "2026",
+   "volume": "335",
+   "issue": "1",
+   "pages": "49-59",
+   "article_types": [
+    "Clinical Trial, Phase IV",
+    "Equivalence Trial",
+    "Journal Article",
+    "Multicenter Study",
+    "Randomized Controlled Trial"
+   ],
+   "url": "https://pubmed.ncbi.nlm.nih.gov/41335448/",
+   "doi_url": "https://doi.org/10.1001/jama.2025.19808",
+   "retrieved_utc": "2026-08-12T10:04:12Z",
+   "retrieved_from": "PubMed E-utilities via bio-research MCP",
+   "link_status": 200,
+   "link_checked_utc": "2026-08-12T10:04:32Z",
+   "doi_link_status": 403,
+   "doi_link_checked_utc": "2026-08-12T10:04:32Z",
+   "doi_link_note": "The publisher returns 403 to an automated request. That is a bot block, not a dead link -- an obstacle, not an absence -- and the PubMed record for the same article resolves normally.",
+   "traces_to_screening_record": true
+  },
+  "41396086": {
+   "pmid": "41396086",
+   "doi": "10.1016/j.jacc.2025.10.053",
+   "pmcid": null,
+   "authors": [
+    "Madrini V",
+    "Souza PVR",
+    "Fernandes F",
+    "Ianni BM",
+    "Martins AS",
+    "Luzuriaga GJ",
+    "Fonseca KCB",
+    "Ribeiro ODN",
+    "da Cruz AB",
+    "Oliveira R",
+    "Antunes TL",
+    "Pessoa FG",
+    "Damiani LP",
+    "Quaglio LS",
+    "Correia VM",
+    "Antunes MO",
+    "Mady C",
+    "Guimar&#xe3;es PO",
+    "Tavares CAM",
+    "Biselli B",
+    "Gruppi CJ",
+    "Mathias W",
+    "Bihan DCSL",
+    "Bocchi EA",
+    "Lopes RD",
+    "Alvarez Ramires FJ"
+   ],
+   "authors_vancouver": "Madrini V, Souza PVR, Fernandes F, Ianni BM, Martins AS, Luzuriaga GJ, et al.",
+   "title": "Sacubitril-Valsartan vs Enalapril in Heart Failure Due to Chagas Disease: Primary Results of ANSWER-HF Randomized Trial",
+   "journal": "J Am Coll Cardiol",
+   "year": "2025",
+   "volume": "87",
+   "issue": "10",
+   "pages": "1220-1232",
+   "article_types": [
+    "Journal Article",
+    "Randomized Controlled Trial",
+    "Comparative Study"
+   ],
+   "url": "https://pubmed.ncbi.nlm.nih.gov/41396086/",
+   "doi_url": "https://doi.org/10.1016/j.jacc.2025.10.053",
+   "retrieved_utc": "2026-08-12T10:04:12Z",
+   "retrieved_from": "PubMed E-utilities via bio-research MCP",
+   "link_status": 200,
+   "link_checked_utc": "2026-08-12T10:04:32Z",
+   "doi_link_status": 200,
+   "doi_link_checked_utc": "2026-08-12T10:04:32Z",
+   "traces_to_screening_record": true
+  },
+  "41923142": {
+   "pmid": "41923142",
+   "doi": "10.1097/CRD.0000000000001242",
+   "pmcid": null,
+   "authors": [
+    "Daniyal SM",
+    "Tabish S",
+    "Burhan M",
+    "Noor A",
+    "Jalal AA",
+    "Khalid A",
+    "Muhammad Sharjeel S",
+    "Gul I",
+    "Siddiqui MH",
+    "Ashraf DA",
+    "Hassan IN"
+   ],
+   "authors_vancouver": "Daniyal SM, Tabish S, Burhan M, Noor A, Jalal AA, Khalid A, et al.",
+   "title": "Sacubitril/Valsartan Versus Enalapril in Chagas Cardiomyopathy With Heart Failure With Reduced Ejection Fraction: A Systematic Review and Meta-Analysis",
+   "journal": "Cardiol Rev",
+   "year": "2026",
+   "volume": null,
+   "issue": null,
+   "pages": null,
+   "article_types": [
+    "Journal Article"
+   ],
+   "url": "https://pubmed.ncbi.nlm.nih.gov/41923142/",
+   "doi_url": "https://doi.org/10.1097/CRD.0000000000001242",
+   "retrieved_utc": "2026-08-12T10:04:12Z",
+   "retrieved_from": "PubMed E-utilities via bio-research MCP",
+   "fields_not_resolved": "Not returned by the source lookup: volume, pages. Left absent rather than composed.",
+   "link_status": 200,
+   "link_checked_utc": "2026-08-12T10:04:32Z",
+   "doi_link_status": 403,
+   "doi_link_checked_utc": "2026-08-12T10:04:32Z",
+   "doi_link_note": "The publisher returns 403 to an automated request. That is a bot block, not a dead link -- an obstacle, not an absence -- and the PubMed record for the same article resolves normally.",
+   "traces_to_screening_record": false
+  }
+ },
+ "citation_policy": {
+  "ratio": {
+   "total": 10,
+   "trace_to_included_or_excluded": 9,
+   "background": 1
+  },
+  "sourcing": "Every field was filled by live lookup against PubMed at the recorded time. No author list, journal, volume, issue or page range was composed from recall.",
+  "link_rule": "Every reference carries a resolvable URL checked at build time. A 404 or DNS failure fails the build; a publisher 403 is recorded as a bot block with the PubMed record as the reachable route."
+ },
+ "requires_full_surface": true
 }
