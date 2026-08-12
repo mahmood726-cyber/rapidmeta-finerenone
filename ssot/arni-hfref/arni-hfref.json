@@ -576,7 +576,21 @@
        "read_or_derived": "read"
       }
      ]
-    }
+    },
+    "discrepancies": [
+     {
+      "quantity": "Serious adverse events",
+      "registry_value": "169/183",
+      "publication_value": "211/234",
+      "registry_pointer": "ClinicalTrials.gov NCT04023227, adverse-events module",
+      "publication_pointer": "Lopes RD et al., JAMA 2026;335(1):49-59, PMC12676478",
+      "status": "UNRESOLVED -- both values recorded, neither adopted",
+      "found_by": "blinded head-to-head comparator, 2026-08-12",
+      "recorded_utc": "2026-08-12T22:04:54Z",
+      "why_it_matters": "Our own multi-source extraction pass did not record this discrepancy at all. A blinded comparator found it. The two sources disagree on both numerator and denominator for the same quantity in the same trial, and we carried only one side without noticing the other existed. Recorded here with both values and both pointers rather than resolved, because resolving it requires reading which population and which window each source is reporting, and picking one now would manufacture the appearance of a resolution.",
+      "lesson": "A multi-source pass that agrees with itself is not the same as a pass that checked both sources. This is the class our own harness names as 'consistency does not authenticate a row'."
+     }
+    ]
    },
    {
     "id": "parallel-hf",
@@ -969,14 +983,25 @@
     },
     "grade": {
      "certainty": "low",
-     "certainty_derivation": "start high; risk_of_bias serious (-1), imprecision serious (-1); total -2 -> low",
+     "certainty_derivation": "start high; risk_of_bias serious (-1), imprecision serious (-1); total -2 -> low. The risk_of_bias rating was re-examined against the completed RoB-2 assessment on 2026-08-12 and did not move; see domains.risk_of_bias.rob2_effect_on_this_rating.",
      "randomised": true,
      "starting_point": "high",
      "starting_point_because": "every contributing study is a randomised controlled trial",
      "domains": {
       "risk_of_bias": {
        "rating": "serious",
-       "basis_in_sources": "Three separate features, each read from a staged source rather than assumed. PARACHUTE-HF describes itself as an 'open-label, multicenter randomized clinical trial' with blinded endpoint adjudication; blinded adjudication protects how an event is classified but not the unblinded management decisions that produce a heart failure hospitalization, which is one of the two components. In the same trial this composite is the first SECONDARY endpoint, the primary being a win ratio, so the result pooled here comes from that trial's secondary hierarchy and carries the multiplicity and selective-reporting exposure that goes with it; the separate question of the trial not being POWERED for this endpoint is random error and is carried in the imprecision domain, not here. PARADIGM-HF 'was stopped early, according to prespecified rules ... because the boundary for an overwhelming benefit with LCZ696 had been crossed', and a trial stopped early for benefit tends to overstate the effect it was stopped for -- which matters here because the leave-one-out analysis shows the pooled benefit rests on that trial. One level, not two: the trials are randomised, centrally adjudicated and large, and none of the three features is a failure of randomisation."
+       "basis_in_sources": "Three separate features, each read from a staged source rather than assumed. PARACHUTE-HF describes itself as an 'open-label, multicenter randomized clinical trial' with blinded endpoint adjudication; blinded adjudication protects how an event is classified but not the unblinded management decisions that produce a heart failure hospitalization, which is one of the two components. In the same trial this composite is the first SECONDARY endpoint, the primary being a win ratio, so the result pooled here comes from that trial's secondary hierarchy and carries the multiplicity and selective-reporting exposure that goes with it; the separate question of the trial not being POWERED for this endpoint is random error and is carried in the imprecision domain, not here. PARADIGM-HF 'was stopped early, according to prespecified rules ... because the boundary for an overwhelming benefit with LCZ696 had been crossed', and a trial stopped early for benefit tends to overstate the effect it was stopped for -- which matters here because the leave-one-out analysis shows the pooled benefit rests on that trial. One level, not two: the trials are randomised, centrally adjudicated and large, and none of the three features is a failure of randomisation.",
+       "rob2_effect_on_this_rating": {
+        "checked_utc": "2026-08-12T22:14:35Z",
+        "rating_before_rob2": "serious",
+        "rating_after_rob2": "serious",
+        "moved": false,
+        "stated_explicitly_because": "the protocol requires this question to be answered either way, so that a rating which survives an assessment is distinguishable from one that was never tested",
+        "why_it_does_not_move": "Two reasons, and the second is the load-bearing one.\n\nFirst, RoB-2 confirmed the substance of the downgrade rather than removing it. Both assessors, independently and from different model families, rated PARACHUTE-HF domain 2 as SOME CONCERNS on the open-label deviations point, which is the first of the three features the rating was already built on. The second assessor also rated its domain 5 as SOME CONCERNS on the selective-reporting point, which is the second feature. The assessment agreed with the reasoning the rating rested on.\n\nSecond, and this is why 'no domain reached HIGH' does not discharge the downgrade: RoB-2 has no domain for a trial stopped early for benefit. Early stopping is not a randomization failure, a deviation, missing data, a measurement problem, or selective reporting of a result; it is a stopping-rule effect on the magnitude of the estimate, and the RoB-2 tool does not ask about it in any of its five domains. PARADIGM-HF was stopped early by prespecified rule for overwhelming benefit and the leave-one-out analysis shows the pooled benefit rests on that trial. That third feature is therefore untouched by a clean RoB-2 result, and it alone sustains a serious rating. Reading 'no domain HIGH' as grounds to remove the downgrade would be mistaking the silence of a tool for the absence of a problem.",
+        "counter_argument_recorded": "The opposite reading is available and is recorded here rather than suppressed: under a common mapping, trials at SOME CONCERNS with none at HIGH support 'not serious', which would raise certainty from low to moderate. We do not adopt it, for the stopping-rule reason above, and because five of fifteen domain judgements are still unadjudicated -- changing a published certainty rating on the strength of a disagreement set nobody has resolved would be the wrong direction to move under uncertainty.",
+        "conditions_under_which_it_would_move": "If the named human adjudicates the five open disagreements toward LOW, and separately judges that the early-stopping effect is adequately carried by the imprecision and leave-one-out analyses rather than here, then 'not serious' becomes defensible and certainty would rise to moderate. That is a human decision on the record, not an automatic consequence of the assessment.",
+        "certainty_unchanged": "low"
+       }
       },
       "inconsistency": {
        "rating": "not serious",
@@ -7793,7 +7818,7 @@
   ],
   "amendment_note": "The full commit history is projected, not only its head. A log that displays only its current state is no better than a mutable document, and the point of registering by commit is that every earlier state stays readable. Each entry records whether it post-dates the first executed query, because an amendment made after the search is a different act from one made before it and must not be presented as the same."
  },
- "risk_of_bias_verdict": "These are recorded, sourced features, not a Cochrane RoB-2 assessment. No assessor has rated the five RoB-2 domains for these trials, so no per-domain rating appears here. What the features DO feed is the GRADE risk-of-bias domain on the Certainty tab, which this object does carry, rates as serious, and justifies from these same three features.",
+ "risk_of_bias_verdict": "A Cochrane RoB-2 assessment has now been performed by two independent AI assessors from different model families, neither of which assembled this object. Both judgement sets are published in full, including every signalling-question answer, and the per-domain agreement rate is reported as measured rather than after reconciliation. No domain in any trial was rated HIGH by either assessor. Five of fifteen domain judgements disagreed and remain unadjudicated.",
  "attestations": {
   "screening": {
    "surface": "screening",
@@ -7815,12 +7840,12 @@
   },
   "risk_of_bias": {
    "surface": "risk_of_bias",
-   "what_must_be_checked": "That a per-study risk-of-bias assessment was carried out and its domain judgements recorded in `inputs.trials[].risk_of_bias.domains`. This object currently holds recorded FEATURES only, so this surface requires the assessment to be done, not merely signed for.",
+   "what_must_be_checked": "That the RoB-2 assessment recorded in `rob2` was carried out as pre-registered, that both assessors' domain judgements and signalling answers are reproduced without reconciliation, and that the five open disagreements are adjudicated. The assessment now EXISTS; what this attestation still requires is a human adjudication of the disagreements and a check of the assessors' cited sources.",
    "by": null,
    "role": null,
    "source_checked_against": null,
    "date_utc": null,
-   "note": null
+   "note": "Assessment complete 2026-08-12 by two AI assessors from different families. Unsigned: the five disagreements are open and assessor 1's SAP citation is unverified."
   },
   "grade": {
    "surface": "grade",
@@ -8325,5 +8350,678 @@
   "sourcing": "Every field was filled by live lookup against PubMed at the recorded time. No author list, journal, volume, issue or page range was composed from recall.",
   "link_rule": "Every reference carries a resolvable URL checked at build time. A 404 or DNS failure fails the build; a publisher 403 is recorded as a bot block with the PubMed record as the reachable route."
  },
- "requires_full_surface": true
+ "requires_full_surface": true,
+ "rob2": {
+  "status": "COMPLETE -- two independent assessors, disagreements unadjudicated",
+  "run_utc": "2026-08-12T22:13:41Z",
+  "tool": "Cochrane RoB-2 for randomized trials",
+  "variant": "effect of ASSIGNMENT to intervention (intention-to-treat), as pre-registered in PROTOCOL.md section 9",
+  "unit_of_assessment": "the result being pooled, not the trial overall: the composite of cardiovascular death or first hospitalisation for heart failure, as a time-to-first-event hazard ratio",
+  "assessors": [
+   {
+    "n": 1,
+    "kind": "ai",
+    "model_family": "openai",
+    "model": "GPT-5",
+    "transport": "codex laptop leg",
+    "is_object_assembler": false
+   },
+   {
+    "n": 2,
+    "kind": "ai",
+    "model_family": "google",
+    "model": "Gemini 3.1 Pro",
+    "transport": "agy --print",
+    "is_object_assembler": false
+   }
+  ],
+  "assembler_excluded": "the model that assembled this object (anthropic family) did not assess any domain, per protocol section 9. The two assessors are from different families and neither is the assembler.",
+  "blinding": "each assessor saw only its own trial packet; neither saw the other's answers",
+  "agreement": {
+   "per_domain_agreed": 10,
+   "per_domain_total": 15,
+   "per_domain_rate_pct": 66.7,
+   "overall_agreed": 1,
+   "overall_total": 3,
+   "measured_not_asserted": true,
+   "comparison_to_screening": "This is markedly lower than the two-assessor agreement seen at screening, which is what we predicted before running it. Screening asks whether a record meets stated eligibility axes, which is close to a lookup. RoB-2 asks for a graded judgement under uncertainty, where 'no information' and 'some concerns' are reached by different routes. Almost no published review reports its RoB-2 inter-assessor agreement at all, so there is no external benchmark. We publish it because an unreported agreement rate is not the same as a high one."
+  },
+  "trials": [
+   {
+    "trial": "paradigm-hf",
+    "domains": [
+     {
+      "domain": "D1",
+      "domain_name": "bias arising from the randomization process",
+      "assessor_1_openai": {
+       "judgement": "LOW",
+       "signalling": {
+        "1.1": "Y",
+        "1.2": "Y",
+        "1.3": "N"
+       },
+       "rationale": "The primary publication reports random assignment in a 1:1 ratio using a computerized randomization system with concealed study-group assignments, and reports that baseline characteristics were balanced between groups. I did not have the trial protocol or statistical analysis plan for this domain.",
+       "sources": [
+        "McMurray JJV et al. Angiotensin-neprilysin inhibition versus enalapril in heart failure. N Engl J Med 2014;371:993-1004. PMID:25176015. https://pubmed.ncbi.nlm.nih.gov/25176015/",
+        "ClinicalTrials.gov NCT01035255. https://clinicaltrials.gov/study/NCT01035255"
+       ],
+       "protocol_available": false
+      },
+      "assessor_2_google": {
+       "judgement": "LOW",
+       "signalling": {
+        "1.1": "Y",
+        "1.2": "Y",
+        "1.3": "N"
+       },
+       "rationale": "The trial is described as a phase 3, double-blind, randomized trial, indicating that the allocation sequence was random and concealed. There is no evidence of baseline imbalances suggesting a problem with the randomization process. I did not have the trial protocol or statistical analysis plan for this domain.",
+       "sources": [
+        "registry record at https://clinicaltrials.gov/study/NCT01035255",
+        "primary publication PMID 25176015"
+       ],
+       "protocol_available": false
+      },
+      "agreed": true,
+      "carried": "LOW"
+     },
+     {
+      "domain": "D2",
+      "domain_name": "bias due to deviations from intended interventions (effect of assignment)",
+      "assessor_1_openai": {
+       "judgement": "LOW",
+       "signalling": {
+        "2.1": "N",
+        "2.2": "N",
+        "2.6": "PY"
+       },
+       "rationale": "The trial is reported as double-blind, so participants and care providers were not reported to know assigned intervention. The primary efficacy analysis was described as according to the intention-to-treat principle among patients with valid randomization, using the full analysis set for the primary time-to-first-event composite. The analysis excluded 43 randomized participants because of erroneous randomization or serious GCP-violation site closure; without the protocol or SAP I cannot independently verify the prespecified handling of these exclusions, so the analysis question is probably yes rather than yes. I did not have the trial protocol or statistical analysis plan for this domain.",
+       "sources": [
+        "McMurray JJV et al. Angiotensin-neprilysin inhibition versus enalapril in heart failure. N Engl J Med 2014;371:993-1004. PMID:25176015. https://pubmed.ncbi.nlm.nih.gov/25176015/",
+        "ClinicalTrials.gov NCT01035255. https://clinicaltrials.gov/study/NCT01035255"
+       ],
+       "protocol_available": false
+      },
+      "assessor_2_google": {
+       "judgement": "LOW",
+       "signalling": {
+        "2.1": "N",
+        "2.2": "N",
+        "2.3": "NA",
+        "2.4": "NA",
+        "2.5": "NA",
+        "2.6": "Y",
+        "2.7": "NA"
+       },
+       "rationale": "The trial was double-blind, meaning participants and trial personnel were unaware of the assigned interventions. The analysis used the full analysis set, which is appropriate for estimating the effect of assignment to intervention, as exclusions were minimal and primarily for serious GCP violations. I did not have the trial protocol or statistical analysis plan for this domain.",
+       "sources": [
+        "registry record at https://clinicaltrials.gov/study/NCT01035255",
+        "primary publication PMID 25176015"
+       ],
+       "protocol_available": false
+      },
+      "agreed": true,
+      "carried": "LOW"
+     },
+     {
+      "domain": "D3",
+      "domain_name": "bias due to missing outcome data",
+      "assessor_1_openai": {
+       "judgement": "LOW",
+       "signalling": {
+        "3.1": "Y"
+       },
+       "rationale": "For the assessed primary time-to-first-event composite HR, outcome follow-up was available for nearly all analysed participants; the primary report notes 11 participants in the LCZ696 group and 9 in the enalapril group were lost to follow-up and censored at last contact. The larger post-randomization analysis-set exclusions are considered under Domain 2 rather than as missing outcome data for the analysed result. I did not have the trial protocol or statistical analysis plan for this domain.",
+       "sources": [
+        "McMurray JJV et al. Angiotensin-neprilysin inhibition versus enalapril in heart failure. N Engl J Med 2014;371:993-1004. PMID:25176015. https://pubmed.ncbi.nlm.nih.gov/25176015/"
+       ],
+       "protocol_available": false
+      },
+      "assessor_2_google": {
+       "judgement": "LOW",
+       "signalling": {
+        "3.1": "Y",
+        "3.2": "NA",
+        "3.3": "NA",
+        "3.4": "NA"
+       },
+       "rationale": "Data for the outcome were available for nearly all randomized participants. The full analysis set included 4187 of 4209 randomized to intervention and 4212 of 4233 randomized to comparator, meaning missing data and exclusions accounted for less than 1% of the randomized population. I did not have the trial protocol or statistical analysis plan for this domain.",
+       "sources": [
+        "registry record at https://clinicaltrials.gov/study/NCT01035255",
+        "primary publication PMID 25176015"
+       ],
+       "protocol_available": false
+      },
+      "agreed": true,
+      "carried": "LOW"
+     },
+     {
+      "domain": "D4",
+      "domain_name": "bias in measurement of the outcome",
+      "assessor_1_openai": {
+       "judgement": "LOW",
+       "signalling": {
+        "4.1": "N",
+        "4.2": "N",
+        "4.3": "N"
+       },
+       "rationale": "The assessed outcome was a clinical composite of cardiovascular death or first hospitalization for heart failure, and the primary publication states that these outcomes were adjudicated in blinded fashion by a clinical end-points committee according to prespecified criteria. Trial visits and event ascertainment were not reported to differ by group. I did not have the trial protocol or statistical analysis plan for this domain.",
+       "sources": [
+        "McMurray JJV et al. Angiotensin-neprilysin inhibition versus enalapril in heart failure. N Engl J Med 2014;371:993-1004. PMID:25176015. https://pubmed.ncbi.nlm.nih.gov/25176015/"
+       ],
+       "protocol_available": false
+      },
+      "assessor_2_google": {
+       "judgement": "LOW",
+       "signalling": {
+        "4.1": "N",
+        "4.2": "N",
+        "4.3": "N",
+        "4.4": "NA",
+        "4.5": "NA"
+       },
+       "rationale": "The composite outcome of cardiovascular death or first hospitalization for heart failure is a standard clinical endpoint. Outcome assessors were blinded due to the double-blind design, preventing assessment bias. I did not have the trial protocol or statistical analysis plan for this domain.",
+       "sources": [
+        "registry record at https://clinicaltrials.gov/study/NCT01035255",
+        "primary publication PMID 25176015"
+       ],
+       "protocol_available": false
+      },
+      "agreed": true,
+      "carried": "LOW"
+     },
+     {
+      "domain": "D5",
+      "domain_name": "bias in selection of the reported result",
+      "assessor_1_openai": {
+       "judgement": "SOME CONCERNS",
+       "signalling": {
+        "5.1": "NI",
+        "5.2": "PN",
+        "5.3": "NI"
+       },
+       "rationale": "The result being pooled is the trial's reported primary composite endpoint and matches the registry/publication description, so selection from multiple outcome measurements is unlikely. However, no trial protocol or statistical analysis plan was available to me, so I could not verify that the Cox model, covariate adjustment, censoring rules, interim-analysis stopping rule implementation, and full-analysis-set handling followed a finalized prespecified analysis plan before unblinded results were available.",
+       "sources": [
+        "McMurray JJV et al. Angiotensin-neprilysin inhibition versus enalapril in heart failure. N Engl J Med 2014;371:993-1004. PMID:25176015. https://pubmed.ncbi.nlm.nih.gov/25176015/",
+        "ClinicalTrials.gov NCT01035255. https://clinicaltrials.gov/study/NCT01035255"
+       ],
+       "protocol_available": false
+      },
+      "assessor_2_google": {
+       "judgement": "LOW",
+       "signalling": {
+        "5.1": "PY",
+        "5.2": "N",
+        "5.3": "N"
+       },
+       "rationale": "The reported result is the trial's own primary composite endpoint. This makes it highly unlikely that the numerical result was selected from multiple eligible outcome measurements or analyses based on the data. I did not have the trial protocol or statistical analysis plan for this domain.",
+       "sources": [
+        "registry record at https://clinicaltrials.gov/study/NCT01035255",
+        "primary publication PMID 25176015"
+       ],
+       "protocol_available": false
+      },
+      "agreed": false,
+      "carried": "SOME CONCERNS"
+     }
+    ],
+    "overall_assessor_1_openai": {
+     "judgement": "SOME CONCERNS",
+     "rationale": "Domains 1 through 4 are LOW. Domain 5 raises SOME CONCERNS because the protocol/SAP was not available to verify prespecified analysis and reporting choices for the pooled primary HR. No domain is HIGH and there are not multiple domains with concerns that substantially lower confidence, so the standard algorithm gives SOME CONCERNS overall."
+    },
+    "overall_assessor_2_google": {
+     "judgement": "LOW",
+     "rationale": "The trial is judged to be at low risk of bias across all five domains. It was a well-conducted, double-blind, randomized phase 3 trial with minimal missing data, and the evaluated result is the trial's pre-specified primary endpoint."
+    },
+    "overall_agreed": false
+   },
+   {
+    "trial": "parallel-hf",
+    "domains": [
+     {
+      "domain": "D1",
+      "domain_name": "bias arising from the randomization process",
+      "assessor_1_openai": {
+       "judgement": "SOME CONCERNS",
+       "signalling": {
+        "1.1": "PY",
+        "1.2": "NI",
+        "1.3": "PN"
+       },
+       "rationale": "For this pooled result, the registry and primary paper state that participants were randomized 1:1, with NT-proBNP stratification, supporting a probably random sequence. I did not have or rely on the trial protocol or SAP for this domain, and the accessible sources did not describe how allocation was concealed before assignment. Baseline characteristics in the full analysis set were broadly similar, with some imbalances but none clearly indicating a failed randomization process.",
+       "sources": [
+        "ClinicalTrials.gov registry record for NCT02468232, https://clinicaltrials.gov/study/NCT02468232",
+        "Tsutsui et al., Circ J 2021;85:584-594, PMID 33731544, doi:10.1253/circj.CJ-20-0854"
+       ],
+       "protocol_available": false
+      },
+      "assessor_2_google": {
+       "judgement": "LOW",
+       "signalling": {
+        "1.1": "Y",
+        "1.2": "Y",
+        "1.3": "N"
+       },
+       "rationale": "The trial was a randomized phase 3 study. According to the primary publication, the allocation sequence was generated and concealed using an interactive response system, and baseline characteristics did not suggest any baseline imbalances that would indicate a problem with the randomization process. I did not have the trial protocol or statistical analysis plan for this domain.",
+       "sources": [
+        "primary publication PMID 33731544"
+       ],
+       "protocol_available": false
+      },
+      "agreed": false,
+      "carried": "SOME CONCERNS"
+     },
+     {
+      "domain": "D2",
+      "domain_name": "bias due to deviations from intended interventions (effect of assignment)",
+      "assessor_1_openai": {
+       "judgement": "LOW",
+       "signalling": {
+        "2.1": "N",
+        "2.2": "N",
+        "2.6": "PY"
+       },
+       "rationale": "For the effect of assignment, the registry describes quadruple masking and the primary paper describes a double-blind, double-dummy design, so participants and care providers were not reported to know assigned treatment. The primary result was analysed in the full analysis set, with 111 of 112 randomized to sacubitril/valsartan and 112 of 113 randomized to enalapril included after one mis-randomized participant per group did not receive double-blind treatment; this is a near-complete assignment-based analysis with balanced exclusions. I did not have or rely on the trial protocol or SAP for this domain.",
+       "sources": [
+        "ClinicalTrials.gov registry record for NCT02468232, https://clinicaltrials.gov/study/NCT02468232",
+        "Tsutsui et al., Circ J 2021;85:584-594, PMID 33731544, doi:10.1253/circj.CJ-20-0854"
+       ],
+       "protocol_available": false
+      },
+      "assessor_2_google": {
+       "judgement": "LOW",
+       "signalling": {
+        "2.1": "N",
+        "2.2": "N",
+        "2.6": "Y"
+       },
+       "rationale": "The trial used a double-blind, double-dummy design, meaning participants, carers, and study personnel were unaware of the assigned interventions. The full analysis set included nearly all randomized patients (excluding only two mis-randomized individuals, 111/112 versus 112/113), representing an appropriate intention-to-treat analysis to estimate the effect of assignment. I did not have the trial protocol or statistical analysis plan for this domain.",
+       "sources": [
+        "primary publication PMID 33731544",
+        "trial packet data"
+       ],
+       "protocol_available": false
+      },
+      "agreed": true,
+      "carried": "LOW"
+     },
+     {
+      "domain": "D3",
+      "domain_name": "bias due to missing outcome data",
+      "assessor_1_openai": {
+       "judgement": "LOW",
+       "signalling": {
+        "3.1": "Y"
+       },
+       "rationale": "Outcome data for the composite time-to-first-event result were available for nearly all randomized participants: 223 of 225 randomized participants were included in the full analysis set, with one mis-randomized participant excluded from each arm. The primary paper reports the CEC-confirmed primary endpoint events and hazard ratio using these denominators, and there was no evidence in the available sources of differential missing outcome data for this result. I did not have or rely on the trial protocol or SAP for this domain.",
+       "sources": [
+        "ClinicalTrials.gov registry record for NCT02468232, https://clinicaltrials.gov/study/NCT02468232",
+        "Tsutsui et al., Circ J 2021;85:584-594, PMID 33731544, doi:10.1253/circj.CJ-20-0854"
+       ],
+       "protocol_available": false
+      },
+      "assessor_2_google": {
+       "judgement": "LOW",
+       "signalling": {
+        "3.1": "Y"
+       },
+       "rationale": "Outcome data were available for nearly all randomized participants, as the full analysis set included 223 out of the 225 total randomized individuals, leaving virtually no missing data for this time-to-first-event endpoint. I did not have the trial protocol or statistical analysis plan for this domain.",
+       "sources": [
+        "primary publication PMID 33731544",
+        "trial packet data"
+       ],
+       "protocol_available": false
+      },
+      "agreed": true,
+      "carried": "LOW"
+     },
+     {
+      "domain": "D4",
+      "domain_name": "bias in measurement of the outcome",
+      "assessor_1_openai": {
+       "judgement": "LOW",
+       "signalling": {
+        "4.1": "N",
+        "4.2": "N",
+        "4.3": "N"
+       },
+       "rationale": "The result is based on cardiovascular death or first hospitalization for heart failure, assessed as clinical events rather than a subjective symptom scale. The primary paper states that deaths and heart-failure hospitalizations potentially meeting endpoint criteria were referred to a Clinical Endpoint Committee blinded to treatment assignment and adjudicated against pre-specified criteria; the registry also lists outcome-assessor masking. I did not have or rely on the trial protocol or SAP for this domain.",
+       "sources": [
+        "ClinicalTrials.gov registry record for NCT02468232, https://clinicaltrials.gov/study/NCT02468232",
+        "Tsutsui et al., Circ J 2021;85:584-594, PMID 33731544, doi:10.1253/circj.CJ-20-0854"
+       ],
+       "protocol_available": false
+      },
+      "assessor_2_google": {
+       "judgement": "LOW",
+       "signalling": {
+        "4.1": "N",
+        "4.2": "N",
+        "4.3": "N"
+       },
+       "rationale": "The composite outcome of cardiovascular death or first hospitalisation for heart failure is a standard, appropriate clinical measure. Measurement did not differ between groups, and outcome assessors (such as clinical event committees) were unaware of assignments due to the double-blind trial design. I did not have the trial protocol or statistical analysis plan for this domain.",
+       "sources": [
+        "primary publication PMID 33731544"
+       ],
+       "protocol_available": false
+      },
+      "agreed": true,
+      "carried": "LOW"
+     },
+     {
+      "domain": "D5",
+      "domain_name": "bias in selection of the reported result",
+      "assessor_1_openai": {
+       "judgement": "SOME CONCERNS",
+       "signalling": {
+        "5.1": "NI",
+        "5.2": "PN",
+        "5.3": "NI"
+       },
+       "rationale": "The pooled result is the trial's own primary composite endpoint, and the registry, first posted before study start, identifies the objective as delaying time to first cardiovascular death or heart-failure hospitalization; the primary publication reports that same CEC-confirmed endpoint with the HR. However, I did not have or rely on the trial protocol or SAP for this domain, so I could not verify that the exact Cox model and analysis choices were fixed before unblinded outcome data were available. The available sources do not suggest selection from multiple outcome measurements, but they do not provide enough information to rule out selection from multiple eligible analyses.",
+       "sources": [
+        "ClinicalTrials.gov registry record for NCT02468232, https://clinicaltrials.gov/study/NCT02468232",
+        "Tsutsui et al., Circ J 2021;85:584-594, PMID 33731544, doi:10.1253/circj.CJ-20-0854"
+       ],
+       "protocol_available": false
+      },
+      "assessor_2_google": {
+       "judgement": "LOW",
+       "signalling": {
+        "5.1": "PY",
+        "5.2": "N",
+        "5.3": "N"
+       },
+       "rationale": "The result corresponds to the trial's pre-specified primary composite endpoint, which aligns with the prospective registry record established prior to unblinding. The numerical result is unlikely to have been selected from multiple outcome definitions or multiple analyses of the data. I did not have the trial protocol or statistical analysis plan for this domain.",
+       "sources": [
+        "registry record at https://clinicaltrials.gov/study/NCT02468232",
+        "primary publication PMID 33731544"
+       ],
+       "protocol_available": false
+      },
+      "agreed": false,
+      "carried": "SOME CONCERNS"
+     }
+    ],
+    "overall_assessor_1_openai": {
+     "judgement": "SOME CONCERNS",
+     "rationale": "D2, D3, and D4 were judged LOW. D1 raised SOME CONCERNS because allocation concealment was not described in the available non-protocol sources, and D5 raised SOME CONCERNS because no protocol or SAP was supplied or relied on to confirm the pre-unblinding analysis plan. No domain was HIGH, and the two SOME CONCERNS domains did not clearly rise to the RoB-2 threshold of substantially lowering confidence overall."
+    },
+    "overall_assessor_2_google": {
+     "judgement": "LOW",
+     "rationale": "The trial is assessed as at LOW overall risk of bias because it is rated as LOW risk across all five individual domains for the effect of assignment to intervention."
+    },
+    "overall_agreed": false
+   },
+   {
+    "trial": "parachute-hf",
+    "domains": [
+     {
+      "domain": "D1",
+      "domain_name": "bias arising from the randomization process",
+      "assessor_1_openai": {
+       "judgement": "LOW",
+       "signalling": {
+        "1.1": "Y",
+        "1.2": "Y",
+        "1.3": "N"
+       },
+       "rationale": "The result rests on a trial described as randomized 1:1 using a central, concealed, web-based automated randomization system, with stratification by country. The primary publication reports balanced baseline characteristics, and the arm sizes were 462 vs 460 without an imbalance suggesting a randomization failure. The trial protocol/SAP were available for this domain.",
+       "sources": [
+        "ClinicalTrials.gov NCT04023227 record",
+        "Lopes RD et al., JAMA 2026;335(1):49-59, PMID 41335448",
+        "PARACHUTE-HF SAP version 2.1, release date 29-Apr-2025"
+       ],
+       "protocol_available": true
+      },
+      "assessor_2_google": {
+       "judgement": "SOME CONCERNS",
+       "signalling": {
+        "1.1": "Y",
+        "1.2": "NI",
+        "1.3": "NI"
+       },
+       "rationale": "The trial is described as randomized, but there is no information provided in the inputs regarding the method of allocation sequence concealment or whether baseline differences suggested a problem with the randomization process.",
+       "sources": [
+        "registry record at https://clinicaltrials.gov/study/NCT04023227",
+        "primary publication PMID 41335448"
+       ],
+       "protocol_available": false
+      },
+      "agreed": false,
+      "carried": "SOME CONCERNS"
+     },
+     {
+      "domain": "D2",
+      "domain_name": "bias due to deviations from intended interventions (effect of assignment)",
+      "assessor_1_openai": {
+       "judgement": "SOME CONCERNS",
+       "signalling": {
+        "2.1": "Y",
+        "2.2": "Y",
+        "2.3": "NI",
+        "2.6": "Y"
+       },
+       "rationale": "The trial was open-label, so participants and treating personnel were aware of assignment. The publication and supplement report treatment discontinuation, target-dose attainment, adherence, and concomitant medication use, but they do not state whether any deviations from intended intervention arose because of the trial context for this assignment-effect result. The HR was analysed in the randomized/full analysis set according to assigned treatment, with 462/462 and 460/460 included, which is appropriate for estimating the effect of assignment. The trial protocol/SAP were available for this domain, but they did not remove the no-information answer for trial-context deviations.",
+       "sources": [
+        "ClinicalTrials.gov NCT04023227 record",
+        "Lopes RD et al., JAMA 2026;335(1):49-59, PMID 41335448",
+        "JAMA Supplement 3 eTable 2 and eTable 3",
+        "PARACHUTE-HF SAP version 2.1, release date 29-Apr-2025"
+       ],
+       "protocol_available": true
+      },
+      "assessor_2_google": {
+       "judgement": "SOME CONCERNS",
+       "signalling": {
+        "2.1": "Y",
+        "2.2": "Y",
+        "2.3": "NI",
+        "2.4": "NI",
+        "2.5": "NI",
+        "2.6": "Y"
+       },
+       "rationale": "The trial was open-label, meaning participants and personnel were aware of the assigned intervention. It is unclear if there were any deviations from the intended intervention that arose because of this open-label context. However, an appropriate analysis was used to estimate the effect of assignment (intention-to-treat), as the number of participants analyzed matches the number of participants randomized.",
+       "sources": [
+        "registry record at https://clinicaltrials.gov/study/NCT04023227",
+        "primary publication PMID 41335448"
+       ],
+       "protocol_available": false
+      },
+      "agreed": true,
+      "carried": "SOME CONCERNS"
+     },
+     {
+      "domain": "D3",
+      "domain_name": "bias due to missing outcome data",
+      "assessor_1_openai": {
+       "judgement": "LOW",
+       "signalling": {
+        "3.1": "Y"
+       },
+       "rationale": "For the composite time-to-first-event HR, the analysed denominators equalled the randomized denominators: 462 in the sacubitril/valsartan group and 460 in the enalapril group. The publication reports that all 922 randomized participants were included in the primary efficacy analysis, 2 vs 8 withdrew consent, and no participants were lost to follow-up. The trial protocol/SAP were available for this domain.",
+       "sources": [
+        "Lopes RD et al., JAMA 2026;335(1):49-59, PMID 41335448",
+        "PARACHUTE-HF SAP version 2.1, release date 29-Apr-2025",
+        "Trial packet arm_data"
+       ],
+       "protocol_available": true
+      },
+      "assessor_2_google": {
+       "judgement": "LOW",
+       "signalling": {
+        "3.1": "Y"
+       },
+       "rationale": "Data for the outcome were available for all randomized participants. The full analysis set includes 462 and 460 participants, which is identical to the number of participants randomized in each respective arm.",
+       "sources": [
+        "registry record at https://clinicaltrials.gov/study/NCT04023227",
+        "primary publication PMID 41335448"
+       ],
+       "protocol_available": false
+      },
+      "agreed": true,
+      "carried": "LOW"
+     },
+     {
+      "domain": "D4",
+      "domain_name": "bias in measurement of the outcome",
+      "assessor_1_openai": {
+       "judgement": "LOW",
+       "signalling": {
+        "4.1": "N",
+        "4.2": "N",
+        "4.3": "N"
+       },
+       "rationale": "The outcome was cardiovascular death or first hospitalization for heart failure, ascertained as clinical events and adjudicated by an independent clinical events committee blinded to treatment randomization. The publication states that sites were instructed to report all deaths and hospitalizations regardless of cause and that reviewers remained blinded throughout adjudication. The trial protocol/SAP were available for this domain, although the separate CEC charter was not available.",
+       "sources": [
+        "Lopes RD et al., JAMA 2026;335(1):49-59, PMID 41335448",
+        "ClinicalTrials.gov NCT04023227 record",
+        "PARACHUTE-HF SAP version 2.1, release date 29-Apr-2025"
+       ],
+       "protocol_available": true
+      },
+      "assessor_2_google": {
+       "judgement": "LOW",
+       "signalling": {
+        "4.1": "N",
+        "4.2": "N",
+        "4.3": "N"
+       },
+       "rationale": "The method of measuring the outcome (composite of cardiovascular death or heart failure hospitalization) is standard and appropriate, and unlikely to differ between groups. Furthermore, the trial utilized blinded endpoint adjudication, ensuring that outcome assessors were unaware of the assigned interventions.",
+       "sources": [
+        "registry record at https://clinicaltrials.gov/study/NCT04023227",
+        "primary publication PMID 41335448"
+       ],
+       "protocol_available": false
+      },
+      "agreed": true,
+      "carried": "LOW"
+     },
+     {
+      "domain": "D5",
+      "domain_name": "bias in selection of the reported result",
+      "assessor_1_openai": {
+       "judgement": "LOW",
+       "signalling": {
+        "5.1": "PY",
+        "5.2": "N",
+        "5.3": "N"
+       },
+       "rationale": "The assessed result was the first secondary endpoint and was specified in the registry/SAP as time from randomization to first heart-failure hospitalization or cardiovascular death. The SAP specifies Cox proportional hazards modelling stratified by country with treatment as a fixed effect and presentation of the HR and 95% CI for the full analysis set; the publication reports that same HR. The SAP version used was released before the reported May-July 2025 statistical analysis, but because it was finalized after study completion, the answer to 5.1 is probably yes rather than yes. The trial protocol/SAP were available for this domain.",
+       "sources": [
+        "ClinicalTrials.gov NCT04023227 record",
+        "Lopes RD et al., JAMA 2026;335(1):49-59, PMID 41335448",
+        "PARACHUTE-HF SAP version 2.1, release date 29-Apr-2025"
+       ],
+       "protocol_available": true
+      },
+      "assessor_2_google": {
+       "judgement": "SOME CONCERNS",
+       "signalling": {
+        "5.1": "NI",
+        "5.2": "NI",
+        "5.3": "NI"
+       },
+       "rationale": "Neither the trial protocol nor the statistical analysis plan was supplied, so it cannot be confirmed whether the result was analyzed in accordance with a pre-specified plan. Consequently, there is insufficient information to rule out the possibility of selective reporting based on multiple outcome measurements or analyses.",
+       "sources": [
+        "registry record at https://clinicaltrials.gov/study/NCT04023227",
+        "primary publication PMID 41335448"
+       ],
+       "protocol_available": false
+      },
+      "agreed": false,
+      "carried": "SOME CONCERNS"
+     }
+    ],
+    "overall_assessor_1_openai": {
+     "judgement": "SOME CONCERNS",
+     "rationale": "By the standard RoB-2 algorithm, the overall judgement is SOME CONCERNS because D2 raises SOME CONCERNS. No domain was judged HIGH, but the result cannot be LOW overall because not every domain was LOW."
+    },
+    "overall_assessor_2_google": {
+     "judgement": "SOME CONCERNS",
+     "rationale": "The overall risk of bias is judged to raise some concerns. While the trial has a low risk of bias regarding missing outcome data and measurement of the outcome (due to complete follow-up and blinded endpoint adjudication), there is a lack of information on allocation concealment, potential deviations due to the open-label design, and the absence of a protocol or statistical analysis plan to verify a pre-specified analysis."
+    },
+    "overall_agreed": true
+   }
+  ],
+  "disagreements": [
+   {
+    "trial": "paradigm-hf",
+    "domain": "D5",
+    "domain_name": "bias in selection of the reported result",
+    "assessor_1_openai": "SOME CONCERNS",
+    "assessor_2_google": "LOW",
+    "provisional_carry": "SOME CONCERNS",
+    "carry_rule": "the more cautious of the two, carried provisionally only",
+    "status": "AWAITING ADJUDICATION by the named human (Mahmood Ahmad)",
+    "assessor_1_rationale": "The result being pooled is the trial's reported primary composite endpoint and matches the registry/publication description, so selection from multiple outcome measurements is unlikely. However, no trial protocol or statistical analysis plan was available to me, so I could not verify that the Cox model, covariate adjustment, censoring rules, interim-analysis stopping rule implementation, and full-analysis-set handling followed a finalized prespecified analysis plan before unblinded results were available.",
+    "assessor_2_rationale": "The reported result is the trial's own primary composite endpoint. This makes it highly unlikely that the numerical result was selected from multiple eligible outcome measurements or analyses based on the data. I did not have the trial protocol or statistical analysis plan for this domain."
+   },
+   {
+    "trial": "parallel-hf",
+    "domain": "D1",
+    "domain_name": "bias arising from the randomization process",
+    "assessor_1_openai": "SOME CONCERNS",
+    "assessor_2_google": "LOW",
+    "provisional_carry": "SOME CONCERNS",
+    "carry_rule": "the more cautious of the two, carried provisionally only",
+    "status": "AWAITING ADJUDICATION by the named human (Mahmood Ahmad)",
+    "assessor_1_rationale": "For this pooled result, the registry and primary paper state that participants were randomized 1:1, with NT-proBNP stratification, supporting a probably random sequence. I did not have or rely on the trial protocol or SAP for this domain, and the accessible sources did not describe how allocation was concealed before assignment. Baseline characteristics in the full analysis set were broadly similar, with some imbalances but none clearly indicating a failed randomization process.",
+    "assessor_2_rationale": "The trial was a randomized phase 3 study. According to the primary publication, the allocation sequence was generated and concealed using an interactive response system, and baseline characteristics did not suggest any baseline imbalances that would indicate a problem with the randomization process. I did not have the trial protocol or statistical analysis plan for this domain."
+   },
+   {
+    "trial": "parallel-hf",
+    "domain": "D5",
+    "domain_name": "bias in selection of the reported result",
+    "assessor_1_openai": "SOME CONCERNS",
+    "assessor_2_google": "LOW",
+    "provisional_carry": "SOME CONCERNS",
+    "carry_rule": "the more cautious of the two, carried provisionally only",
+    "status": "AWAITING ADJUDICATION by the named human (Mahmood Ahmad)",
+    "assessor_1_rationale": "The pooled result is the trial's own primary composite endpoint, and the registry, first posted before study start, identifies the objective as delaying time to first cardiovascular death or heart-failure hospitalization; the primary publication reports that same CEC-confirmed endpoint with the HR. However, I did not have or rely on the trial protocol or SAP for this domain, so I could not verify that the exact Cox model and analysis choices were fixed before unblinded outcome data were available. The available sources do not suggest selection from multiple outcome measurements, but they do not provide enough information to rule out selection from multiple eligible analyses.",
+    "assessor_2_rationale": "The result corresponds to the trial's pre-specified primary composite endpoint, which aligns with the prospective registry record established prior to unblinding. The numerical result is unlikely to have been selected from multiple outcome definitions or multiple analyses of the data. I did not have the trial protocol or statistical analysis plan for this domain."
+   },
+   {
+    "trial": "parachute-hf",
+    "domain": "D1",
+    "domain_name": "bias arising from the randomization process",
+    "assessor_1_openai": "LOW",
+    "assessor_2_google": "SOME CONCERNS",
+    "provisional_carry": "SOME CONCERNS",
+    "carry_rule": "the more cautious of the two, carried provisionally only",
+    "status": "AWAITING ADJUDICATION by the named human (Mahmood Ahmad)",
+    "assessor_1_rationale": "The result rests on a trial described as randomized 1:1 using a central, concealed, web-based automated randomization system, with stratification by country. The primary publication reports balanced baseline characteristics, and the arm sizes were 462 vs 460 without an imbalance suggesting a randomization failure. The trial protocol/SAP were available for this domain.",
+    "assessor_2_rationale": "The trial is described as randomized, but there is no information provided in the inputs regarding the method of allocation sequence concealment or whether baseline differences suggested a problem with the randomization process."
+   },
+   {
+    "trial": "parachute-hf",
+    "domain": "D5",
+    "domain_name": "bias in selection of the reported result",
+    "assessor_1_openai": "LOW",
+    "assessor_2_google": "SOME CONCERNS",
+    "provisional_carry": "SOME CONCERNS",
+    "carry_rule": "the more cautious of the two, carried provisionally only",
+    "status": "AWAITING ADJUDICATION by the named human (Mahmood Ahmad)",
+    "assessor_1_rationale": "The assessed result was the first secondary endpoint and was specified in the registry/SAP as time from randomization to first heart-failure hospitalization or cardiovascular death. The SAP specifies Cox proportional hazards modelling stratified by country with treatment as a fixed effect and presentation of the HR and 95% CI for the full analysis set; the publication reports that same HR. The SAP version used was released before the reported May-July 2025 statistical analysis, but because it was finalized after study completion, the answer to 5.1 is probably yes rather than yes. The trial protocol/SAP were available for this domain.",
+    "assessor_2_rationale": "Neither the trial protocol nor the statistical analysis plan was supplied, so it cannot be confirmed whether the result was analyzed in accordance with a pre-specified plan. Consequently, there is insufficient information to rule out the possibility of selective reporting based on multiple outcome measurements or analyses."
+   }
+  ],
+  "adjudication": {
+   "adjudicator": "Mahmood Ahmad (named human)",
+   "status": "PENDING",
+   "resolved": 0,
+   "open": 5
+  },
+  "integrity_flags": [
+   {
+    "flag": "assessor 1 cited a statistical analysis plan by version number and release date",
+    "detail": "'PARACHUTE-HF SAP version 2.1, release date 29-Apr-2025' appears in assessor 1's D1 and D2 sources, and it marked protocol_available true for those domains. That specificity was not in the packet we supplied. It is either a genuine retrieval or a recalled identifier, and the output alone cannot tell us which.",
+    "action": "NOT adopted. Any domain resting on it is treated as protocol-unavailable until the SAP is retrieved and checked. This is the identifier-from-recall failure mode this project has already been caught by once.",
+    "affects": [
+     "parachute-hf D1",
+     "parachute-hf D2"
+    ]
+   }
+  ],
+  "no_domain_reached_high": true
+ }
 }
