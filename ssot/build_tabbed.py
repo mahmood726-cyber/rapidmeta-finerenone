@@ -400,8 +400,9 @@ def build(canon):
         "searchstrings": p2.search_strings_card(canon, p),
         "screening": p2.screening_cards(canon, p),
         "corpus": p2.corpus_card(canon, p),
-        "carried": "", "considered": "", "components": "", "rob": "",
-        "switching": "",
+        "carried": "", "considered": "", "components": "",
+        "rob": p2.rob2_card(canon, p),
+        "switching": p2.discrepancies_card(canon, p),
         "sources_card": ("<div class='card'>%s  <h2>Sources</h2>%s  <table>%s"
                          "    <tr><th>Layer</th><th>Source</th>"
                          "<th>How it was obtained</th></tr>%s%s  </table>%s</div>%s"

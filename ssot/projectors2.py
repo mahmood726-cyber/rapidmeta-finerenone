@@ -279,11 +279,34 @@ def grade_section(res, p):
                     " &mdash; " + p(because) if because else "", NL))
     deriv = ("  <p><small>%s</small></p>%s" % (p(g["certainty_derivation"]), NL)
              if g.get("certainty_derivation") else "")
+    # Whether the completed RoB-2 moved this rating, projected EITHER WAY. A
+    # rating that survives an assessment and one that was never tested look
+    # identical on the page unless the page says which it is, and the protocol
+    # requires the no-movement case to be stated as explicitly as movement.
+    rr = ((g.get("domains") or {}).get("risk_of_bias") or {}).get(
+        "rob2_effect_on_this_rating")
+    effect = ""
+    if rr:
+        effect = ("<div class='card%s'>%s  <h3>Did the completed RoB-2 assessment "
+                  "move this rating?</h3>%s  <p><strong>%s.</strong> It was "
+                  "<strong>%s</strong> before the assessment and is "
+                  "<strong>%s</strong> after it.</p>%s  <p>%s</p>%s"
+                  "  <p><small>The opposite reading, recorded rather than "
+                  "suppressed: %s</small></p>%s"
+                  "  <p><small>What would change it: %s</small></p>%s</div>%s"
+                  % ("" if rr.get("moved") else " warn", NL, NL,
+                     "Yes" if rr.get("moved") else "No, it does NOT move",
+                     p(rr.get("rating_before_rob2", "")),
+                     p(rr.get("rating_after_rob2", "")), NL,
+                     p(rr.get("why_it_does_not_move", "")), NL,
+                     p(rr.get("counter_argument_recorded", "")), NL,
+                     p(rr.get("conditions_under_which_it_would_move", "")), NL, NL))
     return ("<div class='card'>%s  <h3>Certainty of the evidence (GRADE)</h3>%s"
             "  <p><strong>Certainty: %s</strong></p>%s%s%s  <table>%s"
             "    <tr><th>Domain</th><th>Rating</th><th>Why it was rated that way"
-            "</th></tr>%s%s  </table>%s</div>%s"
-            % (NL, NL, p(g["certainty"]), NL, start, deriv, NL, NL, rows, NL, NL))
+            "</th></tr>%s%s  </table>%s</div>%s%s"
+            % (NL, NL, p(g["certainty"]), NL, start, deriv, NL, NL, rows, NL, NL,
+               effect))
 
 
 def analysis_figures(res, outcome, p):
@@ -369,3 +392,113 @@ def count_figures(res, p):
                    "range of control risks so a reader can read off the value for "
                    "the patient in front of them.")
     return out
+
+
+def rob2_card(canon, p):
+    """RoB-2, both assessors shown side by side and NOT reconciled.
+
+    A risk-of-bias table that shows one column has already made a choice the
+    reader cannot see. Two assessors disagreed on a third of the domains here, so
+    a single column would be a reconciliation presented as an observation. Both
+    are projected, the agreement rate is projected as measured, and the open
+    disagreements are projected as open.
+    """
+    rb = canon.get("rob2")
+    if not rb or not rb.get("trials"):
+        return ""
+    a = rb["assessors"]
+    f1, f2 = a[0].get("model_family", "1"), a[1].get("model_family", "2")
+    ag = rb.get("agreement") or {}
+    rows = ""
+    for t in rb["trials"]:
+        for dm in t["domains"]:
+            j1 = dm["assessor_1_openai"].get("judgement", "")
+            j2 = dm["assessor_2_google"].get("judgement", "")
+            mark = "yes" if dm["agreed"] else "<strong>NO</strong>"
+            rows += ("    <tr><td>%s</td><td>%s %s</td><td>%s</td><td>%s</td>"
+                     "<td>%s</td><td>%s</td></tr>%s"
+                     % (p(t["trial"]), dm["domain"], p(dm["domain_name"]),
+                        p(j1), p(j2), mark, p(dm["carried"]), NL))
+    ov = "".join(
+        "    <tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>%s"
+        % (p(t["trial"]), p(t["overall_assessor_1_openai"].get("judgement", "")),
+           p(t["overall_assessor_2_google"].get("judgement", "")),
+           "yes" if t["overall_agreed"] else "<strong>NO</strong>", NL)
+        for t in rb["trials"])
+    dis = ""
+    if rb.get("disagreements"):
+        dis = ("<div class='card warn'>%s  <h3>Open disagreements (%d)</h3>%s"
+               "  <table>%s    <tr><th>Trial</th><th>Domain</th><th>%s</th>"
+               "<th>%s</th><th>Carried</th></tr>%s%s  </table>%s"
+               "  <p><small>Carried at the more cautious of the two, provisionally. "
+               "Adjudicator: %s. Status: %s.</small></p>%s</div>%s"
+               % (NL, len(rb["disagreements"]), NL, NL, p(f1), p(f2), NL,
+                  "".join("    <tr><td>%s</td><td>%s %s</td><td>%s</td><td>%s</td>"
+                          "<td>%s</td></tr>%s"
+                          % (p(x["trial"]), x["domain"], p(x["domain_name"]),
+                             p(x["assessor_1_openai"]), p(x["assessor_2_google"]),
+                             p(x["provisional_carry"]), NL)
+                          for x in rb["disagreements"]),
+                  NL, p((rb.get("adjudication") or {}).get("adjudicator", "")),
+                  p((rb.get("adjudication") or {}).get("status", "")), NL, NL))
+    flags = "".join(
+        "<div class='card warn'>%s  <h3>Integrity flag</h3>%s  <p>%s</p>%s"
+        "  <p>%s</p>%s  <p><small>Action taken: %s</small></p>%s</div>%s"
+        % (NL, NL, p(x.get("flag", "")), NL, p(x.get("detail", "")), NL,
+           p(x.get("action", "")), NL, NL)
+        for x in (rb.get("integrity_flags") or []))
+    return ("<div class='card'>%s  <h2>Risk of bias (RoB-2)</h2>%s  <p>%s</p>%s"
+            "  <p><small>Variant: %s</small></p>%s"
+            "  <p><small>Unit assessed: %s</small></p>%s"
+            "  <p><small>Assessor 1: %s (%s family). Assessor 2: %s (%s family). "
+            "%s</small></p>%s"
+            "  <table>%s    <tr><th>Trial</th><th>Domain</th><th>Assessor 1 (%s)</th>"
+            "<th>Assessor 2 (%s)</th><th>Agreed</th><th>Carried</th></tr>%s%s"
+            "  </table>%s</div>%s"
+            "<div class='card'>%s  <h3>Overall judgement per trial</h3>%s"
+            "  <table>%s    <tr><th>Trial</th><th>Assessor 1 (%s)</th>"
+            "<th>Assessor 2 (%s)</th><th>Agreed</th></tr>%s%s  </table>%s</div>%s"
+            "<div class='card'>%s  <h3>Inter-assessor agreement, as measured</h3>%s"
+            "  <p>Per-domain: <span class='num'>%s</span> of "
+            "<span class='num'>%s</span> agreed "
+            "(<span class='num'>%s%%</span>). Overall: <span class='num'>%s</span> "
+            "of <span class='num'>%s</span>.</p>%s  <p>%s</p>%s</div>%s%s%s"
+            % (NL, NL, p(rb.get("assembler_excluded", "")), NL,
+               p(rb.get("variant", "")), NL, p(rb.get("unit_of_assessment", "")), NL,
+               p(a[0].get("model", "")), p(f1), p(a[1].get("model", "")), p(f2),
+               p(rb.get("blinding", "")), NL,
+               NL, p(f1), p(f2), NL, rows, NL, NL,
+               NL, NL, NL, p(f1), p(f2), NL, ov, NL, NL,
+               NL, NL, ag.get("per_domain_agreed", ""), ag.get("per_domain_total", ""),
+               ag.get("per_domain_rate_pct", ""), ag.get("overall_agreed", ""),
+               ag.get("overall_total", ""), NL,
+               p(ag.get("comparison_to_screening", "")), NL, NL, dis, flags))
+
+
+def discrepancies_card(canon, p):
+    """Quantities on which two sources disagree. Both values, neither adopted.
+
+    Our own multi-source extraction did not record the PARACHUTE-HF serious
+    adverse event disagreement; a blinded comparator found it. Carrying one side
+    silently is how a review inherits a number nobody checked, so both sides are
+    projected with their pointers and the row is marked unresolved.
+    """
+    rows = [(t.get("name") or t["id"], x) for t in canon["inputs"]["trials"]
+            for x in (t.get("discrepancies") or [])]
+    if not rows:
+        return ""
+    body = "".join(
+        "    <tr><td>%s</td><td>%s</td><td class='num'>%s</td>"
+        "<td class='num'>%s</td><td>%s</td></tr>%s"
+        % (p(nm), p(x["quantity"]), p(x["registry_value"]),
+           p(x["publication_value"]), p(x["status"]), NL) for nm, x in rows)
+    notes = "".join(
+        "  <p><small>%s, %s. Registry: %s. Publication: %s.</small></p>%s"
+        "  <p>%s</p>%s  <p><small>%s</small></p>%s"
+        % (p(nm), p(x["quantity"]), p(x["registry_pointer"]),
+           p(x["publication_pointer"]), NL, p(x["why_it_matters"]), NL,
+           p(x.get("lesson", "")), NL) for nm, x in rows)
+    return ("<div class='card warn'>%s  <h2>Where two sources disagree</h2>%s"
+            "  <table>%s    <tr><th>Trial</th><th>Quantity</th><th>Registry</th>"
+            "<th>Publication</th><th>Status</th></tr>%s%s  </table>%s%s</div>%s"
+            % (NL, NL, NL, NL, body, NL, notes, NL))
