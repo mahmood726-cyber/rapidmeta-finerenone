@@ -1,0 +1,48 @@
+{
+ "note": "A defect that has been displayed gets a recorded history, not a silent overwrite.",
+ "entries": [
+  {
+   "defect": "IDENTITY-01",
+   "page": "BLADDER_UROTHEL_FRONTLINE_IO_NMA_REVIEW.html",
+   "nct": "NCT02853305",
+   "was_displayed": "KEYNOTE-052",
+   "now": "KEYNOTE-361",
+   "status": "CORRECTED",
+   "corrected_utc": "2026-08-12T18:25:21Z",
+   "evidence": "ClinicalTrials.gov NCT02853305 retrieved live: brief title 'Study of Pembrolizumab With or Without Platinum-based Combination Chemotherapy Versus Chemotherapy Alone in Urothelial Carcinoma (MK-3475-361/KEYNOTE-361)', Phase 3, INTERVENTIONAL, enrolment 1010, interventions pembrolizumab/cisplatin/carboplatin/gemcitabine, sponsor Merck Sharp & Dohme. KEYNOTE-052 is the single-arm cisplatin-ineligible study and is a different trial.",
+   "how_found": "The corpus contained its own refutation: ANTI_PDL1_BLADDER_REVIEW.html already carried NCT02853305 as KEYNOTE-361 while this page carried it as KEYNOTE-052. One NCT mapping to two acronyms across apps is the bijection violation the identity detector exists to catch.",
+   "severity": "A randomised 1010-patient trial with chemotherapy comparator arms was displayed under the name of a single-arm study. Any pool treating this row as single-arm, or any reader tracing the citation, was misdirected.",
+   "adjudicated_by": "build lane (single writer), on a live registry lookup",
+   "verified_at": "source string; rendered-page verification pending"
+  },
+  {
+   "defect": "IDENTITY-02",
+   "page": "COVID19_HOSPITALIZED_TX_REVIEW.html",
+   "nct": "NCT04575597",
+   "was_displayed": "PINETREE",
+   "now": "MOVe-OUT",
+   "status": "CORRECTED",
+   "corrected_utc": "2026-08-12T19:17:25Z",
+   "evidence": "ClinicalTrials.gov NCT04575597 retrieved live: 'Efficacy and Safety of Molnupiravir (MK-4482) in Non-Hospitalized Adult Participants With COVID-19 (MK-4482-002)', Phase 2/3, interventions Molnupiravir/Placebo, sponsor Merck Sharp & Dohme, enrolment 1735. PINETREE is a remdesivir trial sponsored by Gilead -- a different drug and a different sponsor.",
+   "how_found": "COVID_ORAL_ANTIVIRALS_REVIEW.html already carried this NCT correctly as MOVe-OUT.",
+   "severity": "An oral antiviral trial was displayed under the name of an intravenous antiviral trial. A reader tracing the citation reaches the wrong drug.",
+   "adjudicated_by": "build lane, on a live registry lookup"
+  },
+  {
+   "defect": "DEFECT-01-TWILIGHT",
+   "object": "cardiology_mortality_atlas.json",
+   "path": "classes[20].pool",
+   "status": "SUPPRESSED",
+   "suppressed_utc": "2026-08-12T19:17:25Z",
+   "was_displayed": {
+    "pool": "0.90 (0.80-1.02)",
+    "k": 2,
+    "label": "P2Y12 mono, Post-PCI (selected), Class IIa",
+    "derived_judgement": "guideline concordance 'overstrong'"
+   },
+   "reached_readers_via": "Traced BY VALUE, not by name: the atlas page renders class-level aggregates, so 'TWILIGHT' never appears on it. build_html() and the JSON writer read the same `results` variable, so the JSON is the same computation serialised, not an unread side-file. Verified on the rendered page: the string 'P2Y12 mono Post-PCI (selected) Class IIa 2 0.90 (0.80-1.02)' is in the visible text.",
+   "correction_to_my_own_earlier_finding": "I previously reported that this page 'reads neither JSON' and that correcting it 'corrects nothing a reader sees'. That was wrong. I had searched for the trial name and the NCT, found neither in 63 KB, and treated absence of an identifier as absence of the value. String search is not evidence of reachability.",
+   "adjudicated_by": "build lane, on the retirement lane's value-propagation trace, independently reproduced here"
+  }
+ ]
+}
