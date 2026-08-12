@@ -29,8 +29,29 @@ from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parents[1]
 SKIP = {"LivingMeta.html", "META_DASHBOARD.html", "AutoGRADE.html", "AutoManuscript.html"}
 
+# SCOPE. The header claimed 53 apps; the glob returns every *_REVIEW.html in the
+# repo, which is 1449, so the "~60 second" hook was in fact an hours-long walk and
+# that is why it hung. `--only` restricts the walk to named pages, which lets the
+# pre-push hook check exactly the pages a push touches instead of the whole corpus.
+# `--only` present at all means the caller is naming the scope. An EMPTY list then
+# means "no pages in scope", not "every page" -- the first cut fell through to the
+# full 1449-page walk on `--only` with no arguments, which is the same failure the
+# hook had: a flag that cannot restrict is not a scope.
+_scoped = "--only" in sys.argv
+_only = []
+if _scoped:
+    _i = sys.argv.index("--only")
+    _only = [a.replace(".html", "") for a in sys.argv[_i + 1:] if a.endswith(".html")
+             or a.endswith("_REVIEW")]
+
 apps = sorted([p.name.replace('.html', '') for p in ROOT.glob("*_REVIEW.html")])
-print(f"Regression checking {len(apps)} apps")
+if _scoped:
+    apps = [a for a in apps if a in set(_only)]
+print(f"Regression checking {len(apps)} apps"
+      + (" (scoped by --only)" if _scoped else ""))
+if not apps:
+    print("No app pages in scope for this run.")
+    sys.exit(0)
 
 signals = {
     "page_errors": [],
@@ -125,3 +146,19 @@ for k, v in signals.items():
 Path("/tmp/regression_results.json").write_text(json.dumps({k: v for k, v in signals.items()}, default=str), encoding='utf-8')
 print()
 print("Raw JSON saved to /tmp/regression_results.json")
+
+# THE FAILURE PATH. This script previously had no sys.exit ANYWHERE, so it exited 0
+# whatever it found -- and the pre-push hook then read `$?` after a pipe, which is
+# `tail`'s status and also always 0. Two independent reasons the gate could never
+# block a push. A guard that cannot fail is not a guard, so the exit code is now
+# derived from the findings.
+_fail = {k: v for k, v in signals.items() if v}
+if _fail:
+    print()
+    print("REGRESSION CHECK FAILED. Signals firing:")
+    for k, v in _fail.items():
+        print(f"  {k}: {len(v)}")
+    sys.exit(1)
+print()
+print("Regression check clean across the pages in scope.")
+sys.exit(0)

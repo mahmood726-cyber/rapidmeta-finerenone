@@ -1,49 +1,99 @@
 #!/usr/bin/env bash
 # RapidMeta pre-push regression hook.
 #
-# Runs regression_check.py against all 53 *_REVIEW.html apps to verify none
-# of the 7 signals (page errors, trials seeded, auto-include, RoB banner,
-# protocol link, WebR tag, pool computes) have regressed before pushing.
+# Runs scripts/regression_check.py over the *_REVIEW.html pages THIS PUSH TOUCHES
+# and blocks the push if any of the 7 signals fire (page errors, trials seeded,
+# auto-include, RoB banner, protocol link, WebR tag, pool computes).
 #
 # Install once per clone with:  git config core.hooksPath .githooks
-# Skip with:                    SKIP_REGRESSION=1 git push
-# Runtime: ~60 seconds (headless chromium walk over 53 apps).
+#
+# ---------------------------------------------------------------------------
+# WHY THIS FILE WAS REWRITTEN, 2026-08-12
+#
+# The previous version could not fail, for two independent reasons, and so every
+# push this repository has ever made was effectively ungated:
+#
+#   1.  python "$SCRIPT" 2>&1 | tail -15
+#       STATUS=$?
+#     `$?` after a pipeline is the LAST stage's status, so STATUS read `tail`,
+#     which is always 0. The `if [ $STATUS -ne 0 ]` branch was unreachable.
+#
+#   2. scripts/regression_check.py contained no sys.exit at all. Even with the
+#     pipe fixed it exited 0 whatever it found. Both layers had to be repaired;
+#     fixing either alone would have left the gate inert.
+#
+# A third defect made it unusable rather than merely useless: the header claimed
+# "53 apps ... ~60 seconds", but the script globs every *_REVIEW.html in the repo
+# -- 1,449 of them -- so a push sat in a headless-browser walk for hours. That is
+# what made bypassing it feel reasonable, which is how a broken guard survives.
+#
+# There is deliberately NO skip flag. The previous SKIP_REGRESSION escape existed
+# because the gate was slow and inert; scoping it to the pushed pages removes the
+# reason to skip. A push that touches no app page now checks nothing and passes in
+# under a second, which is a scoped pass and not a bypass.
+# ---------------------------------------------------------------------------
 
-set -e
-
-if [ "$SKIP_REGRESSION" = "1" ]; then
-    echo "[pre-push] Regression check skipped via SKIP_REGRESSION=1"
-    exit 0
-fi
+set -euo pipefail
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 SCRIPT="$REPO_ROOT/scripts/regression_check.py"
 
 if [ ! -f "$SCRIPT" ]; then
-    echo "[pre-push] regression_check.py not found at $SCRIPT -- skipping."
+    echo "[pre-push] regression_check.py not found at $SCRIPT" >&2
+    echo "[pre-push] Refusing to pass a check that is not present." >&2
+    exit 1
+fi
+
+# Which app pages does this push actually change? git feeds the hook
+# "<local ref> <local sha> <remote ref> <remote sha>" on stdin, one line per ref.
+CHANGED=""
+while read -r _local_ref local_sha _remote_ref remote_sha; do
+    [ -z "${local_sha:-}" ] && continue
+    case "$local_sha" in *[!0]*) ;; *) continue ;; esac   # deletion, nothing to check
+    case "$remote_sha" in
+        *[!0]*) RANGE="$remote_sha..$local_sha" ;;
+        *)      RANGE="$local_sha" ;;                      # new branch
+    esac
+    FILES="$(git diff --name-only "$RANGE" -- '*_REVIEW.html' 2>/dev/null || true)"
+    CHANGED="$CHANGED $FILES"
+done
+
+CHANGED="$(printf '%s\n' $CHANGED | sed '/^$/d' | sort -u | xargs -r basename -a 2>/dev/null || true)"
+
+if [ -z "$CHANGED" ]; then
+    echo "[pre-push] No *_REVIEW.html pages in this push; nothing to regression-check."
     exit 0
 fi
 
-# Require a running HTTP server on 127.0.0.1:8787 OR start a short-lived one.
+COUNT="$(printf '%s\n' $CHANGED | wc -l | tr -d ' ')"
+echo "[pre-push] Regression checking $COUNT changed app page(s) ..."
+
 PORT=8787
+SERVER_PID=""
 if ! curl -sf "http://127.0.0.1:$PORT/index.html" > /dev/null 2>&1; then
     echo "[pre-push] Starting local HTTP server on :$PORT ..."
     ( cd "$REPO_ROOT" && python -m http.server $PORT --bind 127.0.0.1 > /dev/null 2>&1 ) &
     SERVER_PID=$!
     sleep 2
-    trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
 fi
+cleanup() { [ -n "$SERVER_PID" ] && kill "$SERVER_PID" 2>/dev/null || true; }
+trap cleanup EXIT
 
-echo "[pre-push] Running 53-app regression check ..."
-python "$SCRIPT" 2>&1 | tail -15
-
+# Status is captured from the SCRIPT, not from a pipe. Output goes to a log and is
+# shown afterwards, so nothing is buffered behind `tail` and nothing masks $?.
+LOG="$(mktemp)"
+set +e
+python "$SCRIPT" --only $CHANGED > "$LOG" 2>&1
 STATUS=$?
-if [ $STATUS -ne 0 ]; then
+set -e
+tail -25 "$LOG"
+
+if [ "$STATUS" -ne 0 ]; then
     echo ""
-    echo "[pre-push] Regression check FAILED. Inspect /tmp/regression_results.json."
-    echo "          Override with: SKIP_REGRESSION=1 git push"
+    echo "[pre-push] Regression check FAILED (exit $STATUS). Full log: $LOG"
+    echo "[pre-push] Fix the regression. This gate has no override."
     exit 1
 fi
 
-echo "[pre-push] Regression check PASS. Proceeding with push."
+echo "[pre-push] Regression check PASS on $COUNT page(s). Proceeding with push."
 exit 0
