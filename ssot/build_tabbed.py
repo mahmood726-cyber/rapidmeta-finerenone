@@ -17,7 +17,8 @@ sys.path.insert(0, HERE)
 
 import build_app_v2 as G          # noqa: E402
 import projectors as pj           # noqa: E402
-import projectors2 as p2          # noqa: E402
+import projectors2 as p2
+import paper as pp          # noqa: E402
 
 NL = pj.NL
 e = html.escape
@@ -366,7 +367,10 @@ def build(canon):
             d = {"name": p(outcome["name"]), "trials": d, "headline": "",
                  "estimand": "", "hb": "", "sens": "", "dissent": "",
                  "subgroups": "", "note": ""}
-        d["forest"] = pj.forest_svg(res, outcome)
+        d["forest"] = pj.forest_ranged(res, outcome, e,
+                                       browser=pj.RASTER.get("browser"),
+                                       workdir=pj.RASTER.get("workdir"),
+                                       outdir=pj.RASTER.get("outdir"))
         d["figures"] = p2.analysis_figures(res, outcome, p)
         d["countfigs"] = p2.count_figures(res, p)
         d["grade"] = p2.grade_section(res, p)
@@ -377,6 +381,7 @@ def build(canon):
         parts.append(d)
 
     rd = pj.readiness(canon)
+    first_oid = next(iter(canon["results"]["by_outcome"]))
     first_res = next(iter(canon["results"]["by_outcome"].values()))
     srcs = canon.get("sources") or {}
     sources_rows = "".join(
@@ -409,20 +414,56 @@ def build(canon):
                          % (NL, NL, NL, NL, sources_rows, NL, NL)),
         "network": "", "recon": "", "removal": "",
         "output": output_card(canon, p),
-        "paper": paper_studio(canon, first_res, p),
+        "paper": (pp.manuscript_section(canon, first_res, first_oid, p)
+                  + paper_studio(canon, first_res, p)),
     }
     body, tab_css = pj.tabbed_body(canon, parts, page)
     return """<meta charset="utf-8">
 <title>%s</title>
 <style>
- body{font-family:system-ui,-apple-system,sans-serif;max-width:64rem;margin:0 auto;padding:1.5rem;line-height:1.6;color:#111}
- .card{border:1px solid #d4d4d8;border-radius:.5rem;padding:1rem;margin:1rem 0}
- .card.warn{border-color:#b45309;background:#fffbeb}
+ :root{--bg:#fff;--fg:#111;--line:#d4d4d8;--muted:#3f3f46;
+       --warnb:#b45309;--warnbg:#fffbeb;--accent:#1d4ed8}
+ @media (prefers-color-scheme:dark){:root{--bg:#0f1115;--fg:#e8e8ec;
+       --line:#33363d;--muted:#a8adb8;--warnb:#d99b3c;--warnbg:#241d10;
+       --accent:#7aa2ff}}
+ /* Manual override, checkbox + CSS only. :has() keeps the control at the top of
+    the document without wrapping the whole body in an extra element. */
+ body:has(#dm:checked){--bg:#0f1115;--fg:#e8e8ec;--line:#33363d;--muted:#a8adb8;
+       --warnb:#d99b3c;--warnbg:#241d10;--accent:#7aa2ff}
+ @media (prefers-color-scheme:dark){body:has(#dm:checked){--bg:#fff;--fg:#111;
+       --line:#d4d4d8;--muted:#3f3f46;--warnb:#b45309;--warnbg:#fffbeb;
+       --accent:#1d4ed8}}
+ body{font-family:system-ui,-apple-system,sans-serif;max-width:64rem;
+       margin:0 auto;padding:1.5rem;line-height:1.6;
+       color:var(--fg);background:var(--bg)}
+ #dm{position:absolute;width:1px;height:1px;opacity:0}
+ .dml{position:fixed;top:.5rem;right:.5rem;z-index:9;border:1px solid var(--line);
+       border-radius:1rem;padding:.15rem .6rem;font-size:.8rem;cursor:pointer;
+       background:var(--bg);color:var(--muted)}
+ svg{color:var(--fg)}
+ .fwr{position:absolute;width:1px;height:1px;opacity:0}
+ .fwl{display:inline-block;border:1px solid var(--line);border-radius:.35rem;
+       padding:.1rem .55rem;margin:0 .3rem .4rem 0;font-size:.85rem;
+       cursor:pointer;color:var(--muted)}
+ /* height:0 rather than display:none -- display:none drops the node from
+    document.body.innerText and the invariance detector would see nothing. */
+ .fwp{height:0;overflow:hidden}
+ #fw-fit:checked~#fwp-fit,#fw-w1:checked~#fwp-w1,
+ #fw-w2:checked~#fwp-w2,#fw-w3:checked~#fwp-w3{height:auto;overflow:visible}
+ #fw-fit:checked~.fwl[for=fw-fit],#fw-w1:checked~.fwl[for=fw-w1],
+ #fw-w2:checked~.fwl[for=fw-w2],#fw-w3:checked~.fwl[for=fw-w3]{
+       border-color:var(--accent);color:var(--fg);font-weight:600}
+ .card{border:1px solid var(--line);border-radius:.5rem;padding:1rem;margin:1rem 0}
+ .card.warn{border-color:var(--warnb);background:var(--warnbg)}
  .num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
- table{border-collapse:collapse;width:100%%} th,td{border:1px solid #d4d4d8;padding:.5rem;text-align:left;vertical-align:top}
- small{color:#3f3f46}
+ table{border-collapse:collapse;width:100%%} th,td{border:1px solid var(--line);padding:.5rem;text-align:left;vertical-align:top}
+ small{color:var(--muted)}
+ a{color:var(--accent)}
 %s</style>
 
+<input type="checkbox" id="dm"><label for="dm" class="dml" title="Switch the page
+between light and dark. Figures inherit the text colour, so they stay legible in
+both; downloaded files are always generated light for print.">&#9681; theme</label>
 %s
 <h1>%s</h1>
 <p>%s</p>
@@ -439,5 +480,13 @@ that this page faithfully reports them.</small></p>
 if __name__ == "__main__":
     obj = json.load(open(sys.argv[1], encoding="utf-8"))
     out = sys.argv[2]
+    # Raster handles, resolved once. If no headless browser is present the
+    # figures still build and offer the vector format, and each figure SAYS the
+    # rasters were not generated rather than quietly offering fewer files.
+    import figures as _fg
+    _rd = os.path.join(os.path.dirname(os.path.abspath(out)) or ".", "figs")
+    os.makedirs(_rd, exist_ok=True)
+    pj.RASTER.update(browser=_fg.find_browser(), workdir=_rd, outdir=_rd)
+    print("raster browser: %s" % (pj.RASTER["browser"] or "NONE -- vector only"))
     open(out, "w", encoding="utf-8").write(build(obj))
     print("built %s (%d bytes)" % (out, os.path.getsize(out)))

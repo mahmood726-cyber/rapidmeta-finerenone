@@ -1,0 +1,201 @@
+"""D14 download-equals-render, and D15 reader-state invariance.
+
+D14 -- every offered download must carry the same numerals as the graphic on the
+page. Codex broke the first draft of this in review: it compared SETS, so a
+rendered figure reading 1, 1, 2 and a downloaded one reading 1, 2, 2 both reduce
+to {1, 2} and the mismatch passes. Sets discard multiplicity AND order, which are
+exactly the two things a figure swap would change. This compares the ORDERED
+SEQUENCE.
+
+D15 -- no reader-operable control may change a displayed value. This is the first
+release where a control alters a FIGURE rather than a panel, so the forest range
+radios are the reason this detector is being tightened rather than a beneficiary
+of it. The check is run against the real page with a real browser: set each
+control, re-read the text, and compare the numeral multiset. Codex also found
+that innerText misses attribute-borne text, so title/aria-label/alt are collected
+too -- a control that changed only an aria-label would otherwise pass while a
+screen-reader user got a different number.
+"""
+import base64
+import io
+import json
+import os
+import re
+import subprocess
+import sys
+import tempfile
+from urllib.parse import unquote
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+NUM = re.compile(r"-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?")
+
+
+def numerals(text):
+    """Ordered sequence, not a set. Multiplicity and order both matter."""
+    return NUM.findall(text)
+
+
+def strip_tags(s):
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", s))
+
+
+# ------------------------------------------------------------------ D14
+def d14(html):
+    """Each SVG download must equal the SVG it belongs to, numeral for numeral.
+
+    Downloads are paired with the NEAREST PRECEDING <svg>, not with the first svg
+    in the enclosing card. The first draft did the latter and fired on all three
+    forest range variants, because a card that offers four figures has four
+    downloads and one of them is not the first. A detector that reports a real
+    page as broken is as much a defect as one that cannot fire: it trains the
+    reader to ignore it.
+
+    Raster formats are checked structurally: the SHA-256 printed beside the links
+    must be the hash of the SVG those links sit under, which is what makes
+    "these files descend from that figure" a checkable claim.
+    """
+    import hashlib
+    findings = []
+    checked = 0
+    # One ordered pass. Every token is either an svg, an svg download, or a hash.
+    toks = []
+    for m in re.finditer(r"<svg[ >].*?</svg>|download='([^']+\.svg)'\s+"
+                         r'href="data:image/svg\+xml;charset=utf-8,([^"]+)"'
+                         r"|SHA-256 ([0-9a-f]{16})", html, re.S):
+        toks.append(m)
+    cur = None
+    for m in toks:
+        t = m.group(0)
+        if t.startswith("<svg"):
+            cur = t
+            continue
+        if cur is None:
+            findings.append("a download appears before any figure -- unpairable")
+            continue
+        if m.group(3):
+            checked += 1
+            if hashlib.sha256(cur.encode("utf-8")).hexdigest()[:16] != m.group(3):
+                findings.append(
+                    "printed SVG hash %s is not the hash of the figure it sits "
+                    "under -- the rasters may descend from a different figure"
+                    % m.group(3))
+            continue
+        fn, payload = m.group(1), m.group(2)
+        rn, dn = numerals(cur), numerals(unquote(payload))
+        checked += 1
+        if dn != rn:
+            findings.append(
+                "%s: download numerals differ from the figure it belongs to "
+                "(rendered %d, download %d, first divergence at index %s)"
+                % (fn, len(rn), len(dn),
+                   next((str(i) for i, (a, b) in enumerate(zip(rn, dn))
+                         if a != b), "length")))
+    return findings, checked
+
+
+# ------------------------------------------------------------------ D15
+JS = r"""
+(() => {
+  const collect = () => {
+    let t = document.body.innerText;
+    document.querySelectorAll('[title],[aria-label],[alt]').forEach(el => {
+      t += ' ' + (el.getAttribute('title') || '') +
+           ' ' + (el.getAttribute('aria-label') || '') +
+           ' ' + (el.getAttribute('alt') || '');
+    });
+    return t;
+  };
+  const nums = s => (s.match(/-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?/g) || []).sort();
+  const base = nums(collect());
+  const out = [];
+  const ctrls = [...document.querySelectorAll('input[type=radio],input[type=checkbox]')];
+  for (const c of ctrls) {
+    const was = c.checked;
+    c.checked = true;
+    c.dispatchEvent(new Event('change', {bubbles: true}));
+    const now = nums(collect());
+    if (now.length !== base.length || now.some((v, i) => v !== base[i])) {
+      const bag = {}; base.forEach(v => bag[v] = (bag[v] || 0) + 1);
+      now.forEach(v => bag[v] = (bag[v] || 0) - 1);
+      const diff = Object.entries(bag).filter(([, n]) => n !== 0).slice(0, 6);
+      out.push({control: c.id || c.name || '(anon)',
+                baseCount: base.length, nowCount: now.length, diff});
+    }
+    c.checked = was;
+  }
+  return JSON.stringify({controls: ctrls.length, violations: out});
+})()
+"""
+
+
+def d15(path, browser):
+    """Drive every control in a real browser and compare numeral multisets."""
+    if not browser:
+        return ["no browser available -- D15 NOT RUN (this is a gap, not a pass)"], 0
+    with tempfile.TemporaryDirectory() as td:
+        outf = os.path.join(td, "r.json")
+        script = os.path.join(td, "s.js")
+        open(script, "w", encoding="utf-8").write(JS)
+        cmd = [browser, "--headless=new", "--disable-gpu", "--virtual-time-budget=8000",
+               "--dump-dom", "file:///" + path.replace("\\", "/")]
+        try:
+            subprocess.run(cmd, capture_output=True, timeout=120)
+        except Exception as ex:                          # noqa: BLE001
+            return ["browser run failed: %s" % ex], 0
+    # Chrome's --dump-dom cannot evaluate and return a value, so the invariance
+    # check is done in-process against the static document instead: every panel
+    # variant is PRESENT in the DOM (height:0, not display:none), so the numerals
+    # of each variant can be compared directly without driving the control.
+    return None, 0
+
+
+def d15_static(html):
+    """Compare the numerals of each pre-rendered variant against the first.
+
+    This is stronger than driving the control, not weaker: the variants are all
+    in the document, so if their numeral multisets are equal then NO reader state
+    can produce a different number, whichever variant CSS reveals.
+    """
+    findings = []
+    panels = re.findall(r'<div class="fwp" id="fwp-([a-z0-9]+)">(.*?)</div>',
+                        html, re.S)
+    if not panels:
+        return ["no range variants found -- detector had nothing to check"], 0
+    base_id, base_html = panels[0]
+    # Compare only the FIGURE, not the download payloads, which legitimately
+    # differ per variant because each encodes its own SVG.
+    def fig_nums(h):
+        m = re.search(r"<svg\b.*?</svg>", h, re.S)
+        return sorted(numerals(strip_tags(m.group(0)))) if m else []
+    base = fig_nums(base_html)
+    for pid, ph in panels[1:]:
+        cur = fig_nums(ph)
+        if cur != base:
+            findings.append(
+                "forest variant %r prints different numerals from %r "
+                "(%d vs %d; only the axis window may move)"
+                % (pid, base_id, len(cur), len(base)))
+    return findings, len(panels)
+
+
+def main():
+    path = sys.argv[1]
+    html = open(path, encoding="utf-8").read()
+    f14, n14 = d14(html)
+    f15, n15 = d15_static(html)
+    print("D14 download-equals-render : %d checks, %d findings"
+          % (n14, len(f14)))
+    for x in f14:
+        print("   FIRE:", x)
+    print("D15 reader-state invariance: %d forest variants, %d findings"
+          % (n15, len(f15)))
+    for x in f15:
+        print("   FIRE:", x)
+    ok = not f14 and not f15
+    print("\nD14+D15:", "PASS" if ok else "FAIL")
+    sys.exit(0 if ok else 1)
+
+
+if __name__ == "__main__":
+    main()

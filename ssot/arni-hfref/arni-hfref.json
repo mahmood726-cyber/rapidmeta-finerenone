@@ -9023,5 +9023,149 @@
    }
   ],
   "no_domain_reached_high": true
+ },
+ "manuscript": {
+  "_provenance": "The interpretive prose below is AUTHORED by the review team and stored in the canonical object so that it is reviewable and identical across every surface. It contains no numerals: every quantity is substituted at build time from the results block, so the prose cannot drift from the analysis it describes. Sections that could not be written from what this review holds say so in place, and say what is missing.",
+  "_token_contract": "Quantities are substituted at build time from results.by_outcome[<id>] and its children only. A placeholder that cannot be filled is a build failure, not a cosmetic defect: the build raises rather than letting an unsubstituted marker reach a reader.",
+  "title": "Sacubitril/valsartan versus enalapril for cardiovascular death or heart failure hospitalisation in heart failure with reduced ejection fraction: a systematic review and random-effects meta-analysis of [[k]] randomised trials",
+  "abstract": {
+   "_structure": "structured, IMRaD, as most cardiology journals require",
+   "background": "Angiotensin receptor-neprilysin inhibition changed the treatment of heart failure with reduced ejection fraction on the strength of a single large trial. Because that trial dominates both the guidelines and every subsequent synthesis, the question of what the accumulated randomised evidence shows when that trial is not treated as the answer on its own has a different character from the usual meta-analytic question, and is the question this review asks.",
+   "objective": "To estimate the hazard of a first cardiovascular death or heart failure hospitalisation with sacubitril/valsartan compared with enalapril in adults with heart failure and reduced ejection fraction, and to establish how much of that estimate rests on any one trial.",
+   "data_sources": "PubMed via the NCBI E-utilities interface and ClinicalTrials.gov via the registry API, both queried on [[search_date]] with the strings recorded verbatim in the supplement. No language, date or publication-status filter was applied.",
+   "study_selection": "Randomised trials of sacubitril/valsartan against enalapril in adults with heart failure and reduced ejection fraction reporting the composite of cardiovascular death or heart failure hospitalisation as a time-to-first-event hazard ratio. [[n_records]] records were screened and [[k]] trials contributed. The final condition is a condition on the QUANTITY reported rather than on trial quality: several excluded trials are large, well conducted and directly on topic, and were excluded because they do not report this estimand.",
+   "data_extraction": "Hazard ratios and their intervals were taken from the primary publications and stored on the log scale with the standard error the published interval implies. Risk of bias was assessed with Cochrane RoB-2 by two independent assessors from different model families; both judgement sets and the agreement rate between them are published without reconciliation.",
+   "results": "[[k]] trials with [[n_total]] randomised participants contributed. The pooled hazard ratio was [[pooled]] ([[ci_low]] to [[ci_high]]), favouring sacubitril/valsartan. Between-trial heterogeneity was low (I-squared [[i2]]%, tau-squared [[tau2]], Q [[q]] on [[df]] degrees of freedom). The result is not robust to the removal of the largest trial: omitting it moves the pooled estimate to [[loo_paradigm]], which includes the null. GRADE certainty is [[certainty]].",
+   "conclusions": "Sacubitril/valsartan reduces the hazard of a first cardiovascular death or heart failure hospitalisation compared with enalapril, but at [[certainty]] certainty and with the pooled estimate resting almost entirely on one trial. The two smaller trials are individually compatible with no effect. This is an argument for reading the single large trial as the evidence base rather than for treating the pooled average as independent confirmation of it.",
+   "registration": "Protocol registered as a timestamped, SHA-pinned commit at [[protocol_permalink]] on [[protocol_utc]], [[ordering_margin]] before the first query was executed. The ordering is machine-checkable and is checked at every build."
+  },
+  "introduction": [
+   {
+    "text": "Heart failure with reduced ejection fraction carries a mortality and rehospitalisation burden that renin-angiotensin system inhibition reduces but does not remove. Angiotensin receptor-neprilysin inhibition was developed to act on a second pathway at the same time, combining neprilysin inhibition, which raises natriuretic peptide concentrations, with angiotensin receptor blockade.",
+    "basis": "Background framing consistent with the included trials' own rationale sections."
+   },
+   {
+    "text": "The pivotal comparison against enalapril reported a substantial reduction in the composite of cardiovascular death or heart failure hospitalisation and was stopped early by prespecified rule for overwhelming benefit. That trial is the reason the drug entered guidelines, and it remains by a wide margin the largest randomised comparison of these two agents on this endpoint.",
+    "basis": "PARADIGM-HF, cited in the reference list; the early-stopping fact is recorded in inputs.trials[].risk_of_bias."
+   },
+   {
+    "text": "Two later randomised comparisons against the same active comparator have reported the same composite in different populations. Neither was powered to detect the effect the pivotal trial found, and one reports the composite as a secondary rather than a primary endpoint. They are nonetheless the only additional randomised evidence on this estimand, and whether they support, qualify or merely echo the pivotal result is not answerable by reading any of the three trials on its own.",
+    "basis": "PARACHUTE-HF and PARALLEL-HF, from inputs.trials[]; endpoint rank from results.per_trial[].endpoint_rank_in_its_own_trial."
+   },
+   {
+    "text": "A meta-analysis of three trials, one of which contributes most of the information, is often criticised as adding nothing to the large trial. That criticism is worth taking seriously rather than deflecting, and it is the reason this review reports the leave-one-out analysis as a principal result rather than as a sensitivity appendix. The question this review can answer is not whether the drug works, which the pivotal trial addresses directly, but how much of the pooled estimate survives the removal of that trial, and what the smaller trials are individually compatible with. Both are answerable, and neither is usually reported.",
+    "basis": "Authored rationale for the analysis plan; the leave-one-out result it points to is in results.sensitivity."
+   }
+  ],
+  "methods_prose": [
+   {
+    "heading": "Protocol and registration",
+    "text": "The protocol was registered before any query was executed, as a timestamped commit in a public repository, and is reachable at a SHA-pinned permalink that cannot be rewritten without changing the hash. The interval between registration and the first executed query was [[ordering_margin]], and the ordering is re-tested at every build rather than asserted once. Amendments are recorded as further commits, each marked according to whether it precedes or post-dates the first search, so a reader can see which decisions were made in ignorance of the results and which were not."
+   },
+   {
+    "heading": "Eligibility criteria",
+    "text": "Trials were eligible if they randomised adults with heart failure and reduced ejection fraction to sacubitril/valsartan or to enalapril and reported the composite of cardiovascular death or first heart failure hospitalisation as a time-to-first-event hazard ratio. The fourth condition is a condition on the reported quantity, not on quality. Several excluded records are large, well conducted, and directly concerned with this drug; they are excluded because they report a different estimand, and the supplement records for each one which axis it failed and what it reported instead."
+   },
+   {
+    "heading": "Information sources and search",
+    "text": "PubMed and ClinicalTrials.gov were searched on [[search_date]]. The query strings are reproduced in the supplement exactly as sent, with the endpoint, the parameters, the filters and the UTC time of execution, so that the search can be re-run rather than merely described. No language, date or publication-status filter was applied. [[n_records]] records were returned and every one is listed with its disposition."
+   },
+   {
+    "heading": "Study selection and data collection",
+    "text": "Records were screened against the eligibility axes, and each exclusion records the axis that failed and, where the failure was on a reported quantity, the quantity the record gave instead. One inclusion decision reversed a screener's original exclusion; that adjudication is shown as an override naming the adjudicator and the time, rather than being absorbed silently into the included set."
+   },
+   {
+    "heading": "Effect measures and synthesis",
+    "text": "Hazard ratios were analysed on the log scale by generic inverse variance, with the standard error implied by each published interval. A random-effects model was fitted with the [[estimator]] estimator of the between-study variance; DerSimonian-Laird was not used, because it is known to be biased when the number of trials is small, and with [[k]] trials that condition holds. Heterogeneity is reported as tau-squared alongside I-squared, because I-squared is a proportion and says nothing about the magnitude of the between-trial spread. Results were computed with metafor under R at build time; the figures on this page are drawn from the stored estimates, not recomputed in the browser."
+   },
+   {
+    "heading": "Risk of bias",
+    "text": "Each pooled result was assessed with RoB-2 using the effect-of-assignment variant, at the level of the result being pooled rather than the trial overall. Two assessors worked independently, drawn from different model families and excluding whichever assembled this object. Every signalling question answer is published in the supplement. Agreement is reported as measured, before reconciliation, and disagreements that remain open are shown as open."
+   },
+   {
+    "heading": "Certainty and robustness",
+    "text": "Certainty was rated with GRADE. Robustness was examined by leave-one-out and by refitting under alternative between-study variance estimators, following the Cochrane Handbook's guidance that sensitivity analysis should test the decisions capable of changing the conclusion. The whole analysis was independently recomputed by a second engine and the two were compared to a stated tolerance."
+   }
+  ],
+  "results_prose": [
+   {
+    "heading": "Study selection",
+    "text": "[[n_records]] records were screened and [[k]] trials met all four eligibility conditions, contributing [[n_total]] randomised participants. The count of eligible trials is reported as a LOWER BOUND rather than as a settled number, because a small number of records could not be resolved to a decision from what is publicly reachable; treating an unresolved record as an exclusion would be an assumption presented as a count."
+   },
+   {
+    "heading": "Trial characteristics",
+    "text": "The three trials differ in ways that matter for interpretation. One is a large double-blind trial reporting this composite as its own primary endpoint. One is open-label with blinded endpoint adjudication, enrolled a distinct aetiological population, and reports this composite as its first secondary endpoint behind a win-ratio primary. One is double-blind and small. Characteristics are given in Table 1 and per-arm event counts in Table 2."
+   },
+   {
+    "heading": "Primary synthesis",
+    "text": "The pooled hazard ratio was [[pooled]] ([[ci_low]] to [[ci_high]], [[ci_level]]% interval), favouring sacubitril/valsartan over enalapril. Between-trial heterogeneity was low: I-squared [[i2]]%, tau-squared [[tau2]], with Q of [[q]] on [[df]] degrees of freedom. The individual estimates range from [[min_point]] to [[max_point]], and that spread is real even though the heterogeneity statistics are small, because two of the three intervals are wide."
+   },
+   {
+    "heading": "Robustness",
+    "text": "The pooled result is not robust to the removal of the largest trial. Omitting it gives [[loo_paradigm]], an interval that includes the null. The two smaller trials are therefore individually and jointly compatible with no effect on this composite, and the pooled estimate is best read as the large trial's result, slightly attenuated by two trials that neither confirm nor contradict it. Refitting under alternative between-study variance estimators did not change this conclusion."
+   },
+   {
+    "heading": "Cross-engine verification",
+    "text": "The whole synthesis was recomputed independently and the two engines agreed on the point estimate and both bounds to within the stated tolerance, with Q and its degrees of freedom matching exactly. This establishes that the arithmetic is reproducible; it does not establish that the inputs are correct, and it is reported as the former only."
+   },
+   {
+    "heading": "Risk of bias",
+    "text": "No domain in any trial was rated at high risk of bias by either assessor. The two assessors agreed on [[rob2_agree]]/[[rob2_total]] domain judgements ([[rob2_rate]]%), and on [[rob2_overall_agree]] of [[rob2_overall_total]] overall judgements. That agreement rate is markedly lower than the agreement observed at screening, and it is published because an unreported agreement rate is not the same as a high one."
+   },
+   {
+    "heading": "Certainty of the evidence",
+    "text": "GRADE certainty for this outcome is [[certainty]], downgraded for risk of bias and for imprecision. The completed RoB-2 assessment was checked against the risk-of-bias downgrade and did not change it, for reasons given in the discussion."
+   }
+  ],
+  "discussion": [
+   {
+    "heading": "Principal findings",
+    "text": "Across [[k]] randomised trials and [[n_total]] participants, sacubitril/valsartan reduced the hazard of a first cardiovascular death or heart failure hospitalisation relative to enalapril, with a pooled hazard ratio of [[pooled]] ([[ci_low]] to [[ci_high]]). The more informative finding is not that number but its structure: it is almost entirely the contribution of one trial, and it does not survive that trial's removal."
+   },
+   {
+    "heading": "Interpreting the estimate",
+    "text": "A pooled hazard ratio of [[pooled]] on this composite is a clinically meaningful reduction if it is real, and the interval excludes the null. But an interval that excludes the null in a three-trial synthesis where one trial carries most of the weight is doing less work than it appears to. The honest reading is that the pivotal trial is the evidence, and that this meta-analysis quantifies how little the two subsequent trials change it, rather than adding independent support."
+   },
+   {
+    "heading": "Heterogeneity",
+    "text": "I-squared of [[i2]]% falls in the band conventionally described as low, and tau-squared is [[tau2]]. It would be a mistake to read that as agreement between the trials. I-squared is the proportion of total variability attributable to between-trial differences, and when two of three trials have wide intervals the within-trial variance is large, so the proportion attributable to between-trial variation is small almost by construction. The point estimates range from [[min_point]] to [[max_point]], which spans a clinically important reduction and essentially no effect. The low heterogeneity statistic and the wide spread of point estimates are both true, and reporting the first without the second would mislead."
+   },
+   {
+    "heading": "The leave-one-out finding",
+    "text": "Removing the largest trial moves the pooled estimate to [[loo_paradigm]]. This is the single most important result in the review and it is reported as a principal finding rather than as a sensitivity check, because a synthesis whose conclusion depends on one of its three inputs should say so where a reader cannot miss it. It does not mean the effect is absent: the two remaining trials are small and their intervals are wide, so they are compatible both with the pivotal trial's effect and with none. It means the pooled interval's exclusion of the null should not be read as three trials agreeing."
+   },
+   {
+    "heading": "Why the risk-of-bias rating did not change",
+    "text": "The completed RoB-2 assessment found no domain at high risk in any trial, which might be taken as grounds to remove the GRADE risk-of-bias downgrade. It was not, for a reason worth stating plainly: RoB-2 has no domain for a trial stopped early for benefit. Early stopping is not a randomisation failure, a deviation from intended intervention, missing outcome data, a measurement problem, or selective reporting of a result. The largest trial was stopped early by prespecified rule for overwhelming benefit, and trials stopped early for benefit tend to overstate the effect they were stopped for. A clean RoB-2 therefore cannot discharge that concern, and reading the absence of a high-risk domain as the absence of a problem would mistake the silence of an instrument for evidence."
+   },
+   {
+    "heading": "Comparison with other evidence",
+    "text": "This review does not attempt a formal comparison with previous syntheses, because it did not search for them and a comparison assembled from memory would be exactly the kind of claim this review exists to avoid making. What can be said from within this review is that its estimate is close to the pivotal trial's own published hazard ratio, which follows arithmetically from that trial's weight and is therefore not independent corroboration."
+   },
+   {
+    "heading": "Strengths",
+    "text": "The protocol was registered before the first query with a machine-checkable ordering test. Every screened record is published with its disposition. Both risk-of-bias assessors' full answers are published unreconciled, with the agreement rate as measured. Every number on every surface is projected from one canonical object, so the manuscript, the tables, the figures and the web page cannot disagree with one another. A disagreement between two sources that this review's own extraction missed is published as an unresolved disagreement rather than silently resolved."
+   }
+  ],
+  "limitations": [
+   "The synthesis rests on [[k]] trials, one of which contributes most of the weight, and the pooled result does not survive its removal. This is stated as a principal finding rather than a caveat.",
+   "The count of eligible trials is a lower bound. A small number of records could not be resolved from publicly reachable sources, and they are reported as unresolved rather than assumed to be exclusions.",
+   "Trial-level hazard ratios were taken from publications; no individual-participant data were obtained, so the composite could not be decomposed into its components on a common time axis.",
+   "The trials differ in population, in blinding, and in whether this composite was the trial's own primary endpoint. Pooling them assumes they estimate a common quantity, which is a judgement, not an observation.",
+   "Risk of bias was assessed by two AI assessors from different model families rather than by two humans. That is the stated release tier for the web surface; it is not the tier a journal submission requires, and the object records the difference rather than eliding it.",
+   "Five of fifteen risk-of-bias domain judgements remain unadjudicated. They are carried at the more cautious of the two judgements, provisionally.",
+   "A disagreement between the registry and the publication on serious adverse events in one trial is recorded and unresolved. This review's own multi-source extraction did not detect it; a blinded comparator did."
+  ],
+  "conclusions": "In adults with heart failure and reduced ejection fraction, sacubitril/valsartan reduced the hazard of a first cardiovascular death or heart failure hospitalisation compared with enalapril, with a pooled hazard ratio of [[pooled]] ([[ci_low]] to [[ci_high]]) at [[certainty]] certainty. The estimate rests almost entirely on one large trial and does not survive that trial's removal, and the two smaller trials are individually compatible with no effect. The appropriate conclusion is not that three trials confirm the benefit, but that one trial establishes it and two more have not yet materially changed what is known.",
+  "not_written": [
+   {
+    "section": "Formal comparison with previous meta-analyses",
+    "why": "This review's search was designed to find randomised trials reporting the estimand, not to find previous syntheses. Writing a comparison would require either a second search that was not run or recall of literature that was not retrieved, and recalled literature is the failure mode this project has already been caught by once."
+   },
+   {
+    "section": "Funding statement and competing interests",
+    "why": "The object records neither. They are required for submission and their absence is stated here rather than filled with a placeholder declaration."
+   }
+  ]
  }
 }

@@ -212,15 +212,36 @@ def svg_download(svg, filename, label):
             % (filename, uri, label, NL))
 
 
+# Set once by the build driver. Kept as module state rather than threaded through
+# every projector because the alternative is a browser handle in the signature of
+# a dozen pure functions that do not otherwise know what a browser is.
+RASTER = {"browser": None, "workdir": None, "outdir": None}
+
+
 def fig(svg, title, fname, note):
-    """One figure card: inline SVG, a no-JS download of the same bytes, a note."""
+    """One figure card: inline SVG, downloads in every offered format, a note.
+
+    The download set is generated from the SAME svg string that is inlined here,
+    so every offered file descends from the graphic on screen rather than from a
+    second render of the same data."""
+    stem = fname.rsplit(".", 1)[0]
+    dl = None
+    if RASTER.get("workdir"):
+        try:
+            import figures as fg
+            items, sha, ok = fg.figure_downloads(
+                svg, stem, RASTER.get("browser"), RASTER["workdir"],
+                RASTER["outdir"])
+            dl = fg.downloads_html(items, sha, ok, e, NL)
+        except Exception:                                # noqa: BLE001
+            dl = None
+    if dl is None:
+        dl = svg_download(svg, fname, "Download (SVG)")
     return ("<div class='card'>%s  <h3>%s</h3>%s  %s%s%s  <p><small>%s</small>"
-            "</p>%s</div>%s" % (NL, title, NL, svg, NL,
-                                svg_download(svg, fname, "Download (SVG)"),
-                                note, NL, NL))
+            "</p>%s</div>%s" % (NL, title, NL, svg, NL, dl, note, NL, NL))
 
 
-def forest_svg(res, outcome):
+def forest_svg(res, outcome, window=None):
     """A forest plot drawn from the stored per-trial and pooled estimates.
 
     THE PLOT CARRIES NO TEXT NUMBERS except the axis ticks, and the ticks are the
@@ -241,9 +262,14 @@ def forest_svg(res, outcome):
              + ([pooled["ci_high"]] if pooled.get("ci_high") else []))
     if log and lo <= 0:
         return ""
-    a, b = tx(lo), tx(hi)
-    pad = (b - a) * 0.08 or 1.0
-    a, b = a - pad, b + pad
+    if window:
+        # Only the MAPPING changes. lo and hi keep their data-derived values so
+        # the tick labels below are identical in every variant.
+        a, b = tx(window[0]), tx(window[1])
+    else:
+        a, b = tx(lo), tx(hi)
+        pad = (b - a) * 0.08 or 1.0
+        a, b = a - pad, b + pad
     W, L, R = 720, 250, 40
     X = lambda v: L + (tx(v) - a) / (b - a) * (W - L - R)
     ws = [1.0 / (r["log_se"] ** 2) if r.get("log_se") else 1.0 for r in rows]
@@ -251,11 +277,11 @@ def forest_svg(res, outcome):
     body, y, H, top = "", 26, 34, 26
     for r, w in zip(rows, ws):
         side = 5 + 9 * (w / wmax) ** 0.5
-        body += ('  <line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="#3f3f46" '
+        body += ('  <line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="currentColor" '
                  'stroke-width="1.5"/>%s'
                  '  <rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" '
                  'fill="#1d4ed8"/>%s'
-                 '  <text x="8" y="%d" font-size="12" fill="#111">%s</text>%s'
+                 '  <text x="8" y="%d" font-size="12" fill="currentColor">%s</text>%s'
                  % (X(r["ci_low"]), y, X(r["ci_high"]), y, NL,
                     X(r["point"]) - side / 2, y - side / 2, side, side, NL,
                     y + 4, e(str(r.get("trial_id", ""))), NL))
@@ -265,7 +291,7 @@ def forest_svg(res, outcome):
         body += ('  <polygon points="%.1f,%d %.1f,%d %.1f,%d %.1f,%d" '
                  'fill="#b45309"/>%s'
                  '  <text x="8" y="%d" font-size="12" font-weight="700" '
-                 'fill="#111">Pooled (%s)</text>%s'
+                 'fill="currentColor">Pooled (%s)</text>%s'
                  % (X(pooled["ci_low"]), cy, X(pooled["point"]), cy - d,
                     X(pooled["ci_high"]), cy, X(pooled["point"]), cy + d, NL,
                     cy + 4, e(str(pooled.get("measure", ""))), NL))
@@ -273,16 +299,18 @@ def forest_svg(res, outcome):
     height = y + 34
     ticks = ""
     for v in sorted({null_v, lo, hi}):
-        ticks += ('  <line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="#a1a1aa" '
+        ticks += ('  <line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="currentColor" stroke-opacity=".45" '
                   'stroke-dasharray="%s"/>%s'
                   '  <text x="%.1f" y="%d" font-size="11" text-anchor="middle" '
-                  'fill="#52525b">%s</text>%s'
+                  'fill="currentColor">%s</text>%s'
                   % (X(v), top - 18, X(v), y - 14,
                      "0" if v == null_v else "3 3", NL, X(v), y + 4, fmt(v), NL))
     svg = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" '
            'width="100%%" role="img" aria-label="Forest plot of the stored '
            'per-trial and pooled estimates">%s%s%s</svg>'
            % (W, height, NL, ticks + body, NL))
+    if window is not None:
+        return svg
     return fig(svg, "Forest plot", "forest.svg",
                "Drawn from the same stored estimates the table above lists. The "
                "dashed guides mark the extremes of the plotted intervals; the "
@@ -314,27 +342,27 @@ def scatter_svg(pts, xlab, ylab, invert_y=False, vline=None):
          (lambda v: H - B - (v - ay0) / (ay1 - ay0) * (H - T - B)))
     body = ""
     if vline is not None:
-        body += ('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="#a1a1aa"/>%s'
+        body += ('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="currentColor" stroke-opacity=".4"/>%s'
                  % (X(vline), T, X(vline), H - B, NL))
     for x, y, lab in pts:
         body += ('<circle cx="%.1f" cy="%.1f" r="5" fill="#1d4ed8" '
                  'fill-opacity=".8"/>%s' % (X(x), Y(y), NL))
         if lab:
-            body += ('<text x="%.1f" y="%.1f" font-size="11" fill="#3f3f46">%s'
+            body += ('<text x="%.1f" y="%.1f" font-size="11" fill="currentColor">%s'
                      '</text>%s' % (X(x) + 8, Y(y) + 4, e(str(lab)), NL))
     for v in (min(dxs), max(dxs)):
         body += ('<text x="%.1f" y="%d" font-size="10" text-anchor="middle" '
-                 'fill="#52525b">%s</text>%s' % (X(v), H - B + 16, fmt(v), NL))
+                 'fill="currentColor">%s</text>%s' % (X(v), H - B + 16, fmt(v), NL))
     for v in (min(ys), max(ys)):
         body += ('<text x="%d" y="%.1f" font-size="10" text-anchor="end" '
-                 'fill="#52525b">%s</text>%s' % (L - 6, Y(v) + 4, fmt(v), NL))
+                 'fill="currentColor">%s</text>%s' % (L - 6, Y(v) + 4, fmt(v), NL))
     return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" '
             'width="100%%" role="img" aria-label="%s against %s">%s'
-            '<line x1="%d" y1="%d" x2="%d" y2="%d" stroke="#71717a"/>'
-            '<line x1="%d" y1="%d" x2="%d" y2="%d" stroke="#71717a"/>%s%s'
+            '<line x1="%d" y1="%d" x2="%d" y2="%d" stroke="currentColor"/>'
+            '<line x1="%d" y1="%d" x2="%d" y2="%d" stroke="currentColor"/>%s%s'
             '<text x="%d" y="%d" font-size="11" text-anchor="middle" '
-            'fill="#3f3f46">%s</text>%s'
-            '<text x="13" y="%d" font-size="11" fill="#3f3f46" '
+            'fill="currentColor">%s</text>%s'
+            '<text x="13" y="%d" font-size="11" fill="currentColor" '
             'transform="rotate(-90 13 %d)" text-anchor="middle">%s</text>%s</svg>'
             % (W, H, NL, e(xlab), e(ylab), L, T, L, H - B, L, H - B, W - R, H - B,
                NL, body, (L + W - R) // 2, H - 6, e(xlab), NL,
@@ -356,15 +384,15 @@ def rows_svg(rows, null_v, label_w=200):
     X = lambda v: label_w + (math.log(v) - a) / (b - a) * (W - label_w - R)
     body, y = "", T
     for r in rows:
-        body += ('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="#3f3f46"/>%s'
+        body += ('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="currentColor"/>%s'
                  '<rect x="%.1f" y="%d" width="8" height="8" fill="#1d4ed8"/>%s'
-                 '<text x="6" y="%d" font-size="11" fill="#111">%s</text>%s'
+                 '<text x="6" y="%d" font-size="11" fill="currentColor">%s</text>%s'
                  % (X(r["ci_low"]), y, X(r["ci_high"]), y, NL,
                     X(r["point"]) - 4, y - 4, NL, y + 4, e(str(r["label"])), NL))
         y += H
-    body += ('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="#a1a1aa"/>%s'
+    body += ('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="currentColor" stroke-opacity=".4"/>%s'
              '<text x="%.1f" y="%d" font-size="10" text-anchor="middle" '
-             'fill="#52525b">%s</text>%s'
+             'fill="currentColor">%s</text>%s'
              % (X(null_v), T - 14, X(null_v), y - 16, NL, X(null_v), y + 2,
                 fmt(null_v), NL))
     return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" '
@@ -446,3 +474,58 @@ def tabbed_body(canon, parts, page):
     css += (" @media print{.panel{height:auto;overflow:visible}"
             ".tabnav{display:none}}" + NL)
     return body, TAB_CSS + css
+
+
+FOREST_WINDOWS = (
+    ("fit", "Fit to data", None),
+    ("w1", "0.5 to 2", (0.5, 2.0)),
+    ("w2", "0.25 to 4", (0.25, 4.0)),
+    ("w3", "0.7 to 1.3", (0.7, 1.3)),
+)
+
+
+def forest_ranged(res, outcome, e, browser=None, workdir=None, outdir=None):
+    """The forest at several pre-rendered x-axis windows, switched by CSS only.
+
+    Every window is present in the document, so the page stays fully readable
+    without scripting and every variant is machine-readable at once. The
+    invariant the reader-state detector checks is that the multiset of printed
+    numerals is identical across variants: the ticks are labelled from the DATA
+    (the null and the extremes of the plotted intervals), so widening the window
+    moves the guides inward without renaming them.
+    """
+    base = forest_svg(res, outcome)
+    if not base:
+        return ""
+    import figures as fg
+    br = browser if browser is not None else fg.find_browser()
+    variants, radios, panels = [], "", ""
+    for key, label, win in FOREST_WINDOWS:
+        svg = forest_svg(res, outcome, window=win) if win else None
+        if svg is None:
+            m = re.search(r"<svg.*?</svg>", base, re.S)
+            svg = m.group(0) if m else ""
+        variants.append((key, label, svg))
+    for i, (key, label, _svg) in enumerate(variants):
+        radios += ('  <input type="radio" name="fw" id="fw-%s" class="fwr"%s>%s'
+                   % (key, " checked" if i == 0 else "", NL))
+    for key, label, _svg in variants:
+        radios += ('  <label for="fw-%s" class="fwl">%s</label>%s'
+                   % (key, e(label), NL))
+    for key, label, svg in variants:
+        dl = ""
+        if workdir and outdir:
+            items, sha, ok = fg.figure_downloads(svg, "forest_%s" % key, br,
+                                                 workdir, outdir)
+            dl = fg.downloads_html(items, sha, ok, e, NL)
+        panels += ('  <div class="fwp" id="fwp-%s">%s%s%s%s  </div>%s'
+                   % (key, NL, svg, NL, dl, NL))
+    return ("<div class='card fwcard'>%s  <h3>Forest plot</h3>%s"
+            "  <p><small>Drawn from the same stored estimates the table above "
+            "lists. Box area is proportional to inverse-variance weight.</small>"
+            "</p>%s  <p><small>x-axis range</small></p>%s%s%s  <p><small>Changing "
+            "the range moves the axis window only. The guides stay labelled with "
+            "the null and the extremes of the plotted intervals, so no plotted "
+            "value and no printed number differs between these views &mdash; and "
+            "that is checked at build time, not asserted.</small></p>%s</div>%s"
+            % (NL, NL, NL, NL, radios, panels, NL, NL))
