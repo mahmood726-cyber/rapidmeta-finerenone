@@ -16,7 +16,8 @@ cells = []
 
 
 def pair(trial, nct, t_arm, c_arm, t, c, pop, reason, sources, hr,
-         t_pct=None, c_pct=None, selected=None, outcome="all_cause_death", notes_extra=""):
+         t_pct=None, c_pct=None, selected=None, outcome="all_cause_death", notes_extra="",
+         is_component_of=None, component_basis=None):
     """t and c are (events, analysed, randomised)."""
     for arm, (ev, an, rn), pct, role in ((t_arm, t, t_pct, "treatment"),
                                          (c_arm, c, c_pct, "control")):
@@ -28,7 +29,8 @@ def pair(trial, nct, t_arm, c_arm, t, c, pop, reason, sources, hr,
             randomised=rn, population_label=pop, denominator_reason=reason,
             printed_percent=pct, provenance="read", sources=sources,
             identifier_provenance="lookup", registry_units="participants",
-            selected=selected, notes=notes))
+            selected=selected, notes=notes,
+            is_component_of=is_component_of, component_basis=component_basis))
 
 
 # ---------------------------------------------------------------- efficacy ACM
@@ -86,6 +88,54 @@ pair("EMPA-KIDNEY", "NCT03594110", "empagliflozin 10 mg", "placebo",
      (148, 3304, 3304), (167, 3305, 3305), "randomised",
      None, [NEJM_EMPAK], 0.87, 4.5, 5.1, selected=True)
 
+NEJM_LEADER = {"tier": "T1", "pointer": "NEJM 2016;375:311-322 Results (via PubMed abstract, PMID 27295427)",
+               "url": "https://pubmed.ncbi.nlm.nih.gov/27295427/"}
+pair("LEADER", "NCT01179048", "liraglutide", "placebo",
+     (381, 4668, 4668), (447, 4672, 4672), "randomised",
+     None, [NEJM_LEADER], 0.85, 8.2, 9.6, selected=True)
+
+# HEART-FID — resolved by READING the publication, not by inferring from the HR.
+NEJM_HEARTFID = {"tier": "T1",
+                 "pointer": "NEJM 2023;389:975-986 Results, Safety paragraph "
+                            "('Death from any cause during the follow-up period, a prespecified "
+                            "exploratory outcome')",
+                 "url": "https://www.nejm.org/doi/full/10.1056/NEJMoa2304968"}
+pair("HEART-FID", "NCT03037931", "ferric carboxymaltose", "placebo",
+     (361, 1532, 1532), (376, 1533, 1533), "randomised, full follow-up",
+     None, [NEJM_HEARTFID], 0.95, 23.6, 24.5, selected=True,
+     notes_extra="publication HR 0.90 (0.78-1.05); atlas stores 0.95 - see progress report")
+
+
+# ---------------------------------------------------------------- tier T3
+# FDA statistical/summary review, NDA 207620 (Entresto), 2015. Reached via
+# .../207620Orig1s000TOC.html -> .../207620Orig1s000SumR.pdf, read with web_fetch.
+# This is the first exercise of tier T3 in this programme and it produced data that
+# neither the publication nor the registry carries: the FIRST-EVENT decomposition of
+# the primary composite, which is what makes CHK007 judgeable.
+FDA207620 = {"tier": "T3",
+             "pointer": "FDA NDA 207620 Summary Review (Cross Discipline Team Leader), "
+                        "Table 2 'Primary Composite Endpoint (CV death or HF Hospitalization)'",
+             "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2015/"
+                    "207620Orig1s000SumR.pdf"}
+pair("PARADIGM-HF", "NCT01035255", "sacubitril/valsartan", "enalapril",
+     (914, 4187, 4209), (1117, 4212, 4233), "FAS",
+     "37 randomised at sites closed for serious GCP violations + 6 mis-randomised (trial-wide)",
+     [FDA207620, NEJM_PARADIGM], 0.80, 21.8, 26.5, selected=True,
+     outcome="composite_cvdeath_or_first_hfhosp",
+     notes_extra="primary composite; read as an integer, not assembled")
+pair("PARADIGM-HF", "NCT01035255", "sacubitril/valsartan", "enalapril",
+     (377, 4187, 4209), (459, 4212, 4233), "FAS",
+     "37 randomised at sites closed for serious GCP violations + 6 mis-randomised (trial-wide)",
+     [FDA207620], 0.84, 9.0, 10.9, selected=True, outcome="cv_death_first_event",
+     is_component_of="composite_cvdeath_or_first_hfhosp", component_basis="first_event",
+     notes_extra="first-event component; 377+537=914 and 459+658=1117 exactly")
+pair("PARADIGM-HF", "NCT01035255", "sacubitril/valsartan", "enalapril",
+     (537, 4187, 4209), (658, 4212, 4233), "FAS",
+     "37 randomised at sites closed for serious GCP violations + 6 mis-randomised (trial-wide)",
+     [FDA207620], 0.84, 12.8, 15.6, selected=True, outcome="first_hf_hosp_first_event",
+     is_component_of="composite_cvdeath_or_first_hfhosp", component_basis="first_event",
+     notes_extra="first-event component")
+
 # ------------------------------------------- adverse-events-module alternates
 # Recorded so the duplicate is visible (CHK003) and so CHK013 has something to
 # point at. NONE of these is the efficacy endpoint.
@@ -105,23 +155,23 @@ for trial, nct, t_arm, c_arm, t, c, tn, cn in (
                           notes="adverse-events-module death count; different population and "
                                 "collection window from the efficacy endpoint"))
 
-# ------------------------------------------------------------ HEART-FID: open
-# Two registry values, neither labelled as the efficacy all-cause mortality
-# endpoint, and they disagree by a factor of ~2.7. Deliberately left unresolved
-# so the harness blocks it rather than a human picking silently.
+# HEART-FID alternates, now resolved. Three different numbers existed for one
+# concept: 131/158 (registry 12-month outcome), 354/367 (registry adverse-events
+# module, 67.5 months) and 361/376 (publication, full follow-up). Only the last
+# was read as the efficacy endpoint; the other two are kept visible.
 for arm, ev12, evAE, n in (("ferric carboxymaltose", 131, 354, 1532),
                            ("placebo", 158, 367, 1533)):
     cells.append(dict(trial="HEART-FID", nct="NCT03037931", arm=arm, outcome="all_cause_death",
                       events=ev12, analysed=n, randomised=n, population_label="ITT, 12-month window",
                       provenance="read", sources=[CTG("NCT03037931", "Outcome 1 Number of Deaths")],
-                      identifier_provenance="lookup", registry_units="participants",
-                      notes="stored_hr=0.95 arm_role=" + ("treatment" if "ferric" in arm else "control")))
+                      identifier_provenance="lookup", registry_units="participants", selected=False,
+                      notes="12-month window, not the full-follow-up efficacy endpoint"))
     cells.append(dict(trial="HEART-FID", nct="NCT03037931", arm=arm, outcome="all_cause_death",
                       events=evAE, analysed=n, randomised=n,
                       population_label="safety population (adverse events module), 67.5 months",
                       provenance="read", sources=[AE("NCT03037931")],
-                      identifier_provenance="lookup", registry_units="participants",
-                      notes="stored_hr=0.95 arm_role=" + ("treatment" if "ferric" in arm else "control")))
+                      identifier_provenance="lookup", registry_units="participants", selected=False,
+                      notes="adverse-events module; different population and window"))
 
 # ------------------------------------------------ not recovered, with reasons
 PCT_ONLY = ("registry results module posts this outcome as a percentage / KM estimate only; "
@@ -131,13 +181,18 @@ NO_OUTCOME = "registry results module posts no death-titled outcome measure."
 NO_MODULE = "no results module posted on the registry."
 
 for trial, nct, arms, ns, reason in (
-        ("FOURIER", "NCT01764633", ("evolocumab", "placebo"), (13784, 13780), PCT_ONLY),
-        ("LEADER", "NCT01179048", ("liraglutide", "placebo"), (4668, 4672), PCT_ONLY),
+        ("FOURIER", "NCT01764633", ("evolocumab", "placebo"), (13784, 13780),
+         PCT_ONLY + " Publication route also blocked: NEJM renders outcome tables outside the "
+                    "DOM and the Results text reports only the primary and key secondary "
+                    "composites, not all-cause death. Next step: FDA/EMA review (tier T3)."),
         ("GLOBAL LEADERS", "NCT01813435", ("ticagrelor monotherapy", "reference strategy"),
          (7980, 8011), PCT_ONLY),
         ("ATLAS ACS 2", "NCT00809965", ("rivaroxaban low dose", "placebo"), (5174, 5176), PCT_ONLY),
         ("TWILIGHT", "NCT02270242", ("ticagrelor monotherapy", "ticagrelor + aspirin"),
-         (3555, 3564), NO_OUTCOME),
+         (3555, 3564), NO_OUTCOME + " Publication reports all-cause death only in a paywalled "
+                                    "table; its Results text gives the COMPOSITE of death, MI and "
+                                    "stroke (135/3524 vs 137/3515, per-protocol, HR 0.99 0.78-1.25) "
+                                    "which the atlas has mistaken for mortality — see DEFECT-01."),
         ("COMMANDER HF", "NCT01877915", ("rivaroxaban 2.5 mg", "placebo"), (2507, 2515), PCT_ONLY),
         ("CREDENCE", "NCT02065791", ("canagliflozin", "placebo"), (2202, 2199), PCT_ONLY),
         ("EMPEROR-Reduced", "NCT03057977", ("empagliflozin 10 mg", "placebo"), (1863, 1867), PCT_ONLY),

@@ -61,6 +61,24 @@ All three amendments arise from work done **after** the search executed. That is
 
 ---
 
+## AMENDMENT 4 — to §4 (Information sources)
+
+**Add:**
+
+> A preprint-indexing source is searched. Europe PMC is specified, because a single query covers bioRxiv, medRxiv, Research Square and SSRN, and it is free to query.
+>
+> Rationale: neither PubMed nor ClinicalTrials.gov indexes preprints, and the backward citation step cannot reach them either, because preprints are rarely cited. A preprint of a directly relevant study is therefore invisible to every other source this protocol registers — not unlikely to be found, but structurally unfindable.
+>
+> A second consequence follows and is registered with it: **the enumeration of syntheses for the backward citation step in §5 requires its own search.** §5 names "every retrievable synthesis of this comparison" as the input without saying how that set is retrieved, and taking it from whatever the main string happens to return undercounts it.
+
+**Occasion:** a Europe PMC sweep, scoped to title and abstract for comparability with the registered PubMed string, returned 324 records of which **101 are not in the corpus**, including seven preprints. One — `PPR1271024`, *Sacubitril-valsartan Versus Enalapril or Losartan at Guideline-Recommended Maximum Dosages in HFrEF (BEAT-HF)* — is directly on this review's comparison. It is ineligible because it is an observational cohort reporting an odds ratio, which is luck rather than method.
+
+Separately, a dedicated search for syntheses of this comparison returns **244**, against the **45** the backward citation step was actually run on.
+
+**Amendment 4 changes what the search returns.** Like Amendment 3, once committed it requires the added source to be executed and recorded as a separate, later search event.
+
+---
+
 ## Recording requirements for whoever commits these
 
 1. **One commit per amendment**, each with its own message and timestamp, so the log shows three separate decisions rather than one edit.

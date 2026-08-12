@@ -37,7 +37,7 @@ import sys
 from dataclasses import dataclass, field, asdict
 from typing import Any, Iterable, Optional
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 # --------------------------------------------------------------------------
 # Source tiers
@@ -95,6 +95,19 @@ class Cell:
     identifier_provenance: Optional[str] = None  # "lookup" | "recall" | None
     registry_units: Optional[str] = None  # e.g. "participants", "percentage of participants"
     is_component_of: Optional[str] = None  # composite outcome key this feeds
+    component_basis: Optional[str] = None  # "first_event" | "total" -- see CHK007
+    # construction:
+    #   "read"                      the integer was printed in the source
+    #   "derived_determined"        reconstructed from quantities that mathematically
+    #                               determine it, with no assumption. PERMITTED.
+    #                               Requires derivation_inputs + derivation_formula.
+    #   "derived_underdetermined"   reconstruction needed an assumption. FORBIDDEN.
+    #   "summed_components"         composite assembled by addition. FORBIDDEN.
+    #   "percent_times_denominator" count manufactured from a percentage. FORBIDDEN.
+    construction: Optional[str] = None
+    derivation_inputs: Optional[dict] = None    # {"sensitivity": 88.2, "n_diseased": 142, ...}
+    derivation_formula: Optional[str] = None    # "TP = round(n_diseased * sensitivity/100)"
+    verified_at_primary: Optional[bool] = None  # for cells taken from someone else's synthesis
     notes: str = ""
 
     def key(self) -> tuple:
@@ -320,43 +333,79 @@ def CHK005_SINGLE_SOURCE_CELL(cells: list[Cell]) -> list[Finding]:
     return out
 
 
-def CHK006_READ_NOT_COMPUTED(cells: list[Cell]) -> list[Finding]:
-    """Provenance must be 'read'. Anything else is blocked."""
+ADMISSIBLE_PROVENANCE = ("read", "derived_determined")
+
+
+def CHK006_ADMISSIBLE_PROVENANCE(cells: list[Cell]) -> list[Finding]:
+    """Provenance must be 'read' or 'derived_determined'.
+
+    Ruling of 2026-08-12: determined reconstruction is permitted. Where the reported
+    quantities mathematically determine the cells -- both group sizes plus sensitivity
+    and specificity, say -- recovering them by arithmetic introduces no assumption and
+    is acceptable, PROVIDED the inputs and the formula are stored so a reader can redo
+    it (enforced by CHK017).
+
+    Everything else remains inadmissible: reconstruction that needed an assumption,
+    composites assembled by addition, and counts manufactured by multiplying a
+    published percentage by a denominator where no count was reported.
+    """
     out = []
     for c in cells:
         if c.events is None:
             if c.not_recovered_reason or c.obstacle:
-                out.append(Finding("CHK006_READ_NOT_COMPUTED", "PASS", _sub(c),
+                out.append(Finding("CHK006_ADMISSIBLE_PROVENANCE", "PASS", _sub(c),
                                    "no count recorded; reason stated"))
             else:
-                out.append(Finding("CHK006_READ_NOT_COMPUTED", "BLOCK", _sub(c),
+                out.append(Finding("CHK006_ADMISSIBLE_PROVENANCE", "BLOCK", _sub(c),
                                    "no count and no not_recovered_reason/obstacle. An empty cell must "
                                    "say why it is empty."))
             continue
-        if c.provenance == "read":
-            out.append(Finding("CHK006_READ_NOT_COMPUTED", "PASS", _sub(c), "read from source"))
+        if c.provenance in ADMISSIBLE_PROVENANCE:
+            out.append(Finding("CHK006_ADMISSIBLE_PROVENANCE", "PASS", _sub(c),
+                               f"provenance '{c.provenance}'"))
         else:
-            out.append(Finding("CHK006_READ_NOT_COMPUTED", "BLOCK", _sub(c),
-                               f"provenance='{c.provenance}'. Only 'read' is admissible. Do not multiply a "
-                               "percentage by a denominator and do not sum components into a composite."))
+            out.append(Finding("CHK006_ADMISSIBLE_PROVENANCE", "BLOCK", _sub(c),
+                               f"provenance='{c.provenance}'. Admissible values are "
+                               f"{list(ADMISSIBLE_PROVENANCE)}."))
     return out
 
 
-def CHK007_COMPOSITE_NOT_SUM_OF_COMPONENTS(cells: list[Cell]) -> list[Finding]:
-    """A first-event composite must not equal the sum of its components.
+def CHK007_COMPOSITE_COMPONENT_ARITHMETIC(cells: list[Cell]) -> list[Finding]:
+    """Whether a composite should equal its component sum depends on the component basis.
 
-    Origin: in all three ARNI trials the sum overstated the composite by 20-37%
-    (PARADIGM-HF 558+537=1095 vs 914). If a recorded composite happens to equal
-    the component sum exactly, it was almost certainly built by addition.
+    This check was WRONG in v1.0 and the error is worth recording, because it would
+    have blocked a correct extraction.
+
+    v1.0 asserted flatly that a composite must never equal the sum of its components,
+    on the evidence that PARADIGM-HF's composite is 914 while CV death (558) plus HF
+    hospitalisation (537) sum to 1095. That evidence was real but the rule drawn from
+    it was too broad. The FDA statistical review for NDA 207620 prints BOTH
+    decompositions of the same composite:
+
+        Table 2, "Primary Composite Endpoint (CV death or HF Hospitalization)"
+          enalapril  1117 = CV Death 459 + HF Hospitalization 658   <- FIRST EVENT
+          LCZ696      914 = CV Death 377 + HF Hospitalization 537   <- FIRST EVENT
+        Table 2, "Subjects with events at any time"
+          enalapril        CV Death 693, HF Hospitalization 658     <- TOTAL
+          LCZ696           CV Death 558, HF Hospitalization 537     <- TOTAL
+
+    The first-event components sum to the composite EXACTLY, by construction -- every
+    participant is attributed to whichever component happened first. The total-event
+    components do not, because a participant can appear in both.
+
+    So the rule is conditional on `component_basis`:
+      first_event -> the sum MUST equal the composite; a mismatch is the error
+      total       -> the sum MUST exceed the composite; equality is the error
+      unset       -> cannot be judged; say which basis you mean
     """
     out = []
     by_arm: dict[tuple, dict[str, Cell]] = {}
     for c in cells:
         if c.events is None:
             continue
-        by_arm.setdefault((c.nct, c.arm), {})[c.outcome] = c
+        by_arm.setdefault((c.nct, c.arm, c.population_label), {})[c.outcome] = c
 
-    for (nct, arm), outcomes in by_arm.items():
+    for key, outcomes in by_arm.items():
         components = [c for c in outcomes.values() if c.is_component_of]
         if not components:
             continue
@@ -368,22 +417,45 @@ def CHK007_COMPOSITE_NOT_SUM_OF_COMPONENTS(cells: list[Cell]) -> list[Finding]:
             if comp is None or len(comps) < 2:
                 continue
             total = sum(c.events for c in comps)
-            subject = f"{comp.trial}/{arm}/{comp_key}"
-            if total == comp.events:
-                out.append(Finding("CHK007_COMPOSITE_NOT_SUM_OF_COMPONENTS", "BLOCK", subject,
-                                   f"composite {comp.events} equals the exact sum of its components "
-                                   f"({' + '.join(str(c.events) for c in comps)} = {total}). A first-event "
-                                   "composite counts each participant once; equality indicates it was "
-                                   "constructed by addition."))
-            elif total < comp.events:
-                out.append(Finding("CHK007_COMPOSITE_NOT_SUM_OF_COMPONENTS", "BLOCK", subject,
-                                   f"composite {comp.events} exceeds the component sum {total}: a first-event "
-                                   "composite cannot exceed the total of its components."))
-            else:
-                over = 100.0 * (total - comp.events) / comp.events
-                out.append(Finding("CHK007_COMPOSITE_NOT_SUM_OF_COMPONENTS", "PASS", subject,
-                                   f"composite {comp.events} < component sum {total} (+{over:.0f}%), "
-                                   "consistent with first-event counting"))
+            bases = {c.component_basis for c in comps}
+            subject = f"{comp.trial}/{comp.arm}/{comp_key}"
+            if len(bases) > 1:
+                out.append(Finding("CHK007_COMPOSITE_COMPONENT_ARITHMETIC", "BLOCK", subject,
+                                   f"components declare mixed bases {sorted(str(b) for b in bases)}. "
+                                   "First-event and total component counts cannot be added together."))
+                continue
+            basis = bases.pop()
+            if basis is None:
+                out.append(Finding("CHK007_COMPOSITE_COMPONENT_ARITHMETIC", "WARN", subject,
+                                   f"component_basis not set. Composite {comp.events} vs component sum "
+                                   f"{total}. Declare 'first_event' or 'total' -- the correct "
+                                   "relationship is opposite in the two cases."))
+            elif basis == "first_event":
+                if total == comp.events:
+                    out.append(Finding("CHK007_COMPOSITE_COMPONENT_ARITHMETIC", "PASS", subject,
+                                       f"first-event components {' + '.join(str(c.events) for c in comps)}"
+                                       f" = {total} = composite, as they must"))
+                else:
+                    out.append(Finding("CHK007_COMPOSITE_COMPONENT_ARITHMETIC", "BLOCK", subject,
+                                       f"first-event components sum to {total} but the composite is "
+                                       f"{comp.events}. A first-event decomposition must be exhaustive "
+                                       "and mutually exclusive; a gap means a component is missing or "
+                                       "the basis is mislabelled."))
+            elif basis == "total":
+                if total == comp.events:
+                    out.append(Finding("CHK007_COMPOSITE_COMPONENT_ARITHMETIC", "BLOCK", subject,
+                                       f"composite {comp.events} equals the sum of TOTAL component counts "
+                                       f"({total}). Participants with both components would be counted "
+                                       "twice, so equality indicates the composite was built by addition."))
+                elif total < comp.events:
+                    out.append(Finding("CHK007_COMPOSITE_COMPONENT_ARITHMETIC", "BLOCK", subject,
+                                       f"composite {comp.events} exceeds the total-event component sum "
+                                       f"{total}: impossible."))
+                else:
+                    over = 100.0 * (total - comp.events) / comp.events
+                    out.append(Finding("CHK007_COMPOSITE_COMPONENT_ARITHMETIC", "PASS", subject,
+                                       f"composite {comp.events} < total-event component sum {total} "
+                                       f"(+{over:.0f}%), consistent with first-event counting"))
     return out
 
 
@@ -600,14 +672,159 @@ def CHK014_EFFECT_ESTIMATE_CONSISTENCY(cells: list[Cell]) -> list[Finding]:
     return out
 
 
+SYNTHESIS_MARKERS = ("meta-analysis", "meta analysis", "metaanalysis", "systematic review",
+                     "pooled analysis", "network meta", "nma", "cochrane", "umbrella review",
+                     "extraction table", "evidence synthesis")
+
+
+def CHK015_INHERITED_WITHOUT_PRIMARY_VERIFICATION(cells: list[Cell]) -> list[Finding]:
+    """A cell taken from someone else's synthesis is unverified until read at a primary source.
+
+    Origin: Reyaz 2023 had both a comparator and a follow-up wrong in the single row
+    that was ever checked. CHK011 asks whether a T4 source was FLAGGED; this check
+    asks the harder question -- whether anyone actually went and looked. A cell can
+    be correctly labelled T4 and still be silently inherited forever.
+
+    A cell is 'inherited' if any of its sources is a published synthesis (tier T4, or
+    a pointer naming a meta-analysis / systematic review / pooled analysis / extraction
+    table). Such a cell must either carry an independent T1/T2/T3 source, or set
+    verified_at_primary=true with that verification named in `notes`.
+    """
+    out = []
+    for c in cells:
+        if c.events is None:
+            continue
+        inherited = []
+        for s in c.sources:
+            ptr = str(s.get("pointer", "")).lower()
+            if s.get("tier") in UNVERIFIED_TIERS or any(k in ptr for k in SYNTHESIS_MARKERS):
+                inherited.append(s)
+        if not inherited:
+            continue
+        primary = [s for s in c.sources
+                   if s.get("tier") in ("T1", "T2", "T3") and s not in inherited]
+        if primary:
+            out.append(Finding("CHK015_INHERITED_WITHOUT_PRIMARY_VERIFICATION", "PASS", _sub(c),
+                               f"inherited from a synthesis but independently sourced at "
+                               f"{[s.get('tier') for s in primary]}"))
+        elif c.verified_at_primary is True:
+            out.append(Finding("CHK015_INHERITED_WITHOUT_PRIMARY_VERIFICATION", "WARN", _sub(c),
+                               "inherited from a synthesis and marked verified_at_primary, but no "
+                               "independent primary source is recorded. Add the pointer you verified "
+                               "against so the next lane does not repeat the work."))
+        else:
+            out.append(Finding("CHK015_INHERITED_WITHOUT_PRIMARY_VERIFICATION", "BLOCK", _sub(c),
+                               "INHERITED, NEVER VERIFIED: this count comes from a published synthesis "
+                               f"({[str(s.get('pointer'))[:60] for s in inherited]}) and no one has read "
+                               "it at a primary source. Inheriting a number is not the same as knowing "
+                               "it. Read it, or drop the cell."))
+    return out
+
+
+FORBIDDEN_CONSTRUCTIONS = {
+    "derived_underdetermined":
+        "the reconstruction needed an assumption -- a missing denominator, an imputed "
+        "group size, a percentage without its base, or rounding resolved by choice. "
+        "Determined reconstruction is permitted; this is not determined.",
+    "summed_components":
+        "a composite assembled by adding TOTAL component counts. Participants with more "
+        "than one component are counted twice. (Adding FIRST-EVENT components is a "
+        "different matter and is handled by CHK007.)",
+    "percent_times_denominator":
+        "a count manufactured by multiplying a published percentage by a denominator "
+        "where no count was reported. That is not a determined reconstruction, it is a "
+        "different quantity with a rounding interval attached.",
+    "back_calculated":
+        "legacy label, too coarse to judge. Re-declare as 'derived_determined' or "
+        "'derived_underdetermined'.",
+}
+
+
+def CHK016_FORBIDDEN_CONSTRUCTION(cells: list[Cell]) -> list[Finding]:
+    """Block the constructions that remain forbidden after the 2026-08-12 ruling.
+
+    What changed: determined reconstruction is now PERMITTED and this check no longer
+    blocks it. What did not change: reconstruction requiring an assumption, composites
+    built by summing total component counts, and counts manufactured from a percentage.
+
+    The distinction is the whole point. It is what stops "back-computation is fine"
+    becoming a licence to manufacture numbers.
+    """
+    out = []
+    for c in cells:
+        if c.construction in FORBIDDEN_CONSTRUCTIONS:
+            out.append(Finding("CHK016_FORBIDDEN_CONSTRUCTION", "BLOCK", _sub(c),
+                               f"construction='{c.construction}': "
+                               + FORBIDDEN_CONSTRUCTIONS[c.construction]))
+        elif c.construction == "derived_determined":
+            out.append(Finding("CHK016_FORBIDDEN_CONSTRUCTION", "PASS", _sub(c),
+                               "determined reconstruction — permitted; reproducibility is "
+                               "enforced by CHK017"))
+    return out
+
+
+def CHK017_DETERMINED_DERIVATION_REPRODUCIBLE(cells: list[Cell]) -> list[Finding]:
+    """A permitted derivation must be redoable by the reader from what is stored.
+
+    The ruling permits determined reconstruction on the condition that the inputs, the
+    arithmetic and the pointer for each input are recorded. Without those, the cell is
+    indistinguishable from an undocumented guess, and the permission does no work.
+
+    Where `derivation_inputs` supplies the recognised keys the check also re-executes
+    the arithmetic and compares. A mismatch beyond +/-1 (rounding) is a BLOCK: it means
+    the stored value is not what the stated inputs produce.
+    """
+    out = []
+    for c in cells:
+        if c.construction != "derived_determined" and c.provenance != "derived_determined":
+            continue
+        if c.events is None:
+            continue
+        missing = []
+        if not c.derivation_inputs:
+            missing.append("derivation_inputs")
+        if not c.derivation_formula:
+            missing.append("derivation_formula")
+        if missing:
+            out.append(Finding("CHK017_DETERMINED_DERIVATION_REPRODUCIBLE", "BLOCK", _sub(c),
+                               f"declared a determined derivation but {', '.join(missing)} is absent. "
+                               "A reader must be able to redo the arithmetic from what is stored."))
+            continue
+        srcs = c.sources or []
+        if not srcs:
+            out.append(Finding("CHK017_DETERMINED_DERIVATION_REPRODUCIBLE", "BLOCK", _sub(c),
+                               "determined derivation with no source pointer for its inputs."))
+            continue
+        d = c.derivation_inputs
+        rebuilt = None
+        if {"rate_pct", "group_n"} <= set(d):
+            rebuilt = round(d["group_n"] * d["rate_pct"] / 100.0)
+        elif {"proportion", "group_n"} <= set(d):
+            rebuilt = round(d["group_n"] * d["proportion"])
+        if rebuilt is None:
+            out.append(Finding("CHK017_DETERMINED_DERIVATION_REPRODUCIBLE", "WARN", _sub(c),
+                               f"inputs recorded ({sorted(d)}) but not in a shape this check can "
+                               "re-execute. Documented, not machine-verified."))
+        elif abs(rebuilt - c.events) <= 1:
+            out.append(Finding("CHK017_DETERMINED_DERIVATION_REPRODUCIBLE", "PASS", _sub(c),
+                               f"re-executed: {c.derivation_formula} -> {rebuilt}, stored {c.events}"))
+        else:
+            out.append(Finding("CHK017_DETERMINED_DERIVATION_REPRODUCIBLE", "BLOCK", _sub(c),
+                               f"stored {c.events} but the recorded inputs produce {rebuilt} "
+                               f"({c.derivation_formula}). The derivation is not reproducible, which "
+                               "means it was not as determined as declared — check for rounding in the "
+                               "published percentage."))
+    return out
+
+
 CHECKS = [
     CHK001_COUNT_PERCENT_AGREEMENT,
     CHK002_DENOMINATOR_NOT_RANDOMISED,
     CHK003_DUPLICATE_OUTCOME_POPULATION,
     CHK004_PERCENTAGE_ONLY_REGISTRY,
     CHK005_SINGLE_SOURCE_CELL,
-    CHK006_READ_NOT_COMPUTED,
-    CHK007_COMPOSITE_NOT_SUM_OF_COMPONENTS,
+    CHK006_ADMISSIBLE_PROVENANCE,
+    CHK007_COMPOSITE_COMPONENT_ARITHMETIC,
     CHK008_EVENTS_WITHIN_DENOMINATOR,
     CHK009_BLOCKED_FETCH_NOT_ABSENCE,
     CHK010_IDENTIFIER_PROVENANCE,
@@ -615,7 +832,20 @@ CHECKS = [
     CHK012_ARM_PAIR_COMPLETE,
     CHK013_AE_MODULE_DEATHS_NOT_EFFICACY,
     CHK014_EFFECT_ESTIMATE_CONSISTENCY,
+    CHK015_INHERITED_WITHOUT_PRIMARY_VERIFICATION,
+    CHK016_FORBIDDEN_CONSTRUCTION,
+    CHK017_DETERMINED_DERIVATION_REPRODUCIBLE,
 ]
+
+# Printed wherever a CHK014 result is reported, passing or failing. The limitation
+# is a property of the check, so it travels with the check's output rather than
+# living only in the procedure document.
+CHK014_CAVEAT = (
+    "CHK014 caveat — agreement authenticates nothing. Only disagreement is informative. "
+    "For ODYSSEY OUTCOMES the adverse-events pair (238/278, RR 0.856) and the efficacy pair "
+    "(334/392, RR 0.852) both reproduce the stored HR of 0.85 while differing by ~100 events "
+    "per arm. A consistency check would have passed both."
+)
 
 
 # --------------------------------------------------------------------------
@@ -753,6 +983,9 @@ def render_report(cells: list[Cell], findings: list[Finding], summary: dict) -> 
     lines.append(f"- single-source: **{summary['cells_single_source']}**")
     lines.append(f"- unretrieved due to an obstacle (NOT absence): **{summary['cells_unretrieved_obstacle']}**")
     lines.append("")
+    if any(f.check == "CHK014_EFFECT_ESTIMATE_CONSISTENCY" for f in findings):
+        lines.append(f"> **{CHK014_CAVEAT}**")
+        lines.append("")
     for sev in ("BLOCK", "WARN", "INFO"):
         sel = [f for f in findings if f.severity == sev]
         if not sel:
@@ -816,19 +1049,19 @@ def _selftest_cells() -> list[Cell]:
         Cell(**base, arm="sacubitril/valsartan", outcome="cv_death", events=558, analysed=4187,
              randomised=4209, population_label="FAS", denominator_reason="as above",
              printed_percent=13.3, sources=[NEJM, CTG1],
-             is_component_of="composite_cvdeath_or_first_hfhosp"),
+             is_component_of="composite_cvdeath_or_first_hfhosp", component_basis="total"),
         Cell(**base, arm="enalapril", outcome="cv_death", events=693, analysed=4212,
              randomised=4233, population_label="FAS", denominator_reason="as above",
              printed_percent=16.5, sources=[NEJM, CTG1],
-             is_component_of="composite_cvdeath_or_first_hfhosp"),
+             is_component_of="composite_cvdeath_or_first_hfhosp", component_basis="total"),
         Cell(**base, arm="sacubitril/valsartan", outcome="first_hf_hosp", events=537, analysed=4187,
              randomised=4209, population_label="FAS", denominator_reason="as above",
              printed_percent=12.8, sources=[NEJM, CTG1],
-             is_component_of="composite_cvdeath_or_first_hfhosp"),
+             is_component_of="composite_cvdeath_or_first_hfhosp", component_basis="total"),
         Cell(**base, arm="enalapril", outcome="first_hf_hosp", events=658, analysed=4212,
              randomised=4233, population_label="FAS", denominator_reason="as above",
              printed_percent=15.6, sources=[NEJM, CTG1],
-             is_component_of="composite_cvdeath_or_first_hfhosp"),
+             is_component_of="composite_cvdeath_or_first_hfhosp", component_basis="total"),
         # the duplicate-population trap, both variants present and one SELECTED
         Cell(**base, arm="sacubitril/valsartan", outcome="all_cause_death", events=711, analysed=4187,
              randomised=4209, population_label="FAS", denominator_reason="as above",
@@ -865,10 +1098,10 @@ def _selftest_cells() -> list[Cell]:
                  analysed=n, printed_percent=pcts[0], sources=[JAMA, CTG2]),
             Cell(**d, arm=arm, outcome="cv_death", events=cvd, analysed=n,
                  printed_percent=pcts[1], sources=[JAMA, CTG2],
-                 is_component_of="composite_cvdeath_or_first_hfhosp"),
+                 is_component_of="composite_cvdeath_or_first_hfhosp", component_basis="total"),
             Cell(**d, arm=arm, outcome="first_hf_hosp", events=hosp, analysed=n,
                  printed_percent=pcts[2], sources=[JAMA, CTG2],
-                 is_component_of="composite_cvdeath_or_first_hfhosp"),
+                 is_component_of="composite_cvdeath_or_first_hfhosp", component_basis="total"),
         ]
     # PARALLEL-HF: the single-source all-cause-death cells
     CIRCJ = {"tier": "T1", "pointer": "Circ J 2021;85(5):584-594 Table 2",
@@ -885,9 +1118,9 @@ def _selftest_cells() -> list[Cell]:
             Cell(**lb, outcome="composite_cvdeath_or_first_hfhosp", events=comp,
                  printed_percent=pcts[0], sources=[CIRCJ, CTG3]),
             Cell(**lb, outcome="cv_death", events=cvd, printed_percent=pcts[1],
-                 sources=[CIRCJ, CTG3], is_component_of="composite_cvdeath_or_first_hfhosp"),
+                 sources=[CIRCJ, CTG3], is_component_of="composite_cvdeath_or_first_hfhosp", component_basis="total"),
             Cell(**lb, outcome="first_hf_hosp", events=hosp, printed_percent=pcts[2],
-                 sources=[CIRCJ, CTG3], is_component_of="composite_cvdeath_or_first_hfhosp"),
+                 sources=[CIRCJ, CTG3], is_component_of="composite_cvdeath_or_first_hfhosp", component_basis="total"),
             Cell(**lb, outcome="all_cause_death", events=acm, sources=[CTG3],
                  notes="registry-only; Circ J Table 2 does not report all-cause mortality"),
         ]
@@ -937,9 +1170,6 @@ def _selftest() -> int:
                  lambda cs: [setattr(c, "provenance", "derived")
                              for c in cs if c.trial == "PARACHUTE-HF" and c.outcome == "cv_death"],
                  "CHK004_PERCENTAGE_ONLY_REGISTRY")
-    ok &= expect("composite equals sum of components",
-                 lambda cs: setattr(cs[0], "events", 558 + 537),
-                 "CHK007_COMPOSITE_NOT_SUM_OF_COMPONENTS")
     ok &= expect("blocked fetch logged as absence",
                  lambda cs: (setattr(cs[0], "events", None),
                              setattr(cs[0], "not_recovered_reason",
@@ -960,6 +1190,79 @@ def _selftest() -> int:
                            sources=[{"tier": "T2",
                                      "pointer": "CT.gov adverseEventsModule deathsNumAffected"}]))
 
+    # --- the 2026-08-12 ruling, proved in BOTH directions ---
+    def _determined(cs, **over):
+        c = cs[0]
+        c.provenance = "derived_determined"
+        c.construction = "derived_determined"
+        c.derivation_inputs = {"rate_pct": 21.8, "group_n": 4187}
+        c.derivation_formula = "events = round(group_n * rate_pct / 100)"
+        for k, v in over.items():
+            setattr(c, k, v)
+
+    def expect_no_block(name, mutate, check_name):
+        muts = _selftest_cells()
+        mutate(muts)
+        fs = [f for f in run_checks(muts) if f.severity == "BLOCK" and f.check == check_name]
+        status = "ok" if not fs else "WRONGLY BLOCKED"
+        print(f"  {status:7} {name} -> {check_name} must NOT block")
+        return not fs
+
+    ok &= expect_no_block("determined derivation, inputs + formula stored, reproduces",
+                          _determined, "CHK016_FORBIDDEN_CONSTRUCTION")
+    ok &= expect_no_block("determined derivation, inputs + formula stored, reproduces",
+                          _determined, "CHK017_DETERMINED_DERIVATION_REPRODUCIBLE")
+    ok &= expect("determined derivation with no inputs recorded",
+                 lambda cs: _determined(cs, derivation_inputs=None),
+                 "CHK017_DETERMINED_DERIVATION_REPRODUCIBLE")
+    ok &= expect("determined derivation whose arithmetic does not reproduce",
+                 lambda cs: _determined(cs, derivation_inputs={"rate_pct": 30.0, "group_n": 4187}),
+                 "CHK017_DETERMINED_DERIVATION_REPRODUCIBLE")
+    ok &= expect("underdetermined reconstruction",
+                 lambda cs: setattr(cs[0], "construction", "derived_underdetermined"),
+                 "CHK016_FORBIDDEN_CONSTRUCTION")
+    ok &= expect("count manufactured from a percentage times a denominator",
+                 lambda cs: setattr(cs[0], "construction", "percent_times_denominator"),
+                 "CHK016_FORBIDDEN_CONSTRUCTION")
+
+    # --- composite basis, both directions ---
+    def _basis(cs, basis, composite=None):
+        for c in cs:
+            if c.trial == "PARADIGM-HF" and c.is_component_of:
+                c.component_basis = basis
+        if composite is not None:
+            for c in cs:
+                if c.trial == "PARADIGM-HF" and c.outcome == "composite_cvdeath_or_first_hfhosp" \
+                        and c.arm == "sacubitril/valsartan":
+                    c.events = composite
+
+    ok &= expect_no_block("total-basis components summing above the composite",
+                          lambda cs: _basis(cs, "total"),
+                          "CHK007_COMPOSITE_COMPONENT_ARITHMETIC")
+    ok &= expect("total-basis components summing exactly to the composite",
+                 lambda cs: _basis(cs, "total", composite=558 + 537),
+                 "CHK007_COMPOSITE_COMPONENT_ARITHMETIC")
+    ok &= expect("first-event components that do NOT sum to the composite",
+                 lambda cs: _basis(cs, "first_event"),
+                 "CHK007_COMPOSITE_COMPONENT_ARITHMETIC")
+    ok &= expect("components declaring mixed bases",
+                 lambda cs: [setattr(c, "component_basis",
+                                     "first_event" if c.outcome == "cv_death" else "total")
+                             for c in cs if c.trial == "PARADIGM-HF" and c.is_component_of],
+                 "CHK007_COMPOSITE_COMPONENT_ARITHMETIC")
+
+    ok &= expect("count inherited from a published synthesis, never verified",
+                 lambda cs: (cs[0].sources.clear(),
+                             cs[0].sources.append({"tier": "T4",
+                                                   "pointer": "Reyaz 2023 meta-analysis Table 1",
+                                                   "flagged_unverified": True})),
+                 "CHK015_INHERITED_WITHOUT_PRIMARY_VERIFICATION")
+    ok &= expect("composite declared as a sum of total component counts",
+                 lambda cs: setattr(cs[0], "construction", "summed_components"),
+                 "CHK016_FORBIDDEN_CONSTRUCTION")
+    ok &= expect("legacy coarse 'back_calculated' label",
+                 lambda cs: setattr(cs[2], "construction", "back_calculated"),
+                 "CHK016_FORBIDDEN_CONSTRUCTION")
     ok &= expect("adverse-events death count used as the efficacy endpoint",
                  lambda cs: _add_ae_cell(cs, True),
                  "CHK013_AE_MODULE_DEATHS_NOT_EFFICACY")
@@ -1011,8 +1314,11 @@ def main(argv=None) -> int:
     else:
         print(report)
     if a.json_out:
+        payload = {"summary": summary, "findings": [asdict(f) for f in findings]}
+        if any(f.check == "CHK014_EFFECT_ESTIMATE_CONSISTENCY" for f in findings):
+            payload["chk014_caveat"] = CHK014_CAVEAT
         with open(a.json_out, "w", encoding="utf-8") as fh:
-            json.dump({"summary": summary, "findings": [asdict(f) for f in findings]}, fh, indent=2)
+            json.dump(payload, fh, indent=2)
 
     print(f"\n{summary['verdict']}: {summary['blocks']} BLOCK / {summary['warns']} WARN "
           f"on {summary['cells_total']} cells", file=sys.stderr)

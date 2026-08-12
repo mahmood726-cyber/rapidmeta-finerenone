@@ -1,18 +1,18 @@
 {
   "summary": {
     "harness_version": "1.0.0",
-    "cells_total": 52,
-    "alternate_population_rows": 10,
-    "cells_with_counts": 20,
-    "cells_empty": 32,
-    "cells_multi_source": 2,
-    "cells_single_source": 18,
+    "cells_total": 56,
+    "alternate_population_rows": 14,
+    "cells_with_counts": 26,
+    "cells_empty": 30,
+    "cells_multi_source": 4,
+    "cells_single_source": 22,
     "cells_unretrieved_obstacle": 0,
-    "checks_run": 14,
-    "findings_total": 308,
-    "blocks": 4,
-    "warns": 31,
-    "verdict": "BLOCKED"
+    "checks_run": 17,
+    "findings_total": 360,
+    "blocks": 0,
+    "warns": 38,
+    "verdict": "PASS_WITH_WARNINGS"
   },
   "findings": [
     {
@@ -125,6 +125,66 @@
     },
     {
       "check": "CHK001_COUNT_PERCENT_AGREEMENT",
+      "severity": "PASS",
+      "subject": "LEADER/liraglutide/all_cause_death",
+      "message": "381/4668 = 8.16% vs printed 8.2%"
+    },
+    {
+      "check": "CHK001_COUNT_PERCENT_AGREEMENT",
+      "severity": "PASS",
+      "subject": "LEADER/placebo/all_cause_death",
+      "message": "447/4672 = 9.57% vs printed 9.6%"
+    },
+    {
+      "check": "CHK001_COUNT_PERCENT_AGREEMENT",
+      "severity": "PASS",
+      "subject": "HEART-FID/ferric carboxymaltose/all_cause_death",
+      "message": "361/1532 = 23.56% vs printed 23.6%"
+    },
+    {
+      "check": "CHK001_COUNT_PERCENT_AGREEMENT",
+      "severity": "PASS",
+      "subject": "HEART-FID/placebo/all_cause_death",
+      "message": "376/1533 = 24.53% vs printed 24.5%"
+    },
+    {
+      "check": "CHK001_COUNT_PERCENT_AGREEMENT",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/sacubitril/valsartan/composite_cvdeath_or_first_hfhosp",
+      "message": "914/4187 = 21.83% vs printed 21.8%"
+    },
+    {
+      "check": "CHK001_COUNT_PERCENT_AGREEMENT",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/enalapril/composite_cvdeath_or_first_hfhosp",
+      "message": "1117/4212 = 26.52% vs printed 26.5%"
+    },
+    {
+      "check": "CHK001_COUNT_PERCENT_AGREEMENT",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/sacubitril/valsartan/cv_death_first_event",
+      "message": "377/4187 = 9.00% vs printed 9.0%"
+    },
+    {
+      "check": "CHK001_COUNT_PERCENT_AGREEMENT",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/enalapril/cv_death_first_event",
+      "message": "459/4212 = 10.90% vs printed 10.9%"
+    },
+    {
+      "check": "CHK001_COUNT_PERCENT_AGREEMENT",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/sacubitril/valsartan/first_hf_hosp_first_event",
+      "message": "537/4187 = 12.83% vs printed 12.8%"
+    },
+    {
+      "check": "CHK001_COUNT_PERCENT_AGREEMENT",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/enalapril/first_hf_hosp_first_event",
+      "message": "658/4212 = 15.62% vs printed 15.6%"
+    },
+    {
+      "check": "CHK001_COUNT_PERCENT_AGREEMENT",
       "severity": "INFO",
       "subject": "ODYSSEY OUTCOMES/alirocumab/all_cause_death",
       "message": "no printed percentage captured; agreement not testable"
@@ -205,18 +265,6 @@
       "check": "CHK001_COUNT_PERCENT_AGREEMENT",
       "severity": "INFO",
       "subject": "FOURIER/placebo/all_cause_death",
-      "message": "no printed percentage captured; agreement not testable"
-    },
-    {
-      "check": "CHK001_COUNT_PERCENT_AGREEMENT",
-      "severity": "INFO",
-      "subject": "LEADER/liraglutide/all_cause_death",
-      "message": "no printed percentage captured; agreement not testable"
-    },
-    {
-      "check": "CHK001_COUNT_PERCENT_AGREEMENT",
-      "severity": "INFO",
-      "subject": "LEADER/placebo/all_cause_death",
       "message": "no printed percentage captured; agreement not testable"
     },
     {
@@ -498,6 +546,66 @@
     {
       "check": "CHK002_DENOMINATOR_NOT_RANDOMISED",
       "severity": "PASS",
+      "subject": "LEADER/liraglutide/all_cause_death",
+      "message": "analysed == randomised == 4668"
+    },
+    {
+      "check": "CHK002_DENOMINATOR_NOT_RANDOMISED",
+      "severity": "PASS",
+      "subject": "LEADER/placebo/all_cause_death",
+      "message": "analysed == randomised == 4672"
+    },
+    {
+      "check": "CHK002_DENOMINATOR_NOT_RANDOMISED",
+      "severity": "PASS",
+      "subject": "HEART-FID/ferric carboxymaltose/all_cause_death",
+      "message": "analysed == randomised == 1532"
+    },
+    {
+      "check": "CHK002_DENOMINATOR_NOT_RANDOMISED",
+      "severity": "PASS",
+      "subject": "HEART-FID/placebo/all_cause_death",
+      "message": "analysed == randomised == 1533"
+    },
+    {
+      "check": "CHK002_DENOMINATOR_NOT_RANDOMISED",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/sacubitril/valsartan/composite_cvdeath_or_first_hfhosp",
+      "message": "analysed 4187 of randomised 4209 (22 excluded: 37 randomised at sites closed for serious GCP violations + 6 mis-randomised (trial-wide))"
+    },
+    {
+      "check": "CHK002_DENOMINATOR_NOT_RANDOMISED",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/enalapril/composite_cvdeath_or_first_hfhosp",
+      "message": "analysed 4212 of randomised 4233 (21 excluded: 37 randomised at sites closed for serious GCP violations + 6 mis-randomised (trial-wide))"
+    },
+    {
+      "check": "CHK002_DENOMINATOR_NOT_RANDOMISED",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/sacubitril/valsartan/cv_death_first_event",
+      "message": "analysed 4187 of randomised 4209 (22 excluded: 37 randomised at sites closed for serious GCP violations + 6 mis-randomised (trial-wide))"
+    },
+    {
+      "check": "CHK002_DENOMINATOR_NOT_RANDOMISED",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/enalapril/cv_death_first_event",
+      "message": "analysed 4212 of randomised 4233 (21 excluded: 37 randomised at sites closed for serious GCP violations + 6 mis-randomised (trial-wide))"
+    },
+    {
+      "check": "CHK002_DENOMINATOR_NOT_RANDOMISED",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/sacubitril/valsartan/first_hf_hosp_first_event",
+      "message": "analysed 4187 of randomised 4209 (22 excluded: 37 randomised at sites closed for serious GCP violations + 6 mis-randomised (trial-wide))"
+    },
+    {
+      "check": "CHK002_DENOMINATOR_NOT_RANDOMISED",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/enalapril/first_hf_hosp_first_event",
+      "message": "analysed 4212 of randomised 4233 (21 excluded: 37 randomised at sites closed for serious GCP violations + 6 mis-randomised (trial-wide))"
+    },
+    {
+      "check": "CHK002_DENOMINATOR_NOT_RANDOMISED",
+      "severity": "PASS",
       "subject": "ODYSSEY OUTCOMES/alirocumab/all_cause_death",
       "message": "analysed == randomised == 9451"
     },
@@ -629,39 +737,15 @@
     },
     {
       "check": "CHK003_DUPLICATE_OUTCOME_POPULATION",
-      "severity": "BLOCK",
+      "severity": "PASS",
       "subject": "HEART-FID/ferric carboxymaltose/all_cause_death",
-      "message": "registry/publication offers 2 arm-pairs for this outcome ([('ITT, 12-month window', 131, 1532), ('safety population (adverse events module), 67.5 months', 354, 1532)]); exactly one must set selected=true with its population named. Refusing to choose for you."
+      "message": "3 populations present, SELECTED = randomised, full follow-up (361/1532)"
     },
     {
       "check": "CHK003_DUPLICATE_OUTCOME_POPULATION",
-      "severity": "BLOCK",
+      "severity": "PASS",
       "subject": "HEART-FID/placebo/all_cause_death",
-      "message": "registry/publication offers 2 arm-pairs for this outcome ([('ITT, 12-month window', 158, 1533), ('safety population (adverse events module), 67.5 months', 367, 1533)]); exactly one must set selected=true with its population named. Refusing to choose for you."
-    },
-    {
-      "check": "CHK004_PERCENTAGE_ONLY_REGISTRY",
-      "severity": "INFO",
-      "subject": "FOURIER/evolocumab/all_cause_death",
-      "message": "registry posts 'percentage of participants' only and no count was recovered. Publication retrieval required; derivation from the percentage is prohibited."
-    },
-    {
-      "check": "CHK004_PERCENTAGE_ONLY_REGISTRY",
-      "severity": "INFO",
-      "subject": "FOURIER/placebo/all_cause_death",
-      "message": "registry posts 'percentage of participants' only and no count was recovered. Publication retrieval required; derivation from the percentage is prohibited."
-    },
-    {
-      "check": "CHK004_PERCENTAGE_ONLY_REGISTRY",
-      "severity": "INFO",
-      "subject": "LEADER/liraglutide/all_cause_death",
-      "message": "registry posts 'percentage of participants' only and no count was recovered. Publication retrieval required; derivation from the percentage is prohibited."
-    },
-    {
-      "check": "CHK004_PERCENTAGE_ONLY_REGISTRY",
-      "severity": "INFO",
-      "subject": "LEADER/placebo/all_cause_death",
-      "message": "registry posts 'percentage of participants' only and no count was recovered. Publication retrieval required; derivation from the percentage is prohibited."
+      "message": "3 populations present, SELECTED = randomised, full follow-up (376/1533)"
     },
     {
       "check": "CHK004_PERCENTAGE_ONLY_REGISTRY",
@@ -882,6 +966,66 @@
     {
       "check": "CHK005_SINGLE_SOURCE_CELL",
       "severity": "WARN",
+      "subject": "LEADER/liraglutide/all_cause_death",
+      "message": "SINGLE-SOURCE cell (T1): NEJM 2016;375:311-322 Results (via PubMed abstract, PMID 27295427). Not independently confirmed; must be visibly distinguished in any 'n of m confirmed' statement."
+    },
+    {
+      "check": "CHK005_SINGLE_SOURCE_CELL",
+      "severity": "WARN",
+      "subject": "LEADER/placebo/all_cause_death",
+      "message": "SINGLE-SOURCE cell (T1): NEJM 2016;375:311-322 Results (via PubMed abstract, PMID 27295427). Not independently confirmed; must be visibly distinguished in any 'n of m confirmed' statement."
+    },
+    {
+      "check": "CHK005_SINGLE_SOURCE_CELL",
+      "severity": "WARN",
+      "subject": "HEART-FID/ferric carboxymaltose/all_cause_death",
+      "message": "SINGLE-SOURCE cell (T1): NEJM 2023;389:975-986 Results, Safety paragraph ('Death from any cause during the follow-up period, a prespecified exploratory outcome'). Not independently confirmed; must be visibly distinguished in any 'n of m confirmed' statement."
+    },
+    {
+      "check": "CHK005_SINGLE_SOURCE_CELL",
+      "severity": "WARN",
+      "subject": "HEART-FID/placebo/all_cause_death",
+      "message": "SINGLE-SOURCE cell (T1): NEJM 2023;389:975-986 Results, Safety paragraph ('Death from any cause during the follow-up period, a prespecified exploratory outcome'). Not independently confirmed; must be visibly distinguished in any 'n of m confirmed' statement."
+    },
+    {
+      "check": "CHK005_SINGLE_SOURCE_CELL",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/sacubitril/valsartan/composite_cvdeath_or_first_hfhosp",
+      "message": "confirmed in 2 sources, tiers ['T1', 'T3']"
+    },
+    {
+      "check": "CHK005_SINGLE_SOURCE_CELL",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/enalapril/composite_cvdeath_or_first_hfhosp",
+      "message": "confirmed in 2 sources, tiers ['T1', 'T3']"
+    },
+    {
+      "check": "CHK005_SINGLE_SOURCE_CELL",
+      "severity": "WARN",
+      "subject": "PARADIGM-HF/sacubitril/valsartan/cv_death_first_event",
+      "message": "SINGLE-SOURCE cell (T3): FDA NDA 207620 Summary Review (Cross Discipline Team Leader), Table 2 'Primary Composite Endpoint (CV death or HF Hospitalization)'. Not independently confirmed; must be visibly distinguished in any 'n of m confirmed' statement."
+    },
+    {
+      "check": "CHK005_SINGLE_SOURCE_CELL",
+      "severity": "WARN",
+      "subject": "PARADIGM-HF/enalapril/cv_death_first_event",
+      "message": "SINGLE-SOURCE cell (T3): FDA NDA 207620 Summary Review (Cross Discipline Team Leader), Table 2 'Primary Composite Endpoint (CV death or HF Hospitalization)'. Not independently confirmed; must be visibly distinguished in any 'n of m confirmed' statement."
+    },
+    {
+      "check": "CHK005_SINGLE_SOURCE_CELL",
+      "severity": "WARN",
+      "subject": "PARADIGM-HF/sacubitril/valsartan/first_hf_hosp_first_event",
+      "message": "SINGLE-SOURCE cell (T3): FDA NDA 207620 Summary Review (Cross Discipline Team Leader), Table 2 'Primary Composite Endpoint (CV death or HF Hospitalization)'. Not independently confirmed; must be visibly distinguished in any 'n of m confirmed' statement."
+    },
+    {
+      "check": "CHK005_SINGLE_SOURCE_CELL",
+      "severity": "WARN",
+      "subject": "PARADIGM-HF/enalapril/first_hf_hosp_first_event",
+      "message": "SINGLE-SOURCE cell (T3): FDA NDA 207620 Summary Review (Cross Discipline Team Leader), Table 2 'Primary Composite Endpoint (CV death or HF Hospitalization)'. Not independently confirmed; must be visibly distinguished in any 'n of m confirmed' statement."
+    },
+    {
+      "check": "CHK005_SINGLE_SOURCE_CELL",
+      "severity": "WARN",
       "subject": "ODYSSEY OUTCOMES/alirocumab/all_cause_death",
       "message": "SINGLE-SOURCE cell (T2): CT.gov NCT01663402 adverseEventsModule deathsNumAffected. Not independently confirmed; must be visibly distinguished in any 'n of m confirmed' statement."
     },
@@ -952,376 +1096,436 @@
       "message": "SINGLE-SOURCE cell (T2): CT.gov NCT03037931 adverseEventsModule deathsNumAffected. Not independently confirmed; must be visibly distinguished in any 'n of m confirmed' statement."
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "PARADIGM-HF/sacubitril/valsartan/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "PARADIGM-HF/enalapril/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "PARADIGM-HF/sacubitril/valsartan/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "PARADIGM-HF/enalapril/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "PARAGON-HF/sacubitril/valsartan/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "PARAGON-HF/valsartan/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "DAPA-HF/dapagliflozin 10 mg/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "DAPA-HF/placebo/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "SPRINT/intensive SBP control/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "SPRINT/standard SBP control/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "ACCORD (glycemia)/intensive glycaemic control/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "ACCORD (glycemia)/standard glycaemic control/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "DECLARE-TIMI 58/dapagliflozin 10 mg/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "DECLARE-TIMI 58/placebo/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "ODYSSEY OUTCOMES/alirocumab/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "ODYSSEY OUTCOMES/placebo/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "EMPA-KIDNEY/empagliflozin 10 mg/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "EMPA-KIDNEY/placebo/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
+      "severity": "PASS",
+      "subject": "LEADER/liraglutide/all_cause_death",
+      "message": "provenance 'read'"
+    },
+    {
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
+      "severity": "PASS",
+      "subject": "LEADER/placebo/all_cause_death",
+      "message": "provenance 'read'"
+    },
+    {
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
+      "severity": "PASS",
+      "subject": "HEART-FID/ferric carboxymaltose/all_cause_death",
+      "message": "provenance 'read'"
+    },
+    {
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
+      "severity": "PASS",
+      "subject": "HEART-FID/placebo/all_cause_death",
+      "message": "provenance 'read'"
+    },
+    {
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/sacubitril/valsartan/composite_cvdeath_or_first_hfhosp",
+      "message": "provenance 'read'"
+    },
+    {
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/enalapril/composite_cvdeath_or_first_hfhosp",
+      "message": "provenance 'read'"
+    },
+    {
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/sacubitril/valsartan/cv_death_first_event",
+      "message": "provenance 'read'"
+    },
+    {
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/enalapril/cv_death_first_event",
+      "message": "provenance 'read'"
+    },
+    {
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/sacubitril/valsartan/first_hf_hosp_first_event",
+      "message": "provenance 'read'"
+    },
+    {
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/enalapril/first_hf_hosp_first_event",
+      "message": "provenance 'read'"
+    },
+    {
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "ODYSSEY OUTCOMES/alirocumab/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "ODYSSEY OUTCOMES/placebo/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "EMPA-KIDNEY/empagliflozin 10 mg/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "EMPA-KIDNEY/placebo/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "DAPA-HF/dapagliflozin 10 mg/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "DAPA-HF/placebo/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "PARAGON-HF/sacubitril/valsartan/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "PARAGON-HF/valsartan/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "HEART-FID/ferric carboxymaltose/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "HEART-FID/ferric carboxymaltose/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "HEART-FID/placebo/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "HEART-FID/placebo/all_cause_death",
-      "message": "read from source"
+      "message": "provenance 'read'"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "FOURIER/evolocumab/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "FOURIER/placebo/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
-      "severity": "PASS",
-      "subject": "LEADER/liraglutide/all_cause_death",
-      "message": "no count recorded; reason stated"
-    },
-    {
-      "check": "CHK006_READ_NOT_COMPUTED",
-      "severity": "PASS",
-      "subject": "LEADER/placebo/all_cause_death",
-      "message": "no count recorded; reason stated"
-    },
-    {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "GLOBAL LEADERS/ticagrelor monotherapy/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "GLOBAL LEADERS/reference strategy/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "ATLAS ACS 2/rivaroxaban low dose/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "ATLAS ACS 2/placebo/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "TWILIGHT/ticagrelor monotherapy/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "TWILIGHT/ticagrelor + aspirin/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "COMMANDER HF/rivaroxaban 2.5 mg/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "COMMANDER HF/placebo/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "CREDENCE/canagliflozin/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "CREDENCE/placebo/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "EMPEROR-Reduced/empagliflozin 10 mg/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "EMPEROR-Reduced/placebo/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "SUSTAIN-6/semaglutide/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "SUSTAIN-6/placebo/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "AMPLITUDE-O/efpeglenatide/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "AMPLITUDE-O/placebo/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "SOLOIST-WHF/sotagliflozin/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "SOLOIST-WHF/placebo/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "EMPA-REG OUTCOME/empagliflozin pooled/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "EMPA-REG OUTCOME/placebo/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "CANVAS Program/canagliflozin pooled/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "CANVAS Program/placebo/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "VERTIS-CV/ertugliflozin pooled/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "VERTIS-CV/placebo/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "VADT/intensive glycaemic control/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "VADT/standard glycaemic control/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "ADVANCE/intensive glycaemic control/all_cause_death",
       "message": "no count recorded; reason stated"
     },
     {
-      "check": "CHK006_READ_NOT_COMPUTED",
+      "check": "CHK006_ADMISSIBLE_PROVENANCE",
       "severity": "PASS",
       "subject": "ADVANCE/standard glycaemic control/all_cause_death",
       "message": "no count recorded; reason stated"
+    },
+    {
+      "check": "CHK007_COMPOSITE_COMPONENT_ARITHMETIC",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/sacubitril/valsartan/composite_cvdeath_or_first_hfhosp",
+      "message": "first-event components 377 + 537 = 914 = composite, as they must"
+    },
+    {
+      "check": "CHK007_COMPOSITE_COMPONENT_ARITHMETIC",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/enalapril/composite_cvdeath_or_first_hfhosp",
+      "message": "first-event components 459 + 658 = 1117 = composite, as they must"
     },
     {
       "check": "CHK008_EVENTS_WITHIN_DENOMINATOR",
@@ -1430,6 +1634,66 @@
       "severity": "PASS",
       "subject": "EMPA-KIDNEY/placebo/all_cause_death",
       "message": "167 <= 3305"
+    },
+    {
+      "check": "CHK008_EVENTS_WITHIN_DENOMINATOR",
+      "severity": "PASS",
+      "subject": "LEADER/liraglutide/all_cause_death",
+      "message": "381 <= 4668"
+    },
+    {
+      "check": "CHK008_EVENTS_WITHIN_DENOMINATOR",
+      "severity": "PASS",
+      "subject": "LEADER/placebo/all_cause_death",
+      "message": "447 <= 4672"
+    },
+    {
+      "check": "CHK008_EVENTS_WITHIN_DENOMINATOR",
+      "severity": "PASS",
+      "subject": "HEART-FID/ferric carboxymaltose/all_cause_death",
+      "message": "361 <= 1532"
+    },
+    {
+      "check": "CHK008_EVENTS_WITHIN_DENOMINATOR",
+      "severity": "PASS",
+      "subject": "HEART-FID/placebo/all_cause_death",
+      "message": "376 <= 1533"
+    },
+    {
+      "check": "CHK008_EVENTS_WITHIN_DENOMINATOR",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/sacubitril/valsartan/composite_cvdeath_or_first_hfhosp",
+      "message": "914 <= 4187"
+    },
+    {
+      "check": "CHK008_EVENTS_WITHIN_DENOMINATOR",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/enalapril/composite_cvdeath_or_first_hfhosp",
+      "message": "1117 <= 4212"
+    },
+    {
+      "check": "CHK008_EVENTS_WITHIN_DENOMINATOR",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/sacubitril/valsartan/cv_death_first_event",
+      "message": "377 <= 4187"
+    },
+    {
+      "check": "CHK008_EVENTS_WITHIN_DENOMINATOR",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/enalapril/cv_death_first_event",
+      "message": "459 <= 4212"
+    },
+    {
+      "check": "CHK008_EVENTS_WITHIN_DENOMINATOR",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/sacubitril/valsartan/first_hf_hosp_first_event",
+      "message": "537 <= 4187"
+    },
+    {
+      "check": "CHK008_EVENTS_WITHIN_DENOMINATOR",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/enalapril/first_hf_hosp_first_event",
+      "message": "658 <= 4212"
     },
     {
       "check": "CHK008_EVENTS_WITHIN_DENOMINATOR",
@@ -1554,6 +1818,12 @@
     {
       "check": "CHK010_IDENTIFIER_PROVENANCE",
       "severity": "PASS",
+      "subject": "NCT01179048",
+      "message": "identifier provenance: ['lookup']"
+    },
+    {
+      "check": "CHK010_IDENTIFIER_PROVENANCE",
+      "severity": "PASS",
       "subject": "NCT03037931",
       "message": "identifier provenance: ['lookup']"
     },
@@ -1561,12 +1831,6 @@
       "check": "CHK010_IDENTIFIER_PROVENANCE",
       "severity": "PASS",
       "subject": "NCT01764633",
-      "message": "identifier provenance: ['lookup']"
-    },
-    {
-      "check": "CHK010_IDENTIFIER_PROVENANCE",
-      "severity": "PASS",
-      "subject": "NCT01179048",
       "message": "identifier provenance: ['lookup']"
     },
     {
@@ -1710,6 +1974,36 @@
     {
       "check": "CHK012_ARM_PAIR_COMPLETE",
       "severity": "PASS",
+      "subject": "LEADER/all_cause_death/randomised",
+      "message": "both arms present"
+    },
+    {
+      "check": "CHK012_ARM_PAIR_COMPLETE",
+      "severity": "PASS",
+      "subject": "HEART-FID/all_cause_death/randomised, full follow-up",
+      "message": "both arms present"
+    },
+    {
+      "check": "CHK012_ARM_PAIR_COMPLETE",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/composite_cvdeath_or_first_hfhosp/FAS",
+      "message": "both arms present"
+    },
+    {
+      "check": "CHK012_ARM_PAIR_COMPLETE",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/cv_death_first_event/FAS",
+      "message": "both arms present"
+    },
+    {
+      "check": "CHK012_ARM_PAIR_COMPLETE",
+      "severity": "PASS",
+      "subject": "PARADIGM-HF/first_hf_hosp_first_event/FAS",
+      "message": "both arms present"
+    },
+    {
+      "check": "CHK012_ARM_PAIR_COMPLETE",
+      "severity": "PASS",
       "subject": "ODYSSEY OUTCOMES/all_cause_death/safety population (adverse events module)",
       "message": "both arms present"
     },
@@ -1793,15 +2087,15 @@
     },
     {
       "check": "CHK013_AE_MODULE_DEATHS_NOT_EFFICACY",
-      "severity": "BLOCK",
+      "severity": "PASS",
       "subject": "HEART-FID/ferric carboxymaltose/all_cause_death",
-      "message": "this count comes from the registry adverse-events module (safety population, AE collection window) and is being used as the efficacy all-cause mortality endpoint. Observed divergence from the efficacy outcome ranges from 0 to >2x. Recover the efficacy endpoint, or set selected=false and label the population."
+      "message": "adverse-events-module death count recorded but not selected"
     },
     {
       "check": "CHK013_AE_MODULE_DEATHS_NOT_EFFICACY",
-      "severity": "BLOCK",
+      "severity": "PASS",
       "subject": "HEART-FID/placebo/all_cause_death",
-      "message": "this count comes from the registry adverse-events module (safety population, AE collection window) and is being used as the efficacy all-cause mortality endpoint. Observed divergence from the efficacy outcome ranges from 0 to >2x. Recover the efficacy endpoint, or set selected=false and label the population."
+      "message": "adverse-events-module death count recorded but not selected"
     },
     {
       "check": "CHK014_EFFECT_ESTIMATE_CONSISTENCY",
@@ -1853,15 +2147,34 @@
     },
     {
       "check": "CHK014_EFFECT_ESTIMATE_CONSISTENCY",
-      "severity": "WARN",
-      "subject": "HEART-FID/all_cause_death/ITT, 12-month window",
-      "message": "implied RR 0.830 vs stored HR 0.950 (12.7% apart). Likely the wrong outcome, population, or follow-up window."
+      "severity": "INFO",
+      "subject": "LEADER/all_cause_death/randomised",
+      "message": "implied RR 0.853 vs stored HR 0.850 (0.4% apart). Consistent \u2014 but consistency does NOT authenticate the count (see ODYSSEY OUTCOMES in the docstring)."
     },
     {
       "check": "CHK014_EFFECT_ESTIMATE_CONSISTENCY",
       "severity": "INFO",
-      "subject": "HEART-FID/all_cause_death/safety population (adverse events module), 67.5 months",
-      "message": "implied RR 0.965 vs stored HR 0.950 (1.6% apart). Consistent \u2014 but consistency does NOT authenticate the count (see ODYSSEY OUTCOMES in the docstring)."
+      "subject": "HEART-FID/all_cause_death/randomised, full follow-up",
+      "message": "implied RR 0.961 vs stored HR 0.950 (1.1% apart). Consistent \u2014 but consistency does NOT authenticate the count (see ODYSSEY OUTCOMES in the docstring)."
+    },
+    {
+      "check": "CHK014_EFFECT_ESTIMATE_CONSISTENCY",
+      "severity": "INFO",
+      "subject": "PARADIGM-HF/composite_cvdeath_or_first_hfhosp/FAS",
+      "message": "implied RR 0.823 vs stored HR 0.800 (2.9% apart). Consistent \u2014 but consistency does NOT authenticate the count (see ODYSSEY OUTCOMES in the docstring)."
+    },
+    {
+      "check": "CHK014_EFFECT_ESTIMATE_CONSISTENCY",
+      "severity": "INFO",
+      "subject": "PARADIGM-HF/cv_death_first_event/FAS",
+      "message": "implied RR 0.826 vs stored HR 0.840 (1.6% apart). Consistent \u2014 but consistency does NOT authenticate the count (see ODYSSEY OUTCOMES in the docstring)."
+    },
+    {
+      "check": "CHK014_EFFECT_ESTIMATE_CONSISTENCY",
+      "severity": "INFO",
+      "subject": "PARADIGM-HF/first_hf_hosp_first_event/FAS",
+      "message": "implied RR 0.821 vs stored HR 0.840 (2.3% apart). Consistent \u2014 but consistency does NOT authenticate the count (see ODYSSEY OUTCOMES in the docstring)."
     }
-  ]
+  ],
+  "chk014_caveat": "CHK014 caveat \u2014 agreement authenticates nothing. Only disagreement is informative. For ODYSSEY OUTCOMES the adverse-events pair (238/278, RR 0.856) and the efficacy pair (334/392, RR 0.852) both reproduce the stored HR of 0.85 while differing by ~100 events per arm. A consistency check would have passed both."
 }

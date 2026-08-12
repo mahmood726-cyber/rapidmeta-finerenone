@@ -1,0 +1,133 @@
+====================================================================================================
+DTA BACK-COMPUTATION AUDIT — 34 rows across 6 datasets
+  back-computed / relabelled : 26
+  read as raw counts         : 5
+  other / missing provenance : 3
+====================================================================================================
+
+study                                         status           stated cells  detail
+----------------------------------------------------------------------------------------------------
+Vaeth 2024 (clinician)                        PARTIAL          -             group sizes reported but sensitivity n
+Vaeth 2024 (self)                             PARTIAL          FP            group sizes reported but sensitivity n
+Akingba 2021                                  DETERMINED       TP            group sizes + sensitivity + specificit
+Affara 2023 (Bionote, EAC)                    UNDERDETERMINED  -             neither group sizes nor both accuracy 
+YEARS - van der Hulle 2017                    UNDERDETERMINED  -             neither group sizes nor both accuracy 
+ADJUST-PE - Righini 2014                      UNDERDETERMINED  FN            neither group sizes nor both accuracy 
+PEGeD - Kearon 2019                           UNDERDETERMINED  FN,TN         neither group sizes nor both accuracy 
+Christopher Study - van Belle 2006            DETERMINED       -             group sizes + sensitivity + specificit
+Lucassen 2015                                 UNDERDETERMINED  -             neither group sizes nor both accuracy 
+Andama 2021                                   DETERMINED       -             group sizes + sensitivity + specificit
+Kabir 2021                                    PARTIAL          -             group sizes reported but specificity n
+PROMIS - Ahmed 2017                           DETERMINED       -             group sizes + sensitivity + specificit
+MRI-FIRST - Rouviere 2019                     UNDERDETERMINED  FN            neither group sizes nor both accuracy 
+PRIMARY (MRI-alone) - Emmett 2021             UNDERDETERMINED  -             neither group sizes nor both accuracy 
+PI-CAI radiologists - Saha 2024               UNDERDETERMINED  -             neither group sizes nor both accuracy 
+Metser 2021 (lesion-level)                    UNDERDETERMINED  TN            neither group sizes nor both accuracy 
+Palmqvist 2020 (BIOFINDER-2, PET)             UNDERDETERMINED  -             neither group sizes nor both accuracy 
+Ashton 2024 (ALZpath, TRIAD-PET)              UNDERDETERMINED  -             sensitivity and specificity reported b
+Mielke 2021 (MCSA, PET)                       UNDERDETERMINED  -             neither group sizes nor both accuracy 
+Janelidze 2020 (BIOFINDER-1, plasma p-tau181  UNDERDETERMINED  -             neither group sizes nor both accuracy 
+Brum 2023 (BIOFINDER-2, two-step)             UNDERDETERMINED  -             neither group sizes nor both accuracy 
+APACE 0/1h hs-cTnI - Jaeger 2016              PARTIAL          FN            group sizes reported but specificity n
+APACE 0/2h hs-cTnT - Reichlin 2015            UNDERDETERMINED  FN            neither group sizes nor both accuracy 
+APACE 0/1h direct-comparison hs-cTnI - Boeddi UNDERDETERMINED  FN            neither group sizes nor both accuracy 
+ESC 0/1h outcome study - Twerenbold 2019      UNDERDETERMINED  FN            neither group sizes nor both accuracy 
+RAPID-TnT 0/1h hs-cTnT RCT - Chew 2019        UNDERDETERMINED  -             neither group sizes nor both accuracy 
+
+====================================================================================================
+Q1 — DETERMINACY
+====================================================================================================
+  DETERMINED         4 of 26  (15.4%)
+  PARTIAL            4 of 26  (15.4%)
+  UNDERDETERMINED   18 of 26  (69.2%)
+
+====================================================================================================
+Q2 — AGREEMENT: does the arithmetic reproduce the stored cells?
+====================================================================================================
+study                                             TP  rebuilt     TN  rebuilt   verdict
+----------------------------------------------------------------------------------------------------
+Akingba 2021                                     101      101    526      526   agrees (<=1)
+Christopher Study - van Belle 2006               643      643   1011     1011   agrees (<=1)
+Andama 2021                                      304      304    355      355   agrees (<=1)
+PROMIS - Ahmed 2017                              214      214    142      142   agrees (<=1)
+
+  determined rows tested: 4, disagreements beyond rounding: 0
+
+====================================================================================================
+Q2b — cells stated outright in the quote vs the stored value
+====================================================================================================
+  Vaeth 2024 (self)                              cells appearing verbatim in the quote: FP  stored 2x2 (119, 2, 23, 809)
+  Akingba 2021                                   cells appearing verbatim in the quote: TP  stored 2x2 (101, 5, 45, 526)
+  ADJUST-PE - Righini 2014                       cells appearing verbatim in the quote: FN  stored 2x2 (633, 1420, 3, 1290)
+  PEGeD - Kearon 2019                            cells appearing verbatim in the quote: FN,TN  stored 2x2 (149, 543, 0, 1325)
+  MRI-FIRST - Rouviere 2019                      cells appearing verbatim in the quote: FN  stored 2x2 (81, 117, 13, 40)
+  Metser 2021 (lesion-level)                     cells appearing verbatim in the quote: TN  stored 2x2 (33, 10, 16, 55)
+  APACE 0/1h hs-cTnI - Jaeger 2016               cells appearing verbatim in the quote: FN  stored 2x2 (120, 202, 0, 428)
+  APACE 0/2h hs-cTnT - Reichlin 2015             cells appearing verbatim in the quote: FN  stored 2x2 (45, 69, 2, 401)
+  APACE 0/1h direct-comparison hs-cTnI - Boedd   cells appearing verbatim in the quote: FN  stored 2x2 (138, 252, 1, 593)
+  ESC 0/1h outcome study - Twerenbold 2019       cells appearing verbatim in the quote: FN  stored 2x2 (156, 380, 1, 826)
+
+====================================================================================================
+Q3 — CONSTRUCT MISMATCH (a separate axis, from the corpus's own caveat strings)
+====================================================================================================
+  Affara 2023 (Bionote, EAC)                    
+      - group sizes assumed from a prevalence measured elsewhere
+      - number with the target condition was estimated, not reported
+      - self-declared approximate
+  YEARS - van der Hulle 2017                    
+      - outcome is a management-strategy endpoint, not index-test accuracy
+      - explicitly flagged as not a pure diagnostic-accuracy design
+  Lucassen 2015                                 
+      - self-declared approximate
+  PI-CAI radiologists - Saha 2024               
+      - number with the target condition was inferred, not reported
+  Palmqvist 2020 (BIOFINDER-2, PET)             
+      - reference standard flagged imperfect
+  Ashton 2024 (ALZpath, TRIAD-PET)              
+      - pooled across cohorts; a single 2x2 may not exist in the source
+      - reference standard flagged imperfect
+  Mielke 2021 (MCSA, PET)                       
+      - operating point derived from AUC + Youden, not a reported cutoff
+      - reference standard flagged imperfect
+  Janelidze 2020 (BIOFINDER-1, plasma p-tau181  
+      - row was relabelled from a different analyte or analysis
+      - reference standard flagged imperfect
+  RAPID-TnT 0/1h hs-cTnT RCT - Chew 2019        
+      - outcome is a management-strategy endpoint, not index-test accuracy
+      - explicitly flagged as not a pure diagnostic-accuracy design
+      - endpoint is a composite, not the target condition
+
+  rows carrying at least one construct flag: 9 of 26
+
+====================================================================================================
+EXPOSURE SUMMARY
+====================================================================================================
+  Recoverable in principle (determined up to rounding) : 4 rows, 8 cells
+  Required an assumption beyond rounding               : 22 rows, 44 cells
+  Empty 2x2 with no provenance                         : 0 rows
+  Carrying a construct flag (any determinacy status)   : 9 rows
+  DETERMINED *and* free of construct flags             : 4 rows -> ['Akingba 2021', 'Christopher Study - van Belle 2006', 'Andama 2021', 'PROMIS - Ahmed 2017']
+
+  The 'required an assumption' group is the defect regardless of where the rule
+  lands. The construct-flagged group is a separate and arguably worse problem:
+  an exactly determined 2x2 of the wrong quantity is still the wrong quantity.
+
+====================================================================================================
+LIMITATION OF Q2 — STATED PLAINLY
+====================================================================================================
+  The Q2 rebuild is CIRCULAR and does not answer the question it looks like it
+  answers. It recomputes each cell using the same arithmetic the original extractor
+  used, from the same quote, so agreement is close to guaranteed and proves nothing
+  about correctness. It rules out transcription slips, nothing more.
+
+  The genuinely informative test is: take a determined back-computed row, read the
+  2x2 out of the full text, and compare. That requires retrieval this audit did not
+  do. The four rows to test, in priority order, are the DETERMINED ones listed above
+  -- they are the only rows where the stricter rule could possibly be defended, so
+  they are the only rows whose failure would settle the question.
+
+  One non-circular observation is available. Ten back-computed rows state at least
+  one of their four cells verbatim in the stored quote. In every one of those the
+  stored value equals the stated value -- so where a real count was on the page, the
+  extractor used it rather than overwriting it with arithmetic. That is reassuring
+  about intent. It says nothing about the cells that were not on the page.

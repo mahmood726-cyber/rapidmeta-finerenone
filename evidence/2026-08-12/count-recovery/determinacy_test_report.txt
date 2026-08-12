@@ -1,0 +1,106 @@
+================================================================================================
+PART 1 — percentage x denominator, tested where the true count is known
+  source: FDA NDA 207620 statistical/summary review, PARADIGM-HF Tables 1-3
+================================================================================================
+quantity                            true  naive  err   compatible integers  verdict
+------------------------------------------------------------------------------------------------
+composite, LCZ696                    914    913   -1           911-914 (4)  UNDERDETERMINED
+composite, enalapril                1117   1116   -1         1115-1118 (4)  UNDERDETERMINED
+all-cause death, LCZ696              711    712   +1           710-713 (4)  UNDERDETERMINED
+all-cause death, enalapril           835    834   -1           832-836 (5)  UNDERDETERMINED
+CV death (total), LCZ696             558    557   -1           555-558 (4)  UNDERDETERMINED
+CV death (total), enalapril          693    695   +2           693-697 (5)  UNDERDETERMINED
+HF hosp (total), LCZ696              537    536   -1           534-538 (5)  UNDERDETERMINED
+HF hosp (total), enalapril           658    657   -1           655-659 (5)  UNDERDETERMINED
+CV death (first event), LCZ696       377    377   +0           375-378 (4)  UNDERDETERMINED
+CV death (first event), enalapril    459    459   +0           458-461 (4)  UNDERDETERMINED
+
+  naive reconstruction exact in 2 of 10; max error 2
+  rounding interval admits more than one integer in 10 of 10
+
+  Reading. A percentage printed to one decimal against a denominator in the thousands
+  does not pin the count. Eight of these ten reconstructions miss the true value, one
+  by two. The two that hit are the ones where the denominator happens to make the
+  interval narrow. Percentage-times-denominator is therefore NOT a determined
+  reconstruction at this precision, which is why it stays forbidden -- and the
+  determinacy has to be tested per cell, not assumed from the presence of a
+  percentage and an n.
+
+================================================================================================
+PART 2 — determinacy of the diagnostic-accuracy reconstructions
+================================================================================================
+study                                          sens dec  TP opts   spec dec  TN opts  verdict
+------------------------------------------------------------------------------------------------
+Vaeth 2024 (clinician)                         88.0   1        1   99.6   1        1  DETERMINED
+Vaeth 2024 (self)                              83.8   1        1   99.8   1        1  DETERMINED
+Akingba 2021                                   69.2   1        1   99.1   1        1  DETERMINED
+Affara 2023 (Bionote, EAC)                     60.0   0        1   98.9   0        7  PARTIAL
+YEARS - van der Hulle 2017                     97.8None        0   39.1None        0  UNDERDETERMINED (stat not in quote)
+ADJUST-PE - Righini 2014                       99.5None        0   47.6None        0  UNDERDETERMINED (stat not in quote)
+PEGeD - Kearon 2019                           100.0None        0   70.9None        0  UNDERDETERMINED (stat not in quote)
+Christopher Study - van Belle 2006             98.5   1        1   41.4   1        3  PARTIAL
+Lucassen 2015                                  98.8   1        1   41.2None        0  PARTIAL
+Andama 2021                                    90.5   1        1   98.1   1        1  DETERMINED
+Kabir 2021                                     58.6   1        1   88.0   1        1  DETERMINED
+PROMIS - Ahmed 2017                            93.0   0        3   41.0   0        3  UNDERDETERMINED
+MRI-FIRST - Rouviere 2019                      86.2None        0   25.5None        0  UNDERDETERMINED (stat not in quote)
+PRIMARY (MRI-alone) - Emmett 2021              82.7   0        1   52.7   0        1  DETERMINED
+PI-CAI radiologists - Saha 2024                96.2   1        1   68.9   1        1  DETERMINED
+Metser 2021 (lesion-level)                     67.3   0        1   84.6   0        1  DETERMINED
+Palmqvist 2020 (BIOFINDER-2, PET)              87.7   0        1   93.3   0        1  DETERMINED
+Ashton 2024 (ALZpath, TRIAD-PET)               89.7   1        1   90.1   1        1  DETERMINED
+Mielke 2021 (MCSA, PET)                        72.8   0        1   74.5   0        1  DETERMINED
+Janelidze 2020 (BIOFINDER-1, plasma p-tau18    86.4None        0   88.9None        0  UNDERDETERMINED (stat not in quote)
+Brum 2023 (BIOFINDER-2, two-step)              87.3None        0   89.5   0        3  UNDERDETERMINED
+APACE 0/1h hs-cTnI - Jaeger 2016              100.0   0        1   67.9None        0  PARTIAL
+APACE 0/2h hs-cTnT - Reichlin 2015             95.7   0        1   85.3   0        5  PARTIAL
+APACE 0/1h direct-comparison hs-cTnI - Boed    99.3None        0   70.2None        0  UNDERDETERMINED (stat not in quote)
+ESC 0/1h outcome study - Twerenbold 2019       99.4None        0   68.5None        0  UNDERDETERMINED (stat not in quote)
+RAPID-TnT 0/1h hs-cTnT RCT - Chew 2019         82.5None        0   87.9None        0  UNDERDETERMINED (stat not in quote)
+
+  DETERMINED (both cells pinned to one integer) : 11 of 26
+  PARTIAL    (one cell pinned, one not)         : 5 of 26
+  UNDERDETERMINED                               : 10 of 26
+
+  Under the ruling, only the DETERMINED group may be reconstructed, and each such cell
+  must store its inputs, its formula and a pointer per input so a reader can redo the
+  arithmetic. The PARTIAL and UNDERDETERMINED groups stay `not_computed_reason`.
+
+================================================================================================
+PART 3 — both conditions: group sizes reported AND the interval pins the integer
+================================================================================================
+study                                         (a) groups reported  (b) interval pins   verdict
+------------------------------------------------------------------------------------------------
+Vaeth 2024 (clinician)                                         no                yes   -
+Vaeth 2024 (self)                                              no                yes   -
+Akingba 2021                                                  yes                yes   DETERMINED
+Affara 2023 (Bionote, EAC)                                     no                 no   -
+YEARS - van der Hulle 2017                                     no                 no   -
+ADJUST-PE - Righini 2014                                       no                 no   -
+PEGeD - Kearon 2019                                            no                 no   -
+Christopher Study - van Belle 2006                            yes                 no   -
+Lucassen 2015                                                  no                 no   -
+Andama 2021                                                   yes                yes   DETERMINED
+Kabir 2021                                                     no                yes   -
+PROMIS - Ahmed 2017                                           yes                 no   -
+MRI-FIRST - Rouviere 2019                                      no                 no   -
+PRIMARY (MRI-alone) - Emmett 2021                              no                yes   -
+PI-CAI radiologists - Saha 2024                                no                yes   -
+Metser 2021 (lesion-level)                                     no                yes   -
+Palmqvist 2020 (BIOFINDER-2, PET)                              no                yes   -
+Ashton 2024 (ALZpath, TRIAD-PET)                               no                yes   -
+Mielke 2021 (MCSA, PET)                                        no                yes   -
+Janelidze 2020 (BIOFINDER-1, plasma p-tau18                    no                 no   -
+Brum 2023 (BIOFINDER-2, two-step)                              no                 no   -
+APACE 0/1h hs-cTnI - Jaeger 2016                               no                 no   -
+APACE 0/2h hs-cTnT - Reichlin 2015                             no                 no   -
+APACE 0/1h direct-comparison hs-cTnI - Boed                    no                 no   -
+ESC 0/1h outcome study - Twerenbold 2019                       no                 no   -
+RAPID-TnT 0/1h hs-cTnT RCT - Chew 2019                         no                 no   -
+
+  Determined on BOTH conditions: 2 of 26 -> ['Akingba 2021', 'Andama 2021']
+
+  So of the 26 reconstructions, 2 may proceed under the ruling and
+  24 may not. The gap between this and Part 2's count is the set of rows whose
+  cells are pinned only because a group size was assumed -- pinned to an imputation is
+  not determined.

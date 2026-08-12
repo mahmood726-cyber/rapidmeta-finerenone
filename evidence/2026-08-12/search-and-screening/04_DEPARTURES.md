@@ -23,8 +23,8 @@ Not departures — **unfinished registered work**, listed so the PRISMA numbers 
 
 | Protocol section | Registered | Status |
 |---|---|---|
-| §4, §5 | Backward citation search: included-study table of every retrievable synthesis, diffed against this review's included set **in both directions** | **Not executed.** 45 records in the corpus are flagged `synthesis_candidate=Y` and are the input to this step. |
-| §4 | FDA statistical review and EMA EPAR for Entresto, where a cell cannot be established from the other sources | **Not consulted.** |
+| §4, §5 | Backward citation search: included-study table of every retrievable synthesis, diffed against this review's included set **in both directions** | **EXECUTED, 44 of 45** (2026-08-12). 25 via Europe PMC full text, 19 via OpenAlex `referenced_works`; 1 (IQWiG, PMID 29144684) blocked. Result: **zero eligible randomised trials missed**. See `11_BACKWARD_CITATION_COMPLETE_AND_REGULATORY.md`. |
+| §4 | FDA statistical review and EMA EPAR for Entresto, where a cell cannot be established from the other sources | **LOCATED by lookup; trigger not met, so not consulted.** Resolvable pointers recorded in `11_...md` §2. The condition does not fire for PARADIGM-HF or PARALLEL-HF (cells established), and for ANSWER-HF — the one row where it would fire — the 2015 Entresto package predates the trial by a decade. |
 | §6 | Second independent screener of a different model family | Runs separately, by design. My decisions are unreconciled, as instructed. |
 | §6 | Adjudication of disagreements by a named human | Not reached. |
 | §7 | Data extraction with a resolvable pointer to the specific document and table for every cell | **Not performed.** The two included effect estimates come from abstracts and are not yet pinned to a table. |
