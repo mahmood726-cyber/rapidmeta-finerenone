@@ -9050,15 +9050,12 @@
   "_token_contract": "Quantities are substituted at build time from results.by_outcome[<id>] and its children only. A placeholder that cannot be filled is a build failure, not a cosmetic defect: the build raises rather than letting an unsubstituted marker reach a reader.",
   "title": "Sacubitril/valsartan versus enalapril for cardiovascular death or heart failure hospitalisation in heart failure with reduced ejection fraction: a systematic review and random-effects meta-analysis of [[k]] randomised trials",
   "abstract": {
-   "_structure": "structured, IMRaD, as most cardiology journals require",
-   "background": "Angiotensin receptor-neprilysin inhibition changed the treatment of heart failure with reduced ejection fraction on the strength of a single large trial. Because that trial dominates both the guidelines and every subsequent synthesis, the question of what the accumulated randomised evidence shows when that trial is not treated as the answer on its own has a different character from the usual meta-analytic question, and is the question this review asks.",
-   "objective": "To estimate the hazard of a first cardiovascular death or heart failure hospitalisation with sacubitril/valsartan compared with enalapril in adults with heart failure and reduced ejection fraction, and to establish how much of that estimate rests on any one trial.",
-   "data_sources": "PubMed via the NCBI E-utilities interface and ClinicalTrials.gov via the registry API, both queried on [[search_date]] with the strings recorded verbatim in the supplement. No language, date or publication-status filter was applied.",
-   "study_selection": "Randomised trials of sacubitril/valsartan against enalapril in adults with heart failure and reduced ejection fraction reporting the composite of cardiovascular death or heart failure hospitalisation as a time-to-first-event hazard ratio. [[n_records]] records were screened and [[k]] trials contributed. The final condition is a condition on the QUANTITY reported rather than on trial quality: several excluded trials are large, well conducted and directly on topic, and were excluded because they do not report this estimand.",
-   "data_extraction": "Hazard ratios and their intervals were taken from the primary publications and stored on the log scale with the standard error the published interval implies. Risk of bias was assessed with Cochrane RoB-2 by two independent assessors from different model families; both judgement sets and the agreement rate between them are published without reconciliation.",
-   "results": "[[k]] trials with [[n_total]] randomised participants contributed. The pooled hazard ratio was [[pooled]] ([[ci_low]] to [[ci_high]]), favouring sacubitril/valsartan. Between-trial heterogeneity was low (I-squared [[i2]]%, tau-squared [[tau2]], Q [[q]] on [[df]] degrees of freedom). The result is not robust to the removal of the largest trial: omitting it moves the pooled estimate to [[loo_paradigm]], which includes the null. GRADE certainty is [[certainty]].",
-   "conclusions": "Sacubitril/valsartan reduces the hazard of a first cardiovascular death or heart failure hospitalisation compared with enalapril, but at [[certainty]] certainty and with the pooled estimate resting almost entirely on one trial. The two smaller trials are individually compatible with no effect. This is an argument for reading the single large trial as the evidence base rather than for treating the pooled average as independent confirmation of it.",
-   "registration": "Protocol registered as a timestamped, SHA-pinned commit at [[protocol_permalink]] on [[protocol_utc]], [[ordering_margin]] before the first query was executed. The ordering is machine-checkable and is checked at every build."
+   "_structure": "Structured, four sections, journal-mandated order.",
+   "_limit": "300 words. Counted at build time and the build fails if exceeded.",
+   "Background": "Angiotensin receptor-neprilysin inhibition changed the treatment of heart failure with reduced ejection fraction on the strength of a single large trial. Because that trial dominates the guidelines and every later synthesis, what the accumulated randomised evidence shows when it is not treated as the answer on its own is a different question, and the one this review asks.",
+   "Methods": "PubMed and ClinicalTrials.gov were searched on [[search_date]] with no language, date or publication-status filter. Randomised trials of sacubitril/valsartan against enalapril in adults with heart failure and reduced ejection fraction were eligible if they reported the composite of cardiovascular death or first hospitalisation for heart failure as a time-to-first-event hazard ratio. Hazard ratios were pooled on the log scale by generic inverse variance under a random-effects model with the [[estimator]] estimator. Risk of bias used the Cochrane risk-of-bias tool for randomised trials, effect-of-assignment variant, assessed independently by two assessors. Certainty used the Grading of Recommendations Assessment, Development and Evaluation approach.",
+   "Results": "[[n_records]] records were screened and [[k]] trials contributing [[n_total]] randomised participants met all eligibility conditions. The pooled hazard ratio was [[pooled]] ([[ci_low]] to [[ci_high]]), favouring sacubitril/valsartan. Heterogeneity was low, with I-squared [[i2]] percent. The result did not survive removal of the largest trial, which moved the estimate to [[loo_paradigm]], an interval including no effect. No risk-of-bias domain was rated high by either assessor. Certainty was [[certainty]].",
+   "Conclusions": "Sacubitril/valsartan reduced the hazard of a first cardiovascular death or heart failure hospitalisation compared with enalapril, at [[certainty]] certainty. The estimate rests almost entirely on one trial and does not survive its removal; the two smaller trials are individually compatible with no effect. One trial establishes this benefit rather than three confirming it."
   },
   "introduction": [
    {
@@ -9187,7 +9184,51 @@
     "section": "Funding statement and competing interests",
     "why": "The object records neither. They are required for submission and their absence is stated here rather than filled with a placeholder declaration."
    }
-  ]
+  ],
+  "abstract_extended": {
+   "_structure": "structured, IMRaD, as most cardiology journals require",
+   "background": "Angiotensin receptor-neprilysin inhibition changed the treatment of heart failure with reduced ejection fraction on the strength of a single large trial. Because that trial dominates both the guidelines and every subsequent synthesis, the question of what the accumulated randomised evidence shows when that trial is not treated as the answer on its own has a different character from the usual meta-analytic question, and is the question this review asks.",
+   "objective": "To estimate the hazard of a first cardiovascular death or heart failure hospitalisation with sacubitril/valsartan compared with enalapril in adults with heart failure and reduced ejection fraction, and to establish how much of that estimate rests on any one trial.",
+   "data_sources": "PubMed via the NCBI E-utilities interface and ClinicalTrials.gov via the registry API, both queried on [[search_date]] with the strings recorded verbatim in the supplement. No language, date or publication-status filter was applied.",
+   "study_selection": "Randomised trials of sacubitril/valsartan against enalapril in adults with heart failure and reduced ejection fraction reporting the composite of cardiovascular death or heart failure hospitalisation as a time-to-first-event hazard ratio. [[n_records]] records were screened and [[k]] trials contributed. The final condition is a condition on the QUANTITY reported rather than on trial quality: several excluded trials are large, well conducted and directly on topic, and were excluded because they do not report this estimand.",
+   "data_extraction": "Hazard ratios and their intervals were taken from the primary publications and stored on the log scale with the standard error the published interval implies. Risk of bias was assessed with Cochrane RoB-2 by two independent assessors from different model families; both judgement sets and the agreement rate between them are published without reconciliation.",
+   "results": "[[k]] trials with [[n_total]] randomised participants contributed. The pooled hazard ratio was [[pooled]] ([[ci_low]] to [[ci_high]]), favouring sacubitril/valsartan. Between-trial heterogeneity was low (I-squared [[i2]]%, tau-squared [[tau2]], Q [[q]] on [[df]] degrees of freedom). The result is not robust to the removal of the largest trial: omitting it moves the pooled estimate to [[loo_paradigm]], which includes the null. GRADE certainty is [[certainty]].",
+   "conclusions": "Sacubitril/valsartan reduces the hazard of a first cardiovascular death or heart failure hospitalisation compared with enalapril, but at [[certainty]] certainty and with the pooled estimate resting almost entirely on one trial. The two smaller trials are individually compatible with no effect. This is an argument for reading the single large trial as the evidence base rather than for treating the pooled average as independent confirmation of it.",
+   "registration": "Protocol registered as a timestamped, SHA-pinned commit at [[protocol_permalink]] on [[protocol_utc]], [[ordering_margin]] before the first query was executed. The ordering is machine-checkable and is checked at every build.",
+   "_why_kept": "The eight-section, 425-word abstract written before the journal profile was applied. It describes the methods better than 300 words allow and is carried into the deposit package, where there is no limit. Kept rather than deleted so the shorter one can be checked against it."
+  },
+  "keywords": [
+   "heart failure",
+   "reduced ejection fraction",
+   "sacubitril/valsartan",
+   "angiotensin receptor-neprilysin inhibitor",
+   "enalapril",
+   "meta-analysis",
+   "systematic review",
+   "hazard ratio"
+  ],
+  "data_availability_statement": {
+   "_mandatory": "Required by the journal even when there is no data.",
+   "statement": "Underlying data. All data underlying this review are derived from published randomised trials and public registry records, and every record is identified in the extended data below. No new participant-level data were generated.\n\nExtended data. The complete screening log of [[n_records]] records with each decision and the eligibility axis it failed, the search capture with the query strings exactly as executed and their hit counts, the extraction tables with per-cell provenance, all sensitivity and estimator analyses, the risk-of-bias judgements from both assessors with the unresolved disagreements, the full certainty profile, the reconciliation record, the attestation record, the canonical data object from which every number in this article is projected, and the PRISMA checklist and flow diagram, are deposited in an approved repository under a CC0 waiver.\n\nREPOSITORY DOI: not yet minted. This statement carries a placeholder for the deposit identifier and the build FAILS submission conformance until it is replaced with the real DOI. It is recorded as absent rather than filled with a plausible-looking string, because a wrong DOI in a data availability statement points a reader at someone else's data.",
+   "deposit_doi": null,
+   "deposit_licence": "CC0 1.0 Universal",
+   "blocks_submission_until_minted": true
+  },
+  "software_availability": {
+   "statement": "Source code available from: the project repository on GitHub.\nArchived source code at time of publication: NOT YET DEPOSITED -- a Zenodo archive with a DOI is required and has not been minted.\nLicence: an OSI-approved licence is required and is not yet declared in the repository.",
+   "github": "https://github.com/mahmood726-cyber/rapidmeta-finerenone",
+   "zenodo_doi": null,
+   "licence": null,
+   "blocks_submission_until_complete": true
+  },
+  "prisma": {
+   "_mandatory": "Checklist and flow diagram are both required.",
+   "flow_diagram": "Generated in the deposit package, counted from the screening log.",
+   "checklist": "Generated in the deposit package, item by item.",
+   "route": "deposited with a DOI and cited in the Data Availability Statement",
+   "deposit_doi": null
+  },
+  "registration_note_for_editor": "This review's protocol was registered as a timestamped, SHA-pinned public commit rather than in PROSPERO. The commit precedes the first executed query by a recorded margin and the ordering is machine-checkable at every build, which is stronger evidence of prospective registration than a registry entry provides. It is NOT, however, the token the journal asks for, and the difference is stated here rather than presented as equivalent. Mahmood should decide whether to also register in PROSPERO."
  },
  "secondary_pools": {
   "_status": "COMPUTED 2026-08-13, secondary and exploratory. NOT the registered estimand.",

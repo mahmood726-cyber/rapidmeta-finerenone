@@ -119,8 +119,41 @@ def rasterise(svg, browser, workdir, stem):
     return pp
 
 
+def to_eps(svg, stem, outdir):
+    """SVG -> genuine VECTOR EPS. The journal's first preference for line art.
+
+    Vector, not a raster wrapped in an EPS header: the marks stay resolution-
+    independent, which is the whole reason the journal asks for EPS on line art.
+    Returns None if the toolchain is absent, and the caller says so rather than
+    silently offering one format fewer.
+    """
+    try:
+        from svglib.svglib import svg2rlg
+        from reportlab.graphics import renderPS
+    except ImportError:
+        return None
+    sp = os.path.join(outdir, stem + "_src.svg")
+    ep = os.path.join(outdir, stem + ".eps")
+    try:
+        with open(sp, "w", encoding="utf-8") as f:
+            f.write(svg)
+        drawing = svg2rlg(sp)
+        if drawing is None:
+            return None
+        renderPS.drawToFile(drawing, ep)
+    except Exception:                                    # noqa: BLE001
+        return None
+    return ep if os.path.exists(ep) and os.path.getsize(ep) > 0 else None
+
+
 def convert(png_path, stem, outdir):
-    """PNG -> TIFF (LZW) and JPG (q95), both with a real dpi header."""
+    """PNG -> UNCOMPRESSED TIFF at 600 dpi.
+
+    Uncompressed is explicit, not an oversight: the journal's fallback wording is
+    "uncompressed TIFF", and an LZW file is smaller but is not what was asked
+    for. JPEG is gone -- it is not on the accepted list and it is a lossy
+    photographic codec applied to line art.
+    """
     out = {}
     try:
         from PIL import Image
@@ -130,13 +163,9 @@ def convert(png_path, stem, outdir):
         im = Image.open(png_path)
         im.load()
         tp = os.path.join(outdir, stem + ".tiff")
-        im.convert("RGB").save(tp, format="TIFF", compression="tiff_lzw",
+        im.convert("RGB").save(tp, format="TIFF", compression=None,
                                dpi=(DPI, DPI))
         out["tiff"] = tp
-        jp = os.path.join(outdir, stem + ".jpg")
-        im.convert("RGB").save(jp, format="JPEG", quality=95, optimize=True,
-                               dpi=(DPI, DPI))
-        out["jpg"] = jp
     except Exception:                                    # noqa: BLE001
         pass
     return out
@@ -156,6 +185,7 @@ def figure_downloads(svg, stem, browser, workdir, outdir):
     rather than assumed.
     """
     sha = hashlib.sha256(svg.encode("utf-8")).hexdigest()
+    written = []
     items = [("SVG (vector)", stem + ".svg",
               "data:image/svg+xml;charset=utf-8," + quote(svg, safe=""),
               len(svg.encode("utf-8")))]
@@ -171,17 +201,23 @@ def figure_downloads(svg, stem, browser, workdir, outdir):
         items.append(("PNG %s" % (("%dx%d" % (w, h)) if w else ""),
                       stem + ".png", _uri(png, "image/png"),
                       os.path.getsize(png)))
-        # TIFF and JPEG are no longer offered. JPEG is a lossy photographic
-        # codec and these are line art: it puts ringing on every rule and every
-        # glyph edge, so it was strictly worse than the PNG beside it. The TIFF
-        # was a lossless duplicate of that PNG at four times the bytes. Dropping
-        # both takes the page from 5.25 MB to about 1.4 MB and IMPROVES the
-        # artwork. SVG remains the master and PNG the raster of record; any
-        # journal wanting TIFF can convert either without loss.
-    return items, sha, (png is not None)
+        # SUBMISSION FORMATS GO TO DISK, NOT INTO THE PAGE. Embedding them as
+        # data URIs took the page to 210 MB: an uncompressed 600 dpi TIFF is
+        # tens of megabytes by design, and base64 adds a third again. They are
+        # for the journal, not for a reader on a slow connection, and putting
+        # them in the page served neither. They are written to the figures
+        # directory and the page says where they are and how big they got.
+        eps = to_eps(svg, stem, outdir)
+        if eps:
+            written.append(("EPS (vector, journal's first choice for line art)",
+                            eps, os.path.getsize(eps)))
+        for _k, _p in convert(png, stem, outdir).items():
+            written.append(("TIFF (uncompressed, %d dpi -- journal fallback)" % DPI,
+                            _p, os.path.getsize(_p)))
+    return items, sha, (png is not None), written
 
 
-def downloads_html(items, sha, rasterised, e, NL):
+def downloads_html(items, sha, rasterised, e, NL, written=()):
     """The download row plus the statement of what a reader is getting."""
     links = "".join(
         "    <a class='dl' download='%s' href=\"%s\">&#11015; %s</a> "
@@ -198,4 +234,17 @@ def downloads_html(items, sha, rasterised, e, NL):
              "browser was available at build time, so the rasters were not "
              "generated. This is stated rather than silently omitted &mdash; the "
              "SVG is complete and will convert at any resolution."))
-    return "  <p>%s%s  </p>%s  <p><small>%s</small></p>%s" % (NL, links, NL, note, NL)
+    # The journal formats are on disk, not in the page. Saying so -- with the
+    # sizes -- is the difference between a reader thinking they are missing and
+    # a reader knowing where they are.
+    sub = ""
+    if written:
+        sub = ("  <p><small>Submission formats written to the figures directory, "
+               "not embedded here because an uncompressed 600 dpi TIFF is tens of "
+               "megabytes: %s.</small></p>%s"
+               % ("; ".join("%s &mdash; <code>%s</code>, %s KB"
+                            % (e(lbl), e(os.path.basename(pth)),
+                               "{:,}".format(max(1, nb // 1024)))
+                            for lbl, pth, nb in written), NL))
+    return ("  <p>%s%s  </p>%s  <p><small>%s</small></p>%s%s"
+            % (NL, links, NL, note, NL, sub))

@@ -272,10 +272,10 @@ def fig(svg, title, fname, note):
     if RASTER.get("workdir"):
         try:
             import figures as fg
-            items, sha, ok = fg.figure_downloads(
+            items, sha, ok, wr = fg.figure_downloads(
                 svg, stem, RASTER.get("browser"), RASTER["workdir"],
                 RASTER["outdir"])
-            dl = fg.downloads_html(items, sha, ok, e, NL)
+            dl = fg.downloads_html(items, sha, ok, e, NL, wr)
         except Exception:                                # noqa: BLE001
             dl = None
     if dl is None:
@@ -324,7 +324,7 @@ def forest_svg(res, outcome, window=None):
                  'stroke-width="1.5"/>%s'
                  '  <rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" '
                  'fill="#1d4ed8"/>%s'
-                 '  <text x="8" y="%d" font-size="12" fill="currentColor">%s</text>%s'
+                 '  <text x="8" y="%d" font-size="15" fill="currentColor">%s</text>%s'
                  % (X(r["ci_low"]), y, X(r["ci_high"]), y, NL,
                     X(r["point"]) - side / 2, y - side / 2, side, side, NL,
                     y + 4, e(str(r.get("trial_id", ""))), NL))
@@ -333,7 +333,7 @@ def forest_svg(res, outcome, window=None):
         cy, d = y + 4, 8
         body += ('  <polygon points="%.1f,%d %.1f,%d %.1f,%d %.1f,%d" '
                  'fill="#b45309"/>%s'
-                 '  <text x="8" y="%d" font-size="12" font-weight="700" '
+                 '  <text x="8" y="%d" font-size="15" font-weight="700" '
                  'fill="currentColor">Pooled (%s)</text>%s'
                  % (X(pooled["ci_low"]), cy, X(pooled["point"]), cy - d,
                     X(pooled["ci_high"]), cy, X(pooled["point"]), cy + d, NL,
@@ -344,7 +344,7 @@ def forest_svg(res, outcome, window=None):
     for v in sorted({null_v, lo, hi}):
         ticks += ('  <line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="currentColor" stroke-opacity=".45" '
                   'stroke-dasharray="%s"/>%s'
-                  '  <text x="%.1f" y="%d" font-size="11" text-anchor="middle" '
+                  '  <text x="%.1f" y="%d" font-size="14" text-anchor="middle" '
                   'fill="currentColor">%s</text>%s'
                   % (X(v), top - 18, X(v), y - 14,
                      "0" if v == null_v else "3 3", NL, X(v), y + 4, fmt(v), NL))
@@ -391,25 +391,25 @@ def scatter_svg(pts, xlab, ylab, invert_y=False, vline=None):
         body += ('<circle cx="%.1f" cy="%.1f" r="5" fill="#1d4ed8" '
                  'fill-opacity=".8"/>%s' % (X(x), Y(y), NL))
         if lab:
-            body += ('<text x="%.1f" y="%.1f" font-size="11" fill="currentColor">%s'
+            body += ('<text x="%.1f" y="%.1f" font-size="14" fill="currentColor">%s'
                      '</text>%s' % (X(x) + 8, Y(y) + 4, e(str(lab)), NL))
     # Ticks are rounded for display. Nobody labels an axis 139.209366, and the
     # six-decimal labels did more damage to these figures' credibility than any
     # other visual defect. The VALUE plotted is unchanged; only its label is
     # shortened, and the full number remains in the object and the SVG download.
     for v in (min(dxs), max(dxs)):
-        body += ('<text x="%.1f" y="%d" font-size="10" text-anchor="middle" '
+        body += ('<text x="%.1f" y="%d" font-size="14" text-anchor="middle" '
                  'fill="currentColor">%s</text>%s' % (X(v), H - B + 16, sig(v, 3), NL))
     for v in (min(ys), max(ys)):
-        body += ('<text x="%d" y="%.1f" font-size="10" text-anchor="end" '
+        body += ('<text x="%d" y="%.1f" font-size="14" text-anchor="end" '
                  'fill="currentColor">%s</text>%s' % (L - 6, Y(v) + 4, sig(v, 3), NL))
     return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" '
             'width="100%%" role="img" aria-label="%s against %s">%s'
             '<line x1="%d" y1="%d" x2="%d" y2="%d" stroke="currentColor"/>'
             '<line x1="%d" y1="%d" x2="%d" y2="%d" stroke="currentColor"/>%s%s'
-            '<text x="%d" y="%d" font-size="11" text-anchor="middle" '
+            '<text x="%d" y="%d" font-size="14" text-anchor="middle" '
             'fill="currentColor">%s</text>%s'
-            '<text x="13" y="%d" font-size="11" fill="currentColor" '
+            '<text x="13" y="%d" font-size="14" fill="currentColor" '
             'transform="rotate(-90 13 %d)" text-anchor="middle">%s</text>%s</svg>'
             % (W, H, NL, e(xlab), e(ylab), L, T, L, H - B, L, H - B, W - R, H - B,
                NL, body, (L + W - R) // 2, H - 6, e(xlab), NL,
@@ -433,12 +433,12 @@ def rows_svg(rows, null_v, label_w=200):
     for r in rows:
         body += ('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="currentColor"/>%s'
                  '<rect x="%.1f" y="%d" width="8" height="8" fill="#1d4ed8"/>%s'
-                 '<text x="6" y="%d" font-size="11" fill="currentColor">%s</text>%s'
+                 '<text x="6" y="%d" font-size="14" fill="currentColor">%s</text>%s'
                  % (X(r["ci_low"]), y, X(r["ci_high"]), y, NL,
                     X(r["point"]) - 4, y - 4, NL, y + 4, e(str(r["label"])), NL))
         y += H
     body += ('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="currentColor" stroke-opacity=".4"/>%s'
-             '<text x="%.1f" y="%d" font-size="10" text-anchor="middle" '
+             '<text x="%.1f" y="%d" font-size="14" text-anchor="middle" '
              'fill="currentColor">%s</text>%s'
              % (X(null_v), T - 14, X(null_v), y - 16, NL, X(null_v), y + 2,
                 fmt(null_v), NL))
@@ -587,9 +587,9 @@ def forest_ranged(res, outcome, e, browser=None, workdir=None, outdir=None):
     for key, label, svg in variants:
         dl = ""
         if workdir and outdir:
-            items, sha, ok = fg.figure_downloads(svg, "forest_%s" % key, br,
+            items, sha, ok, wr = fg.figure_downloads(svg, "forest_%s" % key, br,
                                                  workdir, outdir)
-            dl = fg.downloads_html(items, sha, ok, e, NL)
+            dl = fg.downloads_html(items, sha, ok, e, NL, wr)
         panels += ('  <div class="fwp" id="fwp-%s">%s%s%s%s  </div>%s'
                    % (key, NL, svg, NL, dl, NL))
     return ("<div class='card fwcard'>%s  <h3>Forest plot</h3>%s"
