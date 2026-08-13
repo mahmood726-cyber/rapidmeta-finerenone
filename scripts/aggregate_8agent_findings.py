@@ -130,9 +130,44 @@ def null_field_in_block(txt, body_start, body_end, field):
     return txt[:body_start] + new_body + txt[body_end:], True
 
 
+_REGISTRY_CACHE = None
+
+
+def _resolves_at_registry(nct):
+    """Does the registry actually hold this id? Checked before quarantining it.
+
+    WHY THIS GUARD EXISTS. This function quarantined 362 distinct NCTs under the
+    category 'fabricated or unresolvable'. On 2026-08-13 all 362 were resolved
+    against the live ClinicalTrials.gov API and 361 RETURNED A STUDY RECORD --
+    ACCORD, SPS3, and a long tail of ordinary NIH trials. The stated reason was
+    false for 99.7% of the rows it was applied to, and because a prefixed id
+    matches nothing, those 361 rows became invisible to every identifier-keyed
+    check we run, including the audits that would have caught the error.
+
+    A quarantine is an assertion about the world. This makes the assertion
+    checkable before it is written, rather than after 1099 keys carry it.
+    """
+    global _REGISTRY_CACHE
+    if _REGISTRY_CACHE is None:
+        _REGISTRY_CACHE = set()
+        for rel in (("outputs", "nct_cache", "nct_registry_cache.json"),):
+            fp = HERE.joinpath(*rel) if hasattr(HERE, "joinpath") else None
+            try:
+                import json as _j
+                _REGISTRY_CACHE = set(_j.load(open(fp, encoding="utf-8"))["studies"])
+            except Exception:                                # noqa: BLE001
+                pass
+    return nct in _REGISTRY_CACHE
+
+
 def null_key(txt, nct):
     nulled = f"NULLED:{nct}"
     if nulled in txt: return txt, 0
+    if _resolves_at_registry(nct):
+        print(f"  REFUSING to quarantine {nct}: the registry returns a study "
+              f"record for it, so 'fabricated or unresolvable' is not true of "
+              f"this id. Fix the finding, not the key.")
+        return txt, 0
     pat = re.compile(r'(["\'])(' + re.escape(nct) + r')(\1)(\s*:)')
     new_txt, n = pat.subn(
         lambda m: f'{m.group(1)}NULLED:{m.group(2)}{m.group(3)}{m.group(4)}', txt)
