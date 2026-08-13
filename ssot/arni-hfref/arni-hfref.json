@@ -9188,5 +9188,239 @@
     "why": "The object records neither. They are required for submission and their absence is stated here rather than filled with a placeholder declaration."
    }
   ]
+ },
+ "secondary_pools": {
+  "_status": "COMPUTED 2026-08-13, secondary and exploratory. NOT the registered estimand.",
+  "_computed_with": "R 4.6.0, metafor 5.0.1, escalc(measure='RR') + rma(method='REML'), at build time",
+  "_why_these_are_not_the_primary": "The registered estimand is a single quantity: cardiovascular death or first heart-failure hospitalisation, whichever comes first, as a time-to-first-event HAZARD RATIO. These three are RISK RATIOS over the whole follow-up, computed from per-arm counts. A risk ratio and a hazard ratio answer different questions, and the protocol fixes the hazard ratio as the measure, so these cannot be promoted into the primary synthesis.",
+  "_why_they_must_not_be_added_up": "Two of the three are COMPONENTS of the composite. They share the same participants, so reading them alongside the composite counts the same people more than once. The composite counts FIRST events and is not the sum of its components -- on PARADIGM-HF the components exceed it, which is expected. Nothing here is reconstructed by addition.",
+  "outcomes": [
+   {
+    "endpoint": "Cardiovascular death",
+    "measure": "RR",
+    "k": 3,
+    "pooled": {
+     "point": 0.85183906057,
+     "ci_low": 0.7460148997,
+     "ci_high": 0.97267465491,
+     "ci_level": 95
+    },
+    "heterogeneity": {
+     "i2": 20.3753126992,
+     "tau2": 0.0037681572049,
+     "q": 2.1641808398,
+     "df": 2,
+     "q_p": 0.33888636987
+    },
+    "per_trial": [
+     {
+      "trial_id": "paradigm-hf",
+      "point": 0.81000251241,
+      "ci_low": 0.73076253129,
+      "ci_high": 0.89783485336,
+      "log_point": -0.21071792957,
+      "log_se": 0.052524896445,
+      "treatment_events": 558,
+      "treatment_n": 4187,
+      "control_events": 693,
+      "control_n": 4212
+     },
+     {
+      "trial_id": "parachute-hf",
+      "point": 0.9361009361,
+      "ci_low": 0.74671927385,
+      "ci_high": 1.1735132509,
+      "log_point": -0.066031970604,
+      "log_se": 0.11532346869,
+      "treatment_events": 110,
+      "treatment_n": 462,
+      "control_events": 117,
+      "control_n": 460
+     },
+     {
+      "trial_id": "parallel-hf",
+      "point": 1.1924651925,
+      "ci_low": 0.55832435527,
+      "ci_high": 2.5468586886,
+      "log_point": 0.17602275465,
+      "log_se": 0.38716222362,
+      "treatment_events": 13,
+      "treatment_n": 111,
+      "control_events": 11,
+      "control_n": 112
+     }
+    ],
+    "is_component_of_the_composite": true,
+    "source_caveat": null,
+    "interpretation": "Point estimate favours sacubitril/valsartan and the interval excludes the null."
+   },
+   {
+    "endpoint": "First heart-failure hospitalisation",
+    "measure": "RR",
+    "k": 3,
+    "pooled": {
+     "point": 0.86393131723,
+     "ci_low": 0.75951692407,
+     "ci_high": 0.98270005214,
+     "ci_level": 95
+    },
+    "heterogeneity": {
+     "i2": 18.4347009299,
+     "tau2": 0.0032711056166,
+     "q": 2.9462593042,
+     "df": 2,
+     "q_p": 0.22920702327
+    },
+    "per_trial": [
+     {
+      "trial_id": "paradigm-hf",
+      "point": 0.82098229939,
+      "ci_low": 0.73866801832,
+      "ci_high": 0.91246936268,
+      "log_point": -0.19725372958,
+      "log_se": 0.053904571606,
+      "treatment_events": 537,
+      "treatment_n": 4187,
+      "control_events": 658,
+      "control_n": 4212
+     },
+     {
+      "trial_id": "parachute-hf",
+      "point": 0.91494091494,
+      "ci_low": 0.72274158109,
+      "ci_high": 1.1582519945,
+      "log_point": -0.088895789627,
+      "log_se": 0.12031008008,
+      "treatment_events": 102,
+      "treatment_n": 462,
+      "control_events": 111,
+      "control_n": 460
+     },
+     {
+      "trial_id": "parallel-hf",
+      "point": 1.2612612613,
+      "ci_low": 0.74524750886,
+      "ci_high": 2.1345659667,
+      "log_point": 0.2321122213,
+      "log_se": 0.26844444409,
+      "treatment_events": 25,
+      "treatment_n": 111,
+      "control_events": 20,
+      "control_n": 112
+     }
+    ],
+    "is_component_of_the_composite": true,
+    "source_caveat": null,
+    "interpretation": "Point estimate favours sacubitril/valsartan and the interval excludes the null."
+   },
+   {
+    "endpoint": "All-cause death",
+    "measure": "RR",
+    "k": 3,
+    "pooled": {
+     "point": 0.88518806477,
+     "ci_low": 0.80105246379,
+     "ci_high": 0.97816053933,
+     "ci_level": 95
+    },
+    "heterogeneity": {
+     "i2": 9.9324964189,
+     "tau2": 0.0012879947459,
+     "q": 1.9889881828,
+     "df": 2,
+     "q_p": 0.36991053813
+    },
+    "per_trial": [
+     {
+      "trial_id": "paradigm-hf",
+      "point": 0.85658117727,
+      "ci_low": 0.78253414507,
+      "ci_high": 0.93763488516,
+      "log_point": -0.15480618781,
+      "log_se": 0.046128333587,
+      "treatment_events": 711,
+      "treatment_n": 4187,
+      "control_events": 835,
+      "control_n": 4212
+     },
+     {
+      "trial_id": "parachute-hf",
+      "point": 0.95851909285,
+      "ci_low": 0.78131852711,
+      "ci_high": 1.1759081853,
+      "log_point": -0.042365797188,
+      "log_se": 0.10428906627,
+      "treatment_events": 129,
+      "treatment_n": 462,
+      "control_events": 134,
+      "control_n": 460
+     },
+     {
+      "trial_id": "parallel-hf",
+      "point": 1.1981981982,
+      "ci_low": 0.65035966854,
+      "ci_high": 2.2075153052,
+      "log_point": 0.18081892691,
+      "log_se": 0.31175952032,
+      "treatment_events": 19,
+      "treatment_n": 111,
+      "control_events": 16,
+      "control_n": 112
+     }
+    ],
+    "is_component_of_the_composite": false,
+    "source_caveat": "parallel-hf all-cause death is ClinicalTrials.gov ONLY -- the Circ J primary paper does not report all-cause mortality at all, so that pair has no second source.",
+    "interpretation": "Point estimate favours sacubitril/valsartan and the interval excludes the null."
+   }
+  ]
+ },
+ "outcomes_considered": {
+  "_answers": "Have you only done one outcome?",
+  "short_answer": "One outcome is the REGISTERED analysis. Three more are now pooled as secondary, and everything else the trials report cannot be pooled without changing the question.",
+  "registered_primary": {
+   "name": "Cardiovascular death or hospitalization for heart failure, whichever comes first, as a hazard ratio",
+   "measure": "HR",
+   "k": 3,
+   "status": "POOLED -- the primary result"
+  },
+  "secondary_now_pooled": [
+   {
+    "name": "Cardiovascular death",
+    "measure": "RR",
+    "k": 3,
+    "status": "POOLED as secondary 2026-08-13"
+   },
+   {
+    "name": "First heart-failure hospitalisation",
+    "measure": "RR",
+    "k": 3,
+    "status": "POOLED as secondary 2026-08-13"
+   },
+   {
+    "name": "All-cause death",
+    "measure": "RR",
+    "k": 3,
+    "status": "POOLED as secondary 2026-08-13"
+   }
+  ],
+  "considered_and_not_pooled": [
+   {
+    "quantity": "Win ratio (PARACHUTE-HF primary)",
+    "why": "A hierarchical win ratio is not convertible to a hazard ratio or a risk ratio. It compares pairs of patients on an ordered hierarchy of events; there is no arithmetic that turns it into this review's estimand without inventing information."
+   },
+   {
+    "quantity": "NT-proBNP change (PIONEER-HF and others)",
+    "why": "A ratio of change in a biomarker is not an event-time quantity. Excluded on the measure axis at screening, not omitted here."
+   },
+   {
+    "quantity": "Recurrent-event rate ratios",
+    "why": "The estimand is time to FIRST event. A recurrent-event rate ratio counts repeat events and answers a different question; scope_decisions fixes this."
+   },
+   {
+    "quantity": "Quality of life (KCCQ)",
+    "why": "Reported on different instruments and timepoints across the three trials, and not by all three. No common scale, so no pool."
+   }
+  ],
+  "honest_note": "Before 2026-08-13 this object carried exactly ONE analysed outcome and the page did not say why. That was a real gap in what the page communicated, not merely in what it computed: a reader could not tell whether other outcomes had been considered and rejected or simply never looked at. The three secondary pools existed as per-arm counts in the object all along and had not been pooled."
  }
 }

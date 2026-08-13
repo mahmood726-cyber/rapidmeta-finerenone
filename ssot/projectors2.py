@@ -540,3 +540,54 @@ def discrepancies_card(canon, p):
             "  <table>%s    <tr><th>Trial</th><th>Quantity</th><th>Registry</th>"
             "<th>Publication</th><th>Status</th></tr>%s%s  </table>%s%s</div>%s"
             % (NL, NL, NL, NL, body, NL, notes, NL))
+
+
+def outcomes_card(canon, p):
+    """Which outcomes were analysed, which are poolable, and why the rest are not.
+
+    Mahmood asked whether only one outcome had been done. The object could answer
+    it and the page could not: a reader had no way to tell whether other outcomes
+    had been considered and rejected on stated grounds, or simply never looked at.
+    Those two situations look identical from outside, and only one of them is a
+    review. This card is the difference.
+    """
+    oc = canon.get("outcomes_considered")
+    sp = canon.get("secondary_pools") or {}
+    if not oc:
+        return ""
+    prim = oc.get("registered_primary") or {}
+    rows = ("    <tr><td>%s</td><td>%s</td><td class='num'>%s</td>"
+            "<td><strong>%s</strong></td></tr>%s"
+            % (p(prim.get("name", "")), e(str(prim.get("measure", ""))),
+               prim.get("k", ""), p(prim.get("status", "")), NL))
+    for o in (sp.get("outcomes") or []):
+        pl = o["pooled"]
+        rows += ("    <tr><td>%s%s</td><td>%s</td><td class='num'>%s</td>"
+                 "<td>%s <span class='num'>%s</span> (%s to %s), I&sup2; "
+                 "<span class='num'>%s</span>%%</td></tr>%s"
+                 % (p(o["endpoint"]),
+                    " <small>(component of the composite)</small>"
+                    if o.get("is_component_of_the_composite") else "",
+                    e(o["measure"]), o["k"], e(o["measure"]),
+                    fmt(pl["point"]), fmt(pl["ci_low"]), fmt(pl["ci_high"]),
+                    fmt(o["heterogeneity"]["i2"]), NL))
+    notp = "".join(
+        "    <tr><th>%s</th><td>%s</td></tr>%s"
+        % (p(x["quantity"]), p(x["why"]), NL)
+        for x in (oc.get("considered_and_not_pooled") or []))
+    cav = "".join(
+        "  <p><small>%s</small></p>%s" % (p(o["source_caveat"]), NL)
+        for o in (sp.get("outcomes") or []) if o.get("source_caveat"))
+    return ("<div class='card'>%s  <h2>Which outcomes were analysed</h2>%s"
+            "  <p><strong>%s</strong></p>%s  <table>%s"
+            "    <tr><th>Outcome</th><th>Measure</th><th>k</th>"
+            "<th>Result / status</th></tr>%s%s  </table>%s"
+            "  <p>%s</p>%s  <p>%s</p>%s%s"
+            "  <h3>Considered and NOT pooled, with the reason</h3>%s"
+            "  <table>%s%s  </table>%s"
+            "  <p><small>%s</small></p>%s</div>%s"
+            % (NL, NL, p(oc.get("short_answer", "")), NL, NL, NL, rows, NL,
+               p(sp.get("_why_these_are_not_the_primary", "")), NL,
+               p(sp.get("_why_they_must_not_be_added_up", "")), NL, cav,
+               NL, NL, notp, NL,
+               p(oc.get("honest_note", "")), NL, NL))

@@ -18,7 +18,8 @@ sys.path.insert(0, HERE)
 import build_app_v2 as G          # noqa: E402
 import projectors as pj           # noqa: E402
 import projectors2 as p2
-import paper as pp          # noqa: E402
+import paper as pp
+import wysiwyg as wy          # noqa: E402
 
 NL = pj.NL
 e = html.escape
@@ -352,6 +353,38 @@ def output_card(canon, p):
             % (NL, NL, NL, NL, sof, NL, NL)) + repro
 
 
+_SCRATCH = r"F:\claude-temp\claude\F--rapidmeta-finerenone\e7f51608-d242-495a-8fdb-f99c306556e9\scratchpad"
+_DOCMODEL = os.path.join(_SCRATCH, "manuscript_docmodel.json")
+
+
+def _downloads_html():
+    """The manuscript and the supplement, as real files a reader can save.
+
+    A submission needs the supplement as much as the paper, and a reader who can
+    only read it on screen cannot submit it. Both are embedded as data URIs so
+    the page stays a single self-contained file, and each states its own byte
+    size so a truncated embed is visible rather than silently short.
+    """
+    import base64 as _b64
+    rows = ""
+    for fn, label in (("ARNI_manuscript.docx", "Manuscript (Word, .docx)"),
+                      ("ARNI_supplement.docx", "Supplementary material (Word, .docx)")):
+        fp = os.path.join(_SCRATCH, fn)
+        if not os.path.exists(fp):
+            rows += ("    <li><small>%s &mdash; not built at page-build time, so "
+                     "not offered. Stated rather than shown as a dead "
+                     "link.</small></li>%s" % (e(label), NL))
+            continue
+        b = open(fp, "rb").read()
+        uri = ("data:application/vnd.openxmlformats-officedocument"
+               ".wordprocessingml.document;base64," + _b64.b64encode(b).decode())
+        rows += ("    <li><a class='dl' download='%s' href=\"%s\">&#11015; %s</a> "
+                 "<small>%s KB</small></li>%s"
+                 % (e(fn), uri, e(label), "{:,}".format(max(1, len(b) // 1024)), NL))
+    return ("  <p><strong>Downloads</strong></p>%s  <ul>%s%s  </ul>%s"
+            % (NL, NL, rows, NL))
+
+
 def build(canon):
     e_ = html.escape
 
@@ -412,9 +445,10 @@ def build(canon):
                          "    <tr><th>Layer</th><th>Source</th>"
                          "<th>How it was obtained</th></tr>%s%s  </table>%s</div>%s"
                          % (NL, NL, NL, NL, sources_rows, NL, NL)),
-        "network": "", "recon": "", "removal": "",
+        "network": p2.outcomes_card(canon, p), "recon": "", "removal": "",
         "output": output_card(canon, p),
-        "paper": (pp.manuscript_section(canon, first_res, first_oid, p)
+        "paper": (wy.render(_DOCMODEL, _downloads_html())
+                  + pp.manuscript_section(canon, first_res, first_oid, p)
                   + paper_studio(canon, first_res, p)),
     }
     body, tab_css = pj.tabbed_body(canon, parts, page)
@@ -422,17 +456,16 @@ def build(canon):
 <title>%s</title>
 <style>
  :root{--bg:#fff;--fg:#111;--line:#d4d4d8;--muted:#3f3f46;
-       --warnb:#b45309;--warnbg:#fffbeb;--accent:#1d4ed8}
- @media (prefers-color-scheme:dark){:root{--bg:#0f1115;--fg:#e8e8ec;
-       --line:#33363d;--muted:#a8adb8;--warnb:#d99b3c;--warnbg:#241d10;
-       --accent:#7aa2ff}}
- /* Manual override, checkbox + CSS only. :has() keeps the control at the top of
-    the document without wrapping the whole body in an extra element. */
+       --warnb:#b45309;--warnbg:#fffbeb;--accent:#1d4ed8;
+       --paper:#fff;--paperfg:#111;--thbg:#f4f4f5}
+ /* LIGHT IS THE DEFAULT, unconditionally. A prefers-color-scheme block used to
+    sit here, which made the page follow the reader's operating system -- so a
+    reader on a dark desktop got dark without ever asking for it. Dark is now
+    strictly opt-in through the toggle, and nothing about the machine changes
+    what the page opens as. */
  body:has(#dm:checked){--bg:#0f1115;--fg:#e8e8ec;--line:#33363d;--muted:#a8adb8;
-       --warnb:#d99b3c;--warnbg:#241d10;--accent:#7aa2ff}
- @media (prefers-color-scheme:dark){body:has(#dm:checked){--bg:#fff;--fg:#111;
-       --line:#d4d4d8;--muted:#3f3f46;--warnb:#b45309;--warnbg:#fffbeb;
-       --accent:#1d4ed8}}
+       --warnb:#d99b3c;--warnbg:#241d10;--accent:#7aa2ff;
+       --paper:#15181e;--paperfg:#e8e8ec;--thbg:#1c2029}
  body{font-family:system-ui,-apple-system,sans-serif;max-width:64rem;
        margin:0 auto;padding:1.5rem;line-height:1.6;
        color:var(--fg);background:var(--bg)}
@@ -459,7 +492,7 @@ def build(canon):
  table{border-collapse:collapse;width:100%%} th,td{border:1px solid var(--line);padding:.5rem;text-align:left;vertical-align:top}
  small{color:var(--muted)}
  a{color:var(--accent)}
-%s</style>
+%s%s</style>
 
 <input type="checkbox" id="dm"><label for="dm" class="dml" title="Switch the page
 between light and dark. Figures inherit the text colour, so they stay legible in
@@ -473,7 +506,8 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 and each measured cell names the source analysis it was read from. That is what is
 machine-checked. It does not establish that the underlying sources are right, only
 that this page faithfully reports them.</small></p>
-""" % (p(canon["title"]), tab_css, pj.verdict_card(canon, rd, p),
+""" % (p(canon["title"]), tab_css, wy.DOC_CSS.replace("%", "%%"),
+       pj.verdict_card(canon, rd, p),
        p(canon["title"]), p(canon["question"]), body, READER_JS)
 
 
