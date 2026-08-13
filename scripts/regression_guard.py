@@ -39,6 +39,19 @@ def state_of(obj):
     """
     app = obj.get("app_id", "?")
     cells, trials, cites, ptrs = set(), set(), set(), set()
+    # VALUES, not just key presence. Codex broke the presence-only design with
+    # `events: 914 -> 0`: the key survives, the set is unchanged, and the guard
+    # that exists to enforce "data may only improve" passed a cell being zeroed.
+    # That is the single most important defect found in this file, because it
+    # made the central invariant unenforced for every number the object holds
+    # while the guard still printed PASS.
+    vals = {}
+
+    def cell(key, value=None):
+        cells.add(key)
+        if value is not None:
+            vals[key] = value
+
     for t in obj.get("inputs", {}).get("trials", []):
         tid = t.get("id") or t.get("name")
         trials.add("%s::trial::%s" % (app, tid))
@@ -46,11 +59,13 @@ def state_of(obj):
             for role in ("treatment", "control"):
                 c = b.get(role)
                 if isinstance(c, dict) and c.get("events") is not None:
-                    cells.add("%s::cell::%s::%s::%s::events" % (app, tid, oid, role))
+                    cell("%s::cell::%s::%s::%s::events" % (app, tid, oid, role),
+                         c["events"])
                 if isinstance(c, dict) and c.get("n") is not None:
-                    cells.add("%s::cell::%s::%s::%s::n" % (app, tid, oid, role))
+                    cell("%s::cell::%s::%s::%s::n" % (app, tid, oid, role), c["n"])
             if (b.get("effect") or {}).get("point") is not None:
-                cells.add("%s::cell::%s::%s::effect" % (app, tid, oid))
+                cell("%s::cell::%s::%s::effect" % (app, tid, oid),
+                     b["effect"]["point"])
         for r in ((t.get("component_endpoints") or {}).get("rows") or []):
             cells.add("%s::component::%s::%s" % (app, tid, r.get("endpoint")))
         if t.get("risk_of_bias"):
@@ -64,7 +79,7 @@ def state_of(obj):
         if r.get("k") is not None:
             ks["%s::k::%s" % (app, oid)] = r["k"]
     return {"app": app, "cells": cells, "trials": trials, "citations": cites,
-            "screened": ptrs, "k": ks}
+            "screened": ptrs, "k": ks, "values": vals}
 
 
 def _removals_declared(obj):
@@ -79,7 +94,11 @@ def _removals_declared(obj):
         k = rec.get("key")
         if not k:
             continue
-        if rec.get("criterion") and rec.get("evidence") and rec.get("adjudicated_by"):
+        # str().strip(): a record whose three fields are single spaces satisfied
+        # the truthiness test and justified a deletion. A blank form is not a
+        # justification, and whitespace is a blank form.
+        if all(str(rec.get(f) or "").strip()
+               for f in ("criterion", "evidence", "adjudicated_by")):
             out[k] = rec
     return out
 
@@ -93,14 +112,31 @@ def load_ledger():
     return {"note": __doc__.strip().splitlines()[0], "apps": {}}
 
 
-def update_ledger(led, st):
-    """Monotonic: the ledger only ever grows. Union in, never subtract."""
+def update_ledger(led, st, kind=None):
+    """Monotonic: the ledger only ever grows. Union in, never subtract.
+
+    `kind` records HOW an app entered the ledger. The ledger holds 869 AUTO-page
+    apps alongside a dozen canonical SSOT objects, and only the latter live at
+    ssot/<app>/<app>.json. Without this distinction the vanished-app check below
+    reads every AUTO app as a deleted SSOT object and fails the gate on all 869 --
+    which it did, on the first run after that check was added. A guard that fires
+    on everything gets switched off exactly as fast as one that fires on nothing.
+    """
     a = led["apps"].setdefault(st["app"], {"cells": [], "trials": [], "citations": [],
-                                           "screened": [], "k": {}})
+                                           "screened": [], "k": {}, "values": {}})
+    a.setdefault("values", {})
+    if kind:
+        a["kind"] = kind
     for f in ("cells", "trials", "citations", "screened"):
         a[f] = sorted(set(a[f]) | st[f])
     for k, v in st["k"].items():
         a["k"][k] = max(a["k"].get(k, 0), v)     # high-water mark on k
+    # First verified value wins and is never overwritten here. If it were
+    # refreshed on every run the ledger would launder a change into the baseline
+    # on the build after it happened -- which is the same laundering the
+    # high-water mark exists to prevent, one level down.
+    for k, v in st["values"].items():
+        a["values"].setdefault(k, v)
     led["updated_utc"] = datetime.datetime.now(datetime.timezone.utc).strftime(
         "%Y-%m-%dT%H:%M:%SZ")
     return led
@@ -117,11 +153,33 @@ def check(obj, led):
         return {"verdict": "PASS", "reason": "no prior verified state; ledger seeded",
                 "lost": {}, "justified": {}, "gained": _counts(st)}
     declared = _removals_declared(obj)
+
+    def is_declared(key):
+        """Exact match, or a declared TRIAL removal covering that trial's cells.
+
+        Removing a trial necessarily removes its arm counts, its effect and its
+        component rows. Requiring a separate adjudication record for each of
+        those would mean a correctly justified removal still failed the guard --
+        which is what happened the first time this was tested, and it would have
+        pushed whoever hit it toward bypassing the guard rather than filing five
+        records for one decision. Scoped justification, not blanket: only keys
+        belonging to the named trial are covered.
+        """
+        if key in declared:
+            return True
+        for d in declared:
+            parts = d.split("::")
+            if len(parts) >= 3 and parts[1] == "trial":
+                tid = parts[2]
+                if ("::%s::" % tid) in key or key.endswith("::%s" % tid):
+                    return True
+        return False
+
     lost, justified = {}, {}
     for f in ("cells", "trials", "citations", "screened"):
         gone = sorted(set(prev[f]) - st[f])
         for g in gone:
-            (justified if g in declared else lost).setdefault(f, []).append(g)
+            (justified if is_declared(g) else lost).setdefault(f, []).append(g)
     kdrop = {}
     for k, was in (prev.get("k") or {}).items():
         now = st["k"].get(k)
@@ -134,6 +192,18 @@ def check(obj, led):
                 kdrop[k] = "%s -> %s" % (was, now)
     if kdrop:
         lost["k"] = kdrop
+    # A surviving key whose VALUE changed, with nothing declaring the change.
+    changed = {}
+    for k, was in (prev.get("values") or {}).items():
+        now = st["values"].get(k)
+        if now is None or now == was:
+            continue
+        if is_declared(k):
+            justified.setdefault("values", []).append("%s %s->%s" % (k, was, now))
+        else:
+            changed[k] = "%s -> %s" % (was, now)
+    if changed:
+        lost["values"] = changed
     verdict = "FAIL" if lost else "PASS"
     return {"verdict": verdict, "lost": lost, "justified": justified,
             "gained": _counts(st),
@@ -164,6 +234,7 @@ def check_all(root):
               "on an empty set")
         return 1
     bad, checked = [], 0
+    seen_apps = set()
     for j in objs:
         try:
             obj = json.load(open(j, encoding="utf-8"))
@@ -171,11 +242,36 @@ def check_all(root):
             print("UNREADABLE OBJECT %s :: %s -- failing closed" % (j, ex))
             return 1
         if "results" not in obj or "inputs" not in obj:
+            # Previously `continue`. Deleting one key from a canonical object
+            # made it invisible to the guard, so the cheapest way to defeat the
+            # whole no-regression rule was to break the file rather than to
+            # weaken the data. A malformed object is a failure, not a skip --
+            # unless the ledger has never seen it, in which case it is simply
+            # not a canonical object.
+            if os.path.basename(os.path.dirname(j)) in led["apps"] or \
+                    obj.get("app_id") in led["apps"]:
+                print("LEDGERED OBJECT %s IS MALFORMED (missing results/inputs) "
+                      "-- failing closed rather than skipping" % j)
+                return 1
             continue
         checked += 1
+        seen_apps.add(obj.get("app_id"))
         r = check(obj, led)
         if r["verdict"] != "PASS":
             bad.append((obj.get("app_id"), r))
+    # An app in the ledger with no object on disk. Previously silent: deleting a
+    # whole app, or renaming its app_id, orphaned its entire history and passed.
+    # Only apps the ledger recorded as SSOT-tracked. AUTO-page apps are ledgered
+    # from the pages themselves and have no object under ssot/, so requiring one
+    # would fail the gate on every push for a reason that is not a regression.
+    vanished = sorted(a for a in (set(led["apps"]) - seen_apps)
+                      if (led["apps"][a] or {}).get("kind") == "ssot")
+    if vanished:
+        print("LEDGERED APP(S) WITH NO CURRENT OBJECT: %s" % ", ".join(vanished))
+        print("  An app_id that stops appearing has either been deleted or "
+              "renamed. Either way its verified history is orphaned and the "
+              "high-water mark no longer applies to anything. Failing closed.")
+        return 1
     print("no-regression guard: %d objects checked against %d ledgered apps"
           % (checked, len(led["apps"])))
     if not checked:
@@ -205,8 +301,25 @@ if __name__ == "__main__":
     st = state_of(obj)
     print("current state: " + ", ".join("%s=%d" % (k, v) for k, v in _counts(st).items())
           + ", k=" + json.dumps(st["k"]))
+
+    # CHECK THE SUPPLIED OBJECT FIRST, against the ledger as it stands.
+    # This path used to seed the ledger from the candidate and then self-test
+    # mutations of it, so a regressed object wrote its own regression in as the
+    # new baseline and the run exited 0 no matter what it was handed. It was the
+    # fifth guard in this project found incapable of firing, and it is the one
+    # that was supposed to be enforcing the rule.
+    real = check(obj, led)
+    print("candidate vs ledger: %s -- %s" % (real["verdict"], real["reason"]))
+    if real["verdict"] != "PASS":
+        for f, keys in real["lost"].items():
+            print("   lost %-10s %s" % (f, str(keys)[:300]))
+        print("\nREFUSING. The object handed to this guard regressed against the "
+              "ledger. Not seeding, not self-testing: a guard that updates its "
+              "own baseline from a failing candidate has no baseline.")
+        sys.exit(1)
+
     led = update_ledger(led, st)
-    print("ledger seeded from the current verified state\n")
+    print("ledger updated from the current verified state\n")
 
     print("=== the guard must FAIL on a silent loss, and PASS on a justified one ===")
 

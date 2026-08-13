@@ -488,5 +488,16 @@ if __name__ == "__main__":
     os.makedirs(_rd, exist_ok=True)
     pj.RASTER.update(browser=_fg.find_browser(), workdir=_rd, outdir=_rd)
     print("raster browser: %s" % (pj.RASTER["browser"] or "NONE -- vector only"))
-    open(out, "w", encoding="utf-8").write(build(obj))
+    _html = build(obj)
+    # Tokens reach the page through paths fill() never sees -- a figure title, a
+    # note, any string interpolated straight into HTML. Checking fill()'s own
+    # inputs therefore does not establish the claim that no placeholder reaches a
+    # reader. This checks the ARTEFACT, which is the only thing that claim is
+    # actually about.
+    import re as _re
+    _leaked = sorted(set(_re.findall(r"\[\[[a-z0-9_]+\]\]", _html)))
+    if _leaked:
+        raise SystemExit("BUILD REFUSED: unsubstituted placeholder(s) reached the "
+                         "rendered page: %s" % ", ".join(_leaked))
+    open(out, "w", encoding="utf-8").write(_html)
     print("built %s (%d bytes)" % (out, os.path.getsize(out)))

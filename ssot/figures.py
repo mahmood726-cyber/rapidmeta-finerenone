@@ -80,16 +80,43 @@ def rasterise(svg, browser, workdir, stem):
     pp = os.path.join(workdir, stem + ".png")
     with open(hp, "w", encoding="utf-8") as f:
         f.write(html)
+    # DELETE ANY STALE RASTER FIRST. Without this, a Chrome run that fails writes
+    # nothing, the previous figure's PNG is still on disk, and the function
+    # returns it as a success -- so the page offers the OLD figure's raster while
+    # printing the NEW figure's SHA-256 beside it. That is precisely the
+    # download-does-not-equal-render defect the detectors exist to catch, arriving
+    # through the one path they do not inspect. Found by adversarial review.
+    if os.path.exists(pp):
+        try:
+            os.remove(pp)
+        except OSError:
+            return None
     cmd = [browser, "--headless=new", "--disable-gpu", "--hide-scrollbars",
            "--force-device-scale-factor=%d" % SCALE,
            "--default-background-color=FFFFFFFF",
            "--window-size=%d,%d" % (int(w), int(h)),
            "--screenshot=" + pp, "file:///" + hp.replace("\\", "/")]
     try:
-        subprocess.run(cmd, capture_output=True, timeout=90)
+        r = subprocess.run(cmd, capture_output=True, timeout=90)
     except Exception:                                    # noqa: BLE001
         return None
-    return pp if os.path.exists(pp) and os.path.getsize(pp) > 0 else None
+    if r.returncode != 0:                 # was ignored entirely
+        return None
+    if not (os.path.exists(pp) and os.path.getsize(pp) > 0):
+        return None
+    # A non-empty screenshot can still be a blank page. A blank raster offered as
+    # a figure is worse than no raster, because it looks like a file.
+    try:
+        from PIL import Image
+        with Image.open(pp) as im:
+            ex = im.convert("L").getextrema()
+        if ex[0] == ex[1]:
+            return None
+    except ImportError:
+        pass
+    except Exception:                                    # noqa: BLE001
+        return None
+    return pp
 
 
 def convert(png_path, stem, outdir):

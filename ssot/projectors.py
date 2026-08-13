@@ -497,10 +497,27 @@ def forest_ranged(res, outcome, e, browser=None, workdir=None, outdir=None):
     base = forest_svg(res, outcome)
     if not base:
         return ""
+    # A window NARROWER than the data pushes points and their tick labels outside
+    # the viewport, where they are clipped. The numerals stay in the markup -- so
+    # the invariance detector passes -- while the reader sees fewer of them. That
+    # is a false claim of invariance, not a rendering nicety, so a window that
+    # does not contain the data is DROPPED and said to be dropped, rather than
+    # offered and quietly broken. Found by adversarial review.
+    _rows = [r for r in (res.get("per_trial") or [])
+             if r.get("ci_low") and r.get("ci_high")]
+    _pool = res.get("pooled") or {}
+    _lo = min([r["ci_low"] for r in _rows]
+              + ([_pool["ci_low"]] if _pool.get("ci_low") else []))
+    _hi = max([r["ci_high"] for r in _rows]
+              + ([_pool["ci_high"]] if _pool.get("ci_high") else []))
+    _dropped = []
     import figures as fg
     br = browser if browser is not None else fg.find_browser()
     variants, radios, panels = [], "", ""
     for key, label, win in FOREST_WINDOWS:
+        if win and (win[0] > _lo or win[1] < _hi):
+            _dropped.append(label)
+            continue
         svg = forest_svg(res, outcome, window=win) if win else None
         if svg is None:
             m = re.search(r"<svg.*?</svg>", base, re.S)
@@ -527,5 +544,7 @@ def forest_ranged(res, outcome, e, browser=None, workdir=None, outdir=None):
             "the range moves the axis window only. The guides stay labelled with "
             "the null and the extremes of the plotted intervals, so no plotted "
             "value and no printed number differs between these views &mdash; and "
-            "that is checked at build time, not asserted.</small></p>%s</div>%s"
-            % (NL, NL, NL, NL, radios, panels, NL, NL))
+            "that is checked at build time, not asserted.%s</small></p>%s</div>%s"
+            % (NL, NL, NL, NL, radios, panels,
+               (" Ranges not offered because they would crop the data: %s."
+                % ", ".join(_dropped)) if _dropped else "", NL, NL))
