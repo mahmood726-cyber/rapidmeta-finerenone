@@ -105,8 +105,13 @@ def render(path, dl_html=""):
 
 DOC_CSS = """
  .doc-wrap{padding:1rem}
+ /* max-width was 52rem inside a 46rem body, so the document view was wider than
+    the page that contains it and dragged horizontal scroll onto the whole
+    document -- 473px of it at 1280. box-sizing so the 2.6rem padding is inside
+    the width rather than added to it. */
  .doc{background:var(--paper);color:var(--paperfg);border:1px solid var(--line);
-      border-radius:.35rem;padding:2.2rem 2.6rem;max-width:52rem;margin:0 auto;
+      border-radius:.35rem;padding:2.2rem 1.6rem;max-width:100%;box-sizing:border-box;
+      margin:0 auto;
       font-family:Georgia,'Times New Roman',serif;line-height:1.55}
  .doc h2{font-size:1.35rem;margin:1.6rem 0 .5rem;border-bottom:1px solid var(--line);
       padding-bottom:.25rem}
@@ -122,5 +127,6 @@ DOC_CSS = """
  .doc th,.doc td{border:1px solid var(--line);padding:.32rem .45rem;
       text-align:left;vertical-align:top}
  .doc th{background:var(--thbg);font-weight:600}
- .doc-t{overflow-x:auto}
+ .doc-t{max-width:100%;overflow-x:auto}
+ .doc img{max-width:100%;height:auto}
 """

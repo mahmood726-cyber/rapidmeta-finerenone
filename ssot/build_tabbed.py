@@ -434,6 +434,12 @@ def _caption_tables(html):
                     % (NL, n[0], e(t), NL)))
     for at, ins in reversed(out):
         html = html[:at] + ins + html[at:]
+    # Every table gets a scrolling WRAPPER. If a table still exceeds the measure
+    # after wrapping -- a genuinely wide one -- it scrolls inside its own box and
+    # the page does not. Nothing is hidden or truncated: the container clips
+    # nothing, it only scrolls.
+    html = _re.sub("(<table[ >])", lambda mm: "<div class='tscroll'>" + mm.group(1), html)
+    html = _re.sub("(</table>)", lambda mm: mm.group(1) + "</div>", html)
     return html
 
 
@@ -538,10 +544,29 @@ def build(canon):
  th,td{font-variant-numeric:tabular-nums}
  h1{font-size:1.6rem;line-height:1.25;letter-spacing:-.01em}
  p{margin:.7rem 0}
- /* Wide evidence may exceed the prose measure without widening the page. */
- .card table{display:block;overflow-x:auto;max-width:100%%}
+ /* Wide evidence must not widen the PAGE. The previous rule put display:block
+    on the table itself to get overflow-x, and that destroys the table formatting
+    context: cells stop participating in column layout, so a 900-character prose
+    cell expands to its natural width instead of wrapping. One cell in
+    Contributing trials reached 3,935px and dragged 3,782px of horizontal scroll
+    onto the whole document. The scroll container belongs on a WRAPPER, never on
+    the table -- the table must keep display:table to lay out at all. */
+ .tscroll{max-width:100%%;overflow-x:auto}
+ .card table,.doc table{width:100%%;table-layout:auto}
+ /* Long unbroken tokens -- a DOI, a URL, an accession -- cannot wrap without
+    this and would reintroduce the same overflow one string at a time. */
+ th,td{overflow-wrap:anywhere;word-break:break-word}
  @media (max-width:560px){body{padding:1rem .75rem;font-size:1rem}
-   .tabnav label{padding:.4rem .6rem;font-size:.82rem}}
+   .tabnav label{padding:.4rem .6rem;font-size:.82rem}
+   /* .num carries white-space:nowrap so a figure never breaks mid-number.
+      Some projected values are whole phrases -- the registration margin is
+      one -- and at 360px an unbreakable 539px span was the last thing
+      pushing the page sideways. On a phone, wrapping the phrase beats
+      scrolling the document. */
+   /* span.num, not .num: the base .num rule is declared later in the sheet
+      at equal specificity and was winning the cascade, so the phrase stayed
+      unbreakable and the page still scrolled 88px at 485. */
+   span.num{white-space:normal;overflow-wrap:anywhere}}
  #dm{position:absolute;width:1px;height:1px;opacity:0}
  .dml{position:fixed;top:.5rem;right:.5rem;z-index:9;border:1px solid var(--line);
        border-radius:1rem;padding:.15rem .6rem;font-size:.8rem;cursor:pointer;
@@ -579,7 +604,13 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 and each measured cell names the source analysis it was read from. That is what is
 machine-checked. It does not establish that the underlying sources are right, only
 that this page faithfully reports them.</small></p>
-""" % (p(canon["title"]), tab_css, wy.DOC_CSS.replace("%", "%%"),
+""" % (p(canon["title"]), tab_css, wy.DOC_CSS,   # NOT %-escaped: DOC_CSS is an ARGUMENT, not part of the
+       # template. It was escaped back when it was spliced into the literal,
+       # and the escaping was left behind when it became an argument -- so
+       # every rule shipped as width:100%% and the browser dropped all of
+       # them. That is why the document-view images rendered at their
+       # natural 1406px and dragged horizontal scroll onto the page.
+
        pj.verdict_card(canon, rd, p),
        p(canon["title"]), p(canon["question"]), body)
 
