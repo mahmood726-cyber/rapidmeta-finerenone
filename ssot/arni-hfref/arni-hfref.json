@@ -752,6 +752,114 @@
       }
      ]
     }
+   },
+   {
+    "id": "answer-hf",
+    "name": "ANSWER-HF",
+    "nct": "NCT04853758",
+    "pmid": "41396086",
+    "year": 2026,
+    "design": "phase 4, randomised, double-blind, 1:1 against an active comparator, single-centre (InCor, Sao Paulo)",
+    "population": "adults with heart failure, LVEF below 40%, NYHA II-IV, chronic Chagas cardiomyopathy",
+    "comparator_type": "active",
+    "comparator_type_basis": "randomised head-to-head against enalapril, 1:1",
+    "enrolled": 190,
+    "arms": [
+     {
+      "label": "sacubitril/valsartan",
+      "role": "treatment",
+      "participants": 95,
+      "events": 12
+     },
+     {
+      "label": "enalapril",
+      "role": "control",
+      "participants": 95,
+      "events": 8
+     }
+    ],
+    "denominator_populations": {
+     "_rule": "Protocol section 7: where two populations exist for one outcome, both are recorded, exactly one is marked selected, and the population is named on the cell.",
+     "selected": {
+      "population": "randomised",
+      "treatment_n": 95,
+      "control_n": 95,
+      "why": "The randomised totals are the correct denominators for this composite and are what Table 2's clinical endpoints use."
+     },
+     "recorded_not_selected": {
+      "population": "modified intention-to-treat",
+      "treatment_n": 87,
+      "control_n": 87,
+      "why_not_selected": "The trial's PRIMARY endpoint (change in LVEF) used a modified ITT of 87 per group which EXCLUDED PATIENTS WHO DIED, because paired echocardiography at baseline and six months was required. A lane extracting from the primary-endpoint analysis would take 87/87 and silently apply a denominator with deaths removed from it -- into a review whose estimand is partly about death. Recorded as a standing extraction hazard for this trial."
+     }
+    },
+    "by_outcome": {
+     "cvdeath_or_hfh_first": {
+      "treatment": {
+       "events": 12,
+       "n": 95,
+       "source_tier": "T1",
+       "source_pointer": "JACC 2026;87(10):1220-1232 Table 2, Clinical Endpoints at 6 Months"
+      },
+      "control": {
+       "events": 8,
+       "n": 95,
+       "source_tier": "T1",
+       "source_pointer": "JACC 2026;87(10):1220-1232 Table 2"
+      },
+      "effect": {
+       "measure": "HR",
+       "point": 1.83,
+       "ci_low": 0.72,
+       "ci_high": 4.67,
+       "ci_level": 95,
+       "p": 0.205,
+       "model": "Cox proportional hazards, treatment and site as fixed effects"
+      }
+     }
+    },
+    "component_endpoints": {
+     "rows": [
+      {
+       "endpoint": "Cardiovascular death",
+       "treatment_events": 7,
+       "control_events": 6,
+       "treatment_n": 95,
+       "control_n": 95,
+       "source_tier": "T1",
+       "source_pointer": "JACC Table 2",
+       "read_or_derived": "read"
+      },
+      {
+       "endpoint": "First heart-failure hospitalisation",
+       "treatment_events": 7,
+       "control_events": 5,
+       "treatment_n": 95,
+       "control_n": 95,
+       "source_tier": "T1",
+       "source_pointer": "JACC Table 2",
+       "read_or_derived": "read"
+      }
+     ],
+     "note": "Read from source and shown, NOT pooled here."
+    },
+    "caption_trap": {
+     "what": "Table 2 captions the row 'Cardiovascular death AND heart failure hospitalization'. Read literally, 'and' is an intersection, which cannot exceed min(7,7)=7. The reported 12 is impossible under that reading.",
+     "why_it_is_a_union": "12 < 7+7 and 8 < 6+5. If the composite were a sum of events it would be 14 and 11. It is smaller in both arms, so patients with both components are counted once at their first event -- at least 2 per arm. That is a patient-level time-to-first composite, which is the registered estimand.",
+     "recorded_because": "A lane matching on caption text rather than checking the arithmetic could read it as an intersection and either exclude the trial or extract the wrong quantity."
+    },
+    "evidence_basis": {
+     "level": "FULL TEXT VIA INSTITUTIONAL ACCESS, TRANSCRIBED BY THE ADJUDICATOR",
+     "not": "read at source by screener A",
+     "why_stated": "Every open route returned closed on this row. It was resolved by Royal Free London institutional access and transcribed. If a later lane obtains the PDF directly the cells should be re-checked against it. That is cheap, and it is the honest standing of this row."
+    },
+    "inclusion_provenance": {
+     "screener_a": "excluded at stage 1 on the outcome axis, then held as undetermined",
+     "resolved_by": "named human adjudication",
+     "adjudicator": "Mahmood Ahmad",
+     "adjudicated_utc": "2026-08-13T13:55:30Z",
+     "note": "Screener A's exclusion and its subsequent undetermined holding both STAND UNALTERED in the screening record. The adjudication overrides them; it does not erase them."
+    }
    }
   ]
  },
@@ -761,7 +869,7 @@
  "results": {
   "by_outcome": {
    "cvdeath_or_hfh_first": {
-    "k": 3,
+    "k": 4,
     "estimand_id": "cvdeath_or_hfh_first-estimand",
     "comparator_type": "active",
     "handbook": {
@@ -823,6 +931,20 @@
       "population": "Japanese adults with HFrEF, ejection fraction 35% or less",
       "endpoint_rank_in_its_own_trial": "the trial's own primary composite endpoint",
       "derivation": "the published hazard ratio, stored on the log scale with the standard error its published interval implies"
+     },
+     {
+      "trial_id": "answer-hf",
+      "nct": "NCT04853758",
+      "measure": "HR",
+      "point": 1.83,
+      "ci_low": 0.72,
+      "ci_high": 4.67,
+      "ci_level": 95,
+      "log_point": 0.60431596685,
+      "log_se": 0.47696364663,
+      "population": "adults with HFrEF and chronic Chagas cardiomyopathy",
+      "endpoint_rank_in_its_own_trial": "a secondary endpoint; the trial's primary is change in left ventricular ejection fraction",
+      "derivation": "the published hazard ratio, stored on the log scale with the standard error its published interval implies"
      }
     ],
     "poolable": true,
@@ -872,18 +994,19 @@
     "estimator_used": "REML",
     "pooled": {
      "measure": "HR",
-     "point": 0.8392,
-     "ci_low": 0.7429,
-     "ci_high": 0.948,
+     "point": 0.87153524291,
+     "ci_low": 0.74608292776,
+     "ci_high": 1.0180821077,
      "ci_level": 95,
      "scale": "log"
     },
     "favours": "treatment",
     "heterogeneity": {
-     "tau2": 0.0035,
-     "i2": 14.9469,
-     "q": 2.3515,
-     "df": 2
+     "tau2": 0.0085970258403,
+     "i2": 32.8939087126,
+     "q": 5.1612775488,
+     "df": 3,
+     "q_p": 0.16036143174
     },
     "heterogeneity_status": "The I-squared here is the Higgins statistic computed from Q and its degrees of freedom, and it falls in the lowest band of section 10.10.2. That band is reported with a caveat rather than as reassurance: with three trials, two of which have wide intervals, a low I-squared reflects imprecision as much as agreement, and the point estimates themselves range from 0.80 to 1.09 and straddle the null. The uniformity table and the leave-one-out analysis are where that spread is visible; the I-squared alone would hide it.",
     "single_study_ref": null,
@@ -894,87 +1017,94 @@
      "analyses": [
       {
        "omitted": "paradigm-hf",
-       "remaining": [
-        "parachute-hf",
-        "parallel-hf"
-       ],
-       "k": 2,
-       "point": 0.9354,
-       "ci_low": 0.765,
-       "ci_high": 1.1438,
-       "tau2": 0.0,
-       "i2": 0.0,
-       "still_excludes_null": false
+       "point": 0.96602172288,
+       "ci_low": 0.78966748866,
+       "ci_high": 1.1817606556,
+       "i2": 1.2033647461,
+       "k": 3
       },
       {
        "omitted": "parachute-hf",
-       "remaining": [
-        "paradigm-hf",
-        "parallel-hf"
-       ],
-       "k": 2,
-       "point": 0.838,
-       "ci_low": 0.6749,
-       "ci_high": 1.0405,
-       "tau2": 0.0123423,
-       "i2": 25.7992,
-       "still_excludes_null": false
+       "point": 0.97162254284,
+       "ci_low": 0.66620833081,
+       "ci_high": 1.4170497757,
+       "i2": 52.8512040563,
+       "k": 3
       },
       {
        "omitted": "parallel-hf",
-       "remaining": [
-        "paradigm-hf",
-        "parachute-hf"
-       ],
-       "k": 2,
-       "point": 0.8194,
-       "ci_low": 0.7427,
-       "ci_high": 0.904,
-       "tau2": 0.0010853,
-       "i2": 13.0772,
-       "still_excludes_null": true
+       "point": 0.84381285845,
+       "ci_low": 0.73608670556,
+       "ci_high": 0.96730471385,
+       "i2": 26.5440496714,
+       "k": 3
+      },
+      {
+       "omitted": "answer-hf",
+       "point": 0.83919488237,
+       "ci_low": 0.7428621987,
+       "ci_high": 0.9480197698,
+       "i2": 22.2394600716,
+       "k": 3
       }
      ],
-     "leave_one_out_finding": "The pooled benefit rests on PARADIGM-HF, and the table is blunter than that summary sounds. Every leave-one-out fit still points below the null, so the DIRECTION is stable. The INTERVAL is not: only the fit that drops PARALLEL-HF keeps the null outside it. Dropping PARADIGM-HF or dropping PARACHUTE-HF both leave an interval that includes the null, so two of the three fits do. That is the single most important qualification on the headline, it is what the imprecision domain of the GRADE assessment is counting, and it is stated here rather than left for a reader to derive from the table.",
-     "between_study_variance_method_comparison": {
-      "why": "Section 10.10.4.4 records that estimators other than DerSimonian and Laird perform better and that restricted maximum likelihood is now the default in the Cochrane software, and it is the whole of the authority for running this comparison. Nothing in the Handbook instructs a review to compare variance estimators at a particular number of studies; running it here is a choice made under section 10.14, because with a pool this small the choice is plausibly influential. It is: unlike the two-study pools elsewhere in this batch, the estimators here do NOT coincide.",
-      "methods": [
-       {
-        "between_study_variance_estimator": "DL",
-        "interval_method": "Wald",
-        "point": 0.8333,
-        "ci_low": 0.7473,
-        "ci_high": 0.9292,
-        "tau2": 0.0021493
-       },
-       {
-        "between_study_variance_estimator": "PM",
-        "interval_method": "Wald",
-        "point": 0.8315,
-        "ci_low": 0.7485,
-        "ci_high": 0.9237,
-        "tau2": 0.0017965
-       },
-       {
-        "between_study_variance_estimator": "REML",
-        "interval_method": "Wald",
-        "point": 0.8392,
-        "ci_low": 0.7429,
-        "ci_high": 0.948,
-        "tau2": 0.0034981
-       },
-       {
-        "between_study_variance_estimator": "REML",
-        "interval_method": "HKSJ",
-        "point": 0.8392,
-        "ci_low": 0.6421,
-        "ci_high": 1.0968,
-        "tau2": 0.0034981
-       }
-      ],
-      "estimator_kept": "Restricted maximum likelihood is kept as the headline estimator, with the ordinary interval. Section 10.10.4.4 records that it is now the default in the Cochrane software and that estimators other than DerSimonian and Laird perform better; it is also the most conservative of the three here, so keeping it is not a choice that flatters the result. The Hartung-Knapp-Sidik-Jonkman interval is reported beside it rather than instead of it, and the fact that the two disagree about the null is stated in the headline rather than left in this table.",
-      "verdict": "The three variance estimators give visibly different between-study variances and therefore different intervals, with restricted maximum likelihood the most conservative of the three; all three keep the interval clear of the null. The Hartung-Knapp-Sidik-Jonkman interval does NOT: it is much wider and it includes the null. Section 10.10.4.5 says to expect exactly that with so few studies, so the disagreement is not treated as one method being wrong. Both are printed and neither is decisive, and the headline is reported as an estimate whose interval excludes the null under the ordinary method and does not under the more conservative one. The floor on the Hartung-Knapp scale factor is applied, so that interval can widen and can never come out narrower than the ordinary one."
-     }
+     "leave_one_out_finding": "Omitting PARADIGM-HF gives 0.9660 (0.7897 to 1.1818) with I-squared falling to 1.2%. The pooled effect is essentially PARADIGM-HF: the other three trials together sit at or above the null. Omitting ANSWER-HF returns exactly the previous 0.8392 (0.7429 to 0.9480), which is the arithmetic check that the new trial is the only thing that moved.",
+     "between_study_variance_method_comparison": [
+      {
+       "between_study_variance_estimator": "REML",
+       "interval_method": "Wald",
+       "point": 0.87153524291,
+       "lower": 0.74608292776,
+       "upper": 1.0180821077,
+       "tau_squared": 0.0085970258403,
+       "i2": 32.8939087126
+      },
+      {
+       "between_study_variance_estimator": "REML",
+       "interval_method": "HKSJ",
+       "point": 0.87153524291,
+       "lower": 0.65712332578,
+       "upper": 1.1559073462,
+       "tau_squared": 0.0085970258403,
+       "i2": 32.8939087126
+      },
+      {
+       "between_study_variance_estimator": "DL",
+       "interval_method": "Wald",
+       "point": 0.88352057366,
+       "lower": 0.74126071166,
+       "upper": 1.053082393,
+       "tau_squared": 0.012635254093,
+       "i2": 41.8748561453
+      },
+      {
+       "between_study_variance_estimator": "DL",
+       "interval_method": "HKSJ",
+       "point": 0.88352057366,
+       "lower": 0.6506126948,
+       "upper": 1.1998053686,
+       "tau_squared": 0.012635254093,
+       "i2": 41.8748561453
+      },
+      {
+       "between_study_variance_estimator": "PM",
+       "interval_method": "Wald",
+       "point": 0.90391037189,
+       "lower": 0.73133028113,
+       "upper": 1.1172160944,
+       "tau_squared": 0.022046997433,
+       "i2": 55.6945052048
+      },
+      {
+       "between_study_variance_estimator": "PM",
+       "interval_method": "HKSJ",
+       "point": 0.90391037189,
+       "lower": 0.64080094366,
+       "upper": 1.2750511192,
+       "tau_squared": 0.022046997433,
+       "i2": 55.6945052048
+      }
+     ]
     },
     "cross_engine": {
      "engine": "metafor 5.0.1 under R 4.6.0, generic inverse variance on the same log point and log standard error this object stores",
@@ -1010,7 +1140,9 @@
         "might not be important"
        ],
        "computed_value": 14.9469,
-       "why_not_downgraded_despite_the_spread": "The I-squared falls in the lowest band section 10.10.2 prints, and this domain is rated from that. The spread in the point estimates, from 0.80 to 1.09, is real and is NOT hidden by this rating: it is recorded in the uniformity table, in the heterogeneity statement and in the leave-one-out analysis, and it is what drives the imprecision downgrade below. Downgrading twice for one underlying fact -- that two of the three trials are small and their intervals wide -- would double-count it."
+       "why_not_downgraded_despite_the_spread": "The I-squared falls in the lowest band section 10.10.2 prints, and this domain is rated from that. The spread in the point estimates, from 0.80 to 1.09, is real and is NOT hidden by this rating: it is recorded in the uniformity table, in the heterogeneity statement and in the leave-one-out analysis, and it is what drives the imprecision downgrade below. Downgrading twice for one underlying fact -- that two of the three trials are small and their intervals wide -- would double-count it.",
+       "rating_before_k4": "not serious",
+       "needs_rereading": "This domain was rated on an I-squared of 14.9% at k=3. At k=4 it is 32.9% under REML, 41.9% under DerSimonian-Laird and 55.7% under Paule-Mandel, and the prediction interval spans 0.686 to 1.107. The rating is flagged for re-reading rather than silently carried forward or silently changed: a domain rating that survives a change in its own input should say so, and one that does not should be re-argued, not re-labelled."
       },
       "indirectness": {
        "rating": "not serious",
@@ -1775,9 +1907,20 @@
      "_provenance": "Computed at BUILD time by metafor from the per-arm 2x2 counts stored on each trial, which were READ from the sources named on each cell. No composite was reconstructed by addition and no count was derived from a percentage. These are SEPARATE ESTIMANDS from the primary pooled hazard ratio, which is unchanged, and are shown as sensitivity, never as the headline."
     },
     "k_status": {
-     "k_reported": 3,
+     "k_reported": 4,
      "is_lower_bound": true,
-     "why": "ANSWER-HF remains UNDETERMINED behind a paywall; PIONEER-HF is determinate and EXCLUDED on the outcome axis, now read at primary source: its composite is broader than our estimand and uses all-cause death. k=3 is therefore a LOWER BOUND and may become 4. The correct formulation is 'the three trials whose eligibility could be established', never 'the three trials that exist'."
+     "why": "ANSWER-HF is RESOLVED and included, so the reason this count was previously a lower bound is gone. It remains a lower bound for a DIFFERENT reason, and the difference is stated rather than quietly carried: two screening records are still undetermined. If those resolve to exclusions, k=4 becomes settled."
+    },
+    "prediction_interval": {
+     "low": 0.68617463122,
+     "high": 1.106968467,
+     "method": "REML, t distribution on k-1 df"
+    },
+    "hksj": {
+     "point": 0.87153524291,
+     "ci_low": 0.65712332578,
+     "ci_high": 1.1559073462,
+     "agreement_with_wald": "At k=3 Wald excluded the null and HKSJ did not. At k=4 both include it, so the two interval methods now agree."
     }
    }
   }
@@ -9054,8 +9197,8 @@
    "_limit": "300 words. Counted at build time and the build fails if exceeded.",
    "Background": "Angiotensin receptor-neprilysin inhibition changed the treatment of heart failure with reduced ejection fraction on the strength of a single large trial. Because that trial dominates the guidelines and every later synthesis, what the accumulated randomised evidence shows when it is not treated as the answer on its own is a different question, and the one this review asks.",
    "Methods": "PubMed and ClinicalTrials.gov were searched on [[search_date]] with no language, date or publication-status filter. Randomised trials of sacubitril/valsartan against enalapril in adults with heart failure and reduced ejection fraction were eligible if they reported the composite of cardiovascular death or first hospitalisation for heart failure as a time-to-first-event hazard ratio. Hazard ratios were pooled on the log scale by generic inverse variance under a random-effects model with the [[estimator]] estimator. Risk of bias used the Cochrane risk-of-bias tool for randomised trials, effect-of-assignment variant, assessed independently by two assessors. Certainty used the Grading of Recommendations Assessment, Development and Evaluation approach.",
-   "Results": "[[n_records]] records were screened and [[k]] trials contributing [[n_total]] randomised participants met all eligibility conditions. The pooled hazard ratio was [[pooled]] ([[ci_low]] to [[ci_high]]), favouring sacubitril/valsartan. Heterogeneity was low, with I-squared [[i2]] percent. The result did not survive removal of the largest trial, which moved the estimate to [[loo_paradigm]], an interval including no effect. No risk-of-bias domain was rated high by either assessor. Certainty was [[certainty]].",
-   "Conclusions": "Sacubitril/valsartan reduced the hazard of a first cardiovascular death or heart failure hospitalisation compared with enalapril, at [[certainty]] certainty. The estimate rests almost entirely on one trial and does not survive its removal; the two smaller trials are individually compatible with no effect. One trial establishes this benefit rather than three confirming it."
+   "Results": "[[n_records]] records were screened and [[k]] trials contributing [[n_total]] randomised participants met all eligibility conditions. The pooled hazard ratio was [[pooled]] ([[ci_low]] to [[ci_high]]), an interval that includes no effect. Heterogeneity was moderate and estimator-dependent, with I-squared [[i2]] percent under the registered estimator. The pooled result is dominated by one trial: omitting the largest gives [[loo_paradigm]], and the three remaining trials sit at or above no effect. No risk-of-bias domain was rated high. Certainty was [[certainty]].",
+   "Conclusions": "Across [[k]] randomised trials the pooled estimate is compatible with no difference between sacubitril/valsartan and enalapril for a first cardiovascular death or heart failure hospitalisation. The point estimate favours sacubitril/valsartan and rests almost entirely on one large trial; the three smaller trials are individually and jointly compatible with no effect. This is an argument for reading that one trial as the evidence base rather than treating the pooled average as confirmation of it."
   },
   "introduction": [
    {
@@ -9067,11 +9210,11 @@
     "basis": "PARADIGM-HF, cited in the reference list; the early-stopping fact is recorded in inputs.trials[].risk_of_bias."
    },
    {
-    "text": "Two later randomised comparisons against the same active comparator have reported the same composite in different populations. Neither was powered to detect the effect the pivotal trial found, and one reports the composite as a secondary rather than a primary endpoint. They are nonetheless the only additional randomised evidence on this estimand, and whether they support, qualify or merely echo the pivotal result is not answerable by reading any of the three trials on its own.",
+    "text": "Three later randomised comparisons against the same active comparator have reported the same composite in different populations. None was powered to detect the effect the pivotal trial found, one reports the composite as a secondary rather than a primary endpoint, and two enrolled a single aetiology. They are nonetheless the only additional randomised evidence on this estimand.",
     "basis": "PARACHUTE-HF and PARALLEL-HF, from inputs.trials[]; endpoint rank from results.per_trial[].endpoint_rank_in_its_own_trial."
    },
    {
-    "text": "A meta-analysis of three trials, one of which contributes most of the information, is often criticised as adding nothing to the large trial. That criticism is worth taking seriously rather than deflecting, and it is the reason this review reports the leave-one-out analysis as a principal result rather than as a sensitivity appendix. The question this review can answer is not whether the drug works, which the pivotal trial addresses directly, but how much of the pooled estimate survives the removal of that trial, and what the smaller trials are individually compatible with. Both are answerable, and neither is usually reported.",
+    "text": "A meta-analysis in which one trial contributes most of the information is often criticised as adding nothing to that trial. The criticism is worth taking seriously rather than deflecting, and it is why this review reports leave-one-out as a principal result rather than a sensitivity appendix. The question it can answer is not whether the drug works, which the pivotal trial addresses directly, but how much of the pooled estimate survives that trial's removal.",
     "basis": "Authored rationale for the analysis plan; the leave-one-out result it points to is in results.sensitivity."
    }
   ],
@@ -9112,7 +9255,7 @@
    },
    {
     "heading": "Trial characteristics",
-    "text": "The three trials differ in ways that matter for interpretation. One is a large double-blind trial reporting this composite as its own primary endpoint. One is open-label with blinded endpoint adjudication, enrolled a distinct aetiological population, and reports this composite as its first secondary endpoint behind a win-ratio primary. One is double-blind and small. Characteristics are given in Table 1 and per-arm event counts in Table 2."
+    "text": "The [[k]] trials differ in ways that matter for interpretation. One is a large double-blind trial reporting this composite as its own primary endpoint. Two enrolled chronic Chagas cardiomyopathy, one of them open-label with blinded adjudication and reporting this composite behind a win-ratio primary. One is double-blind and small. Characteristics are in Table 1 and per-arm counts in Table 2."
    },
    {
     "heading": "Primary synthesis",
@@ -9167,14 +9310,14 @@
   ],
   "limitations": [
    "The synthesis rests on [[k]] trials, one of which contributes most of the weight, and the pooled result does not survive its removal. This is stated as a principal finding rather than a caveat.",
-   "The count of eligible trials is a lower bound. A small number of records could not be resolved from publicly reachable sources, and they are reported as unresolved rather than assumed to be exclusions.",
+   "The count of eligible trials remains a lower bound, but for a different reason than before: the trial that previously made it one has been resolved and included, and two screening records are still undetermined.",
    "Trial-level hazard ratios were taken from publications; no individual-participant data were obtained, so the composite could not be decomposed into its components on a common time axis.",
    "The trials differ in population, in blinding, and in whether this composite was the trial's own primary endpoint. Pooling them assumes they estimate a common quantity, which is a judgement, not an observation.",
    "Risk of bias was assessed by two AI assessors from different model families rather than by two humans. That is the stated release tier for the web surface; it is not the tier a journal submission requires, and the object records the difference rather than eliding it.",
    "Five of fifteen risk-of-bias domain judgements remain unadjudicated. They are carried at the more cautious of the two judgements, provisionally.",
    "A disagreement between the registry and the publication on serious adverse events in one trial is recorded and unresolved. This review's own multi-source extraction did not detect it; a blinded comparator did."
   ],
-  "conclusions": "In adults with heart failure and reduced ejection fraction, sacubitril/valsartan reduced the hazard of a first cardiovascular death or heart failure hospitalisation compared with enalapril, with a pooled hazard ratio of [[pooled]] ([[ci_low]] to [[ci_high]]) at [[certainty]] certainty. The estimate rests almost entirely on one large trial and does not survive that trial's removal, and the two smaller trials are individually compatible with no effect. The appropriate conclusion is not that three trials confirm the benefit, but that one trial establishes it and two more have not yet materially changed what is known.",
+  "conclusions": "In adults with heart failure and reduced ejection fraction, the pooled hazard of a first cardiovascular death or heart failure hospitalisation with sacubitril/valsartan compared with enalapril was [[pooled]] ([[ci_low]] to [[ci_high]]) at [[certainty]] certainty, an interval consistent with no difference. The estimate rests almost entirely on one large trial and does not survive its removal. One trial establishes this benefit; three further trials have not confirmed it.",
   "not_written": [
    {
     "section": "Formal comparison with previous meta-analyses",
@@ -9471,7 +9614,8 @@
     "source_caveat": "parallel-hf all-cause death is ClinicalTrials.gov ONLY -- the Circ J primary paper does not report all-cause mortality at all, so that pair has no second source.",
     "interpretation": "Point estimate favours sacubitril/valsartan and the interval excludes the null."
    }
-  ]
+  ],
+  "_STALE": "COMPUTED AT k=3 AND NOT YET RECOMPUTED. ANSWER-HF contributes cardiovascular death 7/95 vs 6/95 and first heart-failure hospitalisation 7/95 vs 5/95, so two of these three pools are now out of date. All-cause death is not in the adjudication I read and must be obtained before that pool is recomputed. Marked stale rather than silently left at k=3, because a pool labelled k=3 beside a primary labelled k=4 is a visible inconsistency and a silently stale one is not."
  },
  "outcomes_considered": {
   "_answers": "Have you only done one outcome?",
