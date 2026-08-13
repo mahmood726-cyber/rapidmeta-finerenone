@@ -53,6 +53,12 @@ if not apps:
     print("No app pages in scope for this run.")
     sys.exit(0)
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import re as _re2                       # noqa: E402
+import ssot_signals as _ssot            # noqa: E402
+
+ssot_seen = []
+
 signals = {
     "page_errors": [],
     "no_trials": [],
@@ -69,6 +75,27 @@ with sync_playwright() as p:
     ctx = b.new_context(viewport={'width': 1400, 'height': 900})
     pg = ctx.new_page()
     for i, a in enumerate(apps, 1):
+        # SSOT DISPATCH. The seven signals below are AUTO-shaped: they look for
+        # seeded trials in JS state, a RoB banner element, a WebR tag and a pool
+        # computed in the browser. An SSOT page has none of those BY DESIGN --
+        # every number is projected at build time and it carries no engine. Now
+        # that this gate can actually fail, running the AUTO set against an SSOT
+        # page would block every push touching one, for the sole reason that the
+        # page is the architecture we are moving towards. Classify first.
+        try:
+            _src = (ROOT / (a + ".html")).read_text(encoding="utf-8", errors="replace")
+        except Exception:                                    # noqa: BLE001
+            _src = ""
+        if _src and _ssot.classify(_src) == "SSOT":
+            _txt = _re2.sub(r"\s+", " ", _re2.sub(r"<[^>]+>", " ", _src))
+            _fired = _ssot.run(_src, _txt)
+            ssot_seen.append(a)
+            if _fired:
+                for _k, _why in _fired.items():
+                    signals.setdefault("ssot_" + _k, []).append((a, _why))
+            else:
+                signals["fully_ok"].append(a)
+            continue
         pg_errors = []
         pg.on('pageerror', lambda e: pg_errors.append(str(e)[:100]))
         try:
