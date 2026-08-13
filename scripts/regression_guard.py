@@ -63,9 +63,14 @@ def state_of(obj):
                          c["events"])
                 if isinstance(c, dict) and c.get("n") is not None:
                     cell("%s::cell::%s::%s::%s::n" % (app, tid, oid, role), c["n"])
-            if (b.get("effect") or {}).get("point") is not None:
-                cell("%s::cell::%s::%s::effect" % (app, tid, oid),
-                     b["effect"]["point"])
+            _ef = b.get("effect") or {}
+            # The INTERVAL is a value too. Capturing only the point let ci_high
+            # move from 1.2 to 9.9 -- changing what the row claims entirely --
+            # with the guard reporting no regression.
+            for _k in ("point", "ci_low", "ci_high"):
+                if _ef.get(_k) is not None:
+                    cell("%s::cell::%s::%s::effect_%s" % (app, tid, oid, _k),
+                         _ef[_k])
         for r in ((t.get("component_endpoints") or {}).get("rows") or []):
             cells.add("%s::component::%s::%s" % (app, tid, r.get("endpoint")))
         if t.get("risk_of_bias"):
@@ -73,7 +78,15 @@ def state_of(obj):
     for pmid in (obj.get("citations") or {}):
         cites.add("%s::citation::%s" % (app, pmid))
     for r in ((obj.get("screening") or {}).get("records") or []):
-        ptrs.add("%s::screened::%s" % (app, r.get("trial")))
+        _t = r.get("trial")
+        ptrs.add("%s::screened::%s" % (app, _t))
+        # The IDENTIFIERS on a screened row are state. Keyed by trial name alone,
+        # nulling both nct and pmid was invisible -- the row survived, its
+        # identity did not.
+        for _f in ("nct", "pmid"):
+            if r.get(_f):
+                vals["%s::screened::%s::%s" % (app, _t, _f)] = r[_f]
+                cells.add("%s::screened::%s::%s" % (app, _t, _f))
     ks = {}
     for oid, r in obj.get("results", {}).get("by_outcome", {}).items():
         if r.get("k") is not None:
@@ -171,7 +184,15 @@ def check(obj, led):
             parts = d.split("::")
             if len(parts) >= 3 and parts[1] == "trial":
                 tid = parts[2]
-                if ("::%s::" % tid) in key or key.endswith("::%s" % tid):
+                # POSITIONAL, not "appears anywhere". The first form matched any
+                # segment, so a removal record naming an OUTCOME id justified a
+                # value change on a cell that merely contained that id in its
+                # outcome position. A cell key is app::cell::TRIAL::outcome::...,
+                # so the trial is segment 2 and nothing else counts.
+                kp = key.split("::")
+                if len(kp) >= 3 and kp[2] == tid and kp[1] in ("cell", "trial",
+                                                               "component",
+                                                               "rob_features"):
                     return True
         return False
 
