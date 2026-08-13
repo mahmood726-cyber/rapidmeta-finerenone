@@ -505,9 +505,13 @@ def build(canon):
                          % (NL, NL, NL, NL, sources_rows, NL, NL)),
         "network": p2.outcomes_card(canon, p), "recon": "", "removal": "",
         "output": output_card(canon, p),
-        "paper": (wy.render(_DOCMODEL, _downloads_html())
-                  + pp.manuscript_section(canon, first_res, first_oid, p)
-                  + paper_studio(canon, first_res, p)),
+        # WYSIWYG ONLY. The panel used to render the manuscript THREE times: the
+        # document view, then manuscript_section's card version, then
+        # paper_studio's draft. Fifteen headings appeared twice -- two Abstracts,
+        # two Results, two reference lists -- because three renderers were each
+        # doing their job on the same content. The document view is the one that
+        # matches the Word file block for block, so it is the one that stays.
+        "paper": wy.render(_DOCMODEL, _downloads_html()),
     }
     body, tab_css = pj.tabbed_body(canon, parts, page)
     body = _caption_tables(body)
