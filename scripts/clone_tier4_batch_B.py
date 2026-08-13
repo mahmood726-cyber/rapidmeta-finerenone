@@ -198,21 +198,33 @@ SPECS = {
         "outcome_map_body": make_outcome_map("OS"),
     },
 
+    # RE-KEYED 2026-08-13. This config seeded NCT02696785 with MEASURE 4's
+    # name, its 2x2 (49/116 vs 23/117, RR 2.15, 1.41-3.27) and the Pavelka 2018
+    # citation. ClinicalTrials.gov says NCT02696785 is COAST-V (ixekizumab,
+    # Eli Lilly); MEASURE4 (secukinumab, Novartis) is NCT02159053 -- both looked
+    # up at the registry, neither recalled. The PAYLOAD is MEASURE 4's, so the
+    # identifier was wrong, not the label: re-keyed rather than renamed.
+    # Renaming would have attached MEASURE 4's secukinumab counts to a Lilly
+    # ixekizumab trial and made the row agree with itself while being wrong,
+    # which no registry check could then detect.
+    # This is the only confirmed upstream writer of a defective value in the
+    # repair queue: fixing the app row without fixing this re-injects it on the
+    # next clone run. The APP row (R-09) is Class B and is NOT touched here.
     # ============ SPONDYLOARTHRITIS_NMA ============
     "SPONDYLOARTHRITIS_NMA_REVIEW.html": {
         "source": "JAKI_RA_NMA_REVIEW.html",
         "title": "RapidMeta Rheum | Axial Spondyloarthritis Biologics NMA (TNFi / IL-17 / JAKi) v1.0",
-        "nct_ids": ["NCT02696785", "NCT03175588", "NCT04790670", "NCT04025684"],
+        "nct_ids": ["NCT02159053", "NCT03175588", "NCT04790670", "NCT04025684"],
         "acronyms": {
-            "NCT02696785": "MEASURE 4 (secukinumab)", "NCT03175588": "BE MOBILE 1",
+            "NCT02159053": "MEASURE 4 (secukinumab)", "NCT03175588": "BE MOBILE 1",
             "NCT04790670": "BE MOBILE 2", "NCT04025684": "SELECT-AXIS 2",
         },
         "realData_body": trials_block([
-            trial_entry("NCT02696785", "MEASURE 4", "29152639", 2018, 49, 116, 23, 117, 2.15, 1.41, 3.27,
+            trial_entry("NCT02159053", "MEASURE 4", "29152639", 2018, 49, 116, 23, 117, 2.15, 1.41, 3.27,
                 "Active ankylosing spondylitis, secukinumab 150 mg vs placebo (ASAS40 at week 16; RR)",
                 "ASAS40 response at week 16 (primary, secukinumab 150 mg vs placebo)",
                 "https://onlinelibrary.wiley.com/doi/10.1002/art.40627",
-                "https://clinicaltrials.gov/study/NCT02696785",
+                "https://clinicaltrials.gov/study/NCT02159053",
                 "Source: Pavelka K et al. Arthritis Rheumatol 2018;70:1376-1386 (MEASURE 4)."),
             trial_entry("NCT03175588", "BE MOBILE 1", "37541748", 2023, 122, 254, 50, 132, 1.27, 0.99, 1.62,
                 "Active non-radiographic axSpA, bimekizumab 160 mg Q4W vs placebo (ASAS40 at week 16; RR)",
