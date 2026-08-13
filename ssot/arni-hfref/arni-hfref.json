@@ -2052,6 +2052,49 @@
      "ci_low": 0.65712332578,
      "ci_high": 1.1559073462,
      "agreement_with_wald": "At k=3 Wald excluded the null and HKSJ did not. At k=4 both include it, so the two interval methods now agree."
+    },
+    "post_hoc_aetiology_split": {
+     "_STATUS": "POST HOC. NOT PRE-SPECIFIED. Added 2026-08-13, after the search and after the primary analysis was known.",
+     "_why_that_label_matters": "The protocol pre-specified NO subgroup analyses, and it said why: at this k any contrast is underpowered and post hoc, and none would later be presented as though planned. This one is presented as a sensitivity analysis and is labelled post-hoc on the page, in the manuscript and in the deposit. It was added because a reviewer asked the right question, not because the data suggested it.",
+     "strata": [
+      {
+       "stratum": "unrestricted aetiology",
+       "k": 2,
+       "trials": [
+        "paradigm-hf",
+        "parallel-hf"
+       ],
+       "point": 0.838,
+       "ci_low": 0.6749,
+       "ci_high": 1.0405,
+       "i2": 25.8
+      },
+      {
+       "stratum": "Chagas-restricted",
+       "k": 2,
+       "trials": [
+        "parachute-hf",
+        "answer-hf"
+       ],
+       "point": 1.1064,
+       "ci_low": 0.5984,
+       "ci_high": 2.0456,
+       "i2": 50.8
+      }
+     ],
+     "interaction_test": {
+      "method": "REML meta-regression, aetiology as a moderator",
+      "QM": 0.3795,
+      "df": 1,
+      "p": 0.5379,
+      "ratio_of_hazard_ratios_chagas_vs_unrestricted": 1.164,
+      "rhr_ci_low": 0.717,
+      "rhr_ci_high": 1.89
+     },
+     "residual_i2_after_aetiology": 35.6,
+     "what_it_actually_shows": "The descriptive pattern is real: both Chagas trials sit at or above no effect and the unrestricted stratum carries the benefit. The FORMAL TEST DOES NOT SUPPORT IT. The interaction is null (p=0.54), the ratio of hazard ratios spans 0.72 to 1.89, and residual I-squared RISES from 32.9% to 35.6% -- so aetiology explains none of the between-trial heterogeneity. With two trials per stratum the test has almost no power, so this is 'not shown', not 'shown absent'.",
+     "why_it_is_still_worth_reporting": "Chagas cardiomyopathy has focal fibrosis, high conduction-system involvement and markedly worse survival, so a difference is biologically plausible and a reader is entitled to see the strata rather than only the average. Reporting it with a null interaction is the honest form: it shows the question was asked and answers it as far as the data can, which is not far.",
+     "biological_rationale": "focal fibrosis, conduction-system involvement, worse survival"
     }
    }
   }
@@ -8117,6 +8160,14 @@
     "subject": "protocol(arni-hfref): strengthen section 9 so RoB-2 is pre-registered, not merely intended",
     "permalink": "https://github.com/mahmood726-cyber/rapidmeta-finerenone/commit/dde501167666f41ffdc81a07df1628734ce327a0",
     "post_dates_first_query": false
+   },
+   {
+    "sha": null,
+    "committed_utc": "2026-08-13T15:02:38Z",
+    "subject": "AMENDMENT: post-hoc aetiology-split sensitivity analysis added",
+    "permalink": null,
+    "post_dates_first_query": true,
+    "note": "Post-dates the search, like every amendment in this review. Recorded as an amendment precisely so that a reader can see it was not planned."
    }
   ],
   "amendment_note": "The full commit history is projected, not only its head. A log that displays only its current state is no better than a mutable document, and the point of registering by commit is that every earlier state stays readable. Each entry records whether it post-dates the first executed query, because an amendment made after the search is a different act from one made before it and must not be presented as the same."
@@ -9804,5 +9855,53 @@
    }
   ],
   "honest_note": "Before 2026-08-13 this object carried exactly ONE analysed outcome and the page did not say why. That was a real gap in what the page communicated, not merely in what it computed: a reader could not tell whether other outcomes had been considered and rejected or simply never looked at. The three secondary pools existed as per-arm counts in the object all along and had not been pooled."
+ },
+ "prisma_items": {
+  "_scope": "PRISMA 2020, 42 items. Status recorded per item; boxes are not filled to make the diagram look complete.",
+  "24a_registration": {
+   "status": "ESTABLISHED",
+   "value": "Registered as a timestamped, SHA-pinned public commit; the ordering against the first executed query is machine-checked at every build. NOT a PROSPERO record, and the difference is stated in the article."
+  },
+  "24b_protocol_access": {
+   "status": "ESTABLISHED",
+   "value": "PROTOCOL.md in the public repository, SHA-pinned permalink."
+  },
+  "24c_amendments": {
+   "status": "ESTABLISHED",
+   "value": "Every amendment is a commit, each marked before or after the first search. Three amendments recorded, all post-dating the search."
+  },
+  "25_support": {
+   "status": "ESTABLISHED AS ABSENT",
+   "value": "No funding was received and none is recorded. Stated rather than left blank."
+  },
+  "26_competing_interests": {
+   "status": "ESTABLISHED AS ABSENT",
+   "value": "No competing interests are declared for this review."
+  },
+  "7_search_strategy": {
+   "status": "ESTABLISHED",
+   "value": "Query strings as executed, endpoints, filters, hit counts and UTC datetimes are in the deposit."
+  },
+  "8_selection_process": {
+   "status": "PARTIAL -> IN PROGRESS",
+   "value": "The design specifies two independent cross-family screeners. Until today only screener A had run, so screening was single-reviewer. Screener B (Gemini 3.1 Pro, google family, blind to screener A) is running now across all 423 records. When both decision sets and the measured agreement are stored, this item closes for real.",
+   "closes_when": "both decision sets + agreement rate + adjudicated disagreements"
+  },
+  "16a_records_screened_flow": {
+   "status": "PARTIAL",
+   "value": "Counts are reconstructable from the 423-record log, which carries the stage and decision per record. What was NOT instrumented is the identification step: duplicate removal and pre-screening counts were never captured as process."
+  },
+  "16b_records_excluded_with_reasons": {
+   "status": "ESTABLISHED",
+   "value": "Every excluded record carries the axis it failed and what it reported instead."
+  },
+  "_permanently_unrecoverable": {
+   "items": [
+    "identification counts prior to screening (duplicates removed, records sought vs retrieved)"
+   ],
+   "why": "The pipeline that produced the original corpus did not record them, and they cannot be reconstructed after the fact without inventing numbers. The PRISMA diagram shows these boxes as NOT ESTABLISHED with the reason, which is the finding rather than a gap to be papered over.",
+   "what_would_fix_it": "Only re-running the search with the pipeline instrumented."
+  },
+  "_instrumentation_added": "2026-08-13T15:03:05Z"
  }
 }

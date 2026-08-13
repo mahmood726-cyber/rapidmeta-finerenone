@@ -56,7 +56,7 @@ def sig_no_verdict(html, text):
     # ANCHORED. Codex defeated the unanchored form with "READYISH", which matched
     # the READY prefix and passed a verdict that is not one of the three states.
     if not re.search(r"Submission readiness:\s*"
-                     r"(READY|NOT READY|NOT YET DETERMINED)(?![A-Za-z])", text):
+                     r"(READY|NOT READY|NOT YET DETERMINED)(?![-\w])", text):
         return "readiness verdict present but not one of the three computed states"
     return None
 
@@ -73,7 +73,7 @@ def sig_constant_verdict(html, text):
     # "NOT SUBMISSION-READY was the old label" -- which is legitimate text about a
     # fixed defect, not the defect returning. A guard that cannot tell a defect
     # from a description of it will be switched off by whoever writes the history.
-    if re.search(r"""class=["'][^"']*(?:badge|banner)[^"']*["'][^>]*>\s*"""
+    if re.search(r"""class=["'][^"']*(?:badge|banner)[^"']*["'][^>]*>(?:\s|<[^>]+>)*"""
                  r"NOT SUBMISSION-READY", html):
         return "hardcoded NOT SUBMISSION-READY banner is back"
     return None
@@ -87,7 +87,10 @@ def sig_empty_panel(html, text):
     whole page as hollow because of it.
     """
     bad = []
-    for m in re.finditer(r'<section class="panel" id="(pn-[a-z]+)"(.*?)</section>',
+    # Attribute order. `<section id=... class="panel">` is the same element and
+    # slipped past a pattern that assumed class came first.
+    for m in re.finditer(r'<section(?=[^>]*class="[^"]*panel)'
+                         r'(?=[^>]*id="(pn-[a-z]+)")[^>]*>(.*?)</section>',
                          html, re.S):
         pid, body = m.group(1), m.group(2)
         t = re.sub(r"<[^>]+>", " ", body)
@@ -105,6 +108,12 @@ def sig_no_projection_footer(html, text):
     footer was lost -- either way the reader has no statement of what the numbers
     are derived from.
     """
+    # A NEGATED sentence contains the phrase, so "this page is NOT projected
+    # from a single canonical object" satisfied the check that exists to
+    # confirm the opposite.
+    if re.search(r"(?:not|never|isn.t)\s+projected from a single canonical "
+                 r"object", text, re.I):
+        return "page DENIES the projection claim this footer should make"
     return (None if "projected from a single canonical object" in text
             else "projection provenance footer missing")
 
@@ -125,7 +134,7 @@ def sig_placeholder_leak(html, text):
     # leaked None renders as an ENTIRE cell, or as the whole value after a label,
     # or at the end of a URL. It is never mid-sentence.
     hits = []
-    for pat, label in ((r">\s*(?:None|undefined|NaN)\s*<", "bare None/undefined/NaN in a value slot"),
+    for pat, label in ((r">\s*(?:None|undefined|NaN)\s*[.,;:!?]?\s*<", "bare None/undefined/NaN in a value slot"),
                        (r":\s*(?:None|undefined|NaN)\s*[<\n]", "None/undefined/NaN after a label"),
                        (r"/None\b", "URL ending in /None")):
         if re.search(pat, html):
@@ -147,7 +156,10 @@ def sig_unsourced_two_human_claim(html, text):
     claim = re.search(r"check(?:ed)?\s+by\s+two\s+human|two\s+human\s+reviewers", text, re.I)
     if not claim:
         return None
-    if "Submission readiness: READY" in text:
+    # Substring, not state. "Submission readiness: READYISH" contains
+    # "Submission readiness: READY" and silenced the worst claim the page
+    # can carry. Anchored to the exact state.
+    if re.search(r"Submission readiness:\s*READY(?![-\w])", text):
         return None
     return ("page claims human duplicate checking while the computed verdict is "
             "not READY")
