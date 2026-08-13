@@ -232,9 +232,14 @@ def screening_cards(canon, p):
                        e(str(ip.get("adjudicated_utc", ""))), NL,
                        p(ip.get("note", "")), NL, NL))
     for r in (sc.get("records") or []):
+        # `.get(k, "")` returns the DEFAULT only when the key is ABSENT. These
+        # keys are PRESENT with value None, so str() rendered the literal "None"
+        # and filter(None, ...) kept it, because the STRING "None" is truthy.
+        # Five iv-iron-hf records have both identifiers null and every one
+        # printed "None" beside the trial name. Caught by the batch-1 gate.
         ident = " &middot; ".join(filter(None, [
-            e(str(r.get("nct", ""))),
-            "PMID %s" % e(str(r["pmid"])) if r.get("pmid") else ""]))
+            e(str(r.get("nct") or "")),
+            ("PMID %s" % e(str(r["pmid"]))) if r.get("pmid") else ""]))
         crit = "".join("<li>%s</li>" % p(c) for c in (r.get("criteria_failed") or []))
         decided = (p(str(r["disposition"])) if r.get("disposition")
                    else ("excluded" if r.get("criteria_failed") else "included"))
