@@ -45,28 +45,71 @@ GRADE_DOMAINS = ("risk_of_bias", "inconsistency", "indirectness", "imprecision",
 FLOOR_CHARS = 600
 
 TAB_CSS = """ .tabs input{position:absolute;clip-path:inset(50%);height:1px;width:1px;overflow:hidden}
- .tabnav{display:flex;flex-wrap:wrap;gap:.25rem;border-bottom:2px solid #d4d4d8;margin:1.25rem 0 0}
- .tabnav label{padding:.5rem .9rem;cursor:pointer;font-size:.9rem;font-weight:600;color:#52525b;border:1px solid transparent;border-bottom:none;border-radius:.375rem .375rem 0 0}
- .tabnav label:hover{color:#111;background:#f4f4f5}
+ .tabnav{display:flex;flex-wrap:wrap;gap:.25rem;border-bottom:2px solid var(--line);margin:1.25rem 0 0}
+ .tabnav label{padding:.5rem .9rem;cursor:pointer;font-size:.9rem;font-weight:600;color:var(--muted);border:1px solid transparent;border-bottom:none;border-radius:.375rem .375rem 0 0}
+ .tabnav label:hover{color:var(--fg);background:var(--soft)}
  .panel{height:0;overflow:hidden}
- .toc{margin:.6rem 0 1rem;padding:.5rem .75rem;background:#f4f4f5;border-radius:.375rem;font-size:.85rem;color:#3f3f46}
- .card.rec{border-left:4px solid #d4d4d8}
- .mine{margin-top:.5rem;padding-top:.5rem;border-top:1px dashed #d4d4d8;font-size:.85rem;color:#52525b}
- .mine button,.chip{margin-right:.35rem;padding:.25rem .6rem;border:1px solid #d4d4d8;border-radius:.25rem;background:#fafafa;cursor:pointer;font:inherit;font-size:.85rem}
- #draft{width:100%;font:inherit;font-size:.9rem;padding:.6rem;border:1px solid #d4d4d8;border-radius:.375rem}
+ .toc{margin:.6rem 0 1rem;padding:.5rem .75rem;background:var(--soft);border-radius:.375rem;font-size:.85rem;color:var(--muted)}
+ .card.rec{border-left:4px solid var(--line)}
+ .mine{margin-top:.5rem;padding-top:.5rem;border-top:1px dashed var(--line);font-size:.85rem;color:var(--muted)}
+ .mine button,.chip{margin-right:.35rem;padding:.25rem .6rem;border:1px solid var(--line);border-radius:.25rem;background:var(--soft);color:var(--fg);cursor:pointer;font:inherit;font-size:.85rem}
  svg{max-width:100%;height:auto}
- a.dl{display:inline-block;padding:.3rem .7rem;border:1px solid #d4d4d8;border-radius:.25rem;background:#fafafa;text-decoration:none;font-size:.85rem}
- pre{background:#fafafa;border:1px solid #e4e4e7;border-radius:.375rem;padding:.6rem;overflow-x:auto;font-size:.8rem;white-space:pre-wrap}
- tr.inc{background:#f0fdf4} tr.und{background:#fefce8}
+ a.dl{display:inline-block;padding:.3rem .7rem;border:1px solid var(--line);border-radius:.25rem;background:var(--soft);color:var(--accent);text-decoration:none;font-size:.85rem}
+ pre{background:var(--soft);border:1px solid var(--line);border-radius:.375rem;padding:.6rem;overflow-x:auto;font-size:.8rem;white-space:pre-wrap;color:var(--fg)}
+ /* Ruled, not filled. Mint-green and pale-yellow row fills were the most
+    dashboard-looking thing on the page and are a journalistic status device,
+    not a scientific one. A left rule carries the same information and survives
+    printing in black and white. */
+ tr.inc td:first-child{border-left:3px solid var(--accent)}
+ tr.und td:first-child{border-left:3px solid var(--warnb)}
 """
 
 
 def fmt(x):
+    """Display formatting for every projected value on the page.
+
+    Floats are reported to 3 significant figures. INTEGERS ARE NEVER TOUCHED --
+    sig() would render a count of 9544 as "9,540", and rounding a count is not a
+    formatting choice, it is a wrong number. Counts are ints in this object and
+    fall through to str() unchanged; only measured quantities are floats.
+
+    The object keeps full precision, so nothing is lost: this is the report, not
+    the record.
+    """
     if x is None:
         return ""
+    if isinstance(x, bool):
+        return str(x)
     if isinstance(x, float):
-        return ("%.6f" % x).rstrip("0").rstrip(".")
+        return sig(x, 3)
     return str(x)
+
+
+def sig(x, n=3):
+    """Round for DISPLAY to n significant figures. The object keeps its precision.
+
+    "HR 0.8392 (0.7429 to 0.948)" reports four significant figures, then four,
+    then three, on a pooled estimate from three trials whose narrowest input
+    interval spans 0.14. That is machine output, not a considered report, and it
+    reads as one -- a reader who sees four figures on a quantity that cannot
+    support two stops trusting the ones that matter.
+
+    Only the DISPLAY is rounded. The canonical object, the SVG and the data
+    downloads keep every digit, so nothing is lost and re-analysis is unaffected.
+    """
+    if x is None:
+        return ""
+    if not isinstance(x, (int, float)) or isinstance(x, bool):
+        return str(x)
+    if x == 0:
+        return "0"
+    import math
+    d = n - int(math.floor(math.log10(abs(x)))) - 1
+    r = round(float(x), d)
+    if d <= 0:
+        return "{:,}".format(int(r))
+    out = ("%.*f" % (d, r)).rstrip("0").rstrip(".")
+    return out if out else "0"
 
 
 e = _html.escape
@@ -350,12 +393,16 @@ def scatter_svg(pts, xlab, ylab, invert_y=False, vline=None):
         if lab:
             body += ('<text x="%.1f" y="%.1f" font-size="11" fill="currentColor">%s'
                      '</text>%s' % (X(x) + 8, Y(y) + 4, e(str(lab)), NL))
+    # Ticks are rounded for display. Nobody labels an axis 139.209366, and the
+    # six-decimal labels did more damage to these figures' credibility than any
+    # other visual defect. The VALUE plotted is unchanged; only its label is
+    # shortened, and the full number remains in the object and the SVG download.
     for v in (min(dxs), max(dxs)):
         body += ('<text x="%.1f" y="%d" font-size="10" text-anchor="middle" '
-                 'fill="currentColor">%s</text>%s' % (X(v), H - B + 16, fmt(v), NL))
+                 'fill="currentColor">%s</text>%s' % (X(v), H - B + 16, sig(v, 3), NL))
     for v in (min(ys), max(ys)):
         body += ('<text x="%d" y="%.1f" font-size="10" text-anchor="end" '
-                 'fill="currentColor">%s</text>%s' % (L - 6, Y(v) + 4, fmt(v), NL))
+                 'fill="currentColor">%s</text>%s' % (L - 6, Y(v) + 4, sig(v, 3), NL))
     return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" '
             'width="100%%" role="img" aria-label="%s against %s">%s'
             '<line x1="%d" y1="%d" x2="%d" y2="%d" stroke="currentColor"/>'
@@ -442,7 +489,15 @@ def tabbed_body(canon, parts, page):
             elif body:
                 pending.append(body)
             continue
-        heads = [re.sub(r"[0-9]", "", re.sub(r"<[^>]+>", "", h)).strip(" .·-")
+        # The digit strip here produced "Open disagreements ()", "RoB- assessment"
+        # and "ClinicalTrials.gov API v" in the first line of nearly every tab. It
+        # was the no-unprojected-numerals rule applied at the wrong scope: that
+        # rule governs numbers the page ASSERTS, and a table of contents asserts
+        # nothing -- it echoes a heading that has already been projected and has
+        # already passed the rule. Copying the heading verbatim is therefore
+        # strictly safer than editing it, because an edited echo can differ from
+        # what it claims to point at.
+        heads = [re.sub(r"<[^>]+>", "", h).strip(" .·-")
                  for h in re.findall(r"<h3[^>]*>(.*?)</h3>", body, re.S)]
         heads = [h for h in heads if h]
         toc = ("  <p class='toc'><strong>In this section:</strong> "

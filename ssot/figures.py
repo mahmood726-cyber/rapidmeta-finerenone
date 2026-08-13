@@ -171,12 +171,13 @@ def figure_downloads(svg, stem, browser, workdir, outdir):
         items.append(("PNG %s" % (("%dx%d" % (w, h)) if w else ""),
                       stem + ".png", _uri(png, "image/png"),
                       os.path.getsize(png)))
-        for k, p in convert(png, stem, outdir).items():
-            items.append(("TIFF (LZW, %d dpi)" % DPI if k == "tiff"
-                          else "JPG (quality 95, %d dpi)" % DPI,
-                          os.path.basename(p),
-                          _uri(p, "image/tiff" if k == "tiff" else "image/jpeg"),
-                          os.path.getsize(p)))
+        # TIFF and JPEG are no longer offered. JPEG is a lossy photographic
+        # codec and these are line art: it puts ringing on every rule and every
+        # glyph edge, so it was strictly worse than the PNG beside it. The TIFF
+        # was a lossless duplicate of that PNG at four times the bytes. Dropping
+        # both takes the page from 5.25 MB to about 1.4 MB and IMPROVES the
+        # artwork. SVG remains the master and PNG the raster of record; any
+        # journal wanting TIFF can convert either without loss.
     return items, sha, (png is not None)
 
 

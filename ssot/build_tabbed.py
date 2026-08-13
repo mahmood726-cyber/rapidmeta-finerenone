@@ -16,6 +16,25 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 import build_app_v2 as G          # noqa: E402
+
+# The base generator carries its own fmt() and it is what renders the pooled
+# result card -- which is why "HR 0.8392 (0.7429 to 0.948)" survived rounding the
+# projectors. It is patched HERE rather than in build_app_v2.py itself because
+# that module is the flat control: running it standalone must still emit the
+# pre-tab layout unchanged, or every A/B measured against it becomes meaningless.
+# The rounding therefore belongs to this build, not to the baseline.
+def _round_base_fmt():
+    import projectors as _pj
+    _orig = G.fmt
+
+    def _fmt(x):
+        if isinstance(x, float):
+            return _pj.sig(x, 3)
+        return _orig(x)
+    G.fmt = _fmt
+
+
+_round_base_fmt()
 import projectors as pj           # noqa: E402
 import projectors2 as p2
 import paper as pp
@@ -452,12 +471,15 @@ def build(canon):
                   + paper_studio(canon, first_res, p)),
     }
     body, tab_css = pj.tabbed_body(canon, parts, page)
-    return """<meta charset="utf-8">
+    return """<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>%s</title>
 <style>
  :root{--bg:#fff;--fg:#111;--line:#d4d4d8;--muted:#3f3f46;
        --warnb:#b45309;--warnbg:#fffbeb;--accent:#1d4ed8;
-       --paper:#fff;--paperfg:#111;--thbg:#f4f4f5}
+       --paper:#fff;--paperfg:#111;--thbg:#f4f4f5;--soft:#f4f4f5}
  /* LIGHT IS THE DEFAULT, unconditionally. A prefers-color-scheme block used to
     sit here, which made the page follow the reader's operating system -- so a
     reader on a dark desktop got dark without ever asking for it. Dark is now
@@ -465,10 +487,27 @@ def build(canon):
     what the page opens as. */
  body:has(#dm:checked){--bg:#0f1115;--fg:#e8e8ec;--line:#33363d;--muted:#a8adb8;
        --warnb:#d99b3c;--warnbg:#241d10;--accent:#7aa2ff;
-       --paper:#15181e;--paperfg:#e8e8ec;--thbg:#1c2029}
- body{font-family:system-ui,-apple-system,sans-serif;max-width:64rem;
-       margin:0 auto;padding:1.5rem;line-height:1.6;
-       color:var(--fg);background:var(--bg)}
+       --paper:#15181e;--paperfg:#e8e8ec;--thbg:#1c2029;--soft:#1a1e26}
+ /* Measure was ~125 characters at 64rem/16px -- about double a comfortable
+    line. Serif for prose, sans for tables and numbers: a reader can tell at a
+    glance which register they are in, and serif digits in dense tables are
+    worse than a good sans. No webfont, deliberately -- this file is opened from
+    disk by people on slow connections and 200 KB of woff2 buys nothing that a
+    system serif does not already give. */
+ body{font-family:Charter,"Bitstream Charter","Iowan Old Style",
+       "Source Serif Pro",Georgia,"Times New Roman",serif;
+       max-width:46rem;margin:0 auto;padding:1.5rem 1.25rem;
+       font-size:1.02rem;line-height:1.65;color:var(--fg);background:var(--bg);
+       text-rendering:optimizeLegibility}
+ h1,h2,h3,h4,.tabnav label,th,td,.num,code,pre,small,.toc,figcaption,
+ a.dl,.chip{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+ th,td{font-variant-numeric:tabular-nums}
+ h1{font-size:1.6rem;line-height:1.25;letter-spacing:-.01em}
+ p{margin:.7rem 0}
+ /* Wide evidence may exceed the prose measure without widening the page. */
+ .card table{display:block;overflow-x:auto;max-width:100%%}
+ @media (max-width:560px){body{padding:1rem .75rem;font-size:1rem}
+   .tabnav label{padding:.4rem .6rem;font-size:.82rem}}
  #dm{position:absolute;width:1px;height:1px;opacity:0}
  .dml{position:fixed;top:.5rem;right:.5rem;z-index:9;border:1px solid var(--line);
        border-radius:1rem;padding:.15rem .6rem;font-size:.8rem;cursor:pointer;
@@ -501,14 +540,14 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <h1>%s</h1>
 <p>%s</p>
 
-%s%s
+%s
 <p><small>Every number on this page is projected from a single canonical object,
 and each measured cell names the source analysis it was read from. That is what is
 machine-checked. It does not establish that the underlying sources are right, only
 that this page faithfully reports them.</small></p>
 """ % (p(canon["title"]), tab_css, wy.DOC_CSS.replace("%", "%%"),
        pj.verdict_card(canon, rd, p),
-       p(canon["title"]), p(canon["question"]), body, READER_JS)
+       p(canon["title"]), p(canon["question"]), body)
 
 
 if __name__ == "__main__":

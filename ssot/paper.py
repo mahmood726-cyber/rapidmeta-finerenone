@@ -27,11 +27,18 @@ class UnfilledToken(Exception):
 
 
 def _fmt(v, nd=4):
+    """Display formatting. Estimates go to 3 significant figures.
+
+    The manuscript reported HR 0.8392 (0.7429 to 0.948) -- four figures, then
+    four, then three, on one line. Consistent numeric formatting is one of the
+    things a journal editor actually reads for, and inconsistent formatting is
+    read as machine output. The object keeps full precision; this is the report.
+    """
     if v is None:
         return None
     if isinstance(v, float):
-        s = ("%.*f" % (nd, v)).rstrip("0").rstrip(".")
-        return s if s else "0"
+        import projectors as _pj
+        return _pj.sig(v, 3)
     return str(v)
 
 
