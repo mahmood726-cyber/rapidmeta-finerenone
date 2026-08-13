@@ -542,6 +542,18 @@ def build(canon):
  h1,h2,h3,h4,.tabnav label,th,td,.num,code,pre,small,.toc,figcaption,
  a.dl,.chip{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
  th,td{font-variant-numeric:tabular-nums}
+ /* A10: numeric cells right-align so digits stack by place value. Only
+    cells that are actually numeric -- left-aligning prose is correct. */
+ td.num,th.num,td:has(.num){text-align:right}
+ /* A7: a visible focus ring. The tab strip and the range control are
+    radio+label, so a keyboard reader lands on an input that is clipped to
+    1px -- without this the focus is invisible and the page is unusable by
+    keyboard. Applied to the LABEL, which is what a reader sees. */
+ .tabs input:focus-visible + label,.fwr:focus-visible + label,
+ a:focus-visible,summary:focus-visible,#dm:focus-visible + .dml{
+   outline:3px solid var(--accent);outline-offset:2px}
+ /* A15: the tab strip stays reachable in a 111,000-character panel. */
+ .tabnav{position:sticky;top:0;z-index:5;background:var(--bg)}
  h1{font-size:1.6rem;line-height:1.25;letter-spacing:-.01em}
  p{margin:.7rem 0}
  /* Wide evidence must not widen the PAGE. The previous rule put display:block

@@ -342,7 +342,7 @@ def forest_svg(res, outcome, window=None):
     if pooled.get("point"):
         cy, d = y + 4, 8
         body += ('  <polygon points="%.1f,%d %.1f,%d %.1f,%d %.1f,%d" '
-                 'fill="#b45309"/>%s'
+                 'fill="#0f766e"/>%s'
                  '  <text x="8" y="%d" font-size="15" font-weight="700" '
                  'fill="currentColor">Pooled (%s)</text>%s'
                  % (X(pooled["ci_low"]), cy, X(pooled["point"]), cy - d,
@@ -460,7 +460,7 @@ def rows_svg(rows, null_v, label_w=200):
 # --------------------------------------------------------------- small helpers
 def kv_card(title, pairs, note=""):
     """A label/value card. Emits nothing when every value is empty."""
-    rows = "".join("    <tr><th>%s</th><td>%s</td></tr>%s" % (k, v, NL)
+    rows = "".join("    <tr><th scope='col'>%s</th><td>%s</td></tr>%s" % (k, v, NL)
                    for k, v in pairs if v)
     if not rows:
         return ""

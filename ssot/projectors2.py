@@ -75,7 +75,7 @@ def registration_card(canon, p):
         for c in reg.get("commits", []))
     o = reg.get("ordering") or {}
     ord_rows = "".join(
-        "    <tr><th>%s</th><td>%s</td></tr>%s" % (k, e(str(v)), NL)
+        "    <tr><th scope='col'>%s</th><td>%s</td></tr>%s" % (k, e(str(v)), NL)
         for k, v in (("Verdict", o.get("verdict", "")),
                      ("Protocol committed", o.get("protocol_committed_utc", "")),
                      ("Strengthened", o.get("strengthened_commit_utc", "")),
@@ -89,7 +89,7 @@ def registration_card(canon, p):
               "</a>, path <code>%s</code>.</p>%s"
               % (p(reg.get("method", "")), e(reg.get("repository", "")),
                  e(reg.get("repository", "")), e(reg.get("path", "")), NL)
-            + "  <table>%s    <tr><th>Commit</th><th>Committed (UTC)</th>"
+            + "  <table>%s    <tr><th scope='col'>Commit</th><th>Committed (UTC)</th>"
               "<th>Subject and permalink</th></tr>%s%s  </table>%s" % (NL, NL, rows, NL)
             + "  <p><small>Permalinks are pinned to the commit SHA, not to a "
               "branch. A branch link moves and would prove nothing.</small></p>" + NL
@@ -117,7 +117,7 @@ def amendments_card(canon, p):
            "<strong>AFTER the search</strong>" if a.get("post_dates_first_query")
            else "before the search", NL) for a in am)
     return ("<div class='card'>%s  <h3>Protocol amendment history</h3>%s  <table>%s"
-            "    <tr><th>Commit</th><th>Committed (UTC)</th><th>Subject</th>"
+            "    <tr><th scope='col'>Commit</th><th>Committed (UTC)</th><th>Subject</th>"
             "<th>Relative to the search</th></tr>%s%s  </table>%s"
             "  <p><small>%s</small></p>%s</div>%s"
             % (NL, NL, NL, NL, rows, NL, p(pr.get("amendment_note", "")), NL, NL))
@@ -135,7 +135,7 @@ def attestation_card(canon, rd, p):
                       p(at["source_checked_against"])))
         else:
             val = "<em>Awaiting attestation</em>"
-        rows += ("    <tr><th>%s</th><td>%s</td><td><small>%s</small></td></tr>%s"
+        rows += ("    <tr><th scope='col'>%s</th><td>%s</td><td><small>%s</small></td></tr>%s"
                  % (e(a["label"]), val, p(a["what"]), NL))
     return ("<div class='card'>%s  <h3>Author attestation</h3>%s"
             "  <p>These are the surfaces a human author discharges by checking "
@@ -143,7 +143,7 @@ def attestation_card(canon, rd, p):
             "someone checked what is already here; it never alters a number and "
             "never raises a cell's source tier. A slot naming no person, no "
             "source or no date reads as absent.</p>%s  <table>%s"
-            "    <tr><th>Surface</th><th>Status</th><th>What must be checked</th>"
+            "    <tr><th scope='col'>Surface</th><th>Status</th><th>What must be checked</th>"
             "</tr>%s%s  </table>%s</div>%s"
             % (NL, NL, NL, NL, NL, rows, NL, NL))
 
@@ -156,7 +156,7 @@ def search_strings_card(canon, p):
     out = ""
     for db in s.get("databases", []):
         rows = "".join(
-            "    <tr><th>%s</th><td>%s</td></tr>%s" % (k, p(str(db[f])), NL)
+            "    <tr><th scope='col'>%s</th><td>%s</td></tr>%s" % (k, p(str(db[f])), NL)
             for k, f in (("Endpoint", "endpoint"), ("Parameters", "parameters"),
                          ("Filters applied", "filters"),
                          ("Executed (UTC)", "executed_utc"),
@@ -184,7 +184,7 @@ def corpus_card(canon, p):
     rows = sc.get("corpus") or []
     if not rows:
         return ""
-    summary = "".join("    <tr><th>%s</th><td class='num'>%s</td></tr>%s"
+    summary = "".join("    <tr><th scope='col'>%s</th><td class='num'>%s</td></tr>%s"
                       % (e(k), fmt(v), NL)
                       for k, v in sorted((sc.get("corpus_counts") or {}).items()))
     body = ""
@@ -205,7 +205,7 @@ def corpus_card(canon, p):
                     p(str(r.get("quantity_reported_instead") or "")), NL))
     return ("<div class='card'>%s  <h3>Every record the search retrieved</h3>%s"
             "  <p>%s</p>%s  <table>%s%s  </table>%s  <table>%s"
-            "    <tr><th>Source</th><th>Record</th><th>Title</th><th>Stage</th>"
+            "    <tr><th scope='col'>Source</th><th>Record</th><th>Title</th><th>Stage</th>"
             "<th>Decision</th><th>Axis failed</th><th>What it reports instead</th>"
             "</tr>%s%s  </table>%s</div>%s"
             % (NL, NL, p(sc.get("corpus_note", "")), NL, NL, summary, NL, NL, NL,
@@ -273,7 +273,7 @@ def _evidence_basis(eb, p):
     comp = "".join("      <li>%s</li>%s" % (p(str(x)), NL)
                    for x in (eb.get("composite_as_defined_by_the_trial") or []))
     rows = "".join(
-        "    <tr><th>%s</th><td>%s</td></tr>%s" % (lab, p(str(eb[k])), NL)
+        "    <tr><th scope='col'>%s</th><td>%s</td></tr>%s" % (lab, p(str(eb[k])), NL)
         for k, lab in (("level", "Evidence basis"), ("was", "Previously"),
                        ("upgraded_utc", "Upgraded (UTC)"),
                        ("what_was_read", "What was read"),
@@ -281,7 +281,7 @@ def _evidence_basis(eb, p):
                        ("analysis_reported", "Analysis the trial reports"))
         if eb.get(k))
     if eb.get("url"):
-        rows += ("    <tr><th>Source</th><td><a href='%s'>%s</a></td></tr>%s"
+        rows += ("    <tr><th scope='col'>Source</th><td><a href='%s'>%s</a></td></tr>%s"
                  % (e(eb["url"]), e(eb["url"]), NL))
     return ("  <details class='eb' open><summary><strong>%s</strong> "
             "<small>&mdash; how this decision is known</small></summary>%s"
@@ -306,7 +306,7 @@ def grade_section(res, p):
         if not d:
             continue
         basis = str(d.get("basis_in_sources", "")).strip()
-        rows += ("    <tr><th>%s</th><td>%s</td><td><small>%s</small></td></tr>%s"
+        rows += ("    <tr><th scope='col'>%s</th><td>%s</td><td><small>%s</small></td></tr>%s"
                  % (e(k.replace("_", " ").capitalize()), p(d["rating"]),
                     p(basis) if basis else "&mdash;", NL))
     start = ""
@@ -341,7 +341,7 @@ def grade_section(res, p):
                      p(rr.get("conditions_under_which_it_would_move", "")), NL, NL))
     return ("<div class='card'>%s  <h3>Certainty of the evidence (GRADE)</h3>%s"
             "  <p><strong>Certainty: %s</strong></p>%s%s%s  <table>%s"
-            "    <tr><th>Domain</th><th>Rating</th><th>Why it was rated that way"
+            "    <tr><th scope='col'>Domain</th><th>Rating</th><th>Why it was rated that way"
             "</th></tr>%s%s  </table>%s</div>%s%s"
             % (NL, NL, p(g["certainty"]), NL, start, deriv, NL, NL, rows, NL, NL,
                effect))
@@ -466,7 +466,7 @@ def rob2_card(canon, p):
     dis = ""
     if rb.get("disagreements"):
         dis = ("<div class='card warn'>%s  <h3>Open disagreements (%d)</h3>%s"
-               "  <table>%s    <tr><th>Trial</th><th>Domain</th><th>%s</th>"
+               "  <table>%s    <tr><th scope='col'>Trial</th><th>Domain</th><th>%s</th>"
                "<th>%s</th><th>Carried</th></tr>%s%s  </table>%s"
                "  <p><small>Carried at the more cautious of the two, provisionally. "
                "Adjudicator: %s. Status: %s.</small></p>%s</div>%s"
@@ -490,11 +490,11 @@ def rob2_card(canon, p):
             "  <p><small>Unit assessed: %s</small></p>%s"
             "  <p><small>Assessor 1: %s (%s family). Assessor 2: %s (%s family). "
             "%s</small></p>%s"
-            "  <table>%s    <tr><th>Trial</th><th>Domain</th><th>Assessor 1 (%s)</th>"
+            "  <table>%s    <tr><th scope='col'>Trial</th><th>Domain</th><th>Assessor 1 (%s)</th>"
             "<th>Assessor 2 (%s)</th><th>Agreed</th><th>Carried</th></tr>%s%s"
             "  </table>%s</div>%s"
             "<div class='card'>%s  <h3>Overall judgement per trial</h3>%s"
-            "  <table>%s    <tr><th>Trial</th><th>Assessor 1 (%s)</th>"
+            "  <table>%s    <tr><th scope='col'>Trial</th><th>Assessor 1 (%s)</th>"
             "<th>Assessor 2 (%s)</th><th>Agreed</th></tr>%s%s  </table>%s</div>%s"
             "<div class='card'>%s  <h3>Inter-assessor agreement, as measured</h3>%s"
             "  <p>Per-domain: <span class='num'>%s</span> of "
@@ -537,7 +537,7 @@ def discrepancies_card(canon, p):
            p(x["publication_pointer"]), NL, p(x["why_it_matters"]), NL,
            p(x.get("lesson", "")), NL) for nm, x in rows)
     return ("<div class='card warn'>%s  <h2>Where two sources disagree</h2>%s"
-            "  <table>%s    <tr><th>Trial</th><th>Quantity</th><th>Registry</th>"
+            "  <table>%s    <tr><th scope='col'>Trial</th><th>Quantity</th><th>Registry</th>"
             "<th>Publication</th><th>Status</th></tr>%s%s  </table>%s%s</div>%s"
             % (NL, NL, NL, NL, body, NL, notes, NL))
 
@@ -572,7 +572,7 @@ def outcomes_card(canon, p):
                     fmt(pl["point"]), fmt(pl["ci_low"]), fmt(pl["ci_high"]),
                     fmt(o["heterogeneity"]["i2"]), NL))
     notp = "".join(
-        "    <tr><th>%s</th><td>%s</td></tr>%s"
+        "    <tr><th scope='col'>%s</th><td>%s</td></tr>%s"
         % (p(x["quantity"]), p(x["why"]), NL)
         for x in (oc.get("considered_and_not_pooled") or []))
     cav = "".join(
@@ -580,7 +580,7 @@ def outcomes_card(canon, p):
         for o in (sp.get("outcomes") or []) if o.get("source_caveat"))
     return ("<div class='card'>%s  <h2>Which outcomes were analysed</h2>%s"
             "  <p><strong>%s</strong></p>%s  <table>%s"
-            "    <tr><th>Outcome</th><th>Measure</th><th>k</th>"
+            "    <tr><th scope='col'>Outcome</th><th>Measure</th><th>k</th>"
             "<th>Result / status</th></tr>%s%s  </table>%s"
             "  <p>%s</p>%s  <p>%s</p>%s%s"
             "  <h3>Considered and NOT pooled, with the reason</h3>%s"
