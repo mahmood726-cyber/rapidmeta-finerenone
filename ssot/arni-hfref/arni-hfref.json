@@ -1777,7 +1777,7 @@
     "k_status": {
      "k_reported": 3,
      "is_lower_bound": true,
-     "why": "ANSWER-HF remains UNDETERMINED behind a paywall; PIONEER-HF is now determinate and EXCLUDED on the measure axis. k=3 is therefore a LOWER BOUND and may become 4. The correct formulation is 'the three trials whose eligibility could be established', never 'the three trials that exist'."
+     "why": "ANSWER-HF remains UNDETERMINED behind a paywall; PIONEER-HF is determinate and EXCLUDED on the outcome axis, now read at primary source: its composite is broader than our estimand and uses all-cause death. k=3 is therefore a LOWER BOUND and may become 4. The correct formulation is 'the three trials whose eligibility could be established', never 'the three trials that exist'."
     }
    }
   }
@@ -1853,8 +1853,29 @@
      "measure"
     ],
     "quantity_it_reports": "the time-averaged proportional change in NT-proBNP over eight weeks",
-    "reason": "Right population and right comparator -- acute decompensated heart failure with reduced ejection fraction, randomised against enalapril -- and the wrong quantity over the wrong horizon. The brief noted a conflict between a rule excluding follow-up under twelve weeks and a rule keyed to the trial's own endpoint, and left both standing. It is resolved here against the frozen question and only one rule survives: the trial is excluded because it reports no time-to-first hazard ratio for cardiovascular death or heart failure hospitalization, which is section 3.2.4, the outcome axis. Follow-up length is a CONSEQUENCE of that endpoint and is not an independent criterion in this object, because a short trial that did report the composite as a hazard ratio would be eligible and a long one that did not would still not be. Two rules that disagree are one object with two descriptions, which is the failure this batch has paid for before.",
-    "checked_on": "2026-08-09"
+    "reason": "Right population and right comparator -- acute decompensated heart failure with reduced ejection fraction, randomised against enalapril -- and the wrong quantity over the wrong horizon. The brief noted a conflict between a rule excluding follow-up under twelve weeks and a rule keyed to the trial's own endpoint, and left both standing. It is resolved here against the frozen question and only one rule survives: the trial is excluded because it reports no time-to-first hazard ratio for cardiovascular death or heart failure hospitalization, which is section 3.2.4, the outcome axis. Follow-up length is a CONSEQUENCE of that endpoint and is not an independent criterion in this object, because a short trial that did report the composite as a hazard ratio would be eligible and a long one that did not would still not be. Two rules that disagree are one object with two descriptions, which is the failure this batch has paid for before. [Upgraded 2026-08-13: this exclusion is now read at primary source rather than inferred. The trial methods define the composite as death, rehospitalisation for heart failure, LVAD implantation, transplant listing, an unplanned acute heart failure visit, a diuretic dose increase over 50%, or an added heart failure drug, with Cox hazard ratios computed for that set. That is a broader composite than our estimand and includes all-cause rather than cardiovascular death.]",
+    "checked_on": "2026-08-09",
+    "evidence_basis": {
+     "level": "PRIMARY SOURCE READ",
+     "was": "third-party convergent inference",
+     "upgraded_utc": "2026-08-13T08:25:07Z",
+     "what_was_read": "the trial methods, endpoint definition, and analysis section of the primary publication",
+     "citation": "Velazquez EJ, Morrow DA, DeVore AD, et al. Angiotensin-neprilysin inhibition in acute decompensated heart failure. N Engl J Med 2019;380(6):539-548.",
+     "pmid": "30415601",
+     "url": "https://pubmed.ncbi.nlm.nih.gov/30415601/",
+     "composite_as_defined_by_the_trial": [
+      "death",
+      "rehospitalisation for heart failure",
+      "implantation of a left ventricular assist device",
+      "listing for cardiac transplantation",
+      "unplanned outpatient visit for acute heart failure",
+      "an increase in diuretic dose of more than 50%",
+      "the addition of a further heart failure drug"
+     ],
+     "analysis_reported": "Cox proportional-hazards ratios computed for that composite",
+     "why_this_is_not_our_estimand": "Our frozen estimand is the time to a FIRST event of cardiovascular death or hospitalisation for heart failure. The trial computes a hazard ratio, so the MEASURE matches, but the composite it is computed over is a different and substantially broader event set: it counts all-cause death rather than cardiovascular death, and it adds four events that are not hospitalisations at all -- an LVAD, a transplant listing, an unplanned outpatient visit, and two purely pharmacological events, a diuretic increase over 50% and the addition of another heart failure drug. A hazard ratio over that set is not an estimate of our quantity and pooling it would silently redefine the outcome.",
+     "what_changed": "The exclusion decision is unchanged. What changed is its BASIS: it previously rested on agreement between third-party sources about what the trial reported, and it now rests on the endpoint definition read in the trial methods. A decision that is right for a reason nobody checked is not the same as one that is right for a reason someone read."
+    }
    },
    {
     "trial": "EVALUATE-HF",

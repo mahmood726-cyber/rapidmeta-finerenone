@@ -254,8 +254,46 @@ def screening_cards(canon, p):
                 + ("  <p><small><a href='%s'>%s: %s</a></small></p>%s"
                    % (e(r["source_url"]), e(str(r.get("source_tier", "source"))),
                       e(r["source_url"]), NL) if r.get("source_url") else "")
+                + _evidence_basis(r.get("evidence_basis"), p)
                 + "</div>" + NL)
     return out
+
+
+def _evidence_basis(eb, p):
+    """How a screening decision is KNOWN, not merely what it was.
+
+    An exclusion that is right because third-party sources agreed and one that is
+    right because someone read the trial's own endpoint definition are the same
+    decision resting on different things, and only one of them is checkable.
+    Projecting the difference lets a reader see which rows have been read and
+    which are still inferred, and makes an upgrade legible as an upgrade.
+    """
+    if not eb:
+        return ""
+    comp = "".join("      <li>%s</li>%s" % (p(str(x)), NL)
+                   for x in (eb.get("composite_as_defined_by_the_trial") or []))
+    rows = "".join(
+        "    <tr><th>%s</th><td>%s</td></tr>%s" % (lab, p(str(eb[k])), NL)
+        for k, lab in (("level", "Evidence basis"), ("was", "Previously"),
+                       ("upgraded_utc", "Upgraded (UTC)"),
+                       ("what_was_read", "What was read"),
+                       ("citation", "Citation"),
+                       ("analysis_reported", "Analysis the trial reports"))
+        if eb.get(k))
+    if eb.get("url"):
+        rows += ("    <tr><th>Source</th><td><a href='%s'>%s</a></td></tr>%s"
+                 % (e(eb["url"]), e(eb["url"]), NL))
+    return ("  <details class='eb' open><summary><strong>%s</strong> "
+            "<small>&mdash; how this decision is known</small></summary>%s"
+            "  <table>%s%s  </table>%s"
+            % (p(str(eb.get("level", "evidence basis"))), NL, NL, rows, NL)
+            + ("  <p><small>The composite as the trial itself defines it:</small>"
+               "</p>%s  <ul>%s%s  </ul>%s" % (NL, NL, comp, NL) if comp else "")
+            + ("  <p>%s</p>%s" % (p(eb["why_this_is_not_our_estimand"]), NL)
+               if eb.get("why_this_is_not_our_estimand") else "")
+            + ("  <p><small>%s</small></p>%s" % (p(eb["what_changed"]), NL)
+               if eb.get("what_changed") else "")
+            + "  </details>" + NL)
 
 
 def grade_section(res, p):
