@@ -404,6 +404,39 @@ def _downloads_html():
             % (NL, NL, rows, NL))
 
 
+def _caption_tables(html):
+    """Give every table a <caption>, taken from the heading it sits under.
+
+    "Numbered, captioned figures and tables" is one of the things an editor reads
+    for, and 0 of 31 tables carried a caption. The text is NOT invented: it is the
+    nearest preceding heading in the same card, which is the label the table was
+    already filed under -- so the caption cannot describe something the page does
+    not say. Tables that already have one are left alone.
+    """
+    import re as _re
+    out, pos, n = [], 0, [0]
+
+    def head_before(i):
+        h = None
+        for m in _re.finditer(r"<h[234][^>]*>(.*?)</h[234]>", html[:i], _re.S):
+            h = m.group(1)
+        return _re.sub(r"<[^>]+>", "", h).strip() if h else None
+
+    for m in _re.finditer(r"<table(?![^>]*caption)[^>]*>", html):
+        seg = html[m.end():m.end() + 200]
+        if "<caption" in seg:
+            continue
+        t = head_before(m.start())
+        if not t:
+            continue
+        n[0] += 1
+        out.append((m.end(), "%s    <caption>Table %d. %s</caption>%s"
+                    % (NL, n[0], e(t), NL)))
+    for at, ins in reversed(out):
+        html = html[:at] + ins + html[at:]
+    return html
+
+
 def build(canon):
     e_ = html.escape
 
@@ -471,6 +504,7 @@ def build(canon):
                   + paper_studio(canon, first_res, p)),
     }
     body, tab_css = pj.tabbed_body(canon, parts, page)
+    body = _caption_tables(body)
     return """<!doctype html>
 <html lang="en">
 <meta charset="utf-8">

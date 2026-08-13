@@ -313,21 +313,31 @@ def forest_svg(res, outcome, window=None):
         a, b = tx(lo), tx(hi)
         pad = (b - a) * 0.08 or 1.0
         a, b = a - pad, b + pad
-    W, L, R = 720, 250, 40
+    W, L, R = 900, 250, 220
     X = lambda v: L + (tx(v) - a) / (b - a) * (W - L - R)
     ws = [1.0 / (r["log_se"] ** 2) if r.get("log_se") else 1.0 for r in rows]
     wmax = max(ws) or 1.0
     body, y, H, top = "", 26, 34, 26
     for r, w in zip(rows, ws):
         side = 5 + 9 * (w / wmax) ** 0.5
+        # ROW VALUE LABELS. The last of the three things these figures were
+        # missing. A forest plot whose numbers live only in a table beside it
+        # makes the reader hold two objects at once; direct labelling is the
+        # whole point of the form. The values are the SAME projected estimates
+        # the table prints and are identical in every axis-range variant, so the
+        # invariance check still holds -- only the mapping moves, never a label.
         body += ('  <line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="currentColor" '
                  'stroke-width="1.5"/>%s'
                  '  <rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" '
                  'fill="#1d4ed8"/>%s'
                  '  <text x="8" y="%d" font-size="15" fill="currentColor">%s</text>%s'
+                 '  <text x="%d" y="%d" font-size="14" text-anchor="end" '
+                 'fill="currentColor">%s (%s to %s)</text>%s'
                  % (X(r["ci_low"]), y, X(r["ci_high"]), y, NL,
                     X(r["point"]) - side / 2, y - side / 2, side, side, NL,
-                    y + 4, e(str(r.get("trial_id", ""))), NL))
+                    y + 4, e(str(r.get("trial_id", ""))), NL,
+                    W - 4, y + 4, sig(r["point"], 3), sig(r["ci_low"], 3),
+                    sig(r["ci_high"], 3), NL))
         y += H
     if pooled.get("point"):
         cy, d = y + 4, 8
