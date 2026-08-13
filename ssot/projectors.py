@@ -284,13 +284,103 @@ def fig(svg, title, fname, note):
             "</p>%s</div>%s" % (NL, title, NL, svg, NL, dl, note, NL, NL))
 
 
+def nice_log_ticks(lo, hi, null_v, limit=7):
+    """Round tick values spanning [lo, hi] on a log axis, always including null.
+
+    The ticks used to be exactly {null, min(data), max(data)}, which put labels
+    like 0.000546, 0.0862 and 4.89 on the axis: three arbitrary numbers that told
+    a reader nothing about the scale and changed whenever a trial entered. A
+    reader uses an axis to locate a value, and cannot do that against extrema.
+
+    These are 1-2-5-per-decade round numbers, which is scale furniture and not a
+    claim -- it asserts nothing the data does not, it only says where the scale
+    is. The null value is always kept because it is the line the whole plot is
+    read against.
+
+    Derived from the DATA range, never from a display window, so the invariance
+    check that tick labels are identical across axis-range variants still holds:
+    only the mapping moves.
+    """
+    if lo <= 0 or hi <= 0:
+        return sorted({null_v})
+    def _mk(mants):
+        s, dec = set(), int(math.floor(math.log10(lo)))
+        while dec <= int(math.floor(math.log10(hi))) + 1:
+            for m in mants:
+                v = m * (10.0 ** dec)
+                if lo <= v <= hi:
+                    # Snap: 0.7*10**0 is 0.7000000000000001 in binary floating
+                    # point, and that renders on the axis exactly as written.
+                    s.add(round(v, 10))
+            dec += 1
+        return s
+
+    # 1-1.5-2-3-5-7 rather than 1-2-5: a hazard-ratio axis usually spans well
+    # under two decades, where 1-2-5 leaves only two labels on the whole scale.
+    # Ticks stay inside the DATA range, so they are always on canvas whichever
+    # display window is in force.
+    out = _mk((1, 1.5, 2, 3, 5, 7))
+    if len(out) < 3:
+        # A narrow span (e.g. a leave-one-out panel running 0.74 to 0.95) hits no
+        # round number at all, which put us back at a single tick -- the very
+        # defect this function exists to remove. Step down a decade for mantissas
+        # before giving up.
+        out |= _mk([m / 10.0 for m in (1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9)])
+    out.add(null_v)
+    # Too many ticks is its own unreadability. Thin the non-null ones evenly and
+    # keep the null, rather than truncating one end of the axis.
+    if len(out) > limit:
+        rest = sorted(v for v in out if v != null_v)
+        step = max(1, round(len(rest) / float(limit - 1)))
+        out = {null_v} | set(rest[::step])
+    return sorted(out)
+
+
+def nice_lin_ticks(lo, hi, limit=5):
+    """Round tick values across a LINEAR range, on the 1-2-5 sequence.
+
+    Same reasoning as nice_log_ticks, for the scatter panels: their axes were
+    labelled with min(data) and max(data), which is where 0.000546, 0.0862 and
+    4.89 came from. Those tell a reader nothing about the scale and move every
+    time a trial enters.
+
+    Ticks are clamped INSIDE the data range and never take the padded axis ends,
+    which is the defect the original docstring here recorded: a padded extreme is
+    a number no source contains. A round number inside the plotted range is scale
+    furniture -- it asserts nothing about the data, it says where the scale is.
+    """
+    if hi <= lo or not all(map(math.isfinite, (lo, hi))):
+        return [lo]
+    raw = (hi - lo) / float(max(1, limit))
+    mag = 10.0 ** math.floor(math.log10(raw)) if raw > 0 else 1.0
+    for m in (1, 2, 2.5, 5, 10):
+        if raw <= m * mag:
+            step = m * mag
+            break
+    else:
+        step = 10 * mag
+    out, v = [], math.ceil(lo / step) * step
+    while v <= hi + step * 1e-9 and len(out) < limit + 2:
+        # -0.0 and float dust like 0.30000000000000004 both read as noise on an
+        # axis; snap to the step's own precision.
+        out.append(round(v, max(0, -int(math.floor(math.log10(step))) + 2)) + 0.0)
+        v += step
+    return out or [lo, hi]
+
+
+def axis_title_svg(text, x, y):
+    """One axis title. An axis of bare numerals does not say what it measures."""
+    return ('  <text x="%.1f" y="%d" font-size="13" text-anchor="middle" '
+            'fill="currentColor" opacity=".85">%s</text>%s' % (x, y, e(text), NL))
+
+
 def forest_svg(res, outcome, window=None):
     """A forest plot drawn from the stored per-trial and pooled estimates.
 
-    THE PLOT CARRIES NO TEXT NUMBERS except the axis ticks, and the ticks are the
-    null value and the extremes of the data already rendered in the table beside
-    it. Placing a number on a scale is a rendering transform; it originates
-    nothing."""
+    THE PLOT CARRIES NO TEXT NUMBERS except the row value labels, which are the
+    same projected estimates the table beside it prints, and the axis ticks,
+    which are round scale marks plus the null value. Placing a number on a scale
+    is a rendering transform; it originates nothing."""
     rows = [r for r in (res.get("per_trial") or [])
             if r.get("point") and r.get("ci_low") and r.get("ci_high")]
     if not rows:
@@ -351,13 +441,22 @@ def forest_svg(res, outcome, window=None):
         y += H
     height = y + 34
     ticks = ""
-    for v in sorted({null_v, lo, hi}):
+    for v in nice_log_ticks(lo, hi, null_v) if log else sorted({null_v, lo, hi}):
         ticks += ('  <line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="currentColor" stroke-opacity=".45" '
                   'stroke-dasharray="%s"/>%s'
                   '  <text x="%.1f" y="%d" font-size="14" text-anchor="middle" '
                   'fill="currentColor">%s</text>%s'
                   % (X(v), top - 18, X(v), y - 14,
                      "0" if v == null_v else "3 3", NL, X(v), y + 4, fmt(v), NL))
+    # The measure comes from the object; no topic word is hardcoded here, because
+    # this projector renders every review in the corpus and a drug name spliced
+    # into it would be wrong on all but one of them.
+    _meas = str((res.get("pooled") or {}).get("measure") or "Effect")
+    ticks += axis_title_svg(
+        "%s%s. %s = no difference." % (_meas, " (log scale)" if log else "",
+                                       fmt(null_v)),
+        L + (W - L - R) / 2.0, y + 26)
+    height += 22
     svg = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" '
            'width="100%%" role="img" aria-label="Forest plot of the stored '
            'per-trial and pooled estimates">%s%s%s</svg>'
@@ -407,12 +506,19 @@ def scatter_svg(pts, xlab, ylab, invert_y=False, vline=None):
     # six-decimal labels did more damage to these figures' credibility than any
     # other visual defect. The VALUE plotted is unchanged; only its label is
     # shortened, and the full number remains in the object and the SVG download.
-    for v in (min(dxs), max(dxs)):
-        body += ('<text x="%.1f" y="%d" font-size="14" text-anchor="middle" '
-                 'fill="currentColor">%s</text>%s' % (X(v), H - B + 16, sig(v, 3), NL))
-    for v in (min(ys), max(ys)):
-        body += ('<text x="%d" y="%.1f" font-size="14" text-anchor="end" '
-                 'fill="currentColor">%s</text>%s' % (L - 6, Y(v) + 4, sig(v, 3), NL))
+    for v in nice_lin_ticks(min(dxs), max(dxs)):
+        body += ('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="currentColor" '
+                 'stroke-opacity=".25"/>%s'
+                 '<text x="%.1f" y="%d" font-size="14" text-anchor="middle" '
+                 'fill="currentColor">%s</text>%s'
+                 % (X(v), H - B, X(v), H - B + 4, NL,
+                    X(v), H - B + 16, fmt(v), NL))
+    for v in nice_lin_ticks(min(ys), max(ys)):
+        body += ('<line x1="%d" y1="%.1f" x2="%d" y2="%.1f" stroke="currentColor" '
+                 'stroke-opacity=".25"/>%s'
+                 '<text x="%d" y="%.1f" font-size="14" text-anchor="end" '
+                 'fill="currentColor">%s</text>%s'
+                 % (L - 4, Y(v), L, Y(v), NL, L - 6, Y(v) + 4, fmt(v), NL))
     return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" '
             'width="100%%" role="img" aria-label="%s against %s">%s'
             '<line x1="%d" y1="%d" x2="%d" y2="%d" stroke="currentColor"/>'
@@ -426,11 +532,21 @@ def scatter_svg(pts, xlab, ylab, invert_y=False, vline=None):
                (T + H - B) // 2, (T + H - B) // 2, e(ylab), NL))
 
 
-def rows_svg(rows, null_v, label_w=200):
-    """Point-and-interval rows on a log axis (leave-one-out, cumulative)."""
+def rows_svg(rows, null_v, label_w=200, measure="", axis_note=""):
+    """Point-and-interval rows on a log axis (leave-one-out, cumulative).
+
+    These panels carried ONE tick -- the null -- no axis title, and no value on
+    any row. That is a picture of a result rather than a report of one: a reader
+    could see that an interval crossed the null but could not read what any
+    estimate WAS without leaving the figure. Now they carry round ticks, a title
+    naming the measure, and each row's own estimate, which are the same projected
+    values the surrounding table prints.
+    """
     if not rows:
         return ""
-    W, R, T, H = 700, 30, 22, 32
+    # R widened from 30 to leave room for the row value labels; without this they
+    # would be clipped at the right edge, which is the defect one panel over.
+    W, R, T, H = 700, 172, 22, 32
     lo = min(min(r["ci_low"] for r in rows), null_v)
     hi = max(max(r["ci_high"] for r in rows), null_v)
     if lo <= 0:
@@ -444,17 +560,27 @@ def rows_svg(rows, null_v, label_w=200):
         body += ('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="currentColor"/>%s'
                  '<rect x="%.1f" y="%d" width="8" height="8" fill="#1d4ed8"/>%s'
                  '<text x="6" y="%d" font-size="14" fill="currentColor">%s</text>%s'
+                 '<text x="%d" y="%d" font-size="13" text-anchor="end" '
+                 'fill="currentColor">%s (%s to %s)</text>%s'
                  % (X(r["ci_low"]), y, X(r["ci_high"]), y, NL,
-                    X(r["point"]) - 4, y - 4, NL, y + 4, e(str(r["label"])), NL))
+                    X(r["point"]) - 4, y - 4, NL, y + 4, e(str(r["label"])), NL,
+                    W - 6, y + 4, sig(r["point"], 3), sig(r["ci_low"], 3),
+                    sig(r["ci_high"], 3), NL))
         y += H
-    body += ('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="currentColor" stroke-opacity=".4"/>%s'
-             '<text x="%.1f" y="%d" font-size="14" text-anchor="middle" '
-             'fill="currentColor">%s</text>%s'
-             % (X(null_v), T - 14, X(null_v), y - 16, NL, X(null_v), y + 2,
-                fmt(null_v), NL))
+    for v in nice_log_ticks(lo, hi, null_v):
+        body += ('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="currentColor" '
+                 'stroke-opacity=".4" stroke-dasharray="%s"/>%s'
+                 '<text x="%.1f" y="%d" font-size="14" text-anchor="middle" '
+                 'fill="currentColor">%s</text>%s'
+                 % (X(v), T - 14, X(v), y - 16, "0" if v == null_v else "3 3", NL,
+                    X(v), y + 2, fmt(v), NL))
+    _t = "%s (log scale). %s = no difference.%s" % (
+        str(measure or "Effect"), fmt(null_v),
+        (" " + str(axis_note)) if axis_note else "")
+    body += axis_title_svg(_t, label_w + (W - label_w - R) / 2.0, y + 22)
     return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" '
             'width="100%%" role="img" aria-label="point and interval rows">%s%s'
-            '</svg>' % (W, y + 14, NL, body))
+            '</svg>' % (W, y + 34, NL, body))
 
 
 # --------------------------------------------------------------- small helpers
@@ -524,7 +650,17 @@ def tabbed_body(canon, parts, page):
         css += (" #rt-%s:checked ~ .panels > #pn-%s{height:auto;overflow:visible}%s"
                 ' #rt-%s:checked ~ .tabnav label[for="rt-%s"]{color:#111;'
                 "background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}%s"
-                % (tid, tid, NL, tid, tid, NL))
+                # THE FOCUS RING FOR THE TAB STRIP. The stylesheet already carried
+                # `.tabs input:focus-visible + label`, which matches nothing: every
+                # radio is emitted first and the labels live inside a later <nav>,
+                # so a label is never the input's ADJACENT sibling. The rule was
+                # present, so a reviewer counting focus rules found one, and it had
+                # never once rendered -- the tab strip is reached by keyboard and
+                # showed no focus at all. `~` with the same label[for] shape used
+                # for :checked two lines up is what actually matches this markup.
+                ' #rt-%s:focus-visible ~ .tabnav label[for="rt-%s"]{'
+                "outline:3px solid var(--accent);outline-offset:2px}%s"
+                % (tid, tid, NL, tid, tid, NL, tid, tid, NL))
     missing = ([t for t in REQUIRED_TABS if t in {x[0] for x in skipped}]
                if canon.get("requires_full_surface") else [])
     if missing:

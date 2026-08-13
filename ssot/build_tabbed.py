@@ -372,8 +372,26 @@ def output_card(canon, p):
             % (NL, NL, NL, NL, sof, NL, NL)) + repro
 
 
-_SCRATCH = r"F:\claude-temp\claude\F--rapidmeta-finerenone\e7f51608-d242-495a-8fdb-f99c306556e9\scratchpad"
+# WHERE THE DOCUMENT MODEL AND THE .docx COME FROM.
+# This was a bare absolute path into ONE interactive session's scratch directory.
+# That session has since ended. The path still resolves today, so nothing failed
+# and nothing warned -- but the flagship page's document view and both of its
+# Word downloads were reading out of a temp folder nobody owns, which is one
+# cleanup away from silently emitting a page with no manuscript and no downloads
+# (render() returns "" when the model is absent, and the download rows degrade to
+# "not built at page-build time"). Both failures are quiet.
+# Overridable now, with the old location kept as the fallback so the current
+# build is unchanged; set ARNI_DOC_DIR to move it somewhere owned.
+_SCRATCH = os.environ.get(
+    "ARNI_DOC_DIR",
+    r"F:\claude-temp\claude\F--rapidmeta-finerenone"
+    r"\e7f51608-d242-495a-8fdb-f99c306556e9\scratchpad")
 _DOCMODEL = os.path.join(_SCRATCH, "manuscript_docmodel.json")
+if not os.path.isdir(_SCRATCH):
+    # Loud, not silent: a missing directory here costs the reader the entire
+    # manuscript, and that is not something to discover from a short page.
+    sys.stderr.write("WARNING: ARNI_DOC_DIR %r does not exist -- the document "
+                     "view and the .docx downloads will be omitted.\n" % _SCRATCH)
 
 
 def _downloads_html():
@@ -543,8 +561,16 @@ def build(canon):
        max-width:46rem;margin:0 auto;padding:1.5rem 1.25rem;
        font-size:1.02rem;line-height:1.65;color:var(--fg);background:var(--bg);
        text-rendering:optimizeLegibility}
- h1,h2,h3,h4,.tabnav label,th,td,.num,code,pre,small,.toc,figcaption,
- a.dl,.chip{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+ /* DOCUMENT vs INTERFACE. All of this was system-ui while only body copy got the
+    serif, so a heading and the table under it read as a different document from
+    the paragraph between them. The split is now by ROLE, not by element: what a
+    reader would read in the printed paper is set in the text face, and what
+    belongs to the software around it stays sans. Numerals, code and the download
+    chips stay sans deliberately -- tabular digits and identifiers are read glyph
+    by glyph, which is the one job the sans face does better here. */
+ .tabnav label,.num,code,pre,small,a.dl,.chip{
+   font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+ h1,h2,h3,h4,th,td,.toc,figcaption{font-family:inherit}
  th,td{font-variant-numeric:tabular-nums}
  /* A10: numeric cells right-align so digits stack by place value. Only
     cells that are actually numeric -- left-aligning prose is correct. */
@@ -555,6 +581,16 @@ def build(canon):
     keyboard. Applied to the LABEL, which is what a reader sees. */
  .tabs input:focus-visible + label,.fwr:focus-visible + label,
  a:focus-visible,summary:focus-visible,#dm:focus-visible + .dml{
+   outline:3px solid var(--accent);outline-offset:2px}
+ /* Backstop. The rule above names the controls this page has TODAY; anything
+    focusable added later would ship with no indicator and nobody would notice,
+    because a missing focus ring is invisible to everyone not using a keyboard.
+    :focus-visible only fires for keyboard interaction, so this costs mouse
+    users nothing. The tab strip's own ring is emitted per-tab in projectors.py
+    -- its labels are not adjacent siblings of their radios, so the selector
+    above cannot reach them. */
+ button:focus-visible,input:focus-visible,select:focus-visible,
+ textarea:focus-visible,[tabindex]:focus-visible,label:focus-visible{
    outline:3px solid var(--accent);outline-offset:2px}
  /* A15: the tab strip stays reachable in a 111,000-character panel. */
  .tabnav{position:sticky;top:0;z-index:5;background:var(--bg)}

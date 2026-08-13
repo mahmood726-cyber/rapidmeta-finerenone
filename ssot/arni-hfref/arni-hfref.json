@@ -553,7 +553,9 @@
        "control_n": 460,
        "source_tier": "T1",
        "source_pointer": "JAMA Table 2, 'Death from cardiovascular causes'; the abstract states the same 110 vs 117 independently.",
-       "read_or_derived": "read"
+       "read_or_derived": "read",
+       "published_effect": null,
+       "no_published_effect_because": "Table 2 reports this endpoint as a tier of the primary hierarchical win ratio, with win percentages rather than a hazard ratio. No HR is published for it, so none is shown and none is derived. Recorded so the empty cell reads as the source's silence rather than as an extraction miss."
       },
       {
        "endpoint": "First heart-failure hospitalisation",
@@ -563,7 +565,9 @@
        "control_n": 460,
        "source_tier": "T1",
        "source_pointer": "JAMA Table 2, 'First hospitalization due to HF'; abstract concurs.",
-       "read_or_derived": "read"
+       "read_or_derived": "read",
+       "published_effect": null,
+       "no_published_effect_because": "Table 2 reports this endpoint as a tier of the primary hierarchical win ratio, with win percentages rather than a hazard ratio. No HR is published for it, so none is shown and none is derived. Recorded so the empty cell reads as the source's silence rather than as an extraction miss."
       },
       {
        "endpoint": "All-cause death",
@@ -573,7 +577,21 @@
        "control_n": 460,
        "source_tier": "T1+T2",
        "source_pointer": "JAMA Table 2 'Death from any cause' 129 vs 134; the registry's post-hoc 'All Collected Deaths' outcome posts an integer 129 / 134, matching.",
-       "read_or_derived": "read"
+       "read_or_derived": "read",
+       "published_effect": {
+        "measure": "HR",
+        "point": 0.98,
+        "ci_low": 0.77,
+        "ci_high": 1.25,
+        "ci_level": 95,
+        "p_value": 0.88,
+        "source_tier": "T1",
+        "source_pointer": "JAMA Table 2, 'Death from any cause': HR 0.98 (0.77 to 1.25), P=.88. The main text states the same interval in prose -- 'died from any cause (HR, 0.98 [95% CI, 0.77-1.25])' -- so the value is carried twice in one open document.",
+        "access": "OPEN. The JAMA main text and Table 2 are staged in this bundle as OA_PARACHUTE_JAMA2026.txt and were read directly. An earlier note in this object treated this quantity as unavailable behind a paywall; that was wrong and is corrected here. What IS paywalled is the pair of Chagas systematic reviews, which is a different document set entirely.",
+        "read_or_derived": "read",
+        "pooled_here": false,
+        "why_not_pooled": "This review's estimand is the composite hazard ratio. All-cause death is shown because it is reported, not because it enters the primary pool."
+       }
       }
      ]
     },
@@ -12695,7 +12713,7 @@
     "tree_permalink": "https://github.com/mahmood726-cyber/rapidmeta-finerenone/blob/6272db4f0ee9ec88018ed33db0ee9a1f0997be9d/ssot/arni-hfref/arni-hfref.json"
    }
   ],
-  "amendment_count": 1,
+  "amendment_count": 3,
   "what_the_commit_evidence_establishes": "That the text of this object existed, in this public repository, at the committer timestamp shown, and has not been altered since without producing a new commit. The permalink is pinned to the commit SHA rather than to a branch, so it resolves to that exact state forever; a branch link would move and would prove nothing. Anyone can verify the timestamp and the content independently of this page and independently of its authors.",
   "what_the_commit_evidence_does_not_establish": "It does not establish prospectiveness. A commit proves when text entered THIS repository; it cannot prove that no earlier or parallel version existed elsewhere, that the data had not already been seen when the text was written, or that the analysis plan was fixed before the results were known. It also says nothing about the independence of the people who wrote it. Those are claims about conduct, and a timestamp cannot carry them.",
   "ordering": {
@@ -12726,12 +12744,13 @@
     "post_dates_first_query": false
    },
    {
-    "sha": null,
-    "committed_utc": "2026-08-13T15:02:38Z",
+    "sha": "f89e9872418bbbd95cbeaf67814d1dbd56371bf2",
+    "committed_utc": "2026-08-13T15:03:28Z",
     "subject": "AMENDMENT: post-hoc aetiology-split sensitivity analysis added",
-    "permalink": null,
+    "permalink": "https://github.com/mahmood726-cyber/rapidmeta-finerenone/commit/f89e9872418bbbd95cbeaf67814d1dbd56371bf2",
     "post_dates_first_query": true,
-    "note": "Post-dates the search, like every amendment in this review. Recorded as an amendment precisely so that a reader can see it was not planned."
+    "note": "Post-dates the search, like every amendment in this review. Recorded as an amendment precisely so that a reader can see it was not planned.",
+    "sha_backfilled": "Recorded in the same commit that enacted it, which cannot contain its own sha. Backfilled afterwards from the git log of that commit."
    }
   ],
   "amendment_note": "The full commit history is projected, not only its head. A log that displays only its current state is no better than a mutable document, and the point of registering by commit is that every earlier state stays readable. Each entry records whether it post-dates the first executed query, because an amendment made after the search is a different act from one made before it and must not be presented as the same."
@@ -14432,7 +14451,7 @@
   },
   "24c_amendments": {
    "status": "ESTABLISHED",
-   "value": "Every amendment is a commit, each marked before or after the first search. Three amendments recorded, all post-dating the search."
+   "value": "Three protocol commits are recorded, each one marked before or after the first executed query: 2 before the search and 1 after. The one that post-dates the search adds a post-hoc aetiology-split sensitivity analysis and is labelled post-hoc wherever it appears."
   },
   "25_support": {
    "status": "ESTABLISHED AS ABSENT",

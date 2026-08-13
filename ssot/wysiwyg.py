@@ -120,10 +120,14 @@ DOC_CSS = """
  .doc p{margin:.55rem 0;text-align:justify}
  .doc ul{margin:.4rem 0 .4rem 1.1rem}
  .doc figure{margin:1.2rem 0}
- .doc figcaption{font-size:.86rem;margin:.4rem 0;font-family:system-ui,sans-serif}
+ /* Captions and table text follow the document face, not the interface face.
+    This view claims to BE the Word file rendered differently; a serif paragraph
+    above a sans table breaks that claim on sight, and the .docx sets both in the
+    text face. Numerals stay tabular so columns still line up by place value. */
+ .doc figcaption{font-size:.86rem;margin:.4rem 0}
  .doc .doc-f img{width:100%;height:auto;display:block;border:1px solid var(--line)}
  .doc table{border-collapse:collapse;width:100%;font-size:.82rem;
-      font-family:system-ui,sans-serif}
+      font-variant-numeric:tabular-nums}
  .doc th,.doc td{border:1px solid var(--line);padding:.32rem .45rem;
       text-align:left;vertical-align:top}
  .doc th{background:var(--thbg);font-weight:600}

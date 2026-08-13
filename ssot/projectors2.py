@@ -109,13 +109,33 @@ def amendments_card(canon, p):
     am = pr.get("amendment_history") or []
     if not am:
         return ""
-    rows = "".join(
-        "    <tr><td><code>%s</code></td><td class='num'>%s</td><td>%s<br>"
-        "<small><a href='%s'>%s</a></small></td><td>%s</td></tr>%s"
-        % (e(a["sha"][:12]), e(a["committed_utc"]), p(a["subject"]),
-           e(a["permalink"]), e(a["permalink"]),
-           "<strong>AFTER the search</strong>" if a.get("post_dates_first_query")
-           else "before the search", NL) for a in am)
+    # An amendment recorded in the SAME commit that enacts it cannot carry that
+    # commit's own sha -- the sha does not exist until the write is finished.
+    # That is a real transient state, not corruption, so it renders as the
+    # uncommitted state it is instead of crashing the build (which is what
+    # a["sha"][:12] did on a null). It is NOT silently blanked: a reader is told
+    # the entry has no commit behind it yet, because an amendment presented in a
+    # commit-evidence table with an empty Commit cell would read as committed.
+    def _row(a):
+        sha, link = a.get("sha"), a.get("permalink")
+        if sha:
+            commit = "<code>%s</code>" % e(str(sha)[:12])
+            where = ("<small><a href='%s'>%s</a></small>"
+                     % (e(link), e(link))) if link else \
+                    "<small>No permalink recorded.</small>"
+        else:
+            commit = "<em>not yet committed</em>"
+            where = ("<small>Recorded in the object; no commit stands behind this "
+                     "entry yet, so it carries none of the timestamp evidence the "
+                     "rows above do.</small>")
+        return ("    <tr><td>%s</td><td class='num'>%s</td><td>%s<br>%s</td>"
+                "<td>%s</td></tr>%s"
+                % (commit, e(a.get("committed_utc") or "--"), p(a.get("subject", "")),
+                   where,
+                   "<strong>AFTER the search</strong>" if a.get("post_dates_first_query")
+                   else "before the search", NL))
+
+    rows = "".join(_row(a) for a in am)
     return ("<div class='card'>%s  <h3>Protocol amendment history</h3>%s  <table>%s"
             "    <tr><th scope='col'>Commit</th><th>Committed (UTC)</th><th>Subject</th>"
             "<th>Relative to the search</th></tr>%s%s  </table>%s"
@@ -358,6 +378,9 @@ def analysis_figures(res, outcome, p):
     if not pan:
         return ""
     null_v = outcome.get("null_value", 1)
+    # Named on the axis so a reader does not have to infer the measure
+    # from the surrounding prose.
+    _meas = str(((res.get("pooled") or {}).get("measure")) or "Effect")
     out = ""
     if pan.get("funnel"):
         out += fig(scatter_svg([(x["log_effect"], x["se"], x["trial"])
@@ -393,7 +416,9 @@ def analysis_figures(res, outcome, p):
         out += fig(rows_svg([{"label": "omitting " + str(x["omitted"]),
                               "point": x["point"], "ci_low": x["ci_low"],
                               "ci_high": x["ci_high"]}
-                             for x in pan["leave_one_out"]], null_v),
+                             for x in pan["leave_one_out"]], null_v,
+                            measure=_meas,
+                            axis_note="Each row is the pool WITHOUT that trial."),
                    "Leave-one-out", "leave-one-out.svg",
                    "The pool refitted with each trial removed in turn.")
     if pan.get("cumulative"):
@@ -401,7 +426,9 @@ def analysis_figures(res, outcome, p):
                                                             fmt(x["year"])),
                               "point": x["point"], "ci_low": x["ci_low"],
                               "ci_high": x["ci_high"]}
-                             for x in pan["cumulative"]], null_v),
+                             for x in pan["cumulative"]], null_v,
+                            measure=_meas,
+                            axis_note="Each row adds the next trial in year order."),
                    "Cumulative meta-analysis", "cumulative.svg",
                    "The pool as each trial reported, in year order.")
     by = pan.get("bayes")
