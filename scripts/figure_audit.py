@@ -1,10 +1,32 @@
-"""Extract every rendered figure's ACTUAL plotted series and compare them.
+"""Audit every RENDERED figure on a page: distinct series, declared axes, honest captions.
 
 Reading the plotting code tells you what it meant to draw. This renders the page
 and reads the geometry back out, which is the only thing that answers "do these
-two panels show the same series". Point patterns are normalised to their own
-bounding box, so two panels drawing the same data are identical here even when
-their axes differ.
+two panels show the same series".
+
+RENDERER-AWARE, and that is not optional. This corpus has two entirely different
+figure implementations:
+
+  SSOT pages      server-side inline <svg>, one per figure, inside a .card with
+                  an <h3> title and the caption as the last <p><small>.
+  Corpus pages    Plotly, drawn client-side into <div class="chart-container">,
+                  with an <h4> title and a .chart-desc caption.
+
+The first version of this script swept `document.querySelectorAll('svg')` and was
+correct on SSOT pages only. Pointed at a corpus page it found SIXTY-FIVE "figures"
+-- Plotly emits several nested <svg> layers per chart plus icon glyphs -- and
+reported 71 series collisions between axis layers of the same plot, with every
+figure named svg0..svg64 because the title selector matched nothing. Across 1,217
+pages that is roughly 86,000 false findings, which is worse than no tool at all:
+a detector that cries wolf at that volume gets switched off, and then the real
+findings go with it.
+
+So figures are located by their CONTAINER, never by raw <svg>, and the container
+is chosen per renderer. A page whose structure matches neither is reported as
+unrecognised rather than swept anyway.
+
+Usage:  python figure_audit.py <page.html>
+        python figure_audit.py --selftest-structure <ssot.html> <corpus.html>
 """
 import io
 import json
@@ -14,61 +36,101 @@ import sys
 import time
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 
-PAGE = sys.argv[1]
-o = Options()
-for a in ("--headless=new", "--disable-gpu", "--no-sandbox",
-          "--window-size=1500,1200"):
-    o.add_argument(a)
-d = webdriver.Chrome(options=o)
-d.set_page_load_timeout(300)
-try:
-    d.get("file:///" + PAGE.replace("\\", "/"))
-    time.sleep(3)
-    d.execute_script("document.querySelectorAll('.panel').forEach(p=>{"
-                     "p.style.height='auto';p.style.overflow='visible';});")
-    time.sleep(1.5)
-    figs = d.execute_script("""
-      const out=[];
-      document.querySelectorAll('svg').forEach((s,i)=>{
-        const geom={lines:[...s.querySelectorAll('line')].map(l=>({
-              x1:+l.getAttribute('x1'),y1:+l.getAttribute('y1'),
-              x2:+l.getAttribute('x2'),y2:+l.getAttribute('y2'),
-              dash:!!l.getAttribute('stroke-dasharray')})),
-          polys:s.querySelectorAll('polygon').length,
-          paths:s.querySelectorAll('path').length};
-        const card=s.closest('.card');
-        const h=card?card.querySelector('h3'):null;
-        // The CAPTION is the last <p><small> in the card. The first <p> is the
-        // downloads block, so the original selector read '⬇ SVG (vector) 2 KB'
-        // as every figure's caption -- which is why the promise check could
-        // not fire on a build whose L'Abbe caption demonstrably promised a
-        // diagonal it never drew. A check reading the wrong element is a check
-        // that cannot fail.
-        const smalls=card?[...card.querySelectorAll('p > small')]:[];
-        const cap=smalls.length?smalls[smalls.length-1]:null;
-        // marks: circles (scatter), rects (forest/rows squares), polygons
-        const circles=[...s.querySelectorAll('circle')].map(c=>[
-            +c.getAttribute('cx'), +c.getAttribute('cy')]);
-        const rects=[...s.querySelectorAll('rect')].map(c=>[
-            +c.getAttribute('x'), +c.getAttribute('y')]);
-        const texts=[...s.querySelectorAll('text')].map(t=>t.textContent.trim());
-        out.push({i:i,
-                  title:h?h.innerText.trim():('svg'+i),
-                  aria:s.getAttribute('aria-label')||'',
-                  caption:cap?cap.innerText.trim().slice(0,600):'',
-                  circles:circles, rects:rects, texts:texts, geom:geom,
-                  viewBox:s.getAttribute('viewBox')});
-      });
-      return out;""")
-finally:
-    d.quit()
+# (name, container, title, caption) -- container must hold exactly one figure.
+RENDERERS = [
+    ("ssot-svg", ".card", "h3", "p > small"),
+    ("plotly", "div.col-span-1, div.col-span-2, .chart-block",
+     "h4", ".chart-desc"),
+]
+
+JS = r"""
+const [rname, csel, tsel, capsel] = arguments;
+const out = [];
+document.querySelectorAll(csel).forEach(card => {
+  // The figure is the LARGEST svg in the container. Plotly nests several
+  // (axis layer, legend, defs) and pages carry icon svgs; taking them all is
+  // what produced 65 "figures" on a page with 12.
+  const svgs = [...card.querySelectorAll('svg')];
+  if (!svgs.length) return;
+  let s = svgs[0], best = 0;
+  for (const c of svgs) {
+    const r = c.getBoundingClientRect();
+    if (r.width * r.height > best) { best = r.width * r.height; s = c; }
+  }
+  if (best < 5000) return;                    // icons and sparks are not figures
+  const h = card.querySelector(tsel);
+  const cap = card.querySelector(capsel);
+  const geom = {
+    lines: [...s.querySelectorAll('line')].map(l => ({
+      x1:+l.getAttribute('x1'), y1:+l.getAttribute('y1'),
+      x2:+l.getAttribute('x2'), y2:+l.getAttribute('y2'),
+      dash: !!l.getAttribute('stroke-dasharray')})),
+    polys: s.querySelectorAll('polygon, path.js-fill').length,
+    paths: s.querySelectorAll('path').length};
+  const circles = [...s.querySelectorAll('circle, path.point')].map(c => {
+    const r = c.getBoundingClientRect();
+    return [Math.round(r.x + r.width/2), Math.round(r.y + r.height/2)];});
+  const rects = [...s.querySelectorAll('rect')].filter(r =>
+      +r.getAttribute('width') < 40).map(c => [
+      +c.getAttribute('x'), +c.getAttribute('y')]);
+  out.push({renderer: rname,
+            title: h ? h.innerText.trim() : '',
+            aria: s.getAttribute('aria-label') || '',
+            caption: cap ? cap.innerText.trim().slice(0, 600) : '',
+            circles: circles, rects: rects,
+            texts: [...s.querySelectorAll('text')].map(t=>t.textContent.trim()),
+            geom: geom, viewBox: s.getAttribute('viewBox')});
+});
+return out;
+"""
+
+
+def collect(page):
+    from selenium import webdriver
+    from selenium.webdriver.chrome.options import Options
+    o = Options()
+    for a in ("--headless=new", "--disable-gpu", "--no-sandbox",
+              "--window-size=1500,1200"):
+        o.add_argument(a)
+    d = webdriver.Chrome(options=o)
+    d.set_page_load_timeout(300)
+    try:
+        d.get("file:///" + os.path.abspath(page).replace("\\", "/"))
+        time.sleep(3)
+        d.execute_script("document.querySelectorAll('.panel').forEach(p=>{"
+                         "p.style.height='auto';p.style.overflow='visible';});")
+        # Plotly draws on demand; give any deferred render a chance before the
+        # geometry is read, or an unrendered chart looks like a missing figure.
+        time.sleep(2.5)
+        for name, csel, tsel, capsel in RENDERERS:
+            figs = d.execute_script(JS, name, csel, tsel, capsel)
+            named = [f for f in figs if f["title"]]
+            if len(named) >= 3:
+                return name, named
+        # DEGENERATE GEOMETRY IS NOT A CLEAN PAGE. Corpus pages draw with Plotly
+        # into containers that measure 0x0 under headless file:// -- the charts
+        # exist, three <svg> layers deep, and every coordinate this audit would
+        # read is zero. A geometry check over zeros returns "0 collisions", which
+        # is a pass produced by measuring nothing. That is the same species as a
+        # caption check reading the downloads block, and it must be loud.
+        probe = d.execute_script(
+            "const c=[...document.querySelectorAll('.chart-container')];"
+            "return [c.length, c.filter(x=>x.getBoundingClientRect().width>1)"
+            ".length, c.filter(x=>x.querySelector('svg')).length];")
+        if probe and probe[0] and not probe[1]:
+            raise SystemExit(
+                "UNAUDITABLE: %d chart containers found, %d have drawn SVG, and "
+                "NONE has a non-zero width. Their geometry is all zeros in this "
+                "environment, so any collision or promise check would pass by "
+                "measuring nothing. Refusing to report a result rather than "
+                "returning a clean one." % (probe[0], probe[2]))
+        return None, []
+    finally:
+        d.quit()
 
 
 def norm(pts):
-    """Normalise a point set to its own bounding box, rounded."""
     if len(pts) < 2:
         return tuple(tuple(round(v, 3) for v in p) for p in pts)
     xs = [p[0] for p in pts]
@@ -79,61 +141,9 @@ def norm(pts):
                          round((p[1] - min(ys)) / dy, 3)) for p in pts))
 
 
-print("FIGURES RENDERED ON THE PAGE: %d\n" % len(figs))
-series = {}
-for f in figs:
-    marks = f["circles"] or f["rects"]
-    f["_n"] = len(marks)
-    f["_sig"] = norm(marks)
-    print("[%d] %-38s marks=%-3d aria=%r" % (f["i"], f["title"][:38],
-                                             len(marks), f["aria"][:60]))
-    print("     viewBox=%s" % f["viewBox"])
-    print("     tick/label texts: %s" % (f["texts"][:12]))
-    print("     caption: %s" % f["caption"][:130])
-    print()
-
-print("=" * 78)
-print("SERIES COLLISION CHECK -- normalised point patterns")
-print("=" * 78)
-coll = 0
-for i in range(len(figs)):
-    for j in range(i + 1, len(figs)):
-        a, b = figs[i], figs[j]
-        if a["_n"] < 2 or b["_n"] < 2:
-            continue
-        if a["_sig"] == b["_sig"]:
-            coll += 1
-            print("  COLLISION: [%d] %s  ==  [%d] %s   (%d identical marks)"
-                  % (a["i"], a["title"][:30], b["i"], b["title"][:30], a["_n"]))
-if not coll:
-    print("  none -- every figure's normalised point pattern is distinct")
-print("\ncollisions: %d" % coll)
-
-# A figure whose accessible label does not name two axes is either a scatter
-# built through the shifted-argument path or a plot type that never declared its
-# axes. Both were live here: every scatter announced "\n against <xlab>".
-unlabelled = [f for f in figs
-              if "(horizontal)" not in f["aria"] and "rows" not in f["aria"]
-              and "Forest" not in f["aria"] and "not " not in f["aria"]]
-print("figures whose aria-label does not name both axes: %d%s"
-      % (len(unlabelled),
-         ("  " + ", ".join(f["title"] for f in unlabelled)) if unlabelled else ""))
-
-
-# ---------------------------------------------------------------------------
-# A CAPTION MUST NOT PROMISE AN ELEMENT THAT IS NOT DRAWN.
-# L'Abbe's caption said "below the diagonal favours the intervention" while no
-# diagonal was drawn: the reader was told to read against a reference that did
-# not exist. That is invisible to every check that compares numbers, and it
-# generalises -- any caption naming a diagonal, a null line, a reference line or
-# contours is making a checkable claim about the geometry beside it.
 def _diag(g):
-    """A line that is neither horizontal nor vertical: a true diagonal."""
-    for l in g["lines"]:
-        dx, dy = abs(l["x2"] - l["x1"]), abs(l["y2"] - l["y1"])
-        if dx > 6 and dy > 6:
-            return True
-    return False
+    return any(abs(l["x2"] - l["x1"]) > 6 and abs(l["y2"] - l["y1"]) > 6
+               for l in g["lines"])
 
 
 def _vline(g):
@@ -142,7 +152,7 @@ def _vline(g):
 
 
 PROMISES = [
-    (r"\bdiagonal\b", "a diagonal", lambda g: _diag(g)),
+    (r"\bdiagonal\b", "a diagonal", _diag),
     (r"no effect line|line of no effect|null line|reference line",
      "a reference/null line", lambda g: _vline(g) or _diag(g)),
     (r"contour|pseudo-confidence|funnel band",
@@ -151,19 +161,67 @@ PROMISES = [
     (r"dashed line", "a dashed line",
      lambda g: any(l["dash"] for l in g["lines"])),
 ]
-broken = []
-for f in figs:
-    cap = (f.get("caption") or "") + " " + (f.get("aria") or "")
-    low = cap.lower()
-    for pat, what, pred in PROMISES:
-        if re.search(pat, low) and not pred(f["geom"]):
-            broken.append((f["title"], what))
-print("captions promising an element the SVG does not contain: %d" % len(broken))
-for t, w in broken:
-    print("   - %s: caption names %s, none is drawn" % (t, w))
 
-sys.exit(1 if (coll or unlabelled or broken) else 0)
-json.dump([{k: v for k, v in f.items() if k != "_sig"} for f in figs],
-          open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                            "figure_audit.json"), "w", encoding="utf-8"),
-          indent=1)
+
+def audit(page):
+    renderer, figs = collect(page)
+    if renderer is None:
+        print("UNRECOGNISED PAGE STRUCTURE: no known figure container matched.")
+        print("Reported rather than swept, because sweeping raw <svg> is what "
+              "produced 65 false figures per page on the Plotly corpus.")
+        return 2
+    print("renderer: %s | figures: %d" % (renderer, len(figs)))
+    for f in figs:
+        f["_n"] = len(f["circles"] or f["rects"])
+        f["_sig"] = norm(f["circles"] or f["rects"])
+    coll = []
+    for i in range(len(figs)):
+        for j in range(i + 1, len(figs)):
+            a, b = figs[i], figs[j]
+            if a["_n"] >= 2 and a["_sig"] == b["_sig"]:
+                coll.append((a["title"], b["title"], a["_n"]))
+    print("series collisions: %d" % len(coll))
+    for a, b, n in coll:
+        print("   - %s == %s (%d identical marks)" % (a[:34], b[:34], n))
+    # aria-label is an SSOT-side contract; Plotly does not emit one, so the
+    # check is scoped to the renderer that can satisfy it rather than failing
+    # every corpus page for a property its library never sets.
+    unl = []
+    if renderer == "ssot-svg":
+        unl = [f for f in figs if "(horizontal)" not in f["aria"]
+               and "rows" not in f["aria"] and "Forest" not in f["aria"]
+               and "not " not in f["aria"]]
+        print("figures whose aria-label does not name both axes: %d" % len(unl))
+        for f in unl:
+            print("   -", f["title"][:60])
+    broken = []
+    for f in figs:
+        low = ((f.get("caption") or "") + " " + (f.get("aria") or "")).lower()
+        for pat, what, pred in PROMISES:
+            if re.search(pat, low) and not pred(f["geom"]):
+                broken.append((f["title"], what))
+    print("captions promising an undrawn element: %d" % len(broken))
+    for t, w in broken:
+        print("   - %s: caption names %s, none is drawn" % (t[:44], w))
+    json.dump(figs, open(os.path.splitext(os.path.abspath(page))[0]
+                         + ".figaudit.json", "w", encoding="utf-8"),
+              indent=1, default=str)
+    return 1 if (coll or unl or broken) else 0
+
+
+if __name__ == "__main__":
+    if "--selftest-structure" in sys.argv:
+        # The structural claim IS the check here: each renderer must be
+        # recognised as itself, and neither may be swept by the other's rules.
+        args = [a for a in sys.argv[1:] if not a.startswith("--")]
+        ok = True
+        for want, page in zip(("ssot-svg", "plotly"), args):
+            got, figs = collect(page)
+            good = got == want and 3 <= len(figs) <= 40
+            ok &= good
+            print("  %-46s renderer=%-10s figures=%-3d %s"
+                  % (os.path.basename(page)[:46], got, len(figs),
+                     "correct" if good else "WRONG (expected %s, 3..40)" % want))
+        print("\nstructure detection correct on both renderers:", ok)
+        raise SystemExit(0 if ok else 1)
+    raise SystemExit(audit(sys.argv[1]))
