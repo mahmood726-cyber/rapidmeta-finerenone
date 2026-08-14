@@ -485,7 +485,8 @@ def build(canon):
         # from the screening corpus and the RoB-2 block, both already stored.
         # underpowered_figures() states the three that k=4 cannot support rather
         # than drawing them.
-        d["figures"] = (p2.prisma_figure(canon, p)
+        d["figures"] = (p2.visual_abstract(canon, res, outcome, p)
+                        + p2.prisma_figure(canon, p)
                         + p2.analysis_figures(res, outcome, p)
                         + p2.rob_figure(canon, p)
                         + p2.underpowered_figures(res, p))

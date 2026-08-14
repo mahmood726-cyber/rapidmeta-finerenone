@@ -11,6 +11,7 @@ import re
 
 from projectors import (NL, e, fmt, kv_card, fig, scatter_svg, rows_svg,
                         funnel_svg, rob_traffic_light_svg, prisma_flow_svg,
+                        visual_abstract_svg,
                         not_computable_svg, GRADE_DOMAINS)
 
 
@@ -451,6 +452,41 @@ def analysis_figures(res, outcome, p):
                                "pooled ratio", "posterior density", vline=null_v),
                    "Bayesian posterior density", "posterior.svg", p(by["method"]))
     return out
+
+
+def visual_abstract(canon, res, outcome, p):
+    """The graphical abstract, projected. Under the same gates as any figure."""
+    pooled = res.get("pooled") or {}
+    if not pooled.get("point"):
+        return ""
+    n_total = 0
+    for t in (canon.get("inputs") or {}).get("trials", []):
+        for a in (t.get("arms") or []):
+            n_total += a.get("participants") or 0
+    g = res.get("grade") or {}
+    sens = res.get("sensitivity") or {}
+    loo = ""
+    rows = [a for a in (sens.get("analyses") or []) if isinstance(a, dict)]
+    kept = [a for a in rows if a.get("still_excludes_null")]
+    if rows:
+        loo = ("Leave-one-out: %d of %d refits still exclude no difference; the "
+               "estimate does not survive removal of the largest trial."
+               % (len(kept), len(rows)))
+    return fig(visual_abstract_svg(
+        canon.get("title", ""), canon.get("question", ""),
+        res.get("k") or len(res.get("per_trial") or []),
+        "{:,}".format(n_total) if n_total else None,
+        pooled.get("measure", ""), pooled["point"], pooled.get("ci_low"),
+        pooled.get("ci_high"), outcome.get("null_value", 1),
+        g.get("certainty"), outcome.get("name", ""), loo),
+        "Visual abstract", "visual-abstract.svg",
+        "Projected from the canonical object, so it carries the same k, the same "
+        "pooled estimate and the same interval as the paper and cannot drift "
+        "from them. The interval is drawn CROSSING the no-difference line "
+        "because it does: a graphical abstract travels without its caption, and "
+        "one that showed a favourable point estimate without showing that its "
+        "interval includes no effect would be overstating a null result, which "
+        "is a defect class this review documents in other papers.")
 
 
 def rob_figure(canon, p):

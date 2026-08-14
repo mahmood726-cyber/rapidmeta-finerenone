@@ -175,13 +175,33 @@ def table(doc, caption, headers, rows, mono_cols=()):
     c = doc.add_paragraph("Table %d. %s" % (TBL, caption))
     c.runs[0].bold = True
     t = doc.add_table(rows=1, cols=len(headers))
-    t.style = "Light Grid Accent 1"
+    # Plain ruled grid. "Light Grid Accent 1" is an Office theme style whose
+    # colour belongs to a slide deck, not to a manuscript table.
+    try:
+        t.style = "Table Grid"
+    except KeyError:
+        t.style = "Light Grid Accent 1"
     t.alignment = WD_TABLE_ALIGNMENT.CENTER
+    # REPEAT THE HEADER ROW ACROSS PAGE BREAKS. Zero of seventeen tables had
+    # this. The screening log is fourteen rows and the statistical-output table
+    # fourteen more; both cross a page in the Word file, and a reader met the
+    # continuation with no column headers at all. This is a reading defect, not
+    # a cosmetic one, and it is the first thing a reviewer would hit.
+    _trPr = t.rows[0]._tr.get_or_add_trPr()
+    _th = OxmlElement('w:tblHeader')
+    _th.set(qn('w:val'), "true")
+    _trPr.append(_th)
     for i, h in enumerate(headers):
         cell = t.rows[0].cells[i]
         cell.text = ""
         run = cell.paragraphs[0].add_run(h)
         run.bold = True
+        # Light shading on the header so the repeat is recognisable as a header
+        # rather than as data. Grey, not a theme accent: this is a manuscript.
+        _sh = OxmlElement('w:shd')
+        _sh.set(qn('w:val'), 'clear')
+        _sh.set(qn('w:fill'), 'EDEDED')
+        cell._tc.get_or_add_tcPr().append(_sh)
     for r in rows:
         cells = t.add_row().cells
         for i, v in enumerate(r):
@@ -202,9 +222,29 @@ def table(doc, caption, headers, rows, mono_cols=()):
 
 
 def figure(doc, caption, path, width=6.0):
+    """Size to the image, within the measure -- not every figure to the measure.
+
+    All fifteen were forced to exactly 6.00 inches against a text measure of
+    exactly 6.00 inches (8.5 less two 1.25 margins), so every figure ran edge to
+    edge with no breathing room, and because aspect ratios span 0.15 to 0.68 the
+    empty-state panels became 6x0.9 inch strips. Width is now capped below the
+    measure and height capped so nothing runs past a page, with the aspect ratio
+    preserved from the file rather than assumed.
+    """
     global FIG
     FIG += 1
-    doc.add_picture(path, width=Inches(width))
+    MAX_W, MAX_H = 5.6, 7.0
+    w = width
+    try:
+        from PIL import Image as _I
+        with _I.open(path) as im:
+            pw, ph = im.size
+        w = min(MAX_W, MAX_W)                       # never wider than the cap
+        if ph and pw and (ph / float(pw)) * w > MAX_H:
+            w = MAX_H * (pw / float(ph))            # tall image: bound by height
+    except Exception:                                # noqa: BLE001
+        w = min(width, MAX_W)
+    doc.add_picture(path, width=Inches(w))
     doc.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
     c = doc.add_paragraph("Figure %d. %s" % (FIG, caption))
     c.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -358,8 +398,18 @@ def _rec_par(text="", *a, **k):
 
 doc.add_heading, doc.add_paragraph = _rec_heading, _rec_par
 st = doc.styles["Normal"]
-st.font.name = "Calibri"
-st.font.size = Pt(11)
+# A MANUSCRIPT FACE, NOT A UI FACE. Calibri 11 is Word's default and reads as an
+# office document; the HTML projection -- which is the surface Mahmood judged
+# better -- sets Georgia. Matching it is the point: both are projections of one
+# object and the Word file was the lossy one.
+st.font.name = "Georgia"
+st.font.size = Pt(10.5)
+# 1.5 line spacing. Journals ask for 1.5 or double on a review copy and Word's
+# default single is neither. Ragged right rather than justified: Word does not
+# hyphenate by default and justified text without hyphenation opens rivers,
+# which is worse than the ragged edge it replaces.
+st.paragraph_format.line_spacing = 1.5
+st.paragraph_format.space_after = Pt(6)
 
 doc.add_heading(d["title"], 0)
 p = doc.add_paragraph(d["question"])
@@ -1018,6 +1068,63 @@ try:
 except Exception as _e:                                   # noqa: BLE001
     print("WARNING: core properties not set: %s" % _e)
 
+# --- F1000Research submission checklist -------------------------------------
+# Requirements taken from F1000Research's own author guidance for Systematic
+# Reviews, looked up rather than remembered (their site 403s direct fetch, so
+# these come from the indexed guideline pages):
+#   * a Data Availability Statement is mandatory EVEN WHERE THERE IS NO DATA;
+#   * PRISMA checklist AND flow diagram are required, and the completed
+#     checklist and flow chart must be DEPOSITED in an approved repository,
+#     with the guideline type, repository, DOI and licence in the statement;
+#   * extended data needs title, repository, DOI/accession and licence, under
+#     an "Extended data" subheading, cited in the main text;
+#   * the repository must supply a persistent identifier and allow CC0 /
+#     CC-BY 4.0 or equivalent;
+#   * archived source code needs a DOI and citation in Zenodo under an open,
+#     preferably OSI-approved, licence.
+#
+# These are MANDATORY FIELDS at this venue, not nice-to-haves, so an unmet one
+# blocks rather than prints. The missing identifiers are recorded as null with a
+# stated reason and are never filled with a plausible string: a wrong DOI in a
+# Data Availability Statement points a reader at someone else's data, which is
+# worse than no DOI at all. Minting them is an author action, not a build step.
+_F1000 = []
+_das = MS.get("data_availability_statement") or {}
+_ed = _das.get("extended_data") or {}
+_swx = MS.get("software_availability") or {}
+for _label, _ok in (
+    ("Data Availability Statement present", bool(_das)),
+    ("Extended data: repository named", bool(_ed.get("repository"))),
+    ("Extended data: persistent identifier (DOI) minted",
+     bool(_ed.get("persistent_identifier"))),
+    ("Extended data: open licence (CC0 or CC-BY 4.0)",
+     str(_ed.get("licence", "")).upper().startswith(("CC0", "CC-BY", "CC BY"))),
+    ("Software: source code location", bool(_swx.get("source_code_available_from"))),
+    ("Software: archived Zenodo DOI at publication",
+     bool(_swx.get("archived_source_code_at_time_of_publication"))),
+    ("Software: OSI-approved licence", bool(_swx.get("licence"))),
+    ("PRISMA flow diagram present", FIG > 0),
+    ("PRISMA checklist deposited with a DOI",
+     bool((MS.get("prisma") or {}).get("checklist_doi"))),
+    ("Structured abstract", isinstance(MS.get("abstract"), dict)
+     and len(MS.get("abstract") or {}) >= 4),
+    ("Registration statement", bool(MS.get("registration_note_for_editor"))),
+):
+    if not _ok:
+        _F1000.append(_label)
+if _F1000:
+    _probs.append("F1000 mandatory requirements unmet: " + "; ".join(_F1000))
+
 doc.save(OUT)
 print("wrote", OUT, os.path.getsize(OUT), "bytes")
+if _F1000:
+    print("")
+    print("#" * 72)
+    print("SUBMISSION BLOCKED -- %d mandatory F1000Research requirement(s) unmet:"
+          % len(_F1000))
+    for _x in _F1000:
+        print("   - %s" % _x)
+    print("These are author actions (Zenodo deposits), not build steps. No "
+          "identifier will be invented to clear them.")
+    print("#" * 72)
 print("tables:", TBL, "figures:", FIG, "rasterised:", len(figs))
