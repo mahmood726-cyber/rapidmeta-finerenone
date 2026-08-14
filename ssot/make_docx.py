@@ -816,6 +816,33 @@ _json.dump({"built_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "tables": TBL, "figures": FIG, "blocks": DOCMODEL},
            open(os.path.join(OUTDIR, "manuscript_docmodel.json"), "w",
                 encoding="utf-8"), indent=1, ensure_ascii=False)
+# CORE PROPERTIES. These were python-docx's template defaults: an empty title,
+# "python-docx" as author, and created/modified stamped 2013-12-23. Word shows
+# dc:title in Properties and in recent-file lists, and some submission portals
+# read it, so an empty one is a blank where the paper's name belongs and a 2013
+# date is simply false. Filled from the object -- the same source the first line
+# of the document comes from -- so the title in the metadata and the title on the
+# page cannot disagree, which is the exact failure this pass was about.
+# `author` is deliberately NOT invented: the object records none, and a
+# fabricated author in submission metadata is worse than an absent one.
+try:
+    import datetime as _dt
+    _cp = doc.core_properties
+    _cp.title = d.get("title", "")
+    _cp.subject = d.get("question", "")
+    _cp.keywords = ", ".join((d.get("manuscript") or {}).get("keywords") or [])
+    _cp.category = "Systematic review and meta-analysis"
+    _cp.comments = ("Every number is projected from a single canonical object; "
+                    "see the Data availability section.")
+    try:
+        _when = _dt.datetime.strptime(str(d.get("built") or "")[:10], "%Y-%m-%d")
+        _cp.created = _when
+        _cp.modified = _when
+    except ValueError:
+        pass
+except Exception as _e:                                   # noqa: BLE001
+    print("WARNING: core properties not set: %s" % _e)
+
 doc.save(OUT)
 print("wrote", OUT, os.path.getsize(OUT), "bytes")
 print("tables:", TBL, "figures:", FIG, "rasterised:", len(figs))

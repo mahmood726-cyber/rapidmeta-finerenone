@@ -24,6 +24,7 @@ Usage:  python scripts/k_consistency_gate.py <object.json> [more.json ...]
 """
 import io
 import json
+import re
 import sys
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -31,6 +32,103 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="repla
 # Panels whose length must equal k (one row per contributing trial).
 ROW_PER_TRIAL = ("leave_one_out", "cumulative", "influence", "baujat",
                  "galbraith", "funnel")
+
+# ---------------------------------------------------------------- textual k
+# The numeric half of this gate reconciled object FIELDS and passed while the
+# TITLE said "the three randomised trials" over a k=4 pool. k is written as a
+# word in a phrase far more often than it is stored as a number, so the field
+# check could never have caught it. Mahmood caught it by opening the file and
+# reading the first line.
+#
+# The hard part is precision, not recall. "three" appears all over legitimate
+# prose -- three GRADE domains, three scales, three protocol commits -- and a
+# gate that fires on all of them is a regression of its own. Two rules keep it
+# tight:
+#   1. Only phrases where a study noun follows the number are considered.
+#   2. Of those, only WHOLE-REVIEW assertions are enforced. A subset phrase
+#      ("the three REMAINING trials", "the two SMALLER trials", "one trial
+#      carries the weight") is a claim about part of the pool and is reported
+#      for review, never failed, because its correct value is not k.
+NUMWORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
+            "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11,
+            "twelve": 12}
+_NUM = r"(?:\d{1,3}|" + "|".join(NUMWORDS) + r")"
+# Qualifiers that make the phrase a SUBSET of the pool, not the pool itself.
+SUBSET = (r"remaining|smaller|larger|largest|further|subsequent|other|later|"
+          r"earlier|single|excluded|screened|retrieved|ineligible|additional|"
+          r"pivotal|index|new|prior|previous")
+# Qualifiers that make it an assertion about the review's own size.
+WHOLE = (r"randomised|randomized|included|eligible|contributing|pooled|"
+         r"analysed|analyzed")
+_NOUN = r"(?:trials?|studies|study|randomisations?|randomizations?|RCTs?)"
+# A number belonging to a PRECEDING noun is not a count: "both phase 3 trials",
+# "a phase 2 randomized trial", "stage 3 studies". The first cut of this gate
+# flagged three otherwise-clean objects in the corpus on exactly that, which is
+# the over-loose-word-match regression this gate must not become.
+_NOT_A_COUNT = (r"(?<!phase )(?<!stage )(?<!grade )(?<!class )(?<!step )"
+                r"(?<!type )(?<!tier )(?<!arm )")
+K_ASSERT = re.compile(
+    _NOT_A_COUNT + r"\b(" + _NUM + r")\s+(?:(" + WHOLE + r")\s+)?("
+    + _NOUN + r")\b", re.I)
+K_SUBSET = re.compile(
+    r"\b(" + _NUM + r")\s+(?:(" + SUBSET + r")\s+)", re.I)
+
+# Paths whose strings are NOT this review speaking: other papers' titles, quoted
+# assessor rationales, handbook section text, and the correction log, which
+# records superseded claims verbatim and must keep saying what it used to say.
+EXCLUDE = (".screening.corpus", ".screening.dual_screening", ".sources",
+           ".rob2", ".methodological_authority", ".claims_corrected",
+           ".citations", ".reconciliation", ".registration", ".protocol",
+           ".prisma_items", ".count_recovery", ".attestations",
+           ".eligible_but_not_contributing", ".outcomes_considered")
+# Strings that deliberately narrate the k change itself.
+HISTORY = ("_stale", "recomputed", "superseded", "k=3", "k = 3", "at k=3")
+
+
+def _num(tok):
+    tok = tok.lower()
+    return NUMWORDS.get(tok) or (int(tok) if tok.isdigit() else None)
+
+
+def textual_k_problems(strings, k):
+    """strings: iterable of (location, text). Returns (failures, for_review)."""
+    fails, review = [], []
+    for loc, txt in strings:
+        if any(loc.startswith(p) for p in EXCLUDE):
+            continue
+        low = (txt or "").lower()
+        if any(h in low for h in HISTORY):
+            continue
+        for m in K_ASSERT.finditer(txt or ""):
+            v = _num(m.group(1))
+            if v is None:
+                continue
+            # A subset phrase starting at the same number is not a k assertion.
+            seg = txt[m.start():m.start() + 60]
+            if K_SUBSET.match(seg):
+                if v != k:
+                    review.append((loc, m.group(0).strip(), v))
+                continue
+            # "one trial carries most of the weight", "rests on any one trial",
+            # "a discrepancy in one trial" -- singular emphasis, which is how a
+            # dominant-study argument is written, not a claim that the review
+            # contains one study. This is what the first cut of the negative
+            # self-test caught: the gate failed a document whose every count was
+            # correct, which is a regression in its own right.
+            noun = (m.group(3) or "").lower()
+            if v == 1 and not noun.endswith("s"):
+                continue
+            if not m.group(2):
+                # Bare "three trials" -- only enforced where the review states
+                # its own scope. Elsewhere it is usually about someone else's.
+                if not any(s in loc for s in (".title", ".question",
+                                              ".manuscript", "definition_note",
+                                              "decision_under_test",
+                                              "::<title>", "::h1")):
+                    continue
+            if v != k:
+                fails.append((loc, m.group(0).strip(), v))
+    return fails, review
 
 
 def check_outcome(oid, res):
@@ -91,7 +189,29 @@ def check_object(path):
             bad.append("%s: pooled interval %.4g-%.4g contains the null but the "
                        "manuscript says it excludes it" % (oid, lo, hi))
         break
+
+    # Textual k, across every string this review speaks in its own voice.
+    k = None
+    for _oid, res in ((d.get("results") or {}).get("by_outcome") or {}).items():
+        k = res.get("k") or len(res.get("per_trial") or [])
+        break
+    if k:
+        fails, _rev = textual_k_problems(walk_strings(d), k)
+        for loc, frag, v in fails:
+            bad.append("%s states %r (k=%s) but the pool has k=%d"
+                       % (loc, frag, v, k))
     return bad
+
+
+def walk_strings(o, path=""):
+    if isinstance(o, dict):
+        for kk, v in o.items():
+            yield from walk_strings(v, path + "." + str(kk))
+    elif isinstance(o, list):
+        for i, v in enumerate(o):
+            yield from walk_strings(v, path + "[%d]" % i)
+    elif isinstance(o, str):
+        yield path, o
 
 
 def selftest():
@@ -125,6 +245,51 @@ def selftest():
              "pooled": {"ci_low": 0.7, "ci_high": 1.02},
              "panels": {"_STALE": "computed at k=3, recorded",
                         "fit": {"k": 3}, "leave_one_out": [1, 2, 3]}}}}}, False),
+
+        # --- textual k. The positive is the REAL title that shipped. ---------
+        ("POSITIVE: the actual title that shipped saying three over a k=4 pool",
+         {"title": "Sacubitril/valsartan against enalapril in heart failure "
+                   "with reduced ejection fraction: the three randomised "
+                   "trials that report cardiovascular death or heart failure "
+                   "hospitalization as a time-to-first hazard ratio",
+          "results": {"by_outcome": {"o": {"k": 4, "per_trial": [1, 2, 3, 4],
+                                           "pooled": {"ci_low": .7, "ci_high": 1.02}}}}},
+         True),
+        ("POSITIVE: digits rather than a number-word",
+         {"title": "a pooled analysis of 3 randomised trials",
+          "results": {"by_outcome": {"o": {"k": 4, "per_trial": [1, 2, 3, 4],
+                                           "pooled": {"ci_low": .7, "ci_high": 1.02}}}}},
+         True),
+        # --- THE NEGATIVE. This is the criterion that keeps getting skipped: a
+        # gate that fires on correct prose is its own regression. Everything
+        # here is TRUE at k=4 and must not be flagged: the corrected title, a
+        # subset phrase, a singular emphasis, and unrelated counts of things
+        # that are not trials.
+        ("NEGATIVE: corrected title + subsets + unrelated threes must all PASS",
+         {"title": "the four randomised trials that report the composite",
+          "manuscript": {
+              "a": "The three smaller trials are individually compatible with "
+                   "no effect, and one trial carries most of the weight.",
+              "b": "Omitting the largest leaves three remaining trials.",
+              "c": "Three protocol commits are recorded, and the same 2x2 is "
+                   "shown on three scales across three GRADE domains.",
+              "d": "the interval contains the null"},
+          "results": {"by_outcome": {"o": {"k": 4, "per_trial": [1, 2, 3, 4],
+                                           "pooled": {"ci_low": .7, "ci_high": 1.02}}}}},
+         False),
+        ("NEGATIVE: 'both phase 3 trials' is a phase, not a count",
+         {"title": "both phase 3 trials, reported as incidence rate ratios",
+          "question": "In the two phase 3 trials that supported approval",
+          "results": {"by_outcome": {"o": {
+              "k": 2, "per_trial": [1, 2],
+              "pooled": {"ci_low": .7, "ci_high": 1.02}}}}}, False),
+        ("NEGATIVE: another paper's title in the screening corpus is not ours",
+         {"title": "the four randomised trials that report the composite",
+          "screening": {"corpus": [{"title": "A meta-analysis of 6 randomized "
+                                             "trials in heart failure"}]},
+          "results": {"by_outcome": {"o": {"k": 4, "per_trial": [1, 2, 3, 4],
+                                           "pooled": {"ci_low": .7, "ci_high": 1.02}}}}},
+         False),
     ]
     ok = True
     print("=== the gate must FAIL on a silent k mismatch, and PASS otherwise ===")

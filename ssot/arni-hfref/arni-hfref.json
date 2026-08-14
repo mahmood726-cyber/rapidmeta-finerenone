@@ -2,7 +2,7 @@
  "app_id": "arni-hfref",
  "schema_version": 2,
  "source_links_enforced": true,
- "title": "Sacubitril/valsartan against enalapril in heart failure with reduced ejection fraction: the three randomised trials that report cardiovascular death or heart failure hospitalization as a time-to-first hazard ratio",
+ "title": "Sacubitril/valsartan against enalapril in heart failure with reduced ejection fraction: the four randomised trials that report cardiovascular death or heart failure hospitalization as a time-to-first hazard ratio",
  "question": "In adults with heart failure and reduced ejection fraction, what is the hazard of a first cardiovascular death or heart failure hospitalization with sacubitril/valsartan compared with enalapril?",
  "built": "2026-08-09",
  "_prose_rule": "Every text field is PROSE unless it is on the validator's numeric list. Prose may not restate a number the object holds structurally.",
@@ -242,7 +242,7 @@
    "comparator": "enalapril",
    "comparator_type": "active",
    "definition": "Cardiovascular death or hospitalization for heart failure, whichever comes first, as a hazard ratio",
-   "definition_note": "The three contributing trials share no participant and no control group."
+   "definition_note": "The four contributing trials share no participant and no control group."
   }
  ],
  "inputs": {
@@ -1135,7 +1135,7 @@
     "sensitivity": {
      "method": "leave-one-out, plus a comparison of between-study variance estimators",
      "authority": "Cochrane Handbook version 6.5.1, section 10.14: sensitivity analyses examine whether overall findings are robust to potentially influential decisions. Section 10.10.4.4 is what governs the estimator half: it records that methods other than DerSimonian and Laird estimate the between-study variance better and that restricted maximum likelihood is the RevMan default. An earlier version of this field credited that advice to section 10.10.4.5, which does not give it -- 10.10.4.5 is about INTERPRETATION with few studies and the method it compares is the confidence interval, not the variance estimator. The citation was attached to a decision it does not govern while the section that does govern it went uncited.",
-     "decision_under_test": "Two decisions. First, whether the pooled benefit depends on any single trial -- and it does. Second, whether it depends on the choice of between-study variance estimator and interval method, which with three studies is not a formality.",
+     "decision_under_test": "Two decisions. First, whether the pooled benefit depends on any single trial -- and it does. Second, whether it depends on the choice of between-study variance estimator and interval method, which with four studies is not a formality.",
      "analyses": [
       {
        "omitted": "paradigm-hf",
@@ -12684,6 +12684,12 @@
    "correction": "Both were true at k=3 and neither survived ANSWER-HF entering. The pooled interval is 0.746 to 1.018 and contains 1; the synthesis is k=4. The Discussion still asserted the exclusion while the Conclusions of the same manuscript already said the interval was consistent with no difference, so the document contradicted itself on its own headline. Corrected in the prose rather than left to the reader to reconcile.",
    "source_id": "results.by_outcome.cvdeath_or_hfh_first.pooled",
    "corrected_utc": "2026-08-13T23:59:00Z"
+  },
+  {
+   "claim": "that this review covers three randomised trials -- stated in the TITLE, and therefore in the page <title>, the h1, and the Word file's first line",
+   "correction": "It covers four. ANSWER-HF was adjudicated in, the pool and the panels were recomputed at k=4 and the Discussion was corrected, and the title was not touched. The numeric consistency gate written for exactly this class passed, because it reconciled object FIELDS and k is written far more often as a WORD in a phrase. Seven textual statements of count were stale, in the title, the extended abstract, two Discussion paragraphs, the Robustness paragraph, the outcome definition note and the sensitivity rationale.",
+   "source_id": "inputs.trials[] (4 rows) and results.by_outcome.*.per_trial (4 rows)",
+   "corrected_utc": "2026-08-14T01:40:00Z"
   }
  ],
  "scope_decisions": {
@@ -14084,7 +14090,7 @@
    },
    {
     "heading": "Robustness",
-    "text": "The pooled result is not robust to the removal of the largest trial. Omitting it gives [[loo_paradigm]], an interval that includes the null. The three smaller trials are therefore individually and jointly compatible with no effect on this composite, and the pooled estimate is best read as the large trial's result, slightly attenuated by two trials that neither confirm nor contradict it. Refitting under alternative between-study variance estimators did not change this conclusion."
+    "text": "The pooled result is not robust to the removal of the largest trial. Omitting it gives [[loo_paradigm]], an interval that includes the null. The three smaller trials are therefore individually and jointly compatible with no effect on this composite, and the pooled estimate is best read as the large trial's result, slightly attenuated by the three smaller trials, which neither confirm nor contradict it. Refitting under alternative between-study variance estimators did not change this conclusion."
    },
    {
     "heading": "Cross-engine verification",
@@ -14106,7 +14112,7 @@
    },
    {
     "heading": "Interpreting the estimate",
-    "text": "A pooled hazard ratio of [[pooled]] on this composite is a clinically meaningful reduction if it is real, but the interval does not exclude the null: it runs from 0.746 to 1.018. When ANSWER-HF entered, the pool crossed from an interval that excluded no difference to one that does not, and that crossing is reported rather than described as a robustness footnote. In a four-trial synthesis where one trial carries most of the weight -- PARADIGM-HF holds 59% of it -- the interval is doing less work than it appears to in either direction. The honest reading is that the pivotal trial is the evidence, and that this meta-analysis quantifies how little the two subsequent trials change it, rather than adding independent support."
+    "text": "A pooled hazard ratio of [[pooled]] on this composite is a clinically meaningful reduction if it is real, but the interval does not exclude the null: it runs from 0.746 to 1.018. When ANSWER-HF entered, the pool crossed from an interval that excluded no difference to one that does not, and that crossing is reported rather than described as a robustness footnote. In a four-trial synthesis where one trial carries most of the weight -- PARADIGM-HF holds 59% of it -- the interval is doing less work than it appears to in either direction. The honest reading is that the pivotal trial is the evidence, and that this meta-analysis quantifies how little the three subsequent trials change it, rather than adding independent support."
    },
    {
     "heading": "Heterogeneity",
@@ -14114,7 +14120,7 @@
    },
    {
     "heading": "The leave-one-out finding",
-    "text": "Removing the largest trial moves the pooled estimate to [[loo_paradigm]]. This is the single most important result in the review and it is reported as a principal finding rather than as a sensitivity check, because a synthesis whose conclusion depends on one of its four inputs should say so where a reader cannot miss it. It does not mean the effect is absent: the two remaining trials are small and their intervals are wide, so they are compatible both with the pivotal trial's effect and with none. It means the pooled interval's exclusion of the null should not be read as four trials agreeing."
+    "text": "Removing the largest trial moves the pooled estimate to [[loo_paradigm]]. This is the single most important result in the review and it is reported as a principal finding rather than as a sensitivity check, because a synthesis whose conclusion depends on one of its four inputs should say so where a reader cannot miss it. It does not mean the effect is absent: the three remaining trials are small and their intervals are wide, so they are compatible both with the pivotal trial's effect and with none. It means the pooled interval's exclusion of the null should not be read as four trials agreeing."
    },
    {
     "heading": "Why the risk-of-bias rating did not change",
@@ -14157,7 +14163,7 @@
    "study_selection": "Randomised trials of sacubitril/valsartan against enalapril in adults with heart failure and reduced ejection fraction reporting the composite of cardiovascular death or heart failure hospitalisation as a time-to-first-event hazard ratio. [[n_records]] records were screened and [[k]] trials contributed. The final condition is a condition on the QUANTITY reported rather than on trial quality: several excluded trials are large, well conducted and directly on topic, and were excluded because they do not report this estimand.",
    "data_extraction": "Hazard ratios and their intervals were taken from the primary publications and stored on the log scale with the standard error the published interval implies. Risk of bias was assessed with Cochrane RoB-2 by two independent assessors from different model families; both judgement sets and the agreement rate between them are published without reconciliation.",
    "results": "[[k]] trials with [[n_total]] randomised participants contributed. The pooled hazard ratio was [[pooled]] ([[ci_low]] to [[ci_high]]), favouring sacubitril/valsartan. Between-trial heterogeneity was low (I-squared [[i2]]%, tau-squared [[tau2]], Q [[q]] on [[df]] degrees of freedom). The result is not robust to the removal of the largest trial: omitting it moves the pooled estimate to [[loo_paradigm]], which includes the null. GRADE certainty is [[certainty]].",
-   "conclusions": "Sacubitril/valsartan reduces the hazard of a first cardiovascular death or heart failure hospitalisation compared with enalapril, but at [[certainty]] certainty and with the pooled estimate resting almost entirely on one trial. The two smaller trials are individually compatible with no effect. This is an argument for reading the single large trial as the evidence base rather than for treating the pooled average as independent confirmation of it.",
+   "conclusions": "Sacubitril/valsartan reduces the hazard of a first cardiovascular death or heart failure hospitalisation compared with enalapril, but at [[certainty]] certainty and with the pooled estimate resting almost entirely on one trial. The three smaller trials are individually compatible with no effect. This is an argument for reading the single large trial as the evidence base rather than for treating the pooled average as independent confirmation of it.",
    "registration": "Protocol registered as a timestamped, SHA-pinned commit at [[protocol_permalink]] on [[protocol_utc]], [[ordering_margin]] before the first query was executed. The ordering is machine-checkable and is checked at every build.",
    "_why_kept": "The eight-section, 425-word abstract written before the journal profile was applied. It describes the methods better than 300 words allow and is carried into the deposit package, where there is no limit. Kept rather than deleted so the shorter one can be checked against it."
   },
