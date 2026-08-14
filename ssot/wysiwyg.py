@@ -86,6 +86,11 @@ def render(path, dl_html=""):
         elif k in ("h1", "h2", "h3", "h4"):
             lvl = {"h1": "h2", "h2": "h3", "h3": "h4", "h4": "h5"}[k]
             out.append("  <%s>%s</%s>%s" % (lvl, e(b.get("text", "")), lvl, NL))
+        elif k == "pre":
+            # Verbatim, so <pre> and not <p>: the Word file sets these lines in
+            # Consolas with the spacing intact, and a quotation the page reflows
+            # would no longer be the same quotation.
+            out.append("  <pre>%s</pre>%s" % (e(b.get("text", "")), NL))
         elif k == "p":
             out.append("  <p>%s</p>%s" % (e(b.get("text", "")), NL))
     if li_open:
@@ -126,6 +131,9 @@ DOC_CSS = """
     text face. Numerals stay tabular so columns still line up by place value. */
  .doc figcaption{font-size:.86rem;margin:.4rem 0}
  .doc .doc-f img{width:100%;height:auto;display:block;border:1px solid var(--line)}
+ .doc pre{font-family:Consolas,'SF Mono',Menlo,monospace;font-size:.76rem;
+      background:var(--soft);border:1px solid var(--line);border-radius:.3rem;
+      padding:.6rem .7rem;overflow-x:auto;white-space:pre;line-height:1.35}
  .doc table{border-collapse:collapse;width:100%;font-size:.82rem;
       font-variant-numeric:tabular-nums}
  .doc th,.doc td{border:1px solid var(--line);padding:.32rem .45rem;

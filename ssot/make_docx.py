@@ -215,6 +215,23 @@ def table(doc, caption, headers, rows):
     return _real_table(doc, caption, headers, rows)
 
 
+def verbatim(doc, text):
+    """A quoted block, preserved line for line in BOTH surfaces.
+
+    Recorded as kind "pre" rather than as paragraphs: split into paragraphs the
+    columns of a metafor table stop lining up, and a misaligned quotation is a
+    misquotation. Monospace here, <pre> on the page, same string in each.
+    """
+    DOCMODEL.append({"kind": "pre", "text": str(text)})
+    for line in str(text).split("\n"):
+        p = _ap(line if line.strip() else "")
+        p.paragraph_format.space_after = Pt(0)
+        r = p.runs[0] if p.runs else p.add_run("")
+        r.font.name = "Consolas"
+        r.font.size = Pt(8.5)
+    doc.add_paragraph()
+
+
 def figure(doc, caption, path, width=6.0):
     global FIG
     FIG += 1
@@ -711,6 +728,23 @@ if _PC:
         doc.add_paragraph("This review: %s" % _dv.get("ours", ""))
         doc.add_paragraph("That review: %s" % _dv.get("theirs", ""))
         doc.add_paragraph(_dv.get("why_they_differ", ""))
+
+# --- Statistical output, quoted verbatim ------------------------------------
+# The validity layer. Each block is the captured stdout of the call named above
+# it, not a reconstruction, so the k, the estimator, the heterogeneity and the
+# package version travel WITH the number. Recorded as a "pre" block so the page
+# and this file render the identical text: a quotation that is reflowed is no
+# longer a quotation.
+_RO = res.get("r_output") or {}
+if _RO.get("blocks"):
+    doc.add_heading("Statistical output, quoted verbatim", 1)
+    doc.add_paragraph(_RO.get("_why", ""))
+    doc.add_paragraph(_RO.get("_agreement_checked", ""))
+    doc.add_paragraph("Environment: %s" % _RO.get("_environment", ""))
+    for _bid, _b in _RO["blocks"].items():
+        doc.add_heading(_b.get("label", _bid), 2)
+        doc.add_paragraph("Call: %s" % _b.get("call", ""))
+        verbatim(doc, _b.get("output", ""))
 
 doc.add_heading("Discussion", 1)
 for x in MS.get("discussion", []):

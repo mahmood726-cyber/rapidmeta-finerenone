@@ -2184,6 +2184,78 @@
      "what_it_actually_shows": "The descriptive pattern is real: both Chagas trials sit at or above no effect and the unrestricted stratum carries the benefit. The FORMAL TEST DOES NOT SUPPORT IT. The interaction is null (p=0.54), the ratio of hazard ratios spans 0.72 to 1.89, and residual I-squared RISES from 32.9% to 35.6% -- so aetiology explains none of the between-trial heterogeneity. With two trials per stratum the test has almost no power, so this is 'not shown', not 'shown absent'.",
      "why_it_is_still_worth_reporting": "Chagas cardiomyopathy has focal fibrosis, high conduction-system involvement and markedly worse survival, so a difference is biologically plausible and a reader is entitled to see the strata rather than only the average. Reporting it with a null interaction is the honest form: it shows the question was asked and answers it as far as the data can, which is not far.",
      "biological_rationale": "focal fibrosis, conduction-system involvement, worse survival"
+    },
+    "r_output": {
+     "_why": "Every result below carries the VERBATIM printed output of the call that produced it, captured with capture.output() rather than re-typed. A bare number can only be checked against the object that produced it, and the object is ours; a quoted metafor call carries its own k, its own estimator, its own heterogeneity and its own package version, so a reader can audit the provenance without trusting us. It would have made this project's worst defect visible on sight: a printed k = 4 sitting under a leave-one-out panel drawn from three studies is obvious, where a bare 0.839 is not.",
+     "_agreement_checked": "The quoted output is parsed and compared against the projected values at the moment it is stored -- k, I-squared, Q and the back-transformed estimate with its interval. A quotation that disagrees with the number printed beside it is worse than no quotation, because it looks like provenance. The write refuses if they disagree.",
+     "_environment": "R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1",
+     "blocks": {
+      "primary_pooled": {
+       "label": "Primary pooled hazard ratio, random-effects REML on the log scale",
+       "call": "rma(yi = log_hr, sei = log_se, method = \"REML\", level = 95)",
+       "output": "\nRandom-Effects Model (k = 4; tau^2 estimator: REML)\n\ntau^2 (estimated amount of total heterogeneity): 0.0086 (SE = 0.0211)\ntau (square root of estimated tau^2 value):      0.0927\nI^2 (total heterogeneity / total variability):   32.89%\nH^2 (total variability / sampling variability):  1.49\n\nTest for Heterogeneity:\nQ(df = 3) = 5.1613, p-val = 0.1604\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb   ci.ub    \n -0.1375  0.0793  -1.7340  0.0829  -0.2929  0.0179  . \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n"
+      },
+      "prediction_interval": {
+       "label": "Prediction interval for a future study",
+       "call": "predict(m, transf = exp)",
+       "output": "\n   pred  ci.lb  ci.ub  pi.lb  pi.ub \n 0.8715 0.7461 1.0181 0.6862 1.1070 \n"
+      },
+      "tau2_ci": {
+       "label": "Confidence interval for tau-squared, Q-profile",
+       "call": "confint(m)",
+       "output": "\n       estimate  ci.lb   ci.ub \ntau^2    0.0086 0.0000  1.6878 \ntau      0.0927 0.0000  1.2992 \nI^2(%)  32.8942 0.0000 98.9716 \nH^2      1.4902 1.0000 97.2356 \n"
+      },
+      "eggers": {
+       "label": "Egger's regression test for funnel asymmetry",
+       "call": "regtest(m, model = \"lm\")",
+       "output": "\nRegression Test for Funnel Plot Asymmetry\n\nModel:     weighted regression with multiplicative dispersion\nPredictor: standard error\n\nTest for Funnel Plot Asymmetry: t =  9.6519, df = 2, p = 0.0106\nLimit Estimate (as sei -> 0):   b = -0.2999 (CI: -0.3630, -0.2368)\n"
+      },
+      "leave_one_out": {
+       "label": "Leave-one-out refits",
+       "call": "leave1out(m)",
+       "output": "\n              estimate     se    zval   pval   ci.lb   ci.ub      Q     Qp \n-paradigm-hf   -0.0346 0.1028 -0.3361 0.7368 -0.2361  0.1670 2.2922 0.3179 \n-parachute-hf  -0.0288 0.1925 -0.1495 0.8811 -0.4062  0.3486 4.2692 0.1183 \n-parallel-hf   -0.1698 0.0697 -2.4370 0.0148 -0.3064 -0.0332 4.0097 0.1347 \n-answer-hf     -0.1753 0.0622 -2.8180 0.0048 -0.2972 -0.0534 2.3515 0.3086 \n                tau2      I2     H2 \n-paradigm-hf  0.0008  1.2038 1.0122 \n-parachute-hf 0.0612 52.8513 2.1209 \n-parallel-hf  0.0049 26.5444 1.3614 \n-answer-hf    0.0035 22.2398 1.2860 \n"
+      },
+      "cumulative": {
+       "label": "Cumulative meta-analysis in year order",
+       "call": "cumul(m)",
+       "output": "\n             k estimate     se    zval   pval   ci.lb   ci.ub      Q     Qp \nparadigm-hf  1  -0.2231 0.0448 -4.9856 0.0000 -0.3109 -0.1354 0.0000 1.0000 \nparachute-hf 2  -0.1992 0.0501 -3.9724 0.0001 -0.2974 -0.1009 1.1505 0.2835 \nparallel-hf  3  -0.1753 0.0622 -2.8180 0.0048 -0.2972 -0.0534 2.3515 0.3086 \nanswer-hf    4  -0.1375 0.0793 -1.7340 0.0829 -0.2929  0.0179 5.1613 0.1604 \n               tau2      I2     H2 \nparadigm-hf  0.0000  0.0000 1.0000 \nparachute-hf 0.0011 13.0779 1.1505 \nparallel-hf  0.0035 22.2398 1.2860 \nanswer-hf    0.0086 32.8942 1.4902 \n"
+      },
+      "influence": {
+       "label": "Influence diagnostics",
+       "call": "influence(m)",
+       "output": "\n             rstudent  dffits cook.d  cov.r tau2.del QE.del    hat  weight \nparadigm-hf   -1.6324 -2.5403 1.6849 1.6821   0.0008 2.2922 0.5932 59.3192 \nparachute-hf  -0.1970 -0.7327 1.8795 5.8954   0.0612 4.2692 0.2991 29.9131 \nparallel-hf    0.9120  0.4176 0.1662 0.7723   0.0049 4.0097 0.0810  8.1043 \nanswer-hf      1.6087  0.4821 0.2274 0.6155   0.0035 2.3515 0.0266  2.6634 \n                dfbs inf \nparadigm-hf  -2.1977   * \nparachute-hf -0.6924   * \nparallel-hf   0.4789     \nanswer-hf     0.6129     \n"
+      },
+      "count_rr": {
+       "label": "Count-based pool on the RR scale (secondary estimand)",
+       "call": "escalc(measure = \"RR\", ai, n1i, ci, n2i); rma(method = \"REML\")",
+       "output": "\nRandom-Effects Model (k = 4; tau^2 estimator: REML)\n\ntau^2 (estimated amount of total heterogeneity): 0.0040 (SE = 0.0119)\ntau (square root of estimated tau^2 value):      0.0633\nI^2 (total heterogeneity / total variability):   25.18%\nH^2 (total variability / sampling variability):  1.34\n\nTest for Heterogeneity:\nQ(df = 3) = 4.1498, p-val = 0.2457\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb    ci.ub    \n -0.1365  0.0590  -2.3140  0.0207  -0.2521  -0.0209  * \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n"
+      },
+      "count_or": {
+       "label": "Count-based pool on the OR scale (secondary estimand)",
+       "call": "escalc(measure = \"OR\", ai, n1i, ci, n2i); rma(method = \"REML\")",
+       "output": "\nRandom-Effects Model (k = 4; tau^2 estimator: REML)\n\ntau^2 (estimated amount of total heterogeneity): 0.0055 (SE = 0.0217)\ntau (square root of estimated tau^2 value):      0.0740\nI^2 (total heterogeneity / total variability):   17.79%\nH^2 (total variability / sampling variability):  1.22\n\nTest for Heterogeneity:\nQ(df = 3) = 3.9046, p-val = 0.2720\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb    ci.ub    \n -0.1927  0.0748  -2.5740  0.0101  -0.3393  -0.0460  * \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n"
+      },
+      "count_rd": {
+       "label": "Count-based pool on the RD scale (secondary estimand)",
+       "call": "escalc(measure = \"RD\", ai, n1i, ci, n2i); rma(method = \"REML\")",
+       "output": "\nRandom-Effects Model (k = 4; tau^2 estimator: REML)\n\ntau^2 (estimated amount of total heterogeneity): 0.0007 (SE = 0.0014)\ntau (square root of estimated tau^2 value):      0.0269\nI^2 (total heterogeneity / total variability):   44.14%\nH^2 (total variability / sampling variability):  1.79\n\nTest for Heterogeneity:\nQ(df = 3) = 5.0714, p-val = 0.1666\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb   ci.ub    \n -0.0231  0.0203  -1.1352  0.2563  -0.0629  0.0167    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n"
+      },
+      "estimator_reml": {
+       "label": "Between-study variance estimator REML, Wald and Hartung-Knapp intervals",
+       "call": "rma(yi, sei, method = \"REML\")  and  ... test = \"knha\"",
+       "output": "\nRandom-Effects Model (k = 4; tau^2 estimator: REML)\n\ntau^2 (estimated amount of total heterogeneity): 0.0086 (SE = 0.0211)\ntau (square root of estimated tau^2 value):      0.0927\nI^2 (total heterogeneity / total variability):   32.89%\nH^2 (total variability / sampling variability):  1.49\n\nTest for Heterogeneity:\nQ(df = 3) = 5.1613, p-val = 0.1604\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb   ci.ub    \n -0.1375  0.0793  -1.7340  0.0829  -0.2929  0.0179  . \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n## Hartung-Knapp-Sidik-Jonkman:\n\n\nRandom-Effects Model (k = 4; tau^2 estimator: REML)\n\ntau^2 (estimated amount of total heterogeneity): 0.0086 (SE = 0.0211)\ntau (square root of estimated tau^2 value):      0.0927\nI^2 (total heterogeneity / total variability):   32.89%\nH^2 (total variability / sampling variability):  1.49\n\nTest for Heterogeneity:\nQ(df = 3) = 5.1613, p-val = 0.1604\n\nModel Results:\n\nestimate      se     tval  df    pval    ci.lb   ci.ub    \n -0.1375  0.0887  -1.5496   3  0.2190  -0.4199  0.1449    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n"
+      },
+      "estimator_dl": {
+       "label": "Between-study variance estimator DL, Wald and Hartung-Knapp intervals",
+       "call": "rma(yi, sei, method = \"DL\")  and  ... test = \"knha\"",
+       "output": "\nRandom-Effects Model (k = 4; tau^2 estimator: DL)\n\ntau^2 (estimated amount of total heterogeneity): 0.0126 (SE = 0.0271)\ntau (square root of estimated tau^2 value):      0.1124\nI^2 (total heterogeneity / total variability):   41.88%\nH^2 (total variability / sampling variability):  1.72\n\nTest for Heterogeneity:\nQ(df = 3) = 5.1613, p-val = 0.1604\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb   ci.ub    \n -0.1238  0.0896  -1.3826  0.1668  -0.2994  0.0517    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n## Hartung-Knapp-Sidik-Jonkman:\n\n\nRandom-Effects Model (k = 4; tau^2 estimator: DL)\n\ntau^2 (estimated amount of total heterogeneity): 0.0126 (SE = 0.0271)\ntau (square root of estimated tau^2 value):      0.1124\nI^2 (total heterogeneity / total variability):   41.88%\nH^2 (total variability / sampling variability):  1.72\n\nTest for Heterogeneity:\nQ(df = 3) = 5.1613, p-val = 0.1604\n\nModel Results:\n\nestimate      se     tval  df    pval    ci.lb   ci.ub    \n -0.1238  0.0962  -1.2880   3  0.2881  -0.4298  0.1822    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n"
+      },
+      "estimator_pm": {
+       "label": "Between-study variance estimator PM, Wald and Hartung-Knapp intervals",
+       "call": "rma(yi, sei, method = \"PM\")  and  ... test = \"knha\"",
+       "output": "\nRandom-Effects Model (k = 4; tau^2 estimator: PM)\n\ntau^2 (estimated amount of total heterogeneity): 0.0220 (SE = 0.0382)\ntau (square root of estimated tau^2 value):      0.1485\nI^2 (total heterogeneity / total variability):   55.69%\nH^2 (total variability / sampling variability):  2.26\n\nTest for Heterogeneity:\nQ(df = 3) = 5.1613, p-val = 0.1604\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb   ci.ub    \n -0.1010  0.1081  -0.9346  0.3500  -0.3129  0.1108    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n## Hartung-Knapp-Sidik-Jonkman:\n\n\nRandom-Effects Model (k = 4; tau^2 estimator: PM)\n\ntau^2 (estimated amount of total heterogeneity): 0.0220 (SE = 0.0382)\ntau (square root of estimated tau^2 value):      0.1485\nI^2 (total heterogeneity / total variability):   55.69%\nH^2 (total variability / sampling variability):  2.26\n\nTest for Heterogeneity:\nQ(df = 3) = 5.1613, p-val = 0.1604\n\nModel Results:\n\nestimate      se     tval  df    pval    ci.lb   ci.ub    \n -0.1010  0.1081  -0.9346   3  0.4189  -0.4450  0.2430    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n"
+      }
+     }
     }
    }
   }
