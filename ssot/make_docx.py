@@ -128,9 +128,18 @@ def add_toc(doc):
     r = p.add_run()
     fld = OxmlElement('w:fldSimple')
     fld.set(qn('w:instr'), r'TOC \o "1-3" \h \z \u')
+    # CT_SimpleField holds RUNS, not text. The placeholder went in as a bare
+    # <w:t> child, which is schema-invalid -- caught by the docx skill's XSD
+    # validator, and invisible to every check that only reads the text back out
+    # (pandoc, python-docx and our own numeral checks all still found the string,
+    # because they walk descendants rather than validate the tree). Word repairs
+    # it silently on open, which is exactly why it survived: the artefact looked
+    # fine to a human and was malformed to a parser.
+    run = OxmlElement('w:r')
     t = OxmlElement('w:t')
     t.text = "Right-click and choose Update Field to build the table of contents."
-    fld.append(t)
+    run.append(t)
+    fld.append(run)
     r._r.addnext(fld)
 
 
@@ -226,6 +235,23 @@ doc = Document()
 # emitted below is recorded in order and written to disk, and the page renders
 # that record -- so what a reader sees on the page is what is in the Word file,
 # by construction rather than by intention.
+def _fix_zoom(document):
+    """python-docx ships a schema-invalid <w:zoom> in its own default template.
+
+    CT_Zoom requires w:percent; the bundled template sets only w:val="bestFit",
+    so every file python-docx produces carries the defect and ours inherited it.
+    Upstream's bug, but it ships inside OUR .docx, so it is repaired here rather
+    than reported and left in. w:val is kept -- it is a legal optional attribute
+    and is what actually drives the view; only the required one was missing.
+    """
+    st = document.settings.element
+    for z in st.findall(qn('w:zoom')):
+        if z.get(qn('w:percent')) is None:
+            z.set(qn('w:percent'), "100")
+
+
+_fix_zoom(doc)
+
 DOCMODEL = []
 _ah, _ap = doc.add_heading, doc.add_paragraph
 
@@ -382,10 +408,17 @@ doc.add_paragraph(
     "database. The search is therefore described but not reproducible from "
     "this document, and that is a stated limitation rather than an omission.")
 doc.add_heading("Synthesis methods", 3)
+_model = str(res.get("model", "") or "")
+# The object stores 'random'; "random model with the REML estimator." is what
+# that produced, which reads as a dropped word rather than a term of art. The
+# expansion is presentational only -- the stored value is untouched.
+_model = {"random": "Random-effects", "fixed": "Fixed-effect",
+          "common": "Common-effect"}.get(_model.lower(), _model or "Random-effects")
 doc.add_paragraph(
-    "%s model with the %s estimator. %s"
-    % (res.get("model", ""), res.get("estimator_used") or res.get("estimator", ""),
-       (res.get("handbook") or {}).get("note", "")))
+    "%s model with the %s estimator.%s"
+    % (_model, res.get("estimator_used") or res.get("estimator", ""),
+       (" " + (res.get("handbook") or {}).get("note", ""))
+       if (res.get("handbook") or {}).get("note") else ""))
 
 # --- Results --------------------------------------------------------------
 doc.add_heading("Results", 1)
@@ -449,15 +482,27 @@ if _ce_rows:
     table(doc, "Component endpoints and each trial's published effect",
           ["Trial", "Endpoint", "Intervention events / n", "Comparator events / n",
            "Published effect", "Source tier"], _ce_rows)
+    _ce_tn = TBL
     doc.add_paragraph(
-        "These are shown because they are reported, and are NOT pooled: this "
+        "Table %d lists them. They are shown because they are reported, and are "
+        "NOT pooled: this " % _ce_tn +
         "review's estimand is the composite. A first-event composite is not the "
         "sum of its components -- on PARACHUTE-HF the components exceed it -- so "
         "no composite anywhere in this review is reconstructed by addition. "
-        "Where a cell reads ‘None published’ the trial reports that "
-        "endpoint as a tier of its primary hierarchical win ratio, in win "
-        "percentages rather than as a hazard ratio. No effect is derived for "
-        "those rows.")
+        "‘None published’ means no effect estimate for that endpoint "
+        "was found in the sources read for that trial; the per-arm counts were, "
+        "and are shown. It is not a derivation this review declined to make and "
+        "it is not an extraction miss. Where a trial's own reason is recorded it "
+        "is given below.")
+    _why = []
+    for _t in d["inputs"]["trials"]:
+        for _r in ((_t.get("component_endpoints") or {}).get("rows") or []):
+            _w = _r.get("no_published_effect_because")
+            if _w:
+                _why.append("%s, %s: %s" % (_t.get("name") or _t["id"],
+                                            _r.get("endpoint", ""), _w))
+    for _w in _why:
+        doc.add_paragraph(_w)
 
 doc.add_heading("Pooled result", 3)
 doc.add_paragraph(
@@ -476,9 +521,13 @@ rows = [["Risk ratio", "%s (%s to %s)" % (n(cp["rr"]["point"]), n(cp["rr"]["ci_l
                                                n(cp["rd"]["ci_high"])),
          n(cp["rd"]["I2"])]] if cp else []
 if rows:
+    _cpk = cp.get("_k_as_computed") if cp else None
     table(doc, "The same 2x2 on three scales (sensitivity to the primary "
                "hazard-ratio pool)", ["Measure", "Pooled (95% interval)",
-                                      "I-squared (%)"], rows)
+                                      "I-squared (%)", "k"],
+          [r + [n(_cpk)] for r in rows])
+    if cp and cp.get("_STALE"):
+        doc.add_paragraph("Table %d: %s" % (TBL, cp["_STALE"]))
 
 if pan.get("leave_one_out"):
     table(doc, "Leave-one-out sensitivity analysis",

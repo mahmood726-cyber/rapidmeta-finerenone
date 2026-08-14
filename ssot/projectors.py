@@ -315,12 +315,12 @@ def nice_log_ticks(lo, hi, null_v, limit=7):
             dec += 1
         return s
 
-    # 1-1.5-2-3-5-7 rather than 1-2-5: a hazard-ratio axis usually spans well
-    # under two decades, where 1-2-5 leaves only two labels on the whole scale.
-    # Ticks stay inside the DATA range, so they are always on canvas whichever
-    # display window is in force.
-    out = _mk((1, 1.5, 2, 3, 5, 7))
-    if len(out) < 3:
+    # Denser than 1-2-5: a hazard-ratio axis usually spans well under two
+    # decades, where 1-2-5 leaves two labels on the whole scale. Ticks stay
+    # inside the DATA range, so they are always on canvas whichever display
+    # window is in force.
+    out = _mk((1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 7))
+    if len(out) < 4:
         # A narrow span (e.g. a leave-one-out panel running 0.74 to 0.95) hits no
         # round number at all, which put us back at a single tick -- the very
         # defect this function exists to remove. Step down a decade for mantissas
@@ -389,9 +389,14 @@ def forest_svg(res, outcome, window=None):
     log = outcome.get("effect_scale") == "log"
     null_v = outcome.get("null_value", 1)
     tx = (lambda v: math.log(v)) if log else (lambda v: v)
-    lo = min([r["ci_low"] for r in rows]
+    # The null is included in the range deliberately. On a review where every
+    # interval excludes it, a null-only-in-the-tick-list axis puts the reference
+    # line off the canvas -- the one line the whole plot is read against. Adding
+    # it is deterministic and window-independent, so the cross-variant tick
+    # invariance the display windows rely on is unaffected.
+    lo = min([r["ci_low"] for r in rows] + [null_v]
              + ([pooled["ci_low"]] if pooled.get("ci_low") else []))
-    hi = max([r["ci_high"] for r in rows]
+    hi = max([r["ci_high"] for r in rows] + [null_v]
              + ([pooled["ci_high"]] if pooled.get("ci_high") else []))
     if log and lo <= 0:
         return ""
@@ -707,9 +712,15 @@ def forest_ranged(res, outcome, e, browser=None, workdir=None, outdir=None):
     _rows = [r for r in (res.get("per_trial") or [])
              if r.get("ci_low") and r.get("ci_high")]
     _pool = res.get("pooled") or {}
-    _lo = min([r["ci_low"] for r in _rows]
+    # Includes the null for the same reason forest_svg's range does, and it must
+    # be the SAME range or the two disagree: a window could satisfy this check by
+    # containing all the data, while the null tick that forest_svg draws from a
+    # null-inclusive range fell outside it and was clipped -- which is precisely
+    # the silent-clipping this check exists to prevent.
+    _null = outcome.get("null_value", 1)
+    _lo = min([r["ci_low"] for r in _rows] + [_null]
               + ([_pool["ci_low"]] if _pool.get("ci_low") else []))
-    _hi = max([r["ci_high"] for r in _rows]
+    _hi = max([r["ci_high"] for r in _rows] + [_null]
               + ([_pool["ci_high"]] if _pool.get("ci_high") else []))
     _dropped = []
     import figures as fg
