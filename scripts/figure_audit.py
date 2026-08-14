@@ -9,6 +9,7 @@ their axes differ.
 import io
 import json
 import os
+import re
 import sys
 import time
 
@@ -32,9 +33,22 @@ try:
     figs = d.execute_script("""
       const out=[];
       document.querySelectorAll('svg').forEach((s,i)=>{
+        const geom={lines:[...s.querySelectorAll('line')].map(l=>({
+              x1:+l.getAttribute('x1'),y1:+l.getAttribute('y1'),
+              x2:+l.getAttribute('x2'),y2:+l.getAttribute('y2'),
+              dash:!!l.getAttribute('stroke-dasharray')})),
+          polys:s.querySelectorAll('polygon').length,
+          paths:s.querySelectorAll('path').length};
         const card=s.closest('.card');
         const h=card?card.querySelector('h3'):null;
-        const cap=card?card.querySelector('p,small,figcaption'):null;
+        // The CAPTION is the last <p><small> in the card. The first <p> is the
+        // downloads block, so the original selector read '⬇ SVG (vector) 2 KB'
+        // as every figure's caption -- which is why the promise check could
+        // not fire on a build whose L'Abbe caption demonstrably promised a
+        // diagonal it never drew. A check reading the wrong element is a check
+        // that cannot fail.
+        const smalls=card?[...card.querySelectorAll('p > small')]:[];
+        const cap=smalls.length?smalls[smalls.length-1]:null;
         // marks: circles (scatter), rects (forest/rows squares), polygons
         const circles=[...s.querySelectorAll('circle')].map(c=>[
             +c.getAttribute('cx'), +c.getAttribute('cy')]);
@@ -44,8 +58,8 @@ try:
         out.push({i:i,
                   title:h?h.innerText.trim():('svg'+i),
                   aria:s.getAttribute('aria-label')||'',
-                  caption:cap?cap.innerText.trim().slice(0,200):'',
-                  circles:circles, rects:rects, texts:texts,
+                  caption:cap?cap.innerText.trim().slice(0,600):'',
+                  circles:circles, rects:rects, texts:texts, geom:geom,
                   viewBox:s.getAttribute('viewBox')});
       });
       return out;""")
@@ -100,11 +114,55 @@ print("\ncollisions: %d" % coll)
 # axes. Both were live here: every scatter announced "\n against <xlab>".
 unlabelled = [f for f in figs
               if "(horizontal)" not in f["aria"] and "rows" not in f["aria"]
-              and "Forest" not in f["aria"]]
+              and "Forest" not in f["aria"] and "not " not in f["aria"]]
 print("figures whose aria-label does not name both axes: %d%s"
       % (len(unlabelled),
          ("  " + ", ".join(f["title"] for f in unlabelled)) if unlabelled else ""))
-sys.exit(1 if (coll or unlabelled) else 0)
+
+
+# ---------------------------------------------------------------------------
+# A CAPTION MUST NOT PROMISE AN ELEMENT THAT IS NOT DRAWN.
+# L'Abbe's caption said "below the diagonal favours the intervention" while no
+# diagonal was drawn: the reader was told to read against a reference that did
+# not exist. That is invisible to every check that compares numbers, and it
+# generalises -- any caption naming a diagonal, a null line, a reference line or
+# contours is making a checkable claim about the geometry beside it.
+def _diag(g):
+    """A line that is neither horizontal nor vertical: a true diagonal."""
+    for l in g["lines"]:
+        dx, dy = abs(l["x2"] - l["x1"]), abs(l["y2"] - l["y1"])
+        if dx > 6 and dy > 6:
+            return True
+    return False
+
+
+def _vline(g):
+    return any(abs(l["x2"] - l["x1"]) < 1.5 and abs(l["y2"] - l["y1"]) > 20
+               for l in g["lines"])
+
+
+PROMISES = [
+    (r"\bdiagonal\b", "a diagonal", lambda g: _diag(g)),
+    (r"no effect line|line of no effect|null line|reference line",
+     "a reference/null line", lambda g: _vline(g) or _diag(g)),
+    (r"contour|pseudo-confidence|funnel band",
+     "contours or a pseudo-confidence funnel",
+     lambda g: g["polys"] >= 2 or sum(1 for l in g["lines"] if l["dash"]) >= 2),
+    (r"dashed line", "a dashed line",
+     lambda g: any(l["dash"] for l in g["lines"])),
+]
+broken = []
+for f in figs:
+    cap = (f.get("caption") or "") + " " + (f.get("aria") or "")
+    low = cap.lower()
+    for pat, what, pred in PROMISES:
+        if re.search(pat, low) and not pred(f["geom"]):
+            broken.append((f["title"], what))
+print("captions promising an element the SVG does not contain: %d" % len(broken))
+for t, w in broken:
+    print("   - %s: caption names %s, none is drawn" % (t, w))
+
+sys.exit(1 if (coll or unlabelled or broken) else 0)
 json.dump([{k: v for k, v in f.items() if k != "_sig"} for f in figs],
           open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                             "figure_audit.json"), "w", encoding="utf-8"),

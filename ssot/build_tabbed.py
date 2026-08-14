@@ -480,7 +480,15 @@ def build(canon):
                                        browser=pj.RASTER.get("browser"),
                                        workdir=pj.RASTER.get("workdir"),
                                        outdir=pj.RASTER.get("outdir"))
-        d["figures"] = p2.analysis_figures(res, outcome, p)
+        # The PRISMA flow and the risk-of-bias traffic light are the two figures
+        # an editor looks for first and neither rendered anywhere. They project
+        # from the screening corpus and the RoB-2 block, both already stored.
+        # underpowered_figures() states the three that k=4 cannot support rather
+        # than drawing them.
+        d["figures"] = (p2.prisma_figure(canon, p)
+                        + p2.analysis_figures(res, outcome, p)
+                        + p2.rob_figure(canon, p)
+                        + p2.underpowered_figures(res, p))
         d["countfigs"] = p2.count_figures(res, p)
         d["grade"] = p2.grade_section(res, p)
         d["stats"] = statistics_tables(res, p)

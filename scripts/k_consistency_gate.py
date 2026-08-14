@@ -80,7 +80,18 @@ EXCLUDE = (".screening.corpus", ".screening.dual_screening", ".sources",
            ".rob2", ".methodological_authority", ".claims_corrected",
            ".citations", ".reconciliation", ".registration", ".protocol",
            ".prisma_items", ".count_recovery", ".attestations",
-           ".eligible_but_not_contributing", ".outcomes_considered")
+           ".eligible_but_not_contributing", ".outcomes_considered",
+           # The comparison section quotes ANOTHER review verbatim -- "A total of
+           # nine studies", "1,066 studies" -- and those counts are theirs, not
+           # ours. Reconciling them against our k would demand we misquote the
+           # paper we are auditing. The R blocks are captured metafor output and
+           # print their own k, which is checked separately and far more strictly
+           # by the agreement gate in add_r_output.py.
+           # Exempted DELIBERATELY: both were already passing by accident of the
+           # bare-noun rule, and an exemption that holds by accident stops holding
+           # the moment someone writes "nine included trials" in one of them.
+           ".published_comparison", ".r_output",
+           ".results.by_outcome.cvdeath_or_hfh_first.r_output")
 # Strings that deliberately narrate the k change itself.
 HISTORY = ("_stale", "recomputed", "superseded", "k=3", "k = 3", "at k=3")
 
@@ -94,7 +105,9 @@ def textual_k_problems(strings, k):
     """strings: iterable of (location, text). Returns (failures, for_review)."""
     fails, review = [], []
     for loc, txt in strings:
-        if any(loc.startswith(p) for p in EXCLUDE):
+        # startswith is not enough: r_output is nested under the outcome, so the
+        # path is .results.by_outcome.<id>.r_output and no prefix would match it.
+        if any(p in loc for p in EXCLUDE):
             continue
         low = (txt or "").lower()
         if any(h in low for h in HISTORY):
