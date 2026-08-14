@@ -108,10 +108,22 @@ def rasterise():
                    "const p=arguments[0].closest('.fwp');"
                    "return !p || p.id==='fwp-fit';", e)]
         for i, el in enumerate(els):
+            # The card's NOTE as well as its title. Every figure legend in the
+            # Word file was a bare title -- "Forest plot" -- while the page
+            # carried the real legend underneath, including the cautions saying
+            # a funnel cannot be read at this k and why GOSH and TSA are not
+            # drawn. Those cautions existed on ONE surface only, so the Word
+            # reader met seven diagnostics with no warning attached to any.
             title = dr.execute_script(
                 "const c=arguments[0].closest('.card');"
                 "const h=c?c.querySelector('h3'):null;"
                 "return h?h.innerText.trim():'Figure';", el)
+            note = dr.execute_script(
+                "const c=arguments[0].closest('.card');"
+                "const ss=c?[...c.querySelectorAll('p > small')]:[];"
+                "return ss.length?ss[ss.length-1].innerText.trim():'';", el)
+            if note:
+                title = title + ". " + note
             dr.execute_script("arguments[0].scrollIntoView({block:'center'});", el)
             time.sleep(0.25)
             p = os.path.join(FIGDIR, "fig%02d.png" % (i + 1))
@@ -496,9 +508,13 @@ doc.add_paragraph(sc.get("eligibility", ""))
 doc.add_heading("Information sources and search", 3)
 doc.add_paragraph(sc.get("search_note", ""))
 doc.add_paragraph(
-    "No executed query string is recorded in the canonical object for any "
-    "database. The search is therefore described but not reproducible from "
-    "this document, and that is a stated limitation rather than an omission.")
+    "Each database's query string is recorded in the canonical object exactly "
+    "as executed, with the endpoint, the parameters, the filters, the execution "
+    "timestamp and the hit count the API returned, and all of it is reproduced "
+    "in the extended data (search_capture.csv). The search is therefore "
+    "reproducible from this record. This paragraph previously asserted the "
+    "opposite -- that no query string was recorded and the search was not "
+    "reproducible -- while the strings sat in the object six paragraphs away.")
 doc.add_heading("Synthesis methods", 3)
 _model = str(res.get("model", "") or "")
 # The object stores 'random'; "random model with the REML estimator." is what

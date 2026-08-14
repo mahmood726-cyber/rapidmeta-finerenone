@@ -61,13 +61,27 @@ def main(argv):
                      [os.path.join(HERE, "k_consistency_gate.py"), "--selftest"])
         fails += run("alignment gate -- self-test",
                      [os.path.join(HERE, "alignment_gate.py"), "--selftest"])
+        fails += run("verdict type -- self-test",
+                     [os.path.join(HERE, "verdict.py")])
+        fails += run("identity gate -- self-test",
+                     [os.path.join(HERE, "identity_gate.py"), "--selftest"])
+        fails += run("prose-claim gate -- self-test",
+                     [os.path.join(HERE, "prose_claim_gate.py"), "--selftest"])
         print("\n%d self-test(s) FAILED" % fails)
         return fails
 
+    if a.get("selftest") is None and a.get("object"):
+        pass
     obj = a.get("object")
     if obj and obj is not True:
         fails += run("k-consistency gate (numeric + textual k)",
                      [os.path.join(HERE, "k_consistency_gate.py"), obj])
+        # exit 2 = INVALID present, which is NOT a pass: see verdict.py.
+        fails += run("identity gate (registration verified in the source doc)",
+                     [os.path.join(HERE, "identity_gate.py"), obj,
+                      "--sources", os.path.join(os.path.dirname(obj), "sources")])
+        fails += run("prose-claim gate (direction / existence claims)",
+                     [os.path.join(HERE, "prose_claim_gate.py"), obj])
 
     page = a.get("page")
     if page and page is not True:

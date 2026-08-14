@@ -584,7 +584,8 @@ def prisma_figure(canon, p):
     screened = len(corpus)
     tiab_removed = (ex_tiab or 0) + (und or 0)
     _ident_ok = (not ident) or (ident == screened)
-    if screened - tiab_removed != full or not _ident_ok:
+    _studies = len((canon.get("inputs") or {}).get("trials") or [])
+    if screened - tiab_removed != full or not _ident_ok or (inc and inc < _studies):
         # Refuse to draw a flow that does not add up rather than ship a diagram
         # a reader can falsify with mental arithmetic. This review checks the
         # PRISMA arithmetic of the published syntheses it audits; it has to
@@ -619,14 +620,24 @@ def prisma_figure(canon, p):
                   "as exclusions." % fmt(und)) if und else None},
         {"label": "Full texts assessed for eligibility", "n": full or None,
          "side": ("excluded %s" % fmt(ex_full)) if ex_full else None},
-        {"label": "Trials contributing to the synthesis", "n": inc or None},
+        # PRISMA 2020 separates REPORTS from STUDIES, and this corpus needs the
+        # distinction: PARADIGM-HF and PARALLEL-HF each contribute a publication
+        # record and a registry record, so seven included records are four
+        # trials. Printing 7 in the final box would overstate the evidence base
+        # by three studies that do not exist.
+        {"label": "Reports of included studies", "n": inc or None,
+         "note": "Records, not studies: two trials contribute both a "
+                 "publication and a registry record."},
+        {"label": "Studies contributing to the synthesis",
+         "n": len((canon.get("inputs") or {}).get("trials") or []) or None},
     ]
     return fig(prisma_flow_svg(boxes), "PRISMA flow of records",
                "prisma-flow.svg",
-               "Two boxes are drawn as NOT RECORDED rather than filled. The "
-               "identification counts were never captured by the pipeline that "
-               "produced this corpus and cannot be reconstructed after the fact "
-               "without inventing numbers; a diagram missing its top box reads as "
+               "Every stage carries a count. The identification tier is "
+               "populated from search.databases, and this caption previously "
+               "said the opposite -- that two boxes were drawn as NOT RECORDED "
+               "because the counts had never been captured. They had been, all "
+               "along; a diagram missing its top box reads as "
                "an oversight, one that states the gap reads as a decision. The "
                "identification tier is populated from search.databases -- each "
                "database's hit count as the API returned it, and how many were "
