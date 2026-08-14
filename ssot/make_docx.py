@@ -641,6 +641,77 @@ if _disc:
                              x.get("lesson", "")))
 
 # --- Discussion / limitations / conclusions -------------------------------
+# --- Comparison with published syntheses -----------------------------------
+# A standard section, not an appendix. The point of this project is not that it
+# produced another synthesis; it is that it checked the existing ones and showed
+# its working. Confirmations are printed in the same table and the same detail as
+# errors, and the denominator is printed with them, because a list of only the
+# failures is a selection rather than a finding.
+_PC = d.get("published_comparison") or {}
+if _PC:
+    doc.add_heading("Comparison with published syntheses", 1)
+    doc.add_paragraph(_PC.get("_why", ""))
+    doc.add_paragraph(_PC.get("_how_identified", ""))
+    for _rv in _PC.get("reviews", []):
+        doc.add_heading(_rv.get("citation", "")[:120], 2)
+        doc.add_paragraph(
+            "PMID %s; PMCID %s; DOI %s. %s" % (_rv.get("pmid", ""),
+                                               _rv.get("pmcid", ""),
+                                               _rv.get("doi", ""),
+                                               _rv.get("identifier_provenance", "")))
+        doc.add_paragraph("Their scope: %s. Their k: %s. Their search closed %s."
+                          % (_rv.get("scope", ""), n(_rv.get("their_k")),
+                             _rv.get("their_search_closed", "")))
+        doc.add_paragraph(_rv.get("how_it_differs_from_ours", ""))
+
+    # Trial-by-trial reconciliation, from the reconciliation block.
+    _tl = ((d.get("reconciliation") or {}).get("trial_list_diffs") or [])
+    for _t in _tl:
+        if not _t.get("list_was_readable"):
+            continue
+        _rows = []
+        for _x in _t.get("theirs_not_ours", []):
+            _rows.append(["only theirs", _x.get("trial", ""),
+                          _x.get("disposition", ""), _x.get("reason", "")])
+        for _x in _t.get("ours_not_theirs", []):
+            _rows.append(["only ours", _x.get("trial", ""), "held",
+                          _x.get("why_ours_is_right", "")])
+        for _nm in _t.get("review_included_trials", []):
+            if any(_nm == r[1] for r in _rows):
+                continue
+            _rows.append(["in both", _nm, "pooled or screened",
+                          "Present in their included-study table and in this "
+                          "object's records."])
+        if _rows:
+            table(doc, "Trial-by-trial reconciliation against their included set",
+                  ["Side", "Trial", "Disposition here", "Reason"], _rows)
+
+    _ck = _PC.get("checks", [])
+    if _ck:
+        table(doc, "Checks applied to the published synthesis, with verdicts",
+              ["Check", "Verdict", "What was compared"],
+              [[c.get("what", ""), c.get("verdict", ""), c.get("detail", "")]
+               for c in _ck])
+        _den = _PC.get("denominator") or {}
+        doc.add_paragraph("%s %s" % (_den.get("statement", ""),
+                                     _den.get("symmetry", "")))
+        doc.add_heading("Quoted evidence for each check", 2)
+        for c in _ck:
+            _q = c.get("quote")
+            doc.add_paragraph("%s -- %s. %s"
+                              % (c.get("verdict", ""), c.get("what", ""),
+                                 ("Quoted from %s: \u201c%s\u201d"
+                                  % (c.get("location", ""), _q)) if _q else
+                                 ("Checked at %s; nothing to quote because the "
+                                  "item is absent from the paper."
+                                  % c.get("location", ""))))
+    _dv = _PC.get("divergence_decomposed") or {}
+    if _dv:
+        doc.add_heading("Where our result differs from theirs", 2)
+        doc.add_paragraph("This review: %s" % _dv.get("ours", ""))
+        doc.add_paragraph("That review: %s" % _dv.get("theirs", ""))
+        doc.add_paragraph(_dv.get("why_they_differ", ""))
+
 doc.add_heading("Discussion", 1)
 for x in MS.get("discussion", []):
     doc.add_heading(x["heading"], 2)
