@@ -38,9 +38,15 @@ def _img(path):
 def _table(b):
     head = "".join("<th>%s</th>" % e(str(h)) for h in b.get("headers", []))
     body = ""
+    mono = set(b.get("mono_cols") or [])
     for r in b.get("rows", []):
+        # A verbatim cell keeps its own line breaks and column alignment. Without
+        # this the page reflows a metafor table that the Word file preserves, and
+        # the two surfaces would be showing different quotations.
         body += ("      <tr>%s</tr>%s"
-                 % ("".join("<td>%s</td>" % e(str(v)) for v in r), NL))
+                 % ("".join(("<td><pre class='cellpre'>%s</pre></td>"
+                             if i in mono else "<td>%s</td>")
+                            % e(str(v)) for i, v in enumerate(r)), NL))
     return ("  <figure class='doc-t'>%s"
             "    <figcaption><strong>Table %s.</strong> %s</figcaption>%s"
             "    <table>%s      <tr>%s</tr>%s%s    </table>%s  </figure>%s"
@@ -131,6 +137,8 @@ DOC_CSS = """
     text face. Numerals stay tabular so columns still line up by place value. */
  .doc figcaption{font-size:.86rem;margin:.4rem 0}
  .doc .doc-f img{width:100%;height:auto;display:block;border:1px solid var(--line)}
+ .doc pre.cellpre{margin:0;padding:.2rem .25rem;border:0;background:none;
+      font-size:.66rem;line-height:1.25;white-space:pre;overflow-x:auto}
  .doc pre{font-family:Consolas,'SF Mono',Menlo,monospace;font-size:.76rem;
       background:var(--soft);border:1px solid var(--line);border-radius:.3rem;
       padding:.6rem .7rem;overflow-x:auto;white-space:pre;line-height:1.35}

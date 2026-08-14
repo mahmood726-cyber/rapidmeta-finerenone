@@ -5,7 +5,9 @@ round-end -- the discipline whose absence lost a day's work to one reset.
 
 Prose recovered from the .pyc where it existed; control flow written fresh.
 """
+import collections
 import math
+import re
 
 from projectors import (NL, e, fmt, kv_card, fig, scatter_svg, rows_svg,
                         funnel_svg, rob_traffic_light_svg, prisma_flow_svg,
@@ -515,8 +517,7 @@ def prisma_figure(canon, p):
     und = sum(v for k, v in cc.items() if str(k).endswith("undetermined"))
     ex_tiab = cc.get("TiAb/exclude")
     ex_full = cc.get("FullText/exclude")
-    import collections as _c
-    ax = _c.Counter(r.get("axis_failed") for r in corpus
+    ax = collections.Counter(r.get("axis_failed") for r in corpus
                     if r.get("decision") == "exclude" and r.get("axis_failed"))
     why = ", ".join("%s %d" % (k.lower(), v) for k, v in ax.most_common())
     # SCREENED is every record that entered title/abstract screening, which is
@@ -525,25 +526,57 @@ def prisma_figure(canon, p):
     # box under-reported the screened total by exactly the nine that went on to
     # full text. Caught by reading the rendered diagram and checking that its
     # own arithmetic closes.
+    # THE IDENTIFICATION TIER WAS NOT UNRECOVERABLE. The object recorded it all
+    # along, in search.databases: each database's hit count as the API returned
+    # it and how many of those were retrieved. They sum to exactly the screened
+    # corpus, and the corpus's own per-source tally agrees independently. The
+    # "permanently unrecoverable" note was stale, and an empty identification
+    # tier is a submission blocker -- so this is populated from stored evidence
+    # rather than by re-running the search, which means no record enters or
+    # leaves the pool and k cannot move.
+    dbs = (canon.get("search") or {}).get("databases") or []
+    ident, per_db = 0, []
+    for db in dbs:
+        m = re.search(r"(\d+)", str(db.get("records_retrieved")
+                                     or db.get("hit_count") or ""))
+        if not m:
+            per_db, ident = [], 0
+            break
+        ident += int(m.group(1))
+        per_db.append("%s %s" % (str(db.get("database", "")).split(" (")[0],
+                                 m.group(1)))
     screened = len(corpus)
     tiab_removed = (ex_tiab or 0) + (und or 0)
-    if screened - tiab_removed != full:
+    _ident_ok = (not ident) or (ident == screened)
+    if screened - tiab_removed != full or not _ident_ok:
         # Refuse to draw a flow that does not add up rather than ship a diagram
         # a reader can falsify with mental arithmetic. This review checks the
         # PRISMA arithmetic of the published syntheses it audits; it has to
         # survive the same check.
         return fig(not_computable_svg(
             "PRISMA flow of records",
-            "Refused: %d screened minus %d removed at title/abstract does not "
-            "equal the %d assessed at full text."
-            % (screened, tiab_removed, full)),
+            "Refused: the flow does not reconcile. %d identified, %d screened, "
+            "%d removed at title/abstract, %d assessed at full text."
+            % (ident, screened, tiab_removed, full)),
             "PRISMA flow of records", "prisma-flow.svg",
             "Not drawn, because the stored stage counts do not reconcile.")
+    by_src = collections.Counter(r.get("source") for r in corpus)
     boxes = [
-        {"label": "Records identified by database searching", "n": None,
-         "note": "Not recorded by the pipeline that built this corpus."},
-        {"label": "Duplicates removed", "n": None,
-         "note": "Not recorded; cannot be reconstructed without inventing it."},
+        {"label": "Records identified from databases and registers",
+         "n": ident or None,
+         "note": ("; ".join(per_db)) if per_db else
+                 "No per-database counts are recorded.",
+         "side": "corpus tally: %s" % ", ".join(
+             "%s %d" % (k, v) for k, v in sorted(by_src.items()) if k)},
+        {"label": "Records removed before screening",
+         "n": 0 if ident and ident == len(corpus) else None,
+         # Short enough to fit the box. The full reasoning is in the caption;
+         # a note clipped mid-word ("disjoint record typ") is the same lost-text
+         # defect as the axis title that ran off its own viewBox.
+         "note": ("No de-duplication step recorded; retrieved totals sum "
+                  "exactly to the screened corpus."
+                  if ident == len(corpus) else
+                  "Not recorded; cannot be reconstructed without inventing it.")},
         {"label": "Records screened on title and abstract", "n": screened,
          "side": ("excluded %s" % fmt(ex_tiab)) if ex_tiab else None,
          "note": ("%s further record(s) UNDETERMINED at this stage, not counted "
@@ -558,9 +591,16 @@ def prisma_figure(canon, p):
                "identification counts were never captured by the pipeline that "
                "produced this corpus and cannot be reconstructed after the fact "
                "without inventing numbers; a diagram missing its top box reads as "
-               "an oversight, one that states the gap reads as a decision, and "
-               "only the second is true here. Exclusion reasons across the whole "
-               "corpus: %s." % p(why))
+               "an oversight, one that states the gap reads as a decision. The "
+               "identification tier is populated from search.databases -- each "
+               "database's hit count as the API returned it, and how many were "
+               "retrieved -- which sum to exactly the screened corpus, and the "
+               "corpus's own per-source tally agrees independently. No search "
+               "was re-run to fill it, so no record entered or left the pool. "
+               "The two sources return disjoint record types (PMIDs and NCT "
+               "numbers) and no de-duplication step is recorded, which is why "
+               "records removed before screening is zero rather than unknown. "
+               "Exclusion reasons across the whole corpus: %s." % p(why))
 
 
 def underpowered_figures(res, p):

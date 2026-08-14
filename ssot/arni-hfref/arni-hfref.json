@@ -12791,6 +12791,12 @@
    "correction": "It covers four. ANSWER-HF was adjudicated in, the pool and the panels were recomputed at k=4 and the Discussion was corrected, and the title was not touched. The numeric consistency gate written for exactly this class passed, because it reconciled object FIELDS and k is written far more often as a WORD in a phrase. Seven textual statements of count were stale, in the title, the extended abstract, two Discussion paragraphs, the Robustness paragraph, the outcome definition note and the sensitivity rationale.",
    "source_id": "inputs.trials[] (4 rows) and results.by_outcome.*.per_trial (4 rows)",
    "corrected_utc": "2026-08-14T01:40:00Z"
+  },
+  {
+   "claim": "that the PRISMA identification counts for this corpus were permanently unrecoverable and had to be shown as NOT RECORDED",
+   "correction": "They were in search.databases the whole time. PubMed returned 331 and all 331 were retrieved; ClinicalTrials.gov returned 92 and all 92 were retrieved; 331 + 92 = 423 = the screened corpus, and the corpus's per-source tally agrees. An empty identification tier is a submission blocker and it was empty because of a stale note, not because of missing data. Populated WITHOUT re-running the search, so the pool is untouched.",
+   "source_id": "search.databases; screening.corpus source tally",
+   "corrected_utc": "2026-08-14T00:00:00Z"
   }
  ],
  "scope_decisions": {
@@ -14179,19 +14185,19 @@
   "results_prose": [
    {
     "heading": "Study selection",
-    "text": "[[n_records]] records were screened and [[k]] trials met all four eligibility conditions, contributing [[n_total]] randomised participants. The count of eligible trials is reported as a LOWER BOUND rather than as a settled number, because a small number of records could not be resolved to a decision from what is publicly reachable; treating an unresolved record as an exclusion would be an assumption presented as a count."
+    "text": "[[n_records]] records were screened and [[k]] trials met all four eligibility conditions, contributing [[n_total]] randomised participants. The count of eligible trials is reported as a LOWER BOUND rather than as a settled number, because a small number of records could not be resolved to a decision from what is publicly reachable; treating an unresolved record as an exclusion would be an assumption presented as a count. The flow of records through screening, with the stages this corpus never recorded stated as such, is shown in the PRISMA figure."
    },
    {
     "heading": "Trial characteristics",
-    "text": "The [[k]] trials differ in ways that matter for interpretation. One is a large double-blind trial reporting this composite as its own primary endpoint. Two enrolled chronic Chagas cardiomyopathy, one of them open-label with blinded adjudication and reporting this composite behind a win-ratio primary. One is double-blind and small. Characteristics are in Table 1 and per-arm counts in Table 2."
+    "text": "The [[k]] trials differ in ways that matter for interpretation. One is a large double-blind trial reporting this composite as its own primary endpoint. Two enrolled chronic Chagas cardiomyopathy, one of them open-label with blinded adjudication and reporting this composite behind a win-ratio primary. One is double-blind and small. Characteristics are in Table 1 and per-arm counts in Table 2. Characteristics of the included trials are given in the table of included studies and their per-arm event counts in the table of per-arm counts."
    },
    {
     "heading": "Primary synthesis",
-    "text": "The pooled hazard ratio was [[pooled]] ([[ci_low]] to [[ci_high]], [[ci_level]]% interval), favouring sacubitril/valsartan over enalapril. Between-trial heterogeneity was low: I-squared [[i2]]%, tau-squared [[tau2]], with Q of [[q]] on [[df]] degrees of freedom. The individual estimates range from [[min_point]] to [[max_point]], and that spread is real even though the heterogeneity statistics are small, because three of the four intervals include the null and two of those span more than a doubling of risk."
+    "text": "The pooled hazard ratio was [[pooled]] ([[ci_low]] to [[ci_high]], [[ci_level]]% interval), favouring sacubitril/valsartan over enalapril. Between-trial heterogeneity was low: I-squared [[i2]]%, tau-squared [[tau2]], with Q of [[q]] on [[df]] degrees of freedom. The individual estimates range from [[min_point]] to [[max_point]], and that spread is real even though the heterogeneity statistics are small, because three of the four intervals include the null and two of those span more than a doubling of risk. The per-trial and pooled estimates are shown in the forest plot. The prediction interval for a future study runs from [[pi_low]] to [[pi_high]]."
    },
    {
     "heading": "Robustness",
-    "text": "The pooled result is not robust to the removal of the largest trial. Omitting it gives [[loo_paradigm]], an interval that includes the null. The three smaller trials are therefore individually and jointly compatible with no effect on this composite, and the pooled estimate is best read as the large trial's result, slightly attenuated by the three smaller trials, which neither confirm nor contradict it. Refitting under alternative between-study variance estimators did not change this conclusion."
+    "text": "The pooled result is not robust to the removal of the largest trial. Omitting it gives [[loo_paradigm]], an interval that includes the null. The three smaller trials are therefore individually and jointly compatible with no effect on this composite, and the pooled estimate is best read as the large trial's result, slightly attenuated by the three smaller trials, which neither confirm nor contradict it. Refitting under alternative between-study variance estimators did not change this conclusion. Each refit is shown in the leave-one-out figure and tabulated in the leave-one-out table; [[loo_n_excluding_null]] of [[loo_n_total]] refits still exclude no difference."
    },
    {
     "heading": "Cross-engine verification",
@@ -14199,11 +14205,23 @@
    },
    {
     "heading": "Risk of bias",
-    "text": "No domain in any trial was rated at high risk of bias by either assessor. The two assessors agreed on [[rob2_agree]]/[[rob2_total]] domain judgements ([[rob2_rate]]%), and on [[rob2_overall_agree]] of [[rob2_overall_total]] overall judgements. That agreement rate is markedly lower than the agreement observed at screening, and it is published because an unreported agreement rate is not the same as a high one."
+    "text": "No domain in any trial was rated at high risk of bias by either assessor. The two assessors agreed on [[rob2_agree]]/[[rob2_total]] domain judgements ([[rob2_rate]]%), and on [[rob2_overall_agree]] of [[rob2_overall_total]] overall judgements. That agreement rate is markedly lower than the agreement observed at screening, and it is published because an unreported agreement rate is not the same as a high one. Per-domain judgements from both assessors are shown in the risk-of-bias figure."
    },
    {
     "heading": "Certainty of the evidence",
     "text": "GRADE certainty for this outcome is [[certainty]], downgraded for risk of bias and for imprecision. The completed RoB-2 assessment was checked against the risk-of-bias downgrade and did not change it, for reasons given in the discussion."
+   },
+   {
+    "heading": "Subgroup analysis",
+    "text": "One subgroup analysis was performed and it was NOT pre-specified. Splitting the pool by aetiology gives [[strat1_point]] ([[strat1_low]] to [[strat1_high]]) across the [[strat1_k]] trials in unrestricted heart failure and [[strat2_point]] ([[strat2_low]] to [[strat2_high]]) across the [[strat2_k]] trials restricted to Chagas cardiomyopathy. The test for interaction returns p = [[interaction_p]] and a ratio of hazard ratios of [[rhr]] ([[rhr_low]] to [[rhr_high]]), so the difference between the strata is compatible with chance. Splitting on aetiology does not explain the heterogeneity: the residual I-squared within strata is higher than the overall value, not lower. Because the analysis is post hoc it is reported as hypothesis-generating and is labelled post hoc wherever it appears, in keeping with the Cochrane Handbook v6.5 section 10.11.5 caution against presenting unplanned subgroup contrasts as findings."
+   },
+   {
+    "heading": "Small-study effects",
+    "text": "A funnel plot is shown and Egger's regression test was run for completeness, returning an intercept of [[egger_intercept]] with p = [[egger_p]]. Neither is interpreted. At [[k]] trials the Cochrane Handbook v6.5 section 13.3.5.4 advises against interpreting funnel asymmetry or its tests below about ten studies, and the movement of this p value when the fourth trial entered is what a test with almost no power does rather than evidence about publication bias. No claim about small-study effects is made in either direction."
+   },
+   {
+    "heading": "Comparison with published syntheses",
+    "text": "One published synthesis on the same comparison had a readable included-study table and was reconciled against this review trial by trial. [[cmp_checked]] checks were applied to it, of which [[cmp_confirmed]] came back clean, [[cmp_errors]] identified an error and [[cmp_absent]] identified a reporting item that is absent. Its included-study list is also the reason this review's k rose during the build: PARALLEL-HF was eligible on every axis of the frozen question, was absent from the brief this object was built from, and was recovered from that list, verified against its own publication and registry record, and pooled. The full reconciliation, the quoted evidence for every check with its location, and the decomposition of where the two reviews differ are given in the section on comparison with published syntheses."
    }
   ],
   "discussion": [
@@ -14634,11 +14652,16 @@
    "value": "Every excluded record carries the axis it failed and what it reported instead."
   },
   "_permanently_unrecoverable": {
-   "items": [
-    "identification counts prior to screening (duplicates removed, records sought vs retrieved)"
-   ],
-   "why": "The pipeline that produced the original corpus did not record them, and they cannot be reconstructed after the fact without inventing numbers. The PRISMA diagram shows these boxes as NOT ESTABLISHED with the reason, which is the finding rather than a gap to be papered over.",
-   "what_would_fix_it": "Only re-running the search with the pipeline instrumented."
+   "items": [],
+   "why": "NONE. This field previously claimed the identification counts -- duplicates removed, records sought against retrieved -- could not be reconstructed. That was wrong, and it was wrong about data the object already held: search.databases records each database's hit count as the API returned it and how many were retrieved (PubMed 331 of 331, ClinicalTrials.gov 92 of 92). Those sum to 423, which is exactly the screened corpus, and the corpus's own per-source tally gives the same split independently. The PRISMA identification tier is populated from that evidence. No search was re-run, so no record entered or left the pool and k is unchanged at 4.",
+   "corrected_utc": "2026-08-14T00:00:00Z",
+   "superseded_claim": {
+    "items": [
+     "identification counts prior to screening (duplicates removed, records sought vs retrieved)"
+    ],
+    "why": "The pipeline that produced the original corpus did not record them, and they cannot be reconstructed after the fact without inventing numbers. The PRISMA diagram shows these boxes as NOT ESTABLISHED with the reason, which is the finding rather than a gap to be papered over.",
+    "what_would_fix_it": "Only re-running the search with the pipeline instrumented."
+   }
   },
   "_instrumentation_added": "2026-08-13T15:03:05Z"
  },

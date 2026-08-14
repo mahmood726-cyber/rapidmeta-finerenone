@@ -65,8 +65,15 @@ _NOUN = r"(?:trials?|studies|study|randomisations?|randomizations?|RCTs?)"
 # "a phase 2 randomized trial", "stage 3 studies". The first cut of this gate
 # flagged three otherwise-clean objects in the corpus on exactly that, which is
 # the over-loose-word-match regression this gate must not become.
+# A number introduced by a comparison word is a THRESHOLD, not a count of this
+# review's studies: "below about ten studies", "fewer than five trials", "at
+# least two randomised trials". The Handbook's ten-study rule for funnel
+# asymmetry is quoted in our own Results, and the gate flagged it as a claim
+# that we pooled ten trials. Standard methodological phrasing, so this will
+# recur across every page in the corpus.
 _NOT_A_COUNT = (r"(?<!phase )(?<!stage )(?<!grade )(?<!class )(?<!step )"
-                r"(?<!type )(?<!tier )(?<!arm )")
+                r"(?<!type )(?<!tier )(?<!arm )(?<!about )(?<!below )"
+                r"(?<!under )(?<!over )(?<!least )(?<!than )(?<!approximately )")
 K_ASSERT = re.compile(
     _NOT_A_COUNT + r"\b(" + _NUM + r")\s+(?:(" + WHOLE + r")\s+)?("
     + _NOUN + r")\b", re.I)
@@ -290,6 +297,14 @@ def selftest():
           "results": {"by_outcome": {"o": {"k": 4, "per_trial": [1, 2, 3, 4],
                                            "pooled": {"ci_low": .7, "ci_high": 1.02}}}}},
          False),
+        ("NEGATIVE: 'below about ten studies' is a threshold, not a count",
+         {"title": "the four randomised trials that report the composite",
+          "manuscript": {"a": "the Handbook advises against interpreting these "
+                              "tests below about ten studies, and with fewer "
+                              "than five trials the test has no power"},
+          "results": {"by_outcome": {"o": {
+              "k": 4, "per_trial": [1, 2, 3, 4],
+              "pooled": {"ci_low": .7, "ci_high": 1.02}}}}}, False),
         ("NEGATIVE: 'both phase 3 trials' is a phase, not a count",
          {"title": "both phase 3 trials, reported as incidence rate ratios",
           "question": "In the two phase 3 trials that supported approval",

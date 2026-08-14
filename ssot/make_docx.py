@@ -161,7 +161,15 @@ TBL = 0
 FIG = 0
 
 
-def table(doc, caption, headers, rows):
+def table(doc, caption, headers, rows, mono_cols=()):
+    """Render a table. `mono_cols` are column indices holding VERBATIM text.
+
+    Quoted evidence belongs in a table with its context -- what result it belongs
+    to, the call, the estimate -- not as a free-standing block a reader has to
+    match up by eye. But a metafor table whose columns stop lining up is a
+    misquotation, so the monospace and the line breaks are preserved INSIDE the
+    cell: one paragraph per line, Consolas, zero space-after.
+    """
     global TBL
     TBL += 1
     c = doc.add_paragraph("Table %d. %s" % (TBL, caption))
@@ -177,7 +185,18 @@ def table(doc, caption, headers, rows):
     for r in rows:
         cells = t.add_row().cells
         for i, v in enumerate(r):
-            cells[i].text = n(v)
+            if i in mono_cols:
+                cell = cells[i]
+                cell.text = ""
+                lines = str(v if v is not None else "").split("\n")
+                for j, line in enumerate(lines):
+                    para = cell.paragraphs[0] if j == 0 else cell.add_paragraph()
+                    para.paragraph_format.space_after = Pt(0)
+                    run = para.add_run(line)
+                    run.font.name = "Consolas"
+                    run.font.size = Pt(7.5)
+            else:
+                cells[i].text = n(v)
     doc.add_paragraph()
     return t
 
@@ -203,16 +222,22 @@ _DEFER_ON = True
 _real_table, _real_figure = table, figure
 
 
-def table(doc, caption, headers, rows):
+def table(doc, caption, headers, rows, mono_cols=()):
     global TBL
     TBL += 1
+    # mono_cols travels in the block so the page renders the same cells verbatim.
+    # A quotation that is monospaced in one surface and reflowed in the other is
+    # two different quotations, which the alignment gate would then have to call
+    # a divergence.
     DOCMODEL.append({"kind": "table", "n": TBL, "caption": caption,
                      "headers": [str(h) for h in headers],
-                     "rows": [[n(v) for v in r] for r in rows]})
+                     "mono_cols": list(mono_cols),
+                     "rows": [[(v if i in mono_cols else n(v))
+                               for i, v in enumerate(r)] for r in rows]})
     if _DEFER_ON:
-        _DEFERRED_T.append((TBL, caption, headers, rows))
+        _DEFERRED_T.append((TBL, caption, headers, rows, tuple(mono_cols)))
         return None
-    return _real_table(doc, caption, headers, rows)
+    return _real_table(doc, caption, headers, rows, mono_cols)
 
 
 def verbatim(doc, text):
@@ -439,6 +464,47 @@ doc.add_paragraph(
 
 # --- Results --------------------------------------------------------------
 doc.add_heading("Results", 1)
+
+# PRISMA counts as TEXT as well as a figure. The flow diagram is an embedded
+# image, so its numbers are not selectable, searchable or machine-readable in the
+# Word file -- a submission checker looking for the identification count finds
+# nothing. The figure stays; this is the same counts as a table beside it.
+_scr = d.get("screening") or {}
+_corp = _scr.get("corpus") or []
+if _corp:
+    import collections as _cc
+    import re as _re2
+    _cc2 = _scr.get("corpus_counts") or {}
+    _ident, _perdb = 0, []
+    for _db in ((d.get("search") or {}).get("databases") or []):
+        _m = _re2.search(r"(\d+)", str(_db.get("records_retrieved")
+                                       or _db.get("hit_count") or ""))
+        if _m:
+            _ident += int(_m.group(1))
+            _perdb.append("%s: %s" % (str(_db.get("database","")).split(" (")[0],
+                                      _m.group(1)))
+    _src = _cc.Counter(r.get("source") for r in _corp)
+    _extiab = _cc2.get("TiAb/exclude") or 0
+    _und = sum(v for k, v in _cc2.items() if str(k).endswith("undetermined"))
+    _full = sum(v for k, v in _cc2.items() if str(k).startswith("FullText"))
+    _exfull = _cc2.get("FullText/exclude") or 0
+    _inc = sum(v for k, v in _cc2.items() if str(k).endswith("INCLUDE"))
+    table(doc, "PRISMA flow of records, as counts",
+          ["Stage", "n", "Detail"],
+          [["Records identified from databases and registers", _ident,
+            "; ".join(_perdb)],
+           ["Records removed before screening", 0 if _ident == len(_corp) else "",
+            "No de-duplication step is recorded; the retrieved totals sum exactly "
+            "to the screened corpus. Corpus tally: "
+            + ", ".join("%s %d" % (k, v) for k, v in sorted(_src.items()) if k)],
+           ["Records screened on title and abstract", len(_corp), ""],
+           ["Records excluded at title and abstract", _extiab, ""],
+           ["Records undetermined at title and abstract", _und,
+            "Not counted as exclusions."],
+           ["Reports assessed for eligibility at full text", _full, ""],
+           ["Reports excluded at full text", _exfull, ""],
+           ["Studies contributing to the synthesis", _inc, ""]])
+
 for _x in MS.get("results_prose", []):
     doc.add_heading(_x["heading"], 2)
     doc.add_paragraph(fill(_x["text"], "results." + _x["heading"]))
@@ -712,16 +778,19 @@ if _PC:
         _den = _PC.get("denominator") or {}
         doc.add_paragraph("%s %s" % (_den.get("statement", ""),
                                      _den.get("symmetry", "")))
-        doc.add_heading("Quoted evidence for each check", 2)
-        for c in _ck:
-            _q = c.get("quote")
-            doc.add_paragraph("%s -- %s. %s"
-                              % (c.get("verdict", ""), c.get("what", ""),
-                                 ("Quoted from %s: \u201c%s\u201d"
-                                  % (c.get("location", ""), _q)) if _q else
-                                 ("Checked at %s; nothing to quote because the "
-                                  "item is absent from the paper."
-                                  % c.get("location", ""))))
+        # Claim, verbatim quotation, location, adjudication -- in that order,
+        # because that is the order a reader checks us in.
+        table(doc, "Quoted evidence for each check, with its location and our "
+                   "adjudication",
+              ["Claim checked", "Verbatim quotation", "Location", "Adjudication"],
+              [[c.get("what", ""),
+                (c.get("quote") or
+                 "[nothing to quote: the item is absent from the paper]"),
+                c.get("location", ""),
+                "%s%s" % (c.get("verdict", ""),
+                          (" (%s)" % c["severity"]) if c.get("severity") else "")]
+               for c in _ck],
+              mono_cols=())
     _dv = _PC.get("divergence_decomposed") or {}
     if _dv:
         doc.add_heading("Where our result differs from theirs", 2)
@@ -741,10 +810,11 @@ if _RO.get("blocks"):
     doc.add_paragraph(_RO.get("_why", ""))
     doc.add_paragraph(_RO.get("_agreement_checked", ""))
     doc.add_paragraph("Environment: %s" % _RO.get("_environment", ""))
-    for _bid, _b in _RO["blocks"].items():
-        doc.add_heading(_b.get("label", _bid), 2)
-        doc.add_paragraph("Call: %s" % _b.get("call", ""))
-        verbatim(doc, _b.get("output", ""))
+    table(doc, "Statistical output quoted verbatim, with the call that produced it",
+          ["Result", "Call", "Verbatim output"],
+          [[_b.get("label", _bid), _b.get("call", ""), _b.get("output", "")]
+           for _bid, _b in _RO["blocks"].items()],
+          mono_cols=(2,))
 
 doc.add_heading("Discussion", 1)
 for x in MS.get("discussion", []):
@@ -886,9 +956,9 @@ if MS.get("registration_note_for_editor"):
 _DEFER_ON = False
 if _DEFERRED_T:
     doc.add_heading("Tables", 1)
-    for _n, _cap, _hd, _rw in _DEFERRED_T:
+    for _n, _cap, _hd, _rw, _mc in _DEFERRED_T:
         TBL = _n - 1
-        _real_table(doc, _cap, _hd, _rw)
+        _real_table(doc, _cap, _hd, _rw, _mc)
         _probs += _JP.check_title_words(_cap, "table")
     TBL = len(_DEFERRED_T)
 if _DEFERRED_F:

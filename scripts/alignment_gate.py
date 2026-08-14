@@ -97,7 +97,13 @@ def page_docview(page_html):
           return {heads:[...doc.querySelectorAll('h2,h3,h4,h5')].map(h=>h.innerText.trim()),
                   tables:caps.filter(c=>/^Table \\d+\\./.test(c)),
                   figures:caps.filter(c=>/^Figure \\d+\\./.test(c)),
-                  pres:[...doc.querySelectorAll('pre')].map(p=>p.textContent),
+                  // pre.cellpre lives INSIDE a table cell and is already
+                  // compared as table content. Counting it as a standalone
+                  // verbatim block made the page look like it had 13 blocks the
+                  // docmodel did not -- a divergence created by the comparison,
+                  // not present in the document.
+                  pres:[...doc.querySelectorAll('pre:not(.cellpre)')]
+                        .map(p=>p.textContent),
                   text:doc.innerText};""")
     finally:
         d.quit()

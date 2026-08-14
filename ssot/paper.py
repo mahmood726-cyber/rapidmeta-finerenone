@@ -116,6 +116,41 @@ def build_tokens(canon, res, oid):
         "rob2_overall_agree": _fmt(ag.get("overall_agreed")),
         "rob2_overall_total": _fmt(ag.get("overall_total")),
     }
+    # Quantities the expanded Results section reports. Added as TOKENS rather
+    # than typed into the prose: a number written into manuscript text is a copy
+    # that drifts the moment the pool changes, which is the defect that put a
+    # k=3 leave-one-out under a k=4 headline and a three-trial title on a
+    # four-trial paper.
+    pan = res.get("panels") or {}
+    pred, eg = pan.get("prediction") or {}, pan.get("egger") or {}
+    sp = res.get("post_hoc_aetiology_split") or {}
+    strata = sp.get("strata") or []
+    it = sp.get("interaction_test") or {}
+    pc = (canon.get("published_comparison") or {}).get("denominator") or {}
+    loo_rows = [a for a in (sens.get("analyses") or []) if isinstance(a, dict)]
+    kept = [a for a in loo_rows if a.get("still_excludes_null")]
+    extra = {
+        "pi_low": _fmt(pred.get("pi_low")), "pi_high": _fmt(pred.get("pi_high")),
+        "egger_p": _fmt(eg.get("p"), 3),
+        "egger_intercept": _fmt(eg.get("intercept")),
+        "loo_n_excluding_null": _fmt(len(kept)) if loo_rows else None,
+        "loo_n_total": _fmt(len(loo_rows)) if loo_rows else None,
+        "cmp_checked": _fmt(pc.get("rows_checked")),
+        "cmp_confirmed": _fmt(pc.get("confirmed")),
+        "cmp_errors": _fmt(pc.get("errors")),
+        "cmp_absent": _fmt(pc.get("absent")),
+    }
+    for i, st in enumerate(strata[:2]):
+        extra["strat%d_name" % (i + 1)] = st.get("stratum") or st.get("name")
+        extra["strat%d_k" % (i + 1)] = _fmt(st.get("k"))
+        extra["strat%d_point" % (i + 1)] = _fmt(st.get("point"))
+        extra["strat%d_low" % (i + 1)] = _fmt(st.get("ci_low"))
+        extra["strat%d_high" % (i + 1)] = _fmt(st.get("ci_high"))
+    extra["interaction_p"] = _fmt(it.get("p"), 3)
+    extra["rhr"] = _fmt(it.get("ratio_of_hazard_ratios_chagas_vs_unrestricted"))
+    extra["rhr_low"] = _fmt(it.get("rhr_ci_low"))
+    extra["rhr_high"] = _fmt(it.get("rhr_ci_high"))
+    tok.update(extra)
     return {k: v for k, v in tok.items() if v is not None}
 
 
