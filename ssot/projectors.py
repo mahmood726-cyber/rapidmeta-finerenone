@@ -475,7 +475,7 @@ def forest_svg(res, outcome, window=None):
                "inverse-variance weight.")
 
 
-def scatter_svg(pts, xlab, ylab, invert_y=False, vline=None):
+def scatter_svg(pts, xlab, ylab, invert_y=False, vline=None, diagonal=False):
     """Generic labelled scatter. Every plotted value is a STORED quantity.
 
     TICKS ARE LABELLED WITH STORED VALUES, NOT WITH THE PADDED AXIS ENDS. The
@@ -501,12 +501,32 @@ def scatter_svg(pts, xlab, ylab, invert_y=False, vline=None):
     if vline is not None:
         body += ('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="currentColor" stroke-opacity=".4"/>%s'
                  % (X(vline), T, X(vline), H - B, NL))
+    if diagonal:
+        d0, d1 = max(ax0, ay0), min(ax1, ay1)
+        if d1 > d0:
+            body += ('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" '
+                     'stroke="currentColor" stroke-opacity=".45" '
+                     'stroke-dasharray="5 4"/>%s'
+                     % (X(d0), Y(d0), X(d1), Y(d1), NL))
+            body += ('<text x="%.1f" y="%.1f" font-size="12" '
+                     'fill="currentColor" opacity=".7">no effect</text>%s'
+                     % (X(d1) - 62, Y(d1) + 14, NL))
     for x, y, lab in pts:
         body += ('<circle cx="%.1f" cy="%.1f" r="5" fill="#1d4ed8" '
                  'fill-opacity=".8"/>%s' % (X(x), Y(y), NL))
         if lab:
-            body += ('<text x="%.1f" y="%.1f" font-size="14" fill="currentColor">%s'
-                     '</text>%s' % (X(x) + 8, Y(y) + 4, e(str(lab)), NL))
+            # Labels near the right edge are drawn to the LEFT of their point.
+            # "parachute-h" -- clipped mid-word -- was the same lost-text defect
+            # as the overflowing axis title, one element over.
+            px = X(x)
+            if px + 8 + 7.2 * len(str(lab)) > W - 4:
+                body += ('<text x="%.1f" y="%.1f" font-size="14" '
+                         'text-anchor="end" fill="currentColor">%s</text>%s'
+                         % (px - 8, Y(y) + 4, e(str(lab)), NL))
+            else:
+                body += ('<text x="%.1f" y="%.1f" font-size="14" '
+                         'fill="currentColor">%s</text>%s'
+                         % (px + 8, Y(y) + 4, e(str(lab)), NL))
     # Ticks are rounded for display. Nobody labels an axis 139.209366, and the
     # six-decimal labels did more damage to these figures' credibility than any
     # other visual defect. The VALUE plotted is unchanged; only its label is
@@ -524,17 +544,142 @@ def scatter_svg(pts, xlab, ylab, invert_y=False, vline=None):
                  '<text x="%d" y="%.1f" font-size="14" text-anchor="end" '
                  'fill="currentColor">%s</text>%s'
                  % (L - 4, Y(v), L, Y(v), NL, L - 6, Y(v) + 4, fmt(v), NL))
+    # ARGUMENT SHIFT, found by reading the rendered aria-labels back off the page
+    # rather than the code: the tuple fed aria-label's two slots with (NL, xlab)
+    # and then handed ylab to the `>%s` immediately after the tag. So every
+    # scatter announced itself to a screen reader as "\n against log effect" --
+    # naming ONE axis, in the wrong slot -- and emitted its y-axis label as loose
+    # character data inside <svg>, where SVG does not render it. Invisible on
+    # screen, wrong to anything parsing the file. Named arguments now, so the
+    # slots cannot silently reorder again.
+    return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" '
+            'width="100%" role="img" '
+            'aria-label="{xl} (horizontal) against {yl} (vertical)">{nl}'
+            '<line x1="{L}" y1="{T}" x2="{L}" y2="{yb}" stroke="currentColor"/>'
+            '<line x1="{L}" y1="{yb}" x2="{xr}" y2="{yb}" '
+            'stroke="currentColor"/>{nl}{body}'
+            '<text x="{cx}" y="{ty}" font-size="14" text-anchor="middle" '
+            'fill="currentColor">{xl}</text>{nl}'
+            '<text x="13" y="{cy}" font-size="14" fill="currentColor" '
+            'transform="rotate(-90 13 {cy})" text-anchor="middle">{yl}</text>'
+            '{nl}</svg>').format(
+                w=W, h=H, xl=e(xlab), yl=e(ylab), nl=NL, L=L, T=T, yb=H - B,
+                xr=W - R, body=body, cx=(L + W - R) // 2, ty=H - 6,
+                cy=(T + H - B) // 2)
+
+
+def funnel_svg(points, pooled_log, null_log=0.0, measure="HR", k_note=""):
+    """A funnel plot with an actual funnel.
+
+    What shipped was a generic scatter: correct axes -- log effect against
+    standard error, y inverted -- and NO pseudo-confidence contours, with its
+    only reference line at the null rather than at the pooled estimate. The
+    funnel in a funnel plot IS those contours; without them it is a scatter of
+    four points and a reader has nothing to judge asymmetry against. Mahmood's
+    words were "the funnel plot has no funnel", and he was right.
+
+    Geometry follows the standard construction, cross-read against the
+    implementation in F:\\allmeta\\funnel-plot:
+      * pseudo-CI funnel: straight lines from (pooled, SE=0) to
+        (pooled +/- z*SEmax, SEmax), at z = 1.96 and 2.576;
+      * contour-enhanced significance regions (Peters 2008) radiating from the
+        NULL at z = 1.645 / 1.96 / 2.576, so a reader can see whether a gap
+        falls in a significant or a non-significant region;
+      * a vertical line at the pooled estimate, which is what the funnel is
+        centred on, in addition to the null.
+    x is spaced linearly in log units and LABELLED on the ratio scale, which is
+    how the measure is read everywhere else on the page.
+    """
+    if not points:
+        return ""
+    W, H, L, R, T, B = 700, 340, 74, 30, 20, 52
+    pts = list(points_with_labels(points))
+    se_max = max(max(1e-9, float(s)) for _, s, _ in pts)
+    z95, z99, z90 = 1.959963985, 2.575829304, 1.644853627
+    # Wide enough that the 99% funnel is inside the frame; otherwise the very
+    # contours the plot exists for get clipped at the edge.
+    half = max(z99 * se_max,
+               max(abs(v - pooled_log) for v, _, _ in pts) * 1.15, 0.05)
+    x0, x1 = pooled_log - half, pooled_log + half
+    y1v = se_max * 1.10
+    X = lambda v: L + (v - x0) / (x1 - x0) * (W - L - R)
+    Y = lambda s: T + (s / y1v) * (H - T - B)          # SE increases DOWNWARD
+    body = ""
+    apex_x, apex_y, bot_y = X(null_log), Y(0.0), Y(y1v)
+
+    def tri(zl, zr, fill):
+        return ('<polygon points="%.1f,%.1f %.1f,%.1f %.1f,%.1f" fill="%s"/>%s'
+                % (X(null_log - zl * y1v), bot_y, apex_x, apex_y,
+                   X(null_log - zr * y1v), bot_y, fill, NL))
+
+    body += ('<defs><clipPath id="funclip"><rect x="%d" y="%d" width="%d" '
+             'height="%d"/></clipPath></defs><g clip-path="url(#funclip)">%s'
+             % (L, T, W - L - R, H - T - B, NL))
+    for zl, zr, fill in ((-z90, z90, "#e8eaee"), (z90, z95, "#f1f3f6"),
+                         (-z95, -z90, "#f1f3f6"), (z95, z99, "#f8f9fb"),
+                         (-z99, -z95, "#f8f9fb")):
+        body += tri(zl, zr, fill)
+    # Pseudo-CI funnel, centred on the POOLED estimate.
+    for z, dash in ((z95, "4 3"), (z99, "2 3")):
+        for sgn in (-1, 1):
+            body += ('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" '
+                     'stroke="currentColor" stroke-opacity=".55" '
+                     'stroke-dasharray="%s"/>%s'
+                     % (X(pooled_log), Y(0.0), X(pooled_log + sgn * z * y1v),
+                        Y(y1v), dash, NL))
+    body += ('<line x1="%.1f" y1="%d" x2="%.1f" y2="%.1f" stroke="currentColor" '
+             'stroke-opacity=".8"/>%s'
+             % (X(pooled_log), T, X(pooled_log), bot_y, NL))
+    body += ('<line x1="%.1f" y1="%d" x2="%.1f" y2="%.1f" stroke="currentColor" '
+             'stroke-opacity=".35" stroke-dasharray="5 4"/>%s'
+             % (apex_x, T, apex_x, bot_y, NL))
+    body += "</g>" + NL
+    for (v, s, lab) in pts:
+        body += ('<circle cx="%.1f" cy="%.1f" r="5" fill="#1d4ed8" '
+                 'fill-opacity=".85"/>%s'
+                 '<text x="%.1f" y="%.1f" font-size="13" '
+                 'fill="currentColor">%s</text>%s'
+                 % (X(v), Y(s), NL, X(v) + 8, Y(s) + 4, e(str(lab)), NL))
+    # x ticks: round RATIO values, positioned by their logarithm.
+    for rv in nice_log_ticks(math.exp(x0), math.exp(x1), math.exp(null_log)):
+        lv = math.log(rv)
+        if not (x0 <= lv <= x1):
+            continue
+        body += ('<text x="%.1f" y="%d" font-size="13" text-anchor="middle" '
+                 'fill="currentColor">%s</text>%s' % (X(lv), H - B + 16,
+                                                      fmt(rv), NL))
+    for sv in nice_lin_ticks(0.0, y1v, 4):
+        if sv < 0 or sv > y1v:
+            continue
+        body += ('<text x="%d" y="%.1f" font-size="13" text-anchor="end" '
+                 'fill="currentColor">%s</text>%s'
+                 % (L - 6, Y(sv) + 4, fmt(sv), NL))
+    body += ('<line x1="%d" y1="%d" x2="%d" y2="%.1f" stroke="currentColor"/>'
+             '<line x1="%d" y1="%.1f" x2="%d" y2="%.1f" stroke="currentColor"/>%s'
+             % (L, T, L, bot_y, L, bot_y, W - R, bot_y, NL))
+    # Short enough to fit the 700-unit viewBox. The first version ran off the
+    # right edge and lost the end of its own sentence, which is the same
+    # clipped-label defect this pass fixed on the manuscript figures. The k
+    # caution lives in the caption, where there is room for it.
+    body += axis_title_svg("%s -- dashed lines are the 95%% and 99%% funnel"
+                           % measure, (L + W - R) / 2.0, H - 6)
+    body += ('<text x="13" y="%d" font-size="13" fill="currentColor" '
+             'transform="rotate(-90 13 %d)" text-anchor="middle">'
+             'standard error (0 at top)</text>%s'
+             % ((T + int(bot_y)) // 2, (T + int(bot_y)) // 2, NL))
     return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" '
-            'width="100%%" role="img" aria-label="%s against %s">%s'
-            '<line x1="%d" y1="%d" x2="%d" y2="%d" stroke="currentColor"/>'
-            '<line x1="%d" y1="%d" x2="%d" y2="%d" stroke="currentColor"/>%s%s'
-            '<text x="%d" y="%d" font-size="14" text-anchor="middle" '
-            'fill="currentColor">%s</text>%s'
-            '<text x="13" y="%d" font-size="14" fill="currentColor" '
-            'transform="rotate(-90 13 %d)" text-anchor="middle">%s</text>%s</svg>'
-            % (W, H, NL, e(xlab), e(ylab), L, T, L, H - B, L, H - B, W - R, H - B,
-               NL, body, (L + W - R) // 2, H - 6, e(xlab), NL,
-               (T + H - B) // 2, (T + H - B) // 2, e(ylab), NL))
+            'width="100%%" role="img" aria-label="Funnel plot: %s (horizontal) '
+            'against standard error (vertical, inverted), with pseudo-confidence '
+            'contours">%s%s</svg>' % (W, H, e(measure), NL, body))
+
+
+def points_with_labels(points):
+    """Accepts [(x, se)] or [(x, se, label)] and always yields triples."""
+    for p in points:
+        if len(p) >= 3:
+            yield p[0], p[1], p[2]
+        else:
+            yield p[0], p[1], ""
 
 
 def rows_svg(rows, null_v, label_w=200, measure="", axis_note=""):

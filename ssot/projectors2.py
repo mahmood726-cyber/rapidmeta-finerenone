@@ -5,8 +5,10 @@ round-end -- the discipline whose absence lost a day's work to one reset.
 
 Prose recovered from the .pyc where it existed; control flow written fresh.
 """
+import math
+
 from projectors import (NL, e, fmt, kv_card, fig, scatter_svg, rows_svg,
-                        GRADE_DOMAINS)
+                        funnel_svg, GRADE_DOMAINS)
 
 
 def protocol_card(canon, p):
@@ -382,16 +384,25 @@ def analysis_figures(res, outcome, p):
     # from the surrounding prose.
     _meas = str(((res.get("pooled") or {}).get("measure")) or "Effect")
     out = ""
+    _k = res.get("k") or len(res.get("per_trial") or [])
     if pan.get("funnel"):
-        out += fig(scatter_svg([(x["log_effect"], x["se"], x["trial"])
-                                for x in pan["funnel"]],
-                               "log effect", "standard error",
-                               invert_y=True, vline=0),
+        _fit = pan.get("fit") or {}
+        _pl = _fit.get("log_point")
+        if _pl is None:
+            _pp = (res.get("pooled") or {}).get("point")
+            _pl = math.log(_pp) if _pp and _pp > 0 else 0.0
+        out += fig(funnel_svg([(x["log_effect"], x["se"], x["trial"])
+                               for x in pan["funnel"]], _pl, null_log=0.0,
+                              measure=_meas,
+                              k_note="At k = %d it cannot be read for "
+                                     "asymmetry." % _k),
                    "Funnel plot", "funnel.svg",
-                   "Standard error against log effect, most precise at the top. "
-                   "At three studies a funnel cannot be read for asymmetry; it is "
-                   "shown because the positions are real and the emptiness is the "
-                   "finding.")
+                   "Standard error against the effect, most precise at the top, "
+                   "with the 95%% and 99%% pseudo-confidence funnel drawn from "
+                   "the pooled estimate and contour bands around the null. At "
+                   "k = %d a funnel CANNOT be read for asymmetry and none is "
+                   "claimed: it is shown because the positions are real and the "
+                   "emptiness is the finding." % _k)
     if pan.get("galbraith"):
         out += fig(scatter_svg([(x["precision"], x["z"], x["trial"])
                                 for x in pan["galbraith"]],
@@ -447,7 +458,8 @@ def count_figures(res, p):
     if cp.get("labbe"):
         out += fig(scatter_svg([(x["control_risk"], x["treatment_risk"], x["trial"])
                                 for x in cp["labbe"]],
-                               "risk in the control arm", "risk in the treatment arm"),
+                               "risk in the control arm",
+                               "risk in the treatment arm", diagonal=True),
                    "L'Abbe plot", "labbe.svg",
                    "Each trial's own two risks, read from its 2x2. Below the "
                    "diagonal favours the intervention.")
