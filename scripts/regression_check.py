@@ -179,7 +179,19 @@ print("Raw JSON saved to /tmp/regression_results.json")
 # `tail`'s status and also always 0. Two independent reasons the gate could never
 # block a push. A guard that cannot fail is not a guard, so the exit code is now
 # derived from the findings.
-_fail = {k: v for k, v in signals.items() if v}
+# fully_ok is the SUCCESS list, not a signal. Including it here inverted the
+# gate: a page that passed all seven checks was added to fully_ok, which made
+# this dict non-empty, which blocked the push. The first push after the gate was
+# repaired to be able to fail was rejected with
+#
+#     REGRESSION CHECK FAILED. Signals firing:
+#       fully_ok: 1
+#
+# on a page whose seven defect signals were all zero. The gate went from never
+# failing to failing on success, which is the same defect wearing the opposite
+# sign, and it is why a success counter must never be read as a finding.
+_OK_KEYS = {"fully_ok"}
+_fail = {k: v for k, v in signals.items() if v and k not in _OK_KEYS}
 if _fail:
     print()
     print("REGRESSION CHECK FAILED. Signals firing:")
