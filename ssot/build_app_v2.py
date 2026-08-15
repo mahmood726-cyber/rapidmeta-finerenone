@@ -367,9 +367,16 @@ def _outcome_section(canon, oid, p, e):
             f"<td class='num'>{est}</td>"
             f"<td><small>{_cell_source_link(d, srcs, e)}: "
             f"{p(d['provenance'].get('source_outcome_title', d['provenance'].get('source', '')), scope)}"
-            + ("".join(f"<br><q>{e(q)}</q>"
-                       for q in (d['provenance'].get('source_quotes') or []))
-               if not d['provenance'].get('source') else "")
+            # ALWAYS print the quotation. This was conditioned on the cell NOT
+            # naming a source -- so the one trial whose provenance carried a
+            # named source had its quoted sentence suppressed, and it was the
+            # only one of four to show no quotation on the page. An independent
+            # review read that and reasonably concluded the value was
+            # untraceable; the value was fine and the projector was hiding its
+            # evidence. A source and a quotation are complementary: the source
+            # says where to look, the quotation says what is there.
+            + "".join(f"<br><q>{e(q)}</q>"
+                      for q in (d['provenance'].get('source_quotes') or []))
             + (f"<br><em>{p(t['enrolment_note'], scope)}</em>"
                if t.get("enrolment_note") else "")
             + "</small></td></tr>\n")
