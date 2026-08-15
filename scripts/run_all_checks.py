@@ -67,6 +67,8 @@ def main(argv):
                      [os.path.join(HERE, "identity_gate.py"), "--selftest"])
         fails += run("prose-claim gate -- self-test",
                      [os.path.join(HERE, "prose_claim_gate.py"), "--selftest"])
+        fails += run("citation-year gate -- self-test",
+                     [os.path.join(HERE, "citation_year_gate.py"), "--selftest"])
         print("\n%d self-test(s) FAILED" % fails)
         return fails
 
@@ -82,6 +84,8 @@ def main(argv):
                       "--sources", os.path.join(os.path.dirname(obj), "sources")])
         fails += run("prose-claim gate (direction / existence claims)",
                      [os.path.join(HERE, "prose_claim_gate.py"), obj])
+        fails += run("citation-year gate (issue year, not the epub date)",
+                     [os.path.join(HERE, "citation_year_gate.py"), obj])
 
     page = a.get("page")
     if page and page is not True:
