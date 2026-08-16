@@ -616,7 +616,7 @@ def build(canon):
  .card table,.doc table{width:100%%;table-layout:auto}
  /* Long unbroken tokens -- a DOI, a URL, an accession -- cannot wrap without
     this and would reintroduce the same overflow one string at a time. */
- th,td{overflow-wrap:anywhere;word-break:break-word}
+ th,td{overflow-wrap:break-word;word-break:normal;text-align:left}th:first-child,td:first-child{min-width:12ch}
  @media (max-width:560px){body{padding:1rem .75rem;font-size:1rem}
    .tabnav label{padding:.4rem .6rem;font-size:.82rem}
    /* .num carries white-space:nowrap so a figure never breaks mid-number.
