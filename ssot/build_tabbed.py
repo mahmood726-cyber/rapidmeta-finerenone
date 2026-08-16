@@ -23,13 +23,29 @@ import build_app_v2 as G          # noqa: E402
 # that module is the flat control: running it standalone must still emit the
 # pre-tab layout unchanged, or every A/B measured against it becomes meaningless.
 # The rounding therefore belongs to this build, not to the baseline.
+#
+# FOUR significant figures, not three (changed 2026-08-16). At three, this build
+# SILENTLY ALTERED verified estimates: sotagliflozin's object holds
+# HR 0.7171 (0.6246 to 0.8234) and the page rendered 0.717 (0.625 to 0.823), so
+# the string 0.7171 appeared NOWHERE in the artefact. The same rounding moved
+# SGLT2 (0.7785 -> 0.778, 0.7296 -> 0.73), IV iron (0.8066 -> 0.807) and
+# alirocumab (-54.66 -> -54.7). ARNI was unaffected only by coincidence: 0.872,
+# 0.746 and 1.02 are already three figures, which is why the shell looked correct
+# on the one page that had it.
+#
+# Two things then break. The index card and the page disagree, so the page fails
+# the three-surface check outright. And a value established by a day of source
+# work is replaced during a REBUILD, which is meant to change layout and nothing
+# else. sig()'s own default stays 3 -- the argument in its docstring about false
+# precision is sound and other callers keep it. This is the one place where the
+# displayed number must equal the verified number.
 def _round_base_fmt():
     import projectors as _pj
     _orig = G.fmt
 
     def _fmt(x):
         if isinstance(x, float):
-            return _pj.sig(x, 3)
+            return _pj.sig(x, 4)
         return _orig(x)
     G.fmt = _fmt
 
