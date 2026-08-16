@@ -539,7 +539,12 @@ def build(canon):
         "searchstrings": p2.search_strings_card(canon, p),
         "screening": p2.screening_cards(canon, p),
         "corpus": p2.corpus_card(canon, p),
-        "carried": "", "considered": "", "components": "",
+        # The Extraction tab is the AUDIT SURFACE: a reader must be able to see
+        # every extracted value and reach its source without reading the
+        # manuscript and without trusting us. This slot was empty, so the tab
+        # rendered the numbers only inside prose, with no clickable link anywhere.
+        "carried": pj.extraction_provenance_table(canon),
+        "considered": "", "components": "",
         "rob": p2.rob2_card(canon, p),
         "switching": p2.discrepancies_card(canon, p),
         "sources_card": ("<div class='card'>%s  <h2>Sources</h2>%s  <table>%s"

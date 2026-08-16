@@ -1044,6 +1044,113 @@ def kv_card(title, pairs, note=""):
             + "</div>" + NL)
 
 
+def extraction_provenance_table(canon):
+    """The Extraction tab's audit surface: one row per extracted value.
+
+    WHY THIS EXISTS
+        The tab already carried the numbers, the quoted sentences and the source
+        URLs -- but scattered through ~36,000 characters of prose, with ZERO
+        clickable links. A reader who wants to check us had to read the
+        manuscript and retype a URL. That fails the tab's one job.
+
+        This is the harness's own rule made visible to a reader: a referent must
+        carry a per-key locator, and agreement without provenance is INVALID.
+        Here the locator is a resolvable link, and the row states whether the
+        value was READ from a source or DERIVED by us.
+
+    FOUR COLUMNS, ALL FOUR ALWAYS PRESENT
+        1. the value as extracted
+        2. the verbatim sentence it was read from
+        3. a resolvable link, plus PMID/NCT as text (the registration id is the
+           identity key -- accepting a covering label instead is how PARACHUTE-HF
+           was once read as ANSWER-HF)
+        4. read vs derived, with the derivation named when we computed it
+
+    A value with no traceable source SAYS SO in its own row. It is never dropped:
+    an empty extraction table is honest, a partial one that looks complete is not.
+    """
+    trials = ((canon.get("inputs") or {}).get("trials")) or []
+    if not trials:
+        return ""
+    outcomes = {o.get("id"): o for o in (canon.get("outcomes") or []) if isinstance(o, dict)}
+    rows = []
+    for t in trials:
+        nct, pmid = t.get("nct"), t.get("pmid")
+        ident = []
+        if nct:
+            ident.append("<a href='https://clinicaltrials.gov/study/%s' rel='noopener'>%s</a>"
+                         % (quote(str(nct)), e(str(nct))))
+        else:
+            ident.append("<em>no registration id recorded</em>")
+        if pmid:
+            ident.append("PMID <a href='https://pubmed.ncbi.nlm.nih.gov/%s/' rel='noopener'>%s</a>"
+                         % (quote(str(pmid)), e(str(pmid))))
+        for oid, bo in (t.get("by_outcome") or {}).items():
+            if not isinstance(bo, dict):
+                continue
+            eff = bo.get("effect") or {}
+            pt, lo, hi = eff.get("point"), eff.get("ci_low"), eff.get("ci_high")
+            oc = outcomes.get(oid) or {}
+            meas = oc.get("measure") or eff.get("measure") or ""
+            if pt is None:
+                val = "<em>no effect value held for this outcome</em>"
+            else:
+                val = "<strong>%s %s</strong>" % (e(str(meas)), fmt(pt))
+                if lo is not None and hi is not None:
+                    val += " (%s%% CI %s to %s)" % (eff.get("ci_level", 95), fmt(lo), fmt(hi))
+
+            prov = bo.get("provenance") or {}
+            quotes = prov.get("source_quotes") or []
+            if quotes:
+                q = "".join("<blockquote><small>&ldquo;%s&rdquo;</small></blockquote>"
+                            % e(str(s)) for s in quotes)
+            else:
+                q = ("<em>no source sentence recorded &mdash; this value cannot be "
+                     "checked against a quoted line here</em>")
+
+            links = list(ident)
+            su = bo.get("source_url")
+            if su:
+                links.append("<a href='%s' rel='noopener'>source</a>" % e(str(su)))
+            for cid, c in ((bo.get("cascade") or {}).get("checked") or {}).items():
+                if isinstance(c, dict) and c.get("url") and c.get("status") == "found":
+                    links.append("<a href='%s' rel='noopener'>%s</a>"
+                                 % (e(str(c["url"])), e(str(cid))))
+            if not su and not any("href" in x for x in links):
+                links.append("<em>no resolvable source link</em>")
+
+            df = eff.get("derived_from")
+            tag = prov.get("tag")
+            if df == "published_hazard_ratio" or (tag == "MEASURED" and df):
+                rd = "<strong>READ</strong> from the source as printed"
+            elif df:
+                rd = "<strong>DERIVED</strong> by us from %s" % e(str(df))
+            elif tag:
+                rd = e(str(tag))
+            else:
+                rd = "<em>not stated whether read or derived</em>"
+            note = eff.get("derivation_note") or prov.get("quote_note")
+            if note:
+                rd += "<br><small>%s</small>" % e(str(note))
+
+            rows.append(
+                "    <tr><td>%s<br><small>%s</small></td><td>%s</td><td>%s</td>"
+                "<td>%s</td><td>%s</td></tr>%s"
+                % (e(str(t.get("name") or t.get("id") or "?")), e(str(oid)),
+                   val, q, " &middot; ".join(links), rd, NL))
+    if not rows:
+        return ""
+    return ("<div class='card'>%s  <h2>Extracted values, and where each came from</h2>%s"
+            "  <p>One row per extracted value. Every row carries the value, the verbatim "
+            "sentence it was read from, a resolvable link to the source, and whether the "
+            "number was read or derived. Where any of those is absent the row says so "
+            "rather than omitting the value.</p>%s"
+            "  <table>%s    <tr><th>Trial / outcome</th><th>Value as extracted</th>"
+            "<th>Verbatim source sentence</th><th>Source links</th>"
+            "<th>Read or derived</th></tr>%s%s  </table>%s</div>%s"
+            % (NL, NL, NL, NL, NL, "".join(rows), NL, NL))
+
+
 def tabbed_body(canon, parts, page):
     """Distribute the already-built parts across the tabs the spec declares.
 
