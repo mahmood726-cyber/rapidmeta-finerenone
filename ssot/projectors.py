@@ -38,6 +38,31 @@ TABS = (
     ("statistics", "Statistics", (),
      ("stats", "counttabs", "crossengine", "panels")),
 )
+# TRACK D: a tab with no source renders an HONEST STATE, never empty and never
+# silently merged into its neighbour. Silent merge is how a page becomes a flat
+# scroll while still claiming to be a review: the reader sees no gap, so the
+# absence makes no claim. These strings say what would be there, why it is not,
+# and what that means for the reader.
+ABSENT_STATE = {
+ "protocol": ("No protocol record is held in this object. This review was assembled from named "
+              "sources rather than from a pre-registered protocol, so no registration, amendment "
+              "history or prospective estimand declaration can be shown here."),
+ "search":   ("No search record is held in this object. The included set was reconciled against "
+              "published syntheses rather than produced by a database search, so no query, date "
+              "or yield can be shown. Treat the included set as a convenience sample, not a "
+              "systematic one."),
+ "screen":   ("No screening log is recorded for this review. The included set was reconciled "
+              "against published syntheses rather than screened from a search, so no "
+              "records-identified, excluded-with-reason or dual-screening counts exist."),
+ "extract":  ("No per-trial extraction table is held in this object, so the numbers on this page "
+              "cannot be traced to an arm-level source here."),
+ "analysis": ("No pooled analysis is held in this object for the outcomes shown."),
+ "report":   ("No GRADE assessment or reconciliation record is held in this object, so the "
+              "certainty of this evidence has not been rated."),
+ "paper":    ("No manuscript has been generated for this review."),
+ "statistics": ("No statistical panel set is held in this object."),
+}
+
 REQUIRED_TABS = ("protocol", "search", "screen", "extract", "analysis", "report",
                  "paper", "statistics")
 GRADE_DOMAINS = ("risk_of_bias", "inconsistency", "indirectness", "imprecision",
@@ -45,6 +70,7 @@ GRADE_DOMAINS = ("risk_of_bias", "inconsistency", "indirectness", "imprecision",
 FLOOR_CHARS = 600
 
 TAB_CSS = """ .tabs input{position:absolute;clip-path:inset(50%);height:1px;width:1px;overflow:hidden}
+ .absent-state{border-left:4px solid #B91C1C;background:#FEF2F2;padding:.7rem .9rem;margin:.6rem 0;font-size:.88rem;color:#7F1D1D}
  .tabnav{display:flex;flex-wrap:wrap;gap:.25rem;border-bottom:2px solid var(--line);margin:1.25rem 0 0}
  .tabnav label{padding:.5rem .9rem;cursor:pointer;font-size:.9rem;font-weight:600;color:var(--muted);border:1px solid transparent;border-bottom:none;border-radius:.375rem .375rem 0 0}
  .tabnav label:hover{color:var(--fg);background:var(--soft)}
@@ -734,13 +760,31 @@ def visual_abstract_svg(title, question, k, n_total, measure, point, lo, hi,
     q, yy = wrap(question, 92, 28, yy + 10, 13, 18, "400", ".85")
     body += q
 
-    # --- the estimate, drawn on a log axis with the null in the middle -------
+    # --- the estimate, drawn with the null in the middle --------------------
+    # RATIO measures (null = 1) are drawn on a LOG axis: that is the scale they
+    # are pooled on, and it puts 0.5 and 2.0 equidistant from the null, which is
+    # what a reader needs.
+    #
+    # ADDITIVE measures -- mean difference, risk difference -- have a null of
+    # ZERO and are pooled on the natural scale. log(lo / 0) is a ZeroDivisionError,
+    # which is how this was found: alirocumab's object declares null_value 0 for
+    # MD -54.66 (-60.75 to -48.56) and the build died outright (2026-08-16).
+    # It is the same mistake as two others caught today -- the sig(x,3) rounding
+    # and the exp(logEffect) back-transform that made four MD pages read 0.0000 --
+    # all of them code that assumes a ratio because ratios are the common case.
+    # Choose the axis from the null, never assume it.
     ax_y = yy + 74
     L, R = 190, 130
     import math as _m
-    span = max(abs(_m.log(lo / null_v)), abs(_m.log(hi / null_v)),
-               abs(_m.log(point / null_v))) * 1.45 or 0.5
-    X = lambda v: L + (_m.log(v / null_v) + span) / (2 * span) * (W - L - R)
+    _log_axis = bool(null_v) and null_v > 0
+    if _log_axis:
+        span = max(abs(_m.log(lo / null_v)), abs(_m.log(hi / null_v)),
+                   abs(_m.log(point / null_v))) * 1.45 or 0.5
+        X = lambda v: L + (_m.log(v / null_v) + span) / (2 * span) * (W - L - R)
+    else:
+        span = max(abs(lo - null_v), abs(hi - null_v),
+                   abs(point - null_v)) * 1.45 or 0.5
+        X = lambda v: L + ((v - null_v) + span) / (2 * span) * (W - L - R)
     body += ('<line x1="%d" y1="%d" x2="%d" y2="%d" stroke="currentColor" '
              'stroke-opacity=".35"/>%s' % (L, ax_y, W - R, ax_y, NL))
     body += ('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="currentColor" '
@@ -1024,10 +1068,25 @@ def tabbed_body(canon, parts, page):
         data = len(re.findall(r"<(?:table|svg|li)[ >/]", body))
         if len(text) < FLOOR_CHARS or data < 1:
             skipped.append((tid, len(text), data))
-            if body and carry_into:
-                panels = panels.replace(carry_into, body + carry_into, 1)
-            elif body:
-                pending.append(body)
+            # Emit the tab with an honest state instead of dropping it. Any thin
+            # body it did carry is shown beneath the statement rather than being
+            # merged invisibly into the previous panel.
+            note = ABSENT_STATE.get(tid, "No content is held in this object for this section.")
+            checked = ""
+            if first is None:
+                first, checked = tid, " checked"
+            inputs += '<input type="radio" name="rmtab" id="rt-%s"%s>%s' % (tid, checked, NL)
+            nav += ' <label for="rt-%s">%s</label>%s' % (tid, label, NL)
+            carry_into = " </section>" + NL + "<!--end-%s-->" % tid
+            panels += (' <section class="panel" id="pn-%s">%s'
+                       '<div class="absent-state" role="note">'
+                       '<strong>Not held in this object.</strong> %s</div>%s%s%s'
+                       % (tid, NL, note, NL, body, carry_into))
+            css += (" #rt-%s:checked ~ .panels > #pn-%s{height:auto;overflow:visible}%s"
+                    ' #rt-%s:checked ~ .tabnav label[for="rt-%s"]{color:#111;'
+                    "background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}%s"
+                    % (tid, tid, NL, tid, tid, NL))
+            pending = []
             continue
         # The digit strip here produced "Open disagreements ()", "RoB- assessment"
         # and "ClinicalTrials.gov API v" in the first line of nearly every tab. It
