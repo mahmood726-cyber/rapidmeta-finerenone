@@ -28,6 +28,47 @@ THE MECHANISM THIS DETECTS, WHICH IS OUR MOST RECURRENT ONE
     FAILURE PATH IS NOT. A green result is therefore evidence of nothing, and
     nobody investigates a green result -- which is why these survive.
 
+    SIXTH INSTANCE, AND THE FIRST ON THE MEASURING SIDE RATHER THAN THE CHECKING
+    SIDE. A lane nearly reported the extraction table as MISSING from a page that
+    has it: its text extractor returned 0 occurrences of "Sources" in 101,864
+    characters, and was wrong. The instrument silently omitted content. It caught
+    itself only because a second read of the raw HTML contradicted it.
+
+    A MEASUREMENT INSTRUMENT THAT SILENTLY OMITS CONTENT IS THE SAME MECHANISM AS
+    A GATE PASSING HAVING READ NOTHING. In both, the failure is invisible because
+    the output is well formed: "0 occurrences" and "PASS" are equally ordinary
+    results, and neither carries any signal that the input was incomplete.
+
+    SO THE RULE IS: any page-content check must read RAW HTML, never rendered-text
+    extraction. But the rule has a second half, and missing it produced a wrong
+    number within the hour of adopting the first half:
+
+        RAW HTML DOES NOT MISS HIDDEN CONTENT. IT OVER-COUNTS SOURCE AS CONTENT.
+
+    A census of resolvable source links over raw HTML returned "62.8% of pages
+    carry a registry or PubMed link". They do not. The matches were JavaScript
+    TEMPLATE SOURCE inside <script> -- href="https://clinicaltrials.gov/study/
+    ${escapeHtml(t.id)}" -- counted as links because a raw-HTML regex cannot tell
+    a string literal in a program from an attribute in a document. Recomputed with
+    <script>/<style> BODIES dropped and ${...} placeholders excluded, the figure
+    was 2.2%.
+
+    Neither instrument alone is correct:
+        rendered text   omits what is not displayed   -> UNDER-counts
+        raw HTML        includes what is not content  -> OVER-counts
+    Read raw HTML so nothing hidden is lost, then ATTRIBUTE CONTENT TO ITS
+    CONTEXT: script and style bodies are program text, not page content. Note
+    this is the same correction already applied to index_markup_gate, which on
+    its first run flagged three anchors inside a script comment -- the corpus has
+    now taught this lesson twice in one day, in opposite directions.
+
+    AND WHEN A PAGE BUILDS ITS OWN DOM, SAY WHICH ONE YOU MEASURED. "In the
+    served markup" and "after JavaScript runs" are different claims about
+    different readers. On this corpus they differ by a factor of forty: 2.2% of
+    pages carry a resolvable registry link in the markup, while 27 of 31 sampled
+    pages carry one once the page has run. Reporting either alone, without
+    naming which, is a true sentence that misleads.
+
 PROMOTION CRITERION -- REPLAY A REAL PAST DEFECT
     A synthetic failing input proves a detector CAN fire. It does not prove the
     detector DISCRIMINATES: a rule that fires on everything also passes that test.
