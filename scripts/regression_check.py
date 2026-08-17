@@ -56,6 +56,36 @@ if not apps:
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import re as _re2                       # noqa: E402
 import ssot_signals as _ssot            # noqa: E402
+import hashlib as _hl                   # noqa: E402
+import pathlib as _pl                   # noqa: E402
+
+_ARCHIVE = _pl.Path(r"F:\E156\outputs\corpus-archive\pages")
+
+
+def _is_restoration(app, src):
+    """Archive id whose snapshot this content byte-for-byte matches, else None.
+
+    The archive is the record of what we have previously published. Content
+    identical to a snapshot in it is therefore not a new claim -- it is a state
+    that was already live. Hashing the bytes is what makes this safe: a page that
+    merely LOOKS like an old one does not qualify, so this cannot be used to slip
+    an edited page past the gate.
+    """
+    d = _ARCHIVE / app
+    if not d.is_dir():
+        return None
+    try:
+        h = _hl.sha256(src.encode("utf-8", "replace")).hexdigest()
+    except Exception:                                        # noqa: BLE001
+        return None
+    for f in sorted(d.glob("*.html")):
+        try:
+            if _hl.sha256(f.read_text(encoding="utf-8", errors="replace")
+                          .encode("utf-8", "replace")).hexdigest() == h:
+                return f.name
+        except Exception:                                    # noqa: BLE001
+            continue
+    return None
 
 ssot_seen = []
 
@@ -90,6 +120,34 @@ with sync_playwright() as p:
             _txt = _re2.sub(r"\s+", " ", _re2.sub(r"<[^>]+>", " ", _src))
             _fired = _ssot.run(_src, _txt)
             ssot_seen.append(a)
+            # RESTORE EXEMPTION (2026-08-16).
+            #
+            # On 2026-08-16 four pages went live carrying ANOTHER DRUG'S trials --
+            # sotagliflozin's page named sacubitril 24 times -- and the revert was
+            # BLOCKED by this gate, because the archived flat pages do not carry
+            # "Submission readiness:". That string is emitted by the tabbed build,
+            # so those pages never had it and were never claimed to. The gate was
+            # correct in its own terms and still blocked the right action: it
+            # cannot tell a forward BUILD from a RESTORATION, which is the one
+            # case it was not designed to classify. The revert needed an
+            # authorised --no-verify, and a lane overriding a gate it hardened
+            # hours earlier is exactly how gates rot.
+            #
+            # So a restore is now a first-class concept rather than an afterthought.
+            # Content byte-identical to a preservation-archive snapshot is a state
+            # we PREVIOUSLY PUBLISHED, so it passes. Anything else -- including a
+            # forward build missing the readiness verdict -- still fails.
+            #
+            # The signals are still REPORTED for a restore, never silently dropped:
+            # an exemption that hides what it exempted is how the next blind spot
+            # gets built.
+            if _fired and _is_restoration(a, _src):
+                _arc = _is_restoration(a, _src)
+                print("  [restore-exempt] %s matches archive %s byte for byte; "
+                      "signals reported, not blocking: %s"
+                      % (a, _arc, ", ".join(sorted(_fired))))
+                signals["fully_ok"].append(a)
+                continue
             if _fired:
                 for _k, _why in _fired.items():
                     signals.setdefault("ssot_" + _k, []).append((a, _why))
