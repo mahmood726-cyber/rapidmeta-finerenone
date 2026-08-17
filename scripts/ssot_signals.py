@@ -27,6 +27,24 @@ def classify(html):
     Filenames lie: ARNI_HF_REVIEW.html is an SSOT page and MITRAL_FUNCMR_REVIEW.html
     is an AUTO page, and both end in _REVIEW.html.
     """
+    # A REDIRECT STUB IS A STUB BY CONSTRUCTION (added 2026-08-16).
+    # Checked FIRST and on structure, not on wording. A page carrying a meta
+    # refresh exists to send the reader elsewhere; it has no analysis, so the SSOT
+    # signals -- readiness verdict, projection footer -- cannot apply to it and
+    # firing them only blocks a legitimate consolidation.
+    #
+    # Found when SOTAGLIFLOZIN_HF_AUTO_FULL was consolidated into a stub pointing at
+    # the canonical page. The stub was classified SSOT and blocked, because its own
+    # EXPLANATORY PROSE contains the phrase "canonical object" and the branch below
+    # matches that phrase on any script-free page. The pre-existing STUB branch
+    # missed it because that branch keys on the phrase "opening the full".
+    #
+    # Two phrase-matching rules disagreeing about a 1.6 KB redirect is the argument
+    # for structure over vocabulary: the honest fix is to detect the refresh, not to
+    # reword the page until the classifier is satisfied. Rewording to dodge a gate
+    # leaves the gate wrong and the next stub blocked.
+    if re.search(r'<meta[^>]+http-equiv=["\']?refresh', html, re.I):
+        return "STUB"
     if len(html) < 20000 and "opening the full" in html.lower():
         return "STUB"
     if "RapidMeta" in html and re.search(r"<script[^>]*>", html):
