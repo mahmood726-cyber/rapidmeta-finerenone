@@ -614,6 +614,209 @@ COMPARISONS = {
      "conceals a twenty-five point range, and the prediction interval is the only "
      "honest summary of it."),
  ),
+
+ "ablation-af-review": O(
+  _why="This page's pooled estimate was already WITHDRAWN. That is not the end of "
+       "the reconciliation, it is the start of it: a reader still had four trial "
+       "rows in front of them, and a withdrawal needs the same evidentiary standard "
+       "as a claim. Reading the four registry records confirmed the verdict, "
+       "REFUTED THE REASON GIVEN FOR IT, and found four further defects in the "
+       "rows the withdrawal left standing. Every one of them is ours.",
+  _how_identified="PubMed E-utilities; query, counts and a per-record decision in "
+       "ssot/ablation-af-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json. 213 "
+       "records matched and all 213 were read at abstract level; 3 name a trial "
+       "this review includes. The four trials' endpoints and results were read "
+       "from ClinicalTrials.gov and, where the registry posts no results, from the "
+       "trials' own publications.",
+  reviews=[
+   O(id="PM_AFCA_COMPONENTS_2021", pmid="32115777",
+     citation="Impact of atrial fibrillation catheter ablation on mortality, "
+              "stroke, and heart failure hospitalizations: A meta-analysis. J "
+              "Cardiovasc Electrophysiol 2021.",
+     their_k=9, their_n=241372,
+     scope="one randomised trial (CABANA) and eight matched population studies, "
+           "ablation against medical therapy",
+     how_it_differs_from_ours="IT POOLS COMPONENTS, NOT COMPOSITES -- all-cause "
+       "mortality, stroke and heart-failure hospitalisation separately, each with "
+       "its own hazard ratio and its own I-squared. That is the correct response to "
+       "trials whose composites differ, and it is precisely what this review did "
+       "not do. It also mixes randomised with observational evidence, which we "
+       "would not, and it says so."),
+   O(id="PM_LVEF_2026", pmid="42525055",
+     citation="Impact of Catheter Ablation on LVEF in Patients with Atrial "
+              "Fibrillation and Heart Failure. 2026.",
+     scope="ejection fraction as the primary outcome, with mortality and "
+           "heart-failure hospitalisation as secondary",
+     how_it_differs_from_ours="A different primary outcome entirely, and again the "
+       "clinical endpoints are handled as separate components rather than as a "
+       "composite."),
+  ],
+  checks=[
+   C(id="castle-af-value-vs-publication",
+     what="Our CASTLE-AF row against the trial's own report",
+     verdict="CONFIRMED",
+     detail="The publication gives 51 of 179 in the ablation group against 82 of "
+            "184 in the medical-therapy group, hazard ratio 0.62 (95% CI 0.43 to "
+            "0.87). The counts in this object were already correct. The row now "
+            "carries the trial's hazard ratio rather than an odds ratio we "
+            "computed from those counts. This trial's registry record posts NO "
+            "results section, so there is no second surface to check it against, "
+            "and that is recorded on the cell.",
+     quote="the primary composite end point occurred in significantly fewer "
+           "patients in the ablation group than in the medical-therapy group (51 "
+           "patients [28.5%] vs. 82 patients [44.6%]; hazard ratio, 0.62; 95% "
+           "confidence interval [CI], 0.43 to 0.87; P=0.007)",
+     location="PMID 29385358, abstract"),
+   C(id="cabana-value-vs-registry-results",
+     what="Our CABANA row against the registry's POSTED analysis",
+     verdict="CONFIRMED",
+     detail="The registry posts 89 of 1108 against 101 of 1096 and its own Cox "
+            "proportional-hazards analysis, 0.86 (95% CI 0.65 to 1.15). The row now "
+            "carries that.",
+     quote="Cox Proportional Hazard 0.86, 95% CI 0.65 to 1.15",
+     location="ClinicalTrials.gov NCT00911508, resultsSection, primary outcome"),
+   C(id="raft-af-counts-on-two-surfaces",
+     what="Our RAFT-AF row against BOTH the registry and the publication",
+     verdict="CONFIRMED",
+     detail="The registry posts 50 of 214 in the rhythm-control group and 64 of 197 "
+            "in the rate-control group; the publication prints the same two counts "
+            "and a hazard ratio of 0.71 (95% CI 0.49 to 1.03). Two independent "
+            "surfaces agreeing, which is what made the stored counts checkable at "
+            "all -- see the error below.",
+     quote="The primary outcome occurred in 50 (23.4%) patients in the "
+           "rhythm-control group and 64 (32.5%) patients in the rate-control group "
+           "(hazard ratio, 0.71 [95% CI, 0.49-1.03])",
+     location="PMID 35313733, abstract; and NCT01420393 resultsSection"),
+   C(id="four-different-endpoints",
+     what="Whether the four trials measured the same thing",
+     verdict="CONFIRMED",
+     detail="They did not, and no two of the four are the same. CASTLE-AF: "
+            "all-cause mortality or worsening heart failure requiring unplanned "
+            "hospitalisation. CABANA: total mortality, disabling stroke, serious "
+            "bleeding or cardiac arrest. EAST-AFNET 4: cardiovascular death, "
+            "stroke, and hospitalisation for worsening heart failure or acute "
+            "coronary syndrome. RAFT-AF: all-cause mortality and heart failure "
+            "events, where an event includes an outpatient intravenous-diuretic "
+            "visit. THE WITHDRAWAL OF THE POOL IS CORRECT AND IS NOW STANDING ON "
+            "the reason that is true.",
+     quote="All-cause mortality or worsening heart failure requiring unplanned "
+           "hospitalization / Number of Participants With Composite of Total "
+           "Mortality, Disabling Stroke, Serious Bleeding, or Cardiac Arrest",
+     location="ClinicalTrials.gov, all four primary outcome measures"),
+   C(id="the-withdrawal-reason-was-wrong",
+     what="The reason recorded for withdrawing the pool",
+     verdict="ERROR", severity="material", whose="ours",
+     detail="It read '3 of 4 contributing trials carry no outcome definition "
+            "(CABANA alone records one)'. ALL FOUR RECORD ONE. They are on the "
+            "registry, they are quoted above, and they were not read. ABSENCE OF "
+            "EVIDENCE WAS RECORDED WHERE THERE WAS EVIDENCE OF DIFFERENCE. The "
+            "verdict is unchanged -- the pool was not established and is not "
+            "established now -- but a withdrawal published on a reason that is "
+            "false is a rigorous-looking wrong, and it is the specific failure this "
+            "lane was warned about: withdrawing on the wrong ground is not made "
+            "safe by the verdict coming out right.",
+     quote=None,
+     location="this object, results.primary.pooled.withdrawn_reason, as it stood "
+              "before 2026-08-17"),
+   C(id="east-afnet-arms-were-swapped",
+     what="Which EAST-AFNET 4 arm this review called the intervention",
+     verdict="ERROR", severity="material", whose="ours",
+     detail="It called USUAL CARE the intervention arm. The object labelled the "
+            "249-event arm 'Usual care' and gave it the role TREATMENT, while the "
+            "trial's own sentence assigns those 249 events to EARLY RHYTHM "
+            "CONTROL. The label was taken from the registry's arm ORDER and the "
+            "count from the publication's, and the two orders differ. The derived "
+            "odds ratio was unaffected in MAGNITUDE, which is exactly why nothing "
+            "caught it: the numbers were internally consistent and the labels were "
+            "not. Same family as RE-LY entered as dabigatran-versus-dabigatran.",
+     quote="A first-primary-outcome event occurred in 249 of the patients assigned "
+           "to early rhythm control (3.9 per 100 person-years) and in 316 patients "
+           "assigned to usual care (5.0 per 100 person-years)",
+     location="PMID 32865375, abstract"),
+   C(id="raft-af-counts-were-wrong",
+     what="RAFT-AF's event counts as this review stored them",
+     verdict="ERROR", severity="material", whose="ours",
+     detail="44 and 55 were stored against a true 50 and 64. Both arms wrong, and "
+            "the odds ratio shown on the page was computed from them. Found by "
+            "querying the registry's posted results, which agree with the "
+            "publication -- so the correct numbers were available on two surfaces "
+            "the whole time.",
+     quote="Rhythm Control 50 of 214; Rate Control 64 of 197",
+     location="ClinicalTrials.gov NCT01420393, resultsSection"),
+   C(id="odds-ratios-where-the-trials-report-hazard-ratios",
+     what="The effect measure on all four rows",
+     verdict="ERROR", severity="material", whose="ours",
+     detail="Every value was an ODDS RATIO derived by us from 2x2 participant "
+            "counts, while all four trials report a TIME-TO-FIRST-EVENT HAZARD "
+            "RATIO. An odds ratio on participants discards the time dimension, and "
+            "the two are not interchangeable: on CASTLE-AF the derived odds ratio "
+            "is 0.4956 against the trial's own 0.62. On CABANA the point estimates "
+            "agree to two decimals BY COINCIDENCE and the intervals do not -- 0.639 "
+            "to 1.159 against 0.65 to 1.15 -- which is the most misleading shape "
+            "available, because it looks like confirmation. All four rows now carry "
+            "each trial's own reported hazard ratio at the interval level the "
+            "source printed, including EAST-AFNET 4's 96 per cent.",
+     quote=None,
+     location="this object, inputs.trials[].by_outcome.primary.effect, as it stood "
+              "before 2026-08-17"),
+   C(id="one-trial-is-not-an-ablation-trial",
+     what="Whether all four trials make the comparison this review is about",
+     verdict="ERROR", severity="material", whose="ours",
+     detail="EAST-AFNET 4's intervention is EARLY STANDARDISED RHYTHM CONTROL "
+            "against USUAL CARE -- a strategy arm delivered mostly with "
+            "antiarrhythmic drugs, in which ablation is one option among several. "
+            "It sits in a review about catheter ablation. This is the "
+            "DOAC-versus-warfarin defect: a review whose subject its own trials do "
+            "not all share. Recorded and flagged on the trial rather than resolved "
+            "here, because removing a trial or re-scoping a review is a human "
+            "decision and not a script's.",
+     quote="early standardised rhythm control -- Patients in the early therapy "
+           "group will be treated following the same therapeutic recommendations",
+     location="ClinicalTrials.gov NCT01288352, armGroups"),
+   C(id="did-the-literature-make-the-same-mistake",
+     what="Whether any published synthesis pooled these incompatible composites",
+     verdict="CONFIRMED",
+     detail="None located did. The one meta-analysis that includes a trial from "
+            "this set pools COMPONENTS SEPARATELY -- all-cause mortality 0.62 (0.54 "
+            "to 0.72), stroke 0.63 (0.56 to 0.70) and heart-failure hospitalisation "
+            "0.64 (0.51 to 0.80), each with its own heterogeneity -- which is "
+            "exactly the right response to trials whose composites differ, and "
+            "exactly what this review failed to do. IT IS THE FOURTH CARDIOLOGY "
+            "TOPIC IN A ROW WHERE THE PUBLISHED LITERATURE HANDLED THE ESTIMAND "
+            "CORRECTLY AND WE DID NOT.",
+     quote="AFCA decreased the risk of mortality (hazard ratio [HR], 0.62; 95% "
+           "confidence interval [CI], 0.54-0.72; I2 = 54%), stroke (HR, 0.63; 95% "
+           "CI, 0.56-0.70; I2 = 23%) and hospitalization for heart failure (HR, "
+           "0.64; 95% CI, 0.51-0.80; I2 = 28%)",
+     location="PMID 32115777, abstract"),
+   C(id="what-the-abstract-layer-cannot-settle",
+     what="Whether the 208 syntheses that name no trial included ours",
+     verdict="UNRESOLVED",
+     detail="208 of 213 records name none of our four trials in the abstract and "
+            "two carry no indexed abstract. Ablation in atrial fibrillation is a "
+            "large synthesis literature and many of those certainly include these "
+            "trials; which ones, and on what endpoint, cannot be decided from an "
+            "abstract.",
+     quote=None,
+     location="PUBLISHED_SYNTHESIS_SCREEN.json, tally"),
+  ],
+  divergence_decomposed=O(
+   ours="NO POOLED ESTIMATE. The four trials measure four different primary "
+        "composites and are presented separately: CASTLE-AF HR 0.62 (0.43-0.87), "
+        "CABANA HR 0.86 (0.65-1.15), EAST-AFNET 4 HR 0.79 (0.66-0.94 at 96%), "
+        "RAFT-AF HR 0.71 (0.49-1.03) -- each on its own endpoint, none of them "
+        "the same endpoint.",
+   theirs="All-cause mortality HR 0.62 (0.54-0.72), stroke HR 0.63 (0.56-0.70) and "
+          "heart-failure hospitalisation HR 0.64 (0.51-0.80), pooled as separate "
+          "COMPONENTS over nine studies of which one is randomised.",
+   why_they_differ="They found a poolable question and we did not look for one. "
+     "Where composites differ, the components several trials share can often still "
+     "be pooled, and that is the route the published synthesis took. This review "
+     "instead averaged the composites and has now withdrawn the result. The "
+     "component route is the obvious replacement question for this page and it is "
+     "NOT taken here: a replacement question must be chosen before the number is "
+     "seen, and this comparison already knows what the components give."),
+ ),
 }
 
 

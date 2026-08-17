@@ -56,7 +56,14 @@ COMPONENT = re.compile(
     # agreement, and the first argues for withdrawing a sound estimate.
     r"(?:cardiovascular|cv) mortality|"
     r"all-cause (?:death|mortality)|(?:death|mortality) from any cause|"
-    r"any-cause (?:death|mortality)|"
+    r"any-cause (?:death|mortality)|total mortality|"
+    # ABLATION_AF, 2026-08-17. CABANA's registry endpoint is "Total Mortality,
+    # Disabling Stroke, Serious Bleeding, or Cardiac Arrest" and this reader saw
+    # ONE of those four: stroke. Three whole components of a composite were
+    # invisible, so an object pairing CABANA with a stroke-only trial would have
+    # been reported as counting the same events. That is the comfortable
+    # direction and it was sitting in a live object.
+    r"serious bleeding|major bleeding|cardiac arrest|acute coronary syndrome|"
     r"myocardial infarction|stroke|worsening heart failure", re.I)
 
 # "WORSENING HEART FAILURE" IS USUALLY A QUALIFIER, NOT A COMPONENT.
@@ -77,6 +84,14 @@ COMPONENT = re.compile(
 _WORSENING_ATTACHED = re.compile(
     r"\b(hospitali[sz]\w*|admission\w*|admitted|visits?)"
     r"(?:\s+(?:for|due to|because of))?\s+worsening\s+heart\s+failure", re.I)
+# AND THE SAME PHRASE WITH THE WORDS THE OTHER WAY ROUND. CASTLE-AF's registry
+# endpoint is "worsening heart failure REQUIRING UNPLANNED HOSPITALIZATION", which
+# the attached pattern cannot see because the qualifier comes first. One counted
+# event read as two, on a live object -- the EMPEROR over-read in mirror image,
+# found the same day the first half was fixed.
+_WORSENING_LEADING = re.compile(
+    r"\bworsening\s+heart\s+failure\s+(?:requiring|leading to|resulting in)"
+    r"(?:\s+\w+){0,2}\s+(hospitali[sz]\w*|admission\w*)", re.I)
 _WORSENING_UMBRELLA = re.compile(
     r"\bworsening\s+heart\s+failure\s*(?=\([^)]*(?:hospitali|visit))", re.I)
 
@@ -101,7 +116,11 @@ _CANON = (
     # does, and a withdrawal needs the same evidentiary standard as a claim.
     (re.compile(r"(cardiovascular|cv) death|death.{0,3} from cardiovascular", re.I),
      "cv_death"),
-    (re.compile(r"all-cause|any-cause|from any cause", re.I), "all_cause_death"),
+    (re.compile(r"all-cause|any-cause|from any cause|total mortality", re.I),
+     "all_cause_death"),
+    (re.compile(r"serious bleeding|major bleeding", re.I), "serious_bleeding"),
+    (re.compile(r"cardiac arrest", re.I), "cardiac_arrest"),
+    (re.compile(r"acute coronary syndrome", re.I), "acs"),
     (re.compile(r"(cardiovascular|cv) mortality", re.I), "cv_death"),
     (re.compile(r"myocardial infarction", re.I), "mi"),
     (re.compile(r"stroke", re.I), "stroke"),
@@ -111,6 +130,7 @@ _CANON = (
 
 def _components(s):
     s = _WORSENING_ATTACHED.sub(lambda m: m.group(1), s or "")
+    s = _WORSENING_LEADING.sub(lambda m: m.group(1), s)
     s = _WORSENING_UMBRELLA.sub("", s)
     out = set()
     for m in COMPONENT.finditer(s or ""):
@@ -155,11 +175,27 @@ def check(obj):
     if not trials or not results:
         return "UNCHECKABLE", ["object carries no trials or no pooled outcome"]
 
-    notes, bad = [], False
+    notes, bad, withdrawn_for_this = [], False, False
     for oid, res in results.items():
         if (res.get("k") or 0) < 2:
             notes.append("%s: k<2, nothing to compare" % oid)
             continue
+        # A POOL ALREADY WITHDRAWN FOR THIS EXACT REASON IS THE PROPERTY MET.
+        #
+        # ABLATION_AF's four trials record four different primary composites, and
+        # its estimate is withdrawn WITH that as the stated reason. Scoring it
+        # FAIL made a page that found the difference and acted on it
+        # indistinguishable from a page that pooled straight through -- which is
+        # SGLT2_HF, whose object still carries a live k=4 point. A score that
+        # cannot tell those two apart cannot measure the thing it is for.
+        #
+        # This is NOT an escape hatch: a withdrawn pool displays no number, so
+        # there is nothing left for a mismatched estimand to be wrong about. A
+        # LIVE pool with disagreeing definitions still FAILs, which is the
+        # constructible failure and the SGLT2 replay.
+        _p = res.get("pooled") or {}
+        _withdrawn = (_p.get("point") is None and _p.get("withdrawn")
+                      and (_p.get("withdrawn_reason") or "").strip())
         defs, missing, resultish = {}, [], []
         for t in trials:
             bo = (t.get("by_outcome") or {}).get(oid)
@@ -182,7 +218,10 @@ def check(obj):
             else:
                 defs[name] = d
         if missing:
-            bad = True
+            if _withdrawn:
+                withdrawn_for_this = True
+            else:
+                bad = True
             notes.append("%s: NO endpoint definition recorded for %d trial(s): %s"
                          % (oid, len(missing), ", ".join(missing[:6])))
             if resultish:
@@ -192,14 +231,26 @@ def check(obj):
         if len(defs) > 1:
             comp = {n: _components(d) for n, d in defs.items()}
             if len(set(comp.values())) > 1:
-                bad = True
-                notes.append("%s: recorded definitions DISAGREE across trials:" % oid)
+                if _withdrawn:
+                    withdrawn_for_this = True
+                else:
+                    bad = True
+                notes.append("%s: recorded definitions DISAGREE across trials%s:"
+                             % (oid, " -- AND THE ESTIMATE IS WITHDRAWN, WITH THIS "
+                                     "AS ITS STATED REASON" if _withdrawn else ""))
                 for n, c in comp.items():
                     notes.append("    %-22s counts {%s}"
                                  % (n, ", ".join(sorted(c)) or "-"))
     if not notes:
         notes = ["every pooled outcome has a recorded endpoint definition and they agree"]
-    return ("FAIL" if bad else "PASS"), notes
+    if bad:
+        return "FAIL", notes
+    if withdrawn_for_this:
+        notes.append("-> the definitions do not agree and NO ESTIMATE IS DISPLAYED. "
+                     "The property is met by the withholding, not by agreement, and "
+                     "this is recorded as WITHDRAWN rather than passed.")
+        return "WITHDRAWN", notes
+    return "PASS", notes
 
 
 def selftest():
@@ -289,6 +340,23 @@ def selftest():
          "treated in the outpatient setting", {"cv_death", "worsening_hf"}),
         ("CONFIRM-HF: the publication's own words for the death row",
          "all-cause death, analysed as time to first event", {"all_cause_death"}),
+        # ABLATION_AF: four endpoints that must come out DIFFERENT, and three of
+        # the four had components this reader could not see at all.
+        ("CASTLE-AF: the qualifier BEFORE the hospitalisation, not after",
+         "All-cause mortality or worsening heart failure requiring unplanned "
+         "hospitalization", {"all_cause_death", "hf_hospitalisation"}),
+        ("CABANA: three of its four components were invisible",
+         "Number of Participants With Composite of Total Mortality, Disabling "
+         "Stroke, Serious Bleeding, or Cardiac Arrest in Patients Warranting "
+         "Therapy for AF.",
+         {"all_cause_death", "stroke", "serious_bleeding", "cardiac_arrest"}),
+        ("EAST-AFNET 4: acute coronary syndrome was invisible",
+         "A composite of cardiovascular death, stroke and hospitalization due to "
+         "worsening of heart failure or due to acute coronary syndrome.",
+         {"cv_death", "stroke", "hf_hospitalisation", "acs"}),
+        ("RAFT-AF: all-cause mortality and heart failure events",
+         "Composite of All-cause Mortality and Heart Failure Events",
+         {"all_cause_death"}),
     ]
     for label, text, want in canon_cases:
         got = set(_components(text))
@@ -322,7 +390,14 @@ def main():
     for n in notes:
         print("  %s" % n)
     print("  -> %s" % v)
-    return 0 if v == "PASS" else (2 if v == "UNCHECKABLE" else 1)
+    # FOUR STATES, FOUR EXIT CODES, because a caller that maps three of them onto
+    # "PASS" cannot report what it measured. 0 PASS, 1 FAIL, 2 UNCHECKABLE (ran,
+    # could not see -- not a pass), 3 WITHDRAWN (the definitions disagree AND no
+    # estimate is displayed, so the property is met by the withholding). A
+    # distinct CODE rather than a word in the output, so no caller has to
+    # substring-search for it -- which is the over-match this repository has now
+    # committed three times.
+    return {"PASS": 0, "FAIL": 1, "UNCHECKABLE": 2, "WITHDRAWN": 3}.get(v, 1)
 
 
 if __name__ == "__main__":

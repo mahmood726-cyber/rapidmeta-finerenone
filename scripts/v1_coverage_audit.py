@@ -106,6 +106,13 @@ def run(script, argv):
         return "ERROR", last
     if r.returncode == 2:
         return "NOT RUN", last
+    # 3 = MET BY WITHHOLDING. ABLATION_AF's four trials record four different
+    # endpoints and its estimate is withdrawn for exactly that reason. Scoring it
+    # FAIL made a page that found the difference and acted on it look identical to
+    # one that pooled straight through; scoring it PASS would hide that no
+    # estimate is displayed. It is neither, and the ledger says so.
+    if r.returncode == 3:
+        return "WITHHELD", last
     if r.returncode == 0:
         return "PASS", ""
     return "FAIL", last

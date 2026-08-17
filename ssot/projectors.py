@@ -1212,16 +1212,51 @@ def extraction_provenance_table(canon):
     # converted page there are none to check against, and discovering that by clicking
     # an empty link column is finding out the hard way. Thin is not the problem;
     # silence about WHY it is thin is. The tab must not imply a provenance it lacks.
+    # PROJECTED FROM WHAT THE OBJECT HOLDS, NOT FROM THE MODE LABEL.
+    #
+    # This used to fire on build_mode == "CONVERTED" alone and assert that "no
+    # verbatim source sentence and no resolvable link to a paper was
+    # recoverable". On ABLATION_AF that sentence became FALSE the moment the four
+    # trial rows were re-read from their registry records and their publications
+    # -- while the protocol, search, screening, risk-of-bias and certainty layers
+    # stayed genuinely unrecoverable, so the mode label was still correct and
+    # could not be flipped without making the ABSENCE reasons false instead.
+    #
+    # A note that describes the artefact must be derived from the artefact. So:
+    # a converted object whose cells carry NO quotes says it cannot be checked; a
+    # converted object whose cells DO carry quotes says which layer was rebuilt
+    # and which was not. Neither sentence is available to be wrong about the
+    # other, which is the property an expected-section manifest has and a
+    # hand-written caption does not.
     cnote = ""
     if canon.get("build_mode") == "CONVERTED":
-        cnote = ("  <div class='absent-state' role='note'><strong>These values cannot be "
-                 "traced to a paper from this page.</strong> This object was RECOVERED from "
-                 "the published page itself rather than assembled from source documents. "
-                 "Each value below traces to the page it came from, but <strong>no verbatim "
-                 "source sentence and no resolvable link to a paper was recoverable</strong>, "
-                 "and the intervals are computed from a stored estimate and variance rather "
-                 "than read from anything a source printed. Treat every row as unverified "
-                 "against its source until it is checked against the trial report.</div>" + NL)
+        _q = sum(1 for t in trials
+                 for bo in (t.get("by_outcome") or {}).values()
+                 if isinstance(bo, dict)
+                 and ((bo.get("provenance") or {}).get("source_quotes")))
+        _tot = sum(1 for t in trials
+                   for bo in (t.get("by_outcome") or {}).values()
+                   if isinstance(bo, dict))
+        if not _q:
+            cnote = ("  <div class='absent-state' role='note'><strong>These values cannot be "
+                     "traced to a paper from this page.</strong> This object was RECOVERED from "
+                     "the published page itself rather than assembled from source documents. "
+                     "Each value below traces to the page it came from, but <strong>no verbatim "
+                     "source sentence and no resolvable link to a paper was recoverable</strong>, "
+                     "and the intervals are computed from a stored estimate and variance rather "
+                     "than read from anything a source printed. Treat every row as unverified "
+                     "against its source until it is checked against the trial report.</div>" + NL)
+        else:
+            cnote = ("  <div class='absent-state' role='note'><strong>The trial data on this "
+                     "tab have been re-read from source; the rest of this review has not."
+                     "</strong> This object was originally RECOVERED from a published page. "
+                     "%d of %d value cells now carry a verbatim source sentence and a "
+                     "resolvable link, read from the trial's own registry record or "
+                     "publication. <strong>The protocol, search, screening log, risk-of-bias "
+                     "assessment and certainty rating remain unrecoverable</strong> and are "
+                     "recorded as absent on their own tabs. So the numbers below are "
+                     "checkable and the REVIEW around them is still not a source-built "
+                     "review.</div>" % (_q, _tot) + NL)
 
     # cnote is a FORMAT ARGUMENT, not a concatenation: `"a" + x + "b" % args` binds
     # the % to the last literal group only, which silently changes the argument count.
