@@ -400,6 +400,220 @@ COMPARISONS = {
      "the published layer supports, and that where the layers overlap the numbers "
      "agree."),
  ),
+
+ "alirocumab-lipid": O(
+  _why="Six trials, one endpoint, and every value posted by the registry -- so the "
+       "trial-by-trial check here is complete in a way it cannot be where trials "
+       "post no results. It is also the topic where the error found is OURS, and "
+       "it is in the table below with the same weight as anything found in the "
+       "literature.",
+  _how_identified="PubMed E-utilities; query, counts and a per-record decision in "
+       "ssot/alirocumab-lipid/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json. 101 "
+       "records matched and all 101 were read at abstract level.",
+  reviews=[
+   O(id="PM_FH_PCSK9_2022", pmid="34754882",
+     citation="A Systematic Review and Meta-Analysis of Therapeutic Efficacy and "
+              "Safety of Alirocumab and Evolocumab on Familial "
+              "Hypercholesterolemia. Biomed Res Int 2022.",
+     their_k=7, their_n=926,
+     scope="PCSK9 monoclonal antibodies in familial hypercholesterolaemia",
+     how_it_differs_from_ours="It pools BOTH drugs and restricts to familial "
+       "hypercholesterolaemia; we pool one drug across a mixed population. Its "
+       "weighted mean difference -49.14% (-55.81 to -42.47) is a different set of "
+       "trials answering a narrower question, and it overlaps ours."),
+   O(id="PM_ALIRO_NMA_2019", pmid="30782243",
+     citation="Efficacy and safety of different doses of alirocumab in reducing "
+              "low-density lipoprotein cholesterol levels: a network "
+              "meta-analysis. Pharmazie 2019.",
+     their_k=16,
+     scope="alirocumab at three dose strategies against placebo and ezetimibe, "
+           "network meta-analysis",
+     how_it_differs_from_ours="A NETWORK estimate over sixteen studies rather than "
+       "a direct pool over six, and its intervals are about forty points wide. "
+       "Its alirocumab-versus-placebo relative effects run from -71 to -77, "
+       "further from zero than our -54.7, and the abstract does not state the "
+       "unit or the model well enough to say why."),
+   O(id="PM_ALIRO12_2019", pmid="31463238",
+     citation="Safety and efficacy of alirocumab: A meta analysis of 12 randomized "
+              "controlled trials. J Family Med Prim Care 2019.",
+     their_k=12, their_n=6019,
+     scope="phase 3 alirocumab trials in hypercholesterolaemia and familial "
+           "hypercholesterolaemia",
+     how_it_differs_from_ours="It reports 'over 50%' LDL-C reduction without a "
+       "pooled interval in its abstract, so it supplies a direction and a rough "
+       "magnitude and no number to reconcile against."),
+   O(id="PM_CKD_PCSK9_2019", pmid="29299849",
+     citation="Lipid Management in Chronic Kidney Disease: Systematic Review of "
+              "PCSK9 Targeting. Drugs 2019.",
+     scope="narrative review of PCSK9 inhibition in chronic kidney disease",
+     how_it_differs_from_ours="It reports no pooled estimate, but it is the record "
+       "that independently confirms which ODYSSEY COMBO trial used which "
+       "comparator -- see the comparator check."),
+  ],
+  checks=[
+   C(id="ldl-values-vs-registry-1",
+     what="NCT01507831, the largest trial, against the registry's posted analysis",
+     verdict="CONFIRMED",
+     detail="Registry: LS Mean Difference -61.9, 95% CI -64.3 to -59.4, Mixed "
+            "Models Analysis, over 1530 against 780. This object stores -61.9 "
+            "(-64.3 to -59.4). Identical. NOTE this trial's LDL result is a "
+            "SECONDARY outcome -- its only primary is the adverse-event "
+            "proportion, because it was designed as a long-term safety study -- "
+            "and an earlier build EXCLUDED it for posting no LDL result, which "
+            "came from reading primary outcomes only.",
+     quote="LS Mean Difference -61.9 (-64.3 to -59.4), Mixed Models Analysis",
+     location="ClinicalTrials.gov NCT01507831, resultsSection"),
+   C(id="ldl-values-vs-registry-2",
+     what="NCT01617655 against the registry's posted analysis",
+     verdict="CONFIRMED",
+     detail="Registry: LS mean difference -39.1 (-51.1 to -27.1) over 71 against "
+            "35. Object: -39.1 (-51.1 to -27.1). Identical. This is the smallest "
+            "and least precise of the six and the furthest from the pooled value.",
+     quote="LS mean difference -39.1 (-51.1 to -27.1), Mixed Models Analysis",
+     location="ClinicalTrials.gov NCT01617655, resultsSection"),
+   C(id="ldl-values-vs-registry-3",
+     what="NCT01623115 against the registry's posted analysis",
+     verdict="CONFIRMED",
+     detail="Registry: LS mean difference -57.9 (-63.3 to -52.6) over 322 against "
+            "163. Object: -57.9 (-63.3 to -52.6). Identical.",
+     quote="LS mean difference -57.9 (-63.3 to -52.6), Mixed Models Analysis",
+     location="ClinicalTrials.gov NCT01623115, resultsSection"),
+   C(id="ldl-values-vs-registry-4",
+     what="NCT01644175 against the registry's posted analysis",
+     verdict="CONFIRMED",
+     detail="Registry: LS Mean Difference -45.9 (-52.5 to -39.3) over 205 against "
+            "106. Object: -45.9 (-52.5 to -39.3). Identical.",
+     quote="LS Mean Difference -45.9 (-52.5 to -39.3), Mixed Models Analysis",
+     location="ClinicalTrials.gov NCT01644175, resultsSection"),
+   C(id="ldl-values-vs-registry-5",
+     what="NCT01709500 against the registry's posted analysis, and its arm ORDER",
+     verdict="CONFIRMED",
+     detail="Registry: LS Mean Difference -51.4 (-58.1 to -44.8) over 166 against "
+            "81. Object: -51.4 (-58.1 to -44.8). Identical. AND THE ARM ORDER IS "
+            "REVERSED ON THIS RECORD ALONE: the registry lists alirocumab first "
+            "and placebo second, the opposite of the other five. The posted "
+            "difference is still alirocumab minus placebo, still negative, and "
+            "the arm means (-48.7 against 2.8) confirm the sign independently. "
+            "Checked because a silently reversed contrast is a defect class this "
+            "repository has shipped before.",
+     quote="Alirocumab 75 mg/up to 150 mg -48.7; Placebo 2.8; LS Mean Difference "
+           "-51.4 (-58.1 to -44.8)",
+     location="ClinicalTrials.gov NCT01709500, resultsSection, group order"),
+   C(id="ldl-values-vs-registry-6",
+     what="NCT02107898 against the registry's posted analysis",
+     verdict="CONFIRMED",
+     detail="Registry: LS Mean Difference -64.1 (-68.5 to -59.8) over 143 against "
+            "72. Object: -64.1 (-68.5 to -59.8). Identical. SIX OF SIX "
+            "CONTRIBUTING VALUES ARE THEREFORE CONFIRMED AGAINST THEIR REGISTRY "
+            "RECORDS -- the only topic in this lane where the trial-by-trial check "
+            "is complete.",
+     quote="LS Mean Difference -64.1 (-68.5 to -59.8), Mixed Models Analysis",
+     location="ClinicalTrials.gov NCT02107898, resultsSection"),
+   C(id="endpoint-definitions-identical",
+     what="Whether the six trials measured the same thing",
+     verdict="CONFIRMED",
+     detail="All six registry records give the outcome as 'Percent Change From "
+            "Baseline in Calculated LDL-C at Week 24' on the intention-to-treat "
+            "analysis. The only differences are orthographic -- one record writes "
+            "'Intent--to--Treat' with doubled hyphens, another closes the bracket "
+            "after 'ITT Analysis' rather than before it. Compared as whole "
+            "normalised fields, which is the rule this repository once broke "
+            "inside its own auditor by testing a fragment.",
+     quote="Percent Change From Baseline in Calculated LDL-C at Week 24 - "
+           "Intent-to-Treat (ITT) Analysis",
+     location="ClinicalTrials.gov, all six records, outcome measure title"),
+   C(id="comparator-is-placebo-on-all-six",
+     what="Whether any of the six is actually an ACTIVE-comparator trial",
+     verdict="CONFIRMED",
+     detail="None is. All six registry records type the control arm "
+            "PLACEBO_COMPARATOR. This was checked rather than assumed because the "
+            "ODYSSEY programme contains sibling trials with different "
+            "comparators, and a published review states it independently: "
+            "'ODYSSEY COMBO I and ODYSSEY COMBO II studies demonstrated "
+            "significant superiority of alirocumab ... in comparison to placebo "
+            "and ezetimibe, respectively'. NCT01644175 is COMBO I, the "
+            "placebo-controlled one, and COMBO II is not in this set. A pool "
+            "silently mixing a placebo contrast with an ezetimibe contrast would "
+            "have been an average over two different questions.",
+     quote="ODYSSEY COMBO I and ODYSSEY COMBO II studies demonstrated significant "
+           "superiority of alirocumab on LDL-cholesterol lowering in comparison "
+           "to placebo and ezetimibe, respectively",
+     location="PMID 29299849, abstract; and the armGroups type on all six records"),
+   C(id="our-estimator-breaks-our-own-rule",
+     what="The between-study variance estimator used for the headline",
+     verdict="ERROR", severity="material", whose="ours",
+     detail="THIS ONE IS OURS. The pool is DerSimonian-Laird at k=6, and this "
+            "project's own statistical rules say not to use DerSimonian-Laird "
+            "below about ten studies because it underestimates the between-trial "
+            "variance and narrows the interval. Recomputed on exactly these six "
+            "values: REML gives tau-squared 71.2 against 47.4, and I-squared 91.6 "
+            "per cent against 87.9. THE VERDICT ON WHETHER THESE TRIALS SHOULD BE "
+            "AVERAGED AT ALL TURNS ON THAT, because this project's own poolability "
+            "screen treats 90 per cent as the point where an average conceals more "
+            "than it conveys -- so the estimator that the rules advise against is "
+            "the one that keeps the pool on the acceptable side of the threshold. "
+            "The headline is NOT re-estimated in this pass: the same estimator is "
+            "used across this corpus including the flagship, and changing one page "
+            "alone would make it inconsistent with its neighbours without fixing "
+            "anything. It is recorded in the open, with the alternatives printed "
+            "beside it, rather than quietly left or quietly changed.",
+     quote=None,
+     location="this object, results.ldlc_pct_change_wk24.estimator and "
+              "estimator_sensitivity"),
+   C(id="no-synthesis-reports-this-estimand",
+     what="Whether any published synthesis pools these six trials on this endpoint",
+     verdict="ABSENT",
+     detail="None located. The closest are a familial-hypercholesterolaemia pool "
+            "of seven trials across BOTH PCSK9 antibodies, weighted mean "
+            "difference -49.14% (-55.81 to -42.47), and a twelve-trial alirocumab "
+            "review reporting 'over 50%' with no interval. Both overlap our -54.66% "
+            "and neither answers the same question. So this pooled value cannot be "
+            "checked against an external number, which is a statement about the "
+            "literature rather than a claim of novelty.",
+     quote="PCSK9-mAbs reduced the LDL-C level by the greatest margin, WMD -49.14%, "
+           "95% CI: -55.81 to -42.47%, on FH versus control groups",
+     location="PMID 34754882, abstract"),
+   C(id="network-estimates-further-from-zero",
+     what="A network meta-analysis reporting a much larger reduction",
+     verdict="UNRESOLVED",
+     detail="It reports alirocumab-versus-placebo relative effects of -71.45 "
+            "(-91.16 to -50.44), -74.32 (-90.40 to -58.63) and -77.28 (-92.21 to "
+            "-61.90) by dose strategy -- all further from zero than our -54.66, and "
+            "all with intervals around forty points wide. It cannot be settled from "
+            "the abstract whether those are percent changes on the same basis, and "
+            "an interval that wide is compatible with a wide range of truths. "
+            "Recorded for a reader rather than asserted as a discrepancy in either "
+            "direction.",
+     quote="alirocumab could significantly reduce LDL-c levels, compared with "
+           "placebo (relative effect 95 % CI: -71.45 [-91.16, -50.44], -74.32 "
+           "[-90.40, -58.63] and -77.28 [-92.21, -61.90])",
+     location="PMID 30782243, abstract"),
+   C(id="what-the-abstract-layer-cannot-settle",
+     what="Whether the 97 syntheses that name no trial included ours",
+     verdict="UNRESOLVED",
+     detail="97 of 101 records name none of our six trials in the abstract and two "
+            "carry no indexed abstract. Alirocumab LDL-lowering is a crowded "
+            "literature and many of those certainly do include these trials; which "
+            "ones, and on what endpoint, cannot be decided from an abstract.",
+     quote=None,
+     location="PUBLISHED_SYNTHESIS_SCREEN.json, tally"),
+  ],
+  divergence_decomposed=O(
+   ours="Mean difference -54.66 percent (-60.75 to -48.56) in calculated LDL "
+        "cholesterol at week 24, k=6, random effects, DerSimonian-Laird. "
+        "PREDICTION INTERVAL -74.1 to -35.2, which is the number to quote.",
+   theirs="-49.14% (-55.81 to -42.47) over seven familial-hypercholesterolaemia "
+          "trials of both PCSK9 antibodies; 'over 50%' over twelve alirocumab "
+          "trials; -71 to -77 by dose in a sixteen-study network analysis.",
+   why_they_differ="Different eligible sets and different questions -- one drug or "
+     "two, one population or several, direct pool or network. Nothing here shows "
+     "either side in error on the numbers. THE SUBSTANTIVE POINT IS NOT THE "
+     "DIFFERENCE BETWEEN REVIEWS, IT IS THE SPREAD WITHIN OURS: six trials running "
+     "from -39.1 to -64.1, each with a tight interval of its own, I-squared near "
+     "90 per cent. A single number for 'how much does alirocumab lower LDL' "
+     "conceals a twenty-five point range, and the prediction interval is the only "
+     "honest summary of it."),
+ ),
 }
 
 
@@ -422,6 +636,10 @@ def write(app_id):
     cmp_["denominator"] = O(
         rows_checked=n,
         confirmed=ver["CONFIRMED"], errors=ver["ERROR"],
+        errors_in_the_literature=sum(1 for c in checks if c["verdict"] == "ERROR"
+                                     and c.get("whose") != "ours"),
+        errors_in_this_review=sum(1 for c in checks if c["verdict"] == "ERROR"
+                                  and c.get("whose") == "ours"),
         absent=ver["ABSENT"], unresolved=ver["UNRESOLVED"],
         statement="%d checks were applied and %d came back clean, %d found an error, "
                   "%d found something absent and %d could not be settled at the layer "
@@ -441,7 +659,17 @@ def write(app_id):
     print("published_comparison written to %s" % path)
     print("  %d checks -> %d CONFIRMED, %d ERROR, %d ABSENT, %d UNRESOLVED"
           % (n, ver["CONFIRMED"], ver["ERROR"], ver["ABSENT"], ver["UNRESOLVED"]))
-    if ver["ERROR"] == 0:
+    theirs = [c for c in checks
+              if c["verdict"] == "ERROR" and c.get("whose") != "ours"]
+    ours = [c for c in checks
+            if c["verdict"] == "ERROR" and c.get("whose") == "ours"]
+    # WHOSE ERROR IT IS, COUNTED SEPARATELY. "0 errors" over a table that mixes
+    # checks on us with checks on them says nothing about either. The running
+    # finding across this lane is specifically that the errors are OURS, and a
+    # tally that cannot express that cannot support it.
+    print("  errors found in the published literature: %d" % len(theirs))
+    print("  errors found in THIS review:              %d" % len(ours))
+    if not theirs:
         print("  the published literature is implicated in NONE of these checks -- "
               "stated as prominently as the opposite finding would be")
     return 0

@@ -313,6 +313,65 @@ DEFINITIONS = {
    },
   },
  },
+
+ # --------------------------------------------------------------- ALIROCUMAB
+ # Six trials, one endpoint, and the registry states it in almost exactly the
+ # same words on all six records. The differences are orthographic -- one writes
+ # "Intent--to--Treat" with two double hyphens, one closes the bracket after
+ # "ITT Analysis" instead of before it -- which is the case a fragment test gets
+ # wrong in both directions. Recorded whole, compared whole.
+ "alirocumab-lipid": {
+  "NCT01507831": {"ldlc_pct_change_wk24": {
+    "text": "Percent Change From Baseline in Calculated LDL-C at Week 24 - "
+            "Intent-to-Treat (ITT) Analysis",
+    "time_frame": "From Baseline to Week 52",
+    "endpoint_rank": "SECONDARY -- this trial's only PRIMARY outcome is the "
+        "proportion of participants with adverse events, because it was "
+        "designed as a long-term safety study. An earlier build EXCLUDED this "
+        "trial for posting no LDL result, which came from reading primary "
+        "outcomes only; it is the largest trial in the set.",
+    "source": "registry", "source_field": _CTG,
+    "source_url": "https://clinicaltrials.gov/study/NCT01507831",
+    "read_utc": "2026-08-17"}},
+  "NCT01617655": {"ldlc_pct_change_wk24": {
+    "text": "Percent Change From Baseline in Calculated LDL-C at Week 24 - ITT "
+            "Analysis",
+    "time_frame": "From Baseline to Week 52", "endpoint_rank": "PRIMARY",
+    "source": "registry", "source_field": _CTG,
+    "source_url": "https://clinicaltrials.gov/study/NCT01617655",
+    "read_utc": "2026-08-17"}},
+  "NCT01623115": {"ldlc_pct_change_wk24": {
+    "text": "Percent Change From Baseline in Calculated LDL-C at Week 24 - "
+            "Intent-to-Treat (ITT) Analysis",
+    "time_frame": "From Baseline to Week 52", "endpoint_rank": "PRIMARY",
+    "source": "registry", "source_field": _CTG,
+    "source_url": "https://clinicaltrials.gov/study/NCT01623115",
+    "read_utc": "2026-08-17"}},
+  "NCT01644175": {"ldlc_pct_change_wk24": {
+    "text": "Percent Change From Baseline in Calculated LDL-C at Week 24 - "
+            "Intent-to-Treat (ITT) Analysis",
+    "time_frame": "From Baseline to Week 52", "endpoint_rank": "PRIMARY",
+    "source": "registry", "source_field": _CTG,
+    "source_url": "https://clinicaltrials.gov/study/NCT01644175",
+    "read_utc": "2026-08-17"}},
+  "NCT01709500": {"ldlc_pct_change_wk24": {
+    "text": "Percent Change From Baseline in Calculated LDL-C at Week 24 - "
+            "Intent--to--Treat (ITT) Analysis",
+    "time_frame": "From Baseline to Week 52", "endpoint_rank": "PRIMARY",
+    "source": "registry", "source_field": _CTG,
+    "source_url": "https://clinicaltrials.gov/study/NCT01709500",
+    "orthography_note": "The double hyphens in 'Intent--to--Treat' are the "
+        "registry's own. Quoted as posted rather than tidied: a definition "
+        "compared whole must be recorded whole.",
+    "read_utc": "2026-08-17"}},
+  "NCT02107898": {"ldlc_pct_change_wk24": {
+    "text": "Percent Change From Baseline in Calculated LDL-C at Week 24 - "
+            "Intent-to-Treat (ITT Analysis)",
+    "time_frame": "From Baseline to Week 52", "endpoint_rank": "PRIMARY",
+    "source": "registry", "source_field": _CTG,
+    "source_url": "https://clinicaltrials.gov/study/NCT02107898",
+    "read_utc": "2026-08-17"}},
+ },
 }
 
 

@@ -1,0 +1,273 @@
+"""OBJECT PROVENANCE REPAIR -- give a reader what they need to check a value.
+
+WHAT THIS FIXES, AND WHY IT IS NOT COSMETIC
+    ALIROCUMAB and ABLATION_AF both carry an extraction table with SIX rows,
+    six values, six resolvable links -- and ZERO verbatim source sentences.
+
+    HAVING LINKS IS NOT BEING CHECKABLE. A value plus a link tells a reader
+    WHERE to look. Only the sentence tells them WHAT WE READ, which is the thing
+    they are checking. A table of values with no sentences is provenance
+    theatre, and the v1 standard fails it outright rather than passing it
+    partially, because a partial pass on this property is indistinguishable from
+    the real thing at a glance.
+
+    The same objects also record no comparator, no effect scale and no
+    read-versus-derived label, so three more checks either could not see or had
+    to report the absence.
+
+THE RULE THIS OBEYS
+    EVERY FIELD BELOW WAS READ FROM A NAMED PLACE, and the place is stored with
+    it. Nothing here is inferred from what a value looks like. `comparator_type`
+    in particular would be right most of the time as "placebo", which is exactly
+    why it is taken from the registry's own arm TYPE and the arm label is
+    stored beside it -- a plausible default is the most dangerous kind of wrong,
+    because nobody checks a field that looks reasonable.
+
+WHAT THIS DOES NOT ESTABLISH -- written in advance
+    - NOT that the values are correct. It records where they came from; the
+      published comparison is where they are checked against those sources.
+    - NOT that the pool is sound. Provenance is per-value; poolability is not.
+    - NOT anything about cells it does not name. A cell absent from the table
+      below keeps whatever it had.
+
+USAGE  python scripts/repair_object_provenance.py <app_id> [--dry-run]
+"""
+from __future__ import annotations
+import io, json, os, sys
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+_LSM_NOTE = ("The value is the LEAST-SQUARES MEAN DIFFERENCE the registry posts "
+             "for this outcome, from the trial's own mixed model. It is read as "
+             "printed. It is NOT computed from the two arm means shown beside it, "
+             "and it is not a raw difference of observed means: the model's "
+             "handling of missing data is inside the number and cannot be "
+             "separated from it here.")
+
+
+def _ctg(nct):
+    return "https://clinicaltrials.gov/study/%s" % nct
+
+
+# app_id -> nct -> {trial-level fields, and per-outcome cells}
+REPAIRS = {
+ "alirocumab-lipid": {
+  "_trial_defaults": {
+   "comparator_type": "placebo",
+   "comparator_type_basis": "The registry types this trial's control arm "
+        "PLACEBO_COMPARATOR and gives its label; both are stored on the trial. "
+        "Read from the arm record rather than assumed -- 'placebo' would be "
+        "right most of the time in this therapeutic area, which is the reason "
+        "not to guess it.",
+  },
+  "NCT01507831": {
+   "arm_labels": ("Alirocumab 150 mg Q2W", "Placebo Q2W"),
+   "cells": {"ldlc_pct_change_wk24": {
+    "registry_title": "Percent Change From Baseline in Calculated LDL-C at Week "
+                      "24 - Intent-to-Treat (ITT) Analysis",
+    "rank": "SECONDARY -- this trial's only primary outcome is the proportion of "
+            "participants with adverse events, because it was designed as a "
+            "long-term safety study",
+    "arm_means": "Placebo Q2W 0.8; Alirocumab 150 mg Q2W -61.0 (percent change)",
+    "analysed": {"treatment": 1530, "control": 780},
+    "posted": "LS Mean Difference -61.9, 95% CI -64.3 to -59.4, Mixed Models "
+              "Analysis",
+   }},
+  },
+  "NCT01617655": {
+   "arm_labels": ("Alirocumab 150 mg Q2W", "Placebo Q2W"),
+   "cells": {"ldlc_pct_change_wk24": {
+    "registry_title": "Percent Change From Baseline in Calculated LDL-C at Week "
+                      "24 - ITT Analysis",
+    "rank": "PRIMARY",
+    "arm_means": "Placebo Q2W -6.6; Alirocumab 150 mg Q2W -45.7 (percent change)",
+    "analysed": {"treatment": 71, "control": 35},
+    "posted": "LS mean difference -39.1, 95% CI -51.1 to -27.1, Mixed Models "
+              "Analysis",
+   }},
+  },
+  "NCT01623115": {
+   "arm_labels": ("Alirocumab 75 mg/Up to 150 mg Q2W", "Placebo"),
+   "cells": {"ldlc_pct_change_wk24": {
+    "registry_title": "Percent Change From Baseline in Calculated LDL-C at Week "
+                      "24 - Intent-to-Treat (ITT) Analysis",
+    "rank": "PRIMARY",
+    "arm_means": "Placebo 9.1; Alirocumab 75 mg/Up to 150 mg Q2W -48.8 (percent "
+                 "change)",
+    "analysed": {"treatment": 322, "control": 163},
+    "posted": "LS mean difference -57.9, 95% CI -63.3 to -52.6, Mixed Models "
+              "Analysis",
+   }},
+  },
+  "NCT01644175": {
+   "arm_labels": ("Alirocumab 75/150 mg Q2W", "Placebo Q2W"),
+   "cells": {"ldlc_pct_change_wk24": {
+    "registry_title": "Percent Change From Baseline in Calculated LDL-C at Week "
+                      "24 - Intent-to-Treat (ITT) Analysis",
+    "rank": "PRIMARY",
+    "arm_means": "Placebo Q2W -2.3; Alirocumab 75/150 mg Q2W -48.2 (percent "
+                 "change)",
+    "analysed": {"treatment": 205, "control": 106},
+    "posted": "LS Mean Difference -45.9, 95% CI -52.5 to -39.3, Mixed Models "
+              "Analysis",
+   }},
+  },
+  "NCT01709500": {
+   "arm_labels": ("Alirocumab 75 mg/up to 150 mg", "Placebo"),
+   "cells": {"ldlc_pct_change_wk24": {
+    "registry_title": "Percent Change From Baseline in Calculated LDL-C at Week "
+                      "24 - Intent--to--Treat (ITT) Analysis",
+    "rank": "PRIMARY",
+    "arm_means": "Alirocumab 75 mg/up to 150 mg -48.7; Placebo 2.8 (percent "
+                 "change). NOTE the registry lists the ALIROCUMAB arm FIRST on "
+                 "this record and the placebo arm second, the reverse of the "
+                 "other five. The posted difference is still alirocumab minus "
+                 "placebo and still negative; the order is recorded so a reader "
+                 "comparing rows does not read a sign error into it.",
+    "analysed": {"treatment": 166, "control": 81},
+    "posted": "LS Mean Difference -51.4, 95% CI -58.1 to -44.8, Mixed Models "
+              "Analysis",
+   }},
+  },
+  "NCT02107898": {
+   "arm_labels": ("Alirocumab 75 mg/Up to 150 mg Q2W", "Placebo Q2W"),
+   "cells": {"ldlc_pct_change_wk24": {
+    "registry_title": "Percent Change From Baseline in Calculated LDL-C at Week "
+                      "24 - Intent-to-Treat (ITT Analysis)",
+    "rank": "PRIMARY",
+    "arm_means": "Placebo Q2W 1.6; Alirocumab 75 mg/Up to 150 mg Q2W -62.5 "
+                 "(percent change)",
+    "analysed": {"treatment": 143, "control": 72},
+    "posted": "LS Mean Difference -64.1, 95% CI -68.5 to -59.8, Mixed Models "
+              "Analysis",
+   }},
+  },
+ },
+}
+
+
+def apply(app_id, dry=False):
+    path = os.path.join(REPO, "ssot", app_id, "%s.json" % app_id)
+    if not os.path.exists(path):
+        print("no object at %s -- NOT RUN" % path, file=sys.stderr)
+        return 2
+    spec = REPAIRS.get(app_id)
+    if not spec:
+        print("no repair recorded for %s -- NOT RUN" % app_id, file=sys.stderr)
+        return 2
+    defaults = spec.get("_trial_defaults") or {}
+    obj = json.loads(open(path, encoding="utf-8").read())
+    trials = ((obj.get("inputs") or {}).get("trials")) or []
+    by_nct = {t["nct"]: t for t in trials if t.get("nct")}
+    results = ((obj.get("results") or {}).get("by_outcome")) or {}
+
+    missing, touched = [], 0
+    per_trial = {}
+    for nct, rec in spec.items():
+        if nct.startswith("_"):
+            continue
+        t = by_nct.get(nct)
+        if t is None:
+            missing.append("%s is not a trial in this object" % nct)
+            continue
+        for k, v in defaults.items():
+            t[k] = v
+        tre, con = rec["arm_labels"]
+        t["arms"] = [{"label": tre, "role": "treatment"},
+                     {"label": con, "role": "control"}]
+        t["registry_arm_order"] = ("intervention first"
+                                   if "NOTE the registry lists the ALIROCUMAB arm "
+                                      "FIRST" in json.dumps(rec) else "control first")
+        for oid, cell in (rec.get("cells") or {}).items():
+            bo = (t.get("by_outcome") or {}).get(oid)
+            if bo is None:
+                missing.append("%s has no by_outcome[%r]" % (nct, oid))
+                continue
+            eff = bo.setdefault("effect", {})
+            eff["scale"] = "linear"
+            eff.setdefault("measure", "MD")
+            eff["derived_from"] = "registry_posted_least_squares_mean_difference"
+            eff["derivation_note"] = _LSM_NOTE
+            bo["source_tier"] = "registry"
+            bo["source_url"] = _ctg(nct)
+            bo["outcome_role_in_trial"] = cell["rank"]
+            if cell.get("analysed"):
+                bo["analysed"] = cell["analysed"]
+            prov = bo.setdefault("provenance", {})
+            prov["tag"] = "MEASURED"
+            prov["source_id"] = nct
+            prov["source"] = ("the registry's own posted outcome-measure record "
+                              "for this trial")
+            prov["source_quotes"] = [
+                cell["registry_title"],
+                cell["posted"],
+                cell["arm_means"],
+            ]
+            prov["quote_note"] = (
+                "Three quotes, because they answer three different questions. The "
+                "first is the outcome's TITLE as the registry states it -- what was "
+                "counted. The second is the posted ANALYSIS -- the number this "
+                "object stores, with the model that produced it. The third is the "
+                "two arm means, so a reader can see that the difference has the "
+                "sign and the magnitude the arms imply. A quote that says what "
+                "happened is not a quote that says what was counted, and this cell "
+                "carries both kinds on purpose.")
+            per_trial.setdefault(oid, []).append({
+                "trial_id": t.get("id") or nct,
+                "nct": nct,
+                "measure": "MD",
+                "point": eff.get("point"),
+                "ci_low": eff.get("ci_low"),
+                "ci_high": eff.get("ci_high"),
+                "ci_level": eff.get("ci_level", 95),
+                "estimand_id": "%s-estimand" % oid,
+                "endpoint_rank_in_its_own_trial": cell["rank"],
+                "derivation": "the least-squares mean difference the registry "
+                              "posts, read as printed",
+            })
+            touched += 1
+
+    for oid, rows in per_trial.items():
+        res = results.get(oid)
+        if res is None:
+            missing.append("results carry no outcome %r" % oid)
+            continue
+        # per_trial WAS NULL. The artefact exporter builds its pool payloads from
+        # it, so with it absent the pool-level detectors saw no pool at all on
+        # this object -- ran, matched nothing, reported nothing.
+        res["per_trial"] = rows
+
+    for m in missing:
+        print("  UNWRITTEN: %s" % m)
+    if missing:
+        print("\nRefusing to write: the spec names cells this object does not "
+              "have, so one of the two is wrong.")
+        return 1
+    if dry:
+        print("--dry-run: %d cell(s) would be repaired in %s" % (touched, path))
+        return 0
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(obj, f, ensure_ascii=False, indent=1)
+        f.write("\n")
+    print("repaired %d cell(s) and %d per_trial table(s) in %s"
+          % (touched, len(per_trial), path))
+    return 0
+
+
+def main():
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    if not args:
+        print("usage: repair_object_provenance.py <app_id> [--dry-run]\nknown: %s"
+              % ", ".join(k for k in REPAIRS), file=sys.stderr)
+        return 2
+    rc = 0
+    for a in args:
+        rc |= apply(a, dry="--dry-run" in sys.argv)
+    return rc
+
+
+if __name__ == "__main__":
+    sys.exit(main())

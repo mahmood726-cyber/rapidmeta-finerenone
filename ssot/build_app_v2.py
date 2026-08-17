@@ -433,6 +433,47 @@ def _outcome_section(canon, oid, p, e):
             + ((f"  <p><strong>How to read this:</strong> "
                 f"{p(res['interpretation_caveat'])}</p>" + NL)
                if res.get("interpretation_caveat") else "")
+            # THE PREDICTION INTERVAL BELONGS BESIDE THE ESTIMATE, NOT IN AN
+            # APPENDIX. On a pool with I-squared near 90 the confidence interval
+            # answers "where is the average"; the reader almost always wants
+            # "what would a new trial show", which here is three times wider. It
+            # was held in the object and rendered nowhere, so the only interval
+            # on the headline card was the one that understates the spread.
+            + ((f"  <p class='num'>Prediction interval "
+                f"{fmt(res['prediction_interval']['low'])} to "
+                f"{fmt(res['prediction_interval']['high'])}</p>" + NL
+                + f"  <p><small>{p(res['prediction_interval']['what_it_says'])}"
+                  f"</small></p>" + NL)
+               if isinstance(res.get("prediction_interval"), dict)
+               and res["prediction_interval"].get("low") is not None else "")
+            # AND THE ESTIMATOR CAVEAT, WHERE THE ESTIMATOR IS NAMED. A page that
+            # prints "estimator DerSimonian-Laird" one line above, and carries a
+            # recorded objection to using it at this k, and does not show it, has
+            # put the objection somewhere the reader who stops at the headline
+            # will never go.
+            + ((f"  <p><strong>About this estimator:</strong> "
+                f"<small>{p(res['estimator_note'])}</small></p>" + NL)
+               if res.get("estimator_note") else "")
+            + ((("  <h3>What other estimators give on the same values</h3>"
+                 + NL + "  <table>" + NL
+                 + "    <tr><th>Estimator</th><th>&tau;&sup2;</th><th>I&sup2;</th>"
+                   "<th>Pooled (95%)</th></tr>" + NL
+                 + "".join(
+                     f"    <tr><td>{e(str(r0.get('estimator','')))}"
+                     f"{('<br><small>' + e(str(r0['note'])) + '</small>') if r0.get('note') else ''}"
+                     f"</td><td class='num'>{fmt(r0.get('tau2'))}</td>"
+                     f"<td class='num'>{fmt(r0.get('i2_pct'))}%</td>"
+                     f"<td class='num'>{fmt(r0.get('point'))} "
+                     f"({fmt(r0.get('ci_low'))} to {fmt(r0.get('ci_high'))})</td>"
+                     f"</tr>" + NL
+                     for r0 in (res["estimator_sensitivity"].get("rows") or []))
+                 + "  </table>" + NL
+                 + f"  <p><small>{p(res['estimator_sensitivity']['what_moves'])}"
+                   f"</small></p>" + NL
+                 + f"  <p><strong>{p(res['estimator_sensitivity']['the_one_that_matters'])}"
+                   f"</strong></p>" + NL))
+               if isinstance(res.get("estimator_sensitivity"), dict)
+               and res["estimator_sensitivity"].get("rows") else "")
             # What the pool holds constant and what it crosses, as a table a
             # reader can check. Held in the object and rendered nowhere, it
             # could not be disagreed with.
