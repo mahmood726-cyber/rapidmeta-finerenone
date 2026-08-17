@@ -138,6 +138,69 @@ if [ -z "$CHANGED" ]; then
     exit 0
 fi
 
+# ---------------------------------------------------------------------------
+# HARNESS GATE (verification lane). The 20 artefact-decidable detectors, over
+# the objects behind the pages this push touches.
+#
+# NOT WIRED AS HANDOFF Sec 3a SPECIFIES, AND HERE IS WHY. That block feeds
+# build-artefacts/<page>.json, which did not exist: nothing produced the shape
+# the detectors read. Handed our real SSOT objects the gate matched NOTHING and
+# printed PASS on 0 check executions -- installed, green, seeing nothing, while
+# wiring.detect() would have flipped the ledger headline to ~50% coverage.
+# INVOKED IS NOT SEEING. So the artefact is EXPORTED from the object first, and
+# an artefact yielding no checks now exits 2 rather than 0.
+#
+# Proved on a REAL past defect in a REAL object, not a fixture: ARNI's object
+# with one per-trial measure flipped HR -> OR (the MITRAL shape) exits 1 on
+# CHK018_MIXED_POOLING; the unmodified object exits 0.
+# ---------------------------------------------------------------------------
+HGATE="$REPO_ROOT/scripts/harness_gate.py"
+HEXPORT="$REPO_ROOT/scripts/export_artefact.py"
+HMAP="$REPO_ROOT/scripts/objects_for_pages.py"
+for _f in "$HGATE" "$HEXPORT" "$HMAP"; do
+    if [ ! -f "$_f" ]; then
+        echo "[pre-push] $(basename "$_f") is missing." >&2
+        echo "[pre-push] Refusing to pass a check that is not present." >&2
+        exit 1
+    fi
+done
+HOBJS="$(python "$HMAP" $CHANGED 2>/tmp/harness_unmapped.log || true)"
+if [ -s /tmp/harness_unmapped.log ]; then
+    echo "[pre-push] Harness gate: these changed pages have NO SSOT object, so the"
+    echo "[pre-push] 20 artefact detectors did not run on them. That is not coverage:"
+    sed 's/^/[pre-push]   /' /tmp/harness_unmapped.log
+fi
+if [ -n "$HOBJS" ]; then
+    echo "[pre-push] Harness gate: exporting artefacts ..."
+    set +e
+    python "$HEXPORT" $HOBJS --outdir "$REPO_ROOT/build-artefacts" > /tmp/harness_export.log 2>&1
+    EX_STATUS=$?
+    set -e
+    if [ "$EX_STATUS" -ne 0 ]; then
+        cat /tmp/harness_export.log
+        echo "[pre-push] Artefact export produced nothing checkable. Not a pass."
+        exit 1
+    fi
+    HARTS=""
+    for _o in $HOBJS; do
+        HARTS="$HARTS $REPO_ROOT/build-artefacts/$(basename "$(dirname "$_o")").json"
+    done
+    set +e
+    python "$HGATE" $HARTS
+    HG_STATUS=$?
+    set -e
+    if [ "$HG_STATUS" -eq 2 ]; then
+        echo "[pre-push] Harness gate could not see: unfit registry, INVALID share"
+        echo "[pre-push] above the ceiling, or an artefact that yielded no checks."
+        echo "[pre-push] That is not a pass."
+        exit 1
+    fi
+    if [ "$HG_STATUS" -ne 0 ]; then
+        echo "[pre-push] Harness gate FAILED. This gate has no override."
+        exit 1
+    fi
+fi
+
 COUNT="$(printf '%s\n' $CHANGED | wc -l | tr -d ' ')"
 echo "[pre-push] Regression checking $COUNT changed app page(s) ..."
 

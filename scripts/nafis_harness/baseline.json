@@ -1,0 +1,572 @@
+{
+  "counts": {
+    "invalid": 0,
+    "match": 70,
+    "mismatch": 0
+  },
+  "dataset": "nafis-historical-incidents",
+  "discriminating": true,
+  "notes": [],
+  "results": {
+    "CHK001::rate_limit_429_is_not_absence": {
+      "check_id": "CHK001_RETRIEVAL_ABSENCE",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "a rate-limit 429 read as 'no record exists'",
+      "reason": "transport returned 429, not 200. A non-200 is a statement about the request, not about the record. Absence is unestablished.",
+      "status": "match"
+    },
+    "CHK001_RETRIEVAL_ABSENCE::absence_claimed_but_record_present": {
+      "check_id": "CHK001_RETRIEVAL_ABSENCE",
+      "expect": "FAIL",
+      "got": "FAIL",
+      "provenance": "N2 -- 'not encountered' asserted while PMID 34395116 sat in the corpus reporting exactly that class",
+      "reason": "absence claimed but 1 record(s) returned",
+      "status": "match"
+    },
+    "CHK001_RETRIEVAL_ABSENCE::ctgov_answer_hf_no_results_module": {
+      "check_id": "CHK001_RETRIEVAL_ABSENCE",
+      "expect": "PASS",
+      "got": "PASS",
+      "provenance": "ANSWER-HF route log -- has_results:false re-verified live",
+      "reason": "",
+      "status": "match"
+    },
+    "CHK002::unscoped_substring_grep": {
+      "check_id": "CHK002_TOKEN_MATCH",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "grep '1406' matching 1009 of 1243 pages because the digits sit inside data arrays",
+      "reason": "pattern '1406' searched over an unscoped document. A hit cannot be attributed to prose rather than to a data array, so neither a hit nor a miss is informative.",
+      "status": "match"
+    },
+    "CHK002_TOKEN_MATCH::fatal_matches_nonfatal_mi": {
+      "check_id": "CHK002_TOKEN_MATCH",
+      "expect": "FAIL",
+      "got": "FAIL",
+      "provenance": "grep 'fatal' matching 'Nonfatal Myocardial Infarction'",
+      "reason": "pattern 'fatal' matched inside larger tokens: ['Nonfatal Myocardial Infarction']",
+      "status": "match"
+    },
+    "CHK002_TOKEN_MATCH::fatal_scoped_to_real_corpus_labels": {
+      "check_id": "CHK002_TOKEN_MATCH",
+      "expect": "PASS",
+      "got": "PASS",
+      "provenance": "grep 'fatal' matching 'Nonfatal Myocardial Infarction' -- the corrected form, with the confounder retained in the fixture",
+      "reason": "",
+      "status": "match"
+    },
+    "CHK003::no_error_no_observation": {
+      "check_id": "CHK003_ACTION_EFFECT",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "a LibKey button rendering read as proof of delivery",
+      "reason": "action 'click(LibKey button)' returned without error but no post-state observation was made. Absence of an error is not evidence of an effect.",
+      "status": "match"
+    },
+    "CHK003_ACTION_EFFECT::click_navigated": {
+      "check_id": "CHK003_ACTION_EFFECT",
+      "expect": "PASS",
+      "got": "PASS",
+      "provenance": "the corrected form of the same click",
+      "reason": "",
+      "status": "match"
+    },
+    "CHK003_ACTION_EFFECT::ref_click_silent_noop": {
+      "check_id": "CHK003_ACTION_EFFECT",
+      "expect": "FAIL",
+      "got": "FAIL",
+      "provenance": "ref-based click returned without error, silently no-op'd",
+      "reason": "action 'click(ref=e42)' completed without error but 'url' is unchanged ('https://host/search'): silent no-op",
+      "status": "match"
+    },
+    "CHK004::pgrep_on_windows": {
+      "check_id": "CHK004_LIVENESS",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "pgrep on Windows always returning nothing, so a liveness check always reported 'exited'",
+      "reason": "probe 'pgrep' is not meaningful on 'Windows' (supported: ['Darwin', 'Linux']). It returns the same empty output for a live process and a dead one, so it cannot report death.",
+      "status": "match"
+    },
+    "CHK004::single_empty_probe_no_corroboration": {
+      "check_id": "CHK004_LIVENESS",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "a daemon reported killed that ran for hours afterwards, double-launching lanes and burning quota",
+      "reason": "psutil returned nothing and no second, independent observation was made. One empty probe cannot distinguish a dead process from a probe that never sees anything.",
+      "status": "match"
+    },
+    "CHK004_LIVENESS::corroborated_death": {
+      "check_id": "CHK004_LIVENESS",
+      "expect": "FAIL",
+      "got": "FAIL",
+      "provenance": "the shape a real death report must have",
+      "reason": "pgrep empty and corroborated by 'pidfile absent': process is not running",
+      "status": "match"
+    },
+    "CHK004_LIVENESS::pid_returned": {
+      "check_id": "CHK004_LIVENESS",
+      "expect": "PASS",
+      "got": "PASS",
+      "provenance": "daemon reported killed that ran for hours afterwards",
+      "reason": "",
+      "status": "match"
+    },
+    "CHK005::flat_number_bag_referent": {
+      "check_id": "CHK005_EXTERNAL_REFERENT",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "the interface hole -- validate_v2.py's flat number-bag encoding, which passed all five value mutants before per-key provenance was required",
+      "reason": "row AGREES with the referent, but the referent cannot say where its values came from (no locator on ['cN', 'tN']). Agreement authenticates nothing: a bag of numbers echoed out of the row agrees with it by construction. A disagreement would still have been reported.",
+      "status": "match"
+    },
+    "CHK005::key_under_test_absent_from_referent": {
+      "check_id": "CHK005_EXTERNAL_REFERENT",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "a key present in the row and absent from the referent was silently skipped; unchecked is not clean",
+      "reason": "keys ['tE'] are under test but not covered by the referent. They were not checked, and unchecked is not clean. Either source them, or narrow keys_under_test explicitly so the omission is on the record.",
+      "status": "match"
+    },
+    "CHK005::self_consistency_only": {
+      "check_id": "CHK005_EXTERNAL_REFERENT",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "DEFECT-01 -- 'Any check that validates a row by reproducing its own effect estimate passes it. Consistency does not authenticate a row.'",
+      "reason": "row was validated only against itself. Internal consistency is reproducible from the row's own numbers and therefore cannot distinguish a correct row from a fabricated one. No external referent, no verdict.",
+      "status": "match"
+    },
+    "CHK005_EXTERNAL_REFERENT::twilight_location_a": {
+      "check_id": "CHK005_EXTERNAL_REFERENT",
+      "expect": "PASS",
+      "got": "PASS",
+      "provenance": "DEFECT-01 -- 'Location A matches the registry exactly'",
+      "reason": "",
+      "status": "match"
+    },
+    "CHK005_EXTERNAL_REFERENT::twilight_location_b": {
+      "check_id": "CHK005_EXTERNAL_REFERENT",
+      "expect": "FAIL",
+      "got": "FAIL",
+      "provenance": "DEFECT-01 -- denominators exceed the randomised total by 2098, while the row reproduces its own HR to three decimals",
+      "reason": "row disagrees with ClinicalTrials.gov NCT02270242 participant flow on ['cN', 'tN']",
+      "status": "match"
+    },
+    "CHK006::identity_from_covering_label": {
+      "check_id": "CHK006_IDENTITY_KEY",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "a trial identity taken from a covering label rather than a registration number, conflating PARACHUTE-HF with ANSWER-HF",
+      "reason": "identity for 'PARACHUTE-HF' rests on a label, filename or citation string. Names are not keys: a covering label can span two trials.",
+      "status": "match"
+    },
+    "CHK006_IDENTITY_KEY::orion11_correct_nct": {
+      "check_id": "CHK006_IDENTITY_KEY",
+      "expect": "PASS",
+      "got": "PASS",
+      "provenance": "report #6 -- ORION-11 @ NCT03400800 confirmed correct",
+      "reason": "",
+      "status": "match"
+    },
+    "CHK006_IDENTITY_KEY::orion11_on_orion4_nct": {
+      "check_id": "CHK006_IDENTITY_KEY",
+      "expect": "FAIL",
+      "got": "FAIL",
+      "provenance": "report #6 error #14 -- a 16,124-patient CV outcomes trial recorded as a 1,617-patient lipid trial",
+      "reason": "NCT03705234 is registered as 'ORION-4', recorded as 'ORION-11'",
+      "status": "match"
+    },
+    "CHK007::none_found_from_prose": {
+      "check_id": "CHK007_ABSENCE_SCREEN",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "Rule 4 v1 would have licensed 'M10: screened for, none found' with no screen having run",
+      "reason": "'none found' claimed with no execution record (missing: ['screen_id', 'tool_or_query', 'executed_at', 'input_set_size', 'criterion']). Renders as NOT SCREENED. Absence of a screen and absence of a finding are different statements and may not share a cell.",
+      "status": "match"
+    },
+    "CHK007_ABSENCE_SCREEN::not_encountered_but_present": {
+      "check_id": "CHK007_ABSENCE_SCREEN",
+      "expect": "FAIL",
+      "got": "FAIL",
+      "provenance": "N2 -- 'not encountered' while PMID 34395116 reported exactly that",
+      "reason": "'none found' contradicted by 1 finding(s): ['PMID 34395116']",
+      "status": "match"
+    },
+    "CHK007_ABSENCE_SCREEN::screened_none_found": {
+      "check_id": "CHK007_ABSENCE_SCREEN",
+      "expect": "PASS",
+      "got": "PASS",
+      "provenance": "the compliant form Rule 4 v2 specifies",
+      "reason": "",
+      "status": "match"
+    },
+    "CHK008::typed_literal_denominator": {
+      "check_id": "CHK008_FRAME_DENOMINATOR",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "N3 -- a proportion quoted against a number nobody maintained",
+      "reason": "coverage stated against denominator=44 from source='typed_literal'. A proportion may not render unless the denominator is a maintained counter rather than a typed literal.",
+      "status": "match"
+    },
+    "CHK008_FRAME_DENOMINATOR::n3_frame_overclaim": {
+      "check_id": "CHK008_FRAME_DENOMINATOR",
+      "expect": "FAIL",
+      "got": "FAIL",
+      "provenance": "N3 -- 'missed no randomised trial' over 18% of the frame",
+      "reason": "completeness claimed over 44/244 (18% of the frame)",
+      "status": "match"
+    },
+    "CHK008_FRAME_DENOMINATOR::n3_scoped_correctly": {
+      "check_id": "CHK008_FRAME_DENOMINATOR",
+      "expect": "PASS",
+      "got": "PASS",
+      "provenance": "N3 as corrected in 10_WHAT_THIS_PROCESS_DOES.md",
+      "reason": "",
+      "status": "match"
+    },
+    "CHK009::rows_without_outcome_field": {
+      "check_id": "CHK009_POOL_IDENTITY",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "DEFECT-02 -- 'populating outcome on every row would prevent this class of defect entirely'",
+      "reason": "rows ['NCT02270242'] do not record outcome, population and window. Without them the pool's identity is unknown and an outcome substitution is invisible.",
+      "status": "match"
+    },
+    "CHK009_POOL_IDENTITY::clean_mortality_pool": {
+      "check_id": "CHK009_POOL_IDENTITY",
+      "expect": "PASS",
+      "got": "PASS",
+      "provenance": "the shape the cross-cutting recommendation asks for",
+      "reason": "",
+      "status": "match"
+    },
+    "CHK009_POOL_IDENTITY::twilight_composite_in_mortality_pool": {
+      "check_id": "CHK009_POOL_IDENTITY",
+      "expect": "FAIL",
+      "got": "FAIL",
+      "provenance": "DEFECT-01 escalation -- 'a composite of death, MI and stroke masquerading as all-cause mortality'",
+      "reason": "rows ['NCT02270242'] measure a different outcome from the headline 'all_cause_mortality'",
+      "status": "match"
+    },
+    "CHK010::no_route_log": {
+      "check_id": "CHK010_CHAIN_EXHAUSTION",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "a blocked verdict indistinguishable from an unattempted one",
+      "reason": "no route log or no declared hop count: a blocked verdict cannot be distinguished from an unattempted one",
+      "status": "match"
+    },
+    "CHK010_CHAIN_EXHAUSTION::abandoned_at_hop_zero": {
+      "check_id": "CHK010_CHAIN_EXHAUSTION",
+      "expect": "FAIL",
+      "got": "FAIL",
+      "provenance": "four-hop chain abandoned at hop zero, written up as blocked",
+      "reason": "declared as blocked having reached hop 0 of 3: 3 hop(s) never attempted",
+      "status": "match"
+    },
+    "CHK010_CHAIN_EXHAUSTION::answer_hf_route_log": {
+      "check_id": "CHK010_CHAIN_EXHAUSTION",
+      "expect": "PASS",
+      "got": "PASS",
+      "provenance": "answer_hf_route_log.md -- the compliant form",
+      "reason": "",
+      "status": "match"
+    },
+    "CHK011::correction_from_same_instrument": {
+      "check_id": "CHK011_CORRECTION_BURDEN",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "ANSWER-HF episode -- the original extraction was right and three separate corrections were wrong",
+      "reason": "the correction is sourced from the same instrument that produced the original. It cannot adjudicate between them.",
+      "status": "match"
+    },
+    "CHK011::correction_reinterpreting_held_material": {
+      "check_id": "CHK011_CORRECTION_BURDEN",
+      "expect": "FAIL",
+      "got": "FAIL",
+      "provenance": "EB-022 -- the corrections that failed were re-interpretations of already-held material",
+      "reason": "the correction's evidence is not a newly retrieved source. A re-interpretation of already-held material is the failing pattern; a document not previously read is the holding one.",
+      "status": "match"
+    },
+    "CHK011_CORRECTION_BURDEN::eb022_rule_correcting_eb021_was_itself_wrong": {
+      "check_id": "CHK011_CORRECTION_BURDEN",
+      "expect": "FAIL",
+      "got": "FAIL",
+      "provenance": "EB-022 -- 'THIS RULE IS UNSAFE AS WRITTEN AND HAS BEEN MISLEADING RUNS FOR ~7 h. Sec 1 correctly convicted bash and then wrongly acquitted the whole live toolchain.' The correction re-interpreted the same mount instead of retrieving a new source",
+      "reason": "the correction's evidence is not a newly retrieved source. A re-interpretation of already-held material is the failing pattern; a document not previously read is the holding one.",
+      "status": "match"
+    },
+    "CHK011_CORRECTION_BURDEN::li2019_comparator_correction": {
+      "check_id": "CHK011_CORRECTION_BURDEN",
+      "expect": "PASS",
+      "got": "PASS",
+      "provenance": "report #3 breach 3 -- 'flipped the verdict from undetermined to ineligible', a correction that held, made against a document not previously read",
+      "reason": "",
+      "status": "match"
+    },
+    "CHK012::unlabelled_layer": {
+      "check_id": "CHK012_LAYER_MATCH",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "the holdings-table case -- the layers were never labelled, which is the condition under which this error occurs",
+      "reason": "claim_layer='access' observation_layer='holdings': both must be one of ('holdings', 'entitlement', 'delivery'). An unlabelled layer is the condition under which this class of error occurs.",
+      "status": "match"
+    },
+    "CHK012_LAYER_MATCH::delivery_witnessed_by_bytes": {
+      "check_id": "CHK012_LAYER_MATCH",
+      "expect": "PASS",
+      "got": "PASS",
+      "provenance": "the compliant form -- delivery witnessed by the artefact, not by a LibKey button rendering",
+      "reason": "",
+      "status": "match"
+    },
+    "CHK012_LAYER_MATCH::holdings_read_as_entitlement": {
+      "check_id": "CHK012_LAYER_MATCH",
+      "expect": "FAIL",
+      "got": "FAIL",
+      "provenance": "a holdings table in a full-text hosting database read as an institutional entitlement -- reached the spine of a paper",
+      "reason": "claim is about 'entitlement' but the observation is of 'holdings'. These are different questions; a perfectly sensitive check on the wrong one is still wrong.",
+      "status": "match"
+    },
+    "CHK013::undocumented_field": {
+      "check_id": "CHK013_FIELD_SEMANTICS",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "a citation year taken from a field whose semantics were never read",
+      "reason": "field 'year' used without its documented semantics",
+      "status": "match"
+    },
+    "CHK013_FIELD_SEMANTICS::epub_date_used_as_publication_year": {
+      "check_id": "CHK013_FIELD_SEMANTICS",
+      "expect": "FAIL",
+      "got": "FAIL",
+      "provenance": "citation year corrected from a field returning the Epub date",
+      "reason": "field 'publication_date' carries 'epub_ahead_of_print_date', the claim needs 'print_publication_year'",
+      "status": "match"
+    },
+    "CHK013_FIELD_SEMANTICS::print_date_used_as_publication_year": {
+      "check_id": "CHK013_FIELD_SEMANTICS",
+      "expect": "PASS",
+      "got": "PASS",
+      "provenance": "the corrected form",
+      "reason": "",
+      "status": "match"
+    },
+    "CHK014::filter_declared_but_urls_never_inspected": {
+      "check_id": "CHK014_FILTER_FIRED",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "EC-001 -- an unconfirmed filter is UNFILTERED; a negative from it is not a negative",
+      "reason": "filter 'ema.europa.eu' declared but no returned URLs were inspected. An unconfirmed filter is UNFILTERED, and a negative from it is not a negative.",
+      "status": "match"
+    },
+    "CHK014_FILTER_FIRED::domain_filter_confirmed": {
+      "check_id": "CHK014_FILTER_FIRED",
+      "expect": "PASS",
+      "got": "PASS",
+      "provenance": "EC-001 -- the compliant form, URLs inspected",
+      "reason": "",
+      "status": "match"
+    },
+    "CHK014_FILTER_FIRED::ema_domain_filter_silently_ignored": {
+      "check_id": "CHK014_FILTER_FIRED",
+      "expect": "FAIL",
+      "got": "FAIL",
+      "provenance": "EC-001 -- allowed_domains silently ignored; two 'no EMA document exists' verdicts reached through it",
+      "reason": "filter 'ema.europa.eu' did not fire: 2 of 3 returned URLs are outside it, e.g. 'https://www.drugs.com/monograph/x'",
+      "status": "match"
+    },
+    "CHK015::grep_1406_saturates_the_corpus": {
+      "check_id": "CHK015_HIT_COUNT_SANITY",
+      "expect": "FAIL",
+      "got": "FAIL",
+      "provenance": "grep '1406' matching 1009 of 1243 pages because the digits sit inside data arrays -- 81% of the corpus is a statement about the pattern",
+      "reason": "1009 hits over a corpus of 1243 (81%) -- the pattern is degenerate, not the corpus uniform",
+      "status": "match"
+    },
+    "CHK015::no_declared_expectation": {
+      "check_id": "CHK015_HIT_COUNT_SANITY",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "EC-002 -- without a prior expectation any count looks reasonable",
+      "reason": "hit count or declared expectation missing. Without a prior expectation any count looks reasonable.",
+      "status": "match"
+    },
+    "CHK015_HIT_COUNT_SANITY::plausible_hit_count": {
+      "check_id": "CHK015_HIT_COUNT_SANITY",
+      "expect": "PASS",
+      "got": "PASS",
+      "provenance": "answer_hf_route_log.md -- Europe PMC REST query 'ANSWER-HF' returned 10 hits, a plausible count that was then read",
+      "reason": "",
+      "status": "match"
+    },
+    "CHK015_HIT_COUNT_SANITY::pubmed_discarded_cjk_query": {
+      "check_id": "CHK015_HIT_COUNT_SANITY",
+      "expect": "FAIL",
+      "got": "FAIL",
+      "provenance": "EC-002 -- 'every Chinese character was discarded' and the search 'looked exactly as though it had' run",
+      "reason": "471547 hits against a declared expectation of ~100 (4715x) -- consistent with the query having been discarded rather than matched",
+      "status": "match"
+    },
+    "CHK016::declared_variance_adjustment": {
+      "check_id": "CHK016_PRECISION_SAMPLE_MISMATCH",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "HKSJ and random-effects inflation move the interval legitimately; the check cannot resolve a declared adjustment from a wrong population",
+      "reason": "a variance adjustment is declared ('HKSJ'), so the interval is not expected to reproduce the raw 2x2 standard error. This check cannot discriminate here.",
+      "status": "match"
+    },
+    "CHK016::no_arm_counts": {
+      "check_id": "CHK016_PRECISION_SAMPLE_MISMATCH",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "without arm sizes there is no second standard error to compare against",
+      "reason": "arm-level events and denominators are not all present; the sample-implied standard error cannot be computed",
+      "status": "match"
+    },
+    "CHK016::zero_cell": {
+      "check_id": "CHK016_PRECISION_SAMPLE_MISMATCH",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "a zero cell makes the Woolf SE undefined without a continuity correction",
+      "reason": "a zero cell makes the sample-implied standard error undefined without a continuity correction",
+      "status": "match"
+    },
+    "CHK017::single_entry": {
+      "check_id": "CHK017_DUP1_BIT_EQUALITY",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "duplication is undefined below two entries",
+      "reason": "fewer than two entries; duplication is not defined",
+      "status": "match"
+    },
+    "CHK018::direction_not_declared": {
+      "check_id": "CHK018_MIXED_POOLING",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "mixed pooling cannot be seen unless each entry declares its measure and its direction of benefit",
+      "reason": "an entry does not declare its measure or its direction of benefit; mixed pooling cannot be seen without both",
+      "status": "match"
+    },
+    "CHK019::no_engine_ids": {
+      "check_id": "CHK019_INERT_ENGINE",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "an empty engine list is a different defect and must not read as inert",
+      "reason": "engine or data identifier list is empty; wiring cannot be assessed (an empty engine list is a different defect)",
+      "status": "match"
+    },
+    "CHK020::engine_capability_unknown": {
+      "check_id": "CHK020_ORPHAN_POOLED_RESULT",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "an orphan cannot be distinguished from a computed result until the engine's capability is determined",
+      "reason": "engine_can_pool not determined; cannot tell an orphan from a computed result",
+      "status": "match"
+    },
+    "CHK021::scale_not_declared": {
+      "check_id": "CHK021_MEASURE_SCALE_MISMATCH",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "the back-transform bug is invisible unless the stored scale is declared",
+      "reason": "measure or stored scale not declared",
+      "status": "match"
+    },
+    "CHK022::no_source_text": {
+      "check_id": "CHK022_RATIO_FROM_PERCENTAGE",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "MORDOR-I -- without the source wording there is nothing to check the ratio against",
+      "reason": "no source text recorded, so the wording that would support or refute a ratio cannot be inspected",
+      "status": "match"
+    },
+    "CHK023::intervention_unnamed": {
+      "check_id": "CHK023_CROSS_AGENT_POOLING",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "entries that do not name their intervention cannot be tested for cross-agent pooling",
+      "reason": "fewer than two entries, or an entry does not name its intervention",
+      "status": "match"
+    },
+    "CHK024::no_method_claimed": {
+      "check_id": "CHK024_FALSE_METHOD_CLAIM",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "no method claimed, so there is no claim to falsify",
+      "reason": "no method claimed on the card",
+      "status": "match"
+    },
+    "CHK025::single_surface": {
+      "check_id": "CHK025_MULTI_SURFACE_DISAGREEMENT",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "disagreement is undefined on one surface",
+      "reason": "claim appears on 1 surface(s); disagreement is not defined below two",
+      "status": "match"
+    },
+    "CHK026::blank_absence_panel_asserts_nothing": {
+      "check_id": "CHK026_WRONG_REASON_ABSENCE_PANEL",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "a blank panel makes no claim -- it is neither a defect nor a pass",
+      "reason": "no absence reason recorded. A blank panel asserts nothing and is not a defect; it is simply unfilled.",
+      "status": "match"
+    },
+    "CHK026::reason_declares_no_valid_provenances": {
+      "check_id": "CHK026_WRONG_REASON_ABSENCE_PANEL",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "an unconditioned reason cannot be checked against the page",
+      "reason": "reason 'no-database-search' does not declare which page provenances it is true of, so it cannot be checked against this page",
+      "status": "match"
+    },
+    "CHK027::no_sentinel_vocabulary": {
+      "check_id": "CHK027_SENTINEL_LEAK",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "leakage is not decidable without the closed sentinel set",
+      "reason": "no sentinel vocabulary declared; leakage is not decidable without the closed set",
+      "status": "match"
+    },
+    "CHK027::sentinel_visible_nine_times": {
+      "check_id": "CHK027_SENTINEL_LEAK",
+      "expect": "FAIL",
+      "got": "FAIL",
+      "provenance": "the reported nine occurrences, as a count rather than a boolean",
+      "reason": "9 internal sentinel occurrence(s) in reader-visible text: {'NOT RECOVERABLE FROM THE PAGE': 9}",
+      "status": "match"
+    },
+    "CHK028::card_without_a_source_citation": {
+      "check_id": "CHK028_DISQUALIFIED_REFERENT_PROMOTED",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "the sourced-value-wins rule needs a source; this is a plain conflict",
+      "reason": "the card carries no source citation, so the sourced-value-wins rule cannot be applied. This is a plain conflict, not a promotion, and needs adjudication elsewhere.",
+      "status": "match"
+    },
+    "CHK029::en_dash_range_parsed_as_a_scalar": {
+      "check_id": "CHK029_SIGN_NORMALISATION",
+      "expect": "FAIL",
+      "got": "FAIL",
+      "provenance": "an en-dash range read as a negative number -- the inverse of the &minus; bug and the false positive the normaliser must avoid",
+      "reason": "'0.73\u20131.13' is not a single signed number, but was parsed as -1.13",
+      "status": "match"
+    },
+    "CHK029::no_naive_parse_recorded": {
+      "check_id": "CHK029_SIGN_NORMALISATION",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "nothing to compare the normalised parse against",
+      "reason": "no naive parse recorded; there is nothing to compare the normalised parse against",
+      "status": "match"
+    },
+    "CHK030::build_path_not_recorded": {
+      "check_id": "CHK030_BUILD_MODE_BLIND_TEXT",
+      "expect": "INVALID",
+      "got": "INVALID",
+      "provenance": "a rationale cannot be conditioned on a path that was not recorded",
+      "reason": "build path not recorded",
+      "status": "match"
+    }
+  }
+}

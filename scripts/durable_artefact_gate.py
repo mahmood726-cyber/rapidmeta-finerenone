@@ -49,6 +49,16 @@ DURABLE = [
      "waiver register -- pages shipped below standard, the countable backlog", None),
     ("MISTAKE-LEDGER.md",
      "the ledger a human reads: mechanisms, failure directions, what each cost", None),
+    ("scripts/harness_gate.py",
+     "verification-lane gate: the 20 artefact-decidable detectors", None),
+    ("scripts/export_artefact.py",
+     "the join -- SSOT object to the shape the detectors read; without it the "
+     "gate is invoked and sees nothing", None),
+    ("scripts/objects_for_pages.py",
+     "explicit page->object map reader; a heuristic here would silently empty "
+     "the gate's input", None),
+    ("ssot/PAGE_MAP.json",
+     "the map itself: which object each built page came from", None),
     ("scripts/standard_manifest.py",
      "the standard itself, versioned", None),
     ("scripts/gate_integrity.py",
