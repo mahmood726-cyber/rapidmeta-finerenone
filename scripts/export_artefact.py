@@ -167,28 +167,51 @@ def export(obj, page_html=None):
     if pools:
         art["pools"] = pools
 
-    # engine_can_pool: READ from the object's own poolability verdict. A pooled
-    # estimate displayed while the object says it cannot pool is the orphan
-    # defect, so this must come from the verdict and not from "is there a number".
-    poolable = [res.get("poolable") for res in results.values()
-                if res.get("poolable") is not None]
-    if poolable:
-        art["engine_can_pool"] = all(bool(x) for x in poolable)
-        if any_pooled is not None:
-            art["displayed_pooled_estimate"] = any_pooled
-        # EMIT IN BOTH STATES. This field was written only when poolability was
-        # FALSE, so CHK020_ORPHAN_POOLED_RESULT returned INVALID on every clean
-        # artefact: it could not tell "can pool" from "was never asked". That is
-        # an ABSENT FIELD STANDING FOR A TRUE CONDITION -- exactly what
-        # declared_class taught, committed in the exporter written to avoid it.
-        # An explicit value is not a synthesised one: it states which branch the
-        # object actually recorded.
-        reasons = [res.get("poolable_reason") for res in results.values()
-                   if res.get("poolable") is False and res.get("poolable_reason")]
-        art["engine_block_reason"] = (
-            reasons[0] if reasons
-            else ("" if art["engine_can_pool"]
-                  else "the object records poolable=false with no reason given"))
+    # POOL CAPABILITY, PER OUTCOME -- AND THE FLATTENING IT REPLACES WAS A JOIN
+    # DEFECT, not a tuning choice.
+    #
+    # The previous version collapsed three per-outcome facts into one triple:
+    # engine_can_pool was ANDed across EVERY outcome, displayed_pooled_estimate
+    # was whichever outcome came last with a number, and engine_block_reason was
+    # the first outcome that said false. On SOTAGLIFLOZIN that produced a FAIL
+    # joining the hfcv_first pool's displayed 0.7488 to mace3_first's reason --
+    # "only one contributing trial reports this estimand" -- which is TRUE, of a
+    # DIFFERENT ESTIMAND. Two of the three fields came from outcomes the third
+    # had nothing to do with, and the detector had no way to know.
+    #
+    # It blocked a push, so this one failed toward ALARM. That is the rarer
+    # direction and the reason it was found in minutes rather than surviving a
+    # day feeding false assurance. It is still not the safe kind of wrong: acting
+    # on it would have meant withdrawing a sound estimate, and a withdrawal needs
+    # the same evidentiary standard as a claim.
+    #
+    # READ FROM THE OBJECT'S OWN POOLABILITY VERDICT, never from "is there a
+    # number": a displayed estimate on an outcome the object says cannot pool is
+    # precisely the orphan defect, and deriving the verdict from the presence of
+    # the number would make it unfindable.
+    caps = []
+    for oid, res in results.items():
+        if res.get("poolable") is None:
+            continue
+        can = bool(res.get("poolable"))
+        caps.append({
+            "outcome_id": oid,
+            "displayed_pooled_estimate": (res.get("pooled") or {}).get("point"),
+            "engine_can_pool": can,
+            # EMIT IN BOTH STATES. This field was written only when poolability
+            # was FALSE, so CHK020_ORPHAN_POOLED_RESULT returned INVALID on every
+            # clean artefact: it could not tell "can pool" from "was never
+            # asked". That is an ABSENT FIELD STANDING FOR A TRUE CONDITION --
+            # exactly what declared_class taught, committed in the exporter
+            # written to avoid it. An explicit value is not a synthesised one: it
+            # states which branch the object recorded FOR THIS OUTCOME.
+            "engine_block_reason": (
+                "" if can else (res.get("poolable_reason")
+                                or "the object records poolable=false with no "
+                                   "reason given")),
+        })
+    if caps:
+        art["pool_capability"] = caps
     else:
         omissions.append("no poolable verdict in the object -> orphan-pool check "
                          "not emitted")
@@ -246,7 +269,71 @@ def export(obj, page_html=None):
     return art, omissions
 
 
+def selftest():
+    """REPLAYS THE JOIN DEFECT ON THE OBJECT THAT PRODUCED IT.
+
+    Not a fixture. SOTAGLIFLOZIN carries three outcomes -- two pooled at k=2 and
+    one reported from a single trial with poolable=false -- which is the exact
+    shape that made the flattened export attach mace3_first's reason to
+    hfcv_first's displayed 0.7488 and block a push over a defect that did not
+    exist. The old join is recomputed here so the test can show it failing; a
+    test that only exercises the new code proves the fix runs, not that it fixes
+    anything.
+    """
+    ok = True
+    p = os.path.join(REPO, "ssot", "sotagliflozin-hf", "sotagliflozin-hf.json")
+    if not os.path.exists(p):
+        print("  fixture absent: sotagliflozin-hf -- NOT PROVEN")
+        return 1
+    obj = json.loads(open(p, encoding="utf-8").read())
+    results = (obj.get("results") or {}).get("by_outcome") or {}
+
+    # THE OLD JOIN, recomputed exactly as it was.
+    old_can = all(bool(r.get("poolable")) for r in results.values()
+                  if r.get("poolable") is not None)
+    old_shown = None
+    for r in results.values():
+        if (r.get("pooled") or {}).get("point") is not None:
+            old_shown = r["pooled"]["point"]
+    old_would_fail = old_shown is not None and not old_can
+    print("  POSITIVE the flattened join on this object -> orphan FAIL: %-5s %s"
+          % (old_would_fail, "correct -- this is the defect" if old_would_fail
+             else "the replay proved nothing: the object no longer has the shape"))
+    ok &= old_would_fail
+
+    art, _ = export(obj)
+    caps = art.get("pool_capability") or []
+    print("  per-outcome capability entries: %d" % len(caps))
+    bad = [c for c in caps
+           if c.get("displayed_pooled_estimate") is not None
+           and not c.get("engine_can_pool")]
+    for c in caps:
+        print("      %-14s displayed=%-8s can_pool=%-5s %s"
+              % (c["outcome_id"], c["displayed_pooled_estimate"],
+                 c["engine_can_pool"], (c["engine_block_reason"] or "")[:46]))
+    print("  NEGATIVE per-outcome, on the same object -> orphan FAIL: %-5s %s"
+          % (bool(bad), "correct" if not bad else "WRONG"))
+    ok &= not bad
+    ok &= len(caps) >= 2
+
+    # A REASON MUST BELONG TO ITS OWN OUTCOME. A capability that can pool must
+    # carry no block reason at all -- that is what stops a reason migrating
+    # across estimands the way the flattened version let it.
+    stray = [c for c in caps if c["engine_can_pool"] and c["engine_block_reason"]]
+    print("  NEGATIVE a poolable outcome carrying a block reason: %-5s %s"
+          % (bool(stray), "correct" if not stray else "WRONG"))
+    ok &= not stray
+
+    print("\nWHAT A FAILURE WOULD LOOK LIKE: a displayed estimate paired with a "
+          "reason that is true of a different estimand, blocking a push and "
+          "arguing for the withdrawal of a sound number.")
+    print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+    return 0 if ok else 1
+
+
 def main():
+    if "--selftest" in sys.argv:
+        return selftest()
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("objects", nargs="+", help="ssot/<app>/<app>.json files")
     ap.add_argument("--outdir", default=os.path.join(REPO, "build-artefacts"))

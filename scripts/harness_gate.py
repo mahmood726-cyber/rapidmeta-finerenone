@@ -121,6 +121,17 @@ def main(argv=None) -> int:
             print(f"  observed : {r.witness.observed}")
             print(f"  at       : {r.witness.locator}")
 
+    # AN INVALID IS A CHECK THAT RAN AND COULD NOT SEE, AND IT WAS NAMED ONLY
+    # WHEN THE CEILING WAS BREACHED. Below the ceiling the count went into the
+    # summary line and nothing said WHICH detector went blind or why -- this
+    # repository's own rule broken inside its own gate, since silence from a
+    # detector is not evidence and a bare "2 INVALID" is silence with a number
+    # on it.
+    if invalids and not args.quiet:
+        print("\n[harness-gate] INVALID -- ran but could not see. Not a pass:")
+        for path, check_id, r in invalids:
+            print(f"  {check_id} on {os.path.basename(path)}: {r.reason[:130]}")
+
     if total and len(invalids) / total > args.invalid_ceiling:
         print(f"\n[harness-gate] INSTRUMENT DEGRADED: {len(invalids)}/{total} "
               f"checks returned INVALID, above the "

@@ -87,7 +87,28 @@ def payloads_for(artefact: Mapping[str, Any]) -> list[tuple[str, dict]]:
                      "engine_trial_ids": artefact["engine_trial_ids"],
                      "data_trial_ids": artefact["data_trial_ids"]}))
 
-    if artefact.get("engine_can_pool") is not None:
+    # ONE PAYLOAD PER OUTCOME. The orphan check compares a DISPLAYED value with
+    # the verdict on whether it can be computed, and both of those are per
+    # estimand. A single payload per page joined a value from one outcome to a
+    # reason from another and reported a defect that did not exist -- see the
+    # exporter's note on SOTAGLIFLOZIN 0.7488. The locator names the estimand so
+    # a FAIL says WHICH pool is orphaned rather than which page.
+    caps = artefact.get("pool_capability")
+    if caps:
+        for cap in caps:
+            if cap.get("engine_can_pool") is None:
+                continue
+            out.append(("CHK020_ORPHAN_POOLED_RESULT",
+                        {"page_id": "%s::%s" % (page, cap.get("outcome_id") or "?"),
+                         "displayed_pooled_estimate":
+                             cap.get("displayed_pooled_estimate"),
+                         "engine_can_pool": cap["engine_can_pool"],
+                         "engine_block_reason": cap.get("engine_block_reason")}))
+    elif artefact.get("engine_can_pool") is not None:
+        # Older artefacts still carry the flattened triple. Read rather than
+        # ignored, because dropping the fallback would silently stop checking
+        # every artefact produced before this change -- a coverage loss that
+        # looks exactly like a clean run.
         out.append(("CHK020_ORPHAN_POOLED_RESULT",
                     {"page_id": page,
                      "displayed_pooled_estimate":
