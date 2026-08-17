@@ -28,6 +28,29 @@ THE MECHANISM THIS DETECTS, WHICH IS OUR MOST RECURRENT ONE
     FAILURE PATH IS NOT. A green result is therefore evidence of nothing, and
     nobody investigates a green result -- which is why these survive.
 
+PROMOTION CRITERION -- REPLAY A REAL PAST DEFECT
+    A synthetic failing input proves a detector CAN fire. It does not prove the
+    detector DISCRIMINATES: a rule that fires on everything also passes that test.
+    Where a real past defect exists, replay it, and require the detector to fire on
+    it AND stay silent on the parts that were genuinely fine.
+
+    Worked example: the section-manifest gate was run against ARNI's pre-port
+    manuscript docmodel taken from git. It fired on extraction_provenance -- the
+    one section actually missing -- and passed certainty, pooled_result,
+    published_comparison, risk_of_bias and screening, all five of which were fine.
+    A synthetic deletion could not have established that.
+
+    Free discriminating cases already sitting in this repo's history, most of which
+    no detector has yet been run against:
+      - the inverted provenance conditional in build_app_v2
+      - the hardcoded _DOCMODEL that put ARNI's manuscript on four other pages
+      - the ordinal-split parser that merged two screening records into one
+      - the unicode-minus comparison that made -71.31 read as +71.31
+      - the substring classifier matching AF_ inside TAF_TDF, TAVI inside roTAVIrus
+      - the citation-year "correction" that changed a value to make a test pass
+    A detector promoted without being run against at least one of these has been
+    tested only against its author's imagination.
+
 THE GENERAL DETECTOR
     For every gate, ask: WHAT INPUT WOULD MAKE THIS FAIL? Construct it and show it
     failing. A gate with no constructible failing input is not a gate. That single
