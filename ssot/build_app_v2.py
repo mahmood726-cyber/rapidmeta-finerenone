@@ -381,7 +381,27 @@ def _outcome_section(canon, oid, p, e):
                if t.get("enrolment_note") else "")
             + "</small></td></tr>\n")
 
-    if pooled:
+    if pooled and pooled.get("withdrawn"):
+        # A WITHDRAWN pool states its REASON, prominently, instead of rendering
+        # "OR not stated (not stated to not stated)" -- which is not false and
+        # tells a reader nothing. The reason is the deliverable; the withdrawal is
+        # only its consequence. A reader needs to know the arithmetic was correct
+        # and the POOL was never established.
+        headline = (
+            "<div class='card'>" + NL + "  <h2>Pooled result</h2>" + NL
+            + "  <div class='absent-state' role='note'><strong>Estimate withdrawn.</strong> "
+            + p(pooled.get("withdrawn_reason") or "No reason recorded.") + "</div>" + NL
+            + ("  <p><small>" + p(pooled["withdrawn_note"]) + "</small></p>" + NL
+               if pooled.get("withdrawn_note") else "")
+            + ("  <p><small>Previously displayed &mdash; card: "
+               + e(str((pooled.get("previous_values") or {}).get("card", "n/a")))
+               + "; page: "
+               + e(str((pooled.get("previous_values") or {}).get("page", "n/a")))
+               + ". Both are superseded by this withdrawal.</small></p>" + NL
+               if pooled.get("previous_values") else "")
+            + f"  <p>{p(outcome['name'])}. k = {fmt(res['k'])}.</p>" + NL
+            + "</div>" + NL)
+    elif pooled:
         headline = (
             "<div class='card'>" + NL + "  <h2>Pooled result</h2>" + NL
             + f"  <p class='num'>{e(pooled['measure'])} {fmt(pooled['point'])} "

@@ -313,7 +313,7 @@
     },
     "comparator_type": "not recorded on the page this object was extracted from",
     "favours": "treatment",
-    "poolable": true,
+    "poolable": false,
     "poolable_reason": "The extractor recovered a pooled result from this page, so the page pooled these trials. Whether they SHOULD have been pooled is not established by conversion - several pages in this corpus pooled harm with efficacy, or distinct agents, and their estimates were withdrawn for that reason.",
     "estimand_homogeneous_across_cohorts": null,
     "pool_uniformity": {
@@ -397,10 +397,17 @@
     ],
     "pooled": {
      "measure": "OR",
-     "point": 0.715074716565884,
-     "ci_low": 0.5922351460894272,
-     "ci_high": 0.8633932883722649,
-     "ci_level": 95
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "ci_level": 95,
+     "withdrawn": true,
+     "withdrawn_reason": "3 of 4 contributing trials carry no outcome definition (CABANA alone records one; CASTLE-AF, EAST-AFNET 4 and RAFT-AF do not), so it cannot be established that these trials measured the same thing. The arithmetic was correct; the pool was not established.",
+     "withdrawn_note": "The card previously read HR 0.77 (0.64-0.93) and the page read OR 0.7151 (0.5922-0.8634). Aligning the two onto either value would have produced a page passing every consistency gate we own while resting on a pool that cannot be established. AGREEMENT AUTHENTICATES NOTHING - three syntheses once agreed while all three counted one trial several times. The estimate is withdrawn on BOTH surfaces instead.",
+     "previous_values": {
+      "card": "HR 0.77 (0.64-0.93)",
+      "page": "OR 0.7151 (0.5922-0.8634)"
+     }
     }
    }
   }
