@@ -31,10 +31,10 @@ def protocol_card(canon, p):
             "this object holds no background field, and an introduction generated "
             "without one would be argument that no source in this review supports")),
         ("Eligibility criteria", p(sc["eligibility"]) if sc.get("eligibility") else ""),
-        ("Information sources", "%d source layers, listed on the Extraction tab"
+        ("Information sources", "%d source layers, listed on the <a href=\"#extract\">Extraction tab</a>"
          % len(canon.get("sources") or {})),
         ("Search strategy", "The executed strings, datetimes, filters and hit "
-                            "counts are on the Search tab"),
+                            "counts are on the <a href=\"#search\">Search tab</a>"),
         ("Study selection process", "Two independent screeners of different model "
          "families, title/abstract then full text, with named human adjudication"),
         ("Number of screeners", "Two, cross-family. Two instances of one model is "
@@ -57,7 +57,8 @@ def protocol_card(canon, p):
         ("Meta-bias assessment", "Funnel, Egger and Peters, each reported as a "
          "computed value with the caveat that below about ten studies they have "
          "almost no power"),
-        ("Certainty assessment", "GRADE, all five domains, on the Certainty tab"),
+        ("Certainty assessment", "GRADE, all five domains, on the "
+         "<a href=\"#report\">Certainty tab</a>"),
         ("Confidence level", "%s%%" % fmt(cfg.get("confidence_level"))
          if cfg.get("confidence_level") else ""),
         ("Funding", na("no funding statement is recorded for this review")),

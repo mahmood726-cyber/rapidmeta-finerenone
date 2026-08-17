@@ -261,6 +261,30 @@ def readiness(canon):
             "outstanding": outstanding, "blocking": blocking, "limitations": limits}
 
 
+# Where the evidence for each outstanding attestation actually lives, DERIVED
+# from the built page's own panels rather than assumed: RoB-2 is on the
+# Extraction tab, not the Report tab, which is where a reasonable guess would
+# have sent the reader. A link to the wrong tab is worse than no link, for the
+# same reason a wrong measure label is worse than an absent one -- it is a
+# confident statement that happens to be false. Anything not in this table gets
+# NO link rather than a guessed one.
+_EVIDENCE_TAB = (
+    ("extraction", "extract", "the extraction table"),
+    ("risk of bias", "extract", "the per-trial RoB-2 assessment"),
+    ("screening", "screen", "the screening decisions"),
+    ("grade", "report", "the GRADE domain ratings"),
+)
+
+
+def _evidence_link(label):
+    """A link to the surface a reader can check while the attestation is open."""
+    low = (label or "").lower()
+    for key, tid, what in _EVIDENCE_TAB:
+        if key in low:
+            return (' <a href="#%s">Check it yourself: %s &rarr;</a>' % (tid, what))
+    return ""
+
+
 def verdict_card(canon, rd, p):
     """The verdict, and the qualifications that must not sit behind a tab.
 
@@ -275,8 +299,21 @@ def verdict_card(canon, rd, p):
         items += ("    <li><strong>%s</strong> &mdash; %s</li>%s"
                   % (e(b["label"]), p(b["detail"]), NL))
     for a in rd["outstanding"]:
+        # "AWAITING AUTHOR ATTESTATION: DATA EXTRACTION AGAINST SOURCE" is the
+        # loudest extraction-related string on this page at load, and it sat
+        # there with NO LINK to the table it is about. A reader met a notice
+        # saying the data is not yet checked, and was given no way to check it.
+        # That asymmetry -- not any difference in extraction content -- is the
+        # most likely reason one page reads as having an audit surface and
+        # another does not.
+        #
+        # The link points at the EVIDENCE, and the wording now says what the
+        # reader can do while the attestation is outstanding. Not attested is
+        # still not attested: this adds an address, it does not discharge
+        # anything, and the item stays in the unmet list where it belongs.
         items += ("    <li><strong>Awaiting author attestation: %s</strong> "
-                  "&mdash; %s</li>%s" % (e(a["label"]), p(a["what"]), NL))
+                  "&mdash; %s%s</li>%s"
+                  % (e(a["label"]), p(a["what"]), _evidence_link(a["label"]), NL))
     for l in rd["limitations"]:
         items += ("    <li><strong>%s</strong> <small>(no attestation can "
                   "discharge this)</small> &mdash; %s</li>%s"
@@ -1199,6 +1236,107 @@ def extraction_provenance_table(canon):
             % (NL, NL, cnote, NL, NL, NL, "".join(rows), NL, NL))
 
 
+def _slug(text, used):
+    """A stable, unique, readable fragment id for a heading."""
+    s = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")[:48] or "section"
+    base, n = s, 2
+    while s in used:
+        s, n = "%s-%d" % (base, n), n + 1
+    used.add(s)
+    return s
+
+
+def _anchor_headings(body, tid):
+    """Give every <h2>/<h3> in a panel an id, and return (body, [(id, text)]).
+
+    Headings that ALREADY carry an id keep it -- rewriting one would break any
+    link already pointing at it, and a fragment that used to resolve and now
+    silently scrolls nowhere is worse than no fragment at all.
+
+    The heading text is copied VERBATIM into the jump list. That rule was
+    established when a digit-strip turned "RoB-2 assessment" into "RoB- assessment"
+    in the first line of nearly every tab: the no-unprojected-numerals rule governs
+    numbers the page ASSERTS, and an echo of an already-projected heading asserts
+    nothing. An edited echo can differ from what it claims to point at; a verbatim
+    one cannot.
+    """
+    used, heads = set(), []
+
+    def repl(m):
+        lvl, attrs, inner = m.group(1), m.group(2) or "", m.group(3)
+        text = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", inner)).strip(" .·-")
+        if not text:
+            return m.group(0)
+        have = re.search(r'\bid\s*=\s*["\']([^"\']+)["\']', attrs)
+        if have:
+            hid = have.group(1)
+            used.add(hid)
+            heads.append((hid, text))
+            return m.group(0)
+        hid = _slug("%s-%s" % (tid, text), used)
+        heads.append((hid, text))
+        return "<%s id=\"%s\"%s>%s</%s>" % (lvl, hid, attrs, inner, lvl)
+
+    body = re.sub(r"<(h[23])((?:\s[^>]*)?)>(.*?)</\1>", repl, body, flags=re.S)
+    return body, heads
+
+
+# Deep-linking for the tab strip. The tabs are CSS radio-driven, which is why
+# they work with no JavaScript at all -- but it also meant THE AUDIT SURFACE HAD
+# NO ADDRESS. There was no way to send anyone a link to the extraction table,
+# only instructions for finding it, and every reload dropped the reader back on
+# "1. Protocol". For a project whose whole argument is that a reader without
+# full-text access can check us, an unaddressable audit surface is the defect.
+#
+# This is PROGRESSIVE ENHANCEMENT, deliberately: with JS off the CSS tabs behave
+# exactly as before and the first tab opens. Nothing here is load-bearing for
+# reading the page; it only makes a URL mean something.
+#
+# It resolves three shapes, because a link is copied from wherever the reader
+# happens to be standing:
+#   #extract        the tab, by its short name
+#   #rt-extract     the radio's own id, which is what a browser devtools copy gives
+#   #pn-extract     the panel's id
+#   #<heading-id>   any heading INSIDE a panel -- this one opens the containing
+#                   tab first, which the naive version did not, so a jump-list
+#                   link copied out of the page scrolled to a zero-height panel
+#                   and appeared to do nothing.
+_TAB_HASH_JS = """<script>
+(function(){
+  function tabFor(el){
+    var p = el && el.closest ? el.closest("section.panel") : null;
+    return p ? document.getElementById("rt-" + p.id.replace(/^pn-/, "")) : null;
+  }
+  function apply(hash){
+    var raw = (hash || "").replace(/^#/, "");
+    if (!raw) return false;
+    var key = raw.replace(/^pn-/, "").replace(/^rt-/, "");
+    var radio = document.getElementById("rt-" + key), target = null;
+    if (!radio) {
+      var el = document.getElementById(raw);
+      if (!el) return false;
+      radio = tabFor(el);
+      target = el;
+    }
+    if (!radio) return false;
+    radio.checked = true;
+    var scrollTo = target || document.getElementById("pn-" + radio.id.replace(/^rt-/, ""));
+    if (scrollTo && scrollTo.scrollIntoView) scrollTo.scrollIntoView({block: "start"});
+    return true;
+  }
+  apply(location.hash);
+  window.addEventListener("hashchange", function(){ apply(location.hash); });
+  var radios = document.querySelectorAll('input[name="rmtab"]');
+  for (var i = 0; i < radios.length; i++) {
+    radios[i].addEventListener("change", function(){
+      if (!this.checked || !history.replaceState) return;
+      history.replaceState(null, "", "#" + this.id.replace(/^rt-/, ""));
+    });
+  }
+})();
+</script>"""
+
+
 def tabbed_body(canon, parts, page):
     """Distribute the already-built parts across the tabs the spec declares.
 
@@ -1253,11 +1391,26 @@ def tabbed_body(canon, parts, page):
         # already passed the rule. Copying the heading verbatim is therefore
         # strictly safer than editing it, because an edited echo can differ from
         # what it claims to point at.
-        heads = [re.sub(r"<[^>]+>", "", h).strip(" .·-")
-                 for h in re.findall(r"<h3[^>]*>(.*?)</h3>", body, re.S)]
-        heads = [h for h in heads if h]
+        # THE JUMP LIST NOW EMITS THE PANEL'S OWN SECTIONS, and links to them.
+        #
+        # It read <h3> ONLY, so on the Extraction tab it listed "What was
+        # measured / What this pool holds constant / Contributing trials / The
+        # methods rule governing this decision" -- and omitted the two headings
+        # the reader actually came for, "Extracted values, and where each came
+        # from" and "Sources", because those are <h2>. The one navigational aid
+        # that should have pointed at the audit surface was the one thing that
+        # did not mention it.
+        #
+        # THIRD INSTANCE of a hand-maintained surface drifting from what it
+        # describes, after the authored cards and the section manifest. The
+        # pattern each time: a list written once against the content as it then
+        # was, never re-derived. So this derives it, every build, from the
+        # headings actually present -- and makes the entries ANCHORS, since a
+        # jump list you cannot jump from is a list of names.
+        body, heads = _anchor_headings(body, tid)
         toc = ("  <p class='toc'><strong>In this section:</strong> "
-               + " &middot; ".join(heads) + "</p>" + NL) if heads else ""
+               + " &middot; ".join('<a href="#%s">%s</a>' % (hid, e(htxt))
+                                   for hid, htxt in heads) + "</p>" + NL) if heads else ""
         checked = ""
         if first is None:
             first, checked = tid, " checked"
@@ -1290,8 +1443,8 @@ def tabbed_body(canon, parts, page):
     if first is None:
         raise ValueError("tabbed build produced no populated tab")
     body = ('<div class="tabs">%s%s<nav class="tabnav" aria-label="Review '
-            'sections">%s%s</nav>%s<div class="panels">%s%s</div>%s</div>%s'
-            % (NL, inputs, NL, nav, NL, NL, panels, NL, NL))
+            'sections">%s%s</nav>%s<div class="panels">%s%s</div>%s</div>%s%s%s'
+            % (NL, inputs, NL, nav, NL, NL, panels, NL, NL, _TAB_HASH_JS, NL))
     css += (" @media print{.panel{height:auto;overflow:visible}"
             ".tabnav{display:none}}" + NL)
     return body, TAB_CSS + css
