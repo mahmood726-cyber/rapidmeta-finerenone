@@ -504,6 +504,34 @@ def _outcome_section(canon, oid, p, e):
             + ((f"  <p><strong>How to read this:</strong> "
                 f"{p(res['interpretation_caveat'])}</p>" + NL)
                if res.get("interpretation_caveat") else "")
+            # AN OPEN QUESTION ON THE ESTIMATE RENDERS FROM THE OBJECT.
+            #
+            # ARNI's was published as a HAND EDIT of the built page and existed
+            # in no object: one <div> added straight to the HTML, nothing in the
+            # source of truth. THE FIRST REBUILD DELETED THE ENTIRE FINDING, and
+            # it was caught only because the rebuild's value counts were compared
+            # against the served page before pushing. A finding that lives in the
+            # artefact survives exactly until someone regenerates the artefact --
+            # the same shape as SGLT2_HF's withdrawal, which was prose on the page
+            # while the object kept the withdrawn number live.
+            + ((("  <div class='absent-state' role='alert'><strong>"
+                 + p(res["open_question"].get("headline", "")) + "</strong> "
+                 + p(res["open_question"].get("body", "")) + " <strong>"
+                 + p(res["open_question"].get("why_it_matters", ""))
+                 + "</strong> "
+                 + p(res["open_question"].get("what_is_displayed", "")) + " "
+                 + p(res["open_question"].get("history", ""))
+                 + ((" <strong>"
+                     + p(res["open_question"]["what_the_ratio_is_not"])
+                     + "</strong>")
+                    if res["open_question"].get("what_the_ratio_is_not") else "")
+                 + ((" <em>" + p(res["open_question"]["hypothesis"]) + "</em>")
+                    if res["open_question"].get("hypothesis") else "")
+                 + ((" <strong>"
+                     + p(res["open_question"]["sensitivity_stated"]) + "</strong>")
+                    if res["open_question"].get("sensitivity_stated") else "")
+                 + "</div>" + NL))
+               if isinstance(res.get("open_question"), dict) else "")
             # THE PREDICTION INTERVAL BELONGS BESIDE THE ESTIMATE, NOT IN AN
             # APPENDIX. On a pool with I-squared near 90 the confidence interval
             # answers "where is the average"; the reader almost always wants
@@ -513,8 +541,9 @@ def _outcome_section(canon, oid, p, e):
             + ((f"  <p class='num'>Prediction interval "
                 f"{fmt(res['prediction_interval']['low'])} to "
                 f"{fmt(res['prediction_interval']['high'])}</p>" + NL
-                + f"  <p><small>{p(res['prediction_interval']['what_it_says'])}"
-                  f"</small></p>" + NL)
+                + ((f"  <p><small>{p(res['prediction_interval']['what_it_says'])}"
+                    f"</small></p>" + NL)
+                   if res["prediction_interval"].get("what_it_says") else ""))
                if isinstance(res.get("prediction_interval"), dict)
                and res["prediction_interval"].get("low") is not None else "")
             # AND THE ESTIMATOR CAVEAT, WHERE THE ESTIMATOR IS NAMED. A page that
@@ -539,10 +568,14 @@ def _outcome_section(canon, oid, p, e):
                      f"</tr>" + NL
                      for r0 in (res["estimator_sensitivity"].get("rows") or []))
                  + "  </table>" + NL
-                 + f"  <p><small>{p(res['estimator_sensitivity']['what_moves'])}"
-                   f"</small></p>" + NL
-                 + f"  <p><strong>{p(res['estimator_sensitivity']['the_one_that_matters'])}"
-                   f"</strong></p>" + NL))
+                 + ((f"  <p><small>{p(res['estimator_sensitivity']['what_moves'])}"
+                     f"</small></p>" + NL)
+                    if res["estimator_sensitivity"].get("what_moves") else "")
+                 + ((f"  <p><strong>"
+                     f"{p(res['estimator_sensitivity']['the_one_that_matters'])}"
+                     f"</strong></p>" + NL)
+                    if res["estimator_sensitivity"].get("the_one_that_matters")
+                    else "")))
                if isinstance(res.get("estimator_sensitivity"), dict)
                and res["estimator_sensitivity"].get("rows") else "")
             # What the pool holds constant and what it crosses, as a table a

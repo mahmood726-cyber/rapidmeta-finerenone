@@ -725,7 +725,18 @@
        "source_pointer": "Circ J 2021 Table 2, 'Primary composite outcome: CV death or HF hospitalization', 30 (27.0) vs 28 (25.0); CT.gov Outcome Measure 1 posts the identical 30 / 28 on denominators 111 / 112.",
        "read_or_derived": "read"
       },
-      "denominator_note": "Randomised 112 / 113; one mis-randomised participant in each arm gives a full analysis set of 111 / 112, which is what the Circ J table headers carry and what the 2x2 uses."
+      "denominator_note": "Randomised 112 / 113; one mis-randomised participant in each arm gives a full analysis set of 111 / 112, which is what the Circ J table headers carry and what the 2x2 uses.",
+      "outcome_definition": "Number of Participants Who Had CEC (Clinical Endpoint Committee) Confirmed Composite Endpoints",
+      "outcome_definition_source": {
+       "description_verbatim": "Composite endpoint is defined as either cardiovascular (CV) death or heart failure (HF) hospitalization in Japanese patients with chronic heart failure (CHF) and reduced ejection fraction. The composite endpoint events occurred on and after End-of-study (EOS) declaration were reported by investigators but those events were not required to be adjudicated by Clinical Endpoint Committee (CEC) and not included in the efficacy analysis.",
+       "time_frame": "up to 40 months",
+       "endpoint_rank": "PRIMARY",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+       "source_url": "https://clinicaltrials.gov/study/NCT02468232",
+       "read_utc": "2026-08-17",
+       "agrees_with_the_others": "Cardiovascular death or heart-failure hospitalisation -- the same two components the other three trials in this pool record. This cell was the only one in the pool whose provenance was a RESULT sentence, and reading the registry closes it without changing any number."
+      }
      }
     },
     "risk_of_bias": {
@@ -2320,6 +2331,17 @@
        "output": "\nRandom-Effects Model (k = 4; tau^2 estimator: PM)\n\ntau^2 (estimated amount of total heterogeneity): 0.0220 (SE = 0.0382)\ntau (square root of estimated tau^2 value):      0.1485\nI^2 (total heterogeneity / total variability):   55.69%\nH^2 (total variability / sampling variability):  2.26\n\nTest for Heterogeneity:\nQ(df = 3) = 5.1613, p-val = 0.1604\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb   ci.ub    \n -0.1010  0.1081  -0.9346  0.3500  -0.3129  0.1108    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n## Hartung-Knapp-Sidik-Jonkman:\n\n\nRandom-Effects Model (k = 4; tau^2 estimator: PM)\n\ntau^2 (estimated amount of total heterogeneity): 0.0220 (SE = 0.0382)\ntau (square root of estimated tau^2 value):      0.1485\nI^2 (total heterogeneity / total variability):   55.69%\nH^2 (total variability / sampling variability):  2.26\n\nTest for Heterogeneity:\nQ(df = 3) = 5.1613, p-val = 0.1604\n\nModel Results:\n\nestimate      se     tval  df    pval    ci.lb   ci.ub    \n -0.1010  0.1081  -0.9346   3  0.4189  -0.4450  0.2430    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n"
       }
      }
+    },
+    "open_question": {
+     "headline": "Open question on this pooled estimate: one contributing ratio cannot be identified as a hazard ratio.",
+     "body": "ANSWER-HF contributes 1.83 (0.72 to 4.67), read from a table row giving 12/95 versus 8/95. It is pooled here as a hazard ratio, and the source does not say that it is one. From those counts the crude risk ratio is 1.50 and the crude odds ratio is 1.57 -- NEITHER REPRODUCES 1.83, so it is not a crude measure, but that does not establish which measure it is. The trial's own primary endpoint is change in left ventricular ejection fraction; this composite is a secondary, which the page has always disclosed.",
+     "why_it_matters": "THIS MATTERS MORE THAN ITS WEIGHT SUGGESTS. With ANSWER-HF included the pool is HR 0.8715 (0.7461 to 1.0181), which CROSSES ONE. Without it, k=3 gives HR 0.8333 (0.7473 to 0.9292), which does NOT. So the choice about a single unverified ratio decides whether this review reports an effect or reports none.",
+     "what_is_displayed": "The estimate shown remains the k=4 value, unchanged, pending resolution from the trial report. Adopting the k=3 result would replace a null finding with a positive one on the basis of an exclusion we made ourselves, and the direction of that change is exactly why it must not be done quietly.",
+     "history": "ANSWER-HF is also the trial previously conflated with PARACHUTE-HF in this project, and this ratio was once recorded as appearing in neither paper -- it does appear, in a table, so that earlier conclusion was itself wrong.",
+     "_why_this_is_in_the_object": "IT WAS PUBLISHED AS A HAND EDIT OF THE BUILT PAGE AND NOWHERE ELSE. Commit 935cf870a added one <div> to ARNI_HF_REVIEW.html and did not touch this object, so the first rebuild DELETED the whole finding -- which is exactly what happened on 2026-08-17, and was caught only because the rebuild's value counts were compared against the served page. A finding that lives only in the rendered artefact survives until someone regenerates the artefact. Same shape as SGLT2_HF's withdrawal, which was in prose on the page while the object kept the withdrawn number live.",
+     "what_the_ratio_is_not": "WHAT THE RATIO IS NOT -- four candidates ruled out. From 12/95 versus 8/95 the crude risk ratio is 1.50 and the crude odds ratio 1.57; neither is 1.83. The trial's own reported win ratio is 1.80 (1.27 to 2.63) -- also not ours. And the trial states no time-to-event analysis of this composite anywhere: its primary endpoint is change in LVEF, and cardiovascular death with heart-failure hospitalisation enters only inside a hierarchical win ratio alongside NT-proBNP and LVEF change, over six months in 190 patients.",
+     "hypothesis": "Hypothesis, offered with its evidence and not as a conclusion: a point estimate of 1.80 against our 1.83 is near-identical while the intervals (1.27 to 2.63 against 0.72 to 4.67) are entirely different, which is what the same underlying comparison analysed two different ways tends to look like. The supplement may resolve it; WE HAVE NOT READ IT.",
+     "sensitivity_stated": "SENSITIVITY, STATED SO THIS PAGE IS CORRECT NOW RATHER THAN PENDING. With ANSWER-HF: HR 0.8715 (0.7461 to 1.0181), k=4 -- NULL. Without it: HR 0.8333 (0.7473 to 0.9292), k=3, I-squared 14.9% -- NOT NULL. The review's conclusion therefore depends on one unidentified ratio in the smallest contributing trial. A reader can evaluate this whichever way the measure resolves, which is a stronger position than either version presented alone; and the headline remains the k=4 value, because the exclusion is ours and it is the one that moves the result toward significance."
     }
    }
   }

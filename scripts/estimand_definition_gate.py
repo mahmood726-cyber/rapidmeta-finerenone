@@ -45,7 +45,14 @@ RESULT_SENTENCE = re.compile(
 # fields, never as fragments -- the rule this repo broke inside its own auditor.
 COMPONENT = re.compile(
     r"urgent(?:\s+\w+){0,3}\s+visit|hospitali[sz]ation|hospitali[sz]ed|"
-    r"cardiovascular death|cv death|death(?:s)? from cardiovascular causes|"
+    # A PARENTHETICAL ABBREVIATION BETWEEN THE TWO WORDS. Registries write
+    # "cardiovascular (CV) death" and "heart failure (HF) hospitalization", and
+    # the first of those matched NEITHER alternative here, so PARALLEL-HF's
+    # correctly-recorded endpoint read as counting hospitalisation and no death
+    # -- disagreeing with three trials that count exactly what it counts. The
+    # under-read again, and again in the direction that argues for a withdrawal.
+    r"cardiovascular\s*(?:\([^)]{0,12}\))?\s*death|cv death|"
+    r"death(?:s)? from cardiovascular causes|"
     # "CV mortality" is how IRONMAN's registry writes the component that
     # AFFIRM-AHF's writes as "CV Death". Neither the death nor the
     # from-cardiovascular-causes alternative reaches it, so a correctly-recorded
@@ -114,8 +121,13 @@ _CANON = (
     # correctly-recorded SOTAGLIFLOZIN definition read as carrying no CV-death
     # component. Under-reading manufactures disagreements exactly as over-reading
     # does, and a withdrawal needs the same evidentiary standard as a claim.
-    (re.compile(r"(cardiovascular|cv) death|death.{0,3} from cardiovascular", re.I),
-     "cv_death"),
+    # THE PARENTHETICAL HAS TO BE ALLOWED HERE TOO. COMPONENT finds the phrase
+    # and this table classifies it; widening one without the other means the
+    # match is found and then silently DROPPED, assigned to no key at all, which
+    # is indistinguishable from not finding it. Two places, one fact -- and the
+    # first fix touched only one of them.
+    (re.compile(r"(cardiovascular|cv)\s*(?:\([^)]{0,12}\))?\s*death|"
+                r"death.{0,3} from cardiovascular", re.I), "cv_death"),
     (re.compile(r"all-cause|any-cause|from any cause|total mortality", re.I),
      "all_cause_death"),
     (re.compile(r"serious bleeding|major bleeding", re.I), "serious_bleeding"),
@@ -163,7 +175,17 @@ def definition_for(bo):
     d = (bo.get("outcome_definition") or bo.get("definition")
          or bo.get("endpoint_definition") or "")
     if d:
-        return d
+        # A TITLE CAN BE A LABEL RATHER THAN A DEFINITION, and then the
+        # DESCRIPTION is where the components live. PARALLEL-HF's registry title
+        # is "Number of Participants Who Had CEC Confirmed Composite Endpoints"
+        # -- which names no event at all -- while its description says "either
+        # cardiovascular (CV) death or heart failure (HF) hospitalization". Read
+        # from the title alone the trial appeared to count NOTHING, and a trial
+        # counting nothing disagrees with every trial that counts something. The
+        # recorded definition is both fields, because that is what was read.
+        desc = (bo.get("outcome_definition_source") or {}).get(
+            "description_verbatim")
+        return "%s %s" % (d, desc) if desc else d
     quotes = (bo.get("provenance") or {}).get("source_quotes") or []
     cand = [q for q in quotes if not RESULT_SENTENCE.search(q) and _components(q)]
     return max(cand, key=len) if cand else ""

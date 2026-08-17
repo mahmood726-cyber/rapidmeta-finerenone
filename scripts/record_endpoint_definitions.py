@@ -372,6 +372,37 @@ DEFINITIONS = {
     "source_url": "https://clinicaltrials.gov/study/NCT02107898",
     "read_utc": "2026-08-17"}},
  },
+
+ # ------------------------------------------------------------------- ARNI
+ # One cell, and it is the last endpoint-definition FAIL in cardiology.
+ # PARALLEL-HF's provenance was two RESULT sentences -- "no significant
+ # between-group difference was observed ... (HR 1.09; 95% CI 0.65-1.82)" -- with
+ # no statement of what was counted. Its registry record states it plainly, and
+ # reading it needed nothing that is under a permission hold.
+ "arni-hfref": {
+  "NCT02468232": {"cvdeath_or_hfh_first": {
+    "text": "Number of Participants Who Had CEC (Clinical Endpoint Committee) "
+            "Confirmed Composite Endpoints",
+    "description_verbatim": "Composite endpoint is defined as either "
+        "cardiovascular (CV) death or heart failure (HF) hospitalization in "
+        "Japanese patients with chronic heart failure (CHF) and reduced ejection "
+        "fraction. The composite endpoint events occurred on and after "
+        "End-of-study (EOS) declaration were reported by investigators but those "
+        "events were not required to be adjudicated by Clinical Endpoint "
+        "Committee (CEC) and not included in the efficacy analysis.",
+    "time_frame": "up to 40 months",
+    "endpoint_rank": "PRIMARY",
+    "source": "registry",
+    "source_field": _CTG,
+    "source_url": "https://clinicaltrials.gov/study/NCT02468232",
+    "read_utc": "2026-08-17",
+    "agrees_with_the_others": "Cardiovascular death or heart-failure "
+        "hospitalisation -- the same two components the other three trials in "
+        "this pool record. This cell was the only one in the pool whose "
+        "provenance was a RESULT sentence, and reading the registry closes it "
+        "without changing any number.",
+  }},
+ },
 }
 
 
