@@ -83,9 +83,18 @@ def run(script, argv):
     # the AF_-inside-TAF_TDF over-match, committed inside the audit written to
     # find exactly this class. Normalise and compare the whole field, never a
     # fragment: a line that is <word> <integer> is a count, not a verdict.
+    #
+    # SECOND INSTANCE OF THE SAME OVER-MATCH, FOUND 2026-08-17 AFTER THE FIRST
+    # WAS FIXED. The pattern below only stripped `<word> <integer>`, so
+    # poolability's tally -- "  UNASSESSABLE  0  0.0%" -- still classified a
+    # gate that ran perfectly as blind, on the strength of a label naming a
+    # count of ZERO. The rule was already written, already quoted, and broken
+    # again in the same file within hours. Knowing a rule does not apply it;
+    # only a check does. A line that is a label followed by nothing but numbers
+    # and percentages is a TALLY, never a verdict.
     import re as _re
     lines = [l for l in out.splitlines()
-             if not _re.match(r"^\s*[A-Za-z_]+\s+\d+\s*$", l)]
+             if not _re.match(r"^\s*[A-Za-z_]+(?:\s+[\d.]+%?)+\s*$", l)]
     out = chr(10).join(lines)
     if any(b.lower() in out.lower() for b in BLIND):
         return "UNCHECKABLE", out.strip().splitlines()[-1][:90] if out.strip() else ""

@@ -45,7 +45,8 @@ RESULT_SENTENCE = re.compile(
 # fields, never as fragments -- the rule this repo broke inside its own auditor.
 COMPONENT = re.compile(
     r"urgent(?:\s+\w+){0,3}\s+visit|hospitali[sz]ation|hospitali[sz]ed|"
-    r"cardiovascular death|cv death|all-cause (?:death|mortality)|"
+    r"cardiovascular death|cv death|death(?:s)? from cardiovascular causes|"
+    r"all-cause (?:death|mortality)|"
     r"myocardial infarction|stroke|worsening heart failure", re.I)
 
 
@@ -62,7 +63,13 @@ def _norm(s):
 _CANON = (
     (re.compile(r"urgent", re.I), "urgent_visit"),
     (re.compile(r"hospitali", re.I), "hf_hospitalisation"),
-    (re.compile(r"(cardiovascular|cv) death", re.I), "cv_death"),
+    # PHRASING VARIANTS MAP TO ONE KEY. "deaths from cardiovascular causes" is the
+    # same component as "cardiovascular death" and matched neither pattern, so a
+    # correctly-recorded SOTAGLIFLOZIN definition read as carrying no CV-death
+    # component. Under-reading manufactures disagreements exactly as over-reading
+    # does, and a withdrawal needs the same evidentiary standard as a claim.
+    (re.compile(r"(cardiovascular|cv) death|death.{0,3} from cardiovascular", re.I),
+     "cv_death"),
     (re.compile(r"all-cause", re.I), "all_cause_death"),
     (re.compile(r"myocardial infarction", re.I), "mi"),
     (re.compile(r"stroke", re.I), "stroke"),
@@ -79,6 +86,33 @@ def _components(s):
                 out.add(key)
                 break
     return frozenset(out)
+
+
+def definition_for(bo):
+    """The endpoint definition recorded on ONE trial-outcome cell, or "".
+
+    THE ONE PLACE THIS LOGIC LIVES. `poolability` reported "N of N trials carry
+    no outcome definition" on every SSOT object in the repository, because it
+    read a field only the extraction schema has. That is a FALSE ALARM, and a
+    false alarm here is not the safe direction: it argues for withdrawing a
+    correct estimate, and a withdrawal needs the same evidentiary standard as a
+    claim. Rather than copy the resolution into a second gate -- two copies
+    diverge, and the divergence is invisible -- both callers use this.
+
+    Order: the explicit field, then a provenance quote that is a DEFINITION
+    rather than a RESULT. The second half is what lets an object that quotes the
+    registry's outcome-measure title pass without also passing an object whose
+    provenance is "the primary outcome occurred in 386 of 2373 patients".
+    """
+    if not isinstance(bo, dict):
+        return ""
+    d = (bo.get("outcome_definition") or bo.get("definition")
+         or bo.get("endpoint_definition") or "")
+    if d:
+        return d
+    quotes = (bo.get("provenance") or {}).get("source_quotes") or []
+    cand = [q for q in quotes if not RESULT_SENTENCE.search(q) and _components(q)]
+    return max(cand, key=len) if cand else ""
 
 
 def check(obj):
@@ -98,20 +132,15 @@ def check(obj):
             if not bo:
                 continue
             name = t.get("name") or t.get("nct") or "?"
-            d = (bo.get("outcome_definition") or bo.get("definition")
-                 or bo.get("endpoint_definition") or "")
+            # A QUOTE CAN BE THE DEFINITION -- that is the whole distinction, and
+            # it is resolved in definition_for() so poolability cannot drift from
+            # it. FINERENONE_CV stores each trial's endpoint TITLE, read word for
+            # word from the registry, in source_quotes. SGLT2_HF stores RESULT
+            # sentences in the same field. Failing both would mean the gate
+            # cannot tell the work done right from the work done wrong, which is
+            # the property it exists to measure.
+            d = definition_for(bo)
             quotes = (bo.get("provenance") or {}).get("source_quotes") or []
-            if not d and quotes:
-                # A QUOTE CAN BE THE DEFINITION -- that is the whole distinction.
-                # FINERENONE_CV stores each trial's endpoint TITLE, read word for
-                # word from the registry, in source_quotes. SGLT2_HF stores RESULT
-                # sentences in the same field. Failing both would mean the gate
-                # cannot tell the work done right from the work done wrong, which
-                # is the property it exists to measure.
-                cand = [q for q in quotes
-                        if not RESULT_SENTENCE.search(q) and _components(q)]
-                if cand:
-                    d = max(cand, key=len)
             if not d:
                 missing.append(name)
                 if quotes and RESULT_SENTENCE.search(" ".join(quotes)):

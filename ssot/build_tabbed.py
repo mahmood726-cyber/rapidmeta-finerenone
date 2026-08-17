@@ -396,8 +396,16 @@ def output_card(canon, p):
         # this string with the generator head. It is shown to READERS rather than
         # hidden in a comment, because which build produced what you are reading
         # belongs beside the R output and the source links.
-        ("Generator build", "<code>%s</code>%s" % (e(_generator_stamp()[0]),
-                                                   e(_generator_stamp()[1]))),
+        # THE STANDARD VERSION BELONGS IN THE STAMP, NOT ONLY THE COMMIT.
+        # "Built to v1" is what makes a page at v1 under a v3 standard HONESTLY
+        # LABELLED rather than silently stale, and it is what turns "bring
+        # cardiology to standard" into a countable backlog instead of a feeling.
+        # The commit cannot say it on its own: the bar is written down in a
+        # different file from the generator, so two pages built by the same
+        # commit can be built against two different versions of it.
+        ("Generator build", "<code>%s</code>%s, built to STANDARD v%s"
+                            % (e(_generator_stamp()[0]), e(_generator_stamp()[1]),
+                               e(str(_standard_version())))),
         ("Statistical engine", p((first.get("cross_engine") or {}).get("engine", ""))),
     ], "Everything a third party needs to rebuild this page. Each figure on the "
        "Analysis tab downloads as an SVG carrying exactly the values shown.")
@@ -428,6 +436,26 @@ def output_card(canon, p):
 
 
 _STAMP_CACHE = None
+
+
+def _standard_version():
+    """The version of THE STANDARD this build was made against.
+
+    Read from scripts/standard_manifest.py, never typed here: a version constant
+    copied into the generator is a second source of truth for the one fact whose
+    whole purpose is to be authoritative, and it would drift silently the moment
+    the standard incremented. UNKNOWN rather than a guess if it cannot be read --
+    a page claiming a bar it cannot name is worse than one that admits it.
+    """
+    try:
+        import importlib.util
+        p = os.path.join(os.path.dirname(HERE), "scripts", "standard_manifest.py")
+        spec = importlib.util.spec_from_file_location("_standard_manifest", p)
+        m = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(m)
+        return m.STANDARD_VERSION
+    except Exception:
+        return "UNKNOWN"
 
 
 def _generator_stamp():
@@ -660,7 +688,12 @@ def build(canon):
                          "    <tr><th>Layer</th><th>Source</th>"
                          "<th>How it was obtained</th></tr>%s%s  </table>%s</div>%s"
                          % (NL, NL, NL, NL, sources_rows, NL, NL)),
-        "network": p2.outcomes_card(canon, p), "recon": "", "removal": "",
+        # The published comparison had NO RENDERER. It has been written into
+        # objects since ARNI and reached a reader on no surface -- the Word file
+        # got four token counts from it and the page got nothing. `recon` was an
+        # empty slot sitting in the tab that should have carried it.
+        "network": p2.outcomes_card(canon, p),
+        "recon": p2.published_comparison_card(canon, p), "removal": "",
         "output": output_card(canon, p),
         # WYSIWYG ONLY. The panel used to render the manuscript THREE times: the
         # document view, then manuscript_section's card version, then

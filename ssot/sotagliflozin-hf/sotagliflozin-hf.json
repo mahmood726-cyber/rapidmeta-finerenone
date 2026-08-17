@@ -394,7 +394,16 @@
        ],
        "quote_note": "Two verbatim sentences from the staged abstract. The FIRST is stored deliberately and is the more important of the two: it is this trial's own statement, in its own words, that the endpoint counts first AND SUBSEQUENT events. Without it a reader sees a sentence saying hazard ratio and has no way to know the quantity is not a time-to-first hazard ratio."
       },
-      "follow_up": "a median of 9.0 months"
+      "follow_up": "a median of 9.0 months",
+      "outcome_definition": "Number of Total Occurrences of Cardiovascular (CV) Death, Hospitalizations for Heart Failure (HHF) and Urgent Visits for Heart Failure (HF)",
+      "outcome_definition_source": {
+       "description_verbatim": "Combined endpoint of the total number of occurrences (first and potentially subsequent) of CV death, HHF, and urgent HF visits after randomization. Events that occurred during the study were calculated as the total number of events per 100 person-years of follow-up.",
+       "time_frame": "Up to 21.9 months",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+       "source_url": "https://clinicaltrials.gov/study/NCT03521934",
+       "read_utc": "2026-08-17"
+      }
      },
      "hfcv_first": {
       "effect": {
@@ -465,6 +474,14 @@
        "ci_high": 0.95,
        "ci_level": 95,
        "why_stored_beside_and_not_instead": "The same estimand under a different ascertainment, from the same sentence of the same document. The cell above carries the investigator-reported analysis because that is the basis of the trial's OWN primary analysis, which the review states in those words -- not because it is preferred. The adjudicated figure is stored here at full precision and pooled in the sensitivity block, so a reader can see the alternative answer rather than be told one exists."
+      },
+      "outcome_definition": "Cardiovascular (CV) Death, Hospitalizations for Heart Failure (HHF) and Urgent Visits for Heart Failure (HF) -- the same event class as this trial's registered primary endpoint, analysed as time to FIRST event instead of as total occurrences",
+      "outcome_definition_source": {
+       "source": "regulator_fda",
+       "source_field": "integrated review, statistical section, sensitivity analyses",
+       "source_url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2023/216203Orig1s000IntegratedR.pdf",
+       "registry_does_not_post": "The registry posts this trial's composite ONLY as total occurrences. The time-to-first analysis of the same composite exists in the regulator's review and nowhere in the registry, so the EVENT CLASS is quoted from the registry field above and the ANALYSIS is named from the review. Those are two different facts and they are recorded separately on purpose.",
+       "read_utc": "2026-08-17"
       }
      }
     }
@@ -575,7 +592,17 @@
        ],
        "quote_note": "Two verbatim sentences from the staged abstract. The FIRST is stored deliberately, and what it establishes is NARROWER than its counterpart on the companion trial: it records that this trial's primary endpoint was CHANGED during the trial, and that what it changed to is a TOTAL number of events. Unlike the companion abstract it does not spell out the phrase first and subsequent, and this note does not pretend it does -- an earlier, shared version claimed that wording for both trials. That this endpoint is a recurrent-event quantity is established for THIS trial by the regulator's review, which is staged and cited on the cascade."
       },
-      "follow_up": "a median of 16 months"
+      "follow_up": "a median of 16 months",
+      "outcome_definition": "Number of Total Occurrences of Cardiovascular (CV) Death, Hospitalizations for Heart Failure (HHF) and Urgent Visits for Heart Failure (HF)",
+      "outcome_definition_source": {
+       "description_verbatim": "Combined endpoint of the total number of occurrences (first and potentially subsequent) of CV death, HHF, and urgent HF visits after randomization. Events that occurred during the study were calculated as the total number of events per 100 person-years of follow-up.",
+       "time_frame": "Up to 30 months",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+       "source_url": "https://clinicaltrials.gov/study/NCT03315143",
+       "endpoint_was_changed_during_the_trial": "The publication states the primary end point was CHANGED during the trial. The registry record read here is the AMENDED one, and it is the endpoint the reported hazard ratio belongs to. The superseded original coprimary is carried separately in this object as mace3_first, from a single trial, and is not pooled.",
+       "read_utc": "2026-08-17"
+      }
      },
      "hfcv_first": {
       "effect": {
@@ -646,6 +673,14 @@
        "ci_high": 0.86,
        "ci_level": 95,
        "why_stored_beside_and_not_instead": "The same estimand under a different ascertainment, from the same sentence of the same document. The cell above carries the investigator-reported analysis because that is the basis of the trial's OWN primary analysis, which the review states in those words -- not because it is preferred. The adjudicated figure is stored here at full precision and pooled in the sensitivity block, so a reader can see the alternative answer rather than be told one exists."
+      },
+      "outcome_definition": "Cardiovascular (CV) Death, Hospitalizations for Heart Failure (HHF) and Urgent Visits for Heart Failure (HF) -- the same event class as this trial's registered primary endpoint, analysed as time to FIRST event instead of as total occurrences",
+      "outcome_definition_source": {
+       "source": "regulator_fda",
+       "source_field": "integrated review, statistical section, sensitivity analyses",
+       "source_url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2023/216203Orig1s000IntegratedR.pdf",
+       "registry_does_not_post": "As for SOLOIST-WHF: the registry posts the composite only as total occurrences. NOTE the publication ALSO reports a first-occurrence composite for this trial, but of CV death OR hospitalisation for heart failure WITHOUT urgent visits -- a different event class, which is why it is held out rather than used here. That hold-out is recorded in this object's scope decisions.",
+       "read_utc": "2026-08-17"
       }
      },
      "mace3_first": {
@@ -709,7 +744,15 @@
        ],
        "quote_note": "One verbatim sentence from the staged abstract. It names the endpoint as the trial's ORIGINAL co-primary and as a FIRST occurrence, which is what distinguishes it from the registry's total-occurrence row over the same three components."
       },
-      "follow_up": "a median of 16 months"
+      "follow_up": "a median of 16 months",
+      "outcome_definition": "the first occurrence of death from cardiovascular causes, nonfatal myocardial infarction, or nonfatal stroke",
+      "outcome_definition_source": {
+       "source": "publication",
+       "source_field": "NEJM report of SCORED, describing the ORIGINAL coprimary end point that was superseded during the trial",
+       "source_url": "https://pubmed.ncbi.nlm.nih.gov/33200892/",
+       "registry_does_not_post": "The current registry record does not post a FIRST-occurrence version of this composite. It posts a TOTAL-occurrence one ('Total Number of Occurrences of CV Death, Non-fatal Myocardial Infarction and Non-fatal Stroke') as a secondary outcome, which is a different quantity from the one stored here. The first-occurrence composite is the superseded original coprimary and survives only in the publication. This is exactly the case the registry read cannot settle alone, and it is why this outcome is reported from a single trial and pooled with nothing.",
+       "read_utc": "2026-08-17"
+      }
      }
     }
    }
@@ -1490,6 +1533,102 @@
     "10.9"
    ],
    "conformance": "On the total-occurrence outcome the arithmetic is not merely unhelpful, it has no meaning in the usual sense: the denominator of a number needed to treat is a difference in the PROPORTION of people with an event, and this endpoint counts events rather than people. On the other two outcomes it would need an assumed control risk over a stated horizon that no field here carries. The renderer computes none, which was checked rather than assumed."
+  }
+ },
+ "published_comparison": {
+  "_why": "This review pools two trials on a total-occurrence composite reported as a hazard ratio. The question a reader needs answered is whether the published literature reports that quantity, and whether anyone -- them or us -- got it wrong. Both halves are reported below, with the number of records screened.",
+  "_how_identified": "PubMed E-utilities, query and counts recorded in ssot/sotagliflozin-hf/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json, which carries a decision for every record. This layer is machine-screened at ABSTRACT level and the limitation is stated there and in the checks below.",
+  "reviews": [
+   {
+    "id": "PM_BANTOUNOU2025",
+    "citation": "Bantounou MA, et al. Meta-analysis of sotagliflozin, a dual sodium-glucose-cotransporter 1/2 inhibitor, for heart failure in type 2 diabetes. ESC Heart Fail 2025;12(2):968-979.",
+    "pmid": "39257196",
+    "prospero": "CRD42023432732",
+    "their_k": 9,
+    "their_n": 15320,
+    "their_search_closed": "2023-06-02",
+    "scope": "sotagliflozin in type 2 diabetes, any randomised design reporting heart failure events",
+    "how_it_differs_from_ours": "It pools RELATIVE RISKS across nine studies of mixed design and reports neither trial's own primary -- a total-occurrence composite as a hazard ratio -- as a separate row. Its abstract does not name its included studies, so a trial-by-trial reconciliation against it cannot be done at this layer."
+   },
+   {
+    "id": "PM_CUREUS2024",
+    "citation": "Sotagliflozin vs Dapagliflozin: A Systematic Review Comparing Cardiovascular Mortality. Cureus 2024.",
+    "pmid": "37868384",
+    "scope": "narrative systematic review comparing sotagliflozin and dapagliflozin",
+    "how_it_differs_from_ours": "It NAMES both trials we pool -- the only record in 112 that does -- but reports no pooled estimate of its own. It therefore supplies no number to reconcile against, and is counted as located rather than as agreeing."
+   }
+  ],
+  "checks": [
+   {
+    "id": "soloist-hr-vs-registry-results",
+    "what": "Our SOLOIST-WHF input against the registry's POSTED RESULT",
+    "verdict": "CONFIRMED",
+    "detail": "The registry's results section posts, on the primary outcome whose definition we read, a hazard ratio of 0.67 with a 95% interval of 0.52 to 0.85. This object stores 0.67 (0.52 to 0.85). Identical, and read from the registry's own analysis record rather than from the publication that reports it -- two independent surfaces agreeing.",
+    "quote": "Hazard Ratio (HR) 0.67, CI 0.52 to 0.85",
+    "location": "ClinicalTrials.gov NCT03521934, resultsSection, primary outcome analysis"
+   },
+   {
+    "id": "scored-hr-vs-registry-results",
+    "what": "Our SCORED input against the registry's POSTED RESULT",
+    "verdict": "CONFIRMED",
+    "detail": "The registry posts a hazard ratio of 0.74 with a 95% interval of 0.63 to 0.88 on the same primary outcome. This object stores 0.74 (0.63 to 0.88). Identical.",
+    "quote": "Hazard Ratio (HR) 0.74, CI 0.63 to 0.88",
+    "location": "ClinicalTrials.gov NCT03315143, resultsSection, primary outcome analysis"
+   },
+   {
+    "id": "endpoint-definitions-identical",
+    "what": "Whether the two trials counted the same events",
+    "verdict": "CONFIRMED",
+    "detail": "Both registry records give the primary outcome measure in identical words, and both descriptions specify the total number of occurrences, first and potentially subsequent. This is the check SGLT2_HF failed -- there, two trials counted urgent heart-failure visits and two did not -- and here it comes back clean, on text read from the registry rather than inferred from a result sentence.",
+    "quote": "Number of Total Occurrences of Cardiovascular (CV) Death, Hospitalizations for Heart Failure (HHF) and Urgent Visits for Heart Failure (HF)",
+    "location": "ClinicalTrials.gov NCT03521934 and NCT03315143, primary outcome measure"
+   },
+   {
+    "id": "scored-endpoint-was-changed",
+    "what": "Whether the amended SCORED endpoint is the one our estimate belongs to",
+    "verdict": "CONFIRMED",
+    "detail": "SCORED's primary end point was changed during the trial. The registry record read here is the AMENDED one, and the posted hazard ratio 0.74 sits on that amended outcome, which is the one we pool. The superseded original coprimary -- first occurrence of CV death, non-fatal myocardial infarction or non-fatal stroke -- is carried separately in this object at k=1 and is pooled with nothing. A reader who worried that an amended endpoint had been quietly substituted can see that both halves are recorded.",
+    "quote": "The primary end point was changed during the trial to the composite of the total number of deaths from cardiovascular causes, hospitalizations for heart failure, and urgent visits for heart failure.",
+    "location": "SCORED publication; and the amended measure on the registry record"
+   },
+   {
+    "id": "no-synthesis-reports-this-estimand",
+    "what": "Whether any published synthesis reports the quantity we pool",
+    "verdict": "ABSENT",
+    "detail": "112 records matched the query and all 112 were read at abstract level. One names both trials we pool and reports no pooled estimate of its own. The drug-specific meta-analysis pools relative risks over nine mixed-design studies. No located synthesis reports a hazard ratio for the total-occurrence composite, so this pooled value cannot be checked against an external number. THAT IS A STATEMENT ABOUT THE LITERATURE, NOT A CLAIM OF NOVELTY.",
+    "quote": null,
+    "location": "PUBLISHED_SYNTHESIS_SCREEN.json, 112 of 112 records read"
+   },
+   {
+    "id": "what-the-abstract-layer-cannot-settle",
+    "what": "Whether the 107 syntheses that name no trial included ours",
+    "verdict": "UNRESOLVED",
+    "detail": "107 of 112 records do not name any trial we pool, and four have no indexed abstract. Abstract-level screening cannot establish what a synthesis pooled. Reporting '0 syntheses affected' from this would be absence of evidence dressed as evidence of absence -- the same error the first version of this topic's search record made, when it concluded no synthesis existed and one was found in a single step the same day. Settling it needs full text.",
+    "quote": null,
+    "location": "PUBLISHED_SYNTHESIS_SCREEN.json, tally"
+   },
+   {
+    "id": "bantounou-precision-query",
+    "what": "An unexplained precision gap in the drug-specific meta-analysis",
+    "verdict": "UNRESOLVED",
+    "detail": "Its printed interval 0.64 to 0.69 implies a standard error on the log scale of about 0.0192; our two-trial pool over 11,806 participants implies 0.0705. With 8,040 and 7,280 participants, an event in 10% of each arm gives 0.0485, 20% gives 0.0324, and even 30% in both arms gives 0.0247 -- all wider than printed. THE STRONGEST INNOCENT EXPLANATION IS PLAUSIBLE AND IS STATED: if the pool counts total recurrent events rather than participants, counts can exceed the participant number and that precision is attainable. The abstract does not state the unit of analysis, so this is recorded for a reader and NOT asserted as an error. Full text or the PROSPERO record would settle it.",
+    "quote": "sotagliflozin significantly reduced the risk of HF [n = 8 studies; RR = 0.66 (0.64, 0.69)]",
+    "location": "PMID 39257196, abstract"
+   }
+  ],
+  "divergence_decomposed": {
+   "ours": "HR 0.7171 (0.6246 to 0.8234) for the total number of occurrences of CV death, HF hospitalisation and urgent HF visit, k=2, both pivotal trials.",
+   "theirs": "RR 0.66 (0.64 to 0.69) for heart failure over 8 studies, and RR 0.73 (0.66 to 0.81) for MACE over 8 studies.",
+   "why_they_differ": "A different quantity (a relative risk of experiencing an event is not a hazard ratio for the total number of events), a different eligible set (nine mixed-design studies against the two pivotal trials), and a different question. Same direction, but direction agreement is worth little across estimands: a close answer to a different question is the most persuasive kind of wrong. NEITHER SIDE IS SHOWN TO BE IN ERROR HERE, and that is the finding."
+  },
+  "denominator": {
+   "rows_checked": 7,
+   "confirmed": 4,
+   "errors": 0,
+   "absent": 1,
+   "unresolved": 2,
+   "statement": "7 checks were applied and 4 came back clean, 0 found an error, 1 found something absent and 2 could not be settled at the layer available. The denominator is stated because a list of only the failures is not a finding, it is a selection.",
+   "symmetry": "Confirmations are listed in the same table, in the same detail, as errors. Across the cardiology topics reconciled so far the published literature has been implicated in none of them: where a defect existed it was ours. A comparison with room only for their errors could not have found that out."
   }
  }
 }

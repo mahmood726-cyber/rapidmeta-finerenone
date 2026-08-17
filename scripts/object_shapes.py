@@ -69,6 +69,44 @@ def trials_of(obj):
     return out
 
 
+def definitions_of(trial):
+    """-> {outcome_id: definition text} for a normalised trial, either schema.
+
+    WHY THIS IS HERE AND NOT INLINE IN THE CALLER
+        `poolability` read `trial["outcome"]["definition"]` -- a field only the
+        extraction schema carries -- and therefore reported "N of N trials carry
+        no outcome definition" on EVERY SSOT object in this repository,
+        including ones whose definitions were read from the registry word for
+        word. It fired on the correct work and the incorrect work alike, which
+        is a check that discriminates nothing.
+
+        Note the direction: this one failed toward ALARM, which is the rarer
+        specimen and most of the reason it was found at all. It is still not the
+        safe kind of wrong. Its output argues for WITHDRAWING an estimate, and a
+        wrong withdrawal destroys a true finding and publishes the destruction
+        as a discovery.
+
+    NOT A DEFINITION READER OF LAST RESORT: it returns what is RECORDED. An
+    empty result means nothing was recorded, never that the trial has no
+    endpoint.
+    """
+    raw = trial.get("_raw") or {}
+    out = {}
+    if trial.get("_schema") == "ssot":
+        import estimand_definition_gate as _e
+        for oid, bo in (raw.get("by_outcome") or {}).items():
+            d = _e.definition_for(bo)
+            if d:
+                out[oid] = d
+        return out
+    o = raw.get("outcome")
+    if isinstance(o, dict) and (o.get("definition") or o.get("name")):
+        out["outcome"] = o.get("definition") or o.get("name")
+    elif isinstance(o, str) and o:
+        out["outcome"] = o
+    return out
+
+
 def pooled_of(obj):
     """-> (k, pooled_dict) from either schema, or (None, {})."""
     by = ((obj.get("results") or {}).get("by_outcome")) or {}

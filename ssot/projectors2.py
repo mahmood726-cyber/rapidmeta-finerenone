@@ -883,3 +883,88 @@ def outcomes_card(canon, p):
                p(sp.get("_why_they_must_not_be_added_up", "")), NL, cav,
                NL, NL, notp, NL,
                p(oc.get("honest_note", "")), NL, NL))
+
+
+# VERDICT COLOURS ARE DELIBERATELY ABSENT. A table that prints errors in red and
+# confirmations in grey has already told the reader which half matters, and the
+# finding across this lane is that the confirmations are the result: three
+# topics reconciled and the published literature implicated in none of them.
+_VERDICT_NOTE = {
+    "CONFIRMED": "checked and clean",
+    "ERROR": "a defect, in the source named",
+    "ABSENT": "the thing checked for is not there",
+    "UNRESOLVED": "could not be settled at the layer available",
+}
+
+
+def published_comparison_card(canon, p):
+    """Comparison with published syntheses -- confirmations included.
+
+    WHY THIS PROJECTOR EXISTS
+        The object has carried `published_comparison` since ARNI. NO RENDERER
+        EVER EMITTED IT. It reached the Word manuscript as four token counts and
+        reached the page not at all, so a section the standard lists as OWED was
+        being written into objects and shown to nobody. The section-manifest gate
+        could not report it either: it only asks for sections the object EARNS,
+        and it asks both surfaces -- but no build had ever put this one in the
+        HTML, so there was nothing to compare and the manifest rule for it had
+        never fired on a real object.
+
+        That is the same shape as the extraction table missing from every Word
+        manuscript: content that exists, a gate that would have caught it, and no
+        build path connecting the two.
+
+    THE DENOMINATOR IS RENDERED WITH THE TABLE, NOT UNDER IT. A count of errors
+    with no count of checks is a selection. The card refuses to render the rows
+    without the denominator for the same reason a proportion must carry its
+    comparable fraction inline.
+    """
+    pc = canon.get("published_comparison") or {}
+    checks = pc.get("checks") or []
+    den = pc.get("denominator") or {}
+    if not checks or not den:
+        return ""
+    rows = ""
+    for c in checks:
+        v = c.get("verdict", "")
+        q = c.get("quote")
+        rows += (
+            "    <tr><td><strong>%s</strong><br><small>%s</small></td>"
+            "<td>%s<br><small>%s</small></td><td>%s%s</td></tr>%s"
+            % (p(c.get("what", "")), e(c.get("id", "")),
+               e(v), e(_VERDICT_NOTE.get(v, "")),
+               p(c.get("detail", "")),
+               ("<br><small>Quoted: &ldquo;%s&rdquo; &mdash; %s</small>"
+                % (p(q), p(c.get("location", "")))) if q
+               else ("<br><small>%s</small>" % p(c.get("location", ""))
+                     if c.get("location") else ""),
+               NL))
+    revs = "".join(
+        "    <tr><th scope='col'>%s</th><td>%s%s</td></tr>%s"
+        % (e(r.get("pmid", "") or r.get("id", "")), p(r.get("citation", "")),
+           "<br><small>%s</small>" % p(r.get("how_it_differs_from_ours", ""))
+           if r.get("how_it_differs_from_ours") else "", NL)
+        for r in (pc.get("reviews") or []))
+    dd = pc.get("divergence_decomposed") or {}
+    dd_html = ""
+    if dd:
+        dd_html = ("  <h3>Where the numbers differ, and why</h3>%s  <table>%s"
+                   "    <tr><th scope='col'>This review</th><td>%s</td></tr>%s"
+                   "    <tr><th scope='col'>The published synthesis</th><td>%s</td></tr>%s"
+                   "    <tr><th scope='col'>Why they differ</th><td>%s</td></tr>%s"
+                   "  </table>%s"
+                   % (NL, NL, p(dd.get("ours", "")), NL, p(dd.get("theirs", "")), NL,
+                      p(dd.get("why_they_differ", "")), NL, NL))
+    return ("<div class='card'>%s  <h2>Comparison with published syntheses</h2>%s"
+            "  <p>%s</p>%s"
+            "  <p><strong>%s</strong></p>%s"
+            "  <p><small>%s</small></p>%s"
+            "  <table>%s    <tr><th scope='col'>Check</th><th>Verdict</th>"
+            "<th>What was found</th></tr>%s%s  </table>%s"
+            "  <h3>The syntheses reconciled against</h3>%s  <table>%s%s  </table>%s"
+            "%s  <p><small>How they were identified: %s</small></p>%s</div>%s"
+            % (NL, NL, p(pc.get("_why", "")), NL,
+               p(den.get("statement", "")), NL,
+               p(den.get("symmetry", "")), NL,
+               NL, NL, rows, NL, NL, NL, revs, NL,
+               dd_html, p(pc.get("_how_identified", "")), NL, NL))

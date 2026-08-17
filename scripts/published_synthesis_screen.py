@@ -1,0 +1,202 @@
+"""PUBLISHED-SYNTHESIS SCREEN -- how many syntheses were looked at, and what each said.
+
+WHY A DENOMINATOR IS THE POINT
+    "No published synthesis reports this estimand" and "I found none" are
+    different claims, and only the first is worth printing. Without a
+    denominator, an absence is absence-of-evidence wearing the costume of
+    evidence-of-absence -- and this project has already had to correct exactly
+    that: a sotagliflozin search record concluded no synthesis existed, and one
+    was found in a single step the same day.
+
+    So the screen records the query, the total the registry returned, how many
+    records were read, and a decision per record. A reader can then see whether
+    "none found" was a search or a shrug.
+
+THE INSTRUMENT LIMITATION, STATED UP FRONT RATHER THAN DISCOVERED LATER
+    ABSTRACT-LEVEL SCREENING CANNOT ESTABLISH WHAT A SYNTHESIS POOLED. Most
+    abstracts do not name their constituent trials and almost none state the
+    endpoint definition they pooled on. This screen can therefore establish:
+
+        - that a synthesis on this drug and outcome family EXISTS, and how many;
+        - which of them NAME the trials we pool, in the abstract;
+        - what estimand they say they pooled, WHERE they say it.
+
+    It cannot establish that the ones which name nothing pooled something
+    different. Those are counted as UNRESOLVED-AT-ABSTRACT and stay unresolved;
+    they are never counted as agreeing, and never as disagreeing.
+
+WHAT A CLEAN RUN DOES NOT ESTABLISH -- written in advance
+    - NOT that the query is complete. One database, one query, no hand searching.
+    - NOT that a synthesis naming our trials pooled the same quantity. That needs
+      the full text, and the screen says so per record.
+    - NOT that a numerical difference is OUR error. Where our value and a
+      published one differ, both are candidates and the record says which one
+      was checked against source.
+
+USAGE
+  python scripts/published_synthesis_screen.py <app_id> --query "<pubmed query>" \
+      [--names SOLOIST-WHF,SCORED] [--ncts NCT03521934,NCT03315143] [--max 200]
+"""
+from __future__ import annotations
+import io, json, os, re, sys, time, urllib.parse, urllib.request
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
+
+
+def _get(url):
+    req = urllib.request.Request(url, headers={"User-Agent": "rapidmeta-synthesis-screen"})
+    with urllib.request.urlopen(req, timeout=90) as r:
+        return r.read().decode("utf-8", "replace")
+
+
+def esearch(query, retmax):
+    u = EUTILS + "esearch.fcgi?db=pubmed&retmode=json&retmax=%d&term=%s" % (
+        retmax, urllib.parse.quote(query))
+    d = json.loads(_get(u))["esearchresult"]
+    return int(d.get("count", 0)), d.get("idlist", [])
+
+
+def efetch(pmids):
+    """-> {pmid: {title, abstract, journal, year}} in batches."""
+    out = {}
+    for i in range(0, len(pmids), 100):
+        chunk = pmids[i:i + 100]
+        u = EUTILS + "efetch.fcgi?db=pubmed&retmode=xml&id=" + ",".join(chunk)
+        xml = _get(u)
+        for art in re.split(r"<PubmedArticle>", xml)[1:]:
+            pm = re.search(r"<PMID[^>]*>(\d+)</PMID>", art)
+            if not pm:
+                continue
+            ti = re.search(r"<ArticleTitle[^>]*>(.*?)</ArticleTitle>", art, re.S)
+            jo = re.search(r"<Title>(.*?)</Title>", art, re.S)
+            yr = re.search(r"<Year>(\d{4})</Year>", art)
+            abs_parts = re.findall(r"<AbstractText[^>]*>(.*?)</AbstractText>", art, re.S)
+            def clean(s):
+                return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", s or "")).strip()
+            out[pm.group(1)] = {
+                "title": clean(ti.group(1) if ti else ""),
+                "journal": clean(jo.group(1) if jo else ""),
+                "year": yr.group(1) if yr else "",
+                "abstract": clean(" ".join(abs_parts)),
+            }
+        time.sleep(0.4)
+    return out
+
+
+# What a synthesis says it pooled, where it says it. These find the SENTENCE, so
+# a reader can judge it; they never decide agreement on their own.
+ESTIMAND_CUE = re.compile(
+    r"[^.]*\b(primary (?:end ?point|outcome)|composite|total (?:number of )?"
+    r"(?:occurrence|event)|first (?:occurrence|event)|time to first|"
+    r"hospitali[sz]ation for heart failure|cardiovascular death)\b[^.]*\.", re.I)
+
+
+def screen(app_id, query, names, ncts, retmax):
+    total, pmids = esearch(query, retmax)
+    recs = efetch(pmids)
+    name_rx = [(n, re.compile(re.escape(n).replace(r"\-", "[- ]?"), re.I)) for n in names]
+    nct_rx = [(n, re.compile(n, re.I)) for n in ncts]
+
+    rows = []
+    for pmid in pmids:
+        r = recs.get(pmid)
+        if not r:
+            rows.append({"pmid": pmid, "decision": "NOT RETRIEVED",
+                         "why": "the record did not come back from efetch; it is "
+                                "counted as unread, not as screened out"})
+            continue
+        blob = r["title"] + " " + r["abstract"]
+        named = [n for n, rx in name_rx if rx.search(blob)]
+        named += [n for n, rx in nct_rx if rx.search(blob)]
+        if not r["abstract"]:
+            dec, why = ("NO ABSTRACT",
+                        "no abstract is indexed, so nothing about this synthesis "
+                        "can be read at this level")
+        elif named:
+            dec, why = ("NAMES OUR TRIAL(S)", "names %s in the abstract" % ", ".join(named))
+        else:
+            dec, why = ("UNRESOLVED AT ABSTRACT",
+                        "does not name any trial we pool; whether it included them "
+                        "cannot be decided from the abstract")
+        cue = ESTIMAND_CUE.search(r["abstract"] or "")
+        rows.append({
+            "pmid": pmid, "year": r["year"], "journal": r["journal"],
+            "title": r["title"], "decision": dec, "why": why,
+            "trials_named": named,
+            "estimand_sentence_in_abstract": (cue.group(0).strip()[:400] if cue else ""),
+            "url": "https://pubmed.ncbi.nlm.nih.gov/%s/" % pmid,
+        })
+
+    tally = {}
+    for row in rows:
+        tally[row["decision"]] = tally.get(row["decision"], 0) + 1
+    out = {
+        "app_id": app_id,
+        "query": query,
+        "database": "PubMed via E-utilities",
+        "run_utc": time.strftime("%Y-%m-%dT%H:%MZ", time.gmtime()),
+        "records_matching_query": total,
+        "records_retrieved_and_read": len(rows),
+        "retmax": retmax,
+        "trials_we_pool": {"names": names, "ncts": ncts},
+        "tally": tally,
+        "what_this_cannot_establish":
+            "Abstract-level screening cannot establish what a synthesis POOLED. "
+            "Records marked UNRESOLVED AT ABSTRACT are counted as unresolved and "
+            "never as agreeing or disagreeing. Reporting a count of 'syntheses "
+            "affected' from this layer would be absence of evidence presented as "
+            "evidence of absence.",
+        "records": rows,
+    }
+    d = os.path.join(REPO, "ssot", app_id, "appraisal")
+    os.makedirs(d, exist_ok=True)
+    p = os.path.join(d, "PUBLISHED_SYNTHESIS_SCREEN.json")
+    with open(p, "w", encoding="utf-8") as f:
+        json.dump(out, f, ensure_ascii=False, indent=1)
+        f.write("\n")
+
+    print("query   : %s" % query)
+    print("matching: %d   retrieved and read: %d" % (total, len(rows)))
+    for k in sorted(tally, key=lambda x: -tally[x]):
+        print("  %-24s : %d" % (k, tally[k]))
+    print("\nrecords naming a trial we pool:")
+    any_named = False
+    for row in rows:
+        if row["decision"] == "NAMES OUR TRIAL(S)":
+            any_named = True
+            print("  %s  %s  %s" % (row["pmid"], row.get("year", ""), row["title"][:90]))
+            print("        %s" % row["why"])
+            if row["estimand_sentence_in_abstract"]:
+                print("        estimand sentence: %s"
+                      % row["estimand_sentence_in_abstract"][:200])
+    if not any_named:
+        print("  none. THAT IS NOT 'no synthesis included them' -- see "
+              "what_this_cannot_establish.")
+    print("\nwritten to %s" % p)
+    return 0 if rows else 2
+
+
+def main():
+    args = sys.argv[1:]
+    if not args or args[0].startswith("--"):
+        print(__doc__.strip().splitlines()[-2], file=sys.stderr)
+        return 2
+
+    def opt(flag, default=""):
+        return args[args.index(flag) + 1] if flag in args else default
+    q = opt("--query")
+    if not q:
+        print("--query is required. A screen with no query has no denominator.",
+              file=sys.stderr)
+        return 2
+    names = [x for x in opt("--names").split(",") if x]
+    ncts = [x for x in opt("--ncts").split(",") if x]
+    return screen(args[0], q, names, ncts, int(opt("--max", "200")))
+
+
+if __name__ == "__main__":
+    sys.exit(main())

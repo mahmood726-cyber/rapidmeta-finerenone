@@ -49,7 +49,12 @@ EFF = re.compile(r"\b(death|mortality|survival|stroke|myocardial infarction|hosp
 
 
 def classify(path):
-    d = json.loads(open(path, encoding="utf-8", errors="replace").read())
+    # Accepts a path or an already-loaded object, so the selftest can MUTATE a
+    # real object and replay it. A fixture only proves the check can fire; a
+    # mutated real object proves it fires on the state this repository was
+    # actually in.
+    d = (path if isinstance(path, dict)
+         else json.loads(open(path, encoding="utf-8", errors="replace").read()))
     c = d.get("canonical") or {}
     # BOTH SCHEMAS -- see arm_identity_gate. UNASSESSABLE on 100% of the v1
     # objects was this gate reading the extraction artefact's shape only.
@@ -60,10 +65,54 @@ def classify(path):
     k = _k if _k is not None else rep.get("k")
     reasons = []
 
+    # A WITHDRAWN POOL IS THE PROPERTY BEING MET, NOT AN ABSENT ONE.
+    # `pooled_of` only returns a pool with a live point, so a page that had
+    # correctly withdrawn its estimate WITH ITS REASON arrived here as
+    # "no pooled result recorded" -- UNASSESSABLE. That reads as unmeasured when
+    # in fact it is the exact state the standard asks for, and it would have
+    # counted a completed withdrawal as a gap in the ledger.
+    live, withdrawn, silent = [], [], []
+    for oid, res in (((d.get("results") or {}).get("by_outcome")) or {}).items():
+        p = res.get("pooled")
+        if not isinstance(p, dict):
+            continue
+        if p.get("point") is not None:
+            live.append(oid)
+        elif p.get("withdrawn") and (p.get("withdrawn_reason") or "").strip():
+            withdrawn.append(oid)
+        else:
+            silent.append(oid)
+    if silent:
+        return "UNASSESSABLE", [
+            "%d outcome(s) carry no pooled point and no withdrawal reason: %s. "
+            "An absent number that does not say why it is absent is not a "
+            "withholding, it is a gap." % (len(silent), ", ".join(silent[:6]))]
+    if withdrawn and not live:
+        return "D_WITHHELD_WITH_REASON", [
+            "%d outcome(s) withdrawn WITH a stated reason: %s"
+            % (len(withdrawn), ", ".join(withdrawn[:6]))]
+
     if not trials or k is None:
         return "UNASSESSABLE", ["no trials or no pooled result recorded"]
     if k == 1 or len(trials) == 1:
         return "C_NOT_POOLABLE", ["a single trial: there is nothing to pool"]
+
+    # THE DEFECT THAT WITHDREW A LIVE ESTIMATE IS CONSULTED HERE RATHER THAN
+    # RE-IMPLEMENTED. Before this, SGLT2_HF -- four trials, two endpoint
+    # definitions, the object whose pool was withdrawn for exactly that -- came
+    # out of this script as A_POOLABLE_AS_POSED. A gate named `poolability`
+    # returning a clean verdict on the canonical unpoolable object is the
+    # comfortable failure this repository keeps finding, one level up.
+    try:
+        import estimand_definition_gate as _eg
+        _v, _notes = _eg.check(d)
+        if _v == "FAIL":
+            for n in _notes:
+                if "DISAGREE" in n or "NO endpoint definition" in n:
+                    reasons.append("estimand definitions: %s" % n)
+    except Exception as ex:                           # noqa: BLE001
+        reasons.append("the estimand-definition check could not run (%s), so "
+                       "endpoint agreement is UNMEASURED here" % ex)
 
     # multiple declared outcomes is the object saying so itself
     od = est.get("outcome_definition") or ""
@@ -71,7 +120,17 @@ def classify(path):
         reasons.append("the object itself records MULTIPLE trial-declared outcomes, so the "
                        "trials are not reporting one common quantity")
 
-    defs = [(t.get("outcome") or {}).get("definition") or "" for t in trials]
+    # DEFINITIONS, FROM EITHER SCHEMA. This line used to read
+    # `t["outcome"]["definition"]` -- a field only the extraction schema has --
+    # so it reported "N of N trials carry no outcome definition" on every SSOT
+    # object in the repository, whether or not the definitions had been read
+    # from the registry word for word. A complaint that fires on the correct
+    # work and the incorrect work alike distinguishes nothing, and this one
+    # argues for a WITHDRAWAL, which is the expensive direction to be wrong in.
+    defs = []
+    for t in trials:
+        _dfs = _os.definitions_of(t)      # not `d`: that name holds the object
+        defs.append(" ".join(_dfs.values()) if _dfs else "")
     named = [x for x in defs if x]
     h = sum(1 for x in named if HARM.search(x) and not EFF.search(x))
     e = sum(1 for x in named if EFF.search(x) and not HARM.search(x))
@@ -94,30 +153,105 @@ def classify(path):
     return "A_POOLABLE_AS_POSED", ["k=%s, one common outcome, no mixed directions" % k]
 
 
+def selftest() -> int:
+    """A gate that cannot fail reports success without having checked.
+
+    Replayed against real objects, not fixtures: SGLT2_HF records no endpoint
+    definition on any trial and must stay category C; SOTAGLIFLOZIN records one
+    per trial, read from the registry, and must NOT be C for want of a
+    definition. Before 2026-08-17 both came out C for the same wrong reason.
+    """
+    ok = True
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    def _nodef(obj):
+        _v, _why = classify(obj)
+        return any("carry no outcome definition" in w for w in _why)
+
+    for app, label in (("sotagliflozin-hf", "definitions read from the registry"),
+                       ("sglt2-hf", "definitions quoted, and they DISAGREE"),
+                       ("finerenone-cv", "endpoint TITLES quoted from the registry")):
+        p = os.path.join(root, "ssot", app, "%s.json" % app)
+        if not os.path.exists(p):
+            print("  fixture absent: %s -- NOT PROVEN" % app); ok = False; continue
+        n = _nodef(p)
+        ok &= not n
+        print("  NEGATIVE %-17s %-38s complaint: %-5s %s"
+              % (app, label[:38], n, "correct" if not n else "WRONG"))
+
+    # POSITIVE, BY MUTATING A REAL OBJECT rather than authoring a fixture: strip
+    # every recorded definition from SOTAGLIFLOZIN and the complaint must fire.
+    # That state is not hypothetical -- it is what this object looked like this
+    # morning, and what SGLT2_HF looked like when it pooled two endpoints as one.
+    p = os.path.join(root, "ssot", "sotagliflozin-hf", "sotagliflozin-hf.json")
+    if os.path.exists(p):
+        mut = json.loads(open(p, encoding="utf-8").read())
+        for t in mut["inputs"]["trials"]:
+            for bo in (t.get("by_outcome") or {}).values():
+                bo.pop("outcome_definition", None)
+                (bo.get("provenance") or {}).pop("source_quotes", None)
+        n = _nodef(mut)
+        ok &= n
+        print("  POSITIVE %-17s %-38s complaint: %-5s %s"
+              % ("sotagliflozin-hf", "every definition stripped", n,
+                 "correct" if n else "WRONG"))
+    else:
+        print("  fixture absent: sotagliflozin-hf -- NOT PROVEN"); ok = False
+    print("\nWHAT A FAILURE WOULD LOOK LIKE: the no-definition complaint firing on "
+          "an object whose definitions were read word for word, which would argue "
+          "for withdrawing a sound estimate.")
+    print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+    return 0 if ok else 1
+
+
 def main() -> int:
+    if len(sys.argv) < 2 or sys.argv[1] == "--selftest":
+        return selftest()
     paths = sorted(glob.glob(sys.argv[1]))
+    if not paths:
+        print("no object matched %r. NOT RUN -- which is not a pass." % sys.argv[1],
+              file=sys.stderr)
+        return 2
     tot = collections.Counter()
     rows = []
     for p in paths:
         try:
             v, why = classify(p)
-        except Exception:
+        except Exception as ex:                       # noqa: BLE001
+            print("  %-46s COULD NOT BE READ: %s" % (os.path.basename(p)[:46], ex))
+            tot["UNASSESSABLE"] += 1
             continue
         tot[v] += 1
         rows.append((os.path.basename(p).replace(".html.canonical.json", ""), v, why))
     n = sum(tot.values())
     print("topics assessed: %d" % n)
-    for k in ("A_POOLABLE_AS_POSED", "B_POOLABLE_AFTER_ADJUSTMENT", "C_NOT_POOLABLE",
-              "UNASSESSABLE"):
+    for k in ("A_POOLABLE_AS_POSED", "D_WITHHELD_WITH_REASON",
+              "B_POOLABLE_AFTER_ADJUSTMENT", "C_NOT_POOLABLE", "UNASSESSABLE"):
         print("  %-30s %4d  %5.1f%%" % (k, tot[k], 100 * tot[k] / n if n else 0))
     print("\nCATEGORY C -- FOR A HUMAN DECISION, nothing removed by this script:")
     for pg, v, why in rows:
         if v == "C_NOT_POOLABLE":
             print("  %-46s %s" % (pg[:46], why[0][:88]))
-    json.dump([{"page": r[0], "category": r[1], "reasons": r[2]} for r in rows],
-              open(r"F:\E156\outputs\codex-corpus-scan\POOLABILITY.json", "w",
-                   encoding="utf-8"), indent=1)
-    return 0
+    # The dump used to go to a hardcoded absolute path in a DIFFERENT project's
+    # gitignored outputs/ directory. It wrote fine, read back fine, and existed
+    # in no clone -- the durable-artefact failure exactly. It is opt-in now, and
+    # the caller names a path inside a repository.
+    for i, a in enumerate(sys.argv):
+        if a == "--dump" and i + 1 < len(sys.argv):
+            json.dump([{"page": r[0], "category": r[1], "reasons": r[2]} for r in rows],
+                      open(sys.argv[i + 1], "w", encoding="utf-8"), indent=1)
+            print("\ndump written to %s" % sys.argv[i + 1])
+    # THIS SCRIPT USED TO RETURN 0 WHATEVER IT FOUND. v1_coverage_audit maps the
+    # exit code to a property verdict, so poolable_or_withheld could only ever
+    # have read PASS -- a standard property watched by a check with no failure
+    # path. UNASSESSABLE is exit 2 (unmeasured, not a pass); category C is exit 1.
+    if tot["UNASSESSABLE"]:
+        return 2
+    # B IS A FAILURE OF THIS PROPERTY, NOT A SOFTER PASS. B means the question as
+    # posed cannot be pooled and a nearby one can -- so while the live estimate
+    # answers the posed question, `poolable_or_withheld` is not met. Scoring B as
+    # a pass is how SGLT2_HF would have kept its green.
+    return 1 if (tot["C_NOT_POOLABLE"] or tot["B_POOLABLE_AFTER_ADJUSTMENT"]) else 0
 
 
 if __name__ == "__main__":
