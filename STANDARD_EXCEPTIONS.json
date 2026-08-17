@@ -55,8 +55,7 @@
     "VITAMIN_D_FRACTURE_FALL_REVIEW.html",
     "VITILIGO_REVIEW.html"
    ],
-   "status": "FIXED LOCALLY, NOT SHIPPED -- held pending characterisation of the zero_included signal",
-   "held_because": "The crash fix is complete and regression-neutral on these 41, but the gate blocked the push on zero_included naming DIFFERENT pages each run. Shipping a fix verified by an instrument we did not yet trust would have left us unable to say whether it worked. Characterised now -- see zero_included_characterised below -- and awaiting a decision on the gate's settle window."
+   "status": "SHIPPED with declared exception"
   },
   {
    "date": "2026-08-17",
@@ -90,6 +89,7 @@
    "Third-party requests BLOCKED entirely: included still reaches 7. So the settling is NOT caused by third-party success -- it is local timing, and blocking the network makes it FASTER because the fetches fail fast instead of hanging."
   ],
   "so_the_gate_is_not_wrong": "It faithfully reports what the page shows a reader at 2.2 seconds, and a reader who looks in the first few seconds genuinely sees a review with zero included studies. That is a real defect. But it is a DIFFERENT defect from 'this review includes no studies', and the signal name asserts the second.",
-  "recommended": "Three-state verdict: PASS, FAIL, and NONDETERMINISTIC. Measure twice with a settle window; disagreement between the two reads is NONDETERMINISTIC and blocks, because 'we do not know what this page shows a reader' is not a passing state. Do NOT simply lengthen the wait until it goes green -- that hides the reader-facing defect rather than reporting it."
+  "recommended": "Three-state verdict: PASS, FAIL, and NONDETERMINISTIC. Measure twice with a settle window; disagreement between the two reads is NONDETERMINISTIC and blocks, because 'we do not know what this page shows a reader' is not a passing state. Do NOT simply lengthen the wait until it goes green -- that hides the reader-facing defect rather than reporting it.",
+  "resolved": "Signal renamed no_studies_rendered AND repointed at the ANALYSED SET (trials carrying the arm data the pool is computed from) rather than the screening status field. Reading the screening field it fired on 28 of 51 pages that in fact carry 3-5 analysed trials and compute pooled estimates from them. Three verdicts proved on fixtures: no analysed data -> FAIL, data present -> pass, data appearing after 6s -> NONDETERMINISTIC. Both blocking."
  }
 }

@@ -113,8 +113,31 @@ def _assert_server_identity():
 # studies on 2026-08-17 (0 at 2.5s, 0 at 6s, 7 at 12s). Overridable, because a
 # constant tuned on one machine on one day is a guess everywhere else.
 _SETTLE_MS = int(os.environ.get("RM_SETTLE_MS", "10000"))
-_INCL_JS = ('(RapidMeta?.state?.trials||[]).filter(t => '
-            '(t.screenReview?.status || t.status) === "include").length')
+# WHAT THIS COUNTS, AND WHY IT CHANGED (2026-08-17).
+#
+# It counted trials whose SCREENING STATUS is "include". Measured against the
+# correct tree that fired on 28 of 51 pages -- and it was wrong. Those pages
+# carry 4, 5 and 3 ANALYSED trials with data and compute pooled estimates from
+# them (0.96, 7.36); the AUTO generation simply does not mark its analysed set
+# with that status field. I renamed this signal so it would describe what it
+# observes and then left it reading the wrong field, which made it honest about
+# the sampling WINDOW and still dishonest about the SUBJECT. Third instance in
+# one day of a check reporting something other than what it measures, and the
+# only one of the three that was mine.
+#
+# It now counts the ANALYSED SET -- trials carrying the arm data the pool is
+# computed from -- because that is what "this review has studies behind its
+# estimate" actually means to a reader. Screening status is accepted as well,
+# so a page that does mark inclusion that way still counts.
+_INCL_JS = ("""(()=>{const tr=(window.RapidMeta&&RapidMeta.state&&RapidMeta.state.trials)||[];
+  const analysed = tr.filter(t => {
+    const d = t.data || {};
+    const hasCounts = (d.tN != null) || (d.cN != null) || (d.tE != null) || (d.cE != null);
+    const hasEffect = (d.est != null) || (d.point != null) || (t.effect && t.effect.point != null);
+    return hasCounts || hasEffect;
+  }).length;
+  const included = tr.filter(t => (t.screenReview && t.screenReview.status || t.status) === "include").length;
+  return Math.max(analysed, included);})()""")
 # Kept as DATA, per page, not collapsed into a verdict. "12 seconds to render a
 # review's included studies" is a reader-facing fact and its own defect, separate
 # from the sampling question, and we cannot know how many pages are that slow
