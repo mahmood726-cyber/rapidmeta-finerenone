@@ -116,6 +116,16 @@ with sync_playwright() as p:
             _src = (ROOT / (a + ".html")).read_text(encoding="utf-8", errors="replace")
         except Exception:                                    # noqa: BLE001
             _src = ""
+        # A STUB has no engine and no analysis, so BOTH signal sets are inapplicable.
+        # Without this it fell through to the AUTO browser walk and failed on
+        # "ReferenceError: RapidMeta is not defined" -- a page error report about a
+        # page that correctly contains no RapidMeta. Classifying it right was only
+        # half the fix; the caller has to act on the classification.
+        if _src and _ssot.classify(_src) == "STUB":
+            print("  [stub] %s is a redirect/stub: no engine and no analysis, so "
+                  "neither the AUTO nor the SSOT signals apply." % a)
+            signals["fully_ok"].append(a)
+            continue
         if _src and _ssot.classify(_src) == "SSOT":
             _txt = _re2.sub(r"\s+", " ", _re2.sub(r"<[^>]+>", " ", _src))
             _fired = _ssot.run(_src, _txt)
