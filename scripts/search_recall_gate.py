@@ -32,7 +32,11 @@ WHAT A FULL PASS DOES NOT ESTABLISH -- written in advance
 from __future__ import annotations
 import json, sys, io, os
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+# Guarded: reassigning stdout AT IMPORT closes the caller's wrapper and the
+# importer dies on "I/O operation on closed file" at its next print. Same trap
+# already fixed in screen_harness; it was left in every sibling gate.
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 
 def check(record, included_ncts, included_names, corpus_text):

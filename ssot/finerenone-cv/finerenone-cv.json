@@ -1,0 +1,328 @@
+{
+ "app_id": "finerenone-cv",
+ "schema_version": "2-rebuilt-from-source",
+ "source_links_enforced": null,
+ "source_links_enforced_means": "not recorded on the page this object was extracted from",
+ "title": "Finerenone against placebo in chronic kidney disease with type 2 diabetes: the cardiovascular composite, pooled from the two pivotal trials",
+ "question": "In adults with chronic kidney disease and type 2 diabetes, does finerenone reduce the first occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure, against placebo?",
+ "built": "2026-08-17T16:40Z",
+ "_prose_rule": "not recorded on the page this object was extracted from",
+ "_sourcing_rule": "not recorded on the page this object was extracted from",
+ "_estimand_rule": "not recorded on the page this object was extracted from",
+ "build_mode": "REBUILT_FROM_SOURCE",
+ "single_tier_because": "not recorded on the page this object was extracted from",
+ "cited_total": null,
+ "completeness_statement": "not recorded on the page this object was extracted from",
+ "verification_basis": {
+  "what_verifies_this_object": "not recorded on the page this object was extracted from",
+  "what_is_not_claimed": "not recorded on the page this object was extracted from",
+  "families": [],
+  "bar": "not recorded on the page this object was extracted from"
+ },
+ "methodological_authority": {
+  "reference": "not recorded on the page this object was extracted from",
+  "version": "not recorded on the page this object was extracted from",
+  "version_checked_on": "not recorded on the page this object was extracted from",
+  "version_checked_how": "not recorded on the page this object was extracted from",
+  "chapters_as_dated_by_the_publisher": [],
+  "version_note": "not recorded on the page this object was extracted from",
+  "scope_of_this_rule": "not recorded on the page this object was extracted from",
+  "url": "not recorded on the page this object was extracted from",
+  "note": "not recorded on the page this object was extracted from",
+  "sections_relied_on": []
+ },
+ "config": {
+  "model": "random",
+  "method": "DerSimonian-Laird",
+  "scale": "log"
+ },
+ "screening": {
+  "search_note": "not recorded on the page this object was extracted from",
+  "eligibility": "not recorded on the page this object was extracted from",
+  "known_limitation": "not recorded on the page this object was extracted from",
+  "records": [],
+  "excluded": []
+ },
+ "screening_names_unresolved": [],
+ "eligible_but_not_contributing": {
+  "note": "not recorded on the page this object was extracted from",
+  "studies": []
+ },
+ "reconciliation": {
+  "why_this_step_exists": "not recorded on the page this object was extracted from",
+  "clean": null,
+  "clean_because": "not recorded on the page this object was extracted from",
+  "target_source_id": "not recorded on the page this object was extracted from",
+  "access_limitation": "not recorded on the page this object was extracted from",
+  "trial_list_diffs": [],
+  "matches": [],
+  "corrections": [],
+  "unresolved": []
+ },
+ "claims_corrected": [],
+ "scope_decisions": {
+  "SCOPE:three-estimands-never-merged": {
+   "decision": "not recorded on the page this object was extracted from",
+   "sections": [],
+   "conformance": "not recorded on the page this object was extracted from"
+  },
+  "SCOPE:the-label-on-the-quantity-is-not-the-quantity": {
+   "decision": "not recorded on the page this object was extracted from",
+   "sections": [],
+   "conformance": "not recorded on the page this object was extracted from"
+  },
+  "SCOPE:publication-two-component-first-event-composite": {
+   "decision": "not recorded on the page this object was extracted from",
+   "sections": [],
+   "conformance": "not recorded on the page this object was extracted from"
+  },
+  "SCOPE:drug-wide-pivotal-not-heart-failure": {
+   "decision": "not recorded on the page this object was extracted from",
+   "sections": [],
+   "conformance": "not recorded on the page this object was extracted from"
+  },
+  "SCOPE:no-number-needed-to-treat": {
+   "decision": "not recorded on the page this object was extracted from",
+   "sections": [],
+   "conformance": "not recorded on the page this object was extracted from"
+  }
+ },
+ "standard_version": 1,
+ "question_change_record": {
+  "previous_question": "Finerenone across kidney and cardiovascular outcomes, as previously published",
+  "why_not_answerable": "The previous page pooled FIDELIO-DKD's KIDNEY primary (kidney failure, sustained eGFR decline, renal death) with FIGARO-DKD's CARDIOVASCULAR primary, and added FINEARTS-HF, a heart-failure population rather than a CKD one, plus a record whose registry id had been nulled. Those are different questions in different populations and no single estimate answers them.",
+  "what_changed": "Restricted to FIDELIO-DKD and FIGARO-DKD on the CARDIOVASCULAR composite, which is FIGARO's primary outcome and FIDELIO's key secondary, and which both trials define with the same four components.",
+  "stated_before_any_number": true,
+  "supersedes": "the earlier FINERENONE_REVIEW page, archived and not deleted"
+ },
+ "sources": {
+  "REG_FIDELIO": {
+   "layer": "registry",
+   "name": "ClinicalTrials.gov NCT02540993 (FIDELIO-DKD)",
+   "url": "https://clinicaltrials.gov/study/NCT02540993"
+  },
+  "REG_FIGARO": {
+   "layer": "registry",
+   "name": "ClinicalTrials.gov NCT02545049 (FIGARO-DKD)",
+   "url": "https://clinicaltrials.gov/study/NCT02545049"
+  }
+ },
+ "outcomes": [
+  {
+   "id": "cv_composite_first",
+   "name": "First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure",
+   "definition": "The First Occurrence of the Composite Endpoint of Cardiovascular Death, Non Fatal Myocardial Infarction, Non Fatal Stroke, or Hospitalization for Heart Failure.",
+   "definition_note": "Verified word for word against BOTH registry entries. FIDELIO writes 'Non-fatal' and FIGARO 'Non Fatal', and FIGARO's title carries a trailing full stop; the four components, their order and the first-occurrence construction are identical.",
+   "measure": "HR",
+   "effect_scale": "log",
+   "type": "primary",
+   "estimand": {
+    "id": "cv_composite_first",
+    "family": "time_to_first",
+    "model": "proportional hazards"
+   },
+   "comparator": "placebo",
+   "comparator_type": "placebo",
+   "direction_of_benefit": "lower",
+   "null_value": 1
+  }
+ ],
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT02540993",
+    "name": "FIDELIO-DKD",
+    "nct": "NCT02540993",
+    "pmid": "33034526",
+    "design": "phase 3, randomised, double-blind, placebo-controlled, event-driven",
+    "comparator_type": "placebo",
+    "comparator_type_basis": "The registry records the comparator arm as Placebo.",
+    "arms": [
+     {
+      "label": "Finerenone",
+      "role": "treatment",
+      "events": 367,
+      "participants": 2833
+     },
+     {
+      "label": "Placebo",
+      "role": "control",
+      "events": 420,
+      "participants": 2841
+     }
+    ],
+    "by_outcome": {
+     "cv_composite_first": {
+      "effect": {
+       "measure": "HR",
+       "scale": "log",
+       "point": 0.86,
+       "ci_low": 0.747,
+       "ci_high": 0.989,
+       "ci_level": 95,
+       "log_point": -0.15082288973458366,
+       "log_se": 0.07159038347221218,
+       "derived_from": "registry results section",
+       "derivation_note": "Point estimate and interval are READ from the ClinicalTrials.gov results section for this outcome measure. The log point and log standard error are DERIVED here from the printed interval and appear in no source."
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "NCT02540993",
+       "source_quotes": [
+        "The First Occurrence of the Composite Endpoint of Cardiovascular Death, Non-fatal Myocardial Infarction, Non-fatal Stroke, or Hospitalization for Heart Failure"
+       ],
+       "quote_note": "The trial's own outcome-measure title, quoted in full. Read whole and compared whole: FIDELIO writes 'Non-fatal' and FIGARO 'Non Fatal', and a fragment test would have split two identical endpoints or merged two different ones."
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT02540993",
+      "analysed": {
+       "treatment": 2833,
+       "control": 2841
+      },
+      "analysed_scope": "All randomised participants, as posted by the registry.",
+      "role_of_outcome": "key secondary in this trial"
+     }
+    }
+   },
+   {
+    "id": "NCT02545049",
+    "name": "FIGARO-DKD",
+    "nct": "NCT02545049",
+    "pmid": "34449181",
+    "design": "phase 3, randomised, double-blind, placebo-controlled, event-driven",
+    "comparator_type": "placebo",
+    "comparator_type_basis": "The registry records the comparator arm as Placebo.",
+    "arms": [
+     {
+      "label": "Finerenone",
+      "role": "treatment",
+      "events": 458,
+      "participants": 3686
+     },
+     {
+      "label": "Placebo",
+      "role": "control",
+      "events": 519,
+      "participants": 3666
+     }
+    ],
+    "by_outcome": {
+     "cv_composite_first": {
+      "effect": {
+       "measure": "HR",
+       "scale": "log",
+       "point": 0.87,
+       "ci_low": 0.76,
+       "ci_high": 0.98,
+       "ci_level": 95,
+       "log_point": -0.13926206733350766,
+       "log_se": 0.0648568393066422,
+       "derived_from": "registry results section",
+       "derivation_note": "Point estimate and interval are READ from the ClinicalTrials.gov results section for this outcome measure. The log point and log standard error are DERIVED here from the printed interval and appear in no source."
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "NCT02545049",
+       "source_quotes": [
+        "The First Occurrence of the Composite Endpoint of Cardiovascular Death, Non Fatal Myocardial Infarction, Non Fatal Stroke, or Hospitalization for Heart Failure."
+       ],
+       "quote_note": "The trial's own outcome-measure title, quoted in full. Read whole and compared whole: FIDELIO writes 'Non-fatal' and FIGARO 'Non Fatal', and a fragment test would have split two identical endpoints or merged two different ones."
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT02545049",
+      "analysed": {
+       "treatment": 3686,
+       "control": 3666
+      },
+      "analysed_scope": "All randomised participants, as posted by the registry.",
+      "role_of_outcome": "primary in this trial"
+     }
+    }
+   }
+  ]
+ },
+ "results": {
+  "by_outcome": {
+   "cv_composite_first": {
+    "k": 2,
+    "estimand_id": "cv_composite_first",
+    "estimand_id_means": "the pooled first-occurrence CV composite across the two pivotal DKD trials",
+    "model": "random",
+    "estimator": "DerSimonian-Laird",
+    "estimator_used": "DerSimonian-Laird",
+    "handbook": {
+     "decision": "POOL: one common outcome, same four components, same population frame",
+     "sections": [
+      "10.3",
+      "10.10.1"
+     ],
+     "conformance": "Cochrane Handbook 6.5"
+    },
+    "comparator_type": "placebo",
+    "favours": "treatment",
+    "poolable": true,
+    "poolable_reason": "Both trials report the SAME composite with the same four components in the same order, in CKD with type 2 diabetes, against placebo. Q = 0.0143 on 1 df.",
+    "estimand_homogeneous_across_cohorts": true,
+    "pool_uniformity": {
+     "effect_measure": [
+      "identical",
+      "both report a hazard ratio"
+     ],
+     "estimand": [
+      "identical",
+      "verified word for word against both registries"
+     ]
+    },
+    "heterogeneity": {
+     "i2": 0.0,
+     "tau2": 0.0,
+     "q": 0.014322594241649028,
+     "df": 1
+    },
+    "heterogeneity_status": "Q = 0.0143 on 1 df: the two trials agree closely, which is what the same endpoint in one programme should look like.",
+    "grade": null,
+    "cross_engine": null,
+    "sensitivity": null,
+    "single_study_ref": null,
+    "per_trial": [
+     {
+      "trial_id": "NCT02540993",
+      "nct": "NCT02540993",
+      "measure": "HR",
+      "point": 0.86,
+      "ci_low": 0.747,
+      "ci_high": 0.989,
+      "ci_level": 95,
+      "log_point": -0.15082288973458366,
+      "log_se": 0.07159038347221218,
+      "estimand_id": "cv_composite_first",
+      "population": "CKD with type 2 diabetes, mostly higher albuminuria",
+      "derivation": "the hazard ratio as printed in the registry results section"
+     },
+     {
+      "trial_id": "NCT02545049",
+      "nct": "NCT02545049",
+      "measure": "HR",
+      "point": 0.87,
+      "ci_low": 0.76,
+      "ci_high": 0.98,
+      "ci_level": 95,
+      "log_point": -0.13926206733350766,
+      "log_se": 0.0648568393066422,
+      "estimand_id": "cv_composite_first",
+      "population": "CKD with type 2 diabetes, broader eGFR range",
+      "derivation": "the hazard ratio as printed in the registry results section"
+     }
+    ],
+    "pooled": {
+     "measure": "HR",
+     "point": 0.8654779782371014,
+     "ci_low": 0.7876670478566473,
+     "ci_high": 0.950975583975052,
+     "ci_level": 95
+    }
+   }
+  }
+ },
+ "manuscript": null,
+ "risk_of_bias_verdict": null,
+ "carried_contrasts": []
+}
