@@ -230,9 +230,9 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </nav>
 <div class="panels">
   <section class="panel" id="pn-protocol">
-  <p class='toc'><strong>In this section:</strong> Registration and administrative information (PROSPERO field set) &middot; What this object claims to contain</p>
+  <p class='toc'><strong>In this section:</strong> <a href="#protocol-registration-and-administrative-informa">Registration and administrative information (PROSPERO field set)</a> &middot; <a href="#protocol-what-this-object-claims-to-contain">What this object claims to contain</a></p>
 <div class='card'>
-  <h3>Registration and administrative information (PROSPERO field set)</h3>
+  <h3 id="protocol-registration-and-administrative-informa">Registration and administrative information (PROSPERO field set)</h3>
   <div class='tscroll'><table>
     <caption>Table 1. Registration and administrative information (PROSPERO field set)</caption>
 
@@ -240,8 +240,8 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Review question (PICO)</th><td>In adults with heart failure and iron deficiency, what is the effect of intravenous iron compared with placebo or usual care on recurrent hospitalisations for heart failure with and without cardiovascular death, on the time to a first such event, on death from any cause, on a hierarchical composite of death, hospitalisation and walk distance, and on exercise capacity itself -- with each of those questions answered separately?</td></tr>
     <tr><th scope='col'>Background / rationale</th><td><em>Not recorded &mdash; this object holds no background field, and an introduction generated without one would be argument that no source in this review supports</em></td></tr>
     <tr><th scope='col'>Eligibility criteria</th><td>ELIGIBILITY turns on population, intervention, comparator, route and outcome. The population is adults with heart failure and iron deficiency. The intervention is INTRAVENOUS iron as ferric carboxymaltose or ferric derisomaltose. The comparator is placebo OR usual care -- and the second half is load-bearing rather than generous: one contributing trial randomised against usual care, so a placebo-only criterion would exclude it, which is the defect this criterion was written to avoid. The outcome criterion is that the trial designates a CLINICAL-EVENT endpoint, or a registered functional primary that a regulator relies on. The word adjudicated is deliberately absent from this criterion, and the reason is NOT that adjudication is rare here: two contributing trials&#x27; staged sources state it plainly -- one abstract records masked adjudication of the outcomes, and one full text records an independent clinical endpoint committee adjudicating all hospitalisations and deaths. What cannot be shown is that EVERY contributing trial&#x27;s staged sources establish it, so a criterion demanding adjudication would be one this review could not show all its own members satisfy. An earlier version of this sentence said only ONE trial&#x27;s sources state adjudication, which a later correction in this same object contradicted the moment it established the second -- a fix that created its own inconsistency by not sweeping back to the sentences that quantify over the fact it added. NO criterion refers to membership of a list.</td></tr>
-    <tr><th scope='col'>Information sources</th><td>15 source layers, listed on the Extraction tab</td></tr>
-    <tr><th scope='col'>Search strategy</th><td>The executed strings, datetimes, filters and hit counts are on the Search tab</td></tr>
+    <tr><th scope='col'>Information sources</th><td>15 source layers, listed on the <a href="#extract">Extraction tab</a></td></tr>
+    <tr><th scope='col'>Search strategy</th><td>The executed strings, datetimes, filters and hit counts are on the <a href="#search">Search tab</a></td></tr>
     <tr><th scope='col'>Study selection process</th><td>Two independent screeners of different model families, title/abstract then full text, with named human adjudication</td></tr>
     <tr><th scope='col'>Number of screeners</th><td>Two, cross-family. Two instances of one model is one screener run twice and its agreement statistic is meaningless</td></tr>
     <tr><th scope='col'>Data extraction items</th><td>Registry id, primary publication, year, design, population, arms, the analysed denominator and the randomised total SEPARATELY, per-arm event counts, and the published effect with its interval and its stated level</td></tr>
@@ -250,7 +250,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Synthesis methods</th><td>Random effects on the log scale; REML headline; HKSJ reported alongside; leave-one-out and an estimator comparison, all pre-specified before the search</td></tr>
     <tr><th scope='col'>Subgroup analyses</th><td><em>Not recorded &mdash; none pre-specified. At this k any contrast would be underpowered and post hoc, and none will later be presented as though planned</em></td></tr>
     <tr><th scope='col'>Meta-bias assessment</th><td>Funnel, Egger and Peters, each reported as a computed value with the caveat that below about ten studies they have almost no power</td></tr>
-    <tr><th scope='col'>Certainty assessment</th><td>GRADE, all five domains, on the Certainty tab</td></tr>
+    <tr><th scope='col'>Certainty assessment</th><td>GRADE, all five domains, on the <a href="#report">Certainty tab</a></td></tr>
     <tr><th scope='col'>Confidence level</th><td>95%</td></tr>
     <tr><th scope='col'>Funding</th><td><em>Not recorded &mdash; no funding statement is recorded for this review</em></td></tr>
     <tr><th scope='col'>Competing interests</th><td><em>Not recorded &mdash; no declaration is recorded</em></td></tr>
@@ -259,7 +259,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   </table></div>
 </div>
 <div class='card warn'>
-  <h3>What this object claims to contain</h3>
+  <h3 id="protocol-what-this-object-claims-to-contain">What this object claims to contain</h3>
   <p>FULL BUILD, with a stated boundary on the search and with a REDISCOVERY TEST behind it rather than an assertion that a search ran. Every randomised trial the staged search record ENUMERATES -- the trials this review contains, the trials the two prior syntheses name in their own lists, and the ongoing trials at or above the enrolment threshold that record applies -- is either contributing here, or in ONE screening log with the eligibility criterion it fails and the quantity it reports instead, or listed as eligible and not yet reporting. What is NOT claimed, and what an earlier version of this sentence did claim, is a disposition for every hit the class-keyed query returns: that query returns far more records than this object classifies, and the staged record scopes its own enumeration by size rather than silently. A reader who wants the unenumerated tail should read the query in that record and run it. There is exactly ONE source list, `screening.records`; `screening.excluded` is a view COMPUTED from it at build time, row for row, so it cannot say anything the records do not. What this statement does NOT claim is a systematic multi-database search: none was run, the limitation is recorded in the screening block, and SOME of the screened-out records are characterised from a prior synthesis&#x27;s table rather than from the trials&#x27; own reports. How many is deliberately NOT asserted in this sentence: it is COMPUTED from the records at build time into the screening block, and each of those rows says on itself that it rests on that table. An earlier version typed a count here that was wrong by one against the object&#x27;s own array, which is what a prose copy of a countable fact does.</p>
 </div>
   </section>
@@ -267,9 +267,9 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class="absent-state" role="note"><strong>Not held in this object.</strong> No search record is held in this object. The included set was reconciled against published syntheses rather than produced by a database search, so no query, date or yield can be shown. Treat the included set as a convenience sample, not a systematic one.</div>
  </section>
 <!--end-search-->  <section class="panel" id="pn-screen">
-  <p class='toc'><strong>In this section:</strong> FAIR-HF NCT00520780 &middot; EFFECT-HF NCT01394562 &middot; Toblli 2007 &middot; FERRIC-HF 2008 &middot; PRACTICE-ASIA-HF 2018 &middot; Dhoot 2020 &middot; IRON-CRT 2021 &middot; Oral iron protein succinylate NCT03344523</p>
+  <p class='toc'><strong>In this section:</strong> <a href="#screen-fair-hf-nct00520780">FAIR-HF NCT00520780</a> &middot; <a href="#screen-effect-hf-nct01394562">EFFECT-HF NCT01394562</a> &middot; <a href="#screen-toblli-2007">Toblli 2007</a> &middot; <a href="#screen-ferric-hf-2008">FERRIC-HF 2008</a> &middot; <a href="#screen-practice-asia-hf-2018">PRACTICE-ASIA-HF 2018</a> &middot; <a href="#screen-dhoot-2020">Dhoot 2020</a> &middot; <a href="#screen-iron-crt-2021">IRON-CRT 2021</a> &middot; <a href="#screen-oral-iron-protein-succinylate-nct03344523">Oral iron protein succinylate NCT03344523</a></p>
 <div class='card rec'>
-  <h3>FAIR-HF <small>NCT00520780</small></h3>
+  <h3 id="screen-fair-hf-nct00520780">FAIR-HF <small>NCT00520780</small></h3>
   <p><strong>This review's decision: excluded.</strong></p>
   <p>An eligible population and an eligible intervention, excluded on OUTCOME. Its primary endpoints are the self-reported Patient Global Assessment and NYHA functional class at week 24, reported as odds ratios for improvement. Those are the endpoints its own registry record REGISTERS as primary, which is what makes this a disposition about what the trial designated rather than about what it happened to report. It designates no CLINICAL-EVENT endpoint. AN EARLIER VERSION OF THIS ROW WENT FURTHER AND SAID IT CAN CONTRIBUTE TO NONE OF THIS REVIEW&#x27;S ESTIMANDS, WHICH IS FALSE AND WAS THE MOST SUBSTANTIVE THING A GATE LEG FOUND IN THIS OBJECT. This review holds a WALK-DISTANCE estimand, and this trial designates a walk-distance secondary: its registry names exercise tolerance measured by the six-minute walk test among its key secondary efficacy objectives, and its abstract reports a significant improvement on that test. The reason it contributes nothing to that estimand is narrower and is now stated as what it is: the staged abstract prints no between-arm difference, dispersion term or interval for the walk distance, so there is no cell to extract. That is a limit on what the staged source PRINTS, not a claim that the trial did not measure the endpoint.</p>
   <ul><li>outcome_not_this_review&#x27;s</li></ul>
@@ -277,7 +277,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small><a href='https://pubmed.ncbi.nlm.nih.gov/19920054/'>primary_oa: https://pubmed.ncbi.nlm.nih.gov/19920054/</a></small></p>
 </div>
 <div class='card rec'>
-  <h3>EFFECT-HF <small>NCT01394562</small></h3>
+  <h3 id="screen-effect-hf-nct01394562">EFFECT-HF <small>NCT01394562</small></h3>
   <p><strong>This review's decision: excluded.</strong></p>
   <p>Excluded on OUTCOME. Its primary is the change in peak oxygen consumption at 24 weeks, which is also what its registry record REGISTERS as the primary outcome, so the disposition rests on a design fact rather than on what the paper chose to report. Its own conclusion records that the effect on that endpoint &#x27;was highly sensitive to the imputation strategy&#x27;, which is a reason to read the trial carefully and not a reason for exclusion -- the exclusion is that it reports no clinical-event estimate this review holds.</p>
   <ul><li>outcome_not_this_review&#x27;s</li></ul>
@@ -285,7 +285,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small><a href='https://pubmed.ncbi.nlm.nih.gov/28701470/'>primary_oa: https://pubmed.ncbi.nlm.nih.gov/28701470/</a></small></p>
 </div>
 <div class='card rec'>
-  <h3>Toblli 2007 <small></small></h3>
+  <h3 id="screen-toblli-2007">Toblli 2007 <small></small></h3>
   <p><strong>This review's decision: excluded.</strong></p>
   <p>Excluded on INTERVENTION. Graham&#x27;s table records its iron as IRON SUCROSE, which is neither of the two molecules this review&#x27;s intervention criterion names. A randomised total of forty.</p>
   <ul><li>intervention_not_this_review&#x27;s</li></ul>
@@ -293,7 +293,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small><a href='https://pubmed.ncbi.nlm.nih.gov/36823953/'>prior_meta: https://pubmed.ncbi.nlm.nih.gov/36823953/</a></small></p>
 </div>
 <div class='card rec'>
-  <h3>FERRIC-HF 2008 <small></small></h3>
+  <h3 id="screen-ferric-hf-2008">FERRIC-HF 2008 <small></small></h3>
   <p><strong>This review's decision: excluded.</strong></p>
   <p>Excluded on INTERVENTION, on the same basis as Toblli: Graham&#x27;s table records IRON SUCROSE. A randomised total of thirty-five, and not double-blind.</p>
   <ul><li>intervention_not_this_review&#x27;s</li></ul>
@@ -301,7 +301,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small><a href='https://pubmed.ncbi.nlm.nih.gov/36823953/'>prior_meta: https://pubmed.ncbi.nlm.nih.gov/36823953/</a></small></p>
 </div>
 <div class='card rec'>
-  <h3>PRACTICE-ASIA-HF 2018 <small></small></h3>
+  <h3 id="screen-practice-asia-hf-2018">PRACTICE-ASIA-HF 2018 <small></small></h3>
   <p><strong>This review's decision: excluded.</strong></p>
   <p>Excluded on OUTCOME. A randomised total of forty-nine over twelve weeks, which is too short and too small to designate a clinical-event endpoint, and Graham&#x27;s table records no cardiovascular-mortality outcome for it.</p>
   <ul><li>outcome_not_this_review&#x27;s</li></ul>
@@ -309,7 +309,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small><a href='https://pubmed.ncbi.nlm.nih.gov/36823953/'>prior_meta: https://pubmed.ncbi.nlm.nih.gov/36823953/</a></small></p>
 </div>
 <div class='card rec'>
-  <h3>Dhoot 2020 <small></small></h3>
+  <h3 id="screen-dhoot-2020">Dhoot 2020 <small></small></h3>
   <p><strong>This review's decision: excluded.</strong></p>
   <p>Excluded on OUTCOME. A randomised total of seventy over twelve weeks, in an age-restricted population, with no clinical-event endpoint.</p>
   <ul><li>outcome_not_this_review&#x27;s</li></ul>
@@ -317,7 +317,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small><a href='https://pubmed.ncbi.nlm.nih.gov/36823953/'>prior_meta: https://pubmed.ncbi.nlm.nih.gov/36823953/</a></small></p>
 </div>
 <div class='card rec'>
-  <h3>IRON-CRT 2021 <small></small></h3>
+  <h3 id="screen-iron-crt-2021">IRON-CRT 2021 <small></small></h3>
   <p><strong>This review's decision: excluded.</strong></p>
   <p>Excluded on POPULATION and OUTCOME. A randomised total of seventy-five, selected for having had cardiac resynchronisation therapy for more than six months, with a physiological rather than a clinical-event endpoint.</p>
   <ul><li>population_not_this_review&#x27;s</li><li>outcome_not_this_review&#x27;s</li></ul>
@@ -325,7 +325,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small><a href='https://pubmed.ncbi.nlm.nih.gov/36823953/'>prior_meta: https://pubmed.ncbi.nlm.nih.gov/36823953/</a></small></p>
 </div>
 <div class='card rec'>
-  <h3>Oral iron protein succinylate <small>NCT03344523</small></h3>
+  <h3 id="screen-oral-iron-protein-succinylate-nct03344523">Oral iron protein succinylate <small>NCT03344523</small></h3>
   <p><strong>This review's decision: excluded.</strong></p>
   <p>Excluded on ROUTE. An ORAL iron preparation, which fails the intravenous criterion. It is logged because the corrected class-level search returns it -- a search keyed on &#x27;iron&#x27; finds oral trials too, and an exclusion is the honest way to handle that rather than a narrower query that would start dropping intravenous trials again.</p>
   <ul><li>intervention_not_this_review&#x27;s</li></ul>
@@ -334,9 +334,9 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
   </section>
 <!--end-screen-->  <section class="panel" id="pn-extract">
-  <p class='toc'><strong>In this section:</strong> What was measured &middot; What this pool holds constant &middot; Contributing trials &middot; The methods rule governing this decision &middot; Leave-one-out sensitivity &middot; Does the answer depend on the pooling method? &middot; What was measured &middot; What this pool holds constant &middot; Contributing trials &middot; The methods rule governing this decision &middot; Leave-one-out sensitivity &middot; Does the answer depend on the pooling method? &middot; What was measured &middot; What this pool holds constant &middot; Contributing trials &middot; The methods rule governing this decision &middot; Leave-one-out sensitivity &middot; Does the answer depend on the pooling method? &middot; What was measured &middot; What this pool holds constant &middot; Contributing trials &middot; The methods rule governing this decision &middot; Leave-one-out sensitivity &middot; Does the answer depend on the pooling method? &middot; What was measured &middot; Contributing trials &middot; The methods rule governing this decision &middot; Leave-one-out sensitivity &middot; What was measured &middot; Contributing trials &middot; The methods rule governing this decision &middot; Leave-one-out sensitivity</p>
+  <p class='toc'><strong>In this section:</strong> <a href="#extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</a> &middot; <a href="#extract-sources">Sources</a> &middot; <a href="#extract-recurrent-hospitalisations-for-heart-fai">Recurrent hospitalisations for heart failure together with cardiovascular death, as a rate ratio</a> &middot; <a href="#extract-recurrent-hospitalisations-for-heart-fai-2">Recurrent hospitalisations for heart failure together with cardiovascular death, as a rate ratio</a> &middot; <a href="#extract-what-was-measured">What was measured</a> &middot; <a href="#extract-pooled-result">Pooled result</a> &middot; <a href="#extract-what-this-pool-holds-constant">What this pool holds constant</a> &middot; <a href="#extract-contributing-trials">Contributing trials</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision">The methods rule governing this decision</a> &middot; <a href="#extract-leave-one-out-sensitivity">Leave-one-out sensitivity</a> &middot; <a href="#extract-does-the-answer-depend-on-the-pooling-me">Does the answer depend on the pooling method?</a> &middot; <a href="#extract-time-to-a-first-cardiovascular-death-or-">Time to a FIRST cardiovascular death or hospitalisation for heart failure, as a hazard ratio</a> &middot; <a href="#extract-time-to-a-first-cardiovascular-death-or--2">Time to a FIRST cardiovascular death or hospitalisation for heart failure, as a hazard ratio</a> &middot; <a href="#extract-what-was-measured-2">What was measured</a> &middot; <a href="#extract-pooled-result-2">Pooled result</a> &middot; <a href="#extract-what-this-pool-holds-constant-2">What this pool holds constant</a> &middot; <a href="#extract-contributing-trials-2">Contributing trials</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision-2">The methods rule governing this decision</a> &middot; <a href="#extract-leave-one-out-sensitivity-2">Leave-one-out sensitivity</a> &middot; <a href="#extract-does-the-answer-depend-on-the-pooling-me-2">Does the answer depend on the pooling method?</a> &middot; <a href="#extract-recurrent-hospitalisations-for-heart-fai-3">Recurrent hospitalisations for heart failure ALONE, with no death component, as a rate ratio</a> &middot; <a href="#extract-recurrent-hospitalisations-for-heart-fai-4">Recurrent hospitalisations for heart failure ALONE, with no death component, as a rate ratio</a> &middot; <a href="#extract-what-was-measured-3">What was measured</a> &middot; <a href="#extract-pooled-result-3">Pooled result</a> &middot; <a href="#extract-what-this-pool-holds-constant-3">What this pool holds constant</a> &middot; <a href="#extract-contributing-trials-3">Contributing trials</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision-3">The methods rule governing this decision</a> &middot; <a href="#extract-leave-one-out-sensitivity-3">Leave-one-out sensitivity</a> &middot; <a href="#extract-does-the-answer-depend-on-the-pooling-me-3">Does the answer depend on the pooling method?</a> &middot; <a href="#extract-time-to-death-from-any-cause-as-a-hazard">Time to death from ANY cause, as a hazard ratio</a> &middot; <a href="#extract-time-to-death-from-any-cause-as-a-hazard-2">Time to death from ANY cause, as a hazard ratio</a> &middot; <a href="#extract-what-was-measured-4">What was measured</a> &middot; <a href="#extract-pooled-result-4">Pooled result</a> &middot; <a href="#extract-what-this-pool-holds-constant-4">What this pool holds constant</a> &middot; <a href="#extract-contributing-trials-4">Contributing trials</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision-4">The methods rule governing this decision</a> &middot; <a href="#extract-leave-one-out-sensitivity-4">Leave-one-out sensitivity</a> &middot; <a href="#extract-does-the-answer-depend-on-the-pooling-me-4">Does the answer depend on the pooling method?</a> &middot; <a href="#extract-a-hierarchical-composite-of-death-hospit">A hierarchical composite of death, hospitalisations for heart failure and change in walk distance, as an unmatched win ratio</a> &middot; <a href="#extract-a-hierarchical-composite-of-death-hospit-2">A hierarchical composite of death, hospitalisations for heart failure and change in walk distance, as an unmatched win ratio</a> &middot; <a href="#extract-what-was-measured-5">What was measured</a> &middot; <a href="#extract-single-cohort-mdash-no-synthesis">Single cohort &amp;mdash; no synthesis</a> &middot; <a href="#extract-contributing-trials-5">Contributing trials</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision-5">The methods rule governing this decision</a> &middot; <a href="#extract-leave-one-out-sensitivity-5">Leave-one-out sensitivity</a> &middot; <a href="#extract-change-in-six-minute-walk-distance-at-th">Change in six-minute walk distance at the primary timepoint, in metres</a> &middot; <a href="#extract-change-in-six-minute-walk-distance-at-th-2">Change in six-minute walk distance at the primary timepoint, in metres</a> &middot; <a href="#extract-what-was-measured-6">What was measured</a> &middot; <a href="#extract-single-cohort-mdash-no-synthesis-2">Single cohort &amp;mdash; no synthesis</a> &middot; <a href="#extract-contributing-trials-6">Contributing trials</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision-6">The methods rule governing this decision</a> &middot; <a href="#extract-leave-one-out-sensitivity-6">Leave-one-out sensitivity</a></p>
 <div class='card'>
-  <h2>Extracted values, and where each came from</h2>
+  <h2 id="extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</h2>
   <p>One row per extracted value. Every row carries the value, the verbatim sentence it was read from, a resolvable link to the source, and whether the number was read or derived. Where any of those is absent the row says so rather than omitting the value.</p>
   <div class='tscroll'><table>
     <caption>Table 2. Extracted values, and where each came from</caption>
@@ -356,12 +356,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><td>FAIR-HF2<br><small>hfh_cvd_first</small></td><td><strong>HR 0.79</strong> (95% CI 0.63 to 0.99)</td><td><blockquote><small>&ldquo;cardiovascular death or first heart failure hospitalization (first primary outcome) occurred in 141 in the ferric carboxymaltose group vs 166 in the placebo group (hazard ratio, 0.79 [95% CI, 0.63-0.99]; P = .04)&rdquo;</small></blockquote><blockquote><small>&ldquo;The end points would be considered statistically significant if they fulfilled at least 1 of the following conditions: (1) P ≤ .05 for all 3 of the end point comparisons, (2) P ≤ .025 for 2 of the end point comparisons, or (3) P ≤ .0167 for any of the 3 end point comparisons (Hochberg procedure).&rdquo;</small></blockquote></td><td><a href='https://clinicaltrials.gov/study/NCT03036462' rel='noopener'>NCT03036462</a> &middot; PMID <a href='https://pubmed.ncbi.nlm.nih.gov/40159390/' rel='noopener'>40159390</a> &middot; <a href='https://pubmed.ncbi.nlm.nih.gov/40159390/' rel='noopener'>source</a> &middot; <a href='https://pubmed.ncbi.nlm.nih.gov/40159390/' rel='noopener'>primary_oa</a></td><td><strong>READ</strong> from the source as printed<br><small>The point estimate and interval are stored as the source prints them, at the interval level the source prints them at. The log point and the log standard error are DERIVED here, the standard error from the width of the printed interval on the log scale using the multiplier that belongs to that interval&#x27;s own level, and neither is claimed to appear in any source.</small></td></tr>
     <tr><td>FAIR-HF2<br><small>hfh_recurrent</small></td><td><strong>RATE_RATIO 0.8</strong> (95% CI 0.6 to 1.06)</td><td><blockquote><small>&ldquo;The second primary outcome (total heart failure hospitalizations) occurred 264 times in the ferric carboxymaltose group vs 320 times in the placebo group (rate ratio, 0.80 [95% CI, 0.60-1.06]; P = .12).&rdquo;</small></blockquote></td><td><a href='https://clinicaltrials.gov/study/NCT03036462' rel='noopener'>NCT03036462</a> &middot; PMID <a href='https://pubmed.ncbi.nlm.nih.gov/40159390/' rel='noopener'>40159390</a> &middot; <a href='https://pubmed.ncbi.nlm.nih.gov/40159390/' rel='noopener'>source</a> &middot; <a href='https://pubmed.ncbi.nlm.nih.gov/40159390/' rel='noopener'>primary_oa</a></td><td><strong>READ</strong> from the source as printed<br><small>The point estimate and interval are stored as the source prints them, at the interval level the source prints them at. The log point and the log standard error are DERIVED here, the standard error from the width of the printed interval on the log scale using the multiplier that belongs to that interval&#x27;s own level, and neither is claimed to appear in any source.</small></td></tr>
     <tr><td>HEART-FID<br><small>hierarchical_primary</small></td><td><strong>WIN_RATIO 1.1</strong> (99% CI 0.99 to 1.23)</td><td><blockquote><small>&ldquo;The primary outcome was a hierarchical composite of death within 12 months after randomization, hospitalizations for heart failure within 12 months after randomization, or change from baseline to 6 months in the 6-minute walk distance. The significance level was set at 0.01.&rdquo;</small></blockquote><blockquote><small>&ldquo;(Wilcoxon-Mann-Whitney P = 0.02; unmatched win ratio, 1.10; 99% confidence interval, 0.99 to 1.23)&rdquo;</small></blockquote></td><td><a href='https://clinicaltrials.gov/study/NCT03037931' rel='noopener'>NCT03037931</a> &middot; PMID <a href='https://pubmed.ncbi.nlm.nih.gov/37632463/' rel='noopener'>37632463</a> &middot; <a href='https://pubmed.ncbi.nlm.nih.gov/37632463/' rel='noopener'>source</a> &middot; <a href='https://pubmed.ncbi.nlm.nih.gov/37632463/' rel='noopener'>primary_oa</a></td><td><strong>READ</strong> from the source as printed<br><small>The point estimate and interval are stored as the source prints them, at the interval level the source prints them at. The log point and the log standard error are DERIVED here, the standard error from the width of the printed interval on the log scale using the multiplier that belongs to that interval&#x27;s own level, and neither is claimed to appear in any source.</small></td></tr>
-    <tr><td>CONFIRM-HF<br><small>acm</small></td><td><strong>HR 0.89</strong> (95% CI 0.41 to 1.93)</td><td><blockquote><small>&ldquo;Table 2 Hospitalizations and deaths (full-analysis set) End-point or event FCM ( n = 150) Placebo ( n = 151)&rdquo;</small></blockquote><blockquote><small>&ldquo;Death 12 12 (8.9) 14 14 (9.9) 0.89 (0.41– 1.93) 0.77&rdquo;</small></blockquote></td><td><a href='https://clinicaltrials.gov/study/NCT01453608' rel='noopener'>NCT01453608</a> &middot; PMID <a href='https://pubmed.ncbi.nlm.nih.gov/25176939/' rel='noopener'>25176939</a> &middot; <a href='https://pubmed.ncbi.nlm.nih.gov/25176939/' rel='noopener'>source</a> &middot; <a href='https://pubmed.ncbi.nlm.nih.gov/25176939/' rel='noopener'>primary_oa</a></td><td><strong>READ</strong> from the source as printed<br><small>The point estimate and interval are stored as the source prints them, at the interval level the source prints them at. The log point and the log standard error are DERIVED here, the standard error from the width of the printed interval on the log scale using the multiplier that belongs to that interval&#x27;s own level, and neither is claimed to appear in any source.</small></td></tr>
+    <tr><td>CONFIRM-HF<br><small>acm</small></td><td><strong>HR 0.89</strong> (95% CI 0.41 to 1.93)</td><td><blockquote><small>&ldquo;Table 2 Hospitalizations and deaths (full-analysis set) End-point or event FCM ( n = 150) Placebo ( n = 151)&rdquo;</small></blockquote><blockquote><small>&ldquo;Death 12 12 (8.9) 14 14 (9.9) 0.89 (0.41– 1.93) 0.77&rdquo;</small></blockquote><blockquote><small>&ldquo;Table 2 Hospitalizations and deaths (full-analysis set) -- column header: End-point or event | FCM (n = 150) Total number of events | Incidence/100 patient-years at risk | Placebo (n = 151) Total number of events | Incidence/100 patient-years at risk | TIME TO FIRST EVENT HAZARD RATIO | 95% CI | P-value&rdquo;</small></blockquote></td><td><a href='https://clinicaltrials.gov/study/NCT01453608' rel='noopener'>NCT01453608</a> &middot; PMID <a href='https://pubmed.ncbi.nlm.nih.gov/25176939/' rel='noopener'>25176939</a> &middot; <a href='https://pubmed.ncbi.nlm.nih.gov/25176939/' rel='noopener'>source</a> &middot; <a href='https://pubmed.ncbi.nlm.nih.gov/25176939/' rel='noopener'>primary_oa</a></td><td><strong>READ</strong> from the source as printed<br><small>The point estimate and interval are stored as the source prints them, at the interval level the source prints them at. The log point and the log standard error are DERIVED here, the standard error from the width of the printed interval on the log scale using the multiplier that belongs to that interval&#x27;s own level, and neither is claimed to appear in any source.</small></td></tr>
     <tr><td>CONFIRM-HF<br><small>six_min_walk_24w</small></td><td><strong>MD 33</strong> (95% CI 11.4 to 54.6)</td><td><blockquote><small>&ldquo;The primary end-point was the change in 6-min-walk-test (6MWT) distance from baseline to Week 24.&rdquo;</small></blockquote><blockquote><small>&ldquo;Treatment with FCM significantly prolonged 6MWT distance at Week 24 (difference FCM vs. placebo: 33 ± 11 m, P = 0.002)&rdquo;</small></blockquote></td><td><a href='https://clinicaltrials.gov/study/NCT01453608' rel='noopener'>NCT01453608</a> &middot; PMID <a href='https://pubmed.ncbi.nlm.nih.gov/25176939/' rel='noopener'>25176939</a> &middot; <a href='https://pubmed.ncbi.nlm.nih.gov/25176939/' rel='noopener'>source</a> &middot; <a href='https://pubmed.ncbi.nlm.nih.gov/25176939/' rel='noopener'>primary_oa</a> &middot; <a href='https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/203565s027lbl.pdf' rel='noopener'>regulator_fda</a></td><td><strong>READ</strong> from the source as printed<br><small>The point estimate and the dispersion term are stored as the source prints them. The source prints NO confidence interval for this quantity, so the interval on this row is COMPUTED here from the printed standard error and is not claimed to appear in any document. That the printed term is a standard error rather than a standard deviation was checked rather than assumed: the ratio of the difference to it, read against a normal distribution, reproduces the p value the source prints beside it, which a standard deviation on this sample size would not.</small></td></tr>
   </table></div>
 </div>
 <div class='card'>
-  <h2>Sources</h2>
+  <h2 id="extract-sources">Sources</h2>
   <div class='tscroll'><table>
     <caption>Table 3. Sources</caption>
 
@@ -383,11 +383,11 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><td>Registry: posted protocol and statistical analysis plan</td><td>HEART-FID protocol and statistical analysis plan, version 1.3<br><small>https://clinicaltrials.gov/study/NCT03037931</small></td><td><small>Staged as text and read. It is the ONLY layer that settles why an interval on this trial&#x27;s top secondary endpoint would be a 96% interval, and it settles it by prespecification rather than by inference. It carries no results.</small></td></tr>
   </table></div>
 </div>
-<h2>Recurrent hospitalisations for heart failure together with cardiovascular death, as a rate ratio</h2>
+<h2 id="extract-recurrent-hospitalisations-for-heart-fai">Recurrent hospitalisations for heart failure together with cardiovascular death, as a rate ratio</h2>
 <section>
-<h2>Recurrent hospitalisations for heart failure together with cardiovascular death, as a rate ratio</h2>
+<h2 id="extract-recurrent-hospitalisations-for-heart-fai-2">Recurrent hospitalisations for heart failure together with cardiovascular death, as a rate ratio</h2>
 <div class='card'>
-  <h3>What was measured</h3>
+  <h3 id="extract-what-was-measured">What was measured</h3>
   <div class='tscroll'><table>
     <caption>Table 4. What was measured</caption>
 
@@ -401,13 +401,13 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   </table></div>
 </div>
 <div class='card'>
-  <h2>Pooled result</h2>
+  <h2 id="extract-pooled-result">Pooled result</h2>
   <p class='num'>RATE_RATIO 0.8066 (0.6856 to 0.9488), 95% interval</p>
   <p>Recurrent hospitalisations for heart failure together with cardiovascular death, as a rate ratio. random, estimator REML, k = 2.</p>
   <p><small>&tau;&sup2; 0 &middot; I&sup2; 0% &middot; Q 0.0499 on 1 df</small></p>
   <p><strong>Favours: the intervention (lower is better)</strong></p>
   <p><small>Computed from Q and its single degree of freedom. With TWO trials this statistic has almost no power to detect heterogeneity, so a low value is consistent both with agreement and with not being able to tell, and it is reported with that caveat rather than as reassurance. What the statistic cannot see at all are the dimensions the uniformity table records, because those are differences in the question each trial answered rather than in its answer.</small></p>
-  <h3>What this pool holds constant</h3>
+  <h3 id="extract-what-this-pool-holds-constant">What this pool holds constant</h3>
   <div class='tscroll'><table>
     <caption>Table 5. What this pool holds constant</caption>
 
@@ -426,7 +426,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
 
 <div class="card">
-  <h3>Contributing trials</h3>
+  <h3 id="extract-contributing-trials">Contributing trials</h3>
   <div class='tscroll'><table>
     <caption>Table 6. Contributing trials</caption>
 
@@ -439,13 +439,13 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>The contributing trials share no participant and no control group.</small></p>
 </div>
 <div class='card'>
-  <h3>The methods rule governing this decision</h3>
+  <h3 id="extract-the-methods-rule-governing-this-decision">The methods rule governing this decision</h3>
   <p><strong>Decision:</strong> POOL the trials that report THIS estimand in THIS form, and combine the result with no other estimand in this object</p>
   <p><strong>Cochrane Handbook sections:</strong> 3.2.1, 3.2.2, 3.2.3, 3.2.4, 10.3, 10.8, 10.10.1, 10.10.2, 10.10.4, 10.10.4.4, 10.10.4.5, 10.14</p>
   <p>Sections 3.2.1, 3.2.2 and 3.2.3 fix the axes on which ELIGIBILITY turns -- population, intervention and comparator -- and every screening decision names which of them it falls on, which is why the screening log has a criterion column rather than a verdict column. Section 3.2.4 is cited for the caution it gives AGAINST making eligibility depend on which outcomes a study reported, AND because this review must be honest that it applies an outcome criterion at eligibility anyway: most of its screened-out records fail on that axis. The distinction the review rests on, and which a reader is entitled to reject, is between what a trial REPORTED and what it DESIGNATED. The caution is about letting selective reporting decide membership; the criterion here turns on the endpoint each trial REGISTERED as its primary before any result existed. That is checkable for the screened trials whose registry records are staged -- one registered a self-reported global assessment and functional class, the other a change in peak oxygen consumption -- and it is NOT checkable for those characterised from a prior synthesis&#x27;s table, whose rows say so on themselves. The object carries six outcomes rather than admitting only the trials that report one of them, and no trial is screened out for reporting a quantity in the wrong FORM. What this review DOES do, and an earlier version of this passage denied it, is exclude a trial that designates an endpoint this review holds but publishes no extractable estimate of it: the screened trial with a registered walk-distance secondary is out on the clinical-event criterion while the review carries a walk-distance estimand. That is a stricter rule than 3.2.4 requires, it is the review&#x27;s own, and it is declared here rather than dressed as the Handbook&#x27;s. Its cost is visible on the row, which quotes what that trial reports. Section 10.3 gives the METHOD by which every pool in this object is computed: log ratios combined by generic inverse variance. What licenses the refusal to combine ACROSS the estimands is that they fall under DIFFERENT sections -- a rate over recurrent events is governed by 10.8, on counts and rates, while a time-to-first analysis is governed by 10.9, and a mean difference in metres is governed by 10.5.2 and shares no scale with either. Section 10.10.1 distinguishes clinical and methodological DIVERSITY from statistical heterogeneity, which is why the uniformity table sits beside the statistic rather than being replaced by it: at two trials the statistic is nearly powerless, and the things these trials differ on are things it cannot see. Section 10.10.4 governs the model and the between-study variance estimator, 10.10.4.4 records restricted maximum likelihood as the current default, and 10.10.4.5 is why a more conservative interval is reported beside the ordinary one at this number of studies. Section 10.14 is the authority for the sensitivity analyses.</p>
 </div>
 <div class='card'>
-  <h3>Leave-one-out sensitivity</h3>
+  <h3 id="extract-leave-one-out-sensitivity">Leave-one-out sensitivity</h3>
   <p>Whether the pooled estimate depends on either single trial, and whether it depends on the choice of between-study variance estimator and interval method.</p>
   <div class='tscroll'><table>
     <caption>Table 7. Leave-one-out sensitivity</caption>
@@ -456,7 +456,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   </table></div>
   <p><strong>With two trials a leave-one-out fit IS the other trial, and this table says so rather than presenting single-trial rows as though they were pooled sensitivity results. Read it as what it is: the two contributing trials&#x27; own estimates side by side, each with the interval it carries alone.</strong></p>
   <p><small>Cochrane Handbook version 6.5.1, section 10.14 for sensitivity analyses generally. Section 10.10.4.4 governs the estimator half: it records that methods other than DerSimonian and Laird estimate the between-study variance better and that restricted maximum likelihood is the current default. Section 10.10.4.5 is cited for the INTERVAL comparison and not for the estimator comparison; it concerns interpretation with few studies and the method it compares is the confidence interval.</small></p>
-  <h3>Does the answer depend on the pooling method?</h3>
+  <h3 id="extract-does-the-answer-depend-on-the-pooling-me">Does the answer depend on the pooling method?</h3>
   <p>Section 10.10.4.4 records restricted maximum likelihood as the current default and that estimators other than DerSimonian and Laird perform better; that is the whole of the authority for running this comparison. Nothing in the Handbook instructs a review to run it at a particular number of studies, and running it here is a choice made under section 10.14 because with two trials the choice is plausibly influential.</p>
   <div class='tscroll'><table>
     <caption>Table 8. Does the answer depend on the pooling method?</caption>
@@ -471,11 +471,11 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Restricted maximum likelihood with the ordinary interval, because section 10.10.4.4 records it as the current default and as a better estimator than DerSimonian and Laird. The Hartung-Knapp-Sidik-Jonkman interval is reported beside it with the floor on its scale factor applied, so it can widen the ordinary interval and can never come out narrower than it. It is NOT presented as the interval to prefer: section 10.10.4.5 says the opposite is possible, that with only two or three studies such intervals can be EXCESSIVELY WIDE and an ordinary interval may be preferable, and it asks for the comparison rather than for a winner.</small></p>
 </div>
 </section>
-<h2>Time to a FIRST cardiovascular death or hospitalisation for heart failure, as a hazard ratio</h2>
+<h2 id="extract-time-to-a-first-cardiovascular-death-or-">Time to a FIRST cardiovascular death or hospitalisation for heart failure, as a hazard ratio</h2>
 <section>
-<h2>Time to a FIRST cardiovascular death or hospitalisation for heart failure, as a hazard ratio</h2>
+<h2 id="extract-time-to-a-first-cardiovascular-death-or--2">Time to a FIRST cardiovascular death or hospitalisation for heart failure, as a hazard ratio</h2>
 <div class='card'>
-  <h3>What was measured</h3>
+  <h3 id="extract-what-was-measured-2">What was measured</h3>
   <div class='tscroll'><table>
     <caption>Table 9. What was measured</caption>
 
@@ -489,13 +489,13 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   </table></div>
 </div>
 <div class='card'>
-  <h2>Pooled result</h2>
+  <h2 id="extract-pooled-result-2">Pooled result</h2>
   <p class='num'>HR 0.7957 (0.6857 to 0.9233), 95% interval</p>
   <p>Time to a FIRST cardiovascular death or hospitalisation for heart failure, as a hazard ratio. random, estimator REML, k = 2.</p>
   <p><small>&tau;&sup2; 0 &middot; I&sup2; 0% &middot; Q 0.0067 on 1 df</small></p>
   <p><strong>Favours: the intervention (lower is better)</strong></p>
   <p><small>Computed from Q and its single degree of freedom. With TWO trials this statistic has almost no power to detect heterogeneity, so a low value is consistent both with agreement and with not being able to tell, and it is reported with that caveat rather than as reassurance. What the statistic cannot see at all are the dimensions the uniformity table records, because those are differences in the question each trial answered rather than in its answer.</small></p>
-  <h3>What this pool holds constant</h3>
+  <h3 id="extract-what-this-pool-holds-constant-2">What this pool holds constant</h3>
   <div class='tscroll'><table>
     <caption>Table 10. What this pool holds constant</caption>
 
@@ -515,7 +515,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
 
 <div class="card">
-  <h3>Contributing trials</h3>
+  <h3 id="extract-contributing-trials-2">Contributing trials</h3>
   <div class='tscroll'><table>
     <caption>Table 11. Contributing trials</caption>
 
@@ -528,13 +528,13 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>The contributing trials share no participant and no control group.</small></p>
 </div>
 <div class='card'>
-  <h3>The methods rule governing this decision</h3>
+  <h3 id="extract-the-methods-rule-governing-this-decision-2">The methods rule governing this decision</h3>
   <p><strong>Decision:</strong> POOL the trials that report THIS estimand in THIS form, and combine the result with no other estimand in this object</p>
   <p><strong>Cochrane Handbook sections:</strong> 3.2.1, 3.2.2, 3.2.3, 3.2.4, 10.3, 10.9, 10.10.1, 10.10.2, 10.10.4, 10.10.4.4, 10.10.4.5, 10.14</p>
   <p>Sections 3.2.1, 3.2.2 and 3.2.3 fix the axes on which ELIGIBILITY turns -- population, intervention and comparator -- and every screening decision names which of them it falls on, which is why the screening log has a criterion column rather than a verdict column. Section 3.2.4 is cited for the caution it gives AGAINST making eligibility depend on which outcomes a study reported, AND because this review must be honest that it applies an outcome criterion at eligibility anyway: most of its screened-out records fail on that axis. The distinction the review rests on, and which a reader is entitled to reject, is between what a trial REPORTED and what it DESIGNATED. The caution is about letting selective reporting decide membership; the criterion here turns on the endpoint each trial REGISTERED as its primary before any result existed. That is checkable for the screened trials whose registry records are staged -- one registered a self-reported global assessment and functional class, the other a change in peak oxygen consumption -- and it is NOT checkable for those characterised from a prior synthesis&#x27;s table, whose rows say so on themselves. The object carries six outcomes rather than admitting only the trials that report one of them, and no trial is screened out for reporting a quantity in the wrong FORM. What this review DOES do, and an earlier version of this passage denied it, is exclude a trial that designates an endpoint this review holds but publishes no extractable estimate of it: the screened trial with a registered walk-distance secondary is out on the clinical-event criterion while the review carries a walk-distance estimand. That is a stricter rule than 3.2.4 requires, it is the review&#x27;s own, and it is declared here rather than dressed as the Handbook&#x27;s. Its cost is visible on the row, which quotes what that trial reports. Section 10.3 gives the METHOD by which every pool in this object is computed: log ratios combined by generic inverse variance. What licenses the refusal to combine ACROSS the estimands is that they fall under DIFFERENT sections -- a rate over recurrent events is governed by 10.8, on counts and rates, while a time-to-first analysis is governed by 10.9, and a mean difference in metres is governed by 10.5.2 and shares no scale with either. Section 10.10.1 distinguishes clinical and methodological DIVERSITY from statistical heterogeneity, which is why the uniformity table sits beside the statistic rather than being replaced by it: at two trials the statistic is nearly powerless, and the things these trials differ on are things it cannot see. Section 10.10.4 governs the model and the between-study variance estimator, 10.10.4.4 records restricted maximum likelihood as the current default, and 10.10.4.5 is why a more conservative interval is reported beside the ordinary one at this number of studies. Section 10.14 is the authority for the sensitivity analyses.</p>
 </div>
 <div class='card'>
-  <h3>Leave-one-out sensitivity</h3>
+  <h3 id="extract-leave-one-out-sensitivity-2">Leave-one-out sensitivity</h3>
   <p>Whether the pooled estimate depends on either single trial, and whether it depends on the choice of between-study variance estimator and interval method.</p>
   <div class='tscroll'><table>
     <caption>Table 12. Leave-one-out sensitivity</caption>
@@ -545,7 +545,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   </table></div>
   <p><strong>With two trials a leave-one-out fit IS the other trial, and this table says so rather than presenting single-trial rows as though they were pooled sensitivity results. Read it as what it is: the two contributing trials&#x27; own estimates side by side, each with the interval it carries alone.</strong></p>
   <p><small>Cochrane Handbook version 6.5.1, section 10.14 for sensitivity analyses generally. Section 10.10.4.4 governs the estimator half: it records that methods other than DerSimonian and Laird estimate the between-study variance better and that restricted maximum likelihood is the current default. Section 10.10.4.5 is cited for the INTERVAL comparison and not for the estimator comparison; it concerns interpretation with few studies and the method it compares is the confidence interval.</small></p>
-  <h3>Does the answer depend on the pooling method?</h3>
+  <h3 id="extract-does-the-answer-depend-on-the-pooling-me-2">Does the answer depend on the pooling method?</h3>
   <p>Section 10.10.4.4 records restricted maximum likelihood as the current default and that estimators other than DerSimonian and Laird perform better; that is the whole of the authority for running this comparison. Nothing in the Handbook instructs a review to run it at a particular number of studies, and running it here is a choice made under section 10.14 because with two trials the choice is plausibly influential.</p>
   <div class='tscroll'><table>
     <caption>Table 13. Does the answer depend on the pooling method?</caption>
@@ -560,11 +560,11 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Restricted maximum likelihood with the ordinary interval, because section 10.10.4.4 records it as the current default and as a better estimator than DerSimonian and Laird. The Hartung-Knapp-Sidik-Jonkman interval is reported beside it with the floor on its scale factor applied, so it can widen the ordinary interval and can never come out narrower than it. It is NOT presented as the interval to prefer: section 10.10.4.5 says the opposite is possible, that with only two or three studies such intervals can be EXCESSIVELY WIDE and an ordinary interval may be preferable, and it asks for the comparison rather than for a winner.</small></p>
 </div>
 </section>
-<h2>Recurrent hospitalisations for heart failure ALONE, with no death component, as a rate ratio</h2>
+<h2 id="extract-recurrent-hospitalisations-for-heart-fai-3">Recurrent hospitalisations for heart failure ALONE, with no death component, as a rate ratio</h2>
 <section>
-<h2>Recurrent hospitalisations for heart failure ALONE, with no death component, as a rate ratio</h2>
+<h2 id="extract-recurrent-hospitalisations-for-heart-fai-4">Recurrent hospitalisations for heart failure ALONE, with no death component, as a rate ratio</h2>
 <div class='card'>
-  <h3>What was measured</h3>
+  <h3 id="extract-what-was-measured-3">What was measured</h3>
   <div class='tscroll'><table>
     <caption>Table 14. What was measured</caption>
 
@@ -578,13 +578,13 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   </table></div>
 </div>
 <div class='card'>
-  <h2>Pooled result</h2>
+  <h2 id="extract-pooled-result-3">Pooled result</h2>
   <p class='num'>RATE_RATIO 0.7645 (0.636 to 0.9191), 95% interval</p>
   <p>Recurrent hospitalisations for heart failure ALONE, with no death component, as a rate ratio. random, estimator REML, k = 2.</p>
   <p><small>&tau;&sup2; 0 &middot; I&sup2; 0% &middot; Q 0.1677 on 1 df</small></p>
   <p><strong>Favours: the intervention (lower is better)</strong></p>
   <p><small>Computed from Q and its single degree of freedom. With TWO trials this statistic has almost no power to detect heterogeneity, so a low value is consistent both with agreement and with not being able to tell, and it is reported with that caveat rather than as reassurance. What the statistic cannot see at all are the dimensions the uniformity table records, because those are differences in the question each trial answered rather than in its answer.</small></p>
-  <h3>What this pool holds constant</h3>
+  <h3 id="extract-what-this-pool-holds-constant-3">What this pool holds constant</h3>
   <div class='tscroll'><table>
     <caption>Table 15. What this pool holds constant</caption>
 
@@ -604,7 +604,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
 
 <div class="card">
-  <h3>Contributing trials</h3>
+  <h3 id="extract-contributing-trials-3">Contributing trials</h3>
   <div class='tscroll'><table>
     <caption>Table 16. Contributing trials</caption>
 
@@ -617,13 +617,13 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>The contributing trials share no participant and no control group.</small></p>
 </div>
 <div class='card'>
-  <h3>The methods rule governing this decision</h3>
+  <h3 id="extract-the-methods-rule-governing-this-decision-3">The methods rule governing this decision</h3>
   <p><strong>Decision:</strong> POOL the trials that report THIS estimand in THIS form, and combine the result with no other estimand in this object</p>
   <p><strong>Cochrane Handbook sections:</strong> 3.2.1, 3.2.2, 3.2.3, 3.2.4, 10.3, 10.8, 10.10.1, 10.10.2, 10.10.4, 10.10.4.4, 10.10.4.5, 10.14</p>
   <p>Sections 3.2.1, 3.2.2 and 3.2.3 fix the axes on which ELIGIBILITY turns -- population, intervention and comparator -- and every screening decision names which of them it falls on, which is why the screening log has a criterion column rather than a verdict column. Section 3.2.4 is cited for the caution it gives AGAINST making eligibility depend on which outcomes a study reported, AND because this review must be honest that it applies an outcome criterion at eligibility anyway: most of its screened-out records fail on that axis. The distinction the review rests on, and which a reader is entitled to reject, is between what a trial REPORTED and what it DESIGNATED. The caution is about letting selective reporting decide membership; the criterion here turns on the endpoint each trial REGISTERED as its primary before any result existed. That is checkable for the screened trials whose registry records are staged -- one registered a self-reported global assessment and functional class, the other a change in peak oxygen consumption -- and it is NOT checkable for those characterised from a prior synthesis&#x27;s table, whose rows say so on themselves. The object carries six outcomes rather than admitting only the trials that report one of them, and no trial is screened out for reporting a quantity in the wrong FORM. What this review DOES do, and an earlier version of this passage denied it, is exclude a trial that designates an endpoint this review holds but publishes no extractable estimate of it: the screened trial with a registered walk-distance secondary is out on the clinical-event criterion while the review carries a walk-distance estimand. That is a stricter rule than 3.2.4 requires, it is the review&#x27;s own, and it is declared here rather than dressed as the Handbook&#x27;s. Its cost is visible on the row, which quotes what that trial reports. Section 10.3 gives the METHOD by which every pool in this object is computed: log ratios combined by generic inverse variance. What licenses the refusal to combine ACROSS the estimands is that they fall under DIFFERENT sections -- a rate over recurrent events is governed by 10.8, on counts and rates, while a time-to-first analysis is governed by 10.9, and a mean difference in metres is governed by 10.5.2 and shares no scale with either. Section 10.10.1 distinguishes clinical and methodological DIVERSITY from statistical heterogeneity, which is why the uniformity table sits beside the statistic rather than being replaced by it: at two trials the statistic is nearly powerless, and the things these trials differ on are things it cannot see. Section 10.10.4 governs the model and the between-study variance estimator, 10.10.4.4 records restricted maximum likelihood as the current default, and 10.10.4.5 is why a more conservative interval is reported beside the ordinary one at this number of studies. Section 10.14 is the authority for the sensitivity analyses.</p>
 </div>
 <div class='card'>
-  <h3>Leave-one-out sensitivity</h3>
+  <h3 id="extract-leave-one-out-sensitivity-3">Leave-one-out sensitivity</h3>
   <p>Whether the pooled estimate depends on either single trial, and whether it depends on the choice of between-study variance estimator and interval method.</p>
   <div class='tscroll'><table>
     <caption>Table 17. Leave-one-out sensitivity</caption>
@@ -634,7 +634,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   </table></div>
   <p><strong>With two trials a leave-one-out fit IS the other trial, and this table says so rather than presenting single-trial rows as though they were pooled sensitivity results. Read it as what it is: the two contributing trials&#x27; own estimates side by side, each with the interval it carries alone.</strong></p>
   <p><small>Cochrane Handbook version 6.5.1, section 10.14 for sensitivity analyses generally. Section 10.10.4.4 governs the estimator half: it records that methods other than DerSimonian and Laird estimate the between-study variance better and that restricted maximum likelihood is the current default. Section 10.10.4.5 is cited for the INTERVAL comparison and not for the estimator comparison; it concerns interpretation with few studies and the method it compares is the confidence interval.</small></p>
-  <h3>Does the answer depend on the pooling method?</h3>
+  <h3 id="extract-does-the-answer-depend-on-the-pooling-me-3">Does the answer depend on the pooling method?</h3>
   <p>Section 10.10.4.4 records restricted maximum likelihood as the current default and that estimators other than DerSimonian and Laird perform better; that is the whole of the authority for running this comparison. Nothing in the Handbook instructs a review to run it at a particular number of studies, and running it here is a choice made under section 10.14 because with two trials the choice is plausibly influential.</p>
   <div class='tscroll'><table>
     <caption>Table 18. Does the answer depend on the pooling method?</caption>
@@ -649,11 +649,11 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Restricted maximum likelihood with the ordinary interval, because section 10.10.4.4 records it as the current default and as a better estimator than DerSimonian and Laird. The Hartung-Knapp-Sidik-Jonkman interval is reported beside it with the floor on its scale factor applied, so it can widen the ordinary interval and can never come out narrower than it. It is NOT presented as the interval to prefer: section 10.10.4.5 says the opposite is possible, that with only two or three studies such intervals can be EXCESSIVELY WIDE and an ordinary interval may be preferable, and it asks for the comparison rather than for a winner.</small></p>
 </div>
 </section>
-<h2>Time to death from ANY cause, as a hazard ratio</h2>
+<h2 id="extract-time-to-death-from-any-cause-as-a-hazard">Time to death from ANY cause, as a hazard ratio</h2>
 <section>
-<h2>Time to death from ANY cause, as a hazard ratio</h2>
+<h2 id="extract-time-to-death-from-any-cause-as-a-hazard-2">Time to death from ANY cause, as a hazard ratio</h2>
 <div class='card'>
-  <h3>What was measured</h3>
+  <h3 id="extract-what-was-measured-4">What was measured</h3>
   <div class='tscroll'><table>
     <caption>Table 19. What was measured</caption>
 
@@ -667,13 +667,13 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   </table></div>
 </div>
 <div class='card'>
-  <h2>Pooled result</h2>
+  <h2 id="extract-pooled-result-4">Pooled result</h2>
   <p class='num'>HR 0.978 (0.7523 to 1.271), 95% interval</p>
   <p>Time to death from ANY cause, as a hazard ratio. random, estimator REML, k = 2.</p>
   <p><small>&tau;&sup2; 0 &middot; I&sup2; 0% &middot; Q 0.0643 on 1 df</small></p>
   <p><strong>Favours: neither arm; the interval spans the null (lower is better)</strong></p>
   <p><small>Computed from Q and its single degree of freedom. With TWO trials this statistic has almost no power to detect heterogeneity, so a low value is consistent both with agreement and with not being able to tell, and it is reported with that caveat rather than as reassurance. What the statistic cannot see at all are the dimensions the uniformity table records, because those are differences in the question each trial answered rather than in its answer.</small></p>
-  <h3>What this pool holds constant</h3>
+  <h3 id="extract-what-this-pool-holds-constant-4">What this pool holds constant</h3>
   <div class='tscroll'><table>
     <caption>Table 20. What this pool holds constant</caption>
 
@@ -693,7 +693,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
 
 <div class="card">
-  <h3>Contributing trials</h3>
+  <h3 id="extract-contributing-trials-4">Contributing trials</h3>
   <div class='tscroll'><table>
     <caption>Table 21. Contributing trials</caption>
 
@@ -707,18 +707,18 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
        &quot;ciNumSides&quot;: &quot;TWO_SIDED&quot;,
        &quot;ciLowerLimit&quot;: &quot;0.75&quot;,
        &quot;ciUpperLimit&quot;: &quot;1.31&quot;</q><br><em>Randomised, as the trial and its registry record both report. The arm sizes below do NOT sum to it: this trial&#x27;s analysis set excludes participants in whom treatment never started or who had no post-randomisation value, and every row here is computed in that set. Arm-level EVENT counts are deliberately absent from the arms, because this trial&#x27;s primary endpoint counts recurrent events and a per-arm participant count would not be the numerator of the stored ratio.</em></small></td></tr>
-    <tr><td>CONFIRM-HF<br><small>NCT01453608 &middot; a DESIGNATED secondary outcome-related endpoint of the trial, listed among them by name in the trial&#x27;s own methods and adjudicated by its independent clinical endpoint committee</small></td><td class='num'>not stated / not stated</td><td class='num'>0.89 (0.41 to 1.93)<br><small>on the log scale: -0.1165 (standard error 0.3952)</small></td><td><small><a href='https://pubmed.ncbi.nlm.nih.gov/25176939/'>Primary paper (full text, open)</a>: <br><q>Table 2 Hospitalizations and deaths (full-analysis set) End-point or event FCM ( n = 150) Placebo ( n = 151)</q><br><q>Death 12 12 (8.9) 14 14 (9.9) 0.89 (0.41– 1.93) 0.77</q><br><em>Enrolled and randomised. The arm sizes below do NOT sum to it: a small number of participants were excluded from the full analysis set for having no post-baseline efficacy assessment, and every row here is computed in that set. Both figures are real and they are not interchangeable, which is the subject of a correction this object carries. Arm-level EVENT counts are absent from the arms because this trial contributes one continuous endpoint and one time-to-event endpoint, neither of which has a two-by-two table behind the stored value.</em></small></td></tr>
+    <tr><td>CONFIRM-HF<br><small>NCT01453608 &middot; a DESIGNATED secondary outcome-related endpoint of the trial, listed among them by name in the trial&#x27;s own methods and adjudicated by its independent clinical endpoint committee</small></td><td class='num'>not stated / not stated</td><td class='num'>0.89 (0.41 to 1.93)<br><small>on the log scale: -0.1165 (standard error 0.3952)</small></td><td><small><a href='https://pubmed.ncbi.nlm.nih.gov/25176939/'>Primary paper (full text, open)</a>: <br><q>Table 2 Hospitalizations and deaths (full-analysis set) End-point or event FCM ( n = 150) Placebo ( n = 151)</q><br><q>Death 12 12 (8.9) 14 14 (9.9) 0.89 (0.41– 1.93) 0.77</q><br><q>Table 2 Hospitalizations and deaths (full-analysis set) -- column header: End-point or event | FCM (n = 150) Total number of events | Incidence/100 patient-years at risk | Placebo (n = 151) Total number of events | Incidence/100 patient-years at risk | TIME TO FIRST EVENT HAZARD RATIO | 95% CI | P-value</q><br><em>Enrolled and randomised. The arm sizes below do NOT sum to it: a small number of participants were excluded from the full analysis set for having no post-baseline efficacy assessment, and every row here is computed in that set. Both figures are real and they are not interchangeable, which is the subject of a correction this object carries. Arm-level EVENT counts are absent from the arms because this trial contributes one continuous endpoint and one time-to-event endpoint, neither of which has a two-by-two table behind the stored value.</em></small></td></tr>
   </table></div>
   <p><small>The contributing trials share no participant and no control group.</small></p>
 </div>
 <div class='card'>
-  <h3>The methods rule governing this decision</h3>
+  <h3 id="extract-the-methods-rule-governing-this-decision-4">The methods rule governing this decision</h3>
   <p><strong>Decision:</strong> POOL the trials that report THIS estimand in THIS form, and combine the result with no other estimand in this object</p>
   <p><strong>Cochrane Handbook sections:</strong> 3.2.1, 3.2.2, 3.2.3, 3.2.4, 10.3, 10.9, 10.10.1, 10.10.2, 10.10.4, 10.10.4.4, 10.10.4.5, 10.14</p>
   <p>Sections 3.2.1, 3.2.2 and 3.2.3 fix the axes on which ELIGIBILITY turns -- population, intervention and comparator -- and every screening decision names which of them it falls on, which is why the screening log has a criterion column rather than a verdict column. Section 3.2.4 is cited for the caution it gives AGAINST making eligibility depend on which outcomes a study reported, AND because this review must be honest that it applies an outcome criterion at eligibility anyway: most of its screened-out records fail on that axis. The distinction the review rests on, and which a reader is entitled to reject, is between what a trial REPORTED and what it DESIGNATED. The caution is about letting selective reporting decide membership; the criterion here turns on the endpoint each trial REGISTERED as its primary before any result existed. That is checkable for the screened trials whose registry records are staged -- one registered a self-reported global assessment and functional class, the other a change in peak oxygen consumption -- and it is NOT checkable for those characterised from a prior synthesis&#x27;s table, whose rows say so on themselves. The object carries six outcomes rather than admitting only the trials that report one of them, and no trial is screened out for reporting a quantity in the wrong FORM. What this review DOES do, and an earlier version of this passage denied it, is exclude a trial that designates an endpoint this review holds but publishes no extractable estimate of it: the screened trial with a registered walk-distance secondary is out on the clinical-event criterion while the review carries a walk-distance estimand. That is a stricter rule than 3.2.4 requires, it is the review&#x27;s own, and it is declared here rather than dressed as the Handbook&#x27;s. Its cost is visible on the row, which quotes what that trial reports. Section 10.3 gives the METHOD by which every pool in this object is computed: log ratios combined by generic inverse variance. What licenses the refusal to combine ACROSS the estimands is that they fall under DIFFERENT sections -- a rate over recurrent events is governed by 10.8, on counts and rates, while a time-to-first analysis is governed by 10.9, and a mean difference in metres is governed by 10.5.2 and shares no scale with either. Section 10.10.1 distinguishes clinical and methodological DIVERSITY from statistical heterogeneity, which is why the uniformity table sits beside the statistic rather than being replaced by it: at two trials the statistic is nearly powerless, and the things these trials differ on are things it cannot see. Section 10.10.4 governs the model and the between-study variance estimator, 10.10.4.4 records restricted maximum likelihood as the current default, and 10.10.4.5 is why a more conservative interval is reported beside the ordinary one at this number of studies. Section 10.14 is the authority for the sensitivity analyses.</p>
 </div>
 <div class='card'>
-  <h3>Leave-one-out sensitivity</h3>
+  <h3 id="extract-leave-one-out-sensitivity-4">Leave-one-out sensitivity</h3>
   <p>Whether the pooled estimate depends on either single trial, and whether it depends on the choice of between-study variance estimator and interval method.</p>
   <div class='tscroll'><table>
     <caption>Table 22. Leave-one-out sensitivity</caption>
@@ -729,7 +729,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   </table></div>
   <p><strong>With two trials a leave-one-out fit IS the other trial, and this table says so rather than presenting single-trial rows as though they were pooled sensitivity results. Read it as what it is: the two contributing trials&#x27; own estimates side by side, each with the interval it carries alone.</strong></p>
   <p><small>Cochrane Handbook version 6.5.1, section 10.14 for sensitivity analyses generally. Section 10.10.4.4 governs the estimator half: it records that methods other than DerSimonian and Laird estimate the between-study variance better and that restricted maximum likelihood is the current default. Section 10.10.4.5 is cited for the INTERVAL comparison and not for the estimator comparison; it concerns interpretation with few studies and the method it compares is the confidence interval.</small></p>
-  <h3>Does the answer depend on the pooling method?</h3>
+  <h3 id="extract-does-the-answer-depend-on-the-pooling-me-4">Does the answer depend on the pooling method?</h3>
   <p>Section 10.10.4.4 records restricted maximum likelihood as the current default and that estimators other than DerSimonian and Laird perform better; that is the whole of the authority for running this comparison. Nothing in the Handbook instructs a review to run it at a particular number of studies, and running it here is a choice made under section 10.14 because with two trials the choice is plausibly influential.</p>
   <div class='tscroll'><table>
     <caption>Table 23. Does the answer depend on the pooling method?</caption>
@@ -744,11 +744,11 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Restricted maximum likelihood with the ordinary interval, because section 10.10.4.4 records it as the current default and as a better estimator than DerSimonian and Laird. The Hartung-Knapp-Sidik-Jonkman interval is reported beside it with the floor on its scale factor applied, so it can widen the ordinary interval and can never come out narrower than it. It is NOT presented as the interval to prefer: section 10.10.4.5 says the opposite is possible, that with only two or three studies such intervals can be EXCESSIVELY WIDE and an ordinary interval may be preferable, and it asks for the comparison rather than for a winner.</small></p>
 </div>
 </section>
-<h2>A hierarchical composite of death, hospitalisations for heart failure and change in walk distance, as an unmatched win ratio</h2>
+<h2 id="extract-a-hierarchical-composite-of-death-hospit">A hierarchical composite of death, hospitalisations for heart failure and change in walk distance, as an unmatched win ratio</h2>
 <section>
-<h2>A hierarchical composite of death, hospitalisations for heart failure and change in walk distance, as an unmatched win ratio</h2>
+<h2 id="extract-a-hierarchical-composite-of-death-hospit-2">A hierarchical composite of death, hospitalisations for heart failure and change in walk distance, as an unmatched win ratio</h2>
 <div class='card'>
-  <h3>What was measured</h3>
+  <h3 id="extract-what-was-measured-5">What was measured</h3>
   <div class='tscroll'><table>
     <caption>Table 24. What was measured</caption>
 
@@ -762,14 +762,14 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   </table></div>
 </div>
 <div class='card warn'>
-  <h2>Single cohort &mdash; no synthesis</h2>
+  <h2 id="extract-single-cohort-mdash-no-synthesis">Single cohort &mdash; no synthesis</h2>
   <p class='num'>WIN_RATIO 1.1 (0.99 to 1.23), 99% interval</p>
   <p><strong>Favours: neither arm; the interval spans the null (higher is better)</strong></p>
   <p>Only one contributing trial reports this estimand, and the FORM of the quantity would prevent pooling even if a second did: it counts PAIRS rather than participants or events, its direction of benefit is inverted relative to every other ratio here, and its interval is not at the level the others use.</p>
 </div>
 
 <div class="card">
-  <h3>Contributing trials</h3>
+  <h3 id="extract-contributing-trials-5">Contributing trials</h3>
   <div class='tscroll'><table>
     <caption>Table 25. Contributing trials</caption>
 
@@ -781,23 +781,23 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>The contributing trials share no participant and no control group.</small></p>
 </div>
 <div class='card'>
-  <h3>The methods rule governing this decision</h3>
+  <h3 id="extract-the-methods-rule-governing-this-decision-5">The methods rule governing this decision</h3>
   <p><strong>Decision:</strong> DO NOT POOL. One trial in this review reports this endpoint in this form, so the result is that trial&#x27;s own estimate, presented as such</p>
   <p><strong>Cochrane Handbook sections:</strong> 3.2.4</p>
   <p>There is no meta-analysis here and none is implied. No other CONTRIBUTING trial reports a hierarchical composite of any kind -- and the scope of that word matters, because one of the eligible trials that has NOT yet reported does designate a hierarchical composite primary, which this object records in its own block. An earlier version said no other trial in this review reports one, which the object&#x27;s own eligible-but-not-contributing list contradicted. A win ratio could not be entered into any pool in this object even if a second one existed here: it counts PAIRS rather than participants or events, its direction of benefit is inverted relative to every other ratio here, and its interval is not at the level the other outcomes use. Three independent reasons, any one of which is sufficient. Section 3.2.4 is also why this outcome is carried at all rather than dropped for being reported once: dropping it would make the review&#x27;s content depend on what the studies chose to report, which is the practice that section cautions against.</p>
 </div>
 <div class='card'>
-  <h3>Leave-one-out sensitivity</h3>
+  <h3 id="extract-leave-one-out-sensitivity-5">Leave-one-out sensitivity</h3>
   <p>none; there is one study</p>
   <p><strong>Not run. With one study there is nothing to leave out, and a table here would be manufacturing reassurance.</strong></p>
   <p><small>Cochrane Handbook version 6.5.1, section 10.14. A leave-one-out analysis of one study leaves nothing, and an estimator comparison with no between-study variance to estimate is not a sensitivity analysis. Neither is run, and this field says so rather than presenting an empty table.</small></p>
 </div>
 </section>
-<h2>Change in six-minute walk distance at the primary timepoint, in metres</h2>
+<h2 id="extract-change-in-six-minute-walk-distance-at-th">Change in six-minute walk distance at the primary timepoint, in metres</h2>
 <section>
-<h2>Change in six-minute walk distance at the primary timepoint, in metres</h2>
+<h2 id="extract-change-in-six-minute-walk-distance-at-th-2">Change in six-minute walk distance at the primary timepoint, in metres</h2>
 <div class='card'>
-  <h3>What was measured</h3>
+  <h3 id="extract-what-was-measured-6">What was measured</h3>
   <div class='tscroll'><table>
     <caption>Table 26. What was measured</caption>
 
@@ -811,14 +811,14 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   </table></div>
 </div>
 <div class='card warn'>
-  <h2>Single cohort &mdash; no synthesis</h2>
+  <h2 id="extract-single-cohort-mdash-no-synthesis-2">Single cohort &mdash; no synthesis</h2>
   <p class='num'>MD 33 (11.44 to 54.56)</p>
   <p><strong>Favours: the intervention (higher is better)</strong></p>
   <p>Only one staged source prints an extractable between-arm difference for this endpoint, and that -- not the form of the quantity -- is why nothing is pooled. A mean difference in metres on a common scale is poolable by generic inverse variance like any other, so a later lane that obtains the full texts of the other trials registering a walk-distance endpoint could pool this estimand properly. An earlier version of this field said the FORM would prevent it, which is stricter than the Handbook, false of a mean difference, and contradicted by this object&#x27;s own handbook block three fields away.</p>
 </div>
 
 <div class="card">
-  <h3>Contributing trials</h3>
+  <h3 id="extract-contributing-trials-6">Contributing trials</h3>
   <div class='tscroll'><table>
     <caption>Table 27. Contributing trials</caption>
 
@@ -830,13 +830,13 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>The contributing trials share no participant and no control group.</small></p>
 </div>
 <div class='card'>
-  <h3>The methods rule governing this decision</h3>
+  <h3 id="extract-the-methods-rule-governing-this-decision-6">The methods rule governing this decision</h3>
   <p><strong>Decision:</strong> DO NOT POOL. One trial in this review reports this endpoint in this form, so the result is that trial&#x27;s own estimate, presented as such</p>
   <p><strong>Cochrane Handbook sections:</strong> 3.2.4, 6.5.1.1, 10.5.2</p>
   <p>There is no meta-analysis here and none is implied. This estimand rests on ONE trial and the reason is NOT that the others did not measure walk distance -- an earlier version of this field said only one other trial did, and a gate leg refuted it from the staged registries. MOST OF THE TRIALS THIS REVIEW TOUCHES REGISTER A WALK-DISTANCE ENDPOINT. Two register it as a PRIMARY -- the trial contributing here, and the trial whose hierarchical composite has walk distance as its third level. Two more register it as a SECONDARY, one of them at two separate timepoints. A trial in the screening log registers it among its key secondary efficacy objectives and reports it as improved. What is scarce is not the measurement, it is the EXTRACTABLE CELL: only one staged source prints a between-arm difference with a dispersion term for this endpoint. Every other walk-distance record staged here is either an endpoint named without a between-arm estimate, or an ingredient of a hierarchical composite rather than an endpoint reported in its own right. So this is a limit on what the staged evidence PRINTS, not a statement about what the field measured, and a later lane that obtains those full texts could pool this estimand properly. Beyond that, a mean difference in metres shares no scale with any ratio in this object and no arithmetic exists that would combine them. Section 3.2.4 is also why this outcome is carried at all rather than dropped for being reported once: dropping it would make the review&#x27;s content depend on what the studies chose to report, which is the practice that section cautions against.</p>
 </div>
 <div class='card'>
-  <h3>Leave-one-out sensitivity</h3>
+  <h3 id="extract-leave-one-out-sensitivity-6">Leave-one-out sensitivity</h3>
   <p>none; there is one study</p>
   <p><strong>Not run. With one study there is nothing to leave out, and a table here would be manufacturing reassurance.</strong></p>
   <p><small>Cochrane Handbook version 6.5.1, section 10.14. A leave-one-out analysis of one study leaves nothing, and an estimator comparison with no between-study variance to estimate is not a sensitivity analysis. Neither is run, and this field says so rather than presenting an empty table.</small></p>
@@ -844,10 +844,10 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </section>
   </section>
 <!--end-extract-->  <section class="panel" id="pn-analysis">
-  <p class='toc'><strong>In this section:</strong> Forest plot &middot; Visual abstract &middot; Risk of bias &middot; GOSH &middot; Trial-sequential analysis &middot; Meta-regression &middot; Forest plot &middot; Visual abstract &middot; Risk of bias &middot; GOSH &middot; Trial-sequential analysis &middot; Meta-regression &middot; Forest plot &middot; Visual abstract &middot; Risk of bias &middot; GOSH &middot; Trial-sequential analysis &middot; Meta-regression &middot; Forest plot &middot; Visual abstract &middot; Risk of bias &middot; GOSH &middot; Trial-sequential analysis &middot; Meta-regression &middot; Forest plot &middot; Risk of bias &middot; GOSH &middot; Trial-sequential analysis &middot; Meta-regression &middot; Forest plot &middot; Risk of bias &middot; GOSH &middot; Trial-sequential analysis &middot; Meta-regression</p>
-<h2>Recurrent hospitalisations for heart failure together with cardiovascular death, as a rate ratio</h2>
+  <p class='toc'><strong>In this section:</strong> <a href="#analysis-recurrent-hospitalisations-for-heart-fa">Recurrent hospitalisations for heart failure together with cardiovascular death, as a rate ratio</a> &middot; <a href="#analysis-forest-plot">Forest plot</a> &middot; <a href="#analysis-visual-abstract">Visual abstract</a> &middot; <a href="#analysis-risk-of-bias">Risk of bias</a> &middot; <a href="#analysis-gosh">GOSH</a> &middot; <a href="#analysis-trial-sequential-analysis">Trial-sequential analysis</a> &middot; <a href="#analysis-meta-regression">Meta-regression</a> &middot; <a href="#analysis-time-to-a-first-cardiovascular-death-or">Time to a FIRST cardiovascular death or hospitalisation for heart failure, as a hazard ratio</a> &middot; <a href="#analysis-forest-plot-2">Forest plot</a> &middot; <a href="#analysis-visual-abstract-2">Visual abstract</a> &middot; <a href="#analysis-risk-of-bias-2">Risk of bias</a> &middot; <a href="#analysis-gosh-2">GOSH</a> &middot; <a href="#analysis-trial-sequential-analysis-2">Trial-sequential analysis</a> &middot; <a href="#analysis-meta-regression-2">Meta-regression</a> &middot; <a href="#analysis-recurrent-hospitalisations-for-heart-fa-2">Recurrent hospitalisations for heart failure ALONE, with no death component, as a rate ratio</a> &middot; <a href="#analysis-forest-plot-3">Forest plot</a> &middot; <a href="#analysis-visual-abstract-3">Visual abstract</a> &middot; <a href="#analysis-risk-of-bias-3">Risk of bias</a> &middot; <a href="#analysis-gosh-3">GOSH</a> &middot; <a href="#analysis-trial-sequential-analysis-3">Trial-sequential analysis</a> &middot; <a href="#analysis-meta-regression-3">Meta-regression</a> &middot; <a href="#analysis-time-to-death-from-any-cause-as-a-hazar">Time to death from ANY cause, as a hazard ratio</a> &middot; <a href="#analysis-forest-plot-4">Forest plot</a> &middot; <a href="#analysis-visual-abstract-4">Visual abstract</a> &middot; <a href="#analysis-risk-of-bias-4">Risk of bias</a> &middot; <a href="#analysis-gosh-4">GOSH</a> &middot; <a href="#analysis-trial-sequential-analysis-4">Trial-sequential analysis</a> &middot; <a href="#analysis-meta-regression-4">Meta-regression</a> &middot; <a href="#analysis-a-hierarchical-composite-of-death-hospi">A hierarchical composite of death, hospitalisations for heart failure and change in walk distance, as an unmatched win ratio</a> &middot; <a href="#analysis-forest-plot-5">Forest plot</a> &middot; <a href="#analysis-risk-of-bias-5">Risk of bias</a> &middot; <a href="#analysis-gosh-5">GOSH</a> &middot; <a href="#analysis-trial-sequential-analysis-5">Trial-sequential analysis</a> &middot; <a href="#analysis-meta-regression-5">Meta-regression</a> &middot; <a href="#analysis-change-in-six-minute-walk-distance-at-t">Change in six-minute walk distance at the primary timepoint, in metres</a> &middot; <a href="#analysis-forest-plot-6">Forest plot</a> &middot; <a href="#analysis-risk-of-bias-6">Risk of bias</a> &middot; <a href="#analysis-gosh-6">GOSH</a> &middot; <a href="#analysis-trial-sequential-analysis-6">Trial-sequential analysis</a> &middot; <a href="#analysis-meta-regression-6">Meta-regression</a></p>
+<h2 id="analysis-recurrent-hospitalisations-for-heart-fa">Recurrent hospitalisations for heart failure together with cardiovascular death, as a rate ratio</h2>
 <div class='card fwcard'>
-  <h3>Forest plot</h3>
+  <h3 id="analysis-forest-plot">Forest plot</h3>
   <p><small>Drawn from the same stored estimates the table above lists. Box area is proportional to inverse-variance weight.</small></p>
   <p><small>x-axis range</small></p>
   <input type="radio" name="fw" id="fw-fit" class="fwr" checked>
@@ -949,7 +949,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Changing the range moves the axis window only. The guides stay labelled with the null and the extremes of the plotted intervals, so no plotted value and no printed number differs between these views &mdash; and that is checked at build time, not asserted. Ranges not offered because they would crop the data: 0.7 to 1.3.</small></p>
 </div>
 <div class='card'>
-  <h3>Visual abstract</h3>
+  <h3 id="analysis-visual-abstract">Visual abstract</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" width="100%" role="img" aria-label="Visual abstract: RATE_RATIO (horizontal) against no difference (vertical reference line), showing the pooled estimate and its confidence interval">
 <rect x="1" y="1" width="898" height="418" fill="none" stroke="currentColor" stroke-opacity=".35" rx="8"/>
 <text x="28" y="40" font-size="17" font-weight="700" fill="currentColor" opacity="1">Intravenous iron against placebo or usual care in heart failure with iron</text>
@@ -985,7 +985,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Projected from the canonical object, so it carries the same k, the same pooled estimate and the same interval as the paper and cannot drift from them. The interval is drawn CROSSING the no-difference line because it does: a graphical abstract travels without its caption, and one that showed a favourable point estimate without showing that its interval includes no effect would be overstating a null result, which is a defect class this review documents in other papers.</small></p>
 </div>
 <div class='card'>
-  <h3>Risk of bias</h3>
+  <h3 id="analysis-risk-of-bias">Risk of bias</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 86" width="100%" role="img" aria-label="Risk-of-bias traffic light: not computable">
 <rect x="1" y="1" width="698" height="84" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 5" rx="6"/>
 <text x="350" y="42" font-size="15" text-anchor="middle" fill="currentColor" font-weight="600">Risk-of-bias traffic light &mdash; not computable</text>
@@ -1000,7 +1000,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Not drawn, because there is nothing to draw it from.</small></p>
 </div>
 <div class='card'>
-  <h3>GOSH</h3>
+  <h3 id="analysis-gosh">GOSH</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 108" width="100%" role="img" aria-label="GOSH plot: not drawn at this k">
 <rect x="1" y="1" width="698" height="106" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 5" rx="6"/>
 <text x="350" y="42" font-size="15" text-anchor="middle" fill="currentColor" font-weight="600">GOSH plot &mdash; not drawn at this k</text>
@@ -1016,7 +1016,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Deliberately not drawn. Every subset meta-analysis of 2 trials is 3 points; a cloud that small cannot show the multimodality GOSH exists to reveal, and a reader would take the picture as evidence of its absence.</small></p>
 </div>
 <div class='card'>
-  <h3>Trial-sequential analysis</h3>
+  <h3 id="analysis-trial-sequential-analysis">Trial-sequential analysis</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 130" width="100%" role="img" aria-label="Trial-sequential analysis: not computable">
 <rect x="1" y="1" width="698" height="128" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 5" rx="6"/>
 <text x="350" y="42" font-size="15" text-anchor="middle" fill="currentColor" font-weight="600">Trial-sequential analysis &mdash; not computable</text>
@@ -1033,7 +1033,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>TSA boundaries depend entirely on a target information size that must be pre-specified. This review's protocol registers none, so any boundary drawn here would be a parameter chosen after seeing the data -- which is the practice TSA exists to protect against.</small></p>
 </div>
 <div class='card'>
-  <h3>Meta-regression</h3>
+  <h3 id="analysis-meta-regression">Meta-regression</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 108" width="100%" role="img" aria-label="Meta-regression bubble plot: not drawn at this k">
 <rect x="1" y="1" width="698" height="106" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 5" rx="6"/>
 <text x="350" y="42" font-size="15" text-anchor="middle" fill="currentColor" font-weight="600">Meta-regression bubble plot &mdash; not drawn at this k</text>
@@ -1048,9 +1048,9 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Submission formats written to the figures directory, not embedded here because an uncompressed 600 dpi TIFF is tens of megabytes: EPS (vector, journal&#x27;s first choice for line art) &mdash; <code>bubble.eps</code>, 2 KB; TIFF (uncompressed, 600 dpi -- journal fallback) &mdash; <code>bubble.tiff</code>, 5,537 KB.</small></p>
   <p><small>The protocol pre-specifies no moderator, and at k = 2 a meta-regression would be fitted on 2 points. Not drawn rather than drawn with a caveat: a bubble plot invites reading a slope, and there is no slope here that any reader should read.</small></p>
 </div>
-<h2>Time to a FIRST cardiovascular death or hospitalisation for heart failure, as a hazard ratio</h2>
+<h2 id="analysis-time-to-a-first-cardiovascular-death-or">Time to a FIRST cardiovascular death or hospitalisation for heart failure, as a hazard ratio</h2>
 <div class='card fwcard'>
-  <h3>Forest plot</h3>
+  <h3 id="analysis-forest-plot-2">Forest plot</h3>
   <p><small>Drawn from the same stored estimates the table above lists. Box area is proportional to inverse-variance weight.</small></p>
   <p><small>x-axis range</small></p>
   <input type="radio" name="fw" id="fw-fit" class="fwr" checked>
@@ -1152,7 +1152,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Changing the range moves the axis window only. The guides stay labelled with the null and the extremes of the plotted intervals, so no plotted value and no printed number differs between these views &mdash; and that is checked at build time, not asserted. Ranges not offered because they would crop the data: 0.7 to 1.3.</small></p>
 </div>
 <div class='card'>
-  <h3>Visual abstract</h3>
+  <h3 id="analysis-visual-abstract-2">Visual abstract</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" width="100%" role="img" aria-label="Visual abstract: HR (horizontal) against no difference (vertical reference line), showing the pooled estimate and its confidence interval">
 <rect x="1" y="1" width="898" height="418" fill="none" stroke="currentColor" stroke-opacity=".35" rx="8"/>
 <text x="28" y="40" font-size="17" font-weight="700" fill="currentColor" opacity="1">Intravenous iron against placebo or usual care in heart failure with iron</text>
@@ -1188,7 +1188,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Projected from the canonical object, so it carries the same k, the same pooled estimate and the same interval as the paper and cannot drift from them. The interval is drawn CROSSING the no-difference line because it does: a graphical abstract travels without its caption, and one that showed a favourable point estimate without showing that its interval includes no effect would be overstating a null result, which is a defect class this review documents in other papers.</small></p>
 </div>
 <div class='card'>
-  <h3>Risk of bias</h3>
+  <h3 id="analysis-risk-of-bias-2">Risk of bias</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 86" width="100%" role="img" aria-label="Risk-of-bias traffic light: not computable">
 <rect x="1" y="1" width="698" height="84" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 5" rx="6"/>
 <text x="350" y="42" font-size="15" text-anchor="middle" fill="currentColor" font-weight="600">Risk-of-bias traffic light &mdash; not computable</text>
@@ -1203,7 +1203,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Not drawn, because there is nothing to draw it from.</small></p>
 </div>
 <div class='card'>
-  <h3>GOSH</h3>
+  <h3 id="analysis-gosh-2">GOSH</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 108" width="100%" role="img" aria-label="GOSH plot: not drawn at this k">
 <rect x="1" y="1" width="698" height="106" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 5" rx="6"/>
 <text x="350" y="42" font-size="15" text-anchor="middle" fill="currentColor" font-weight="600">GOSH plot &mdash; not drawn at this k</text>
@@ -1219,7 +1219,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Deliberately not drawn. Every subset meta-analysis of 2 trials is 3 points; a cloud that small cannot show the multimodality GOSH exists to reveal, and a reader would take the picture as evidence of its absence.</small></p>
 </div>
 <div class='card'>
-  <h3>Trial-sequential analysis</h3>
+  <h3 id="analysis-trial-sequential-analysis-2">Trial-sequential analysis</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 130" width="100%" role="img" aria-label="Trial-sequential analysis: not computable">
 <rect x="1" y="1" width="698" height="128" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 5" rx="6"/>
 <text x="350" y="42" font-size="15" text-anchor="middle" fill="currentColor" font-weight="600">Trial-sequential analysis &mdash; not computable</text>
@@ -1236,7 +1236,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>TSA boundaries depend entirely on a target information size that must be pre-specified. This review's protocol registers none, so any boundary drawn here would be a parameter chosen after seeing the data -- which is the practice TSA exists to protect against.</small></p>
 </div>
 <div class='card'>
-  <h3>Meta-regression</h3>
+  <h3 id="analysis-meta-regression-2">Meta-regression</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 108" width="100%" role="img" aria-label="Meta-regression bubble plot: not drawn at this k">
 <rect x="1" y="1" width="698" height="106" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 5" rx="6"/>
 <text x="350" y="42" font-size="15" text-anchor="middle" fill="currentColor" font-weight="600">Meta-regression bubble plot &mdash; not drawn at this k</text>
@@ -1251,9 +1251,9 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Submission formats written to the figures directory, not embedded here because an uncompressed 600 dpi TIFF is tens of megabytes: EPS (vector, journal&#x27;s first choice for line art) &mdash; <code>bubble.eps</code>, 2 KB; TIFF (uncompressed, 600 dpi -- journal fallback) &mdash; <code>bubble.tiff</code>, 5,537 KB.</small></p>
   <p><small>The protocol pre-specifies no moderator, and at k = 2 a meta-regression would be fitted on 2 points. Not drawn rather than drawn with a caveat: a bubble plot invites reading a slope, and there is no slope here that any reader should read.</small></p>
 </div>
-<h2>Recurrent hospitalisations for heart failure ALONE, with no death component, as a rate ratio</h2>
+<h2 id="analysis-recurrent-hospitalisations-for-heart-fa-2">Recurrent hospitalisations for heart failure ALONE, with no death component, as a rate ratio</h2>
 <div class='card fwcard'>
-  <h3>Forest plot</h3>
+  <h3 id="analysis-forest-plot-3">Forest plot</h3>
   <p><small>Drawn from the same stored estimates the table above lists. Box area is proportional to inverse-variance weight.</small></p>
   <p><small>x-axis range</small></p>
   <input type="radio" name="fw" id="fw-fit" class="fwr" checked>
@@ -1361,7 +1361,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Changing the range moves the axis window only. The guides stay labelled with the null and the extremes of the plotted intervals, so no plotted value and no printed number differs between these views &mdash; and that is checked at build time, not asserted. Ranges not offered because they would crop the data: 0.7 to 1.3.</small></p>
 </div>
 <div class='card'>
-  <h3>Visual abstract</h3>
+  <h3 id="analysis-visual-abstract-3">Visual abstract</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" width="100%" role="img" aria-label="Visual abstract: RATE_RATIO (horizontal) against no difference (vertical reference line), showing the pooled estimate and its confidence interval">
 <rect x="1" y="1" width="898" height="418" fill="none" stroke="currentColor" stroke-opacity=".35" rx="8"/>
 <text x="28" y="40" font-size="17" font-weight="700" fill="currentColor" opacity="1">Intravenous iron against placebo or usual care in heart failure with iron</text>
@@ -1397,7 +1397,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Projected from the canonical object, so it carries the same k, the same pooled estimate and the same interval as the paper and cannot drift from them. The interval is drawn CROSSING the no-difference line because it does: a graphical abstract travels without its caption, and one that showed a favourable point estimate without showing that its interval includes no effect would be overstating a null result, which is a defect class this review documents in other papers.</small></p>
 </div>
 <div class='card'>
-  <h3>Risk of bias</h3>
+  <h3 id="analysis-risk-of-bias-3">Risk of bias</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 86" width="100%" role="img" aria-label="Risk-of-bias traffic light: not computable">
 <rect x="1" y="1" width="698" height="84" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 5" rx="6"/>
 <text x="350" y="42" font-size="15" text-anchor="middle" fill="currentColor" font-weight="600">Risk-of-bias traffic light &mdash; not computable</text>
@@ -1412,7 +1412,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Not drawn, because there is nothing to draw it from.</small></p>
 </div>
 <div class='card'>
-  <h3>GOSH</h3>
+  <h3 id="analysis-gosh-3">GOSH</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 108" width="100%" role="img" aria-label="GOSH plot: not drawn at this k">
 <rect x="1" y="1" width="698" height="106" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 5" rx="6"/>
 <text x="350" y="42" font-size="15" text-anchor="middle" fill="currentColor" font-weight="600">GOSH plot &mdash; not drawn at this k</text>
@@ -1428,7 +1428,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Deliberately not drawn. Every subset meta-analysis of 2 trials is 3 points; a cloud that small cannot show the multimodality GOSH exists to reveal, and a reader would take the picture as evidence of its absence.</small></p>
 </div>
 <div class='card'>
-  <h3>Trial-sequential analysis</h3>
+  <h3 id="analysis-trial-sequential-analysis-3">Trial-sequential analysis</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 130" width="100%" role="img" aria-label="Trial-sequential analysis: not computable">
 <rect x="1" y="1" width="698" height="128" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 5" rx="6"/>
 <text x="350" y="42" font-size="15" text-anchor="middle" fill="currentColor" font-weight="600">Trial-sequential analysis &mdash; not computable</text>
@@ -1445,7 +1445,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>TSA boundaries depend entirely on a target information size that must be pre-specified. This review's protocol registers none, so any boundary drawn here would be a parameter chosen after seeing the data -- which is the practice TSA exists to protect against.</small></p>
 </div>
 <div class='card'>
-  <h3>Meta-regression</h3>
+  <h3 id="analysis-meta-regression-3">Meta-regression</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 108" width="100%" role="img" aria-label="Meta-regression bubble plot: not drawn at this k">
 <rect x="1" y="1" width="698" height="106" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 5" rx="6"/>
 <text x="350" y="42" font-size="15" text-anchor="middle" fill="currentColor" font-weight="600">Meta-regression bubble plot &mdash; not drawn at this k</text>
@@ -1460,9 +1460,9 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Submission formats written to the figures directory, not embedded here because an uncompressed 600 dpi TIFF is tens of megabytes: EPS (vector, journal&#x27;s first choice for line art) &mdash; <code>bubble.eps</code>, 2 KB; TIFF (uncompressed, 600 dpi -- journal fallback) &mdash; <code>bubble.tiff</code>, 5,537 KB.</small></p>
   <p><small>The protocol pre-specifies no moderator, and at k = 2 a meta-regression would be fitted on 2 points. Not drawn rather than drawn with a caveat: a bubble plot invites reading a slope, and there is no slope here that any reader should read.</small></p>
 </div>
-<h2>Time to death from ANY cause, as a hazard ratio</h2>
+<h2 id="analysis-time-to-death-from-any-cause-as-a-hazar">Time to death from ANY cause, as a hazard ratio</h2>
 <div class='card fwcard'>
-  <h3>Forest plot</h3>
+  <h3 id="analysis-forest-plot-4">Forest plot</h3>
   <p><small>Drawn from the same stored estimates the table above lists. Box area is proportional to inverse-variance weight.</small></p>
   <p><small>x-axis range</small></p>
   <input type="radio" name="fw" id="fw-fit" class="fwr" checked>
@@ -1536,7 +1536,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Changing the range moves the axis window only. The guides stay labelled with the null and the extremes of the plotted intervals, so no plotted value and no printed number differs between these views &mdash; and that is checked at build time, not asserted. Ranges not offered because they would crop the data: 0.5 to 2, 0.7 to 1.3.</small></p>
 </div>
 <div class='card'>
-  <h3>Visual abstract</h3>
+  <h3 id="analysis-visual-abstract-4">Visual abstract</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" width="100%" role="img" aria-label="Visual abstract: HR (horizontal) against no difference (vertical reference line), showing the pooled estimate and its confidence interval">
 <rect x="1" y="1" width="898" height="418" fill="none" stroke="currentColor" stroke-opacity=".35" rx="8"/>
 <text x="28" y="40" font-size="17" font-weight="700" fill="currentColor" opacity="1">Intravenous iron against placebo or usual care in heart failure with iron</text>
@@ -1572,7 +1572,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Projected from the canonical object, so it carries the same k, the same pooled estimate and the same interval as the paper and cannot drift from them. The interval is drawn CROSSING the no-difference line because it does: a graphical abstract travels without its caption, and one that showed a favourable point estimate without showing that its interval includes no effect would be overstating a null result, which is a defect class this review documents in other papers.</small></p>
 </div>
 <div class='card'>
-  <h3>Risk of bias</h3>
+  <h3 id="analysis-risk-of-bias-4">Risk of bias</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 86" width="100%" role="img" aria-label="Risk-of-bias traffic light: not computable">
 <rect x="1" y="1" width="698" height="84" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 5" rx="6"/>
 <text x="350" y="42" font-size="15" text-anchor="middle" fill="currentColor" font-weight="600">Risk-of-bias traffic light &mdash; not computable</text>
@@ -1587,7 +1587,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Not drawn, because there is nothing to draw it from.</small></p>
 </div>
 <div class='card'>
-  <h3>GOSH</h3>
+  <h3 id="analysis-gosh-4">GOSH</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 108" width="100%" role="img" aria-label="GOSH plot: not drawn at this k">
 <rect x="1" y="1" width="698" height="106" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 5" rx="6"/>
 <text x="350" y="42" font-size="15" text-anchor="middle" fill="currentColor" font-weight="600">GOSH plot &mdash; not drawn at this k</text>
@@ -1603,7 +1603,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Deliberately not drawn. Every subset meta-analysis of 2 trials is 3 points; a cloud that small cannot show the multimodality GOSH exists to reveal, and a reader would take the picture as evidence of its absence.</small></p>
 </div>
 <div class='card'>
-  <h3>Trial-sequential analysis</h3>
+  <h3 id="analysis-trial-sequential-analysis-4">Trial-sequential analysis</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 130" width="100%" role="img" aria-label="Trial-sequential analysis: not computable">
 <rect x="1" y="1" width="698" height="128" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 5" rx="6"/>
 <text x="350" y="42" font-size="15" text-anchor="middle" fill="currentColor" font-weight="600">Trial-sequential analysis &mdash; not computable</text>
@@ -1620,7 +1620,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>TSA boundaries depend entirely on a target information size that must be pre-specified. This review's protocol registers none, so any boundary drawn here would be a parameter chosen after seeing the data -- which is the practice TSA exists to protect against.</small></p>
 </div>
 <div class='card'>
-  <h3>Meta-regression</h3>
+  <h3 id="analysis-meta-regression-4">Meta-regression</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 108" width="100%" role="img" aria-label="Meta-regression bubble plot: not drawn at this k">
 <rect x="1" y="1" width="698" height="106" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 5" rx="6"/>
 <text x="350" y="42" font-size="15" text-anchor="middle" fill="currentColor" font-weight="600">Meta-regression bubble plot &mdash; not drawn at this k</text>
@@ -1635,9 +1635,9 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Submission formats written to the figures directory, not embedded here because an uncompressed 600 dpi TIFF is tens of megabytes: EPS (vector, journal&#x27;s first choice for line art) &mdash; <code>bubble.eps</code>, 2 KB; TIFF (uncompressed, 600 dpi -- journal fallback) &mdash; <code>bubble.tiff</code>, 5,537 KB.</small></p>
   <p><small>The protocol pre-specifies no moderator, and at k = 2 a meta-regression would be fitted on 2 points. Not drawn rather than drawn with a caveat: a bubble plot invites reading a slope, and there is no slope here that any reader should read.</small></p>
 </div>
-<h2>A hierarchical composite of death, hospitalisations for heart failure and change in walk distance, as an unmatched win ratio</h2>
+<h2 id="analysis-a-hierarchical-composite-of-death-hospi">A hierarchical composite of death, hospitalisations for heart failure and change in walk distance, as an unmatched win ratio</h2>
 <div class='card fwcard'>
-  <h3>Forest plot</h3>
+  <h3 id="analysis-forest-plot-5">Forest plot</h3>
   <p><small>Drawn from the same stored estimates the table above lists. Box area is proportional to inverse-variance weight.</small></p>
   <p><small>x-axis range</small></p>
   <input type="radio" name="fw" id="fw-fit" class="fwr" checked>
@@ -1731,7 +1731,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Changing the range moves the axis window only. The guides stay labelled with the null and the extremes of the plotted intervals, so no plotted value and no printed number differs between these views &mdash; and that is checked at build time, not asserted.</small></p>
 </div>
 <div class='card'>
-  <h3>Risk of bias</h3>
+  <h3 id="analysis-risk-of-bias-5">Risk of bias</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 86" width="100%" role="img" aria-label="Risk-of-bias traffic light: not computable">
 <rect x="1" y="1" width="698" height="84" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 5" rx="6"/>
 <text x="350" y="42" font-size="15" text-anchor="middle" fill="currentColor" font-weight="600">Risk-of-bias traffic light &mdash; not computable</text>
@@ -1746,7 +1746,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Not drawn, because there is nothing to draw it from.</small></p>
 </div>
 <div class='card'>
-  <h3>GOSH</h3>
+  <h3 id="analysis-gosh-5">GOSH</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 108" width="100%" role="img" aria-label="GOSH plot: not drawn at this k">
 <rect x="1" y="1" width="698" height="106" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 5" rx="6"/>
 <text x="350" y="42" font-size="15" text-anchor="middle" fill="currentColor" font-weight="600">GOSH plot &mdash; not drawn at this k</text>
@@ -1762,7 +1762,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Deliberately not drawn. Every subset meta-analysis of 1 trials is 1 points; a cloud that small cannot show the multimodality GOSH exists to reveal, and a reader would take the picture as evidence of its absence.</small></p>
 </div>
 <div class='card'>
-  <h3>Trial-sequential analysis</h3>
+  <h3 id="analysis-trial-sequential-analysis-5">Trial-sequential analysis</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 130" width="100%" role="img" aria-label="Trial-sequential analysis: not computable">
 <rect x="1" y="1" width="698" height="128" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 5" rx="6"/>
 <text x="350" y="42" font-size="15" text-anchor="middle" fill="currentColor" font-weight="600">Trial-sequential analysis &mdash; not computable</text>
@@ -1779,7 +1779,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>TSA boundaries depend entirely on a target information size that must be pre-specified. This review's protocol registers none, so any boundary drawn here would be a parameter chosen after seeing the data -- which is the practice TSA exists to protect against.</small></p>
 </div>
 <div class='card'>
-  <h3>Meta-regression</h3>
+  <h3 id="analysis-meta-regression-5">Meta-regression</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 108" width="100%" role="img" aria-label="Meta-regression bubble plot: not drawn at this k">
 <rect x="1" y="1" width="698" height="106" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 5" rx="6"/>
 <text x="350" y="42" font-size="15" text-anchor="middle" fill="currentColor" font-weight="600">Meta-regression bubble plot &mdash; not drawn at this k</text>
@@ -1794,9 +1794,9 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Submission formats written to the figures directory, not embedded here because an uncompressed 600 dpi TIFF is tens of megabytes: EPS (vector, journal&#x27;s first choice for line art) &mdash; <code>bubble.eps</code>, 2 KB; TIFF (uncompressed, 600 dpi -- journal fallback) &mdash; <code>bubble.tiff</code>, 5,537 KB.</small></p>
   <p><small>The protocol pre-specifies no moderator, and at k = 1 a meta-regression would be fitted on 1 points. Not drawn rather than drawn with a caveat: a bubble plot invites reading a slope, and there is no slope here that any reader should read.</small></p>
 </div>
-<h2>Change in six-minute walk distance at the primary timepoint, in metres</h2>
+<h2 id="analysis-change-in-six-minute-walk-distance-at-t">Change in six-minute walk distance at the primary timepoint, in metres</h2>
 <div class='card fwcard'>
-  <h3>Forest plot</h3>
+  <h3 id="analysis-forest-plot-6">Forest plot</h3>
   <p><small>Drawn from the same stored estimates the table above lists. Box area is proportional to inverse-variance weight.</small></p>
   <p><small>x-axis range</small></p>
   <input type="radio" name="fw" id="fw-fit" class="fwr" checked>
@@ -1824,7 +1824,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Changing the range moves the axis window only. The guides stay labelled with the null and the extremes of the plotted intervals, so no plotted value and no printed number differs between these views &mdash; and that is checked at build time, not asserted. Ranges not offered because they would crop the data: 0.5 to 2, 0.25 to 4, 0.7 to 1.3.</small></p>
 </div>
 <div class='card'>
-  <h3>Risk of bias</h3>
+  <h3 id="analysis-risk-of-bias-6">Risk of bias</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 86" width="100%" role="img" aria-label="Risk-of-bias traffic light: not computable">
 <rect x="1" y="1" width="698" height="84" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 5" rx="6"/>
 <text x="350" y="42" font-size="15" text-anchor="middle" fill="currentColor" font-weight="600">Risk-of-bias traffic light &mdash; not computable</text>
@@ -1839,7 +1839,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Not drawn, because there is nothing to draw it from.</small></p>
 </div>
 <div class='card'>
-  <h3>GOSH</h3>
+  <h3 id="analysis-gosh-6">GOSH</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 108" width="100%" role="img" aria-label="GOSH plot: not drawn at this k">
 <rect x="1" y="1" width="698" height="106" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 5" rx="6"/>
 <text x="350" y="42" font-size="15" text-anchor="middle" fill="currentColor" font-weight="600">GOSH plot &mdash; not drawn at this k</text>
@@ -1855,7 +1855,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Deliberately not drawn. Every subset meta-analysis of 1 trials is 1 points; a cloud that small cannot show the multimodality GOSH exists to reveal, and a reader would take the picture as evidence of its absence.</small></p>
 </div>
 <div class='card'>
-  <h3>Trial-sequential analysis</h3>
+  <h3 id="analysis-trial-sequential-analysis-6">Trial-sequential analysis</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 130" width="100%" role="img" aria-label="Trial-sequential analysis: not computable">
 <rect x="1" y="1" width="698" height="128" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 5" rx="6"/>
 <text x="350" y="42" font-size="15" text-anchor="middle" fill="currentColor" font-weight="600">Trial-sequential analysis &mdash; not computable</text>
@@ -1872,7 +1872,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>TSA boundaries depend entirely on a target information size that must be pre-specified. This review's protocol registers none, so any boundary drawn here would be a parameter chosen after seeing the data -- which is the practice TSA exists to protect against.</small></p>
 </div>
 <div class='card'>
-  <h3>Meta-regression</h3>
+  <h3 id="analysis-meta-regression-6">Meta-regression</h3>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 108" width="100%" role="img" aria-label="Meta-regression bubble plot: not drawn at this k">
 <rect x="1" y="1" width="698" height="106" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 5" rx="6"/>
 <text x="350" y="42" font-size="15" text-anchor="middle" fill="currentColor" font-weight="600">Meta-regression bubble plot &mdash; not drawn at this k</text>
@@ -1889,9 +1889,9 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
   </section>
 <!--end-analysis-->  <section class="panel" id="pn-report">
-  <p class='toc'><strong>In this section:</strong> Summary of findings &middot; Reproducibility artifact &middot; Certainty of the evidence (GRADE) &middot; Certainty of the evidence (GRADE) &middot; Certainty of the evidence (GRADE) &middot; Certainty of the evidence (GRADE) &middot; Certainty of the evidence (GRADE) &middot; Certainty of the evidence (GRADE)</p>
+  <p class='toc'><strong>In this section:</strong> <a href="#report-summary-of-findings">Summary of findings</a> &middot; <a href="#report-reproducibility-artifact">Reproducibility artifact</a> &middot; <a href="#report-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#report-the-syntheses-reconciled-against">The syntheses reconciled against</a> &middot; <a href="#report-where-the-numbers-differ-and-why">Where the numbers differ, and why</a> &middot; <a href="#report-recurrent-hospitalisations-for-heart-fail">Recurrent hospitalisations for heart failure together with cardiovascular death, as a rate ratio</a> &middot; <a href="#report-certainty-of-the-evidence-grade">Certainty of the evidence (GRADE)</a> &middot; <a href="#report-time-to-a-first-cardiovascular-death-or-h">Time to a FIRST cardiovascular death or hospitalisation for heart failure, as a hazard ratio</a> &middot; <a href="#report-certainty-of-the-evidence-grade-2">Certainty of the evidence (GRADE)</a> &middot; <a href="#report-recurrent-hospitalisations-for-heart-fail-2">Recurrent hospitalisations for heart failure ALONE, with no death component, as a rate ratio</a> &middot; <a href="#report-certainty-of-the-evidence-grade-3">Certainty of the evidence (GRADE)</a> &middot; <a href="#report-time-to-death-from-any-cause-as-a-hazard-">Time to death from ANY cause, as a hazard ratio</a> &middot; <a href="#report-certainty-of-the-evidence-grade-4">Certainty of the evidence (GRADE)</a> &middot; <a href="#report-a-hierarchical-composite-of-death-hospita">A hierarchical composite of death, hospitalisations for heart failure and change in walk distance, as an unmatched win ratio</a> &middot; <a href="#report-certainty-of-the-evidence-grade-5">Certainty of the evidence (GRADE)</a> &middot; <a href="#report-change-in-six-minute-walk-distance-at-the">Change in six-minute walk distance at the primary timepoint, in metres</a> &middot; <a href="#report-certainty-of-the-evidence-grade-6">Certainty of the evidence (GRADE)</a></p>
 <div class='card'>
-  <h3>Summary of findings</h3>
+  <h3 id="report-summary-of-findings">Summary of findings</h3>
   <div class='tscroll'><table>
     <caption>Table 28. Summary of findings</caption>
 
@@ -1905,7 +1905,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   </table></div>
 </div>
 <div class='card'>
-  <h3>Reproducibility artifact</h3>
+  <h3 id="report-reproducibility-artifact">Reproducibility artifact</h3>
   <div class='tscroll'><table>
     <caption>Table 29. Reproducibility artifact</caption>
 
@@ -1913,18 +1913,59 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Registered at</th><td><code></code> </td></tr>
     <tr><th scope='col'>Schema</th><td>2</td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-10</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>29832edc0</code>, built to STANDARD v1</td></tr>
     <tr><th scope='col'>Statistical engine</th><td>metafor 5.0.1 under R 4.6.0, generic inverse variance on the same log point and log standard error this object stores</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
-<h2>Recurrent hospitalisations for heart failure together with cardiovascular death, as a rate ratio</h2>
 <div class='card'>
-  <h3>Certainty of the evidence (GRADE)</h3>
+  <h2 id="report-comparison-with-published-syntheses">Comparison with published syntheses</h2>
+  <p>This is the topic where a published synthesis pools THE SAME TWO TRIALS on THE SAME ENDPOINT as this review, so the pooled value here can be checked against an external number rather than only described. It is also the topic with the largest published evidence base -- six trials with individual participant data -- against which our two-trial pool has to explain itself.</p>
+  <p><strong>11 checks were applied and 8 came back clean, 0 found an error, 1 found something absent and 2 could not be settled at the layer available. The denominator is stated because a list of only the failures is not a finding, it is a selection.</strong></p>
+  <p><small>Confirmations are listed in the same table, in the same detail, as errors. Across the cardiology topics reconciled so far the published literature has been implicated in none of them: where a defect existed it was ours. A comparison with room only for their errors could not have found that out.</small></p>
+  <div class='tscroll'><table>
+    <caption>Table 30. Comparison with published syntheses</caption>
+
+    <tr><th scope='col'>Check</th><th>Verdict</th><th>What was found</th></tr>
+    <tr><td><strong>Our AFFIRM-AHF recurrent-composite input against the registry&#x27;s POSTED RESULT</strong><br><small>affirm-recurrent-vs-registry-results</small></td><td>CONFIRMED<br><small>checked and clean</small></td><td>The registry posts, on the primary outcome whose definition we read, an annualised event rate ratio of 0.79 with a 95% interval of 0.62 to 1.01, from a negative binomial model adjusted for sex, age, HF aetiology, HF duration and country. This object stores 0.79 (0.62 to 1.01). Identical, and taken from the registry&#x27;s analysis record rather than from the publication.<br><small>Quoted: &ldquo;Annualised event rate ratio (RR) = 0.79, CI 0.62-1.01&rdquo; &mdash; ClinicalTrials.gov NCT02937454, resultsSection, primary outcome</small></td></tr>
+    <tr><td><strong>Our AFFIRM-AHF time-to-first input against the registry&#x27;s POSTED RESULT</strong><br><small>affirm-first-event-vs-registry-results</small></td><td>CONFIRMED<br><small>checked and clean</small></td><td>Registry: hazard ratio 0.80 (0.66 to 0.98), Cox, same covariates. This object stores 0.80 (0.66 to 0.98).<br><small>Quoted: &ldquo;Hazard Ratio (HR) = 0.80, CI 0.66-0.98&rdquo; &mdash; ClinicalTrials.gov NCT02937454, &#x27;Composite of HF Hospitalisations or CV Death&#x27;</small></td></tr>
+    <tr><td><strong>Our two remaining AFFIRM-AHF inputs against the registry&#x27;s POSTED RESULTS</strong><br><small>affirm-hfh-and-acm-vs-registry-results</small></td><td>CONFIRMED<br><small>checked and clean</small></td><td>Recurrent heart-failure hospitalisations: registry 0.74 (0.58 to 0.94), object 0.74 (0.58 to 0.94). All-cause mortality: registry 0.99 (0.75 to 1.31), object 0.99 (0.75 to 1.31). All four of this trial&#x27;s contributions to this review are therefore confirmed against a surface independent of its publication -- which matters here, because the publication does not report the all-cause figure at all.<br><small>Quoted: &ldquo;Annualised event rate ratio (RR) = 0.74, CI 0.58-0.94; Hazard Ratio (HR) = 0.99, CI 0.75-1.31&rdquo; &mdash; ClinicalTrials.gov NCT02937454, secondary and other-prespecified outcomes</small></td></tr>
+    <tr><td><strong>The registry posts TWO analyses per AFFIRM-AHF outcome; which one is here</strong><br><small>which-affirm-analysis-is-pooled</small></td><td>CONFIRMED<br><small>checked and clean</small></td><td>Every AFFIRM-AHF outcome carries a pre-specified COVID-19 sensitivity analysis beside the main one -- on the primary, 0.75 (0.59 to 0.96) against 0.79 (0.62 to 1.01). This object pools the MAIN analysis throughout. The distinction decides whether this trial&#x27;s own result crosses the null, so a review that took one without saying which would be reporting a choice as though it were a reading. Checked because value-without-its-analysis is a defect class this batch has produced before; here it is clean and now explicit.<br><small>Quoted: &ldquo;Annualised event rate ratio (RR) = 0.75, CI 0.59-0.96 -- the second analysis posted on the same outcome&rdquo; &mdash; ClinicalTrials.gov NCT02937454, primary outcome, analysis 2</small></td></tr>
+    <tr><td><strong>Whether CONFIRM-HF&#x27;s 0.89 is established as a HAZARD ratio, or only assumed to be one</strong><br><small>confirm-hf-ratio-is-a-hazard-ratio</small></td><td>CONFIRMED<br><small>checked and clean</small></td><td>It is established. The column header of the trial&#x27;s own Table 2 reads &#x27;Time to first event hazard ratio | 95% CI | P-value&#x27;. THIS OBJECT HAD STORED THE ROW WITHOUT THE HEADER -- &#x27;Death 12 12 (8.9) 14 14 (9.9) 0.89 (0.41-1.93) 0.77&#x27; -- and a row of numbers does not say what the numbers are. The header has been added to the extraction surface. This is the same question that is currently OPEN on ARNI, where a contributing ratio is not established as a hazard ratio and decides the result; asked here, it comes back clean.<br><small>Quoted: &ldquo;End-point or event | ... | Time to first event hazard ratio | 95% CI | P-value&rdquo; &mdash; Eur Heart J 2015, CONFIRM-HF, Table 2 column header, read from the open-access full text</small></td></tr>
+    <tr><td><strong>Our recurrent-composite pool against a published meta-analysis of THE SAME TWO TRIALS</strong><br><small>our-pool-against-the-same-two-trials-published</small></td><td>CONFIRMED<br><small>checked and clean</small></td><td>Clin Res Cardiol 2023 pools AFFIRM-AHF and IRONMAN on this endpoint and reports RR 0.81 (0.69 to 0.95), I-squared 0%. This object reports 0.8066 (0.6856 to 0.9488). The two agree to the precision either one prints. An inverse-variance pool of the two trials&#x27; main analyses -- 0.79 (0.62 to 1.01) and 0.82 (0.66 to 1.02) -- reproduces 0.8066 (0.6856 to 0.9488) exactly, which is the arithmetic behind the agreement rather than an assertion of it. THIS IS THE ONLY DIRECT EXTERNAL CHECK OF A POOLED VALUE IN THIS CARDIOLOGY LANE, and it passes.<br><small>Quoted: &ldquo;FCM/FDI reduced the primary endpoint (RR = 0.81, 95% CI 0.69-0.95, p = 0.01, I2 = 0%)&rdquo; &mdash; PMID 37074386, abstract</small></td></tr>
+    <tr><td><strong>Our two-trial pool against the six-trial individual-participant-data analysis</strong><br><small>our-pool-against-the-six-trial-ipd-analysis</small></td><td>CONFIRMED<br><small>checked and clean</small></td><td>Nat Med 2025 reports RR 0.81 (0.63 to 0.97) for recurrent HF hospitalisations and cardiovascular mortality over the complete follow-up of six trials, 7,175 patients. This object reports 0.8066 (0.6856 to 0.9488) over two. The point estimates agree to two decimal places across a threefold difference in evidence, and their interval is WIDER than ours despite three times the patients -- which is what a Bayesian random-effects model with between-trial variance does, and is worth a reader&#x27;s attention because the naive expectation is the opposite.<br><small>Quoted: &ldquo;lower rates for the composite endpoint of recurrent HF hospitalizations and cardiovascular mortality ... for the complete length of follow-up (RR = 0.81 (95% CI = 0.63-0.97))&rdquo; &mdash; PMID 40159279, abstract</small></td></tr>
+    <tr><td><strong>Whether any located synthesis pooled trials that count different things</strong><br><small>did-anyone-pool-mismatched-endpoints</small></td><td>CONFIRMED<br><small>checked and clean</small></td><td>None of the four located syntheses did, and two of them did the harmonisation work explicitly. The Bayesian analysis states that &#x27;definitions of outcomes and subgroups from the FAIR-HF, CONFIRM-HF and AFFIRM-AHF were matched with those used in IRONMAN&#x27;, and the Nat Med analysis used individual participant data to derive a common endpoint across six trials. The 2021 analysis pools a FIRST-event composite as odds ratios and says so, rather than mixing it with AFFIRM-AHF&#x27;s recurrent primary. THE LITERATURE HANDLED THE ESTIMAND CORRECTLY, and that is recorded as prominently as an error would be -- it is the third cardiology topic in a row where the defect, where there was one, was ours.<br><small>Quoted: &ldquo;Definitions of outcomes and subgroups from the FAIR-HF, CONFIRM-HF and AFFIRM-AHF were matched with those used in IRONMAN.&rdquo; &mdash; PMID 37062867, abstract</small></td></tr>
+    <tr><td><strong>Registry confirmation for IRONMAN and FAIR-HF2</strong><br><small>two-trials-post-no-registry-results</small></td><td>ABSENT<br><small>the thing checked for is not there</small></td><td>Neither registry record posts a results section: the API returns zero posted outcome measures for both. Their contributions to this review therefore rest on their publications alone, with no second surface to check them against. Recorded as an absence in OUR evidence rather than a fault in the trials, and established by querying the records rather than inferred.<br><small>ClinicalTrials.gov NCT02642562 and NCT03036462, resultsSection</small></td></tr>
+    <tr><td><strong>Whether the 52 syntheses that name no trial included ours</strong><br><small>what-the-abstract-layer-cannot-settle</small></td><td>UNRESOLVED<br><small>could not be settled at the layer available</small></td><td>52 of 61 records name none of our trials in the abstract and four carry no indexed abstract. Abstract-level screening cannot establish what a synthesis pooled. Counting them as agreeing would be absence of evidence dressed as evidence of absence.<br><small>PUBLISHED_SYNTHESIS_SCREEN.json, tally</small></td></tr>
+    <tr><td><strong>Whether the matching two-trial meta-analysis pooled the main or the COVID-19 analyses</strong><br><small>which-inputs-the-matching-meta-analysis-used</small></td><td>UNRESOLVED<br><small>could not be settled at the layer available</small></td><td>Its abstract&#x27;s opening sentence says the two trials demonstrated their results &#x27;utilizing prespecified COVID-19 analyses&#x27;, but its pooled 0.81 (0.69 to 0.95) reproduces the MAIN analyses and not the COVID ones, which would pool near 0.76. The numerical agreement makes the main analyses the more likely inputs, and the sentence is the more likely loose one -- but that is an inference and it is recorded as one. Full text would settle it, and nothing here depends on the answer.<br><small>Quoted: &ldquo;utilizing prespecified COVID-19 analyses&rdquo; &mdash; PMID 37074386, abstract, first sentence</small></td></tr>
+  </table></div>
+  <h3 id="report-the-syntheses-reconciled-against">The syntheses reconciled against</h3>
+  <div class='tscroll'><table>
+    <caption>Table 31. The syntheses reconciled against</caption>
+
+    <tr><th scope='col'>37074386</th><td>Efficacy and safety of intravenous iron repletion in patients with heart failure: a systematic review and meta-analysis. Clin Res Cardiol 2023.<br><small>It does not differ. Same two trials, same endpoint, independently computed -- which makes it the only direct external check of a pooled value anywhere in this cardiology lane.</small></td></tr>
+    <tr><th scope='col'>40159279</th><td>Systematic review and meta-analysis of intravenous iron therapy for patients with heart failure and iron deficiency. Nat Med 2025.<br><small>It has INDIVIDUAL PARTICIPANT DATA and we have published summaries. That is the whole difference: four of its six trials publish no recurrent-events composite at all, so it could DERIVE the endpoint for them and we could not. Our k=2 is a limit of the layer available to us, not a judgement that the other four are ineligible.</small></td></tr>
+    <tr><th scope='col'>37062867</th><td>Effect of intravenous iron replacement on recurrent heart failure hospitalizations and cardiovascular mortality in patients with heart failure and iron deficiency: A Bayesian meta-analysis. Eur J Heart Fail 2023.<br><small>It is the clearest example in this lane of the estimand work being done properly by someone else: rather than pooling whatever each trial happened to report, it re-derived the outcome in three trials to match the fourth, and says so in its abstract.</small></td></tr>
+    <tr><th scope='col'>33755777</th><td>Intravenous iron for heart failure with evidence of iron deficiency: a meta-analysis of randomised trials. Clin Res Cardiol 2021.<br><small>A different estimand -- first event, odds ratio -- and it says so. It describes AFFIRM-AHF&#x27;s primary as the recurrent composite in its introduction and then pools first-event data, which is the correct handling and not a slip.</small></td></tr>
+  </table></div>
+  <h3 id="report-where-the-numbers-differ-and-why">Where the numbers differ, and why</h3>
+  <div class='tscroll'><table>
+    <caption>Table 32. Where the numbers differ, and why</caption>
+
+    <tr><th scope='col'>This review</th><td>Rate ratio 0.8066 (0.6856 to 0.9488) for recurrent heart-failure hospitalisations together with cardiovascular death, k=2, AFFIRM-AHF and IRONMAN, from published summary data.</td></tr>
+    <tr><th scope='col'>The published synthesis</th><td>RR 0.81 (0.69 to 0.95) on the same two trials (Clin Res Cardiol 2023); RR 0.81 (0.63 to 0.97) on six trials with individual participant data (Nat Med 2025); RR 0.73 (0.48 to 0.99) on four trials with harmonised definitions (Eur J Heart Fail 2023).</td></tr>
+    <tr><th scope='col'>Why they differ</th><td>On the same two trials they do not differ at all. Across the wider analyses the difference is ACCESS, not method: individual participant data let those authors derive a recurrent-events composite for four trials that publish none, and no amount of care with published summaries can substitute for that. The honest statement is that our k=2 is the limit of what the published layer supports, and that where the layers overlap the numbers agree.</td></tr>
+  </table></div>
+  <p><small>How they were identified: PubMed E-utilities; the query, the counts and a decision for every record are in ssot/iv-iron-hf/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json. 61 records matched and all 61 were read at abstract level; 5 name at least one trial we pool.</small></p>
+</div>
+<h2 id="report-recurrent-hospitalisations-for-heart-fail">Recurrent hospitalisations for heart failure together with cardiovascular death, as a rate ratio</h2>
+<div class='card'>
+  <h3 id="report-certainty-of-the-evidence-grade">Certainty of the evidence (GRADE)</h3>
   <p><strong>Certainty: low</strong></p>
   <p>Started at <strong>high</strong> &mdash; every contributing study is a randomised controlled trial.</p>
   <p><small>start high; risk_of_bias serious (-1), imprecision serious (-1); total -2 -&gt; low</small></p>
   <div class='tscroll'><table>
-    <caption>Table 30. Certainty of the evidence (GRADE)</caption>
+    <caption>Table 33. Certainty of the evidence (GRADE)</caption>
 
     <tr><th scope='col'>Domain</th><th>Rating</th><th>Why it was rated that way</th></tr>
     <tr><th scope='col'>Risk of bias</th><td>serious</td><td><small>Both contributing trials are randomised and prospectively registered, and this endpoint is the PRIMARY of both, so none of the selective-reporting exposure a secondary endpoint carries applies to this estimand. What carries the SERIOUS rating is a single fact about one of them: it is OPEN LABEL, with no placebo infusion, so participants and treating clinicians knew the assignment. Its outcome adjudication is masked and its endpoint is adjudicated, which limits that exposure -- a hospitalisation is a harder endpoint than a symptom score -- but the DECISION to admit a patient is made by an unmasked clinician before any adjudicator sees it, and that is the step masking cannot protect. The other trial is double-blind and this domain is not about it. Rating a pool on its weaker member is the conservative reading and it is stated here rather than averaged away.</small></td></tr>
@@ -1934,14 +1975,14 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Publication bias</th><td>not assessable</td><td><small>&mdash;</small></td></tr>
   </table></div>
 </div>
-<h2>Time to a FIRST cardiovascular death or hospitalisation for heart failure, as a hazard ratio</h2>
+<h2 id="report-time-to-a-first-cardiovascular-death-or-h">Time to a FIRST cardiovascular death or hospitalisation for heart failure, as a hazard ratio</h2>
 <div class='card'>
-  <h3>Certainty of the evidence (GRADE)</h3>
+  <h3 id="report-certainty-of-the-evidence-grade-2">Certainty of the evidence (GRADE)</h3>
   <p><strong>Certainty: low</strong></p>
   <p>Started at <strong>high</strong> &mdash; every contributing study is a randomised controlled trial.</p>
   <p><small>start high; risk_of_bias serious (-1), imprecision serious (-1); total -2 -&gt; low</small></p>
   <div class='tscroll'><table>
-    <caption>Table 31. Certainty of the evidence (GRADE)</caption>
+    <caption>Table 34. Certainty of the evidence (GRADE)</caption>
 
     <tr><th scope='col'>Domain</th><th>Rating</th><th>Why it was rated that way</th></tr>
     <tr><th scope='col'>Risk of bias</th><td>serious</td><td><small>Both contributing trials are randomised, prospectively registered and masked to participants and investigators. Neither trial&#x27;s staged sources use the word adjudicated about this endpoint, so this domain does not credit either of them with central adjudication -- an earlier version credited both. What carries the SERIOUS rating is endpoint RANK and it applies to one of the two rows: for one trial this is a designated secondary endpoint reported in a trial whose own primary did not reach the conventional level, which is precisely the condition outcome-reporting-bias guidance is about. For the other trial it is a co-primary. The asymmetry is on the uniformity table and it is the reason this domain is not rated as it is on the recurrent-composite estimand, where both rows are primaries.</small></td></tr>
@@ -1951,14 +1992,14 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Publication bias</th><td>not assessable</td><td><small>&mdash;</small></td></tr>
   </table></div>
 </div>
-<h2>Recurrent hospitalisations for heart failure ALONE, with no death component, as a rate ratio</h2>
+<h2 id="report-recurrent-hospitalisations-for-heart-fail-2">Recurrent hospitalisations for heart failure ALONE, with no death component, as a rate ratio</h2>
 <div class='card'>
-  <h3>Certainty of the evidence (GRADE)</h3>
+  <h3 id="report-certainty-of-the-evidence-grade-3">Certainty of the evidence (GRADE)</h3>
   <p><strong>Certainty: low</strong></p>
   <p>Started at <strong>high</strong> &mdash; every contributing study is a randomised controlled trial.</p>
   <p><small>start high; risk_of_bias serious (-1), imprecision serious (-1); total -2 -&gt; low</small></p>
   <div class='tscroll'><table>
-    <caption>Table 32. Certainty of the evidence (GRADE)</caption>
+    <caption>Table 35. Certainty of the evidence (GRADE)</caption>
 
     <tr><th scope='col'>Domain</th><th>Rating</th><th>Why it was rated that way</th></tr>
     <tr><th scope='col'>Risk of bias</th><td>serious</td><td><small>The same two trials as the first-event estimand, and the same asymmetry in reverse order: one row is a designated secondary of a trial whose primary did not reach the conventional level, and the other is a co-primary. The SERIOUS rating rests on the first of those, for the same outcome-reporting reason. Both trials are randomised, registered and masked to participants and investigators.</small></td></tr>
@@ -1968,14 +2009,14 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Publication bias</th><td>not assessable</td><td><small>&mdash;</small></td></tr>
   </table></div>
 </div>
-<h2>Time to death from ANY cause, as a hazard ratio</h2>
+<h2 id="report-time-to-death-from-any-cause-as-a-hazard-">Time to death from ANY cause, as a hazard ratio</h2>
 <div class='card'>
-  <h3>Certainty of the evidence (GRADE)</h3>
+  <h3 id="report-certainty-of-the-evidence-grade-4">Certainty of the evidence (GRADE)</h3>
   <p><strong>Certainty: low</strong></p>
   <p>Started at <strong>high</strong> &mdash; every contributing study is a randomised controlled trial.</p>
   <p><small>start high; risk_of_bias serious (-1), imprecision serious (-1); total -2 -&gt; low</small></p>
   <div class='tscroll'><table>
-    <caption>Table 33. Certainty of the evidence (GRADE)</caption>
+    <caption>Table 36. Certainty of the evidence (GRADE)</caption>
 
     <tr><th scope='col'>Domain</th><th>Rating</th><th>Why it was rated that way</th></tr>
     <tr><th scope='col'>Risk of bias</th><td>serious</td><td><small>NEITHER row is a designated PRIMARY endpoint, and that is what carries the SERIOUS rating on this estimand. The two are not alike beyond that, and this domain no longer treats them as though they were. One is classified by its own registry as an other-prespecified outcome and is not reported in that trial&#x27;s publication at all. The other is a DESIGNATED SECONDARY endpoint, named as such in its trial&#x27;s methods and ADJUDICATED by that trial&#x27;s independent clinical endpoint committee -- an earlier version of this domain called it an undesignated results-table row, which read the endpoint&#x27;s status off the page it is printed on. Both trials are randomised, registered and double-blind, and death from any cause is about as hard an endpoint as exists, so the exposure here is not about ascertainment -- it is about which of many reported quantities a synthesis chooses to carry, which is what outcome-reporting guidance concerns. Reporting the rating without that distinction would let a reader assume this estimand rests on prespecified primaries in the way the recurrent-composite estimand does.</small></td></tr>
@@ -1985,14 +2026,14 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Publication bias</th><td>not assessable</td><td><small>&mdash;</small></td></tr>
   </table></div>
 </div>
-<h2>A hierarchical composite of death, hospitalisations for heart failure and change in walk distance, as an unmatched win ratio</h2>
+<h2 id="report-a-hierarchical-composite-of-death-hospita">A hierarchical composite of death, hospitalisations for heart failure and change in walk distance, as an unmatched win ratio</h2>
 <div class='card'>
-  <h3>Certainty of the evidence (GRADE)</h3>
+  <h3 id="report-certainty-of-the-evidence-grade-5">Certainty of the evidence (GRADE)</h3>
   <p><strong>Certainty: moderate</strong></p>
   <p>Started at <strong>high</strong> &mdash; every contributing study is a randomised controlled trial.</p>
   <p><small>start high; imprecision serious (-1); total -1 -&gt; moderate</small></p>
   <div class='tscroll'><table>
-    <caption>Table 34. Certainty of the evidence (GRADE)</caption>
+    <caption>Table 37. Certainty of the evidence (GRADE)</caption>
 
     <tr><th scope='col'>Domain</th><th>Rating</th><th>Why it was rated that way</th></tr>
     <tr><th scope='col'>Risk of bias</th><td>not serious</td><td><small>The contributing trial is randomised, prospectively registered, double-blind and reports its own primary endpoint, and this cell IS that primary. It posts the three components of the hierarchy to its registry and those counts agree with the publication. The trial did not meet its endpoint and reports that plainly. Not downgraded, and nothing about the win-ratio form of the analysis is treated as a bias: it is a prespecified analysis of a prespecified hierarchy at a prespecified level.</small></td></tr>
@@ -2002,14 +2043,14 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Publication bias</th><td>not assessable</td><td><small>&mdash;</small></td></tr>
   </table></div>
 </div>
-<h2>Change in six-minute walk distance at the primary timepoint, in metres</h2>
+<h2 id="report-change-in-six-minute-walk-distance-at-the">Change in six-minute walk distance at the primary timepoint, in metres</h2>
 <div class='card'>
-  <h3>Certainty of the evidence (GRADE)</h3>
+  <h3 id="report-certainty-of-the-evidence-grade-6">Certainty of the evidence (GRADE)</h3>
   <p><strong>Certainty: low</strong></p>
   <p>Started at <strong>high</strong> &mdash; every contributing study is a randomised controlled trial.</p>
   <p><small>start high; indirectness serious (-1), imprecision serious (-1); total -2 -&gt; low</small></p>
   <div class='tscroll'><table>
-    <caption>Table 35. Certainty of the evidence (GRADE)</caption>
+    <caption>Table 38. Certainty of the evidence (GRADE)</caption>
 
     <tr><th scope='col'>Domain</th><th>Rating</th><th>Why it was rated that way</th></tr>
     <tr><th scope='col'>Risk of bias</th><td>not serious</td><td><small>The contributing trial is randomised, double-blind, and reports this cell as its own registered primary endpoint. It is REGISTERED, and this domain does not say prospectively: its registry record was first submitted in the same MONTH its enrolment began and the record gives the start only to that month, so prospective registration cannot be established from the record and is therefore not claimed. That is a limit on what the record can show rather than evidence of a problem, and it is stated because the other estimands here DO claim prospective registration on trials whose records settle it. What is NOT ignored here is that the endpoint is a walk test, which is effort-dependent and therefore more exposed to unmasking than a hospitalisation or a death would be; the trial&#x27;s masking is what answers that, and the masking is real. Not downgraded. The disagreement between this trial&#x27;s own figure and the regulator&#x27;s figure for the same endpoint is NOT counted here: two analyses of the same masked data differing is an analytic difference, and it is recorded as a divergence on the cell rather than converted into a bias rating.</small></td></tr>
@@ -2032,6 +2073,40 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
  </section>
 <!--end-statistics--></div>
 </div>
+<script>
+(function(){
+  function tabFor(el){
+    var p = el && el.closest ? el.closest("section.panel") : null;
+    return p ? document.getElementById("rt-" + p.id.replace(/^pn-/, "")) : null;
+  }
+  function apply(hash){
+    var raw = (hash || "").replace(/^#/, "");
+    if (!raw) return false;
+    var key = raw.replace(/^pn-/, "").replace(/^rt-/, "");
+    var radio = document.getElementById("rt-" + key), target = null;
+    if (!radio) {
+      var el = document.getElementById(raw);
+      if (!el) return false;
+      radio = tabFor(el);
+      target = el;
+    }
+    if (!radio) return false;
+    radio.checked = true;
+    var scrollTo = target || document.getElementById("pn-" + radio.id.replace(/^rt-/, ""));
+    if (scrollTo && scrollTo.scrollIntoView) scrollTo.scrollIntoView({block: "start"});
+    return true;
+  }
+  apply(location.hash);
+  window.addEventListener("hashchange", function(){ apply(location.hash); });
+  var radios = document.querySelectorAll('input[name="rmtab"]');
+  for (var i = 0; i < radios.length; i++) {
+    radios[i].addEventListener("change", function(){
+      if (!this.checked || !history.replaceState) return;
+      history.replaceState(null, "", "#" + this.id.replace(/^rt-/, ""));
+    });
+  }
+})();
+</script>
 
 <p><small>Every number on this page is projected from a single canonical object,
 and each measured cell names the source analysis it was read from. That is what is

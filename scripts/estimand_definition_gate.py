@@ -46,8 +46,39 @@ RESULT_SENTENCE = re.compile(
 COMPONENT = re.compile(
     r"urgent(?:\s+\w+){0,3}\s+visit|hospitali[sz]ation|hospitali[sz]ed|"
     r"cardiovascular death|cv death|death(?:s)? from cardiovascular causes|"
-    r"all-cause (?:death|mortality)|"
+    # "CV mortality" is how IRONMAN's registry writes the component that
+    # AFFIRM-AHF's writes as "CV Death". Neither the death nor the
+    # from-cardiovascular-causes alternative reaches it, so a correctly-recorded
+    # IRONMAN definition read as carrying NO cardiovascular-death component and
+    # the two trials appeared to count different things. Same family as
+    # "deaths from cardiovascular causes" on SOTAGLIFLOZIN: an under-read
+    # manufactures a disagreement exactly as an over-read manufactures an
+    # agreement, and the first argues for withdrawing a sound estimate.
+    r"(?:cardiovascular|cv) mortality|"
+    r"all-cause (?:death|mortality)|(?:death|mortality) from any cause|"
+    r"any-cause (?:death|mortality)|"
     r"myocardial infarction|stroke|worsening heart failure", re.I)
+
+# "WORSENING HEART FAILURE" IS USUALLY A QUALIFIER, NOT A COMPONENT.
+#
+# "hospitalisation for worsening heart failure" names ONE counted event. Read as
+# two matches it added a phantom component, and that alone made EMPEROR-Reduced
+# ("cardiovascular death or hospitalization for worsening heart failure") differ
+# from EMPEROR-Preserved ("cardiovascular death or hospitalization for heart
+# failure") -- two trials that count the same thing, separated by one word of
+# orthography. The same phantom separated AFFIRM-AHF from IRONMAN.
+#
+# Two shapes, and the attached one must be stripped FIRST or the umbrella
+# pattern swallows a parenthesis that merely mentions hospitalisations:
+#   attached  "<hospitalisation|admission|visit> [for|due to] worsening heart failure"
+#   umbrella  "worsening heart failure (<...enumerating hospitalisation or visit...>)"
+# Anything else -- a standalone worsening-heart-failure event, which some trials
+# really do count separately -- still yields its own component.
+_WORSENING_ATTACHED = re.compile(
+    r"\b(hospitali[sz]\w*|admission\w*|admitted|visits?)"
+    r"(?:\s+(?:for|due to|because of))?\s+worsening\s+heart\s+failure", re.I)
+_WORSENING_UMBRELLA = re.compile(
+    r"\bworsening\s+heart\s+failure\s*(?=\([^)]*(?:hospitali|visit))", re.I)
 
 
 def _norm(s):
@@ -70,7 +101,8 @@ _CANON = (
     # does, and a withdrawal needs the same evidentiary standard as a claim.
     (re.compile(r"(cardiovascular|cv) death|death.{0,3} from cardiovascular", re.I),
      "cv_death"),
-    (re.compile(r"all-cause", re.I), "all_cause_death"),
+    (re.compile(r"all-cause|any-cause|from any cause", re.I), "all_cause_death"),
+    (re.compile(r"(cardiovascular|cv) mortality", re.I), "cv_death"),
     (re.compile(r"myocardial infarction", re.I), "mi"),
     (re.compile(r"stroke", re.I), "stroke"),
     (re.compile(r"worsening heart failure", re.I), "worsening_hf"),
@@ -78,6 +110,8 @@ _CANON = (
 
 
 def _components(s):
+    s = _WORSENING_ATTACHED.sub(lambda m: m.group(1), s or "")
+    s = _WORSENING_UMBRELLA.sub("", s)
     out = set()
     for m in COMPONENT.finditer(s or ""):
         raw = m.group(0)
@@ -225,6 +259,44 @@ def selftest():
         print("  NEGATIVE FINERENONE_CV: endpoint TITLES quoted -> %-5s %s"
               % (v6, "correct" if v6 == "PASS" else "WRONG -- the gate cannot tell "
                  "a definition quote from a result quote"))
+
+    # THE CANON ITSELF, on real registry text. Each of these read WRONG before
+    # 2026-08-17 and each wrong reading manufactured a disagreement between
+    # trials that count the same events -- the direction that argues for
+    # withdrawing a sound estimate.
+    print("")
+    canon_cases = [
+        ("AFFIRM-AHF primary, registry",
+         "HF Hospitalizations and CV Death", {"cv_death", "hf_hospitalisation"}),
+        ("IRONMAN primary, registry -- 'CV mortality', and a qualifier not a "
+         "component",
+         "CV mortality or hospitalisation for worsening heart failure (analysis "
+         "will include first and recurrent hospitalisations)",
+         {"cv_death", "hf_hospitalisation"}),
+        ("EMPEROR-Reduced: 'hospitalization for WORSENING heart failure'",
+         "a composite of cardiovascular death or hospitalization for worsening "
+         "heart failure", {"cv_death", "hf_hospitalisation"}),
+        ("EMPEROR-Preserved: the same events, one word apart",
+         "a composite of cardiovascular death or hospitalization for heart "
+         "failure", {"cv_death", "hf_hospitalisation"}),
+        ("DAPA-HF: the umbrella phrase enumerates its own contents",
+         "a composite of worsening heart failure (hospitalization or an urgent "
+         "visit resulting in intravenous therapy for heart failure) or "
+         "cardiovascular death",
+         {"cv_death", "hf_hospitalisation", "urgent_visit"}),
+        ("a STANDALONE worsening-HF event still counts as its own component",
+         "a composite of cardiovascular death or a worsening heart failure event "
+         "treated in the outpatient setting", {"cv_death", "worsening_hf"}),
+        ("CONFIRM-HF: the publication's own words for the death row",
+         "all-cause death, analysed as time to first event", {"all_cause_death"}),
+    ]
+    for label, text, want in canon_cases:
+        got = set(_components(text))
+        good = got == want
+        ok &= good
+        print("  CANON %-62s %s" % (label[:62], "correct" if good else
+                                    "WRONG: %s" % sorted(got)))
+    print("")
 
     v5, _ = check({})
     ok &= v5 == "UNCHECKABLE"

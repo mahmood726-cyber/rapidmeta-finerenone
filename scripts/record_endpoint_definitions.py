@@ -144,6 +144,175 @@ DEFINITIONS = {
    },
   },
  },
+
+ # ------------------------------------------------------------------ IV IRON
+ # Five trials, four pooled outcomes, and the interesting reads are the two
+ # where the registry does NOT hold the cell: CONFIRM-HF posts no results at all
+ # and IRONMAN's primary is worded a component apart from AFFIRM-AHF's.
+ "iv-iron-hf": {
+  "NCT02937454": {          # AFFIRM-AHF
+   "hfh_cvd_recurrent": {
+    "text": "HF Hospitalizations and CV Death",
+    "description_verbatim": "The composite of recurrent HF hospitalizations and "
+            "CV death up to 52 weeks after randomization. Total hospitalisations "
+            "included first and recurrent events. If a participant was "
+            "hospitalised for heart failure and died within 24 h from any "
+            "cardiovascular event, this was counted as one event.",
+    "time_frame": "up to 52 weeks after randomization",
+    "endpoint_rank": "PRIMARY",
+    "source": "registry",
+    "source_field": _CTG,
+    "source_url": "https://clinicaltrials.gov/study/NCT02937454",
+    "read_utc": "2026-08-17",
+   },
+   "hfh_cvd_first": {
+    "text": "Composite of HF Hospitalisations or CV Death",
+    "description_verbatim": "Analysed as time to first event at 52 weeks after "
+            "randomisation. The number of participants with at least one HF "
+            "Hospitalisation or CV Death is presented below.",
+    "time_frame": "at 52 weeks after randomisation",
+    "endpoint_rank": "SECONDARY",
+    "source": "registry",
+    "source_field": "protocolSection.outcomesModule.secondaryOutcomes[].measure",
+    "source_url": "https://clinicaltrials.gov/study/NCT02937454",
+    "read_utc": "2026-08-17",
+   },
+   "hfh_recurrent": {
+    "text": "HF Hospitalisations",
+    "description_verbatim": "HF hospitalisations up to 52 weeks after "
+            "randomisation analysed as recurrent event.",
+    "time_frame": "up to 52 weeks after randomisation",
+    "endpoint_rank": "SECONDARY",
+    "source": "registry",
+    "source_field": "protocolSection.outcomesModule.secondaryOutcomes[].measure",
+    "source_url": "https://clinicaltrials.gov/study/NCT02937454",
+    "read_utc": "2026-08-17",
+   },
+   "acm": {
+    "text": "All-cause Mortality",
+    "description_verbatim": "Number of participants who died up to 52 weeks "
+            "after randomisation",
+    "endpoint_rank": "OTHER PRE-SPECIFIED, as the registry's own record "
+                     "classifies it; this trial's publication does not report "
+                     "this outcome at all",
+    "source": "registry",
+    "source_field": "resultsSection.outcomeMeasuresModule, all-cause mortality",
+    "source_url": "https://clinicaltrials.gov/study/NCT02937454",
+    "read_utc": "2026-08-17",
+   },
+  },
+  "NCT02642562": {          # IRONMAN
+   "hfh_cvd_recurrent": {
+    "text": "CV mortality or hospitalisation for worsening heart failure "
+            "(analysis will include first and recurrent hospitalisations)",
+    "time_frame": "Minimum of 3 months follow-up from last patient recruited",
+    "endpoint_rank": "PRIMARY",
+    "source": "registry",
+    "source_field": _CTG,
+    "source_url": "https://clinicaltrials.gov/study/NCT02642562",
+    "same_events_different_words": "This counts the same two event classes as "
+            "AFFIRM-AHF's primary, written differently: 'CV mortality' for 'CV "
+            "Death', and 'hospitalisation for worsening heart failure' for 'HF "
+            "Hospitalizations'. Both readings were checked against the canon "
+            "rather than assumed -- an earlier version of the component reader "
+            "saw neither the CV-mortality component nor the hospitalisation as "
+            "one event, and would have reported two trials that count the same "
+            "thing as counting different things.",
+    "read_utc": "2026-08-17",
+   },
+  },
+  "NCT03036462": {          # FAIR-HF2
+   "hfh_cvd_first": {
+    "text": "Time-to-first event of CV death or HF hospitalisation",
+    "description_verbatim": "Show that treatment of patients with systolic heart "
+            "failure (HF) and iron deficiency (ID) with i.v. iron (Ferric "
+            "Carboxymaltose, FCM) versus placebo (i.v. NaCl) can extend the "
+            "time-to-first-event of heart failure hospitalisations and "
+            "cardiovascular (CV) death.",
+    "time_frame": "The whole follow-up period. We aim for a minimum average "
+                  "follow-up of >2 years.",
+    "endpoint_rank": "PRIMARY -- the first of three, under a Hochberg procedure",
+    "source": "registry",
+    "source_field": _CTG,
+    "source_url": "https://clinicaltrials.gov/study/NCT03036462",
+    "read_utc": "2026-08-17",
+   },
+   "hfh_recurrent": {
+    "text": "Rate of total (first and recurrent) events of hospitalisations for "
+            "heart failure (HF)",
+    "description_verbatim": "Show that treatment of patients with systolic heart "
+            "failure (HF) and iron deficiency (ID) with i.v. iron (Ferric "
+            "Carboxymaltose, FCM) versus placebo (i.v. NaCl) reduces the rate of "
+            "recurrent events of heart failure hospitalisations.",
+    "endpoint_rank": "PRIMARY -- the second of three, under a Hochberg procedure",
+    "source": "registry",
+    "source_field": "protocolSection.outcomesModule.primaryOutcomes[1].measure",
+    "source_url": "https://clinicaltrials.gov/study/NCT03036462",
+    "read_utc": "2026-08-17",
+   },
+  },
+  "NCT03037931": {          # HEART-FID
+   "hierarchical_primary": {
+    "text": "Number of Deaths; Number of Hospitalizations for Heart Failure; "
+            "Change in 6MWT (Six Minute Walk Test) Distance -- the registry "
+            "posts these as THREE separate primary outcome measures, and the "
+            "publication reports them combined as one hierarchical composite "
+            "analysed by unmatched win ratio",
+    "description_verbatim": "The number of participants who died out of the "
+            "total treated group. / The number of participants who were "
+            "hospitalized for heart failure out of the total treated group. / "
+            "The change in meters walked at baseline compared to 6 months later.",
+    "time_frame": "1 year for death and hospitalisation; 6 months for the walk "
+                  "distance",
+    "endpoint_rank": "PRIMARY, all three",
+    "source": "registry",
+    "source_field": "protocolSection.outcomesModule.primaryOutcomes[0..2]",
+    "source_url": "https://clinicaltrials.gov/study/NCT03037931",
+    "read_utc": "2026-08-17",
+   },
+  },
+  "NCT01453608": {          # CONFIRM-HF
+   "acm": {
+    "text": "all-cause death, analysed as time to first event",
+    "description_verbatim": "The incidence of all-cause death was similar in "
+            "both groups",
+    "measure_established_by": "The column header of the trial's own Table 2 "
+            "reads 'Time to first event hazard ratio  95% CI  P-value'. THIS IS "
+            "THE HALF THE STORED QUOTE WAS MISSING: the object held the row "
+            "('Death 12 12 (8.9) 14 14 (9.9) 0.89 (0.41-1.93) 0.77') and a row "
+            "of numbers does not say what the numbers are. The header does, and "
+            "it confirms the object's claim that this is a hazard ratio -- the "
+            "same class of question that is currently open on ARNI, asked here "
+            "and answered.",
+    "endpoint_rank": "a designated secondary outcome-related endpoint, "
+                     "adjudicated by the trial's independent endpoint committee",
+    "source": "publication",
+    "source_field": "Eur Heart J 2015, Table 2 'Hospitalizations and deaths "
+                    "(full-analysis set)', row 'Death'",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/25176939/",
+    "add_source_quote": "Table 2 Hospitalizations and deaths (full-analysis "
+            "set) -- column header: End-point or event | FCM (n = 150) Total "
+            "number of events | Incidence/100 patient-years at risk | Placebo "
+            "(n = 151) Total number of events | Incidence/100 patient-years at "
+            "risk | TIME TO FIRST EVENT HAZARD RATIO | 95% CI | P-value",
+    "registry_does_not_post": "This trial's registry record posts ONE outcome "
+            "measure -- the six-minute walk test at week 24 -- and no results "
+            "section at all. There is no registry text for this endpoint to "
+            "read, and its absence was established by reading the record rather "
+            "than inferred from the trial being old.",
+    "read_utc": "2026-08-17",
+   },
+   "six_min_walk_24w": {
+    "text": "Change in six minute walk test from baseline to week 24",
+    "time_frame": "24 weeks",
+    "endpoint_rank": "PRIMARY",
+    "source": "registry",
+    "source_field": _CTG,
+    "source_url": "https://clinicaltrials.gov/study/NCT01453608",
+    "read_utc": "2026-08-17",
+   },
+  },
+ },
 }
 
 
@@ -176,7 +345,20 @@ def apply(app_id, dry=False):
                 continue
             bo["outcome_definition"] = rec["text"]
             bo["outcome_definition_source"] = {
-                k: v for k, v in rec.items() if k != "text"}
+                k: v for k, v in rec.items()
+                if k not in ("text", "add_source_quote")}
+            # A QUOTE THAT ESTABLISHES THE MEASURE BELONGS IN THE AUDIT SURFACE,
+            # not only in this record. CONFIRM-HF's stored provenance was the
+            # TABLE ROW -- a line of numbers, which does not say what the numbers
+            # are. The column header does, and a reader checking us needs to see
+            # it on the extraction tab. Appended idempotently: re-running must
+            # not grow the list.
+            q = rec.get("add_source_quote")
+            if q:
+                prov = bo.setdefault("provenance", {})
+                quotes = prov.setdefault("source_quotes", [])
+                if q not in quotes:
+                    quotes.append(q)
             written += 1
             print("  %-14s %-12s <- %s" % (nct, oid, rec["source"]))
     for m in missing:

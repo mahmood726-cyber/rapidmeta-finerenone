@@ -522,6 +522,16 @@
        "trial_declares_significant": false,
        "alpha_rule": "a single primary endpoint tested at the conventional two-sided level",
        "basis": "The trial's own interpretation says the treatment reduced the risk of heart failure hospitalisations with no apparent effect on cardiovascular death; the composite primary itself did not reach the conventional level and its interval includes the null."
+      },
+      "outcome_definition": "HF Hospitalizations and CV Death",
+      "outcome_definition_source": {
+       "description_verbatim": "The composite of recurrent HF hospitalizations and CV death up to 52 weeks after randomization. Total hospitalisations included first and recurrent events. If a participant was hospitalised for heart failure and died within 24 h from any cardiovascular event, this was counted as one event.",
+       "time_frame": "up to 52 weeks after randomization",
+       "endpoint_rank": "PRIMARY",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+       "source_url": "https://clinicaltrials.gov/study/NCT02937454",
+       "read_utc": "2026-08-17"
       }
      },
      "hfh_cvd_first": {
@@ -590,6 +600,16 @@
        "trial_declares_significant": null,
        "alpha_rule": "a secondary endpoint in a trial whose primary did not reach the conventional level",
        "basis": "This is recorded as UNDECIDED rather than as significant or not, and the reason is stated rather than left implicit: the trial's abstract prints this p value and does not state a testing hierarchy for its secondary endpoints, so this object cannot say whether the trial regards it as formally significant. What can be said is that it is a secondary endpoint of a trial whose primary endpoint did not reach the conventional level, which is the condition under which a nominal secondary p value is conventionally read as hypothesis-generating."
+      },
+      "outcome_definition": "Composite of HF Hospitalisations or CV Death",
+      "outcome_definition_source": {
+       "description_verbatim": "Analysed as time to first event at 52 weeks after randomisation. The number of participants with at least one HF Hospitalisation or CV Death is presented below.",
+       "time_frame": "at 52 weeks after randomisation",
+       "endpoint_rank": "SECONDARY",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.secondaryOutcomes[].measure",
+       "source_url": "https://clinicaltrials.gov/study/NCT02937454",
+       "read_utc": "2026-08-17"
       }
      },
      "hfh_recurrent": {
@@ -658,6 +678,16 @@
        "trial_declares_significant": null,
        "alpha_rule": "a secondary endpoint in a trial whose primary did not reach the conventional level",
        "basis": "Recorded as undecided for the same reason as this trial's other secondary row: the trial prints the p value and states no testing hierarchy this object could apply."
+      },
+      "outcome_definition": "HF Hospitalisations",
+      "outcome_definition_source": {
+       "description_verbatim": "HF hospitalisations up to 52 weeks after randomisation analysed as recurrent event.",
+       "time_frame": "up to 52 weeks after randomisation",
+       "endpoint_rank": "SECONDARY",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.secondaryOutcomes[].measure",
+       "source_url": "https://clinicaltrials.gov/study/NCT02937454",
+       "read_utc": "2026-08-17"
       }
      },
      "acm": {
@@ -726,6 +756,15 @@
        "trial_declares_significant": false,
        "alpha_rule": "an other-prespecified outcome carrying no formal alpha at all",
        "basis": "The registry posts this p value with the estimate. The endpoint carries no formal testing level, so significance is not a property it has; the value is recorded because the record prints it and because its size makes the point that this outcome is nowhere near a boundary."
+      },
+      "outcome_definition": "All-cause Mortality",
+      "outcome_definition_source": {
+       "description_verbatim": "Number of participants who died up to 52 weeks after randomisation",
+       "endpoint_rank": "OTHER PRE-SPECIFIED, as the registry's own record classifies it; this trial's publication does not report this outcome at all",
+       "source": "registry",
+       "source_field": "resultsSection.outcomeMeasuresModule, all-cause mortality",
+       "source_url": "https://clinicaltrials.gov/study/NCT02937454",
+       "read_utc": "2026-08-17"
       }
      }
     },
@@ -875,6 +914,16 @@
        "trial_declares_significant": false,
        "alpha_rule": "a single primary endpoint tested at the conventional two-sided level",
        "basis": "The primary endpoint did not reach the conventional level and its interval includes the null. A prespecified analysis censoring follow-up during the pandemic did reach it; that is a separate analysis, it is not this cell, and it is not stored anywhere in this object."
+      },
+      "outcome_definition": "CV mortality or hospitalisation for worsening heart failure (analysis will include first and recurrent hospitalisations)",
+      "outcome_definition_source": {
+       "time_frame": "Minimum of 3 months follow-up from last patient recruited",
+       "endpoint_rank": "PRIMARY",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+       "source_url": "https://clinicaltrials.gov/study/NCT02642562",
+       "same_events_different_words": "This counts the same two event classes as AFFIRM-AHF's primary, written differently: 'CV mortality' for 'CV Death', and 'hospitalisation for worsening heart failure' for 'HF Hospitalizations'. Both readings were checked against the canon rather than assumed -- an earlier version of the component reader saw neither the CV-mortality component nor the hospitalisation as one event, and would have reported two trials that count the same thing as counting different things.",
+       "read_utc": "2026-08-17"
       }
      }
     },
@@ -998,6 +1047,16 @@
        "trial_declares_significant": false,
        "alpha_rule": "a Hochberg procedure over three co-primary endpoints, requiring either every one of the three below the conventional level, or two below half of it, or any one below a third of it",
        "basis": "THIS IS THE CELL A READER WILL MISQUOTE. Its interval excludes the null and the trial is negative, and both are true at once because the multiplicity rule and the interval answer different questions. The three observed p values are 0.04, 0.12 and 0.07, and no one of the three conditions is met, so the trial's own conclusion is that ferric carboxymaltose did not significantly reduce any of its three primary outcomes. This field exists so that fact travels with the number structurally instead of sitting in a paragraph somewhere else."
+      },
+      "outcome_definition": "Time-to-first event of CV death or HF hospitalisation",
+      "outcome_definition_source": {
+       "description_verbatim": "Show that treatment of patients with systolic heart failure (HF) and iron deficiency (ID) with i.v. iron (Ferric Carboxymaltose, FCM) versus placebo (i.v. NaCl) can extend the time-to-first-event of heart failure hospitalisations and cardiovascular (CV) death.",
+       "time_frame": "The whole follow-up period. We aim for a minimum average follow-up of >2 years.",
+       "endpoint_rank": "PRIMARY -- the first of three, under a Hochberg procedure",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+       "source_url": "https://clinicaltrials.gov/study/NCT03036462",
+       "read_utc": "2026-08-17"
       }
      },
      "hfh_recurrent": {
@@ -1065,6 +1124,15 @@
        "trial_declares_significant": false,
        "alpha_rule": "the same Hochberg procedure over the trial's three co-primary endpoints",
        "basis": "Both the interval and the multiplicity rule point the same way on this row, unlike its companion row on the same trial, and that contrast is the reason the field is stored on every row rather than only on the row where the two disagree."
+      },
+      "outcome_definition": "Rate of total (first and recurrent) events of hospitalisations for heart failure (HF)",
+      "outcome_definition_source": {
+       "description_verbatim": "Show that treatment of patients with systolic heart failure (HF) and iron deficiency (ID) with i.v. iron (Ferric Carboxymaltose, FCM) versus placebo (i.v. NaCl) reduces the rate of recurrent events of heart failure hospitalisations.",
+       "endpoint_rank": "PRIMARY -- the second of three, under a Hochberg procedure",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[1].measure",
+       "source_url": "https://clinicaltrials.gov/study/NCT03036462",
+       "read_utc": "2026-08-17"
       }
      }
     },
@@ -1189,6 +1257,16 @@
        "trial_declares_significant": false,
        "alpha_rule": "a significance level the trial itself set at one per cent for this endpoint, which is also why its interval is not an ordinary one",
        "basis": "The rank-test p value is above the level the trial prespecified, so the trial did not meet its primary endpoint and its own conclusion reports no apparent difference. This is the second cell in this object where an interval and a significance statement can be read against each other, and here they agree: the interval includes the null as well."
+      },
+      "outcome_definition": "Number of Deaths; Number of Hospitalizations for Heart Failure; Change in 6MWT (Six Minute Walk Test) Distance -- the registry posts these as THREE separate primary outcome measures, and the publication reports them combined as one hierarchical composite analysed by unmatched win ratio",
+      "outcome_definition_source": {
+       "description_verbatim": "The number of participants who died out of the total treated group. / The number of participants who were hospitalized for heart failure out of the total treated group. / The change in meters walked at baseline compared to 6 months later.",
+       "time_frame": "1 year for death and hospitalisation; 6 months for the walk distance",
+       "endpoint_rank": "PRIMARY, all three",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0..2]",
+       "source_url": "https://clinicaltrials.gov/study/NCT03037931",
+       "read_utc": "2026-08-17"
       }
      }
     },
@@ -1283,7 +1361,8 @@
        "source_id": "OA_CONFIRMHF2015_FULLTEXT",
        "source_quotes": [
         "Table 2 Hospitalizations and deaths (full-analysis set) End-point or event FCM ( n = 150) Placebo ( n = 151)",
-        "Death 12 12 (8.9) 14 14 (9.9) 0.89 (0.41– 1.93) 0.77"
+        "Death 12 12 (8.9) 14 14 (9.9) 0.89 (0.41– 1.93) 0.77",
+        "Table 2 Hospitalizations and deaths (full-analysis set) -- column header: End-point or event | FCM (n = 150) Total number of events | Incidence/100 patient-years at risk | Placebo (n = 151) Total number of events | Incidence/100 patient-years at risk | TIME TO FIRST EVENT HAZARD RATIO | 95% CI | P-value"
        ],
        "quote_note": "Two fragments extracted from the staged full text. The first is the table heading, stored because it fixes the DENOMINATORS this row was computed in and those denominators are the subject of a correction this object carries. The second is the table row itself. This trial's abstract prints the two death counts and no effect estimate, so the full text is load-bearing here and the abstract would not have been enough."
       },
@@ -1294,6 +1373,17 @@
        "trial_declares_significant": false,
        "alpha_rule": "a designated secondary endpoint carrying no formal alpha of its own",
        "basis": "The trial prints this p value in its hospitalisations-and-deaths table, and its methods list this endpoint by name among the secondary outcome-related endpoints assessed. As on the companion row, the endpoint carries no formal testing level, so significance is not a property it has. An earlier version of this object called it an undesignated table row, which was read off WHERE THE NUMBER SITS rather than off the methods that designate it -- a gate leg quoted the designating sentence back."
+      },
+      "outcome_definition": "all-cause death, analysed as time to first event",
+      "outcome_definition_source": {
+       "description_verbatim": "The incidence of all-cause death was similar in both groups",
+       "measure_established_by": "The column header of the trial's own Table 2 reads 'Time to first event hazard ratio  95% CI  P-value'. THIS IS THE HALF THE STORED QUOTE WAS MISSING: the object held the row ('Death 12 12 (8.9) 14 14 (9.9) 0.89 (0.41-1.93) 0.77') and a row of numbers does not say what the numbers are. The header does, and it confirms the object's claim that this is a hazard ratio -- the same class of question that is currently open on ARNI, asked here and answered.",
+       "endpoint_rank": "a designated secondary outcome-related endpoint, adjudicated by the trial's independent endpoint committee",
+       "source": "publication",
+       "source_field": "Eur Heart J 2015, Table 2 'Hospitalizations and deaths (full-analysis set)', row 'Death'",
+       "source_url": "https://pubmed.ncbi.nlm.nih.gov/25176939/",
+       "registry_does_not_post": "This trial's registry record posts ONE outcome measure -- the six-minute walk test at week 24 -- and no results section at all. There is no registry text for this endpoint to read, and its absence was established by reading the record rather than inferred from the trial being old.",
+       "read_utc": "2026-08-17"
       }
      },
      "six_min_walk_24w": {
@@ -1384,6 +1474,15 @@
        "trial_declares_significant": true,
        "alpha_rule": "the trial's single primary endpoint at the conventional two-sided level",
        "basis": "The trial met its primary endpoint. This is the only cell in this object on which a contributing trial declares its own result significant, and it is a functional endpoint rather than a clinical-event one -- which is exactly the shape of the United States indication that rests on it."
+      },
+      "outcome_definition": "Change in six minute walk test from baseline to week 24",
+      "outcome_definition_source": {
+       "time_frame": "24 weeks",
+       "endpoint_rank": "PRIMARY",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+       "source_url": "https://clinicaltrials.gov/study/NCT01453608",
+       "read_utc": "2026-08-17"
       }
      }
     },
@@ -3223,6 +3322,149 @@
     "3.2.4"
    ],
    "conformance": "A United States heart-failure indication for one of these products does exist and it is narrower than its name: it authorises treatment to improve exercise capacity, and the clinical-studies section supporting it rests on one trial and one functional endpoint. The label for the other molecule does not contain the phrase heart failure at all. Writing one sentence about the regulator would have been false of one of the two products on either reading, which is the defect class this batch has spent the most rounds on."
+  }
+ },
+ "published_comparison": {
+  "_why": "This is the topic where a published synthesis pools THE SAME TWO TRIALS on THE SAME ENDPOINT as this review, so the pooled value here can be checked against an external number rather than only described. It is also the topic with the largest published evidence base -- six trials with individual participant data -- against which our two-trial pool has to explain itself.",
+  "_how_identified": "PubMed E-utilities; the query, the counts and a decision for every record are in ssot/iv-iron-hf/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json. 61 records matched and all 61 were read at abstract level; 5 name at least one trial we pool.",
+  "reviews": [
+   {
+    "id": "PM_CLINRESCARDIOL2023",
+    "pmid": "37074386",
+    "citation": "Efficacy and safety of intravenous iron repletion in patients with heart failure: a systematic review and meta-analysis. Clin Res Cardiol 2023.",
+    "their_k": 2,
+    "scope": "AFFIRM-AHF and IRONMAN on the composite of recurrent heart-failure hospitalisations and cardiovascular death",
+    "how_it_differs_from_ours": "It does not differ. Same two trials, same endpoint, independently computed -- which makes it the only direct external check of a pooled value anywhere in this cardiology lane."
+   },
+   {
+    "id": "PM_NATMED2025",
+    "pmid": "40159279",
+    "citation": "Systematic review and meta-analysis of intravenous iron therapy for patients with heart failure and iron deficiency. Nat Med 2025.",
+    "their_k": 6,
+    "their_n": 7175,
+    "scope": "FAIR-HF, CONFIRM-HF, AFFIRM-AHF, IRONMAN, HEART-FID and FAIR-HF2, Bayesian, with individual participant data from five",
+    "how_it_differs_from_ours": "It has INDIVIDUAL PARTICIPANT DATA and we have published summaries. That is the whole difference: four of its six trials publish no recurrent-events composite at all, so it could DERIVE the endpoint for them and we could not. Our k=2 is a limit of the layer available to us, not a judgement that the other four are ineligible."
+   },
+   {
+    "id": "PM_EJHF2023",
+    "pmid": "37062867",
+    "citation": "Effect of intravenous iron replacement on recurrent heart failure hospitalizations and cardiovascular mortality in patients with heart failure and iron deficiency: A Bayesian meta-analysis. Eur J Heart Fail 2023.",
+    "their_k": 4,
+    "scope": "FAIR-HF, CONFIRM-HF and AFFIRM-AHF individual participant data re-analysed to match IRONMAN's approach",
+    "how_it_differs_from_ours": "It is the clearest example in this lane of the estimand work being done properly by someone else: rather than pooling whatever each trial happened to report, it re-derived the outcome in three trials to match the fourth, and says so in its abstract."
+   },
+   {
+    "id": "PM_CLINRESCARDIOL2021",
+    "pmid": "33755777",
+    "citation": "Intravenous iron for heart failure with evidence of iron deficiency: a meta-analysis of randomised trials. Clin Res Cardiol 2021.",
+    "their_k": 7,
+    "scope": "seven trials, the composite of FIRST heart-failure hospitalisation or cardiovascular mortality, pooled as odds ratios",
+    "how_it_differs_from_ours": "A different estimand -- first event, odds ratio -- and it says so. It describes AFFIRM-AHF's primary as the recurrent composite in its introduction and then pools first-event data, which is the correct handling and not a slip."
+   }
+  ],
+  "checks": [
+   {
+    "id": "affirm-recurrent-vs-registry-results",
+    "what": "Our AFFIRM-AHF recurrent-composite input against the registry's POSTED RESULT",
+    "verdict": "CONFIRMED",
+    "detail": "The registry posts, on the primary outcome whose definition we read, an annualised event rate ratio of 0.79 with a 95% interval of 0.62 to 1.01, from a negative binomial model adjusted for sex, age, HF aetiology, HF duration and country. This object stores 0.79 (0.62 to 1.01). Identical, and taken from the registry's analysis record rather than from the publication.",
+    "quote": "Annualised event rate ratio (RR) = 0.79, CI 0.62-1.01",
+    "location": "ClinicalTrials.gov NCT02937454, resultsSection, primary outcome"
+   },
+   {
+    "id": "affirm-first-event-vs-registry-results",
+    "what": "Our AFFIRM-AHF time-to-first input against the registry's POSTED RESULT",
+    "verdict": "CONFIRMED",
+    "detail": "Registry: hazard ratio 0.80 (0.66 to 0.98), Cox, same covariates. This object stores 0.80 (0.66 to 0.98).",
+    "quote": "Hazard Ratio (HR) = 0.80, CI 0.66-0.98",
+    "location": "ClinicalTrials.gov NCT02937454, 'Composite of HF Hospitalisations or CV Death'"
+   },
+   {
+    "id": "affirm-hfh-and-acm-vs-registry-results",
+    "what": "Our two remaining AFFIRM-AHF inputs against the registry's POSTED RESULTS",
+    "verdict": "CONFIRMED",
+    "detail": "Recurrent heart-failure hospitalisations: registry 0.74 (0.58 to 0.94), object 0.74 (0.58 to 0.94). All-cause mortality: registry 0.99 (0.75 to 1.31), object 0.99 (0.75 to 1.31). All four of this trial's contributions to this review are therefore confirmed against a surface independent of its publication -- which matters here, because the publication does not report the all-cause figure at all.",
+    "quote": "Annualised event rate ratio (RR) = 0.74, CI 0.58-0.94; Hazard Ratio (HR) = 0.99, CI 0.75-1.31",
+    "location": "ClinicalTrials.gov NCT02937454, secondary and other-prespecified outcomes"
+   },
+   {
+    "id": "which-affirm-analysis-is-pooled",
+    "what": "The registry posts TWO analyses per AFFIRM-AHF outcome; which one is here",
+    "verdict": "CONFIRMED",
+    "detail": "Every AFFIRM-AHF outcome carries a pre-specified COVID-19 sensitivity analysis beside the main one -- on the primary, 0.75 (0.59 to 0.96) against 0.79 (0.62 to 1.01). This object pools the MAIN analysis throughout. The distinction decides whether this trial's own result crosses the null, so a review that took one without saying which would be reporting a choice as though it were a reading. Checked because value-without-its-analysis is a defect class this batch has produced before; here it is clean and now explicit.",
+    "quote": "Annualised event rate ratio (RR) = 0.75, CI 0.59-0.96 -- the second analysis posted on the same outcome",
+    "location": "ClinicalTrials.gov NCT02937454, primary outcome, analysis 2"
+   },
+   {
+    "id": "confirm-hf-ratio-is-a-hazard-ratio",
+    "what": "Whether CONFIRM-HF's 0.89 is established as a HAZARD ratio, or only assumed to be one",
+    "verdict": "CONFIRMED",
+    "detail": "It is established. The column header of the trial's own Table 2 reads 'Time to first event hazard ratio | 95% CI | P-value'. THIS OBJECT HAD STORED THE ROW WITHOUT THE HEADER -- 'Death 12 12 (8.9) 14 14 (9.9) 0.89 (0.41-1.93) 0.77' -- and a row of numbers does not say what the numbers are. The header has been added to the extraction surface. This is the same question that is currently OPEN on ARNI, where a contributing ratio is not established as a hazard ratio and decides the result; asked here, it comes back clean.",
+    "quote": "End-point or event | ... | Time to first event hazard ratio | 95% CI | P-value",
+    "location": "Eur Heart J 2015, CONFIRM-HF, Table 2 column header, read from the open-access full text"
+   },
+   {
+    "id": "our-pool-against-the-same-two-trials-published",
+    "what": "Our recurrent-composite pool against a published meta-analysis of THE SAME TWO TRIALS",
+    "verdict": "CONFIRMED",
+    "detail": "Clin Res Cardiol 2023 pools AFFIRM-AHF and IRONMAN on this endpoint and reports RR 0.81 (0.69 to 0.95), I-squared 0%. This object reports 0.8066 (0.6856 to 0.9488). The two agree to the precision either one prints. An inverse-variance pool of the two trials' main analyses -- 0.79 (0.62 to 1.01) and 0.82 (0.66 to 1.02) -- reproduces 0.8066 (0.6856 to 0.9488) exactly, which is the arithmetic behind the agreement rather than an assertion of it. THIS IS THE ONLY DIRECT EXTERNAL CHECK OF A POOLED VALUE IN THIS CARDIOLOGY LANE, and it passes.",
+    "quote": "FCM/FDI reduced the primary endpoint (RR = 0.81, 95% CI 0.69-0.95, p = 0.01, I2 = 0%)",
+    "location": "PMID 37074386, abstract"
+   },
+   {
+    "id": "our-pool-against-the-six-trial-ipd-analysis",
+    "what": "Our two-trial pool against the six-trial individual-participant-data analysis",
+    "verdict": "CONFIRMED",
+    "detail": "Nat Med 2025 reports RR 0.81 (0.63 to 0.97) for recurrent HF hospitalisations and cardiovascular mortality over the complete follow-up of six trials, 7,175 patients. This object reports 0.8066 (0.6856 to 0.9488) over two. The point estimates agree to two decimal places across a threefold difference in evidence, and their interval is WIDER than ours despite three times the patients -- which is what a Bayesian random-effects model with between-trial variance does, and is worth a reader's attention because the naive expectation is the opposite.",
+    "quote": "lower rates for the composite endpoint of recurrent HF hospitalizations and cardiovascular mortality ... for the complete length of follow-up (RR = 0.81 (95% CI = 0.63-0.97))",
+    "location": "PMID 40159279, abstract"
+   },
+   {
+    "id": "did-anyone-pool-mismatched-endpoints",
+    "what": "Whether any located synthesis pooled trials that count different things",
+    "verdict": "CONFIRMED",
+    "detail": "None of the four located syntheses did, and two of them did the harmonisation work explicitly. The Bayesian analysis states that 'definitions of outcomes and subgroups from the FAIR-HF, CONFIRM-HF and AFFIRM-AHF were matched with those used in IRONMAN', and the Nat Med analysis used individual participant data to derive a common endpoint across six trials. The 2021 analysis pools a FIRST-event composite as odds ratios and says so, rather than mixing it with AFFIRM-AHF's recurrent primary. THE LITERATURE HANDLED THE ESTIMAND CORRECTLY, and that is recorded as prominently as an error would be -- it is the third cardiology topic in a row where the defect, where there was one, was ours.",
+    "quote": "Definitions of outcomes and subgroups from the FAIR-HF, CONFIRM-HF and AFFIRM-AHF were matched with those used in IRONMAN.",
+    "location": "PMID 37062867, abstract"
+   },
+   {
+    "id": "two-trials-post-no-registry-results",
+    "what": "Registry confirmation for IRONMAN and FAIR-HF2",
+    "verdict": "ABSENT",
+    "detail": "Neither registry record posts a results section: the API returns zero posted outcome measures for both. Their contributions to this review therefore rest on their publications alone, with no second surface to check them against. Recorded as an absence in OUR evidence rather than a fault in the trials, and established by querying the records rather than inferred.",
+    "quote": null,
+    "location": "ClinicalTrials.gov NCT02642562 and NCT03036462, resultsSection"
+   },
+   {
+    "id": "what-the-abstract-layer-cannot-settle",
+    "what": "Whether the 52 syntheses that name no trial included ours",
+    "verdict": "UNRESOLVED",
+    "detail": "52 of 61 records name none of our trials in the abstract and four carry no indexed abstract. Abstract-level screening cannot establish what a synthesis pooled. Counting them as agreeing would be absence of evidence dressed as evidence of absence.",
+    "quote": null,
+    "location": "PUBLISHED_SYNTHESIS_SCREEN.json, tally"
+   },
+   {
+    "id": "which-inputs-the-matching-meta-analysis-used",
+    "what": "Whether the matching two-trial meta-analysis pooled the main or the COVID-19 analyses",
+    "verdict": "UNRESOLVED",
+    "detail": "Its abstract's opening sentence says the two trials demonstrated their results 'utilizing prespecified COVID-19 analyses', but its pooled 0.81 (0.69 to 0.95) reproduces the MAIN analyses and not the COVID ones, which would pool near 0.76. The numerical agreement makes the main analyses the more likely inputs, and the sentence is the more likely loose one -- but that is an inference and it is recorded as one. Full text would settle it, and nothing here depends on the answer.",
+    "quote": "utilizing prespecified COVID-19 analyses",
+    "location": "PMID 37074386, abstract, first sentence"
+   }
+  ],
+  "divergence_decomposed": {
+   "ours": "Rate ratio 0.8066 (0.6856 to 0.9488) for recurrent heart-failure hospitalisations together with cardiovascular death, k=2, AFFIRM-AHF and IRONMAN, from published summary data.",
+   "theirs": "RR 0.81 (0.69 to 0.95) on the same two trials (Clin Res Cardiol 2023); RR 0.81 (0.63 to 0.97) on six trials with individual participant data (Nat Med 2025); RR 0.73 (0.48 to 0.99) on four trials with harmonised definitions (Eur J Heart Fail 2023).",
+   "why_they_differ": "On the same two trials they do not differ at all. Across the wider analyses the difference is ACCESS, not method: individual participant data let those authors derive a recurrent-events composite for four trials that publish none, and no amount of care with published summaries can substitute for that. The honest statement is that our k=2 is the limit of what the published layer supports, and that where the layers overlap the numbers agree."
+  },
+  "denominator": {
+   "rows_checked": 11,
+   "confirmed": 8,
+   "errors": 0,
+   "absent": 1,
+   "unresolved": 2,
+   "statement": "11 checks were applied and 8 came back clean, 0 found an error, 1 found something absent and 2 could not be settled at the layer available. The denominator is stated because a list of only the failures is not a finding, it is a selection.",
+   "symmetry": "Confirmations are listed in the same table, in the same detail, as errors. Across the cardiology topics reconciled so far the published literature has been implicated in none of them: where a defect existed it was ours. A comparison with room only for their errors could not have found that out."
   }
  }
 }
