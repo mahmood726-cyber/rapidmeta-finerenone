@@ -63,6 +63,36 @@ ABSENT_STATE = {
  "statistics": ("No statistical panel set is held in this object."),
 }
 
+# CONVERTED objects need their OWN absence text. The strings above explain absences
+# for AUTHORED reviews and give a REASON -- "reconciled against published syntheses
+# rather than produced by a database search". That reason is TRUE of the authored
+# objects and FALSE of a converted one, where the only true statement is that
+# nothing was recoverable from the page the object was extracted from.
+#
+# Caught by looking at the rendered page rather than at the build log: a converted
+# page was explaining its own gap with someone else's explanation. A panel that
+# states the wrong reason for an absence is worse than a blank one -- the blank
+# makes no claim, and this made a false one.
+ABSENT_STATE_CONVERTED = {
+ "protocol":  ("No protocol or registration record was recoverable from the published page "
+               "this object was extracted from. That is a statement about what the page "
+               "contained, not about whether the review had a protocol."),
+ "search":    ("No search strategy was recoverable from the published page this object was "
+               "extracted from, so no query, date or yield can be shown."),
+ "screen":    ("No screening log was recoverable from the published page this object was "
+               "extracted from, so no records-identified or excluded-with-reason counts exist "
+               "here."),
+ "extract":   ("No per-trial source sentences or resolvable links were recoverable. The values "
+               "shown can be traced to the page they came from, but NOT to a paper."),
+ "analysis":  ("No pooled analysis is held in this object for the outcomes shown."),
+ "report":    ("No certainty rating or reconciliation record was recoverable from the "
+               "published page this object was extracted from, so the certainty of this "
+               "evidence has not been rated."),
+ "paper":     ("No manuscript has been generated for this review."),
+ "statistics": ("No statistical panel set was recoverable from the published page this object "
+                "was extracted from."),
+}
+
 REQUIRED_TABS = ("protocol", "search", "screen", "extract", "analysis", "report",
                  "paper", "statistics")
 GRADE_DOMAINS = ("risk_of_bias", "inconsistency", "indirectness", "imprecision",
@@ -1140,7 +1170,25 @@ def extraction_provenance_table(canon):
                    val, q, " &middot; ".join(links), rd, NL))
     if not rows:
         return ""
-    return ("<div class='card'>%s  <h2>Extracted values, and where each came from</h2>%s"
+    # A CONVERTED page must say what this tab CANNOT do, at the top, before the table.
+    # This is the audit surface: a reader comes here to check us against sources. On a
+    # converted page there are none to check against, and discovering that by clicking
+    # an empty link column is finding out the hard way. Thin is not the problem;
+    # silence about WHY it is thin is. The tab must not imply a provenance it lacks.
+    cnote = ""
+    if canon.get("build_mode") == "CONVERTED":
+        cnote = ("  <div class='absent-state' role='note'><strong>These values cannot be "
+                 "traced to a paper from this page.</strong> This object was RECOVERED from "
+                 "the published page itself rather than assembled from source documents. "
+                 "Each value below traces to the page it came from, but <strong>no verbatim "
+                 "source sentence and no resolvable link to a paper was recoverable</strong>, "
+                 "and the intervals are computed from a stored estimate and variance rather "
+                 "than read from anything a source printed. Treat every row as unverified "
+                 "against its source until it is checked against the trial report.</div>" + NL)
+
+    # cnote is a FORMAT ARGUMENT, not a concatenation: `"a" + x + "b" % args` binds
+    # the % to the last literal group only, which silently changes the argument count.
+    return ("<div class='card'>%s  <h2>Extracted values, and where each came from</h2>%s%s"
             "  <p>One row per extracted value. Every row carries the value, the verbatim "
             "sentence it was read from, a resolvable link to the source, and whether the "
             "number was read or derived. Where any of those is absent the row says so "
@@ -1148,7 +1196,7 @@ def extraction_provenance_table(canon):
             "  <table>%s    <tr><th>Trial / outcome</th><th>Value as extracted</th>"
             "<th>Verbatim source sentence</th><th>Source links</th>"
             "<th>Read or derived</th></tr>%s%s  </table>%s</div>%s"
-            % (NL, NL, NL, NL, NL, "".join(rows), NL, NL))
+            % (NL, NL, cnote, NL, NL, NL, "".join(rows), NL, NL))
 
 
 def tabbed_body(canon, parts, page):
@@ -1178,7 +1226,9 @@ def tabbed_body(canon, parts, page):
             # Emit the tab with an honest state instead of dropping it. Any thin
             # body it did carry is shown beneath the statement rather than being
             # merged invisibly into the previous panel.
-            note = ABSENT_STATE.get(tid, "No content is held in this object for this section.")
+            _tbl = (ABSENT_STATE_CONVERTED
+                    if (canon.get("build_mode") == "CONVERTED") else ABSENT_STATE)
+            note = _tbl.get(tid, "No content is held in this object for this section.")
             checked = ""
             if first is None:
                 first, checked = tid, " checked"
