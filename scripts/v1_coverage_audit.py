@@ -36,6 +36,10 @@ def _obj(o, p):
     return [o]
 
 
+def _page(o, p):
+    return [p]
+
+
 def _page_obj(o, p):
     return [p, o]
 
@@ -43,15 +47,15 @@ def _page_obj(o, p):
 CHECKS = [
     ("tabbed_build",             "checkbuild-equivalent", None),
     ("estimate_preserved",       "checkbuild-equivalent", None),
-    ("card_matches_page",        "card_alignment_gate.py", _page_obj),
-    ("extraction_table",         None, None),
+    ("card_matches_page",        "card_alignment_gate.py", _page),
+    ("extraction_table",         "extraction_table_gate.py", _page),
     ("sections_in_both_surfaces", "section_manifest_gate.py", _obj),  # needs a docmodel too
-    ("build_stamp",              None, None),
+    ("build_stamp",              "build_stamp_gate.py", _page),
     ("subject_match",            "subject_match_gate.py", _page_obj),
     ("arm_identity",             "arm_identity_gate.py", _obj),
     ("poolable_or_withheld",     "poolability.py", _obj),
     ("identity_by_registration", "identity_by_registration_gate.py", _obj),
-    ("no_synthesised_absence",   None, None),
+    ("no_synthesised_absence",   "absence_reason_gate.py", lambda o, p: [p, o]),
     ("self_contained",           "external_dependency_census.py", None),
     ("display_change_announced", None, None),
 ]

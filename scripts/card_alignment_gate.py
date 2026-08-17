@@ -74,9 +74,24 @@ def check(card_pub, page_text):
 def main() -> int:
     if "--selftest" in sys.argv:
         return selftest()
+    # SCOPE. This gate took a page and an object as arguments AND IGNORED BOTH,
+    # sweeping the whole index regardless -- so it returned byte-identical output
+    # for two different objects, and card_matches_page passed GLOBALLY while
+    # being unmeasured PER PAGE. A gate whose result does not change when its
+    # subject changes is not checking the subject. Named targets now restrict it.
+    targets = {os.path.basename(a) for a in sys.argv[1:]
+               if a.upper().endswith(".HTML")}
     idx = open(os.path.join(SSOT, "index.html"), encoding="utf-8", errors="replace").read()
     cards = re.findall(r'<a href="([A-Z0-9_]+\.html)" class="card [^"]*">'
                        r'<span class="name">[^<]*</span><span class="pub">(.*?)</span></a>', idx)
+    if targets:
+        cards = [(h, pub) for h, pub in cards if h in targets]
+        missing = targets - {h for h, _ in cards}
+        for m in sorted(missing):
+            print("  %-46s NO CARD ON THE INDEX -- not a pass" % m)
+        if not cards:
+            print("  -> UNCHECKABLE: none of the named pages has a card on the index.")
+            return 2
     tot = {"PASS": 0, "FAIL": 0, "UNCHECKABLE": 0, "NOPAGE": 0}
     bad = []
     for href, pub in cards:
@@ -91,9 +106,22 @@ def main() -> int:
     print("cards on the index: %d" % len(cards))
     for k in ("PASS", "FAIL", "UNCHECKABLE", "NOPAGE"):
         print("  %-12s %d" % (k, tot[k]))
+    # THE PROPORTION CARRIES ITS COMPARABLE FRACTION, INLINE, ALWAYS.
+    # "0.0% drift" over 6 comparable cards while 508 of 514 are UNCHECKABLE is a
+    # reassuring headline computed over 1.2% of the corpus. It is not a rate over
+    # an empty set -- but a rate whose denominator excludes almost everything,
+    # printed without saying so, is the same family one degree down.
     d = tot["PASS"] + tot["FAIL"]
-    print("  drift among COMPARABLE cards: %d/%d%s"
-          % (tot["FAIL"], d, " = %.1f%%" % (100 * tot["FAIL"] / d) if d else ""))
+    n = sum(tot.values())
+    if not d:
+        print("  drift: UNCHECKABLE -- 0 of %d cards were comparable. No rate is "
+              "rendered, because a proportion over nothing is not 0%%." % n)
+    else:
+        print("  drift among COMPARABLE cards: %d/%d = %.1f%%  "
+              "[comparable: %d of %d cards = %.1f%% of the set; the other %d are "
+              "UNMEASURED, not clean]"
+              % (tot["FAIL"], d, 100.0 * tot["FAIL"] / d, d, n,
+                 100.0 * d / n if n else 0.0, n - d))
     for h, w in bad:
         print("    %-46s %s" % (h[:46], w))
     json.dump([{"page": h, "why": w} for h, w in bad],

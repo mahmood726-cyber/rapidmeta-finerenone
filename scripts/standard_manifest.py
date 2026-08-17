@@ -68,6 +68,64 @@ STANDARD_DATE = "2026-08-17"
 # it was built to no written standard at all, which is why the corpus run found
 # 6 of 513 pages on the current build and 1 of 53 cardiology topics at the bar.
 
+# ENFORCEMENT STATE PER PROPERTY -- the part of this document that matters.
+#
+# On 2026-08-17 this file read as eleven enforced properties. Measured, FOUR of
+# twenty-six property-checks were established by anything that ran; the rest had
+# no checker, had one that could not see the object, or were checked only inside
+# the build path. A standard that does not say which of its properties are
+# actually watched is the same defect one level up -- an assertion wearing the
+# costume of a measurement.
+#
+#   ENFORCED      a checker exists, has a constructible failing input, and runs
+#   DECLARED      written down, intended, and NOT watched by anything automatic
+#   UNENFORCEABLE no artefact-decidable check is possible; states why
+#
+# DECLARED IS NOT A LESSER FORM OF ENFORCED. It is an honest label for a promise
+# we keep by hand, and eleven honest properties with four enforced is worth more
+# than eleven asserted. What is not allowed is silence about which is which.
+ENFORCEMENT = {
+    "tabbed_build":             ("ENFORCED", "checkbuild, in the build path"),
+    "estimate_preserved":       ("ENFORCED", "checkbuild numeric comparison; the "
+                                 "sig(3) rounding defect is its replay case"),
+    "card_matches_page":        ("ENFORCED", "card_alignment_gate, now scoped to "
+                                 "named targets; its proportion carries its "
+                                 "comparable fraction inline"),
+    "extraction_table":         ("ENFORCED", "extraction_table_gate -- all four "
+                                 "components or FAIL; replayed on ABLATION_AF and "
+                                 "ALIROCUMAB, which carry tables with zero quotes"),
+    "sections_in_both_surfaces": ("ENFORCED", "section_manifest_gate; needs a "
+                                  "docmodel, and refuses with exit 2 rather than "
+                                  "tracebacking when it is absent"),
+    "build_stamp":              ("ENFORCED", "build_stamp_gate; FAILs on absent, "
+                                 "UNKNOWN and id-less stamps, PASSes a dirty-tree "
+                                 "stamp that declares itself"),
+    "subject_match":            ("ENFORCED", "subject_match_gate, keyed on "
+                                 "registration ids, not names"),
+    "arm_identity":             ("ENFORCED", "arm_identity_gate; reads both object "
+                                 "schemas since 2026-08-17, replays DOAC_AF and "
+                                 "HEPATITIS_B"),
+    "poolable_or_withheld":     ("ENFORCED", "poolability; reads both schemas. "
+                                 "Returns UNCHECKABLE where the object records no "
+                                 "outcome definition -- which is not a pass"),
+    "identity_by_registration": ("ENFORCED", "identity_by_registration_gate; "
+                                 "replayed against the PARACHUTE-HF/ANSWER-HF "
+                                 "conflation itself"),
+    "no_synthesised_absence":   ("ENFORCED", "absence_reason_gate; replays the "
+                                 "authored reason on a converted page. Skips "
+                                 "build-mode-neutral reasons, which are identical "
+                                 "in both vocabularies and false for neither"),
+    "self_contained":           ("DECLARED", "external_dependency_census measures "
+                                 "it corpus-wide but is not wired per page; "
+                                 "checkbuild enforces it on new builds only"),
+    "display_change_announced": ("UNENFORCEABLE", "no artefact can show that a "
+                                 "change was ANNOUNCED -- the evidence is a "
+                                 "message to a reader, outside every file we "
+                                 "control. Kept as a rule with a named owner "
+                                 "rather than a checker that could not fail"),
+}
+
+
 PROPERTIES = [
     ("tabbed_build",
      "Eight-tab shell, no empty tab; absent sections render an honest state naming "
@@ -182,8 +240,20 @@ def render():
     print("THE STANDARD  v%d  (%s)" % (STANDARD_VERSION, STANDARD_DATE))
     print("=" * 78)
     print("\nREQUIRED -- a page is not at standard without all of these:\n")
+    _st = {}
+    for _k, (_s, _n) in ENFORCEMENT.items():
+        _st[_k] = (_s, _n)
+    _c = {}
+    for _s, _ in ENFORCEMENT.values():
+        _c[_s] = _c.get(_s, 0) + 1
+    print("ENFORCEMENT: " + ", ".join("%s %d" % (k, v) for k, v in sorted(_c.items())))
+    print("A DECLARED property is kept by hand and watched by nothing. An "
+          "UNENFORCEABLE one says why no check is possible.")
+    print("")
     for i, (k, what, why) in enumerate(PROPERTIES, 1):
-        print("%2d. %-28s %s" % (i, k, what))
+        _s, _n = ENFORCEMENT.get(k, ("DECLARED", "no enforcement recorded"))
+        print("%2d. [%-13s] %-28s %s" % (i, _s, k, what))
+        print("    enforcement: %s" % _n)
         print("    %s   because: %s" % (" " * 28, why))
     print("\nOWED -- true or explicitly declared absent, never silently missing:\n")
     for i, (k, what, why) in enumerate(ASPIRATIONAL, 1):
