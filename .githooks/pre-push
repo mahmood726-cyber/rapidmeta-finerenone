@@ -47,6 +47,7 @@ fi
 # Which app pages does this push actually change? git feeds the hook
 # "<local ref> <local sha> <remote ref> <remote sha>" on stdin, one line per ref.
 CHANGED=""
+INDEX_TOUCHED=""
 while read -r _local_ref local_sha _remote_ref remote_sha; do
     [ -z "${local_sha:-}" ] && continue
     case "$local_sha" in *[!0]*) ;; *) continue ;; esac   # deletion, nothing to check
@@ -56,9 +57,49 @@ while read -r _local_ref local_sha _remote_ref remote_sha; do
     esac
     FILES="$(git diff --name-only "$RANGE" -- '*_REVIEW.html' 2>/dev/null || true)"
     CHANGED="$CHANGED $FILES"
+    if git diff --name-only "$RANGE" -- 'index.html' 2>/dev/null | grep -q .; then
+        INDEX_TOUCHED=1
+    fi
 done
 
 CHANGED="$(printf '%s\n' $CHANGED | sed '/^$/d' | sort -u | xargs -r basename -a 2>/dev/null || true)"
+
+# ---------------------------------------------------------------------------
+# INDEX MARKUP GATE, added 2026-08-17.
+#
+# Everything above this line looks only at *_REVIEW.html. index.html -- the root,
+# the surface Mahmood actually opens to decide whether a thing is done, and the
+# one file edited BY HAND on nearly every deploy -- sat outside every gate in
+# this repository. On 2026-08-17 a superseded card was rewritten without closing
+# its <span>, so the replacement card shipped nested INSIDE the old card's
+# anchor. An <a> inside an <a> is invalid HTML and no two browsers repair it the
+# same way.
+#
+# The generator does not produce this defect: a sweep of all 1,486 root HTML
+# pages found zero. It is a hand-edit defect on the one hand-edited file, which
+# is exactly the file nothing was watching. Scope follows edit method, not file
+# type -- that is the general lesson, and the reason this block exists.
+# ---------------------------------------------------------------------------
+if [ -n "$INDEX_TOUCHED" ]; then
+    GATE="$REPO_ROOT/scripts/index_markup_gate.py"
+    if [ ! -f "$GATE" ]; then
+        echo "[pre-push] index.html is in this push but index_markup_gate.py is missing." >&2
+        echo "[pre-push] Refusing to pass a check that is not present." >&2
+        exit 1
+    fi
+    echo "[pre-push] index.html touched; checking root markup ..."
+    set +e
+    python "$GATE" "$REPO_ROOT/index.html"
+    IDX_STATUS=$?
+    set -e
+    if [ "$IDX_STATUS" -ne 0 ]; then
+        echo ""
+        echo "[pre-push] Root index markup FAILED: nested/unclosed anchors, or a card"
+        echo "[pre-push] pointing at a page that does not exist. This gate has no override."
+        exit 1
+    fi
+    echo "[pre-push] Root index markup PASS."
+fi
 
 if [ -z "$CHANGED" ]; then
     echo "[pre-push] No *_REVIEW.html pages in this push; nothing to regression-check."
