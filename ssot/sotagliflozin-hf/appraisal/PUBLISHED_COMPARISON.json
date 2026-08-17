@@ -1,0 +1,41 @@
+{
+ "generated_utc": "2026-08-17T10:58Z",
+ "our_result": {
+  "outcome": "total occurrences of CV death, HF hospitalisation and urgent HF visit",
+  "measure": "HR",
+  "point": 0.7171,
+  "ci_low": 0.6246,
+  "ci_high": 0.8234,
+  "k": 2,
+  "n": 11806,
+  "trials": [
+   "SOLOIST-WHF",
+   "SCORED"
+  ],
+  "implied_se_lnHR": 0.07049
+ },
+ "comparators": [
+  {
+   "id": "PMID 39257196",
+   "citation": "Bantounou MA et al. Meta-analysis of sotagliflozin, a dual sodium-glucose-cotransporter 1/2 inhibitor, for heart failure in type 2 diabetes. ESC Heart Fail 2025;12(2):968-979.",
+   "what_it_reports": "heart failure RR 0.66 (0.64, 0.69) from 8 studies; MACE RR 0.73 (0.66, 0.81) from 8 studies; 9 studies total, n=15,320; searched inception to 2 June 2023; PROSPERO CRD42023432732",
+   "why_it_does_not_yield_a_cell_here": "THE QUANTITY DIFFERS, NOT THE AVAILABILITY. It pools RELATIVE RISKS across nine studies of mixed design and does not restate either trial's own primary - a total-occurrence composite reported as a hazard ratio - as a separate row. Its abstract does not name its included studies, so its study list cannot be read from what is open. Its search closed before either trial's FDA review was published.",
+   "direction_agreement": "Same direction and broadly similar magnitude: 0.66 against our 0.7171. Agreement on direction is worth little here because the estimands differ - a relative risk of experiencing an event is not a hazard ratio for the total number of events.",
+   "precision_query": {
+    "observation": "The reported interval 0.64 to 0.69 implies SE(lnRR) = 0.0192, i.e. about 2,716 units of information. Our own two-trial pool over n=11,806 implies SE 0.0705, about 201 - so the comparator's interval is roughly THIRTEEN TIMES more precise on a population only 30% larger.",
+    "arithmetic": "With 8,040 intervention and 7,280 control participants, an event in 10% of each arm gives SE 0.0485; 20% gives 0.0324; even an implausible 30% in both arms gives 0.0247 - all wider than the 0.0192 implied by the printed interval.",
+    "strongest_innocent_explanation": "If the pool counts TOTAL (recurrent) heart-failure events rather than participants experiencing one, event counts can exceed the participant count and that precision becomes attainable. Sotagliflozin's trials do report total-event endpoints, so this is entirely plausible.",
+    "verdict": "OPEN QUESTION, NOT A DEFECT CLAIM. It cannot be settled from the abstract, which does not state whether the RR is over participants or over events. Recorded because an unexplained precision gap is worth a reader's attention; asserted as an error it would be the kind of confident wrong finding this project exists to avoid.",
+    "how_to_settle": "The full text or the PROSPERO record (CRD42023432732) would state the unit of analysis."
+   }
+  },
+  {
+   "id": "PMID 35779611 (staged)",
+   "citation": "Vaduganathan M et al. SGLT-2 inhibitors in patients with heart failure: a comprehensive meta-analysis of five randomised controlled trials.",
+   "what_it_reports": "pools DELIVER, EMPEROR-Preserved, DAPA-HF, EMPEROR-Reduced and a worsening-HF trial",
+   "why_it_does_not_yield_a_cell_here": "It is a CLASS meta-analysis of SGLT2 inhibitors. Sotagliflozin is a dual SGLT1/2 inhibitor and is not among the five trials pooled, so it speaks to the class rather than to this drug. Staged as context, not as a comparator for this estimate."
+  }
+ ],
+ "what_this_comparison_establishes": "No published synthesis located reports this review's estimand - the total-occurrence composite as a hazard ratio - so the pooled value here cannot be checked against an external number. That is a statement about the literature, not a claim of novelty, and it is why the comparison reports estimand differences rather than a numerical concordance.",
+ "correction_history": "The first version of the prior-synthesis search record concluded that NO synthesis reporting either trial's own primary could be located. A cross-family gate leg found Bantounou 2025 in one step, and the record was corrected the same day. The original absence claim was too strong; the corrected claim is that the layer is unavailable FOR THIS CELL."
+}
