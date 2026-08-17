@@ -1,0 +1,164 @@
+"""The four classes an external reviewer found on ARNI, as runnable checks.
+
+THE GENERAL LESSON THESE ENCODE
+    The reviewer reproduced our pooled result digit for digit while both of us read
+    the same wrong table. REPRODUCIBILITY VALIDATES THE ENGINE, NOT THE INPUTS.
+    Two parties agreeing to the last digit means nothing if both read the source
+    incorrectly. Every check below is therefore about the INPUT, not the arithmetic.
+
+C1  TABLE-ROW STOPPING -- a "not reported" claim about a table we demonstrably parsed.
+    ARNI positive: Table 4 records "None published" for PARADIGM-HF cardiovascular
+    death and first HF hospitalisation. NEJM reports HR 0.80 (0.71-0.89) and
+    0.79 (0.71-0.89) in the Results text, Table 2 and the figures -- the SAME Table 2
+    the composite was extracted from. Extraction stopped at one row of a table it was
+    already reading. The page even defines the term as "no effect estimate for that
+    endpoint was found in the sources read", which makes it a false claim, not a gap.
+    DETECTED AS: an absence claim on a trial from which OTHER values were successfully
+    extracted. That co-occurrence is the whole signal -- an absence claim about a
+    source we never parsed is honest; one about a source we did parse is not.
+
+C2  RANDOMISED CONFLATED WITH ANALYSED.
+    ARNI positive: "9,734 randomised participants" mixes the two and aggregates across
+    trials that define the denominator differently. PARADIGM randomised 8,442 and
+    analysed 8,399; PARALLEL randomised 225 and analysed 223.
+
+C3  DERIVED TOTALS PRESENTED AS QUOTED.
+    ARNI positive: 8,399 and 223 appear in neither paper. They are our arithmetic
+    (4187+4212, 111+112). Same class as a ratio computed from a percentage reduction
+    and then shown as reported.
+
+C4  CORRECTIONS NOT REACHING THE RENDERED SURFACE -- deployed vs source, checked from
+    served bytes elsewhere; here we check source-vs-object drift only.
+
+SCOPE HONESTY
+    C1 needs the page AND the object. Where a page has no object, it is UNCHECKABLE,
+    never PASS -- a field nobody could check must not read as a field that passed.
+"""
+from __future__ import annotations
+import json, os, re, sys, io
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+SSOT = r"F:\rapidmeta-ssot-shell"
+OBJ = r"F:\E156\outputs\codex-corpus-scan\extract\full_run"
+
+ABSENCE = re.compile(
+    r"None published|None reported|Not reported|not reported|no effect estimate|"
+    r"not published|NR\b", re.I)
+# "9,734 randomised participants" -- a total attached to the word randomised
+RANDOMISED = re.compile(r"([\d][\d,]{2,})\s+(?:randomised|randomized)\s+(?:participants|patients)", re.I)
+ANALYSED = re.compile(r"([\d][\d,]{2,})\s+(?:analysed|analyzed)\s+(?:participants|patients)", re.I)
+
+
+def visible(t):
+    t = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", t, flags=re.S)
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", t))
+
+
+def load_obj(page):
+    p = os.path.join(OBJ, page + ".canonical.json")
+    if not os.path.exists(p):
+        return None
+    try:
+        return json.loads(open(p, encoding="utf-8", errors="replace").read())
+    except Exception:
+        return None
+
+
+def c1(v, obj):
+    """Absence claims on trials we DID parse values from."""
+    if obj is None:
+        return "UNCHECKABLE", "no canonical object: cannot tell which trials were parsed"
+    trials = (obj.get("canonical") or {}).get("trials") or []
+    parsed = [t for t in trials if (t.get("effect") or {}).get("estimate") is not None]
+    if not parsed:
+        return "UNCHECKABLE", "object holds no parsed effect: nothing to contradict"
+    # FIRST ATTEMPT FIRED FOR THE WRONG REASON, which is worse than not firing:
+    # a 320-char window around the trial name matched a SCREENING-LOG row
+    # ("PARADIGM-HF ... TiAb exclude OUTCOME ..."), not the Table 4 cell. Right
+    # verdict, wrong evidence -- and it would have been reported as a true positive.
+    #
+    # The real signature is a TABLE ROW: trial, endpoint, then two "events / n"
+    # count pairs, then the absence token in the effect cell. Requiring the count
+    # pairs is what distinguishes a data row we parsed from prose that merely
+    # mentions the trial. An absence claim in a screening log is honest; one in a
+    # row whose own counts we extracted is not.
+    CELL = re.compile(r"(\d[\d,]*)\s*/\s*(\d[\d,]*)\s+(\d[\d,]*)\s*/\s*(\d[\d,]*)\s+"
+                      r"(None published|None reported|Not reported|not reported|NR)\b")
+    hits = []
+    for m in CELL.finditer(v):
+        back = v[max(0, m.start() - 160):m.start()]
+        lab = None
+        for t in parsed:
+            L = (t.get("identity") or {}).get("label") or ""
+            if L and len(L) > 2 and L in back:
+                lab = L
+                break
+        hits.append((lab or "(trial name not in the preceding 160 chars)",
+                     m.group(5),
+                     "%s/%s vs %s/%s" % (m.group(1), m.group(2), m.group(3), m.group(4))))
+    if hits:
+        return "FLAG", hits
+    return "PASS", "no absence claim sits in a row whose own counts we extracted"
+
+
+def c2(v):
+    r = RANDOMISED.findall(v)
+    a = ANALYSED.findall(v)
+    if not r:
+        return "PASS", "no aggregate 'N randomised participants' claim"
+    if r and not a:
+        return "FLAG", ("aggregate randomised total %s stated with no analysed counterpart -- "
+                        "the two quantities are not distinguished" % r[:3])
+    return "PASS", "both randomised (%s) and analysed (%s) stated" % (r[:2], a[:2])
+
+
+def c3(v, obj):
+    """Aggregate totals that appear nowhere in a source quote -> ours, unmarked."""
+    if obj is None:
+        return "UNCHECKABLE", "no object: cannot separate read from derived"
+    # FIRST ATTEMPT PASSED FOR THE WRONG REASON: it searched the WHOLE page for the
+    # word "derived", found it somewhere in 286,000 characters, and cleared ARNI --
+    # whose 8,399 and 223 are precisely the unmarked derived totals the reviewer
+    # flagged. A marker elsewhere on the page does not mark THIS number. The
+    # disclosure has to sit beside the value a reader is looking at.
+    hits = []
+    for m in list(RANDOMISED.finditer(v)) + list(ANALYSED.finditer(v)):
+        near = v[max(0, m.start() - 240):m.end() + 240]
+        if not re.search(r"derived|computed here|our arithmetic|sum of|we summed|"
+                         r"not stated in (?:either|any) (?:paper|source)", near, re.I):
+            hits.append((m.group(1), re.sub(r"\s+", " ", near[200:380])))
+    if not hits:
+        return "PASS", "every aggregate total carries a derivation marker within 240 chars"
+    return "FLAG", ("aggregate total(s) %s stated with NO derivation marker nearby: if we "
+                    "summed them the row must say so" % [h[0] for h in hits][:4])
+
+
+def main():
+    pages = [l.strip() for l in open(sys.argv[1], encoding="utf-8") if l.strip()]
+    counts = {}
+    print("%-46s %-11s %-11s %s" % ("page", "C1", "C2", "C3"))
+    rows = []
+    for pg in pages:
+        fp = os.path.join(SSOT, pg)
+        if not os.path.exists(fp):
+            continue
+        v = visible(open(fp, encoding="utf-8", errors="replace").read())
+        obj = load_obj(pg)
+        v1, d1 = c1(v, obj)
+        v2, d2 = c2(v)
+        v3, d3 = c3(v, obj)
+        for k in (v1, v2, v3):
+            counts[k] = counts.get(k, 0) + 1
+        rows.append((pg, v1, d1, v2, d2, v3, d3))
+        print("%-46s %-11s %-11s %s" % (pg[:46], v1, v2, v3))
+    print("\ntotals across %d pages x 3 checks: %s" % (len(rows), counts))
+    print("UNCHECKABLE is NOT a pass -- it means the object needed to judge is absent.")
+    json.dump([{"page": r[0], "c1": r[1], "c1_detail": r[2], "c2": r[3], "c2_detail": r[4],
+                "c3": r[5], "c3_detail": r[6]} for r in rows],
+              open(r"F:\E156\outputs\codex-corpus-scan\ARNI-FOUR-CHECKS.json", "w",
+                   encoding="utf-8"), indent=1, default=str)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
