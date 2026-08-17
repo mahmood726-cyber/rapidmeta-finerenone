@@ -81,8 +81,43 @@ if __name__ == "__main__":
 # worse than no gate, because no gate at least never produces a green.
 SSOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 NUM = re.compile(r"-?\d+\.\d{2,4}")
-WITHHELD = re.compile(r"withdrawn|not analysable|not poolable|not pooled|"
-                      r"reported separately|audit-first", re.I)
+
+# THE VOCABULARY OF NOT-PUBLISHING, AND WHY THIS LIST IS LONGER THAN IT WAS.
+#
+# A CONSTANT NAMED `WITHHELD` DID NOT MATCH THE WORD "WITHHELD". It listed
+# withdrawn / not analysable / not poolable / not pooled / reported separately /
+# audit-first, and two live cards -- PCSK9_REVIEW and SGLT2_CKD_REVIEW -- read
+# "Withheld pending rebuild -- HR 0.85 (0.79-0.92), k=2, not checkable from the
+# page". The gate classified both as ORDINARY PUBLISHED VALUES and stood ready to
+# compare the quoted number against the page and report PASS: agreement, on a
+# card whose own first word says the estimate is not being published.
+#
+# Found the same day the withheld branch was widened, and it is the ledger's own
+# rule turned on its author: WIDENING A FINDER WITHOUT WIDENING ITS CLASSIFIER IS
+# NOT A PARTIAL FIX. Teaching the gate what to DO with a withheld card while
+# leaving it unable to RECOGNISE one is the same defect as matching a phrase and
+# assigning it to no key.
+#
+# "superseded" is here for the same reason: FINERENONE_REVIEW's card says the page
+# was superseded because it pooled a kidney primary with a cardiovascular one.
+# That is a page not publishing a value, and the branch that handles it is the
+# withheld branch.
+#
+# THE STANDING HAZARD: this is a fixed phrase list over a HAND-AUTHORED surface,
+# so it is wrong again the first time someone writes a new way of saying "we are
+# not publishing this". The list cannot fix that -- only projecting cards from
+# objects can. Until then, `--audit-vocabulary` prints every card the gate treats
+# as carrying a live value while containing not-publishing language, so the next
+# gap is found by running the gate rather than by an incident.
+WITHHELD = re.compile(r"withdrawn|withheld|withhold|not analysable|not poolable|"
+                      r"not pooled|reported separately|audit-first|superseded", re.I)
+
+# Language that reads like a page declining to publish, used ONLY by
+# --audit-vocabulary to hunt the next gap. Deliberately over-broad: it reports,
+# it never decides.
+SUSPECT = re.compile(r"withheld|withhold|pending|not established|no estimate|"
+                     r"cannot|unavailable|suppress|retract|under review|"
+                     r"provisional|invalid|unverified|superseded|deprecated", re.I)
 TOL = 0.006
 
 # The headline slot, anchored on its own heading. Both generations of the
@@ -175,9 +210,39 @@ def check(card_pub, page_text):
             % (cn[:3], live[0][1] or "", live[0][2]))
 
 
+def audit_vocabulary() -> int:
+    """Every card the gate treats as a LIVE VALUE while its text reads like a
+    page declining to publish. This is how the next vocabulary gap gets found by
+    running the gate instead of by an incident.
+
+    It reports and never decides: a card saying "Published: ... k=4 -- OPEN
+    QUESTION: ..." is a live value with a caveat and belongs on this list as
+    something to LOOK at, not as a defect.
+    """
+    idx = open(os.path.join(SSOT, "index.html"), encoding="utf-8",
+               errors="replace").read()
+    cards = re.findall(r'<a href="([A-Z0-9_]+\.html)" class="card [^"]*">'
+                       r'<span class="name">[^<]*</span><span class="pub">(.*?)</span></a>', idx)
+    live = [(h, p) for h, p in cards if not WITHHELD.search(p)]
+    flag = [(h, p) for h, p in live if SUSPECT.search(p)]
+    print("cards on the index: %d" % len(cards))
+    print("treated as carrying a LIVE VALUE: %d" % len(live))
+    print("OF THOSE, cards whose text reads like a page NOT publishing: %d" % len(flag))
+    for h, p in sorted(flag):
+        print("  [%-15s] %-42s %s"
+              % (SUSPECT.search(p).group(0).lower()[:15], h[:42],
+                 re.sub(r"\s+", " ", p)[:80]))
+    print("\nEach line is a card to READ, not a defect. A gap here is a phrase "
+          "this gate cannot recognise; the fix is the vocabulary, or better, "
+          "projecting cards from objects so there is no vocabulary to miss.")
+    return 0
+
+
 def main() -> int:
     if "--selftest" in sys.argv:
         return selftest()
+    if "--audit-vocabulary" in sys.argv:
+        return audit_vocabulary()
     # SCOPE. This gate took a page and an object as arguments AND IGNORED BOTH,
     # sweeping the whole index regardless -- so it returned byte-identical output
     # for two different objects, and card_matches_page passed GLOBALLY while
@@ -291,6 +356,26 @@ def selftest() -> int:
          "Four-trial pool WITHDRAWN &mdash; the trials do not share one endpoint",
          "SGLT2_HF_REVIEW.html", "WITHHELD"),
     ]
+
+    # ---- THE VOCABULARY CASE, from two cards live on the index today ------
+    # A constant named WITHHELD did not match the word "withheld". Both of these
+    # were classified as ordinary published values.
+    for name, pub in (
+        ("VOCABULARY 'Withheld pending rebuild' is a withheld state (SGLT2_CKD)",
+         "Withheld pending rebuild &mdash; HR 0.68 (0.60&ndash;0.77), k=3, not "
+         "checkable from the page: no per-value provenance"),
+        ("VOCABULARY 'Withheld pending rebuild' is a withheld state (PCSK9)",
+         "Withheld pending rebuild &mdash; HR 0.85 (0.79&ndash;0.92), k=2, not "
+         "checkable from the page: no per-value provenance"),
+        ("VOCABULARY 'Superseded' is a withheld state (FINERENONE)",
+         "Superseded &mdash; pooled a kidney primary with a cardiovascular "
+         "primary; rebuilt from source as Finerenone CV composite"),
+    ):
+        got = bool(WITHHELD.search(pub))
+        ok &= got
+        print("  %-62s -> recognised=%-5s (want True) %s"
+              % (name[:62], got, "correct" if got else "WRONG"))
+
     for name, pub, page, want in disk_cases:
         p = os.path.join(SSOT, page)
         if not os.path.exists(p):
