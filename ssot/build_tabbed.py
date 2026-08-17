@@ -379,6 +379,25 @@ def output_card(canon, p):
          if c0.get("permalink") else ""),
         ("Schema", e(str(canon.get("schema_version", "")))),
         ("Built", e(str(canon.get("built", "")))),
+        # BUILD STAMP. The generator commit this page was produced from, in the
+        # served bytes.
+        #
+        # ARNI, the flagship, served a build that predated the extraction
+        # provenance table while its object carried more source quotes than any
+        # neighbouring page. Nothing detected it, because "fixed in the generator"
+        # and "fixed on the site" are different claims and no artefact recorded
+        # which build a page came from. Recovering that from git ancestry is
+        # archaeology: it needs the file still traceable in history, it fails for
+        # anything built out-of-tree, and on this repo it could judge only 25 of
+        # 554 linked pages -- the rest were last touched on merged branches and
+        # fell outside the first-parent line entirely.
+        #
+        # Stamped, the question is answered by inspection and forever: compare
+        # this string with the generator head. It is shown to READERS rather than
+        # hidden in a comment, because which build produced what you are reading
+        # belongs beside the R output and the source links.
+        ("Generator build", "<code>%s</code>%s" % (e(_generator_stamp()[0]),
+                                                   e(_generator_stamp()[1]))),
         ("Statistical engine", p((first.get("cross_engine") or {}).get("engine", ""))),
     ], "Everything a third party needs to rebuild this page. Each figure on the "
        "Analysis tab downloads as an SVG carrying exactly the values shown.")
@@ -405,6 +424,40 @@ def output_card(canon, p):
 # environment override made it worse by making the source of the manuscript
 # invisible in the build output. ARNI's manuscript now lives in ssot/arni-hfref/
 # alongside the object it belongs to, like every other artefact of that review.
+
+
+
+_STAMP_CACHE = None
+
+
+def _generator_stamp():
+    """(short sha, suffix) of the commit that last changed any generator file.
+
+    Read once per build. The suffix says DIRTY when a generator file is modified
+    but uncommitted, because a page built from uncommitted code cannot be
+    reproduced from the stamp alone -- and a stamp that quietly implies it can is
+    worse than none. UNKNOWN when git is unavailable, never a guess.
+    """
+    global _STAMP_CACHE
+    if _STAMP_CACHE is not None:
+        return _STAMP_CACHE
+    import subprocess
+    gen = ["ssot/projectors.py", "ssot/projectors2.py", "ssot/build_tabbed.py",
+           "ssot/build_app_v2.py", "ssot/wysiwyg.py", "ssot/paper.py"]
+    root = os.path.dirname(HERE)
+    try:
+        sha = subprocess.run(["git", "-C", root, "log", "-1", "--format=%h", "--", *gen],
+                             capture_output=True, text=True, timeout=30).stdout.strip()
+        dirty = subprocess.run(["git", "-C", root, "status", "--porcelain", "--", *gen],
+                               capture_output=True, text=True, timeout=30).stdout.strip()
+    except Exception:
+        sha, dirty = "", ""
+    if not sha:
+        _STAMP_CACHE = ("UNKNOWN", " -- git unavailable at build time")
+    else:
+        _STAMP_CACHE = (sha, " (uncommitted generator changes -- NOT REPRODUCIBLE "
+                             "from this stamp alone)" if dirty else "")
+    return _STAMP_CACHE
 
 
 def _doc_dir_for(canon):

@@ -599,6 +599,54 @@ table(doc, "Per-arm events and denominators for the pooled composite",
        for t in d["inputs"]["trials"]
        if (t["by_outcome"][OID].get("treatment") or {}).get("events") is not None])
 
+# ---- Extracted values, and where each came from -------------------------------
+# PORTED FROM THE HTML RENDERER 2026-08-17. The provenance table existed on the
+# page and had NEVER been emitted here, on any manuscript this project has ever
+# produced. The Word-vs-HTML alignment gate could not see it, because that gate
+# compares the sections BOTH surfaces emit -- so a section present in one and
+# absent from the other was silently out of scope rather than a divergence.
+#
+# A gate that compares only what both surfaces have can never detect absence.
+# That is the fifth instance today of a check reporting success without having
+# performed the check, and it is why this section went missing indefinitely.
+doc.add_heading("Extracted values, and where each came from", 2)
+doc.add_paragraph(
+    "One row per extracted value, carrying the value, the verbatim sentence it was "
+    "read from, a resolvable link to the source, and whether the number was read or "
+    "derived. Where any of those is absent the row says so rather than omitting the "
+    "value. This table is the audit surface: it is what a reader uses to check this "
+    "review against its sources without trusting it.")
+_prov_rows = []
+for _t in d["inputs"]["trials"]:
+    _bo = (_t.get("by_outcome") or {}).get(OID) or {}
+    _eff = _bo.get("effect") or {}
+    _pv = _bo.get("provenance") or {}
+    _q = _pv.get("source_quotes") or []
+    _val = ("%s %s (%s%% CI %s to %s)"
+            % (_eff.get("measure", ""), n(_eff.get("point")),
+               _eff.get("ci_level", 95), n(_eff.get("ci_low")), n(_eff.get("ci_high")))
+            if _eff.get("point") is not None else "no effect value held")
+    _links = " | ".join(x for x in [
+        ("NCT %s" % _t["nct"]) if _t.get("nct") else "no registration id recorded",
+        ("PMID %s" % _t["pmid"]) if _t.get("pmid") else "",
+        _bo.get("source_url") or "no resolvable source link"] if x)
+    _df = _eff.get("derived_from")
+    _rd = ("READ from the source as printed" if _pv.get("tag") == "MEASURED" and _df
+           else ("DERIVED by us from %s" % _df if _df else "not stated whether read or derived"))
+    if _eff.get("derivation_note"):
+        _rd += " -- " + _eff["derivation_note"]
+    _prov_rows.append([
+        "%s / %s" % (_t.get("name", "?"), OID),
+        _val,
+        ("“" + "”\n“".join(_q) + "”") if _q
+        else "no source sentence recorded -- this value cannot be checked against a "
+             "quoted line here",
+        _links, _rd])
+if _prov_rows:
+    table(doc, "Extracted values, and where each came from",
+          ["Trial / outcome", "Value as extracted", "Verbatim source sentence",
+           "Source links", "Read or derived"], _prov_rows, mono_cols=(2,))
+
 doc.add_heading("Component endpoints", 3)
 # These were carried in the object and rendered on NO surface -- not the page,
 # not this file -- so a reader could not see them and a reviewer could not check

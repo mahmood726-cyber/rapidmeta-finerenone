@@ -3,7 +3,7 @@
 THE MECHANISM THIS DETECTS, WHICH IS OUR MOST RECURRENT ONE
     A CHECK THAT REPORTS SUCCESS WITHOUT HAVING PERFORMED THE CHECK.
 
-    Four independent instances, all found in this project:
+    Five independent instances, all found in this project:
       1. The pre-push hook printed "Regression check PASS" while `$?` after a
          pipeline read `tail`, so the failure branch was unreachable. Every push
          from that clone was ungated while displaying a green result. 6 of 12
@@ -14,15 +14,24 @@ THE MECHANISM THIS DETECTS, WHICH IS OUR MOST RECURRENT ONE
          corpus-reachable gate handed back our own just-written text.
       4. CHK005's mutation test swept one key and reported the estimate protected;
          the real pooled value was never mutated, so it could not have failed.
+      5. The Word-vs-HTML alignment gate compared only the sections BOTH surfaces
+         emit, so a section present in one and absent from the other was silently
+         OUT OF SCOPE rather than a divergence. The extraction provenance table
+         was missing from every Word manuscript this project ever produced and
+         nothing could have reported it. A GATE THAT COMPARES ONLY WHAT BOTH
+         SURFACES HAVE CAN NEVER DETECT ABSENCE -- the intersection is not the
+         expected set, and using it as one converts every missing section into a
+         pass. The fix is an expected-section manifest projected from the object,
+         so absence FAILS instead of falling outside the comparison.
 
-    The shape is identical in all four: the SUCCESS PATH IS REACHABLE AND THE
+    The shape is identical in all five: the SUCCESS PATH IS REACHABLE AND THE
     FAILURE PATH IS NOT. A green result is therefore evidence of nothing, and
     nobody investigates a green result -- which is why these survive.
 
 THE GENERAL DETECTOR
     For every gate, ask: WHAT INPUT WOULD MAKE THIS FAIL? Construct it and show it
     failing. A gate with no constructible failing input is not a gate. That single
-    question would have caught all four.
+    question would have caught all five.
 
 WHAT THIS SCRIPT CHECKS MECHANICALLY
     D1 PIPELINE STATUS   `$?` read immediately after a pipeline. Generic: greps
