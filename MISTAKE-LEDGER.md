@@ -193,3 +193,60 @@ inclusion count and the estimate travel by different paths, and **stopping at th
 visible symptom would have condemned the whole corpus wrongly.**
 
 A rule that fails toward alarm is the rarer and more valuable specimen. Log them.
+
+---
+
+## The sharpest instance: the rule broken by its own author, inside its own enforcer
+
+We promoted a rule after a substring classifier matched `AF_` inside `TAF_TDF`:
+
+> **Normalise and compare the whole field. Never test a fragment.**
+
+Hours later I built `v1_coverage_audit.py` — a tool whose entire purpose is to
+detect checks that report something other than what they measure — and its
+blind-detector substring-searched gate output for `UNCHECKABLE`, matching
+`card_alignment_gate`'s own **tally label** (`UNCHECKABLE 508`). It reported a
+working gate as blind and inflated the headline from 20/26 to 22/26. That figure
+was relayed onward before it was corrected.
+
+**The rule was written, published, and then broken by its author in the tool
+built to enforce it.**
+
+That is worth more than a dozen clean detections, because it shows the gap is not
+knowledge. We knew the rule; it was three hours old and we had all quoted it.
+**Knowing a rule does not apply it. Only a check does.** Every rule in this file
+that is not also a constructible check should be read as a rule we will break.
+
+## Logged saves — design choices that prevented a failure
+
+We have far more logged failures than saves, which distorts what the file teaches.
+
+- **UNCHECKABLE instead of PASS.** `arm_identity_gate` and `poolability` could
+  not read a real v1 object and said so, rather than defaulting to pass. Had they
+  passed — the natural way to write a gate that finds nothing to inspect — every
+  cardiology topic would have shipped claiming eleven green properties when
+  **four of twenty-six** are established by a running check. That one design
+  choice is the whole distance between a measurement and a false green.
+- **Exit 2 on an unfit registry**, in the imported harness: it refuses to report
+  from controls that misbehave.
+- **Zero check executions exits 2**, added to that gate: an adapter recognising
+  nothing is otherwise indistinguishable from a clean corpus.
+
+## Gates that ignore their target and report globally
+
+`card_alignment_gate` was passed a page and an object and swept the whole index
+regardless, returning byte-identical output for two different objects. So
+`card_matches_page` **passes globally while being unmeasured per page** — a
+property that appears checked at the granularity that does not matter and is
+absent at the one that does.
+
+Swept for the class: `staleness_gate` and `pooled_value_gate` also take no target
+argument. A gate whose result does not change when its subject changes is not
+checking the subject.
+
+Related, same gate: it reports **0.0% drift over 6 comparable cards while 508 of
+514 are UNCHECKABLE** — a reassuring headline computed over 1.2% of the corpus.
+Not a rate over an empty set, which is what I first reported; a rate over a real
+denominator with an enormous unmeasured remainder presented as if it were not
+there. **A proportion must carry its comparable fraction inline or refuse to
+render.**

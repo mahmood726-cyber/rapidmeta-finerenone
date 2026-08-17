@@ -143,6 +143,9 @@ _INCL_JS = ("""(()=>{const tr=(window.RapidMeta&&RapidMeta.state&&RapidMeta.stat
 # from the sampling question, and we cannot know how many pages are that slow
 # without recording it.
 settle_profile = {}
+# Pages on which the full window was actually spent. Printed every run: the day
+# this silently drops to zero we need to see it, not infer it.
+settle_used = []
 
 
 _EXCEPTION_REGISTER = None
@@ -304,8 +307,28 @@ with sync_playwright() as p:
             # cold load, and 7 offline (faster -- the fetches fail fast instead of
             # hanging), so this is LOCAL settling, not third-party success.
             incl = pg.evaluate(_INCL_JS)
-            pg.wait_for_timeout(_SETTLE_MS)
-            incl_settled = pg.evaluate(_INCL_JS)
+            # CONDITIONAL SETTLE WINDOW. The defect is "a reader sees a review
+            # with no studies in it". If the first read is NON-ZERO that reader
+            # never occurs, so the window buys nothing on this page. If it is
+            # ZERO we cannot tell "still settling" from "genuinely empty", and
+            # that is exactly where the window must be spent. The property is
+            # preserved; only the cost is dropped.
+            #
+            # WHAT THIS NO LONGER MEASURES, stated because it is a real gap:
+            # a page rendering N studies at 2.2s and a DIFFERENT non-zero N at
+            # 12.2s now passes unexamined. Churn among a non-empty set is
+            # invisible here. It is narrower than the gap it replaces -- an
+            # empty render is the reader-facing defect -- but it is not nothing.
+            #
+            # Why the conditional and not a shorter window: shortening it would
+            # have removed the detection while looking like optimisation, which
+            # is the shape of every mechanism in gate_integrity.py.
+            if incl < 1:
+                settle_used.append(a)
+                pg.wait_for_timeout(_SETTLE_MS)
+                incl_settled = pg.evaluate(_INCL_JS)
+            else:
+                incl_settled = incl
             settle_profile[a] = {"at_sample_ms": 2200, "at_sample": incl,
                                  "at_settle_ms": 2200 + _SETTLE_MS,
                                  "at_settle": incl_settled}
@@ -449,9 +472,10 @@ if settle_profile:
     (ROOT / "outputs").mkdir(exist_ok=True)
     with open(ROOT / "outputs" / "settle_profile.json", "w", encoding="utf-8") as _fh:
         json.dump(settle_profile, _fh, indent=1)
-    print("settle profile: %d page(s) measured, %d rendered NOTHING at %dms and "
-          "recovered by %dms" % (len(settle_profile), len(_slow), 2200,
-                                 2200 + _SETTLE_MS))
+    print("settle profile: %d page(s) measured; full window spent on %d "
+          "(first read was zero); %d rendered NOTHING at %dms and recovered by %dms"
+          % (len(settle_profile), len(settle_used), len(_slow), 2200,
+             2200 + _SETTLE_MS))
     for _k in sorted(_slow)[:8]:
         print("   %-44s %d -> %d" % (_k, _slow[_k]["at_sample"], _slow[_k]["at_settle"]))
 

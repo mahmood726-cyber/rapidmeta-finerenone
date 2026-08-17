@@ -32,7 +32,8 @@ WHAT A FULL PASS DOES NOT ESTABLISH -- written in advance
       unchecked, not clean.
 """
 from __future__ import annotations
-import json, os, re, sys, io
+import json
+import os, os, re, sys, io
 
 if __name__ == "__main__":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -143,6 +144,27 @@ def selftest() -> int:
 def main() -> int:
     if "--selftest" in sys.argv:
         return selftest()
+    # AN EXCEPTION IS NOT A VERDICT (2026-08-17).
+    #
+    # Called with one argument instead of three, this raised IndexError and the
+    # caller scored the traceback as FAIL -- a defect asserted on a page the gate
+    # never opened. A crash is neither a pass nor a fail: it is the gate not
+    # running, and it takes its own exit code so nobody can read it as either.
+    # The audit that mis-called it was mine; both sides are fixed, because a gate
+    # that tracebacks on bad input teaches its callers to guess.
+    need = ["<object>.json", "<page>.html", "<docmodel>.json"]
+    if len(sys.argv) - 1 < len(need):
+        print("section_manifest_gate: needs %d arguments, got %d."
+              % (len(need), len(sys.argv) - 1), file=sys.stderr)
+        print("  usage: section_manifest_gate.py %s" % " ".join(need), file=sys.stderr)
+        print("  NOT RUN. This is neither a pass nor a failure of the subject.",
+              file=sys.stderr)
+        return 2
+    for _a in sys.argv[1:4]:
+        if not os.path.exists(_a):
+            print("section_manifest_gate: %s does not exist. NOT RUN -- not a pass."
+                  % _a, file=sys.stderr)
+            return 2
     canon = json.loads(open(sys.argv[1], encoding="utf-8", errors="replace").read())
     html = open(sys.argv[2], encoding="utf-8", errors="replace").read()
     dm = json.loads(open(sys.argv[3], encoding="utf-8", errors="replace").read())
