@@ -18,6 +18,7 @@ Outputs: 53/53 PASS or list of failures per signal.
 """
 import io
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -60,6 +61,65 @@ import hashlib as _hl                   # noqa: E402
 import pathlib as _pl                   # noqa: E402
 
 _ARCHIVE = _pl.Path(r"F:\E156\outputs\corpus-archive\pages")
+
+# THE PORT IS AN ARGUMENT, AND THE SERVER'S IDENTITY IS CHECKED (2026-08-17).
+#
+# This gate hardcoded port 8787. On that date the port was served by the SIBLING
+# WORKING TREE of this same repository, on a different branch, so every
+# regression verdict of the day was measured against files that were not the
+# ones being pushed: ARNI was 912,140 bytes over the wire against 6,147,695 on
+# disk.
+#
+# The hook's probe was `curl -sf .../index.html`, which establishes that
+# SOMETHING answers. It never established that the something was THIS repo --
+# liveness versus identity -- and it produced false LIFE rather than false
+# death: a green gate that had never seen the files being pushed.
+_PORT = int(os.environ.get("RM_PORT", "8787"))
+if "--port" in sys.argv:
+    _PORT = int(sys.argv[sys.argv.index("--port") + 1])
+
+
+def _assert_server_identity():
+    """Refuse to run unless the server is serving THIS working tree.
+
+    A NONCE written here and fetched over HTTP is the only probe a different
+    directory cannot satisfy: it did not exist anywhere a moment ago. Comparing
+    the size or hash of an existing page would pass the instant two trees
+    happened to agree on that one file.
+    """
+    import urllib.request as _u, uuid as _uu
+    nonce = "._rm_identity_%s" % _uu.uuid4().hex[:12]
+    f = ROOT / nonce
+    f.write_text("identity-probe", encoding="utf-8")
+    try:
+        with _u.urlopen("http://127.0.0.1:%d/%s" % (_PORT, nonce), timeout=5) as r:
+            served = r.read().decode("utf-8", "replace").strip()
+        if served != "identity-probe":
+            raise RuntimeError("served %r" % served[:40])
+    except Exception as ex:                                  # noqa: BLE001
+        print("REFUSING TO RUN: the server on port %d is NOT serving %s (%s)."
+              % (_PORT, ROOT, ex))
+        print("A gate that reads another directory's bytes is worse than no gate: "
+              "it reports PASS having never seen the files being pushed.")
+        sys.exit(2)
+    finally:
+        try:
+            f.unlink()
+        except OSError:
+            pass
+
+
+# THE SETTLE WINDOW. 12s was where a cold load finished rendering its included
+# studies on 2026-08-17 (0 at 2.5s, 0 at 6s, 7 at 12s). Overridable, because a
+# constant tuned on one machine on one day is a guess everywhere else.
+_SETTLE_MS = int(os.environ.get("RM_SETTLE_MS", "10000"))
+_INCL_JS = ('(RapidMeta?.state?.trials||[]).filter(t => '
+            '(t.screenReview?.status || t.status) === "include").length')
+# Kept as DATA, per page, not collapsed into a verdict. "12 seconds to render a
+# review's included studies" is a reader-facing fact and its own defect, separate
+# from the sampling question, and we cannot know how many pages are that slow
+# without recording it.
+settle_profile = {}
 
 
 _EXCEPTION_REGISTER = None
@@ -122,13 +182,16 @@ ssot_seen = []
 signals = {
     "page_errors": [],
     "no_trials": [],
-    "zero_included": [],
+    "no_studies_rendered": [],
+    "nondeterministic_render": [],
     "no_rob_banner": [],
     "wrong_protocol_link": [],
     "no_webr_tag": [],
     "pool_broken": [],
     "fully_ok": [],
 }
+
+_assert_server_identity()
 
 with sync_playwright() as p:
     b = p.chromium.launch(headless=True, args=['--disable-gpu'])
@@ -197,10 +260,10 @@ with sync_playwright() as p:
         pg_errors = []
         pg.on('pageerror', lambda e: pg_errors.append(str(e)[:100]))
         try:
-            pg.goto(f'http://localhost:8787/{a}.html', wait_until='load', timeout=60000)
+            pg.goto(f'http://localhost:{_PORT}/{a}.html', wait_until='load', timeout=60000)
             pg.wait_for_timeout(1500)
             pg.evaluate('localStorage.clear()')
-            pg.goto(f'http://localhost:8787/{a}.html', wait_until='load', timeout=60000)
+            pg.goto(f'http://localhost:{_PORT}/{a}.html', wait_until='load', timeout=60000)
             pg.wait_for_timeout(2200)
         except Exception as e:
             signals["page_errors"].append((a, f"load: {e}"))
@@ -211,7 +274,18 @@ with sync_playwright() as p:
 
         try:
             trials = pg.evaluate('RapidMeta?.state?.trials?.length ?? -1')
-            incl = pg.evaluate('(RapidMeta?.state?.trials||[]).filter(t => (t.screenReview?.status || t.status) === "include").length')
+            # TWO READS ACROSS THE SETTLE WINDOW. One read cannot tell "this review
+            # includes no studies" from "this review has not finished rendering
+            # them yet", and the old single read at ~2.2s reported the second as
+            # the first. Measured 2026-08-17: 0 at 2.5s, 0 at 6s, 7 at 12s on a
+            # cold load, and 7 offline (faster -- the fetches fail fast instead of
+            # hanging), so this is LOCAL settling, not third-party success.
+            incl = pg.evaluate(_INCL_JS)
+            pg.wait_for_timeout(_SETTLE_MS)
+            incl_settled = pg.evaluate(_INCL_JS)
+            settle_profile[a] = {"at_sample_ms": 2200, "at_sample": incl,
+                                 "at_settle_ms": 2200 + _SETTLE_MS,
+                                 "at_settle": incl_settled}
             banner_txt = pg.evaluate('document.getElementById("rob-status-banner")?.innerText || ""') or ""
             proto_href = pg.evaluate('document.querySelector(\'a[href*="protocols/"][href*="_protocol_v1"]\')?.getAttribute("href") || ""') or ""
             webr_tag = pg.evaluate('!!document.querySelector("script[src=\\"webr-validator.js\\"]")')
@@ -235,8 +309,28 @@ with sync_playwright() as p:
         # that is non-deterministic teaches people to re-run it until it is green,
         # which is a bypass that leaves no trace in any log. Recorded here rather
         # than softened: the fix is self-containment (v1 property), not a retry.
-        if incl < 1:
-            signals["zero_included"].append((a, incl))
+        # THREE-STATE VERDICT. PASS / FAIL / NONDETERMINISTIC.
+        #
+        # RENAMED, because the old name asserted what it did not measure. It was
+        # zero_included -- "this review includes no studies" -- and what it
+        # observed was "no studies were rendered within the sampling window".
+        # Third time today that a check reported something other than what it
+        # measured (no_rob_banner tests a disclosure element and reads as an
+        # assessment; the raw-HTML rule counted script source as page content).
+        #
+        # NONDETERMINISTIC BLOCKS, exactly as FAIL does. It is not a softer
+        # verdict: not knowing what a page shows a reader is not a passing state,
+        # and the same reasoning already makes INVALID distinct from PASS. What
+        # it must NOT become is a longer wait until the number goes green -- that
+        # would hide a genuine reader-facing defect rather than report it, and a
+        # reader who looks in the first few seconds really does see zero studies.
+        if incl < 1 and incl_settled < 1:
+            signals["no_studies_rendered"].append((a, "0 at both %dms and %dms"
+                                                   % (2200, 2200 + _SETTLE_MS)))
+        elif incl != incl_settled:
+            signals["nondeterministic_render"].append(
+                (a, "%d at %dms -> %d at %dms" % (incl, 2200, incl_settled,
+                                                  2200 + _SETTLE_MS)))
         if "Provisional RoB-2 and GRADE" not in banner_txt:
             signals["no_rob_banner"].append((a, banner_txt[:60]))
         if a != "ARNI_HF_REVIEW" and "arni_hf_protocol" in proto_href:
@@ -287,7 +381,8 @@ with sync_playwright() as p:
                       % (a, ", ".join(_waived)))
 
         # If the app hit NO signal-failure so far, mark fully ok
-        _blocking_keys = ("page_errors", "no_trials", "zero_included", "no_rob_banner",
+        _blocking_keys = ("page_errors", "no_trials", "no_studies_rendered",
+                          "nondeterministic_render", "no_rob_banner",
                           "wrong_protocol_link", "no_webr_tag", "pool_broken")
         if _declared:
             _blocking_keys = tuple(k for k in _blocking_keys
@@ -319,6 +414,23 @@ for k, v in signals.items():
 Path("/tmp/regression_results.json").write_text(json.dumps({k: v for k, v in signals.items()}, default=str), encoding='utf-8')
 print()
 print("Raw JSON saved to /tmp/regression_results.json")
+
+# THE SETTLE PROFILE, KEPT AS DATA. Not collapsed into the verdict, because
+# "how long before a reader sees this review's included studies" is a
+# reader-facing fact and a defect in its own right, separate from the sampling
+# question the verdict answers. Twelve seconds is a long time to show someone an
+# empty review, and we cannot know how many pages are that slow without a record.
+if settle_profile:
+    _slow = {k: v for k, v in settle_profile.items()
+             if v["at_sample"] < 1 <= v["at_settle"]}
+    (ROOT / "outputs").mkdir(exist_ok=True)
+    with open(ROOT / "outputs" / "settle_profile.json", "w", encoding="utf-8") as _fh:
+        json.dump(settle_profile, _fh, indent=1)
+    print("settle profile: %d page(s) measured, %d rendered NOTHING at %dms and "
+          "recovered by %dms" % (len(settle_profile), len(_slow), 2200,
+                                 2200 + _SETTLE_MS))
+    for _k in sorted(_slow)[:8]:
+        print("   %-44s %d -> %d" % (_k, _slow[_k]["at_sample"], _slow[_k]["at_settle"]))
 
 # THE FAILURE PATH. This script previously had no sys.exit ANYWHERE, so it exited 0
 # whatever it found -- and the pre-push hook then read `$?` after a pipe, which is

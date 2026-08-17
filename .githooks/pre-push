@@ -141,9 +141,32 @@ fi
 COUNT="$(printf '%s\n' $CHANGED | wc -l | tr -d ' ')"
 echo "[pre-push] Regression checking $COUNT changed app page(s) ..."
 
+# THE SERVER MUST BE SERVING *THIS* WORKING TREE (2026-08-17).
+#
+# This block used to probe `curl -sf .../index.html` and reuse whatever answered.
+# On 2026-08-17 port 8787 was held by the SIBLING WORKING TREE of this same repo,
+# on a different branch, and the whole day's regression verdicts were measured
+# against files that were not the ones being pushed -- ARNI 912,140 bytes over
+# the wire against 6,147,695 on disk. A green gate that had never seen the pages.
+#
+# `index.html` answering proves SOMETHING is there. It cannot prove it is us.
+# A nonce written into this tree and fetched over HTTP is the one probe another
+# directory cannot satisfy, because it did not exist a moment ago. Same lesson as
+# vendor liveness: a check that can only report "alive" is not a check.
 PORT=8787
 SERVER_PID=""
-if ! curl -sf "http://127.0.0.1:$PORT/index.html" > /dev/null 2>&1; then
+NONCE="._rm_hook_identity_$$"
+echo hook-identity-probe > "$REPO_ROOT/$NONCE"
+cleanup_nonce() { rm -f "$REPO_ROOT/$NONCE"; }
+trap cleanup_nonce EXIT
+if [ "$(curl -sf "http://127.0.0.1:$PORT/$NONCE" 2>/dev/null || true)" != "hook-identity-probe" ]; then
+    if curl -sf "http://127.0.0.1:$PORT/index.html" > /dev/null 2>&1; then
+        echo "[pre-push] Port $PORT is answering but is NOT serving $REPO_ROOT."
+        echo "[pre-push] Using an unused port instead of another tree's bytes."
+        PORT=8799
+    fi
+fi
+if [ "$(curl -sf "http://127.0.0.1:$PORT/$NONCE" 2>/dev/null || true)" != "hook-identity-probe" ]; then
     echo "[pre-push] Starting local HTTP server on :$PORT ..."
     ( cd "$REPO_ROOT" && python -m http.server $PORT --bind 127.0.0.1 > /dev/null 2>&1 ) &
     SERVER_PID=$!
@@ -156,7 +179,7 @@ trap cleanup EXIT
 # shown afterwards, so nothing is buffered behind `tail` and nothing masks $?.
 LOG="$(mktemp)"
 set +e
-python "$SCRIPT" --only $CHANGED > "$LOG" 2>&1
+python "$SCRIPT" --port "$PORT" --only $CHANGED > "$LOG" 2>&1
 STATUS=$?
 set -e
 tail -25 "$LOG"
