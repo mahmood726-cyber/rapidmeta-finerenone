@@ -250,3 +250,93 @@ Not a rate over an empty set, which is what I first reported; a rate over a real
 denominator with an enormous unmeasured remainder presented as if it were not
 there. **A proportion must carry its comparable fraction inline or refuse to
 render.**
+
+---
+
+## The lane that produced this section
+
+Six cardiology topics taken through one protocol: establish trial identity by
+registration id, **read every trial's endpoint definition from the registry
+before pooling anything**, then let the pool stand or withhold it with its
+reason, then reconcile against the published literature with a denominator.
+
+**The headline finding, stated as prominently as the opposite would be: across
+six topics the published literature was implicated in NOTHING.** Every defect
+found was ours. Twice the literature had visibly done the harder thing — one
+Bayesian analysis re-derived three trials' outcomes to match a fourth's and said
+so in its abstract; an ablation synthesis pooled the COMPONENTS several trials
+share rather than averaging four incompatible composites, which is exactly the
+move our own page failed to make.
+
+## The direction of a wrong check decides what it costs
+
+A withdrawal is not the safe default. **Withdrawing a correct estimate destroys a
+true finding and publishes the destruction as a discovery** — rigorous-looking
+and wrong — so a withdrawal needs the same evidentiary standard as a claim. Six
+separate under-reads in one component canon all pushed that way:
+
+| the text | what the reader saw | what it would have argued for |
+|---|---|---|
+| `CV mortality` | no death component at all | splitting two trials that count the same events |
+| `hospitalisation for worsening heart failure` | two components, not one | splitting EMPEROR-Reduced from EMPEROR-Preserved |
+| `worsening heart failure requiring unplanned hospitalization` | the same, word order reversed | the same, hours after the first was fixed |
+| `cardiovascular (CV) death` | hospitalisation and no death | splitting PARALLEL-HF from three identical trials |
+| a bare registry TITLE with the components in the DESCRIPTION | a trial counting **nothing** | a trial that counts nothing disagrees with everything |
+| `Total Mortality, Disabling Stroke, Serious Bleeding, or Cardiac Arrest` | *stroke* | the comfortable one: pooling CABANA with a stroke-only trial |
+
+Only the last fails toward comfort. Five failed toward alarm — and were still
+dangerous, because the action each argued for was destructive.
+
+**And widening a finder without widening its classifier is not a partial fix.**
+The phrase was matched and then silently assigned to no key, which is
+indistinguishable from never matching it. Two places, one fact.
+
+## A finding that lives in the artefact dies at the next build
+
+Three instances in one day, and the third was caught mid-flight:
+
+| where the finding lived | what the object held | what a rebuild would do |
+|---|---|---|
+| ABLATION_AF's withdrawal, on the page | a live pooled point | re-publish it |
+| SGLT2_HF's withdrawal, in one paragraph | the withdrawn value, live, printed **six times** against one "withdrawn" | re-publish it |
+| ARNI's open question, a hand-edited `<div>` | nothing at all | **delete the finding** |
+
+The third one actually happened. The rebuild emitted a page missing its most
+important paragraph, nothing errored, and it was caught only because the new
+page's numerals were counted against the served page before pushing. **Compare
+the artefact you are about to ship against the one you are replacing, by
+content, not by whether the build succeeded.**
+
+## An instrument that cannot vary its input is measuring nothing
+
+The vacuity detector — built to find checks that pass without checking — forced
+`stored_scale="natural"` and `back_transform="identity"` on payloads that already
+held those values, producing byte-identical "mutants", and recorded the
+surviving PASS as proof the check ignored the terms. Seven of nine checks on one
+artefact came back INVALID and blocked a push.
+
+**A mutation that changes nothing tests nothing.** The fix is a third state:
+UNEXERCISED, distinct from both vacuous and demonstrated. The same shape appears
+wherever a probe cannot distinguish "I varied this and nothing happened" from "I
+did not vary this".
+
+## Two more of the recurring shapes, in new costumes
+
+- **A join across the wrong grain.** The exporter flattened three *per-outcome*
+  facts into one *per-object* triple, so a FAIL paired one estimand's displayed
+  value with another estimand's reason for being unpoolable. Both halves true, of
+  different things.
+- **A vocabulary mismatch at a module boundary.** Objects write `linear`; the
+  detector's word is `natural`. Every difference-measure row in the corpus
+  produced a FAIL saying it was not on the scale it was already on. Worse on the
+  same line: `eff.get("scale") or "log"` **asserted** a scale for objects that
+  record none — the one value that makes a difference measure look like a ratio,
+  in the exporter whose first rule is never to synthesise a field.
+
+## What a proportion of checks still does not establish
+
+Across seven cardiology objects, 57 of 98 property-checks PASS and **30 are not
+established by any running check**. Two are WITHHELD — the property met by
+withholding an estimate rather than by agreement, which needed its own verdict
+because scoring it FAIL made a page that *found* the problem look identical to
+one that pooled straight through.
