@@ -197,9 +197,31 @@ class Check:
             for i, mutated in enumerate(mutants):
                 label = mutated.pop("_mutant_label", None) if isinstance(
                     mutated, dict) else None
+                name = label or (f"{term}[{i}]" if len(mutants) > 1 else term)
+                # A MUTATION THAT CHANGES NOTHING TESTS NOTHING.
+                #
+                # This swept payloads whose value ALREADY equalled the forced
+                # value, produced a byte-identical "mutant", and recorded the
+                # surviving PASS as proof the check ignores the term. It proves
+                # no such thing: the term was never varied. Six mean-difference
+                # rows on ALIROCUMAB were already ("natural", "identity"), the
+                # mutators forced exactly those values, and 7 of 9 checks came
+                # back INVALID -- over the instrument-degraded ceiling, blocking
+                # a push over an artefact of the measuring tool.
+                #
+                # THAT IS THE VACUITY DETECTOR REPORTING A RESULT IT DID NOT
+                # ESTABLISH, which is the exact defect class it exists to find,
+                # one level up. Recorded as UNEXERCISED -- a third state, neither
+                # vacuous nor demonstrated -- so that silence is not read as
+                # coverage and a no-op mutator cannot manufacture an INVALID.
+                if isinstance(mutated, dict) and dict(mutated) == dict(payload):
+                    report.setdefault("unexercised_terms", []).append(name)
+                    outcomes.append({"mutant": name, "verdict": "UNEXERCISED",
+                                     "why": "the forced value equals the value "
+                                            "already present; nothing varied"})
+                    continue
                 got = self._raw(mutated)
                 report["mutants_run"] += 1
-                name = label or (f"{term}[{i}]" if len(mutants) > 1 else term)
                 outcomes.append({"mutant": name, "verdict": got.verdict.value})
                 if got.verdict is Verdict.PASS:
                     # forcing this term to its flipping value left the PASS

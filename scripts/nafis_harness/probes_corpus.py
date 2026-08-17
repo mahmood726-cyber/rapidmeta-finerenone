@@ -613,9 +613,23 @@ CHK021 = Check(
         Verdict.PASS,
         provenance="[F] the standard correct encoding -- log-scale ratios with an "
                    "exp back-transform, as the netmeta outputs in nma/validation use")],
+    # FLIP TO THE OPPOSITE VALUE, NOT TO A FIXED ONE.
+    #
+    # These forced "identity" and "natural" whatever the payload already held.
+    # For a mean-difference row -- natural/identity by definition when correctly
+    # encoded -- both mutants came out byte-identical to the input, so the sweep
+    # varied nothing and then reported the check as not depending on the terms it
+    # had failed to vary. Flipping RELATIVE to the current value gives a real
+    # mutant on both encodings: a ratio row becomes natural-with-exp (double
+    # exponentiation) and a difference row becomes log-scale, which is the
+    # exp(-54) = 0.0000 defect this check exists to catch.
     observation_terms={
-        "back_transform": lambda p: _mut(p, back_transform="identity"),
-        "stored_scale": lambda p: _mut(p, stored_scale="natural"),
+        "back_transform": lambda p: _mut(
+            p, back_transform=("identity" if p.get("back_transform") == "exp"
+                               else "exp")),
+        "stored_scale": lambda p: _mut(
+            p, stored_scale=("natural" if p.get("stored_scale") == "log"
+                             else "log")),
     },
 )
 
