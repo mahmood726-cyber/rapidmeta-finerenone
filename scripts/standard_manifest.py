@@ -115,6 +115,7 @@ ENFORCEMENT = {
                                  "authored reason on a converted page. Skips "
                                  "build-mode-neutral reasons, which are identical "
                                  "in both vocabularies and false for neither"),
+    "estimand_definition_read": ("ENFORCED", "estimand_definition_gate; replayed against SGLT2_HF, which pooled two endpoint definitions as one while passing every other check in the repository"),
     "self_contained":           ("DECLARED", "external_dependency_census measures "
                                  "it corpus-wide but is not wired per page; "
                                  "checkbuild enforces it on new builds only"),
@@ -178,6 +179,15 @@ PROPERTIES = [
     ("identity_by_registration",
      "Trials are keyed to registration id, never to a covering label",
      "PARACHUTE-HF was once read as ANSWER-HF because a label was accepted as identity"),
+    ("estimand_definition_read",
+     "Every trial's endpoint definition is READ from the registry before its "
+     "effect is pooled; a result sentence is never accepted as an endpoint "
+     "definition",
+     "SGLT2_HF pooled DAPA-HF and DELIVER (CV death, HF hospitalisation OR "
+     "URGENT HF VISIT) with both EMPEROR trials (hospitalisation only) as one "
+     "estimand, live, at k=4. The object recorded NO per-trial endpoint "
+     "definition: its provenance quotes were RESULT sentences. A quote that "
+     "says what HAPPENED is not a quote that says what was COUNTED"),
     ("no_synthesised_absence",
      "Absent fields state their absence and its correct reason; no plausible default "
      "is ever filled in",

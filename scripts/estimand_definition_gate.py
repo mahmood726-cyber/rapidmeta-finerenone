@@ -1,0 +1,228 @@
+"""ESTIMAND DEFINITION -- was each trial's endpoint READ, or was it assumed?
+
+WHY THIS EXISTS -- IT CAUGHT WHAT EVERYTHING ELSE MISSED
+    SGLT2_HF pooled four trials as one estimand and was live, carrying
+    HR 0.7785 (0.7296-0.8306), k=4. It passed arm_identity, identity_by_
+    registration, subject_match, card_matches_page, build_stamp,
+    no_synthesised_absence, the whole regression set and the harness gate.
+
+    And DAPA-HF and DELIVER count "CV death, HF hospitalisation, OR URGENT HF
+    VISIT", while both EMPEROR trials count "CV death or HF hospitalisation"
+    only. Two trials counted an event class the other two did not.
+
+    THE OBJECT RECORDED NO PER-TRIAL ENDPOINT DEFINITION AT ALL. What it carried
+    instead were RESULT sentences -- "the primary outcome occurred in 386 of 2373
+    patients (16.3%) ... hazard ratio, 0.74" -- filed as provenance.
+
+    A QUOTE THAT SAYS WHAT HAPPENED IS NOT A QUOTE THAT SAYS WHAT WAS COUNTED.
+    That distinction withdrew a live four-trial estimate, and it is the only
+    defect so far that survived every other check in this repository, including
+    the ones written the same day.
+
+WHAT A FULL PASS DOES NOT ESTABLISH -- written in advance
+    - NOT that the recorded definition is the trial's TRUE endpoint. It checks
+      that one was recorded and that the recorded ones agree; only a registry
+      read establishes truth, and this gate says when one is owed.
+    - NOT that agreeing definitions license a pool. Populations, follow-up and
+      analysis sets can still differ.
+    - NOT anything about a single-trial object: nothing to compare, UNCHECKABLE.
+"""
+from __future__ import annotations
+import io, json, os, re, sys
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+# A RESULT sentence reports an outcome's VALUE. A DEFINITION states what the
+# outcome IS. These patterns are what a result looks like; matching one where a
+# definition is owed is the SGLT2 defect exactly.
+RESULT_SENTENCE = re.compile(
+    r"occurred in\s+\d|hazard ratio[,:]?\s*[\d.]|"
+    r"\d+\s+of\s+\d+\s+patients|\(\s*\d+\.\d+\s*%\s*\)|"
+    r"95%\s*(?:confidence interval|CI)", re.I)
+
+# Components that change what a composite counts. Compared as whole normalised
+# fields, never as fragments -- the rule this repo broke inside its own auditor.
+COMPONENT = re.compile(
+    r"urgent(?:\s+\w+){0,3}\s+visit|hospitali[sz]ation|hospitali[sz]ed|"
+    r"cardiovascular death|cv death|all-cause (?:death|mortality)|"
+    r"myocardial infarction|stroke|worsening heart failure", re.I)
+
+
+def _norm(s):
+    return re.sub(r"[^a-z0-9 ]+", " ", re.sub(r"\s+", " ", (s or "").lower())).strip()
+
+
+# CANONICAL KEYS, not raw matched text. The first cut compared normalised match
+# strings and failed its own negative control, because "hospitalisation" and
+# "hospitalization" normalise to different tokens -- the British-spelling trap in
+# a new costume, and a gate that fails on everything is worth nothing. Each match
+# now maps to ONE key, so orthography cannot manufacture a difference and only a
+# real component change can.
+_CANON = (
+    (re.compile(r"urgent", re.I), "urgent_visit"),
+    (re.compile(r"hospitali", re.I), "hf_hospitalisation"),
+    (re.compile(r"(cardiovascular|cv) death", re.I), "cv_death"),
+    (re.compile(r"all-cause", re.I), "all_cause_death"),
+    (re.compile(r"myocardial infarction", re.I), "mi"),
+    (re.compile(r"stroke", re.I), "stroke"),
+    (re.compile(r"worsening heart failure", re.I), "worsening_hf"),
+)
+
+
+def _components(s):
+    out = set()
+    for m in COMPONENT.finditer(s or ""):
+        raw = m.group(0)
+        for rx, key in _CANON:
+            if rx.search(raw):
+                out.add(key)
+                break
+    return frozenset(out)
+
+
+def check(obj):
+    trials = ((obj.get("inputs") or {}).get("trials")) or []
+    results = ((obj.get("results") or {}).get("by_outcome")) or {}
+    if not trials or not results:
+        return "UNCHECKABLE", ["object carries no trials or no pooled outcome"]
+
+    notes, bad = [], False
+    for oid, res in results.items():
+        if (res.get("k") or 0) < 2:
+            notes.append("%s: k<2, nothing to compare" % oid)
+            continue
+        defs, missing, resultish = {}, [], []
+        for t in trials:
+            bo = (t.get("by_outcome") or {}).get(oid)
+            if not bo:
+                continue
+            name = t.get("name") or t.get("nct") or "?"
+            d = (bo.get("outcome_definition") or bo.get("definition")
+                 or bo.get("endpoint_definition") or "")
+            quotes = (bo.get("provenance") or {}).get("source_quotes") or []
+            if not d and quotes:
+                # A QUOTE CAN BE THE DEFINITION -- that is the whole distinction.
+                # FINERENONE_CV stores each trial's endpoint TITLE, read word for
+                # word from the registry, in source_quotes. SGLT2_HF stores RESULT
+                # sentences in the same field. Failing both would mean the gate
+                # cannot tell the work done right from the work done wrong, which
+                # is the property it exists to measure.
+                cand = [q for q in quotes
+                        if not RESULT_SENTENCE.search(q) and _components(q)]
+                if cand:
+                    d = max(cand, key=len)
+            if not d:
+                missing.append(name)
+                if quotes and RESULT_SENTENCE.search(" ".join(quotes)):
+                    resultish.append(name)
+            else:
+                defs[name] = d
+        if missing:
+            bad = True
+            notes.append("%s: NO endpoint definition recorded for %d trial(s): %s"
+                         % (oid, len(missing), ", ".join(missing[:6])))
+            if resultish:
+                notes.append("    and the provenance quote is a RESULT sentence on "
+                             "%d of them: %s -- what happened, never what was counted"
+                             % (len(resultish), ", ".join(resultish[:6])))
+        if len(defs) > 1:
+            comp = {n: _components(d) for n, d in defs.items()}
+            if len(set(comp.values())) > 1:
+                bad = True
+                notes.append("%s: recorded definitions DISAGREE across trials:" % oid)
+                for n, c in comp.items():
+                    notes.append("    %-22s counts {%s}"
+                                 % (n, ", ".join(sorted(c)) or "-"))
+    if not notes:
+        notes = ["every pooled outcome has a recorded endpoint definition and they agree"]
+    return ("FAIL" if bad else "PASS"), notes
+
+
+def selftest():
+    """REPLAYED AGAINST SGLT2_HF's OWN OBJECT -- four trials, two definitions,
+    and it was passing every other check we own."""
+    ok = True
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    real = os.path.join(root, "ssot", "sglt2-hf", "sglt2-hf.json")
+    if os.path.exists(real):
+        v, notes = check(json.loads(open(real, encoding="utf-8").read()))
+        good = v == "FAIL"
+        ok &= good
+        print("  POSITIVE SGLT2_HF's real object                     -> %-5s %s"
+              % (v, "correct" if good else "WRONG"))
+        for n in notes[:2]:
+            print("        %s" % n[:112])
+    else:
+        print("  fixture absent: sglt2-hf object -- NOT PROVEN")
+        ok = False
+
+    clean = {"inputs": {"trials": [
+        {"name": "A", "by_outcome": {"o": {"outcome_definition":
+         "cardiovascular death or hospitalisation for heart failure"}}},
+        {"name": "B", "by_outcome": {"o": {"outcome_definition":
+         "cardiovascular death or hospitalization for heart failure"}}}]},
+        "results": {"by_outcome": {"o": {"k": 2}}}}
+    v2, _ = check(clean)
+    ok &= v2 == "PASS"
+    print("  NEGATIVE same definition, spelling aside            -> %-5s %s"
+          % (v2, "correct" if v2 == "PASS" else "WRONG"))
+
+    mixed = json.loads(json.dumps(clean))
+    mixed["inputs"]["trials"][1]["by_outcome"]["o"]["outcome_definition"] = (
+        "cardiovascular death, hospitalisation for heart failure, or urgent "
+        "heart failure visit")
+    v3, _ = check(mixed)
+    ok &= v3 == "FAIL"
+    print("  POSITIVE one trial adds an urgent-visit component   -> %-5s %s"
+          % (v3, "correct" if v3 == "FAIL" else "WRONG"))
+
+    resultish = {"inputs": {"trials": [
+        {"name": "A", "by_outcome": {"o": {"provenance": {"source_quotes": [
+            "the primary outcome occurred in 386 of 2373 patients (16.3%) "
+            "(hazard ratio, 0.74; 95% CI 0.65-0.85)"]}}}},
+        {"name": "B", "by_outcome": {"o": {"provenance": {"source_quotes": [
+            "a primary outcome event occurred in 361 of 1863 patients"]}}}}]},
+        "results": {"by_outcome": {"o": {"k": 2}}}}
+    v4, notes4 = check(resultish)
+    ok &= v4 == "FAIL" and any("RESULT sentence" in n for n in notes4)
+    print("  POSITIVE result sentences filed as provenance       -> %-5s %s"
+          % (v4, "correct" if v4 == "FAIL" else "WRONG"))
+
+    fin = os.path.join(root, "ssot", "finerenone-cv", "finerenone-cv.json")
+    if os.path.exists(fin):
+        v6, n6 = check(json.loads(open(fin, encoding="utf-8").read()))
+        ok &= v6 == "PASS"
+        print("  NEGATIVE FINERENONE_CV: endpoint TITLES quoted -> %-5s %s"
+              % (v6, "correct" if v6 == "PASS" else "WRONG -- the gate cannot tell "
+                 "a definition quote from a result quote"))
+
+    v5, _ = check({})
+    ok &= v5 == "UNCHECKABLE"
+    print("  NEGATIVE an empty object                            -> %-5s %s (not a pass)"
+          % (v5, "correct" if v5 == "UNCHECKABLE" else "WRONG"))
+
+    print("\nWHAT A FAILURE WOULD LOOK LIKE: SGLT2_HF passing -- which it did on "
+          "every other check in this repository while pooling two different "
+          "endpoints as one.")
+    print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+    return 0 if ok else 1
+
+
+def main():
+    if len(sys.argv) < 2 or sys.argv[1] == "--selftest":
+        return selftest()
+    if not os.path.exists(sys.argv[1]):
+        print("estimand_definition: %s does not exist. NOT RUN." % sys.argv[1],
+              file=sys.stderr)
+        return 2
+    v, notes = check(json.loads(open(sys.argv[1], encoding="utf-8",
+                                     errors="replace").read()))
+    for n in notes:
+        print("  %s" % n)
+    print("  -> %s" % v)
+    return 0 if v == "PASS" else (2 if v == "UNCHECKABLE" else 1)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
