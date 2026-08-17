@@ -50,7 +50,7 @@ CHECKS = [
     ("subject_match",            "subject_match_gate.py", _page_obj),
     ("arm_identity",             "arm_identity_gate.py", _obj),
     ("poolable_or_withheld",     "poolability.py", _obj),
-    ("identity_by_registration", None, None),
+    ("identity_by_registration", "identity_by_registration_gate.py", _obj),
     ("no_synthesised_absence",   None, None),
     ("self_contained",           "external_dependency_census.py", None),
     ("display_change_announced", None, None),

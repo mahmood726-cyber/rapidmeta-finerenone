@@ -38,6 +38,7 @@ WHAT A FULL PASS DOES NOT ESTABLISH -- written in advance
 """
 from __future__ import annotations
 import json, os, re, sys, io, glob
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 if __name__ == "__main__":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -96,9 +97,30 @@ def assess(trial):
     return "PASS", "%r vs %r" % (li, lc)
 
 
+def _as_legacy(t):
+    """Normalised trial -> the shape assess() already understands."""
+    arms = t.get("arms") or []
+    tre = next((a for a in arms if a.get("role") == "treatment"), None)
+    con = next((a for a in arms if a.get("role") == "control"), None)
+    # assess() keys arms by ROLE and expects "intervention"/"control". The v1
+    # objects say "treatment"/"control". The first cut of this shim emitted
+    # top-level intervention/comparator keys, which assess() does not read, so
+    # the gate went on reporting UNCHECKABLE -- a fix that looked applied and
+    # changed nothing. Verified by running it, not by reading it.
+    return {"arms": [{"role": "intervention", "label": (tre or {}).get("label", "")},
+                     {"role": "control", "label": (con or {}).get("label", "")}],
+            "nct": t.get("nct"), "name": t.get("name")}
+
+
 def page_verdict(path):
     d = json.loads(open(path, encoding="utf-8", errors="replace").read())
-    rows = [assess(t) for t in ((d.get("canonical") or {}).get("trials") or [])]
+    # BOTH SCHEMAS. This read canonical.trials only, so it returned UNCHECKABLE
+    # on 100% of the v1 objects -- the architecture the standard describes. It
+    # was not broken; it was pointed at the other artefact family, and it said
+    # so honestly rather than passing, which is the only reason this was visible.
+    import object_shapes as _os
+    rows = [assess(t["_raw"] if t["_schema"] == "canonical" else _as_legacy(t))
+            for t in _os.trials_of(d)]
     if not rows:
         return "UNCHECKABLE", []
     if any(v == "FAIL" for v, _ in rows):
