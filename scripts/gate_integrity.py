@@ -83,6 +83,34 @@ THE MECHANISM THIS DETECTS, WHICH IS OUR MOST RECURRENT ONE
     pages carry one once the page has run. Reporting either alone, without
     naming which, is a true sentence that misleads.
 
+THE OTHER META-MECHANISM -- THE ACTION SUCCEEDED, THE EFFECT WAS NEVER CONFIRMED
+    Four instances, and it may be the most productive pattern in this file:
+
+        PUSH IS NOT DEPLOY               the ref moved; the site served the old bytes
+        THE REPAIR EXISTING IS NOT THE REPAIR ARRIVING
+                                         the hook was fixed; 6 of 12 checkouts still ran the old one
+        A LIBRARY NO BUILD INVOKES CATCHES NOTHING
+                                         the detector was correct and was never called
+        WRITING AN ARTEFACT IS NOT PRESERVING IT
+                                         the waiver register was written into gitignored outputs/;
+                                         it wrote fine, read back fine, and existed in no clone
+
+    In every one the actor had every reason to believe it had worked, BECAUSE THE
+    ACTION ITSELF SUCCEEDED AND REPORTED SUCCESS. `git push` exits 0. The editor
+    saves. `open(path, "w")` returns. Nothing anywhere is lying; the confirmation
+    simply answers a different question from the one that matters.
+
+    THE QUESTION IS NEVER "DID I DO IT". IT IS "DID IT LAND WHERE IT HAS TO BE."
+    Those come apart whenever an artefact must cross a boundary to take effect --
+    a deploy, a clone, a working tree, an import. Every such boundary needs its
+    own confirmation, taken FROM THE FAR SIDE: fetch the served bytes, run the
+    hook from a second checkout, assert the detector was invoked, ask git whether
+    the file is tracked.
+
+    And note the direction, which is why all four survived: EVERY ONE FAILS
+    TOWARD COMFORT. An untracked backlog does not error, it quietly stops
+    existing, and the corpus then looks better than it is.
+
 THE MECHANISM BEHIND THE MECHANISM -- WHICH DIRECTION DOES THE FAILURE POINT?
     Ask of every check, gate, rule and instrument: WHEN THIS IS WRONG, IS ITS
     OUTPUT ALARMING OR REASSURING?

@@ -101,6 +101,38 @@ if [ -n "$INDEX_TOUCHED" ]; then
     echo "[pre-push] Root index markup PASS."
 fi
 
+# ---------------------------------------------------------------------------
+# DURABLE ARTEFACT GATE, added 2026-08-17. Runs on EVERY push, unscoped.
+#
+# The waiver register was written to outputs/, which is gitignored. It wrote
+# fine, read back fine, and the gate consuming it worked -- on this machine and
+# nowhere else. A backlog that cannot be committed is not a backlog, and 51
+# pages meant to be COUNTED would have silently become 51 pages nobody tracked.
+#
+# Unscoped deliberately: the artefacts it guards are exactly the ones no push
+# "touches", so a scoped check would never look at them. That was the same
+# reasoning error as the index -- scope followed what changed, when the risk
+# lives in what does not.
+# ---------------------------------------------------------------------------
+DGATE="$REPO_ROOT/scripts/durable_artefact_gate.py"
+if [ ! -f "$DGATE" ]; then
+    echo "[pre-push] durable_artefact_gate.py is missing." >&2
+    echo "[pre-push] Refusing to pass a check that is not present." >&2
+    exit 1
+fi
+set +e
+python "$DGATE" > /tmp/durable_gate.log 2>&1
+DUR_STATUS=$?
+set -e
+if [ "$DUR_STATUS" -ne 0 ]; then
+    cat /tmp/durable_gate.log
+    echo ""
+    echo "[pre-push] A durable artefact is MISSING, IGNORED or UNTRACKED."
+    echo "[pre-push] Writing a file is not preserving it. This gate has no override."
+    exit 1
+fi
+echo "[pre-push] Durable artefacts tracked."
+
 if [ -z "$CHANGED" ]; then
     echo "[pre-push] No *_REVIEW.html pages in this push; nothing to regression-check."
     exit 0

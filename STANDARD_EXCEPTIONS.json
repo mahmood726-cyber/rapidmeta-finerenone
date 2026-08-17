@@ -1,0 +1,95 @@
+{
+ "register": "standard exceptions -- pages touched WITHOUT being brought to v1",
+ "why_this_file_exists": "A page edited for one reason and left below standard is a backlog item, not a finished page. Absorbing it silently into the corpus makes the backlog uncountable, which is the same failure as a denominator that drops its missing members: it reports a better number than the corpus deserves. Kept at the repo ROOT and tracked: it was first written under outputs/, which is gitignored -- a backlog that cannot be committed is not a backlog, and the gate that reads it would have found nothing in a fresh clone.",
+ "entries": [
+  {
+   "date": "2026-08-17",
+   "count": 41,
+   "reason_touched": "I-squared persisted to localStorage as a string by an uncoerced snapshot writer, then crashed the version-comparison panel on the reader's SECOND visit. Present harm, fixed on instruction.",
+   "not_brought_to_standard_because": "These pages fail two pre-existing gate signals. The honest fix is not mechanical: adding a 'Provisional RoB-2 and GRADE' banner to a page with no such assessment would assert something untrue, which is the defect class this project exists to remove. 'Fix the crash' did not authorise that, so the signals are left genuinely absent and labelled.",
+   "properties_outstanding": [
+    "rob2_and_grade -- no per-trial RoB-2 assessment is recorded; measured 0 of N trials carrying one on every page checked",
+    "r_output_verbatim -- no independent-engine (R/WebR) cross-check on the page"
+   ],
+   "measured_note": "MEASURED, NOT INFERRED FROM THE GATE NAME. The gate signal is called 'no_rob_banner' and tests for a disclosure ELEMENT, not for an assessment. Pages that PASS it also carry zero RoB data -- FINERENONE_REVIEW prints 'Provisional RoB-2 and GRADE' with 0 of 145 trials assessed. So passing that signal establishes that a caveat is displayed, nothing more, and these 51 are not worse than the passing pages in substance -- only more honest about it.",
+   "pages": [
+    "ACS_ANTIPLATELET_REVIEW.html",
+    "ADC_HER2_LOW_REVIEW.html",
+    "ADC_HER2_NMA_REVIEW.html",
+    "ANTI_CD20_MS_REVIEW.html",
+    "ATOPIC_DERM_NMA_REVIEW.html",
+    "CARDIORENAL_DKD_NMA_REVIEW.html",
+    "CD_BIOLOGICS_NMA_REVIEW.html",
+    "CFTR_MODULATORS_NMA_REVIEW.html",
+    "CRYPTOCOCCAL_MENINGITIS_AFRICA_REVIEW.html",
+    "DIABETIC_RETINOPATHY_REVIEW.html",
+    "DOAC_VTE_NMA_REVIEW.html",
+    "GLP1_CVOT_NMA_REVIEW.html",
+    "GLP1_MASH_REVIEW.html",
+    "HEMOPHILIA_GENE_THERAPY_REVIEW.html",
+    "HER2_LOW_ADC_REVIEW.html",
+    "HF_QUADRUPLE_NMA_REVIEW.html",
+    "HPV_VACCINE_SCHEDULES_REVIEW.html",
+    "HYDROCORTISONE_SEPTIC_SHOCK_REVIEW.html",
+    "ICU_SEDATION_REVIEW.html",
+    "INCRETINS_T2D_NMA_REVIEW.html",
+    "JAKI_RA_NMA_REVIEW.html",
+    "MALARIA_VACCINE_REVIEW.html",
+    "MDR_TB_SHORTENED_REVIEW.html",
+    "MEDITERRANEAN_DIET_CV_REVIEW.html",
+    "MIGRAINE_ACUTE_REVIEW.html",
+    "OBESITY_DRUGS_REVIEW.html",
+    "PAH_THERAPY_REVIEW.html",
+    "PCSK9_LIPID_NMA_REVIEW.html",
+    "PEDIATRIC_HIV_ART_REVIEW.html",
+    "PHYSICAL_REHAB_OLDER_REVIEW.html",
+    "POLYCYTHEMIA_VERA_REVIEW.html",
+    "POSTPARTUM_HEMORRHAGE_REVIEW.html",
+    "PSA_BIOLOGICS_REVIEW.html",
+    "ROTAVIRUS_VACCINE_AFRICA_REVIEW.html",
+    "SEVERE_ASTHMA_NMA_REVIEW.html",
+    "SEVERE_PEDIATRIC_FEBRILE_AFRICA_REVIEW.html",
+    "SGLT2I_HF_NMA_REVIEW.html",
+    "SPONDYLOARTHRITIS_REVIEW.html",
+    "UC_BIOLOGICS_NMA_REVIEW.html",
+    "VITAMIN_D_FRACTURE_FALL_REVIEW.html",
+    "VITILIGO_REVIEW.html"
+   ],
+   "status": "FIXED LOCALLY, NOT SHIPPED -- held pending characterisation of the zero_included signal",
+   "held_because": "The crash fix is complete and regression-neutral on these 41, but the gate blocked the push on zero_included naming DIFFERENT pages each run. Shipping a fix verified by an instrument we did not yet trust would have left us unable to say whether it worked. Characterised now -- see zero_included_characterised below -- and awaiting a decision on the gate's settle window."
+  },
+  {
+   "date": "2026-08-17",
+   "count": 10,
+   "status": "HELD -- crash fix NOT applied, NOT waived, NOT shipped",
+   "reason_held": "These 10 carry PRE-EXISTING failures of signals that are NOT waivable: one page error (RapidMeta undefined), five with zero included trials, four whose pooled estimate does not compute at all ('--'). Confirmed pre-existing by running HEAD~1 and the working tree separately: pool_broken fires 4/4 in BOTH arms, and the crash fix IMPROVED zero_included from 1 to 0 on the sampled set.",
+   "why_not_waived": "The waiver covers no_rob_banner and no_webr_tag -- a missing DISCLOSURE and a missing cross-check. A pooled estimate that does not compute is a different kind of thing: the page's central claim is absent, not merely unattested. Extending the register to cover it would be the comfortable move, and the register would stop meaning anything the first time it was used that way.",
+   "suspected_cause_NOT_CONFIRMED": "Six of the ten are NMA pages, and the failing signals (res-or, include-status trials) are AUTO-pairwise shaped. This may be the same class as the SSOT dispatch problem -- an AUTO-shaped gate applied to a page of another architecture -- in which case some are false positives. NOT investigated, NOT assumed, recorded as a hypothesis so the next pass starts here.",
+   "pages": [
+    "ADC_HER2_ADJUVANT_REVIEW.html",
+    "ANTIAMYLOID_AD_NMA_REVIEW.html",
+    "ANTIVEGF_NAMD_NMA_REVIEW.html",
+    "BTKI_CLL_NMA_REVIEW.html",
+    "CGRP_MIGRAINE_NMA_REVIEW.html",
+    "DIABETIC_MACULAR_EDEMA_REVIEW.html",
+    "DOAC_AF_NMA_REVIEW.html",
+    "HIDRADENITIS_SUPPURATIVA_REVIEW.html",
+    "HIV_PREP_INJECTABLE_REVIEW.html",
+    "IL_PSORIASIS_NMA_REVIEW.html"
+   ]
+  }
+ ],
+ "zero_included_characterised": {
+  "date": "2026-08-17",
+  "question": "Is the gate flaky, or are the pages non-deterministic?",
+  "answer": "NEITHER, exactly. The gate samples a value that has not finished settling.",
+  "evidence": [
+   "Cold context, single load, network allowed: included = 0 at 2.5s, 0 at 6s, 7 at 12s.",
+   "Same page reloaded in one warm context: 0, 0, then 7 on the third load.",
+   "The gate waits 2.2s, so it reads whichever pages have not settled that run.",
+   "Third-party requests BLOCKED entirely: included still reaches 7. So the settling is NOT caused by third-party success -- it is local timing, and blocking the network makes it FASTER because the fetches fail fast instead of hanging."
+  ],
+  "so_the_gate_is_not_wrong": "It faithfully reports what the page shows a reader at 2.2 seconds, and a reader who looks in the first few seconds genuinely sees a review with zero included studies. That is a real defect. But it is a DIFFERENT defect from 'this review includes no studies', and the signal name asserts the second.",
+  "recommended": "Three-state verdict: PASS, FAIL, and NONDETERMINISTIC. Measure twice with a settle window; disagreement between the two reads is NONDETERMINISTIC and blocks, because 'we do not know what this page shows a reader' is not a passing state. Do NOT simply lengthen the wait until it goes green -- that hides the reader-facing defect rather than reporting it."
+ }
+}
