@@ -47,6 +47,8 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DURABLE = [
     ("STANDARD_EXCEPTIONS.json",
      "waiver register -- pages shipped below standard, the countable backlog", None),
+    ("MISTAKE-LEDGER.md",
+     "the ledger a human reads: mechanisms, failure directions, what each cost", None),
     ("scripts/standard_manifest.py",
      "the standard itself, versioned", None),
     ("scripts/gate_integrity.py",

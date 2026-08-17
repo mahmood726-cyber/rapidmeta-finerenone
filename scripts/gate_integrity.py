@@ -83,6 +83,54 @@ THE MECHANISM THIS DETECTS, WHICH IS OUR MOST RECURRENT ONE
     pages carry one once the page has run. Reporting either alone, without
     naming which, is a true sentence that misleads.
 
+THE MATCHED PAIR -- THE CLEANEST EVIDENCE IN THIS FILE
+    Two probes, one root cause, opposite failure directions, wildly different
+    survival times. This is the selection principle demonstrated rather than
+    argued.
+
+    ROOT CAUSE, both cases: A PROBE THAT ESTABLISHES SOMETHING ANSWERS, NEVER
+    THAT THE RIGHT THING ANSWERS.
+
+    FALSE DEATH -- the agy liveness probe queried the wrong model pool and
+      reported a seat dead that was fully alive. Cost: an entire verification
+      family stood down. CAUGHT THE SAME DAY, because "the seat is dead" is an
+      alarming result and somebody immediately went and looked.
+
+    FALSE LIFE -- the regression gate probed `curl -sf .../index.html` on port
+      8787 and reused whatever answered. What answered was a SIBLING WORKING TREE
+      of the same repository on a different branch. The gate loaded, measured and
+      PASSED pages that were not the pages being pushed -- ARNI at 912,140 bytes
+      over the wire against 6,147,695 on disk. SURVIVED ALL DAY, and every green
+      it produced was relayed upward as confidence, because "regression check
+      PASS" is exactly what everyone wanted to read.
+
+    Same defect class. One was caught in hours, the other ran a full day feeding
+    false assurance into reports, AND THE ONLY DIFFERENCE WAS WHICH DIRECTION IT
+    FAILED IN. Nothing about the false-life version was subtler or better hidden.
+    It simply never gave anyone a reason to look.
+
+    Note also that clones make hash- and size-comparison useless as an identity
+    check here: two working trees of one repository agree on most files most of
+    the time, so any comparison of EXISTING content passes constantly. The only
+    probe another directory cannot satisfy is a NONCE -- content that did not
+    exist anywhere a moment ago. And the response to a failed identity check is
+    REFUSE (exit 2), not warn: a gate reading another directory is worse than no
+    gate, because no gate at least never produces a green.
+
+THE PAYOFF CASE FOR "A GATE NEEDS A CONSTRUCTIBLE FAILING INPUT"
+    The wrong-tree defect was not found by looking for it. It was found because
+    the three-state verdict needed a fixture that could FAIL, the real pages
+    could not produce one (the double-load warms the cache, so they always
+    passed), and a purpose-built fixture therefore had to be written -- which
+    then 404'd against a server that was returning 200 for every real page.
+
+    THE DISCIPLINE DID NOT MERELY VERIFY THE CHECK IT WAS APPLIED TO. IT
+    DISCOVERED AN UNRELATED AND MUCH LARGER DEFECT. That is the argument for the
+    standard, and it belongs here rather than in a footnote: insisting on a
+    constructible failure forces you to interact with the system in a way that
+    passing tests never do, and the discrepancies you trip over on the way are
+    frequently worth more than the check you set out to build.
+
 THE OTHER META-MECHANISM -- THE ACTION SUCCEEDED, THE EFFECT WAS NEVER CONFIRMED
     Four instances, and it may be the most productive pattern in this file:
 
