@@ -83,6 +83,50 @@ THE MECHANISM THIS DETECTS, WHICH IS OUR MOST RECURRENT ONE
     pages carry one once the page has run. Reporting either alone, without
     naming which, is a true sentence that misleads.
 
+THE MECHANISM BEHIND THE MECHANISM -- WHICH DIRECTION DOES THE FAILURE POINT?
+    Ask of every check, gate, rule and instrument: WHEN THIS IS WRONG, IS ITS
+    OUTPUT ALARMING OR REASSURING?
+
+        Fails toward ALARM   -> someone investigates -> it gets fixed or removed.
+                                It cannot survive long, because a false alarm is
+                                expensive to whoever is standing next to it.
+        Fails toward COMFORT -> nobody investigates a green result -> it survives
+                                indefinitely, and its survival is mistaken for
+                                its being correct.
+
+    EVERY MECHANISM FOUND IN THIS PROJECT FAILED TOWARD COMFORT. That is not
+    coincidence, it is SELECTION. The alarming ones were all removed years ago by
+    whoever got tired of them; what remains in any long-lived codebase is
+    disproportionately the set of checks that are wrong in the pleasant direction.
+
+      - the pre-push hook that printed PASS because $? read `tail`   -> comfort
+      - figure_audit scoring an unrenderable element as zero         -> comfort
+      - a source leg verifying against our own just-written text     -> comfort
+      - a mutation test that never mutated the value it protects     -> comfort
+      - an alignment gate comparing only the intersection, so every
+        MISSING section was out of scope rather than a divergence    -> comfort
+      - a text extractor silently dropping content: "0 occurrences"  -> comfort
+      - "read raw HTML", which counted <script> template source and
+        reported 62.8% sourced against a true 2.2%                   -> comfort
+
+    Seven mechanisms, seven in the same direction, zero in the other. A set that
+    lopsided is not a sample of our mistakes -- it is a sample of the mistakes
+    that were ABLE TO LAST.
+
+    PRACTICAL CONSEQUENCE, and the reason this is written here rather than
+    admired: comfortable failure modes cannot be found by waiting for them to
+    cause trouble, because not causing trouble is precisely their property. They
+    have to be hunted deliberately. So when adding any check, write down its
+    comfortable failure mode FIRST -- the specific way it could report success
+    having established nothing -- and then construct that input and confirm it
+    blocks. If you cannot construct it, you have not understood the check yet.
+
+    And prefer designs where the comfortable direction is unavailable: a manifest
+    of EXPECTED sections rather than a comparison of shared ones; UNMEASURED as a
+    distinct verdict from PASS; an unloadable page recorded as unmeasured rather
+    than as zero links. In each case the fix was not a better check but a shape in
+    which silence cannot be read as success.
+
 PROMOTION CRITERION -- REPLAY A REAL PAST DEFECT
     A synthetic failing input proves a detector CAN fire. It does not prove the
     detector DISCRIMINATES: a rule that fires on everything also passes that test.

@@ -126,6 +126,22 @@ PROPERTIES = [
      "a converted page explained its gap with an authored page's reason, which was "
      "false; and comparator_type would be right most of the time as 'placebo', which "
      "is exactly why guessing it is dangerous"),
+    ("self_contained",
+     "The page renders its FULL PROVENANCE from its own bytes. No fetch to a third "
+     "party is required for a reader to see which trial, which value, which source",
+     "the claim of this project is that a reader without journal access can check us. "
+     "A page that fetches its provenance at load is not checkable, it is CHECKABLE ON "
+     "A GOOD DAY -- and when the third party rate-limits, is down, or is firewalled, "
+     "the reader sees an unsourced page WITH NO WAY TO KNOW WHY. There is no error "
+     "state for 'the sources exist but could not be fetched'; there is just a page "
+     "with less on it. Measured 2026-08-17: 19 of 21 sampled pages issue third-party "
+     "requests on load and ALL NINETEEN got HTTP 429 from api.openalex.org in the same "
+     "run. The only two with zero outbound requests were the two built to this "
+     "standard. ~874 pages also fetch cdnjs.cloudflare.com and webr.r-wasm.org -- not "
+     "data but CODE: the R runtime used for statistical cross-validation is downloaded "
+     "from a CDN at read time, so a reproducibility claim silently degrades to whether "
+     "someone else's CDN is up. checkbuild already refuses any new build with an "
+     "external reference; nothing enforced it on the generation before"),
     ("display_change_announced",
      "ANY change to a published display value is announced, INCLUDING when the "
      "underlying value is unchanged -- a re-rounding, a precision change, a unit or "
