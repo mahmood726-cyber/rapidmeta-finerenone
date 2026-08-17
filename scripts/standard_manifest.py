@@ -126,6 +126,19 @@ PROPERTIES = [
      "a converted page explained its gap with an authored page's reason, which was "
      "false; and comparator_type would be right most of the time as 'placebo', which "
      "is exactly why guessing it is dangerous"),
+    ("display_change_announced",
+     "ANY change to a published display value is announced, INCLUDING when the "
+     "underlying value is unchanged -- a re-rounding, a precision change, a unit or "
+     "format change, all of it",
+     "ARNI's card moved from HR 0.872 (0.746-1.02) to 0.8715 (0.7461-1.018) when the "
+     "generator's precision went from three significant figures to four. Same number, "
+     "0.87153524291, one more digit, and all three surfaces moved together -- so every "
+     "internal consistency check passed and nothing would have said a word. But A "
+     "READER WHO WROTE DOWN 0.872 AND NOW SEES 0.8715 HAS NO WAY TO KNOW WHICH OF THE "
+     "TWO IS THE CORRECTION. Silence makes a refinement indistinguishable from a "
+     "retraction, and the reader must assume the worse of the two. The obligation is "
+     "to the reader's record, not to our own consistency; 'the value did not change' "
+     "is precisely the case where nobody thinks to say anything"),
 ]
 
 # Properties a page may not yet reach, but which must be TRUE OR DECLARED.

@@ -53,6 +53,20 @@ THE MECHANISM THIS DETECTS, WHICH IS OUR MOST RECURRENT ONE
     <script>/<style> BODIES dropped and ${...} placeholders excluded, the figure
     was 2.2%.
 
+    LOGGED AS A RULE REGRESSION, NOT JUST A MISTAKE. "Read raw HTML, never
+    rendered-text extraction" was ADOPTED AS A RULE in response to the
+    under-counting instance, and within the hour it made a measurement WORSE than
+    no rule at all: 62.8% against a true 2.2%, a factor of forty, AND IT ERRED IN
+    THE REASSURING DIRECTION -- it said the corpus was well sourced when it is
+    not. A rule that fails toward comfort will not be questioned, because its
+    output is the answer everyone hoped for.
+
+    So rules earn the same treatment as gates: state what a rule does NOT
+    establish at the moment it is adopted, and re-derive one number under the new
+    rule and the old one before trusting it. The half-rule was correct about what
+    it was reacting to and silently wrong about everything else, which is the
+    normal shape of a rule written from a single incident.
+
     Neither instrument alone is correct:
         rendered text   omits what is not displayed   -> UNDER-counts
         raw HTML        includes what is not content  -> OVER-counts
