@@ -82,10 +82,21 @@ PROPERTIES = [
      "ABLATION_AF served card HR 0.77 against page OR 0.7151 -- a public "
      "self-contradiction on a page reported as done"),
     ("extraction_table",
-     "Extraction tab carries value, verbatim source sentence, resolvable link, and "
-     "read-versus-derived, per extracted value",
+     "Extraction tab carries value, VERBATIM SOURCE SENTENCE, resolvable link, and "
+     "read-versus-derived, per extracted value. ALL FOUR, OR THE PROPERTY IS NOT MET "
+     "-- a table of values with no sentences is provenance theatre and FAILS, it "
+     "does not partially pass",
      "a reader must be able to check us without reading the manuscript and without "
-     "trusting us"),
+     "trusting us. ABLATION_AF and ALIROCUMAB both carry the table with ZERO verbatim "
+     "quotes, and were nearly recorded as partial. The quote is the half that makes "
+     "the table checkable: value plus link tells a reader WHERE to look, and only the "
+     "sentence tells them WHAT WE READ, which is the thing they are checking. "
+     "RELATEDLY, AND THE SAME BOUNDARY FROM THE OTHER SIDE: HAVING LINKS IS NOT BEING "
+     "CHECKABLE. Trial-level provenance -- a resolvable link per included trial -- is "
+     "widespread here, 27 of 31 sampled pages. Value-level provenance -- which NUMBER "
+     "came from which SENTENCE -- exists on seven pages in 1450. A page can cite every "
+     "trial correctly and still give a reader no way to check a single extracted "
+     "number, and it will look fully sourced while doing it"),
     ("sections_in_both_surfaces",
      "Every section the object earns appears in BOTH the page and the manuscript",
      "the extraction table was missing from every Word manuscript ever produced and "
