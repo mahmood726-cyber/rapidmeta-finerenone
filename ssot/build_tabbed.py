@@ -398,31 +398,64 @@ def output_card(canon, p):
 # "not built at page-build time"). Both failures are quiet.
 # Overridable now, with the old location kept as the fallback so the current
 # build is unchanged; set ARNI_DOC_DIR to move it somewhere owned.
-_SCRATCH = os.environ.get(
-    "ARNI_DOC_DIR",
-    r"F:\claude-temp\claude\F--rapidmeta-finerenone"
-    r"\e7f51608-d242-495a-8fdb-f99c306556e9\scratchpad")
-_DOCMODEL = os.path.join(_SCRATCH, "manuscript_docmodel.json")
-if not os.path.isdir(_SCRATCH):
-    # Loud, not silent: a missing directory here costs the reader the entire
-    # manuscript, and that is not something to discover from a short page.
-    sys.stderr.write("WARNING: ARNI_DOC_DIR %r does not exist -- the document "
-                     "view and the .docx downloads will be omitted.\n" % _SCRATCH)
+# _SCRATCH / _DOCMODEL DELETED 2026-08-16. They were a single hardcoded path
+# outside the repo, and every tabbed build rendered whatever manuscript sat there
+# regardless of which object it was building. See _doc_dir_for(). The path is not
+# kept as a fallback on purpose: a fallback is what caused the incident, and the
+# environment override made it worse by making the source of the manuscript
+# invisible in the build output. ARNI's manuscript now lives in ssot/arni-hfref/
+# alongside the object it belongs to, like every other artefact of that review.
 
 
-def _downloads_html():
+def _doc_dir_for(canon):
+    """Where THIS object's manuscript lives, or None.
+
+    THE BUG THIS REPLACES (2026-08-16). _DOCMODEL was a single hardcoded path and
+    every tabbed build rendered whatever manuscript happened to sit there. That
+    file was ARNI's, so sotagliflozin, SGLT2, IV iron and alirocumab each went
+    live carrying ARNI's manuscript -- 239,773 characters of another review,
+    including its Table 4 with PARADIGM-HF's 558/4187. The counts were
+    byte-identical across four unrelated drugs because it was literally the same
+    file. Nothing in the build was per-object at all.
+
+    A manuscript belongs to ONE object. It is looked up under that object's own
+    directory, and if it is not there the page says so. There is deliberately NO
+    FALLBACK: a silent fallback to another page's manuscript is precisely what
+    produced the contamination, and a fallback that is "usually right" is the
+    worst kind, because it fails invisibly on exactly the pages nobody checks.
+    """
+    app = (canon.get("app_id") or "").strip()
+    if not app:
+        return None
+    d = os.path.join(HERE, app)
+    return d if os.path.isdir(d) else None
+
+
+def _downloads_html(canon):
     """The manuscript and the supplement, as real files a reader can save.
 
     A submission needs the supplement as much as the paper, and a reader who can
     only read it on screen cannot submit it. Both are embedded as data URIs so
     the page stays a single self-contained file, and each states its own byte
     size so a truncated embed is visible rather than silently short.
+
+    Filenames are derived from the object's own app_id. They were hardcoded to
+    ARNI_manuscript.docx and ARNI_supplement.docx, so every rebuilt page offered
+    ARNI's Word documents as its own downloads.
     """
     import base64 as _b64
+    d = _doc_dir_for(canon)
+    app = (canon.get("app_id") or "unknown")
+    if not d:
+        return ("  <p><strong>Downloads</strong></p>%s"
+                "  <div class='absent-state' role='note'><strong>Not held in this "
+                "object.</strong> No manuscript or supplement is built for %s, so "
+                "none is offered. Nothing from another review is substituted."
+                "</div>%s" % (NL, e(app), NL))
     rows = ""
-    for fn, label in (("ARNI_manuscript.docx", "Manuscript (Word, .docx)"),
-                      ("ARNI_supplement.docx", "Supplementary material (Word, .docx)")):
-        fp = os.path.join(_SCRATCH, fn)
+    for fn, label in (("%s_manuscript.docx" % app, "Manuscript (Word, .docx)"),
+                      ("%s_supplement.docx" % app, "Supplementary material (Word, .docx)")):
+        fp = os.path.join(d, fn)
         if not os.path.exists(fp):
             rows += ("    <li><small>%s &mdash; not built at page-build time, so "
                      "not offered. Stated rather than shown as a dead "
@@ -436,6 +469,29 @@ def _downloads_html():
                  % (e(fn), uri, e(label), "{:,}".format(max(1, len(b) // 1024)), NL))
     return ("  <p><strong>Downloads</strong></p>%s  <ul>%s%s  </ul>%s"
             % (NL, NL, rows, NL))
+
+
+def _paper_panel(canon):
+    """The Paper Studio tab, from THIS object's manuscript or an honest state.
+
+    A page with no manuscript of its own says so, loudly, in the same red-banner
+    style the absent-state panels use. It does NOT borrow one. The whole
+    contamination incident was a silent fallback: the build found a manuscript at
+    a fixed path, rendered it, and every check passed because a manuscript was
+    present -- just not this page's.
+    """
+    d = _doc_dir_for(canon)
+    app = (canon.get("app_id") or "unknown")
+    model = os.path.join(d, "manuscript_docmodel.json") if d else None
+    if not model or not os.path.exists(model):
+        return ("<div class='card'>%s  <h2>Paper Studio</h2>%s"
+                "  <div class='absent-state' role='note'><strong>Not held in this "
+                "object.</strong> No manuscript has been generated for %s. A "
+                "manuscript belongs to one review, so none from another review is "
+                "shown here &mdash; this tab is empty of content rather than "
+                "filled with someone else&rsquo;s.</div>%s</div>%s"
+                % (NL, NL, e(app), NL, NL))
+    return wy.render(model, _downloads_html(canon))
 
 
 def _caption_tables(html):
@@ -559,7 +615,7 @@ def build(canon):
         # two Results, two reference lists -- because three renderers were each
         # doing their job on the same content. The document view is the one that
         # matches the Word file block for block, so it is the one that stays.
-        "paper": wy.render(_DOCMODEL, _downloads_html()),
+        "paper": _paper_panel(canon),
     }
     body, tab_css = pj.tabbed_body(canon, parts, page)
     body = _caption_tables(body)
