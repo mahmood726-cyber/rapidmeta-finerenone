@@ -48,6 +48,34 @@ SENTINELS = ["NOT RECOVERABLE FROM THE PAGE", "REPLACE_ME", "__PLACEHOLDER__",
              "{{", "TODO", "undefined", "NaN"]
 
 
+# THE TWO VOCABULARIES, WRITTEN DOWN. Left: what the SSOT objects say. Right:
+# (stored_scale, back_transform) as the harness detectors read them. Anything not
+# in this table is NOT mapped and the fields are omitted -- an unmappable scale
+# must reach the detector as "not declared", never as a guess.
+_SCALE_VOCAB = {
+    "log":      ("log", "exp"),
+    "linear":   ("natural", "identity"),
+    "natural":  ("natural", "identity"),
+    "identity": ("natural", "identity"),
+}
+
+
+def _measure_for(results, oid, trial):
+    """The effect MEASURE this object records for this trial-outcome, or None.
+
+    The objects carry the measure on `results.by_outcome[oid].per_trial[]` and
+    usually NOT on the trial's own effect block, so reading only the effect block
+    left `measure` null on nine of ten rows and CHK021 returned INVALID -- ran,
+    saw nothing, reported nothing. This joins the two places the object records
+    the same fact. It is a LOOKUP, not an inference: no match, no measure.
+    """
+    tid, nct = trial.get("id"), trial.get("nct")
+    for row in ((results.get(oid) or {}).get("per_trial") or []):
+        if (nct and row.get("nct") == nct) or (tid and row.get("trial_id") == tid):
+            return row.get("measure")
+    return None
+
+
 def _visible(html):
     html = re.sub(r"<(script|style)\b[^>]*>.*?</\1\s*>", " ", html, flags=re.S | re.I)
     return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", html))
@@ -229,9 +257,31 @@ def export(obj, page_html=None):
             row = {"row_id": "%s::%s" % (t.get("nct") or t.get("id") or "?", oid),
                    "estimate": eff.get("point"),
                    "ci_low": eff.get("ci_low"), "ci_high": eff.get("ci_high"),
-                   "measure": eff.get("measure"),
-                   "stored_scale": eff.get("scale") or "log",
-                   "back_transform": "exp" if (eff.get("scale") == "log") else "none"}
+                   "measure": eff.get("measure") or _measure_for(results, oid, t)}
+            # SCALE VOCABULARY, TRANSLATED RATHER THAN PASSED THROUGH OR GUESSED.
+            #
+            # Two defects lived on this line. The objects write "linear" for a
+            # natural-scale difference and the detector's vocabulary is
+            # "natural", so EVERY difference-measure row in this corpus produced
+            # a false FAIL -- "MD is a difference on the natural scale but is
+            # stored as 'linear'" -- which is the adapter's word for exactly the
+            # thing the detector was asking for. A field-name contract across a
+            # module boundary, unstated and therefore unchecked.
+            #
+            # The worse one was the fallback: `eff.get("scale") or "log"`. An
+            # object that records no scale had one ASSERTED for it, and "log" is
+            # the assertion that makes a difference measure look like a ratio.
+            # That is a synthesised field in the exporter whose own first rule is
+            # never to synthesise a field, and it fails toward comfort -- the
+            # detector cannot tell a declared scale from a defaulted one.
+            _sc = (eff.get("scale") or "").strip().lower()
+            if _sc in _SCALE_VOCAB:
+                row["stored_scale"], row["back_transform"] = _SCALE_VOCAB[_sc]
+            else:
+                omissions.append(
+                    "%s: scale %r is not one this exporter can map -> the "
+                    "measure/scale check is NOT emitted for this row, which is "
+                    "not a pass on it" % (row["row_id"], eff.get("scale")))
             if tre.get("events") is not None and con.get("events") is not None:
                 row.update({"events_t": tre.get("events"), "n_t": tre.get("participants"),
                             "events_c": con.get("events"), "n_c": con.get("participants")})
@@ -324,9 +374,47 @@ def selftest():
           % (bool(stray), "correct" if not stray else "WRONG"))
     ok &= not stray
 
+    # SCALE VOCABULARY, replayed on the object that exposed it. IV iron carries a
+    # mean difference stored as "linear"; the detector's word is "natural", and
+    # the mismatch produced a FAIL saying the row was not on the scale it was
+    # already on. The second half matters more: an object with NO scale must
+    # yield NO scale fields, because the old `or "log"` default asserted the one
+    # value that makes a difference measure look like a ratio.
+    p2 = os.path.join(REPO, "ssot", "iv-iron-hf", "iv-iron-hf.json")
+    if os.path.exists(p2):
+        iv = json.loads(open(p2, encoding="utf-8").read())
+        art2, _ = export(iv)
+        rows = {r["row_id"]: r for r in (art2.get("rows") or [])}
+        md = rows.get("NCT01453608::six_min_walk_24w") or {}
+        good = (md.get("measure") == "MD" and md.get("stored_scale") == "natural"
+                and md.get("back_transform") == "identity")
+        ok &= good
+        print("  NEGATIVE a mean difference stored as 'linear' -> %r/%r %s"
+              % (md.get("stored_scale"), md.get("back_transform"),
+                 "correct" if good else "WRONG -- the false FAIL is back"))
+        named = sum(1 for r in art2.get("rows") or [] if r.get("measure"))
+        ok &= named == len(art2.get("rows") or [])
+        print("  NEGATIVE every row carries the measure the object records: %d/%d %s"
+              % (named, len(art2.get("rows") or []),
+                 "correct" if named == len(art2.get("rows") or []) else "WRONG"))
+
+        stripped = json.loads(json.dumps(iv))
+        for t in stripped["inputs"]["trials"]:
+            for bo in (t.get("by_outcome") or {}).values():
+                (bo.get("effect") or {}).pop("scale", None)
+        art3, om3 = export(stripped)
+        leaked = [r for r in (art3.get("rows") or []) if "stored_scale" in r]
+        ok &= not leaked
+        print("  POSITIVE an object with no scale recorded -> scale asserted on "
+              "%d row(s) %s" % (len(leaked), "correct" if not leaked else
+                                "WRONG -- the exporter is inventing a scale"))
+    else:
+        print("  fixture absent: iv-iron-hf -- NOT PROVEN"); ok = False
+
     print("\nWHAT A FAILURE WOULD LOOK LIKE: a displayed estimate paired with a "
           "reason that is true of a different estimand, blocking a push and "
-          "arguing for the withdrawal of a sound number.")
+          "arguing for the withdrawal of a sound number; or a scale the object "
+          "never recorded, asserted by the adapter and checked as though it had.")
     print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
     return 0 if ok else 1
 
