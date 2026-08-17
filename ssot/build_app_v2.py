@@ -24,7 +24,7 @@ ALIASES = {"res": "results", "cfg": "config", "rm": "removed_citations",
 
 
 
-def _method_table(sens, p, e):
+def _method_table(sens, p, e, pooled=None):
     """Render the between-study-variance method comparison, if the object has one.
 
     Handbook 10.10.4.5 asks for this comparison whenever a random-effects pool
@@ -50,7 +50,25 @@ def _method_table(sens, p, e):
         f"({fmt(m['ci_low'])} to {fmt(m['ci_high'])})</td>"
         f"<td class='num'>{fmt(m['tau2'])}</td></tr>" + NL
         for m in mc["methods"])
+    # A WITHDRAWN POOL'S METHOD COMPARISON MUST SAY SO, IN THE TABLE.
+    #
+    # After SGLT2_HF's four-trial estimate was withdrawn, the headline card said
+    # so and THIS table went on printing the withdrawn value under four
+    # estimators -- four more occurrences of a number no longer claimed, laid out
+    # as a methods result. The withdrawal is about the ESTIMAND, so no estimator
+    # rescues it, and a reader scrolling to this table would find the value alive
+    # and well four screens below the notice retiring it.
+    _wd = ""
+    if isinstance(pooled, dict) and pooled.get("withdrawn"):
+        _wd = ("  <div class='absent-state' role='note'><strong>These are the "
+               "WITHDRAWN pool's values.</strong> The estimate below is retired: "
+               "the trials do not share one endpoint. The comparison is kept "
+               "because it answers a real question -- whether the arithmetic "
+               "depended on the estimator, and it did not -- and it does not "
+               "rescue the pool, because the objection is to the ESTIMAND and no "
+               "choice of between-study variance touches that.</div>" + NL)
     return (f"  <h3>Does the answer depend on the pooling method?</h3>" + NL
+            + _wd
             + f"  <p>{p(mc['why'])}</p>" + NL + "  <table>" + NL
             + "    <tr><th>Between-study variance</th><th>Interval</th>"
               "<th>Summary (95% CI)</th><th>&tau;&sup2;</th></tr>" + NL
@@ -230,6 +248,32 @@ def build(canon: dict) -> str:
     return _page(canon, sections, p, e)
 
 
+def _previous_values_text(pooled):
+    """What this withdrawal supersedes, from either recorded shape.
+
+    ABLATION_AF records {"card": "...", "page": "..."} -- the two SURFACES that
+    disagreed. SGLT2_HF records a LIST of the superseded pooled objects, which is
+    the shape that keeps the actual numbers. Both are real and both must render;
+    the previous code understood one and printed "n/a" for the other, which is a
+    withdrawal notice withholding the value it withdraws.
+    """
+    pv = pooled.get("previous_values")
+    if isinstance(pv, dict):
+        parts = ["%s: %s" % (k, v) for k, v in pv.items() if v]
+        return html.escape("; ".join(parts)) if parts else html.escape(json.dumps(pv))
+    if isinstance(pv, list):
+        out = []
+        for v in pv:
+            if isinstance(v, dict) and v.get("point") is not None:
+                out.append("%s %s (%s to %s)"
+                           % (v.get("measure", ""), fmt(v.get("point")),
+                              fmt(v.get("ci_low")), fmt(v.get("ci_high"))))
+            else:
+                out.append(str(v))
+        return html.escape("; ".join(out))
+    return html.escape(str(pv))
+
+
 def _outcome_section(canon, oid, p, e):
     outcome = next(o for o in canon["outcomes"] if o["id"] == oid)
     res = canon["results"]["by_outcome"][oid]
@@ -393,13 +437,40 @@ def _outcome_section(canon, oid, p, e):
             + p(pooled.get("withdrawn_reason") or "No reason recorded.") + "</div>" + NL
             + ("  <p><small>" + p(pooled["withdrawn_note"]) + "</small></p>" + NL
                if pooled.get("withdrawn_note") else "")
-            + ("  <p><small>Previously displayed &mdash; card: "
-               + e(str((pooled.get("previous_values") or {}).get("card", "n/a")))
-               + "; page: "
-               + e(str((pooled.get("previous_values") or {}).get("page", "n/a")))
-               + ". Both are superseded by this withdrawal.</small></p>" + NL
+            # BOTH SHAPES, AND NEVER A SILENT "n/a".
+            #
+            # This read previous_values as a dict of {card, page} strings and
+            # printed "n/a" for anything else. Handed a LIST of superseded pooled
+            # objects -- the shape that actually preserves the numbers -- it
+            # raised, and before that it would have rendered "card: n/a; page:
+            # n/a" for a dict without those two keys, which is a withdrawal
+            # notice that withholds the very value it is withdrawing.
+            + ("  <p><small>Previously displayed: " + _previous_values_text(pooled)
+               + " &mdash; superseded by this withdrawal.</small></p>" + NL
                if pooled.get("previous_values") else "")
             + f"  <p>{p(outcome['name'])}. k = {fmt(res['k'])}.</p>" + NL
+            # THE SPLIT POOLS ARE THE READER'S REPLACEMENT ANSWER. Withdrawing an
+            # estimate and offering nothing is honest but not useful when the
+            # object holds pools that ARE established; where it does, they belong
+            # on the card that carries the withdrawal, not several screens away.
+            + ((("  <h3>What the endpoint-identical pairs give</h3>" + NL
+                 + "  <table>" + NL
+                 + "    <tr><th>Pool</th><th>k</th><th>Estimate</th><th>I&sup2;</th>"
+                   "</tr>" + NL
+                 + "".join(
+                     f"    <tr><td>{p(sp.get('label',''))}"
+                     f"{('<br><small>' + p(sp['reproduced']) + '</small>') if sp.get('reproduced') else ''}"
+                     f"</td><td class='num'>{fmt(sp.get('k'))}</td>"
+                     f"<td class='num'>{e(str(sp.get('measure','')))} "
+                     f"{fmt(sp.get('point'))} ({fmt(sp.get('ci_low'))} to "
+                     f"{fmt(sp.get('ci_high'))})</td>"
+                     f"<td class='num'>{fmt(sp.get('i2'))}%</td></tr>" + NL
+                     for sp in pooled["split_pools"])
+                 + "  </table>" + NL
+                 + ((f"  <p><strong>{p(pooled['what_the_split_does_not_establish'])}"
+                     f"</strong></p>" + NL)
+                    if pooled.get("what_the_split_does_not_establish") else "")))
+               if pooled.get("split_pools") else "")
             + "</div>" + NL)
     elif pooled:
         headline = (
@@ -628,7 +699,7 @@ def _outcome_section(canon, oid, p, e):
                 f"<th>I&sup2;</th><th>Effect on the conclusion</th></tr>\n"
                 f"{srows}  </table>\n"
                 f"  <p><strong>{p(s['conclusion'])}</strong></p>\n"
-                + _method_table(s, p, e) + "</div>\n")
+                + _method_table(s, p, e, res.get("pooled")) + "</div>\n")
     elif res.get("sensitivity"):
         s = res["sensitivity"]
         # An efficacy column and a `conclusion` line are VACCINE-shaped. This
@@ -671,7 +742,7 @@ def _outcome_section(canon, oid, p, e):
                 + _table
                 + (f"  <p><strong>{p(concl)}</strong></p>\n" if concl else "")
                 + f"  <p><small>{p(s['authority'])}</small></p>\n"
-                + _method_table(s, p, e) + "</div>\n")
+                + _method_table(s, p, e, res.get("pooled")) + "</div>\n")
 
     # Where the two judging families disagreed about whether a figure should be
     # published at all, the disagreement is shown rather than resolved silently

@@ -770,8 +770,8 @@
       "derivation": "the published hazard ratio, stored on the log scale with the standard error its published interval implies"
      }
     ],
-    "poolable": true,
-    "poolable_reason": "A single effect measure, a single comparator and one outcome concept, across trials that share no participant and no control group.",
+    "poolable": false,
+    "poolable_reason": "The four trials do not share one endpoint. DAPA-HF and DELIVER count cardiovascular death, hospitalisation for heart failure, OR AN URGENT HEART-FAILURE VISIT; EMPEROR-Reduced and EMPEROR-Preserved count cardiovascular death or hospitalisation for heart failure only. Two trials count an event class the other two do not, so this pool combined quantities that are not the same quantity. Verified word for word against each trial's registry entry rather than assumed.",
     "estimand_homogeneous_across_cohorts": false,
     "estimand_id_means": "the estimand of the POOLED value, which is the average this result reports. It is NOT a claim that the contributing trials estimate identical quantities: two of them count a component the other two do not. The dimensions on which they differ are listed in the uniformity table, and the pooled value averages across them.",
     "pool_uniformity": {
@@ -817,11 +817,47 @@
     "estimator_used": "REML",
     "pooled": {
      "measure": "HR",
-     "point": 0.7785,
-     "ci_low": 0.7296,
-     "ci_high": 0.8306,
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
      "ci_level": 95,
-     "scale": "log"
+     "scale": "log",
+     "withdrawn": true,
+     "withdrawn_reason": "The four trials do not share one endpoint. DAPA-HF and DELIVER count cardiovascular death, hospitalisation for heart failure, OR AN URGENT HEART-FAILURE VISIT; EMPEROR-Reduced and EMPEROR-Preserved count cardiovascular death or hospitalisation for heart failure only. Two trials count an event class the other two do not, so this pool combined quantities that are not the same quantity. Verified word for word against each trial's registry entry rather than assumed.",
+     "previous_values": [
+      {
+       "measure": "HR",
+       "point": 0.7785,
+       "ci_low": 0.7296,
+       "ci_high": 0.8306,
+       "ci_level": 95,
+       "scale": "log"
+      }
+     ],
+     "withdrawn_note": "THE WITHDRAWAL WAS PUBLISHED ON THE PAGE ON 2026-08-17 AND NOT IN THIS OBJECT. The page carried a paragraph explaining the withdrawal while its Pooled result card still read HR 0.7785 (0.7296 to 0.8306) as the headline, and the estimator-comparison table printed the same value four more times: six occurrences of the withdrawn number against one occurrence of the word 'withdrawn'. The object kept it as a live point, so any REBUILD would have re-published it in full. This is the withdraw-on-both-surfaces lesson -- logged in this repository after ABLATION_AF -- left open on the very topic that produced it.",
+     "split_pools": [
+      {
+       "label": "urgent-visit composite (DAPA-HF, DELIVER)",
+       "k": 2,
+       "measure": "HR",
+       "point": 0.7835,
+       "ci_low": 0.709,
+       "ci_high": 0.8659,
+       "i2": 22.5,
+       "reproduced": "Recomputed from this object's own per-trial log values under DerSimonian-Laird random effects: 0.7836 (0.7090 to 0.8659), I-squared 22.5 per cent. Matches. A first check using FIXED-effect weights gave 0.7849 (0.7190 to 0.8567) and looked like a discrepancy; it was the checker's method, not the value."
+      },
+      {
+       "label": "hospitalisation-only composite (EMPEROR-Reduced, EMPEROR-Preserved)",
+       "k": 2,
+       "measure": "HR",
+       "point": 0.7708,
+       "ci_low": 0.7,
+       "ci_high": 0.8488,
+       "i2": 0.0,
+       "reproduced": "Recomputed from this object's own per-trial log values: 0.7708 (0.7000 to 0.8488). Matches exactly."
+      }
+     ],
+     "what_the_split_does_not_establish": "That the two halves agreeing licenses the four-trial pool. It does not. Agreement is not identity of estimand, and a close answer to a different question is the most persuasive kind of wrong."
     },
     "favours": "treatment",
     "heterogeneity": {

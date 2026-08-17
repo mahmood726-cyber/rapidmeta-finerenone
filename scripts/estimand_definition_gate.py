@@ -260,13 +260,31 @@ def selftest():
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     real = os.path.join(root, "ssot", "sglt2-hf", "sglt2-hf.json")
     if os.path.exists(real):
-        v, notes = check(json.loads(open(real, encoding="utf-8").read()))
+        obj = json.loads(open(real, encoding="utf-8").read())
+        # THE POSITIVE CONTROL IS THE STATE THIS OBJECT WAS IN, NOT THE STATE IT
+        # IS IN NOW. Its pool has since been withdrawn IN THE OBJECT, so the live
+        # object correctly returns WITHDRAWN. Restoring the point from the
+        # `previous_values` that the withdrawal preserved replays the exact
+        # historical artefact -- four trials, two endpoint definitions, a live
+        # k=4 estimate. Without this, remediating the defect would have quietly
+        # deleted the only real past defect this gate is proved against, and the
+        # selftest would have gone on printing PASS over a control that no longer
+        # controls anything.
+        for _res in ((obj.get("results") or {}).get("by_outcome") or {}).values():
+            _p = _res.get("pooled") or {}
+            if _p.get("withdrawn") and _p.get("previous_values"):
+                _res["pooled"] = dict(_p["previous_values"][0])
+        v, notes = check(obj)
         good = v == "FAIL"
         ok &= good
-        print("  POSITIVE SGLT2_HF's real object                     -> %-5s %s"
-              % (v, "correct" if good else "WRONG"))
+        print("  POSITIVE SGLT2_HF, pool restored from its own withdrawal record "
+              "-> %-5s %s" % (v, "correct" if good else "WRONG"))
         for n in notes[:2]:
             print("        %s" % n[:112])
+        v_now, _ = check(json.loads(open(real, encoding="utf-8").read()))
+        ok &= v_now == "WITHDRAWN"
+        print("  NEGATIVE SGLT2_HF as it stands today, pool withdrawn -> %-9s %s"
+              % (v_now, "correct" if v_now == "WITHDRAWN" else "WRONG"))
     else:
         print("  fixture absent: sglt2-hf object -- NOT PROVEN")
         ok = False
