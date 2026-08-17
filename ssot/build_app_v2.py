@@ -24,6 +24,42 @@ ALIASES = {"res": "results", "cfg": "config", "rm": "removed_citations",
 
 
 
+def _finding_block(res, key, role, p, nl):
+    """Render a narrative finding on an estimate -- EVERY field the object holds.
+
+    WHY THIS ITERATES INSTEAD OF NAMING FIELDS
+        The version this replaces read eight named keys out of the object. A
+        ninth field added to the object rendered nowhere, silently, and looked
+        exactly like a field nobody had written. That is the artefact-versus-
+        object defect turned inside out: the finding was in the source of truth
+        and the projector dropped it.
+
+        Iterating the object's own keys makes the drop UNREPRESENTABLE rather
+        than merely unlikely. The object's key order is the reading order, which
+        also means the order is edited where the content is edited.
+
+    WHAT IS DELIBERATELY NOT RENDERED
+        Keys beginning with an underscore. They are notes to whoever edits the
+        object -- provenance for the editing decision, not content for a reader.
+    """
+    blk = res.get(key)
+    if not isinstance(blk, dict):
+        return ""
+    fields = [(k, v) for k, v in blk.items()
+              if not k.startswith("_") and isinstance(v, str) and v.strip()]
+    if not fields:
+        return ""
+    out = ["  <div class='absent-state' role='%s'>" % role]
+    for i, (k, v) in enumerate(fields):
+        # The first field is the headline and carries the emphasis. Every other
+        # field is its own paragraph, so a long finding stays readable and no
+        # sentence is glued to an unrelated one.
+        out.append("<p><strong>%s</strong></p>" % p(v) if i == 0
+                   else "<p>%s</p>" % p(v))
+    out.append("</div>")
+    return "".join(out) + nl
+
+
 def _method_table(sens, p, e, pooled=None):
     """Render the between-study-variance method comparison, if the object has one.
 
@@ -514,24 +550,28 @@ def _outcome_section(canon, oid, p, e):
             # artefact survives exactly until someone regenerates the artefact --
             # the same shape as SGLT2_HF's withdrawal, which was prose on the page
             # while the object kept the withdrawn number live.
-            + ((("  <div class='absent-state' role='alert'><strong>"
-                 + p(res["open_question"].get("headline", "")) + "</strong> "
-                 + p(res["open_question"].get("body", "")) + " <strong>"
-                 + p(res["open_question"].get("why_it_matters", ""))
-                 + "</strong> "
-                 + p(res["open_question"].get("what_is_displayed", "")) + " "
-                 + p(res["open_question"].get("history", ""))
-                 + ((" <strong>"
-                     + p(res["open_question"]["what_the_ratio_is_not"])
-                     + "</strong>")
-                    if res["open_question"].get("what_the_ratio_is_not") else "")
-                 + ((" <em>" + p(res["open_question"]["hypothesis"]) + "</em>")
-                    if res["open_question"].get("hypothesis") else "")
-                 + ((" <strong>"
-                     + p(res["open_question"]["sensitivity_stated"]) + "</strong>")
-                    if res["open_question"].get("sensitivity_stated") else "")
-                 + "</div>" + NL))
-               if isinstance(res.get("open_question"), dict) else "")
+            #
+            # AND IT RENDERS EVERY KEY THE OBJECT HOLDS, IN THE OBJECT'S OWN
+            # ORDER. The first version named eight keys explicitly, so a field
+            # added to the object rendered NOWHERE -- the same defect one level
+            # in from the one this comment describes: a finding that lives in
+            # the object and dies in the projector is no more durable than one
+            # that lives in the artefact. Adding the resolution to this block
+            # would have silently dropped three of its eleven fields, including
+            # the arithmetic witness the whole conclusion rests on.
+            #
+            # Keys beginning with an underscore are notes to whoever edits the
+            # object and are deliberately NOT rendered.
+            + _finding_block(res, "open_question", "alert",
+                             p, NL)
+            # A RESOLVED QUESTION IS PUBLISHED AS PROMINENTLY AS THE QUESTION
+            # WAS. The reader who saw the doubt is owed the answer in the same
+            # place, at the same size. Quietly deleting the paragraph would
+            # leave anyone who wrote it down unable to tell a resolution from a
+            # retraction -- the display_change_announced obligation, applied to
+            # prose rather than to a number.
+            + _finding_block(res, "resolved_question", "note",
+                             p, NL)
             # THE PREDICTION INTERVAL BELONGS BESIDE THE ESTIMATE, NOT IN AN
             # APPENDIX. On a pool with I-squared near 90 the confidence interval
             # answers "where is the average"; the reader almost always wants
