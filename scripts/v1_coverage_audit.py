@@ -96,13 +96,29 @@ def run(script, argv):
     lines = [l for l in out.splitlines()
              if not _re.match(r"^\s*[A-Za-z_]+(?:\s+[\d.]+%?)+\s*$", l)]
     out = chr(10).join(lines)
-    if any(b.lower() in out.lower() for b in BLIND):
-        return "UNCHECKABLE", out.strip().splitlines()[-1][:90] if out.strip() else ""
-    # A CRASH IS ITS OWN VERDICT. A traceback means the gate never examined the
-    # subject, so scoring it FAIL asserts a defect on a page nobody opened, and
-    # scoring it PASS is worse. Exit 2 is the same statement made deliberately.
     last = out.strip().splitlines()[-1][:90] if out.strip() else ""
+
+    # THIRD INSTANCE, 2026-08-18, AND THE LAST ONE THIS FILE WILL GET BY PATCHING
+    # THE PATTERN. card_alignment_gate exits 3 (met by withholding) and PRINTS,
+    # in prose a reader needs, "drift: UNCHECKABLE -- 0 of 1 cards were
+    # numerically comparable". The tally-stripper does not touch that line
+    # because it is a sentence, so the blind scan matched it and overrode a
+    # deliberate exit code with a word lifted out of an explanation.
+    #
+    # TWO PATCHES TO THIS REGEX ALREADY FAILED, so the fix is not a third
+    # pattern. THE DEFECT IS THE PRECEDENCE: a gate states its verdict in its
+    # EXIT CODE, and this function was inferring one by grepping the gate's free
+    # text FIRST and consulting the declared answer only if the grep found
+    # nothing. A declared field must beat an inferred one every time.
+    #
+    # So: exit 2 (could not run) and exit 3 (met by withholding) are AUTHORITATIVE
+    # and are read before any text at all. The blind scan survives only for exit 0
+    # and 1, where it is still needed -- arm_identity_gate exits 0 while reporting
+    # UNCHECKABLE, and that is the case this scan exists for.
     if "Traceback (most recent call last)" in out:
+        # A CRASH IS ITS OWN VERDICT. A traceback means the gate never examined
+        # the subject, so scoring it FAIL asserts a defect on a page nobody
+        # opened, and scoring it PASS is worse.
         return "ERROR", last
     if r.returncode == 2:
         return "NOT RUN", last
@@ -113,6 +129,8 @@ def run(script, argv):
     # estimate is displayed. It is neither, and the ledger says so.
     if r.returncode == 3:
         return "WITHHELD", last
+    if any(b.lower() in out.lower() for b in BLIND):
+        return "UNCHECKABLE", last
     if r.returncode == 0:
         return "PASS", ""
     return "FAIL", last
