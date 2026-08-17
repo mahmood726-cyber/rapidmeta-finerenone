@@ -41,7 +41,14 @@ WHAT A FULL PASS DOES NOT ESTABLISH -- in advance, as standing practice
 from __future__ import annotations
 import json, os, re, sys, io
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+# Reassign stdout ONLY when run as a script. At import this closes the caller's
+# own wrapper -- a second TextIOWrapper over the same buffer collects the first and
+# shuts the underlying stream, so the importer dies on
+# "ValueError: I/O operation on closed file" at its next print. That is the
+# module-level-stdout trap this project already has on record for breaking pytest
+# collection; a harness meant to be imported must not spring it.
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 
 class ScreenFailure(Exception):

@@ -55,15 +55,45 @@ class Refused(Exception):
 
 
 def withdrawn_pages(index_html):
-    """Pages whose live card states an honest withheld state. Conversion must not
-    resurrect a pooled estimate that was removed because the POOLING was invalid --
-    the number would convert perfectly and be just as wrong."""
+    """Every page whose live index state says we are NOT publishing a pooled value.
+
+    THE FIRST VERSION READ GRID CARDS ONLY and the batch dry-run caught what it
+    missed -- three classes, each of which conversion would have resurrected:
+
+      TABLE-ROW WITHDRAWALS. AZITHROMYCIN_CHILD_MORTALITY has no grid card; it was
+      withdrawn in its table row. It came back as convertible at HR 0.86, k=2 --
+      the DUP-1 page, where both trials carry log(0.86) so k=2 is arithmetically
+      k=1 and I-squared 0 is an artefact of the duplication.
+
+      "REPORTED SEPARATELY, NOT POOLED" cards. MALARIA_VACCINE and
+      HIV_PREP_INJECTABLE deliberately present per-trial results and decline to
+      pool. Converting them would manufacture the pooled estimate their cards
+      exist to avoid.
+
+      HARM-FLAGGED PAGES NEVER PUBLISHED. DABIGATRAN_AF, DABIGATRAN_STROKE and
+      WARFARIN_AF carry no number on the index at all, pending a decision. Absence
+      of a card is not permission; it is an unfinished decision.
+
+    A page we decided not to publish a number for must not acquire one by being
+    rebuilt through a different pipeline.
+    """
     out = set()
+    WITHHELD = re.compile(r"withdrawn|not analysable|not poolable|not pooled|"
+                          r"reported separately", re.I)
     for m in re.finditer(r'<a href="([A-Z0-9_]+\.html)" class="card [^"]*">'
                          r'<span class="name">[^<]*</span><span class="pub">(.*?)</span></a>',
                          index_html):
-        if re.search(r"withdrawn|not analysable|not poolable", m.group(2), re.I):
+        if WITHHELD.search(m.group(2)):
             out.add(m.group(1))
+    # table rows: <a href=X>label</a> ... <td>estimate cell</td>
+    for m in re.finditer(r'<a href="([A-Z0-9_]+\.html)"[^>]*>[^<]*</a></td><td>[^<]*</td>'
+                         r'<td[^>]*>[^<]*</td><td[^>]*>([^<]*)</td>', index_html):
+        if WITHHELD.search(m.group(2)):
+            out.add(m.group(1))
+    # explicitly held pending a human decision -- never inferred from the index
+    out |= {"DABIGATRAN_AF_AUTO_FULL_REVIEW.html",
+            "DABIGATRAN_STROKE_AUTO_FULL_REVIEW.html",
+            "WARFARIN_AF_AUTO_FULL_REVIEW.html"}
     return out
 
 
