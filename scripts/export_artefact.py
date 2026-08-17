@@ -176,10 +176,19 @@ def export(obj, page_html=None):
         art["engine_can_pool"] = all(bool(x) for x in poolable)
         if any_pooled is not None:
             art["displayed_pooled_estimate"] = any_pooled
+        # EMIT IN BOTH STATES. This field was written only when poolability was
+        # FALSE, so CHK020_ORPHAN_POOLED_RESULT returned INVALID on every clean
+        # artefact: it could not tell "can pool" from "was never asked". That is
+        # an ABSENT FIELD STANDING FOR A TRUE CONDITION -- exactly what
+        # declared_class taught, committed in the exporter written to avoid it.
+        # An explicit value is not a synthesised one: it states which branch the
+        # object actually recorded.
         reasons = [res.get("poolable_reason") for res in results.values()
                    if res.get("poolable") is False and res.get("poolable_reason")]
-        if reasons:
-            art["engine_block_reason"] = reasons[0]
+        art["engine_block_reason"] = (
+            reasons[0] if reasons
+            else ("" if art["engine_can_pool"]
+                  else "the object records poolable=false with no reason given"))
     else:
         omissions.append("no poolable verdict in the object -> orphan-pool check "
                          "not emitted")
